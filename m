@@ -2,46 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B1487676EFB
-	for <lists+stable@lfdr.de>; Sun, 22 Jan 2023 16:16:31 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D4528676FB3
+	for <lists+stable@lfdr.de>; Sun, 22 Jan 2023 16:24:20 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230514AbjAVPQa (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 22 Jan 2023 10:16:30 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43344 "EHLO
+        id S231355AbjAVPYU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 22 Jan 2023 10:24:20 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52760 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230520AbjAVPQ3 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 22 Jan 2023 10:16:29 -0500
+        with ESMTP id S231350AbjAVPYT (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 22 Jan 2023 10:24:19 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BD91A22021
-        for <stable@vger.kernel.org>; Sun, 22 Jan 2023 07:16:28 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4DEE91D904
+        for <stable@vger.kernel.org>; Sun, 22 Jan 2023 07:24:18 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 58E8560C5C
-        for <stable@vger.kernel.org>; Sun, 22 Jan 2023 15:16:28 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 67327C433D2;
-        Sun, 22 Jan 2023 15:16:27 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id D536560C43
+        for <stable@vger.kernel.org>; Sun, 22 Jan 2023 15:24:17 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E54EEC433EF;
+        Sun, 22 Jan 2023 15:24:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1674400587;
-        bh=FPLbrvIr0sJlCYZ/5az/WTaLEeHg/wZDDnYcNICvEGU=;
+        s=korg; t=1674401057;
+        bh=cO6buxaUIreiRYGGM0G/C24BzCAcWYlo++sgh83J5rA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=izAJE7DS2bfXSj0q+kS3kX6Qy/cHa63tJqVXuDf1Xfys/H0Avyy01I4SU+xMRNKj9
-         V+YiotBlWT2dCkbLW3uIgrplXOrnztaHeA+WEEREl8IMpI3FgdjhViFBRvvOg0Y0Vi
-         ghw+o0F4Cwju9PPDadjzebCz2CAZqR4sAxs3d4Ls=
+        b=UhH0u74uDsgDIRhYW5YtDxc9+rU5the7GG3XP/sVMKr4ew6cRy/vA4j7u00fD0qtb
+         uXxqVAB82MbuFBPpcsJYR5ptjBMNVlT5NzLrSAeiRYr9OmAvpEkem30i/wPrpGgdWt
+         sWHIf8IXwbJBLmmMXextDxPYCq1Zdo3Eli10/vsg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         patches@lists.linux.dev,
-        =?UTF-8?q?Ricardo=20Ca=C3=B1uelo?= <ricardo.canuelo@collabora.com>,
-        "Michael S. Tsirkin" <mst@redhat.com>,
-        Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 004/117] tools/virtio: initialize spinlocks in vring_test.c
-Date:   Sun, 22 Jan 2023 16:03:14 +0100
-Message-Id: <20230122150232.921690825@linuxfoundation.org>
+        Alexander Stein <alexander.stein@ew.tq-group.com>,
+        Matthias Kaehlcke <mka@chromium.org>,
+        Stefan Wahren <stefan.wahren@i2se.com>
+Subject: [PATCH 6.1 066/193] usb: misc: onboard_hub: Invert driver registration order
+Date:   Sun, 22 Jan 2023 16:03:15 +0100
+Message-Id: <20230122150249.372553054@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.1
-In-Reply-To: <20230122150232.736358800@linuxfoundation.org>
-References: <20230122150232.736358800@linuxfoundation.org>
+In-Reply-To: <20230122150246.321043584@linuxfoundation.org>
+References: <20230122150246.321043584@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,45 +55,56 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ricardo Cañuelo <ricardo.canuelo@collabora.com>
+From: Matthias Kaehlcke <mka@chromium.org>
 
-[ Upstream commit c262f75cb6bb5a63828e72ce3b8fe808e5029479 ]
+commit e5854355d76b8d768cea8e4fc3ce6dfdba25518a upstream.
 
-The virtio_device vqs_list spinlocks must be initialized before use to
-prevent functions that manipulate the device virtualqueues, such as
-vring_new_virtqueue(), from blocking indefinitely.
+The onboard_hub 'driver' consists of two drivers, a platform
+driver and a USB driver. Currently when the onboard hub driver
+is initialized it first registers the platform driver, then the
+USB driver. This results in a race condition when the 'attach'
+work is executed, which is scheduled when the platform device
+is probed. The purpose of fhe 'attach' work is to bind elegible
+USB hub devices to the onboard_hub USB driver. This fails if
+the work runs before the USB driver has been registered.
 
-Signed-off-by: Ricardo Cañuelo <ricardo.canuelo@collabora.com>
-Message-Id: <20221012062949.1526176-1-ricardo.canuelo@collabora.com>
-Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
-Reviewed-by: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Register the USB driver first, then the platform driver. This
+increases the chances that the onboard_hub USB devices are probed
+before their corresponding platform device, which the USB driver
+tries to locate in _probe(). The driver already handles this
+situation and defers probing if the onboard hub platform device
+doesn't exist yet.
+
+Cc: stable@vger.kernel.org
+Fixes: 8bc063641ceb ("usb: misc: Add onboard_usb_hub driver")
+Link: https://lore.kernel.org/lkml/Y6W00vQm3jfLflUJ@hovoldconsulting.com/T/#m0d64295f017942fd988f7c53425db302d61952b4
+Reported-by: Alexander Stein <alexander.stein@ew.tq-group.com>
+Signed-off-by: Matthias Kaehlcke <mka@chromium.org>
+Tested-by: Stefan Wahren <stefan.wahren@i2se.com>
+Link: https://lore.kernel.org/r/20230110172954.v2.1.I75494ebee7027a50235ce4b1e930fa73a578fbe2@changeid
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- tools/virtio/vringh_test.c | 2 ++
- 1 file changed, 2 insertions(+)
+ drivers/usb/misc/onboard_usb_hub.c |    6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/tools/virtio/vringh_test.c b/tools/virtio/vringh_test.c
-index fa87b58bd5fa..98ff808d6f0c 100644
---- a/tools/virtio/vringh_test.c
-+++ b/tools/virtio/vringh_test.c
-@@ -308,6 +308,7 @@ static int parallel_test(u64 features,
+--- a/drivers/usb/misc/onboard_usb_hub.c
++++ b/drivers/usb/misc/onboard_usb_hub.c
+@@ -431,13 +431,13 @@ static int __init onboard_hub_init(void)
+ {
+ 	int ret;
  
- 		gvdev.vdev.features = features;
- 		INIT_LIST_HEAD(&gvdev.vdev.vqs);
-+		spin_lock_init(&gvdev.vdev.vqs_list_lock);
- 		gvdev.to_host_fd = to_host[1];
- 		gvdev.notifies = 0;
+-	ret = platform_driver_register(&onboard_hub_driver);
++	ret = usb_register_device_driver(&onboard_hub_usbdev_driver, THIS_MODULE);
+ 	if (ret)
+ 		return ret;
  
-@@ -455,6 +456,7 @@ int main(int argc, char *argv[])
- 	getrange = getrange_iov;
- 	vdev.features = 0;
- 	INIT_LIST_HEAD(&vdev.vqs);
-+	spin_lock_init(&vdev.vqs_list_lock);
+-	ret = usb_register_device_driver(&onboard_hub_usbdev_driver, THIS_MODULE);
++	ret = platform_driver_register(&onboard_hub_driver);
+ 	if (ret)
+-		platform_driver_unregister(&onboard_hub_driver);
++		usb_deregister_device_driver(&onboard_hub_usbdev_driver);
  
- 	while (argv[1]) {
- 		if (strcmp(argv[1], "--indirect") == 0)
--- 
-2.35.1
-
+ 	return ret;
+ }
 
 
