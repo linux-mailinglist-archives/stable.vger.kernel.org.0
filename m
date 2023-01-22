@@ -2,44 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 8BE98676F02
-	for <lists+stable@lfdr.de>; Sun, 22 Jan 2023 16:16:49 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E0270676E90
+	for <lists+stable@lfdr.de>; Sun, 22 Jan 2023 16:12:03 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231133AbjAVPQs (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 22 Jan 2023 10:16:48 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43532 "EHLO
+        id S230356AbjAVPMD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 22 Jan 2023 10:12:03 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39114 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230520AbjAVPQr (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 22 Jan 2023 10:16:47 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 14E2D22021
-        for <stable@vger.kernel.org>; Sun, 22 Jan 2023 07:16:47 -0800 (PST)
+        with ESMTP id S230380AbjAVPL7 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 22 Jan 2023 10:11:59 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EC32F21940
+        for <stable@vger.kernel.org>; Sun, 22 Jan 2023 07:11:51 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id A3DFD60C5C
-        for <stable@vger.kernel.org>; Sun, 22 Jan 2023 15:16:46 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B6195C433EF;
-        Sun, 22 Jan 2023 15:16:45 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 8BD63B80B0E
+        for <stable@vger.kernel.org>; Sun, 22 Jan 2023 15:11:50 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E14FBC433EF;
+        Sun, 22 Jan 2023 15:11:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1674400606;
-        bh=18DmUBkfpAST8cLTNjiiH0jC1UoGKBxwGmfIYGGsf1c=;
+        s=korg; t=1674400309;
+        bh=9E0HHCdfjBhajCWmjOFB+FAheWEg9z7r+yXKVvpvCx0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ISHiJF7R83/ZljQk0pgVWtJhUDuLhw2W8BX2iS2haqYHJT98Ru79+FRhPK1KkFgbi
-         AQZWQZzNlFLWPOiQAyITT/3m5kv8d1YUgdUnnMqjfp6qNhLM9kT0R/LwBhCk4yqhrI
-         R0fZBfX9t4ZMGg5JGxnt+vV6oNd83Ji3/pqIzzuE=
+        b=1ghxM5LEZYjdsp51MMRB/H48ClwipUOxN/6TQlSqLw12vVPR5wobEWFrohPIOKI3y
+         hM2wy6F0oCT9Dh4PLJmhDdJH++2YGFWZizZ/+FYslkDEu6paMRrtyiTrxSaiaRftG4
+         fc1uwuGoPgiRH3C+EeEXGGwqFJKYaSeSTjAQwJDE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Constantine Gavrilov <constantine.gavrilov@gmail.com>,
+        patches@lists.linux.dev, Dylan Yudaken <dylany@fb.com>,
         Jens Axboe <axboe@kernel.dk>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 032/117] io_uring: ensure recv and recvmsg handle MSG_WAITALL correctly
+Subject: [PATCH 5.10 26/98] io_uring: fix async accept on O_NONBLOCK sockets
 Date:   Sun, 22 Jan 2023 16:03:42 +0100
-Message-Id: <20230122150234.059931638@linuxfoundation.org>
+Message-Id: <20230122150230.570832678@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.1
-In-Reply-To: <20230122150232.736358800@linuxfoundation.org>
-References: <20230122150232.736358800@linuxfoundation.org>
+In-Reply-To: <20230122150229.351631432@linuxfoundation.org>
+References: <20230122150229.351631432@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,105 +53,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jens Axboe <axboe@kernel.dk>
+From: Dylan Yudaken <dylany@meta.com>
 
-commit 7ba89d2af17aa879dda30f5d5d3f152e587fc551 upstream.
+commit a73825ba70c93e1eb39a845bb3d9885a787f8ffe upstream.
 
-We currently don't attempt to get the full asked for length even if
-MSG_WAITALL is set, if we get a partial receive. If we do see a partial
-receive, then just note how many bytes we did and return -EAGAIN to
-get it retried.
+Do not set REQ_F_NOWAIT if the socket is non blocking. When enabled this
+causes the accept to immediately post a CQE with EAGAIN, which means you
+cannot perform an accept SQE on a NONBLOCK socket asynchronously.
 
-The iov is advanced appropriately for the vector based case, and we
-manually bump the buffer and remainder for the non-vector case.
+By removing the flag if there is no pending accept then poll is armed as
+usual and when a connection comes in the CQE is posted.
 
-Cc: stable@vger.kernel.org
-Reported-by: Constantine Gavrilov <constantine.gavrilov@gmail.com>
+Signed-off-by: Dylan Yudaken <dylany@fb.com>
+Link: https://lore.kernel.org/r/20220324143435.2875844-1-dylany@fb.com
 Signed-off-by: Jens Axboe <axboe@kernel.dk>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- io_uring/io_uring.c | 28 ++++++++++++++++++++++++++++
- 1 file changed, 28 insertions(+)
+ io_uring/io_uring.c | 5 ++---
+ 1 file changed, 2 insertions(+), 3 deletions(-)
 
 diff --git a/io_uring/io_uring.c b/io_uring/io_uring.c
-index 93023562d548..04441e981624 100644
+index cc8e13de5fa9..8c8ba8c067ca 100644
 --- a/io_uring/io_uring.c
 +++ b/io_uring/io_uring.c
-@@ -578,6 +578,7 @@ struct io_sr_msg {
- 	int				msg_flags;
- 	int				bgid;
- 	size_t				len;
-+	size_t				done_io;
- 	struct io_buffer		*kbuf;
- };
+@@ -5112,9 +5112,6 @@ static int io_accept(struct io_kiocb *req, unsigned int issue_flags)
+ 	struct file *file;
+ 	int ret, fd;
  
-@@ -5063,12 +5064,21 @@ static int io_recvmsg_prep(struct io_kiocb *req, const struct io_uring_sqe *sqe)
- 	if (req->ctx->compat)
- 		sr->msg_flags |= MSG_CMSG_COMPAT;
- #endif
-+	sr->done_io = 0;
- 	return 0;
- }
- 
-+static bool io_net_retry(struct socket *sock, int flags)
-+{
-+	if (!(flags & MSG_WAITALL))
-+		return false;
-+	return sock->type == SOCK_STREAM || sock->type == SOCK_SEQPACKET;
-+}
-+
- static int io_recvmsg(struct io_kiocb *req, unsigned int issue_flags)
- {
- 	struct io_async_msghdr iomsg, *kmsg;
-+	struct io_sr_msg *sr = &req->sr_msg;
- 	struct socket *sock;
- 	struct io_buffer *kbuf;
- 	unsigned flags;
-@@ -5111,6 +5121,10 @@ static int io_recvmsg(struct io_kiocb *req, unsigned int issue_flags)
- 			return io_setup_async_msg(req, kmsg);
- 		if (ret == -ERESTARTSYS)
- 			ret = -EINTR;
-+		if (ret > 0 && io_net_retry(sock, flags)) {
-+			sr->done_io += ret;
-+			return io_setup_async_msg(req, kmsg);
-+		}
- 		req_set_fail(req);
- 	} else if ((flags & MSG_WAITALL) && (kmsg->msg.msg_flags & (MSG_TRUNC | MSG_CTRUNC))) {
- 		req_set_fail(req);
-@@ -5122,6 +5136,10 @@ static int io_recvmsg(struct io_kiocb *req, unsigned int issue_flags)
- 	if (kmsg->free_iov)
- 		kfree(kmsg->free_iov);
- 	req->flags &= ~REQ_F_NEED_CLEANUP;
-+	if (ret >= 0)
-+		ret += sr->done_io;
-+	else if (sr->done_io)
-+		ret = sr->done_io;
- 	__io_req_complete(req, issue_flags, ret, cflags);
- 	return 0;
- }
-@@ -5174,12 +5192,22 @@ static int io_recv(struct io_kiocb *req, unsigned int issue_flags)
+-	if (req->file->f_flags & O_NONBLOCK)
+-		req->flags |= REQ_F_NOWAIT;
+-
+ 	if (!fixed) {
+ 		fd = __get_unused_fd_flags(accept->flags, accept->nofile);
+ 		if (unlikely(fd < 0))
+@@ -5127,6 +5124,8 @@ static int io_accept(struct io_kiocb *req, unsigned int issue_flags)
+ 		if (!fixed)
+ 			put_unused_fd(fd);
+ 		ret = PTR_ERR(file);
++		/* safe to retry */
++		req->flags |= REQ_F_PARTIAL_IO;
+ 		if (ret == -EAGAIN && force_nonblock)
  			return -EAGAIN;
  		if (ret == -ERESTARTSYS)
- 			ret = -EINTR;
-+		if (ret > 0 && io_net_retry(sock, flags)) {
-+			sr->len -= ret;
-+			sr->buf += ret;
-+			sr->done_io += ret;
-+			return -EAGAIN;
-+		}
- 		req_set_fail(req);
- 	} else if ((flags & MSG_WAITALL) && (msg.msg_flags & (MSG_TRUNC | MSG_CTRUNC))) {
- 		req_set_fail(req);
- 	}
- 	if (req->flags & REQ_F_BUFFER_SELECTED)
- 		cflags = io_put_recv_kbuf(req);
-+	if (ret >= 0)
-+		ret += sr->done_io;
-+	else if (sr->done_io)
-+		ret = sr->done_io;
- 	__io_req_complete(req, issue_flags, ret, cflags);
- 	return 0;
- }
 -- 
 2.39.0
 
