@@ -2,44 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id CB740676F19
-	for <lists+stable@lfdr.de>; Sun, 22 Jan 2023 16:17:44 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 002DF676FD0
+	for <lists+stable@lfdr.de>; Sun, 22 Jan 2023 16:25:31 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231153AbjAVPRo (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 22 Jan 2023 10:17:44 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44956 "EHLO
+        id S231395AbjAVPZb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 22 Jan 2023 10:25:31 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53972 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231160AbjAVPRn (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 22 Jan 2023 10:17:43 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B91D8190
-        for <stable@vger.kernel.org>; Sun, 22 Jan 2023 07:17:40 -0800 (PST)
+        with ESMTP id S231386AbjAVPZ3 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 22 Jan 2023 10:25:29 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D752222A01
+        for <stable@vger.kernel.org>; Sun, 22 Jan 2023 07:25:28 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 512EAB80B11
-        for <stable@vger.kernel.org>; Sun, 22 Jan 2023 15:17:39 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B1430C433D2;
-        Sun, 22 Jan 2023 15:17:37 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 71C3C60C44
+        for <stable@vger.kernel.org>; Sun, 22 Jan 2023 15:25:28 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 86336C433EF;
+        Sun, 22 Jan 2023 15:25:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1674400658;
-        bh=irmckzeQbsuB/pYcPM06W/3YkbMDqLGOIJHCh1AzCxM=;
+        s=korg; t=1674401127;
+        bh=fY/17CqjTJML3wkItHgrq410wJPwvLNGM3AJN+Cov1o=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Dn6Rwzd04GGw7XyRU9gBw2DGaPaV5fhI1F2YkjVenzFrcLpDyO/tfvuik/uCVi+aD
-         wQW28jEOVUzJRxSbM7CBQL16Ql6vvNcqjq9WaU+Klbk+aJPhrsPrO4l3Y8iu1Yy2uI
-         Y7oN2222OzX4yr2TrQgPF49qVNGCcXe3z+JXQk7M=
+        b=vGztNpdo1KVb5NvKBm71lgh61+/b8ccExjz1+9KlC1tR0U314KrNtSYzzbpiQ2OSe
+         vd4knM9+dpO7Ef9ls6ynLm/ALs7GTpe3h9lOlT1U+/izXtbqrsGmNrWGFe+s+fZF7F
+         7fPvUdWhuzmLXSgzjCiuSAT4X78BYPcYsWb+O5Tc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, stable <stable@kernel.org>,
-        Ola Jeppsson <ola@snap.com>, Abel Vesa <abel.vesa@linaro.org>,
-        Srinivas Kandagatla <srinivas.kandagatla@linaro.org>
-Subject: [PATCH 5.15 059/117] misc: fastrpc: Fix use-after-free race condition for maps
+        patches@lists.linux.dev, Peter Harliman Liem <pliem@maxlinear.com>,
+        Vinod Koul <vkoul@kernel.org>
+Subject: [PATCH 6.1 120/193] dmaengine: lgm: Move DT parsing after initialization
 Date:   Sun, 22 Jan 2023 16:04:09 +0100
-Message-Id: <20230122150235.243839852@linuxfoundation.org>
+Message-Id: <20230122150251.814257430@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.1
-In-Reply-To: <20230122150232.736358800@linuxfoundation.org>
-References: <20230122150232.736358800@linuxfoundation.org>
+In-Reply-To: <20230122150246.321043584@linuxfoundation.org>
+References: <20230122150246.321043584@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,61 +53,61 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ola Jeppsson <ola@snap.com>
+From: Peter Harliman Liem <pliem@maxlinear.com>
 
-commit 96b328d119eca7563c1edcc4e1039a62e6370ecb upstream.
+commit 96b3bb18f6cbe259ef4e0bed3135911b7e8d2af5 upstream.
 
-It is possible that in between calling fastrpc_map_get() until
-map->fl->lock is taken in fastrpc_free_map(), another thread can call
-fastrpc_map_lookup() and get a reference to a map that is about to be
-deleted.
+ldma_cfg_init() will parse DT to retrieve certain configs.
+However, that is called before ldma_dma_init_vXX(), which
+will make some initialization to channel configs. It will
+thus incorrectly overwrite certain configs that are declared
+in DT.
 
-Rewrite fastrpc_map_get() to only increase the reference count of a map
-if it's non-zero. Propagate this to callers so they can know if a map is
-about to be deleted.
+To fix that, we move DT parsing after initialization.
+Function name is renamed to better represent what it does.
 
-Fixes this warning:
-refcount_t: addition on 0; use-after-free.
-WARNING: CPU: 5 PID: 10100 at lib/refcount.c:25 refcount_warn_saturate
-...
-Call trace:
- refcount_warn_saturate
- [fastrpc_map_get inlined]
- [fastrpc_map_lookup inlined]
- fastrpc_map_create
- fastrpc_internal_invoke
- fastrpc_device_ioctl
- __arm64_sys_ioctl
- invoke_syscall
-
-Fixes: c68cfb718c8f ("misc: fastrpc: Add support for context Invoke method")
-Cc: stable <stable@kernel.org>
-Signed-off-by: Ola Jeppsson <ola@snap.com>
-Signed-off-by: Abel Vesa <abel.vesa@linaro.org>
-Signed-off-by: Srinivas Kandagatla <srinivas.kandagatla@linaro.org>
-Link: https://lore.kernel.org/r/20221124174941.418450-4-srinivas.kandagatla@linaro.org
+Fixes: 32d31c79a1a4 ("dmaengine: Add Intel LGM SoC DMA support.")
+Signed-off-by: Peter Harliman Liem <pliem@maxlinear.com>
+Cc: stable@vger.kernel.org
+Link: https://lore.kernel.org/r/afef6fc1ed20098b684e0d53737d69faf63c125f.1672887183.git.pliem@maxlinear.com
+Signed-off-by: Vinod Koul <vkoul@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/misc/fastrpc.c |    8 +++++---
- 1 file changed, 5 insertions(+), 3 deletions(-)
+ drivers/dma/lgm/lgm-dma.c |   10 +++++-----
+ 1 file changed, 5 insertions(+), 5 deletions(-)
 
---- a/drivers/misc/fastrpc.c
-+++ b/drivers/misc/fastrpc.c
-@@ -263,10 +263,12 @@ static void fastrpc_map_put(struct fastr
- 		kref_put(&map->refcount, fastrpc_free_map);
+--- a/drivers/dma/lgm/lgm-dma.c
++++ b/drivers/dma/lgm/lgm-dma.c
+@@ -914,7 +914,7 @@ static void ldma_dev_init(struct ldma_de
+ 	}
  }
  
--static void fastrpc_map_get(struct fastrpc_map *map)
-+static int fastrpc_map_get(struct fastrpc_map *map)
+-static int ldma_cfg_init(struct ldma_dev *d)
++static int ldma_parse_dt(struct ldma_dev *d)
  {
--	if (map)
--		kref_get(&map->refcount);
-+	if (!map)
-+		return -ENOENT;
-+
-+	return kref_get_unless_zero(&map->refcount) ? 0 : -ENOENT;
- }
+ 	struct fwnode_handle *fwnode = dev_fwnode(d->dev);
+ 	struct ldma_port *p;
+@@ -1661,10 +1661,6 @@ static int intel_ldma_probe(struct platf
+ 		p->ldev = d;
+ 	}
  
- static int fastrpc_map_find(struct fastrpc_user *fl, int fd,
+-	ret = ldma_cfg_init(d);
+-	if (ret)
+-		return ret;
+-
+ 	dma_dev->dev = &pdev->dev;
+ 
+ 	ch_mask = (unsigned long)d->channels_mask;
+@@ -1675,6 +1671,10 @@ static int intel_ldma_probe(struct platf
+ 			ldma_dma_init_v3X(j, d);
+ 	}
+ 
++	ret = ldma_parse_dt(d);
++	if (ret)
++		return ret;
++
+ 	dma_dev->device_alloc_chan_resources = ldma_alloc_chan_resources;
+ 	dma_dev->device_free_chan_resources = ldma_free_chan_resources;
+ 	dma_dev->device_terminate_all = ldma_terminate_all;
 
 
