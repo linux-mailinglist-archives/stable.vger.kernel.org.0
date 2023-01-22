@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id CF2B2676FFC
-	for <lists+stable@lfdr.de>; Sun, 22 Jan 2023 16:27:16 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B9DD3676F42
+	for <lists+stable@lfdr.de>; Sun, 22 Jan 2023 16:19:28 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231447AbjAVP1P (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 22 Jan 2023 10:27:15 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55326 "EHLO
+        id S231209AbjAVPT1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 22 Jan 2023 10:19:27 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46618 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231444AbjAVP1O (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 22 Jan 2023 10:27:14 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id ED4932311D
-        for <stable@vger.kernel.org>; Sun, 22 Jan 2023 07:27:13 -0800 (PST)
+        with ESMTP id S231208AbjAVPT1 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 22 Jan 2023 10:19:27 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 905442004D
+        for <stable@vger.kernel.org>; Sun, 22 Jan 2023 07:19:26 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 8B2C460C43
-        for <stable@vger.kernel.org>; Sun, 22 Jan 2023 15:27:13 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9F1FFC433D2;
-        Sun, 22 Jan 2023 15:27:12 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 2C2E760BC5
+        for <stable@vger.kernel.org>; Sun, 22 Jan 2023 15:19:26 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3C59BC433D2;
+        Sun, 22 Jan 2023 15:19:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1674401233;
-        bh=liJ1Wxb657V0Afrt/n0rAILfYVeGxBaUHOMwVET+pfw=;
+        s=korg; t=1674400765;
+        bh=9Eh7jreooWqXler4iR5FnNwOnKMo5hSZwr7G08/7rZo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=WnV0Y7N8XaswxS0MdVN867GFGV/V29H3u4V486oZiXbNjlqE/BdsokqWJPXbgBnzg
-         ekL8noK3dJUI8xcVlcRTUO2JpHmp9stYff9Z+5Z601FsiNk2MtZYJl2A8wiPbdI63x
-         moYsO3VNVdk4nIR3gIJTMhcdM9nXOathdLpEwhAE=
+        b=Be02GGCUUDUSU/AqEJXJZlTFV+VYO/UW3Q6b0nSpKqKJWFuguSWPOiZ9D7Kx1c95G
+         lZp4KzyyR7E3Zten9w4/FjoMF+/MynPIqLzbzoihGjExa0qhZD6bW3LxhGQwKgDpT+
+         Ttqo0Rbsk6Y2Kbs1VBrnKaIDJcsVNYx5x6lik10o=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         patches@lists.linux.dev,
-        Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>,
-        Dmitry Baryshkov <dmitry.baryshkov@linaro.org>,
-        Bjorn Andersson <andersson@kernel.org>
-Subject: [PATCH 6.1 132/193] ARM: dts: qcom: apq8084-ifc6540: fix overriding SDHCI
+        Sergio Paracuellos <sergio.paracuellos@gmail.com>,
+        =?UTF-8?q?Ar=C4=B1n=C3=A7=20=C3=9CNAL?= <arinc.unal@arinc9.com>
+Subject: [PATCH 5.15 071/117] staging: mt7621-dts: change some node hex addresses to lower case
 Date:   Sun, 22 Jan 2023 16:04:21 +0100
-Message-Id: <20230122150252.369707574@linuxfoundation.org>
+Message-Id: <20230122150235.741216922@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.1
-In-Reply-To: <20230122150246.321043584@linuxfoundation.org>
-References: <20230122150246.321043584@linuxfoundation.org>
+In-Reply-To: <20230122150232.736358800@linuxfoundation.org>
+References: <20230122150232.736358800@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,73 +54,59 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
+From: Sergio Paracuellos <sergio.paracuellos@gmail.com>
 
-commit 0154252a3b87f77db1e44516d1ed2e82e2d29c30 upstream.
+commit ce835dbd04d7b24f9fd50d9a9c59be46304aaa8a upstream.
 
-While changing node names of APQ8084 SDHCI, the ones in IFC6540 board
-were not updated leading to disabled and misconfigured SDHCI.
+Hexadecimal addresses in device tree must be defined using lower case.
+There are some of them that are still in upper case. Change them all.
 
-Cc: <stable@vger.kernel.org>
-Fixes: 2477d81901a2 ("ARM: dts: qcom: Fix sdhci node names - use 'mmc@'")
-Signed-off-by: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
-Reviewed-by: Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
-Signed-off-by: Bjorn Andersson <andersson@kernel.org>
-Link: https://lore.kernel.org/r/20221204084614.12193-1-krzysztof.kozlowski@linaro.org
+Signed-off-by: Sergio Paracuellos <sergio.paracuellos@gmail.com>
+Link: https://lore.kernel.org/r/20211017070656.12654-2-sergio.paracuellos@gmail.com
+Cc: Arınç ÜNAL <arinc.unal@arinc9.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/arm/boot/dts/qcom-apq8084-ifc6540.dts |   20 ++++++++++----------
- arch/arm/boot/dts/qcom-apq8084.dtsi        |    4 ++--
- 2 files changed, 12 insertions(+), 12 deletions(-)
+ drivers/staging/mt7621-dts/mt7621.dtsi |   12 ++++++------
+ 1 file changed, 6 insertions(+), 6 deletions(-)
 
---- a/arch/arm/boot/dts/qcom-apq8084-ifc6540.dts
-+++ b/arch/arm/boot/dts/qcom-apq8084-ifc6540.dts
-@@ -19,16 +19,16 @@
- 		serial@f995e000 {
- 			status = "okay";
- 		};
-+	};
-+};
+--- a/drivers/staging/mt7621-dts/mt7621.dtsi
++++ b/drivers/staging/mt7621-dts/mt7621.dtsi
+@@ -47,10 +47,10 @@
+ 		regulator-always-on;
+ 	};
  
--		sdhci@f9824900 {
--			bus-width = <8>;
--			non-removable;
--			status = "okay";
--		};
-+&sdhc_1 {
-+	bus-width = <8>;
-+	non-removable;
-+	status = "okay";
-+};
+-	palmbus: palmbus@1E000000 {
++	palmbus: palmbus@1e000000 {
+ 		compatible = "palmbus";
+-		reg = <0x1E000000 0x100000>;
+-		ranges = <0x0 0x1E000000 0x0FFFFF>;
++		reg = <0x1e000000 0x100000>;
++		ranges = <0x0 0x1e000000 0x0fffff>;
  
--		sdhci@f98a4900 {
--			cd-gpios = <&tlmm 122 GPIO_ACTIVE_LOW>;
--			bus-width = <4>;
--		};
--	};
-+&sdhc_2 {
-+	cd-gpios = <&tlmm 122 GPIO_ACTIVE_LOW>;
-+	bus-width = <4>;
- };
---- a/arch/arm/boot/dts/qcom-apq8084.dtsi
-+++ b/arch/arm/boot/dts/qcom-apq8084.dtsi
-@@ -419,7 +419,7 @@
- 			status = "disabled";
- 		};
+ 		#address-cells = <1>;
+ 		#size-cells = <1>;
+@@ -301,11 +301,11 @@
+ 		#reset-cells = <1>;
+ 	};
  
--		mmc@f9824900 {
-+		sdhc_1: mmc@f9824900 {
- 			compatible = "qcom,apq8084-sdhci", "qcom,sdhci-msm-v4";
- 			reg = <0xf9824900 0x11c>, <0xf9824000 0x800>;
- 			reg-names = "hc", "core";
-@@ -432,7 +432,7 @@
- 			status = "disabled";
- 		};
+-	sdhci: sdhci@1E130000 {
++	sdhci: sdhci@1e130000 {
+ 		status = "disabled";
  
--		mmc@f98a4900 {
-+		sdhc_2: mmc@f98a4900 {
- 			compatible = "qcom,apq8084-sdhci", "qcom,sdhci-msm-v4";
- 			reg = <0xf98a4900 0x11c>, <0xf98a4000 0x800>;
- 			reg-names = "hc", "core";
+ 		compatible = "mediatek,mt7620-mmc";
+-		reg = <0x1E130000 0x4000>;
++		reg = <0x1e130000 0x4000>;
+ 
+ 		bus-width = <4>;
+ 		max-frequency = <48000000>;
+@@ -327,7 +327,7 @@
+ 		interrupts = <GIC_SHARED 20 IRQ_TYPE_LEVEL_HIGH>;
+ 	};
+ 
+-	xhci: xhci@1E1C0000 {
++	xhci: xhci@1e1c0000 {
+ 		status = "okay";
+ 
+ 		compatible = "mediatek,mt8173-xhci";
 
 
