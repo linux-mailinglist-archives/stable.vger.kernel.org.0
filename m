@@ -2,45 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 79761676E64
-	for <lists+stable@lfdr.de>; Sun, 22 Jan 2023 16:10:04 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 30234676F28
+	for <lists+stable@lfdr.de>; Sun, 22 Jan 2023 16:18:21 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230302AbjAVPKD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 22 Jan 2023 10:10:03 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36738 "EHLO
+        id S231162AbjAVPSU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 22 Jan 2023 10:18:20 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45622 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230306AbjAVPKD (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 22 Jan 2023 10:10:03 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E85001F4BE
-        for <stable@vger.kernel.org>; Sun, 22 Jan 2023 07:10:01 -0800 (PST)
+        with ESMTP id S231166AbjAVPSS (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 22 Jan 2023 10:18:18 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 17119A5C6
+        for <stable@vger.kernel.org>; Sun, 22 Jan 2023 07:18:18 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 8A7C3B80B16
-        for <stable@vger.kernel.org>; Sun, 22 Jan 2023 15:10:00 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D5201C433D2;
-        Sun, 22 Jan 2023 15:09:58 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id A9A4360C61
+        for <stable@vger.kernel.org>; Sun, 22 Jan 2023 15:18:17 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id BD55CC433EF;
+        Sun, 22 Jan 2023 15:18:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1674400199;
-        bh=5MX3o62En2B+Goiw/vVWGqvguUarf+3plTUX1AJcfdk=;
+        s=korg; t=1674400697;
+        bh=fQA7eDfceYmFIOTvN/gbYSXqhpGvmXgYZyJpDkV92Fk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ZCZ0qMAOEc2tSVawYc/aLn5zWE27thtE3sIOtekPx4xGreQBihEkDy8UqWZMczvJD
-         6VKz00mCWTQSVz58/KhHRNyBZTFN3h9z1t/cObsgVNfZLK9s0xZtBX/DOI6Ht9aG6+
-         GKVgY5Qe+fwlUvBh9rtN6geg5ESBWRwt9Cx00IE0=
+        b=BK99/Xl1F4RjVZH6eMcp8evlmq6AUDVvEVI/Czn9fzr2COY9CfprGiJDrwvyTbWCR
+         Zd6CFWku2KzTEOoobL9daiWeVkdK3iPjnnB7Rd4dSeyc9wMwcVhSN7MhEzU4ow+W+W
+         YxvwdHkuc0d3+l/oeXV3wfV6Fvb1Fx+CBxMtQI7k=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Heikki Krogerus <heikki.krogerus@linux.intel.com>,
-        Prashant Malani <pmalani@chromium.org>,
-        Benson Leung <bleung@chromium.org>
-Subject: [PATCH 5.4 38/55] usb: typec: altmodes/displayport: Fix pin assignment calculation
+        patches@lists.linux.dev, Michael Adler <michael.adler@siemens.com>,
+        Johan Hovold <johan@kernel.org>
+Subject: [PATCH 5.15 075/117] USB: serial: cp210x: add SCALANCE LPE-9000 device id
 Date:   Sun, 22 Jan 2023 16:04:25 +0100
-Message-Id: <20230122150223.758951368@linuxfoundation.org>
+Message-Id: <20230122150235.914790273@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.1
-In-Reply-To: <20230122150222.210885219@linuxfoundation.org>
-References: <20230122150222.210885219@linuxfoundation.org>
+In-Reply-To: <20230122150232.736358800@linuxfoundation.org>
+References: <20230122150232.736358800@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,43 +53,30 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Prashant Malani <pmalani@chromium.org>
+From: Michael Adler <michael.adler@siemens.com>
 
-commit 9682b41e52cc9f42f5c33caf410464392adaef04 upstream.
+commit 3f9e76e31704a325170e5aec2243c8d084d74854 upstream.
 
-Commit c1e5c2f0cb8a ("usb: typec: altmodes/displayport: correct pin
-assignment for UFP receptacles") fixed the pin assignment calculation
-to take into account whether the peripheral was a plug or a receptacle.
+Add the USB serial console device ID for Siemens SCALANCE LPE-9000
+which have a USB port for their serial console.
 
-But the "pin_assignments" sysfs logic was not updated. Address this by
-using the macros introduced in the aforementioned commit in the sysfs
-logic too.
-
-Fixes: c1e5c2f0cb8a ("usb: typec: altmodes/displayport: correct pin assignment for UFP receptacles")
+Signed-off-by: Michael Adler <michael.adler@siemens.com>
 Cc: stable@vger.kernel.org
-Cc: Heikki Krogerus <heikki.krogerus@linux.intel.com>
-Signed-off-by: Prashant Malani <pmalani@chromium.org>
-Reviewed-by: Benson Leung <bleung@chromium.org>
-Reviewed-by: Heikki Krogerus <heikki.krogerus@linux.intel.com>
-Link: https://lore.kernel.org/r/20230111020546.3384569-2-pmalani@chromium.org
+Signed-off-by: Johan Hovold <johan@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/usb/typec/altmodes/displayport.c |    4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/usb/serial/cp210x.c |    1 +
+ 1 file changed, 1 insertion(+)
 
---- a/drivers/usb/typec/altmodes/displayport.c
-+++ b/drivers/usb/typec/altmodes/displayport.c
-@@ -414,9 +414,9 @@ static const char * const pin_assignment
- static u8 get_current_pin_assignments(struct dp_altmode *dp)
- {
- 	if (DP_CONF_CURRENTLY(dp->data.conf) == DP_CONF_DFP_D)
--		return DP_CAP_UFP_D_PIN_ASSIGN(dp->alt->vdo);
-+		return DP_CAP_PIN_ASSIGN_DFP_D(dp->alt->vdo);
- 	else
--		return DP_CAP_DFP_D_PIN_ASSIGN(dp->alt->vdo);
-+		return DP_CAP_PIN_ASSIGN_UFP_D(dp->alt->vdo);
- }
- 
- static ssize_t
+--- a/drivers/usb/serial/cp210x.c
++++ b/drivers/usb/serial/cp210x.c
+@@ -60,6 +60,7 @@ static const struct usb_device_id id_tab
+ 	{ USB_DEVICE(0x0846, 0x1100) }, /* NetGear Managed Switch M4100 series, M5300 series, M7100 series */
+ 	{ USB_DEVICE(0x08e6, 0x5501) }, /* Gemalto Prox-PU/CU contactless smartcard reader */
+ 	{ USB_DEVICE(0x08FD, 0x000A) }, /* Digianswer A/S , ZigBee/802.15.4 MAC Device */
++	{ USB_DEVICE(0x0908, 0x0070) }, /* Siemens SCALANCE LPE-9000 USB Serial Console */
+ 	{ USB_DEVICE(0x0908, 0x01FF) }, /* Siemens RUGGEDCOM USB Serial Console */
+ 	{ USB_DEVICE(0x0988, 0x0578) }, /* Teraoka AD2000 */
+ 	{ USB_DEVICE(0x0B00, 0x3070) }, /* Ingenico 3070 */
 
 
