@@ -2,43 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 6B234676F0B
-	for <lists+stable@lfdr.de>; Sun, 22 Jan 2023 16:17:10 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id EC0FB676FC1
+	for <lists+stable@lfdr.de>; Sun, 22 Jan 2023 16:24:58 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231143AbjAVPRJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 22 Jan 2023 10:17:09 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44058 "EHLO
+        id S231375AbjAVPY6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 22 Jan 2023 10:24:58 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53210 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231144AbjAVPRJ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 22 Jan 2023 10:17:09 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 37887222DB
-        for <stable@vger.kernel.org>; Sun, 22 Jan 2023 07:17:05 -0800 (PST)
+        with ESMTP id S231373AbjAVPY5 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 22 Jan 2023 10:24:57 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A59C82201C
+        for <stable@vger.kernel.org>; Sun, 22 Jan 2023 07:24:56 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id C977960C57
-        for <stable@vger.kernel.org>; Sun, 22 Jan 2023 15:17:04 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id DB0D6C433D2;
-        Sun, 22 Jan 2023 15:17:03 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 4EA6DB80B1A
+        for <stable@vger.kernel.org>; Sun, 22 Jan 2023 15:24:55 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id ABF7DC433EF;
+        Sun, 22 Jan 2023 15:24:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1674400624;
-        bh=vlARPjKnMqk+tYIORm18tP+ZYdSJa2MndWzsKa1mVtI=;
+        s=korg; t=1674401094;
+        bh=Jj2/P4Bt4IMQcorAyQkVqfbDCKCIIxYIQz+PahnZLGY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=xarhJOj640PC7H8rIbVBHq6mP8eUro7DOpeVwRhvmx+9o7PvSgGrcaPFQVPz9MtDz
-         op6PT3amK4FXpz/XwTyycOlLC68o//EbqWcMTe7WcueUeN1D/ztmzJlKFPF8hW0hK2
-         p6Ms7pr62E6NGaZVMrVUpRbGo5tMrIh81qlFDriU=
+        b=bMzR01X+CzGP/cPYCGPlEzmt5/GFOo3TAHXnfm55Ts5lKtq5y0gHp3myckfYEvy7b
+         p5vzgh634bPUDv49bwYZZvNSoa6bOWppBRONuT/5oDW98HgqDvgAaD4HEYKCgUaJWN
+         hOGUjYKPGe2Zg8JAwa29v5J9mUTs3ZkpbYD98Ae8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Ron Lee <ron.lee@intel.com>,
-        Mathias Nyman <mathias.nyman@linux.intel.com>
-Subject: [PATCH 5.15 047/117] usb: acpi: add helper to check port lpm capability using acpi _DSM
+        patches@lists.linux.dev, stable <stable@kernel.org>,
+        Yang Yingliang <yangyingliang@huawei.com>
+Subject: [PATCH 6.1 108/193] usb: musb: fix error return code in omap2430_probe()
 Date:   Sun, 22 Jan 2023 16:03:57 +0100
-Message-Id: <20230122150234.689073139@linuxfoundation.org>
+Message-Id: <20230122150251.265092308@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.1
-In-Reply-To: <20230122150232.736358800@linuxfoundation.org>
-References: <20230122150232.736358800@linuxfoundation.org>
+In-Reply-To: <20230122150246.321043584@linuxfoundation.org>
+References: <20230122150246.321043584@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,122 +53,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mathias Nyman <mathias.nyman@linux.intel.com>
+From: Yang Yingliang <yangyingliang@huawei.com>
 
-commit cd702d18c882d5a4ea44bbdb38edd5d5577ef640 upstream.
+commit bd449ad8cee9d4b523abbdfa73e1a2a08333f331 upstream.
 
-Add a helper to evaluate ACPI usb device specific method (_DSM) provided
-in case the USB3 port shouldn't enter U1 and U2 link states.
+Before calling platform_get_resource() in omap2430_probe(), the 'ret' is
+re-assgined to 0, it can't return an error code, if platform_get_resource
+fails. Set the error code to -EINVAL to fix this.
 
-This _DSM was added as port specific retimer configuration may lead to
-exit latencies growing beyond U1/U2 exit limits, and OS needs a way to
-find which ports can't support U1/U2 link power management states.
-
-This _DSM is also used by windows:
-Link: https://docs.microsoft.com/en-us/windows-hardware/drivers/bringup/usb-device-specific-method---dsm-
-
-Some patch issues found in testing resolved by Ron Lee
-
-Cc: stable@vger.kernel.org
-Tested-by: Ron Lee <ron.lee@intel.com>
-Signed-off-by: Mathias Nyman <mathias.nyman@linux.intel.com>
-Link: https://lore.kernel.org/r/20230116142216.1141605-7-mathias.nyman@linux.intel.com
+Fixes: ffbe2feac59b ("usb: musb: omap2430: Fix probe regression for missing resources")
+Cc: stable <stable@kernel.org>
+Signed-off-by: Yang Yingliang <yangyingliang@huawei.com>
+Link: https://lore.kernel.org/r/20221230081730.1655616-1-yangyingliang@huawei.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/usb/core/usb-acpi.c |   65 ++++++++++++++++++++++++++++++++++++++++++++
- include/linux/usb.h         |    3 ++
- 2 files changed, 68 insertions(+)
+ drivers/usb/musb/omap2430.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
---- a/drivers/usb/core/usb-acpi.c
-+++ b/drivers/usb/core/usb-acpi.c
-@@ -37,6 +37,71 @@ bool usb_acpi_power_manageable(struct us
- }
- EXPORT_SYMBOL_GPL(usb_acpi_power_manageable);
+diff --git a/drivers/usb/musb/omap2430.c b/drivers/usb/musb/omap2430.c
+index 476f55d1fec3..44a21ec865fb 100644
+--- a/drivers/usb/musb/omap2430.c
++++ b/drivers/usb/musb/omap2430.c
+@@ -411,8 +411,10 @@ static int omap2430_probe(struct platform_device *pdev)
+ 		memset(musb_res, 0, sizeof(*musb_res) * ARRAY_SIZE(musb_res));
  
-+#define UUID_USB_CONTROLLER_DSM "ce2ee385-00e6-48cb-9f05-2edb927c4899"
-+#define USB_DSM_DISABLE_U1_U2_FOR_PORT	5
-+
-+/**
-+ * usb_acpi_port_lpm_incapable - check if lpm should be disabled for a port.
-+ * @hdev: USB device belonging to the usb hub
-+ * @index: zero based port index
-+ *
-+ * Some USB3 ports may not support USB3 link power management U1/U2 states
-+ * due to different retimer setup. ACPI provides _DSM method which returns 0x01
-+ * if U1 and U2 states should be disabled. Evaluate _DSM with:
-+ * Arg0: UUID = ce2ee385-00e6-48cb-9f05-2edb927c4899
-+ * Arg1: Revision ID = 0
-+ * Arg2: Function Index = 5
-+ * Arg3: (empty)
-+ *
-+ * Return 1 if USB3 port is LPM incapable, negative on error, otherwise 0
-+ */
-+
-+int usb_acpi_port_lpm_incapable(struct usb_device *hdev, int index)
-+{
-+	union acpi_object *obj;
-+	acpi_handle port_handle;
-+	int port1 = index + 1;
-+	guid_t guid;
-+	int ret;
-+
-+	ret = guid_parse(UUID_USB_CONTROLLER_DSM, &guid);
-+	if (ret)
-+		return ret;
-+
-+	port_handle = usb_get_hub_port_acpi_handle(hdev, port1);
-+	if (!port_handle) {
-+		dev_dbg(&hdev->dev, "port-%d no acpi handle\n", port1);
-+		return -ENODEV;
-+	}
-+
-+	if (!acpi_check_dsm(port_handle, &guid, 0,
-+			    BIT(USB_DSM_DISABLE_U1_U2_FOR_PORT))) {
-+		dev_dbg(&hdev->dev, "port-%d no _DSM function %d\n",
-+			port1, USB_DSM_DISABLE_U1_U2_FOR_PORT);
-+		return -ENODEV;
-+	}
-+
-+	obj = acpi_evaluate_dsm(port_handle, &guid, 0,
-+				USB_DSM_DISABLE_U1_U2_FOR_PORT, NULL);
-+
-+	if (!obj)
-+		return -ENODEV;
-+
-+	if (obj->type != ACPI_TYPE_INTEGER) {
-+		dev_dbg(&hdev->dev, "evaluate port-%d _DSM failed\n", port1);
-+		ACPI_FREE(obj);
-+		return -EINVAL;
-+	}
-+
-+	if (obj->integer.value == 0x01)
-+		ret = 1;
-+
-+	ACPI_FREE(obj);
-+
-+	return ret;
-+}
-+EXPORT_SYMBOL_GPL(usb_acpi_port_lpm_incapable);
-+
- /**
-  * usb_acpi_set_power_state - control usb port's power via acpi power
-  * resource
---- a/include/linux/usb.h
-+++ b/include/linux/usb.h
-@@ -749,11 +749,14 @@ extern struct device *usb_intf_get_dma_d
- extern int usb_acpi_set_power_state(struct usb_device *hdev, int index,
- 	bool enable);
- extern bool usb_acpi_power_manageable(struct usb_device *hdev, int index);
-+extern int usb_acpi_port_lpm_incapable(struct usb_device *hdev, int index);
- #else
- static inline int usb_acpi_set_power_state(struct usb_device *hdev, int index,
- 	bool enable) { return 0; }
- static inline bool usb_acpi_power_manageable(struct usb_device *hdev, int index)
- 	{ return true; }
-+static inline int usb_acpi_port_lpm_incapable(struct usb_device *hdev, int index)
-+	{ return 0; }
- #endif
+ 		res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
+-		if (!res)
++		if (!res) {
++			ret = -EINVAL;
+ 			goto err2;
++		}
  
- /* USB autosuspend and autoresume */
+ 		musb_res[i].start = res->start;
+ 		musb_res[i].end = res->end;
+-- 
+2.39.1
+
 
 
