@@ -2,44 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B6791676EE9
-	for <lists+stable@lfdr.de>; Sun, 22 Jan 2023 16:15:47 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 14F63676E8A
+	for <lists+stable@lfdr.de>; Sun, 22 Jan 2023 16:11:44 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230495AbjAVPPq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 22 Jan 2023 10:15:46 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42634 "EHLO
+        id S230367AbjAVPLm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 22 Jan 2023 10:11:42 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38502 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230494AbjAVPPq (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 22 Jan 2023 10:15:46 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 486A522035
-        for <stable@vger.kernel.org>; Sun, 22 Jan 2023 07:15:43 -0800 (PST)
+        with ESMTP id S230358AbjAVPLk (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 22 Jan 2023 10:11:40 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 677452006A
+        for <stable@vger.kernel.org>; Sun, 22 Jan 2023 07:11:38 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 05AA1B80B1D
-        for <stable@vger.kernel.org>; Sun, 22 Jan 2023 15:15:42 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 578BCC433EF;
-        Sun, 22 Jan 2023 15:15:40 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 089FBB80B0E
+        for <stable@vger.kernel.org>; Sun, 22 Jan 2023 15:11:37 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5EF8CC433EF;
+        Sun, 22 Jan 2023 15:11:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1674400540;
-        bh=fI66rj4QiEtreybMLSFaTheB7VT+apVwqYIfVdQsAGk=;
+        s=korg; t=1674400295;
+        bh=lxoM8CjxYO2EzWj8SKsll/WHVH7FC3wmLyHoujdP4oE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=HfUIH2JA0ItkpMiXV1BCCPVfzHIjEjm88mcArPZnOgXepOoKwRy8EFZKa4xl9UAdk
-         TJY2vPaYp0MYHNwlwQ0Z99BJIEHMu1k7hZINLdXFD4zG2Q40cL3CnrPcosCxNCO7Xp
-         qzJ0hj8lJG0Vlmh9QlbtjsuJpglK7gw1TyKDvwJg=
+        b=YUmQ2Z5VWZCw9NNnbec0883leO7go6Nlds4kkEdtfJNaVEClVk0tF8I9UZXzCP09b
+         pX1anV0LnoIkCG+uQeau/KDyduLP9YlBuKwU0+z5a5Q6qD3InlXRh3Myex/TC6sE6A
+         ozafmmOMd29INUIFAChh9PV/kIhwDChznNv/UItI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>,
-        Luiz Augusto von Dentz <luiz.von.dentz@intel.com>
-Subject: [PATCH 5.15 015/117] Bluetooth: hci_qca: Fix driver shutdown on closed serdev
+        patches@lists.linux.dev, Jaegeuk Kim <jaegeuk@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 09/98] f2fs: lets avoid panic if extent_tree is not created
 Date:   Sun, 22 Jan 2023 16:03:25 +0100
-Message-Id: <20230122150233.331279045@linuxfoundation.org>
+Message-Id: <20230122150229.826647488@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.1
-In-Reply-To: <20230122150232.736358800@linuxfoundation.org>
-References: <20230122150232.736358800@linuxfoundation.org>
+In-Reply-To: <20230122150229.351631432@linuxfoundation.org>
+References: <20230122150229.351631432@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,90 +53,70 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
+From: Jaegeuk Kim <jaegeuk@kernel.org>
 
-commit 272970be3dabd24cbe50e393ffee8f04aec3b9a8 upstream.
+[ Upstream commit df9d44b645b83fffccfb4e28c1f93376585fdec8 ]
 
-The driver shutdown callback (which sends EDL_SOC_RESET to the device
-over serdev) should not be invoked when HCI device is not open (e.g. if
-hci_dev_open_sync() failed), because the serdev and its TTY are not open
-either.  Also skip this step if device is powered off
-(qca_power_shutdown()).
+This patch avoids the below panic.
 
-The shutdown callback causes use-after-free during system reboot with
-Qualcomm Atheros Bluetooth:
+pc : __lookup_extent_tree+0xd8/0x760
+lr : f2fs_do_write_data_page+0x104/0x87c
+sp : ffffffc010cbb3c0
+x29: ffffffc010cbb3e0 x28: 0000000000000000
+x27: ffffff8803e7f020 x26: ffffff8803e7ed40
+x25: ffffff8803e7f020 x24: ffffffc010cbb460
+x23: ffffffc010cbb480 x22: 0000000000000000
+x21: 0000000000000000 x20: ffffffff22e90900
+x19: 0000000000000000 x18: ffffffc010c5d080
+x17: 0000000000000000 x16: 0000000000000020
+x15: ffffffdb1acdbb88 x14: ffffff888759e2b0
+x13: 0000000000000000 x12: ffffff802da49000
+x11: 000000000a001200 x10: ffffff8803e7ed40
+x9 : ffffff8023195800 x8 : ffffff802da49078
+x7 : 0000000000000001 x6 : 0000000000000000
+x5 : 0000000000000006 x4 : ffffffc010cbba28
+x3 : 0000000000000000 x2 : ffffffc010cbb480
+x1 : 0000000000000000 x0 : ffffff8803e7ed40
+Call trace:
+ __lookup_extent_tree+0xd8/0x760
+ f2fs_do_write_data_page+0x104/0x87c
+ f2fs_write_single_data_page+0x420/0xb60
+ f2fs_write_cache_pages+0x418/0xb1c
+ __f2fs_write_data_pages+0x428/0x58c
+ f2fs_write_data_pages+0x30/0x40
+ do_writepages+0x88/0x190
+ __writeback_single_inode+0x48/0x448
+ writeback_sb_inodes+0x468/0x9e8
+ __writeback_inodes_wb+0xb8/0x2a4
+ wb_writeback+0x33c/0x740
+ wb_do_writeback+0x2b4/0x400
+ wb_workfn+0xe4/0x34c
+ process_one_work+0x24c/0x5bc
+ worker_thread+0x3e8/0xa50
+ kthread+0x150/0x1b4
 
-  Unable to handle kernel paging request at virtual address
-  0072662f67726fd7
-  ...
-  CPU: 6 PID: 1 Comm: systemd-shutdow Tainted: G        W
-  6.1.0-rt5-00325-g8a5f56bcfcca #8
-  Hardware name: Qualcomm Technologies, Inc. Robotics RB5 (DT)
-  Call trace:
-   tty_driver_flush_buffer+0x4/0x30
-   serdev_device_write_flush+0x24/0x34
-   qca_serdev_shutdown+0x80/0x130 [hci_uart]
-   device_shutdown+0x15c/0x260
-   kernel_restart+0x48/0xac
-
-KASAN report:
-
-  BUG: KASAN: use-after-free in tty_driver_flush_buffer+0x1c/0x50
-  Read of size 8 at addr ffff16270c2e0018 by task systemd-shutdow/1
-
-  CPU: 7 PID: 1 Comm: systemd-shutdow Not tainted
-  6.1.0-next-20221220-00014-gb85aaf97fb01-dirty #28
-  Hardware name: Qualcomm Technologies, Inc. Robotics RB5 (DT)
-  Call trace:
-   dump_backtrace.part.0+0xdc/0xf0
-   show_stack+0x18/0x30
-   dump_stack_lvl+0x68/0x84
-   print_report+0x188/0x488
-   kasan_report+0xa4/0xf0
-   __asan_load8+0x80/0xac
-   tty_driver_flush_buffer+0x1c/0x50
-   ttyport_write_flush+0x34/0x44
-   serdev_device_write_flush+0x48/0x60
-   qca_serdev_shutdown+0x124/0x274
-   device_shutdown+0x1e8/0x350
-   kernel_restart+0x48/0xb0
-   __do_sys_reboot+0x244/0x2d0
-   __arm64_sys_reboot+0x54/0x70
-   invoke_syscall+0x60/0x190
-   el0_svc_common.constprop.0+0x7c/0x160
-   do_el0_svc+0x44/0xf0
-   el0_svc+0x2c/0x6c
-   el0t_64_sync_handler+0xbc/0x140
-   el0t_64_sync+0x190/0x194
-
-Fixes: 7e7bbddd029b ("Bluetooth: hci_qca: Fix qca6390 enable failure after warm reboot")
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
-Signed-off-by: Luiz Augusto von Dentz <luiz.von.dentz@intel.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Jaegeuk Kim <jaegeuk@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/bluetooth/hci_qca.c |    7 +++++++
- 1 file changed, 7 insertions(+)
+ fs/f2fs/extent_cache.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
---- a/drivers/bluetooth/hci_qca.c
-+++ b/drivers/bluetooth/hci_qca.c
-@@ -2156,10 +2156,17 @@ static void qca_serdev_shutdown(struct d
- 	int timeout = msecs_to_jiffies(CMD_TRANS_TIMEOUT_MS);
- 	struct serdev_device *serdev = to_serdev_device(dev);
- 	struct qca_serdev *qcadev = serdev_device_get_drvdata(serdev);
-+	struct hci_uart *hu = &qcadev->serdev_hu;
-+	struct hci_dev *hdev = hu->hdev;
-+	struct qca_data *qca = hu->priv;
- 	const u8 ibs_wake_cmd[] = { 0xFD };
- 	const u8 edl_reset_soc_cmd[] = { 0x01, 0x00, 0xFC, 0x01, 0x05 };
+diff --git a/fs/f2fs/extent_cache.c b/fs/f2fs/extent_cache.c
+index bd16c78b5bf2..ad0b83a41226 100644
+--- a/fs/f2fs/extent_cache.c
++++ b/fs/f2fs/extent_cache.c
+@@ -414,7 +414,8 @@ static bool f2fs_lookup_extent_tree(struct inode *inode, pgoff_t pgofs,
+ 	struct extent_node *en;
+ 	bool ret = false;
  
- 	if (qcadev->btsoc_type == QCA_QCA6390) {
-+		if (test_bit(QCA_BT_OFF, &qca->flags) ||
-+		    !test_bit(HCI_RUNNING, &hdev->flags))
-+			return;
-+
- 		serdev_device_write_flush(serdev);
- 		ret = serdev_device_write_buf(serdev, ibs_wake_cmd,
- 					      sizeof(ibs_wake_cmd));
+-	f2fs_bug_on(sbi, !et);
++	if (!et)
++		return false;
+ 
+ 	trace_f2fs_lookup_extent_tree_start(inode, pgofs);
+ 
+-- 
+2.35.1
+
 
 
