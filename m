@@ -2,40 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 91E6C676E98
-	for <lists+stable@lfdr.de>; Sun, 22 Jan 2023 16:12:23 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B8916676EA3
+	for <lists+stable@lfdr.de>; Sun, 22 Jan 2023 16:12:42 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230375AbjAVPMW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 22 Jan 2023 10:12:22 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39622 "EHLO
+        id S230393AbjAVPMl (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 22 Jan 2023 10:12:41 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40224 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230382AbjAVPMW (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 22 Jan 2023 10:12:22 -0500
+        with ESMTP id S230385AbjAVPMl (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 22 Jan 2023 10:12:41 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 321ED2006A
-        for <stable@vger.kernel.org>; Sun, 22 Jan 2023 07:12:11 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D05E25268
+        for <stable@vger.kernel.org>; Sun, 22 Jan 2023 07:12:39 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id B72A560C48
-        for <stable@vger.kernel.org>; Sun, 22 Jan 2023 15:12:10 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id CB25EC433D2;
-        Sun, 22 Jan 2023 15:12:09 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 7715160BC5
+        for <stable@vger.kernel.org>; Sun, 22 Jan 2023 15:12:39 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8A36FC433D2;
+        Sun, 22 Jan 2023 15:12:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1674400330;
-        bh=OoSHXnWVXxpS/e/Xov4iQE6cQyldepGGk2iCcbj9oCA=;
+        s=korg; t=1674400358;
+        bh=B4s9uwImILaQ6EjcmPAlruq7pr4JCMzoMVwMi++7/LM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=wRTM1qVqqlxrFFtJ6sPORhmhBdhgyh77/6+cQSfKlKFL+X7Pgz5jo1toPmESDTahi
-         GB3R6cO9HvYekmOSm2h5k+nMthGWId0RH+6jgo6ZevhFB0Exi8s53Kijd4W6LjxTbX
-         c1qfQMq/cJmRquZ+y2PbWj5ClghaRbvMwV3g8WJA=
+        b=jvdtwPEEPDGHVNtRV0f0lPfcVrmqwQ1b2CcWanYGAvEAalgy6OlVTJIQ/vnbraziI
+         CcAnb89Yq5OA2eeGm9eDpNJZRt83fwiflV+5B2kb5dIJ2yvzL2JIp7Ql8ycunOaQUs
+         7EUiiegbiIM0/hBNBbFKXe3HfCJ7dcw+nP3J0l2E=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Yuchi Yang <yangyuchi66@gmail.com>,
-        Takashi Iwai <tiwai@suse.de>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 16/98] ALSA: hda/realtek - Turn on power early
-Date:   Sun, 22 Jan 2023 16:03:32 +0100
-Message-Id: <20230122150230.113726199@linuxfoundation.org>
+        patches@lists.linux.dev, Chris Wilson <chris@chris-wilson.co.uk>,
+        Mika Kuoppala <mika.kuoppala@linux.intel.com>,
+        Andi Shyti <andi.shyti@linux.intel.com>,
+        Gwan-gyeong Mun <gwan-gyeong.mun@intel.com>,
+        Rodrigo Vivi <rodrigo.vivi@intel.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 17/98] drm/i915/gt: Reset twice
+Date:   Sun, 22 Jan 2023 16:03:33 +0100
+Message-Id: <20230122150230.165232767@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.1
 In-Reply-To: <20230122150229.351631432@linuxfoundation.org>
 References: <20230122150229.351631432@linuxfoundation.org>
@@ -53,84 +57,88 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yuchi Yang <yangyuchi66@gmail.com>
+From: Chris Wilson <chris@chris-wilson.co.uk>
 
-[ Upstream commit 1f680609bf1beac20e2a31ddcb1b88874123c39f ]
+[ Upstream commit d3de5616d36462a646f5b360ba82d3b09ff668eb ]
 
-Turn on power early to avoid wrong state for power relation register.
-This can earlier update JD state when resume back.
+After applying an engine reset, on some platforms like Jasperlake, we
+occasionally detect that the engine state is not cleared until shortly
+after the resume. As we try to resume the engine with volatile internal
+state, the first request fails with a spurious CS event (it looks like
+it reports a lite-restore to the hung context, instead of the expected
+idle->active context switch).
 
-Signed-off-by: Yuchi Yang <yangyuchi66@gmail.com>
-Cc: <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/e35d8f4fa18f4448a2315cc7d4a3715f@realtek.com
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Signed-off-by: Chris Wilson <chris@chris-wilson.co.uk>
+Cc: stable@vger.kernel.org
+Cc: Mika Kuoppala <mika.kuoppala@linux.intel.com>
+Signed-off-by: Andi Shyti <andi.shyti@linux.intel.com>
+Reviewed-by: Gwan-gyeong Mun <gwan-gyeong.mun@intel.com>
+Link: https://patchwork.freedesktop.org/patch/msgid/20221212161338.1007659-1-andi.shyti@linux.intel.com
+(cherry picked from commit 3db9d590557da3aa2c952f2fecd3e9b703dad790)
+Signed-off-by: Rodrigo Vivi <rodrigo.vivi@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/pci/hda/patch_realtek.c | 30 ++++++++++++++++--------------
- 1 file changed, 16 insertions(+), 14 deletions(-)
+ drivers/gpu/drm/i915/gt/intel_reset.c | 34 ++++++++++++++++++++++-----
+ 1 file changed, 28 insertions(+), 6 deletions(-)
 
-diff --git a/sound/pci/hda/patch_realtek.c b/sound/pci/hda/patch_realtek.c
-index eb7dd457ef5a..cfd86389d37f 100644
---- a/sound/pci/hda/patch_realtek.c
-+++ b/sound/pci/hda/patch_realtek.c
-@@ -3561,6 +3561,15 @@ static void alc256_init(struct hda_codec *codec)
- 	hda_nid_t hp_pin = alc_get_hp_pin(spec);
- 	bool hp_pin_sense;
+diff --git a/drivers/gpu/drm/i915/gt/intel_reset.c b/drivers/gpu/drm/i915/gt/intel_reset.c
+index ac36b67fb46b..00b5912a88b8 100644
+--- a/drivers/gpu/drm/i915/gt/intel_reset.c
++++ b/drivers/gpu/drm/i915/gt/intel_reset.c
+@@ -289,6 +289,7 @@ static int ilk_do_reset(struct intel_gt *gt, intel_engine_mask_t engine_mask,
+ static int gen6_hw_domain_reset(struct intel_gt *gt, u32 hw_domain_mask)
+ {
+ 	struct intel_uncore *uncore = gt->uncore;
++	int loops = 2;
+ 	int err;
  
-+	if (spec->ultra_low_power) {
-+		alc_update_coef_idx(codec, 0x03, 1<<1, 1<<1);
-+		alc_update_coef_idx(codec, 0x08, 3<<2, 3<<2);
-+		alc_update_coef_idx(codec, 0x08, 7<<4, 0);
-+		alc_update_coef_idx(codec, 0x3b, 1<<15, 0);
-+		alc_update_coef_idx(codec, 0x0e, 7<<6, 7<<6);
-+		msleep(30);
-+	}
+ 	/*
+@@ -296,18 +297,39 @@ static int gen6_hw_domain_reset(struct intel_gt *gt, u32 hw_domain_mask)
+ 	 * for fifo space for the write or forcewake the chip for
+ 	 * the read
+ 	 */
+-	intel_uncore_write_fw(uncore, GEN6_GDRST, hw_domain_mask);
++	do {
++		intel_uncore_write_fw(uncore, GEN6_GDRST, hw_domain_mask);
+ 
+-	/* Wait for the device to ack the reset requests */
+-	err = __intel_wait_for_register_fw(uncore,
+-					   GEN6_GDRST, hw_domain_mask, 0,
+-					   500, 0,
+-					   NULL);
++		/*
++		 * Wait for the device to ack the reset requests.
++		 *
++		 * On some platforms, e.g. Jasperlake, we see that the
++		 * engine register state is not cleared until shortly after
++		 * GDRST reports completion, causing a failure as we try
++		 * to immediately resume while the internal state is still
++		 * in flux. If we immediately repeat the reset, the second
++		 * reset appears to serialise with the first, and since
++		 * it is a no-op, the registers should retain their reset
++		 * value. However, there is still a concern that upon
++		 * leaving the second reset, the internal engine state
++		 * is still in flux and not ready for resuming.
++		 */
++		err = __intel_wait_for_register_fw(uncore, GEN6_GDRST,
++						   hw_domain_mask, 0,
++						   2000, 0,
++						   NULL);
++	} while (err == 0 && --loops);
+ 	if (err)
+ 		drm_dbg(&gt->i915->drm,
+ 			"Wait for 0x%08x engines reset failed\n",
+ 			hw_domain_mask);
+ 
++	/*
++	 * As we have observed that the engine state is still volatile
++	 * after GDRST is acked, impose a small delay to let everything settle.
++	 */
++	udelay(50);
 +
- 	if (!hp_pin)
- 		hp_pin = 0x21;
+ 	return err;
+ }
  
-@@ -3572,14 +3581,6 @@ static void alc256_init(struct hda_codec *codec)
- 		msleep(2);
- 
- 	alc_update_coefex_idx(codec, 0x57, 0x04, 0x0007, 0x1); /* Low power */
--	if (spec->ultra_low_power) {
--		alc_update_coef_idx(codec, 0x03, 1<<1, 1<<1);
--		alc_update_coef_idx(codec, 0x08, 3<<2, 3<<2);
--		alc_update_coef_idx(codec, 0x08, 7<<4, 0);
--		alc_update_coef_idx(codec, 0x3b, 1<<15, 0);
--		alc_update_coef_idx(codec, 0x0e, 7<<6, 7<<6);
--		msleep(30);
--	}
- 
- 	snd_hda_codec_write(codec, hp_pin, 0,
- 			    AC_VERB_SET_AMP_GAIN_MUTE, AMP_OUT_MUTE);
-@@ -3661,6 +3662,13 @@ static void alc225_init(struct hda_codec *codec)
- 	hda_nid_t hp_pin = alc_get_hp_pin(spec);
- 	bool hp1_pin_sense, hp2_pin_sense;
- 
-+	if (spec->ultra_low_power) {
-+		alc_update_coef_idx(codec, 0x08, 0x0f << 2, 3<<2);
-+		alc_update_coef_idx(codec, 0x0e, 7<<6, 7<<6);
-+		alc_update_coef_idx(codec, 0x33, 1<<11, 0);
-+		msleep(30);
-+	}
-+
- 	if (!hp_pin)
- 		hp_pin = 0x21;
- 	msleep(30);
-@@ -3672,12 +3680,6 @@ static void alc225_init(struct hda_codec *codec)
- 		msleep(2);
- 
- 	alc_update_coefex_idx(codec, 0x57, 0x04, 0x0007, 0x1); /* Low power */
--	if (spec->ultra_low_power) {
--		alc_update_coef_idx(codec, 0x08, 0x0f << 2, 3<<2);
--		alc_update_coef_idx(codec, 0x0e, 7<<6, 7<<6);
--		alc_update_coef_idx(codec, 0x33, 1<<11, 0);
--		msleep(30);
--	}
- 
- 	if (hp1_pin_sense || spec->ultra_low_power)
- 		snd_hda_codec_write(codec, hp_pin, 0,
 -- 
 2.39.0
 
