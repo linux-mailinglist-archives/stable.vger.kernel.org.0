@@ -2,45 +2,49 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 135DD676EDC
-	for <lists+stable@lfdr.de>; Sun, 22 Jan 2023 16:15:12 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id CC453676FEF
+	for <lists+stable@lfdr.de>; Sun, 22 Jan 2023 16:26:51 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230473AbjAVPPL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 22 Jan 2023 10:15:11 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42026 "EHLO
+        id S231431AbjAVP0v (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 22 Jan 2023 10:26:51 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54914 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230470AbjAVPPK (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 22 Jan 2023 10:15:10 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B4E9722025
-        for <stable@vger.kernel.org>; Sun, 22 Jan 2023 07:15:09 -0800 (PST)
+        with ESMTP id S231429AbjAVP0u (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 22 Jan 2023 10:26:50 -0500
+Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 817BE22DEE
+        for <stable@vger.kernel.org>; Sun, 22 Jan 2023 07:26:49 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 51DC060C5C
-        for <stable@vger.kernel.org>; Sun, 22 Jan 2023 15:15:09 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6962BC433D2;
-        Sun, 22 Jan 2023 15:15:08 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id C964DCE0F52
+        for <stable@vger.kernel.org>; Sun, 22 Jan 2023 15:26:47 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 97F53C433EF;
+        Sun, 22 Jan 2023 15:26:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1674400508;
-        bh=OqxWEtiTOn4kTu3mdysvMJoqky85DyyHjpgSTRcjVfQ=;
+        s=korg; t=1674401205;
+        bh=5o5XjW9OJdUJKscP4r/9DctIvPsDLx+8uX85Iv96pfE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=1lWYcUiZw9sqM7VYN+nP+hnKyjEuZobn9VQxGmH/WgXDVxQ0dhazlx1YZNozzqKXJ
-         BPliCrWF4iMSVTvWkKis8YPlp17IpkzvdlbUWG59vT8wLnFLs+sgblt9YZ6VbHjiAR
-         BKle2AYibKFMPx24bdYM/f+PrwfS1jP9MfI0S/DI=
+        b=d947L5Huprpvm/NV7x89daQyizGlrDM0uyy5o8zVewL5JZ2kplCBe0I0Q4jYwNr0D
+         XgvK24zVrzBSj+0CdhcbKJ8VnqSmDve4yiYcJePlHlyXLPvfl1VSP8cFqZ/3w1OHAg
+         FsbuD4JdAP0O38lh/wMXDAdbC3rRyEXrgPUX0uA8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, YingChi Long <me@inclyc.cn>,
-        Borislav Petkov <bp@suse.de>,
-        Nick Desaulniers <ndesaulniers@google.com>,
-        Nathan Chancellor <nathan@kernel.org>
-Subject: [PATCH 5.10 83/98] x86/fpu: Use _Alignof to avoid undefined behavior in TYPE_ALIGN
+        patches@lists.linux.dev, Petr Mladek <pmladek@suse.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        tangmeng <tangmeng@uniontech.com>,
+        "Guilherme G. Piccoli" <gpiccoli@igalia.com>,
+        Tiezhu Yang <yangtiezhu@loongson.cn>,
+        Sebastian Andrzej Siewior <bigeasy@linutronix.de>,
+        Luis Chamberlain <mcgrof@kernel.org>,
+        Kees Cook <keescook@chromium.org>
+Subject: [PATCH 6.1 150/193] panic: Separate sysctl logic from CONFIG_SMP
 Date:   Sun, 22 Jan 2023 16:04:39 +0100
-Message-Id: <20230122150232.957258261@linuxfoundation.org>
+Message-Id: <20230122150253.244731824@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.1
-In-Reply-To: <20230122150229.351631432@linuxfoundation.org>
-References: <20230122150229.351631432@linuxfoundation.org>
+In-Reply-To: <20230122150246.321043584@linuxfoundation.org>
+References: <20230122150246.321043584@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,63 +59,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: YingChi Long <me@inclyc.cn>
+From: Kees Cook <keescook@chromium.org>
 
-commit 55228db2697c09abddcb9487c3d9fa5854a932cd upstream.
+commit 9360d035a579d95d1e76c471061b9065b18a0eb1 upstream.
 
-WG14 N2350 specifies that it is an undefined behavior to have type
-definitions within offsetof", see
+In preparation for adding more sysctls directly in kernel/panic.c, split
+CONFIG_SMP from the logic that adds sysctls.
 
-  https://www.open-std.org/jtc1/sc22/wg14/www/docs/n2350.htm
-
-This specification is also part of C23.
-
-Therefore, replace the TYPE_ALIGN macro with the _Alignof builtin to
-avoid undefined behavior. (_Alignof itself is C11 and the kernel is
-built with -gnu11).
-
-ISO C11 _Alignof is subtly different from the GNU C extension
-__alignof__. Latter is the preferred alignment and _Alignof the
-minimal alignment. For long long on x86 these are 8 and 4
-respectively.
-
-The macro TYPE_ALIGN's behavior matches _Alignof rather than
-__alignof__.
-
-  [ bp: Massage commit message. ]
-
-Signed-off-by: YingChi Long <me@inclyc.cn>
-Signed-off-by: Borislav Petkov <bp@suse.de>
-Reviewed-by: Nick Desaulniers <ndesaulniers@google.com>
-Link: https://lore.kernel.org/r/20220925153151.2467884-1-me@inclyc.cn
-Signed-off-by: Nathan Chancellor <nathan@kernel.org>
+Cc: Petr Mladek <pmladek@suse.com>
+Cc: Andrew Morton <akpm@linux-foundation.org>
+Cc: tangmeng <tangmeng@uniontech.com>
+Cc: "Guilherme G. Piccoli" <gpiccoli@igalia.com>
+Cc: Tiezhu Yang <yangtiezhu@loongson.cn>
+Cc: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
+Reviewed-by: Luis Chamberlain <mcgrof@kernel.org>
+Signed-off-by: Kees Cook <keescook@chromium.org>
+Link: https://lore.kernel.org/r/20221117234328.594699-1-keescook@chromium.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/x86/kernel/fpu/init.c |    7 ++-----
- 1 file changed, 2 insertions(+), 5 deletions(-)
+ kernel/panic.c |    4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
---- a/arch/x86/kernel/fpu/init.c
-+++ b/arch/x86/kernel/fpu/init.c
-@@ -138,9 +138,6 @@ static void __init fpu__init_system_gene
- unsigned int fpu_kernel_xstate_size;
- EXPORT_SYMBOL_GPL(fpu_kernel_xstate_size);
+--- a/kernel/panic.c
++++ b/kernel/panic.c
+@@ -75,8 +75,9 @@ ATOMIC_NOTIFIER_HEAD(panic_notifier_list
  
--/* Get alignment of the TYPE. */
--#define TYPE_ALIGN(TYPE) offsetof(struct { char x; TYPE test; }, test)
--
- /*
-  * Enforce that 'MEMBER' is the last field of 'TYPE'.
-  *
-@@ -148,8 +145,8 @@ EXPORT_SYMBOL_GPL(fpu_kernel_xstate_size
-  * because that's how C aligns structs.
-  */
- #define CHECK_MEMBER_AT_END_OF(TYPE, MEMBER) \
--	BUILD_BUG_ON(sizeof(TYPE) != ALIGN(offsetofend(TYPE, MEMBER), \
--					   TYPE_ALIGN(TYPE)))
-+	BUILD_BUG_ON(sizeof(TYPE) !=         \
-+		     ALIGN(offsetofend(TYPE, MEMBER), _Alignof(TYPE)))
+ EXPORT_SYMBOL(panic_notifier_list);
  
- /*
-  * We append the 'struct fpu' to the task_struct:
+-#if defined(CONFIG_SMP) && defined(CONFIG_SYSCTL)
++#ifdef CONFIG_SYSCTL
+ static struct ctl_table kern_panic_table[] = {
++#ifdef CONFIG_SMP
+ 	{
+ 		.procname       = "oops_all_cpu_backtrace",
+ 		.data           = &sysctl_oops_all_cpu_backtrace,
+@@ -86,6 +87,7 @@ static struct ctl_table kern_panic_table
+ 		.extra1         = SYSCTL_ZERO,
+ 		.extra2         = SYSCTL_ONE,
+ 	},
++#endif
+ 	{ }
+ };
+ 
 
 
