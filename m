@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 3F600676E2D
-	for <lists+stable@lfdr.de>; Sun, 22 Jan 2023 16:07:52 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8B3FD676E0C
+	for <lists+stable@lfdr.de>; Sun, 22 Jan 2023 16:06:36 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230189AbjAVPHv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 22 Jan 2023 10:07:51 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34094 "EHLO
+        id S229897AbjAVPGf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 22 Jan 2023 10:06:35 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60294 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230196AbjAVPHt (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 22 Jan 2023 10:07:49 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 208211DBBA
-        for <stable@vger.kernel.org>; Sun, 22 Jan 2023 07:07:49 -0800 (PST)
+        with ESMTP id S230084AbjAVPGc (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 22 Jan 2023 10:06:32 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9DE0B1DBB2
+        for <stable@vger.kernel.org>; Sun, 22 Jan 2023 07:06:31 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id BE326B80B16
-        for <stable@vger.kernel.org>; Sun, 22 Jan 2023 15:07:47 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1E392C433D2;
-        Sun, 22 Jan 2023 15:07:45 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 3A60C60C5A
+        for <stable@vger.kernel.org>; Sun, 22 Jan 2023 15:06:31 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4BDBDC433EF;
+        Sun, 22 Jan 2023 15:06:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1674400066;
-        bh=cc/v7m/mpHXzegOwvt3tpMdwtYJkp+XIpTEfmBwT9aA=;
+        s=korg; t=1674399990;
+        bh=T/EK2oqHJh7ELDeQr0ZKvEkS9pha38ZCa4l3Tu5WyQQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Ul6P+Too4+1LmoSXL7UxeBrv07rbJt9Fa5dnkHiAai2/zMacl5uhS3XZ18oUqT79u
-         7OGgD9AicUdKQ2e/jFD9jSrAxJhS9YiwwIHxyza7mrqp+Y99qHujx9g/3D3D7QRoUC
-         SLNywjPKHUY0UAiauDQubMmgODddbEkmrtzzu7AM=
+        b=sI7bqPOUJ9COblE1N0Z+gMn4p24Ooh/uPd9WEIwOtKOKVOXTL2IKr48AR+5pmQKL3
+         vt1uAiq5pohZOPaNbs0ArK6o7EQ21FAqs+oOubKrAQp2A/GK/z3m1PMlbOwSLYRxyT
+         DIUSpd0lV3AdoD/EXsx/+YXYA30Mqlof6ICloI5I=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Heikki Krogerus <heikki.krogerus@linux.intel.com>,
-        Prashant Malani <pmalani@chromium.org>,
-        Benson Leung <bleung@chromium.org>
-Subject: [PATCH 4.19 26/37] usb: typec: altmodes/displayport: Fix pin assignment calculation
+        patches@lists.linux.dev, stable <stable@kernel.org>,
+        Tobias Schramm <t.schramm@manjaro.org>,
+        Richard Genoud <richard.genoud@gmail.com>
+Subject: [PATCH 4.14 23/25] serial: atmel: fix incorrect baudrate setup
 Date:   Sun, 22 Jan 2023 16:04:23 +0100
-Message-Id: <20230122150220.641775235@linuxfoundation.org>
+Message-Id: <20230122150218.758420350@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.1
-In-Reply-To: <20230122150219.557984692@linuxfoundation.org>
-References: <20230122150219.557984692@linuxfoundation.org>
+In-Reply-To: <20230122150217.788215473@linuxfoundation.org>
+References: <20230122150217.788215473@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,43 +54,53 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Prashant Malani <pmalani@chromium.org>
+From: Tobias Schramm <t.schramm@manjaro.org>
 
-commit 9682b41e52cc9f42f5c33caf410464392adaef04 upstream.
+commit 5bfdd3c654bd879bff50c2e85e42f85ae698b42f upstream.
 
-Commit c1e5c2f0cb8a ("usb: typec: altmodes/displayport: correct pin
-assignment for UFP receptacles") fixed the pin assignment calculation
-to take into account whether the peripheral was a plug or a receptacle.
+Commit ba47f97a18f2 ("serial: core: remove baud_rates when serial console
+setup") changed uart_set_options to select the correct baudrate
+configuration based on the absolute error between requested baudrate and
+available standard baudrate settings.
+Prior to that commit the baudrate was selected based on which predefined
+standard baudrate did not exceed the requested baudrate.
+This change of selection logic was never reflected in the atmel serial
+driver. Thus the comment left in the atmel serial driver is no longer
+accurate.
+Additionally the manual rounding up described in that comment and applied
+via (quot - 1) requests an incorrect baudrate. Since uart_set_options uses
+tty_termios_encode_baud_rate to determine the appropriate baudrate flags
+this can cause baudrate selection to fail entirely because
+tty_termios_encode_baud_rate will only select a baudrate if relative error
+between requested and selected baudrate does not exceed +/-2%.
+Fix that by requesting actual, exact baudrate used by the serial.
 
-But the "pin_assignments" sysfs logic was not updated. Address this by
-using the macros introduced in the aforementioned commit in the sysfs
-logic too.
-
-Fixes: c1e5c2f0cb8a ("usb: typec: altmodes/displayport: correct pin assignment for UFP receptacles")
-Cc: stable@vger.kernel.org
-Cc: Heikki Krogerus <heikki.krogerus@linux.intel.com>
-Signed-off-by: Prashant Malani <pmalani@chromium.org>
-Reviewed-by: Benson Leung <bleung@chromium.org>
-Reviewed-by: Heikki Krogerus <heikki.krogerus@linux.intel.com>
-Link: https://lore.kernel.org/r/20230111020546.3384569-2-pmalani@chromium.org
+Fixes: ba47f97a18f2 ("serial: core: remove baud_rates when serial console setup")
+Cc: stable <stable@kernel.org>
+Signed-off-by: Tobias Schramm <t.schramm@manjaro.org>
+Acked-by: Richard Genoud <richard.genoud@gmail.com>
+Link: https://lore.kernel.org/r/20230109072940.202936-1-t.schramm@manjaro.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/usb/typec/altmodes/displayport.c |    4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/tty/serial/atmel_serial.c |    8 +-------
+ 1 file changed, 1 insertion(+), 7 deletions(-)
 
---- a/drivers/usb/typec/altmodes/displayport.c
-+++ b/drivers/usb/typec/altmodes/displayport.c
-@@ -418,9 +418,9 @@ static const char * const pin_assignment
- static u8 get_current_pin_assignments(struct dp_altmode *dp)
- {
- 	if (DP_CONF_CURRENTLY(dp->data.conf) == DP_CONF_DFP_D)
--		return DP_CAP_UFP_D_PIN_ASSIGN(dp->alt->vdo);
-+		return DP_CAP_PIN_ASSIGN_DFP_D(dp->alt->vdo);
- 	else
--		return DP_CAP_DFP_D_PIN_ASSIGN(dp->alt->vdo);
-+		return DP_CAP_PIN_ASSIGN_UFP_D(dp->alt->vdo);
+--- a/drivers/tty/serial/atmel_serial.c
++++ b/drivers/tty/serial/atmel_serial.c
+@@ -2538,13 +2538,7 @@ static void __init atmel_console_get_opt
+ 	else if (mr == ATMEL_US_PAR_ODD)
+ 		*parity = 'o';
+ 
+-	/*
+-	 * The serial core only rounds down when matching this to a
+-	 * supported baud rate. Make sure we don't end up slightly
+-	 * lower than one of those, as it would make us fall through
+-	 * to a much lower baud rate than we really want.
+-	 */
+-	*baud = port->uartclk / (16 * (quot - 1));
++	*baud = port->uartclk / (16 * quot);
  }
  
- static ssize_t
+ static int __init atmel_console_setup(struct console *co, char *options)
 
 
