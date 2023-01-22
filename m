@@ -2,129 +2,125 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id BBD35676E21
-	for <lists+stable@lfdr.de>; Sun, 22 Jan 2023 16:07:26 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 89A56676EAE
+	for <lists+stable@lfdr.de>; Sun, 22 Jan 2023 16:13:13 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230165AbjAVPH0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 22 Jan 2023 10:07:26 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33380 "EHLO
+        id S230412AbjAVPNM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 22 Jan 2023 10:13:12 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40558 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230170AbjAVPHZ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 22 Jan 2023 10:07:25 -0500
+        with ESMTP id S230411AbjAVPNL (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 22 Jan 2023 10:13:11 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B79BC1F4BD
-        for <stable@vger.kernel.org>; Sun, 22 Jan 2023 07:07:17 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4BD951E2A0
+        for <stable@vger.kernel.org>; Sun, 22 Jan 2023 07:13:10 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 6145EB80B14
-        for <stable@vger.kernel.org>; Sun, 22 Jan 2023 15:07:16 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A65F1C433EF;
-        Sun, 22 Jan 2023 15:07:14 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 08372B80B1A
+        for <stable@vger.kernel.org>; Sun, 22 Jan 2023 15:13:09 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6039EC433D2;
+        Sun, 22 Jan 2023 15:13:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1674400035;
-        bh=202fxFKgzmoLH52aPHp+YYTOdMIjs95TbGiORmjDutk=;
+        s=korg; t=1674400387;
+        bh=6SXJuM8/UnZcndNLUEawzsSdkeCwOGhM1fN1otr9SOM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=cArKw3NTQq30AjQMlddkWjmdaqbLFVVmK1CEZ4rvR5Fon2yI+Nez8xN9CdCnm8heW
-         J4Rkaq2zzW7n7arA48xo6fRPd2ar6KP2Bj3vo6YMRvf/22JxL3M9XetrjHPKfU0J80
-         Bvc6ZAmZMFRlAPTrq585s2WlaVJqqYRhu5inK9CU=
+        b=JsHRBwOY0tnO6Xgqe+lJAAoPjSAgiyfOeGym2x/I2vEuYwpb5XpiIlOZ4ZXxJhtbt
+         7qqUlp1OeNqwqRSK7MyxPCk0qBTm4NK1rQuIaAZALVs70e+qtOnLzFGEDtxP09LTry
+         fhOIw+B7Nxs0teAHkt+3Vwz/kmy14I6V+4o3vKYA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Ali Mirghasemi <ali.mirghasemi1376@gmail.com>,
-        Johan Hovold <johan@kernel.org>
-Subject: [PATCH 4.19 15/37] USB: serial: option: add Quectel EC200U modem
+        patches@lists.linux.dev, Haibo Chen <haibo.chen@nxp.com>,
+        Adrian Hunter <adrian.hunter@intel.com>,
+        Ulf Hansson <ulf.hansson@linaro.org>
+Subject: [PATCH 5.10 56/98] mmc: sdhci-esdhc-imx: correct the tuning start tap and step setting
 Date:   Sun, 22 Jan 2023 16:04:12 +0100
-Message-Id: <20230122150220.200023760@linuxfoundation.org>
+Message-Id: <20230122150231.863828524@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.1
-In-Reply-To: <20230122150219.557984692@linuxfoundation.org>
-References: <20230122150219.557984692@linuxfoundation.org>
+In-Reply-To: <20230122150229.351631432@linuxfoundation.org>
+References: <20230122150229.351631432@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
         DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
-        SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=unavailable
-        autolearn_force=no version=3.4.6
+        SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no
+        version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ali Mirghasemi <ali.mirghasemi1376@gmail.com>
+From: Haibo Chen <haibo.chen@nxp.com>
 
-commit d9bbb15881046bd76f8710c76e26a740eee997ef upstream.
+commit 1e336aa0c0250ec84c6f16efac40c9f0138e367d upstream.
 
-Add support for EC200U modem
+Current code logic may be impacted by the setting of ROM/Bootloader,
+so unmask these bits first, then setting these bits accordingly.
 
-0x0901: EC200U - AT + AP + CP + NMEA + DIAG + MOS
-
-usb-device output:
-T: Bus=01 Lev=02 Prnt=02 Port=02 Cnt=01 Dev#= 4 Spd=480 MxCh= 0
-D: Ver= 2.00 Cls=00(>ifc ) Sub=00 Prot=00 MxPS=64 #Cfgs= 1
-P: Vendor=2c7c ProdID=0901 Rev= 3.18
-S: Manufacturer=Android
-S: Product=Android
-C:* #Ifs= 9 Cfg#= 1 Atr=e0 MxPwr=400mA
-A: FirstIf#= 0 IfCount= 2 Cls=02(comm.) Sub=06 Prot=00
-I:* If#= 0 Alt= 0 #EPs= 1 Cls=02(comm.) Sub=06 Prot=00 Driver=cdc_ether
-E: Ad=81(I) Atr=03(Int.) MxPS= 16 Ivl=32ms
-I: If#= 1 Alt= 0 #EPs= 0 Cls=0a(data ) Sub=00 Prot=00 Driver=cdc_ether
-I:* If#= 1 Alt= 1 #EPs= 2 Cls=0a(data ) Sub=00 Prot=00 Driver=cdc_ether
-E: Ad=82(I) Atr=02(Bulk) MxPS= 512 Ivl=0ms
-E: Ad=01(O) Atr=02(Bulk) MxPS= 512 Ivl=0ms
-I:* If#= 2 Alt= 0 #EPs= 3 Cls=ff(vend.) Sub=00 Prot=00 Driver=option
-E: Ad=84(I) Atr=02(Bulk) MxPS= 512 Ivl=0ms
-E: Ad=02(O) Atr=02(Bulk) MxPS= 512 Ivl=0ms
-E: Ad=83(I) Atr=03(Int.) MxPS= 512 Ivl=4096ms
-I:* If#= 3 Alt= 0 #EPs= 2 Cls=ff(vend.) Sub=00 Prot=00 Driver=option
-E: Ad=85(I) Atr=02(Bulk) MxPS= 512 Ivl=0ms
-E: Ad=03(O) Atr=02(Bulk) MxPS= 512 Ivl=0ms
-I:* If#= 4 Alt= 0 #EPs= 2 Cls=ff(vend.) Sub=00 Prot=00 Driver=option
-E: Ad=86(I) Atr=02(Bulk) MxPS= 512 Ivl=0ms
-E: Ad=04(O) Atr=02(Bulk) MxPS= 512 Ivl=0ms
-I:* If#= 5 Alt= 0 #EPs= 2 Cls=ff(vend.) Sub=00 Prot=00 Driver=option
-E: Ad=87(I) Atr=02(Bulk) MxPS= 512 Ivl=0ms
-E: Ad=05(O) Atr=02(Bulk) MxPS= 512 Ivl=0ms
-I:* If#= 6 Alt= 0 #EPs= 2 Cls=ff(vend.) Sub=00 Prot=00 Driver=option
-E: Ad=88(I) Atr=02(Bulk) MxPS= 512 Ivl=0ms
-E: Ad=06(O) Atr=02(Bulk) MxPS= 512 Ivl=0ms
-I:* If#= 7 Alt= 0 #EPs= 3 Cls=ff(vend.) Sub=00 Prot=00 Driver=option
-E: Ad=8a(I) Atr=02(Bulk) MxPS= 512 Ivl=0ms
-E: Ad=07(O) Atr=02(Bulk) MxPS= 512 Ivl=0ms
-E: Ad=89(I) Atr=03(Int.) MxPS= 512 Ivl=4096ms
-I:* If#= 8 Alt= 0 #EPs= 2 Cls=ff(vend.) Sub=00 Prot=00 Driver=option
-E: Ad=8b(I) Atr=02(Bulk) MxPS= 512 Ivl=0ms
-E: Ad=08(O) Atr=02(Bulk) MxPS= 512 Ivl=0ms
-
-Signed-off-by: Ali Mirghasemi <ali.mirghasemi1376@gmail.com>
+Fixes: 2b16cf326b70 ("mmc: sdhci-esdhc-imx: move tuning static configuration into hwinit function")
+Signed-off-by: Haibo Chen <haibo.chen@nxp.com>
+Acked-by: Adrian Hunter <adrian.hunter@intel.com>
 Cc: stable@vger.kernel.org
-Signed-off-by: Johan Hovold <johan@kernel.org>
+Link: https://lore.kernel.org/r/20221207112315.1812222-1-haibo.chen@nxp.com
+Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/usb/serial/option.c |    2 ++
- 1 file changed, 2 insertions(+)
+ drivers/mmc/host/sdhci-esdhc-imx.c |   22 +++++++++++++++-------
+ 1 file changed, 15 insertions(+), 7 deletions(-)
 
---- a/drivers/usb/serial/option.c
-+++ b/drivers/usb/serial/option.c
-@@ -262,6 +262,7 @@ static void option_instat_callback(struc
- #define QUECTEL_PRODUCT_EM12			0x0512
- #define QUECTEL_PRODUCT_RM500Q			0x0800
- #define QUECTEL_PRODUCT_RM520N			0x0801
-+#define QUECTEL_PRODUCT_EC200U			0x0901
- #define QUECTEL_PRODUCT_EC200S_CN		0x6002
- #define QUECTEL_PRODUCT_EC200T			0x6026
- #define QUECTEL_PRODUCT_RM500K			0x7001
-@@ -1189,6 +1190,7 @@ static const struct usb_device_id option
- 	{ USB_DEVICE_AND_INTERFACE_INFO(QUECTEL_VENDOR_ID, QUECTEL_PRODUCT_RM520N, 0xff, 0xff, 0x30) },
- 	{ USB_DEVICE_AND_INTERFACE_INFO(QUECTEL_VENDOR_ID, QUECTEL_PRODUCT_RM520N, 0xff, 0, 0x40) },
- 	{ USB_DEVICE_AND_INTERFACE_INFO(QUECTEL_VENDOR_ID, QUECTEL_PRODUCT_RM520N, 0xff, 0, 0) },
-+	{ USB_DEVICE_AND_INTERFACE_INFO(QUECTEL_VENDOR_ID, QUECTEL_PRODUCT_EC200U, 0xff, 0, 0) },
- 	{ USB_DEVICE_AND_INTERFACE_INFO(QUECTEL_VENDOR_ID, QUECTEL_PRODUCT_EC200S_CN, 0xff, 0, 0) },
- 	{ USB_DEVICE_AND_INTERFACE_INFO(QUECTEL_VENDOR_ID, QUECTEL_PRODUCT_EC200T, 0xff, 0, 0) },
- 	{ USB_DEVICE_AND_INTERFACE_INFO(QUECTEL_VENDOR_ID, QUECTEL_PRODUCT_RM500K, 0xff, 0x00, 0x00) },
+--- a/drivers/mmc/host/sdhci-esdhc-imx.c
++++ b/drivers/mmc/host/sdhci-esdhc-imx.c
+@@ -103,6 +103,7 @@
+ #define ESDHC_TUNING_START_TAP_DEFAULT	0x1
+ #define ESDHC_TUNING_START_TAP_MASK	0x7f
+ #define ESDHC_TUNING_CMD_CRC_CHECK_DISABLE	(1 << 7)
++#define ESDHC_TUNING_STEP_DEFAULT	0x1
+ #define ESDHC_TUNING_STEP_MASK		0x00070000
+ #define ESDHC_TUNING_STEP_SHIFT		16
+ 
+@@ -1300,7 +1301,7 @@ static void sdhci_esdhc_imx_hwinit(struc
+ 	struct sdhci_pltfm_host *pltfm_host = sdhci_priv(host);
+ 	struct pltfm_imx_data *imx_data = sdhci_pltfm_priv(pltfm_host);
+ 	struct cqhci_host *cq_host = host->mmc->cqe_private;
+-	int tmp;
++	u32 tmp;
+ 
+ 	if (esdhc_is_usdhc(imx_data)) {
+ 		/*
+@@ -1353,17 +1354,24 @@ static void sdhci_esdhc_imx_hwinit(struc
+ 
+ 		if (imx_data->socdata->flags & ESDHC_FLAG_STD_TUNING) {
+ 			tmp = readl(host->ioaddr + ESDHC_TUNING_CTRL);
+-			tmp |= ESDHC_STD_TUNING_EN |
+-				ESDHC_TUNING_START_TAP_DEFAULT;
+-			if (imx_data->boarddata.tuning_start_tap) {
+-				tmp &= ~ESDHC_TUNING_START_TAP_MASK;
++			tmp |= ESDHC_STD_TUNING_EN;
++
++			/*
++			 * ROM code or bootloader may config the start tap
++			 * and step, unmask them first.
++			 */
++			tmp &= ~(ESDHC_TUNING_START_TAP_MASK | ESDHC_TUNING_STEP_MASK);
++			if (imx_data->boarddata.tuning_start_tap)
+ 				tmp |= imx_data->boarddata.tuning_start_tap;
+-			}
++			else
++				tmp |= ESDHC_TUNING_START_TAP_DEFAULT;
+ 
+ 			if (imx_data->boarddata.tuning_step) {
+-				tmp &= ~ESDHC_TUNING_STEP_MASK;
+ 				tmp |= imx_data->boarddata.tuning_step
+ 					<< ESDHC_TUNING_STEP_SHIFT;
++			} else {
++				tmp |= ESDHC_TUNING_STEP_DEFAULT
++					<< ESDHC_TUNING_STEP_SHIFT;
+ 			}
+ 
+ 			/* Disable the CMD CRC check for tuning, if not, need to
 
 
