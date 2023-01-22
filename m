@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 965F5676EF4
-	for <lists+stable@lfdr.de>; Sun, 22 Jan 2023 16:16:12 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 07D08676FAD
+	for <lists+stable@lfdr.de>; Sun, 22 Jan 2023 16:24:08 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230504AbjAVPQL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 22 Jan 2023 10:16:11 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43156 "EHLO
+        id S231354AbjAVPYH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 22 Jan 2023 10:24:07 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52550 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230509AbjAVPQL (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 22 Jan 2023 10:16:11 -0500
+        with ESMTP id S231359AbjAVPYF (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 22 Jan 2023 10:24:05 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5ED8B22037
-        for <stable@vger.kernel.org>; Sun, 22 Jan 2023 07:16:10 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9BB051A96E
+        for <stable@vger.kernel.org>; Sun, 22 Jan 2023 07:24:02 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id EA73B60C5C
-        for <stable@vger.kernel.org>; Sun, 22 Jan 2023 15:16:09 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 056CAC4339B;
-        Sun, 22 Jan 2023 15:16:08 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 1ED2760C58
+        for <stable@vger.kernel.org>; Sun, 22 Jan 2023 15:24:02 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 32E69C433D2;
+        Sun, 22 Jan 2023 15:24:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1674400569;
-        bh=ZSvdS4W4P1E/XPtpJVmZDgY3igKvzdx8htExrsAiKjo=;
+        s=korg; t=1674401041;
+        bh=4R7EWBfTbCU1BF2aKnFQ4VzWy8st9aEc8I9SL60lcAU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=lC1+f51rXe0M3wAhl0rnzXeNVGLD+YI5ruMPBye7oWjhy169VvoV46kIK2Sn3nNGv
-         zS6a9aopsRX2eRZ4RK075RR7PrQljTyKHor6Bjn9/qmwZYI4m2OYQU2LLn3PnNyrFq
-         tg7XMhta64OZBUs/SNgNrpmjZ9DqvkjfIvaF+9FY=
+        b=cIl/5xR+loYCYoVqShofuEDPlDW/8r3DzSunu04l4t6KSGlYB/phzLaUmeUbQS3ll
+         nUtowqiONuww4GP9E7prK6m8k0pBr8ZHV92uoB4WMHqAAnBqmLc09P/mh4ysCX8fl8
+         4jB8RFb3pER57g8Y9cuhcmoSLjG0UbbCkWmu4uEw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Alex Deucher <alexander.deucher@amd.com>,
-        Lijo Lazar <lijo.lazar@amd.com>,
-        Mario Limonciello <mario.limonciello@amd.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 025/117] drm/amd: Delay removal of the firmware framebuffer
-Date:   Sun, 22 Jan 2023 16:03:35 +0100
-Message-Id: <20230122150233.744682387@linuxfoundation.org>
+        patches@lists.linux.dev, Lukas Straub <lukasstraub2@web.de>,
+        HanatoK <summersnow9403@gmail.com>, Qu Wenruo <wqu@suse.com>,
+        David Sterba <dsterba@suse.com>
+Subject: [PATCH 6.1 087/193] btrfs: qgroup: do not warn on record without old_roots populated
+Date:   Sun, 22 Jan 2023 16:03:36 +0100
+Message-Id: <20230122150250.366577372@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.1
-In-Reply-To: <20230122150232.736358800@linuxfoundation.org>
-References: <20230122150232.736358800@linuxfoundation.org>
+In-Reply-To: <20230122150246.321043584@linuxfoundation.org>
+References: <20230122150246.321043584@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,86 +54,97 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 1923bc5a56daeeabd7e9093bad2febcd6af2416a ]
+From: Qu Wenruo <wqu@suse.com>
 
-Removing the firmware framebuffer from the driver means that even
-if the driver doesn't support the IP blocks in a GPU it will no
-longer be functional after the driver fails to initialize.
+commit 75181406b4eafacc531ff2ee5fb032bd93317e2b upstream.
 
-This change will ensure that unsupported IP blocks at least cause
-the driver to work with the EFI framebuffer.
+[BUG]
+There are some reports from the mailing list that since v6.1 kernel, the
+WARN_ON() inside btrfs_qgroup_account_extent() gets triggered during
+rescan:
 
-Cc: stable@vger.kernel.org
-Suggested-by: Alex Deucher <alexander.deucher@amd.com>
-Reviewed-by: Alex Deucher <alexander.deucher@amd.com>
-Reviewed-by: Lijo Lazar <lijo.lazar@amd.com>
-Signed-off-by: Mario Limonciello <mario.limonciello@amd.com>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+  WARNING: CPU: 3 PID: 6424 at fs/btrfs/qgroup.c:2756 btrfs_qgroup_account_extents+0x1ae/0x260 [btrfs]
+  CPU: 3 PID: 6424 Comm: snapperd Tainted: P           OE      6.1.2-1-default #1 openSUSE Tumbleweed 05c7a1b1b61d5627475528f71f50444637b5aad7
+  RIP: 0010:btrfs_qgroup_account_extents+0x1ae/0x260 [btrfs]
+  Call Trace:
+   <TASK>
+  btrfs_commit_transaction+0x30c/0xb40 [btrfs c39c9c546c241c593f03bd6d5f39ea1b676250f6]
+   ? start_transaction+0xc3/0x5b0 [btrfs c39c9c546c241c593f03bd6d5f39ea1b676250f6]
+  btrfs_qgroup_rescan+0x42/0xc0 [btrfs c39c9c546c241c593f03bd6d5f39ea1b676250f6]
+   btrfs_ioctl+0x1ab9/0x25c0 [btrfs c39c9c546c241c593f03bd6d5f39ea1b676250f6]
+   ? __rseq_handle_notify_resume+0xa9/0x4a0
+   ? mntput_no_expire+0x4a/0x240
+   ? __seccomp_filter+0x319/0x4d0
+   __x64_sys_ioctl+0x90/0xd0
+   do_syscall_64+0x5b/0x80
+   ? syscall_exit_to_user_mode+0x17/0x40
+   ? do_syscall_64+0x67/0x80
+  entry_SYSCALL_64_after_hwframe+0x63/0xcd
+  RIP: 0033:0x7fd9b790d9bf
+   </TASK>
+
+[CAUSE]
+Since commit e15e9f43c7ca ("btrfs: introduce
+BTRFS_QGROUP_RUNTIME_FLAG_NO_ACCOUNTING to skip qgroup accounting"), if
+our qgroup is already in inconsistent state, we will no longer do the
+time-consuming backref walk.
+
+This can leave some qgroup records without a valid old_roots ulist.
+Normally this is fine, as btrfs_qgroup_account_extents() would also skip
+those records if we have NO_ACCOUNTING flag set.
+
+But there is a small window, if we have NO_ACCOUNTING flag set, and
+inserted some qgroup_record without a old_roots ulist, but then the user
+triggered a qgroup rescan.
+
+During btrfs_qgroup_rescan(), we firstly clear NO_ACCOUNTING flag, then
+commit current transaction.
+
+And since we have a qgroup_record with old_roots = NULL, we trigger the
+WARN_ON() during btrfs_qgroup_account_extents().
+
+[FIX]
+Unfortunately due to the introduction of NO_ACCOUNTING flag, the
+assumption that every qgroup_record would have its old_roots populated
+is no longer correct.
+
+Fix the false alerts and drop the WARN_ON().
+
+Reported-by: Lukas Straub <lukasstraub2@web.de>
+Reported-by: HanatoK <summersnow9403@gmail.com>
+Fixes: e15e9f43c7ca ("btrfs: introduce BTRFS_QGROUP_RUNTIME_FLAG_NO_ACCOUNTING to skip qgroup accounting")
+CC: stable@vger.kernel.org # 6.1
+Link: https://lore.kernel.org/linux-btrfs/2403c697-ddaf-58ad-3829-0335fc89df09@gmail.com/
+Signed-off-by: Qu Wenruo <wqu@suse.com>
+Signed-off-by: David Sterba <dsterba@suse.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/gpu/drm/amd/amdgpu/amdgpu_device.c | 8 ++++++++
- drivers/gpu/drm/amd/amdgpu/amdgpu_drv.c    | 6 ------
- 2 files changed, 8 insertions(+), 6 deletions(-)
+ fs/btrfs/qgroup.c |   14 ++++++++++++--
+ 1 file changed, 12 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/gpu/drm/amd/amdgpu/amdgpu_device.c b/drivers/gpu/drm/amd/amdgpu/amdgpu_device.c
-index 0d998bc830c2..b5fe2c91f58c 100644
---- a/drivers/gpu/drm/amd/amdgpu/amdgpu_device.c
-+++ b/drivers/gpu/drm/amd/amdgpu/amdgpu_device.c
-@@ -32,6 +32,7 @@
- #include <linux/slab.h>
- #include <linux/pci.h>
- 
-+#include <drm/drm_aperture.h>
- #include <drm/drm_atomic_helper.h>
- #include <drm/drm_probe_helper.h>
- #include <drm/amdgpu_drm.h>
-@@ -89,6 +90,8 @@ MODULE_FIRMWARE("amdgpu/yellow_carp_gpu_info.bin");
- 
- #define AMDGPU_RESUME_MS		2000
- 
-+static const struct drm_driver amdgpu_kms_driver;
-+
- const char *amdgpu_asic_name[] = {
- 	"TAHITI",
- 	"PITCAIRN",
-@@ -3637,6 +3640,11 @@ int amdgpu_device_init(struct amdgpu_device *adev,
- 	if (r)
- 		return r;
- 
-+	/* Get rid of things like offb */
-+	r = drm_aperture_remove_conflicting_pci_framebuffers(adev->pdev, &amdgpu_kms_driver);
-+	if (r)
-+		return r;
-+
- 	/* doorbell bar mapping and doorbell index init*/
- 	amdgpu_device_doorbell_init(adev);
- 
-diff --git a/drivers/gpu/drm/amd/amdgpu/amdgpu_drv.c b/drivers/gpu/drm/amd/amdgpu/amdgpu_drv.c
-index cabbf02eb054..c95cee3d4c9a 100644
---- a/drivers/gpu/drm/amd/amdgpu/amdgpu_drv.c
-+++ b/drivers/gpu/drm/amd/amdgpu/amdgpu_drv.c
-@@ -23,7 +23,6 @@
-  */
- 
- #include <drm/amdgpu_drm.h>
--#include <drm/drm_aperture.h>
- #include <drm/drm_drv.h>
- #include <drm/drm_gem.h>
- #include <drm/drm_vblank.h>
-@@ -2067,11 +2066,6 @@ static int amdgpu_pci_probe(struct pci_dev *pdev,
- 	size = pci_resource_len(pdev, 0);
- 	is_fw_fb = amdgpu_is_fw_framebuffer(base, size);
- 
--	/* Get rid of things like offb */
--	ret = drm_aperture_remove_conflicting_pci_framebuffers(pdev, &amdgpu_kms_driver);
--	if (ret)
--		return ret;
--
- 	adev = devm_drm_dev_alloc(&pdev->dev, &amdgpu_kms_driver, typeof(*adev), ddev);
- 	if (IS_ERR(adev))
- 		return PTR_ERR(adev);
--- 
-2.39.0
-
+--- a/fs/btrfs/qgroup.c
++++ b/fs/btrfs/qgroup.c
+@@ -2751,9 +2751,19 @@ int btrfs_qgroup_account_extents(struct
+ 			      BTRFS_QGROUP_RUNTIME_FLAG_NO_ACCOUNTING)) {
+ 			/*
+ 			 * Old roots should be searched when inserting qgroup
+-			 * extent record
++			 * extent record.
++			 *
++			 * But for INCONSISTENT (NO_ACCOUNTING) -> rescan case,
++			 * we may have some record inserted during
++			 * NO_ACCOUNTING (thus no old_roots populated), but
++			 * later we start rescan, which clears NO_ACCOUNTING,
++			 * leaving some inserted records without old_roots
++			 * populated.
++			 *
++			 * Those cases are rare and should not cause too much
++			 * time spent during commit_transaction().
+ 			 */
+-			if (WARN_ON(!record->old_roots)) {
++			if (!record->old_roots) {
+ 				/* Search commit root to find old_roots */
+ 				ret = btrfs_find_all_roots(NULL, fs_info,
+ 						record->bytenr, 0,
 
 
