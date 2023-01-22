@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B9D03676E83
-	for <lists+stable@lfdr.de>; Sun, 22 Jan 2023 16:11:27 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 777D7676FB8
+	for <lists+stable@lfdr.de>; Sun, 22 Jan 2023 16:24:33 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230339AbjAVPL0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 22 Jan 2023 10:11:26 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38062 "EHLO
+        id S231362AbjAVPYc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 22 Jan 2023 10:24:32 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52890 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230351AbjAVPLZ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 22 Jan 2023 10:11:25 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 958C620071
-        for <stable@vger.kernel.org>; Sun, 22 Jan 2023 07:11:22 -0800 (PST)
+        with ESMTP id S231361AbjAVPYc (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 22 Jan 2023 10:24:32 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 813771CAC6
+        for <stable@vger.kernel.org>; Sun, 22 Jan 2023 07:24:31 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 3A1DCB80AF8
-        for <stable@vger.kernel.org>; Sun, 22 Jan 2023 15:11:21 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 97A54C433D2;
-        Sun, 22 Jan 2023 15:11:19 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 154A460C58
+        for <stable@vger.kernel.org>; Sun, 22 Jan 2023 15:24:31 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2AD8FC433D2;
+        Sun, 22 Jan 2023 15:24:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1674400280;
-        bh=kMTd/QWEVaMMbGGHko64wkREQRIpQtKXX9E8vNP5Ciw=;
+        s=korg; t=1674401070;
+        bh=p9I1Wbtf3yzRNUEkZUL0Kkltv7APwr7ywL+PJ8Conng=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=J7ugYF9J/rQ/9A5w/TA2oKJVlw1zY1COxE8t0kee2FQEimAd0rYbtNjVdNIDQSoYj
-         MINqJDGpQvURJQK6EkuNz3hc60NwpkMrU1T3aiKoHnbZZgiat1QUQYBB8RnK/V5n6+
-         r77PoYaE2yT89NmmVwz7/l1iMeL9m0OdLSpKUDDg=
+        b=E7IWq+Pv3cAhapWpsTHF1IlIdq8h6sYJOJVdcOhlnTLoNd1yQpC72n1GEtzo22Yo9
+         HFL34+yO/HrNQLW+ZkAMAi6VksDDphXw/Aa+ns5hWIUeRBYc6f/gJT0x2ZNX7ODyTC
+         ZLPtt+3MPKmCY+rz2XT06LMO8vbGmPKWhvPWOiJ0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Hao Sun <sunhao.th@gmail.com>,
-        Martin KaFai Lau <martin.lau@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 03/98] selftests/bpf: check null propagation only neither reg is PTR_TO_BTF_ID
+        patches@lists.linux.dev, stable <stable@kernel.org>,
+        Ola Jeppsson <ola@snap.com>, Abel Vesa <abel.vesa@linaro.org>,
+        Srinivas Kandagatla <srinivas.kandagatla@linaro.org>
+Subject: [PATCH 6.1 070/193] misc: fastrpc: Fix use-after-free race condition for maps
 Date:   Sun, 22 Jan 2023 16:03:19 +0100
-Message-Id: <20230122150229.524616219@linuxfoundation.org>
+Message-Id: <20230122150249.550849949@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.1
-In-Reply-To: <20230122150229.351631432@linuxfoundation.org>
-References: <20230122150229.351631432@linuxfoundation.org>
+In-Reply-To: <20230122150246.321043584@linuxfoundation.org>
+References: <20230122150246.321043584@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,91 +54,61 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hao Sun <sunhao.th@gmail.com>
+From: Ola Jeppsson <ola@snap.com>
 
-[ Upstream commit cedebd74cf3883f0384af9ec26b4e6f8f1964dd4 ]
+commit 96b328d119eca7563c1edcc4e1039a62e6370ecb upstream.
 
-Verify that nullness information is not porpagated in the branches
-of register to register JEQ and JNE operations if one of them is
-PTR_TO_BTF_ID. Implement this in C level so we can use CO-RE.
+It is possible that in between calling fastrpc_map_get() until
+map->fl->lock is taken in fastrpc_free_map(), another thread can call
+fastrpc_map_lookup() and get a reference to a map that is about to be
+deleted.
 
-Signed-off-by: Hao Sun <sunhao.th@gmail.com>
-Suggested-by: Martin KaFai Lau <martin.lau@kernel.org>
-Link: https://lore.kernel.org/r/20221222024414.29539-2-sunhao.th@gmail.com
-Signed-off-by: Martin KaFai Lau <martin.lau@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Rewrite fastrpc_map_get() to only increase the reference count of a map
+if it's non-zero. Propagate this to callers so they can know if a map is
+about to be deleted.
+
+Fixes this warning:
+refcount_t: addition on 0; use-after-free.
+WARNING: CPU: 5 PID: 10100 at lib/refcount.c:25 refcount_warn_saturate
+...
+Call trace:
+ refcount_warn_saturate
+ [fastrpc_map_get inlined]
+ [fastrpc_map_lookup inlined]
+ fastrpc_map_create
+ fastrpc_internal_invoke
+ fastrpc_device_ioctl
+ __arm64_sys_ioctl
+ invoke_syscall
+
+Fixes: c68cfb718c8f ("misc: fastrpc: Add support for context Invoke method")
+Cc: stable <stable@kernel.org>
+Signed-off-by: Ola Jeppsson <ola@snap.com>
+Signed-off-by: Abel Vesa <abel.vesa@linaro.org>
+Signed-off-by: Srinivas Kandagatla <srinivas.kandagatla@linaro.org>
+Link: https://lore.kernel.org/r/20221124174941.418450-4-srinivas.kandagatla@linaro.org
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- .../bpf/prog_tests/jeq_infer_not_null.c       |  9 ++++
- .../bpf/progs/jeq_infer_not_null_fail.c       | 42 +++++++++++++++++++
- 2 files changed, 51 insertions(+)
- create mode 100644 tools/testing/selftests/bpf/prog_tests/jeq_infer_not_null.c
- create mode 100644 tools/testing/selftests/bpf/progs/jeq_infer_not_null_fail.c
+ drivers/misc/fastrpc.c |    8 +++++---
+ 1 file changed, 5 insertions(+), 3 deletions(-)
 
-diff --git a/tools/testing/selftests/bpf/prog_tests/jeq_infer_not_null.c b/tools/testing/selftests/bpf/prog_tests/jeq_infer_not_null.c
-new file mode 100644
-index 000000000000..3add34df5767
---- /dev/null
-+++ b/tools/testing/selftests/bpf/prog_tests/jeq_infer_not_null.c
-@@ -0,0 +1,9 @@
-+// SPDX-License-Identifier: GPL-2.0
+--- a/drivers/misc/fastrpc.c
++++ b/drivers/misc/fastrpc.c
+@@ -332,10 +332,12 @@ static void fastrpc_map_put(struct fastr
+ 		kref_put(&map->refcount, fastrpc_free_map);
+ }
+ 
+-static void fastrpc_map_get(struct fastrpc_map *map)
++static int fastrpc_map_get(struct fastrpc_map *map)
+ {
+-	if (map)
+-		kref_get(&map->refcount);
++	if (!map)
++		return -ENOENT;
 +
-+#include <test_progs.h>
-+#include "jeq_infer_not_null_fail.skel.h"
-+
-+void test_jeq_infer_not_null(void)
-+{
-+	RUN_TESTS(jeq_infer_not_null_fail);
-+}
-diff --git a/tools/testing/selftests/bpf/progs/jeq_infer_not_null_fail.c b/tools/testing/selftests/bpf/progs/jeq_infer_not_null_fail.c
-new file mode 100644
-index 000000000000..f46965053acb
---- /dev/null
-+++ b/tools/testing/selftests/bpf/progs/jeq_infer_not_null_fail.c
-@@ -0,0 +1,42 @@
-+// SPDX-License-Identifier: GPL-2.0
-+
-+#include "vmlinux.h"
-+#include <bpf/bpf_helpers.h>
-+#include "bpf_misc.h"
-+
-+char _license[] SEC("license") = "GPL";
-+
-+struct {
-+	__uint(type, BPF_MAP_TYPE_HASH);
-+	__uint(max_entries, 1);
-+	__type(key, u64);
-+	__type(value, u64);
-+} m_hash SEC(".maps");
-+
-+SEC("?raw_tp")
-+__failure __msg("R8 invalid mem access 'map_value_or_null")
-+int jeq_infer_not_null_ptr_to_btfid(void *ctx)
-+{
-+	struct bpf_map *map = (struct bpf_map *)&m_hash;
-+	struct bpf_map *inner_map = map->inner_map_meta;
-+	u64 key = 0, ret = 0, *val;
-+
-+	val = bpf_map_lookup_elem(map, &key);
-+	/* Do not mark ptr as non-null if one of them is
-+	 * PTR_TO_BTF_ID (R9), reject because of invalid
-+	 * access to map value (R8).
-+	 *
-+	 * Here, we need to inline those insns to access
-+	 * R8 directly, since compiler may use other reg
-+	 * once it figures out val==inner_map.
-+	 */
-+	asm volatile("r8 = %[val];\n"
-+		     "r9 = %[inner_map];\n"
-+		     "if r8 != r9 goto +1;\n"
-+		     "%[ret] = *(u64 *)(r8 +0);\n"
-+		     : [ret] "+r"(ret)
-+		     : [inner_map] "r"(inner_map), [val] "r"(val)
-+		     : "r8", "r9");
-+
-+	return ret;
-+}
--- 
-2.35.1
-
++	return kref_get_unless_zero(&map->refcount) ? 0 : -ENOENT;
+ }
+ 
+ 
 
 
