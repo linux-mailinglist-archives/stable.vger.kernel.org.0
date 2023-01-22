@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 777D7676FB8
-	for <lists+stable@lfdr.de>; Sun, 22 Jan 2023 16:24:33 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 24EF5676EE4
+	for <lists+stable@lfdr.de>; Sun, 22 Jan 2023 16:15:35 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231362AbjAVPYc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 22 Jan 2023 10:24:32 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52890 "EHLO
+        id S230491AbjAVPPe (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 22 Jan 2023 10:15:34 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42278 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231361AbjAVPYc (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 22 Jan 2023 10:24:32 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 813771CAC6
-        for <stable@vger.kernel.org>; Sun, 22 Jan 2023 07:24:31 -0800 (PST)
+        with ESMTP id S230486AbjAVPPb (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 22 Jan 2023 10:15:31 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3A0A622023
+        for <stable@vger.kernel.org>; Sun, 22 Jan 2023 07:15:30 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 154A460C58
-        for <stable@vger.kernel.org>; Sun, 22 Jan 2023 15:24:31 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2AD8FC433D2;
-        Sun, 22 Jan 2023 15:24:30 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id D84C7B80B1B
+        for <stable@vger.kernel.org>; Sun, 22 Jan 2023 15:15:28 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3C11AC433EF;
+        Sun, 22 Jan 2023 15:15:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1674401070;
-        bh=p9I1Wbtf3yzRNUEkZUL0Kkltv7APwr7ywL+PJ8Conng=;
+        s=korg; t=1674400527;
+        bh=3gQfJid2aWfbnc/lTaC+ne5dZRJiKd8t3N7n3/1zhY0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=E7IWq+Pv3cAhapWpsTHF1IlIdq8h6sYJOJVdcOhlnTLoNd1yQpC72n1GEtzo22Yo9
-         HFL34+yO/HrNQLW+ZkAMAi6VksDDphXw/Aa+ns5hWIUeRBYc6f/gJT0x2ZNX7ODyTC
-         ZLPtt+3MPKmCY+rz2XT06LMO8vbGmPKWhvPWOiJ0=
+        b=xEtiRKjQ/tVA0dJG/jnXlGxU1twYqn0u4dwrlGU97mP3CSRBIR3lC0/goL21Wixeq
+         qyy4IPn0ALLBFhtUKa+CLJ1AGGUYhN+nd5j3PZ79rgpNPIdKY5rjMmPArTOw+Of5be
+         5XCUtv7kjkymYrPsi96z7Y6wGdT6Yx1Q+arKmCSs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, stable <stable@kernel.org>,
-        Ola Jeppsson <ola@snap.com>, Abel Vesa <abel.vesa@linaro.org>,
-        Srinivas Kandagatla <srinivas.kandagatla@linaro.org>
-Subject: [PATCH 6.1 070/193] misc: fastrpc: Fix use-after-free race condition for maps
-Date:   Sun, 22 Jan 2023 16:03:19 +0100
-Message-Id: <20230122150249.550849949@linuxfoundation.org>
+        patches@lists.linux.dev, Anand Jain <anand.jain@oracle.com>,
+        Qu Wenruo <wqu@suse.com>, David Sterba <dsterba@suse.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.15 010/117] btrfs: always report error in run_one_delayed_ref()
+Date:   Sun, 22 Jan 2023 16:03:20 +0100
+Message-Id: <20230122150233.151349070@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.1
-In-Reply-To: <20230122150246.321043584@linuxfoundation.org>
-References: <20230122150246.321043584@linuxfoundation.org>
+In-Reply-To: <20230122150232.736358800@linuxfoundation.org>
+References: <20230122150232.736358800@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,61 +54,80 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ola Jeppsson <ola@snap.com>
+From: Qu Wenruo <wqu@suse.com>
 
-commit 96b328d119eca7563c1edcc4e1039a62e6370ecb upstream.
+[ Upstream commit 39f501d68ec1ed5cd5c66ac6ec2a7131c517bb92 ]
 
-It is possible that in between calling fastrpc_map_get() until
-map->fl->lock is taken in fastrpc_free_map(), another thread can call
-fastrpc_map_lookup() and get a reference to a map that is about to be
-deleted.
+Currently we have a btrfs_debug() for run_one_delayed_ref() failure, but
+if end users hit such problem, there will be no chance that
+btrfs_debug() is enabled.  This can lead to very little useful info for
+debugging.
 
-Rewrite fastrpc_map_get() to only increase the reference count of a map
-if it's non-zero. Propagate this to callers so they can know if a map is
-about to be deleted.
+This patch will:
 
-Fixes this warning:
-refcount_t: addition on 0; use-after-free.
-WARNING: CPU: 5 PID: 10100 at lib/refcount.c:25 refcount_warn_saturate
-...
-Call trace:
- refcount_warn_saturate
- [fastrpc_map_get inlined]
- [fastrpc_map_lookup inlined]
- fastrpc_map_create
- fastrpc_internal_invoke
- fastrpc_device_ioctl
- __arm64_sys_ioctl
- invoke_syscall
+- Add extra info for error reporting
+  Including:
+  * logical bytenr
+  * num_bytes
+  * type
+  * action
+  * ref_mod
 
-Fixes: c68cfb718c8f ("misc: fastrpc: Add support for context Invoke method")
-Cc: stable <stable@kernel.org>
-Signed-off-by: Ola Jeppsson <ola@snap.com>
-Signed-off-by: Abel Vesa <abel.vesa@linaro.org>
-Signed-off-by: Srinivas Kandagatla <srinivas.kandagatla@linaro.org>
-Link: https://lore.kernel.org/r/20221124174941.418450-4-srinivas.kandagatla@linaro.org
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+- Replace the btrfs_debug() with btrfs_err()
+
+- Move the error reporting into run_one_delayed_ref()
+  This is to avoid use-after-free, the @node can be freed in the caller.
+
+This error should only be triggered at most once.
+
+As if run_one_delayed_ref() failed, we trigger the error message, then
+causing the call chain to error out:
+
+btrfs_run_delayed_refs()
+`- btrfs_run_delayed_refs()
+   `- btrfs_run_delayed_refs_for_head()
+      `- run_one_delayed_ref()
+
+And we will abort the current transaction in btrfs_run_delayed_refs().
+If we have to run delayed refs for the abort transaction,
+run_one_delayed_ref() will just cleanup the refs and do nothing, thus no
+new error messages would be output.
+
+Reviewed-by: Anand Jain <anand.jain@oracle.com>
+Signed-off-by: Qu Wenruo <wqu@suse.com>
+Signed-off-by: David Sterba <dsterba@suse.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/misc/fastrpc.c |    8 +++++---
- 1 file changed, 5 insertions(+), 3 deletions(-)
+ fs/btrfs/extent-tree.c | 7 +++++--
+ 1 file changed, 5 insertions(+), 2 deletions(-)
 
---- a/drivers/misc/fastrpc.c
-+++ b/drivers/misc/fastrpc.c
-@@ -332,10 +332,12 @@ static void fastrpc_map_put(struct fastr
- 		kref_put(&map->refcount, fastrpc_free_map);
+diff --git a/fs/btrfs/extent-tree.c b/fs/btrfs/extent-tree.c
+index e72973f7c2cd..750c1ff9947d 100644
+--- a/fs/btrfs/extent-tree.c
++++ b/fs/btrfs/extent-tree.c
+@@ -1717,6 +1717,11 @@ static int run_one_delayed_ref(struct btrfs_trans_handle *trans,
+ 		BUG();
+ 	if (ret && insert_reserved)
+ 		btrfs_pin_extent(trans, node->bytenr, node->num_bytes, 1);
++	if (ret < 0)
++		btrfs_err(trans->fs_info,
++"failed to run delayed ref for logical %llu num_bytes %llu type %u action %u ref_mod %d: %d",
++			  node->bytenr, node->num_bytes, node->type,
++			  node->action, node->ref_mod, ret);
+ 	return ret;
  }
  
--static void fastrpc_map_get(struct fastrpc_map *map)
-+static int fastrpc_map_get(struct fastrpc_map *map)
- {
--	if (map)
--		kref_get(&map->refcount);
-+	if (!map)
-+		return -ENOENT;
-+
-+	return kref_get_unless_zero(&map->refcount) ? 0 : -ENOENT;
- }
+@@ -1955,8 +1960,6 @@ static int btrfs_run_delayed_refs_for_head(struct btrfs_trans_handle *trans,
+ 		if (ret) {
+ 			unselect_delayed_ref_head(delayed_refs, locked_ref);
+ 			btrfs_put_delayed_ref(ref);
+-			btrfs_debug(fs_info, "run_one_delayed_ref returned %d",
+-				    ret);
+ 			return ret;
+ 		}
  
- 
+-- 
+2.35.1
+
 
 
