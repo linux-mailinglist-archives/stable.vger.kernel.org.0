@@ -2,83 +2,122 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B826B676E24
-	for <lists+stable@lfdr.de>; Sun, 22 Jan 2023 16:07:35 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B65CB676F30
+	for <lists+stable@lfdr.de>; Sun, 22 Jan 2023 16:18:42 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230173AbjAVPHe (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 22 Jan 2023 10:07:34 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33556 "EHLO
+        id S231179AbjAVPSm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 22 Jan 2023 10:18:42 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46014 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230183AbjAVPHd (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 22 Jan 2023 10:07:33 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D06511EFCB
-        for <stable@vger.kernel.org>; Sun, 22 Jan 2023 07:07:23 -0800 (PST)
+        with ESMTP id S231173AbjAVPSl (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 22 Jan 2023 10:18:41 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C55891A4AD
+        for <stable@vger.kernel.org>; Sun, 22 Jan 2023 07:18:40 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 6D34A60C59
-        for <stable@vger.kernel.org>; Sun, 22 Jan 2023 15:07:23 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7EE88C433EF;
-        Sun, 22 Jan 2023 15:07:22 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 667FFB80B11
+        for <stable@vger.kernel.org>; Sun, 22 Jan 2023 15:18:39 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id BDABAC433EF;
+        Sun, 22 Jan 2023 15:18:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1674400042;
-        bh=14cn/NlF5MWK9KYQH14Rd2ZbJ657MG0mzFh629Cckc0=;
+        s=korg; t=1674400718;
+        bh=WtOi+GKrBpcaTb9BScpbcahkz8cl3xyoDzQI8bmA7Mg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=LzmarzLNQwBy/wvrX2gv819319+fb5izUji49yF+ynWFjeQ3ajoKgq4RrlD+GMHgN
-         3H/OTZmzDsvqmzMbwFdLgRGyFNrJFq2llLHBHpoGJONxRAkyQ5yrZVMfABWhcYSUhj
-         bqXPvcJYYAAMXF3Z1pgkCuBK3/NJbzpoE7AaPUDU=
+        b=UNCCez86BPfbJtNNy/V40FX6SabgWTh+bl7WiGvejW4tSQ1dlhRNZ6bgUppiD+T41
+         QGUf3fwTzZs9Eau1zUjr5pHPKGUgkzhduOM0s4BE3iapyzYJ8KpYo8r3R9KQV5UxdC
+         PFM1k1/kHfxqIdPRKs+A3DNE8oUXcFEUxoOJhgJc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, stable <stable@kernel.org>,
-        Christoph Jung <jung@codemercs.com>
-Subject: [PATCH 4.19 18/37] USB: misc: iowarrior: fix up header size for USB_DEVICE_ID_CODEMERCS_IOW100
+        patches@lists.linux.dev, Josef Bacik <josef@toxicpanda.com>,
+        Filipe Manana <fdmanana@suse.com>,
+        David Sterba <dsterba@suse.com>
+Subject: [PATCH 5.15 065/117] btrfs: do not abort transaction on failure to write log tree when syncing log
 Date:   Sun, 22 Jan 2023 16:04:15 +0100
-Message-Id: <20230122150220.321860427@linuxfoundation.org>
+Message-Id: <20230122150235.480484816@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.1
-In-Reply-To: <20230122150219.557984692@linuxfoundation.org>
-References: <20230122150219.557984692@linuxfoundation.org>
+In-Reply-To: <20230122150232.736358800@linuxfoundation.org>
+References: <20230122150232.736358800@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
         DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
-        SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=unavailable
-        autolearn_force=no version=3.4.6
+        SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no
+        version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+From: Filipe Manana <fdmanana@suse.com>
 
-commit 14ff7460bb58662d86aa50298943cc7d25532e28 upstream.
+commit 16199ad9eb6db60a6b10794a09fc1ac6d09312ff upstream.
 
-The USB_DEVICE_ID_CODEMERCS_IOW100 header size was incorrect, it should
-be 12, not 13.
+When syncing the log, if we fail to write log tree extent buffers, we mark
+the log for a full commit and abort the transaction. However we don't need
+to abort the transaction, all we really need to do is to make sure no one
+can commit a superblock pointing to new log tree roots. Just because we
+got a failure writing extent buffers for a log tree, it does not mean we
+will also fail to do a transaction commit.
 
-Cc: stable <stable@kernel.org>
-Fixes: 17a82716587e ("USB: iowarrior: fix up report size handling for some devices")
-Reported-by: Christoph Jung <jung@codemercs.com>
-Link: https://lore.kernel.org/r/20230120135330.3842518-1-gregkh@linuxfoundation.org
+One particular case is if due to a bug somewhere, when writing log tree
+extent buffers, the tree checker detects some corruption and the writeout
+fails because of that. Aborting the transaction can be very disruptive for
+a user, specially if the issue happened on a root filesystem. One example
+is the scenario in the Link tag below, where an isolated corruption on log
+tree leaves was causing transaction aborts when syncing the log.
+
+Link: https://lore.kernel.org/linux-btrfs/ae169fc6-f504-28f0-a098-6fa6a4dfb612@leemhuis.info/
+CC: stable@vger.kernel.org # 5.15+
+Reviewed-by: Josef Bacik <josef@toxicpanda.com>
+Signed-off-by: Filipe Manana <fdmanana@suse.com>
+Signed-off-by: David Sterba <dsterba@suse.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/usb/misc/iowarrior.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ fs/btrfs/disk-io.c  |    9 ++++++++-
+ fs/btrfs/tree-log.c |    2 --
+ 2 files changed, 8 insertions(+), 3 deletions(-)
 
---- a/drivers/usb/misc/iowarrior.c
-+++ b/drivers/usb/misc/iowarrior.c
-@@ -832,7 +832,7 @@ static int iowarrior_probe(struct usb_in
- 			break;
+--- a/fs/btrfs/disk-io.c
++++ b/fs/btrfs/disk-io.c
+@@ -380,7 +380,14 @@ error:
+ 	btrfs_print_tree(eb, 0);
+ 	btrfs_err(fs_info, "block=%llu write time tree block corruption detected",
+ 		  eb->start);
+-	WARN_ON(IS_ENABLED(CONFIG_BTRFS_DEBUG));
++	/*
++	 * Be noisy if this is an extent buffer from a log tree. We don't abort
++	 * a transaction in case there's a bad log tree extent buffer, we just
++	 * fallback to a transaction commit. Still we want to know when there is
++	 * a bad log tree extent buffer, as that may signal a bug somewhere.
++	 */
++	WARN_ON(IS_ENABLED(CONFIG_BTRFS_DEBUG) ||
++		btrfs_header_owner(eb) == BTRFS_TREE_LOG_OBJECTID);
+ 	return ret;
+ }
  
- 		case USB_DEVICE_ID_CODEMERCS_IOW100:
--			dev->report_size = 13;
-+			dev->report_size = 12;
- 			break;
- 		}
+--- a/fs/btrfs/tree-log.c
++++ b/fs/btrfs/tree-log.c
+@@ -3141,7 +3141,6 @@ int btrfs_sync_log(struct btrfs_trans_ha
+ 		ret = 0;
+ 	if (ret) {
+ 		blk_finish_plug(&plug);
+-		btrfs_abort_transaction(trans, ret);
+ 		btrfs_set_log_full_commit(trans);
+ 		mutex_unlock(&root->log_mutex);
+ 		goto out;
+@@ -3273,7 +3272,6 @@ int btrfs_sync_log(struct btrfs_trans_ha
+ 		goto out_wake_log_root;
+ 	} else if (ret) {
+ 		btrfs_set_log_full_commit(trans);
+-		btrfs_abort_transaction(trans, ret);
+ 		mutex_unlock(&log_root_tree->log_mutex);
+ 		goto out_wake_log_root;
  	}
 
 
