@@ -2,51 +2,50 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 19E71677026
+	by mail.lfdr.de (Postfix) with ESMTP id 8B2B4677027
 	for <lists+stable@lfdr.de>; Sun, 22 Jan 2023 16:29:09 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230108AbjAVP3I (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S230096AbjAVP3I (ORCPT <rfc822;lists+stable@lfdr.de>);
         Sun, 22 Jan 2023 10:29:08 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56878 "EHLO
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56940 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231487AbjAVP3F (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 22 Jan 2023 10:29:05 -0500
+        with ESMTP id S231441AbjAVP3I (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 22 Jan 2023 10:29:08 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1502121948
-        for <stable@vger.kernel.org>; Sun, 22 Jan 2023 07:29:04 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BED802330F
+        for <stable@vger.kernel.org>; Sun, 22 Jan 2023 07:29:06 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id A58F360C57
-        for <stable@vger.kernel.org>; Sun, 22 Jan 2023 15:29:03 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B9F3CC433EF;
-        Sun, 22 Jan 2023 15:29:02 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 417E960C58
+        for <stable@vger.kernel.org>; Sun, 22 Jan 2023 15:29:06 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 562C4C433D2;
+        Sun, 22 Jan 2023 15:29:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1674401343;
-        bh=TcXLQiZSsjQ/TnBhXjzRAOcTriXap7n18XjwTMT7KPQ=;
+        s=korg; t=1674401345;
+        bh=ogqao7vrD0FB132jtaO2lwBFciMwG2oaXoz9NBVjVZA=;
         h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=j7O9MLhrdhkRmWM7Oi6PzBWD45fnHa43+l+U7kOzp5YzyC0B7NWI+V/bq+UZbw6mz
-         MA4YTT4VZUoHge+4DKzAiCbWNV5oNqtRM2nVYCZsxca6amT1YaNlHc470xTygzorXS
-         NNHGhno+cyTYH/uSa7bBbpAofNt6u7iL2TVmU37Y=
-Date:   Sun, 22 Jan 2023 16:07:14 +0100
+        b=Fl1pT9f340TAasXcq+7h5+ADynOa8jHPmz6G6hqq6gTWPHybS9Dq0mRnbL08bmtPr
+         BcUExYmfXanKviZlOsLqq9dPKUdFmJmjSh1z0pA+kVUX4mafnj14sIFVKROmFeMMRM
+         wERsvizlq/jZXdADgSno1XBpj4HsxUZWZvR4woqA=
+Date:   Sun, 22 Jan 2023 16:07:38 +0100
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     Harshit Mogalapalli <harshit.m.mogalapalli@oracle.com>
+To:     Nathan Chancellor <nathan@kernel.org>
 Cc:     stable@vger.kernel.org, patches@lists.linux.dev,
-        Zhang Xiaoxu <zhangxiaoxu5@huawei.com>,
-        Trond Myklebust <trond.myklebust@hammerspace.com>,
-        Sasha Levin <sashal@kernel.org>,
-        Dan Carpenter <error27@gmail.com>,
-        Darren Kenny <darren.kenny@oracle.com>
-Subject: Re: [PATCH 5.4 185/658] xprtrdma: Fix regbuf data not freed in
- rpcrdma_req_create()
-Message-ID: <Y81RIkI9ygwWvheM@kroah.com>
-References: <20230116154909.645460653@linuxfoundation.org>
- <20230116154917.918263147@linuxfoundation.org>
- <4d2928e1-c836-b817-3dc2-3fe9adcaf2d6@oracle.com>
+        Dokyung Song <dokyungs@yonsei.ac.kr>,
+        Jisoo Jang <jisoo.jang@yonsei.ac.kr>,
+        Minsuk Kang <linuxlovemin@yonsei.ac.kr>,
+        Kalle Valo <kvalo@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: Re: [PATCH 4.14 230/338] wifi: brcmfmac: Fix potential
+ shift-out-of-bounds in brcmf_fw_alloc_request()
+Message-ID: <Y81ROjTsMGs++M3J@kroah.com>
+References: <20230116154820.689115727@linuxfoundation.org>
+ <20230116154831.072581217@linuxfoundation.org>
+ <Y8gccXXyE30sbPSg@dev-arch.thelio-3990X>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <4d2928e1-c836-b817-3dc2-3fe9adcaf2d6@oracle.com>
+In-Reply-To: <Y8gccXXyE30sbPSg@dev-arch.thelio-3990X>
 X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
         DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
         SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no
@@ -57,105 +56,167 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Thu, Jan 19, 2023 at 11:39:35AM +0530, Harshit Mogalapalli wrote:
-> Hi,
-> 
-> On 16/01/23 9:14 pm, Greg Kroah-Hartman wrote:
-> > From: Zhang Xiaoxu <zhangxiaoxu5@huawei.com>
+On Wed, Jan 18, 2023 at 09:21:05AM -0700, Nathan Chancellor wrote:
+> On Mon, Jan 16, 2023 at 04:51:43PM +0100, Greg Kroah-Hartman wrote:
+> > From: Minsuk Kang <linuxlovemin@yonsei.ac.kr>
 > > 
-> > [ Upstream commit 9181f40fb2952fd59ecb75e7158620c9c669eee3 ]
+> > [ Upstream commit 81d17f6f3331f03c8eafdacea68ab773426c1e3c ]
 > > 
-> > If rdma receive buffer allocate failed, should call rpcrdma_regbuf_free()
-> > to free the send buffer, otherwise, the buffer data will be leaked.
+> > This patch fixes a shift-out-of-bounds in brcmfmac that occurs in
+> > BIT(chiprev) when a 'chiprev' provided by the device is too large.
+> > It should also not be equal to or greater than BITS_PER_TYPE(u32)
+> > as we do bitwise AND with a u32 variable and BIT(chiprev). The patch
+> > adds a check that makes the function return NULL if that is the case.
+> > Note that the NULL case is later handled by the bus-specific caller,
+> > brcmf_usb_probe_cb() or brcmf_usb_reset_resume(), for example.
 > > 
-> > Fixes: bb93a1ae2bf4 ("xprtrdma: Allocate req's regbufs at xprt create time")
-> > Signed-off-by: Zhang Xiaoxu <zhangxiaoxu5@huawei.com>
-> > Signed-off-by: Trond Myklebust <trond.myklebust@hammerspace.com>
+> > Found by a modified version of syzkaller.
+> > 
+> > UBSAN: shift-out-of-bounds in drivers/net/wireless/broadcom/brcm80211/brcmfmac/firmware.c
+> > shift exponent 151055786 is too large for 64-bit type 'long unsigned int'
+> > CPU: 0 PID: 1885 Comm: kworker/0:2 Tainted: G           O      5.14.0+ #132
+> > Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS rel-1.12.1-0-ga5cab58e9a3f-prebuilt.qemu.org 04/01/2014
+> > Workqueue: usb_hub_wq hub_event
+> > Call Trace:
+> >  dump_stack_lvl+0x57/0x7d
+> >  ubsan_epilogue+0x5/0x40
+> >  __ubsan_handle_shift_out_of_bounds.cold+0x53/0xdb
+> >  ? lock_chain_count+0x20/0x20
+> >  brcmf_fw_alloc_request.cold+0x19/0x3ea
+> >  ? brcmf_fw_get_firmwares+0x250/0x250
+> >  ? brcmf_usb_ioctl_resp_wait+0x1a7/0x1f0
+> >  brcmf_usb_get_fwname+0x114/0x1a0
+> >  ? brcmf_usb_reset_resume+0x120/0x120
+> >  ? number+0x6c4/0x9a0
+> >  brcmf_c_process_clm_blob+0x168/0x590
+> >  ? put_dec+0x90/0x90
+> >  ? enable_ptr_key_workfn+0x20/0x20
+> >  ? brcmf_common_pd_remove+0x50/0x50
+> >  ? rcu_read_lock_sched_held+0xa1/0xd0
+> >  brcmf_c_preinit_dcmds+0x673/0xc40
+> >  ? brcmf_c_set_joinpref_default+0x100/0x100
+> >  ? rcu_read_lock_sched_held+0xa1/0xd0
+> >  ? rcu_read_lock_bh_held+0xb0/0xb0
+> >  ? lock_acquire+0x19d/0x4e0
+> >  ? find_held_lock+0x2d/0x110
+> >  ? brcmf_usb_deq+0x1cc/0x260
+> >  ? mark_held_locks+0x9f/0xe0
+> >  ? lockdep_hardirqs_on_prepare+0x273/0x3e0
+> >  ? _raw_spin_unlock_irqrestore+0x47/0x50
+> >  ? trace_hardirqs_on+0x1c/0x120
+> >  ? brcmf_usb_deq+0x1a7/0x260
+> >  ? brcmf_usb_rx_fill_all+0x5a/0xf0
+> >  brcmf_attach+0x246/0xd40
+> >  ? wiphy_new_nm+0x1476/0x1d50
+> >  ? kmemdup+0x30/0x40
+> >  brcmf_usb_probe+0x12de/0x1690
+> >  ? brcmf_usbdev_qinit.constprop.0+0x470/0x470
+> >  usb_probe_interface+0x25f/0x710
+> >  really_probe+0x1be/0xa90
+> >  __driver_probe_device+0x2ab/0x460
+> >  ? usb_match_id.part.0+0x88/0xc0
+> >  driver_probe_device+0x49/0x120
+> >  __device_attach_driver+0x18a/0x250
+> >  ? driver_allows_async_probing+0x120/0x120
+> >  bus_for_each_drv+0x123/0x1a0
+> >  ? bus_rescan_devices+0x20/0x20
+> >  ? lockdep_hardirqs_on_prepare+0x273/0x3e0
+> >  ? trace_hardirqs_on+0x1c/0x120
+> >  __device_attach+0x207/0x330
+> >  ? device_bind_driver+0xb0/0xb0
+> >  ? kobject_uevent_env+0x230/0x12c0
+> >  bus_probe_device+0x1a2/0x260
+> >  device_add+0xa61/0x1ce0
+> >  ? __mutex_unlock_slowpath+0xe7/0x660
+> >  ? __fw_devlink_link_to_suppliers+0x550/0x550
+> >  usb_set_configuration+0x984/0x1770
+> >  ? kernfs_create_link+0x175/0x230
+> >  usb_generic_driver_probe+0x69/0x90
+> >  usb_probe_device+0x9c/0x220
+> >  really_probe+0x1be/0xa90
+> >  __driver_probe_device+0x2ab/0x460
+> >  driver_probe_device+0x49/0x120
+> >  __device_attach_driver+0x18a/0x250
+> >  ? driver_allows_async_probing+0x120/0x120
+> >  bus_for_each_drv+0x123/0x1a0
+> >  ? bus_rescan_devices+0x20/0x20
+> >  ? lockdep_hardirqs_on_prepare+0x273/0x3e0
+> >  ? trace_hardirqs_on+0x1c/0x120
+> >  __device_attach+0x207/0x330
+> >  ? device_bind_driver+0xb0/0xb0
+> >  ? kobject_uevent_env+0x230/0x12c0
+> >  bus_probe_device+0x1a2/0x260
+> >  device_add+0xa61/0x1ce0
+> >  ? __fw_devlink_link_to_suppliers+0x550/0x550
+> >  usb_new_device.cold+0x463/0xf66
+> >  ? hub_disconnect+0x400/0x400
+> >  ? _raw_spin_unlock_irq+0x24/0x30
+> >  hub_event+0x10d5/0x3330
+> >  ? hub_port_debounce+0x280/0x280
+> >  ? __lock_acquire+0x1671/0x5790
+> >  ? wq_calc_node_cpumask+0x170/0x2a0
+> >  ? lock_release+0x640/0x640
+> >  ? rcu_read_lock_sched_held+0xa1/0xd0
+> >  ? rcu_read_lock_bh_held+0xb0/0xb0
+> >  ? lockdep_hardirqs_on_prepare+0x273/0x3e0
+> >  process_one_work+0x873/0x13e0
+> >  ? lock_release+0x640/0x640
+> >  ? pwq_dec_nr_in_flight+0x320/0x320
+> >  ? rwlock_bug.part.0+0x90/0x90
+> >  worker_thread+0x8b/0xd10
+> >  ? __kthread_parkme+0xd9/0x1d0
+> >  ? process_one_work+0x13e0/0x13e0
+> >  kthread+0x379/0x450
+> >  ? _raw_spin_unlock_irq+0x24/0x30
+> >  ? set_kthread_struct+0x100/0x100
+> >  ret_from_fork+0x1f/0x30
+> > 
+> > Reported-by: Dokyung Song <dokyungs@yonsei.ac.kr>
+> > Reported-by: Jisoo Jang <jisoo.jang@yonsei.ac.kr>
+> > Reported-by: Minsuk Kang <linuxlovemin@yonsei.ac.kr>
+> > Signed-off-by: Minsuk Kang <linuxlovemin@yonsei.ac.kr>
+> > Signed-off-by: Kalle Valo <kvalo@kernel.org>
+> > Link: https://lore.kernel.org/r/20221024071329.504277-1-linuxlovemin@yonsei.ac.kr
 > > Signed-off-by: Sasha Levin <sashal@kernel.org>
 > > ---
-> >   net/sunrpc/xprtrdma/verbs.c | 1 +
-> >   1 file changed, 1 insertion(+)
+> >  drivers/net/wireless/broadcom/brcm80211/brcmfmac/firmware.c | 5 +++++
+> >  1 file changed, 5 insertions(+)
 > > 
-> > diff --git a/net/sunrpc/xprtrdma/verbs.c b/net/sunrpc/xprtrdma/verbs.c
-> > index 0f4d39fdb48f..e13115bbe719 100644
-> > --- a/net/sunrpc/xprtrdma/verbs.c
-> > +++ b/net/sunrpc/xprtrdma/verbs.c
-> > @@ -1037,6 +1037,7 @@ struct rpcrdma_req *rpcrdma_req_create(struct rpcrdma_xprt *r_xprt, size_t size,
-> >   	kfree(req->rl_sendbuf);
-> >   out3:
-> >   	kfree(req->rl_rdmabuf);
-> > +	rpcrdma_regbuf_free(req->rl_sendbuf);
+> > diff --git a/drivers/net/wireless/broadcom/brcm80211/brcmfmac/firmware.c b/drivers/net/wireless/broadcom/brcm80211/brcmfmac/firmware.c
+> > index 13c25798f39a..6d868b8b441a 100644
+> > --- a/drivers/net/wireless/broadcom/brcm80211/brcmfmac/firmware.c
+> > +++ b/drivers/net/wireless/broadcom/brcm80211/brcmfmac/firmware.c
+> > @@ -572,6 +572,11 @@ int brcmf_fw_map_chip_to_name(u32 chip, u32 chiprev,
+> >  	u32 i;
+> >  	char end;
+> >  
+> > +	if (chiprev >= BITS_PER_TYPE(u32)) {
+> > +		brcmf_err("Invalid chip revision %u\n", chiprev);
+> > +		return NULL;
+> > +	}
+> > +
+> >  	for (i = 0; i < table_size; i++) {
+> >  		if (mapping_table[i].chipid == chip &&
+> >  		    mapping_table[i].revmask & BIT(chiprev))
+> > -- 
+> > 2.35.1
 > 
-> I think this introduces a double free in rpcrdma_req_create() [5.4.y]
+> Clang points out that this backport is incorrect:
 > 
-> Copying the function from 5.4.229 post the above patch here.
+>   drivers/net/wireless/broadcom/brcm80211/brcmfmac/firmware.c:577:10: error: incompatible pointer to integer conversion returning 'void *' from a function with result type 'int' [-Wint-conversion]
+>                   return NULL;
+>                          ^~~~
+>   include/linux/stddef.h:8:14: note: expanded from macro 'NULL'
+>   #define NULL ((void *)0)
+>                ^~~~~~~~~~~
+>   1 error generated.
 > 
-> Comments added with //// marker.
-> 
-> struct rpcrdma_req *rpcrdma_req_create(struct rpcrdma_xprt *r_xprt, size_t
-> size,
->                                        gfp_t flags)
-> {
->         struct rpcrdma_buffer *buffer = &r_xprt->rx_buf;
->         struct rpcrdma_regbuf *rb;
->         struct rpcrdma_req *req;
->         size_t maxhdrsize;
-> 
->         req = kzalloc(sizeof(*req), flags);
->         if (req == NULL)
->                 goto out1;
-> 
->         /* Compute maximum header buffer size in bytes */
->         maxhdrsize = rpcrdma_fixed_maxsz + 3 +
->                      r_xprt->rx_ia.ri_max_segs * rpcrdma_readchunk_maxsz;
->         maxhdrsize *= sizeof(__be32);
->         rb = rpcrdma_regbuf_alloc(__roundup_pow_of_two(maxhdrsize),
->                                   DMA_TO_DEVICE, flags);
->         if (!rb)
->                 goto out2;
->         req->rl_rdmabuf = rb;
->         xdr_buf_init(&req->rl_hdrbuf, rdmab_data(rb), rdmab_length(rb));
-> 
->         req->rl_sendbuf = rpcrdma_regbuf_alloc(size, DMA_TO_DEVICE, flags);
->         if (!req->rl_sendbuf)
->                 goto out3;
-> 
->         req->rl_recvbuf = rpcrdma_regbuf_alloc(size, DMA_NONE, flags);
->         if (!req->rl_recvbuf)
->                 goto out4; ///// let us say we hit this.
-> 
->         INIT_LIST_HEAD(&req->rl_free_mrs);
->         INIT_LIST_HEAD(&req->rl_registered);
->         spin_lock(&buffer->rb_lock);
->         list_add(&req->rl_all, &buffer->rb_allreqs);
->         spin_unlock(&buffer->rb_lock);
->         return req;
-> 
-> out4:
->         kfree(req->rl_sendbuf);
-> //// free of (req->rl_sendbuf)
-> out3:
->         kfree(req->rl_rdmabuf);
->         rpcrdma_regbuf_free(req->rl_sendbuf);
-> //// double free of req->rl_sendbuf, we have a kfree in rpcrdma_regbuf_free.
-> 
-> out2:
->         kfree(req);
-> out1:
->         return NULL;
-> }
-> 
-> Found using smatch.
-> 
-> I looked at the history of the function, the reason is that we don't have
-> commit b78de1dca00376aaba7a58bb5fe21c1606524abe in 5.4.y
-> 
-> This problem is only in 5.4.y not seen in newer LTS.
-> 
-> Please correct me if I am missing something here.
-> 
+> That should probably be something like -EINVAL for 4.14 but I am not
+> sure, hence just the report. This code path was reworked in commit
+> 2baa3aaee27f ("brcmfmac: introduce brcmf_fw_alloc_request() function").
+> Returning NULL would be treated as an error in the callers, which would
+> require a negative return code here.
 
-I think you are correct.  I'll look into fixing it on Monday, thanks for
-the review!
+Good catch, I'll fix this up on Monday, thanks for reporting it!
 
 greg k-h
