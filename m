@@ -2,43 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id CF7B9676FE4
-	for <lists+stable@lfdr.de>; Sun, 22 Jan 2023 16:26:20 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id DD9EB676F2C
+	for <lists+stable@lfdr.de>; Sun, 22 Jan 2023 16:18:32 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231401AbjAVP0U (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 22 Jan 2023 10:26:20 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54596 "EHLO
+        id S231160AbjAVPSb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 22 Jan 2023 10:18:31 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45920 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231419AbjAVP0S (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 22 Jan 2023 10:26:18 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5408022DC6
-        for <stable@vger.kernel.org>; Sun, 22 Jan 2023 07:26:18 -0800 (PST)
+        with ESMTP id S231172AbjAVPSb (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 22 Jan 2023 10:18:31 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4504B9034
+        for <stable@vger.kernel.org>; Sun, 22 Jan 2023 07:18:30 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id E64D160C64
-        for <stable@vger.kernel.org>; Sun, 22 Jan 2023 15:26:17 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id F3DC1C433D2;
-        Sun, 22 Jan 2023 15:26:16 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id E4623B80B1B
+        for <stable@vger.kernel.org>; Sun, 22 Jan 2023 15:18:28 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4A3D9C433D2;
+        Sun, 22 Jan 2023 15:18:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1674401177;
-        bh=GV/0RIRLDbQ/69NyJGkV82zD13L1sZ5jj8r3Iflp25M=;
+        s=korg; t=1674400707;
+        bh=f2tsARGNSvpnEatS4BH8+Zhs+k7AOUiCqGQBNKcJjFk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=s+9+1fNpop0atdeXfFBcmDflpZyg3Sqj1CugFlds1SPjmpUAvTkI9f2uldV/0G078
-         yN00dg+LW8jpKdMpes3kcMvUsSXneDCMe3Nz1e9/amZiAbXx+6oGLfuEyf5F4Z2Ma6
-         8tv8C0yHPn7Qf7Uyw2uziaFRH9MO6qaa83N9Jyl4=
+        b=og+9yWB85FH2Lu83iHxJ3fGyMOHWBc7RxZfG/ay93uzCTGVkUgCT1NDPlEUTW3H8w
+         yGFkjf1qxj3EDsj8W+nZbHYFQadqNVQrBHW8CJoLGssdd/WwKjA8NC6XAtuAtQnXNA
+         0SMFhi4WwnKIX+gaJSFtb8BSVL3tpCps97tOkn9k=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Nirmoy Das <nirmoy.das@intel.com>,
-        Rodrigo Vivi <rodrigo.vivi@intel.com>
-Subject: [PATCH 6.1 140/193] drm/i915: Remove unused variable
+        patches@lists.linux.dev,
+        Heikki Krogerus <heikki.krogerus@linux.intel.com>,
+        Prashant Malani <pmalani@chromium.org>,
+        Benson Leung <bleung@chromium.org>
+Subject: [PATCH 5.15 079/117] usb: typec: altmodes/displayport: Add pin assignment helper
 Date:   Sun, 22 Jan 2023 16:04:29 +0100
-Message-Id: <20230122150252.781318746@linuxfoundation.org>
+Message-Id: <20230122150236.075430491@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.1
-In-Reply-To: <20230122150246.321043584@linuxfoundation.org>
-References: <20230122150246.321043584@linuxfoundation.org>
+In-Reply-To: <20230122150232.736358800@linuxfoundation.org>
+References: <20230122150232.736358800@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,33 +55,73 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nirmoy Das <nirmoy.das@intel.com>
+From: Prashant Malani <pmalani@chromium.org>
 
-commit 2293a73ad4f3b6c37c06713ff1b67659d92ef43d upstream.
+commit 582836e3cfab4faafbdc93bbec96fce036a08ee1 upstream.
 
-Removed unused i915 var.
+The code to extract a peripheral's currently supported Pin Assignments
+is repeated in a couple of locations. Factor it out into a separate
+function.
 
-Fixes: a273e95721e9 ("drm/i915: Allow switching away via vga-switcheroo if uninitialized")
-Signed-off-by: Nirmoy Das <nirmoy.das@intel.com>
-Reviewed-by: Rodrigo Vivi <rodrigo.vivi@intel.com>
-Signed-off-by: Rodrigo Vivi <rodrigo.vivi@intel.com>
-Link: https://patchwork.freedesktop.org/patch/msgid/20230118170624.9326-1-nirmoy.das@intel.com
-Signed-off-by: Rodrigo Vivi <rodrigo.vivi@intel.com>
+This will also make it easier to add fixes (we only need to update 1
+location instead of 2).
+
+Fixes: c1e5c2f0cb8a ("usb: typec: altmodes/displayport: correct pin assignment for UFP receptacles")
+Cc: stable@vger.kernel.org
+Cc: Heikki Krogerus <heikki.krogerus@linux.intel.com>
+Signed-off-by: Prashant Malani <pmalani@chromium.org>
+Reviewed-by: Benson Leung <bleung@chromium.org>
+Reviewed-by: Heikki Krogerus <heikki.krogerus@linux.intel.com>
+Link: https://lore.kernel.org/r/20230111020546.3384569-1-pmalani@chromium.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/gpu/drm/i915/i915_driver.c |    2 --
- 1 file changed, 2 deletions(-)
+ drivers/usb/typec/altmodes/displayport.c |   22 ++++++++++++++--------
+ 1 file changed, 14 insertions(+), 8 deletions(-)
 
---- a/drivers/gpu/drm/i915/i915_driver.c
-+++ b/drivers/gpu/drm/i915/i915_driver.c
-@@ -1070,8 +1070,6 @@ static int i915_driver_open(struct drm_d
-  */
- static void i915_driver_lastclose(struct drm_device *dev)
- {
--	struct drm_i915_private *i915 = to_i915(dev);
--
- 	intel_fbdev_restore_mode(dev);
+--- a/drivers/usb/typec/altmodes/displayport.c
++++ b/drivers/usb/typec/altmodes/displayport.c
+@@ -418,6 +418,18 @@ static const char * const pin_assignment
+ 	[DP_PIN_ASSIGN_F] = "F",
+ };
  
- 	vga_switcheroo_process_delayed_switch();
++/*
++ * Helper function to extract a peripheral's currently supported
++ * Pin Assignments from its DisplayPort alternate mode state.
++ */
++static u8 get_current_pin_assignments(struct dp_altmode *dp)
++{
++	if (DP_CONF_CURRENTLY(dp->data.conf) == DP_CONF_DFP_D)
++		return DP_CAP_UFP_D_PIN_ASSIGN(dp->alt->vdo);
++	else
++		return DP_CAP_DFP_D_PIN_ASSIGN(dp->alt->vdo);
++}
++
+ static ssize_t
+ pin_assignment_store(struct device *dev, struct device_attribute *attr,
+ 		     const char *buf, size_t size)
+@@ -444,10 +456,7 @@ pin_assignment_store(struct device *dev,
+ 		goto out_unlock;
+ 	}
+ 
+-	if (DP_CONF_CURRENTLY(dp->data.conf) == DP_CONF_DFP_D)
+-		assignments = DP_CAP_UFP_D_PIN_ASSIGN(dp->alt->vdo);
+-	else
+-		assignments = DP_CAP_DFP_D_PIN_ASSIGN(dp->alt->vdo);
++	assignments = get_current_pin_assignments(dp);
+ 
+ 	if (!(DP_CONF_GET_PIN_ASSIGN(conf) & assignments)) {
+ 		ret = -EINVAL;
+@@ -484,10 +493,7 @@ static ssize_t pin_assignment_show(struc
+ 
+ 	cur = get_count_order(DP_CONF_GET_PIN_ASSIGN(dp->data.conf));
+ 
+-	if (DP_CONF_CURRENTLY(dp->data.conf) == DP_CONF_DFP_D)
+-		assignments = DP_CAP_UFP_D_PIN_ASSIGN(dp->alt->vdo);
+-	else
+-		assignments = DP_CAP_DFP_D_PIN_ASSIGN(dp->alt->vdo);
++	assignments = get_current_pin_assignments(dp);
+ 
+ 	for (i = 0; assignments; assignments >>= 1, i++) {
+ 		if (assignments & 1) {
 
 
