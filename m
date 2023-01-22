@@ -2,43 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D7D56676EFA
-	for <lists+stable@lfdr.de>; Sun, 22 Jan 2023 16:16:29 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 47448676FB1
+	for <lists+stable@lfdr.de>; Sun, 22 Jan 2023 16:24:15 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230519AbjAVPQ3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 22 Jan 2023 10:16:29 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43332 "EHLO
+        id S231351AbjAVPYO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 22 Jan 2023 10:24:14 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52718 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230514AbjAVPQ2 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 22 Jan 2023 10:16:28 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AD03C22023
-        for <stable@vger.kernel.org>; Sun, 22 Jan 2023 07:16:27 -0800 (PST)
+        with ESMTP id S231350AbjAVPYN (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 22 Jan 2023 10:24:13 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 00EC91A96E
+        for <stable@vger.kernel.org>; Sun, 22 Jan 2023 07:24:12 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 6A475B807E4
-        for <stable@vger.kernel.org>; Sun, 22 Jan 2023 15:16:26 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id CE504C433D2;
-        Sun, 22 Jan 2023 15:16:24 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 9432760C60
+        for <stable@vger.kernel.org>; Sun, 22 Jan 2023 15:24:12 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A637AC433D2;
+        Sun, 22 Jan 2023 15:24:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1674400585;
-        bh=oxmIX+wYx65dCAJKFpht8+jm7v0UdElEvcPNyhSmffI=;
+        s=korg; t=1674401052;
+        bh=ifJdVjY2AeBVZZjiUewJRXO3f4S6b7YHtavXXbHeXtE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=o5gSDAI5w9Rsza8gvKzHkHWGkegZFYjd7l803mYE2AG/sSzfI/kMH+tGWPWP/Fynw
-         EYHmFb43FNkdE2fHW70O0lI/sBqmnxbKgKon/vlKn7yBVJ31hZ3/vPmov9Wv+osNtM
-         bOW6soO3MQHWFWkEeqVxEOApTQ1/IA0jryi0Xxhg=
+        b=XwkAPHFcbtjjxWEsrmZb4f64NcWe3FtS/KvAkgeCuj9yIbaiExuiU7ZawiqFz6Kol
+         EhigeKFOM3zQlKohgTjB5G8e2P946P/yvKPOrkeg7fBJxZbK/Zon6tRv/K3p2VKnSv
+         8q9FL09JmE5Gt07w5sZOAT/vNCXO9+/ezMfHG9HU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Jens Axboe <axboe@kernel.dk>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 030/117] io_uring: pass in EPOLL_URING_WAKE for eventfd signaling and wakeups
+        patches@lists.linux.dev, Yehezkel Bernat <YehezkelShB@gmail.com>,
+        Mika Westerberg <mika.westerberg@linux.intel.com>
+Subject: [PATCH 6.1 091/193] thunderbolt: Disable XDomain lane 1 only in software connection manager
 Date:   Sun, 22 Jan 2023 16:03:40 +0100
-Message-Id: <20230122150233.967754153@linuxfoundation.org>
+Message-Id: <20230122150250.527038630@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.1
-In-Reply-To: <20230122150232.736358800@linuxfoundation.org>
-References: <20230122150232.736358800@linuxfoundation.org>
+In-Reply-To: <20230122150246.321043584@linuxfoundation.org>
+References: <20230122150246.321043584@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,87 +53,54 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jens Axboe <axboe@kernel.dk>
+From: Mika Westerberg <mika.westerberg@linux.intel.com>
 
-[ Upstream commit 4464853277d0ccdb9914608dd1332f0fa2f9846f ]
+commit 84ee211c83212f4d35b56e0603acdcc41f860f1b upstream.
 
-Pass in EPOLL_URING_WAKE when signaling eventfd or doing poll related
-wakups, so that we can check for a circular event dependency between
-eventfd and epoll. If this flag is set when our wakeup handlers are
-called, then we know we have a dependency that needs to terminate
-multishot requests.
+When firmware connection manager is in use we should not touch the lane
+adapter (well or any) configuration space so do this only when we know
+that the software connection manager is active.
 
-eventfd and epoll are the only such possible dependencies.
-
-Cc: stable@vger.kernel.org # 6.0
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes: 8e1de7042596 ("thunderbolt: Add support for XDomain lane bonding")
+Cc: stable@vger.kernel.org
+Acked-by: Yehezkel Bernat <YehezkelShB@gmail.com>
+Signed-off-by: Mika Westerberg <mika.westerberg@linux.intel.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- io_uring/io_uring.c | 27 ++++++++++++++++++++-------
- 1 file changed, 20 insertions(+), 7 deletions(-)
+ drivers/thunderbolt/xdomain.c | 17 ++++++++++++-----
+ 1 file changed, 12 insertions(+), 5 deletions(-)
 
-diff --git a/io_uring/io_uring.c b/io_uring/io_uring.c
-index 9a01188ff45a..d855e668f37c 100644
---- a/io_uring/io_uring.c
-+++ b/io_uring/io_uring.c
-@@ -1629,13 +1629,15 @@ static void io_cqring_ev_posted(struct io_ring_ctx *ctx)
- 	 * wake as many waiters as we need to.
+diff --git a/drivers/thunderbolt/xdomain.c b/drivers/thunderbolt/xdomain.c
+index cfa83486c9da..3c51e47dd86b 100644
+--- a/drivers/thunderbolt/xdomain.c
++++ b/drivers/thunderbolt/xdomain.c
+@@ -1419,12 +1419,19 @@ static int tb_xdomain_get_properties(struct tb_xdomain *xd)
+ 	 * registered, we notify the userspace that it has changed.
  	 */
- 	if (wq_has_sleeper(&ctx->cq_wait))
--		wake_up_all(&ctx->cq_wait);
-+		__wake_up(&ctx->cq_wait, TASK_NORMAL, 0,
-+				poll_to_key(EPOLL_URING_WAKE | EPOLLIN));
- 	if (ctx->sq_data && waitqueue_active(&ctx->sq_data->wait))
- 		wake_up(&ctx->sq_data->wait);
- 	if (io_should_trigger_evfd(ctx))
--		eventfd_signal(ctx->cq_ev_fd, 1);
-+		eventfd_signal_mask(ctx->cq_ev_fd, 1, EPOLL_URING_WAKE);
- 	if (waitqueue_active(&ctx->poll_wait))
--		wake_up_interruptible(&ctx->poll_wait);
-+		__wake_up(&ctx->poll_wait, TASK_INTERRUPTIBLE, 0,
-+				poll_to_key(EPOLL_URING_WAKE | EPOLLIN));
- }
- 
- static void io_cqring_ev_posted_iopoll(struct io_ring_ctx *ctx)
-@@ -1645,12 +1647,14 @@ static void io_cqring_ev_posted_iopoll(struct io_ring_ctx *ctx)
- 
- 	if (ctx->flags & IORING_SETUP_SQPOLL) {
- 		if (waitqueue_active(&ctx->cq_wait))
--			wake_up_all(&ctx->cq_wait);
-+			__wake_up(&ctx->cq_wait, TASK_NORMAL, 0,
-+				  poll_to_key(EPOLL_URING_WAKE | EPOLLIN));
- 	}
- 	if (io_should_trigger_evfd(ctx))
--		eventfd_signal(ctx->cq_ev_fd, 1);
-+		eventfd_signal_mask(ctx->cq_ev_fd, 1, EPOLL_URING_WAKE);
- 	if (waitqueue_active(&ctx->poll_wait))
--		wake_up_interruptible(&ctx->poll_wait);
-+		__wake_up(&ctx->poll_wait, TASK_INTERRUPTIBLE, 0,
-+				poll_to_key(EPOLL_URING_WAKE | EPOLLIN));
- }
- 
- /* Returns true if there are no backlogged entries after the flush */
-@@ -5636,8 +5640,17 @@ static int io_poll_wake(struct wait_queue_entry *wait, unsigned mode, int sync,
- 	if (mask && !(mask & poll->events))
- 		return 0;
- 
--	if (io_poll_get_ownership(req))
-+	if (io_poll_get_ownership(req)) {
+ 	if (!update) {
+-		struct tb_port *port;
 +		/*
-+		 * If we trigger a multishot poll off our own wakeup path,
-+		 * disable multishot as there is a circular dependency between
-+		 * CQ posting and triggering the event.
++		 * Now disable lane 1 if bonding was not enabled. Do
++		 * this only if bonding was possible at the beginning
++		 * (that is we are the connection manager and there are
++		 * two lanes).
 +		 */
-+		if (mask & EPOLL_URING_WAKE)
-+			poll->events |= EPOLLONESHOT;
-+
- 		__io_poll_execute(req, mask);
-+	}
- 	return 1;
- }
++		if (xd->bonding_possible) {
++			struct tb_port *port;
  
+-		/* Now disable lane 1 if bonding was not enabled */
+-		port = tb_port_at(xd->route, tb_xdomain_parent(xd));
+-		if (!port->bonded)
+-			tb_port_disable(port->dual_link_port);
++			port = tb_port_at(xd->route, tb_xdomain_parent(xd));
++			if (!port->bonded)
++				tb_port_disable(port->dual_link_port);
++		}
+ 
+ 		if (device_add(&xd->dev)) {
+ 			dev_err(&xd->dev, "failed to add XDomain device\n");
 -- 
-2.39.0
+2.39.1
 
 
 
