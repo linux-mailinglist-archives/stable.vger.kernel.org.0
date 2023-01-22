@@ -2,43 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 8DCFF676EF2
-	for <lists+stable@lfdr.de>; Sun, 22 Jan 2023 16:16:08 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 47B3D676FA9
+	for <lists+stable@lfdr.de>; Sun, 22 Jan 2023 16:23:57 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230506AbjAVPQH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 22 Jan 2023 10:16:07 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43036 "EHLO
+        id S231338AbjAVPX4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 22 Jan 2023 10:23:56 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52372 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230522AbjAVPQF (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 22 Jan 2023 10:16:05 -0500
+        with ESMTP id S231341AbjAVPXz (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 22 Jan 2023 10:23:55 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 263B8222CC
-        for <stable@vger.kernel.org>; Sun, 22 Jan 2023 07:16:05 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D3B981E2A0
+        for <stable@vger.kernel.org>; Sun, 22 Jan 2023 07:23:54 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id B79AC60C5C
-        for <stable@vger.kernel.org>; Sun, 22 Jan 2023 15:16:04 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C891AC433D2;
-        Sun, 22 Jan 2023 15:16:03 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 3F4EA60C58
+        for <stable@vger.kernel.org>; Sun, 22 Jan 2023 15:23:54 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4FBB0C433D2;
+        Sun, 22 Jan 2023 15:23:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1674400564;
-        bh=snat58ocbkcwQxlHxZpbVy3p3lO8cxJCj78cJth6dBs=;
+        s=korg; t=1674401033;
+        bh=Z3v8u28F2/rDFaLHq5E8JDJeqSMGVvL1mmRi8hKsLNQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ifIAOtuIwEbyht0iSxPLRQ+j67sDtk3NIxoN/et8kXHZPBACGi/6Xm5pqT68AILwA
-         NI3IX+ZQBrtR+EA8WgcE9rZEqVvhjBkvaCwW1qCCU0BBOkSFX+wThbeJADJic8aKE8
-         izht4dLa3L5erBv8uRz3gtvdXOzhItBHreV8hjps=
+        b=wKsLPmafW/Xw8PhwElmcBb9n/Xcj6Mu7POnYuzqhX0NgfUXzGpVUFkILuWBtgcuQ4
+         G5+3j7SXmXSwTUJlHLlW8Ju21pXdmMw9EHnkqrT+7IQ6rny6GMcNQ6rG/RgX3RnQXI
+         r50t4C8Snop0UEgRJpEwtxA7jVfTDntm83y6WYpg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Jeremy Szu <jeremy.szu@canonical.com>,
-        Takashi Iwai <tiwai@suse.de>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 023/117] ALSA: hda/realtek: fix mute/micmute LEDs dont work for a HP platform
+        patches@lists.linux.dev, Josef Bacik <josef@toxicpanda.com>,
+        Filipe Manana <fdmanana@suse.com>,
+        David Sterba <dsterba@suse.com>
+Subject: [PATCH 6.1 084/193] btrfs: add missing setup of log for full commit at add_conflicting_inode()
 Date:   Sun, 22 Jan 2023 16:03:33 +0100
-Message-Id: <20230122150233.665164908@linuxfoundation.org>
+Message-Id: <20230122150250.226938729@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.1
-In-Reply-To: <20230122150232.736358800@linuxfoundation.org>
-References: <20230122150232.736358800@linuxfoundation.org>
+In-Reply-To: <20230122150246.321043584@linuxfoundation.org>
+References: <20230122150246.321043584@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,37 +54,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jeremy Szu <jeremy.szu@canonical.com>
+From: Filipe Manana <fdmanana@suse.com>
 
-[ Upstream commit 9c694fbfe6f36017b060ad74c7565cb379852e40 ]
+commit 94cd63ae679973edeb5ea95ec25a54467c3e54c8 upstream.
 
-There is a HP platform uses ALC236 codec which using GPIO2 to control
-mute LED and GPIO1 to control micmute LED.
-Thus, add a quirk to make them work.
+When logging conflicting inodes, if we reach the maximum limit of inodes,
+we return BTRFS_LOG_FORCE_COMMIT to force a transaction commit. However
+we don't mark the log for full commit (with btrfs_set_log_full_commit()),
+which means that once we leave the log transaction and before we commit
+the transaction, some other task may sync the log, which is incomplete
+as we have not logged all conflicting inodes, leading to some inconsistent
+in case that log ends up being replayed.
 
-Signed-off-by: Jeremy Szu <jeremy.szu@canonical.com>
-Cc: <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20230105044154.8242-1-jeremy.szu@canonical.com
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+So also call btrfs_set_log_full_commit() at add_conflicting_inode().
+
+Fixes: e09d94c9e448 ("btrfs: log conflicting inodes without holding log mutex of the initial inode")
+CC: stable@vger.kernel.org # 6.1
+Reviewed-by: Josef Bacik <josef@toxicpanda.com>
+Signed-off-by: Filipe Manana <fdmanana@suse.com>
+Signed-off-by: David Sterba <dsterba@suse.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- sound/pci/hda/patch_realtek.c | 1 +
- 1 file changed, 1 insertion(+)
+ fs/btrfs/tree-log.c |    4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/sound/pci/hda/patch_realtek.c b/sound/pci/hda/patch_realtek.c
-index feb337083573..74fe0fe85834 100644
---- a/sound/pci/hda/patch_realtek.c
-+++ b/sound/pci/hda/patch_realtek.c
-@@ -9078,6 +9078,7 @@ static const struct snd_pci_quirk alc269_fixup_tbl[] = {
- 	SND_PCI_QUIRK(0x103c, 0x8aab, "HP EliteBook 650 G9 (MB 8AA9)", ALC236_FIXUP_HP_GPIO_LED),
- 	SND_PCI_QUIRK(0x103c, 0x8b5d, "HP", ALC236_FIXUP_HP_MUTE_LED_MICMUTE_VREF),
- 	SND_PCI_QUIRK(0x103c, 0x8b5e, "HP", ALC236_FIXUP_HP_MUTE_LED_MICMUTE_VREF),
-+	SND_PCI_QUIRK(0x103c, 0x8bf0, "HP", ALC236_FIXUP_HP_GPIO_LED),
- 	SND_PCI_QUIRK(0x1043, 0x103e, "ASUS X540SA", ALC256_FIXUP_ASUS_MIC),
- 	SND_PCI_QUIRK(0x1043, 0x103f, "ASUS TX300", ALC282_FIXUP_ASUS_TX300),
- 	SND_PCI_QUIRK(0x1043, 0x106d, "Asus K53BE", ALC269_FIXUP_LIMIT_INT_MIC_BOOST),
--- 
-2.39.0
-
+--- a/fs/btrfs/tree-log.c
++++ b/fs/btrfs/tree-log.c
+@@ -5626,8 +5626,10 @@ static int add_conflicting_inode(struct
+ 	 * LOG_INODE_EXISTS mode) and slow down other fsyncs or transaction
+ 	 * commits.
+ 	 */
+-	if (ctx->num_conflict_inodes >= MAX_CONFLICT_INODES)
++	if (ctx->num_conflict_inodes >= MAX_CONFLICT_INODES) {
++		btrfs_set_log_full_commit(trans);
+ 		return BTRFS_LOG_FORCE_COMMIT;
++	}
+ 
+ 	inode = btrfs_iget(root->fs_info->sb, ino, root);
+ 	/*
 
 
