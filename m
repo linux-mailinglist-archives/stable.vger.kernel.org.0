@@ -2,43 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 60EB0676F1E
-	for <lists+stable@lfdr.de>; Sun, 22 Jan 2023 16:18:01 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6FDD1676E94
+	for <lists+stable@lfdr.de>; Sun, 22 Jan 2023 16:12:16 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231161AbjAVPSA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 22 Jan 2023 10:18:00 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45262 "EHLO
+        id S230386AbjAVPMP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 22 Jan 2023 10:12:15 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39444 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231179AbjAVPR4 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 22 Jan 2023 10:17:56 -0500
+        with ESMTP id S230370AbjAVPMM (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 22 Jan 2023 10:12:12 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1373B6194
-        for <stable@vger.kernel.org>; Sun, 22 Jan 2023 07:17:52 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 996B521955
+        for <stable@vger.kernel.org>; Sun, 22 Jan 2023 07:12:00 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id A743060BC5
-        for <stable@vger.kernel.org>; Sun, 22 Jan 2023 15:17:51 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id BE4EEC433EF;
-        Sun, 22 Jan 2023 15:17:50 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 2E2D760C5C
+        for <stable@vger.kernel.org>; Sun, 22 Jan 2023 15:12:00 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3DE97C433EF;
+        Sun, 22 Jan 2023 15:11:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1674400671;
-        bh=FOFP9nrlG86RrL5GkBjkrl0jdbHYhWrjUxaYw/cbLHs=;
+        s=korg; t=1674400319;
+        bh=LRp9/HvJhqNRzsDfyAIVIb42UnLc2RXTLgWhD5XWebo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=x+YW+v+LmZGu1Em2BvSakqfjgIZMLz57zHCu1MWy49arxpicv7F6o2xQ3Bqv/L/kZ
-         h+sKbzp6wJpGnZ+PpW1W6dKvn67Fw4rE7oxKNl6dYWcg7YYs2e0laTOTHrv4moK4e0
-         ZgWGrJZIRXkHGyg5HpzX1GGfPSy+mpmagFjGzPeg=
+        b=cNpbVKloEz+o3LRx+Lk36dTKiZye32JeQwH0pbs+HWg7U1+ya0zn2MrjPHBPlDkJx
+         P1tSh6XuF0qo52STAJMJgGD+NkeUUb6YPDEX/8xYMoGdf7X1yR56f9lAqxmpV48SE6
+         ZemoTAHF5yNquBMzLw0wPttbkUfF1wPoLav7E8+g=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Jens Axboe <axboe@kernel.dk>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 035/117] io_uring: allow re-poll if we made progress
-Date:   Sun, 22 Jan 2023 16:03:45 +0100
-Message-Id: <20230122150234.187195033@linuxfoundation.org>
+        patches@lists.linux.dev, Homin Rhee <hominlab@gmail.com>,
+        Jens Axboe <axboe@kernel.dk>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 30/98] io_uring: ensure that cached task references are always put on exit
+Date:   Sun, 22 Jan 2023 16:03:46 +0100
+Message-Id: <20230122150230.744584618@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.1
-In-Reply-To: <20230122150232.736358800@linuxfoundation.org>
-References: <20230122150232.736358800@linuxfoundation.org>
+In-Reply-To: <20230122150229.351631432@linuxfoundation.org>
+References: <20230122150229.351631432@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,49 +55,51 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Jens Axboe <axboe@kernel.dk>
 
-commit 10c873334febaeea9aa0c25c10b5ac0951b77a5f upstream.
+commit e775f93f2ab976a2cdb4a7b53063cbe890904f73 upstream.
 
-We currently check REQ_F_POLLED before arming async poll for a
-notification to retry. If it's set, then we don't allow poll and will
-punt to io-wq instead. This is done to prevent a situation where a buggy
-driver will repeatedly return that there's space/data available yet we
-get -EAGAIN.
+io_uring caches task references to avoid doing atomics for each of them
+per request. If a request is put from the same task that allocated it,
+then we can maintain a per-ctx cache of them. This obviously relies
+on io_uring always pruning caches in a reliable way, and there's
+currently a case off io_uring fd release where we can miss that.
 
-However, if we already transferred data, then it should be safe to rely
-on poll again. Gate the check on whether or not REQ_F_PARTIAL_IO is
-also set.
+One example is a ring setup with IOPOLL, which relies on the task
+polling for completions, which will free them. However, if such a task
+submits a request and then exits or closes the ring without reaping
+the completion, then ring release will reap and put. If release happens
+from that very same task, the completed request task refs will get
+put back into the cache pool. This is problematic, as we're now beyond
+the point of pruning caches.
 
+Manually drop these caches after doing an IOPOLL reap. This releases
+references from the current task, which is enough. If another task
+happens to be doing the release, then the caching will not be
+triggered and there's no issue.
+
+Cc: stable@vger.kernel.org
+Fixes: e98e49b2bbf7 ("io_uring: extend task put optimisations")
+Reported-by: Homin Rhee <hominlab@gmail.com>
 Signed-off-by: Jens Axboe <axboe@kernel.dk>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- io_uring/io_uring.c | 7 +++++--
- 1 file changed, 5 insertions(+), 2 deletions(-)
+ io_uring/io_uring.c | 4 ++++
+ 1 file changed, 4 insertions(+)
 
 diff --git a/io_uring/io_uring.c b/io_uring/io_uring.c
-index 3fb76863fed4..997a7264e1d4 100644
+index e8852d56b1ec..f8a0d228d799 100644
 --- a/io_uring/io_uring.c
 +++ b/io_uring/io_uring.c
-@@ -5853,7 +5853,7 @@ static int io_arm_poll_handler(struct io_kiocb *req)
+@@ -9513,6 +9513,10 @@ static void io_ring_ctx_wait_and_kill(struct io_ring_ctx *ctx)
+ 	/* if we failed setting up the ctx, we might not have any rings */
+ 	io_iopoll_try_reap_events(ctx);
  
- 	if (!req->file || !file_can_poll(req->file))
- 		return IO_APOLL_ABORTED;
--	if (req->flags & REQ_F_POLLED)
-+	if ((req->flags & (REQ_F_POLLED|REQ_F_PARTIAL_IO)) == REQ_F_POLLED)
- 		return IO_APOLL_ABORTED;
- 	if (!def->pollin && !def->pollout)
- 		return IO_APOLL_ABORTED;
-@@ -5869,7 +5869,10 @@ static int io_arm_poll_handler(struct io_kiocb *req)
- 		mask |= POLLOUT | POLLWRNORM;
- 	}
- 
--	apoll = kmalloc(sizeof(*apoll), GFP_ATOMIC);
-+	if (req->flags & REQ_F_POLLED)
-+		apoll = req->apoll;
-+	else
-+		apoll = kmalloc(sizeof(*apoll), GFP_ATOMIC);
- 	if (unlikely(!apoll))
- 		return IO_APOLL_ABORTED;
- 	apoll->double_poll = NULL;
++	/* drop cached put refs after potentially doing completions */
++	if (current->io_uring)
++		io_uring_drop_tctx_refs(current);
++
+ 	INIT_WORK(&ctx->exit_work, io_ring_exit_work);
+ 	/*
+ 	 * Use system_unbound_wq to avoid spawning tons of event kworkers
 -- 
 2.39.0
 
