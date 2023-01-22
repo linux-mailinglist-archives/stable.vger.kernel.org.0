@@ -2,42 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 6C074676F63
-	for <lists+stable@lfdr.de>; Sun, 22 Jan 2023 16:20:57 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 26A9C676F64
+	for <lists+stable@lfdr.de>; Sun, 22 Jan 2023 16:21:00 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231256AbjAVPU4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 22 Jan 2023 10:20:56 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47560 "EHLO
+        id S231249AbjAVPU7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 22 Jan 2023 10:20:59 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47630 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231249AbjAVPUz (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 22 Jan 2023 10:20:55 -0500
+        with ESMTP id S231254AbjAVPU6 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 22 Jan 2023 10:20:58 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 99E93222F9
-        for <stable@vger.kernel.org>; Sun, 22 Jan 2023 07:20:54 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 20A49222F8
+        for <stable@vger.kernel.org>; Sun, 22 Jan 2023 07:20:57 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 49F2CB80B1D
-        for <stable@vger.kernel.org>; Sun, 22 Jan 2023 15:20:53 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 97934C4339B;
-        Sun, 22 Jan 2023 15:20:51 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id C8A8BB807E4
+        for <stable@vger.kernel.org>; Sun, 22 Jan 2023 15:20:55 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2FE56C433D2;
+        Sun, 22 Jan 2023 15:20:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1674400852;
-        bh=uwcUacqhlocee2N/E3O3fXyezXvUrb/ZYiJ7oRXiPPQ=;
+        s=korg; t=1674400854;
+        bh=4FLqEhhHWEmpwMWNYiDj3sM/gfcdiz9lYsBuj1rjzlw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=sxh+0eCHHVTYIffpyRuSJ6vb8Yglv/MTY0BOa/OaZaauLoyHHCiHYHV+5YWYA3+1z
-         lxH5/X9fQ4KAx2zfi7HsicF6hYOv7YhFUNE6yCpWjJtGkuapTuGwsIfhx7zlrJZRe+
-         fMvMZ5zebSjBFABBhkpUR4lIO2YjizXPpZzzlcAk=
+        b=jCqFCX4flzabOsSts1CM0GrMJoQLaS6XLwlVYVmz0WzEJ7BOSh4hLjIVDkI47cxtB
+         oX78d4bnAiMKvxL38onid5pCsTS0Dlyl+ljO6rMW0TVQmsqbU+plzAcGnS7upzb9Br
+         37MBESnbxlR2JTfEFF/OCrdtcWR3Vn0wx2BquQG4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Chunhao Lin <hau@realtek.com>,
-        Heiner Kallweit <hkallweit1@gmail.com>,
-        "David S. Miller" <davem@davemloft.net>,
+        patches@lists.linux.dev, Song Liu <song@kernel.org>,
+        Kui-Feng Lee <kuifeng@meta.com>,
+        Nathan Slingerland <slinger@meta.com>,
+        Yonghong Song <yhs@fb.com>,
+        Alexei Starovoitov <ast@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 016/193] r8169: fix dmar pte write access is not set error
-Date:   Sun, 22 Jan 2023 16:02:25 +0100
-Message-Id: <20230122150247.099795632@linuxfoundation.org>
+Subject: [PATCH 6.1 017/193] bpf: keep a reference to the mm, in case the task is dead.
+Date:   Sun, 22 Jan 2023 16:02:26 +0100
+Message-Id: <20230122150247.150966892@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.1
 In-Reply-To: <20230122150246.321043584@linuxfoundation.org>
 References: <20230122150246.321043584@linuxfoundation.org>
@@ -55,90 +57,166 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Chunhao Lin <hau@realtek.com>
+From: Kui-Feng Lee <kuifeng@meta.com>
 
-[ Upstream commit bb41c13c05c23d9bc46b4e37d8914078c6a40e3a ]
+[ Upstream commit 7ff94f276f8ea05df82eb115225e9b26f47a3347 ]
 
-When close device, if wol is enabled, rx will be enabled. When open
-device it will cause rx packet to be dma to the wrong memory address
-after pci_set_master() and system log will show blow messages.
+Fix the system crash that happens when a task iterator travel through
+vma of tasks.
 
-DMAR: DRHD: handling fault status reg 3
-DMAR: [DMA Write] Request device [02:00.0] PASID ffffffff fault addr
-ffdd4000 [fault reason 05] PTE Write access is not set
+In task iterators, we used to access mm by following the pointer on
+the task_struct; however, the death of a task will clear the pointer,
+even though we still hold the task_struct.  That can cause an
+unexpected crash for a null pointer when an iterator is visiting a
+task that dies during the visit.  Keeping a reference of mm on the
+iterator ensures we always have a valid pointer to mm.
 
-In this patch, driver disable tx/rx when close device. If wol is
-enabled, only enable rx filter and disable rxdv_gate(if support) to
-let hardware only receive packet to fifo but not to dma it.
-
-Signed-off-by: Chunhao Lin <hau@realtek.com>
-Reviewed-by: Heiner Kallweit <hkallweit1@gmail.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Co-developed-by: Song Liu <song@kernel.org>
+Signed-off-by: Song Liu <song@kernel.org>
+Signed-off-by: Kui-Feng Lee <kuifeng@meta.com>
+Reported-by: Nathan Slingerland <slinger@meta.com>
+Acked-by: Yonghong Song <yhs@fb.com>
+Link: https://lore.kernel.org/r/20221216221855.4122288-2-kuifeng@meta.com
+Signed-off-by: Alexei Starovoitov <ast@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/realtek/r8169_main.c | 14 +++++++-------
- 1 file changed, 7 insertions(+), 7 deletions(-)
+ kernel/bpf/task_iter.c | 39 +++++++++++++++++++++++++++------------
+ 1 file changed, 27 insertions(+), 12 deletions(-)
 
-diff --git a/drivers/net/ethernet/realtek/r8169_main.c b/drivers/net/ethernet/realtek/r8169_main.c
-index 316c925c956f..cabed1b7b45e 100644
---- a/drivers/net/ethernet/realtek/r8169_main.c
-+++ b/drivers/net/ethernet/realtek/r8169_main.c
-@@ -2435,6 +2435,9 @@ static void rtl_wol_enable_rx(struct rtl8169_private *tp)
- 	if (tp->mac_version >= RTL_GIGA_MAC_VER_25)
- 		RTL_W32(tp, RxConfig, RTL_R32(tp, RxConfig) |
- 			AcceptBroadcast | AcceptMulticast | AcceptMyPhys);
-+
-+	if (tp->mac_version >= RTL_GIGA_MAC_VER_40)
-+		rtl_disable_rxdvgate(tp);
- }
+diff --git a/kernel/bpf/task_iter.c b/kernel/bpf/task_iter.c
+index c2a2182ce570..c4ab9d6cdbe9 100644
+--- a/kernel/bpf/task_iter.c
++++ b/kernel/bpf/task_iter.c
+@@ -438,6 +438,7 @@ struct bpf_iter_seq_task_vma_info {
+ 	 */
+ 	struct bpf_iter_seq_task_common common;
+ 	struct task_struct *task;
++	struct mm_struct *mm;
+ 	struct vm_area_struct *vma;
+ 	u32 tid;
+ 	unsigned long prev_vm_start;
+@@ -456,16 +457,19 @@ task_vma_seq_get_next(struct bpf_iter_seq_task_vma_info *info)
+ 	enum bpf_task_vma_iter_find_op op;
+ 	struct vm_area_struct *curr_vma;
+ 	struct task_struct *curr_task;
++	struct mm_struct *curr_mm;
+ 	u32 saved_tid = info->tid;
  
- static void rtl_prepare_power_down(struct rtl8169_private *tp)
-@@ -3869,7 +3872,7 @@ static void rtl8169_tx_clear(struct rtl8169_private *tp)
- 	netdev_reset_queue(tp->dev);
- }
+ 	/* If this function returns a non-NULL vma, it holds a reference to
+-	 * the task_struct, and holds read lock on vma->mm->mmap_lock.
++	 * the task_struct, holds a refcount on mm->mm_users, and holds
++	 * read lock on vma->mm->mmap_lock.
+ 	 * If this function returns NULL, it does not hold any reference or
+ 	 * lock.
+ 	 */
+ 	if (info->task) {
+ 		curr_task = info->task;
+ 		curr_vma = info->vma;
++		curr_mm = info->mm;
+ 		/* In case of lock contention, drop mmap_lock to unblock
+ 		 * the writer.
+ 		 *
+@@ -504,13 +508,15 @@ task_vma_seq_get_next(struct bpf_iter_seq_task_vma_info *info)
+ 		 *    4.2) VMA2 and VMA2' covers different ranges, process
+ 		 *         VMA2'.
+ 		 */
+-		if (mmap_lock_is_contended(curr_task->mm)) {
++		if (mmap_lock_is_contended(curr_mm)) {
+ 			info->prev_vm_start = curr_vma->vm_start;
+ 			info->prev_vm_end = curr_vma->vm_end;
+ 			op = task_vma_iter_find_vma;
+-			mmap_read_unlock(curr_task->mm);
+-			if (mmap_read_lock_killable(curr_task->mm))
++			mmap_read_unlock(curr_mm);
++			if (mmap_read_lock_killable(curr_mm)) {
++				mmput(curr_mm);
+ 				goto finish;
++			}
+ 		} else {
+ 			op = task_vma_iter_next_vma;
+ 		}
+@@ -535,42 +541,47 @@ task_vma_seq_get_next(struct bpf_iter_seq_task_vma_info *info)
+ 			op = task_vma_iter_find_vma;
+ 		}
  
--static void rtl8169_cleanup(struct rtl8169_private *tp, bool going_down)
-+static void rtl8169_cleanup(struct rtl8169_private *tp)
- {
- 	napi_disable(&tp->napi);
+-		if (!curr_task->mm)
++		curr_mm = get_task_mm(curr_task);
++		if (!curr_mm)
+ 			goto next_task;
  
-@@ -3881,9 +3884,6 @@ static void rtl8169_cleanup(struct rtl8169_private *tp, bool going_down)
- 
- 	rtl_rx_close(tp);
- 
--	if (going_down && tp->dev->wol_enabled)
--		goto no_reset;
--
- 	switch (tp->mac_version) {
- 	case RTL_GIGA_MAC_VER_28:
- 	case RTL_GIGA_MAC_VER_31:
-@@ -3904,7 +3904,7 @@ static void rtl8169_cleanup(struct rtl8169_private *tp, bool going_down)
+-		if (mmap_read_lock_killable(curr_task->mm))
++		if (mmap_read_lock_killable(curr_mm)) {
++			mmput(curr_mm);
+ 			goto finish;
++		}
  	}
  
- 	rtl_hw_reset(tp);
--no_reset:
-+
- 	rtl8169_tx_clear(tp);
- 	rtl8169_init_ring_indexes(tp);
+ 	switch (op) {
+ 	case task_vma_iter_first_vma:
+-		curr_vma = find_vma(curr_task->mm, 0);
++		curr_vma = find_vma(curr_mm, 0);
+ 		break;
+ 	case task_vma_iter_next_vma:
+-		curr_vma = find_vma(curr_task->mm, curr_vma->vm_end);
++		curr_vma = find_vma(curr_mm, curr_vma->vm_end);
+ 		break;
+ 	case task_vma_iter_find_vma:
+ 		/* We dropped mmap_lock so it is necessary to use find_vma
+ 		 * to find the next vma. This is similar to the  mechanism
+ 		 * in show_smaps_rollup().
+ 		 */
+-		curr_vma = find_vma(curr_task->mm, info->prev_vm_end - 1);
++		curr_vma = find_vma(curr_mm, info->prev_vm_end - 1);
+ 		/* case 1) and 4.2) above just use curr_vma */
+ 
+ 		/* check for case 2) or case 4.1) above */
+ 		if (curr_vma &&
+ 		    curr_vma->vm_start == info->prev_vm_start &&
+ 		    curr_vma->vm_end == info->prev_vm_end)
+-			curr_vma = find_vma(curr_task->mm, curr_vma->vm_end);
++			curr_vma = find_vma(curr_mm, curr_vma->vm_end);
+ 		break;
+ 	}
+ 	if (!curr_vma) {
+ 		/* case 3) above, or case 2) 4.1) with vma->next == NULL */
+-		mmap_read_unlock(curr_task->mm);
++		mmap_read_unlock(curr_mm);
++		mmput(curr_mm);
+ 		goto next_task;
+ 	}
+ 	info->task = curr_task;
+ 	info->vma = curr_vma;
++	info->mm = curr_mm;
+ 	return curr_vma;
+ 
+ next_task:
+@@ -579,6 +590,7 @@ task_vma_seq_get_next(struct bpf_iter_seq_task_vma_info *info)
+ 
+ 	put_task_struct(curr_task);
+ 	info->task = NULL;
++	info->mm = NULL;
+ 	info->tid++;
+ 	goto again;
+ 
+@@ -587,6 +599,7 @@ task_vma_seq_get_next(struct bpf_iter_seq_task_vma_info *info)
+ 		put_task_struct(curr_task);
+ 	info->task = NULL;
+ 	info->vma = NULL;
++	info->mm = NULL;
+ 	return NULL;
  }
-@@ -3915,7 +3915,7 @@ static void rtl_reset_work(struct rtl8169_private *tp)
  
- 	netif_stop_queue(tp->dev);
- 
--	rtl8169_cleanup(tp, false);
-+	rtl8169_cleanup(tp);
- 
- 	for (i = 0; i < NUM_RX_DESC; i++)
- 		rtl8169_mark_to_asic(tp->RxDescArray + i);
-@@ -4601,7 +4601,7 @@ static void rtl8169_down(struct rtl8169_private *tp)
- 	pci_clear_master(tp->pci_dev);
- 	rtl_pci_commit(tp);
- 
--	rtl8169_cleanup(tp, true);
-+	rtl8169_cleanup(tp);
- 	rtl_disable_exit_l1(tp);
- 	rtl_prepare_power_down(tp);
- }
+@@ -658,7 +671,9 @@ static void task_vma_seq_stop(struct seq_file *seq, void *v)
+ 		 */
+ 		info->prev_vm_start = ~0UL;
+ 		info->prev_vm_end = info->vma->vm_end;
+-		mmap_read_unlock(info->task->mm);
++		mmap_read_unlock(info->mm);
++		mmput(info->mm);
++		info->mm = NULL;
+ 		put_task_struct(info->task);
+ 		info->task = NULL;
+ 	}
 -- 
 2.35.1
 
