@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 09A71676D14
-	for <lists+stable@lfdr.de>; Sun, 22 Jan 2023 14:15:52 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id EC1B4676D15
+	for <lists+stable@lfdr.de>; Sun, 22 Jan 2023 14:16:00 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229644AbjAVNPt (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 22 Jan 2023 08:15:49 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48358 "EHLO
+        id S229672AbjAVNQA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 22 Jan 2023 08:16:00 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48378 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229566AbjAVNPt (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 22 Jan 2023 08:15:49 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AD7B91631C
-        for <stable@vger.kernel.org>; Sun, 22 Jan 2023 05:15:47 -0800 (PST)
+        with ESMTP id S229566AbjAVNP7 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 22 Jan 2023 08:15:59 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6842E1631C
+        for <stable@vger.kernel.org>; Sun, 22 Jan 2023 05:15:58 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 4D07F60C16
-        for <stable@vger.kernel.org>; Sun, 22 Jan 2023 13:15:47 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2DF47C4339C;
-        Sun, 22 Jan 2023 13:15:46 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 00632B80AD2
+        for <stable@vger.kernel.org>; Sun, 22 Jan 2023 13:15:57 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2BD46C433EF;
+        Sun, 22 Jan 2023 13:15:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1674393346;
-        bh=9UgtpkRPidxaELgDh0BrdWKBGksCJzup00TJOqhfnn8=;
+        s=korg; t=1674393355;
+        bh=v+NuCQFZKy2rpz/FmPjYzvPi9HU9w9UeTlm1nP7IdX0=;
         h=Subject:To:Cc:From:Date:From;
-        b=I7aaolU8XAf2QMSyFN44IWkKit31l2lmLPLMqX/+KV6x3G3cFPRU98W1oMeaKm9xD
-         WtFOPgVNcQHeWU2RF9mmpA14UJVF24FWoUeB/f24L+xCS9FctvqXC28AGXwV0tOXTe
-         tMCq5f0dKZUZ+jxPYAz3kCNZsx+Iw3oNqqzYKJ1Y=
-Subject: FAILED: patch "[PATCH] usb: cdns3: remove fetched trb from cache before dequeuing" failed to apply to 5.10-stable tree
+        b=lNwnf1HwDSbZhcurBmg/vgqHVx5cIP89vkck26TXTwY422xvi+nNsHavBaDtfFdZo
+         JPBnM4cPYWotjrMnhWs74nICl9dVKvGLg8es8sJnqLl0o2JMOZXJT3WrsIraBwlEXm
+         KBwbxJAMQE+q0RvtnbTb32vAcabIzcsmJrQOwtJY=
+Subject: FAILED: patch "[PATCH] usb: cdns3: remove fetched trb from cache before dequeuing" failed to apply to 5.4-stable tree
 To:     pawell@cadence.com, gregkh@linuxfoundation.org,
         peter.chen@kernel.org, stable@vger.kernel.org
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Sun, 22 Jan 2023 14:15:43 +0100
-Message-ID: <167439334325363@kroah.com>
+Date:   Sun, 22 Jan 2023 14:15:45 +0100
+Message-ID: <1674393345199210@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -49,7 +49,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.10-stable tree.
+The patch below does not apply to the 5.4-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
@@ -57,6 +57,15 @@ id to <stable@vger.kernel.org>.
 Possible dependencies:
 
 1301c7b9f7ef ("usb: cdns3: remove fetched trb from cache before dequeuing")
+64b558f597d1 ("usb: cdns3: Change file names for cdns3 driver.")
+118b2a3237cf ("usb: cdnsp: Add tracepoints for CDNSP driver")
+3d82904559f4 ("usb: cdnsp: cdns3 Add main part of Cadence USBSSP DRD Driver")
+e93e58d27402 ("usb: cdnsp: Device side header file for CDNSP driver")
+0b490046d8d7 ("usb: cdns3: Refactoring names in reusable code")
+394c3a144de8 ("usb: cdns3: Moves reusable code to separate module")
+f738957277ba ("usb: cdns3: Split core.c into cdns3-plat and core.c file")
+db8892bb1bb6 ("usb: cdns3: Add support for DRD CDNSP")
+d2a968dddf98 ("Merge tag 'usb-v5.11-rc1' of git://git.kernel.org/pub/scm/linux/kernel/git/peter.chen/usb into usb-next")
 
 thanks,
 
