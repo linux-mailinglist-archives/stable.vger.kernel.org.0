@@ -2,49 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id BBB43676EE2
-	for <lists+stable@lfdr.de>; Sun, 22 Jan 2023 16:15:28 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 057EB676EEE
+	for <lists+stable@lfdr.de>; Sun, 22 Jan 2023 16:15:57 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230479AbjAVPP1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 22 Jan 2023 10:15:27 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42200 "EHLO
+        id S230501AbjAVPP4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 22 Jan 2023 10:15:56 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42886 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230484AbjAVPP0 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 22 Jan 2023 10:15:26 -0500
+        with ESMTP id S230504AbjAVPPz (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 22 Jan 2023 10:15:55 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E7CDB22023
-        for <stable@vger.kernel.org>; Sun, 22 Jan 2023 07:15:25 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C136822023
+        for <stable@vger.kernel.org>; Sun, 22 Jan 2023 07:15:54 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 8457C60C60
-        for <stable@vger.kernel.org>; Sun, 22 Jan 2023 15:15:25 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 954ECC433D2;
-        Sun, 22 Jan 2023 15:15:24 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 5D43B60BC5
+        for <stable@vger.kernel.org>; Sun, 22 Jan 2023 15:15:54 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6F370C433EF;
+        Sun, 22 Jan 2023 15:15:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1674400524;
-        bh=ppVz6zurDT4AfZUZu/DgoJgtNNnLOZO3tDtzhFf6pC4=;
+        s=korg; t=1674400553;
+        bh=fnfKf9dYjxGJ6AhZ4WQn+QrUub+G/LwBtgwDkvoBRm8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=RiOqt0Hi5BdWDHo+XuqVDz/oFQHcgzUFp7A30k/ErBzMZgzuTspTYxXn3xWSv5kZ4
-         UJyRcZc1QmR+uuy13YnyidiSvyMP8NdnAPoSnZoBNhv16AkKWW2nbslxif+rIwRwEq
-         ua5wzEVy9zQCWgeDGfD8zHqE40/lFH+P7hoKOJMA=
+        b=OUMNIlNqf94MEyWzkSl+7jp2iPq6cKEfU3i931V5IJJNk8YE3sHKosdQ4NQlhmhD+
+         /c3AprebIX+GQLMiNvX4xb26+SJvOpgSuTi3t8OyoUPVpQiKdxowOdJiku0RyqPKI4
+         BVvxT2KtfN0D9TMOUiFxgEb/u5gobVYQ84lQNQNA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Johannes Thumshirn <johannes.thumshirn@wdc.com>,
-        Naohiro Aota <naohiro.aota@wdc.com>,
-        David Sterba <dsterba@suse.com>,
+        patches@lists.linux.dev, Olga Kornievskaia <kolga@netapp.com>,
+        Trond Myklebust <trond.myklebust@hammerspace.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 001/117] btrfs: fix trace event name typo for FLUSH_DELAYED_REFS
-Date:   Sun, 22 Jan 2023 16:03:11 +0100
-Message-Id: <20230122150232.812880612@linuxfoundation.org>
+Subject: [PATCH 5.15 002/117] pNFS/filelayout: Fix coalescing test for single DS
+Date:   Sun, 22 Jan 2023 16:03:12 +0100
+Message-Id: <20230122150232.853272272@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.1
 In-Reply-To: <20230122150232.736358800@linuxfoundation.org>
 References: <20230122150232.736358800@linuxfoundation.org>
 User-Agent: quilt/0.67
-X-stable: review
-X-Patchwork-Hint: ignore
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -58,35 +54,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Naohiro Aota <naohiro.aota@wdc.com>
+From: Olga Kornievskaia <olga.kornievskaia@gmail.com>
 
-[ Upstream commit 0a3212de8ab3e2ce5808c6265855e528d4a6767b ]
+[ Upstream commit a6b9d2fa0024e7e399c26facd0fb466b7396e2b9 ]
 
-Fix a typo of printing FLUSH_DELAYED_REFS event in flush_space() as
-FLUSH_ELAYED_REFS.
+When there is a single DS no striping constraints need to be placed on
+the IO. When such constraint is applied then buffered reads don't
+coalesce to the DS's rsize.
 
-Reviewed-by: Johannes Thumshirn <johannes.thumshirn@wdc.com>
-Signed-off-by: Naohiro Aota <naohiro.aota@wdc.com>
-Reviewed-by: David Sterba <dsterba@suse.com>
-Signed-off-by: David Sterba <dsterba@suse.com>
+Signed-off-by: Olga Kornievskaia <kolga@netapp.com>
+Signed-off-by: Trond Myklebust <trond.myklebust@hammerspace.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- include/trace/events/btrfs.h | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ fs/nfs/filelayout/filelayout.c | 8 ++++++++
+ 1 file changed, 8 insertions(+)
 
-diff --git a/include/trace/events/btrfs.h b/include/trace/events/btrfs.h
-index 8f58fd95efc7..9271b5dfae4c 100644
---- a/include/trace/events/btrfs.h
-+++ b/include/trace/events/btrfs.h
-@@ -96,7 +96,7 @@ struct btrfs_space_info;
- 	EM( FLUSH_DELALLOC_WAIT,	"FLUSH_DELALLOC_WAIT")		\
- 	EM( FLUSH_DELALLOC_FULL,	"FLUSH_DELALLOC_FULL")		\
- 	EM( FLUSH_DELAYED_REFS_NR,	"FLUSH_DELAYED_REFS_NR")	\
--	EM( FLUSH_DELAYED_REFS,		"FLUSH_ELAYED_REFS")		\
-+	EM( FLUSH_DELAYED_REFS,		"FLUSH_DELAYED_REFS")		\
- 	EM( ALLOC_CHUNK,		"ALLOC_CHUNK")			\
- 	EM( ALLOC_CHUNK_FORCE,		"ALLOC_CHUNK_FORCE")		\
- 	EM( RUN_DELAYED_IPUTS,		"RUN_DELAYED_IPUTS")		\
+diff --git a/fs/nfs/filelayout/filelayout.c b/fs/nfs/filelayout/filelayout.c
+index d2103852475f..45eec08ec904 100644
+--- a/fs/nfs/filelayout/filelayout.c
++++ b/fs/nfs/filelayout/filelayout.c
+@@ -783,6 +783,12 @@ filelayout_alloc_lseg(struct pnfs_layout_hdr *layoutid,
+ 	return &fl->generic_hdr;
+ }
+ 
++static bool
++filelayout_lseg_is_striped(const struct nfs4_filelayout_segment *flseg)
++{
++	return flseg->num_fh > 1;
++}
++
+ /*
+  * filelayout_pg_test(). Called by nfs_can_coalesce_requests()
+  *
+@@ -803,6 +809,8 @@ filelayout_pg_test(struct nfs_pageio_descriptor *pgio, struct nfs_page *prev,
+ 	size = pnfs_generic_pg_test(pgio, prev, req);
+ 	if (!size)
+ 		return 0;
++	else if (!filelayout_lseg_is_striped(FILELAYOUT_LSEG(pgio->pg_lseg)))
++		return size;
+ 
+ 	/* see if req and prev are in the same stripe */
+ 	if (prev) {
 -- 
 2.35.1
 
