@@ -2,43 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C5DE8676E32
-	for <lists+stable@lfdr.de>; Sun, 22 Jan 2023 16:08:02 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id DF3FE676EA5
+	for <lists+stable@lfdr.de>; Sun, 22 Jan 2023 16:12:49 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230192AbjAVPIC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 22 Jan 2023 10:08:02 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34274 "EHLO
+        id S230385AbjAVPMt (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 22 Jan 2023 10:12:49 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40322 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230196AbjAVPIB (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 22 Jan 2023 10:08:01 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5D19315C85
-        for <stable@vger.kernel.org>; Sun, 22 Jan 2023 07:08:00 -0800 (PST)
+        with ESMTP id S230388AbjAVPMs (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 22 Jan 2023 10:12:48 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BC56F12F25
+        for <stable@vger.kernel.org>; Sun, 22 Jan 2023 07:12:46 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id EEFA660C57
-        for <stable@vger.kernel.org>; Sun, 22 Jan 2023 15:07:59 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 127EAC433D2;
-        Sun, 22 Jan 2023 15:07:58 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 74C9EB80B1B
+        for <stable@vger.kernel.org>; Sun, 22 Jan 2023 15:12:45 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C04D0C433D2;
+        Sun, 22 Jan 2023 15:12:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1674400079;
-        bh=+ZMONBLCc2q9sAmeUhiR/8dufee+L9ipeouP7x9PI/E=;
+        s=korg; t=1674400364;
+        bh=5uhx895GL7fXMg+/hz5wzEgMZZEtruPx8FLH+waOEnk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=w1Csqo/NlP3TzflYLRnl2I5U3LKyfgGEuAeIQaexAOeIrKGRLslStjuYLXmJ8wDvK
-         sUmpN77cFTzf/2JD4EUSpTayM2+qWccQj7bjMfxGallvH76nozrr7GY1KQutpjzR0X
-         qKC9txzUiAoEn8HR23X0o6aVd/NL/ZvzGAdtvKf8=
+        b=1Vdnk0fOZGKPTmnCYmJZxyNtQemk3R8oD76ZfCuTN+59P/M1unePmlBrLUPNKFpH+
+         qXJMcXq0DUV2zW9RtHDISYTg4GceYq3ZDxzaB8cWrpxmhezR8duDs4j70B7Mr4VWOs
+         SLKBv5x/NK4RTJb53rNzfkkCUjWPbUJ+OI+asScs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Jaegeuk Kim <jaegeuk@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 04/37] f2fs: lets avoid panic if extent_tree is not created
+        patches@lists.linux.dev,
+        =?UTF-8?q?Duke=20Xin ?= <duke_xinanwen@163.com>,
+        Johan Hovold <johan@kernel.org>
+Subject: [PATCH 5.10 45/98] USB: serial: option: add Quectel EM05-G (RS) modem
 Date:   Sun, 22 Jan 2023 16:04:01 +0100
-Message-Id: <20230122150219.762157308@linuxfoundation.org>
+Message-Id: <20230122150231.427755189@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.1
-In-Reply-To: <20230122150219.557984692@linuxfoundation.org>
-References: <20230122150219.557984692@linuxfoundation.org>
+In-Reply-To: <20230122150229.351631432@linuxfoundation.org>
+References: <20230122150229.351631432@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,70 +54,104 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jaegeuk Kim <jaegeuk@kernel.org>
+From: Duke Xin(辛安文) <duke_xinanwen@163.com>
 
-[ Upstream commit df9d44b645b83fffccfb4e28c1f93376585fdec8 ]
+commit b72d13977689f0c717444010e108c4f20658dfee upstream.
 
-This patch avoids the below panic.
+The EM05-G (RS) modem has 2 USB configurations that are configurable via
+the AT command AT+QCFG="usbnet",[ 0 | 2 ] which make the modem enumerate
+with the following interfaces, respectively:
 
-pc : __lookup_extent_tree+0xd8/0x760
-lr : f2fs_do_write_data_page+0x104/0x87c
-sp : ffffffc010cbb3c0
-x29: ffffffc010cbb3e0 x28: 0000000000000000
-x27: ffffff8803e7f020 x26: ffffff8803e7ed40
-x25: ffffff8803e7f020 x24: ffffffc010cbb460
-x23: ffffffc010cbb480 x22: 0000000000000000
-x21: 0000000000000000 x20: ffffffff22e90900
-x19: 0000000000000000 x18: ffffffc010c5d080
-x17: 0000000000000000 x16: 0000000000000020
-x15: ffffffdb1acdbb88 x14: ffffff888759e2b0
-x13: 0000000000000000 x12: ffffff802da49000
-x11: 000000000a001200 x10: ffffff8803e7ed40
-x9 : ffffff8023195800 x8 : ffffff802da49078
-x7 : 0000000000000001 x6 : 0000000000000000
-x5 : 0000000000000006 x4 : ffffffc010cbba28
-x3 : 0000000000000000 x2 : ffffffc010cbb480
-x1 : 0000000000000000 x0 : ffffff8803e7ed40
-Call trace:
- __lookup_extent_tree+0xd8/0x760
- f2fs_do_write_data_page+0x104/0x87c
- f2fs_write_single_data_page+0x420/0xb60
- f2fs_write_cache_pages+0x418/0xb1c
- __f2fs_write_data_pages+0x428/0x58c
- f2fs_write_data_pages+0x30/0x40
- do_writepages+0x88/0x190
- __writeback_single_inode+0x48/0x448
- writeback_sb_inodes+0x468/0x9e8
- __writeback_inodes_wb+0xb8/0x2a4
- wb_writeback+0x33c/0x740
- wb_do_writeback+0x2b4/0x400
- wb_workfn+0xe4/0x34c
- process_one_work+0x24c/0x5bc
- worker_thread+0x3e8/0xa50
- kthread+0x150/0x1b4
+"RMNET" : AT + DIAG + NMEA + Modem + QMI
+"MBIM"  : MBIM + AT + DIAG + NMEA + Modem
 
-Signed-off-by: Jaegeuk Kim <jaegeuk@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+The detailed description of the USB configuration for each mode as follows:
+
+RMNET Mode
+--------------
+T:  Bus=01 Lev=01 Prnt=01 Port=00 Cnt=01 Dev#= 21 Spd=480  MxCh= 0
+D:  Ver= 2.00 Cls=ef(misc ) Sub=02 Prot=01 MxPS=64 #Cfgs=  1
+P:  Vendor=2c7c ProdID=0314 Rev= 3.18
+S:  Manufacturer=Quectel
+S:  Product=Quectel EM05-G
+C:* #Ifs= 5 Cfg#= 1 Atr=a0 MxPwr=500mA
+I:* If#= 3 Alt= 0 #EPs= 2 Cls=ff(vend.) Sub=ff Prot=ff Driver=option
+E:  Ad=81(I) Atr=02(Bulk) MxPS= 512 Ivl=0ms
+E:  Ad=01(O) Atr=02(Bulk) MxPS= 512 Ivl=0ms
+I:* If#= 4 Alt= 0 #EPs= 3 Cls=ff(vend.) Sub=00 Prot=00 Driver=option
+E:  Ad=83(I) Atr=03(Int.) MxPS=  10 Ivl=32ms
+E:  Ad=82(I) Atr=02(Bulk) MxPS= 512 Ivl=0ms
+E:  Ad=02(O) Atr=02(Bulk) MxPS= 512 Ivl=0ms
+I:* If#= 2 Alt= 0 #EPs= 3 Cls=ff(vend.) Sub=00 Prot=00 Driver=option
+E:  Ad=85(I) Atr=03(Int.) MxPS=  10 Ivl=32ms
+E:  Ad=84(I) Atr=02(Bulk) MxPS= 512 Ivl=0ms
+E:  Ad=03(O) Atr=02(Bulk) MxPS= 512 Ivl=0ms
+I:* If#= 5 Alt= 0 #EPs= 3 Cls=ff(vend.) Sub=00 Prot=00 Driver=option
+E:  Ad=87(I) Atr=03(Int.) MxPS=  10 Ivl=32ms
+E:  Ad=86(I) Atr=02(Bulk) MxPS= 512 Ivl=0ms
+E:  Ad=04(O) Atr=02(Bulk) MxPS= 512 Ivl=0ms
+I:* If#= 6 Alt= 0 #EPs= 3 Cls=ff(vend.) Sub=ff Prot=ff Driver=(none)
+E:  Ad=89(I) Atr=03(Int.) MxPS=   8 Ivl=32ms
+E:  Ad=88(I) Atr=02(Bulk) MxPS= 512 Ivl=0ms
+E:  Ad=05(O) Atr=02(Bulk) MxPS= 512 Ivl=0ms
+
+MBIM Mode
+--------------
+T:  Bus=01 Lev=01 Prnt=01 Port=00 Cnt=01 Dev#= 16 Spd=480  MxCh= 0
+D:  Ver= 2.00 Cls=ef(misc ) Sub=02 Prot=01 MxPS=64 #Cfgs=  1
+P:  Vendor=2c7c ProdID=0314 Rev= 3.18
+S:  Manufacturer=Quectel
+S:  Product=Quectel EM05-G
+C:* #Ifs= 6 Cfg#= 1 Atr=a0 MxPwr=500mA
+A:  FirstIf#= 0 IfCount= 2 Cls=02(comm.) Sub=0e Prot=00
+I:* If#= 3 Alt= 0 #EPs= 2 Cls=ff(vend.) Sub=ff Prot=ff Driver=option
+E:  Ad=81(I) Atr=02(Bulk) MxPS= 512 Ivl=0ms
+E:  Ad=01(O) Atr=02(Bulk) MxPS= 512 Ivl=0ms
+I:* If#= 4 Alt= 0 #EPs= 3 Cls=ff(vend.) Sub=00 Prot=00 Driver=option
+E:  Ad=83(I) Atr=03(Int.) MxPS=  10 Ivl=32ms
+E:  Ad=82(I) Atr=02(Bulk) MxPS= 512 Ivl=0ms
+E:  Ad=02(O) Atr=02(Bulk) MxPS= 512 Ivl=0ms
+I:* If#= 2 Alt= 0 #EPs= 3 Cls=ff(vend.) Sub=00 Prot=00 Driver=option
+E:  Ad=85(I) Atr=03(Int.) MxPS=  10 Ivl=32ms
+E:  Ad=84(I) Atr=02(Bulk) MxPS= 512 Ivl=0ms
+E:  Ad=03(O) Atr=02(Bulk) MxPS= 512 Ivl=0ms
+I:* If#= 5 Alt= 0 #EPs= 3 Cls=ff(vend.) Sub=00 Prot=00 Driver=option
+E:  Ad=87(I) Atr=03(Int.) MxPS=  10 Ivl=32ms
+E:  Ad=86(I) Atr=02(Bulk) MxPS= 512 Ivl=0ms
+E:  Ad=04(O) Atr=02(Bulk) MxPS= 512 Ivl=0ms
+I:* If#= 0 Alt= 0 #EPs= 1 Cls=02(comm.) Sub=0e Prot=00 Driver=cdc_mbim
+E:  Ad=89(I) Atr=03(Int.) MxPS=  64 Ivl=32ms
+I:  If#= 1 Alt= 0 #EPs= 0 Cls=0a(data ) Sub=00 Prot=02 Driver=cdc_mbim
+I:* If#= 1 Alt= 1 #EPs= 2 Cls=0a(data ) Sub=00 Prot=02 Driver=cdc_mbim
+E:  Ad=88(I) Atr=02(Bulk) MxPS= 512 Ivl=0ms
+E:  Ad=05(O) Atr=02(Bulk) MxPS= 512 Ivl=0ms
+
+Signed-off-by: Duke Xin(辛安文) <duke_xinanwen@163.com>
+Cc: stable@vger.kernel.org
+Signed-off-by: Johan Hovold <johan@kernel.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/f2fs/extent_cache.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/usb/serial/option.c |    3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/fs/f2fs/extent_cache.c b/fs/f2fs/extent_cache.c
-index 36d6b561b524..e85ed4aa9d46 100644
---- a/fs/f2fs/extent_cache.c
-+++ b/fs/f2fs/extent_cache.c
-@@ -375,7 +375,8 @@ static bool f2fs_lookup_extent_tree(struct inode *inode, pgoff_t pgofs,
- 	struct extent_node *en;
- 	bool ret = false;
- 
--	f2fs_bug_on(sbi, !et);
-+	if (!et)
-+		return false;
- 
- 	trace_f2fs_lookup_extent_tree_start(inode, pgofs);
- 
--- 
-2.35.1
-
+--- a/drivers/usb/serial/option.c
++++ b/drivers/usb/serial/option.c
+@@ -258,6 +258,7 @@ static void option_instat_callback(struc
+ #define QUECTEL_PRODUCT_EM05G_CS		0x030c
+ #define QUECTEL_PRODUCT_EM05G_SG		0x0311
+ #define QUECTEL_PRODUCT_EM05G_GR		0x0313
++#define QUECTEL_PRODUCT_EM05G_RS		0x0314
+ #define QUECTEL_PRODUCT_EM12			0x0512
+ #define QUECTEL_PRODUCT_RM500Q			0x0800
+ #define QUECTEL_PRODUCT_RM520N			0x0801
+@@ -1167,6 +1168,8 @@ static const struct usb_device_id option
+ 	  .driver_info = RSVD(6) | ZLP },
+ 	{ USB_DEVICE_INTERFACE_CLASS(QUECTEL_VENDOR_ID, QUECTEL_PRODUCT_EM05G_CS, 0xff),
+ 	  .driver_info = RSVD(6) | ZLP },
++	{ USB_DEVICE_INTERFACE_CLASS(QUECTEL_VENDOR_ID, QUECTEL_PRODUCT_EM05G_RS, 0xff),
++	  .driver_info = RSVD(6) | ZLP },
+ 	{ USB_DEVICE_INTERFACE_CLASS(QUECTEL_VENDOR_ID, QUECTEL_PRODUCT_EM05G_SG, 0xff),
+ 	  .driver_info = RSVD(6) | ZLP },
+ 	{ USB_DEVICE_AND_INTERFACE_INFO(QUECTEL_VENDOR_ID, QUECTEL_PRODUCT_EM060K, 0xff, 0x00, 0x40) },
 
 
