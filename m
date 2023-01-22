@@ -2,32 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 3CB01676E7E
-	for <lists+stable@lfdr.de>; Sun, 22 Jan 2023 16:11:10 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 60725676EEA
+	for <lists+stable@lfdr.de>; Sun, 22 Jan 2023 16:15:51 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230333AbjAVPLJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 22 Jan 2023 10:11:09 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37654 "EHLO
+        id S230494AbjAVPPu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 22 Jan 2023 10:15:50 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42726 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230339AbjAVPLI (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 22 Jan 2023 10:11:08 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 75C6920040
-        for <stable@vger.kernel.org>; Sun, 22 Jan 2023 07:11:07 -0800 (PST)
+        with ESMTP id S230496AbjAVPPt (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 22 Jan 2023 10:15:49 -0500
+Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0357F22033
+        for <stable@vger.kernel.org>; Sun, 22 Jan 2023 07:15:47 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 0B50560C48
-        for <stable@vger.kernel.org>; Sun, 22 Jan 2023 15:11:07 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 20859C433D2;
-        Sun, 22 Jan 2023 15:11:05 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 3EC71CE0F4D
+        for <stable@vger.kernel.org>; Sun, 22 Jan 2023 15:15:45 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 05294C433EF;
+        Sun, 22 Jan 2023 15:15:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1674400266;
-        bh=c751CSjymc7u2PLUjoaS+DAek80QM1vKmXfQCgGr6XE=;
+        s=korg; t=1674400543;
+        bh=LIp+kEeNGeFWxeEwbd2zgiB1QxOvV2HMfm+a9ybaaUI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=xmADt9LoB5s4YL1EPM+dVIa2+hlTk3o2uM/LU6n/d1DRisa4WRQDSdfrXTZSQqKjy
-         qBJgxtaN0962ci1hfKW9WGdjdagxORDmMj7N5uuzm5StyxXFzNW90FvKthG2u9w4R5
-         GJZNI3xjYUDbV0ImpBJF+X3+fAZzS/Kpo6wkE6bM=
+        b=WzHrqED5OE5YXv71pnqU/ONIpoUFTc8h9teq3KajhfM5xFktVBitn2YB15auAKvIg
+         NF96dcNrOk3LspbkEJupH7MFdEQnxPRBDFcZbocwzzcAouHvSV8vkNWdReiBJErSmY
+         YV0xT0JGvECwYpWh/rEmble0igGv46e2KtZztp8U=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
@@ -36,20 +36,20 @@ Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         Christian Marillat <marillat@debian.org>,
         Arend van Spriel <arend.vanspriel@broadcom.com>,
         Kalle Valo <kvalo@kernel.org>
-Subject: [PATCH 5.10 10/98] wifi: brcmfmac: fix regression for Broadcom PCIe wifi devices
+Subject: [PATCH 5.15 016/117] wifi: brcmfmac: fix regression for Broadcom PCIe wifi devices
 Date:   Sun, 22 Jan 2023 16:03:26 +0100
-Message-Id: <20230122150229.864584167@linuxfoundation.org>
+Message-Id: <20230122150233.361288213@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.1
-In-Reply-To: <20230122150229.351631432@linuxfoundation.org>
-References: <20230122150229.351631432@linuxfoundation.org>
+In-Reply-To: <20230122150232.736358800@linuxfoundation.org>
+References: <20230122150232.736358800@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
         DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
-        SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no
-        version=3.4.6
+        SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=unavailable
+        autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
@@ -81,7 +81,7 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 --- a/drivers/net/wireless/broadcom/brcm80211/brcmfmac/pcie.c
 +++ b/drivers/net/wireless/broadcom/brcm80211/brcmfmac/pcie.c
-@@ -1109,7 +1109,7 @@ static int brcmf_pcie_init_ringbuffers(s
+@@ -1118,7 +1118,7 @@ static int brcmf_pcie_init_ringbuffers(s
  				BRCMF_NROF_H2D_COMMON_MSGRINGS;
  		max_completionrings = BRCMF_NROF_D2H_COMMON_MSGRINGS;
  	}
