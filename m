@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B9DD3676F42
-	for <lists+stable@lfdr.de>; Sun, 22 Jan 2023 16:19:28 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 99B46676E0A
+	for <lists+stable@lfdr.de>; Sun, 22 Jan 2023 16:06:30 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231209AbjAVPT1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 22 Jan 2023 10:19:27 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46618 "EHLO
+        id S230159AbjAVPG3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 22 Jan 2023 10:06:29 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60250 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231208AbjAVPT1 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 22 Jan 2023 10:19:27 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 905442004D
-        for <stable@vger.kernel.org>; Sun, 22 Jan 2023 07:19:26 -0800 (PST)
+        with ESMTP id S230156AbjAVPG3 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 22 Jan 2023 10:06:29 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 161431422C
+        for <stable@vger.kernel.org>; Sun, 22 Jan 2023 07:06:28 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 2C2E760BC5
-        for <stable@vger.kernel.org>; Sun, 22 Jan 2023 15:19:26 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3C59BC433D2;
-        Sun, 22 Jan 2023 15:19:25 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id B3FF9B80B12
+        for <stable@vger.kernel.org>; Sun, 22 Jan 2023 15:06:26 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 12908C433EF;
+        Sun, 22 Jan 2023 15:06:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1674400765;
-        bh=9Eh7jreooWqXler4iR5FnNwOnKMo5hSZwr7G08/7rZo=;
+        s=korg; t=1674399985;
+        bh=5TTZ1KNWGW9LQ34W31BSaesLllP/HTRXxvRhj0OKl2Y=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Be02GGCUUDUSU/AqEJXJZlTFV+VYO/UW3Q6b0nSpKqKJWFuguSWPOiZ9D7Kx1c95G
-         lZp4KzyyR7E3Zten9w4/FjoMF+/MynPIqLzbzoihGjExa0qhZD6bW3LxhGQwKgDpT+
-         Ttqo0Rbsk6Y2Kbs1VBrnKaIDJcsVNYx5x6lik10o=
+        b=NblYsRoMmySvLXC72bqsgu3hPsqYKlmKLySMozoc97n+P/TM+jKJvjpl7NsrbUNsV
+         8hFfAlkE/4TaehLMI8ZJ3l+weWej7n0Tl23vup+cSM22gi/OS9jwFG0s09CaQZQNyF
+         LOPF/kb8kp6hf/zj67pMEc9QnT0LQM3VNn8SV1zc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Sergio Paracuellos <sergio.paracuellos@gmail.com>,
-        =?UTF-8?q?Ar=C4=B1n=C3=A7=20=C3=9CNAL?= <arinc.unal@arinc9.com>
-Subject: [PATCH 5.15 071/117] staging: mt7621-dts: change some node hex addresses to lower case
+        patches@lists.linux.dev, Alan Stern <stern@rowland.harvard.edu>,
+        Hongling Zeng <zenghongling@kylinos.cn>,
+        Juhyung Park <qkrwngud825@gmail.com>,
+        Oliver Neukum <oneukum@suse.com>
+Subject: [PATCH 4.14 21/25] usb-storage: apply IGNORE_UAS only for HIKSEMI MD202 on RTL9210
 Date:   Sun, 22 Jan 2023 16:04:21 +0100
-Message-Id: <20230122150235.741216922@linuxfoundation.org>
+Message-Id: <20230122150218.689207363@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.1
-In-Reply-To: <20230122150232.736358800@linuxfoundation.org>
-References: <20230122150232.736358800@linuxfoundation.org>
+In-Reply-To: <20230122150217.788215473@linuxfoundation.org>
+References: <20230122150217.788215473@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,59 +55,77 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sergio Paracuellos <sergio.paracuellos@gmail.com>
+From: Juhyung Park <qkrwngud825@gmail.com>
 
-commit ce835dbd04d7b24f9fd50d9a9c59be46304aaa8a upstream.
+commit dbd24ec17b85b45f4e823d1aa5607721920f2b05 upstream.
 
-Hexadecimal addresses in device tree must be defined using lower case.
-There are some of them that are still in upper case. Change them all.
+The commit e00b488e813f ("usb-storage: Add Hiksemi USB3-FW to IGNORE_UAS")
+blacklists UAS for all of RTL9210 enclosures.
 
-Signed-off-by: Sergio Paracuellos <sergio.paracuellos@gmail.com>
-Link: https://lore.kernel.org/r/20211017070656.12654-2-sergio.paracuellos@gmail.com
-Cc: Arınç ÜNAL <arinc.unal@arinc9.com>
+The RTL9210 controller was advertised with UAS since its release back in
+2019 and was shipped with a lot of enclosure products with different
+firmware combinations.
+
+Blacklist UAS only for HIKSEMI MD202.
+
+This should hopefully be replaced with more robust method than just
+comparing strings.  But with limited information [1] provided thus far
+(dmesg when the device is plugged in, which includes manufacturer and
+product, but no lsusb -v to compare against), this is the best we can do
+for now.
+
+[1] https://lore.kernel.org/all/20230109115550.71688-1-qkrwngud825@gmail.com
+
+Fixes: e00b488e813f ("usb-storage: Add Hiksemi USB3-FW to IGNORE_UAS")
+Cc: Alan Stern <stern@rowland.harvard.edu>
+Cc: Hongling Zeng <zenghongling@kylinos.cn>
+Cc: stable@vger.kernel.org
+Signed-off-by: Juhyung Park <qkrwngud825@gmail.com>
+Acked-by: Oliver Neukum <oneukum@suse.com>
+Link: https://lore.kernel.org/r/20230117085154.123301-1-qkrwngud825@gmail.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/staging/mt7621-dts/mt7621.dtsi |   12 ++++++------
- 1 file changed, 6 insertions(+), 6 deletions(-)
+ drivers/usb/storage/uas-detect.h  |   13 +++++++++++++
+ drivers/usb/storage/unusual_uas.h |    7 -------
+ 2 files changed, 13 insertions(+), 7 deletions(-)
 
---- a/drivers/staging/mt7621-dts/mt7621.dtsi
-+++ b/drivers/staging/mt7621-dts/mt7621.dtsi
-@@ -47,10 +47,10 @@
- 		regulator-always-on;
- 	};
+--- a/drivers/usb/storage/uas-detect.h
++++ b/drivers/usb/storage/uas-detect.h
+@@ -116,6 +116,19 @@ static int uas_use_uas_driver(struct usb
+ 	if (le16_to_cpu(udev->descriptor.idVendor) == 0x0bc2)
+ 		flags |= US_FL_NO_ATA_1X;
  
--	palmbus: palmbus@1E000000 {
-+	palmbus: palmbus@1e000000 {
- 		compatible = "palmbus";
--		reg = <0x1E000000 0x100000>;
--		ranges = <0x0 0x1E000000 0x0FFFFF>;
-+		reg = <0x1e000000 0x100000>;
-+		ranges = <0x0 0x1e000000 0x0fffff>;
++	/*
++	 * RTL9210-based enclosure from HIKSEMI, MD202 reportedly have issues
++	 * with UAS.  This isn't distinguishable with just idVendor and
++	 * idProduct, use manufacturer and product too.
++	 *
++	 * Reported-by: Hongling Zeng <zenghongling@kylinos.cn>
++	 */
++	if (le16_to_cpu(udev->descriptor.idVendor) == 0x0bda &&
++			le16_to_cpu(udev->descriptor.idProduct) == 0x9210 &&
++			(udev->manufacturer && !strcmp(udev->manufacturer, "HIKSEMI")) &&
++			(udev->product && !strcmp(udev->product, "MD202")))
++		flags |= US_FL_IGNORE_UAS;
++
+ 	usb_stor_adjust_quirks(udev, &flags);
  
- 		#address-cells = <1>;
- 		#size-cells = <1>;
-@@ -301,11 +301,11 @@
- 		#reset-cells = <1>;
- 	};
+ 	if (flags & US_FL_IGNORE_UAS) {
+--- a/drivers/usb/storage/unusual_uas.h
++++ b/drivers/usb/storage/unusual_uas.h
+@@ -152,13 +152,6 @@ UNUSUAL_DEV(0x0bc2, 0xab2a, 0x0000, 0x99
+ 		USB_SC_DEVICE, USB_PR_DEVICE, NULL,
+ 		US_FL_NO_ATA_1X),
  
--	sdhci: sdhci@1E130000 {
-+	sdhci: sdhci@1e130000 {
- 		status = "disabled";
- 
- 		compatible = "mediatek,mt7620-mmc";
--		reg = <0x1E130000 0x4000>;
-+		reg = <0x1e130000 0x4000>;
- 
- 		bus-width = <4>;
- 		max-frequency = <48000000>;
-@@ -327,7 +327,7 @@
- 		interrupts = <GIC_SHARED 20 IRQ_TYPE_LEVEL_HIGH>;
- 	};
- 
--	xhci: xhci@1E1C0000 {
-+	xhci: xhci@1e1c0000 {
- 		status = "okay";
- 
- 		compatible = "mediatek,mt8173-xhci";
+-/* Reported-by: Hongling Zeng <zenghongling@kylinos.cn> */
+-UNUSUAL_DEV(0x0bda, 0x9210, 0x0000, 0x9999,
+-		"Hiksemi",
+-		"External HDD",
+-		USB_SC_DEVICE, USB_PR_DEVICE, NULL,
+-		US_FL_IGNORE_UAS),
+-
+ /* Reported-by: Benjamin Tissoires <benjamin.tissoires@redhat.com> */
+ UNUSUAL_DEV(0x13fd, 0x3940, 0x0000, 0x9999,
+ 		"Initio Corporation",
 
 
