@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 5BB32676E8B
-	for <lists+stable@lfdr.de>; Sun, 22 Jan 2023 16:11:45 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9E60A676FAA
+	for <lists+stable@lfdr.de>; Sun, 22 Jan 2023 16:23:57 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230361AbjAVPLo (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 22 Jan 2023 10:11:44 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38620 "EHLO
+        id S231341AbjAVPX5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 22 Jan 2023 10:23:57 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52382 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230369AbjAVPLm (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 22 Jan 2023 10:11:42 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1F6FD21A30
-        for <stable@vger.kernel.org>; Sun, 22 Jan 2023 07:11:41 -0800 (PST)
+        with ESMTP id S231351AbjAVPXz (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 22 Jan 2023 10:23:55 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A318D1D904
+        for <stable@vger.kernel.org>; Sun, 22 Jan 2023 07:23:53 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 8805960C48
-        for <stable@vger.kernel.org>; Sun, 22 Jan 2023 15:11:41 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 98A96C4339C;
-        Sun, 22 Jan 2023 15:11:40 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 59C4BB80B1A
+        for <stable@vger.kernel.org>; Sun, 22 Jan 2023 15:23:52 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B1D96C433D2;
+        Sun, 22 Jan 2023 15:23:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1674400301;
-        bh=Qj/x9nL42oBnVzM5mFOhNfHivTU8x7Kd4DHXOCWwFdg=;
+        s=korg; t=1674401031;
+        bh=A/L8c3NAjrDYgZ00mzdIJSZ3xdVwPtzi2OIgThe9Q0Q=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=2r5kSev3lsaqsuh6NtsZW1evycq0acGz4YkVTOFqmiWwXmQSuHCqR5tCZAAFkBzGr
-         blsbaU6ohCXwSVOztc0HekL/k65VJuo47/YpbeIPNxurDCUcsFT4t5Ubsm41YdQzNE
-         I7jARntI6OR+W+nT/99LoHRBIz148N8vfXEIUqXw=
+        b=nuOkA/OQMNQt4saR/dytXhrATsNESvunqI88GyXsrUQA4Qft21ZaInF9C0e0RiO0d
+         9m1Ljjc1fXFCRZzX1VgMvjD4lznbavk2VMBE13MSfcMris9tRu8OQtwtFA8nmsy5uY
+         xKTzFFfpimh9z3vUur2EKgnMhHGetcHmnvC7sliI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Ding Hui <dinghui@sangfor.com.cn>,
-        Ard Biesheuvel <ardb@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 15/98] efi: fix userspace infinite retry read efivars after EFI runtime services page fault
-Date:   Sun, 22 Jan 2023 16:03:31 +0100
-Message-Id: <20230122150230.073547026@linuxfoundation.org>
+        patches@lists.linux.dev, David Arendt <admin@prnet.org>,
+        Josef Bacik <josef@toxicpanda.com>,
+        Filipe Manana <fdmanana@suse.com>,
+        David Sterba <dsterba@suse.com>
+Subject: [PATCH 6.1 083/193] btrfs: fix directory logging due to race with concurrent index key deletion
+Date:   Sun, 22 Jan 2023 16:03:32 +0100
+Message-Id: <20230122150250.172778501@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.1
-In-Reply-To: <20230122150229.351631432@linuxfoundation.org>
-References: <20230122150229.351631432@linuxfoundation.org>
+In-Reply-To: <20230122150246.321043584@linuxfoundation.org>
+References: <20230122150246.321043584@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,45 +55,104 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ding Hui <dinghui@sangfor.com.cn>
+From: Filipe Manana <fdmanana@suse.com>
 
-[ Upstream commit e006ac3003080177cf0b673441a4241f77aaecce ]
+commit 8bb6898da6271d82d8e76d8088d66b971a7dcfa6 upstream.
 
-After [1][2], if we catch exceptions due to EFI runtime service, we will
-clear EFI_RUNTIME_SERVICES bit to disable EFI runtime service, then the
-subsequent routine which invoke the EFI runtime service should fail.
+Sometimes we log a directory without holding its VFS lock, so while we
+logging it, dir index entries may be added or removed. This typically
+happens when logging a dentry from a parent directory that points to a
+new directory, through log_new_dir_dentries(), or when while logging
+some other inode we also need to log its parent directories (through
+btrfs_log_all_parents()).
 
-But the userspace cat efivars through /sys/firmware/efi/efivars/ will stuck
-and infinite loop calling read() due to efivarfs_file_read() return -EINTR.
+This means that while we are at log_dir_items(), we may not find a dir
+index key we found before, because it was deleted in the meanwhile, so
+a call to btrfs_search_slot() may return 1 (key not found). In that case
+we return from log_dir_items() with a success value (the variable 'err'
+has a value of 0). This can lead to a few problems, specially in the case
+where the variable 'last_offset' has a value of (u64)-1 (and it's
+initialized to that when it was declared):
 
-The -EINTR is converted from EFI_ABORTED by efi_status_to_err(), and is
-an improper return value in this situation, so let virt_efi_xxx() return
-EFI_DEVICE_ERROR and converted to -EIO to invoker.
+1) By returning from log_dir_items() with success (0) and a value of
+   (u64)-1 for '*last_offset_ret', we end up not logging any other dir
+   index keys that follow the missing, just deleted, index key. The
+   (u64)-1 value makes log_directory_changes() not call log_dir_items()
+   again;
 
-Cc: <stable@vger.kernel.org>
-Fixes: 3425d934fc03 ("efi/x86: Handle page faults occurring while running EFI runtime services")
-Fixes: 23715a26c8d8 ("arm64: efi: Recover from synchronous exceptions occurring in firmware")
-Signed-off-by: Ding Hui <dinghui@sangfor.com.cn>
-Signed-off-by: Ard Biesheuvel <ardb@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+2) Before returning with success (0), log_dir_items(), will log a dir
+   index range item covering a range from the last old dentry index
+   (stored in the variable 'last_old_dentry_offset') to the value of
+   'last_offset'. If 'last_offset' has a value of (u64)-1, then it means
+   if the log is persisted and replayed after a power failure, it will
+   cause deletion of all the directory entries that have an index number
+   between last_old_dentry_offset + 1 and (u64)-1;
+
+3) We can end up returning from log_dir_items() with
+   ctx->last_dir_item_offset having a lower value than
+   inode->last_dir_index_offset, because the former is set to the current
+   key we are processing at process_dir_items_leaf(), and at the end of
+   log_directory_changes() we set inode->last_dir_index_offset to the
+   current value of ctx->last_dir_item_offset. So if for example a
+   deletion of a lower dir index key happened, we set
+   ctx->last_dir_item_offset to that index value, then if we return from
+   log_dir_items() because btrfs_search_slot() returned 1, we end up
+   returning from log_dir_items() with success (0) and then
+   log_directory_changes() sets inode->last_dir_index_offset to a lower
+   value than it had before.
+   This can result in unpredictable and unexpected behaviour when we
+   need to log again the directory in the same transaction, and can result
+   in ending up with a log tree leaf that has duplicated keys, as we do
+   batch insertions of dir index keys into a log tree.
+
+So fix this by making log_dir_items() move on to the next dir index key
+if it does not find the one it was looking for.
+
+Reported-by: David Arendt <admin@prnet.org>
+Link: https://lore.kernel.org/linux-btrfs/ae169fc6-f504-28f0-a098-6fa6a4dfb612@leemhuis.info/
+CC: stable@vger.kernel.org # 4.14+
+Reviewed-by: Josef Bacik <josef@toxicpanda.com>
+Signed-off-by: Filipe Manana <fdmanana@suse.com>
+Signed-off-by: David Sterba <dsterba@suse.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/firmware/efi/runtime-wrappers.c | 1 +
- 1 file changed, 1 insertion(+)
+ fs/btrfs/tree-log.c |   21 +++++++++++++++------
+ 1 file changed, 15 insertions(+), 6 deletions(-)
 
-diff --git a/drivers/firmware/efi/runtime-wrappers.c b/drivers/firmware/efi/runtime-wrappers.c
-index f3e54f6616f0..60075e0e4943 100644
---- a/drivers/firmware/efi/runtime-wrappers.c
-+++ b/drivers/firmware/efi/runtime-wrappers.c
-@@ -62,6 +62,7 @@ struct efi_runtime_work efi_rts_work;
- 									\
- 	if (!efi_enabled(EFI_RUNTIME_SERVICES)) {			\
- 		pr_warn_once("EFI Runtime Services are disabled!\n");	\
-+		efi_rts_work.status = EFI_DEVICE_ERROR;			\
- 		goto exit;						\
- 	}								\
- 									\
--- 
-2.39.0
-
+--- a/fs/btrfs/tree-log.c
++++ b/fs/btrfs/tree-log.c
+@@ -3888,17 +3888,26 @@ static noinline int log_dir_items(struct
+ 	btrfs_release_path(path);
+ 
+ 	/*
+-	 * Find the first key from this transaction again.  See the note for
+-	 * log_new_dir_dentries, if we're logging a directory recursively we
+-	 * won't be holding its i_mutex, which means we can modify the directory
+-	 * while we're logging it.  If we remove an entry between our first
+-	 * search and this search we'll not find the key again and can just
+-	 * bail.
++	 * Find the first key from this transaction again or the one we were at
++	 * in the loop below in case we had to reschedule. We may be logging the
++	 * directory without holding its VFS lock, which happen when logging new
++	 * dentries (through log_new_dir_dentries()) or in some cases when we
++	 * need to log the parent directory of an inode. This means a dir index
++	 * key might be deleted from the inode's root, and therefore we may not
++	 * find it anymore. If we can't find it, just move to the next key. We
++	 * can not bail out and ignore, because if we do that we will simply
++	 * not log dir index keys that come after the one that was just deleted
++	 * and we can end up logging a dir index range that ends at (u64)-1
++	 * (@last_offset is initialized to that), resulting in removing dir
++	 * entries we should not remove at log replay time.
+ 	 */
+ search:
+ 	ret = btrfs_search_slot(NULL, root, &min_key, path, 0, 0);
++	if (ret > 0)
++		ret = btrfs_next_item(root, path);
+ 	if (ret < 0)
+ 		err = ret;
++	/* If ret is 1, there are no more keys in the inode's root. */
+ 	if (ret != 0)
+ 		goto done;
+ 
 
 
