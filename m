@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id BFF89676FB7
-	for <lists+stable@lfdr.de>; Sun, 22 Jan 2023 16:24:30 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7EE61676E82
+	for <lists+stable@lfdr.de>; Sun, 22 Jan 2023 16:11:23 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231359AbjAVPYa (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 22 Jan 2023 10:24:30 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52860 "EHLO
+        id S230342AbjAVPLW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 22 Jan 2023 10:11:22 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37940 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231361AbjAVPY3 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 22 Jan 2023 10:24:29 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E3E611E2A0
-        for <stable@vger.kernel.org>; Sun, 22 Jan 2023 07:24:28 -0800 (PST)
+        with ESMTP id S230352AbjAVPLV (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 22 Jan 2023 10:11:21 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 580CF20060
+        for <stable@vger.kernel.org>; Sun, 22 Jan 2023 07:11:18 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 7FF2B60C44
-        for <stable@vger.kernel.org>; Sun, 22 Jan 2023 15:24:28 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 903C2C433D2;
-        Sun, 22 Jan 2023 15:24:27 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id DD70060C63
+        for <stable@vger.kernel.org>; Sun, 22 Jan 2023 15:11:17 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id EB0A6C433D2;
+        Sun, 22 Jan 2023 15:11:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1674401067;
-        bh=zIXxIaY68zwBaf7kNnLlzyOBTnWlD8MFT2vgq8uHwfM=;
+        s=korg; t=1674400277;
+        bh=be1rpJOWMEUbQjXMKnoS5KnZj9qWs18U9u5Ne05rBI8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=2QnPZW9Kg0O7+aEx1i2q277uPvg/b1IkZ5U3yjKl2buQK3TcFLDs5DKvRBrwFyNrp
-         KDWewvFNdtiFRMfi9OJsAahsZlBdxPYqDegUe15SlrFPGSI0EvA9nxr/VTLPI9JaYT
-         eKiGOL6PjCX8qe6XNeLnBPOS5pYAPcLL4RBXZ0wg=
+        b=rZN0ji9xZ1yCHPEVjPnX/EEhaDaxN20Ry7DFe3CVhcWq5fRP2siwjrGyEAKBd8wrk
+         ZAMqmncsjTC/jNfPDUdKkK0MoPqrod9cLPtRdhuwdv5g9CWkQ0ikrqrxQimH5/5+XP
+         RkgiBquPYQNCnAEAE0JLEdbkpQcItU+EoRpJuQlQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, stable <stable@kernel.org>,
-        Ola Jeppsson <ola@snap.com>, Abel Vesa <abel.vesa@linaro.org>,
-        Srinivas Kandagatla <srinivas.kandagatla@linaro.org>
-Subject: [PATCH 6.1 069/193] misc: fastrpc: Dont remove map on creater_process and device_release
+        patches@lists.linux.dev, Olga Kornievskaia <kolga@netapp.com>,
+        Trond Myklebust <trond.myklebust@hammerspace.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 02/98] pNFS/filelayout: Fix coalescing test for single DS
 Date:   Sun, 22 Jan 2023 16:03:18 +0100
-Message-Id: <20230122150249.506557979@linuxfoundation.org>
+Message-Id: <20230122150229.473799436@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.1
-In-Reply-To: <20230122150246.321043584@linuxfoundation.org>
-References: <20230122150246.321043584@linuxfoundation.org>
+In-Reply-To: <20230122150229.351631432@linuxfoundation.org>
+References: <20230122150229.351631432@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,71 +54,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Abel Vesa <abel.vesa@linaro.org>
+From: Olga Kornievskaia <olga.kornievskaia@gmail.com>
 
-commit 5bb96c8f9268e2fdb0e5321cbc358ee5941efc15 upstream.
+[ Upstream commit a6b9d2fa0024e7e399c26facd0fb466b7396e2b9 ]
 
-Do not remove the map from the list on error path in
-fastrpc_init_create_process, instead call fastrpc_map_put, to avoid
-use-after-free. Do not remove it on fastrpc_device_release either,
-call fastrpc_map_put instead.
+When there is a single DS no striping constraints need to be placed on
+the IO. When such constraint is applied then buffered reads don't
+coalesce to the DS's rsize.
 
-The fastrpc_free_map is the only proper place to remove the map.
-This is called only after the reference count is 0.
-
-Fixes: b49f6d83e290 ("misc: fastrpc: Fix a possible double free")
-Cc: stable <stable@kernel.org>
-Co-developed-by: Ola Jeppsson <ola@snap.com>
-Signed-off-by: Ola Jeppsson <ola@snap.com>
-Signed-off-by: Abel Vesa <abel.vesa@linaro.org>
-Signed-off-by: Srinivas Kandagatla <srinivas.kandagatla@linaro.org>
-Link: https://lore.kernel.org/r/20221124174941.418450-3-srinivas.kandagatla@linaro.org
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Olga Kornievskaia <kolga@netapp.com>
+Signed-off-by: Trond Myklebust <trond.myklebust@hammerspace.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/misc/fastrpc.c |   18 +++++++++---------
- 1 file changed, 9 insertions(+), 9 deletions(-)
+ fs/nfs/filelayout/filelayout.c | 8 ++++++++
+ 1 file changed, 8 insertions(+)
 
---- a/drivers/misc/fastrpc.c
-+++ b/drivers/misc/fastrpc.c
-@@ -316,6 +316,13 @@ static void fastrpc_free_map(struct kref
- 		dma_buf_put(map->buf);
- 	}
- 
-+	if (map->fl) {
-+		spin_lock(&map->fl->lock);
-+		list_del(&map->node);
-+		spin_unlock(&map->fl->lock);
-+		map->fl = NULL;
-+	}
-+
- 	kfree(map);
+diff --git a/fs/nfs/filelayout/filelayout.c b/fs/nfs/filelayout/filelayout.c
+index ae5ed3a07494..deecfb50dd7e 100644
+--- a/fs/nfs/filelayout/filelayout.c
++++ b/fs/nfs/filelayout/filelayout.c
+@@ -783,6 +783,12 @@ filelayout_alloc_lseg(struct pnfs_layout_hdr *layoutid,
+ 	return &fl->generic_hdr;
  }
  
-@@ -1266,12 +1273,7 @@ err_invoke:
- 	fl->init_mem = NULL;
- 	fastrpc_buf_free(imem);
- err_alloc:
--	if (map) {
--		spin_lock(&fl->lock);
--		list_del(&map->node);
--		spin_unlock(&fl->lock);
--		fastrpc_map_put(map);
--	}
-+	fastrpc_map_put(map);
- err:
- 	kfree(args);
++static bool
++filelayout_lseg_is_striped(const struct nfs4_filelayout_segment *flseg)
++{
++	return flseg->num_fh > 1;
++}
++
+ /*
+  * filelayout_pg_test(). Called by nfs_can_coalesce_requests()
+  *
+@@ -803,6 +809,8 @@ filelayout_pg_test(struct nfs_pageio_descriptor *pgio, struct nfs_page *prev,
+ 	size = pnfs_generic_pg_test(pgio, prev, req);
+ 	if (!size)
+ 		return 0;
++	else if (!filelayout_lseg_is_striped(FILELAYOUT_LSEG(pgio->pg_lseg)))
++		return size;
  
-@@ -1347,10 +1349,8 @@ static int fastrpc_device_release(struct
- 		fastrpc_context_put(ctx);
- 	}
- 
--	list_for_each_entry_safe(map, m, &fl->maps, node) {
--		list_del(&map->node);
-+	list_for_each_entry_safe(map, m, &fl->maps, node)
- 		fastrpc_map_put(map);
--	}
- 
- 	list_for_each_entry_safe(buf, b, &fl->mmaps, node) {
- 		list_del(&buf->node);
+ 	/* see if req and prev are in the same stripe */
+ 	if (prev) {
+-- 
+2.35.1
+
 
 
