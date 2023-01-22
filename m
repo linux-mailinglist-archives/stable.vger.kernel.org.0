@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 0BDDB676DC3
-	for <lists+stable@lfdr.de>; Sun, 22 Jan 2023 15:45:11 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 41D63676DC4
+	for <lists+stable@lfdr.de>; Sun, 22 Jan 2023 15:45:19 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229969AbjAVOpK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 22 Jan 2023 09:45:10 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52546 "EHLO
+        id S230090AbjAVOpS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 22 Jan 2023 09:45:18 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52566 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229911AbjAVOpJ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 22 Jan 2023 09:45:09 -0500
+        with ESMTP id S229911AbjAVOpS (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 22 Jan 2023 09:45:18 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 721571BAF3
-        for <stable@vger.kernel.org>; Sun, 22 Jan 2023 06:45:08 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 158171BAF5
+        for <stable@vger.kernel.org>; Sun, 22 Jan 2023 06:45:17 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 0C4E960C41
-        for <stable@vger.kernel.org>; Sun, 22 Jan 2023 14:45:08 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 21606C433EF;
-        Sun, 22 Jan 2023 14:45:06 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id A3E7D60C17
+        for <stable@vger.kernel.org>; Sun, 22 Jan 2023 14:45:16 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B5B89C433D2;
+        Sun, 22 Jan 2023 14:45:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1674398707;
-        bh=5n5c8WL6heLIdhjKrd4+1buqcCwwdI7Nl7YefAlJ8Qc=;
+        s=korg; t=1674398716;
+        bh=uFESqiKK442ox5Ddi3xPevNPaBlhCguuPvniAfJVHfc=;
         h=Subject:To:Cc:From:Date:From;
-        b=uzMpfJ/kcTbbvtnV5K4+pdA2P3vhgvspVvAGT/Bk1H34q+MY+ub/b2fxWSjebjfYz
-         umIJhGHx1jgJOo+Yt/MfLI5QKKVmyTr/5mCvOr/8qNakaUrgeu4iO3N/8NfVZDiJAe
-         fbjtY0dPs4NXcSOrQ53VKfCFbAGEGk2cte2d7zZI=
-Subject: FAILED: patch "[PATCH] io_uring: fix double poll leak on repolling" failed to apply to 5.10-stable tree
+        b=PusvoQOhMoLho4Q1aEr0+wsXeV6EqeuEHb37EkytMnu1V5noT4Scl1MR219vzbrYd
+         Imd3LIG21uVVHH4TgMyzt57attRBDp9bO4HKQr296fmlGwuH36DOaY/2RHw3ZPcvKX
+         yJuPTTn70CtNjjfW+9LHiqsmeNyYdYv0LiL31AT8=
+Subject: FAILED: patch "[PATCH] io_uring: fix double poll leak on repolling" failed to apply to 5.15-stable tree
 To:     asml.silence@gmail.com, axboe@kernel.dk
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Sun, 22 Jan 2023 15:45:04 +0100
-Message-ID: <16743987044138@kroah.com>
+Date:   Sun, 22 Jan 2023 15:45:05 +0100
+Message-ID: <1674398705141140@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -48,7 +48,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.10-stable tree.
+The patch below does not apply to the 5.15-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
