@@ -2,45 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 99A1C676EF5
-	for <lists+stable@lfdr.de>; Sun, 22 Jan 2023 16:16:17 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 06AA6676EF6
+	for <lists+stable@lfdr.de>; Sun, 22 Jan 2023 16:16:18 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230508AbjAVPQQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 22 Jan 2023 10:16:16 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43220 "EHLO
+        id S230509AbjAVPQR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 22 Jan 2023 10:16:17 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43224 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230509AbjAVPQQ (ORCPT
+        with ESMTP id S230511AbjAVPQQ (ORCPT
         <rfc822;stable@vger.kernel.org>); Sun, 22 Jan 2023 10:16:16 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9F51B2202D
-        for <stable@vger.kernel.org>; Sun, 22 Jan 2023 07:16:14 -0800 (PST)
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AC11F22025
+        for <stable@vger.kernel.org>; Sun, 22 Jan 2023 07:16:15 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 37FF1B80B11
-        for <stable@vger.kernel.org>; Sun, 22 Jan 2023 15:16:13 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 98850C433EF;
-        Sun, 22 Jan 2023 15:16:11 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 4B01E60C60
+        for <stable@vger.kernel.org>; Sun, 22 Jan 2023 15:16:15 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5B798C433D2;
+        Sun, 22 Jan 2023 15:16:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1674400572;
-        bh=cTi9gusqLt/cL8T39wGvmoyZ18hY3wdFbVSjj80LeO4=;
+        s=korg; t=1674400574;
+        bh=cFzX04RxTb6QRGOAKulgwA+ApTRYhAo9lxPFayh2TjM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=bG0R/IAf8cuF7gSyLTUkHal9SoosJd1f7FyhlGwkjf1+rSh3ui7S8k6H4ANaqNnUs
-         qvuRnVbQhYjTAyUoq2AbEkHvlCXtvY8UH7inRyWtHwiMZE0DISyC5uBRzJfVEiDDbh
-         Q9x5hnywW2p/6xbyOYFIptTdTpmRTly9QXpOALvM=
+        b=KOLry5ul2Ox31YXPdiDczp+DbEg8QSMIUjX2YfkGQf3gfJeqOi5eB9ncz3ZQ2xVQz
+         edCNFR1T+ISVa51pOpTMZi5P9aIRMhVzqxist1FaGcIMIjdvY5RM0nU7BQjfoMov2a
+         Y9xjVjkq0M6nqjUufNMXKmCD8G73iyQLlacZIzNg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, James Houghton <jthoughton@google.com>,
-        Mike Kravetz <mike.kravetz@oracle.com>,
-        Peter Xu <peterx@redhat.com>,
-        Axel Rasmussen <axelrasmussen@google.com>,
-        Muchun Song <songmuchun@bytedance.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 026/117] hugetlb: unshare some PMDs when splitting VMAs
-Date:   Sun, 22 Jan 2023 16:03:36 +0100
-Message-Id: <20230122150233.786264149@linuxfoundation.org>
+        patches@lists.linux.dev,
+        Christiano Haesbaert <haesbaert@haesbaert.org>,
+        Jens Axboe <axboe@kernel.dk>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.15 027/117] io_uring: dont gate task_work run on TIF_NOTIFY_SIGNAL
+Date:   Sun, 22 Jan 2023 16:03:37 +0100
+Message-Id: <20230122150233.826521340@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.1
 In-Reply-To: <20230122150232.736358800@linuxfoundation.org>
 References: <20230122150232.736358800@linuxfoundation.org>
@@ -58,126 +54,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: James Houghton <jthoughton@google.com>
+From: Jens Axboe <axboe@kernel.dk>
 
-[ Upstream commit b30c14cd61025eeea2f2e8569606cd167ba9ad2d ]
+commit 46a525e199e4037516f7e498c18f065b09df32ac upstream.
 
-PMD sharing can only be done in PUD_SIZE-aligned pieces of VMAs; however,
-it is possible that HugeTLB VMAs are split without unsharing the PMDs
-first.
+This isn't a reliable mechanism to tell if we have task_work pending, we
+really should be looking at whether we have any items queued. This is
+problematic if forward progress is gated on running said task_work. One
+such example is reading from a pipe, where the write side has been closed
+right before the read is started. The fput() of the file queues TWA_RESUME
+task_work, and we need that task_work to be run before ->release() is
+called for the pipe. If ->release() isn't called, then the read will sit
+forever waiting on data that will never arise.
 
-Without this fix, it is possible to hit the uffd-wp-related WARN_ON_ONCE
-in hugetlb_change_protection [1].  The key there is that
-hugetlb_unshare_all_pmds will not attempt to unshare PMDs in
-non-PUD_SIZE-aligned sections of the VMA.
+Fix this by io_run_task_work() so it checks if we have task_work pending
+rather than rely on TIF_NOTIFY_SIGNAL for that. The latter obviously
+doesn't work for task_work that is queued without TWA_SIGNAL.
 
-It might seem ideal to unshare in hugetlb_vm_op_open, but we need to
-unshare in both the new and old VMAs, so unsharing in hugetlb_vm_op_split
-seems natural.
-
-[1]: https://lore.kernel.org/linux-mm/CADrL8HVeOkj0QH5VZZbRzybNE8CG-tEGFshnA+bG9nMgcWtBSg@mail.gmail.com/
-
-Link: https://lkml.kernel.org/r/20230104231910.1464197-1-jthoughton@google.com
-Fixes: 6dfeaff93be1 ("hugetlb/userfaultfd: unshare all pmds for hugetlbfs when register wp")
-Signed-off-by: James Houghton <jthoughton@google.com>
-Reviewed-by: Mike Kravetz <mike.kravetz@oracle.com>
-Acked-by: Peter Xu <peterx@redhat.com>
-Cc: Axel Rasmussen <axelrasmussen@google.com>
-Cc: Muchun Song <songmuchun@bytedance.com>
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Reported-by: Christiano Haesbaert <haesbaert@haesbaert.org>
+Cc: stable@vger.kernel.org
+Link: https://github.com/axboe/liburing/issues/665
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- mm/hugetlb.c | 44 +++++++++++++++++++++++++++++++++++---------
- 1 file changed, 35 insertions(+), 9 deletions(-)
+ io_uring/io-wq.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/mm/hugetlb.c b/mm/hugetlb.c
-index e7bd42f23667..8599f16d4aa4 100644
---- a/mm/hugetlb.c
-+++ b/mm/hugetlb.c
-@@ -82,6 +82,8 @@ struct mutex *hugetlb_fault_mutex_table ____cacheline_aligned_in_smp;
+diff --git a/io_uring/io-wq.c b/io_uring/io-wq.c
+index 87bc38b47103..81485c1a9879 100644
+--- a/io_uring/io-wq.c
++++ b/io_uring/io-wq.c
+@@ -513,7 +513,7 @@ static struct io_wq_work *io_get_next_work(struct io_wqe_acct *acct,
  
- /* Forward declaration */
- static int hugetlb_acct_memory(struct hstate *h, long delta);
-+static void hugetlb_unshare_pmds(struct vm_area_struct *vma,
-+		unsigned long start, unsigned long end);
- 
- static inline bool subpool_is_free(struct hugepage_subpool *spool)
+ static bool io_flush_signals(void)
  {
-@@ -4164,6 +4166,25 @@ static int hugetlb_vm_op_split(struct vm_area_struct *vma, unsigned long addr)
- {
- 	if (addr & ~(huge_page_mask(hstate_vma(vma))))
- 		return -EINVAL;
-+
-+	/*
-+	 * PMD sharing is only possible for PUD_SIZE-aligned address ranges
-+	 * in HugeTLB VMAs. If we will lose PUD_SIZE alignment due to this
-+	 * split, unshare PMDs in the PUD_SIZE interval surrounding addr now.
-+	 */
-+	if (addr & ~PUD_MASK) {
-+		/*
-+		 * hugetlb_vm_op_split is called right before we attempt to
-+		 * split the VMA. We will need to unshare PMDs in the old and
-+		 * new VMAs, so let's unshare before we split.
-+		 */
-+		unsigned long floor = addr & PUD_MASK;
-+		unsigned long ceil = floor + PUD_SIZE;
-+
-+		if (floor >= vma->vm_start && ceil <= vma->vm_end)
-+			hugetlb_unshare_pmds(vma, floor, ceil);
-+	}
-+
- 	return 0;
- }
- 
-@@ -6349,26 +6370,21 @@ void move_hugetlb_state(struct page *oldpage, struct page *newpage, int reason)
- 	}
- }
- 
--/*
-- * This function will unconditionally remove all the shared pmd pgtable entries
-- * within the specific vma for a hugetlbfs memory range.
-- */
--void hugetlb_unshare_all_pmds(struct vm_area_struct *vma)
-+static void hugetlb_unshare_pmds(struct vm_area_struct *vma,
-+				   unsigned long start,
-+				   unsigned long end)
- {
- 	struct hstate *h = hstate_vma(vma);
- 	unsigned long sz = huge_page_size(h);
- 	struct mm_struct *mm = vma->vm_mm;
- 	struct mmu_notifier_range range;
--	unsigned long address, start, end;
-+	unsigned long address;
- 	spinlock_t *ptl;
- 	pte_t *ptep;
- 
- 	if (!(vma->vm_flags & VM_MAYSHARE))
- 		return;
- 
--	start = ALIGN(vma->vm_start, PUD_SIZE);
--	end = ALIGN_DOWN(vma->vm_end, PUD_SIZE);
--
- 	if (start >= end)
- 		return;
- 
-@@ -6400,6 +6416,16 @@ void hugetlb_unshare_all_pmds(struct vm_area_struct *vma)
- 	mmu_notifier_invalidate_range_end(&range);
- }
- 
-+/*
-+ * This function will unconditionally remove all the shared pmd pgtable entries
-+ * within the specific vma for a hugetlbfs memory range.
-+ */
-+void hugetlb_unshare_all_pmds(struct vm_area_struct *vma)
-+{
-+	hugetlb_unshare_pmds(vma, ALIGN(vma->vm_start, PUD_SIZE),
-+			ALIGN_DOWN(vma->vm_end, PUD_SIZE));
-+}
-+
- #ifdef CONFIG_CMA
- static bool cma_reserve_called __initdata;
- 
+-	if (unlikely(test_thread_flag(TIF_NOTIFY_SIGNAL))) {
++	if (test_thread_flag(TIF_NOTIFY_SIGNAL) || current->task_works) {
+ 		__set_current_state(TASK_RUNNING);
+ 		tracehook_notify_signal();
+ 		return true;
 -- 
 2.39.0
 
