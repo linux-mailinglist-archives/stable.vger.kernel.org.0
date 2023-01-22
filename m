@@ -2,52 +2,52 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 62F36676E81
-	for <lists+stable@lfdr.de>; Sun, 22 Jan 2023 16:11:20 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 83915676EED
+	for <lists+stable@lfdr.de>; Sun, 22 Jan 2023 16:15:56 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230341AbjAVPLT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 22 Jan 2023 10:11:19 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37878 "EHLO
+        id S230497AbjAVPPz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 22 Jan 2023 10:15:55 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42876 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230342AbjAVPLS (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 22 Jan 2023 10:11:18 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 060B920044
-        for <stable@vger.kernel.org>; Sun, 22 Jan 2023 07:11:15 -0800 (PST)
+        with ESMTP id S230502AbjAVPPz (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 22 Jan 2023 10:15:55 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B5F3E22033
+        for <stable@vger.kernel.org>; Sun, 22 Jan 2023 07:15:53 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 3CA2E60C5C
-        for <stable@vger.kernel.org>; Sun, 22 Jan 2023 15:11:15 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 51A18C433D2;
-        Sun, 22 Jan 2023 15:11:14 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 6BE7DB80B1D
+        for <stable@vger.kernel.org>; Sun, 22 Jan 2023 15:15:52 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C8EB8C433EF;
+        Sun, 22 Jan 2023 15:15:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1674400274;
-        bh=KQ9GSFi/gBXixh07AHwXO7MLP5yFAfUeT/rlCUjb86E=;
+        s=korg; t=1674400551;
+        bh=v9SRppU2v67R3vYQVDHsEJwJJs4kyKG8UR2qblF2UH4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=JsMOhlxY96Pjys+4660MAOAfQe8bCpq+u91K6mj4T7EVzAMmIpomQj1cn6p3OInQ1
-         i0ft4kiT19nx+5LkyXXhV1JfRSbzNO8ilJkSjpBiPmHq4lN5ARJ9TpU8K0YW+OXlgk
-         lK4UUQkw71rvEIBWXp3+4Jc4N4kfJ8Qyepti9anY=
+        b=jTrSjQu/n+rywVkUt/hH4tu0awvmEW9Tfu0amOkd+Y6/MLY7YyoT/iZ9DAPQODGwp
+         Wlwg2LRXohVf/3+1m65BVxsIull70Lx29cUfeDypMm+yK7DdiedaPpMmoooXral+Ot
+         ZDGNzfYbSzsgoMdMRSM0Y+v2drFbdpfZnUxPimnM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         patches@lists.linux.dev,
         Damien Le Moal <damien.lemoal@opensource.wdc.com>,
         Johannes Thumshirn <johannes.thumshirn@wdc.com>
-Subject: [PATCH 5.10 13/98] zonefs: Detect append writes at invalid locations
+Subject: [PATCH 5.15 019/117] zonefs: Detect append writes at invalid locations
 Date:   Sun, 22 Jan 2023 16:03:29 +0100
-Message-Id: <20230122150229.993477181@linuxfoundation.org>
+Message-Id: <20230122150233.483252158@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.1
-In-Reply-To: <20230122150229.351631432@linuxfoundation.org>
-References: <20230122150229.351631432@linuxfoundation.org>
+In-Reply-To: <20230122150232.736358800@linuxfoundation.org>
+References: <20230122150232.736358800@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
         DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
-        SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no
-        version=3.4.6
+        SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=unavailable
+        autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
@@ -85,7 +85,7 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 --- a/fs/zonefs/super.c
 +++ b/fs/zonefs/super.c
-@@ -394,6 +394,10 @@ static int zonefs_io_error_cb(struct blk
+@@ -402,6 +402,10 @@ static int zonefs_io_error_cb(struct blk
  			data_size = zonefs_check_zone_condition(inode, zone,
  								false, false);
  		}
@@ -96,7 +96,7 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
  	}
  
  	/*
-@@ -772,6 +776,24 @@ static ssize_t zonefs_file_dio_append(st
+@@ -765,6 +769,24 @@ static ssize_t zonefs_file_dio_append(st
  
  	ret = submit_bio_wait(bio);
  
@@ -119,7 +119,7 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 +	}
 +
  	zonefs_file_write_dio_end_io(iocb, size, ret, 0);
+ 	trace_zonefs_file_dio_append(inode, size, ret);
  
- out_release:
 
 
