@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E8C78676EC5
-	for <lists+stable@lfdr.de>; Sun, 22 Jan 2023 16:14:14 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7BA8E676E3F
+	for <lists+stable@lfdr.de>; Sun, 22 Jan 2023 16:08:38 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230452AbjAVPOO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 22 Jan 2023 10:14:14 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41262 "EHLO
+        id S230223AbjAVPIh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 22 Jan 2023 10:08:37 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34710 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230431AbjAVPOJ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 22 Jan 2023 10:14:09 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 223F52201C
-        for <stable@vger.kernel.org>; Sun, 22 Jan 2023 07:14:09 -0800 (PST)
+        with ESMTP id S230218AbjAVPIg (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 22 Jan 2023 10:08:36 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DDCC91E1FB
+        for <stable@vger.kernel.org>; Sun, 22 Jan 2023 07:08:35 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id B325960C5C
-        for <stable@vger.kernel.org>; Sun, 22 Jan 2023 15:14:08 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C5DE0C433EF;
-        Sun, 22 Jan 2023 15:14:07 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 8D376B80AF8
+        for <stable@vger.kernel.org>; Sun, 22 Jan 2023 15:08:34 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E517BC433D2;
+        Sun, 22 Jan 2023 15:08:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1674400448;
-        bh=gMl4Y3T65w18VlVhPj7/Z/5YdYj4ezZrbxOGRT3pfa4=;
+        s=korg; t=1674400113;
+        bh=OqxWEtiTOn4kTu3mdysvMJoqky85DyyHjpgSTRcjVfQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=pv6CCmrHKUaanbE6GD9aAgvvXS6bqCJiZUj5kJYDrSmikuaU6W5n4DO2/MuHptY2r
-         ZkjjBX+bgvo1vQzt5sBhBjN7P0QVNzE7+vh1EQnope+mK4x1o51yeQYL9cCnsWOt/6
-         MqztRyP5XVW745L1i5TK700/+aZ0VeFaZEa3udGg=
+        b=04bQo5ea6p/++gMIBHvmsSx12TGdqMpdk7x7kfFO3RT7Put0ka/Wtwcqw5d7pGNCg
+         320fpIR5ZJc43zesjk5Xm3ZpPF//3ie3n/6e2EEVLK/UgLU3CFeP76xgu/27JYPkOd
+         oP2W+gSBLDnwwXRTqlh1Q9s/+Lc2OlZjXZE5NxeU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Harry Wentland <harry.wentland@amd.com>,
-        Rodrigo Siqueira <Rodrigo.Siqueira@amd.com>,
-        hongao <hongao@uniontech.com>,
-        Alex Deucher <alexander.deucher@amd.com>
-Subject: [PATCH 5.10 77/98] drm/amd/display: Fix set scaling doesns work
-Date:   Sun, 22 Jan 2023 16:04:33 +0100
-Message-Id: <20230122150232.696961282@linuxfoundation.org>
+        patches@lists.linux.dev, YingChi Long <me@inclyc.cn>,
+        Borislav Petkov <bp@suse.de>,
+        Nick Desaulniers <ndesaulniers@google.com>,
+        Nathan Chancellor <nathan@kernel.org>
+Subject: [PATCH 4.19 37/37] x86/fpu: Use _Alignof to avoid undefined behavior in TYPE_ALIGN
+Date:   Sun, 22 Jan 2023 16:04:34 +0100
+Message-Id: <20230122150221.089492044@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.1
-In-Reply-To: <20230122150229.351631432@linuxfoundation.org>
-References: <20230122150229.351631432@linuxfoundation.org>
+In-Reply-To: <20230122150219.557984692@linuxfoundation.org>
+References: <20230122150219.557984692@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,41 +55,63 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: hongao <hongao@uniontech.com>
+From: YingChi Long <me@inclyc.cn>
 
-commit 040625ab82ce6dca7772cb3867fe5c9eb279a344 upstream.
+commit 55228db2697c09abddcb9487c3d9fa5854a932cd upstream.
 
-[Why]
-Setting scaling does not correctly update CRTC state. As a result
-dc stream state's src (composition area) && dest (addressable area)
-was not calculated as expected. This causes set scaling doesn's work.
+WG14 N2350 specifies that it is an undefined behavior to have type
+definitions within offsetof", see
 
-[How]
-Correctly update CRTC state when setting scaling property.
+  https://www.open-std.org/jtc1/sc22/wg14/www/docs/n2350.htm
 
-Reviewed-by: Harry Wentland <harry.wentland@amd.com>
-Tested-by: Rodrigo Siqueira <Rodrigo.Siqueira@amd.com>
-Signed-off-by: hongao <hongao@uniontech.com>
-Signed-off-by: Rodrigo Siqueira <Rodrigo.Siqueira@amd.com>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
-Cc: stable@vger.kernel.org
+This specification is also part of C23.
+
+Therefore, replace the TYPE_ALIGN macro with the _Alignof builtin to
+avoid undefined behavior. (_Alignof itself is C11 and the kernel is
+built with -gnu11).
+
+ISO C11 _Alignof is subtly different from the GNU C extension
+__alignof__. Latter is the preferred alignment and _Alignof the
+minimal alignment. For long long on x86 these are 8 and 4
+respectively.
+
+The macro TYPE_ALIGN's behavior matches _Alignof rather than
+__alignof__.
+
+  [ bp: Massage commit message. ]
+
+Signed-off-by: YingChi Long <me@inclyc.cn>
+Signed-off-by: Borislav Petkov <bp@suse.de>
+Reviewed-by: Nick Desaulniers <ndesaulniers@google.com>
+Link: https://lore.kernel.org/r/20220925153151.2467884-1-me@inclyc.cn
+Signed-off-by: Nathan Chancellor <nathan@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c |    4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ arch/x86/kernel/fpu/init.c |    7 ++-----
+ 1 file changed, 2 insertions(+), 5 deletions(-)
 
---- a/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c
-+++ b/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c
-@@ -8783,8 +8783,8 @@ static int amdgpu_dm_atomic_check(struct
- 			goto fail;
- 		}
+--- a/arch/x86/kernel/fpu/init.c
++++ b/arch/x86/kernel/fpu/init.c
+@@ -138,9 +138,6 @@ static void __init fpu__init_system_gene
+ unsigned int fpu_kernel_xstate_size;
+ EXPORT_SYMBOL_GPL(fpu_kernel_xstate_size);
  
--		if (dm_old_con_state->abm_level !=
--		    dm_new_con_state->abm_level)
-+		if (dm_old_con_state->abm_level != dm_new_con_state->abm_level ||
-+		    dm_old_con_state->scaling != dm_new_con_state->scaling)
- 			new_crtc_state->connectors_changed = true;
- 	}
+-/* Get alignment of the TYPE. */
+-#define TYPE_ALIGN(TYPE) offsetof(struct { char x; TYPE test; }, test)
+-
+ /*
+  * Enforce that 'MEMBER' is the last field of 'TYPE'.
+  *
+@@ -148,8 +145,8 @@ EXPORT_SYMBOL_GPL(fpu_kernel_xstate_size
+  * because that's how C aligns structs.
+  */
+ #define CHECK_MEMBER_AT_END_OF(TYPE, MEMBER) \
+-	BUILD_BUG_ON(sizeof(TYPE) != ALIGN(offsetofend(TYPE, MEMBER), \
+-					   TYPE_ALIGN(TYPE)))
++	BUILD_BUG_ON(sizeof(TYPE) !=         \
++		     ALIGN(offsetofend(TYPE, MEMBER), _Alignof(TYPE)))
  
+ /*
+  * We append the 'struct fpu' to the task_struct:
 
 
