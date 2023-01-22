@@ -2,44 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 213E5676F0C
-	for <lists+stable@lfdr.de>; Sun, 22 Jan 2023 16:17:13 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7E7DA676E3B
+	for <lists+stable@lfdr.de>; Sun, 22 Jan 2023 16:08:26 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231140AbjAVPRM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 22 Jan 2023 10:17:12 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44152 "EHLO
+        id S230216AbjAVPIZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 22 Jan 2023 10:08:25 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34594 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229985AbjAVPRL (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 22 Jan 2023 10:17:11 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D6C2322032
-        for <stable@vger.kernel.org>; Sun, 22 Jan 2023 07:17:07 -0800 (PST)
+        with ESMTP id S230218AbjAVPIY (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 22 Jan 2023 10:08:24 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C408F15C85
+        for <stable@vger.kernel.org>; Sun, 22 Jan 2023 07:08:23 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 6CF3060C60
-        for <stable@vger.kernel.org>; Sun, 22 Jan 2023 15:17:07 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7B859C433D2;
-        Sun, 22 Jan 2023 15:17:06 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 5FC4860C27
+        for <stable@vger.kernel.org>; Sun, 22 Jan 2023 15:08:23 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6F05FC433D2;
+        Sun, 22 Jan 2023 15:08:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1674400626;
-        bh=iSlnEN/iXl8F26cBjVxdaIpoYaM4yUyDM5qKvRDDMck=;
+        s=korg; t=1674400102;
+        bh=gkdDlIqVtB+arxvu2drDuPw+bpSMsUuv8uQgDM5h/fY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=NE5I8yqpkzLW5dMCr5WferPqJt5AQRN+oKtMGyxUins0mM5xRpfIedI4tuzuDkYxj
-         fWs/zDu2yGoNozHSwI0YbSPWis+LdGxMpQ8j+TR1juKiGTXjT/4u6qyu+mZ2gtlqOX
-         f4Qf+kyjEJjtqiHlyhP/P1+PbWLoh53we/cSOfSU=
+        b=cNGSXpkQciwR8m6XmpBRHIiAu2BDzrZ6wXPs+VkQ9gG0M7r65Bqq0E0PvnQ6nc947
+         XmC6li4LEzDptBIFukBHzH+kvAmwbUrCZs4oOHB3bzO9WkGJbGfNPBmSasiKHYfJzT
+         BthmNXqztyO0XH0GtCwq14N+jrqMbvGIpZbQnM78=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Mathias Nyman <mathias.nyman@linux.intel.com>
-Subject: [PATCH 5.15 048/117] xhci: Detect lpm incapable xHC USB3 roothub ports from ACPI tables
+        patches@lists.linux.dev, Olga Kornievskaia <kolga@netapp.com>,
+        Trond Myklebust <trond.myklebust@hammerspace.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 01/37] pNFS/filelayout: Fix coalescing test for single DS
 Date:   Sun, 22 Jan 2023 16:03:58 +0100
-Message-Id: <20230122150234.739311146@linuxfoundation.org>
+Message-Id: <20230122150219.618306203@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.1
-In-Reply-To: <20230122150232.736358800@linuxfoundation.org>
-References: <20230122150232.736358800@linuxfoundation.org>
+In-Reply-To: <20230122150219.557984692@linuxfoundation.org>
+References: <20230122150219.557984692@linuxfoundation.org>
 User-Agent: quilt/0.67
+X-stable: review
+X-Patchwork-Hint: ignore
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -53,81 +56,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mathias Nyman <mathias.nyman@linux.intel.com>
+From: Olga Kornievskaia <olga.kornievskaia@gmail.com>
 
-commit 74622f0a81d0c2bcfc39f9192b788124e8c7f0af upstream.
+[ Upstream commit a6b9d2fa0024e7e399c26facd0fb466b7396e2b9 ]
 
-USB3 ports on xHC hosts may have retimers that cause too long
-exit latency to work with native USB3 U1/U2 link power management states.
+When there is a single DS no striping constraints need to be placed on
+the IO. When such constraint is applied then buffered reads don't
+coalesce to the DS's rsize.
 
-For now only use usb_acpi_port_lpm_incapable() to evaluate if port lpm
-should be disabled while setting up the USB3 roothub.
-
-Other ways to identify lpm incapable ports can be added here later if
-ACPI _DSM does not exist.
-
-Limit this to Intel hosts for now, this is to my knowledge only
-an Intel issue.
-
-Cc: stable@vger.kernel.org
-Signed-off-by: Mathias Nyman <mathias.nyman@linux.intel.com>
-Link: https://lore.kernel.org/r/20230116142216.1141605-8-mathias.nyman@linux.intel.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Olga Kornievskaia <kolga@netapp.com>
+Signed-off-by: Trond Myklebust <trond.myklebust@hammerspace.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/usb/host/xhci-pci.c |   34 ++++++++++++++++++++++++++++++++++
- 1 file changed, 34 insertions(+)
+ fs/nfs/filelayout/filelayout.c | 8 ++++++++
+ 1 file changed, 8 insertions(+)
 
---- a/drivers/usb/host/xhci-pci.c
-+++ b/drivers/usb/host/xhci-pci.c
-@@ -356,8 +356,38 @@ static void xhci_pme_acpi_rtd3_enable(st
- 				NULL);
- 	ACPI_FREE(obj);
+diff --git a/fs/nfs/filelayout/filelayout.c b/fs/nfs/filelayout/filelayout.c
+index e8e825497cbd..015d39ac2c8f 100644
+--- a/fs/nfs/filelayout/filelayout.c
++++ b/fs/nfs/filelayout/filelayout.c
+@@ -837,6 +837,12 @@ filelayout_alloc_lseg(struct pnfs_layout_hdr *layoutid,
+ 	return &fl->generic_hdr;
  }
-+
-+static void xhci_find_lpm_incapable_ports(struct usb_hcd *hcd, struct usb_device *hdev)
+ 
++static bool
++filelayout_lseg_is_striped(const struct nfs4_filelayout_segment *flseg)
 +{
-+	struct xhci_hcd	*xhci = hcd_to_xhci(hcd);
-+	struct xhci_hub *rhub = &xhci->usb3_rhub;
-+	int ret;
-+	int i;
-+
-+	/* This is not the usb3 roothub we are looking for */
-+	if (hcd != rhub->hcd)
-+		return;
-+
-+	if (hdev->maxchild > rhub->num_ports) {
-+		dev_err(&hdev->dev, "USB3 roothub port number mismatch\n");
-+		return;
-+	}
-+
-+	for (i = 0; i < hdev->maxchild; i++) {
-+		ret = usb_acpi_port_lpm_incapable(hdev, i);
-+
-+		dev_dbg(&hdev->dev, "port-%d disable U1/U2 _DSM: %d\n", i + 1, ret);
-+
-+		if (ret >= 0) {
-+			rhub->ports[i]->lpm_incapable = ret;
-+			continue;
-+		}
-+	}
++	return flseg->num_fh > 1;
 +}
 +
- #else
- static void xhci_pme_acpi_rtd3_enable(struct pci_dev *dev) { }
-+static void xhci_find_lpm_incapable_ports(struct usb_hcd *hcd, struct usb_device *hdev) { }
- #endif /* CONFIG_ACPI */
+ /*
+  * filelayout_pg_test(). Called by nfs_can_coalesce_requests()
+  *
+@@ -857,6 +863,8 @@ filelayout_pg_test(struct nfs_pageio_descriptor *pgio, struct nfs_page *prev,
+ 	size = pnfs_generic_pg_test(pgio, prev, req);
+ 	if (!size)
+ 		return 0;
++	else if (!filelayout_lseg_is_striped(FILELAYOUT_LSEG(pgio->pg_lseg)))
++		return size;
  
- /* called during probe() after chip reset completes */
-@@ -393,6 +423,10 @@ static int xhci_pci_setup(struct usb_hcd
- static int xhci_pci_update_hub_device(struct usb_hcd *hcd, struct usb_device *hdev,
- 				      struct usb_tt *tt, gfp_t mem_flags)
- {
-+	/* Check if acpi claims some USB3 roothub ports are lpm incapable */
-+	if (!hdev->parent)
-+		xhci_find_lpm_incapable_ports(hcd, hdev);
-+
- 	return xhci_update_hub_device(hcd, hdev, tt, mem_flags);
- }
- 
+ 	/* see if req and prev are in the same stripe */
+ 	if (prev) {
+-- 
+2.35.1
+
 
 
