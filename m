@@ -2,84 +2,113 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 52D7F676E1D
-	for <lists+stable@lfdr.de>; Sun, 22 Jan 2023 16:07:16 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id AE57B676EC8
+	for <lists+stable@lfdr.de>; Sun, 22 Jan 2023 16:14:19 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230176AbjAVPHP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 22 Jan 2023 10:07:15 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33048 "EHLO
+        id S230446AbjAVPOS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 22 Jan 2023 10:14:18 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41362 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230175AbjAVPHN (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 22 Jan 2023 10:07:13 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 340A51E1C6
-        for <stable@vger.kernel.org>; Sun, 22 Jan 2023 07:07:07 -0800 (PST)
+        with ESMTP id S230431AbjAVPOS (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 22 Jan 2023 10:14:18 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 02B8B22005
+        for <stable@vger.kernel.org>; Sun, 22 Jan 2023 07:14:17 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id D2AD3B80B16
-        for <stable@vger.kernel.org>; Sun, 22 Jan 2023 15:07:05 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3EB75C433EF;
-        Sun, 22 Jan 2023 15:07:04 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 8992C60C61
+        for <stable@vger.kernel.org>; Sun, 22 Jan 2023 15:14:16 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 99090C433EF;
+        Sun, 22 Jan 2023 15:14:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1674400024;
-        bh=y82/TZn/ehNf9mqLC6ZgruS/1Qw+nmsoQqnSZICmtos=;
+        s=korg; t=1674400456;
+        bh=irmckzeQbsuB/pYcPM06W/3YkbMDqLGOIJHCh1AzCxM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=TFkQitGwqUY1rvHwLgPoDwrzp2RlONtHkfpB8u+DcjonGZiwKsvnkWO1RhsEGhU6e
-         q+T8VoI0+5//4rtLnAv8o3rIAmVJiMuXkzdQcNZsuFTfLaWglevP7ob0pgYRatlJBs
-         K4gwb10KeMRRS0lVcHLKoXogSj48cWmdBcdhXc8g=
+        b=MDRn5p1q2gGR7OV4T5SBejrct4qmRw0gyJawu6aThcueEBFPDoyuB1YL3joIL6QpN
+         NhysWRa/4W8e+G6SSicDpe1JJF+vc7/p1AQ2H4VQs3/xZpI1HvMybLuNjqcr57mbm/
+         yvZMg/DwJaqqs4wA1PvT64CshvgLBVIYerLBXdvE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Jordy Zomer <jordyzomer@google.com>,
-        Linus Torvalds <torvalds@linuxfoundation.org>
-Subject: [PATCH 4.19 11/37] prlimit: do_prlimit needs to have a speculation check
+        patches@lists.linux.dev, stable <stable@kernel.org>,
+        Ola Jeppsson <ola@snap.com>, Abel Vesa <abel.vesa@linaro.org>,
+        Srinivas Kandagatla <srinivas.kandagatla@linaro.org>
+Subject: [PATCH 5.10 52/98] misc: fastrpc: Fix use-after-free race condition for maps
 Date:   Sun, 22 Jan 2023 16:04:08 +0100
-Message-Id: <20230122150220.046810197@linuxfoundation.org>
+Message-Id: <20230122150231.697441019@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.1
-In-Reply-To: <20230122150219.557984692@linuxfoundation.org>
-References: <20230122150219.557984692@linuxfoundation.org>
+In-Reply-To: <20230122150229.351631432@linuxfoundation.org>
+References: <20230122150229.351631432@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
         DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
-        SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=unavailable
-        autolearn_force=no version=3.4.6
+        SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no
+        version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+From: Ola Jeppsson <ola@snap.com>
 
-commit 739790605705ddcf18f21782b9c99ad7d53a8c11 upstream.
+commit 96b328d119eca7563c1edcc4e1039a62e6370ecb upstream.
 
-do_prlimit() adds the user-controlled resource value to a pointer that
-will subsequently be dereferenced.  In order to help prevent this
-codepath from being used as a spectre "gadget" a barrier needs to be
-added after checking the range.
+It is possible that in between calling fastrpc_map_get() until
+map->fl->lock is taken in fastrpc_free_map(), another thread can call
+fastrpc_map_lookup() and get a reference to a map that is about to be
+deleted.
 
-Reported-by: Jordy Zomer <jordyzomer@google.com>
-Tested-by: Jordy Zomer <jordyzomer@google.com>
-Suggested-by: Linus Torvalds <torvalds@linuxfoundation.org>
+Rewrite fastrpc_map_get() to only increase the reference count of a map
+if it's non-zero. Propagate this to callers so they can know if a map is
+about to be deleted.
+
+Fixes this warning:
+refcount_t: addition on 0; use-after-free.
+WARNING: CPU: 5 PID: 10100 at lib/refcount.c:25 refcount_warn_saturate
+...
+Call trace:
+ refcount_warn_saturate
+ [fastrpc_map_get inlined]
+ [fastrpc_map_lookup inlined]
+ fastrpc_map_create
+ fastrpc_internal_invoke
+ fastrpc_device_ioctl
+ __arm64_sys_ioctl
+ invoke_syscall
+
+Fixes: c68cfb718c8f ("misc: fastrpc: Add support for context Invoke method")
+Cc: stable <stable@kernel.org>
+Signed-off-by: Ola Jeppsson <ola@snap.com>
+Signed-off-by: Abel Vesa <abel.vesa@linaro.org>
+Signed-off-by: Srinivas Kandagatla <srinivas.kandagatla@linaro.org>
+Link: https://lore.kernel.org/r/20221124174941.418450-4-srinivas.kandagatla@linaro.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- kernel/sys.c |    2 ++
- 1 file changed, 2 insertions(+)
+ drivers/misc/fastrpc.c |    8 +++++---
+ 1 file changed, 5 insertions(+), 3 deletions(-)
 
---- a/kernel/sys.c
-+++ b/kernel/sys.c
-@@ -1530,6 +1530,8 @@ int do_prlimit(struct task_struct *tsk,
+--- a/drivers/misc/fastrpc.c
++++ b/drivers/misc/fastrpc.c
+@@ -263,10 +263,12 @@ static void fastrpc_map_put(struct fastr
+ 		kref_put(&map->refcount, fastrpc_free_map);
+ }
  
- 	if (resource >= RLIM_NLIMITS)
- 		return -EINVAL;
-+	resource = array_index_nospec(resource, RLIM_NLIMITS);
+-static void fastrpc_map_get(struct fastrpc_map *map)
++static int fastrpc_map_get(struct fastrpc_map *map)
+ {
+-	if (map)
+-		kref_get(&map->refcount);
++	if (!map)
++		return -ENOENT;
 +
- 	if (new_rlim) {
- 		if (new_rlim->rlim_cur > new_rlim->rlim_max)
- 			return -EINVAL;
++	return kref_get_unless_zero(&map->refcount) ? 0 : -ENOENT;
+ }
+ 
+ static int fastrpc_map_find(struct fastrpc_user *fl, int fd,
 
 
