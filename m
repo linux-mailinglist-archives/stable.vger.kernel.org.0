@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 6E7DA676FAE
-	for <lists+stable@lfdr.de>; Sun, 22 Jan 2023 16:24:08 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1FBE9676EAA
+	for <lists+stable@lfdr.de>; Sun, 22 Jan 2023 16:13:05 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231346AbjAVPYH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 22 Jan 2023 10:24:07 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52526 "EHLO
+        id S230401AbjAVPNE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 22 Jan 2023 10:13:04 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40442 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231357AbjAVPYG (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 22 Jan 2023 10:24:06 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 384EB21A2C
-        for <stable@vger.kernel.org>; Sun, 22 Jan 2023 07:24:05 -0800 (PST)
+        with ESMTP id S230405AbjAVPNB (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 22 Jan 2023 10:13:01 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EE6E861AF
+        for <stable@vger.kernel.org>; Sun, 22 Jan 2023 07:12:59 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id B91AD60C44
-        for <stable@vger.kernel.org>; Sun, 22 Jan 2023 15:24:04 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C7C5CC433D2;
-        Sun, 22 Jan 2023 15:24:03 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 95A6EB80B1A
+        for <stable@vger.kernel.org>; Sun, 22 Jan 2023 15:12:58 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id DD9F6C4339B;
+        Sun, 22 Jan 2023 15:12:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1674401044;
-        bh=NTSWrdcC3YS57YLwkiIwCsyNsW2NGU0Q26RRCfSNGtY=;
+        s=korg; t=1674400377;
+        bh=+3qOEKCMrHHyGxdPYxyFar+d8HhfZErXCs9JeIo4dzY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=zp3GHMPqkRbV+8RR6Yn08wVDjhkcOysZohGu4zxfXPJN7PKCPQA3EkFOFZUKZMRDj
-         Z+RezEoAdtb7hT+YtGZDGQ/c36eWB8ZJNc3xxA8a482v+VYg6QcK3V2f9h38rMPkZs
-         3G4WiYNRzHZ2XnVEbQhOCRFCU5H4LbRFsq8Uvo1U=
+        b=VyraNznf7nkn7Xpr2QZ8EWLAwiI5X6SYKQuD6zxwWNovfbyeww0W/DnIPxaW/7qvi
+         VJDqFmRjhu9nISzLevS5ogv38tAdOkFhNejqAKUZjYI5GFMQDzDvYlIKROVjno9Mq7
+         LljE5cVggRuERPURHyoWFTgfJZcTfvTdtcbBNjrw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         patches@lists.linux.dev,
-        Matthias Schoepfer <matthias.schoepfer@googlemail.com>,
-        Filipe Manana <fdmanana@suse.com>,
-        David Sterba <dsterba@suse.com>
-Subject: [PATCH 6.1 088/193] btrfs: fix invalid leaf access due to inline extent during lseek
-Date:   Sun, 22 Jan 2023 16:03:37 +0100
-Message-Id: <20230122150250.410657485@linuxfoundation.org>
+        Constantine Gavrilov <constantine.gavrilov@gmail.com>,
+        Jens Axboe <axboe@kernel.dk>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 22/98] io_uring: ensure recv and recvmsg handle MSG_WAITALL correctly
+Date:   Sun, 22 Jan 2023 16:03:38 +0100
+Message-Id: <20230122150230.384680209@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.1
-In-Reply-To: <20230122150246.321043584@linuxfoundation.org>
-References: <20230122150246.321043584@linuxfoundation.org>
+In-Reply-To: <20230122150229.351631432@linuxfoundation.org>
+References: <20230122150229.351631432@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,68 +54,107 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Filipe Manana <fdmanana@suse.com>
+From: Jens Axboe <axboe@kernel.dk>
 
-commit 1f55ee6d0901d915801618bda0af4e5b937e3db7 upstream.
+commit 7ba89d2af17aa879dda30f5d5d3f152e587fc551 upstream.
 
-During lseek, for SEEK_DATA and SEEK_HOLE modes, we access the disk_bytenr
-of an extent without checking its type. However inline extents have their
-data starting the offset of the disk_bytenr field, so accessing that field
-when we have an inline extent can result in either of the following:
+We currently don't attempt to get the full asked for length even if
+MSG_WAITALL is set, if we get a partial receive. If we do see a partial
+receive, then just note how many bytes we did and return -EAGAIN to
+get it retried.
 
-1) Interpret the inline extent's data as a disk_bytenr value;
+The iov is advanced appropriately for the vector based case, and we
+manually bump the buffer and remainder for the non-vector case.
 
-2) In case the inline data is less than 8 bytes, we access part of some
-   other item in the leaf, or unused space in the leaf;
-
-3) In case the inline data is less than 8 bytes and the extent item is
-   the first item in the leaf, we can access beyond the leaf's limit.
-
-So fix this by not accessing the disk_bytenr field if we have an inline
-extent.
-
-Fixes: b6e833567ea1 ("btrfs: make hole and data seeking a lot more efficient")
-Reported-by: Matthias Schoepfer <matthias.schoepfer@googlemail.com>
-Bugzilla: https://bugzilla.kernel.org/show_bug.cgi?id=216908
-Link: https://lore.kernel.org/linux-btrfs/7f25442f-b121-2a3a-5a3d-22bcaae83cd4@leemhuis.info/
-CC: stable@vger.kernel.org # 6.1
-Signed-off-by: Filipe Manana <fdmanana@suse.com>
-Reviewed-by: David Sterba <dsterba@suse.com>
-Signed-off-by: David Sterba <dsterba@suse.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc: stable@vger.kernel.org
+Reported-by: Constantine Gavrilov <constantine.gavrilov@gmail.com>
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/btrfs/file.c |   13 ++++++++++---
- 1 file changed, 10 insertions(+), 3 deletions(-)
+ io_uring/io_uring.c | 28 ++++++++++++++++++++++++++++
+ 1 file changed, 28 insertions(+)
 
---- a/fs/btrfs/file.c
-+++ b/fs/btrfs/file.c
-@@ -3838,6 +3838,7 @@ static loff_t find_desired_extent(struct
- 		struct extent_buffer *leaf = path->nodes[0];
- 		struct btrfs_file_extent_item *extent;
- 		u64 extent_end;
-+		u8 type;
+diff --git a/io_uring/io_uring.c b/io_uring/io_uring.c
+index 34dd6267679a..3d67b9b4100f 100644
+--- a/io_uring/io_uring.c
++++ b/io_uring/io_uring.c
+@@ -578,6 +578,7 @@ struct io_sr_msg {
+ 	int				msg_flags;
+ 	int				bgid;
+ 	size_t				len;
++	size_t				done_io;
+ 	struct io_buffer		*kbuf;
+ };
  
- 		if (path->slots[0] >= btrfs_header_nritems(leaf)) {
- 			ret = btrfs_next_leaf(root, path);
-@@ -3892,10 +3893,16 @@ static loff_t find_desired_extent(struct
+@@ -4903,12 +4904,21 @@ static int io_recvmsg_prep(struct io_kiocb *req, const struct io_uring_sqe *sqe)
+ 	if (req->ctx->compat)
+ 		sr->msg_flags |= MSG_CMSG_COMPAT;
+ #endif
++	sr->done_io = 0;
+ 	return 0;
+ }
  
- 		extent = btrfs_item_ptr(leaf, path->slots[0],
- 					struct btrfs_file_extent_item);
-+		type = btrfs_file_extent_type(leaf, extent);
- 
--		if (btrfs_file_extent_disk_bytenr(leaf, extent) == 0 ||
--		    btrfs_file_extent_type(leaf, extent) ==
--		    BTRFS_FILE_EXTENT_PREALLOC) {
-+		/*
-+		 * Can't access the extent's disk_bytenr field if this is an
-+		 * inline extent, since at that offset, it's where the extent
-+		 * data starts.
-+		 */
-+		if (type == BTRFS_FILE_EXTENT_PREALLOC ||
-+		    (type == BTRFS_FILE_EXTENT_REG &&
-+		     btrfs_file_extent_disk_bytenr(leaf, extent) == 0)) {
- 			/*
- 			 * Explicit hole or prealloc extent, search for delalloc.
- 			 * A prealloc extent is treated like a hole.
++static bool io_net_retry(struct socket *sock, int flags)
++{
++	if (!(flags & MSG_WAITALL))
++		return false;
++	return sock->type == SOCK_STREAM || sock->type == SOCK_SEQPACKET;
++}
++
+ static int io_recvmsg(struct io_kiocb *req, unsigned int issue_flags)
+ {
+ 	struct io_async_msghdr iomsg, *kmsg;
++	struct io_sr_msg *sr = &req->sr_msg;
+ 	struct socket *sock;
+ 	struct io_buffer *kbuf;
+ 	unsigned flags;
+@@ -4951,6 +4961,10 @@ static int io_recvmsg(struct io_kiocb *req, unsigned int issue_flags)
+ 			return io_setup_async_msg(req, kmsg);
+ 		if (ret == -ERESTARTSYS)
+ 			ret = -EINTR;
++		if (ret > 0 && io_net_retry(sock, flags)) {
++			sr->done_io += ret;
++			return io_setup_async_msg(req, kmsg);
++		}
+ 		req_set_fail(req);
+ 	} else if ((flags & MSG_WAITALL) && (kmsg->msg.msg_flags & (MSG_TRUNC | MSG_CTRUNC))) {
+ 		req_set_fail(req);
+@@ -4962,6 +4976,10 @@ static int io_recvmsg(struct io_kiocb *req, unsigned int issue_flags)
+ 	if (kmsg->free_iov)
+ 		kfree(kmsg->free_iov);
+ 	req->flags &= ~REQ_F_NEED_CLEANUP;
++	if (ret >= 0)
++		ret += sr->done_io;
++	else if (sr->done_io)
++		ret = sr->done_io;
+ 	__io_req_complete(req, issue_flags, ret, cflags);
+ 	return 0;
+ }
+@@ -5014,12 +5032,22 @@ static int io_recv(struct io_kiocb *req, unsigned int issue_flags)
+ 			return -EAGAIN;
+ 		if (ret == -ERESTARTSYS)
+ 			ret = -EINTR;
++		if (ret > 0 && io_net_retry(sock, flags)) {
++			sr->len -= ret;
++			sr->buf += ret;
++			sr->done_io += ret;
++			return -EAGAIN;
++		}
+ 		req_set_fail(req);
+ 	} else if ((flags & MSG_WAITALL) && (msg.msg_flags & (MSG_TRUNC | MSG_CTRUNC))) {
+ 		req_set_fail(req);
+ 	}
+ 	if (req->flags & REQ_F_BUFFER_SELECTED)
+ 		cflags = io_put_recv_kbuf(req);
++	if (ret >= 0)
++		ret += sr->done_io;
++	else if (sr->done_io)
++		ret = sr->done_io;
+ 	__io_req_complete(req, issue_flags, ret, cflags);
+ 	return 0;
+ }
+-- 
+2.39.0
+
 
 
