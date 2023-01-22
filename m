@@ -2,41 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E2603677019
-	for <lists+stable@lfdr.de>; Sun, 22 Jan 2023 16:28:33 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 137A7677025
+	for <lists+stable@lfdr.de>; Sun, 22 Jan 2023 16:29:06 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229960AbjAVP2d (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 22 Jan 2023 10:28:33 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56468 "EHLO
+        id S231481AbjAVP3E (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 22 Jan 2023 10:29:04 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56850 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230037AbjAVP2c (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 22 Jan 2023 10:28:32 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B7A5923302
-        for <stable@vger.kernel.org>; Sun, 22 Jan 2023 07:28:31 -0800 (PST)
+        with ESMTP id S230037AbjAVP3D (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 22 Jan 2023 10:29:03 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 738A223305
+        for <stable@vger.kernel.org>; Sun, 22 Jan 2023 07:29:01 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 631E2B80B11
-        for <stable@vger.kernel.org>; Sun, 22 Jan 2023 15:28:30 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id AAC43C433EF;
-        Sun, 22 Jan 2023 15:28:28 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 0E20660BC5
+        for <stable@vger.kernel.org>; Sun, 22 Jan 2023 15:29:01 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1EF8BC433EF;
+        Sun, 22 Jan 2023 15:28:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1674401309;
-        bh=LE0OPN2qfd1uibOfhO/F1alfbUuDPS6EWXNZYFNh7Bg=;
+        s=korg; t=1674401340;
+        bh=6I7Oq48Mak5SoRsHevIRnva2vdF4yNKMhbgq3e4r0vo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=VkwbwCHls/KuEjQnTKFplIYNk2dWjD+d5TxF+qbGiEmohkJirRQagFaYDkRHUzQtL
-         JnwM2Zbjstqw9Wrvafhib7nEsJSKl+Qmx+uLHMPqC72gjkGHeBCGtwNQVDKu5wIe6+
-         J9lEF2ZLBUFAb5XlRqBKQHL/LJQxHuwYyyvvC3hg=
+        b=LfpQUkBG1yHkCQc8maqzJ1WlfV2Om3Nrj1UKCQRFpxtr7bRX3mnD16d81mrtV2AmO
+         cLHOFVbqabS4c8gvFnt27nBaisKfnxA8cvDrO040AFS3UMWiKWRVrRepleizEKW/An
+         bIZwykBx9UJiBeXmwHdY1A4AIMG3YRE4KVBI/HC0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Sabrina Dubroca <sd@queasysnail.net>,
-        Paolo Abeni <pabeni@redhat.com>,
-        Jakub Kicinski <kuba@kernel.org>
-Subject: [PATCH 6.1 188/193] net/ulp: use consistent error code when blocking ULP
-Date:   Sun, 22 Jan 2023 16:05:17 +0100
-Message-Id: <20230122150255.006458698@linuxfoundation.org>
+        patches@lists.linux.dev, Kevin Hao <haokexin@gmail.com>,
+        Paolo Abeni <pabeni@redhat.com>
+Subject: [PATCH 6.1 189/193] octeontx2-pf: Fix the use of GFP_KERNEL in atomic context on rt
+Date:   Sun, 22 Jan 2023 16:05:18 +0100
+Message-Id: <20230122150255.055203807@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.1
 In-Reply-To: <20230122150246.321043584@linuxfoundation.org>
 References: <20230122150246.321043584@linuxfoundation.org>
@@ -54,51 +53,140 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Paolo Abeni <pabeni@redhat.com>
+From: Kevin Hao <haokexin@gmail.com>
 
-commit 8ccc99362b60c6f27bb46f36fdaaccf4ef0303de upstream.
+commit 55ba18dc62deff5910c0fa64486dea1ff20832ff upstream.
 
-The referenced commit changed the error code returned by the kernel
-when preventing a non-established socket from attaching the ktls
-ULP. Before to such a commit, the user-space got ENOTCONN instead
-of EINVAL.
+The commit 4af1b64f80fb ("octeontx2-pf: Fix lmtst ID used in aura
+free") uses the get/put_cpu() to protect the usage of percpu pointer
+in ->aura_freeptr() callback, but it also unnecessarily disable the
+preemption for the blockable memory allocation. The commit 87b93b678e95
+("octeontx2-pf: Avoid use of GFP_KERNEL in atomic context") tried to
+fix these sleep inside atomic warnings. But it only fix the one for
+the non-rt kernel. For the rt kernel, we still get the similar warnings
+like below.
+  BUG: sleeping function called from invalid context at kernel/locking/spinlock_rt.c:46
+  in_atomic(): 1, irqs_disabled(): 0, non_block: 0, pid: 1, name: swapper/0
+  preempt_count: 1, expected: 0
+  RCU nest depth: 0, expected: 0
+  3 locks held by swapper/0/1:
+   #0: ffff800009fc5fe8 (rtnl_mutex){+.+.}-{3:3}, at: rtnl_lock+0x24/0x30
+   #1: ffff000100c276c0 (&mbox->lock){+.+.}-{3:3}, at: otx2_init_hw_resources+0x8c/0x3a4
+   #2: ffffffbfef6537e0 (&cpu_rcache->lock){+.+.}-{2:2}, at: alloc_iova_fast+0x1ac/0x2ac
+  Preemption disabled at:
+  [<ffff800008b1908c>] otx2_rq_aura_pool_init+0x14c/0x284
+  CPU: 20 PID: 1 Comm: swapper/0 Tainted: G        W          6.2.0-rc3-rt1-yocto-preempt-rt #1
+  Hardware name: Marvell OcteonTX CN96XX board (DT)
+  Call trace:
+   dump_backtrace.part.0+0xe8/0xf4
+   show_stack+0x20/0x30
+   dump_stack_lvl+0x9c/0xd8
+   dump_stack+0x18/0x34
+   __might_resched+0x188/0x224
+   rt_spin_lock+0x64/0x110
+   alloc_iova_fast+0x1ac/0x2ac
+   iommu_dma_alloc_iova+0xd4/0x110
+   __iommu_dma_map+0x80/0x144
+   iommu_dma_map_page+0xe8/0x260
+   dma_map_page_attrs+0xb4/0xc0
+   __otx2_alloc_rbuf+0x90/0x150
+   otx2_rq_aura_pool_init+0x1c8/0x284
+   otx2_init_hw_resources+0xe4/0x3a4
+   otx2_open+0xf0/0x610
+   __dev_open+0x104/0x224
+   __dev_change_flags+0x1e4/0x274
+   dev_change_flags+0x2c/0x7c
+   ic_open_devs+0x124/0x2f8
+   ip_auto_config+0x180/0x42c
+   do_one_initcall+0x90/0x4dc
+   do_basic_setup+0x10c/0x14c
+   kernel_init_freeable+0x10c/0x13c
+   kernel_init+0x2c/0x140
+   ret_from_fork+0x10/0x20
 
-The existing self-tests depend on such error code, and the change
-caused a failure:
+Of course, we can shuffle the get/put_cpu() to only wrap the invocation
+of ->aura_freeptr() as what commit 87b93b678e95 does. But there are only
+two ->aura_freeptr() callbacks, otx2_aura_freeptr() and
+cn10k_aura_freeptr(). There is no usage of perpcu variable in the
+otx2_aura_freeptr() at all, so the get/put_cpu() seems redundant to it.
+We can move the get/put_cpu() into the corresponding callback which
+really has the percpu variable usage and avoid the sprinkling of
+get/put_cpu() in several places.
 
-  RUN           global.non_established ...
- tls.c:1673:non_established:Expected errno (22) == ENOTCONN (107)
- non_established: Test failed at step #3
-          FAIL  global.non_established
-
-In the unlikely event existing applications do the same, address
-the issue by restoring the prior error code in the above scenario.
-
-Note that the only other ULP performing similar checks at init
-time - smc_ulp_ops - also fails with ENOTCONN when trying to attach
-the ULP to a non-established socket.
-
-Reported-by: Sabrina Dubroca <sd@queasysnail.net>
-Fixes: 2c02d41d71f9 ("net/ulp: prevent ULP without clone op from entering the LISTEN status")
+Fixes: 4af1b64f80fb ("octeontx2-pf: Fix lmtst ID used in aura free")
+Signed-off-by: Kevin Hao <haokexin@gmail.com>
+Link: https://lore.kernel.org/r/20230118071300.3271125-1-haokexin@gmail.com
 Signed-off-by: Paolo Abeni <pabeni@redhat.com>
-Reviewed-by: Sabrina Dubroca <sd@queasysnail.net>
-Link: https://lore.kernel.org/r/7bb199e7a93317fb6f8bf8b9b2dc71c18f337cde.1674042685.git.pabeni@redhat.com
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/ipv4/tcp_ulp.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/net/ethernet/marvell/octeontx2/nic/otx2_common.c |   11 ++---------
+ drivers/net/ethernet/marvell/octeontx2/nic/otx2_common.h |    2 ++
+ 2 files changed, 4 insertions(+), 9 deletions(-)
 
---- a/net/ipv4/tcp_ulp.c
-+++ b/net/ipv4/tcp_ulp.c
-@@ -139,7 +139,7 @@ static int __tcp_set_ulp(struct sock *sk
- 	if (sk->sk_socket)
- 		clear_bit(SOCK_SUPPORT_ZC, &sk->sk_socket->flags);
+--- a/drivers/net/ethernet/marvell/octeontx2/nic/otx2_common.c
++++ b/drivers/net/ethernet/marvell/octeontx2/nic/otx2_common.c
+@@ -1012,7 +1012,6 @@ static void otx2_pool_refill_task(struct
+ 	rbpool = cq->rbpool;
+ 	free_ptrs = cq->pool_ptrs;
  
--	err = -EINVAL;
-+	err = -ENOTCONN;
- 	if (!ulp_ops->clone && sk->sk_state == TCP_LISTEN)
- 		goto out_err;
+-	get_cpu();
+ 	while (cq->pool_ptrs) {
+ 		if (otx2_alloc_rbuf(pfvf, rbpool, &bufptr)) {
+ 			/* Schedule a WQ if we fails to free atleast half of the
+@@ -1032,7 +1031,6 @@ static void otx2_pool_refill_task(struct
+ 		pfvf->hw_ops->aura_freeptr(pfvf, qidx, bufptr + OTX2_HEAD_ROOM);
+ 		cq->pool_ptrs--;
+ 	}
+-	put_cpu();
+ 	cq->refill_task_sched = false;
+ }
  
+@@ -1387,9 +1385,7 @@ int otx2_sq_aura_pool_init(struct otx2_n
+ 			err = otx2_alloc_rbuf(pfvf, pool, &bufptr);
+ 			if (err)
+ 				goto err_mem;
+-			get_cpu();
+ 			pfvf->hw_ops->aura_freeptr(pfvf, pool_id, bufptr);
+-			put_cpu();
+ 			sq->sqb_ptrs[sq->sqb_count++] = (u64)bufptr;
+ 		}
+ 	}
+@@ -1435,21 +1431,18 @@ int otx2_rq_aura_pool_init(struct otx2_n
+ 	if (err)
+ 		goto fail;
+ 
+-	get_cpu();
+ 	/* Allocate pointers and free them to aura/pool */
+ 	for (pool_id = 0; pool_id < hw->rqpool_cnt; pool_id++) {
+ 		pool = &pfvf->qset.pool[pool_id];
+ 		for (ptr = 0; ptr < num_ptrs; ptr++) {
+ 			err = otx2_alloc_rbuf(pfvf, pool, &bufptr);
+ 			if (err)
+-				goto err_mem;
++				return -ENOMEM;
+ 			pfvf->hw_ops->aura_freeptr(pfvf, pool_id,
+ 						   bufptr + OTX2_HEAD_ROOM);
+ 		}
+ 	}
+-err_mem:
+-	put_cpu();
+-	return err ? -ENOMEM : 0;
++	return 0;
+ fail:
+ 	otx2_mbox_reset(&pfvf->mbox.mbox, 0);
+ 	otx2_aura_pool_free(pfvf);
+--- a/drivers/net/ethernet/marvell/octeontx2/nic/otx2_common.h
++++ b/drivers/net/ethernet/marvell/octeontx2/nic/otx2_common.h
+@@ -733,8 +733,10 @@ static inline void cn10k_aura_freeptr(vo
+ 	u64 ptrs[2];
+ 
+ 	ptrs[1] = buf;
++	get_cpu();
+ 	/* Free only one buffer at time during init and teardown */
+ 	__cn10k_aura_freeptr(pfvf, aura, ptrs, 2);
++	put_cpu();
+ }
+ 
+ /* Alloc pointer from pool/aura */
 
 
