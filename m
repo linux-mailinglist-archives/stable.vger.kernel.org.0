@@ -2,52 +2,52 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id F0DD0676E01
-	for <lists+stable@lfdr.de>; Sun, 22 Jan 2023 16:06:04 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 84F54676E22
+	for <lists+stable@lfdr.de>; Sun, 22 Jan 2023 16:07:29 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230120AbjAVPGE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 22 Jan 2023 10:06:04 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60064 "EHLO
+        id S230167AbjAVPH2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 22 Jan 2023 10:07:28 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33442 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230021AbjAVPGD (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 22 Jan 2023 10:06:03 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B57D61422C
-        for <stable@vger.kernel.org>; Sun, 22 Jan 2023 07:06:02 -0800 (PST)
+        with ESMTP id S230169AbjAVPH1 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 22 Jan 2023 10:07:27 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B05401EFCC
+        for <stable@vger.kernel.org>; Sun, 22 Jan 2023 07:07:18 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 5196C60C57
-        for <stable@vger.kernel.org>; Sun, 22 Jan 2023 15:06:02 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6594EC433D2;
-        Sun, 22 Jan 2023 15:06:01 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 4240260C56
+        for <stable@vger.kernel.org>; Sun, 22 Jan 2023 15:07:18 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 56480C433D2;
+        Sun, 22 Jan 2023 15:07:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1674399961;
-        bh=SM85XBqo1N/pmc6D8cyYR5aRRyz+tZfjVDTzBmqjY8k=;
+        s=korg; t=1674400037;
+        bh=RAqpPxM+jxFVGp3Bh249PS/8WBPbe/rrYOmtc6sL/xs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=JkWEImGygo5AotpJJ7zerQkKfKbfzkWegeJxsnACZ0sVOdmR0KESAyb3+v7YAnsbe
-         ZjNDc43fxUGYmK8aQrO14+d0UK4gq9Lq2hpc3H0WG1l/4TSMRloNwwYtpfwYsmIOSr
-         v+64B1FS08ikl7fI/C8ScWdR7gqag5eXle6lah8c=
+        b=1GLJiFmIxNQdleBJNBoV4OtdU9jfFWATVueH06Pl5KFqGTTH9vIlphOV19w0fjFFB
+         YM65+Q/Tk/0XMy+JRogkUuGR0m9PyxpqbhnZXRtImAjVq6yskJG7HTZhlGhRe6/nA6
+         0ibm1DDmqZo1c/vMMPkkgAjvL/UixOunshYF50D8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         patches@lists.linux.dev,
         =?UTF-8?q?Duke=20Xin ?= <duke_xinanwen@163.com>,
         Johan Hovold <johan@kernel.org>
-Subject: [PATCH 4.14 13/25] USB: serial: option: add Quectel EM05CN (SG) modem
+Subject: [PATCH 4.19 16/37] USB: serial: option: add Quectel EM05CN (SG) modem
 Date:   Sun, 22 Jan 2023 16:04:13 +0100
-Message-Id: <20230122150218.384423882@linuxfoundation.org>
+Message-Id: <20230122150220.241463543@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.1
-In-Reply-To: <20230122150217.788215473@linuxfoundation.org>
-References: <20230122150217.788215473@linuxfoundation.org>
+In-Reply-To: <20230122150219.557984692@linuxfoundation.org>
+References: <20230122150219.557984692@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
         DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
-        SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no
-        version=3.4.6
+        SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=unavailable
+        autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
@@ -136,7 +136,7 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 --- a/drivers/usb/serial/option.c
 +++ b/drivers/usb/serial/option.c
-@@ -259,6 +259,7 @@ static void option_instat_callback(struc
+@@ -256,6 +256,7 @@ static void option_instat_callback(struc
  #define QUECTEL_PRODUCT_EM05G			0x030a
  #define QUECTEL_PRODUCT_EM060K			0x030b
  #define QUECTEL_PRODUCT_EM05G_CS		0x030c
@@ -144,7 +144,7 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
  #define QUECTEL_PRODUCT_EM05G_SG		0x0311
  #define QUECTEL_PRODUCT_EM05G_GR		0x0313
  #define QUECTEL_PRODUCT_EM05G_RS		0x0314
-@@ -1166,6 +1167,8 @@ static const struct usb_device_id option
+@@ -1163,6 +1164,8 @@ static const struct usb_device_id option
  	{ USB_DEVICE_AND_INTERFACE_INFO(QUECTEL_VENDOR_ID, QUECTEL_PRODUCT_EP06, 0xff, 0xff, 0xff),
  	  .driver_info = RSVD(1) | RSVD(2) | RSVD(3) | RSVD(4) | NUMEP2 },
  	{ USB_DEVICE_AND_INTERFACE_INFO(QUECTEL_VENDOR_ID, QUECTEL_PRODUCT_EP06, 0xff, 0, 0) },
