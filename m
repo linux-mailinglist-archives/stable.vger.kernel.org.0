@@ -2,41 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 99CFC676F8F
-	for <lists+stable@lfdr.de>; Sun, 22 Jan 2023 16:22:54 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C2981676F91
+	for <lists+stable@lfdr.de>; Sun, 22 Jan 2023 16:22:57 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231317AbjAVPWx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 22 Jan 2023 10:22:53 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50366 "EHLO
+        id S231311AbjAVPW4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 22 Jan 2023 10:22:56 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49920 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231324AbjAVPWt (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 22 Jan 2023 10:22:49 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AE5CA2D77
-        for <stable@vger.kernel.org>; Sun, 22 Jan 2023 07:22:46 -0800 (PST)
+        with ESMTP id S231313AbjAVPWv (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 22 Jan 2023 10:22:51 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C66893A8A
+        for <stable@vger.kernel.org>; Sun, 22 Jan 2023 07:22:50 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 1826B60C60
-        for <stable@vger.kernel.org>; Sun, 22 Jan 2023 15:22:46 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2B375C433EF;
-        Sun, 22 Jan 2023 15:22:45 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 7D4C7B80B1D
+        for <stable@vger.kernel.org>; Sun, 22 Jan 2023 15:22:49 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id CCD4AC433EF;
+        Sun, 22 Jan 2023 15:22:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1674400965;
-        bh=zZVAYKqlc6h79bs2aUBSog25Qe11tAgnxyT4a3VjDi0=;
+        s=korg; t=1674400968;
+        bh=1aIvzK+EU7DR7G+9R8eTtb+4/FTp/dQ61YryiRUOARo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ABHza1gfSwLSn1OkVRpEb2xjKXuMatadJL/2//e7vknnws2x13PqVy0iZnc3gvm1p
-         epnk1SXtBGWAs/PDYvRxFrXyBSvRav/UxvnNr/TohlNokrF4qhQpco8MO5B14/8wof
-         x9d6EIGBaG6sLpdeudcFlStbhOkOVKAdOx/d15ck=
+        b=yQ4FzNbwWL4RjKqXQPgs0egHOOPB/9yFWlD058+L5U6+skGlr0WGAG73KpO9LNWHu
+         JlqORdtDWwFjtfyI2rup+m9Nx1sYREiGXa4ZDkcs9xgKboxgQpONt8Vjr/aqWCZEKG
+         zUoB96SQAOmHNvpkWz+8amF5Ih4hSq4Lljxn2xC4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         patches@lists.linux.dev,
         =?UTF-8?q?Duke=20Xin ?= <duke_xinanwen@163.com>,
         Johan Hovold <johan@kernel.org>
-Subject: [PATCH 6.1 058/193] USB: serial: option: add Quectel EM05-G (GR) modem
-Date:   Sun, 22 Jan 2023 16:03:07 +0100
-Message-Id: <20230122150248.990952528@linuxfoundation.org>
+Subject: [PATCH 6.1 059/193] USB: serial: option: add Quectel EM05-G (CS) modem
+Date:   Sun, 22 Jan 2023 16:03:08 +0100
+Message-Id: <20230122150249.039690226@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.1
 In-Reply-To: <20230122150246.321043584@linuxfoundation.org>
 References: <20230122150246.321043584@linuxfoundation.org>
@@ -56,9 +56,9 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Duke Xin(辛安文) <duke_xinanwen@163.com>
 
-commit 6c331f32e32ac71eb3e8b93fceda2802d7ecb889 upstream.
+commit bb78654b0b46316dac687fd4b7dc7cce636f46cd upstream.
 
-The EM05-G (GR) modem has 2 USB configurations that are configurable via
+The EM05-G (CS) modem has 2 USB configurations that are configurable via
 the AT command AT+QCFG="usbnet",[ 0 | 2 ] which make the modem enumerate
 with the following interfaces, respectively:
 
@@ -71,7 +71,7 @@ RMNET Mode
 --------------
 T:  Bus=01 Lev=01 Prnt=01 Port=00 Cnt=01 Dev#= 21 Spd=480  MxCh= 0
 D:  Ver= 2.00 Cls=ef(misc ) Sub=02 Prot=01 MxPS=64 #Cfgs=  1
-P:  Vendor=2c7c ProdID=0313 Rev= 3.18
+P:  Vendor=2c7c ProdID=030C Rev= 3.18
 S:  Manufacturer=Quectel
 S:  Product=Quectel EM05-G
 C:* #Ifs= 5 Cfg#= 1 Atr=a0 MxPwr=500mA
@@ -99,7 +99,7 @@ MBIM Mode
 --------------
 T:  Bus=01 Lev=01 Prnt=01 Port=00 Cnt=01 Dev#= 16 Spd=480  MxCh= 0
 D:  Ver= 2.00 Cls=ef(misc ) Sub=02 Prot=01 MxPS=64 #Cfgs=  1
-P:  Vendor=2c7c ProdID=0313 Rev= 3.18
+P:  Vendor=2c7c ProdID=030C Rev= 3.18
 S:  Manufacturer=Quectel
 S:  Product=Quectel EM05-G
 C:* #Ifs= 6 Cfg#= 1 Atr=a0 MxPwr=500mA
@@ -136,19 +136,19 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 --- a/drivers/usb/serial/option.c
 +++ b/drivers/usb/serial/option.c
-@@ -256,6 +256,7 @@ static void option_instat_callback(struc
+@@ -255,6 +255,7 @@ static void option_instat_callback(struc
+ #define QUECTEL_PRODUCT_EP06			0x0306
  #define QUECTEL_PRODUCT_EM05G			0x030a
  #define QUECTEL_PRODUCT_EM060K			0x030b
++#define QUECTEL_PRODUCT_EM05G_CS		0x030c
  #define QUECTEL_PRODUCT_EM05G_SG		0x0311
-+#define QUECTEL_PRODUCT_EM05G_GR		0x0313
+ #define QUECTEL_PRODUCT_EM05G_GR		0x0313
  #define QUECTEL_PRODUCT_EM12			0x0512
- #define QUECTEL_PRODUCT_RM500Q			0x0800
- #define QUECTEL_PRODUCT_RM520N			0x0801
-@@ -1161,6 +1162,8 @@ static const struct usb_device_id option
- 	{ USB_DEVICE_AND_INTERFACE_INFO(QUECTEL_VENDOR_ID, QUECTEL_PRODUCT_EP06, 0xff, 0, 0) },
- 	{ USB_DEVICE_INTERFACE_CLASS(QUECTEL_VENDOR_ID, QUECTEL_PRODUCT_EM05G, 0xff),
+@@ -1164,6 +1165,8 @@ static const struct usb_device_id option
  	  .driver_info = RSVD(6) | ZLP },
-+	{ USB_DEVICE_INTERFACE_CLASS(QUECTEL_VENDOR_ID, QUECTEL_PRODUCT_EM05G_GR, 0xff),
+ 	{ USB_DEVICE_INTERFACE_CLASS(QUECTEL_VENDOR_ID, QUECTEL_PRODUCT_EM05G_GR, 0xff),
+ 	  .driver_info = RSVD(6) | ZLP },
++	{ USB_DEVICE_INTERFACE_CLASS(QUECTEL_VENDOR_ID, QUECTEL_PRODUCT_EM05G_CS, 0xff),
 +	  .driver_info = RSVD(6) | ZLP },
  	{ USB_DEVICE_INTERFACE_CLASS(QUECTEL_VENDOR_ID, QUECTEL_PRODUCT_EM05G_SG, 0xff),
  	  .driver_info = RSVD(6) | ZLP },
