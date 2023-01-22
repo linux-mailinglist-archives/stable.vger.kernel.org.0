@@ -2,39 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 911E2676DCD
-	for <lists+stable@lfdr.de>; Sun, 22 Jan 2023 15:51:18 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5D8D7676DD0
+	for <lists+stable@lfdr.de>; Sun, 22 Jan 2023 15:55:50 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229949AbjAVOvR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 22 Jan 2023 09:51:17 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53282 "EHLO
+        id S229869AbjAVOzq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 22 Jan 2023 09:55:46 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53958 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229911AbjAVOvR (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 22 Jan 2023 09:51:17 -0500
+        with ESMTP id S229902AbjAVOzo (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 22 Jan 2023 09:55:44 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5B2D51B550
-        for <stable@vger.kernel.org>; Sun, 22 Jan 2023 06:51:16 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 96C631C337
+        for <stable@vger.kernel.org>; Sun, 22 Jan 2023 06:55:42 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 1171AB80AEE
-        for <stable@vger.kernel.org>; Sun, 22 Jan 2023 14:51:15 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 68291C433D2;
-        Sun, 22 Jan 2023 14:51:13 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 41298B80AEE
+        for <stable@vger.kernel.org>; Sun, 22 Jan 2023 14:55:41 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8EED8C4339B;
+        Sun, 22 Jan 2023 14:55:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1674399073;
-        bh=FdkWmqpv/hh+KgbK43uaX5RgeLPX79UFgdGbhhNzUg4=;
+        s=korg; t=1674399339;
+        bh=1UoDsbf6DTlWDVBNqfY6sJHKiGRRwpT3ECX0RY4v7qA=;
         h=Subject:To:Cc:From:Date:From;
-        b=maIhdG5UaPmzXI4Hf5Ubu82fjc3F5N1r4or3emtg5E7cv4picIGBNHd7W+OMPf5hp
-         xc8bMp81yYpWWlmqOG+wTKsnTP+qekDnGMjUeUFdC7rKZBXGUno7lvainsD3DWyM4W
-         Y+5pfVl/SSWYh3HUvSsB1RIk9CQ99SGFy4DTxSwo=
-Subject: FAILED: patch "[PATCH] octeontx2-pf: Avoid use of GFP_KERNEL in atomic context" failed to apply to 5.15-stable tree
-To:     gakula@marvell.com, davem@davemloft.net, leonro@nvidia.com,
-        sgoutham@marvell.com
+        b=pllSHAGkcpVQ7j3Ks5gcGhQgR4/wm+PXQGdG1wzW9bFWDVGCMHUG4bkwZprPKrHU4
+         M5sy6yODLpKulKYtm0c5HX6SKvk3H2Wfjt2ZflzSCLspK16aEY+vEZDIwUH902HCk5
+         16Akjd6kvWnLhY6TfRIhaapOAK91sfFHEKRAeVc4=
+Subject: FAILED: patch "[PATCH] octeontx2-pf: Fix the use of GFP_KERNEL in atomic context on" failed to apply to 5.15-stable tree
+To:     haokexin@gmail.com, pabeni@redhat.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Sun, 22 Jan 2023 15:51:11 +0100
-Message-ID: <1674399071110156@kroah.com>
+Date:   Sun, 22 Jan 2023 15:55:31 +0100
+Message-ID: <1674399331175247@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -56,7 +55,7 @@ id to <stable@vger.kernel.org>.
 
 Possible dependencies:
 
-87b93b678e95 ("octeontx2-pf: Avoid use of GFP_KERNEL in atomic context")
+55ba18dc62de ("octeontx2-pf: Fix the use of GFP_KERNEL in atomic context on rt")
 4af1b64f80fb ("octeontx2-pf: Fix lmtst ID used in aura free")
 
 thanks,
@@ -65,67 +64,140 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From 87b93b678e95c7d93fe6a55b0e0fbda26d8c7760 Mon Sep 17 00:00:00 2001
-From: Geetha sowjanya <gakula@marvell.com>
-Date: Fri, 13 Jan 2023 11:49:02 +0530
-Subject: [PATCH] octeontx2-pf: Avoid use of GFP_KERNEL in atomic context
+From 55ba18dc62deff5910c0fa64486dea1ff20832ff Mon Sep 17 00:00:00 2001
+From: Kevin Hao <haokexin@gmail.com>
+Date: Wed, 18 Jan 2023 15:13:00 +0800
+Subject: [PATCH] octeontx2-pf: Fix the use of GFP_KERNEL in atomic context on
+ rt
 
-Using GFP_KERNEL in preemption disable context, causing below warning
-when CONFIG_DEBUG_ATOMIC_SLEEP is enabled.
+The commit 4af1b64f80fb ("octeontx2-pf: Fix lmtst ID used in aura
+free") uses the get/put_cpu() to protect the usage of percpu pointer
+in ->aura_freeptr() callback, but it also unnecessarily disable the
+preemption for the blockable memory allocation. The commit 87b93b678e95
+("octeontx2-pf: Avoid use of GFP_KERNEL in atomic context") tried to
+fix these sleep inside atomic warnings. But it only fix the one for
+the non-rt kernel. For the rt kernel, we still get the similar warnings
+like below.
+  BUG: sleeping function called from invalid context at kernel/locking/spinlock_rt.c:46
+  in_atomic(): 1, irqs_disabled(): 0, non_block: 0, pid: 1, name: swapper/0
+  preempt_count: 1, expected: 0
+  RCU nest depth: 0, expected: 0
+  3 locks held by swapper/0/1:
+   #0: ffff800009fc5fe8 (rtnl_mutex){+.+.}-{3:3}, at: rtnl_lock+0x24/0x30
+   #1: ffff000100c276c0 (&mbox->lock){+.+.}-{3:3}, at: otx2_init_hw_resources+0x8c/0x3a4
+   #2: ffffffbfef6537e0 (&cpu_rcache->lock){+.+.}-{2:2}, at: alloc_iova_fast+0x1ac/0x2ac
+  Preemption disabled at:
+  [<ffff800008b1908c>] otx2_rq_aura_pool_init+0x14c/0x284
+  CPU: 20 PID: 1 Comm: swapper/0 Tainted: G        W          6.2.0-rc3-rt1-yocto-preempt-rt #1
+  Hardware name: Marvell OcteonTX CN96XX board (DT)
+  Call trace:
+   dump_backtrace.part.0+0xe8/0xf4
+   show_stack+0x20/0x30
+   dump_stack_lvl+0x9c/0xd8
+   dump_stack+0x18/0x34
+   __might_resched+0x188/0x224
+   rt_spin_lock+0x64/0x110
+   alloc_iova_fast+0x1ac/0x2ac
+   iommu_dma_alloc_iova+0xd4/0x110
+   __iommu_dma_map+0x80/0x144
+   iommu_dma_map_page+0xe8/0x260
+   dma_map_page_attrs+0xb4/0xc0
+   __otx2_alloc_rbuf+0x90/0x150
+   otx2_rq_aura_pool_init+0x1c8/0x284
+   otx2_init_hw_resources+0xe4/0x3a4
+   otx2_open+0xf0/0x610
+   __dev_open+0x104/0x224
+   __dev_change_flags+0x1e4/0x274
+   dev_change_flags+0x2c/0x7c
+   ic_open_devs+0x124/0x2f8
+   ip_auto_config+0x180/0x42c
+   do_one_initcall+0x90/0x4dc
+   do_basic_setup+0x10c/0x14c
+   kernel_init_freeable+0x10c/0x13c
+   kernel_init+0x2c/0x140
+   ret_from_fork+0x10/0x20
 
-[   32.542271] BUG: sleeping function called from invalid context at include/linux/sched/mm.h:274
-[   32.550883] in_atomic(): 1, irqs_disabled(): 0, non_block: 0, pid: 1, name: swapper/0
-[   32.558707] preempt_count: 1, expected: 0
-[   32.562710] RCU nest depth: 0, expected: 0
-[   32.566800] CPU: 3 PID: 1 Comm: swapper/0 Tainted: G        W          6.2.0-rc2-00269-gae9dcb91c606 #7
-[   32.576188] Hardware name: Marvell CN106XX board (DT)
-[   32.581232] Call trace:
-[   32.583670]  dump_backtrace.part.0+0xe0/0xf0
-[   32.587937]  show_stack+0x18/0x30
-[   32.591245]  dump_stack_lvl+0x68/0x84
-[   32.594900]  dump_stack+0x18/0x34
-[   32.598206]  __might_resched+0x12c/0x160
-[   32.602122]  __might_sleep+0x48/0xa0
-[   32.605689]  __kmem_cache_alloc_node+0x2b8/0x2e0
-[   32.610301]  __kmalloc+0x58/0x190
-[   32.613610]  otx2_sq_aura_pool_init+0x1a8/0x314
-[   32.618134]  otx2_open+0x1d4/0x9d0
-
-To avoid use of GFP_ATOMIC for memory allocation, disable preemption
-after all memory allocation is done.
+Of course, we can shuffle the get/put_cpu() to only wrap the invocation
+of ->aura_freeptr() as what commit 87b93b678e95 does. But there are only
+two ->aura_freeptr() callbacks, otx2_aura_freeptr() and
+cn10k_aura_freeptr(). There is no usage of perpcu variable in the
+otx2_aura_freeptr() at all, so the get/put_cpu() seems redundant to it.
+We can move the get/put_cpu() into the corresponding callback which
+really has the percpu variable usage and avoid the sprinkling of
+get/put_cpu() in several places.
 
 Fixes: 4af1b64f80fb ("octeontx2-pf: Fix lmtst ID used in aura free")
-Signed-off-by: Geetha sowjanya <gakula@marvell.com>
-Signed-off-by: Sunil Kovvuri Goutham <sgoutham@marvell.com>
-Reviewed-by: Leon Romanovsky <leonro@nvidia.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Kevin Hao <haokexin@gmail.com>
+Link: https://lore.kernel.org/r/20230118071300.3271125-1-haokexin@gmail.com
+Signed-off-by: Paolo Abeni <pabeni@redhat.com>
 
 diff --git a/drivers/net/ethernet/marvell/octeontx2/nic/otx2_common.c b/drivers/net/ethernet/marvell/octeontx2/nic/otx2_common.c
-index 88f8772a61cd..497b777b6a34 100644
+index 497b777b6a34..8a41ad8ca04f 100644
 --- a/drivers/net/ethernet/marvell/octeontx2/nic/otx2_common.c
 +++ b/drivers/net/ethernet/marvell/octeontx2/nic/otx2_common.c
-@@ -1370,7 +1370,6 @@ int otx2_sq_aura_pool_init(struct otx2_nic *pfvf)
+@@ -1012,7 +1012,6 @@ static void otx2_pool_refill_task(struct work_struct *work)
+ 	rbpool = cq->rbpool;
+ 	free_ptrs = cq->pool_ptrs;
+ 
+-	get_cpu();
+ 	while (cq->pool_ptrs) {
+ 		if (otx2_alloc_rbuf(pfvf, rbpool, &bufptr)) {
+ 			/* Schedule a WQ if we fails to free atleast half of the
+@@ -1032,7 +1031,6 @@ static void otx2_pool_refill_task(struct work_struct *work)
+ 		pfvf->hw_ops->aura_freeptr(pfvf, qidx, bufptr + OTX2_HEAD_ROOM);
+ 		cq->pool_ptrs--;
+ 	}
+-	put_cpu();
+ 	cq->refill_task_sched = false;
+ }
+ 
+@@ -1387,9 +1385,7 @@ int otx2_sq_aura_pool_init(struct otx2_nic *pfvf)
+ 			err = otx2_alloc_rbuf(pfvf, pool, &bufptr);
+ 			if (err)
+ 				goto err_mem;
+-			get_cpu();
+ 			pfvf->hw_ops->aura_freeptr(pfvf, pool_id, bufptr);
+-			put_cpu();
+ 			sq->sqb_ptrs[sq->sqb_count++] = (u64)bufptr;
+ 		}
+ 	}
+@@ -1435,21 +1431,18 @@ int otx2_rq_aura_pool_init(struct otx2_nic *pfvf)
  	if (err)
  		goto fail;
  
 -	get_cpu();
  	/* Allocate pointers and free them to aura/pool */
- 	for (qidx = 0; qidx < hw->tot_tx_queues; qidx++) {
- 		pool_id = otx2_get_pool_idx(pfvf, AURA_NIX_SQ, qidx);
-@@ -1388,13 +1387,14 @@ int otx2_sq_aura_pool_init(struct otx2_nic *pfvf)
+ 	for (pool_id = 0; pool_id < hw->rqpool_cnt; pool_id++) {
+ 		pool = &pfvf->qset.pool[pool_id];
+ 		for (ptr = 0; ptr < num_ptrs; ptr++) {
  			err = otx2_alloc_rbuf(pfvf, pool, &bufptr);
  			if (err)
- 				goto err_mem;
-+			get_cpu();
- 			pfvf->hw_ops->aura_freeptr(pfvf, pool_id, bufptr);
-+			put_cpu();
- 			sq->sqb_ptrs[sq->sqb_count++] = (u64)bufptr;
+-				goto err_mem;
++				return -ENOMEM;
+ 			pfvf->hw_ops->aura_freeptr(pfvf, pool_id,
+ 						   bufptr + OTX2_HEAD_ROOM);
  		}
  	}
- 
- err_mem:
+-err_mem:
 -	put_cpu();
- 	return err ? -ENOMEM : 0;
- 
+-	return err ? -ENOMEM : 0;
++	return 0;
  fail:
+ 	otx2_mbox_reset(&pfvf->mbox.mbox, 0);
+ 	otx2_aura_pool_free(pfvf);
+diff --git a/drivers/net/ethernet/marvell/octeontx2/nic/otx2_common.h b/drivers/net/ethernet/marvell/octeontx2/nic/otx2_common.h
+index 5bee3c3a7ce4..3d22cc6a2804 100644
+--- a/drivers/net/ethernet/marvell/octeontx2/nic/otx2_common.h
++++ b/drivers/net/ethernet/marvell/octeontx2/nic/otx2_common.h
+@@ -736,8 +736,10 @@ static inline void cn10k_aura_freeptr(void *dev, int aura, u64 buf)
+ 	u64 ptrs[2];
+ 
+ 	ptrs[1] = buf;
++	get_cpu();
+ 	/* Free only one buffer at time during init and teardown */
+ 	__cn10k_aura_freeptr(pfvf, aura, ptrs, 2);
++	put_cpu();
+ }
+ 
+ /* Alloc pointer from pool/aura */
 
