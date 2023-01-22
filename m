@@ -2,43 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 92131676E78
-	for <lists+stable@lfdr.de>; Sun, 22 Jan 2023 16:10:56 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 261EA676FE8
+	for <lists+stable@lfdr.de>; Sun, 22 Jan 2023 16:26:31 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230332AbjAVPKz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 22 Jan 2023 10:10:55 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37376 "EHLO
+        id S231425AbjAVP0a (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 22 Jan 2023 10:26:30 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54708 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230325AbjAVPKy (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 22 Jan 2023 10:10:54 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D704B1F930
-        for <stable@vger.kernel.org>; Sun, 22 Jan 2023 07:10:53 -0800 (PST)
+        with ESMTP id S231423AbjAVP03 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 22 Jan 2023 10:26:29 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AEB6822A28
+        for <stable@vger.kernel.org>; Sun, 22 Jan 2023 07:26:28 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 36543B80B11
-        for <stable@vger.kernel.org>; Sun, 22 Jan 2023 15:10:52 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 82A9FC433EF;
-        Sun, 22 Jan 2023 15:10:50 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 459FA60C60
+        for <stable@vger.kernel.org>; Sun, 22 Jan 2023 15:26:28 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 58636C433D2;
+        Sun, 22 Jan 2023 15:26:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1674400250;
-        bh=WlFfczFIlYENFnoeaX0nqb3+KChMy5xjAj8EwgR9c4Y=;
+        s=korg; t=1674401187;
+        bh=7iYNBw+UoGsVUwdthnKw5/xH26yi0/Y0uhcIv7WOqZg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=lmQpZJ3n4WEsrFeo7wo/u/nU0Ynedxtq4zgFXKTeMfv9piUvLV/y8Odq/Onrg3XQj
-         Nfj/nau0gT/NhdxnGRripgdwHXyZhipD45/cm7osJLc474y5rS5Skby6scrWNgcjCX
-         x6sBRMUuQj/XT0tBi9fAVLDiF4EYNd9/K/MpOO6E=
+        b=UR5lCE841xUC0f6X9bjV7U0qId9uGb4NpcZkNw1xFCtyVp6dzOQZDVLpj+LDY4GFP
+         qBHutdeL57sZfKKMSSbBEv/Sh1yHJNBX2QceYUBitjmKlSC00IGc5cxr+4ZNJ4jC14
+         S+EO5sLD4tbltzInO6S1NgEOIJtx6c0QLAcXtz6U=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, stable <stable@kernel.org>,
-        Khazhismel Kumykov <khazhy@google.com>
-Subject: [PATCH 5.4 46/55] gsmi: fix null-deref in gsmi_get_variable
+        patches@lists.linux.dev, roman.li@amd.com, yifan1.zhang@amd.com,
+        =?UTF-8?q?Christian=20K=C3=B6nig?= <christian.koenig@amd.com>,
+        Alex Deucher <alexander.deucher@amd.com>
+Subject: [PATCH 6.1 144/193] drm/amd/display: disable S/G display on DCN 3.1.5
 Date:   Sun, 22 Jan 2023 16:04:33 +0100
-Message-Id: <20230122150224.072792610@linuxfoundation.org>
+Message-Id: <20230122150252.963432735@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.1
-In-Reply-To: <20230122150222.210885219@linuxfoundation.org>
-References: <20230122150222.210885219@linuxfoundation.org>
+In-Reply-To: <20230122150246.321043584@linuxfoundation.org>
+References: <20230122150246.321043584@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,41 +54,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Khazhismel Kumykov <khazhy@chromium.org>
+From: Alex Deucher <alexander.deucher@amd.com>
 
-commit a769b05eeed7accc4019a1ed9799dd72067f1ce8 upstream.
+commit e78cc6a4c7486f50c2786d91dd7d9649a87d1dcb upstream.
 
-We can get EFI variables without fetching the attribute, so we must
-allow for that in gsmi.
+Causes flickering or white screens in some configurations.
+Disable it for now until we can fix the issue.
 
-commit 859748255b43 ("efi: pstore: Omit efivars caching EFI varstore
-access layer") added a new get_variable call with attr=NULL, which
-triggers panic in gsmi.
-
-Fixes: 74c5b31c6618 ("driver: Google EFI SMI")
-Cc: stable <stable@kernel.org>
-Signed-off-by: Khazhismel Kumykov <khazhy@google.com>
-Link: https://lore.kernel.org/r/20230118010212.1268474-1-khazhy@google.com
+Bug: https://gitlab.freedesktop.org/drm/amd/-/issues/2354
+Cc: roman.li@amd.com
+Cc: yifan1.zhang@amd.com
+Acked-by: Christian König <christian.koenig@amd.com>
+Reviewed-by: Yifan Zhang <yifan1.zhang@amd.com>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+Cc: stable@vger.kernel.org # 6.1.x
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/firmware/google/gsmi.c |    7 ++++---
- 1 file changed, 4 insertions(+), 3 deletions(-)
+ drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c |    1 -
+ 1 file changed, 1 deletion(-)
 
---- a/drivers/firmware/google/gsmi.c
-+++ b/drivers/firmware/google/gsmi.c
-@@ -359,9 +359,10 @@ static efi_status_t gsmi_get_variable(ef
- 		memcpy(data, gsmi_dev.data_buf->start, *data_size);
- 
- 		/* All variables are have the following attributes */
--		*attr = EFI_VARIABLE_NON_VOLATILE |
--			EFI_VARIABLE_BOOTSERVICE_ACCESS |
--			EFI_VARIABLE_RUNTIME_ACCESS;
-+		if (attr)
-+			*attr = EFI_VARIABLE_NON_VOLATILE |
-+				EFI_VARIABLE_BOOTSERVICE_ACCESS |
-+				EFI_VARIABLE_RUNTIME_ACCESS;
- 	}
- 
- 	spin_unlock_irqrestore(&gsmi_dev.lock, flags);
+--- a/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c
++++ b/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c
+@@ -1513,7 +1513,6 @@ static int amdgpu_dm_init(struct amdgpu_
+ 		case IP_VERSION(3, 1, 2):
+ 		case IP_VERSION(3, 1, 3):
+ 		case IP_VERSION(3, 1, 4):
+-		case IP_VERSION(3, 1, 5):
+ 		case IP_VERSION(3, 1, 6):
+ 			init_data.flags.gpu_vm_support = true;
+ 			break;
 
 
