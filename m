@@ -2,43 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 61783676E2A
-	for <lists+stable@lfdr.de>; Sun, 22 Jan 2023 16:07:46 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id CAEA6676F41
+	for <lists+stable@lfdr.de>; Sun, 22 Jan 2023 16:19:26 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230195AbjAVPHp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 22 Jan 2023 10:07:45 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33986 "EHLO
+        id S231205AbjAVPT0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 22 Jan 2023 10:19:26 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46604 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230198AbjAVPHn (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 22 Jan 2023 10:07:43 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5582FCDF1
-        for <stable@vger.kernel.org>; Sun, 22 Jan 2023 07:07:39 -0800 (PST)
+        with ESMTP id S231208AbjAVPTZ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 22 Jan 2023 10:19:25 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F2C6C21A36
+        for <stable@vger.kernel.org>; Sun, 22 Jan 2023 07:19:23 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 367E160C59
-        for <stable@vger.kernel.org>; Sun, 22 Jan 2023 15:07:39 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4648FC433D2;
-        Sun, 22 Jan 2023 15:07:38 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 8CDC960C48
+        for <stable@vger.kernel.org>; Sun, 22 Jan 2023 15:19:23 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9F551C433D2;
+        Sun, 22 Jan 2023 15:19:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1674400058;
-        bh=sdqiE0l1v+wHgaarZoHz16Kb3ppFCCJzhb5n6NH/B5c=;
+        s=korg; t=1674400763;
+        bh=8ymtiD/WttM4af9U/UFTVDG5c91f5FOTuReGhFZh6+Y=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=IKVDi88ElmNT7Qd3A9HpeNDoqQdMvyeKscVJe2+Edgtx5gGxLG/iJEdTSzcH1iTHw
-         IBnoaN0pUg8t7jHpF4zoHtRG8SHaXkXm4D9IrzPazOvg1lZ/JnAc+pKCbzhHQyvNzA
-         0ateG923Rs3HsdB7tOgv+x1YpYzsXuSqXP5e6ics=
+        b=uti5f6sEQftfOWLK6KkVjhonGu/jB2C1mGwEWhq5rGK9nwM05UguWwVEOknzcv/f4
+         9LKUYfwKopqIHmhn9lXHUssImEsS6oXN2dHPnbm2BCxloF2GoA/2SJsaUI24ehS71H
+         QgSOcIN5C5aWgsWoIlUfz4W9TmV09uGj4HJYDY3Y=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Michael Adler <michael.adler@siemens.com>,
-        Johan Hovold <johan@kernel.org>
-Subject: [PATCH 4.19 23/37] USB: serial: cp210x: add SCALANCE LPE-9000 device id
+        patches@lists.linux.dev, Burn Alting <burn.alting@iinet.net.au>,
+        Jiri Olsa <olsajiri@gmail.com>,
+        Stanislav Fomichev <sdf@google.com>,
+        Alexei Starovoitov <alexei.starovoitov@gmail.com>,
+        Paul Moore <paul@paul-moore.com>,
+        Alexei Starovoitov <ast@kernel.org>
+Subject: [PATCH 5.15 070/117] bpf: restore the ebpf program ID for BPF_AUDIT_UNLOAD and PERF_BPF_EVENT_PROG_UNLOAD
 Date:   Sun, 22 Jan 2023 16:04:20 +0100
-Message-Id: <20230122150220.516953780@linuxfoundation.org>
+Message-Id: <20230122150235.699429001@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.1
-In-Reply-To: <20230122150219.557984692@linuxfoundation.org>
-References: <20230122150219.557984692@linuxfoundation.org>
+In-Reply-To: <20230122150232.736358800@linuxfoundation.org>
+References: <20230122150232.736358800@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,30 +57,94 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Michael Adler <michael.adler@siemens.com>
+From: Paul Moore <paul@paul-moore.com>
 
-commit 3f9e76e31704a325170e5aec2243c8d084d74854 upstream.
+commit ef01f4e25c1760920e2c94f1c232350277ace69b upstream.
 
-Add the USB serial console device ID for Siemens SCALANCE LPE-9000
-which have a USB port for their serial console.
+When changing the ebpf program put() routines to support being called
+from within IRQ context the program ID was reset to zero prior to
+calling the perf event and audit UNLOAD record generators, which
+resulted in problems as the ebpf program ID was bogus (always zero).
+This patch addresses this problem by removing an unnecessary call to
+bpf_prog_free_id() in __bpf_prog_offload_destroy() and adjusting
+__bpf_prog_put() to only call bpf_prog_free_id() after audit and perf
+have finished their bpf program unload tasks in
+bpf_prog_put_deferred().  For the record, no one can determine, or
+remember, why it was necessary to free the program ID, and remove it
+from the IDR, prior to executing bpf_prog_put_deferred();
+regardless, both Stanislav and Alexei agree that the approach in this
+patch should be safe.
 
-Signed-off-by: Michael Adler <michael.adler@siemens.com>
+It is worth noting that when moving the bpf_prog_free_id() call, the
+do_idr_lock parameter was forced to true as the ebpf devs determined
+this was the correct as the do_idr_lock should always be true.  The
+do_idr_lock parameter will be removed in a follow-up patch, but it
+was kept here to keep the patch small in an effort to ease any stable
+backports.
+
+I also modified the bpf_audit_prog() logic used to associate the
+AUDIT_BPF record with other associated records, e.g. @ctx != NULL.
+Instead of keying off the operation, it now keys off the execution
+context, e.g. '!in_irg && !irqs_disabled()', which is much more
+appropriate and should help better connect the UNLOAD operations with
+the associated audit state (other audit records).
+
 Cc: stable@vger.kernel.org
-Signed-off-by: Johan Hovold <johan@kernel.org>
+Fixes: d809e134be7a ("bpf: Prepare bpf_prog_put() to be called from irq context.")
+Reported-by: Burn Alting <burn.alting@iinet.net.au>
+Reported-by: Jiri Olsa <olsajiri@gmail.com>
+Suggested-by: Stanislav Fomichev <sdf@google.com>
+Suggested-by: Alexei Starovoitov <alexei.starovoitov@gmail.com>
+Signed-off-by: Paul Moore <paul@paul-moore.com>
+Acked-by: Stanislav Fomichev <sdf@google.com>
+Link: https://lore.kernel.org/r/20230106154400.74211-1-paul@paul-moore.com
+Signed-off-by: Alexei Starovoitov <ast@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/usb/serial/cp210x.c |    1 +
- 1 file changed, 1 insertion(+)
+ kernel/bpf/offload.c |    3 ---
+ kernel/bpf/syscall.c |    6 ++----
+ 2 files changed, 2 insertions(+), 7 deletions(-)
 
---- a/drivers/usb/serial/cp210x.c
-+++ b/drivers/usb/serial/cp210x.c
-@@ -61,6 +61,7 @@ static const struct usb_device_id id_tab
- 	{ USB_DEVICE(0x0846, 0x1100) }, /* NetGear Managed Switch M4100 series, M5300 series, M7100 series */
- 	{ USB_DEVICE(0x08e6, 0x5501) }, /* Gemalto Prox-PU/CU contactless smartcard reader */
- 	{ USB_DEVICE(0x08FD, 0x000A) }, /* Digianswer A/S , ZigBee/802.15.4 MAC Device */
-+	{ USB_DEVICE(0x0908, 0x0070) }, /* Siemens SCALANCE LPE-9000 USB Serial Console */
- 	{ USB_DEVICE(0x0908, 0x01FF) }, /* Siemens RUGGEDCOM USB Serial Console */
- 	{ USB_DEVICE(0x0988, 0x0578) }, /* Teraoka AD2000 */
- 	{ USB_DEVICE(0x0B00, 0x3070) }, /* Ingenico 3070 */
+--- a/kernel/bpf/offload.c
++++ b/kernel/bpf/offload.c
+@@ -216,9 +216,6 @@ static void __bpf_prog_offload_destroy(s
+ 	if (offload->dev_state)
+ 		offload->offdev->ops->destroy(prog);
+ 
+-	/* Make sure BPF_PROG_GET_NEXT_ID can't find this dead program */
+-	bpf_prog_free_id(prog, true);
+-
+ 	list_del_init(&offload->offloads);
+ 	kfree(offload);
+ 	prog->aux->offload = NULL;
+--- a/kernel/bpf/syscall.c
++++ b/kernel/bpf/syscall.c
+@@ -1695,7 +1695,7 @@ static void bpf_audit_prog(const struct
+ 		return;
+ 	if (audit_enabled == AUDIT_OFF)
+ 		return;
+-	if (op == BPF_AUDIT_LOAD)
++	if (!in_irq() && !irqs_disabled())
+ 		ctx = audit_context();
+ 	ab = audit_log_start(ctx, GFP_ATOMIC, AUDIT_BPF);
+ 	if (unlikely(!ab))
+@@ -1790,6 +1790,7 @@ static void bpf_prog_put_deferred(struct
+ 	prog = aux->prog;
+ 	perf_event_bpf_event(prog, PERF_BPF_EVENT_PROG_UNLOAD, 0);
+ 	bpf_audit_prog(prog, BPF_AUDIT_UNLOAD);
++	bpf_prog_free_id(prog, true);
+ 	__bpf_prog_put_noref(prog, true);
+ }
+ 
+@@ -1798,9 +1799,6 @@ static void __bpf_prog_put(struct bpf_pr
+ 	struct bpf_prog_aux *aux = prog->aux;
+ 
+ 	if (atomic64_dec_and_test(&aux->refcnt)) {
+-		/* bpf_prog_free_id() must be called first */
+-		bpf_prog_free_id(prog, do_idr_lock);
+-
+ 		if (in_irq() || irqs_disabled()) {
+ 			INIT_WORK(&aux->work, bpf_prog_put_deferred);
+ 			schedule_work(&aux->work);
 
 
