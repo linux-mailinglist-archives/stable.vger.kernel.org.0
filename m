@@ -2,41 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C8377676E7B
-	for <lists+stable@lfdr.de>; Sun, 22 Jan 2023 16:11:01 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id EE9A6676E6E
+	for <lists+stable@lfdr.de>; Sun, 22 Jan 2023 16:10:29 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230336AbjAVPLB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 22 Jan 2023 10:11:01 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37474 "EHLO
+        id S230314AbjAVPK3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 22 Jan 2023 10:10:29 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37072 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230333AbjAVPLA (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 22 Jan 2023 10:11:00 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8FACB1F910
-        for <stable@vger.kernel.org>; Sun, 22 Jan 2023 07:10:59 -0800 (PST)
+        with ESMTP id S230318AbjAVPK2 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 22 Jan 2023 10:10:28 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A0A3E1F5D4
+        for <stable@vger.kernel.org>; Sun, 22 Jan 2023 07:10:27 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 2CF2660C48
-        for <stable@vger.kernel.org>; Sun, 22 Jan 2023 15:10:59 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 411D3C433D2;
-        Sun, 22 Jan 2023 15:10:58 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 521E5B80B1A
+        for <stable@vger.kernel.org>; Sun, 22 Jan 2023 15:10:26 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A6F64C433D2;
+        Sun, 22 Jan 2023 15:10:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1674400258;
-        bh=arP/9gihXpo5gmdhMOHxh359EdvmMQ7uXXaUS6JZqHY=;
+        s=korg; t=1674400225;
+        bh=VBItf0BVoIqFJCVDG/J3cxr/q4AQ74/Ft/5P4TGHYRw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=jmXVtcluCRSeTvSSgBUOLIeKhccCZFua+mVEyzp9zMARaJKvw/R7Hix/MmllgJjuq
-         xRUTvL1GQBLPv++5lCE352HJ6/ErrxkMi4etISzJEiT8LNlKSjsoUXc3eEQ4e7vDmp
-         x2G48sdsAF+NN4RIOliAvcAuegK36oq/KUEPRHoY=
+        b=K/9solLDoajR0I2QPkPOIQHzf3jzwHvN5EvubJfVcQpD6pIdgJtzIKzw3Lo1MKjBl
+         Jo3h0Eex1Dpuwm7sXLgm3gp+sNe4oE3ffZ8anT6pvouN7ONhyuTMUEI6b50LupNluQ
+         LJHK7FF54VdPfqGMcZnTm2jnVTofwTYPPJp0AuUM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Melissa Wen <mwen@igalia.com>,
-        Joshua Ashton <joshua@froggi.es>,
-        Alex Deucher <alexander.deucher@amd.com>
-Subject: [PATCH 5.4 49/55] drm/amd/display: Fix COLOR_SPACE_YCBCR2020_TYPE matrix
-Date:   Sun, 22 Jan 2023 16:04:36 +0100
-Message-Id: <20230122150224.199791148@linuxfoundation.org>
+        patches@lists.linux.dev, YingChi Long <me@inclyc.cn>,
+        Borislav Petkov <bp@suse.de>,
+        Nick Desaulniers <ndesaulniers@google.com>,
+        Nathan Chancellor <nathan@kernel.org>
+Subject: [PATCH 5.4 50/55] x86/fpu: Use _Alignof to avoid undefined behavior in TYPE_ALIGN
+Date:   Sun, 22 Jan 2023 16:04:37 +0100
+Message-Id: <20230122150224.248841324@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.1
 In-Reply-To: <20230122150222.210885219@linuxfoundation.org>
 References: <20230122150222.210885219@linuxfoundation.org>
@@ -54,43 +55,63 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Joshua Ashton <joshua@froggi.es>
+From: YingChi Long <me@inclyc.cn>
 
-commit 973a9c810c785ac270a6d50d8cf862b0c1643a10 upstream.
+commit 55228db2697c09abddcb9487c3d9fa5854a932cd upstream.
 
-The YCC conversion matrix for RGB -> COLOR_SPACE_YCBCR2020_TYPE is
-missing the values for the fourth column of the matrix.
+WG14 N2350 specifies that it is an undefined behavior to have type
+definitions within offsetof", see
 
-The fourth column of the matrix is essentially just a value that is
-added given that the color is 3 components in size.
-These values are needed to bias the chroma from the [-1, 1] -> [0, 1]
-range.
+  https://www.open-std.org/jtc1/sc22/wg14/www/docs/n2350.htm
 
-This fixes color being very green when using Gamescope HDR on HDMI
-output which prefers YCC 4:4:4.
+This specification is also part of C23.
 
-Fixes: 40df2f809e8f ("drm/amd/display: color space ycbcr709 support")
-Reviewed-by: Melissa Wen <mwen@igalia.com>
-Signed-off-by: Joshua Ashton <joshua@froggi.es>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
-Cc: stable@vger.kernel.org
+Therefore, replace the TYPE_ALIGN macro with the _Alignof builtin to
+avoid undefined behavior. (_Alignof itself is C11 and the kernel is
+built with -gnu11).
+
+ISO C11 _Alignof is subtly different from the GNU C extension
+__alignof__. Latter is the preferred alignment and _Alignof the
+minimal alignment. For long long on x86 these are 8 and 4
+respectively.
+
+The macro TYPE_ALIGN's behavior matches _Alignof rather than
+__alignof__.
+
+  [ bp: Massage commit message. ]
+
+Signed-off-by: YingChi Long <me@inclyc.cn>
+Signed-off-by: Borislav Petkov <bp@suse.de>
+Reviewed-by: Nick Desaulniers <ndesaulniers@google.com>
+Link: https://lore.kernel.org/r/20220925153151.2467884-1-me@inclyc.cn
+Signed-off-by: Nathan Chancellor <nathan@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/gpu/drm/amd/display/dc/core/dc_hw_sequencer.c |    4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ arch/x86/kernel/fpu/init.c |    7 ++-----
+ 1 file changed, 2 insertions(+), 5 deletions(-)
 
---- a/drivers/gpu/drm/amd/display/dc/core/dc_hw_sequencer.c
-+++ b/drivers/gpu/drm/amd/display/dc/core/dc_hw_sequencer.c
-@@ -92,8 +92,8 @@ static const struct out_csc_color_matrix
- 		{ 0xE00, 0xF349, 0xFEB7, 0x1000, 0x6CE, 0x16E3,
- 				0x24F, 0x200, 0xFCCB, 0xF535, 0xE00, 0x1000} },
- 	{ COLOR_SPACE_YCBCR2020_TYPE,
--		{ 0x1000, 0xF149, 0xFEB7, 0x0000, 0x0868, 0x15B2,
--				0x01E6, 0x0000, 0xFB88, 0xF478, 0x1000, 0x0000} },
-+		{ 0x1000, 0xF149, 0xFEB7, 0x1004, 0x0868, 0x15B2,
-+				0x01E6, 0x201, 0xFB88, 0xF478, 0x1000, 0x1004} },
- 	{ COLOR_SPACE_YCBCR709_BLACK_TYPE,
- 		{ 0x0000, 0x0000, 0x0000, 0x1000, 0x0000, 0x0000,
- 				0x0000, 0x0200, 0x0000, 0x0000, 0x0000, 0x1000} },
+--- a/arch/x86/kernel/fpu/init.c
++++ b/arch/x86/kernel/fpu/init.c
+@@ -139,9 +139,6 @@ static void __init fpu__init_system_gene
+ unsigned int fpu_kernel_xstate_size;
+ EXPORT_SYMBOL_GPL(fpu_kernel_xstate_size);
+ 
+-/* Get alignment of the TYPE. */
+-#define TYPE_ALIGN(TYPE) offsetof(struct { char x; TYPE test; }, test)
+-
+ /*
+  * Enforce that 'MEMBER' is the last field of 'TYPE'.
+  *
+@@ -149,8 +146,8 @@ EXPORT_SYMBOL_GPL(fpu_kernel_xstate_size
+  * because that's how C aligns structs.
+  */
+ #define CHECK_MEMBER_AT_END_OF(TYPE, MEMBER) \
+-	BUILD_BUG_ON(sizeof(TYPE) != ALIGN(offsetofend(TYPE, MEMBER), \
+-					   TYPE_ALIGN(TYPE)))
++	BUILD_BUG_ON(sizeof(TYPE) !=         \
++		     ALIGN(offsetofend(TYPE, MEMBER), _Alignof(TYPE)))
+ 
+ /*
+  * We append the 'struct fpu' to the task_struct:
 
 
