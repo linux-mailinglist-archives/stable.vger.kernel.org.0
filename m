@@ -2,113 +2,113 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 70DB9677001
-	for <lists+stable@lfdr.de>; Sun, 22 Jan 2023 16:27:29 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 266D7676E25
+	for <lists+stable@lfdr.de>; Sun, 22 Jan 2023 16:07:36 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231453AbjAVP12 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 22 Jan 2023 10:27:28 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55474 "EHLO
+        id S230170AbjAVPHf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 22 Jan 2023 10:07:35 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33554 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231451AbjAVP11 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 22 Jan 2023 10:27:27 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0112F23130
-        for <stable@vger.kernel.org>; Sun, 22 Jan 2023 07:27:26 -0800 (PST)
+        with ESMTP id S230187AbjAVPHe (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 22 Jan 2023 10:07:34 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 73E6A1DBB2
+        for <stable@vger.kernel.org>; Sun, 22 Jan 2023 07:07:26 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 930DD60C43
-        for <stable@vger.kernel.org>; Sun, 22 Jan 2023 15:27:26 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A578CC433EF;
-        Sun, 22 Jan 2023 15:27:25 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 0FC5D60C48
+        for <stable@vger.kernel.org>; Sun, 22 Jan 2023 15:07:26 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 232CCC433D2;
+        Sun, 22 Jan 2023 15:07:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1674401246;
-        bh=xNYfhrYs0eS8qK+MjXX0BdqR62ONKUMrbk5NefCMW6A=;
+        s=korg; t=1674400045;
+        bh=ORQNzhdwivNxFMc6OmWqFlRf99WF0efNnYgmpcHwObk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Cos8LloI5RhLGbkRrAeXyW92p/zQ4CH9cRfHOxQA1N52ClDuPE1G6YM4odnLJuZui
-         Co3ievIw+c90I8vlmgbPvzjXx4MJa3YeGporpdeI2hqgoKblV0F2ygjCwb9qzbe98o
-         +MUO17be6OgpKM4+UtdQzZ4LWcrXLjtlI25NPShw=
+        b=NO35OtMJu/hJWcRbj0Q9EjujR6BMq0GhARk4fcpRJRAYPwkLXTbvb9WXf8IEIiGu5
+         4CPeY0AZyVU8jY2xMhDLB2E1d7rcMZMP/BM0mU9ErLvKqIKB8ekHemETL8eDr0vr+a
+         D235/0y/wkLTnyj+qsAYPNC39woiBznWnydPvjlE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Matthew Howell <matthew.howell@sealevel.com>,
-        stable <stable@kernel.org>
-Subject: [PATCH 6.1 127/193] serial: exar: Add support for Sealevel 7xxxC serial cards
+        patches@lists.linux.dev, Flavio Suligoi <f.suligoi@asem.it>,
+        stable <stable@kernel.org>,
+        Alan Stern <stern@rowland.harvard.edu>
+Subject: [PATCH 4.19 19/37] usb: core: hub: disable autosuspend for TI TUSB8041
 Date:   Sun, 22 Jan 2023 16:04:16 +0100
-Message-Id: <20230122150252.114970636@linuxfoundation.org>
+Message-Id: <20230122150220.372091214@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.1
-In-Reply-To: <20230122150246.321043584@linuxfoundation.org>
-References: <20230122150246.321043584@linuxfoundation.org>
+In-Reply-To: <20230122150219.557984692@linuxfoundation.org>
+References: <20230122150219.557984692@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
         DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
-        SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no
-        version=3.4.6
+        SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=unavailable
+        autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Matthew Howell <matthew.howell@sealevel.com>
+From: Flavio Suligoi <f.suligoi@asem.it>
 
-commit 14ee78d5932afeb710c8305196a676a715bfdea8 upstream.
+commit 7171b0e261b17de96490adf053b8bb4b00061bcf upstream.
 
-Add support for Sealevel 7xxxC serial cards.
+The Texas Instruments TUSB8041 has an autosuspend problem at high
+temperature.
 
-This patch:
-* Adds IDs to recognize 7xxxC cards from Sealevel Systems.
-* Updates exar_pci_probe() to set nr_ports to last two bytes of primary
-  dev ID for these cards.
+If there is not USB traffic, after a couple of ms, the device enters in
+autosuspend mode. In this condition the external clock stops working, to
+save energy. When the USB activity turns on, ther hub exits the
+autosuspend state, the clock starts running again and all works fine.
 
-Signed-off-by: Matthew Howell <matthew.howell@sealevel.com>
+At ambient temperature all works correctly, but at high temperature,
+when the USB activity turns on, the external clock doesn't restart and
+the hub disappears from the USB bus.
+
+Disabling the autosuspend mode for this hub solves the issue.
+
+Signed-off-by: Flavio Suligoi <f.suligoi@asem.it>
 Cc: stable <stable@kernel.org>
-Link: https://lore.kernel.org/r/alpine.DEB.2.21.2301191440010.22558@tstest-VirtualBox
+Acked-by: Alan Stern <stern@rowland.harvard.edu>
+Link: https://lore.kernel.org/r/20221219124759.3207032-1-f.suligoi@asem.it
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/tty/serial/8250/8250_exar.c |   14 ++++++++++++++
- 1 file changed, 14 insertions(+)
+ drivers/usb/core/hub.c |   13 +++++++++++++
+ 1 file changed, 13 insertions(+)
 
---- a/drivers/tty/serial/8250/8250_exar.c
-+++ b/drivers/tty/serial/8250/8250_exar.c
-@@ -43,6 +43,12 @@
- #define PCI_DEVICE_ID_EXAR_XR17V4358		0x4358
- #define PCI_DEVICE_ID_EXAR_XR17V8358		0x8358
+--- a/drivers/usb/core/hub.c
++++ b/drivers/usb/core/hub.c
+@@ -40,6 +40,9 @@
+ #define USB_PRODUCT_USB5534B			0x5534
+ #define USB_VENDOR_CYPRESS			0x04b4
+ #define USB_PRODUCT_CY7C65632			0x6570
++#define USB_VENDOR_TEXAS_INSTRUMENTS		0x0451
++#define USB_PRODUCT_TUSB8041_USB3		0x8140
++#define USB_PRODUCT_TUSB8041_USB2		0x8142
+ #define HUB_QUIRK_CHECK_PORT_AUTOSUSPEND	0x01
+ #define HUB_QUIRK_DISABLE_AUTOSUSPEND		0x02
  
-+#define PCI_DEVICE_ID_SEALEVEL_710xC		0x1001
-+#define PCI_DEVICE_ID_SEALEVEL_720xC		0x1002
-+#define PCI_DEVICE_ID_SEALEVEL_740xC		0x1004
-+#define PCI_DEVICE_ID_SEALEVEL_780xC		0x1008
-+#define PCI_DEVICE_ID_SEALEVEL_716xC		0x1010
-+
- #define UART_EXAR_INT0		0x80
- #define UART_EXAR_8XMODE	0x88	/* 8X sampling rate select */
- #define UART_EXAR_SLEEP		0x8b	/* Sleep mode */
-@@ -638,6 +644,8 @@ exar_pci_probe(struct pci_dev *pcidev, c
- 		nr_ports = BIT(((pcidev->device & 0x38) >> 3) - 1);
- 	else if (board->num_ports)
- 		nr_ports = board->num_ports;
-+	else if (pcidev->vendor == PCI_VENDOR_ID_SEALEVEL)
-+		nr_ports = pcidev->device & 0xff;
- 	else
- 		nr_ports = pcidev->device & 0x0f;
- 
-@@ -864,6 +872,12 @@ static const struct pci_device_id exar_p
- 	EXAR_DEVICE(COMMTECH, 4224PCI335, pbn_fastcom335_4),
- 	EXAR_DEVICE(COMMTECH, 2324PCI335, pbn_fastcom335_4),
- 	EXAR_DEVICE(COMMTECH, 2328PCI335, pbn_fastcom335_8),
-+
-+	EXAR_DEVICE(SEALEVEL, 710xC, pbn_exar_XR17V35x),
-+	EXAR_DEVICE(SEALEVEL, 720xC, pbn_exar_XR17V35x),
-+	EXAR_DEVICE(SEALEVEL, 740xC, pbn_exar_XR17V35x),
-+	EXAR_DEVICE(SEALEVEL, 780xC, pbn_exar_XR17V35x),
-+	EXAR_DEVICE(SEALEVEL, 716xC, pbn_exar_XR17V35x),
- 	{ 0, }
- };
- MODULE_DEVICE_TABLE(pci, exar_pci_tbl);
+@@ -5515,6 +5518,16 @@ static const struct usb_device_id hub_id
+       .idVendor = USB_VENDOR_GENESYS_LOGIC,
+       .bInterfaceClass = USB_CLASS_HUB,
+       .driver_info = HUB_QUIRK_CHECK_PORT_AUTOSUSPEND},
++    { .match_flags = USB_DEVICE_ID_MATCH_VENDOR
++			| USB_DEVICE_ID_MATCH_PRODUCT,
++      .idVendor = USB_VENDOR_TEXAS_INSTRUMENTS,
++      .idProduct = USB_PRODUCT_TUSB8041_USB2,
++      .driver_info = HUB_QUIRK_DISABLE_AUTOSUSPEND},
++    { .match_flags = USB_DEVICE_ID_MATCH_VENDOR
++			| USB_DEVICE_ID_MATCH_PRODUCT,
++      .idVendor = USB_VENDOR_TEXAS_INSTRUMENTS,
++      .idProduct = USB_PRODUCT_TUSB8041_USB3,
++      .driver_info = HUB_QUIRK_DISABLE_AUTOSUSPEND},
+     { .match_flags = USB_DEVICE_ID_MATCH_DEV_CLASS,
+       .bDeviceClass = USB_CLASS_HUB},
+     { .match_flags = USB_DEVICE_ID_MATCH_INT_CLASS,
 
 
