@@ -2,134 +2,114 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 50BC8676C2C
-	for <lists+stable@lfdr.de>; Sun, 22 Jan 2023 11:54:52 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E0806676C2D
+	for <lists+stable@lfdr.de>; Sun, 22 Jan 2023 11:57:21 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229687AbjAVKyu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 22 Jan 2023 05:54:50 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59100 "EHLO
+        id S229704AbjAVK5T (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 22 Jan 2023 05:57:19 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59152 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229675AbjAVKyt (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 22 Jan 2023 05:54:49 -0500
-Received: from mail-pj1-x102a.google.com (mail-pj1-x102a.google.com [IPv6:2607:f8b0:4864:20::102a])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7251C16AC5
-        for <stable@vger.kernel.org>; Sun, 22 Jan 2023 02:54:47 -0800 (PST)
-Received: by mail-pj1-x102a.google.com with SMTP id x2-20020a17090a46c200b002295ca9855aso12956422pjg.2
-        for <stable@vger.kernel.org>; Sun, 22 Jan 2023 02:54:47 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20210112.gappssmtp.com; s=20210112;
-        h=from:to:subject:content-transfer-encoding:mime-version:date
-         :message-id:from:to:cc:subject:date:message-id:reply-to;
-        bh=1sa0uidK0TUNnth6t6B0zLrX9LrvGTH3ERKSPwhaTPw=;
-        b=EmpWT6kgNXHirQVzrbebJ9NFwJjeQy4RBIJnt4IN66bDZKXhItNG0X3Tw8pwRMG7dQ
-         +O324NYyMCNx9Uc91Gds/Ua4kmSvdix5OCQgg3UTNaee7x4STHhMXk+Sy+QCw1kVzoLS
-         SQUkMI/LKW2YXVS1E1juUdzUwSPOlJAm3r0ZIj8hyVqrJE+bVi162zeYCJwOe7DxcjcF
-         tFdcU9phJuUast0oRseES86LLum8TEwzFCLI+/T0bjbqvzeqj6pbFlcDqvqgY+1qwE81
-         IXsusIEI3ROo7HNdsxfxh0WxTCpo1zYT1i8DZZTkiPkw3lwZ7EC2ZGbtmOwgMAhDjP5+
-         IXTw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=from:to:subject:content-transfer-encoding:mime-version:date
-         :message-id:x-gm-message-state:from:to:cc:subject:date:message-id
-         :reply-to;
-        bh=1sa0uidK0TUNnth6t6B0zLrX9LrvGTH3ERKSPwhaTPw=;
-        b=aGQneyKNfjEEOCfYapP2GqeN2f+M9SLEefdhwOlkBUjlRmV1eKvbJQm5gXzCefSReR
-         bXzeswlQCQ8UYyn3+YUcq/16HYuWYE5GqM5GdBwUfx/Lg/imsMJ/Y+1NOlA0GHxOCifA
-         TxgwIaMJxj3xCaG3dPANyqgR8K8Y0mEbnxSyFEj9cTDN6OXEENADwzPf8kR7nrBYXGYL
-         31rGgPU5U9dgd4uKLtJBClSZ+D2DBXovX5lVCCq3QXlGJLca1Q1FX2qbocMGdNxEkH68
-         imHT+ISpG1NlvnPvgpSG9S3vUdzmal9TwWcrHibjGU5cDLbIfR7JC721V+5LVy2KyKIa
-         iO6Q==
-X-Gm-Message-State: AFqh2kpcqCkE1F7jL1+VFMrjqkD9fhvjpp2JebAOtESed8wEaKrKONYr
-        hIjCXMqvozOIMW4spBSz1wZuc8XU30Hn1ig1ozo=
-X-Google-Smtp-Source: AMrXdXuSeuBsWXQsY695ubnqPoNs+goui4LE69gEQ+NoKntInoS5EZpGpOCZ3M3zj3y7WOR64msR/A==
-X-Received: by 2002:a05:6a20:c18f:b0:a3:ca9a:ff82 with SMTP id bg15-20020a056a20c18f00b000a3ca9aff82mr25051032pzb.61.1674384886756;
-        Sun, 22 Jan 2023 02:54:46 -0800 (PST)
-Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id v18-20020a634812000000b00478162d9923sm13136604pga.13.2023.01.22.02.54.46
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sun, 22 Jan 2023 02:54:46 -0800 (PST)
-Message-ID: <63cd15f6.630a0220.1d119.3b53@mx.google.com>
-Date:   Sun, 22 Jan 2023 02:54:46 -0800 (PST)
-Content-Type: text/plain; charset="utf-8"
-MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Tree: stable-rc
-X-Kernelci-Branch: queue/5.15
-X-Kernelci-Kernel: v5.15.87-142-g39a39be2e804
-X-Kernelci-Report-Type: test
-Subject: stable-rc/queue/5.15 baseline: 153 runs,
- 1 regressions (v5.15.87-142-g39a39be2e804)
-To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
-        kernelci-results@groups.io
-From:   "kernelci.org bot" <bot@kernelci.org>
-X-Spam-Status: No, score=-1.9 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_NONE,URIBL_BLOCKED
-        autolearn=ham autolearn_force=no version=3.4.6
+        with ESMTP id S229675AbjAVK5T (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 22 Jan 2023 05:57:19 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5BD4816AC3;
+        Sun, 22 Jan 2023 02:57:18 -0800 (PST)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id EAB2E60B9C;
+        Sun, 22 Jan 2023 10:57:17 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5279DC433D2;
+        Sun, 22 Jan 2023 10:57:17 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1674385037;
+        bh=3R2QIG0GAZjYI+AZGuoUxJ1oHchv1SGVDssxjaQpTsQ=;
+        h=Date:From:To:Cc:Subject:In-Reply-To:References:From;
+        b=q2oMDh9u4SqA/3uk1b/pZZKi3viRcSffJYZJG/m0ZxWVX9uqjG6q5j/yqH3z+CBuJ
+         6JXWvbzv9+GldbRoVuVFmhYkJmYfaKMchdGxrra3zEBw9gSE2ATmPNeLT5uNYLVs7o
+         0M/qMEJUdn6sVEDLQq6daAbKPjSNBtLeY+jcv6Bx5sMlarjwUfnnkIqP5Q5cA//u4k
+         6bdE8eqnCV6ddeL2777FLpU+d1fOLAhXr/biHra01Z0zZ5HVX9vxylY+FPd5fJXpY1
+         RfMTsfrjsf8a6wpZCsC0lxiTxTxGF6YU1M6Toq1coPxRTm89tXG03BTdFqzbOX44N6
+         zkLtxtnZ5O3OQ==
+Received: from sofa.misterjones.org ([185.219.108.64] helo=goblin-girl.misterjones.org)
+        by disco-boy.misterjones.org with esmtpsa  (TLS1.3) tls TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384
+        (Exim 4.95)
+        (envelope-from <maz@kernel.org>)
+        id 1pJY2E-003kCk-Tw;
+        Sun, 22 Jan 2023 10:57:15 +0000
+Date:   Sun, 22 Jan 2023 10:57:14 +0000
+Message-ID: <86fsc2n8fp.wl-maz@kernel.org>
+From:   Marc Zyngier <maz@kernel.org>
+To:     Leon Romanovsky <leon@kernel.org>
+Cc:     Alexander Shishkin <alexander.shishkin@linux.intel.com>,
+        Bjorn Helgaas <bhelgaas@google.com>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        linux-pci@vger.kernel.org, linux-kernel@vger.kernel.org,
+        darwi@linutronix.de, elena.reshetova@intel.com,
+        kirill.shutemov@linux.intel.com,
+        Mika Westerberg <mika.westerberg@linux.intel.com>,
+        stable@vger.kernel.org
+Subject: Re: [PATCH 1/2] PCI/MSI: Cache the MSIX table size
+In-Reply-To: <Y8z7FPcuDXDBi+1U@unreal>
+References: <20230119170633.40944-1-alexander.shishkin@linux.intel.com>
+        <20230119170633.40944-2-alexander.shishkin@linux.intel.com>
+        <Y8z7FPcuDXDBi+1U@unreal>
+User-Agent: Wanderlust/2.15.9 (Almost Unreal) SEMI-EPG/1.14.7 (Harue)
+ FLIM-LB/1.14.9 (=?UTF-8?B?R29qxY0=?=) APEL-LB/10.8 EasyPG/1.0.0 Emacs/28.2
+ (aarch64-unknown-linux-gnu) MULE/6.0 (HANACHIRUSATO)
+MIME-Version: 1.0 (generated by SEMI-EPG 1.14.7 - "Harue")
+Content-Type: text/plain; charset=US-ASCII
+X-SA-Exim-Connect-IP: 185.219.108.64
+X-SA-Exim-Rcpt-To: leon@kernel.org, alexander.shishkin@linux.intel.com, bhelgaas@google.com, tglx@linutronix.de, linux-pci@vger.kernel.org, linux-kernel@vger.kernel.org, darwi@linutronix.de, elena.reshetova@intel.com, kirill.shutemov@linux.intel.com, mika.westerberg@linux.intel.com, stable@vger.kernel.org
+X-SA-Exim-Mail-From: maz@kernel.org
+X-SA-Exim-Scanned: No (on disco-boy.misterjones.org); SAEximRunCond expanded to false
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+        SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/queue/5.15 baseline: 153 runs, 1 regressions (v5.15.87-142-g39a39=
-be2e804)
+On Sun, 22 Jan 2023 09:00:04 +0000,
+Leon Romanovsky <leon@kernel.org> wrote:
+> 
+> On Thu, Jan 19, 2023 at 07:06:32PM +0200, Alexander Shishkin wrote:
+> > A malicious device can change its MSIX table size between the table
+> > ioremap() and subsequent accesses, resulting in a kernel page fault in
+> > pci_write_msg_msix().
+> > 
+> > To avoid this, cache the table size observed at the moment of table
+> > ioremap() and use the cached value. This, however, does not help drivers
+> > that peek at the PCIE_MSIX_FLAGS register directly.
+> > 
+> > Signed-off-by: Alexander Shishkin <alexander.shishkin@linux.intel.com>
+> > Reviewed-by: Mika Westerberg <mika.westerberg@linux.intel.com>
+> > Cc: stable@vger.kernel.org
+> > ---
+> >  drivers/pci/msi/api.c | 7 ++++++-
+> >  drivers/pci/msi/msi.c | 2 +-
+> >  include/linux/pci.h   | 1 +
+> >  3 files changed, 8 insertions(+), 2 deletions(-)
+> 
+> I'm not security expert here, but not sure that this protects from anything.
+> 1. Kernel relies on working and not-malicious HW. There are gazillion ways
+> to cause crashes other than changing MSI-X.
+> 2. Device can report large table size, kernel will cache it and
+> malicious device will reduce it back. It is not handled and will cause
+> to kernel crash too.
+> 
 
-Regressions Summary
--------------------
+Indeed, this was my exact reaction reading this patch. This only makes
+sure the same (potentially wrong) value is used at all times. So while
+this results in a consistent use, this doesn't give much guarantee.
 
-platform        | arch  | lab           | compiler | defconfig             =
-     | regressions
-----------------+-------+---------------+----------+-----------------------=
------+------------
-mt8173-elm-hana | arm64 | lab-collabora | gcc-10   | defconfig+arm64-chrome=
-book | 1          =
+The only way to deal with this is to actually handle the resulting
+fault, similar to what the kernel does when accessing userspace. Not
+sure how possible this is with something like PCIe.
 
+	M.
 
-  Details:  https://kernelci.org/test/job/stable-rc/branch/queue%2F5.15/ker=
-nel/v5.15.87-142-g39a39be2e804/plan/baseline/
-
-  Test:     baseline
-  Tree:     stable-rc
-  Branch:   queue/5.15
-  Describe: v5.15.87-142-g39a39be2e804
-  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
-able-rc.git
-  SHA:      39a39be2e804deb6f673fdc889b0255676ec4b7d =
-
-
-
-Test Regressions
----------------- =
-
-
-
-platform        | arch  | lab           | compiler | defconfig             =
-     | regressions
-----------------+-------+---------------+----------+-----------------------=
------+------------
-mt8173-elm-hana | arm64 | lab-collabora | gcc-10   | defconfig+arm64-chrome=
-book | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/63cce183743a3a5b29915f6b
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: defconfig+arm64-chromebook
-  Compiler:    gcc-10 (aarch64-linux-gnu-gcc (Debian 10.2.1-6) 10.2.1 20210=
-110)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.15/v5.15.87-=
-142-g39a39be2e804/arm64/defconfig+arm64-chromebook/gcc-10/lab-collabora/bas=
-eline-mt8173-elm-hana.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.15/v5.15.87-=
-142-g39a39be2e804/arm64/defconfig+arm64-chromebook/gcc-10/lab-collabora/bas=
-eline-mt8173-elm-hana.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
-t-baseline/20230114.0/arm64/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/63cce183743a3a5b29915=
-f6c
-        new failure (last pass: v5.15.87-121-gd2741f8eca76) =
-
- =20
+-- 
+Without deviation from the norm, progress is not possible.
