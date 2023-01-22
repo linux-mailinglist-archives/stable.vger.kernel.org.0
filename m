@@ -2,45 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id EE9A6676E6E
-	for <lists+stable@lfdr.de>; Sun, 22 Jan 2023 16:10:29 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 066BA676F35
+	for <lists+stable@lfdr.de>; Sun, 22 Jan 2023 16:18:55 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230314AbjAVPK3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 22 Jan 2023 10:10:29 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37072 "EHLO
+        id S231185AbjAVPSy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 22 Jan 2023 10:18:54 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46170 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230318AbjAVPK2 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 22 Jan 2023 10:10:28 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A0A3E1F5D4
-        for <stable@vger.kernel.org>; Sun, 22 Jan 2023 07:10:27 -0800 (PST)
+        with ESMTP id S231190AbjAVPSx (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 22 Jan 2023 10:18:53 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3394E20058
+        for <stable@vger.kernel.org>; Sun, 22 Jan 2023 07:18:52 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 521E5B80B1A
-        for <stable@vger.kernel.org>; Sun, 22 Jan 2023 15:10:26 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A6F64C433D2;
-        Sun, 22 Jan 2023 15:10:24 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id C44CD60C44
+        for <stable@vger.kernel.org>; Sun, 22 Jan 2023 15:18:51 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D58F2C433EF;
+        Sun, 22 Jan 2023 15:18:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1674400225;
-        bh=VBItf0BVoIqFJCVDG/J3cxr/q4AQ74/Ft/5P4TGHYRw=;
+        s=korg; t=1674400731;
+        bh=CFquInsX83ihdkED640eDZhbLj7tnZCIomswIgXKaa4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=K/9solLDoajR0I2QPkPOIQHzf3jzwHvN5EvubJfVcQpD6pIdgJtzIKzw3Lo1MKjBl
-         Jo3h0Eex1Dpuwm7sXLgm3gp+sNe4oE3ffZ8anT6pvouN7ONhyuTMUEI6b50LupNluQ
-         LJHK7FF54VdPfqGMcZnTm2jnVTofwTYPPJp0AuUM=
+        b=0uV+mlnQmaocHg/P6zQ28g6dSd8rWXT/FnmUxqtQpx0QFid3YH6HA5Oy1IVWfcA9J
+         CFAjJKOxKpOIWD60aQWQRjy0Hir1vPy1+9lXgJ+YvdKL+xd+tdZbmQRXwnOdpAbbSM
+         e6INN6quYM1ZilxjEDlwNhw81/6tRW2lwml7Jsrw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, YingChi Long <me@inclyc.cn>,
-        Borislav Petkov <bp@suse.de>,
-        Nick Desaulniers <ndesaulniers@google.com>,
-        Nathan Chancellor <nathan@kernel.org>
-Subject: [PATCH 5.4 50/55] x86/fpu: Use _Alignof to avoid undefined behavior in TYPE_ALIGN
+        patches@lists.linux.dev, Peter Harliman Liem <pliem@maxlinear.com>,
+        Vinod Koul <vkoul@kernel.org>
+Subject: [PATCH 5.15 087/117] dmaengine: lgm: Move DT parsing after initialization
 Date:   Sun, 22 Jan 2023 16:04:37 +0100
-Message-Id: <20230122150224.248841324@linuxfoundation.org>
+Message-Id: <20230122150236.406138196@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.1
-In-Reply-To: <20230122150222.210885219@linuxfoundation.org>
-References: <20230122150222.210885219@linuxfoundation.org>
+In-Reply-To: <20230122150232.736358800@linuxfoundation.org>
+References: <20230122150232.736358800@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,63 +53,66 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: YingChi Long <me@inclyc.cn>
+From: Peter Harliman Liem <pliem@maxlinear.com>
 
-commit 55228db2697c09abddcb9487c3d9fa5854a932cd upstream.
+commit 96b3bb18f6cbe259ef4e0bed3135911b7e8d2af5 upstream.
 
-WG14 N2350 specifies that it is an undefined behavior to have type
-definitions within offsetof", see
+ldma_cfg_init() will parse DT to retrieve certain configs.
+However, that is called before ldma_dma_init_vXX(), which
+will make some initialization to channel configs. It will
+thus incorrectly overwrite certain configs that are declared
+in DT.
 
-  https://www.open-std.org/jtc1/sc22/wg14/www/docs/n2350.htm
+To fix that, we move DT parsing after initialization.
+Function name is renamed to better represent what it does.
 
-This specification is also part of C23.
-
-Therefore, replace the TYPE_ALIGN macro with the _Alignof builtin to
-avoid undefined behavior. (_Alignof itself is C11 and the kernel is
-built with -gnu11).
-
-ISO C11 _Alignof is subtly different from the GNU C extension
-__alignof__. Latter is the preferred alignment and _Alignof the
-minimal alignment. For long long on x86 these are 8 and 4
-respectively.
-
-The macro TYPE_ALIGN's behavior matches _Alignof rather than
-__alignof__.
-
-  [ bp: Massage commit message. ]
-
-Signed-off-by: YingChi Long <me@inclyc.cn>
-Signed-off-by: Borislav Petkov <bp@suse.de>
-Reviewed-by: Nick Desaulniers <ndesaulniers@google.com>
-Link: https://lore.kernel.org/r/20220925153151.2467884-1-me@inclyc.cn
-Signed-off-by: Nathan Chancellor <nathan@kernel.org>
+Fixes: 32d31c79a1a4 ("dmaengine: Add Intel LGM SoC DMA support.")
+Signed-off-by: Peter Harliman Liem <pliem@maxlinear.com>
+Cc: stable@vger.kernel.org
+Link: https://lore.kernel.org/r/afef6fc1ed20098b684e0d53737d69faf63c125f.1672887183.git.pliem@maxlinear.com
+Signed-off-by: Vinod Koul <vkoul@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/x86/kernel/fpu/init.c |    7 ++-----
- 1 file changed, 2 insertions(+), 5 deletions(-)
+ drivers/dma/lgm/lgm-dma.c | 10 +++++-----
+ 1 file changed, 5 insertions(+), 5 deletions(-)
 
---- a/arch/x86/kernel/fpu/init.c
-+++ b/arch/x86/kernel/fpu/init.c
-@@ -139,9 +139,6 @@ static void __init fpu__init_system_gene
- unsigned int fpu_kernel_xstate_size;
- EXPORT_SYMBOL_GPL(fpu_kernel_xstate_size);
+diff --git a/drivers/dma/lgm/lgm-dma.c b/drivers/dma/lgm/lgm-dma.c
+index 9b9184f964be..1709d159af7e 100644
+--- a/drivers/dma/lgm/lgm-dma.c
++++ b/drivers/dma/lgm/lgm-dma.c
+@@ -914,7 +914,7 @@ static void ldma_dev_init(struct ldma_dev *d)
+ 	}
+ }
  
--/* Get alignment of the TYPE. */
--#define TYPE_ALIGN(TYPE) offsetof(struct { char x; TYPE test; }, test)
+-static int ldma_cfg_init(struct ldma_dev *d)
++static int ldma_parse_dt(struct ldma_dev *d)
+ {
+ 	struct fwnode_handle *fwnode = dev_fwnode(d->dev);
+ 	struct ldma_port *p;
+@@ -1661,10 +1661,6 @@ static int intel_ldma_probe(struct platform_device *pdev)
+ 		p->ldev = d;
+ 	}
+ 
+-	ret = ldma_cfg_init(d);
+-	if (ret)
+-		return ret;
 -
- /*
-  * Enforce that 'MEMBER' is the last field of 'TYPE'.
-  *
-@@ -149,8 +146,8 @@ EXPORT_SYMBOL_GPL(fpu_kernel_xstate_size
-  * because that's how C aligns structs.
-  */
- #define CHECK_MEMBER_AT_END_OF(TYPE, MEMBER) \
--	BUILD_BUG_ON(sizeof(TYPE) != ALIGN(offsetofend(TYPE, MEMBER), \
--					   TYPE_ALIGN(TYPE)))
-+	BUILD_BUG_ON(sizeof(TYPE) !=         \
-+		     ALIGN(offsetofend(TYPE, MEMBER), _Alignof(TYPE)))
+ 	dma_dev->dev = &pdev->dev;
  
- /*
-  * We append the 'struct fpu' to the task_struct:
+ 	ch_mask = (unsigned long)d->channels_mask;
+@@ -1675,6 +1671,10 @@ static int intel_ldma_probe(struct platform_device *pdev)
+ 			ldma_dma_init_v3X(j, d);
+ 	}
+ 
++	ret = ldma_parse_dt(d);
++	if (ret)
++		return ret;
++
+ 	dma_dev->device_alloc_chan_resources = ldma_alloc_chan_resources;
+ 	dma_dev->device_free_chan_resources = ldma_free_chan_resources;
+ 	dma_dev->device_terminate_all = ldma_terminate_all;
+-- 
+2.39.1
+
 
 
