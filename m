@@ -2,46 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id BF195676E6F
-	for <lists+stable@lfdr.de>; Sun, 22 Jan 2023 16:10:30 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9338F676F36
+	for <lists+stable@lfdr.de>; Sun, 22 Jan 2023 16:18:58 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230306AbjAVPK3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 22 Jan 2023 10:10:29 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37076 "EHLO
+        id S231192AbjAVPS6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 22 Jan 2023 10:18:58 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46208 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230316AbjAVPK3 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 22 Jan 2023 10:10:29 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8747D1F5F8
-        for <stable@vger.kernel.org>; Sun, 22 Jan 2023 07:10:28 -0800 (PST)
+        with ESMTP id S231190AbjAVPS5 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 22 Jan 2023 10:18:57 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A3E4A1F905
+        for <stable@vger.kernel.org>; Sun, 22 Jan 2023 07:18:56 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 2269660C48
-        for <stable@vger.kernel.org>; Sun, 22 Jan 2023 15:10:28 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 39D98C433EF;
-        Sun, 22 Jan 2023 15:10:27 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 5595EB80B11
+        for <stable@vger.kernel.org>; Sun, 22 Jan 2023 15:18:55 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id AC6EEC433EF;
+        Sun, 22 Jan 2023 15:18:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1674400227;
-        bh=miA55B19ju0OKx3G1ZACraw4D8LIV/I615dMSTfi5qI=;
+        s=korg; t=1674400734;
+        bh=AGgRiUxW2WyNCtHhWR74Vkmi6U0/r3HGGNQR/DzksRw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=fBHrLCB4MjybP2+TD2/JDa9lCJUo2WeHWHOfSK2TggzjtB5bJ/QzMP4v3MX+jY06M
-         Wr2lX1J2ynPl3l7UWL/Tqbv0dNvLOn0ZvDR28BYZpMJyZrNqGjAvycb60lxORH6oKR
-         NOLfi4xsaVPbeOE5I/G7m+Ixw5GoxEvdefkDcdT4=
+        b=XfGCxSFsNX9NxDRqGvPSQHJK5t6L8wcDc0/3kAFS0Mu47j47F2kVmdewIMDtlKDhb
+         w9KYw7iWv5LaIM+T/NYlrh+0KKtG3ryv9r/1i+VLBae8H+btDtNldilmlbJU9Qt5I+
+         BLPOe/s56XAAX9O0qIlVjv5Nh33FD1ki7bv0qzpc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Tom Saeger <tom.saeger@oracle.com>,
-        Dennis Gilmore <dennis@ausil.us>,
-        Ard Biesheuvel <ardb@kernel.org>,
-        Masahiro Yamada <masahiroy@kernel.org>,
-        Palmer Dabbelt <palmer@rivosinc.com>
-Subject: [PATCH 5.4 51/55] arch: fix broken BuildID for arm64 and riscv
+        patches@lists.linux.dev, Mohan Kumar <mkumard@nvidia.com>,
+        Vinod Koul <vkoul@kernel.org>
+Subject: [PATCH 5.15 088/117] dmaengine: tegra210-adma: fix global intr clear
 Date:   Sun, 22 Jan 2023 16:04:38 +0100
-Message-Id: <20230122150224.300021074@linuxfoundation.org>
+Message-Id: <20230122150236.453966941@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.1
-In-Reply-To: <20230122150222.210885219@linuxfoundation.org>
-References: <20230122150222.210885219@linuxfoundation.org>
+In-Reply-To: <20230122150232.736358800@linuxfoundation.org>
+References: <20230122150232.736358800@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,56 +53,33 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Masahiro Yamada <masahiroy@kernel.org>
+From: Mohan Kumar <mkumard@nvidia.com>
 
-commit 99cb0d917ffa1ab628bb67364ca9b162c07699b1 upstream.
+commit 9c7e355ccbb33d239360c876dbe49ad5ade65b47 upstream.
 
-Dennis Gilmore reports that the BuildID is missing in the arm64 vmlinux
-since commit 994b7ac1697b ("arm64: remove special treatment for the
-link order of head.o").
+The current global interrupt clear programming register offset
+was not correct. Fix the programming with right offset
 
-The issue is that the type of .notes section, which contains the BuildID,
-changed from NOTES to PROGBITS.
-
-Ard Biesheuvel figured out that whichever object gets linked first gets
-to decide the type of a section. The PROGBITS type is the result of the
-compiler emitting .note.GNU-stack as PROGBITS rather than NOTE.
-
-While Ard provided a fix for arm64, I want to fix this globally because
-the same issue is happening on riscv since commit 2348e6bf4421 ("riscv:
-remove special treatment for the link order of head.o"). This problem
-will happen in general for other architectures if they start to drop
-unneeded entries from scripts/head-object-list.txt.
-
-Discard .note.GNU-stack in include/asm-generic/vmlinux.lds.h.
-
-Link: https://lore.kernel.org/lkml/CAABkxwuQoz1CTbyb57n0ZX65eSYiTonFCU8-LCQc=74D=xE=rA@mail.gmail.com/
-Fixes: 994b7ac1697b ("arm64: remove special treatment for the link order of head.o")
-Fixes: 2348e6bf4421 ("riscv: remove special treatment for the link order of head.o")
-Cc: Tom Saeger <tom.saeger@oracle.com>
-Reported-by: Dennis Gilmore <dennis@ausil.us>
-Suggested-by: Ard Biesheuvel <ardb@kernel.org>
-Signed-off-by: Masahiro Yamada <masahiroy@kernel.org>
-Acked-by: Palmer Dabbelt <palmer@rivosinc.com>
+Fixes: ded1f3db4cd6 ("dmaengine: tegra210-adma: prepare for supporting newer Tegra chips")
+Cc: stable@vger.kernel.org
+Signed-off-by: Mohan Kumar <mkumard@nvidia.com>
+Link: https://lore.kernel.org/r/20230102064844.31306-1-mkumard@nvidia.com
+Signed-off-by: Vinod Koul <vkoul@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- include/asm-generic/vmlinux.lds.h |    5 +++++
- 1 file changed, 5 insertions(+)
+ drivers/dma/tegra210-adma.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/include/asm-generic/vmlinux.lds.h
-+++ b/include/asm-generic/vmlinux.lds.h
-@@ -825,7 +825,12 @@
- #define TRACEDATA
- #endif
+--- a/drivers/dma/tegra210-adma.c
++++ b/drivers/dma/tegra210-adma.c
+@@ -224,7 +224,7 @@ static int tegra_adma_init(struct tegra_
+ 	int ret;
  
-+/*
-+ * Discard .note.GNU-stack, which is emitted as PROGBITS by the compiler.
-+ * Otherwise, the type of .notes section would become PROGBITS instead of NOTES.
-+ */
- #define NOTES								\
-+	/DISCARD/ : { *(.note.GNU-stack) }				\
- 	.notes : AT(ADDR(.notes) - LOAD_OFFSET) {			\
- 		__start_notes = .;					\
- 		KEEP(*(.note.*))					\
+ 	/* Clear any interrupts */
+-	tdma_write(tdma, tdma->cdata->global_int_clear, 0x1);
++	tdma_write(tdma, tdma->cdata->ch_base_offset + tdma->cdata->global_int_clear, 0x1);
+ 
+ 	/* Assert soft reset */
+ 	tdma_write(tdma, ADMA_GLOBAL_SOFT_RESET, 0x1);
 
 
