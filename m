@@ -2,45 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 51CE3676FE1
-	for <lists+stable@lfdr.de>; Sun, 22 Jan 2023 16:26:15 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6A4BC676E31
+	for <lists+stable@lfdr.de>; Sun, 22 Jan 2023 16:08:02 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231416AbjAVP0O (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 22 Jan 2023 10:26:14 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54524 "EHLO
+        id S230198AbjAVPIB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 22 Jan 2023 10:08:01 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34264 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231401AbjAVP0N (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 22 Jan 2023 10:26:13 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1066722A3B
-        for <stable@vger.kernel.org>; Sun, 22 Jan 2023 07:26:13 -0800 (PST)
+        with ESMTP id S230192AbjAVPIA (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 22 Jan 2023 10:08:00 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6DC15126FE
+        for <stable@vger.kernel.org>; Sun, 22 Jan 2023 07:07:59 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id A366260C58
-        for <stable@vger.kernel.org>; Sun, 22 Jan 2023 15:26:12 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B395BC433D2;
-        Sun, 22 Jan 2023 15:26:11 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 193F2B80B12
+        for <stable@vger.kernel.org>; Sun, 22 Jan 2023 15:07:58 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7A680C433D2;
+        Sun, 22 Jan 2023 15:07:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1674401172;
-        bh=t/Z7+ErneUWDGtEP5Rl+b+7GWbg3J6FdSLQW39e2nhY=;
+        s=korg; t=1674400076;
+        bh=chzBENqgieb9Qj4TaMoOkUkuMlfujWT0VeSzHm95+QI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ZMPfYhKDm6+fsWFmr/GCM1768QN15JfwYPZ2EIsz/v7cI5B0LMIhVcOt96QWbT5f6
-         DPWl0fSXnNIluH3v76ZLGBqu4EoohSQU9jaCbUxUKK1uD4c6owabCnW6jOYZdHe3L3
-         u23bzBTPuVHNpyGYB9VsQpKxadVqp6678TIty+Wc=
+        b=Fq8NRXEjRS2gV58vVLdmBzQAXC89T19z9Jp72bKBtf9EIfRcUUbaLblFYrfL6NmIy
+         ZnvlEjYyt9hK+kvDwrdixtVvOwwEfgz9hrTUob506aMXU1nMkTACA24apddJl6CXsC
+         zP55ShAqzhz69nFdW7t2cGutjf8ZYzWQnDGxFSg4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Drew Davenport <ddavenport@chromium.org>,
-        =?UTF-8?q?Ville=20Syrj=C3=A4l=C3=A4?= 
-        <ville.syrjala@linux.intel.com>,
-        Rodrigo Vivi <rodrigo.vivi@intel.com>
-Subject: [PATCH 6.1 138/193] drm/i915/display: Check source height is > 0
+        patches@lists.linux.dev,
+        =?UTF-8?q?Ilpo=20J=C3=A4rvinen?= <ilpo.jarvinen@linux.intel.com>
+Subject: [PATCH 4.19 30/37] serial: pch_uart: Pass correct sg to dma_unmap_sg()
 Date:   Sun, 22 Jan 2023 16:04:27 +0100
-Message-Id: <20230122150252.678005975@linuxfoundation.org>
+Message-Id: <20230122150220.806300125@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.1
-In-Reply-To: <20230122150246.321043584@linuxfoundation.org>
-References: <20230122150246.321043584@linuxfoundation.org>
+In-Reply-To: <20230122150219.557984692@linuxfoundation.org>
+References: <20230122150219.557984692@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,34 +53,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Drew Davenport <ddavenport@chromium.org>
+From: Ilpo Järvinen <ilpo.jarvinen@linux.intel.com>
 
-commit 8565c502e7c156d190d8e6d36e443f51b257f165 upstream.
+commit e8914b52e5b024e4af3d810a935fe0805eee8a36 upstream.
 
-The error message suggests that the height of the src rect must be at
-least 1. Reject source with height of 0.
+A local variable sg is used to store scatterlist pointer in
+pch_dma_tx_complete(). The for loop doing Tx byte accounting before
+dma_unmap_sg() alters sg in its increment statement. Therefore, the
+pointer passed into dma_unmap_sg() won't match to the one given to
+dma_map_sg().
 
+To fix the problem, use priv->sg_tx_p directly in dma_unmap_sg()
+instead of the local variable.
+
+Fixes: da3564ee027e ("pch_uart: add multi-scatter processing")
 Cc: stable@vger.kernel.org
-Signed-off-by: Drew Davenport <ddavenport@chromium.org>
-Signed-off-by: Ville Syrjälä <ville.syrjala@linux.intel.com>
-Link: https://patchwork.freedesktop.org/patch/msgid/20221226225246.1.I15dff7bb5a0e485c862eae61a69096caf12ef29f@changeid
-(cherry picked from commit 0fe76b198d482b41771a8d17b45fb726d13083cf)
-Signed-off-by: Rodrigo Vivi <rodrigo.vivi@intel.com>
+Signed-off-by: Ilpo Järvinen <ilpo.jarvinen@linux.intel.com>
+Link: https://lore.kernel.org/r/20230103093435.4396-1-ilpo.jarvinen@linux.intel.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/gpu/drm/i915/display/skl_universal_plane.c |    2 +-
+ drivers/tty/serial/pch_uart.c |    2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/gpu/drm/i915/display/skl_universal_plane.c
-+++ b/drivers/gpu/drm/i915/display/skl_universal_plane.c
-@@ -1620,7 +1620,7 @@ static int skl_check_main_surface(struct
- 	u32 offset;
- 	int ret;
- 
--	if (w > max_width || w < min_width || h > max_height) {
-+	if (w > max_width || w < min_width || h > max_height || h < 1) {
- 		drm_dbg_kms(&dev_priv->drm,
- 			    "requested Y/RGB source size %dx%d outside limits (min: %dx1 max: %dx%d)\n",
- 			    w, h, min_width, max_width, max_height);
+--- a/drivers/tty/serial/pch_uart.c
++++ b/drivers/tty/serial/pch_uart.c
+@@ -792,7 +792,7 @@ static void pch_dma_tx_complete(void *ar
+ 	}
+ 	xmit->tail &= UART_XMIT_SIZE - 1;
+ 	async_tx_ack(priv->desc_tx);
+-	dma_unmap_sg(port->dev, sg, priv->orig_nent, DMA_TO_DEVICE);
++	dma_unmap_sg(port->dev, priv->sg_tx_p, priv->orig_nent, DMA_TO_DEVICE);
+ 	priv->tx_dma_use = 0;
+ 	priv->nent = 0;
+ 	priv->orig_nent = 0;
 
 
