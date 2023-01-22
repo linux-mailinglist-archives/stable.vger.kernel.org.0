@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 186B9676E79
-	for <lists+stable@lfdr.de>; Sun, 22 Jan 2023 16:10:57 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8B9ED676F32
+	for <lists+stable@lfdr.de>; Sun, 22 Jan 2023 16:18:48 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230325AbjAVPK4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 22 Jan 2023 10:10:56 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37378 "EHLO
+        id S231187AbjAVPSr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 22 Jan 2023 10:18:47 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46084 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230326AbjAVPKz (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 22 Jan 2023 10:10:55 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 65ADA1F5DE
-        for <stable@vger.kernel.org>; Sun, 22 Jan 2023 07:10:54 -0800 (PST)
+        with ESMTP id S231186AbjAVPSr (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 22 Jan 2023 10:18:47 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E6D1AA5C6
+        for <stable@vger.kernel.org>; Sun, 22 Jan 2023 07:18:45 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 0245860C61
-        for <stable@vger.kernel.org>; Sun, 22 Jan 2023 15:10:54 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 16EE7C433D2;
-        Sun, 22 Jan 2023 15:10:52 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id A61BFB80B1D
+        for <stable@vger.kernel.org>; Sun, 22 Jan 2023 15:18:44 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id F410FC433EF;
+        Sun, 22 Jan 2023 15:18:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1674400253;
-        bh=WlljdbMggn9jXhgPj4lGprYe0QLD0lechZ7E628n1bA=;
+        s=korg; t=1674400723;
+        bh=1gPbY/mnjbiEWaDYrFB2NlAa80InPf/V3rowh74uoe8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=lkB6cglPRcfxm8cye4sOh9PPJk1hHE0Il91exx8N0IkLyw/7FnU2kjwN8RnKIow2x
-         +pkP6wy6gvX/0JXCdAooY65HUSJwHMidtjqEmEGpmlc2Ut5v3f5q0WD6cY5EWBw8Sm
-         8bnpEAesbvPeLua3l3qarn50H64Mcd4N3FoRzEU4=
+        b=hcLWGs9dH8hZyGRG5VBT/SWdKwoby8D9mLGPZml/Q3YPMT36lR7NtNSbXPzNVja+v
+         gDLcOm21GjZbzfT6GXxPHq1pmxfS0bs1XNZt0KDCb5Oa9Hrt7zXiWG2+jcH4HlIguG
+         iAEIJte3yuSPMDgFgnRbGV7/No0oZStU06MjjT9U=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Sasa Dragic <sasa.dragic@gmail.com>,
-        =?UTF-8?q?Ville=20Syrj=C3=A4l=C3=A4?= 
-        <ville.syrjala@linux.intel.com>,
-        Rodrigo Vivi <rodrigo.vivi@intel.com>
-Subject: [PATCH 5.4 47/55] drm/i915: re-disable RC6p on Sandy Bridge
+        patches@lists.linux.dev, Heiner Kallweit <hkallweit1@gmail.com>,
+        Martin Blumenstingl <martin.blumenstingl@googlemail.com>,
+        Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>,
+        Vinod Koul <vkoul@kernel.org>
+Subject: [PATCH 5.15 084/117] dt-bindings: phy: g12a-usb2-phy: fix compatible string documentation
 Date:   Sun, 22 Jan 2023 16:04:34 +0100
-Message-Id: <20230122150224.116522355@linuxfoundation.org>
+Message-Id: <20230122150236.272134031@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.1
-In-Reply-To: <20230122150222.210885219@linuxfoundation.org>
-References: <20230122150222.210885219@linuxfoundation.org>
+In-Reply-To: <20230122150232.736358800@linuxfoundation.org>
+References: <20230122150232.736358800@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,41 +55,188 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sasa Dragic <sasa.dragic@gmail.com>
+From: Heiner Kallweit <hkallweit1@gmail.com>
 
-commit 67b0b4ed259e425b7eed09da75b42c80682ca003 upstream.
+commit c63835bf1c750c9b3aec1d5c23d811d6375fc23d upstream.
 
-RC6p on Sandy Bridge got re-enabled over time, causing visual glitches
-and GPU hangs.
+The compatible strings in the driver don't have the meson prefix.
+Fix this in the documentation and rename the file accordingly.
 
-Disabled originally in commit 1c8ecf80fdee ("drm/i915: do not enable
-RC6p on Sandy Bridge").
-
-Signed-off-by: Sasa Dragic <sasa.dragic@gmail.com>
-Signed-off-by: Ville Syrjälä <ville.syrjala@linux.intel.com>
-Link: https://patchwork.freedesktop.org/patch/msgid/20221219172927.9603-2-sasa.dragic@gmail.com
-Fixes: fb6db0f5bf1d ("drm/i915: Remove unsafe i915.enable_rc6")
-Fixes: 13c5a577b342 ("drm/i915/gt: Select the deepest available parking mode for rc6")
+Fixes: da86d286cce8 ("dt-bindings: phy: meson-g12a-usb2-phy: convert to yaml")
 Cc: stable@vger.kernel.org
-Reviewed-by: Rodrigo Vivi <rodrigo.vivi@intel.com>
-(cherry picked from commit 0c8a6e9ea232c221976a0670256bd861408d9917)
-Signed-off-by: Rodrigo Vivi <rodrigo.vivi@intel.com>
+Signed-off-by: Heiner Kallweit <hkallweit1@gmail.com>
+Reviewed-by: Martin Blumenstingl <martin.blumenstingl@googlemail.com>
+Reviewed-by: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
+Link: https://lore.kernel.org/r/8d960029-e94d-224b-911f-03e5deb47ebc@gmail.com
+Signed-off-by: Vinod Koul <vkoul@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/gpu/drm/i915/i915_pci.c |    3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ Documentation/devicetree/bindings/phy/amlogic,g12a-usb2-phy.yaml       |   78 ++++++++++
+ Documentation/devicetree/bindings/phy/amlogic,meson-g12a-usb2-phy.yaml |   78 ----------
+ 2 files changed, 78 insertions(+), 78 deletions(-)
+ rename Documentation/devicetree/bindings/phy/{amlogic,meson-g12a-usb2-phy.yaml => amlogic,g12a-usb2-phy.yaml} (85%)
 
---- a/drivers/gpu/drm/i915/i915_pci.c
-+++ b/drivers/gpu/drm/i915/i915_pci.c
-@@ -418,7 +418,8 @@ static const struct intel_device_info in
- 	.has_coherent_ggtt = true, \
- 	.has_llc = 1, \
- 	.has_rc6 = 1, \
--	.has_rc6p = 1, \
-+	/* snb does support rc6p, but enabling it causes various issues */ \
-+	.has_rc6p = 0, \
- 	.has_rps = true, \
- 	.ppgtt_type = INTEL_PPGTT_FULL, \
- 	.ppgtt_size = 31, \
+--- /dev/null
++++ b/Documentation/devicetree/bindings/phy/amlogic,g12a-usb2-phy.yaml
+@@ -0,0 +1,78 @@
++# SPDX-License-Identifier: (GPL-2.0 OR BSD-2-Clause)
++# Copyright 2019 BayLibre, SAS
++%YAML 1.2
++---
++$id: "http://devicetree.org/schemas/phy/amlogic,g12a-usb2-phy.yaml#"
++$schema: "http://devicetree.org/meta-schemas/core.yaml#"
++
++title: Amlogic G12A USB2 PHY
++
++maintainers:
++  - Neil Armstrong <narmstrong@baylibre.com>
++
++properties:
++  compatible:
++    enum:
++      - amlogic,g12a-usb2-phy
++      - amlogic,a1-usb2-phy
++
++  reg:
++    maxItems: 1
++
++  clocks:
++    maxItems: 1
++
++  clock-names:
++    items:
++      - const: xtal
++
++  resets:
++    maxItems: 1
++
++  reset-names:
++    items:
++      - const: phy
++
++  "#phy-cells":
++    const: 0
++
++  phy-supply:
++    description:
++      Phandle to a regulator that provides power to the PHY. This
++      regulator will be managed during the PHY power on/off sequence.
++
++required:
++  - compatible
++  - reg
++  - clocks
++  - clock-names
++  - resets
++  - reset-names
++  - "#phy-cells"
++
++if:
++  properties:
++    compatible:
++      enum:
++        - amlogic,meson-a1-usb-ctrl
++
++then:
++  properties:
++    power-domains:
++      maxItems: 1
++  required:
++    - power-domains
++
++additionalProperties: false
++
++examples:
++  - |
++    phy@36000 {
++          compatible = "amlogic,g12a-usb2-phy";
++          reg = <0x36000 0x2000>;
++          clocks = <&xtal>;
++          clock-names = "xtal";
++          resets = <&phy_reset>;
++          reset-names = "phy";
++          #phy-cells = <0>;
++    };
+--- a/Documentation/devicetree/bindings/phy/amlogic,meson-g12a-usb2-phy.yaml
++++ /dev/null
+@@ -1,78 +0,0 @@
+-# SPDX-License-Identifier: (GPL-2.0 OR BSD-2-Clause)
+-# Copyright 2019 BayLibre, SAS
+-%YAML 1.2
+----
+-$id: "http://devicetree.org/schemas/phy/amlogic,meson-g12a-usb2-phy.yaml#"
+-$schema: "http://devicetree.org/meta-schemas/core.yaml#"
+-
+-title: Amlogic G12A USB2 PHY
+-
+-maintainers:
+-  - Neil Armstrong <narmstrong@baylibre.com>
+-
+-properties:
+-  compatible:
+-    enum:
+-      - amlogic,meson-g12a-usb2-phy
+-      - amlogic,meson-a1-usb2-phy
+-
+-  reg:
+-    maxItems: 1
+-
+-  clocks:
+-    maxItems: 1
+-
+-  clock-names:
+-    items:
+-      - const: xtal
+-
+-  resets:
+-    maxItems: 1
+-
+-  reset-names:
+-    items:
+-      - const: phy
+-
+-  "#phy-cells":
+-    const: 0
+-
+-  phy-supply:
+-    description:
+-      Phandle to a regulator that provides power to the PHY. This
+-      regulator will be managed during the PHY power on/off sequence.
+-
+-required:
+-  - compatible
+-  - reg
+-  - clocks
+-  - clock-names
+-  - resets
+-  - reset-names
+-  - "#phy-cells"
+-
+-if:
+-  properties:
+-    compatible:
+-      enum:
+-        - amlogic,meson-a1-usb-ctrl
+-
+-then:
+-  properties:
+-    power-domains:
+-      maxItems: 1
+-  required:
+-    - power-domains
+-
+-additionalProperties: false
+-
+-examples:
+-  - |
+-    phy@36000 {
+-          compatible = "amlogic,meson-g12a-usb2-phy";
+-          reg = <0x36000 0x2000>;
+-          clocks = <&xtal>;
+-          clock-names = "xtal";
+-          resets = <&phy_reset>;
+-          reset-names = "phy";
+-          #phy-cells = <0>;
+-    };
 
 
