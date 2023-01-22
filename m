@@ -2,44 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D9EAA676FB0
-	for <lists+stable@lfdr.de>; Sun, 22 Jan 2023 16:24:14 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 83DC5676EAB
+	for <lists+stable@lfdr.de>; Sun, 22 Jan 2023 16:13:05 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231345AbjAVPYN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 22 Jan 2023 10:24:13 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52710 "EHLO
+        id S230405AbjAVPNE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 22 Jan 2023 10:13:04 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40460 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231359AbjAVPYM (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 22 Jan 2023 10:24:12 -0500
+        with ESMTP id S230409AbjAVPNC (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 22 Jan 2023 10:13:02 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 576B021A3E
-        for <stable@vger.kernel.org>; Sun, 22 Jan 2023 07:24:10 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C0931166E9
+        for <stable@vger.kernel.org>; Sun, 22 Jan 2023 07:13:00 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id E87A660C44
-        for <stable@vger.kernel.org>; Sun, 22 Jan 2023 15:24:09 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 09782C433EF;
-        Sun, 22 Jan 2023 15:24:08 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 5C9FD60BC5
+        for <stable@vger.kernel.org>; Sun, 22 Jan 2023 15:13:00 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 746B1C433D2;
+        Sun, 22 Jan 2023 15:12:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1674401049;
-        bh=6+oydA1QQfCeAAEYvH07pLG0YQq1u43r+fz0bPThBT0=;
+        s=korg; t=1674400379;
+        bh=adNrw7k6kD0ordoOigc/MIKYYE0ZHPHC0zAFS3NT2Q0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=YdH1+WnvlQjvl4l7afbGn18uffMNQMGf5JF6wZz6X82n0LjqIis8w/40YH8Lm5dYy
-         GfESfvcRbGBRWzDeOVENfKjmy7sdY+Y0XGk+wliv5seVsA8RNJPTohFMwVAsNn3CeJ
-         y1PBbwuOVBqAmJElF+7yErpQFG3YOBB8YiBRqvjM=
+        b=H0lrHSZQveXnE8exx8QwqCWu+F96efVfbX66h4JLDmXhNvjAAf0spduzqGdsB/Wwx
+         J11c9KAiYCBCteBgjUoOvSdvJXbqs/ZXNCWs2FtYoAN/aK7Z1OocphFV1wBqhRX9co
+         eoPufQr8ulrNEQAi6B/RqXtrF1uTPmz1UJ0prXrk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Enzo Matsumiya <ematsumiya@suse.de>,
-        "Paulo Alcantara (SUSE)" <pc@cjr.nz>,
-        Steve French <stfrench@microsoft.com>
-Subject: [PATCH 6.1 090/193] cifs: do not include page data when checking signature
+        patches@lists.linux.dev, Jens Axboe <axboe@kernel.dk>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 23/98] io_uring: add flag for disabling provided buffer recycling
 Date:   Sun, 22 Jan 2023 16:03:39 +0100
-Message-Id: <20230122150250.487225346@linuxfoundation.org>
+Message-Id: <20230122150230.433607255@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.1
-In-Reply-To: <20230122150246.321043584@linuxfoundation.org>
-References: <20230122150246.321043584@linuxfoundation.org>
+In-Reply-To: <20230122150229.351631432@linuxfoundation.org>
+References: <20230122150229.351631432@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,52 +53,60 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Enzo Matsumiya <ematsumiya@suse.de>
+From: Jens Axboe <axboe@kernel.dk>
 
-commit 30b2b2196d6e4cc24cbec633535a2404f258ce69 upstream.
+commit 8a3e8ee56417f5e0e66580d93941ed9d6f4c8274 upstream.
 
-On async reads, page data is allocated before sending.  When the
-response is received but it has no data to fill (e.g.
-STATUS_END_OF_FILE), __calc_signature() will still include the pages in
-its computation, leading to an invalid signature check.
+If we need to continue doing this IO, then we don't want a potentially
+selected buffer recycled. Add a flag for that.
 
-This patch fixes this by not setting the async read smb_rqst page data
-(zeroed by default) if its got_bytes is 0.
+Set this for recv/recvmsg if they do partial IO.
 
-This can be reproduced/verified with xfstests generic/465.
-
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Enzo Matsumiya <ematsumiya@suse.de>
-Reviewed-by: Paulo Alcantara (SUSE) <pc@cjr.nz>
-Signed-off-by: Steve French <stfrench@microsoft.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/cifs/smb2pdu.c |   15 +++++++++------
- 1 file changed, 9 insertions(+), 6 deletions(-)
+ io_uring/io_uring.c | 5 +++++
+ 1 file changed, 5 insertions(+)
 
---- a/fs/cifs/smb2pdu.c
-+++ b/fs/cifs/smb2pdu.c
-@@ -4162,12 +4162,15 @@ smb2_readv_callback(struct mid_q_entry *
- 				(struct smb2_hdr *)rdata->iov[0].iov_base;
- 	struct cifs_credits credits = { .value = 0, .instance = 0 };
- 	struct smb_rqst rqst = { .rq_iov = &rdata->iov[1],
--				 .rq_nvec = 1,
--				 .rq_pages = rdata->pages,
--				 .rq_offset = rdata->page_offset,
--				 .rq_npages = rdata->nr_pages,
--				 .rq_pagesz = rdata->pagesz,
--				 .rq_tailsz = rdata->tailsz };
-+				 .rq_nvec = 1, };
-+
-+	if (rdata->got_bytes) {
-+		rqst.rq_pages = rdata->pages;
-+		rqst.rq_offset = rdata->page_offset;
-+		rqst.rq_npages = rdata->nr_pages;
-+		rqst.rq_pagesz = rdata->pagesz;
-+		rqst.rq_tailsz = rdata->tailsz;
-+	}
+diff --git a/io_uring/io_uring.c b/io_uring/io_uring.c
+index 3d67b9b4100f..7f9fb0cb9230 100644
+--- a/io_uring/io_uring.c
++++ b/io_uring/io_uring.c
+@@ -740,6 +740,7 @@ enum {
+ 	REQ_F_CREDS_BIT,
+ 	REQ_F_REFCOUNT_BIT,
+ 	REQ_F_ARM_LTIMEOUT_BIT,
++	REQ_F_PARTIAL_IO_BIT,
+ 	/* keep async read/write and isreg together and in order */
+ 	REQ_F_NOWAIT_READ_BIT,
+ 	REQ_F_NOWAIT_WRITE_BIT,
+@@ -795,6 +796,8 @@ enum {
+ 	REQ_F_REFCOUNT		= BIT(REQ_F_REFCOUNT_BIT),
+ 	/* there is a linked timeout that has to be armed */
+ 	REQ_F_ARM_LTIMEOUT	= BIT(REQ_F_ARM_LTIMEOUT_BIT),
++	/* request has already done partial IO */
++	REQ_F_PARTIAL_IO	= BIT(REQ_F_PARTIAL_IO_BIT),
+ };
  
- 	WARN_ONCE(rdata->server != mid->server,
- 		  "rdata server %p != mid server %p",
+ struct async_poll {
+@@ -4963,6 +4966,7 @@ static int io_recvmsg(struct io_kiocb *req, unsigned int issue_flags)
+ 			ret = -EINTR;
+ 		if (ret > 0 && io_net_retry(sock, flags)) {
+ 			sr->done_io += ret;
++			req->flags |= REQ_F_PARTIAL_IO;
+ 			return io_setup_async_msg(req, kmsg);
+ 		}
+ 		req_set_fail(req);
+@@ -5036,6 +5040,7 @@ static int io_recv(struct io_kiocb *req, unsigned int issue_flags)
+ 			sr->len -= ret;
+ 			sr->buf += ret;
+ 			sr->done_io += ret;
++			req->flags |= REQ_F_PARTIAL_IO;
+ 			return -EAGAIN;
+ 		}
+ 		req_set_fail(req);
+-- 
+2.39.0
+
 
 
