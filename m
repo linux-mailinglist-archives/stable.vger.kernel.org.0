@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id DDD09676D20
-	for <lists+stable@lfdr.de>; Sun, 22 Jan 2023 14:22:34 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 710E9676D22
+	for <lists+stable@lfdr.de>; Sun, 22 Jan 2023 14:22:44 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229773AbjAVNWe (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 22 Jan 2023 08:22:34 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49764 "EHLO
+        id S229787AbjAVNWn (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 22 Jan 2023 08:22:43 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50114 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229782AbjAVNWd (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 22 Jan 2023 08:22:33 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2EB4216AF8
-        for <stable@vger.kernel.org>; Sun, 22 Jan 2023 05:22:32 -0800 (PST)
+        with ESMTP id S229790AbjAVNWl (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 22 Jan 2023 08:22:41 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B59DC1717B
+        for <stable@vger.kernel.org>; Sun, 22 Jan 2023 05:22:34 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id D01E0B80AD5
-        for <stable@vger.kernel.org>; Sun, 22 Jan 2023 13:22:30 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 257E9C433EF;
-        Sun, 22 Jan 2023 13:22:28 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 63BB9B80AD2
+        for <stable@vger.kernel.org>; Sun, 22 Jan 2023 13:22:33 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C5020C433D2;
+        Sun, 22 Jan 2023 13:22:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1674393749;
-        bh=NQOkGMgv66Ln1DguoMxnRPR0+RclLuBPbgVDVzJbQOg=;
+        s=korg; t=1674393752;
+        bh=fOqy3gB8myPn1V94Du0RxqsKZZH8nLwIt8Vaz10xZqk=;
         h=Subject:To:Cc:From:Date:From;
-        b=C0KiRy6jEDhiiH7Ei0x2bcvwJjF3BIea2DnHjJHmKBwji07ESdhGaBsiPd4H27yFj
-         sDpbE3qS5/bdf1frmiqpgllROuWlK67290aciBu0vyvM+3pFiWxSrEQ6LfpD4vroUf
-         0QCcsgvd0OZvz86cVDSV47qPtxzACEYnLKobffyc=
-Subject: FAILED: patch "[PATCH] mei: bus: fix unlink on bus in error path" failed to apply to 5.4-stable tree
+        b=eUd6ZDWhCaRWs4HYrPqw4qWPH7Nt3FycA3bru71Vv3gB42n75jqJyyn6kGJjiXU5H
+         joZBP3uCFoQDpqEeMFDRSXRV4DrywsHxAwPGhsFUoloyeBspfteb3fGaCRXgGvqWLj
+         FWbLKoJaR1LQ2ri7RDCDxmYtBtG3/2XGlT0ULY0Q=
+Subject: FAILED: patch "[PATCH] mei: bus: fix unlink on bus in error path" failed to apply to 4.19-stable tree
 To:     alexander.usyskin@intel.com, gregkh@linuxfoundation.org,
         stable@vger.kernel.org, tomas.winkler@intel.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Sun, 22 Jan 2023 14:22:22 +0100
-Message-ID: <167439374217330@kroah.com>
+Date:   Sun, 22 Jan 2023 14:22:23 +0100
+Message-ID: <16743937437048@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -49,7 +49,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.4-stable tree.
+The patch below does not apply to the 4.19-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
@@ -59,6 +59,7 @@ Possible dependencies:
 a43866856125 ("mei: bus: fix unlink on bus in error path")
 2cca3465147d ("mei: bus: add client dma interface")
 e5617d2bf549 ("mei: bus: use zero vtag for bus clients.")
+b5958faa34e2 ("mei: bus: move hw module get/put to probe/release")
 
 thanks,
 
