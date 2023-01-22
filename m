@@ -2,43 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 78036676E9B
-	for <lists+stable@lfdr.de>; Sun, 22 Jan 2023 16:12:30 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 76F8A676E47
+	for <lists+stable@lfdr.de>; Sun, 22 Jan 2023 16:08:54 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230387AbjAVPM3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 22 Jan 2023 10:12:29 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39742 "EHLO
+        id S230260AbjAVPIx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 22 Jan 2023 10:08:53 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35112 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230381AbjAVPM2 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 22 Jan 2023 10:12:28 -0500
+        with ESMTP id S230218AbjAVPIv (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 22 Jan 2023 10:08:51 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B999D21A34
-        for <stable@vger.kernel.org>; Sun, 22 Jan 2023 07:12:18 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BF19C1F4BC
+        for <stable@vger.kernel.org>; Sun, 22 Jan 2023 07:08:49 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 9967560C57
-        for <stable@vger.kernel.org>; Sun, 22 Jan 2023 15:12:18 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A9FDAC433EF;
-        Sun, 22 Jan 2023 15:12:17 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 5993060C5F
+        for <stable@vger.kernel.org>; Sun, 22 Jan 2023 15:08:49 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6BF0EC433D2;
+        Sun, 22 Jan 2023 15:08:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1674400338;
-        bh=UB5k2/kq5yrnaowXYFK17WeIPk9j8HG+OisOdzdbC48=;
+        s=korg; t=1674400128;
+        bh=ewHeviZSBgpKeVwNQlDBs6z57Vp9T3BtBhbT0QDBu5M=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=zmtTexu30kIkg9SYaD7Q0oIemkJQ9ww/8hCkulOyCkpRpcoSmA5OFinbmnWoZ4OGZ
-         3q0MrbFWbBxqX9TwQ7ow/z+AfY4+N887iirLWSrzS3V15kkYL1jTDs0/KCwdUQTCFS
-         nlTNn+yebGS1s4lWQeraxQPe1tMte8u8ejbnXdm8=
+        b=vpFQjRnCoLtBOLwlgTQVJkAYFYaAQ4KSL8wRFB+7tV9CyoaO7daWspMQRmkCeqEmN
+         UNglmficEUZt0M7OaaxAQCSWYY7J3wRJRLw72uTmqoGm+ocrajACqFL2YeIbQqYoa9
+         4asKEveF6LQ3ktnMtS+FjTQteURv/to/70dLI9T0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Jimmy Hu <hhhuuu@google.com>,
-        Mathias Nyman <mathias.nyman@linux.intel.com>
-Subject: [PATCH 5.10 36/98] usb: xhci: Check endpoint is valid before dereferencing it
+        patches@lists.linux.dev, Jaegeuk Kim <jaegeuk@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 05/55] f2fs: lets avoid panic if extent_tree is not created
 Date:   Sun, 22 Jan 2023 16:03:52 +0100
-Message-Id: <20230122150231.009770561@linuxfoundation.org>
+Message-Id: <20230122150222.471859853@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.1
-In-Reply-To: <20230122150229.351631432@linuxfoundation.org>
-References: <20230122150229.351631432@linuxfoundation.org>
+In-Reply-To: <20230122150222.210885219@linuxfoundation.org>
+References: <20230122150222.210885219@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,64 +53,70 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jimmy Hu <hhhuuu@google.com>
+From: Jaegeuk Kim <jaegeuk@kernel.org>
 
-commit e8fb5bc76eb86437ab87002d4a36d6da02165654 upstream.
+[ Upstream commit df9d44b645b83fffccfb4e28c1f93376585fdec8 ]
 
-When the host controller is not responding, all URBs queued to all
-endpoints need to be killed. This can cause a kernel panic if we
-dereference an invalid endpoint.
+This patch avoids the below panic.
 
-Fix this by using xhci_get_virt_ep() helper to find the endpoint and
-checking if the endpoint is valid before dereferencing it.
+pc : __lookup_extent_tree+0xd8/0x760
+lr : f2fs_do_write_data_page+0x104/0x87c
+sp : ffffffc010cbb3c0
+x29: ffffffc010cbb3e0 x28: 0000000000000000
+x27: ffffff8803e7f020 x26: ffffff8803e7ed40
+x25: ffffff8803e7f020 x24: ffffffc010cbb460
+x23: ffffffc010cbb480 x22: 0000000000000000
+x21: 0000000000000000 x20: ffffffff22e90900
+x19: 0000000000000000 x18: ffffffc010c5d080
+x17: 0000000000000000 x16: 0000000000000020
+x15: ffffffdb1acdbb88 x14: ffffff888759e2b0
+x13: 0000000000000000 x12: ffffff802da49000
+x11: 000000000a001200 x10: ffffff8803e7ed40
+x9 : ffffff8023195800 x8 : ffffff802da49078
+x7 : 0000000000000001 x6 : 0000000000000000
+x5 : 0000000000000006 x4 : ffffffc010cbba28
+x3 : 0000000000000000 x2 : ffffffc010cbb480
+x1 : 0000000000000000 x0 : ffffff8803e7ed40
+Call trace:
+ __lookup_extent_tree+0xd8/0x760
+ f2fs_do_write_data_page+0x104/0x87c
+ f2fs_write_single_data_page+0x420/0xb60
+ f2fs_write_cache_pages+0x418/0xb1c
+ __f2fs_write_data_pages+0x428/0x58c
+ f2fs_write_data_pages+0x30/0x40
+ do_writepages+0x88/0x190
+ __writeback_single_inode+0x48/0x448
+ writeback_sb_inodes+0x468/0x9e8
+ __writeback_inodes_wb+0xb8/0x2a4
+ wb_writeback+0x33c/0x740
+ wb_do_writeback+0x2b4/0x400
+ wb_workfn+0xe4/0x34c
+ process_one_work+0x24c/0x5bc
+ worker_thread+0x3e8/0xa50
+ kthread+0x150/0x1b4
 
-[233311.853271] xhci-hcd xhci-hcd.1.auto: xHCI host controller not responding, assume dead
-[233311.853393] Unable to handle kernel NULL pointer dereference at virtual address 00000000000000e8
-
-[233311.853964] pc : xhci_hc_died+0x10c/0x270
-[233311.853971] lr : xhci_hc_died+0x1ac/0x270
-
-[233311.854077] Call trace:
-[233311.854085]  xhci_hc_died+0x10c/0x270
-[233311.854093]  xhci_stop_endpoint_command_watchdog+0x100/0x1a4
-[233311.854105]  call_timer_fn+0x50/0x2d4
-[233311.854112]  expire_timers+0xac/0x2e4
-[233311.854118]  run_timer_softirq+0x300/0xabc
-[233311.854127]  __do_softirq+0x148/0x528
-[233311.854135]  irq_exit+0x194/0x1a8
-[233311.854143]  __handle_domain_irq+0x164/0x1d0
-[233311.854149]  gic_handle_irq.22273+0x10c/0x188
-[233311.854156]  el1_irq+0xfc/0x1a8
-[233311.854175]  lpm_cpuidle_enter+0x25c/0x418 [msm_pm]
-[233311.854185]  cpuidle_enter_state+0x1f0/0x764
-[233311.854194]  do_idle+0x594/0x6ac
-[233311.854201]  cpu_startup_entry+0x7c/0x80
-[233311.854209]  secondary_start_kernel+0x170/0x198
-
-Fixes: 50e8725e7c42 ("xhci: Refactor command watchdog and fix split string.")
-Cc: stable@vger.kernel.org
-Signed-off-by: Jimmy Hu <hhhuuu@google.com>
-Signed-off-by: Mathias Nyman <mathias.nyman@linux.intel.com>
-Message-ID: <0fe978ed-8269-9774-1c40-f8a98c17e838@linux.intel.com>
-Link: https://lore.kernel.org/r/20230116142216.1141605-3-mathias.nyman@linux.intel.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Jaegeuk Kim <jaegeuk@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/usb/host/xhci-ring.c |    5 ++++-
- 1 file changed, 4 insertions(+), 1 deletion(-)
+ fs/f2fs/extent_cache.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
---- a/drivers/usb/host/xhci-ring.c
-+++ b/drivers/usb/host/xhci-ring.c
-@@ -1044,7 +1044,10 @@ static void xhci_kill_endpoint_urbs(stru
- 	struct xhci_virt_ep *ep;
- 	struct xhci_ring *ring;
+diff --git a/fs/f2fs/extent_cache.c b/fs/f2fs/extent_cache.c
+index 05b17a741ccc..dd53c9294ad9 100644
+--- a/fs/f2fs/extent_cache.c
++++ b/fs/f2fs/extent_cache.c
+@@ -381,7 +381,8 @@ static bool f2fs_lookup_extent_tree(struct inode *inode, pgoff_t pgofs,
+ 	struct extent_node *en;
+ 	bool ret = false;
  
--	ep = &xhci->devs[slot_id]->eps[ep_index];
-+	ep = xhci_get_virt_ep(xhci, slot_id, ep_index);
-+	if (!ep)
-+		return;
-+
- 	if ((ep->ep_state & EP_HAS_STREAMS) ||
- 			(ep->ep_state & EP_GETTING_NO_STREAMS)) {
- 		int stream_id;
+-	f2fs_bug_on(sbi, !et);
++	if (!et)
++		return false;
+ 
+ 	trace_f2fs_lookup_extent_tree_start(inode, pgofs);
+ 
+-- 
+2.35.1
+
 
 
