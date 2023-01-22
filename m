@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 39223676D03
-	for <lists+stable@lfdr.de>; Sun, 22 Jan 2023 13:54:48 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 22906676D04
+	for <lists+stable@lfdr.de>; Sun, 22 Jan 2023 13:54:53 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229984AbjAVMyr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 22 Jan 2023 07:54:47 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44274 "EHLO
+        id S229764AbjAVMyw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 22 Jan 2023 07:54:52 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44298 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229852AbjAVMyq (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 22 Jan 2023 07:54:46 -0500
-Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 568941E2B0
-        for <stable@vger.kernel.org>; Sun, 22 Jan 2023 04:54:45 -0800 (PST)
+        with ESMTP id S229852AbjAVMyv (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 22 Jan 2023 07:54:51 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 66BDA1E2BA
+        for <stable@vger.kernel.org>; Sun, 22 Jan 2023 04:54:50 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id A4FE1CE0EA3
-        for <stable@vger.kernel.org>; Sun, 22 Jan 2023 12:54:43 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9ED52C433D2;
-        Sun, 22 Jan 2023 12:54:41 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 05BE860BF0
+        for <stable@vger.kernel.org>; Sun, 22 Jan 2023 12:54:50 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1C755C433D2;
+        Sun, 22 Jan 2023 12:54:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1674392082;
-        bh=5kLFtq4TN994kUovRbJGrH3nrnrjhVZZ9lieZp4cKSM=;
+        s=korg; t=1674392089;
+        bh=sE7zEQs/PsAYlnKsVz4Xjugo+OI+O8uD0lMFn+ijElY=;
         h=Subject:To:Cc:From:Date:From;
-        b=B1A1mvimz0UrF9McbR7Yd7wmRQs9JFZa0zwW5PGwm81YvZL+xe6s8ChM3XGSFhwOq
-         ftw8xVAbkr0YascOboQgq/3V0RU6WhzjJKyaccjYSlRFnm1XFnoWvJge2nlF93AVTE
-         /m21bvM82ImlxLWdudllmy2pxyYb3gVIWsu4aG1M=
-Subject: FAILED: patch "[PATCH] btrfs: fix directory logging due to race with concurrent" failed to apply to 5.15-stable tree
+        b=U616OS52JrZPz7rwMq/CQ3BtHETn5k/HiNQ2Iy+sTKXOw4W3gaFd1y/tMz8RV9ZHK
+         9ow0D6JnwfqOCE9WcvzzR79wqISE9S7g5Pq6OMH1MVwC/C2rV1BnwftjMDRjCBj5MV
+         UUUYFbN+V42QaxxeCYwz+ieK+rBBz9qQByYIYzts=
+Subject: FAILED: patch "[PATCH] btrfs: fix directory logging due to race with concurrent" failed to apply to 5.10-stable tree
 To:     fdmanana@suse.com, admin@prnet.org, dsterba@suse.com,
         josef@toxicpanda.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Sun, 22 Jan 2023 13:54:39 +0100
-Message-ID: <167439207915615@kroah.com>
+Date:   Sun, 22 Jan 2023 13:54:41 +0100
+Message-ID: <16743920811357@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -49,7 +49,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.15-stable tree.
+The patch below does not apply to the 5.10-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
@@ -68,6 +68,14 @@ dc2872247ec0 ("btrfs: keep track of the last logged keys when logging a director
 eb10d85ee77f ("btrfs: factor out the copying loop of dir items from log_dir_items()")
 90d04510a774 ("btrfs: remove root argument from btrfs_log_inode() and its callees")
 289cffcb0399 ("btrfs: remove no longer needed checks for NULL log context")
+cfd312695b71 ("btrfs: check for error when looking up inode during dir entry replay")
+8dcbc26194eb ("btrfs: unify lookup return value when dir entry is missing")
+52db77791fe2 ("btrfs: deal with errors when adding inode reference during log replay")
+e15ac6413745 ("btrfs: deal with errors when replaying dir entry during log replay")
+77a5b9e3d14c ("btrfs: deal with errors when checking if a dir entry exists during log replay")
+a7d1c5dc8632 ("btrfs: introduce btrfs_lookup_match_dir")
+b590b839720c ("btrfs: avoid unnecessary logging of xattrs during fast fsyncs")
+54a40fc3a1da ("btrfs: fix removed dentries still existing after log is synced")
 
 thanks,
 
