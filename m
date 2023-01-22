@@ -2,43 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id EE6DF676FBE
-	for <lists+stable@lfdr.de>; Sun, 22 Jan 2023 16:24:51 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 12E09676E9D
+	for <lists+stable@lfdr.de>; Sun, 22 Jan 2023 16:12:34 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231372AbjAVPYu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 22 Jan 2023 10:24:50 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53086 "EHLO
+        id S230390AbjAVPMd (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 22 Jan 2023 10:12:33 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39828 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231367AbjAVPYt (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 22 Jan 2023 10:24:49 -0500
+        with ESMTP id S230389AbjAVPMc (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 22 Jan 2023 10:12:32 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C79241CAC6
-        for <stable@vger.kernel.org>; Sun, 22 Jan 2023 07:24:48 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E4F6920070
+        for <stable@vger.kernel.org>; Sun, 22 Jan 2023 07:12:25 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 80B7DB80B1F
-        for <stable@vger.kernel.org>; Sun, 22 Jan 2023 15:24:47 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D0C2CC433EF;
-        Sun, 22 Jan 2023 15:24:45 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 9F0B5B80B0E
+        for <stable@vger.kernel.org>; Sun, 22 Jan 2023 15:12:24 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0808EC433EF;
+        Sun, 22 Jan 2023 15:12:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1674401086;
-        bh=fQA7eDfceYmFIOTvN/gbYSXqhpGvmXgYZyJpDkV92Fk=;
+        s=korg; t=1674400343;
+        bh=Bylzq69F3gqr6ecMRcSdndUarFc2HSQOiKsXAkPQwfE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=F6fq6Ec7F13YkYSBm6vz/iVHV2HPfPbHRZJDroL86yqX8yVSVZGikgi33ISmub5G+
-         vk5aY3yIxjDuWB39CpIowdmXeARxh7A1qr8bNqy8eVAbosHSgmCG9E0vVJ0zAaLpsJ
-         RAMFvW6JQ/00oHXq/OhoIiaF6wjSXbqwdX/L0fsM=
+        b=f1x4BmlDHXq07u4Ikr/+eIAgw5I1lExf7xfl9N8ZtJoBDZyYpJWHoKBqSx9QNB3Nu
+         bDrcTIUUke/JQMtJQi9LoLLUuReHDTl5zOYN2YC3R57lSHJxS+STIDTHEBUnZ+cJ7r
+         twbIGxx6ehS9caH0rhe05tCN7cNb9VOmPa86QSEQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Michael Adler <michael.adler@siemens.com>,
-        Johan Hovold <johan@kernel.org>
-Subject: [PATCH 6.1 105/193] USB: serial: cp210x: add SCALANCE LPE-9000 device id
+        patches@lists.linux.dev,
+        Mathias Nyman <mathias.nyman@linux.intel.com>
+Subject: [PATCH 5.10 38/98] xhci: Add update_hub_device override for PCI xHCI hosts
 Date:   Sun, 22 Jan 2023 16:03:54 +0100
-Message-Id: <20230122150251.126254080@linuxfoundation.org>
+Message-Id: <20230122150231.098583401@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.1
-In-Reply-To: <20230122150246.321043584@linuxfoundation.org>
-References: <20230122150246.321043584@linuxfoundation.org>
+In-Reply-To: <20230122150229.351631432@linuxfoundation.org>
+References: <20230122150229.351631432@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,30 +53,107 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Michael Adler <michael.adler@siemens.com>
+From: Mathias Nyman <mathias.nyman@linux.intel.com>
 
-commit 3f9e76e31704a325170e5aec2243c8d084d74854 upstream.
+commit 23a3b8d5a2365653fd9bc5a9454d1e7f4facbf85 upstream.
 
-Add the USB serial console device ID for Siemens SCALANCE LPE-9000
-which have a USB port for their serial console.
+Allow PCI hosts to check and tune roothub and port settings
+before the hub is up and running.
 
-Signed-off-by: Michael Adler <michael.adler@siemens.com>
+This override is needed to turn off U1 and U2 LPM for some ports
+based on per port ACPI _DSM, _UPC, or possibly vendor specific mmio
+values for Intel xHC hosts.
+
+Usb core calls the host update_hub_device once it creates a hub.
+
+Entering U1 or U2 link power save state on ports with this limitation
+will cause link to fail, turning the usb device unusable in that setup.
+
 Cc: stable@vger.kernel.org
-Signed-off-by: Johan Hovold <johan@kernel.org>
+Signed-off-by: Mathias Nyman <mathias.nyman@linux.intel.com>
+Link: https://lore.kernel.org/r/20230116142216.1141605-5-mathias.nyman@linux.intel.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/usb/serial/cp210x.c |    1 +
- 1 file changed, 1 insertion(+)
+ drivers/usb/host/xhci-pci.c |    9 +++++++++
+ drivers/usb/host/xhci.c     |    5 ++++-
+ drivers/usb/host/xhci.h     |    4 ++++
+ 3 files changed, 17 insertions(+), 1 deletion(-)
 
---- a/drivers/usb/serial/cp210x.c
-+++ b/drivers/usb/serial/cp210x.c
-@@ -60,6 +60,7 @@ static const struct usb_device_id id_tab
- 	{ USB_DEVICE(0x0846, 0x1100) }, /* NetGear Managed Switch M4100 series, M5300 series, M7100 series */
- 	{ USB_DEVICE(0x08e6, 0x5501) }, /* Gemalto Prox-PU/CU contactless smartcard reader */
- 	{ USB_DEVICE(0x08FD, 0x000A) }, /* Digianswer A/S , ZigBee/802.15.4 MAC Device */
-+	{ USB_DEVICE(0x0908, 0x0070) }, /* Siemens SCALANCE LPE-9000 USB Serial Console */
- 	{ USB_DEVICE(0x0908, 0x01FF) }, /* Siemens RUGGEDCOM USB Serial Console */
- 	{ USB_DEVICE(0x0988, 0x0578) }, /* Teraoka AD2000 */
- 	{ USB_DEVICE(0x0B00, 0x3070) }, /* Ingenico 3070 */
+--- a/drivers/usb/host/xhci-pci.c
++++ b/drivers/usb/host/xhci-pci.c
+@@ -77,9 +77,12 @@ static const char hcd_name[] = "xhci_hcd
+ static struct hc_driver __read_mostly xhci_pci_hc_driver;
+ 
+ static int xhci_pci_setup(struct usb_hcd *hcd);
++static int xhci_pci_update_hub_device(struct usb_hcd *hcd, struct usb_device *hdev,
++				      struct usb_tt *tt, gfp_t mem_flags);
+ 
+ static const struct xhci_driver_overrides xhci_pci_overrides __initconst = {
+ 	.reset = xhci_pci_setup,
++	.update_hub_device = xhci_pci_update_hub_device,
+ };
+ 
+ /* called after powerup, by probe or system-pm "wakeup" */
+@@ -382,6 +385,12 @@ static int xhci_pci_setup(struct usb_hcd
+ 	return xhci_pci_reinit(xhci, pdev);
+ }
+ 
++static int xhci_pci_update_hub_device(struct usb_hcd *hcd, struct usb_device *hdev,
++				      struct usb_tt *tt, gfp_t mem_flags)
++{
++	return xhci_update_hub_device(hcd, hdev, tt, mem_flags);
++}
++
+ /*
+  * We need to register our own PCI probe function (instead of the USB core's
+  * function) in order to create a second roothub under xHCI.
+--- a/drivers/usb/host/xhci.c
++++ b/drivers/usb/host/xhci.c
+@@ -5081,7 +5081,7 @@ static int xhci_disable_usb3_lpm_timeout
+ /* Once a hub descriptor is fetched for a device, we need to update the xHC's
+  * internal data structures for the device.
+  */
+-static int xhci_update_hub_device(struct usb_hcd *hcd, struct usb_device *hdev,
++int xhci_update_hub_device(struct usb_hcd *hcd, struct usb_device *hdev,
+ 			struct usb_tt *tt, gfp_t mem_flags)
+ {
+ 	struct xhci_hcd *xhci = hcd_to_xhci(hcd);
+@@ -5181,6 +5181,7 @@ static int xhci_update_hub_device(struct
+ 	xhci_free_command(xhci, config_cmd);
+ 	return ret;
+ }
++EXPORT_SYMBOL_GPL(xhci_update_hub_device);
+ 
+ static int xhci_get_frame(struct usb_hcd *hcd)
+ {
+@@ -5451,6 +5452,8 @@ void xhci_init_driver(struct hc_driver *
+ 			drv->check_bandwidth = over->check_bandwidth;
+ 		if (over->reset_bandwidth)
+ 			drv->reset_bandwidth = over->reset_bandwidth;
++		if (over->update_hub_device)
++			drv->update_hub_device = over->update_hub_device;
+ 	}
+ }
+ EXPORT_SYMBOL_GPL(xhci_init_driver);
+--- a/drivers/usb/host/xhci.h
++++ b/drivers/usb/host/xhci.h
+@@ -1933,6 +1933,8 @@ struct xhci_driver_overrides {
+ 	int (*start)(struct usb_hcd *hcd);
+ 	int (*check_bandwidth)(struct usb_hcd *, struct usb_device *);
+ 	void (*reset_bandwidth)(struct usb_hcd *, struct usb_device *);
++	int (*update_hub_device)(struct usb_hcd *hcd, struct usb_device *hdev,
++			    struct usb_tt *tt, gfp_t mem_flags);
+ };
+ 
+ #define	XHCI_CFC_DELAY		10
+@@ -2089,6 +2091,8 @@ void xhci_init_driver(struct hc_driver *
+ 		      const struct xhci_driver_overrides *over);
+ int xhci_check_bandwidth(struct usb_hcd *hcd, struct usb_device *udev);
+ void xhci_reset_bandwidth(struct usb_hcd *hcd, struct usb_device *udev);
++int xhci_update_hub_device(struct usb_hcd *hcd, struct usb_device *hdev,
++			   struct usb_tt *tt, gfp_t mem_flags);
+ int xhci_disable_slot(struct xhci_hcd *xhci, u32 slot_id);
+ int xhci_ext_cap_init(struct xhci_hcd *xhci);
+ 
 
 
