@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id BE969676EB7
-	for <lists+stable@lfdr.de>; Sun, 22 Jan 2023 16:13:36 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id CF2B2676FFC
+	for <lists+stable@lfdr.de>; Sun, 22 Jan 2023 16:27:16 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230421AbjAVPNf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 22 Jan 2023 10:13:35 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40800 "EHLO
+        id S231447AbjAVP1P (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 22 Jan 2023 10:27:15 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55326 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230420AbjAVPNf (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 22 Jan 2023 10:13:35 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2378D21A3E
-        for <stable@vger.kernel.org>; Sun, 22 Jan 2023 07:13:34 -0800 (PST)
+        with ESMTP id S231444AbjAVP1O (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 22 Jan 2023 10:27:14 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id ED4932311D
+        for <stable@vger.kernel.org>; Sun, 22 Jan 2023 07:27:13 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id C8DC3B80B11
-        for <stable@vger.kernel.org>; Sun, 22 Jan 2023 15:13:32 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2BDECC433EF;
-        Sun, 22 Jan 2023 15:13:31 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 8B2C460C43
+        for <stable@vger.kernel.org>; Sun, 22 Jan 2023 15:27:13 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9F1FFC433D2;
+        Sun, 22 Jan 2023 15:27:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1674400411;
-        bh=Z1lM9HeB6URz0lZOQ7qmXfDGO/znYVz7PK7wjBYI+3M=;
+        s=korg; t=1674401233;
+        bh=liJ1Wxb657V0Afrt/n0rAILfYVeGxBaUHOMwVET+pfw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=0/AS81fs4DWFJMjqEvN4krOxl5k/7DF3EYtyKYJtKZ0MgUHQQlAdIESS3WIM5UBNU
-         eFNJGIiZY+QOuVTojrzw2n/CwXbMpaHALT1KSYEHRgS0S+BWrlu4kbFpa8oIaaodCs
-         y04PlVDM35WFBuFigPRp31Mh0/u9ndinGZ3YFTcs=
+        b=WnV0Y7N8XaswxS0MdVN867GFGV/V29H3u4V486oZiXbNjlqE/BdsokqWJPXbgBnzg
+         ekL8noK3dJUI8xcVlcRTUO2JpHmp9stYff9Z+5Z601FsiNk2MtZYJl2A8wiPbdI63x
+         moYsO3VNVdk4nIR3gIJTMhcdM9nXOathdLpEwhAE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         patches@lists.linux.dev,
-        Heikki Krogerus <heikki.krogerus@linux.intel.com>,
-        Prashant Malani <pmalani@chromium.org>,
-        Benson Leung <bleung@chromium.org>
-Subject: [PATCH 5.10 65/98] usb: typec: altmodes/displayport: Fix pin assignment calculation
+        Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>,
+        Dmitry Baryshkov <dmitry.baryshkov@linaro.org>,
+        Bjorn Andersson <andersson@kernel.org>
+Subject: [PATCH 6.1 132/193] ARM: dts: qcom: apq8084-ifc6540: fix overriding SDHCI
 Date:   Sun, 22 Jan 2023 16:04:21 +0100
-Message-Id: <20230122150232.203452564@linuxfoundation.org>
+Message-Id: <20230122150252.369707574@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.1
-In-Reply-To: <20230122150229.351631432@linuxfoundation.org>
-References: <20230122150229.351631432@linuxfoundation.org>
+In-Reply-To: <20230122150246.321043584@linuxfoundation.org>
+References: <20230122150246.321043584@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,43 +55,73 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Prashant Malani <pmalani@chromium.org>
+From: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
 
-commit 9682b41e52cc9f42f5c33caf410464392adaef04 upstream.
+commit 0154252a3b87f77db1e44516d1ed2e82e2d29c30 upstream.
 
-Commit c1e5c2f0cb8a ("usb: typec: altmodes/displayport: correct pin
-assignment for UFP receptacles") fixed the pin assignment calculation
-to take into account whether the peripheral was a plug or a receptacle.
+While changing node names of APQ8084 SDHCI, the ones in IFC6540 board
+were not updated leading to disabled and misconfigured SDHCI.
 
-But the "pin_assignments" sysfs logic was not updated. Address this by
-using the macros introduced in the aforementioned commit in the sysfs
-logic too.
-
-Fixes: c1e5c2f0cb8a ("usb: typec: altmodes/displayport: correct pin assignment for UFP receptacles")
-Cc: stable@vger.kernel.org
-Cc: Heikki Krogerus <heikki.krogerus@linux.intel.com>
-Signed-off-by: Prashant Malani <pmalani@chromium.org>
-Reviewed-by: Benson Leung <bleung@chromium.org>
-Reviewed-by: Heikki Krogerus <heikki.krogerus@linux.intel.com>
-Link: https://lore.kernel.org/r/20230111020546.3384569-2-pmalani@chromium.org
+Cc: <stable@vger.kernel.org>
+Fixes: 2477d81901a2 ("ARM: dts: qcom: Fix sdhci node names - use 'mmc@'")
+Signed-off-by: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
+Reviewed-by: Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
+Signed-off-by: Bjorn Andersson <andersson@kernel.org>
+Link: https://lore.kernel.org/r/20221204084614.12193-1-krzysztof.kozlowski@linaro.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/usb/typec/altmodes/displayport.c |    4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ arch/arm/boot/dts/qcom-apq8084-ifc6540.dts |   20 ++++++++++----------
+ arch/arm/boot/dts/qcom-apq8084.dtsi        |    4 ++--
+ 2 files changed, 12 insertions(+), 12 deletions(-)
 
---- a/drivers/usb/typec/altmodes/displayport.c
-+++ b/drivers/usb/typec/altmodes/displayport.c
-@@ -416,9 +416,9 @@ static const char * const pin_assignment
- static u8 get_current_pin_assignments(struct dp_altmode *dp)
- {
- 	if (DP_CONF_CURRENTLY(dp->data.conf) == DP_CONF_DFP_D)
--		return DP_CAP_UFP_D_PIN_ASSIGN(dp->alt->vdo);
-+		return DP_CAP_PIN_ASSIGN_DFP_D(dp->alt->vdo);
- 	else
--		return DP_CAP_DFP_D_PIN_ASSIGN(dp->alt->vdo);
-+		return DP_CAP_PIN_ASSIGN_UFP_D(dp->alt->vdo);
- }
+--- a/arch/arm/boot/dts/qcom-apq8084-ifc6540.dts
++++ b/arch/arm/boot/dts/qcom-apq8084-ifc6540.dts
+@@ -19,16 +19,16 @@
+ 		serial@f995e000 {
+ 			status = "okay";
+ 		};
++	};
++};
  
- static ssize_t
+-		sdhci@f9824900 {
+-			bus-width = <8>;
+-			non-removable;
+-			status = "okay";
+-		};
++&sdhc_1 {
++	bus-width = <8>;
++	non-removable;
++	status = "okay";
++};
+ 
+-		sdhci@f98a4900 {
+-			cd-gpios = <&tlmm 122 GPIO_ACTIVE_LOW>;
+-			bus-width = <4>;
+-		};
+-	};
++&sdhc_2 {
++	cd-gpios = <&tlmm 122 GPIO_ACTIVE_LOW>;
++	bus-width = <4>;
+ };
+--- a/arch/arm/boot/dts/qcom-apq8084.dtsi
++++ b/arch/arm/boot/dts/qcom-apq8084.dtsi
+@@ -419,7 +419,7 @@
+ 			status = "disabled";
+ 		};
+ 
+-		mmc@f9824900 {
++		sdhc_1: mmc@f9824900 {
+ 			compatible = "qcom,apq8084-sdhci", "qcom,sdhci-msm-v4";
+ 			reg = <0xf9824900 0x11c>, <0xf9824000 0x800>;
+ 			reg-names = "hc", "core";
+@@ -432,7 +432,7 @@
+ 			status = "disabled";
+ 		};
+ 
+-		mmc@f98a4900 {
++		sdhc_2: mmc@f98a4900 {
+ 			compatible = "qcom,apq8084-sdhci", "qcom,sdhci-msm-v4";
+ 			reg = <0xf98a4900 0x11c>, <0xf98a4000 0x800>;
+ 			reg-names = "hc", "core";
 
 
