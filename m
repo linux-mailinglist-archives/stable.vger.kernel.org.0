@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 854D6676E65
-	for <lists+stable@lfdr.de>; Sun, 22 Jan 2023 16:10:07 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4BF96676EBD
+	for <lists+stable@lfdr.de>; Sun, 22 Jan 2023 16:13:52 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230303AbjAVPKG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 22 Jan 2023 10:10:06 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36784 "EHLO
+        id S230420AbjAVPNv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 22 Jan 2023 10:13:51 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40974 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230295AbjAVPKF (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 22 Jan 2023 10:10:05 -0500
+        with ESMTP id S230426AbjAVPNu (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 22 Jan 2023 10:13:50 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 708291F4BE
-        for <stable@vger.kernel.org>; Sun, 22 Jan 2023 07:10:04 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C7DAC21A3E
+        for <stable@vger.kernel.org>; Sun, 22 Jan 2023 07:13:49 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 1AA52B80AF8
-        for <stable@vger.kernel.org>; Sun, 22 Jan 2023 15:10:03 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 75EA0C4339B;
-        Sun, 22 Jan 2023 15:10:01 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 803C0B807E4
+        for <stable@vger.kernel.org>; Sun, 22 Jan 2023 15:13:48 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id DA2D6C433D2;
+        Sun, 22 Jan 2023 15:13:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1674400201;
-        bh=ug1rfvJhHBMIBHm/kDFORvtLY3Fr6ccx2iPnA1reSr4=;
+        s=korg; t=1674400427;
+        bh=+AYGyBIbtAS1HpP9NxQtDqVE48DKKftcqKXoURVf9nA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=LAVPJZiy3KUF0lmkA4LVreYVoxDp+SFoIeb4m3r51Sr7QF4xMoCCm3WTA0mNB+5cW
-         22HiXOaW7zve4y1YdY1nN3quFOArZimje3oEIU7Ime/SjUI2FdFG/CJdh/XKWoVgHm
-         vaV7I5dr+xJJuzgA0lFwDLvQvaut2WxKg16LOqd4=
+        b=B4AOUMpnODJzcPxIEKFNz1fDH1ZPf6Zmy/ve4PbDsGRck4bNUiU6z17zl99x+UI4I
+         FBhZS3Dnyz2BwrlZ539L6ceXCu80qTZRu2L+Wxev9dXHnkI3DAFRNvNlGPBv3N0GTd
+         bXRe7NzPi0w+F8wkXqwK1etk29jEy1/dy7Y1UykE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, stable <stable@kernel.org>,
-        Daniel Scally <dan.scally@ideasonboard.com>,
-        Laurent Pinchart <laurent.pinchart@ideasonboard.com>,
-        Kieran Bingham <kieran.bingham@ideasonboard.com>
-Subject: [PATCH 5.4 39/55] usb: gadget: g_webcam: Send color matching descriptor per frame
+        patches@lists.linux.dev, Heiner Kallweit <hkallweit1@gmail.com>,
+        Martin Blumenstingl <martin.blumenstingl@googlemail.com>,
+        Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>,
+        Vinod Koul <vkoul@kernel.org>
+Subject: [PATCH 5.10 70/98] dt-bindings: phy: g12a-usb3-pcie-phy: fix compatible string documentation
 Date:   Sun, 22 Jan 2023 16:04:26 +0100
-Message-Id: <20230122150223.790223545@linuxfoundation.org>
+Message-Id: <20230122150232.391145981@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.1
-In-Reply-To: <20230122150222.210885219@linuxfoundation.org>
-References: <20230122150222.210885219@linuxfoundation.org>
+In-Reply-To: <20230122150229.351631432@linuxfoundation.org>
+References: <20230122150229.351631432@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,59 +55,150 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Daniel Scally <dan.scally@ideasonboard.com>
+From: Heiner Kallweit <hkallweit1@gmail.com>
 
-commit e95765e97d9cb93258a4840440d410fa6ff7e819 upstream.
+commit e181119046a0ec16126b682163040e8e33f310c1 upstream.
 
-Currently the color matching descriptor is only sent across the wire
-a single time, following the descriptors for each format and frame.
-According to the UVC 1.5 Specification 3.9.2.6 ("Color Matching
-Descriptors"):
+The compatible string in the driver doesn't have the meson prefix.
+Fix this in the documentation and rename the file accordingly.
 
-"Only one instance is allowed for a given format and if present,
-the Color Matching descriptor shall be placed following the Video
-and Still Image Frame descriptors for that format".
-
-Add another reference to the color matching descriptor after the
-yuyv frames so that it's correctly transmitted for that format
-too.
-
-Fixes: a9914127e834 ("USB gadget: Webcam device")
-Cc: stable <stable@kernel.org>
-Signed-off-by: Daniel Scally <dan.scally@ideasonboard.com>
-Reviewed-by: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
-Reviewed-by: Kieran Bingham <kieran.bingham@ideasonboard.com>
-Link: https://lore.kernel.org/r/20221216160528.479094-1-dan.scally@ideasonboard.com
+Fixes: 87a55485f2fc ("dt-bindings: phy: meson-g12a-usb3-pcie-phy: convert to yaml")
+Cc: stable@vger.kernel.org
+Signed-off-by: Heiner Kallweit <hkallweit1@gmail.com>
+Reviewed-by: Martin Blumenstingl <martin.blumenstingl@googlemail.com>
+Reviewed-by: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
+Link: https://lore.kernel.org/r/0a82be92-ce85-da34-9d6f-4b33034473e5@gmail.com
+Signed-off-by: Vinod Koul <vkoul@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/usb/gadget/legacy/webcam.c |    3 +++
- 1 file changed, 3 insertions(+)
+ Documentation/devicetree/bindings/phy/amlogic,g12a-usb3-pcie-phy.yaml       |   59 ++++++++++
+ Documentation/devicetree/bindings/phy/amlogic,meson-g12a-usb3-pcie-phy.yaml |   59 ----------
+ 2 files changed, 59 insertions(+), 59 deletions(-)
+ rename Documentation/devicetree/bindings/phy/{amlogic,meson-g12a-usb3-pcie-phy.yaml => amlogic,g12a-usb3-pcie-phy.yaml} (82%)
 
---- a/drivers/usb/gadget/legacy/webcam.c
-+++ b/drivers/usb/gadget/legacy/webcam.c
-@@ -293,6 +293,7 @@ static const struct uvc_descriptor_heade
- 	(const struct uvc_descriptor_header *) &uvc_format_yuv,
- 	(const struct uvc_descriptor_header *) &uvc_frame_yuv_360p,
- 	(const struct uvc_descriptor_header *) &uvc_frame_yuv_720p,
-+	(const struct uvc_descriptor_header *) &uvc_color_matching,
- 	(const struct uvc_descriptor_header *) &uvc_format_mjpg,
- 	(const struct uvc_descriptor_header *) &uvc_frame_mjpg_360p,
- 	(const struct uvc_descriptor_header *) &uvc_frame_mjpg_720p,
-@@ -305,6 +306,7 @@ static const struct uvc_descriptor_heade
- 	(const struct uvc_descriptor_header *) &uvc_format_yuv,
- 	(const struct uvc_descriptor_header *) &uvc_frame_yuv_360p,
- 	(const struct uvc_descriptor_header *) &uvc_frame_yuv_720p,
-+	(const struct uvc_descriptor_header *) &uvc_color_matching,
- 	(const struct uvc_descriptor_header *) &uvc_format_mjpg,
- 	(const struct uvc_descriptor_header *) &uvc_frame_mjpg_360p,
- 	(const struct uvc_descriptor_header *) &uvc_frame_mjpg_720p,
-@@ -317,6 +319,7 @@ static const struct uvc_descriptor_heade
- 	(const struct uvc_descriptor_header *) &uvc_format_yuv,
- 	(const struct uvc_descriptor_header *) &uvc_frame_yuv_360p,
- 	(const struct uvc_descriptor_header *) &uvc_frame_yuv_720p,
-+	(const struct uvc_descriptor_header *) &uvc_color_matching,
- 	(const struct uvc_descriptor_header *) &uvc_format_mjpg,
- 	(const struct uvc_descriptor_header *) &uvc_frame_mjpg_360p,
- 	(const struct uvc_descriptor_header *) &uvc_frame_mjpg_720p,
+--- /dev/null
++++ b/Documentation/devicetree/bindings/phy/amlogic,g12a-usb3-pcie-phy.yaml
+@@ -0,0 +1,59 @@
++# SPDX-License-Identifier: (GPL-2.0 OR BSD-2-Clause)
++# Copyright 2019 BayLibre, SAS
++%YAML 1.2
++---
++$id: "http://devicetree.org/schemas/phy/amlogic,g12a-usb3-pcie-phy.yaml#"
++$schema: "http://devicetree.org/meta-schemas/core.yaml#"
++
++title: Amlogic G12A USB3 + PCIE Combo PHY
++
++maintainers:
++  - Neil Armstrong <narmstrong@baylibre.com>
++
++properties:
++  compatible:
++    enum:
++      - amlogic,g12a-usb3-pcie-phy
++
++  reg:
++    maxItems: 1
++
++  clocks:
++    maxItems: 1
++
++  clock-names:
++    items:
++      - const: ref_clk
++
++  resets:
++    maxItems: 1
++
++  reset-names:
++    items:
++      - const: phy
++
++  "#phy-cells":
++    const: 1
++
++required:
++  - compatible
++  - reg
++  - clocks
++  - clock-names
++  - resets
++  - reset-names
++  - "#phy-cells"
++
++additionalProperties: false
++
++examples:
++  - |
++    phy@46000 {
++          compatible = "amlogic,g12a-usb3-pcie-phy";
++          reg = <0x46000 0x2000>;
++          clocks = <&ref_clk>;
++          clock-names = "ref_clk";
++          resets = <&phy_reset>;
++          reset-names = "phy";
++          #phy-cells = <1>;
++    };
+--- a/Documentation/devicetree/bindings/phy/amlogic,meson-g12a-usb3-pcie-phy.yaml
++++ /dev/null
+@@ -1,59 +0,0 @@
+-# SPDX-License-Identifier: (GPL-2.0 OR BSD-2-Clause)
+-# Copyright 2019 BayLibre, SAS
+-%YAML 1.2
+----
+-$id: "http://devicetree.org/schemas/phy/amlogic,meson-g12a-usb3-pcie-phy.yaml#"
+-$schema: "http://devicetree.org/meta-schemas/core.yaml#"
+-
+-title: Amlogic G12A USB3 + PCIE Combo PHY
+-
+-maintainers:
+-  - Neil Armstrong <narmstrong@baylibre.com>
+-
+-properties:
+-  compatible:
+-    enum:
+-      - amlogic,meson-g12a-usb3-pcie-phy
+-
+-  reg:
+-    maxItems: 1
+-
+-  clocks:
+-    maxItems: 1
+-
+-  clock-names:
+-    items:
+-      - const: ref_clk
+-
+-  resets:
+-    maxItems: 1
+-
+-  reset-names:
+-    items:
+-      - const: phy
+-
+-  "#phy-cells":
+-    const: 1
+-
+-required:
+-  - compatible
+-  - reg
+-  - clocks
+-  - clock-names
+-  - resets
+-  - reset-names
+-  - "#phy-cells"
+-
+-additionalProperties: false
+-
+-examples:
+-  - |
+-    phy@46000 {
+-          compatible = "amlogic,meson-g12a-usb3-pcie-phy";
+-          reg = <0x46000 0x2000>;
+-          clocks = <&ref_clk>;
+-          clock-names = "ref_clk";
+-          resets = <&phy_reset>;
+-          reset-names = "phy";
+-          #phy-cells = <1>;
+-    };
 
 
