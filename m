@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A3728676F21
-	for <lists+stable@lfdr.de>; Sun, 22 Jan 2023 16:18:09 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4A94A676E43
+	for <lists+stable@lfdr.de>; Sun, 22 Jan 2023 16:08:48 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231184AbjAVPSH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 22 Jan 2023 10:18:07 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45498 "EHLO
+        id S230235AbjAVPIq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 22 Jan 2023 10:08:46 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34864 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231173AbjAVPSD (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 22 Jan 2023 10:18:03 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 972D58A70
-        for <stable@vger.kernel.org>; Sun, 22 Jan 2023 07:18:01 -0800 (PST)
+        with ESMTP id S230242AbjAVPIo (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 22 Jan 2023 10:08:44 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AA7041C30E
+        for <stable@vger.kernel.org>; Sun, 22 Jan 2023 07:08:43 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 38179B80B1B
-        for <stable@vger.kernel.org>; Sun, 22 Jan 2023 15:18:00 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 89CD7C433EF;
-        Sun, 22 Jan 2023 15:17:58 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 66835B80B16
+        for <stable@vger.kernel.org>; Sun, 22 Jan 2023 15:08:42 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A882DC4339B;
+        Sun, 22 Jan 2023 15:08:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1674400678;
-        bh=PXwRsd3OduKL48CriyI8E7kOgOEg6V6PkEYCjrWSADY=;
+        s=korg; t=1674400121;
+        bh=kMTd/QWEVaMMbGGHko64wkREQRIpQtKXX9E8vNP5Ciw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=u7gslqa2tGa3Sh98Ao3Z8QyxHdAATG+Lti7L/xYlE9PtRQNB3tOm6esJwLgWscRn5
-         JqUXJQ6KYnmMsQNlI5fA/jn47sWjJQx/adQLBRQbtsYsfoPpOROyoPLhmVxjsY7vaQ
-         Dw4+RiNzbfoyk60BNslnUZz2P57VwBx0Di94+G8A=
+        b=Jmi3JkBGZP5/N1QXZGqwZgrpgArfl97uziDjrUEdU8ICCqayqSmedqvXpFGbI2VJT
+         hKSHinaBqEucqzLgTJBbpdpKuWKOygSl/daF5L+bqRVM5Cy8sTluKYp3LKfURz+f1G
+         JlJfhB+4OvYPWDBy2pwrFYm54gDqmqy/FHTtX4x0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Dylan Yudaken <dylany@fb.com>,
-        Pavel Begunkov <asml.silence@gmail.com>,
-        Jens Axboe <axboe@kernel.dk>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 038/117] io_uring: remove duplicated calls to io_kiocb_ppos
-Date:   Sun, 22 Jan 2023 16:03:48 +0100
-Message-Id: <20230122150234.318679518@linuxfoundation.org>
+        patches@lists.linux.dev, Hao Sun <sunhao.th@gmail.com>,
+        Martin KaFai Lau <martin.lau@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 02/55] selftests/bpf: check null propagation only neither reg is PTR_TO_BTF_ID
+Date:   Sun, 22 Jan 2023 16:03:49 +0100
+Message-Id: <20230122150222.328911624@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.1
-In-Reply-To: <20230122150232.736358800@linuxfoundation.org>
-References: <20230122150232.736358800@linuxfoundation.org>
+In-Reply-To: <20230122150222.210885219@linuxfoundation.org>
+References: <20230122150222.210885219@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,65 +54,91 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dylan Yudaken <dylany@fb.com>
+From: Hao Sun <sunhao.th@gmail.com>
 
-commit af9c45ecebaf1b428306f41421f4bcffe439f735 upstream.
+[ Upstream commit cedebd74cf3883f0384af9ec26b4e6f8f1964dd4 ]
 
-io_kiocb_ppos is called in both branches, and it seems that the compiler
-does not fuse this. Fusing removes a few bytes from loop_rw_iter.
+Verify that nullness information is not porpagated in the branches
+of register to register JEQ and JNE operations if one of them is
+PTR_TO_BTF_ID. Implement this in C level so we can use CO-RE.
 
-Before:
-$ nm -S fs/io_uring.o | grep loop_rw_iter
-0000000000002430 0000000000000124 t loop_rw_iter
-
-After:
-$ nm -S fs/io_uring.o | grep loop_rw_iter
-0000000000002430 000000000000010d t loop_rw_iter
-
-Signed-off-by: Dylan Yudaken <dylany@fb.com>
-Reviewed-by: Pavel Begunkov <asml.silence@gmail.com>
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
+Signed-off-by: Hao Sun <sunhao.th@gmail.com>
+Suggested-by: Martin KaFai Lau <martin.lau@kernel.org>
+Link: https://lore.kernel.org/r/20221222024414.29539-2-sunhao.th@gmail.com
+Signed-off-by: Martin KaFai Lau <martin.lau@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- io_uring/io_uring.c | 7 +++++--
- 1 file changed, 5 insertions(+), 2 deletions(-)
+ .../bpf/prog_tests/jeq_infer_not_null.c       |  9 ++++
+ .../bpf/progs/jeq_infer_not_null_fail.c       | 42 +++++++++++++++++++
+ 2 files changed, 51 insertions(+)
+ create mode 100644 tools/testing/selftests/bpf/prog_tests/jeq_infer_not_null.c
+ create mode 100644 tools/testing/selftests/bpf/progs/jeq_infer_not_null_fail.c
 
-diff --git a/io_uring/io_uring.c b/io_uring/io_uring.c
-index 2caef6417260..14297add8485 100644
---- a/io_uring/io_uring.c
-+++ b/io_uring/io_uring.c
-@@ -3303,6 +3303,7 @@ static ssize_t loop_rw_iter(int rw, struct io_kiocb *req, struct iov_iter *iter)
- 	struct kiocb *kiocb = &req->rw.kiocb;
- 	struct file *file = req->file;
- 	ssize_t ret = 0;
-+	loff_t *ppos;
- 
- 	/*
- 	 * Don't support polled IO through this interface, and we can't
-@@ -3314,6 +3315,8 @@ static ssize_t loop_rw_iter(int rw, struct io_kiocb *req, struct iov_iter *iter)
- 	if (kiocb->ki_flags & IOCB_NOWAIT)
- 		return -EAGAIN;
- 
-+	ppos = io_kiocb_ppos(kiocb);
+diff --git a/tools/testing/selftests/bpf/prog_tests/jeq_infer_not_null.c b/tools/testing/selftests/bpf/prog_tests/jeq_infer_not_null.c
+new file mode 100644
+index 000000000000..3add34df5767
+--- /dev/null
++++ b/tools/testing/selftests/bpf/prog_tests/jeq_infer_not_null.c
+@@ -0,0 +1,9 @@
++// SPDX-License-Identifier: GPL-2.0
 +
- 	while (iov_iter_count(iter)) {
- 		struct iovec iovec;
- 		ssize_t nr;
-@@ -3327,10 +3330,10 @@ static ssize_t loop_rw_iter(int rw, struct io_kiocb *req, struct iov_iter *iter)
- 
- 		if (rw == READ) {
- 			nr = file->f_op->read(file, iovec.iov_base,
--					      iovec.iov_len, io_kiocb_ppos(kiocb));
-+					      iovec.iov_len, ppos);
- 		} else {
- 			nr = file->f_op->write(file, iovec.iov_base,
--					       iovec.iov_len, io_kiocb_ppos(kiocb));
-+					       iovec.iov_len, ppos);
- 		}
- 
- 		if (nr < 0) {
++#include <test_progs.h>
++#include "jeq_infer_not_null_fail.skel.h"
++
++void test_jeq_infer_not_null(void)
++{
++	RUN_TESTS(jeq_infer_not_null_fail);
++}
+diff --git a/tools/testing/selftests/bpf/progs/jeq_infer_not_null_fail.c b/tools/testing/selftests/bpf/progs/jeq_infer_not_null_fail.c
+new file mode 100644
+index 000000000000..f46965053acb
+--- /dev/null
++++ b/tools/testing/selftests/bpf/progs/jeq_infer_not_null_fail.c
+@@ -0,0 +1,42 @@
++// SPDX-License-Identifier: GPL-2.0
++
++#include "vmlinux.h"
++#include <bpf/bpf_helpers.h>
++#include "bpf_misc.h"
++
++char _license[] SEC("license") = "GPL";
++
++struct {
++	__uint(type, BPF_MAP_TYPE_HASH);
++	__uint(max_entries, 1);
++	__type(key, u64);
++	__type(value, u64);
++} m_hash SEC(".maps");
++
++SEC("?raw_tp")
++__failure __msg("R8 invalid mem access 'map_value_or_null")
++int jeq_infer_not_null_ptr_to_btfid(void *ctx)
++{
++	struct bpf_map *map = (struct bpf_map *)&m_hash;
++	struct bpf_map *inner_map = map->inner_map_meta;
++	u64 key = 0, ret = 0, *val;
++
++	val = bpf_map_lookup_elem(map, &key);
++	/* Do not mark ptr as non-null if one of them is
++	 * PTR_TO_BTF_ID (R9), reject because of invalid
++	 * access to map value (R8).
++	 *
++	 * Here, we need to inline those insns to access
++	 * R8 directly, since compiler may use other reg
++	 * once it figures out val==inner_map.
++	 */
++	asm volatile("r8 = %[val];\n"
++		     "r9 = %[inner_map];\n"
++		     "if r8 != r9 goto +1;\n"
++		     "%[ret] = *(u64 *)(r8 +0);\n"
++		     : [ret] "+r"(ret)
++		     : [inner_map] "r"(inner_map), [val] "r"(val)
++		     : "r8", "r9");
++
++	return ret;
++}
 -- 
-2.39.0
+2.35.1
 
 
 
