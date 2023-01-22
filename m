@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 99BA4676E70
-	for <lists+stable@lfdr.de>; Sun, 22 Jan 2023 16:10:33 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 83E3A676FF0
+	for <lists+stable@lfdr.de>; Sun, 22 Jan 2023 16:26:52 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230316AbjAVPKc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 22 Jan 2023 10:10:32 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37106 "EHLO
+        id S231429AbjAVP0v (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 22 Jan 2023 10:26:51 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54920 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230318AbjAVPKb (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 22 Jan 2023 10:10:31 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2AA9F1F90E
-        for <stable@vger.kernel.org>; Sun, 22 Jan 2023 07:10:31 -0800 (PST)
+        with ESMTP id S231435AbjAVP0v (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 22 Jan 2023 10:26:51 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BB66622DE2
+        for <stable@vger.kernel.org>; Sun, 22 Jan 2023 07:26:49 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id B957A60C61
-        for <stable@vger.kernel.org>; Sun, 22 Jan 2023 15:10:30 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C9155C433D2;
-        Sun, 22 Jan 2023 15:10:29 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 5194260C57
+        for <stable@vger.kernel.org>; Sun, 22 Jan 2023 15:26:49 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3773EC433EF;
+        Sun, 22 Jan 2023 15:26:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1674400230;
-        bh=6zjwDKG6vs7OyWvvmLD5RZLCDU8NcJkF1bb0y7naNXk=;
+        s=korg; t=1674401208;
+        bh=uBySiiiahnmeXCChngyen/ZZ0TFhuQ8LfpuD9WHG2aE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=SBFoeVHAMNrikV9sd4iAf+srYbUotRid/mPOVNHoPF79DWFTZBzO5BcV62l4e2vCt
-         +i8ClGDhiL4yilDyAGC4jHcX2KUXeOSqqzRL0sMxksQgWtW8BTrpde/3Z1kIBqqqPG
-         g/tUFDF0beFSnBdO2bY34/WW55eayxwakHHwgv9M=
+        b=Vo4wmqOGwLviWKL5Aoo1QodD8cjkIm3s6gHDWNIE3Wd/pqPvgLLbKhEeUZpdeZ0sy
+         EuPxKxczwnVpy0F/hEtxtkwhA8d0vdZKm7skMKKu9pZgORu5whl1XAr8b9s9Hhxov/
+         fG9tlxud8zCcy+kbZJR+dQ/YquO0AFSmyhN13bTw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Nathan Chancellor <nathan@kernel.org>,
-        Masahiro Yamada <masahiroy@kernel.org>,
-        Heiko Carstens <hca@linux.ibm.com>
-Subject: [PATCH 5.4 52/55] s390: define RUNTIME_DISCARD_EXIT to fix link error with GNU ld < 2.36
-Date:   Sun, 22 Jan 2023 16:04:39 +0100
-Message-Id: <20230122150224.346405730@linuxfoundation.org>
+        patches@lists.linux.dev, Jann Horn <jannh@google.com>,
+        Luis Chamberlain <mcgrof@kernel.org>,
+        Kees Cook <keescook@chromium.org>
+Subject: [PATCH 6.1 151/193] exit: Put an upper limit on how often we can oops
+Date:   Sun, 22 Jan 2023 16:04:40 +0100
+Message-Id: <20230122150253.287957134@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.1
-In-Reply-To: <20230122150222.210885219@linuxfoundation.org>
-References: <20230122150222.210885219@linuxfoundation.org>
+In-Reply-To: <20230122150246.321043584@linuxfoundation.org>
+References: <20230122150246.321043584@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,69 +54,141 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Masahiro Yamada <masahiroy@kernel.org>
+From: Jann Horn <jannh@google.com>
 
-commit a494398bde273143c2352dd373cad8211f7d94b2 upstream.
+commit d4ccd54d28d3c8598e2354acc13e28c060961dbb upstream.
 
-Nathan Chancellor reports that the s390 vmlinux fails to link with
-GNU ld < 2.36 since commit 99cb0d917ffa ("arch: fix broken BuildID
-for arm64 and riscv").
+Many Linux systems are configured to not panic on oops; but allowing an
+attacker to oops the system **really** often can make even bugs that look
+completely unexploitable exploitable (like NULL dereferences and such) if
+each crash elevates a refcount by one or a lock is taken in read mode, and
+this causes a counter to eventually overflow.
 
-It happens for defconfig, or more specifically for CONFIG_EXPOLINE=y.
+The most interesting counters for this are 32 bits wide (like open-coded
+refcounts that don't use refcount_t). (The ldsem reader count on 32-bit
+platforms is just 16 bits, but probably nobody cares about 32-bit platforms
+that much nowadays.)
 
-  $ s390x-linux-gnu-ld --version | head -n1
-  GNU ld (GNU Binutils for Debian) 2.35.2
-  $ make -s ARCH=s390 CROSS_COMPILE=s390x-linux-gnu- allnoconfig
-  $ ./scripts/config -e CONFIG_EXPOLINE
-  $ make -s ARCH=s390 CROSS_COMPILE=s390x-linux-gnu- olddefconfig
-  $ make -s ARCH=s390 CROSS_COMPILE=s390x-linux-gnu-
-  `.exit.text' referenced in section `.s390_return_reg' of drivers/base/dd.o: defined in discarded section `.exit.text' of drivers/base/dd.o
-  make[1]: *** [scripts/Makefile.vmlinux:34: vmlinux] Error 1
-  make: *** [Makefile:1252: vmlinux] Error 2
+So let's panic the system if the kernel is constantly oopsing.
 
-arch/s390/kernel/vmlinux.lds.S wants to keep EXIT_TEXT:
+The speed of oopsing 2^32 times probably depends on several factors, like
+how long the stack trace is and which unwinder you're using; an empirically
+important one is whether your console is showing a graphical environment or
+a text console that oopses will be printed to.
+In a quick single-threaded benchmark, it looks like oopsing in a vfork()
+child with a very short stack trace only takes ~510 microseconds per run
+when a graphical console is active; but switching to a text console that
+oopses are printed to slows it down around 87x, to ~45 milliseconds per
+run.
+(Adding more threads makes this faster, but the actual oops printing
+happens under &die_lock on x86, so you can maybe speed this up by a factor
+of around 2 and then any further improvement gets eaten up by lock
+contention.)
 
-        .exit.text : {
-                EXIT_TEXT
-        }
+It looks like it would take around 8-12 days to overflow a 32-bit counter
+with repeated oopsing on a multi-core X86 system running a graphical
+environment; both me (in an X86 VM) and Seth (with a distro kernel on
+normal hardware in a standard configuration) got numbers in that ballpark.
 
-But, at the same time, EXIT_TEXT is thrown away by DISCARD because
-s390 does not define RUNTIME_DISCARD_EXIT.
+12 days aren't *that* short on a desktop system, and you'd likely need much
+longer on a typical server system (assuming that people don't run graphical
+desktop environments on their servers), and this is a *very* noisy and
+violent approach to exploiting the kernel; and it also seems to take orders
+of magnitude longer on some machines, probably because stuff like EFI
+pstore will slow it down a ton if that's active.
 
-I still do not understand why the latter wins after 99cb0d917ffa,
-but defining RUNTIME_DISCARD_EXIT seems correct because the comment
-line in arch/s390/kernel/vmlinux.lds.S says:
-
-        /*
-         * .exit.text is discarded at runtime, not link time,
-         * to deal with references from __bug_table
-         */
-
-Nathan also found that binutils commit 21401fc7bf67 ("Duplicate output
-sections in scripts") cured this issue, so we cannot reproduce it with
-binutils 2.36+, but it is better to not rely on it.
-
-Fixes: 99cb0d917ffa ("arch: fix broken BuildID for arm64 and riscv")
-Link: https://lore.kernel.org/all/Y7Jal56f6UBh1abE@dev-arch.thelio-3990X/
-Reported-by: Nathan Chancellor <nathan@kernel.org>
-Signed-off-by: Masahiro Yamada <masahiroy@kernel.org>
-Link: https://lore.kernel.org/r/20230105031306.1455409-1-masahiroy@kernel.org
-Signed-off-by: Heiko Carstens <hca@linux.ibm.com>
+Signed-off-by: Jann Horn <jannh@google.com>
+Link: https://lore.kernel.org/r/20221107201317.324457-1-jannh@google.com
+Reviewed-by: Luis Chamberlain <mcgrof@kernel.org>
+Signed-off-by: Kees Cook <keescook@chromium.org>
+Link: https://lore.kernel.org/r/20221117234328.594699-2-keescook@chromium.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/s390/kernel/vmlinux.lds.S |    2 ++
- 1 file changed, 2 insertions(+)
+ Documentation/admin-guide/sysctl/kernel.rst |    8 +++++
+ kernel/exit.c                               |   42 ++++++++++++++++++++++++++++
+ 2 files changed, 50 insertions(+)
 
---- a/arch/s390/kernel/vmlinux.lds.S
-+++ b/arch/s390/kernel/vmlinux.lds.S
-@@ -15,6 +15,8 @@
- /* Handle ro_after_init data on our own. */
- #define RO_AFTER_INIT_DATA
+--- a/Documentation/admin-guide/sysctl/kernel.rst
++++ b/Documentation/admin-guide/sysctl/kernel.rst
+@@ -667,6 +667,14 @@ This is the default behavior.
+ an oops event is detected.
  
-+#define RUNTIME_DISCARD_EXIT
+ 
++oops_limit
++==========
 +
- #include <asm-generic/vmlinux.lds.h>
- #include <asm/vmlinux.lds.h>
++Number of kernel oopses after which the kernel should panic when
++``panic_on_oops`` is not set. Setting this to 0 or 1 has the same effect
++as setting ``panic_on_oops=1``.
++
++
+ osrelease, ostype & version
+ ===========================
  
+--- a/kernel/exit.c
++++ b/kernel/exit.c
+@@ -72,6 +72,33 @@
+ #include <asm/unistd.h>
+ #include <asm/mmu_context.h>
+ 
++/*
++ * The default value should be high enough to not crash a system that randomly
++ * crashes its kernel from time to time, but low enough to at least not permit
++ * overflowing 32-bit refcounts or the ldsem writer count.
++ */
++static unsigned int oops_limit = 10000;
++
++#ifdef CONFIG_SYSCTL
++static struct ctl_table kern_exit_table[] = {
++	{
++		.procname       = "oops_limit",
++		.data           = &oops_limit,
++		.maxlen         = sizeof(oops_limit),
++		.mode           = 0644,
++		.proc_handler   = proc_douintvec,
++	},
++	{ }
++};
++
++static __init int kernel_exit_sysctls_init(void)
++{
++	register_sysctl_init("kernel", kern_exit_table);
++	return 0;
++}
++late_initcall(kernel_exit_sysctls_init);
++#endif
++
+ static void __unhash_process(struct task_struct *p, bool group_dead)
+ {
+ 	nr_threads--;
+@@ -874,6 +901,8 @@ void __noreturn do_exit(long code)
+ 
+ void __noreturn make_task_dead(int signr)
+ {
++	static atomic_t oops_count = ATOMIC_INIT(0);
++
+ 	/*
+ 	 * Take the task off the cpu after something catastrophic has
+ 	 * happened.
+@@ -898,6 +927,19 @@ void __noreturn make_task_dead(int signr
+ 	}
+ 
+ 	/*
++	 * Every time the system oopses, if the oops happens while a reference
++	 * to an object was held, the reference leaks.
++	 * If the oops doesn't also leak memory, repeated oopsing can cause
++	 * reference counters to wrap around (if they're not using refcount_t).
++	 * This means that repeated oopsing can make unexploitable-looking bugs
++	 * exploitable through repeated oopsing.
++	 * To make sure this can't happen, place an upper bound on how often the
++	 * kernel may oops without panic().
++	 */
++	if (atomic_inc_return(&oops_count) >= READ_ONCE(oops_limit))
++		panic("Oopsed too often (kernel.oops_limit is %d)", oops_limit);
++
++	/*
+ 	 * We're taking recursive faults here in make_task_dead. Safest is to just
+ 	 * leave this task alone and wait for reboot.
+ 	 */
 
 
