@@ -2,43 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A08FC676E12
-	for <lists+stable@lfdr.de>; Sun, 22 Jan 2023 16:06:46 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A68B3676E6B
+	for <lists+stable@lfdr.de>; Sun, 22 Jan 2023 16:10:20 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230125AbjAVPGp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 22 Jan 2023 10:06:45 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60476 "EHLO
+        id S230311AbjAVPKT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 22 Jan 2023 10:10:19 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36962 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230018AbjAVPGn (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 22 Jan 2023 10:06:43 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4338C1F4BD
-        for <stable@vger.kernel.org>; Sun, 22 Jan 2023 07:06:42 -0800 (PST)
+        with ESMTP id S230306AbjAVPKT (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 22 Jan 2023 10:10:19 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 509DB1F4AF
+        for <stable@vger.kernel.org>; Sun, 22 Jan 2023 07:10:18 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id BD7CE60C58
-        for <stable@vger.kernel.org>; Sun, 22 Jan 2023 15:06:41 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D12C9C433D2;
-        Sun, 22 Jan 2023 15:06:40 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id DF41B60C57
+        for <stable@vger.kernel.org>; Sun, 22 Jan 2023 15:10:17 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id F32FBC433D2;
+        Sun, 22 Jan 2023 15:10:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1674400001;
-        bh=NJigHSH2C+WP9nREPyNhh7JuCdzBJzxaJUJdMei635I=;
+        s=korg; t=1674400217;
+        bh=q3NP+mnrXO3nEqOy/TDN40dQ5YBeMheO/YC5EhcPflM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=la3mdI2K2Bg6Jd8eA1bju8ZvfT04CuiMm3Hb35KOB4WHhCi32y0QILNs4NHgQmIjk
-         FVmGSfndbRuFOXZ8ptEPSMzyA4n7tUIYp7Z2RrSssGDGFu5L38LJLWVOI2wQtU6v/s
-         Q9cUGZloN7kvRgH7zpHArxuxL166vyiIMFt911bM=
+        b=MZ9nIxktNEu3r6uv3Nzt4y8LbM2FpG5rVIyTeiXxxIiBI4bFFIeb/eToTaQCfBVAy
+         62ceuVpZiqGKWmeUJad+5WGMFKmzK8eY2zGM9vQL6URZnKznaXpZsd9D5t9n6pbQdj
+         V/ynH3KVoWwWhY7MDNJEhMETx7oW1Ch7xvfv3LcU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Jaegeuk Kim <jaegeuk@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 04/25] f2fs: lets avoid panic if extent_tree is not created
+        patches@lists.linux.dev, Ron Lee <ron.lee@intel.com>,
+        Mathias Nyman <mathias.nyman@linux.intel.com>
+Subject: [PATCH 5.4 17/55] usb: acpi: add helper to check port lpm capability using acpi _DSM
 Date:   Sun, 22 Jan 2023 16:04:04 +0100
-Message-Id: <20230122150217.992802007@linuxfoundation.org>
+Message-Id: <20230122150222.957088164@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.1
-In-Reply-To: <20230122150217.788215473@linuxfoundation.org>
-References: <20230122150217.788215473@linuxfoundation.org>
+In-Reply-To: <20230122150222.210885219@linuxfoundation.org>
+References: <20230122150222.210885219@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,70 +53,122 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jaegeuk Kim <jaegeuk@kernel.org>
+From: Mathias Nyman <mathias.nyman@linux.intel.com>
 
-[ Upstream commit df9d44b645b83fffccfb4e28c1f93376585fdec8 ]
+commit cd702d18c882d5a4ea44bbdb38edd5d5577ef640 upstream.
 
-This patch avoids the below panic.
+Add a helper to evaluate ACPI usb device specific method (_DSM) provided
+in case the USB3 port shouldn't enter U1 and U2 link states.
 
-pc : __lookup_extent_tree+0xd8/0x760
-lr : f2fs_do_write_data_page+0x104/0x87c
-sp : ffffffc010cbb3c0
-x29: ffffffc010cbb3e0 x28: 0000000000000000
-x27: ffffff8803e7f020 x26: ffffff8803e7ed40
-x25: ffffff8803e7f020 x24: ffffffc010cbb460
-x23: ffffffc010cbb480 x22: 0000000000000000
-x21: 0000000000000000 x20: ffffffff22e90900
-x19: 0000000000000000 x18: ffffffc010c5d080
-x17: 0000000000000000 x16: 0000000000000020
-x15: ffffffdb1acdbb88 x14: ffffff888759e2b0
-x13: 0000000000000000 x12: ffffff802da49000
-x11: 000000000a001200 x10: ffffff8803e7ed40
-x9 : ffffff8023195800 x8 : ffffff802da49078
-x7 : 0000000000000001 x6 : 0000000000000000
-x5 : 0000000000000006 x4 : ffffffc010cbba28
-x3 : 0000000000000000 x2 : ffffffc010cbb480
-x1 : 0000000000000000 x0 : ffffff8803e7ed40
-Call trace:
- __lookup_extent_tree+0xd8/0x760
- f2fs_do_write_data_page+0x104/0x87c
- f2fs_write_single_data_page+0x420/0xb60
- f2fs_write_cache_pages+0x418/0xb1c
- __f2fs_write_data_pages+0x428/0x58c
- f2fs_write_data_pages+0x30/0x40
- do_writepages+0x88/0x190
- __writeback_single_inode+0x48/0x448
- writeback_sb_inodes+0x468/0x9e8
- __writeback_inodes_wb+0xb8/0x2a4
- wb_writeback+0x33c/0x740
- wb_do_writeback+0x2b4/0x400
- wb_workfn+0xe4/0x34c
- process_one_work+0x24c/0x5bc
- worker_thread+0x3e8/0xa50
- kthread+0x150/0x1b4
+This _DSM was added as port specific retimer configuration may lead to
+exit latencies growing beyond U1/U2 exit limits, and OS needs a way to
+find which ports can't support U1/U2 link power management states.
 
-Signed-off-by: Jaegeuk Kim <jaegeuk@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+This _DSM is also used by windows:
+Link: https://docs.microsoft.com/en-us/windows-hardware/drivers/bringup/usb-device-specific-method---dsm-
+
+Some patch issues found in testing resolved by Ron Lee
+
+Cc: stable@vger.kernel.org
+Tested-by: Ron Lee <ron.lee@intel.com>
+Signed-off-by: Mathias Nyman <mathias.nyman@linux.intel.com>
+Link: https://lore.kernel.org/r/20230116142216.1141605-7-mathias.nyman@linux.intel.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/f2fs/extent_cache.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/usb/core/usb-acpi.c |   65 ++++++++++++++++++++++++++++++++++++++++++++
+ include/linux/usb.h         |    3 ++
+ 2 files changed, 68 insertions(+)
 
-diff --git a/fs/f2fs/extent_cache.c b/fs/f2fs/extent_cache.c
-index 042c9d4f73cf..785c32f3b161 100644
---- a/fs/f2fs/extent_cache.c
-+++ b/fs/f2fs/extent_cache.c
-@@ -376,7 +376,8 @@ static bool f2fs_lookup_extent_tree(struct inode *inode, pgoff_t pgofs,
- 	struct extent_node *en;
- 	bool ret = false;
+--- a/drivers/usb/core/usb-acpi.c
++++ b/drivers/usb/core/usb-acpi.c
+@@ -37,6 +37,71 @@ bool usb_acpi_power_manageable(struct us
+ }
+ EXPORT_SYMBOL_GPL(usb_acpi_power_manageable);
  
--	f2fs_bug_on(sbi, !et);
-+	if (!et)
-+		return false;
++#define UUID_USB_CONTROLLER_DSM "ce2ee385-00e6-48cb-9f05-2edb927c4899"
++#define USB_DSM_DISABLE_U1_U2_FOR_PORT	5
++
++/**
++ * usb_acpi_port_lpm_incapable - check if lpm should be disabled for a port.
++ * @hdev: USB device belonging to the usb hub
++ * @index: zero based port index
++ *
++ * Some USB3 ports may not support USB3 link power management U1/U2 states
++ * due to different retimer setup. ACPI provides _DSM method which returns 0x01
++ * if U1 and U2 states should be disabled. Evaluate _DSM with:
++ * Arg0: UUID = ce2ee385-00e6-48cb-9f05-2edb927c4899
++ * Arg1: Revision ID = 0
++ * Arg2: Function Index = 5
++ * Arg3: (empty)
++ *
++ * Return 1 if USB3 port is LPM incapable, negative on error, otherwise 0
++ */
++
++int usb_acpi_port_lpm_incapable(struct usb_device *hdev, int index)
++{
++	union acpi_object *obj;
++	acpi_handle port_handle;
++	int port1 = index + 1;
++	guid_t guid;
++	int ret;
++
++	ret = guid_parse(UUID_USB_CONTROLLER_DSM, &guid);
++	if (ret)
++		return ret;
++
++	port_handle = usb_get_hub_port_acpi_handle(hdev, port1);
++	if (!port_handle) {
++		dev_dbg(&hdev->dev, "port-%d no acpi handle\n", port1);
++		return -ENODEV;
++	}
++
++	if (!acpi_check_dsm(port_handle, &guid, 0,
++			    BIT(USB_DSM_DISABLE_U1_U2_FOR_PORT))) {
++		dev_dbg(&hdev->dev, "port-%d no _DSM function %d\n",
++			port1, USB_DSM_DISABLE_U1_U2_FOR_PORT);
++		return -ENODEV;
++	}
++
++	obj = acpi_evaluate_dsm(port_handle, &guid, 0,
++				USB_DSM_DISABLE_U1_U2_FOR_PORT, NULL);
++
++	if (!obj)
++		return -ENODEV;
++
++	if (obj->type != ACPI_TYPE_INTEGER) {
++		dev_dbg(&hdev->dev, "evaluate port-%d _DSM failed\n", port1);
++		ACPI_FREE(obj);
++		return -EINVAL;
++	}
++
++	if (obj->integer.value == 0x01)
++		ret = 1;
++
++	ACPI_FREE(obj);
++
++	return ret;
++}
++EXPORT_SYMBOL_GPL(usb_acpi_port_lpm_incapable);
++
+ /**
+  * usb_acpi_set_power_state - control usb port's power via acpi power
+  * resource
+--- a/include/linux/usb.h
++++ b/include/linux/usb.h
+@@ -751,11 +751,14 @@ extern void usb_queue_reset_device(struc
+ extern int usb_acpi_set_power_state(struct usb_device *hdev, int index,
+ 	bool enable);
+ extern bool usb_acpi_power_manageable(struct usb_device *hdev, int index);
++extern int usb_acpi_port_lpm_incapable(struct usb_device *hdev, int index);
+ #else
+ static inline int usb_acpi_set_power_state(struct usb_device *hdev, int index,
+ 	bool enable) { return 0; }
+ static inline bool usb_acpi_power_manageable(struct usb_device *hdev, int index)
+ 	{ return true; }
++static inline int usb_acpi_port_lpm_incapable(struct usb_device *hdev, int index)
++	{ return 0; }
+ #endif
  
- 	trace_f2fs_lookup_extent_tree_start(inode, pgofs);
- 
--- 
-2.35.1
-
+ /* USB autosuspend and autoresume */
 
 
