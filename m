@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A5CC5676FA5
-	for <lists+stable@lfdr.de>; Sun, 22 Jan 2023 16:23:45 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 62F36676E81
+	for <lists+stable@lfdr.de>; Sun, 22 Jan 2023 16:11:20 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231335AbjAVPXo (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 22 Jan 2023 10:23:44 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52200 "EHLO
+        id S230341AbjAVPLT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 22 Jan 2023 10:11:19 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37878 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231337AbjAVPXo (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 22 Jan 2023 10:23:44 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3ED711814D
-        for <stable@vger.kernel.org>; Sun, 22 Jan 2023 07:23:43 -0800 (PST)
+        with ESMTP id S230342AbjAVPLS (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 22 Jan 2023 10:11:18 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 060B920044
+        for <stable@vger.kernel.org>; Sun, 22 Jan 2023 07:11:15 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id E2130B80B1B
-        for <stable@vger.kernel.org>; Sun, 22 Jan 2023 15:23:41 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4134FC433EF;
-        Sun, 22 Jan 2023 15:23:40 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 3CA2E60C5C
+        for <stable@vger.kernel.org>; Sun, 22 Jan 2023 15:11:15 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 51A18C433D2;
+        Sun, 22 Jan 2023 15:11:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1674401020;
-        bh=1KtQN+MgJAvaFzVqinQwmmmEZxWYgFL40cvB5Mu8f3U=;
+        s=korg; t=1674400274;
+        bh=KQ9GSFi/gBXixh07AHwXO7MLP5yFAfUeT/rlCUjb86E=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=v3PhlrexscdcRI+lqU1MdP8hyLo8YozsRRb6YBB/XlJzxNpPjyrk/SA6ddPUukMzM
-         PBUh/KoutQhFG93a2MyXUgg5XX1G51E3pZdjxvVU1o8o5+cIy32h5Ww6p+v9ZqKKhd
-         0AHf+FrrRTJ0T2fo/GbMEQM3DSym09Op0BiKZlA8=
+        b=JsMOhlxY96Pjys+4660MAOAfQe8bCpq+u91K6mj4T7EVzAMmIpomQj1cn6p3OInQ1
+         i0ft4kiT19nx+5LkyXXhV1JfRSbzNO8ilJkSjpBiPmHq4lN5ARJ9TpU8K0YW+OXlgk
+         lK4UUQkw71rvEIBWXp3+4Jc4N4kfJ8Qyepti9anY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Zach OKeefe <zokeefe@google.com>,
-        Hugh Dickins <hughd@google.com>,
-        Yang Shi <shy828301@gmail.com>,
-        Andrew Morton <akpm@linux-foundation.org>
-Subject: [PATCH 6.1 080/193] mm/MADV_COLLAPSE: dont expand collapse when vm_end is past requested end
+        patches@lists.linux.dev,
+        Damien Le Moal <damien.lemoal@opensource.wdc.com>,
+        Johannes Thumshirn <johannes.thumshirn@wdc.com>
+Subject: [PATCH 5.10 13/98] zonefs: Detect append writes at invalid locations
 Date:   Sun, 22 Jan 2023 16:03:29 +0100
-Message-Id: <20230122150250.021789003@linuxfoundation.org>
+Message-Id: <20230122150229.993477181@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.1
-In-Reply-To: <20230122150246.321043584@linuxfoundation.org>
-References: <20230122150246.321043584@linuxfoundation.org>
+In-Reply-To: <20230122150229.351631432@linuxfoundation.org>
+References: <20230122150229.351631432@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,66 +54,72 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zach O'Keefe <zokeefe@google.com>
+From: Damien Le Moal <damien.lemoal@opensource.wdc.com>
 
-commit 52dc031088f00e323140ece4004e70c33153c6dd upstream.
+commit a608da3bd730d718f2d3ebec1c26f9865f8f17ce upstream.
 
-MADV_COLLAPSE acts on one hugepage-aligned/sized region at a time, until
-it has collapsed all eligible memory contained within the bounds supplied
-by the user.
+Using REQ_OP_ZONE_APPEND operations for synchronous writes to sequential
+files succeeds regardless of the zone write pointer position, as long as
+the target zone is not full. This means that if an external (buggy)
+application writes to the zone of a sequential file underneath the file
+system, subsequent file write() operation will succeed but the file size
+will not be correct and the file will contain invalid data written by
+another application.
 
-At the top of each hugepage iteration we (re)lock mmap_lock and
-(re)validate the VMA for eligibility and update variables that might have
-changed while mmap_lock was dropped.  One thing that might occur is that
-the VMA could be resized, and as such, we refetch vma->vm_end to make sure
-we don't collapse past the end of the VMA's new end.
+Modify zonefs_file_dio_append() to check the written sector of an append
+write (returned in bio->bi_iter.bi_sector) and return -EIO if there is a
+mismatch with the file zone wp offset field. This change triggers a call
+to zonefs_io_error() and a zone check. Modify zonefs_io_error_cb() to
+not expose the unexpected data after the current inode size when the
+errors=remount-ro mode is used. Other error modes are correctly handled
+already.
 
-However, it's possible that when refetching vma->vm_end that we expand the
-region acted on by MADV_COLLAPSE if vma->vm_end is greater than size+len
-supplied by the user.
-
-The consequence here is that we may attempt to collapse more memory than
-requested, possibly yielding either "too much success" or "false failure"
-user-visible results.  An example of the former is if we MADV_COLLAPSE the
-first 4MiB of a 2TiB mmap()'d file, the incorrect refetch would cause the
-operation to block for much longer than anticipated as we attempt to
-collapse the entire TiB region.  An example of the latter is that applying
-MADV_COLLPSE to a 4MiB file mapped to the start of a 6MiB VMA will
-successfully collapse the first 4MiB, then incorrectly attempt to collapse
-the last hugepage-aligned/sized region -- fail (since readahead/page cache
-lookup will fail) -- and report a failure to the user.
-
-I don't believe there is a kernel stability concern here as we always
-(re)validate the VMA / region accordingly.  Also as Hugh mentions, the
-user-visible effects are: we try to collapse more memory than requested
-by the user, and/or failing an operation that should have otherwise
-succeeded.  An example is trying to collapse a 4MiB file contained
-within a 12MiB VMA.
-
-Don't expand the acted-on region when refetching vma->vm_end.
-
-Link: https://lkml.kernel.org/r/20221224082035.3197140-1-zokeefe@google.com
-Fixes: 4d24de9425f7 ("mm: MADV_COLLAPSE: refetch vm_end after reacquiring mmap_lock")
-Signed-off-by: Zach O'Keefe <zokeefe@google.com>
-Reported-by: Hugh Dickins <hughd@google.com>
-Cc: Yang Shi <shy828301@gmail.com>
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Fixes: 02ef12a663c7 ("zonefs: use REQ_OP_ZONE_APPEND for sync DIO")
+Cc: stable@vger.kernel.org
+Signed-off-by: Damien Le Moal <damien.lemoal@opensource.wdc.com>
+Reviewed-by: Johannes Thumshirn <johannes.thumshirn@wdc.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- mm/khugepaged.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ fs/zonefs/super.c |   22 ++++++++++++++++++++++
+ 1 file changed, 22 insertions(+)
 
---- a/mm/khugepaged.c
-+++ b/mm/khugepaged.c
-@@ -2644,7 +2644,7 @@ int madvise_collapse(struct vm_area_stru
- 				goto out_nolock;
- 			}
- 
--			hend = vma->vm_end & HPAGE_PMD_MASK;
-+			hend = min(hend, vma->vm_end & HPAGE_PMD_MASK);
+--- a/fs/zonefs/super.c
++++ b/fs/zonefs/super.c
+@@ -394,6 +394,10 @@ static int zonefs_io_error_cb(struct blk
+ 			data_size = zonefs_check_zone_condition(inode, zone,
+ 								false, false);
  		}
- 		mmap_assert_locked(mm);
- 		memset(cc->node_load, 0, sizeof(cc->node_load));
++	} else if (sbi->s_mount_opts & ZONEFS_MNTOPT_ERRORS_RO &&
++		   data_size > isize) {
++		/* Do not expose garbage data */
++		data_size = isize;
+ 	}
+ 
+ 	/*
+@@ -772,6 +776,24 @@ static ssize_t zonefs_file_dio_append(st
+ 
+ 	ret = submit_bio_wait(bio);
+ 
++	/*
++	 * If the file zone was written underneath the file system, the zone
++	 * write pointer may not be where we expect it to be, but the zone
++	 * append write can still succeed. So check manually that we wrote where
++	 * we intended to, that is, at zi->i_wpoffset.
++	 */
++	if (!ret) {
++		sector_t wpsector =
++			zi->i_zsector + (zi->i_wpoffset >> SECTOR_SHIFT);
++
++		if (bio->bi_iter.bi_sector != wpsector) {
++			zonefs_warn(inode->i_sb,
++				"Corrupted write pointer %llu for zone at %llu\n",
++				wpsector, zi->i_zsector);
++			ret = -EIO;
++		}
++	}
++
+ 	zonefs_file_write_dio_end_io(iocb, size, ret, 0);
+ 
+ out_release:
 
 
