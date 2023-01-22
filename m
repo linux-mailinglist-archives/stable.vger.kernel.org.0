@@ -2,43 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 13778676F9A
-	for <lists+stable@lfdr.de>; Sun, 22 Jan 2023 16:23:27 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8D86A676F9B
+	for <lists+stable@lfdr.de>; Sun, 22 Jan 2023 16:23:30 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231321AbjAVPXZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 22 Jan 2023 10:23:25 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51894 "EHLO
+        id S231336AbjAVPX1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 22 Jan 2023 10:23:27 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51644 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231401AbjAVPXQ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 22 Jan 2023 10:23:16 -0500
+        with ESMTP id S231334AbjAVPXS (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 22 Jan 2023 10:23:18 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 61272C655
-        for <stable@vger.kernel.org>; Sun, 22 Jan 2023 07:23:14 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 39CC72103
+        for <stable@vger.kernel.org>; Sun, 22 Jan 2023 07:23:17 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 0C149B80B1B
-        for <stable@vger.kernel.org>; Sun, 22 Jan 2023 15:23:13 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5EE06C433D2;
-        Sun, 22 Jan 2023 15:23:11 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id DD733B80B1B
+        for <stable@vger.kernel.org>; Sun, 22 Jan 2023 15:23:15 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 354CAC433EF;
+        Sun, 22 Jan 2023 15:23:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1674400991;
-        bh=pq/3UXdHZ11wrPonijGtD89M6ShkAWO1bA1sNxMSCWY=;
+        s=korg; t=1674400994;
+        bh=+XqtRsdgUOiJZZ4uCiFAeB3305IkLDoILd2B8C5aIcs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=W2VCns3jA5C88HQtDgfVrUbbA9UUnzgd4CP30qsRZwpQj3EajnU875L/c8JFbzdsN
-         zxRp6AWcw0kVwrXJKxZxDB5HuHM31N6P44h70rHo5qpuiBwauKMvvkfZkK6GmWa+IB
-         h5kP/5FyrS5lsPoXQHrX/pZunRFqrZnX0ycYDn+w=
+        b=ROOHrWU2w7jmFyq43BsfKHtiAfwbDQ+QDoYHUTMvCBrRAk4H+k5YOuvUmc7pO1kHu
+         bUoVViKfpDRHAhg44qE7VNp/ptlWnnz8jLmaeMZc5SXJCPMoqXXAxghMjejTFsI0EI
+         9JOerMlgrr3tCU61+al+/iOH4gHH5Tov5vqsPkh0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        "Liam R. Howlett" <Liam.Howlett@oracle.com>,
-        "Matthew Wilcox (Oracle)" <willy@infradead.org>,
-        Vlastimil Babka <vbabka@suse.cz>, Yu Zhao <yuzhao@google.com>,
+        patches@lists.linux.dev, Alexey Dobriyan <adobriyan@gmail.com>,
+        Mirsad Goran Todorovac <mirsad.todorovac@alu.unizg.hr>,
         Andrew Morton <akpm@linux-foundation.org>
-Subject: [PATCH 6.1 039/193] nommu: fix split_vma() map_count error
-Date:   Sun, 22 Jan 2023 16:02:48 +0100
-Message-Id: <20230122150248.194589222@linuxfoundation.org>
+Subject: [PATCH 6.1 040/193] proc: fix PIE proc-empty-vm, proc-pid-vm tests
+Date:   Sun, 22 Jan 2023 16:02:49 +0100
+Message-Id: <20230122150248.234682864@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.1
 In-Reply-To: <20230122150246.321043584@linuxfoundation.org>
 References: <20230122150246.321043584@linuxfoundation.org>
@@ -56,65 +54,115 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Liam Howlett <liam.howlett@oracle.com>
+From: Alexey Dobriyan <adobriyan@gmail.com>
 
-commit fd9edbdbdcde6b489ce59f326755ef16a2ffadd7 upstream.
+commit 5316a017d093f644675a56523bcf5787ba8f4fef upstream.
 
-During the maple tree conversion of nommu, an error in counting the VMAs
-was introduced by counting the existing VMA again.  The counting used to
-be decremented by one and incremented by two, but now it only increments
-by two.  Fix the counting error by moving the increment outside the
-setup_vma_to_mm() function to the callers.
+vsyscall detection code uses direct call to the beginning of
+the vsyscall page:
 
-Link: https://lkml.kernel.org/r/20230109205809.956325-1-Liam.Howlett@oracle.com
-Fixes: 8220543df148 ("nommu: remove uses of VMA linked list")
-Signed-off-by: Liam R. Howlett <Liam.Howlett@oracle.com>
-Cc: Matthew Wilcox (Oracle) <willy@infradead.org>
-Cc: Vlastimil Babka <vbabka@suse.cz>
-Cc: Yu Zhao <yuzhao@google.com>
+	asm ("call %P0" :: "i" (0xffffffffff600000))
+
+It generates "call rel32" instruction but it is not relocated if binary
+is PIE, so binary segfaults into random userspace address and vsyscall
+page status is detected incorrectly.
+
+Do more direct:
+
+	asm ("call *%rax")
+
+which doesn't do need any relocaltions.
+
+Mark g_vsyscall as volatile for a good measure, I didn't find instruction
+setting it to 0. Now the code is obviously correct:
+
+	xor	eax, eax
+	mov	rdi, rbp
+	mov	rsi, rbp
+	mov	DWORD PTR [rip+0x2d15], eax      # g_vsyscall = 0
+	mov	rax, 0xffffffffff600000
+	call	rax
+	mov	DWORD PTR [rip+0x2d02], 1        # g_vsyscall = 1
+	mov	eax, DWORD PTR ds:0xffffffffff600000
+	mov	DWORD PTR [rip+0x2cf1], 2        # g_vsyscall = 2
+	mov	edi, [rip+0x2ceb]                # exit(g_vsyscall)
+	call	exit
+
+Note: fixed proc-empty-vm test oopses 5.19.0-28-generic kernel
+	but this is separate story.
+
+Link: https://lkml.kernel.org/r/Y7h2xvzKLg36DSq8@p183
+Fixes: 5bc73bb3451b9 ("proc: test how it holds up with mapping'less process")
+Signed-off-by: Alexey Dobriyan <adobriyan@gmail.com>
+Reported-by: Mirsad Goran Todorovac <mirsad.todorovac@alu.unizg.hr>
+Tested-by: Mirsad Goran Todorovac <mirsad.todorovac@alu.unizg.hr>
 Cc: <stable@vger.kernel.org>
 Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- mm/nommu.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ tools/testing/selftests/proc/proc-empty-vm.c | 12 +++++++-----
+ tools/testing/selftests/proc/proc-pid-vm.c   |  9 +++++----
+ 2 files changed, 12 insertions(+), 9 deletions(-)
 
-diff --git a/mm/nommu.c b/mm/nommu.c
-index 844af5be7640..5b83938ecb67 100644
---- a/mm/nommu.c
-+++ b/mm/nommu.c
-@@ -559,7 +559,6 @@ void vma_mas_remove(struct vm_area_struct *vma, struct ma_state *mas)
+diff --git a/tools/testing/selftests/proc/proc-empty-vm.c b/tools/testing/selftests/proc/proc-empty-vm.c
+index d95b1cb43d9d..7588428b8fcd 100644
+--- a/tools/testing/selftests/proc/proc-empty-vm.c
++++ b/tools/testing/selftests/proc/proc-empty-vm.c
+@@ -25,6 +25,7 @@
+ #undef NDEBUG
+ #include <assert.h>
+ #include <errno.h>
++#include <stdint.h>
+ #include <stdio.h>
+ #include <stdlib.h>
+ #include <string.h>
+@@ -41,7 +42,7 @@
+  * 1: vsyscall VMA is --xp		vsyscall=xonly
+  * 2: vsyscall VMA is r-xp		vsyscall=emulate
+  */
+-static int g_vsyscall;
++static volatile int g_vsyscall;
+ static const char *g_proc_pid_maps_vsyscall;
+ static const char *g_proc_pid_smaps_vsyscall;
  
- static void setup_vma_to_mm(struct vm_area_struct *vma, struct mm_struct *mm)
- {
--	mm->map_count++;
- 	vma->vm_mm = mm;
+@@ -147,11 +148,12 @@ static void vsyscall(void)
  
- 	/* add the VMA to the mapping */
-@@ -587,6 +586,7 @@ static void mas_add_vma_to_mm(struct ma_state *mas, struct mm_struct *mm,
- 	BUG_ON(!vma->vm_region);
+ 		g_vsyscall = 0;
+ 		/* gettimeofday(NULL, NULL); */
++		uint64_t rax = 0xffffffffff600000;
+ 		asm volatile (
+-			"call %P0"
+-			:
+-			: "i" (0xffffffffff600000), "D" (NULL), "S" (NULL)
+-			: "rax", "rcx", "r11"
++			"call *%[rax]"
++			: [rax] "+a" (rax)
++			: "D" (NULL), "S" (NULL)
++			: "rcx", "r11"
+ 		);
  
- 	setup_vma_to_mm(vma, mm);
-+	mm->map_count++;
+ 		g_vsyscall = 1;
+diff --git a/tools/testing/selftests/proc/proc-pid-vm.c b/tools/testing/selftests/proc/proc-pid-vm.c
+index 69551bfa215c..cacbd2a4aec9 100644
+--- a/tools/testing/selftests/proc/proc-pid-vm.c
++++ b/tools/testing/selftests/proc/proc-pid-vm.c
+@@ -257,11 +257,12 @@ static void vsyscall(void)
  
- 	/* add the VMA to the tree */
- 	vma_mas_store(vma, mas);
-@@ -1347,6 +1347,7 @@ int split_vma(struct mm_struct *mm, struct vm_area_struct *vma,
- 	if (vma->vm_file)
- 		return -ENOMEM;
+ 		g_vsyscall = 0;
+ 		/* gettimeofday(NULL, NULL); */
++		uint64_t rax = 0xffffffffff600000;
+ 		asm volatile (
+-			"call %P0"
+-			:
+-			: "i" (0xffffffffff600000), "D" (NULL), "S" (NULL)
+-			: "rax", "rcx", "r11"
++			"call *%[rax]"
++			: [rax] "+a" (rax)
++			: "D" (NULL), "S" (NULL)
++			: "rcx", "r11"
+ 		);
  
-+	mm = vma->vm_mm;
- 	if (mm->map_count >= sysctl_max_map_count)
- 		return -ENOMEM;
- 
-@@ -1398,6 +1399,7 @@ int split_vma(struct mm_struct *mm, struct vm_area_struct *vma,
- 	mas_set_range(&mas, vma->vm_start, vma->vm_end - 1);
- 	mas_store(&mas, vma);
- 	vma_mas_store(new, &mas);
-+	mm->map_count++;
- 	return 0;
- 
- err_mas_preallocate:
+ 		g_vsyscall = 1;
 -- 
 2.39.1
 
