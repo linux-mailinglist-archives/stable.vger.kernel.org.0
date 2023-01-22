@@ -2,52 +2,50 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 403D5676C30
-	for <lists+stable@lfdr.de>; Sun, 22 Jan 2023 11:58:08 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C6CDC676CA7
+	for <lists+stable@lfdr.de>; Sun, 22 Jan 2023 13:06:20 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229893AbjAVK6H (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 22 Jan 2023 05:58:07 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60068 "EHLO
+        id S229675AbjAVMGS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 22 Jan 2023 07:06:18 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53252 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229675AbjAVK6G (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 22 Jan 2023 05:58:06 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CE64D4C35;
-        Sun, 22 Jan 2023 02:58:04 -0800 (PST)
+        with ESMTP id S229637AbjAVMGS (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 22 Jan 2023 07:06:18 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F0AB6166D5;
+        Sun, 22 Jan 2023 04:06:16 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 8002BB80A36;
-        Sun, 22 Jan 2023 10:58:03 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A8154C433D2;
-        Sun, 22 Jan 2023 10:58:01 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id A05C0B80A72;
+        Sun, 22 Jan 2023 12:06:15 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C42FCC433EF;
+        Sun, 22 Jan 2023 12:06:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1674385082;
-        bh=ByCGf5RX78/mkAxYc+ERxDI9C5SV6TUWVm84iW4jpDw=;
+        s=korg; t=1674389174;
+        bh=3nh7wT08+uoGl5Pvj2Db3Ta6DmN+AWME040ZNIylNjw=;
         h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=lovkQmpNtvJJX4n1F8dwQ3UY08y4kjSEABo67kjYmujM4DycY+4aPd5XKzlVYVmyU
-         WpfCEBLzmjPUtsEUV5i31xViPi5dR00JP9FhheHmbROXHogySyE1uUCHX7YrswffOd
-         duYKQpN6ilEDD7m56A5aYm9EdgOxedvYziLV2AMM=
-Date:   Sun, 22 Jan 2023 11:57:58 +0100
+        b=0/NyeG+TNaS2XaQ9u5j/wCPeWojYyDLvxVtFAlCMMthNCmQEAWOJhdsJZ+Fc+0flJ
+         me/F2s7a4xPUktxoL55H8fieMgLqjr+AGpMFlxoHElQ0J4Diil+6MIDx+dKprOulgx
+         7P3+0X4ewYgocWCzzVUl4vb4+XOf48UnW66Nug1w=
+Date:   Sun, 22 Jan 2023 13:06:11 +0100
 From:   Greg KH <gregkh@linuxfoundation.org>
-To:     Leon Romanovsky <leon@kernel.org>
-Cc:     Alexander Shishkin <alexander.shishkin@linux.intel.com>,
-        Bjorn Helgaas <bhelgaas@google.com>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        linux-pci@vger.kernel.org, linux-kernel@vger.kernel.org,
-        Marc Zyngier <maz@kernel.org>, darwi@linutronix.de,
-        elena.reshetova@intel.com, kirill.shutemov@linux.intel.com,
-        Mika Westerberg <mika.westerberg@linux.intel.com>,
-        stable@vger.kernel.org
-Subject: Re: [PATCH 1/2] PCI/MSI: Cache the MSIX table size
-Message-ID: <Y80WtujnO7kfduAZ@kroah.com>
-References: <20230119170633.40944-1-alexander.shishkin@linux.intel.com>
- <20230119170633.40944-2-alexander.shishkin@linux.intel.com>
- <Y8z7FPcuDXDBi+1U@unreal>
+To:     Alexander Wetzel <alexander@wetzel-home.de>
+Cc:     Sasha Levin <sashal@kernel.org>, stable-commits@vger.kernel.org,
+        stable@vger.kernel.org, Johannes Berg <johannes@sipsolutions.net>,
+        "David S. Miller" <davem@davemloft.net>,
+        Eric Dumazet <edumazet@google.com>,
+        Jakub Kicinski <kuba@kernel.org>,
+        Paolo Abeni <pabeni@redhat.com>
+Subject: Re: Patch "wifi: mac80211: Drop support for TX push path" has been
+ added to the 6.1-stable tree
+Message-ID: <Y80ms6dcAmksApOz@kroah.com>
+References: <20230122042805.209191-1-sashal@kernel.org>
+ <211e827e-e778-72a9-de02-42549f2e4faa@wetzel-home.de>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <Y8z7FPcuDXDBi+1U@unreal>
+In-Reply-To: <211e827e-e778-72a9-de02-42549f2e4faa@wetzel-home.de>
 X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
         DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
         SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no
@@ -58,37 +56,30 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Sun, Jan 22, 2023 at 11:00:04AM +0200, Leon Romanovsky wrote:
-> On Thu, Jan 19, 2023 at 07:06:32PM +0200, Alexander Shishkin wrote:
-> > A malicious device can change its MSIX table size between the table
-> > ioremap() and subsequent accesses, resulting in a kernel page fault in
-> > pci_write_msg_msix().
+On Sun, Jan 22, 2023 at 10:55:50AM +0100, Alexander Wetzel wrote:
+> On 22.01.23 05:28, Sasha Levin wrote:
+> > This is a note to let you know that I've just added the patch titled
 > > 
-> > To avoid this, cache the table size observed at the moment of table
-> > ioremap() and use the cached value. This, however, does not help drivers
-> > that peek at the PCIE_MSIX_FLAGS register directly.
+> >      wifi: mac80211: Drop support for TX push path
 > > 
-> > Signed-off-by: Alexander Shishkin <alexander.shishkin@linux.intel.com>
-> > Reviewed-by: Mika Westerberg <mika.westerberg@linux.intel.com>
-> > Cc: stable@vger.kernel.org
-> > ---
-> >  drivers/pci/msi/api.c | 7 ++++++-
-> >  drivers/pci/msi/msi.c | 2 +-
-> >  include/linux/pci.h   | 1 +
-> >  3 files changed, 8 insertions(+), 2 deletions(-)
+> > to the 6.1-stable tree which can be found at:
+> >      http://www.kernel.org/git/?p=linux/kernel/git/stable/stable-queue.git;a=summary
+> > 
+> > The filename of the patch is:
+> >       wifi-mac80211-drop-support-for-tx-push-path.patch
+> > and it can be found in the queue-6.1 subdirectory.
+> > 
+> > If you, or anyone else, feels it should not be added to the stable tree,
+> > please let <stable@vger.kernel.org> know about it.
+> > 
 > 
-> I'm not security expert here, but not sure that this protects from anything.
-> 1. Kernel relies on working and not-malicious HW. There are gazillion ways
-> to cause crashes other than changing MSI-X.
+> We should at least have a discussion about that.
+> While I think we have sorted out all related regressions it's still way too
+> early to be sure.
+> 
+> The patch is also changing most mac80211 driver interfaces from queuing to
+> non-queuing and is thus nothing I would do within a fix release.
 
-Linux does NOT protect from malicious PCIe devices at this point in
-time, you are correct.  If we wish to change that model, then we can
-work on that with the explict understanding that most all drivers will
-need to change as will the bus logic for the busses involved.
-
-To do piece-meal patches like this for no good reason is not a good idea
-as it achieves nothing in the end :(
-
-thanks,
+Fair enough, I'll go drop it now, thanks for letting us know.
 
 greg k-h
