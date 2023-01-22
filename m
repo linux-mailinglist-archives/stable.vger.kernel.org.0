@@ -2,46 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 7CF9B676FBC
-	for <lists+stable@lfdr.de>; Sun, 22 Jan 2023 16:24:47 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 958F3676E92
+	for <lists+stable@lfdr.de>; Sun, 22 Jan 2023 16:12:09 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231366AbjAVPYq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 22 Jan 2023 10:24:46 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53036 "EHLO
+        id S230362AbjAVPMH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 22 Jan 2023 10:12:07 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39338 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231364AbjAVPYq (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 22 Jan 2023 10:24:46 -0500
-Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D5F5A222FA
-        for <stable@vger.kernel.org>; Sun, 22 Jan 2023 07:24:44 -0800 (PST)
+        with ESMTP id S230370AbjAVPMG (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 22 Jan 2023 10:12:06 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0D91021A09
+        for <stable@vger.kernel.org>; Sun, 22 Jan 2023 07:11:57 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id A6860CE0F4D
-        for <stable@vger.kernel.org>; Sun, 22 Jan 2023 15:24:42 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 94E4CC433EF;
-        Sun, 22 Jan 2023 15:24:40 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id AC627B80B11
+        for <stable@vger.kernel.org>; Sun, 22 Jan 2023 15:11:55 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 164F6C433EF;
+        Sun, 22 Jan 2023 15:11:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1674401080;
-        bh=xPLwRDrW5IACGkyyuSEBErLQWEoxo9XPIYN11dxvzMs=;
+        s=korg; t=1674400314;
+        bh=QXdRJ5DH6vn4Pju1VHA5nhTBzG9dmmnfFLVDb5DRRtY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=AiYwURVGTrD5rE6bmZbfd0HIb9GLu1rW0hCQjMzZWs6RJrYsuUvs2kfCszGICJCuY
-         LM3bY6+TOskSaDidYtGAJhggnsCpLF5Rtz2Na66GFDJDK40u3pkfMEGTmXJBcyHNuI
-         onLVWcMr9WyUlnxpoJwCeeVgMoAunZOfsEAa5x98=
+        b=hS44/7trchBKi5mp9R9F+CZyHpnNBPI0r2aW/I5gW8C83P33w8B4fyIRRpvsdx3kj
+         Upg16j25/VcPkeeQh3V9E5Ob3qtOMDBb6Q98kMQD7x1DmWR80qE/jLlavjua7KnWLw
+         dXXp5gxP10IFZ7FVGDzxSh/5GsyvUGaxTDW4eILw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Paul Walmsley <paul.walmsley@sifive.com>,
-        Greentime Hu <greentime.hu@sifive.com>,
-        Ben Dooks <ben.dooks@codethink.co.uk>,
-        Conor Dooley <conor.dooley@microchip.com>,
-        Ron Economos <re@w6rz.net>
-Subject: [PATCH 6.1 095/193] riscv: dts: sifive: fu740: fix size of pcie 32bit memory
+        patches@lists.linux.dev, Pavel Begunkov <asml.silence@gmail.com>,
+        Jens Axboe <axboe@kernel.dk>, Sasha Levin <sashal@kernel.org>,
+        syzbot+6805087452d72929404e@syzkaller.appspotmail.com
+Subject: [PATCH 5.10 28/98] io_uring: lock overflowing for IOPOLL
 Date:   Sun, 22 Jan 2023 16:03:44 +0100
-Message-Id: <20230122150250.680555960@linuxfoundation.org>
+Message-Id: <20230122150230.668195985@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.1
-In-Reply-To: <20230122150246.321043584@linuxfoundation.org>
-References: <20230122150246.321043584@linuxfoundation.org>
+In-Reply-To: <20230122150229.351631432@linuxfoundation.org>
+References: <20230122150229.351631432@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,44 +54,76 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ben Dooks <ben.dooks@codethink.co.uk>
+From: Pavel Begunkov <asml.silence@gmail.com>
 
-commit 43d5f5d63699724d47f0d9e0eae516a260d232b4 upstream.
+commit 544d163d659d45a206d8929370d5a2984e546cb7 upstream.
 
-The 32-bit memory resource is needed for non-prefetchable memory
-allocations on the PCIe bus, however with some cards (such as the
-SM768) the system fails to allocate memory from this.
+syzbot reports an issue with overflow filling for IOPOLL:
 
-Checking the allocation against the datasheet, it looks like there
-has been a mis-calcualation of the resource for the first memory
-region (0x0060090000..0x0070ffffff) which in the data-sheet for
-the fu740 (v1p2) is from 0x0060000000..0x007fffffff. Changing
-this to allocate from 0x0060090000..0x007fffffff fixes the probing
-issues.
+WARNING: CPU: 0 PID: 28 at io_uring/io_uring.c:734 io_cqring_event_overflow+0x1c0/0x230 io_uring/io_uring.c:734
+CPU: 0 PID: 28 Comm: kworker/u4:1 Not tainted 6.2.0-rc3-syzkaller-16369-g358a161a6a9e #0
+Workqueue: events_unbound io_ring_exit_work
+Call trace:
+ io_cqring_event_overflow+0x1c0/0x230 io_uring/io_uring.c:734
+ io_req_cqe_overflow+0x5c/0x70 io_uring/io_uring.c:773
+ io_fill_cqe_req io_uring/io_uring.h:168 [inline]
+ io_do_iopoll+0x474/0x62c io_uring/rw.c:1065
+ io_iopoll_try_reap_events+0x6c/0x108 io_uring/io_uring.c:1513
+ io_uring_try_cancel_requests+0x13c/0x258 io_uring/io_uring.c:3056
+ io_ring_exit_work+0xec/0x390 io_uring/io_uring.c:2869
+ process_one_work+0x2d8/0x504 kernel/workqueue.c:2289
+ worker_thread+0x340/0x610 kernel/workqueue.c:2436
+ kthread+0x12c/0x158 kernel/kthread.c:376
+ ret_from_fork+0x10/0x20 arch/arm64/kernel/entry.S:863
 
-Fixes: ae80d5148085 ("riscv: dts: Add PCIe support for the SiFive FU740-C000 SoC")
-Cc: Paul Walmsley <paul.walmsley@sifive.com>
-Cc: Greentime Hu <greentime.hu@sifive.com>
-Signed-off-by: Ben Dooks <ben.dooks@codethink.co.uk>
-Cc: stable@vger.kernel.org
-Tested-by: Ron Economos <re@w6rz.net> # from IRC
-Reviewed-by: Conor Dooley <conor.dooley@microchip.com>
-Signed-off-by: Conor Dooley <conor.dooley@microchip.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+There is no real problem for normal IOPOLL as flush is also called with
+uring_lock taken, but it's getting more complicated for IOPOLL|SQPOLL,
+for which __io_cqring_overflow_flush() happens from the CQ waiting path.
+
+Reported-and-tested-by: syzbot+6805087452d72929404e@syzkaller.appspotmail.com
+Cc: stable@vger.kernel.org # 5.10+
+Signed-off-by: Pavel Begunkov <asml.silence@gmail.com>
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/riscv/boot/dts/sifive/fu740-c000.dtsi |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ io_uring/io_uring.c | 18 ++++++++++++++++--
+ 1 file changed, 16 insertions(+), 2 deletions(-)
 
---- a/arch/riscv/boot/dts/sifive/fu740-c000.dtsi
-+++ b/arch/riscv/boot/dts/sifive/fu740-c000.dtsi
-@@ -328,7 +328,7 @@
- 			bus-range = <0x0 0xff>;
- 			ranges = <0x81000000  0x0 0x60080000  0x0 0x60080000 0x0 0x10000>,      /* I/O */
- 				 <0x82000000  0x0 0x60090000  0x0 0x60090000 0x0 0xff70000>,    /* mem */
--				 <0x82000000  0x0 0x70000000  0x0 0x70000000 0x0 0x1000000>,    /* mem */
-+				 <0x82000000  0x0 0x70000000  0x0 0x70000000 0x0 0x10000000>,    /* mem */
- 				 <0xc3000000 0x20 0x00000000 0x20 0x00000000 0x20 0x00000000>;  /* mem prefetchable */
- 			num-lanes = <0x8>;
- 			interrupts = <56>, <57>, <58>, <59>, <60>, <61>, <62>, <63>, <64>;
+diff --git a/io_uring/io_uring.c b/io_uring/io_uring.c
+index f05f033d8496..b7bd5138bdaf 100644
+--- a/io_uring/io_uring.c
++++ b/io_uring/io_uring.c
+@@ -2482,12 +2482,26 @@ static void io_iopoll_complete(struct io_ring_ctx *ctx, unsigned int *nr_events,
+ 
+ 	io_init_req_batch(&rb);
+ 	while (!list_empty(done)) {
++		struct io_uring_cqe *cqe;
++		unsigned cflags;
++
+ 		req = list_first_entry(done, struct io_kiocb, inflight_entry);
+ 		list_del(&req->inflight_entry);
+-
+-		io_fill_cqe_req(req, req->result, io_put_rw_kbuf(req));
++		cflags = io_put_rw_kbuf(req);
+ 		(*nr_events)++;
+ 
++		cqe = io_get_cqe(ctx);
++		if (cqe) {
++			WRITE_ONCE(cqe->user_data, req->user_data);
++			WRITE_ONCE(cqe->res, req->result);
++			WRITE_ONCE(cqe->flags, cflags);
++		} else {
++			spin_lock(&ctx->completion_lock);
++			io_cqring_event_overflow(ctx, req->user_data,
++							req->result, cflags);
++			spin_unlock(&ctx->completion_lock);
++		}
++
+ 		if (req_ref_put_and_test(req))
+ 			io_req_free_batch(&rb, req, &ctx->submit_state);
+ 	}
+-- 
+2.39.0
+
 
 
