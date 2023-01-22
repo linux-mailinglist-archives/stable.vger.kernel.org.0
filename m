@@ -2,43 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 6A4BC676E31
-	for <lists+stable@lfdr.de>; Sun, 22 Jan 2023 16:08:02 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 89D87676EBF
+	for <lists+stable@lfdr.de>; Sun, 22 Jan 2023 16:13:55 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230198AbjAVPIB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 22 Jan 2023 10:08:01 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34264 "EHLO
+        id S230426AbjAVPNy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 22 Jan 2023 10:13:54 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41016 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230192AbjAVPIA (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 22 Jan 2023 10:08:00 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6DC15126FE
-        for <stable@vger.kernel.org>; Sun, 22 Jan 2023 07:07:59 -0800 (PST)
+        with ESMTP id S230430AbjAVPNy (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 22 Jan 2023 10:13:54 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6E97F21A3E
+        for <stable@vger.kernel.org>; Sun, 22 Jan 2023 07:13:53 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 193F2B80B12
-        for <stable@vger.kernel.org>; Sun, 22 Jan 2023 15:07:58 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7A680C433D2;
-        Sun, 22 Jan 2023 15:07:56 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 0DC8860C63
+        for <stable@vger.kernel.org>; Sun, 22 Jan 2023 15:13:53 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1E9D8C433EF;
+        Sun, 22 Jan 2023 15:13:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1674400076;
-        bh=chzBENqgieb9Qj4TaMoOkUkuMlfujWT0VeSzHm95+QI=;
+        s=korg; t=1674400432;
+        bh=AGgRiUxW2WyNCtHhWR74Vkmi6U0/r3HGGNQR/DzksRw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Fq8NRXEjRS2gV58vVLdmBzQAXC89T19z9Jp72bKBtf9EIfRcUUbaLblFYrfL6NmIy
-         ZnvlEjYyt9hK+kvDwrdixtVvOwwEfgz9hrTUob506aMXU1nMkTACA24apddJl6CXsC
-         zP55ShAqzhz69nFdW7t2cGutjf8ZYzWQnDGxFSg4=
+        b=aaJQYAd90NHtgQci4tTFrOBFKHB72UgXWjdgryVs/A71a9lKSPu0XfQgTACFjbvPP
+         qbrFvLm/NAxPyejv0u7IpRKYdC0JCypyJ63eBx5w0dqK41LdAWpfZZaIWiEISW6SVh
+         AB7knYjnGz/vWYTGkHdELxdWNZoj92a6ZRrvZ2PY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        =?UTF-8?q?Ilpo=20J=C3=A4rvinen?= <ilpo.jarvinen@linux.intel.com>
-Subject: [PATCH 4.19 30/37] serial: pch_uart: Pass correct sg to dma_unmap_sg()
-Date:   Sun, 22 Jan 2023 16:04:27 +0100
-Message-Id: <20230122150220.806300125@linuxfoundation.org>
+        patches@lists.linux.dev, Mohan Kumar <mkumard@nvidia.com>,
+        Vinod Koul <vkoul@kernel.org>
+Subject: [PATCH 5.10 72/98] dmaengine: tegra210-adma: fix global intr clear
+Date:   Sun, 22 Jan 2023 16:04:28 +0100
+Message-Id: <20230122150232.492532019@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.1
-In-Reply-To: <20230122150219.557984692@linuxfoundation.org>
-References: <20230122150219.557984692@linuxfoundation.org>
+In-Reply-To: <20230122150229.351631432@linuxfoundation.org>
+References: <20230122150229.351631432@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,38 +53,33 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ilpo Järvinen <ilpo.jarvinen@linux.intel.com>
+From: Mohan Kumar <mkumard@nvidia.com>
 
-commit e8914b52e5b024e4af3d810a935fe0805eee8a36 upstream.
+commit 9c7e355ccbb33d239360c876dbe49ad5ade65b47 upstream.
 
-A local variable sg is used to store scatterlist pointer in
-pch_dma_tx_complete(). The for loop doing Tx byte accounting before
-dma_unmap_sg() alters sg in its increment statement. Therefore, the
-pointer passed into dma_unmap_sg() won't match to the one given to
-dma_map_sg().
+The current global interrupt clear programming register offset
+was not correct. Fix the programming with right offset
 
-To fix the problem, use priv->sg_tx_p directly in dma_unmap_sg()
-instead of the local variable.
-
-Fixes: da3564ee027e ("pch_uart: add multi-scatter processing")
+Fixes: ded1f3db4cd6 ("dmaengine: tegra210-adma: prepare for supporting newer Tegra chips")
 Cc: stable@vger.kernel.org
-Signed-off-by: Ilpo Järvinen <ilpo.jarvinen@linux.intel.com>
-Link: https://lore.kernel.org/r/20230103093435.4396-1-ilpo.jarvinen@linux.intel.com
+Signed-off-by: Mohan Kumar <mkumard@nvidia.com>
+Link: https://lore.kernel.org/r/20230102064844.31306-1-mkumard@nvidia.com
+Signed-off-by: Vinod Koul <vkoul@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/tty/serial/pch_uart.c |    2 +-
+ drivers/dma/tegra210-adma.c |    2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/tty/serial/pch_uart.c
-+++ b/drivers/tty/serial/pch_uart.c
-@@ -792,7 +792,7 @@ static void pch_dma_tx_complete(void *ar
- 	}
- 	xmit->tail &= UART_XMIT_SIZE - 1;
- 	async_tx_ack(priv->desc_tx);
--	dma_unmap_sg(port->dev, sg, priv->orig_nent, DMA_TO_DEVICE);
-+	dma_unmap_sg(port->dev, priv->sg_tx_p, priv->orig_nent, DMA_TO_DEVICE);
- 	priv->tx_dma_use = 0;
- 	priv->nent = 0;
- 	priv->orig_nent = 0;
+--- a/drivers/dma/tegra210-adma.c
++++ b/drivers/dma/tegra210-adma.c
+@@ -224,7 +224,7 @@ static int tegra_adma_init(struct tegra_
+ 	int ret;
+ 
+ 	/* Clear any interrupts */
+-	tdma_write(tdma, tdma->cdata->global_int_clear, 0x1);
++	tdma_write(tdma, tdma->cdata->ch_base_offset + tdma->cdata->global_int_clear, 0x1);
+ 
+ 	/* Assert soft reset */
+ 	tdma_write(tdma, ADMA_GLOBAL_SOFT_RESET, 0x1);
 
 
