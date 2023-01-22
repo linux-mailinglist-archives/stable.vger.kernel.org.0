@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 07FAF67701C
-	for <lists+stable@lfdr.de>; Sun, 22 Jan 2023 16:28:42 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A698A676F5A
+	for <lists+stable@lfdr.de>; Sun, 22 Jan 2023 16:20:31 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229947AbjAVP2l (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 22 Jan 2023 10:28:41 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56558 "EHLO
+        id S231238AbjAVPUa (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 22 Jan 2023 10:20:30 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47306 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229950AbjAVP2k (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 22 Jan 2023 10:28:40 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 97EF614EAE
-        for <stable@vger.kernel.org>; Sun, 22 Jan 2023 07:28:39 -0800 (PST)
+        with ESMTP id S231239AbjAVPUa (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 22 Jan 2023 10:20:30 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 835A3222DB
+        for <stable@vger.kernel.org>; Sun, 22 Jan 2023 07:20:29 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 4C331B80B1F
-        for <stable@vger.kernel.org>; Sun, 22 Jan 2023 15:28:38 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9A647C433EF;
-        Sun, 22 Jan 2023 15:28:36 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 1FB6460C44
+        for <stable@vger.kernel.org>; Sun, 22 Jan 2023 15:20:29 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 365B9C433EF;
+        Sun, 22 Jan 2023 15:20:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1674401317;
-        bh=Qh0HDawxJG+OgmkKxi+3tx/JRCRs4d2Y4ETr6YQmSpA=;
+        s=korg; t=1674400828;
+        bh=V59yEgbIcCOoYW7LxUjksBUB7amIJR33i7ViyEdevlk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=lDtMjN55K6hu/it9xgCS8TE7Ti4C7vnZOkKvpJpMmx38qZgzTrTLws/7B6iDy/PbS
-         q4A2pGx6Z1H2ixKXvEJdpir+ByR08FpnYblZqVhumDCBA3t0/Qvwm4YrbHGfd4xnDw
-         xbadpuF48iJJ6CXRHlpUkoCjNx6iYeGDrIgCXdqw=
+        b=A6cQIahM9dQs48CfcHYNfk6DsIouab9T3Lob6Z40mN61iBA5M0qvu/tExKLg316ln
+         sihZl/IiDy2i3aP86UfB6r1Bh1nEiAMbYATPvYeXA8LYKHEAV4Z9/h1dsDjJGhgPXr
+         5oS1HL0DMa6zOEKfG8DddBsgDYq+UmPWqZ0WhnFY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Yifan Zhang <yifan1.zhang@amd.com>,
-        Aaron Liu <aaron.liu@amd.com>,
-        Alex Deucher <alexander.deucher@amd.com>,
-        "Limonciello, Mario" <Mario.Limonciello@amd.com>
-Subject: [PATCH 6.1 164/193] drm/amdgpu/discovery: enable mes support for GC v11.0.4
-Date:   Sun, 22 Jan 2023 16:04:53 +0100
-Message-Id: <20230122150253.906193842@linuxfoundation.org>
+        patches@lists.linux.dev, YingChi Long <me@inclyc.cn>,
+        Borislav Petkov <bp@suse.de>,
+        Nick Desaulniers <ndesaulniers@google.com>,
+        Nathan Chancellor <nathan@kernel.org>
+Subject: [PATCH 5.15 104/117] x86/fpu: Use _Alignof to avoid undefined behavior in TYPE_ALIGN
+Date:   Sun, 22 Jan 2023 16:04:54 +0100
+Message-Id: <20230122150237.161532971@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.1
-In-Reply-To: <20230122150246.321043584@linuxfoundation.org>
-References: <20230122150246.321043584@linuxfoundation.org>
+In-Reply-To: <20230122150232.736358800@linuxfoundation.org>
+References: <20230122150232.736358800@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,30 +55,63 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yifan Zhang <yifan1.zhang@amd.com>
+From: YingChi Long <me@inclyc.cn>
 
-commit 6a6af77570add4e58721386be429dbd02cd4b9dd upstream.
+commit 55228db2697c09abddcb9487c3d9fa5854a932cd upstream.
 
-this patch is to enable mes for GC 11.0.4.
+WG14 N2350 specifies that it is an undefined behavior to have type
+definitions within offsetof", see
 
-Signed-off-by: Yifan Zhang <yifan1.zhang@amd.com>
-Reviewed-by: Aaron Liu <aaron.liu@amd.com>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
-Cc: "Limonciello, Mario" <Mario.Limonciello@amd.com>
+  https://www.open-std.org/jtc1/sc22/wg14/www/docs/n2350.htm
+
+This specification is also part of C23.
+
+Therefore, replace the TYPE_ALIGN macro with the _Alignof builtin to
+avoid undefined behavior. (_Alignof itself is C11 and the kernel is
+built with -gnu11).
+
+ISO C11 _Alignof is subtly different from the GNU C extension
+__alignof__. Latter is the preferred alignment and _Alignof the
+minimal alignment. For long long on x86 these are 8 and 4
+respectively.
+
+The macro TYPE_ALIGN's behavior matches _Alignof rather than
+__alignof__.
+
+  [ bp: Massage commit message. ]
+
+Signed-off-by: YingChi Long <me@inclyc.cn>
+Signed-off-by: Borislav Petkov <bp@suse.de>
+Reviewed-by: Nick Desaulniers <ndesaulniers@google.com>
+Link: https://lore.kernel.org/r/20220925153151.2467884-1-me@inclyc.cn
+Signed-off-by: Nathan Chancellor <nathan@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/gpu/drm/amd/amdgpu/amdgpu_discovery.c |    1 +
- 1 file changed, 1 insertion(+)
+ arch/x86/kernel/fpu/init.c |    7 ++-----
+ 1 file changed, 2 insertions(+), 5 deletions(-)
 
---- a/drivers/gpu/drm/amd/amdgpu/amdgpu_discovery.c
-+++ b/drivers/gpu/drm/amd/amdgpu/amdgpu_discovery.c
-@@ -1951,6 +1951,7 @@ static int amdgpu_discovery_set_mes_ip_b
- 	case IP_VERSION(11, 0, 1):
- 	case IP_VERSION(11, 0, 2):
- 	case IP_VERSION(11, 0, 3):
-+	case IP_VERSION(11, 0, 4):
- 		amdgpu_device_ip_block_add(adev, &mes_v11_0_ip_block);
- 		adev->enable_mes = true;
- 		adev->enable_mes_kiq = true;
+--- a/arch/x86/kernel/fpu/init.c
++++ b/arch/x86/kernel/fpu/init.c
+@@ -138,9 +138,6 @@ static void __init fpu__init_system_gene
+ unsigned int fpu_kernel_xstate_size __ro_after_init;
+ EXPORT_SYMBOL_GPL(fpu_kernel_xstate_size);
+ 
+-/* Get alignment of the TYPE. */
+-#define TYPE_ALIGN(TYPE) offsetof(struct { char x; TYPE test; }, test)
+-
+ /*
+  * Enforce that 'MEMBER' is the last field of 'TYPE'.
+  *
+@@ -148,8 +145,8 @@ EXPORT_SYMBOL_GPL(fpu_kernel_xstate_size
+  * because that's how C aligns structs.
+  */
+ #define CHECK_MEMBER_AT_END_OF(TYPE, MEMBER) \
+-	BUILD_BUG_ON(sizeof(TYPE) != ALIGN(offsetofend(TYPE, MEMBER), \
+-					   TYPE_ALIGN(TYPE)))
++	BUILD_BUG_ON(sizeof(TYPE) !=         \
++		     ALIGN(offsetofend(TYPE, MEMBER), _Alignof(TYPE)))
+ 
+ /*
+  * We append the 'struct fpu' to the task_struct:
 
 
