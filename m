@@ -2,41 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B5C80676E33
-	for <lists+stable@lfdr.de>; Sun, 22 Jan 2023 16:08:05 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4E621676E34
+	for <lists+stable@lfdr.de>; Sun, 22 Jan 2023 16:08:09 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230210AbjAVPIE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 22 Jan 2023 10:08:04 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34330 "EHLO
+        id S230199AbjAVPII (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 22 Jan 2023 10:08:08 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34400 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230196AbjAVPID (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 22 Jan 2023 10:08:03 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F2B271C30E
-        for <stable@vger.kernel.org>; Sun, 22 Jan 2023 07:08:02 -0800 (PST)
+        with ESMTP id S230196AbjAVPIH (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 22 Jan 2023 10:08:07 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 34DFC126FE
+        for <stable@vger.kernel.org>; Sun, 22 Jan 2023 07:08:07 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 8DB9B60C56
-        for <stable@vger.kernel.org>; Sun, 22 Jan 2023 15:08:02 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A4B85C433EF;
-        Sun, 22 Jan 2023 15:08:01 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id E7394B80B13
+        for <stable@vger.kernel.org>; Sun, 22 Jan 2023 15:08:05 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3A992C433EF;
+        Sun, 22 Jan 2023 15:08:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1674400082;
-        bh=2gT164pXJ3j5R+AW2ekBcE9wiMxX/k2XqfUPjOczVLg=;
+        s=korg; t=1674400084;
+        bh=W4H5iCI00DHQOLwrnJn3FXXrWKVrlLr07QWu1EKUeM0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=HOuSci+dbiq0/EH4WT5Z/3UiJG/73ntW+79P8QN30yDcslSlGO1iYS9F89y7ujOus
-         Pftl/pBKECeidYj53hk66k5ZLDMiZ2Y6u31oxq+TmZYFeN8AqkpqORrcenTTQ09xN4
-         l2U1j7Nc1TfiyxFijoo3Zy5vsGjIlHm9uPcHDJDk=
+        b=C085e9Ag6tDNzfKM1Atybk+R6EifLgQ7gvQz+Hx94kR1A/PgdWL0/mrTUc26dDD4E
+         5s/KW+h2ZpXti5Ui6CEu5kgHSXrWHIuP9rlbXrbLma3iC5Mg5FECk+ICzNJcIshY3X
+         hKcUgiX/X3vQRYHUa0AmNk3ns4/LMDtm4Aa4qyuo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         patches@lists.linux.dev, stable <stable@kernel.org>,
-        Tobias Schramm <t.schramm@manjaro.org>,
-        Richard Genoud <richard.genoud@gmail.com>
-Subject: [PATCH 4.19 31/37] serial: atmel: fix incorrect baudrate setup
-Date:   Sun, 22 Jan 2023 16:04:28 +0100
-Message-Id: <20230122150220.846735145@linuxfoundation.org>
+        Khazhismel Kumykov <khazhy@google.com>
+Subject: [PATCH 4.19 32/37] gsmi: fix null-deref in gsmi_get_variable
+Date:   Sun, 22 Jan 2023 16:04:29 +0100
+Message-Id: <20230122150220.896842263@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.1
 In-Reply-To: <20230122150219.557984692@linuxfoundation.org>
 References: <20230122150219.557984692@linuxfoundation.org>
@@ -54,53 +53,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tobias Schramm <t.schramm@manjaro.org>
+From: Khazhismel Kumykov <khazhy@chromium.org>
 
-commit 5bfdd3c654bd879bff50c2e85e42f85ae698b42f upstream.
+commit a769b05eeed7accc4019a1ed9799dd72067f1ce8 upstream.
 
-Commit ba47f97a18f2 ("serial: core: remove baud_rates when serial console
-setup") changed uart_set_options to select the correct baudrate
-configuration based on the absolute error between requested baudrate and
-available standard baudrate settings.
-Prior to that commit the baudrate was selected based on which predefined
-standard baudrate did not exceed the requested baudrate.
-This change of selection logic was never reflected in the atmel serial
-driver. Thus the comment left in the atmel serial driver is no longer
-accurate.
-Additionally the manual rounding up described in that comment and applied
-via (quot - 1) requests an incorrect baudrate. Since uart_set_options uses
-tty_termios_encode_baud_rate to determine the appropriate baudrate flags
-this can cause baudrate selection to fail entirely because
-tty_termios_encode_baud_rate will only select a baudrate if relative error
-between requested and selected baudrate does not exceed +/-2%.
-Fix that by requesting actual, exact baudrate used by the serial.
+We can get EFI variables without fetching the attribute, so we must
+allow for that in gsmi.
 
-Fixes: ba47f97a18f2 ("serial: core: remove baud_rates when serial console setup")
+commit 859748255b43 ("efi: pstore: Omit efivars caching EFI varstore
+access layer") added a new get_variable call with attr=NULL, which
+triggers panic in gsmi.
+
+Fixes: 74c5b31c6618 ("driver: Google EFI SMI")
 Cc: stable <stable@kernel.org>
-Signed-off-by: Tobias Schramm <t.schramm@manjaro.org>
-Acked-by: Richard Genoud <richard.genoud@gmail.com>
-Link: https://lore.kernel.org/r/20230109072940.202936-1-t.schramm@manjaro.org
+Signed-off-by: Khazhismel Kumykov <khazhy@google.com>
+Link: https://lore.kernel.org/r/20230118010212.1268474-1-khazhy@google.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/tty/serial/atmel_serial.c |    8 +-------
- 1 file changed, 1 insertion(+), 7 deletions(-)
+ drivers/firmware/google/gsmi.c |    7 ++++---
+ 1 file changed, 4 insertions(+), 3 deletions(-)
 
---- a/drivers/tty/serial/atmel_serial.c
-+++ b/drivers/tty/serial/atmel_serial.c
-@@ -2511,13 +2511,7 @@ static void __init atmel_console_get_opt
- 	else if (mr == ATMEL_US_PAR_ODD)
- 		*parity = 'o';
+--- a/drivers/firmware/google/gsmi.c
++++ b/drivers/firmware/google/gsmi.c
+@@ -343,9 +343,10 @@ static efi_status_t gsmi_get_variable(ef
+ 		memcpy(data, gsmi_dev.data_buf->start, *data_size);
  
--	/*
--	 * The serial core only rounds down when matching this to a
--	 * supported baud rate. Make sure we don't end up slightly
--	 * lower than one of those, as it would make us fall through
--	 * to a much lower baud rate than we really want.
--	 */
--	*baud = port->uartclk / (16 * (quot - 1));
-+	*baud = port->uartclk / (16 * quot);
- }
+ 		/* All variables are have the following attributes */
+-		*attr = EFI_VARIABLE_NON_VOLATILE |
+-			EFI_VARIABLE_BOOTSERVICE_ACCESS |
+-			EFI_VARIABLE_RUNTIME_ACCESS;
++		if (attr)
++			*attr = EFI_VARIABLE_NON_VOLATILE |
++				EFI_VARIABLE_BOOTSERVICE_ACCESS |
++				EFI_VARIABLE_RUNTIME_ACCESS;
+ 	}
  
- static int __init atmel_console_setup(struct console *co, char *options)
+ 	spin_unlock_irqrestore(&gsmi_dev.lock, flags);
 
 
