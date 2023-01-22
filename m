@@ -2,44 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 19A02676F51
-	for <lists+stable@lfdr.de>; Sun, 22 Jan 2023 16:20:08 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 518F167700B
+	for <lists+stable@lfdr.de>; Sun, 22 Jan 2023 16:27:55 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231220AbjAVPUH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 22 Jan 2023 10:20:07 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47024 "EHLO
+        id S231450AbjAVP1y (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 22 Jan 2023 10:27:54 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56002 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231128AbjAVPUG (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 22 Jan 2023 10:20:06 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C5F1F2203D
-        for <stable@vger.kernel.org>; Sun, 22 Jan 2023 07:20:05 -0800 (PST)
+        with ESMTP id S231468AbjAVP1x (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 22 Jan 2023 10:27:53 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0ED5E11176
+        for <stable@vger.kernel.org>; Sun, 22 Jan 2023 07:27:53 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 5F99460C43
-        for <stable@vger.kernel.org>; Sun, 22 Jan 2023 15:20:05 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7459AC433EF;
-        Sun, 22 Jan 2023 15:20:04 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 9D91860C44
+        for <stable@vger.kernel.org>; Sun, 22 Jan 2023 15:27:52 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B193FC433EF;
+        Sun, 22 Jan 2023 15:27:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1674400804;
-        bh=LjJuK/tkDFUQaJ3L4JDTNnroWDZsql2pY7GXQzrX0VQ=;
+        s=korg; t=1674401272;
+        bh=ekXyULMs7HgD/y3cYUydBC9BMq9XqU6J4rCDj4MQJf8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=JZo+RYmdJ9X6E5ngN+i70A5g1hkliJ7AL+XQUH0ZJXJZdKaIkG5fF/5umICBWZPf+
-         oiswVRNONlEFf/6/VyAwT+P9WUzi0JOO4D3mvhItsGZJA1IQEoYt8jJH44OxyBKCvN
-         TL3bNQb9IumiucgOz07I24AlxThy8DRx8POyh4O4=
+        b=1i/hsJZ9ln1uwTmOabYNtwhMXm9es4dST1Qoo+a6Tg7czBmYcq8/P1n/EBKLnlj59
+         k4LuIHVVLhL00sLmrD1nPU7jtds6q9dtZhMSSz/5eqICjAyUH/KGSxRsBVHwJMWFhh
+         uYgDHefDCCDvt7Oo6IByoqeSt5LtRf4hQV+dPGb0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Damien Le Moal <damien.lemoal@opensource.wdc.com>,
-        Jens Axboe <axboe@kernel.dk>
-Subject: [PATCH 5.15 115/117] block: mq-deadline: Rename deadline_is_seq_writes()
+        patches@lists.linux.dev, Tim Huang <tim.huang@amd.com>,
+        Yifan Zhang <yifan1.zhang@amd.com>,
+        Aaron Liu <aaron.liu@amd.com>,
+        Alex Deucher <alexander.deucher@amd.com>,
+        "Limonciello, Mario" <Mario.Limonciello@amd.com>
+Subject: [PATCH 6.1 176/193] drm/amdgpu: enable PSP IP v13.0.11 support
 Date:   Sun, 22 Jan 2023 16:05:05 +0100
-Message-Id: <20230122150237.595780837@linuxfoundation.org>
+Message-Id: <20230122150254.471856139@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.1
-In-Reply-To: <20230122150232.736358800@linuxfoundation.org>
-References: <20230122150232.736358800@linuxfoundation.org>
+In-Reply-To: <20230122150246.321043584@linuxfoundation.org>
+References: <20230122150246.321043584@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,42 +56,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Damien Le Moal <damien.lemoal@opensource.wdc.com>
+From: Tim Huang <tim.huang@amd.com>
 
-commit 3692fec8bb476e8583e559ff5783a6adef306cf2 upstream.
+commit 2c83e3fd928b9cb1e35340e58d4b1bd2eea23ed6 upstream.
 
-Rename deadline_is_seq_writes() to deadline_is_seq_write() (remove the
-"s" plural) to more correctly reflect the fact that this function tests
-a single request, not multiple requests.
+Enable PSP FW loading for PSP IP v13.0.11
 
-Fixes: 015d02f48537 ("block: mq-deadline: Do not break sequential write streams to zoned HDDs")
-Signed-off-by: Damien Le Moal <damien.lemoal@opensource.wdc.com>
-Link: https://lore.kernel.org/r/20221126025550.967914-2-damien.lemoal@opensource.wdc.com
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
+Signed-off-by: Tim Huang <tim.huang@amd.com>
+Signed-off-by: Yifan Zhang <yifan1.zhang@amd.com>
+Reviewed-by: Aaron Liu <aaron.liu@amd.com>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+Cc: "Limonciello, Mario" <Mario.Limonciello@amd.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- block/mq-deadline.c |    4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/gpu/drm/amd/amdgpu/amdgpu_psp.c |    1 +
+ drivers/gpu/drm/amd/amdgpu/psp_v13_0.c  |    3 +++
+ 2 files changed, 4 insertions(+)
 
---- a/block/mq-deadline.c
-+++ b/block/mq-deadline.c
-@@ -305,7 +305,7 @@ static inline int deadline_check_fifo(st
- /*
-  * Check if rq has a sequential request preceding it.
-  */
--static bool deadline_is_seq_writes(struct deadline_data *dd, struct request *rq)
-+static bool deadline_is_seq_write(struct deadline_data *dd, struct request *rq)
- {
- 	struct request *prev = deadline_earlier_request(rq);
+--- a/drivers/gpu/drm/amd/amdgpu/amdgpu_psp.c
++++ b/drivers/gpu/drm/amd/amdgpu/amdgpu_psp.c
+@@ -139,6 +139,7 @@ static int psp_early_init(void *handle)
+ 	case IP_VERSION(13, 0, 5):
+ 	case IP_VERSION(13, 0, 8):
+ 	case IP_VERSION(13, 0, 10):
++	case IP_VERSION(13, 0, 11):
+ 		psp_v13_0_set_psp_funcs(psp);
+ 		psp->autoload_supported = true;
+ 		break;
+--- a/drivers/gpu/drm/amd/amdgpu/psp_v13_0.c
++++ b/drivers/gpu/drm/amd/amdgpu/psp_v13_0.c
+@@ -46,6 +46,8 @@ MODULE_FIRMWARE("amdgpu/psp_13_0_7_sos.b
+ MODULE_FIRMWARE("amdgpu/psp_13_0_7_ta.bin");
+ MODULE_FIRMWARE("amdgpu/psp_13_0_10_sos.bin");
+ MODULE_FIRMWARE("amdgpu/psp_13_0_10_ta.bin");
++MODULE_FIRMWARE("amdgpu/psp_13_0_11_toc.bin");
++MODULE_FIRMWARE("amdgpu/psp_13_0_11_ta.bin");
  
-@@ -364,7 +364,7 @@ deadline_fifo_request(struct deadline_da
- 	list_for_each_entry(rq, &per_prio->fifo_list[DD_WRITE], queuelist) {
- 		if (blk_req_can_dispatch_to_zone(rq) &&
- 		    (blk_queue_nonrot(rq->q) ||
--		     !deadline_is_seq_writes(dd, rq)))
-+		     !deadline_is_seq_write(dd, rq)))
- 			goto out;
- 	}
- 	rq = NULL;
+ /* For large FW files the time to complete can be very long */
+ #define USBC_PD_POLLING_LIMIT_S 240
+@@ -102,6 +104,7 @@ static int psp_v13_0_init_microcode(stru
+ 	case IP_VERSION(13, 0, 3):
+ 	case IP_VERSION(13, 0, 5):
+ 	case IP_VERSION(13, 0, 8):
++	case IP_VERSION(13, 0, 11):
+ 		err = psp_init_toc_microcode(psp, chip_name);
+ 		if (err)
+ 			return err;
 
 
