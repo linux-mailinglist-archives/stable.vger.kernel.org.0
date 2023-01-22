@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C3756676E36
-	for <lists+stable@lfdr.de>; Sun, 22 Jan 2023 16:08:13 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7E8A9676F13
+	for <lists+stable@lfdr.de>; Sun, 22 Jan 2023 16:17:26 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229944AbjAVPIM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 22 Jan 2023 10:08:12 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34454 "EHLO
+        id S231152AbjAVPRZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 22 Jan 2023 10:17:25 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44382 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230196AbjAVPIL (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 22 Jan 2023 10:08:11 -0500
+        with ESMTP id S231145AbjAVPRY (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 22 Jan 2023 10:17:24 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C85E91E285
-        for <stable@vger.kernel.org>; Sun, 22 Jan 2023 07:08:10 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 69E3C22038
+        for <stable@vger.kernel.org>; Sun, 22 Jan 2023 07:17:23 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 5E81E60C57
-        for <stable@vger.kernel.org>; Sun, 22 Jan 2023 15:08:10 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7745AC433EF;
-        Sun, 22 Jan 2023 15:08:09 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 05E7360C5C
+        for <stable@vger.kernel.org>; Sun, 22 Jan 2023 15:17:23 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 13D67C433EF;
+        Sun, 22 Jan 2023 15:17:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1674400089;
-        bh=ofh4Uir+K1O9vvUAmB+PkljF2Xcrf5crGV/g2Np60IA=;
+        s=korg; t=1674400642;
+        bh=202fxFKgzmoLH52aPHp+YYTOdMIjs95TbGiORmjDutk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=jwjcol5ye2COzuCOSWyrA1EioWu+/B69fUXYLTEyrUGP19pfWyH9AlOltpP1GrL6a
-         JxmNu/S2vNMyxyC/+3hKvBtB/cXL87YZX58TSQE1kjVDnGO8O5Tt3+2+5478G8a7L6
-         4V/1PGwJVmrrvd5RFxCDxEFQopRzbf57V5P0ja68=
+        b=BJxt5wy8LODvmdjap29lfJ3AP5ohThjPk1D7bn/CNTbIwn2Jt5ngGCaH2bgbN4mkL
+         15FAq+8Qi7/3yOsI2FG+YvoTSvElvFj2u2Jgi/FzGSqZlvQDSU7PsWMY91whrqX3fy
+         BoP4XgRd/nHj00i+xbV3YUEMiB4zx2zfymKnQhko=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         patches@lists.linux.dev,
-        Ryusuke Konishi <konishi.ryusuke@gmail.com>,
-        syzbot+ede796cecd5296353515@syzkaller.appspotmail.com,
-        Andrew Morton <akpm@linux-foundation.org>
-Subject: [PATCH 4.19 06/37] nilfs2: fix general protection fault in nilfs_btree_insert()
+        Ali Mirghasemi <ali.mirghasemi1376@gmail.com>,
+        Johan Hovold <johan@kernel.org>
+Subject: [PATCH 5.15 053/117] USB: serial: option: add Quectel EC200U modem
 Date:   Sun, 22 Jan 2023 16:04:03 +0100
-Message-Id: <20230122150219.853098033@linuxfoundation.org>
+Message-Id: <20230122150234.971801801@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.1
-In-Reply-To: <20230122150219.557984692@linuxfoundation.org>
-References: <20230122150219.557984692@linuxfoundation.org>
+In-Reply-To: <20230122150232.736358800@linuxfoundation.org>
+References: <20230122150232.736358800@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,102 +54,77 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ryusuke Konishi <konishi.ryusuke@gmail.com>
+From: Ali Mirghasemi <ali.mirghasemi1376@gmail.com>
 
-commit 7633355e5c7f29c049a9048e461427d1d8ed3051 upstream.
+commit d9bbb15881046bd76f8710c76e26a740eee997ef upstream.
 
-If nilfs2 reads a corrupted disk image and tries to reads a b-tree node
-block by calling __nilfs_btree_get_block() against an invalid virtual
-block address, it returns -ENOENT because conversion of the virtual block
-address to a disk block address fails.  However, this return value is the
-same as the internal code that b-tree lookup routines return to indicate
-that the block being searched does not exist, so functions that operate on
-that b-tree may misbehave.
+Add support for EC200U modem
 
-When nilfs_btree_insert() receives this spurious 'not found' code from
-nilfs_btree_do_lookup(), it misunderstands that the 'not found' check was
-successful and continues the insert operation using incomplete lookup path
-data, causing the following crash:
+0x0901: EC200U - AT + AP + CP + NMEA + DIAG + MOS
 
- general protection fault, probably for non-canonical address
- 0xdffffc0000000005: 0000 [#1] PREEMPT SMP KASAN
- KASAN: null-ptr-deref in range [0x0000000000000028-0x000000000000002f]
- ...
- RIP: 0010:nilfs_btree_get_nonroot_node fs/nilfs2/btree.c:418 [inline]
- RIP: 0010:nilfs_btree_prepare_insert fs/nilfs2/btree.c:1077 [inline]
- RIP: 0010:nilfs_btree_insert+0x6d3/0x1c10 fs/nilfs2/btree.c:1238
- Code: bc 24 80 00 00 00 4c 89 f8 48 c1 e8 03 42 80 3c 28 00 74 08 4c 89
- ff e8 4b 02 92 fe 4d 8b 3f 49 83 c7 28 4c 89 f8 48 c1 e8 03 <42> 80 3c
- 28 00 74 08 4c 89 ff e8 2e 02 92 fe 4d 8b 3f 49 83 c7 02
- ...
- Call Trace:
- <TASK>
-  nilfs_bmap_do_insert fs/nilfs2/bmap.c:121 [inline]
-  nilfs_bmap_insert+0x20d/0x360 fs/nilfs2/bmap.c:147
-  nilfs_get_block+0x414/0x8d0 fs/nilfs2/inode.c:101
-  __block_write_begin_int+0x54c/0x1a80 fs/buffer.c:1991
-  __block_write_begin fs/buffer.c:2041 [inline]
-  block_write_begin+0x93/0x1e0 fs/buffer.c:2102
-  nilfs_write_begin+0x9c/0x110 fs/nilfs2/inode.c:261
-  generic_perform_write+0x2e4/0x5e0 mm/filemap.c:3772
-  __generic_file_write_iter+0x176/0x400 mm/filemap.c:3900
-  generic_file_write_iter+0xab/0x310 mm/filemap.c:3932
-  call_write_iter include/linux/fs.h:2186 [inline]
-  new_sync_write fs/read_write.c:491 [inline]
-  vfs_write+0x7dc/0xc50 fs/read_write.c:584
-  ksys_write+0x177/0x2a0 fs/read_write.c:637
-  do_syscall_x64 arch/x86/entry/common.c:50 [inline]
-  do_syscall_64+0x3d/0xb0 arch/x86/entry/common.c:80
-  entry_SYSCALL_64_after_hwframe+0x63/0xcd
- ...
- </TASK>
+usb-device output:
+T: Bus=01 Lev=02 Prnt=02 Port=02 Cnt=01 Dev#= 4 Spd=480 MxCh= 0
+D: Ver= 2.00 Cls=00(>ifc ) Sub=00 Prot=00 MxPS=64 #Cfgs= 1
+P: Vendor=2c7c ProdID=0901 Rev= 3.18
+S: Manufacturer=Android
+S: Product=Android
+C:* #Ifs= 9 Cfg#= 1 Atr=e0 MxPwr=400mA
+A: FirstIf#= 0 IfCount= 2 Cls=02(comm.) Sub=06 Prot=00
+I:* If#= 0 Alt= 0 #EPs= 1 Cls=02(comm.) Sub=06 Prot=00 Driver=cdc_ether
+E: Ad=81(I) Atr=03(Int.) MxPS= 16 Ivl=32ms
+I: If#= 1 Alt= 0 #EPs= 0 Cls=0a(data ) Sub=00 Prot=00 Driver=cdc_ether
+I:* If#= 1 Alt= 1 #EPs= 2 Cls=0a(data ) Sub=00 Prot=00 Driver=cdc_ether
+E: Ad=82(I) Atr=02(Bulk) MxPS= 512 Ivl=0ms
+E: Ad=01(O) Atr=02(Bulk) MxPS= 512 Ivl=0ms
+I:* If#= 2 Alt= 0 #EPs= 3 Cls=ff(vend.) Sub=00 Prot=00 Driver=option
+E: Ad=84(I) Atr=02(Bulk) MxPS= 512 Ivl=0ms
+E: Ad=02(O) Atr=02(Bulk) MxPS= 512 Ivl=0ms
+E: Ad=83(I) Atr=03(Int.) MxPS= 512 Ivl=4096ms
+I:* If#= 3 Alt= 0 #EPs= 2 Cls=ff(vend.) Sub=00 Prot=00 Driver=option
+E: Ad=85(I) Atr=02(Bulk) MxPS= 512 Ivl=0ms
+E: Ad=03(O) Atr=02(Bulk) MxPS= 512 Ivl=0ms
+I:* If#= 4 Alt= 0 #EPs= 2 Cls=ff(vend.) Sub=00 Prot=00 Driver=option
+E: Ad=86(I) Atr=02(Bulk) MxPS= 512 Ivl=0ms
+E: Ad=04(O) Atr=02(Bulk) MxPS= 512 Ivl=0ms
+I:* If#= 5 Alt= 0 #EPs= 2 Cls=ff(vend.) Sub=00 Prot=00 Driver=option
+E: Ad=87(I) Atr=02(Bulk) MxPS= 512 Ivl=0ms
+E: Ad=05(O) Atr=02(Bulk) MxPS= 512 Ivl=0ms
+I:* If#= 6 Alt= 0 #EPs= 2 Cls=ff(vend.) Sub=00 Prot=00 Driver=option
+E: Ad=88(I) Atr=02(Bulk) MxPS= 512 Ivl=0ms
+E: Ad=06(O) Atr=02(Bulk) MxPS= 512 Ivl=0ms
+I:* If#= 7 Alt= 0 #EPs= 3 Cls=ff(vend.) Sub=00 Prot=00 Driver=option
+E: Ad=8a(I) Atr=02(Bulk) MxPS= 512 Ivl=0ms
+E: Ad=07(O) Atr=02(Bulk) MxPS= 512 Ivl=0ms
+E: Ad=89(I) Atr=03(Int.) MxPS= 512 Ivl=4096ms
+I:* If#= 8 Alt= 0 #EPs= 2 Cls=ff(vend.) Sub=00 Prot=00 Driver=option
+E: Ad=8b(I) Atr=02(Bulk) MxPS= 512 Ivl=0ms
+E: Ad=08(O) Atr=02(Bulk) MxPS= 512 Ivl=0ms
 
-This patch fixes the root cause of this problem by replacing the error
-code that __nilfs_btree_get_block() returns on block address conversion
-failure from -ENOENT to another internal code -EINVAL which means that the
-b-tree metadata is corrupted.
-
-By returning -EINVAL, it propagates without glitches, and for all relevant
-b-tree operations, functions in the upper bmap layer output an error
-message indicating corrupted b-tree metadata via
-nilfs_bmap_convert_error(), and code -EIO will be eventually returned as
-it should be.
-
-Link: https://lkml.kernel.org/r/000000000000bd89e205f0e38355@google.com
-Link: https://lkml.kernel.org/r/20230105055356.8811-1-konishi.ryusuke@gmail.com
-Signed-off-by: Ryusuke Konishi <konishi.ryusuke@gmail.com>
-Reported-by: syzbot+ede796cecd5296353515@syzkaller.appspotmail.com
-Tested-by: Ryusuke Konishi <konishi.ryusuke@gmail.com>
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Signed-off-by: Ali Mirghasemi <ali.mirghasemi1376@gmail.com>
+Cc: stable@vger.kernel.org
+Signed-off-by: Johan Hovold <johan@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/nilfs2/btree.c |   15 ++++++++++++---
- 1 file changed, 12 insertions(+), 3 deletions(-)
+ drivers/usb/serial/option.c |    2 ++
+ 1 file changed, 2 insertions(+)
 
---- a/fs/nilfs2/btree.c
-+++ b/fs/nilfs2/btree.c
-@@ -480,9 +480,18 @@ static int __nilfs_btree_get_block(const
- 	ret = nilfs_btnode_submit_block(btnc, ptr, 0, REQ_OP_READ, 0, &bh,
- 					&submit_ptr);
- 	if (ret) {
--		if (ret != -EEXIST)
--			return ret;
--		goto out_check;
-+		if (likely(ret == -EEXIST))
-+			goto out_check;
-+		if (ret == -ENOENT) {
-+			/*
-+			 * Block address translation failed due to invalid
-+			 * value of 'ptr'.  In this case, return internal code
-+			 * -EINVAL (broken bmap) to notify bmap layer of fatal
-+			 * metadata corruption.
-+			 */
-+			ret = -EINVAL;
-+		}
-+		return ret;
- 	}
- 
- 	if (ra) {
+--- a/drivers/usb/serial/option.c
++++ b/drivers/usb/serial/option.c
+@@ -262,6 +262,7 @@ static void option_instat_callback(struc
+ #define QUECTEL_PRODUCT_EM12			0x0512
+ #define QUECTEL_PRODUCT_RM500Q			0x0800
+ #define QUECTEL_PRODUCT_RM520N			0x0801
++#define QUECTEL_PRODUCT_EC200U			0x0901
+ #define QUECTEL_PRODUCT_EC200S_CN		0x6002
+ #define QUECTEL_PRODUCT_EC200T			0x6026
+ #define QUECTEL_PRODUCT_RM500K			0x7001
+@@ -1189,6 +1190,7 @@ static const struct usb_device_id option
+ 	{ USB_DEVICE_AND_INTERFACE_INFO(QUECTEL_VENDOR_ID, QUECTEL_PRODUCT_RM520N, 0xff, 0xff, 0x30) },
+ 	{ USB_DEVICE_AND_INTERFACE_INFO(QUECTEL_VENDOR_ID, QUECTEL_PRODUCT_RM520N, 0xff, 0, 0x40) },
+ 	{ USB_DEVICE_AND_INTERFACE_INFO(QUECTEL_VENDOR_ID, QUECTEL_PRODUCT_RM520N, 0xff, 0, 0) },
++	{ USB_DEVICE_AND_INTERFACE_INFO(QUECTEL_VENDOR_ID, QUECTEL_PRODUCT_EC200U, 0xff, 0, 0) },
+ 	{ USB_DEVICE_AND_INTERFACE_INFO(QUECTEL_VENDOR_ID, QUECTEL_PRODUCT_EC200S_CN, 0xff, 0, 0) },
+ 	{ USB_DEVICE_AND_INTERFACE_INFO(QUECTEL_VENDOR_ID, QUECTEL_PRODUCT_EC200T, 0xff, 0, 0) },
+ 	{ USB_DEVICE_AND_INTERFACE_INFO(QUECTEL_VENDOR_ID, QUECTEL_PRODUCT_RM500K, 0xff, 0x00, 0x00) },
 
 
