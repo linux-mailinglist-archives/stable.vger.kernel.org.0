@@ -2,44 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 26A9C676F64
-	for <lists+stable@lfdr.de>; Sun, 22 Jan 2023 16:21:00 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 33749676F65
+	for <lists+stable@lfdr.de>; Sun, 22 Jan 2023 16:21:02 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231249AbjAVPU7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 22 Jan 2023 10:20:59 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47630 "EHLO
+        id S231250AbjAVPVB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 22 Jan 2023 10:21:01 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47668 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231254AbjAVPU6 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 22 Jan 2023 10:20:58 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 20A49222F8
-        for <stable@vger.kernel.org>; Sun, 22 Jan 2023 07:20:57 -0800 (PST)
+        with ESMTP id S231254AbjAVPVA (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 22 Jan 2023 10:21:00 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B5151222E8
+        for <stable@vger.kernel.org>; Sun, 22 Jan 2023 07:20:59 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id C8A8BB807E4
-        for <stable@vger.kernel.org>; Sun, 22 Jan 2023 15:20:55 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2FE56C433D2;
-        Sun, 22 Jan 2023 15:20:54 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 72277B80B20
+        for <stable@vger.kernel.org>; Sun, 22 Jan 2023 15:20:58 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C7C0CC433D2;
+        Sun, 22 Jan 2023 15:20:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1674400854;
-        bh=4FLqEhhHWEmpwMWNYiDj3sM/gfcdiz9lYsBuj1rjzlw=;
+        s=korg; t=1674400857;
+        bh=ZTIa4DNczmiQg0136IyumCMROrJ6GpqIjHtNG05qlJY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=jCqFCX4flzabOsSts1CM0GrMJoQLaS6XLwlVYVmz0WzEJ7BOSh4hLjIVDkI47cxtB
-         oX78d4bnAiMKvxL38onid5pCsTS0Dlyl+ljO6rMW0TVQmsqbU+plzAcGnS7upzb9Br
-         37MBESnbxlR2JTfEFF/OCrdtcWR3Vn0wx2BquQG4=
+        b=IeDA6tEK7a4JUaAX8UmCm83tAZ8nb0rgdtWmH4itrwWBeHio/gK8pIUAJMfOVo1VQ
+         ABJN0enb3khqUvhyaGXtNKTbB82krLHR6qRkYvzOSHROb5moEE+jdBhybfRTZz/w6c
+         CBD++RiMxUD+sArVYMaBRoo0VYpM3C/ubyYc8/BY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Song Liu <song@kernel.org>,
-        Kui-Feng Lee <kuifeng@meta.com>,
-        Nathan Slingerland <slinger@meta.com>,
-        Yonghong Song <yhs@fb.com>,
-        Alexei Starovoitov <ast@kernel.org>,
+        patches@lists.linux.dev,
+        "Jiri Slaby (SUSE)" <jirislaby@kernel.org>,
+        Bart Van Assche <bvanassche@acm.org>,
+        Leon Romanovsky <leon@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 017/193] bpf: keep a reference to the mm, in case the task is dead.
-Date:   Sun, 22 Jan 2023 16:02:26 +0100
-Message-Id: <20230122150247.150966892@linuxfoundation.org>
+Subject: [PATCH 6.1 018/193] RDMA/srp: Move large values to a new enum for gcc13
+Date:   Sun, 22 Jan 2023 16:02:27 +0100
+Message-Id: <20230122150247.184144236@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.1
 In-Reply-To: <20230122150246.321043584@linuxfoundation.org>
 References: <20230122150246.321043584@linuxfoundation.org>
@@ -57,166 +56,64 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kui-Feng Lee <kuifeng@meta.com>
+From: Jiri Slaby (SUSE) <jirislaby@kernel.org>
 
-[ Upstream commit 7ff94f276f8ea05df82eb115225e9b26f47a3347 ]
+[ Upstream commit 56c5dab20a6391604df9521f812c01d1e3fe1bd0 ]
 
-Fix the system crash that happens when a task iterator travel through
-vma of tasks.
+Since gcc13, each member of an enum has the same type as the enum [1]. And
+that is inherited from its members. Provided these two:
+  SRP_TAG_NO_REQ        = ~0U,
+  SRP_TAG_TSK_MGMT	= 1U << 31
+all other members are unsigned ints.
 
-In task iterators, we used to access mm by following the pointer on
-the task_struct; however, the death of a task will clear the pointer,
-even though we still hold the task_struct.  That can cause an
-unexpected crash for a null pointer when an iterator is visiting a
-task that dies during the visit.  Keeping a reference of mm on the
-iterator ensures we always have a valid pointer to mm.
+Esp. with SRP_MAX_SGE and SRP_TSK_MGMT_SQ_SIZE and their use in min(),
+this results in the following warnings:
+  include/linux/minmax.h:20:35: error: comparison of distinct pointer types lacks a cast
+  drivers/infiniband/ulp/srp/ib_srp.c:563:42: note: in expansion of macro 'min'
 
-Co-developed-by: Song Liu <song@kernel.org>
-Signed-off-by: Song Liu <song@kernel.org>
-Signed-off-by: Kui-Feng Lee <kuifeng@meta.com>
-Reported-by: Nathan Slingerland <slinger@meta.com>
-Acked-by: Yonghong Song <yhs@fb.com>
-Link: https://lore.kernel.org/r/20221216221855.4122288-2-kuifeng@meta.com
-Signed-off-by: Alexei Starovoitov <ast@kernel.org>
+  include/linux/minmax.h:20:35: error: comparison of distinct pointer types lacks a cast
+  drivers/infiniband/ulp/srp/ib_srp.c:2369:27: note: in expansion of macro 'min'
+
+So move the large values away to a separate enum, so that they don't
+affect other members.
+
+[1] https://gcc.gnu.org/bugzilla/show_bug.cgi?id=36113
+
+Link: https://lore.kernel.org/r/20221212120411.13750-1-jirislaby@kernel.org
+Signed-off-by: Jiri Slaby (SUSE) <jirislaby@kernel.org>
+Reviewed-by: Bart Van Assche <bvanassche@acm.org>
+Signed-off-by: Leon Romanovsky <leon@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/bpf/task_iter.c | 39 +++++++++++++++++++++++++++------------
- 1 file changed, 27 insertions(+), 12 deletions(-)
+ drivers/infiniband/ulp/srp/ib_srp.h | 8 +++++---
+ 1 file changed, 5 insertions(+), 3 deletions(-)
 
-diff --git a/kernel/bpf/task_iter.c b/kernel/bpf/task_iter.c
-index c2a2182ce570..c4ab9d6cdbe9 100644
---- a/kernel/bpf/task_iter.c
-+++ b/kernel/bpf/task_iter.c
-@@ -438,6 +438,7 @@ struct bpf_iter_seq_task_vma_info {
- 	 */
- 	struct bpf_iter_seq_task_common common;
- 	struct task_struct *task;
-+	struct mm_struct *mm;
- 	struct vm_area_struct *vma;
- 	u32 tid;
- 	unsigned long prev_vm_start;
-@@ -456,16 +457,19 @@ task_vma_seq_get_next(struct bpf_iter_seq_task_vma_info *info)
- 	enum bpf_task_vma_iter_find_op op;
- 	struct vm_area_struct *curr_vma;
- 	struct task_struct *curr_task;
-+	struct mm_struct *curr_mm;
- 	u32 saved_tid = info->tid;
+diff --git a/drivers/infiniband/ulp/srp/ib_srp.h b/drivers/infiniband/ulp/srp/ib_srp.h
+index 00b0068fda20..5d94db453df3 100644
+--- a/drivers/infiniband/ulp/srp/ib_srp.h
++++ b/drivers/infiniband/ulp/srp/ib_srp.h
+@@ -62,9 +62,6 @@ enum {
+ 	SRP_DEFAULT_CMD_SQ_SIZE = SRP_DEFAULT_QUEUE_SIZE - SRP_RSP_SQ_SIZE -
+ 				  SRP_TSK_MGMT_SQ_SIZE,
  
- 	/* If this function returns a non-NULL vma, it holds a reference to
--	 * the task_struct, and holds read lock on vma->mm->mmap_lock.
-+	 * the task_struct, holds a refcount on mm->mm_users, and holds
-+	 * read lock on vma->mm->mmap_lock.
- 	 * If this function returns NULL, it does not hold any reference or
- 	 * lock.
- 	 */
- 	if (info->task) {
- 		curr_task = info->task;
- 		curr_vma = info->vma;
-+		curr_mm = info->mm;
- 		/* In case of lock contention, drop mmap_lock to unblock
- 		 * the writer.
- 		 *
-@@ -504,13 +508,15 @@ task_vma_seq_get_next(struct bpf_iter_seq_task_vma_info *info)
- 		 *    4.2) VMA2 and VMA2' covers different ranges, process
- 		 *         VMA2'.
- 		 */
--		if (mmap_lock_is_contended(curr_task->mm)) {
-+		if (mmap_lock_is_contended(curr_mm)) {
- 			info->prev_vm_start = curr_vma->vm_start;
- 			info->prev_vm_end = curr_vma->vm_end;
- 			op = task_vma_iter_find_vma;
--			mmap_read_unlock(curr_task->mm);
--			if (mmap_read_lock_killable(curr_task->mm))
-+			mmap_read_unlock(curr_mm);
-+			if (mmap_read_lock_killable(curr_mm)) {
-+				mmput(curr_mm);
- 				goto finish;
-+			}
- 		} else {
- 			op = task_vma_iter_next_vma;
- 		}
-@@ -535,42 +541,47 @@ task_vma_seq_get_next(struct bpf_iter_seq_task_vma_info *info)
- 			op = task_vma_iter_find_vma;
- 		}
+-	SRP_TAG_NO_REQ		= ~0U,
+-	SRP_TAG_TSK_MGMT	= 1U << 31,
+-
+ 	SRP_MAX_PAGES_PER_MR	= 512,
  
--		if (!curr_task->mm)
-+		curr_mm = get_task_mm(curr_task);
-+		if (!curr_mm)
- 			goto next_task;
+ 	SRP_MAX_ADD_CDB_LEN	= 16,
+@@ -79,6 +76,11 @@ enum {
+ 				  sizeof(struct srp_imm_buf),
+ };
  
--		if (mmap_read_lock_killable(curr_task->mm))
-+		if (mmap_read_lock_killable(curr_mm)) {
-+			mmput(curr_mm);
- 			goto finish;
-+		}
- 	}
- 
- 	switch (op) {
- 	case task_vma_iter_first_vma:
--		curr_vma = find_vma(curr_task->mm, 0);
-+		curr_vma = find_vma(curr_mm, 0);
- 		break;
- 	case task_vma_iter_next_vma:
--		curr_vma = find_vma(curr_task->mm, curr_vma->vm_end);
-+		curr_vma = find_vma(curr_mm, curr_vma->vm_end);
- 		break;
- 	case task_vma_iter_find_vma:
- 		/* We dropped mmap_lock so it is necessary to use find_vma
- 		 * to find the next vma. This is similar to the  mechanism
- 		 * in show_smaps_rollup().
- 		 */
--		curr_vma = find_vma(curr_task->mm, info->prev_vm_end - 1);
-+		curr_vma = find_vma(curr_mm, info->prev_vm_end - 1);
- 		/* case 1) and 4.2) above just use curr_vma */
- 
- 		/* check for case 2) or case 4.1) above */
- 		if (curr_vma &&
- 		    curr_vma->vm_start == info->prev_vm_start &&
- 		    curr_vma->vm_end == info->prev_vm_end)
--			curr_vma = find_vma(curr_task->mm, curr_vma->vm_end);
-+			curr_vma = find_vma(curr_mm, curr_vma->vm_end);
- 		break;
- 	}
- 	if (!curr_vma) {
- 		/* case 3) above, or case 2) 4.1) with vma->next == NULL */
--		mmap_read_unlock(curr_task->mm);
-+		mmap_read_unlock(curr_mm);
-+		mmput(curr_mm);
- 		goto next_task;
- 	}
- 	info->task = curr_task;
- 	info->vma = curr_vma;
-+	info->mm = curr_mm;
- 	return curr_vma;
- 
- next_task:
-@@ -579,6 +590,7 @@ task_vma_seq_get_next(struct bpf_iter_seq_task_vma_info *info)
- 
- 	put_task_struct(curr_task);
- 	info->task = NULL;
-+	info->mm = NULL;
- 	info->tid++;
- 	goto again;
- 
-@@ -587,6 +599,7 @@ task_vma_seq_get_next(struct bpf_iter_seq_task_vma_info *info)
- 		put_task_struct(curr_task);
- 	info->task = NULL;
- 	info->vma = NULL;
-+	info->mm = NULL;
- 	return NULL;
- }
- 
-@@ -658,7 +671,9 @@ static void task_vma_seq_stop(struct seq_file *seq, void *v)
- 		 */
- 		info->prev_vm_start = ~0UL;
- 		info->prev_vm_end = info->vma->vm_end;
--		mmap_read_unlock(info->task->mm);
-+		mmap_read_unlock(info->mm);
-+		mmput(info->mm);
-+		info->mm = NULL;
- 		put_task_struct(info->task);
- 		info->task = NULL;
- 	}
++enum {
++	SRP_TAG_NO_REQ		= ~0U,
++	SRP_TAG_TSK_MGMT	= BIT(31),
++};
++
+ enum srp_target_state {
+ 	SRP_TARGET_SCANNING,
+ 	SRP_TARGET_LIVE,
 -- 
 2.35.1
 
