@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 791AA676FDC
-	for <lists+stable@lfdr.de>; Sun, 22 Jan 2023 16:26:02 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4AB72676F04
+	for <lists+stable@lfdr.de>; Sun, 22 Jan 2023 16:16:59 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231410AbjAVP0B (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 22 Jan 2023 10:26:01 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54294 "EHLO
+        id S231154AbjAVPQ5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 22 Jan 2023 10:16:57 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43698 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231401AbjAVP0B (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 22 Jan 2023 10:26:01 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2B11F22A3B
-        for <stable@vger.kernel.org>; Sun, 22 Jan 2023 07:26:00 -0800 (PST)
+        with ESMTP id S231140AbjAVPQw (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 22 Jan 2023 10:16:52 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4C6BB222F3
+        for <stable@vger.kernel.org>; Sun, 22 Jan 2023 07:16:51 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 9F43160C67
-        for <stable@vger.kernel.org>; Sun, 22 Jan 2023 15:25:59 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B269FC433EF;
-        Sun, 22 Jan 2023 15:25:58 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id EB1A0B80B11
+        for <stable@vger.kernel.org>; Sun, 22 Jan 2023 15:16:49 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 57C3EC433D2;
+        Sun, 22 Jan 2023 15:16:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1674401159;
-        bh=x5CQZ72c0QMtBcqBBi7lqLcouV43Yc+o46B25Mp1V7I=;
+        s=korg; t=1674400608;
+        bh=dMTokeTOP2fapzDhFYG23HyhkHv2Z/ZXzA2nfBtP9yY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=O3vnbHiISjPKzjwaHRLBXxDajqb9Vy6PEBE3MMTCSnMdDXc0PhAi89zCDjiGQpyvN
-         4lz8x37eAr96w1UcInmNa+E+6gdE5wzj6Esj4UFLN7pSelBGXnu+0fXl7qxfGpCBo6
-         R2+wCPk8wT9ey8ETNTdgn5gwaovXWm07awyDj/Zs=
+        b=XknXS0kajsiB4MDuPDyIJNg9dZOw2yC7DkIYuvaSIxL0MFCnQRQljjBGIGeUJdzt5
+         KpTgVjq0uNDKcTH+0t0atYBorCc8yeg5mUu6LUcEfnYhr8OeIVvtb/jqaY/2NAiyMk
+         Piuw4FqmKJKGwAoWsYzOdmdcL8ntEpvaadOSnyf8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         patches@lists.linux.dev,
-        Mat Martineau <mathew.j.martineau@linux.intel.com>,
-        Matthieu Baerts <matthieu.baerts@tessares.net>,
-        Jakub Kicinski <kuba@kernel.org>
-Subject: [PATCH 6.1 102/193] mptcp: netlink: respect v4/v6-only sockets
+        syzbot+dfcc5f4da15868df7d4d@syzkaller.appspotmail.com,
+        Jan Kara <jack@suse.cz>, Jens Axboe <axboe@kernel.dk>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.15 041/117] io_uring/rw: defer fsnotify calls to task context
 Date:   Sun, 22 Jan 2023 16:03:51 +0100
-Message-Id: <20230122150250.975766338@linuxfoundation.org>
+Message-Id: <20230122150234.449314518@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.1
-In-Reply-To: <20230122150246.321043584@linuxfoundation.org>
-References: <20230122150246.321043584@linuxfoundation.org>
+In-Reply-To: <20230122150232.736358800@linuxfoundation.org>
+References: <20230122150232.736358800@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,105 +55,122 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Matthieu Baerts <matthieu.baerts@tessares.net>
+From: Jens Axboe <axboe@kernel.dk>
 
-commit fb00ee4f3343acb2b9222ca9b73b47dd1e1a8efc upstream.
+commit b000145e9907809406d8164c3b2b8861d95aecd1 upstream.
 
-If an MPTCP socket has been created with AF_INET6 and the IPV6_V6ONLY
-option has been set, the userspace PM would allow creating subflows
-using IPv4 addresses, e.g. mapped in v6.
+We can't call these off the kiocb completion as that might be off
+soft/hard irq context. Defer the calls to when we process the
+task_work for this request. That avoids valid complaints like:
 
-The kernel side of userspace PM will also accept creating subflows with
-local and remote addresses having different families. Depending on the
-subflow socket's family, different behaviours are expected:
- - If AF_INET is forced with a v6 address, the kernel will take the last
-   byte of the IP and try to connect to that: a new subflow is created
-   but to a non expected address.
- - If AF_INET6 is forced with a v4 address, the kernel will try to
-   connect to a v4 address (v4-mapped-v6). A -EBADF error from the
-   connect() part is then expected.
+stack backtrace:
+CPU: 1 PID: 0 Comm: swapper/1 Not tainted 6.0.0-rc6-syzkaller-00321-g105a36f3694e #0
+Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS Google 08/26/2022
+Call Trace:
+ <IRQ>
+ __dump_stack lib/dump_stack.c:88 [inline]
+ dump_stack_lvl+0xcd/0x134 lib/dump_stack.c:106
+ print_usage_bug kernel/locking/lockdep.c:3961 [inline]
+ valid_state kernel/locking/lockdep.c:3973 [inline]
+ mark_lock_irq kernel/locking/lockdep.c:4176 [inline]
+ mark_lock.part.0.cold+0x18/0xd8 kernel/locking/lockdep.c:4632
+ mark_lock kernel/locking/lockdep.c:4596 [inline]
+ mark_usage kernel/locking/lockdep.c:4527 [inline]
+ __lock_acquire+0x11d9/0x56d0 kernel/locking/lockdep.c:5007
+ lock_acquire kernel/locking/lockdep.c:5666 [inline]
+ lock_acquire+0x1ab/0x570 kernel/locking/lockdep.c:5631
+ __fs_reclaim_acquire mm/page_alloc.c:4674 [inline]
+ fs_reclaim_acquire+0x115/0x160 mm/page_alloc.c:4688
+ might_alloc include/linux/sched/mm.h:271 [inline]
+ slab_pre_alloc_hook mm/slab.h:700 [inline]
+ slab_alloc mm/slab.c:3278 [inline]
+ __kmem_cache_alloc_lru mm/slab.c:3471 [inline]
+ kmem_cache_alloc+0x39/0x520 mm/slab.c:3491
+ fanotify_alloc_fid_event fs/notify/fanotify/fanotify.c:580 [inline]
+ fanotify_alloc_event fs/notify/fanotify/fanotify.c:813 [inline]
+ fanotify_handle_event+0x1130/0x3f40 fs/notify/fanotify/fanotify.c:948
+ send_to_group fs/notify/fsnotify.c:360 [inline]
+ fsnotify+0xafb/0x1680 fs/notify/fsnotify.c:570
+ __fsnotify_parent+0x62f/0xa60 fs/notify/fsnotify.c:230
+ fsnotify_parent include/linux/fsnotify.h:77 [inline]
+ fsnotify_file include/linux/fsnotify.h:99 [inline]
+ fsnotify_access include/linux/fsnotify.h:309 [inline]
+ __io_complete_rw_common+0x485/0x720 io_uring/rw.c:195
+ io_complete_rw+0x1a/0x1f0 io_uring/rw.c:228
+ iomap_dio_complete_work fs/iomap/direct-io.c:144 [inline]
+ iomap_dio_bio_end_io+0x438/0x5e0 fs/iomap/direct-io.c:178
+ bio_endio+0x5f9/0x780 block/bio.c:1564
+ req_bio_endio block/blk-mq.c:695 [inline]
+ blk_update_request+0x3fc/0x1300 block/blk-mq.c:825
+ scsi_end_request+0x7a/0x9a0 drivers/scsi/scsi_lib.c:541
+ scsi_io_completion+0x173/0x1f70 drivers/scsi/scsi_lib.c:971
+ scsi_complete+0x122/0x3b0 drivers/scsi/scsi_lib.c:1438
+ blk_complete_reqs+0xad/0xe0 block/blk-mq.c:1022
+ __do_softirq+0x1d3/0x9c6 kernel/softirq.c:571
+ invoke_softirq kernel/softirq.c:445 [inline]
+ __irq_exit_rcu+0x123/0x180 kernel/softirq.c:650
+ irq_exit_rcu+0x5/0x20 kernel/softirq.c:662
+ common_interrupt+0xa9/0xc0 arch/x86/kernel/irq.c:240
 
-It is then required to check the given families can be accepted. This is
-done by using a new helper for addresses family matching, taking care of
-IPv4 vs IPv4-mapped-IPv6 addresses. This helper will be re-used later by
-the in-kernel path-manager to use mixed IPv4 and IPv6 addresses.
-
-While at it, a clear error message is now reported if there are some
-conflicts with the families that have been passed by the userspace.
-
-Fixes: 702c2f646d42 ("mptcp: netlink: allow userspace-driven subflow establishment")
-Cc: stable@vger.kernel.org
-Reviewed-by: Mat Martineau <mathew.j.martineau@linux.intel.com>
-Signed-off-by: Matthieu Baerts <matthieu.baerts@tessares.net>
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: f63cf5192fe3 ("io_uring: ensure that fsnotify is always called")
+Link: https://lore.kernel.org/all/20220929135627.ykivmdks2w5vzrwg@quack3/
+Reported-by: syzbot+dfcc5f4da15868df7d4d@syzkaller.appspotmail.com
+Reported-by: Jan Kara <jack@suse.cz>
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/mptcp/pm.c           |   25 +++++++++++++++++++++++++
- net/mptcp/pm_userspace.c |    7 +++++++
- net/mptcp/protocol.h     |    3 +++
- 3 files changed, 35 insertions(+)
+ io_uring/io_uring.c | 22 +++++++++++++++-------
+ 1 file changed, 15 insertions(+), 7 deletions(-)
 
---- a/net/mptcp/pm.c
-+++ b/net/mptcp/pm.c
-@@ -420,6 +420,31 @@ void mptcp_pm_subflow_chk_stale(const st
- 	}
+diff --git a/io_uring/io_uring.c b/io_uring/io_uring.c
+index 73d261004c4a..78ed38d778f8 100644
+--- a/io_uring/io_uring.c
++++ b/io_uring/io_uring.c
+@@ -2705,12 +2705,6 @@ static bool io_rw_should_reissue(struct io_kiocb *req)
+ 
+ static bool __io_complete_rw_common(struct io_kiocb *req, long res)
+ {
+-	if (req->rw.kiocb.ki_flags & IOCB_WRITE) {
+-		kiocb_end_write(req);
+-		fsnotify_modify(req->file);
+-	} else {
+-		fsnotify_access(req->file);
+-	}
+ 	if (res != req->result) {
+ 		if ((res == -EAGAIN || res == -EOPNOTSUPP) &&
+ 		    io_rw_should_reissue(req)) {
+@@ -2763,6 +2757,20 @@ static void __io_complete_rw(struct io_kiocb *req, long res, long res2,
+ 	__io_req_complete(req, issue_flags, io_fixup_rw_res(req, res), io_put_rw_kbuf(req));
  }
  
-+/* if sk is ipv4 or ipv6_only allows only same-family local and remote addresses,
-+ * otherwise allow any matching local/remote pair
-+ */
-+bool mptcp_pm_addr_families_match(const struct sock *sk,
-+				  const struct mptcp_addr_info *loc,
-+				  const struct mptcp_addr_info *rem)
++static void io_req_rw_complete(struct io_kiocb *req, bool *locked)
 +{
-+	bool mptcp_is_v4 = sk->sk_family == AF_INET;
++	struct io_rw *rw = &req->rw;
 +
-+#if IS_ENABLED(CONFIG_MPTCP_IPV6)
-+	bool loc_is_v4 = loc->family == AF_INET || ipv6_addr_v4mapped(&loc->addr6);
-+	bool rem_is_v4 = rem->family == AF_INET || ipv6_addr_v4mapped(&rem->addr6);
-+
-+	if (mptcp_is_v4)
-+		return loc_is_v4 && rem_is_v4;
-+
-+	if (ipv6_only_sock(sk))
-+		return !loc_is_v4 && !rem_is_v4;
-+
-+	return loc_is_v4 == rem_is_v4;
-+#else
-+	return mptcp_is_v4 && loc->family == AF_INET && rem->family == AF_INET;
-+#endif
-+}
-+
- void mptcp_pm_data_reset(struct mptcp_sock *msk)
- {
- 	u8 pm_type = mptcp_get_pm_type(sock_net((struct sock *)msk));
---- a/net/mptcp/pm_userspace.c
-+++ b/net/mptcp/pm_userspace.c
-@@ -294,6 +294,13 @@ int mptcp_nl_cmd_sf_create(struct sk_buf
- 	}
- 
- 	sk = &msk->sk.icsk_inet.sk;
-+
-+	if (!mptcp_pm_addr_families_match(sk, &addr_l, &addr_r)) {
-+		GENL_SET_ERR_MSG(info, "families mismatch");
-+		err = -EINVAL;
-+		goto create_err;
++	if (rw->kiocb.ki_flags & IOCB_WRITE) {
++		kiocb_end_write(req);
++		fsnotify_modify(req->file);
++	} else {
++		fsnotify_access(req->file);
 +	}
 +
- 	lock_sock(sk);
++	io_req_task_complete(req, locked);
++}
++
+ static void io_complete_rw(struct kiocb *kiocb, long res, long res2)
+ {
+ 	struct io_kiocb *req = container_of(kiocb, struct io_kiocb, rw.kiocb);
+@@ -2770,7 +2778,7 @@ static void io_complete_rw(struct kiocb *kiocb, long res, long res2)
+ 	if (__io_complete_rw_common(req, res))
+ 		return;
+ 	req->result = io_fixup_rw_res(req, res);
+-	req->io_task_work.func = io_req_task_complete;
++	req->io_task_work.func = io_req_rw_complete;
+ 	io_req_task_work_add(req);
+ }
  
- 	err = __mptcp_subflow_connect(sk, &addr_l, &addr_r);
---- a/net/mptcp/protocol.h
-+++ b/net/mptcp/protocol.h
-@@ -762,6 +762,9 @@ int mptcp_pm_parse_addr(struct nlattr *a
- int mptcp_pm_parse_entry(struct nlattr *attr, struct genl_info *info,
- 			 bool require_family,
- 			 struct mptcp_pm_addr_entry *entry);
-+bool mptcp_pm_addr_families_match(const struct sock *sk,
-+				  const struct mptcp_addr_info *loc,
-+				  const struct mptcp_addr_info *rem);
- void mptcp_pm_subflow_chk_stale(const struct mptcp_sock *msk, struct sock *ssk);
- void mptcp_pm_nl_subflow_chk_stale(const struct mptcp_sock *msk, struct sock *ssk);
- void mptcp_pm_new_connection(struct mptcp_sock *msk, const struct sock *ssk, int server_side);
+-- 
+2.39.0
+
 
 
