@@ -2,42 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 4E81E676F5B
-	for <lists+stable@lfdr.de>; Sun, 22 Jan 2023 16:20:34 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 37C23676F45
+	for <lists+stable@lfdr.de>; Sun, 22 Jan 2023 16:19:38 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231248AbjAVPUd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 22 Jan 2023 10:20:33 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47338 "EHLO
+        id S231214AbjAVPTh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 22 Jan 2023 10:19:37 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46678 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231239AbjAVPUc (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 22 Jan 2023 10:20:32 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1F33B222EC
-        for <stable@vger.kernel.org>; Sun, 22 Jan 2023 07:20:32 -0800 (PST)
+        with ESMTP id S231211AbjAVPTh (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 22 Jan 2023 10:19:37 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 15D652007E
+        for <stable@vger.kernel.org>; Sun, 22 Jan 2023 07:19:36 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id AF61F60C44
-        for <stable@vger.kernel.org>; Sun, 22 Jan 2023 15:20:31 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C3980C433D2;
-        Sun, 22 Jan 2023 15:20:30 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id B21E9B80B1B
+        for <stable@vger.kernel.org>; Sun, 22 Jan 2023 15:19:34 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1705DC433D2;
+        Sun, 22 Jan 2023 15:19:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1674400831;
-        bh=2sHz0GJPdnwwe2NPypORVOANGNXwiyoCXfSuf1AhwY0=;
+        s=korg; t=1674400773;
+        bh=NMsQOBCkFU1jk/rpO64mQcChiRoCV1V/qbDeTFy3Cr8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=yzlPbsT/hrIwMB9NyDmawYUtlrQxTabyvHi5rrTz/maM4gpsDQBtO8qYKOo3+pjGE
-         bxHrwl0cyYwPGvWad7nKoYbmkr93HRZyEwKBKB5Mv2GnEteAFudZFiw471yiD+4ehm
-         dsGSTtaHB+tdQ3iXkiGFGYDWD/TuZKoW/KYelBlY=
+        b=cn5S8OnzgZ3Bj7DeckAY1E2QoJgc5s0NdCk3DBBWKjPWuusQ6gLl+ebDDjwfUhvxN
+         +Web2SEdOizDhHQ2iynsUooLt/oedXauIgdh/sXWpVGo0Q7vN+zrB8d1egx0Rq2Ato
+         IGCaudf63Nm6/p6X5kHW8MLfG/dQtnqvFMxhObwc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Drew Davenport <ddavenport@chromium.org>,
-        =?UTF-8?q?Ville=20Syrj=C3=A4l=C3=A4?= 
-        <ville.syrjala@linux.intel.com>,
-        Rodrigo Vivi <rodrigo.vivi@intel.com>
-Subject: [PATCH 5.15 095/117] drm/i915/display: Check source height is > 0
-Date:   Sun, 22 Jan 2023 16:04:45 +0100
-Message-Id: <20230122150236.765700178@linuxfoundation.org>
+        patches@lists.linux.dev, Harry Wentland <harry.wentland@amd.com>,
+        Rodrigo Siqueira <Rodrigo.Siqueira@amd.com>,
+        hongao <hongao@uniontech.com>,
+        Alex Deucher <alexander.deucher@amd.com>
+Subject: [PATCH 5.15 096/117] drm/amd/display: Fix set scaling doesns work
+Date:   Sun, 22 Jan 2023 16:04:46 +0100
+Message-Id: <20230122150236.815782707@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.1
 In-Reply-To: <20230122150232.736358800@linuxfoundation.org>
 References: <20230122150232.736358800@linuxfoundation.org>
@@ -55,34 +55,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Drew Davenport <ddavenport@chromium.org>
+From: hongao <hongao@uniontech.com>
 
-commit 8565c502e7c156d190d8e6d36e443f51b257f165 upstream.
+commit 040625ab82ce6dca7772cb3867fe5c9eb279a344 upstream.
 
-The error message suggests that the height of the src rect must be at
-least 1. Reject source with height of 0.
+[Why]
+Setting scaling does not correctly update CRTC state. As a result
+dc stream state's src (composition area) && dest (addressable area)
+was not calculated as expected. This causes set scaling doesn's work.
 
+[How]
+Correctly update CRTC state when setting scaling property.
+
+Reviewed-by: Harry Wentland <harry.wentland@amd.com>
+Tested-by: Rodrigo Siqueira <Rodrigo.Siqueira@amd.com>
+Signed-off-by: hongao <hongao@uniontech.com>
+Signed-off-by: Rodrigo Siqueira <Rodrigo.Siqueira@amd.com>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
 Cc: stable@vger.kernel.org
-Signed-off-by: Drew Davenport <ddavenport@chromium.org>
-Signed-off-by: Ville Syrjälä <ville.syrjala@linux.intel.com>
-Link: https://patchwork.freedesktop.org/patch/msgid/20221226225246.1.I15dff7bb5a0e485c862eae61a69096caf12ef29f@changeid
-(cherry picked from commit 0fe76b198d482b41771a8d17b45fb726d13083cf)
-Signed-off-by: Rodrigo Vivi <rodrigo.vivi@intel.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/gpu/drm/i915/display/skl_universal_plane.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
---- a/drivers/gpu/drm/i915/display/skl_universal_plane.c
-+++ b/drivers/gpu/drm/i915/display/skl_universal_plane.c
-@@ -1473,7 +1473,7 @@ static int skl_check_main_surface(struct
- 	u32 offset;
- 	int ret;
+--- a/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c
++++ b/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c
+@@ -10789,8 +10789,8 @@ static int amdgpu_dm_atomic_check(struct
+ 			goto fail;
+ 		}
  
--	if (w > max_width || w < min_width || h > max_height) {
-+	if (w > max_width || w < min_width || h > max_height || h < 1) {
- 		drm_dbg_kms(&dev_priv->drm,
- 			    "requested Y/RGB source size %dx%d outside limits (min: %dx1 max: %dx%d)\n",
- 			    w, h, min_width, max_width, max_height);
+-		if (dm_old_con_state->abm_level !=
+-		    dm_new_con_state->abm_level)
++		if (dm_old_con_state->abm_level != dm_new_con_state->abm_level ||
++		    dm_old_con_state->scaling != dm_new_con_state->scaling)
+ 			new_crtc_state->connectors_changed = true;
+ 	}
+ 
 
 
