@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 3CEF5676FE6
-	for <lists+stable@lfdr.de>; Sun, 22 Jan 2023 16:26:28 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id F2573676EC2
+	for <lists+stable@lfdr.de>; Sun, 22 Jan 2023 16:14:05 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231421AbjAVP01 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 22 Jan 2023 10:26:27 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54666 "EHLO
+        id S230440AbjAVPOF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 22 Jan 2023 10:14:05 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41154 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231417AbjAVP00 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 22 Jan 2023 10:26:26 -0500
-Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B867C22A28
-        for <stable@vger.kernel.org>; Sun, 22 Jan 2023 07:26:25 -0800 (PST)
+        with ESMTP id S230436AbjAVPOE (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 22 Jan 2023 10:14:04 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DB01022015
+        for <stable@vger.kernel.org>; Sun, 22 Jan 2023 07:14:02 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 3415FCE0F51
-        for <stable@vger.kernel.org>; Sun, 22 Jan 2023 15:26:24 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 28E13C433EF;
-        Sun, 22 Jan 2023 15:26:22 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 90DD4B80B11
+        for <stable@vger.kernel.org>; Sun, 22 Jan 2023 15:14:01 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id EFD6AC433EF;
+        Sun, 22 Jan 2023 15:13:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1674401182;
-        bh=RsFhKmSx4NtNsJFXvyUKeLnH+a0rqW3XUGkuti6viD4=;
+        s=korg; t=1674400440;
+        bh=oqR1VhxSwlrU/vPXp+4PAuGjZcXPYVrAzMFOqDcPPh0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=QfmnCTDxmR751RVfL/pLAKNU73SlDSJuu/YolEjqvloLoKvL3RAXGopsGbpMJrThR
-         0pioE1GepJtC2J0Mqjdt1TB6x0JH30t/lvuRckMGC9YcQn5R+WDNVxwjxJ6mYOaBCV
-         VCdByJbZhT4LPSlPSYKN6RsKw+VLERKtKTzf7DZk=
+        b=D1N2pGqCs/kD7MBKsi8cEHcQLZgE41DkijIP6Cqh0IiaovhsUtautxY+FCbuwqY3C
+         6KVcnHuuuu6gnwT08BE+NE6XKqLEHCHtKaCn70aMc2m02myG20UeTqmTmVLllxwYU9
+         sTPW2LhAkEQ/g9El+cJLyBgIxMz7ZnvVbGWeEjgU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Melissa Wen <mwen@igalia.com>,
-        Joshua Ashton <joshua@froggi.es>,
-        Alex Deucher <alexander.deucher@amd.com>
-Subject: [PATCH 6.1 142/193] drm/amd/display: Calculate output_color_space after pixel encoding adjustment
+        patches@lists.linux.dev,
+        Alexander Usyskin <alexander.usyskin@intel.com>,
+        Tomas Winkler <tomas.winkler@intel.com>
+Subject: [PATCH 5.10 75/98] mei: me: add meteor lake point M DID
 Date:   Sun, 22 Jan 2023 16:04:31 +0100
-Message-Id: <20230122150252.881335134@linuxfoundation.org>
+Message-Id: <20230122150232.602815061@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.1
-In-Reply-To: <20230122150246.321043584@linuxfoundation.org>
-References: <20230122150246.321043584@linuxfoundation.org>
+In-Reply-To: <20230122150229.351631432@linuxfoundation.org>
+References: <20230122150229.351631432@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,45 +54,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Joshua Ashton <joshua@froggi.es>
+From: Alexander Usyskin <alexander.usyskin@intel.com>
 
-commit 79601b894849cb6f6d6122e6590f1887ac4a66b3 upstream.
+commit 0c4d68261717f89fa8c4f98a6967c3832fcb3ad0 upstream.
 
-Code in get_output_color_space depends on knowing the pixel encoding to
-determine whether to pick between eg. COLOR_SPACE_SRGB or
-COLOR_SPACE_YCBCR709 for transparent RGB -> YCbCr 4:4:4 in the driver.
+Add Meteor Lake Point M device id.
 
-v2: Fixed patch being accidentally based on a personal feature branch, oops!
-
-Fixes: ea117312ea9f ("drm/amd/display: Reduce HDMI pixel encoding if max clock is exceeded")
-Reviewed-by: Melissa Wen <mwen@igalia.com>
-Signed-off-by: Joshua Ashton <joshua@froggi.es>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
-Cc: stable@vger.kernel.org
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Alexander Usyskin <alexander.usyskin@intel.com>
+Signed-off-by: Tomas Winkler <tomas.winkler@intel.com>
+Link: https://lore.kernel.org/r/20221212220247.286019-2-tomas.winkler@intel.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c |    4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/misc/mei/hw-me-regs.h |    2 ++
+ drivers/misc/mei/pci-me.c     |    2 ++
+ 2 files changed, 4 insertions(+)
 
---- a/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c
-+++ b/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c
-@@ -5283,8 +5283,6 @@ static void fill_stream_properties_from_
+--- a/drivers/misc/mei/hw-me-regs.h
++++ b/drivers/misc/mei/hw-me-regs.h
+@@ -111,6 +111,8 @@
  
- 	timing_out->aspect_ratio = get_aspect_ratio(mode_in);
+ #define MEI_DEV_ID_RPL_S      0x7A68  /* Raptor Lake Point S */
  
--	stream->output_color_space = get_output_color_space(timing_out);
--
- 	stream->out_transfer_func->type = TF_TYPE_PREDEFINED;
- 	stream->out_transfer_func->tf = TRANSFER_FUNCTION_SRGB;
- 	if (stream->signal == SIGNAL_TYPE_HDMI_TYPE_A) {
-@@ -5295,6 +5293,8 @@ static void fill_stream_properties_from_
- 			adjust_colour_depth_from_display_info(timing_out, info);
- 		}
- 	}
++#define MEI_DEV_ID_MTL_M      0x7E70  /* Meteor Lake Point M */
 +
-+	stream->output_color_space = get_output_color_space(timing_out);
- }
+ /*
+  * MEI HW Section
+  */
+--- a/drivers/misc/mei/pci-me.c
++++ b/drivers/misc/mei/pci-me.c
+@@ -117,6 +117,8 @@ static const struct pci_device_id mei_me
  
- static void fill_audio_info(struct audio_info *audio_info,
+ 	{MEI_PCI_DEVICE(MEI_DEV_ID_RPL_S, MEI_ME_PCH15_CFG)},
+ 
++	{MEI_PCI_DEVICE(MEI_DEV_ID_MTL_M, MEI_ME_PCH15_CFG)},
++
+ 	/* required last entry */
+ 	{0, }
+ };
 
 
