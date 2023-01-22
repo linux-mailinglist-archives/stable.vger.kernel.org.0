@@ -2,46 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 5E57E676FCA
-	for <lists+stable@lfdr.de>; Sun, 22 Jan 2023 16:25:22 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 96D05676EAD
+	for <lists+stable@lfdr.de>; Sun, 22 Jan 2023 16:13:08 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231387AbjAVPZV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 22 Jan 2023 10:25:21 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53810 "EHLO
+        id S230409AbjAVPNH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 22 Jan 2023 10:13:07 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40514 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231376AbjAVPZU (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 22 Jan 2023 10:25:20 -0500
-Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A344122A18
-        for <stable@vger.kernel.org>; Sun, 22 Jan 2023 07:25:15 -0800 (PST)
+        with ESMTP id S230407AbjAVPNH (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 22 Jan 2023 10:13:07 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0E1E7166E9
+        for <stable@vger.kernel.org>; Sun, 22 Jan 2023 07:13:06 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 154B0CE0ECE
-        for <stable@vger.kernel.org>; Sun, 22 Jan 2023 15:25:14 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id DD30FC433D2;
-        Sun, 22 Jan 2023 15:25:11 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 9E73460C60
+        for <stable@vger.kernel.org>; Sun, 22 Jan 2023 15:13:05 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id ADCDFC433D2;
+        Sun, 22 Jan 2023 15:13:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1674401112;
-        bh=bHn+98W+LRqJXZsz4t28zbYdG3ANip8pqUSeTp+aJaA=;
+        s=korg; t=1674400385;
+        bh=RAqpPxM+jxFVGp3Bh249PS/8WBPbe/rrYOmtc6sL/xs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=uYd6BWivnCP2Iz7Q0mqSi9490nMmlwTNoKS1+PGvcrCPugyroP7EnLFcCTmuVUoqu
-         B/HSg2Jd94TkECQk/AY4REISkpqoCCuTh/lFfPKKaCJNj4z3N9WzD9/g5dc07aO9YJ
-         D3yYPZdQxpbedl6BxbBcqARU2zMu20LymJe/ifAY=
+        b=b9DMBGnulfdxfxM2bQum0Xnos2NqBDj0aDiHoDuOebj1aog6bK6TzaxfWI0QaHhLd
+         gcD2C4QfTN1H2Gdg/uCem45PVwO1d15VW5T0FNNd+IeMIswsgL82RzWqDWcED7wZFt
+         kZAMpIZzKiRRUCNeDzHwUfYlUnH/AExb8e1jXxvo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Felipe Balbi <balbi@kernel.org>,
-        Lorenzo Colitti <lorenzo@google.com>,
-        Carlos Llamas <cmllamas@google.com>,
-        =?UTF-8?q?Maciej=20=C5=BBenczykowski?= <maze@google.com>,
-        stable <stable@kernel.org>
-Subject: [PATCH 6.1 114/193] usb: gadget: f_ncm: fix potential NULL ptr deref in ncm_bitrate()
+        patches@lists.linux.dev,
+        =?UTF-8?q?Duke=20Xin ?= <duke_xinanwen@163.com>,
+        Johan Hovold <johan@kernel.org>
+Subject: [PATCH 5.10 47/98] USB: serial: option: add Quectel EM05CN (SG) modem
 Date:   Sun, 22 Jan 2023 16:04:03 +0100
-Message-Id: <20230122150251.542054172@linuxfoundation.org>
+Message-Id: <20230122150231.499583076@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.1
-In-Reply-To: <20230122150246.321043584@linuxfoundation.org>
-References: <20230122150246.321043584@linuxfoundation.org>
+In-Reply-To: <20230122150229.351631432@linuxfoundation.org>
+References: <20230122150229.351631432@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,92 +54,104 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Maciej Żenczykowski <maze@google.com>
+From: Duke Xin(辛安文) <duke_xinanwen@163.com>
 
-commit c6ec929595c7443250b2a4faea988c62019d5cd2 upstream.
+commit 1541dd0097c0f8f470e76eddf5120fc55a7e3101 upstream.
 
-In Google internal bug 265639009 we've received an (as yet) unreproducible
-crash report from an aarch64 GKI 5.10.149-android13 running device.
+The EM05CN (SG) modem has 2 USB configurations that are configurable via the AT
+command AT+QCFG="usbnet",[ 0 | 2 ] which make the modem enumerate with
+the following interfaces, respectively:
 
-AFAICT the source code is at:
-  https://android.googlesource.com/kernel/common/+/refs/tags/ASB-2022-12-05_13-5.10
+"MBIM"  : AT + MBIM + DIAG + NMEA  + MODEM
+"RMNET" : AT + DIAG + NMEA + Modem + QMI
 
-The call stack is:
-  ncm_close() -> ncm_notify() -> ncm_do_notify()
-with the crash at:
-  ncm_do_notify+0x98/0x270
-Code: 79000d0b b9000a6c f940012a f9400269 (b9405d4b)
+The detailed description of the USB configuration for each mode as follows:
 
-Which I believe disassembles to (I don't know ARM assembly, but it looks sane enough to me...):
+MBIM Mode
+--------------
+T:  Bus=01 Lev=01 Prnt=01 Port=00 Cnt=01 Dev#=  2 Spd=480  MxCh= 0
+D:  Ver= 2.00 Cls=ef(misc ) Sub=02 Prot=01 MxPS=64 #Cfgs=  1
+P:  Vendor=2c7c ProdID=0310 Rev= 3.18
+S:  Manufacturer=Quectel
+S:  Product=Quectel EM05-CN
+C:* #Ifs= 6 Cfg#= 1 Atr=a0 MxPwr=500mA
+A:  FirstIf#= 1 IfCount= 2 Cls=02(comm.) Sub=0e Prot=00
+I:* If#= 3 Alt= 0 #EPs= 2 Cls=ff(vend.) Sub=ff Prot=ff Driver=option
+E:  Ad=81(I) Atr=02(Bulk) MxPS= 512 Ivl=0ms
+E:  Ad=01(O) Atr=02(Bulk) MxPS= 512 Ivl=0ms
+I:* If#= 4 Alt= 0 #EPs= 3 Cls=ff(vend.) Sub=00 Prot=00 Driver=option
+E:  Ad=83(I) Atr=03(Int.) MxPS=  10 Ivl=32ms
+E:  Ad=82(I) Atr=02(Bulk) MxPS= 512 Ivl=0ms
+E:  Ad=02(O) Atr=02(Bulk) MxPS= 512 Ivl=0ms
+I:* If#= 0 Alt= 0 #EPs= 3 Cls=ff(vend.) Sub=00 Prot=00 Driver=option
+E:  Ad=85(I) Atr=03(Int.) MxPS=  10 Ivl=32ms
+E:  Ad=84(I) Atr=02(Bulk) MxPS= 512 Ivl=0ms
+E:  Ad=03(O) Atr=02(Bulk) MxPS= 512 Ivl=0ms
+I:* If#= 5 Alt= 0 #EPs= 3 Cls=ff(vend.) Sub=00 Prot=00 Driver=option
+E:  Ad=87(I) Atr=03(Int.) MxPS=  10 Ivl=32ms
+E:  Ad=86(I) Atr=02(Bulk) MxPS= 512 Ivl=0ms
+E:  Ad=04(O) Atr=02(Bulk) MxPS= 512 Ivl=0ms
+I:* If#= 1 Alt= 0 #EPs= 1 Cls=02(comm.) Sub=0e Prot=00 Driver=cdc_mbim
+E:  Ad=89(I) Atr=03(Int.) MxPS=  64 Ivl=32ms
+I:  If#= 2 Alt= 0 #EPs= 0 Cls=0a(data ) Sub=00 Prot=02 Driver=cdc_mbim
+I:* If#= 2 Alt= 1 #EPs= 2 Cls=0a(data ) Sub=00 Prot=02 Driver=cdc_mbim
+E:  Ad=88(I) Atr=02(Bulk) MxPS= 512 Ivl=0ms
+E:  Ad=05(O) Atr=02(Bulk) MxPS= 512 Ivl=0ms
 
-  // halfword (16-bit) store presumably to event->wLength (at offset 6 of struct usb_cdc_notification)
-  0B 0D 00 79    strh w11, [x8, #6]
+RMNET Mode
+--------------
+T:  Bus=01 Lev=01 Prnt=01 Port=00 Cnt=01 Dev#=  3 Spd=480  MxCh= 0
+D:  Ver= 2.00 Cls=ef(misc ) Sub=02 Prot=01 MxPS=64 #Cfgs=  1
+P:  Vendor=2c7c ProdID=0310 Rev= 3.18
+S:  Manufacturer=Quectel
+S:  Product=Quectel EM05-CN
+C:* #Ifs= 5 Cfg#= 1 Atr=a0 MxPwr=500mA
+I:* If#= 3 Alt= 0 #EPs= 2 Cls=ff(vend.) Sub=ff Prot=ff Driver=option
+E:  Ad=81(I) Atr=02(Bulk) MxPS= 512 Ivl=0ms
+E:  Ad=01(O) Atr=02(Bulk) MxPS= 512 Ivl=0ms
+I:* If#= 4 Alt= 0 #EPs= 3 Cls=ff(vend.) Sub=00 Prot=00 Driver=option
+E:  Ad=83(I) Atr=03(Int.) MxPS=  10 Ivl=32ms
+E:  Ad=82(I) Atr=02(Bulk) MxPS= 512 Ivl=0ms
+E:  Ad=02(O) Atr=02(Bulk) MxPS= 512 Ivl=0ms
+I:* If#= 0 Alt= 0 #EPs= 3 Cls=ff(vend.) Sub=00 Prot=00 Driver=option
+E:  Ad=85(I) Atr=03(Int.) MxPS=  10 Ivl=32ms
+E:  Ad=84(I) Atr=02(Bulk) MxPS= 512 Ivl=0ms
+E:  Ad=03(O) Atr=02(Bulk) MxPS= 512 Ivl=0ms
+I:* If#= 5 Alt= 0 #EPs= 3 Cls=ff(vend.) Sub=00 Prot=00 Driver=option
+E:  Ad=87(I) Atr=03(Int.) MxPS=  10 Ivl=32ms
+E:  Ad=86(I) Atr=02(Bulk) MxPS= 512 Ivl=0ms
+E:  Ad=04(O) Atr=02(Bulk) MxPS= 512 Ivl=0ms
+I:* If#= 6 Alt= 0 #EPs= 3 Cls=ff(vend.) Sub=ff Prot=ff Driver=(none)
+E:  Ad=89(I) Atr=03(Int.) MxPS=   8 Ivl=32ms
+E:  Ad=88(I) Atr=02(Bulk) MxPS= 512 Ivl=0ms
+E:  Ad=05(O) Atr=02(Bulk) MxPS= 512 Ivl=0ms
 
-  // word (32-bit) store presumably to req->Length (at offset 8 of struct usb_request)
-  6C 0A 00 B9    str  w12, [x19, #8]
-
-  // x10 (NULL) was read here from offset 0 of valid pointer x9
-  // IMHO we're reading 'cdev->gadget' and getting NULL
-  // gadget is indeed at offset 0 of struct usb_composite_dev
-  2A 01 40 F9    ldr  x10, [x9]
-
-  // loading req->buf pointer, which is at offset 0 of struct usb_request
-  69 02 40 F9    ldr  x9, [x19]
-
-  // x10 is null, crash, appears to be attempt to read cdev->gadget->max_speed
-  4B 5D 40 B9    ldr  w11, [x10, #0x5c]
-
-which seems to line up with ncm_do_notify() case NCM_NOTIFY_SPEED code fragment:
-
-  event->wLength = cpu_to_le16(8);
-  req->length = NCM_STATUS_BYTECOUNT;
-
-  /* SPEED_CHANGE data is up/down speeds in bits/sec */
-  data = req->buf + sizeof *event;
-  data[0] = cpu_to_le32(ncm_bitrate(cdev->gadget));
-
-My analysis of registers and NULL ptr deref crash offset
-  (Unable to handle kernel NULL pointer dereference at virtual address 000000000000005c)
-heavily suggests that the crash is due to 'cdev->gadget' being NULL when executing:
-  data[0] = cpu_to_le32(ncm_bitrate(cdev->gadget));
-which calls:
-  ncm_bitrate(NULL)
-which then calls:
-  gadget_is_superspeed(NULL)
-which reads
-  ((struct usb_gadget *)NULL)->max_speed
-and hits a panic.
-
-AFAICT, if I'm counting right, the offset of max_speed is indeed 0x5C.
-(remember there's a GKI KABI reservation of 16 bytes in struct work_struct)
-
-It's not at all clear to me how this is all supposed to work...
-but returning 0 seems much better than panic-ing...
-
-Cc: Felipe Balbi <balbi@kernel.org>
-Cc: Lorenzo Colitti <lorenzo@google.com>
-Cc: Carlos Llamas <cmllamas@google.com>
+Signed-off-by: Duke Xin(辛安文) <duke_xinanwen@163.com>
 Cc: stable@vger.kernel.org
-Signed-off-by: Maciej Żenczykowski <maze@google.com>
-Cc: stable <stable@kernel.org>
-Link: https://lore.kernel.org/r/20230117131839.1138208-1-maze@google.com
+Signed-off-by: Johan Hovold <johan@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/usb/gadget/function/f_ncm.c |    4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ drivers/usb/serial/option.c |    3 +++
+ 1 file changed, 3 insertions(+)
 
---- a/drivers/usb/gadget/function/f_ncm.c
-+++ b/drivers/usb/gadget/function/f_ncm.c
-@@ -83,7 +83,9 @@ static inline struct f_ncm *func_to_ncm(
- /* peak (theoretical) bulk transfer rate in bits-per-second */
- static inline unsigned ncm_bitrate(struct usb_gadget *g)
- {
--	if (gadget_is_superspeed(g) && g->speed >= USB_SPEED_SUPER_PLUS)
-+	if (!g)
-+		return 0;
-+	else if (gadget_is_superspeed(g) && g->speed >= USB_SPEED_SUPER_PLUS)
- 		return 4250000000U;
- 	else if (gadget_is_superspeed(g) && g->speed == USB_SPEED_SUPER)
- 		return 3750000000U;
+--- a/drivers/usb/serial/option.c
++++ b/drivers/usb/serial/option.c
+@@ -256,6 +256,7 @@ static void option_instat_callback(struc
+ #define QUECTEL_PRODUCT_EM05G			0x030a
+ #define QUECTEL_PRODUCT_EM060K			0x030b
+ #define QUECTEL_PRODUCT_EM05G_CS		0x030c
++#define QUECTEL_PRODUCT_EM05CN_SG		0x0310
+ #define QUECTEL_PRODUCT_EM05G_SG		0x0311
+ #define QUECTEL_PRODUCT_EM05G_GR		0x0313
+ #define QUECTEL_PRODUCT_EM05G_RS		0x0314
+@@ -1163,6 +1164,8 @@ static const struct usb_device_id option
+ 	{ USB_DEVICE_AND_INTERFACE_INFO(QUECTEL_VENDOR_ID, QUECTEL_PRODUCT_EP06, 0xff, 0xff, 0xff),
+ 	  .driver_info = RSVD(1) | RSVD(2) | RSVD(3) | RSVD(4) | NUMEP2 },
+ 	{ USB_DEVICE_AND_INTERFACE_INFO(QUECTEL_VENDOR_ID, QUECTEL_PRODUCT_EP06, 0xff, 0, 0) },
++	{ USB_DEVICE_INTERFACE_CLASS(QUECTEL_VENDOR_ID, QUECTEL_PRODUCT_EM05CN_SG, 0xff),
++	  .driver_info = RSVD(6) | ZLP },
+ 	{ USB_DEVICE_INTERFACE_CLASS(QUECTEL_VENDOR_ID, QUECTEL_PRODUCT_EM05G, 0xff),
+ 	  .driver_info = RSVD(6) | ZLP },
+ 	{ USB_DEVICE_INTERFACE_CLASS(QUECTEL_VENDOR_ID, QUECTEL_PRODUCT_EM05G_GR, 0xff),
 
 
