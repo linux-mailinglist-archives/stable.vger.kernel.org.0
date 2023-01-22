@@ -2,43 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 82B8D676F1F
-	for <lists+stable@lfdr.de>; Sun, 22 Jan 2023 16:18:02 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E4120676FD4
+	for <lists+stable@lfdr.de>; Sun, 22 Jan 2023 16:25:43 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231165AbjAVPSB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 22 Jan 2023 10:18:01 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45260 "EHLO
+        id S231402AbjAVPZn (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 22 Jan 2023 10:25:43 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54092 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231169AbjAVPR6 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 22 Jan 2023 10:17:58 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 947F4359D
-        for <stable@vger.kernel.org>; Sun, 22 Jan 2023 07:17:56 -0800 (PST)
+        with ESMTP id S231401AbjAVPZm (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 22 Jan 2023 10:25:42 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0B4F6222CF
+        for <stable@vger.kernel.org>; Sun, 22 Jan 2023 07:25:41 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 1343AB80B1B
-        for <stable@vger.kernel.org>; Sun, 22 Jan 2023 15:17:55 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5E51AC433EF;
-        Sun, 22 Jan 2023 15:17:53 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 7D700B80B1D
+        for <stable@vger.kernel.org>; Sun, 22 Jan 2023 15:25:39 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D307DC433EF;
+        Sun, 22 Jan 2023 15:25:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1674400673;
-        bh=3cRGBHDByLnAZeCjvn7v97G2SNm9CO8kgin0q7ZsY00=;
+        s=korg; t=1674401138;
+        bh=qQ1RV7l1mrwUbBTh93hLRk9y/ZLSfwu3gD5+ghR5iA0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=2Nw0StOBVEkXdXtl326g4niHVJ6xIfVUdnyTVGz76Q3p3DyE/Sj/riuEB/Wzq8Zrr
-         S7kwoiIGfxvYi8bwVmxkcXpn2/8d9ALyOw8scP8dcgYym4uhjXW1klBDOfs8mFPNMq
-         vSEIUYR+K7MquNyhPKAL/mf0GXvJXg2LWNzv2NNc=
+        b=jsc3cWbK3t++6xLmHEac9P0svuo7DJO6DlJx+NSQMrEwjZM5rQ6KCZHRaI5bMSoo4
+         g/CtVXyo4FKRvf1fud72rNFsEvZeuOCRsU/VtX7PsKht0ImPDntFcbjIe30/ce7Aey
+         c7nZg0bNLwwzkPCRdXiASSnK7CQwGydlSC54Jsf8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Dylan Yudaken <dylany@fb.com>,
-        Jens Axboe <axboe@kernel.dk>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 036/117] io_uring: fix async accept on O_NONBLOCK sockets
+        patches@lists.linux.dev,
+        Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>,
+        Jiri Slaby <jirislaby@kernel.org>
+Subject: [PATCH 6.1 097/193] tty: serial: qcom-geni-serial: fix slab-out-of-bounds on RX FIFO buffer
 Date:   Sun, 22 Jan 2023 16:03:46 +0100
-Message-Id: <20230122150234.230902259@linuxfoundation.org>
+Message-Id: <20230122150250.764707724@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.1
-In-Reply-To: <20230122150232.736358800@linuxfoundation.org>
-References: <20230122150232.736358800@linuxfoundation.org>
+In-Reply-To: <20230122150246.321043584@linuxfoundation.org>
+References: <20230122150246.321043584@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,50 +54,111 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dylan Yudaken <dylany@meta.com>
+From: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
 
-commit a73825ba70c93e1eb39a845bb3d9885a787f8ffe upstream.
+commit b8caf69a6946e18ffebad49847e258f5b6d52ac2 upstream.
 
-Do not set REQ_F_NOWAIT if the socket is non blocking. When enabled this
-causes the accept to immediately post a CQE with EAGAIN, which means you
-cannot perform an accept SQE on a NONBLOCK socket asynchronously.
+Driver's probe allocates memory for RX FIFO (port->rx_fifo) based on
+default RX FIFO depth, e.g. 16.  Later during serial startup the
+qcom_geni_serial_port_setup() updates the RX FIFO depth
+(port->rx_fifo_depth) to match real device capabilities, e.g. to 32.
 
-By removing the flag if there is no pending accept then poll is armed as
-usual and when a connection comes in the CQE is posted.
+The RX UART handle code will read "port->rx_fifo_depth" number of words
+into "port->rx_fifo" buffer, thus exceeding the bounds.  This can be
+observed in certain configurations with Qualcomm Bluetooth HCI UART
+device and KASAN:
 
-Signed-off-by: Dylan Yudaken <dylany@fb.com>
-Link: https://lore.kernel.org/r/20220324143435.2875844-1-dylany@fb.com
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+  Bluetooth: hci0: QCA Product ID   :0x00000010
+  Bluetooth: hci0: QCA SOC Version  :0x400a0200
+  Bluetooth: hci0: QCA ROM Version  :0x00000200
+  Bluetooth: hci0: QCA Patch Version:0x00000d2b
+  Bluetooth: hci0: QCA controller version 0x02000200
+  Bluetooth: hci0: QCA Downloading qca/htbtfw20.tlv
+  bluetooth hci0: Direct firmware load for qca/htbtfw20.tlv failed with error -2
+  Bluetooth: hci0: QCA Failed to request file: qca/htbtfw20.tlv (-2)
+  Bluetooth: hci0: QCA Failed to download patch (-2)
+  ==================================================================
+  BUG: KASAN: slab-out-of-bounds in handle_rx_uart+0xa8/0x18c
+  Write of size 4 at addr ffff279347d578c0 by task swapper/0/0
+
+  CPU: 0 PID: 0 Comm: swapper/0 Not tainted 6.1.0-rt5-00350-gb2450b7e00be-dirty #26
+  Hardware name: Qualcomm Technologies, Inc. Robotics RB5 (DT)
+  Call trace:
+   dump_backtrace.part.0+0xe0/0xf0
+   show_stack+0x18/0x40
+   dump_stack_lvl+0x8c/0xb8
+   print_report+0x188/0x488
+   kasan_report+0xb4/0x100
+   __asan_store4+0x80/0xa4
+   handle_rx_uart+0xa8/0x18c
+   qcom_geni_serial_handle_rx+0x84/0x9c
+   qcom_geni_serial_isr+0x24c/0x760
+   __handle_irq_event_percpu+0x108/0x500
+   handle_irq_event+0x6c/0x110
+   handle_fasteoi_irq+0x138/0x2cc
+   generic_handle_domain_irq+0x48/0x64
+
+If the RX FIFO depth changes after probe, be sure to resize the buffer.
+
+Fixes: f9d690b6ece7 ("tty: serial: qcom_geni_serial: Allocate port->rx_fifo buffer in probe")
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
+Reviewed-by: Jiri Slaby <jirislaby@kernel.org>
+Link: https://lore.kernel.org/r/20221221164022.1087814-1-krzysztof.kozlowski@linaro.org
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- io_uring/io_uring.c | 5 ++---
- 1 file changed, 2 insertions(+), 3 deletions(-)
+ drivers/tty/serial/qcom_geni_serial.c |   18 ++++++++++++++++--
+ 1 file changed, 16 insertions(+), 2 deletions(-)
 
-diff --git a/io_uring/io_uring.c b/io_uring/io_uring.c
-index 997a7264e1d4..e1e15d40d758 100644
---- a/io_uring/io_uring.c
-+++ b/io_uring/io_uring.c
-@@ -5272,9 +5272,6 @@ static int io_accept(struct io_kiocb *req, unsigned int issue_flags)
- 	struct file *file;
- 	int ret, fd;
+--- a/drivers/tty/serial/qcom_geni_serial.c
++++ b/drivers/tty/serial/qcom_geni_serial.c
+@@ -864,9 +864,10 @@ out_unlock:
+ 	return IRQ_HANDLED;
+ }
  
--	if (req->file->f_flags & O_NONBLOCK)
--		req->flags |= REQ_F_NOWAIT;
--
- 	if (!fixed) {
- 		fd = __get_unused_fd_flags(accept->flags, accept->nofile);
- 		if (unlikely(fd < 0))
-@@ -5286,6 +5283,8 @@ static int io_accept(struct io_kiocb *req, unsigned int issue_flags)
- 		if (!fixed)
- 			put_unused_fd(fd);
- 		ret = PTR_ERR(file);
-+		/* safe to retry */
-+		req->flags |= REQ_F_PARTIAL_IO;
- 		if (ret == -EAGAIN && force_nonblock)
- 			return -EAGAIN;
- 		if (ret == -ERESTARTSYS)
--- 
-2.39.0
-
+-static void get_tx_fifo_size(struct qcom_geni_serial_port *port)
++static int setup_fifos(struct qcom_geni_serial_port *port)
+ {
+ 	struct uart_port *uport;
++	u32 old_rx_fifo_depth = port->rx_fifo_depth;
+ 
+ 	uport = &port->uport;
+ 	port->tx_fifo_depth = geni_se_get_tx_fifo_depth(&port->se);
+@@ -874,6 +875,16 @@ static void get_tx_fifo_size(struct qcom
+ 	port->rx_fifo_depth = geni_se_get_rx_fifo_depth(&port->se);
+ 	uport->fifosize =
+ 		(port->tx_fifo_depth * port->tx_fifo_width) / BITS_PER_BYTE;
++
++	if (port->rx_fifo && (old_rx_fifo_depth != port->rx_fifo_depth) && port->rx_fifo_depth) {
++		port->rx_fifo = devm_krealloc(uport->dev, port->rx_fifo,
++					      port->rx_fifo_depth * sizeof(u32),
++					      GFP_KERNEL);
++		if (!port->rx_fifo)
++			return -ENOMEM;
++	}
++
++	return 0;
+ }
+ 
+ 
+@@ -888,6 +899,7 @@ static int qcom_geni_serial_port_setup(s
+ 	u32 rxstale = DEFAULT_BITS_PER_CHAR * STALE_TIMEOUT;
+ 	u32 proto;
+ 	u32 pin_swap;
++	int ret;
+ 
+ 	proto = geni_se_read_proto(&port->se);
+ 	if (proto != GENI_SE_UART) {
+@@ -897,7 +909,9 @@ static int qcom_geni_serial_port_setup(s
+ 
+ 	qcom_geni_serial_stop_rx(uport);
+ 
+-	get_tx_fifo_size(port);
++	ret = setup_fifos(port);
++	if (ret)
++		return ret;
+ 
+ 	writel(rxstale, uport->membase + SE_UART_RX_STALE_CNT);
+ 
 
 
