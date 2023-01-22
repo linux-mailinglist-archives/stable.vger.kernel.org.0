@@ -2,47 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id DF7AB676DFD
-	for <lists+stable@lfdr.de>; Sun, 22 Jan 2023 16:05:56 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9EEC0676E68
+	for <lists+stable@lfdr.de>; Sun, 22 Jan 2023 16:10:14 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230063AbjAVPFz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 22 Jan 2023 10:05:55 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59978 "EHLO
+        id S230305AbjAVPKN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 22 Jan 2023 10:10:13 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36896 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229942AbjAVPFy (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 22 Jan 2023 10:05:54 -0500
+        with ESMTP id S230311AbjAVPKN (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 22 Jan 2023 10:10:13 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E52A5113E8
-        for <stable@vger.kernel.org>; Sun, 22 Jan 2023 07:05:53 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 39F271F49F
+        for <stable@vger.kernel.org>; Sun, 22 Jan 2023 07:10:12 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id A0C54B80B12
-        for <stable@vger.kernel.org>; Sun, 22 Jan 2023 15:05:52 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E78C0C433EF;
-        Sun, 22 Jan 2023 15:05:50 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id E3B39B80B1A
+        for <stable@vger.kernel.org>; Sun, 22 Jan 2023 15:10:10 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 320E1C433D2;
+        Sun, 22 Jan 2023 15:10:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1674399951;
-        bh=YsCrWtH/1N798Wb3XRPPg5p6VnTf5LBKFgotFCGwepM=;
+        s=korg; t=1674400209;
+        bh=ABO+K2CVJk89usJHc/+wTw7cdXaECLDJXhd8CdLEJcw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ok6OhYniBKzb+nXQqTwZMGncWJQrYqOYoL+NgblDykJP9TK35I0gS2uS0KkU9Zbh6
-         IKgcxnQDZrZvKv8etsLRYtyhxdKumq4j5vDK2JBTPCbZILPvwvwrLQ7n7kQljHiGfM
-         XJHZ78Sd3z0H49pHtuJV614Qe9YiJbnKJbnkVXsk=
+        b=kgefjWRP5v4e86Gxx9WK3/ytDRd0m3soAcvAmKczXVg6kc69I5H6TOEiK8X56VvFG
+         7fSeOqlajqUhZ/WLWle1nGpicpfXUYIAqw5c/aWYJJLJhxgvC7kDNCgwVtIvuFXeQx
+         gj2yJ5VpvuXwwsbQ2AMYkcsERU6KCrTJjs5QVciY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Olga Kornievskaia <kolga@netapp.com>,
-        Trond Myklebust <trond.myklebust@hammerspace.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 01/25] pNFS/filelayout: Fix coalescing test for single DS
+        patches@lists.linux.dev,
+        Mathias Nyman <mathias.nyman@linux.intel.com>
+Subject: [PATCH 5.4 14/55] xhci: Fix null pointer dereference when host dies
 Date:   Sun, 22 Jan 2023 16:04:01 +0100
-Message-Id: <20230122150217.856099840@linuxfoundation.org>
+Message-Id: <20230122150222.838011378@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.1
-In-Reply-To: <20230122150217.788215473@linuxfoundation.org>
-References: <20230122150217.788215473@linuxfoundation.org>
+In-Reply-To: <20230122150222.210885219@linuxfoundation.org>
+References: <20230122150222.210885219@linuxfoundation.org>
 User-Agent: quilt/0.67
-X-stable: review
-X-Patchwork-Hint: ignore
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -56,49 +53,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Olga Kornievskaia <olga.kornievskaia@gmail.com>
+From: Mathias Nyman <mathias.nyman@linux.intel.com>
 
-[ Upstream commit a6b9d2fa0024e7e399c26facd0fb466b7396e2b9 ]
+commit a2bc47c43e70cf904b1af49f76d572326c08bca7 upstream.
 
-When there is a single DS no striping constraints need to be placed on
-the IO. When such constraint is applied then buffered reads don't
-coalesce to the DS's rsize.
+Make sure xhci_free_dev() and xhci_kill_endpoint_urbs() do not race
+and cause null pointer dereference when host suddenly dies.
 
-Signed-off-by: Olga Kornievskaia <kolga@netapp.com>
-Signed-off-by: Trond Myklebust <trond.myklebust@hammerspace.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Usb core may call xhci_free_dev() which frees the xhci->devs[slot_id]
+virt device at the same time that xhci_kill_endpoint_urbs() tries to
+loop through all the device's endpoints, checking if there are any
+cancelled urbs left to give back.
+
+hold the xhci spinlock while freeing the virt device
+
+Cc: stable@vger.kernel.org
+Signed-off-by: Mathias Nyman <mathias.nyman@linux.intel.com>
+Link: https://lore.kernel.org/r/20230116142216.1141605-4-mathias.nyman@linux.intel.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/nfs/filelayout/filelayout.c | 8 ++++++++
- 1 file changed, 8 insertions(+)
+ drivers/usb/host/xhci.c |    5 +++++
+ 1 file changed, 5 insertions(+)
 
-diff --git a/fs/nfs/filelayout/filelayout.c b/fs/nfs/filelayout/filelayout.c
-index 38179e5a6a00..9b24d0bc9b39 100644
---- a/fs/nfs/filelayout/filelayout.c
-+++ b/fs/nfs/filelayout/filelayout.c
-@@ -837,6 +837,12 @@ filelayout_alloc_lseg(struct pnfs_layout_hdr *layoutid,
- 	return &fl->generic_hdr;
+--- a/drivers/usb/host/xhci.c
++++ b/drivers/usb/host/xhci.c
+@@ -3909,6 +3909,7 @@ static void xhci_free_dev(struct usb_hcd
+ 	struct xhci_hcd *xhci = hcd_to_xhci(hcd);
+ 	struct xhci_virt_device *virt_dev;
+ 	struct xhci_slot_ctx *slot_ctx;
++	unsigned long flags;
+ 	int i, ret;
+ 
+ 	/*
+@@ -3937,7 +3938,11 @@ static void xhci_free_dev(struct usb_hcd
+ 	}
+ 	virt_dev->udev = NULL;
+ 	xhci_disable_slot(xhci, udev->slot_id);
++
++	spin_lock_irqsave(&xhci->lock, flags);
+ 	xhci_free_virt_device(xhci, udev->slot_id);
++	spin_unlock_irqrestore(&xhci->lock, flags);
++
  }
  
-+static bool
-+filelayout_lseg_is_striped(const struct nfs4_filelayout_segment *flseg)
-+{
-+	return flseg->num_fh > 1;
-+}
-+
- /*
-  * filelayout_pg_test(). Called by nfs_can_coalesce_requests()
-  *
-@@ -857,6 +863,8 @@ filelayout_pg_test(struct nfs_pageio_descriptor *pgio, struct nfs_page *prev,
- 	size = pnfs_generic_pg_test(pgio, prev, req);
- 	if (!size)
- 		return 0;
-+	else if (!filelayout_lseg_is_striped(FILELAYOUT_LSEG(pgio->pg_lseg)))
-+		return size;
- 
- 	/* see if req and prev are in the same stripe */
- 	if (prev) {
--- 
-2.35.1
-
+ int xhci_disable_slot(struct xhci_hcd *xhci, u32 slot_id)
 
 
