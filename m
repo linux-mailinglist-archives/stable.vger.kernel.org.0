@@ -2,43 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id BCFF1676F77
-	for <lists+stable@lfdr.de>; Sun, 22 Jan 2023 16:22:11 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 07606676F79
+	for <lists+stable@lfdr.de>; Sun, 22 Jan 2023 16:22:14 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231279AbjAVPWK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 22 Jan 2023 10:22:10 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49524 "EHLO
+        id S231289AbjAVPWN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 22 Jan 2023 10:22:13 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49670 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231282AbjAVPWI (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 22 Jan 2023 10:22:08 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6BBF022A0F
-        for <stable@vger.kernel.org>; Sun, 22 Jan 2023 07:21:46 -0800 (PST)
+        with ESMTP id S231292AbjAVPWL (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 22 Jan 2023 10:22:11 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2D19422A28
+        for <stable@vger.kernel.org>; Sun, 22 Jan 2023 07:21:51 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 2FD8D60BC5
-        for <stable@vger.kernel.org>; Sun, 22 Jan 2023 15:21:45 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4268EC433D2;
-        Sun, 22 Jan 2023 15:21:44 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 92C96B80B26
+        for <stable@vger.kernel.org>; Sun, 22 Jan 2023 15:21:48 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E1632C433EF;
+        Sun, 22 Jan 2023 15:21:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1674400904;
-        bh=FPLbrvIr0sJlCYZ/5az/WTaLEeHg/wZDDnYcNICvEGU=;
+        s=korg; t=1674400907;
+        bh=zX3hwgOKL+eX4FOKDqK9mcTPt6yXwJR+0/Z/FSot2is=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=UO0fW5jZcQWjsn7kDfLGQE0qqzXyRwqWC6cMQWI4ufrFI9ljGF38ZgNu2cNhv1YTO
-         hYcnrFlrrusRn6NZYgXNk57XYW/GEDgeHzqQ68rjVgpfIXPyxPHPDAthcfgqS3YnKZ
-         0+TPG7FzRmeOqEBuTFu4t0HgnBpo56qq9fzhczDY=
+        b=E8qTY5DYVGps92DIne8mbjeE/UaY5blI0BQmrWiDhYAyhK3l0BYZApAORMq1DDmis
+         RwALme/QQ9VMeyr4k6aYv6NP+1R+qWBWDz8iBFK8CBsXLEsPsqNWI04eHBRe50Td9g
+         2q1zhU8Gr+RGm+kOqdcXpFF8lCBOFRcBpsNw7TPQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        =?UTF-8?q?Ricardo=20Ca=C3=B1uelo?= <ricardo.canuelo@collabora.com>,
+        patches@lists.linux.dev, Eli Cohen <elic@nvidia.com>,
         "Michael S. Tsirkin" <mst@redhat.com>,
-        Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
+        Jason Wang <jasowang@redhat.com>,
+        =?UTF-8?q?Eugenio=20P=C3=A9rez?= <eperezma@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 007/193] tools/virtio: initialize spinlocks in vring_test.c
-Date:   Sun, 22 Jan 2023 16:02:16 +0100
-Message-Id: <20230122150246.705054042@linuxfoundation.org>
+Subject: [PATCH 6.1 008/193] vdpa/mlx5: Return error on vlan ctrl commands if not supported
+Date:   Sun, 22 Jan 2023 16:02:17 +0100
+Message-Id: <20230122150246.758229409@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.1
 In-Reply-To: <20230122150246.321043584@linuxfoundation.org>
 References: <20230122150246.321043584@linuxfoundation.org>
@@ -56,43 +56,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ricardo Cañuelo <ricardo.canuelo@collabora.com>
+From: Eli Cohen <elic@nvidia.com>
 
-[ Upstream commit c262f75cb6bb5a63828e72ce3b8fe808e5029479 ]
+[ Upstream commit 5aec804936bbff182081f1cdc271fcb76af1a4ff ]
 
-The virtio_device vqs_list spinlocks must be initialized before use to
-prevent functions that manipulate the device virtualqueues, such as
-vring_new_virtqueue(), from blocking indefinitely.
+Check if VIRTIO_NET_F_CTRL_VLAN is negotiated and return error if
+control VQ command is received.
 
-Signed-off-by: Ricardo Cañuelo <ricardo.canuelo@collabora.com>
-Message-Id: <20221012062949.1526176-1-ricardo.canuelo@collabora.com>
+Signed-off-by: Eli Cohen <elic@nvidia.com>
+Message-Id: <20221114131759.57883-3-elic@nvidia.com>
 Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
-Reviewed-by: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
+Acked-by: Jason Wang <jasowang@redhat.com>
+Acked-by: Eugenio Pérez <eperezma@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/virtio/vringh_test.c | 2 ++
- 1 file changed, 2 insertions(+)
+ drivers/vdpa/mlx5/net/mlx5_vnet.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/tools/virtio/vringh_test.c b/tools/virtio/vringh_test.c
-index fa87b58bd5fa..98ff808d6f0c 100644
---- a/tools/virtio/vringh_test.c
-+++ b/tools/virtio/vringh_test.c
-@@ -308,6 +308,7 @@ static int parallel_test(u64 features,
+diff --git a/drivers/vdpa/mlx5/net/mlx5_vnet.c b/drivers/vdpa/mlx5/net/mlx5_vnet.c
+index 444d6572b2d0..b06260a37680 100644
+--- a/drivers/vdpa/mlx5/net/mlx5_vnet.c
++++ b/drivers/vdpa/mlx5/net/mlx5_vnet.c
+@@ -1823,6 +1823,9 @@ static virtio_net_ctrl_ack handle_ctrl_vlan(struct mlx5_vdpa_dev *mvdev, u8 cmd)
+ 	size_t read;
+ 	u16 id;
  
- 		gvdev.vdev.features = features;
- 		INIT_LIST_HEAD(&gvdev.vdev.vqs);
-+		spin_lock_init(&gvdev.vdev.vqs_list_lock);
- 		gvdev.to_host_fd = to_host[1];
- 		gvdev.notifies = 0;
- 
-@@ -455,6 +456,7 @@ int main(int argc, char *argv[])
- 	getrange = getrange_iov;
- 	vdev.features = 0;
- 	INIT_LIST_HEAD(&vdev.vqs);
-+	spin_lock_init(&vdev.vqs_list_lock);
- 
- 	while (argv[1]) {
- 		if (strcmp(argv[1], "--indirect") == 0)
++	if (!(ndev->mvdev.actual_features & BIT_ULL(VIRTIO_NET_F_CTRL_VLAN)))
++		return status;
++
+ 	switch (cmd) {
+ 	case VIRTIO_NET_CTRL_VLAN_ADD:
+ 		read = vringh_iov_pull_iotlb(&cvq->vring, &cvq->riov, &vlan, sizeof(vlan));
 -- 
 2.35.1
 
