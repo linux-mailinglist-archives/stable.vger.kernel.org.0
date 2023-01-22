@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 4EC3D676E61
-	for <lists+stable@lfdr.de>; Sun, 22 Jan 2023 16:09:57 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 94809676EBB
+	for <lists+stable@lfdr.de>; Sun, 22 Jan 2023 16:13:45 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230298AbjAVPJ4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 22 Jan 2023 10:09:56 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36636 "EHLO
+        id S230429AbjAVPNo (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 22 Jan 2023 10:13:44 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40900 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230293AbjAVPJz (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 22 Jan 2023 10:09:55 -0500
+        with ESMTP id S230426AbjAVPNn (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 22 Jan 2023 10:13:43 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E67ED1E9EE
-        for <stable@vger.kernel.org>; Sun, 22 Jan 2023 07:09:54 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E2DAD22005
+        for <stable@vger.kernel.org>; Sun, 22 Jan 2023 07:13:42 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 7F38560C48
-        for <stable@vger.kernel.org>; Sun, 22 Jan 2023 15:09:54 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9293EC433D2;
-        Sun, 22 Jan 2023 15:09:53 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 7EC0660BC5
+        for <stable@vger.kernel.org>; Sun, 22 Jan 2023 15:13:42 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 95B78C433D2;
+        Sun, 22 Jan 2023 15:13:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1674400193;
-        bh=WFJMN1Q1u4aCeXoyi/xDN4BnE6XxlMuK8jbqClHh83o=;
+        s=korg; t=1674400421;
+        bh=8/pCthJrNJrVyJX/tgThM8NDME8TgLNris9k8uM+b/U=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=pbQF5S4ohfXdeVcqlZrlUm2Qw3EEiSiXvk19cikC7h/ELLnWIrllmwRsu/zackG8m
-         6tKYzM0n7sg4e7MdO4xC2MWDz9lAr+Rt5pC8MEHHhrmKSGrfx+72qNPEUan4s/N8fN
-         ls4nBThUMSl822HBnxYCLIrmbQLc5ig/X0FpKgHE=
+        b=OG43bVdjgj7kqZ2LC5UqZrX8NlNneggAnJqucmDJxQEdBHXhi4JnnL+nWrXjyLLuZ
+         THw5RbBDO4p/78f2kQ6tuVCWWPzFpDzoZ9xwAw1jzO4zN/MqowlbWEvcM2Hvtjn0ch
+         FbfwxZcxeE1DFoeFcfT4U+0QmYLfIhDdkw7EeNmM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Heikki Krogerus <heikki.krogerus@linux.intel.com>,
-        Prashant Malani <pmalani@chromium.org>,
-        Benson Leung <bleung@chromium.org>
-Subject: [PATCH 5.4 37/55] usb: typec: altmodes/displayport: Add pin assignment helper
+        patches@lists.linux.dev, Alan Stern <stern@rowland.harvard.edu>,
+        Hongling Zeng <zenghongling@kylinos.cn>,
+        Juhyung Park <qkrwngud825@gmail.com>,
+        Oliver Neukum <oneukum@suse.com>
+Subject: [PATCH 5.10 68/98] usb-storage: apply IGNORE_UAS only for HIKSEMI MD202 on RTL9210
 Date:   Sun, 22 Jan 2023 16:04:24 +0100
-Message-Id: <20230122150223.727579960@linuxfoundation.org>
+Message-Id: <20230122150232.318070123@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.1
-In-Reply-To: <20230122150222.210885219@linuxfoundation.org>
-References: <20230122150222.210885219@linuxfoundation.org>
+In-Reply-To: <20230122150229.351631432@linuxfoundation.org>
+References: <20230122150229.351631432@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,73 +55,77 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Prashant Malani <pmalani@chromium.org>
+From: Juhyung Park <qkrwngud825@gmail.com>
 
-commit 582836e3cfab4faafbdc93bbec96fce036a08ee1 upstream.
+commit dbd24ec17b85b45f4e823d1aa5607721920f2b05 upstream.
 
-The code to extract a peripheral's currently supported Pin Assignments
-is repeated in a couple of locations. Factor it out into a separate
-function.
+The commit e00b488e813f ("usb-storage: Add Hiksemi USB3-FW to IGNORE_UAS")
+blacklists UAS for all of RTL9210 enclosures.
 
-This will also make it easier to add fixes (we only need to update 1
-location instead of 2).
+The RTL9210 controller was advertised with UAS since its release back in
+2019 and was shipped with a lot of enclosure products with different
+firmware combinations.
 
-Fixes: c1e5c2f0cb8a ("usb: typec: altmodes/displayport: correct pin assignment for UFP receptacles")
+Blacklist UAS only for HIKSEMI MD202.
+
+This should hopefully be replaced with more robust method than just
+comparing strings.  But with limited information [1] provided thus far
+(dmesg when the device is plugged in, which includes manufacturer and
+product, but no lsusb -v to compare against), this is the best we can do
+for now.
+
+[1] https://lore.kernel.org/all/20230109115550.71688-1-qkrwngud825@gmail.com
+
+Fixes: e00b488e813f ("usb-storage: Add Hiksemi USB3-FW to IGNORE_UAS")
+Cc: Alan Stern <stern@rowland.harvard.edu>
+Cc: Hongling Zeng <zenghongling@kylinos.cn>
 Cc: stable@vger.kernel.org
-Cc: Heikki Krogerus <heikki.krogerus@linux.intel.com>
-Signed-off-by: Prashant Malani <pmalani@chromium.org>
-Reviewed-by: Benson Leung <bleung@chromium.org>
-Reviewed-by: Heikki Krogerus <heikki.krogerus@linux.intel.com>
-Link: https://lore.kernel.org/r/20230111020546.3384569-1-pmalani@chromium.org
+Signed-off-by: Juhyung Park <qkrwngud825@gmail.com>
+Acked-by: Oliver Neukum <oneukum@suse.com>
+Link: https://lore.kernel.org/r/20230117085154.123301-1-qkrwngud825@gmail.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/usb/typec/altmodes/displayport.c |   22 ++++++++++++++--------
- 1 file changed, 14 insertions(+), 8 deletions(-)
+ drivers/usb/storage/uas-detect.h  |   13 +++++++++++++
+ drivers/usb/storage/unusual_uas.h |    7 -------
+ 2 files changed, 13 insertions(+), 7 deletions(-)
 
---- a/drivers/usb/typec/altmodes/displayport.c
-+++ b/drivers/usb/typec/altmodes/displayport.c
-@@ -407,6 +407,18 @@ static const char * const pin_assignment
- 	[DP_PIN_ASSIGN_F] = "F",
- };
+--- a/drivers/usb/storage/uas-detect.h
++++ b/drivers/usb/storage/uas-detect.h
+@@ -116,6 +116,19 @@ static int uas_use_uas_driver(struct usb
+ 	if (le16_to_cpu(udev->descriptor.idVendor) == 0x0bc2)
+ 		flags |= US_FL_NO_ATA_1X;
  
-+/*
-+ * Helper function to extract a peripheral's currently supported
-+ * Pin Assignments from its DisplayPort alternate mode state.
-+ */
-+static u8 get_current_pin_assignments(struct dp_altmode *dp)
-+{
-+	if (DP_CONF_CURRENTLY(dp->data.conf) == DP_CONF_DFP_D)
-+		return DP_CAP_UFP_D_PIN_ASSIGN(dp->alt->vdo);
-+	else
-+		return DP_CAP_DFP_D_PIN_ASSIGN(dp->alt->vdo);
-+}
++	/*
++	 * RTL9210-based enclosure from HIKSEMI, MD202 reportedly have issues
++	 * with UAS.  This isn't distinguishable with just idVendor and
++	 * idProduct, use manufacturer and product too.
++	 *
++	 * Reported-by: Hongling Zeng <zenghongling@kylinos.cn>
++	 */
++	if (le16_to_cpu(udev->descriptor.idVendor) == 0x0bda &&
++			le16_to_cpu(udev->descriptor.idProduct) == 0x9210 &&
++			(udev->manufacturer && !strcmp(udev->manufacturer, "HIKSEMI")) &&
++			(udev->product && !strcmp(udev->product, "MD202")))
++		flags |= US_FL_IGNORE_UAS;
 +
- static ssize_t
- pin_assignment_store(struct device *dev, struct device_attribute *attr,
- 		     const char *buf, size_t size)
-@@ -433,10 +445,7 @@ pin_assignment_store(struct device *dev,
- 		goto out_unlock;
- 	}
+ 	usb_stor_adjust_quirks(udev, &flags);
  
--	if (DP_CONF_CURRENTLY(dp->data.conf) == DP_CONF_DFP_D)
--		assignments = DP_CAP_UFP_D_PIN_ASSIGN(dp->alt->vdo);
--	else
--		assignments = DP_CAP_DFP_D_PIN_ASSIGN(dp->alt->vdo);
-+	assignments = get_current_pin_assignments(dp);
+ 	if (flags & US_FL_IGNORE_UAS) {
+--- a/drivers/usb/storage/unusual_uas.h
++++ b/drivers/usb/storage/unusual_uas.h
+@@ -83,13 +83,6 @@ UNUSUAL_DEV(0x0bc2, 0x331a, 0x0000, 0x99
+ 		USB_SC_DEVICE, USB_PR_DEVICE, NULL,
+ 		US_FL_NO_REPORT_LUNS),
  
- 	if (!(DP_CONF_GET_PIN_ASSIGN(conf) & assignments)) {
- 		ret = -EINVAL;
-@@ -473,10 +482,7 @@ static ssize_t pin_assignment_show(struc
- 
- 	cur = get_count_order(DP_CONF_GET_PIN_ASSIGN(dp->data.conf));
- 
--	if (DP_CONF_CURRENTLY(dp->data.conf) == DP_CONF_DFP_D)
--		assignments = DP_CAP_UFP_D_PIN_ASSIGN(dp->alt->vdo);
--	else
--		assignments = DP_CAP_DFP_D_PIN_ASSIGN(dp->alt->vdo);
-+	assignments = get_current_pin_assignments(dp);
- 
- 	for (i = 0; assignments; assignments >>= 1, i++) {
- 		if (assignments & 1) {
+-/* Reported-by: Hongling Zeng <zenghongling@kylinos.cn> */
+-UNUSUAL_DEV(0x0bda, 0x9210, 0x0000, 0x9999,
+-		"Hiksemi",
+-		"External HDD",
+-		USB_SC_DEVICE, USB_PR_DEVICE, NULL,
+-		US_FL_IGNORE_UAS),
+-
+ /* Reported-by: Benjamin Tissoires <benjamin.tissoires@redhat.com> */
+ UNUSUAL_DEV(0x13fd, 0x3940, 0x0000, 0x9999,
+ 		"Initio Corporation",
 
 
