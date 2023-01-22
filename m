@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 261EA676FE8
-	for <lists+stable@lfdr.de>; Sun, 22 Jan 2023 16:26:31 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D6615676F31
+	for <lists+stable@lfdr.de>; Sun, 22 Jan 2023 16:18:43 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231425AbjAVP0a (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 22 Jan 2023 10:26:30 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54708 "EHLO
+        id S231173AbjAVPSn (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 22 Jan 2023 10:18:43 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46026 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231423AbjAVP03 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 22 Jan 2023 10:26:29 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AEB6822A28
-        for <stable@vger.kernel.org>; Sun, 22 Jan 2023 07:26:28 -0800 (PST)
+        with ESMTP id S231185AbjAVPSm (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 22 Jan 2023 10:18:42 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AF8C31A492
+        for <stable@vger.kernel.org>; Sun, 22 Jan 2023 07:18:41 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 459FA60C60
-        for <stable@vger.kernel.org>; Sun, 22 Jan 2023 15:26:28 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 58636C433D2;
-        Sun, 22 Jan 2023 15:26:27 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 49B0C60C44
+        for <stable@vger.kernel.org>; Sun, 22 Jan 2023 15:18:41 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5CFDFC433EF;
+        Sun, 22 Jan 2023 15:18:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1674401187;
-        bh=7iYNBw+UoGsVUwdthnKw5/xH26yi0/Y0uhcIv7WOqZg=;
+        s=korg; t=1674400720;
+        bh=8/pCthJrNJrVyJX/tgThM8NDME8TgLNris9k8uM+b/U=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=UR5lCE841xUC0f6X9bjV7U0qId9uGb4NpcZkNw1xFCtyVp6dzOQZDVLpj+LDY4GFP
-         qBHutdeL57sZfKKMSSbBEv/Sh1yHJNBX2QceYUBitjmKlSC00IGc5cxr+4ZNJ4jC14
-         S+EO5sLD4tbltzInO6S1NgEOIJtx6c0QLAcXtz6U=
+        b=cSR86S/BfkIg9RmktnsbiFZqKpRh9mCS2cfkPZCIBOCkT0/z7o4kp5VpxVmSC2TG7
+         CQGEL5xgiPzR4VHZNzlf5RUQmv972VtiEMV8JV/tNlWfCSLoH0W7j2GpXNd0PlutP9
+         jIFW0UGmlIPCbIhrpL2V6ExVTat3DtAxTs1hfv5M=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, roman.li@amd.com, yifan1.zhang@amd.com,
-        =?UTF-8?q?Christian=20K=C3=B6nig?= <christian.koenig@amd.com>,
-        Alex Deucher <alexander.deucher@amd.com>
-Subject: [PATCH 6.1 144/193] drm/amd/display: disable S/G display on DCN 3.1.5
+        patches@lists.linux.dev, Alan Stern <stern@rowland.harvard.edu>,
+        Hongling Zeng <zenghongling@kylinos.cn>,
+        Juhyung Park <qkrwngud825@gmail.com>,
+        Oliver Neukum <oneukum@suse.com>
+Subject: [PATCH 5.15 083/117] usb-storage: apply IGNORE_UAS only for HIKSEMI MD202 on RTL9210
 Date:   Sun, 22 Jan 2023 16:04:33 +0100
-Message-Id: <20230122150252.963432735@linuxfoundation.org>
+Message-Id: <20230122150236.232801593@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.1
-In-Reply-To: <20230122150246.321043584@linuxfoundation.org>
-References: <20230122150246.321043584@linuxfoundation.org>
+In-Reply-To: <20230122150232.736358800@linuxfoundation.org>
+References: <20230122150232.736358800@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,34 +55,77 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alex Deucher <alexander.deucher@amd.com>
+From: Juhyung Park <qkrwngud825@gmail.com>
 
-commit e78cc6a4c7486f50c2786d91dd7d9649a87d1dcb upstream.
+commit dbd24ec17b85b45f4e823d1aa5607721920f2b05 upstream.
 
-Causes flickering or white screens in some configurations.
-Disable it for now until we can fix the issue.
+The commit e00b488e813f ("usb-storage: Add Hiksemi USB3-FW to IGNORE_UAS")
+blacklists UAS for all of RTL9210 enclosures.
 
-Bug: https://gitlab.freedesktop.org/drm/amd/-/issues/2354
-Cc: roman.li@amd.com
-Cc: yifan1.zhang@amd.com
-Acked-by: Christian König <christian.koenig@amd.com>
-Reviewed-by: Yifan Zhang <yifan1.zhang@amd.com>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
-Cc: stable@vger.kernel.org # 6.1.x
+The RTL9210 controller was advertised with UAS since its release back in
+2019 and was shipped with a lot of enclosure products with different
+firmware combinations.
+
+Blacklist UAS only for HIKSEMI MD202.
+
+This should hopefully be replaced with more robust method than just
+comparing strings.  But with limited information [1] provided thus far
+(dmesg when the device is plugged in, which includes manufacturer and
+product, but no lsusb -v to compare against), this is the best we can do
+for now.
+
+[1] https://lore.kernel.org/all/20230109115550.71688-1-qkrwngud825@gmail.com
+
+Fixes: e00b488e813f ("usb-storage: Add Hiksemi USB3-FW to IGNORE_UAS")
+Cc: Alan Stern <stern@rowland.harvard.edu>
+Cc: Hongling Zeng <zenghongling@kylinos.cn>
+Cc: stable@vger.kernel.org
+Signed-off-by: Juhyung Park <qkrwngud825@gmail.com>
+Acked-by: Oliver Neukum <oneukum@suse.com>
+Link: https://lore.kernel.org/r/20230117085154.123301-1-qkrwngud825@gmail.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c |    1 -
- 1 file changed, 1 deletion(-)
+ drivers/usb/storage/uas-detect.h  |   13 +++++++++++++
+ drivers/usb/storage/unusual_uas.h |    7 -------
+ 2 files changed, 13 insertions(+), 7 deletions(-)
 
---- a/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c
-+++ b/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c
-@@ -1513,7 +1513,6 @@ static int amdgpu_dm_init(struct amdgpu_
- 		case IP_VERSION(3, 1, 2):
- 		case IP_VERSION(3, 1, 3):
- 		case IP_VERSION(3, 1, 4):
--		case IP_VERSION(3, 1, 5):
- 		case IP_VERSION(3, 1, 6):
- 			init_data.flags.gpu_vm_support = true;
- 			break;
+--- a/drivers/usb/storage/uas-detect.h
++++ b/drivers/usb/storage/uas-detect.h
+@@ -116,6 +116,19 @@ static int uas_use_uas_driver(struct usb
+ 	if (le16_to_cpu(udev->descriptor.idVendor) == 0x0bc2)
+ 		flags |= US_FL_NO_ATA_1X;
+ 
++	/*
++	 * RTL9210-based enclosure from HIKSEMI, MD202 reportedly have issues
++	 * with UAS.  This isn't distinguishable with just idVendor and
++	 * idProduct, use manufacturer and product too.
++	 *
++	 * Reported-by: Hongling Zeng <zenghongling@kylinos.cn>
++	 */
++	if (le16_to_cpu(udev->descriptor.idVendor) == 0x0bda &&
++			le16_to_cpu(udev->descriptor.idProduct) == 0x9210 &&
++			(udev->manufacturer && !strcmp(udev->manufacturer, "HIKSEMI")) &&
++			(udev->product && !strcmp(udev->product, "MD202")))
++		flags |= US_FL_IGNORE_UAS;
++
+ 	usb_stor_adjust_quirks(udev, &flags);
+ 
+ 	if (flags & US_FL_IGNORE_UAS) {
+--- a/drivers/usb/storage/unusual_uas.h
++++ b/drivers/usb/storage/unusual_uas.h
+@@ -83,13 +83,6 @@ UNUSUAL_DEV(0x0bc2, 0x331a, 0x0000, 0x99
+ 		USB_SC_DEVICE, USB_PR_DEVICE, NULL,
+ 		US_FL_NO_REPORT_LUNS),
+ 
+-/* Reported-by: Hongling Zeng <zenghongling@kylinos.cn> */
+-UNUSUAL_DEV(0x0bda, 0x9210, 0x0000, 0x9999,
+-		"Hiksemi",
+-		"External HDD",
+-		USB_SC_DEVICE, USB_PR_DEVICE, NULL,
+-		US_FL_IGNORE_UAS),
+-
+ /* Reported-by: Benjamin Tissoires <benjamin.tissoires@redhat.com> */
+ UNUSUAL_DEV(0x13fd, 0x3940, 0x0000, 0x9999,
+ 		"Initio Corporation",
 
 
