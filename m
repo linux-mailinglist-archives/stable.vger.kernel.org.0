@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 063EC676D21
-	for <lists+stable@lfdr.de>; Sun, 22 Jan 2023 14:22:44 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id BAD9F676D24
+	for <lists+stable@lfdr.de>; Sun, 22 Jan 2023 14:24:56 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229782AbjAVNWm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 22 Jan 2023 08:22:42 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50116 "EHLO
+        id S229788AbjAVNYz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 22 Jan 2023 08:24:55 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50450 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229794AbjAVNWl (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 22 Jan 2023 08:22:41 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AB70116AFE
-        for <stable@vger.kernel.org>; Sun, 22 Jan 2023 05:22:35 -0800 (PST)
+        with ESMTP id S229768AbjAVNYz (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 22 Jan 2023 08:24:55 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7F0091A4BF
+        for <stable@vger.kernel.org>; Sun, 22 Jan 2023 05:24:54 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 463CC60C0F
-        for <stable@vger.kernel.org>; Sun, 22 Jan 2023 13:22:35 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 57A06C433D2;
-        Sun, 22 Jan 2023 13:22:34 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 3DD34B80AD2
+        for <stable@vger.kernel.org>; Sun, 22 Jan 2023 13:24:53 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8DA99C433EF;
+        Sun, 22 Jan 2023 13:24:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1674393754;
-        bh=cov3fJutITco/GtNFq+5iDJQ7NtzTst7VwfsAb16HlM=;
+        s=korg; t=1674393891;
+        bh=qZQMTDcOhiL+krP0DbyWVQhRLLqMrsYdp+lmdJDcOlc=;
         h=Subject:To:Cc:From:Date:From;
-        b=p2vLQ+GUF49nIuypnF8Qdor4ObR6rVIxawQftdzZCIQl0Q44obOJ2CyzxghIp2+3R
-         eaCvT4h0In6BFp6SdlN4Jww3keB9U0nxS/sKBPn+JFEqx/ZQ7gTWHV78sbQBoRDtVa
-         OT61eQ+ig2Oex7LZqgYtuio0qdQIOVEJjAcwkEcI=
-Subject: FAILED: patch "[PATCH] mei: bus: fix unlink on bus in error path" failed to apply to 4.14-stable tree
-To:     alexander.usyskin@intel.com, gregkh@linuxfoundation.org,
-        stable@vger.kernel.org, tomas.winkler@intel.com
+        b=CuTXu442D8Vd9trvp72GDrg8Vno6LYu5gVwLZTn5VmCrkaaBBub4VSSyBoviCbNWo
+         2ctWdaMS6BvLcifsYbPanJrJSS7xrGqvq4re9whA0jeTd7jBUVkONxRwmKVGI0AYaV
+         v7uLfC+9hou0kY6QmXmJB4qED6eSDr7IXeybYZFA=
+Subject: FAILED: patch "[PATCH] drm/amdgpu: correct MEC number for gfx11 APUs" failed to apply to 6.1-stable tree
+To:     Lang.Yu@amd.com, aaron.liu@amd.com, alexander.deucher@amd.com,
+        yifan1.zhang@amd.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Sun, 22 Jan 2023 14:22:24 +0100
-Message-ID: <167439374417884@kroah.com>
+Date:   Sun, 22 Jan 2023 14:24:49 +0100
+Message-ID: <167439388959240@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -49,20 +49,14 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.14-stable tree.
+The patch below does not apply to the 6.1-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
 
 Possible dependencies:
 
-a43866856125 ("mei: bus: fix unlink on bus in error path")
-2cca3465147d ("mei: bus: add client dma interface")
-e5617d2bf549 ("mei: bus: use zero vtag for bus clients.")
-b5958faa34e2 ("mei: bus: move hw module get/put to probe/release")
-34f1166afd67 ("mei: bus: need to unlink client before freeing")
-69bf53130359 ("mei: bus: fix hw module get/put balance")
-257355a44b99 ("mei: make module referencing local to the bus.c")
+0ddadc3a2208 ("drm/amdgpu: correct MEC number for gfx11 APUs")
 
 thanks,
 
@@ -70,74 +64,48 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From a43866856125c3c432e2fbb6cc63cee1539ec4a7 Mon Sep 17 00:00:00 2001
-From: Alexander Usyskin <alexander.usyskin@intel.com>
-Date: Tue, 13 Dec 2022 00:02:46 +0200
-Subject: [PATCH] mei: bus: fix unlink on bus in error path
+From 0ddadc3a2208aedb1b27dbb76d0b4e722b5b527a Mon Sep 17 00:00:00 2001
+From: Lang Yu <Lang.Yu@amd.com>
+Date: Wed, 11 Jan 2023 09:52:11 +0800
+Subject: [PATCH] drm/amdgpu: correct MEC number for gfx11 APUs
 
-Unconditional call to mei_cl_unlink in mei_cl_bus_dev_release leads
-to call of the mei_cl_unlink without corresponding mei_cl_link.
-This leads to miscalculation of open_handle_count (decrease without
-increase).
+There is only one MEC on these APUs.
 
-Call unlink in mei_cldev_enable fail path and remove blanket unlink
-from mei_cl_bus_dev_release.
+Signed-off-by: Lang Yu <Lang.Yu@amd.com>
+Reviewed-by: Aaron Liu <aaron.liu@amd.com>
+Reviewed-by: Yifan Zhang <yifan1.zhang@amd.com>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+Cc: stable@vger.kernel.org # 6.1.x
 
-Fixes: 34f1166afd67 ("mei: bus: need to unlink client before freeing")
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Alexander Usyskin <alexander.usyskin@intel.com>
-Reviewed-by: Tomas Winkler <tomas.winkler@intel.com>
-Signed-off-by: Tomas Winkler <tomas.winkler@intel.com>
-Link: https://lore.kernel.org/r/20221212220247.286019-1-tomas.winkler@intel.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
-diff --git a/drivers/misc/mei/bus.c b/drivers/misc/mei/bus.c
-index 4a08b624910a..a81b890c7ee6 100644
---- a/drivers/misc/mei/bus.c
-+++ b/drivers/misc/mei/bus.c
-@@ -702,13 +702,15 @@ void *mei_cldev_dma_map(struct mei_cl_device *cldev, u8 buffer_id, size_t size)
- 	if (cl->state == MEI_FILE_UNINITIALIZED) {
- 		ret = mei_cl_link(cl);
- 		if (ret)
--			goto out;
-+			goto notlinked;
- 		/* update pointers */
- 		cl->cldev = cldev;
- 	}
+diff --git a/drivers/gpu/drm/amd/amdgpu/gfx_v11_0.c b/drivers/gpu/drm/amd/amdgpu/gfx_v11_0.c
+index a56c6e106d00..b9b57a66e113 100644
+--- a/drivers/gpu/drm/amd/amdgpu/gfx_v11_0.c
++++ b/drivers/gpu/drm/amd/amdgpu/gfx_v11_0.c
+@@ -1287,10 +1287,8 @@ static int gfx_v11_0_sw_init(void *handle)
  
- 	ret = mei_cl_dma_alloc_and_map(cl, NULL, buffer_id, size);
--out:
-+	if (ret)
-+		mei_cl_unlink(cl);
-+notlinked:
- 	mutex_unlock(&bus->device_lock);
- 	if (ret)
- 		return ERR_PTR(ret);
-@@ -758,7 +760,7 @@ int mei_cldev_enable(struct mei_cl_device *cldev)
- 	if (cl->state == MEI_FILE_UNINITIALIZED) {
- 		ret = mei_cl_link(cl);
- 		if (ret)
--			goto out;
-+			goto notlinked;
- 		/* update pointers */
- 		cl->cldev = cldev;
- 	}
-@@ -785,6 +787,9 @@ int mei_cldev_enable(struct mei_cl_device *cldev)
- 	}
- 
- out:
-+	if (ret)
-+		mei_cl_unlink(cl);
-+notlinked:
- 	mutex_unlock(&bus->device_lock);
- 
- 	return ret;
-@@ -1277,7 +1282,6 @@ static void mei_cl_bus_dev_release(struct device *dev)
- 	mei_cl_flush_queues(cldev->cl, NULL);
- 	mei_me_cl_put(cldev->me_cl);
- 	mei_dev_bus_put(cldev->bus);
--	mei_cl_unlink(cldev->cl);
- 	kfree(cldev->cl);
- 	kfree(cldev);
- }
+ 	switch (adev->ip_versions[GC_HWIP][0]) {
+ 	case IP_VERSION(11, 0, 0):
+-	case IP_VERSION(11, 0, 1):
+ 	case IP_VERSION(11, 0, 2):
+ 	case IP_VERSION(11, 0, 3):
+-	case IP_VERSION(11, 0, 4):
+ 		adev->gfx.me.num_me = 1;
+ 		adev->gfx.me.num_pipe_per_me = 1;
+ 		adev->gfx.me.num_queue_per_pipe = 1;
+@@ -1298,6 +1296,15 @@ static int gfx_v11_0_sw_init(void *handle)
+ 		adev->gfx.mec.num_pipe_per_mec = 4;
+ 		adev->gfx.mec.num_queue_per_pipe = 4;
+ 		break;
++	case IP_VERSION(11, 0, 1):
++	case IP_VERSION(11, 0, 4):
++		adev->gfx.me.num_me = 1;
++		adev->gfx.me.num_pipe_per_me = 1;
++		adev->gfx.me.num_queue_per_pipe = 1;
++		adev->gfx.mec.num_mec = 1;
++		adev->gfx.mec.num_pipe_per_mec = 4;
++		adev->gfx.mec.num_queue_per_pipe = 4;
++		break;
+ 	default:
+ 		adev->gfx.me.num_me = 1;
+ 		adev->gfx.me.num_pipe_per_me = 1;
 
