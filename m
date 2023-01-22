@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C9E68676ED2
-	for <lists+stable@lfdr.de>; Sun, 22 Jan 2023 16:14:45 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8B753677002
+	for <lists+stable@lfdr.de>; Sun, 22 Jan 2023 16:27:33 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230448AbjAVPOp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 22 Jan 2023 10:14:45 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41694 "EHLO
+        id S231454AbjAVP1d (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 22 Jan 2023 10:27:33 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55516 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230457AbjAVPOo (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 22 Jan 2023 10:14:44 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6E12322021
-        for <stable@vger.kernel.org>; Sun, 22 Jan 2023 07:14:43 -0800 (PST)
+        with ESMTP id S231451AbjAVP1c (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 22 Jan 2023 10:27:32 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6361023100
+        for <stable@vger.kernel.org>; Sun, 22 Jan 2023 07:27:31 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id F334A60C5C
-        for <stable@vger.kernel.org>; Sun, 22 Jan 2023 15:14:42 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 18289C433EF;
-        Sun, 22 Jan 2023 15:14:41 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 0B96FB80B1F
+        for <stable@vger.kernel.org>; Sun, 22 Jan 2023 15:27:30 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3992CC433D2;
+        Sun, 22 Jan 2023 15:27:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1674400482;
-        bh=cFo4Ab0lXU4MCf2RZUDNnSw1zicVkxBbAYkvbUUlKys=;
+        s=korg; t=1674401248;
+        bh=Z+go7V2dzW28B1W51aduDlNg9EWQ3PwYuDkZM4E7Jtk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=oPk9z7qxwP67+ZfXjOMiU1TBTse+m2xo8fxyuMN+nJzsQV8NNbfIW19mQ6uidvq4t
-         dfRikQRNudEt7LiVmNYX3M6KIHN/Jza00Lgcz1M3DkGGRfEDV3q0Y2v7g82/FELKtZ
-         SOQJyzF5hGU6Zbck9stUkNoyphZudUTmJmdx378U=
+        b=LFnljg8ll7NgcHtIMHqieq0NA5yruaVXyjyWzgeKV/6rdlVQz1FcvAMSlnJJSzz+J
+         /e3IerWYThhUBFn43oi9WovzrGBxEIFyq56/ijLt/P+k9a+U+d/MqMr+B8DE2U3O3H
+         e3+hBGnZDtbclQRSmEcFO/xjhdvsiiHw7PAmJBPk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Sabrina Dubroca <sd@queasysnail.net>,
-        Paolo Abeni <pabeni@redhat.com>,
-        Jakub Kicinski <kuba@kernel.org>
-Subject: [PATCH 5.10 92/98] net/ulp: use consistent error code when blocking ULP
+        patches@lists.linux.dev, YingChi Long <me@inclyc.cn>,
+        Borislav Petkov <bp@suse.de>,
+        Nick Desaulniers <ndesaulniers@google.com>,
+        Nathan Chancellor <nathan@kernel.org>
+Subject: [PATCH 6.1 159/193] x86/fpu: Use _Alignof to avoid undefined behavior in TYPE_ALIGN
 Date:   Sun, 22 Jan 2023 16:04:48 +0100
-Message-Id: <20230122150233.295594770@linuxfoundation.org>
+Message-Id: <20230122150253.675516595@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.1
-In-Reply-To: <20230122150229.351631432@linuxfoundation.org>
-References: <20230122150229.351631432@linuxfoundation.org>
+In-Reply-To: <20230122150246.321043584@linuxfoundation.org>
+References: <20230122150246.321043584@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,51 +55,63 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Paolo Abeni <pabeni@redhat.com>
+From: YingChi Long <me@inclyc.cn>
 
-commit 8ccc99362b60c6f27bb46f36fdaaccf4ef0303de upstream.
+commit 55228db2697c09abddcb9487c3d9fa5854a932cd upstream.
 
-The referenced commit changed the error code returned by the kernel
-when preventing a non-established socket from attaching the ktls
-ULP. Before to such a commit, the user-space got ENOTCONN instead
-of EINVAL.
+WG14 N2350 specifies that it is an undefined behavior to have type
+definitions within offsetof", see
 
-The existing self-tests depend on such error code, and the change
-caused a failure:
+  https://www.open-std.org/jtc1/sc22/wg14/www/docs/n2350.htm
 
-  RUN           global.non_established ...
- tls.c:1673:non_established:Expected errno (22) == ENOTCONN (107)
- non_established: Test failed at step #3
-          FAIL  global.non_established
+This specification is also part of C23.
 
-In the unlikely event existing applications do the same, address
-the issue by restoring the prior error code in the above scenario.
+Therefore, replace the TYPE_ALIGN macro with the _Alignof builtin to
+avoid undefined behavior. (_Alignof itself is C11 and the kernel is
+built with -gnu11).
 
-Note that the only other ULP performing similar checks at init
-time - smc_ulp_ops - also fails with ENOTCONN when trying to attach
-the ULP to a non-established socket.
+ISO C11 _Alignof is subtly different from the GNU C extension
+__alignof__. Latter is the preferred alignment and _Alignof the
+minimal alignment. For long long on x86 these are 8 and 4
+respectively.
 
-Reported-by: Sabrina Dubroca <sd@queasysnail.net>
-Fixes: 2c02d41d71f9 ("net/ulp: prevent ULP without clone op from entering the LISTEN status")
-Signed-off-by: Paolo Abeni <pabeni@redhat.com>
-Reviewed-by: Sabrina Dubroca <sd@queasysnail.net>
-Link: https://lore.kernel.org/r/7bb199e7a93317fb6f8bf8b9b2dc71c18f337cde.1674042685.git.pabeni@redhat.com
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+The macro TYPE_ALIGN's behavior matches _Alignof rather than
+__alignof__.
+
+  [ bp: Massage commit message. ]
+
+Signed-off-by: YingChi Long <me@inclyc.cn>
+Signed-off-by: Borislav Petkov <bp@suse.de>
+Reviewed-by: Nick Desaulniers <ndesaulniers@google.com>
+Link: https://lore.kernel.org/r/20220925153151.2467884-1-me@inclyc.cn
+Signed-off-by: Nathan Chancellor <nathan@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/ipv4/tcp_ulp.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ arch/x86/kernel/fpu/init.c |    7 ++-----
+ 1 file changed, 2 insertions(+), 5 deletions(-)
 
---- a/net/ipv4/tcp_ulp.c
-+++ b/net/ipv4/tcp_ulp.c
-@@ -136,7 +136,7 @@ static int __tcp_set_ulp(struct sock *sk
- 	if (icsk->icsk_ulp_ops)
- 		goto out_err;
+--- a/arch/x86/kernel/fpu/init.c
++++ b/arch/x86/kernel/fpu/init.c
+@@ -133,9 +133,6 @@ static void __init fpu__init_system_gene
+ 	fpu__init_system_mxcsr();
+ }
  
--	err = -EINVAL;
-+	err = -ENOTCONN;
- 	if (!ulp_ops->clone && sk->sk_state == TCP_LISTEN)
- 		goto out_err;
+-/* Get alignment of the TYPE. */
+-#define TYPE_ALIGN(TYPE) offsetof(struct { char x; TYPE test; }, test)
+-
+ /*
+  * Enforce that 'MEMBER' is the last field of 'TYPE'.
+  *
+@@ -143,8 +140,8 @@ static void __init fpu__init_system_gene
+  * because that's how C aligns structs.
+  */
+ #define CHECK_MEMBER_AT_END_OF(TYPE, MEMBER) \
+-	BUILD_BUG_ON(sizeof(TYPE) != ALIGN(offsetofend(TYPE, MEMBER), \
+-					   TYPE_ALIGN(TYPE)))
++	BUILD_BUG_ON(sizeof(TYPE) !=         \
++		     ALIGN(offsetofend(TYPE, MEMBER), _Alignof(TYPE)))
  
+ /*
+  * We append the 'struct fpu' to the task_struct:
 
 
