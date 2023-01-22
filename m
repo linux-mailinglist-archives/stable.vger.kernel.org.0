@@ -2,44 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 3C9B4676FB9
-	for <lists+stable@lfdr.de>; Sun, 22 Jan 2023 16:24:40 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 93821676E84
+	for <lists+stable@lfdr.de>; Sun, 22 Jan 2023 16:11:29 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231363AbjAVPYj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 22 Jan 2023 10:24:39 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52928 "EHLO
+        id S230349AbjAVPL2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 22 Jan 2023 10:11:28 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38150 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231361AbjAVPYi (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 22 Jan 2023 10:24:38 -0500
+        with ESMTP id S230350AbjAVPL2 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 22 Jan 2023 10:11:28 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E68272201A
-        for <stable@vger.kernel.org>; Sun, 22 Jan 2023 07:24:35 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2E15220066
+        for <stable@vger.kernel.org>; Sun, 22 Jan 2023 07:11:25 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 6C438B80B1D
-        for <stable@vger.kernel.org>; Sun, 22 Jan 2023 15:24:34 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C0973C433EF;
-        Sun, 22 Jan 2023 15:24:32 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id DA0B3B80B11
+        for <stable@vger.kernel.org>; Sun, 22 Jan 2023 15:11:23 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 457B5C433EF;
+        Sun, 22 Jan 2023 15:11:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1674401073;
-        bh=KQ5GQIL1DC1sLisJy6HmV8sa7ZEdN7UgQ/O9M1tRQ6A=;
+        s=korg; t=1674400282;
+        bh=FPLbrvIr0sJlCYZ/5az/WTaLEeHg/wZDDnYcNICvEGU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=HoS+LPbjSDxSImCZe6CaKJ6EZGjyMdpUMV0weu/P2aAhFGk94+KcihMiZaybMKkYI
-         HsLUy8Ec2yL2tgtBQWycuxYKF/PbOCwWyB3ObPxmTiQ2PP5S/TcoHusD//wGLVGSgV
-         91GBk17rhSZnlQTlg+TYaT47qJtJ5RM/6GJbz3fY=
+        b=mc9kZMeUw0vNRRYNCa8smmYQETziOxDvNWRpIg2krh4hUHAXNArqCUxwUmsfSINA4
+         c/UfaxMXDaqipvZBV/krEROb7ziuSs5xN5lUbPBeh+2rP9hliGNROwjt61Q4qK1pCr
+         Wf51CZtG+e9GSRIu/HULgQoiMGdPrwqWLI4Pa69c=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Flavio Suligoi <f.suligoi@asem.it>,
-        stable <stable@kernel.org>,
-        Alan Stern <stern@rowland.harvard.edu>
-Subject: [PATCH 6.1 071/193] usb: core: hub: disable autosuspend for TI TUSB8041
+        patches@lists.linux.dev,
+        =?UTF-8?q?Ricardo=20Ca=C3=B1uelo?= <ricardo.canuelo@collabora.com>,
+        "Michael S. Tsirkin" <mst@redhat.com>,
+        Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 04/98] tools/virtio: initialize spinlocks in vring_test.c
 Date:   Sun, 22 Jan 2023 16:03:20 +0100
-Message-Id: <20230122150249.595102311@linuxfoundation.org>
+Message-Id: <20230122150229.565008149@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.1
-In-Reply-To: <20230122150246.321043584@linuxfoundation.org>
-References: <20230122150246.321043584@linuxfoundation.org>
+In-Reply-To: <20230122150229.351631432@linuxfoundation.org>
+References: <20230122150229.351631432@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,61 +56,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Flavio Suligoi <f.suligoi@asem.it>
+From: Ricardo Cañuelo <ricardo.canuelo@collabora.com>
 
-commit 7171b0e261b17de96490adf053b8bb4b00061bcf upstream.
+[ Upstream commit c262f75cb6bb5a63828e72ce3b8fe808e5029479 ]
 
-The Texas Instruments TUSB8041 has an autosuspend problem at high
-temperature.
+The virtio_device vqs_list spinlocks must be initialized before use to
+prevent functions that manipulate the device virtualqueues, such as
+vring_new_virtqueue(), from blocking indefinitely.
 
-If there is not USB traffic, after a couple of ms, the device enters in
-autosuspend mode. In this condition the external clock stops working, to
-save energy. When the USB activity turns on, ther hub exits the
-autosuspend state, the clock starts running again and all works fine.
-
-At ambient temperature all works correctly, but at high temperature,
-when the USB activity turns on, the external clock doesn't restart and
-the hub disappears from the USB bus.
-
-Disabling the autosuspend mode for this hub solves the issue.
-
-Signed-off-by: Flavio Suligoi <f.suligoi@asem.it>
-Cc: stable <stable@kernel.org>
-Acked-by: Alan Stern <stern@rowland.harvard.edu>
-Link: https://lore.kernel.org/r/20221219124759.3207032-1-f.suligoi@asem.it
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Ricardo Cañuelo <ricardo.canuelo@collabora.com>
+Message-Id: <20221012062949.1526176-1-ricardo.canuelo@collabora.com>
+Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
+Reviewed-by: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/usb/core/hub.c |   13 +++++++++++++
- 1 file changed, 13 insertions(+)
+ tools/virtio/vringh_test.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
---- a/drivers/usb/core/hub.c
-+++ b/drivers/usb/core/hub.c
-@@ -44,6 +44,9 @@
- #define USB_PRODUCT_USB5534B			0x5534
- #define USB_VENDOR_CYPRESS			0x04b4
- #define USB_PRODUCT_CY7C65632			0x6570
-+#define USB_VENDOR_TEXAS_INSTRUMENTS		0x0451
-+#define USB_PRODUCT_TUSB8041_USB3		0x8140
-+#define USB_PRODUCT_TUSB8041_USB2		0x8142
- #define HUB_QUIRK_CHECK_PORT_AUTOSUSPEND	0x01
- #define HUB_QUIRK_DISABLE_AUTOSUSPEND		0x02
+diff --git a/tools/virtio/vringh_test.c b/tools/virtio/vringh_test.c
+index fa87b58bd5fa..98ff808d6f0c 100644
+--- a/tools/virtio/vringh_test.c
++++ b/tools/virtio/vringh_test.c
+@@ -308,6 +308,7 @@ static int parallel_test(u64 features,
  
-@@ -5798,6 +5801,16 @@ static const struct usb_device_id hub_id
-       .idVendor = USB_VENDOR_GENESYS_LOGIC,
-       .bInterfaceClass = USB_CLASS_HUB,
-       .driver_info = HUB_QUIRK_CHECK_PORT_AUTOSUSPEND},
-+    { .match_flags = USB_DEVICE_ID_MATCH_VENDOR
-+			| USB_DEVICE_ID_MATCH_PRODUCT,
-+      .idVendor = USB_VENDOR_TEXAS_INSTRUMENTS,
-+      .idProduct = USB_PRODUCT_TUSB8041_USB2,
-+      .driver_info = HUB_QUIRK_DISABLE_AUTOSUSPEND},
-+    { .match_flags = USB_DEVICE_ID_MATCH_VENDOR
-+			| USB_DEVICE_ID_MATCH_PRODUCT,
-+      .idVendor = USB_VENDOR_TEXAS_INSTRUMENTS,
-+      .idProduct = USB_PRODUCT_TUSB8041_USB3,
-+      .driver_info = HUB_QUIRK_DISABLE_AUTOSUSPEND},
-     { .match_flags = USB_DEVICE_ID_MATCH_DEV_CLASS,
-       .bDeviceClass = USB_CLASS_HUB},
-     { .match_flags = USB_DEVICE_ID_MATCH_INT_CLASS,
+ 		gvdev.vdev.features = features;
+ 		INIT_LIST_HEAD(&gvdev.vdev.vqs);
++		spin_lock_init(&gvdev.vdev.vqs_list_lock);
+ 		gvdev.to_host_fd = to_host[1];
+ 		gvdev.notifies = 0;
+ 
+@@ -455,6 +456,7 @@ int main(int argc, char *argv[])
+ 	getrange = getrange_iov;
+ 	vdev.features = 0;
+ 	INIT_LIST_HEAD(&vdev.vqs);
++	spin_lock_init(&vdev.vqs_list_lock);
+ 
+ 	while (argv[1]) {
+ 		if (strcmp(argv[1], "--indirect") == 0)
+-- 
+2.35.1
+
 
 
