@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C45E5676D02
-	for <lists+stable@lfdr.de>; Sun, 22 Jan 2023 13:54:36 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 39223676D03
+	for <lists+stable@lfdr.de>; Sun, 22 Jan 2023 13:54:48 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229961AbjAVMyg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 22 Jan 2023 07:54:36 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44242 "EHLO
+        id S229984AbjAVMyr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 22 Jan 2023 07:54:47 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44274 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229852AbjAVMyf (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 22 Jan 2023 07:54:35 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 75D6F1F4AA
-        for <stable@vger.kernel.org>; Sun, 22 Jan 2023 04:54:34 -0800 (PST)
+        with ESMTP id S229852AbjAVMyq (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 22 Jan 2023 07:54:46 -0500
+Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 568941E2B0
+        for <stable@vger.kernel.org>; Sun, 22 Jan 2023 04:54:45 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 118F960244
-        for <stable@vger.kernel.org>; Sun, 22 Jan 2023 12:54:34 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 20E09C433EF;
-        Sun, 22 Jan 2023 12:54:32 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id A4FE1CE0EA3
+        for <stable@vger.kernel.org>; Sun, 22 Jan 2023 12:54:43 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9ED52C433D2;
+        Sun, 22 Jan 2023 12:54:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1674392073;
-        bh=g/YiReK4YL8l7q2I+J3VGPryFLm8slmS6sJMcP1hpVo=;
+        s=korg; t=1674392082;
+        bh=5kLFtq4TN994kUovRbJGrH3nrnrjhVZZ9lieZp4cKSM=;
         h=Subject:To:Cc:From:Date:From;
-        b=qtof/4YJorJBTMtLS2qKTqRs95ivJPr7ml2wnoBxpJ2RYxbC3AxSpt2iNeAbAjQLY
-         AibjD7JP5Bye7htp82BEKBDqcXdMiVO63G/HRkxscXNs0LfclFfh/241EgQR6kH/ef
-         NmmhY5DyBFpm/t6mPwlBMozFpIGniZsNNeCzRF4g=
-Subject: FAILED: patch "[PATCH] btrfs: fix missing error handling when logging directory" failed to apply to 4.14-stable tree
+        b=B1A1mvimz0UrF9McbR7Yd7wmRQs9JFZa0zwW5PGwm81YvZL+xe6s8ChM3XGSFhwOq
+         ftw8xVAbkr0YascOboQgq/3V0RU6WhzjJKyaccjYSlRFnm1XFnoWvJge2nlF93AVTE
+         /m21bvM82ImlxLWdudllmy2pxyYb3gVIWsu4aG1M=
+Subject: FAILED: patch "[PATCH] btrfs: fix directory logging due to race with concurrent" failed to apply to 5.15-stable tree
 To:     fdmanana@suse.com, admin@prnet.org, dsterba@suse.com,
         josef@toxicpanda.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Sun, 22 Jan 2023 13:54:26 +0100
-Message-ID: <1674392066199186@kroah.com>
+Date:   Sun, 22 Jan 2023 13:54:39 +0100
+Message-ID: <167439207915615@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -49,13 +49,14 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.14-stable tree.
+The patch below does not apply to the 5.15-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
 
 Possible dependencies:
 
+8bb6898da627 ("btrfs: fix directory logging due to race with concurrent index key deletion")
 6d3d970b2735 ("btrfs: fix missing error handling when logging directory items")
 732d591a5d6c ("btrfs: stop copying old dir items when logging a directory")
 a450a4af7433 ("btrfs: don't log unnecessary boundary keys when logging directory")
@@ -67,15 +68,6 @@ dc2872247ec0 ("btrfs: keep track of the last logged keys when logging a director
 eb10d85ee77f ("btrfs: factor out the copying loop of dir items from log_dir_items()")
 90d04510a774 ("btrfs: remove root argument from btrfs_log_inode() and its callees")
 289cffcb0399 ("btrfs: remove no longer needed checks for NULL log context")
-cfd312695b71 ("btrfs: check for error when looking up inode during dir entry replay")
-8dcbc26194eb ("btrfs: unify lookup return value when dir entry is missing")
-52db77791fe2 ("btrfs: deal with errors when adding inode reference during log replay")
-e15ac6413745 ("btrfs: deal with errors when replaying dir entry during log replay")
-77a5b9e3d14c ("btrfs: deal with errors when checking if a dir entry exists during log replay")
-a7d1c5dc8632 ("btrfs: introduce btrfs_lookup_match_dir")
-b590b839720c ("btrfs: avoid unnecessary logging of xattrs during fast fsyncs")
-54a40fc3a1da ("btrfs: fix removed dentries still existing after log is synced")
-64d6b281ba4d ("btrfs: remove unnecessary check_parent_dirs_for_sync()")
 
 thanks,
 
@@ -83,20 +75,26 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From 6d3d970b2735b967650d319be27268fedc5598d1 Mon Sep 17 00:00:00 2001
+From 8bb6898da6271d82d8e76d8088d66b971a7dcfa6 Mon Sep 17 00:00:00 2001
 From: Filipe Manana <fdmanana@suse.com>
-Date: Tue, 10 Jan 2023 14:56:34 +0000
-Subject: [PATCH] btrfs: fix missing error handling when logging directory
- items
+Date: Tue, 10 Jan 2023 14:56:35 +0000
+Subject: [PATCH] btrfs: fix directory logging due to race with concurrent
+ index key deletion
 
-When logging a directory, at log_dir_items(), if we get an error when
-attempting to search the subvolume tree for a dir index item, we end up
-returning 0 (success) from log_dir_items() because 'err' is left with a
-value of 0.
+Sometimes we log a directory without holding its VFS lock, so while we
+logging it, dir index entries may be added or removed. This typically
+happens when logging a dentry from a parent directory that points to a
+new directory, through log_new_dir_dentries(), or when while logging
+some other inode we also need to log its parent directories (through
+btrfs_log_all_parents()).
 
-This can lead to a few problems, specially in the case the variable
-'last_offset' has a value of (u64)-1 (and it's initialized to that when
-it was declared):
+This means that while we are at log_dir_items(), we may not find a dir
+index key we found before, because it was deleted in the meanwhile, so
+a call to btrfs_search_slot() may return 1 (key not found). In that case
+we return from log_dir_items() with a success value (the variable 'err'
+has a value of 0). This can lead to a few problems, specially in the case
+where the variable 'last_offset' has a value of (u64)-1 (and it's
+initialized to that when it was declared):
 
 1) By returning from log_dir_items() with success (0) and a value of
    (u64)-1 for '*last_offset_ret', we end up not logging any other dir
@@ -120,8 +118,8 @@ it was declared):
    current value of ctx->last_dir_item_offset. So if for example a
    deletion of a lower dir index key happened, we set
    ctx->last_dir_item_offset to that index value, then if we return from
-   log_dir_items() because btrfs_search_slot() returned an error, we end up
-   returning without any error from log_dir_items() and then
+   log_dir_items() because btrfs_search_slot() returned 1, we end up
+   returning from log_dir_items() with success (0) and then
    log_directory_changes() sets inode->last_dir_index_offset to a lower
    value than it had before.
    This can result in unpredictable and unexpected behaviour when we
@@ -129,51 +127,50 @@ it was declared):
    in ending up with a log tree leaf that has duplicated keys, as we do
    batch insertions of dir index keys into a log tree.
 
-Fix this by setting 'err' to the value of 'ret' in case
-btrfs_search_slot() or btrfs_previous_item() returned an error. That will
-result in falling back to a full transaction commit.
+So fix this by making log_dir_items() move on to the next dir index key
+if it does not find the one it was looking for.
 
 Reported-by: David Arendt <admin@prnet.org>
 Link: https://lore.kernel.org/linux-btrfs/ae169fc6-f504-28f0-a098-6fa6a4dfb612@leemhuis.info/
-Fixes: e02119d5a7b4 ("Btrfs: Add a write ahead tree log to optimize synchronous operations")
 CC: stable@vger.kernel.org # 4.14+
 Reviewed-by: Josef Bacik <josef@toxicpanda.com>
 Signed-off-by: Filipe Manana <fdmanana@suse.com>
 Signed-off-by: David Sterba <dsterba@suse.com>
 
 diff --git a/fs/btrfs/tree-log.c b/fs/btrfs/tree-log.c
-index fb52aa060093..3ef0266e9527 100644
+index 3ef0266e9527..c09daab3f19e 100644
 --- a/fs/btrfs/tree-log.c
 +++ b/fs/btrfs/tree-log.c
-@@ -3826,7 +3826,10 @@ static noinline int log_dir_items(struct btrfs_trans_handle *trans,
- 					      path->slots[0]);
- 			if (tmp.type == BTRFS_DIR_INDEX_KEY)
- 				last_old_dentry_offset = tmp.offset;
-+		} else if (ret < 0) {
-+			err = ret;
- 		}
-+
- 		goto done;
- 	}
- 
-@@ -3846,7 +3849,11 @@ static noinline int log_dir_items(struct btrfs_trans_handle *trans,
- 		 */
- 		if (tmp.type == BTRFS_DIR_INDEX_KEY)
- 			last_old_dentry_offset = tmp.offset;
-+	} else if (ret < 0) {
-+		err = ret;
-+		goto done;
- 	}
-+
+@@ -3857,17 +3857,26 @@ static noinline int log_dir_items(struct btrfs_trans_handle *trans,
  	btrfs_release_path(path);
  
  	/*
-@@ -3859,6 +3866,8 @@ static noinline int log_dir_items(struct btrfs_trans_handle *trans,
+-	 * Find the first key from this transaction again.  See the note for
+-	 * log_new_dir_dentries, if we're logging a directory recursively we
+-	 * won't be holding its i_mutex, which means we can modify the directory
+-	 * while we're logging it.  If we remove an entry between our first
+-	 * search and this search we'll not find the key again and can just
+-	 * bail.
++	 * Find the first key from this transaction again or the one we were at
++	 * in the loop below in case we had to reschedule. We may be logging the
++	 * directory without holding its VFS lock, which happen when logging new
++	 * dentries (through log_new_dir_dentries()) or in some cases when we
++	 * need to log the parent directory of an inode. This means a dir index
++	 * key might be deleted from the inode's root, and therefore we may not
++	 * find it anymore. If we can't find it, just move to the next key. We
++	 * can not bail out and ignore, because if we do that we will simply
++	 * not log dir index keys that come after the one that was just deleted
++	 * and we can end up logging a dir index range that ends at (u64)-1
++	 * (@last_offset is initialized to that), resulting in removing dir
++	 * entries we should not remove at log replay time.
  	 */
  search:
  	ret = btrfs_search_slot(NULL, root, &min_key, path, 0, 0);
-+	if (ret < 0)
-+		err = ret;
++	if (ret > 0)
++		ret = btrfs_next_item(root, path);
+ 	if (ret < 0)
+ 		err = ret;
++	/* If ret is 1, there are no more keys in the inode's root. */
  	if (ret != 0)
  		goto done;
  
