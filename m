@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 07D08676FAD
-	for <lists+stable@lfdr.de>; Sun, 22 Jan 2023 16:24:08 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 99DE4676EA8
+	for <lists+stable@lfdr.de>; Sun, 22 Jan 2023 16:12:56 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231354AbjAVPYH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 22 Jan 2023 10:24:07 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52550 "EHLO
+        id S230398AbjAVPM4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 22 Jan 2023 10:12:56 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40390 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231359AbjAVPYF (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 22 Jan 2023 10:24:05 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9BB051A96E
-        for <stable@vger.kernel.org>; Sun, 22 Jan 2023 07:24:02 -0800 (PST)
+        with ESMTP id S230396AbjAVPMz (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 22 Jan 2023 10:12:55 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 95B5C61AF
+        for <stable@vger.kernel.org>; Sun, 22 Jan 2023 07:12:54 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 1ED2760C58
-        for <stable@vger.kernel.org>; Sun, 22 Jan 2023 15:24:02 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 32E69C433D2;
-        Sun, 22 Jan 2023 15:24:01 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 4A2E7B80B16
+        for <stable@vger.kernel.org>; Sun, 22 Jan 2023 15:12:53 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A04FBC433D2;
+        Sun, 22 Jan 2023 15:12:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1674401041;
-        bh=4R7EWBfTbCU1BF2aKnFQ4VzWy8st9aEc8I9SL60lcAU=;
+        s=korg; t=1674400372;
+        bh=cFzX04RxTb6QRGOAKulgwA+ApTRYhAo9lxPFayh2TjM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=cIl/5xR+loYCYoVqShofuEDPlDW/8r3DzSunu04l4t6KSGlYB/phzLaUmeUbQS3ll
-         nUtowqiONuww4GP9E7prK6m8k0pBr8ZHV92uoB4WMHqAAnBqmLc09P/mh4ysCX8fl8
-         4jB8RFb3pER57g8Y9cuhcmoSLjG0UbbCkWmu4uEw=
+        b=wNsA08Zdc55qgXAR7kK0EomD3pzi5lNVo5hMAkDY4YBOygWFDDksr6qGIsVliGrGW
+         YViCs7ZIR4MiGqdi0Qd/r3ECXWRIjA1RUZPePcTuUTw8gt9gPIMfxsfbvbghf4Jdx5
+         nSeWcBym5fimHEaMOierEy6vA5E4qwG+FjNkhnjY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Lukas Straub <lukasstraub2@web.de>,
-        HanatoK <summersnow9403@gmail.com>, Qu Wenruo <wqu@suse.com>,
-        David Sterba <dsterba@suse.com>
-Subject: [PATCH 6.1 087/193] btrfs: qgroup: do not warn on record without old_roots populated
+        patches@lists.linux.dev,
+        Christiano Haesbaert <haesbaert@haesbaert.org>,
+        Jens Axboe <axboe@kernel.dk>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 20/98] io_uring: dont gate task_work run on TIF_NOTIFY_SIGNAL
 Date:   Sun, 22 Jan 2023 16:03:36 +0100
-Message-Id: <20230122150250.366577372@linuxfoundation.org>
+Message-Id: <20230122150230.302962175@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.1
-In-Reply-To: <20230122150246.321043584@linuxfoundation.org>
-References: <20230122150246.321043584@linuxfoundation.org>
+In-Reply-To: <20230122150229.351631432@linuxfoundation.org>
+References: <20230122150229.351631432@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,97 +54,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Qu Wenruo <wqu@suse.com>
+From: Jens Axboe <axboe@kernel.dk>
 
-commit 75181406b4eafacc531ff2ee5fb032bd93317e2b upstream.
+commit 46a525e199e4037516f7e498c18f065b09df32ac upstream.
 
-[BUG]
-There are some reports from the mailing list that since v6.1 kernel, the
-WARN_ON() inside btrfs_qgroup_account_extent() gets triggered during
-rescan:
+This isn't a reliable mechanism to tell if we have task_work pending, we
+really should be looking at whether we have any items queued. This is
+problematic if forward progress is gated on running said task_work. One
+such example is reading from a pipe, where the write side has been closed
+right before the read is started. The fput() of the file queues TWA_RESUME
+task_work, and we need that task_work to be run before ->release() is
+called for the pipe. If ->release() isn't called, then the read will sit
+forever waiting on data that will never arise.
 
-  WARNING: CPU: 3 PID: 6424 at fs/btrfs/qgroup.c:2756 btrfs_qgroup_account_extents+0x1ae/0x260 [btrfs]
-  CPU: 3 PID: 6424 Comm: snapperd Tainted: P           OE      6.1.2-1-default #1 openSUSE Tumbleweed 05c7a1b1b61d5627475528f71f50444637b5aad7
-  RIP: 0010:btrfs_qgroup_account_extents+0x1ae/0x260 [btrfs]
-  Call Trace:
-   <TASK>
-  btrfs_commit_transaction+0x30c/0xb40 [btrfs c39c9c546c241c593f03bd6d5f39ea1b676250f6]
-   ? start_transaction+0xc3/0x5b0 [btrfs c39c9c546c241c593f03bd6d5f39ea1b676250f6]
-  btrfs_qgroup_rescan+0x42/0xc0 [btrfs c39c9c546c241c593f03bd6d5f39ea1b676250f6]
-   btrfs_ioctl+0x1ab9/0x25c0 [btrfs c39c9c546c241c593f03bd6d5f39ea1b676250f6]
-   ? __rseq_handle_notify_resume+0xa9/0x4a0
-   ? mntput_no_expire+0x4a/0x240
-   ? __seccomp_filter+0x319/0x4d0
-   __x64_sys_ioctl+0x90/0xd0
-   do_syscall_64+0x5b/0x80
-   ? syscall_exit_to_user_mode+0x17/0x40
-   ? do_syscall_64+0x67/0x80
-  entry_SYSCALL_64_after_hwframe+0x63/0xcd
-  RIP: 0033:0x7fd9b790d9bf
-   </TASK>
+Fix this by io_run_task_work() so it checks if we have task_work pending
+rather than rely on TIF_NOTIFY_SIGNAL for that. The latter obviously
+doesn't work for task_work that is queued without TWA_SIGNAL.
 
-[CAUSE]
-Since commit e15e9f43c7ca ("btrfs: introduce
-BTRFS_QGROUP_RUNTIME_FLAG_NO_ACCOUNTING to skip qgroup accounting"), if
-our qgroup is already in inconsistent state, we will no longer do the
-time-consuming backref walk.
-
-This can leave some qgroup records without a valid old_roots ulist.
-Normally this is fine, as btrfs_qgroup_account_extents() would also skip
-those records if we have NO_ACCOUNTING flag set.
-
-But there is a small window, if we have NO_ACCOUNTING flag set, and
-inserted some qgroup_record without a old_roots ulist, but then the user
-triggered a qgroup rescan.
-
-During btrfs_qgroup_rescan(), we firstly clear NO_ACCOUNTING flag, then
-commit current transaction.
-
-And since we have a qgroup_record with old_roots = NULL, we trigger the
-WARN_ON() during btrfs_qgroup_account_extents().
-
-[FIX]
-Unfortunately due to the introduction of NO_ACCOUNTING flag, the
-assumption that every qgroup_record would have its old_roots populated
-is no longer correct.
-
-Fix the false alerts and drop the WARN_ON().
-
-Reported-by: Lukas Straub <lukasstraub2@web.de>
-Reported-by: HanatoK <summersnow9403@gmail.com>
-Fixes: e15e9f43c7ca ("btrfs: introduce BTRFS_QGROUP_RUNTIME_FLAG_NO_ACCOUNTING to skip qgroup accounting")
-CC: stable@vger.kernel.org # 6.1
-Link: https://lore.kernel.org/linux-btrfs/2403c697-ddaf-58ad-3829-0335fc89df09@gmail.com/
-Signed-off-by: Qu Wenruo <wqu@suse.com>
-Signed-off-by: David Sterba <dsterba@suse.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Reported-by: Christiano Haesbaert <haesbaert@haesbaert.org>
+Cc: stable@vger.kernel.org
+Link: https://github.com/axboe/liburing/issues/665
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/btrfs/qgroup.c |   14 ++++++++++++--
- 1 file changed, 12 insertions(+), 2 deletions(-)
+ io_uring/io-wq.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/fs/btrfs/qgroup.c
-+++ b/fs/btrfs/qgroup.c
-@@ -2751,9 +2751,19 @@ int btrfs_qgroup_account_extents(struct
- 			      BTRFS_QGROUP_RUNTIME_FLAG_NO_ACCOUNTING)) {
- 			/*
- 			 * Old roots should be searched when inserting qgroup
--			 * extent record
-+			 * extent record.
-+			 *
-+			 * But for INCONSISTENT (NO_ACCOUNTING) -> rescan case,
-+			 * we may have some record inserted during
-+			 * NO_ACCOUNTING (thus no old_roots populated), but
-+			 * later we start rescan, which clears NO_ACCOUNTING,
-+			 * leaving some inserted records without old_roots
-+			 * populated.
-+			 *
-+			 * Those cases are rare and should not cause too much
-+			 * time spent during commit_transaction().
- 			 */
--			if (WARN_ON(!record->old_roots)) {
-+			if (!record->old_roots) {
- 				/* Search commit root to find old_roots */
- 				ret = btrfs_find_all_roots(NULL, fs_info,
- 						record->bytenr, 0,
+diff --git a/io_uring/io-wq.c b/io_uring/io-wq.c
+index 87bc38b47103..81485c1a9879 100644
+--- a/io_uring/io-wq.c
++++ b/io_uring/io-wq.c
+@@ -513,7 +513,7 @@ static struct io_wq_work *io_get_next_work(struct io_wqe_acct *acct,
+ 
+ static bool io_flush_signals(void)
+ {
+-	if (unlikely(test_thread_flag(TIF_NOTIFY_SIGNAL))) {
++	if (test_thread_flag(TIF_NOTIFY_SIGNAL) || current->task_works) {
+ 		__set_current_state(TASK_RUNNING);
+ 		tracehook_notify_signal();
+ 		return true;
+-- 
+2.39.0
+
 
 
