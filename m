@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id AC8CB676E00
-	for <lists+stable@lfdr.de>; Sun, 22 Jan 2023 16:06:02 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1F643676F44
+	for <lists+stable@lfdr.de>; Sun, 22 Jan 2023 16:19:34 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230142AbjAVPGB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 22 Jan 2023 10:06:01 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60042 "EHLO
+        id S231208AbjAVPTd (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 22 Jan 2023 10:19:33 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46648 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230021AbjAVPGA (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 22 Jan 2023 10:06:00 -0500
+        with ESMTP id S231211AbjAVPTc (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 22 Jan 2023 10:19:32 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 26B6F1DBB2
-        for <stable@vger.kernel.org>; Sun, 22 Jan 2023 07:06:00 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C0FDA2004D
+        for <stable@vger.kernel.org>; Sun, 22 Jan 2023 07:19:31 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id A7CF560C57
-        for <stable@vger.kernel.org>; Sun, 22 Jan 2023 15:05:59 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C0721C433EF;
-        Sun, 22 Jan 2023 15:05:58 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 5F3ED60C48
+        for <stable@vger.kernel.org>; Sun, 22 Jan 2023 15:19:31 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6A554C433EF;
+        Sun, 22 Jan 2023 15:19:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1674399959;
-        bh=KpC/WGUmpVQ8ACaX5D7zMV5A5ZdedcOa1NqNed56qRA=;
+        s=korg; t=1674400770;
+        bh=R2RlQD9sI4NbLkeSgyTrPIS77qmCIaxuGjIm8UgXB14=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=OKukDcpNmJFEjx89tvuTw4igGXx+edr62SViXIL0HhesrQeTYIQxK6GZPjB7AHT7q
-         6nzf6C459TcYEHyE2OZg1lSD9/eC9kXvc30N/qvVzfWHn8UCdR2s3KuOn57jbO9qjo
-         6E784PU0PGS6PV3pH5S8tqIW3uhe8uU18n+n+pcc=
+        b=PBrny19XNfSeNfXWlTE0DoYjC6rKC4G/x+Xmnlz3f+fxDO9AKuvg5snnYUsOidoI0
+         FxsIFAuplfcBFIG7Z2H+k0lvOvudvgWBc9HSr+itVgCVaCKZYdcf5K2XeJFvT4T0YB
+         oJOaE5FdVMgtMVGJsda0G9bmSGGdP3sBF3tVbCDc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Ali Mirghasemi <ali.mirghasemi1376@gmail.com>,
-        Johan Hovold <johan@kernel.org>
-Subject: [PATCH 4.14 12/25] USB: serial: option: add Quectel EC200U modem
-Date:   Sun, 22 Jan 2023 16:04:12 +0100
-Message-Id: <20230122150218.332696247@linuxfoundation.org>
+        patches@lists.linux.dev, Samuel Holland <samuel@sholland.org>,
+        Jernej Skrabec <jernej.skrabec@gmail.com>,
+        Ulf Hansson <ulf.hansson@linaro.org>
+Subject: [PATCH 5.15 063/117] mmc: sunxi-mmc: Fix clock refcount imbalance during unbind
+Date:   Sun, 22 Jan 2023 16:04:13 +0100
+Message-Id: <20230122150235.405946240@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.1
-In-Reply-To: <20230122150217.788215473@linuxfoundation.org>
-References: <20230122150217.788215473@linuxfoundation.org>
+In-Reply-To: <20230122150232.736358800@linuxfoundation.org>
+References: <20230122150232.736358800@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,77 +54,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ali Mirghasemi <ali.mirghasemi1376@gmail.com>
+From: Samuel Holland <samuel@sholland.org>
 
-commit d9bbb15881046bd76f8710c76e26a740eee997ef upstream.
+commit 8509419758f2cc28dd05370385af0d91573b76b4 upstream.
 
-Add support for EC200U modem
+If the controller is suspended by runtime PM, the clock is already
+disabled, so do not try to disable it again during removal. Use
+pm_runtime_disable() to flush any pending runtime PM transitions.
 
-0x0901: EC200U - AT + AP + CP + NMEA + DIAG + MOS
-
-usb-device output:
-T: Bus=01 Lev=02 Prnt=02 Port=02 Cnt=01 Dev#= 4 Spd=480 MxCh= 0
-D: Ver= 2.00 Cls=00(>ifc ) Sub=00 Prot=00 MxPS=64 #Cfgs= 1
-P: Vendor=2c7c ProdID=0901 Rev= 3.18
-S: Manufacturer=Android
-S: Product=Android
-C:* #Ifs= 9 Cfg#= 1 Atr=e0 MxPwr=400mA
-A: FirstIf#= 0 IfCount= 2 Cls=02(comm.) Sub=06 Prot=00
-I:* If#= 0 Alt= 0 #EPs= 1 Cls=02(comm.) Sub=06 Prot=00 Driver=cdc_ether
-E: Ad=81(I) Atr=03(Int.) MxPS= 16 Ivl=32ms
-I: If#= 1 Alt= 0 #EPs= 0 Cls=0a(data ) Sub=00 Prot=00 Driver=cdc_ether
-I:* If#= 1 Alt= 1 #EPs= 2 Cls=0a(data ) Sub=00 Prot=00 Driver=cdc_ether
-E: Ad=82(I) Atr=02(Bulk) MxPS= 512 Ivl=0ms
-E: Ad=01(O) Atr=02(Bulk) MxPS= 512 Ivl=0ms
-I:* If#= 2 Alt= 0 #EPs= 3 Cls=ff(vend.) Sub=00 Prot=00 Driver=option
-E: Ad=84(I) Atr=02(Bulk) MxPS= 512 Ivl=0ms
-E: Ad=02(O) Atr=02(Bulk) MxPS= 512 Ivl=0ms
-E: Ad=83(I) Atr=03(Int.) MxPS= 512 Ivl=4096ms
-I:* If#= 3 Alt= 0 #EPs= 2 Cls=ff(vend.) Sub=00 Prot=00 Driver=option
-E: Ad=85(I) Atr=02(Bulk) MxPS= 512 Ivl=0ms
-E: Ad=03(O) Atr=02(Bulk) MxPS= 512 Ivl=0ms
-I:* If#= 4 Alt= 0 #EPs= 2 Cls=ff(vend.) Sub=00 Prot=00 Driver=option
-E: Ad=86(I) Atr=02(Bulk) MxPS= 512 Ivl=0ms
-E: Ad=04(O) Atr=02(Bulk) MxPS= 512 Ivl=0ms
-I:* If#= 5 Alt= 0 #EPs= 2 Cls=ff(vend.) Sub=00 Prot=00 Driver=option
-E: Ad=87(I) Atr=02(Bulk) MxPS= 512 Ivl=0ms
-E: Ad=05(O) Atr=02(Bulk) MxPS= 512 Ivl=0ms
-I:* If#= 6 Alt= 0 #EPs= 2 Cls=ff(vend.) Sub=00 Prot=00 Driver=option
-E: Ad=88(I) Atr=02(Bulk) MxPS= 512 Ivl=0ms
-E: Ad=06(O) Atr=02(Bulk) MxPS= 512 Ivl=0ms
-I:* If#= 7 Alt= 0 #EPs= 3 Cls=ff(vend.) Sub=00 Prot=00 Driver=option
-E: Ad=8a(I) Atr=02(Bulk) MxPS= 512 Ivl=0ms
-E: Ad=07(O) Atr=02(Bulk) MxPS= 512 Ivl=0ms
-E: Ad=89(I) Atr=03(Int.) MxPS= 512 Ivl=4096ms
-I:* If#= 8 Alt= 0 #EPs= 2 Cls=ff(vend.) Sub=00 Prot=00 Driver=option
-E: Ad=8b(I) Atr=02(Bulk) MxPS= 512 Ivl=0ms
-E: Ad=08(O) Atr=02(Bulk) MxPS= 512 Ivl=0ms
-
-Signed-off-by: Ali Mirghasemi <ali.mirghasemi1376@gmail.com>
+Fixes: 9a8e1e8cc2c0 ("mmc: sunxi: Add runtime_pm support")
+Signed-off-by: Samuel Holland <samuel@sholland.org>
+Acked-by: Jernej Skrabec <jernej.skrabec@gmail.com>
 Cc: stable@vger.kernel.org
-Signed-off-by: Johan Hovold <johan@kernel.org>
+Link: https://lore.kernel.org/r/20220810022509.43743-1-samuel@sholland.org
+Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/usb/serial/option.c |    2 ++
- 1 file changed, 2 insertions(+)
+ drivers/mmc/host/sunxi-mmc.c |    8 +++++---
+ 1 file changed, 5 insertions(+), 3 deletions(-)
 
---- a/drivers/usb/serial/option.c
-+++ b/drivers/usb/serial/option.c
-@@ -265,6 +265,7 @@ static void option_instat_callback(struc
- #define QUECTEL_PRODUCT_EM12			0x0512
- #define QUECTEL_PRODUCT_RM500Q			0x0800
- #define QUECTEL_PRODUCT_RM520N			0x0801
-+#define QUECTEL_PRODUCT_EC200U			0x0901
- #define QUECTEL_PRODUCT_EC200S_CN		0x6002
- #define QUECTEL_PRODUCT_EC200T			0x6026
- #define QUECTEL_PRODUCT_RM500K			0x7001
-@@ -1192,6 +1193,7 @@ static const struct usb_device_id option
- 	{ USB_DEVICE_AND_INTERFACE_INFO(QUECTEL_VENDOR_ID, QUECTEL_PRODUCT_RM520N, 0xff, 0xff, 0x30) },
- 	{ USB_DEVICE_AND_INTERFACE_INFO(QUECTEL_VENDOR_ID, QUECTEL_PRODUCT_RM520N, 0xff, 0, 0x40) },
- 	{ USB_DEVICE_AND_INTERFACE_INFO(QUECTEL_VENDOR_ID, QUECTEL_PRODUCT_RM520N, 0xff, 0, 0) },
-+	{ USB_DEVICE_AND_INTERFACE_INFO(QUECTEL_VENDOR_ID, QUECTEL_PRODUCT_EC200U, 0xff, 0, 0) },
- 	{ USB_DEVICE_AND_INTERFACE_INFO(QUECTEL_VENDOR_ID, QUECTEL_PRODUCT_EC200S_CN, 0xff, 0, 0) },
- 	{ USB_DEVICE_AND_INTERFACE_INFO(QUECTEL_VENDOR_ID, QUECTEL_PRODUCT_EC200T, 0xff, 0, 0) },
- 	{ USB_DEVICE_AND_INTERFACE_INFO(QUECTEL_VENDOR_ID, QUECTEL_PRODUCT_RM500K, 0xff, 0x00, 0x00) },
+--- a/drivers/mmc/host/sunxi-mmc.c
++++ b/drivers/mmc/host/sunxi-mmc.c
+@@ -1483,9 +1483,11 @@ static int sunxi_mmc_remove(struct platf
+ 	struct sunxi_mmc_host *host = mmc_priv(mmc);
+ 
+ 	mmc_remove_host(mmc);
+-	pm_runtime_force_suspend(&pdev->dev);
+-	disable_irq(host->irq);
+-	sunxi_mmc_disable(host);
++	pm_runtime_disable(&pdev->dev);
++	if (!pm_runtime_status_suspended(&pdev->dev)) {
++		disable_irq(host->irq);
++		sunxi_mmc_disable(host);
++	}
+ 	dma_free_coherent(&pdev->dev, PAGE_SIZE, host->sg_cpu, host->sg_dma);
+ 	mmc_free_host(mmc);
+ 
 
 
