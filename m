@@ -2,39 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 2620C676D07
-	for <lists+stable@lfdr.de>; Sun, 22 Jan 2023 13:55:08 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 30281676D08
+	for <lists+stable@lfdr.de>; Sun, 22 Jan 2023 13:55:57 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230005AbjAVMzH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 22 Jan 2023 07:55:07 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44374 "EHLO
+        id S229841AbjAVMz4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 22 Jan 2023 07:55:56 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44420 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229990AbjAVMzG (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 22 Jan 2023 07:55:06 -0500
-Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 085421E2BA
-        for <stable@vger.kernel.org>; Sun, 22 Jan 2023 04:55:05 -0800 (PST)
+        with ESMTP id S229763AbjAVMz4 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 22 Jan 2023 07:55:56 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1402E1E2B0
+        for <stable@vger.kernel.org>; Sun, 22 Jan 2023 04:55:54 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 74FB4CE0EAF
-        for <stable@vger.kernel.org>; Sun, 22 Jan 2023 12:55:03 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 60132C433EF;
-        Sun, 22 Jan 2023 12:55:01 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 8C61460C07
+        for <stable@vger.kernel.org>; Sun, 22 Jan 2023 12:55:54 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9D587C4339B;
+        Sun, 22 Jan 2023 12:55:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1674392101;
-        bh=aPUDYSpkZ/hbs/mm84zUloeReO8/Qies2bYI9+Nn0qs=;
+        s=korg; t=1674392154;
+        bh=iubP8wt7wOFKvykObPfDsgedT2GLn0OFTaH+ljSaMyo=;
         h=Subject:To:Cc:From:Date:From;
-        b=w0RU4uom1308a7KjE9tT487wbcmA3GEm0mN2UZN3gUJskI31WKUNavzswmODMOlwY
-         ueuO/SqesNxP5EIGacJkIpBT5QZ+ZMGQXVwO7bqL3czZ/Kzx7aXqg08l3+TRBBBbGG
-         XHOqAF3uw/cHgG4UvH8bO6eUmD/vH3jjKm7GJD8I=
-Subject: FAILED: patch "[PATCH] btrfs: fix directory logging due to race with concurrent" failed to apply to 4.14-stable tree
-To:     fdmanana@suse.com, admin@prnet.org, dsterba@suse.com,
-        josef@toxicpanda.com
+        b=cVe8e17LzmvZ46DRZjFHjehsQwuXRiuTsUESWn5Dq5Y6ujQ83M6aYnNGzLxbE3S34
+         PMm//txfxVxMxALfaBR2cWSuB57MIK/4ZM9v2TgtSzHaEJqi35ZcE/CsrFgb9oknPY
+         LIexlgHQihKGYLObFj9/xDuDDpTPLZLL2GmWz4L0=
+Subject: FAILED: patch "[PATCH] btrfs: zoned: enable metadata over-commit for non-ZNS setup" failed to apply to 6.1-stable tree
+To:     naohiro.aota@wdc.com, dsterba@suse.com, johannes.thumshirn@wdc.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Sun, 22 Jan 2023 13:54:54 +0100
-Message-ID: <1674392094224146@kroah.com>
+Date:   Sun, 22 Jan 2023 13:55:51 +0100
+Message-ID: <167439215124657@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -49,33 +48,26 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.14-stable tree.
+The patch below does not apply to the 6.1-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
 
 Possible dependencies:
 
-8bb6898da627 ("btrfs: fix directory logging due to race with concurrent index key deletion")
-6d3d970b2735 ("btrfs: fix missing error handling when logging directory items")
-732d591a5d6c ("btrfs: stop copying old dir items when logging a directory")
-a450a4af7433 ("btrfs: don't log unnecessary boundary keys when logging directory")
-339d03542484 ("btrfs: only copy dir index keys when logging a directory")
-1b2e5e5c7fea ("btrfs: fix missing last dir item offset update when logging directory")
-9798ba24cb76 ("btrfs: remove root argument from drop_one_dir_item()")
-dc2872247ec0 ("btrfs: keep track of the last logged keys when logging a directory")
-086dcbfa50d3 ("btrfs: insert items in batches when logging a directory when possible")
-eb10d85ee77f ("btrfs: factor out the copying loop of dir items from log_dir_items()")
-90d04510a774 ("btrfs: remove root argument from btrfs_log_inode() and its callees")
-289cffcb0399 ("btrfs: remove no longer needed checks for NULL log context")
-cfd312695b71 ("btrfs: check for error when looking up inode during dir entry replay")
-8dcbc26194eb ("btrfs: unify lookup return value when dir entry is missing")
-52db77791fe2 ("btrfs: deal with errors when adding inode reference during log replay")
-e15ac6413745 ("btrfs: deal with errors when replaying dir entry during log replay")
-77a5b9e3d14c ("btrfs: deal with errors when checking if a dir entry exists during log replay")
-a7d1c5dc8632 ("btrfs: introduce btrfs_lookup_match_dir")
-b590b839720c ("btrfs: avoid unnecessary logging of xattrs during fast fsyncs")
-54a40fc3a1da ("btrfs: fix removed dentries still existing after log is synced")
+85e79ec7b78f ("btrfs: zoned: enable metadata over-commit for non-ZNS setup")
+c52cc7b7acfb ("btrfs: add a BTRFS_FS_NEED_TRANS_COMMIT flag")
+7966a6b5959b ("btrfs: move fs_info::flags enum to fs.h")
+fc97a410bd78 ("btrfs: move mount option definitions to fs.h")
+0d3a9cf8c306 ("btrfs: convert incompat and compat flag test helpers to macros")
+ec8eb376e271 ("btrfs: move BTRFS_FS_STATE* definitions and helpers to fs.h")
+9b569ea0be6f ("btrfs: move the printk helpers out of ctree.h")
+e118578a8df7 ("btrfs: move assert helpers out of ctree.h")
+c7f13d428ea1 ("btrfs: move fs wide helpers out of ctree.h")
+63a7cb130718 ("btrfs: auto enable discard=async when possible")
+f1e5c6185ca1 ("btrfs: move flush related definitions to space-info.h")
+4300c58f8090 ("btrfs: move btrfs on-disk definitions out of ctree.h")
+d60d956eb41f ("btrfs: remove unused set/clear_pending_info helpers")
 
 thanks,
 
@@ -83,103 +75,75 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From 8bb6898da6271d82d8e76d8088d66b971a7dcfa6 Mon Sep 17 00:00:00 2001
-From: Filipe Manana <fdmanana@suse.com>
-Date: Tue, 10 Jan 2023 14:56:35 +0000
-Subject: [PATCH] btrfs: fix directory logging due to race with concurrent
- index key deletion
+From 85e79ec7b78f863178ca488fd8cb5b3de6347756 Mon Sep 17 00:00:00 2001
+From: Naohiro Aota <naohiro.aota@wdc.com>
+Date: Tue, 10 Jan 2023 15:04:32 +0900
+Subject: [PATCH] btrfs: zoned: enable metadata over-commit for non-ZNS setup
 
-Sometimes we log a directory without holding its VFS lock, so while we
-logging it, dir index entries may be added or removed. This typically
-happens when logging a dentry from a parent directory that points to a
-new directory, through log_new_dir_dentries(), or when while logging
-some other inode we also need to log its parent directories (through
-btrfs_log_all_parents()).
+The commit 79417d040f4f ("btrfs: zoned: disable metadata overcommit for
+zoned") disabled the metadata over-commit to track active zones properly.
 
-This means that while we are at log_dir_items(), we may not find a dir
-index key we found before, because it was deleted in the meanwhile, so
-a call to btrfs_search_slot() may return 1 (key not found). In that case
-we return from log_dir_items() with a success value (the variable 'err'
-has a value of 0). This can lead to a few problems, specially in the case
-where the variable 'last_offset' has a value of (u64)-1 (and it's
-initialized to that when it was declared):
+However, it also introduced a heavy overhead by allocating new metadata
+block groups and/or flushing dirty buffers to release the space
+reservations. Specifically, a workload (write only without any sync
+operations) worsen its performance from 343.77 MB/sec (v5.19) to 182.89
+MB/sec (v6.0).
 
-1) By returning from log_dir_items() with success (0) and a value of
-   (u64)-1 for '*last_offset_ret', we end up not logging any other dir
-   index keys that follow the missing, just deleted, index key. The
-   (u64)-1 value makes log_directory_changes() not call log_dir_items()
-   again;
+The performance is still bad on current misc-next which is 187.95 MB/sec.
+And, with this patch applied, it improves back to 326.70 MB/sec (+73.82%).
 
-2) Before returning with success (0), log_dir_items(), will log a dir
-   index range item covering a range from the last old dentry index
-   (stored in the variable 'last_old_dentry_offset') to the value of
-   'last_offset'. If 'last_offset' has a value of (u64)-1, then it means
-   if the log is persisted and replayed after a power failure, it will
-   cause deletion of all the directory entries that have an index number
-   between last_old_dentry_offset + 1 and (u64)-1;
+This patch introduces a new fs_info->flag BTRFS_FS_NO_OVERCOMMIT to
+indicate it needs to disable the metadata over-commit. The flag is enabled
+when a device with max active zones limit is loaded into a file-system.
 
-3) We can end up returning from log_dir_items() with
-   ctx->last_dir_item_offset having a lower value than
-   inode->last_dir_index_offset, because the former is set to the current
-   key we are processing at process_dir_items_leaf(), and at the end of
-   log_directory_changes() we set inode->last_dir_index_offset to the
-   current value of ctx->last_dir_item_offset. So if for example a
-   deletion of a lower dir index key happened, we set
-   ctx->last_dir_item_offset to that index value, then if we return from
-   log_dir_items() because btrfs_search_slot() returned 1, we end up
-   returning from log_dir_items() with success (0) and then
-   log_directory_changes() sets inode->last_dir_index_offset to a lower
-   value than it had before.
-   This can result in unpredictable and unexpected behaviour when we
-   need to log again the directory in the same transaction, and can result
-   in ending up with a log tree leaf that has duplicated keys, as we do
-   batch insertions of dir index keys into a log tree.
-
-So fix this by making log_dir_items() move on to the next dir index key
-if it does not find the one it was looking for.
-
-Reported-by: David Arendt <admin@prnet.org>
-Link: https://lore.kernel.org/linux-btrfs/ae169fc6-f504-28f0-a098-6fa6a4dfb612@leemhuis.info/
-CC: stable@vger.kernel.org # 4.14+
-Reviewed-by: Josef Bacik <josef@toxicpanda.com>
-Signed-off-by: Filipe Manana <fdmanana@suse.com>
+Fixes: 79417d040f4f ("btrfs: zoned: disable metadata overcommit for zoned")
+CC: stable@vger.kernel.org # 6.0+
+Reviewed-by: Johannes Thumshirn <johannes.thumshirn@wdc.com>
+Signed-off-by: Naohiro Aota <naohiro.aota@wdc.com>
 Signed-off-by: David Sterba <dsterba@suse.com>
 
-diff --git a/fs/btrfs/tree-log.c b/fs/btrfs/tree-log.c
-index 3ef0266e9527..c09daab3f19e 100644
---- a/fs/btrfs/tree-log.c
-+++ b/fs/btrfs/tree-log.c
-@@ -3857,17 +3857,26 @@ static noinline int log_dir_items(struct btrfs_trans_handle *trans,
- 	btrfs_release_path(path);
+diff --git a/fs/btrfs/fs.h b/fs/btrfs/fs.h
+index a749367e5ae2..37b86acfcbcf 100644
+--- a/fs/btrfs/fs.h
++++ b/fs/btrfs/fs.h
+@@ -119,6 +119,12 @@ enum {
+ 	/* Indicate that we want to commit the transaction. */
+ 	BTRFS_FS_NEED_TRANS_COMMIT,
  
- 	/*
--	 * Find the first key from this transaction again.  See the note for
--	 * log_new_dir_dentries, if we're logging a directory recursively we
--	 * won't be holding its i_mutex, which means we can modify the directory
--	 * while we're logging it.  If we remove an entry between our first
--	 * search and this search we'll not find the key again and can just
--	 * bail.
-+	 * Find the first key from this transaction again or the one we were at
-+	 * in the loop below in case we had to reschedule. We may be logging the
-+	 * directory without holding its VFS lock, which happen when logging new
-+	 * dentries (through log_new_dir_dentries()) or in some cases when we
-+	 * need to log the parent directory of an inode. This means a dir index
-+	 * key might be deleted from the inode's root, and therefore we may not
-+	 * find it anymore. If we can't find it, just move to the next key. We
-+	 * can not bail out and ignore, because if we do that we will simply
-+	 * not log dir index keys that come after the one that was just deleted
-+	 * and we can end up logging a dir index range that ends at (u64)-1
-+	 * (@last_offset is initialized to that), resulting in removing dir
-+	 * entries we should not remove at log replay time.
- 	 */
- search:
- 	ret = btrfs_search_slot(NULL, root, &min_key, path, 0, 0);
-+	if (ret > 0)
-+		ret = btrfs_next_item(root, path);
- 	if (ret < 0)
- 		err = ret;
-+	/* If ret is 1, there are no more keys in the inode's root. */
- 	if (ret != 0)
- 		goto done;
++	/*
++	 * Indicate metadata over-commit is disabled. This is set when active
++	 * zone tracking is needed.
++	 */
++	BTRFS_FS_NO_OVERCOMMIT,
++
+ #if BITS_PER_LONG == 32
+ 	/* Indicate if we have error/warn message printed on 32bit systems */
+ 	BTRFS_FS_32BIT_ERROR,
+diff --git a/fs/btrfs/space-info.c b/fs/btrfs/space-info.c
+index d28ee4e36f3d..69c09508afb5 100644
+--- a/fs/btrfs/space-info.c
++++ b/fs/btrfs/space-info.c
+@@ -407,7 +407,8 @@ int btrfs_can_overcommit(struct btrfs_fs_info *fs_info,
+ 		return 0;
  
+ 	used = btrfs_space_info_used(space_info, true);
+-	if (btrfs_is_zoned(fs_info) && (space_info->flags & BTRFS_BLOCK_GROUP_METADATA))
++	if (test_bit(BTRFS_FS_NO_OVERCOMMIT, &fs_info->flags) &&
++	    (space_info->flags & BTRFS_BLOCK_GROUP_METADATA))
+ 		avail = 0;
+ 	else
+ 		avail = calc_available_free_space(fs_info, space_info, flush);
+diff --git a/fs/btrfs/zoned.c b/fs/btrfs/zoned.c
+index a759668477bb..1f503e8e42d4 100644
+--- a/fs/btrfs/zoned.c
++++ b/fs/btrfs/zoned.c
+@@ -539,6 +539,8 @@ int btrfs_get_dev_zone_info(struct btrfs_device *device, bool populate_cache)
+ 		}
+ 		atomic_set(&zone_info->active_zones_left,
+ 			   max_active_zones - nactive);
++		/* Overcommit does not work well with active zone tacking. */
++		set_bit(BTRFS_FS_NO_OVERCOMMIT, &fs_info->flags);
+ 	}
+ 
+ 	/* Validate superblock log */
 
