@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 5EA20676E0F
-	for <lists+stable@lfdr.de>; Sun, 22 Jan 2023 16:06:39 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8FC4C676E30
+	for <lists+stable@lfdr.de>; Sun, 22 Jan 2023 16:08:00 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229864AbjAVPGi (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 22 Jan 2023 10:06:38 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60348 "EHLO
+        id S230204AbjAVPH7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 22 Jan 2023 10:07:59 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34248 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230043AbjAVPGh (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 22 Jan 2023 10:06:37 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DA1B91DBBA
-        for <stable@vger.kernel.org>; Sun, 22 Jan 2023 07:06:36 -0800 (PST)
+        with ESMTP id S230192AbjAVPH6 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 22 Jan 2023 10:07:58 -0500
+Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6B67D1C30E
+        for <stable@vger.kernel.org>; Sun, 22 Jan 2023 07:07:57 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 685CE60C58
-        for <stable@vger.kernel.org>; Sun, 22 Jan 2023 15:06:36 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7CFFFC433EF;
-        Sun, 22 Jan 2023 15:06:35 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id DA40FCE0E90
+        for <stable@vger.kernel.org>; Sun, 22 Jan 2023 15:07:55 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D6295C433EF;
+        Sun, 22 Jan 2023 15:07:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1674399995;
-        bh=OqxWEtiTOn4kTu3mdysvMJoqky85DyyHjpgSTRcjVfQ=;
+        s=korg; t=1674400074;
+        bh=8/pCthJrNJrVyJX/tgThM8NDME8TgLNris9k8uM+b/U=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=0QBXOM8n5M/6jb5W0DoyHBkMtrAX1Guf7Z+8quzPn/f8ibDAURKxFlWHdA9AGT/Ja
-         Iu9xJro7d2fS7je5UhtWQ9ciHOf7Q5AnQmBr/p6z+aIIpvCgmyUTWgt93t0JwIKshK
-         Kqq2cFE8rPPL/hhsPgIvHnsci3BGV8TYXd8lhx88=
+        b=ffnfsm0M1uUw2tc6LY8gv8Zh5bfsCN8Os7NESivvI3YWryENNGDHtJsGHkgOK+lX3
+         oKbRtdjGEy4FOdboXp9wKCfrGIH6Jj3bEJgBvwYHhqOjs++Q+dkVEhV8AriQRtt/Ff
+         /Z3dRe7lXtmUCABQUjp2/Tkfm3gsczkN+Pk8/mHQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, YingChi Long <me@inclyc.cn>,
-        Borislav Petkov <bp@suse.de>,
-        Nick Desaulniers <ndesaulniers@google.com>,
-        Nathan Chancellor <nathan@kernel.org>
-Subject: [PATCH 4.14 25/25] x86/fpu: Use _Alignof to avoid undefined behavior in TYPE_ALIGN
-Date:   Sun, 22 Jan 2023 16:04:25 +0100
-Message-Id: <20230122150218.841731223@linuxfoundation.org>
+        patches@lists.linux.dev, Alan Stern <stern@rowland.harvard.edu>,
+        Hongling Zeng <zenghongling@kylinos.cn>,
+        Juhyung Park <qkrwngud825@gmail.com>,
+        Oliver Neukum <oneukum@suse.com>
+Subject: [PATCH 4.19 29/37] usb-storage: apply IGNORE_UAS only for HIKSEMI MD202 on RTL9210
+Date:   Sun, 22 Jan 2023 16:04:26 +0100
+Message-Id: <20230122150220.760612334@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.1
-In-Reply-To: <20230122150217.788215473@linuxfoundation.org>
-References: <20230122150217.788215473@linuxfoundation.org>
+In-Reply-To: <20230122150219.557984692@linuxfoundation.org>
+References: <20230122150219.557984692@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,63 +55,77 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: YingChi Long <me@inclyc.cn>
+From: Juhyung Park <qkrwngud825@gmail.com>
 
-commit 55228db2697c09abddcb9487c3d9fa5854a932cd upstream.
+commit dbd24ec17b85b45f4e823d1aa5607721920f2b05 upstream.
 
-WG14 N2350 specifies that it is an undefined behavior to have type
-definitions within offsetof", see
+The commit e00b488e813f ("usb-storage: Add Hiksemi USB3-FW to IGNORE_UAS")
+blacklists UAS for all of RTL9210 enclosures.
 
-  https://www.open-std.org/jtc1/sc22/wg14/www/docs/n2350.htm
+The RTL9210 controller was advertised with UAS since its release back in
+2019 and was shipped with a lot of enclosure products with different
+firmware combinations.
 
-This specification is also part of C23.
+Blacklist UAS only for HIKSEMI MD202.
 
-Therefore, replace the TYPE_ALIGN macro with the _Alignof builtin to
-avoid undefined behavior. (_Alignof itself is C11 and the kernel is
-built with -gnu11).
+This should hopefully be replaced with more robust method than just
+comparing strings.  But with limited information [1] provided thus far
+(dmesg when the device is plugged in, which includes manufacturer and
+product, but no lsusb -v to compare against), this is the best we can do
+for now.
 
-ISO C11 _Alignof is subtly different from the GNU C extension
-__alignof__. Latter is the preferred alignment and _Alignof the
-minimal alignment. For long long on x86 these are 8 and 4
-respectively.
+[1] https://lore.kernel.org/all/20230109115550.71688-1-qkrwngud825@gmail.com
 
-The macro TYPE_ALIGN's behavior matches _Alignof rather than
-__alignof__.
-
-  [ bp: Massage commit message. ]
-
-Signed-off-by: YingChi Long <me@inclyc.cn>
-Signed-off-by: Borislav Petkov <bp@suse.de>
-Reviewed-by: Nick Desaulniers <ndesaulniers@google.com>
-Link: https://lore.kernel.org/r/20220925153151.2467884-1-me@inclyc.cn
-Signed-off-by: Nathan Chancellor <nathan@kernel.org>
+Fixes: e00b488e813f ("usb-storage: Add Hiksemi USB3-FW to IGNORE_UAS")
+Cc: Alan Stern <stern@rowland.harvard.edu>
+Cc: Hongling Zeng <zenghongling@kylinos.cn>
+Cc: stable@vger.kernel.org
+Signed-off-by: Juhyung Park <qkrwngud825@gmail.com>
+Acked-by: Oliver Neukum <oneukum@suse.com>
+Link: https://lore.kernel.org/r/20230117085154.123301-1-qkrwngud825@gmail.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/x86/kernel/fpu/init.c |    7 ++-----
- 1 file changed, 2 insertions(+), 5 deletions(-)
+ drivers/usb/storage/uas-detect.h  |   13 +++++++++++++
+ drivers/usb/storage/unusual_uas.h |    7 -------
+ 2 files changed, 13 insertions(+), 7 deletions(-)
 
---- a/arch/x86/kernel/fpu/init.c
-+++ b/arch/x86/kernel/fpu/init.c
-@@ -138,9 +138,6 @@ static void __init fpu__init_system_gene
- unsigned int fpu_kernel_xstate_size;
- EXPORT_SYMBOL_GPL(fpu_kernel_xstate_size);
+--- a/drivers/usb/storage/uas-detect.h
++++ b/drivers/usb/storage/uas-detect.h
+@@ -116,6 +116,19 @@ static int uas_use_uas_driver(struct usb
+ 	if (le16_to_cpu(udev->descriptor.idVendor) == 0x0bc2)
+ 		flags |= US_FL_NO_ATA_1X;
  
--/* Get alignment of the TYPE. */
--#define TYPE_ALIGN(TYPE) offsetof(struct { char x; TYPE test; }, test)
++	/*
++	 * RTL9210-based enclosure from HIKSEMI, MD202 reportedly have issues
++	 * with UAS.  This isn't distinguishable with just idVendor and
++	 * idProduct, use manufacturer and product too.
++	 *
++	 * Reported-by: Hongling Zeng <zenghongling@kylinos.cn>
++	 */
++	if (le16_to_cpu(udev->descriptor.idVendor) == 0x0bda &&
++			le16_to_cpu(udev->descriptor.idProduct) == 0x9210 &&
++			(udev->manufacturer && !strcmp(udev->manufacturer, "HIKSEMI")) &&
++			(udev->product && !strcmp(udev->product, "MD202")))
++		flags |= US_FL_IGNORE_UAS;
++
+ 	usb_stor_adjust_quirks(udev, &flags);
+ 
+ 	if (flags & US_FL_IGNORE_UAS) {
+--- a/drivers/usb/storage/unusual_uas.h
++++ b/drivers/usb/storage/unusual_uas.h
+@@ -83,13 +83,6 @@ UNUSUAL_DEV(0x0bc2, 0x331a, 0x0000, 0x99
+ 		USB_SC_DEVICE, USB_PR_DEVICE, NULL,
+ 		US_FL_NO_REPORT_LUNS),
+ 
+-/* Reported-by: Hongling Zeng <zenghongling@kylinos.cn> */
+-UNUSUAL_DEV(0x0bda, 0x9210, 0x0000, 0x9999,
+-		"Hiksemi",
+-		"External HDD",
+-		USB_SC_DEVICE, USB_PR_DEVICE, NULL,
+-		US_FL_IGNORE_UAS),
 -
- /*
-  * Enforce that 'MEMBER' is the last field of 'TYPE'.
-  *
-@@ -148,8 +145,8 @@ EXPORT_SYMBOL_GPL(fpu_kernel_xstate_size
-  * because that's how C aligns structs.
-  */
- #define CHECK_MEMBER_AT_END_OF(TYPE, MEMBER) \
--	BUILD_BUG_ON(sizeof(TYPE) != ALIGN(offsetofend(TYPE, MEMBER), \
--					   TYPE_ALIGN(TYPE)))
-+	BUILD_BUG_ON(sizeof(TYPE) !=         \
-+		     ALIGN(offsetofend(TYPE, MEMBER), _Alignof(TYPE)))
- 
- /*
-  * We append the 'struct fpu' to the task_struct:
+ /* Reported-by: Benjamin Tissoires <benjamin.tissoires@redhat.com> */
+ UNUSUAL_DEV(0x13fd, 0x3940, 0x0000, 0x9999,
+ 		"Initio Corporation",
 
 
