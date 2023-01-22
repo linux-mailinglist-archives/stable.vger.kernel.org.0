@@ -2,46 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 0EAE7676F00
-	for <lists+stable@lfdr.de>; Sun, 22 Jan 2023 16:16:44 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B9D03676E83
+	for <lists+stable@lfdr.de>; Sun, 22 Jan 2023 16:11:27 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230527AbjAVPQn (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 22 Jan 2023 10:16:43 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43472 "EHLO
+        id S230339AbjAVPL0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 22 Jan 2023 10:11:26 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38062 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230520AbjAVPQm (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 22 Jan 2023 10:16:42 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BD08922021
-        for <stable@vger.kernel.org>; Sun, 22 Jan 2023 07:16:41 -0800 (PST)
+        with ESMTP id S230351AbjAVPLZ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 22 Jan 2023 10:11:25 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 958C620071
+        for <stable@vger.kernel.org>; Sun, 22 Jan 2023 07:11:22 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 5AF7160C58
-        for <stable@vger.kernel.org>; Sun, 22 Jan 2023 15:16:41 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6A873C433EF;
-        Sun, 22 Jan 2023 15:16:40 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 3A1DCB80AF8
+        for <stable@vger.kernel.org>; Sun, 22 Jan 2023 15:11:21 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 97A54C433D2;
+        Sun, 22 Jan 2023 15:11:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1674400600;
-        bh=LgQKBohOj4eszVgIDhbm0EHRjX1ZQY+sa5bLbtFP/nY=;
+        s=korg; t=1674400280;
+        bh=kMTd/QWEVaMMbGGHko64wkREQRIpQtKXX9E8vNP5Ciw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=htH2qJ50+k7m1ci4KR4E6hIHy96f4xAfp++8qShVSA2ZiLI+n2Lwu0ztvM69JKPNs
-         DBnV4l74lDmMMWsnLtismGI++htyDXZp9UPJkHMDlkaRa4+i98LPg+NO3Nz+ACVsME
-         8Rsr2s9s8UDhXUrhXRWhmVkrLZt37qZmTmQRrPqE=
+        b=J7ugYF9J/rQ/9A5w/TA2oKJVlw1zY1COxE8t0kee2FQEimAd0rYbtNjVdNIDQSoYj
+         MINqJDGpQvURJQK6EkuNz3hc60NwpkMrU1T3aiKoHnbZZgiat1QUQYBB8RnK/V5n6+
+         r77PoYaE2yT89NmmVwz7/l1iMeL9m0OdLSpKUDDg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        "Jiri Slaby (SUSE)" <jirislaby@kernel.org>,
-        Bart Van Assche <bvanassche@acm.org>,
-        Leon Romanovsky <leon@kernel.org>,
+        patches@lists.linux.dev, Hao Sun <sunhao.th@gmail.com>,
+        Martin KaFai Lau <martin.lau@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 009/117] RDMA/srp: Move large values to a new enum for gcc13
+Subject: [PATCH 5.10 03/98] selftests/bpf: check null propagation only neither reg is PTR_TO_BTF_ID
 Date:   Sun, 22 Jan 2023 16:03:19 +0100
-Message-Id: <20230122150233.109430031@linuxfoundation.org>
+Message-Id: <20230122150229.524616219@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.1
-In-Reply-To: <20230122150232.736358800@linuxfoundation.org>
-References: <20230122150232.736358800@linuxfoundation.org>
+In-Reply-To: <20230122150229.351631432@linuxfoundation.org>
+References: <20230122150229.351631432@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,64 +54,89 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jiri Slaby (SUSE) <jirislaby@kernel.org>
+From: Hao Sun <sunhao.th@gmail.com>
 
-[ Upstream commit 56c5dab20a6391604df9521f812c01d1e3fe1bd0 ]
+[ Upstream commit cedebd74cf3883f0384af9ec26b4e6f8f1964dd4 ]
 
-Since gcc13, each member of an enum has the same type as the enum [1]. And
-that is inherited from its members. Provided these two:
-  SRP_TAG_NO_REQ        = ~0U,
-  SRP_TAG_TSK_MGMT	= 1U << 31
-all other members are unsigned ints.
+Verify that nullness information is not porpagated in the branches
+of register to register JEQ and JNE operations if one of them is
+PTR_TO_BTF_ID. Implement this in C level so we can use CO-RE.
 
-Esp. with SRP_MAX_SGE and SRP_TSK_MGMT_SQ_SIZE and their use in min(),
-this results in the following warnings:
-  include/linux/minmax.h:20:35: error: comparison of distinct pointer types lacks a cast
-  drivers/infiniband/ulp/srp/ib_srp.c:563:42: note: in expansion of macro 'min'
-
-  include/linux/minmax.h:20:35: error: comparison of distinct pointer types lacks a cast
-  drivers/infiniband/ulp/srp/ib_srp.c:2369:27: note: in expansion of macro 'min'
-
-So move the large values away to a separate enum, so that they don't
-affect other members.
-
-[1] https://gcc.gnu.org/bugzilla/show_bug.cgi?id=36113
-
-Link: https://lore.kernel.org/r/20221212120411.13750-1-jirislaby@kernel.org
-Signed-off-by: Jiri Slaby (SUSE) <jirislaby@kernel.org>
-Reviewed-by: Bart Van Assche <bvanassche@acm.org>
-Signed-off-by: Leon Romanovsky <leon@kernel.org>
+Signed-off-by: Hao Sun <sunhao.th@gmail.com>
+Suggested-by: Martin KaFai Lau <martin.lau@kernel.org>
+Link: https://lore.kernel.org/r/20221222024414.29539-2-sunhao.th@gmail.com
+Signed-off-by: Martin KaFai Lau <martin.lau@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/infiniband/ulp/srp/ib_srp.h | 8 +++++---
- 1 file changed, 5 insertions(+), 3 deletions(-)
+ .../bpf/prog_tests/jeq_infer_not_null.c       |  9 ++++
+ .../bpf/progs/jeq_infer_not_null_fail.c       | 42 +++++++++++++++++++
+ 2 files changed, 51 insertions(+)
+ create mode 100644 tools/testing/selftests/bpf/prog_tests/jeq_infer_not_null.c
+ create mode 100644 tools/testing/selftests/bpf/progs/jeq_infer_not_null_fail.c
 
-diff --git a/drivers/infiniband/ulp/srp/ib_srp.h b/drivers/infiniband/ulp/srp/ib_srp.h
-index abccddeea1e3..152242e8f733 100644
---- a/drivers/infiniband/ulp/srp/ib_srp.h
-+++ b/drivers/infiniband/ulp/srp/ib_srp.h
-@@ -62,9 +62,6 @@ enum {
- 	SRP_DEFAULT_CMD_SQ_SIZE = SRP_DEFAULT_QUEUE_SIZE - SRP_RSP_SQ_SIZE -
- 				  SRP_TSK_MGMT_SQ_SIZE,
- 
--	SRP_TAG_NO_REQ		= ~0U,
--	SRP_TAG_TSK_MGMT	= 1U << 31,
--
- 	SRP_MAX_PAGES_PER_MR	= 512,
- 
- 	SRP_MAX_ADD_CDB_LEN	= 16,
-@@ -79,6 +76,11 @@ enum {
- 				  sizeof(struct srp_imm_buf),
- };
- 
-+enum {
-+	SRP_TAG_NO_REQ		= ~0U,
-+	SRP_TAG_TSK_MGMT	= BIT(31),
-+};
+diff --git a/tools/testing/selftests/bpf/prog_tests/jeq_infer_not_null.c b/tools/testing/selftests/bpf/prog_tests/jeq_infer_not_null.c
+new file mode 100644
+index 000000000000..3add34df5767
+--- /dev/null
++++ b/tools/testing/selftests/bpf/prog_tests/jeq_infer_not_null.c
+@@ -0,0 +1,9 @@
++// SPDX-License-Identifier: GPL-2.0
 +
- enum srp_target_state {
- 	SRP_TARGET_SCANNING,
- 	SRP_TARGET_LIVE,
++#include <test_progs.h>
++#include "jeq_infer_not_null_fail.skel.h"
++
++void test_jeq_infer_not_null(void)
++{
++	RUN_TESTS(jeq_infer_not_null_fail);
++}
+diff --git a/tools/testing/selftests/bpf/progs/jeq_infer_not_null_fail.c b/tools/testing/selftests/bpf/progs/jeq_infer_not_null_fail.c
+new file mode 100644
+index 000000000000..f46965053acb
+--- /dev/null
++++ b/tools/testing/selftests/bpf/progs/jeq_infer_not_null_fail.c
+@@ -0,0 +1,42 @@
++// SPDX-License-Identifier: GPL-2.0
++
++#include "vmlinux.h"
++#include <bpf/bpf_helpers.h>
++#include "bpf_misc.h"
++
++char _license[] SEC("license") = "GPL";
++
++struct {
++	__uint(type, BPF_MAP_TYPE_HASH);
++	__uint(max_entries, 1);
++	__type(key, u64);
++	__type(value, u64);
++} m_hash SEC(".maps");
++
++SEC("?raw_tp")
++__failure __msg("R8 invalid mem access 'map_value_or_null")
++int jeq_infer_not_null_ptr_to_btfid(void *ctx)
++{
++	struct bpf_map *map = (struct bpf_map *)&m_hash;
++	struct bpf_map *inner_map = map->inner_map_meta;
++	u64 key = 0, ret = 0, *val;
++
++	val = bpf_map_lookup_elem(map, &key);
++	/* Do not mark ptr as non-null if one of them is
++	 * PTR_TO_BTF_ID (R9), reject because of invalid
++	 * access to map value (R8).
++	 *
++	 * Here, we need to inline those insns to access
++	 * R8 directly, since compiler may use other reg
++	 * once it figures out val==inner_map.
++	 */
++	asm volatile("r8 = %[val];\n"
++		     "r9 = %[inner_map];\n"
++		     "if r8 != r9 goto +1;\n"
++		     "%[ret] = *(u64 *)(r8 +0);\n"
++		     : [ret] "+r"(ret)
++		     : [inner_map] "r"(inner_map), [val] "r"(val)
++		     : "r8", "r9");
++
++	return ret;
++}
 -- 
 2.35.1
 
