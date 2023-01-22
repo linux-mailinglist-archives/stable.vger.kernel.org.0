@@ -2,50 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C6CDC676CA7
-	for <lists+stable@lfdr.de>; Sun, 22 Jan 2023 13:06:20 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 69143676CC5
+	for <lists+stable@lfdr.de>; Sun, 22 Jan 2023 13:21:33 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229675AbjAVMGS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 22 Jan 2023 07:06:18 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53252 "EHLO
+        id S229744AbjAVMVc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 22 Jan 2023 07:21:32 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60538 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229637AbjAVMGS (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 22 Jan 2023 07:06:18 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F0AB6166D5;
-        Sun, 22 Jan 2023 04:06:16 -0800 (PST)
+        with ESMTP id S229921AbjAVMVb (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 22 Jan 2023 07:21:31 -0500
+Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4650261AA
+        for <stable@vger.kernel.org>; Sun, 22 Jan 2023 04:21:30 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id A05C0B80A72;
-        Sun, 22 Jan 2023 12:06:15 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C42FCC433EF;
-        Sun, 22 Jan 2023 12:06:13 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id BAC3FCE0E5A
+        for <stable@vger.kernel.org>; Sun, 22 Jan 2023 12:21:28 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A78A3C433D2;
+        Sun, 22 Jan 2023 12:21:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1674389174;
-        bh=3nh7wT08+uoGl5Pvj2Db3Ta6DmN+AWME040ZNIylNjw=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=0/NyeG+TNaS2XaQ9u5j/wCPeWojYyDLvxVtFAlCMMthNCmQEAWOJhdsJZ+Fc+0flJ
-         me/F2s7a4xPUktxoL55H8fieMgLqjr+AGpMFlxoHElQ0J4Diil+6MIDx+dKprOulgx
-         7P3+0X4ewYgocWCzzVUl4vb4+XOf48UnW66Nug1w=
-Date:   Sun, 22 Jan 2023 13:06:11 +0100
-From:   Greg KH <gregkh@linuxfoundation.org>
-To:     Alexander Wetzel <alexander@wetzel-home.de>
-Cc:     Sasha Levin <sashal@kernel.org>, stable-commits@vger.kernel.org,
-        stable@vger.kernel.org, Johannes Berg <johannes@sipsolutions.net>,
-        "David S. Miller" <davem@davemloft.net>,
-        Eric Dumazet <edumazet@google.com>,
-        Jakub Kicinski <kuba@kernel.org>,
-        Paolo Abeni <pabeni@redhat.com>
-Subject: Re: Patch "wifi: mac80211: Drop support for TX push path" has been
- added to the 6.1-stable tree
-Message-ID: <Y80ms6dcAmksApOz@kroah.com>
-References: <20230122042805.209191-1-sashal@kernel.org>
- <211e827e-e778-72a9-de02-42549f2e4faa@wetzel-home.de>
+        s=korg; t=1674390087;
+        bh=ccewSV9HO97pnAdnEGeEuixelLB0RkyRfo4AE6PK4nA=;
+        h=Subject:To:Cc:From:Date:From;
+        b=B/AYBF+LafR0Gz5Qu1lXb0NKL3UBFc24FlTDdGBZOIzp26GZZ0GekO29x2e3P2AR+
+         RyuZHA7bbTFAVvRXu3qHzMcrSsUdgyKgp4IfPaJxU8MsvrEf0+R8FUWAg0RYWhWQXS
+         KWqkjd7aZbX+WFHMowNjHlhrgoOQWhOXI/kuf2io=
+Subject: FAILED: patch "[PATCH] comedi: adv_pci1760: Fix PWM instruction handling" failed to apply to 4.14-stable tree
+To:     abbotti@mev.co.uk, gregkh@linuxfoundation.org,
+        stable@vger.kernel.org
+Cc:     <stable@vger.kernel.org>
+From:   <gregkh@linuxfoundation.org>
+Date:   Sun, 22 Jan 2023 13:21:24 +0100
+Message-ID: <1674390084103121@kroah.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <211e827e-e778-72a9-de02-42549f2e4faa@wetzel-home.de>
+Content-Type: text/plain; charset=ANSI_X3.4-1968
+Content-Transfer-Encoding: 8bit
 X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
         DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
         SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no
@@ -56,30 +48,66 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Sun, Jan 22, 2023 at 10:55:50AM +0100, Alexander Wetzel wrote:
-> On 22.01.23 05:28, Sasha Levin wrote:
-> > This is a note to let you know that I've just added the patch titled
-> > 
-> >      wifi: mac80211: Drop support for TX push path
-> > 
-> > to the 6.1-stable tree which can be found at:
-> >      http://www.kernel.org/git/?p=linux/kernel/git/stable/stable-queue.git;a=summary
-> > 
-> > The filename of the patch is:
-> >       wifi-mac80211-drop-support-for-tx-push-path.patch
-> > and it can be found in the queue-6.1 subdirectory.
-> > 
-> > If you, or anyone else, feels it should not be added to the stable tree,
-> > please let <stable@vger.kernel.org> know about it.
-> > 
-> 
-> We should at least have a discussion about that.
-> While I think we have sorted out all related regressions it's still way too
-> early to be sure.
-> 
-> The patch is also changing most mac80211 driver interfaces from queuing to
-> non-queuing and is thus nothing I would do within a fix release.
 
-Fair enough, I'll go drop it now, thanks for letting us know.
+The patch below does not apply to the 4.14-stable tree.
+If someone wants it applied there, or to any other stable or longterm
+tree, then please email the backport, including the original git commit
+id to <stable@vger.kernel.org>.
+
+Possible dependencies:
+
+2efb6edd52dc ("comedi: adv_pci1760: Fix PWM instruction handling")
+8ffdff6a8cfb ("staging: comedi: move out of staging directory")
+5b7b4ce1d116 ("staging: comedi: tests: example_test: Rename to 'comedi_example_test'")
+a98f670e41a9 ("Merge tag 'media/v5.8-1' of git://git.kernel.org/pub/scm/linux/kernel/git/mchehab/linux-media")
+
+thanks,
 
 greg k-h
+
+------------------ original commit in Linus's tree ------------------
+
+From 2efb6edd52dc50273f5e68ad863dd1b1fb2f2d1c Mon Sep 17 00:00:00 2001
+From: Ian Abbott <abbotti@mev.co.uk>
+Date: Tue, 3 Jan 2023 14:37:54 +0000
+Subject: [PATCH] comedi: adv_pci1760: Fix PWM instruction handling
+
+(Actually, this is fixing the "Read the Current Status" command sent to
+the device's outgoing mailbox, but it is only currently used for the PWM
+instructions.)
+
+The PCI-1760 is operated mostly by sending commands to a set of Outgoing
+Mailbox registers, waiting for the command to complete, and reading the
+result from the Incoming Mailbox registers.  One of these commands is
+the "Read the Current Status" command.  The number of this command is
+0x07 (see the User's Manual for the PCI-1760 at
+<https://advdownload.advantech.com/productfile/Downloadfile2/1-11P6653/PCI-1760.pdf>.
+The `PCI1760_CMD_GET_STATUS` macro defined in the driver should expand
+to this command number 0x07, but unfortunately it currently expands to
+0x03.  (Command number 0x03 is not defined in the User's Manual.)
+Correct the definition of the `PCI1760_CMD_GET_STATUS` macro to fix it.
+
+This is used by all the PWM subdevice related instructions handled by
+`pci1760_pwm_insn_config()` which are probably all broken.  The effect
+of sending the undefined command number 0x03 is not known.
+
+Fixes: 14b93bb6bbf0 ("staging: comedi: adv_pci_dio: separate out PCI-1760 support")
+Cc: <stable@vger.kernel.org> # v4.5+
+Signed-off-by: Ian Abbott <abbotti@mev.co.uk>
+Link: https://lore.kernel.org/r/20230103143754.17564-1-abbotti@mev.co.uk
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
+diff --git a/drivers/comedi/drivers/adv_pci1760.c b/drivers/comedi/drivers/adv_pci1760.c
+index fcfc2e299110..27f3890f471d 100644
+--- a/drivers/comedi/drivers/adv_pci1760.c
++++ b/drivers/comedi/drivers/adv_pci1760.c
+@@ -58,7 +58,7 @@
+ #define PCI1760_CMD_CLR_IMB2		0x00	/* Clears IMB2 */
+ #define PCI1760_CMD_SET_DO		0x01	/* Set output state */
+ #define PCI1760_CMD_GET_DO		0x02	/* Read output status */
+-#define PCI1760_CMD_GET_STATUS		0x03	/* Read current status */
++#define PCI1760_CMD_GET_STATUS		0x07	/* Read current status */
+ #define PCI1760_CMD_GET_FW_VER		0x0e	/* Read firmware version */
+ #define PCI1760_CMD_GET_HW_VER		0x0f	/* Read hardware version */
+ #define PCI1760_CMD_SET_PWM_HI(x)	(0x10 + (x) * 2) /* Set "hi" period */
+
