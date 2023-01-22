@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 4DFF8676ECD
-	for <lists+stable@lfdr.de>; Sun, 22 Jan 2023 16:14:34 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 634B3676E7A
+	for <lists+stable@lfdr.de>; Sun, 22 Jan 2023 16:10:59 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230450AbjAVPOd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 22 Jan 2023 10:14:33 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41526 "EHLO
+        id S230232AbjAVPK6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 22 Jan 2023 10:10:58 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37414 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230451AbjAVPOc (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 22 Jan 2023 10:14:32 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A320F2201B
-        for <stable@vger.kernel.org>; Sun, 22 Jan 2023 07:14:31 -0800 (PST)
+        with ESMTP id S230326AbjAVPK5 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 22 Jan 2023 10:10:57 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F25DA1F905
+        for <stable@vger.kernel.org>; Sun, 22 Jan 2023 07:10:56 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 5BEA1B80B0E
-        for <stable@vger.kernel.org>; Sun, 22 Jan 2023 15:14:30 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B28AEC433EF;
-        Sun, 22 Jan 2023 15:14:28 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 8E9D860C57
+        for <stable@vger.kernel.org>; Sun, 22 Jan 2023 15:10:56 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A2231C433EF;
+        Sun, 22 Jan 2023 15:10:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1674400469;
-        bh=arP/9gihXpo5gmdhMOHxh359EdvmMQ7uXXaUS6JZqHY=;
+        s=korg; t=1674400256;
+        bh=Ov9cBE1pApk3yYAqYpXjCylu+T+6JR64kK9M4DwDi5k=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=WuZLup54/3N2odBUBM5sgaPu99KCm1s6LKPWIe+rDoTtU9Q1JVl6bz2Z7BevKFcg1
-         FcsLNyC5z7FRK1CDit6AgYXnWebJMG76y5DoA1AB47cQtjd2+c/SeiXptr/s8Qvx1H
-         tWp/h1Tvlo0wuLYF8z7HabmU3Edgkj3s4FzfahpI=
+        b=Q3EUFy+zuYQ9H8nIpxww63ZmpafMAA/q6HvY4hd0HlA7Fyj4HcST+2qgtr/N76xFM
+         Kh90Y5/mol3131B0KtdlL/75zKhUUHOFGXz7blBsiQCLygBk1wQdOR2z87Aku9dH3/
+         J8u3z/FKssmGUJCLS0trdMaCtQEOg2Nuy98fCKI0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Melissa Wen <mwen@igalia.com>,
-        Joshua Ashton <joshua@froggi.es>,
+        patches@lists.linux.dev, Harry Wentland <harry.wentland@amd.com>,
+        Rodrigo Siqueira <Rodrigo.Siqueira@amd.com>,
+        hongao <hongao@uniontech.com>,
         Alex Deucher <alexander.deucher@amd.com>
-Subject: [PATCH 5.10 79/98] drm/amd/display: Fix COLOR_SPACE_YCBCR2020_TYPE matrix
+Subject: [PATCH 5.4 48/55] drm/amd/display: Fix set scaling doesns work
 Date:   Sun, 22 Jan 2023 16:04:35 +0100
-Message-Id: <20230122150232.775854527@linuxfoundation.org>
+Message-Id: <20230122150224.168370571@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.1
-In-Reply-To: <20230122150229.351631432@linuxfoundation.org>
-References: <20230122150229.351631432@linuxfoundation.org>
+In-Reply-To: <20230122150222.210885219@linuxfoundation.org>
+References: <20230122150222.210885219@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,43 +55,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Joshua Ashton <joshua@froggi.es>
+From: hongao <hongao@uniontech.com>
 
-commit 973a9c810c785ac270a6d50d8cf862b0c1643a10 upstream.
+commit 040625ab82ce6dca7772cb3867fe5c9eb279a344 upstream.
 
-The YCC conversion matrix for RGB -> COLOR_SPACE_YCBCR2020_TYPE is
-missing the values for the fourth column of the matrix.
+[Why]
+Setting scaling does not correctly update CRTC state. As a result
+dc stream state's src (composition area) && dest (addressable area)
+was not calculated as expected. This causes set scaling doesn's work.
 
-The fourth column of the matrix is essentially just a value that is
-added given that the color is 3 components in size.
-These values are needed to bias the chroma from the [-1, 1] -> [0, 1]
-range.
+[How]
+Correctly update CRTC state when setting scaling property.
 
-This fixes color being very green when using Gamescope HDR on HDMI
-output which prefers YCC 4:4:4.
-
-Fixes: 40df2f809e8f ("drm/amd/display: color space ycbcr709 support")
-Reviewed-by: Melissa Wen <mwen@igalia.com>
-Signed-off-by: Joshua Ashton <joshua@froggi.es>
+Reviewed-by: Harry Wentland <harry.wentland@amd.com>
+Tested-by: Rodrigo Siqueira <Rodrigo.Siqueira@amd.com>
+Signed-off-by: hongao <hongao@uniontech.com>
+Signed-off-by: Rodrigo Siqueira <Rodrigo.Siqueira@amd.com>
 Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
 Cc: stable@vger.kernel.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/gpu/drm/amd/display/dc/core/dc_hw_sequencer.c |    4 ++--
+ drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c |    4 ++--
  1 file changed, 2 insertions(+), 2 deletions(-)
 
---- a/drivers/gpu/drm/amd/display/dc/core/dc_hw_sequencer.c
-+++ b/drivers/gpu/drm/amd/display/dc/core/dc_hw_sequencer.c
-@@ -92,8 +92,8 @@ static const struct out_csc_color_matrix
- 		{ 0xE00, 0xF349, 0xFEB7, 0x1000, 0x6CE, 0x16E3,
- 				0x24F, 0x200, 0xFCCB, 0xF535, 0xE00, 0x1000} },
- 	{ COLOR_SPACE_YCBCR2020_TYPE,
--		{ 0x1000, 0xF149, 0xFEB7, 0x0000, 0x0868, 0x15B2,
--				0x01E6, 0x0000, 0xFB88, 0xF478, 0x1000, 0x0000} },
-+		{ 0x1000, 0xF149, 0xFEB7, 0x1004, 0x0868, 0x15B2,
-+				0x01E6, 0x201, 0xFB88, 0xF478, 0x1000, 0x1004} },
- 	{ COLOR_SPACE_YCBCR709_BLACK_TYPE,
- 		{ 0x0000, 0x0000, 0x0000, 0x1000, 0x0000, 0x0000,
- 				0x0000, 0x0200, 0x0000, 0x0000, 0x0000, 0x1000} },
+--- a/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c
++++ b/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c
+@@ -7409,8 +7409,8 @@ static int amdgpu_dm_atomic_check(struct
+ 			goto fail;
+ 		}
+ 
+-		if (dm_old_con_state->abm_level !=
+-		    dm_new_con_state->abm_level)
++		if (dm_old_con_state->abm_level != dm_new_con_state->abm_level ||
++		    dm_old_con_state->scaling != dm_new_con_state->scaling)
+ 			new_crtc_state->connectors_changed = true;
+ 	}
+ 
 
 
