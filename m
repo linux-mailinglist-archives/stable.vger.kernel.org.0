@@ -2,43 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 1607F676E38
-	for <lists+stable@lfdr.de>; Sun, 22 Jan 2023 16:08:21 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 85D6B676EC3
+	for <lists+stable@lfdr.de>; Sun, 22 Jan 2023 16:14:08 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230211AbjAVPIT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 22 Jan 2023 10:08:19 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34504 "EHLO
+        id S230436AbjAVPOH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 22 Jan 2023 10:14:07 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41202 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230196AbjAVPIS (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 22 Jan 2023 10:08:18 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 94B8115C85
-        for <stable@vger.kernel.org>; Sun, 22 Jan 2023 07:08:17 -0800 (PST)
+        with ESMTP id S230434AbjAVPOG (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 22 Jan 2023 10:14:06 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 973F522009
+        for <stable@vger.kernel.org>; Sun, 22 Jan 2023 07:14:05 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 4F39FB80B14
-        for <stable@vger.kernel.org>; Sun, 22 Jan 2023 15:08:16 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A7933C433D2;
-        Sun, 22 Jan 2023 15:08:14 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 52C02B80B0E
+        for <stable@vger.kernel.org>; Sun, 22 Jan 2023 15:14:04 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A116CC433EF;
+        Sun, 22 Jan 2023 15:14:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1674400095;
-        bh=ZB54wvvph9eNv02Nn4gdG5VD24tR1pqzeIydd7xqud0=;
+        s=korg; t=1674400443;
+        bh=6kfUddokXe9k4JyRKetemu7/auF5F14ceLtun0snTy4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Uige84glsBvJoB3hVmfAwz3yy0kg01OD30HZSN2tD2xoh+mMELZ5dqevD02DRNOxP
-         3nTjerimfat+3lTLbXjD1IdtAG/RrLy+SpGG3yg+cP2nVVe1zFerL3/beww7uiuoYq
-         kuT0WW/sZOoAmSd3loDpwUqZSo6UkSRjZ2eW/0fk=
+        b=m9kRY+hk6PNJZWq5NfqPShrUEL1NyKuXWcQ7NSgWURlcGo4pedAM4YyA4wgt9mljZ
+         CFJyShEtcm9XBHauuIFkN4FtqkV+6FdZwUBj2wv5myYWXs7r8Uz4BoFbY+sL+cQTtw
+         0nIHC7XwgDo8iKWbP9aQFUu2rXW9TEGkH1wELz8U=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Jimmy Hu <hhhuuu@google.com>,
-        Mathias Nyman <mathias.nyman@linux.intel.com>
-Subject: [PATCH 4.19 08/37] usb: xhci: Check endpoint is valid before dereferencing it
+        patches@lists.linux.dev, stable <stable@kernel.org>,
+        Arnd Bergmann <arnd@arndb.de>
+Subject: [PATCH 5.10 49/98] staging: vchiq_arm: fix enum vchiq_status return types
 Date:   Sun, 22 Jan 2023 16:04:05 +0100
-Message-Id: <20230122150219.918656887@linuxfoundation.org>
+Message-Id: <20230122150231.582784889@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.1
-In-Reply-To: <20230122150219.557984692@linuxfoundation.org>
-References: <20230122150219.557984692@linuxfoundation.org>
+In-Reply-To: <20230122150229.351631432@linuxfoundation.org>
+References: <20230122150229.351631432@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,64 +53,56 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jimmy Hu <hhhuuu@google.com>
+From: Arnd Bergmann <arnd@arndb.de>
 
-commit e8fb5bc76eb86437ab87002d4a36d6da02165654 upstream.
+commit 7d83299351fe7c812c529f5e39fe63b5312e4233 upstream.
 
-When the host controller is not responding, all URBs queued to all
-endpoints need to be killed. This can cause a kernel panic if we
-dereference an invalid endpoint.
+gcc-13 notices a type mismatch between function declaration
+and definition for a few functions that have been converted
+from returning vchiq specific status values to regular error
+codes:
 
-Fix this by using xhci_get_virt_ep() helper to find the endpoint and
-checking if the endpoint is valid before dereferencing it.
+drivers/staging/vc04_services/interface/vchiq_arm/vchiq_arm.c:662:5: error: conflicting types for 'vchiq_initialise' due to enum/integer mismatch; have 'int(struct vchiq_instance **)' [-Werror=enum-int-mismatch]
+drivers/staging/vc04_services/interface/vchiq_arm/vchiq_arm.c:1411:1: error: conflicting types for 'vchiq_use_internal' due to enum/integer mismatch; have 'int(struct vchiq_state *, struct vchiq_service *, enum USE_TYPE_E)' [-Werror=enum-int-mismatch]
+drivers/staging/vc04_services/interface/vchiq_arm/vchiq_arm.c:1468:1: error: conflicting types for 'vchiq_release_internal' due to enum/integer mismatch; have 'int(struct vchiq_state *, struct vchiq_service *)' [-Werror=enum-int-mismatch]
 
-[233311.853271] xhci-hcd xhci-hcd.1.auto: xHCI host controller not responding, assume dead
-[233311.853393] Unable to handle kernel NULL pointer dereference at virtual address 00000000000000e8
+Change the declarations to match the actual function definition.
 
-[233311.853964] pc : xhci_hc_died+0x10c/0x270
-[233311.853971] lr : xhci_hc_died+0x1ac/0x270
-
-[233311.854077] Call trace:
-[233311.854085]  xhci_hc_died+0x10c/0x270
-[233311.854093]  xhci_stop_endpoint_command_watchdog+0x100/0x1a4
-[233311.854105]  call_timer_fn+0x50/0x2d4
-[233311.854112]  expire_timers+0xac/0x2e4
-[233311.854118]  run_timer_softirq+0x300/0xabc
-[233311.854127]  __do_softirq+0x148/0x528
-[233311.854135]  irq_exit+0x194/0x1a8
-[233311.854143]  __handle_domain_irq+0x164/0x1d0
-[233311.854149]  gic_handle_irq.22273+0x10c/0x188
-[233311.854156]  el1_irq+0xfc/0x1a8
-[233311.854175]  lpm_cpuidle_enter+0x25c/0x418 [msm_pm]
-[233311.854185]  cpuidle_enter_state+0x1f0/0x764
-[233311.854194]  do_idle+0x594/0x6ac
-[233311.854201]  cpu_startup_entry+0x7c/0x80
-[233311.854209]  secondary_start_kernel+0x170/0x198
-
-Fixes: 50e8725e7c42 ("xhci: Refactor command watchdog and fix split string.")
-Cc: stable@vger.kernel.org
-Signed-off-by: Jimmy Hu <hhhuuu@google.com>
-Signed-off-by: Mathias Nyman <mathias.nyman@linux.intel.com>
-Message-ID: <0fe978ed-8269-9774-1c40-f8a98c17e838@linux.intel.com>
-Link: https://lore.kernel.org/r/20230116142216.1141605-3-mathias.nyman@linux.intel.com
+Fixes: a9fbd828be7f ("staging: vchiq_arm: drop enum vchiq_status from vchiq_*_internal")
+Cc: stable <stable@kernel.org>
+Signed-off-by: Arnd Bergmann <arnd@arndb.de>
+Link: https://lore.kernel.org/r/20230117163957.1109872-1-arnd@kernel.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/usb/host/xhci-ring.c |    5 ++++-
- 1 file changed, 4 insertions(+), 1 deletion(-)
+ drivers/staging/vc04_services/include/linux/raspberrypi/vchiq.h |    2 +-
+ drivers/staging/vc04_services/interface/vchiq_arm/vchiq_arm.h   |    4 ++--
+ 2 files changed, 3 insertions(+), 3 deletions(-)
 
---- a/drivers/usb/host/xhci-ring.c
-+++ b/drivers/usb/host/xhci-ring.c
-@@ -896,7 +896,10 @@ static void xhci_kill_endpoint_urbs(stru
- 	struct xhci_virt_ep *ep;
- 	struct xhci_ring *ring;
+--- a/drivers/staging/vc04_services/include/linux/raspberrypi/vchiq.h
++++ b/drivers/staging/vc04_services/include/linux/raspberrypi/vchiq.h
+@@ -82,7 +82,7 @@ struct vchiq_service_params_kernel {
  
--	ep = &xhci->devs[slot_id]->eps[ep_index];
-+	ep = xhci_get_virt_ep(xhci, slot_id, ep_index);
-+	if (!ep)
-+		return;
-+
- 	if ((ep->ep_state & EP_HAS_STREAMS) ||
- 			(ep->ep_state & EP_GETTING_NO_STREAMS)) {
- 		int stream_id;
+ struct vchiq_instance;
+ 
+-extern enum vchiq_status vchiq_initialise(struct vchiq_instance **pinstance);
++extern int vchiq_initialise(struct vchiq_instance **pinstance);
+ extern enum vchiq_status vchiq_shutdown(struct vchiq_instance *instance);
+ extern enum vchiq_status vchiq_connect(struct vchiq_instance *instance);
+ extern enum vchiq_status vchiq_open_service(struct vchiq_instance *instance,
+--- a/drivers/staging/vc04_services/interface/vchiq_arm/vchiq_arm.h
++++ b/drivers/staging/vc04_services/interface/vchiq_arm/vchiq_arm.h
+@@ -89,10 +89,10 @@ extern struct vchiq_arm_state*
+ vchiq_platform_get_arm_state(struct vchiq_state *state);
+ 
+ 
+-extern enum vchiq_status
++extern int
+ vchiq_use_internal(struct vchiq_state *state, struct vchiq_service *service,
+ 		   enum USE_TYPE_E use_type);
+-extern enum vchiq_status
++extern int
+ vchiq_release_internal(struct vchiq_state *state,
+ 		       struct vchiq_service *service);
+ 
 
 
