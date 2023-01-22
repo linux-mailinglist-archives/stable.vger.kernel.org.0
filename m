@@ -2,42 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 5CFC7676EE0
-	for <lists+stable@lfdr.de>; Sun, 22 Jan 2023 16:15:27 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 92BAB676F3D
+	for <lists+stable@lfdr.de>; Sun, 22 Jan 2023 16:19:15 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230478AbjAVPP0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 22 Jan 2023 10:15:26 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42182 "EHLO
+        id S231190AbjAVPTO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 22 Jan 2023 10:19:14 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46490 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230483AbjAVPPX (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 22 Jan 2023 10:15:23 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6CA652202A
-        for <stable@vger.kernel.org>; Sun, 22 Jan 2023 07:15:22 -0800 (PST)
+        with ESMTP id S231208AbjAVPTO (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 22 Jan 2023 10:19:14 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6A4BF2007E
+        for <stable@vger.kernel.org>; Sun, 22 Jan 2023 07:19:13 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 0FDD3B80B1A
-        for <stable@vger.kernel.org>; Sun, 22 Jan 2023 15:15:21 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id F0480C433D2;
-        Sun, 22 Jan 2023 15:15:18 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id E30AA60C43
+        for <stable@vger.kernel.org>; Sun, 22 Jan 2023 15:19:12 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 05ED3C4339B;
+        Sun, 22 Jan 2023 15:19:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1674400519;
-        bh=pUg5MHxRbaPIcDJkbgJPkOVzYYrN41qPt7BNGcOsx2Q=;
+        s=korg; t=1674400752;
+        bh=hDyQ6jL9C0Vo6/QLN8iUmNKMDaDpkuk2crett0tUP8E=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=R/uSXoYFl+cAUdh5V6SNKW4J9L+cjCFgB+EKvL83qLidFEe6MeWH64NMuBFrNUjAi
-         bYxZxqpAE953CC2BdLl9q8APC7fDL2CO+rkAltDfhdMQfzpEBdekbLfuFZmPcOvVRW
-         xN4UxS5lrYU8ZEr500VVINJNcOXOs/XkFwSruzqw=
+        b=IoZqoqSEeffYgdxOJ+qjfIF+v3LPVCCorTWfMfzaNjCnkoUmBGuz+ejL0KIq9Du69
+         iPC2q4el+WxO4UwZ/gZhEbjotFOAJpj3TKqkGcam24W7EjfsQjztPEG7vfzeWU4R68
+         kPGuz0VPi1kEwJq5DgdBbLr7yDtKjBB7JYXPvUeI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Michael Ellerman <mpe@ellerman.id.au>
-Subject: [PATCH 5.10 87/98] powerpc/vmlinux.lds: Define RUNTIME_DISCARD_EXIT
-Date:   Sun, 22 Jan 2023 16:04:43 +0100
-Message-Id: <20230122150233.103302297@linuxfoundation.org>
+        patches@lists.linux.dev, Sasa Dragic <sasa.dragic@gmail.com>,
+        =?UTF-8?q?Ville=20Syrj=C3=A4l=C3=A4?= 
+        <ville.syrjala@linux.intel.com>,
+        Rodrigo Vivi <rodrigo.vivi@intel.com>
+Subject: [PATCH 5.15 094/117] drm/i915: re-disable RC6p on Sandy Bridge
+Date:   Sun, 22 Jan 2023 16:04:44 +0100
+Message-Id: <20230122150236.716572413@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.1
-In-Reply-To: <20230122150229.351631432@linuxfoundation.org>
-References: <20230122150229.351631432@linuxfoundation.org>
+In-Reply-To: <20230122150232.736358800@linuxfoundation.org>
+References: <20230122150232.736358800@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -52,54 +55,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Michael Ellerman <mpe@ellerman.id.au>
+From: Sasa Dragic <sasa.dragic@gmail.com>
 
-commit 4b9880dbf3bdba3a7c56445137c3d0e30aaa0a40 upstream.
+commit 67b0b4ed259e425b7eed09da75b42c80682ca003 upstream.
 
-The powerpc linker script explicitly includes .exit.text, because
-otherwise the link fails due to references from __bug_table and
-__ex_table. The code is freed (discarded) at runtime along with
-.init.text and data.
+RC6p on Sandy Bridge got re-enabled over time, causing visual glitches
+and GPU hangs.
 
-That has worked in the past despite powerpc not defining
-RUNTIME_DISCARD_EXIT because DISCARDS appears late in the powerpc linker
-script (line 410), and the explicit inclusion of .exit.text
-earlier (line 280) supersedes the discard.
+Disabled originally in commit 1c8ecf80fdee ("drm/i915: do not enable
+RC6p on Sandy Bridge").
 
-However commit 99cb0d917ffa ("arch: fix broken BuildID for arm64 and
-riscv") introduced an earlier use of DISCARD as part of the RO_DATA
-macro (line 136). With binutils < 2.36 that causes the DISCARD
-directives later in the script to be applied earlier [1], causing
-.exit.text to actually be discarded at link time, leading to build
-errors:
-
-  '.exit.text' referenced in section '__bug_table' of crypto/algboss.o: defined in
-  discarded section '.exit.text' of crypto/algboss.o
-  '.exit.text' referenced in section '__ex_table' of drivers/nvdimm/core.o: defined in
-  discarded section '.exit.text' of drivers/nvdimm/core.o
-
-Fix it by defining RUNTIME_DISCARD_EXIT, which causes the generic
-DISCARDS macro to not include .exit.text at all.
-
-1: https://lore.kernel.org/lkml/87fscp2v7k.fsf@igel.home/
-
-Fixes: 99cb0d917ffa ("arch: fix broken BuildID for arm64 and riscv")
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://lore.kernel.org/r/20230105132349.384666-1-mpe@ellerman.id.au
+Signed-off-by: Sasa Dragic <sasa.dragic@gmail.com>
+Signed-off-by: Ville Syrjälä <ville.syrjala@linux.intel.com>
+Link: https://patchwork.freedesktop.org/patch/msgid/20221219172927.9603-2-sasa.dragic@gmail.com
+Fixes: fb6db0f5bf1d ("drm/i915: Remove unsafe i915.enable_rc6")
+Fixes: 13c5a577b342 ("drm/i915/gt: Select the deepest available parking mode for rc6")
+Cc: stable@vger.kernel.org
+Reviewed-by: Rodrigo Vivi <rodrigo.vivi@intel.com>
+(cherry picked from commit 0c8a6e9ea232c221976a0670256bd861408d9917)
+Signed-off-by: Rodrigo Vivi <rodrigo.vivi@intel.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/powerpc/kernel/vmlinux.lds.S |    1 +
- 1 file changed, 1 insertion(+)
+ drivers/gpu/drm/i915/i915_pci.c |    3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
---- a/arch/powerpc/kernel/vmlinux.lds.S
-+++ b/arch/powerpc/kernel/vmlinux.lds.S
-@@ -8,6 +8,7 @@
- #define BSS_FIRST_SECTIONS *(.bss.prominit)
- #define EMITS_PT_NOTE
- #define RO_EXCEPTION_TABLE_ALIGN	0
-+#define RUNTIME_DISCARD_EXIT
- 
- #include <asm/page.h>
- #include <asm-generic/vmlinux.lds.h>
+--- a/drivers/gpu/drm/i915/i915_pci.c
++++ b/drivers/gpu/drm/i915/i915_pci.c
+@@ -401,7 +401,8 @@ static const struct intel_device_info il
+ 	.has_coherent_ggtt = true, \
+ 	.has_llc = 1, \
+ 	.has_rc6 = 1, \
+-	.has_rc6p = 1, \
++	/* snb does support rc6p, but enabling it causes various issues */ \
++	.has_rc6p = 0, \
+ 	.has_rps = true, \
+ 	.dma_mask_size = 40, \
+ 	.ppgtt_type = INTEL_PPGTT_ALIASING, \
 
 
