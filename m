@@ -2,39 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id EC1B4676D15
-	for <lists+stable@lfdr.de>; Sun, 22 Jan 2023 14:16:00 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 39966676D16
+	for <lists+stable@lfdr.de>; Sun, 22 Jan 2023 14:16:40 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229672AbjAVNQA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 22 Jan 2023 08:16:00 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48378 "EHLO
+        id S229673AbjAVNQj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 22 Jan 2023 08:16:39 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48410 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229566AbjAVNP7 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 22 Jan 2023 08:15:59 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6842E1631C
-        for <stable@vger.kernel.org>; Sun, 22 Jan 2023 05:15:58 -0800 (PST)
+        with ESMTP id S229566AbjAVNQi (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 22 Jan 2023 08:16:38 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BF7301631F
+        for <stable@vger.kernel.org>; Sun, 22 Jan 2023 05:16:37 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 00632B80AD2
-        for <stable@vger.kernel.org>; Sun, 22 Jan 2023 13:15:57 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2BD46C433EF;
-        Sun, 22 Jan 2023 13:15:55 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 7D19FB80AC6
+        for <stable@vger.kernel.org>; Sun, 22 Jan 2023 13:16:36 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D7D93C433D2;
+        Sun, 22 Jan 2023 13:16:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1674393355;
-        bh=v+NuCQFZKy2rpz/FmPjYzvPi9HU9w9UeTlm1nP7IdX0=;
+        s=korg; t=1674393395;
+        bh=UW0ri6RVvfG0ZT8E/ZveYDJ/J2RQ7wTeaK94HO3AQiY=;
         h=Subject:To:Cc:From:Date:From;
-        b=lNwnf1HwDSbZhcurBmg/vgqHVx5cIP89vkck26TXTwY422xvi+nNsHavBaDtfFdZo
-         JPBnM4cPYWotjrMnhWs74nICl9dVKvGLg8es8sJnqLl0o2JMOZXJT3WrsIraBwlEXm
-         KBwbxJAMQE+q0RvtnbTb32vAcabIzcsmJrQOwtJY=
-Subject: FAILED: patch "[PATCH] usb: cdns3: remove fetched trb from cache before dequeuing" failed to apply to 5.4-stable tree
-To:     pawell@cadence.com, gregkh@linuxfoundation.org,
-        peter.chen@kernel.org, stable@vger.kernel.org
+        b=K5hLYbN+Lo3R8fL5qxKBS1r8ECj9TuPqmpf4q6JMr0/dwFQHXajJPWeZbZCAaswaQ
+         QB9uW3rvy03fsjgIrrPVnCNQsOLKC2IXX65jCv3qcyH2FCbiW5qlwMOs1HrGB3Fe7S
+         Kg7eN/XYjFeh4anCLmjEzcALOUTwL3eoFcnBkLrY=
+Subject: FAILED: patch "[PATCH] usb: typec: tcpm: Fix altmode re-registration causes sysfs" failed to apply to 5.10-stable tree
+To:     cy_huang@richtek.com, gregkh@linuxfoundation.org,
+        heikki.krogerus@linux.intel.com, macpaul.lin@mediatek.com,
+        tommyyl.chen@mediatek.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Sun, 22 Jan 2023 14:15:45 +0100
-Message-ID: <1674393345199210@kroah.com>
+Date:   Sun, 22 Jan 2023 14:16:32 +0100
+Message-ID: <1674393392168154@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -49,23 +50,28 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.4-stable tree.
+The patch below does not apply to the 5.10-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
 
 Possible dependencies:
 
-1301c7b9f7ef ("usb: cdns3: remove fetched trb from cache before dequeuing")
-64b558f597d1 ("usb: cdns3: Change file names for cdns3 driver.")
-118b2a3237cf ("usb: cdnsp: Add tracepoints for CDNSP driver")
-3d82904559f4 ("usb: cdnsp: cdns3 Add main part of Cadence USBSSP DRD Driver")
-e93e58d27402 ("usb: cdnsp: Device side header file for CDNSP driver")
-0b490046d8d7 ("usb: cdns3: Refactoring names in reusable code")
-394c3a144de8 ("usb: cdns3: Moves reusable code to separate module")
-f738957277ba ("usb: cdns3: Split core.c into cdns3-plat and core.c file")
-db8892bb1bb6 ("usb: cdns3: Add support for DRD CDNSP")
-d2a968dddf98 ("Merge tag 'usb-v5.11-rc1' of git://git.kernel.org/pub/scm/linux/kernel/git/peter.chen/usb into usb-next")
+36f78477ac2c ("usb: typec: tcpm: Fix altmode re-registration causes sysfs create fail")
+ef52b4a9fcc2 ("usb: typec: tcpm: Raise vdm_sm_running flag only when VDM SM is running")
+5571ea3117ca ("usb: typec: tcpm: Fix VDMs sometimes not being forwarded to alt-mode drivers")
+2b537cf877ea ("usb: typec: tcpm: Relax disconnect threshold during power negotiation")
+c34e85fa69b9 ("usb: typec: tcpm: Send DISCOVER_IDENTITY from dedicated work")
+e00943e91678 ("usb: typec: tcpm: PD3.0 sinks can send Discover Identity even in device mode")
+5e1d4c49fbc8 ("usb: typec: tcpm: Determine common SVDM Version")
+31737c27d665 ("usb: pd: Make SVDM Version configurable in VDM header")
+8d3a0578ad1a ("usb: typec: tcpm: Respond Wait if VDM state machine is running")
+8dea75e11380 ("usb: typec: tcpm: Protocol Error handling")
+0908c5aca31e ("usb: typec: tcpm: AMS and Collision Avoidance")
+60e998d1c6d9 ("USB: typec: tcpm: Hard Reset after not receiving a Request")
+3bac42f02d41 ("usb: typec: tcpm: Clear send_discover in tcpm_check_send_discover")
+f321a02caebd ("usb: typec: tcpm: Implement enabling Auto Discharge disconnect support")
+a30a00e37ceb ("usb: typec: tcpm: frs sourcing vbus callback")
 
 thanks,
 
@@ -73,68 +79,60 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From 1301c7b9f7efad2f11ef924e317c18ebd714fc9a Mon Sep 17 00:00:00 2001
-From: Pawel Laszczak <pawell@cadence.com>
-Date: Tue, 15 Nov 2022 05:00:39 -0500
-Subject: [PATCH] usb: cdns3: remove fetched trb from cache before dequeuing
+From 36f78477ac2c89e9a2eed4a31404a291a3450b5d Mon Sep 17 00:00:00 2001
+From: ChiYuan Huang <cy_huang@richtek.com>
+Date: Mon, 9 Jan 2023 15:19:50 +0800
+Subject: [PATCH] usb: typec: tcpm: Fix altmode re-registration causes sysfs
+ create fail
 
-After doorbell DMA fetches the TRB. If during dequeuing request
-driver changes NORMAL TRB to LINK TRB but doesn't delete it from
-controller cache then controller will handle cached TRB and packet
-can be lost.
+There's the altmode re-registeration issue after data role
+swap (DR_SWAP).
 
-The example scenario for this issue looks like:
-1. queue request - set doorbell
-2. dequeue request
-3. send OUT data packet from host
-4. Device will accept this packet which is unexpected
-5. queue new request - set doorbell
-6. Device lost the expected packet.
+Comparing to USBPD 2.0, in USBPD 3.0, it loose the limit that only DFP
+can initiate the VDM command to get partner identity information.
 
-By setting DFLUSH controller clears DRDY bit and stop DMA transfer.
+For a USBPD 3.0 UFP device, it may already get the identity information
+from its port partner before DR_SWAP. If DR_SWAP send or receive at the
+mean time, 'send_discover' flag will be raised again. It causes discover
+identify action restart while entering ready state. And after all
+discover actions are done, the 'tcpm_register_altmodes' will be called.
+If old altmode is not unregistered, this sysfs create fail can be found.
 
-Fixes: 7733f6c32e36 ("usb: cdns3: Add Cadence USB3 DRD Driver")
-cc: <stable@vger.kernel.org>
-Signed-off-by: Pawel Laszczak <pawell@cadence.com>
-Acked-by: Peter Chen <peter.chen@kernel.org>
-Link: https://lore.kernel.org/r/20221115100039.441295-1-pawell@cadence.com
+In 'DR_SWAP_CHANGE_DR' state case, only DFP will unregister altmodes.
+For UFP, the original altmodes keep registered.
+
+This patch fix the logic that after DR_SWAP, 'tcpm_unregister_altmodes'
+must be called whatever the current data role is.
+
+Reviewed-by: Macpaul Lin <macpaul.lin@mediatek.com>
+Fixes: ae8a2ca8a221 ("usb: typec: Group all TCPCI/TCPM code together")
+Reported-by: TommyYl Chen <tommyyl.chen@mediatek.com>
+Cc: stable@vger.kernel.org
+Signed-off-by: ChiYuan Huang <cy_huang@richtek.com>
+Acked-by: Heikki Krogerus <heikki.krogerus@linux.intel.com>
+Link: https://lore.kernel.org/r/1673248790-15794-1-git-send-email-cy_huang@richtek.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-diff --git a/drivers/usb/cdns3/cdns3-gadget.c b/drivers/usb/cdns3/cdns3-gadget.c
-index 5adcb349718c..ccfaebca6faa 100644
---- a/drivers/usb/cdns3/cdns3-gadget.c
-+++ b/drivers/usb/cdns3/cdns3-gadget.c
-@@ -2614,6 +2614,7 @@ int cdns3_gadget_ep_dequeue(struct usb_ep *ep,
- 	u8 req_on_hw_ring = 0;
- 	unsigned long flags;
- 	int ret = 0;
-+	int val;
- 
- 	if (!ep || !request || !ep->desc)
- 		return -EINVAL;
-@@ -2649,6 +2650,13 @@ int cdns3_gadget_ep_dequeue(struct usb_ep *ep,
- 
- 	/* Update ring only if removed request is on pending_req_list list */
- 	if (req_on_hw_ring && link_trb) {
-+		/* Stop DMA */
-+		writel(EP_CMD_DFLUSH, &priv_dev->regs->ep_cmd);
-+
-+		/* wait for DFLUSH cleared */
-+		readl_poll_timeout_atomic(&priv_dev->regs->ep_cmd, val,
-+					  !(val & EP_CMD_DFLUSH), 1, 1000);
-+
- 		link_trb->buffer = cpu_to_le32(TRB_BUFFER(priv_ep->trb_pool_dma +
- 			((priv_req->end_trb + 1) * TRB_SIZE)));
- 		link_trb->control = cpu_to_le32((le32_to_cpu(link_trb->control) & TRB_CYCLE) |
-@@ -2660,6 +2668,10 @@ int cdns3_gadget_ep_dequeue(struct usb_ep *ep,
- 
- 	cdns3_gadget_giveback(priv_ep, priv_req, -ECONNRESET);
- 
-+	req = cdns3_next_request(&priv_ep->pending_req_list);
-+	if (req)
-+		cdns3_rearm_transfer(priv_ep, 1);
-+
- not_found:
- 	spin_unlock_irqrestore(&priv_dev->lock, flags);
- 	return ret;
+diff --git a/drivers/usb/typec/tcpm/tcpm.c b/drivers/usb/typec/tcpm/tcpm.c
+index 904c7b4ce2f0..59b366b5c614 100644
+--- a/drivers/usb/typec/tcpm/tcpm.c
++++ b/drivers/usb/typec/tcpm/tcpm.c
+@@ -4594,14 +4594,13 @@ static void run_state_machine(struct tcpm_port *port)
+ 		tcpm_set_state(port, ready_state(port), 0);
+ 		break;
+ 	case DR_SWAP_CHANGE_DR:
+-		if (port->data_role == TYPEC_HOST) {
+-			tcpm_unregister_altmodes(port);
++		tcpm_unregister_altmodes(port);
++		if (port->data_role == TYPEC_HOST)
+ 			tcpm_set_roles(port, true, port->pwr_role,
+ 				       TYPEC_DEVICE);
+-		} else {
++		else
+ 			tcpm_set_roles(port, true, port->pwr_role,
+ 				       TYPEC_HOST);
+-		}
+ 		tcpm_ams_finish(port);
+ 		tcpm_set_state(port, ready_state(port), 0);
+ 		break;
 
