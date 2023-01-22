@@ -2,46 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A5050676EDE
-	for <lists+stable@lfdr.de>; Sun, 22 Jan 2023 16:15:19 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 61D2B676FF1
+	for <lists+stable@lfdr.de>; Sun, 22 Jan 2023 16:26:54 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230477AbjAVPPS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 22 Jan 2023 10:15:18 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42118 "EHLO
+        id S231435AbjAVP0x (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 22 Jan 2023 10:26:53 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54954 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230475AbjAVPPR (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 22 Jan 2023 10:15:17 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9D52722031
-        for <stable@vger.kernel.org>; Sun, 22 Jan 2023 07:15:16 -0800 (PST)
+        with ESMTP id S231436AbjAVP0x (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 22 Jan 2023 10:26:53 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4D8B723106
+        for <stable@vger.kernel.org>; Sun, 22 Jan 2023 07:26:52 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 5CDA7B80B1A
-        for <stable@vger.kernel.org>; Sun, 22 Jan 2023 15:15:15 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A6602C433D2;
-        Sun, 22 Jan 2023 15:15:13 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id DE2AA60C43
+        for <stable@vger.kernel.org>; Sun, 22 Jan 2023 15:26:51 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id F2A34C433EF;
+        Sun, 22 Jan 2023 15:26:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1674400514;
-        bh=3U2IXJLWiJVKsji7k0Z4ZU5ONVr9ahWHULKbhDsDAb0=;
+        s=korg; t=1674401211;
+        bh=694T3fnNM6TLDM0z6g97R2YJfGt5FwwHYM50F/dyqvs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=lVn8EpXjBssy4q88LBTs8kJV0v5oV8DFLqhofuZD0eq+HtqV469bOqpf0OckVXSyJ
-         fpiGo+ZIfdjcws/24bTefAynw0J5JnBpe9snD9SB50kKBgfoZcZr5hM8T0t529UbLv
-         SJUR+akzfVCS4qrrHudWv41IyXUax0+JupHLw3Jc=
+        b=HfNQebvqE9hEkEQ1NxkW19YqicL/GbKijvavsGp0xLqkXV0DLfNPfY7y6BvZGkw3x
+         x5KdkmbSK+2YJsK3Ba/+juIKFTJGeR1F/p3xdvJti3NE7qLpfG6wWndbFX79atZuRR
+         tWKP/+qDHa4AySPVQorwYDxuwQxuVJJ+/Gw42BmY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Tom Saeger <tom.saeger@oracle.com>,
-        Dennis Gilmore <dennis@ausil.us>,
-        Ard Biesheuvel <ardb@kernel.org>,
-        Masahiro Yamada <masahiroy@kernel.org>,
-        Palmer Dabbelt <palmer@rivosinc.com>
-Subject: [PATCH 5.10 85/98] arch: fix broken BuildID for arm64 and riscv
+        patches@lists.linux.dev,
+        "Eric W. Biederman" <ebiederm@xmission.com>,
+        Jann Horn <jannh@google.com>, Arnd Bergmann <arnd@arndb.de>,
+        Luis Chamberlain <mcgrof@kernel.org>,
+        Kees Cook <keescook@chromium.org>
+Subject: [PATCH 6.1 152/193] exit: Expose "oops_count" to sysfs
 Date:   Sun, 22 Jan 2023 16:04:41 +0100
-Message-Id: <20230122150233.025288455@linuxfoundation.org>
+Message-Id: <20230122150253.336833341@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.1
-In-Reply-To: <20230122150229.351631432@linuxfoundation.org>
-References: <20230122150229.351631432@linuxfoundation.org>
+In-Reply-To: <20230122150246.321043584@linuxfoundation.org>
+References: <20230122150246.321043584@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,56 +56,90 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Masahiro Yamada <masahiroy@kernel.org>
+From: Kees Cook <keescook@chromium.org>
 
-commit 99cb0d917ffa1ab628bb67364ca9b162c07699b1 upstream.
+commit 9db89b41117024f80b38b15954017fb293133364 upstream.
 
-Dennis Gilmore reports that the BuildID is missing in the arm64 vmlinux
-since commit 994b7ac1697b ("arm64: remove special treatment for the
-link order of head.o").
+Since Oops count is now tracked and is a fairly interesting signal, add
+the entry /sys/kernel/oops_count to expose it to userspace.
 
-The issue is that the type of .notes section, which contains the BuildID,
-changed from NOTES to PROGBITS.
-
-Ard Biesheuvel figured out that whichever object gets linked first gets
-to decide the type of a section. The PROGBITS type is the result of the
-compiler emitting .note.GNU-stack as PROGBITS rather than NOTE.
-
-While Ard provided a fix for arm64, I want to fix this globally because
-the same issue is happening on riscv since commit 2348e6bf4421 ("riscv:
-remove special treatment for the link order of head.o"). This problem
-will happen in general for other architectures if they start to drop
-unneeded entries from scripts/head-object-list.txt.
-
-Discard .note.GNU-stack in include/asm-generic/vmlinux.lds.h.
-
-Link: https://lore.kernel.org/lkml/CAABkxwuQoz1CTbyb57n0ZX65eSYiTonFCU8-LCQc=74D=xE=rA@mail.gmail.com/
-Fixes: 994b7ac1697b ("arm64: remove special treatment for the link order of head.o")
-Fixes: 2348e6bf4421 ("riscv: remove special treatment for the link order of head.o")
-Cc: Tom Saeger <tom.saeger@oracle.com>
-Reported-by: Dennis Gilmore <dennis@ausil.us>
-Suggested-by: Ard Biesheuvel <ardb@kernel.org>
-Signed-off-by: Masahiro Yamada <masahiroy@kernel.org>
-Acked-by: Palmer Dabbelt <palmer@rivosinc.com>
+Cc: "Eric W. Biederman" <ebiederm@xmission.com>
+Cc: Jann Horn <jannh@google.com>
+Cc: Arnd Bergmann <arnd@arndb.de>
+Reviewed-by: Luis Chamberlain <mcgrof@kernel.org>
+Signed-off-by: Kees Cook <keescook@chromium.org>
+Link: https://lore.kernel.org/r/20221117234328.594699-3-keescook@chromium.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- include/asm-generic/vmlinux.lds.h |    5 +++++
- 1 file changed, 5 insertions(+)
+ Documentation/ABI/testing/sysfs-kernel-oops_count |    6 ++++++
+ MAINTAINERS                                       |    1 +
+ kernel/exit.c                                     |   22 ++++++++++++++++++++--
+ 3 files changed, 27 insertions(+), 2 deletions(-)
+ create mode 100644 Documentation/ABI/testing/sysfs-kernel-oops_count
 
---- a/include/asm-generic/vmlinux.lds.h
-+++ b/include/asm-generic/vmlinux.lds.h
-@@ -906,7 +906,12 @@
- #define TRACEDATA
+--- /dev/null
++++ b/Documentation/ABI/testing/sysfs-kernel-oops_count
+@@ -0,0 +1,6 @@
++What:		/sys/kernel/oops_count
++Date:		November 2022
++KernelVersion:	6.2.0
++Contact:	Linux Kernel Hardening List <linux-hardening@vger.kernel.org>
++Description:
++		Shows how many times the system has Oopsed since last boot.
+--- a/MAINTAINERS
++++ b/MAINTAINERS
+@@ -11112,6 +11112,7 @@ M:	Kees Cook <keescook@chromium.org>
+ L:	linux-hardening@vger.kernel.org
+ S:	Supported
+ T:	git git://git.kernel.org/pub/scm/linux/kernel/git/kees/linux.git for-next/hardening
++F:	Documentation/ABI/testing/sysfs-kernel-oops_count
+ F:	include/linux/overflow.h
+ F:	include/linux/randomize_kstack.h
+ F:	mm/usercopy.c
+--- a/kernel/exit.c
++++ b/kernel/exit.c
+@@ -67,6 +67,7 @@
+ #include <linux/io_uring.h>
+ #include <linux/kprobes.h>
+ #include <linux/rethook.h>
++#include <linux/sysfs.h>
+ 
+ #include <linux/uaccess.h>
+ #include <asm/unistd.h>
+@@ -99,6 +100,25 @@ static __init int kernel_exit_sysctls_in
+ late_initcall(kernel_exit_sysctls_init);
  #endif
  
-+/*
-+ * Discard .note.GNU-stack, which is emitted as PROGBITS by the compiler.
-+ * Otherwise, the type of .notes section would become PROGBITS instead of NOTES.
-+ */
- #define NOTES								\
-+	/DISCARD/ : { *(.note.GNU-stack) }				\
- 	.notes : AT(ADDR(.notes) - LOAD_OFFSET) {			\
- 		__start_notes = .;					\
- 		KEEP(*(.note.*))					\
++static atomic_t oops_count = ATOMIC_INIT(0);
++
++#ifdef CONFIG_SYSFS
++static ssize_t oops_count_show(struct kobject *kobj, struct kobj_attribute *attr,
++			       char *page)
++{
++	return sysfs_emit(page, "%d\n", atomic_read(&oops_count));
++}
++
++static struct kobj_attribute oops_count_attr = __ATTR_RO(oops_count);
++
++static __init int kernel_exit_sysfs_init(void)
++{
++	sysfs_add_file_to_group(kernel_kobj, &oops_count_attr.attr, NULL);
++	return 0;
++}
++late_initcall(kernel_exit_sysfs_init);
++#endif
++
+ static void __unhash_process(struct task_struct *p, bool group_dead)
+ {
+ 	nr_threads--;
+@@ -901,8 +921,6 @@ void __noreturn do_exit(long code)
+ 
+ void __noreturn make_task_dead(int signr)
+ {
+-	static atomic_t oops_count = ATOMIC_INIT(0);
+-
+ 	/*
+ 	 * Take the task off the cpu after something catastrophic has
+ 	 * happened.
 
 
