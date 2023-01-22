@@ -2,47 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B7483676E41
-	for <lists+stable@lfdr.de>; Sun, 22 Jan 2023 16:08:41 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A3728676F21
+	for <lists+stable@lfdr.de>; Sun, 22 Jan 2023 16:18:09 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230228AbjAVPIk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 22 Jan 2023 10:08:40 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34768 "EHLO
+        id S231184AbjAVPSH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 22 Jan 2023 10:18:07 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45498 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230224AbjAVPIk (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 22 Jan 2023 10:08:40 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 670251E1FE
-        for <stable@vger.kernel.org>; Sun, 22 Jan 2023 07:08:39 -0800 (PST)
+        with ESMTP id S231173AbjAVPSD (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 22 Jan 2023 10:18:03 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 972D58A70
+        for <stable@vger.kernel.org>; Sun, 22 Jan 2023 07:18:01 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 0114A60C60
-        for <stable@vger.kernel.org>; Sun, 22 Jan 2023 15:08:39 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 171E4C4339B;
-        Sun, 22 Jan 2023 15:08:37 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 38179B80B1B
+        for <stable@vger.kernel.org>; Sun, 22 Jan 2023 15:18:00 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 89CD7C433EF;
+        Sun, 22 Jan 2023 15:17:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1674400118;
-        bh=ZScHmzXs66LuZGKXVd1a8q72Y/SOvksiAKKE1tFmPsk=;
+        s=korg; t=1674400678;
+        bh=PXwRsd3OduKL48CriyI8E7kOgOEg6V6PkEYCjrWSADY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=sFtX8i9Zy4gFL66zHKw3PfYMH8Q05NSEDZT5fuV8KA9IcC5Dxy5BJsmUoU1Jc26EP
-         yvz8jGVg2hLg8vftPVy7mGIQxWUyjboyct3lUSixgCS/8CMNnNPIz+hsEKTYCV3g05
-         p7+23XYbZS0qr+Ki/PQkqEUBfvtY1FyTf4Qj2L8I=
+        b=u7gslqa2tGa3Sh98Ao3Z8QyxHdAATG+Lti7L/xYlE9PtRQNB3tOm6esJwLgWscRn5
+         JqUXJQ6KYnmMsQNlI5fA/jn47sWjJQx/adQLBRQbtsYsfoPpOROyoPLhmVxjsY7vaQ
+         Dw4+RiNzbfoyk60BNslnUZz2P57VwBx0Di94+G8A=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Olga Kornievskaia <kolga@netapp.com>,
-        Trond Myklebust <trond.myklebust@hammerspace.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 01/55] pNFS/filelayout: Fix coalescing test for single DS
+        patches@lists.linux.dev, Dylan Yudaken <dylany@fb.com>,
+        Pavel Begunkov <asml.silence@gmail.com>,
+        Jens Axboe <axboe@kernel.dk>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.15 038/117] io_uring: remove duplicated calls to io_kiocb_ppos
 Date:   Sun, 22 Jan 2023 16:03:48 +0100
-Message-Id: <20230122150222.280393813@linuxfoundation.org>
+Message-Id: <20230122150234.318679518@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.1
-In-Reply-To: <20230122150222.210885219@linuxfoundation.org>
-References: <20230122150222.210885219@linuxfoundation.org>
+In-Reply-To: <20230122150232.736358800@linuxfoundation.org>
+References: <20230122150232.736358800@linuxfoundation.org>
 User-Agent: quilt/0.67
-X-stable: review
-X-Patchwork-Hint: ignore
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -56,49 +54,65 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Olga Kornievskaia <olga.kornievskaia@gmail.com>
+From: Dylan Yudaken <dylany@fb.com>
 
-[ Upstream commit a6b9d2fa0024e7e399c26facd0fb466b7396e2b9 ]
+commit af9c45ecebaf1b428306f41421f4bcffe439f735 upstream.
 
-When there is a single DS no striping constraints need to be placed on
-the IO. When such constraint is applied then buffered reads don't
-coalesce to the DS's rsize.
+io_kiocb_ppos is called in both branches, and it seems that the compiler
+does not fuse this. Fusing removes a few bytes from loop_rw_iter.
 
-Signed-off-by: Olga Kornievskaia <kolga@netapp.com>
-Signed-off-by: Trond Myklebust <trond.myklebust@hammerspace.com>
+Before:
+$ nm -S fs/io_uring.o | grep loop_rw_iter
+0000000000002430 0000000000000124 t loop_rw_iter
+
+After:
+$ nm -S fs/io_uring.o | grep loop_rw_iter
+0000000000002430 000000000000010d t loop_rw_iter
+
+Signed-off-by: Dylan Yudaken <dylany@fb.com>
+Reviewed-by: Pavel Begunkov <asml.silence@gmail.com>
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/nfs/filelayout/filelayout.c | 8 ++++++++
- 1 file changed, 8 insertions(+)
+ io_uring/io_uring.c | 7 +++++--
+ 1 file changed, 5 insertions(+), 2 deletions(-)
 
-diff --git a/fs/nfs/filelayout/filelayout.c b/fs/nfs/filelayout/filelayout.c
-index 98b74cdabb99..8c72718d9fe0 100644
---- a/fs/nfs/filelayout/filelayout.c
-+++ b/fs/nfs/filelayout/filelayout.c
-@@ -837,6 +837,12 @@ filelayout_alloc_lseg(struct pnfs_layout_hdr *layoutid,
- 	return &fl->generic_hdr;
- }
+diff --git a/io_uring/io_uring.c b/io_uring/io_uring.c
+index 2caef6417260..14297add8485 100644
+--- a/io_uring/io_uring.c
++++ b/io_uring/io_uring.c
+@@ -3303,6 +3303,7 @@ static ssize_t loop_rw_iter(int rw, struct io_kiocb *req, struct iov_iter *iter)
+ 	struct kiocb *kiocb = &req->rw.kiocb;
+ 	struct file *file = req->file;
+ 	ssize_t ret = 0;
++	loff_t *ppos;
  
-+static bool
-+filelayout_lseg_is_striped(const struct nfs4_filelayout_segment *flseg)
-+{
-+	return flseg->num_fh > 1;
-+}
+ 	/*
+ 	 * Don't support polled IO through this interface, and we can't
+@@ -3314,6 +3315,8 @@ static ssize_t loop_rw_iter(int rw, struct io_kiocb *req, struct iov_iter *iter)
+ 	if (kiocb->ki_flags & IOCB_NOWAIT)
+ 		return -EAGAIN;
+ 
++	ppos = io_kiocb_ppos(kiocb);
 +
- /*
-  * filelayout_pg_test(). Called by nfs_can_coalesce_requests()
-  *
-@@ -857,6 +863,8 @@ filelayout_pg_test(struct nfs_pageio_descriptor *pgio, struct nfs_page *prev,
- 	size = pnfs_generic_pg_test(pgio, prev, req);
- 	if (!size)
- 		return 0;
-+	else if (!filelayout_lseg_is_striped(FILELAYOUT_LSEG(pgio->pg_lseg)))
-+		return size;
+ 	while (iov_iter_count(iter)) {
+ 		struct iovec iovec;
+ 		ssize_t nr;
+@@ -3327,10 +3330,10 @@ static ssize_t loop_rw_iter(int rw, struct io_kiocb *req, struct iov_iter *iter)
  
- 	/* see if req and prev are in the same stripe */
- 	if (prev) {
+ 		if (rw == READ) {
+ 			nr = file->f_op->read(file, iovec.iov_base,
+-					      iovec.iov_len, io_kiocb_ppos(kiocb));
++					      iovec.iov_len, ppos);
+ 		} else {
+ 			nr = file->f_op->write(file, iovec.iov_base,
+-					       iovec.iov_len, io_kiocb_ppos(kiocb));
++					       iovec.iov_len, ppos);
+ 		}
+ 
+ 		if (nr < 0) {
 -- 
-2.35.1
+2.39.0
 
 
 
