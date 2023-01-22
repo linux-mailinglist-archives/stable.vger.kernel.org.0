@@ -2,43 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 3FF32676E3D
-	for <lists+stable@lfdr.de>; Sun, 22 Jan 2023 16:08:35 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 76FE2676F2F
+	for <lists+stable@lfdr.de>; Sun, 22 Jan 2023 16:18:40 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230222AbjAVPIe (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 22 Jan 2023 10:08:34 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34670 "EHLO
+        id S231176AbjAVPSj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 22 Jan 2023 10:18:39 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45998 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230219AbjAVPId (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 22 Jan 2023 10:08:33 -0500
-Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0DC841DBBA
-        for <stable@vger.kernel.org>; Sun, 22 Jan 2023 07:08:31 -0800 (PST)
+        with ESMTP id S231173AbjAVPSj (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 22 Jan 2023 10:18:39 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1DD5DA5C6
+        for <stable@vger.kernel.org>; Sun, 22 Jan 2023 07:18:38 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 32A1CCE0ECE
-        for <stable@vger.kernel.org>; Sun, 22 Jan 2023 15:08:30 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A5E0EC433D2;
-        Sun, 22 Jan 2023 15:08:27 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id CDF26B80B11
+        for <stable@vger.kernel.org>; Sun, 22 Jan 2023 15:18:36 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 31A14C433D2;
+        Sun, 22 Jan 2023 15:18:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1674400108;
-        bh=/P1A2tuavZfDOCZMgCTR2PUcm9Bjp/nej3vFhmZT7UM=;
+        s=korg; t=1674400715;
+        bh=bHn+98W+LRqJXZsz4t28zbYdG3ANip8pqUSeTp+aJaA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=JEyrMmG4F0/+/KWgVEyyA8309B5hqfGO1Uvm8m1n16pAR370QFQ9M+iVmUwlud1Zu
-         uoWD9omghXoFo4zovsVYWtTyyYDI/e0NcecbT67CsxYFVfczKu8Her7p03Va8/OWil
-         GMOuRKL5o49mGYdbq1PPK3heYoU/U/n5ECaiTZAk=
+        b=BWFak+ZGYXIB9a9TsenHBLkCInCyyoc3OdkpDabJ+zukMkOdxqlcoeOlOV9vyRwE6
+         t5nq136SLzD7uVeh52ZOUROd0sQiAHZgof+hWEU7hu9JyxOVc6NQtKDdbBzn6FcXZ6
+         QKMn9Wl6wyiGs/ksaRLPUVrSBvNGCQ4SNVP0NqXk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Eric Whitney <enwlinux@gmail.com>,
-        Theodore Tso <tytso@mit.edu>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 35/37] Revert "ext4: add new pending reservation mechanism"
+        patches@lists.linux.dev, Felipe Balbi <balbi@kernel.org>,
+        Lorenzo Colitti <lorenzo@google.com>,
+        Carlos Llamas <cmllamas@google.com>,
+        =?UTF-8?q?Maciej=20=C5=BBenczykowski?= <maze@google.com>,
+        stable <stable@kernel.org>
+Subject: [PATCH 5.15 082/117] usb: gadget: f_ncm: fix potential NULL ptr deref in ncm_bitrate()
 Date:   Sun, 22 Jan 2023 16:04:32 +0100
-Message-Id: <20230122150221.010316382@linuxfoundation.org>
+Message-Id: <20230122150236.194166179@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.1
-In-Reply-To: <20230122150219.557984692@linuxfoundation.org>
-References: <20230122150219.557984692@linuxfoundation.org>
+In-Reply-To: <20230122150232.736358800@linuxfoundation.org>
+References: <20230122150232.736358800@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,350 +56,92 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+From: Maciej Żenczykowski <maze@google.com>
 
-This reverts commit 9bacbb4cfdbc41518d13f620d3f53c0ba36ca87e which is
-commit 1dc0aa46e74a3366e12f426b7caaca477853e9c3 upstream.
+commit c6ec929595c7443250b2a4faea988c62019d5cd2 upstream.
 
-Eric writes:
-	I recommend not backporting this patch or the other three
-	patches apparently intended to support it to 4.19 stable.  All
-	these patches are related to ext4's bigalloc feature, which was
-	experimental as of 4.19 (expressly noted by contemporary
-	versions of e2fsprogs) and also suffered from a number of bugs.
-	A significant number of additional patches that were applied to
-	5.X kernels over time would have to be backported to 4.19 for
-	the patch below to function correctly. It's really not worth
-	doing that given bigalloc's experimental status as of 4.19 and
-	the very rare combination of the bigalloc and inline features.
+In Google internal bug 265639009 we've received an (as yet) unreproducible
+crash report from an aarch64 GKI 5.10.149-android13 running device.
 
-Link: https://lore.kernel.org/r/Y8mAe1SlcLD5fykg@debian-BULLSEYE-live-builder-AMD64
-Cc: Eric Whitney <enwlinux@gmail.com>
-Cc: Theodore Ts'o <tytso@mit.edu>
-Cc: Sasha Levin <sashal@kernel.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+AFAICT the source code is at:
+  https://android.googlesource.com/kernel/common/+/refs/tags/ASB-2022-12-05_13-5.10
+
+The call stack is:
+  ncm_close() -> ncm_notify() -> ncm_do_notify()
+with the crash at:
+  ncm_do_notify+0x98/0x270
+Code: 79000d0b b9000a6c f940012a f9400269 (b9405d4b)
+
+Which I believe disassembles to (I don't know ARM assembly, but it looks sane enough to me...):
+
+  // halfword (16-bit) store presumably to event->wLength (at offset 6 of struct usb_cdc_notification)
+  0B 0D 00 79    strh w11, [x8, #6]
+
+  // word (32-bit) store presumably to req->Length (at offset 8 of struct usb_request)
+  6C 0A 00 B9    str  w12, [x19, #8]
+
+  // x10 (NULL) was read here from offset 0 of valid pointer x9
+  // IMHO we're reading 'cdev->gadget' and getting NULL
+  // gadget is indeed at offset 0 of struct usb_composite_dev
+  2A 01 40 F9    ldr  x10, [x9]
+
+  // loading req->buf pointer, which is at offset 0 of struct usb_request
+  69 02 40 F9    ldr  x9, [x19]
+
+  // x10 is null, crash, appears to be attempt to read cdev->gadget->max_speed
+  4B 5D 40 B9    ldr  w11, [x10, #0x5c]
+
+which seems to line up with ncm_do_notify() case NCM_NOTIFY_SPEED code fragment:
+
+  event->wLength = cpu_to_le16(8);
+  req->length = NCM_STATUS_BYTECOUNT;
+
+  /* SPEED_CHANGE data is up/down speeds in bits/sec */
+  data = req->buf + sizeof *event;
+  data[0] = cpu_to_le32(ncm_bitrate(cdev->gadget));
+
+My analysis of registers and NULL ptr deref crash offset
+  (Unable to handle kernel NULL pointer dereference at virtual address 000000000000005c)
+heavily suggests that the crash is due to 'cdev->gadget' being NULL when executing:
+  data[0] = cpu_to_le32(ncm_bitrate(cdev->gadget));
+which calls:
+  ncm_bitrate(NULL)
+which then calls:
+  gadget_is_superspeed(NULL)
+which reads
+  ((struct usb_gadget *)NULL)->max_speed
+and hits a panic.
+
+AFAICT, if I'm counting right, the offset of max_speed is indeed 0x5C.
+(remember there's a GKI KABI reservation of 16 bytes in struct work_struct)
+
+It's not at all clear to me how this is all supposed to work...
+but returning 0 seems much better than panic-ing...
+
+Cc: Felipe Balbi <balbi@kernel.org>
+Cc: Lorenzo Colitti <lorenzo@google.com>
+Cc: Carlos Llamas <cmllamas@google.com>
+Cc: stable@vger.kernel.org
+Signed-off-by: Maciej Żenczykowski <maze@google.com>
+Cc: stable <stable@kernel.org>
+Link: https://lore.kernel.org/r/20230117131839.1138208-1-maze@google.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/ext4/ext4.h           |    3 
- fs/ext4/extents_status.c |  187 -----------------------------------------------
- fs/ext4/extents_status.h |   51 ------------
- fs/ext4/super.c          |    8 --
- 4 files changed, 249 deletions(-)
+ drivers/usb/gadget/function/f_ncm.c |    4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
---- a/fs/ext4/ext4.h
-+++ b/fs/ext4/ext4.h
-@@ -1041,9 +1041,6 @@ struct ext4_inode_info {
- 	ext4_lblk_t i_da_metadata_calc_last_lblock;
- 	int i_da_metadata_calc_len;
- 
--	/* pending cluster reservations for bigalloc file systems */
--	struct ext4_pending_tree i_pending_tree;
--
- 	/* on-disk additional length */
- 	__u16 i_extra_isize;
- 
---- a/fs/ext4/extents_status.c
-+++ b/fs/ext4/extents_status.c
-@@ -142,7 +142,6 @@
-  */
- 
- static struct kmem_cache *ext4_es_cachep;
--static struct kmem_cache *ext4_pending_cachep;
- 
- static int __es_insert_extent(struct inode *inode, struct extent_status *newes);
- static int __es_remove_extent(struct inode *inode, ext4_lblk_t lblk,
-@@ -1364,189 +1363,3 @@ static int es_reclaim_extents(struct ext
- 	ei->i_es_tree.cache_es = NULL;
- 	return nr_shrunk;
- }
--
--#ifdef ES_DEBUG__
--static void ext4_print_pending_tree(struct inode *inode)
--{
--	struct ext4_pending_tree *tree;
--	struct rb_node *node;
--	struct pending_reservation *pr;
--
--	printk(KERN_DEBUG "pending reservations for inode %lu:", inode->i_ino);
--	tree = &EXT4_I(inode)->i_pending_tree;
--	node = rb_first(&tree->root);
--	while (node) {
--		pr = rb_entry(node, struct pending_reservation, rb_node);
--		printk(KERN_DEBUG " %u", pr->lclu);
--		node = rb_next(node);
--	}
--	printk(KERN_DEBUG "\n");
--}
--#else
--#define ext4_print_pending_tree(inode)
--#endif
--
--int __init ext4_init_pending(void)
--{
--	ext4_pending_cachep = kmem_cache_create("ext4_pending_reservation",
--					   sizeof(struct pending_reservation),
--					   0, (SLAB_RECLAIM_ACCOUNT), NULL);
--	if (ext4_pending_cachep == NULL)
--		return -ENOMEM;
--	return 0;
--}
--
--void ext4_exit_pending(void)
--{
--	kmem_cache_destroy(ext4_pending_cachep);
--}
--
--void ext4_init_pending_tree(struct ext4_pending_tree *tree)
--{
--	tree->root = RB_ROOT;
--}
--
--/*
-- * __get_pending - retrieve a pointer to a pending reservation
-- *
-- * @inode - file containing the pending cluster reservation
-- * @lclu - logical cluster of interest
-- *
-- * Returns a pointer to a pending reservation if it's a member of
-- * the set, and NULL if not.  Must be called holding i_es_lock.
-- */
--static struct pending_reservation *__get_pending(struct inode *inode,
--						 ext4_lblk_t lclu)
--{
--	struct ext4_pending_tree *tree;
--	struct rb_node *node;
--	struct pending_reservation *pr = NULL;
--
--	tree = &EXT4_I(inode)->i_pending_tree;
--	node = (&tree->root)->rb_node;
--
--	while (node) {
--		pr = rb_entry(node, struct pending_reservation, rb_node);
--		if (lclu < pr->lclu)
--			node = node->rb_left;
--		else if (lclu > pr->lclu)
--			node = node->rb_right;
--		else if (lclu == pr->lclu)
--			return pr;
--	}
--	return NULL;
--}
--
--/*
-- * __insert_pending - adds a pending cluster reservation to the set of
-- *                    pending reservations
-- *
-- * @inode - file containing the cluster
-- * @lblk - logical block in the cluster to be added
-- *
-- * Returns 0 on successful insertion and -ENOMEM on failure.  If the
-- * pending reservation is already in the set, returns successfully.
-- */
--static int __insert_pending(struct inode *inode, ext4_lblk_t lblk)
--{
--	struct ext4_sb_info *sbi = EXT4_SB(inode->i_sb);
--	struct ext4_pending_tree *tree = &EXT4_I(inode)->i_pending_tree;
--	struct rb_node **p = &tree->root.rb_node;
--	struct rb_node *parent = NULL;
--	struct pending_reservation *pr;
--	ext4_lblk_t lclu;
--	int ret = 0;
--
--	lclu = EXT4_B2C(sbi, lblk);
--	/* search to find parent for insertion */
--	while (*p) {
--		parent = *p;
--		pr = rb_entry(parent, struct pending_reservation, rb_node);
--
--		if (lclu < pr->lclu) {
--			p = &(*p)->rb_left;
--		} else if (lclu > pr->lclu) {
--			p = &(*p)->rb_right;
--		} else {
--			/* pending reservation already inserted */
--			goto out;
--		}
--	}
--
--	pr = kmem_cache_alloc(ext4_pending_cachep, GFP_ATOMIC);
--	if (pr == NULL) {
--		ret = -ENOMEM;
--		goto out;
--	}
--	pr->lclu = lclu;
--
--	rb_link_node(&pr->rb_node, parent, p);
--	rb_insert_color(&pr->rb_node, &tree->root);
--
--out:
--	return ret;
--}
--
--/*
-- * __remove_pending - removes a pending cluster reservation from the set
-- *                    of pending reservations
-- *
-- * @inode - file containing the cluster
-- * @lblk - logical block in the pending cluster reservation to be removed
-- *
-- * Returns successfully if pending reservation is not a member of the set.
-- */
--static void __remove_pending(struct inode *inode, ext4_lblk_t lblk)
--{
--	struct ext4_sb_info *sbi = EXT4_SB(inode->i_sb);
--	struct pending_reservation *pr;
--	struct ext4_pending_tree *tree;
--
--	pr = __get_pending(inode, EXT4_B2C(sbi, lblk));
--	if (pr != NULL) {
--		tree = &EXT4_I(inode)->i_pending_tree;
--		rb_erase(&pr->rb_node, &tree->root);
--		kmem_cache_free(ext4_pending_cachep, pr);
--	}
--}
--
--/*
-- * ext4_remove_pending - removes a pending cluster reservation from the set
-- *                       of pending reservations
-- *
-- * @inode - file containing the cluster
-- * @lblk - logical block in the pending cluster reservation to be removed
-- *
-- * Locking for external use of __remove_pending.
-- */
--void ext4_remove_pending(struct inode *inode, ext4_lblk_t lblk)
--{
--	struct ext4_inode_info *ei = EXT4_I(inode);
--
--	write_lock(&ei->i_es_lock);
--	__remove_pending(inode, lblk);
--	write_unlock(&ei->i_es_lock);
--}
--
--/*
-- * ext4_is_pending - determine whether a cluster has a pending reservation
-- *                   on it
-- *
-- * @inode - file containing the cluster
-- * @lblk - logical block in the cluster
-- *
-- * Returns true if there's a pending reservation for the cluster in the
-- * set of pending reservations, and false if not.
-- */
--bool ext4_is_pending(struct inode *inode, ext4_lblk_t lblk)
--{
--	struct ext4_sb_info *sbi = EXT4_SB(inode->i_sb);
--	struct ext4_inode_info *ei = EXT4_I(inode);
--	bool ret;
--
--	read_lock(&ei->i_es_lock);
--	ret = (bool)(__get_pending(inode, EXT4_B2C(sbi, lblk)) != NULL);
--	read_unlock(&ei->i_es_lock);
--
--	return ret;
--}
---- a/fs/ext4/extents_status.h
-+++ b/fs/ext4/extents_status.h
-@@ -78,51 +78,6 @@ struct ext4_es_stats {
- 	struct percpu_counter es_stats_shk_cnt;
- };
- 
--/*
-- * Pending cluster reservations for bigalloc file systems
-- *
-- * A cluster with a pending reservation is a logical cluster shared by at
-- * least one extent in the extents status tree with delayed and unwritten
-- * status and at least one other written or unwritten extent.  The
-- * reservation is said to be pending because a cluster reservation would
-- * have to be taken in the event all blocks in the cluster shared with
-- * written or unwritten extents were deleted while the delayed and
-- * unwritten blocks remained.
-- *
-- * The set of pending cluster reservations is an auxiliary data structure
-- * used with the extents status tree to implement reserved cluster/block
-- * accounting for bigalloc file systems.  The set is kept in memory and
-- * records all pending cluster reservations.
-- *
-- * Its primary function is to avoid the need to read extents from the
-- * disk when invalidating pages as a result of a truncate, punch hole, or
-- * collapse range operation.  Page invalidation requires a decrease in the
-- * reserved cluster count if it results in the removal of all delayed
-- * and unwritten extents (blocks) from a cluster that is not shared with a
-- * written or unwritten extent, and no decrease otherwise.  Determining
-- * whether the cluster is shared can be done by searching for a pending
-- * reservation on it.
-- *
-- * Secondarily, it provides a potentially faster method for determining
-- * whether the reserved cluster count should be increased when a physical
-- * cluster is deallocated as a result of a truncate, punch hole, or
-- * collapse range operation.  The necessary information is also present
-- * in the extents status tree, but might be more rapidly accessed in
-- * the pending reservation set in many cases due to smaller size.
-- *
-- * The pending cluster reservation set is implemented as a red-black tree
-- * with the goal of minimizing per page search time overhead.
-- */
--
--struct pending_reservation {
--	struct rb_node rb_node;
--	ext4_lblk_t lclu;
--};
--
--struct ext4_pending_tree {
--	struct rb_root root;
--};
--
- extern int __init ext4_init_es(void);
- extern void ext4_exit_es(void);
- extern void ext4_es_init_tree(struct ext4_es_tree *tree);
-@@ -227,10 +182,4 @@ extern void ext4_es_unregister_shrinker(
- 
- extern int ext4_seq_es_shrinker_info_show(struct seq_file *seq, void *v);
- 
--extern int __init ext4_init_pending(void);
--extern void ext4_exit_pending(void);
--extern void ext4_init_pending_tree(struct ext4_pending_tree *tree);
--extern void ext4_remove_pending(struct inode *inode, ext4_lblk_t lblk);
--extern bool ext4_is_pending(struct inode *inode, ext4_lblk_t lblk);
--
- #endif /* _EXT4_EXTENTS_STATUS_H */
---- a/fs/ext4/super.c
-+++ b/fs/ext4/super.c
-@@ -1095,7 +1095,6 @@ static struct inode *ext4_alloc_inode(st
- 	ei->i_da_metadata_calc_len = 0;
- 	ei->i_da_metadata_calc_last_lblock = 0;
- 	spin_lock_init(&(ei->i_block_reservation_lock));
--	ext4_init_pending_tree(&ei->i_pending_tree);
- #ifdef CONFIG_QUOTA
- 	ei->i_reserved_quota = 0;
- 	memset(&ei->i_dquot, 0, sizeof(ei->i_dquot));
-@@ -6190,10 +6189,6 @@ static int __init ext4_init_fs(void)
- 	if (err)
- 		return err;
- 
--	err = ext4_init_pending();
--	if (err)
--		goto out6;
--
- 	err = ext4_init_pageio();
- 	if (err)
- 		goto out5;
-@@ -6232,8 +6227,6 @@ out3:
- out4:
- 	ext4_exit_pageio();
- out5:
--	ext4_exit_pending();
--out6:
- 	ext4_exit_es();
- 
- 	return err;
-@@ -6251,7 +6244,6 @@ static void __exit ext4_exit_fs(void)
- 	ext4_exit_system_zone();
- 	ext4_exit_pageio();
- 	ext4_exit_es();
--	ext4_exit_pending();
- }
- 
- MODULE_AUTHOR("Remy Card, Stephen Tweedie, Andrew Morton, Andreas Dilger, Theodore Ts'o and others");
+--- a/drivers/usb/gadget/function/f_ncm.c
++++ b/drivers/usb/gadget/function/f_ncm.c
+@@ -83,7 +83,9 @@ static inline struct f_ncm *func_to_ncm(
+ /* peak (theoretical) bulk transfer rate in bits-per-second */
+ static inline unsigned ncm_bitrate(struct usb_gadget *g)
+ {
+-	if (gadget_is_superspeed(g) && g->speed >= USB_SPEED_SUPER_PLUS)
++	if (!g)
++		return 0;
++	else if (gadget_is_superspeed(g) && g->speed >= USB_SPEED_SUPER_PLUS)
+ 		return 4250000000U;
+ 	else if (gadget_is_superspeed(g) && g->speed == USB_SPEED_SUPER)
+ 		return 3750000000U;
 
 
