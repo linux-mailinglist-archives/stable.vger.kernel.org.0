@@ -2,40 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C20D3676E4E
-	for <lists+stable@lfdr.de>; Sun, 22 Jan 2023 16:09:16 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C5E44676E4F
+	for <lists+stable@lfdr.de>; Sun, 22 Jan 2023 16:09:20 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230285AbjAVPJP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 22 Jan 2023 10:09:15 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35794 "EHLO
+        id S230296AbjAVPJT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 22 Jan 2023 10:09:19 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35862 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230283AbjAVPJN (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 22 Jan 2023 10:09:13 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 902C71C30E
-        for <stable@vger.kernel.org>; Sun, 22 Jan 2023 07:09:05 -0800 (PST)
+        with ESMTP id S230248AbjAVPJP (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 22 Jan 2023 10:09:15 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3062220060
+        for <stable@vger.kernel.org>; Sun, 22 Jan 2023 07:09:08 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 2A70B60C60
-        for <stable@vger.kernel.org>; Sun, 22 Jan 2023 15:09:05 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3C80CC433EF;
-        Sun, 22 Jan 2023 15:09:04 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id B559860C5C
+        for <stable@vger.kernel.org>; Sun, 22 Jan 2023 15:09:07 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id CB292C433EF;
+        Sun, 22 Jan 2023 15:09:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1674400144;
-        bh=+3ExKArnmfpsmkVvz0Be8l5ZdD+gRsr7SpOs1I8Cn/U=;
+        s=korg; t=1674400147;
+        bh=zZVAYKqlc6h79bs2aUBSog25Qe11tAgnxyT4a3VjDi0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=gk7jb+u733nKtzfcYDCrIgcVQXhRuwpORkBuLmc4CaMU8FOIddSM+o8rWB8V5et+g
-         Lje4SGY3ShvUeqnLGnTG98Fx4nOhUegsjZGGottgxQ6VTiOvYFAOzpzTcGOeEpwkM1
-         PwlMV/mHKR15QbTCDqA1aoe+j1yynzeG3jX18rxE=
+        b=yWlaM3bgP/1bEp8q4gDcmXSwcJ44p4jaiLbrARzlCMFSMFITz0CWVnu9upv5f1pq6
+         vgmY45HE8TMyICuvBwIkbfZydljxSkj1DKXcZC1O3aeU/g2HXLslsAWKZaTJ7WoCXU
+         Z5UFs4Zf9qyzRrEjPOxoupW9PmaPytcuPswnh1rM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Jordy Zomer <jordyzomer@google.com>,
-        Linus Torvalds <torvalds@linuxfoundation.org>
-Subject: [PATCH 5.4 19/55] prlimit: do_prlimit needs to have a speculation check
-Date:   Sun, 22 Jan 2023 16:04:06 +0100
-Message-Id: <20230122150223.030808288@linuxfoundation.org>
+        patches@lists.linux.dev,
+        =?UTF-8?q?Duke=20Xin ?= <duke_xinanwen@163.com>,
+        Johan Hovold <johan@kernel.org>
+Subject: [PATCH 5.4 20/55] USB: serial: option: add Quectel EM05-G (GR) modem
+Date:   Sun, 22 Jan 2023 16:04:07 +0100
+Message-Id: <20230122150223.070419625@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.1
 In-Reply-To: <20230122150222.210885219@linuxfoundation.org>
 References: <20230122150222.210885219@linuxfoundation.org>
@@ -53,33 +54,104 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+From: Duke Xin(辛安文) <duke_xinanwen@163.com>
 
-commit 739790605705ddcf18f21782b9c99ad7d53a8c11 upstream.
+commit 6c331f32e32ac71eb3e8b93fceda2802d7ecb889 upstream.
 
-do_prlimit() adds the user-controlled resource value to a pointer that
-will subsequently be dereferenced.  In order to help prevent this
-codepath from being used as a spectre "gadget" a barrier needs to be
-added after checking the range.
+The EM05-G (GR) modem has 2 USB configurations that are configurable via
+the AT command AT+QCFG="usbnet",[ 0 | 2 ] which make the modem enumerate
+with the following interfaces, respectively:
 
-Reported-by: Jordy Zomer <jordyzomer@google.com>
-Tested-by: Jordy Zomer <jordyzomer@google.com>
-Suggested-by: Linus Torvalds <torvalds@linuxfoundation.org>
+"RMNET" : AT + DIAG + NMEA + Modem + QMI
+"MBIM"  : MBIM + AT + DIAG + NMEA + Modem
+
+The detailed description of the USB configuration for each mode as follows:
+
+RMNET Mode
+--------------
+T:  Bus=01 Lev=01 Prnt=01 Port=00 Cnt=01 Dev#= 21 Spd=480  MxCh= 0
+D:  Ver= 2.00 Cls=ef(misc ) Sub=02 Prot=01 MxPS=64 #Cfgs=  1
+P:  Vendor=2c7c ProdID=0313 Rev= 3.18
+S:  Manufacturer=Quectel
+S:  Product=Quectel EM05-G
+C:* #Ifs= 5 Cfg#= 1 Atr=a0 MxPwr=500mA
+I:* If#= 3 Alt= 0 #EPs= 2 Cls=ff(vend.) Sub=ff Prot=ff Driver=option
+E:  Ad=81(I) Atr=02(Bulk) MxPS= 512 Ivl=0ms
+E:  Ad=01(O) Atr=02(Bulk) MxPS= 512 Ivl=0ms
+I:* If#= 4 Alt= 0 #EPs= 3 Cls=ff(vend.) Sub=00 Prot=00 Driver=option
+E:  Ad=83(I) Atr=03(Int.) MxPS=  10 Ivl=32ms
+E:  Ad=82(I) Atr=02(Bulk) MxPS= 512 Ivl=0ms
+E:  Ad=02(O) Atr=02(Bulk) MxPS= 512 Ivl=0ms
+I:* If#= 2 Alt= 0 #EPs= 3 Cls=ff(vend.) Sub=00 Prot=00 Driver=option
+E:  Ad=85(I) Atr=03(Int.) MxPS=  10 Ivl=32ms
+E:  Ad=84(I) Atr=02(Bulk) MxPS= 512 Ivl=0ms
+E:  Ad=03(O) Atr=02(Bulk) MxPS= 512 Ivl=0ms
+I:* If#= 5 Alt= 0 #EPs= 3 Cls=ff(vend.) Sub=00 Prot=00 Driver=option
+E:  Ad=87(I) Atr=03(Int.) MxPS=  10 Ivl=32ms
+E:  Ad=86(I) Atr=02(Bulk) MxPS= 512 Ivl=0ms
+E:  Ad=04(O) Atr=02(Bulk) MxPS= 512 Ivl=0ms
+I:* If#= 6 Alt= 0 #EPs= 3 Cls=ff(vend.) Sub=ff Prot=ff Driver=(none)
+E:  Ad=89(I) Atr=03(Int.) MxPS=   8 Ivl=32ms
+E:  Ad=88(I) Atr=02(Bulk) MxPS= 512 Ivl=0ms
+E:  Ad=05(O) Atr=02(Bulk) MxPS= 512 Ivl=0ms
+
+MBIM Mode
+--------------
+T:  Bus=01 Lev=01 Prnt=01 Port=00 Cnt=01 Dev#= 16 Spd=480  MxCh= 0
+D:  Ver= 2.00 Cls=ef(misc ) Sub=02 Prot=01 MxPS=64 #Cfgs=  1
+P:  Vendor=2c7c ProdID=0313 Rev= 3.18
+S:  Manufacturer=Quectel
+S:  Product=Quectel EM05-G
+C:* #Ifs= 6 Cfg#= 1 Atr=a0 MxPwr=500mA
+A:  FirstIf#= 0 IfCount= 2 Cls=02(comm.) Sub=0e Prot=00
+I:* If#= 3 Alt= 0 #EPs= 2 Cls=ff(vend.) Sub=ff Prot=ff Driver=option
+E:  Ad=81(I) Atr=02(Bulk) MxPS= 512 Ivl=0ms
+E:  Ad=01(O) Atr=02(Bulk) MxPS= 512 Ivl=0ms
+I:* If#= 4 Alt= 0 #EPs= 3 Cls=ff(vend.) Sub=00 Prot=00 Driver=option
+E:  Ad=83(I) Atr=03(Int.) MxPS=  10 Ivl=32ms
+E:  Ad=82(I) Atr=02(Bulk) MxPS= 512 Ivl=0ms
+E:  Ad=02(O) Atr=02(Bulk) MxPS= 512 Ivl=0ms
+I:* If#= 2 Alt= 0 #EPs= 3 Cls=ff(vend.) Sub=00 Prot=00 Driver=option
+E:  Ad=85(I) Atr=03(Int.) MxPS=  10 Ivl=32ms
+E:  Ad=84(I) Atr=02(Bulk) MxPS= 512 Ivl=0ms
+E:  Ad=03(O) Atr=02(Bulk) MxPS= 512 Ivl=0ms
+I:* If#= 5 Alt= 0 #EPs= 3 Cls=ff(vend.) Sub=00 Prot=00 Driver=option
+E:  Ad=87(I) Atr=03(Int.) MxPS=  10 Ivl=32ms
+E:  Ad=86(I) Atr=02(Bulk) MxPS= 512 Ivl=0ms
+E:  Ad=04(O) Atr=02(Bulk) MxPS= 512 Ivl=0ms
+I:* If#= 0 Alt= 0 #EPs= 1 Cls=02(comm.) Sub=0e Prot=00 Driver=cdc_mbim
+E:  Ad=89(I) Atr=03(Int.) MxPS=  64 Ivl=32ms
+I:  If#= 1 Alt= 0 #EPs= 0 Cls=0a(data ) Sub=00 Prot=02 Driver=cdc_mbim
+I:* If#= 1 Alt= 1 #EPs= 2 Cls=0a(data ) Sub=00 Prot=02 Driver=cdc_mbim
+E:  Ad=88(I) Atr=02(Bulk) MxPS= 512 Ivl=0ms
+E:  Ad=05(O) Atr=02(Bulk) MxPS= 512 Ivl=0ms
+
+Signed-off-by: Duke Xin(辛安文) <duke_xinanwen@163.com>
+Cc: stable@vger.kernel.org
+Signed-off-by: Johan Hovold <johan@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- kernel/sys.c |    2 ++
- 1 file changed, 2 insertions(+)
+ drivers/usb/serial/option.c |    3 +++
+ 1 file changed, 3 insertions(+)
 
---- a/kernel/sys.c
-+++ b/kernel/sys.c
-@@ -1534,6 +1534,8 @@ int do_prlimit(struct task_struct *tsk,
- 
- 	if (resource >= RLIM_NLIMITS)
- 		return -EINVAL;
-+	resource = array_index_nospec(resource, RLIM_NLIMITS);
-+
- 	if (new_rlim) {
- 		if (new_rlim->rlim_cur > new_rlim->rlim_max)
- 			return -EINVAL;
+--- a/drivers/usb/serial/option.c
++++ b/drivers/usb/serial/option.c
+@@ -256,6 +256,7 @@ static void option_instat_callback(struc
+ #define QUECTEL_PRODUCT_EM05G			0x030a
+ #define QUECTEL_PRODUCT_EM060K			0x030b
+ #define QUECTEL_PRODUCT_EM05G_SG		0x0311
++#define QUECTEL_PRODUCT_EM05G_GR		0x0313
+ #define QUECTEL_PRODUCT_EM12			0x0512
+ #define QUECTEL_PRODUCT_RM500Q			0x0800
+ #define QUECTEL_PRODUCT_RM520N			0x0801
+@@ -1161,6 +1162,8 @@ static const struct usb_device_id option
+ 	{ USB_DEVICE_AND_INTERFACE_INFO(QUECTEL_VENDOR_ID, QUECTEL_PRODUCT_EP06, 0xff, 0, 0) },
+ 	{ USB_DEVICE_INTERFACE_CLASS(QUECTEL_VENDOR_ID, QUECTEL_PRODUCT_EM05G, 0xff),
+ 	  .driver_info = RSVD(6) | ZLP },
++	{ USB_DEVICE_INTERFACE_CLASS(QUECTEL_VENDOR_ID, QUECTEL_PRODUCT_EM05G_GR, 0xff),
++	  .driver_info = RSVD(6) | ZLP },
+ 	{ USB_DEVICE_INTERFACE_CLASS(QUECTEL_VENDOR_ID, QUECTEL_PRODUCT_EM05G_SG, 0xff),
+ 	  .driver_info = RSVD(6) | ZLP },
+ 	{ USB_DEVICE_AND_INTERFACE_INFO(QUECTEL_VENDOR_ID, QUECTEL_PRODUCT_EM060K, 0xff, 0x00, 0x40) },
 
 
