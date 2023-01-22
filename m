@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id DD9EB676F2C
-	for <lists+stable@lfdr.de>; Sun, 22 Jan 2023 16:18:32 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id AB430676E74
+	for <lists+stable@lfdr.de>; Sun, 22 Jan 2023 16:10:44 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231160AbjAVPSb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 22 Jan 2023 10:18:31 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45920 "EHLO
+        id S230323AbjAVPKo (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 22 Jan 2023 10:10:44 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37228 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231172AbjAVPSb (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 22 Jan 2023 10:18:31 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4504B9034
-        for <stable@vger.kernel.org>; Sun, 22 Jan 2023 07:18:30 -0800 (PST)
+        with ESMTP id S230325AbjAVPKm (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 22 Jan 2023 10:10:42 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 728051F905
+        for <stable@vger.kernel.org>; Sun, 22 Jan 2023 07:10:41 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id E4623B80B1B
-        for <stable@vger.kernel.org>; Sun, 22 Jan 2023 15:18:28 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4A3D9C433D2;
-        Sun, 22 Jan 2023 15:18:27 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 0C34460C48
+        for <stable@vger.kernel.org>; Sun, 22 Jan 2023 15:10:41 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 215D4C433D2;
+        Sun, 22 Jan 2023 15:10:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1674400707;
-        bh=f2tsARGNSvpnEatS4BH8+Zhs+k7AOUiCqGQBNKcJjFk=;
+        s=korg; t=1674400240;
+        bh=8O5LWC1VRYzNH75i6GxRY3NbcghFQobmTehkULr/oyY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=og+9yWB85FH2Lu83iHxJ3fGyMOHWBc7RxZfG/ay93uzCTGVkUgCT1NDPlEUTW3H8w
-         yGFkjf1qxj3EDsj8W+nZbHYFQadqNVQrBHW8CJoLGssdd/WwKjA8NC6XAtuAtQnXNA
-         0SMFhi4WwnKIX+gaJSFtb8BSVL3tpCps97tOkn9k=
+        b=hOAZSw1qvKIYODyBKoo944De+CvyYBzhddkhhun4QzMXWZt+Rq+qRBz6kgpO8KSix
+         pBhP3zeYQ0Fw5uthIdhfrYb6/ryWoPTj6V/GHOC8uFgAFKXIWKfcnKXqDIBrRplHie
+         cmfp/JJUaccDTW5guMCeALEcRU6A3Q6tjdmnYNJs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Heikki Krogerus <heikki.krogerus@linux.intel.com>,
-        Prashant Malani <pmalani@chromium.org>,
-        Benson Leung <bleung@chromium.org>
-Subject: [PATCH 5.15 079/117] usb: typec: altmodes/displayport: Add pin assignment helper
+        patches@lists.linux.dev, Heiner Kallweit <hkallweit1@gmail.com>,
+        Martin Blumenstingl <martin.blumenstingl@googlemail.com>,
+        Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>,
+        Vinod Koul <vkoul@kernel.org>
+Subject: [PATCH 5.4 42/55] dt-bindings: phy: g12a-usb3-pcie-phy: fix compatible string documentation
 Date:   Sun, 22 Jan 2023 16:04:29 +0100
-Message-Id: <20230122150236.075430491@linuxfoundation.org>
+Message-Id: <20230122150223.914201566@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.1
-In-Reply-To: <20230122150232.736358800@linuxfoundation.org>
-References: <20230122150232.736358800@linuxfoundation.org>
+In-Reply-To: <20230122150222.210885219@linuxfoundation.org>
+References: <20230122150222.210885219@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,73 +55,146 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Prashant Malani <pmalani@chromium.org>
+From: Heiner Kallweit <hkallweit1@gmail.com>
 
-commit 582836e3cfab4faafbdc93bbec96fce036a08ee1 upstream.
+commit e181119046a0ec16126b682163040e8e33f310c1 upstream.
 
-The code to extract a peripheral's currently supported Pin Assignments
-is repeated in a couple of locations. Factor it out into a separate
-function.
+The compatible string in the driver doesn't have the meson prefix.
+Fix this in the documentation and rename the file accordingly.
 
-This will also make it easier to add fixes (we only need to update 1
-location instead of 2).
-
-Fixes: c1e5c2f0cb8a ("usb: typec: altmodes/displayport: correct pin assignment for UFP receptacles")
+Fixes: 87a55485f2fc ("dt-bindings: phy: meson-g12a-usb3-pcie-phy: convert to yaml")
 Cc: stable@vger.kernel.org
-Cc: Heikki Krogerus <heikki.krogerus@linux.intel.com>
-Signed-off-by: Prashant Malani <pmalani@chromium.org>
-Reviewed-by: Benson Leung <bleung@chromium.org>
-Reviewed-by: Heikki Krogerus <heikki.krogerus@linux.intel.com>
-Link: https://lore.kernel.org/r/20230111020546.3384569-1-pmalani@chromium.org
+Signed-off-by: Heiner Kallweit <hkallweit1@gmail.com>
+Reviewed-by: Martin Blumenstingl <martin.blumenstingl@googlemail.com>
+Reviewed-by: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
+Link: https://lore.kernel.org/r/0a82be92-ce85-da34-9d6f-4b33034473e5@gmail.com
+Signed-off-by: Vinod Koul <vkoul@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/usb/typec/altmodes/displayport.c |   22 ++++++++++++++--------
- 1 file changed, 14 insertions(+), 8 deletions(-)
+ Documentation/devicetree/bindings/phy/amlogic,g12a-usb3-pcie-phy.yaml       |   57 ++++++++++
+ Documentation/devicetree/bindings/phy/amlogic,meson-g12a-usb3-pcie-phy.yaml |   57 ----------
+ 2 files changed, 57 insertions(+), 57 deletions(-)
+ rename Documentation/devicetree/bindings/phy/{amlogic,meson-g12a-usb3-pcie-phy.yaml => amlogic,g12a-usb3-pcie-phy.yaml} (82%)
 
---- a/drivers/usb/typec/altmodes/displayport.c
-+++ b/drivers/usb/typec/altmodes/displayport.c
-@@ -418,6 +418,18 @@ static const char * const pin_assignment
- 	[DP_PIN_ASSIGN_F] = "F",
- };
- 
-+/*
-+ * Helper function to extract a peripheral's currently supported
-+ * Pin Assignments from its DisplayPort alternate mode state.
-+ */
-+static u8 get_current_pin_assignments(struct dp_altmode *dp)
-+{
-+	if (DP_CONF_CURRENTLY(dp->data.conf) == DP_CONF_DFP_D)
-+		return DP_CAP_UFP_D_PIN_ASSIGN(dp->alt->vdo);
-+	else
-+		return DP_CAP_DFP_D_PIN_ASSIGN(dp->alt->vdo);
-+}
+--- /dev/null
++++ b/Documentation/devicetree/bindings/phy/amlogic,g12a-usb3-pcie-phy.yaml
+@@ -0,0 +1,57 @@
++# SPDX-License-Identifier: (GPL-2.0 OR BSD-2-Clause)
++# Copyright 2019 BayLibre, SAS
++%YAML 1.2
++---
++$id: "http://devicetree.org/schemas/phy/amlogic,g12a-usb3-pcie-phy.yaml#"
++$schema: "http://devicetree.org/meta-schemas/core.yaml#"
 +
- static ssize_t
- pin_assignment_store(struct device *dev, struct device_attribute *attr,
- 		     const char *buf, size_t size)
-@@ -444,10 +456,7 @@ pin_assignment_store(struct device *dev,
- 		goto out_unlock;
- 	}
- 
--	if (DP_CONF_CURRENTLY(dp->data.conf) == DP_CONF_DFP_D)
--		assignments = DP_CAP_UFP_D_PIN_ASSIGN(dp->alt->vdo);
--	else
--		assignments = DP_CAP_DFP_D_PIN_ASSIGN(dp->alt->vdo);
-+	assignments = get_current_pin_assignments(dp);
- 
- 	if (!(DP_CONF_GET_PIN_ASSIGN(conf) & assignments)) {
- 		ret = -EINVAL;
-@@ -484,10 +493,7 @@ static ssize_t pin_assignment_show(struc
- 
- 	cur = get_count_order(DP_CONF_GET_PIN_ASSIGN(dp->data.conf));
- 
--	if (DP_CONF_CURRENTLY(dp->data.conf) == DP_CONF_DFP_D)
--		assignments = DP_CAP_UFP_D_PIN_ASSIGN(dp->alt->vdo);
--	else
--		assignments = DP_CAP_DFP_D_PIN_ASSIGN(dp->alt->vdo);
-+	assignments = get_current_pin_assignments(dp);
- 
- 	for (i = 0; assignments; assignments >>= 1, i++) {
- 		if (assignments & 1) {
++title: Amlogic G12A USB3 + PCIE Combo PHY
++
++maintainers:
++  - Neil Armstrong <narmstrong@baylibre.com>
++
++properties:
++  compatible:
++    enum:
++      - amlogic,g12a-usb3-pcie-phy
++
++  reg:
++    maxItems: 1
++
++  clocks:
++    maxItems: 1
++
++  clock-names:
++    items:
++      - const: ref_clk
++
++  resets:
++    maxItems: 1
++
++  reset-names:
++    items:
++      - const: phy
++
++  "#phy-cells":
++    const: 1
++
++required:
++  - compatible
++  - reg
++  - clocks
++  - clock-names
++  - resets
++  - reset-names
++  - "#phy-cells"
++
++examples:
++  - |
++    phy@46000 {
++          compatible = "amlogic,g12a-usb3-pcie-phy";
++          reg = <0x46000 0x2000>;
++          clocks = <&ref_clk>;
++          clock-names = "ref_clk";
++          resets = <&phy_reset>;
++          reset-names = "phy";
++          #phy-cells = <1>;
++    };
+--- a/Documentation/devicetree/bindings/phy/amlogic,meson-g12a-usb3-pcie-phy.yaml
++++ /dev/null
+@@ -1,57 +0,0 @@
+-# SPDX-License-Identifier: (GPL-2.0 OR BSD-2-Clause)
+-# Copyright 2019 BayLibre, SAS
+-%YAML 1.2
+----
+-$id: "http://devicetree.org/schemas/phy/amlogic,meson-g12a-usb3-pcie-phy.yaml#"
+-$schema: "http://devicetree.org/meta-schemas/core.yaml#"
+-
+-title: Amlogic G12A USB3 + PCIE Combo PHY
+-
+-maintainers:
+-  - Neil Armstrong <narmstrong@baylibre.com>
+-
+-properties:
+-  compatible:
+-    enum:
+-      - amlogic,meson-g12a-usb3-pcie-phy
+-
+-  reg:
+-    maxItems: 1
+-
+-  clocks:
+-    maxItems: 1
+-
+-  clock-names:
+-    items:
+-      - const: ref_clk
+-
+-  resets:
+-    maxItems: 1
+-
+-  reset-names:
+-    items:
+-      - const: phy
+-
+-  "#phy-cells":
+-    const: 1
+-
+-required:
+-  - compatible
+-  - reg
+-  - clocks
+-  - clock-names
+-  - resets
+-  - reset-names
+-  - "#phy-cells"
+-
+-examples:
+-  - |
+-    phy@46000 {
+-          compatible = "amlogic,meson-g12a-usb3-pcie-phy";
+-          reg = <0x46000 0x2000>;
+-          clocks = <&ref_clk>;
+-          clock-names = "ref_clk";
+-          resets = <&phy_reset>;
+-          reset-names = "phy";
+-          #phy-cells = <1>;
+-    };
 
 
