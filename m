@@ -2,46 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 160E1676E87
-	for <lists+stable@lfdr.de>; Sun, 22 Jan 2023 16:11:38 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7C931676F9D
+	for <lists+stable@lfdr.de>; Sun, 22 Jan 2023 16:23:31 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230351AbjAVPLh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 22 Jan 2023 10:11:37 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38328 "EHLO
+        id S231314AbjAVPXa (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 22 Jan 2023 10:23:30 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51868 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230353AbjAVPLf (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 22 Jan 2023 10:11:35 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3E0E821945
-        for <stable@vger.kernel.org>; Sun, 22 Jan 2023 07:11:30 -0800 (PST)
+        with ESMTP id S231350AbjAVPXZ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 22 Jan 2023 10:23:25 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 61935E394
+        for <stable@vger.kernel.org>; Sun, 22 Jan 2023 07:23:23 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 4BD22B80B11
-        for <stable@vger.kernel.org>; Sun, 22 Jan 2023 15:11:29 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9A1B3C433D2;
-        Sun, 22 Jan 2023 15:11:27 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id F045660C44
+        for <stable@vger.kernel.org>; Sun, 22 Jan 2023 15:23:22 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0E3D4C433EF;
+        Sun, 22 Jan 2023 15:23:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1674400288;
-        bh=EZ3BUobsby/MOPiHnmeAU9CQ6rU4BMV9oA+8+70P4tE=;
+        s=korg; t=1674401002;
+        bh=MMLQJfFS906vnkmV6Gkv21a7ciy0a+UNYJfIlroL2Ao=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=JqJkRsLnz31FN3LCBbaWaqPQGY7CK5naMtxj6EKlWtEEZVVutodepE769k/Og6ETc
-         /u0i7WKFscL8YCOLDXUl+l8x0ni8S3kYTtlKTw+uDPPfr4CyB49c+MgGYmc2Pyrqi7
-         WQsWA3k3Fviu8vCRWmsntqy6C8TIz7qrIVcJnZ4w=
+        b=bSy88qIJ65bCImXXX8s6oy1zDk7YpuofpBBmz8VLvwHJ5Cp0qgdWnPLdUlCa4RCrI
+         LITn/QwEfIzNfXzV8J9be9l+tUT8qGK00pq2u5jb1tiCcXqNGmXHWEYZXFVXNkUpR8
+         CY9us5JOI/Ow8c4qgelkWynkpYODG/OsKivCCvsA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        "Jiri Slaby (SUSE)" <jirislaby@kernel.org>,
-        Bart Van Assche <bvanassche@acm.org>,
-        Leon Romanovsky <leon@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 06/98] RDMA/srp: Move large values to a new enum for gcc13
+        patches@lists.linux.dev, Ard Biesheuvel <ardb@kernel.org>,
+        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>
+Subject: [PATCH 6.1 073/193] ACPI: PRM: Check whether EFI runtime is available
 Date:   Sun, 22 Jan 2023 16:03:22 +0100
-Message-Id: <20230122150229.674135320@linuxfoundation.org>
+Message-Id: <20230122150249.678795320@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.1
-In-Reply-To: <20230122150229.351631432@linuxfoundation.org>
-References: <20230122150229.351631432@linuxfoundation.org>
+In-Reply-To: <20230122150246.321043584@linuxfoundation.org>
+References: <20230122150246.321043584@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,66 +53,55 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jiri Slaby (SUSE) <jirislaby@kernel.org>
+From: Ard Biesheuvel <ardb@kernel.org>
 
-[ Upstream commit 56c5dab20a6391604df9521f812c01d1e3fe1bd0 ]
+commit 182da6f2b81a78709c58021542fb694f8ed80774 upstream.
 
-Since gcc13, each member of an enum has the same type as the enum [1]. And
-that is inherited from its members. Provided these two:
-  SRP_TAG_NO_REQ        = ~0U,
-  SRP_TAG_TSK_MGMT	= 1U << 31
-all other members are unsigned ints.
+The ACPI PRM address space handler calls efi_call_virt_pointer() to
+execute PRM firmware code, but doing so is only permitted when the EFI
+runtime environment is available. Otherwise, such calls are guaranteed
+to result in a crash, and must therefore be avoided.
 
-Esp. with SRP_MAX_SGE and SRP_TSK_MGMT_SQ_SIZE and their use in min(),
-this results in the following warnings:
-  include/linux/minmax.h:20:35: error: comparison of distinct pointer types lacks a cast
-  drivers/infiniband/ulp/srp/ib_srp.c:563:42: note: in expansion of macro 'min'
+Given that the EFI runtime services may become unavailable after a crash
+occurring in the firmware, we need to check this each time the PRM
+address space handler is invoked. If the EFI runtime services were not
+available at registration time to being with, don't install the address
+space handler at all.
 
-  include/linux/minmax.h:20:35: error: comparison of distinct pointer types lacks a cast
-  drivers/infiniband/ulp/srp/ib_srp.c:2369:27: note: in expansion of macro 'min'
-
-So move the large values away to a separate enum, so that they don't
-affect other members.
-
-[1] https://gcc.gnu.org/bugzilla/show_bug.cgi?id=36113
-
-Link: https://lore.kernel.org/r/20221212120411.13750-1-jirislaby@kernel.org
-Signed-off-by: Jiri Slaby (SUSE) <jirislaby@kernel.org>
-Reviewed-by: Bart Van Assche <bvanassche@acm.org>
-Signed-off-by: Leon Romanovsky <leon@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes: cefc7ca46235 ("ACPI: PRM: implement OperationRegion handler for the PlatformRtMechanism subtype")
+Signed-off-by: Ard Biesheuvel <ardb@kernel.org>
+Cc: All applicable <stable@vger.kernel.org>
+Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/infiniband/ulp/srp/ib_srp.h | 8 +++++---
- 1 file changed, 5 insertions(+), 3 deletions(-)
+ drivers/acpi/prmt.c |   10 ++++++++++
+ 1 file changed, 10 insertions(+)
 
-diff --git a/drivers/infiniband/ulp/srp/ib_srp.h b/drivers/infiniband/ulp/srp/ib_srp.h
-index 6818cac0a3b7..85bac20d9007 100644
---- a/drivers/infiniband/ulp/srp/ib_srp.h
-+++ b/drivers/infiniband/ulp/srp/ib_srp.h
-@@ -62,9 +62,6 @@ enum {
- 	SRP_DEFAULT_CMD_SQ_SIZE = SRP_DEFAULT_QUEUE_SIZE - SRP_RSP_SQ_SIZE -
- 				  SRP_TSK_MGMT_SQ_SIZE,
+--- a/drivers/acpi/prmt.c
++++ b/drivers/acpi/prmt.c
+@@ -236,6 +236,11 @@ static acpi_status acpi_platformrt_space
+ 	efi_status_t status;
+ 	struct prm_context_buffer context;
  
--	SRP_TAG_NO_REQ		= ~0U,
--	SRP_TAG_TSK_MGMT	= 1U << 31,
--
- 	SRP_MAX_PAGES_PER_MR	= 512,
- 
- 	SRP_MAX_ADD_CDB_LEN	= 16,
-@@ -79,6 +76,11 @@ enum {
- 				  sizeof(struct srp_imm_buf),
- };
- 
-+enum {
-+	SRP_TAG_NO_REQ		= ~0U,
-+	SRP_TAG_TSK_MGMT	= BIT(31),
-+};
++	if (!efi_enabled(EFI_RUNTIME_SERVICES)) {
++		pr_err_ratelimited("PRM: EFI runtime services no longer available\n");
++		return AE_NO_HANDLER;
++	}
 +
- enum srp_target_state {
- 	SRP_TARGET_SCANNING,
- 	SRP_TARGET_LIVE,
--- 
-2.35.1
-
+ 	/*
+ 	 * The returned acpi_status will always be AE_OK. Error values will be
+ 	 * saved in the first byte of the PRM message buffer to be used by ASL.
+@@ -325,6 +330,11 @@ void __init init_prmt(void)
+ 
+ 	pr_info("PRM: found %u modules\n", mc);
+ 
++	if (!efi_enabled(EFI_RUNTIME_SERVICES)) {
++		pr_err("PRM: EFI runtime services unavailable\n");
++		return;
++	}
++
+ 	status = acpi_install_address_space_handler(ACPI_ROOT_OBJECT,
+ 						    ACPI_ADR_SPACE_PLATFORM_RT,
+ 						    &acpi_platformrt_space_handler,
 
 
