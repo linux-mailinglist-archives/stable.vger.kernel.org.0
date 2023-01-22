@@ -2,43 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 002DF676FD0
-	for <lists+stable@lfdr.de>; Sun, 22 Jan 2023 16:25:31 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 45DA3676EC9
+	for <lists+stable@lfdr.de>; Sun, 22 Jan 2023 16:14:23 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231395AbjAVPZb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 22 Jan 2023 10:25:31 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53972 "EHLO
+        id S230431AbjAVPOW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 22 Jan 2023 10:14:22 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41400 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231386AbjAVPZ3 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 22 Jan 2023 10:25:29 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D752222A01
-        for <stable@vger.kernel.org>; Sun, 22 Jan 2023 07:25:28 -0800 (PST)
+        with ESMTP id S230444AbjAVPOV (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 22 Jan 2023 10:14:21 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2A0B922005
+        for <stable@vger.kernel.org>; Sun, 22 Jan 2023 07:14:21 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 71C3C60C44
-        for <stable@vger.kernel.org>; Sun, 22 Jan 2023 15:25:28 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 86336C433EF;
-        Sun, 22 Jan 2023 15:25:27 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id D7931B807E4
+        for <stable@vger.kernel.org>; Sun, 22 Jan 2023 15:14:19 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3FE8FC433EF;
+        Sun, 22 Jan 2023 15:14:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1674401127;
-        bh=fY/17CqjTJML3wkItHgrq410wJPwvLNGM3AJN+Cov1o=;
+        s=korg; t=1674400458;
+        bh=UirpU6YvgtmMzOZ/ShR8hpdnrDfcn7jf3YjON2k5MOo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=vGztNpdo1KVb5NvKBm71lgh61+/b8ccExjz1+9KlC1tR0U314KrNtSYzzbpiQ2OSe
-         vd4knM9+dpO7Ef9ls6ynLm/ALs7GTpe3h9lOlT1U+/izXtbqrsGmNrWGFe+s+fZF7F
-         7fPvUdWhuzmLXSgzjCiuSAT4X78BYPcYsWb+O5Tc=
+        b=euo5M8dYIu85FYflk/AEcYJe2rqSLL0WASQ4ry/m05bGbYNNjRlb4AwqndTBRg3uW
+         Qc6eoS0fPPAjmkWXxkdTU9vW0PmNQAL9041SVYwRuc37bL9z7Rx3xs8QTLwp/Ao5dR
+         MlnFxvl71czgQ7uhsWGObZHXzr47tQOmisKORMz0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Peter Harliman Liem <pliem@maxlinear.com>,
-        Vinod Koul <vkoul@kernel.org>
-Subject: [PATCH 6.1 120/193] dmaengine: lgm: Move DT parsing after initialization
+        patches@lists.linux.dev, Flavio Suligoi <f.suligoi@asem.it>,
+        stable <stable@kernel.org>,
+        Alan Stern <stern@rowland.harvard.edu>
+Subject: [PATCH 5.10 53/98] usb: core: hub: disable autosuspend for TI TUSB8041
 Date:   Sun, 22 Jan 2023 16:04:09 +0100
-Message-Id: <20230122150251.814257430@linuxfoundation.org>
+Message-Id: <20230122150231.743235009@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.1
-In-Reply-To: <20230122150246.321043584@linuxfoundation.org>
-References: <20230122150246.321043584@linuxfoundation.org>
+In-Reply-To: <20230122150229.351631432@linuxfoundation.org>
+References: <20230122150229.351631432@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,61 +54,61 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Peter Harliman Liem <pliem@maxlinear.com>
+From: Flavio Suligoi <f.suligoi@asem.it>
 
-commit 96b3bb18f6cbe259ef4e0bed3135911b7e8d2af5 upstream.
+commit 7171b0e261b17de96490adf053b8bb4b00061bcf upstream.
 
-ldma_cfg_init() will parse DT to retrieve certain configs.
-However, that is called before ldma_dma_init_vXX(), which
-will make some initialization to channel configs. It will
-thus incorrectly overwrite certain configs that are declared
-in DT.
+The Texas Instruments TUSB8041 has an autosuspend problem at high
+temperature.
 
-To fix that, we move DT parsing after initialization.
-Function name is renamed to better represent what it does.
+If there is not USB traffic, after a couple of ms, the device enters in
+autosuspend mode. In this condition the external clock stops working, to
+save energy. When the USB activity turns on, ther hub exits the
+autosuspend state, the clock starts running again and all works fine.
 
-Fixes: 32d31c79a1a4 ("dmaengine: Add Intel LGM SoC DMA support.")
-Signed-off-by: Peter Harliman Liem <pliem@maxlinear.com>
-Cc: stable@vger.kernel.org
-Link: https://lore.kernel.org/r/afef6fc1ed20098b684e0d53737d69faf63c125f.1672887183.git.pliem@maxlinear.com
-Signed-off-by: Vinod Koul <vkoul@kernel.org>
+At ambient temperature all works correctly, but at high temperature,
+when the USB activity turns on, the external clock doesn't restart and
+the hub disappears from the USB bus.
+
+Disabling the autosuspend mode for this hub solves the issue.
+
+Signed-off-by: Flavio Suligoi <f.suligoi@asem.it>
+Cc: stable <stable@kernel.org>
+Acked-by: Alan Stern <stern@rowland.harvard.edu>
+Link: https://lore.kernel.org/r/20221219124759.3207032-1-f.suligoi@asem.it
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/dma/lgm/lgm-dma.c |   10 +++++-----
- 1 file changed, 5 insertions(+), 5 deletions(-)
+ drivers/usb/core/hub.c |   13 +++++++++++++
+ 1 file changed, 13 insertions(+)
 
---- a/drivers/dma/lgm/lgm-dma.c
-+++ b/drivers/dma/lgm/lgm-dma.c
-@@ -914,7 +914,7 @@ static void ldma_dev_init(struct ldma_de
- 	}
- }
+--- a/drivers/usb/core/hub.c
++++ b/drivers/usb/core/hub.c
+@@ -42,6 +42,9 @@
+ #define USB_PRODUCT_USB5534B			0x5534
+ #define USB_VENDOR_CYPRESS			0x04b4
+ #define USB_PRODUCT_CY7C65632			0x6570
++#define USB_VENDOR_TEXAS_INSTRUMENTS		0x0451
++#define USB_PRODUCT_TUSB8041_USB3		0x8140
++#define USB_PRODUCT_TUSB8041_USB2		0x8142
+ #define HUB_QUIRK_CHECK_PORT_AUTOSUSPEND	0x01
+ #define HUB_QUIRK_DISABLE_AUTOSUSPEND		0x02
  
--static int ldma_cfg_init(struct ldma_dev *d)
-+static int ldma_parse_dt(struct ldma_dev *d)
- {
- 	struct fwnode_handle *fwnode = dev_fwnode(d->dev);
- 	struct ldma_port *p;
-@@ -1661,10 +1661,6 @@ static int intel_ldma_probe(struct platf
- 		p->ldev = d;
- 	}
- 
--	ret = ldma_cfg_init(d);
--	if (ret)
--		return ret;
--
- 	dma_dev->dev = &pdev->dev;
- 
- 	ch_mask = (unsigned long)d->channels_mask;
-@@ -1675,6 +1671,10 @@ static int intel_ldma_probe(struct platf
- 			ldma_dma_init_v3X(j, d);
- 	}
- 
-+	ret = ldma_parse_dt(d);
-+	if (ret)
-+		return ret;
-+
- 	dma_dev->device_alloc_chan_resources = ldma_alloc_chan_resources;
- 	dma_dev->device_free_chan_resources = ldma_free_chan_resources;
- 	dma_dev->device_terminate_all = ldma_terminate_all;
+@@ -5715,6 +5718,16 @@ static const struct usb_device_id hub_id
+       .idVendor = USB_VENDOR_GENESYS_LOGIC,
+       .bInterfaceClass = USB_CLASS_HUB,
+       .driver_info = HUB_QUIRK_CHECK_PORT_AUTOSUSPEND},
++    { .match_flags = USB_DEVICE_ID_MATCH_VENDOR
++			| USB_DEVICE_ID_MATCH_PRODUCT,
++      .idVendor = USB_VENDOR_TEXAS_INSTRUMENTS,
++      .idProduct = USB_PRODUCT_TUSB8041_USB2,
++      .driver_info = HUB_QUIRK_DISABLE_AUTOSUSPEND},
++    { .match_flags = USB_DEVICE_ID_MATCH_VENDOR
++			| USB_DEVICE_ID_MATCH_PRODUCT,
++      .idVendor = USB_VENDOR_TEXAS_INSTRUMENTS,
++      .idProduct = USB_PRODUCT_TUSB8041_USB3,
++      .driver_info = HUB_QUIRK_DISABLE_AUTOSUSPEND},
+     { .match_flags = USB_DEVICE_ID_MATCH_DEV_CLASS,
+       .bDeviceClass = USB_CLASS_HUB},
+     { .match_flags = USB_DEVICE_ID_MATCH_INT_CLASS,
 
 
