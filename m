@@ -2,132 +2,129 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A2FC9676FD2
-	for <lists+stable@lfdr.de>; Sun, 22 Jan 2023 16:25:38 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id BBD35676E21
+	for <lists+stable@lfdr.de>; Sun, 22 Jan 2023 16:07:26 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231377AbjAVPZh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 22 Jan 2023 10:25:37 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54040 "EHLO
+        id S230165AbjAVPH0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 22 Jan 2023 10:07:26 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33380 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231391AbjAVPZh (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 22 Jan 2023 10:25:37 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B5813227B6
-        for <stable@vger.kernel.org>; Sun, 22 Jan 2023 07:25:35 -0800 (PST)
+        with ESMTP id S230170AbjAVPHZ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 22 Jan 2023 10:07:25 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B79BC1F4BD
+        for <stable@vger.kernel.org>; Sun, 22 Jan 2023 07:07:17 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 5C985B80B1D
-        for <stable@vger.kernel.org>; Sun, 22 Jan 2023 15:25:34 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id AAA37C433D2;
-        Sun, 22 Jan 2023 15:25:32 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 6145EB80B14
+        for <stable@vger.kernel.org>; Sun, 22 Jan 2023 15:07:16 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A65F1C433EF;
+        Sun, 22 Jan 2023 15:07:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1674401133;
-        bh=UDmxb29nCKHSuDtAKTDZk4lsaZeg4DFpzrigXWJCUy8=;
+        s=korg; t=1674400035;
+        bh=202fxFKgzmoLH52aPHp+YYTOdMIjs95TbGiORmjDutk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Il6ZwgnY/QCUDrSXVxpv/hVjzBFeLYC1THbE6yPh5h1XOvsvsSx2lbu4+Z+Y4RmUd
-         GJ9y7cra4hcbN+nTu/lgTCjbFuEH62QCrqoDPoBO7c8nJ1YWfaeHWT8WgWo2tsKJqR
-         eviMQ9iSw9Q6GLCOkDh10T/llabEoJuEGoRMx3xU=
+        b=cArKw3NTQq30AjQMlddkWjmdaqbLFVVmK1CEZ4rvR5Fon2yI+Nez8xN9CdCnm8heW
+         J4Rkaq2zzW7n7arA48xo6fRPd2ar6KP2Bj3vo6YMRvf/22JxL3M9XetrjHPKfU0J80
+         Bvc6ZAmZMFRlAPTrq585s2WlaVJqqYRhu5inK9CU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         patches@lists.linux.dev,
-        Reinette Chatre <reinette.chatre@intel.com>,
-        Dave Jiang <dave.jiang@intel.com>,
-        Fenghua Yu <fenghua.yu@intel.com>,
-        Vinod Koul <vkoul@kernel.org>
-Subject: [PATCH 6.1 122/193] dmaengine: idxd: Let probe fail when workqueue cannot be enabled
-Date:   Sun, 22 Jan 2023 16:04:11 +0100
-Message-Id: <20230122150251.906874432@linuxfoundation.org>
+        Ali Mirghasemi <ali.mirghasemi1376@gmail.com>,
+        Johan Hovold <johan@kernel.org>
+Subject: [PATCH 4.19 15/37] USB: serial: option: add Quectel EC200U modem
+Date:   Sun, 22 Jan 2023 16:04:12 +0100
+Message-Id: <20230122150220.200023760@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.1
-In-Reply-To: <20230122150246.321043584@linuxfoundation.org>
-References: <20230122150246.321043584@linuxfoundation.org>
+In-Reply-To: <20230122150219.557984692@linuxfoundation.org>
+References: <20230122150219.557984692@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
         DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
-        SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no
-        version=3.4.6
+        SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=unavailable
+        autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Reinette Chatre <reinette.chatre@intel.com>
+From: Ali Mirghasemi <ali.mirghasemi1376@gmail.com>
 
-commit b51b75f0604f17c0f6f3b6f68f1a521a5cc6b04f upstream.
+commit d9bbb15881046bd76f8710c76e26a740eee997ef upstream.
 
-The workqueue is enabled when the appropriate driver is loaded and
-disabled when the driver is removed. When the driver is removed it
-assumes that the workqueue was enabled successfully and proceeds to
-free allocations made during workqueue enabling.
+Add support for EC200U modem
 
-Failure during workqueue enabling does not prevent the driver from
-being loaded. This is because the error path within drv_enable_wq()
-returns success unless a second failure is encountered
-during the error path. By returning success it is possible to load
-the driver even if the workqueue cannot be enabled and
-allocations that do not exist are attempted to be freed during
-driver remove.
+0x0901: EC200U - AT + AP + CP + NMEA + DIAG + MOS
 
-Some examples of problematic flows:
-(a)
+usb-device output:
+T: Bus=01 Lev=02 Prnt=02 Port=02 Cnt=01 Dev#= 4 Spd=480 MxCh= 0
+D: Ver= 2.00 Cls=00(>ifc ) Sub=00 Prot=00 MxPS=64 #Cfgs= 1
+P: Vendor=2c7c ProdID=0901 Rev= 3.18
+S: Manufacturer=Android
+S: Product=Android
+C:* #Ifs= 9 Cfg#= 1 Atr=e0 MxPwr=400mA
+A: FirstIf#= 0 IfCount= 2 Cls=02(comm.) Sub=06 Prot=00
+I:* If#= 0 Alt= 0 #EPs= 1 Cls=02(comm.) Sub=06 Prot=00 Driver=cdc_ether
+E: Ad=81(I) Atr=03(Int.) MxPS= 16 Ivl=32ms
+I: If#= 1 Alt= 0 #EPs= 0 Cls=0a(data ) Sub=00 Prot=00 Driver=cdc_ether
+I:* If#= 1 Alt= 1 #EPs= 2 Cls=0a(data ) Sub=00 Prot=00 Driver=cdc_ether
+E: Ad=82(I) Atr=02(Bulk) MxPS= 512 Ivl=0ms
+E: Ad=01(O) Atr=02(Bulk) MxPS= 512 Ivl=0ms
+I:* If#= 2 Alt= 0 #EPs= 3 Cls=ff(vend.) Sub=00 Prot=00 Driver=option
+E: Ad=84(I) Atr=02(Bulk) MxPS= 512 Ivl=0ms
+E: Ad=02(O) Atr=02(Bulk) MxPS= 512 Ivl=0ms
+E: Ad=83(I) Atr=03(Int.) MxPS= 512 Ivl=4096ms
+I:* If#= 3 Alt= 0 #EPs= 2 Cls=ff(vend.) Sub=00 Prot=00 Driver=option
+E: Ad=85(I) Atr=02(Bulk) MxPS= 512 Ivl=0ms
+E: Ad=03(O) Atr=02(Bulk) MxPS= 512 Ivl=0ms
+I:* If#= 4 Alt= 0 #EPs= 2 Cls=ff(vend.) Sub=00 Prot=00 Driver=option
+E: Ad=86(I) Atr=02(Bulk) MxPS= 512 Ivl=0ms
+E: Ad=04(O) Atr=02(Bulk) MxPS= 512 Ivl=0ms
+I:* If#= 5 Alt= 0 #EPs= 2 Cls=ff(vend.) Sub=00 Prot=00 Driver=option
+E: Ad=87(I) Atr=02(Bulk) MxPS= 512 Ivl=0ms
+E: Ad=05(O) Atr=02(Bulk) MxPS= 512 Ivl=0ms
+I:* If#= 6 Alt= 0 #EPs= 2 Cls=ff(vend.) Sub=00 Prot=00 Driver=option
+E: Ad=88(I) Atr=02(Bulk) MxPS= 512 Ivl=0ms
+E: Ad=06(O) Atr=02(Bulk) MxPS= 512 Ivl=0ms
+I:* If#= 7 Alt= 0 #EPs= 3 Cls=ff(vend.) Sub=00 Prot=00 Driver=option
+E: Ad=8a(I) Atr=02(Bulk) MxPS= 512 Ivl=0ms
+E: Ad=07(O) Atr=02(Bulk) MxPS= 512 Ivl=0ms
+E: Ad=89(I) Atr=03(Int.) MxPS= 512 Ivl=4096ms
+I:* If#= 8 Alt= 0 #EPs= 2 Cls=ff(vend.) Sub=00 Prot=00 Driver=option
+E: Ad=8b(I) Atr=02(Bulk) MxPS= 512 Ivl=0ms
+E: Ad=08(O) Atr=02(Bulk) MxPS= 512 Ivl=0ms
 
- idxd_dmaengine_drv_probe() -> drv_enable_wq() -> idxd_wq_request_irq():
- In above flow, if idxd_wq_request_irq() fails then
- idxd_wq_unmap_portal() is called on error exit path, but
- drv_enable_wq() returns 0 because idxd_wq_disable() succeeds. The
- driver is thus loaded successfully.
-
- idxd_dmaengine_drv_remove()->drv_disable_wq()->idxd_wq_unmap_portal()
- Above flow on driver unload triggers the WARN in devm_iounmap() because
- the device resource has already been removed during error path of
- drv_enable_wq().
-
-(b)
-
- idxd_dmaengine_drv_probe() -> drv_enable_wq() -> idxd_wq_request_irq():
- In above flow, if idxd_wq_request_irq() fails then
- idxd_wq_init_percpu_ref() is never called to initialize the percpu
- counter, yet the driver loads successfully because drv_enable_wq()
- returns 0.
-
- idxd_dmaengine_drv_remove()->__idxd_wq_quiesce()->percpu_ref_kill():
- Above flow on driver unload triggers a BUG when attempting to drop the
- initial ref of the uninitialized percpu ref:
- BUG: kernel NULL pointer dereference, address: 0000000000000010
-
-Fix the drv_enable_wq() error path by returning the original error that
-indicates failure of workqueue enabling. This ensures that the probe
-fails when an error is encountered and the driver remove paths are only
-attempted when the workqueue was enabled successfully.
-
-Fixes: 1f2bb40337f0 ("dmaengine: idxd: move wq_enable() to device.c")
-Signed-off-by: Reinette Chatre <reinette.chatre@intel.com>
-Reviewed-by: Dave Jiang <dave.jiang@intel.com>
-Reviewed-by: Fenghua Yu <fenghua.yu@intel.com>
+Signed-off-by: Ali Mirghasemi <ali.mirghasemi1376@gmail.com>
 Cc: stable@vger.kernel.org
-Link: https://lore.kernel.org/r/e8d8116e5efa0fd14fadc5adae6ffd319f0e5ff1.1670452419.git.reinette.chatre@intel.com
-Signed-off-by: Vinod Koul <vkoul@kernel.org>
+Signed-off-by: Johan Hovold <johan@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/dma/idxd/device.c |    3 +--
- 1 file changed, 1 insertion(+), 2 deletions(-)
+ drivers/usb/serial/option.c |    2 ++
+ 1 file changed, 2 insertions(+)
 
---- a/drivers/dma/idxd/device.c
-+++ b/drivers/dma/idxd/device.c
-@@ -1391,8 +1391,7 @@ err_res_alloc:
- err_irq:
- 	idxd_wq_unmap_portal(wq);
- err_map_portal:
--	rc = idxd_wq_disable(wq, false);
--	if (rc < 0)
-+	if (idxd_wq_disable(wq, false))
- 		dev_dbg(dev, "wq %s disable failed\n", dev_name(wq_confdev(wq)));
- err:
- 	return rc;
+--- a/drivers/usb/serial/option.c
++++ b/drivers/usb/serial/option.c
+@@ -262,6 +262,7 @@ static void option_instat_callback(struc
+ #define QUECTEL_PRODUCT_EM12			0x0512
+ #define QUECTEL_PRODUCT_RM500Q			0x0800
+ #define QUECTEL_PRODUCT_RM520N			0x0801
++#define QUECTEL_PRODUCT_EC200U			0x0901
+ #define QUECTEL_PRODUCT_EC200S_CN		0x6002
+ #define QUECTEL_PRODUCT_EC200T			0x6026
+ #define QUECTEL_PRODUCT_RM500K			0x7001
+@@ -1189,6 +1190,7 @@ static const struct usb_device_id option
+ 	{ USB_DEVICE_AND_INTERFACE_INFO(QUECTEL_VENDOR_ID, QUECTEL_PRODUCT_RM520N, 0xff, 0xff, 0x30) },
+ 	{ USB_DEVICE_AND_INTERFACE_INFO(QUECTEL_VENDOR_ID, QUECTEL_PRODUCT_RM520N, 0xff, 0, 0x40) },
+ 	{ USB_DEVICE_AND_INTERFACE_INFO(QUECTEL_VENDOR_ID, QUECTEL_PRODUCT_RM520N, 0xff, 0, 0) },
++	{ USB_DEVICE_AND_INTERFACE_INFO(QUECTEL_VENDOR_ID, QUECTEL_PRODUCT_EC200U, 0xff, 0, 0) },
+ 	{ USB_DEVICE_AND_INTERFACE_INFO(QUECTEL_VENDOR_ID, QUECTEL_PRODUCT_EC200S_CN, 0xff, 0, 0) },
+ 	{ USB_DEVICE_AND_INTERFACE_INFO(QUECTEL_VENDOR_ID, QUECTEL_PRODUCT_EC200T, 0xff, 0, 0) },
+ 	{ USB_DEVICE_AND_INTERFACE_INFO(QUECTEL_VENDOR_ID, QUECTEL_PRODUCT_RM500K, 0xff, 0x00, 0x00) },
 
 
