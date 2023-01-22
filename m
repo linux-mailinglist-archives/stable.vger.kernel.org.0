@@ -2,41 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 9C2D6676F74
-	for <lists+stable@lfdr.de>; Sun, 22 Jan 2023 16:22:09 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 660B1676F76
+	for <lists+stable@lfdr.de>; Sun, 22 Jan 2023 16:22:11 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231288AbjAVPWI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 22 Jan 2023 10:22:08 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49520 "EHLO
+        id S231285AbjAVPWJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 22 Jan 2023 10:22:09 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49534 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231289AbjAVPWF (ORCPT
+        with ESMTP id S231283AbjAVPWF (ORCPT
         <rfc822;stable@vger.kernel.org>); Sun, 22 Jan 2023 10:22:05 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 786D422795
-        for <stable@vger.kernel.org>; Sun, 22 Jan 2023 07:21:41 -0800 (PST)
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E7D02227BF
+        for <stable@vger.kernel.org>; Sun, 22 Jan 2023 07:21:42 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id E260C60C64
-        for <stable@vger.kernel.org>; Sun, 22 Jan 2023 15:21:36 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 00F66C433EF;
-        Sun, 22 Jan 2023 15:21:35 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 48309B80B23
+        for <stable@vger.kernel.org>; Sun, 22 Jan 2023 15:21:40 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 95CAFC433D2;
+        Sun, 22 Jan 2023 15:21:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1674400896;
-        bh=eiQNqA92x9v1MGl4YClQ6n1QZApY+mCVJDS8aNI0cRk=;
+        s=korg; t=1674400899;
+        bh=kMTd/QWEVaMMbGGHko64wkREQRIpQtKXX9E8vNP5Ciw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=M1rTVnDP0TccKZADJE/SC30GRPYoUrdqeXfKHYVviSaFYe3ld9wS3YeugWdBie+I4
-         Oj0nNi4k1YK5pLGOXWDxu/UPTS5mOLTFpVhLWhxvyy+dtOVDVyAFmVJfFbJjo/67W4
-         mes5S9a9WclMLAOqqr6Ij6xbq3frLrl7ydmwX7Sk=
+        b=iBpc2h6ux1VDuNA2HMLF1JEzNhtQoDuChamT/MfCZLmKsKtUwl3IdGX9H5t7MT/lo
+         36JNstjxdJpkctk011WwnnBalpITcH4ulQRq1IyOe800G8HHAMrxflOVn4FUq9hYpt
+         D9VfN1V0ar5hCMq2kelAFJjnnEjXERx1wj/q000M=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Olga Kornievskaia <kolga@netapp.com>,
-        Trond Myklebust <trond.myklebust@hammerspace.com>,
+        patches@lists.linux.dev, Hao Sun <sunhao.th@gmail.com>,
+        Martin KaFai Lau <martin.lau@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 004/193] pNFS/filelayout: Fix coalescing test for single DS
-Date:   Sun, 22 Jan 2023 16:02:13 +0100
-Message-Id: <20230122150246.547513092@linuxfoundation.org>
+Subject: [PATCH 6.1 005/193] selftests/bpf: check null propagation only neither reg is PTR_TO_BTF_ID
+Date:   Sun, 22 Jan 2023 16:02:14 +0100
+Message-Id: <20230122150246.597358923@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.1
 In-Reply-To: <20230122150246.321043584@linuxfoundation.org>
 References: <20230122150246.321043584@linuxfoundation.org>
@@ -54,47 +54,89 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Olga Kornievskaia <olga.kornievskaia@gmail.com>
+From: Hao Sun <sunhao.th@gmail.com>
 
-[ Upstream commit a6b9d2fa0024e7e399c26facd0fb466b7396e2b9 ]
+[ Upstream commit cedebd74cf3883f0384af9ec26b4e6f8f1964dd4 ]
 
-When there is a single DS no striping constraints need to be placed on
-the IO. When such constraint is applied then buffered reads don't
-coalesce to the DS's rsize.
+Verify that nullness information is not porpagated in the branches
+of register to register JEQ and JNE operations if one of them is
+PTR_TO_BTF_ID. Implement this in C level so we can use CO-RE.
 
-Signed-off-by: Olga Kornievskaia <kolga@netapp.com>
-Signed-off-by: Trond Myklebust <trond.myklebust@hammerspace.com>
+Signed-off-by: Hao Sun <sunhao.th@gmail.com>
+Suggested-by: Martin KaFai Lau <martin.lau@kernel.org>
+Link: https://lore.kernel.org/r/20221222024414.29539-2-sunhao.th@gmail.com
+Signed-off-by: Martin KaFai Lau <martin.lau@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/nfs/filelayout/filelayout.c | 8 ++++++++
- 1 file changed, 8 insertions(+)
+ .../bpf/prog_tests/jeq_infer_not_null.c       |  9 ++++
+ .../bpf/progs/jeq_infer_not_null_fail.c       | 42 +++++++++++++++++++
+ 2 files changed, 51 insertions(+)
+ create mode 100644 tools/testing/selftests/bpf/prog_tests/jeq_infer_not_null.c
+ create mode 100644 tools/testing/selftests/bpf/progs/jeq_infer_not_null_fail.c
 
-diff --git a/fs/nfs/filelayout/filelayout.c b/fs/nfs/filelayout/filelayout.c
-index ad34a33b0737..4974cd18ca46 100644
---- a/fs/nfs/filelayout/filelayout.c
-+++ b/fs/nfs/filelayout/filelayout.c
-@@ -783,6 +783,12 @@ filelayout_alloc_lseg(struct pnfs_layout_hdr *layoutid,
- 	return &fl->generic_hdr;
- }
- 
-+static bool
-+filelayout_lseg_is_striped(const struct nfs4_filelayout_segment *flseg)
-+{
-+	return flseg->num_fh > 1;
-+}
+diff --git a/tools/testing/selftests/bpf/prog_tests/jeq_infer_not_null.c b/tools/testing/selftests/bpf/prog_tests/jeq_infer_not_null.c
+new file mode 100644
+index 000000000000..3add34df5767
+--- /dev/null
++++ b/tools/testing/selftests/bpf/prog_tests/jeq_infer_not_null.c
+@@ -0,0 +1,9 @@
++// SPDX-License-Identifier: GPL-2.0
 +
- /*
-  * filelayout_pg_test(). Called by nfs_can_coalesce_requests()
-  *
-@@ -803,6 +809,8 @@ filelayout_pg_test(struct nfs_pageio_descriptor *pgio, struct nfs_page *prev,
- 	size = pnfs_generic_pg_test(pgio, prev, req);
- 	if (!size)
- 		return 0;
-+	else if (!filelayout_lseg_is_striped(FILELAYOUT_LSEG(pgio->pg_lseg)))
-+		return size;
- 
- 	/* see if req and prev are in the same stripe */
- 	if (prev) {
++#include <test_progs.h>
++#include "jeq_infer_not_null_fail.skel.h"
++
++void test_jeq_infer_not_null(void)
++{
++	RUN_TESTS(jeq_infer_not_null_fail);
++}
+diff --git a/tools/testing/selftests/bpf/progs/jeq_infer_not_null_fail.c b/tools/testing/selftests/bpf/progs/jeq_infer_not_null_fail.c
+new file mode 100644
+index 000000000000..f46965053acb
+--- /dev/null
++++ b/tools/testing/selftests/bpf/progs/jeq_infer_not_null_fail.c
+@@ -0,0 +1,42 @@
++// SPDX-License-Identifier: GPL-2.0
++
++#include "vmlinux.h"
++#include <bpf/bpf_helpers.h>
++#include "bpf_misc.h"
++
++char _license[] SEC("license") = "GPL";
++
++struct {
++	__uint(type, BPF_MAP_TYPE_HASH);
++	__uint(max_entries, 1);
++	__type(key, u64);
++	__type(value, u64);
++} m_hash SEC(".maps");
++
++SEC("?raw_tp")
++__failure __msg("R8 invalid mem access 'map_value_or_null")
++int jeq_infer_not_null_ptr_to_btfid(void *ctx)
++{
++	struct bpf_map *map = (struct bpf_map *)&m_hash;
++	struct bpf_map *inner_map = map->inner_map_meta;
++	u64 key = 0, ret = 0, *val;
++
++	val = bpf_map_lookup_elem(map, &key);
++	/* Do not mark ptr as non-null if one of them is
++	 * PTR_TO_BTF_ID (R9), reject because of invalid
++	 * access to map value (R8).
++	 *
++	 * Here, we need to inline those insns to access
++	 * R8 directly, since compiler may use other reg
++	 * once it figures out val==inner_map.
++	 */
++	asm volatile("r8 = %[val];\n"
++		     "r9 = %[inner_map];\n"
++		     "if r8 != r9 goto +1;\n"
++		     "%[ret] = *(u64 *)(r8 +0);\n"
++		     : [ret] "+r"(ret)
++		     : [inner_map] "r"(inner_map), [val] "r"(val)
++		     : "r8", "r9");
++
++	return ret;
++}
 -- 
 2.35.1
 
