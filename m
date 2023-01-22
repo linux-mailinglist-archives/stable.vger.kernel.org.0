@@ -2,44 +2,48 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 2CEFF676F9F
-	for <lists+stable@lfdr.de>; Sun, 22 Jan 2023 16:23:32 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D54A4676EE7
+	for <lists+stable@lfdr.de>; Sun, 22 Jan 2023 16:15:40 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231328AbjAVPXb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 22 Jan 2023 10:23:31 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50358 "EHLO
+        id S230498AbjAVPPk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 22 Jan 2023 10:15:40 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42422 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231334AbjAVPX3 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 22 Jan 2023 10:23:29 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A1D771BDD
-        for <stable@vger.kernel.org>; Sun, 22 Jan 2023 07:23:26 -0800 (PST)
+        with ESMTP id S230488AbjAVPPi (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 22 Jan 2023 10:15:38 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1816122023
+        for <stable@vger.kernel.org>; Sun, 22 Jan 2023 07:15:38 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 8DD1C60C60
-        for <stable@vger.kernel.org>; Sun, 22 Jan 2023 15:23:25 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9FD8DC433EF;
-        Sun, 22 Jan 2023 15:23:24 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id BA99EB80B1A
+        for <stable@vger.kernel.org>; Sun, 22 Jan 2023 15:15:36 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 26919C4339C;
+        Sun, 22 Jan 2023 15:15:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1674401005;
-        bh=v4wf6v1OVEQhMY6/URBtuef21DVKOl2wfHNyXkfcw44=;
+        s=korg; t=1674400535;
+        bh=gOZx1U7G2dNUy43vEvs+n3Lgqe5rlGPuiQPvSqMAmvQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=zYZpeRxUWIl/o/xu6VkSdxqDXWml0nuFZdfB6oZjN9F9QRGfIqkDQm/j1aetlqF8K
-         fbeRVJCWpgYij6EclAd/UBMwdpXVS70UvwIlrl/ZrJePMHcmrOpPztOtiGaHBYc5Nu
-         NPZmXhtVg5YBxmSVnP3Y62dXJdL/pxZ7d7kYLDh0=
+        b=QQ2psOGR3J3LiD0NNwmIVF4lCZ4BzKUS0eWB+7wjAjoxMqbXt5iyfqSl7eNYM0u1w
+         2C+9Lm3gn8Yiu0Hp2KzV7FpRTRJJ6LuEinNfWmPsPFuX5rQZay9n2p9RCyiKTImafS
+         f5ffAFyc0crlEzLZQKEz0TUWKMD8iQJb1/nvyRkI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Samuel Holland <samuel@sholland.org>,
-        Jernej Skrabec <jernej.skrabec@gmail.com>,
-        Ulf Hansson <ulf.hansson@linaro.org>
-Subject: [PATCH 6.1 074/193] mmc: sunxi-mmc: Fix clock refcount imbalance during unbind
+        patches@lists.linux.dev, Chris Wilson <chris@chris-wilson.co.uk>,
+        Rodrigo Vivi <rodrigo.vivi@intel.com>,
+        Ingo Molnar <mingo@kernel.org>,
+        Peter Zijlstra <peterz@infradead.org>,
+        Stephane Eranian <eranian@google.com>,
+        Zhang Rui <rui.zhang@intel.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.15 013/117] perf/x86/rapl: Treat Tigerlake like Icelake
 Date:   Sun, 22 Jan 2023 16:03:23 +0100
-Message-Id: <20230122150249.727892316@linuxfoundation.org>
+Message-Id: <20230122150233.259577557@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.1
-In-Reply-To: <20230122150246.321043584@linuxfoundation.org>
-References: <20230122150246.321043584@linuxfoundation.org>
+In-Reply-To: <20230122150232.736358800@linuxfoundation.org>
+References: <20230122150232.736358800@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,41 +58,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Samuel Holland <samuel@sholland.org>
+From: Chris Wilson <chris@chris-wilson.co.uk>
 
-commit 8509419758f2cc28dd05370385af0d91573b76b4 upstream.
+[ Upstream commit c07311b5509f6035f1dd828db3e90ff4859cf3b9 ]
 
-If the controller is suspended by runtime PM, the clock is already
-disabled, so do not try to disable it again during removal. Use
-pm_runtime_disable() to flush any pending runtime PM transitions.
+Since Tigerlake seems to have inherited its cstates and other RAPL power
+caps from Icelake, assume it also follows Icelake for its RAPL events.
 
-Fixes: 9a8e1e8cc2c0 ("mmc: sunxi: Add runtime_pm support")
-Signed-off-by: Samuel Holland <samuel@sholland.org>
-Acked-by: Jernej Skrabec <jernej.skrabec@gmail.com>
-Cc: stable@vger.kernel.org
-Link: https://lore.kernel.org/r/20220810022509.43743-1-samuel@sholland.org
-Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Chris Wilson <chris@chris-wilson.co.uk>
+Signed-off-by: Rodrigo Vivi <rodrigo.vivi@intel.com>
+Signed-off-by: Ingo Molnar <mingo@kernel.org>
+Cc: Peter Zijlstra <peterz@infradead.org>
+Cc: Stephane Eranian <eranian@google.com>
+Cc: Zhang Rui <rui.zhang@intel.com>
+Link: https://lore.kernel.org/r/20221228113454.1199118-1-rodrigo.vivi@intel.com
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/mmc/host/sunxi-mmc.c |    8 +++++---
- 1 file changed, 5 insertions(+), 3 deletions(-)
+ arch/x86/events/rapl.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
---- a/drivers/mmc/host/sunxi-mmc.c
-+++ b/drivers/mmc/host/sunxi-mmc.c
-@@ -1492,9 +1492,11 @@ static int sunxi_mmc_remove(struct platf
- 	struct sunxi_mmc_host *host = mmc_priv(mmc);
- 
- 	mmc_remove_host(mmc);
--	pm_runtime_force_suspend(&pdev->dev);
--	disable_irq(host->irq);
--	sunxi_mmc_disable(host);
-+	pm_runtime_disable(&pdev->dev);
-+	if (!pm_runtime_status_suspended(&pdev->dev)) {
-+		disable_irq(host->irq);
-+		sunxi_mmc_disable(host);
-+	}
- 	dma_free_coherent(&pdev->dev, PAGE_SIZE, host->sg_cpu, host->sg_dma);
- 	mmc_free_host(mmc);
- 
+diff --git a/arch/x86/events/rapl.c b/arch/x86/events/rapl.c
+index 77e3a47af5ad..840ee43e3e46 100644
+--- a/arch/x86/events/rapl.c
++++ b/arch/x86/events/rapl.c
+@@ -804,6 +804,8 @@ static const struct x86_cpu_id rapl_model_match[] __initconst = {
+ 	X86_MATCH_INTEL_FAM6_MODEL(ICELAKE_X,		&model_hsx),
+ 	X86_MATCH_INTEL_FAM6_MODEL(COMETLAKE_L,		&model_skl),
+ 	X86_MATCH_INTEL_FAM6_MODEL(COMETLAKE,		&model_skl),
++	X86_MATCH_INTEL_FAM6_MODEL(TIGERLAKE_L,		&model_skl),
++	X86_MATCH_INTEL_FAM6_MODEL(TIGERLAKE,		&model_skl),
+ 	X86_MATCH_INTEL_FAM6_MODEL(ALDERLAKE,		&model_skl),
+ 	X86_MATCH_INTEL_FAM6_MODEL(ALDERLAKE_L,		&model_skl),
+ 	X86_MATCH_INTEL_FAM6_MODEL(SAPPHIRERAPIDS_X,	&model_spr),
+-- 
+2.35.1
+
 
 
