@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 2585F676DCB
-	for <lists+stable@lfdr.de>; Sun, 22 Jan 2023 15:49:01 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 238C6676DCC
+	for <lists+stable@lfdr.de>; Sun, 22 Jan 2023 15:49:10 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230030AbjAVOtA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 22 Jan 2023 09:49:00 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53104 "EHLO
+        id S230050AbjAVOtJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 22 Jan 2023 09:49:09 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53124 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229911AbjAVOs7 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 22 Jan 2023 09:48:59 -0500
+        with ESMTP id S229911AbjAVOtI (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 22 Jan 2023 09:49:08 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D0EAB18AB3
-        for <stable@vger.kernel.org>; Sun, 22 Jan 2023 06:48:58 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7C6ED18AB3
+        for <stable@vger.kernel.org>; Sun, 22 Jan 2023 06:49:07 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 6AA4C60C27
-        for <stable@vger.kernel.org>; Sun, 22 Jan 2023 14:48:58 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7202FC433D2;
-        Sun, 22 Jan 2023 14:48:57 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 172AF60C41
+        for <stable@vger.kernel.org>; Sun, 22 Jan 2023 14:49:07 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2B47DC433EF;
+        Sun, 22 Jan 2023 14:49:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1674398937;
-        bh=438y2k6+4eE3SaK5f6dx4OzlVuAHl9Af9j8ZWGDcL7w=;
+        s=korg; t=1674398946;
+        bh=klWRaUInWLwFkUTfNkyN+9BcTz7yVkHg03kKafmuuEQ=;
         h=Subject:To:Cc:From:Date:From;
-        b=ZYVXBGLKYa4VbkGZsboq2NWcMsXUpnD2GcZO+8Dj07KlKoX88rxse6kYfRmj/+Lmw
-         hLpmcW8F6slWVeYW+xjhAQSDuz+302I9MODW4J0ge9P7j7GR7zW20yfqn5b0o/Z1dA
-         bEvn/j4QjknVsyoLRtDmKN9oLamzZbo7kY0z+GAI=
-Subject: FAILED: patch "[PATCH] io_uring: clear TIF_NOTIFY_SIGNAL if set and task_work not" failed to apply to 5.10-stable tree
+        b=mxfz7RQ8kg2R+PvUNHHI3fnsr6kKuTL8OEVUUeKVtyJGm00TZ8njxR/v9mmQXQaI/
+         fKXIs/k6DMIAzFlfSnLHJQIsAb5XzvWcxshUmZ9U2ySFZHspBGjrBh0TM7SjXflHzO
+         8ypQYTypo3DZVWPkSIpdIpvsup5SdFfK9/uzGwQA=
+Subject: FAILED: patch "[PATCH] io_uring: clear TIF_NOTIFY_SIGNAL if set and task_work not" failed to apply to 5.15-stable tree
 To:     axboe@kernel.dk
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Sun, 22 Jan 2023 15:48:55 +0100
-Message-ID: <167439893545192@kroah.com>
+Date:   Sun, 22 Jan 2023 15:48:56 +0100
+Message-ID: <1674398936111119@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -48,7 +48,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.10-stable tree.
+The patch below does not apply to the 5.15-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
