@@ -2,47 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id F2B11676FA2
-	for <lists+stable@lfdr.de>; Sun, 22 Jan 2023 16:23:36 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 919E2676E7F
+	for <lists+stable@lfdr.de>; Sun, 22 Jan 2023 16:11:14 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231334AbjAVPXf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 22 Jan 2023 10:23:35 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52104 "EHLO
+        id S230326AbjAVPLM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 22 Jan 2023 10:11:12 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37722 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231337AbjAVPXf (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 22 Jan 2023 10:23:35 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B747AEFBF
-        for <stable@vger.kernel.org>; Sun, 22 Jan 2023 07:23:33 -0800 (PST)
+        with ESMTP id S230335AbjAVPLL (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 22 Jan 2023 10:11:11 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4BBA320047
+        for <stable@vger.kernel.org>; Sun, 22 Jan 2023 07:11:10 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 4D28060C60
-        for <stable@vger.kernel.org>; Sun, 22 Jan 2023 15:23:33 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5E55DC4339C;
-        Sun, 22 Jan 2023 15:23:32 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id B11AE60C48
+        for <stable@vger.kernel.org>; Sun, 22 Jan 2023 15:11:09 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C4E6AC433EF;
+        Sun, 22 Jan 2023 15:11:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1674401012;
-        bh=mZby8Yb58rp1n1UxaOkn5jiZ6IQFsJURYPw6inTtGhM=;
+        s=korg; t=1674400269;
+        bh=ZM4+om5S2CjW0KuiXcj1YlSIFey+/gI/e0OVi3sF1rI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=o8vJKt28TMJ/XW9vTxI3T8IFYifXMwfCii2QdhbIyQ9issuXif1ktDwbzcQjqJawZ
-         40e4NvYY6EHwwrElaQKk7z6X/a+hmVZGRyGTdwpy4BSSY6J/h2smAHkKIpsrugzNNx
-         c95WPUnYLxctDQ0lzxl3SWFcBg7VRhJgDpifxrds=
+        b=tIdXZRT35NFHVo/kOLxrPq/tR/VdPVYcCmNDZbhrs5Kowh17hiDhY63ibbhVk74ae
+         Th6ps2QgxG4wkO8w2DEqYB89en4TJKqBXoZ1UAbkq88O81z4wMaYnWiw21I8hd3oMF
+         aIDt2JxqENJTWOFtKjMADXshKTJWHFJcRjRoymQw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, David Hildenbrand <david@redhat.com>,
-        Mike Kravetz <mike.kravetz@oracle.com>,
-        Miaohe Lin <linmiaohe@huawei.com>,
-        Muchun Song <muchun.song@linux.dev>,
-        Peter Xu <peterx@redhat.com>,
-        Andrew Morton <akpm@linux-foundation.org>
-Subject: [PATCH 6.1 077/193] mm/hugetlb: fix uffd-wp handling for migration entries in hugetlb_change_protection()
-Date:   Sun, 22 Jan 2023 16:03:26 +0100
-Message-Id: <20230122150249.868691719@linuxfoundation.org>
+        patches@lists.linux.dev,
+        Alexander Wetzel <alexander@wetzel-home.de>,
+        Johannes Berg <johannes.berg@intel.com>
+Subject: [PATCH 5.10 11/98] wifi: mac80211: sdata can be NULL during AMPDU start
+Date:   Sun, 22 Jan 2023 16:03:27 +0100
+Message-Id: <20230122150229.899598147@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.1
-In-Reply-To: <20230122150246.321043584@linuxfoundation.org>
-References: <20230122150246.321043584@linuxfoundation.org>
+In-Reply-To: <20230122150229.351631432@linuxfoundation.org>
+References: <20230122150229.351631432@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -57,76 +54,117 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: David Hildenbrand <david@redhat.com>
+From: Alexander Wetzel <alexander@wetzel-home.de>
 
-commit 44f86392bdd165da7e43d3c772aeb1e128ffd6c8 upstream.
+commit 69403bad97aa0162e3d7911b27e25abe774093df upstream.
 
-We have to update the uffd-wp SWP PTE bit independent of the type of
-migration entry.  Currently, if we're unlucky and we want to install/clear
-the uffd-wp bit just while we're migrating a read-only mapped hugetlb
-page, we would miss to set/clear the uffd-wp bit.
+ieee80211_tx_ba_session_handle_start() may get NULL for sdata when a
+deauthentication is ongoing.
 
-Further, if we're processing a readable-exclusive migration entry and
-neither want to set or clear the uffd-wp bit, we could currently end up
-losing the uffd-wp bit.  Note that the same would hold for writable
-migrating entries, however, having a writable migration entry with the
-uffd-wp bit set would already mean that something went wrong.
+Here a trace triggering the race with the hostapd test
+multi_ap_fronthaul_on_ap:
 
-Note that the change from !is_readable_migration_entry ->
-writable_migration_entry is harmless and actually cleaner, as raised by
-Miaohe Lin and discussed in [1].
+(gdb) list *drv_ampdu_action+0x46
+0x8b16 is in drv_ampdu_action (net/mac80211/driver-ops.c:396).
+391             int ret = -EOPNOTSUPP;
+392
+393             might_sleep();
+394
+395             sdata = get_bss_sdata(sdata);
+396             if (!check_sdata_in_driver(sdata))
+397                     return -EIO;
+398
+399             trace_drv_ampdu_action(local, sdata, params);
+400
 
-[1] https://lkml.kernel.org/r/90dd6a93-4500-e0de-2bf0-bf522c311b0c@huawei.com
+wlan0: moving STA 02:00:00:00:03:00 to state 3
+wlan0: associated
+wlan0: deauthenticating from 02:00:00:00:03:00 by local choice (Reason: 3=DEAUTH_LEAVING)
+wlan3.sta1: Open BA session requested for 02:00:00:00:00:00 tid 0
+wlan3.sta1: dropped frame to 02:00:00:00:00:00 (unauthorized port)
+wlan0: moving STA 02:00:00:00:03:00 to state 2
+wlan0: moving STA 02:00:00:00:03:00 to state 1
+wlan0: Removed STA 02:00:00:00:03:00
+wlan0: Destroyed STA 02:00:00:00:03:00
+BUG: unable to handle page fault for address: fffffffffffffb48
+PGD 11814067 P4D 11814067 PUD 11816067 PMD 0
+Oops: 0000 [#1] PREEMPT SMP PTI
+CPU: 2 PID: 133397 Comm: kworker/u16:1 Tainted: G        W          6.1.0-rc8-wt+ #59
+Hardware name: QEMU Standard PC (Q35 + ICH9, 2009), BIOS 1.16.0-20220807_005459-localhost 04/01/2014
+Workqueue: phy3 ieee80211_ba_session_work [mac80211]
+RIP: 0010:drv_ampdu_action+0x46/0x280 [mac80211]
+Code: 53 48 89 f3 be 89 01 00 00 e8 d6 43 bf ef e8 21 46 81 f0 83 bb a0 1b 00 00 04 75 0e 48 8b 9b 28 0d 00 00 48 81 eb 10 0e 00 00 <8b> 93 58 09 00 00 f6 c2 20 0f 84 3b 01 00 00 8b 05 dd 1c 0f 00 85
+RSP: 0018:ffffc900025ebd20 EFLAGS: 00010287
+RAX: 0000000000000000 RBX: fffffffffffff1f0 RCX: ffff888102228240
+RDX: 0000000080000000 RSI: ffffffff918c5de0 RDI: ffff888102228b40
+RBP: ffffc900025ebd40 R08: 0000000000000001 R09: 0000000000000001
+R10: 0000000000000001 R11: 0000000000000000 R12: ffff888118c18ec0
+R13: 0000000000000000 R14: ffffc900025ebd60 R15: ffff888018b7efb8
+FS:  0000000000000000(0000) GS:ffff88817a600000(0000) knlGS:0000000000000000
+CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+CR2: fffffffffffffb48 CR3: 0000000105228006 CR4: 0000000000170ee0
+Call Trace:
+ <TASK>
+ ieee80211_tx_ba_session_handle_start+0xd0/0x190 [mac80211]
+ ieee80211_ba_session_work+0xff/0x2e0 [mac80211]
+ process_one_work+0x29f/0x620
+ worker_thread+0x4d/0x3d0
+ ? process_one_work+0x620/0x620
+ kthread+0xfb/0x120
+ ? kthread_complete_and_exit+0x20/0x20
+ ret_from_fork+0x22/0x30
+ </TASK>
 
-Link: https://lkml.kernel.org/r/20221222205511.675832-3-david@redhat.com
-Fixes: 60dfaad65aa9 ("mm/hugetlb: allow uffd wr-protect none ptes")
-Signed-off-by: David Hildenbrand <david@redhat.com>
-Reviewed-by: Mike Kravetz <mike.kravetz@oracle.com>
-Cc: Miaohe Lin <linmiaohe@huawei.com>
-Cc: Muchun Song <muchun.song@linux.dev>
-Cc: Peter Xu <peterx@redhat.com>
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Signed-off-by: Alexander Wetzel <alexander@wetzel-home.de>
+Link: https://lore.kernel.org/r/20221230121850.218810-2-alexander@wetzel-home.de
+Cc: stable@vger.kernel.org
+Signed-off-by: Johannes Berg <johannes.berg@intel.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- mm/hugetlb.c |   17 +++++++++--------
- 1 file changed, 9 insertions(+), 8 deletions(-)
+ net/mac80211/agg-tx.c     |    6 +++++-
+ net/mac80211/driver-ops.c |    3 +++
+ 2 files changed, 8 insertions(+), 1 deletion(-)
 
---- a/mm/hugetlb.c
-+++ b/mm/hugetlb.c
-@@ -6627,10 +6627,9 @@ unsigned long hugetlb_change_protection(
- 		} else if (unlikely(is_hugetlb_entry_migration(pte))) {
- 			swp_entry_t entry = pte_to_swp_entry(pte);
- 			struct page *page = pfn_swap_entry_to_page(entry);
-+			pte_t newpte = pte;
+--- a/net/mac80211/agg-tx.c
++++ b/net/mac80211/agg-tx.c
+@@ -491,7 +491,7 @@ void ieee80211_tx_ba_session_handle_star
+ {
+ 	struct tid_ampdu_tx *tid_tx;
+ 	struct ieee80211_local *local = sta->local;
+-	struct ieee80211_sub_if_data *sdata = sta->sdata;
++	struct ieee80211_sub_if_data *sdata;
+ 	struct ieee80211_ampdu_params params = {
+ 		.sta = &sta->sta,
+ 		.action = IEEE80211_AMPDU_TX_START,
+@@ -521,6 +521,7 @@ void ieee80211_tx_ba_session_handle_star
+ 	 */
+ 	synchronize_net();
  
--			if (!is_readable_migration_entry(entry)) {
--				pte_t newpte;
--
-+			if (is_writable_migration_entry(entry)) {
- 				if (PageAnon(page))
- 					entry = make_readable_exclusive_migration_entry(
- 								swp_offset(entry));
-@@ -6638,13 +6637,15 @@ unsigned long hugetlb_change_protection(
- 					entry = make_readable_migration_entry(
- 								swp_offset(entry));
- 				newpte = swp_entry_to_pte(entry);
--				if (uffd_wp)
--					newpte = pte_swp_mkuffd_wp(newpte);
--				else if (uffd_wp_resolve)
--					newpte = pte_swp_clear_uffd_wp(newpte);
--				set_huge_pte_at(mm, address, ptep, newpte);
- 				pages++;
- 			}
++	sdata = sta->sdata;
+ 	params.ssn = sta->tid_seq[tid] >> 4;
+ 	ret = drv_ampdu_action(local, sdata, &params);
+ 	tid_tx->ssn = params.ssn;
+@@ -534,6 +535,9 @@ void ieee80211_tx_ba_session_handle_star
+ 		 */
+ 		set_bit(HT_AGG_STATE_DRV_READY, &tid_tx->state);
+ 	} else if (ret) {
++		if (!sdata)
++			return;
 +
-+			if (uffd_wp)
-+				newpte = pte_swp_mkuffd_wp(newpte);
-+			else if (uffd_wp_resolve)
-+				newpte = pte_swp_clear_uffd_wp(newpte);
-+			if (!pte_same(pte, newpte))
-+				set_huge_pte_at(mm, address, ptep, newpte);
- 		} else if (unlikely(is_pte_marker(pte))) {
- 			/* No other markers apply for now. */
- 			WARN_ON_ONCE(!pte_marker_uffd_wp(pte));
+ 		ht_dbg(sdata,
+ 		       "BA request denied - HW unavailable for %pM tid %d\n",
+ 		       sta->sta.addr, tid);
+--- a/net/mac80211/driver-ops.c
++++ b/net/mac80211/driver-ops.c
+@@ -331,6 +331,9 @@ int drv_ampdu_action(struct ieee80211_lo
+ 
+ 	might_sleep();
+ 
++	if (!sdata)
++		return -EIO;
++
+ 	sdata = get_bss_sdata(sdata);
+ 	if (!check_sdata_in_driver(sdata))
+ 		return -EIO;
 
 
