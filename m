@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 55711676E2E
-	for <lists+stable@lfdr.de>; Sun, 22 Jan 2023 16:07:55 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C255F676FFF
+	for <lists+stable@lfdr.de>; Sun, 22 Jan 2023 16:27:25 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230197AbjAVPHy (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 22 Jan 2023 10:07:54 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34164 "EHLO
+        id S231452AbjAVP1Y (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 22 Jan 2023 10:27:24 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55400 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230180AbjAVPHx (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 22 Jan 2023 10:07:53 -0500
+        with ESMTP id S231448AbjAVP1Y (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 22 Jan 2023 10:27:24 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B67441C30E
-        for <stable@vger.kernel.org>; Sun, 22 Jan 2023 07:07:51 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5C16B23100
+        for <stable@vger.kernel.org>; Sun, 22 Jan 2023 07:27:23 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 65FF5B80B14
-        for <stable@vger.kernel.org>; Sun, 22 Jan 2023 15:07:50 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id ABD14C433D2;
-        Sun, 22 Jan 2023 15:07:48 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 1483FB80B20
+        for <stable@vger.kernel.org>; Sun, 22 Jan 2023 15:27:22 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 63B50C433EF;
+        Sun, 22 Jan 2023 15:27:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1674400069;
-        bh=1/3JeyZmHHnZUCR++zOcmZGBywTr0ChQ3h/OWtDDpiQ=;
+        s=korg; t=1674401240;
+        bh=bQnoNS0XjH1O/2AQytDihP+jVtkDXpNk+sC5q6JxebY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=fYtkYMWft4O83l++yJOziN7K47BBEkiDVhvpnwqneTgYIwxdQvKho1gUMF7nd8cge
-         8mgDKHr5GGZ22oVvXD1vk77OxiX+5iWVAfqEu51BqGziV4posWNmnPLMOLelsjiSUc
-         /yU3VUxob1O/WQnLg6YsjGeUIknuGJpBk0Q1+nRk=
+        b=cJX8/McQuhHJr8WizZge13UM0py0DcMxJ/6xXrJN8greT53prH6nWJvNUf56FRcsA
+         7HXKPJ8rgv+nMfKO+uiQSeVyX2/rPolvZmtgfQjgGuV2XpVkNx1ryFD7mlcbyRfGHL
+         lBny5fsGvwluXDxCaaTVAHmr/W2B5xV7naOPiC84=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, stable <stable@kernel.org>,
-        Daniel Scally <dan.scally@ideasonboard.com>,
-        Laurent Pinchart <laurent.pinchart@ideasonboard.com>,
-        Kieran Bingham <kieran.bingham@ideasonboard.com>
-Subject: [PATCH 4.19 27/37] usb: gadget: g_webcam: Send color matching descriptor per frame
+        patches@lists.linux.dev, Lang Yu <Lang.Yu@amd.com>,
+        Aaron Liu <aaron.liu@amd.com>,
+        Yifan Zhang <yifan1.zhang@amd.com>,
+        Alex Deucher <alexander.deucher@amd.com>
+Subject: [PATCH 6.1 135/193] drm/amdgpu: allow multipipe policy on ASICs with one MEC
 Date:   Sun, 22 Jan 2023 16:04:24 +0100
-Message-Id: <20230122150220.673586749@linuxfoundation.org>
+Message-Id: <20230122150252.519689870@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.1
-In-Reply-To: <20230122150219.557984692@linuxfoundation.org>
-References: <20230122150219.557984692@linuxfoundation.org>
+In-Reply-To: <20230122150246.321043584@linuxfoundation.org>
+References: <20230122150246.321043584@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,59 +55,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Daniel Scally <dan.scally@ideasonboard.com>
+From: Lang Yu <Lang.Yu@amd.com>
 
-commit e95765e97d9cb93258a4840440d410fa6ff7e819 upstream.
+commit dc88063b87775971be564d79dc1b05f7b8b5c135 upstream.
 
-Currently the color matching descriptor is only sent across the wire
-a single time, following the descriptors for each format and frame.
-According to the UVC 1.5 Specification 3.9.2.6 ("Color Matching
-Descriptors"):
+Always enable multipipe policy on ASICs with GC VERSION > 9.0.0
+instead of MEC number > 1.
 
-"Only one instance is allowed for a given format and if present,
-the Color Matching descriptor shall be placed following the Video
-and Still Image Frame descriptors for that format".
+This will allow multipipe policy on ASICs with one MEC,
+e.g., gfx11 APUs.
 
-Add another reference to the color matching descriptor after the
-yuyv frames so that it's correctly transmitted for that format
-too.
-
-Fixes: a9914127e834 ("USB gadget: Webcam device")
-Cc: stable <stable@kernel.org>
-Signed-off-by: Daniel Scally <dan.scally@ideasonboard.com>
-Reviewed-by: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
-Reviewed-by: Kieran Bingham <kieran.bingham@ideasonboard.com>
-Link: https://lore.kernel.org/r/20221216160528.479094-1-dan.scally@ideasonboard.com
+Signed-off-by: Lang Yu <Lang.Yu@amd.com>
+Reviewed-by: Aaron Liu <aaron.liu@amd.com>
+Reviewed-by: Yifan Zhang <yifan1.zhang@amd.com>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+Cc: stable@vger.kernel.org # 6.1.x
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/usb/gadget/legacy/webcam.c |    3 +++
+ drivers/gpu/drm/amd/amdgpu/amdgpu_gfx.c |    3 +++
  1 file changed, 3 insertions(+)
 
---- a/drivers/usb/gadget/legacy/webcam.c
-+++ b/drivers/usb/gadget/legacy/webcam.c
-@@ -292,6 +292,7 @@ static const struct uvc_descriptor_heade
- 	(const struct uvc_descriptor_header *) &uvc_format_yuv,
- 	(const struct uvc_descriptor_header *) &uvc_frame_yuv_360p,
- 	(const struct uvc_descriptor_header *) &uvc_frame_yuv_720p,
-+	(const struct uvc_descriptor_header *) &uvc_color_matching,
- 	(const struct uvc_descriptor_header *) &uvc_format_mjpg,
- 	(const struct uvc_descriptor_header *) &uvc_frame_mjpg_360p,
- 	(const struct uvc_descriptor_header *) &uvc_frame_mjpg_720p,
-@@ -304,6 +305,7 @@ static const struct uvc_descriptor_heade
- 	(const struct uvc_descriptor_header *) &uvc_format_yuv,
- 	(const struct uvc_descriptor_header *) &uvc_frame_yuv_360p,
- 	(const struct uvc_descriptor_header *) &uvc_frame_yuv_720p,
-+	(const struct uvc_descriptor_header *) &uvc_color_matching,
- 	(const struct uvc_descriptor_header *) &uvc_format_mjpg,
- 	(const struct uvc_descriptor_header *) &uvc_frame_mjpg_360p,
- 	(const struct uvc_descriptor_header *) &uvc_frame_mjpg_720p,
-@@ -316,6 +318,7 @@ static const struct uvc_descriptor_heade
- 	(const struct uvc_descriptor_header *) &uvc_format_yuv,
- 	(const struct uvc_descriptor_header *) &uvc_frame_yuv_360p,
- 	(const struct uvc_descriptor_header *) &uvc_frame_yuv_720p,
-+	(const struct uvc_descriptor_header *) &uvc_color_matching,
- 	(const struct uvc_descriptor_header *) &uvc_format_mjpg,
- 	(const struct uvc_descriptor_header *) &uvc_frame_mjpg_360p,
- 	(const struct uvc_descriptor_header *) &uvc_frame_mjpg_720p,
+--- a/drivers/gpu/drm/amd/amdgpu/amdgpu_gfx.c
++++ b/drivers/gpu/drm/amd/amdgpu/amdgpu_gfx.c
+@@ -156,6 +156,9 @@ static bool amdgpu_gfx_is_compute_multip
+ 		return amdgpu_compute_multipipe == 1;
+ 	}
+ 
++	if (adev->ip_versions[GC_HWIP][0] > IP_VERSION(9, 0, 0))
++		return true;
++
+ 	/* FIXME: spreading the queues across pipes causes perf regressions
+ 	 * on POLARIS11 compute workloads */
+ 	if (adev->asic_type == CHIP_POLARIS11)
 
 
