@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id BCEA8676FCD
-	for <lists+stable@lfdr.de>; Sun, 22 Jan 2023 16:25:24 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 533AA676F15
+	for <lists+stable@lfdr.de>; Sun, 22 Jan 2023 16:17:33 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231376AbjAVPZY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 22 Jan 2023 10:25:24 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53868 "EHLO
+        id S231156AbjAVPRc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 22 Jan 2023 10:17:32 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44474 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231377AbjAVPZX (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 22 Jan 2023 10:25:23 -0500
-Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 65F4322A07
-        for <stable@vger.kernel.org>; Sun, 22 Jan 2023 07:25:21 -0800 (PST)
+        with ESMTP id S231146AbjAVPRc (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 22 Jan 2023 10:17:32 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 90B9E2202A
+        for <stable@vger.kernel.org>; Sun, 22 Jan 2023 07:17:28 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 4A07BCE0F51
-        for <stable@vger.kernel.org>; Sun, 22 Jan 2023 15:25:19 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 16FCAC433D2;
-        Sun, 22 Jan 2023 15:25:16 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 2CF9160C58
+        for <stable@vger.kernel.org>; Sun, 22 Jan 2023 15:17:28 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3B7D8C433D2;
+        Sun, 22 Jan 2023 15:17:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1674401117;
-        bh=zrw4gvJxZUcXgyLe7QzFTvXZhIDKTkg54A6elqKID4c=;
+        s=korg; t=1674400647;
+        bh=haiox6iLeBPtUWjH4aIZTnntV82qgkwc5s0Av5uv0iU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=bB7GyEhhYrhe7M5XontJrGLnLUR4sWpSHoaUZ1zuxtixv7xwq2Jfke1Rlcr649sUQ
-         hi9v2vsp6dwvnOg3pr9TaSrCXOswNe16qwlmSeH2jJSQrpQU0Bf+/E893C6C7RNnqU
-         17yfazh4kLEM8G0Th1LvwencaSNYmoYuTDWnKzQc=
+        b=j+Up1UgyF+sJ2DQTGSdAMVNj7RO0l0/N8zr0Z8yYzrW1EAVrQcPV7X7Q+pifkvPrI
+         f1u4aSN6LqCkX6w3fMw9wy+LRirlGJRacBkhxM1TdxgVIWDzQQn0GtLdrtcVdyO/1C
+         Xuhva3YOXN4H8q+lRvopQ8s/pVseAdS/uh9sLZM8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Peng Fan <peng.fan@nxp.com>,
-        Alexander Stein <alexander.stein@ew.tq-group.com>,
-        Li Jun <jun.li@nxp.com>, Shawn Guo <shawnguo@kernel.org>
-Subject: [PATCH 6.1 116/193] arm64: dts: imx8mp: correct usb clocks
+        patches@lists.linux.dev,
+        =?UTF-8?q?Duke=20Xin ?= <duke_xinanwen@163.com>,
+        Johan Hovold <johan@kernel.org>
+Subject: [PATCH 5.15 055/117] USB: serial: option: add Quectel EM05CN modem
 Date:   Sun, 22 Jan 2023 16:04:05 +0100
-Message-Id: <20230122150251.636547230@linuxfoundation.org>
+Message-Id: <20230122150235.066633308@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.1
-In-Reply-To: <20230122150246.321043584@linuxfoundation.org>
-References: <20230122150246.321043584@linuxfoundation.org>
+In-Reply-To: <20230122150232.736358800@linuxfoundation.org>
+References: <20230122150232.736358800@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,69 +54,104 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Li Jun <jun.li@nxp.com>
+From: Duke Xin(辛安文) <duke_xinanwen@163.com>
 
-commit 8a1ed98fe0f2e7669f0409de0f46f317b275f8be upstream.
+commit 71dfd381a7c051f16a61f82fbd38a4cca563bdca upstream.
 
-After commit cf7f3f4fa9e5 ("clk: imx8mp: fix usb_root_clk parent"),
-usb_root_clk is no longer for suspend clock so update dts accordingly
-to use right bus clock and suspend clock.
+The EM05CN modem has 2 USB configurations that are configurable via the AT
+command AT+QCFG="usbnet",[ 0 | 2 ] which make the modem enumerate with
+the following interfaces, respectively:
 
-Fixes: fb8587a2c165 ("arm64: dtsi: imx8mp: add usb nodes")
-Cc: stable@vger.kernel.org # ed1f4ccfe947: clk: imx: imx8mp: add shared clk gate for usb suspend clk
-Cc: stable@vger.kernel.org # v5.19+
-Reviewed-by: Peng Fan <peng.fan@nxp.com>
-Tested-by: Alexander Stein <alexander.stein@ew.tq-group.com>
-Signed-off-by: Li Jun <jun.li@nxp.com>
-Signed-off-by: Shawn Guo <shawnguo@kernel.org>
+"MBIM"  : AT + MBIM + DIAG + NMEA  + MODEM
+"RMNET" : AT + DIAG + NMEA + Modem + QMI
+
+The detailed description of the USB configuration for each mode as follows:
+
+MBIM Mode
+--------------
+T:  Bus=01 Lev=01 Prnt=01 Port=00 Cnt=01 Dev#=  2 Spd=480  MxCh= 0
+D:  Ver= 2.00 Cls=ef(misc ) Sub=02 Prot=01 MxPS=64 #Cfgs=  1
+P:  Vendor=2c7c ProdID=0312 Rev= 3.18
+S:  Manufacturer=Quectel
+S:  Product=Quectel EM05-CN
+C:* #Ifs= 6 Cfg#= 1 Atr=a0 MxPwr=500mA
+A:  FirstIf#= 1 IfCount= 2 Cls=02(comm.) Sub=0e Prot=00
+I:* If#= 3 Alt= 0 #EPs= 2 Cls=ff(vend.) Sub=ff Prot=ff Driver=option
+E:  Ad=81(I) Atr=02(Bulk) MxPS= 512 Ivl=0ms
+E:  Ad=01(O) Atr=02(Bulk) MxPS= 512 Ivl=0ms
+I:* If#= 4 Alt= 0 #EPs= 3 Cls=ff(vend.) Sub=00 Prot=00 Driver=option
+E:  Ad=83(I) Atr=03(Int.) MxPS=  10 Ivl=32ms
+E:  Ad=82(I) Atr=02(Bulk) MxPS= 512 Ivl=0ms
+E:  Ad=02(O) Atr=02(Bulk) MxPS= 512 Ivl=0ms
+I:* If#= 0 Alt= 0 #EPs= 3 Cls=ff(vend.) Sub=00 Prot=00 Driver=option
+E:  Ad=85(I) Atr=03(Int.) MxPS=  10 Ivl=32ms
+E:  Ad=84(I) Atr=02(Bulk) MxPS= 512 Ivl=0ms
+E:  Ad=03(O) Atr=02(Bulk) MxPS= 512 Ivl=0ms
+I:* If#= 5 Alt= 0 #EPs= 3 Cls=ff(vend.) Sub=00 Prot=00 Driver=option
+E:  Ad=87(I) Atr=03(Int.) MxPS=  10 Ivl=32ms
+E:  Ad=86(I) Atr=02(Bulk) MxPS= 512 Ivl=0ms
+E:  Ad=04(O) Atr=02(Bulk) MxPS= 512 Ivl=0ms
+I:* If#= 1 Alt= 0 #EPs= 1 Cls=02(comm.) Sub=0e Prot=00 Driver=cdc_mbim
+E:  Ad=89(I) Atr=03(Int.) MxPS=  64 Ivl=32ms
+I:  If#= 2 Alt= 0 #EPs= 0 Cls=0a(data ) Sub=00 Prot=02 Driver=cdc_mbim
+I:* If#= 2 Alt= 1 #EPs= 2 Cls=0a(data ) Sub=00 Prot=02 Driver=cdc_mbim
+E:  Ad=88(I) Atr=02(Bulk) MxPS= 512 Ivl=0ms
+E:  Ad=05(O) Atr=02(Bulk) MxPS= 512 Ivl=0ms
+
+RMNET Mode
+--------------
+T:  Bus=01 Lev=01 Prnt=01 Port=00 Cnt=01 Dev#=  3 Spd=480  MxCh= 0
+D:  Ver= 2.00 Cls=ef(misc ) Sub=02 Prot=01 MxPS=64 #Cfgs=  1
+P:  Vendor=2c7c ProdID=0312 Rev= 3.18
+S:  Manufacturer=Quectel
+S:  Product=Quectel EM05-CN
+C:* #Ifs= 5 Cfg#= 1 Atr=a0 MxPwr=500mA
+I:* If#= 3 Alt= 0 #EPs= 2 Cls=ff(vend.) Sub=ff Prot=ff Driver=option
+E:  Ad=81(I) Atr=02(Bulk) MxPS= 512 Ivl=0ms
+E:  Ad=01(O) Atr=02(Bulk) MxPS= 512 Ivl=0ms
+I:* If#= 4 Alt= 0 #EPs= 3 Cls=ff(vend.) Sub=00 Prot=00 Driver=option
+E:  Ad=83(I) Atr=03(Int.) MxPS=  10 Ivl=32ms
+E:  Ad=82(I) Atr=02(Bulk) MxPS= 512 Ivl=0ms
+E:  Ad=02(O) Atr=02(Bulk) MxPS= 512 Ivl=0ms
+I:* If#= 0 Alt= 0 #EPs= 3 Cls=ff(vend.) Sub=00 Prot=00 Driver=option
+E:  Ad=85(I) Atr=03(Int.) MxPS=  10 Ivl=32ms
+E:  Ad=84(I) Atr=02(Bulk) MxPS= 512 Ivl=0ms
+E:  Ad=03(O) Atr=02(Bulk) MxPS= 512 Ivl=0ms
+I:* If#= 5 Alt= 0 #EPs= 3 Cls=ff(vend.) Sub=00 Prot=00 Driver=option
+E:  Ad=87(I) Atr=03(Int.) MxPS=  10 Ivl=32ms
+E:  Ad=86(I) Atr=02(Bulk) MxPS= 512 Ivl=0ms
+E:  Ad=04(O) Atr=02(Bulk) MxPS= 512 Ivl=0ms
+I:* If#= 6 Alt= 0 #EPs= 3 Cls=ff(vend.) Sub=ff Prot=ff Driver=(none)
+E:  Ad=89(I) Atr=03(Int.) MxPS=   8 Ivl=32ms
+E:  Ad=88(I) Atr=02(Bulk) MxPS= 512 Ivl=0ms
+E:  Ad=05(O) Atr=02(Bulk) MxPS= 512 Ivl=0ms
+
+Signed-off-by: Duke Xin(辛安文) <duke_xinanwen@163.com>
+Cc: stable@vger.kernel.org
+Signed-off-by: Johan Hovold <johan@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/arm64/boot/dts/freescale/imx8mp.dtsi |   12 ++++++------
- 1 file changed, 6 insertions(+), 6 deletions(-)
+ drivers/usb/serial/option.c |    3 +++
+ 1 file changed, 3 insertions(+)
 
---- a/arch/arm64/boot/dts/freescale/imx8mp.dtsi
-+++ b/arch/arm64/boot/dts/freescale/imx8mp.dtsi
-@@ -1279,7 +1279,7 @@
- 			reg = <0x32f10100 0x8>,
- 			      <0x381f0000 0x20>;
- 			clocks = <&clk IMX8MP_CLK_HSIO_ROOT>,
--				 <&clk IMX8MP_CLK_USB_ROOT>;
-+				 <&clk IMX8MP_CLK_USB_SUSP>;
- 			clock-names = "hsio", "suspend";
- 			interrupts = <GIC_SPI 148 IRQ_TYPE_LEVEL_HIGH>;
- 			power-domains = <&hsio_blk_ctrl IMX8MP_HSIOBLK_PD_USB>;
-@@ -1292,9 +1292,9 @@
- 			usb_dwc3_0: usb@38100000 {
- 				compatible = "snps,dwc3";
- 				reg = <0x38100000 0x10000>;
--				clocks = <&clk IMX8MP_CLK_HSIO_AXI>,
-+				clocks = <&clk IMX8MP_CLK_USB_ROOT>,
- 					 <&clk IMX8MP_CLK_USB_CORE_REF>,
--					 <&clk IMX8MP_CLK_USB_ROOT>;
-+					 <&clk IMX8MP_CLK_USB_SUSP>;
- 				clock-names = "bus_early", "ref", "suspend";
- 				interrupts = <GIC_SPI 40 IRQ_TYPE_LEVEL_HIGH>;
- 				phys = <&usb3_phy0>, <&usb3_phy0>;
-@@ -1321,7 +1321,7 @@
- 			reg = <0x32f10108 0x8>,
- 			      <0x382f0000 0x20>;
- 			clocks = <&clk IMX8MP_CLK_HSIO_ROOT>,
--				 <&clk IMX8MP_CLK_USB_ROOT>;
-+				 <&clk IMX8MP_CLK_USB_SUSP>;
- 			clock-names = "hsio", "suspend";
- 			interrupts = <GIC_SPI 149 IRQ_TYPE_LEVEL_HIGH>;
- 			power-domains = <&hsio_blk_ctrl IMX8MP_HSIOBLK_PD_USB>;
-@@ -1334,9 +1334,9 @@
- 			usb_dwc3_1: usb@38200000 {
- 				compatible = "snps,dwc3";
- 				reg = <0x38200000 0x10000>;
--				clocks = <&clk IMX8MP_CLK_HSIO_AXI>,
-+				clocks = <&clk IMX8MP_CLK_USB_ROOT>,
- 					 <&clk IMX8MP_CLK_USB_CORE_REF>,
--					 <&clk IMX8MP_CLK_USB_ROOT>;
-+					 <&clk IMX8MP_CLK_USB_SUSP>;
- 				clock-names = "bus_early", "ref", "suspend";
- 				interrupts = <GIC_SPI 41 IRQ_TYPE_LEVEL_HIGH>;
- 				phys = <&usb3_phy1>, <&usb3_phy1>;
+--- a/drivers/usb/serial/option.c
++++ b/drivers/usb/serial/option.c
+@@ -258,6 +258,7 @@ static void option_instat_callback(struc
+ #define QUECTEL_PRODUCT_EM05G_CS		0x030c
+ #define QUECTEL_PRODUCT_EM05CN_SG		0x0310
+ #define QUECTEL_PRODUCT_EM05G_SG		0x0311
++#define QUECTEL_PRODUCT_EM05CN			0x0312
+ #define QUECTEL_PRODUCT_EM05G_GR		0x0313
+ #define QUECTEL_PRODUCT_EM05G_RS		0x0314
+ #define QUECTEL_PRODUCT_EM12			0x0512
+@@ -1164,6 +1165,8 @@ static const struct usb_device_id option
+ 	{ USB_DEVICE_AND_INTERFACE_INFO(QUECTEL_VENDOR_ID, QUECTEL_PRODUCT_EP06, 0xff, 0xff, 0xff),
+ 	  .driver_info = RSVD(1) | RSVD(2) | RSVD(3) | RSVD(4) | NUMEP2 },
+ 	{ USB_DEVICE_AND_INTERFACE_INFO(QUECTEL_VENDOR_ID, QUECTEL_PRODUCT_EP06, 0xff, 0, 0) },
++	{ USB_DEVICE_INTERFACE_CLASS(QUECTEL_VENDOR_ID, QUECTEL_PRODUCT_EM05CN, 0xff),
++	  .driver_info = RSVD(6) | ZLP },
+ 	{ USB_DEVICE_INTERFACE_CLASS(QUECTEL_VENDOR_ID, QUECTEL_PRODUCT_EM05CN_SG, 0xff),
+ 	  .driver_info = RSVD(6) | ZLP },
+ 	{ USB_DEVICE_INTERFACE_CLASS(QUECTEL_VENDOR_ID, QUECTEL_PRODUCT_EM05G, 0xff),
 
 
