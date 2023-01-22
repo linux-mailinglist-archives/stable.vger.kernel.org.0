@@ -2,111 +2,158 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 9D197676FC4
-	for <lists+stable@lfdr.de>; Sun, 22 Jan 2023 16:25:04 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A1D2967702C
+	for <lists+stable@lfdr.de>; Sun, 22 Jan 2023 16:34:44 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231381AbjAVPZD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 22 Jan 2023 10:25:03 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53298 "EHLO
+        id S229863AbjAVPen convert rfc822-to-8bit (ORCPT
+        <rfc822;lists+stable@lfdr.de>); Sun, 22 Jan 2023 10:34:43 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59338 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231373AbjAVPZC (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 22 Jan 2023 10:25:02 -0500
-Received: from frasgout11.his.huawei.com (frasgout11.his.huawei.com [14.137.139.23])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C3B5B222C8;
-        Sun, 22 Jan 2023 07:25:00 -0800 (PST)
-Received: from mail02.huawei.com (unknown [172.18.147.227])
-        by frasgout11.his.huawei.com (SkyGuard) with ESMTP id 4P0Gzw4G5Mz9y4Zd;
-        Sun, 22 Jan 2023 23:17:00 +0800 (CST)
-Received: from [10.48.133.163] (unknown [10.48.133.163])
-        by APP2 (Coremail) with SMTP id GxC2BwAH3WMnVc1jR4O4AA--.31050S2;
-        Sun, 22 Jan 2023 16:24:34 +0100 (CET)
-Message-ID: <9a1c7959-4b8c-94df-a3e2-e69be72bfd7d@huaweicloud.com>
-Date:   Sun, 22 Jan 2023 16:24:21 +0100
+        with ESMTP id S229795AbjAVPem (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 22 Jan 2023 10:34:42 -0500
+Received: from eu-smtp-delivery-151.mimecast.com (eu-smtp-delivery-151.mimecast.com [185.58.86.151])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5050522016
+        for <stable@vger.kernel.org>; Sun, 22 Jan 2023 07:34:40 -0800 (PST)
+Received: from AcuMS.aculab.com (156.67.243.121 [156.67.243.121]) by
+ relay.mimecast.com with ESMTP with STARTTLS (version=TLSv1.2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA384) id
+ uk-mta-119-RGTkmPo5N8SxIyIu6i-JoQ-1; Sun, 22 Jan 2023 15:34:37 +0000
+X-MC-Unique: RGTkmPo5N8SxIyIu6i-JoQ-1
+Received: from AcuMS.Aculab.com (10.202.163.6) by AcuMS.aculab.com
+ (10.202.163.6) with Microsoft SMTP Server (TLS) id 15.0.1497.42; Sun, 22 Jan
+ 2023 15:34:35 +0000
+Received: from AcuMS.Aculab.com ([::1]) by AcuMS.aculab.com ([::1]) with mapi
+ id 15.00.1497.044; Sun, 22 Jan 2023 15:34:35 +0000
+From:   David Laight <David.Laight@ACULAB.COM>
+To:     'Marc Zyngier' <maz@kernel.org>, Leon Romanovsky <leon@kernel.org>
+CC:     Alexander Shishkin <alexander.shishkin@linux.intel.com>,
+        Bjorn Helgaas <bhelgaas@google.com>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        "linux-pci@vger.kernel.org" <linux-pci@vger.kernel.org>,
+        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+        "darwi@linutronix.de" <darwi@linutronix.de>,
+        "elena.reshetova@intel.com" <elena.reshetova@intel.com>,
+        "kirill.shutemov@linux.intel.com" <kirill.shutemov@linux.intel.com>,
+        Mika Westerberg <mika.westerberg@linux.intel.com>,
+        "stable@vger.kernel.org" <stable@vger.kernel.org>
+Subject: RE: [PATCH 1/2] PCI/MSI: Cache the MSIX table size
+Thread-Topic: [PATCH 1/2] PCI/MSI: Cache the MSIX table size
+Thread-Index: AQHZLlBNW/hs6U8HNk6tbQqnXl3oAq6qh0bQ
+Date:   Sun, 22 Jan 2023 15:34:34 +0000
+Message-ID: <70d987962acf454f8db4dd131a858b55@AcuMS.aculab.com>
+References: <20230119170633.40944-1-alexander.shishkin@linux.intel.com>
+        <20230119170633.40944-2-alexander.shishkin@linux.intel.com>
+        <Y8z7FPcuDXDBi+1U@unreal> <86fsc2n8fp.wl-maz@kernel.org>
+In-Reply-To: <86fsc2n8fp.wl-maz@kernel.org>
+Accept-Language: en-GB, en-US
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+x-ms-exchange-transport-fromentityheader: Hosted
+x-originating-ip: [10.202.205.107]
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:102.0) Gecko/20100101
- Thunderbird/102.7.0
-Subject: Re: [PATCH] Fix data race in mark_rt_mutex_waiters
+X-Mimecast-Spam-Score: 0
+X-Mimecast-Originator: aculab.com
 Content-Language: en-US
-To:     paulmck@kernel.org, Arjan van de Ven <arjan@linux.intel.com>
-Cc:     peterz@infradead.org, mingo@redhat.com, will@kernel.org,
-        longman@redhat.com, boqun.feng@gmail.com, akpm@osdl.org,
-        tglx@linutronix.de, joel@joelfernandes.org,
-        stern@rowland.harvard.edu, diogo.behrens@huawei.com,
-        jonas.oberhauser@huawei.com, linux-kernel@vger.kernel.org,
-        Hernan Ponce de Leon <hernanl.leon@huawei.com>,
-        stable@vger.kernel.org
-References: <20230120135525.25561-1-hernan.poncedeleon@huaweicloud.com>
- <562c883b-b2c3-3a27-f045-97e7e3281e0b@linux.intel.com>
- <20230120155439.GI2948950@paulmck-ThinkPad-P17-Gen-1>
-From:   Hernan Ponce de Leon <hernan.poncedeleon@huaweicloud.com>
-In-Reply-To: <20230120155439.GI2948950@paulmck-ThinkPad-P17-Gen-1>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
-X-CM-TRANSID: GxC2BwAH3WMnVc1jR4O4AA--.31050S2
-X-Coremail-Antispam: 1UD129KBjvJXoW7CFy5Ww15Ww47ZrW8ZrW3Awb_yoW8WF48pF
-        yrGay8tFWUtr40vry09Fn2gry5t3y5CFWfC3W7G348Aas8tFnIqrn7C3y7WryxXryvyrWa
-        vr4avFy2vF98ZaDanT9S1TB71UUUUUUqnTZGkaVYY2UrUUUUjbIjqfuFe4nvWSU5nxnvy2
-        9KBjDU0xBIdaVrnRJUUUvIb4IE77IF4wAFF20E14v26ryj6rWUM7CY07I20VC2zVCF04k2
-        6cxKx2IYs7xG6r1F6r1fM7CIcVAFz4kK6r1j6r18M28lY4IEw2IIxxk0rwA2F7IY1VAKz4
-        vEj48ve4kI8wA2z4x0Y4vE2Ix0cI8IcVAFwI0_Jr0_JF4l84ACjcxK6xIIjxv20xvEc7Cj
-        xVAFwI0_Gr0_Cr1l84ACjcxK6I8E87Iv67AKxVW8JVWxJwA2z4x0Y4vEx4A2jsIEc7CjxV
-        AFwI0_Gr0_Gr1UM2AIxVAIcxkEcVAq07x20xvEncxIr21l5I8CrVACY4xI64kE6c02F40E
-        x7xfMcIj6xIIjxv20xvE14v26r1j6r18McIj6I8E87Iv67AKxVWUJVW8JwAm72CE4IkC6x
-        0Yz7v_Jr0_Gr1lF7xvr2IY64vIr41lFIxGxcIEc7CjxVA2Y2ka0xkIwI1lc7I2V7IY0VAS
-        07AlzVAYIcxG8wCF04k20xvY0x0EwIxGrwCFx2IqxVCFs4IE7xkEbVWUJVW8JwC20s026c
-        02F40E14v26r1j6r18MI8I3I0E7480Y4vE14v26r106r1rMI8E67AF67kF1VAFwI0_GFv_
-        WrylIxkGc2Ij64vIr41lIxAIcVC0I7IYx2IY67AKxVWUJVWUCwCI42IY6xIIjxv20xvEc7
-        CjxVAFwI0_Gr0_Cr1lIxAIcVCF04k26cxKx2IYs7xG6rWUJVWrZr1UMIIF0xvEx4A2jsIE
-        14v26r1j6r4UMIIF0xvEx4A2jsIEc7CjxVAFwI0_Gr0_Gr1UYxBIdaVFxhVjvjDU0xZFpf
-        9x07UZ18PUUUUU=
-X-CM-SenderInfo: xkhu0tnqos00pfhgvzhhrqqx5xdzvxpfor3voofrz/
-X-CFilter-Loop: Reflected
-X-Spam-Status: No, score=-3.0 required=5.0 tests=BAYES_00,NICE_REPLY_A,
-        SPF_HELO_NONE,SPF_NONE,URIBL_BLOCKED autolearn=ham autolearn_force=no
-        version=3.4.6
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8BIT
+X-Spam-Status: No, score=-1.9 required=5.0 tests=BAYES_00,RCVD_IN_DNSWL_NONE,
+        SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 1/20/2023 4:54 PM, Paul E. McKenney wrote:
-> On Fri, Jan 20, 2023 at 06:58:20AM -0800, Arjan van de Ven wrote:
->> On 1/20/2023 5:55 AM, Hernan Ponce de Leon wrote:
->>> From: Hernan Ponce de Leon <hernanl.leon@huawei.com>
->>>
->>
->>>    kernel/locking/rtmutex.c | 2 +-
->>>    1 file changed, 1 insertion(+), 1 deletion(-)
->>>
->>> diff --git a/kernel/locking/rtmutex.c b/kernel/locking/rtmutex.c
->>> index 010cf4e6d0b8..7ed9472edd48 100644
->>> --- a/kernel/locking/rtmutex.c
->>> +++ b/kernel/locking/rtmutex.c
->>> @@ -235,7 +235,7 @@ static __always_inline void mark_rt_mutex_waiters(struct rt_mutex_base *lock)
->>>    	unsigned long owner, *p = (unsigned long *) &lock->owner;
->>>    	do {
->>> -		owner = *p;
->>> +		owner = READ_ONCE(*p);
->>>    	} while (cmpxchg_relaxed(p, owner,
->>
->>
->> I don't see how this makes any difference at all.
->> *p can be read a dozen times and it's fine; cmpxchg has barrier semantics for compilers afaics
+From: Marc Zyngier
+> Sent: 22 January 2023 10:57
 > 
-> Doing so does suppress a KCSAN warning.  You could also use data_race()
-> if it turns out that the volatile semantics would prevent a valuable
-> compiler optimization.
+> On Sun, 22 Jan 2023 09:00:04 +0000,
+> Leon Romanovsky <leon@kernel.org> wrote:
+> >
+> > On Thu, Jan 19, 2023 at 07:06:32PM +0200, Alexander Shishkin wrote:
+> > > A malicious device can change its MSIX table size between the table
+> > > ioremap() and subsequent accesses, resulting in a kernel page fault in
+> > > pci_write_msg_msix().
+> > >
+> > > To avoid this, cache the table size observed at the moment of table
+> > > ioremap() and use the cached value. This, however, does not help drivers
+> > > that peek at the PCIE_MSIX_FLAGS register directly.
+> > >
+> > > Signed-off-by: Alexander Shishkin <alexander.shishkin@linux.intel.com>
+> > > Reviewed-by: Mika Westerberg <mika.westerberg@linux.intel.com>
+> > > Cc: stable@vger.kernel.org
+> > > ---
+> > >  drivers/pci/msi/api.c | 7 ++++++-
+> > >  drivers/pci/msi/msi.c | 2 +-
+> > >  include/linux/pci.h   | 1 +
+> > >  3 files changed, 8 insertions(+), 2 deletions(-)
+> >
+> > I'm not security expert here, but not sure that this protects from anything.
+> > 1. Kernel relies on working and not-malicious HW. There are gazillion ways
+> > to cause crashes other than changing MSI-X.
+> > 2. Device can report large table size, kernel will cache it and
+> > malicious device will reduce it back. It is not handled and will cause
+> > to kernel crash too.
+> >
+> 
+> Indeed, this was my exact reaction reading this patch. This only makes
+> sure the same (potentially wrong) value is used at all times. So while
+> this results in a consistent use, this doesn't give much guarantee.
 
-I think the import question is "is this a harmful data race (and needs 
-to be fixed as proposed by the patch) or a harmless one (and we should 
-use data_race() to silence tools)?".
+Yep, the device can 'choose' to error any PCIe read.
 
-In https://lkml.org/lkml/2023/1/22/160 I describe how this data race can 
-affect important ordering guarantees for the rest of the code. For this 
-reason I consider it a harmful one. If this is not the case, I would 
-appreciate some feedback or pointer to resources about what races care 
-to avoid spamming the mailing list in the future.
+> The only way to deal with this is to actually handle the resulting
+> fault, similar to what the kernel does when accessing userspace. Not
+> sure how possible this is with something like PCIe.
 
-Hernan
+I don't think you get a fault, the PCIe read completes with value ~0.
+You might get an AER indication, that may not be helpful at all.
+We've some x86 systems where that ends up as an NMI and panic!
+
+A more valid reason for caching the MSIX table size is to avoid
+doing a slow PCIe read.
+I'm not sure how fast they are on 'normal' hardware, but the Altera
+fpga we use is particularly pedestrian.
+I just measured back-to-back reads at 126 clocks of the internal
+125MHz clock so almost exactly 1us - or 3000 clocks of a 3GHz cpu.
+(I added PCIe trace to the fpga so we can see what goes on.)
+
+There is actually a much more 'interesting' issue with MSIX.
+There are 16 bytes of data for each interrupt.
+
+The kernel doesn't even try to ensure they are written as
+a single PCIe TLP, and even if it did there is no real
+guarantee the writes aren't split before the logic that
+raises interrupts reads the values.
+
+It is also quite likely that the interrupt raising logic
+doesn't to an atomic read of all 16 bytes, so a cpu write
+could split the reads.
+
+This doesn't normally matter - the interrupt is enabled long
+after the address/data fields are initialised.
+But if the interrupt affinity is changed both the address and
+data fields are likely to be changed on an interrupt that is
+(nominally) enabled.
+
+It is pretty easy to imagine the new address being used with
+the old data (or v.v.) or even a 'torn read' of the 64bit
+address field.
+
+I don't remember seeing anything in the MSIX spec about
+requirements on the hardware - which puts the onus on
+the software to ensure the MSIX data is always valid.
+This means that changing the vector needs to:
+	Disable the interrupt.
+	Delay (a read from the MSIX block is probably enough).
+	Update the address and data.
+	Delay.
+	Enable the interrupt.
+But I don't remember seeing the kernel to any of that.
+
+	David.
+
+-
+Registered Address Lakeside, Bramley Road, Mount Farm, Milton Keynes, MK1 1PT, UK
+Registration No: 1397386 (Wales)
 
