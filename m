@@ -2,40 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 2C929676D17
-	for <lists+stable@lfdr.de>; Sun, 22 Jan 2023 14:16:47 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 96615676D19
+	for <lists+stable@lfdr.de>; Sun, 22 Jan 2023 14:19:00 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229699AbjAVNQq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 22 Jan 2023 08:16:46 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48430 "EHLO
+        id S229643AbjAVNS6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 22 Jan 2023 08:18:58 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48916 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229566AbjAVNQq (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 22 Jan 2023 08:16:46 -0500
+        with ESMTP id S229566AbjAVNS5 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 22 Jan 2023 08:18:57 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E6BF81631C
-        for <stable@vger.kernel.org>; Sun, 22 Jan 2023 05:16:44 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C7AA316AD0
+        for <stable@vger.kernel.org>; Sun, 22 Jan 2023 05:18:54 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 81C7A60C15
-        for <stable@vger.kernel.org>; Sun, 22 Jan 2023 13:16:44 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9791DC433D2;
-        Sun, 22 Jan 2023 13:16:43 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 5F6A560C0D
+        for <stable@vger.kernel.org>; Sun, 22 Jan 2023 13:18:54 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 42D1FC433EF;
+        Sun, 22 Jan 2023 13:18:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1674393404;
-        bh=MsFFZ3w8uIeVWjETmeMNynJt/zObjh+bDPpwlLKUtlM=;
+        s=korg; t=1674393533;
+        bh=thrI98yT5EOc2WGWvKeXnpLgPDMyV2UD/2Y62PpjVh4=;
         h=Subject:To:Cc:From:Date:From;
-        b=Mv7hsWK+d1PBHx1JqUKBCDUO1nfGEn/YEHIjBxaXprz0MDwT7Ou26GPyfIoFLOlky
-         9uwvGCHoLIDiFC1J4jvJ+NsFpn+nbwY/qxdLTci+vcX+/YB5kF0UmF5yTA5xdnEezl
-         6DCnK218M4Ho1nwZmY+677AaCNjrLx4+nnkInSsk=
-Subject: FAILED: patch "[PATCH] usb: typec: tcpm: Fix altmode re-registration causes sysfs" failed to apply to 5.4-stable tree
-To:     cy_huang@richtek.com, gregkh@linuxfoundation.org,
-        heikki.krogerus@linux.intel.com, macpaul.lin@mediatek.com,
-        tommyyl.chen@mediatek.com
+        b=lOob2JGpT7EVSWVuYB50vmYh6kFbUt2hbd1j3dMoMqIOUCi84AgpYs+d12Gg/8z/7
+         AenhnEPIKotcjV9EFKQCSIfSBp7aGQ4zDfH/D9OhbfAeOY6rdOJqzT6qTMyAJizj1L
+         x0ipXhAM22d17gwEM12d6nBOJNQV19LEjjJB2pOE=
+Subject: FAILED: patch "[PATCH] arm64: dts: imx8mp: correct usb clocks" failed to apply to 5.15-stable tree
+To:     jun.li@nxp.com, alexander.stein@ew.tq-group.com, peng.fan@nxp.com,
+        shawnguo@kernel.org
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Sun, 22 Jan 2023 14:16:33 +0100
-Message-ID: <167439339320236@kroah.com>
+Date:   Sun, 22 Jan 2023 14:18:50 +0100
+Message-ID: <167439353022316@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -50,33 +49,14 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.4-stable tree.
+The patch below does not apply to the 5.15-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
 
 Possible dependencies:
 
-36f78477ac2c ("usb: typec: tcpm: Fix altmode re-registration causes sysfs create fail")
-ef52b4a9fcc2 ("usb: typec: tcpm: Raise vdm_sm_running flag only when VDM SM is running")
-5571ea3117ca ("usb: typec: tcpm: Fix VDMs sometimes not being forwarded to alt-mode drivers")
-2b537cf877ea ("usb: typec: tcpm: Relax disconnect threshold during power negotiation")
-c34e85fa69b9 ("usb: typec: tcpm: Send DISCOVER_IDENTITY from dedicated work")
-e00943e91678 ("usb: typec: tcpm: PD3.0 sinks can send Discover Identity even in device mode")
-5e1d4c49fbc8 ("usb: typec: tcpm: Determine common SVDM Version")
-31737c27d665 ("usb: pd: Make SVDM Version configurable in VDM header")
-8d3a0578ad1a ("usb: typec: tcpm: Respond Wait if VDM state machine is running")
-8dea75e11380 ("usb: typec: tcpm: Protocol Error handling")
-0908c5aca31e ("usb: typec: tcpm: AMS and Collision Avoidance")
-60e998d1c6d9 ("USB: typec: tcpm: Hard Reset after not receiving a Request")
-3bac42f02d41 ("usb: typec: tcpm: Clear send_discover in tcpm_check_send_discover")
-f321a02caebd ("usb: typec: tcpm: Implement enabling Auto Discharge disconnect support")
-a30a00e37ceb ("usb: typec: tcpm: frs sourcing vbus callback")
-8dc4bd073663 ("usb: typec: tcpm: Add support for Sink Fast Role SWAP(FRS)")
-3ed8e1c2ac99 ("usb: typec: tcpm: Migrate workqueue to RT priority for processing events")
-aefc66afe42b ("usb: typec: pd: Fix formatting in pd.h header")
-6bbe2a90a0bb ("usb: typec: tcpm: During PR_SWAP, source caps should be sent only after tSwapSourceStart")
-95b4d51c96a8 ("usb: typec: tcpm: Refactor tcpm_handle_vdm_request")
+8a1ed98fe0f2 ("arm64: dts: imx8mp: correct usb clocks")
 
 thanks,
 
@@ -84,60 +64,67 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From 36f78477ac2c89e9a2eed4a31404a291a3450b5d Mon Sep 17 00:00:00 2001
-From: ChiYuan Huang <cy_huang@richtek.com>
-Date: Mon, 9 Jan 2023 15:19:50 +0800
-Subject: [PATCH] usb: typec: tcpm: Fix altmode re-registration causes sysfs
- create fail
+From 8a1ed98fe0f2e7669f0409de0f46f317b275f8be Mon Sep 17 00:00:00 2001
+From: Li Jun <jun.li@nxp.com>
+Date: Fri, 30 Sep 2022 22:54:23 +0800
+Subject: [PATCH] arm64: dts: imx8mp: correct usb clocks
 
-There's the altmode re-registeration issue after data role
-swap (DR_SWAP).
+After commit cf7f3f4fa9e5 ("clk: imx8mp: fix usb_root_clk parent"),
+usb_root_clk is no longer for suspend clock so update dts accordingly
+to use right bus clock and suspend clock.
 
-Comparing to USBPD 2.0, in USBPD 3.0, it loose the limit that only DFP
-can initiate the VDM command to get partner identity information.
+Fixes: fb8587a2c165 ("arm64: dtsi: imx8mp: add usb nodes")
+Cc: stable@vger.kernel.org # ed1f4ccfe947: clk: imx: imx8mp: add shared clk gate for usb suspend clk
+Cc: stable@vger.kernel.org # v5.19+
+Reviewed-by: Peng Fan <peng.fan@nxp.com>
+Tested-by: Alexander Stein <alexander.stein@ew.tq-group.com>
+Signed-off-by: Li Jun <jun.li@nxp.com>
+Signed-off-by: Shawn Guo <shawnguo@kernel.org>
 
-For a USBPD 3.0 UFP device, it may already get the identity information
-from its port partner before DR_SWAP. If DR_SWAP send or receive at the
-mean time, 'send_discover' flag will be raised again. It causes discover
-identify action restart while entering ready state. And after all
-discover actions are done, the 'tcpm_register_altmodes' will be called.
-If old altmode is not unregistered, this sysfs create fail can be found.
-
-In 'DR_SWAP_CHANGE_DR' state case, only DFP will unregister altmodes.
-For UFP, the original altmodes keep registered.
-
-This patch fix the logic that after DR_SWAP, 'tcpm_unregister_altmodes'
-must be called whatever the current data role is.
-
-Reviewed-by: Macpaul Lin <macpaul.lin@mediatek.com>
-Fixes: ae8a2ca8a221 ("usb: typec: Group all TCPCI/TCPM code together")
-Reported-by: TommyYl Chen <tommyyl.chen@mediatek.com>
-Cc: stable@vger.kernel.org
-Signed-off-by: ChiYuan Huang <cy_huang@richtek.com>
-Acked-by: Heikki Krogerus <heikki.krogerus@linux.intel.com>
-Link: https://lore.kernel.org/r/1673248790-15794-1-git-send-email-cy_huang@richtek.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-
-diff --git a/drivers/usb/typec/tcpm/tcpm.c b/drivers/usb/typec/tcpm/tcpm.c
-index 904c7b4ce2f0..59b366b5c614 100644
---- a/drivers/usb/typec/tcpm/tcpm.c
-+++ b/drivers/usb/typec/tcpm/tcpm.c
-@@ -4594,14 +4594,13 @@ static void run_state_machine(struct tcpm_port *port)
- 		tcpm_set_state(port, ready_state(port), 0);
- 		break;
- 	case DR_SWAP_CHANGE_DR:
--		if (port->data_role == TYPEC_HOST) {
--			tcpm_unregister_altmodes(port);
-+		tcpm_unregister_altmodes(port);
-+		if (port->data_role == TYPEC_HOST)
- 			tcpm_set_roles(port, true, port->pwr_role,
- 				       TYPEC_DEVICE);
--		} else {
-+		else
- 			tcpm_set_roles(port, true, port->pwr_role,
- 				       TYPEC_HOST);
--		}
- 		tcpm_ams_finish(port);
- 		tcpm_set_state(port, ready_state(port), 0);
- 		break;
+diff --git a/arch/arm64/boot/dts/freescale/imx8mp.dtsi b/arch/arm64/boot/dts/freescale/imx8mp.dtsi
+index 7a6e6221f421..6a04d81c69e6 100644
+--- a/arch/arm64/boot/dts/freescale/imx8mp.dtsi
++++ b/arch/arm64/boot/dts/freescale/imx8mp.dtsi
+@@ -1297,7 +1297,7 @@ usb3_0: usb@32f10100 {
+ 			reg = <0x32f10100 0x8>,
+ 			      <0x381f0000 0x20>;
+ 			clocks = <&clk IMX8MP_CLK_HSIO_ROOT>,
+-				 <&clk IMX8MP_CLK_USB_ROOT>;
++				 <&clk IMX8MP_CLK_USB_SUSP>;
+ 			clock-names = "hsio", "suspend";
+ 			interrupts = <GIC_SPI 148 IRQ_TYPE_LEVEL_HIGH>;
+ 			power-domains = <&hsio_blk_ctrl IMX8MP_HSIOBLK_PD_USB>;
+@@ -1310,9 +1310,9 @@ usb3_0: usb@32f10100 {
+ 			usb_dwc3_0: usb@38100000 {
+ 				compatible = "snps,dwc3";
+ 				reg = <0x38100000 0x10000>;
+-				clocks = <&clk IMX8MP_CLK_HSIO_AXI>,
++				clocks = <&clk IMX8MP_CLK_USB_ROOT>,
+ 					 <&clk IMX8MP_CLK_USB_CORE_REF>,
+-					 <&clk IMX8MP_CLK_USB_ROOT>;
++					 <&clk IMX8MP_CLK_USB_SUSP>;
+ 				clock-names = "bus_early", "ref", "suspend";
+ 				interrupts = <GIC_SPI 40 IRQ_TYPE_LEVEL_HIGH>;
+ 				phys = <&usb3_phy0>, <&usb3_phy0>;
+@@ -1339,7 +1339,7 @@ usb3_1: usb@32f10108 {
+ 			reg = <0x32f10108 0x8>,
+ 			      <0x382f0000 0x20>;
+ 			clocks = <&clk IMX8MP_CLK_HSIO_ROOT>,
+-				 <&clk IMX8MP_CLK_USB_ROOT>;
++				 <&clk IMX8MP_CLK_USB_SUSP>;
+ 			clock-names = "hsio", "suspend";
+ 			interrupts = <GIC_SPI 149 IRQ_TYPE_LEVEL_HIGH>;
+ 			power-domains = <&hsio_blk_ctrl IMX8MP_HSIOBLK_PD_USB>;
+@@ -1352,9 +1352,9 @@ usb3_1: usb@32f10108 {
+ 			usb_dwc3_1: usb@38200000 {
+ 				compatible = "snps,dwc3";
+ 				reg = <0x38200000 0x10000>;
+-				clocks = <&clk IMX8MP_CLK_HSIO_AXI>,
++				clocks = <&clk IMX8MP_CLK_USB_ROOT>,
+ 					 <&clk IMX8MP_CLK_USB_CORE_REF>,
+-					 <&clk IMX8MP_CLK_USB_ROOT>;
++					 <&clk IMX8MP_CLK_USB_SUSP>;
+ 				clock-names = "bus_early", "ref", "suspend";
+ 				interrupts = <GIC_SPI 41 IRQ_TYPE_LEVEL_HIGH>;
+ 				phys = <&usb3_phy1>, <&usb3_phy1>;
 
