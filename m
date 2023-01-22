@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 88474676F46
-	for <lists+stable@lfdr.de>; Sun, 22 Jan 2023 16:19:40 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8021567701F
+	for <lists+stable@lfdr.de>; Sun, 22 Jan 2023 16:28:48 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231217AbjAVPTj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 22 Jan 2023 10:19:39 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46706 "EHLO
+        id S230049AbjAVP2r (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 22 Jan 2023 10:28:47 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56622 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231215AbjAVPTj (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 22 Jan 2023 10:19:39 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9509E21954
-        for <stable@vger.kernel.org>; Sun, 22 Jan 2023 07:19:38 -0800 (PST)
+        with ESMTP id S230037AbjAVP2q (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 22 Jan 2023 10:28:46 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B943014EAE
+        for <stable@vger.kernel.org>; Sun, 22 Jan 2023 07:28:45 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 4F8FEB80B11
-        for <stable@vger.kernel.org>; Sun, 22 Jan 2023 15:19:37 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id ADD64C433EF;
-        Sun, 22 Jan 2023 15:19:35 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 5570660C43
+        for <stable@vger.kernel.org>; Sun, 22 Jan 2023 15:28:45 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6C6E4C433D2;
+        Sun, 22 Jan 2023 15:28:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1674400776;
-        bh=CcOCemWBOBJdmiaDIox2Zaxxg+IYB9jzUhtNt639Mpo=;
+        s=korg; t=1674401324;
+        bh=q8RxaKkZa3z1jD5IgvM8AuYwwoNN7WtEjrjvuHUlLYI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=chHG7jFc3ECw57FveLmZGc1O+5jQSIvT66LLGY4mRNAxL6+9WSNCTFXteUAWgqigf
-         50G04EaIxFSw0I3chh/M8cQWpvYO1C+LGXZBGz37iEMlVSp2mJby05coRLIlcMQg8/
-         E1Rwp4eTaEfE62s1TBEW32TwCwqfYN0mAEi7X1p0=
+        b=un9fK4jbbFfJGDRJv0lsc1yu3g9jtJpLDRlBdJ3DTMYdzrHC+xZAGj96HWJLj+dA9
+         wmOqHxq4Ep2yi9e28YWWrxzC2Esug+ZM6B4sNMl9nC4Db5EIvXI+BY3GgVjhQGQ4D3
+         F2RgJUYw62ITu3WMCgynbalQ9IjOxsbrZOhu5njw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, David Laight <David.Laight@ACULAB.COM>,
-        "Steven Rostedt (Google)" <rostedt@goodmis.org>,
-        Nathan Chancellor <nathan@kernel.org>
-Subject: [PATCH 5.15 105/117] tracing: Use alignof__(struct {type b;}) instead of offsetof()
-Date:   Sun, 22 Jan 2023 16:04:55 +0100
-Message-Id: <20230122150237.194380757@linuxfoundation.org>
+        patches@lists.linux.dev, Yifan Zhang <yifan1.zhang@amd.com>,
+        Aaron Liu <aaron.liu@amd.com>,
+        Alex Deucher <alexander.deucher@amd.com>,
+        "Limonciello, Mario" <Mario.Limonciello@amd.com>
+Subject: [PATCH 6.1 167/193] drm/amdgpu: add gfx support for GC 11.0.4
+Date:   Sun, 22 Jan 2023 16:04:56 +0100
+Message-Id: <20230122150254.041225679@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.1
-In-Reply-To: <20230122150232.736358800@linuxfoundation.org>
-References: <20230122150232.736358800@linuxfoundation.org>
+In-Reply-To: <20230122150246.321043584@linuxfoundation.org>
+References: <20230122150246.321043584@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,41 +55,67 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: "Steven Rostedt (Google)" <rostedt@goodmis.org>
+From: Yifan Zhang <yifan1.zhang@amd.com>
 
-commit 09794a5a6c348f629b35fc1687071a1622ef4265 upstream.
+commit 1763cb65e870e783e26d2dc9def4edbeadcb1050 upstream.
 
-Simplify:
+this patch to add GC 11.0.4 gfx support to gfx11 implementation.
 
-  #define ALIGN_STRUCTFIELD(type) ((int)(offsetof(struct {char a; type b;}, b)))
-
-with
-
-  #define  ALIGN_STRUCTFIELD(type) __alignof__(struct {type b;})
-
-Which works just the same.
-
-Link: https://lore.kernel.org/all/a7d202457150472588df0bd3b7334b3f@AcuMS.aculab.com/
-Link: https://lkml.kernel.org/r/20220802154412.513c50e3@gandalf.local.home
-
-Suggested-by: David Laight <David.Laight@ACULAB.COM>
-Signed-off-by: Steven Rostedt (Google) <rostedt@goodmis.org>
-Signed-off-by: Nathan Chancellor <nathan@kernel.org>
+Signed-off-by: Yifan Zhang <yifan1.zhang@amd.com>
+Reviewed-by: Aaron Liu <aaron.liu@amd.com>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+Cc: "Limonciello, Mario" <Mario.Limonciello@amd.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- include/trace/trace_events.h |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/gpu/drm/amd/amdgpu/gfx_v11_0.c |   10 +++++++++-
+ 1 file changed, 9 insertions(+), 1 deletion(-)
 
---- a/include/trace/trace_events.h
-+++ b/include/trace/trace_events.h
-@@ -479,7 +479,7 @@ static struct trace_event_functions trac
+--- a/drivers/gpu/drm/amd/amdgpu/gfx_v11_0.c
++++ b/drivers/gpu/drm/amd/amdgpu/gfx_v11_0.c
+@@ -77,6 +77,10 @@ MODULE_FIRMWARE("amdgpu/gc_11_0_3_pfp.bi
+ MODULE_FIRMWARE("amdgpu/gc_11_0_3_me.bin");
+ MODULE_FIRMWARE("amdgpu/gc_11_0_3_mec.bin");
+ MODULE_FIRMWARE("amdgpu/gc_11_0_3_rlc.bin");
++MODULE_FIRMWARE("amdgpu/gc_11_0_4_pfp.bin");
++MODULE_FIRMWARE("amdgpu/gc_11_0_4_me.bin");
++MODULE_FIRMWARE("amdgpu/gc_11_0_4_mec.bin");
++MODULE_FIRMWARE("amdgpu/gc_11_0_4_rlc.bin");
  
- #include TRACE_INCLUDE(TRACE_INCLUDE_FILE)
+ static const struct soc15_reg_golden golden_settings_gc_11_0_1[] =
+ {
+@@ -262,6 +266,7 @@ static void gfx_v11_0_init_golden_regist
+ {
+ 	switch (adev->ip_versions[GC_HWIP][0]) {
+ 	case IP_VERSION(11, 0, 1):
++	case IP_VERSION(11, 0, 4):
+ 		soc15_program_register_sequence(adev,
+ 						golden_settings_gc_11_0_1,
+ 						(const u32)ARRAY_SIZE(golden_settings_gc_11_0_1));
+@@ -856,6 +861,7 @@ static int gfx_v11_0_gpu_early_init(stru
+ 		adev->gfx.config.sc_earlyz_tile_fifo_size = 0x4C0;
+ 		break;
+ 	case IP_VERSION(11, 0, 1):
++	case IP_VERSION(11, 0, 4):
+ 		adev->gfx.config.max_hw_contexts = 8;
+ 		adev->gfx.config.sc_prim_fifo_size_frontend = 0x20;
+ 		adev->gfx.config.sc_prim_fifo_size_backend = 0x100;
+@@ -1285,6 +1291,7 @@ static int gfx_v11_0_sw_init(void *handl
+ 	case IP_VERSION(11, 0, 1):
+ 	case IP_VERSION(11, 0, 2):
+ 	case IP_VERSION(11, 0, 3):
++	case IP_VERSION(11, 0, 4):
+ 		adev->gfx.me.num_me = 1;
+ 		adev->gfx.me.num_pipe_per_me = 1;
+ 		adev->gfx.me.num_queue_per_pipe = 1;
+@@ -2486,7 +2493,8 @@ static int gfx_v11_0_wait_for_rlc_autolo
+ 	for (i = 0; i < adev->usec_timeout; i++) {
+ 		cp_status = RREG32_SOC15(GC, 0, regCP_STAT);
  
--#define ALIGN_STRUCTFIELD(type) ((int)(offsetof(struct {char a; type b;}, b)))
-+#define ALIGN_STRUCTFIELD(type) ((int)(__alignof__(struct {type b;})))
- 
- #undef __field_ext
- #define __field_ext(_type, _item, _filter_type) {			\
+-		if (adev->ip_versions[GC_HWIP][0] == IP_VERSION(11, 0, 1))
++		if (adev->ip_versions[GC_HWIP][0] == IP_VERSION(11, 0, 1) ||
++				adev->ip_versions[GC_HWIP][0] == IP_VERSION(11, 0, 4))
+ 			bootload_status = RREG32_SOC15(GC, 0,
+ 					regRLC_RLCS_BOOTLOAD_STATUS_gc_11_0_1);
+ 		else
 
 
