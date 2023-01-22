@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 2AEB3676EC7
-	for <lists+stable@lfdr.de>; Sun, 22 Jan 2023 16:14:18 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id EAAF1676FCE
+	for <lists+stable@lfdr.de>; Sun, 22 Jan 2023 16:25:27 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230445AbjAVPOR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 22 Jan 2023 10:14:17 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41334 "EHLO
+        id S231393AbjAVPZ1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 22 Jan 2023 10:25:27 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53920 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230431AbjAVPOQ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 22 Jan 2023 10:14:16 -0500
+        with ESMTP id S231377AbjAVPZ0 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 22 Jan 2023 10:25:26 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EF1E022017
-        for <stable@vger.kernel.org>; Sun, 22 Jan 2023 07:14:15 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3FBBE222CF
+        for <stable@vger.kernel.org>; Sun, 22 Jan 2023 07:25:25 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id AD877B80B0E
-        for <stable@vger.kernel.org>; Sun, 22 Jan 2023 15:14:14 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0D899C433D2;
-        Sun, 22 Jan 2023 15:14:12 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id EC7B2B80B22
+        for <stable@vger.kernel.org>; Sun, 22 Jan 2023 15:25:23 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 49F7AC433D2;
+        Sun, 22 Jan 2023 15:25:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1674400453;
-        bh=f2/mtKqm41o1yOHMZlDOdhlN2xPq//z0cN0iJgFw9Pg=;
+        s=korg; t=1674401122;
+        bh=p47uHTLJqf60mTy1ytQS36knUJExLD4t0YWvnOhUhP8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Uu7Fo/Qcml75QGp4CSSCpzuwQaotijMg248F8z/YCdf1tfbTSneG+BBsZQFjdBZlB
-         BnCocIFoyxpooAn1+lBd9EmwFTFrwtdL/Vp7JGrZ1SdHab3XEF7lCWPvW8nyipm7wf
-         Kn6MkIX2t2mSegIIkPej7t+ixfP6QR14S1J7eJrE=
+        b=cQ513Bdh+qOSwj6T+Hbai6tPIAYhVMO7JAexzlwvh1ReCs9/O085GGKK4r3NOzXIs
+         vUTbNzL8OkeK7I10BJC9S3NLGNlGSxc+lpLzdVBVIiR5Uxgp55bpDyXue/0jpnlYoi
+         IqlHjLrm+4v8YkGSSH3OrY7MzdlxrDZhJFBxBC5w=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, stable <stable@kernel.org>,
-        Ola Jeppsson <ola@snap.com>, Abel Vesa <abel.vesa@linaro.org>,
-        Srinivas Kandagatla <srinivas.kandagatla@linaro.org>
-Subject: [PATCH 5.10 51/98] misc: fastrpc: Dont remove map on creater_process and device_release
+        patches@lists.linux.dev, Heiner Kallweit <hkallweit1@gmail.com>,
+        Martin Blumenstingl <martin.blumenstingl@googlemail.com>,
+        Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>,
+        Vinod Koul <vkoul@kernel.org>
+Subject: [PATCH 6.1 118/193] dt-bindings: phy: g12a-usb3-pcie-phy: fix compatible string documentation
 Date:   Sun, 22 Jan 2023 16:04:07 +0100
-Message-Id: <20230122150231.657746572@linuxfoundation.org>
+Message-Id: <20230122150251.721117892@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.1
-In-Reply-To: <20230122150229.351631432@linuxfoundation.org>
-References: <20230122150229.351631432@linuxfoundation.org>
+In-Reply-To: <20230122150246.321043584@linuxfoundation.org>
+References: <20230122150246.321043584@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,71 +55,150 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Abel Vesa <abel.vesa@linaro.org>
+From: Heiner Kallweit <hkallweit1@gmail.com>
 
-commit 5bb96c8f9268e2fdb0e5321cbc358ee5941efc15 upstream.
+commit e181119046a0ec16126b682163040e8e33f310c1 upstream.
 
-Do not remove the map from the list on error path in
-fastrpc_init_create_process, instead call fastrpc_map_put, to avoid
-use-after-free. Do not remove it on fastrpc_device_release either,
-call fastrpc_map_put instead.
+The compatible string in the driver doesn't have the meson prefix.
+Fix this in the documentation and rename the file accordingly.
 
-The fastrpc_free_map is the only proper place to remove the map.
-This is called only after the reference count is 0.
-
-Fixes: b49f6d83e290 ("misc: fastrpc: Fix a possible double free")
-Cc: stable <stable@kernel.org>
-Co-developed-by: Ola Jeppsson <ola@snap.com>
-Signed-off-by: Ola Jeppsson <ola@snap.com>
-Signed-off-by: Abel Vesa <abel.vesa@linaro.org>
-Signed-off-by: Srinivas Kandagatla <srinivas.kandagatla@linaro.org>
-Link: https://lore.kernel.org/r/20221124174941.418450-3-srinivas.kandagatla@linaro.org
+Fixes: 87a55485f2fc ("dt-bindings: phy: meson-g12a-usb3-pcie-phy: convert to yaml")
+Cc: stable@vger.kernel.org
+Signed-off-by: Heiner Kallweit <hkallweit1@gmail.com>
+Reviewed-by: Martin Blumenstingl <martin.blumenstingl@googlemail.com>
+Reviewed-by: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
+Link: https://lore.kernel.org/r/0a82be92-ce85-da34-9d6f-4b33034473e5@gmail.com
+Signed-off-by: Vinod Koul <vkoul@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/misc/fastrpc.c |   18 +++++++++---------
- 1 file changed, 9 insertions(+), 9 deletions(-)
+ Documentation/devicetree/bindings/phy/amlogic,g12a-usb3-pcie-phy.yaml       |   59 ++++++++++
+ Documentation/devicetree/bindings/phy/amlogic,meson-g12a-usb3-pcie-phy.yaml |   59 ----------
+ 2 files changed, 59 insertions(+), 59 deletions(-)
+ rename Documentation/devicetree/bindings/phy/{amlogic,meson-g12a-usb3-pcie-phy.yaml => amlogic,g12a-usb3-pcie-phy.yaml} (82%)
 
---- a/drivers/misc/fastrpc.c
-+++ b/drivers/misc/fastrpc.c
-@@ -247,6 +247,13 @@ static void fastrpc_free_map(struct kref
- 		dma_buf_put(map->buf);
- 	}
- 
-+	if (map->fl) {
-+		spin_lock(&map->fl->lock);
-+		list_del(&map->node);
-+		spin_unlock(&map->fl->lock);
-+		map->fl = NULL;
-+	}
+--- /dev/null
++++ b/Documentation/devicetree/bindings/phy/amlogic,g12a-usb3-pcie-phy.yaml
+@@ -0,0 +1,59 @@
++# SPDX-License-Identifier: (GPL-2.0 OR BSD-2-Clause)
++# Copyright 2019 BayLibre, SAS
++%YAML 1.2
++---
++$id: "http://devicetree.org/schemas/phy/amlogic,g12a-usb3-pcie-phy.yaml#"
++$schema: "http://devicetree.org/meta-schemas/core.yaml#"
 +
- 	kfree(map);
- }
- 
-@@ -1112,12 +1119,7 @@ err_invoke:
- 	fl->init_mem = NULL;
- 	fastrpc_buf_free(imem);
- err_alloc:
--	if (map) {
--		spin_lock(&fl->lock);
--		list_del(&map->node);
--		spin_unlock(&fl->lock);
--		fastrpc_map_put(map);
--	}
-+	fastrpc_map_put(map);
- err:
- 	kfree(args);
- 
-@@ -1194,10 +1196,8 @@ static int fastrpc_device_release(struct
- 		fastrpc_context_put(ctx);
- 	}
- 
--	list_for_each_entry_safe(map, m, &fl->maps, node) {
--		list_del(&map->node);
-+	list_for_each_entry_safe(map, m, &fl->maps, node)
- 		fastrpc_map_put(map);
--	}
- 
- 	list_for_each_entry_safe(buf, b, &fl->mmaps, node) {
- 		list_del(&buf->node);
++title: Amlogic G12A USB3 + PCIE Combo PHY
++
++maintainers:
++  - Neil Armstrong <neil.armstrong@linaro.org>
++
++properties:
++  compatible:
++    enum:
++      - amlogic,g12a-usb3-pcie-phy
++
++  reg:
++    maxItems: 1
++
++  clocks:
++    maxItems: 1
++
++  clock-names:
++    items:
++      - const: ref_clk
++
++  resets:
++    maxItems: 1
++
++  reset-names:
++    items:
++      - const: phy
++
++  "#phy-cells":
++    const: 1
++
++required:
++  - compatible
++  - reg
++  - clocks
++  - clock-names
++  - resets
++  - reset-names
++  - "#phy-cells"
++
++additionalProperties: false
++
++examples:
++  - |
++    phy@46000 {
++          compatible = "amlogic,g12a-usb3-pcie-phy";
++          reg = <0x46000 0x2000>;
++          clocks = <&ref_clk>;
++          clock-names = "ref_clk";
++          resets = <&phy_reset>;
++          reset-names = "phy";
++          #phy-cells = <1>;
++    };
+--- a/Documentation/devicetree/bindings/phy/amlogic,meson-g12a-usb3-pcie-phy.yaml
++++ /dev/null
+@@ -1,59 +0,0 @@
+-# SPDX-License-Identifier: (GPL-2.0 OR BSD-2-Clause)
+-# Copyright 2019 BayLibre, SAS
+-%YAML 1.2
+----
+-$id: "http://devicetree.org/schemas/phy/amlogic,meson-g12a-usb3-pcie-phy.yaml#"
+-$schema: "http://devicetree.org/meta-schemas/core.yaml#"
+-
+-title: Amlogic G12A USB3 + PCIE Combo PHY
+-
+-maintainers:
+-  - Neil Armstrong <neil.armstrong@linaro.org>
+-
+-properties:
+-  compatible:
+-    enum:
+-      - amlogic,meson-g12a-usb3-pcie-phy
+-
+-  reg:
+-    maxItems: 1
+-
+-  clocks:
+-    maxItems: 1
+-
+-  clock-names:
+-    items:
+-      - const: ref_clk
+-
+-  resets:
+-    maxItems: 1
+-
+-  reset-names:
+-    items:
+-      - const: phy
+-
+-  "#phy-cells":
+-    const: 1
+-
+-required:
+-  - compatible
+-  - reg
+-  - clocks
+-  - clock-names
+-  - resets
+-  - reset-names
+-  - "#phy-cells"
+-
+-additionalProperties: false
+-
+-examples:
+-  - |
+-    phy@46000 {
+-          compatible = "amlogic,meson-g12a-usb3-pcie-phy";
+-          reg = <0x46000 0x2000>;
+-          clocks = <&ref_clk>;
+-          clock-names = "ref_clk";
+-          resets = <&phy_reset>;
+-          reset-names = "phy";
+-          #phy-cells = <1>;
+-    };
 
 
