@@ -2,44 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 1C5B2676FDE
-	for <lists+stable@lfdr.de>; Sun, 22 Jan 2023 16:26:13 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4497E676F1B
+	for <lists+stable@lfdr.de>; Sun, 22 Jan 2023 16:17:50 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231411AbjAVP0M (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 22 Jan 2023 10:26:12 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54402 "EHLO
+        id S231159AbjAVPRs (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 22 Jan 2023 10:17:48 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45150 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231419AbjAVP0J (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 22 Jan 2023 10:26:09 -0500
-Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id ACF8022DE3
-        for <stable@vger.kernel.org>; Sun, 22 Jan 2023 07:26:07 -0800 (PST)
+        with ESMTP id S231161AbjAVPRr (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 22 Jan 2023 10:17:47 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C7F993580
+        for <stable@vger.kernel.org>; Sun, 22 Jan 2023 07:17:45 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 0681DCE0F4D
-        for <stable@vger.kernel.org>; Sun, 22 Jan 2023 15:26:06 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E90F6C433EF;
-        Sun, 22 Jan 2023 15:26:03 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 80D34B80B1B
+        for <stable@vger.kernel.org>; Sun, 22 Jan 2023 15:17:44 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id DA36FC433EF;
+        Sun, 22 Jan 2023 15:17:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1674401164;
-        bh=3NSeHrnmVWXlDkqw2hec1nL838PVPfh73vHfnWMnFFA=;
+        s=korg; t=1674400663;
+        bh=7IIJZbVLF93PB3pADk9DFskYSnH12uSbG20w7+TJX9M=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ga0TuTsTVtu3rCFAanPH6ysZQc4dqrad/OONP0pe8vBzk76Ge6gkjPuxXq9Ae/g4f
-         ppwXPDrnJ6uf5lDMdlhky1tAZAh0D1HrZxyWhDYFQnReuUbM8eH1HObL2+6zsEV5d2
-         xgc/8NJZgEnCO99EEFex88Y3WY7jrarg/KnUqr6U=
+        b=T1/X00uKpiGnbQmZr4bSOtNQCwEbu7pnEldscuTx0/dfSUjiI7MRihD3takPHWw8Z
+         n2nJK9y2y2ScXP17l7PRJDTdx5NVIfiG5a3axQipOG8saQmKdF7rYoF7mULuKB5ibu
+         eQnLb3RsSuWR2K3GiMaOJzW3hhalYRbYkkSS9BQI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Utkarsh Patel <utkarsh.h.patel@intel.com>,
-        Yehezkel Bernat <YehezkelShB@gmail.com>,
-        Mika Westerberg <mika.westerberg@linux.intel.com>
-Subject: [PATCH 6.1 094/193] thunderbolt: Do not call PM runtime functions in tb_retimer_scan()
-Date:   Sun, 22 Jan 2023 16:03:43 +0100
-Message-Id: <20230122150250.641991086@linuxfoundation.org>
+        patches@lists.linux.dev, Jens Axboe <axboe@kernel.dk>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.15 034/117] io_uring: support MSG_WAITALL for IORING_OP_SEND(MSG)
+Date:   Sun, 22 Jan 2023 16:03:44 +0100
+Message-Id: <20230122150234.147578888@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.1
-In-Reply-To: <20230122150246.321043584@linuxfoundation.org>
-References: <20230122150246.321043584@linuxfoundation.org>
+In-Reply-To: <20230122150232.736358800@linuxfoundation.org>
+References: <20230122150232.736358800@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,137 +53,111 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mika Westerberg <mika.westerberg@linux.intel.com>
+From: Jens Axboe <axboe@kernel.dk>
 
-commit 23257cfc1cb7202fd0065e9f4a6a0aac1c04c4a9 upstream.
+commit 4c3c09439c08b03d9503df0ca4c7619c5842892e upstream.
 
-We cannot call PM runtime functions in tb_retimer_scan() because it will
-also be called when retimers are scanned from userspace (happens when
-there is no device connected on ChromeOS for instance) and at the same
-USB4 port runtime resume hook. This leads to hang because neither can
-proceed.
+Like commit 7ba89d2af17a for recv/recvmsg, support MSG_WAITALL for the
+send side. If this flag is set and we do a short send, retry for a
+stream of seqpacket socket.
 
-Fix this by runtime resuming USB4 ports in tb_scan_port() instead. This
-makes sure the ports are runtime PM active when retimers are added under
-it while avoiding the reported hang as well.
-
-Reported-by: Utkarsh Patel <utkarsh.h.patel@intel.com>
-Fixes: 1e56c88adecc ("thunderbolt: Runtime resume USB4 port when retimers are scanned")
-Cc: stable@vger.kernel.org
-Acked-by: Yehezkel Bernat <YehezkelShB@gmail.com>
-Signed-off-by: Mika Westerberg <mika.westerberg@linux.intel.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/thunderbolt/retimer.c |   17 +++--------------
- drivers/thunderbolt/tb.c      |   20 +++++++++++++++-----
- 2 files changed, 18 insertions(+), 19 deletions(-)
+ io_uring/io_uring.c | 36 +++++++++++++++++++++++++++++-------
+ 1 file changed, 29 insertions(+), 7 deletions(-)
 
---- a/drivers/thunderbolt/retimer.c
-+++ b/drivers/thunderbolt/retimer.c
-@@ -427,13 +427,6 @@ int tb_retimer_scan(struct tb_port *port
+diff --git a/io_uring/io_uring.c b/io_uring/io_uring.c
+index 2350d43aa782..3fb76863fed4 100644
+--- a/io_uring/io_uring.c
++++ b/io_uring/io_uring.c
+@@ -4777,6 +4777,13 @@ static int io_sync_file_range(struct io_kiocb *req, unsigned int issue_flags)
+ }
+ 
+ #if defined(CONFIG_NET)
++static bool io_net_retry(struct socket *sock, int flags)
++{
++	if (!(flags & MSG_WAITALL))
++		return false;
++	return sock->type == SOCK_STREAM || sock->type == SOCK_SEQPACKET;
++}
++
+ static int io_setup_async_msg(struct io_kiocb *req,
+ 			      struct io_async_msghdr *kmsg)
  {
- 	u32 status[TB_MAX_RETIMER_INDEX + 1] = {};
- 	int ret, i, last_idx = 0;
--	struct usb4_port *usb4;
--
--	usb4 = port->usb4;
--	if (!usb4)
--		return 0;
--
--	pm_runtime_get_sync(&usb4->dev);
- 
- 	/*
- 	 * Send broadcast RT to make sure retimer indices facing this
-@@ -441,7 +434,7 @@ int tb_retimer_scan(struct tb_port *port
- 	 */
- 	ret = usb4_port_enumerate_retimers(port);
- 	if (ret)
--		goto out;
-+		return ret;
- 
- 	/*
- 	 * Enable sideband channel for each retimer. We can do this
-@@ -471,11 +464,11 @@ int tb_retimer_scan(struct tb_port *port
- 			break;
- 	}
- 
--	ret = 0;
- 	if (!last_idx)
--		goto out;
-+		return 0;
- 
- 	/* Add on-board retimers if they do not exist already */
-+	ret = 0;
- 	for (i = 1; i <= last_idx; i++) {
- 		struct tb_retimer *rt;
- 
-@@ -489,10 +482,6 @@ int tb_retimer_scan(struct tb_port *port
- 		}
- 	}
- 
--out:
--	pm_runtime_mark_last_busy(&usb4->dev);
--	pm_runtime_put_autosuspend(&usb4->dev);
--
- 	return ret;
+@@ -4840,12 +4847,14 @@ static int io_sendmsg_prep(struct io_kiocb *req, const struct io_uring_sqe *sqe)
+ 	if (req->ctx->compat)
+ 		sr->msg_flags |= MSG_CMSG_COMPAT;
+ #endif
++	sr->done_io = 0;
+ 	return 0;
  }
  
---- a/drivers/thunderbolt/tb.c
-+++ b/drivers/thunderbolt/tb.c
-@@ -628,11 +628,15 @@ static void tb_scan_port(struct tb_port
- 			 * Downstream switch is reachable through two ports.
- 			 * Only scan on the primary port (link_nr == 0).
- 			 */
-+
-+	if (port->usb4)
-+		pm_runtime_get_sync(&port->usb4->dev);
-+
- 	if (tb_wait_for_port(port, false) <= 0)
--		return;
-+		goto out_rpm_put;
- 	if (port->remote) {
- 		tb_port_dbg(port, "port already has a remote\n");
--		return;
-+		goto out_rpm_put;
+ static int io_sendmsg(struct io_kiocb *req, unsigned int issue_flags)
+ {
+ 	struct io_async_msghdr iomsg, *kmsg;
++	struct io_sr_msg *sr = &req->sr_msg;
+ 	struct socket *sock;
+ 	unsigned flags;
+ 	int min_ret = 0;
+@@ -4876,12 +4885,21 @@ static int io_sendmsg(struct io_kiocb *req, unsigned int issue_flags)
+ 			return io_setup_async_msg(req, kmsg);
+ 		if (ret == -ERESTARTSYS)
+ 			ret = -EINTR;
++		if (ret > 0 && io_net_retry(sock, flags)) {
++			sr->done_io += ret;
++			req->flags |= REQ_F_PARTIAL_IO;
++			return io_setup_async_msg(req, kmsg);
++		}
+ 		req_set_fail(req);
  	}
- 
- 	tb_retimer_scan(port, true);
-@@ -647,12 +651,12 @@ static void tb_scan_port(struct tb_port
- 		 */
- 		if (PTR_ERR(sw) == -EIO || PTR_ERR(sw) == -EADDRNOTAVAIL)
- 			tb_scan_xdomain(port);
--		return;
-+		goto out_rpm_put;
+ 	/* fast path, check for non-NULL to avoid function call */
+ 	if (kmsg->free_iov)
+ 		kfree(kmsg->free_iov);
+ 	req->flags &= ~REQ_F_NEED_CLEANUP;
++	if (ret >= 0)
++		ret += sr->done_io;
++	else if (sr->done_io)
++		ret = sr->done_io;
+ 	__io_req_complete(req, issue_flags, ret, 0);
+ 	return 0;
+ }
+@@ -4922,8 +4940,19 @@ static int io_send(struct io_kiocb *req, unsigned int issue_flags)
+ 			return -EAGAIN;
+ 		if (ret == -ERESTARTSYS)
+ 			ret = -EINTR;
++		if (ret > 0 && io_net_retry(sock, flags)) {
++			sr->len -= ret;
++			sr->buf += ret;
++			sr->done_io += ret;
++			req->flags |= REQ_F_PARTIAL_IO;
++			return -EAGAIN;
++		}
+ 		req_set_fail(req);
  	}
- 
- 	if (tb_switch_configure(sw)) {
- 		tb_switch_put(sw);
--		return;
-+		goto out_rpm_put;
- 	}
- 
- 	/*
-@@ -681,7 +685,7 @@ static void tb_scan_port(struct tb_port
- 
- 	if (tb_switch_add(sw)) {
- 		tb_switch_put(sw);
--		return;
-+		goto out_rpm_put;
- 	}
- 
- 	/* Link the switches using both links if available */
-@@ -733,6 +737,12 @@ static void tb_scan_port(struct tb_port
- 
- 	tb_add_dp_resources(sw);
- 	tb_scan_switch(sw);
-+
-+out_rpm_put:
-+	if (port->usb4) {
-+		pm_runtime_mark_last_busy(&port->usb4->dev);
-+		pm_runtime_put_autosuspend(&port->usb4->dev);
-+	}
++	if (ret >= 0)
++		ret += sr->done_io;
++	else if (sr->done_io)
++		ret = sr->done_io;
+ 	__io_req_complete(req, issue_flags, ret, 0);
+ 	return 0;
+ }
+@@ -5071,13 +5100,6 @@ static int io_recvmsg_prep(struct io_kiocb *req, const struct io_uring_sqe *sqe)
+ 	return 0;
  }
  
- static void tb_deactivate_and_free_tunnel(struct tb_tunnel *tunnel)
+-static bool io_net_retry(struct socket *sock, int flags)
+-{
+-	if (!(flags & MSG_WAITALL))
+-		return false;
+-	return sock->type == SOCK_STREAM || sock->type == SOCK_SEQPACKET;
+-}
+-
+ static int io_recvmsg(struct io_kiocb *req, unsigned int issue_flags)
+ {
+ 	struct io_async_msghdr iomsg, *kmsg;
+-- 
+2.39.0
+
 
 
