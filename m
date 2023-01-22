@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 4FD4E676F2E
-	for <lists+stable@lfdr.de>; Sun, 22 Jan 2023 16:18:36 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3CEF5676FE6
+	for <lists+stable@lfdr.de>; Sun, 22 Jan 2023 16:26:28 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231172AbjAVPSf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 22 Jan 2023 10:18:35 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45962 "EHLO
+        id S231421AbjAVP01 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 22 Jan 2023 10:26:27 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54666 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231173AbjAVPSe (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 22 Jan 2023 10:18:34 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DDD611A4A9
-        for <stable@vger.kernel.org>; Sun, 22 Jan 2023 07:18:33 -0800 (PST)
+        with ESMTP id S231417AbjAVP00 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 22 Jan 2023 10:26:26 -0500
+Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B867C22A28
+        for <stable@vger.kernel.org>; Sun, 22 Jan 2023 07:26:25 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 7A1A760C43
-        for <stable@vger.kernel.org>; Sun, 22 Jan 2023 15:18:33 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8DA82C433EF;
-        Sun, 22 Jan 2023 15:18:32 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 3415FCE0F51
+        for <stable@vger.kernel.org>; Sun, 22 Jan 2023 15:26:24 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 28E13C433EF;
+        Sun, 22 Jan 2023 15:26:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1674400712;
-        bh=ug1rfvJhHBMIBHm/kDFORvtLY3Fr6ccx2iPnA1reSr4=;
+        s=korg; t=1674401182;
+        bh=RsFhKmSx4NtNsJFXvyUKeLnH+a0rqW3XUGkuti6viD4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=t+fjKUs/FoS0qtbxFK6BEDuD84BqNMNg9UbeMqEEfodc5UqTssC1mcWCqpSEZ6fFd
-         I3Gm9/04jw4Cx+ktJkUkDxs2qO7Gul5319E/oUzFKAoTZutZywLT2SMIWcNb3opGK3
-         32Ld7/52c+O/0Ufi7GKaxRgIXO7kKErkvf8LWWUo=
+        b=QfmnCTDxmR751RVfL/pLAKNU73SlDSJuu/YolEjqvloLoKvL3RAXGopsGbpMJrThR
+         0pioE1GepJtC2J0Mqjdt1TB6x0JH30t/lvuRckMGC9YcQn5R+WDNVxwjxJ6mYOaBCV
+         VCdByJbZhT4LPSlPSYKN6RsKw+VLERKtKTzf7DZk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, stable <stable@kernel.org>,
-        Daniel Scally <dan.scally@ideasonboard.com>,
-        Laurent Pinchart <laurent.pinchart@ideasonboard.com>,
-        Kieran Bingham <kieran.bingham@ideasonboard.com>
-Subject: [PATCH 5.15 081/117] usb: gadget: g_webcam: Send color matching descriptor per frame
+        patches@lists.linux.dev, Melissa Wen <mwen@igalia.com>,
+        Joshua Ashton <joshua@froggi.es>,
+        Alex Deucher <alexander.deucher@amd.com>
+Subject: [PATCH 6.1 142/193] drm/amd/display: Calculate output_color_space after pixel encoding adjustment
 Date:   Sun, 22 Jan 2023 16:04:31 +0100
-Message-Id: <20230122150236.157535752@linuxfoundation.org>
+Message-Id: <20230122150252.881335134@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.1
-In-Reply-To: <20230122150232.736358800@linuxfoundation.org>
-References: <20230122150232.736358800@linuxfoundation.org>
+In-Reply-To: <20230122150246.321043584@linuxfoundation.org>
+References: <20230122150246.321043584@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,59 +54,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Daniel Scally <dan.scally@ideasonboard.com>
+From: Joshua Ashton <joshua@froggi.es>
 
-commit e95765e97d9cb93258a4840440d410fa6ff7e819 upstream.
+commit 79601b894849cb6f6d6122e6590f1887ac4a66b3 upstream.
 
-Currently the color matching descriptor is only sent across the wire
-a single time, following the descriptors for each format and frame.
-According to the UVC 1.5 Specification 3.9.2.6 ("Color Matching
-Descriptors"):
+Code in get_output_color_space depends on knowing the pixel encoding to
+determine whether to pick between eg. COLOR_SPACE_SRGB or
+COLOR_SPACE_YCBCR709 for transparent RGB -> YCbCr 4:4:4 in the driver.
 
-"Only one instance is allowed for a given format and if present,
-the Color Matching descriptor shall be placed following the Video
-and Still Image Frame descriptors for that format".
+v2: Fixed patch being accidentally based on a personal feature branch, oops!
 
-Add another reference to the color matching descriptor after the
-yuyv frames so that it's correctly transmitted for that format
-too.
-
-Fixes: a9914127e834 ("USB gadget: Webcam device")
-Cc: stable <stable@kernel.org>
-Signed-off-by: Daniel Scally <dan.scally@ideasonboard.com>
-Reviewed-by: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
-Reviewed-by: Kieran Bingham <kieran.bingham@ideasonboard.com>
-Link: https://lore.kernel.org/r/20221216160528.479094-1-dan.scally@ideasonboard.com
+Fixes: ea117312ea9f ("drm/amd/display: Reduce HDMI pixel encoding if max clock is exceeded")
+Reviewed-by: Melissa Wen <mwen@igalia.com>
+Signed-off-by: Joshua Ashton <joshua@froggi.es>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+Cc: stable@vger.kernel.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/usb/gadget/legacy/webcam.c |    3 +++
- 1 file changed, 3 insertions(+)
+ drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
---- a/drivers/usb/gadget/legacy/webcam.c
-+++ b/drivers/usb/gadget/legacy/webcam.c
-@@ -293,6 +293,7 @@ static const struct uvc_descriptor_heade
- 	(const struct uvc_descriptor_header *) &uvc_format_yuv,
- 	(const struct uvc_descriptor_header *) &uvc_frame_yuv_360p,
- 	(const struct uvc_descriptor_header *) &uvc_frame_yuv_720p,
-+	(const struct uvc_descriptor_header *) &uvc_color_matching,
- 	(const struct uvc_descriptor_header *) &uvc_format_mjpg,
- 	(const struct uvc_descriptor_header *) &uvc_frame_mjpg_360p,
- 	(const struct uvc_descriptor_header *) &uvc_frame_mjpg_720p,
-@@ -305,6 +306,7 @@ static const struct uvc_descriptor_heade
- 	(const struct uvc_descriptor_header *) &uvc_format_yuv,
- 	(const struct uvc_descriptor_header *) &uvc_frame_yuv_360p,
- 	(const struct uvc_descriptor_header *) &uvc_frame_yuv_720p,
-+	(const struct uvc_descriptor_header *) &uvc_color_matching,
- 	(const struct uvc_descriptor_header *) &uvc_format_mjpg,
- 	(const struct uvc_descriptor_header *) &uvc_frame_mjpg_360p,
- 	(const struct uvc_descriptor_header *) &uvc_frame_mjpg_720p,
-@@ -317,6 +319,7 @@ static const struct uvc_descriptor_heade
- 	(const struct uvc_descriptor_header *) &uvc_format_yuv,
- 	(const struct uvc_descriptor_header *) &uvc_frame_yuv_360p,
- 	(const struct uvc_descriptor_header *) &uvc_frame_yuv_720p,
-+	(const struct uvc_descriptor_header *) &uvc_color_matching,
- 	(const struct uvc_descriptor_header *) &uvc_format_mjpg,
- 	(const struct uvc_descriptor_header *) &uvc_frame_mjpg_360p,
- 	(const struct uvc_descriptor_header *) &uvc_frame_mjpg_720p,
+--- a/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c
++++ b/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c
+@@ -5283,8 +5283,6 @@ static void fill_stream_properties_from_
+ 
+ 	timing_out->aspect_ratio = get_aspect_ratio(mode_in);
+ 
+-	stream->output_color_space = get_output_color_space(timing_out);
+-
+ 	stream->out_transfer_func->type = TF_TYPE_PREDEFINED;
+ 	stream->out_transfer_func->tf = TRANSFER_FUNCTION_SRGB;
+ 	if (stream->signal == SIGNAL_TYPE_HDMI_TYPE_A) {
+@@ -5295,6 +5293,8 @@ static void fill_stream_properties_from_
+ 			adjust_colour_depth_from_display_info(timing_out, info);
+ 		}
+ 	}
++
++	stream->output_color_space = get_output_color_space(timing_out);
+ }
+ 
+ static void fill_audio_info(struct audio_info *audio_info,
 
 
