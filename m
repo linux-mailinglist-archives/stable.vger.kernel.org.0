@@ -2,42 +2,49 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 772E2676D2A
-	for <lists+stable@lfdr.de>; Sun, 22 Jan 2023 14:35:24 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7C386676D2D
+	for <lists+stable@lfdr.de>; Sun, 22 Jan 2023 14:44:34 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229966AbjAVNfW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 22 Jan 2023 08:35:22 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51880 "EHLO
+        id S230105AbjAVNoc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 22 Jan 2023 08:44:32 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53592 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229963AbjAVNfV (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 22 Jan 2023 08:35:21 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 45AA91ABE1
-        for <stable@vger.kernel.org>; Sun, 22 Jan 2023 05:35:21 -0800 (PST)
+        with ESMTP id S230104AbjAVNob (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 22 Jan 2023 08:44:31 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B938893F0
+        for <stable@vger.kernel.org>; Sun, 22 Jan 2023 05:44:29 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id D518460BA4
-        for <stable@vger.kernel.org>; Sun, 22 Jan 2023 13:35:20 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E9EEDC433D2;
-        Sun, 22 Jan 2023 13:35:19 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 722D7B80AD2
+        for <stable@vger.kernel.org>; Sun, 22 Jan 2023 13:44:28 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C501FC433EF;
+        Sun, 22 Jan 2023 13:44:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1674394520;
-        bh=esT9+GUtjqIbHylbvH69Kb1N/DRXFnlh1EqXFiYBkBI=;
-        h=Subject:To:Cc:From:Date:From;
-        b=WTLX93Q7mHsKdXIU6JAWnYvJV2AWrqLyrpJwMkr51OuP351qXtznTcCIL7jvGjj6Y
-         so7QxX2eWKO+mlONZlBASV0LtD66xL7CKYRP7u8h144JhSW5jSMHb3vWBko/Isy0Fc
-         de9WCl4q1vYecZ2GcnzQDOOtsl+woo01Ip2irtw4=
-Subject: FAILED: patch "[PATCH] drm/amdgpu: Correct the power calcultion for Renior/Cezanne." failed to apply to 5.15-stable tree
-To:     jesse.zhang@amd.com, Jesse.Zhang@amd.com, aaron.liu@amd.com,
-        alexander.deucher@amd.com
-Cc:     <stable@vger.kernel.org>
-From:   <gregkh@linuxfoundation.org>
-Date:   Sun, 22 Jan 2023 14:35:17 +0100
-Message-ID: <167439451724102@kroah.com>
+        s=korg; t=1674395067;
+        bh=ctZTOQmjUVof2jaXy4IpI6e15xh1xIrsq4hgFNfy8e8=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=BFN4TIk8hGCEYBFYZuSqDnJpyZ1JAY/JY2tkKby0dJxAjA7GPnjskgP+zz+8STlgA
+         wQC2br0d90pzsXe9weM9y3jE7+o4DVpaINqS+t33qNSOXxRkM/W3aVWiiDmO0G3Jvg
+         vC+Y57OKe6pXQUsZdln419+NCWJG6gkIk0xypZ6o=
+Date:   Sun, 22 Jan 2023 14:44:24 +0100
+From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+To:     Kevin Hao <haokexin@gmail.com>
+Cc:     Tom Saeger <tom.saeger@oracle.com>, stable@vger.kernel.org,
+        Sasha Levin <sashal@kernel.org>,
+        "Rafael J . Wysocki" <rafael.j.wysocki@intel.com>
+Subject: Re: [PATCH 5.15] cpufreq: governor: Use kobject release() method to
+ free dbs_data
+Message-ID: <Y809uFh7F2s7/GN7@kroah.com>
+References: <20230120042650.3722921-1-haokexin@gmail.com>
+ <20230120214032.uzq6dgpzhfi7quol@oracle.com>
+ <Y8tE1fkJN5BvhWym@pek-khao-d2>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ANSI_X3.4-1968
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
+In-Reply-To: <Y8tE1fkJN5BvhWym@pek-khao-d2>
 X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
         DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
         SPF_HELO_NONE,SPF_PASS,URIBL_BLOCKED autolearn=ham autolearn_force=no
@@ -48,61 +55,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+On Sat, Jan 21, 2023 at 09:50:13AM +0800, Kevin Hao wrote:
+> On Fri, Jan 20, 2023 at 02:40:32PM -0700, Tom Saeger wrote:
+> > 
+> > applies but has build error:
+> > 
+> > /home/tsaeger/workspace/linux/linux-5.15.y/drivers/cpufreq/cpufreq_governor.c: In function ‘cpufreq_dbs_data_release’:
+> > /home/tsaeger/workspace/linux/linux-5.15.y/drivers/cpufreq/cpufreq_governor.c:393:49: error: implicit declaration of function ‘to_gov_attr_set’ [-Werror=implicit-function-declaration]
+> >   393 |         struct dbs_data *dbs_data = to_dbs_data(to_gov_attr_set(kobj));
+> >       |                                                 ^~~~~~~~~~~~~~~
+> > /home/tsaeger/workspace/linux/linux-5.15.y/drivers/cpufreq/cpufreq_governor.c:393:49: warning: passing argument 1 of ‘to_dbs_data’ makes pointer from integer without a cast [-Wint-conversion]
+> >   393 |         struct dbs_data *dbs_data = to_dbs_data(to_gov_attr_set(kobj));
+> >       |                                                 ^~~~~~~~~~~~~~~~~~~~~
+> >       |                                                 |
+> >       |                                                 int
+> > In file included from /home/tsaeger/workspace/linux/linux-5.15.y/drivers/cpufreq/cpufreq_governor.c:20:
+> > /home/tsaeger/workspace/linux/linux-5.15.y/drivers/cpufreq/cpufreq_governor.h:49:65: note: expected ‘struct gov_attr_set *’ but argument is of type ‘int’
+> >    49 | static inline struct dbs_data *to_dbs_data(struct gov_attr_set *attr_set)
+> >       |                                            ~~~~~~~~~~~~~~~~~~~~~^~~~~~~~
+> > cc1: some warnings being treated as errors
+> > 
+> > 
+> > 5.15.y first with:
+> > ae2650865127 ("cpufreq: Move to_gov_attr_set() to cpufreq.h")
+> 
+> I managed to forget this commit.
 
-The patch below does not apply to the 5.15-stable tree.
-If someone wants it applied there, or to any other stable or longterm
-tree, then please email the backport, including the original git commit
-id to <stable@vger.kernel.org>.
-
-Possible dependencies:
-
-c7bae4aaa560 ("drm/amdgpu: Correct the power calcultion for Renior/Cezanne.")
-138292f1dc00 ("drm/amd/pm: update smartshift powerboost calc for smu12")
+Please submit a working patch series that at least attempts to show you
+tested this :)
 
 thanks,
 
 greg k-h
-
------------------- original commit in Linus's tree ------------------
-
-From c7bae4aaa5609c1fa9761c35dbcc5fcc92915222 Mon Sep 17 00:00:00 2001
-From: jie1zhan <jesse.zhang@amd.com>
-Date: Fri, 13 Jan 2023 10:39:13 +0800
-Subject: [PATCH] drm/amdgpu: Correct the power calcultion for Renior/Cezanne.
-
-From smu firmware,the value of power is transferred  in units of watts.
-
-Bug: https://gitlab.freedesktop.org/drm/amd/-/issues/2321
-Fixes: 137aac26a2ed ("drm/amdgpu/smu12: fix power reporting on renoir")
-Acked-by: Alex Deucher <alexander.deucher@amd.com>
-Signed-off-by: Jesse Zhang <Jesse.Zhang@amd.com>
-Reviewed-by: Aaron Liu <aaron.liu@amd.com>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
-Cc: stable@vger.kernel.org
-
-diff --git a/drivers/gpu/drm/amd/pm/swsmu/smu12/renoir_ppt.c b/drivers/gpu/drm/amd/pm/swsmu/smu12/renoir_ppt.c
-index 85e22210963f..5cdc07165480 100644
---- a/drivers/gpu/drm/amd/pm/swsmu/smu12/renoir_ppt.c
-+++ b/drivers/gpu/drm/amd/pm/swsmu/smu12/renoir_ppt.c
-@@ -1171,6 +1171,7 @@ static int renoir_get_smu_metrics_data(struct smu_context *smu,
- 	int ret = 0;
- 	uint32_t apu_percent = 0;
- 	uint32_t dgpu_percent = 0;
-+	struct amdgpu_device *adev = smu->adev;
- 
- 
- 	ret = smu_cmn_get_metrics_table(smu,
-@@ -1196,7 +1197,11 @@ static int renoir_get_smu_metrics_data(struct smu_context *smu,
- 		*value = metrics->AverageUvdActivity / 100;
- 		break;
- 	case METRICS_AVERAGE_SOCKETPOWER:
--		*value = (metrics->CurrentSocketPower << 8) / 1000;
-+		if (((adev->ip_versions[MP1_HWIP][0] == IP_VERSION(12, 0, 1)) && (adev->pm.fw_version >= 0x40000f)) ||
-+		((adev->ip_versions[MP1_HWIP][0] == IP_VERSION(12, 0, 0)) && (adev->pm.fw_version >= 0x373200)))
-+			*value = metrics->CurrentSocketPower << 8;
-+		else
-+			*value = (metrics->CurrentSocketPower << 8) / 1000;
- 		break;
- 	case METRICS_TEMPERATURE_EDGE:
- 		*value = (metrics->GfxTemperature / 100) *
-
