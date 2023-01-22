@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 77CC7676D00
-	for <lists+stable@lfdr.de>; Sun, 22 Jan 2023 13:54:31 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 05FC8676D01
+	for <lists+stable@lfdr.de>; Sun, 22 Jan 2023 13:54:34 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229480AbjAVMya (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 22 Jan 2023 07:54:30 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44190 "EHLO
+        id S229970AbjAVMyd (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 22 Jan 2023 07:54:33 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44216 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229852AbjAVMy3 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 22 Jan 2023 07:54:29 -0500
+        with ESMTP id S229852AbjAVMyc (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 22 Jan 2023 07:54:32 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A46BC1E2B0
-        for <stable@vger.kernel.org>; Sun, 22 Jan 2023 04:54:28 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AC8571F4AD
+        for <stable@vger.kernel.org>; Sun, 22 Jan 2023 04:54:31 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 4165F60BF0
-        for <stable@vger.kernel.org>; Sun, 22 Jan 2023 12:54:28 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 56927C433EF;
-        Sun, 22 Jan 2023 12:54:27 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 4A88660BF0
+        for <stable@vger.kernel.org>; Sun, 22 Jan 2023 12:54:31 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5D527C4339B;
+        Sun, 22 Jan 2023 12:54:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1674392067;
-        bh=6lJNdZ44AtZzAqKMNLlChbmckeE+97pC6Q67TwUHbp8=;
+        s=korg; t=1674392070;
+        bh=BpNBEGYHYt86TOu0R/8Xhe82UM+8RA7v6YH13C/nYok=;
         h=Subject:To:Cc:From:Date:From;
-        b=omSnBJreMn0IZRfQ1dLYXpnMJ0BHqMTvVJedHLeEoZ4eH9cErjwWMZbwd7rz/tjbV
-         AZOxEnmxpF802PWdxp8rEpJS6t9Puk3k6d7Jo9VUuuUE8aGTRUdeNnJUHMuVsexrCY
-         j5TorsHJjBQaDMhLHPTFZG0zpbV/rqqStQZrosqk=
-Subject: FAILED: patch "[PATCH] btrfs: fix missing error handling when logging directory" failed to apply to 5.4-stable tree
+        b=NbU6T3dofjaIN4T/m+fUd/4EMg1wTghjaWsHB4+1wAl9nqZtpNoUtlqMuSLZ9DNTp
+         5lqLAGsxHgqWrJJaWsl8BWtpFPvYRRVSja+deTTjheLoY7ZyKQMOIcuvBtR1GGrpMz
+         xhY4bFLcEZb1W/4S4C/yLSwjfJnaYaX3Pv3yQ084=
+Subject: FAILED: patch "[PATCH] btrfs: fix missing error handling when logging directory" failed to apply to 4.19-stable tree
 To:     fdmanana@suse.com, admin@prnet.org, dsterba@suse.com,
         josef@toxicpanda.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Sun, 22 Jan 2023 13:54:22 +0100
-Message-ID: <1674392062163189@kroah.com>
+Date:   Sun, 22 Jan 2023 13:54:24 +0100
+Message-ID: <1674392064160239@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -49,7 +49,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.4-stable tree.
+The patch below does not apply to the 4.19-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
