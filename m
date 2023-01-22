@@ -2,46 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 76FE2676F2F
-	for <lists+stable@lfdr.de>; Sun, 22 Jan 2023 16:18:40 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id EE0C1676EC4
+	for <lists+stable@lfdr.de>; Sun, 22 Jan 2023 16:14:08 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231176AbjAVPSj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 22 Jan 2023 10:18:39 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45998 "EHLO
+        id S230443AbjAVPOI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 22 Jan 2023 10:14:08 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41208 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231173AbjAVPSj (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 22 Jan 2023 10:18:39 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1DD5DA5C6
-        for <stable@vger.kernel.org>; Sun, 22 Jan 2023 07:18:38 -0800 (PST)
+        with ESMTP id S230431AbjAVPOH (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 22 Jan 2023 10:14:07 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 87DC821A35
+        for <stable@vger.kernel.org>; Sun, 22 Jan 2023 07:14:06 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id CDF26B80B11
-        for <stable@vger.kernel.org>; Sun, 22 Jan 2023 15:18:36 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 31A14C433D2;
-        Sun, 22 Jan 2023 15:18:35 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 258C560C60
+        for <stable@vger.kernel.org>; Sun, 22 Jan 2023 15:14:06 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3A8A3C433D2;
+        Sun, 22 Jan 2023 15:14:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1674400715;
-        bh=bHn+98W+LRqJXZsz4t28zbYdG3ANip8pqUSeTp+aJaA=;
+        s=korg; t=1674400445;
+        bh=1XfQfRY1VpYCYiuda3VkKisYUvi5S/tWe5Rwxsh5fB8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=BWFak+ZGYXIB9a9TsenHBLkCInCyyoc3OdkpDabJ+zukMkOdxqlcoeOlOV9vyRwE6
-         t5nq136SLzD7uVeh52ZOUROd0sQiAHZgof+hWEU7hu9JyxOVc6NQtKDdbBzn6FcXZ6
-         QKMn9Wl6wyiGs/ksaRLPUVrSBvNGCQ4SNVP0NqXk=
+        b=xh4vgW4VB5OhB9RfWVtRP1tZaakfxrWzzS/fPPKmTCHbQNJDd8HGAQ+bjqnjAgrgf
+         kIxzDhFTCRiXe9Y/bmbj8LaxocrGmIoB1aLWA6Z3QYZ6xjaUoXOQn7IvGomGN9Y8Ez
+         ZqXjlhnVt2k9QEoupY8p3KwL2LuS09S533+Ieiyg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Felipe Balbi <balbi@kernel.org>,
-        Lorenzo Colitti <lorenzo@google.com>,
-        Carlos Llamas <cmllamas@google.com>,
-        =?UTF-8?q?Maciej=20=C5=BBenczykowski?= <maze@google.com>,
-        stable <stable@kernel.org>
-Subject: [PATCH 5.15 082/117] usb: gadget: f_ncm: fix potential NULL ptr deref in ncm_bitrate()
+        patches@lists.linux.dev, Sasa Dragic <sasa.dragic@gmail.com>,
+        =?UTF-8?q?Ville=20Syrj=C3=A4l=C3=A4?= 
+        <ville.syrjala@linux.intel.com>,
+        Rodrigo Vivi <rodrigo.vivi@intel.com>
+Subject: [PATCH 5.10 76/98] drm/i915: re-disable RC6p on Sandy Bridge
 Date:   Sun, 22 Jan 2023 16:04:32 +0100
-Message-Id: <20230122150236.194166179@linuxfoundation.org>
+Message-Id: <20230122150232.653865531@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.1
-In-Reply-To: <20230122150232.736358800@linuxfoundation.org>
-References: <20230122150232.736358800@linuxfoundation.org>
+In-Reply-To: <20230122150229.351631432@linuxfoundation.org>
+References: <20230122150229.351631432@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,92 +55,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Maciej Żenczykowski <maze@google.com>
+From: Sasa Dragic <sasa.dragic@gmail.com>
 
-commit c6ec929595c7443250b2a4faea988c62019d5cd2 upstream.
+commit 67b0b4ed259e425b7eed09da75b42c80682ca003 upstream.
 
-In Google internal bug 265639009 we've received an (as yet) unreproducible
-crash report from an aarch64 GKI 5.10.149-android13 running device.
+RC6p on Sandy Bridge got re-enabled over time, causing visual glitches
+and GPU hangs.
 
-AFAICT the source code is at:
-  https://android.googlesource.com/kernel/common/+/refs/tags/ASB-2022-12-05_13-5.10
+Disabled originally in commit 1c8ecf80fdee ("drm/i915: do not enable
+RC6p on Sandy Bridge").
 
-The call stack is:
-  ncm_close() -> ncm_notify() -> ncm_do_notify()
-with the crash at:
-  ncm_do_notify+0x98/0x270
-Code: 79000d0b b9000a6c f940012a f9400269 (b9405d4b)
-
-Which I believe disassembles to (I don't know ARM assembly, but it looks sane enough to me...):
-
-  // halfword (16-bit) store presumably to event->wLength (at offset 6 of struct usb_cdc_notification)
-  0B 0D 00 79    strh w11, [x8, #6]
-
-  // word (32-bit) store presumably to req->Length (at offset 8 of struct usb_request)
-  6C 0A 00 B9    str  w12, [x19, #8]
-
-  // x10 (NULL) was read here from offset 0 of valid pointer x9
-  // IMHO we're reading 'cdev->gadget' and getting NULL
-  // gadget is indeed at offset 0 of struct usb_composite_dev
-  2A 01 40 F9    ldr  x10, [x9]
-
-  // loading req->buf pointer, which is at offset 0 of struct usb_request
-  69 02 40 F9    ldr  x9, [x19]
-
-  // x10 is null, crash, appears to be attempt to read cdev->gadget->max_speed
-  4B 5D 40 B9    ldr  w11, [x10, #0x5c]
-
-which seems to line up with ncm_do_notify() case NCM_NOTIFY_SPEED code fragment:
-
-  event->wLength = cpu_to_le16(8);
-  req->length = NCM_STATUS_BYTECOUNT;
-
-  /* SPEED_CHANGE data is up/down speeds in bits/sec */
-  data = req->buf + sizeof *event;
-  data[0] = cpu_to_le32(ncm_bitrate(cdev->gadget));
-
-My analysis of registers and NULL ptr deref crash offset
-  (Unable to handle kernel NULL pointer dereference at virtual address 000000000000005c)
-heavily suggests that the crash is due to 'cdev->gadget' being NULL when executing:
-  data[0] = cpu_to_le32(ncm_bitrate(cdev->gadget));
-which calls:
-  ncm_bitrate(NULL)
-which then calls:
-  gadget_is_superspeed(NULL)
-which reads
-  ((struct usb_gadget *)NULL)->max_speed
-and hits a panic.
-
-AFAICT, if I'm counting right, the offset of max_speed is indeed 0x5C.
-(remember there's a GKI KABI reservation of 16 bytes in struct work_struct)
-
-It's not at all clear to me how this is all supposed to work...
-but returning 0 seems much better than panic-ing...
-
-Cc: Felipe Balbi <balbi@kernel.org>
-Cc: Lorenzo Colitti <lorenzo@google.com>
-Cc: Carlos Llamas <cmllamas@google.com>
+Signed-off-by: Sasa Dragic <sasa.dragic@gmail.com>
+Signed-off-by: Ville Syrjälä <ville.syrjala@linux.intel.com>
+Link: https://patchwork.freedesktop.org/patch/msgid/20221219172927.9603-2-sasa.dragic@gmail.com
+Fixes: fb6db0f5bf1d ("drm/i915: Remove unsafe i915.enable_rc6")
+Fixes: 13c5a577b342 ("drm/i915/gt: Select the deepest available parking mode for rc6")
 Cc: stable@vger.kernel.org
-Signed-off-by: Maciej Żenczykowski <maze@google.com>
-Cc: stable <stable@kernel.org>
-Link: https://lore.kernel.org/r/20230117131839.1138208-1-maze@google.com
+Reviewed-by: Rodrigo Vivi <rodrigo.vivi@intel.com>
+(cherry picked from commit 0c8a6e9ea232c221976a0670256bd861408d9917)
+Signed-off-by: Rodrigo Vivi <rodrigo.vivi@intel.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/usb/gadget/function/f_ncm.c |    4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ drivers/gpu/drm/i915/i915_pci.c |    3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
---- a/drivers/usb/gadget/function/f_ncm.c
-+++ b/drivers/usb/gadget/function/f_ncm.c
-@@ -83,7 +83,9 @@ static inline struct f_ncm *func_to_ncm(
- /* peak (theoretical) bulk transfer rate in bits-per-second */
- static inline unsigned ncm_bitrate(struct usb_gadget *g)
- {
--	if (gadget_is_superspeed(g) && g->speed >= USB_SPEED_SUPER_PLUS)
-+	if (!g)
-+		return 0;
-+	else if (gadget_is_superspeed(g) && g->speed >= USB_SPEED_SUPER_PLUS)
- 		return 4250000000U;
- 	else if (gadget_is_superspeed(g) && g->speed == USB_SPEED_SUPER)
- 		return 3750000000U;
+--- a/drivers/gpu/drm/i915/i915_pci.c
++++ b/drivers/gpu/drm/i915/i915_pci.c
+@@ -403,7 +403,8 @@ static const struct intel_device_info il
+ 	.has_coherent_ggtt = true, \
+ 	.has_llc = 1, \
+ 	.has_rc6 = 1, \
+-	.has_rc6p = 1, \
++	/* snb does support rc6p, but enabling it causes various issues */ \
++	.has_rc6p = 0, \
+ 	.has_rps = true, \
+ 	.dma_mask_size = 40, \
+ 	.ppgtt_type = INTEL_PPGTT_ALIASING, \
 
 
