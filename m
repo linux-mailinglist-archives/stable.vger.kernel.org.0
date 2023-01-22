@@ -2,46 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 40E76676F37
-	for <lists+stable@lfdr.de>; Sun, 22 Jan 2023 16:19:02 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 135DD676EDC
+	for <lists+stable@lfdr.de>; Sun, 22 Jan 2023 16:15:12 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231196AbjAVPTB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 22 Jan 2023 10:19:01 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46226 "EHLO
+        id S230473AbjAVPPL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 22 Jan 2023 10:15:11 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42026 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231194AbjAVPTA (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 22 Jan 2023 10:19:00 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4151020057
-        for <stable@vger.kernel.org>; Sun, 22 Jan 2023 07:18:59 -0800 (PST)
+        with ESMTP id S230470AbjAVPPK (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 22 Jan 2023 10:15:10 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B4E9722025
+        for <stable@vger.kernel.org>; Sun, 22 Jan 2023 07:15:09 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id EEC43B80B1D
-        for <stable@vger.kernel.org>; Sun, 22 Jan 2023 15:18:57 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 45E24C433D2;
-        Sun, 22 Jan 2023 15:18:56 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 51DC060C5C
+        for <stable@vger.kernel.org>; Sun, 22 Jan 2023 15:15:09 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6962BC433D2;
+        Sun, 22 Jan 2023 15:15:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1674400736;
-        bh=QnN/aUqdk/tOHEV9n7pPTAo04sYTWP1s+8C8iepJmxQ=;
+        s=korg; t=1674400508;
+        bh=OqxWEtiTOn4kTu3mdysvMJoqky85DyyHjpgSTRcjVfQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=2tefVnAWtzHb3ujfP6geyvIsi1HWuUD1N6l59H5IIKXsOd7fOI6Xvaaa4GZcRyz+B
-         VAwd/9ciFzs/dKk4cNA+FSNRt57tNmqiUk3dB+UaFxiFJ8iv11RDVIKn795i2rLaJK
-         0h4Kq0QXgaxYqEF4Qbtp+4GRfzCYxIA8w6vOgwS8=
+        b=1lWYcUiZw9sqM7VYN+nP+hnKyjEuZobn9VQxGmH/WgXDVxQ0dhazlx1YZNozzqKXJ
+         BPliCrWF4iMSVTvWkKis8YPlp17IpkzvdlbUWG59vT8wLnFLs+sgblt9YZ6VbHjiAR
+         BKle2AYibKFMPx24bdYM/f+PrwfS1jP9MfI0S/DI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Reinette Chatre <reinette.chatre@intel.com>,
-        Dave Jiang <dave.jiang@intel.com>,
-        Fenghua Yu <fenghua.yu@intel.com>,
-        Vinod Koul <vkoul@kernel.org>
-Subject: [PATCH 5.15 089/117] dmaengine: idxd: Let probe fail when workqueue cannot be enabled
+        patches@lists.linux.dev, YingChi Long <me@inclyc.cn>,
+        Borislav Petkov <bp@suse.de>,
+        Nick Desaulniers <ndesaulniers@google.com>,
+        Nathan Chancellor <nathan@kernel.org>
+Subject: [PATCH 5.10 83/98] x86/fpu: Use _Alignof to avoid undefined behavior in TYPE_ALIGN
 Date:   Sun, 22 Jan 2023 16:04:39 +0100
-Message-Id: <20230122150236.503793632@linuxfoundation.org>
+Message-Id: <20230122150232.957258261@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.1
-In-Reply-To: <20230122150232.736358800@linuxfoundation.org>
-References: <20230122150232.736358800@linuxfoundation.org>
+In-Reply-To: <20230122150229.351631432@linuxfoundation.org>
+References: <20230122150229.351631432@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,78 +55,63 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Reinette Chatre <reinette.chatre@intel.com>
+From: YingChi Long <me@inclyc.cn>
 
-commit b51b75f0604f17c0f6f3b6f68f1a521a5cc6b04f upstream.
+commit 55228db2697c09abddcb9487c3d9fa5854a932cd upstream.
 
-The workqueue is enabled when the appropriate driver is loaded and
-disabled when the driver is removed. When the driver is removed it
-assumes that the workqueue was enabled successfully and proceeds to
-free allocations made during workqueue enabling.
+WG14 N2350 specifies that it is an undefined behavior to have type
+definitions within offsetof", see
 
-Failure during workqueue enabling does not prevent the driver from
-being loaded. This is because the error path within drv_enable_wq()
-returns success unless a second failure is encountered
-during the error path. By returning success it is possible to load
-the driver even if the workqueue cannot be enabled and
-allocations that do not exist are attempted to be freed during
-driver remove.
+  https://www.open-std.org/jtc1/sc22/wg14/www/docs/n2350.htm
 
-Some examples of problematic flows:
-(a)
+This specification is also part of C23.
 
- idxd_dmaengine_drv_probe() -> drv_enable_wq() -> idxd_wq_request_irq():
- In above flow, if idxd_wq_request_irq() fails then
- idxd_wq_unmap_portal() is called on error exit path, but
- drv_enable_wq() returns 0 because idxd_wq_disable() succeeds. The
- driver is thus loaded successfully.
+Therefore, replace the TYPE_ALIGN macro with the _Alignof builtin to
+avoid undefined behavior. (_Alignof itself is C11 and the kernel is
+built with -gnu11).
 
- idxd_dmaengine_drv_remove()->drv_disable_wq()->idxd_wq_unmap_portal()
- Above flow on driver unload triggers the WARN in devm_iounmap() because
- the device resource has already been removed during error path of
- drv_enable_wq().
+ISO C11 _Alignof is subtly different from the GNU C extension
+__alignof__. Latter is the preferred alignment and _Alignof the
+minimal alignment. For long long on x86 these are 8 and 4
+respectively.
 
-(b)
+The macro TYPE_ALIGN's behavior matches _Alignof rather than
+__alignof__.
 
- idxd_dmaengine_drv_probe() -> drv_enable_wq() -> idxd_wq_request_irq():
- In above flow, if idxd_wq_request_irq() fails then
- idxd_wq_init_percpu_ref() is never called to initialize the percpu
- counter, yet the driver loads successfully because drv_enable_wq()
- returns 0.
+  [ bp: Massage commit message. ]
 
- idxd_dmaengine_drv_remove()->__idxd_wq_quiesce()->percpu_ref_kill():
- Above flow on driver unload triggers a BUG when attempting to drop the
- initial ref of the uninitialized percpu ref:
- BUG: kernel NULL pointer dereference, address: 0000000000000010
-
-Fix the drv_enable_wq() error path by returning the original error that
-indicates failure of workqueue enabling. This ensures that the probe
-fails when an error is encountered and the driver remove paths are only
-attempted when the workqueue was enabled successfully.
-
-Fixes: 1f2bb40337f0 ("dmaengine: idxd: move wq_enable() to device.c")
-Signed-off-by: Reinette Chatre <reinette.chatre@intel.com>
-Reviewed-by: Dave Jiang <dave.jiang@intel.com>
-Reviewed-by: Fenghua Yu <fenghua.yu@intel.com>
-Cc: stable@vger.kernel.org
-Link: https://lore.kernel.org/r/e8d8116e5efa0fd14fadc5adae6ffd319f0e5ff1.1670452419.git.reinette.chatre@intel.com
-Signed-off-by: Vinod Koul <vkoul@kernel.org>
+Signed-off-by: YingChi Long <me@inclyc.cn>
+Signed-off-by: Borislav Petkov <bp@suse.de>
+Reviewed-by: Nick Desaulniers <ndesaulniers@google.com>
+Link: https://lore.kernel.org/r/20220925153151.2467884-1-me@inclyc.cn
+Signed-off-by: Nathan Chancellor <nathan@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/dma/idxd/device.c |    3 +--
- 1 file changed, 1 insertion(+), 2 deletions(-)
+ arch/x86/kernel/fpu/init.c |    7 ++-----
+ 1 file changed, 2 insertions(+), 5 deletions(-)
 
---- a/drivers/dma/idxd/device.c
-+++ b/drivers/dma/idxd/device.c
-@@ -1248,8 +1248,7 @@ int __drv_enable_wq(struct idxd_wq *wq)
- 	return 0;
+--- a/arch/x86/kernel/fpu/init.c
++++ b/arch/x86/kernel/fpu/init.c
+@@ -138,9 +138,6 @@ static void __init fpu__init_system_gene
+ unsigned int fpu_kernel_xstate_size;
+ EXPORT_SYMBOL_GPL(fpu_kernel_xstate_size);
  
- err_map_portal:
--	rc = idxd_wq_disable(wq, false);
--	if (rc < 0)
-+	if (idxd_wq_disable(wq, false))
- 		dev_dbg(dev, "wq %s disable failed\n", dev_name(wq_confdev(wq)));
- err:
- 	return rc;
+-/* Get alignment of the TYPE. */
+-#define TYPE_ALIGN(TYPE) offsetof(struct { char x; TYPE test; }, test)
+-
+ /*
+  * Enforce that 'MEMBER' is the last field of 'TYPE'.
+  *
+@@ -148,8 +145,8 @@ EXPORT_SYMBOL_GPL(fpu_kernel_xstate_size
+  * because that's how C aligns structs.
+  */
+ #define CHECK_MEMBER_AT_END_OF(TYPE, MEMBER) \
+-	BUILD_BUG_ON(sizeof(TYPE) != ALIGN(offsetofend(TYPE, MEMBER), \
+-					   TYPE_ALIGN(TYPE)))
++	BUILD_BUG_ON(sizeof(TYPE) !=         \
++		     ALIGN(offsetofend(TYPE, MEMBER), _Alignof(TYPE)))
+ 
+ /*
+  * We append the 'struct fpu' to the task_struct:
 
 
