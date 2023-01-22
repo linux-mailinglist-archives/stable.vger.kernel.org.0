@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 521D7676EC0
-	for <lists+stable@lfdr.de>; Sun, 22 Jan 2023 16:13:58 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 28E54676FE5
+	for <lists+stable@lfdr.de>; Sun, 22 Jan 2023 16:26:25 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230430AbjAVPN5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 22 Jan 2023 10:13:57 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41050 "EHLO
+        id S231419AbjAVP0Y (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 22 Jan 2023 10:26:24 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54634 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230431AbjAVPN4 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 22 Jan 2023 10:13:56 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 14FD522009
-        for <stable@vger.kernel.org>; Sun, 22 Jan 2023 07:13:56 -0800 (PST)
+        with ESMTP id S231417AbjAVP0X (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 22 Jan 2023 10:26:23 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7BC4122DC1
+        for <stable@vger.kernel.org>; Sun, 22 Jan 2023 07:26:22 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id A4C5C60C63
-        for <stable@vger.kernel.org>; Sun, 22 Jan 2023 15:13:55 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id AE3B4C433EF;
-        Sun, 22 Jan 2023 15:13:54 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 3A451B80B1A
+        for <stable@vger.kernel.org>; Sun, 22 Jan 2023 15:26:21 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 91F45C433D2;
+        Sun, 22 Jan 2023 15:26:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1674400435;
-        bh=104OlxchH7FoR/SMWwK/ndCYooV/s02RnjfbRtSdEZE=;
+        s=korg; t=1674401179;
+        bh=bvrw2l+B7OgSd11o4Ejd/7erH7Kfq2HxGb7JLksfPdc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=B+/FNaM1vQxZ/EAwz3RK/gmPSp8KSKTi2WCkJFNJjLmqvtbshtOpdZjb/9rqTtDZc
-         69Sg409wiv1PXAbtW2w/dQhmXSWxdhLmj7g4qz1dd+VyuMaCUwQ/FdwRLnQ2nPD5yP
-         QmbMZhFetc7/NpiYF6PLLW9x1vtgYXa+NddsWNhM=
+        b=Aage4vGcASJGefxNmcIkvMenUkKh/XrCFGjw9DWPeydFQKWMDPO7SKi2/dxKGlOoy
+         KNJrPzKha44oGhaZ8hARyjHnXhbyLpPXFqEKItbOF5gwMfyPoK8o4aPiXbQtrzTTTV
+         W0iy9puYoBTAWjlGmmyMvfLgmgrCIgCjmKq/hW7U=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, stable <stable@kernel.org>,
-        Tobias Schramm <t.schramm@manjaro.org>,
-        Richard Genoud <richard.genoud@gmail.com>
-Subject: [PATCH 5.10 73/98] serial: atmel: fix incorrect baudrate setup
-Date:   Sun, 22 Jan 2023 16:04:29 +0100
-Message-Id: <20230122150232.528185814@linuxfoundation.org>
+        patches@lists.linux.dev, Harry Wentland <harry.wentland@amd.com>,
+        Rodrigo Siqueira <Rodrigo.Siqueira@amd.com>,
+        hongao <hongao@uniontech.com>,
+        Alex Deucher <alexander.deucher@amd.com>
+Subject: [PATCH 6.1 141/193] drm/amd/display: Fix set scaling doesns work
+Date:   Sun, 22 Jan 2023 16:04:30 +0100
+Message-Id: <20230122150252.829141352@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.1
-In-Reply-To: <20230122150229.351631432@linuxfoundation.org>
-References: <20230122150229.351631432@linuxfoundation.org>
+In-Reply-To: <20230122150246.321043584@linuxfoundation.org>
+References: <20230122150246.321043584@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,53 +55,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tobias Schramm <t.schramm@manjaro.org>
+From: hongao <hongao@uniontech.com>
 
-commit 5bfdd3c654bd879bff50c2e85e42f85ae698b42f upstream.
+commit 040625ab82ce6dca7772cb3867fe5c9eb279a344 upstream.
 
-Commit ba47f97a18f2 ("serial: core: remove baud_rates when serial console
-setup") changed uart_set_options to select the correct baudrate
-configuration based on the absolute error between requested baudrate and
-available standard baudrate settings.
-Prior to that commit the baudrate was selected based on which predefined
-standard baudrate did not exceed the requested baudrate.
-This change of selection logic was never reflected in the atmel serial
-driver. Thus the comment left in the atmel serial driver is no longer
-accurate.
-Additionally the manual rounding up described in that comment and applied
-via (quot - 1) requests an incorrect baudrate. Since uart_set_options uses
-tty_termios_encode_baud_rate to determine the appropriate baudrate flags
-this can cause baudrate selection to fail entirely because
-tty_termios_encode_baud_rate will only select a baudrate if relative error
-between requested and selected baudrate does not exceed +/-2%.
-Fix that by requesting actual, exact baudrate used by the serial.
+[Why]
+Setting scaling does not correctly update CRTC state. As a result
+dc stream state's src (composition area) && dest (addressable area)
+was not calculated as expected. This causes set scaling doesn's work.
 
-Fixes: ba47f97a18f2 ("serial: core: remove baud_rates when serial console setup")
-Cc: stable <stable@kernel.org>
-Signed-off-by: Tobias Schramm <t.schramm@manjaro.org>
-Acked-by: Richard Genoud <richard.genoud@gmail.com>
-Link: https://lore.kernel.org/r/20230109072940.202936-1-t.schramm@manjaro.org
+[How]
+Correctly update CRTC state when setting scaling property.
+
+Reviewed-by: Harry Wentland <harry.wentland@amd.com>
+Tested-by: Rodrigo Siqueira <Rodrigo.Siqueira@amd.com>
+Signed-off-by: hongao <hongao@uniontech.com>
+Signed-off-by: Rodrigo Siqueira <Rodrigo.Siqueira@amd.com>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+Cc: stable@vger.kernel.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/tty/serial/atmel_serial.c |    8 +-------
- 1 file changed, 1 insertion(+), 7 deletions(-)
+ drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
---- a/drivers/tty/serial/atmel_serial.c
-+++ b/drivers/tty/serial/atmel_serial.c
-@@ -2633,13 +2633,7 @@ static void __init atmel_console_get_opt
- 	else if (mr == ATMEL_US_PAR_ODD)
- 		*parity = 'o';
+--- a/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c
++++ b/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c
+@@ -9433,8 +9433,8 @@ static int amdgpu_dm_atomic_check(struct
+ 			goto fail;
+ 		}
  
--	/*
--	 * The serial core only rounds down when matching this to a
--	 * supported baud rate. Make sure we don't end up slightly
--	 * lower than one of those, as it would make us fall through
--	 * to a much lower baud rate than we really want.
--	 */
--	*baud = port->uartclk / (16 * (quot - 1));
-+	*baud = port->uartclk / (16 * quot);
- }
+-		if (dm_old_con_state->abm_level !=
+-		    dm_new_con_state->abm_level)
++		if (dm_old_con_state->abm_level != dm_new_con_state->abm_level ||
++		    dm_old_con_state->scaling != dm_new_con_state->scaling)
+ 			new_crtc_state->connectors_changed = true;
+ 	}
  
- static int __init atmel_console_setup(struct console *co, char *options)
 
 
