@@ -2,41 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 660B1676F76
-	for <lists+stable@lfdr.de>; Sun, 22 Jan 2023 16:22:11 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1461E676F78
+	for <lists+stable@lfdr.de>; Sun, 22 Jan 2023 16:22:12 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231285AbjAVPWJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 22 Jan 2023 10:22:09 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49534 "EHLO
+        id S231277AbjAVPWL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 22 Jan 2023 10:22:11 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49542 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231283AbjAVPWF (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 22 Jan 2023 10:22:05 -0500
+        with ESMTP id S231295AbjAVPWG (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 22 Jan 2023 10:22:06 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E7D02227BF
-        for <stable@vger.kernel.org>; Sun, 22 Jan 2023 07:21:42 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3C44422794
+        for <stable@vger.kernel.org>; Sun, 22 Jan 2023 07:21:44 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 48309B80B23
-        for <stable@vger.kernel.org>; Sun, 22 Jan 2023 15:21:40 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 95CAFC433D2;
-        Sun, 22 Jan 2023 15:21:38 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id DBC97B80B25
+        for <stable@vger.kernel.org>; Sun, 22 Jan 2023 15:21:42 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3F950C433EF;
+        Sun, 22 Jan 2023 15:21:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1674400899;
-        bh=kMTd/QWEVaMMbGGHko64wkREQRIpQtKXX9E8vNP5Ciw=;
+        s=korg; t=1674400901;
+        bh=YF6YY0iHFdfr/hG0roWqPe4eYWlqhRj8kIVzdzc4Ql0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=iBpc2h6ux1VDuNA2HMLF1JEzNhtQoDuChamT/MfCZLmKsKtUwl3IdGX9H5t7MT/lo
-         36JNstjxdJpkctk011WwnnBalpITcH4ulQRq1IyOe800G8HHAMrxflOVn4FUq9hYpt
-         D9VfN1V0ar5hCMq2kelAFJjnnEjXERx1wj/q000M=
+        b=rB4rrGnX54PYEgrHTwr/EAzMaMpJJuAo7KFwJJjyIWYdrdQUTAFGrou6WxdXkCLk8
+         iw+HADjj33dFL+Z8OFGiQodyLIMFI4GHeHFHuJG6XZyGmvFaK7+3mcs8Lz+ABKBOsL
+         CwLUNayChpKpYPlCda1a5ab1g4knJI1n8WeAUQY4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Hao Sun <sunhao.th@gmail.com>,
-        Martin KaFai Lau <martin.lau@kernel.org>,
+        patches@lists.linux.dev, Anuradha Weeraman <anuradha@debian.org>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 005/193] selftests/bpf: check null propagation only neither reg is PTR_TO_BTF_ID
-Date:   Sun, 22 Jan 2023 16:02:14 +0100
-Message-Id: <20230122150246.597358923@linuxfoundation.org>
+Subject: [PATCH 6.1 006/193] net: ethernet: marvell: octeontx2: Fix uninitialized variable warning
+Date:   Sun, 22 Jan 2023 16:02:15 +0100
+Message-Id: <20230122150246.658257530@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.1
 In-Reply-To: <20230122150246.321043584@linuxfoundation.org>
 References: <20230122150246.321043584@linuxfoundation.org>
@@ -54,89 +54,33 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hao Sun <sunhao.th@gmail.com>
+From: Anuradha Weeraman <anuradha@debian.org>
 
-[ Upstream commit cedebd74cf3883f0384af9ec26b4e6f8f1964dd4 ]
+[ Upstream commit d3805695fe1e7383517903715cefc9bbdcffdc90 ]
 
-Verify that nullness information is not porpagated in the branches
-of register to register JEQ and JNE operations if one of them is
-PTR_TO_BTF_ID. Implement this in C level so we can use CO-RE.
+Fix for uninitialized variable warning.
 
-Signed-off-by: Hao Sun <sunhao.th@gmail.com>
-Suggested-by: Martin KaFai Lau <martin.lau@kernel.org>
-Link: https://lore.kernel.org/r/20221222024414.29539-2-sunhao.th@gmail.com
-Signed-off-by: Martin KaFai Lau <martin.lau@kernel.org>
+Addresses-Coverity: ("Uninitialized scalar variable")
+Signed-off-by: Anuradha Weeraman <anuradha@debian.org>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- .../bpf/prog_tests/jeq_infer_not_null.c       |  9 ++++
- .../bpf/progs/jeq_infer_not_null_fail.c       | 42 +++++++++++++++++++
- 2 files changed, 51 insertions(+)
- create mode 100644 tools/testing/selftests/bpf/prog_tests/jeq_infer_not_null.c
- create mode 100644 tools/testing/selftests/bpf/progs/jeq_infer_not_null_fail.c
+ drivers/net/ethernet/marvell/octeontx2/af/mcs_rvu_if.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/tools/testing/selftests/bpf/prog_tests/jeq_infer_not_null.c b/tools/testing/selftests/bpf/prog_tests/jeq_infer_not_null.c
-new file mode 100644
-index 000000000000..3add34df5767
---- /dev/null
-+++ b/tools/testing/selftests/bpf/prog_tests/jeq_infer_not_null.c
-@@ -0,0 +1,9 @@
-+// SPDX-License-Identifier: GPL-2.0
-+
-+#include <test_progs.h>
-+#include "jeq_infer_not_null_fail.skel.h"
-+
-+void test_jeq_infer_not_null(void)
-+{
-+	RUN_TESTS(jeq_infer_not_null_fail);
-+}
-diff --git a/tools/testing/selftests/bpf/progs/jeq_infer_not_null_fail.c b/tools/testing/selftests/bpf/progs/jeq_infer_not_null_fail.c
-new file mode 100644
-index 000000000000..f46965053acb
---- /dev/null
-+++ b/tools/testing/selftests/bpf/progs/jeq_infer_not_null_fail.c
-@@ -0,0 +1,42 @@
-+// SPDX-License-Identifier: GPL-2.0
-+
-+#include "vmlinux.h"
-+#include <bpf/bpf_helpers.h>
-+#include "bpf_misc.h"
-+
-+char _license[] SEC("license") = "GPL";
-+
-+struct {
-+	__uint(type, BPF_MAP_TYPE_HASH);
-+	__uint(max_entries, 1);
-+	__type(key, u64);
-+	__type(value, u64);
-+} m_hash SEC(".maps");
-+
-+SEC("?raw_tp")
-+__failure __msg("R8 invalid mem access 'map_value_or_null")
-+int jeq_infer_not_null_ptr_to_btfid(void *ctx)
-+{
-+	struct bpf_map *map = (struct bpf_map *)&m_hash;
-+	struct bpf_map *inner_map = map->inner_map_meta;
-+	u64 key = 0, ret = 0, *val;
-+
-+	val = bpf_map_lookup_elem(map, &key);
-+	/* Do not mark ptr as non-null if one of them is
-+	 * PTR_TO_BTF_ID (R9), reject because of invalid
-+	 * access to map value (R8).
-+	 *
-+	 * Here, we need to inline those insns to access
-+	 * R8 directly, since compiler may use other reg
-+	 * once it figures out val==inner_map.
-+	 */
-+	asm volatile("r8 = %[val];\n"
-+		     "r9 = %[inner_map];\n"
-+		     "if r8 != r9 goto +1;\n"
-+		     "%[ret] = *(u64 *)(r8 +0);\n"
-+		     : [ret] "+r"(ret)
-+		     : [inner_map] "r"(inner_map), [val] "r"(val)
-+		     : "r8", "r9");
-+
-+	return ret;
-+}
+diff --git a/drivers/net/ethernet/marvell/octeontx2/af/mcs_rvu_if.c b/drivers/net/ethernet/marvell/octeontx2/af/mcs_rvu_if.c
+index fa8029a94068..eb25e458266c 100644
+--- a/drivers/net/ethernet/marvell/octeontx2/af/mcs_rvu_if.c
++++ b/drivers/net/ethernet/marvell/octeontx2/af/mcs_rvu_if.c
+@@ -589,7 +589,7 @@ int rvu_mbox_handler_mcs_free_resources(struct rvu *rvu,
+ 	u16 pcifunc = req->hdr.pcifunc;
+ 	struct mcs_rsrc_map *map;
+ 	struct mcs *mcs;
+-	int rc;
++	int rc = 0;
+ 
+ 	if (req->mcs_id >= rvu->mcs_blk_cnt)
+ 		return MCS_AF_ERR_INVALID_MCSID;
 -- 
 2.35.1
 
