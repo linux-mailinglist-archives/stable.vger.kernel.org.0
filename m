@@ -2,45 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 650D967701B
-	for <lists+stable@lfdr.de>; Sun, 22 Jan 2023 16:28:37 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E8688676F58
+	for <lists+stable@lfdr.de>; Sun, 22 Jan 2023 16:20:25 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229919AbjAVP2g (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 22 Jan 2023 10:28:36 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56520 "EHLO
+        id S231230AbjAVPUZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 22 Jan 2023 10:20:25 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47264 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229947AbjAVP2g (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 22 Jan 2023 10:28:36 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 62D282330F
-        for <stable@vger.kernel.org>; Sun, 22 Jan 2023 07:28:35 -0800 (PST)
+        with ESMTP id S231236AbjAVPUY (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 22 Jan 2023 10:20:24 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2A270222E3
+        for <stable@vger.kernel.org>; Sun, 22 Jan 2023 07:20:24 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id E87CD60C43
-        for <stable@vger.kernel.org>; Sun, 22 Jan 2023 15:28:34 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 07C4BC4339B;
-        Sun, 22 Jan 2023 15:28:33 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id BAD3260C58
+        for <stable@vger.kernel.org>; Sun, 22 Jan 2023 15:20:23 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id CC159C433D2;
+        Sun, 22 Jan 2023 15:20:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1674401314;
-        bh=UhRkhYCFFtwM6P1i845wpbBQMpbqhAENvekrZgysy4k=;
+        s=korg; t=1674400823;
+        bh=BEG/IMQo3ViR1MKiqcXqv6YmJl0zKDvag+6myi/QtHA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=DvCZITM1tw7c6Rw692QmGE5cEruCVE+ig7GeXSlH1W1qNp+6MRqwqFWzNBw+Z66TT
-         nvXI+vGRMLJ6lBkawSmdMzr6Mp7tuZQs+y9I+P4DYvDlJ3Y0ebce6Sqx6Bg2al4ytH
-         ChfbDmrd+XBxJOG/3Rm7BcmlrWcrltYB0O5E8CeU=
+        b=xvX58p1YiTi4Oq2J2MqP60bXylGaIlwgI8FVz0v8cu22dC8LlLBAxykk+WFfTH1s/
+         cqJY9VBkREIUzqH4lFnUAVY/6UapjsjRBbqe5hqrubYYMlYbcjTDvT8SyVbWrPE+NJ
+         h9Du5HmLQ7A4rtWIrXA4sfeseBAcwhfEZJekO7BY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Yifan Zhang <yifan1.zhang@amd.com>,
-        Aaron Liu <aaron.liu@amd.com>,
-        Alex Deucher <alexander.deucher@amd.com>,
-        "Limonciello, Mario" <Mario.Limonciello@amd.com>
-Subject: [PATCH 6.1 163/193] drm/amdgpu/discovery: enable gfx v11 for GC 11.0.4
+        patches@lists.linux.dev, Ard Biesheuvel <ardb@kernel.org>,
+        Lee Jones <lee@kernel.org>
+Subject: [PATCH 5.15 102/117] efi: rt-wrapper: Add missing include
 Date:   Sun, 22 Jan 2023 16:04:52 +0100
-Message-Id: <20230122150253.855199790@linuxfoundation.org>
+Message-Id: <20230122150237.086166020@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.1
-In-Reply-To: <20230122150246.321043584@linuxfoundation.org>
-References: <20230122150246.321043584@linuxfoundation.org>
+In-Reply-To: <20230122150232.736358800@linuxfoundation.org>
+References: <20230122150232.736358800@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,30 +53,30 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yifan Zhang <yifan1.zhang@amd.com>
+From: Ard Biesheuvel <ardb@kernel.org>
 
-commit b952d6b3d3ff3c1570fab77f2137d5e5280a0e57 upstream.
+commit 18bba1843fc7f264f58c9345d00827d082f9c558 upstream.
 
-Enable gfx v11 for GC 11.0.4.
+Add the missing #include of asm/assembler.h, which is where the ldr_l
+macro is defined.
 
-Signed-off-by: Yifan Zhang <yifan1.zhang@amd.com>
-Reviewed-by: Aaron Liu <aaron.liu@amd.com>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
-Cc: "Limonciello, Mario" <Mario.Limonciello@amd.com>
+Fixes: ff7a167961d1b97e ("arm64: efi: Execute runtime services from a dedicated stack")
+Signed-off-by: Ard Biesheuvel <ardb@kernel.org>
+Cc: Lee Jones <lee@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/gpu/drm/amd/amdgpu/amdgpu_discovery.c |    1 +
+ arch/arm64/kernel/efi-rt-wrapper.S |    1 +
  1 file changed, 1 insertion(+)
 
---- a/drivers/gpu/drm/amd/amdgpu/amdgpu_discovery.c
-+++ b/drivers/gpu/drm/amd/amdgpu/amdgpu_discovery.c
-@@ -1787,6 +1787,7 @@ static int amdgpu_discovery_set_gc_ip_bl
- 	case IP_VERSION(11, 0, 1):
- 	case IP_VERSION(11, 0, 2):
- 	case IP_VERSION(11, 0, 3):
-+	case IP_VERSION(11, 0, 4):
- 		amdgpu_device_ip_block_add(adev, &gfx_v11_0_ip_block);
- 		break;
- 	default:
+--- a/arch/arm64/kernel/efi-rt-wrapper.S
++++ b/arch/arm64/kernel/efi-rt-wrapper.S
+@@ -4,6 +4,7 @@
+  */
+ 
+ #include <linux/linkage.h>
++#include <asm/assembler.h>
+ 
+ SYM_FUNC_START(__efi_rt_asm_wrapper)
+ 	stp	x29, x30, [sp, #-32]!
 
 
