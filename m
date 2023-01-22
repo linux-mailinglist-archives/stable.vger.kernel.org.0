@@ -2,41 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 1E8F9676F66
-	for <lists+stable@lfdr.de>; Sun, 22 Jan 2023 16:21:06 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0A04C676F68
+	for <lists+stable@lfdr.de>; Sun, 22 Jan 2023 16:21:12 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231254AbjAVPVF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 22 Jan 2023 10:21:05 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47780 "EHLO
+        id S231258AbjAVPVK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 22 Jan 2023 10:21:10 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47956 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231264AbjAVPVE (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 22 Jan 2023 10:21:04 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6FEDD2278C
-        for <stable@vger.kernel.org>; Sun, 22 Jan 2023 07:21:02 -0800 (PST)
+        with ESMTP id S231265AbjAVPVK (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 22 Jan 2023 10:21:10 -0500
+Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5A93C2278C
+        for <stable@vger.kernel.org>; Sun, 22 Jan 2023 07:21:08 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 09B43B80B1D
-        for <stable@vger.kernel.org>; Sun, 22 Jan 2023 15:21:01 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5F6B3C433D2;
-        Sun, 22 Jan 2023 15:20:59 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 950A0CE0ECE
+        for <stable@vger.kernel.org>; Sun, 22 Jan 2023 15:21:06 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 83D4BC433EF;
+        Sun, 22 Jan 2023 15:21:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1674400859;
-        bh=CC6zOMidGEEk6EIhOLGPBw0/X6Ca/ilRjIAoTNkXIDc=;
+        s=korg; t=1674400864;
+        bh=MmA1QA0BglChepLdloao0FvGTDssWIuLBEv4+ZymR+Q=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=BmiCEl8EOGZW9Ckjq8SwN61z/Xlc84977YW/BfJG+hYknUPluFm2nsKdED1INCAb/
-         S13yS03leyl69p9xfSMijXfoLBzsq/xJ8OKh++bPTvgt0sk0FYcy5GItkp7dtBLs3k
-         m1T0Drv+egMwSn/qE5edZIcUMWiKARIp0S4f1e1o=
+        b=Iy3p9RKrzkhfH/xxnWHLa/QoRN9UPXqqUYE6d9yqvihNqN2lqvJufD96hXcwH/rE7
+         YSUHcr+Abzv1kiMJiFS6vwvfMjyKai+HoF5haeCjdZM6hJimhScsGYmoPSKwi48gUp
+         yi3RKOIHVVoOF9IsrSwMnROpqV+RSKYzOwuGRizg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Po-Hsu Lin <po-hsu.lin@canonical.com>,
-        "David S. Miller" <davem@davemloft.net>,
+        patches@lists.linux.dev, Anand Jain <anand.jain@oracle.com>,
+        Qu Wenruo <wqu@suse.com>, David Sterba <dsterba@suse.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 019/193] selftests: net: fix cmsg_so_mark.sh test hang
-Date:   Sun, 22 Jan 2023 16:02:28 +0100
-Message-Id: <20230122150247.224804194@linuxfoundation.org>
+Subject: [PATCH 6.1 020/193] btrfs: always report error in run_one_delayed_ref()
+Date:   Sun, 22 Jan 2023 16:02:29 +0100
+Message-Id: <20230122150247.278505415@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.1
 In-Reply-To: <20230122150246.321043584@linuxfoundation.org>
 References: <20230122150246.321043584@linuxfoundation.org>
@@ -54,38 +54,78 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Po-Hsu Lin <po-hsu.lin@canonical.com>
+From: Qu Wenruo <wqu@suse.com>
 
-[ Upstream commit 1573c6882018f69991aead951d09423ce978adac ]
+[ Upstream commit 39f501d68ec1ed5cd5c66ac6ec2a7131c517bb92 ]
 
-This cmsg_so_mark.sh test will hang on non-amd64 systems because of the
-infinity loop for argument parsing in cmsg_sender.
+Currently we have a btrfs_debug() for run_one_delayed_ref() failure, but
+if end users hit such problem, there will be no chance that
+btrfs_debug() is enabled.  This can lead to very little useful info for
+debugging.
 
-Variable "o" in cs_parse_args() for taking getopt() should be an int,
-otherwise it will be 255 when getopt() returns -1 on non-amd64 system
-and thus causing infinity loop.
+This patch will:
 
-Link: https://lore.kernel.org/lkml/CA+G9fYsM2k7mrF7W4V_TrZ-qDauWM394=8yEJ=-t1oUg8_40YA@mail.gmail.com/t/
-Signed-off-by: Po-Hsu Lin <po-hsu.lin@canonical.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+- Add extra info for error reporting
+  Including:
+  * logical bytenr
+  * num_bytes
+  * type
+  * action
+  * ref_mod
+
+- Replace the btrfs_debug() with btrfs_err()
+
+- Move the error reporting into run_one_delayed_ref()
+  This is to avoid use-after-free, the @node can be freed in the caller.
+
+This error should only be triggered at most once.
+
+As if run_one_delayed_ref() failed, we trigger the error message, then
+causing the call chain to error out:
+
+btrfs_run_delayed_refs()
+`- btrfs_run_delayed_refs()
+   `- btrfs_run_delayed_refs_for_head()
+      `- run_one_delayed_ref()
+
+And we will abort the current transaction in btrfs_run_delayed_refs().
+If we have to run delayed refs for the abort transaction,
+run_one_delayed_ref() will just cleanup the refs and do nothing, thus no
+new error messages would be output.
+
+Reviewed-by: Anand Jain <anand.jain@oracle.com>
+Signed-off-by: Qu Wenruo <wqu@suse.com>
+Signed-off-by: David Sterba <dsterba@suse.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/testing/selftests/net/cmsg_sender.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ fs/btrfs/extent-tree.c | 7 +++++--
+ 1 file changed, 5 insertions(+), 2 deletions(-)
 
-diff --git a/tools/testing/selftests/net/cmsg_sender.c b/tools/testing/selftests/net/cmsg_sender.c
-index 75dd83e39207..24b21b15ed3f 100644
---- a/tools/testing/selftests/net/cmsg_sender.c
-+++ b/tools/testing/selftests/net/cmsg_sender.c
-@@ -110,7 +110,7 @@ static void __attribute__((noreturn)) cs_usage(const char *bin)
+diff --git a/fs/btrfs/extent-tree.c b/fs/btrfs/extent-tree.c
+index 2801c991814f..571fcc5ae4dc 100644
+--- a/fs/btrfs/extent-tree.c
++++ b/fs/btrfs/extent-tree.c
+@@ -1706,6 +1706,11 @@ static int run_one_delayed_ref(struct btrfs_trans_handle *trans,
+ 		BUG();
+ 	if (ret && insert_reserved)
+ 		btrfs_pin_extent(trans, node->bytenr, node->num_bytes, 1);
++	if (ret < 0)
++		btrfs_err(trans->fs_info,
++"failed to run delayed ref for logical %llu num_bytes %llu type %u action %u ref_mod %d: %d",
++			  node->bytenr, node->num_bytes, node->type,
++			  node->action, node->ref_mod, ret);
+ 	return ret;
+ }
  
- static void cs_parse_args(int argc, char *argv[])
- {
--	char o;
-+	int o;
+@@ -1947,8 +1952,6 @@ static int btrfs_run_delayed_refs_for_head(struct btrfs_trans_handle *trans,
+ 		if (ret) {
+ 			unselect_delayed_ref_head(delayed_refs, locked_ref);
+ 			btrfs_put_delayed_ref(ref);
+-			btrfs_debug(fs_info, "run_one_delayed_ref returned %d",
+-				    ret);
+ 			return ret;
+ 		}
  
- 	while ((o = getopt(argc, argv, "46sS:p:m:M:d:tf:F:c:C:l:L:H:")) != -1) {
- 		switch (o) {
 -- 
 2.35.1
 
