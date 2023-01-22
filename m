@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E905F676EB2
-	for <lists+stable@lfdr.de>; Sun, 22 Jan 2023 16:13:21 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 70DB9677001
+	for <lists+stable@lfdr.de>; Sun, 22 Jan 2023 16:27:29 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230415AbjAVPNV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 22 Jan 2023 10:13:21 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40638 "EHLO
+        id S231453AbjAVP12 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 22 Jan 2023 10:27:28 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55474 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230411AbjAVPNU (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 22 Jan 2023 10:13:20 -0500
+        with ESMTP id S231451AbjAVP11 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 22 Jan 2023 10:27:27 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3A4CB1F493
-        for <stable@vger.kernel.org>; Sun, 22 Jan 2023 07:13:19 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0112F23130
+        for <stable@vger.kernel.org>; Sun, 22 Jan 2023 07:27:26 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id C5FCC60BC5
-        for <stable@vger.kernel.org>; Sun, 22 Jan 2023 15:13:18 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D9189C433EF;
-        Sun, 22 Jan 2023 15:13:17 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 930DD60C43
+        for <stable@vger.kernel.org>; Sun, 22 Jan 2023 15:27:26 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A578CC433EF;
+        Sun, 22 Jan 2023 15:27:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1674400398;
-        bh=cDGOtOnTPc2fcO0EgdzwJuUFGYATm3KNt4OPnT/BURc=;
+        s=korg; t=1674401246;
+        bh=xNYfhrYs0eS8qK+MjXX0BdqR62ONKUMrbk5NefCMW6A=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=JpGOJ03wdaQbm8H4HEjNDSVz2Bt1iHv4O7endQbGd6QDxmpdSnFl6jgxRcY/ffQl3
-         RSW1j5h0WMvmc3XUmhg1Tz5Mj0YuDtFeEW+e0EG4+2GoPjmEvfb5Hg5XwN0sPZOmTS
-         kf+cEcHkdXGGk26xSwDAp0Qy8hAncz3hoJ5mVYmA=
+        b=Cos8LloI5RhLGbkRrAeXyW92p/zQ4CH9cRfHOxQA1N52ClDuPE1G6YM4odnLJuZui
+         Co3ievIw+c90I8vlmgbPvzjXx4MJa3YeGporpdeI2hqgoKblV0F2ygjCwb9qzbe98o
+         +MUO17be6OgpKM4+UtdQzZ4LWcrXLjtlI25NPShw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         patches@lists.linux.dev,
-        Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>,
-        Jiri Slaby <jirislaby@kernel.org>
-Subject: [PATCH 5.10 60/98] tty: serial: qcom-geni-serial: fix slab-out-of-bounds on RX FIFO buffer
+        Matthew Howell <matthew.howell@sealevel.com>,
+        stable <stable@kernel.org>
+Subject: [PATCH 6.1 127/193] serial: exar: Add support for Sealevel 7xxxC serial cards
 Date:   Sun, 22 Jan 2023 16:04:16 +0100
-Message-Id: <20230122150232.004967626@linuxfoundation.org>
+Message-Id: <20230122150252.114970636@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.1
-In-Reply-To: <20230122150229.351631432@linuxfoundation.org>
-References: <20230122150229.351631432@linuxfoundation.org>
+In-Reply-To: <20230122150246.321043584@linuxfoundation.org>
+References: <20230122150246.321043584@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,111 +54,61 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
+From: Matthew Howell <matthew.howell@sealevel.com>
 
-commit b8caf69a6946e18ffebad49847e258f5b6d52ac2 upstream.
+commit 14ee78d5932afeb710c8305196a676a715bfdea8 upstream.
 
-Driver's probe allocates memory for RX FIFO (port->rx_fifo) based on
-default RX FIFO depth, e.g. 16.  Later during serial startup the
-qcom_geni_serial_port_setup() updates the RX FIFO depth
-(port->rx_fifo_depth) to match real device capabilities, e.g. to 32.
+Add support for Sealevel 7xxxC serial cards.
 
-The RX UART handle code will read "port->rx_fifo_depth" number of words
-into "port->rx_fifo" buffer, thus exceeding the bounds.  This can be
-observed in certain configurations with Qualcomm Bluetooth HCI UART
-device and KASAN:
+This patch:
+* Adds IDs to recognize 7xxxC cards from Sealevel Systems.
+* Updates exar_pci_probe() to set nr_ports to last two bytes of primary
+  dev ID for these cards.
 
-  Bluetooth: hci0: QCA Product ID   :0x00000010
-  Bluetooth: hci0: QCA SOC Version  :0x400a0200
-  Bluetooth: hci0: QCA ROM Version  :0x00000200
-  Bluetooth: hci0: QCA Patch Version:0x00000d2b
-  Bluetooth: hci0: QCA controller version 0x02000200
-  Bluetooth: hci0: QCA Downloading qca/htbtfw20.tlv
-  bluetooth hci0: Direct firmware load for qca/htbtfw20.tlv failed with error -2
-  Bluetooth: hci0: QCA Failed to request file: qca/htbtfw20.tlv (-2)
-  Bluetooth: hci0: QCA Failed to download patch (-2)
-  ==================================================================
-  BUG: KASAN: slab-out-of-bounds in handle_rx_uart+0xa8/0x18c
-  Write of size 4 at addr ffff279347d578c0 by task swapper/0/0
-
-  CPU: 0 PID: 0 Comm: swapper/0 Not tainted 6.1.0-rt5-00350-gb2450b7e00be-dirty #26
-  Hardware name: Qualcomm Technologies, Inc. Robotics RB5 (DT)
-  Call trace:
-   dump_backtrace.part.0+0xe0/0xf0
-   show_stack+0x18/0x40
-   dump_stack_lvl+0x8c/0xb8
-   print_report+0x188/0x488
-   kasan_report+0xb4/0x100
-   __asan_store4+0x80/0xa4
-   handle_rx_uart+0xa8/0x18c
-   qcom_geni_serial_handle_rx+0x84/0x9c
-   qcom_geni_serial_isr+0x24c/0x760
-   __handle_irq_event_percpu+0x108/0x500
-   handle_irq_event+0x6c/0x110
-   handle_fasteoi_irq+0x138/0x2cc
-   generic_handle_domain_irq+0x48/0x64
-
-If the RX FIFO depth changes after probe, be sure to resize the buffer.
-
-Fixes: f9d690b6ece7 ("tty: serial: qcom_geni_serial: Allocate port->rx_fifo buffer in probe")
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
-Reviewed-by: Jiri Slaby <jirislaby@kernel.org>
-Link: https://lore.kernel.org/r/20221221164022.1087814-1-krzysztof.kozlowski@linaro.org
+Signed-off-by: Matthew Howell <matthew.howell@sealevel.com>
+Cc: stable <stable@kernel.org>
+Link: https://lore.kernel.org/r/alpine.DEB.2.21.2301191440010.22558@tstest-VirtualBox
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/tty/serial/qcom_geni_serial.c |   18 ++++++++++++++++--
- 1 file changed, 16 insertions(+), 2 deletions(-)
+ drivers/tty/serial/8250/8250_exar.c |   14 ++++++++++++++
+ 1 file changed, 14 insertions(+)
 
---- a/drivers/tty/serial/qcom_geni_serial.c
-+++ b/drivers/tty/serial/qcom_geni_serial.c
-@@ -866,9 +866,10 @@ out_unlock:
- 	return IRQ_HANDLED;
- }
+--- a/drivers/tty/serial/8250/8250_exar.c
++++ b/drivers/tty/serial/8250/8250_exar.c
+@@ -43,6 +43,12 @@
+ #define PCI_DEVICE_ID_EXAR_XR17V4358		0x4358
+ #define PCI_DEVICE_ID_EXAR_XR17V8358		0x8358
  
--static void get_tx_fifo_size(struct qcom_geni_serial_port *port)
-+static int setup_fifos(struct qcom_geni_serial_port *port)
- {
- 	struct uart_port *uport;
-+	u32 old_rx_fifo_depth = port->rx_fifo_depth;
- 
- 	uport = &port->uport;
- 	port->tx_fifo_depth = geni_se_get_tx_fifo_depth(&port->se);
-@@ -876,6 +877,16 @@ static void get_tx_fifo_size(struct qcom
- 	port->rx_fifo_depth = geni_se_get_rx_fifo_depth(&port->se);
- 	uport->fifosize =
- 		(port->tx_fifo_depth * port->tx_fifo_width) / BITS_PER_BYTE;
++#define PCI_DEVICE_ID_SEALEVEL_710xC		0x1001
++#define PCI_DEVICE_ID_SEALEVEL_720xC		0x1002
++#define PCI_DEVICE_ID_SEALEVEL_740xC		0x1004
++#define PCI_DEVICE_ID_SEALEVEL_780xC		0x1008
++#define PCI_DEVICE_ID_SEALEVEL_716xC		0x1010
 +
-+	if (port->rx_fifo && (old_rx_fifo_depth != port->rx_fifo_depth) && port->rx_fifo_depth) {
-+		port->rx_fifo = devm_krealloc(uport->dev, port->rx_fifo,
-+					      port->rx_fifo_depth * sizeof(u32),
-+					      GFP_KERNEL);
-+		if (!port->rx_fifo)
-+			return -ENOMEM;
-+	}
+ #define UART_EXAR_INT0		0x80
+ #define UART_EXAR_8XMODE	0x88	/* 8X sampling rate select */
+ #define UART_EXAR_SLEEP		0x8b	/* Sleep mode */
+@@ -638,6 +644,8 @@ exar_pci_probe(struct pci_dev *pcidev, c
+ 		nr_ports = BIT(((pcidev->device & 0x38) >> 3) - 1);
+ 	else if (board->num_ports)
+ 		nr_ports = board->num_ports;
++	else if (pcidev->vendor == PCI_VENDOR_ID_SEALEVEL)
++		nr_ports = pcidev->device & 0xff;
+ 	else
+ 		nr_ports = pcidev->device & 0x0f;
+ 
+@@ -864,6 +872,12 @@ static const struct pci_device_id exar_p
+ 	EXAR_DEVICE(COMMTECH, 4224PCI335, pbn_fastcom335_4),
+ 	EXAR_DEVICE(COMMTECH, 2324PCI335, pbn_fastcom335_4),
+ 	EXAR_DEVICE(COMMTECH, 2328PCI335, pbn_fastcom335_8),
 +
-+	return 0;
- }
- 
- 
-@@ -890,6 +901,7 @@ static int qcom_geni_serial_port_setup(s
- 	u32 rxstale = DEFAULT_BITS_PER_CHAR * STALE_TIMEOUT;
- 	u32 proto;
- 	u32 pin_swap;
-+	int ret;
- 
- 	proto = geni_se_read_proto(&port->se);
- 	if (proto != GENI_SE_UART) {
-@@ -899,7 +911,9 @@ static int qcom_geni_serial_port_setup(s
- 
- 	qcom_geni_serial_stop_rx(uport);
- 
--	get_tx_fifo_size(port);
-+	ret = setup_fifos(port);
-+	if (ret)
-+		return ret;
- 
- 	writel(rxstale, uport->membase + SE_UART_RX_STALE_CNT);
- 
++	EXAR_DEVICE(SEALEVEL, 710xC, pbn_exar_XR17V35x),
++	EXAR_DEVICE(SEALEVEL, 720xC, pbn_exar_XR17V35x),
++	EXAR_DEVICE(SEALEVEL, 740xC, pbn_exar_XR17V35x),
++	EXAR_DEVICE(SEALEVEL, 780xC, pbn_exar_XR17V35x),
++	EXAR_DEVICE(SEALEVEL, 716xC, pbn_exar_XR17V35x),
+ 	{ 0, }
+ };
+ MODULE_DEVICE_TABLE(pci, exar_pci_tbl);
 
 
