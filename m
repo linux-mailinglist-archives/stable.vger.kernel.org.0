@@ -2,44 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 33073676DFF
-	for <lists+stable@lfdr.de>; Sun, 22 Jan 2023 16:06:00 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 63DB8676F1C
+	for <lists+stable@lfdr.de>; Sun, 22 Jan 2023 16:18:00 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230093AbjAVPF7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 22 Jan 2023 10:05:59 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60016 "EHLO
+        id S231174AbjAVPR7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 22 Jan 2023 10:17:59 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45270 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230021AbjAVPF6 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 22 Jan 2023 10:05:58 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8AD8418B02
-        for <stable@vger.kernel.org>; Sun, 22 Jan 2023 07:05:57 -0800 (PST)
+        with ESMTP id S231173AbjAVPRu (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 22 Jan 2023 10:17:50 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 819874ED4
+        for <stable@vger.kernel.org>; Sun, 22 Jan 2023 07:17:48 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 2252460C56
-        for <stable@vger.kernel.org>; Sun, 22 Jan 2023 15:05:57 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3947DC4339C;
-        Sun, 22 Jan 2023 15:05:56 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 307DAB807E4
+        for <stable@vger.kernel.org>; Sun, 22 Jan 2023 15:17:47 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 872AEC433EF;
+        Sun, 22 Jan 2023 15:17:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1674399956;
-        bh=bTF9K5tpWKhRyLSGzbQGyh0lp1dPNwVsSnTFzScKnC4=;
+        s=korg; t=1674400665;
+        bh=IFrkoaFhUcTQrlZeSH4lEOg0VLcehCtOYW7yANN6c9c=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=nCxoylTkB9xEGriHWq2uOn18RViCgeAg/PHJDFEYWSQHHUdzfg6fPIQXDt7T0TvLB
-         odcG+3m7gRuoPUXUTqGL+lddaHdNlItwOQ4shrM7iUkbkHHIbALRAARgdnpDJVc21M
-         kDYmqiTn9DGA2sWfeMaiZ/VqFSaJSI76nwgr22Jo=
+        b=YHEEB2xHKXjs6PepkE3qO6zOlE9noEFzii3xp1Y6yKaW0KAKqQM6gcOcir99UTUvh
+         TKGcfeEx+t3BIZGjF4yQOqF2dLaVt+MrBp8HDBz6/V7SjFBhNtsqpkt1dCZFrTgDsT
+         /fzMpta5ED3olBrlLX3Zw9bJ+7Gq7U1muhsMsrZc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        =?UTF-8?q?Duke=20Xin ?= <duke_xinanwen@163.com>,
-        Johan Hovold <johan@kernel.org>
-Subject: [PATCH 4.14 11/25] USB: serial: option: add Quectel EM05-G (RS) modem
+        patches@lists.linux.dev, Ian Abbott <abbotti@mev.co.uk>
+Subject: [PATCH 5.15 061/117] comedi: adv_pci1760: Fix PWM instruction handling
 Date:   Sun, 22 Jan 2023 16:04:11 +0100
-Message-Id: <20230122150218.280612113@linuxfoundation.org>
+Message-Id: <20230122150235.323201724@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.1
-In-Reply-To: <20230122150217.788215473@linuxfoundation.org>
-References: <20230122150217.788215473@linuxfoundation.org>
+In-Reply-To: <20230122150232.736358800@linuxfoundation.org>
+References: <20230122150232.736358800@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,104 +52,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Duke Xin(辛安文) <duke_xinanwen@163.com>
+From: Ian Abbott <abbotti@mev.co.uk>
 
-commit b72d13977689f0c717444010e108c4f20658dfee upstream.
+commit 2efb6edd52dc50273f5e68ad863dd1b1fb2f2d1c upstream.
 
-The EM05-G (RS) modem has 2 USB configurations that are configurable via
-the AT command AT+QCFG="usbnet",[ 0 | 2 ] which make the modem enumerate
-with the following interfaces, respectively:
+(Actually, this is fixing the "Read the Current Status" command sent to
+the device's outgoing mailbox, but it is only currently used for the PWM
+instructions.)
 
-"RMNET" : AT + DIAG + NMEA + Modem + QMI
-"MBIM"  : MBIM + AT + DIAG + NMEA + Modem
+The PCI-1760 is operated mostly by sending commands to a set of Outgoing
+Mailbox registers, waiting for the command to complete, and reading the
+result from the Incoming Mailbox registers.  One of these commands is
+the "Read the Current Status" command.  The number of this command is
+0x07 (see the User's Manual for the PCI-1760 at
+<https://advdownload.advantech.com/productfile/Downloadfile2/1-11P6653/PCI-1760.pdf>.
+The `PCI1760_CMD_GET_STATUS` macro defined in the driver should expand
+to this command number 0x07, but unfortunately it currently expands to
+0x03.  (Command number 0x03 is not defined in the User's Manual.)
+Correct the definition of the `PCI1760_CMD_GET_STATUS` macro to fix it.
 
-The detailed description of the USB configuration for each mode as follows:
+This is used by all the PWM subdevice related instructions handled by
+`pci1760_pwm_insn_config()` which are probably all broken.  The effect
+of sending the undefined command number 0x03 is not known.
 
-RMNET Mode
---------------
-T:  Bus=01 Lev=01 Prnt=01 Port=00 Cnt=01 Dev#= 21 Spd=480  MxCh= 0
-D:  Ver= 2.00 Cls=ef(misc ) Sub=02 Prot=01 MxPS=64 #Cfgs=  1
-P:  Vendor=2c7c ProdID=0314 Rev= 3.18
-S:  Manufacturer=Quectel
-S:  Product=Quectel EM05-G
-C:* #Ifs= 5 Cfg#= 1 Atr=a0 MxPwr=500mA
-I:* If#= 3 Alt= 0 #EPs= 2 Cls=ff(vend.) Sub=ff Prot=ff Driver=option
-E:  Ad=81(I) Atr=02(Bulk) MxPS= 512 Ivl=0ms
-E:  Ad=01(O) Atr=02(Bulk) MxPS= 512 Ivl=0ms
-I:* If#= 4 Alt= 0 #EPs= 3 Cls=ff(vend.) Sub=00 Prot=00 Driver=option
-E:  Ad=83(I) Atr=03(Int.) MxPS=  10 Ivl=32ms
-E:  Ad=82(I) Atr=02(Bulk) MxPS= 512 Ivl=0ms
-E:  Ad=02(O) Atr=02(Bulk) MxPS= 512 Ivl=0ms
-I:* If#= 2 Alt= 0 #EPs= 3 Cls=ff(vend.) Sub=00 Prot=00 Driver=option
-E:  Ad=85(I) Atr=03(Int.) MxPS=  10 Ivl=32ms
-E:  Ad=84(I) Atr=02(Bulk) MxPS= 512 Ivl=0ms
-E:  Ad=03(O) Atr=02(Bulk) MxPS= 512 Ivl=0ms
-I:* If#= 5 Alt= 0 #EPs= 3 Cls=ff(vend.) Sub=00 Prot=00 Driver=option
-E:  Ad=87(I) Atr=03(Int.) MxPS=  10 Ivl=32ms
-E:  Ad=86(I) Atr=02(Bulk) MxPS= 512 Ivl=0ms
-E:  Ad=04(O) Atr=02(Bulk) MxPS= 512 Ivl=0ms
-I:* If#= 6 Alt= 0 #EPs= 3 Cls=ff(vend.) Sub=ff Prot=ff Driver=(none)
-E:  Ad=89(I) Atr=03(Int.) MxPS=   8 Ivl=32ms
-E:  Ad=88(I) Atr=02(Bulk) MxPS= 512 Ivl=0ms
-E:  Ad=05(O) Atr=02(Bulk) MxPS= 512 Ivl=0ms
-
-MBIM Mode
---------------
-T:  Bus=01 Lev=01 Prnt=01 Port=00 Cnt=01 Dev#= 16 Spd=480  MxCh= 0
-D:  Ver= 2.00 Cls=ef(misc ) Sub=02 Prot=01 MxPS=64 #Cfgs=  1
-P:  Vendor=2c7c ProdID=0314 Rev= 3.18
-S:  Manufacturer=Quectel
-S:  Product=Quectel EM05-G
-C:* #Ifs= 6 Cfg#= 1 Atr=a0 MxPwr=500mA
-A:  FirstIf#= 0 IfCount= 2 Cls=02(comm.) Sub=0e Prot=00
-I:* If#= 3 Alt= 0 #EPs= 2 Cls=ff(vend.) Sub=ff Prot=ff Driver=option
-E:  Ad=81(I) Atr=02(Bulk) MxPS= 512 Ivl=0ms
-E:  Ad=01(O) Atr=02(Bulk) MxPS= 512 Ivl=0ms
-I:* If#= 4 Alt= 0 #EPs= 3 Cls=ff(vend.) Sub=00 Prot=00 Driver=option
-E:  Ad=83(I) Atr=03(Int.) MxPS=  10 Ivl=32ms
-E:  Ad=82(I) Atr=02(Bulk) MxPS= 512 Ivl=0ms
-E:  Ad=02(O) Atr=02(Bulk) MxPS= 512 Ivl=0ms
-I:* If#= 2 Alt= 0 #EPs= 3 Cls=ff(vend.) Sub=00 Prot=00 Driver=option
-E:  Ad=85(I) Atr=03(Int.) MxPS=  10 Ivl=32ms
-E:  Ad=84(I) Atr=02(Bulk) MxPS= 512 Ivl=0ms
-E:  Ad=03(O) Atr=02(Bulk) MxPS= 512 Ivl=0ms
-I:* If#= 5 Alt= 0 #EPs= 3 Cls=ff(vend.) Sub=00 Prot=00 Driver=option
-E:  Ad=87(I) Atr=03(Int.) MxPS=  10 Ivl=32ms
-E:  Ad=86(I) Atr=02(Bulk) MxPS= 512 Ivl=0ms
-E:  Ad=04(O) Atr=02(Bulk) MxPS= 512 Ivl=0ms
-I:* If#= 0 Alt= 0 #EPs= 1 Cls=02(comm.) Sub=0e Prot=00 Driver=cdc_mbim
-E:  Ad=89(I) Atr=03(Int.) MxPS=  64 Ivl=32ms
-I:  If#= 1 Alt= 0 #EPs= 0 Cls=0a(data ) Sub=00 Prot=02 Driver=cdc_mbim
-I:* If#= 1 Alt= 1 #EPs= 2 Cls=0a(data ) Sub=00 Prot=02 Driver=cdc_mbim
-E:  Ad=88(I) Atr=02(Bulk) MxPS= 512 Ivl=0ms
-E:  Ad=05(O) Atr=02(Bulk) MxPS= 512 Ivl=0ms
-
-Signed-off-by: Duke Xin(辛安文) <duke_xinanwen@163.com>
-Cc: stable@vger.kernel.org
-Signed-off-by: Johan Hovold <johan@kernel.org>
+Fixes: 14b93bb6bbf0 ("staging: comedi: adv_pci_dio: separate out PCI-1760 support")
+Cc: <stable@vger.kernel.org> # v4.5+
+Signed-off-by: Ian Abbott <abbotti@mev.co.uk>
+Link: https://lore.kernel.org/r/20230103143754.17564-1-abbotti@mev.co.uk
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/usb/serial/option.c |    3 +++
- 1 file changed, 3 insertions(+)
+ drivers/comedi/drivers/adv_pci1760.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/usb/serial/option.c
-+++ b/drivers/usb/serial/option.c
-@@ -261,6 +261,7 @@ static void option_instat_callback(struc
- #define QUECTEL_PRODUCT_EM05G_CS		0x030c
- #define QUECTEL_PRODUCT_EM05G_SG		0x0311
- #define QUECTEL_PRODUCT_EM05G_GR		0x0313
-+#define QUECTEL_PRODUCT_EM05G_RS		0x0314
- #define QUECTEL_PRODUCT_EM12			0x0512
- #define QUECTEL_PRODUCT_RM500Q			0x0800
- #define QUECTEL_PRODUCT_RM520N			0x0801
-@@ -1170,6 +1171,8 @@ static const struct usb_device_id option
- 	  .driver_info = RSVD(6) | ZLP },
- 	{ USB_DEVICE_INTERFACE_CLASS(QUECTEL_VENDOR_ID, QUECTEL_PRODUCT_EM05G_CS, 0xff),
- 	  .driver_info = RSVD(6) | ZLP },
-+	{ USB_DEVICE_INTERFACE_CLASS(QUECTEL_VENDOR_ID, QUECTEL_PRODUCT_EM05G_RS, 0xff),
-+	  .driver_info = RSVD(6) | ZLP },
- 	{ USB_DEVICE_INTERFACE_CLASS(QUECTEL_VENDOR_ID, QUECTEL_PRODUCT_EM05G_SG, 0xff),
- 	  .driver_info = RSVD(6) | ZLP },
- 	{ USB_DEVICE_AND_INTERFACE_INFO(QUECTEL_VENDOR_ID, QUECTEL_PRODUCT_EM060K, 0xff, 0x00, 0x40) },
+--- a/drivers/comedi/drivers/adv_pci1760.c
++++ b/drivers/comedi/drivers/adv_pci1760.c
+@@ -59,7 +59,7 @@
+ #define PCI1760_CMD_CLR_IMB2		0x00	/* Clears IMB2 */
+ #define PCI1760_CMD_SET_DO		0x01	/* Set output state */
+ #define PCI1760_CMD_GET_DO		0x02	/* Read output status */
+-#define PCI1760_CMD_GET_STATUS		0x03	/* Read current status */
++#define PCI1760_CMD_GET_STATUS		0x07	/* Read current status */
+ #define PCI1760_CMD_GET_FW_VER		0x0e	/* Read firmware version */
+ #define PCI1760_CMD_GET_HW_VER		0x0f	/* Read hardware version */
+ #define PCI1760_CMD_SET_PWM_HI(x)	(0x10 + (x) * 2) /* Set "hi" period */
 
 
