@@ -2,107 +2,97 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A402267730C
-	for <lists+stable@lfdr.de>; Sun, 22 Jan 2023 23:54:37 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5F7036773A9
+	for <lists+stable@lfdr.de>; Mon, 23 Jan 2023 01:59:33 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229971AbjAVWyf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 22 Jan 2023 17:54:35 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45330 "EHLO
+        id S229795AbjAWA7b (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 22 Jan 2023 19:59:31 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33834 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229920AbjAVWye (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 22 Jan 2023 17:54:34 -0500
-Received: from mail-ej1-x62d.google.com (mail-ej1-x62d.google.com [IPv6:2a00:1450:4864:20::62d])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4FBDB18168
-        for <stable@vger.kernel.org>; Sun, 22 Jan 2023 14:54:33 -0800 (PST)
-Received: by mail-ej1-x62d.google.com with SMTP id mg12so26343176ejc.5
-        for <stable@vger.kernel.org>; Sun, 22 Jan 2023 14:54:33 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=futuring-girl-com.20210112.gappssmtp.com; s=20210112;
-        h=cc:to:subject:message-id:date:from:in-reply-to:references
-         :mime-version:from:to:cc:subject:date:message-id:reply-to;
-        bh=bMkGNYI/fHgvu0vw4xYIcVeU8+WBV4ArAcWUlG7Zc2o=;
-        b=PhbxiQNidA1tVM9zIsUxDzkyQt3k2tOeIFAwnqAZCHMBaURy8ctAh7ILXXj/0yVKri
-         Wnkgyj0CH3noCfHnCIbGqpwuR1rGov1STqItytgKUxnmeyoc/CJsm7BSugtzTo87ps6A
-         pRPvtIg/W3GWpJaqcdqCFDjxJ/+AyDHBcgalCQbkiAMuGykgKZk61PtZKiktPANY4nYI
-         pVF04va2QHggKOzLDmsSloSXOA4Z5y06Cs63FaNZIwGf3OxH57V0PosDCHquEuais7OO
-         pQ4kK5HVyY/4cq6mx9qyzuYpb+sB4cKgx/acsyK60rnxy8jZ1ZTYULwj026kUauUijNT
-         aUyg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=cc:to:subject:message-id:date:from:in-reply-to:references
-         :mime-version:x-gm-message-state:from:to:cc:subject:date:message-id
-         :reply-to;
-        bh=bMkGNYI/fHgvu0vw4xYIcVeU8+WBV4ArAcWUlG7Zc2o=;
-        b=No74pQ3t1aC3iSHch4POfAiCL10Hh8alQr+2mspZ23bdA1/XLFNXiiCgRHsgyPIFkD
-         0ZdLGTywMNhpRS3Uz8z0A4diAfARd/HDNpb9Vu2BlBV8ysytmVFsAPHIIeNfdUT5H/8e
-         9CcQGOswan3/QxU2czBb84lG4cwiFrYOG0VLywjhFiFpTJFvs5K0ENQaDYAO0Oqq0elX
-         aY96nbyb3Iq3eggRcBjQy89tYmYnj6zHn3XvohV/TqNdMEMqrw7BSIhXdzO7x/1Xzk8V
-         3TkpnlWOp8lWFxxUKLzMORQ1l7N61pc5q7lBZR72b4N+4SGDL+l8nMtxTtYc1NxkFUAz
-         OBSA==
-X-Gm-Message-State: AFqh2kp0HOxJ4CajFghqHJUxZjlcIeTAryIEqWsawQKjxJwgjqGsZ9f8
-        Zyr1OjNRow5PkvrMq1whbxp+oD/R028gk/bZDBq9WQ==
-X-Google-Smtp-Source: AMrXdXtuKaI+bneEJSDWwLYwvpPi/J8MILQ3ySzWME8Ff5KKH//OwvdRHAbh7G4hAX7a5pt/RGPao3aXP7XV8QBdi+g=
-X-Received: by 2002:a17:906:df49:b0:7c1:908e:709e with SMTP id
- if9-20020a170906df4900b007c1908e709emr1860050ejc.414.1674428071778; Sun, 22
- Jan 2023 14:54:31 -0800 (PST)
+        with ESMTP id S229514AbjAWA7b (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 22 Jan 2023 19:59:31 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6BF5F1285A;
+        Sun, 22 Jan 2023 16:59:30 -0800 (PST)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id D59C160D2D;
+        Mon, 23 Jan 2023 00:59:29 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 04C22C433EF;
+        Mon, 23 Jan 2023 00:59:28 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1674435569;
+        bh=NCthFj9GZBr2LLZm13hQBSasePv4YP50exC3frgkfeI=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=Ai2lLRrxUwPhzfYlE8r1410J9AW+xz6xYFnEXavnhGEGSmHYbFkDhoVV3+dk9EnI4
+         nRM/49X/CJHpnRn4Edr7/5UarPloyOB6K9HXquBirgslHRSKtc2Y0qIs7EaEbTe2/D
+         JauxrwHadQRfaN+G1Ao6Ttz2yzWkJ13hkopAMwzS/m+xez3PYpu/TsromicTVEmoT0
+         STe2dFzRQ0EPB8Y/1y3F/KOpHCTvGPELULMfI70ndOCzXO5Ix0TvHgVPTjKcWX6reJ
+         f+mVh46FjSjJ53HepYolHGJpDuNDt0Myy/k5zV1NkIep8vDKg9wPWQ8vGESZK5p+Om
+         AS/Hn2ahhiMuA==
+Date:   Sun, 22 Jan 2023 19:59:27 -0500
+From:   Sasha Levin <sashal@kernel.org>
+To:     Catalin Marinas <catalin.marinas@arm.com>
+Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
+        Will Deacon <will@kernel.org>,
+        kernel test robot <lkp@intel.com>, akpm@linux-foundation.org,
+        anshuman.khandual@arm.com, wangkefeng.wang@huawei.com,
+        liushixin2@huawei.com, david@redhat.com, tongtiangen@huawei.com,
+        yuzhao@google.com, linux-arm-kernel@lists.infradead.org
+Subject: Re: [PATCH AUTOSEL 5.4 05/16] arm64/mm: Define dummy pud_user_exec()
+ when using 2-level page-table
+Message-ID: <Y83b7370jLnWbyx9@sashalap>
+References: <20230116140520.116257-1-sashal@kernel.org>
+ <20230116140520.116257-5-sashal@kernel.org>
+ <Y8WX1/q8dSEAPDy0@arm.com>
 MIME-Version: 1.0
-References: <20230122150246.321043584@linuxfoundation.org>
-In-Reply-To: <20230122150246.321043584@linuxfoundation.org>
-From:   ogasawara takeshi <takeshi.ogasawara@futuring-girl.com>
-Date:   Mon, 23 Jan 2023 07:54:20 +0900
-Message-ID: <CAKL4bV4D+woPBzYXRhTws0S3zqgzuracc52bNT3EyHLV5zLkwQ@mail.gmail.com>
-Subject: Re: [PATCH 6.1 000/193] 6.1.8-rc1 review
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     stable@vger.kernel.org, patches@lists.linux.dev,
-        linux-kernel@vger.kernel.org, torvalds@linux-foundation.org,
-        akpm@linux-foundation.org, linux@roeck-us.net, shuah@kernel.org,
-        patches@kernelci.org, lkft-triage@lists.linaro.org, pavel@denx.de,
-        jonathanh@nvidia.com, f.fainelli@gmail.com,
-        sudipm.mukherjee@gmail.com, srw@sladewatkins.net, rwarsow@gmx.de
-Content-Type: text/plain; charset="UTF-8"
-X-Spam-Status: No, score=-1.9 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS autolearn=ham
-        autolearn_force=no version=3.4.6
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Disposition: inline
+In-Reply-To: <Y8WX1/q8dSEAPDy0@arm.com>
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+        SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hi Greg
-
-On Mon, Jan 23, 2023 at 12:22 AM Greg Kroah-Hartman
-<gregkh@linuxfoundation.org> wrote:
+On Mon, Jan 16, 2023 at 06:30:47PM +0000, Catalin Marinas wrote:
+>On Mon, Jan 16, 2023 at 09:05:08AM -0500, Sasha Levin wrote:
+>> From: Will Deacon <will@kernel.org>
+>>
+>> [ Upstream commit 4e4ff23a35ee3a145fbc8378ecfeaab2d235cddd ]
+>>
+>> With only two levels of page-table, the generic 'pud_*' macros are
+>> implemented using dummy operations in pgtable-nopmd.h. Since commit
+>> 730a11f982e6 ("arm64/mm: add pud_user_exec() check in
+>> pud_user_accessible_page()"), pud_user_accessible_page() unconditionally
+>> calls pud_user_exec(), which is an arm64-specific helper and therefore
+>> isn't defined by pgtable-nopmd.h. This results in a build failure for
+>> configurations with only two levels of page table:
+>>
+>>    arch/arm64/include/asm/pgtable.h: In function 'pud_user_accessible_page':
+>> >> arch/arm64/include/asm/pgtable.h:870:51: error: implicit declaration of function 'pud_user_exec'; did you mean 'pmd_user_exec'? [-Werror=implicit-function-declaration]
+>>      870 |         return pud_leaf(pud) && (pud_user(pud) || pud_user_exec(pud));
+>>          |                                                   ^~~~~~~~~~~~~
+>>          |                                                   pmd_user_exec
+>>
+>> Fix the problem by defining pud_user_exec() as pud_user() in this case.
+>>
+>> Link: https://lore.kernel.org/r/202301080515.z6zEksU4-lkp@intel.com
+>> Reported-by: kernel test robot <lkp@intel.com>
+>> Signed-off-by: Will Deacon <will@kernel.org>
+>> Signed-off-by: Sasha Levin <sashal@kernel.org>
 >
-> This is the start of the stable review cycle for the 6.1.8 release.
-> There are 193 patches in this series, all will be posted as a response
-> to this one.  If anyone has any issues with these being applied, please
-> let me know.
->
-> Responses should be made by Tue, 24 Jan 2023 15:02:08 +0000.
-> Anything received after that time might be too late.
->
-> The whole patch series can be found in one patch at:
->         https://www.kernel.org/pub/linux/kernel/v6.x/stable-review/patch-6.1.8-rc1.gz
-> or in the git tree and branch at:
->         git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-6.1.y
-> and the diffstat can be found below.
->
-> thanks,
->
-> greg k-h
->
+>I don't think this patch should be backported to 5.4. It is a fix for a
+>commit that went in shortly before this one (730a11f982e6). The latter
+>commit does have a Fixes tag but I guess Will thought it's not worth a
+>cc stable (and it's up to 5.19 anyway).
 
-6.1.8-rc1 tested.
+Ack, I'll drop it.
 
-x86_64
-
-build successfully completed.
-boot successfully completed.
-No dmesg regressions.
-
-Lenovo ThinkPad X1 Nano Gen1(Intel i5-1130G7, arch linux)
-
-Thanks
-
-Tested-by: Takeshi Ogasawara <takeshi.ogasawara@futuring-girl.com>
+-- 
+Thanks,
+Sasha
