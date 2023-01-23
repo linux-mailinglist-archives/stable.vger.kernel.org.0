@@ -2,47 +2,74 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 1DD7C67755F
-	for <lists+stable@lfdr.de>; Mon, 23 Jan 2023 08:05:37 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9881E677565
+	for <lists+stable@lfdr.de>; Mon, 23 Jan 2023 08:09:32 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230259AbjAWHFg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 23 Jan 2023 02:05:36 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49936 "EHLO
+        id S230099AbjAWHJa (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 23 Jan 2023 02:09:30 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50686 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229519AbjAWHFf (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 23 Jan 2023 02:05:35 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CF59815559
-        for <stable@vger.kernel.org>; Sun, 22 Jan 2023 23:05:33 -0800 (PST)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 65900B80BA9
-        for <stable@vger.kernel.org>; Mon, 23 Jan 2023 07:05:32 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id BBCDCC433D2;
-        Mon, 23 Jan 2023 07:05:30 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1674457530;
-        bh=ik4H9BFLeehEHUHENH+ekDYEnVxW9h+jwxQCqF3Y5xY=;
-        h=From:To:Cc:Subject:Date:From;
-        b=MZ4astp6imdsZFowVuLbr8SZ1zd1Yt9BpGMpmoxlPvlwh5O4jGIq3bOzjwtjoWIzx
-         FUt1Se5EXKRHXG6Av7ikOj9hSrxmRbm1RbwdGXwib/juxFioM874exSgWYzMRQJ12y
-         YdofX93HEgl4qakrjaRZGeLks0UVHk4U005M2CgQrxcZeWqVz7cuASjTgE6etItJRa
-         l5idirs5+QRmC9Zp9A3w0LQnokNJZkJ3sz4WFcius9s+hKpKEnMb3sSl0l5RpZ64f6
-         ptVifMQzNPzflOTyCnUsM6UOeX0s/5Xp9BXk9Okr20jJ8qZOLksH17CM7aGmD8Q57L
-         uEPH72hZpvwoQ==
-From:   Eric Biggers <ebiggers@kernel.org>
-To:     linux-f2fs-devel@lists.sourceforge.net,
-        Jaegeuk Kim <jaegeuk@kernel.org>, Chao Yu <chao@kernel.org>
-Cc:     Alexander Potapenko <glider@google.com>, stable@vger.kernel.org
-Subject: [PATCH] f2fs: fix information leak in f2fs_move_inline_dirents()
-Date:   Sun, 22 Jan 2023 23:04:14 -0800
-Message-Id: <20230123070414.138052-1-ebiggers@kernel.org>
-X-Mailer: git-send-email 2.39.1
+        with ESMTP id S229514AbjAWHJ3 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 23 Jan 2023 02:09:29 -0500
+Received: from mail-vk1-xa29.google.com (mail-vk1-xa29.google.com [IPv6:2607:f8b0:4864:20::a29])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3C65511144
+        for <stable@vger.kernel.org>; Sun, 22 Jan 2023 23:09:28 -0800 (PST)
+Received: by mail-vk1-xa29.google.com with SMTP id w72so5512569vkw.7
+        for <stable@vger.kernel.org>; Sun, 22 Jan 2023 23:09:28 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=linaro.org; s=google;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=l+yTYlDwMs/8VLwuGIhXdyxg3bRiWziZ42OeRXEy0kQ=;
+        b=Nza06cIStYfGFwNEm5+/EVYMiXXvKDJFM4Gc+sWZboo5WU5Nl3EK4JZ5V/GV7CNNqu
+         q3AbnWHmn/9aw/aIuMWdDd2vf1zG5vutMxP1D8kSDeqBKhpUe3F1lDmakfEPGnuxh6zl
+         YxonePUOEpUitp0KGAQvdeSADMHQSl7pEaJAiv1dTLbhsu1wCY6ZzM6aSyQxcHMPgxFG
+         IiJPl54PkjlYIpcgNPlXm9icFG3H+4m1UVsMHN8qdL54bOcVWtvcglQXz3SmyYVkcOaH
+         73oYElU+GTKRe0gEBU3Nay1RwDPytsaQPq8V9NfbChwpj6ajNwOEOo57XwkKSqWUnwu6
+         e2qw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=l+yTYlDwMs/8VLwuGIhXdyxg3bRiWziZ42OeRXEy0kQ=;
+        b=q3ROjrxOblLMIYcXYfEUNGKFr1P+meO+qzsPrWDVJSQTvTU07m3mhDMyRWvGg27T/5
+         pKP330ZeDZdyOWQP106Dk7zTiAmk/TWuJBfhMTYjo2ND6B6T0kVVXJhT5qn1OfniMz/j
+         JFKASDL1Tv0o4VmZDTFMHSXeBUoDolcG0sckRW5mveGyPNlQqaM/tXdDGIJBPLWN0f7N
+         Bon016BVuF1VfBXHUWZn2K6yaSlvhPZdxqazzPk9yRurPeUzPWrgKlINCq+P9T9OrxfN
+         ugLrSIxc40VMT5VPX+HPLksC7WotHAUOUH60jK2j9Y8Ak971vR+o+clQraHYH9JAVhWP
+         EVLQ==
+X-Gm-Message-State: AFqh2kr6AJ+QDexykqoZIX2MqHBEiQjO6tSmr0SQcAqTZhF4BBP61o0P
+        nkmva+BjsNSf8Qz8g8V7dyB7mwsX81S8JotUQ/8NOQ==
+X-Google-Smtp-Source: AMrXdXvjN8CIjK/t+dcB/fpWQDTmC82wWzDZDxzKHCXMXEVKyBh6qx9vdkPyz1pFU+MqdDSv9SmESuTcDn9lu5GQ9AI=
+X-Received: by 2002:a1f:5dc1:0:b0:3e1:9fdf:7740 with SMTP id
+ r184-20020a1f5dc1000000b003e19fdf7740mr2972059vkb.20.1674457767097; Sun, 22
+ Jan 2023 23:09:27 -0800 (PST)
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+References: <20230122150222.210885219@linuxfoundation.org>
+In-Reply-To: <20230122150222.210885219@linuxfoundation.org>
+From:   Naresh Kamboju <naresh.kamboju@linaro.org>
+Date:   Mon, 23 Jan 2023 12:39:16 +0530
+Message-ID: <CA+G9fYuYi1Rvv19R_EVdht_7LV9qiR-6KVvZUGjct3kEk0uQTA@mail.gmail.com>
+Subject: Re: [PATCH 5.4 00/55] 5.4.230-rc1 review
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc:     stable@vger.kernel.org, patches@lists.linux.dev,
+        linux-kernel@vger.kernel.org, torvalds@linux-foundation.org,
+        akpm@linux-foundation.org, linux@roeck-us.net, shuah@kernel.org,
+        patches@kernelci.org, lkft-triage@lists.linaro.org, pavel@denx.de,
+        jonathanh@nvidia.com, f.fainelli@gmail.com,
+        sudipm.mukherjee@gmail.com, srw@sladewatkins.net, rwarsow@gmx.de,
+        Masahiro Yamada <masahiroy@kernel.org>,
+        Ard Biesheuvel <ardb@kernel.org>,
+        Nathan Chancellor <nathan@kernel.org>,
+        Dennis Gilmore <dennis@ausil.us>,
+        Palmer Dabbelt <palmer@rivosinc.com>,
+        Arnd Bergmann <arnd@arndb.de>
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
+X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_NONE,
         SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -50,56 +77,90 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eric Biggers <ebiggers@google.com>
+On Sun, 22 Jan 2023 at 20:39, Greg Kroah-Hartman
+<gregkh@linuxfoundation.org> wrote:
+>
+> This is the start of the stable review cycle for the 5.4.230 release.
+> There are 55 patches in this series, all will be posted as a response
+> to this one.  If anyone has any issues with these being applied, please
+> let me know.
+>
+> Responses should be made by Tue, 24 Jan 2023 15:02:08 +0000.
+> Anything received after that time might be too late.
+>
+> The whole patch series can be found in one patch at:
+>         https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-=
+5.4.230-rc1.gz
+> or in the git tree and branch at:
+>         git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable=
+-rc.git linux-5.4.y
+> and the diffstat can be found below.
+>
+> thanks,
+>
+> greg k-h
 
-When converting an inline directory to a regular one, f2fs is leaking
-uninitialized memory to disk because it doesn't initialize the entire
-directory block.  Fix this by zero-initializing the block.
+Results from Linaro=E2=80=99s test farm.
 
-This bug was introduced by commit 4ec17d688d74 ("f2fs: avoid unneeded
-initializing when converting inline dentry"), which didn't consider the
-security implications of leaking uninitialized memory to disk.
+Reported-by: Linux Kernel Functional Testing <lkft@linaro.org>
 
-This was found by running xfstest generic/435 on a KMSAN-enabled kernel.
 
-Fixes: 4ec17d688d74 ("f2fs: avoid unneeded initializing when converting inline dentry")
-Cc: <stable@vger.kernel.org> # v4.3+
-Signed-off-by: Eric Biggers <ebiggers@google.com>
----
- fs/f2fs/inline.c | 13 ++++++-------
- 1 file changed, 6 insertions(+), 7 deletions(-)
+Regressions found on i386:
+    - build/gcc-8-i386_defconfig
 
-diff --git a/fs/f2fs/inline.c b/fs/f2fs/inline.c
-index 08e302d32118d..72269e7efd260 100644
---- a/fs/f2fs/inline.c
-+++ b/fs/f2fs/inline.c
-@@ -421,18 +421,17 @@ static int f2fs_move_inline_dirents(struct inode *dir, struct page *ipage,
- 
- 	dentry_blk = page_address(page);
- 
-+	/*
-+	 * Start by zeroing the full block, to ensure that all unused space is
-+	 * zeroed and no uninitialized memory is leaked to disk.
-+	 */
-+	memset(dentry_blk, 0, F2FS_BLKSIZE);
-+
- 	make_dentry_ptr_inline(dir, &src, inline_dentry);
- 	make_dentry_ptr_block(dir, &dst, dentry_blk);
- 
- 	/* copy data from inline dentry block to new dentry block */
- 	memcpy(dst.bitmap, src.bitmap, src.nr_bitmap);
--	memset(dst.bitmap + src.nr_bitmap, 0, dst.nr_bitmap - src.nr_bitmap);
--	/*
--	 * we do not need to zero out remainder part of dentry and filename
--	 * field, since we have used bitmap for marking the usage status of
--	 * them, besides, we can also ignore copying/zeroing reserved space
--	 * of dentry block, because them haven't been used so far.
--	 */
- 	memcpy(dst.dentry, src.dentry, SIZE_OF_DIR_ENTRY * src.max);
- 	memcpy(dst.filename, src.filename, src.max * F2FS_SLOT_LEN);
- 
+Regressions found on powerpc:
+    - build/gcc-8-mpc83xx_defconfig
+    - build/gcc-8-ppc64e_defconfig
+    - build/gcc-8-maple_defconfig
+    - build/gcc-8-ppc6xx_defconfig
+    - build/gcc-8-defconfig
+    - build/gcc-8-tqm8xx_defconfig
+    - build/gcc-8-cell_defconfig
 
-base-commit: 7a2b15cfa8dbbd54beb4e2ce7b2f42eb0ad00425
--- 
-2.39.1
+Regressions found on sh:
+    - build/gcc-8-dreamcast_defconfig
+    - build/gcc-8-microdev_defconfig
 
+Regressions found on s390:
+    - build/gcc-8-defconfig-fe40093d
+
+Regressions found on x86_64:
+    - build/gcc-8-x86_64_defconfig
+
+Build error:
+arch/x86/entry/entry_64.o: warning: objtool: .entry.text+0x1c1:
+unsupported intra-function call
+arch/x86/entry/entry_64.o: warning: objtool: If this is a retpoline,
+please patch it in with alternatives and annotate it with
+ANNOTATE_NOSPEC_ALTERNATIVE.
+`.exit.text' referenced in section `.orc_unwind_ip' of
+arch/x86/events/rapl.o: defined in discarded section `.exit.text' of
+arch/x86/events/rapl.o
+`.exit.text' referenced in section `.orc_unwind_ip' of
+arch/x86/events/rapl.o: defined in discarded section `.exit.text' of
+arch/x86/events/rapl.o
+`.exit.text' referenced in section `.orc_unwind_ip' of
+arch/x86/events/intel/uncore.o: defined in discarded section
+`.exit.text' of arch/x86/events/intel/uncore.o
+...
+
+Bisection points to this commit,
+    arch: fix broken BuildID for arm64 and riscv
+    commit 99cb0d917ffa1ab628bb67364ca9b162c07699b1 upstream.
+
+Upstream discussion thread,
+  https://lore.kernel.org/all/Y7Jal56f6UBh1abE@dev-arch.thelio-3990X/
+
+Steps to reproduce:
+-------------------
+# To install tuxmake on your system globally:
+# sudo pip3 install -U tuxmake
+#
+# See https://docs.tuxmake.org/ for complete documentation.
+# Original tuxmake command with fragments listed below.
+# tuxmake --runtime podman --target-arch x86_64 --toolchain gcc-8
+--kconfig x86_64_defconfig
+
+Build url:
+https://storage.tuxsuite.com/public/linaro/lkft/builds/2KgdmU2GQpPtTDTC696G=
+7v6ytm8/
