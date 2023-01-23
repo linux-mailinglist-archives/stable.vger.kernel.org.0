@@ -2,91 +2,155 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 16C49678392
-	for <lists+stable@lfdr.de>; Mon, 23 Jan 2023 18:48:56 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6D5446783C7
+	for <lists+stable@lfdr.de>; Mon, 23 Jan 2023 18:58:30 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232508AbjAWRsy (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 23 Jan 2023 12:48:54 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57182 "EHLO
+        id S231966AbjAWR63 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 23 Jan 2023 12:58:29 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36608 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232449AbjAWRsx (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 23 Jan 2023 12:48:53 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9BA49301BB;
-        Mon, 23 Jan 2023 09:48:45 -0800 (PST)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 41F2E60EA2;
-        Mon, 23 Jan 2023 17:48:45 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 96981C433EF;
-        Mon, 23 Jan 2023 17:48:44 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1674496124;
-        bh=pqKppjlRuFBHGReaVkqpwFItO/Rhqh4/e9XJViYeCrU=;
-        h=Date:From:To:Cc:Subject:Reply-To:References:In-Reply-To:From;
-        b=SvM/6RhY8wmPpGeoK6IX2zqdsXIowSVRZIlcXTUW/yWYcro1MTJp/NTfelgJteqq+
-         lFc+Ukw4MJnMvvwcHuYSxjQS7dyGEo84jD0ds7ff7uyHdHbzevWmcXBUV/IjRYA7fK
-         D2cxRfoNgIgNvDe0nXsZks6+pmnQrUOJb4wItWWuQuAnXPwHGEyXzq1FhsTdLvB1lT
-         bnpBSEUpByBWV6B72MLZ3X0Z6XNzmmfpxoe2SQ4ZwIt9F0FgronKPS6ykPdWOmhBxP
-         UEGclqPStvhy63LjwsWjxoINCVQ/PdTdMBAtVAodLX3JxAp6TTkbjlS+YwA2Yfnlf4
-         qETX+R/0zmfoQ==
-Received: by paulmck-ThinkPad-P17-Gen-1.home (Postfix, from userid 1000)
-        id 384245C0510; Mon, 23 Jan 2023 09:48:44 -0800 (PST)
-Date:   Mon, 23 Jan 2023 09:48:44 -0800
-From:   "Paul E. McKenney" <paulmck@kernel.org>
-To:     Alan Stern <stern@rowland.harvard.edu>
-Cc:     Hernan Ponce de Leon <hernan.poncedeleon@huaweicloud.com>,
-        Arjan van de Ven <arjan@linux.intel.com>,
-        peterz@infradead.org, mingo@redhat.com, will@kernel.org,
-        longman@redhat.com, boqun.feng@gmail.com, akpm@osdl.org,
-        tglx@linutronix.de, joel@joelfernandes.org,
-        diogo.behrens@huawei.com, jonas.oberhauser@huawei.com,
-        linux-kernel@vger.kernel.org,
-        Hernan Ponce de Leon <hernanl.leon@huawei.com>,
-        stable@vger.kernel.org
-Subject: Re: [PATCH] Fix data race in mark_rt_mutex_waiters
-Message-ID: <20230123174844.GV2948950@paulmck-ThinkPad-P17-Gen-1>
-Reply-To: paulmck@kernel.org
-References: <20230120135525.25561-1-hernan.poncedeleon@huaweicloud.com>
- <562c883b-b2c3-3a27-f045-97e7e3281e0b@linux.intel.com>
- <20230120155439.GI2948950@paulmck-ThinkPad-P17-Gen-1>
- <9a1c7959-4b8c-94df-a3e2-e69be72bfd7d@huaweicloud.com>
- <20230123164014.GN2948950@paulmck-ThinkPad-P17-Gen-1>
- <Y87FLV0dWSyQz3NZ@rowland.harvard.edu>
+        with ESMTP id S231679AbjAWR62 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 23 Jan 2023 12:58:28 -0500
+Received: from mail-pl1-x630.google.com (mail-pl1-x630.google.com [IPv6:2607:f8b0:4864:20::630])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8D3D2233FC
+        for <stable@vger.kernel.org>; Mon, 23 Jan 2023 09:58:26 -0800 (PST)
+Received: by mail-pl1-x630.google.com with SMTP id z20so10233535plc.2
+        for <stable@vger.kernel.org>; Mon, 23 Jan 2023 09:58:26 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=kernelci-org.20210112.gappssmtp.com; s=20210112;
+        h=from:to:subject:content-transfer-encoding:mime-version:date
+         :message-id:from:to:cc:subject:date:message-id:reply-to;
+        bh=T7x1A4YuRFUbpYFQY7lNx4BU9nV6r6FDawIUULNfEN4=;
+        b=3cPLGdmjxhvC4nBwF+90pTaqkK9SXBg62exRL/7yTjAmhNJBkBHYkWXh+K2cDI7frs
+         VG/r58D9qMbRYIn2Q52toNb/fsreKR9yhLQlTvduKGA07GR7LLym+BJJ/2iUAUTwnYa2
+         4fSezzN5pHaWvngN8tUel/Yrrd+fmvTa6p1VBz/GQZuZur2hdoWBL1aae1npRdridUyl
+         3hBzT0xJVdAvrXbM6sOEaVvA48r/HWQ+6w0+0qsuzxV/SiyVuaJ/nCXIaC29RAenCG3Y
+         plk1EaympFR/CEhSFl/2hNHON+RVKfPtF0xJ9THNIMz1134+skbbWnhnlqrCx4Csp3Jz
+         k9QA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=from:to:subject:content-transfer-encoding:mime-version:date
+         :message-id:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=T7x1A4YuRFUbpYFQY7lNx4BU9nV6r6FDawIUULNfEN4=;
+        b=oXHaz5T6PX46bj8a5j9S3GaKfXiO3TBoEo4ZjNziIabUfBkbAgyhf2BgjWRaBZGKSk
+         T/2nyo25ol3s/+vc3+S/LTziWh8ZOb/vhFd9Ry2iYt9SRqxbUP9orItIoNHzPOId8/81
+         Yf3sL3Xdx6M8MYN0Gha+8GZkoZSCtWFTZ+d6SXNOo+bI62keKy8Y25dKMbhiUZygxUJV
+         Pdwer1nRX09hi99ofBW31HZAL9sW0Jk9CwmS+xo7c1+7KWm247S/PZcneA+DdTlDvn5H
+         L8cvJ16zeQl5sTgSPdNX7pdmjm72wIwZ5GbM2lvc8DP6q9iJ5vbi+DQHdcuLw5nB9OaQ
+         aKCA==
+X-Gm-Message-State: AFqh2kp1N4otzcLnqeBliAv8LA3SYewf8chLeEFIZey+PwxnjFVFR9V6
+        BXZQ34jjabTPL1KjUBkFdAgn9Nxb5m0UtXaj7bQ=
+X-Google-Smtp-Source: AMrXdXtYcuQF902J9UEonovnXFx3Kr8/avyasmdZV6zJjePi5bHxxvZQt0vdFgcrJc8CoQUyuSG9sw==
+X-Received: by 2002:a17:902:b691:b0:192:fb94:a40e with SMTP id c17-20020a170902b69100b00192fb94a40emr26505722pls.62.1674496705765;
+        Mon, 23 Jan 2023 09:58:25 -0800 (PST)
+Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
+        by smtp.gmail.com with ESMTPSA id p4-20020a170902bd0400b00192740bb02dsm2848pls.45.2023.01.23.09.58.25
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Mon, 23 Jan 2023 09:58:25 -0800 (PST)
+Message-ID: <63cecac1.170a0220.abb71.0027@mx.google.com>
+Date:   Mon, 23 Jan 2023 09:58:25 -0800 (PST)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Y87FLV0dWSyQz3NZ@rowland.harvard.edu>
-X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
-        SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Tree: stable-rc
+X-Kernelci-Branch: queue/5.10
+X-Kernelci-Kernel: v5.10.162-950-g0ce90a11c205
+X-Kernelci-Report-Type: test
+Subject: stable-rc/queue/5.10 baseline: 149 runs,
+ 1 regressions (v5.10.162-950-g0ce90a11c205)
+To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
+        kernelci-results@groups.io
+From:   "kernelci.org bot" <bot@kernelci.org>
+X-Spam-Status: No, score=-1.9 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_NONE autolearn=ham
+        autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, Jan 23, 2023 at 12:34:37PM -0500, Alan Stern wrote:
-> On Mon, Jan 23, 2023 at 08:40:14AM -0800, Paul E. McKenney wrote:
-> > In the case, the value read is passed into cmpxchg_relaxed(), which
-> > checks the value against memory.  In this case, as Arjan noted, the only
-> > compiler-and-silicon difference between data_race() and READ_ONCE()
-> > is that use of data_race() might allow the compiler to do things like
-> > tear the load, thus forcing the occasional spurious cmpxchg_relaxed()
-> > failure.
-> 
-> Is it possible in theory for a torn load to cause a spurious 
-> cmpxchg_relaxed() success?  Or would that not matter here?
+stable-rc/queue/5.10 baseline: 149 runs, 1 regressions (v5.10.162-950-g0ce9=
+0a11c205)
 
-In this case, the new value is the old value with an additional bit set.
-There is no check for that bit being clear, so I am having a hard time
-seeing a difference.
+Regressions Summary
+-------------------
 
-Then again, much might depend on the ordering that Hernan is
-referring to.
+platform   | arch | lab          | compiler | defconfig          | regressi=
+ons
+-----------+------+--------------+----------+--------------------+---------=
+---
+cubietruck | arm  | lab-baylibre | gcc-10   | multi_v7_defconfig | 1       =
+   =
 
-And Peter Zijlstra's suggestion of set_bit() is quite attractive,
-give or take the casting issues called out by David Laight.
 
-							Thanx, Paul
+  Details:  https://kernelci.org/test/job/stable-rc/branch/queue%2F5.10/ker=
+nel/v5.10.162-950-g0ce90a11c205/plan/baseline/
+
+  Test:     baseline
+  Tree:     stable-rc
+  Branch:   queue/5.10
+  Describe: v5.10.162-950-g0ce90a11c205
+  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
+able-rc.git
+  SHA:      0ce90a11c2053976a5e4b9990dba9aceeb0ad1a5 =
+
+
+
+Test Regressions
+---------------- =
+
+
+
+platform   | arch | lab          | compiler | defconfig          | regressi=
+ons
+-----------+------+--------------+----------+--------------------+---------=
+---
+cubietruck | arm  | lab-baylibre | gcc-10   | multi_v7_defconfig | 1       =
+   =
+
+
+  Details:     https://kernelci.org/test/plan/id/63ce99b148660695d7915eba
+
+  Results:     5 PASS, 1 FAIL, 1 SKIP
+  Full config: multi_v7_defconfig
+  Compiler:    gcc-10 (arm-linux-gnueabihf-gcc (Debian 10.2.1-6) 10.2.1 202=
+10110)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.10/v5.10.162=
+-950-g0ce90a11c205/arm/multi_v7_defconfig/gcc-10/lab-baylibre/baseline-cubi=
+etruck.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.10/v5.10.162=
+-950-g0ce90a11c205/arm/multi_v7_defconfig/gcc-10/lab-baylibre/baseline-cubi=
+etruck.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
+t-baseline/20230114.0/armel/rootfs.cpio.gz =
+
+
+
+  * baseline.bootrr.deferred-probe-empty: https://kernelci.org/test/case/id=
+/63ce99b148660695d7915ebf
+        failing since 5 days (last pass: v5.10.159-16-gabc55ff4a6e4, first =
+fail: v5.10.162-851-g33a0798ae8e3)
+
+    2023-01-23T14:28:49.727035  <8>[   11.141785] <LAVA_SIGNAL_ENDRUN 0_dme=
+sg 3190781_1.5.2.4.1>
+    2023-01-23T14:28:49.836766  / # #
+    2023-01-23T14:28:49.940129  export SHELL=3D/bin/sh
+    2023-01-23T14:28:49.941118  #
+    2023-01-23T14:28:50.043240  / # export SHELL=3D/bin/sh. /lava-3190781/e=
+nvironment
+    2023-01-23T14:28:50.044285  =
+
+    2023-01-23T14:28:50.044868  / # . /lava-3190781/environment<3>[   11.45=
+0342] Bluetooth: hci0: command 0xfc18 tx timeout
+    2023-01-23T14:28:50.146811  /lava-3190781/bin/lava-test-runner /lava-31=
+90781/1
+    2023-01-23T14:28:50.148276  =
+
+    2023-01-23T14:28:50.153267  / # /lava-3190781/bin/lava-test-runner /lav=
+a-3190781/1 =
+
+    ... (12 line(s) more)  =
+
+ =20
