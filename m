@@ -2,266 +2,191 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 8ADF967801B
-	for <lists+stable@lfdr.de>; Mon, 23 Jan 2023 16:40:47 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2479C678035
+	for <lists+stable@lfdr.de>; Mon, 23 Jan 2023 16:43:17 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232791AbjAWPkq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 23 Jan 2023 10:40:46 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46896 "EHLO
+        id S232849AbjAWPnP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 23 Jan 2023 10:43:15 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50504 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232696AbjAWPko (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 23 Jan 2023 10:40:44 -0500
-Received: from mail-ej1-x62d.google.com (mail-ej1-x62d.google.com [IPv6:2a00:1450:4864:20::62d])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6095B5FCC
-        for <stable@vger.kernel.org>; Mon, 23 Jan 2023 07:40:42 -0800 (PST)
-Received: by mail-ej1-x62d.google.com with SMTP id rl14so28233023ejb.2
-        for <stable@vger.kernel.org>; Mon, 23 Jan 2023 07:40:42 -0800 (PST)
+        with ESMTP id S232858AbjAWPnN (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 23 Jan 2023 10:43:13 -0500
+Received: from mx0a-00069f02.pphosted.com (mx0a-00069f02.pphosted.com [205.220.165.32])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 216E12B087;
+        Mon, 23 Jan 2023 07:43:03 -0800 (PST)
+Received: from pps.filterd (m0246629.ppops.net [127.0.0.1])
+        by mx0b-00069f02.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 30NEht8e000994;
+        Mon, 23 Jan 2023 15:42:58 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=oracle.com; h=from : to : cc :
+ subject : date : message-id : references : in-reply-to : content-type :
+ content-id : content-transfer-encoding : mime-version; s=corp-2022-7-12;
+ bh=H0XGdP6NLVOH9wQdrt4DXRl+itoTUXmVf4IjgTT07ik=;
+ b=vLOhY0ljlbbMIRJHHwVR4sIVcokpMRCHqL8rDkKZOK/b1gf74XokWXiSUsjFjTEUS/vQ
+ bWYQq57d1C9KyvIvcVWh7m/4XsPDfdJ5HmRc478XDSxr6Q91ON7NdW2XGoadYETZC/hc
+ 7Kqz51Hsunh9lEj1c309aMfMezEZsxymHG09h8+CiSeQXFmgYpwdlVTV/pOGxp2q/hQY
+ Cc3jUKUttlzjEctFCnH+neST4CH6ASGIwo91p5wU1ZRgifyvaW85Q0koW50sasYKQ5uh
+ DZ7KrFCwm7lSl6FjiTN/3/Zdyl+OZ/Tb1LD1Mn4TVGDtdj0AnxNjzqJdNrTOzhQeJodl pg== 
+Received: from phxpaimrmta01.imrmtpd1.prodappphxaev1.oraclevcn.com (phxpaimrmta01.appoci.oracle.com [138.1.114.2])
+        by mx0b-00069f02.pphosted.com (PPS) with ESMTPS id 3n87xa320t-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Mon, 23 Jan 2023 15:42:58 +0000
+Received: from pps.filterd (phxpaimrmta01.imrmtpd1.prodappphxaev1.oraclevcn.com [127.0.0.1])
+        by phxpaimrmta01.imrmtpd1.prodappphxaev1.oraclevcn.com (8.17.1.5/8.17.1.5) with ESMTP id 30NFaPHV013169;
+        Mon, 23 Jan 2023 15:42:57 GMT
+Received: from nam10-mw2-obe.outbound.protection.outlook.com (mail-mw2nam10lp2100.outbound.protection.outlook.com [104.47.55.100])
+        by phxpaimrmta01.imrmtpd1.prodappphxaev1.oraclevcn.com (PPS) with ESMTPS id 3n86g36j9e-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Mon, 23 Jan 2023 15:42:57 +0000
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
+ b=ZJ4/Cf9AsMXVF2iT1je1Q2UyKK5/G/1rWLqOVxrqUTz6Aida/lTqWg5OQkU1iead8fE7h6BwIrMOi+75kuSLF+oVwTZh4VCqwgItHL85ugEHXwAXgFAKx9Pbhy+6J0ImrCNWOyciKyR1ACQ/ity0ZzV0kGBsv+vCrvMfbbwf8SNI5I3i7ZkrS5XBnjbbu500x1M1Wk0L+wIGBANUf46AblkaP+dy3r+10kVVsV78OZbHTa3JVw4wr9Zs4Ht5UXj9h4pXaaRVfr6NMlD2Wk581uyr36EsIXRMWU6AMLZlk2JPl5wAAegPb5l5ko5VPA6ghExKWgmM0WX2zoEKm3/BCg==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector9901;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
+ bh=H0XGdP6NLVOH9wQdrt4DXRl+itoTUXmVf4IjgTT07ik=;
+ b=feMaa+WKRHAS65/AO4Y/2W4jFHjg81PWL1S9s/OUxDMiPEO0V/5xfHwki2q+T8SyME4kDoPGbgBvpxU88WZQr+hcpdTOeV4cnmi7T4iEAZZPodluR5Ls9aXB9v4Rq4JW8+iuOFXpBm9TJSXxdE5dvzWp0rnWHbU+6a4rvFzM/ezgsZKFXd10ao/8MqdaItFNJpatlPNZGYzGysZfMr/aGZGSDLeBA60A4DgEI6Kl46bHjsHvHb+uWCipm94c92E8gyIwnHiG11wYE+5GkxS6H8QOF4bHM7Qlpc3HJHqYoAiL2WgBUBL0B1m0iFsK3t5dByB6vSoQOlMFBBDg1gRChw==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
+ smtp.mailfrom=oracle.com; dmarc=pass action=none header.from=oracle.com;
+ dkim=pass header.d=oracle.com; arc=none
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=arrikto-com.20210112.gappssmtp.com; s=20210112;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=fXfOmSrWLbewnQ8H4K953Tkjw028E4iL0jF40mTU9G0=;
-        b=VydVzxgXeTov2q1T0E5btMv3w6KVrcMkHuHvSOAMy0rcsnkHIbWHtx4gaQJRiBMeXz
-         b0SF8JGr3IabGg19U6v5dooBgkLaayPQg1v4h4aPOcJk5ZIak3/CP9alUVbwrR+zSiJ6
-         TYADPBjkL3e7VWnSdlb0Zvm2+QJED60uaKZc4wJGkgU9tL1SVbBdfrEJZ4TTLT6JPP8t
-         4FU5Dyj2iKCZSvV/CWLJWJ0x9ifg7gaB9MQFZfTsEXFw0oO7RrNAFKYq7HNZdki4LMDI
-         YLk5Cl5BiQ0QwYpPVhmoL8JLVjqKgdy8Cmz5JntWnVq5pZthR0+SUutxI63kStRu4AaA
-         1LMw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=fXfOmSrWLbewnQ8H4K953Tkjw028E4iL0jF40mTU9G0=;
-        b=wydn/B+mO6B3j0Izp6xzmoTjkICgHrw9WMF6nuR4K5yeBV5pLDVrVCoi8DD8T/gJiq
-         YL0jHS4+Wg1HibJP2Bj4jtgedB5ULdd3p2kuPsamUsAeUE6QBYKjdyEsgjhsuyI8dBM7
-         E9FFTMmhNSLBJU3VhMR4WcOY5NYDmZivdSCJyK0mTvUyngaHBOhDm3oWEnSIy2dGH/Gc
-         YSMLM345Ebz311Sm0wTDGFfp3fr5A9dgA8DEQYLq3w47AHxRsx5XVn35XRHeDBjtur9f
-         tOzZgWQ2vvl4VsZc4yIRqNGzTO2FPR3C4ZDuSfADm+aiEhtYT3hDKoa7MNb/RVeJbSon
-         uZAA==
-X-Gm-Message-State: AFqh2krUMuNXF8lQwP2YG2VFqr8rC0VV+w2/cxH9qC4c8vcHgg48e1r7
-        EkIuFiADh55N7K98xB1AFQrBQBnCrtd5hpHZ
-X-Google-Smtp-Source: AMrXdXswqEAKWbHZluJ2hfnmRAg1TrlLORv69YjoC+Y8w7igxjrY7ClzX9CXCGHf9p6g0bfjNISLwA==
-X-Received: by 2002:a17:907:3a09:b0:870:e823:c03 with SMTP id fb9-20020a1709073a0900b00870e8230c03mr23347271ejc.45.1674488440751;
-        Mon, 23 Jan 2023 07:40:40 -0800 (PST)
-Received: from marvin.internal.lan (193.92.101.37.dsl.dyn.forthnet.gr. [193.92.101.37])
-        by smtp.gmail.com with ESMTPSA id b4-20020a1709065e4400b00865ef3a3109sm15614843eju.66.2023.01.23.07.40.39
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 23 Jan 2023 07:40:40 -0800 (PST)
-From:   Nikos Tsironis <ntsironis@arrikto.com>
-To:     stable@vger.kernel.org
-Cc:     bfields@fieldses.org, chuck.lever@oracle.com,
-        ntsironis@arrikto.com, linux-nfs@vger.kernel.org,
-        trond.myklebust@hammerspace.com
-Subject: [PATCH 5.10 1/1] nfsd: Ensure knfsd shuts down when the "nfsd" pseudofs is unmounted
-Date:   Mon, 23 Jan 2023 17:40:37 +0200
-Message-Id: <20230123154037.879413-2-ntsironis@arrikto.com>
-X-Mailer: git-send-email 2.30.2
-In-Reply-To: <20230123154037.879413-1-ntsironis@arrikto.com>
-References: <20230123154037.879413-1-ntsironis@arrikto.com>
+ d=oracle.onmicrosoft.com; s=selector2-oracle-onmicrosoft-com;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=H0XGdP6NLVOH9wQdrt4DXRl+itoTUXmVf4IjgTT07ik=;
+ b=CdkEHwHdG3zK2/B6ATG+tveqrq/YMcGaTK1F69rYTvwdTBMCrd5icICRE62nD7/X54kOpOtHcl8+Z4IJv01N62U4/YEzdhEwY4qaIJBsYhMNx8zn5gFMA/Xfp8EWK8Lm0dR0M2Y5k5Yvq5XMf8MfIyx+ryb0c2beHQ7nr43ysuE=
+Received: from BN0PR10MB5128.namprd10.prod.outlook.com (2603:10b6:408:117::24)
+ by PH0PR10MB5706.namprd10.prod.outlook.com (2603:10b6:510:148::10) with
+ Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.6043.9; Mon, 23 Jan
+ 2023 15:42:55 +0000
+Received: from BN0PR10MB5128.namprd10.prod.outlook.com
+ ([fe80::d8a4:336a:21e:40d9]) by BN0PR10MB5128.namprd10.prod.outlook.com
+ ([fe80::d8a4:336a:21e:40d9%6]) with mapi id 15.20.6043.016; Mon, 23 Jan 2023
+ 15:42:55 +0000
+From:   Chuck Lever III <chuck.lever@oracle.com>
+To:     Nikos Tsironis <ntsironis@arrikto.com>
+CC:     linux-stable <stable@vger.kernel.org>,
+        Bruce Fields <bfields@fieldses.org>,
+        Linux NFS Mailing List <linux-nfs@vger.kernel.org>,
+        Trond Myklebust <trond.myklebust@hammerspace.com>
+Subject: Re: [PATCH 5.4 0/1] nfsd: Ensure knfsd shuts down when the "nfsd"
+ pseudofs is unmounted
+Thread-Topic: [PATCH 5.4 0/1] nfsd: Ensure knfsd shuts down when the "nfsd"
+ pseudofs is unmounted
+Thread-Index: AQHZLz9cSyzG56mAkUSDB/Ggxzvxqa6sJDgA
+Date:   Mon, 23 Jan 2023 15:42:55 +0000
+Message-ID: <D98E42F0-3329-41DA-940B-4496AFC26340@oracle.com>
+References: <20230123152822.868326-1-ntsironis@arrikto.com>
+In-Reply-To: <20230123152822.868326-1-ntsironis@arrikto.com>
+Accept-Language: en-US
+Content-Language: en-US
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+x-mailer: Apple Mail (2.3696.120.41.1.1)
+x-ms-publictraffictype: Email
+x-ms-traffictypediagnostic: BN0PR10MB5128:EE_|PH0PR10MB5706:EE_
+x-ms-office365-filtering-correlation-id: d4cf148b-9637-48fe-66d4-08dafd587ebb
+x-ms-exchange-senderadcheck: 1
+x-ms-exchange-antispam-relay: 0
+x-microsoft-antispam: BCL:0;
+x-microsoft-antispam-message-info: irUZDq9MyJPX394PBLJE1urAwv31ao8oayorjTV8c5T6vTdlIwfnLeHyFzKbCtzhqPy2atAPF1v07bFw7QUX2+fZhrlRdp/aP8Y6rqXxg3Vb0tNBBbX0kumJiSzZFewC8GnaP9W6LARJkxTAahgf9lBQpd9FCdHZOz6dqpH6AJpuGydsi9iEfqNH0Hxk6lwLa02kZ5EgiT5g5Q/7AOFQe6iQBLD+mef7bB9DVVCV4cApwUc+feUzbx1Ona/rAj0pyK86TcU6FN+YBu7XjZLxOmwbYl9FwPMHt+la2ixwmFh4k7bOhmjB4smoiopBWtN3laBaQQnqkai4bdvCLiQAjt3gdtTN4XhR665GZxPBwcQ20v8aL9MnXSQwIFFVq0VPAFgxaQLoMvw0k8WD+9hj+mXl+iMOEZnTEbDNxFZraoxR/QnReenVUYED/b5QpHPlA0pn1cIH16jzSGXfMRaGBdmeyIoIAJLZv1U3D2Fto0erBt1sDXKRWpNxuQD9GPFa+SLC2Qd4Y+c3PmQHUyyxsmBxqGV6WB3hISceE8sy58RcNI43gCUPqMukWasvICI49tvnCgKccsrowB4SJ1jep5bJDPqX+9mW6CxBzTbq1SwogMw8urxhrUHGxQZ2qYOQ8JzIe0LAnebMcggXt0r8hy3LUbBAucfskKwf1l8KapDsFgRYI4/mP8FWhuUWMVIdRBn89pJIAPXgs9LWKiZunYfu1Izyz+qwxCojCh81hPU=
+x-forefront-antispam-report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:BN0PR10MB5128.namprd10.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230022)(346002)(376002)(366004)(136003)(39860400002)(396003)(451199015)(2616005)(2906002)(6512007)(4744005)(26005)(186003)(38100700002)(54906003)(86362001)(8936002)(36756003)(38070700005)(316002)(122000001)(41300700001)(5660300002)(83380400001)(53546011)(91956017)(478600001)(6506007)(6486002)(8676002)(4326008)(71200400001)(6916009)(76116006)(33656002)(66476007)(66446008)(64756008)(66556008)(66946007)(45980500001);DIR:OUT;SFP:1101;
+x-ms-exchange-antispam-messagedata-chunkcount: 1
+x-ms-exchange-antispam-messagedata-0: =?us-ascii?Q?PQfZrK+cBblLJjApzboqPSBc1s12uJB+Fcrr41ycOElW4kHkafBMcbvqLpH7?=
+ =?us-ascii?Q?kgGDmpWWAohL8Ykqv62y+/on+7W5MnMcQwZlw7284eUgJsoA6YCJvRms0wdB?=
+ =?us-ascii?Q?q6JC5iV7J37aXUeh4Wfr8R86gRh51hBe0n9lMXRWpmz9TldjNd+udDC1CI2s?=
+ =?us-ascii?Q?6FME/uf3UAmnm1huSdHZz+/reQmnP1j5Eav3EJiWP4pqmcp8YG4vgPgwjtNe?=
+ =?us-ascii?Q?DR4TCchxr7MQ9vdDAsgUN3SKHqRzfNKIVlI5GlYxKxukELbHIP+ZCFdjjk/9?=
+ =?us-ascii?Q?787gktt3r38+DLlyRimbm6MhOcr6pPmdlLId4sD/rih19Ot9MUsKM9sgza02?=
+ =?us-ascii?Q?kxhJqBNsQhf2yVSxSomZTO8BYD3Mf7eQWmLnwMTaxyo+O74VCpar4uHeQk5s?=
+ =?us-ascii?Q?G5U7mm0fTCCYjZV5udmw4wEh1wfIT6dwPQDdpZgi1/UBmlH0HS3S2ymaRJLy?=
+ =?us-ascii?Q?59fxmvzeHUFBeQYC7+0doI5wsahhh5B4CmCEJsUK2uOxJNCF+Edx+0rqgkV9?=
+ =?us-ascii?Q?kESocoq//k0yNm2cPA5gT18tyO7qbayoiO6cvjHGWnxXJCzWknWquwGwhX73?=
+ =?us-ascii?Q?H+AgJgX3ImRKme32dnGc+/SbU4kaMn/LuiPgI7XaLDIZtYJZQ50VsmX5hkhb?=
+ =?us-ascii?Q?gmnzLAMP7cHhdyNYw710sovQVP/jqdJ3NcEXZ6V0YqS/rnCfFjbvrSC9+C2U?=
+ =?us-ascii?Q?vplgzMXwUTpH7nBpIU2DGAnM6QGt2WnHxBKZe80wurLGWyiMfFBvyBIty/L3?=
+ =?us-ascii?Q?JGhSzXV5+0HH5/vDIN+8YiUMcHCAMa2rbVM+afEZ6A7zKXN8PmFyE4tKR3Mg?=
+ =?us-ascii?Q?Qu/fuu6e4mE+ov+PFEQ+ZMhKQT1miGVcw1BqMD4ktAt2QhJi5elspVNty7iW?=
+ =?us-ascii?Q?ZC5cuoHQ47pzmxAkcHHJUlRgb0kgCEZFjxiZ32v+hoYCoV9U2sg0OBhC1vXj?=
+ =?us-ascii?Q?i6DGBahlx9OMBV2Oy8sJWILhk6PYg5+/KLqLHsHZ8AkGrAQPgwuqohOvl98C?=
+ =?us-ascii?Q?t91IcdtI093jdXNs//inWXjoWLZqqmLu3N+vhT1kJ1+kzrz2bWBF00GvBpbs?=
+ =?us-ascii?Q?6FgR9wG6Afu3aijJp4FksTDwpXUmzmqccU03xUU+WoWDILPXPYUnE7m+bh3o?=
+ =?us-ascii?Q?yNKfHbxKPihvd5VxFkd5CDRsvCaUAGnvDOaDFzZQWNB+HVhUentaIjvSZfOF?=
+ =?us-ascii?Q?jr/jdzWYvx9zk1amv1pSozv8Slu1wKNGsHVkQoog73oDfzbOo6OZc3bsf5WO?=
+ =?us-ascii?Q?DG3lDK2MHuRDKA0qcYEX+niTIOOPr3uPbynIEr0KGzyq48gklbBl425O4Orm?=
+ =?us-ascii?Q?oc1kKvyvixktbcoRZQhzF1kz4qVKQdBQlHzqX419ZT+kqiwf6qKwXFVgiVXV?=
+ =?us-ascii?Q?lJiPm4T/LtFBxKPN3lZ6/NL3rZngTQnvIlVUYzaNXhLx5AkKaG8+lNE2cQB0?=
+ =?us-ascii?Q?ZNdttEcmxHJ6Pwz73FEf9jjmCXKmGCg2dFOWG3AZc6TdQ5M1dx3R5yi6ex37?=
+ =?us-ascii?Q?Dg66M88u1/g1HOz8UgQMa6zMVtkjJ597q58x6Ow0/U7pGMny3bn95Zce9Ifl?=
+ =?us-ascii?Q?ftie8Seq3NQzcBsdjkrIAsQZDXl9nKO1DC97HUHKUc4Pw7cufnhjQdopC9dC?=
+ =?us-ascii?Q?JQ=3D=3D?=
+Content-Type: text/plain; charset="us-ascii"
+Content-ID: <28A136AD48B62D4CB03C5A9B0689CDF8@namprd10.prod.outlook.com>
+Content-Transfer-Encoding: quoted-printable
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-1.9 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS
-        autolearn=unavailable autolearn_force=no version=3.4.6
+X-MS-Exchange-AntiSpam-ExternalHop-MessageData-ChunkCount: 1
+X-MS-Exchange-AntiSpam-ExternalHop-MessageData-0: uIqwFBN6BeSRt2Ym+J5CY5w2zFhugoSfG7srCPGVd6XUsuVWklqbaHO+mt5miyGQESO3H4ESlXWDtc/JMbGbQqoILWfLqX+svNDEe83wPshqU9n+DKTq6uoAUf2IwX0JRsnA9XUNC+OV5SqCYobytiTsWlSLA6yuynGyo9Siv1ILEqDUitZ03rHn5WbBmhjhyZHFonK2sXcIy6cQ6cg6wuLexqaO+a4ad3QMEu8jSkqIZrCscYEyq0c/G9tWQ/F1jx7ig038GB0Me3FXlFs3A0vy6hBtsGYzXFhnnmAwfIhm9v8wn61BIVccx8JE61Pwd4OGXjuNr8qbtAzwAcEukZnvjhl/jUIzdNnYQzBDYvWVy0F/I8GhDOz8td9I8+1KDRD2GS2GTtk5jovWZ0nDPwr9Fku5NA23tODSmaTyXauJjwT0JR5AZmw/+TTtYdh/vQQs4oFUBKTQrNwBant7SRW9L+x3cL5lcCQA8EGnlFgsQYEeNvNlNg0eHtPPty1Q3aQn24sWzKh6BTlVLJgUafkDFOjxFd24sQqr7Aq4TOneyNzZ+0cWfvk6hd3mEmhCibhEGTLjrbkuDCM17w0oBBn5uXuhAa4QeMn1ceS5TDZQNeDI/ThNmj7/MhAnxV7qp+DWlj/cdkxN60Xw9heuOJeNK03wxGIaAcmSVXgwQs+pRy2uK/vixDLdASpl3i5qhfhYSDgYGNoOrIxZh7jkpuKAmzoqw2UB6J0W4NSKswqeyOnkopsZ8Wd/YhV3McMCc88Mp4/JQmEGTzNgqkeMlM+qxB8YPhMi8WuOESt7rw9HfkZXKhpvjnlemkbWxLkS8xgrurA99cRkFQayJeOrPDNpLLi8aVXlHtwtMSINxFY9fyH4/EtJM9YSePjb+6O4
+X-OriginatorOrg: oracle.com
+X-MS-Exchange-CrossTenant-AuthAs: Internal
+X-MS-Exchange-CrossTenant-AuthSource: BN0PR10MB5128.namprd10.prod.outlook.com
+X-MS-Exchange-CrossTenant-Network-Message-Id: d4cf148b-9637-48fe-66d4-08dafd587ebb
+X-MS-Exchange-CrossTenant-originalarrivaltime: 23 Jan 2023 15:42:55.1506
+ (UTC)
+X-MS-Exchange-CrossTenant-fromentityheader: Hosted
+X-MS-Exchange-CrossTenant-id: 4e2c6054-71cb-48f1-bd6c-3a9705aca71b
+X-MS-Exchange-CrossTenant-mailboxtype: HOSTED
+X-MS-Exchange-CrossTenant-userprincipalname: KfYuSaGcUNgGJjp9BOBnGbRtxYq/8iHbw1E+8L8A3uF2YAN3qM7b49qJaX1vgP1HJ3EwWTUhR3G+EqwIqE4KIg==
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: PH0PR10MB5706
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.219,Aquarius:18.0.930,Hydra:6.0.562,FMLib:17.11.122.1
+ definitions=2023-01-23_11,2023-01-23_01,2022-06-22_01
+X-Proofpoint-Spam-Details: rule=notspam policy=default score=0 spamscore=0 mlxlogscore=749
+ malwarescore=0 mlxscore=0 bulkscore=0 adultscore=0 phishscore=0
+ suspectscore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2212070000 definitions=main-2301230150
+X-Proofpoint-GUID: Jc8DWXFLzmJ7fFdL7WUKmVAPif4S1qat
+X-Proofpoint-ORIG-GUID: Jc8DWXFLzmJ7fFdL7WUKmVAPif4S1qat
+X-Spam-Status: No, score=-2.8 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_LOW,
+        RCVD_IN_MSPIKE_H2,SPF_HELO_NONE,SPF_NONE autolearn=ham
+        autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Trond Myklebust <trond.myklebust@hammerspace.com>
 
-commit c6c7f2a84da459bcc3714044e74a9cb66de31039 upstream.
 
-In order to ensure that knfsd threads don't linger once the nfsd
-pseudofs is unmounted (e.g. when the container is killed) we let
-nfsd_umount() shut down those threads and wait for them to exit.
+> On Jan 23, 2023, at 10:28 AM, Nikos Tsironis <ntsironis@arrikto.com> wrot=
+e:
+>=20
+> The bug that upstream commit c6c7f2a84da45 ("nfsd: Ensure knfsd shuts
+> down when the "nfsd" pseudofs is unmounted") fixes in kernel v5.13
+> exists in kernel v5.4 too.
+>=20
+> That is, knfsd threads are left behind once the nfsd pseudofs is
+> unmounted, e.g. when the container is killed.
+>=20
+> I backported the patch to kernel v5.4, and tested it.
 
-This also should ensure that we don't need to do a kernel mount of
-the pseudofs, since the thread lifetime is now limited by the
-lifetime of the filesystem.
+Nikos, thanks for taking care of this!
 
-Signed-off-by: Trond Myklebust <trond.myklebust@hammerspace.com>
-Signed-off-by: Chuck Lever <chuck.lever@oracle.com>
-Signed-off-by: Nikos Tsironis <ntsironis@arrikto.com>
----
- fs/nfsd/netns.h     |  6 +++---
- fs/nfsd/nfs4state.c |  8 +-------
- fs/nfsd/nfsctl.c    | 14 ++------------
- fs/nfsd/nfsd.h      |  3 +--
- fs/nfsd/nfssvc.c    | 35 ++++++++++++++++++++++++++++++++++-
- 5 files changed, 41 insertions(+), 25 deletions(-)
 
-diff --git a/fs/nfsd/netns.h b/fs/nfsd/netns.h
-index 7346acda9d76..02d3d2f0e616 100644
---- a/fs/nfsd/netns.h
-+++ b/fs/nfsd/netns.h
-@@ -42,9 +42,6 @@ struct nfsd_net {
- 	bool grace_ended;
- 	time64_t boot_time;
- 
--	/* internal mount of the "nfsd" pseudofilesystem: */
--	struct vfsmount *nfsd_mnt;
--
- 	struct dentry *nfsd_client_dir;
- 
- 	/*
-@@ -121,6 +118,9 @@ struct nfsd_net {
- 	wait_queue_head_t ntf_wq;
- 	atomic_t ntf_refcnt;
- 
-+	/* Allow umount to wait for nfsd state cleanup */
-+	struct completion nfsd_shutdown_complete;
-+
- 	/*
- 	 * clientid and stateid data for construction of net unique COPY
- 	 * stateids.
-diff --git a/fs/nfsd/nfs4state.c b/fs/nfsd/nfs4state.c
-index 9a47cc66963f..cb13a1649632 100644
---- a/fs/nfsd/nfs4state.c
-+++ b/fs/nfsd/nfs4state.c
-@@ -7394,14 +7394,9 @@ nfs4_state_start_net(struct net *net)
- 	struct nfsd_net *nn = net_generic(net, nfsd_net_id);
- 	int ret;
- 
--	ret = get_nfsdfs(net);
--	if (ret)
--		return ret;
- 	ret = nfs4_state_create_net(net);
--	if (ret) {
--		mntput(nn->nfsd_mnt);
-+	if (ret)
- 		return ret;
--	}
- 	locks_start_grace(net, &nn->nfsd4_manager);
- 	nfsd4_client_tracking_init(net);
- 	if (nn->track_reclaim_completes && nn->reclaim_str_hashtbl_size == 0)
-@@ -7471,7 +7466,6 @@ nfs4_state_shutdown_net(struct net *net)
- 
- 	nfsd4_client_tracking_exit(net);
- 	nfs4_state_destroy_net(net);
--	mntput(nn->nfsd_mnt);
- }
- 
- void
-diff --git a/fs/nfsd/nfsctl.c b/fs/nfsd/nfsctl.c
-index dedec4771ecc..c4b11560ac1b 100644
---- a/fs/nfsd/nfsctl.c
-+++ b/fs/nfsd/nfsctl.c
-@@ -1417,6 +1417,8 @@ static void nfsd_umount(struct super_block *sb)
- {
- 	struct net *net = sb->s_fs_info;
- 
-+	nfsd_shutdown_threads(net);
-+
- 	kill_litter_super(sb);
- 	put_net(net);
- }
-@@ -1429,18 +1431,6 @@ static struct file_system_type nfsd_fs_type = {
- };
- MODULE_ALIAS_FS("nfsd");
- 
--int get_nfsdfs(struct net *net)
--{
--	struct nfsd_net *nn = net_generic(net, nfsd_net_id);
--	struct vfsmount *mnt;
--
--	mnt =  vfs_kern_mount(&nfsd_fs_type, SB_KERNMOUNT, "nfsd", NULL);
--	if (IS_ERR(mnt))
--		return PTR_ERR(mnt);
--	nn->nfsd_mnt = mnt;
--	return 0;
--}
--
- #ifdef CONFIG_PROC_FS
- static int create_proc_exports_entry(void)
- {
-diff --git a/fs/nfsd/nfsd.h b/fs/nfsd/nfsd.h
-index cb742e17e04a..4362d295ed34 100644
---- a/fs/nfsd/nfsd.h
-+++ b/fs/nfsd/nfsd.h
-@@ -85,13 +85,12 @@ int		nfsd_get_nrthreads(int n, int *, struct net *);
- int		nfsd_set_nrthreads(int n, int *, struct net *);
- int		nfsd_pool_stats_open(struct inode *, struct file *);
- int		nfsd_pool_stats_release(struct inode *, struct file *);
-+void		nfsd_shutdown_threads(struct net *net);
- 
- void		nfsd_destroy(struct net *net);
- 
- bool		i_am_nfsd(void);
- 
--int get_nfsdfs(struct net *);
--
- struct nfsdfs_client {
- 	struct kref cl_ref;
- 	void (*cl_release)(struct kref *kref);
-diff --git a/fs/nfsd/nfssvc.c b/fs/nfsd/nfssvc.c
-index c7fffe1453bd..2e61a565cdbd 100644
---- a/fs/nfsd/nfssvc.c
-+++ b/fs/nfsd/nfssvc.c
-@@ -600,6 +600,37 @@ static const struct svc_serv_ops nfsd_thread_sv_ops = {
- 	.svo_module		= THIS_MODULE,
- };
- 
-+static void nfsd_complete_shutdown(struct net *net)
-+{
-+	struct nfsd_net *nn = net_generic(net, nfsd_net_id);
-+
-+	WARN_ON(!mutex_is_locked(&nfsd_mutex));
-+
-+	nn->nfsd_serv = NULL;
-+	complete(&nn->nfsd_shutdown_complete);
-+}
-+
-+void nfsd_shutdown_threads(struct net *net)
-+{
-+	struct nfsd_net *nn = net_generic(net, nfsd_net_id);
-+	struct svc_serv *serv;
-+
-+	mutex_lock(&nfsd_mutex);
-+	serv = nn->nfsd_serv;
-+	if (serv == NULL) {
-+		mutex_unlock(&nfsd_mutex);
-+		return;
-+	}
-+
-+	svc_get(serv);
-+	/* Kill outstanding nfsd threads */
-+	serv->sv_ops->svo_setup(serv, NULL, 0);
-+	nfsd_destroy(net);
-+	mutex_unlock(&nfsd_mutex);
-+	/* Wait for shutdown of nfsd_serv to complete */
-+	wait_for_completion(&nn->nfsd_shutdown_complete);
-+}
-+
- bool i_am_nfsd(void)
- {
- 	return kthread_func(current) == nfsd;
-@@ -622,11 +653,13 @@ int nfsd_create_serv(struct net *net)
- 						&nfsd_thread_sv_ops);
- 	if (nn->nfsd_serv == NULL)
- 		return -ENOMEM;
-+	init_completion(&nn->nfsd_shutdown_complete);
- 
- 	nn->nfsd_serv->sv_maxconn = nn->max_connections;
- 	error = svc_bind(nn->nfsd_serv, net);
- 	if (error < 0) {
- 		svc_destroy(nn->nfsd_serv);
-+		nfsd_complete_shutdown(net);
- 		return error;
- 	}
- 
-@@ -675,7 +708,7 @@ void nfsd_destroy(struct net *net)
- 		svc_shutdown_net(nn->nfsd_serv, net);
- 	svc_destroy(nn->nfsd_serv);
- 	if (destroy)
--		nn->nfsd_serv = NULL;
-+		nfsd_complete_shutdown(net);
- }
- 
- int nfsd_set_nrthreads(int n, int *nthreads, struct net *net)
--- 
-2.30.2
+> Trond Myklebust (1):
+>  nfsd: Ensure knfsd shuts down when the "nfsd" pseudofs is unmounted
+>=20
+> fs/nfsd/netns.h     |  6 +++---
+> fs/nfsd/nfs4state.c |  8 +-------
+> fs/nfsd/nfsctl.c    | 14 ++------------
+> fs/nfsd/nfsd.h      |  3 +--
+> fs/nfsd/nfssvc.c    | 35 ++++++++++++++++++++++++++++++++++-
+> 5 files changed, 41 insertions(+), 25 deletions(-)
+>=20
+> --=20
+> 2.30.2
+>=20
+
+--
+Chuck Lever
+
+
 
