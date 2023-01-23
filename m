@@ -2,63 +2,70 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 8E990677EC1
-	for <lists+stable@lfdr.de>; Mon, 23 Jan 2023 16:08:22 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 10857677ED3
+	for <lists+stable@lfdr.de>; Mon, 23 Jan 2023 16:12:04 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230107AbjAWPIU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 23 Jan 2023 10:08:20 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37090 "EHLO
+        id S231625AbjAWPMB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 23 Jan 2023 10:12:01 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38872 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229791AbjAWPIU (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 23 Jan 2023 10:08:20 -0500
-Received: from mail-wm1-x32d.google.com (mail-wm1-x32d.google.com [IPv6:2a00:1450:4864:20::32d])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 32AA2976F
-        for <stable@vger.kernel.org>; Mon, 23 Jan 2023 07:08:19 -0800 (PST)
-Received: by mail-wm1-x32d.google.com with SMTP id q10-20020a1cf30a000000b003db0edfdb74so4495146wmq.1
-        for <stable@vger.kernel.org>; Mon, 23 Jan 2023 07:08:19 -0800 (PST)
+        with ESMTP id S229956AbjAWPMB (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 23 Jan 2023 10:12:01 -0500
+Received: from mail-wm1-x330.google.com (mail-wm1-x330.google.com [IPv6:2a00:1450:4864:20::330])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 21367976F
+        for <stable@vger.kernel.org>; Mon, 23 Jan 2023 07:12:00 -0800 (PST)
+Received: by mail-wm1-x330.google.com with SMTP id f12-20020a7bc8cc000000b003daf6b2f9b9so10829079wml.3
+        for <stable@vger.kernel.org>; Mon, 23 Jan 2023 07:12:00 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20210112;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:from:to:cc:subject:date:message-id:reply-to;
-        bh=sK9H1PX+KEEGUetWZoL4HfsJ5iVAu9hyBKY4KbtsmVY=;
-        b=I9UZPXF96jemTS8yUxiSCuOoDZjG77Bhu7ppJAEUDRIjbIBrxrM4R5DqUeU5vt6ynP
-         Ukh5MYvXU0cIWXCY43Ab/nShAjhUhULiuBQeZUVqvXRDMi4u+hndTwi+jwkVhIdal0Iu
-         tQ8Mu50fyqrwRvwl3WGmdKuiWxv7Ng2/uXhBZH3IxD8YiwWexmUJHfnhOS9Xc0BJ+tpG
-         8VwbfyvOsPpjTf7VBMUWtVzG+Ubz/bBnNLE1M9TQH3qTnWcjyeQ91hBFC6MiplTeOhJJ
-         rzYVpT44fI7eSmADPaK0iNltLd9Zx3b3NPckNNq0k4u5iQZpCt3HJsEq3+sAV/jnvQCt
-         qeDA==
+        h=content-transfer-encoding:in-reply-to:from:content-language
+         :references:cc:to:subject:user-agent:mime-version:date:message-id
+         :from:to:cc:subject:date:message-id:reply-to;
+        bh=NRhNDNoSonwGDoBRr5ThavzB/iQ7bT0q+/z6Q+f3Jsc=;
+        b=VPf1QE9jPKLo2Q+rVbl22eRmHDLLCl5fJVG+JHvKZbHe+l5cdkQ40NIUkiCWxncwa1
+         NFCEEqAEPXMg2bMkuww7+lx8fuMd5fWmv2hKC/Y28VrCvCosjD5cJ7sHq1fzkwFyzhOK
+         /UbR5Zf4M1Fgs6YYXCA6hPh4Sh695d3bOBo5n3luzxmqw+uy/uKYjl8Lo/RE5oDsLE7P
+         Av9cgIrOME9J7uObxPMJUtpiVjro2jd8N7T7v77i9aN1XyX6Bvc+J0FccvgQNQuFOTM9
+         fUflvpccUt9vbiZMUwQH7y1rWc5EZRsqQlmhYyzcxQyaJrZYAGuQcSEQtEW6gSRM3te7
+         0gbw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:x-gm-message-state:from:to:cc:subject:date:message-id
-         :reply-to;
-        bh=sK9H1PX+KEEGUetWZoL4HfsJ5iVAu9hyBKY4KbtsmVY=;
-        b=oYcJCr5BOVgD0Qr5j6WXhzuFqZqVKb4OhxPF2/H88zKq9KoBttuIc1k69UEXNMn8LW
-         FPlui5IWhDUT3i1xd0IIH9cgNagcny+M+0JsFzwGgvV+y7ZbVagVtDmRappHip6eeYsB
-         4qievUB8qXMpw9IvSNuCFqtRhfVaDEPaRVdDcJjr9qJeVvfGXELDrkP6/urbPxP5Q5AD
-         rL3UaCl30CouAAyrdOcoc9k45qFg9OAMJ7bRKtjMbbXhgBWJs2tN7UbE2DE9pZDfVrWy
-         9uTUiZ/k7LarHdm4jE86NspV1uwCm9a3kOrrAmJOxqKmrg5Loc1KZMjgMGiiDMwVyuUh
-         SZSw==
-X-Gm-Message-State: AFqh2kr9yxZ9xfZyA8p7mt/vmoUmcglCY7DCLfFYdZcyOtt8n2vVPjtI
-        qPIWdmtKDyX1EtGLV1ef35H1cM8AVJ0=
-X-Google-Smtp-Source: AMrXdXtjeopATOtHuv500qAo9p+pOLWpZJ9fOjVusZvxc/3N2ayG5PPrhAXSBUOv20kEXl9y/TuYIg==
-X-Received: by 2002:a05:600c:2152:b0:3d9:ecae:853f with SMTP id v18-20020a05600c215200b003d9ecae853fmr24498510wml.3.1674486497500;
-        Mon, 23 Jan 2023 07:08:17 -0800 (PST)
-Received: from 127.0.0.1localhost (188.30.84.186.threembb.co.uk. [188.30.84.186])
-        by smtp.gmail.com with ESMTPSA id t15-20020a05600c198f00b003db32ccf4bfsm10968811wmq.41.2023.01.23.07.08.16
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 23 Jan 2023 07:08:17 -0800 (PST)
-From:   Pavel Begunkov <asml.silence@gmail.com>
-To:     stable@vger.kernel.org
-Cc:     Jens Axboe <axboe@kernel.dk>, asml.silence@gmail.com
-Subject: [PATCH stable-6.1 1/1] io_uring/msg_ring: fix remote queue to disabled ring
-Date:   Mon, 23 Jan 2023 15:03:24 +0000
-Message-Id: <7912d2195155239ddcc77fa9ec22cf0f503ddf68.1674486170.git.asml.silence@gmail.com>
-X-Mailer: git-send-email 2.38.1
+        h=content-transfer-encoding:in-reply-to:from:content-language
+         :references:cc:to:subject:user-agent:mime-version:date:message-id
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
+        bh=NRhNDNoSonwGDoBRr5ThavzB/iQ7bT0q+/z6Q+f3Jsc=;
+        b=UeygFI3oe02OHHuJKIVUfXl3ZUjuB3zCiA5w5ShMjsU8c4SWkOpDz+vGLRoBRlUbSr
+         KOYG/NeW8d0KnEL8Z8xNsxdOiYDMDhZVDTbXFKQqbjg+B+Q12S17da3cD8TxhpHotrZe
+         WY/6VsXvaAl5IfsPEi7SiZdfDS2FjefcKPnmf2WaSsxmEjwhadaVPMJxo5jmDiLvLRtC
+         19P2W3iXARU/sVv8Mic5AVtCYi9oBzUbLQ8NFliRZEaG5BbBH9qmeShIIv5y+RIn3F1L
+         lZCuDXi4wx1858mCdkEpG4AGx47GaqVAeBmkUFerZJe/Z+nQywN7LVoyfTCusaQXlKsv
+         42JA==
+X-Gm-Message-State: AFqh2kosmrZM3WB9CX3kXOk8qZa34OJRvBSSa+3CkzG24BZfayfPYNRb
+        8BI5hHT6Dz+qzFdLP0UlHkQobepyGjo=
+X-Google-Smtp-Source: AMrXdXvmJcMynfEAQ6GFLSU3IAMgGr7bn/MUo1sOGtPtBgssVEdd61VviL78NFlbuHYRBbZnBBFdxQ==
+X-Received: by 2002:a1c:7417:0:b0:3da:fcd:7dfe with SMTP id p23-20020a1c7417000000b003da0fcd7dfemr32226193wmc.10.1674486718686;
+        Mon, 23 Jan 2023 07:11:58 -0800 (PST)
+Received: from [192.168.8.100] (188.30.84.186.threembb.co.uk. [188.30.84.186])
+        by smtp.gmail.com with ESMTPSA id j25-20020a05600c1c1900b003c71358a42dsm15165547wms.18.2023.01.23.07.11.58
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Mon, 23 Jan 2023 07:11:58 -0800 (PST)
+Message-ID: <8228d88c-4490-9286-95ae-c143e3e27fba@gmail.com>
+Date:   Mon, 23 Jan 2023 15:07:13 +0000
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_FROM,
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
+ Thunderbird/102.5.1
+Subject: Re: FAILED: patch "[PATCH] io_uring/msg_ring: fix flagging remote
+ execution" failed to apply to 6.1-stable tree
+To:     gregkh@linuxfoundation.org, axboe@kernel.dk
+Cc:     stable@vger.kernel.org
+References: <16743931882234@kroah.com>
+Content-Language: en-US
+From:   Pavel Begunkov <asml.silence@gmail.com>
+In-Reply-To: <16743931882234@kroah.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Spam-Status: No, score=-3.2 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_FROM,NICE_REPLY_A,
         RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS autolearn=ham
         autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
@@ -67,43 +74,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ upstream commit 8579538c89e33ce78be2feb41e07489c8cbf8f31 ]
+On 1/22/23 13:13, gregkh@linuxfoundation.org wrote:
+> 
+> The patch below does not apply to the 6.1-stable tree.
+> If someone wants it applied there, or to any other stable or longterm
+> tree, then please email the backport, including the original git commit
+> id to <stable@vger.kernel.org>.
 
-IORING_SETUP_R_DISABLED rings don't have the submitter task set, so
-it's not always safe to use ->submitter_task. Disallow posting msg_ring
-messaged to disabled rings. Also add task NULL check for loosy sync
-around testing for IORING_SETUP_R_DISABLED.
+Apparently, it's not needed in stable
 
-Cc: stable@vger.kernel.org
-Fixes: 6d043ee1164ca ("io_uring: do msg_ring in target task via tw")
-Signed-off-by: Pavel Begunkov <asml.silence@gmail.com>
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
----
- io_uring/msg_ring.c | 4 ++++
- 1 file changed, 4 insertions(+)
+[...]
+> ------------------ original commit in Linus's tree ------------------
+> 
+>  From 56d8e3180c065c9b78ed77afcd0cf99677a4e22f Mon Sep 17 00:00:00 2001
+> From: Pavel Begunkov <asml.silence@gmail.com>
+> Date: Fri, 20 Jan 2023 16:38:05 +0000
+> Subject: [PATCH] io_uring/msg_ring: fix flagging remote execution
+> 
+> There is a couple of problems with queueing a tw in io_msg_ring_data()
+> for remote execution. First, once we queue it the target ring can
+> go away and so setting IORING_SQ_TASKRUN there is not safe. Secondly,
+> the userspace might not expect IORING_SQ_TASKRUN.
+> 
+> Extract a helper and uniformly use TWA_SIGNAL without TWA_SIGNAL_NO_IPI
+> tricks for now, just as it was done in the original patch.
+> 
+> Cc: stable@vger.kernel.org
+> Fixes: 6d043ee1164ca ("io_uring: do msg_ring in target task via tw")
+> Signed-off-by: Pavel Begunkov <asml.silence@gmail.com>
+> Signed-off-by: Jens Axboe <axboe@kernel.dk>
+> 
 
-diff --git a/io_uring/msg_ring.c b/io_uring/msg_ring.c
-index a49ccab262d5..7d5b544cfc30 100644
---- a/io_uring/msg_ring.c
-+++ b/io_uring/msg_ring.c
-@@ -30,6 +30,8 @@ static int io_msg_ring_data(struct io_kiocb *req)
- 
- 	if (msg->src_fd || msg->dst_fd || msg->flags)
- 		return -EINVAL;
-+	if (target_ctx->flags & IORING_SETUP_R_DISABLED)
-+		return -EBADFD;
- 
- 	if (io_post_aux_cqe(target_ctx, msg->user_data, msg->len, 0, true))
- 		return 0;
-@@ -84,6 +86,8 @@ static int io_msg_send_fd(struct io_kiocb *req, unsigned int issue_flags)
- 
- 	if (target_ctx == ctx)
- 		return -EINVAL;
-+	if (target_ctx->flags & IORING_SETUP_R_DISABLED)
-+		return -EBADFD;
- 
- 	ret = io_double_lock_ctx(ctx, target_ctx, issue_flags);
- 	if (unlikely(ret))
 -- 
-2.38.1
-
+Pavel Begunkov
