@@ -2,74 +2,61 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 5D993678797
-	for <lists+stable@lfdr.de>; Mon, 23 Jan 2023 21:21:27 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 22CCC67888F
+	for <lists+stable@lfdr.de>; Mon, 23 Jan 2023 21:45:01 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231573AbjAWUVZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 23 Jan 2023 15:21:25 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52514 "EHLO
+        id S231560AbjAWUo7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 23 Jan 2023 15:44:59 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46286 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231868AbjAWUVY (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 23 Jan 2023 15:21:24 -0500
-Received: from mail-qt1-x835.google.com (mail-qt1-x835.google.com [IPv6:2607:f8b0:4864:20::835])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1C76A367D6;
-        Mon, 23 Jan 2023 12:21:23 -0800 (PST)
-Received: by mail-qt1-x835.google.com with SMTP id j9so11122501qtv.4;
-        Mon, 23 Jan 2023 12:21:23 -0800 (PST)
+        with ESMTP id S232626AbjAWUo6 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 23 Jan 2023 15:44:58 -0500
+Received: from mail-ot1-x32b.google.com (mail-ot1-x32b.google.com [IPv6:2607:f8b0:4864:20::32b])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 595A72CC50
+        for <stable@vger.kernel.org>; Mon, 23 Jan 2023 12:44:46 -0800 (PST)
+Received: by mail-ot1-x32b.google.com with SMTP id g2-20020a9d6b02000000b006864bf5e658so8070933otp.1
+        for <stable@vger.kernel.org>; Mon, 23 Jan 2023 12:44:46 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20210112;
-        h=content-transfer-encoding:in-reply-to:from:references:cc:to
-         :content-language:subject:user-agent:mime-version:date:message-id
-         :from:to:cc:subject:date:message-id:reply-to;
-        bh=9kk2z4hYZcGz4xbYVx4jjMxTltcKZUPsKwdwkImhZVc=;
-        b=aOpM6krJk1eKUQrl7/wH4IBG62B+p1DdX9FMShdl79bQwKR9B54w47EmLxGOZ38dhg
-         FWatn0nK0lW1ZZ9GFMejd5XIvACKh/ozIHQklRf1rubGP23rrE9JYMaaf6NtVyTIq8/1
-         uiISkKMbDMd0P9vqWDY1F+7ZKet5aqQbsRGjExzBy++akH9boTpgYh2TGoPAqHaEy7kp
-         9RM0Zt011917xnrpQRP8PHDm/DLn3LGyh5gWL4VLeHpFe+SugWKx9VJ0KomHznuwMtpZ
-         9TN7Nl7IGBpi3hOlG0mXz4P2ttedpRS8PJ2ENZjKxF/grsZthqRSj1pKQUWHO8m3d/2b
-         cYaA==
+        h=cc:to:subject:message-id:date:from:mime-version:from:to:cc:subject
+         :date:message-id:reply-to;
+        bh=VrjOO32mNE4cQXTG/5bnvMEvE4xDptS6D0NuFaAh9As=;
+        b=HbX7geOV2qLjM/wbfb+xfLGQo4tolO4JlkeMuLh/8dMK/M6VE0LZIRr0ESlFwU/y8G
+         ysyLBMC0rfci65+5JvvVwnB0NWkDnX/+EIWKfMjtm2D9pPJh3I57lS1getiVFThkX/Bn
+         8B/cEj7D1vHrsBZqXamdIC5E6Sk1McbSoRbHe3rajFzGQ4MHKEpccOI7MBxaBsGvqbm4
+         16W6OvWg3BsLnf33pNAXA9mN/QLqSlYo7mrnY0RDdbD8/hcMs36OKxKCIIjeGNtsr6L9
+         AWfCIJLZvX89PemsOM37i26aOknb7shOAKLgV2Omg6jrh/3eSBdG8kk7ImAr/i7JMvHU
+         O0Bg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=content-transfer-encoding:in-reply-to:from:references:cc:to
-         :content-language:subject:user-agent:mime-version:date:message-id
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=9kk2z4hYZcGz4xbYVx4jjMxTltcKZUPsKwdwkImhZVc=;
-        b=0s+uCfVVnJ1S74q8C6Wp2qarbaB3/spZ2mBSh9IrnXJfeL/2NFFXXo8sySDXnB8XSy
-         RrIAIbOD7bm9ipV9hBvMqx7Yexv9PzyddxS/zghYtuaObZdg7gx63qL/klDVOj+FCM/2
-         m0P2Swi3agXjhbLE0K5APpkgD/NhHVQvOObXJwSi6RhdxcY2aAO7Zq37tEsk8HEECRQf
-         jczAbeLLJgY9WSOtBu8QMtNYWcJcto93hXdCnw0RTDM5sNBJ2E50PxeH7obZ8K62aVyD
-         eB7/TB426v0iubqxcZSOjcMcXZQXyMTiTECC3pCQz9l49K2kmAiS/fiWcvSSEYBCSnV8
-         Vjfg==
-X-Gm-Message-State: AFqh2kp12ZcSkpBpAUIUnOW7gI4O/Ii6tgmqvYE7heRJ5S3YYCzo0xTN
-        JoeZLaEfaUpepkeIx0WK9FE=
-X-Google-Smtp-Source: AMrXdXv+q+08MtyhJXj0L1iFIawGjee2OPNdkTc9+AyVhhMxIBbLvz5ALoGv6SM8oKe+xYSIjOUBGg==
-X-Received: by 2002:ac8:6659:0:b0:3ad:f2e1:64e4 with SMTP id j25-20020ac86659000000b003adf2e164e4mr31226674qtp.12.1674505282054;
-        Mon, 23 Jan 2023 12:21:22 -0800 (PST)
-Received: from [10.67.48.245] ([192.19.223.252])
-        by smtp.googlemail.com with ESMTPSA id d25-20020ac85459000000b003b630456b8fsm12539830qtq.89.2023.01.23.12.21.01
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Mon, 23 Jan 2023 12:21:21 -0800 (PST)
-Message-ID: <f00ad162-743a-1ceb-d19f-d89738d1ad9e@gmail.com>
-Date:   Mon, 23 Jan 2023 12:20:53 -0800
+        h=cc:to:subject:message-id:date:from:mime-version:x-gm-message-state
+         :from:to:cc:subject:date:message-id:reply-to;
+        bh=VrjOO32mNE4cQXTG/5bnvMEvE4xDptS6D0NuFaAh9As=;
+        b=mmJIEdoz+bEmtqTvU8UtwqVTkQ3pt5ntWo/RVvEsSN5Cs0M4KMUKUPTGBkUNxlQtyg
+         C7OIZyFoib87UAGDUuuuH8IyAIQje8kRzNkbk6ddmXFZpFBVeMQe/ofmxZz0krP+1UDw
+         u8jOmFZjHxFEPfQ18dIIQhNvnc0IwdEzH/addf3d4r0PGa4hkG79QmcLncECCVzheB5m
+         sIPCZzvKU0t38HcDsX7LLfaRjp/0JOI5A3/mp/FiYkrHGYCbxPinaMgsp0zVDlldKNYx
+         4K2/MU+fxNM7Lx0m61V4vZQUfi0xElQPrurCNm09wuFCswnR7vPJk5JPSigFFYLn5Pz8
+         Odpg==
+X-Gm-Message-State: AFqh2kqrvcue5WMNR1CNjbrcT1Mj8zleQghJVEF9NdyqpDCxo1rUHqQh
+        MD8OeBnt0d49UdJQvH5NnqSV8P9CGI+PVzw09VU60pqfKRSx3w==
+X-Google-Smtp-Source: AMrXdXs3l3gUfztHj78uyC3hU4p/JrALyEzNHga+xl9JqUTRvagHylQnRrXqWn2grNZbWu234FB+zUHhAZbWnPn13fg=
+X-Received: by 2002:a05:6830:26d3:b0:66e:c78e:9aca with SMTP id
+ m19-20020a05683026d300b0066ec78e9acamr1344994otu.196.1674506685568; Mon, 23
+ Jan 2023 12:44:45 -0800 (PST)
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
- Thunderbird/102.4.2
-Subject: Re: [PATCH 6.1 000/188] 6.1.8-rc2 review
-Content-Language: en-US
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org
-Cc:     patches@lists.linux.dev, linux-kernel@vger.kernel.org,
-        torvalds@linux-foundation.org, akpm@linux-foundation.org,
-        linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
-        lkft-triage@lists.linaro.org, pavel@denx.de, jonathanh@nvidia.com,
-        sudipm.mukherjee@gmail.com, srw@sladewatkins.net, rwarsow@gmx.de
-References: <20230123094931.568794202@linuxfoundation.org>
-From:   Florian Fainelli <f.fainelli@gmail.com>
-In-Reply-To: <20230123094931.568794202@linuxfoundation.org>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Spam-Status: No, score=-3.2 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_FROM,NICE_REPLY_A,
+From:   Sasa Ostrouska <casaxa@gmail.com>
+Date:   Mon, 23 Jan 2023 21:44:34 +0100
+Message-ID: <CALFERdzKUodLsm6=Ub3g2+PxpNpPtPq3bGBLbff=eZr9_S=YVA@mail.gmail.com>
+Subject: Google Pixelbook EVE, no sound in kernel 6.1.x
+To:     stable@vger.kernel.org
+Cc:     regressions@lists.linux.dev,
+        Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>,
+        Lukasz Majczak <lma@semihalf.com>,
+        Cezary Rojewski <cezary.rojewski@intel.com>
+Content-Type: text/plain; charset="UTF-8"
+X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_FROM,
         RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS autolearn=ham
         autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
@@ -78,28 +65,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 1/23/23 01:52, Greg Kroah-Hartman wrote:
-> This is the start of the stable review cycle for the 6.1.8 release.
-> There are 188 patches in this series, all will be posted as a response
-> to this one.  If anyone has any issues with these being applied, please
-> let me know.
-> 
-> Responses should be made by Wed, 25 Jan 2023 09:48:53 +0000.
-> Anything received after that time might be too late.
-> 
-> The whole patch series can be found in one patch at:
-> 	https://www.kernel.org/pub/linux/kernel/v6.x/stable-review/patch-6.1.8-rc2.gz
-> or in the git tree and branch at:
-> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-6.1.y
-> and the diffstat can be found below.
-> 
-> thanks,
-> 
-> greg k-h
+Hi all, sorry if I put somebody in CC who is not the correct one. I
+have a google pixelbook and using it with Fedora 37.
+The last few kernels supplied by fedora 37, 6.1.6, 6.1.7 but also some
+earlier have no working sound.
+I see the last kernel for me with working sound is 6.0.18.
+On my pixelbook this is showing in dmesg:
 
-On ARCH_BRCMSTB using 32-bit and 64-bit, build tested on BMIPS_GENERIC:
+[    7.623064] snd_soc_skl 0000:00:1f.3: ASoC: no sink widget found
+for AEC Capture
+[    7.623070] snd_soc_skl 0000:00:1f.3: ASoC: Failed to add route
+echo_ref_out cpr 7 -> direct -> AEC Capture
+[    7.623083] kbl_r5514_5663_max kbl_r5514_5663_max: ASoC: Parent
+card not yet available, widget card binding deferred
+[    8.090716] NET: Registered PF_QIPCRTR protocol family
+[    8.273905] rt5663 i2c-10EC5663:00: sysclk < 384 x fs, disable i2s asrc
+[    8.275043] HDMI HDA Codec ehdaudio0D2: hdac_hdmi_present_sense:
+disconnect for pin:port 5:0
+[    8.275165] HDMI HDA Codec ehdaudio0D2: hdac_hdmi_present_sense:
+disconnect for pin:port 6:0
+[    8.275291] HDMI HDA Codec ehdaudio0D2: hdac_hdmi_present_sense:
+disconnect for pin:port 7:0
+[    8.278569] input: kbl-r5514-5663-max Headset Jack as
+/devices/platform/kbl_r5514_5663_max/sound/card0/input30
+[    8.278771] input: kbl-r5514-5663-max HDMI/DP,pcm=6 Jack as
+/devices/platform/kbl_r5514_5663_max/sound/card0/input31
+[    8.278875] input: kbl-r5514-5663-max HDMI/DP,pcm=7 Jack as
+/devices/platform/kbl_r5514_5663_max/sound/card0/input32
+[    8.891244] iwlwifi 0000:01:00.0: Applying debug destination EXTERNAL_DRAM
+[    8.902009] r8152 2-2.1:1.0 enp0s20f0u2u1: carrier on
+[    8.977070] iwlwifi 0000:01:00.0: Applying debug destination EXTERNAL_DRAM
+[    8.978496] iwlwifi 0000:01:00.0: FW already configured (0) - re-configuring
+[    8.991112] IPv6: ADDRCONF(NETDEV_CHANGE): enp0s20f0u2u1: link becomes ready
+[    9.027053] iwlwifi 0000:01:00.0: Applying debug destination EXTERNAL_DRAM
+[    9.112264] iwlwifi 0000:01:00.0: Applying debug destination EXTERNAL_DRAM
+[    9.113562] iwlwifi 0000:01:00.0: FW already configured (0) - re-configuring
+[   14.579846] HDMI HDA Codec ehdaudio0D2: No connections found for pin:port 5:0
 
-Tested-by: Florian Fainelli <f.fainelli@gmail.com>
---
-Florian
+Can please somebody help with this issue ?
+Also in the latests kernels the shutdown stops and the machine does
+not halt. It stays forever waiting for something to happen it seems.
 
+If you need more details please dont hesitate to contact me. And
+please CC me as I am not subscribed in these miling lists.
+
+Rgds
+Sasa
