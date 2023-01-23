@@ -2,131 +2,171 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 0795567764D
-	for <lists+stable@lfdr.de>; Mon, 23 Jan 2023 09:30:58 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 11CED677654
+	for <lists+stable@lfdr.de>; Mon, 23 Jan 2023 09:32:11 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231631AbjAWIaz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 23 Jan 2023 03:30:55 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55868 "EHLO
+        id S230082AbjAWIcK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 23 Jan 2023 03:32:10 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56814 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231526AbjAWIay (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 23 Jan 2023 03:30:54 -0500
-Received: from frasgout13.his.huawei.com (frasgout13.his.huawei.com [14.137.139.46])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D84E11A961;
-        Mon, 23 Jan 2023 00:30:51 -0800 (PST)
-Received: from mail02.huawei.com (unknown [172.18.147.229])
-        by frasgout13.his.huawei.com (SkyGuard) with ESMTP id 4P0jld0Pd8z9xrpS;
-        Mon, 23 Jan 2023 16:22:53 +0800 (CST)
-Received: from roberto-ThinkStation-P620 (unknown [10.204.63.22])
-        by APP1 (Coremail) with SMTP id LxC2BwCXGwemRc5jxm+9AA--.10647S2;
-        Mon, 23 Jan 2023 09:30:38 +0100 (CET)
-Message-ID: <dfb387003ee50db5fe0d71bc825cc39df47f74ed.camel@huaweicloud.com>
-Subject: Re: [PATCH v2] security: Restore passing final prot to
- ima_file_mmap()
-From:   Roberto Sassu <roberto.sassu@huaweicloud.com>
-To:     Paul Moore <paul@paul-moore.com>
-Cc:     Mimi Zohar <zohar@linux.ibm.com>, jmorris@namei.org,
-        serge@hallyn.com, linux-integrity@vger.kernel.org,
-        linux-security-module@vger.kernel.org,
-        linux-kernel@vger.kernel.org, viro@zeniv.linux.org.uk,
-        Roberto Sassu <roberto.sassu@huawei.com>,
-        stable@vger.kernel.org
-Date:   Mon, 23 Jan 2023 09:30:15 +0100
-In-Reply-To: <CAHC9VhT--Q8QkFmKTpD3zjryDL19V9myfr3PuzSRo_bDzDRyqQ@mail.gmail.com>
-References: <20221221141007.2579770-1-roberto.sassu@huaweicloud.com>
-         <CAHC9VhQUAuF-Fan72j7BOqOdLE=B=mJpJ_GpR5p5cUmXruYT=Q@mail.gmail.com>
-         <4b8688ee3d533d989196004d5f9f2c7eb4093f8b.camel@huaweicloud.com>
-         <CAHC9VhSamRVpgrDrSuc2dsbbw3-pvjDi9BsFWoWssHkAD2W5vA@mail.gmail.com>
-         <a764acb285d0616c8608eaab8671ceb9c22cb390.camel@huaweicloud.com>
-         <058f1bdf4ba75c3a00918cefbf1be32477b51639.camel@linux.ibm.com>
-         <e1a1fe029aea21ba533cb6196e64f29c7b052c57.camel@huaweicloud.com>
-         <CAHC9VhT--Q8QkFmKTpD3zjryDL19V9myfr3PuzSRo_bDzDRyqQ@mail.gmail.com>
-Content-Type: text/plain; charset="UTF-8"
-User-Agent: Evolution 3.36.5-0ubuntu1 
+        with ESMTP id S230107AbjAWIcJ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 23 Jan 2023 03:32:09 -0500
+Received: from mail-qv1-xf2a.google.com (mail-qv1-xf2a.google.com [IPv6:2607:f8b0:4864:20::f2a])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4C5771A96E
+        for <stable@vger.kernel.org>; Mon, 23 Jan 2023 00:32:07 -0800 (PST)
+Received: by mail-qv1-xf2a.google.com with SMTP id t7so8617351qvv.3
+        for <stable@vger.kernel.org>; Mon, 23 Jan 2023 00:32:07 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=google.com; s=20210112;
+        h=mime-version:references:message-id:in-reply-to:subject:cc:to:from
+         :date:from:to:cc:subject:date:message-id:reply-to;
+        bh=tHsue/35xEq5MlFbfXCVOVIdXrqZytD2uaTeK+p02ns=;
+        b=jvj8Zxsh1cCr9emwCigBouqqeZ06gLVa2xYVWiRpvJFHaHlSadzjLY1yeXgvKyw3HM
+         psIDTx5BLlDvG9MJRqMk6ZaF3x4hI2nBED8WQ5pFANzN4/eQ8uaBa6tF8IJ672zEhfbQ
+         WxaA4lVPJNcJeVWST+PZKDdZqOBt89+VdHOkl0OZzHJfmQEpNkkDDV2sl2zosJL8KX2Z
+         q1AJpTHwEngdGYDld0zx01YkbcPIfzd70lOYr/67hOPXCmArT5t3YqrXD8JQWkg45gcj
+         h+QYgRjYaCF8a2uuWiXJUwwhYS1DKioDLG/YR6IUMRTRDkq8wLBHTLFtPekUlSbqeLeW
+         r03Q==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=mime-version:references:message-id:in-reply-to:subject:cc:to:from
+         :date:x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
+        bh=tHsue/35xEq5MlFbfXCVOVIdXrqZytD2uaTeK+p02ns=;
+        b=EakQMSKu2r0EMZBS8oJedgm4soUyXP4wPMirctyKJCJRnbNy9QhsQ8+qNlMF50faG5
+         yIKQIlGOgitWaIUCCEskJS7//ZZE1KUXwGnkvmpeNLQR/k48MotQvoYwgO0jrk/xEkKZ
+         IdmbdccRolxWrnLbdHzAcBAaQ8Prfz0oKojWNmQWZ6cQGEvr9oIIg8dS0krPiZ2DAfoV
+         FYNdxAWq3xkzV3nPoqEHeaf3MuyP/m47LlhMPt4zR9CTagaROwcq1hR38V2WmFEu3GHH
+         QaKPhMLJ1LCnhZIqDg4xIX9ZGOPI5GJU7OOf3st6ag3Tnb5dpE4PFLKiZfark9I5jgGb
+         qcCA==
+X-Gm-Message-State: AFqh2ko/5cAPyYwWQQ9yoKYj+b9EPjmcKwU/T9vLWewDmGb1884hdONx
+        JIuzqp/wcsemWziG+xSOaJab/Q==
+X-Google-Smtp-Source: AMrXdXvjJ6K6amNlUMN8TfJJTQmt+b9EaqR/LY3VECbCzJvKK1lL/9IB2rGeldFmAhNiDIrlxuvahw==
+X-Received: by 2002:a0c:cb92:0:b0:531:cd71:c4d0 with SMTP id p18-20020a0ccb92000000b00531cd71c4d0mr38725769qvk.23.1674462726280;
+        Mon, 23 Jan 2023 00:32:06 -0800 (PST)
+Received: from [192.168.1.200] (172-10-233-147.lightspeed.sntcca.sbcglobal.net. [172.10.233.147])
+        by smtp.gmail.com with ESMTPSA id q15-20020a05620a038f00b00704a2a40cf2sm5932173qkm.38.2023.01.23.00.32.04
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Mon, 23 Jan 2023 00:32:05 -0800 (PST)
+Date:   Mon, 23 Jan 2023 00:31:52 -0800 (PST)
+From:   Hugh Dickins <hughd@google.com>
+X-X-Sender: hugh@ripple.anvils
+To:     gregkh@linuxfoundation.org
+cc:     hughd@google.com, akpm@linux-foundation.org, david@redhat.com,
+        jannh@google.com, shy828301@gmail.com, songliubraving@fb.com,
+        stable@vger.kernel.org, zokeefe@google.com
+Subject: Re: FAILED: patch "[PATCH] mm/khugepaged: fix collapse_pte_mapped_thp()
+ to allow" failed to apply to 5.15-stable tree
+In-Reply-To: <1674296977196124@kroah.com>
+Message-ID: <c6665dff-d48a-7dac-c845-fe41cb67b31@google.com>
+References: <1674296977196124@kroah.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7bit
-X-CM-TRANSID: LxC2BwCXGwemRc5jxm+9AA--.10647S2
-X-Coremail-Antispam: 1UD129KBjvJXoWxWr18urWruw4UXry3JF1UWrg_yoW5WF4fpF
-        WUt3WUKr4kXF10yr1IqF17GF1Fk39xJryUXw4Dtryjvrn0qr1UKr1xJFWUurykXr1kCr1j
-        qF17K3y3CF1DA3DanT9S1TB71UUUUUUqnTZGkaVYY2UrUUUUjbIjqfuFe4nvWSU5nxnvy2
-        9KBjDU0xBIdaVrnRJUUUyEb4IE77IF4wAFF20E14v26r4j6ryUM7CY07I20VC2zVCF04k2
-        6cxKx2IYs7xG6rWj6s0DM7CIcVAFz4kK6r1j6r18M28lY4IEw2IIxxk0rwA2F7IY1VAKz4
-        vEj48ve4kI8wA2z4x0Y4vE2Ix0cI8IcVAFwI0_Jr0_JF4l84ACjcxK6xIIjxv20xvEc7Cj
-        xVAFwI0_Jr0_Gr1l84ACjcxK6I8E87Iv67AKxVW8JVWxJwA2z4x0Y4vEx4A2jsIEc7CjxV
-        AFwI0_Gr0_Gr1UM2AIxVAIcxkEcVAq07x20xvEncxIr21l5I8CrVACY4xI64kE6c02F40E
-        x7xfMcIj6xIIjxv20xvE14v26r1j6r18McIj6I8E87Iv67AKxVWUJVW8JwAm72CE4IkC6x
-        0Yz7v_Jr0_Gr1lF7xvr2IY64vIr41lFIxGxcIEc7CjxVA2Y2ka0xkIwI1l42xK82IYc2Ij
-        64vIr41l4I8I3I0E4IkC6x0Yz7v_Jr0_Gr1lx2IqxVAqx4xG67AKxVWUJVWUGwC20s026x
-        8GjcxK67AKxVWUGVWUWwC2zVAF1VAY17CE14v26r1q6r43MIIYrxkI7VAKI48JMIIF0xvE
-        2Ix0cI8IcVAFwI0_Jr0_JF4lIxAIcVC0I7IYx2IY6xkF7I0E14v26r1j6r4UMIIF0xvE42
-        xK8VAvwI8IcIk0rVWrZr1j6s0DMIIF0xvEx4A2jsIE14v26r1j6r4UMIIF0xvEx4A2jsIE
-        c7CjxVAFwI0_Jr0_GrUvcSsGvfC2KfnxnUUI43ZEXa7IU1zuWJUUUUU==
-X-CM-SenderInfo: purev21wro2thvvxqx5xdzvxpfor3voofrz/1tbiAgAGBF1jj4PqXAAAsE
-X-CFilter-Loop: Reflected
-X-Spam-Status: No, score=-1.9 required=5.0 tests=BAYES_00,SPF_HELO_NONE,
-        SPF_NONE autolearn=ham autolearn_force=no version=3.4.6
+Content-Type: text/plain; charset=US-ASCII
+X-Spam-Status: No, score=-17.6 required=5.0 tests=BAYES_00,DKIMWL_WL_MED,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,
+        ENV_AND_HDR_SPF_MATCH,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS,
+        USER_IN_DEF_DKIM_WL,USER_IN_DEF_SPF_WL autolearn=ham
+        autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Fri, 2023-01-20 at 16:04 -0500, Paul Moore wrote:
-> On Fri, Jan 13, 2023 at 5:53 AM Roberto Sassu
-> <roberto.sassu@huaweicloud.com> wrote:
-> > On Thu, 2023-01-12 at 12:45 -0500, Mimi Zohar wrote:
-> > > On Thu, 2023-01-12 at 13:36 +0100, Roberto Sassu wrote:
-> > > > On Wed, 2023-01-11 at 09:25 -0500, Paul Moore wrote:
-> > > > > On Wed, Jan 11, 2023 at 4:31 AM Roberto Sassu
-> > > > > <roberto.sassu@huaweicloud.com> wrote:
-> > > > > > On Fri, 2023-01-06 at 16:14 -0500, Paul Moore wrote:
-> > > > > > > On Wed, Dec 21, 2022 at 9:10 AM Roberto Sassu
-> > > > > > > <roberto.sassu@huaweicloud.com> wrote:
-> > > > > > > > From: Roberto Sassu <roberto.sassu@huawei.com>
-> > > > > > > > 
-> > > > > > > > Commit 98de59bfe4b2f ("take calculation of final prot in
-> > > > > > > > security_mmap_file() into a helper") moved the code to update prot with the
-> > > > > > > > actual protection flags to be granted to the requestor by the kernel to a
-> > > > > > > > helper called mmap_prot(). However, the patch didn't update the argument
-> > > > > > > > passed to ima_file_mmap(), making it receive the requested prot instead of
-> > > > > > > > the final computed prot.
-> > > > > > > > 
-> > > > > > > > A possible consequence is that files mmapped as executable might not be
-> > > > > > > > measured/appraised if PROT_EXEC is not requested but subsequently added in
-> > > > > > > > the final prot.
-> > > > > > > > 
-> > > > > > > > Replace prot with mmap_prot(file, prot) as the second argument of
-> > > > > > > > ima_file_mmap() to restore the original behavior.
-> > > > > > > > 
-> > > > > > > > Cc: stable@vger.kernel.org
-> > > > > > > > Fixes: 98de59bfe4b2 ("take calculation of final prot in security_mmap_file() into a helper")
-> > > > > > > > Signed-off-by: Roberto Sassu <roberto.sassu@huawei.com>
-> > > > > > > > ---
-> > > > > > > >  security/security.c | 2 +-
-> > > > > > > >  1 file changed, 1 insertion(+), 1 deletion(-)
-> > > > > > > > 
-> > > > > > > > diff --git a/security/security.c b/security/security.c
-> > > > > > > > index d1571900a8c7..0d2359d588a1 100644
-> > > > > > > > --- a/security/security.c
-> > > > > > > > +++ b/security/security.c
-> > > > > > > > @@ -1666,7 +1666,7 @@ int security_mmap_file(struct file *file, unsigned long prot,
-> > > > > > > >                                         mmap_prot(file, prot), flags);
-> > > > > > > >         if (ret)
-> > > > > > > >                 return ret;
-> > > > > > > > -       return ima_file_mmap(file, prot);
-> > > > > > > > +       return ima_file_mmap(file, mmap_prot(file, prot));
-> > > > > > > >  }
-> > > > > > > 
-> > > > > > > This seems like a reasonable fix, although as the original commit is
-> > > > > > > ~10 years old at this point I am a little concerned about the impact
-> > > > > > > this might have on IMA.  Mimi, what do you think?
+On Sat, 21 Jan 2023, gregkh@linuxfoundation.org wrote:
 > 
-> So ... where do we stand on this patch, Mimi, Roberto?  I stand by my
-> original comment, but I would want to see an ACK from Mimi at the very
-> least before merging this upstream.  If this isn't ACK-able, do we
-> have a plan to resolve this soon?
+> The patch below does not apply to the 5.15-stable tree.
+> If someone wants it applied there, or to any other stable or longterm
+> tree, then please email the backport, including the original git commit
+> id to <stable@vger.kernel.org>.
 
-Sorry, I had business trips last week. Will send the patches this week.
+Thanks Greg: the backport below is suitable for 5.15-stable and
+5.10-stable and 5.4-stable.
 
-Roberto
+Hugh
 
+From ab0c3f1251b4670978fde0bd54161795a139b060 Mon Sep 17 00:00:00 2001
+From: Hugh Dickins <hughd@google.com>
+Date: Thu, 22 Dec 2022 12:41:50 -0800
+Subject: [PATCH] mm/khugepaged: fix collapse_pte_mapped_thp() to allow anon_vma
+
+commit ab0c3f1251b4670978fde0bd54161795a139b060 upstream.
+
+uprobe_write_opcode() uses collapse_pte_mapped_thp() to restore huge pmd,
+when removing a breakpoint from hugepage text: vma->anon_vma is always set
+in that case, so undo the prohibition.  And MADV_COLLAPSE ought to be able
+to collapse some page tables in a vma which happens to have anon_vma set
+from CoWing elsewhere.
+
+Is anon_vma lock required?  Almost not: if any page other than expected
+subpage of the non-anon huge page is found in the page table, collapse is
+aborted without making any change.  However, it is possible that an anon
+page was CoWed from this extent in another mm or vma, in which case a
+concurrent lookup might look here: so keep it away while clearing pmd (but
+perhaps we shall go back to using pmd_lock() there in future).
+
+Note that collapse_pte_mapped_thp() is exceptional in freeing a page table
+without having cleared its ptes: I'm uneasy about that, and had thought
+pte_clear()ing appropriate; but exclusive i_mmap lock does fix the
+problem, and we would have to move the mmu_notification if clearing those
+ptes.
+
+What this fixes is not a dangerous instability.  But I suggest Cc stable
+because uprobes "healing" has regressed in that way, so this should follow
+8d3c106e19e8 into those stable releases where it was backported (and may
+want adjustment there - I'll supply backports as needed).
+
+Link: https://lkml.kernel.org/r/b740c9fb-edba-92ba-59fb-7a5592e5dfc@google.com
+Fixes: 8d3c106e19e8 ("mm/khugepaged: take the right locks for page table retraction")
+Signed-off-by: Hugh Dickins <hughd@google.com>
+Acked-by: David Hildenbrand <david@redhat.com>
+Cc: Jann Horn <jannh@google.com>
+Cc: Yang Shi <shy828301@gmail.com>
+Cc: Zach O'Keefe <zokeefe@google.com>
+Cc: Song Liu <songliubraving@fb.com>
+Cc: <stable@vger.kernel.org>    [5.4+]
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+---
+ mm/khugepaged.c | 14 ++++++--------
+ 1 file changed, 6 insertions(+), 8 deletions(-)
+
+diff --git a/mm/khugepaged.c b/mm/khugepaged.c
+index fd25d12e85b3..3afcb1466ec5 100644
+--- a/mm/khugepaged.c
++++ b/mm/khugepaged.c
+@@ -1458,14 +1458,6 @@ void collapse_pte_mapped_thp(struct mm_struct *mm, unsigned long addr)
+ 	if (!hugepage_vma_check(vma, vma->vm_flags | VM_HUGEPAGE))
+ 		return;
+ 
+-	/*
+-	 * Symmetry with retract_page_tables(): Exclude MAP_PRIVATE mappings
+-	 * that got written to. Without this, we'd have to also lock the
+-	 * anon_vma if one exists.
+-	 */
+-	if (vma->anon_vma)
+-		return;
+-
+ 	hpage = find_lock_page(vma->vm_file->f_mapping,
+ 			       linear_page_index(vma, haddr));
+ 	if (!hpage)
+@@ -1537,6 +1529,10 @@ void collapse_pte_mapped_thp(struct mm_struct *mm, unsigned long addr)
+ 	}
+ 
+ 	/* step 4: collapse pmd */
++	/* we make no change to anon, but protect concurrent anon page lookup */
++	if (vma->anon_vma)
++		anon_vma_lock_write(vma->anon_vma);
++
+ 	mmu_notifier_range_init(&range, MMU_NOTIFY_CLEAR, 0, NULL, mm, haddr,
+ 				haddr + HPAGE_PMD_SIZE);
+ 	mmu_notifier_invalidate_range_start(&range);
+@@ -1546,6 +1542,8 @@ void collapse_pte_mapped_thp(struct mm_struct *mm, unsigned long addr)
+ 	mmu_notifier_invalidate_range_end(&range);
+ 	pte_free(mm, pmd_pgtable(_pmd));
+ 
++	if (vma->anon_vma)
++		anon_vma_unlock_write(vma->anon_vma);
+ 	i_mmap_unlock_write(vma->vm_file->f_mapping);
+ 
+ drop_hpage:
+-- 
+2.39.0.246.g2a6d74b583-goog
