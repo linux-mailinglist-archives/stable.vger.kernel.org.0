@@ -2,60 +2,75 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 6A1006785AE
-	for <lists+stable@lfdr.de>; Mon, 23 Jan 2023 20:02:02 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B227C6785CF
+	for <lists+stable@lfdr.de>; Mon, 23 Jan 2023 20:07:26 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231845AbjAWTCA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 23 Jan 2023 14:02:00 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41840 "EHLO
+        id S232473AbjAWTHV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 23 Jan 2023 14:07:21 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47298 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231561AbjAWTCA (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 23 Jan 2023 14:02:00 -0500
-Received: from mail-yb1-xb2b.google.com (mail-yb1-xb2b.google.com [IPv6:2607:f8b0:4864:20::b2b])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7AAC51BF3
-        for <stable@vger.kernel.org>; Mon, 23 Jan 2023 11:01:59 -0800 (PST)
-Received: by mail-yb1-xb2b.google.com with SMTP id t16so11458624ybk.2
-        for <stable@vger.kernel.org>; Mon, 23 Jan 2023 11:01:59 -0800 (PST)
+        with ESMTP id S232398AbjAWTHS (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 23 Jan 2023 14:07:18 -0500
+Received: from mail-qt1-x82b.google.com (mail-qt1-x82b.google.com [IPv6:2607:f8b0:4864:20::82b])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id ED92C34C37;
+        Mon, 23 Jan 2023 11:06:57 -0800 (PST)
+Received: by mail-qt1-x82b.google.com with SMTP id z9so10578640qtv.5;
+        Mon, 23 Jan 2023 11:06:57 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20210112;
-        h=to:subject:message-id:date:from:mime-version:from:to:cc:subject
-         :date:message-id:reply-to;
-        bh=CKL9+JECp/SVRnsj2folRL4HzaoFVopkLmsGLxbCt1o=;
-        b=rvy5TqAa3tS5L/KAqOvOSLYCMrxMzkQY5eMmdZtErr44IDiZUwywzvNwo+zkZMt4gB
-         DDZ2x8vGKU5T3HbFGdRC6Z7SRjBepe3j6RskUGAEUxrLB0fiWkiq+JFPgoqf7Hd72ECc
-         uVn/gzwKCQtOIV9o5kfYeczNlViG8o1s0xa04auUk9wm3ihK5owapNRGNTdE7JN2SO6U
-         wp/Yl+OtcOuzgnz0+dMk1UGFdd3TqHpWeIKmvqknew2CXEhzwyfXGc1aMpfb/Wkfqraj
-         ZYMi5s4EBewTD9o/UV2nUQsT6bVnQ9rLIXmRNsRXbUOcPN4718HCko/oGtBMSzz/6pxr
-         ul9Q==
+        d=gmail.com; s=20210112;
+        h=content-transfer-encoding:in-reply-to:from:references:cc:to
+         :content-language:subject:user-agent:mime-version:date:message-id
+         :from:to:cc:subject:date:message-id:reply-to;
+        bh=noM6rQKbS9rfagFoqhc7Ies1urqmhdKV4jSItScOuqI=;
+        b=HBBmQd0BJxU9q/tAIGHkTvaclkPb0Bz6jjQpmWpbYtHl8dj6OI6EYw/444y7zuq3Ow
+         lQld+mPf7cazTuH4l9gXZzq+mYhjdr/DDUsXUMqVbmesOYD7Kb5Q96Uxrcqp15HZMyFq
+         XkMTO125djQVni8xbyc4cpJHQWnms/wUQCvkXL0LwS4PxMpddg7TL4qwf3d1qqMMk6Rq
+         KoijGK8aEEm4KZJ1n6OE5336oKjdLd3rA31vnhfpZK7LCXgH/ndgVqMrkSRQ6JgksGqM
+         A7ssVJrz2addZGoz0ypFywFMS71AlnaIRqI2qa9gU0UA7iCmK1Kx6MoJR0ZIMdur9Zqd
+         2aQg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=to:subject:message-id:date:from:mime-version:x-gm-message-state
-         :from:to:cc:subject:date:message-id:reply-to;
-        bh=CKL9+JECp/SVRnsj2folRL4HzaoFVopkLmsGLxbCt1o=;
-        b=uoEJa/Ct029LNRF8ikHzRn8wK9rdK5RGm9F135Ynkn0vRjnoevpDj/EU5k4AABDXWr
-         O5x3wlfqjFwU+yeJXfaXpFaTaf8yWhqcufbv/0LSMM8Mdp7aU9v5b9sFI2Kr6WbTHFn1
-         pK3yZqBzj+QUzeG0fCE1aqsfIH6p0qDzbJoFaX9L8QZlui7os0i5HXfZvf/5X1ksJKEe
-         gSyLKiijcUg4pe/RxNVeZaHTiEl9xHsYEB/Mu1JpZOFpRQrbj/SU+rZSVPs8pWTm6Jvr
-         6m2aBRG1tsRkun6xw+64uvY8rXhMKkJaq+0wHrLknRkmStXE39aAOFWmDrV3awhYZYgd
-         pKOw==
-X-Gm-Message-State: AFqh2kqA6YpXR5/SHTVUfictZNRXGa2fLSVuXEgA3BqSbtfnoqHeC8Wk
-        hPbSvNc0f6vQ4X3FPsdOh8fBiIGcvdM2xh5A/sGochOT0UFJ84l6qw8=
-X-Google-Smtp-Source: AMrXdXsqaGbpZyGWtbI9GaL5rlPdqolgr+ef1V9P4gWk6l500MyalnOqJd0PQZ71rktrMQLU8aDemQW/l3P/4TQfnRY=
-X-Received: by 2002:a5b:d0c:0:b0:7b8:ea18:a17b with SMTP id
- y12-20020a5b0d0c000000b007b8ea18a17bmr1959220ybp.608.1674500518440; Mon, 23
- Jan 2023 11:01:58 -0800 (PST)
+        h=content-transfer-encoding:in-reply-to:from:references:cc:to
+         :content-language:subject:user-agent:mime-version:date:message-id
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
+        bh=noM6rQKbS9rfagFoqhc7Ies1urqmhdKV4jSItScOuqI=;
+        b=RgUkO4i3K0PuLpZOhx165Eg1wMjhyBhaaGvN5w8ibrTlvmos1BAX1dFL+O8UK1uJxT
+         Smhvu80MrqmTbDDxtnfBPv6iQNwVGI5OusXYUH2k44FmZYgLrTqUMetdeSwlMi3TucES
+         +zOh7doupz5u8wbXgTpigfPMOqUmk+rFsZae57CXoZTUndz1L3oinDX4snbBxE0FxXBJ
+         G8bkK/M4NmoQdu9kopP3Sgtrz36qL06jPlVZg3ZsPfU4hoAvSiRbpVVdxHd3Xyn1s4mU
+         azYdeh+A9URyNiMMZHTMO5hy6RpYHeeMqAfP93Kgw/lc/qzTa0yEXX+q0rodTTK8l2iw
+         uklw==
+X-Gm-Message-State: AFqh2kopPP7F22ZlgegOF8TIsYVN494kjnooaudvBPqxxm7aaNLMxQtS
+        vXR1ntFhsqlV/sZPWr7sQxU=
+X-Google-Smtp-Source: AMrXdXulvEger+xu05aPBZkCIImnQTYIqCn1bCrjyOr9BWHW/59NUZkTVw/U1axrlaA3MTHJm1onbQ==
+X-Received: by 2002:ac8:4906:0:b0:3b6:2b76:d7a6 with SMTP id e6-20020ac84906000000b003b62b76d7a6mr38078070qtq.57.1674500817008;
+        Mon, 23 Jan 2023 11:06:57 -0800 (PST)
+Received: from [10.67.48.245] ([192.19.223.252])
+        by smtp.googlemail.com with ESMTPSA id c6-20020ac84e06000000b003a97a71c906sm10216172qtw.78.2023.01.23.11.06.50
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Mon, 23 Jan 2023 11:06:56 -0800 (PST)
+Message-ID: <bf6c5407-5026-b87e-b771-e2f1d92fb8fe@gmail.com>
+Date:   Mon, 23 Jan 2023 11:06:46 -0800
 MIME-Version: 1.0
-From:   Nobel Barakat <nobelbarakat@google.com>
-Date:   Mon, 23 Jan 2023 11:01:47 -0800
-Message-ID: <CANZXNgMiuk=YwZCFO_u-L+20qKZT2xCGWfO7onou4XT+xQNUsA@mail.gmail.com>
-Subject: 5.10 and 5.4 Backport Request: netfilter: conntrack: do not renew
- entry stuck in tcp SYN_SENT state
-To:     stable@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
-X-Spam-Status: No, score=-17.6 required=5.0 tests=BAYES_00,DKIMWL_WL_MED,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,
-        ENV_AND_HDR_SPF_MATCH,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS,
-        USER_IN_DEF_DKIM_WL,USER_IN_DEF_SPF_WL autolearn=ham
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
+ Thunderbird/102.4.2
+Subject: Re: [PATCH 5.4 00/51] 5.4.230-rc2 review
+Content-Language: en-US
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        stable@vger.kernel.org
+Cc:     patches@lists.linux.dev, linux-kernel@vger.kernel.org,
+        torvalds@linux-foundation.org, akpm@linux-foundation.org,
+        linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
+        lkft-triage@lists.linaro.org, pavel@denx.de, jonathanh@nvidia.com,
+        sudipm.mukherjee@gmail.com, srw@sladewatkins.net, rwarsow@gmx.de
+References: <20230123094907.292995722@linuxfoundation.org>
+From:   Florian Fainelli <f.fainelli@gmail.com>
+In-Reply-To: <20230123094907.292995722@linuxfoundation.org>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Spam-Status: No, score=-3.2 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_FROM,NICE_REPLY_A,
+        RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS autolearn=ham
         autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -63,18 +78,28 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-PATCH_SUBJECT: netfilter: conntrack: do not renew entry stuck in tcp
-SYN_SENT state
-PATCH_COMMIT:  e15d4cdf27cb0c1e977270270b2cea12e0955edd
+On 1/23/23 01:52, Greg Kroah-Hartman wrote:
+> This is the start of the stable review cycle for the 5.4.230 release.
+> There are 51 patches in this series, all will be posted as a response
+> to this one.  If anyone has any issues with these being applied, please
+> let me know.
+> 
+> Responses should be made by Wed, 25 Jan 2023 09:48:53 +0000.
+> Anything received after that time might be too late.
+> 
+> The whole patch series can be found in one patch at:
+> 	https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.4.230-rc2.gz
+> or in the git tree and branch at:
+> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.4.y
+> and the diffstat can be found below.
+> 
+> thanks,
+> 
+> greg k-h
 
-Reason for backport request:
+On ARCH_BRCMSTB using 32-bit and 64-bit, build tested on BMIPS_GENERIC:
 
-We've had a few customers experience issues with dnat such that their
-kubernetes processes are now unreachable. Because dnat rules fail to
-update, kubernetes pod IPs won't resolve and traffic gets blackholed
-causing any healthcheck service to kill and restart the pod. This
-commit has been verified to fix the issue and the ask here is to
-backport it to kernel versions v5.4 and v5.10.
+Tested-by: Florian Fainelli <f.fainelli@gmail.com>
+-- 
+Florian
 
-Thanks
-Nobel
