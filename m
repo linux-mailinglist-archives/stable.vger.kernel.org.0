@@ -2,74 +2,113 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 86A216773AC
-	for <lists+stable@lfdr.de>; Mon, 23 Jan 2023 01:59:47 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8CB6767748E
+	for <lists+stable@lfdr.de>; Mon, 23 Jan 2023 05:07:22 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230038AbjAWA7q (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 22 Jan 2023 19:59:46 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33948 "EHLO
+        id S230137AbjAWEHU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 22 Jan 2023 23:07:20 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39626 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229514AbjAWA7p (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 22 Jan 2023 19:59:45 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CDB5212863;
-        Sun, 22 Jan 2023 16:59:44 -0800 (PST)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 6A71260D30;
-        Mon, 23 Jan 2023 00:59:44 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id AA8F0C433D2;
-        Mon, 23 Jan 2023 00:59:43 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1674435583;
-        bh=aC/7hAS/iZ638iCeHTXW7ZxH+T5LjHCoRqraTQYaT5M=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=vChyDaPp0pQDcWsRVA8gQLuAMqBZHbaVd4R7zzukpkj5qiXLmMB/g7lE9VLrgR3Gz
-         MjT7HHlzBS69JQIL7PNEX45jgNaSvNetFdHaOL+qw5xTtiz65YNqEfLQm0FbdG1LW2
-         ic71fTR2o4CAsXbIqEi/EAOc21xByj86efMts4y1cS1fVCqELizyQ16aFHA9n0wIES
-         USAOBzH+fFX10X7ZgEZ5kXiq6qboJBlZzoXDerc+BQSvSIAsuTvU53q099GqkcQxf0
-         Jl9GpyQAroKDdT6TVkC8dX1BfJniquDxiTpJ8MgfGJd5osws0WjKuJpy9AfzN8hH7b
-         73myUSQFwiKHQ==
-Date:   Sun, 22 Jan 2023 19:59:42 -0500
-From:   Sasha Levin <sashal@kernel.org>
-To:     Mark Brown <broonie@kernel.org>
-Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
-        Bartosz Golaszewski <bartosz.golaszewski@linaro.org>,
-        linux-spi@vger.kernel.org
-Subject: Re: [PATCH AUTOSEL 5.10 11/17] spi: spidev: fix a race condition
- when accessing spidev->spi
-Message-ID: <Y83b/lVjrlblFKwa@sashalap>
-References: <20230116140448.116034-1-sashal@kernel.org>
- <20230116140448.116034-11-sashal@kernel.org>
- <Y8VhxYxMjwtu12k2@sirena.org.uk>
+        with ESMTP id S229455AbjAWEHT (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 22 Jan 2023 23:07:19 -0500
+Received: from mail-pj1-x102f.google.com (mail-pj1-x102f.google.com [IPv6:2607:f8b0:4864:20::102f])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C573918B16;
+        Sun, 22 Jan 2023 20:07:18 -0800 (PST)
+Received: by mail-pj1-x102f.google.com with SMTP id lp10so7099245pjb.4;
+        Sun, 22 Jan 2023 20:07:18 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20210112;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
+        bh=k8xywsS+eg2CC8w8NCTeeilE0iYUibYUDt/SRX3plv8=;
+        b=CqZ5PcNsFYfskx+qh+UHmYSxgv+V9rc4FNXeaGDkSbwFEgLHpyk3Oj8dYnQhZSLcmg
+         aICPnawfa0rB8DR47WtZdq+1xWlc4EifO1aowr6S+vBQL1WiTCj0P5h/S0zCRWrtn47m
+         p/SX13SM6MPKtZdCboX9RwwXLE/LDWJBzDYBhj/2o+dwJBkLSS2Kz/LJiAGn1yFPSAhU
+         A+Ycm3HTTWv52kS30z8luf7U/P3xevPcWHCoqHFjVtp+ZXirH4Rl/zVHnVaIAIzKnypM
+         470Zd9ZUsx1BPknxNP86CIspLAm/uHCXNAdEBCwNJSNwGp0rhTeVRN7SGjNwLT/nPbnu
+         PuOw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=k8xywsS+eg2CC8w8NCTeeilE0iYUibYUDt/SRX3plv8=;
+        b=3PNXHAKM0oJt8hByY23hfKI+VfMTCjY/WQuzkotfvzNSnwmd0f3D6CvMhpZPkGUuYa
+         MM6PTH6GwrVqNYZMWAccchBToHD5Ct1GCr+iIW4DfolDYQ0MeQiTI3EeSAP3UyNloyDn
+         N59KVnF/YReR3FkKXqklvBwqrX8dohjAIKzycIF5cTK0d8WXDTE9BnlPXloyl9tviacO
+         rMIRZktFE6jXQrL737SzXmv6rYJ6BuX7+0olZ+4LPaZ9sXaBYkU7+3vJXPeBrQphzBzO
+         i/pkXLJIFbZ2HAL5L0KWrR+R+2YRXUG/pjD9FNiQLLTbbaKf+OyMiMFli6HMIzQWtfdT
+         N1oQ==
+X-Gm-Message-State: AFqh2kolC24mKpDGZupXai104Lr+a9GZJyezlTTvXuW+2cZwPRFSvck6
+        lj9EY7bFFn4P1CZuZDWBG8d8VwLUgjpv0FSf
+X-Google-Smtp-Source: AMrXdXsMa3OpdkJGGDGBrvwjgpwVsNwtYXcXI9FV343NkCx7shiCd//ZicGYZC293i00jL5mMB7Wzw==
+X-Received: by 2002:a05:6a21:170f:b0:af:9dda:b033 with SMTP id nv15-20020a056a21170f00b000af9ddab033mr24229003pzb.37.1674446838266;
+        Sun, 22 Jan 2023 20:07:18 -0800 (PST)
+Received: from debian.me (subs03-180-214-233-76.three.co.id. [180.214.233.76])
+        by smtp.gmail.com with ESMTPSA id s1-20020a63f041000000b004784cdc196dsm26175346pgj.24.2023.01.22.20.07.17
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Sun, 22 Jan 2023 20:07:17 -0800 (PST)
+Received: by debian.me (Postfix, from userid 1000)
+        id B02AB104299; Mon, 23 Jan 2023 11:07:13 +0700 (WIB)
+Date:   Mon, 23 Jan 2023 11:07:13 +0700
+From:   Bagas Sanjaya <bagasdotme@gmail.com>
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        stable@vger.kernel.org
+Cc:     patches@lists.linux.dev, linux-kernel@vger.kernel.org,
+        torvalds@linux-foundation.org, akpm@linux-foundation.org,
+        linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
+        lkft-triage@lists.linaro.org, pavel@denx.de, jonathanh@nvidia.com,
+        f.fainelli@gmail.com, sudipm.mukherjee@gmail.com,
+        srw@sladewatkins.net, rwarsow@gmx.de
+Subject: Re: [PATCH 5.15 000/117] 5.15.90-rc1 review
+Message-ID: <Y84H8WbMg8gg02U8@debian.me>
+References: <20230122150232.736358800@linuxfoundation.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Type: multipart/signed; micalg=pgp-sha512;
+        protocol="application/pgp-signature"; boundary="L4E1Xd5t6VzTwN26"
 Content-Disposition: inline
-In-Reply-To: <Y8VhxYxMjwtu12k2@sirena.org.uk>
-X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
-        SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
+In-Reply-To: <20230122150232.736358800@linuxfoundation.org>
+X-Spam-Status: No, score=-0.6 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_FROM,
+        RCVD_IN_DNSWL_NONE,RCVD_IN_SORBS_WEB,SPF_HELO_NONE,SPF_PASS
+        autolearn=no autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, Jan 16, 2023 at 02:40:05PM +0000, Mark Brown wrote:
->On Mon, Jan 16, 2023 at 09:04:42AM -0500, Sasha Levin wrote:
->> From: Bartosz Golaszewski <bartosz.golaszewski@linaro.org>
->>
->> [ Upstream commit a720416d94634068951773cb9e9d6f1b73769e5b ]
->>
->> There's a spinlock in place that is taken in file_operations callbacks
->> whenever we check if spidev->spi is still alive (not null). It's also
->> taken when spidev->spi is set to NULL in remove().
->
->There are ongoing discussions of race conditions with this commit.
 
-Okay, I've dropped it. Thanks!
+--L4E1Xd5t6VzTwN26
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
--- 
-Thanks,
-Sasha
+On Sun, Jan 22, 2023 at 04:03:10PM +0100, Greg Kroah-Hartman wrote:
+> This is the start of the stable review cycle for the 5.15.90 release.
+> There are 117 patches in this series, all will be posted as a response
+> to this one.  If anyone has any issues with these being applied, please
+> let me know.
+>=20
+
+Successfully cross-compiled for arm64 (bcm2711_defconfig, GCC 10.2.0) and
+powerpc (ps3_defconfig, GCC 12.2.0).
+
+Tested-by: Bagas Sanjaya <bagasdotme@gmail.com>
+=20
+
+--=20
+An old man doll... just what I always wanted! - Clara
+
+--L4E1Xd5t6VzTwN26
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iHUEARYKAB0WIQSSYQ6Cy7oyFNCHrUH2uYlJVVFOowUCY84H7QAKCRD2uYlJVVFO
+o75EAQD+9vyYbqVa5gboq5KZOI04RVCWaLprw6Xs6gMhwUFGiAEArLBgQHYJDmn3
+WbZX78uhMAhO6NaT/TrvPSWiu17kUQk=
+=Wo+s
+-----END PGP SIGNATURE-----
+
+--L4E1Xd5t6VzTwN26--
