@@ -2,144 +2,131 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 8FEB1677613
-	for <lists+stable@lfdr.de>; Mon, 23 Jan 2023 09:09:29 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0795567764D
+	for <lists+stable@lfdr.de>; Mon, 23 Jan 2023 09:30:58 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231533AbjAWIJ0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 23 Jan 2023 03:09:26 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47174 "EHLO
+        id S231631AbjAWIaz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 23 Jan 2023 03:30:55 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55868 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230255AbjAWIJZ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 23 Jan 2023 03:09:25 -0500
-Received: from mail-vs1-xe36.google.com (mail-vs1-xe36.google.com [IPv6:2607:f8b0:4864:20::e36])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8490B59F8
-        for <stable@vger.kernel.org>; Mon, 23 Jan 2023 00:09:23 -0800 (PST)
-Received: by mail-vs1-xe36.google.com with SMTP id i188so12009096vsi.8
-        for <stable@vger.kernel.org>; Mon, 23 Jan 2023 00:09:23 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=7c/pdOExCcpLLZUD6UA3m2abu2a1/Ie4TH52nAygB5A=;
-        b=U33m8q0XyJQsgPxNmhR8Dj4rfbqxHdDFumhoFfPeYGnu3vV1RYXFseHMwdEKUqImxL
-         y3drzFDspZvSXPdG2IalmZs792vA9OP4TABizj6X4wY6lQTG0cO7VSw/HDS80+6R4Klp
-         FU6q55BEIMSjagGZTknunhScijwjxCYsP3RupTzKmfbrIhAaVrUFNsm8U28U0jeacgQL
-         iocDYOeJEkXMqR6KECJ2pFFNh82qv2cfRdo6xbtIEv7qVNj1ytkrP/BcajaLp8HLGwv1
-         Hcdo6ccu3AB1scChpieAUCJSOjkKNyR5ERKe2fGpqX4lzy1BMMo84aiF+2Cymf/V9n/I
-         iUcg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=7c/pdOExCcpLLZUD6UA3m2abu2a1/Ie4TH52nAygB5A=;
-        b=B0ZbbTcIisyWWDrUWgcUVsLCJ845zH//NIoB0UBFtW8U8FLGhvZjH6IqVYvQU/OYKa
-         0ADCWTO9IHdUDtnvae/Ydw9FBB3SthFohi8ZtiuauJy3Rd+672D8wXpNsvn8dAQ6wI9h
-         eS/8CiGflpWY2BJrjE5HC+jZV8b9wOqsVgLPth28UMYfpDshcRgkMWpJIx5EVSd+f/e/
-         2bn1ceftNw1CK4J0FLaSuhZ0kMALhHwF61lCOeVO/IBVWDvBY9xtyJ29HNDVPhooCatQ
-         0qILyiym/kan//p45rnC0ljGbi+qqjioYfVqBDJGIKGhZ1EQvHzV9pQwNbPEU/zp4krS
-         mUhQ==
-X-Gm-Message-State: AFqh2kqHPnAEjQx4fJdQ+AwelFon2lJkiMZA4VzLYMYvs6YUpYXmDdNa
-        Fh4tVzq4trxaSiTsNdSaFh0gqBPGxv0RXbT2B6a5lGRFjMv/8DVZ
-X-Google-Smtp-Source: AMrXdXvpdjWNCIvZ712IPqqtV40RJsW2ntvWQWa078Hd7TKDuvhollsWd5E60URXbG01RNQeUmXiZ9lf9HUm3Q4FQ8k=
-X-Received: by 2002:a05:6102:4425:b0:3c8:c513:197 with SMTP id
- df37-20020a056102442500b003c8c5130197mr3009317vsb.9.1674461362523; Mon, 23
- Jan 2023 00:09:22 -0800 (PST)
-MIME-Version: 1.0
-References: <20230122150246.321043584@linuxfoundation.org>
-In-Reply-To: <20230122150246.321043584@linuxfoundation.org>
-From:   Naresh Kamboju <naresh.kamboju@linaro.org>
-Date:   Mon, 23 Jan 2023 13:39:11 +0530
-Message-ID: <CA+G9fYsS1GLzMoeh-jz8eOMbomJ=XBg_3FjQ+4w_=Dw1Mwr3rQ@mail.gmail.com>
-Subject: Re: [PATCH 6.1 000/193] 6.1.8-rc1 review
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     stable@vger.kernel.org, patches@lists.linux.dev,
-        linux-kernel@vger.kernel.org, torvalds@linux-foundation.org,
-        akpm@linux-foundation.org, linux@roeck-us.net, shuah@kernel.org,
-        patches@kernelci.org, lkft-triage@lists.linaro.org, pavel@denx.de,
-        jonathanh@nvidia.com, f.fainelli@gmail.com,
-        sudipm.mukherjee@gmail.com, srw@sladewatkins.net, rwarsow@gmx.de,
-        Masahiro Yamada <masahiroy@kernel.org>,
-        Ard Biesheuvel <ardb@kernel.org>,
-        Nathan Chancellor <nathan@kernel.org>,
-        Dennis Gilmore <dennis@ausil.us>,
-        Palmer Dabbelt <palmer@rivosinc.com>,
-        Arnd Bergmann <arnd@arndb.de>, tom.saeger@oracle.com
+        with ESMTP id S231526AbjAWIay (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 23 Jan 2023 03:30:54 -0500
+Received: from frasgout13.his.huawei.com (frasgout13.his.huawei.com [14.137.139.46])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D84E11A961;
+        Mon, 23 Jan 2023 00:30:51 -0800 (PST)
+Received: from mail02.huawei.com (unknown [172.18.147.229])
+        by frasgout13.his.huawei.com (SkyGuard) with ESMTP id 4P0jld0Pd8z9xrpS;
+        Mon, 23 Jan 2023 16:22:53 +0800 (CST)
+Received: from roberto-ThinkStation-P620 (unknown [10.204.63.22])
+        by APP1 (Coremail) with SMTP id LxC2BwCXGwemRc5jxm+9AA--.10647S2;
+        Mon, 23 Jan 2023 09:30:38 +0100 (CET)
+Message-ID: <dfb387003ee50db5fe0d71bc825cc39df47f74ed.camel@huaweicloud.com>
+Subject: Re: [PATCH v2] security: Restore passing final prot to
+ ima_file_mmap()
+From:   Roberto Sassu <roberto.sassu@huaweicloud.com>
+To:     Paul Moore <paul@paul-moore.com>
+Cc:     Mimi Zohar <zohar@linux.ibm.com>, jmorris@namei.org,
+        serge@hallyn.com, linux-integrity@vger.kernel.org,
+        linux-security-module@vger.kernel.org,
+        linux-kernel@vger.kernel.org, viro@zeniv.linux.org.uk,
+        Roberto Sassu <roberto.sassu@huawei.com>,
+        stable@vger.kernel.org
+Date:   Mon, 23 Jan 2023 09:30:15 +0100
+In-Reply-To: <CAHC9VhT--Q8QkFmKTpD3zjryDL19V9myfr3PuzSRo_bDzDRyqQ@mail.gmail.com>
+References: <20221221141007.2579770-1-roberto.sassu@huaweicloud.com>
+         <CAHC9VhQUAuF-Fan72j7BOqOdLE=B=mJpJ_GpR5p5cUmXruYT=Q@mail.gmail.com>
+         <4b8688ee3d533d989196004d5f9f2c7eb4093f8b.camel@huaweicloud.com>
+         <CAHC9VhSamRVpgrDrSuc2dsbbw3-pvjDi9BsFWoWssHkAD2W5vA@mail.gmail.com>
+         <a764acb285d0616c8608eaab8671ceb9c22cb390.camel@huaweicloud.com>
+         <058f1bdf4ba75c3a00918cefbf1be32477b51639.camel@linux.ibm.com>
+         <e1a1fe029aea21ba533cb6196e64f29c7b052c57.camel@huaweicloud.com>
+         <CAHC9VhT--Q8QkFmKTpD3zjryDL19V9myfr3PuzSRo_bDzDRyqQ@mail.gmail.com>
 Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
-X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_NONE,
-        SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
+User-Agent: Evolution 3.36.5-0ubuntu1 
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7bit
+X-CM-TRANSID: LxC2BwCXGwemRc5jxm+9AA--.10647S2
+X-Coremail-Antispam: 1UD129KBjvJXoWxWr18urWruw4UXry3JF1UWrg_yoW5WF4fpF
+        WUt3WUKr4kXF10yr1IqF17GF1Fk39xJryUXw4Dtryjvrn0qr1UKr1xJFWUurykXr1kCr1j
+        qF17K3y3CF1DA3DanT9S1TB71UUUUUUqnTZGkaVYY2UrUUUUjbIjqfuFe4nvWSU5nxnvy2
+        9KBjDU0xBIdaVrnRJUUUyEb4IE77IF4wAFF20E14v26r4j6ryUM7CY07I20VC2zVCF04k2
+        6cxKx2IYs7xG6rWj6s0DM7CIcVAFz4kK6r1j6r18M28lY4IEw2IIxxk0rwA2F7IY1VAKz4
+        vEj48ve4kI8wA2z4x0Y4vE2Ix0cI8IcVAFwI0_Jr0_JF4l84ACjcxK6xIIjxv20xvEc7Cj
+        xVAFwI0_Jr0_Gr1l84ACjcxK6I8E87Iv67AKxVW8JVWxJwA2z4x0Y4vEx4A2jsIEc7CjxV
+        AFwI0_Gr0_Gr1UM2AIxVAIcxkEcVAq07x20xvEncxIr21l5I8CrVACY4xI64kE6c02F40E
+        x7xfMcIj6xIIjxv20xvE14v26r1j6r18McIj6I8E87Iv67AKxVWUJVW8JwAm72CE4IkC6x
+        0Yz7v_Jr0_Gr1lF7xvr2IY64vIr41lFIxGxcIEc7CjxVA2Y2ka0xkIwI1l42xK82IYc2Ij
+        64vIr41l4I8I3I0E4IkC6x0Yz7v_Jr0_Gr1lx2IqxVAqx4xG67AKxVWUJVWUGwC20s026x
+        8GjcxK67AKxVWUGVWUWwC2zVAF1VAY17CE14v26r1q6r43MIIYrxkI7VAKI48JMIIF0xvE
+        2Ix0cI8IcVAFwI0_Jr0_JF4lIxAIcVC0I7IYx2IY6xkF7I0E14v26r1j6r4UMIIF0xvE42
+        xK8VAvwI8IcIk0rVWrZr1j6s0DMIIF0xvEx4A2jsIE14v26r1j6r4UMIIF0xvEx4A2jsIE
+        c7CjxVAFwI0_Jr0_GrUvcSsGvfC2KfnxnUUI43ZEXa7IU1zuWJUUUUU==
+X-CM-SenderInfo: purev21wro2thvvxqx5xdzvxpfor3voofrz/1tbiAgAGBF1jj4PqXAAAsE
+X-CFilter-Loop: Reflected
+X-Spam-Status: No, score=-1.9 required=5.0 tests=BAYES_00,SPF_HELO_NONE,
+        SPF_NONE autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Sun, 22 Jan 2023 at 20:51, Greg Kroah-Hartman
-<gregkh@linuxfoundation.org> wrote:
->
-> This is the start of the stable review cycle for the 6.1.8 release.
-> There are 193 patches in this series, all will be posted as a response
-> to this one.  If anyone has any issues with these being applied, please
-> let me know.
->
-> Responses should be made by Tue, 24 Jan 2023 15:02:08 +0000.
-> Anything received after that time might be too late.
->
-> The whole patch series can be found in one patch at:
->         https://www.kernel.org/pub/linux/kernel/v6.x/stable-review/patch-=
-6.1.8-rc1.gz
-> or in the git tree and branch at:
->         git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable=
--rc.git linux-6.1.y
-> and the diffstat can be found below.
->
-> thanks,
->
-> greg k-h
+On Fri, 2023-01-20 at 16:04 -0500, Paul Moore wrote:
+> On Fri, Jan 13, 2023 at 5:53 AM Roberto Sassu
+> <roberto.sassu@huaweicloud.com> wrote:
+> > On Thu, 2023-01-12 at 12:45 -0500, Mimi Zohar wrote:
+> > > On Thu, 2023-01-12 at 13:36 +0100, Roberto Sassu wrote:
+> > > > On Wed, 2023-01-11 at 09:25 -0500, Paul Moore wrote:
+> > > > > On Wed, Jan 11, 2023 at 4:31 AM Roberto Sassu
+> > > > > <roberto.sassu@huaweicloud.com> wrote:
+> > > > > > On Fri, 2023-01-06 at 16:14 -0500, Paul Moore wrote:
+> > > > > > > On Wed, Dec 21, 2022 at 9:10 AM Roberto Sassu
+> > > > > > > <roberto.sassu@huaweicloud.com> wrote:
+> > > > > > > > From: Roberto Sassu <roberto.sassu@huawei.com>
+> > > > > > > > 
+> > > > > > > > Commit 98de59bfe4b2f ("take calculation of final prot in
+> > > > > > > > security_mmap_file() into a helper") moved the code to update prot with the
+> > > > > > > > actual protection flags to be granted to the requestor by the kernel to a
+> > > > > > > > helper called mmap_prot(). However, the patch didn't update the argument
+> > > > > > > > passed to ima_file_mmap(), making it receive the requested prot instead of
+> > > > > > > > the final computed prot.
+> > > > > > > > 
+> > > > > > > > A possible consequence is that files mmapped as executable might not be
+> > > > > > > > measured/appraised if PROT_EXEC is not requested but subsequently added in
+> > > > > > > > the final prot.
+> > > > > > > > 
+> > > > > > > > Replace prot with mmap_prot(file, prot) as the second argument of
+> > > > > > > > ima_file_mmap() to restore the original behavior.
+> > > > > > > > 
+> > > > > > > > Cc: stable@vger.kernel.org
+> > > > > > > > Fixes: 98de59bfe4b2 ("take calculation of final prot in security_mmap_file() into a helper")
+> > > > > > > > Signed-off-by: Roberto Sassu <roberto.sassu@huawei.com>
+> > > > > > > > ---
+> > > > > > > >  security/security.c | 2 +-
+> > > > > > > >  1 file changed, 1 insertion(+), 1 deletion(-)
+> > > > > > > > 
+> > > > > > > > diff --git a/security/security.c b/security/security.c
+> > > > > > > > index d1571900a8c7..0d2359d588a1 100644
+> > > > > > > > --- a/security/security.c
+> > > > > > > > +++ b/security/security.c
+> > > > > > > > @@ -1666,7 +1666,7 @@ int security_mmap_file(struct file *file, unsigned long prot,
+> > > > > > > >                                         mmap_prot(file, prot), flags);
+> > > > > > > >         if (ret)
+> > > > > > > >                 return ret;
+> > > > > > > > -       return ima_file_mmap(file, prot);
+> > > > > > > > +       return ima_file_mmap(file, mmap_prot(file, prot));
+> > > > > > > >  }
+> > > > > > > 
+> > > > > > > This seems like a reasonable fix, although as the original commit is
+> > > > > > > ~10 years old at this point I am a little concerned about the impact
+> > > > > > > this might have on IMA.  Mimi, what do you think?
+> 
+> So ... where do we stand on this patch, Mimi, Roberto?  I stand by my
+> original comment, but I would want to see an ACK from Mimi at the very
+> least before merging this upstream.  If this isn't ACK-able, do we
+> have a plan to resolve this soon?
 
+Sorry, I had business trips last week. Will send the patches this week.
 
-Results from Linaro=E2=80=99s test farm.
+Roberto
 
-Reported-by: Linux Kernel Functional Testing <lkft@linaro.org>
-
-* sh, build
-  - gcc-8-dreamcast_defconfig
-  - gcc-8-microdev_defconfig
-
-
-Build error logs:
-`.exit.text' referenced in section `__bug_table' of crypto/algboss.o:
-defined in discarded section `.exit.text' of crypto/algboss.o
-`.exit.text' referenced in section `__bug_table' of
-drivers/char/hw_random/core.o: defined in discarded section
-`.exit.text' of drivers/char/hw_random/core.o
-make[2]: *** [/builds/linux/scripts/Makefile.vmlinux:34: vmlinux] Error 1
-
-Bisection points to this commit,
-    arch: fix broken BuildID for arm64 and riscv
-    commit 99cb0d917ffa1ab628bb67364ca9b162c07699b1 upstream.
-
-Ref:
-upstream discussion thread,
-https://lore.kernel.org/all/Y7Jal56f6UBh1abE@dev-arch.thelio-3990X/
-
-Steps to reproduce:
-# To install tuxmake on your system globally:
-# sudo pip3 install -U tuxmake
-#
-# See https://docs.tuxmake.org/ for complete documentation.
-# Original tuxmake command with fragments listed below.
-
-tuxmake --runtime podman --target-arch sh --toolchain gcc-8 --kconfig
-microdev_defconfig
-
-Build log links,
-https://storage.tuxsuite.com/public/linaro/lkft/builds/2KgeCQc3ZdltaEFoi0Cw=
-yJlUcuk/
-
---
-Linaro LKFT
-https://lkft.linaro.org
