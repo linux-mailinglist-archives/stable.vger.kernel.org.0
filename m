@@ -2,107 +2,203 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 04931678A8D
-	for <lists+stable@lfdr.de>; Mon, 23 Jan 2023 23:14:24 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id EC48A678BFC
+	for <lists+stable@lfdr.de>; Tue, 24 Jan 2023 00:25:29 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233233AbjAWWOW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 23 Jan 2023 17:14:22 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58790 "EHLO
+        id S231713AbjAWXZ2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 23 Jan 2023 18:25:28 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51054 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233166AbjAWWOA (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 23 Jan 2023 17:14:00 -0500
-Received: from mail-ej1-x634.google.com (mail-ej1-x634.google.com [IPv6:2a00:1450:4864:20::634])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BFDBC392B7
-        for <stable@vger.kernel.org>; Mon, 23 Jan 2023 14:13:32 -0800 (PST)
-Received: by mail-ej1-x634.google.com with SMTP id v6so34351768ejg.6
-        for <stable@vger.kernel.org>; Mon, 23 Jan 2023 14:13:32 -0800 (PST)
+        with ESMTP id S231245AbjAWXZ1 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 23 Jan 2023 18:25:27 -0500
+Received: from mail-pg1-x52e.google.com (mail-pg1-x52e.google.com [IPv6:2607:f8b0:4864:20::52e])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0999044AA
+        for <stable@vger.kernel.org>; Mon, 23 Jan 2023 15:25:26 -0800 (PST)
+Received: by mail-pg1-x52e.google.com with SMTP id r18so10180702pgr.12
+        for <stable@vger.kernel.org>; Mon, 23 Jan 2023 15:25:26 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=futuring-girl-com.20210112.gappssmtp.com; s=20210112;
-        h=cc:to:subject:message-id:date:from:in-reply-to:references
-         :mime-version:from:to:cc:subject:date:message-id:reply-to;
-        bh=rYPZ+3YT/ARBog0kfKkyDDBPModET6xjd2wsv8OlAvE=;
-        b=WXh+sD+kaChN4eOaCIw0TMZJr1IxW6MHJiCxhokTU3okHjoJ5FnMq9GXK2LwxnE1P8
-         0VkGNKmYE02Rox1UIC4Sn5jEamziyDba/YMDXSqQ8q4wuI1/CEYFmdnOj1u03wzgJrNy
-         q3jEpnFvUBMcwXcQGxNSJAV9ddhKRjxFy7FhJD95OQyQQSES8UzXDN6sqSm46k/9Q+3I
-         96M7DxyCsUQjRm2vuYlvGmBJnyqggF8qZlHSQZgnO6c3yjAZGbvhqSjV0K7fVlcTPOTp
-         7FLeAsGUtpXromrqzyz/rp/XxEXx5+7iXmTFTpoxCrYecyWt4nDIS2Tq1350S4gYbRzQ
-         3VSw==
+        d=google.com; s=20210112;
+        h=in-reply-to:content-transfer-encoding:content-disposition
+         :mime-version:references:message-id:subject:cc:to:from:date:from:to
+         :cc:subject:date:message-id:reply-to;
+        bh=GasCXjZfz4MKYwJwHukl2pdBsZh67+I2N//D6B0zamU=;
+        b=COGaZlvx3SmciGbu81hqZMERAREQRETI+4VTzCPg6LKJp23kxLfHvHfpOUs4bKBqWu
+         gFJVG/9kDBuy5X0d+p5+2PwX7cBxod5kBuk9g0uEhgkv4qDhZIVKdnKESJVSfxgE8eOv
+         CBIN6ukh39D9A/61L5BrBdQP75QsJtzQgbPytVKEKyTyppnxR4KFMy2ASiZ2L8UAxiIZ
+         00chSNQO9TYkDnkm/ISgrcVcgUuOKxtIa4S7fnsaOX3lWQaBGUzWwILYdg5eJ0osZPrn
+         lCyIqd23QFlu6Wfe3NMGZlKnGq8azy9zbiDeaKOhTf94qid8OgL5tHXidNvCR5skYLlO
+         leOw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=cc:to:subject:message-id:date:from:in-reply-to:references
-         :mime-version:x-gm-message-state:from:to:cc:subject:date:message-id
-         :reply-to;
-        bh=rYPZ+3YT/ARBog0kfKkyDDBPModET6xjd2wsv8OlAvE=;
-        b=AccyjGKVSWnDKr7hIMQkOMWp3odGF3ONCKU49VmG8L1tntV1jvBHrP9QKqRiSN3iRM
-         8nW4D/dJxNtZdlj2k8IQKDEKvOuXuVhMjoatc1PCh21KsIFEzQeafse9mFWny1K1vCdP
-         /sDLFFQlz1XnNOR7+nkUhXLbSoUsFRAKh93UBzlqMR2XGPNuS7xMFsKk1ay1ZFVHLwEj
-         kTwVM/ORSBaTNnpzoXaY9kcjSiHzktXYB5LSt3XxvMA0I8etCKGOBIQpqg9k58KXkWlu
-         wd+jslMuN4GX2b/jbx/b1J43B3LOaKEtJHvQwyAHCBh1vj7EWUM0gSLpHcQzpWVRKAJO
-         9iKQ==
-X-Gm-Message-State: AFqh2koKG5qYiH9z5+v6NqAEo3jmFT1nPUOjWgtIddQUMcpNzzN6hGX4
-        qPa6y6GUND/AsJ/kzKoxJt3ZJ2pnJgUUE/SrBd6a+maZkQadnwfMP24=
-X-Google-Smtp-Source: AMrXdXs2HnS1FJKy54VHK8KGVBckkCk5VAFa3vB+laLe/GcGT2JQehojeIFRMupuvIsIkQctXz+BF7H8u3GtSEje2FY=
-X-Received: by 2002:a17:906:151b:b0:7c1:6091:e7b with SMTP id
- b27-20020a170906151b00b007c160910e7bmr2615615ejd.513.1674512008619; Mon, 23
- Jan 2023 14:13:28 -0800 (PST)
+        h=in-reply-to:content-transfer-encoding:content-disposition
+         :mime-version:references:message-id:subject:cc:to:from:date
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
+        bh=GasCXjZfz4MKYwJwHukl2pdBsZh67+I2N//D6B0zamU=;
+        b=8FMDoJLyt4AN8Y/M8sl1kHl/HzSKa4DPkJnpFZ82i8QETi1G10Gvpnqpx6xRLCFQDD
+         /+gSSQSJtFlk2tyb6zVogsERMBzgrKAyAc6bxVhBl7awZfkSOPLUR7tOrfu8dYzUDI+M
+         4ByN/kKzTVA/z/Tw3SMKZ3Ate3+51BKzmdh4utrva0vQIK68LjA8K8VBWbdqILkO9x0a
+         GeJDotjZ5Qi1kIB/Sk+svesxUd3LLMuEhSFOFckdbCbHgwp/Im3m6nWCB/N/a2jgecwO
+         J/X4j3vOFL+4YBTs1QGqdcs/jxQ+XIsFpRwf4en5b/k/HF7Kk13wh8tjseSRqG3xqqPO
+         l/QQ==
+X-Gm-Message-State: AFqh2kpX5GrF0MW51UGU8ycSwRiH7FzqHVeyIugghyo7bexSYZlkwCb6
+        rkwlGRLSxWgLobJpEprB35yjyw==
+X-Google-Smtp-Source: AMrXdXtKaCGhioZ+WbBswMlqM+frTa0+XrI+F2SEhHfvnPnW3wauc2C2OwdTpdc0TPV/nL3XbZ/9aQ==
+X-Received: by 2002:a05:6a00:189a:b0:582:13b5:d735 with SMTP id x26-20020a056a00189a00b0058213b5d735mr935518pfh.0.1674516325300;
+        Mon, 23 Jan 2023 15:25:25 -0800 (PST)
+Received: from google.com (7.104.168.34.bc.googleusercontent.com. [34.168.104.7])
+        by smtp.gmail.com with ESMTPSA id u29-20020a056a00099d00b0058bbdaaa5e4sm125739pfg.162.2023.01.23.15.25.24
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Mon, 23 Jan 2023 15:25:24 -0800 (PST)
+Date:   Mon, 23 Jan 2023 23:25:21 +0000
+From:   Sean Christopherson <seanjc@google.com>
+To:     Wei Wang <wei.w.wang@intel.com>
+Cc:     pbonzini@redhat.com, kvm@vger.kernel.org,
+        linux-kernel@vger.kernel.org, stable@vger.kernel.org,
+        =?utf-8?B?5p+z6I+B5bOw?= <liujingfeng@qianxin.com>
+Subject: Re: [PATCH v1] KVM: destruct kvm_io_device while unregistering it
+ from kvm_io_bus
+Message-ID: <Y88XYR0L2DyiKnIM@google.com>
+References: <20221229123302.4083-1-wei.w.wang@intel.com>
 MIME-Version: 1.0
-References: <20230123094931.568794202@linuxfoundation.org>
-In-Reply-To: <20230123094931.568794202@linuxfoundation.org>
-From:   ogasawara takeshi <takeshi.ogasawara@futuring-girl.com>
-Date:   Tue, 24 Jan 2023 07:13:17 +0900
-Message-ID: <CAKL4bV5C27Su54FT7SSEDiCzH=2XB7JuPkZObD3HHsQB4NhxGA@mail.gmail.com>
-Subject: Re: [PATCH 6.1 000/188] 6.1.8-rc2 review
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     stable@vger.kernel.org, patches@lists.linux.dev,
-        linux-kernel@vger.kernel.org, torvalds@linux-foundation.org,
-        akpm@linux-foundation.org, linux@roeck-us.net, shuah@kernel.org,
-        patches@kernelci.org, lkft-triage@lists.linaro.org, pavel@denx.de,
-        jonathanh@nvidia.com, f.fainelli@gmail.com,
-        sudipm.mukherjee@gmail.com, srw@sladewatkins.net, rwarsow@gmx.de
-Content-Type: text/plain; charset="UTF-8"
-X-Spam-Status: No, score=-1.9 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS
-        autolearn=unavailable autolearn_force=no version=3.4.6
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <20221229123302.4083-1-wei.w.wang@intel.com>
+X-Spam-Status: No, score=-17.6 required=5.0 tests=BAYES_00,DKIMWL_WL_MED,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,
+        ENV_AND_HDR_SPF_MATCH,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS,
+        USER_IN_DEF_DKIM_WL,USER_IN_DEF_SPF_WL autolearn=ham
+        autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hi Greg
+On Thu, Dec 29, 2022, Wei Wang wrote:
+> Current usage of kvm_io_device requires users to destruct it with an extra
+> call of kvm_iodevice_destructor after the device gets unregistered from
+> the kvm_io_bus. This is not necessary and can cause errors if a user
+> forgot to make the extra call.
+> 
+> Simplify the usage by combining kvm_iodevice_destructor into
+> kvm_io_bus_unregister_dev. This reduces LOCs a bit for users and can
+> avoid the leakage of destructing the device explicitly.
+> 
+> The fix was originally provided by Sean Christopherson.
+> Link: https://lore.kernel.org/lkml/DS0PR11MB6373F27D0EE6CD28C784478BDCEC9@DS0PR11MB6373.namprd11.prod.outlook.com/T/
+> Fixes: 5d3c4c79384a ("KVM: Stop looking for coalesced MMIO zones if the bus is destroyed")
+> Cc: stable@vger.kernel.org
+> Reported-by: 柳菁峰 <liujingfeng@qianxin.com>
+> Signed-off-by: Wei Wang <wei.w.wang@intel.com>
+> ---
+>  include/kvm/iodev.h       |  6 ------
+>  virt/kvm/coalesced_mmio.c |  1 -
+>  virt/kvm/eventfd.c        |  1 -
+>  virt/kvm/kvm_main.c       | 24 +++++++++++++++---------
+>  4 files changed, 15 insertions(+), 17 deletions(-)
+> 
+> diff --git a/include/kvm/iodev.h b/include/kvm/iodev.h
+> index d75fc4365746..56619e33251e 100644
+> --- a/include/kvm/iodev.h
+> +++ b/include/kvm/iodev.h
+> @@ -55,10 +55,4 @@ static inline int kvm_iodevice_write(struct kvm_vcpu *vcpu,
+>  				 : -EOPNOTSUPP;
+>  }
+>  
+> -static inline void kvm_iodevice_destructor(struct kvm_io_device *dev)
+> -{
+> -	if (dev->ops->destructor)
+> -		dev->ops->destructor(dev);
+> -}
+> -
+>  #endif /* __KVM_IODEV_H__ */
+> diff --git a/virt/kvm/coalesced_mmio.c b/virt/kvm/coalesced_mmio.c
+> index 0be80c213f7f..d7135a5e76f8 100644
+> --- a/virt/kvm/coalesced_mmio.c
+> +++ b/virt/kvm/coalesced_mmio.c
+> @@ -195,7 +195,6 @@ int kvm_vm_ioctl_unregister_coalesced_mmio(struct kvm *kvm,
+>  			 */
+>  			if (r)
+>  				break;
+> -			kvm_iodevice_destructor(&dev->dev);
 
-On Mon, Jan 23, 2023 at 6:52 PM Greg Kroah-Hartman
-<gregkh@linuxfoundation.org> wrote:
->
-> This is the start of the stable review cycle for the 6.1.8 release.
-> There are 188 patches in this series, all will be posted as a response
-> to this one.  If anyone has any issues with these being applied, please
-> let me know.
->
-> Responses should be made by Wed, 25 Jan 2023 09:48:53 +0000.
-> Anything received after that time might be too late.
->
-> The whole patch series can be found in one patch at:
->         https://www.kernel.org/pub/linux/kernel/v6.x/stable-review/patch-6.1.8-rc2.gz
-> or in the git tree and branch at:
->         git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-6.1.y
-> and the diffstat can be found below.
->
-> thanks,
->
-> greg k-h
->
+The comment lurking above this is now stale.
 
-6.1.8-rc2 tested.
+>  		}
+>  	}
+>  
+> diff --git a/virt/kvm/eventfd.c b/virt/kvm/eventfd.c
+> index 2a3ed401ce46..1b277afb545b 100644
+> --- a/virt/kvm/eventfd.c
+> +++ b/virt/kvm/eventfd.c
+> @@ -898,7 +898,6 @@ kvm_deassign_ioeventfd_idx(struct kvm *kvm, enum kvm_bus bus_idx,
+>  		bus = kvm_get_bus(kvm, bus_idx);
+>  		if (bus)
+>  			bus->ioeventfd_count--;
+> -		ioeventfd_release(p);
+>  		ret = 0;
+>  		break;
+>  	}
+> diff --git a/virt/kvm/kvm_main.c b/virt/kvm/kvm_main.c
+> index 13e88297f999..582757ebdce6 100644
+> --- a/virt/kvm/kvm_main.c
+> +++ b/virt/kvm/kvm_main.c
+> @@ -5200,6 +5200,12 @@ static struct notifier_block kvm_reboot_notifier = {
+>  	.priority = 0,
+>  };
+>  
+> +static void kvm_iodevice_destructor(struct kvm_io_device *dev)
+> +{
+> +	if (dev->ops->destructor)
+> +		dev->ops->destructor(dev);
+> +}
+> +
+>  static void kvm_io_bus_destroy(struct kvm_io_bus *bus)
+>  {
+>  	int i;
+> @@ -5423,7 +5429,7 @@ int kvm_io_bus_register_dev(struct kvm *kvm, enum kvm_bus bus_idx, gpa_t addr,
+>  int kvm_io_bus_unregister_dev(struct kvm *kvm, enum kvm_bus bus_idx,
+>  			      struct kvm_io_device *dev)
+>  {
+> -	int i, j;
+> +	int i;
+>  	struct kvm_io_bus *new_bus, *bus;
+>  
+>  	lockdep_assert_held(&kvm->slots_lock);
+> @@ -5453,18 +5459,18 @@ int kvm_io_bus_unregister_dev(struct kvm *kvm, enum kvm_bus bus_idx,
+>  	rcu_assign_pointer(kvm->buses[bus_idx], new_bus);
+>  	synchronize_srcu_expedited(&kvm->srcu);
+>  
+> -	/* Destroy the old bus _after_ installing the (null) bus. */
+> +	/*
+> +	 * If (null) bus is installed, destroy the old bus, including all the
+> +	 * attached devices. Otherwise, destroy the caller's device only.
+> +	 */
+>  	if (!new_bus) {
+>  		pr_err("kvm: failed to shrink bus, removing it completely\n");
+> -		for (j = 0; j < bus->dev_count; j++) {
+> -			if (j == i)
+> -				continue;
+> -			kvm_iodevice_destructor(bus->range[j].dev);
+> -		}
+> +		kvm_io_bus_destroy(bus);
+> +		return -ENOMEM;
 
-x86_64
+Returning an error code is unnecessary if unregister_dev() destroys the bus.
+Nothing ultimately consumes the result, e.g. kvm_vm_ioctl_unregister_coalesced_mmio()
+intentionally ignores the result other than to bail from the loop, and destroying
+the bus means it will immediately bail from the loop anyways.
 
-build successfully completed.
-boot successfully completed.
-No dmesg regressions.
+>  	}
+>  
+> -	kfree(bus);
+> -	return new_bus ? 0 : -ENOMEM;
+> +	kvm_iodevice_destructor(dev);
+> +	return 0;
 
-Lenovo ThinkPad X1 Nano Gen1(Intel i5-1130G7, arch linux)
+Unless I'm misreading things, this path leaks "bus".
 
-Thanks
-
-Tested-by: Takeshi Ogasawara <takeshi.ogasawara@futuring-girl.com>
+Given that that intent is to send the fix for stable, that this is as much a
+cleanup as it is a bug fix, and that it's not super trivial, I'm inclined to queue
+my patch and then land this on top as cleanup.
