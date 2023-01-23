@@ -2,105 +2,94 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 637DA67790D
-	for <lists+stable@lfdr.de>; Mon, 23 Jan 2023 11:22:45 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 927D5677976
+	for <lists+stable@lfdr.de>; Mon, 23 Jan 2023 11:46:48 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230492AbjAWKWo (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 23 Jan 2023 05:22:44 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50048 "EHLO
+        id S230131AbjAWKqr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 23 Jan 2023 05:46:47 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33718 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230046AbjAWKWn (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 23 Jan 2023 05:22:43 -0500
-Received: from frasgout.his.huawei.com (frasgout.his.huawei.com [185.176.79.56])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9BCB6E390;
-        Mon, 23 Jan 2023 02:22:41 -0800 (PST)
-Received: from lhrpeml500005.china.huawei.com (unknown [172.18.147.201])
-        by frasgout.his.huawei.com (SkyGuard) with ESMTP id 4P0mL63q7Hz6J6Y4;
-        Mon, 23 Jan 2023 18:19:26 +0800 (CST)
-Received: from localhost (10.202.227.76) by lhrpeml500005.china.huawei.com
- (7.191.163.240) with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id 15.1.2375.34; Mon, 23 Jan
- 2023 10:22:38 +0000
-Date:   Mon, 23 Jan 2023 10:22:37 +0000
-From:   Jonathan Cameron <Jonathan.Cameron@Huawei.com>
-To:     Greg KH <gregkh@linuxfoundation.org>
-CC:     Leon Romanovsky <leon@kernel.org>,
-        Alexander Shishkin <alexander.shishkin@linux.intel.com>,
-        Bjorn Helgaas <bhelgaas@google.com>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        <linux-pci@vger.kernel.org>, <linux-kernel@vger.kernel.org>,
-        Marc Zyngier <maz@kernel.org>, <darwi@linutronix.de>,
-        <elena.reshetova@intel.com>, <kirill.shutemov@linux.intel.com>,
-        Mika Westerberg <mika.westerberg@linux.intel.com>,
-        <stable@vger.kernel.org>, Lukas Wunner <lukas@wunner.de>
-Subject: Re: [PATCH 1/2] PCI/MSI: Cache the MSIX table size
-Message-ID: <20230123102237.00006bfa@Huawei.com>
-In-Reply-To: <Y80WtujnO7kfduAZ@kroah.com>
-References: <20230119170633.40944-1-alexander.shishkin@linux.intel.com>
-        <20230119170633.40944-2-alexander.shishkin@linux.intel.com>
-        <Y8z7FPcuDXDBi+1U@unreal>
-        <Y80WtujnO7kfduAZ@kroah.com>
-Organization: Huawei Technologies Research and Development (UK) Ltd.
-X-Mailer: Claws Mail 4.1.0 (GTK 3.24.33; x86_64-w64-mingw32)
+        with ESMTP id S230040AbjAWKqq (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 23 Jan 2023 05:46:46 -0500
+X-Greylist: delayed 586 seconds by postgrey-1.37 at lindbergh.monkeyblade.net; Mon, 23 Jan 2023 02:46:45 PST
+Received: from smtp125.ord1d.emailsrvr.com (smtp125.ord1d.emailsrvr.com [184.106.54.125])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C6E2712F04
+        for <stable@vger.kernel.org>; Mon, 23 Jan 2023 02:46:45 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=mev.co.uk;
+        s=20221208-6x11dpa4; t=1674470218;
+        bh=Z+IifiGGM+WyRQOOe4AdS9A8ssaYsf35oBp4mZFia0A=;
+        h=From:To:Subject:Date:From;
+        b=JWtePymms3DAQ8Tt+1kK5v76GYM9XMq14VStGFKcoNn1OWkaPq+5MsTEMO/+x8o3z
+         JYhgVtuRNZcy1V3zeLB7M/UHf06lxOFU3oRS6Hrpfo2R2NCJmA/bV0EhLgSUXMCvHC
+         oazVEnD+zy6XIP91ZI4cypUU7Lr5yDrCSM638KgA=
+X-Auth-ID: abbotti@mev.co.uk
+Received: by smtp24.relay.ord1d.emailsrvr.com (Authenticated sender: abbotti-AT-mev.co.uk) with ESMTPSA id AF6ECA00BC;
+        Mon, 23 Jan 2023 05:36:57 -0500 (EST)
+From:   Ian Abbott <abbotti@mev.co.uk>
+To:     stable@vger.kernel.org
+Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Ian Abbott <abbotti@mev.co.uk>
+Subject: [PATCH 4.14] comedi: adv_pci1760: Fix PWM instruction handling
+Date:   Mon, 23 Jan 2023 10:36:41 +0000
+Message-Id: <20230123103641.9000-1-abbotti@mev.co.uk>
+X-Mailer: git-send-email 2.39.0
 MIME-Version: 1.0
-Content-Type: text/plain; charset="US-ASCII"
-Content-Transfer-Encoding: 7bit
-X-Originating-IP: [10.202.227.76]
-X-ClientProxiedBy: lhrpeml100006.china.huawei.com (7.191.160.224) To
- lhrpeml500005.china.huawei.com (7.191.163.240)
-X-CFilter-Loop: Reflected
-X-Spam-Status: No, score=-4.2 required=5.0 tests=BAYES_00,RCVD_IN_DNSWL_MED,
-        RCVD_IN_MSPIKE_H2,SPF_HELO_NONE,SPF_PASS autolearn=ham
-        autolearn_force=no version=3.4.6
+Content-Transfer-Encoding: 8bit
+X-Classification-ID: fbb9be5f-51ac-45f8-8b59-9e1e960e719a-1-1
+X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_NONE,
+        SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Sun, 22 Jan 2023 11:57:58 +0100
-Greg KH <gregkh@linuxfoundation.org> wrote:
+commit 2efb6edd52dc50273f5e68ad863dd1b1fb2f2d1c upstream.
 
-> On Sun, Jan 22, 2023 at 11:00:04AM +0200, Leon Romanovsky wrote:
-> > On Thu, Jan 19, 2023 at 07:06:32PM +0200, Alexander Shishkin wrote:  
-> > > A malicious device can change its MSIX table size between the table
-> > > ioremap() and subsequent accesses, resulting in a kernel page fault in
-> > > pci_write_msg_msix().
-> > > 
-> > > To avoid this, cache the table size observed at the moment of table
-> > > ioremap() and use the cached value. This, however, does not help drivers
-> > > that peek at the PCIE_MSIX_FLAGS register directly.
-> > > 
-> > > Signed-off-by: Alexander Shishkin <alexander.shishkin@linux.intel.com>
-> > > Reviewed-by: Mika Westerberg <mika.westerberg@linux.intel.com>
-> > > Cc: stable@vger.kernel.org
-> > > ---
-> > >  drivers/pci/msi/api.c | 7 ++++++-
-> > >  drivers/pci/msi/msi.c | 2 +-
-> > >  include/linux/pci.h   | 1 +
-> > >  3 files changed, 8 insertions(+), 2 deletions(-)  
-> > 
-> > I'm not security expert here, but not sure that this protects from anything.
-> > 1. Kernel relies on working and not-malicious HW. There are gazillion ways
-> > to cause crashes other than changing MSI-X.  
-> 
-> Linux does NOT protect from malicious PCIe devices at this point in
-> time, you are correct.  If we wish to change that model, then we can
-> work on that with the explict understanding that most all drivers will
-> need to change as will the bus logic for the busses involved.
-> 
-> To do piece-meal patches like this for no good reason is not a good idea
-> as it achieves nothing in the end :(
-> 
-> thanks,
-> 
-> greg k-h
+(Actually, this is fixing the "Read the Current Status" command sent to
+the device's outgoing mailbox, but it is only currently used for the PWM
+instructions.)
 
-If you care enough about potential malicious PCIe devices, do device
-attestation and reject any devices that don't support it (which means
-rejecting pretty much everything today ;).
-Or potentially limit what non attested devices are allowed to do.
+The PCI-1760 is operated mostly by sending commands to a set of Outgoing
+Mailbox registers, waiting for the command to complete, and reading the
+result from the Incoming Mailbox registers.  One of these commands is
+the "Read the Current Status" command.  The number of this command is
+0x07 (see the User's Manual for the PCI-1760 at
+<https://advdownload.advantech.com/productfile/Downloadfile2/1-11P6653/PCI-1760.pdf>.
+The `PCI1760_CMD_GET_STATUS` macro defined in the driver should expand
+to this command number 0x07, but unfortunately it currently expands to
+0x03.  (Command number 0x03 is not defined in the User's Manual.)
+Correct the definition of the `PCI1760_CMD_GET_STATUS` macro to fix it.
 
-+CC Lukas who is working on this.
+This is used by all the PWM subdevice related instructions handled by
+`pci1760_pwm_insn_config()` which are probably all broken.  The effect
+of sending the undefined command number 0x03 is not known.
 
-Jonathan
+Fixes: 14b93bb6bbf0 ("staging: comedi: adv_pci_dio: separate out PCI-1760 support")
+Cc: <stable@vger.kernel.org> # v4.5+
+Signed-off-by: Ian Abbott <abbotti@mev.co.uk>
+Link: https://lore.kernel.org/r/20230103143754.17564-1-abbotti@mev.co.uk
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+---
+Should apply OK to v4.5 to v4.18 inclusive. [IA]
+---
+ drivers/staging/comedi/drivers/adv_pci1760.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/drivers/staging/comedi/drivers/adv_pci1760.c b/drivers/staging/comedi/drivers/adv_pci1760.c
+index 9f525ff7290c..67b0cf0b9066 100644
+--- a/drivers/staging/comedi/drivers/adv_pci1760.c
++++ b/drivers/staging/comedi/drivers/adv_pci1760.c
+@@ -68,7 +68,7 @@
+ #define PCI1760_CMD_CLR_IMB2		0x00	/* Clears IMB2 */
+ #define PCI1760_CMD_SET_DO		0x01	/* Set output state */
+ #define PCI1760_CMD_GET_DO		0x02	/* Read output status */
+-#define PCI1760_CMD_GET_STATUS		0x03	/* Read current status */
++#define PCI1760_CMD_GET_STATUS		0x07	/* Read current status */
+ #define PCI1760_CMD_GET_FW_VER		0x0e	/* Read firware version */
+ #define PCI1760_CMD_GET_HW_VER		0x0f	/* Read hardware version */
+ #define PCI1760_CMD_SET_PWM_HI(x)	(0x10 + (x) * 2) /* Set "hi" period */
+-- 
+2.39.0
+
