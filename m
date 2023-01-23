@@ -2,99 +2,171 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 2B4F667829B
-	for <lists+stable@lfdr.de>; Mon, 23 Jan 2023 18:10:20 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0ADC367830A
+	for <lists+stable@lfdr.de>; Mon, 23 Jan 2023 18:26:19 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232278AbjAWRKS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 23 Jan 2023 12:10:18 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46292 "EHLO
+        id S233679AbjAWR0S (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 23 Jan 2023 12:26:18 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34150 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231371AbjAWRKR (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 23 Jan 2023 12:10:17 -0500
-Received: from mx0a-0031df01.pphosted.com (mx0a-0031df01.pphosted.com [205.220.168.131])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E5203A7;
-        Mon, 23 Jan 2023 09:10:16 -0800 (PST)
-Received: from pps.filterd (m0279862.ppops.net [127.0.0.1])
-        by mx0a-0031df01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 30NGvN6J026960;
-        Mon, 23 Jan 2023 17:10:08 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=quicinc.com; h=message-id : date :
- mime-version : subject : to : cc : references : from : in-reply-to :
- content-type : content-transfer-encoding; s=qcppdkim1;
- bh=pTuOp5LlMUVJWR1XuURU/ySq8b3L4N71BJXYI/OV+6E=;
- b=MizU+vAIFrxeHgG3Nw8kzDabUB3yyGEesamgjRdIugYNUF90iDknigCtVi3MEwkHuDEX
- 8GUYzix1F5ugVfoF2WI7h03KJQyMKZyXkr45TPboac09oZJFuEJGZwm28ABqOzr4IAbr
- /eXl1jjNBrFmc4aSiet/RwpuZMCMkwfaIWJiyzjWIDgQWFF1OQxqrxatWk4tldm7hr1f
- ZKhva2YLPJuWavmLkk/iEfON94dac7GDC2snJ73m5Og5VRJxxXQsR3NSywx6UrWRCan1
- kyLhj8jZPdnrkaYj4qe/Wdr4j6OZoems00DoukfOn1N5GEUr+uk2Y96iI0ng2jVyRAbK 4Q== 
-Received: from nalasppmta03.qualcomm.com (Global_NAT1.qualcomm.com [129.46.96.20])
-        by mx0a-0031df01.pphosted.com (PPS) with ESMTPS id 3n89gt3cuf-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Mon, 23 Jan 2023 17:10:08 +0000
-Received: from nalasex01a.na.qualcomm.com (nalasex01a.na.qualcomm.com [10.47.209.196])
-        by NALASPPMTA03.qualcomm.com (8.17.1.5/8.17.1.5) with ESMTPS id 30NHA7GO007117
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Mon, 23 Jan 2023 17:10:07 GMT
-Received: from [10.226.59.182] (10.80.80.8) by nalasex01a.na.qualcomm.com
- (10.47.209.196) with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.2.986.36; Mon, 23 Jan
- 2023 09:10:07 -0800
-Message-ID: <59422195-28eb-4617-2529-5e997e5a7903@quicinc.com>
-Date:   Mon, 23 Jan 2023 10:10:06 -0700
+        with ESMTP id S233671AbjAWR0R (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 23 Jan 2023 12:26:17 -0500
+Received: from mga12.intel.com (mga12.intel.com [192.55.52.136])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A156E2367C;
+        Mon, 23 Jan 2023 09:26:04 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
+  t=1674494764; x=1706030764;
+  h=from:to:cc:subject:date:message-id:mime-version:
+   content-transfer-encoding;
+  bh=RP+wYCAJL0M0LJuF5F7wBJukpGj1LEvq6KdJ4YEAF1E=;
+  b=ZwBBW6DepfSC4fkCo5HCfQpYH9DuJk0x5mkJbSz9WsWERG+7tmhHlIqq
+   a1XEP4VVy1OYW+tKJQak79OlTlLQ6aVj1m6v61zIKHn2RNovpGRQ2/ef9
+   MdwxcxjhOXb6U+GeQL0ukFX81kewobAZUXtxFmsVdSgYJDeavc2JMk6Y/
+   XQ6Gc9xKC5Hb/LprV84lz3jXkvjlBTKXRqZzsl7s9MxUYZg/icS7BAEkR
+   fXY9mPPBAxKKh6hD5Ky9rzkBJt+V6V+iRyi4fOjir95KmbTfeJTtg4B90
+   lq0Q0kWZsrmd9aCD14A7H2RTA6nmeprNCt9gnDDCSMbeH5UNTfMFjimKw
+   w==;
+X-IronPort-AV: E=McAfee;i="6500,9779,10599"; a="305757323"
+X-IronPort-AV: E=Sophos;i="5.97,240,1669104000"; 
+   d="scan'208";a="305757323"
+Received: from fmsmga004.fm.intel.com ([10.253.24.48])
+  by fmsmga106.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 23 Jan 2023 09:21:11 -0800
+X-ExtLoop1: 1
+X-IronPort-AV: E=McAfee;i="6500,9779,10599"; a="730355012"
+X-IronPort-AV: E=Sophos;i="5.97,240,1669104000"; 
+   d="scan'208";a="730355012"
+Received: from spandruv-desk.jf.intel.com ([10.54.75.8])
+  by fmsmga004.fm.intel.com with ESMTP; 23 Jan 2023 09:21:11 -0800
+From:   Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>
+To:     rafael@kernel.org, rui.zhang@intel.com, daniel.lezcano@linaro.org
+Cc:     linux-pm@vger.kernel.org, linux-kernel@vger.kernel.org,
+        Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>,
+        stable@vger.kernel.org
+Subject: [PATCH v2] thermal: int340x: Protect trip temperature from dynamic update
+Date:   Mon, 23 Jan 2023 09:21:10 -0800
+Message-Id: <20230123172110.376549-1-srinivas.pandruvada@linux.intel.com>
+X-Mailer: git-send-email 2.31.1
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:91.0) Gecko/20100101
- Thunderbird/91.6.0
-Subject: Re: [PATCH] bus: mhi: ep: Change state_lock to mutex
-Content-Language: en-US
-To:     Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>,
-        <mhi@lists.linux.dev>
-CC:     <linux-arm-msm@vger.kernel.org>, <linux-kernel@vger.kernel.org>,
-        <stable@vger.kernel.org>, Dan Carpenter <error27@gmail.com>
-References: <20230123075049.168040-1-manivannan.sadhasivam@linaro.org>
-From:   Jeffrey Hugo <quic_jhugo@quicinc.com>
-In-Reply-To: <20230123075049.168040-1-manivannan.sadhasivam@linaro.org>
-Content-Type: text/plain; charset="UTF-8"; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Originating-IP: [10.80.80.8]
-X-ClientProxiedBy: nasanex01b.na.qualcomm.com (10.46.141.250) To
- nalasex01a.na.qualcomm.com (10.47.209.196)
-X-QCInternal: smtphost
-X-Proofpoint-Virus-Version: vendor=nai engine=6200 definitions=5800 signatures=585085
-X-Proofpoint-GUID: n9SL77rLGTAsIWFNr5Pd4S64zT4LmzVV
-X-Proofpoint-ORIG-GUID: n9SL77rLGTAsIWFNr5Pd4S64zT4LmzVV
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.219,Aquarius:18.0.930,Hydra:6.0.562,FMLib:17.11.122.1
- definitions=2023-01-23_12,2023-01-23_01,2022-06-22_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 mlxlogscore=376 spamscore=0
- priorityscore=1501 lowpriorityscore=0 bulkscore=0 adultscore=0
- clxscore=1011 mlxscore=0 suspectscore=0 phishscore=0 impostorscore=0
- malwarescore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2212070000 definitions=main-2301230165
-X-Spam-Status: No, score=-3.9 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,NICE_REPLY_A,RCVD_IN_DNSWL_LOW,
-        SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
+Content-Transfer-Encoding: 8bit
+X-Spam-Status: No, score=-4.3 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,SPF_HELO_PASS,
+        SPF_NONE autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 1/23/2023 12:50 AM, Manivannan Sadhasivam wrote:
-> state_lock, the spinlock type is meant to protect race against concurrent
-> MHI state transitions. In mhi_ep_set_m0_state(), while the state_lock is
-> being held, the channels are resumed in mhi_ep_resume_channels() if the
-> previous state was M3. This causes sleeping in atomic bug, since
-> mhi_ep_resume_channels() use mutex internally.
-> 
-> Since the state_lock is supposed to be held throughout the state change,
-> it is not ideal to drop the lock before calling mhi_ep_resume_channels().
-> So to fix this issue, let's change the type of state_lock to mutex. This
-> would also allow holding the lock throughout all state transitions thereby
-> avoiding any potential race.
-> 
-> Cc: <stable@vger.kernel.org> # 5.19
-> Fixes: e4b7b5f0f30a ("bus: mhi: ep: Add support for suspending and resuming channels")
-> Reported-by: Dan Carpenter <error27@gmail.com>
-> Signed-off-by: Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>
+Trip temperatures are read using ACPI methods and stored in the memory
+during zone initializtion and when the firmware sends a notification for
+change. This trip temperature is returned when the thermal core calls via
+callback get_trip_temp().
 
-Looks sane.
-Reviewed-by: Jeffrey Hugo <quic_jhugo@quicinc.com>
+But it is possible that while updating the memory copy of the trips when
+the firmware sends a notification for change, thermal core is reading the
+trip temperature via the callback get_trip_temp(). This may return invalid
+trip temperature.
+
+To address this add a mutex to protect the invalid temperature reads in
+the callback get_trip_temp() and int340x_thermal_read_trips().
+
+Signed-off-by: Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>
+Cc: stable@vger.kernel.org # 5.0+
+---
+v2:
+- rebased on linux-next
+- Add ret variable and remove return as suugested by Rafael
+
+ .../int340x_thermal/int340x_thermal_zone.c     | 18 +++++++++++++++---
+ .../int340x_thermal/int340x_thermal_zone.h     |  1 +
+ 2 files changed, 16 insertions(+), 3 deletions(-)
+
+diff --git a/drivers/thermal/intel/int340x_thermal/int340x_thermal_zone.c b/drivers/thermal/intel/int340x_thermal/int340x_thermal_zone.c
+index 228f44260b27..5fda1e67b793 100644
+--- a/drivers/thermal/intel/int340x_thermal/int340x_thermal_zone.c
++++ b/drivers/thermal/intel/int340x_thermal/int340x_thermal_zone.c
+@@ -41,7 +41,9 @@ static int int340x_thermal_get_trip_temp(struct thermal_zone_device *zone,
+ 					 int trip, int *temp)
+ {
+ 	struct int34x_thermal_zone *d = zone->devdata;
+-	int i;
++	int i, ret = 0;
++
++	mutex_lock(&d->trip_mutex);
+ 
+ 	if (trip < d->aux_trip_nr)
+ 		*temp = d->aux_trips[trip];
+@@ -60,10 +62,12 @@ static int int340x_thermal_get_trip_temp(struct thermal_zone_device *zone,
+ 			}
+ 		}
+ 		if (i == INT340X_THERMAL_MAX_ACT_TRIP_COUNT)
+-			return -EINVAL;
++			ret = -EINVAL;
+ 	}
+ 
+-	return 0;
++	mutex_unlock(&d->trip_mutex);
++
++	return ret;
+ }
+ 
+ static int int340x_thermal_get_trip_type(struct thermal_zone_device *zone,
+@@ -165,6 +169,8 @@ int int340x_thermal_read_trips(struct int34x_thermal_zone *int34x_zone)
+ 	int trip_cnt = int34x_zone->aux_trip_nr;
+ 	int i;
+ 
++	mutex_lock(&int34x_zone->trip_mutex);
++
+ 	int34x_zone->crt_trip_id = -1;
+ 	if (!int340x_thermal_get_trip_config(int34x_zone->adev->handle, "_CRT",
+ 					     &int34x_zone->crt_temp))
+@@ -192,6 +198,8 @@ int int340x_thermal_read_trips(struct int34x_thermal_zone *int34x_zone)
+ 		int34x_zone->act_trips[i].valid = true;
+ 	}
+ 
++	mutex_unlock(&int34x_zone->trip_mutex);
++
+ 	return trip_cnt;
+ }
+ EXPORT_SYMBOL_GPL(int340x_thermal_read_trips);
+@@ -215,6 +223,8 @@ struct int34x_thermal_zone *int340x_thermal_zone_add(struct acpi_device *adev,
+ 	if (!int34x_thermal_zone)
+ 		return ERR_PTR(-ENOMEM);
+ 
++	mutex_init(&int34x_thermal_zone->trip_mutex);
++
+ 	int34x_thermal_zone->adev = adev;
+ 
+ 	int34x_thermal_zone->ops = kmemdup(&int340x_thermal_zone_ops,
+@@ -277,6 +287,7 @@ struct int34x_thermal_zone *int340x_thermal_zone_add(struct acpi_device *adev,
+ err_trip_alloc:
+ 	kfree(int34x_thermal_zone->ops);
+ err_ops_alloc:
++	mutex_destroy(&int34x_thermal_zone->trip_mutex);
+ 	kfree(int34x_thermal_zone);
+ 	return ERR_PTR(ret);
+ }
+@@ -289,6 +300,7 @@ void int340x_thermal_zone_remove(struct int34x_thermal_zone
+ 	acpi_lpat_free_conversion_table(int34x_thermal_zone->lpat_table);
+ 	kfree(int34x_thermal_zone->aux_trips);
+ 	kfree(int34x_thermal_zone->ops);
++	mutex_destroy(&int34x_thermal_zone->trip_mutex);
+ 	kfree(int34x_thermal_zone);
+ }
+ EXPORT_SYMBOL_GPL(int340x_thermal_zone_remove);
+diff --git a/drivers/thermal/intel/int340x_thermal/int340x_thermal_zone.h b/drivers/thermal/intel/int340x_thermal/int340x_thermal_zone.h
+index e28ab1ba5e06..6610a9cc441b 100644
+--- a/drivers/thermal/intel/int340x_thermal/int340x_thermal_zone.h
++++ b/drivers/thermal/intel/int340x_thermal/int340x_thermal_zone.h
+@@ -32,6 +32,7 @@ struct int34x_thermal_zone {
+ 	struct thermal_zone_device_ops *ops;
+ 	void *priv_data;
+ 	struct acpi_lpat_conversion_table *lpat_table;
++	struct mutex trip_mutex;
+ };
+ 
+ struct int34x_thermal_zone *int340x_thermal_zone_add(struct acpi_device *,
+-- 
+2.31.1
+
