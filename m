@@ -2,97 +2,105 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 5477E679D75
-	for <lists+stable@lfdr.de>; Tue, 24 Jan 2023 16:28:28 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0E1F5679D77
+	for <lists+stable@lfdr.de>; Tue, 24 Jan 2023 16:28:36 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235039AbjAXP21 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 24 Jan 2023 10:28:27 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42056 "EHLO
+        id S234964AbjAXP2e (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 24 Jan 2023 10:28:34 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42204 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235102AbjAXP2X (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 24 Jan 2023 10:28:23 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 34AD41A96D;
-        Tue, 24 Jan 2023 07:28:18 -0800 (PST)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id BFFF6612CF;
-        Tue, 24 Jan 2023 15:28:17 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 934D3C433D2;
-        Tue, 24 Jan 2023 15:28:16 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1674574097;
-        bh=DFV2/9gj6sPEo6k2DtJ6ywijKdwcFb8PC1ifLycfAFI=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=1tgPOElY70AjKYefZZ3RvfK47hsmQEB/T1V2sauA4iCGt321FSN4QO4E2DfQ38UhA
-         CnQDFsiYJPkrsutVqOt7ARcFe+xCBu0X7wJZDMz6FDXFpqQSFCip/myisS1FBQ3pkk
-         04L7FQnpu6Cpbb7Y4cIF0zfQQZ3R+FkIwVeRVF5E=
-Date:   Tue, 24 Jan 2023 16:28:12 +0100
-From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     Sasha Levin <sashal@kernel.org>
-Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
-        Jordy Zomer <jordyzomer@google.com>,
-        Linus Torvalds <torvalds@linuxfoundation.org>,
-        ebiederm@xmission.com, brho@google.com, catalin.marinas@arm.com,
-        broonie@kernel.org, legion@kernel.org, Jason@zx2c4.com,
-        surenb@google.com
-Subject: Re: [PATCH AUTOSEL 6.1 34/35] prlimit: do_prlimit needs to have a
- speculation check
-Message-ID: <Y8/5DKfHZ2Mj7m8Q@kroah.com>
-References: <20230124134131.637036-1-sashal@kernel.org>
- <20230124134131.637036-34-sashal@kernel.org>
+        with ESMTP id S234994AbjAXP2d (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 24 Jan 2023 10:28:33 -0500
+Received: from mga09.intel.com (mga09.intel.com [134.134.136.24])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C19D865A8;
+        Tue, 24 Jan 2023 07:28:32 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
+  t=1674574112; x=1706110112;
+  h=from:to:cc:subject:in-reply-to:references:date:
+   message-id:mime-version;
+  bh=tkzGpVlFyCfFjd/vFXWy7GqH6aY1OKezZNGGV0z+nSY=;
+  b=lPBi56tc4A08dFfvTkUhbp2MvwEO7agQwJapJPOaNp+WIxVS1KDcI/mB
+   gI+IhS57poVmaUtL5HymCJRhB7035uwwmGMwiPrPfCAnPMvKe/yqpYlbT
+   nYw2hDM5QsHwa5d8u79MrOmGgaZEYwZjBjHbe63Qv9TXaoZf3OJE0MChL
+   MHK4H6M+NBNrWhZOC6+9ynqg67v1CwG3VeTw8RgfD93s40OPeGO05GahY
+   xHo7kvkyF9HHH5Ce/Om9dKpO4i2eQxjHnt8QD04FKxGtBnWdgfJilWS8d
+   6j9Z5Rr0dgW2OVe0Rk0F905ONUJRKoiqsqau50/GOQdkh+opcXJCc6XuR
+   w==;
+X-IronPort-AV: E=McAfee;i="6500,9779,10599"; a="327575317"
+X-IronPort-AV: E=Sophos;i="5.97,242,1669104000"; 
+   d="scan'208";a="327575317"
+Received: from fmsmga002.fm.intel.com ([10.253.24.26])
+  by orsmga102.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 24 Jan 2023 07:28:32 -0800
+X-ExtLoop1: 1
+X-IronPort-AV: E=McAfee;i="6500,9779,10599"; a="770354522"
+X-IronPort-AV: E=Sophos;i="5.97,242,1669104000"; 
+   d="scan'208";a="770354522"
+Received: from ubik.fi.intel.com (HELO localhost) ([10.237.72.184])
+  by fmsmga002.fm.intel.com with ESMTP; 24 Jan 2023 07:28:28 -0800
+From:   Alexander Shishkin <alexander.shishkin@linux.intel.com>
+To:     Leon Romanovsky <leon@kernel.org>
+Cc:     Bjorn Helgaas <bhelgaas@google.com>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        linux-pci@vger.kernel.org, linux-kernel@vger.kernel.org,
+        Marc Zyngier <maz@kernel.org>, darwi@linutronix.de,
+        elena.reshetova@intel.com, kirill.shutemov@linux.intel.com,
+        Mika Westerberg <mika.westerberg@linux.intel.com>,
+        stable@vger.kernel.org, alexander.shishkin@linux.intel.com
+Subject: Re: [PATCH 1/2] PCI/MSI: Cache the MSIX table size
+In-Reply-To: <Y8/WPAqZACAHcmf+@unreal>
+References: <20230119170633.40944-1-alexander.shishkin@linux.intel.com>
+ <20230119170633.40944-2-alexander.shishkin@linux.intel.com>
+ <Y8z7FPcuDXDBi+1U@unreal> <87v8kwp2t6.fsf@ubik.fi.intel.com>
+ <Y8/Kyzh+stow83lQ@unreal> <87pmb4p0ik.fsf@ubik.fi.intel.com>
+ <Y8/WPAqZACAHcmf+@unreal>
+Date:   Tue, 24 Jan 2023 17:28:27 +0200
+Message-ID: <87mt68ostg.fsf@ubik.fi.intel.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20230124134131.637036-34-sashal@kernel.org>
-X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
-        SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
+Content-Type: text/plain
+X-Spam-Status: No, score=-4.3 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
+        RCVD_IN_MSPIKE_H3,RCVD_IN_MSPIKE_WL,SPF_HELO_NONE,SPF_NONE
+        autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, Jan 24, 2023 at 08:41:30AM -0500, Sasha Levin wrote:
-> From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-> 
-> [ Upstream commit 739790605705ddcf18f21782b9c99ad7d53a8c11 ]
-> 
-> do_prlimit() adds the user-controlled resource value to a pointer that
-> will subsequently be dereferenced.  In order to help prevent this
-> codepath from being used as a spectre "gadget" a barrier needs to be
-> added after checking the range.
-> 
-> Reported-by: Jordy Zomer <jordyzomer@google.com>
-> Tested-by: Jordy Zomer <jordyzomer@google.com>
-> Suggested-by: Linus Torvalds <torvalds@linuxfoundation.org>
-> Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-> Signed-off-by: Sasha Levin <sashal@kernel.org>
-> ---
->  kernel/sys.c | 2 ++
->  1 file changed, 2 insertions(+)
-> 
-> diff --git a/kernel/sys.c b/kernel/sys.c
-> index 5fd54bf0e886..88b31f096fb2 100644
-> --- a/kernel/sys.c
-> +++ b/kernel/sys.c
-> @@ -1442,6 +1442,8 @@ static int do_prlimit(struct task_struct *tsk, unsigned int resource,
->  
->  	if (resource >= RLIM_NLIMITS)
->  		return -EINVAL;
-> +	resource = array_index_nospec(resource, RLIM_NLIMITS);
-> +
->  	if (new_rlim) {
->  		if (new_rlim->rlim_cur > new_rlim->rlim_max)
->  			return -EINVAL;
-> -- 
-> 2.39.0
-> 
+Leon Romanovsky <leon@kernel.org> writes:
 
-This is already in the 6.1.8 release so no need to add it again :)
+> On Tue, Jan 24, 2023 at 02:42:11PM +0200, Alexander Shishkin wrote:
+>> Leon Romanovsky <leon@kernel.org> writes:
+>> 
+>> A malicious device is what the fuzzing is aiming to simulate. The fact
+>> of fuzzing process itself didn't seem relevant to the patch, so I didn't
+>> include it, going instead for the problem statement and proposed
+>> solution. Will the commit message benefit from mentioning fuzzing?
+>
+> No, for most if not all kernel developers, the fuzzing means some sort of
+> random user-space input. PCI devices are trusted in the kernel.
 
-thanks,
+Right, it's a different kind of fuzzing. Apologies, I should have made
+it clear.
 
-greg k-h
+>> > Do you see "gazillion bugs" for devices which don't change their MSI-X
+>> > table size under the hood, which is main kernel assumption?
+>> 
+>> Not so far.
+>
+> So please share them with us.
+
+We do, as soon as we find them. This patch is one such instance.
+
+>> > If yes, you should fix these bugs.
+>> 
+>> That's absolutely the intention.
+>
+> So let's fix the bugs and not hide them.
+
+Yes, that's what this patch aims to achieve.
+
+Thanks,
+--
+Alex
