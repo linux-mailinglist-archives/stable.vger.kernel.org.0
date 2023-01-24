@@ -2,46 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 1B64B6799EB
-	for <lists+stable@lfdr.de>; Tue, 24 Jan 2023 14:43:23 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B7CE6679A04
+	for <lists+stable@lfdr.de>; Tue, 24 Jan 2023 14:44:07 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234249AbjAXNnV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 24 Jan 2023 08:43:21 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35722 "EHLO
+        id S234441AbjAXNoG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 24 Jan 2023 08:44:06 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35770 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234357AbjAXNnA (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 24 Jan 2023 08:43:00 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EE60E46704;
-        Tue, 24 Jan 2023 05:42:25 -0800 (PST)
+        with ESMTP id S234353AbjAXNnW (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 24 Jan 2023 08:43:22 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9432416ADA;
+        Tue, 24 Jan 2023 05:42:50 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id A835FB811C6;
-        Tue, 24 Jan 2023 13:42:23 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 38FF6C433D2;
-        Tue, 24 Jan 2023 13:42:21 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 29E4C611FB;
+        Tue, 24 Jan 2023 13:42:24 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id DB334C4339E;
+        Tue, 24 Jan 2023 13:42:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1674567742;
-        bh=WhbR4MKUsgKinL0jOlu+gZ1A1HqWpjQDjDpuRn+pUAE=;
+        s=k20201202; t=1674567743;
+        bh=nJiWgpzWd6hhFQU6GhD6OaPA7BegalhHIgD4b+07wS0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=M/MJ5kwzICklEY428k9j1EOuA8iMk2LfT5uyKilKkAblB9YVLCNguu0ija/5DGxs8
-         ngfe2ge87+1IjMLwLkXisSTFANLLYPaJl+zUT4jOGyuZKChhCGH1dYO+6peZWunxQ3
-         +XJssQIGU2SXYUm1bt9QLhkwzBxcPfJTI8URlRyd8EVFEAIM45ccgOwm6E6HIG4rhL
-         Dq6kw1g4OLsLhAUAQ7C6zMvyRT1lCsuMHd5oQgHp6ymb+sj6Ipg9O24OivLPRHGm/G
-         aGeUgrzOUoyYYnZyM7mB0CCKmnWi5kcZ68on+9OBMAFPSU7s2uGoNYQotAw5a/c1xd
-         /k4uUtINbj8wA==
+        b=oBEP/WzyMeZMCRCKQPhj4IA/Y3E4w7F9VU3PLltuWjmATkMBs3VumTabEM/42GAyp
+         GnnDRfC0LVZNfBDB9OrBNCQLNTPeaXWN1YzpEEWYIoCdM191kG363zbmDGFAYkoPEJ
+         WzXuE7YJa9QKc3vatBtPt3oHDLQlajpxWpNTQQ2C8aa3DCx8U4fhH76uZMtu0gAtTI
+         dn2LzkOEPBRJkW1/2VxeE2fm+7uu2Y/PVUuC7VerfbYnLyKLsamKm7q+GgLyFVHndX
+         UKexa/xfCDGmoCdyD5WSJLm0zhudjX/xq7mIiE70Lp2oFSxJYitPFnOkHK2qZccOp/
+         k2PQg+nS3TdlA==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Jinyang He <hejinyang@loongson.cn>,
-        Huacai Chen <chenhuacai@loongson.cn>,
-        Sasha Levin <sashal@kernel.org>, chenhuacai@kernel.org,
-        git@xen0n.name, zhangqing@loongson.cn, jiaxun.yang@flygoat.com,
-        jack@suse.cz, Jason@zx2c4.com, wangkailong@jari.cn,
-        loongarch@lists.linux.dev
-Subject: [PATCH AUTOSEL 6.1 17/35] LoongArch: Get frame info in unwind_start() when regs is not available
-Date:   Tue, 24 Jan 2023 08:41:13 -0500
-Message-Id: <20230124134131.637036-17-sashal@kernel.org>
+Cc:     Hans de Goede <hdegoede@redhat.com>,
+        "Rafael J . Wysocki" <rafael.j.wysocki@intel.com>,
+        Sasha Levin <sashal@kernel.org>, rafael@kernel.org,
+        linux-acpi@vger.kernel.org
+Subject: [PATCH AUTOSEL 6.1 18/35] ACPI: video: Add backlight=native DMI quirk for Acer Aspire 4810T
+Date:   Tue, 24 Jan 2023 08:41:14 -0500
+Message-Id: <20230124134131.637036-18-sashal@kernel.org>
 X-Mailer: git-send-email 2.39.0
 In-Reply-To: <20230124134131.637036-1-sashal@kernel.org>
 References: <20230124134131.637036-1-sashal@kernel.org>
@@ -58,98 +56,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jinyang He <hejinyang@loongson.cn>
+From: Hans de Goede <hdegoede@redhat.com>
 
-[ Upstream commit 429a9671f235c94fc4b5d6687308714b74adc820 ]
+[ Upstream commit 8ba5fc4c154aeb3b4620f05543cce426c62ed2de ]
 
-At unwind_start(), it is better to get its frame info here rather than
-get them outside, even we don't have 'regs'. In this way we can simply
-use unwind_{start, next_frame, done} outside.
+The Acer Aspire 4810T predates Windows 8, so it defaults to using
+acpi_video# for backlight control, but this is non functional on
+this model.
 
-Signed-off-by: Jinyang He <hejinyang@loongson.cn>
-Signed-off-by: Huacai Chen <chenhuacai@loongson.cn>
+Add a DMI quirk to use the native backlight interface which does
+work properly.
+
+Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/loongarch/kernel/process.c         | 12 +++---------
- arch/loongarch/kernel/unwind_guess.c    |  6 ++++++
- arch/loongarch/kernel/unwind_prologue.c | 16 +++++++++++++---
- 3 files changed, 22 insertions(+), 12 deletions(-)
+ drivers/acpi/video_detect.c | 8 ++++++++
+ 1 file changed, 8 insertions(+)
 
-diff --git a/arch/loongarch/kernel/process.c b/arch/loongarch/kernel/process.c
-index ddb8ba4eb399..90a5de746332 100644
---- a/arch/loongarch/kernel/process.c
-+++ b/arch/loongarch/kernel/process.c
-@@ -185,20 +185,14 @@ int copy_thread(struct task_struct *p, const struct kernel_clone_args *args)
- 
- unsigned long __get_wchan(struct task_struct *task)
- {
--	unsigned long pc;
-+	unsigned long pc = 0;
- 	struct unwind_state state;
- 
- 	if (!try_get_task_stack(task))
- 		return 0;
- 
--	unwind_start(&state, task, NULL);
--	state.sp = thread_saved_fp(task);
--	get_stack_info(state.sp, state.task, &state.stack_info);
--	state.pc = thread_saved_ra(task);
--#ifdef CONFIG_UNWINDER_PROLOGUE
--	state.type = UNWINDER_PROLOGUE;
--#endif
--	for (; !unwind_done(&state); unwind_next_frame(&state)) {
-+	for (unwind_start(&state, task, NULL);
-+	     !unwind_done(&state); unwind_next_frame(&state)) {
- 		pc = unwind_get_return_address(&state);
- 		if (!pc)
- 			break;
-diff --git a/arch/loongarch/kernel/unwind_guess.c b/arch/loongarch/kernel/unwind_guess.c
-index 5afa6064d73e..0c20e5184de6 100644
---- a/arch/loongarch/kernel/unwind_guess.c
-+++ b/arch/loongarch/kernel/unwind_guess.c
-@@ -25,6 +25,12 @@ void unwind_start(struct unwind_state *state, struct task_struct *task,
- 	if (regs) {
- 		state->sp = regs->regs[3];
- 		state->pc = regs->csr_era;
-+	} else if (task && task != current) {
-+		state->sp = thread_saved_fp(task);
-+		state->pc = thread_saved_ra(task);
-+	} else {
-+		state->sp = (unsigned long)__builtin_frame_address(0);
-+		state->pc = (unsigned long)__builtin_return_address(0);
- 	}
- 
- 	state->task = task;
-diff --git a/arch/loongarch/kernel/unwind_prologue.c b/arch/loongarch/kernel/unwind_prologue.c
-index 4571c3c87cd4..1c5b65756144 100644
---- a/arch/loongarch/kernel/unwind_prologue.c
-+++ b/arch/loongarch/kernel/unwind_prologue.c
-@@ -111,12 +111,22 @@ void unwind_start(struct unwind_state *state, struct task_struct *task,
- 		    struct pt_regs *regs)
- {
- 	memset(state, 0, sizeof(*state));
-+	state->type = UNWINDER_PROLOGUE;
- 
--	if (regs &&  __kernel_text_address(regs->csr_era)) {
--		state->pc = regs->csr_era;
-+	if (regs) {
- 		state->sp = regs->regs[3];
-+		state->pc = regs->csr_era;
- 		state->ra = regs->regs[1];
--		state->type = UNWINDER_PROLOGUE;
-+		if (!__kernel_text_address(state->pc))
-+			state->type = UNWINDER_GUESS;
-+	} else if (task && task != current) {
-+		state->sp = thread_saved_fp(task);
-+		state->pc = thread_saved_ra(task);
-+		state->ra = 0;
-+	} else {
-+		state->sp = (unsigned long)__builtin_frame_address(0);
-+		state->pc = (unsigned long)__builtin_return_address(0);
-+		state->ra = 0;
- 	}
- 
- 	state->task = task;
+diff --git a/drivers/acpi/video_detect.c b/drivers/acpi/video_detect.c
+index 1db8e68cd8bc..79fe66c5f14a 100644
+--- a/drivers/acpi/video_detect.c
++++ b/drivers/acpi/video_detect.c
+@@ -513,6 +513,14 @@ static const struct dmi_system_id video_detect_dmi_table[] = {
+ 		DMI_MATCH(DMI_PRODUCT_NAME, "Precision 7510"),
+ 		},
+ 	},
++	{
++	 .callback = video_detect_force_native,
++	 /* Acer Aspire 4810T */
++	 .matches = {
++		DMI_MATCH(DMI_SYS_VENDOR, "Acer"),
++		DMI_MATCH(DMI_PRODUCT_NAME, "Aspire 4810T"),
++		},
++	},
+ 	{
+ 	 .callback = video_detect_force_native,
+ 	 /* Acer Aspire 5738z */
 -- 
 2.39.0
 
