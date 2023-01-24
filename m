@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id EB9E16799C5
-	for <lists+stable@lfdr.de>; Tue, 24 Jan 2023 14:42:08 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id BB0EB6799C0
+	for <lists+stable@lfdr.de>; Tue, 24 Jan 2023 14:41:58 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233528AbjAXNmG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 24 Jan 2023 08:42:06 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33112 "EHLO
+        id S234106AbjAXNl5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 24 Jan 2023 08:41:57 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60876 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231510AbjAXNmB (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 24 Jan 2023 08:42:01 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BFFE8457F7;
-        Tue, 24 Jan 2023 05:41:51 -0800 (PST)
+        with ESMTP id S234136AbjAXNlw (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 24 Jan 2023 08:41:52 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F285A4523E;
+        Tue, 24 Jan 2023 05:41:49 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 42851B81109;
-        Tue, 24 Jan 2023 13:41:50 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 16D7BC433EF;
-        Tue, 24 Jan 2023 13:41:47 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 8FDEB611E6;
+        Tue, 24 Jan 2023 13:41:49 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 66FC1C4339B;
+        Tue, 24 Jan 2023 13:41:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1674567707;
-        bh=LkoBjuiq2polH/rK24e4vvUSa+FRr/93moqEdFoFrqM=;
+        s=k20201202; t=1674567709;
+        bh=plVLPqyNKrCgUkP+vGqlaiEfLLVEMW02/8pVeTqqtSI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=iBPzsZkkjmJh5BfK/GqFIevA6aF8CPMhZHqgLD1HjMvUiCcBv72+DyACq/NYKHuPx
-         rner9vBRjqL2iYTFVsBA3xb9NVdLyWN0jfDYprgfNMHZneYXvZ2FxOeJCnVucqLV+b
-         l6Feeg2g9Q3owuEFnwcG/3bpTugTvafRWM0re3eKZiIU46CrwoQbYazfDmxoZ18tTf
-         jaLZQM0DW/VqvLhmxHd4tinT3zcUScuOoyqGqsvY1Y4Uc3yPNgZLThTXXdelRPgX0P
-         xplER90vh2NYz4lVhsBlPC/5sva8uxxKyfGLwycZTit1QOVbqobTBihQJz2wnqXMz8
-         62JhwdjWmz71A==
+        b=S23rUbA8EZrNUno3iAy21PHDbyTnpxJArMK07I8fLyW8hqBichU2k7eyPV7AGcrKt
+         EJzzd7biR+fRRc4xzdOrXa7cfXe6Fa8uStsa6uLVsCPhiydrKEY75S+kmJl7IjcExY
+         I2R73wc+cxAhJvbiTVlqA9M02Fj9HiqXkvOurOtjtsIxD/Q81Q1e2xyT3+ZUDz+P/3
+         D8xItA+FFKX+jt7rbliDCbpMIHdE1VmPfwPrdZD7p/jp+Bvryw2uVC+V+YagOJhJmq
+         noWxA1NEaKPZ3KQ703FLgb/U184msWmc6s9foSickyaY6lNyENCxJyO2cfVmwRKxdD
+         rkElaTc6tqLmg==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>,
-        Shawn Guo <shawnguo@kernel.org>,
-        Sasha Levin <sashal@kernel.org>, robh+dt@kernel.org,
-        krzysztof.kozlowski+dt@linaro.org, devicetree@vger.kernel.org,
+Cc:     Cristian Marussi <cristian.marussi@arm.com>,
+        Sudeep Holla <sudeep.holla@arm.com>,
+        Sasha Levin <sashal@kernel.org>,
         linux-arm-kernel@lists.infradead.org
-Subject: [PATCH AUTOSEL 6.1 04/35] arm64: dts: imx8mq-thor96: fix no-mmc property for SDHCI
-Date:   Tue, 24 Jan 2023 08:41:00 -0500
-Message-Id: <20230124134131.637036-4-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 6.1 05/35] firmware: arm_scmi: Clear stale xfer->hdr.status
+Date:   Tue, 24 Jan 2023 08:41:01 -0500
+Message-Id: <20230124134131.637036-5-sashal@kernel.org>
 X-Mailer: git-send-email 2.39.0
 In-Reply-To: <20230124134131.637036-1-sashal@kernel.org>
 References: <20230124134131.637036-1-sashal@kernel.org>
@@ -57,42 +56,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
+From: Cristian Marussi <cristian.marussi@arm.com>
 
-[ Upstream commit ef10d57936ead5e817ef7cea6a87531085e77773 ]
+[ Upstream commit f6ca5059dc0d6608dc46070f48e396d611f240d6 ]
 
-There is no "no-emmc" property, so intention for SD/SDIO only nodes was
-to use "no-mmc".
+Stale error status reported from a previous message transaction must be
+cleared before starting a new transaction to avoid being confusingly
+reported in the following SCMI message dump traces.
 
-Signed-off-by: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
-Signed-off-by: Shawn Guo <shawnguo@kernel.org>
+Signed-off-by: Cristian Marussi <cristian.marussi@arm.com>
+Link: https://lore.kernel.org/r/20221222183823.518856-2-cristian.marussi@arm.com
+Signed-off-by: Sudeep Holla <sudeep.holla@arm.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm64/boot/dts/freescale/imx8mq-thor96.dts | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/firmware/arm_scmi/driver.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/arch/arm64/boot/dts/freescale/imx8mq-thor96.dts b/arch/arm64/boot/dts/freescale/imx8mq-thor96.dts
-index 5d5aa6537225..6e6182709d22 100644
---- a/arch/arm64/boot/dts/freescale/imx8mq-thor96.dts
-+++ b/arch/arm64/boot/dts/freescale/imx8mq-thor96.dts
-@@ -339,7 +339,7 @@ &usdhc1 {
- 	bus-width = <4>;
- 	non-removable;
- 	no-sd;
--	no-emmc;
-+	no-mmc;
- 	status = "okay";
+diff --git a/drivers/firmware/arm_scmi/driver.c b/drivers/firmware/arm_scmi/driver.c
+index f818d00bb2c6..ffdad59ec81f 100644
+--- a/drivers/firmware/arm_scmi/driver.c
++++ b/drivers/firmware/arm_scmi/driver.c
+@@ -910,6 +910,8 @@ static int do_xfer(const struct scmi_protocol_handle *ph,
+ 			      xfer->hdr.protocol_id, xfer->hdr.seq,
+ 			      xfer->hdr.poll_completion);
  
- 	brcmf: wifi@1 {
-@@ -359,7 +359,7 @@ &usdhc2 {
- 	cd-gpios = <&gpio2 12 GPIO_ACTIVE_LOW>;
- 	bus-width = <4>;
- 	no-sdio;
--	no-emmc;
-+	no-mmc;
- 	disable-wp;
- 	status = "okay";
- };
++	/* Clear any stale status */
++	xfer->hdr.status = SCMI_SUCCESS;
+ 	xfer->state = SCMI_XFER_SENT_OK;
+ 	/*
+ 	 * Even though spinlocking is not needed here since no race is possible
 -- 
 2.39.0
 
