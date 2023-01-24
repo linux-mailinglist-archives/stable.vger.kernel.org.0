@@ -2,46 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 215EB6799D9
-	for <lists+stable@lfdr.de>; Tue, 24 Jan 2023 14:42:29 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2A8076799E4
+	for <lists+stable@lfdr.de>; Tue, 24 Jan 2023 14:43:06 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234294AbjAXNmZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 24 Jan 2023 08:42:25 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34038 "EHLO
+        id S234349AbjAXNm7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 24 Jan 2023 08:42:59 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34848 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234252AbjAXNmQ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 24 Jan 2023 08:42:16 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BFF7045F49;
-        Tue, 24 Jan 2023 05:42:00 -0800 (PST)
+        with ESMTP id S234315AbjAXNmm (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 24 Jan 2023 08:42:42 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 868D13F298;
+        Tue, 24 Jan 2023 05:42:08 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 54872611E7;
+        by ams.source.kernel.org (Postfix) with ESMTPS id 1E2B2B811E7;
+        Tue, 24 Jan 2023 13:42:06 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2F2EEC4339C;
         Tue, 24 Jan 2023 13:42:00 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5CBE5C433D2;
-        Tue, 24 Jan 2023 13:41:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1674567719;
-        bh=q8ApZr5+b7iNCL/JbigB1PXnsnlkYzbm1tirm47KzJo=;
+        s=k20201202; t=1674567721;
+        bh=zL2k4u+Jj8vLXa5xAgk1+a1szX++mO4axPA7wz/3+pU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=RMj3l2mv1gVQS8fK1hqd8du3/po5KD7Eb2UcQOgASWS1xYM/Vs2Mf4nHJTynKGszM
-         6jUg5Egp9zIvo9SlGEhqy10jRwJAFks5PlyaJa/lO5wO/EqbtZWuCUBdfjNfHBcAk2
-         PGtd+3usmus/dWp5sawoUrpND7mmxnv5MVPRThJrVyZPAGlOx6113pt9t0IcRfVQVl
-         D9yIHKXsm9j0l01ZVctDquVrISi/tX4bASH1B2zF8Sh8vSChGHkSByD3PqBoiPRjtv
-         TzfGm4AdEbmX3Mxvg5ZpuB+d3L/0Dog46eWRrF0+d1n8yvkngZxkx1SvRmYzklSn7a
-         GgoksCr3g4yTg==
+        b=bIY6HWCwTjlQnOIEWiF5yFaQVuTUvQ9qDxUwkhiJLkQdMkK8PM/hTqkwbfjTM3uMi
+         ndGHX7qXzsf8x8O4O/GopZf2nsnEPcd5ixeIq/BkG+bBqvvz0fCMVuc0Lf4MqLMjIk
+         tmdHjE71pYRxTlFVfVFT+Ujl7hQ82Y08A7sKLbg9IBYS5D1v71a03/o5JfI9+sVuBr
+         0vxTJbrWfBPCNrCn+Ju264BFEUlNZ6jBwujhd/RWlbIjY5x+i72eP9zn/l801nOjJF
+         jvq+O64T1JSKWW1ZH9OSc6FvrOTBapDg3wamDFJx2+DDv0CnC4E52CRHrLCriaVHq/
+         DbA3i14k/2+mw==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Rasmus Villemoes <linux@rasmusvillemoes.dk>,
-        Masahiro Yamada <masahiroy@kernel.org>,
-        Sasha Levin <sashal@kernel.org>, akpm@linux-foundation.org,
-        ndesaulniers@google.com, hannes@cmpxchg.org, nathan@kernel.org,
-        ojeda@kernel.org, mhiramat@kernel.org, atomlin@redhat.com,
-        ddiss@suse.de, christophe.leroy@csgroup.eu, vbabka@suse.cz
-Subject: [PATCH AUTOSEL 6.1 11/35] init/Kconfig: fix LOCALVERSION_AUTO help text
-Date:   Tue, 24 Jan 2023 08:41:07 -0500
-Message-Id: <20230124134131.637036-11-sashal@kernel.org>
+Cc:     Mark Brown <broonie@kernel.org>,
+        Shuah Khan <skhan@linuxfoundation.org>,
+        Sasha Levin <sashal@kernel.org>, shuah@kernel.org,
+        nathan@kernel.org, ndesaulniers@google.com,
+        linux-kselftest@vger.kernel.org, llvm@lists.linux.dev
+Subject: [PATCH AUTOSEL 6.1 12/35] kselftest: Fix error message for unconfigured LLVM builds
+Date:   Tue, 24 Jan 2023 08:41:08 -0500
+Message-Id: <20230124134131.637036-12-sashal@kernel.org>
 X-Mailer: git-send-email 2.39.0
 In-Reply-To: <20230124134131.637036-1-sashal@kernel.org>
 References: <20230124134131.637036-1-sashal@kernel.org>
@@ -58,34 +57,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Rasmus Villemoes <linux@rasmusvillemoes.dk>
+From: Mark Brown <broonie@kernel.org>
 
-[ Upstream commit 0f9c608d4a1eb852d6769d2fc5906c71c02565ae ]
+[ Upstream commit 9fdaca2c1e157dc0a3c0faecf3a6a68e7d8d0c7b ]
 
-It was never guaranteed to be exactly eight, but since commit
-548b8b5168c9 ("scripts/setlocalversion: make git describe output more
-reliable"), it has been exactly 12.
+We are missing a ) when we attempt to complain about not having enough
+configuration for clang, resulting in the rather inscrutable error:
 
-Signed-off-by: Rasmus Villemoes <linux@rasmusvillemoes.dk>
-Signed-off-by: Masahiro Yamada <masahiroy@kernel.org>
+../lib.mk:23: *** unterminated call to function 'error': missing ')'.  Stop.
+
+Add the required ) so we print the message we were trying to print.
+
+Signed-off-by: Mark Brown <broonie@kernel.org>
+Signed-off-by: Shuah Khan <skhan@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- init/Kconfig | 2 +-
+ tools/testing/selftests/lib.mk | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/init/Kconfig b/init/Kconfig
-index 0c214af99085..258b58115fdd 100644
---- a/init/Kconfig
-+++ b/init/Kconfig
-@@ -202,7 +202,7 @@ config LOCALVERSION_AUTO
- 	  appended after any matching localversion* files, and after the value
- 	  set in CONFIG_LOCALVERSION.
+diff --git a/tools/testing/selftests/lib.mk b/tools/testing/selftests/lib.mk
+index 291144c284fb..f7900e75d230 100644
+--- a/tools/testing/selftests/lib.mk
++++ b/tools/testing/selftests/lib.mk
+@@ -20,7 +20,7 @@ CLANG_TARGET_FLAGS              := $(CLANG_TARGET_FLAGS_$(ARCH))
  
--	  (The actual string used here is the first eight characters produced
-+	  (The actual string used here is the first 12 characters produced
- 	  by running the command:
- 
- 	    $ git rev-parse --verify HEAD
+ ifeq ($(CROSS_COMPILE),)
+ ifeq ($(CLANG_TARGET_FLAGS),)
+-$(error Specify CROSS_COMPILE or add '--target=' option to lib.mk
++$(error Specify CROSS_COMPILE or add '--target=' option to lib.mk)
+ else
+ CLANG_FLAGS     += --target=$(CLANG_TARGET_FLAGS)
+ endif # CLANG_TARGET_FLAGS
 -- 
 2.39.0
 
