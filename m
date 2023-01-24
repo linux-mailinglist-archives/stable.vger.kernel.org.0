@@ -2,43 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 3B4866799DF
-	for <lists+stable@lfdr.de>; Tue, 24 Jan 2023 14:42:58 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A92146799E7
+	for <lists+stable@lfdr.de>; Tue, 24 Jan 2023 14:43:11 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234342AbjAXNmz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 24 Jan 2023 08:42:55 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33838 "EHLO
+        id S234297AbjAXNnI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 24 Jan 2023 08:43:08 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35508 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233664AbjAXNmc (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 24 Jan 2023 08:42:32 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 96E8945F68;
-        Tue, 24 Jan 2023 05:42:06 -0800 (PST)
+        with ESMTP id S234319AbjAXNmw (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 24 Jan 2023 08:42:52 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2893C45235;
+        Tue, 24 Jan 2023 05:42:11 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 02B63611E6;
+        by dfw.source.kernel.org (Postfix) with ESMTPS id DA42F611F4;
         Tue, 24 Jan 2023 13:42:06 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A39AFC433A7;
-        Tue, 24 Jan 2023 13:42:04 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D2256C4339B;
+        Tue, 24 Jan 2023 13:42:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1674567725;
-        bh=tinwDjVXJonAf/XEW4QsF0at+vcDfimwkCBKXz9sxCk=;
+        s=k20201202; t=1674567726;
+        bh=jmVxCeavWO+FBi8yxOKCkQ7COU927JaLBNSDf/y4n/w=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=cCdqN13bzTuTWv7QbT2pBLUBDPXQazBM3Oc//Sy8Yrh2FspL0WwMsEBzSsyRThrCH
-         3LMGwN6Fa74cY8GWimEIbAwDgPe1s0bqQfQ1l6S3pFN7l3Yx9MNDxhI8qxtBA2JTwb
-         rMS3wl6VmBl8oPjWEd8hEioDWk5PEnEXHvm7e9+rOhZMXVLemlAQwlpX72bd8tcSN1
-         2YKjMIZfxYPCIQb5kiyqHNZZbW3tGa+QhI427+dzC4bl47/zGz+ylW/hmxUCGdEseU
-         8L2DeePB4NLQ4McDy8HmmJls0m5r4fTzNOnEAskQTV3IDasFdtHD63SQWmjEHL1gMF
-         rq++ElMs5GWmw==
+        b=XZiqvLF9hbEAvczjGpp92ZDbSuAVa9Qz0SgHgCspWhVMk8ai5oJf2O3FlWZ5E/ufT
+         Lxe2w1pwYf05JzI6XCqBVJ+9/pHA0qHGsMTxC643ZBtSoAqGGv5g1hEMAuHHDKBqbQ
+         EuqpTOnMbtaAUzijwY0joCM4aCKYWi2iI9xZHWli1MnKRyE4WZPaX9qIPSCEYP8TPv
+         Ssy9RocH4KI+PTJZdYvGycNeEM7ZHQy/IH4jDEPnQNxXoBnlSv8D9ygsPfeWySwFLz
+         r9ST88QPiE1jMOqucbDXRNq3VXknxEG1ine+8iUN6RjAccxJpLWb3H12cBEHGrEk+h
+         0O4OS7HC+td3Q==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Christoph Hellwig <hch@lst.de>, David Sterba <dsterba@suse.com>,
-        Sasha Levin <sashal@kernel.org>, clm@fb.com,
-        josef@toxicpanda.com, linux-btrfs@vger.kernel.org
-Subject: [PATCH AUTOSEL 6.1 15/35] btrfs: stop using write_one_page in btrfs_scratch_superblock
-Date:   Tue, 24 Jan 2023 08:41:11 -0500
-Message-Id: <20230124134131.637036-15-sashal@kernel.org>
+Cc:     Yu Kuai <yukuai3@huawei.com>, Tejun Heo <tj@kernel.org>,
+        Jens Axboe <axboe@kernel.dk>, Sasha Levin <sashal@kernel.org>,
+        josef@toxicpanda.com, cgroups@vger.kernel.org,
+        linux-block@vger.kernel.org
+Subject: [PATCH AUTOSEL 6.1 16/35] blk-cgroup: fix missing pd_online_fn() while activating policy
+Date:   Tue, 24 Jan 2023 08:41:12 -0500
+Message-Id: <20230124134131.637036-16-sashal@kernel.org>
 X-Mailer: git-send-email 2.39.0
 In-Reply-To: <20230124134131.637036-1-sashal@kernel.org>
 References: <20230124134131.637036-1-sashal@kernel.org>
@@ -55,60 +56,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Christoph Hellwig <hch@lst.de>
+From: Yu Kuai <yukuai3@huawei.com>
 
-[ Upstream commit 26ecf243e407be54807ad67210f7e83b9fad71ea ]
+[ Upstream commit e3ff8887e7db757360f97634e0d6f4b8e27a8c46 ]
 
-write_one_page is an awkward interface that expects the page locked and
-->writepage to be implemented.  Replace that by zeroing the signature
-bytes and synchronize the block device page using the proper bdev
-helpers.
+If the policy defines pd_online_fn(), it should be called after
+pd_init_fn(), like blkg_create().
 
-Signed-off-by: Christoph Hellwig <hch@lst.de>
-Reviewed-by: David Sterba <dsterba@suse.com>
-[ update changelog ]
-Signed-off-by: David Sterba <dsterba@suse.com>
+Signed-off-by: Yu Kuai <yukuai3@huawei.com>
+Acked-by: Tejun Heo <tj@kernel.org>
+Link: https://lore.kernel.org/r/20230103112833.2013432-1-yukuai1@huaweicloud.com
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/btrfs/volumes.c | 17 ++++++++---------
- 1 file changed, 8 insertions(+), 9 deletions(-)
+ block/blk-cgroup.c | 4 ++++
+ 1 file changed, 4 insertions(+)
 
-diff --git a/fs/btrfs/volumes.c b/fs/btrfs/volumes.c
-index 8fd14dc7f667..36bb664a25a2 100644
---- a/fs/btrfs/volumes.c
-+++ b/fs/btrfs/volumes.c
-@@ -2021,23 +2021,22 @@ static void btrfs_scratch_superblock(struct btrfs_fs_info *fs_info,
- 				     struct block_device *bdev, int copy_num)
- {
- 	struct btrfs_super_block *disk_super;
--	struct page *page;
-+	const size_t len = sizeof(disk_super->magic);
-+	const u64 bytenr = btrfs_sb_offset(copy_num);
- 	int ret;
+diff --git a/block/blk-cgroup.c b/block/blk-cgroup.c
+index fcf9cf49f5de..7c91d9195da8 100644
+--- a/block/blk-cgroup.c
++++ b/block/blk-cgroup.c
+@@ -1408,6 +1408,10 @@ int blkcg_activate_policy(struct request_queue *q,
+ 		list_for_each_entry_reverse(blkg, &q->blkg_list, q_node)
+ 			pol->pd_init_fn(blkg->pd[pol->plid]);
  
--	disk_super = btrfs_read_dev_one_super(bdev, copy_num, false);
-+	disk_super = btrfs_read_disk_super(bdev, bytenr, bytenr);
- 	if (IS_ERR(disk_super))
- 		return;
- 
--	memset(&disk_super->magic, 0, sizeof(disk_super->magic));
--	page = virt_to_page(disk_super);
--	set_page_dirty(page);
--	lock_page(page);
--	/* write_on_page() unlocks the page */
--	ret = write_one_page(page);
-+	memset(&disk_super->magic, 0, len);
-+	folio_mark_dirty(virt_to_folio(disk_super));
-+	btrfs_release_disk_super(disk_super);
++	if (pol->pd_online_fn)
++		list_for_each_entry_reverse(blkg, &q->blkg_list, q_node)
++			pol->pd_online_fn(blkg->pd[pol->plid]);
 +
-+	ret = sync_blockdev_range(bdev, bytenr, bytenr + len - 1);
- 	if (ret)
- 		btrfs_warn(fs_info, "error clearing superblock number %d (%d)",
- 			copy_num, ret);
--	btrfs_release_disk_super(disk_super);
- }
+ 	__set_bit(pol->plid, q->blkcg_pols);
+ 	ret = 0;
  
- void btrfs_scratch_superblocks(struct btrfs_fs_info *fs_info,
 -- 
 2.39.0
 
