@@ -2,143 +2,96 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B9BA467A1E1
-	for <lists+stable@lfdr.de>; Tue, 24 Jan 2023 19:53:03 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E6A7267A264
+	for <lists+stable@lfdr.de>; Tue, 24 Jan 2023 20:08:02 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234335AbjAXSxB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 24 Jan 2023 13:53:01 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56774 "EHLO
+        id S230464AbjAXTIA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 24 Jan 2023 14:08:00 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47350 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233981AbjAXSwj (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 24 Jan 2023 13:52:39 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9B52146710;
-        Tue, 24 Jan 2023 10:52:14 -0800 (PST)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 0F95E60FAC;
-        Tue, 24 Jan 2023 18:52:14 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 52190C433A7;
-        Tue, 24 Jan 2023 18:52:13 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1674586333;
-        bh=7ngLw52uUuani2uGj/8r6J5RH0dFgQRDLQLIbTIDHD8=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=tUUF4HO0FNK4sz9CZ3F4mBiXTNgy1UdkI6zgY8CbI3wY+2gwR5fJ85AumMBiMUKgV
-         ZIQ3T9R1iLa5I9K2FCd84av0NvzxK85XhgDocEAphce7ErWMHLsvjj+7k6Xt4wG2kY
-         SCSL5p22EEeor6T1zMYJJbENdsTDQvtIqByihx3vPKzChoLT/c6qLSDWz8gaeoNX17
-         X2/FJqR0iwt1FggsdIh6lJmlUp0AL2vaMtsAXbI0BM7KmzcLhMbcdFW9Un6aW/m9iv
-         JZGrnf9Y6CtMMnEQjbw9N+ZHHJlgXR7RXFXqshmJiOu8evdzKKHaac/Vo2i1aiwrP3
-         OopGxQoFazbaQ==
-From:   Eric Biggers <ebiggers@kernel.org>
-To:     stable@vger.kernel.org,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     Kees Cook <keescook@chromium.org>, SeongJae Park <sj@kernel.org>,
-        Seth Jenkins <sethjenkins@google.com>,
-        Jann Horn <jannh@google.com>,
-        "Eric W . Biederman" <ebiederm@xmission.com>,
-        linux-hardening@vger.kernel.org, linux-kernel@vger.kernel.org,
-        Arnd Bergmann <arnd@arndb.de>, Petr Mladek <pmladek@suse.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Luis Chamberlain <mcgrof@kernel.org>,
-        Marco Elver <elver@google.com>,
-        tangmeng <tangmeng@uniontech.com>,
-        Sebastian Andrzej Siewior <bigeasy@linutronix.de>,
-        Tiezhu Yang <yangtiezhu@loongson.cn>,
-        Peter Zijlstra <peterz@infradead.org>
-Subject: [PATCH 5.15 20/20] exit: Use READ_ONCE() for all oops/warn limit reads
-Date:   Tue, 24 Jan 2023 10:51:10 -0800
-Message-Id: <20230124185110.143857-21-ebiggers@kernel.org>
-X-Mailer: git-send-email 2.39.1
-In-Reply-To: <20230124185110.143857-1-ebiggers@kernel.org>
-References: <20230124185110.143857-1-ebiggers@kernel.org>
+        with ESMTP id S233135AbjAXTH6 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 24 Jan 2023 14:07:58 -0500
+Received: from mail-pf1-x431.google.com (mail-pf1-x431.google.com [IPv6:2607:f8b0:4864:20::431])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 379A44A1E8;
+        Tue, 24 Jan 2023 11:07:25 -0800 (PST)
+Received: by mail-pf1-x431.google.com with SMTP id i1so11897376pfk.3;
+        Tue, 24 Jan 2023 11:07:25 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20210112;
+        h=cc:to:subject:message-id:date:from:in-reply-to:references
+         :mime-version:from:to:cc:subject:date:message-id:reply-to;
+        bh=+/a3DRuX86fFzYSKcRnyqY4BjHdMD3vD0y6fP26UHyc=;
+        b=BMcXRguM7BT1nuXNEPIe0VYSadw9apPpMkeXepdjn7PIThqA83olJrRlbmtb8FkZNN
+         bqgIykvbBi09dkvLONVtvPErD1YsHZDxy6PXtholnSTwB9YPsu+1hwqhfLqCaIRXIWCU
+         P5o1tUU39OUs4Q6jfg+zjFyrHoV64l8s4SBGdFlE9Fms15U1yz4w7uC+L+QP2BnxIgV9
+         OX+lFvh91H16bD9Ws4/0Hxwpt7XzNnFHOaU6PK1g9zeRuS2CWLDC3ZhwPgRf5V/2y5Yt
+         yqUYtH7LGJsdXeqhKs95HNyX7qOzT6w8O9Gp34npuHukAZs+n5q5CdD+1nuaHviHdXJM
+         jUlg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=cc:to:subject:message-id:date:from:in-reply-to:references
+         :mime-version:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=+/a3DRuX86fFzYSKcRnyqY4BjHdMD3vD0y6fP26UHyc=;
+        b=YABLHnR1+6QR3ke8Lvf1HHj1NXTPCuApzRYxy3tcZFLJJyNlAOo6SuiGvLt+bBTBRE
+         7sgTRZn1u524br8OGstSrMSjqR+fkCyU48JXVOewcVUft7erF2r3sBSvByVpYy42rxcW
+         3JokUly8u1dM+XWNmS2bk+Be35HuHc9EAU7rNGMq8Mlg5r304xJ5EeHMPQx6VoxVMH80
+         iaa9Hu7jdPzE5IDj/7a+mMeTAJf5o8d6whj8b2E2NmlhTLBdiHRDN75dHqdT7xdrTPGH
+         FUu0yXJSpHDs6ZoJMZEtI49n/oD4JG1h57PsGkV4dnfxVPS45/RWQ8HcKxmxH11xM9F0
+         Vd9A==
+X-Gm-Message-State: AFqh2kooE1m5hv+IJMVPkApeGQVpvLpEz4QAYFSapja/wgofIQA1Spqo
+        MuNETznJFhH+JkjZtEPJZwwgtEelPahDihlNbs8=
+X-Google-Smtp-Source: AMrXdXvgbRX66Y7F1/fxwnvThj+LWkQ/sM7WOaEK69le38ZLrKLu+I8+beokSOiwuqs72oLzPCauJwM49GM5lapGco0=
+X-Received: by 2002:aa7:9f06:0:b0:577:16ac:8447 with SMTP id
+ g6-20020aa79f06000000b0057716ac8447mr3070187pfr.56.1674587244698; Tue, 24 Jan
+ 2023 11:07:24 -0800 (PST)
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
-        SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
+References: <20230123094918.977276664@linuxfoundation.org>
+In-Reply-To: <20230123094918.977276664@linuxfoundation.org>
+From:   Allen Pais <stable.kernel.dev@gmail.com>
+Date:   Tue, 24 Jan 2023 11:07:13 -0800
+Message-ID: <CAJq+SaB1rcEJafKybZNRn3Fp4EYuYVC4FOYV6vqzAmqPqJbnkw@mail.gmail.com>
+Subject: Re: [PATCH 5.15 000/117] 5.15.90-rc2 review
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc:     stable@vger.kernel.org, patches@lists.linux.dev,
+        linux-kernel@vger.kernel.org, torvalds@linux-foundation.org,
+        akpm@linux-foundation.org, linux@roeck-us.net, shuah@kernel.org,
+        patches@kernelci.org, lkft-triage@lists.linaro.org, pavel@denx.de,
+        jonathanh@nvidia.com, f.fainelli@gmail.com,
+        sudipm.mukherjee@gmail.com, srw@sladewatkins.net, rwarsow@gmx.de
+Content-Type: text/plain; charset="UTF-8"
+X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_FROM,
+        RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS autolearn=ham
+        autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kees Cook <keescook@chromium.org>
+> This is the start of the stable review cycle for the 5.15.90 release.
+> There are 117 patches in this series, all will be posted as a response
+> to this one.  If anyone has any issues with these being applied, please
+> let me know.
+>
+> Responses should be made by Wed, 25 Jan 2023 09:48:53 +0000.
+> Anything received after that time might be too late.
+>
+> The whole patch series can be found in one patch at:
+>         https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.15.90-rc2.gz
+> or in the git tree and branch at:
+>         git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.15.y
+> and the diffstat can be found below.
+>
+> thanks,
+>
+> greg k-h
 
-commit 7535b832c6399b5ebfc5b53af5c51dd915ee2538 upstream.
 
-Use a temporary variable to take full advantage of READ_ONCE() behavior.
-Without this, the report (and even the test) might be out of sync with
-the initial test.
+Compiled and booted on my x86_64 and ARM64 test systems. No errors or
+regressions.
 
-Reported-by: Peter Zijlstra <peterz@infradead.org>
-Link: https://lore.kernel.org/lkml/Y5x7GXeluFmZ8E0E@hirez.programming.kicks-ass.net
-Fixes: 9fc9e278a5c0 ("panic: Introduce warn_limit")
-Fixes: d4ccd54d28d3 ("exit: Put an upper limit on how often we can oops")
-Cc: "Eric W. Biederman" <ebiederm@xmission.com>
-Cc: Jann Horn <jannh@google.com>
-Cc: Arnd Bergmann <arnd@arndb.de>
-Cc: Petr Mladek <pmladek@suse.com>
-Cc: Andrew Morton <akpm@linux-foundation.org>
-Cc: Luis Chamberlain <mcgrof@kernel.org>
-Cc: Marco Elver <elver@google.com>
-Cc: tangmeng <tangmeng@uniontech.com>
-Cc: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
-Cc: Tiezhu Yang <yangtiezhu@loongson.cn>
-Signed-off-by: Kees Cook <keescook@chromium.org>
-Signed-off-by: Eric Biggers <ebiggers@google.com>
----
- kernel/exit.c  | 6 ++++--
- kernel/panic.c | 7 +++++--
- 2 files changed, 9 insertions(+), 4 deletions(-)
+Tested-by: Allen Pais <apais@linux.microsoft.com>
 
-diff --git a/kernel/exit.c b/kernel/exit.c
-index f6c85101dba0f..80efdfda6662b 100644
---- a/kernel/exit.c
-+++ b/kernel/exit.c
-@@ -930,6 +930,7 @@ void __noreturn make_task_dead(int signr)
- 	 * Take the task off the cpu after something catastrophic has
- 	 * happened.
- 	 */
-+	unsigned int limit;
- 
- 	/*
- 	 * Every time the system oopses, if the oops happens while a reference
-@@ -941,8 +942,9 @@ void __noreturn make_task_dead(int signr)
- 	 * To make sure this can't happen, place an upper bound on how often the
- 	 * kernel may oops without panic().
- 	 */
--	if (atomic_inc_return(&oops_count) >= READ_ONCE(oops_limit) && oops_limit)
--		panic("Oopsed too often (kernel.oops_limit is %d)", oops_limit);
-+	limit = READ_ONCE(oops_limit);
-+	if (atomic_inc_return(&oops_count) >= limit && limit)
-+		panic("Oopsed too often (kernel.oops_limit is %d)", limit);
- 
- 	do_exit(signr);
- }
-diff --git a/kernel/panic.c b/kernel/panic.c
-index 4aef355e9a5d1..47933d4c769b6 100644
---- a/kernel/panic.c
-+++ b/kernel/panic.c
-@@ -223,12 +223,15 @@ static void panic_print_sys_info(void)
- 
- void check_panic_on_warn(const char *origin)
- {
-+	unsigned int limit;
-+
- 	if (panic_on_warn)
- 		panic("%s: panic_on_warn set ...\n", origin);
- 
--	if (atomic_inc_return(&warn_count) >= READ_ONCE(warn_limit) && warn_limit)
-+	limit = READ_ONCE(warn_limit);
-+	if (atomic_inc_return(&warn_count) >= limit && limit)
- 		panic("%s: system warned too often (kernel.warn_limit is %d)",
--		      origin, warn_limit);
-+		      origin, limit);
- }
- 
- /**
--- 
-2.39.1
-
+Thanks.
