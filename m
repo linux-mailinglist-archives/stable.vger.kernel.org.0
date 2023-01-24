@@ -2,153 +2,282 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 362B6679CBE
-	for <lists+stable@lfdr.de>; Tue, 24 Jan 2023 15:59:09 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8E0D2679CC5
+	for <lists+stable@lfdr.de>; Tue, 24 Jan 2023 15:59:43 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235175AbjAXO7H (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 24 Jan 2023 09:59:07 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44970 "EHLO
+        id S233942AbjAXO7m (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 24 Jan 2023 09:59:42 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45750 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235094AbjAXO7G (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 24 Jan 2023 09:59:06 -0500
-Received: from frasgout11.his.huawei.com (frasgout11.his.huawei.com [14.137.139.23])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B9596211C;
-        Tue, 24 Jan 2023 06:59:04 -0800 (PST)
-Received: from mail02.huawei.com (unknown [172.18.147.228])
-        by frasgout11.his.huawei.com (SkyGuard) with ESMTP id 4P1VK26lYJz9v7Hb;
-        Tue, 24 Jan 2023 22:51:02 +0800 (CST)
-Received: from [10.221.98.77] (unknown [10.221.98.77])
-        by APP1 (Coremail) with SMTP id LxC2BwD3gAwT8s9jVBrDAA--.44223S2;
-        Tue, 24 Jan 2023 15:58:40 +0100 (CET)
-Message-ID: <f17dcce0-d510-a112-3127-984e8e73f480@huaweicloud.com>
-Date:   Tue, 24 Jan 2023 15:57:55 +0100
+        with ESMTP id S233390AbjAXO7l (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 24 Jan 2023 09:59:41 -0500
+Received: from mail-vk1-xa30.google.com (mail-vk1-xa30.google.com [IPv6:2607:f8b0:4864:20::a30])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 37296A251
+        for <stable@vger.kernel.org>; Tue, 24 Jan 2023 06:59:39 -0800 (PST)
+Received: by mail-vk1-xa30.google.com with SMTP id t2so7717311vkk.9
+        for <stable@vger.kernel.org>; Tue, 24 Jan 2023 06:59:39 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=linaro.org; s=google;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=4GoPS4Aeds8tZZhSejmCWg7O+ACNSi1EvJNuvd9WxYQ=;
+        b=wNsgcjBhoP95pgywTzWhN3KqvGMg3XtrWsqwbie+CAmVDDRAq+MESV5Gu8yhPkj+PM
+         23CptZACzgbq47XPdZG/CZqBKNU8MYTgOoaSHrHfrWn7h6NWyszWzIkwXIgn+oM7y1Y4
+         9Ov2OxP3CpjtYhA0zXPCmtOBFaTpZy+dWK8DhMSBaBqUnXPH4OhdBE4biWO35V8gPNco
+         danKwwi2hS1bL+AMFxGdYBNWdBE80yVvUeDTkYVEK75fxRqDxakEXvK1NAXME1n5qept
+         Ivw+8IgycTHeQKIo64nZPS24CV4fX2DDniX6SjR+FRCjBNnb0mMNoHwGEPiBYEdhnaZg
+         U5yw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=4GoPS4Aeds8tZZhSejmCWg7O+ACNSi1EvJNuvd9WxYQ=;
+        b=lYSbTeeHn5jHCu2bmEeuVck0cL21IBhnMJW/7TALOvMQTrS93hrZveM/ITVdXrg8we
+         YFld1hiIHnX3C468/GtoNTaVUQpOZXAVnuwjlpOVh/4uO/ZZVl/TE6YOqdHLCd1E/Kfu
+         0Z9S1/Ut/1Wpv9qvcnDoFxwfPyRqJZL3/lRMqnz3U3SWOoHyhJYmxFO5IiC5AToZNNUD
+         MpzsTtZMrPhfoGSeLIS7aD80rdqH3HQ417HN7KBrk/KbfnKWTaDTh0RfBIjuzutDkRVb
+         Dk/r9G/ZZxgNJhieqPPi+e/O6/vpTEFyynMEEtVFawk7fCZlmWSWkFRAIXiXQ/4w0Xwr
+         z/eg==
+X-Gm-Message-State: AFqh2krMUDJ4FFsGxGMJ7bnsG/VYY5vr6RWlcOHx/YyNuz+ZqgBsmyQl
+        QJQCUAQS0+alwnVil8QqW+vlxZxaBYqoCXmZ0UUZrA==
+X-Google-Smtp-Source: AMrXdXsVwbutwRk83sRzOJV+IaKPbXEjBgN7J+qLJFf9WjIDQgi5n6pP26sB4A+DYIGMt3dlf1V6tfEhLEC6cZ5JjDw=
+X-Received: by 2002:a1f:ab92:0:b0:3d5:63ee:dae1 with SMTP id
+ u140-20020a1fab92000000b003d563eedae1mr3786731vke.9.1674572378050; Tue, 24
+ Jan 2023 06:59:38 -0800 (PST)
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:102.0) Gecko/20100101
- Thunderbird/102.7.0
-Subject: Re: [PATCH] Fix data race in mark_rt_mutex_waiters
-Content-Language: en-US
-To:     paulmck@kernel.org
-Cc:     Arjan van de Ven <arjan@linux.intel.com>, peterz@infradead.org,
-        mingo@redhat.com, will@kernel.org, longman@redhat.com,
-        boqun.feng@gmail.com, akpm@osdl.org, tglx@linutronix.de,
-        joel@joelfernandes.org, stern@rowland.harvard.edu,
-        diogo.behrens@huawei.com, jonas.oberhauser@huawei.com,
-        linux-kernel@vger.kernel.org,
-        Hernan Ponce de Leon <hernanl.leon@huawei.com>,
-        stable@vger.kernel.org
-References: <20230120135525.25561-1-hernan.poncedeleon@huaweicloud.com>
- <562c883b-b2c3-3a27-f045-97e7e3281e0b@linux.intel.com>
- <20230120155439.GI2948950@paulmck-ThinkPad-P17-Gen-1>
- <9a1c7959-4b8c-94df-a3e2-e69be72bfd7d@huaweicloud.com>
- <20230123164014.GN2948950@paulmck-ThinkPad-P17-Gen-1>
-From:   Hernan Ponce de Leon <hernan.poncedeleon@huaweicloud.com>
-In-Reply-To: <20230123164014.GN2948950@paulmck-ThinkPad-P17-Gen-1>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
-X-CM-TRANSID: LxC2BwD3gAwT8s9jVBrDAA--.44223S2
-X-Coremail-Antispam: 1UD129KBjvJXoWxury5uF4UXw4UXw13GryrCrg_yoWrXrWDpF
-        WrKayktFyDJrs2qr1IqF4xW34Fy39YkFy3Xw1UGryxAas0gF1fAr43C3y3Wryjqr1kt3yY
-        vr45Z3429F1DZaDanT9S1TB71UUUUUUqnTZGkaVYY2UrUUUUjbIjqfuFe4nvWSU5nxnvy2
-        9KBjDU0xBIdaVrnRJUUUvIb4IE77IF4wAFF20E14v26ryj6rWUM7CY07I20VC2zVCF04k2
-        6cxKx2IYs7xG6r1F6r1fM7CIcVAFz4kK6r1j6r18M28lY4IEw2IIxxk0rwA2F7IY1VAKz4
-        vEj48ve4kI8wA2z4x0Y4vE2Ix0cI8IcVAFwI0_Jr0_JF4l84ACjcxK6xIIjxv20xvEc7Cj
-        xVAFwI0_Gr0_Cr1l84ACjcxK6I8E87Iv67AKxVW8JVWxJwA2z4x0Y4vEx4A2jsIEc7CjxV
-        AFwI0_Gr1j6F4UJwAS0I0E0xvYzxvE52x082IY62kv0487Mc02F40EFcxC0VAKzVAqx4xG
-        6I80ewAv7VC0I7IYx2IY67AKxVWUJVWUGwAv7VC2z280aVAFwI0_Jr0_Gr1lOx8S6xCaFV
-        Cjc4AY6r1j6r4UM4x0Y48IcVAKI48JM4IIrI8v6xkF7I0E8cxan2IY04v7Mxk0xIA0c2IE
-        e2xFo4CEbIxvr21l42xK82IYc2Ij64vIr41l4I8I3I0E4IkC6x0Yz7v_Jr0_Gr1lx2IqxV
-        Aqx4xG67AKxVWUJVWUGwC20s026x8GjcxK67AKxVWUGVWUWwC2zVAF1VAY17CE14v26r4a
-        6rW5MIIYrxkI7VAKI48JMIIF0xvE2Ix0cI8IcVAFwI0_Jr0_JF4lIxAIcVC0I7IYx2IY6x
-        kF7I0E14v26r4j6F4UMIIF0xvE42xK8VAvwI8IcIk0rVWrZr1j6s0DMIIF0xvEx4A2jsIE
-        14v26r1j6r4UMIIF0xvEx4A2jsIEc7CjxVAFwI0_Gr0_Gr1UYxBIdaVFxhVjvjDU0xZFpf
-        9x07UZ18PUUUUU=
-X-CM-SenderInfo: xkhu0tnqos00pfhgvzhhrqqx5xdzvxpfor3voofrz/
-X-CFilter-Loop: Reflected
-X-Spam-Status: No, score=-3.0 required=5.0 tests=BAYES_00,NICE_REPLY_A,
-        SPF_HELO_NONE,SPF_NONE autolearn=ham autolearn_force=no version=3.4.6
+References: <20230123094918.977276664@linuxfoundation.org> <CA+G9fYuH9vUTHjtByq184N2dNuquT1Z02JDRh2GYFR96weZcFA@mail.gmail.com>
+ <433e41da-5965-ccf0-c3de-79bd696806f7@roeck-us.net>
+In-Reply-To: <433e41da-5965-ccf0-c3de-79bd696806f7@roeck-us.net>
+From:   Naresh Kamboju <naresh.kamboju@linaro.org>
+Date:   Tue, 24 Jan 2023 20:29:26 +0530
+Message-ID: <CA+G9fYteVRnsGRZh8iLe_W5gFY3_rdSVHb3MyLynBhgYwAwu+A@mail.gmail.com>
+Subject: Re: [PATCH 5.15 000/117] 5.15.90-rc2 review
+To:     Guenter Roeck <linux@roeck-us.net>
+Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        stable@vger.kernel.org, patches@lists.linux.dev,
+        linux-kernel@vger.kernel.org, torvalds@linux-foundation.org,
+        akpm@linux-foundation.org, shuah@kernel.org, patches@kernelci.org,
+        lkft-triage@lists.linaro.org, pavel@denx.de, jonathanh@nvidia.com,
+        f.fainelli@gmail.com, sudipm.mukherjee@gmail.com,
+        srw@sladewatkins.net, rwarsow@gmx.de
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
+X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_NONE,
+        SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 1/23/2023 5:40 PM, Paul E. McKenney wrote:
-> On Sun, Jan 22, 2023 at 04:24:21PM +0100, Hernan Ponce de Leon wrote:
->> On 1/20/2023 4:54 PM, Paul E. McKenney wrote:
->>> On Fri, Jan 20, 2023 at 06:58:20AM -0800, Arjan van de Ven wrote:
->>>> On 1/20/2023 5:55 AM, Hernan Ponce de Leon wrote:
->>>>> From: Hernan Ponce de Leon <hernanl.leon@huawei.com>
->>>>>
->>>>
->>>>>     kernel/locking/rtmutex.c | 2 +-
->>>>>     1 file changed, 1 insertion(+), 1 deletion(-)
->>>>>
->>>>> diff --git a/kernel/locking/rtmutex.c b/kernel/locking/rtmutex.c
->>>>> index 010cf4e6d0b8..7ed9472edd48 100644
->>>>> --- a/kernel/locking/rtmutex.c
->>>>> +++ b/kernel/locking/rtmutex.c
->>>>> @@ -235,7 +235,7 @@ static __always_inline void mark_rt_mutex_waiters(struct rt_mutex_base *lock)
->>>>>     	unsigned long owner, *p = (unsigned long *) &lock->owner;
->>>>>     	do {
->>>>> -		owner = *p;
->>>>> +		owner = READ_ONCE(*p);
->>>>>     	} while (cmpxchg_relaxed(p, owner,
->>>>
->>>>
->>>> I don't see how this makes any difference at all.
->>>> *p can be read a dozen times and it's fine; cmpxchg has barrier semantics for compilers afaics
->>>
->>> Doing so does suppress a KCSAN warning.  You could also use data_race()
->>> if it turns out that the volatile semantics would prevent a valuable
->>> compiler optimization.
->>
->> I think the import question is "is this a harmful data race (and needs to be
->> fixed as proposed by the patch) or a harmless one (and we should use
->> data_race() to silence tools)?".
->>
->> In https://lkml.org/lkml/2023/1/22/160 I describe how this data race can
->> affect important ordering guarantees for the rest of the code. For this
->> reason I consider it a harmful one. If this is not the case, I would
->> appreciate some feedback or pointer to resources about what races care to
->> avoid spamming the mailing list in the future.
-> 
-> In the case, the value read is passed into cmpxchg_relaxed(), which
-> checks the value against memory.  In this case, as Arjan noted, the only
-> compiler-and-silicon difference between data_race() and READ_ONCE()
-> is that use of data_race() might allow the compiler to do things like
-> tear the load, thus forcing the occasional spurious cmpxchg_relaxed()
-> failure.  In contrast, LKMM (by design) throws up its hands when it sees
-> a data race.  Something about not being eager to track the idiosyncrasies
-> of many compiler versions.
-> 
-> My approach in my own code is to use *_ONCE() unless it causes a visible
-> performance regression or if it confuses KCSAN.  An example of the latter
-> can be debug code, in which case use of data_race() avoids suppressing
-> KCSAN warnings (and also false positives, depending).
+On Tue, 24 Jan 2023 at 18:28, Guenter Roeck <linux@roeck-us.net> wrote:
+>
+> On 1/24/23 01:52, Naresh Kamboju wrote:
+> > On Mon, 23 Jan 2023 at 15:22, Greg Kroah-Hartman
+> > <gregkh@linuxfoundation.org> wrote:
+> >>
+> >> This is the start of the stable review cycle for the 5.15.90 release.
+> >> There are 117 patches in this series, all will be posted as a response
+> >> to this one.  If anyone has any issues with these being applied, pleas=
+e
+> >> let me know.
+> >>
+> >> Responses should be made by Wed, 25 Jan 2023 09:48:53 +0000.
+> >> Anything received after that time might be too late.
+> >>
+> >> The whole patch series can be found in one patch at:
+> >>          https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/pa=
+tch-5.15.90-rc2.gz
+> >> or in the git tree and branch at:
+> >>          git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
+able-rc.git linux-5.15.y
+> >> and the diffstat can be found below.
+> >>
+> >> thanks,
+> >>
+> >> greg k-h
+> >
+> >
+> > Results from Linaro=E2=80=99s test farm.
+> > Regressions found on arm64 for both 5.15.90-rc2 and 5.10.165-rc2.
+> >
+>
+> Didn't you send an earlier e-mail suggesting no regressions ?
 
-I understand that *_ONCE() might avoid some compiler optimization and 
-reduce performance in the general case. However, if I understand your 
-first paragraph correctly, in this particular case data_race() could 
-allow the CAS to fail more often, resulting in more spinning iterations 
-and degraded performance. Am I right?
+It took a while for me to generate a report and find this
+selftest: arm64 regressions.
 
-> 
-> Except that your other email seems to also be arguing that additional
-> ordering is required.  So is https://lkml.org/lkml/2023/1/20/702 really
-> sufficient just by itself, or is additional ordering required?
-
-I do not claim that we need to mark the read to add the ordering that is 
-needed for correctness (mutual exclusion). What I claim in this patch is 
-that there is a data race, and since it can affect ordering constrains 
-in subtle ways, I consider it harmful and thus I want to fix it.
-
-What I explain in the other email is that if we fix the data race, 
-either the fence or the acquire store might be relaxed (because marking 
-the read gives us some extra ordering guarantees). If the race is not 
-fixed, both the fence and the acquire are needed according to LKMM. The 
-situation is different wrt hardware models. In that case the tool cannot 
-find any violation even if we don't fix the race and we relax the store 
-/ remove the fence.
-
-Hernan
-
+> > * qemu-arm64-mte, kselftest-arm64
+> >    - arm64_check_buffer_fill
+> >    - arm64_check_child_memory
+> >    - arm64_check_ksm_options
+> >    - arm64_check_mmap_options
+> >    - arm64_check_tags_inclusion
+> >
+> > Reported-by: Linux Kernel Functional Testing <lkft@linaro.org>
+> >
+> > We are in a process to bisecting this problem and there are updates com=
+ing
+> > from kselftest rootfs.
+> >
+> > Test logs,
+> > # selftests: arm64: check_buffer_fill
+> > # 1..20
+> > # ok 1 Check buffer correctness by byte with sync err mode and mmap mem=
+ory
+> > # ok 2 Check buffer correctness by byte with async err mode and mmap me=
+mory
+> > # ok 3 Check buffer correctness by byte with sync err mode and
+> > mmap/mprotect memory
+> > # ok 4 Check buffer correctness by byte with async err mode and
+> > mmap/mprotect memory
+> > # not ok 5 Check buffer write underflow by byte with sync mode and mmap=
+ memory
+> > # not ok 6 Check buffer write underflow by byte with async mode and mma=
+p memory
+> > # ok 7 Check buffer write underflow by byte with tag check fault
+> > ignore and mmap memory
+> > # ok 8 Check buffer write underflow by byte with sync mode and mmap mem=
+ory
+> > # ok 9 Check buffer write underflow by byte with async mode and mmap me=
+mory
+> > # ok 10 Check buffer write underflow by byte with tag check fault
+> > ignore and mmap memory
+> > # not ok 11 Check buffer write overflow by byte with sync mode and mmap=
+ memory
+> > # not ok 12 Check buffer write overflow by byte with async mode and mma=
+p memory
+> > # ok 13 Check buffer write overflow by byte with tag fault ignore mode
+> > and mmap memory
+> > # not ok 14 Check buffer write correctness by block with sync mode and
+> > mmap memory
+> > # not ok 15 Check buffer write correctness by block with async mode
+> > and mmap memory
+> > # ok 16 Check buffer write correctness by block with tag fault ignore
+> > and mmap memory
+> > # ok 17 Check initial tags with private mapping, sync error mode and mm=
+ap memory
+> > # ok 18 Check initial tags with private mapping, sync error mode and
+> > mmap/mprotect memory
+> > # ok 19 Check initial tags with shared mapping, sync error mode and mma=
+p memory
+> > # ok 20 Check initial tags with shared mapping, sync error mode and
+> > mmap/mprotect memory
+> > # # Totals: pass:14 fail:6 xfail:0 xpass:0 skip:0 error:0
+> > not ok 34 selftests: arm64: check_buffer_fill # exit=3D1
+> >
+> >
+> > # selftests: arm64: check_child_memory
+> > # 1..12
+> > # not ok 1 Check child anonymous memory with private mapping, precise
+> > mode and mmap memory
+> > # not ok 2 Check child anonymous memory with shared mapping, precise
+> > mode and mmap memory
+> > # not ok 3 Check child anonymous memory with private mapping,
+> > imprecise mode and mmap memory
+> > # not ok 4 Check child anonymous memory with shared mapping, imprecise
+> > mode and mmap memory
+> > # not ok 5 Check child anonymous memory with private mapping, precise
+> > mode and mmap/mprotect memory
+> > # not ok 6 Check child anonymous memory with shared mapping, precise
+> > mode and mmap/mprotect memory
+> > # not ok 7 Check child file memory with private mapping, precise mode
+> > and mmap memory
+> > # not ok 8 Check child file memory with shared mapping, precise mode
+> > and mmap memory
+> > # not ok 9 Check child file memory with private mapping, imprecise
+> > mode and mmap memory
+> > # not ok 10 Check child file memory with shared mapping, imprecise
+> > mode and mmap memory
+> > # not ok 11 Check child file memory with private mapping, precise mode
+> > and mmap/mprotect memory
+> > # not ok 12 Check child file memory with shared mapping, precise mode
+> > and mmap/mprotect memory
+> > # # Totals: pass:0 fail:12 xfail:0 xpass:0 skip:0 error:0
+> > not ok 35 selftests: arm64: check_child_memory # exit=3D1
+> >
+> > # selftests: arm64: check_ksm_options
+> > # 1..4
+> > # # Invalid MTE synchronous exception caught!
+> > not ok 37 selftests: arm64: check_ksm_options # exit=3D1
+> >
+> >
+> > # selftests: arm64: check_mmap_options
+> > # 1..22
+> > # ok 1 Check anonymous memory with private mapping, sync error mode,
+> > mmap memory and tag check off
+> > # ok 2 Check file memory with private mapping, sync error mode,
+> > mmap/mprotect memory and tag check off
+> > # ok 3 Check anonymous memory with private mapping, no error mode,
+> > mmap memory and tag check off
+> > # ok 4 Check file memory with private mapping, no error mode,
+> > mmap/mprotect memory and tag check off
+> > # not ok 5 Check anonymous memory with private mapping, sync error
+> > mode, mmap memory and tag check on
+> > # not ok 6 Check anonymous memory with private mapping, sync error
+> > mode, mmap/mprotect memory and tag check on
+> > # not ok 7 Check anonymous memory with shared mapping, sync error
+> > mode, mmap memory and tag check on
+> > # not ok 8 Check anonymous memory with shared mapping, sync error
+> > mode, mmap/mprotect memory and tag check on
+> > # not ok 9 Check anonymous memory with private mapping, async error
+> > mode, mmap memory and tag check on
+> > # not ok 10 Check anonymous memory with private mapping, async error
+> > mode, mmap/mprotect memory and tag check on
+> > # not ok 11 Check anonymous memory with shared mapping, async error
+> > mode, mmap memory and tag check on
+> > # not ok 12 Check anonymous memory with shared mapping, async error
+> > mode, mmap/mprotect memory and tag check on
+> > # not ok 13 Check file memory with private mapping, sync error mode,
+> > mmap memory and tag check on
+> > # not ok 14 Check file memory with private mapping, sync error mode,
+> > mmap/mprotect memory and tag check on
+> > # not ok 15 Check file memory with shared mapping, sync error mode,
+> > mmap memory and tag check on
+> > # not ok 16 Check file memory with shared mapping, sync error mode,
+> > mmap/mprotect memory and tag check on
+> > # not ok 17 Check file memory with private mapping, async error mode,
+> > mmap memory and tag check on
+> > # not ok 18 Check file memory with private mapping, async error mode,
+> > mmap/mprotect memory and tag check on
+> > # not ok 19 Check file memory with shared mapping, async error mode,
+> > mmap memory and tag check on
+> > # not ok 20 Check file memory with shared mapping, async error mode,
+> > mmap/mprotect memory and tag check on
+> > # not ok 21 Check clear PROT_MTE flags with private mapping, sync
+> > error mode and mmap memory
+> > # not ok 22 Check clear PROT_MTE flags with private mapping and sync
+> > error mode and mmap/mprotect memory
+> > # # Totals: pass:4 fail:18 xfail:0 xpass:0 skip:0 error:0
+> > not ok 38 selftests: arm64: check_mmap_options # exit=3D1
+> >
+> >
+> > # selftests: arm64: check_tags_inclusion
+> > # 1..4
+> > # # No valid fault recorded for 0x500ffffb8b27000 in mode 1
+> > # not ok 1 Check an included tag value with sync mode
+> > # # No valid fault recorded for 0x400ffffb8b27000 in mode 1
+> > # not ok 2 Check different included tags value with sync mode
+> > # ok 3 Check none included tags value with sync mode
+> > # # No valid fault recorded for 0xa00ffffb8b27000 in mode 1
+> > # not ok 4 Check all included tags value with sync mode
+> > # # Totals: pass:1 fail:3 xfail:0 xpass:0 skip:0 error:0
+> > not ok 40 selftests: arm64: check_tags_inclusion # exit=3D1
+> >
+> > Test logs,
+> > https://lkft.validation.linaro.org/scheduler/job/6087664#L4865
+> > https://qa-reports.linaro.org/lkft/linux-stable-rc-linux-5.10.y/build/v=
+5.10.162-951-g9096aabfe9e0/testrun/14329777/suite/kselftest-arm64/test/arm6=
+4_check_tags_inclusion/log
+> > https://qa-reports.linaro.org/lkft/linux-stable-rc-linux-5.10.y/build/v=
+5.10.162-951-g9096aabfe9e0/testrun/14329777/suite/kselftest-arm64/tests/
+> > https://qa-reports.linaro.org/lkft/linux-stable-rc-linux-5.15.y/build/v=
+5.15.87-219-g60931c95bb6d/testrun/14329656/suite/kselftest-arm64/tests/
+> >
+> > --
+> > Linaro LKFT
+> > https://lkft.linaro.org
+>
