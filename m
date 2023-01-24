@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E384A67A308
+	by mail.lfdr.de (Postfix) with ESMTP id 2A92A67A307
 	for <lists+stable@lfdr.de>; Tue, 24 Jan 2023 20:35:24 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231247AbjAXTfX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S234004AbjAXTfX (ORCPT <rfc822;lists+stable@lfdr.de>);
         Tue, 24 Jan 2023 14:35:23 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39094 "EHLO
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39068 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233658AbjAXTfU (ORCPT
+        with ESMTP id S232748AbjAXTfU (ORCPT
         <rfc822;stable@vger.kernel.org>); Tue, 24 Jan 2023 14:35:20 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 14A2461BE;
-        Tue, 24 Jan 2023 11:35:20 -0800 (PST)
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 211FE30CE;
+        Tue, 24 Jan 2023 11:35:19 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id B8119B811C1;
+        by dfw.source.kernel.org (Postfix) with ESMTPS id AC9E461331;
         Tue, 24 Jan 2023 19:35:18 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id EAF27C433A0;
-        Tue, 24 Jan 2023 19:35:16 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 95731C4339B;
+        Tue, 24 Jan 2023 19:35:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1674588917;
-        bh=+7oL5czw8PyoM/EYPXeCaVwzsrxyOKl99cYF1jHLePM=;
+        s=k20201202; t=1674588918;
+        bh=reCuICm+K+YhUwzsmXaRq5UNboz+RmnhzpLO8l+L/qQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=mXxyy+bvsYXnh/NwLuQHTGGeExdv/mPqr4lJAO6/bNF1qCK1ib9uPk0zsoNoQ/JQ3
-         SGgjuF6iFTFrMdsVIkGhOh9B6DuDfivxWE7R9zKB4/FL7HAogoHvEC0SOi+UMns2zy
-         kqRxXRhCbmzsFUCaBTyayElLAK2XhdkscSRi0BK8jwobojKkb/oIsgu8MWaVpRbRGN
-         4NeADRW2Qg+aO4A2LT7miYfaH49m9ZtRiNKjXPEkWyThYAy2sFUa6o28d/VD6Wc8Lv
-         ZuCjjFf+yKL63zK/ElXrncMoF1o/4pHKTRSiU7c+9WlUkCX7ZfuMt6NsPhxaxHFPW2
-         3aNWDEZ/nYfdw==
+        b=Tac5SMnc8nE4DSaErhZbUvMLGNg2wf++b/YDkLgCBRVkKZDemrF7tWvEC6bJBIkCD
+         VBcM3f9hZt6UII4gvvOGARJdbZIHgsF96xGSZ0xa+KQpLEwNhr7XPSaYs5xQIOzJ5g
+         GG02FroKVtJYaCYskTF/jcfqmKkjQUWtoE3QZjsDV+8022V7rg6VQGEE4F/nFj3dH6
+         +dBNi+ccjwoKl6YBPDLwPLDHkZKsz6Uw0pDXXwuGo0PUH8AqIbtcoyMklTs/JzRIq1
+         UsEfzE0T9I2x2nvncsksmzfNQnfYv3GtoMt3flol3DbTLHO+1dYx1I0ExxL1GLlcSY
+         A3+ZBaBN37txw==
 From:   Eric Biggers <ebiggers@kernel.org>
 To:     stable@vger.kernel.org,
         Greg Kroah-Hartman <gregkh@linuxfoundation.org>
@@ -46,9 +46,9 @@ Cc:     Kees Cook <keescook@chromium.org>, SeongJae Park <sj@kernel.org>,
         Marco Elver <elver@google.com>,
         Andrew Morton <akpm@linux-foundation.org>,
         Linus Torvalds <torvalds@linux-foundation.org>
-Subject: [PATCH 5.10 04/20] ubsan: no need to unset panic_on_warn in ubsan_epilogue()
-Date:   Tue, 24 Jan 2023 11:29:48 -0800
-Message-Id: <20230124193004.206841-5-ebiggers@kernel.org>
+Subject: [PATCH 5.10 05/20] kasan: no need to unset panic_on_warn in end_report()
+Date:   Tue, 24 Jan 2023 11:29:49 -0800
+Message-Id: <20230124193004.206841-6-ebiggers@kernel.org>
 X-Mailer: git-send-email 2.39.1
 In-Reply-To: <20230124193004.206841-1-ebiggers@kernel.org>
 References: <20230124193004.206841-1-ebiggers@kernel.org>
@@ -65,12 +65,12 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Tiezhu Yang <yangtiezhu@loongson.cn>
 
-commit d83ce027a54068fabb70d2c252e1ce2da86784a4 upstream.
+commit e7ce7500375a63348e1d3a703c8d5003cbe3fea6 upstream.
 
 panic_on_warn is unset inside panic(), so no need to unset it before
-calling panic() in ubsan_epilogue().
+calling panic() in end_report().
 
-Link: https://lkml.kernel.org/r/1644324666-15947-5-git-send-email-yangtiezhu@loongson.cn
+Link: https://lkml.kernel.org/r/1644324666-15947-6-git-send-email-yangtiezhu@loongson.cn
 Signed-off-by: Tiezhu Yang <yangtiezhu@loongson.cn>
 Reviewed-by: Marco Elver <elver@google.com>
 Cc: Andrey Ryabinin <ryabinin.a.a@gmail.com>
@@ -81,18 +81,18 @@ Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
 Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Eric Biggers <ebiggers@google.com>
 ---
- lib/ubsan.c | 10 +---------
+ mm/kasan/report.c | 10 +---------
  1 file changed, 1 insertion(+), 9 deletions(-)
 
-diff --git a/lib/ubsan.c b/lib/ubsan.c
-index adf8dcf3c84e6..d81d107f64f41 100644
---- a/lib/ubsan.c
-+++ b/lib/ubsan.c
-@@ -151,16 +151,8 @@ static void ubsan_epilogue(void)
- 
- 	current->in_ubsan--;
- 
--	if (panic_on_warn) {
+diff --git a/mm/kasan/report.c b/mm/kasan/report.c
+index 00a53f1355aec..91714acea0d61 100644
+--- a/mm/kasan/report.c
++++ b/mm/kasan/report.c
+@@ -95,16 +95,8 @@ static void end_report(unsigned long *flags)
+ 	pr_err("==================================================================\n");
+ 	add_taint(TAINT_BAD_PAGE, LOCKDEP_NOW_UNRELIABLE);
+ 	spin_unlock_irqrestore(&report_lock, *flags);
+-	if (panic_on_warn && !test_bit(KASAN_BIT_MULTI_SHOT, &kasan_flags)) {
 -		/*
 -		 * This thread may hit another WARN() in the panic path.
 -		 * Resetting this prevents additional WARN() from panicking the
@@ -100,12 +100,12 @@ index adf8dcf3c84e6..d81d107f64f41 100644
 -		 * panic_mutex in panic().
 -		 */
 -		panic_on_warn = 0;
-+	if (panic_on_warn)
++	if (panic_on_warn && !test_bit(KASAN_BIT_MULTI_SHOT, &kasan_flags))
  		panic("panic_on_warn set ...\n");
 -	}
+ 	kasan_enable_current();
  }
  
- static void handle_overflow(struct overflow_data *data, void *lhs,
 -- 
 2.39.1
 
