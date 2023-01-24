@@ -2,45 +2,49 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id ABD8A679A6E
-	for <lists+stable@lfdr.de>; Tue, 24 Jan 2023 14:46:54 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A5E35679A78
+	for <lists+stable@lfdr.de>; Tue, 24 Jan 2023 14:48:17 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234555AbjAXNqw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 24 Jan 2023 08:46:52 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34696 "EHLO
+        id S234721AbjAXNsQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 24 Jan 2023 08:48:16 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44360 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234584AbjAXNqD (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 24 Jan 2023 08:46:03 -0500
+        with ESMTP id S234722AbjAXNrz (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 24 Jan 2023 08:47:55 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 375F247EE8;
-        Tue, 24 Jan 2023 05:44:11 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 334DC42BF3;
+        Tue, 24 Jan 2023 05:45:58 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id C7DCDB80F3B;
-        Tue, 24 Jan 2023 13:44:10 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7102DC433A4;
-        Tue, 24 Jan 2023 13:44:03 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 60011B811DD;
+        Tue, 24 Jan 2023 13:44:08 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B3D9AC4339B;
+        Tue, 24 Jan 2023 13:44:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1674567844;
-        bh=qHVGKWz40xcyB0e9AaLwqgL438Tb2zBWiEAi4PrIKCY=;
+        s=k20201202; t=1674567845;
+        bh=DZmu8jGSL/L/xJM+5F3ppU3Jofv31JXHg3dhjC8C4II=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Ymc7hp3eXNx1pjHvyaHt3+UgXsV6Zed392R9qykcsKrW2eG5O38mZl/kYkR+prFbf
-         5fUMg/Mg8KC5eftSKYQpGSRhDruvLDRqFNI/5I3/1Sk2k9me8+kmv4XflFHPDVKi9n
-         r1GTMh2oM6RiQRCngDyfegD4z3e+/IGC3MGJlFjf5fywotZeWY7qbKoSiop/KKoJEY
-         IsLGRUrUwQme8nxNJERinE+q/Rsol0+fKbVwlb4UFU8qruZaq5d0bDXznzhFmSqlF3
-         6gPi/QjyJsjOToA2dqivlMDHapWT1Aft0gbSkH9uqNC5XKzL8+XeJAsBtzw74p5nR7
-         X3cy4Xj/fEaGw==
+        b=OW9AJ0qDkjlw2lauBJ8ry2D7p9xLBlvO4X/RBLYVg5wc3Nr+sU6I5ESrNRILfRhm4
+         O6Bq92DQP8DvW0PL5ZLrzkRq04sp2nrLQhG6Wx0v9pVrJ4LX8Cqimuuf6ppgBg458p
+         SDvIAWNZqwBCysG+YBHyhkgtVfBLR0slmd6ugAMVqMcjompRJVtfgAYsQVHecRavgd
+         iebiZB6dcI2n7I9Jv0DVAembXFYepom76Y+uFYOdLX6h9qcAhlamnFjnYaivPTOMQ1
+         q8SSjK9t2P8sfQ/ProWYi5icbrVSvUUm6xXdq7QMsji5thGJHGVlPB2bHEDL0SloB2
+         6cVxVcEfzj05A==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Hui Wang <hui.wang@canonical.com>,
-        Sascha Hauer <s.hauer@pengutronix.de>,
-        Vinod Koul <vkoul@kernel.org>, Sasha Levin <sashal@kernel.org>,
-        shawnguo@kernel.org, dmaengine@vger.kernel.org,
-        linux-arm-kernel@lists.infradead.org
-Subject: [PATCH AUTOSEL 4.19 3/4] dmaengine: imx-sdma: Fix a possible memory leak in sdma_transfer_init
-Date:   Tue, 24 Jan 2023 08:43:56 -0500
-Message-Id: <20230124134357.637945-3-sashal@kernel.org>
+Cc:     Linus Torvalds <torvalds@linux-foundation.org>,
+        kernel test robot <oliver.sang@intel.com>,
+        Eric Biggers <ebiggers@kernel.org>,
+        Andreas Dilger <adilger@dilger.ca>,
+        Theodore Ts'o <tytso@mit.edu>,
+        Jason Donenfeld <Jason@zx2c4.com>,
+        Masahiro Yamada <masahiroy@kernel.org>,
+        Sasha Levin <sashal@kernel.org>, adilger.kernel@dilger.ca,
+        linux-ext4@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.19 4/4] ext4: deal with legacy signed xattr name hash values
+Date:   Tue, 24 Jan 2023 08:43:57 -0500
+Message-Id: <20230124134357.637945-4-sashal@kernel.org>
 X-Mailer: git-send-email 2.39.0
 In-Reply-To: <20230124134357.637945-1-sashal@kernel.org>
 References: <20230124134357.637945-1-sashal@kernel.org>
@@ -57,47 +61,104 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hui Wang <hui.wang@canonical.com>
+From: Linus Torvalds <torvalds@linux-foundation.org>
 
-[ Upstream commit 1417f59ac0b02130ee56c0c50794b9b257be3d17 ]
+[ Upstream commit f3bbac32475b27f49be201f896d98d4009de1562 ]
 
-If the function sdma_load_context() fails, the sdma_desc will be
-freed, but the allocated desc->bd is forgot to be freed.
+We potentially have old hashes of the xattr names generated on systems
+with signed 'char' types.  Now that everybody uses '-funsigned-char',
+those hashes will no longer match.
 
-We already met the sdma_load_context() failure case and the log as
-below:
-[ 450.699064] imx-sdma 30bd0000.dma-controller: Timeout waiting for CH0 ready
-...
+This only happens if you use xattrs names that have the high bit set,
+which probably doesn't happen in practice, but the xfstest generic/454
+shows it.
 
-In this case, the desc->bd will not be freed without this change.
+Instead of adding a new "signed xattr hash filesystem" bit and having to
+deal with all the possible combinations, just calculate the hash both
+ways if the first one fails, and always generate new hashes with the
+proper unsigned char version.
 
-Signed-off-by: Hui Wang <hui.wang@canonical.com>
-Reviewed-by: Sascha Hauer <s.hauer@pengutronix.de>
-Link: https://lore.kernel.org/r/20221130090800.102035-1-hui.wang@canonical.com
-Signed-off-by: Vinod Koul <vkoul@kernel.org>
+Reported-by: kernel test robot <oliver.sang@intel.com>
+Link: https://lore.kernel.org/oe-lkp/202212291509.704a11c9-oliver.sang@intel.com
+Link: https://lore.kernel.org/all/CAHk-=whUNjwqZXa-MH9KMmc_CpQpoFKFjAB9ZKHuu=TbsouT4A@mail.gmail.com/
+Exposed-by: 3bc753c06dd0 ("kbuild: treat char as always unsigned")
+Cc: Eric Biggers <ebiggers@kernel.org>
+Cc: Andreas Dilger <adilger@dilger.ca>
+Cc: Theodore Ts'o <tytso@mit.edu>,
+Cc: Jason Donenfeld <Jason@zx2c4.com>
+Cc: Masahiro Yamada <masahiroy@kernel.org>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/dma/imx-sdma.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ fs/ext4/xattr.c | 41 +++++++++++++++++++++++++++++++++++++++--
+ 1 file changed, 39 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/dma/imx-sdma.c b/drivers/dma/imx-sdma.c
-index 709ead443fc5..5794d3120bb8 100644
---- a/drivers/dma/imx-sdma.c
-+++ b/drivers/dma/imx-sdma.c
-@@ -1347,10 +1347,12 @@ static struct sdma_desc *sdma_transfer_init(struct sdma_channel *sdmac,
- 		sdma_config_ownership(sdmac, false, true, false);
+diff --git a/fs/ext4/xattr.c b/fs/ext4/xattr.c
+index 0772941bbe92..c26a349af40b 100644
+--- a/fs/ext4/xattr.c
++++ b/fs/ext4/xattr.c
+@@ -81,6 +81,8 @@ ext4_xattr_block_cache_find(struct inode *, struct ext4_xattr_header *,
+ 			    struct mb_cache_entry **);
+ static __le32 ext4_xattr_hash_entry(char *name, size_t name_len, __le32 *value,
+ 				    size_t value_count);
++static __le32 ext4_xattr_hash_entry_signed(char *name, size_t name_len, __le32 *value,
++				    size_t value_count);
+ static void ext4_xattr_rehash(struct ext4_xattr_header *);
  
- 	if (sdma_load_context(sdmac))
--		goto err_desc_out;
-+		goto err_bd_out;
+ static const struct xattr_handler * const ext4_xattr_handler_map[] = {
+@@ -468,8 +470,21 @@ ext4_xattr_inode_verify_hashes(struct inode *ea_inode,
+ 		tmp_data = cpu_to_le32(hash);
+ 		e_hash = ext4_xattr_hash_entry(entry->e_name, entry->e_name_len,
+ 					       &tmp_data, 1);
+-		if (e_hash != entry->e_hash)
+-			return -EFSCORRUPTED;
++		/* All good? */
++		if (e_hash == entry->e_hash)
++			return 0;
++
++		/*
++		 * Not good. Maybe the entry hash was calculated
++		 * using the buggy signed char version?
++		 */
++		e_hash = ext4_xattr_hash_entry_signed(entry->e_name, entry->e_name_len,
++							&tmp_data, 1);
++		if (e_hash == entry->e_hash)
++			return 0;
++
++		/* Still no match - bad */
++		return -EFSCORRUPTED;
+ 	}
+ 	return 0;
+ }
+@@ -3121,6 +3136,28 @@ static __le32 ext4_xattr_hash_entry(char *name, size_t name_len, __le32 *value,
+ 	return cpu_to_le32(hash);
+ }
  
- 	return desc;
++/*
++ * ext4_xattr_hash_entry_signed()
++ *
++ * Compute the hash of an extended attribute incorrectly.
++ */
++static __le32 ext4_xattr_hash_entry_signed(char *name, size_t name_len, __le32 *value, size_t value_count)
++{
++	__u32 hash = 0;
++
++	while (name_len--) {
++		hash = (hash << NAME_HASH_SHIFT) ^
++		       (hash >> (8*sizeof(hash) - NAME_HASH_SHIFT)) ^
++		       (signed char)*name++;
++	}
++	while (value_count--) {
++		hash = (hash << VALUE_HASH_SHIFT) ^
++		       (hash >> (8*sizeof(hash) - VALUE_HASH_SHIFT)) ^
++		       le32_to_cpu(*value++);
++	}
++	return cpu_to_le32(hash);
++}
++
+ #undef NAME_HASH_SHIFT
+ #undef VALUE_HASH_SHIFT
  
-+err_bd_out:
-+	sdma_free_bd(desc);
- err_desc_out:
- 	kfree(desc);
- err_out:
 -- 
 2.39.0
 
