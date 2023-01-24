@@ -2,45 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 9A2BB6799C7
-	for <lists+stable@lfdr.de>; Tue, 24 Jan 2023 14:42:09 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A2A156799D0
+	for <lists+stable@lfdr.de>; Tue, 24 Jan 2023 14:42:21 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234020AbjAXNmI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 24 Jan 2023 08:42:08 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33614 "EHLO
+        id S234278AbjAXNmU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 24 Jan 2023 08:42:20 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33952 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234191AbjAXNmD (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 24 Jan 2023 08:42:03 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 14F134588E;
-        Tue, 24 Jan 2023 05:41:53 -0800 (PST)
+        with ESMTP id S234258AbjAXNmN (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 24 Jan 2023 08:42:13 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BAF2E3E61E;
+        Tue, 24 Jan 2023 05:41:58 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 80A2A611F2;
+        by ams.source.kernel.org (Postfix) with ESMTPS id 6335DB811DD;
+        Tue, 24 Jan 2023 13:41:57 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5F52EC4339E;
         Tue, 24 Jan 2023 13:41:52 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 10256C4339B;
-        Tue, 24 Jan 2023 13:41:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1674567711;
-        bh=0+jcL0cpGh18gP3DGO0pTxKbweqX1ksJ6xgS3QQQsZc=;
+        s=k20201202; t=1674567713;
+        bh=rGPzs7kmVKrk2vlRWmqB9RBll/IIAzm77xKeCZXA8J4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=KRaTzgp9xm1yNEZHc/2lOZvfx3tYZvq3w5UzLLK+QvEZqogIfUwzZbhJAuBGoxnSH
-         2Xt7FsJSn0MalBiTl6H9vN1gGS6L9JahPjJKi7kfjfiMgH5n6M3q+KsSwHjP/ZjqAA
-         TXDiYz9Hb8tYI+p47a8S4j/7FnxiKIJuwi4BC+pPTyOfe8YhZFAYnTCfj0NLTOuNpK
-         SJvQeM6ViaBTsPpp4hUtjWRXzQo1U6I6HaY8B8S1uy9RN8XQqGX0egZMDXM8FT9lk/
-         NRCnBsK/ILj7PDHe+81JmlDCmDmls7Q01khsmafGDNlr2hjbhm9SxAJU1zo6XUXJ5h
-         c+nnsQ78fY4wA==
+        b=Bp80HCUuNx1iDJombS5GxZLrsa6390/4f58Cb9tRYCU6TIf9TZ8+kbspLYnakV4r+
+         qlBV9yhb91vet21gaHZgCxx3fzEPh8aLni7j6pvlSCab3VoHJjqZizrebHqtDfWPA8
+         MWkRi+JbInYXFEWxNxEUXcebZ00rwtox7NVZciP0XmIZmT9zSmmsfQjE4xa9nPbSxt
+         4wQm21rC802VzTgL3JcTz2Km8YsAZgwJwa/NWqU9hvvov3lwKNnm1YRuO5LQY70rdC
+         RKLaZNKDmhEtyB0xFMRmxbgoAwe4MNHKgGXK7XKkuWRPmilIWDPdOourF0ubN2DRcf
+         MQ0up2Y2karOw==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Siddh Raman Pant <code@siddh.me>,
-        syzbot+a8e049cd3abd342936b6@syzkaller.appspotmail.com,
-        Gao Xiang <hsiangkao@linux.alibaba.com>,
-        Chao Yu <chao@kernel.org>, Sasha Levin <sashal@kernel.org>,
-        xiang@kernel.org, linux-erofs@lists.ozlabs.org
-Subject: [PATCH AUTOSEL 6.1 07/35] erofs/zmap.c: Fix incorrect offset calculation
-Date:   Tue, 24 Jan 2023 08:41:03 -0500
-Message-Id: <20230124134131.637036-7-sashal@kernel.org>
+Cc:     Sriram R <quic_srirrama@quicinc.com>,
+        Johannes Berg <johannes.berg@intel.com>,
+        Sasha Levin <sashal@kernel.org>, johannes@sipsolutions.net,
+        davem@davemloft.net, edumazet@google.com, kuba@kernel.org,
+        pabeni@redhat.com, linux-wireless@vger.kernel.org,
+        netdev@vger.kernel.org
+Subject: [PATCH AUTOSEL 6.1 08/35] mac80211: Fix MLO address translation for multiple bss case
+Date:   Tue, 24 Jan 2023 08:41:04 -0500
+Message-Id: <20230124134131.637036-8-sashal@kernel.org>
 X-Mailer: git-send-email 2.39.0
 In-Reply-To: <20230124134131.637036-1-sashal@kernel.org>
 References: <20230124134131.637036-1-sashal@kernel.org>
@@ -57,59 +58,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Siddh Raman Pant <code@siddh.me>
+From: Sriram R <quic_srirrama@quicinc.com>
 
-[ Upstream commit 6acd87d50998ef0afafc441613aeaf5a8f5c9eff ]
+[ Upstream commit fa22b51ace8aa106267636f36170e940e676809c ]
 
-Effective offset to add to length was being incorrectly calculated,
-which resulted in iomap->length being set to 0, triggering a WARN_ON
-in iomap_iter_done().
+When multiple interfaces are present in the local interface
+list, new skb copy is taken before rx processing except for
+the first interface. The address translation happens each
+time only on the original skb since the hdr pointer is not
+updated properly to the newly created skb.
 
-Fix that, and describe it in comments.
+As a result frames start to drop in userspace when address
+based checks or search fails.
 
-This was reported as a crash by syzbot under an issue about a warning
-encountered in iomap_iter_done(), but unrelated to erofs.
-
-C reproducer: https://syzkaller.appspot.com/text?tag=ReproC&x=1037a6b2880000
-Kernel config: https://syzkaller.appspot.com/text?tag=KernelConfig&x=e2021a61197ebe02
-Dashboard link: https://syzkaller.appspot.com/bug?extid=a8e049cd3abd342936b6
-
-Reported-by: syzbot+a8e049cd3abd342936b6@syzkaller.appspotmail.com
-Suggested-by: Gao Xiang <hsiangkao@linux.alibaba.com>
-Signed-off-by: Siddh Raman Pant <code@siddh.me>
-Reviewed-by: Gao Xiang <hsiangkao@linux.alibaba.com>
-Reviewed-by: Chao Yu <chao@kernel.org>
-Link: https://lore.kernel.org/r/20221209102151.311049-1-code@siddh.me
-Signed-off-by: Gao Xiang <hsiangkao@linux.alibaba.com>
+Signed-off-by: Sriram R <quic_srirrama@quicinc.com>
+Link: https://lore.kernel.org/r/20221208040050.25922-1-quic_srirrama@quicinc.com
+Signed-off-by: Johannes Berg <johannes.berg@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/erofs/zmap.c | 10 +++++++---
- 1 file changed, 7 insertions(+), 3 deletions(-)
+ net/mac80211/rx.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/fs/erofs/zmap.c b/fs/erofs/zmap.c
-index e6d5d7a18fb0..39cc014dba40 100644
---- a/fs/erofs/zmap.c
-+++ b/fs/erofs/zmap.c
-@@ -793,12 +793,16 @@ static int z_erofs_iomap_begin_report(struct inode *inode, loff_t offset,
- 		iomap->type = IOMAP_HOLE;
- 		iomap->addr = IOMAP_NULL_ADDR;
- 		/*
--		 * No strict rule how to describe extents for post EOF, yet
--		 * we need do like below. Otherwise, iomap itself will get
-+		 * No strict rule on how to describe extents for post EOF, yet
-+		 * we need to do like below. Otherwise, iomap itself will get
- 		 * into an endless loop on post EOF.
-+		 *
-+		 * Calculate the effective offset by subtracting extent start
-+		 * (map.m_la) from the requested offset, and add it to length.
-+		 * (NB: offset >= map.m_la always)
+diff --git a/net/mac80211/rx.c b/net/mac80211/rx.c
+index f99416d2e144..60b83cbbd5b0 100644
+--- a/net/mac80211/rx.c
++++ b/net/mac80211/rx.c
+@@ -4859,6 +4859,9 @@ static bool ieee80211_prepare_and_rx_handle(struct ieee80211_rx_data *rx,
  		 */
- 		if (iomap->offset >= inode->i_size)
--			iomap->length = length + map.m_la - offset;
-+			iomap->length = length + offset - map.m_la;
+ 		shwt = skb_hwtstamps(rx->skb);
+ 		shwt->hwtstamp = skb_hwtstamps(skb)->hwtstamp;
++
++		/* Update the hdr pointer to the new skb for translation below */
++		hdr = (struct ieee80211_hdr *)rx->skb->data;
  	}
- 	iomap->flags = 0;
- 	return 0;
+ 
+ 	if (unlikely(link_sta)) {
 -- 
 2.39.0
 
