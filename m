@@ -2,137 +2,156 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D216D6796F3
-	for <lists+stable@lfdr.de>; Tue, 24 Jan 2023 12:45:35 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 991B46796FB
+	for <lists+stable@lfdr.de>; Tue, 24 Jan 2023 12:48:33 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233897AbjAXLpe (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 24 Jan 2023 06:45:34 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40220 "EHLO
+        id S233940AbjAXLsc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 24 Jan 2023 06:48:32 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41870 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233828AbjAXLpc (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 24 Jan 2023 06:45:32 -0500
-Received: from ns2.wdyn.eu (ns2.wdyn.eu [IPv6:2a03:4000:40:5b2::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTP id 3E7583B652;
-        Tue, 24 Jan 2023 03:45:29 -0800 (PST)
-From:   Alexander Wetzel <alexander@wetzel-home.de>
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=wetzel-home.de;
-        s=wetzel-home; t=1674560725;
-        bh=ueaOOEssXCx/XZD9ovp2eZuzf1Ukyz4ic9KSrbyuqqA=;
-        h=From:To:Cc:Subject:Date;
-        b=UVKfT44bNM7/J3j4OuZbUDMCVi++xz4o+L+jVvxzzMOlo7dtFFGRdbpvX+ERq+pWF
-         vnhUwsKX/jqNSfbvPf62Vg024OJhrKOqkNSMytcbT7wzmAJNcNVyC6J9opXDUfAM3W
-         V42jL7vpJw9smCNYHj4DenIogikzWSWxMBv1mR30=
-To:     johannes@sipsolutions.net
-Cc:     linux-wireless@vger.kernel.org,
-        Alexander Wetzel <alexander@wetzel-home.de>,
-        stable@vger.kernel.org
-Subject: [PATCH] wifi: cfg80211: Fix use after free for wext
-Date:   Tue, 24 Jan 2023 12:45:15 +0100
-Message-Id: <20230124114515.186771-1-alexander@wetzel-home.de>
-X-Mailer: git-send-email 2.39.0
+        with ESMTP id S233646AbjAXLsb (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 24 Jan 2023 06:48:31 -0500
+Received: from mail-vs1-xe29.google.com (mail-vs1-xe29.google.com [IPv6:2607:f8b0:4864:20::e29])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9DB8542BD3
+        for <stable@vger.kernel.org>; Tue, 24 Jan 2023 03:48:29 -0800 (PST)
+Received: by mail-vs1-xe29.google.com with SMTP id i185so16165969vsc.6
+        for <stable@vger.kernel.org>; Tue, 24 Jan 2023 03:48:29 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=linaro.org; s=google;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=yQNMnRtLnVXUsYbjugmcT/zel0k+030c3Lta9eylBxc=;
+        b=dAryDTkfsGIYVUyiFQAQg6UcImbZOES0pg/JxW3sjdY3pY1vjHKvJOqwfFi2azRp7t
+         0XRzf1m5bxQUym7GyOV1kCTZ9dHiOIErOkUOux6UIOhLtMhlyqht4ccXzXPh29xJq0zF
+         gNXXJECUOefPPI29qKU76tNj/s2F4AEW8HANkfVBjO0NImMJHoJ9odTIDzfm3z/A2nNH
+         gO60UKQXtyFVQCn8qlkS+UcE90eXRWjEXB6sD7UdrRAYW147cFZy3JJrKqQA8dB+jY8z
+         QASUCs5yHKBGDmDplR/JE/53ks1P4kCgLPQ/rgb6bNu10byxDe+WkbWWSObibzEF5lSf
+         brIg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=yQNMnRtLnVXUsYbjugmcT/zel0k+030c3Lta9eylBxc=;
+        b=sD74/w06/5+6/QlG5OVOg5xBqMXGBJM8Q5YtpAa8SOM7wO29mq0ufVro5ERDg/hltd
+         +k1esSv1e6z1zkzekboT5Rnz5dS5hZ7Yhmhsb3OB7JIuVxhFkfqUrUyKC1uXdscYiHqV
+         TOXGp6/0e8zw9w58VqmywpzEp5KPlydZJAqxxUhTMAL3Ec5/INPcnQsttnDFiY6caMRh
+         7L+MteOpr/kwVkFQgjzKJ3JcW9youMqRdlHAy3VeIrVrlGg5DS57t1kaLA2BV6uUp8zt
+         rZZcZsDEQLAe5VgHWHdqaZ14FBEZ+I/d8HBUjdWf4S7NZ2JlO4DcSSoHCGuTxwYSaM5n
+         hGZg==
+X-Gm-Message-State: AFqh2kp0g3FU9N9XThzu1WF12j6x2oLzwQQgbaXr8Bv766CSej80cNoo
+        50XNpPPk6+kyp8BDxA7VwY0G6WbGvBow3cwqYfs53A==
+X-Google-Smtp-Source: AMrXdXtV11k6d6YefYEGLMcYkYjCLfS2e05CjSs8zizNKh6ibTvHrymxvK6XaoOWU//ZuW76eTprlP1a5kKpxbzunzI=
+X-Received: by 2002:a67:f2c2:0:b0:3d3:fdf4:9d30 with SMTP id
+ a2-20020a67f2c2000000b003d3fdf49d30mr3269571vsn.34.1674560908400; Tue, 24 Jan
+ 2023 03:48:28 -0800 (PST)
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+References: <20230122150246.321043584@linuxfoundation.org> <CA+G9fYsS1GLzMoeh-jz8eOMbomJ=XBg_3FjQ+4w_=Dw1Mwr3rQ@mail.gmail.com>
+ <20230123191128.ewfyc5cdbbdx5gtl@oracle.com>
+In-Reply-To: <20230123191128.ewfyc5cdbbdx5gtl@oracle.com>
+From:   Naresh Kamboju <naresh.kamboju@linaro.org>
+Date:   Tue, 24 Jan 2023 17:18:17 +0530
+Message-ID: <CA+G9fYuP+S_teUt1dHtEY11-1k2i=hewTEM2PfDonucQ=6Lb8g@mail.gmail.com>
+Subject: Re: [PATCH 6.1 000/193] 6.1.8-rc1 review
+To:     Tom Saeger <tom.saeger@oracle.com>
+Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        stable@vger.kernel.org, patches@lists.linux.dev,
+        linux-kernel@vger.kernel.org, torvalds@linux-foundation.org,
+        akpm@linux-foundation.org, linux@roeck-us.net, shuah@kernel.org,
+        patches@kernelci.org, lkft-triage@lists.linaro.org, pavel@denx.de,
+        jonathanh@nvidia.com, f.fainelli@gmail.com,
+        sudipm.mukherjee@gmail.com, srw@sladewatkins.net, rwarsow@gmx.de,
+        Masahiro Yamada <masahiroy@kernel.org>,
+        Ard Biesheuvel <ardb@kernel.org>,
+        Nathan Chancellor <nathan@kernel.org>,
+        Dennis Gilmore <dennis@ausil.us>,
+        Palmer Dabbelt <palmer@rivosinc.com>,
+        Arnd Bergmann <arnd@arndb.de>
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,SPF_HELO_NONE,SPF_PASS
-        autolearn=ham autolearn_force=no version=3.4.6
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_NONE,
+        SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Key information in wext.connect is not reset on (re)connect and can hold
-data from a previous connection.
+On Tue, 24 Jan 2023 at 00:41, Tom Saeger <tom.saeger@oracle.com> wrote:
+>
+> On Mon, Jan 23, 2023 at 01:39:11PM +0530, Naresh Kamboju wrote:
+> > On Sun, 22 Jan 2023 at 20:51, Greg Kroah-Hartman
+> > <gregkh@linuxfoundation.org> wrote:
+> > >
+> > > This is the start of the stable review cycle for the 6.1.8 release.
+> > > There are 193 patches in this series, all will be posted as a respons=
+e
+> > > to this one.  If anyone has any issues with these being applied, plea=
+se
+> > > let me know.
+> > >
+> > > Responses should be made by Tue, 24 Jan 2023 15:02:08 +0000.
+> > > Anything received after that time might be too late.
+> > >
+> > > The whole patch series can be found in one patch at:
+> > >         https://www.kernel.org/pub/linux/kernel/v6.x/stable-review/pa=
+tch-6.1.8-rc1.gz
+> > > or in the git tree and branch at:
+> > >         git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
+able-rc.git linux-6.1.y
+> > > and the diffstat can be found below.
+> > >
+> > > thanks,
+> > >
+> > > greg k-h
+> >
+> >
+> > Results from Linaro=E2=80=99s test farm.
+> >
+> > Reported-by: Linux Kernel Functional Testing <lkft@linaro.org>
+> >
+> > * sh, build
+> >   - gcc-8-dreamcast_defconfig
+> >   - gcc-8-microdev_defconfig
+>
+> Naresh, any chance you could test again adding the following:
+>
+> diff --git a/arch/sh/kernel/vmlinux.lds.S b/arch/sh/kernel/vmlinux.lds.S
+> index 3161b9ccd2a5..b6276a3521d7 100644
+> --- a/arch/sh/kernel/vmlinux.lds.S
+> +++ b/arch/sh/kernel/vmlinux.lds.S
+> @@ -4,6 +4,7 @@
+>   * Written by Niibe Yutaka and Paul Mundt
+>   */
+>  OUTPUT_ARCH(sh)
+> +#define RUNTIME_DISCARD_EXIT
+>  #include <asm/thread_info.h>
+>  #include <asm/cache.h>
+>  #include <asm/vmlinux.lds.h>
 
-Reset key data to avoid that drivers or mac80211 incorrectly detect a
-WEP connection request and access the freed or already reused memory.
+Above patch fixes the reported problem.
 
-Additionally optimize cfg80211_sme_connect() and avoid an useless
-schedule of conn_work.
+Tested-by: Linux Kernel Functional Testing <lkft@linaro.org>
+Tested-by: Naresh Kamboju <naresh.kamboju@linaro.org>
 
-Fixes: fffd0934b939 ("cfg80211: rework key operation")
-Cc: stable@vger.kernel.org
-Link: https://lore.kernel.org/r/c80f04d2-8159-a02a-9287-26e5ec838826@wetzel-home.de
-Signed-off-by: Alexander Wetzel <alexander@wetzel-home.de>
+>
+> My guess is build environment is using ld < 2.36??
 
----
-I was first wondering if the dangling scheduled work was part of the
-problem. It's kind of pointless to schedule a work and then just do the job
-yourself. While it turned out to be benign I still added it to the fix here.
+"ld": "GNU ld (GNU Binutils for Debian) 2.31.1",
 
-Alexander
----
- net/wireless/sme.c | 29 ++++++++++++++++++++++++-----
- 1 file changed, 24 insertions(+), 5 deletions(-)
+However, we have been building with gcc-8, gcc-10, gcc-11 and gcc-10.
 
-diff --git a/net/wireless/sme.c b/net/wireless/sme.c
-index 123248b2c0be..8d8176e31e31 100644
---- a/net/wireless/sme.c
-+++ b/net/wireless/sme.c
-@@ -285,6 +285,15 @@ void cfg80211_conn_work(struct work_struct *work)
- 	wiphy_unlock(&rdev->wiphy);
- }
- 
-+static void cfg80211_step_auth_next(struct cfg80211_conn *conn,
-+				    struct cfg80211_bss *bss)
-+{
-+	memcpy(conn->bssid, bss->bssid, ETH_ALEN);
-+	conn->params.bssid = conn->bssid;
-+	conn->params.channel = bss->channel;
-+	conn->state = CFG80211_CONN_AUTHENTICATE_NEXT;
-+}
-+
- /* Returned bss is reference counted and must be cleaned up appropriately. */
- static struct cfg80211_bss *cfg80211_get_conn_bss(struct wireless_dev *wdev)
- {
-@@ -302,10 +311,7 @@ static struct cfg80211_bss *cfg80211_get_conn_bss(struct wireless_dev *wdev)
- 	if (!bss)
- 		return NULL;
- 
--	memcpy(wdev->conn->bssid, bss->bssid, ETH_ALEN);
--	wdev->conn->params.bssid = wdev->conn->bssid;
--	wdev->conn->params.channel = bss->channel;
--	wdev->conn->state = CFG80211_CONN_AUTHENTICATE_NEXT;
-+	cfg80211_step_auth_next(wdev->conn, bss);
- 	schedule_work(&rdev->conn_work);
- 
- 	return bss;
-@@ -597,7 +603,12 @@ static int cfg80211_sme_connect(struct wireless_dev *wdev,
- 	wdev->conn->params.ssid_len = wdev->u.client.ssid_len;
- 
- 	/* see if we have the bss already */
--	bss = cfg80211_get_conn_bss(wdev);
-+	bss = cfg80211_get_bss(wdev->wiphy, wdev->conn->params.channel,
-+			       wdev->conn->params.bssid,
-+			       wdev->conn->params.ssid,
-+			       wdev->conn->params.ssid_len,
-+			       wdev->conn_bss_type,
-+			       IEEE80211_PRIVACY(wdev->conn->params.privacy));
- 
- 	if (prev_bssid) {
- 		memcpy(wdev->conn->prev_bssid, prev_bssid, ETH_ALEN);
-@@ -608,6 +619,7 @@ static int cfg80211_sme_connect(struct wireless_dev *wdev,
- 	if (bss) {
- 		enum nl80211_timeout_reason treason;
- 
-+		cfg80211_step_auth_next(wdev->conn, bss);
- 		err = cfg80211_conn_do_work(wdev, &treason);
- 		cfg80211_put_bss(wdev->wiphy, bss);
- 	} else {
-@@ -1464,6 +1476,13 @@ int cfg80211_connect(struct cfg80211_registered_device *rdev,
- 	} else {
- 		if (WARN_ON(connkeys))
- 			return -EINVAL;
-+
-+		/* connect can point to wdev->connect
-+		 * and may hold outdated key data
-+		 */
-+		connect->key = NULL;
-+		connect->key_len = 0;
-+		connect->key_idx = 0;
- 	}
- 
- 	wdev->connect_keys = connkeys;
--- 
-2.39.0
+> and this is probably similar to:
+> a494398bde27 ("s390: define RUNTIME_DISCARD_EXIT to fix link error with G=
+NU ld < 2.36")
+> 4b9880dbf3bd ("powerpc/vmlinux.lds: Define RUNTIME_DISCARD_EXIT")
+>
+>
+> Regards,
+>
+> --Tom
 
+Best regards
+Naresh Kamboju
