@@ -2,146 +2,155 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 44774679DA6
-	for <lists+stable@lfdr.de>; Tue, 24 Jan 2023 16:37:23 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E7E95679DA7
+	for <lists+stable@lfdr.de>; Tue, 24 Jan 2023 16:37:25 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234471AbjAXPhV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 24 Jan 2023 10:37:21 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49394 "EHLO
+        id S233963AbjAXPhY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 24 Jan 2023 10:37:24 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49476 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234172AbjAXPhV (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 24 Jan 2023 10:37:21 -0500
-Received: from wout5-smtp.messagingengine.com (wout5-smtp.messagingengine.com [64.147.123.21])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6A48E4B4B5;
-        Tue, 24 Jan 2023 07:37:17 -0800 (PST)
-Received: from compute3.internal (compute3.nyi.internal [10.202.2.43])
-        by mailout.west.internal (Postfix) with ESMTP id 7606032009CA;
-        Tue, 24 Jan 2023 10:37:11 -0500 (EST)
-Received: from mailfrontend2 ([10.202.2.163])
-  by compute3.internal (MEProxy); Tue, 24 Jan 2023 10:37:12 -0500
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=squebb.ca; h=cc
-        :cc:content-transfer-encoding:date:date:from:from:in-reply-to
-        :in-reply-to:message-id:mime-version:references:reply-to:sender
-        :subject:subject:to:to; s=fm1; t=1674574631; x=1674661031; bh=Ln
-        1VijabIxlGKIfGtw6pw4bgh9TVRm1qkrRmVBkiKpQ=; b=mp4ZXwkB1w5HZeJX1w
-        FH/cZ2fcGKpaBIR2vPLNKaH747Y/Il5NtNd1nbfY8CQU/N8m1W4mtCo872PYbm9+
-        q0IP5+/2J1wKRUTLGZjHuthl9lJ9slxIvUZzt9Mzd7Ait2wi9J0uyGa1ngIfxptE
-        fTAgWbrtRqLqsBUh+lRlZAXvc0bDQZdvaXz7yuh16zldp2NbTTSP4nIiuEiOZQOH
-        ciDWXzcLy0/52VMObBQd7B8fPJLpqS2N2H/kdPiiuM+1l3pjfuXMSzgDQeaCKRV3
-        m+J5WgxFBHOjVubfmLOnkQt/EIoaktDr8oXv2Yom8sxVApFnyZWwuVRAvH64H7qq
-        /igA==
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
-        messagingengine.com; h=cc:cc:content-transfer-encoding:date:date
-        :feedback-id:feedback-id:from:from:in-reply-to:in-reply-to
-        :message-id:mime-version:references:reply-to:sender:subject
-        :subject:to:to:x-me-proxy:x-me-proxy:x-me-sender:x-me-sender
-        :x-sasl-enc; s=fm3; t=1674574631; x=1674661031; bh=Ln1VijabIxlGK
-        IfGtw6pw4bgh9TVRm1qkrRmVBkiKpQ=; b=DA/0D+ne8WwskxxcLtDsBzk1qF7Sj
-        nuatnV0jh3lUYs0i3ydEt1isFMP+uIDMUMd9aPze+KGHYkArZJke/OrKv8Krc+o2
-        bEaQitrjt8mPQkMlIODkXH01WHzM6ElW7+H6G0CO3/dSi4O8Dv/dzAThIbB1DM5x
-        mv78zcdRplVsFeLikWbX8cq9KOc0QJSPn2qZe96ix0c3IuhiCEcp+ftsF8XfB3UU
-        fFp7f+TjaCfetWXn8fBeZG8xVm3Dvt0Iv+Uy/bfQc2c17Y32a95ZASCVD9LIQkS7
-        0Hso08uulLnCB2cF1b24IXJcCualb+IGZA2W9CumSbCXH298V56MtlblA==
-X-ME-Sender: <xms:JvvPY2F-6Kln338wfaWtx2Rt-joGGqIkPEpawTfBF6AqK5geXfdaiw>
-    <xme:JvvPY3UR6yB3TrPcdwSQra_uIWcDjPcB8WCMDcPDTx1foTWsD96539SEhThCQG956
-    poZyE6u1l4wnCKUpoc>
-X-ME-Received: <xmr:JvvPYwLlAbtZKuY-NLBM9ujx041pwyu-lfVFzI6AgMAp79HMCwv3TnH6X42GdxXliTV-K6W02mY1JlQDXHPhKElSGjILOZcslWJDE0rkxWEKakLH6FUVUxDioR7kjs21gLSG1IdAuA>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedvhedruddvtddgjeehucetufdoteggodetrfdotf
-    fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
-    uceurghilhhouhhtmecufedttdenucgoteeftdduqddtudculdduhedmnecujfgurhephf
-    fvvefufffkofgjfhgggfestdekredtredttdenucfhrhhomhepofgrrhhkucfrvggrrhhs
-    ohhnuceomhhpvggrrhhsohhnqdhlvghnohhvohesshhquhgvsggsrdgtrgeqnecuggftrf
-    grthhtvghrnhepvedtlefggefgjeettddvgfekhfeugfeutdekfeefudeuuddvieeutdel
-    jedvhfdvnecuffhomhgrihhnpehkvghrnhgvlhdrohhrghenucevlhhushhtvghrufhiii
-    gvpedtnecurfgrrhgrmhepmhgrihhlfhhrohhmpehmphgvrghrshhonhdqlhgvnhhovhho
-    sehsqhhuvggssgdrtggr
-X-ME-Proxy: <xmx:JvvPYwG6SXLGBV1ILWSMcorPrAGXIMhkIThfQZz-sjf7B2ZYIBV1qg>
-    <xmx:JvvPY8XcsHl0fwRADSXHcgmIkDiDwnqzYxxI3E8g9uwu0KtSTKNciQ>
-    <xmx:JvvPYzOaKZMVmX_TM0Pru9OpMGQaVabS55G2kciuHsJlhzNc7wUcyg>
-    <xmx:J_vPY6zk4LXYebLxR105YGGZULQdiMYs0JyHeCKdgSOhzCRrp26s-g>
-Feedback-ID: ibe194615:Fastmail
-Received: by mail.messagingengine.com (Postfix) with ESMTPA; Tue,
- 24 Jan 2023 10:37:10 -0500 (EST)
-From:   Mark Pearson <mpearson-lenovo@squebb.ca>
-To:     mpearson-lenovo@squebb.ca
-Cc:     hdegoede@redhat.com, markgross@kernel.org,
-        mario.limonciello@amd.com, platform-driver-x86@vger.kernel.org,
-        stable@vger.kernel.org
-Subject: [PATCH] platform/x86: thinkpad_acpi: Fix profile modes on Intel platforms
-Date:   Tue, 24 Jan 2023 10:36:23 -0500
-Message-Id: <20230124153623.145188-1-mpearson-lenovo@squebb.ca>
-X-Mailer: git-send-email 2.39.1
-In-Reply-To: <mpearson-lenovo@squebb.ca>
-References: <mpearson-lenovo@squebb.ca>
+        with ESMTP id S235252AbjAXPhY (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 24 Jan 2023 10:37:24 -0500
+Received: from mail-pj1-x102d.google.com (mail-pj1-x102d.google.com [IPv6:2607:f8b0:4864:20::102d])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 33ADD4A228
+        for <stable@vger.kernel.org>; Tue, 24 Jan 2023 07:37:19 -0800 (PST)
+Received: by mail-pj1-x102d.google.com with SMTP id z9-20020a17090a468900b00226b6e7aeeaso14380718pjf.1
+        for <stable@vger.kernel.org>; Tue, 24 Jan 2023 07:37:19 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=kernelci-org.20210112.gappssmtp.com; s=20210112;
+        h=from:to:subject:content-transfer-encoding:mime-version:date
+         :message-id:from:to:cc:subject:date:message-id:reply-to;
+        bh=4hF9ljEH7sGrPfWxV7U4hga+MWaDaeQJZ57kmGcOAKM=;
+        b=UgUNWPrjq06qAUw3ntxFBVQQ1OVquUZtrmhDzOHC514TmhgVIwXzz7pqBFnoYkGe5B
+         J4JxgaG6lRxhUZtLsT35uEt0l4Hz/1c9aNNN50ZE1FWVbNk/YElX2XkZ/bw4XGqifQ0t
+         oVjiR6Y1xE5vwGce68FVMFW8m3KW+EnCN/jW9DeKh6w5hW3C3d6taT6sY7d3+Qx0vEMP
+         doFwPcp+Pe11YWmPGo6SXBvTspy+Wk4eX/cO+ZxbG9PblNro8Nn3VVF+eIa7KSOIPIPO
+         74SWEajvHp393YWQebrb8JX79+zy9qyQ0/zGjI2HWXkHlNAv47O7EM/ZGIHXjVLA7lfd
+         kyZQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=from:to:subject:content-transfer-encoding:mime-version:date
+         :message-id:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=4hF9ljEH7sGrPfWxV7U4hga+MWaDaeQJZ57kmGcOAKM=;
+        b=vg/xb4E6Q3eYmLmIs135RGGbmbGnC6TRmms4LVcQTPUg2hBEdGEfHQbAlIzW1ELlRD
+         y8PnFzI7L/36zoQPbbWF4BlmKiStnUtKxEgW6zm0qW/KWINf8hBRqvpZCx0PuLeDHFRX
+         ZrBmARHoi/RVf5iBO4wxKrtq7x8NdKLgk6SwAazio5w2v/d3Q5bHb5g7rCRKojtnDfqV
+         CjI9yiTi1Qr/YSHqiYpqfy/SkGBh8K+JZCQpIQMolFR8+VSxU5BwnyD9k8xILLYat50G
+         z9HrNthdbhjPWA+Ox42P1LvDTyQvM5ihoKPLT56j0dyEuNhGHBLYM/fvlZM6hO4Cdo0A
+         DLMg==
+X-Gm-Message-State: AO0yUKW/kbllcsaOLrbK31apGbQBeG75bYOilsjGdOjYObLfS27VPr/3
+        FLXyhD8r7giINJf1oYJr/XZdDO7j0b4VvjT2AOA=
+X-Google-Smtp-Source: AK7set9Et/EY7+37571sFTw4n9DSoaUODhY4grDywAUjBJ8ChUydTKdvNJ4IHX5u+1ay1Rrj6zrESw==
+X-Received: by 2002:a17:903:2344:b0:196:11a8:ebb5 with SMTP id c4-20020a170903234400b0019611a8ebb5mr4294834plh.2.1674574638465;
+        Tue, 24 Jan 2023 07:37:18 -0800 (PST)
+Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
+        by smtp.gmail.com with ESMTPSA id y7-20020a1709029b8700b001929dff50a9sm1837976plp.87.2023.01.24.07.37.17
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 24 Jan 2023 07:37:18 -0800 (PST)
+Message-ID: <63cffb2e.170a0220.2116.32a9@mx.google.com>
+Date:   Tue, 24 Jan 2023 07:37:18 -0800 (PST)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-2.8 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_LOW,SPF_HELO_PASS,
-        SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Tree: stable-rc
+X-Kernelci-Branch: queue/5.15
+X-Kernelci-Kernel: v5.15.87-218-g1f8f93d72631
+X-Kernelci-Report-Type: test
+Subject: stable-rc/queue/5.15 baseline: 173 runs,
+ 1 regressions (v5.15.87-218-g1f8f93d72631)
+To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
+        kernelci-results@groups.io
+From:   "kernelci.org bot" <bot@kernelci.org>
+X-Spam-Status: No, score=-1.9 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_NONE autolearn=ham
+        autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-My last commit to fix profile mode displays on AMD platforms caused
-an issue on Intel platforms - sorry!
+stable-rc/queue/5.15 baseline: 173 runs, 1 regressions (v5.15.87-218-g1f8f9=
+3d72631)
 
-In it I was reading the current functional mode (MMC, PSC, AMT) from
-the BIOS but didn't account for the fact that on some of our Intel
-platforms I use a different API which returns just the profile and not
-the functional mode.
+Regressions Summary
+-------------------
 
-This commit fixes it so that on Intel platforms it knows the functional
-mode is always MMC.
-
-I also fixed a potential problem that a platform may try to set the mode
-for both MMC and PSC - which was incorrect.
-
-Tested on X1 Carbon 9 (Intel) and Z13 (AMD).
-
-Link: https://bugzilla.kernel.org/show_bug.cgi?id=216963
-Fixes: fde5f74ccfc7 ("platform/x86: thinkpad_acpi: Fix profile mode display in AMT mode")
-
-Signed-off-by: Mark Pearson <mpearson-lenovo@squebb.ca>
+platform   | arch | lab          | compiler | defconfig          | regressi=
+ons
+-----------+------+--------------+----------+--------------------+---------=
 ---
- drivers/platform/x86/thinkpad_acpi.c | 11 ++++++-----
- 1 file changed, 6 insertions(+), 5 deletions(-)
+cubietruck | arm  | lab-baylibre | gcc-10   | multi_v7_defconfig | 1       =
+   =
 
-diff --git a/drivers/platform/x86/thinkpad_acpi.c b/drivers/platform/x86/thinkpad_acpi.c
-index a95946800ae9..6668d472df39 100644
---- a/drivers/platform/x86/thinkpad_acpi.c
-+++ b/drivers/platform/x86/thinkpad_acpi.c
-@@ -10496,8 +10496,7 @@ static int dytc_profile_set(struct platform_profile_handler *pprof,
- 			if (err)
- 				goto unlock;
- 		}
--	}
--	if (dytc_capabilities & BIT(DYTC_FC_PSC)) {
-+	} else if (dytc_capabilities & BIT(DYTC_FC_PSC)) {
- 		err = dytc_command(DYTC_SET_COMMAND(DYTC_FUNCTION_PSC, perfmode, 1), &output);
- 		if (err)
- 			goto unlock;
-@@ -10525,14 +10524,16 @@ static void dytc_profile_refresh(void)
- 			err = dytc_command(DYTC_CMD_MMC_GET, &output);
- 		else
- 			err = dytc_cql_command(DYTC_CMD_GET, &output);
--	} else if (dytc_capabilities & BIT(DYTC_FC_PSC))
-+		funcmode = DYTC_FUNCTION_MMC;
-+	} else if (dytc_capabilities & BIT(DYTC_FC_PSC)) {
- 		err = dytc_command(DYTC_CMD_GET, &output);
--
-+		/*Check if we are PSC mode, or have AMT enabled */
-+		funcmode = (output >> DYTC_GET_FUNCTION_BIT) & 0xF;
-+	}
- 	mutex_unlock(&dytc_mutex);
- 	if (err)
- 		return;
- 
--	funcmode = (output >> DYTC_GET_FUNCTION_BIT) & 0xF;
- 	perfmode = (output >> DYTC_GET_MODE_BIT) & 0xF;
- 	convert_dytc_to_profile(funcmode, perfmode, &profile);
- 	if (profile != dytc_current_profile) {
--- 
-2.38.1
 
+  Details:  https://kernelci.org/test/job/stable-rc/branch/queue%2F5.15/ker=
+nel/v5.15.87-218-g1f8f93d72631/plan/baseline/
+
+  Test:     baseline
+  Tree:     stable-rc
+  Branch:   queue/5.15
+  Describe: v5.15.87-218-g1f8f93d72631
+  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
+able-rc.git
+  SHA:      1f8f93d7263101450232ca305bc17d561ec8c2a0 =
+
+
+
+Test Regressions
+---------------- =
+
+
+
+platform   | arch | lab          | compiler | defconfig          | regressi=
+ons
+-----------+------+--------------+----------+--------------------+---------=
+---
+cubietruck | arm  | lab-baylibre | gcc-10   | multi_v7_defconfig | 1       =
+   =
+
+
+  Details:     https://kernelci.org/test/plan/id/63cfc4ae2b49eedd6f915ecb
+
+  Results:     5 PASS, 1 FAIL, 1 SKIP
+  Full config: multi_v7_defconfig
+  Compiler:    gcc-10 (arm-linux-gnueabihf-gcc (Debian 10.2.1-6) 10.2.1 202=
+10110)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.15/v5.15.87-=
+218-g1f8f93d72631/arm/multi_v7_defconfig/gcc-10/lab-baylibre/baseline-cubie=
+truck.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.15/v5.15.87-=
+218-g1f8f93d72631/arm/multi_v7_defconfig/gcc-10/lab-baylibre/baseline-cubie=
+truck.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
+t-baseline/20230120.0/armel/rootfs.cpio.gz =
+
+
+
+  * baseline.bootrr.deferred-probe-empty: https://kernelci.org/test/case/id=
+/63cfc4ae2b49eedd6f915ed0
+        failing since 7 days (last pass: v5.15.82-123-gd03dbdba21ef, first =
+fail: v5.15.87-100-ge215d5ead661)
+
+    2023-01-24T11:44:28.745326  + set +x<8>[    9.935064] <LAVA_SIGNAL_ENDR=
+UN 0_dmesg 3198528_1.5.2.4.1>
+    2023-01-24T11:44:28.745536  =
+
+    2023-01-24T11:44:28.851818  / # #
+    2023-01-24T11:44:28.953248  export SHELL=3D/bin/sh
+    2023-01-24T11:44:28.953615  #
+    2023-01-24T11:44:29.054689  / # export SHELL=3D/bin/sh. /lava-3198528/e=
+nvironment
+    2023-01-24T11:44:29.055062  =
+
+    2023-01-24T11:44:29.156257  / # . /lava-3198528/environment/lava-319852=
+8/bin/lava-test-runner /lava-3198528/1
+    2023-01-24T11:44:29.156805  =
+
+    2023-01-24T11:44:29.156942  / # <3>[   10.273846] Bluetooth: hci0: comm=
+and 0xfc18 tx timeout =
+
+    ... (13 line(s) more)  =
+
+ =20
