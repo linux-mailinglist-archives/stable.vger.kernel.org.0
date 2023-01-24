@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 64093679A25
-	for <lists+stable@lfdr.de>; Tue, 24 Jan 2023 14:45:08 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 488A4679A2F
+	for <lists+stable@lfdr.de>; Tue, 24 Jan 2023 14:45:22 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233104AbjAXNpF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 24 Jan 2023 08:45:05 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35576 "EHLO
+        id S234473AbjAXNpU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 24 Jan 2023 08:45:20 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35596 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234370AbjAXNor (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 24 Jan 2023 08:44:47 -0500
+        with ESMTP id S234273AbjAXNos (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 24 Jan 2023 08:44:48 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F0F284743C;
-        Tue, 24 Jan 2023 05:43:30 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 62818474C7;
+        Tue, 24 Jan 2023 05:43:32 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 135A5B811D6;
-        Tue, 24 Jan 2023 13:43:29 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 336E0C433A1;
-        Tue, 24 Jan 2023 13:43:24 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id BF395B811EA;
+        Tue, 24 Jan 2023 13:43:31 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 79CECC433EF;
+        Tue, 24 Jan 2023 13:43:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1674567805;
-        bh=KKT9nlYtpQ7Pb9dL4NaBymw1fdbaOTURA3l4RpsvtX8=;
+        s=k20201202; t=1674567806;
+        bh=aU13aZswrVBF+jlf0x4wFwaNBxGQzJ+noTS0NkOOf2U=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=hVko9IuAU63Ym/KHr/e25O82+8UrmhqzTGMOSzl2ydjqnwsuFSV4oAmmMewyN1edP
-         e0WoBLCKChdPMXWic/Xi2mI+mCFO+shYPSj5UtiUHqxX/T3AuUb87rDyC1Lf7mLfSk
-         Hse50Bi19ziFwYbHgM8xLX8GENHykNtpoK/0Au7DBj7HyfwX1iB2FWm4oZYsd0alul
-         oTP3jzDIg2W6TkSUoM9o2U1mYD7XbPDTJydbgNB+twJy+nxxwIBZVSOMdydHO/G0uy
-         7lRyUUGamg5SS+kaLvNlPyfgPXxJcQefu69i9DyuNxqIb2HJLAtRYIvpOIKndl5NEb
-         n8df3+bvzEILw==
+        b=ZzVKW9BOs0LVuZnfezcVOir7QLHRKktuH15I31s7X9yLDeYCiWQztvbyHAjEQLA5k
+         MKFfGpUr9eXZg+YpHAO+iKHsQHt3zK+1CVM3xT4r8Ma+moK+UgMuwFpx1husqNgakM
+         axLhjxMGGiId5/8nq+t3h0AQ0TqAhZ/4qWQDz/VDhMbBX43q8V+S3QIpv+CclJeBcX
+         dmGfzEyGMB/YuzjFzDi5GbBWxqlXRHLEXmQ3Iy8ZxfW/1mIO3d+ysV/qA9YC6zjWg3
+         L0lakbQi0UrAJ094shZEjf+9M6JvnsdKCql5WFQfTwSQSL8tc0pay1HVoEUe/VNJrj
+         6KdueM4CdDMCg==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Hui Wang <hui.wang@canonical.com>,
-        Sascha Hauer <s.hauer@pengutronix.de>,
-        Vinod Koul <vkoul@kernel.org>, Sasha Levin <sashal@kernel.org>,
-        shawnguo@kernel.org, dmaengine@vger.kernel.org,
-        linux-arm-kernel@lists.infradead.org
-Subject: [PATCH AUTOSEL 5.15 12/14] dmaengine: imx-sdma: Fix a possible memory leak in sdma_transfer_init
-Date:   Tue, 24 Jan 2023 08:42:55 -0500
-Message-Id: <20230124134257.637523-12-sashal@kernel.org>
+Cc:     Paulo Alcantara <pc@cjr.nz>, kernel test robot <lkp@intel.com>,
+        Steve French <stfrench@microsoft.com>,
+        Sasha Levin <sashal@kernel.org>, sfrench@samba.org,
+        linux-cifs@vger.kernel.org, samba-technical@lists.samba.org
+Subject: [PATCH AUTOSEL 5.15 13/14] cifs: fix return of uninitialized rc in dfs_cache_update_tgthint()
+Date:   Tue, 24 Jan 2023 08:42:56 -0500
+Message-Id: <20230124134257.637523-13-sashal@kernel.org>
 X-Mailer: git-send-email 2.39.0
 In-Reply-To: <20230124134257.637523-1-sashal@kernel.org>
 References: <20230124134257.637523-1-sashal@kernel.org>
@@ -57,47 +56,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hui Wang <hui.wang@canonical.com>
+From: Paulo Alcantara <pc@cjr.nz>
 
-[ Upstream commit 1417f59ac0b02130ee56c0c50794b9b257be3d17 ]
+[ Upstream commit d6a49e8c4ca4d399ed65ac219585187fc8c2e2b1 ]
 
-If the function sdma_load_context() fails, the sdma_desc will be
-freed, but the allocated desc->bd is forgot to be freed.
+Fix this by initializing rc to 0 as cache_refresh_path() would not set
+it in case of success.
 
-We already met the sdma_load_context() failure case and the log as
-below:
-[ 450.699064] imx-sdma 30bd0000.dma-controller: Timeout waiting for CH0 ready
-...
-
-In this case, the desc->bd will not be freed without this change.
-
-Signed-off-by: Hui Wang <hui.wang@canonical.com>
-Reviewed-by: Sascha Hauer <s.hauer@pengutronix.de>
-Link: https://lore.kernel.org/r/20221130090800.102035-1-hui.wang@canonical.com
-Signed-off-by: Vinod Koul <vkoul@kernel.org>
+Reported-by: kernel test robot <lkp@intel.com>
+Link: https://lore.kernel.org/all/202301190004.bEHvbKG6-lkp@intel.com/
+Signed-off-by: Paulo Alcantara (SUSE) <pc@cjr.nz>
+Signed-off-by: Steve French <stfrench@microsoft.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/dma/imx-sdma.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ fs/cifs/dfs_cache.c | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/dma/imx-sdma.c b/drivers/dma/imx-sdma.c
-index 5215a5e39f3c..292f4c9a963d 100644
---- a/drivers/dma/imx-sdma.c
-+++ b/drivers/dma/imx-sdma.c
-@@ -1428,10 +1428,12 @@ static struct sdma_desc *sdma_transfer_init(struct sdma_channel *sdmac,
- 		sdma_config_ownership(sdmac, false, true, false);
+diff --git a/fs/cifs/dfs_cache.c b/fs/cifs/dfs_cache.c
+index 1f3efa7821a0..935c5781d878 100644
+--- a/fs/cifs/dfs_cache.c
++++ b/fs/cifs/dfs_cache.c
+@@ -1046,10 +1046,10 @@ int dfs_cache_update_tgthint(const unsigned int xid, struct cifs_ses *ses,
+ 			     const struct nls_table *cp, int remap, const char *path,
+ 			     const struct dfs_cache_tgt_iterator *it)
+ {
+-	int rc;
+-	const char *npath;
+-	struct cache_entry *ce;
+ 	struct cache_dfs_tgt *t;
++	struct cache_entry *ce;
++	const char *npath;
++	int rc = 0;
  
- 	if (sdma_load_context(sdmac))
--		goto err_desc_out;
-+		goto err_bd_out;
- 
- 	return desc;
- 
-+err_bd_out:
-+	sdma_free_bd(desc);
- err_desc_out:
- 	kfree(desc);
- err_out:
+ 	npath = dfs_cache_canonical_path(path, cp, remap);
+ 	if (IS_ERR(npath))
 -- 
 2.39.0
 
