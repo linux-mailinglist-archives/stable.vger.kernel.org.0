@@ -2,110 +2,146 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A11E8679D8B
-	for <lists+stable@lfdr.de>; Tue, 24 Jan 2023 16:33:02 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 44774679DA6
+	for <lists+stable@lfdr.de>; Tue, 24 Jan 2023 16:37:23 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233895AbjAXPdB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 24 Jan 2023 10:33:01 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45602 "EHLO
+        id S234471AbjAXPhV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 24 Jan 2023 10:37:21 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49394 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233407AbjAXPdA (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 24 Jan 2023 10:33:00 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5DEEA15C86;
-        Tue, 24 Jan 2023 07:32:58 -0800 (PST)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 1B7F8B81269;
-        Tue, 24 Jan 2023 15:32:57 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 34198C4339B;
-        Tue, 24 Jan 2023 15:32:55 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1674574375;
-        bh=DwJJrM9m9X5aOEJGDC5pjUO5kR+z8HBfLBtrc4OZg3Y=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=T79R7rRSYHrr9wQ+z64lcDBsZpl7FvIU+2jHr4eJ6qqXeJIfkKWxhMRmEI/2Ptm+1
-         sr74k2zR68RWoZ65WG4swS17bwLygM3ouL9HtnnESrEnkPAr3aN46tsywg3mHwfeXz
-         hh9Qmp3ALIRPq5YNd68B7/9QgTCW7NXzQng/9LUY=
-Date:   Tue, 24 Jan 2023 16:32:50 +0100
-From:   Greg KH <gregkh@linuxfoundation.org>
-To:     Alexander Shishkin <alexander.shishkin@linux.intel.com>
-Cc:     Leon Romanovsky <leon@kernel.org>,
-        Bjorn Helgaas <bhelgaas@google.com>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        linux-pci@vger.kernel.org, linux-kernel@vger.kernel.org,
-        Marc Zyngier <maz@kernel.org>, darwi@linutronix.de,
-        elena.reshetova@intel.com, kirill.shutemov@linux.intel.com,
-        Mika Westerberg <mika.westerberg@linux.intel.com>,
+        with ESMTP id S234172AbjAXPhV (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 24 Jan 2023 10:37:21 -0500
+Received: from wout5-smtp.messagingengine.com (wout5-smtp.messagingengine.com [64.147.123.21])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6A48E4B4B5;
+        Tue, 24 Jan 2023 07:37:17 -0800 (PST)
+Received: from compute3.internal (compute3.nyi.internal [10.202.2.43])
+        by mailout.west.internal (Postfix) with ESMTP id 7606032009CA;
+        Tue, 24 Jan 2023 10:37:11 -0500 (EST)
+Received: from mailfrontend2 ([10.202.2.163])
+  by compute3.internal (MEProxy); Tue, 24 Jan 2023 10:37:12 -0500
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=squebb.ca; h=cc
+        :cc:content-transfer-encoding:date:date:from:from:in-reply-to
+        :in-reply-to:message-id:mime-version:references:reply-to:sender
+        :subject:subject:to:to; s=fm1; t=1674574631; x=1674661031; bh=Ln
+        1VijabIxlGKIfGtw6pw4bgh9TVRm1qkrRmVBkiKpQ=; b=mp4ZXwkB1w5HZeJX1w
+        FH/cZ2fcGKpaBIR2vPLNKaH747Y/Il5NtNd1nbfY8CQU/N8m1W4mtCo872PYbm9+
+        q0IP5+/2J1wKRUTLGZjHuthl9lJ9slxIvUZzt9Mzd7Ait2wi9J0uyGa1ngIfxptE
+        fTAgWbrtRqLqsBUh+lRlZAXvc0bDQZdvaXz7yuh16zldp2NbTTSP4nIiuEiOZQOH
+        ciDWXzcLy0/52VMObBQd7B8fPJLpqS2N2H/kdPiiuM+1l3pjfuXMSzgDQeaCKRV3
+        m+J5WgxFBHOjVubfmLOnkQt/EIoaktDr8oXv2Yom8sxVApFnyZWwuVRAvH64H7qq
+        /igA==
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
+        messagingengine.com; h=cc:cc:content-transfer-encoding:date:date
+        :feedback-id:feedback-id:from:from:in-reply-to:in-reply-to
+        :message-id:mime-version:references:reply-to:sender:subject
+        :subject:to:to:x-me-proxy:x-me-proxy:x-me-sender:x-me-sender
+        :x-sasl-enc; s=fm3; t=1674574631; x=1674661031; bh=Ln1VijabIxlGK
+        IfGtw6pw4bgh9TVRm1qkrRmVBkiKpQ=; b=DA/0D+ne8WwskxxcLtDsBzk1qF7Sj
+        nuatnV0jh3lUYs0i3ydEt1isFMP+uIDMUMd9aPze+KGHYkArZJke/OrKv8Krc+o2
+        bEaQitrjt8mPQkMlIODkXH01WHzM6ElW7+H6G0CO3/dSi4O8Dv/dzAThIbB1DM5x
+        mv78zcdRplVsFeLikWbX8cq9KOc0QJSPn2qZe96ix0c3IuhiCEcp+ftsF8XfB3UU
+        fFp7f+TjaCfetWXn8fBeZG8xVm3Dvt0Iv+Uy/bfQc2c17Y32a95ZASCVD9LIQkS7
+        0Hso08uulLnCB2cF1b24IXJcCualb+IGZA2W9CumSbCXH298V56MtlblA==
+X-ME-Sender: <xms:JvvPY2F-6Kln338wfaWtx2Rt-joGGqIkPEpawTfBF6AqK5geXfdaiw>
+    <xme:JvvPY3UR6yB3TrPcdwSQra_uIWcDjPcB8WCMDcPDTx1foTWsD96539SEhThCQG956
+    poZyE6u1l4wnCKUpoc>
+X-ME-Received: <xmr:JvvPYwLlAbtZKuY-NLBM9ujx041pwyu-lfVFzI6AgMAp79HMCwv3TnH6X42GdxXliTV-K6W02mY1JlQDXHPhKElSGjILOZcslWJDE0rkxWEKakLH6FUVUxDioR7kjs21gLSG1IdAuA>
+X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedvhedruddvtddgjeehucetufdoteggodetrfdotf
+    fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
+    uceurghilhhouhhtmecufedttdenucgoteeftdduqddtudculdduhedmnecujfgurhephf
+    fvvefufffkofgjfhgggfestdekredtredttdenucfhrhhomhepofgrrhhkucfrvggrrhhs
+    ohhnuceomhhpvggrrhhsohhnqdhlvghnohhvohesshhquhgvsggsrdgtrgeqnecuggftrf
+    grthhtvghrnhepvedtlefggefgjeettddvgfekhfeugfeutdekfeefudeuuddvieeutdel
+    jedvhfdvnecuffhomhgrihhnpehkvghrnhgvlhdrohhrghenucevlhhushhtvghrufhiii
+    gvpedtnecurfgrrhgrmhepmhgrihhlfhhrohhmpehmphgvrghrshhonhdqlhgvnhhovhho
+    sehsqhhuvggssgdrtggr
+X-ME-Proxy: <xmx:JvvPYwG6SXLGBV1ILWSMcorPrAGXIMhkIThfQZz-sjf7B2ZYIBV1qg>
+    <xmx:JvvPY8XcsHl0fwRADSXHcgmIkDiDwnqzYxxI3E8g9uwu0KtSTKNciQ>
+    <xmx:JvvPYzOaKZMVmX_TM0Pru9OpMGQaVabS55G2kciuHsJlhzNc7wUcyg>
+    <xmx:J_vPY6zk4LXYebLxR105YGGZULQdiMYs0JyHeCKdgSOhzCRrp26s-g>
+Feedback-ID: ibe194615:Fastmail
+Received: by mail.messagingengine.com (Postfix) with ESMTPA; Tue,
+ 24 Jan 2023 10:37:10 -0500 (EST)
+From:   Mark Pearson <mpearson-lenovo@squebb.ca>
+To:     mpearson-lenovo@squebb.ca
+Cc:     hdegoede@redhat.com, markgross@kernel.org,
+        mario.limonciello@amd.com, platform-driver-x86@vger.kernel.org,
         stable@vger.kernel.org
-Subject: Re: [PATCH 1/2] PCI/MSI: Cache the MSIX table size
-Message-ID: <Y8/6InIxcpwM5u2M@kroah.com>
-References: <20230119170633.40944-1-alexander.shishkin@linux.intel.com>
- <20230119170633.40944-2-alexander.shishkin@linux.intel.com>
- <Y8z7FPcuDXDBi+1U@unreal>
- <87v8kwp2t6.fsf@ubik.fi.intel.com>
+Subject: [PATCH] platform/x86: thinkpad_acpi: Fix profile modes on Intel platforms
+Date:   Tue, 24 Jan 2023 10:36:23 -0500
+Message-Id: <20230124153623.145188-1-mpearson-lenovo@squebb.ca>
+X-Mailer: git-send-email 2.39.1
+In-Reply-To: <mpearson-lenovo@squebb.ca>
+References: <mpearson-lenovo@squebb.ca>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <87v8kwp2t6.fsf@ubik.fi.intel.com>
-X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
-        SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
+Content-Transfer-Encoding: 8bit
+X-Spam-Status: No, score=-2.8 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_LOW,SPF_HELO_PASS,
+        SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, Jan 24, 2023 at 01:52:37PM +0200, Alexander Shishkin wrote:
-> Leon Romanovsky <leon@kernel.org> writes:
-> 
-> > On Thu, Jan 19, 2023 at 07:06:32PM +0200, Alexander Shishkin wrote:
-> >> A malicious device can change its MSIX table size between the table
-> >> ioremap() and subsequent accesses, resulting in a kernel page fault in
-> >> pci_write_msg_msix().
-> >> 
-> >> To avoid this, cache the table size observed at the moment of table
-> >> ioremap() and use the cached value. This, however, does not help drivers
-> >> that peek at the PCIE_MSIX_FLAGS register directly.
-> >> 
-> >> Signed-off-by: Alexander Shishkin <alexander.shishkin@linux.intel.com>
-> >> Reviewed-by: Mika Westerberg <mika.westerberg@linux.intel.com>
-> >> Cc: stable@vger.kernel.org
-> >> ---
-> >>  drivers/pci/msi/api.c | 7 ++++++-
-> >>  drivers/pci/msi/msi.c | 2 +-
-> >>  include/linux/pci.h   | 1 +
-> >>  3 files changed, 8 insertions(+), 2 deletions(-)
-> >
-> > I'm not security expert here, but not sure that this protects from anything.
-> > 1. Kernel relies on working and not-malicious HW. There are gazillion ways
-> > to cause crashes other than changing MSI-X.
-> 
-> This particular bug was preventing our fuzzing from going deeper into
-> the code and reaching some more of the aforementioned gazillion bugs.
+My last commit to fix profile mode displays on AMD platforms caused
+an issue on Intel platforms - sorry!
 
-As per our documentation, if you are "fixing" things based on a tool you
-have, you HAVE TO document that in the changelog.  Otherwise we just get
-to reject the patch flat out (hint, this has caused more than one group
-of developers to just be flat out banned for ignoring...)
+In it I was reading the current functional mode (MMC, PSC, AMT) from
+the BIOS but didn't account for the fact that on some of our Intel
+platforms I use a different API which returns just the profile and not
+the functional mode.
 
-And what kind of tool is now fuzzing PCI config accesses with
-"malicious" devices?  Again, this is NOT something that Linux currently
-even attempts to want to protect itself against.  If you are wanting to
-change that model, wonderful, let's discuss that and work on defining
-the scope of your new security threat model and go from there.  Don't
-throw random patches at us and expect us to think they are even valid.
+This commit fixes it so that on Intel platforms it knows the functional
+mode is always MMC.
 
-Again, Linux trusts PCI devices.  If you don't want to trust PCI
-devices, we already have a framework in place to prevent that which is
-independant of this area of the PCI code.  Use that, or let's discuss
-why that is insufficient.
+I also fixed a potential problem that a platform may try to set the mode
+for both MMC and PSC - which was incorrect.
 
-Note, this is NOT the first time I have told developers from Intel about
-this.  Why you all keep ignoring this is beyond me, I think you keep
-thinking that if you don't send patches through me, you can just ignore
-my statements about this.  Odd...
+Tested on X1 Carbon 9 (Intel) and Z13 (AMD).
 
-greg k-h
+Link: https://bugzilla.kernel.org/show_bug.cgi?id=216963
+Fixes: fde5f74ccfc7 ("platform/x86: thinkpad_acpi: Fix profile mode display in AMT mode")
+
+Signed-off-by: Mark Pearson <mpearson-lenovo@squebb.ca>
+---
+ drivers/platform/x86/thinkpad_acpi.c | 11 ++++++-----
+ 1 file changed, 6 insertions(+), 5 deletions(-)
+
+diff --git a/drivers/platform/x86/thinkpad_acpi.c b/drivers/platform/x86/thinkpad_acpi.c
+index a95946800ae9..6668d472df39 100644
+--- a/drivers/platform/x86/thinkpad_acpi.c
++++ b/drivers/platform/x86/thinkpad_acpi.c
+@@ -10496,8 +10496,7 @@ static int dytc_profile_set(struct platform_profile_handler *pprof,
+ 			if (err)
+ 				goto unlock;
+ 		}
+-	}
+-	if (dytc_capabilities & BIT(DYTC_FC_PSC)) {
++	} else if (dytc_capabilities & BIT(DYTC_FC_PSC)) {
+ 		err = dytc_command(DYTC_SET_COMMAND(DYTC_FUNCTION_PSC, perfmode, 1), &output);
+ 		if (err)
+ 			goto unlock;
+@@ -10525,14 +10524,16 @@ static void dytc_profile_refresh(void)
+ 			err = dytc_command(DYTC_CMD_MMC_GET, &output);
+ 		else
+ 			err = dytc_cql_command(DYTC_CMD_GET, &output);
+-	} else if (dytc_capabilities & BIT(DYTC_FC_PSC))
++		funcmode = DYTC_FUNCTION_MMC;
++	} else if (dytc_capabilities & BIT(DYTC_FC_PSC)) {
+ 		err = dytc_command(DYTC_CMD_GET, &output);
+-
++		/*Check if we are PSC mode, or have AMT enabled */
++		funcmode = (output >> DYTC_GET_FUNCTION_BIT) & 0xF;
++	}
+ 	mutex_unlock(&dytc_mutex);
+ 	if (err)
+ 		return;
+ 
+-	funcmode = (output >> DYTC_GET_FUNCTION_BIT) & 0xF;
+ 	perfmode = (output >> DYTC_GET_MODE_BIT) & 0xF;
+ 	convert_dytc_to_profile(funcmode, perfmode, &profile);
+ 	if (profile != dytc_current_profile) {
+-- 
+2.38.1
+
