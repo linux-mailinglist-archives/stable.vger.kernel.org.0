@@ -2,46 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 62EF6679A71
-	for <lists+stable@lfdr.de>; Tue, 24 Jan 2023 14:47:06 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B1272679A3D
+	for <lists+stable@lfdr.de>; Tue, 24 Jan 2023 14:45:43 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234607AbjAXNrF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 24 Jan 2023 08:47:05 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35506 "EHLO
+        id S234611AbjAXNpm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 24 Jan 2023 08:45:42 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33902 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234709AbjAXNq1 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 24 Jan 2023 08:46:27 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 25EE91BAD1;
-        Tue, 24 Jan 2023 05:44:19 -0800 (PST)
+        with ESMTP id S234526AbjAXNoz (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 24 Jan 2023 08:44:55 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 50613474CC;
+        Tue, 24 Jan 2023 05:43:43 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id BBC56611F9;
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 0F1C561221;
+        Tue, 24 Jan 2023 13:43:42 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 92A34C4339B;
         Tue, 24 Jan 2023 13:43:40 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id BC7DEC4339C;
-        Tue, 24 Jan 2023 13:43:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1674567820;
-        bh=2N4xWQrJQ0IrstXILNMl4yCPSskS9uzzqRrr92AD5LU=;
+        s=k20201202; t=1674567821;
+        bh=tfqkFwdSGSs2pUHF3ZMa11LzL7JgNr+nwO7nifF8Q1g=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=GOh7MjNuaPk8PLW4rGAP1OfjjuXHboudtSaHos/fKiSiOfWs1301Wfyk6TEnHlxs7
-         FvC7DRfVUJMEN0b99hqLB1J+7hQMFfoVc0HpfxUAAU2D6K8uIVWBMQ0ltuRQeybVaq
-         NgmnkeNGrEQU82cL+dfN5z8H6/hNPTdd5Q/MWvuPe09Zlh72oT8+5BGaGNuxPtJpMd
-         mwXzaRNV7yqFuRRFKMVl++yz2kWbXbDH4ffUeCBgDs8YOa0YP0FBPSQjfN6Bd6QDZX
-         tdWW0iXAt85fF28yCX74RPliNRyptnXVTPDeO6pUuFNX9mkg2vBr+VRo771nXnbLsT
-         HALRMOorEx+Ww==
+        b=MwOOYrGAL/g7qXNK6ohpTcHWwcovJo73KdHliwcl2VwEMkBgDG6TclnfnXlBIE056
+         4B5/TRwyE9BwyHv5R5RTl2QCnaoexf9ok5WZBqbKMmpMG8wOqj//PRWruvbIx9CSBl
+         c9UmOEjm81mMgo1uutGE84T6JpmQhyi3HtarG1UtgegAtE1V9ymoaDXmV2rd/Yihds
+         RVtvNIuqh57GuZSlZkCUNuQnqR9LhPbk4G4XnraMGjaED2zdi0HshblPigt43TZ1zQ
+         /v46IngrpNK3STPV/5kDlT1hP7moHQW4D4Y3MQZxhFXhJiRqztzW/bGW2AhJF3yBEF
+         7BwvdwBTcYW+g==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Rasmus Villemoes <linux@rasmusvillemoes.dk>,
-        Masahiro Yamada <masahiroy@kernel.org>,
-        Sasha Levin <sashal@kernel.org>, akpm@linux-foundation.org,
-        ndesaulniers@google.com, hannes@cmpxchg.org, nathan@kernel.org,
-        ojeda@kernel.org, mhiramat@kernel.org, atomlin@redhat.com,
-        tj@kernel.org, christophe.leroy@csgroup.eu, vbabka@suse.cz
-Subject: [PATCH AUTOSEL 5.10 5/8] init/Kconfig: fix LOCALVERSION_AUTO help text
-Date:   Tue, 24 Jan 2023 08:43:25 -0500
-Message-Id: <20230124134328.637707-5-sashal@kernel.org>
+Cc:     Yu Kuai <yukuai3@huawei.com>, Tejun Heo <tj@kernel.org>,
+        Jens Axboe <axboe@kernel.dk>, Sasha Levin <sashal@kernel.org>,
+        josef@toxicpanda.com, cgroups@vger.kernel.org,
+        linux-block@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.10 6/8] blk-cgroup: fix missing pd_online_fn() while activating policy
+Date:   Tue, 24 Jan 2023 08:43:26 -0500
+Message-Id: <20230124134328.637707-6-sashal@kernel.org>
 X-Mailer: git-send-email 2.39.0
 In-Reply-To: <20230124134328.637707-1-sashal@kernel.org>
 References: <20230124134328.637707-1-sashal@kernel.org>
@@ -58,34 +56,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Rasmus Villemoes <linux@rasmusvillemoes.dk>
+From: Yu Kuai <yukuai3@huawei.com>
 
-[ Upstream commit 0f9c608d4a1eb852d6769d2fc5906c71c02565ae ]
+[ Upstream commit e3ff8887e7db757360f97634e0d6f4b8e27a8c46 ]
 
-It was never guaranteed to be exactly eight, but since commit
-548b8b5168c9 ("scripts/setlocalversion: make git describe output more
-reliable"), it has been exactly 12.
+If the policy defines pd_online_fn(), it should be called after
+pd_init_fn(), like blkg_create().
 
-Signed-off-by: Rasmus Villemoes <linux@rasmusvillemoes.dk>
-Signed-off-by: Masahiro Yamada <masahiroy@kernel.org>
+Signed-off-by: Yu Kuai <yukuai3@huawei.com>
+Acked-by: Tejun Heo <tj@kernel.org>
+Link: https://lore.kernel.org/r/20230103112833.2013432-1-yukuai1@huaweicloud.com
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- init/Kconfig | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ block/blk-cgroup.c | 4 ++++
+ 1 file changed, 4 insertions(+)
 
-diff --git a/init/Kconfig b/init/Kconfig
-index eba883d6d9ed..4c70fdb58883 100644
---- a/init/Kconfig
-+++ b/init/Kconfig
-@@ -165,7 +165,7 @@ config LOCALVERSION_AUTO
- 	  appended after any matching localversion* files, and after the value
- 	  set in CONFIG_LOCALVERSION.
+diff --git a/block/blk-cgroup.c b/block/blk-cgroup.c
+index 484c6b2dd264..c623632c1cda 100644
+--- a/block/blk-cgroup.c
++++ b/block/blk-cgroup.c
+@@ -1370,6 +1370,10 @@ int blkcg_activate_policy(struct request_queue *q,
+ 		list_for_each_entry_reverse(blkg, &q->blkg_list, q_node)
+ 			pol->pd_init_fn(blkg->pd[pol->plid]);
  
--	  (The actual string used here is the first eight characters produced
-+	  (The actual string used here is the first 12 characters produced
- 	  by running the command:
++	if (pol->pd_online_fn)
++		list_for_each_entry_reverse(blkg, &q->blkg_list, q_node)
++			pol->pd_online_fn(blkg->pd[pol->plid]);
++
+ 	__set_bit(pol->plid, q->blkcg_pols);
+ 	ret = 0;
  
- 	    $ git rev-parse --verify HEAD
 -- 
 2.39.0
 
