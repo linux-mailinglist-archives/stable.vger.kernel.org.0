@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 54F94679A5C
-	for <lists+stable@lfdr.de>; Tue, 24 Jan 2023 14:46:28 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D2656679A1F
+	for <lists+stable@lfdr.de>; Tue, 24 Jan 2023 14:45:05 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234697AbjAXNq0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 24 Jan 2023 08:46:26 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35770 "EHLO
+        id S232302AbjAXNo7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 24 Jan 2023 08:44:59 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35506 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234616AbjAXNpm (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 24 Jan 2023 08:45:42 -0500
+        with ESMTP id S234414AbjAXNoj (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 24 Jan 2023 08:44:39 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8937247EDA;
-        Tue, 24 Jan 2023 05:44:01 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 76FB615540;
+        Tue, 24 Jan 2023 05:43:26 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 9BBC06117D;
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 9782860FAC;
+        Tue, 24 Jan 2023 13:43:22 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8A5DEC4339C;
         Tue, 24 Jan 2023 13:43:21 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 21CCCC433D2;
-        Tue, 24 Jan 2023 13:43:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1674567801;
-        bh=0K5stELeHERXjhv2dWvOORmeQAJeCAaHKpjVpiGwT5Q=;
+        s=k20201202; t=1674567802;
+        bh=mJLPCi/3sB+LqCzxEK11/00G7g5mPE/RTW6D4kkkB5M=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=jIuS2f4Gca3PtmUqFwpF4doG445eV+8eQzUd8QpEIYz5yeOUusCUvVEXsWXNprg74
-         LPVSe/R2t9p4Tx3irNOTl6Vr6e7WshV/LeGsAt8HlQ96vDhgyNUkQFlIY3uzVG6uZs
-         0ZjQgxbldKRzYlqu6/q55+N9/86SkS+PVb9lVukHAW2GpCZwmtHQMWqPwivz0kB1WK
-         nNOrVOzWVsFcaSFdR2oMaKJz5kUTB/rZOdl9E4kDPfni+l4Am0YDIfxo6UYOYxVOrs
-         5RM07nr3k5IXz/wQATQ4Sr7TJonOy7Ta4hVDlyjz1gcz890LQBpBfHHvY4PH08r846
-         hcNusaW7waFzA==
+        b=LgVisdwT7H50R31VxcMgggTZ/I+BfDpDMu5lJkWRV/Uucmd+7TdF50iNL3EeyoCNa
+         Hwslc4OfTaLpJ1vXQN5YSx8XXjyZUsqbDIyOpyeey4UQY7tR6J2kynBSnOT/YEA4Vb
+         MZoHR16vtZ4zxKakbIWexi07SAcTF4kFJ2yjOOxJ+NvSvrgBKJ5XQ0nLFmNuWaq66b
+         DzvrAj8T7s+5pp8f0sD3LUMDxGndlA7qMjj+QWJxABV0xGphiCiaW3lqW0O/vn7ScH
+         Hpr4yV9vsrYqoFtcIGWSbdmTyDSdfVmkYHqAqBZV1eR8sm58nAScdI+iIAbEhEFzHl
+         BPL8rad4CcrlQ==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Christoph Hellwig <hch@lst.de>,
-        Johannes Thumshirn <johannes.thumshirn@wdc.com>,
-        David Sterba <dsterba@suse.com>,
-        Sasha Levin <sashal@kernel.org>, clm@fb.com,
-        josef@toxicpanda.com, linux-btrfs@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.15 09/14] btrfs: factor out scratching of one regular super block
-Date:   Tue, 24 Jan 2023 08:42:52 -0500
-Message-Id: <20230124134257.637523-9-sashal@kernel.org>
+Cc:     Yu Kuai <yukuai3@huawei.com>, Tejun Heo <tj@kernel.org>,
+        Jens Axboe <axboe@kernel.dk>, Sasha Levin <sashal@kernel.org>,
+        josef@toxicpanda.com, cgroups@vger.kernel.org,
+        linux-block@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.15 10/14] blk-cgroup: fix missing pd_online_fn() while activating policy
+Date:   Tue, 24 Jan 2023 08:42:53 -0500
+Message-Id: <20230124134257.637523-10-sashal@kernel.org>
 X-Mailer: git-send-email 2.39.0
 In-Reply-To: <20230124134257.637523-1-sashal@kernel.org>
 References: <20230124134257.637523-1-sashal@kernel.org>
@@ -57,97 +56,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Christoph Hellwig <hch@lst.de>
+From: Yu Kuai <yukuai3@huawei.com>
 
-[ Upstream commit 0e0078f72be81bbb2a02b229fd2cec8ad63e4fb1 ]
+[ Upstream commit e3ff8887e7db757360f97634e0d6f4b8e27a8c46 ]
 
-btrfs_scratch_superblocks open codes scratching super block of a
-non-zoned super block.  Split the code to read, zero and write the
-superblock for regular devices into a separate helper.
+If the policy defines pd_online_fn(), it should be called after
+pd_init_fn(), like blkg_create().
 
-Reviewed-by: Johannes Thumshirn <johannes.thumshirn@wdc.com>
-Signed-off-by: Christoph Hellwig <hch@lst.de>
-Reviewed-by: David Sterba <dsterba@suse.com>
-[ update changelog ]
-Signed-off-by: David Sterba <dsterba@suse.com>
+Signed-off-by: Yu Kuai <yukuai3@huawei.com>
+Acked-by: Tejun Heo <tj@kernel.org>
+Link: https://lore.kernel.org/r/20230103112833.2013432-1-yukuai1@huaweicloud.com
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/btrfs/volumes.c | 51 +++++++++++++++++++++++-----------------------
- 1 file changed, 26 insertions(+), 25 deletions(-)
+ block/blk-cgroup.c | 4 ++++
+ 1 file changed, 4 insertions(+)
 
-diff --git a/fs/btrfs/volumes.c b/fs/btrfs/volumes.c
-index f01549b8c7c5..1f236604dffd 100644
---- a/fs/btrfs/volumes.c
-+++ b/fs/btrfs/volumes.c
-@@ -2060,42 +2060,43 @@ static u64 btrfs_num_devices(struct btrfs_fs_info *fs_info)
- 	return num_devices;
- }
+diff --git a/block/blk-cgroup.c b/block/blk-cgroup.c
+index ce5858dadca5..3ee4c1217b63 100644
+--- a/block/blk-cgroup.c
++++ b/block/blk-cgroup.c
+@@ -1360,6 +1360,10 @@ int blkcg_activate_policy(struct request_queue *q,
+ 		list_for_each_entry_reverse(blkg, &q->blkg_list, q_node)
+ 			pol->pd_init_fn(blkg->pd[pol->plid]);
  
-+static void btrfs_scratch_superblock(struct btrfs_fs_info *fs_info,
-+				     struct block_device *bdev, int copy_num)
-+{
-+	struct btrfs_super_block *disk_super;
-+	struct page *page;
-+	int ret;
++	if (pol->pd_online_fn)
++		list_for_each_entry_reverse(blkg, &q->blkg_list, q_node)
++			pol->pd_online_fn(blkg->pd[pol->plid]);
 +
-+	disk_super = btrfs_read_dev_one_super(bdev, copy_num, false);
-+	if (IS_ERR(disk_super))
-+		return;
-+
-+	memset(&disk_super->magic, 0, sizeof(disk_super->magic));
-+	page = virt_to_page(disk_super);
-+	set_page_dirty(page);
-+	lock_page(page);
-+	/* write_on_page() unlocks the page */
-+	ret = write_one_page(page);
-+	if (ret)
-+		btrfs_warn(fs_info, "error clearing superblock number %d (%d)",
-+			copy_num, ret);
-+	btrfs_release_disk_super(disk_super);
-+}
-+
- void btrfs_scratch_superblocks(struct btrfs_fs_info *fs_info,
- 			       struct block_device *bdev,
- 			       const char *device_path)
- {
--	struct btrfs_super_block *disk_super;
- 	int copy_num;
+ 	__set_bit(pol->plid, q->blkcg_pols);
+ 	ret = 0;
  
- 	if (!bdev)
- 		return;
- 
- 	for (copy_num = 0; copy_num < BTRFS_SUPER_MIRROR_MAX; copy_num++) {
--		struct page *page;
--		int ret;
--
--		disk_super = btrfs_read_dev_one_super(bdev, copy_num, false);
--		if (IS_ERR(disk_super))
--			continue;
--
--		if (bdev_is_zoned(bdev)) {
-+		if (bdev_is_zoned(bdev))
- 			btrfs_reset_sb_log_zones(bdev, copy_num);
--			continue;
--		}
--
--		memset(&disk_super->magic, 0, sizeof(disk_super->magic));
--
--		page = virt_to_page(disk_super);
--		set_page_dirty(page);
--		lock_page(page);
--		/* write_on_page() unlocks the page */
--		ret = write_one_page(page);
--		if (ret)
--			btrfs_warn(fs_info,
--				"error clearing superblock number %d (%d)",
--				copy_num, ret);
--		btrfs_release_disk_super(disk_super);
--
-+		else
-+			btrfs_scratch_superblock(fs_info, bdev, copy_num);
- 	}
- 
- 	/* Notify udev that device has changed */
 -- 
 2.39.0
 
