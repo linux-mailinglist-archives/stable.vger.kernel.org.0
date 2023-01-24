@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 7C9996799DE
-	for <lists+stable@lfdr.de>; Tue, 24 Jan 2023 14:42:56 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8C01A6799EF
+	for <lists+stable@lfdr.de>; Tue, 24 Jan 2023 14:43:24 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234300AbjAXNmy (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 24 Jan 2023 08:42:54 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34424 "EHLO
+        id S234318AbjAXNnW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 24 Jan 2023 08:43:22 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35298 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234301AbjAXNm1 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 24 Jan 2023 08:42:27 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7177745BEE;
-        Tue, 24 Jan 2023 05:42:05 -0800 (PST)
+        with ESMTP id S234363AbjAXNnB (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 24 Jan 2023 08:43:01 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 60CBC4615E;
+        Tue, 24 Jan 2023 05:42:26 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 1F5F8B811D8;
-        Tue, 24 Jan 2023 13:42:04 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 878B6C433A0;
-        Tue, 24 Jan 2023 13:42:01 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 999FCB811D7;
+        Tue, 24 Jan 2023 13:42:11 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 43794C433D2;
+        Tue, 24 Jan 2023 13:42:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1674567722;
-        bh=3KKifScuk1hhvnnfmlwGuRuD5jQ4e0Nucu2H8lY9BBk=;
+        s=k20201202; t=1674567724;
+        bh=9JEVtjnph0hhEIUkMI8QRftqbaZD7QCZi/PDQ27S0Y8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=kQ/XkeBHLv9it+1z4dw0NjGVvkYjlKf8h3awo5XZlX9U+vmlWtwAyilHa+3jLGJmd
-         ByWBvvy4IrTp8ZEP9DmExC4Q46F5tpT7IrC3qVgM0ToCs1Uj4aTsa9ugUivXGHq5P0
-         FNDbL0JSgAqzSAVN2b8hhbmQocQhZnxCP1yvG3jcTM54HI+faeIf4s88/x3yrA72Al
-         kL0EsZsYYhw3cRuh8Khc9h9gQ16UJFGombplMJ7lAuI1eKhgzIQlXTBF/OpSfiz5C/
-         0QggT+0FkZ+aDlRCyJ4txtQwEvfTEiEzaun+HUcOD4qO76Wme/YRuQ652b95zwGndM
-         df+OQGHpNG4UQ==
+        b=SIl7vbjSs+ByLT2IsER8xuVYRMDHLHX/U+qs0cJ5gy86ieaJNvP0Jn0Sf7QnkvbOF
+         jFr9UxqjGRT6Kfy+Lc4btkJ0m/w+4OIyn86WsmhCo3j3wMCQopQuNZ9ls2VCCFP8an
+         V2+oV11GpaDYpr1fSgLBC209FmJBsk+ZLxLBuj07o+G/LeGpEN4NKd/I90fHY2VCH3
+         ZGdy0bVMvWDsyd5N06o9vVbV+rBdYE+QmP3gAj09zxmSSKb9MuPQtU/T/WUdOdX3dC
+         u4IiZ2q+OIASfhXldQH9BwaOCR2f9iwSZdlFeMqqUv/UHIpgAIwXCDQPxNlR+7IS0C
+         jaK/2zoWK0klg==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Jingbo Xu <jefflexu@linux.alibaba.com>,
-        Gao Xiang <hsiangkao@linux.alibaba.com>,
-        Yue Hu <huyue2@coolpad.com>, Chao Yu <chao@kernel.org>,
-        Sasha Levin <sashal@kernel.org>, xiang@kernel.org,
-        linux-erofs@lists.ozlabs.org
-Subject: [PATCH AUTOSEL 6.1 13/35] erofs: clean up parsing of fscache related options
-Date:   Tue, 24 Jan 2023 08:41:09 -0500
-Message-Id: <20230124134131.637036-13-sashal@kernel.org>
+Cc:     Christoph Hellwig <hch@lst.de>,
+        Johannes Thumshirn <johannes.thumshirn@wdc.com>,
+        David Sterba <dsterba@suse.com>,
+        Sasha Levin <sashal@kernel.org>, clm@fb.com,
+        josef@toxicpanda.com, linux-btrfs@vger.kernel.org
+Subject: [PATCH AUTOSEL 6.1 14/35] btrfs: factor out scratching of one regular super block
+Date:   Tue, 24 Jan 2023 08:41:10 -0500
+Message-Id: <20230124134131.637036-14-sashal@kernel.org>
 X-Mailer: git-send-email 2.39.0
 In-Reply-To: <20230124134131.637036-1-sashal@kernel.org>
 References: <20230124134131.637036-1-sashal@kernel.org>
@@ -57,61 +57,97 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jingbo Xu <jefflexu@linux.alibaba.com>
+From: Christoph Hellwig <hch@lst.de>
 
-[ Upstream commit e02ac3e7329f76c5de40cba2746cbe165f571dff ]
+[ Upstream commit 0e0078f72be81bbb2a02b229fd2cec8ad63e4fb1 ]
 
-... to avoid the mess of conditional preprocessing as we are continually
-adding fscache related mount options.
+btrfs_scratch_superblocks open codes scratching super block of a
+non-zoned super block.  Split the code to read, zero and write the
+superblock for regular devices into a separate helper.
 
-Reviewd-by: Gao Xiang <hsiangkao@linux.alibaba.com>
-Reviewed-by: Yue Hu <huyue2@coolpad.com>
-Reviewed-by: Chao Yu <chao@kernel.org>
-Signed-off-by: Jingbo Xu <jefflexu@linux.alibaba.com>
-Link: https://lore.kernel.org/r/20230112065431.124926-3-jefflexu@linux.alibaba.com
-Signed-off-by: Gao Xiang <hsiangkao@linux.alibaba.com>
+Reviewed-by: Johannes Thumshirn <johannes.thumshirn@wdc.com>
+Signed-off-by: Christoph Hellwig <hch@lst.de>
+Reviewed-by: David Sterba <dsterba@suse.com>
+[ update changelog ]
+Signed-off-by: David Sterba <dsterba@suse.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/erofs/super.c | 13 ++++++-------
- 1 file changed, 6 insertions(+), 7 deletions(-)
+ fs/btrfs/volumes.c | 51 +++++++++++++++++++++++-----------------------
+ 1 file changed, 26 insertions(+), 25 deletions(-)
 
-diff --git a/fs/erofs/super.c b/fs/erofs/super.c
-index 481788c24a68..626a615dafc2 100644
---- a/fs/erofs/super.c
-+++ b/fs/erofs/super.c
-@@ -577,26 +577,25 @@ static int erofs_fc_parse_param(struct fs_context *fc,
- 		}
- 		++ctx->devs->extra_devices;
- 		break;
--	case Opt_fsid:
- #ifdef CONFIG_EROFS_FS_ONDEMAND
-+	case Opt_fsid:
- 		kfree(ctx->fsid);
- 		ctx->fsid = kstrdup(param->string, GFP_KERNEL);
- 		if (!ctx->fsid)
- 			return -ENOMEM;
--#else
--		errorfc(fc, "fsid option not supported");
--#endif
- 		break;
- 	case Opt_domain_id:
--#ifdef CONFIG_EROFS_FS_ONDEMAND
- 		kfree(ctx->domain_id);
- 		ctx->domain_id = kstrdup(param->string, GFP_KERNEL);
- 		if (!ctx->domain_id)
- 			return -ENOMEM;
-+		break;
- #else
--		errorfc(fc, "domain_id option not supported");
--#endif
-+	case Opt_fsid:
-+	case Opt_domain_id:
-+		errorfc(fc, "%s option not supported", erofs_fs_parameters[opt].name);
- 		break;
-+#endif
- 	default:
- 		return -ENOPARAM;
+diff --git a/fs/btrfs/volumes.c b/fs/btrfs/volumes.c
+index dba087ad40ea..8fd14dc7f667 100644
+--- a/fs/btrfs/volumes.c
++++ b/fs/btrfs/volumes.c
+@@ -2017,42 +2017,43 @@ static u64 btrfs_num_devices(struct btrfs_fs_info *fs_info)
+ 	return num_devices;
+ }
+ 
++static void btrfs_scratch_superblock(struct btrfs_fs_info *fs_info,
++				     struct block_device *bdev, int copy_num)
++{
++	struct btrfs_super_block *disk_super;
++	struct page *page;
++	int ret;
++
++	disk_super = btrfs_read_dev_one_super(bdev, copy_num, false);
++	if (IS_ERR(disk_super))
++		return;
++
++	memset(&disk_super->magic, 0, sizeof(disk_super->magic));
++	page = virt_to_page(disk_super);
++	set_page_dirty(page);
++	lock_page(page);
++	/* write_on_page() unlocks the page */
++	ret = write_one_page(page);
++	if (ret)
++		btrfs_warn(fs_info, "error clearing superblock number %d (%d)",
++			copy_num, ret);
++	btrfs_release_disk_super(disk_super);
++}
++
+ void btrfs_scratch_superblocks(struct btrfs_fs_info *fs_info,
+ 			       struct block_device *bdev,
+ 			       const char *device_path)
+ {
+-	struct btrfs_super_block *disk_super;
+ 	int copy_num;
+ 
+ 	if (!bdev)
+ 		return;
+ 
+ 	for (copy_num = 0; copy_num < BTRFS_SUPER_MIRROR_MAX; copy_num++) {
+-		struct page *page;
+-		int ret;
+-
+-		disk_super = btrfs_read_dev_one_super(bdev, copy_num, false);
+-		if (IS_ERR(disk_super))
+-			continue;
+-
+-		if (bdev_is_zoned(bdev)) {
++		if (bdev_is_zoned(bdev))
+ 			btrfs_reset_sb_log_zones(bdev, copy_num);
+-			continue;
+-		}
+-
+-		memset(&disk_super->magic, 0, sizeof(disk_super->magic));
+-
+-		page = virt_to_page(disk_super);
+-		set_page_dirty(page);
+-		lock_page(page);
+-		/* write_on_page() unlocks the page */
+-		ret = write_one_page(page);
+-		if (ret)
+-			btrfs_warn(fs_info,
+-				"error clearing superblock number %d (%d)",
+-				copy_num, ret);
+-		btrfs_release_disk_super(disk_super);
+-
++		else
++			btrfs_scratch_superblock(fs_info, bdev, copy_num);
  	}
+ 
+ 	/* Notify udev that device has changed */
 -- 
 2.39.0
 
