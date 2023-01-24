@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 2A8076799E4
-	for <lists+stable@lfdr.de>; Tue, 24 Jan 2023 14:43:06 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7C9996799DE
+	for <lists+stable@lfdr.de>; Tue, 24 Jan 2023 14:42:56 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234349AbjAXNm7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 24 Jan 2023 08:42:59 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34848 "EHLO
+        id S234300AbjAXNmy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 24 Jan 2023 08:42:54 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34424 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234315AbjAXNmm (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 24 Jan 2023 08:42:42 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 868D13F298;
-        Tue, 24 Jan 2023 05:42:08 -0800 (PST)
+        with ESMTP id S234301AbjAXNm1 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 24 Jan 2023 08:42:27 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7177745BEE;
+        Tue, 24 Jan 2023 05:42:05 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 1E2B2B811E7;
-        Tue, 24 Jan 2023 13:42:06 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2F2EEC4339C;
-        Tue, 24 Jan 2023 13:42:00 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 1F5F8B811D8;
+        Tue, 24 Jan 2023 13:42:04 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 878B6C433A0;
+        Tue, 24 Jan 2023 13:42:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1674567721;
-        bh=zL2k4u+Jj8vLXa5xAgk1+a1szX++mO4axPA7wz/3+pU=;
+        s=k20201202; t=1674567722;
+        bh=3KKifScuk1hhvnnfmlwGuRuD5jQ4e0Nucu2H8lY9BBk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=bIY6HWCwTjlQnOIEWiF5yFaQVuTUvQ9qDxUwkhiJLkQdMkK8PM/hTqkwbfjTM3uMi
-         ndGHX7qXzsf8x8O4O/GopZf2nsnEPcd5ixeIq/BkG+bBqvvz0fCMVuc0Lf4MqLMjIk
-         tmdHjE71pYRxTlFVfVFT+Ujl7hQ82Y08A7sKLbg9IBYS5D1v71a03/o5JfI9+sVuBr
-         0vxTJbrWfBPCNrCn+Ju264BFEUlNZ6jBwujhd/RWlbIjY5x+i72eP9zn/l801nOjJF
-         jvq+O64T1JSKWW1ZH9OSc6FvrOTBapDg3wamDFJx2+DDv0CnC4E52CRHrLCriaVHq/
-         DbA3i14k/2+mw==
+        b=kQ/XkeBHLv9it+1z4dw0NjGVvkYjlKf8h3awo5XZlX9U+vmlWtwAyilHa+3jLGJmd
+         ByWBvvy4IrTp8ZEP9DmExC4Q46F5tpT7IrC3qVgM0ToCs1Uj4aTsa9ugUivXGHq5P0
+         FNDbL0JSgAqzSAVN2b8hhbmQocQhZnxCP1yvG3jcTM54HI+faeIf4s88/x3yrA72Al
+         kL0EsZsYYhw3cRuh8Khc9h9gQ16UJFGombplMJ7lAuI1eKhgzIQlXTBF/OpSfiz5C/
+         0QggT+0FkZ+aDlRCyJ4txtQwEvfTEiEzaun+HUcOD4qO76Wme/YRuQ652b95zwGndM
+         df+OQGHpNG4UQ==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Mark Brown <broonie@kernel.org>,
-        Shuah Khan <skhan@linuxfoundation.org>,
-        Sasha Levin <sashal@kernel.org>, shuah@kernel.org,
-        nathan@kernel.org, ndesaulniers@google.com,
-        linux-kselftest@vger.kernel.org, llvm@lists.linux.dev
-Subject: [PATCH AUTOSEL 6.1 12/35] kselftest: Fix error message for unconfigured LLVM builds
-Date:   Tue, 24 Jan 2023 08:41:08 -0500
-Message-Id: <20230124134131.637036-12-sashal@kernel.org>
+Cc:     Jingbo Xu <jefflexu@linux.alibaba.com>,
+        Gao Xiang <hsiangkao@linux.alibaba.com>,
+        Yue Hu <huyue2@coolpad.com>, Chao Yu <chao@kernel.org>,
+        Sasha Levin <sashal@kernel.org>, xiang@kernel.org,
+        linux-erofs@lists.ozlabs.org
+Subject: [PATCH AUTOSEL 6.1 13/35] erofs: clean up parsing of fscache related options
+Date:   Tue, 24 Jan 2023 08:41:09 -0500
+Message-Id: <20230124134131.637036-13-sashal@kernel.org>
 X-Mailer: git-send-email 2.39.0
 In-Reply-To: <20230124134131.637036-1-sashal@kernel.org>
 References: <20230124134131.637036-1-sashal@kernel.org>
@@ -57,37 +57,61 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mark Brown <broonie@kernel.org>
+From: Jingbo Xu <jefflexu@linux.alibaba.com>
 
-[ Upstream commit 9fdaca2c1e157dc0a3c0faecf3a6a68e7d8d0c7b ]
+[ Upstream commit e02ac3e7329f76c5de40cba2746cbe165f571dff ]
 
-We are missing a ) when we attempt to complain about not having enough
-configuration for clang, resulting in the rather inscrutable error:
+... to avoid the mess of conditional preprocessing as we are continually
+adding fscache related mount options.
 
-../lib.mk:23: *** unterminated call to function 'error': missing ')'.  Stop.
-
-Add the required ) so we print the message we were trying to print.
-
-Signed-off-by: Mark Brown <broonie@kernel.org>
-Signed-off-by: Shuah Khan <skhan@linuxfoundation.org>
+Reviewd-by: Gao Xiang <hsiangkao@linux.alibaba.com>
+Reviewed-by: Yue Hu <huyue2@coolpad.com>
+Reviewed-by: Chao Yu <chao@kernel.org>
+Signed-off-by: Jingbo Xu <jefflexu@linux.alibaba.com>
+Link: https://lore.kernel.org/r/20230112065431.124926-3-jefflexu@linux.alibaba.com
+Signed-off-by: Gao Xiang <hsiangkao@linux.alibaba.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/testing/selftests/lib.mk | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ fs/erofs/super.c | 13 ++++++-------
+ 1 file changed, 6 insertions(+), 7 deletions(-)
 
-diff --git a/tools/testing/selftests/lib.mk b/tools/testing/selftests/lib.mk
-index 291144c284fb..f7900e75d230 100644
---- a/tools/testing/selftests/lib.mk
-+++ b/tools/testing/selftests/lib.mk
-@@ -20,7 +20,7 @@ CLANG_TARGET_FLAGS              := $(CLANG_TARGET_FLAGS_$(ARCH))
- 
- ifeq ($(CROSS_COMPILE),)
- ifeq ($(CLANG_TARGET_FLAGS),)
--$(error Specify CROSS_COMPILE or add '--target=' option to lib.mk
-+$(error Specify CROSS_COMPILE or add '--target=' option to lib.mk)
- else
- CLANG_FLAGS     += --target=$(CLANG_TARGET_FLAGS)
- endif # CLANG_TARGET_FLAGS
+diff --git a/fs/erofs/super.c b/fs/erofs/super.c
+index 481788c24a68..626a615dafc2 100644
+--- a/fs/erofs/super.c
++++ b/fs/erofs/super.c
+@@ -577,26 +577,25 @@ static int erofs_fc_parse_param(struct fs_context *fc,
+ 		}
+ 		++ctx->devs->extra_devices;
+ 		break;
+-	case Opt_fsid:
+ #ifdef CONFIG_EROFS_FS_ONDEMAND
++	case Opt_fsid:
+ 		kfree(ctx->fsid);
+ 		ctx->fsid = kstrdup(param->string, GFP_KERNEL);
+ 		if (!ctx->fsid)
+ 			return -ENOMEM;
+-#else
+-		errorfc(fc, "fsid option not supported");
+-#endif
+ 		break;
+ 	case Opt_domain_id:
+-#ifdef CONFIG_EROFS_FS_ONDEMAND
+ 		kfree(ctx->domain_id);
+ 		ctx->domain_id = kstrdup(param->string, GFP_KERNEL);
+ 		if (!ctx->domain_id)
+ 			return -ENOMEM;
++		break;
+ #else
+-		errorfc(fc, "domain_id option not supported");
+-#endif
++	case Opt_fsid:
++	case Opt_domain_id:
++		errorfc(fc, "%s option not supported", erofs_fs_parameters[opt].name);
+ 		break;
++#endif
+ 	default:
+ 		return -ENOPARAM;
+ 	}
 -- 
 2.39.0
 
