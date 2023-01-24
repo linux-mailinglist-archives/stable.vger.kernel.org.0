@@ -2,83 +2,131 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id F069867975A
-	for <lists+stable@lfdr.de>; Tue, 24 Jan 2023 13:11:57 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 148FB67978D
+	for <lists+stable@lfdr.de>; Tue, 24 Jan 2023 13:18:30 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231483AbjAXML5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 24 Jan 2023 07:11:57 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53620 "EHLO
+        id S233673AbjAXMS3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 24 Jan 2023 07:18:29 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57632 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233090AbjAXML4 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 24 Jan 2023 07:11:56 -0500
-Received: from mail-wm1-x333.google.com (mail-wm1-x333.google.com [IPv6:2a00:1450:4864:20::333])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B7FB943909
-        for <stable@vger.kernel.org>; Tue, 24 Jan 2023 04:11:55 -0800 (PST)
-Received: by mail-wm1-x333.google.com with SMTP id j17so11306913wms.0
-        for <stable@vger.kernel.org>; Tue, 24 Jan 2023 04:11:55 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=semihalf.com; s=google;
-        h=cc:to:subject:message-id:date:from:in-reply-to:references
-         :mime-version:from:to:cc:subject:date:message-id:reply-to;
-        bh=JTFl8KCFidacHzHAzwVR33OH+oMKyAXW2A3xkAdwji0=;
-        b=J4p/cLsrWdEGqs5e2GIKxoafZOqNahTBFk6BgZsLnxL7fmcPX4CIUEyfS0lNksIPOz
-         tL99btBZDSCY+Z6OVsL6gDGHPTQfoCIwikGl+Gs/JWbhheLuUT+XL5kSKG5QECnjvI/m
-         TdHLPmmcLLlBCWYnUere4za7t2WAum8yvPnHFHL0YpIw3JNYTj+qpfB1kEIhnJ02PN2Z
-         tyzBGywas0dmCuPktjapZ80gEwVuFsITMmYp92AqdU8bBKyVl1Y0+5bS7UgjqcZiB+ug
-         sA6Vd6nrka1Bv+Ep5rTm2kGdSshGr47NYDnf9bTea3JeZUWtE8bNdlidsr0crCxjUE3P
-         6R2A==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=cc:to:subject:message-id:date:from:in-reply-to:references
-         :mime-version:x-gm-message-state:from:to:cc:subject:date:message-id
-         :reply-to;
-        bh=JTFl8KCFidacHzHAzwVR33OH+oMKyAXW2A3xkAdwji0=;
-        b=RjMNsyEucnQRbZFCzVQws51cPpeE/OtcUmt0LOjQiSmxqcTekz1U+2na6MFGVU2fw8
-         hke6MgwCG2NscM2U4e9b3p1nM5DIz1/h1vdJFJNl5nzX67FYVnD+pfAk8/5cDzplEy7c
-         3XLrE0yDpFrWBc3B8ZrZYsOCtk5zEgbKKEnq6Uh/EKuSEQzPXp0FLWRDd1K47VE1zyNs
-         8jVS6Rgkxc3j8+gZvtZ2BSMNgehMOT+T+0iUyKgzRoUW5WIfsedRQC58TaFvKpvKH05S
-         FI0kcKi+eyoGLIXwifnvOTeTmfv3gHjFbFH1b51rL3siTfJbg11AFJIThPXDiqpS0GyR
-         C5gg==
-X-Gm-Message-State: AFqh2kr0iZ06iZPDtgqRyE1iykRrwyXWjRGbZPzx2CogPDyHWCbCNARv
-        wIVBQWtgsjMOhfYpa1Pj0bmZDrSsghBjNO8c5sdBhQ==
-X-Google-Smtp-Source: AMrXdXvetO6fQegu/4E4RSnpJxxq527M9OI7SPO8/UyHMUs6ms1Yv+difJP8RbF+w81HJdiHO+Ng2qi4y9UbEdoc1IA=
-X-Received: by 2002:a7b:c7d2:0:b0:3da:facf:a0ac with SMTP id
- z18-20020a7bc7d2000000b003dafacfa0acmr1728900wmk.171.1674562314130; Tue, 24
- Jan 2023 04:11:54 -0800 (PST)
+        with ESMTP id S233629AbjAXMSZ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 24 Jan 2023 07:18:25 -0500
+Received: from smtp-out2.suse.de (smtp-out2.suse.de [195.135.220.29])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B382F44BDE;
+        Tue, 24 Jan 2023 04:18:19 -0800 (PST)
+Received: from imap2.suse-dmz.suse.de (imap2.suse-dmz.suse.de [192.168.254.74])
+        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+         key-exchange X25519 server-signature ECDSA (P-521) server-digest SHA512)
+        (No client certificate requested)
+        by smtp-out2.suse.de (Postfix) with ESMTPS id A497E1FE52;
+        Tue, 24 Jan 2023 12:18:15 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.cz; s=susede2_rsa;
+        t=1674562695; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+         mime-version:mime-version:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=m46DRSIGbNxtq+S0X71nQaA8qyjXNFqrFgBCpjCP/VI=;
+        b=RL/yt1/hIrtZVUUJ7ZCLEIM/NZNwHFb/AxCm1CorTS3hnipc/PzFMwtaHTg+4b1PZkS5jX
+        p12Z+VSaMwN62hNpNB0PP/zWPisiHeBFitMpSOXTlQyvWozyZa+5uXIrZ7Zd13kGSxI6Qo
+        IOA0XpXH91MfKA5PsrhUhO7QT4ip4Yw=
+DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.cz;
+        s=susede2_ed25519; t=1674562695;
+        h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+         mime-version:mime-version:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=m46DRSIGbNxtq+S0X71nQaA8qyjXNFqrFgBCpjCP/VI=;
+        b=1j1Vqnh+SNA17y+xnUbwtBdQ4Tmo+FVpGhMf3h3zxAdSAzH62HYkxBfwnVP62ON+V3qnsW
+        Jr9DXzgl7TPEkNBg==
+Received: from imap2.suse-dmz.suse.de (imap2.suse-dmz.suse.de [192.168.254.74])
+        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+         key-exchange X25519 server-signature ECDSA (P-521) server-digest SHA512)
+        (No client certificate requested)
+        by imap2.suse-dmz.suse.de (Postfix) with ESMTPS id 97B9213A04;
+        Tue, 24 Jan 2023 12:18:15 +0000 (UTC)
+Received: from dovecot-director2.suse.de ([192.168.254.65])
+        by imap2.suse-dmz.suse.de with ESMTPSA
+        id Q9EFJYfMz2MFOAAAMHmgww
+        (envelope-from <jack@suse.cz>); Tue, 24 Jan 2023 12:18:15 +0000
+Received: by quack3.suse.cz (Postfix, from userid 1000)
+        id 7C477A0719; Tue, 24 Jan 2023 13:18:14 +0100 (CET)
+From:   Jan Kara <jack@suse.cz>
+To:     <linux-fsdevel@vger.kernel.org>
+Cc:     Jan Kara <jack@suse.cz>, stable@vger.kernel.org
+Subject: [PATCH 21/22] udf: Fix file corruption when appending just after end of preallocated extent
+Date:   Tue, 24 Jan 2023 13:18:07 +0100
+Message-Id: <20230124121814.25951-21-jack@suse.cz>
+X-Mailer: git-send-email 2.35.3
+In-Reply-To: <20230124120835.21728-1-jack@suse.cz>
+References: <20230124120835.21728-1-jack@suse.cz>
 MIME-Version: 1.0
-References: <CALFERdzKUodLsm6=Ub3g2+PxpNpPtPq3bGBLbff=eZr9_S=YVA@mail.gmail.com>
- <Y89n98fRfTpLmPUg@kroah.com> <CAFJ_xbqMx8LsD_Ry70jnqVmmhyGjTFpA-Gv7SpRR21v3Djr1DA@mail.gmail.com>
- <CALFERdxxAt5+Y0nxbEieYSZX8YLTA9aogtGWLLZBEpGdbWxT-g@mail.gmail.com>
-In-Reply-To: <CALFERdxxAt5+Y0nxbEieYSZX8YLTA9aogtGWLLZBEpGdbWxT-g@mail.gmail.com>
-From:   Lukasz Majczak <lma@semihalf.com>
-Date:   Tue, 24 Jan 2023 13:11:43 +0100
-Message-ID: <CAFJ_xbrAVZDtXwe0Ku0V7b1xp580N+ao0caCRP1xiHBr11oKyQ@mail.gmail.com>
-Subject: Re: Google Pixelbook EVE, no sound in kernel 6.1.x
-To:     Sasa Ostrouska <casaxa@gmail.com>
-Cc:     Greg KH <gregkh@linuxfoundation.org>, stable@vger.kernel.org,
-        regressions@lists.linux.dev,
-        Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>,
-        Cezary Rojewski <cezary.rojewski@intel.com>
-Content-Type: text/plain; charset="UTF-8"
-X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_NONE,
-        SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
+X-Developer-Signature: v=1; a=openpgp-sha256; l=2002; i=jack@suse.cz; h=from:subject; bh=lfwscmtlTLylhleSMfBN6ty0Imfx64TCTX3XBq2sWds=; b=owEBbQGS/pANAwAIAZydqgc/ZEDZAcsmYgBjz8x+TwOf6Aj5YpvaFbORv23yeEcN43H8u+UW/wsA yKhfUL+JATMEAAEIAB0WIQSrWdEr1p4yirVVKBycnaoHP2RA2QUCY8/MfgAKCRCcnaoHP2RA2cI0B/ 420Pzt9o+WwwO2G8nJ6hX0wemTXDkIpwas+DLgVbWIxCzlXoDGlV8B0NZ4X6fqcSiwm+EZMWFRbbqB NW87U3Umh12YWjGCApE+IQKBzO9qlZlwcNISgvHlk9e0Sdp3UyXtXY0F00j32zOZNETJ0HUBUHsqD5 j1PB1lScJcmLtd73TfCfeJZ7S1AhAszG4NcNJj38dlgJwn6rfSvJLz/phLaM2PDGleEA8aQh39pdAB a19uQse3Lk49cwkMSUpnTgLSh2GSORitudw+bboSQBFzHXWkiaH7Fa6PDNWuaoAnjvni5M/lBkRxzU dHYOQXCXI+CHaI3svV8Dxw/W9YkQ/O
+X-Developer-Key: i=jack@suse.cz; a=openpgp; fpr=93C6099A142276A28BBE35D815BC833443038D8C
+Content-Transfer-Encoding: 8bit
+X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,SPF_HELO_NONE,
+        SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-> If you need anything else just let me know.
->
-> Thanks
-> Sasa
+When we append new block just after the end of preallocated extent, the
+code in inode_getblk() wrongly determined we're going to use the
+preallocated extent which resulted in adding block into a wrong logical
+offset in the file. Sequence like this manifests it:
 
-Sasa,
+xfs_io -f -c "pwrite 0x2cacf 0xd122" -c "truncate 0x2dd6f" \
+  -c "pwrite 0x27fd9 0x69a9" -c "pwrite 0x32981 0x7244" <file>
 
-Thank you for sharing logs from the working version - could you also
-provide dmesg for the no sound scenario? You can also share them using
-e.g. https://gist.github.com/ .
+The code that determined the use of preallocated extent is actually
+stale because udf_do_extend_file() does not create preallocation anymore
+so after calling that function we are sure there's no usable
+preallocation. Just remove the faulty condition.
 
-Best regards,
-Lukasz
+CC: stable@vger.kernel.org
+Fixes: 16d055656814 ("udf: Discard preallocation before extending file with a hole")
+Signed-off-by: Jan Kara <jack@suse.cz>
+---
+ fs/udf/inode.c | 24 +++++++++++-------------
+ 1 file changed, 11 insertions(+), 13 deletions(-)
+
+diff --git a/fs/udf/inode.c b/fs/udf/inode.c
+index 8f55b37ddcad..6826c2aa021f 100644
+--- a/fs/udf/inode.c
++++ b/fs/udf/inode.c
+@@ -742,19 +742,17 @@ static int inode_getblk(struct inode *inode, struct udf_map_rq *map)
+ 		c = 0;
+ 		offset = 0;
+ 		count += ret;
+-		/* We are not covered by a preallocated extent? */
+-		if ((laarr[0].extLength & UDF_EXTENT_FLAG_MASK) !=
+-						EXT_NOT_RECORDED_ALLOCATED) {
+-			/* Is there any real extent? - otherwise we overwrite
+-			 * the fake one... */
+-			if (count)
+-				c = !c;
+-			laarr[c].extLength = EXT_NOT_RECORDED_NOT_ALLOCATED |
+-				inode->i_sb->s_blocksize;
+-			memset(&laarr[c].extLocation, 0x00,
+-				sizeof(struct kernel_lb_addr));
+-			count++;
+-		}
++		/*
++		 * Is there any real extent? - otherwise we overwrite the fake
++		 * one...
++		 */
++		if (count)
++			c = !c;
++		laarr[c].extLength = EXT_NOT_RECORDED_NOT_ALLOCATED |
++			inode->i_sb->s_blocksize;
++		memset(&laarr[c].extLocation, 0x00,
++			sizeof(struct kernel_lb_addr));
++		count++;
+ 		endnum = c + 1;
+ 		lastblock = 1;
+ 	} else {
+-- 
+2.35.3
+
