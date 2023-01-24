@@ -2,52 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D312D679A54
-	for <lists+stable@lfdr.de>; Tue, 24 Jan 2023 14:46:09 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0418B679AC3
+	for <lists+stable@lfdr.de>; Tue, 24 Jan 2023 14:58:04 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234587AbjAXNqG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 24 Jan 2023 08:46:06 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35744 "EHLO
+        id S233176AbjAXN6C (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 24 Jan 2023 08:58:02 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60192 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234515AbjAXNpi (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 24 Jan 2023 08:45:38 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6DB3947ECB;
-        Tue, 24 Jan 2023 05:43:58 -0800 (PST)
+        with ESMTP id S233370AbjAXN57 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 24 Jan 2023 08:57:59 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 903E2458B9;
+        Tue, 24 Jan 2023 05:57:28 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 069E4B810D9;
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 5D168611FC;
+        Tue, 24 Jan 2023 13:44:00 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E553DC433D2;
         Tue, 24 Jan 2023 13:43:58 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 74C6DC4339B;
-        Tue, 24 Jan 2023 13:43:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1674567836;
-        bh=li8v2iDSB5391kcshDwBM8CL3maGuoZgYFCLRMtzGBc=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=aTKq67pbqdOe/ukLObELr9jDi66bX9p2SIL4++4KdeOaqsPrglDIWF725XSj6oPub
-         w5i54zhmLeMk7cfJiVXC3lPJYSB/CxTAv9ggxZxWK8M/OnNGaHuL1cCkuFaFdM5mlS
-         1jXL6OjmIA+uaauj87Wrqt+De63fx8kmYB/SyIfJiYqSD9MPR9rhzgxhNK7vWZpmgs
-         tURzboVZN+kFy1A+65BYNn0RnhDTekmzuAsGXdkf0vD6GefUkSe4bCdqRoWwXI7h7i
-         IzWOMYHsD3MLbYb0EEFjI2sFLAw80rCogtKwi/kN1m9W7UMvAC6cs2eUB2H0bbXCD+
-         mfpA+dTthOX0Q==
+        s=k20201202; t=1674567839;
+        bh=jdlW2UpGV39iIb1jZylNHSlBWFgLrecPOvBrOD8Te6U=;
+        h=From:To:Cc:Subject:Date:From;
+        b=ZJub0ZeOQox04vPxRSr+kRQ1/M8mqyqT1HLKRh20CJs30sD+AcPqv66laIb116DpO
+         PtFkmK0nZfq5dXJiLD9oGLRN6RPzccS38Ozuj4xlQRYIgBpuzCztTKMrsqzDAieQDS
+         M26qo+FZlPs8cnoMlyJubXowdZfn9wp2VII+qUvtIaWoc4c/EiPY9JIafkXueDxnHr
+         XGHwtYJ0HhMmSrPjVqfmVArRVmz0yPWyH1Hh3D1wVDWkHFvdiWPWq5C1GvX5J1Q56O
+         ae4tpqrRCf/rRRJE0JCNf6a1+r5QdrsU9/QeKX3xK5q/+VoasZjd68OzhAlP02BKKF
+         hSilTSLx7AmMQ==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Linus Torvalds <torvalds@linux-foundation.org>,
-        kernel test robot <oliver.sang@intel.com>,
-        Eric Biggers <ebiggers@kernel.org>,
-        Andreas Dilger <adilger@dilger.ca>,
-        Theodore Ts'o <tytso@mit.edu>,
-        Jason Donenfeld <Jason@zx2c4.com>,
-        Masahiro Yamada <masahiroy@kernel.org>,
-        Sasha Levin <sashal@kernel.org>, adilger.kernel@dilger.ca,
-        linux-ext4@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.4 6/6] ext4: deal with legacy signed xattr name hash values
-Date:   Tue, 24 Jan 2023 08:43:44 -0500
-Message-Id: <20230124134344.637846-6-sashal@kernel.org>
+Cc:     Geert Uytterhoeven <geert+renesas@glider.be>,
+        Shawn Guo <shawnguo@kernel.org>,
+        Sasha Levin <sashal@kernel.org>, robh+dt@kernel.org,
+        krzysztof.kozlowski+dt@linaro.org, devicetree@vger.kernel.org,
+        linux-arm-kernel@lists.infradead.org
+Subject: [PATCH AUTOSEL 4.19 1/4] ARM: dts: imx: Fix pca9547 i2c-mux node name
+Date:   Tue, 24 Jan 2023 08:43:54 -0500
+Message-Id: <20230124134357.637945-1-sashal@kernel.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20230124134344.637846-1-sashal@kernel.org>
-References: <20230124134344.637846-1-sashal@kernel.org>
 MIME-Version: 1.0
 X-stable: review
 X-Patchwork-Hint: Ignore
@@ -61,104 +55,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Linus Torvalds <torvalds@linux-foundation.org>
+From: Geert Uytterhoeven <geert+renesas@glider.be>
 
-[ Upstream commit f3bbac32475b27f49be201f896d98d4009de1562 ]
+[ Upstream commit f78985f9f58380eec37f82c8a2c765aa7670fc29 ]
 
-We potentially have old hashes of the xattr names generated on systems
-with signed 'char' types.  Now that everybody uses '-funsigned-char',
-those hashes will no longer match.
+"make dtbs_check":
 
-This only happens if you use xattrs names that have the high bit set,
-which probably doesn't happen in practice, but the xfstest generic/454
-shows it.
+    arch/arm/boot/dts/imx53-ppd.dtb: i2c-switch@70: $nodename:0: 'i2c-switch@70' does not match '^(i2c-?)?mux'
+	    From schema: Documentation/devicetree/bindings/i2c/i2c-mux-pca954x.yaml
+    arch/arm/boot/dts/imx53-ppd.dtb: i2c-switch@70: Unevaluated properties are not allowed ('#address-cells', '#size-cells', 'i2c@0', 'i2c@1', 'i2c@2', 'i2c@3', 'i2c@4', 'i2c@5', 'i2c@6', 'i2c@7' were unexpected)
+	    From schema: Documentation/devicetree/bindings/i2c/i2c-mux-pca954x.yaml
 
-Instead of adding a new "signed xattr hash filesystem" bit and having to
-deal with all the possible combinations, just calculate the hash both
-ways if the first one fails, and always generate new hashes with the
-proper unsigned char version.
+Fix this by renaming the PCA9547 node to "i2c-mux", to match the I2C bus
+multiplexer/switch DT bindings and the Generic Names Recommendation in
+the Devicetree Specification.
 
-Reported-by: kernel test robot <oliver.sang@intel.com>
-Link: https://lore.kernel.org/oe-lkp/202212291509.704a11c9-oliver.sang@intel.com
-Link: https://lore.kernel.org/all/CAHk-=whUNjwqZXa-MH9KMmc_CpQpoFKFjAB9ZKHuu=TbsouT4A@mail.gmail.com/
-Exposed-by: 3bc753c06dd0 ("kbuild: treat char as always unsigned")
-Cc: Eric Biggers <ebiggers@kernel.org>
-Cc: Andreas Dilger <adilger@dilger.ca>
-Cc: Theodore Ts'o <tytso@mit.edu>,
-Cc: Jason Donenfeld <Jason@zx2c4.com>
-Cc: Masahiro Yamada <masahiroy@kernel.org>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Signed-off-by: Geert Uytterhoeven <geert+renesas@glider.be>
+Signed-off-by: Shawn Guo <shawnguo@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/ext4/xattr.c | 41 +++++++++++++++++++++++++++++++++++++++--
- 1 file changed, 39 insertions(+), 2 deletions(-)
+ arch/arm/boot/dts/imx53-ppd.dts | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/fs/ext4/xattr.c b/fs/ext4/xattr.c
-index 78df2d65998e..fc699d68a23a 100644
---- a/fs/ext4/xattr.c
-+++ b/fs/ext4/xattr.c
-@@ -81,6 +81,8 @@ ext4_xattr_block_cache_find(struct inode *, struct ext4_xattr_header *,
- 			    struct mb_cache_entry **);
- static __le32 ext4_xattr_hash_entry(char *name, size_t name_len, __le32 *value,
- 				    size_t value_count);
-+static __le32 ext4_xattr_hash_entry_signed(char *name, size_t name_len, __le32 *value,
-+				    size_t value_count);
- static void ext4_xattr_rehash(struct ext4_xattr_header *);
+diff --git a/arch/arm/boot/dts/imx53-ppd.dts b/arch/arm/boot/dts/imx53-ppd.dts
+index f346673d34ea..0cb5f01f02d1 100644
+--- a/arch/arm/boot/dts/imx53-ppd.dts
++++ b/arch/arm/boot/dts/imx53-ppd.dts
+@@ -462,7 +462,7 @@ &i2c1 {
+ 	scl-gpios = <&gpio3 21 GPIO_ACTIVE_HIGH>;
+ 	status = "okay";
  
- static const struct xattr_handler * const ext4_xattr_handler_map[] = {
-@@ -468,8 +470,21 @@ ext4_xattr_inode_verify_hashes(struct inode *ea_inode,
- 		tmp_data = cpu_to_le32(hash);
- 		e_hash = ext4_xattr_hash_entry(entry->e_name, entry->e_name_len,
- 					       &tmp_data, 1);
--		if (e_hash != entry->e_hash)
--			return -EFSCORRUPTED;
-+		/* All good? */
-+		if (e_hash == entry->e_hash)
-+			return 0;
-+
-+		/*
-+		 * Not good. Maybe the entry hash was calculated
-+		 * using the buggy signed char version?
-+		 */
-+		e_hash = ext4_xattr_hash_entry_signed(entry->e_name, entry->e_name_len,
-+							&tmp_data, 1);
-+		if (e_hash == entry->e_hash)
-+			return 0;
-+
-+		/* Still no match - bad */
-+		return -EFSCORRUPTED;
- 	}
- 	return 0;
- }
-@@ -3117,6 +3132,28 @@ static __le32 ext4_xattr_hash_entry(char *name, size_t name_len, __le32 *value,
- 	return cpu_to_le32(hash);
- }
- 
-+/*
-+ * ext4_xattr_hash_entry_signed()
-+ *
-+ * Compute the hash of an extended attribute incorrectly.
-+ */
-+static __le32 ext4_xattr_hash_entry_signed(char *name, size_t name_len, __le32 *value, size_t value_count)
-+{
-+	__u32 hash = 0;
-+
-+	while (name_len--) {
-+		hash = (hash << NAME_HASH_SHIFT) ^
-+		       (hash >> (8*sizeof(hash) - NAME_HASH_SHIFT)) ^
-+		       (signed char)*name++;
-+	}
-+	while (value_count--) {
-+		hash = (hash << VALUE_HASH_SHIFT) ^
-+		       (hash >> (8*sizeof(hash) - VALUE_HASH_SHIFT)) ^
-+		       le32_to_cpu(*value++);
-+	}
-+	return cpu_to_le32(hash);
-+}
-+
- #undef NAME_HASH_SHIFT
- #undef VALUE_HASH_SHIFT
- 
+-	i2c-switch@70 {
++	i2c-mux@70 {
+ 		compatible = "nxp,pca9547";
+ 		#address-cells = <1>;
+ 		#size-cells = <0>;
 -- 
 2.39.0
 
