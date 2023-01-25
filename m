@@ -2,63 +2,63 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 16C9067A83A
-	for <lists+stable@lfdr.de>; Wed, 25 Jan 2023 02:04:42 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0135467A840
+	for <lists+stable@lfdr.de>; Wed, 25 Jan 2023 02:05:53 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234311AbjAYBEi (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 24 Jan 2023 20:04:38 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60310 "EHLO
+        id S229809AbjAYBFv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 24 Jan 2023 20:05:51 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33338 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233674AbjAYBEf (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 24 Jan 2023 20:04:35 -0500
-Received: from mail-pj1-x102a.google.com (mail-pj1-x102a.google.com [IPv6:2607:f8b0:4864:20::102a])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 30135A245
-        for <stable@vger.kernel.org>; Tue, 24 Jan 2023 17:04:10 -0800 (PST)
-Received: by mail-pj1-x102a.google.com with SMTP id o13so16937920pjg.2
-        for <stable@vger.kernel.org>; Tue, 24 Jan 2023 17:04:10 -0800 (PST)
+        with ESMTP id S234279AbjAYBFu (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 24 Jan 2023 20:05:50 -0500
+Received: from mail-pj1-x1033.google.com (mail-pj1-x1033.google.com [IPv6:2607:f8b0:4864:20::1033])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3B0A14EC3
+        for <stable@vger.kernel.org>; Tue, 24 Jan 2023 17:05:35 -0800 (PST)
+Received: by mail-pj1-x1033.google.com with SMTP id o13so16940598pjg.2
+        for <stable@vger.kernel.org>; Tue, 24 Jan 2023 17:05:35 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=kernelci-org.20210112.gappssmtp.com; s=20210112;
         h=from:to:subject:content-transfer-encoding:mime-version:date
          :message-id:from:to:cc:subject:date:message-id:reply-to;
-        bh=Q6S+ifVkGokVqBiKgCHxgTQWYhIIZwxGzhMI1wB3eW0=;
-        b=CWzpl9x4oK35o0yCHjKbBZLi4+CNm9uVza69HgweoPfPKuaoOWOTQHoAG6h6FazU3h
-         SPqkdoX7036WaMYzR4umJ5r74up/yU9nQIQfcHbyWncQStYkwTPYk7DXKom12MCj33JT
-         WN9a7UGtQb3uOu0wcxh2hRvO74iI/87tPIJnb8uRk6+fMXppo/Jgnsb5vdAi4lc1j5qH
-         brSq8Zkx6kaE55zXyhZObsI5r0oX/RhtZfgDrmXWDFjeOgS4BdaPfVppKHNn3aU48sn0
-         F6rRNm8ihDO4gghAOfmA/R9BENu9Po8eS7Wzb5Bm/v3ApDjaOP9rDMyOK7h3wA5+qOWL
-         6KQg==
+        bh=PHNHuOFUtXwZ9geWUsRM/CGtheYATAoVFtNjyi0RVBU=;
+        b=Xz7lmIKjlg3tg6qNtx1uGlDUN0o219UcaXlx7yFntS3INRdODzSi2mm4gVLqbzZtYi
+         M7Nsax3wjpCpxY7wxHc1KeB1yW2czXeNnbX2vmnULuQl1+vkAaTDFm7hSxsG3U0JKPHY
+         hwFgpvzwlSPT7ZvDav06f7AREGhtTTIA/VVuf6d4BEzKHpnUFxqmzHd4+/gvmy44JsYy
+         yEeyPeN1C4YcTtmZ23uI3oy8cJL1ywwmbzWQirOyO2uh72pLS7gbcjawkZq4QwJXLYSK
+         iVXSmgU5SEn6VfogvKl75ZCXOgWWepoGQyqtLGJy9n+hJ45ldv+HC+cuOdqca0zPspQR
+         cOkQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
         h=from:to:subject:content-transfer-encoding:mime-version:date
          :message-id:x-gm-message-state:from:to:cc:subject:date:message-id
          :reply-to;
-        bh=Q6S+ifVkGokVqBiKgCHxgTQWYhIIZwxGzhMI1wB3eW0=;
-        b=dw217k82MjyPOrwX7lF3UeNyAVMXZKZIgTlp5yI7Jrc+1tbrytm9nVuNbYNasZzTtB
-         1t547UA+xcaSTwj2T48dim0XvLyZEYanD75xMMsqFg44va4SjsxXpD1Xe76LH/SK/MJA
-         W5FeYDu7Jowjay56vC7KCeXGMRuUwRyVgsRt6RU8ZFwIW8eNX/+lI28eDhjCi8kiVZ39
-         dU7ATjZIPvzD0K3kr6lXfSZ0k7yWT3xSRS2j3S/LjQwu6NBkQDfJbX9w/VsBxUD/Sh4h
-         qdf9Y9eOXfkF9h8DIuBvG3T7Fwqp2EuEyniSirAtq/70kvcL3Qay3zImd4GX/MHfFxZN
-         bd/Q==
-X-Gm-Message-State: AO0yUKV97N0MEDPFUI8pHyxQy0UsE0GhlKXLBauZGDnzqOQXbA6XwoGh
-        zC40bK/1Vu0dhZsLrkD/SLxX/9KUcKh6qoow
-X-Google-Smtp-Source: AK7set9dYK8i9e3tTG6XYTZyKoluM5jODmhscXVQgUV33WRanVFkcYt93MdmWU6mib8wsmHbNE2sbQ==
-X-Received: by 2002:a17:902:f68f:b0:196:1f80:1066 with SMTP id l15-20020a170902f68f00b001961f801066mr2518207plg.11.1674608648710;
-        Tue, 24 Jan 2023 17:04:08 -0800 (PST)
+        bh=PHNHuOFUtXwZ9geWUsRM/CGtheYATAoVFtNjyi0RVBU=;
+        b=PajiDX79ecPvAYu9TDNftvBN3COtMFNS0vxyiBQrAy1XE1P/mRgx6Ovd0Np/0bJlng
+         QuQTQABvhxTENmU5uQjRDnWqeY2z/a9IKSxPBlA+ciwYmIodxkFUJGs/2OEH37EneBwY
+         6lzW1ipzm/GJhfYRc6ld0vvN9q0fFJXM5QvSUzh1gFVQwI85iut3aUI7N0Kbq3ZG/nwp
+         Av/zahV22AdGsAZeNdvSHoON4NXCUl1Vx7KXgNayU5WpvhpaCm/VcOQIAybb9qCO6wU9
+         GceLIAoDSCWNqXZ9EtDv+ySwpnh6v/uL2xTT0zQ2phHNYQ8elS4a1jPO9hSDFWWSAJDH
+         EhcQ==
+X-Gm-Message-State: AFqh2kpEmfabpuAUSn9vPZDH8M43/r7iPjI8atv9yGJZnccHowlL3ANz
+        X3whTSyfmuUswMT7CNOmAfT8zW99UmAa7SUP
+X-Google-Smtp-Source: AMrXdXvx5Cg9tpu8FsERu6790mZIPoq2hxpd8tpxknoWJxB5PTQeVPXBAKUzL6pRsibqmHnOaEZRrg==
+X-Received: by 2002:a05:6a20:7f8f:b0:b9:5ffe:3e6a with SMTP id d15-20020a056a207f8f00b000b95ffe3e6amr27117141pzj.1.1674608733455;
+        Tue, 24 Jan 2023 17:05:33 -0800 (PST)
 Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id q8-20020a170902dac800b001962858f990sm232126plx.164.2023.01.24.17.04.08
+        by smtp.gmail.com with ESMTPSA id f20-20020a056a0022d400b005877d374069sm2296313pfj.10.2023.01.24.17.05.32
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 24 Jan 2023 17:04:08 -0800 (PST)
-Message-ID: <63d08008.170a0220.b94e9.0889@mx.google.com>
-Date:   Tue, 24 Jan 2023 17:04:08 -0800 (PST)
+        Tue, 24 Jan 2023 17:05:33 -0800 (PST)
+Message-ID: <63d0805d.050a0220.144ee.46ca@mx.google.com>
+Date:   Tue, 24 Jan 2023 17:05:33 -0800 (PST)
 Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
 Content-Transfer-Encoding: quoted-printable
 X-Kernelci-Tree: stable-rc
 X-Kernelci-Branch: queue/4.19
-X-Kernelci-Kernel: v4.19.269-553-g3c27f39a7d64
+X-Kernelci-Kernel: v4.19.269-553-gf56226c90b69
 X-Kernelci-Report-Type: build
-Subject: stable-rc/queue/4.19 build: 194 builds: 11 failed, 183 passed,
- 10 errors, 52 warnings (v4.19.269-553-g3c27f39a7d64)
+Subject: stable-rc/queue/4.19 build: 197 builds: 12 failed, 185 passed,
+ 15 errors, 53 warnings (v4.19.269-553-gf56226c90b69)
 To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
         kernelci-results@groups.io
 From:   "kernelci.org bot" <bot@kernelci.org>
@@ -71,16 +71,16 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/queue/4.19 build: 194 builds: 11 failed, 183 passed, 10 errors, 5=
-2 warnings (v4.19.269-553-g3c27f39a7d64)
+stable-rc/queue/4.19 build: 197 builds: 12 failed, 185 passed, 15 errors, 5=
+3 warnings (v4.19.269-553-gf56226c90b69)
 
 Full Build Summary: https://kernelci.org/build/stable-rc/branch/queue%2F4.1=
-9/kernel/v4.19.269-553-g3c27f39a7d64/
+9/kernel/v4.19.269-553-gf56226c90b69/
 
 Tree: stable-rc
 Branch: queue/4.19
-Git Describe: v4.19.269-553-g3c27f39a7d64
-Git Commit: 3c27f39a7d64731cd24274a328663e4d657dbe14
+Git Describe: v4.19.269-553-gf56226c90b69
+Git Commit: f56226c90b698efbfe184b1cc6a168d6bba0e4de
 Git URL: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stabl=
 e-rc.git
 Built: 7 unique architectures
@@ -89,6 +89,7 @@ Build Failures Detected:
 
 arm:
     at91_dt_defconfig: (gcc-10) FAIL
+    imx_v4_v5_defconfig: (gcc-10) FAIL
     imx_v6_v7_defconfig: (gcc-10) FAIL
     multi_v5_defconfig: (gcc-10) FAIL
     multi_v7_defconfig: (gcc-10) FAIL
@@ -115,6 +116,7 @@ arm64:
 arm:
     at91_dt_defconfig (gcc-10): 1 error, 3 warnings
     efm32_defconfig (gcc-10): 1 warning
+    imx_v4_v5_defconfig (gcc-10): 5 errors, 1 warning
     imx_v6_v7_defconfig (gcc-10): 5 errors, 1 warning
     lpc18xx_defconfig (gcc-10): 1 warning
     mps2_defconfig (gcc-10): 1 warning
@@ -151,16 +153,16 @@ Errors summary:
     4    drivers/memory/atmel-sdramc.c:62:9: error: implicit declaration of=
  function =E2=80=98devm_clk_get_enabled=E2=80=99 [-Werror=3Dimplicit-functi=
 on-declaration]
-    1    drivers/mmc/host/sdhci-esdhc-imx.c:1189:38: error: =E2=80=98CQHCI_=
+    2    drivers/mmc/host/sdhci-esdhc-imx.c:1189:38: error: =E2=80=98CQHCI_=
 CTL=E2=80=99 undeclared (first use in this function)
-    1    drivers/mmc/host/sdhci-esdhc-imx.c:1189:26: error: =E2=80=98CQHCI_=
+    2    drivers/mmc/host/sdhci-esdhc-imx.c:1189:26: error: =E2=80=98CQHCI_=
 HALT=E2=80=99 undeclared (first use in this function)
-    1    drivers/mmc/host/sdhci-esdhc-imx.c:1188:4: error: implicit declara=
+    2    drivers/mmc/host/sdhci-esdhc-imx.c:1188:4: error: implicit declara=
 tion of function =E2=80=98cqhci_writel=E2=80=99; did you mean =E2=80=98sdhc=
 i_writel=E2=80=99? [-Werror=3Dimplicit-function-declaration]
-    1    drivers/mmc/host/sdhci-esdhc-imx.c:1187:31: error: =E2=80=98CQHCI_=
+    2    drivers/mmc/host/sdhci-esdhc-imx.c:1187:31: error: =E2=80=98CQHCI_=
 IS=E2=80=99 undeclared (first use in this function)
-    1    drivers/mmc/host/sdhci-esdhc-imx.c:1187:10: error: implicit declar=
+    2    drivers/mmc/host/sdhci-esdhc-imx.c:1187:10: error: implicit declar=
 ation of function =E2=80=98cqhci_readl=E2=80=99; did you mean =E2=80=98sdhc=
 i_readl=E2=80=99? [-Werror=3Dimplicit-function-declaration]
     1    drivers/memory/mvebu-devbus.c:297:8: error: implicit declaration o=
@@ -170,7 +172,7 @@ ion-declaration]
 Warnings summary:
 
     7    ld: warning: creating DT_TEXTREL in a PIE
-    6    cc1: some warnings being treated as errors
+    7    cc1: some warnings being treated as errors
     6    aarch64-linux-gnu-ld: warning: -z norelro ignored
     5    arch/arm/mm/nommu.c:163:12: warning: assignment to =E2=80=98void *=
 =E2=80=99 from =E2=80=98phys_addr_t=E2=80=99 {aka =E2=80=98unsigned int=E2=
@@ -231,11 +233,6 @@ section mismatches
 
 ---------------------------------------------------------------------------=
 -----
-allnoconfig (riscv, gcc-10) =E2=80=94 FAIL, 0 errors, 0 warnings, 0 section=
- mismatches
-
----------------------------------------------------------------------------=
------
 allnoconfig (x86_64, gcc-10) =E2=80=94 PASS, 0 errors, 3 warnings, 0 sectio=
 n mismatches
 
@@ -248,6 +245,16 @@ y section `.head.text'
 
 ---------------------------------------------------------------------------=
 -----
+allnoconfig (riscv, gcc-10) =E2=80=94 FAIL, 0 errors, 0 warnings, 0 section=
+ mismatches
+
+---------------------------------------------------------------------------=
+-----
+allnoconfig (arc, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section m=
+ismatches
+
+---------------------------------------------------------------------------=
+-----
 allnoconfig (i386, gcc-10) =E2=80=94 PASS, 0 errors, 2 warnings, 0 section =
 mismatches
 
@@ -255,11 +262,6 @@ Warnings:
     ld: arch/x86/boot/compressed/head_32.o: warning: relocation in read-onl=
 y section `.head.text'
     ld: warning: creating DT_TEXTREL in a PIE
-
----------------------------------------------------------------------------=
------
-allnoconfig (arc, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section m=
-ismatches
 
 ---------------------------------------------------------------------------=
 -----
@@ -596,6 +598,28 @@ ion mismatches
 
 ---------------------------------------------------------------------------=
 -----
+imx_v4_v5_defconfig (arm, gcc-10) =E2=80=94 FAIL, 5 errors, 1 warning, 0 se=
+ction mismatches
+
+Errors:
+    drivers/mmc/host/sdhci-esdhc-imx.c:1187:10: error: implicit declaration=
+ of function =E2=80=98cqhci_readl=E2=80=99; did you mean =E2=80=98sdhci_rea=
+dl=E2=80=99? [-Werror=3Dimplicit-function-declaration]
+    drivers/mmc/host/sdhci-esdhc-imx.c:1187:31: error: =E2=80=98CQHCI_IS=E2=
+=80=99 undeclared (first use in this function)
+    drivers/mmc/host/sdhci-esdhc-imx.c:1188:4: error: implicit declaration =
+of function =E2=80=98cqhci_writel=E2=80=99; did you mean =E2=80=98sdhci_wri=
+tel=E2=80=99? [-Werror=3Dimplicit-function-declaration]
+    drivers/mmc/host/sdhci-esdhc-imx.c:1189:26: error: =E2=80=98CQHCI_HALT=
+=E2=80=99 undeclared (first use in this function)
+    drivers/mmc/host/sdhci-esdhc-imx.c:1189:38: error: =E2=80=98CQHCI_CTL=
+=E2=80=99 undeclared (first use in this function)
+
+Warnings:
+    cc1: some warnings being treated as errors
+
+---------------------------------------------------------------------------=
+-----
 imx_v6_v7_defconfig (arm, gcc-10) =E2=80=94 FAIL, 5 errors, 1 warning, 0 se=
 ction mismatches
 
@@ -850,6 +874,11 @@ Warnings:
     arch/arm/mm/nommu.c:163:12: warning: assignment to =E2=80=98void *=E2=
 =80=99 from =E2=80=98phys_addr_t=E2=80=99 {aka =E2=80=98unsigned int=E2=80=
 =99} makes pointer from integer without a cast [-Wint-conversion]
+
+---------------------------------------------------------------------------=
+-----
+msp71xx_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
+ction mismatches
 
 ---------------------------------------------------------------------------=
 -----
@@ -1275,11 +1304,6 @@ on mismatches
 
 ---------------------------------------------------------------------------=
 -----
-tinyconfig (arc, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section mi=
-smatches
-
----------------------------------------------------------------------------=
------
 tinyconfig (riscv, gcc-10) =E2=80=94 FAIL, 0 errors, 0 warnings, 0 section =
 mismatches
 
@@ -1294,6 +1318,11 @@ Warnings:
     ld: arch/x86/boot/compressed/head_64.o: warning: relocation in read-onl=
 y section `.head.text'
     ld: warning: creating DT_TEXTREL in a PIE
+
+---------------------------------------------------------------------------=
+-----
+tinyconfig (arc, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section mi=
+smatches
 
 ---------------------------------------------------------------------------=
 -----
@@ -1403,6 +1432,11 @@ y section `.head.text'
 ---------------------------------------------------------------------------=
 -----
 xcep_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
+n mismatches
+
+---------------------------------------------------------------------------=
+-----
+zeus_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
 n mismatches
 
 ---------------------------------------------------------------------------=
