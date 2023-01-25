@@ -2,154 +2,140 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 02F2967BFFE
-	for <lists+stable@lfdr.de>; Wed, 25 Jan 2023 23:38:15 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5862F67C01D
+	for <lists+stable@lfdr.de>; Wed, 25 Jan 2023 23:44:39 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235121AbjAYWiM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 25 Jan 2023 17:38:12 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43992 "EHLO
+        id S231225AbjAYWoi (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 25 Jan 2023 17:44:38 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45342 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229499AbjAYWiL (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 25 Jan 2023 17:38:11 -0500
-Received: from mail-pf1-x436.google.com (mail-pf1-x436.google.com [IPv6:2607:f8b0:4864:20::436])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C0CA35A830
-        for <stable@vger.kernel.org>; Wed, 25 Jan 2023 14:38:09 -0800 (PST)
-Received: by mail-pf1-x436.google.com with SMTP id g9so50377pfo.5
-        for <stable@vger.kernel.org>; Wed, 25 Jan 2023 14:38:09 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20210112.gappssmtp.com; s=20210112;
-        h=from:to:subject:content-transfer-encoding:mime-version:date
-         :message-id:from:to:cc:subject:date:message-id:reply-to;
-        bh=EvNg/1skJqkjSJ5+cHz6nQ4n415aKjhD9BfC7neFGXk=;
-        b=P0K0/mqUutBlDFY3LRO/oTEfEAWyQZI3Si/ovoyQmbmCVUInCEIPQ5wqU7/l3u0kgD
-         o8ivzYkSjpo7oxmk3sZbQKTL/zaivEa3zQdkG3QqMmdEGXXcs5oWgjZIrufDadLA4Gys
-         H8iMQB4SqLjVvpuSms+HDHpsEtYDw5rvWlcwxrCrwkrFeyqRBXjewVRLH7sGhH10afkX
-         yBwdCZWEPkCBjFi9F3JNPqb2gfWbuVetfPmHB0iSkzUn79lUq/9vwjPTY1yrX6XcRlc1
-         gcSvUe6UDvuh9bcNGeDyejx5EPQ5F9nhr9CnZcT6dQ5KNTmodl4s8yYWlKpNxUsye0Lp
-         AvEg==
+        with ESMTP id S235341AbjAYWoh (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 25 Jan 2023 17:44:37 -0500
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4FB8B36472
+        for <stable@vger.kernel.org>; Wed, 25 Jan 2023 14:44:05 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1674686644;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=KLbKwODJaOigvAcLcDeGQGOJa4mEOCY0SOM+5pGAPuQ=;
+        b=TmTu09OdQurQQjycM3pwNLQnQQBhQHSd5VqQ24jtSPApT53yncsBJRir564DFCIxuBQGw0
+        7bWe+1aKGpRGCaeUim9wVLTfa50xfmIT5PTMOv941H4oEX5CBYBZs9g8EL9Gqx6xximI+m
+        u889hDY5RWMKqaxvsqjAKThSRyJpUhI=
+Received: from mail-ed1-f71.google.com (mail-ed1-f71.google.com
+ [209.85.208.71]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_128_GCM_SHA256) id
+ us-mta-376-5Hvr3YX5PcemtFfysXU63Q-1; Wed, 25 Jan 2023 17:44:02 -0500
+X-MC-Unique: 5Hvr3YX5PcemtFfysXU63Q-1
+Received: by mail-ed1-f71.google.com with SMTP id z6-20020aa7cf86000000b0049f95687b88so197552edx.4
+        for <stable@vger.kernel.org>; Wed, 25 Jan 2023 14:44:02 -0800 (PST)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=from:to:subject:content-transfer-encoding:mime-version:date
-         :message-id:x-gm-message-state:from:to:cc:subject:date:message-id
-         :reply-to;
-        bh=EvNg/1skJqkjSJ5+cHz6nQ4n415aKjhD9BfC7neFGXk=;
-        b=0h3VwtagaAk4NQE99yhC0o989N2nU9k8J9cINLkoJUlrQNy7XvkwOwGF7cV3/dQ8+m
-         IoBNBPqTz7cnxq1DoAkvRU8NweMm+Usf4fpMu6cc35UmhB/qF+X/l/16rTOqRVlLACPT
-         Dl3JKvABeqYf5M0PsmGVZt2OEFq0RN++nPRAR3++JHvJmFOQZ/ayjLDQW7sa7HpN3aYA
-         KrdtJwOwdcU9tbMYd2iACcOm4yZWP1Blx0UG8UV+U6GdGihT8XQ54FmL4rH51t+/Rxr4
-         wus79pSFk8onoxwhpU+U7ITtnbBArqjUgZoSi6dQ1uUsusTFzbB/h3fvY8dFAboJvHVc
-         Snlw==
-X-Gm-Message-State: AFqh2krrxY0djRvp5G7YuiYxibN3ZAn3lHkr1NqgegPGTFeUK37FxRLT
-        rjgeBkNebbKukCqwUpFqdrSlEl8hu5r0J2e0fCYvsg==
-X-Google-Smtp-Source: AMrXdXuqdgecRaw5bRj0ztEOyfHqzcvwQsetow+k2+Y5IyO4MDbub4CGVEYgdJkb4rLf7+YvdB0oAQ==
-X-Received: by 2002:a62:1cce:0:b0:58d:c617:8e9f with SMTP id c197-20020a621cce000000b0058dc6178e9fmr35556963pfc.3.1674686289046;
-        Wed, 25 Jan 2023 14:38:09 -0800 (PST)
-Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id q10-20020aa7842a000000b00582f222f088sm4142003pfn.47.2023.01.25.14.38.08
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 25 Jan 2023 14:38:08 -0800 (PST)
-Message-ID: <63d1af50.a70a0220.f4ff.82c3@mx.google.com>
-Date:   Wed, 25 Jan 2023 14:38:08 -0800 (PST)
-Content-Type: text/plain; charset="utf-8"
+        h=content-transfer-encoding:in-reply-to:subject:from:references:cc:to
+         :content-language:user-agent:mime-version:date:message-id
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
+        bh=KLbKwODJaOigvAcLcDeGQGOJa4mEOCY0SOM+5pGAPuQ=;
+        b=D4wNgvtU7SNV8RleLM2olNk5VYEhP0UnFaOSYoo/IrRfsJR45Afwj1P3EkOG3sb/5U
+         3vJPKcMrMpG2fsv33kzUdC/dZEcB+Dw32hNOW9Bqz0P1s1ThJ01KQC6Bmn7UcJQ9QlCh
+         JyDXV2hIuepaiHR/EPHTFFe4jWTXZOvcPu2J8TTp2r7KUn8qFOmIqpE7vmw9OMqyqYLK
+         uiasjLgXQP0wRAkcNMn6D3PADfcR5Go24JCyr1Qnh0EY8JwTAg2yMdvo9wRNe93zRbsD
+         TrFrEJEb+X+96yQmwdOFRON2doRnUaVnVXnm691Fg9X+L2qkndMKpUwGU1uPfpUX5Qqt
+         s05A==
+X-Gm-Message-State: AFqh2krr54VsYunu0hG/hee8nhKn7KohBY9Pr50tl7idKLEpQPFydNSj
+        goah4GolRqqb65D75K6qkumTeWMpf9or+cDE1047pi/MX5hPjIltjO/II6BMgtzAYWByVlP9fAz
+        aN/HsaySlBBgL0XNS
+X-Received: by 2002:a17:906:b78b:b0:877:60aa:7081 with SMTP id dt11-20020a170906b78b00b0087760aa7081mr30468522ejb.22.1674686641558;
+        Wed, 25 Jan 2023 14:44:01 -0800 (PST)
+X-Google-Smtp-Source: AMrXdXsF9rG7NEbV4kTmoPrQ6fv3l2ffKJPwc0x73+fD4Ik30Ilpoo75g1U/Oil1SDEclFHq7VBmgA==
+X-Received: by 2002:a17:906:b78b:b0:877:60aa:7081 with SMTP id dt11-20020a170906b78b00b0087760aa7081mr30468514ejb.22.1674686641261;
+        Wed, 25 Jan 2023 14:44:01 -0800 (PST)
+Received: from ?IPV6:2001:b07:6468:f312:63a7:c72e:ea0e:6045? ([2001:b07:6468:f312:63a7:c72e:ea0e:6045])
+        by smtp.googlemail.com with ESMTPSA id e4-20020a17090681c400b008785b27b36fsm140778ejx.138.2023.01.25.14.44.00
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Wed, 25 Jan 2023 14:44:00 -0800 (PST)
+Message-ID: <dec8c012-885a-6ed8-534e-4a5f0a435025@redhat.com>
+Date:   Wed, 25 Jan 2023 23:43:59 +0100
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Tree: stable-rc
-X-Kernelci-Branch: queue/5.15
-X-Kernelci-Kernel: v5.15.90-122-gdbbbfd1f5b2d
-X-Kernelci-Report-Type: test
-Subject: stable-rc/queue/5.15 baseline: 148 runs,
- 1 regressions (v5.15.90-122-gdbbbfd1f5b2d)
-To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
-        kernelci-results@groups.io
-From:   "kernelci.org bot" <bot@kernelci.org>
-X-Spam-Status: No, score=-1.9 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_NONE autolearn=ham
-        autolearn_force=no version=3.4.6
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
+ Thunderbird/102.5.1
+Content-Language: en-US
+To:     Jim Mattson <jmattson@google.com>
+Cc:     linux-kernel@vger.kernel.org, kvm@vger.kernel.org,
+        seanjc@google.com, stable@vger.kernel.org
+References: <20221027092036.2698180-1-pbonzini@redhat.com>
+ <CALMp9eQihPhjpoodw6ojgVh_KtvPqQ9qJ3wKWZQyVtArpGkfHA@mail.gmail.com>
+ <3a23db58-3ae1-7457-ed09-bc2e3f6e8dc9@redhat.com>
+ <CALMp9eQ3wZ4dkq_8ErcUdQAs2F96Gvr-g=7-iBteJeuN5aX00A@mail.gmail.com>
+ <8bdf22c8-9ef1-e526-df36-9073a150669d@redhat.com>
+ <CALMp9eRKp_4j_Q0j1HYP2itT2+z3pRotQK8LwScMsaGF5FpARA@mail.gmail.com>
+From:   Paolo Bonzini <pbonzini@redhat.com>
+Subject: Re: [PATCH v2] KVM: x86: Do not return host topology information from
+ KVM_GET_SUPPORTED_CPUID
+In-Reply-To: <CALMp9eRKp_4j_Q0j1HYP2itT2+z3pRotQK8LwScMsaGF5FpARA@mail.gmail.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Spam-Status: No, score=-3.2 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,NICE_REPLY_A,
+        RCVD_IN_DNSWL_NONE,RCVD_IN_MSPIKE_H2,SPF_HELO_NONE,SPF_NONE
+        autolearn=unavailable autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/queue/5.15 baseline: 148 runs, 1 regressions (v5.15.90-122-gdbbbf=
-d1f5b2d)
+On 1/25/23 23:09, Jim Mattson wrote:
+> The topology leaves returned by KVM_GET_SUPPORTED_CPUID *for over a
+> decade* have been passed through unmodified from the host. They have
+> never made sense for KVM_SET_CPUID2, with the unlikely exception of a
+> whole-host VM.
 
-Regressions Summary
--------------------
+True, unfortunately people have not read the nonexistent documentation 
+and they are:
 
-platform   | arch | lab          | compiler | defconfig          | regressi=
-ons
------------+------+--------------+----------+--------------------+---------=
----
-cubietruck | arm  | lab-baylibre | gcc-10   | multi_v7_defconfig | 1       =
-   =
+1) rarely adjusting correctly all of 0xB, 0x1F and 0x8000001E;
 
+2) never bounding CPUID[EAX=0].EAX to a known CPUID leaf, resulting for 
+example in inconsistencies between 0xB and 0x1F.
 
-  Details:  https://kernelci.org/test/job/stable-rc/branch/queue%2F5.15/ker=
-nel/v5.15.90-122-gdbbbfd1f5b2d/plan/baseline/
+*But* (2) should not be needed unless you care about maintaining 
+homogeneous CPUID within a VM migration pool.  For something like 
+kvmtool, having to do (2) would be a workaround for the bug that this 
+patch fixes.
 
-  Test:     baseline
-  Tree:     stable-rc
-  Branch:   queue/5.15
-  Describe: v5.15.90-122-gdbbbfd1f5b2d
-  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
-able-rc.git
-  SHA:      dbbbfd1f5b2dbdce5e9ce1b5e3565c6ad7e5d62f =
+> Our VMM populates the topology of the guest CPUID table on its own, as
+> any VMM must. However, it uses the host topology (which
+> KVM_GET_SUPPORTED_CPUID has been providing pass-through *for over a
+> decade*) to see if the requested guest topology is possible.
 
+Ok, thanks; this is useful to know.
 
+> Changing a long-established ABI in a way that breaks userspace
+> applications is a bad practice. I didn't think we, as a community, did
+> that. I didn't realize that we were only catering to open source
+> implementations here.
 
-Test Regressions
----------------- =
+We aren't.  But the open source implementations provide some guidance as 
+to how the API is being used in the wild, and what the pitfalls are.
 
+You wrote it yourself: any VMM must either populate the topology on its 
+own, or possibly fill it with zeros.  Returning a value that is 
+extremely unlikely to be used is worse in pretty much every way (apart 
+from not breaking your VMM, of course).
 
+With a total of six known users (QEMU, crosvm, kvmtool, firecracker, 
+rust-vmm, and the Google VMM), KVM is damned if it reverts the patch and 
+damned if it doesn't.  There is a tension between fixing the one VMM 
+that was using KVM_GET_SUPPORTED_CPUID correctly and now breaks loudly, 
+and fixing 3-4 that were silently broken and are now fixed.  I will 
+probably send a patch to crosvm, though.
 
-platform   | arch | lab          | compiler | defconfig          | regressi=
-ons
------------+------+--------------+----------+--------------------+---------=
----
-cubietruck | arm  | lab-baylibre | gcc-10   | multi_v7_defconfig | 1       =
-   =
+The VMM being _proprietary_ doesn't really matter, however it does 
+matter to me that it is not _public_: it is only used within Google, and 
+the breakage is neither hard to fix in the VMM nor hard to temporarily 
+avoid by reverting the patch in the Google kernel.
 
+Paolo
 
-  Details:     https://kernelci.org/test/plan/id/63d17af1278f43d4d5915ee0
-
-  Results:     5 PASS, 1 FAIL, 1 SKIP
-  Full config: multi_v7_defconfig
-  Compiler:    gcc-10 (arm-linux-gnueabihf-gcc (Debian 10.2.1-6) 10.2.1 202=
-10110)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.15/v5.15.90-=
-122-gdbbbfd1f5b2d/arm/multi_v7_defconfig/gcc-10/lab-baylibre/baseline-cubie=
-truck.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.15/v5.15.90-=
-122-gdbbbfd1f5b2d/arm/multi_v7_defconfig/gcc-10/lab-baylibre/baseline-cubie=
-truck.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
-t-baseline/20230120.0/armel/rootfs.cpio.gz =
-
-
-
-  * baseline.bootrr.deferred-probe-empty: https://kernelci.org/test/case/id=
-/63d17af1278f43d4d5915ee5
-        failing since 8 days (last pass: v5.15.82-123-gd03dbdba21ef, first =
-fail: v5.15.87-100-ge215d5ead661)
-
-    2023-01-25T18:54:15.685726  <8>[   10.107097] <LAVA_SIGNAL_ENDRUN 0_dme=
-sg 3212068_1.5.2.4.1>
-    2023-01-25T18:54:15.797267  / # #
-    2023-01-25T18:54:15.901621  export SHELL=3D/bin/sh
-    2023-01-25T18:54:15.902953  #
-    2023-01-25T18:54:16.005782  / # export SHELL=3D/bin/sh. /lava-3212068/e=
-nvironment
-    2023-01-25T18:54:16.007177  =
-
-    2023-01-25T18:54:16.109828  / # . /lava-3212068/environment/lava-321206=
-8/bin/lava-test-runner /lava-3212068/1
-    2023-01-25T18:54:16.111743  =
-
-    2023-01-25T18:54:16.117035  / # /lava-3212068/bin/lava-test-runner /lav=
-a-3212068/1
-    2023-01-25T18:54:16.211582  + export 'TESTRUN_ID=3D1_bootrr' =
-
-    ... (11 line(s) more)  =
-
- =20
