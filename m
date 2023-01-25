@@ -2,123 +2,163 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id F169267B1E9
-	for <lists+stable@lfdr.de>; Wed, 25 Jan 2023 12:49:05 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6F12C67B1FF
+	for <lists+stable@lfdr.de>; Wed, 25 Jan 2023 12:50:32 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235683AbjAYLtF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 25 Jan 2023 06:49:05 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39022 "EHLO
+        id S235027AbjAYLub (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 25 Jan 2023 06:50:31 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39516 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235785AbjAYLtE (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 25 Jan 2023 06:49:04 -0500
-Received: from mga05.intel.com (mga05.intel.com [192.55.52.43])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 165BC2F7B1
-        for <stable@vger.kernel.org>; Wed, 25 Jan 2023 03:49:04 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
-  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1674647344; x=1706183344;
-  h=from:to:cc:subject:date:message-id:in-reply-to:
-   references:mime-version:content-transfer-encoding;
-  bh=LjKht4btWvybU4Oox3ZEiD3HFls0QM8PcgwKUx7mlvM=;
-  b=ju46xrHQqMHhkrswYaiwr13ll4kDE/fkE0aJFnK0/xeISa/ZuTIMry7e
-   0SB1nxVLyhgWqAQNe3yXB4JRDolgybdTxCeqX7tJBawN8sf+J4a7tNy1g
-   HGUPHFljzSGpq0MT3qUcNckrQGP2z6QR6/oQf9j2DJr5tqvaKPLTVhaMt
-   4G7rdeYO/Po8Jy2Q9UKdGLhge0RF5LtKUYDeSFZbmES02ZGqCrroSRZkB
-   gPo6XFw0D+s2VtcKoJeGVVi9wdZRxm/R66Y5xGsULg+e6o2vqV5WRijxc
-   LDg8aPLXHGw4Bc0oj7ZeIR4PNzjksL8sUJVCp1yCSLiTT+Zq0p8ghPH4/
-   w==;
-X-IronPort-AV: E=McAfee;i="6500,9779,10600"; a="412769919"
-X-IronPort-AV: E=Sophos;i="5.97,245,1669104000"; 
-   d="scan'208";a="412769919"
-Received: from orsmga004.jf.intel.com ([10.7.209.38])
-  by fmsmga105.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 25 Jan 2023 03:49:03 -0800
-X-IronPort-AV: E=McAfee;i="6500,9779,10600"; a="786399707"
-X-IronPort-AV: E=Sophos;i="5.97,245,1669104000"; 
-   d="scan'208";a="786399707"
-Received: from ideak-desk.fi.intel.com ([10.237.72.58])
-  by orsmga004-auth.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 25 Jan 2023 03:49:02 -0800
-From:   Imre Deak <imre.deak@intel.com>
-To:     intel-gfx@lists.freedesktop.org
-Cc:     Lyude Paul <lyude@redhat.com>, stable@vger.kernel.org
-Subject: [PATCH 4/9] drm/i915/dp_mst: Fix payload removal during output disabling
-Date:   Wed, 25 Jan 2023 13:48:47 +0200
-Message-Id: <20230125114852.748337-5-imre.deak@intel.com>
-X-Mailer: git-send-email 2.31.1.189.g2e36527f23
-In-Reply-To: <20230125114852.748337-1-imre.deak@intel.com>
-References: <20230125114852.748337-1-imre.deak@intel.com>
+        with ESMTP id S234913AbjAYLua (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 25 Jan 2023 06:50:30 -0500
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 606E047086
+        for <stable@vger.kernel.org>; Wed, 25 Jan 2023 03:49:45 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1674647384;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=pcTEf/slHmnxXRwT1bpALpIrymGDCm67DwtPw757+9g=;
+        b=Vrp+aozsk8b8IG5d0vN9cdNCqllqY6OMXpW8dnGpArsAs5EYvD4FZcnILxjiC6njEyTYbz
+        +SXX5qyEYOAb3utI5crw8uXGFFoH18ueMLnHLAaTHAYRZ+xRAGWiPxefjj7OH5gKmXHoMl
+        NUBkVTTQZyB12z9007i1QbG7dk/u6Xg=
+Received: from mail-ej1-f70.google.com (mail-ej1-f70.google.com
+ [209.85.218.70]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_128_GCM_SHA256) id
+ us-mta-595-P8uMTA-6P_CaX4LiHLFSAw-1; Wed, 25 Jan 2023 06:49:43 -0500
+X-MC-Unique: P8uMTA-6P_CaX4LiHLFSAw-1
+Received: by mail-ej1-f70.google.com with SMTP id fx8-20020a170906b74800b00877a89f965aso8243436ejb.1
+        for <stable@vger.kernel.org>; Wed, 25 Jan 2023 03:49:43 -0800 (PST)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=content-transfer-encoding:in-reply-to:from:references:cc:to
+         :content-language:subject:user-agent:mime-version:date:message-id
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
+        bh=pcTEf/slHmnxXRwT1bpALpIrymGDCm67DwtPw757+9g=;
+        b=Dk431LH0tU0sx7T05FzRmSsQyHFhw55NP1uGcRtgysd3kDTAxfROqbbY1AqWBEvcKl
+         RUiemQtrIjFWJh3xD6b2bH2NMT6ej3Ig/tyPRpGP3t+t8ygntNAwsAg19PlL1JLD1oJQ
+         ISxsM5Rp5uLJ2hqrCxGHCY5jnZwpnVmRu0HB7jOn0sNeKNH/35637lpxPAH/AT9CYyEv
+         egCYzMCdFJm77txx6zZNN09aOxsEmXqF6arlYYMSG7Z0KbE6VzECQvZ6zyceO4AEbCld
+         /dbSnNN+9wfiIByKFqa1gqy7ORLO5y7dShmp4fTF6mrBmMO2YYEVXq3YquwfugX14Tiy
+         J9bA==
+X-Gm-Message-State: AFqh2kpzqf0Sjg58B0sWY2Og8ghRZBPeoCn7IQBRXB5+9yFbVeBr4dEa
+        Mv3THnM0M0K8y6PE+N5uO+Ld8Qw89mUwctQwplbIBnJQrulBG9ei9/7MKuKEoung7HB7pT7+kZa
+        Gi744J3vFNUevs0rI
+X-Received: by 2002:a05:6402:3894:b0:49e:45a8:1ac9 with SMTP id fd20-20020a056402389400b0049e45a81ac9mr32239046edb.24.1674647381363;
+        Wed, 25 Jan 2023 03:49:41 -0800 (PST)
+X-Google-Smtp-Source: AMrXdXst9iD7OxXP8xF07is68/0ZAr2fenB51u9OhV3j+QIOCaQM7dHvAWySjEXvFQ9rLeDy1l7x1w==
+X-Received: by 2002:a05:6402:3894:b0:49e:45a8:1ac9 with SMTP id fd20-20020a056402389400b0049e45a81ac9mr32239037edb.24.1674647381192;
+        Wed, 25 Jan 2023 03:49:41 -0800 (PST)
+Received: from ?IPV6:2001:1c00:c32:7800:5bfa:a036:83f0:f9ec? (2001-1c00-0c32-7800-5bfa-a036-83f0-f9ec.cable.dynamic.v6.ziggo.nl. [2001:1c00:c32:7800:5bfa:a036:83f0:f9ec])
+        by smtp.gmail.com with ESMTPSA id r25-20020aa7da19000000b004a0afea4c9csm410737eds.18.2023.01.25.03.49.40
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Wed, 25 Jan 2023 03:49:40 -0800 (PST)
+Message-ID: <6a4ea30e-679d-2c14-83aa-3dbe9617e1c1@redhat.com>
+Date:   Wed, 25 Jan 2023 12:49:40 +0100
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
-        SPF_HELO_NONE,SPF_NONE autolearn=ham autolearn_force=no version=3.4.6
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
+ Thunderbird/102.6.0
+Subject: Re: [PATCH] platform/x86: thinkpad_acpi: Fix profile modes on Intel
+ platforms
+Content-Language: en-US, nl
+To:     Mark Pearson <mpearson-lenovo@squebb.ca>
+Cc:     markgross@kernel.org, mario.limonciello@amd.com,
+        platform-driver-x86@vger.kernel.org, stable@vger.kernel.org
+References: <mpearson-lenovo@squebb.ca>
+ <20230124153623.145188-1-mpearson-lenovo@squebb.ca>
+From:   Hans de Goede <hdegoede@redhat.com>
+In-Reply-To: <20230124153623.145188-1-mpearson-lenovo@squebb.ca>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
+X-Spam-Status: No, score=-3.2 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,NICE_REPLY_A,
+        RCVD_IN_DNSWL_NONE,RCVD_IN_MSPIKE_H2,SPF_HELO_NONE,SPF_NONE
+        autolearn=unavailable autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Use the correct old/new topology and payload states in
-intel_mst_disable_dp(). So far drm_atomic_get_mst_topology_state() it
-used returned either the old state, in case the state was added already
-earlier during the atomic check phase or otherwise the new state (but
-the latter could fail, which can't be handled in the enable/disable
-hooks). After the first patch in the patchset, the state should always
-get added already during the check phase, so here we can get the
-old/new states without a failure.
+Hi,
 
-drm_dp_remove_payload() should use time_slots from the old payload state
-and vc_start_slot in the new one. It should update the new payload
-states to reflect the sink's current payload table after the payload is
-removed. Pass the new topology state and the old and new payload states
-accordingly.
+On 1/24/23 16:36, Mark Pearson wrote:
+> My last commit to fix profile mode displays on AMD platforms caused
+> an issue on Intel platforms - sorry!
+> 
+> In it I was reading the current functional mode (MMC, PSC, AMT) from
+> the BIOS but didn't account for the fact that on some of our Intel
+> platforms I use a different API which returns just the profile and not
+> the functional mode.
+> 
+> This commit fixes it so that on Intel platforms it knows the functional
+> mode is always MMC.
+> 
+> I also fixed a potential problem that a platform may try to set the mode
+> for both MMC and PSC - which was incorrect.
+> 
+> Tested on X1 Carbon 9 (Intel) and Z13 (AMD).
+> 
+> Link: https://bugzilla.kernel.org/show_bug.cgi?id=216963
+> Fixes: fde5f74ccfc7 ("platform/x86: thinkpad_acpi: Fix profile mode display in AMT mode")
+> 
+> Signed-off-by: Mark Pearson <mpearson-lenovo@squebb.ca>
 
-This also fixes a problem where the payload allocations for multiple MST
-streams on the same link got inconsistent after a few commits, as
-during payload removal the old instead of the new payload state got
-updated, so the subsequent enabling sequence and commits used a stale
-payload state.
+Thank you for your patch, I've applied this patch to my fixes
+branch:
+https://git.kernel.org/pub/scm/linux/kernel/git/pdx86/platform-drivers-x86.git/log/?h=fixes
 
-Cc: Lyude Paul <lyude@redhat.com>
-Cc: stable@vger.kernel.org # 6.1
-Signed-off-by: Imre Deak <imre.deak@intel.com>
----
- drivers/gpu/drm/i915/display/intel_dp_mst.c | 16 ++++++++++------
- 1 file changed, 10 insertions(+), 6 deletions(-)
+Note it will show up in my fixes branch once I've pushed my
+local branch there, which might take a while.
 
-diff --git a/drivers/gpu/drm/i915/display/intel_dp_mst.c b/drivers/gpu/drm/i915/display/intel_dp_mst.c
-index 5f7bcb5c14847..800fa12a61d93 100644
---- a/drivers/gpu/drm/i915/display/intel_dp_mst.c
-+++ b/drivers/gpu/drm/i915/display/intel_dp_mst.c
-@@ -524,10 +524,14 @@ static void intel_mst_disable_dp(struct intel_atomic_state *state,
- 	struct intel_dp *intel_dp = &dig_port->dp;
- 	struct intel_connector *connector =
- 		to_intel_connector(old_conn_state->connector);
--	struct drm_dp_mst_topology_state *mst_state =
--		drm_atomic_get_mst_topology_state(&state->base, &intel_dp->mst_mgr);
--	struct drm_dp_mst_atomic_payload *payload =
--		drm_atomic_get_mst_payload_state(mst_state, connector->port);
-+	struct drm_dp_mst_topology_state *old_mst_state =
-+		drm_atomic_get_old_mst_topology_state(&state->base, &intel_dp->mst_mgr);
-+	struct drm_dp_mst_topology_state *new_mst_state =
-+		drm_atomic_get_new_mst_topology_state(&state->base, &intel_dp->mst_mgr);
-+	struct drm_dp_mst_atomic_payload *old_payload =
-+		drm_atomic_get_mst_payload_state(old_mst_state, connector->port);
-+	struct drm_dp_mst_atomic_payload *new_payload =
-+		drm_atomic_get_mst_payload_state(new_mst_state, connector->port);
- 	struct drm_i915_private *i915 = to_i915(connector->base.dev);
- 
- 	drm_dbg_kms(&i915->drm, "active links %d\n",
-@@ -535,8 +539,8 @@ static void intel_mst_disable_dp(struct intel_atomic_state *state,
- 
- 	intel_hdcp_disable(intel_mst->connector);
- 
--	drm_dp_remove_payload(&intel_dp->mst_mgr, mst_state,
--			      payload, payload);
-+	drm_dp_remove_payload(&intel_dp->mst_mgr, new_mst_state,
-+			      old_payload, new_payload);
- 
- 	intel_audio_codec_disable(encoder, old_crtc_state, old_conn_state);
- }
--- 
-2.37.1
+I will include this patch in my next fixes pull-req to Linus
+for the current kernel development cycle.
+
+Regards,
+
+Hans
+
+
+
+
+> ---
+>  drivers/platform/x86/thinkpad_acpi.c | 11 ++++++-----
+>  1 file changed, 6 insertions(+), 5 deletions(-)
+> 
+> diff --git a/drivers/platform/x86/thinkpad_acpi.c b/drivers/platform/x86/thinkpad_acpi.c
+> index a95946800ae9..6668d472df39 100644
+> --- a/drivers/platform/x86/thinkpad_acpi.c
+> +++ b/drivers/platform/x86/thinkpad_acpi.c
+> @@ -10496,8 +10496,7 @@ static int dytc_profile_set(struct platform_profile_handler *pprof,
+>  			if (err)
+>  				goto unlock;
+>  		}
+> -	}
+> -	if (dytc_capabilities & BIT(DYTC_FC_PSC)) {
+> +	} else if (dytc_capabilities & BIT(DYTC_FC_PSC)) {
+>  		err = dytc_command(DYTC_SET_COMMAND(DYTC_FUNCTION_PSC, perfmode, 1), &output);
+>  		if (err)
+>  			goto unlock;
+> @@ -10525,14 +10524,16 @@ static void dytc_profile_refresh(void)
+>  			err = dytc_command(DYTC_CMD_MMC_GET, &output);
+>  		else
+>  			err = dytc_cql_command(DYTC_CMD_GET, &output);
+> -	} else if (dytc_capabilities & BIT(DYTC_FC_PSC))
+> +		funcmode = DYTC_FUNCTION_MMC;
+> +	} else if (dytc_capabilities & BIT(DYTC_FC_PSC)) {
+>  		err = dytc_command(DYTC_CMD_GET, &output);
+> -
+> +		/*Check if we are PSC mode, or have AMT enabled */
+> +		funcmode = (output >> DYTC_GET_FUNCTION_BIT) & 0xF;
+> +	}
+>  	mutex_unlock(&dytc_mutex);
+>  	if (err)
+>  		return;
+>  
+> -	funcmode = (output >> DYTC_GET_FUNCTION_BIT) & 0xF;
+>  	perfmode = (output >> DYTC_GET_MODE_BIT) & 0xF;
+>  	convert_dytc_to_profile(funcmode, perfmode, &profile);
+>  	if (profile != dytc_current_profile) {
 
