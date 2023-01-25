@@ -2,105 +2,79 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 7152067AE9F
-	for <lists+stable@lfdr.de>; Wed, 25 Jan 2023 10:45:56 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8D92467AF5F
+	for <lists+stable@lfdr.de>; Wed, 25 Jan 2023 11:11:22 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233453AbjAYJpy (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 25 Jan 2023 04:45:54 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58764 "EHLO
+        id S232745AbjAYKLV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 25 Jan 2023 05:11:21 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51632 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235285AbjAYJpw (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 25 Jan 2023 04:45:52 -0500
-Received: from mail-wm1-x332.google.com (mail-wm1-x332.google.com [IPv6:2a00:1450:4864:20::332])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B98A939B8D
-        for <stable@vger.kernel.org>; Wed, 25 Jan 2023 01:45:26 -0800 (PST)
-Received: by mail-wm1-x332.google.com with SMTP id k16so13282946wms.2
-        for <stable@vger.kernel.org>; Wed, 25 Jan 2023 01:45:26 -0800 (PST)
+        with ESMTP id S234668AbjAYKLU (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 25 Jan 2023 05:11:20 -0500
+Received: from mail-io1-xd2a.google.com (mail-io1-xd2a.google.com [IPv6:2607:f8b0:4864:20::d2a])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 45C22EC7E
+        for <stable@vger.kernel.org>; Wed, 25 Jan 2023 02:11:20 -0800 (PST)
+Received: by mail-io1-xd2a.google.com with SMTP id y69so8255748iof.3
+        for <stable@vger.kernel.org>; Wed, 25 Jan 2023 02:11:20 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:from:to:cc:subject:date:message-id:reply-to;
-        bh=ztfbDoxGkDtDmGmBYfiBuBdnAIcB0uPVrA/v1nCpTCQ=;
-        b=FsdNwkstyvELDGvtDJLlGrYXxXaw+Yd/rnWhJQdaClPX/6nI30z3KrEYdR1blg0yas
-         HnJqJNdicB2Y8z/DDK7cVk2GiT1P7gjMOafnUgCU0NdWgPooizBy+2uA1TaqDKFCkYQ4
-         irODL2cF7vLmfyvfA9kfkYlL5hsV7FQVZXfrMZZXT6qtD+IiBn/Rpi/dmW/ITImzx5FV
-         7X34wUvBf1FSmcmnHVYSOCK+yAE4jsrYCXGyXWeyVCaWpPs3BMk/qPl05Y12+5WnXY0h
-         khowzHbFZk9pHgh4AwlV3zTopNMsDH6el5kMsATONevRApwi4JSZVR7MKxQ4GRf1+AXf
-         zN2g==
+        d=google.com; s=20210112;
+        h=cc:to:subject:message-id:date:from:in-reply-to:references
+         :mime-version:from:to:cc:subject:date:message-id:reply-to;
+        bh=5SeUJhAbfU72yemE0E0j1G7piTXH1F7KntUn7UYBddU=;
+        b=n82yTyq60gfB7ZBTcbC47BjG7Tytwup5QkbDjOCyYW+pS+3OfxGwgnZFTABB/LqcGZ
+         7tVrStGLiZqVVpfbWnbaTbpvptVnM+Nu8sYeHLTWIVvUMx8Mx0cOWiRicmCtvT22ntQM
+         QatXbUnE5o+8UFv2vFRx2/Ug9/Kmo2gKyhABplKcWjhAe+Uq1QnflpzrQzKMiU1JLnB/
+         8zYBwHUqvms2mOcaT0U68C5JKkEObDM3xvgkUgwLT5rR+RJ1rm9ymk2g8OI0VEgLCY0O
+         u+8uIzx2vAnCFTK5d2N2GWZCPbk5y+LoO273DLxKY517CgTyfXdW6O5D9v5WijsKfc6G
+         qesg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:x-gm-message-state:from:to:cc:subject:date:message-id
+        h=cc:to:subject:message-id:date:from:in-reply-to:references
+         :mime-version:x-gm-message-state:from:to:cc:subject:date:message-id
          :reply-to;
-        bh=ztfbDoxGkDtDmGmBYfiBuBdnAIcB0uPVrA/v1nCpTCQ=;
-        b=Odl2kSla8ubPaJRAgG70zxGRhQ1j0T98p3G85vG3MGAmJbv1WpaR0DSt6mrffof9g+
-         cqSsEEmhhVmkbBRj2DMsiTBFKARtEQG0FvdORH+HBVoSDafunaFWFw8I5C4krSoC/y9p
-         PyZ+GQ/xTftyZX1xdzVxO4i9Ov9tmtPDrBIx+e9tDGbuCGysNwcg0H30Eewp8zQhgxkr
-         /IxmMKcnlKBIMJp/SYwpcrvX4kF3PHOulOUifSS9IbSY3I8vqkQDvRcgBcknjEIeP2Sh
-         E+CzD1XmJUwoahsOWdsKoG6gbDnSxCvbGZ2o4au6tE4IPqq5XGZMIfOvRH6RCXOyzwzh
-         JWog==
-X-Gm-Message-State: AFqh2koAGlsXRpM8PNfdJsuxnstiE7g0Wb0/KKh5KNrj8inuiqr8+I9G
-        zXlgJJyY+HVhbqE+KsLTjeGgyw==
-X-Google-Smtp-Source: AMrXdXsh2igFfleXr30Bewy8M0jQBLxP7I9V02wCXUXTYQcHNQM6+J0AOl+0hWI7jdNJPkdu81Wrsg==
-X-Received: by 2002:a05:600c:4e05:b0:3c6:e61e:ae71 with SMTP id b5-20020a05600c4e0500b003c6e61eae71mr32485060wmq.1.1674639922588;
-        Wed, 25 Jan 2023 01:45:22 -0800 (PST)
-Received: from krzk-bin.. ([178.197.216.144])
-        by smtp.gmail.com with ESMTPSA id fl22-20020a05600c0b9600b003d1e3b1624dsm1419238wmb.2.2023.01.25.01.45.21
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 25 Jan 2023 01:45:22 -0800 (PST)
-From:   Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
-To:     Rob Herring <robh+dt@kernel.org>,
-        Krzysztof Kozlowski <krzysztof.kozlowski+dt@linaro.org>,
-        Alim Akhtar <alim.akhtar@samsung.com>,
-        Kukjin Kim <kgene@kernel.org>,
-        Marek Szyprowski <m.szyprowski@samsung.com>,
-        devicetree@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
-        linux-samsung-soc@vger.kernel.org, linux-kernel@vger.kernel.org
-Cc:     replicant@osuosl.org, phone-devel@vger.kernel.org,
-        ~postmarketos/upstreaming@lists.sr.ht,
-        =?UTF-8?q?Martin=20J=C3=BCcker?= <martin.juecker@gmail.com>,
-        Henrik Grimler <henrik@grimler.se>,
-        Chanwoo Choi <cw00.choi@samsung.com>,
-        Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>,
-        stable@vger.kernel.org
-Subject: [PATCH 1/9] ARM: dts: exynos: correct HDMI phy compatible in Exynos4
-Date:   Wed, 25 Jan 2023 10:45:05 +0100
-Message-Id: <20230125094513.155063-1-krzysztof.kozlowski@linaro.org>
-X-Mailer: git-send-email 2.34.1
+        bh=5SeUJhAbfU72yemE0E0j1G7piTXH1F7KntUn7UYBddU=;
+        b=E5tQEvrZDGt0Gc5bY4HXaBQwRm1NZ8nBqsoi6khtOFo+qhKfrhmgIxdquuocZK/wKe
+         IREhjmb7GSvDWomsJ7pSCx82iR7FmqlylNFgNh1psC3izCB/wY5Hje8RsZbvDiCthw+D
+         SVT1gYtPLevwZuu4PU7iumGOSxw6ps1zvz8dqXlRNXDEaAV/v2ipf+SvYy0sYoegIq65
+         WgvwYPruMUkTQQOtvOUYe99tbIk+YXRWVzIgY4febP/Qvhau1Feu3UhHC9MDofQyPWPC
+         XGcXPO+wPndsp42rq6B70oZglafyMmRy2bPhtfci7hFZ6nmv3WqMBl0jWGc6OPlZspjl
+         oaeQ==
+X-Gm-Message-State: AFqh2krXObo/X5EDVDsQ5mNTru+nEj6jC3WLHf5CrB7BCbwMGpMi74st
+        J0KpPqWyU9G6XB/O+5l+QAsEP6OudSy9oZ0DOwX2LnJ/W5agdGu0
+X-Google-Smtp-Source: AMrXdXtr6x7bYmEm3e0aUlWGo2ZpD49VFa3T/OLaI5NXGvDzxuAP39ygszlGpkz6AcbCjewz+os3jpGlAoIReMKipzo=
+X-Received: by 2002:a05:6602:42c7:b0:6e2:f126:6c1f with SMTP id
+ ce7-20020a05660242c700b006e2f1266c1fmr2792945iob.1.1674641479393; Wed, 25 Jan
+ 2023 02:11:19 -0800 (PST)
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_NONE,
-        SPF_HELO_NONE,SPF_PASS autolearn=unavailable autolearn_force=no
-        version=3.4.6
+References: <20230123070414.138052-1-ebiggers@kernel.org> <CAG_fn=VNjkRMozdcQUSMTHvMQ26SG45oisxamJbEVrg2m41ngg@mail.gmail.com>
+ <Y87PqGgw1uJVlnrP@gmail.com>
+In-Reply-To: <Y87PqGgw1uJVlnrP@gmail.com>
+From:   Alexander Potapenko <glider@google.com>
+Date:   Wed, 25 Jan 2023 11:10:43 +0100
+Message-ID: <CAG_fn=VRgtSfN30HK2kpJMRvz3utrzbiXUJ+c1-_D5RX-_UUyg@mail.gmail.com>
+Subject: Re: [PATCH] f2fs: fix information leak in f2fs_move_inline_dirents()
+To:     Eric Biggers <ebiggers@kernel.org>
+Cc:     linux-f2fs-devel@lists.sourceforge.net,
+        Jaegeuk Kim <jaegeuk@kernel.org>, Chao Yu <chao@kernel.org>,
+        stable@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
+X-Spam-Status: No, score=-17.6 required=5.0 tests=BAYES_00,DKIMWL_WL_MED,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,
+        ENV_AND_HDR_SPF_MATCH,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS,
+        USER_IN_DEF_DKIM_WL,USER_IN_DEF_SPF_WL autolearn=ham
+        autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-The HDMI phy compatible was missing vendor prefix.
+> > Out of curiosity, did you add any extra annotations to detect uninit
+> > writes to the disk?
+>
+> No.  This is the report I got:
+>
+> [  145.280969] =====================================================
+> [  145.285368] BUG: KMSAN: uninit-value in virtqueue_add+0x1ba5/0x6ac0
 
-Fixes: ed80d4cab772 ("ARM: dts: add hdmi related nodes for exynos4 SoCs")
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
----
- arch/arm/boot/dts/exynos4.dtsi | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
-
-diff --git a/arch/arm/boot/dts/exynos4.dtsi b/arch/arm/boot/dts/exynos4.dtsi
-index 55afe9972460..d1adaee2af58 100644
---- a/arch/arm/boot/dts/exynos4.dtsi
-+++ b/arch/arm/boot/dts/exynos4.dtsi
-@@ -605,7 +605,7 @@ i2c_8: i2c@138e0000 {
- 			status = "disabled";
- 
- 			hdmi_i2c_phy: hdmiphy@38 {
--				compatible = "exynos4210-hdmiphy";
-+				compatible = "samsung,exynos4210-hdmiphy";
- 				reg = <0x38>;
- 			};
- 		};
--- 
-2.34.1
-
+Oh cool, nice to see these are actually working :)
