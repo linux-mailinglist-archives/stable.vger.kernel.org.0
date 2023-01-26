@@ -2,73 +2,115 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A821667C968
-	for <lists+stable@lfdr.de>; Thu, 26 Jan 2023 12:06:30 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A3B1267C9BF
+	for <lists+stable@lfdr.de>; Thu, 26 Jan 2023 12:22:33 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230064AbjAZLG3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 26 Jan 2023 06:06:29 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54792 "EHLO
+        id S236897AbjAZLWc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 26 Jan 2023 06:22:32 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39776 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236057AbjAZLG2 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 26 Jan 2023 06:06:28 -0500
-Received: from mail-ed1-x529.google.com (mail-ed1-x529.google.com [IPv6:2a00:1450:4864:20::529])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 96124B472
-        for <stable@vger.kernel.org>; Thu, 26 Jan 2023 03:06:27 -0800 (PST)
-Received: by mail-ed1-x529.google.com with SMTP id g11so1485921eda.12
-        for <stable@vger.kernel.org>; Thu, 26 Jan 2023 03:06:27 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112;
-        h=to:subject:message-id:date:from:reply-to:mime-version:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=uHoGKdyUaGfzJudQLJ6mUwBwtlpCSU1wLKBE98os24A=;
-        b=EI5sZINyP3hVXmcdde/qcYos5BIK7gc9tuz69B0F+SHt79+QXGNYeyQV4LItVFhMYP
-         T/vezdBHn+4+qd8dlIF3sVyUvCxbGsYQbV5K7tfVKTkpOEdn0jM3L9XB00+SRqals68f
-         UEm8OoAm2O2Ezq4RD5TVPc2FkczpIbaDSLREy/u2p7vqYYQ0fuv3l0Cicq6AxHO4Z9h8
-         r6bYjxpFnjMyIYJPGijAUVDa35fVWBCi6JURxlov+sXZi+iZOI/yozxd4mrCXSyxT+0k
-         /t4TQL1VROaFqBAwly5DWLxyBAYMXnvLmCoEQb01jMzS/lk5e35p9bomfywRh0Otns8e
-         67yA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=to:subject:message-id:date:from:reply-to:mime-version
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=uHoGKdyUaGfzJudQLJ6mUwBwtlpCSU1wLKBE98os24A=;
-        b=f5D6d+6whmNp4+KmkjKqGBTuiEhao+iGZdTp2zcryEjgR99rtA3ETvQfvkmWKs3yIM
-         urPzZ3ktS9+4RDBqyLo9CyhS8BceYGWsRJjRGt/4kTDZdJBF51GkUJCk4ApWOW1sEcng
-         P0Fe0mGUJR6WP6idiNxWkM77C4/WrdUMS8xrLG3Y0fsxw75shEUiCaOJ0Awo5bj1Ak5P
-         WhcpcAYTzG5zA8D+cYfNhCB0YlabEg6blnwubuFbtgOmtV59pnx+/jZv3hpNcexAtpuj
-         gTggx15ZXfIaCty69uGQKvQ4RnLXzu8xEo6uPScUyj1E9OjzpB6Cbphe76o0oVVdk+rv
-         xK9A==
-X-Gm-Message-State: AO0yUKV96Q4AwFcqfkUXMzHQdYwM2uslcneHoFDeqisY4nVocJ7ukMmK
-        eXQcJmaEsuxpGfS/OJqXMOI8C2sOo8kTypM3bmk=
-X-Google-Smtp-Source: AK7set8tkfDNit1reeuS57RN4KqQmQ1rNGTIKegQClfGS1vyTvHddyTpHNKj0xEU+wT4ahicUjZ+q25vMbBuPtSDVWc=
-X-Received: by 2002:a05:6402:175c:b0:4a0:8f64:cddc with SMTP id
- v28-20020a056402175c00b004a08f64cddcmr1679216edx.58.1674731186033; Thu, 26
- Jan 2023 03:06:26 -0800 (PST)
+        with ESMTP id S235097AbjAZLWb (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 26 Jan 2023 06:22:31 -0500
+Received: from smtp-out2.suse.de (smtp-out2.suse.de [195.135.220.29])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 246789013;
+        Thu, 26 Jan 2023 03:22:31 -0800 (PST)
+Received: from imap2.suse-dmz.suse.de (imap2.suse-dmz.suse.de [192.168.254.74])
+        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+         key-exchange X25519 server-signature ECDSA (P-521) server-digest SHA512)
+        (No client certificate requested)
+        by smtp-out2.suse.de (Postfix) with ESMTPS id D7A541FFBB;
+        Thu, 26 Jan 2023 11:22:29 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.cz; s=susede2_rsa;
+        t=1674732149; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+         mime-version:mime-version:  content-transfer-encoding:content-transfer-encoding;
+        bh=yB3FfIu4dWsCpXF98x4AGtRjoXShmEuDW2q5TwTJLKQ=;
+        b=i+15vPCY4+Efg2v8X4MjYaiKQTsKsFp0HjfZd46nXG5qPW6zP+U0z4elzbceJ0Jld6r9WQ
+        eoaSPPdf7AFUWmQK7/GfQTt0jTOZ9yWBUWfNHvOCXNH25O3PphFulAJSrM0RY4GQ6gZ5eq
+        zEmD9NaNikDitKzB1g44IQJmgYYMoPg=
+DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.cz;
+        s=susede2_ed25519; t=1674732149;
+        h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+         mime-version:mime-version:  content-transfer-encoding:content-transfer-encoding;
+        bh=yB3FfIu4dWsCpXF98x4AGtRjoXShmEuDW2q5TwTJLKQ=;
+        b=E9GEW4wVEXB+80/P5wMXHn3qwO5RugKpcXwl/fgX6Yo33lYIBdcZNnIkIJDwXCp8K9YIW1
+        aH5wWMYCKx7R8iAA==
+Received: from imap2.suse-dmz.suse.de (imap2.suse-dmz.suse.de [192.168.254.74])
+        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+         key-exchange X25519 server-signature ECDSA (P-521) server-digest SHA512)
+        (No client certificate requested)
+        by imap2.suse-dmz.suse.de (Postfix) with ESMTPS id CC0EE139B3;
+        Thu, 26 Jan 2023 11:22:29 +0000 (UTC)
+Received: from dovecot-director2.suse.de ([192.168.254.65])
+        by imap2.suse-dmz.suse.de with ESMTPSA
+        id IlTJMXVi0mOtGgAAMHmgww
+        (envelope-from <jack@suse.cz>); Thu, 26 Jan 2023 11:22:29 +0000
+Received: by quack3.suse.cz (Postfix, from userid 1000)
+        id 5D2A5A06B4; Thu, 26 Jan 2023 12:22:29 +0100 (CET)
+From:   Jan Kara <jack@suse.cz>
+To:     Ted Tso <tytso@mit.edu>
+Cc:     <linux-ext4@vger.kernel.org>, Jan Kara <jack@suse.cz>,
+        stable@vger.kernel.org
+Subject: [PATCH] ext4: Fix possible corruption when moving a directory
+Date:   Thu, 26 Jan 2023 12:22:21 +0100
+Message-Id: <20230126112221.11866-1-jack@suse.cz>
+X-Mailer: git-send-email 2.35.3
 MIME-Version: 1.0
-Received: by 2002:a50:3a07:0:b0:1f2:5981:9f30 with HTTP; Thu, 26 Jan 2023
- 03:06:25 -0800 (PST)
-Reply-To: almondhongu@gmail.com
-From:   HONGU ALMOND <missnatachaako@gmail.com>
-Date:   Thu, 26 Jan 2023 03:06:25 -0800
-Message-ID: <CAFxgcfO71SLBr=GS_t2UzhexecC0RHuZLrJdwfjq5ms2GbxxiQ@mail.gmail.com>
-Subject: Your friend
-To:     undisclosed-recipients:;
-Content-Type: text/plain; charset="UTF-8"
-X-Spam-Status: No, score=4.4 required=5.0 tests=BAYES_50,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_FROM,FREEMAIL_REPLYTO,
-        RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS,UNDISC_FREEM autolearn=no
-        autolearn_force=no version=3.4.6
-X-Spam-Level: ****
+X-Developer-Signature: v=1; a=openpgp-sha256; l=1600; i=jack@suse.cz; h=from:subject; bh=BBtklDzkyhuk9nZhBwgfsOujMuK0kpm5e60aYHGYZ58=; b=owEBbQGS/pANAwAIAZydqgc/ZEDZAcsmYgBj0mJn3kGxmRC7e+nneAC9bMxtlGofntiZjHcwZt5J 4/46Z+eJATMEAAEIAB0WIQSrWdEr1p4yirVVKBycnaoHP2RA2QUCY9JiZwAKCRCcnaoHP2RA2QFoB/ wPKCW/39BogJ3VZoskO7j9xLtWg6QeouVXskjwewbGZot8LvnUJWY6KBnBKvhp0wy6w4oRhEJtxoVb xjh1+U/sYawIp7rmt3a3eIHaXNixML5WtpeCY7CGBG4e05qUEdHr+2ewNjLX3qrbGM9M1yb1iVvInM C2sqFLD9DyzbDiZbe3QL2xCH0aOIgw6s1u8XQj1LUlN2tEk/owyeZT0w/k/TMmRTg2FFY3eM3v/x53 09fWUWBwcHQrl8FYVm1ujwFS7uzzhWQGLFI3oV2hQorfReysLaThKO7Bi52lGWyBXHH9bpX6kQZFUL 8RYpdR/CkuDCtpP9h9wQTIY5hWLUJd
+X-Developer-Key: i=jack@suse.cz; a=openpgp; fpr=93C6099A142276A28BBE35D815BC833443038D8C
+Content-Transfer-Encoding: 8bit
+X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,SPF_HELO_NONE,
+        SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Good morning,
-Happy New Year my friend, how are you doing? My names are Hongu Almond
-a humble citizen of United States of America I have a mandate in this
-2023 to carry out a transaction and I choose you  profitable please
-write me back for more details.
-Your friend
-Mr.Hongu Almond
+When we are renaming a directory to a different directory, we need to
+update '..' entry in the moved directory. However nothing prevents moved
+directory from being modified and even converted from the inline format
+to the normal format. When such race happens the rename code gets
+confused and we crash. Fix the problem by locking the moved directory.
+
+CC: stable@vger.kernel.org
+Fixes: 32f7f22c0b52 ("ext4: let ext4_rename handle inline dir")
+Signed-off-by: Jan Kara <jack@suse.cz>
+---
+ fs/ext4/namei.c | 11 ++++++++++-
+ 1 file changed, 10 insertions(+), 1 deletion(-)
+
+diff --git a/fs/ext4/namei.c b/fs/ext4/namei.c
+index dd28453d6ea3..270fbcba75b6 100644
+--- a/fs/ext4/namei.c
++++ b/fs/ext4/namei.c
+@@ -3872,9 +3872,16 @@ static int ext4_rename(struct user_namespace *mnt_userns, struct inode *old_dir,
+ 			if (new.dir != old.dir && EXT4_DIR_LINK_MAX(new.dir))
+ 				goto end_rename;
+ 		}
++		/*
++		 * We need to protect against old.inode directory getting
++		 * converted from inline directory format into a normal one.
++		 */
++		inode_lock_nested(old.inode, I_MUTEX_NONDIR2);
+ 		retval = ext4_rename_dir_prepare(handle, &old);
+-		if (retval)
++		if (retval) {
++			inode_unlock(old.inode);
+ 			goto end_rename;
++		}
+ 	}
+ 	/*
+ 	 * If we're renaming a file within an inline_data dir and adding or
+@@ -4006,6 +4013,8 @@ static int ext4_rename(struct user_namespace *mnt_userns, struct inode *old_dir,
+ 	} else {
+ 		ext4_journal_stop(handle);
+ 	}
++	if (old.dir_bh)
++		inode_unlock(old.inode);
+ release_bh:
+ 	brelse(old.dir_bh);
+ 	brelse(old.bh);
+-- 
+2.35.3
+
