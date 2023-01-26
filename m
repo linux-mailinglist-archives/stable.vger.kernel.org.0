@@ -2,26 +2,25 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 73BBC67CD02
-	for <lists+stable@lfdr.de>; Thu, 26 Jan 2023 14:58:56 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id AAC1A67CD07
+	for <lists+stable@lfdr.de>; Thu, 26 Jan 2023 14:59:05 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229739AbjAZN6z (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 26 Jan 2023 08:58:55 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51942 "EHLO
+        id S231379AbjAZN7E (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 26 Jan 2023 08:59:04 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52624 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229946AbjAZN6x (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 26 Jan 2023 08:58:53 -0500
-X-Greylist: delayed 62 seconds by postgrey-1.37 at lindbergh.monkeyblade.net; Thu, 26 Jan 2023 05:58:48 PST
+        with ESMTP id S230404AbjAZN67 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 26 Jan 2023 08:58:59 -0500
 Received: from exchange.fintech.ru (exchange.fintech.ru [195.54.195.159])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 28F4A1025B;
-        Thu, 26 Jan 2023 05:58:47 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 35BDE1043B;
+        Thu, 26 Jan 2023 05:58:53 -0800 (PST)
 Received: from Ex16-01.fintech.ru (10.0.10.18) by exchange.fintech.ru
  (195.54.195.169) with Microsoft SMTP Server (TLS) id 14.3.498.0; Thu, 26 Jan
- 2023 16:55:58 +0300
+ 2023 16:56:20 +0300
 Received: from KANASHIN1.fintech.ru (10.0.253.125) by Ex16-01.fintech.ru
  (10.0.10.18) with Microsoft SMTP Server (version=TLS1_2,
  cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id 15.1.2242.4; Thu, 26 Jan
- 2023 16:55:57 +0300
+ 2023 16:56:20 +0300
 From:   Natalia Petrova <n.petrova@fintech.ru>
 To:     <stable@vger.kernel.org>,
         Greg Kroah-Hartman <gregkh@linuxfoundation.org>
@@ -34,10 +33,12 @@ CC:     Natalia Petrova <n.petrova@fintech.ru>,
         Paolo Abeni <pabeni@redhat.com>,
         <intel-wired-lan@lists.osuosl.org>, <netdev@vger.kernel.org>,
         <linux-kernel@vger.kernel.org>, <lvc-project@linuxtesting.org>
-Subject: [PATCH 5.10 0/1] i40e: Add checking for null for nlmsg_find_attr()
-Date:   Thu, 26 Jan 2023 16:55:54 +0300
-Message-ID: <20230126135555.11407-1-n.petrova@fintech.ru>
+Subject: [PATCH 5.10 1/1] i40e: Add checking for null for nlmsg_find_attr()
+Date:   Thu, 26 Jan 2023 16:55:55 +0300
+Message-ID: <20230126135555.11407-2-n.petrova@fintech.ru>
 X-Mailer: git-send-email 2.34.1
+In-Reply-To: <20230126135555.11407-1-n.petrova@fintech.ru>
+References: <20230126135555.11407-1-n.petrova@fintech.ru>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 7BIT
 Content-Type:   text/plain; charset=US-ASCII
@@ -52,7 +53,31 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-The remark about the error code by Simon Horman <simon.horman@corigine.com> was taken into account.
-Return value -ENOENT was changed to -EINVAL.
+The result of nlmsg_find_attr() 'br_spec' is dereferenced in
+nla_for_each_nested(), but it can take null value in nla_find() function,
+which will result in an error.
 
 Found by Linux Verification Center (linuxtesting.org) with SVACE.
+
+Fixes: 51616018dd1b ("i40e: Add support for getlink, setlink ndo ops")
+Signed-off-by: Natalia Petrova <n.petrova@fintech.ru>
+---
+ drivers/net/ethernet/intel/i40e/i40e_main.c | 2 ++
+ 1 file changed, 2 insertions(+)
+
+diff --git a/drivers/net/ethernet/intel/i40e/i40e_main.c b/drivers/net/ethernet/intel/i40e/i40e_main.c
+index 53d0083e35da..4626d2a1af91 100644
+--- a/drivers/net/ethernet/intel/i40e/i40e_main.c
++++ b/drivers/net/ethernet/intel/i40e/i40e_main.c
+@@ -13167,6 +13167,8 @@ static int i40e_ndo_bridge_setlink(struct net_device *dev,
+ 	}
+ 
+ 	br_spec = nlmsg_find_attr(nlh, sizeof(struct ifinfomsg), IFLA_AF_SPEC);
++	if (!br_spec)
++		return -EINVAL;
+ 
+ 	nla_for_each_nested(attr, br_spec, rem) {
+ 		__u16 mode;
+-- 
+2.34.1
+
