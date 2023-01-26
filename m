@@ -2,83 +2,69 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E461667C51A
-	for <lists+stable@lfdr.de>; Thu, 26 Jan 2023 08:46:30 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 279A467C5FB
+	for <lists+stable@lfdr.de>; Thu, 26 Jan 2023 09:37:20 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229914AbjAZHq3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 26 Jan 2023 02:46:29 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59706 "EHLO
+        id S235981AbjAZIhT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 26 Jan 2023 03:37:19 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57430 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236231AbjAZHqP (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 26 Jan 2023 02:46:15 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 89B0469B04
-        for <stable@vger.kernel.org>; Wed, 25 Jan 2023 23:45:49 -0800 (PST)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 550AD6175F
-        for <stable@vger.kernel.org>; Thu, 26 Jan 2023 07:45:48 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4404CC433EF;
-        Thu, 26 Jan 2023 07:45:47 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1674719147;
-        bh=QjhsujuJ9sK/ibe4v7IXmvDSdVXT7XmI7uzbJBgm8Cw=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=JmJLP/x0gwpaxXzan4sEFcJfkRZWekoH76gWze9WbODBqIuG4Ra5cHvADOpjW4oZG
-         QccnN5u7mY+apK4NLE+XSxD5KqUZzGlaTcC5qwuSFRbe+g0H8PxsEKoWV8rc2l9fVZ
-         Kn6opjWqN0WapRnNMJRy7DYnVgsCAm9N0MhHPMSA=
-Date:   Thu, 26 Jan 2023 08:45:45 +0100
-From:   Greg KH <gregkh@linuxfoundation.org>
-To:     "Guilherme G. Piccoli" <gpiccoli@igalia.com>
-Cc:     stable@vger.kernel.org, sashal@kernel.org, x86@kernel.org,
-        kernel@gpiccoli.net, kernel-dev@igalia.com,
-        Deepak Sharma <deepak.sharma@amd.com>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        "Rafael J . Wysocki" <rafael.j.wysocki@intel.com>
-Subject: Re: [PATCH 5.10 / 5.15] x86: ACPI: cstate: Optimize C3 entry on AMD
- CPUs
-Message-ID: <Y9IvqbdW+T5IsJH6@kroah.com>
-References: <20230125215145.1171151-1-gpiccoli@igalia.com>
+        with ESMTP id S235503AbjAZIhS (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 26 Jan 2023 03:37:18 -0500
+Received: from mail-ed1-x52b.google.com (mail-ed1-x52b.google.com [IPv6:2a00:1450:4864:20::52b])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5A6C82680
+        for <stable@vger.kernel.org>; Thu, 26 Jan 2023 00:36:46 -0800 (PST)
+Received: by mail-ed1-x52b.google.com with SMTP id z11so1216413ede.1
+        for <stable@vger.kernel.org>; Thu, 26 Jan 2023 00:36:46 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=unima-ac-id.20210112.gappssmtp.com; s=20210112;
+        h=to:subject:message-id:date:from:reply-to:mime-version:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=vBBydtjTCNoLHoaikk4MVmH3r+okeVfzKA/E+1BXIiM=;
+        b=1jQy5ayWMQkBokEXcQkvGyL3FYRWUIOd5uG71A0WxcqRf6EIOxaZp6UrglX82ww2JQ
+         CUJ7Zbe8CvuKk/j+p2SdaU8eW9VV+UetGpIIzwivXwQp1jbKqnSko+jDw0nzmD0X0j+f
+         t8OeqAuPycUzpHuuenBgZ1uyf9sV3zdn/0FSYGY7dG1IShKrDj0ZNQttz4A9uWd7QOf9
+         OJDtBiqNH8SzcAVrM53LWgpUwkM9JD8ZB5yicIgnz3tcZPI0xzQfo8EFcv/5KScG0/Ik
+         YGexnu1g526n5Tuv80BjwPJhipylbc+c9EyFj+9eQUGRXVKelO272w8Ww8eJJiPc/pul
+         QykA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=to:subject:message-id:date:from:reply-to:mime-version
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
+        bh=vBBydtjTCNoLHoaikk4MVmH3r+okeVfzKA/E+1BXIiM=;
+        b=X7cOPlKJ2eHTYWcFAevpp9EQxsB7gaPX+GKmflXqJhu6m94SoNmokkxpjNoDHv0qsb
+         g0VYmTwT1DJKOrfj2OnfHkE8ms1e7ktNzU8qFWLwGMEuJhBZWJmDBEqnLX1wHkcz1lo/
+         GyxKLCpkDLZY6qeX4IIrUm0Q4LAueojkXVrfKkuNa5qtZmodceHzPKJqgGrv9Rzz4zwl
+         PwaH45DvXk46Nz/6Fsuh0sUVgUS/AD6nMlzn5vAxZfnfiOZpO83D8MQ+xNBPOshHCGee
+         NcYD/pvpKfM3M2R9EeJJZPOKfIj7qO8TxPrrDa0fGAu9B471HHJcchxU/1pA30b69ZHa
+         0F7A==
+X-Gm-Message-State: AO0yUKVULJyiJv3bm7Pu8ibWOnq3fWlk0/cPH9O5DTVbrjD97+3K3/az
+        1x+8InVxbwb22aQUxkROtqkkwwZcC83rcBnW7LzboQ==
+X-Google-Smtp-Source: AK7set8wXhG2vA+5IWDYxyKsS+iiqqYky0jrMUS29ha+Q3NksuyiTc4Yq4cmiY2JgSSyBhDxHTJb5hvaM75KHY/TLF4=
+X-Received: by 2002:a05:6402:175c:b0:4a0:8f64:cddc with SMTP id
+ v28-20020a056402175c00b004a08f64cddcmr1562526edx.58.1674722151059; Thu, 26
+ Jan 2023 00:35:51 -0800 (PST)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20230125215145.1171151-1-gpiccoli@igalia.com>
-X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
-        SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
+Received: by 2002:a17:906:82c5:0:0:0:0 with HTTP; Thu, 26 Jan 2023 00:35:50
+ -0800 (PST)
+Reply-To: lisaarobet@gmail.com
+From:   Lisa <herdylio@unima.ac.id>
+Date:   Thu, 26 Jan 2023 08:35:50 +0000
+Message-ID: <CAJZsAoo_7-1_bEa1J=o_g2y7M9dxcEUA1OrKfmMTSP-pD51XDw@mail.gmail.com>
+Subject: Greetings
+To:     undisclosed-recipients:;
+Content-Type: text/plain; charset="UTF-8"
+X-Spam-Status: No, score=3.6 required=5.0 tests=BAYES_60,DKIM_SIGNED,
+        DKIM_VALID,FREEMAIL_FORGED_REPLYTO,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,
+        T_SPF_PERMERROR autolearn=no autolearn_force=no version=3.4.6
+X-Spam-Level: ***
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Wed, Jan 25, 2023 at 06:51:45PM -0300, Guilherme G. Piccoli wrote:
-> From: Deepak Sharma <deepak.sharma@amd.com>
-> 
-> commit a8fb40966f19ff81520d9ccf8f7e2b95201368b8 upstream.
-> 
-> All Zen or newer CPU which support C3 shares cache. Its not necessary to
-> flush the caches in software before entering C3. This will cause drop in
-> performance for the cores which share some caches. ARB_DIS is not used
-> with current AMD C state implementation. So set related flags correctly.
-> 
-> Signed-off-by: Deepak Sharma <deepak.sharma@amd.com>
-> Acked-by: Thomas Gleixner <tglx@linutronix.de>
-> Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
-> Signed-off-by: Guilherme G. Piccoli <gpiccoli@igalia.com>
-> ---
-> 
-> 
-> Hi folks, this is a very simple optimization that might be read
-> as a fix IMO, since it's setting the flags correctly for the Zen CPUs.
-> It was built/boot tested in the Steam Deck.
-> 
-> The backport for stable was a suggestion from Greg [0], so lemme
-> know if any of you see an issue with that, or if we should target
-> other stable versions (or less versions, maybe only 5.15).
-> Cheers,
+Hello Dear
 
-Looks good, thanks for the backport, now queued up!
-
-greg k-h
+How are you doing today?
+Please tell me do you receive my Request?
