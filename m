@@ -2,208 +2,157 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 791C467C1B2
-	for <lists+stable@lfdr.de>; Thu, 26 Jan 2023 01:32:54 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5EC4C67C1DB
+	for <lists+stable@lfdr.de>; Thu, 26 Jan 2023 01:38:24 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229453AbjAZAcx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 25 Jan 2023 19:32:53 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45142 "EHLO
+        id S235526AbjAZAiX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 25 Jan 2023 19:38:23 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47704 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229481AbjAZAcw (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 25 Jan 2023 19:32:52 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4CD6BCA28;
-        Wed, 25 Jan 2023 16:32:51 -0800 (PST)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        with ESMTP id S235859AbjAZAiS (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 25 Jan 2023 19:38:18 -0500
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1A0033D90B
+        for <stable@vger.kernel.org>; Wed, 25 Jan 2023 16:37:35 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1674693454;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=jqegOKwKp0b5k01538L+8elHQKTxwvJermmvNJSeQ8I=;
+        b=TF0TfvCivfBRzfam/JKT3a2nitLdIfmX06r6Dq8yQbbf6TDJEkcvPxm1GR4q1ZY01CJ5re
+        t27kCMa0T+Nttn/HUALhb192pr9LxRFxNuvLF9mJ1EdyFKjkDgnDyrBEg3r/JNiKYSgY9m
+        d5fyTv9O1lHO7Ymp6NyoMnKpEG3TAIo=
+Received: from mimecast-mx02.redhat.com (mx3-rdu2.redhat.com
+ [66.187.233.73]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ us-mta-68-QI00zbvxOc-mUqh8J84_Xw-1; Wed, 25 Jan 2023 19:37:31 -0500
+X-MC-Unique: QI00zbvxOc-mUqh8J84_Xw-1
+Received: from smtp.corp.redhat.com (int-mx09.intmail.prod.int.rdu2.redhat.com [10.11.54.9])
+        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id DC2E2616EB;
-        Thu, 26 Jan 2023 00:32:50 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3B797C433D2;
-        Thu, 26 Jan 2023 00:32:50 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linux-foundation.org;
-        s=korg; t=1674693170;
-        bh=1L6xx0pgpSfHoPAJjRLb3oWVqkHhoCHyIbmVgwoEvvA=;
-        h=Date:To:From:Subject:From;
-        b=vg7ln4+cKOS6x+AgKWbWhtcSHbwYro9QN0ArxLb+0qXPgmjs30M4mYAsj4hCC8BBH
-         WMBPIprUszZD32EtEZx4LyGRz0Tb5TqkmDTdnE2f29ze+65ALe4DLVjt13xrVAjMVD
-         d+UubRXzE77uijVnUzq4HiwyYsiyPBupmoMtx+pM=
-Date:   Wed, 25 Jan 2023 16:32:49 -0800
-To:     mm-commits@vger.kernel.org, stable@vger.kernel.org,
-        shy828301@gmail.com, hughd@google.com, zokeefe@google.com,
-        akpm@linux-foundation.org
-From:   Andrew Morton <akpm@linux-foundation.org>
-Subject: + mm-madv_collapse-catch-none-huge-bad-pmd-lookups.patch added to mm-hotfixes-unstable branch
-Message-Id: <20230126003250.3B797C433D2@smtp.kernel.org>
-X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,SPF_HELO_NONE,
-        SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
+        by mimecast-mx02.redhat.com (Postfix) with ESMTPS id 820283C0CD4A;
+        Thu, 26 Jan 2023 00:37:30 +0000 (UTC)
+Received: from llong.com (unknown [10.22.17.109])
+        by smtp.corp.redhat.com (Postfix) with ESMTP id 0B4D8492C1B;
+        Thu, 26 Jan 2023 00:37:30 +0000 (UTC)
+From:   Waiman Long <longman@redhat.com>
+To:     Peter Zijlstra <peterz@infradead.org>,
+        Ingo Molnar <mingo@redhat.com>, Will Deacon <will@kernel.org>,
+        Boqun Feng <boqun.feng@gmail.com>
+Cc:     linux-kernel@vger.kernel.org, john.p.donnelly@oracle.com,
+        Hillf Danton <hdanton@sina.com>,
+        Mukesh Ojha <quic_mojha@quicinc.com>,
+        =?UTF-8?q?Ting11=20Wang=20=E7=8E=8B=E5=A9=B7?= 
+        <wangting11@xiaomi.com>, Waiman Long <longman@redhat.com>,
+        stable@vger.kernel.org
+Subject: [PATCH v7 1/4] locking/rwsem: Prevent non-first waiter from spinning in down_write() slowpath
+Date:   Wed, 25 Jan 2023 19:36:25 -0500
+Message-Id: <20230126003628.365092-2-longman@redhat.com>
+In-Reply-To: <20230126003628.365092-1-longman@redhat.com>
+References: <20230126003628.365092-1-longman@redhat.com>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
+X-Scanned-By: MIMEDefang 3.1 on 10.11.54.9
+X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_NONE,
+        RCVD_IN_MSPIKE_H2,SPF_HELO_NONE,SPF_NONE autolearn=ham
+        autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+A non-first waiter can potentially spin in the for loop of
+rwsem_down_write_slowpath() without sleeping but fail to acquire the
+lock even if the rwsem is free if the following sequence happens:
 
-The patch titled
-     Subject: mm/MADV_COLLAPSE: catch !none !huge !bad pmd lookups
-has been added to the -mm mm-hotfixes-unstable branch.  Its filename is
-     mm-madv_collapse-catch-none-huge-bad-pmd-lookups.patch
+  Non-first RT waiter    First waiter      Lock holder
+  -------------------    ------------      -----------
+  Acquire wait_lock
+  rwsem_try_write_lock():
+    Set handoff bit if RT or
+      wait too long
+    Set waiter->handoff_set
+  Release wait_lock
+                         Acquire wait_lock
+                         Inherit waiter->handoff_set
+                         Release wait_lock
+					   Clear owner
+                                           Release lock
+  if (waiter.handoff_set) {
+    rwsem_spin_on_owner(();
+    if (OWNER_NULL)
+      goto trylock_again;
+  }
+  trylock_again:
+  Acquire wait_lock
+  rwsem_try_write_lock():
+     if (first->handoff_set && (waiter != first))
+     	return false;
+  Release wait_lock
 
-This patch will shortly appear at
-     https://git.kernel.org/pub/scm/linux/kernel/git/akpm/25-new.git/tree/patches/mm-madv_collapse-catch-none-huge-bad-pmd-lookups.patch
+A non-first waiter cannot really acquire the rwsem even if it mistakenly
+believes that it can spin on OWNER_NULL value. If that waiter happens
+to be an RT task running on the same CPU as the first waiter, it can
+block the first waiter from acquiring the rwsem leading to live lock.
+Fix this problem by making sure that a non-first waiter cannot spin in
+the slowpath loop without sleeping.
 
-This patch will later appear in the mm-hotfixes-unstable branch at
-    git://git.kernel.org/pub/scm/linux/kernel/git/akpm/mm
-
-Before you just go and hit "reply", please:
-   a) Consider who else should be cc'ed
-   b) Prefer to cc a suitable mailing list as well
-   c) Ideally: find the original patch on the mailing list and do a
-      reply-to-all to that, adding suitable additional cc's
-
-*** Remember to use Documentation/process/submit-checklist.rst when testing your code ***
-
-The -mm tree is included into linux-next via the mm-everything
-branch at git://git.kernel.org/pub/scm/linux/kernel/git/akpm/mm
-and is updated there every 2-3 working days
-
-------------------------------------------------------
-From: "Zach O'Keefe" <zokeefe@google.com>
-Subject: mm/MADV_COLLAPSE: catch !none !huge !bad pmd lookups
-Date: Wed, 25 Jan 2023 14:53:58 -0800
-
-In commit 34488399fa08 ("mm/madvise: add file and shmem support to
-MADV_COLLAPSE") we make the following change to find_pmd_or_thp_or_none():
-
-	-       if (!pmd_present(pmde))
-	-               return SCAN_PMD_NULL;
-	+       if (pmd_none(pmde))
-	+               return SCAN_PMD_NONE;
-
-This was for-use by MADV_COLLAPSE file/shmem codepaths, where
-MADV_COLLAPSE might identify a pte-mapped hugepage, only to have
-khugepaged race-in, free the pte table, and clear the pmd.  Such codepaths
-include:
-
-A) If we find a suitably-aligned compound page of order HPAGE_PMD_ORDER
-   already in the pagecache.
-B) In retract_page_tables(), if we fail to grab mmap_lock for the target
-   mm/address.
-
-In these cases, collapse_pte_mapped_thp() really does expect a none (not
-just !present) pmd, and we want to suitably identify that case separate
-from the case where no pmd is found, or it's a bad-pmd (of course, many
-things could happen once we drop mmap_lock, and the pmd could plausibly
-undergo multiple transitions due to intervening fault, split, etc). 
-Regardless, the code is prepared install a huge-pmd only when the existing
-pmd entry is either a genuine pte-table-mapping-pmd, or the none-pmd.
-
-However, the commit introduces a logical hole; namely, that we've allowed
-!none- && !huge- && !bad-pmds to be classified as genuine
-pte-table-mapping-pmds.  One such example that could leak through are swap
-entries.  The pmd values aren't checked again before use in
-pte_offset_map_lock(), which is expecting nothing less than a genuine
-pte-table-mapping-pmd.
-
-We want to put back the !pmd_present() check (below the pmd_none() check),
-but need to be careful to deal with subtleties in pmd transitions and
-treatments by various arch.
-
-The issue is that __split_huge_pmd_locked() temporarily clears the present
-bit (or otherwise marks the entry as invalid), but pmd_present() and
-pmd_trans_huge() still need to return true while the pmd is in this
-transitory state.  For example, x86's pmd_present() also checks the
-_PAGE_PSE , riscv's version also checks the _PAGE_LEAF bit, and arm64 also
-checks a PMD_PRESENT_INVALID bit.
-
-Covering all 4 cases for x86 (all checks done on the same pmd value):
-
-1) pmd_present() && pmd_trans_huge()
-   All we actually know here is that the PSE bit is set. Either:
-   a) We aren't racing with __split_huge_page(), and PRESENT or PROTNONE
-      is set.
-      => huge-pmd
-   b) We are currently racing with __split_huge_page().  The danger here
-      is that we proceed as-if we have a huge-pmd, but really we are
-      looking at a pte-mapping-pmd.  So, what is the risk of this
-      danger?
-
-      The only relevant path is:
-
-	madvise_collapse() -> collapse_pte_mapped_thp()
-
-      Where we might just incorrectly report back "success", when really
-      the memory isn't pmd-backed.  This is fine, since split could
-      happen immediately after (actually) successful madvise_collapse().
-      So, it should be safe to just assume huge-pmd here.
-
-2) pmd_present() && !pmd_trans_huge()
-   Either:
-   a) PSE not set and either PRESENT or PROTNONE is.
-      => pte-table-mapping pmd (or PROT_NONE)
-   b) devmap.  This routine can be called immediately after
-      unlocking/locking mmap_lock -- or called with no locks held (see
-      khugepaged_scan_mm_slot()), so previous VMA checks have since been
-      invalidated.
-
-3) !pmd_present() && pmd_trans_huge()
-  Not possible.
-
-4) !pmd_present() && !pmd_trans_huge()
-  Neither PRESENT nor PROTNONE set
-  => not present
-
-I've checked all archs that implement pmd_trans_huge() (arm64, riscv,
-powerpc, longarch, x86, mips, s390) and this logic roughly translates
-(though devmap treatment is unique to x86 and powerpc, and (3) doesn't
-necessarily hold in general -- but that doesn't matter since
-!pmd_present() always takes failure path).
-
-Also, add a comment above find_pmd_or_thp_or_none() to help future
-travelers reason about the validity of the code; namely, the possible
-mutations that might happen out from under us, depending on how mmap_lock
-is held (if at all).
-
-Link: https://lkml.kernel.org/r/20230125225358.2576151-1-zokeefe@google.com
-Fixes: 34488399fa08 ("mm/madvise: add file and shmem support to MADV_COLLAPSE")
-Signed-off-by: Zach O'Keefe <zokeefe@google.com>
-Reported-by: Hugh Dickins <hughd@google.com>
-Cc: Yang Shi <shy828301@gmail.com>
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Fixes: d257cc8cb8d5 ("locking/rwsem: Make handoff bit handling more consistent")
+Reviewed-and-tested-by: Mukesh Ojha <quic_mojha@quicinc.com>
+Signed-off-by: Waiman Long <longman@redhat.com>
+Cc: stable@vger.kernel.org
 ---
+ kernel/locking/rwsem.c | 19 +++++++++----------
+ 1 file changed, 9 insertions(+), 10 deletions(-)
 
-
---- a/mm/khugepaged.c~mm-madv_collapse-catch-none-huge-bad-pmd-lookups
-+++ a/mm/khugepaged.c
-@@ -847,6 +847,10 @@ static int hugepage_vma_revalidate(struc
- 	return SCAN_SUCCEED;
- }
+diff --git a/kernel/locking/rwsem.c b/kernel/locking/rwsem.c
+index 44873594de03..be2df9ea7c30 100644
+--- a/kernel/locking/rwsem.c
++++ b/kernel/locking/rwsem.c
+@@ -624,18 +624,16 @@ static inline bool rwsem_try_write_lock(struct rw_semaphore *sem,
+ 			 */
+ 			if (first->handoff_set && (waiter != first))
+ 				return false;
+-
+-			/*
+-			 * First waiter can inherit a previously set handoff
+-			 * bit and spin on rwsem if lock acquisition fails.
+-			 */
+-			if (waiter == first)
+-				waiter->handoff_set = true;
+ 		}
  
-+/*
-+ * See pmd_trans_unstable() for how the result may change out from
-+ * underneath us, even if we hold mmap_lock in read.
-+ */
- static int find_pmd_or_thp_or_none(struct mm_struct *mm,
- 				   unsigned long address,
- 				   pmd_t **pmd)
-@@ -865,8 +869,12 @@ static int find_pmd_or_thp_or_none(struc
- #endif
- 	if (pmd_none(pmde))
- 		return SCAN_PMD_NONE;
-+	if (!pmd_present(pmde))
-+		return SCAN_PMD_NULL;
- 	if (pmd_trans_huge(pmde))
- 		return SCAN_PMD_MAPPED;
-+	if (pmd_devmap(pmde))
-+		return SCAN_PMD_NULL;
- 	if (pmd_bad(pmde))
- 		return SCAN_PMD_NULL;
- 	return SCAN_SUCCEED;
-_
-
-Patches currently in -mm which might be from zokeefe@google.com are
-
-mm-madv_collapse-catch-none-huge-bad-pmd-lookups.patch
+ 		new = count;
+ 
+ 		if (count & RWSEM_LOCK_MASK) {
++			/*
++			 * A waiter (first or not) can set the handoff bit
++			 * if it is an RT task or wait in the wait queue
++			 * for too long.
++			 */
+ 			if (has_handoff || (!rt_task(waiter->task) &&
+ 					    !time_after(jiffies, waiter->timeout)))
+ 				return false;
+@@ -651,11 +649,12 @@ static inline bool rwsem_try_write_lock(struct rw_semaphore *sem,
+ 	} while (!atomic_long_try_cmpxchg_acquire(&sem->count, &count, new));
+ 
+ 	/*
+-	 * We have either acquired the lock with handoff bit cleared or
+-	 * set the handoff bit.
++	 * We have either acquired the lock with handoff bit cleared or set
++	 * the handoff bit. Only the first waiter can have its handoff_set
++	 * set here to enable optimistic spinning in slowpath loop.
+ 	 */
+ 	if (new & RWSEM_FLAG_HANDOFF) {
+-		waiter->handoff_set = true;
++		first->handoff_set = true;
+ 		lockevent_inc(rwsem_wlock_handoff);
+ 		return false;
+ 	}
+-- 
+2.31.1
 
