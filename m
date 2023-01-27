@@ -2,53 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id F06FC67DC29
-	for <lists+stable@lfdr.de>; Fri, 27 Jan 2023 03:09:14 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 63DE867DC30
+	for <lists+stable@lfdr.de>; Fri, 27 Jan 2023 03:10:21 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233111AbjA0CJM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 26 Jan 2023 21:09:12 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51176 "EHLO
+        id S229553AbjA0CKS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 26 Jan 2023 21:10:18 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52392 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229553AbjA0CJE (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 26 Jan 2023 21:09:04 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0EB0E20D00;
-        Thu, 26 Jan 2023 18:08:59 -0800 (PST)
+        with ESMTP id S233267AbjA0CKQ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 26 Jan 2023 21:10:16 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 937BC1737
+        for <stable@vger.kernel.org>; Thu, 26 Jan 2023 18:10:13 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 9D94461A00;
-        Fri, 27 Jan 2023 02:08:58 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D758CC433EF;
-        Fri, 27 Jan 2023 02:08:57 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 4FF36B81F6F
+        for <stable@vger.kernel.org>; Fri, 27 Jan 2023 02:10:12 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id CE9C7C433EF;
+        Fri, 27 Jan 2023 02:10:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1674785338;
-        bh=ho7KbqdMR4TEgp6i52yf2SbTP+5ULm3e4g5tvDSjJxE=;
+        s=k20201202; t=1674785411;
+        bh=e/JI6a5Meu+wMQ0KnN+CcVMio0tHGoMiAeWyaWS+pYg=;
         h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=o2a61l3s2jwJJtKoB4qZdva2n6CtnagYcmSnJjpjAZOnJdzjqttBimbK+Qoo10WRN
-         5TtdHj3c0Q6HrxyJXQZYeyis+w8Di71AalrG/eH6pDi5xeoZDvn/xgiRQpxmHhX+sa
-         Vw5Hf95gfL0KL4E+GiQiFk2FCPYNFGle66/0hCofbV7A41I3KFjmGjxfNyXvKcbJbA
-         byC6E80/T3l3LifeEFqME7dWZ8fCghAYZVhF1dskCZSbdW17AxlJvJgVvQYITjPr3V
-         vkQj95792wrOww/hiTgFy+rVj1iAqGxZjXWFZhrjHeHg/0KqjCwIq66pAXp12OuZxf
-         ciCiDBKVkr8oA==
-Date:   Thu, 26 Jan 2023 21:08:56 -0500
+        b=M9wdp7jDXsINxtJdnG0jnsRW1FqkaclWl8ZvKrKg31VLzbPI2NYldFycK9XEx0lk+
+         ypTUSgMAnpgPQzCo7Vz3tcN67XXKDc6VqB+BuTv56ppusXK2/wM7xOROwAgLmTqPAH
+         U4NbjLWj3nq07sDGKpOJ6ldztEY8o4F/wxSTfliPObRzZ9ieGtjUkkpixCX6AmcPWg
+         XZ5LM9kaY2dP763wDgL39m5Gyd0u9kEgpQ5o12cJUQSnnzs2hbBpBmaQM0S7otz9Ir
+         U/qGIbbmQUuLf5x+tHjMJ0ITzWUxpGPTh4/8Qv6TOGFvu8dYnxsNMkiWxmsLOU4+FA
+         VmphAAxMe4TBg==
+Date:   Thu, 26 Jan 2023 21:10:09 -0500
 From:   Sasha Levin <sashal@kernel.org>
-To:     Eric Biggers <ebiggers@kernel.org>
-Cc:     stable@vger.kernel.org,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Kees Cook <keescook@chromium.org>,
-        SeongJae Park <sj@kernel.org>,
-        Seth Jenkins <sethjenkins@google.com>,
-        Jann Horn <jannh@google.com>,
-        "Eric W . Biederman" <ebiederm@xmission.com>,
-        linux-hardening@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 5.15 00/20] Backport oops_limit to 5.15
-Message-ID: <Y9MyOMfBASwPSsAs@sashalap>
-References: <20230124185110.143857-1-ebiggers@kernel.org>
+To:     Jani Nikula <jani.nikula@intel.com>
+Cc:     stable@vger.kernel.org, Greg KH <gregkh@linuxfoundation.org>,
+        intel-gfx@lists.freedesktop.org
+Subject: Re: v6.1 stable backport request
+Message-ID: <Y9MygXR2Z112ttJ2@sashalap>
+References: <878rhs6ij9.fsf@intel.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Disposition: inline
-In-Reply-To: <20230124185110.143857-1-ebiggers@kernel.org>
+In-Reply-To: <878rhs6ij9.fsf@intel.com>
 X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
         DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
         SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
@@ -58,14 +52,16 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, Jan 24, 2023 at 10:50:50AM -0800, Eric Biggers wrote:
->This series backports the patchset
->"exit: Put an upper limit on how often we can oops"
->(https://lore.kernel.org/linux-mm/20221117233838.give.484-kees@kernel.org/T/#u)
->to 5.15, as recommended at
->https://googleprojectzero.blogspot.com/2023/01/exploiting-null-dereferences-in-linux.html
+On Tue, Jan 24, 2023 at 05:47:54PM +0200, Jani Nikula wrote:
+>
+>Stable team, please backport these two commits to v6.1:
+>
+>2bd0db4b3f0b ("drm/i915: Allow panel fixed modes to have differing sync polarities")
+>55cfeecc2197 ("drm/i915: Allow alternate fixed modes always for eDP")
+>
+>Reference for posterity: https://gitlab.freedesktop.org/drm/intel/-/issues/7841
 
-I've queued up this and the 5.10 backport, thanks!
+Queued up, thanks!
 
 -- 
 Thanks,
