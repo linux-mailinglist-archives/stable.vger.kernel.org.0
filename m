@@ -2,63 +2,62 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 6B85167E1E9
-	for <lists+stable@lfdr.de>; Fri, 27 Jan 2023 11:40:47 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8F95767E1E8
+	for <lists+stable@lfdr.de>; Fri, 27 Jan 2023 11:40:44 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231652AbjA0Kkn (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 27 Jan 2023 05:40:43 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49854 "EHLO
+        id S232185AbjA0Kkm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 27 Jan 2023 05:40:42 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49822 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232096AbjA0Kkk (ORCPT
+        with ESMTP id S231766AbjA0Kkk (ORCPT
         <rfc822;stable@vger.kernel.org>); Fri, 27 Jan 2023 05:40:40 -0500
-Received: from mail-wm1-x335.google.com (mail-wm1-x335.google.com [IPv6:2a00:1450:4864:20::335])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EC35823301
-        for <stable@vger.kernel.org>; Fri, 27 Jan 2023 02:40:29 -0800 (PST)
-Received: by mail-wm1-x335.google.com with SMTP id q8so3121557wmo.5
-        for <stable@vger.kernel.org>; Fri, 27 Jan 2023 02:40:29 -0800 (PST)
+Received: from mail-wm1-x32e.google.com (mail-wm1-x32e.google.com [IPv6:2a00:1450:4864:20::32e])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 750F393E3
+        for <stable@vger.kernel.org>; Fri, 27 Jan 2023 02:40:31 -0800 (PST)
+Received: by mail-wm1-x32e.google.com with SMTP id m5-20020a05600c4f4500b003db03b2559eso3114946wmq.5
+        for <stable@vger.kernel.org>; Fri, 27 Jan 2023 02:40:31 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=linaro.org; s=google;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=1ee8M/Zfl0pOs8Tnpp0ye8rZhC7jbLJshdfxfwBd8N4=;
-        b=N554l+a4UV+5pp3GziZ82E2uFpGyeuI2jtL1QNcQGYgpzh5aSUxjUvIIiLbjIrld4C
-         REZvNGQ2vU/7eosArZXgOoNYv3RBWM+XOdggo3BbrRjJJ9sDNVwv2Q2xd68Pi2hztqel
-         tdT+A0vNpZyBZ8WsL5idXJQygTTSusA2UER5+8TJdregZCPUA88rcHaBTPiGATUKC/1g
-         EkSoPO1TzRgpNJyc2YTqTpE8RHCAhm/BFGX2QDtSNLqwQbEaQUNkD6o6DQsG/5nk5sBu
-         FwQmlldnm7sPp79qOrrsdMMrCZW95X3k82j/wbiUeV/YNJP1wxwLMtrQUf69+vLUeg1Y
-         7Qqw==
+        bh=GdVhqoNMJZ7VRQato0f6F3FYR5fTivzxS5e1+eryPnY=;
+        b=HDW24eJJdhwhV+CVT0ICQs/7fTg5iROOF/oAT2IWNdOit9oQq+6DY/kJ9JcNAjZqxD
+         AwrE5rtjUnFMYYNQZBYYBEZfDnPmWEvAF2bLGLLEcgwWNlY1Iht+TSQJdZsR6xmy/L8J
+         BNfZyv7af9V+7kov+7ZUCpbAxlQNVTQHzS/HgHvU2Xgove76KNh7I4FjHTttuqV2YGwx
+         Ezwh+fSWe01rL50JV3EPYJRFPIGn10emy4OuO4Lmnn/Pyg1Yz06lDh4X4bhnAQ51kixG
+         6STeQ1nZqsLChC7rSPxbInFPWfcGQA2x2BCEZCZCCA5nxkj+xT8h6rqFzt8uBsBUUdis
+         CmTQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=1ee8M/Zfl0pOs8Tnpp0ye8rZhC7jbLJshdfxfwBd8N4=;
-        b=pA4ChU63N9IxQXzWRl5vTafxHqcpzcSPbvut7rIK0BYBcxkUdl637yR4dSw6EwYDpA
-         8cxPkrVhYNLYw7Jnro7ozncN2jz2Wz3lays+0NDhd8yAMz13Ioq/CEvdVMUavtDbXgUV
-         gtijwr0yuFarEdwCgZvhDaraVeGLFhRCPKGyRkmFTmlygVk59k4wJ5K5fiwFh9ZstK1U
-         02rRc51cMNwZafsnnitTGHHVZMRtp0Ba124zNzVeMbTe3ZIthNujFir6YzqB7CddY5NP
-         YbmaB+sB07U9vaNITsop4EctlyBCjVr6vIG7VnlgyAN8Lu7WiPMZxe5RAZXC2Pm+cadn
-         RzVw==
-X-Gm-Message-State: AFqh2ko7iSxvFS/Z2jb64Jx+eUWKHLz5mdzbM8oLNEzJ7UQwtg8q1O4D
-        d1e16Q5SheutWzLUYRuS9Jt+gg==
-X-Google-Smtp-Source: AMrXdXv8r1WlZJ6abS3W4jl0IXaMTirvycwLOdaiLvCf+FE0El2w8WwrvDeu0IQx1yRWvhtGHId1Kg==
-X-Received: by 2002:a05:600c:4395:b0:3c6:f7ff:6f87 with SMTP id e21-20020a05600c439500b003c6f7ff6f87mr37673436wmn.11.1674816028506;
-        Fri, 27 Jan 2023 02:40:28 -0800 (PST)
+        bh=GdVhqoNMJZ7VRQato0f6F3FYR5fTivzxS5e1+eryPnY=;
+        b=AvF+kZsNOPVw3zeX0P3oA7xthxGMQGLFXQz+OHRVYunU7RTTW8qgXF2xRVZPpMd+nP
+         wQZZJHZ266p8Q7mtzkMzFtSWkotzvWiOE7C0nldrqr+Z2KYpHq4DmDtY8DMxmc8MzIFi
+         +JrIOVDE9Z62mru8nLmQ87N10FRalf5y793QQNkv1aujxCTfu1yuSs4TcwCvWrD8BB2F
+         aJmbusBCBGdP0eqJfibXgmGLPmeWBsLybE2G99+9NXpC6/jXTpuq284m3pp2KJzfy245
+         qyU5xkMfsFU/PHc8S6ZFe6Cl8PclKb8Qf5lrTodIdfGz22ssNaBEfwROwH3lSgdbucb/
+         xXxg==
+X-Gm-Message-State: AO0yUKVWS1FIDpVcdDyVRPjACsplAgAey7RjR/9epCexIC9DigmujxNr
+        3ZBr2vv3VcElWblnymcrwq8KCA==
+X-Google-Smtp-Source: AK7set8JcMnvCSESnDwQu+Bq1VhE1q+tL0dAaWd0SJrFPXPsgc7tN+PE/VIwcc+c06H8/oscScf1Zw==
+X-Received: by 2002:a05:600c:707:b0:3dc:3577:fdb2 with SMTP id i7-20020a05600c070700b003dc3577fdb2mr1963492wmn.5.1674816030030;
+        Fri, 27 Jan 2023 02:40:30 -0800 (PST)
 Received: from localhost.localdomain ([5.133.47.210])
-        by smtp.gmail.com with ESMTPSA id q9-20020a1ce909000000b003dc34edacf8sm1619787wmc.31.2023.01.27.02.40.27
+        by smtp.gmail.com with ESMTPSA id q9-20020a1ce909000000b003dc34edacf8sm1619787wmc.31.2023.01.27.02.40.28
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 27 Jan 2023 02:40:27 -0800 (PST)
+        Fri, 27 Jan 2023 02:40:29 -0800 (PST)
 From:   Srinivas Kandagatla <srinivas.kandagatla@linaro.org>
 To:     gregkh@linuxfoundation.org
 Cc:     linux-kernel@vger.kernel.org,
         "Russell King (Oracle)" <rmk+kernel@armlinux.org.uk>,
-        stable@vger.kernel.org, kernel test robot <lkp@intel.com>,
-        Dan Carpenter <error27@gmail.com>,
+        stable@vger.kernel.org,
         Srinivas Kandagatla <srinivas.kandagatla@linaro.org>
-Subject: [PATCH 05/10] nvmem: core: fix cleanup after dev_set_name()
-Date:   Fri, 27 Jan 2023 10:40:10 +0000
-Message-Id: <20230127104015.23839-6-srinivas.kandagatla@linaro.org>
+Subject: [PATCH 06/10] nvmem: core: fix registration vs use race
+Date:   Fri, 27 Jan 2023 10:40:11 +0000
+Message-Id: <20230127104015.23839-7-srinivas.kandagatla@linaro.org>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20230127104015.23839-1-srinivas.kandagatla@linaro.org>
 References: <20230127104015.23839-1-srinivas.kandagatla@linaro.org>
@@ -75,86 +74,77 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: "Russell King (Oracle)" <rmk+kernel@armlinux.org.uk>
 
-If dev_set_name() fails, we leak nvmem->wp_gpio as the cleanup does not
-put this. While a minimal fix for this would be to add the gpiod_put()
-call, we can do better if we split device_register(), and use the
-tested nvmem_release() cleanup code by initialising the device early,
-and putting the device.
+The i.MX6 CPU frequency driver sometimes fails to register at boot time
+due to nvmem_cell_read_u32() sporadically returning -ENOENT.
 
-This results in a slightly larger fix, but results in clear code.
+This happens because there is a window where __nvmem_device_get() in
+of_nvmem_cell_get() is able to return the nvmem device, but as cells
+have been setup, nvmem_find_cell_entry_by_node() returns NULL.
 
-Note: this patch depends on "nvmem: core: initialise nvmem->id early"
-and "nvmem: core: remove nvmem_config wp_gpio".
+The occurs because the nvmem core registration code violates one of the
+fundamental principles of kernel programming: do not publish data
+structures before their setup is complete.
+
+Fix this by making nvmem core code conform with this principle.
 
 Cc: stable@vger.kernel.org
-Fixes: 5544e90c8126 ("nvmem: core: add error handling for dev_set_name")
-Reported-by: kernel test robot <lkp@intel.com>
-Reported-by: Dan Carpenter <error27@gmail.com>
+Fixes: eace75cfdcf7 ("nvmem: Add a simple NVMEM framework for nvmem providers")
 Signed-off-by: Russell King (Oracle) <rmk+kernel@armlinux.org.uk>
-[Srini: Fixed subject line and error code handing with wp_gpio while applying.]
 Signed-off-by: Srinivas Kandagatla <srinivas.kandagatla@linaro.org>
 ---
- drivers/nvmem/core.c | 22 ++++++++++------------
- 1 file changed, 10 insertions(+), 12 deletions(-)
+ drivers/nvmem/core.c | 18 ++++++++----------
+ 1 file changed, 8 insertions(+), 10 deletions(-)
 
 diff --git a/drivers/nvmem/core.c b/drivers/nvmem/core.c
-index 608f3ad2e2e4..ac77a019aed7 100644
+index ac77a019aed7..e92c6f1aadbb 100644
 --- a/drivers/nvmem/core.c
 +++ b/drivers/nvmem/core.c
-@@ -772,14 +772,18 @@ struct nvmem_device *nvmem_register(const struct nvmem_config *config)
+@@ -832,22 +832,16 @@ struct nvmem_device *nvmem_register(const struct nvmem_config *config)
+ 	nvmem->dev.groups = nvmem_dev_groups;
+ #endif
  
- 	nvmem->id = rval;
- 
-+	nvmem->dev.type = &nvmem_provider_type;
-+	nvmem->dev.bus = &nvmem_bus_type;
-+	nvmem->dev.parent = config->dev;
-+
-+	device_initialize(&nvmem->dev);
-+
- 	if (!config->ignore_wp)
- 		nvmem->wp_gpio = gpiod_get_optional(config->dev, "wp",
- 						    GPIOD_OUT_HIGH);
- 	if (IS_ERR(nvmem->wp_gpio)) {
--		ida_free(&nvmem_ida, nvmem->id);
- 		rval = PTR_ERR(nvmem->wp_gpio);
--		kfree(nvmem);
--		return ERR_PTR(rval);
-+		goto err_put_device;
+-	dev_dbg(&nvmem->dev, "Registering nvmem device %s\n", config->name);
+-
+-	rval = device_add(&nvmem->dev);
+-	if (rval)
+-		goto err_put_device;
+-
+ 	if (nvmem->nkeepout) {
+ 		rval = nvmem_validate_keepouts(nvmem);
+ 		if (rval)
+-			goto err_device_del;
++			goto err_put_device;
  	}
  
- 	kref_init(&nvmem->refcnt);
-@@ -791,9 +795,6 @@ struct nvmem_device *nvmem_register(const struct nvmem_config *config)
- 	nvmem->stride = config->stride ?: 1;
- 	nvmem->word_size = config->word_size ?: 1;
- 	nvmem->size = config->size;
--	nvmem->dev.type = &nvmem_provider_type;
--	nvmem->dev.bus = &nvmem_bus_type;
--	nvmem->dev.parent = config->dev;
- 	nvmem->root_only = config->root_only;
- 	nvmem->priv = config->priv;
- 	nvmem->type = config->type;
-@@ -821,11 +822,8 @@ struct nvmem_device *nvmem_register(const struct nvmem_config *config)
- 		break;
+ 	if (config->compat) {
+ 		rval = nvmem_sysfs_setup_compat(nvmem, config);
+ 		if (rval)
+-			goto err_device_del;
++			goto err_put_device;
  	}
  
--	if (rval) {
--		ida_free(&nvmem_ida, nvmem->id);
--		kfree(nvmem);
--		return ERR_PTR(rval);
--	}
-+	if (rval)
-+		goto err_put_device;
- 
- 	nvmem->read_only = device_property_present(config->dev, "read-only") ||
- 			   config->read_only || !nvmem->reg_write;
-@@ -836,7 +834,7 @@ struct nvmem_device *nvmem_register(const struct nvmem_config *config)
- 
- 	dev_dbg(&nvmem->dev, "Registering nvmem device %s\n", config->name);
- 
--	rval = device_register(&nvmem->dev);
-+	rval = device_add(&nvmem->dev);
+ 	if (config->cells) {
+@@ -864,6 +858,12 @@ struct nvmem_device *nvmem_register(const struct nvmem_config *config)
  	if (rval)
- 		goto err_put_device;
+ 		goto err_remove_cells;
+ 
++	dev_dbg(&nvmem->dev, "Registering nvmem device %s\n", config->name);
++
++	rval = device_add(&nvmem->dev);
++	if (rval)
++		goto err_remove_cells;
++
+ 	blocking_notifier_call_chain(&nvmem_notifier, NVMEM_ADD, nvmem);
+ 
+ 	return nvmem;
+@@ -873,8 +873,6 @@ struct nvmem_device *nvmem_register(const struct nvmem_config *config)
+ err_teardown_compat:
+ 	if (config->compat)
+ 		nvmem_sysfs_remove_compat(nvmem, config);
+-err_device_del:
+-	device_del(&nvmem->dev);
+ err_put_device:
+ 	put_device(&nvmem->dev);
  
 -- 
 2.25.1
