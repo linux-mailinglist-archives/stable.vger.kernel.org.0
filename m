@@ -2,30 +2,30 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 94A4B67E758
-	for <lists+stable@lfdr.de>; Fri, 27 Jan 2023 14:58:30 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8FF4A67E763
+	for <lists+stable@lfdr.de>; Fri, 27 Jan 2023 14:58:34 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233990AbjA0N63 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 27 Jan 2023 08:58:29 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37512 "EHLO
+        id S234180AbjA0N6d (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 27 Jan 2023 08:58:33 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37674 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233713AbjA0N6L (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 27 Jan 2023 08:58:11 -0500
-Received: from smtpout.efficios.com (unknown [IPv6:2607:5300:203:b2ee::31e5])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6858F20D3D;
+        with ESMTP id S233739AbjA0N6M (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 27 Jan 2023 08:58:12 -0500
+Received: from smtpout.efficios.com (smtpout.efficios.com [167.114.26.122])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 688582197E;
         Fri, 27 Jan 2023 05:58:09 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=efficios.com;
         s=smtpout1; t=1674827884;
-        bh=X6gVbqQlq737cstg892yXIS/G1E/XkRwPcbdp0ROAbU=;
+        bh=k3Z/Eqp3e8HyxFyohB0vGYb9ihS+11AAagQRfVUvXCQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=JjF8+kmJVrJNh1BuPF8a7WG26h8d0kqr13MoaFIKAQxS+OKmGP2p5Q2Z18JdIYP/S
-         d4wZYVM6AiQCAxCNOmh2AAnZ1WKr+Ev5VF6FYZkklNBnoTWrlW+DIDy0+P0lo2mTpL
-         KuixJarRjopu+5bsZr0viXpK1cZaOsR61fziFIq2aYXq5Jwa1dDEvRUCfIQUuiFWrA
-         7B3uoSO2lUc5qx1xdqbstzrBTc+/A0hrvo9YHGPyYjaOBOaIr1ED5l0p8PitV9s6ay
-         YcKByRqda2r1VH9ZEletCr4YSCL9fdCv4tdfUgiK+t/8LCv72a2SaL/IndmdJmHDCw
-         LHNZfQDYhgzXA==
+        b=jv0ybvBusQbcS1LsrWWsK7bbFqIGXNAoSo7I58/nh8B4SvrDZz0BpRTpgIU36akLb
+         lHBA28sJT/rynLoy0RCC4KsdCtqAb3lBVpNN6MxdJIv214RjTBzrz38LMH4CQ5MkLF
+         0j1PqndXYTop1JRH8diTjjeyhSkS/CRwqMbwV8DflReQnvq50hk7aWNsDYjZTBwicn
+         LK3T2xj71BTWuiTS1RJaa/SvfFJMhewAkpBn2fFbkdrCq5ONJM9qZvSpqNj5dE5kCS
+         hadmPm0QrXGPmkMk6aoyhktcVAueNy9AtSsk8NbWqE17cPi1NKb7iD3Pi/5rmu52YB
+         xKZ3lNi8w+0Pg==
 Received: from localhost.localdomain (192-222-180-24.qc.cable.ebox.net [192.222.180.24])
-        by smtpout.efficios.com (Postfix) with ESMTPSA id 4P3K0X2LMSzhWb;
+        by smtpout.efficios.com (Postfix) with ESMTPSA id 4P3K0X3v5ZzhWc;
         Fri, 27 Jan 2023 08:58:04 -0500 (EST)
 From:   Mathieu Desnoyers <mathieu.desnoyers@efficios.com>
 To:     Shuah Khan <shuah@kernel.org>, linux-kselftest@vger.kernel.org,
@@ -33,17 +33,17 @@ To:     Shuah Khan <shuah@kernel.org>, linux-kselftest@vger.kernel.org,
 Cc:     linux-kernel@vger.kernel.org,
         Mathieu Desnoyers <mathieu.desnoyers@efficios.com>,
         stable@vger.kernel.org
-Subject: [PATCH 15/34] selftests: mount_setattr: Fix incorrect kernel headers search path
-Date:   Fri, 27 Jan 2023 08:57:36 -0500
-Message-Id: <20230127135755.79929-16-mathieu.desnoyers@efficios.com>
+Subject: [PATCH 16/34] selftests: move_mount_set_group: Fix incorrect kernel headers search path
+Date:   Fri, 27 Jan 2023 08:57:37 -0500
+Message-Id: <20230127135755.79929-17-mathieu.desnoyers@efficios.com>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20230127135755.79929-1-mathieu.desnoyers@efficios.com>
 References: <20230127135755.79929-1-mathieu.desnoyers@efficios.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-1.3 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RDNS_NONE,SPF_HELO_NONE,
-        SPF_PASS autolearn=no autolearn_force=no version=3.4.6
+X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,SPF_HELO_NONE,SPF_PASS
+        autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
@@ -61,20 +61,20 @@ Cc: linux-kselftest@vger.kernel.org
 Cc: Ingo Molnar <mingo@redhat.com>
 Cc: <stable@vger.kernel.org>    [5.18+]
 ---
- tools/testing/selftests/mount_setattr/Makefile | 2 +-
+ tools/testing/selftests/move_mount_set_group/Makefile | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/tools/testing/selftests/mount_setattr/Makefile b/tools/testing/selftests/mount_setattr/Makefile
-index 2250f7dcb81e..fde72df01b11 100644
---- a/tools/testing/selftests/mount_setattr/Makefile
-+++ b/tools/testing/selftests/mount_setattr/Makefile
+diff --git a/tools/testing/selftests/move_mount_set_group/Makefile b/tools/testing/selftests/move_mount_set_group/Makefile
+index 80c2d86812b0..94235846b6f9 100644
+--- a/tools/testing/selftests/move_mount_set_group/Makefile
++++ b/tools/testing/selftests/move_mount_set_group/Makefile
 @@ -1,6 +1,6 @@
  # SPDX-License-Identifier: GPL-2.0
  # Makefile for mount selftests.
--CFLAGS = -g -I../../../../usr/include/ -Wall -O2 -pthread
-+CFLAGS = -g $(KHDR_INCLUDES) -Wall -O2 -pthread
+-CFLAGS = -g -I../../../../usr/include/ -Wall -O2
++CFLAGS = -g $(KHDR_INCLUDES) -Wall -O2
  
- TEST_GEN_FILES += mount_setattr_test
+ TEST_GEN_FILES += move_mount_set_group_test
  
 -- 
 2.25.1
