@@ -2,54 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 6A2CE67DE74
-	for <lists+stable@lfdr.de>; Fri, 27 Jan 2023 08:23:26 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C2FF767DE79
+	for <lists+stable@lfdr.de>; Fri, 27 Jan 2023 08:25:24 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232621AbjA0HXR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 27 Jan 2023 02:23:17 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44300 "EHLO
+        id S232648AbjA0HZX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 27 Jan 2023 02:25:23 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45972 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232614AbjA0HXO (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 27 Jan 2023 02:23:14 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7810C4FADA;
-        Thu, 26 Jan 2023 23:23:12 -0800 (PST)
+        with ESMTP id S229886AbjA0HZW (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 27 Jan 2023 02:25:22 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2D56A518E8;
+        Thu, 26 Jan 2023 23:25:22 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id CF39AB81FAB;
-        Fri, 27 Jan 2023 07:23:10 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 04640C433EF;
-        Fri, 27 Jan 2023 07:23:08 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id D1E43B81F83;
+        Fri, 27 Jan 2023 07:25:20 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 13A47C433D2;
+        Fri, 27 Jan 2023 07:25:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1674804189;
-        bh=gAw5rbdFnQhdRes3YYkMRa7SMi5flLfIe+oTP1Jv9Ps=;
+        s=korg; t=1674804319;
+        bh=uiDH1wTvjIHk7fS7H/gr3ugWkoj8lJ2x2AXClUIXcVc=;
         h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=oc2OvVx71VUCwmAaD7jG5dufv0NZShl/0soHMSl4gJ8j+D5XYR6ov+jHFAqBzjhFC
-         6btLEVumRQGjQ/n2Vk2FG7/UqnZnObzJr9RKUnhFrXfoB0n/l8UeL+jrEa3SDQlPiE
-         RK/0Mydd8DVQuMSch96lrm4n78DtVTj5Lf5ssFeo=
-Date:   Fri, 27 Jan 2023 08:23:06 +0100
+        b=CFSAlYy9Dm+0rzvxNPbzD6Hoget8LchXtUZIKj1/mPZ++3Z9tihvpDIyl37ehs2FF
+         my4KMLyXyzqUhN1d/9MBncXqDzA/zsX6yup9N3f1nihtrvHkHeSXaq5jj3ZZGBqW1H
+         wifmRiZnQc7yJN1EedhndkIv4M8pRLDRELw5Hsmw=
+Date:   Fri, 27 Jan 2023 08:25:16 +0100
 From:   Greg KH <gregkh@linuxfoundation.org>
-To:     Jim Mattson <jmattson@google.com>
-Cc:     Paolo Bonzini <pbonzini@redhat.com>, linux-kernel@vger.kernel.org,
-        kvm@vger.kernel.org, seanjc@google.com, stable@vger.kernel.org
-Subject: Re: [PATCH v2] KVM: x86: Do not return host topology information
- from KVM_GET_SUPPORTED_CPUID
-Message-ID: <Y9N72sE4eEOYDKzG@kroah.com>
-References: <3a23db58-3ae1-7457-ed09-bc2e3f6e8dc9@redhat.com>
- <CALMp9eQ3wZ4dkq_8ErcUdQAs2F96Gvr-g=7-iBteJeuN5aX00A@mail.gmail.com>
- <8bdf22c8-9ef1-e526-df36-9073a150669d@redhat.com>
- <CALMp9eRKp_4j_Q0j1HYP2itT2+z3pRotQK8LwScMsaGF5FpARA@mail.gmail.com>
- <dec8c012-885a-6ed8-534e-4a5f0a435025@redhat.com>
- <CALMp9eSyVWGS2HQVwwwViE6S_uweiOiFucqa3keuoUjNz9rKqA@mail.gmail.com>
- <f322cce0-f83a-16d9-9738-f47f265b41d8@redhat.com>
- <CALMp9eTpbwQP3QsqpOBsDb0soLpsv9FZA=ivZUmf2GJgBxhfmw@mail.gmail.com>
- <b3820c5c-370b-44f1-7dac-544e504bc61a@redhat.com>
- <CALMp9eQe__xPe9JjgpN_jq-zB2UUqBKYrrMpGvJOjohT=gK2=Q@mail.gmail.com>
+To:     Adrian Zaharia <adrian.zaharia@windriver.com>
+Cc:     stable@vger.kernel.org, mathias.nyman@intel.com,
+        linux-usb@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 5.10 1/1] xhci: Set HCD flag to defer primary roothub
+ registration
+Message-ID: <Y9N8XEh6rL/MWP77@kroah.com>
+References: <20230125133359.3538078-1-adrian.zaharia@windriver.com>
+ <20230125133359.3538078-2-adrian.zaharia@windriver.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <CALMp9eQe__xPe9JjgpN_jq-zB2UUqBKYrrMpGvJOjohT=gK2=Q@mail.gmail.com>
+In-Reply-To: <20230125133359.3538078-2-adrian.zaharia@windriver.com>
 X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
         DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
         SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
@@ -59,38 +51,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Thu, Jan 26, 2023 at 12:45:58PM -0800, Jim Mattson wrote:
-> On Thu, Jan 26, 2023 at 9:47 AM Paolo Bonzini <pbonzini@redhat.com> wrote:
-> >
-> > On 1/26/23 17:06, Jim Mattson wrote:
-> > >>> Sadly, there isn't a single kernel involved. People running our VMM on
-> > >>> their desktops are going to be impacted as soon as this patch hits
-> > >>> that distro. (I don't know if I can say which distro that is.) So, now
-> > >>> we have to get the VMM folks to urgently accommodate this change and
-> > >>> get a new distribution out.
-> > >>
-> > >> Ok, this is what is needed to make a more informed choice.  To be clear,
-> > >> this is _still_ not public (for example it's not ChromeOS), so there is
-> > >> at least some control on what version of the VMM they use?  Would it
-> > >> make sense to buy you a few months by deferring this patch to Linux 6.3-6.5?
-> > >
-> > > Mainline isn't a problem. I'm more worried about 5.19 LTS.
-> >
-> > 5.19 is not LTS, is it?  This patch is only in 6.1.7 and 6.1.8 as far as
-> > stable kernels is concerned, should I ask Greg to revert it there?
+On Wed, Jan 25, 2023 at 03:33:59PM +0200, Adrian Zaharia wrote:
+> From: Kishon Vijay Abraham I <kishon@ti.com>
 > 
-> It came to my attention when commit 196c6f0c3e21 ("KVM: x86: Do not
-> return host topology information from KVM_GET_SUPPORTED_CPUID") broke
-> some of our tests under 5.10 LTS.
+> [ Upstream commit b7a4f9b5d0e4b6dd937678c546c0b322dd1a4054 ]
 > 
-> If it isn't bound for linux-5.19-y, then we have some breathing room.
+> Set "HCD_FLAG_DEFER_RH_REGISTER" to hcd->flags in xhci_run() to defer
+> registering primary roothub in usb_add_hcd() if xhci has two roothubs.
+> This will make sure both primary roothub and secondary roothub will be
+> registered along with the second HCD.
+> This is required for cold plugged USB devices to be detected in certain
+> PCIe USB cards (like Inateck USB card connected to AM64 EVM or J7200 EVM).
+> 
+> This patch has been added and reverted earier as it triggered a race
+> in usb device enumeration.
+> That race is now fixed in 5.16-rc3, and in stable back to 5.4
+> commit 6cca13de26ee ("usb: hub: Fix locking issues with address0_mutex")
+> commit 6ae6dc22d2d1 ("usb: hub: Fix usb enumeration issue due to address0
+> race")
+> 
+> [minor rebase change, and commit message update -Mathias]
+> 
+> CC: stable@vger.kernel.org # 5.4+
+> Suggested-by: Mathias Nyman <mathias.nyman@linux.intel.com>
+> Tested-by: Chris Chiu <chris.chiu@canonical.com>
+> Signed-off-by: Kishon Vijay Abraham I <kishon@ti.com>
+> Link: https://lore.kernel.org/r/20220510091630.16564-3-kishon@ti.com
+> Signed-off-by: Adrian Zaharia <Adrian.Zaharia@windriver.com>
+> ---
+>  drivers/usb/host/xhci.c | 2 ++
+>  1 file changed, 2 insertions(+)
 
-5.19 is long end-of-life, it dropped off of being maintained back in
-October of last year.
+You dropped my original signed-off-by?  Odd...
 
-You can always use the front page of kernel.org to determine what is
-still being maintained.
-
-thanks,
+Anyway, now queued up.
 
 greg k-h
