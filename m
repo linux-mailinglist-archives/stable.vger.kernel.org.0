@@ -2,30 +2,30 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A25B467E777
+	by mail.lfdr.de (Postfix) with ESMTP id 2FAF467E775
 	for <lists+stable@lfdr.de>; Fri, 27 Jan 2023 14:58:42 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233654AbjA0N6j (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 27 Jan 2023 08:58:39 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37532 "EHLO
+        id S234321AbjA0N6i (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 27 Jan 2023 08:58:38 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38494 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233844AbjA0N61 (ORCPT
+        with ESMTP id S233690AbjA0N61 (ORCPT
         <rfc822;stable@vger.kernel.org>); Fri, 27 Jan 2023 08:58:27 -0500
 Received: from smtpout.efficios.com (smtpout.efficios.com [167.114.26.122])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A5E4BCC33;
-        Fri, 27 Jan 2023 05:58:10 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C9D432330D;
+        Fri, 27 Jan 2023 05:58:11 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=efficios.com;
         s=smtpout1; t=1674827887;
-        bh=xy8S0oG0BePuaWeh4M8cZcORhMtZodlbd32PaPCFpys=;
+        bh=j0/J2jgcMN5hRuwHVS3PfRhowqmRAWi4T67r4xbEwTI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=jJUXxRiRwMEefT7UguOIFbk5gJztZL6XDWpxFpy10V2dTCqCWiITpEwn9YMRU/pbN
-         7stY5+wVGhiOuy58hg8/5OcPGI3ERGS7X2iGMWnIQ1Gf4Ys2+Kos/ZyB00W6GojKed
-         LrdkT+iOM1+94SKADgj3tl+oqbJjtWxRc9r2QVtr0zWI6OMC87h8b1mLHf4ZWsHHQM
-         oPD9hi4y28T2eLiTEkyOLOgowKZRy3uSf2UqDxavMTQrHzHrqrmbaFlKU5SXAk/3Nw
-         S+Lyi13DlHqmsE7WpV9c1V8HSwKrj3T9Hn6u1Jvvm0LKtzeVbPkEyNpQjyIPP9OvBU
-         dIjYN4SF6CPkg==
+        b=g5Zga5tdO5JSw6QnfEUZ26+JP3uOhBoA3BuGJ3CVbx9vWS26fhhaC+yo8NxIn+I3J
+         WeeVZPQvl5aYTI7jz0B2VUikDtBkdR/IhBhPbR9uKbfcCL0PNTIIVtdMekDcFWV5NI
+         m05d40See0UrY0VcbHo0B3+ItVQJ1VRc1Hr6yGeqhPI6f4KnEmyejIwFf+IfpL8Gml
+         H3DuYDsxZ3Y0gy1WmwChq9tXUyJBfAmibJLoIVY8munkTuoVV+IpnMJmegaOw+Bm9V
+         kAhPIqQ4j1w1bASt8es6XM7omVPSljOnDM2OT6p+uHeNA0FqeoVPZdHJ6Bng0W+qc5
+         zbn41+l3sc5zA==
 Received: from localhost.localdomain (192-222-180-24.qc.cable.ebox.net [192.222.180.24])
-        by smtpout.efficios.com (Postfix) with ESMTPSA id 4P3K0b0Wdlzhcx;
+        by smtpout.efficios.com (Postfix) with ESMTPSA id 4P3K0b1wn8zhcy;
         Fri, 27 Jan 2023 08:58:07 -0500 (EST)
 From:   Mathieu Desnoyers <mathieu.desnoyers@efficios.com>
 To:     Shuah Khan <shuah@kernel.org>, linux-kselftest@vger.kernel.org,
@@ -33,9 +33,9 @@ To:     Shuah Khan <shuah@kernel.org>, linux-kselftest@vger.kernel.org,
 Cc:     linux-kernel@vger.kernel.org,
         Mathieu Desnoyers <mathieu.desnoyers@efficios.com>,
         stable@vger.kernel.org
-Subject: [PATCH 28/34] selftests: vm: Fix incorrect kernel headers search path
-Date:   Fri, 27 Jan 2023 08:57:49 -0500
-Message-Id: <20230127135755.79929-29-mathieu.desnoyers@efficios.com>
+Subject: [PATCH 29/34] selftests: x86: Fix incorrect kernel headers search path
+Date:   Fri, 27 Jan 2023 08:57:50 -0500
+Message-Id: <20230127135755.79929-30-mathieu.desnoyers@efficios.com>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20230127135755.79929-1-mathieu.desnoyers@efficios.com>
 References: <20230127135755.79929-1-mathieu.desnoyers@efficios.com>
@@ -61,22 +61,22 @@ Cc: linux-kselftest@vger.kernel.org
 Cc: Ingo Molnar <mingo@redhat.com>
 Cc: <stable@vger.kernel.org>    [5.18+]
 ---
- tools/testing/selftests/vm/Makefile | 2 +-
+ tools/testing/selftests/x86/Makefile | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/tools/testing/selftests/vm/Makefile b/tools/testing/selftests/vm/Makefile
-index 89c14e41bd43..ac9366065fd2 100644
---- a/tools/testing/selftests/vm/Makefile
-+++ b/tools/testing/selftests/vm/Makefile
-@@ -25,7 +25,7 @@ MACHINE ?= $(shell echo $(uname_M) | sed -e 's/aarch64.*/arm64/' -e 's/ppc64.*/p
- # LDLIBS.
- MAKEFLAGS += --no-builtin-rules
+diff --git a/tools/testing/selftests/x86/Makefile b/tools/testing/selftests/x86/Makefile
+index 0388c4d60af0..ca9374b56ead 100644
+--- a/tools/testing/selftests/x86/Makefile
++++ b/tools/testing/selftests/x86/Makefile
+@@ -34,7 +34,7 @@ BINARIES_64 := $(TARGETS_C_64BIT_ALL:%=%_64)
+ BINARIES_32 := $(patsubst %,$(OUTPUT)/%,$(BINARIES_32))
+ BINARIES_64 := $(patsubst %,$(OUTPUT)/%,$(BINARIES_64))
  
--CFLAGS = -Wall -I $(top_srcdir) -I $(top_srcdir)/usr/include $(EXTRA_CFLAGS) $(KHDR_INCLUDES)
-+CFLAGS = -Wall -I $(top_srcdir) $(EXTRA_CFLAGS) $(KHDR_INCLUDES)
- LDLIBS = -lrt -lpthread
- TEST_GEN_FILES = cow
- TEST_GEN_FILES += compaction_test
+-CFLAGS := -O2 -g -std=gnu99 -pthread -Wall
++CFLAGS := -O2 -g -std=gnu99 -pthread -Wall $(KHDR_INCLUDES)
+ 
+ # call32_from_64 in thunks.S uses absolute addresses.
+ ifeq ($(CAN_BUILD_WITH_NOPIE),1)
 -- 
 2.25.1
 
