@@ -2,30 +2,30 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 8F5BA67E745
+	by mail.lfdr.de (Postfix) with ESMTP id B602867E746
 	for <lists+stable@lfdr.de>; Fri, 27 Jan 2023 14:58:18 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233479AbjA0N6Q (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 27 Jan 2023 08:58:16 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37460 "EHLO
+        id S233762AbjA0N6R (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 27 Jan 2023 08:58:17 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37484 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233656AbjA0N6K (ORCPT
+        with ESMTP id S233654AbjA0N6K (ORCPT
         <rfc822;stable@vger.kernel.org>); Fri, 27 Jan 2023 08:58:10 -0500
 Received: from smtpout.efficios.com (unknown [IPv6:2607:5300:203:b2ee::31e5])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E7A313C2B;
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E89C540ED;
         Fri, 27 Jan 2023 05:58:07 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=efficios.com;
         s=smtpout1; t=1674827883;
-        bh=7etrW8iE023GQxiA3Q3KlSxXSNyXYwYwDLENTzRvr34=;
+        bh=6qm7wk7SUWVKWvdRjS2nUvbIrWez68nKKOk9YkW3yBU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=vSk4/jSkUPe0tq1mFNG1JdvtfPkyBFssFtI+OjcZs0M0yPOeor8aInfgmMElEW7NK
-         D9Zi6yfX1MykyPhi3dxnOM038eaKPCL5qgr4KxKEs8lwVqvdw3YaSjnDg8ZhjNTd5P
-         Wgq3UPtJFTyJVMDrwS3yCRkBerX1SXMJCt9GmnB0yibcL4bRzC/h8fhz+wdYRpfU65
-         VOyq2qwhIUn2QuePv3F6n4ocFvHtiPsSImBEKsRr5LGZ6DM9oBs0PjKQ5D2fEHF3QV
-         IqtiKFM6/UdDvjkD4kLxfJpRK0WLpTiCOpGDY2R7/COv/cFt3KAoI6XUEUjxqmjBjd
-         +ZJL3QKTPSRKA==
+        b=gP03Mi026Ip5lZprMZD7HrDPdLu68cDJiSL5zj/yVbhSbKT0gHmVKMuiXNCkjk1Oj
+         BYFA9Lzexf2vhBJic2Ac8Xdb88AlsWvmTsaTleiJpiuAyzRwDb36AA44gS71PgSt83
+         6HtfERAaVPs4NEyXcSx9gxPZylEVoBO1gLb1t40AjnZBsS6+AeDwe3uBmpeBBQq5g4
+         QxHiqR3p4jhlpXXEQbFDQBap/LyK60ULDozbSZjl57yi7cI/AMBSF+6FWyVS5JPst1
+         HIiIIk//JFjoFp9pYahOTUUvdcMTiqtEiEnZoMhTGTuP+7RQr8/7514Gw4EdF6h3lu
+         KP25M00JmUL9w==
 Received: from localhost.localdomain (192-222-180-24.qc.cable.ebox.net [192.222.180.24])
-        by smtpout.efficios.com (Postfix) with ESMTPSA id 4P3K0W3LfTzhxR;
+        by smtpout.efficios.com (Postfix) with ESMTPSA id 4P3K0W4smKzhxS;
         Fri, 27 Jan 2023 08:58:03 -0500 (EST)
 From:   Mathieu Desnoyers <mathieu.desnoyers@efficios.com>
 To:     Shuah Khan <shuah@kernel.org>, linux-kselftest@vger.kernel.org,
@@ -33,9 +33,9 @@ To:     Shuah Khan <shuah@kernel.org>, linux-kselftest@vger.kernel.org,
 Cc:     linux-kernel@vger.kernel.org,
         Mathieu Desnoyers <mathieu.desnoyers@efficios.com>,
         stable@vger.kernel.org
-Subject: [PATCH 11/34] selftests: ipc: Fix incorrect kernel headers search path
-Date:   Fri, 27 Jan 2023 08:57:32 -0500
-Message-Id: <20230127135755.79929-12-mathieu.desnoyers@efficios.com>
+Subject: [PATCH 12/34] selftests: kcmp: Fix incorrect kernel headers search path
+Date:   Fri, 27 Jan 2023 08:57:33 -0500
+Message-Id: <20230127135755.79929-13-mathieu.desnoyers@efficios.com>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20230127135755.79929-1-mathieu.desnoyers@efficios.com>
 References: <20230127135755.79929-1-mathieu.desnoyers@efficios.com>
@@ -61,21 +61,19 @@ Cc: linux-kselftest@vger.kernel.org
 Cc: Ingo Molnar <mingo@redhat.com>
 Cc: <stable@vger.kernel.org>    [5.18+]
 ---
- tools/testing/selftests/ipc/Makefile | 2 +-
+ tools/testing/selftests/kcmp/Makefile | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/tools/testing/selftests/ipc/Makefile b/tools/testing/selftests/ipc/Makefile
-index 1c4448a843a4..50e9c299fc4a 100644
---- a/tools/testing/selftests/ipc/Makefile
-+++ b/tools/testing/selftests/ipc/Makefile
-@@ -10,7 +10,7 @@ ifeq ($(ARCH),x86_64)
- 	CFLAGS := -DCONFIG_X86_64 -D__x86_64__
- endif
- 
+diff --git a/tools/testing/selftests/kcmp/Makefile b/tools/testing/selftests/kcmp/Makefile
+index b4d39f6b5124..59a1e5379018 100644
+--- a/tools/testing/selftests/kcmp/Makefile
++++ b/tools/testing/selftests/kcmp/Makefile
+@@ -1,5 +1,5 @@
+ # SPDX-License-Identifier: GPL-2.0-only
 -CFLAGS += -I../../../../usr/include/
 +CFLAGS += $(KHDR_INCLUDES)
  
- TEST_GEN_PROGS := msgque
+ TEST_GEN_PROGS := kcmp_test
  
 -- 
 2.25.1
