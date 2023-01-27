@@ -2,30 +2,30 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 9CA2367E755
-	for <lists+stable@lfdr.de>; Fri, 27 Jan 2023 14:58:29 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C097367E741
+	for <lists+stable@lfdr.de>; Fri, 27 Jan 2023 14:58:17 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233888AbjA0N61 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 27 Jan 2023 08:58:27 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37532 "EHLO
+        id S233748AbjA0N6M (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 27 Jan 2023 08:58:12 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37378 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233672AbjA0N6K (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 27 Jan 2023 08:58:10 -0500
-Received: from smtpout.efficios.com (unknown [IPv6:2607:5300:203:b2ee::31e5])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7C5C2C64E;
+        with ESMTP id S233622AbjA0N6J (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 27 Jan 2023 08:58:09 -0500
+Received: from smtpout.efficios.com (smtpout.efficios.com [167.114.26.122])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7C7FACDE7;
         Fri, 27 Jan 2023 05:58:07 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=efficios.com;
         s=smtpout1; t=1674827882;
-        bh=9bTL5ZQeBBSKQ5ZimARCBa1khFOkkbpLsDUnEgWCuIA=;
+        bh=XtGhJWHrIaWJmV8UD8TraYwxhka01PtAUbXZqWumiTg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=EcnGZEJoJAKMoQ6YGcaurO9muRAm8BgZzowAuvJgT3OMtpzqufgatyjPu5UBE2RW7
-         qV+wYJLZvU3X1szhg3knmG5zbLyPfpNA/mmmF9h0PzzSRzPYeH2gB0+vQ0fImzP7GS
-         ljm5JvxzEMRMC6Od0Rq4r2ytF+8ZoBo/waFfQheKFuBDl6o5CA7M5UjK4/53LuqAm+
-         ZLiPZATM5ysEd/Tfg50M8rZqtVG7o1jpGPTud2AY0x1ck91GnGl1v1FfaKoe0WoJeE
-         C6gArTqQhEGPpesqy0gVYjvLUswdn66ludIz6gO55D3SJgTmWPf3PUyTrOCFoBGbiG
-         0Bk/Mh9V+81JA==
+        b=nLsz4KzvjEDDAEPZ5TbIQgq61r+oyYiBsMCemJfhx/FMU9kMTNU1Sqkg1hsqczaBY
+         WI8a6n42m+9s0ytw0j7whkl3cYKR0cNLLNPJJmpqOQpeTrFpIQ3aggsHfnrW4qQB3v
+         8ckIU3tIBVB4mVdbyV3iH+KKVSrG19aC2h0B/cjZTsBLBBE4YIwhmUaa0fB3NctXuM
+         mlPnxH1ef8gIyXjZRLSt5VtPNKWnrpvIWdCl22EuRI4oV2REjSPNMO8SSzDyWfZ45b
+         AIcAatPvJLinPdUrTJFsSZCMjwCkIcoiaiSEgixM8m3enSXVOLRc06qSnLQBxEIXCz
+         93ymKr1Ds8KXA==
 Received: from localhost.localdomain (192-222-180-24.qc.cable.ebox.net [192.222.180.24])
-        by smtpout.efficios.com (Postfix) with ESMTPSA id 4P3K0V4PnLzhxN;
+        by smtpout.efficios.com (Postfix) with ESMTPSA id 4P3K0V5wCxzhxP;
         Fri, 27 Jan 2023 08:58:02 -0500 (EST)
 From:   Mathieu Desnoyers <mathieu.desnoyers@efficios.com>
 To:     Shuah Khan <shuah@kernel.org>, linux-kselftest@vger.kernel.org,
@@ -33,17 +33,17 @@ To:     Shuah Khan <shuah@kernel.org>, linux-kselftest@vger.kernel.org,
 Cc:     linux-kernel@vger.kernel.org,
         Mathieu Desnoyers <mathieu.desnoyers@efficios.com>,
         stable@vger.kernel.org
-Subject: [PATCH 07/34] selftests: drivers: Fix incorrect kernel headers search path
-Date:   Fri, 27 Jan 2023 08:57:28 -0500
-Message-Id: <20230127135755.79929-8-mathieu.desnoyers@efficios.com>
+Subject: [PATCH 08/34] selftests: filesystems: Fix incorrect kernel headers search path
+Date:   Fri, 27 Jan 2023 08:57:29 -0500
+Message-Id: <20230127135755.79929-9-mathieu.desnoyers@efficios.com>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20230127135755.79929-1-mathieu.desnoyers@efficios.com>
 References: <20230127135755.79929-1-mathieu.desnoyers@efficios.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-1.3 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RDNS_NONE,SPF_HELO_NONE,
-        SPF_PASS autolearn=no autolearn_force=no version=3.4.6
+X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,SPF_HELO_NONE,SPF_PASS
+        autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
@@ -61,36 +61,46 @@ Cc: linux-kselftest@vger.kernel.org
 Cc: Ingo Molnar <mingo@redhat.com>
 Cc: <stable@vger.kernel.org>    [5.18+]
 ---
- tools/testing/selftests/drivers/dma-buf/Makefile        | 2 +-
- tools/testing/selftests/drivers/s390x/uvdevice/Makefile | 3 +--
- 2 files changed, 2 insertions(+), 3 deletions(-)
+ tools/testing/selftests/filesystems/Makefile          | 2 +-
+ tools/testing/selftests/filesystems/binderfs/Makefile | 2 +-
+ tools/testing/selftests/filesystems/epoll/Makefile    | 2 +-
+ 3 files changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/tools/testing/selftests/drivers/dma-buf/Makefile b/tools/testing/selftests/drivers/dma-buf/Makefile
-index 79cb16b4e01a..441407bb0e80 100644
---- a/tools/testing/selftests/drivers/dma-buf/Makefile
-+++ b/tools/testing/selftests/drivers/dma-buf/Makefile
-@@ -1,5 +1,5 @@
- # SPDX-License-Identifier: GPL-2.0-only
+diff --git a/tools/testing/selftests/filesystems/Makefile b/tools/testing/selftests/filesystems/Makefile
+index 129880fb42d3..c647fd6a0446 100644
+--- a/tools/testing/selftests/filesystems/Makefile
++++ b/tools/testing/selftests/filesystems/Makefile
+@@ -1,6 +1,6 @@
+ # SPDX-License-Identifier: GPL-2.0
+ 
+-CFLAGS += -I../../../../usr/include/
++CFLAGS += $(KHDR_INCLUDES)
+ TEST_GEN_PROGS := devpts_pts
+ TEST_GEN_PROGS_EXTENDED := dnotify_test
+ 
+diff --git a/tools/testing/selftests/filesystems/binderfs/Makefile b/tools/testing/selftests/filesystems/binderfs/Makefile
+index 8af25ae96049..c2f7cef919c0 100644
+--- a/tools/testing/selftests/filesystems/binderfs/Makefile
++++ b/tools/testing/selftests/filesystems/binderfs/Makefile
+@@ -1,6 +1,6 @@
+ # SPDX-License-Identifier: GPL-2.0
+ 
+-CFLAGS += -I../../../../../usr/include/ -pthread
++CFLAGS += $(KHDR_INCLUDES) -pthread
+ TEST_GEN_PROGS := binderfs_test
+ 
+ binderfs_test: binderfs_test.c ../../kselftest.h ../../kselftest_harness.h
+diff --git a/tools/testing/selftests/filesystems/epoll/Makefile b/tools/testing/selftests/filesystems/epoll/Makefile
+index 78ae4aaf7141..0788a7dc8004 100644
+--- a/tools/testing/selftests/filesystems/epoll/Makefile
++++ b/tools/testing/selftests/filesystems/epoll/Makefile
+@@ -1,6 +1,6 @@
+ # SPDX-License-Identifier: GPL-2.0
+ 
 -CFLAGS += -I../../../../../usr/include/
 +CFLAGS += $(KHDR_INCLUDES)
- 
- TEST_GEN_PROGS := udmabuf
- 
-diff --git a/tools/testing/selftests/drivers/s390x/uvdevice/Makefile b/tools/testing/selftests/drivers/s390x/uvdevice/Makefile
-index 891215a7dc8a..755d164384c4 100644
---- a/tools/testing/selftests/drivers/s390x/uvdevice/Makefile
-+++ b/tools/testing/selftests/drivers/s390x/uvdevice/Makefile
-@@ -11,10 +11,9 @@ else
- TEST_GEN_PROGS := test_uvdevice
- 
- top_srcdir ?= ../../../../../..
--khdr_dir = $(top_srcdir)/usr/include
- LINUX_TOOL_ARCH_INCLUDE = $(top_srcdir)/tools/arch/$(ARCH)/include
- 
--CFLAGS += -Wall -Werror -static -I$(khdr_dir) -I$(LINUX_TOOL_ARCH_INCLUDE)
-+CFLAGS += -Wall -Werror -static $(KHDR_INCLUDES) -I$(LINUX_TOOL_ARCH_INCLUDE)
- 
- include ../../../lib.mk
+ LDLIBS += -lpthread
+ TEST_GEN_PROGS := epoll_wakeup_test
  
 -- 
 2.25.1
