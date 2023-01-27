@@ -2,43 +2,53 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 5DC8467DE88
-	for <lists+stable@lfdr.de>; Fri, 27 Jan 2023 08:32:45 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 895D267DE89
+	for <lists+stable@lfdr.de>; Fri, 27 Jan 2023 08:33:07 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231842AbjA0Hcn (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 27 Jan 2023 02:32:43 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47990 "EHLO
+        id S232725AbjA0HdG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 27 Jan 2023 02:33:06 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48314 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229734AbjA0Hcm (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 27 Jan 2023 02:32:42 -0500
+        with ESMTP id S229734AbjA0HdF (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 27 Jan 2023 02:33:05 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1594319F01
-        for <stable@vger.kernel.org>; Thu, 26 Jan 2023 23:32:41 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C277D16332;
+        Thu, 26 Jan 2023 23:33:04 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id C0C68B81F83
-        for <stable@vger.kernel.org>; Fri, 27 Jan 2023 07:32:39 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9F115C433D2;
-        Fri, 27 Jan 2023 07:32:37 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 85651B81F98;
+        Fri, 27 Jan 2023 07:33:03 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B6FFCC433D2;
+        Fri, 27 Jan 2023 07:33:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1674804758;
-        bh=s+ZCrSza//tlZF1OCmZDmbLe7ZW7CreqHwmvqV56yyg=;
+        s=korg; t=1674804782;
+        bh=jU3Cs9zLmll07aFt2hD5OAowkoOa3yd1i19yHqBSKd8=;
         h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=P21IUWbuA82S4Bgmak3tYLhSsj2r7ERstR7Iosz4c9LRe466AmIBNRydW4gaeK1BY
-         hPRYV7ePmoo5aAUuLh+Si1PhvA5g1bqc25iJCbe/+zbiBCxhTqsioeJskUCaKZWnI5
-         c8YhOmJ+0N0JqXtbgRXQ2CrmCYN8XRjFaZ1ltGAU=
-Date:   Fri, 27 Jan 2023 08:32:35 +0100
-From:   Greg KH <gregkh@linuxfoundation.org>
-To:     "Limonciello, Mario" <Mario.Limonciello@amd.com>
-Cc:     "stable@vger.kernel.org" <stable@vger.kernel.org>
-Subject: Re: amdgpu suspend improvement
-Message-ID: <Y9N+E+uTtAmZl9sr@kroah.com>
-References: <MN0PR12MB61019A97F740FBF9780C0874E2CF9@MN0PR12MB6101.namprd12.prod.outlook.com>
+        b=yE/mKuS4NDxmcx0lSvqJPW6q+PyrbhxFzoeB0TVWheyRbmTt95EaKPpa2gojNXAvD
+         7sTETj9A/4WeqNjOQdxaVY/LmDvFlyJ504ikz9/ar/mtdEImqJr9nrA3TyIwz9aKrO
+         p47IX4MVBE3+qSbbGV2mdzc1BrZjj+IGJtOuAtRM=
+Date:   Fri, 27 Jan 2023 08:32:59 +0100
+From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+To:     Natalia Petrova <n.petrova@fintech.ru>
+Cc:     stable@vger.kernel.org,
+        Jesse Brandeburg <jesse.brandeburg@intel.com>,
+        Tony Nguyen <anthony.l.nguyen@intel.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        Eric Dumazet <edumazet@google.com>,
+        Jakub Kicinski <kuba@kernel.org>,
+        Paolo Abeni <pabeni@redhat.com>,
+        intel-wired-lan@lists.osuosl.org, netdev@vger.kernel.org,
+        linux-kernel@vger.kernel.org, lvc-project@linuxtesting.org
+Subject: Re: [PATCH 5.10 1/1] i40e: Add checking for null for
+ nlmsg_find_attr()
+Message-ID: <Y9N+K5OPa9eBqxXn@kroah.com>
+References: <20230126135555.11407-1-n.petrova@fintech.ru>
+ <20230126135555.11407-2-n.petrova@fintech.ru>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <MN0PR12MB61019A97F740FBF9780C0874E2CF9@MN0PR12MB6101.namprd12.prod.outlook.com>
+In-Reply-To: <20230126135555.11407-2-n.petrova@fintech.ru>
 X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
         DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
         SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
@@ -48,17 +58,25 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Thu, Jan 26, 2023 at 09:10:56PM +0000, Limonciello, Mario wrote:
-> [Public]
+On Thu, Jan 26, 2023 at 04:55:55PM +0300, Natalia Petrova wrote:
+> The result of nlmsg_find_attr() 'br_spec' is dereferenced in
+> nla_for_each_nested(), but it can take null value in nla_find() function,
+> which will result in an error.
 > 
-> Hi,
+> Found by Linux Verification Center (linuxtesting.org) with SVACE.
 > 
-> This commit that went into 6.2 has been shown to help timing corner cases with suspend problems.
-> 
-> 4b31b92b143f ("drm/amdgpu: complete gfxoff allow signal during suspend without delay")
-> 
-> Can you please take it to 6.1.y and 5.15.y?
+> Fixes: 51616018dd1b ("i40e: Add support for getlink, setlink ndo ops")
+> Signed-off-by: Natalia Petrova <n.petrova@fintech.ru>
+> ---
+>  drivers/net/ethernet/intel/i40e/i40e_main.c | 2 ++
+>  1 file changed, 2 insertions(+)
 
-Now queued up, thanks.
 
-greg k-h
+<formletter>
+
+This is not the correct way to submit patches for inclusion in the
+stable kernel tree.  Please read:
+    https://www.kernel.org/doc/html/latest/process/stable-kernel-rules.html
+for how to do this properly.
+
+</formletter>
