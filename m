@@ -2,68 +2,159 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 0A0D567FA2E
-	for <lists+stable@lfdr.de>; Sat, 28 Jan 2023 19:22:55 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0814167FA3C
+	for <lists+stable@lfdr.de>; Sat, 28 Jan 2023 19:40:41 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230386AbjA1SWx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 28 Jan 2023 13:22:53 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53104 "EHLO
+        id S230351AbjA1Ski (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 28 Jan 2023 13:40:38 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57232 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231797AbjA1SWv (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 28 Jan 2023 13:22:51 -0500
-Received: from mail-pl1-x62b.google.com (mail-pl1-x62b.google.com [IPv6:2607:f8b0:4864:20::62b])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5F0CE270C
-        for <stable@vger.kernel.org>; Sat, 28 Jan 2023 10:22:50 -0800 (PST)
-Received: by mail-pl1-x62b.google.com with SMTP id be8so7911393plb.7
-        for <stable@vger.kernel.org>; Sat, 28 Jan 2023 10:22:50 -0800 (PST)
+        with ESMTP id S229799AbjA1Skg (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 28 Jan 2023 13:40:36 -0500
+Received: from mx0a-00069f02.pphosted.com (mx0a-00069f02.pphosted.com [205.220.165.32])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AA6AC1CF4C;
+        Sat, 28 Jan 2023 10:40:34 -0800 (PST)
+Received: from pps.filterd (m0333521.ppops.net [127.0.0.1])
+        by mx0b-00069f02.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 30SDGipl021723;
+        Sat, 28 Jan 2023 18:40:24 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=oracle.com; h=message-id : date :
+ subject : to : cc : references : from : in-reply-to : content-type :
+ content-transfer-encoding : mime-version; s=corp-2022-7-12;
+ bh=y/KrU6D9WJrbP6Ok8Mb3I7+CjNhei1gmT6JzIvLgZgM=;
+ b=UAlxWmojHMURVm2+2b8qZ4rlszwSdiYovhdKTWMesUrcg7pv61Hu6o3lrW2EYVnRjNym
+ mJugbXSoX3+wzXe1oJD4vJvt4OguEoWCodsWv+doa1sZi3pc3xe70yJnaLvmuSNaf4YA
+ XCArMl4NdhaU7toC1dUOWK1eZI8UzGCMJSSFq74CNNSpi3PNeJVygiGPtkuI/+X1j6CU
+ YfqeZiKIAxrf2jfRDQ3eqd7E0pZl4KzSLsY/PtPYb9DTLNC46YNNA/ugOESowd5BV/i2
+ Aoog2BkBOfLYcfXa49UJKsXBeijayWle+cR7KN3Yw663nLug7wtt9maQuOWzxNUtk86P QA== 
+Received: from phxpaimrmta02.imrmtpd1.prodappphxaev1.oraclevcn.com (phxpaimrmta02.appoci.oracle.com [147.154.114.232])
+        by mx0b-00069f02.pphosted.com (PPS) with ESMTPS id 3ncvp10nvk-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Sat, 28 Jan 2023 18:40:24 +0000
+Received: from pps.filterd (phxpaimrmta02.imrmtpd1.prodappphxaev1.oraclevcn.com [127.0.0.1])
+        by phxpaimrmta02.imrmtpd1.prodappphxaev1.oraclevcn.com (8.17.1.5/8.17.1.5) with ESMTP id 30SFZIv2019136;
+        Sat, 28 Jan 2023 18:40:23 GMT
+Received: from nam12-mw2-obe.outbound.protection.outlook.com (mail-mw2nam12lp2040.outbound.protection.outlook.com [104.47.66.40])
+        by phxpaimrmta02.imrmtpd1.prodappphxaev1.oraclevcn.com (PPS) with ESMTPS id 3nct52t6nw-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Sat, 28 Jan 2023 18:40:23 +0000
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
+ b=oGD1gcIXYXZwoR+/Th+L0zCnL68MxABDe58M7LulYnVMqHrrP9Aa4pSPO7k8UuDehBA6AUCQ5JUYaITwYjTdxt756kYmi3L+eMpcCNRwhGZzOaXe1GmZSTxXL5j+MEpOWaj4rpAXRqgKVSWfAk1e9wLhBs5TfL0tGIOIzH9MAHu2wIPznqaLM5VX73afn/Is7+h0j/4PTtD2OVw2z/Pd3F7WPHoKQdCQzBMiRm0+NpUT5rsOwyn039L3smNr2FH70h0CaXsGDA/zOj6a3j7SxUVGiBmPA5J1RxR+CIkeQLQ3MrQxq4xw4RYZOpj9gKBN2DGGhs+NlkAXkS3upUt8Fg==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector9901;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
+ bh=y/KrU6D9WJrbP6Ok8Mb3I7+CjNhei1gmT6JzIvLgZgM=;
+ b=TfWgcdVBCZdy84lRRIQBYoH9KJ6xO3Jjio4PERIWtUxmWG8JqFuA52CR1qJO67PTYV2orAIELePBKzvEQDOSQ9UbSiblh6WHzr/sA0+EsCNqhJmklghEPlPuv0D57SX7o/FfsRD0T7VwSMYNz1x+oMxZZNggYTgW/hpu+0B/od/t+S898ZA7auDV5pJRYd9vhXOqGh/ssA9D0p0eWhcoebAIecFtK62MwExkNot74uHbYBOAYAfyvBZWb3NWkVAombSarPOoRkKFTCUdXb/+c1AHFYbJYq9XkWZbRi9o1NmHhc3xpY+GSq8h9rdS412YE/S5kGBWBprc01y9LppAKg==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
+ smtp.mailfrom=oracle.com; dmarc=pass action=none header.from=oracle.com;
+ dkim=pass header.d=oracle.com; arc=none
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20210112.gappssmtp.com; s=20210112;
-        h=from:to:subject:content-transfer-encoding:mime-version:date
-         :message-id:from:to:cc:subject:date:message-id:reply-to;
-        bh=s+fbExP11WYIgKTkuoMDPVY6xW7ZW89RupyCLNpAKh0=;
-        b=Qaa4zPcwjLqzAxiA2KuEAenwKZs/ecp88DDhhY56N5aD3eJCgMuit1fopAMRd6jEu9
-         bOX14B2JsCTF+5OwXj3C6SPTT7r+b3hRckKnqvMK1f9rdU9/oRDtyBBORowK00Dftbpp
-         OTETTL5OTNemghBo6Om5IIHaMXJ5tIzplclR1WICwp6xIyts+aiQIv6hv1HeMkvmfvqA
-         JZp+BPX7sov2FpVb30gbj6//UrpeBVvLxm6AE6/HQ5HekJ4HV/iyqzrVwSh5RURTeMav
-         GiODXfKnPHVEsPoREO5rodFYQ2Ife68SebNLWVxj6nKzBVB02cnjS16TLjqo1R6UIXRo
-         bBuA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=from:to:subject:content-transfer-encoding:mime-version:date
-         :message-id:x-gm-message-state:from:to:cc:subject:date:message-id
-         :reply-to;
-        bh=s+fbExP11WYIgKTkuoMDPVY6xW7ZW89RupyCLNpAKh0=;
-        b=Xc3fA/LUn2rLxFdQZs8XaV3sn77BnkiVCXFXds00dQj19gyffYmhnTBK9Z6liVOVlZ
-         hfOIDCFm/DEmrsTzyHgh1lbkA6M4r0DvCP8T3oxZdXhsBPoLMNvYfqRgSoLo85GGdAeA
-         SM64bQMduGZHjZkm/yfJwnm/UEb2ZDAM1T6ioELolsBfmzuHBneDZAFy3U7gokL8BgUv
-         UQeCY1ijioz8mY983U21ih5xMrEYTcN1YJY3gpVM+hy5T55zsQmjo91o2v+VCUcFmhoC
-         6KWUP56NJrHygAt2T8K9zMHIv1UMDu1uZjUBEIaHcBdOvKlcX4SmQRSDhCjXKr5tn2pZ
-         CI/g==
-X-Gm-Message-State: AO0yUKXXFoudCMpVfoS1knmw89Eq6vX72+w4mIzn/dkqv8XWL3LB2sEs
-        2A6l0ohlvbDh2u8GxVG9d5VhFqhnkmw99GTA5Ik=
-X-Google-Smtp-Source: AK7set9tqXI6N/LnxgUTuXGtHw5jWIBlPxE9C/YpUifmVC5L6MPYmYGJMfxGPKQt3hFHp41Cd2mxAg==
-X-Received: by 2002:a17:90b:1a8a:b0:22b:b3df:d970 with SMTP id ng10-20020a17090b1a8a00b0022bb3dfd970mr3526077pjb.44.1674930169633;
-        Sat, 28 Jan 2023 10:22:49 -0800 (PST)
-Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id r2-20020a17090a454200b0022bfa25dd88sm6869941pjm.40.2023.01.28.10.22.49
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sat, 28 Jan 2023 10:22:49 -0800 (PST)
-Message-ID: <63d567f9.170a0220.47859.b321@mx.google.com>
-Date:   Sat, 28 Jan 2023 10:22:49 -0800 (PST)
-Content-Type: text/plain; charset="utf-8"
+ d=oracle.onmicrosoft.com; s=selector2-oracle-onmicrosoft-com;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=y/KrU6D9WJrbP6Ok8Mb3I7+CjNhei1gmT6JzIvLgZgM=;
+ b=tcHPtuNgH9S8yfkJ8hPdY84R0EiDvgR5FC5beHayobxmD8xHP101sM/Xh4ztyPvciLeNl0UShjvuXbQKyug1hjuBnz4xQMv0qb58ic4C4xLXgnjO/dEdl7dWeyPmnxauwR/MEj+uHk92Evtp3g+S55eayiESug/51hszg8rXCDU=
+Received: from DM8PR10MB5430.namprd10.prod.outlook.com (2603:10b6:8:24::10) by
+ CY8PR10MB6755.namprd10.prod.outlook.com (2603:10b6:930:96::13) with Microsoft
+ SMTP Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ 15.20.6064.17; Sat, 28 Jan 2023 18:40:21 +0000
+Received: from DM8PR10MB5430.namprd10.prod.outlook.com
+ ([fe80::e8ed:ea67:7866:af4c]) by DM8PR10MB5430.namprd10.prod.outlook.com
+ ([fe80::e8ed:ea67:7866:af4c%3]) with mapi id 15.20.6002.024; Sat, 28 Jan 2023
+ 18:40:21 +0000
+Message-ID: <1bb8de35-16ba-6c7c-0ef6-67a7226a0a2d@oracle.com>
+Date:   Sat, 28 Jan 2023 19:40:12 +0100
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
+ Thunderbird/102.4.2
+Subject: Re: [PATCH] scsi: aacraid: Allocate cmd_priv with scsicmd
+Content-Language: en-US
+To:     Kees Cook <keescook@chromium.org>,
+        Bart Van Assche <bvanassche@acm.org>
+Cc:     Hannes Reinecke <hare@suse.de>,
+        Himanshu Madhani <himanshu.madhani@oracle.com>,
+        Adaptec OEM Raid Solutions <aacraid@microsemi.com>,
+        "James E.J. Bottomley" <jejb@linux.ibm.com>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>,
+        linux-scsi@vger.kernel.org, stable@vger.kernel.org,
+        linux-kernel@vger.kernel.org, linux-hardening@vger.kernel.org
+References: <20230128000409.never.976-kees@kernel.org>
+From:   Vegard Nossum <vegard.nossum@oracle.com>
+In-Reply-To: <20230128000409.never.976-kees@kernel.org>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
+X-ClientProxiedBy: PA7P264CA0150.FRAP264.PROD.OUTLOOK.COM
+ (2603:10a6:102:377::9) To DM8PR10MB5430.namprd10.prod.outlook.com
+ (2603:10b6:8:24::10)
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Tree: stable-rc
-X-Kernelci-Branch: queue/5.15
-X-Kernelci-Kernel: v5.15.90-153-ga6022d594e27
-X-Kernelci-Report-Type: test
-Subject: stable-rc/queue/5.15 baseline: 170 runs,
- 4 regressions (v5.15.90-153-ga6022d594e27)
-To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
-        kernelci-results@groups.io
-From:   "kernelci.org bot" <bot@kernelci.org>
-X-Spam-Status: No, score=-1.9 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_NONE autolearn=ham
+X-MS-PublicTrafficType: Email
+X-MS-TrafficTypeDiagnostic: DM8PR10MB5430:EE_|CY8PR10MB6755:EE_
+X-MS-Office365-Filtering-Correlation-Id: 0f5708b4-1ae1-4cc2-7832-08db015f1b39
+X-MS-Exchange-SenderADCheck: 1
+X-MS-Exchange-AntiSpam-Relay: 0
+X-Microsoft-Antispam: BCL:0;
+X-Microsoft-Antispam-Message-Info: LL0ObsuuOF9aCZ6BSCaKCSj2g5wXHage0KL98AXj68Vl5c/hyfqDka/O1hPnm7AFGUZrM0ljmYrZPHFVLQsT02M+QDTIIaDc3jxaMdh7WQzp4AjYLn52V041vaes2TSg7ESKHI19HGUO+FD2KFnIBk/UukcaLXRH7T0uCY9RXxVswzMCLpRbny8NNnu4an/lpFfBUDPYAqBjx1+tU4baZ7HPaCMTtuR7A0ndCr/LJfN+HWaSByU/Qg2gmCBRDxTJgW/LJWyQFEz6OKtDJ2pV6ccMpZ1Pm16cdbFNlw8neRHqT2ylHOcoNlGZ1Fb5g+vgnOrVPtk/UcgPf0V5Q7L6itStU5prbHx90mN5hSu1/MN620XG0sExQhdVWWkrG3zEdYIcOmn5VQaE9KR2OCkW9nLOToKiCWLfk7dAK5F4RXDMC/GV3eZ4poGODAPU3IfXKdRCB+3IwTUg+OvCdyWiL/u6t/4jy3RE0yLM/iSRF/ca7yKma2btxx/19n+oAbYC7jKmtD+GQ679av//Gl9wP/hQPXW2UwzvNM4UL874A5GQn4B9TtlyX841m55peTHDftB992LlKk6367pXgSkaIrnxJE3e87Y2BFaflIwyQe5DodBYGjG2uOTd9XKx+DqkVHUXrvnVAe9iCIlT4qqbNMnbQUU7lOCYrHzkW+MxpgJGaczFDA77kTDfhXVJpa+/S2kUXZ4kHFCqZqEc6VF4M5nJMTh9iSlURPU6cYg9s6Q=
+X-Forefront-Antispam-Report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:DM8PR10MB5430.namprd10.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230025)(346002)(396003)(366004)(376002)(39860400002)(136003)(451199018)(6486002)(478600001)(83380400001)(86362001)(31696002)(38100700002)(26005)(186003)(6512007)(36756003)(2616005)(6666004)(53546011)(6506007)(4326008)(8676002)(66476007)(66946007)(66556008)(54906003)(110136005)(5660300002)(316002)(8936002)(31686004)(41300700001)(44832011)(2906002)(43740500002)(45980500001);DIR:OUT;SFP:1101;
+X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
+X-MS-Exchange-AntiSpam-MessageData-0: =?utf-8?B?MXhaL2tkMFFiLzhDOVp1ZDRHMko4aEFJalJjbUl0WTRndGl0TUhkTWtlZlRa?=
+ =?utf-8?B?VDlsSFFiQjhPMmNZOWUyZFNvcDhIVmsyV0lkT2kxd1p2SVM2THNKb2lRdkVr?=
+ =?utf-8?B?cUlGTmQ0L1ZmSEpGS1IxU2paZklybDRCRmFIcWdPZXhJSlZWVnVZR08zd3ZQ?=
+ =?utf-8?B?QWxBclBsakFCU24xT2VOTHhCN2xCVG9KcVBWV1VFSktVdm5ua3drTUFqeGxS?=
+ =?utf-8?B?bm9icEMrR3VnWnJIc3FoeDR4S25aZU1TWHRwZ3d0ZWNsVlhsOWN3aEYwbU9w?=
+ =?utf-8?B?UFUwdHd3aTdZakdLNkVpeWhBWUJqbjA0am9uNmc3S3M0dTJMaEZ1YWRVSStZ?=
+ =?utf-8?B?OUZGTXlwRlp1b3RsMHdadkZNWVR5cFByN1Z5eStaU3pmQjBlZHJYZ2dUNWth?=
+ =?utf-8?B?QUZ1QzNYbjhXWG9NcEZJV2FiVnQyL2JaSXBCUGNtNTRBOCtVN0d3OG1pdWFr?=
+ =?utf-8?B?VGlqZ0RqOE9Rbys4MnNTZDlBeWNHZm9jRUxFcFZJQmxHRk9GSUpiRE1IQmpz?=
+ =?utf-8?B?dnRDMnJMMkxTYW9jZGRNWGRoN1JSazJWZ2JoUkhuMldaSXBHbWpqcGtoUzVD?=
+ =?utf-8?B?enlGeXJQZUt0czBCUEZleHdzV0cxMGxrT1U1clNWK2tqcFAwNGt0cXhjYTRi?=
+ =?utf-8?B?NXNQaEJNZ0VkSkV1VWFLaWJyQU1KYmZEYmJjUmN1V25vTVBtdkNNM0dyajlZ?=
+ =?utf-8?B?dXZnOFVZRHkrZVRuZ1MxRW9mQk9lVEZnSldSVGx5ZTl5ZmQ3c1dIUlBQeVVB?=
+ =?utf-8?B?YkZML1J5UlVhY1JwUWhzdUZhNW1KS2FrUmJiU3E3UUZ6VjloOS9HNjU5WUhV?=
+ =?utf-8?B?ajl6OFhkZzQ4WTNaVU9ac1QzOTZybWg1LzFpaFVrd01zUFZ1MkIzZWVhd0Nu?=
+ =?utf-8?B?bWtOY0J5dm9KcUM4WHpkcXE3RStDTWgxZzlYMUp4TUpEd0k5Wm5aL0t1YUFM?=
+ =?utf-8?B?aWtJbTJnRW1WWldkMWNJVnM3OFB3QUNYdldmRmJWV29pa200U1ZZeWlmWUFM?=
+ =?utf-8?B?UXBQWmZiTlhSWW1McU1DWVJUNGpuZDRTM3ErTitKVEVBQ042WnN5TEFmNy9m?=
+ =?utf-8?B?RVgwSGJHOFcvMExUMmJUV2RraEtNQWMxSjV4aUZrWVdTd2xEeEdwU3lZYW9X?=
+ =?utf-8?B?aDc2dzl5N280aW9lMmgwYWpienAvbWxTb2I1dXYzZmZLdHRvNHVjd0dXelg5?=
+ =?utf-8?B?TFFoNGJtVHNzSmtYUGI4YmRNNldBL2cxNEVoNFFZTGJzV0ZDenVmVmZlOVpS?=
+ =?utf-8?B?dE53M242cFdRMFB6QzNuTUpWTUZUQnVsSk15RXBNK3hyNzQxUS83WFNBWFgw?=
+ =?utf-8?B?ckp5SDNnUU4vd3VnS05aMWU0Rkc5VXh1TUV1S3UyVGVrQkhEVWRZL2ZjeUVB?=
+ =?utf-8?B?QzU1cnRYOEpDSTAyZldVWVVtMmw5UklpQ1R4VTZQZ21iajB3Z2xtOVcycTRG?=
+ =?utf-8?B?Z1JGMXgvZEpzTnRzNzlYZDNiTUdhekNRc0R6ejJuazBiaUF0WGlONklnNFFi?=
+ =?utf-8?B?Ym1kcm0ycmJtQ1gyc3M4QktmbXF0R2R3NVFFbFZqY0d5Y29TcUhQS0hHS2lz?=
+ =?utf-8?B?OUlWaEFzVEQ5WVU3QjZaTERPOWV5MVJYOFlHTUhKUFBkeFBxZFRtT3ZlY2pl?=
+ =?utf-8?B?U25peVo4UUlPNzZNR3JyY2hFMFV6NEpTNjl5aXQwYUd3UlRZZVBLQisvU2hX?=
+ =?utf-8?B?T2o2WGZkbXhQNmsydXRlVVNqM1ozOXVIRWNnWnZ5bW4wNDZ3TklnbmNpbDNa?=
+ =?utf-8?B?L1o4THF5YXd0eTFNOHRRQU8vYU84YURjTE1GTm4xeHRTd20wOWhSd0ZINm1p?=
+ =?utf-8?B?dCtzSGdDeXhrSERPcnhudFZ3dGkxY2tKcWEvWjh0ekp1elpsRHNvVVBEL2cw?=
+ =?utf-8?B?c1pQaXJWdmNmVGV4UTk2ZVh5RDN3ZGMyZGhLUGxxMGF4L0dHdVA0WUZJamxl?=
+ =?utf-8?B?czAxbjRMQ2k0QXlYK1BmTUdOczVPWUEraFREOWlpeWdmN1VLOEJEVG4wanZY?=
+ =?utf-8?B?Z09MMFNxNE45UzE3Q3cyc1JaanUyRDFkOGg1dFRxWGVFOGl5Tk9CU0lIQzRa?=
+ =?utf-8?B?V0dIV0RYMTh6ZmFMdW81UHUxSjB0eDlKNFNGVFMxN09KN3FKRSswMlRjVXNI?=
+ =?utf-8?B?Q2xaT1pmdXNHaXgxNWNCQ0JycVZrVmtXWExrSDNpU1lNU2VCUjB3ODNyaVRQ?=
+ =?utf-8?B?TXc9PQ==?=
+X-MS-Exchange-AntiSpam-ExternalHop-MessageData-ChunkCount: 1
+X-MS-Exchange-AntiSpam-ExternalHop-MessageData-0: FMN9ZBeNaEqmq/Gi+Lo2qmp+Xm29OiXaMgVa1tpavCRMlp9THQDyBnywrAEWEI7tT1TMlHzi1MaS7ssoeQcLbvmWnHRt70vAbgSZTlSJWFnZWDZvlEWRJq43xY9HOIBXr5jo/htt6SXTW5kpzc8SZbgEYslgQB79gFPG488BAkKlAkKcuUfHLfONgrcTWhdVpldw4IPnMaVhbSpQHiBLaWF+dARGtMSPVJwTG/Qd/de+5OsAInzrurHd3j+tyS0m4XMKyAxg4JuJs+aTO16JF/CHopAAT4p2WCdW36Aq5jP5kaKcJ5ulPrIdaUIrKRbi+lQR6E3Usom+pyBYwnxSsxw6+e/n/r/hs6gG1ha/RQhAUviW6mnyqf6Pr8ddkTlD2ycVUzYfFnWm6+Ig1LJVHIsoc/7Jks+Fbh/l6C4W87/CI0g80NPMWEGqv8vb3obL5haVWRSNfXdhUQURF8UIcC4N8Y3A4JPqwqU6298G3TTy3IfGRxmWUtyAmNGRN/hzJcfCzAREFIZp1+59skfe6D38f7iB5ywkZdUuwBSZtgVmghl8ADGtZcvGyMME5LY2LddtVXR2Aa0gxmXyX5Oa8qf4TFF9RLYkqCnc+ykcgNQEfLiscxWS5/L3VVTnt6WYoXmE/k6Uu5CEV3Dz4KVMT7Dbb/C3pxN5mpmqi0EmZIvysHYCGEsKq2ibeduEBgW/YD+0RpgQGGbh1A6hGnFQ37Dka9wfb+wrlrECOgj2YvhzovNAkKTyaAjVNEccB7G/7mvMoD4AA3sX5qz3XwqxoKZgRuISmXCw1mTU1nQd/CYdr9GJJvRv3wmqyM5yeKlkIOIncooJY+eHnx9saXnVTg9ZASF26gPb5cuJGqpj3clnL5NbQmCsppZRUQUGPZfcD804xYdYbctzHj96aeRq8MVAI0N/Y5eeKvQrTCpa4+Y=
+X-OriginatorOrg: oracle.com
+X-MS-Exchange-CrossTenant-Network-Message-Id: 0f5708b4-1ae1-4cc2-7832-08db015f1b39
+X-MS-Exchange-CrossTenant-AuthSource: DM8PR10MB5430.namprd10.prod.outlook.com
+X-MS-Exchange-CrossTenant-AuthAs: Internal
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 28 Jan 2023 18:40:21.3182
+ (UTC)
+X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
+X-MS-Exchange-CrossTenant-Id: 4e2c6054-71cb-48f1-bd6c-3a9705aca71b
+X-MS-Exchange-CrossTenant-MailboxType: HOSTED
+X-MS-Exchange-CrossTenant-UserPrincipalName: UD12OMYtaIb8MECK5pnzCbbP5U8XzxohTyLAZyFEBJSQOrqRXGGygrihi3Tgf56meo2k2rFELgYuBpUMGXEinPknEgpWGcUfq11KjuXoDh4=
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: CY8PR10MB6755
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.219,Aquarius:18.0.930,Hydra:6.0.562,FMLib:17.11.122.1
+ definitions=2023-01-28_10,2023-01-27_01,2022-06-22_01
+X-Proofpoint-Spam-Details: rule=notspam policy=default score=0 mlxlogscore=999 adultscore=0
+ suspectscore=0 mlxscore=0 spamscore=0 phishscore=0 bulkscore=0
+ malwarescore=0 classifier=spam adjust=0 reason=mlx scancount=1
+ engine=8.12.0-2212070000 definitions=main-2301280182
+X-Proofpoint-GUID: VX7_d-zKEthmJhO9z7gOJ7HSKmfdOZvO
+X-Proofpoint-ORIG-GUID: VX7_d-zKEthmJhO9z7gOJ7HSKmfdOZvO
+X-Spam-Status: No, score=-3.9 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,NICE_REPLY_A,RCVD_IN_DNSWL_LOW,
+        RCVD_IN_MSPIKE_H2,SPF_HELO_NONE,SPF_NONE autolearn=ham
         autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -71,252 +162,68 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/queue/5.15 baseline: 170 runs, 4 regressions (v5.15.90-153-ga6022=
-d594e27)
-
-Regressions Summary
--------------------
-
-platform               | arch  | lab             | compiler | defconfig    =
-      | regressions
------------------------+-------+-----------------+----------+--------------=
-------+------------
-cubietruck             | arm   | lab-baylibre    | gcc-10   | multi_v7_defc=
-onfig | 1          =
-
-imx53-qsrb             | arm   | lab-pengutronix | gcc-10   | multi_v7_defc=
-onfig | 1          =
-
-sun50i-a64-pine64-plus | arm64 | lab-baylibre    | gcc-10   | defconfig    =
-      | 1          =
-
-sun50i-a64-pine64-plus | arm64 | lab-broonie     | gcc-10   | defconfig    =
-      | 1          =
-
-
-  Details:  https://kernelci.org/test/job/stable-rc/branch/queue%2F5.15/ker=
-nel/v5.15.90-153-ga6022d594e27/plan/baseline/
-
-  Test:     baseline
-  Tree:     stable-rc
-  Branch:   queue/5.15
-  Describe: v5.15.90-153-ga6022d594e27
-  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
-able-rc.git
-  SHA:      a6022d594e27b03d65fc145b4388635ae0cbfb3f =
-
-
-
-Test Regressions
----------------- =
-
-
-
-platform               | arch  | lab             | compiler | defconfig    =
-      | regressions
------------------------+-------+-----------------+----------+--------------=
-------+------------
-cubietruck             | arm   | lab-baylibre    | gcc-10   | multi_v7_defc=
-onfig | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/63d5359f01517d6ae0915ee9
-
-  Results:     5 PASS, 1 FAIL, 1 SKIP
-  Full config: multi_v7_defconfig
-  Compiler:    gcc-10 (arm-linux-gnueabihf-gcc (Debian 10.2.1-6) 10.2.1 202=
-10110)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.15/v5.15.90-=
-153-ga6022d594e27/arm/multi_v7_defconfig/gcc-10/lab-baylibre/baseline-cubie=
-truck.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.15/v5.15.90-=
-153-ga6022d594e27/arm/multi_v7_defconfig/gcc-10/lab-baylibre/baseline-cubie=
-truck.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
-t-baseline/20230120.0/armel/rootfs.cpio.gz =
-
-
-
-  * baseline.bootrr.deferred-probe-empty: https://kernelci.org/test/case/id=
-/63d5359f01517d6ae0915eee
-        failing since 11 days (last pass: v5.15.82-123-gd03dbdba21ef, first=
- fail: v5.15.87-100-ge215d5ead661)
-
-    2023-01-28T14:47:40.781147  + set +x<8>[    9.978135] <LAVA_SIGNAL_ENDR=
-UN 0_dmesg 3236078_1.5.2.4.1>
-    2023-01-28T14:47:40.781950  =
-
-    2023-01-28T14:47:40.891701  / # #
-    2023-01-28T14:47:40.995090  export SHELL=3D/bin/sh
-    2023-01-28T14:47:40.995474  #
-    2023-01-28T14:47:40.995639  / # export SHELL=3D/bin/sh<3>[   10.193926]=
- Bluetooth: hci0: command 0xfc18 tx timeout
-    2023-01-28T14:47:41.096814  . /lava-3236078/environment
-    2023-01-28T14:47:41.097195  =
-
-    2023-01-28T14:47:41.198745  / # . /lava-3236078/environment/lava-323607=
-8/bin/lava-test-runner /lava-3236078/1
-    2023-01-28T14:47:41.200232   =
-
-    ... (13 line(s) more)  =
-
- =
-
-
-
-platform               | arch  | lab             | compiler | defconfig    =
-      | regressions
------------------------+-------+-----------------+----------+--------------=
-------+------------
-imx53-qsrb             | arm   | lab-pengutronix | gcc-10   | multi_v7_defc=
-onfig | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/63d5357596d7cf00fa915edc
-
-  Results:     5 PASS, 1 FAIL, 1 SKIP
-  Full config: multi_v7_defconfig
-  Compiler:    gcc-10 (arm-linux-gnueabihf-gcc (Debian 10.2.1-6) 10.2.1 202=
-10110)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.15/v5.15.90-=
-153-ga6022d594e27/arm/multi_v7_defconfig/gcc-10/lab-pengutronix/baseline-im=
-x53-qsrb.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.15/v5.15.90-=
-153-ga6022d594e27/arm/multi_v7_defconfig/gcc-10/lab-pengutronix/baseline-im=
-x53-qsrb.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
-t-baseline/20230120.0/armel/rootfs.cpio.gz =
-
-
-
-  * baseline.bootrr.deferred-probe-empty: https://kernelci.org/test/case/id=
-/63d5357596d7cf00fa915ee1
-        failing since 1 day (last pass: v5.15.81-121-gcb14018a85f6, first f=
-ail: v5.15.90-146-gbf7101723cc0)
-
-    2023-01-28T14:47:11.688884  + set +x
-    2023-01-28T14:47:11.689056  [    9.319406] <LAVA_SIGNAL_ENDRUN 0_dmesg =
-890641_1.5.2.3.1>
-    2023-01-28T14:47:11.795679  / # #
-    2023-01-28T14:47:11.897144  export SHELL=3D/bin/sh
-    2023-01-28T14:47:11.897552  #
-    2023-01-28T14:47:11.998789  / # export SHELL=3D/bin/sh. /lava-890641/en=
-vironment
-    2023-01-28T14:47:11.999187  =
-
-    2023-01-28T14:47:12.100398  / # . /lava-890641/environment/lava-890641/=
-bin/lava-test-runner /lava-890641/1
-    2023-01-28T14:47:12.101039  =
-
-    2023-01-28T14:47:12.103313  / # /lava-890641/bin/lava-test-runner /lava=
--890641/1 =
-
-    ... (12 line(s) more)  =
-
- =
-
-
-
-platform               | arch  | lab             | compiler | defconfig    =
-      | regressions
------------------------+-------+-----------------+----------+--------------=
-------+------------
-sun50i-a64-pine64-plus | arm64 | lab-baylibre    | gcc-10   | defconfig    =
-      | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/63d5555c18be345132915ec2
-
-  Results:     5 PASS, 1 FAIL, 1 SKIP
-  Full config: defconfig
-  Compiler:    gcc-10 (aarch64-linux-gnu-gcc (Debian 10.2.1-6) 10.2.1 20210=
-110)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.15/v5.15.90-=
-153-ga6022d594e27/arm64/defconfig/gcc-10/lab-baylibre/baseline-sun50i-a64-p=
-ine64-plus.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.15/v5.15.90-=
-153-ga6022d594e27/arm64/defconfig/gcc-10/lab-baylibre/baseline-sun50i-a64-p=
-ine64-plus.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
-t-baseline/20230120.0/arm64/rootfs.cpio.gz =
-
-
-
-  * baseline.bootrr.deferred-probe-empty: https://kernelci.org/test/case/id=
-/63d5555c18be345132915ec7
-        failing since 10 days (last pass: v5.15.82-123-gd03dbdba21ef, first=
- fail: v5.15.87-100-ge215d5ead661)
-
-    2023-01-28T17:03:12.848339  + set +x
-    2023-01-28T17:03:12.853076  <8>[   16.108788] <LAVA_SIGNAL_ENDRUN 0_dme=
-sg 3236117_1.5.2.4.1>
-    2023-01-28T17:03:12.973116  / # #
-    2023-01-28T17:03:13.078693  export SHELL=3D/bin/sh
-    2023-01-28T17:03:13.080253  #
-    2023-01-28T17:03:13.183556  / # export SHELL=3D/bin/sh. /lava-3236117/e=
-nvironment
-    2023-01-28T17:03:13.185060  =
-
-    2023-01-28T17:03:13.288668  / # . /lava-3236117/environment/lava-323611=
-7/bin/lava-test-runner /lava-3236117/1
-    2023-01-28T17:03:13.294059  =
-
-    2023-01-28T17:03:13.296634  / # /lava-3236117/bin/lava-test-runner /lav=
-a-3236117/1 =
-
-    ... (12 line(s) more)  =
-
- =
-
-
-
-platform               | arch  | lab             | compiler | defconfig    =
-      | regressions
------------------------+-------+-----------------+----------+--------------=
-------+------------
-sun50i-a64-pine64-plus | arm64 | lab-broonie     | gcc-10   | defconfig    =
-      | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/63d5377ea239470577915ec4
-
-  Results:     5 PASS, 1 FAIL, 1 SKIP
-  Full config: defconfig
-  Compiler:    gcc-10 (aarch64-linux-gnu-gcc (Debian 10.2.1-6) 10.2.1 20210=
-110)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.15/v5.15.90-=
-153-ga6022d594e27/arm64/defconfig/gcc-10/lab-broonie/baseline-sun50i-a64-pi=
-ne64-plus.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.15/v5.15.90-=
-153-ga6022d594e27/arm64/defconfig/gcc-10/lab-broonie/baseline-sun50i-a64-pi=
-ne64-plus.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
-t-baseline/20230120.0/arm64/rootfs.cpio.gz =
-
-
-
-  * baseline.bootrr.deferred-probe-empty: https://kernelci.org/test/case/id=
-/63d5377ea239470577915ec9
-        failing since 10 days (last pass: v5.15.82-123-gd03dbdba21ef, first=
- fail: v5.15.87-100-ge215d5ead661)
-
-    2023-01-28T14:55:34.508838  <8>[   16.028660] <LAVA_SIGNAL_ENDRUN 0_dme=
-sg 201533_1.5.2.4.1>
-    2023-01-28T14:55:34.620020  / # #
-    2023-01-28T14:55:34.723009  export SHELL=3D/bin/sh
-    2023-01-28T14:55:34.723458  #
-    2023-01-28T14:55:34.825169  / # export SHELL=3D/bin/sh. /lava-201533/en=
-vironment
-    2023-01-28T14:55:34.827187  =
-
-    2023-01-28T14:55:34.929614  / # . /lava-201533/environment/lava-201533/=
-bin/lava-test-runner /lava-201533/1
-    2023-01-28T14:55:34.930412  =
-
-    2023-01-28T14:55:34.934293  / # /lava-201533/bin/lava-test-runner /lava=
--201533/1
-    2023-01-28T14:55:34.979891  + export 'TESTRUN_ID=3D1_bootrr' =
-
-    ... (11 line(s) more)  =
-
- =20
+Just a couple of observations.
+
+On 1/28/23 01:04, Kees Cook wrote:
+> The aac_priv() helper assumes that the private cmd area immediately
+> follows struct scsi_cmnd. Allocate this space as part of scsicmd,
+> else there is a risk of heap overflow. Seen with GCC 13:
+> 
+> ../drivers/scsi/aacraid/aachba.c: In function 'aac_probe_container':
+> ../drivers/scsi/aacraid/aachba.c:841:26: warning: array subscript 16 is outside array bounds of 'void[392]' [-Warray-bounds=]
+
+An object of size 392 would get allocated with size 512 (at least by
+SLUB, AFAICT), so the risk of something going terribly wrong is probably
+fairly small. Not that it shouldn't be fixed, of course...
+
+KASAN should have caught this too, right? Does this mean nobody's tried
+this driver with KASAN, or is this some kind of rare code path? (Just
+asking for my own understanding.)
+
+>   int aac_probe_container(struct aac_dev *dev, int cid)
+>   {
+> -	struct scsi_cmnd *scsicmd = kzalloc(sizeof(*scsicmd), GFP_KERNEL);
+> -	struct aac_cmd_priv *cmd_priv = aac_priv(scsicmd);
+> +	struct aac_cmd_priv *cmd_priv;
+> +	struct scsi_cmnd *scsicmd = kzalloc(sizeof(*scsicmd) + sizeof(*cmd_priv), GFP_KERNEL);
+>   	struct scsi_device *scsidev = kzalloc(sizeof(*scsidev), GFP_KERNEL);
+>   	int status;
+>   
+> @@ -838,6 +838,7 @@ int aac_probe_container(struct aac_dev *dev, int cid)
+>   		while (scsicmd->device == scsidev)
+>   			schedule();
+>   	kfree(scsidev);
+> +	cmd_priv = aac_priv(scsicmd);
+>   	status = cmd_priv->status;
+>   	kfree(scsicmd);
+>   	return status;
+
+aac_priv() uses scsi_cmd_priv() which has the comment:
+
+/*
+  * Return the driver private allocation behind the command.
+  * Only works if cmd_size is set in the host template.
+  */
+
+This is set for this driver:
+
+static struct scsi_host_template aac_driver_template = {
+[...]
+    .cmd_size                       = sizeof(struct aac_cmd_priv),
+
+I looked around to see if there was some kind of "allocate cmd" helper,
+but couldn't find it -- scsi_ioctl_reset() allocates one (together with
+struct request) and there are a few uses of ->cmd_size in
+drivers/scsi/scsi_lib.c but there doesn't seem to be a common code path
+for this.
+
+I guess you could use dev->host->hostt->cmd_size or something, but that
+doesn't seem worth it since this is driver specific and we already know
+what the correct value should be.
+
+FWIW:
+
+Reviewed-by: Vegard Nossum <vegard.nossum@oracle.com>
+
+
+Vegard
