@@ -2,81 +2,135 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 4B45367F3BE
-	for <lists+stable@lfdr.de>; Sat, 28 Jan 2023 02:33:11 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C409067F3C3
+	for <lists+stable@lfdr.de>; Sat, 28 Jan 2023 02:38:05 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231218AbjA1BdK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 27 Jan 2023 20:33:10 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52230 "EHLO
+        id S229726AbjA1BiD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 27 Jan 2023 20:38:03 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53078 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230312AbjA1BdJ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 27 Jan 2023 20:33:09 -0500
-Received: from mga09.intel.com (mga09.intel.com [134.134.136.24])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9B1987E6B6
-        for <stable@vger.kernel.org>; Fri, 27 Jan 2023 17:33:07 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
-  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1674869587; x=1706405587;
-  h=date:from:to:cc:subject:message-id:mime-version:
-   in-reply-to;
-  bh=tI+RkUEbbsN6XOxvKxmUcYAO3RCxqu5W9JBu/5LToI8=;
-  b=JyTqLwaC1047o+14TLH2zRINCnS2sAA9IrroD1S1sJl9w5QeqRzP6IwA
-   lyEK4CMNOzGjjX6F3hboaHZaQdNc1YUcHnzrMxHXVH0CmuTbiufSyDbuQ
-   Or7/T479O65PI3sS+dEAS9Vd2xdUu70Us0HIUvnOpdgg2Tat5DnIbxBqW
-   cmghe2EzoGrR/sN69s8gZKyZCxDLHrehz8ZTlrZ+2gER+h9oQNq2N1D4d
-   wJWTVMEMRZH9TwYKmwfJJnrA6RIElW4BHcw7ZmxMhQEl6fg4secRDv4g+
-   DG1z23zbFHPZilooO+DwtHwgRmMloU8MjTr+BwDVHvT+VGEiY/UaP7iut
-   A==;
-X-IronPort-AV: E=McAfee;i="6500,9779,10603"; a="328532296"
-X-IronPort-AV: E=Sophos;i="5.97,252,1669104000"; 
-   d="scan'208";a="328532296"
-Received: from fmsmga008.fm.intel.com ([10.253.24.58])
-  by orsmga102.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 27 Jan 2023 17:33:07 -0800
-X-ExtLoop1: 1
-X-IronPort-AV: E=McAfee;i="6500,9779,10603"; a="726878988"
-X-IronPort-AV: E=Sophos;i="5.97,252,1669104000"; 
-   d="scan'208";a="726878988"
-Received: from lkp-server01.sh.intel.com (HELO ffa7f14d1d0f) ([10.239.97.150])
-  by fmsmga008.fm.intel.com with ESMTP; 27 Jan 2023 17:33:05 -0800
-Received: from kbuild by ffa7f14d1d0f with local (Exim 4.96)
-        (envelope-from <lkp@intel.com>)
-        id 1pLa5Y-0000E5-2K;
-        Sat, 28 Jan 2023 01:33:04 +0000
-Date:   Sat, 28 Jan 2023 09:32:29 +0800
-From:   kernel test robot <lkp@intel.com>
-To:     Samuel Thibault <samuel.thibault@ens-lyon.org>
-Cc:     stable@vger.kernel.org, oe-kbuild-all@lists.linux.dev
-Subject: Re: [PATCH] fbcon: Check font dimension limits
-Message-ID: <Y9R7LckLIeHlGE8o@904499574ff1>
+        with ESMTP id S229437AbjA1BiD (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 27 Jan 2023 20:38:03 -0500
+Received: from mail-pf1-x436.google.com (mail-pf1-x436.google.com [IPv6:2607:f8b0:4864:20::436])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8856530C2;
+        Fri, 27 Jan 2023 17:37:58 -0800 (PST)
+Received: by mail-pf1-x436.google.com with SMTP id u5so4105297pfm.10;
+        Fri, 27 Jan 2023 17:37:58 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20210112;
+        h=to:subject:message-id:date:from:mime-version:from:to:cc:subject
+         :date:message-id:reply-to;
+        bh=3a1yXQVFpS6R59AZFBrPnTFwVD5eb/1KT01F13zn41Y=;
+        b=Zjl4okPk+ATZo/uvMvv0KJMQywtec7RvaU1Yh6B7yGS4JRRTHYTHAyKHHsUV+Lelt9
+         /DntdJUgwwX2OzglPxaolc7ZbPzO+lD/AlgzTfuLZPK0eyeNTUlo47aBeN9Md3107Enx
+         4+Ib4R5npDTsxeSf41E/6yJK1CyyIblQDU7QgL1yHW/TFYjRvusxVZbUv35xkmDZSfFT
+         HEd+FTa0xXHInH7pVQi1ynrNGq0F0R7ZVmO7XDXi4CLTddKtLX3phusYyg877LXuox+h
+         jEHRkbJTExiHq91Yi0QcfSdPLO9BaKpPMEPUk/ZQrXcn2KLPjmtz6IcD6NLX+9zGAEPB
+         n5yg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=to:subject:message-id:date:from:mime-version:x-gm-message-state
+         :from:to:cc:subject:date:message-id:reply-to;
+        bh=3a1yXQVFpS6R59AZFBrPnTFwVD5eb/1KT01F13zn41Y=;
+        b=L45SnN/PZgk1NVgcaGkhhrn97x2Um+e3pfXyAGN/xvH5oPzXt0zKqUjPllAjdAjGhV
+         XlZpP9Bmy2BENPw0w6Q4mBc5LdCMojpAE8bJG+ARZp4/MxLES2YVFF8ftwjriRvc8LEz
+         PYXBufxuDcawxz+JrCvHDMYA5AXETcliVmP9gannRDpR0GboUM8+1ed3sIZVwtaty4s/
+         RMbqJw5PK4eN1mQ4LPsqB3wWUEsiJxbYC7ttRLyL5lPCoj7NyVqaET+upqw3dF7A8g1E
+         GUHINVZ6cEpQmrWkYpzSZVcuITKWrCK7snPabfzudTftunhm+aBvJ+6M+rJ5B/d4O1Ha
+         WVyQ==
+X-Gm-Message-State: AFqh2kryQsOycVIfX9sCPF1xnGuz6JU0Vpk9yLOA9LJJL/TonCbAa/p7
+        PZhJL4E3AHnznf8Nmho0zFW/GyDxKViPvXTmzJEBpkkrlYQk8g==
+X-Google-Smtp-Source: AMrXdXsZCpgjATkcOseHDmflIpoQbWVjpOsVdx2W2oELWTcXb2lswLnxczwIOs+1d8J1oBQX1nU10sdC3CwLH5shzM8=
+X-Received: by 2002:a63:f047:0:b0:470:2c91:9579 with SMTP id
+ s7-20020a63f047000000b004702c919579mr4416484pgj.22.1674869878022; Fri, 27 Jan
+ 2023 17:37:58 -0800 (PST)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20230126004921.616264824@ens-lyon.org>
-X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
-        RCVD_IN_MSPIKE_H3,RCVD_IN_MSPIKE_WL,SPF_HELO_NONE,SPF_NONE
-        autolearn=ham autolearn_force=no version=3.4.6
+From:   Zhouyi Zhou <zhouzhouyi@gmail.com>
+Date:   Sat, 28 Jan 2023 09:37:47 +0800
+Message-ID: <CAABZP2ywCbu4Po63BDBE7U1WEqx4DF7F2CZjTqFp0dSDw-uziQ@mail.gmail.com>
+Subject: Chasing a 'use after free' bug of SCSI subsystem for linux-stable 5.15.y
+To:     eric@andante.org, jejb@linux.ibm.com,
+        "Martin K. Petersen" <martin.petersen@oracle.com>,
+        linux-scsi@vger.kernel.org,
+        "Joel Fernandes, Google" <joel@joelfernandes.org>,
+        "Paul E. McKenney" <paulmck@kernel.org>,
+        linux-kernel <linux-kernel@vger.kernel.org>,
+        Greg KH <gregkh@linuxfoundation.org>,
+        Frederic Weisbecker <frederic@kernel.org>,
+        Will Deacon <will@kernel.org>, Marc Zyngier <maz@kernel.org>,
+        rcu <rcu@vger.kernel.org>, stable@vger.kernel.org,
+        Ingo Molnar <mingo@kernel.org>,
+        "Rafael J. Wysocki" <rafael@kernel.org>,
+        Thomas Gleixner <tglx@linutronix.de>, lance@osuosl.org
+Content-Type: text/plain; charset="UTF-8"
+X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_FROM,
+        RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS autolearn=ham
+        autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hi,
+Dear SCSI developers:
+During the rcutorture test performed on linux-stable 5.15.y in PPC VM
+of Open Source Lab of Oregon State University, A SCSI related bug is
+discovered [1]:
+[    5.178733][    C1] BUG: Kernel NULL pointer dereference on read at
+0x00000008
+...
+[    5.231013][    C1] [c00000001ff9fca0] [c0000000009ffbc8]
+scsi_end_request+0xd8/0x1f0 (unreliable)^M
+[    5.234961][    C1] [c00000001ff9fcf0] [c000000000a00e68]
+scsi_io_completion+0x88/0x700^M
+[    5.237863][    C1] [c00000001ff9fda0] [c0000000009f5028]
+scsi_finish_command+0xe8/0x150^M
+[    5.240089][    C1] [c00000001ff9fdf0] [c000000000a00c70]
+scsi_complete+0x90/0x140^M
+[    5.242481][    C1] [c00000001ff9fe20] [c0000000007e5170]
+blk_complete_reqs+0x80/0xa0^M
+[    5.245187][    C1] [c00000001ff9fe50] [c000000000f0b5d0]
+__do_softirq+0x1e0/0x4e0^M
+[    5.248479][    C1] [c00000001ff9ff90] [c0000000000170e8]
+do_softirq_own_stack+0x48/0x60^M
+[    5.250919][    C1] [c00000000a5e7c40] [c00000000a5e7c80]
+0xc00000000a5e7c80^M
+[    5.253792][    C1] [c00000000a5e7c70] [c0000000001534c0]
+do_softirq+0xb0/0xc0^M
+[    5.256824][    C1] [c00000000a5e7ca0] [c0000000001535ac]
+__local_bh_enable_ip+0xdc/0x110^M
+[    5.259414][    C1] [c00000000a5e7cc0] [c0000000001d75e8]
+irq_forced_thread_fn+0xc8/0xf0^M
+[    5.261921][    C1] [c00000000a5e7d00] [c0000000001d7ae4]
+irq_thread+0x1b4/0x2a0^M
+[    5.265298][    C1] [c00000000a5e7da0] [c00000000017d8c8]
+kthread+0x1a8/0x1d0^M
+[    5.269184][    C1] [c00000000a5e7e10] [c00000000000cee4]
 
-Thanks for your patch.
+By adding printk statement in the SCSI subsystem and perform rounds of
+qemu bootup, I found the bug is caused by following 'use after free'
+scenery:
 
-FYI: kernel test robot notices the stable kernel rule is not satisfied.
+A)
+                           B)
+__scsi_scan_target
+  scsi_probe_and_add_lun
+     scsi_probe_lun
+       scsi_execute_req
+         __scsi_execute
+            blk_execute_rq              ---> req --->
+time out
+   __scsi_remove_device
+       blk_cleanup_queue
+           percpu_ref_exit(&q->q_usage_counter)
+     scsi_end_request
 
-Rule: 'Cc: stable@vger.kernel.org' or 'commit <sha1> upstream.'
-Subject: [PATCH] fbcon: Check font dimension limits
-Link: https://lore.kernel.org/stable/20230126004921.616264824%40ens-lyon.org
+                                   percpu_ref_put(&q->q_usage_counter)
 
-The check is based on https://www.kernel.org/doc/html/latest/process/stable-kernel-rules.html
+                                      USE-AFTER-FREE
+Reported-by: Zhouyi Zhou <zhouzhouyi@gmail.com>
 
--- 
-0-DAY CI Kernel Test Service
-https://github.com/intel/lkp-tests
-
-
-
+Thanks for your intention
+Zhouyi
+[1] https://lore.kernel.org/lkml/CAABZP2wa_ZTHUr9tH_6OSpr+TgNACo4kMu3eawsGV5qkCDoAKg@mail.gmail.com/T/
