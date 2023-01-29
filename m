@@ -2,77 +2,78 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 5DE3F67FDDE
-	for <lists+stable@lfdr.de>; Sun, 29 Jan 2023 10:35:52 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6FB9D67FDF9
+	for <lists+stable@lfdr.de>; Sun, 29 Jan 2023 10:57:30 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229924AbjA2Jfu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 29 Jan 2023 04:35:50 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48842 "EHLO
+        id S231325AbjA2J5X (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 29 Jan 2023 04:57:23 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55512 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229436AbjA2Jfu (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 29 Jan 2023 04:35:50 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 41F9E22024;
-        Sun, 29 Jan 2023 01:35:49 -0800 (PST)
+        with ESMTP id S230390AbjA2J5W (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 29 Jan 2023 04:57:22 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 378C4222EC
+        for <stable@vger.kernel.org>; Sun, 29 Jan 2023 01:57:21 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id D8A50B80B9E;
-        Sun, 29 Jan 2023 09:35:47 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D6B0DC433EF;
-        Sun, 29 Jan 2023 09:35:45 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id D108A60B9E
+        for <stable@vger.kernel.org>; Sun, 29 Jan 2023 09:57:20 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A85A1C433D2;
+        Sun, 29 Jan 2023 09:57:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1674984946;
-        bh=Cvo52ASuF2lQFZBueeg4HBKdxNy5lM1KuIeUrid6CT4=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=q0Flz9WtrhmUUBhjWZRC+pfv5QQWtSImJe74uTRX1/y8T/qi5FNypwE/F+r7pVxEY
-         zXEyPZrfel1IgZ2SwPN4BQKCUZO22HuyTZelnVKt8H9h3P/ZikKgBHpI4PrahsiNy/
-         lFmcZUk+GMYQh+Oav9zWCZkQCRzolV2F6uq+EBk7Avqch3PV1RWzGKdG2Tti9aUBlX
-         EREf5obqEg/IFNylq696LmDB5q9Z9s+C+ROpliRXKPVuybtPK4bkJQgqQWok7OMfpA
-         eugf0wkFkg4/BJcMHYxVLQo82f80bymWb2p7NoLknR0M8EIR0bBmlS+4fse1daTO8t
-         xK4/DZXtmPPtg==
-Date:   Sun, 29 Jan 2023 11:35:42 +0200
-From:   Leon Romanovsky <leon@kernel.org>
-To:     Haiyang Zhang <haiyangz@microsoft.com>
-Cc:     linux-hyperv@vger.kernel.org, netdev@vger.kernel.org,
-        decui@microsoft.com, kys@microsoft.com, paulros@microsoft.com,
-        olaf@aepfle.de, vkuznets@redhat.com, davem@davemloft.net,
-        linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Subject: Re: [PATCH net, 2/2] net: mana: Fix accessing freed irq affinity_hint
-Message-ID: <Y9Y97pNR/jeOy1jA@unreal>
-References: <1674767085-18583-1-git-send-email-haiyangz@microsoft.com>
- <1674767085-18583-3-git-send-email-haiyangz@microsoft.com>
+        s=k20201202; t=1674986240;
+        bh=apEDmRZhX3hyzHCBx6zt5RDKOOhTd7PNbo0vhXbka+U=;
+        h=Date:Subject:To:Cc:References:From:In-Reply-To:From;
+        b=UkfyTI69OqX/LaUwiUjTKbaYkYGuLR8zZ0+TgaR+4jpF87E7NlZGOtol74V/ByaX5
+         gAVp1hIpdpmSj9xOaAtH2YOVXj/C9I6yfgmVqjGGaU00QRhcEAuNAZ4cCEEUbgX3n7
+         y0WBep9b8TAbl2NFr4Sh6WdRrvHA0k1PbKCBD3S8espeYklhnMFpvogXFxU0xpN9mn
+         kB/Ep7v2xIqAJTp0+xyI9NnaV4gBKDHYSbKe5pQD35Ly+M4pXHYO0yXzmUb098i9nn
+         OWhJCkF/gANHHA+p4wBK4qKazZbB8xxyEQAwPMe0RRvX6fsMvMlkOORrWYCUqZQjUt
+         BGjk+um2ph+tA==
+Message-ID: <fc687ff5-9663-0f80-41d0-f9668c743602@kernel.org>
+Date:   Sun, 29 Jan 2023 17:57:15 +0800
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1674767085-18583-3-git-send-email-haiyangz@microsoft.com>
-X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
-        SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
+User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:102.0) Gecko/20100101
+ Thunderbird/102.6.1
+Subject: Re: [PATCH] f2fs: fix information leak in f2fs_move_inline_dirents()
+Content-Language: en-US
+To:     Eric Biggers <ebiggers@kernel.org>,
+        linux-f2fs-devel@lists.sourceforge.net,
+        Jaegeuk Kim <jaegeuk@kernel.org>
+Cc:     Alexander Potapenko <glider@google.com>, stable@vger.kernel.org
+References: <20230123070414.138052-1-ebiggers@kernel.org>
+From:   Chao Yu <chao@kernel.org>
+In-Reply-To: <20230123070414.138052-1-ebiggers@kernel.org>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Spam-Status: No, score=-4.5 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,NICE_REPLY_A,
+        RCVD_IN_DNSWL_MED,SPF_HELO_NONE,SPF_PASS autolearn=ham
+        autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Thu, Jan 26, 2023 at 01:04:45PM -0800, Haiyang Zhang wrote:
-> After calling irq_set_affinity_and_hint(), the cpumask pointer is
-> saved in desc->affinity_hint, and will be used later when reading
-> /proc/irq/<num>/affinity_hint. So the cpumask variable needs to be
-> allocated per irq, and available until freeing the irq. Otherwise,
-> we are accessing freed memory when reading the affinity_hint file.
+On 2023/1/23 15:04, Eric Biggers wrote:
+> From: Eric Biggers <ebiggers@google.com>
 > 
-> To fix the bug, allocate the cpumask per irq, and free it just
-> before freeing the irq.
+> When converting an inline directory to a regular one, f2fs is leaking
+> uninitialized memory to disk because it doesn't initialize the entire
+> directory block.  Fix this by zero-initializing the block.
 > 
-> Cc: stable@vger.kernel.org
-> Fixes: 71fa6887eeca ("net: mana: Assign interrupts to CPUs based on NUMA nodes")
-> Signed-off-by: Haiyang Zhang <haiyangz@microsoft.com>
-> ---
->  .../net/ethernet/microsoft/mana/gdma_main.c   | 40 ++++++++++---------
->  include/net/mana/gdma.h                       |  1 +
->  2 files changed, 23 insertions(+), 18 deletions(-)
+> This bug was introduced by commit 4ec17d688d74 ("f2fs: avoid unneeded
+> initializing when converting inline dentry"), which didn't consider the
+> security implications of leaking uninitialized memory to disk.
 > 
+> This was found by running xfstest generic/435 on a KMSAN-enabled kernel.
+> 
+> Fixes: 4ec17d688d74 ("f2fs: avoid unneeded initializing when converting inline dentry")
+> Cc: <stable@vger.kernel.org> # v4.3+
+> Signed-off-by: Eric Biggers <ebiggers@google.com>
+
+Reviewed-by: Chao Yu <chao@kernel.org>
 
 Thanks,
-Reviewed-by: Leon Romanovsky <leonro@nvidia.com>
