@@ -2,43 +2,60 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 310E367FF5D
-	for <lists+stable@lfdr.de>; Sun, 29 Jan 2023 14:29:58 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 84E7B67FF5E
+	for <lists+stable@lfdr.de>; Sun, 29 Jan 2023 14:31:58 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234900AbjA2N35 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 29 Jan 2023 08:29:57 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53312 "EHLO
+        id S234966AbjA2Nb5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 29 Jan 2023 08:31:57 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53400 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229549AbjA2N34 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 29 Jan 2023 08:29:56 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F094359F6
-        for <stable@vger.kernel.org>; Sun, 29 Jan 2023 05:29:55 -0800 (PST)
+        with ESMTP id S229549AbjA2Nb4 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 29 Jan 2023 08:31:56 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5E47859F6
+        for <stable@vger.kernel.org>; Sun, 29 Jan 2023 05:31:55 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id AA1F7B80C98
-        for <stable@vger.kernel.org>; Sun, 29 Jan 2023 13:29:54 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id EF49FC433D2;
-        Sun, 29 Jan 2023 13:29:52 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 11F17B80C98
+        for <stable@vger.kernel.org>; Sun, 29 Jan 2023 13:31:54 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 573CFC433EF;
+        Sun, 29 Jan 2023 13:31:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1674998993;
-        bh=IcseuIr1U1DQBs2by3V/TD0qcJ1qhZ+vQTHAFukKzwI=;
-        h=Subject:To:Cc:From:Date:From;
-        b=FDDZpjOipa02SdWBfwt7ysylPr1sXNjqY7IThhcrTDNv9ydtTk0OragubyMWa0nBh
-         1yg1PGtV/OTZvjC4MszmAEQ9rAq5OgpGMxvOpPlKSsLNCL9UMmDDrY+q6Frd9oePz9
-         0J0RMUwJZ5ISqe1M6y4/5fFgjE0aUctbGGumeJ28=
-Subject: FAILED: patch "[PATCH] net: mana: Fix IRQ name - add PCI and queue number" failed to apply to 5.15-stable tree
-To:     haiyangz@microsoft.com, jesse.brandeburg@intel.com, kuba@kernel.org
-Cc:     <stable@vger.kernel.org>
-From:   <gregkh@linuxfoundation.org>
-Date:   Sun, 29 Jan 2023 14:29:42 +0100
-Message-ID: <1674998982450@kroah.com>
+        s=korg; t=1674999112;
+        bh=vbOcOQvLI7LJlxcTePJ5Zy1AAvu47HqN45gtrJuttt4=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=P6GacKiwueCw3hOihvbZQYjL+kShUibaANrpvwDF2j7San2zs3U8gCZl7/4ti7Wcl
+         NsNyi36DdWbyg4i7M8gB6ooxQvWE+U9vQCVthKZYrwQtIBN99Os0jYzTdfS0y0kyFz
+         uMpK5+mQyoE6XBmMqfzR9zWcSRSmABylszZFXvyU=
+Date:   Sun, 29 Jan 2023 14:31:49 +0100
+From:   Greg KH <gregkh@linuxfoundation.org>
+To:     "Limonciello, Mario" <Mario.Limonciello@amd.com>
+Cc:     Linux regressions mailing list <regressions@lists.linux.dev>,
+        "dri-devel@lists.freedesktop.org" <dri-devel@lists.freedesktop.org>,
+        "stable@vger.kernel.org" <stable@vger.kernel.org>,
+        "stanislav.lisovskiy@intel.com" <stanislav.lisovskiy@intel.com>,
+        "Zuo, Jerry" <Jerry.Zuo@amd.com>,
+        "amd-gfx@lists.freedesktop.org" <amd-gfx@lists.freedesktop.org>,
+        "Lin, Wayne" <Wayne.Lin@amd.com>,
+        Guenter Roeck <linux@roeck-us.net>,
+        "bskeggs@redhat.com" <bskeggs@redhat.com>
+Subject: Re: [PATCH] Revert "drm/display/dp_mst: Move all payload info into
+ the atomic state"
+Message-ID: <Y9Z1RdnfM4ypM/zW@kroah.com>
+References: <20230112085044.1706379-1-Wayne.Lin@amd.com>
+ <20230120174634.GA889896@roeck-us.net>
+ <a9deecb3-5955-ee4e-c76f-2654ee9f1a92@amd.com>
+ <Y9N/wiIL758c3ozv@kroah.com>
+ <36e72298-e9d3-967e-8b14-7197719953cb@leemhuis.info>
+ <MN0PR12MB610184AF496001F3B92706BDE2CC9@MN0PR12MB6101.namprd12.prod.outlook.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ANSI_X3.4-1968
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+In-Reply-To: <MN0PR12MB610184AF496001F3B92706BDE2CC9@MN0PR12MB6101.namprd12.prod.outlook.com>
+X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
         SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -46,80 +63,87 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+On Fri, Jan 27, 2023 at 03:02:41PM +0000, Limonciello, Mario wrote:
+> [Public]
+> 
+> 
+> 
+> > -----Original Message-----
+> > From: Linux kernel regression tracking (Thorsten Leemhuis)
+> > <regressions@leemhuis.info>
+> > Sent: Friday, January 27, 2023 03:15
+> > To: Greg KH <gregkh@linuxfoundation.org>; Limonciello, Mario
+> > <Mario.Limonciello@amd.com>
+> > Cc: dri-devel@lists.freedesktop.org; stable@vger.kernel.org;
+> > stanislav.lisovskiy@intel.com; Zuo, Jerry <Jerry.Zuo@amd.com>; amd-
+> > gfx@lists.freedesktop.org; Lin, Wayne <Wayne.Lin@amd.com>; Guenter
+> > Roeck <linux@roeck-us.net>; bskeggs@redhat.com
+> > Subject: Re: [PATCH] Revert "drm/display/dp_mst: Move all payload info into
+> > the atomic state"
+> > 
+> > On 27.01.23 08:39, Greg KH wrote:
+> > > On Fri, Jan 20, 2023 at 11:51:04AM -0600, Limonciello, Mario wrote:
+> > >> On 1/20/2023 11:46, Guenter Roeck wrote:
+> > >>> On Thu, Jan 12, 2023 at 04:50:44PM +0800, Wayne Lin wrote:
+> > >>>> This reverts commit 4d07b0bc403403438d9cf88450506240c5faf92f.
+> > >>>>
+> > >>>> [Why]
+> > >>>> Changes cause regression on amdgpu mst.
+> > >>>> E.g.
+> > >>>> In fill_dc_mst_payload_table_from_drm(), amdgpu expects to
+> > add/remove payload
+> > >>>> one by one and call fill_dc_mst_payload_table_from_drm() to update
+> > the HW
+> > >>>> maintained payload table. But previous change tries to go through all
+> > the
+> > >>>> payloads in mst_state and update amdpug hw maintained table in once
+> > everytime
+> > >>>> driver only tries to add/remove a specific payload stream only. The
+> > newly
+> > >>>> design idea conflicts with the implementation in amdgpu nowadays.
+> > >>>>
+> > >>>> [How]
+> > >>>> Revert this patch first. After addressing all regression problems caused
+> > by
+> > >>>> this previous patch, will add it back and adjust it.
+> > >>>
+> > >>> Has there been any progress on this revert, or on fixing the underlying
+> > >>> problem ?
+> > >>>
+> > >>> Thanks,
+> > >>> Guenter
+> > >>
+> > >> Hi Guenter,
+> > >>
+> > >> Wayne is OOO for CNY, but let me update you.
+> > >>
+> > >> Harry has sent out this series which is a collection of proper fixes.
+> > >> https://patchwork.freedesktop.org/series/113125/
+> > >>
+> > >> Once that's reviewed and accepted, 4 of them are applicable for 6.1.
+> > >
+> > > Any hint on when those will be reviewed and accepted?  patchwork
+> > doesn't
+> > > show any activity on them, or at least I can't figure it out...
+> > 
+> > I didn't look closer (hence please correct me if I'm wrong), but the
+> > core changes afaics are in the DRM pull airlied send a few hours ago to
+> > Linus (note the "amdgpu […] DP MST fixes" line):
+> > 
+> > https://lore.kernel.org/all/CAPM%3D9tzuu4xnx6T5v7sKsK%2BA5HEaPOc1ie
+> > MyzNSYQZGztJ%3D6Qw@mail.gmail.com/
+> 
+> That's right.  There are 4 commits in that PR with the appropriate stable tags
+> that should fix the majority of the MST issues introduced in 6.1 by 4d07b0bc40340
+> ("drm/display/dp_mst: Move all payload info into the atomic state"):
+> 
+>       drm/amdgpu/display/mst: Fix mst_state->pbn_div and slot count assignments
+>       drm/amdgpu/display/mst: limit payload to be updated one by one
+>       drm/amdgpu/display/mst: update mst_mgr relevant variable when long HPD
+>       drm/display/dp_mst: Correct the kref of port.
+> 
+> There will be follow ups for any remaining corner cases.
 
-The patch below does not apply to the 5.15-stable tree.
-If someone wants it applied there, or to any other stable or longterm
-tree, then please email the backport, including the original git commit
-id to <stable@vger.kernel.org>.
-
-Possible dependencies:
-
-20e3028c39a5 ("net: mana: Fix IRQ name - add PCI and queue number")
-
-thanks,
+Great, thanks for this, all are now queued up in the 6.1.y queue.
 
 greg k-h
-
------------------- original commit in Linus's tree ------------------
-
-From 20e3028c39a5bf882e91e717da96d14f1acec40e Mon Sep 17 00:00:00 2001
-From: Haiyang Zhang <haiyangz@microsoft.com>
-Date: Thu, 19 Jan 2023 12:59:10 -0800
-Subject: [PATCH] net: mana: Fix IRQ name - add PCI and queue number
-
-The PCI and queue number info is missing in IRQ names.
-
-Add PCI and queue number to IRQ names, to allow CPU affinity
-tuning scripts to work.
-
-Cc: stable@vger.kernel.org
-Fixes: ca9c54d2d6a5 ("net: mana: Add a driver for Microsoft Azure Network Adapter (MANA)")
-Signed-off-by: Haiyang Zhang <haiyangz@microsoft.com>
-Reviewed-by: Jesse Brandeburg <jesse.brandeburg@intel.com>
-Link: https://lore.kernel.org/r/1674161950-19708-1-git-send-email-haiyangz@microsoft.com
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
-
-diff --git a/drivers/net/ethernet/microsoft/mana/gdma_main.c b/drivers/net/ethernet/microsoft/mana/gdma_main.c
-index e708c2d04983..b144f2237748 100644
---- a/drivers/net/ethernet/microsoft/mana/gdma_main.c
-+++ b/drivers/net/ethernet/microsoft/mana/gdma_main.c
-@@ -1259,13 +1259,20 @@ static int mana_gd_setup_irqs(struct pci_dev *pdev)
- 		gic->handler = NULL;
- 		gic->arg = NULL;
- 
-+		if (!i)
-+			snprintf(gic->name, MANA_IRQ_NAME_SZ, "mana_hwc@pci:%s",
-+				 pci_name(pdev));
-+		else
-+			snprintf(gic->name, MANA_IRQ_NAME_SZ, "mana_q%d@pci:%s",
-+				 i - 1, pci_name(pdev));
-+
- 		irq = pci_irq_vector(pdev, i);
- 		if (irq < 0) {
- 			err = irq;
- 			goto free_mask;
- 		}
- 
--		err = request_irq(irq, mana_gd_intr, 0, "mana_intr", gic);
-+		err = request_irq(irq, mana_gd_intr, 0, gic->name, gic);
- 		if (err)
- 			goto free_mask;
- 		irq_set_affinity_and_hint(irq, req_mask);
-diff --git a/include/net/mana/gdma.h b/include/net/mana/gdma.h
-index b3ba04615caa..56189e4252da 100644
---- a/include/net/mana/gdma.h
-+++ b/include/net/mana/gdma.h
-@@ -336,9 +336,12 @@ struct gdma_queue_spec {
- 	};
- };
- 
-+#define MANA_IRQ_NAME_SZ 32
-+
- struct gdma_irq_context {
- 	void (*handler)(void *arg);
- 	void *arg;
-+	char name[MANA_IRQ_NAME_SZ];
- };
- 
- struct gdma_context {
-
