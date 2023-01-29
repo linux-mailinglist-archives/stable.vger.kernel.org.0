@@ -2,127 +2,108 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 1356D67FA8B
-	for <lists+stable@lfdr.de>; Sat, 28 Jan 2023 20:49:45 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2FB7767FBF4
+	for <lists+stable@lfdr.de>; Sun, 29 Jan 2023 01:24:41 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230143AbjA1Tto (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 28 Jan 2023 14:49:44 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44492 "EHLO
+        id S230359AbjA2AYi (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 28 Jan 2023 19:24:38 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35540 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229966AbjA1Ttn (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 28 Jan 2023 14:49:43 -0500
-Received: from mail-ed1-x536.google.com (mail-ed1-x536.google.com [IPv6:2a00:1450:4864:20::536])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9197F20069
-        for <stable@vger.kernel.org>; Sat, 28 Jan 2023 11:49:41 -0800 (PST)
-Received: by mail-ed1-x536.google.com with SMTP id g11so7539821eda.12
-        for <stable@vger.kernel.org>; Sat, 28 Jan 2023 11:49:41 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:sender:from:to:cc:subject:date:message-id
-         :reply-to;
-        bh=sO7UFPAZ5ipITcECO24P9uQ1IShk8QTj6My2HieSQws=;
-        b=jzNVGVvTE2HFKVLCwGxGV1dUHlVW8dNZgwyoIV9lHAH+2iLiAYLDSh+EoLMuYfd/Kq
-         T21cf2WfHBFlsn0twy6N/xRHUhE0IuItx9yPTe8n12qoTogyJNItLKXiCKfBdTMFAeYm
-         WRErPYPzETrojUHHGV0t3MpnI1YzI7sroDzl0qiV5P5ofgLso57SWFPBRp6ArVpejOvA
-         hTcXsTyzsm8tBw6CtwYzdRNHVzqONhPJS1+nohjz8GbRMdkaU/yY7Uxt6w83au7wIHYS
-         V9+EnhDzzevExl9Wu9vXJoDsiGr0bKKxlEszeZ40lZ49Lyw72RjVk+TFB3leXe0uaJbn
-         Oy4g==
+        with ESMTP id S229513AbjA2AYh (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 28 Jan 2023 19:24:37 -0500
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3AF421C588
+        for <stable@vger.kernel.org>; Sat, 28 Jan 2023 16:23:51 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1674951830;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         in-reply-to:in-reply-to:references:references;
+        bh=kh4675yGn7de7rBJaXu0/haUPHaSoFQ5kB4OsX1qKq0=;
+        b=TpB0cH1ekI5mmFyUPdoFlM343gU942lSMRBpjpI7odBi1JoaDf60FihSzTDET4ZlqWxdMA
+        5NTt3pzYabwsbPXlE6YUJq8P2/Xon7u74we5ODj0ME6ygcTHTgLNtz9s02xBofVcIhfcxw
+        HosUhwOoH6pZCFINm5gzDT4CmC/FL78=
+Received: from mail-yb1-f200.google.com (mail-yb1-f200.google.com
+ [209.85.219.200]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_128_GCM_SHA256) id
+ us-mta-582-PqOIlVHINxuDoDt41ZWKeQ-1; Sat, 28 Jan 2023 19:23:48 -0500
+X-MC-Unique: PqOIlVHINxuDoDt41ZWKeQ-1
+Received: by mail-yb1-f200.google.com with SMTP id z9-20020a25ba49000000b007d4416e3667so9449531ybj.23
+        for <stable@vger.kernel.org>; Sat, 28 Jan 2023 16:23:48 -0800 (PST)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:sender:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=sO7UFPAZ5ipITcECO24P9uQ1IShk8QTj6My2HieSQws=;
-        b=gghsOLXqYn7iMI/6pSTmZkXv3qqoUPORvUhr1uMOVHO/TefFbeNIYOdyTJdQ6BCjc1
-         en9LEVPgeBFu/OS7s2UOzCkyNTbaSgt896ca00maBQ3HVTiaXv313golPxiLY/ZnCr72
-         +nZc+dh6ox9j9JcAq106SFX1zxx+TebFSGIvAQVw3lgCxW6+2IBm01jR6LvkBTQ9/2KY
-         FgEyYh1zI/QAIiBbPRGKdHhVfAnGxmPnQuqPmfH9LLVX05/WGawK/uOhm/Ba1oQR0B6s
-         5P+sCz2fd5jOnj6em48+7utLnCWkhfAqmDmFbzNIkWJwad1SUSKiSzXOBhrFGPZqRLpS
-         51wA==
-X-Gm-Message-State: AFqh2kp7aJt9BMFPwJxceCJGQD077PROnbkdweMtm7S1mUAX6/lARHUQ
-        oOyRfNaje+nGuNLfXenFMhA=
-X-Google-Smtp-Source: AMrXdXtAcT3gd3LmQFK4oXM1qMxTHcdxecJwUH68lFyOEcOfZg75/8qWSlJJB7LZsJr7ngQJx9uH3A==
-X-Received: by 2002:a05:6402:294c:b0:48e:c0c3:7974 with SMTP id ed12-20020a056402294c00b0048ec0c37974mr50319656edb.12.1674935380045;
-        Sat, 28 Jan 2023 11:49:40 -0800 (PST)
-Received: from eldamar.lan (c-82-192-242-114.customer.ggaweb.ch. [82.192.242.114])
-        by smtp.gmail.com with ESMTPSA id g5-20020a50ee05000000b004835bd8dfe5sm4334889eds.35.2023.01.28.11.49.39
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sat, 28 Jan 2023 11:49:39 -0800 (PST)
-Sender: Salvatore Bonaccorso <salvatore.bonaccorso@gmail.com>
-Received: by eldamar.lan (Postfix, from userid 1000)
-        id AB9F6BE2DE0; Sat, 28 Jan 2023 20:49:38 +0100 (CET)
-Date:   Sat, 28 Jan 2023 20:49:38 +0100
-From:   Salvatore Bonaccorso <carnil@debian.org>
-To:     Greg KH <gregkh@linuxfoundation.org>
-Cc:     Computer Enthusiastic <computer.enthusiastic@gmail.com>,
-        stable@vger.kernel.org, Karol Herbst <kherbst@redhat.com>,
-        Ben Skeggs <bskeggs@redhat.com>, nouveau@lists.freedesktop.org,
-        Lyude Paul <lyude@redhat.com>
-Subject: Re: [Nouveau] [PATCH] nouveau: explicitly wait on the fence in
- nouveau_bo_move_m2mf
-Message-ID: <Y9V8UoUHm3rHcDkc@eldamar.lan>
-References: <20220819200928.401416-1-kherbst@redhat.com>
- <CAHSpYy0HAifr4f+z64h+xFUmMNbB4hCR1r2Z==TsB4WaHatQqg@mail.gmail.com>
- <CACO55tv0jO2TmuWcwFiAUQB-__DZVwhv7WNN9MfgMXV053gknw@mail.gmail.com>
- <CAHSpYy117N0A1QJKVNmFNii3iL9mU71_RusiUo5ZAMcJZciM-g@mail.gmail.com>
- <cdfc26b5-c045-5f93-b553-942618f0983a@gmail.com>
- <Y9VgjLneuqkl+Y87@kroah.com>
+        h=cc:to:subject:message-id:date:from:in-reply-to:references
+         :mime-version:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=kh4675yGn7de7rBJaXu0/haUPHaSoFQ5kB4OsX1qKq0=;
+        b=zVvmxAG6ectDFhUQm3H3KVvtVzt6InZbVpHT83RmHTFAMFiAtn2EDR8NFrXxhKqNl1
+         uOKsz4uBBJaqLuwvUTAxSHJjcWiEzxvW+MEyhewIkmNjN8tzW+MrIBeIeDJzCSuE/4KH
+         yfBriit0pLUgoAQWxOE0cG9kpHL6WPfiE8o44Bm9ak2q6pOE9rr8TOQPOJ5s264m5tZT
+         tZ8ZsX2MvjEotA2ybSfN2Zhy1vR+ofvSo5ht/h7FoECJuc6CUsIsAJVeUaVCTDSGJ3Dr
+         OH5c3CarobL4wlJaDWxRspJhY0MzFSoV8QQLfyrlDvl9SRDj2yf+1r6W339dDQiyfFcw
+         PJbg==
+X-Gm-Message-State: AO0yUKXv5QeHBiAomo3Nm/TovmIR8TGtXBh+i0jMi+H1NzKyXSv34eVK
+        USIdHMqA3QgW61HP8aag1HyFpUqrP/KU5rtU1cNttUlrV8V9af6O6YKm3ZrrXbt9wuyOrwNPk3V
+        BZAFJT1jBunuripspSNWW2X9xgK0GUt9b
+X-Received: by 2002:a81:b70e:0:b0:50a:87fe:1e45 with SMTP id v14-20020a81b70e000000b0050a87fe1e45mr1023399ywh.338.1674951827255;
+        Sat, 28 Jan 2023 16:23:47 -0800 (PST)
+X-Google-Smtp-Source: AK7set9VRK4eguQ/LeiMtOEJbGgCXqEogdn0mkUQqG3AMy+yXBObnoLUE8K2Q58QH+hLrdAZdqkQdhPRNEsdzL/eYFA=
+X-Received: by 2002:a81:b70e:0:b0:50a:87fe:1e45 with SMTP id
+ v14-20020a81b70e000000b0050a87fe1e45mr1023393ywh.338.1674951827077; Sat, 28
+ Jan 2023 16:23:47 -0800 (PST)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Y9VgjLneuqkl+Y87@kroah.com>
-X-Spam-Status: No, score=-1.6 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_EF,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
-        HEADER_FROM_DIFFERENT_DOMAINS,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,
-        SPF_PASS autolearn=no autolearn_force=no version=3.4.6
+References: <CAJD_bPJ1VYTSQvogui4S9xWn9jQzQq8JRXOzXmus+qoRyrybOA@mail.gmail.com>
+ <Y9Vg26wjGfkCicYv@kroah.com>
+In-Reply-To: <Y9Vg26wjGfkCicYv@kroah.com>
+From:   Jason Montleon <jmontleo@redhat.com>
+Date:   Sat, 28 Jan 2023 19:23:36 -0500
+Message-ID: <CAJD_bPLkkgbk+GO66Ec9RmiW6MfYrG32WP75oLzXsz2+rpREWg@mail.gmail.com>
+Subject: Re: Google Pixelbook EVE, no sound in kernel 6.1.x
+To:     Greg KH <gregkh@linuxfoundation.org>
+Cc:     casaxa@gmail.com, cezary.rojewski@intel.com, lma@semihalf.com,
+        Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>,
+        regressions@lists.linux.dev, stable@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
+X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_NONE,
+        RCVD_IN_MSPIKE_H2,SPF_HELO_NONE,SPF_NONE autolearn=ham
+        autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hi Greg,
+I have confirmed 6.2-rc5 is also broken and removing the same commit
+causes it to work again.
 
-I'm not the reporter, so would like to confirm him explicitly, but I
-believe I can give some context:
+Thank you,
+Jason Montleon
 
-On Sat, Jan 28, 2023 at 06:51:08PM +0100, Greg KH wrote:
-> On Sat, Jan 28, 2023 at 03:49:59PM +0100, Computer Enthusiastic wrote:
-> > Hello,
-> > 
-> > The patch "[Nouveau] [PATCH] nouveau: explicitly wait on the fence in
-> > nouveau_bo_move_m2mf" [1] was marked for kernels v5.15+ and it was merged
-> > upstream.
-> > 
-> > The same patch [1] works with kernel 5.10.y, but it is not been merged
-> > upstream so far.
-> > 
-> > According to Karol Herbst suggestion [2], I'm sending this message to ask
-> > for merging it into 5.10 kernel.
-> 
-> We need to know the git commit id.  And have you tested it on 5.10.y?
-> And why are you stuck on 5.10.y for this type of hardware?  Why not move
-> to 5.15.y or 6.1.y?
+On Sat, Jan 28, 2023 at 12:52 PM Greg KH <gregkh@linuxfoundation.org> wrote:
+>
+> On Sat, Jan 28, 2023 at 12:09:54PM -0500, Jason Montleon wrote:
+> > I did a bisect which implicated
+> > f2bd1c5ae2cb0cf9525c9bffc0038c12dd7e1338 as the first bad commit.
+> >
+> > Reverting this commit on 6.1.8 gives me working sound again.
+> >
+> > I'm not clear why this is breaking 6.1.x since it appears to be in
+> > 6.0.18 (7494e2e6c55e), which was the last working package in Fedora
+> > for the 6.0 line. Maybe something else didn't make it into 6.1?
+> >
+> >
+>
+> So this is also broken in Linus's tree (6.2-rc5?)
+>
+> thanks,
+>
+> greg k-h
+>
 
-This would be commit 6b04ce966a73 ("nouveau: explicitly wait on the
-fence in nouveau_bo_move_m2mf") in mainline, applied in 6.0-rc3 and
-backported to 5.19.6 and 5.15.64.
 
-Computer Enthusiastic, tested it on 5.10.y: 
-https://lore.kernel.org/nouveau/CAHSpYy1mcTns0JS6eivjK82CZ9_ajSwH-H7gtDwCkNyfvihaAw@mail.gmail.com/
+-- 
+Jason Montleon        | email: jmontleo@redhat.com
+Red Hat, Inc.         | gpg key: 0x069E3022
+Cell: 508-496-0663    | irc: jmontleo / jmontleon
 
-It was reported in Debian by the user originally as
-https://bugs.debian.org/989705#69 after updating to the 5.10.y series in Debian
-bullseye.
-
-I guess the user could move to the next stable release Debian bookworm, once
-it's released (it's currently in the last milestones to finalize, cf.
-https://release.debian.org/ but we are not yet there). In the next release this
-will be automatically be fixed indeed.
-
-Computer Enthusiastic, can you confirm please to Greg in particular the first
-questions, in particular to confirm the commit fixes the suspend issue?
-
-Regards,
-Salvatore
