@@ -2,54 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 6FB9D67FDF9
-	for <lists+stable@lfdr.de>; Sun, 29 Jan 2023 10:57:30 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 01F5F67FED8
+	for <lists+stable@lfdr.de>; Sun, 29 Jan 2023 13:19:07 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231325AbjA2J5X (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 29 Jan 2023 04:57:23 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55512 "EHLO
+        id S231389AbjA2MTE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 29 Jan 2023 07:19:04 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34212 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230390AbjA2J5W (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 29 Jan 2023 04:57:22 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 378C4222EC
-        for <stable@vger.kernel.org>; Sun, 29 Jan 2023 01:57:21 -0800 (PST)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id D108A60B9E
-        for <stable@vger.kernel.org>; Sun, 29 Jan 2023 09:57:20 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A85A1C433D2;
-        Sun, 29 Jan 2023 09:57:18 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1674986240;
-        bh=apEDmRZhX3hyzHCBx6zt5RDKOOhTd7PNbo0vhXbka+U=;
-        h=Date:Subject:To:Cc:References:From:In-Reply-To:From;
-        b=UkfyTI69OqX/LaUwiUjTKbaYkYGuLR8zZ0+TgaR+4jpF87E7NlZGOtol74V/ByaX5
-         gAVp1hIpdpmSj9xOaAtH2YOVXj/C9I6yfgmVqjGGaU00QRhcEAuNAZ4cCEEUbgX3n7
-         y0WBep9b8TAbl2NFr4Sh6WdRrvHA0k1PbKCBD3S8espeYklhnMFpvogXFxU0xpN9mn
-         kB/Ep7v2xIqAJTp0+xyI9NnaV4gBKDHYSbKe5pQD35Ly+M4pXHYO0yXzmUb098i9nn
-         OWhJCkF/gANHHA+p4wBK4qKazZbB8xxyEQAwPMe0RRvX6fsMvMlkOORrWYCUqZQjUt
-         BGjk+um2ph+tA==
-Message-ID: <fc687ff5-9663-0f80-41d0-f9668c743602@kernel.org>
-Date:   Sun, 29 Jan 2023 17:57:15 +0800
+        with ESMTP id S229519AbjA2MTE (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 29 Jan 2023 07:19:04 -0500
+Received: from casper.infradead.org (casper.infradead.org [IPv6:2001:8b0:10b:1236::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CDE2B19F04;
+        Sun, 29 Jan 2023 04:18:59 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
+        d=infradead.org; s=casper.20170209; h=Content-Transfer-Encoding:MIME-Version:
+        Message-Id:Date:Subject:Cc:To:From:Sender:Reply-To:Content-Type:Content-ID:
+        Content-Description:In-Reply-To:References;
+        bh=HThgw7sl6uJJTesezO0n2kqBMrE2goYpe6c6Ta3USks=; b=EefxzS7qsdrMJ33t6t/RxOs1cF
+        FV582ZbD9kbJF1oWPtMVHZZ7x8wivZHz9NBnafc9EQr/0K2vJQU+Z0x7LqcsLDBKk+e5XE+FULm5m
+        ysdDb9I5zBGFpLdZHmgIt+D1JbL8vXQ0/lI3Tmd9NiWQBASUfqnjCFIWJWcvte7Q1yxLxVnbgjD3C
+        hT9MxPZMQLKwITnYkbVY2WgKQpbC0tP1yhBCGCK2cTygOA/QbYOvtLUxyRApWKYorNRdIKmxUUiJe
+        epIgGDbsjR/AiXpV3k+fDCKBFtiSlyugH1dyoHv4LUIeXcSMxiWoQEEh8gcw1SD/cLJRSC0C8yszK
+        p5EULVgg==;
+Received: from willy by casper.infradead.org with local (Exim 4.94.2 #2 (Red Hat Linux))
+        id 1pM6e5-009QuN-2U; Sun, 29 Jan 2023 12:18:53 +0000
+From:   "Matthew Wilcox (Oracle)" <willy@infradead.org>
+To:     "Theodore Y . Ts'o" <tytso@mit.edu>,
+        Jaegeuk Kim <jaegeuk@kernel.org>,
+        Eric Biggers <ebiggers@kernel.org>,
+        linux-fscrypt@vger.kernel.org
+Cc:     "Matthew Wilcox (Oracle)" <willy@infradead.org>,
+        linux-fsdevel@vger.kernel.org, linux-ext4@vger.kernel.org,
+        linux-f2fs-devel@lists.sourceforge.net, stable@vger.kernel.org
+Subject: [PATCH] fscrypt: Copy the memcg information to the ciphertext page
+Date:   Sun, 29 Jan 2023 12:18:51 +0000
+Message-Id: <20230129121851.2248378-1-willy@infradead.org>
+X-Mailer: git-send-email 2.37.1
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:102.0) Gecko/20100101
- Thunderbird/102.6.1
-Subject: Re: [PATCH] f2fs: fix information leak in f2fs_move_inline_dirents()
-Content-Language: en-US
-To:     Eric Biggers <ebiggers@kernel.org>,
-        linux-f2fs-devel@lists.sourceforge.net,
-        Jaegeuk Kim <jaegeuk@kernel.org>
-Cc:     Alexander Potapenko <glider@google.com>, stable@vger.kernel.org
-References: <20230123070414.138052-1-ebiggers@kernel.org>
-From:   Chao Yu <chao@kernel.org>
-In-Reply-To: <20230123070414.138052-1-ebiggers@kernel.org>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Spam-Status: No, score=-4.5 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,NICE_REPLY_A,
-        RCVD_IN_DNSWL_MED,SPF_HELO_NONE,SPF_PASS autolearn=ham
+Content-Transfer-Encoding: 8bit
+X-Spam-Status: No, score=-4.0 required=5.0 tests=BAYES_00,DKIM_INVALID,
+        DKIM_SIGNED,RCVD_IN_DNSWL_MED,SPF_HELO_NONE,SPF_NONE autolearn=ham
         autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -57,23 +49,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 2023/1/23 15:04, Eric Biggers wrote:
-> From: Eric Biggers <ebiggers@google.com>
-> 
-> When converting an inline directory to a regular one, f2fs is leaking
-> uninitialized memory to disk because it doesn't initialize the entire
-> directory block.  Fix this by zero-initializing the block.
-> 
-> This bug was introduced by commit 4ec17d688d74 ("f2fs: avoid unneeded
-> initializing when converting inline dentry"), which didn't consider the
-> security implications of leaking uninitialized memory to disk.
-> 
-> This was found by running xfstest generic/435 on a KMSAN-enabled kernel.
-> 
-> Fixes: 4ec17d688d74 ("f2fs: avoid unneeded initializing when converting inline dentry")
-> Cc: <stable@vger.kernel.org> # v4.3+
-> Signed-off-by: Eric Biggers <ebiggers@google.com>
+Both f2fs and ext4 end up passing the ciphertext page to
+wbc_account_cgroup_owner().  At the moment, the ciphertext page appears
+to belong to no cgroup, so it is accounted to the root_mem_cgroup instead
+of whatever cgroup the original page was in.
 
-Reviewed-by: Chao Yu <chao@kernel.org>
+It's hard to say how far back this is a bug.  The crypto code shared
+between ext4 & f2fs was created in May 2015 with commit 0b81d0779072,
+but neither filesystem did anything with memcg_data before then.  memcg
+writeback accounting was added to ext4 in July 2015 in commit 001e4a8775f6
+and it wasn't added to f2fs until January 2018 (commit 578c647879f7).
 
-Thanks,
+I'm going with the ext4 commit since this is the first commit where
+there was a difference in behaviour between encrypted and unencrypted
+filesystems.
+
+Fixes: 001e4a8775f6 ("ext4: implement cgroup writeback support")
+Cc: stable@vger.kernel.org
+Signed-off-by: Matthew Wilcox (Oracle) <willy@infradead.org>
+---
+ fs/crypto/crypto.c | 3 +++
+ 1 file changed, 3 insertions(+)
+
+diff --git a/fs/crypto/crypto.c b/fs/crypto/crypto.c
+index e78be66bbf01..a4e76f96f291 100644
+--- a/fs/crypto/crypto.c
++++ b/fs/crypto/crypto.c
+@@ -205,6 +205,9 @@ struct page *fscrypt_encrypt_pagecache_blocks(struct page *page,
+ 	}
+ 	SetPagePrivate(ciphertext_page);
+ 	set_page_private(ciphertext_page, (unsigned long)page);
++#ifdef CONFIG_MEMCG
++	ciphertext_page->memcg_data = page->memcg_data;
++#endif
+ 	return ciphertext_page;
+ }
+ EXPORT_SYMBOL(fscrypt_encrypt_pagecache_blocks);
+-- 
+2.35.1
+
