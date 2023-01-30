@@ -2,42 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 49841680FAC
-	for <lists+stable@lfdr.de>; Mon, 30 Jan 2023 14:55:58 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D8480680FAE
+	for <lists+stable@lfdr.de>; Mon, 30 Jan 2023 14:56:01 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236448AbjA3Nz5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 30 Jan 2023 08:55:57 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34730 "EHLO
+        id S236510AbjA3N4A (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 30 Jan 2023 08:56:00 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34894 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231186AbjA3Nzy (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 30 Jan 2023 08:55:54 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9A37438EBF
-        for <stable@vger.kernel.org>; Mon, 30 Jan 2023 05:55:53 -0800 (PST)
+        with ESMTP id S235917AbjA3Nz7 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 30 Jan 2023 08:55:59 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 77FDF2687E
+        for <stable@vger.kernel.org>; Mon, 30 Jan 2023 05:55:58 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 7B80661022
-        for <stable@vger.kernel.org>; Mon, 30 Jan 2023 13:55:53 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8381FC433D2;
-        Mon, 30 Jan 2023 13:55:52 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 2A800B81150
+        for <stable@vger.kernel.org>; Mon, 30 Jan 2023 13:55:57 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 68889C433EF;
+        Mon, 30 Jan 2023 13:55:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1675086952;
-        bh=pQuya5ZPrgAz/52e6tWxUbkyygltHis5vl6mLLqH3KY=;
+        s=korg; t=1675086955;
+        bh=IjdQCOwY+5jE7+z9IGogYRj0Y2flj86Xw072f41f4iA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=uf/lSuoNV0QICZL0760MoILERewFS5ELgMInZG7YvRV6qeF4wLDIJKubrSiv1DdO4
-         2zFeH2Gnj+8YPJNAjwv+ZlEUPqyjgJGbN/LDytecCzQLprD2zVwLu9ZnygrTdEjzbS
-         Hn5aKL6ymgCbVqRSCE76LHjPGehZ1vgbhUA6ctRE=
+        b=UAKyGlHHKnketxe29GokqmA0b2xGRctkUQQihEcI+QxFYSoALbBXuWUBTEovW2BEj
+         7ZZZf93eeRy0hdigweCjyxYz2EYvUnVUIMhONUw9de52o/3GMobP4fmKoCV4gvog/v
+         1g1m5CkO6pgSCKIL4XmXx/TimWaM6gryZ9xznBO8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Eric Biggers <ebiggers@kernel.org>,
-        Alexander Potapenko <glider@google.com>,
-        David Sterba <dsterba@suse.com>,
+        patches@lists.linux.dev,
+        Christophe JAILLET <christophe.jaillet@wanadoo.fr>,
+        Ulf Hansson <ulf.hansson@linaro.org>,
+        Bjorn Andersson <andersson@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 051/313] affs: initialize fsdata in affs_truncate()
-Date:   Mon, 30 Jan 2023 14:48:06 +0100
-Message-Id: <20230130134339.086075132@linuxfoundation.org>
+Subject: [PATCH 6.1 052/313] PM: AVS: qcom-cpr: Fix an error handling path in cpr_probe()
+Date:   Mon, 30 Jan 2023 14:48:07 +0100
+Message-Id: <20230130134339.126370127@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.1
 In-Reply-To: <20230130134336.532886729@linuxfoundation.org>
 References: <20230130134336.532886729@linuxfoundation.org>
@@ -54,38 +55,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alexander Potapenko <glider@google.com>
+From: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
 
-[ Upstream commit eef034ac6690118c88f357b00e2b3239c9d8575d ]
+[ Upstream commit 6049aae52392539e505bfb8ccbcff3c26f1d2f0b ]
 
-When aops->write_begin() does not initialize fsdata, KMSAN may report
-an error passing the latter to aops->write_end().
+If an error occurs after a successful pm_genpd_init() call, it should be
+undone by a corresponding pm_genpd_remove().
 
-Fix this by unconditionally initializing fsdata.
+Add the missing call in the error handling path, as already done in the
+remove function.
 
-Fixes: f2b6a16eb8f5 ("fs: affs convert to new aops")
-Suggested-by: Eric Biggers <ebiggers@kernel.org>
-Signed-off-by: Alexander Potapenko <glider@google.com>
-Reviewed-by: David Sterba <dsterba@suse.com>
-Signed-off-by: David Sterba <dsterba@suse.com>
+Fixes: bf6910abf548 ("power: avs: Add support for CPR (Core Power Reduction)")
+Signed-off-by: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
+Reviewed-by: Ulf Hansson <ulf.hansson@linaro.org>
+Signed-off-by: Bjorn Andersson <andersson@kernel.org>
+Link: https://lore.kernel.org/r/0f520597dbad89ab99c217c8986912fa53eaf5f9.1671293108.git.christophe.jaillet@wanadoo.fr
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/affs/file.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/soc/qcom/cpr.c | 6 +++++-
+ 1 file changed, 5 insertions(+), 1 deletion(-)
 
-diff --git a/fs/affs/file.c b/fs/affs/file.c
-index cefa222f7881..8daeed31e1af 100644
---- a/fs/affs/file.c
-+++ b/fs/affs/file.c
-@@ -880,7 +880,7 @@ affs_truncate(struct inode *inode)
- 	if (inode->i_size > AFFS_I(inode)->mmu_private) {
- 		struct address_space *mapping = inode->i_mapping;
- 		struct page *page;
--		void *fsdata;
-+		void *fsdata = NULL;
- 		loff_t isize = inode->i_size;
- 		int res;
+diff --git a/drivers/soc/qcom/cpr.c b/drivers/soc/qcom/cpr.c
+index e9b854ed1bdf..144ea68e0920 100644
+--- a/drivers/soc/qcom/cpr.c
++++ b/drivers/soc/qcom/cpr.c
+@@ -1708,12 +1708,16 @@ static int cpr_probe(struct platform_device *pdev)
  
+ 	ret = of_genpd_add_provider_simple(dev->of_node, &drv->pd);
+ 	if (ret)
+-		return ret;
++		goto err_remove_genpd;
+ 
+ 	platform_set_drvdata(pdev, drv);
+ 	cpr_debugfs_init(drv);
+ 
+ 	return 0;
++
++err_remove_genpd:
++	pm_genpd_remove(&drv->pd);
++	return ret;
+ }
+ 
+ static int cpr_remove(struct platform_device *pdev)
 -- 
 2.39.0
 
