@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 85EB8681188
-	for <lists+stable@lfdr.de>; Mon, 30 Jan 2023 15:14:22 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1475168128A
+	for <lists+stable@lfdr.de>; Mon, 30 Jan 2023 15:22:21 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237327AbjA3OOV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 30 Jan 2023 09:14:21 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58200 "EHLO
+        id S236945AbjA3OWT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 30 Jan 2023 09:22:19 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41578 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237309AbjA3OOQ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 30 Jan 2023 09:14:16 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4EA947698
-        for <stable@vger.kernel.org>; Mon, 30 Jan 2023 06:14:14 -0800 (PST)
+        with ESMTP id S237728AbjA3OWA (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 30 Jan 2023 09:22:00 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9E21F2B298
+        for <stable@vger.kernel.org>; Mon, 30 Jan 2023 06:20:48 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id EA2B4B80DEB
-        for <stable@vger.kernel.org>; Mon, 30 Jan 2023 14:14:12 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 41CEFC433EF;
-        Mon, 30 Jan 2023 14:14:11 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 7DC1861085
+        for <stable@vger.kernel.org>; Mon, 30 Jan 2023 14:20:48 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8E70BC4339B;
+        Mon, 30 Jan 2023 14:20:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1675088051;
-        bh=BBB+BznXy/rgGSR5BIEQW2gG66MQqO8f8nhRv9CuQQY=;
+        s=korg; t=1675088447;
+        bh=Q2F2xsnlUwXx0ft16LWnzPAtKRrvVWQG96vS6GTFW2g=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=wWdEo3iTjpE+9Bu8Ym+cFwapgHvzRSURKFAE4SgOVVG6m2a6JLmzT9vsSW+sQ7oCH
-         sGYWpbwiRrDNBkBTuKfg0ENa6q9pU1PjvlCg/mHwPyOHNcybb9aYG8fph2uFqg4LGK
-         pwIDQbW1DCL/RsCKsWhsNx7pEzj9KCj4vw8KGwVc=
+        b=g72VqyZ5WRHNhDfdRlWchMzXd7WHMpY7gYcIjKNSXQEXSl4CzafYimDRQC4Ru6mSJ
+         rqu9Y2faOUomcP/QINH+0NFJZk9RQo/bRV0KyTR6ulpJA0JGl21Jwu1U2dYZgE4Ejs
+         oILJagNf88W80OCtG3e3sKjZwJsYCb4jnBdEU804=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Sumit Gupta <sumitg@nvidia.com>,
-        Viresh Kumar <viresh.kumar@linaro.org>,
+        patches@lists.linux.dev, Fabio Estevam <festevam@denx.de>,
+        Shawn Guo <shawnguo@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 097/204] cpufreq: Add Tegra234 to cpufreq-dt-platdev blocklist
-Date:   Mon, 30 Jan 2023 14:51:02 +0100
-Message-Id: <20230130134320.622170191@linuxfoundation.org>
+Subject: [PATCH 5.10 006/143] ARM: dts: imx7d-pico: Use clock-frequency
+Date:   Mon, 30 Jan 2023 14:51:03 +0100
+Message-Id: <20230130134307.136144265@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.1
-In-Reply-To: <20230130134316.327556078@linuxfoundation.org>
-References: <20230130134316.327556078@linuxfoundation.org>
+In-Reply-To: <20230130134306.862721518@linuxfoundation.org>
+References: <20230130134306.862721518@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,33 +53,68 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sumit Gupta <sumitg@nvidia.com>
+From: Fabio Estevam <festevam@denx.de>
 
-[ Upstream commit 01c5bb0cc2a39fbc56ff9a5ef28b79447f0c2351 ]
+[ Upstream commit f4dd0845c4f1f5371f1e06fef0e4a1734a2db964 ]
 
-Tegra234 platform uses the tegra194-cpufreq driver, so add it
-to the blocklist in cpufreq-dt-platdev driver to avoid the cpufreq
-driver registration from there.
+'clock_frequency' is not a valid property.
 
-Signed-off-by: Sumit Gupta <sumitg@nvidia.com>
-Signed-off-by: Viresh Kumar <viresh.kumar@linaro.org>
+Use the correct 'clock-frequency' instead.
+
+Fixes: 8b646cfb84c3 ("ARM: dts: imx7d-pico: Add support for the dwarf baseboard")
+Fixes: 6418fd92417f ("ARM: dts: imx7d-pico: Add support for the nymph baseboard")
+Signed-off-by: Fabio Estevam <festevam@denx.de>
+Signed-off-by: Shawn Guo <shawnguo@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/cpufreq/cpufreq-dt-platdev.c | 1 +
- 1 file changed, 1 insertion(+)
+ arch/arm/boot/dts/imx7d-pico-dwarf.dts | 4 ++--
+ arch/arm/boot/dts/imx7d-pico-nymph.dts | 4 ++--
+ 2 files changed, 4 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/cpufreq/cpufreq-dt-platdev.c b/drivers/cpufreq/cpufreq-dt-platdev.c
-index ca1d103ec449..27a3b8800a35 100644
---- a/drivers/cpufreq/cpufreq-dt-platdev.c
-+++ b/drivers/cpufreq/cpufreq-dt-platdev.c
-@@ -133,6 +133,7 @@ static const struct of_device_id blocklist[] __initconst = {
- 	{ .compatible = "nvidia,tegra30", },
- 	{ .compatible = "nvidia,tegra124", },
- 	{ .compatible = "nvidia,tegra210", },
-+	{ .compatible = "nvidia,tegra234", },
+diff --git a/arch/arm/boot/dts/imx7d-pico-dwarf.dts b/arch/arm/boot/dts/imx7d-pico-dwarf.dts
+index 5162fe227d1e..fdc10563f147 100644
+--- a/arch/arm/boot/dts/imx7d-pico-dwarf.dts
++++ b/arch/arm/boot/dts/imx7d-pico-dwarf.dts
+@@ -32,7 +32,7 @@ sys_mclk: clock-sys-mclk {
+ };
  
- 	{ .compatible = "qcom,apq8096", },
- 	{ .compatible = "qcom,msm8996", },
+ &i2c1 {
+-	clock_frequency = <100000>;
++	clock-frequency = <100000>;
+ 	pinctrl-names = "default";
+ 	pinctrl-0 = <&pinctrl_i2c1>;
+ 	status = "okay";
+@@ -52,7 +52,7 @@ pressure-sensor@60 {
+ };
+ 
+ &i2c4 {
+-	clock_frequency = <100000>;
++	clock-frequency = <100000>;
+ 	pinctrl-names = "default";
+ 	pinctrl-0 = <&pinctrl_i2c1>;
+ 	status = "okay";
+diff --git a/arch/arm/boot/dts/imx7d-pico-nymph.dts b/arch/arm/boot/dts/imx7d-pico-nymph.dts
+index 104a85254adb..5afb1674e012 100644
+--- a/arch/arm/boot/dts/imx7d-pico-nymph.dts
++++ b/arch/arm/boot/dts/imx7d-pico-nymph.dts
+@@ -43,7 +43,7 @@ sys_mclk: clock-sys-mclk {
+ };
+ 
+ &i2c1 {
+-	clock_frequency = <100000>;
++	clock-frequency = <100000>;
+ 	pinctrl-names = "default";
+ 	pinctrl-0 = <&pinctrl_i2c1>;
+ 	status = "okay";
+@@ -64,7 +64,7 @@ adc@52 {
+ };
+ 
+ &i2c2 {
+-	clock_frequency = <100000>;
++	clock-frequency = <100000>;
+ 	pinctrl-names = "default";
+ 	pinctrl-0 = <&pinctrl_i2c2>;
+ 	status = "okay";
 -- 
 2.39.0
 
