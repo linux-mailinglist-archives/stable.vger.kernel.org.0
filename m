@@ -2,46 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 4A6BC681107
-	for <lists+stable@lfdr.de>; Mon, 30 Jan 2023 15:09:45 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id AEDE76812CF
+	for <lists+stable@lfdr.de>; Mon, 30 Jan 2023 15:25:41 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237160AbjA3OJo (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 30 Jan 2023 09:09:44 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51472 "EHLO
+        id S237398AbjA3OZj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 30 Jan 2023 09:25:39 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41614 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237156AbjA3OJn (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 30 Jan 2023 09:09:43 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6D2303B3C4
-        for <stable@vger.kernel.org>; Mon, 30 Jan 2023 06:09:42 -0800 (PST)
+        with ESMTP id S237713AbjA3OY5 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 30 Jan 2023 09:24:57 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 55B6842BC4
+        for <stable@vger.kernel.org>; Mon, 30 Jan 2023 06:23:51 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 2E9CDB811C7
-        for <stable@vger.kernel.org>; Mon, 30 Jan 2023 14:09:41 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 71EFCC433A1;
-        Mon, 30 Jan 2023 14:09:39 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 39AE061036
+        for <stable@vger.kernel.org>; Mon, 30 Jan 2023 14:23:28 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 289B2C433D2;
+        Mon, 30 Jan 2023 14:23:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1675087779;
-        bh=cfue71/z76UL3rtE7E+dcKM5fpseWvYl9tKU4EASncI=;
+        s=korg; t=1675088607;
+        bh=4MFMSbXR2wHTzTo2H9WGf9TeCVWR3ZAJDtiZpAtsE9Q=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=tjJIyK7OozJj0r/i8Guhx49bp19QF7T5N8JYU4MHpFY86kmH2lzfwyg+bKZCM///Q
-         DLmB6caa7FswACLQlr70x+RokbjhhvvvruCYbJ9YaR1R1rT9TDRL4UyeWEaOL5z1pR
-         xM1Mg+61WNd8bERQL2GZ9vYqxSr3ZlkGtBmDTxzA=
+        b=AxuqtB/8XUrMtIueldBJirSpSyO7CRiaW+hbqyBKFLsELr7t5X/27/hjSU+7Khbeg
+         kn4O2v0/aSH0GNXPJX78TLaq1LH5sEHsAwf+JIOz6w+YQmyartVRUAohKpCB4R8/Fi
+         ARZC7TU0TEw3qcXD61S9WNYx/7FyTZ6fGNcAAjHc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Qi Duan <qi.duan@amlogic.com>,
-        Heiner Kallweit <hkallweit1@gmail.com>,
-        Jerome Brunet <jbrunet@baylibre.com>,
-        Jakub Kicinski <kuba@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 297/313] net: mdio-mux-meson-g12a: force internal PHY off on mux switch
+        patches@lists.linux.dev, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 075/143] Revert "selftests/bpf: check null propagation only neither reg is PTR_TO_BTF_ID"
 Date:   Mon, 30 Jan 2023 14:52:12 +0100
-Message-Id: <20230130134350.577447217@linuxfoundation.org>
+Message-Id: <20230130134309.977076836@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.1
-In-Reply-To: <20230130134336.532886729@linuxfoundation.org>
-References: <20230130134336.532886729@linuxfoundation.org>
+In-Reply-To: <20230130134306.862721518@linuxfoundation.org>
+References: <20230130134306.862721518@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,78 +51,79 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jerome Brunet <jbrunet@baylibre.com>
+This reverts commit 3093027183f2846365a76b2fb1e1309f1960084a.
 
-[ Upstream commit 7083df59abbc2b7500db312cac706493be0273ff ]
-
-Force the internal PHY off then on when switching to the internal path.
-This fixes problems where the PHY ID is not properly set.
-
-Fixes: 7090425104db ("net: phy: add amlogic g12a mdio mux support")
-Suggested-by: Qi Duan <qi.duan@amlogic.com>
-Co-developed-by: Heiner Kallweit <hkallweit1@gmail.com>
-Signed-off-by: Heiner Kallweit <hkallweit1@gmail.com>
-Signed-off-by: Jerome Brunet <jbrunet@baylibre.com>
-Link: https://lore.kernel.org/r/20230124101157.232234-1-jbrunet@baylibre.com
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/mdio/mdio-mux-meson-g12a.c | 23 ++++++++++++++++-------
- 1 file changed, 16 insertions(+), 7 deletions(-)
+ .../bpf/prog_tests/jeq_infer_not_null.c       |  9 ----
+ .../bpf/progs/jeq_infer_not_null_fail.c       | 42 -------------------
+ 2 files changed, 51 deletions(-)
+ delete mode 100644 tools/testing/selftests/bpf/prog_tests/jeq_infer_not_null.c
+ delete mode 100644 tools/testing/selftests/bpf/progs/jeq_infer_not_null_fail.c
 
-diff --git a/drivers/net/mdio/mdio-mux-meson-g12a.c b/drivers/net/mdio/mdio-mux-meson-g12a.c
-index 4a2e94faf57e..c4542ecf5623 100644
---- a/drivers/net/mdio/mdio-mux-meson-g12a.c
-+++ b/drivers/net/mdio/mdio-mux-meson-g12a.c
-@@ -4,6 +4,7 @@
-  */
- 
- #include <linux/bitfield.h>
-+#include <linux/delay.h>
- #include <linux/clk.h>
- #include <linux/clk-provider.h>
- #include <linux/device.h>
-@@ -150,6 +151,7 @@ static const struct clk_ops g12a_ephy_pll_ops = {
- 
- static int g12a_enable_internal_mdio(struct g12a_mdio_mux *priv)
- {
-+	u32 value;
- 	int ret;
- 
- 	/* Enable the phy clock */
-@@ -163,18 +165,25 @@ static int g12a_enable_internal_mdio(struct g12a_mdio_mux *priv)
- 
- 	/* Initialize ephy control */
- 	writel(EPHY_G12A_ID, priv->regs + ETH_PHY_CNTL0);
--	writel(FIELD_PREP(PHY_CNTL1_ST_MODE, 3) |
--	       FIELD_PREP(PHY_CNTL1_ST_PHYADD, EPHY_DFLT_ADD) |
--	       FIELD_PREP(PHY_CNTL1_MII_MODE, EPHY_MODE_RMII) |
--	       PHY_CNTL1_CLK_EN |
--	       PHY_CNTL1_CLKFREQ |
--	       PHY_CNTL1_PHY_ENB,
--	       priv->regs + ETH_PHY_CNTL1);
-+
-+	/* Make sure we get a 0 -> 1 transition on the enable bit */
-+	value = FIELD_PREP(PHY_CNTL1_ST_MODE, 3) |
-+		FIELD_PREP(PHY_CNTL1_ST_PHYADD, EPHY_DFLT_ADD) |
-+		FIELD_PREP(PHY_CNTL1_MII_MODE, EPHY_MODE_RMII) |
-+		PHY_CNTL1_CLK_EN |
-+		PHY_CNTL1_CLKFREQ;
-+	writel(value, priv->regs + ETH_PHY_CNTL1);
- 	writel(PHY_CNTL2_USE_INTERNAL |
- 	       PHY_CNTL2_SMI_SRC_MAC |
- 	       PHY_CNTL2_RX_CLK_EPHY,
- 	       priv->regs + ETH_PHY_CNTL2);
- 
-+	value |= PHY_CNTL1_PHY_ENB;
-+	writel(value, priv->regs + ETH_PHY_CNTL1);
-+
-+	/* The phy needs a bit of time to power up */
-+	mdelay(10);
-+
- 	return 0;
- }
- 
+diff --git a/tools/testing/selftests/bpf/prog_tests/jeq_infer_not_null.c b/tools/testing/selftests/bpf/prog_tests/jeq_infer_not_null.c
+deleted file mode 100644
+index 3add34df5767..000000000000
+--- a/tools/testing/selftests/bpf/prog_tests/jeq_infer_not_null.c
++++ /dev/null
+@@ -1,9 +0,0 @@
+-// SPDX-License-Identifier: GPL-2.0
+-
+-#include <test_progs.h>
+-#include "jeq_infer_not_null_fail.skel.h"
+-
+-void test_jeq_infer_not_null(void)
+-{
+-	RUN_TESTS(jeq_infer_not_null_fail);
+-}
+diff --git a/tools/testing/selftests/bpf/progs/jeq_infer_not_null_fail.c b/tools/testing/selftests/bpf/progs/jeq_infer_not_null_fail.c
+deleted file mode 100644
+index f46965053acb..000000000000
+--- a/tools/testing/selftests/bpf/progs/jeq_infer_not_null_fail.c
++++ /dev/null
+@@ -1,42 +0,0 @@
+-// SPDX-License-Identifier: GPL-2.0
+-
+-#include "vmlinux.h"
+-#include <bpf/bpf_helpers.h>
+-#include "bpf_misc.h"
+-
+-char _license[] SEC("license") = "GPL";
+-
+-struct {
+-	__uint(type, BPF_MAP_TYPE_HASH);
+-	__uint(max_entries, 1);
+-	__type(key, u64);
+-	__type(value, u64);
+-} m_hash SEC(".maps");
+-
+-SEC("?raw_tp")
+-__failure __msg("R8 invalid mem access 'map_value_or_null")
+-int jeq_infer_not_null_ptr_to_btfid(void *ctx)
+-{
+-	struct bpf_map *map = (struct bpf_map *)&m_hash;
+-	struct bpf_map *inner_map = map->inner_map_meta;
+-	u64 key = 0, ret = 0, *val;
+-
+-	val = bpf_map_lookup_elem(map, &key);
+-	/* Do not mark ptr as non-null if one of them is
+-	 * PTR_TO_BTF_ID (R9), reject because of invalid
+-	 * access to map value (R8).
+-	 *
+-	 * Here, we need to inline those insns to access
+-	 * R8 directly, since compiler may use other reg
+-	 * once it figures out val==inner_map.
+-	 */
+-	asm volatile("r8 = %[val];\n"
+-		     "r9 = %[inner_map];\n"
+-		     "if r8 != r9 goto +1;\n"
+-		     "%[ret] = *(u64 *)(r8 +0);\n"
+-		     : [ret] "+r"(ret)
+-		     : [inner_map] "r"(inner_map), [val] "r"(val)
+-		     : "r8", "r9");
+-
+-	return ret;
+-}
 -- 
 2.39.0
 
