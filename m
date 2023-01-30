@@ -2,46 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 1887F681135
-	for <lists+stable@lfdr.de>; Mon, 30 Jan 2023 15:11:14 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6F3C1681048
+	for <lists+stable@lfdr.de>; Mon, 30 Jan 2023 15:02:13 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237266AbjA3OLN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 30 Jan 2023 09:11:13 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51844 "EHLO
+        id S236958AbjA3OCM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 30 Jan 2023 09:02:12 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42598 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237195AbjA3OLF (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 30 Jan 2023 09:11:05 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0DDEA3B66B
-        for <stable@vger.kernel.org>; Mon, 30 Jan 2023 06:10:55 -0800 (PST)
+        with ESMTP id S236957AbjA3OBy (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 30 Jan 2023 09:01:54 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E4F0D3B0D5
+        for <stable@vger.kernel.org>; Mon, 30 Jan 2023 06:01:39 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id A02FB61086
-        for <stable@vger.kernel.org>; Mon, 30 Jan 2023 14:10:54 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A50A3C433D2;
-        Mon, 30 Jan 2023 14:10:53 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 98569B81178
+        for <stable@vger.kernel.org>; Mon, 30 Jan 2023 14:01:38 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id CF0F2C433D2;
+        Mon, 30 Jan 2023 14:01:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1675087854;
-        bh=UeGqHrvCWKj5EAXMF8Sn6n5DCLBy4MFpPvC5d4V2EpE=;
+        s=korg; t=1675087297;
+        bh=MOo7qzN4sSUM/M5OPfcHXFC2YA7Ca6yG6CsgHmg5k4U=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=PLXk1z/NpT/pE+lVcq96GnD/V0O1CiXvcDGAUSUyswt4w0G+OwROAQ9ErEBUx+u+d
-         TKm0FUjFomP3JWi2lc/i+2eo1Xw9IYDTRIaVx2pLxLfbnA0VUuMezMUyL7U9p7QuCe
-         Xv2Yd97g5td0GvyUC3zbYOuE1NALODOvXxQoQSWA=
+        b=Xh6xZwAyG1uAwcPnMcnqlRY+FKfQivS96L+VGuYu/utf1IA02KKGNIDxMRolcM9hg
+         hi+m8S451EHnrD6zlcwEnYPbUXDCKNW3igl/mnZ9S2wGrYMjxcrdhPOpDl3QXfOnn6
+         lFqdHkAc47ucOQrLW5vORbPKwWxiPS3pQQucbcrM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Randy Dunlap <rdunlap@infradead.org>,
-        Vinod Koul <vkoul@kernel.org>,
-        Kishon Vijay Abraham I <kishon@kernel.org>,
-        linux-phy@lists.infradead.org, Arnd Bergmann <arnd@arndb.de>,
+        patches@lists.linux.dev,
+        Oleksii Moisieiev <oleksii_moisieiev@epam.com>,
+        Stefano Stabellini <sstabellini@kernel.org>,
+        Juergen Gross <jgross@suse.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 031/204] phy: ti: fix Kconfig warning and operator precedence
+Subject: [PATCH 6.1 161/313] xen/pvcalls: free active map buffer on pvcalls_front_free_map
 Date:   Mon, 30 Jan 2023 14:49:56 +0100
-Message-Id: <20230130134317.684944945@linuxfoundation.org>
+Message-Id: <20230130134344.170447954@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.1
-In-Reply-To: <20230130134316.327556078@linuxfoundation.org>
-References: <20230130134316.327556078@linuxfoundation.org>
+In-Reply-To: <20230130134336.532886729@linuxfoundation.org>
+References: <20230130134336.532886729@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,53 +55,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Randy Dunlap <rdunlap@infradead.org>
+From: Oleksii Moisieiev <Oleksii_Moisieiev@epam.com>
 
-[ Upstream commit 7124c93887cc4e6c5b48920f83115e4a5892e870 ]
+[ Upstream commit f57034cedeb6e00256313a2a6ee67f974d709b0b ]
 
-Fix Kconfig depends operator precedence to prevent a Kconfig warning:
+Data buffer for active map is allocated in alloc_active_ring and freed
+in free_active_ring function, which is used only for the error
+cleanup. pvcalls_front_release is calling pvcalls_front_free_map which
+ends foreign access for this buffer, but doesn't free allocated pages.
+Call free_active_ring to clean all allocated resources.
 
-WARNING: unmet direct dependencies detected for MUX_MMIO
-  Depends on [n]: MULTIPLEXER [=m] && OF [=n]
-  Selected by [m]:
-  - PHY_AM654_SERDES [=m] && (OF [=n] && ARCH_K3 || COMPILE_TEST [=y]) && COMMON_CLK [=y]
-
-Fixes: 71e2f5c5c224 ("phy: ti: Add a new SERDES driver for TI's AM654x SoC")
-Fixes: 091876cc355d ("phy: ti: j721e-wiz: Add support for WIZ module present in TI J721E SoC")
-Signed-off-by: Randy Dunlap <rdunlap@infradead.org>
-Cc: Vinod Koul <vkoul@kernel.org>
-Cc: Kishon Vijay Abraham I <kishon@kernel.org>
-Cc: linux-phy@lists.infradead.org
-Cc: Arnd Bergmann <arnd@arndb.de>
-Link: https://lore.kernel.org/r/20230110062529.22668-1-rdunlap@infradead.org
-Signed-off-by: Vinod Koul <vkoul@kernel.org>
+Signed-off-by: Oleksii Moisieiev <oleksii_moisieiev@epam.com>
+Reviewed-by: Stefano Stabellini <sstabellini@kernel.org>
+Link: https://lore.kernel.org/r/6a762ee32dd655cbb09a4aa0e2307e8919761311.1671531297.git.oleksii_moisieiev@epam.com
+Signed-off-by: Juergen Gross <jgross@suse.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/phy/ti/Kconfig | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/xen/pvcalls-front.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/phy/ti/Kconfig b/drivers/phy/ti/Kconfig
-index 15a3bcf32308..b905902d5750 100644
---- a/drivers/phy/ti/Kconfig
-+++ b/drivers/phy/ti/Kconfig
-@@ -23,7 +23,7 @@ config PHY_DM816X_USB
+diff --git a/drivers/xen/pvcalls-front.c b/drivers/xen/pvcalls-front.c
+index 1826e8e67125..9b569278788a 100644
+--- a/drivers/xen/pvcalls-front.c
++++ b/drivers/xen/pvcalls-front.c
+@@ -225,6 +225,8 @@ static irqreturn_t pvcalls_front_event_handler(int irq, void *dev_id)
+ 	return IRQ_HANDLED;
+ }
  
- config PHY_AM654_SERDES
- 	tristate "TI AM654 SERDES support"
--	depends on OF && ARCH_K3 || COMPILE_TEST
-+	depends on OF && (ARCH_K3 || COMPILE_TEST)
- 	depends on COMMON_CLK
- 	select GENERIC_PHY
- 	select MULTIPLEXER
-@@ -35,7 +35,7 @@ config PHY_AM654_SERDES
++static void free_active_ring(struct sock_mapping *map);
++
+ static void pvcalls_front_free_map(struct pvcalls_bedata *bedata,
+ 				   struct sock_mapping *map)
+ {
+@@ -240,7 +242,7 @@ static void pvcalls_front_free_map(struct pvcalls_bedata *bedata,
+ 	for (i = 0; i < (1 << PVCALLS_RING_ORDER); i++)
+ 		gnttab_end_foreign_access(map->active.ring->ref[i], NULL);
+ 	gnttab_end_foreign_access(map->active.ref, NULL);
+-	free_page((unsigned long)map->active.ring);
++	free_active_ring(map);
  
- config PHY_J721E_WIZ
- 	tristate "TI J721E WIZ (SERDES Wrapper) support"
--	depends on OF && ARCH_K3 || COMPILE_TEST
-+	depends on OF && (ARCH_K3 || COMPILE_TEST)
- 	depends on HAS_IOMEM && OF_ADDRESS
- 	depends on COMMON_CLK
- 	select GENERIC_PHY
+ 	kfree(map);
+ }
 -- 
 2.39.0
 
