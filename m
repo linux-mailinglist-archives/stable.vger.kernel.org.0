@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 045A568104B
-	for <lists+stable@lfdr.de>; Mon, 30 Jan 2023 15:02:16 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id EBFB1681137
+	for <lists+stable@lfdr.de>; Mon, 30 Jan 2023 15:11:17 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236980AbjA3OCO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 30 Jan 2023 09:02:14 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41254 "EHLO
+        id S237231AbjA3OLQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 30 Jan 2023 09:11:16 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53520 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236869AbjA3OB6 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 30 Jan 2023 09:01:58 -0500
-Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0EFC73B0F8
-        for <stable@vger.kernel.org>; Mon, 30 Jan 2023 06:01:48 -0800 (PST)
+        with ESMTP id S237234AbjA3OLI (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 30 Jan 2023 09:11:08 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7DA7E3BD9C
+        for <stable@vger.kernel.org>; Mon, 30 Jan 2023 06:11:00 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 082D2CE16A2
-        for <stable@vger.kernel.org>; Mon, 30 Jan 2023 14:01:45 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C5C3FC433D2;
-        Mon, 30 Jan 2023 14:01:42 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 1820F6104A
+        for <stable@vger.kernel.org>; Mon, 30 Jan 2023 14:11:00 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 08400C433EF;
+        Mon, 30 Jan 2023 14:10:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1675087303;
-        bh=xAh+mZBTjyXc02GfpBdy2kVtCLScRHuFrJZt3/rJ90Q=;
+        s=korg; t=1675087859;
+        bh=3ba9il19a7JA91ZLcQKFLSWjcAp+9FW/xRFkQVBV0aU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=foIq4zxFirsMyXBsYOp1GFRoIAOz8zmbcxY1HM9LQxXzL+aQpIeNJflONQek7z6ly
-         vb6mWfoefm5wBvRrNaLVvqodU+bD9XE8ZqJI1qUozCsvCfeX/AU9nPjKRGjnhw7o+t
-         ONkjE5qO/qFetHojjMg/1X9ZH8y1ln8lSchU3zFs=
+        b=tzBXPKrS46H3PExQEt9FpZ3zfS2E3U/Aryq4pBaufq7/g/gLzcvLrCkjXVd5DeNk8
+         T7tJeRtnFUOt81U7xjRUhXX+KtzCDUWDihn7sLOIUfvkyRYcBpXtG15YctXUaAJcna
+         Mkpm7JpviTjZEFeWBTcJn6f8Qvhv4ezu4hH2YqTk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Dan Carpenter <dan.carpenter@oracle.com>,
-        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
+        patches@lists.linux.dev, Fabio Estevam <festevam@denx.de>,
+        Shawn Guo <shawnguo@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 136/313] thermal/core: fix error code in __thermal_cooling_device_register()
+Subject: [PATCH 5.15 006/204] ARM: dts: imx6ul-pico-dwarf: Use clock-frequency
 Date:   Mon, 30 Jan 2023 14:49:31 +0100
-Message-Id: <20230130134342.988416571@linuxfoundation.org>
+Message-Id: <20230130134316.584251502@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.1
-In-Reply-To: <20230130134336.532886729@linuxfoundation.org>
-References: <20230130134336.532886729@linuxfoundation.org>
+In-Reply-To: <20230130134316.327556078@linuxfoundation.org>
+References: <20230130134316.327556078@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,36 +53,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dan Carpenter <dan.carpenter@oracle.com>
+From: Fabio Estevam <festevam@denx.de>
 
-[ Upstream commit e49a1e1ee078aee21006192076a8d93335e0daa9 ]
+[ Upstream commit 94e2cf1e0db5b06c7a6ae0878c5cbec925819a8a ]
 
-Return an error pointer if ->get_max_state() fails.  The current code
-returns NULL which will cause an oops in the callers.
+'clock_frequency' is not a valid property.
 
-Fixes: c408b3d1d9bb ("thermal: Validate new state in cur_state_store()")
-Signed-off-by: Dan Carpenter <dan.carpenter@oracle.com>
-Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
-Stable-dep-of: 6c54b7bc8a31 ("thermal: core: call put_device() only after device_register() fails")
+Use the correct 'clock-frequency' instead.
+
+Fixes: 47246fafef84 ("ARM: dts: imx6ul-pico: Add support for the dwarf baseboard")
+Signed-off-by: Fabio Estevam <festevam@denx.de>
+Signed-off-by: Shawn Guo <shawnguo@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/thermal/thermal_core.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ arch/arm/boot/dts/imx6ul-pico-dwarf.dts | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/thermal/thermal_core.c b/drivers/thermal/thermal_core.c
-index 328da2f1d339..449e60c4a1b6 100644
---- a/drivers/thermal/thermal_core.c
-+++ b/drivers/thermal/thermal_core.c
-@@ -892,7 +892,8 @@ __thermal_cooling_device_register(struct device_node *np,
- 	cdev->device.class = &thermal_class;
- 	cdev->devdata = devdata;
+diff --git a/arch/arm/boot/dts/imx6ul-pico-dwarf.dts b/arch/arm/boot/dts/imx6ul-pico-dwarf.dts
+index 162dc259edc8..5a74c7f68eb6 100644
+--- a/arch/arm/boot/dts/imx6ul-pico-dwarf.dts
++++ b/arch/arm/boot/dts/imx6ul-pico-dwarf.dts
+@@ -32,7 +32,7 @@ sys_mclk: clock-sys-mclk {
+ };
  
--	if (cdev->ops->get_max_state(cdev, &cdev->max_state))
-+	ret = cdev->ops->get_max_state(cdev, &cdev->max_state);
-+	if (ret)
- 		goto out_kfree_type;
- 
- 	thermal_cooling_device_setup_sysfs(cdev);
+ &i2c2 {
+-	clock_frequency = <100000>;
++	clock-frequency = <100000>;
+ 	pinctrl-names = "default";
+ 	pinctrl-0 = <&pinctrl_i2c2>;
+ 	status = "okay";
 -- 
 2.39.0
 
