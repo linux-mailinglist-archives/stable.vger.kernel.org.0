@@ -2,44 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 336696810F1
-	for <lists+stable@lfdr.de>; Mon, 30 Jan 2023 15:08:39 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E49846812F2
+	for <lists+stable@lfdr.de>; Mon, 30 Jan 2023 15:26:47 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237133AbjA3OIi (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 30 Jan 2023 09:08:38 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50818 "EHLO
+        id S237697AbjA3O0q (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 30 Jan 2023 09:26:46 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42170 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237131AbjA3OIh (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 30 Jan 2023 09:08:37 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D6118303E7
-        for <stable@vger.kernel.org>; Mon, 30 Jan 2023 06:08:36 -0800 (PST)
+        with ESMTP id S236053AbjA3OYo (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 30 Jan 2023 09:24:44 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 745F53FF1C
+        for <stable@vger.kernel.org>; Mon, 30 Jan 2023 06:23:38 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 7208161083
-        for <stable@vger.kernel.org>; Mon, 30 Jan 2023 14:08:36 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8060FC433EF;
-        Mon, 30 Jan 2023 14:08:35 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 9D227B8117E
+        for <stable@vger.kernel.org>; Mon, 30 Jan 2023 14:22:12 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E0AFBC433D2;
+        Mon, 30 Jan 2023 14:22:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1675087715;
-        bh=5CIZPaRHFqC6zIT38dP4x6YjQKG9pA4dgYNCRYj1dks=;
+        s=korg; t=1675088531;
+        bh=7nXtLsb1HngUsSwr9IzV/5MJ6zfn64GxA6Vpfd6Ik5g=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=cFdlggBGp08z7WGx4sDu95RKrvhuwbLDvuiV5NkH+cINjYgaWTnZZ3kVMqTan87I5
-         j0XclopqbQ4n4R1PvSHqzSOpMRSf3Llezj2L3XXUfo8+j8jSu/+NBkp35rbxga41Id
-         2UiOjQL7Ze58xtWQcdj/0EgbkndIsq0E3YsNreEU=
+        b=sDH7txRNZBsgcWDPEpQauJRgZiotYvwVK4v1CSz93Wz148is3ToLnKKP7tLD7WndC
+         I1A5ZulIPVohEAD410/3hsNGFS7K7bqKinvpuLK5QY3iTFf3jOs0P1hP1LzbOMUTw+
+         /K7Daz7NChYbiQ4i3ovNIW6chtU3WCfQPcCkPq2U=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Eric Dumazet <edumazet@google.com>,
-        Jakub Kicinski <kuba@kernel.org>,
+        patches@lists.linux.dev,
+        Robert Hancock <robert.hancock@calian.com>,
+        Jacob Keller <jacob.e.keller@intel.com>,
+        Claudiu Beznea <claudiu.beznea@microchip.com>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 270/313] ipv4: prevent potential spectre v1 gadget in fib_metrics_match()
-Date:   Mon, 30 Jan 2023 14:51:45 +0100
-Message-Id: <20230130134349.320776966@linuxfoundation.org>
+Subject: [PATCH 5.10 049/143] net: macb: fix PTP TX timestamp failure due to packet padding
+Date:   Mon, 30 Jan 2023 14:51:46 +0100
+Message-Id: <20230130134308.898325275@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.1
-In-Reply-To: <20230130134336.532886729@linuxfoundation.org>
-References: <20230130134336.532886729@linuxfoundation.org>
+In-Reply-To: <20230130134306.862721518@linuxfoundation.org>
+References: <20230130134306.862721518@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,49 +56,75 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eric Dumazet <edumazet@google.com>
+From: Robert Hancock <robert.hancock@calian.com>
 
-[ Upstream commit 5e9398a26a92fc402d82ce1f97cc67d832527da0 ]
+[ Upstream commit 7b90f5a665acd46efbbfa677a3a3a18d01ad6487 ]
 
-if (!type)
-        continue;
-    if (type > RTAX_MAX)
-        return false;
-    ...
-    fi_val = fi->fib_metrics->metrics[type - 1];
+PTP TX timestamp handling was observed to be broken with this driver
+when using the raw Layer 2 PTP encapsulation. ptp4l was not receiving
+the expected TX timestamp after transmitting a packet, causing it to
+enter a failure state.
 
-@type being used as an array index, we need to prevent
-cpu speculation or risk leaking kernel memory content.
+The problem appears to be due to the way that the driver pads packets
+which are smaller than the Ethernet minimum of 60 bytes. If headroom
+space was available in the SKB, this caused the driver to move the data
+back to utilize it. However, this appears to cause other data references
+in the SKB to become inconsistent. In particular, this caused the
+ptp_one_step_sync function to later (in the TX completion path) falsely
+detect the packet as a one-step SYNC packet, even when it was not, which
+caused the TX timestamp to not be processed when it should be.
 
-Fixes: 5f9ae3d9e7e4 ("ipv4: do metrics match when looking up and deleting a route")
-Signed-off-by: Eric Dumazet <edumazet@google.com>
-Link: https://lore.kernel.org/r/20230120133140.3624204-1-edumazet@google.com
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Using the headroom for this purpose seems like an unnecessary complexity
+as this is not a hot path in the driver, and in most cases it appears
+that there is sufficient tailroom to not require using the headroom
+anyway. Remove this usage of headroom to prevent this inconsistency from
+occurring and causing other problems.
+
+Fixes: 653e92a9175e ("net: macb: add support for padding and fcs computation")
+Signed-off-by: Robert Hancock <robert.hancock@calian.com>
+Reviewed-by: Jacob Keller <jacob.e.keller@intel.com>
+Tested-by: Claudiu Beznea <claudiu.beznea@microchip.com> # on SAMA7G5
+Reviewed-by: Claudiu Beznea <claudiu.beznea@microchip.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/ipv4/fib_semantics.c | 2 ++
- 1 file changed, 2 insertions(+)
+ drivers/net/ethernet/cadence/macb_main.c | 9 +--------
+ 1 file changed, 1 insertion(+), 8 deletions(-)
 
-diff --git a/net/ipv4/fib_semantics.c b/net/ipv4/fib_semantics.c
-index ce9ff3c62e84..3bb890a40ed7 100644
---- a/net/ipv4/fib_semantics.c
-+++ b/net/ipv4/fib_semantics.c
-@@ -30,6 +30,7 @@
- #include <linux/slab.h>
- #include <linux/netlink.h>
- #include <linux/hash.h>
-+#include <linux/nospec.h>
+diff --git a/drivers/net/ethernet/cadence/macb_main.c b/drivers/net/ethernet/cadence/macb_main.c
+index 792c8147c2c4..e0d62e251387 100644
+--- a/drivers/net/ethernet/cadence/macb_main.c
++++ b/drivers/net/ethernet/cadence/macb_main.c
+@@ -1963,7 +1963,6 @@ static int macb_pad_and_fcs(struct sk_buff **skb, struct net_device *ndev)
+ 	bool cloned = skb_cloned(*skb) || skb_header_cloned(*skb) ||
+ 		      skb_is_nonlinear(*skb);
+ 	int padlen = ETH_ZLEN - (*skb)->len;
+-	int headroom = skb_headroom(*skb);
+ 	int tailroom = skb_tailroom(*skb);
+ 	struct sk_buff *nskb;
+ 	u32 fcs;
+@@ -1977,9 +1976,6 @@ static int macb_pad_and_fcs(struct sk_buff **skb, struct net_device *ndev)
+ 		/* FCS could be appeded to tailroom. */
+ 		if (tailroom >= ETH_FCS_LEN)
+ 			goto add_fcs;
+-		/* FCS could be appeded by moving data to headroom. */
+-		else if (!cloned && headroom + tailroom >= ETH_FCS_LEN)
+-			padlen = 0;
+ 		/* No room for FCS, need to reallocate skb. */
+ 		else
+ 			padlen = ETH_FCS_LEN;
+@@ -1988,10 +1984,7 @@ static int macb_pad_and_fcs(struct sk_buff **skb, struct net_device *ndev)
+ 		padlen += ETH_FCS_LEN;
+ 	}
  
- #include <net/arp.h>
- #include <net/inet_dscp.h>
-@@ -1022,6 +1023,7 @@ bool fib_metrics_match(struct fib_config *cfg, struct fib_info *fi)
- 		if (type > RTAX_MAX)
- 			return false;
- 
-+		type = array_index_nospec(type, RTAX_MAX + 1);
- 		if (type == RTAX_CC_ALGO) {
- 			char tmp[TCP_CA_NAME_MAX];
- 			bool ecn_ca = false;
+-	if (!cloned && headroom + tailroom >= padlen) {
+-		(*skb)->data = memmove((*skb)->head, (*skb)->data, (*skb)->len);
+-		skb_set_tail_pointer(*skb, (*skb)->len);
+-	} else {
++	if (cloned || tailroom < padlen) {
+ 		nskb = skb_copy_expand(*skb, 0, padlen, GFP_ATOMIC);
+ 		if (!nskb)
+ 			return -ENOMEM;
 -- 
 2.39.0
 
