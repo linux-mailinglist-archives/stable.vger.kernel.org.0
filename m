@@ -2,46 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id F1CBB681284
-	for <lists+stable@lfdr.de>; Mon, 30 Jan 2023 15:21:58 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A37C76812FA
+	for <lists+stable@lfdr.de>; Mon, 30 Jan 2023 15:27:01 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237722AbjA3OV5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 30 Jan 2023 09:21:57 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60726 "EHLO
+        id S237644AbjA3O07 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 30 Jan 2023 09:26:59 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41866 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237551AbjA3OVb (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 30 Jan 2023 09:21:31 -0500
+        with ESMTP id S237653AbjA3O0d (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 30 Jan 2023 09:26:33 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6E9BD4109C
-        for <stable@vger.kernel.org>; Mon, 30 Jan 2023 06:20:28 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A2E3541B69
+        for <stable@vger.kernel.org>; Mon, 30 Jan 2023 06:25:13 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 66F57B810C5
-        for <stable@vger.kernel.org>; Mon, 30 Jan 2023 14:19:53 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id AE917C433D2;
-        Mon, 30 Jan 2023 14:19:51 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id B0D10B811BD
+        for <stable@vger.kernel.org>; Mon, 30 Jan 2023 14:25:11 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0A9CDC433D2;
+        Mon, 30 Jan 2023 14:25:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1675088392;
-        bh=jOdHo7kOZUtalN5Jmsp4r2t0CBI+ZP472DCZl884ERo=;
+        s=korg; t=1675088710;
+        bh=EGO3d7qa3WnWSD0R15KD+MAJrmkHxqH8AkOLkEEfJMc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ZYh41DnA4mCxthzF/LjToEUOpVkMX4pDFYJJhfafE/NTGZ6xSZ2tzzBZborJFDGVw
-         tbZj1d39nkiefrrUelHR5bfP+PN8y9TZOZDsdvSydPL3B9EUTlkQRcfyziCjO2dhY3
-         upG0FtxYg6BDBMQAY42/1J7Y6yPTXQOvdf1S1GAA=
+        b=vYZIJUW4aK5dusEwSnKk5grQlxnPvUZyRF9gRIeZCM+waWa/laV8EI7DpwiEfmsmJ
+         iqpFO+h/93iZn8NRxH0Ti88jHqXh0OzGcZ74CdTkk4T0KHg5N9/yFSc9CvM1/4CEB+
+         jToAWPkm+++f15mxF8BZvpB1NM4e3T88BVKXKlfA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Christoph Hellwig <hch@lst.de>,
-        Chaitanya Kulkarni <kch@nvidia.com>,
-        Johannes Thumshirn <johannes.thumshirn@wdc.com>,
-        Jens Axboe <axboe@kernel.dk>,
-        Fedor Pchelkin <pchelkin@ispras.ru>
-Subject: [PATCH 5.15 201/204] block: fix and cleanup bio_check_ro
+        patches@lists.linux.dev,
+        Giulio Benetti <giulio.benetti@benettiengineering.com>,
+        "Russell King (Oracle)" <rmk+kernel@armlinux.org.uk>
+Subject: [PATCH 5.10 109/143] ARM: 9280/1: mm: fix warning on phys_addr_t to void pointer assignment
 Date:   Mon, 30 Jan 2023 14:52:46 +0100
-Message-Id: <20230130134325.384604024@linuxfoundation.org>
+Message-Id: <20230130134311.362619158@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.1
-In-Reply-To: <20230130134316.327556078@linuxfoundation.org>
-References: <20230130134316.327556078@linuxfoundation.org>
+In-Reply-To: <20230130134306.862721518@linuxfoundation.org>
+References: <20230130134306.862721518@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,44 +53,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Christoph Hellwig <hch@lst.de>
+From: Giulio Benetti <giulio.benetti@benettiengineering.com>
 
-commit 57e95e4670d1126c103305bcf34a9442f49f6d6a upstream.
+commit a4e03921c1bb118e6718e0a3b0322a2c13ed172b upstream.
 
-Don't use a WARN_ON when printing a potentially user triggered
-condition.  Also don't print the partno when the block device name
-already includes it, and use the %pg specifier to simplify printing
-the block device name.
+zero_page is a void* pointer but memblock_alloc() returns phys_addr_t type
+so this generates a warning while using clang and with -Wint-error enabled
+that becomes and error. So let's cast the return of memblock_alloc() to
+(void *).
 
-Signed-off-by: Christoph Hellwig <hch@lst.de>
-Reviewed-by: Chaitanya Kulkarni <kch@nvidia.com>
-Reviewed-by: Johannes Thumshirn <johannes.thumshirn@wdc.com>
-Link: https://lore.kernel.org/r/20220304180105.409765-2-hch@lst.de
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
-Signed-off-by: Fedor Pchelkin <pchelkin@ispras.ru>
+Cc: <stable@vger.kernel.org> # 4.14.x +
+Fixes: 340a982825f7 ("ARM: 9266/1: mm: fix no-MMU ZERO_PAGE() implementation")
+Signed-off-by: Giulio Benetti <giulio.benetti@benettiengineering.com>
+Signed-off-by: Russell King (Oracle) <rmk+kernel@armlinux.org.uk>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- block/blk-core.c |    8 ++------
- 1 file changed, 2 insertions(+), 6 deletions(-)
+ arch/arm/mm/nommu.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/block/blk-core.c
-+++ b/block/blk-core.c
-@@ -698,14 +698,10 @@ static inline bool should_fail_request(s
- static inline bool bio_check_ro(struct bio *bio)
- {
- 	if (op_is_write(bio_op(bio)) && bdev_read_only(bio->bi_bdev)) {
--		char b[BDEVNAME_SIZE];
--
- 		if (op_is_flush(bio->bi_opf) && !bio_sectors(bio))
- 			return false;
--
--		WARN_ONCE(1,
--		       "Trying to write to read-only block-device %s (partno %d)\n",
--			bio_devname(bio, b), bio->bi_bdev->bd_partno);
-+		pr_warn("Trying to write to read-only block-device %pg\n",
-+			bio->bi_bdev);
- 		/* Older lvm-tools actually trigger this */
- 		return false;
- 	}
+--- a/arch/arm/mm/nommu.c
++++ b/arch/arm/mm/nommu.c
+@@ -161,7 +161,7 @@ void __init paging_init(const struct mac
+ 	mpu_setup();
+ 
+ 	/* allocate the zero page. */
+-	zero_page = memblock_alloc(PAGE_SIZE, PAGE_SIZE);
++	zero_page = (void *)memblock_alloc(PAGE_SIZE, PAGE_SIZE);
+ 	if (!zero_page)
+ 		panic("%s: Failed to allocate %lu bytes align=0x%lx\n",
+ 		      __func__, PAGE_SIZE, PAGE_SIZE);
 
 
