@@ -2,92 +2,116 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A9892681614
-	for <lists+stable@lfdr.de>; Mon, 30 Jan 2023 17:13:22 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9F1E6681623
+	for <lists+stable@lfdr.de>; Mon, 30 Jan 2023 17:15:18 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236834AbjA3QNU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 30 Jan 2023 11:13:20 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50136 "EHLO
+        id S237457AbjA3QPR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 30 Jan 2023 11:15:17 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51124 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237306AbjA3QNT (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 30 Jan 2023 11:13:19 -0500
-Received: from exchange.fintech.ru (exchange.fintech.ru [195.54.195.159])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D736A728B;
-        Mon, 30 Jan 2023 08:13:13 -0800 (PST)
-Received: from Ex16-02.fintech.ru (10.0.10.19) by exchange.fintech.ru
- (195.54.195.169) with Microsoft SMTP Server (TLS) id 14.3.498.0; Mon, 30 Jan
- 2023 19:13:12 +0300
-Received: from Ex16-01.fintech.ru (10.0.10.18) by Ex16-02.fintech.ru
- (10.0.10.19) with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id 15.1.2242.4; Mon, 30 Jan
- 2023 19:13:11 +0300
-Received: from Ex16-01.fintech.ru ([fe80::2534:7600:5275:d3f9]) by
- Ex16-01.fintech.ru ([fe80::2534:7600:5275:d3f9%7]) with mapi id
- 15.01.2242.004; Mon, 30 Jan 2023 19:13:11 +0300
-From:   =?utf-8?B?0JbQsNC90LTQsNGA0L7QstC40Ycg0J3QuNC60LjRgtCwINCY0LPQvtGA0LU=?=
-         =?utf-8?B?0LLQuNGH?= <n.zhandarovich@fintech.ru>
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-CC:     "stable@vger.kernel.org" <stable@vger.kernel.org>,
-        Felix Fietkau <nbd@nbd.name>,
-        Lorenzo Bianconi <lorenzo.bianconi83@gmail.com>,
-        Ryder Lee <ryder.lee@mediatek.com>,
-        Kalle Valo <kvalo@codeaurora.org>,
-        "David S. Miller" <davem@davemloft.net>,
-        Jakub Kicinski <kuba@kernel.org>,
-        "linux-wireless@vger.kernel.org" <linux-wireless@vger.kernel.org>,
-        "netdev@vger.kernel.org" <netdev@vger.kernel.org>,
-        "linux-mediatek@lists.infradead.org" 
-        <linux-mediatek@lists.infradead.org>,
-        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-        "Alexey Khoroshilov" <khoroshilov@ispras.ru>,
-        "lvc-project@linuxtesting.org" <lvc-project@linuxtesting.org>
-Subject: RE: [PATCH 5.10 1/1] mt76: fix mt7615_init_tx_queues() return value
-Thread-Topic: [PATCH 5.10 1/1] mt76: fix mt7615_init_tx_queues() return value
-Thread-Index: AQHZNKePV9Tuf82zRk2tMrTfyN8UZK62u2sAgAA3O6D//9G7AIAANNZg///R24CAAFTb4A==
-Date:   Mon, 30 Jan 2023 16:13:11 +0000
-Message-ID: <bbd1ce753d8144ee9d4d9da7f3033c68@fintech.ru>
-References: <20230130123655.86339-1-n.zhandarovich@fintech.ru>
- <20230130123655.86339-2-n.zhandarovich@fintech.ru>
- <Y9fAkt/5BRist//g@kroah.com> <b945bd5f3d414ac5bc589d65cf439f7b@fintech.ru>
- <Y9fIFirNHNP06e1L@kroah.com> <e17c785dbacf4605a726cc939bee6533@fintech.ru>
- <Y9fNs5QWbrJh+yH6@kroah.com>
-In-Reply-To: <Y9fNs5QWbrJh+yH6@kroah.com>
-Accept-Language: ru-RU, en-US
-Content-Language: ru-RU
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-x-originating-ip: [10.0.253.138]
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+        with ESMTP id S236719AbjA3QPR (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 30 Jan 2023 11:15:17 -0500
+Received: from mail-il1-x12e.google.com (mail-il1-x12e.google.com [IPv6:2607:f8b0:4864:20::12e])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1ECAC76B2
+        for <stable@vger.kernel.org>; Mon, 30 Jan 2023 08:15:16 -0800 (PST)
+Received: by mail-il1-x12e.google.com with SMTP id d10so5290012ilc.12
+        for <stable@vger.kernel.org>; Mon, 30 Jan 2023 08:15:16 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=linuxfoundation.org; s=google;
+        h=content-transfer-encoding:in-reply-to:from:references:cc:to
+         :content-language:subject:user-agent:mime-version:date:message-id
+         :from:to:cc:subject:date:message-id:reply-to;
+        bh=tbIfAPj8k3uAOfr6K6aV9Bn5Ex894pB/ynQWAG7cJCk=;
+        b=W1rtBHWJIYrDQcCGaXClUseLHHT2TWbOGLDzod8YJNm3us/beADICNR+4dbAtjSzBG
+         /c/GAfIj+07BnG+v8sNKobcCJM3fb2swCjsWAZctkWspeYnGVU8tqRMDVhgCsDhXSLbD
+         gF0IRvdG+v6Sn0CJMLUd4KMB8IjsrUkRo4GeM=
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=content-transfer-encoding:in-reply-to:from:references:cc:to
+         :content-language:subject:user-agent:mime-version:date:message-id
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
+        bh=tbIfAPj8k3uAOfr6K6aV9Bn5Ex894pB/ynQWAG7cJCk=;
+        b=pzELFb71ni3awfRJIKePEwJWnh/jXLmQQ7Bz+lknKmAd6l9HFvFpBzlB2QOa6Zwkhw
+         aV59h4JQFJ9+7Po5tS5LmrACyfPxUyej5XanW/+P5lYr4AKlKYAKd74VDTpj7zqOe8Sh
+         whIq6ZcAY8JDfF6EtSk10/qmm+nfocb4YLoLOa8yNzJrBvrtPuUzs4abuhyay7MyuvFt
+         A8iUT9tjjli2bzc2Mcv1y18Pka5C1o/jyHL5bRFKmpENh1UtCg5RKcbUaYD4OIGUoTqF
+         gPdFjGX2FNMitrui5na+CccA2wIbdCoYpsIPfXvFpdpnwXsN/1L5I6WGKmV0pBYjMTdR
+         HZgA==
+X-Gm-Message-State: AO0yUKVaZQuIbwWY6OZDXubGbCZO1cBMlquNs6hlt7527uW8zBF7jnr8
+        hg4li7g8ZwJGKJViTW7AIjXcYw==
+X-Google-Smtp-Source: AK7set/LFwFC3JVPAN6fcoQmUXscy/Y836Xioz7r0Ts0cHqMF74X6bIGv/Rldthdjkm8BclJB39NKA==
+X-Received: by 2002:a05:6e02:54c:b0:310:57cd:2728 with SMTP id i12-20020a056e02054c00b0031057cd2728mr3758909ils.3.1675095315362;
+        Mon, 30 Jan 2023 08:15:15 -0800 (PST)
+Received: from [192.168.1.128] ([38.15.45.1])
+        by smtp.gmail.com with ESMTPSA id e2-20020a056638020200b003a9515b47ebsm4892341jaq.68.2023.01.30.08.15.14
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Mon, 30 Jan 2023 08:15:14 -0800 (PST)
+Message-ID: <3e0af0da-a248-ea7a-e401-c1f3c01e7c75@linuxfoundation.org>
+Date:   Mon, 30 Jan 2023 09:15:13 -0700
 MIME-Version: 1.0
-X-Spam-Status: No, score=-1.9 required=5.0 tests=BAYES_00,SPF_HELO_NONE,
-        SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
+ Thunderbird/102.4.2
+Subject: Re: [PATCH 03/34] selftests: clone3: Fix incorrect kernel headers
+ search path
+Content-Language: en-US
+To:     Mathieu Desnoyers <mathieu.desnoyers@efficios.com>,
+        Shuah Khan <shuah@kernel.org>, linux-kselftest@vger.kernel.org,
+        Ingo Molnar <mingo@redhat.com>,
+        Christian Brauner <brauner@kernel.org>
+Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
+        Shuah Khan <skhan@linuxfoundation.org>
+References: <20230127135755.79929-1-mathieu.desnoyers@efficios.com>
+ <20230127135755.79929-4-mathieu.desnoyers@efficios.com>
+From:   Shuah Khan <skhan@linuxfoundation.org>
+In-Reply-To: <20230127135755.79929-4-mathieu.desnoyers@efficios.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Spam-Status: No, score=-2.2 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,NICE_REPLY_A,
+        RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS autolearn=unavailable
+        autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-PiA+ID4gV2hhdCBpcyB0aGUgImZhdWx0Ij8NCj4gPg0KPiA+IEluIDUuMTAueSAibXQ3NjE1X2lu
-aXRfdHhfcXVldWVzKCkgcmV0dXJucyAwIHJlZ2FyZGxlc3Mgb2YgaG93IGZpbmFsDQo+ID4gbXQ3
-NjE1X2luaXRfdHhfcXVldWUoKSBwZXJmb3Jtcy4gSWYgbXQ3NjE1X2luaXRfdHhfcXVldWUoKSBm
-YWlscyAoZHVlDQo+ID4gdG8gbWVtb3J5IGlzc3VlcywgZm9yIGluc3RhbmNlKSwgcGFyZW50IGZ1
-bmN0aW9uIHdpbGwgc3RpbGwNCj4gPiBlcnJvbmVvdXNseSByZXR1cm4gMC4iDQo+IA0KPiBBbmQg
-aG93IGNhbiBtZW1vcnkgaXNzdWVzIGFjdHVhbGx5IGJlIHRyaWdnZXJlZCBpbiBhIHJlYWwgc3lz
-dGVtPyAgSXMgdGhpcyBhDQo+IGZha2UgcHJvYmxlbSBvciBzb21ldGhpbmcgeW91IGNhbiB2YWxp
-ZGF0ZSBhbmQgdmVyaWZ5IHdvcmtzIHByb3Blcmx5Pw0KPiANCj4gRG9uJ3Qgd29ycnkgYWJvdXQg
-ZmFrZSBpc3N1ZXMgZm9yIHN0YWJsZSBiYWNrcG9ydHMgcGxlYXNlLg0KPiANCj4gdGhhbmtzLA0K
-PiANCj4gZ3JlZyBrLWgNCg0KbXQ3NjE1X2luaXRfdHhfcXVldWUoKSBjYWxscyBkZXZtX2t6YWxs
-b2MoKSAod2hpY2ggY2FuIHRocm93IC1FTk9NRU0pIGFuZCBtdDc2X3F1ZXVlX2FsbG9jKCkgKHdo
-aWNoIGNhbiBhbHNvIGZhaWwpLiBJdCdzIGhhcmQgZm9yIG1lIHRvIGdhdWdlIGhvdyBwcm9iYWJs
-ZSB0aGVzZSBmYWlsdXJlcyBjYW4gYmUuIEJ1dCBJIGZlZWwgbGlrZSBhdCB0aGUgdmVyeSBsZWFz
-dCBpdCdzIGEgbG9naWNhbCBzYW5pdHkgY2hlY2suIA0KDQpAQCAtODIsNyArODIsNyBAQCBtdDc2
-MTVfaW5pdF90eF9xdWV1ZXMoc3RydWN0IG10NzYxNV9kZXYgKmRldikNCiAJDQogICAgICAgIHJl
-dCA9IG10NzYxNV9pbml0X3R4X3F1ZXVlKGRldiwgTVRfVFhRX01DVSwgTVQ3NjE1X1RYUV9NQ1Us
-DQogICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIE1UNzYxNV9UWF9NQ1VfUklOR19T
-SVpFKTsNCiAgICAgICByZXR1cm4gMDsNCg0KVGhlcmUgaXMgbm8gc3BlY2lhbCByZWFzb24gIGZv
-ciBtdDc2MTVfaW5pdF90eF9xdWV1ZXMoKSB0byBpZ25vcmUgbGFzdCAncmV0Jy4gSWYgbGFzdCBt
-dDc2MTVfaW5pdF90eF9xdWV1ZSgpLCBzbyBzaG91bGQgbXQ3NjE1X2luaXRfdHhfcXVldWVzKCku
-IEFuZCB1cHN0cmVhbSBwYXRjaCAoYjY3MWRhMzNkMWM1OTczZjkwZjA5OGZmNjZhOTE5NTM2OTFk
-ZjU4MikgYWRkcmVzc2VzIHRoaXMgYXMgd2VsbC4gDQpJZiB5b3UgZmVlbCBkaWZmZXJlbnRseSwg
-SSB3aWxsIG9mIGNvdXJzZSBiYWNrIGRvd24uDQoNCnJlZ2FyZHMsDQoNCk5pa2l0YQ0K
+On 1/27/23 06:57, Mathieu Desnoyers wrote:
+> Use $(KHDR_INCLUDES) as lookup path for kernel headers. This prevents
+> building against kernel headers from the build environment in scenarios
+> where kernel headers are installed into a specific output directory
+> (O=...).
+> 
+> Signed-off-by: Mathieu Desnoyers <mathieu.desnoyers@efficios.com>
+> Cc: Shuah Khan <shuah@kernel.org>
+> Cc: linux-kselftest@vger.kernel.org
+> Cc: Ingo Molnar <mingo@redhat.com>
+> Cc: <stable@vger.kernel.org>    [5.18+]
+> ---
+>   tools/testing/selftests/clone3/Makefile | 2 +-
+>   1 file changed, 1 insertion(+), 1 deletion(-)
+> 
+> diff --git a/tools/testing/selftests/clone3/Makefile b/tools/testing/selftests/clone3/Makefile
+> index 79b19a2863a0..84832c369a2e 100644
+> --- a/tools/testing/selftests/clone3/Makefile
+> +++ b/tools/testing/selftests/clone3/Makefile
+> @@ -1,5 +1,5 @@
+>   # SPDX-License-Identifier: GPL-2.0
+> -CFLAGS += -g -std=gnu99 -I../../../../usr/include/
+> +CFLAGS += -g -std=gnu99 $(KHDR_INCLUDES)
+>   LDLIBS += -lcap
+>   
+>   TEST_GEN_PROGS := clone3 clone3_clear_sighand clone3_set_tid \
+
++ brauner@kernel.org
+
+Hi Christian,
+
+Would you me to take this patch through kselftest tree? If you
+decide to take this through yours:
+
+Acked-by: Shuah Khan <skhan@linuxfoundation.org>
+
+thanks,
+-- Shuah
+
