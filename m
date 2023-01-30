@@ -2,50 +2,50 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 2329D68127A
-	for <lists+stable@lfdr.de>; Mon, 30 Jan 2023 15:21:27 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2534B6810FF
+	for <lists+stable@lfdr.de>; Mon, 30 Jan 2023 15:09:23 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237455AbjA3OV0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 30 Jan 2023 09:21:26 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60530 "EHLO
+        id S237147AbjA3OJW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 30 Jan 2023 09:09:22 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51262 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237683AbjA3OVK (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 30 Jan 2023 09:21:10 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 107253EC47
-        for <stable@vger.kernel.org>; Mon, 30 Jan 2023 06:20:01 -0800 (PST)
+        with ESMTP id S229691AbjA3OJT (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 30 Jan 2023 09:09:19 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0C3FF3B0E6
+        for <stable@vger.kernel.org>; Mon, 30 Jan 2023 06:09:18 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id C8B00B80DEB
-        for <stable@vger.kernel.org>; Mon, 30 Jan 2023 14:19:29 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 10F86C433EF;
-        Mon, 30 Jan 2023 14:19:27 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 75FB361025
+        for <stable@vger.kernel.org>; Mon, 30 Jan 2023 14:09:18 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8956CC433EF;
+        Mon, 30 Jan 2023 14:09:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1675088368;
-        bh=egu2D/YqKHYG5NuhbpyZIlxw2lTZGiN2KyKeKrERyjI=;
+        s=korg; t=1675087757;
+        bh=DT/aYjU51HX+3mWs6zbdZSQ3hu7Wex2ZUvbW5F7iVlU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ir63C5scLYUQS/9XLwLHt8jQBp5pwFSQwdUik5JwXkgJH9lqRDhN9ZqlMbgbCCukn
-         QcJ9ADLIR2ah0acGffMODqrDy6xhOngp35EFvJGjpAhvNOLPWcqmsldmDENp/IDuyb
-         rMJ4b/u9THfPGB/qFP+9AgDUa766xtXneRl+GtRs=
+        b=elJ0+hokFPXwfV1CWPzYnjg0swrPY0SUT22SpKoaAjZEs/237ngKp+xddfM3a1D7r
+         er5Ckl+8942W8H76gTSzMoCiMe5FoaW8I7bv5sPT9QVQOTKd+4lKvBkIVfE9ONZnZZ
+         AI9sjky4wB7fD8jOtx6z6P48yu0/ytrBf4XEmEFg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Eric Dumazet <edumazet@google.com>,
-        Jakub Kicinski <kuba@kernel.org>,
+        patches@lists.linux.dev, Joe Perches <joe@perches.com>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 170/204] netlink: prevent potential spectre v1 gadgets
+Subject: [PATCH 6.1 300/313] treewide: fix up files incorrectly marked executable
 Date:   Mon, 30 Jan 2023 14:52:15 +0100
-Message-Id: <20230130134324.058625760@linuxfoundation.org>
+Message-Id: <20230130134350.708772456@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.1
-In-Reply-To: <20230130134316.327556078@linuxfoundation.org>
-References: <20230130134316.327556078@linuxfoundation.org>
+In-Reply-To: <20230130134336.532886729@linuxfoundation.org>
+References: <20230130134336.532886729@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
         SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -53,66 +53,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eric Dumazet <edumazet@google.com>
+From: Linus Torvalds <torvalds@linux-foundation.org>
 
-[ Upstream commit f0950402e8c76e7dcb08563f1b4e8000fbc62455 ]
+[ Upstream commit 262b42e02d1e0b5ad1b33e9b9842e178c16231de ]
 
-Most netlink attributes are parsed and validated from
-__nla_validate_parse() or validate_nla()
+I'm not exactly clear on what strange workflow causes people to do it,
+but clearly occasionally some files end up being committed as executable
+even though they clearly aren't.
 
-    u16 type = nla_type(nla);
+This is a reprise of commit 90fda63fa115 ("treewide: fix up files
+incorrectly marked executable"), just with a different set of files (but
+with the same trivial shell scripting).
 
-    if (type == 0 || type > maxtype) {
-        /* error or continue */
-    }
+So apparently we need to re-do this every five years or so, and Joe
+needs to just keep reminding me to do so ;)
 
-@type is then used as an array index and can be used
-as a Spectre v1 gadget.
-
-array_index_nospec() can be used to prevent leaking
-content of kernel memory to malicious users.
-
-This should take care of vast majority of netlink uses,
-but an audit is needed to take care of others where
-validation is not yet centralized in core netlink functions.
-
-Fixes: bfa83a9e03cf ("[NETLINK]: Type-safe netlink messages/attributes interface")
-Signed-off-by: Eric Dumazet <edumazet@google.com>
-Link: https://lore.kernel.org/r/20230119110150.2678537-1-edumazet@google.com
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Reported-by: Joe Perches <joe@perches.com>
+Fixes: 523375c943e5 ("drm/vmwgfx: Port vmwgfx to arm64")
+Fixes: 5c439937775d ("ASoC: codecs: add support for ES8326")
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- lib/nlattr.c | 3 +++
- 1 file changed, 3 insertions(+)
+ drivers/gpu/drm/vmwgfx/vmwgfx_msg_arm64.h | 0
+ sound/soc/codecs/es8326.c                 | 0
+ sound/soc/codecs/es8326.h                 | 0
+ 3 files changed, 0 insertions(+), 0 deletions(-)
+ mode change 100755 => 100644 drivers/gpu/drm/vmwgfx/vmwgfx_msg_arm64.h
+ mode change 100755 => 100644 sound/soc/codecs/es8326.c
+ mode change 100755 => 100644 sound/soc/codecs/es8326.h
 
-diff --git a/lib/nlattr.c b/lib/nlattr.c
-index 86029ad5ead4..73635bdb0062 100644
---- a/lib/nlattr.c
-+++ b/lib/nlattr.c
-@@ -10,6 +10,7 @@
- #include <linux/kernel.h>
- #include <linux/errno.h>
- #include <linux/jiffies.h>
-+#include <linux/nospec.h>
- #include <linux/skbuff.h>
- #include <linux/string.h>
- #include <linux/types.h>
-@@ -369,6 +370,7 @@ static int validate_nla(const struct nlattr *nla, int maxtype,
- 	if (type <= 0 || type > maxtype)
- 		return 0;
- 
-+	type = array_index_nospec(type, maxtype + 1);
- 	pt = &policy[type];
- 
- 	BUG_ON(pt->type > NLA_TYPE_MAX);
-@@ -584,6 +586,7 @@ static int __nla_validate_parse(const struct nlattr *head, int len, int maxtype,
- 			}
- 			continue;
- 		}
-+		type = array_index_nospec(type, maxtype + 1);
- 		if (policy) {
- 			int err = validate_nla(nla, maxtype, policy,
- 					       validate, extack, depth);
+diff --git a/drivers/gpu/drm/vmwgfx/vmwgfx_msg_arm64.h b/drivers/gpu/drm/vmwgfx/vmwgfx_msg_arm64.h
+old mode 100755
+new mode 100644
+diff --git a/sound/soc/codecs/es8326.c b/sound/soc/codecs/es8326.c
+old mode 100755
+new mode 100644
+diff --git a/sound/soc/codecs/es8326.h b/sound/soc/codecs/es8326.h
+old mode 100755
+new mode 100644
 -- 
 2.39.0
 
