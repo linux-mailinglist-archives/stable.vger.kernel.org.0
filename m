@@ -2,32 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A15A5680FAA
-	for <lists+stable@lfdr.de>; Mon, 30 Jan 2023 14:55:56 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C31A2680FAB
+	for <lists+stable@lfdr.de>; Mon, 30 Jan 2023 14:55:57 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236504AbjA3Nzz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 30 Jan 2023 08:55:55 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34658 "EHLO
+        id S235426AbjA3Nz4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 30 Jan 2023 08:55:56 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34712 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236510AbjA3Nzw (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 30 Jan 2023 08:55:52 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id ED6CB39B8B
-        for <stable@vger.kernel.org>; Mon, 30 Jan 2023 05:55:44 -0800 (PST)
+        with ESMTP id S236536AbjA3Nzy (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 30 Jan 2023 08:55:54 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 030F338EB6
+        for <stable@vger.kernel.org>; Mon, 30 Jan 2023 05:55:48 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 8907860FE0
-        for <stable@vger.kernel.org>; Mon, 30 Jan 2023 13:55:44 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 89B47C433EF;
-        Mon, 30 Jan 2023 13:55:43 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 92D6461028
+        for <stable@vger.kernel.org>; Mon, 30 Jan 2023 13:55:47 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 794BDC433D2;
+        Mon, 30 Jan 2023 13:55:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1675086944;
-        bh=hIagVNJAFOqay4kdC7vd8yaRU81XVBCBPqIAbItLpSc=;
+        s=korg; t=1675086947;
+        bh=rRXW8RAyTP+SNS9mW3dpFaiceZ9QYODxddylbZ7j+XU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=1AXJI2ElEA3cmqnW9avHO/dhQ7P+vm0YHTo6uv7aD036z61Bb1wCPA0rAlKlipAb/
-         hipXZ8dLwb579X/rMBK5e0WrU/DzeeEiAbbfS60uOpDb7JsP8vn3yrRxMwcA8z5eCM
-         yJzojY81Tm0Bx2SsGB1Y5Z3YyBX+XZst8DS76/T8=
+        b=pnhcBGw4oOLsT2hBZZZmM9ksGEQ4I9e3WtzQeeKjGlUuHlkOut82qXZbZva54iVuT
+         nBnWqSu/jOAKqPAmI8pVVjFHxD0qIHYMJ7Xd8nMrkIcM70hJwGqLbtJs5mJkXasCUe
+         KcEtCMcjCtbqy0CSMua0oWrDXzupnudK2qh9dkWk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
@@ -36,9 +36,9 @@ Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         Dennis Dalessandro <dennis.dalessandro@cornelisnetworks.com>,
         Leon Romanovsky <leon@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 048/313] IB/hfi1: Fix expected receive setup error exit issues
-Date:   Mon, 30 Jan 2023 14:48:03 +0100
-Message-Id: <20230130134338.934542635@linuxfoundation.org>
+Subject: [PATCH 6.1 049/313] IB/hfi1: Immediately remove invalid memory from hardware
+Date:   Mon, 30 Jan 2023 14:48:04 +0100
+Message-Id: <20230130134338.983458359@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.1
 In-Reply-To: <20230130134336.532886729@linuxfoundation.org>
 References: <20230130134336.532886729@linuxfoundation.org>
@@ -46,8 +46,8 @@ User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
         SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -57,166 +57,146 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Dean Luick <dean.luick@cornelisnetworks.com>
 
-[ Upstream commit e0c4a422f5246abefbf7c178ef99a1f2dc3c5f62 ]
+[ Upstream commit 1c7edde1b5720ddb0aff5ca8c7f605a0f92526eb ]
 
-Fix three error exit issues in expected receive setup.
-Re-arrange error exits to increase readability.
+When a user expected receive page is unmapped, it should be
+immediately removed from hardware rather than depend on a
+reaction from user space.
 
-Issues and fixes:
-1. Possible missed page unpin if tidlist copyout fails and
-   not all pinned pages where made part of a TID.
-   Fix: Unpin the unused pages.
-
-2. Return success with unset return values tidcnt and length
-   when no pages were pinned.
-   Fix: Return -ENOSPC if no pages were pinned.
-
-3. Return success with unset return values tidcnt and length when
-   no rcvarray entries available.
-   Fix: Return -ENOSPC if no rcvarray entries are available.
-
-Fixes: 7e7a436ecb6e ("staging/hfi1: Add TID entry program function body")
-Fixes: 97736f36dbeb ("IB/hfi1: Validate page aligned for a given virtual addres")
-Fixes: f404ca4c7ea8 ("IB/hfi1: Refactor hfi_user_exp_rcv_setup() IOCTL")
+Fixes: 2677a7680e77 ("IB/hfi1: Fix memory leak during unexpected shutdown")
 Signed-off-by: Dean Luick <dean.luick@cornelisnetworks.com>
 Signed-off-by: Dennis Dalessandro <dennis.dalessandro@cornelisnetworks.com>
-Link: https://lore.kernel.org/r/167328548150.1472310.1492305874804187634.stgit@awfm-02.cornelisnetworks.com
+Link: https://lore.kernel.org/r/167328548663.1472310.7871808081861622659.stgit@awfm-02.cornelisnetworks.com
 Signed-off-by: Leon Romanovsky <leon@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/infiniband/hw/hfi1/user_exp_rcv.c | 83 ++++++++++++++---------
- 1 file changed, 50 insertions(+), 33 deletions(-)
+ drivers/infiniband/hw/hfi1/user_exp_rcv.c | 43 +++++++++++++++--------
+ drivers/infiniband/hw/hfi1/user_exp_rcv.h |  1 +
+ 2 files changed, 30 insertions(+), 14 deletions(-)
 
 diff --git a/drivers/infiniband/hw/hfi1/user_exp_rcv.c b/drivers/infiniband/hw/hfi1/user_exp_rcv.c
-index d7487555d109..88df8ca4bb57 100644
+index 88df8ca4bb57..f402af1e2903 100644
 --- a/drivers/infiniband/hw/hfi1/user_exp_rcv.c
 +++ b/drivers/infiniband/hw/hfi1/user_exp_rcv.c
-@@ -268,15 +268,14 @@ int hfi1_user_exp_rcv_setup(struct hfi1_filedata *fd,
- 	tidbuf->psets = kcalloc(uctxt->expected_count, sizeof(*tidbuf->psets),
- 				GFP_KERNEL);
- 	if (!tidbuf->psets) {
--		kfree(tidbuf);
--		return -ENOMEM;
-+		ret = -ENOMEM;
-+		goto fail_release_mem;
+@@ -28,8 +28,9 @@ static int program_rcvarray(struct hfi1_filedata *fd, struct tid_user_buf *,
+ 			    unsigned int start, u16 count,
+ 			    u32 *tidlist, unsigned int *tididx,
+ 			    unsigned int *pmapped);
+-static int unprogram_rcvarray(struct hfi1_filedata *fd, u32 tidinfo,
+-			      struct tid_group **grp);
++static int unprogram_rcvarray(struct hfi1_filedata *fd, u32 tidinfo);
++static void __clear_tid_node(struct hfi1_filedata *fd,
++			     struct tid_rb_node *node);
+ static void clear_tid_node(struct hfi1_filedata *fd, struct tid_rb_node *node);
+ 
+ static const struct mmu_interval_notifier_ops tid_mn_ops = {
+@@ -469,7 +470,7 @@ int hfi1_user_exp_rcv_clear(struct hfi1_filedata *fd,
+ 
+ 	mutex_lock(&uctxt->exp_mutex);
+ 	for (tididx = 0; tididx < tinfo->tidcnt; tididx++) {
+-		ret = unprogram_rcvarray(fd, tidinfo[tididx], NULL);
++		ret = unprogram_rcvarray(fd, tidinfo[tididx]);
+ 		if (ret) {
+ 			hfi1_cdbg(TID, "Failed to unprogram rcv array %d",
+ 				  ret);
+@@ -723,6 +724,7 @@ static int set_rcvarray_entry(struct hfi1_filedata *fd,
  	}
  
- 	pinned = pin_rcv_pages(fd, tidbuf);
- 	if (pinned <= 0) {
--		kfree(tidbuf->psets);
--		kfree(tidbuf);
--		return pinned;
-+		ret = (pinned < 0) ? pinned : -ENOSPC;
-+		goto fail_unpin;
- 	}
- 
- 	/* Find sets of physically contiguous pages */
-@@ -291,14 +290,16 @@ int hfi1_user_exp_rcv_setup(struct hfi1_filedata *fd,
- 	fd->tid_used += pageset_count;
- 	spin_unlock(&fd->tid_lock);
- 
--	if (!pageset_count)
--		goto bail;
-+	if (!pageset_count) {
-+		ret = -ENOSPC;
-+		goto fail_unreserve;
-+	}
- 
- 	ngroups = pageset_count / dd->rcv_entries.group_size;
- 	tidlist = kcalloc(pageset_count, sizeof(*tidlist), GFP_KERNEL);
- 	if (!tidlist) {
- 		ret = -ENOMEM;
--		goto nomem;
-+		goto fail_unreserve;
- 	}
- 
- 	tididx = 0;
-@@ -394,44 +395,60 @@ int hfi1_user_exp_rcv_setup(struct hfi1_filedata *fd,
- 	}
- unlock:
- 	mutex_unlock(&uctxt->exp_mutex);
--nomem:
- 	hfi1_cdbg(TID, "total mapped: tidpairs:%u pages:%u (%d)", tididx,
- 		  mapped_pages, ret);
-+
-+	/* fail if nothing was programmed, set error if none provided */
-+	if (tididx == 0) {
-+		if (ret >= 0)
-+			ret = -ENOSPC;
-+		goto fail_unreserve;
-+	}
-+
- 	/* adjust reserved tid_used to actual count */
- 	spin_lock(&fd->tid_lock);
- 	fd->tid_used -= pageset_count - tididx;
- 	spin_unlock(&fd->tid_lock);
--	if (tididx) {
--		tinfo->tidcnt = tididx;
--		tinfo->length = mapped_pages * PAGE_SIZE;
- 
--		if (copy_to_user(u64_to_user_ptr(tinfo->tidlist),
--				 tidlist, sizeof(tidlist[0]) * tididx)) {
--			/*
--			 * On failure to copy to the user level, we need to undo
--			 * everything done so far so we don't leak resources.
--			 */
--			tinfo->tidlist = (unsigned long)&tidlist;
--			hfi1_user_exp_rcv_clear(fd, tinfo);
--			tinfo->tidlist = 0;
--			ret = -EFAULT;
--			goto bail;
--		}
-+	/* unpin all pages not covered by a TID */
-+	unpin_rcv_pages(fd, tidbuf, NULL, mapped_pages, pinned - mapped_pages,
-+			false);
-+
-+	tinfo->tidcnt = tididx;
-+	tinfo->length = mapped_pages * PAGE_SIZE;
-+
-+	if (copy_to_user(u64_to_user_ptr(tinfo->tidlist),
-+			 tidlist, sizeof(tidlist[0]) * tididx)) {
-+		ret = -EFAULT;
-+		goto fail_unprogram;
- 	}
- 
--	/*
--	 * If not everything was mapped (due to insufficient RcvArray entries,
--	 * for example), unpin all unmapped pages so we can pin them nex time.
--	 */
--	if (mapped_pages != pinned)
--		unpin_rcv_pages(fd, tidbuf, NULL, mapped_pages,
--				(pinned - mapped_pages), false);
--bail:
-+	kfree(tidbuf->pages);
- 	kfree(tidbuf->psets);
-+	kfree(tidbuf);
- 	kfree(tidlist);
-+	return 0;
-+
-+fail_unprogram:
-+	/* unprogram, unmap, and unpin all allocated TIDs */
-+	tinfo->tidlist = (unsigned long)tidlist;
-+	hfi1_user_exp_rcv_clear(fd, tinfo);
-+	tinfo->tidlist = 0;
-+	pinned = 0;		/* nothing left to unpin */
-+	pageset_count = 0;	/* nothing left reserved */
-+fail_unreserve:
-+	spin_lock(&fd->tid_lock);
-+	fd->tid_used -= pageset_count;
-+	spin_unlock(&fd->tid_lock);
-+fail_unpin:
-+	if (pinned > 0)
-+		unpin_rcv_pages(fd, tidbuf, NULL, 0, pinned, false);
-+fail_release_mem:
- 	kfree(tidbuf->pages);
-+	kfree(tidbuf->psets);
- 	kfree(tidbuf);
--	return ret > 0 ? 0 : ret;
-+	kfree(tidlist);
-+	return ret;
+ 	node->fdata = fd;
++	mutex_init(&node->invalidate_mutex);
+ 	node->phys = page_to_phys(pages[0]);
+ 	node->npages = npages;
+ 	node->rcventry = rcventry;
+@@ -762,8 +764,7 @@ static int set_rcvarray_entry(struct hfi1_filedata *fd,
+ 	return -EFAULT;
  }
  
- int hfi1_user_exp_rcv_clear(struct hfi1_filedata *fd,
+-static int unprogram_rcvarray(struct hfi1_filedata *fd, u32 tidinfo,
+-			      struct tid_group **grp)
++static int unprogram_rcvarray(struct hfi1_filedata *fd, u32 tidinfo)
+ {
+ 	struct hfi1_ctxtdata *uctxt = fd->uctxt;
+ 	struct hfi1_devdata *dd = uctxt->dd;
+@@ -786,9 +787,6 @@ static int unprogram_rcvarray(struct hfi1_filedata *fd, u32 tidinfo,
+ 	if (!node || node->rcventry != (uctxt->expected_base + rcventry))
+ 		return -EBADF;
+ 
+-	if (grp)
+-		*grp = node->grp;
+-
+ 	if (fd->use_mn)
+ 		mmu_interval_notifier_remove(&node->notifier);
+ 	cacheless_tid_rb_remove(fd, node);
+@@ -796,23 +794,34 @@ static int unprogram_rcvarray(struct hfi1_filedata *fd, u32 tidinfo,
+ 	return 0;
+ }
+ 
+-static void clear_tid_node(struct hfi1_filedata *fd, struct tid_rb_node *node)
++static void __clear_tid_node(struct hfi1_filedata *fd, struct tid_rb_node *node)
+ {
+ 	struct hfi1_ctxtdata *uctxt = fd->uctxt;
+ 	struct hfi1_devdata *dd = uctxt->dd;
+ 
++	mutex_lock(&node->invalidate_mutex);
++	if (node->freed)
++		goto done;
++	node->freed = true;
++
+ 	trace_hfi1_exp_tid_unreg(uctxt->ctxt, fd->subctxt, node->rcventry,
+ 				 node->npages,
+ 				 node->notifier.interval_tree.start, node->phys,
+ 				 node->dma_addr);
+ 
+-	/*
+-	 * Make sure device has seen the write before we unpin the
+-	 * pages.
+-	 */
++	/* Make sure device has seen the write before pages are unpinned */
+ 	hfi1_put_tid(dd, node->rcventry, PT_INVALID_FLUSH, 0, 0);
+ 
+ 	unpin_rcv_pages(fd, NULL, node, 0, node->npages, true);
++done:
++	mutex_unlock(&node->invalidate_mutex);
++}
++
++static void clear_tid_node(struct hfi1_filedata *fd, struct tid_rb_node *node)
++{
++	struct hfi1_ctxtdata *uctxt = fd->uctxt;
++
++	__clear_tid_node(fd, node);
+ 
+ 	node->grp->used--;
+ 	node->grp->map &= ~(1 << (node->rcventry - node->grp->base));
+@@ -871,10 +880,16 @@ static bool tid_rb_invalidate(struct mmu_interval_notifier *mni,
+ 	if (node->freed)
+ 		return true;
+ 
++	/* take action only if unmapping */
++	if (range->event != MMU_NOTIFY_UNMAP)
++		return true;
++
+ 	trace_hfi1_exp_tid_inval(uctxt->ctxt, fdata->subctxt,
+ 				 node->notifier.interval_tree.start,
+ 				 node->rcventry, node->npages, node->dma_addr);
+-	node->freed = true;
++
++	/* clear the hardware rcvarray entry */
++	__clear_tid_node(fdata, node);
+ 
+ 	spin_lock(&fdata->invalid_lock);
+ 	if (fdata->invalid_tid_idx < uctxt->expected_count) {
+diff --git a/drivers/infiniband/hw/hfi1/user_exp_rcv.h b/drivers/infiniband/hw/hfi1/user_exp_rcv.h
+index 8c53e416bf84..2ddb3dac7d91 100644
+--- a/drivers/infiniband/hw/hfi1/user_exp_rcv.h
++++ b/drivers/infiniband/hw/hfi1/user_exp_rcv.h
+@@ -27,6 +27,7 @@ struct tid_user_buf {
+ struct tid_rb_node {
+ 	struct mmu_interval_notifier notifier;
+ 	struct hfi1_filedata *fdata;
++	struct mutex invalidate_mutex; /* covers hw removal */
+ 	unsigned long phys;
+ 	struct tid_group *grp;
+ 	u32 rcventry;
 -- 
 2.39.0
 
