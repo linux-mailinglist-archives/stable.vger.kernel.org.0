@@ -2,49 +2,50 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 95C226811B0
-	for <lists+stable@lfdr.de>; Mon, 30 Jan 2023 15:16:10 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6C8996810CD
+	for <lists+stable@lfdr.de>; Mon, 30 Jan 2023 15:06:54 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237368AbjA3OQJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 30 Jan 2023 09:16:09 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59896 "EHLO
+        id S237095AbjA3OGx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 30 Jan 2023 09:06:53 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49094 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237355AbjA3OQE (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 30 Jan 2023 09:16:04 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3F2033CE00
-        for <stable@vger.kernel.org>; Mon, 30 Jan 2023 06:16:03 -0800 (PST)
+        with ESMTP id S237094AbjA3OGw (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 30 Jan 2023 09:06:52 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 133DB3B3E7
+        for <stable@vger.kernel.org>; Mon, 30 Jan 2023 06:06:52 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id F3E2FB810C5
-        for <stable@vger.kernel.org>; Mon, 30 Jan 2023 14:16:01 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 50626C433EF;
-        Mon, 30 Jan 2023 14:16:00 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id A366961026
+        for <stable@vger.kernel.org>; Mon, 30 Jan 2023 14:06:51 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 92519C433D2;
+        Mon, 30 Jan 2023 14:06:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1675088160;
-        bh=n+Pugw7pyJIb26g7hIVl+LDidytgC6dNEVIEfaZFQQk=;
+        s=korg; t=1675087611;
+        bh=+FQvQmuigkcGR+nhVTKxVpb8x5WZV8/RnEqeRuUJoqg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=z5RJKLkIRUmvSMzX+mK0RAW3DB8hJFY5TZewXzSMb7YVR0PNn4Wu7nRqVnJBeFmmC
-         z2DKeGGVMvLHFK7j1TpPiPppTw0HpykxP091OwpzXDbxIDR5NyZw/GIyHTjgDPO78S
-         F8AEmY6eLn3exWV8lC09OiblXWFzQ3bxWQsKrCV8=
+        b=FiC3aXmf2XuIVkTIqQo82u66V1XKJjd2LSNnUrow6LRIt8NzFHoqfG4FMvVDw14qI
+         MJxOPX3cY1o+d/ZljgY2hz+SxtjRrJypbMvELX1hHnPdPpTIoFhEVfeRvfS2B9sTHH
+         c5G4nNO0DUTM1JLnif16HXZ7lNrzff/XY/tAkwPs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Kan Liang <kan.liang@linux.intel.com>,
-        Ingo Molnar <mingo@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 106/204] perf/x86/intel/uncore: Add Emerald Rapids
+        patches@lists.linux.dev, Graham Sider <graham.sider@amd.com>,
+        Jonathan Kim <jonathan.kim@amd.com>,
+        Alex Deucher <alexander.deucher@amd.com>
+Subject: [PATCH 6.1 236/313] drm/amdgpu: remove unconditional trap enable on add gfx11 queues
 Date:   Mon, 30 Jan 2023 14:51:11 +0100
-Message-Id: <20230130134321.012714298@linuxfoundation.org>
+Message-Id: <20230130134347.671849116@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.1
-In-Reply-To: <20230130134316.327556078@linuxfoundation.org>
-References: <20230130134316.327556078@linuxfoundation.org>
+In-Reply-To: <20230130134336.532886729@linuxfoundation.org>
+References: <20230130134336.532886729@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
         SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -52,36 +53,32 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kan Liang <kan.liang@linux.intel.com>
+From: Jonathan Kim <jonathan.kim@amd.com>
 
-[ Upstream commit 5268a2842066c227e6ccd94bac562f1e1000244f ]
+commit 2de3769830346e68b3de0f4abc0d8e2625ad9dac upstream.
 
->From the perspective of the uncore PMU, the new Emerald Rapids is the
-same as the Sapphire Rapids. The only difference is the event list,
-which will be supported in the perf tool later.
+Rebase of driver has incorrect unconditional trap enablement
+for GFX11 when adding mes queues.
 
-Signed-off-by: Kan Liang <kan.liang@linux.intel.com>
-Signed-off-by: Ingo Molnar <mingo@kernel.org>
-Link: https://lore.kernel.org/r/20230106160449.3566477-4-kan.liang@linux.intel.com
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Reported-by: Graham Sider <graham.sider@amd.com>
+Signed-off-by: Jonathan Kim <jonathan.kim@amd.com>
+Reviewed-by: Graham Sider <graham.sider@amd.com>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+Cc: stable@vger.kernel.org # 6.1.x
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/x86/events/intel/uncore.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/gpu/drm/amd/amdgpu/mes_v11_0.c |    1 -
+ 1 file changed, 1 deletion(-)
 
-diff --git a/arch/x86/events/intel/uncore.c b/arch/x86/events/intel/uncore.c
-index c72e368dd164..7e16c590f259 100644
---- a/arch/x86/events/intel/uncore.c
-+++ b/arch/x86/events/intel/uncore.c
-@@ -1829,6 +1829,7 @@ static const struct x86_cpu_id intel_uncore_match[] __initconst = {
- 	X86_MATCH_INTEL_FAM6_MODEL(ALDERLAKE,		&adl_uncore_init),
- 	X86_MATCH_INTEL_FAM6_MODEL(ALDERLAKE_L,		&adl_uncore_init),
- 	X86_MATCH_INTEL_FAM6_MODEL(SAPPHIRERAPIDS_X,	&spr_uncore_init),
-+	X86_MATCH_INTEL_FAM6_MODEL(EMERALDRAPIDS_X,	&spr_uncore_init),
- 	X86_MATCH_INTEL_FAM6_MODEL(ATOM_TREMONT_D,	&snr_uncore_init),
- 	{},
- };
--- 
-2.39.0
-
+--- a/drivers/gpu/drm/amd/amdgpu/mes_v11_0.c
++++ b/drivers/gpu/drm/amd/amdgpu/mes_v11_0.c
+@@ -192,7 +192,6 @@ static int mes_v11_0_add_hw_queue(struct
+ 	mes_add_queue_pkt.trap_handler_addr = input->tba_addr;
+ 	mes_add_queue_pkt.tma_addr = input->tma_addr;
+ 	mes_add_queue_pkt.is_kfd_process = input->is_kfd_process;
+-	mes_add_queue_pkt.trap_en = 1;
+ 
+ 	/* For KFD, gds_size is re-used for queue size (needed in MES for AQL queues) */
+ 	mes_add_queue_pkt.is_aql_queue = input->is_aql_queue;
 
 
