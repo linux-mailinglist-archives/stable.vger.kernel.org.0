@@ -2,56 +2,52 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C7CE2681292
-	for <lists+stable@lfdr.de>; Mon, 30 Jan 2023 15:22:47 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E21936810C3
+	for <lists+stable@lfdr.de>; Mon, 30 Jan 2023 15:06:31 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237057AbjA3OWm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 30 Jan 2023 09:22:42 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41344 "EHLO
+        id S237066AbjA3OGa (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 30 Jan 2023 09:06:30 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48884 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237626AbjA3OW1 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 30 Jan 2023 09:22:27 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E80F838B64
-        for <stable@vger.kernel.org>; Mon, 30 Jan 2023 06:21:24 -0800 (PST)
+        with ESMTP id S237085AbjA3OG3 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 30 Jan 2023 09:06:29 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7CE253B3C2
+        for <stable@vger.kernel.org>; Mon, 30 Jan 2023 06:06:28 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id C8F6060CEE
-        for <stable@vger.kernel.org>; Mon, 30 Jan 2023 14:21:24 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8BD3EC433EF;
-        Mon, 30 Jan 2023 14:21:23 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 1956F61025
+        for <stable@vger.kernel.org>; Mon, 30 Jan 2023 14:06:28 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 16D76C433D2;
+        Mon, 30 Jan 2023 14:06:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1675088484;
-        bh=ZHBpX9KxC3LEi9OcnAPDAGFSsoszTJ/4TvHEruM7HZU=;
+        s=korg; t=1675087587;
+        bh=yM283uqsZhGyBbctYoENPcELMYDiYbGfVnB1kbZlVtQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=jM7HzPod/H5Agz+dB7cO5r0Qsvth/ToJhd8JTqMRYKIEZ8G86kE9IkoTt2FfG8w/U
-         jAHn7w2gGwpiSnQixangr0YAI4g3qajnwQSwK+/X2JC5wj2GWFlkI/PxPtVNfIatxU
-         KcijtplDUy9AX+I+OLsrusX/abXx41FzJqwbG3tI=
+        b=Vdz5NtKpF/dKqNrJsHncRG8sZySSekFxjiihz8XzMK7YXMQWXws5zZ3FakIerY1IT
+         +YveNBwhnc1vW01r0luwGjfNQ4onqjcPhwEevvaYhgPz17+6nFA+AXIgub9NsBN8sM
+         yWe7In0k2/empzehOUXNx3/r38ca3XOZnjP9JXh4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Tom Parkin <tparkin@katalix.com>,
-        Tetsuo Handa <penguin-kernel@i-love.sakura.ne.jp>,
-        Eric Dumazet <edumazet@google.com>,
-        syzbot+703d9e154b3b58277261@syzkaller.appspotmail.com,
-        syzbot+50680ced9e98a61f7698@syzkaller.appspotmail.com,
-        syzbot+de987172bb74a381879b@syzkaller.appspotmail.com,
-        Jakub Sitnicki <jakub@cloudflare.com>,
-        "David S. Miller" <davem@davemloft.net>,
+        patches@lists.linux.dev, Christoph Hellwig <hch@lst.de>,
+        Keith Busch <kbusch@kernel.org>,
+        Sagi Grimberg <sagi@grimberg.me>,
+        Chaitanya Kulkarni <kch@nvidia.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 035/143] l2tp: Dont sleep and disable BH under writer-side sk_callback_lock
+Subject: [PATCH 6.1 257/313] nvme: simplify transport specific device attribute handling
 Date:   Mon, 30 Jan 2023 14:51:32 +0100
-Message-Id: <20230130134308.311427355@linuxfoundation.org>
+Message-Id: <20230130134348.692907898@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.1
-In-Reply-To: <20230130134306.862721518@linuxfoundation.org>
-References: <20230130134306.862721518@linuxfoundation.org>
+In-Reply-To: <20230130134336.532886729@linuxfoundation.org>
+References: <20230130134336.532886729@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
         SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -59,126 +55,149 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jakub Sitnicki <jakub@cloudflare.com>
+From: Christoph Hellwig <hch@lst.de>
 
-[ Upstream commit af295e854a4e3813ffbdef26dbb6a4d6226c3ea1 ]
+[ Upstream commit 86adbf0cdb9ec6533234696c3e243184d4d0d040 ]
 
-When holding a reader-writer spin lock we cannot sleep. Calling
-setup_udp_tunnel_sock() with write lock held violates this rule, because we
-end up calling percpu_down_read(), which might sleep, as syzbot reports
-[1]:
+Allow the transport driver to override the attribute groups for the
+control device, so that the PCIe driver doesn't manually have to add a
+group after device creation and keep track of it.
 
- __might_resched.cold+0x222/0x26b kernel/sched/core.c:9890
- percpu_down_read include/linux/percpu-rwsem.h:49 [inline]
- cpus_read_lock+0x1b/0x140 kernel/cpu.c:310
- static_key_slow_inc+0x12/0x20 kernel/jump_label.c:158
- udp_tunnel_encap_enable include/net/udp_tunnel.h:187 [inline]
- setup_udp_tunnel_sock+0x43d/0x550 net/ipv4/udp_tunnel_core.c:81
- l2tp_tunnel_register+0xc51/0x1210 net/l2tp/l2tp_core.c:1509
- pppol2tp_connect+0xcdc/0x1a10 net/l2tp/l2tp_ppp.c:723
-
-Trim the writer-side critical section for sk_callback_lock down to the
-minimum, so that it covers only operations on sk_user_data.
-
-Also, when grabbing the sk_callback_lock, we always need to disable BH, as
-Eric points out. Failing to do so leads to deadlocks because we acquire
-sk_callback_lock in softirq context, which can get stuck waiting on us if:
-
-1) it runs on the same CPU, or
-
-       CPU0
-       ----
-  lock(clock-AF_INET6);
-  <Interrupt>
-    lock(clock-AF_INET6);
-
-2) lock ordering leads to priority inversion
-
-       CPU0                    CPU1
-       ----                    ----
-  lock(clock-AF_INET6);
-                               local_irq_disable();
-                               lock(&tcp_hashinfo.bhash[i].lock);
-                               lock(clock-AF_INET6);
-  <Interrupt>
-    lock(&tcp_hashinfo.bhash[i].lock);
-
-... as syzbot reports [2,3]. Use the _bh variants for write_(un)lock.
-
-[1] https://lore.kernel.org/netdev/0000000000004e78ec05eda79749@google.com/
-[2] https://lore.kernel.org/netdev/000000000000e38b6605eda76f98@google.com/
-[3] https://lore.kernel.org/netdev/000000000000dfa31e05eda76f75@google.com/
-
-v2:
-- Check and set sk_user_data while holding sk_callback_lock for both
-  L2TP encapsulation types (IP and UDP) (Tetsuo)
-
-Cc: Tom Parkin <tparkin@katalix.com>
-Cc: Tetsuo Handa <penguin-kernel@i-love.sakura.ne.jp>
-Fixes: b68777d54fac ("l2tp: Serialize access to sk_user_data with sk_callback_lock")
-Reported-by: Eric Dumazet <edumazet@google.com>
-Reported-by: syzbot+703d9e154b3b58277261@syzkaller.appspotmail.com
-Reported-by: syzbot+50680ced9e98a61f7698@syzkaller.appspotmail.com
-Reported-by: syzbot+de987172bb74a381879b@syzkaller.appspotmail.com
-Signed-off-by: Jakub Sitnicki <jakub@cloudflare.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Stable-dep-of: 0b2c59720e65 ("l2tp: close all race conditions in l2tp_tunnel_register()")
+Signed-off-by: Christoph Hellwig <hch@lst.de>
+Reviewed-by: Keith Busch <kbusch@kernel.org>
+Reviewed-by: Sagi Grimberg <sagi@grimberg.me>
+Reviewed-by: Chaitanya Kulkarni <kch@nvidia.com>
+Tested-by Gerd Bayer <gbayer@linxu.ibm.com>
+Stable-dep-of: 98e3528012cd ("nvme-fc: fix initialization order")
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/l2tp/l2tp_core.c | 17 +++++++++--------
- 1 file changed, 9 insertions(+), 8 deletions(-)
+ drivers/nvme/host/core.c |  8 ++++++--
+ drivers/nvme/host/nvme.h |  2 ++
+ drivers/nvme/host/pci.c  | 23 ++++++++---------------
+ 3 files changed, 16 insertions(+), 17 deletions(-)
 
-diff --git a/net/l2tp/l2tp_core.c b/net/l2tp/l2tp_core.c
-index e89852bc5309..d6bb1795329a 100644
---- a/net/l2tp/l2tp_core.c
-+++ b/net/l2tp/l2tp_core.c
-@@ -1476,11 +1476,12 @@ int l2tp_tunnel_register(struct l2tp_tunnel *tunnel, struct net *net,
- 	}
- 
- 	sk = sock->sk;
--	write_lock(&sk->sk_callback_lock);
--
-+	write_lock_bh(&sk->sk_callback_lock);
- 	ret = l2tp_validate_socket(sk, net, tunnel->encap);
- 	if (ret < 0)
--		goto err_sock;
-+		goto err_inval_sock;
-+	rcu_assign_sk_user_data(sk, tunnel);
-+	write_unlock_bh(&sk->sk_callback_lock);
- 
- 	tunnel->l2tp_net = net;
- 	pn = l2tp_pernet(net);
-@@ -1509,8 +1510,6 @@ int l2tp_tunnel_register(struct l2tp_tunnel *tunnel, struct net *net,
- 		};
- 
- 		setup_udp_tunnel_sock(net, sock, &udp_cfg);
--	} else {
--		rcu_assign_sk_user_data(sk, tunnel);
- 	}
- 
- 	tunnel->old_sk_destruct = sk->sk_destruct;
-@@ -1524,16 +1523,18 @@ int l2tp_tunnel_register(struct l2tp_tunnel *tunnel, struct net *net,
- 	if (tunnel->fd >= 0)
- 		sockfd_put(sock);
- 
--	write_unlock(&sk->sk_callback_lock);
- 	return 0;
- 
- err_sock:
-+	write_lock_bh(&sk->sk_callback_lock);
-+	rcu_assign_sk_user_data(sk, NULL);
-+err_inval_sock:
-+	write_unlock_bh(&sk->sk_callback_lock);
-+
- 	if (tunnel->fd < 0)
- 		sock_release(sock);
- 	else
- 		sockfd_put(sock);
--
--	write_unlock(&sk->sk_callback_lock);
- err:
- 	return ret;
+diff --git a/drivers/nvme/host/core.c b/drivers/nvme/host/core.c
+index 1ded96d1bfd2..badc6984ff83 100644
+--- a/drivers/nvme/host/core.c
++++ b/drivers/nvme/host/core.c
+@@ -3903,10 +3903,11 @@ static umode_t nvme_dev_attrs_are_visible(struct kobject *kobj,
+ 	return a->mode;
  }
+ 
+-static const struct attribute_group nvme_dev_attrs_group = {
++const struct attribute_group nvme_dev_attrs_group = {
+ 	.attrs		= nvme_dev_attrs,
+ 	.is_visible	= nvme_dev_attrs_are_visible,
+ };
++EXPORT_SYMBOL_GPL(nvme_dev_attrs_group);
+ 
+ static const struct attribute_group *nvme_dev_attr_groups[] = {
+ 	&nvme_dev_attrs_group,
+@@ -5080,7 +5081,10 @@ int nvme_init_ctrl(struct nvme_ctrl *ctrl, struct device *dev,
+ 			ctrl->instance);
+ 	ctrl->device->class = nvme_class;
+ 	ctrl->device->parent = ctrl->dev;
+-	ctrl->device->groups = nvme_dev_attr_groups;
++	if (ops->dev_attr_groups)
++		ctrl->device->groups = ops->dev_attr_groups;
++	else
++		ctrl->device->groups = nvme_dev_attr_groups;
+ 	ctrl->device->release = nvme_free_ctrl;
+ 	dev_set_drvdata(ctrl->device, ctrl);
+ 	ret = dev_set_name(ctrl->device, "nvme%d", ctrl->instance);
+diff --git a/drivers/nvme/host/nvme.h b/drivers/nvme/host/nvme.h
+index cbda8a19409b..aef3693ba5d3 100644
+--- a/drivers/nvme/host/nvme.h
++++ b/drivers/nvme/host/nvme.h
+@@ -508,6 +508,7 @@ struct nvme_ctrl_ops {
+ 	unsigned int flags;
+ #define NVME_F_FABRICS			(1 << 0)
+ #define NVME_F_METADATA_SUPPORTED	(1 << 1)
++	const struct attribute_group **dev_attr_groups;
+ 	int (*reg_read32)(struct nvme_ctrl *ctrl, u32 off, u32 *val);
+ 	int (*reg_write32)(struct nvme_ctrl *ctrl, u32 off, u32 val);
+ 	int (*reg_read64)(struct nvme_ctrl *ctrl, u32 off, u64 *val);
+@@ -857,6 +858,7 @@ int nvme_dev_uring_cmd(struct io_uring_cmd *ioucmd, unsigned int issue_flags);
+ extern const struct attribute_group *nvme_ns_id_attr_groups[];
+ extern const struct pr_ops nvme_pr_ops;
+ extern const struct block_device_operations nvme_ns_head_ops;
++extern const struct attribute_group nvme_dev_attrs_group;
+ 
+ struct nvme_ns *nvme_find_path(struct nvme_ns_head *head);
+ #ifdef CONFIG_NVME_MULTIPATH
+diff --git a/drivers/nvme/host/pci.c b/drivers/nvme/host/pci.c
+index e2de5d0de5d9..d839689af17c 100644
+--- a/drivers/nvme/host/pci.c
++++ b/drivers/nvme/host/pci.c
+@@ -158,8 +158,6 @@ struct nvme_dev {
+ 	unsigned int nr_allocated_queues;
+ 	unsigned int nr_write_queues;
+ 	unsigned int nr_poll_queues;
+-
+-	bool attrs_added;
+ };
+ 
+ static int io_queue_depth_set(const char *val, const struct kernel_param *kp)
+@@ -2241,11 +2239,17 @@ static struct attribute *nvme_pci_attrs[] = {
+ 	NULL,
+ };
+ 
+-static const struct attribute_group nvme_pci_attr_group = {
++static const struct attribute_group nvme_pci_dev_attrs_group = {
+ 	.attrs		= nvme_pci_attrs,
+ 	.is_visible	= nvme_pci_attrs_are_visible,
+ };
+ 
++static const struct attribute_group *nvme_pci_dev_attr_groups[] = {
++	&nvme_dev_attrs_group,
++	&nvme_pci_dev_attrs_group,
++	NULL,
++};
++
+ /*
+  * nirqs is the number of interrupts available for write and read
+  * queues. The core already reserved an interrupt for the admin queue.
+@@ -2935,10 +2939,6 @@ static void nvme_reset_work(struct work_struct *work)
+ 		goto out;
+ 	}
+ 
+-	if (!dev->attrs_added && !sysfs_create_group(&dev->ctrl.device->kobj,
+-			&nvme_pci_attr_group))
+-		dev->attrs_added = true;
+-
+ 	nvme_start_ctrl(&dev->ctrl);
+ 	return;
+ 
+@@ -3011,6 +3011,7 @@ static const struct nvme_ctrl_ops nvme_pci_ctrl_ops = {
+ 	.name			= "pcie",
+ 	.module			= THIS_MODULE,
+ 	.flags			= NVME_F_METADATA_SUPPORTED,
++	.dev_attr_groups	= nvme_pci_dev_attr_groups,
+ 	.reg_read32		= nvme_pci_reg_read32,
+ 	.reg_write32		= nvme_pci_reg_write32,
+ 	.reg_read64		= nvme_pci_reg_read64,
+@@ -3209,13 +3210,6 @@ static void nvme_shutdown(struct pci_dev *pdev)
+ 	nvme_disable_prepare_reset(dev, true);
+ }
+ 
+-static void nvme_remove_attrs(struct nvme_dev *dev)
+-{
+-	if (dev->attrs_added)
+-		sysfs_remove_group(&dev->ctrl.device->kobj,
+-				   &nvme_pci_attr_group);
+-}
+-
+ /*
+  * The driver's remove may be called on a device in a partially initialized
+  * state. This function must not have any dependencies on the device state in
+@@ -3237,7 +3231,6 @@ static void nvme_remove(struct pci_dev *pdev)
+ 	nvme_stop_ctrl(&dev->ctrl);
+ 	nvme_remove_namespaces(&dev->ctrl);
+ 	nvme_dev_disable(dev, true);
+-	nvme_remove_attrs(dev);
+ 	nvme_free_host_mem(dev);
+ 	nvme_dev_remove_admin(dev);
+ 	nvme_free_queues(dev, 0);
 -- 
 2.39.0
 
