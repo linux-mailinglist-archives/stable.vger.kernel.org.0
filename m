@@ -2,51 +2,50 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 3E604681300
-	for <lists+stable@lfdr.de>; Mon, 30 Jan 2023 15:27:12 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2DE55681262
+	for <lists+stable@lfdr.de>; Mon, 30 Jan 2023 15:20:38 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237367AbjA3O1K (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 30 Jan 2023 09:27:10 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42170 "EHLO
+        id S237675AbjA3OUh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 30 Jan 2023 09:20:37 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60502 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237475AbjA3O0p (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 30 Jan 2023 09:26:45 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A039D3D928
-        for <stable@vger.kernel.org>; Mon, 30 Jan 2023 06:25:25 -0800 (PST)
+        with ESMTP id S237678AbjA3OUJ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 30 Jan 2023 09:20:09 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 998313F2B6
+        for <stable@vger.kernel.org>; Mon, 30 Jan 2023 06:18:56 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 3D3C161014
-        for <stable@vger.kernel.org>; Mon, 30 Jan 2023 14:25:25 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3D33CC433EF;
-        Mon, 30 Jan 2023 14:25:24 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 9BF2961089
+        for <stable@vger.kernel.org>; Mon, 30 Jan 2023 14:18:09 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 80BADC433EF;
+        Mon, 30 Jan 2023 14:18:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1675088724;
-        bh=NEAUmp9pf7uPJEHHetzMcdY01UvCewfMelYVoN4oT6k=;
+        s=korg; t=1675088289;
+        bh=U9mKD3JYxa+l96Afl/zfERDJKeHf86p6RRFxcFto1gU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Hjt9pJWPxjx331onbAH5G37NI1pHtLXY3dpEubFTZRewENJ/oqwPHQPkJNBRiorYi
-         fhKleCFFMsyUnbePhNGGJE5mVaRTezDIlfFZB5zOmqDBUOuJlCxvADq+Mt9oMY4xrP
-         f9JI+yFYsarwHeeuLy0aN4wr/mQULMhMZEBMphsY=
+        b=p4cw80CCCxXuvjDJL5HkPR3A1jzS111AFzK4CReut+H8swD1PRu6yDq3U3yu1mIDC
+         n+UOHTKMWcRSyKenKLndwH4LeFokKPRYlY6/Q6NoXVygtAu0FZodWtxFJ+Rwh39JGr
+         6fKeSnDU+GPTco/Eg8OZ+xpcAAKCodelHhg0eGps=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Nathan Chancellor <nathan@kernel.org>,
-        "Eric W. Biederman" <ebiederm@xmission.com>,
-        Eric Biggers <ebiggers@google.com>,
+        patches@lists.linux.dev, Eric Dumazet <edumazet@google.com>,
+        Jakub Kicinski <kuba@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 086/143] hexagon: Fix function name in die()
-Date:   Mon, 30 Jan 2023 14:52:23 +0100
-Message-Id: <20230130134310.446076299@linuxfoundation.org>
+Subject: [PATCH 5.15 179/204] ipv4: prevent potential spectre v1 gadget in fib_metrics_match()
+Date:   Mon, 30 Jan 2023 14:52:24 +0100
+Message-Id: <20230130134324.415544223@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.1
-In-Reply-To: <20230130134306.862721518@linuxfoundation.org>
-References: <20230130134306.862721518@linuxfoundation.org>
+In-Reply-To: <20230130134316.327556078@linuxfoundation.org>
+References: <20230130134316.327556078@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
         SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -54,43 +53,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nathan Chancellor <nathan@kernel.org>
+From: Eric Dumazet <edumazet@google.com>
 
-commit 4f0712ccec09c071e221242a2db9a6779a55a949 upstream.
+[ Upstream commit 5e9398a26a92fc402d82ce1f97cc67d832527da0 ]
 
-When building ARCH=hexagon defconfig:
+if (!type)
+        continue;
+    if (type > RTAX_MAX)
+        return false;
+    ...
+    fi_val = fi->fib_metrics->metrics[type - 1];
 
-arch/hexagon/kernel/traps.c:217:2: error: implicit declaration of
-function 'make_dead_task' [-Werror,-Wimplicit-function-declaration]
-        make_dead_task(err);
-        ^
+@type being used as an array index, we need to prevent
+cpu speculation or risk leaking kernel memory content.
 
-The function's name is make_task_dead(), change it so there is no more
-build error.
-
-Fixes: 0e25498f8cd4 ("exit: Add and use make_task_dead.")
-Signed-off-by: Nathan Chancellor <nathan@kernel.org>
-Link: https://lkml.kernel.org/r/20211227184851.2297759-2-nathan@kernel.org
-Signed-off-by: Eric W. Biederman <ebiederm@xmission.com>
-Signed-off-by: Eric Biggers <ebiggers@google.com>
+Fixes: 5f9ae3d9e7e4 ("ipv4: do metrics match when looking up and deleting a route")
+Signed-off-by: Eric Dumazet <edumazet@google.com>
+Link: https://lore.kernel.org/r/20230120133140.3624204-1-edumazet@google.com
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/hexagon/kernel/traps.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ net/ipv4/fib_semantics.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/arch/hexagon/kernel/traps.c b/arch/hexagon/kernel/traps.c
-index 25e8bdbfd685..b334e8071709 100644
---- a/arch/hexagon/kernel/traps.c
-+++ b/arch/hexagon/kernel/traps.c
-@@ -218,7 +218,7 @@ int die(const char *str, struct pt_regs *regs, long err)
- 		panic("Fatal exception");
+diff --git a/net/ipv4/fib_semantics.c b/net/ipv4/fib_semantics.c
+index 250af6e5a892..607a4f816155 100644
+--- a/net/ipv4/fib_semantics.c
++++ b/net/ipv4/fib_semantics.c
+@@ -30,6 +30,7 @@
+ #include <linux/slab.h>
+ #include <linux/netlink.h>
+ #include <linux/hash.h>
++#include <linux/nospec.h>
  
- 	oops_exit();
--	make_dead_task(err);
-+	make_task_dead(err);
- 	return 0;
- }
+ #include <net/arp.h>
+ #include <net/ip.h>
+@@ -1020,6 +1021,7 @@ bool fib_metrics_match(struct fib_config *cfg, struct fib_info *fi)
+ 		if (type > RTAX_MAX)
+ 			return false;
  
++		type = array_index_nospec(type, RTAX_MAX + 1);
+ 		if (type == RTAX_CC_ALGO) {
+ 			char tmp[TCP_CA_NAME_MAX];
+ 			bool ecn_ca = false;
 -- 
 2.39.0
 
