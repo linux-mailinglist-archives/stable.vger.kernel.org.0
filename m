@@ -2,44 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 976E96811DB
-	for <lists+stable@lfdr.de>; Mon, 30 Jan 2023 15:17:00 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0774B6810DB
+	for <lists+stable@lfdr.de>; Mon, 30 Jan 2023 15:07:45 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237491AbjA3OQ6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 30 Jan 2023 09:16:58 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60574 "EHLO
+        id S237121AbjA3OHn (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 30 Jan 2023 09:07:43 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49626 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237413AbjA3OQo (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 30 Jan 2023 09:16:44 -0500
+        with ESMTP id S237110AbjA3OHj (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 30 Jan 2023 09:07:39 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 453163D085
-        for <stable@vger.kernel.org>; Mon, 30 Jan 2023 06:16:42 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3DD1A3B67D
+        for <stable@vger.kernel.org>; Mon, 30 Jan 2023 06:07:34 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id D783161086
-        for <stable@vger.kernel.org>; Mon, 30 Jan 2023 14:16:41 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E9AC6C433EF;
-        Mon, 30 Jan 2023 14:16:40 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id CE6CA61085
+        for <stable@vger.kernel.org>; Mon, 30 Jan 2023 14:07:33 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E2446C433EF;
+        Mon, 30 Jan 2023 14:07:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1675088201;
-        bh=tMi/I2IQP7Y1fVtCtwAubQHLyulTqFBBke+i7It+p7E=;
+        s=korg; t=1675087653;
+        bh=0heJl2Tk0v+1HVH/3AIH5jzj7Q1EcbNsVpGjgYtGFIg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=2gA0RADBM9ND1sRu55XjozEG3U67ZWfPhpJUuC8mEEwtDBYEToCjK/xMWZ/nvmO39
-         4oXj9iES4+TACDlBLdyRCimzB5z2ZtUGcL/vViS1lBzetAhBDsZ7vkIcm5ifVGCtRn
-         /xNnjYZYiq+KqFsZlcswYhg/BtjiguvrAq7QEjRo=
+        b=09cJGnFaJ4sMDLOoWG48UOEdjOH0FwJfORLAya6Q6me+QotytLa+sk5TLL3eK8LUn
+         1PBKXE3r7HqofAYnrQwRFEb2VEw5+nNpGel3QUSmqsMJmuax3JQKXbf1wjvmPepJlW
+         Y9HVXYSwJ6Mq7/sk+dqIf14tPg8vywQpSQcpnSAI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         patches@lists.linux.dev, Masami Hiramatsu <mhiramat@kernel.org>,
-        Mark Rutland <mark.rutland@arm.com>,
-        "Steven Rostedt (Google)" <rostedt@goodmis.org>
-Subject: [PATCH 5.15 150/204] ftrace/scripts: Update the instructions for ftrace-bisect.sh
+        Daniel Bristot de Oliveira <bristot@kernel.org>,
+        Chuang Wang <nashuiliang@gmail.com>,
+        "Steven Rostedt (Google)" <rostedt@goodmis.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 6.1 280/313] tracing/osnoise: Use built-in RCU list checking
 Date:   Mon, 30 Jan 2023 14:51:55 +0100
-Message-Id: <20230130134323.157059572@linuxfoundation.org>
+Message-Id: <20230130134349.773591666@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.1
-In-Reply-To: <20230130134316.327556078@linuxfoundation.org>
-References: <20230130134316.327556078@linuxfoundation.org>
+In-Reply-To: <20230130134336.532886729@linuxfoundation.org>
+References: <20230130134336.532886729@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,98 +55,56 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Steven Rostedt (Google) <rostedt@goodmis.org>
+From: Chuang Wang <nashuiliang@gmail.com>
 
-commit 7ae4ba7195b1bac04a4210a499da9d8c63b0ba9c upstream.
+[ Upstream commit 685b64e4d6da4be8b4595654a57db663b3d1dfc2 ]
 
-The instructions for the ftrace-bisect.sh script, which is used to find
-what function is being traced that is causing a kernel crash, and possibly
-a triple fault reboot, uses the old method. In 5.1, a new feature was
-added that let the user write in the index into available_filter_functions
-that maps to the function a user wants to set in set_ftrace_filter (or
-set_ftrace_notrace). This takes O(1) to set, as suppose to writing a
-function name, which takes O(n) (where n is the number of functions in
-available_filter_functions).
+list_for_each_entry_rcu() has built-in RCU and lock checking.
 
-The ftrace-bisect.sh requires setting half of the functions in
-available_filter_functions, which is O(n^2) using the name method to enable
-and can take several minutes to complete. The number method is O(n) which
-takes less than a second to complete. Using the number method for any
-kernel 5.1 and after is the proper way to do the bisect.
+Pass cond argument to list_for_each_entry_rcu() to silence false lockdep
+warning when CONFIG_PROVE_RCU_LIST is enabled.
 
-Update the usage to reflect the new change, as well as using the
-/sys/kernel/tracing path instead of the obsolete debugfs path.
+Execute as follow:
 
-Link: https://lkml.kernel.org/r/20230123112252.022003dd@gandalf.local.home
+ [tracing]# echo osnoise > current_tracer
+ [tracing]# echo 1 > tracing_on
+ [tracing]# echo 0 > tracing_on
 
-Cc: stable@vger.kernel.org
+The trace_types_lock is held when osnoise_tracer_stop() or
+timerlat_tracer_stop() are called in the non-RCU read side section.
+So, pass lockdep_is_held(&trace_types_lock) to silence false lockdep
+warning.
+
+Link: https://lkml.kernel.org/r/20221227023036.784337-1-nashuiliang@gmail.com
+
 Cc: Masami Hiramatsu <mhiramat@kernel.org>
-Acked-by: Mark Rutland <mark.rutland@arm.com>
-Fixes: f79b3f338564e ("ftrace: Allow enabling of filters via index of available_filter_functions")
+Fixes: dae181349f1e ("tracing/osnoise: Support a list of trace_array *tr")
+Acked-by: Daniel Bristot de Oliveira <bristot@kernel.org>
+Signed-off-by: Chuang Wang <nashuiliang@gmail.com>
 Signed-off-by: Steven Rostedt (Google) <rostedt@goodmis.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- scripts/tracing/ftrace-bisect.sh |   34 ++++++++++++++++++++++++++--------
- 1 file changed, 26 insertions(+), 8 deletions(-)
+ kernel/trace/trace_osnoise.c | 5 ++---
+ 1 file changed, 2 insertions(+), 3 deletions(-)
 
---- a/scripts/tracing/ftrace-bisect.sh
-+++ b/scripts/tracing/ftrace-bisect.sh
-@@ -12,7 +12,7 @@
- #   (note, if this is a problem with function_graph tracing, then simply
- #    replace "function" with "function_graph" in the following steps).
- #
--#  # cd /sys/kernel/debug/tracing
-+#  # cd /sys/kernel/tracing
- #  # echo schedule > set_ftrace_filter
- #  # echo function > current_tracer
- #
-@@ -20,22 +20,40 @@
- #
- #  # echo nop > current_tracer
- #
--#  # cat available_filter_functions > ~/full-file
-+# Starting with v5.1 this can be done with numbers, making it much faster:
-+#
-+# The old (slow) way, for kernels before v5.1.
-+#
-+# [old-way] # cat available_filter_functions > ~/full-file
-+#
-+# [old-way] *** Note ***  this process will take several minutes to update the
-+# [old-way] filters. Setting multiple functions is an O(n^2) operation, and we
-+# [old-way] are dealing with thousands of functions. So go have coffee, talk
-+# [old-way] with your coworkers, read facebook. And eventually, this operation
-+# [old-way] will end.
-+#
-+# The new way (using numbers) is an O(n) operation, and usually takes less than a second.
-+#
-+# seq `wc -l available_filter_functions | cut -d' ' -f1` > ~/full-file
-+#
-+# This will create a sequence of numbers that match the functions in
-+# available_filter_functions, and when echoing in a number into the
-+# set_ftrace_filter file, it will enable the corresponding function in
-+# O(1) time. Making enabling all functions O(n) where n is the number of
-+# functions to enable.
-+#
-+# For either the new or old way, the rest of the operations remain the same.
-+#
- #  # ftrace-bisect ~/full-file ~/test-file ~/non-test-file
- #  # cat ~/test-file > set_ftrace_filter
- #
--# *** Note *** this will take several minutes. Setting multiple functions is
--# an O(n^2) operation, and we are dealing with thousands of functions. So go
--# have  coffee, talk with your coworkers, read facebook. And eventually, this
--# operation will end.
--#
- #  # echo function > current_tracer
- #
- # If it crashes, we know that ~/test-file has a bad function.
- #
- #   Reboot back to test kernel.
- #
--#     # cd /sys/kernel/debug/tracing
-+#     # cd /sys/kernel/tracing
- #     # mv ~/test-file ~/full-file
- #
- # If it didn't crash.
+diff --git a/kernel/trace/trace_osnoise.c b/kernel/trace/trace_osnoise.c
+index 4300c5dc4e5d..1c07efcb3d46 100644
+--- a/kernel/trace/trace_osnoise.c
++++ b/kernel/trace/trace_osnoise.c
+@@ -125,9 +125,8 @@ static void osnoise_unregister_instance(struct trace_array *tr)
+ 	 * register/unregister serialization is provided by trace's
+ 	 * trace_types_lock.
+ 	 */
+-	lockdep_assert_held(&trace_types_lock);
+-
+-	list_for_each_entry_rcu(inst, &osnoise_instances, list) {
++	list_for_each_entry_rcu(inst, &osnoise_instances, list,
++				lockdep_is_held(&trace_types_lock)) {
+ 		if (inst->tr == tr) {
+ 			list_del_rcu(&inst->list);
+ 			found = 1;
+-- 
+2.39.0
+
 
 
