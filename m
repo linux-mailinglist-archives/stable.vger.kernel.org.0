@@ -2,43 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C12E5681314
-	for <lists+stable@lfdr.de>; Mon, 30 Jan 2023 15:28:16 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 43665681316
+	for <lists+stable@lfdr.de>; Mon, 30 Jan 2023 15:28:19 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237563AbjA3O2P (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 30 Jan 2023 09:28:15 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49446 "EHLO
+        id S237762AbjA3O2R (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 30 Jan 2023 09:28:17 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49018 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237716AbjA3O2B (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 30 Jan 2023 09:28:01 -0500
-Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2E1063D0B9
-        for <stable@vger.kernel.org>; Mon, 30 Jan 2023 06:26:19 -0800 (PST)
+        with ESMTP id S237614AbjA3O2D (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 30 Jan 2023 09:28:03 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9AB713F28C
+        for <stable@vger.kernel.org>; Mon, 30 Jan 2023 06:26:22 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 9365DCE1714
-        for <stable@vger.kernel.org>; Mon, 30 Jan 2023 14:26:17 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 44B82C433D2;
-        Mon, 30 Jan 2023 14:26:15 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 319D261036
+        for <stable@vger.kernel.org>; Mon, 30 Jan 2023 14:26:22 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 24417C433EF;
+        Mon, 30 Jan 2023 14:26:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1675088775;
-        bh=v/kpmz2168WKnrfNRzSlZJ1n8laKsx1iQpoPnaKEwvM=;
+        s=korg; t=1675088781;
+        bh=SVI7IFTtZOxgdmygIPoBWcj0FFNZOkCYn6rIBbSM0dE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=DaKhY3hdC9V6pfVJXl2VfT54kl5mUFS2ZKneXokvXiLyT4m3HRc1iYpM/1xOq7yRJ
-         Ds734cDhmi0MeNdxqHNBJHBk/1c/LDvJmzS/EZ8wihh31WxUfNHwphMxH5gAiMpt/H
-         MnHxkeNFT2wsFkARfv3Kf96JJLlDTiFY0MupHq6o=
+        b=pcTsR4kiq4Q3pECusd8cItZC8Vq6PDUTtjyXG+E3EzZYw5hqmX0VKfdMVcsVGNAco
+         umVcbcQdG+R0umIScBpr5QiMBEeMqy9NicNDNXjCV9NltnezjHBL29oBPy6lYDJAPA
+         t1GvIHRKTCSvOxmSUH+ep/i3IseNFUN5CT0WsQgY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        David Christensen <drc@linux.vnet.ibm.com>,
-        Pavan Chebbi <pavan.chebbi@broadcom.com>,
+        patches@lists.linux.dev, Qi Duan <qi.duan@amlogic.com>,
+        Heiner Kallweit <hkallweit1@gmail.com>,
+        Jerome Brunet <jbrunet@baylibre.com>,
         Jakub Kicinski <kuba@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 132/143] net/tg3: resolve deadlock in tg3_reset_task() during EEH
-Date:   Mon, 30 Jan 2023 14:53:09 +0100
-Message-Id: <20230130134312.298794446@linuxfoundation.org>
+Subject: [PATCH 5.10 133/143] net: mdio-mux-meson-g12a: force internal PHY off on mux switch
+Date:   Mon, 30 Jan 2023 14:53:10 +0100
+Message-Id: <20230130134312.336967437@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.1
 In-Reply-To: <20230130134306.862721518@linuxfoundation.org>
 References: <20230130134306.862721518@linuxfoundation.org>
@@ -55,117 +55,78 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: David Christensen <drc@linux.vnet.ibm.com>
+From: Jerome Brunet <jbrunet@baylibre.com>
 
-[ Upstream commit 6c4ca03bd890566d873e3593b32d034bf2f5a087 ]
+[ Upstream commit 7083df59abbc2b7500db312cac706493be0273ff ]
 
-During EEH error injection testing, a deadlock was encountered in the tg3
-driver when tg3_io_error_detected() was attempting to cancel outstanding
-reset tasks:
+Force the internal PHY off then on when switching to the internal path.
+This fixes problems where the PHY ID is not properly set.
 
-crash> foreach UN bt
-...
-PID: 159    TASK: c0000000067c6000  CPU: 8   COMMAND: "eehd"
-...
- #5 [c00000000681f990] __cancel_work_timer at c00000000019fd18
- #6 [c00000000681fa30] tg3_io_error_detected at c00800000295f098 [tg3]
- #7 [c00000000681faf0] eeh_report_error at c00000000004e25c
-...
-
-PID: 290    TASK: c000000036e5f800  CPU: 6   COMMAND: "kworker/6:1"
-...
- #4 [c00000003721fbc0] rtnl_lock at c000000000c940d8
- #5 [c00000003721fbe0] tg3_reset_task at c008000002969358 [tg3]
- #6 [c00000003721fc60] process_one_work at c00000000019e5c4
-...
-
-PID: 296    TASK: c000000037a65800  CPU: 21  COMMAND: "kworker/21:1"
-...
- #4 [c000000037247bc0] rtnl_lock at c000000000c940d8
- #5 [c000000037247be0] tg3_reset_task at c008000002969358 [tg3]
- #6 [c000000037247c60] process_one_work at c00000000019e5c4
-...
-
-PID: 655    TASK: c000000036f49000  CPU: 16  COMMAND: "kworker/16:2"
-...:1
-
- #4 [c0000000373ebbc0] rtnl_lock at c000000000c940d8
- #5 [c0000000373ebbe0] tg3_reset_task at c008000002969358 [tg3]
- #6 [c0000000373ebc60] process_one_work at c00000000019e5c4
-...
-
-Code inspection shows that both tg3_io_error_detected() and
-tg3_reset_task() attempt to acquire the RTNL lock at the beginning of
-their code blocks.  If tg3_reset_task() should happen to execute between
-the times when tg3_io_error_deteced() acquires the RTNL lock and
-tg3_reset_task_cancel() is called, a deadlock will occur.
-
-Moving tg3_reset_task_cancel() call earlier within the code block, prior
-to acquiring RTNL, prevents this from happening, but also exposes another
-deadlock issue where tg3_reset_task() may execute AFTER
-tg3_io_error_detected() has executed:
-
-crash> foreach UN bt
-PID: 159    TASK: c0000000067d2000  CPU: 9   COMMAND: "eehd"
-...
- #4 [c000000006867a60] rtnl_lock at c000000000c940d8
- #5 [c000000006867a80] tg3_io_slot_reset at c0080000026c2ea8 [tg3]
- #6 [c000000006867b00] eeh_report_reset at c00000000004de88
-...
-PID: 363    TASK: c000000037564000  CPU: 6   COMMAND: "kworker/6:1"
-...
- #3 [c000000036c1bb70] msleep at c000000000259e6c
- #4 [c000000036c1bba0] napi_disable at c000000000c6b848
- #5 [c000000036c1bbe0] tg3_reset_task at c0080000026d942c [tg3]
- #6 [c000000036c1bc60] process_one_work at c00000000019e5c4
-...
-
-This issue can be avoided by aborting tg3_reset_task() if EEH error
-recovery is already in progress.
-
-Fixes: db84bf43ef23 ("tg3: tg3_reset_task() needs to use rtnl_lock to synchronize")
-Signed-off-by: David Christensen <drc@linux.vnet.ibm.com>
-Reviewed-by: Pavan Chebbi <pavan.chebbi@broadcom.com>
-Link: https://lore.kernel.org/r/20230124185339.225806-1-drc@linux.vnet.ibm.com
+Fixes: 7090425104db ("net: phy: add amlogic g12a mdio mux support")
+Suggested-by: Qi Duan <qi.duan@amlogic.com>
+Co-developed-by: Heiner Kallweit <hkallweit1@gmail.com>
+Signed-off-by: Heiner Kallweit <hkallweit1@gmail.com>
+Signed-off-by: Jerome Brunet <jbrunet@baylibre.com>
+Link: https://lore.kernel.org/r/20230124101157.232234-1-jbrunet@baylibre.com
 Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/broadcom/tg3.c | 8 ++++----
- 1 file changed, 4 insertions(+), 4 deletions(-)
+ drivers/net/mdio/mdio-mux-meson-g12a.c | 23 ++++++++++++++++-------
+ 1 file changed, 16 insertions(+), 7 deletions(-)
 
-diff --git a/drivers/net/ethernet/broadcom/tg3.c b/drivers/net/ethernet/broadcom/tg3.c
-index be96116dc2cc..613ca6124e3c 100644
---- a/drivers/net/ethernet/broadcom/tg3.c
-+++ b/drivers/net/ethernet/broadcom/tg3.c
-@@ -11185,7 +11185,7 @@ static void tg3_reset_task(struct work_struct *work)
- 	rtnl_lock();
- 	tg3_full_lock(tp, 0);
+diff --git a/drivers/net/mdio/mdio-mux-meson-g12a.c b/drivers/net/mdio/mdio-mux-meson-g12a.c
+index bf86c9c7a288..ab863530c9e8 100644
+--- a/drivers/net/mdio/mdio-mux-meson-g12a.c
++++ b/drivers/net/mdio/mdio-mux-meson-g12a.c
+@@ -4,6 +4,7 @@
+  */
  
--	if (!netif_running(tp->dev)) {
-+	if (tp->pcierr_recovery || !netif_running(tp->dev)) {
- 		tg3_flag_clear(tp, RESET_TASK_PENDING);
- 		tg3_full_unlock(tp);
- 		rtnl_unlock();
-@@ -18179,6 +18179,9 @@ static pci_ers_result_t tg3_io_error_detected(struct pci_dev *pdev,
+ #include <linux/bitfield.h>
++#include <linux/delay.h>
+ #include <linux/clk.h>
+ #include <linux/clk-provider.h>
+ #include <linux/device.h>
+@@ -150,6 +151,7 @@ static const struct clk_ops g12a_ephy_pll_ops = {
  
- 	netdev_info(netdev, "PCI I/O error detected\n");
+ static int g12a_enable_internal_mdio(struct g12a_mdio_mux *priv)
+ {
++	u32 value;
+ 	int ret;
  
-+	/* Want to make sure that the reset task doesn't run */
-+	tg3_reset_task_cancel(tp);
+ 	/* Enable the phy clock */
+@@ -163,18 +165,25 @@ static int g12a_enable_internal_mdio(struct g12a_mdio_mux *priv)
+ 
+ 	/* Initialize ephy control */
+ 	writel(EPHY_G12A_ID, priv->regs + ETH_PHY_CNTL0);
+-	writel(FIELD_PREP(PHY_CNTL1_ST_MODE, 3) |
+-	       FIELD_PREP(PHY_CNTL1_ST_PHYADD, EPHY_DFLT_ADD) |
+-	       FIELD_PREP(PHY_CNTL1_MII_MODE, EPHY_MODE_RMII) |
+-	       PHY_CNTL1_CLK_EN |
+-	       PHY_CNTL1_CLKFREQ |
+-	       PHY_CNTL1_PHY_ENB,
+-	       priv->regs + ETH_PHY_CNTL1);
 +
- 	rtnl_lock();
++	/* Make sure we get a 0 -> 1 transition on the enable bit */
++	value = FIELD_PREP(PHY_CNTL1_ST_MODE, 3) |
++		FIELD_PREP(PHY_CNTL1_ST_PHYADD, EPHY_DFLT_ADD) |
++		FIELD_PREP(PHY_CNTL1_MII_MODE, EPHY_MODE_RMII) |
++		PHY_CNTL1_CLK_EN |
++		PHY_CNTL1_CLKFREQ;
++	writel(value, priv->regs + ETH_PHY_CNTL1);
+ 	writel(PHY_CNTL2_USE_INTERNAL |
+ 	       PHY_CNTL2_SMI_SRC_MAC |
+ 	       PHY_CNTL2_RX_CLK_EPHY,
+ 	       priv->regs + ETH_PHY_CNTL2);
  
- 	/* Could be second call or maybe we don't have netdev yet */
-@@ -18195,9 +18198,6 @@ static pci_ers_result_t tg3_io_error_detected(struct pci_dev *pdev,
++	value |= PHY_CNTL1_PHY_ENB;
++	writel(value, priv->regs + ETH_PHY_CNTL1);
++
++	/* The phy needs a bit of time to power up */
++	mdelay(10);
++
+ 	return 0;
+ }
  
- 	tg3_timer_stop(tp);
- 
--	/* Want to make sure that the reset task doesn't run */
--	tg3_reset_task_cancel(tp);
--
- 	netif_device_detach(netdev);
- 
- 	/* Clean up software state, even if MMIO is blocked */
 -- 
 2.39.0
 
