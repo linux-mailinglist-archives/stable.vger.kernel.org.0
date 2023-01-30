@@ -2,45 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 4F5B4681019
-	for <lists+stable@lfdr.de>; Mon, 30 Jan 2023 15:00:10 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1FB6F68101B
+	for <lists+stable@lfdr.de>; Mon, 30 Jan 2023 15:00:13 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236794AbjA3OAJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 30 Jan 2023 09:00:09 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41214 "EHLO
+        id S236872AbjA3OAL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 30 Jan 2023 09:00:11 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41458 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236869AbjA3OAD (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 30 Jan 2023 09:00:03 -0500
+        with ESMTP id S236876AbjA3OAE (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 30 Jan 2023 09:00:04 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DE4313A85F
-        for <stable@vger.kernel.org>; Mon, 30 Jan 2023 05:59:42 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A82763B0C3
+        for <stable@vger.kernel.org>; Mon, 30 Jan 2023 05:59:46 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 9398B60FE0
-        for <stable@vger.kernel.org>; Mon, 30 Jan 2023 13:59:17 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 87A23C433D2;
-        Mon, 30 Jan 2023 13:59:16 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id A319E6102D
+        for <stable@vger.kernel.org>; Mon, 30 Jan 2023 13:59:20 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9ABA0C433EF;
+        Mon, 30 Jan 2023 13:59:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1675087157;
-        bh=HvsOvFku05vbibpHjbQYPdT6PjZTPZiRjTZ98e5WCaI=;
+        s=korg; t=1675087160;
+        bh=N/ZEUfMEHi/7Ti8SnwWQXS17rCalQc//wZIl1EmhCqI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Qjck3D8KaLhrMQyzCljJAgmYSFZiscp/29Y3N1JoET+yIl2kBwg/KFgB227/kyBtb
-         4nbOdro1rDr7lo03HuuApixqF0YDsrYoGUJO1npuEl1C1H0QnktqCwk8+zbOHCeG5k
-         6FkovwBInpe4XC3XTYwI9i1XKP78dxLef6FqIF1A=
+        b=Y4hmNPt7DdtkvvzGhVP+GVixvW5R6aXabERaKsC36zd1cxxSKSAOgrzwMqOfqLi/G
+         hhYDtapz7xdqlMjUKscwfUshGg17HEBMt8+UfTP8SbrTJgQ2hUs21YZDbed2+rMPH4
+         gJyThfuw5FvzFcEjHmhBpUKUDE1DNWjzpzXhLiVs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         patches@lists.linux.dev,
-        syzbot+bbd35b345c7cab0d9a08@syzkaller.appspotmail.com,
-        Eric Dumazet <edumazet@google.com>,
-        Cong Wang <cong.wang@bytedance.com>,
-        Guillaume Nault <gnault@redhat.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 116/313] l2tp: prevent lockdep issue in l2tp_tunnel_register()
-Date:   Mon, 30 Jan 2023 14:49:11 +0100
-Message-Id: <20230130134342.067891244@linuxfoundation.org>
+        Pietro Borrello <borrello@diag.uniroma1.it>,
+        Jiri Kosina <jkosina@suse.cz>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 6.1 117/313] HID: betop: check shape of output reports
+Date:   Mon, 30 Jan 2023 14:49:12 +0100
+Message-Id: <20230130134342.108283997@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.1
 In-Reply-To: <20230130134336.532886729@linuxfoundation.org>
 References: <20230130134336.532886729@linuxfoundation.org>
@@ -57,56 +53,66 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eric Dumazet <edumazet@google.com>
+From: Pietro Borrello <borrello@diag.uniroma1.it>
 
-[ Upstream commit b9fb10d131b8c84af9bb14e2078d5c63600c7dea ]
+[ Upstream commit 3782c0d6edf658b71354a64d60aa7a296188fc90 ]
 
-lockdep complains with the following lock/unlock sequence:
+betopff_init() only checks the total sum of the report counts for each
+report field to be at least 4, but hid_betopff_play() expects 4 report
+fields.
+A device advertising an output report with one field and 4 report counts
+would pass the check but crash the kernel with a NULL pointer dereference
+in hid_betopff_play().
 
-     lock_sock(sk);
-     write_lock_bh(&sk->sk_callback_lock);
-[1]  release_sock(sk);
-[2]  write_unlock_bh(&sk->sk_callback_lock);
-
-We need to swap [1] and [2] to fix this issue.
-
-Fixes: 0b2c59720e65 ("l2tp: close all race conditions in l2tp_tunnel_register()")
-Reported-by: syzbot+bbd35b345c7cab0d9a08@syzkaller.appspotmail.com
-Signed-off-by: Eric Dumazet <edumazet@google.com>
-Link: https://lore.kernel.org/netdev/20230114030137.672706-1-xiyou.wangcong@gmail.com/T/#m1164ff20628671b0f326a24cb106ab3239c70ce3
-Cc: Cong Wang <cong.wang@bytedance.com>
-Cc: Guillaume Nault <gnault@redhat.com>
-Reviewed-by: Guillaume Nault <gnault@redhat.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Fixes: 52cd7785f3cd ("HID: betop: add drivers/hid/hid-betopff.c")
+Signed-off-by: Pietro Borrello <borrello@diag.uniroma1.it>
+Signed-off-by: Jiri Kosina <jkosina@suse.cz>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/l2tp/l2tp_core.c | 5 ++---
- 1 file changed, 2 insertions(+), 3 deletions(-)
+ drivers/hid/hid-betopff.c | 17 +++++++++--------
+ 1 file changed, 9 insertions(+), 8 deletions(-)
 
-diff --git a/net/l2tp/l2tp_core.c b/net/l2tp/l2tp_core.c
-index b6554e32bb12..03608d3ded4b 100644
---- a/net/l2tp/l2tp_core.c
-+++ b/net/l2tp/l2tp_core.c
-@@ -1483,10 +1483,8 @@ int l2tp_tunnel_register(struct l2tp_tunnel *tunnel, struct net *net,
- 	lock_sock(sk);
- 	write_lock_bh(&sk->sk_callback_lock);
- 	ret = l2tp_validate_socket(sk, net, tunnel->encap);
--	if (ret < 0) {
--		release_sock(sk);
-+	if (ret < 0)
- 		goto err_inval_sock;
+diff --git a/drivers/hid/hid-betopff.c b/drivers/hid/hid-betopff.c
+index 467d789f9bc2..25ed7b9a917e 100644
+--- a/drivers/hid/hid-betopff.c
++++ b/drivers/hid/hid-betopff.c
+@@ -60,7 +60,6 @@ static int betopff_init(struct hid_device *hid)
+ 	struct list_head *report_list =
+ 			&hid->report_enum[HID_OUTPUT_REPORT].report_list;
+ 	struct input_dev *dev;
+-	int field_count = 0;
+ 	int error;
+ 	int i, j;
+ 
+@@ -86,19 +85,21 @@ static int betopff_init(struct hid_device *hid)
+ 	 * -----------------------------------------
+ 	 * Do init them with default value.
+ 	 */
++	if (report->maxfield < 4) {
++		hid_err(hid, "not enough fields in the report: %d\n",
++				report->maxfield);
++		return -ENODEV;
++	}
+ 	for (i = 0; i < report->maxfield; i++) {
++		if (report->field[i]->report_count < 1) {
++			hid_err(hid, "no values in the field\n");
++			return -ENODEV;
++		}
+ 		for (j = 0; j < report->field[i]->report_count; j++) {
+ 			report->field[i]->value[j] = 0x00;
+-			field_count++;
+ 		}
+ 	}
+ 
+-	if (field_count < 4) {
+-		hid_err(hid, "not enough fields in the report: %d\n",
+-				field_count);
+-		return -ENODEV;
 -	}
- 	rcu_assign_sk_user_data(sk, tunnel);
- 	write_unlock_bh(&sk->sk_callback_lock);
- 
-@@ -1523,6 +1521,7 @@ int l2tp_tunnel_register(struct l2tp_tunnel *tunnel, struct net *net,
- 
- err_inval_sock:
- 	write_unlock_bh(&sk->sk_callback_lock);
-+	release_sock(sk);
- 
- 	if (tunnel->fd < 0)
- 		sock_release(sock);
+-
+ 	betopff = kzalloc(sizeof(*betopff), GFP_KERNEL);
+ 	if (!betopff)
+ 		return -ENOMEM;
 -- 
 2.39.0
 
