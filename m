@@ -2,50 +2,54 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B2BB56812BB
-	for <lists+stable@lfdr.de>; Mon, 30 Jan 2023 15:24:40 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A207E68119A
+	for <lists+stable@lfdr.de>; Mon, 30 Jan 2023 15:15:07 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237476AbjA3OYj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 30 Jan 2023 09:24:39 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42004 "EHLO
+        id S237296AbjA3OPG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 30 Jan 2023 09:15:06 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59040 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236126AbjA3OYT (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 30 Jan 2023 09:24:19 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 521F53FF20
-        for <stable@vger.kernel.org>; Mon, 30 Jan 2023 06:23:13 -0800 (PST)
+        with ESMTP id S237310AbjA3OPF (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 30 Jan 2023 09:15:05 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6E2567698
+        for <stable@vger.kernel.org>; Mon, 30 Jan 2023 06:15:04 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id C5679B811D7
-        for <stable@vger.kernel.org>; Mon, 30 Jan 2023 14:22:18 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1F3FBC433EF;
-        Mon, 30 Jan 2023 14:22:16 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 1DBEFB80DEB
+        for <stable@vger.kernel.org>; Mon, 30 Jan 2023 14:15:03 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1ED4AC433EF;
+        Mon, 30 Jan 2023 14:15:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1675088537;
-        bh=HIuAtD7PP0GscvnFPtW6sWcXVA2xXCCEW3Lsq9AnqR0=;
+        s=korg; t=1675088101;
+        bh=PiQIi1sGWYNyhdFwLS8tLrQSCzg4TBXd2U/CVxrfxjI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=JJ1znMWt1JqWm4NU192sQwHCMqKRPcjp/3VAc0y85y2B8rXnVZPDLM5ievSxfz4xS
-         sOmOF9P5jOCJCCCWyEX6fn0bpMGl4eIApSzF3tq+6olafrfHQHUh2yxlSFQU0SSgX2
-         wtunEIlU861zD8OAtyoZ4sGpFj5WrpAQuLBd0hvE=
+        b=eSa3rLhVsOhY2s52waTbcvXuxi2vXCspn4fEyAO1xGf6VyfKPUedRhSu5Ya6Hr4zs
+         KkT3iMsexFuce3QXmegpWulk3Q/JlnwOloWG5KLEtRqV82grOoGNUhcwVoI2uIZgw6
+         SvIux2kcAePnjrQ4RfAbUvhfk5zYNIJ4Jx1cfrX4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Claudiu Beznea <claudiu.beznea@microchip.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 024/143] ARM: dts: at91: sam9x60: fix the ddr clock for sam9x60
+        patches@lists.linux.dev, Mateusz Guzik <mjguzik@gmail.com>,
+        Peter Zijlstra <peterz@infradead.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Sasha Levin <sashal@kernel.org>,
+        Tony Luck <tony.luck@intel.com>,
+        Nicholas Piggin <npiggin@gmail.com>,
+        Will Deacon <will@kernel.org>
+Subject: [PATCH 5.15 116/204] lockref: stop doing cpu_relax in the cmpxchg loop
 Date:   Mon, 30 Jan 2023 14:51:21 +0100
-Message-Id: <20230130134307.872255440@linuxfoundation.org>
+Message-Id: <20230130134321.567176074@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.1
-In-Reply-To: <20230130134306.862721518@linuxfoundation.org>
-References: <20230130134306.862721518@linuxfoundation.org>
+In-Reply-To: <20230130134316.327556078@linuxfoundation.org>
+References: <20230130134316.327556078@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
         SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -53,33 +57,104 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Claudiu Beznea <claudiu.beznea@microchip.com>
+From: Mateusz Guzik <mjguzik@gmail.com>
 
-[ Upstream commit 9bfa2544dbd1133f0b0af4e967de3bb9c1e3a497 ]
+[ Upstream commit f5fe24ef17b5fbe6db49534163e77499fb10ae8c ]
 
-The 2nd DDR clock for sam9x60 DDR controller is peripheral clock with
-id 49.
+On the x86-64 architecture even a failing cmpxchg grants exclusive
+access to the cacheline, making it preferable to retry the failed op
+immediately instead of stalling with the pause instruction.
 
-Fixes: 1e5f532c2737 ("ARM: dts: at91: sam9x60: add device tree for soc and board")
-Signed-off-by: Claudiu Beznea <claudiu.beznea@microchip.com>
-Link: https://lore.kernel.org/r/20221208115241.36312-1-claudiu.beznea@microchip.com
+To illustrate the impact, below are benchmark results obtained by
+running various will-it-scale tests on top of the 6.2-rc3 kernel and
+Cascade Lake (2 sockets * 24 cores * 2 threads) CPU.
+
+All results in ops/s.  Note there is some variance in re-runs, but the
+code is consistently faster when contention is present.
+
+  open3 ("Same file open/close"):
+  proc          stock       no-pause
+     1         805603         814942       (+%1)
+     2        1054980        1054781       (-0%)
+     8        1544802        1822858      (+18%)
+    24        1191064        2199665      (+84%)
+    48         851582        1469860      (+72%)
+    96         609481        1427170     (+134%)
+
+  fstat2 ("Same file fstat"):
+  proc          stock       no-pause
+     1        3013872        3047636       (+1%)
+     2        4284687        4400421       (+2%)
+     8        3257721        5530156      (+69%)
+    24        2239819        5466127     (+144%)
+    48        1701072        5256609     (+209%)
+    96        1269157        6649326     (+423%)
+
+Additionally, a kernel with a private patch to help access() scalability:
+access2 ("Same file access"):
+
+  proc          stock        patched      patched
+                                         +nopause
+    24        2378041        2005501      5370335  (-15% / +125%)
+
+That is, fixing the problems in access itself *reduces* scalability
+after the cacheline ping-pong only happens in lockref with the pause
+instruction.
+
+Note that fstat and access benchmarks are not currently integrated into
+will-it-scale, but interested parties can find them in pull requests to
+said project.
+
+Code at hand has a rather tortured history.  First modification showed
+up in commit d472d9d98b46 ("lockref: Relax in cmpxchg loop"), written
+with Itanium in mind.  Later it got patched up to use an arch-dependent
+macro to stop doing it on s390 where it caused a significant regression.
+Said macro had undergone revisions and was ultimately eliminated later,
+going back to cpu_relax.
+
+While I intended to only remove cpu_relax for x86-64, I got the
+following comment from Linus:
+
+    I would actually prefer just removing it entirely and see if
+    somebody else hollers. You have the numbers to prove it hurts on
+    real hardware, and I don't think we have any numbers to the
+    contrary.
+
+    So I think it's better to trust the numbers and remove it as a
+    failure, than say "let's just remove it on x86-64 and leave
+    everybody else with the potentially broken code"
+
+Additionally, Will Deacon (maintainer of the arm64 port, one of the
+architectures previously benchmarked):
+
+    So, from the arm64 side of the fence, I'm perfectly happy just
+    removing the cpu_relax() calls from lockref.
+
+As such, come back full circle in history and whack it altogether.
+
+Signed-off-by: Mateusz Guzik <mjguzik@gmail.com>
+Link: https://lore.kernel.org/all/CAGudoHHx0Nqg6DE70zAVA75eV-HXfWyhVMWZ-aSeOofkA_=WdA@mail.gmail.com/
+Acked-by: Tony Luck <tony.luck@intel.com> # ia64
+Acked-by: Nicholas Piggin <npiggin@gmail.com> # powerpc
+Acked-by: Will Deacon <will@kernel.org> # arm64
+Acked-by: Peter Zijlstra <peterz@infradead.org>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm/boot/dts/sam9x60.dtsi | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ lib/lockref.c | 1 -
+ 1 file changed, 1 deletion(-)
 
-diff --git a/arch/arm/boot/dts/sam9x60.dtsi b/arch/arm/boot/dts/sam9x60.dtsi
-index ec45ced3cde6..e1e0dec8cc1f 100644
---- a/arch/arm/boot/dts/sam9x60.dtsi
-+++ b/arch/arm/boot/dts/sam9x60.dtsi
-@@ -567,7 +567,7 @@ pmecc: ecc-engine@ffffe000 {
- 			mpddrc: mpddrc@ffffe800 {
- 				compatible = "microchip,sam9x60-ddramc", "atmel,sama5d3-ddramc";
- 				reg = <0xffffe800 0x200>;
--				clocks = <&pmc PMC_TYPE_SYSTEM 2>, <&pmc PMC_TYPE_CORE PMC_MCK>;
-+				clocks = <&pmc PMC_TYPE_SYSTEM 2>, <&pmc PMC_TYPE_PERIPHERAL 49>;
- 				clock-names = "ddrck", "mpddr";
- 			};
+diff --git a/lib/lockref.c b/lib/lockref.c
+index 5b34bbd3eba8..81ac5f355242 100644
+--- a/lib/lockref.c
++++ b/lib/lockref.c
+@@ -24,7 +24,6 @@
+ 		}								\
+ 		if (!--retry)							\
+ 			break;							\
+-		cpu_relax();							\
+ 	}									\
+ } while (0)
  
 -- 
 2.39.0
