@@ -2,50 +2,52 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E5D3B6812C4
-	for <lists+stable@lfdr.de>; Mon, 30 Jan 2023 15:25:32 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5EB5A6811BC
+	for <lists+stable@lfdr.de>; Mon, 30 Jan 2023 15:16:27 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235695AbjA3OZa (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 30 Jan 2023 09:25:30 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41774 "EHLO
+        id S237348AbjA3OQZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 30 Jan 2023 09:16:25 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60228 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237379AbjA3OYs (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 30 Jan 2023 09:24:48 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5F88D36466
-        for <stable@vger.kernel.org>; Mon, 30 Jan 2023 06:23:44 -0800 (PST)
+        with ESMTP id S237365AbjA3OQX (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 30 Jan 2023 09:16:23 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5B9903C2A7
+        for <stable@vger.kernel.org>; Mon, 30 Jan 2023 06:16:22 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 00C7361015
-        for <stable@vger.kernel.org>; Mon, 30 Jan 2023 14:22:36 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E6924C433A0;
-        Mon, 30 Jan 2023 14:22:34 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id E8B2961022
+        for <stable@vger.kernel.org>; Mon, 30 Jan 2023 14:16:21 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id CE4EBC433EF;
+        Mon, 30 Jan 2023 14:16:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1675088555;
-        bh=N/ZEUfMEHi/7Ti8SnwWQXS17rCalQc//wZIl1EmhCqI=;
+        s=korg; t=1675088181;
+        bh=27pnBXjsOMh7kid70Q6rXg/J9xU4A3n3I7LwQwnSPjQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=pHn/mFWDu2HKy6y8Z0Lgz+JqKmXt4ddj/xRDcm3NbXyFIHf6HTUW+hqgRB1L57GH0
-         CLQ5CbsPJpLR3xtOsrer6dLFcsStsa2pJ7sHQ5w02jjEabudeibsKny5Hq8c8uX0KE
-         /z8NTcrA2KUiKX4y2Fci73/eDWnZvX5h6+BimPUU=
+        b=TeWoPtGFZ+WPCBUaunorixlS9z271+90nHKFiUvzZvWk1Ow7nMO1mAYv/8a3lM9tm
+         iWPEaioiOGtX0secH+E1Q40imARC64T+hdZObHWzttFMXU9gVC/2h5TuE7Z9B9jtxk
+         o+RLz+fDbFhRadkCXNa7C33Tp+hay08BP0IUli9k=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Pietro Borrello <borrello@diag.uniroma1.it>,
-        Jiri Kosina <jkosina@suse.cz>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 051/143] HID: betop: check shape of output reports
+        patches@lists.linux.dev, Archie Pusaka <apusaka@chromium.org>,
+        Abhishek Pandit-Subedi <abhishekpandit@google.com>,
+        Luiz Augusto von Dentz <luiz.von.dentz@intel.com>,
+        Fedor Pchelkin <pchelkin@ispras.ru>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.15 143/204] Bluetooth: hci_sync: cancel cmd_timer if hci_open failed
 Date:   Mon, 30 Jan 2023 14:51:48 +0100
-Message-Id: <20230130134308.983352733@linuxfoundation.org>
+Message-Id: <20230130134322.826974957@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.1
-In-Reply-To: <20230130134306.862721518@linuxfoundation.org>
-References: <20230130134306.862721518@linuxfoundation.org>
+In-Reply-To: <20230130134316.327556078@linuxfoundation.org>
+References: <20230130134316.327556078@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
         SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -53,66 +55,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pietro Borrello <borrello@diag.uniroma1.it>
+From: Archie Pusaka <apusaka@chromium.org>
 
-[ Upstream commit 3782c0d6edf658b71354a64d60aa7a296188fc90 ]
+commit 97dfaf073f5881c624856ef293be307b6166115c upstream.
 
-betopff_init() only checks the total sum of the report counts for each
-report field to be at least 4, but hid_betopff_play() expects 4 report
-fields.
-A device advertising an output report with one field and 4 report counts
-would pass the check but crash the kernel with a NULL pointer dereference
-in hid_betopff_play().
+If a command is already sent, we take care of freeing it, but we
+also need to cancel the timeout as well.
 
-Fixes: 52cd7785f3cd ("HID: betop: add drivers/hid/hid-betopff.c")
-Signed-off-by: Pietro Borrello <borrello@diag.uniroma1.it>
-Signed-off-by: Jiri Kosina <jkosina@suse.cz>
+Signed-off-by: Archie Pusaka <apusaka@chromium.org>
+Reviewed-by: Abhishek Pandit-Subedi <abhishekpandit@google.com>
+Signed-off-by: Luiz Augusto von Dentz <luiz.von.dentz@intel.com>
+Signed-off-by: Fedor Pchelkin <pchelkin@ispras.ru>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/hid/hid-betopff.c | 17 +++++++++--------
- 1 file changed, 9 insertions(+), 8 deletions(-)
+ net/bluetooth/hci_core.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/hid/hid-betopff.c b/drivers/hid/hid-betopff.c
-index 467d789f9bc2..25ed7b9a917e 100644
---- a/drivers/hid/hid-betopff.c
-+++ b/drivers/hid/hid-betopff.c
-@@ -60,7 +60,6 @@ static int betopff_init(struct hid_device *hid)
- 	struct list_head *report_list =
- 			&hid->report_enum[HID_OUTPUT_REPORT].report_list;
- 	struct input_dev *dev;
--	int field_count = 0;
- 	int error;
- 	int i, j;
+diff --git a/net/bluetooth/hci_core.c b/net/bluetooth/hci_core.c
+index a41b4dcf1a7a..cabe8eb4c14f 100644
+--- a/net/bluetooth/hci_core.c
++++ b/net/bluetooth/hci_core.c
+@@ -1632,6 +1632,7 @@ static int hci_dev_do_open(struct hci_dev *hdev)
+ 			hdev->flush(hdev);
  
-@@ -86,19 +85,21 @@ static int betopff_init(struct hid_device *hid)
- 	 * -----------------------------------------
- 	 * Do init them with default value.
- 	 */
-+	if (report->maxfield < 4) {
-+		hid_err(hid, "not enough fields in the report: %d\n",
-+				report->maxfield);
-+		return -ENODEV;
-+	}
- 	for (i = 0; i < report->maxfield; i++) {
-+		if (report->field[i]->report_count < 1) {
-+			hid_err(hid, "no values in the field\n");
-+			return -ENODEV;
-+		}
- 		for (j = 0; j < report->field[i]->report_count; j++) {
- 			report->field[i]->value[j] = 0x00;
--			field_count++;
+ 		if (hdev->sent_cmd) {
++			cancel_delayed_work_sync(&hdev->cmd_timer);
+ 			kfree_skb(hdev->sent_cmd);
+ 			hdev->sent_cmd = NULL;
  		}
- 	}
- 
--	if (field_count < 4) {
--		hid_err(hid, "not enough fields in the report: %d\n",
--				field_count);
--		return -ENODEV;
--	}
--
- 	betopff = kzalloc(sizeof(*betopff), GFP_KERNEL);
- 	if (!betopff)
- 		return -ENOMEM;
 -- 
 2.39.0
 
