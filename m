@@ -2,94 +2,75 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D755A681870
-	for <lists+stable@lfdr.de>; Mon, 30 Jan 2023 19:15:11 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0873268188E
+	for <lists+stable@lfdr.de>; Mon, 30 Jan 2023 19:19:28 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236937AbjA3SPJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 30 Jan 2023 13:15:09 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46788 "EHLO
+        id S236791AbjA3ST0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 30 Jan 2023 13:19:26 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51190 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236465AbjA3SO6 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 30 Jan 2023 13:14:58 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 691332B60E;
-        Mon, 30 Jan 2023 10:14:57 -0800 (PST)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 04AA3611FB;
-        Mon, 30 Jan 2023 18:14:57 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E086FC433EF;
-        Mon, 30 Jan 2023 18:14:55 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1675102496;
-        bh=oX+bzUXLmw7EG3moYPRfQi8Pzz7mkEIFn66WKrGzm4w=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=jm3zWolTLZYTVABD5Z9AxAZNV/CYQ4lE0nIMzdoor3tSYc2TX87dSe6xOQM6sqTxr
-         ueNqd+F79r/yi/F7v0BaEEonq5Uqxp287L1zq6r5KS7mPFhjbKHePjntmEgYP/6F0a
-         50Oh5B6pe23VdWAtU4t51q/+BRedQsQ05jWsvfRQ=
-Date:   Mon, 30 Jan 2023 19:14:53 +0100
-From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     Conor Dooley <conor@kernel.org>
-Cc:     stable@vger.kernel.org, patches@lists.linux.dev,
-        linux-kernel@vger.kernel.org, torvalds@linux-foundation.org,
-        akpm@linux-foundation.org, linux@roeck-us.net, shuah@kernel.org,
-        patches@kernelci.org, lkft-triage@lists.linaro.org, pavel@denx.de,
-        jonathanh@nvidia.com, f.fainelli@gmail.com,
-        sudipm.mukherjee@gmail.com, srw@sladewatkins.net, rwarsow@gmx.de
-Subject: Re: [PATCH 6.1 000/313] 6.1.9-rc1 review
-Message-ID: <Y9gJHXshbV5vk9za@kroah.com>
-References: <20230130134336.532886729@linuxfoundation.org>
- <Y9gDLmmAwaKZX9yw@spud>
+        with ESMTP id S237469AbjA3STY (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 30 Jan 2023 13:19:24 -0500
+Received: from mail-pf1-f180.google.com (mail-pf1-f180.google.com [209.85.210.180])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3C576B75E;
+        Mon, 30 Jan 2023 10:19:16 -0800 (PST)
+Received: by mail-pf1-f180.google.com with SMTP id g9so8454815pfo.5;
+        Mon, 30 Jan 2023 10:19:16 -0800 (PST)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=content-transfer-encoding:in-reply-to:from:references:cc:to
+         :content-language:subject:user-agent:mime-version:date:message-id
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
+        bh=MCTnt4UHkjh+KturpG+BgNEdB7rIfLkxoGG9uQQNS2M=;
+        b=0zIXcIFwr0W4hOtTB4q1yX1RJRqm/CVALduKqZj03HJGN8rzzcKf8BO0o9Te4y/hPI
+         tk2oc5MW0h79B1ur+O/bjKyspGAHr2icdOFVgTbfW8KJ4ZWDEFzY56tvTF4i7t5hJa5j
+         XVtN+ok+Bsgb26y8GMj4q93FEm3G8Ympp9AxYELoM6sZGTObQ9RN4U0iprM2ZxReXVcf
+         GL6f4pQDYBkclPdeXFi9D3oxA2b+/Sn3drCOJO0NJMvrS+4Y9RYNwJ0eMUmfyfr6AwGm
+         XtUJRNDtmka1+pcY2XYhaEgq24SauLeH45/cEhTxhTF/5VeGQjkvOCRuj2PYaczT1ppM
+         ZGjA==
+X-Gm-Message-State: AO0yUKUSkBCwY7o/7eqBA8oiISyT1PWACVoHvdCPdwniovYeVmoeFZa/
+        sr5ZGuoPFTiOJw76qMS4q/U=
+X-Google-Smtp-Source: AK7set9F7OxYYf5cUUJPaSciocvf9756iNTgzNVxnnMshrlLCyF6v4L+p7tO0TYs0+bJjYol+1Ztwg==
+X-Received: by 2002:a05:6a00:450e:b0:593:b2b2:9544 with SMTP id cw14-20020a056a00450e00b00593b2b29544mr6190700pfb.0.1675102755589;
+        Mon, 30 Jan 2023 10:19:15 -0800 (PST)
+Received: from ?IPV6:2620:0:1000:2514:4774:59fa:531b:5f22? ([2620:0:1000:2514:4774:59fa:531b:5f22])
+        by smtp.gmail.com with ESMTPSA id m14-20020a056a00164e00b0058bc1a13ffcsm7757697pfc.25.2023.01.30.10.19.13
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Mon, 30 Jan 2023 10:19:14 -0800 (PST)
+Message-ID: <4504517a-25f0-5626-7dc3-50e96f392c84@acm.org>
+Date:   Mon, 30 Jan 2023 10:19:16 -0800
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Y9gDLmmAwaKZX9yw@spud>
-X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
-        SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
+ Thunderbird/102.5.1
+Subject: Re: [PATCH] scsi: aacraid: Allocate cmd_priv with scsicmd
+Content-Language: en-US
+To:     Kees Cook <keescook@chromium.org>
+Cc:     Hannes Reinecke <hare@suse.de>,
+        Himanshu Madhani <himanshu.madhani@oracle.com>,
+        Adaptec OEM Raid Solutions <aacraid@microsemi.com>,
+        "James E.J. Bottomley" <jejb@linux.ibm.com>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>,
+        linux-scsi@vger.kernel.org, stable@vger.kernel.org,
+        linux-kernel@vger.kernel.org, linux-hardening@vger.kernel.org
+References: <20230128000409.never.976-kees@kernel.org>
+From:   Bart Van Assche <bvanassche@acm.org>
+In-Reply-To: <20230128000409.never.976-kees@kernel.org>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Spam-Status: No, score=-1.5 required=5.0 tests=BAYES_00,
+        FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,HEADER_FROM_DIFFERENT_DOMAINS,
+        NICE_REPLY_A,RCVD_IN_DNSWL_NONE,RCVD_IN_MSPIKE_H3,RCVD_IN_MSPIKE_WL,
+        SPF_HELO_NONE,SPF_PASS autolearn=no autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, Jan 30, 2023 at 05:49:34PM +0000, Conor Dooley wrote:
-> On Mon, Jan 30, 2023 at 02:47:15PM +0100, Greg Kroah-Hartman wrote:
-> > This is the start of the stable review cycle for the 6.1.9 release.
-> > There are 313 patches in this series, all will be posted as a response
-> > to this one.  If anyone has any issues with these being applied, please
-> > let me know.
-> > 
-> > Responses should be made by Wed, 01 Feb 2023 13:42:39 +0000.
-> > Anything received after that time might be too late.
-> > 
-> > The whole patch series can be found in one patch at:
-> > 	https://www.kernel.org/pub/linux/kernel/v6.x/stable-review/patch-6.1.9-rc1.gz
-> > or in the git tree and branch at:
-> > 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-6.1.y
-> > and the diffstat can be found below.
-> > 
-> > thanks,
-> > 
-> > greg k-h
-> 
-> Apart from the build issue that Guenter reported, things look fine on my
-> hardware.
-> 
-> > Conor Dooley <conor.dooley@microchip.com>
-> >     dt-bindings: riscv: fix single letter canonical order
-> > 
-> > Conor Dooley <conor.dooley@microchip.com>
-> >     dt-bindings: riscv: fix underscore requirement for multi-letter extensions
-> 
-> I think the email for these came in over the weekend but I was busy
-> unfortunately. Is dt-binding stuff like this usually backported?
-> I suppose there's no harm in making sure that it is correct...
+On 1/27/23 16:04, Kees Cook wrote:
+> The aac_priv() helper assumes that the private cmd area immediately
+> follows struct scsi_cmnd. Allocate this space as part of scsicmd,
+> else there is a risk of heap overflow. Seen with GCC 13: [ ... ]
 
-Yes, we add dt binding fixes all the time if they are relevant and
-marked as fixes for problems.
+Bart Van Assche <bvanassche@acm.org>
 
-thanks,
-
-greg k-h
