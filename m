@@ -2,41 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 8212E680C6D
-	for <lists+stable@lfdr.de>; Mon, 30 Jan 2023 12:49:42 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2E8D8680C6F
+	for <lists+stable@lfdr.de>; Mon, 30 Jan 2023 12:49:43 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236711AbjA3Lti (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 30 Jan 2023 06:49:38 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46340 "EHLO
+        id S236742AbjA3Ltk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 30 Jan 2023 06:49:40 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45790 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236696AbjA3Lte (ORCPT
+        with ESMTP id S236700AbjA3Lte (ORCPT
         <rfc822;stable@vger.kernel.org>); Mon, 30 Jan 2023 06:49:34 -0500
 Received: from mga17.intel.com (mga17.intel.com [192.55.52.151])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6FE13302AE;
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 591F72E0E2;
         Mon, 30 Jan 2023 03:49:00 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
   d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1675079340; x=1706615340;
+  t=1675079341; x=1706615341;
   h=from:to:cc:subject:date:message-id:in-reply-to:
    references:mime-version:content-transfer-encoding;
-  bh=1aAVjEMEdMZvo9HiV4gShN/TM1rGG+YhOk2STJnCQV0=;
-  b=P2pEL8qs2T43BEuNGhaK+sj+noDuIWlXHkA0aigKjZ5uc2MDvtYONBVn
-   5mpytFK5uffHjZdg7c45Y3MHUwtLM230nG7oO8KGRapd/J3lchNj1s4qQ
-   Th/dhJ+fDY70WhcS+rwBWc4nT6w+aee+4+itf83YJ12aECte6w633/Tap
-   g5QKPCkVb/c7W99WfaBRN1be57UhL9wOXlWseeR5n7yI1nqxLhZnhm7Mr
-   Yf0JfBDnSUEkWTxEsWLXPl0IQuEe0RucGpMheytfALAWOuuh5y/PvW556
-   Uwe0fG5dqe7zwXPYN1eIfupEkW3PcbQIdBi1ei0xihskU9Bhh0Tfn7AuJ
+  bh=bYJP1A6JkuOysLMcEjWclQ2PMsPwKTj9ekGqoouYmnY=;
+  b=GEJY6wHSyRzjQ4y+np20FcBDixZ92effQSMs/lUwBZjdQUqmVbsna7xc
+   zY07IZmnUBWQiX27XqyHvdd8hMvlE3vrTNDFPi5dUzm9OLnCsetdwY0aC
+   rq0dnWDUQ7JORtMJ9Ry7BczOhRBYhYl7uyCQKD7WAsdvvilxWNj2JTdI4
+   Mkc5EXPY87xvLOcqIaTbioUCg/u1npykoj7VtikkRyOaL2R3TdhinxXu7
+   deRFLUBjv4dJjsQgykA980CzmDAYcjTdKs8szIMr3KZ1nwysadDr7zLpe
+   36/5vCtpWNynFnfld2oSgY+sJgkn7C/d/4LCW5ZWzozJtNwI6WUiQNTEQ
    Q==;
-X-IronPort-AV: E=McAfee;i="6500,9779,10605"; a="307882349"
+X-IronPort-AV: E=McAfee;i="6500,9779,10605"; a="307882359"
 X-IronPort-AV: E=Sophos;i="5.97,257,1669104000"; 
-   d="scan'208";a="307882349"
+   d="scan'208";a="307882359"
 Received: from fmsmga004.fm.intel.com ([10.253.24.48])
-  by fmsmga107.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 30 Jan 2023 03:48:57 -0800
-X-IronPort-AV: E=McAfee;i="6500,9779,10605"; a="732672101"
+  by fmsmga107.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 30 Jan 2023 03:49:00 -0800
+X-IronPort-AV: E=McAfee;i="6500,9779,10605"; a="732672116"
 X-IronPort-AV: E=Sophos;i="5.97,257,1669104000"; 
-   d="scan'208";a="732672101"
+   d="scan'208";a="732672116"
 Received: from nbelenko-mobl.ger.corp.intel.com (HELO ijarvine-MOBL2.ger.corp.intel.com) ([10.251.210.56])
-  by fmsmga004-auth.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 30 Jan 2023 03:48:53 -0800
+  by fmsmga004-auth.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 30 Jan 2023 03:48:57 -0800
 From:   =?UTF-8?q?Ilpo=20J=C3=A4rvinen?= <ilpo.jarvinen@linux.intel.com>
 To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         Jiri Slaby <jirislaby@kernel.org>,
@@ -47,9 +47,9 @@ To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
 Cc:     Gilles BULOZ <gilles.buloz@kontron.com>,
         =?UTF-8?q?Ilpo=20J=C3=A4rvinen?= <ilpo.jarvinen@linux.intel.com>,
         stable@vger.kernel.org
-Subject: [PATCH 1/2] serial: 8250_dma: Fix DMA Rx completion race
-Date:   Mon, 30 Jan 2023 13:48:40 +0200
-Message-Id: <20230130114841.25749-2-ilpo.jarvinen@linux.intel.com>
+Subject: [PATCH 2/2] serial: 8250_dma: Fix DMA Rx rearm race
+Date:   Mon, 30 Jan 2023 13:48:41 +0200
+Message-Id: <20230130114841.25749-3-ilpo.jarvinen@linux.intel.com>
 X-Mailer: git-send-email 2.30.2
 In-Reply-To: <20230130114841.25749-1-ilpo.jarvinen@linux.intel.com>
 References: <20230130114841.25749-1-ilpo.jarvinen@linux.intel.com>
@@ -65,15 +65,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-__dma_rx_complete() is called from two places:
-  - Through the DMA completion callback dma_rx_complete()
-  - From serial8250_rx_dma_flush() after IIR_RLSI or IIR_RX_TIMEOUT
-The former does not hold port's lock during __dma_rx_complete() which
-allows these two to race and potentially insert the same data twice.
+As DMA Rx can be completed from two places, it is possible that DMA Rx
+completes before DMA completion callback had a chance to complete it.
+Once the previous DMA Rx has been completed, a new one can be started
+on the next UART interrupt. The following race is possible
+(uart_unlock_and_check_sysrq_irqrestore() replaced with
+spin_unlock_irqrestore() for simplicity/clarity):
 
-Extend port's lock coverage in dma_rx_complete() to prevent the race
-and check if the DMA Rx is still pending completion before calling
-into __dma_rx_complete().
+CPU0					CPU1
+					dma_rx_complete()
+serial8250_handle_irq()
+  spin_lock_irqsave(&port->lock)
+  handle_rx_dma()
+    serial8250_rx_dma_flush()
+      __dma_rx_complete()
+        dma->rx_running = 0
+        // Complete DMA Rx
+  spin_unlock_irqrestore(&port->lock)
+
+serial8250_handle_irq()
+  spin_lock_irqsave(&port->lock)
+  handle_rx_dma()
+    serial8250_rx_dma()
+      dma->rx_running = 1
+      // Setup a new DMA Rx
+  spin_unlock_irqrestore(&port->lock)
+
+					  spin_lock_irqsave(&port->lock)
+					  // sees dma->rx_running = 1
+					  __dma_rx_complete()
+					    dma->rx_running = 0
+					    // Incorrectly complete
+					    // running DMA Rx
+
+This race seems somewhat theoretical to occur for real but handle it
+correctly regardless. Check what is the DMA status before complething
+anything in __dma_rx_complete().
 
 Reported-by: Gilles BULOZ <gilles.buloz@kontron.com>
 Tested-by: Gilles BULOZ <gilles.buloz@kontron.com>
@@ -81,30 +108,39 @@ Fixes: 9ee4b83e51f7 ("serial: 8250: Add support for dmaengine")
 Cc: stable@vger.kernel.org
 Signed-off-by: Ilpo Järvinen <ilpo.jarvinen@linux.intel.com>
 ---
- drivers/tty/serial/8250/8250_dma.c | 9 +++++++--
- 1 file changed, 7 insertions(+), 2 deletions(-)
+ drivers/tty/serial/8250/8250_dma.c | 12 ++++++++++--
+ 1 file changed, 10 insertions(+), 2 deletions(-)
 
 diff --git a/drivers/tty/serial/8250/8250_dma.c b/drivers/tty/serial/8250/8250_dma.c
-index 37d6af2ec427..5594883a96f8 100644
+index 5594883a96f8..7fa66501792d 100644
 --- a/drivers/tty/serial/8250/8250_dma.c
 +++ b/drivers/tty/serial/8250/8250_dma.c
-@@ -62,9 +62,14 @@ static void dma_rx_complete(void *param)
- 	struct uart_8250_dma *dma = p->dma;
- 	unsigned long flags;
+@@ -43,15 +43,23 @@ static void __dma_rx_complete(struct uart_8250_port *p)
+ 	struct uart_8250_dma	*dma = p->dma;
+ 	struct tty_port		*tty_port = &p->port.state->port;
+ 	struct dma_tx_state	state;
++	enum dma_status		dma_status;
+ 	int			count;
  
--	__dma_rx_complete(p);
--
- 	spin_lock_irqsave(&p->port.lock, flags);
-+	if (dma->rx_running)
-+		__dma_rx_complete(p);
-+
+-	dma->rx_running = 0;
+-	dmaengine_tx_status(dma->rxchan, dma->rx_cookie, &state);
 +	/*
-+	 * Cannot be combined with the previous check because __dma_rx_complete()
-+	 * changes dma->rx_running.
++	 * New DMA Rx can be started during the completion handler before it
++	 * could acquire port's lock and it might still be ongoing. Don't to
++	 * anything in such case.
 +	 */
- 	if (!dma->rx_running && (serial_lsr_in(p) & UART_LSR_DR))
- 		p->dma->rx_dma(p);
- 	spin_unlock_irqrestore(&p->port.lock, flags);
++	dma_status = dmaengine_tx_status(dma->rxchan, dma->rx_cookie, &state);
++	if (dma_status == DMA_IN_PROGRESS)
++		return;
+ 
+ 	count = dma->rx_size - state.residue;
+ 
+ 	tty_insert_flip_string(tty_port, dma->rx_buf, count);
+ 	p->port.icount.rx += count;
++	dma->rx_running = 0;
+ 
+ 	tty_flip_buffer_push(tty_port);
+ }
 -- 
 2.30.2
 
