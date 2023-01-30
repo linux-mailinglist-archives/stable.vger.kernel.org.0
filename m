@@ -2,41 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E6742681142
-	for <lists+stable@lfdr.de>; Mon, 30 Jan 2023 15:11:33 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 95C1B681112
+	for <lists+stable@lfdr.de>; Mon, 30 Jan 2023 15:10:01 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237197AbjA3OLc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 30 Jan 2023 09:11:32 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53680 "EHLO
+        id S237172AbjA3OKA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 30 Jan 2023 09:10:00 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51828 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237205AbjA3OLc (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 30 Jan 2023 09:11:32 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 98DA03B0F8
-        for <stable@vger.kernel.org>; Mon, 30 Jan 2023 06:11:31 -0800 (PST)
+        with ESMTP id S237184AbjA3OJ5 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 30 Jan 2023 09:09:57 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0A1CA3B658
+        for <stable@vger.kernel.org>; Mon, 30 Jan 2023 06:09:53 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 4324AB81183
-        for <stable@vger.kernel.org>; Mon, 30 Jan 2023 14:11:30 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7F897C433EF;
-        Mon, 30 Jan 2023 14:11:28 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 96EDD6108A
+        for <stable@vger.kernel.org>; Mon, 30 Jan 2023 14:09:52 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 98F6BC4339C;
+        Mon, 30 Jan 2023 14:09:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1675087889;
-        bh=FxERe+RFUM5rPkiZbMMrkk1q7F2XS/VoDUBqXu9nvOo=;
+        s=korg; t=1675087792;
+        bh=U72pPCZV2lrwQaUZXzcx+/mAkHFkSN3oaE0EcKSMo4U=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=GgpiQbkZmEBdYrHwCXV3pdFzovf+ff/Ie7yA0s9v/455hxl15SbbGlxUDG6KLtAhB
-         P2bJ6LDpS/WKUoeyhP/3+cI7w2VES3t1pjZ95+JkVYGjVuMqebIfKooPlGMKtL+l4t
-         kmGvXBi08WgGtKy+s4Ei47pHsAxOFp9e3LsS6F4U=
+        b=llY7lDgKc29p6A3SWy4WBze663rbR3B7gO2bah/5+XWqjkFMgRyW59mXmV31OJvDy
+         OxKC0qOL+8MkLUsQNezqqdlNr80BJNfB01RRSNb0fVwJi4XlEjk4OL/ZEwjmU1vXWB
+         83OAg219Z0ZdWQHrkgcUXYWuz0Fe/NyoCx1NzmH4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Gaosheng Cui <cuigaosheng1@huawei.com>,
-        Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 003/204] memory: mvebu-devbus: Fix missing clk_disable_unprepare in mvebu_devbus_probe()
-Date:   Mon, 30 Jan 2023 14:49:28 +0100
-Message-Id: <20230130134316.470114389@linuxfoundation.org>
+        patches@lists.linux.dev, Jayesh Choudhary <j-choudhary@ti.com>,
+        Peter Ujfalusi <peter.ujfalusi@gmail.com>,
+        Vinod Koul <vkoul@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.15 004/204] dmaengine: ti: k3-udma: Do conditional decrement of UDMA_CHAN_RT_PEER_BCNT_REG
+Date:   Mon, 30 Jan 2023 14:49:29 +0100
+Message-Id: <20230130134316.509649230@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.1
 In-Reply-To: <20230130134316.327556078@linuxfoundation.org>
 References: <20230130134316.327556078@linuxfoundation.org>
@@ -53,39 +53,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Gaosheng Cui <cuigaosheng1@huawei.com>
+From: Jayesh Choudhary <j-choudhary@ti.com>
 
-[ Upstream commit cb8fd6f75775165390ededea8799b60d93d9fe3e ]
+[ Upstream commit efab25894a41a920d9581183741e7fadba00719c ]
 
-The clk_disable_unprepare() should be called in the error handling
-of devbus_get_timing_params() and of_platform_populate(), fix it by
-replacing devm_clk_get and clk_prepare_enable by devm_clk_get_enabled.
+PSIL_EP_NATIVE endpoints may not have PEER registers for BCNT and thus
+udma_decrement_byte_counters() should not try to decrement these counters.
+This fixes the issue of crypto IPERF testing where the client side (EVM)
+hangs without transfer of packets to the server side, seen since this
+function was added.
 
-Fixes: e81b6abebc87 ("memory: add a driver for atmel ram controllers")
-Signed-off-by: Gaosheng Cui <cuigaosheng1@huawei.com>
-Link: https://lore.kernel.org/r/20221126044911.7226-1-cuigaosheng1@huawei.com
-Signed-off-by: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
+Fixes: 7c94dcfa8fcf ("dmaengine: ti: k3-udma: Reset UDMA_CHAN_RT byte counters to prevent overflow")
+Signed-off-by: Jayesh Choudhary <j-choudhary@ti.com>
+Acked-by: Peter Ujfalusi <peter.ujfalusi@gmail.com>
+Link: https://lore.kernel.org/r/20221128085005.489964-1-j-choudhary@ti.com
+Signed-off-by: Vinod Koul <vkoul@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/memory/mvebu-devbus.c | 3 +--
- 1 file changed, 1 insertion(+), 2 deletions(-)
+ drivers/dma/ti/k3-udma.c | 5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/memory/mvebu-devbus.c b/drivers/memory/mvebu-devbus.c
-index 8450638e8670..efc6c08db2b7 100644
---- a/drivers/memory/mvebu-devbus.c
-+++ b/drivers/memory/mvebu-devbus.c
-@@ -280,10 +280,9 @@ static int mvebu_devbus_probe(struct platform_device *pdev)
- 	if (IS_ERR(devbus->base))
- 		return PTR_ERR(devbus->base);
- 
--	clk = devm_clk_get(&pdev->dev, NULL);
-+	clk = devm_clk_get_enabled(&pdev->dev, NULL);
- 	if (IS_ERR(clk))
- 		return PTR_ERR(clk);
--	clk_prepare_enable(clk);
- 
- 	/*
- 	 * Obtain clock period in picoseconds,
+diff --git a/drivers/dma/ti/k3-udma.c b/drivers/dma/ti/k3-udma.c
+index 75f2a0006c73..d796e50dfe99 100644
+--- a/drivers/dma/ti/k3-udma.c
++++ b/drivers/dma/ti/k3-udma.c
+@@ -760,11 +760,12 @@ static void udma_decrement_byte_counters(struct udma_chan *uc, u32 val)
+ 	if (uc->desc->dir == DMA_DEV_TO_MEM) {
+ 		udma_rchanrt_write(uc, UDMA_CHAN_RT_BCNT_REG, val);
+ 		udma_rchanrt_write(uc, UDMA_CHAN_RT_SBCNT_REG, val);
+-		udma_rchanrt_write(uc, UDMA_CHAN_RT_PEER_BCNT_REG, val);
++		if (uc->config.ep_type != PSIL_EP_NATIVE)
++			udma_rchanrt_write(uc, UDMA_CHAN_RT_PEER_BCNT_REG, val);
+ 	} else {
+ 		udma_tchanrt_write(uc, UDMA_CHAN_RT_BCNT_REG, val);
+ 		udma_tchanrt_write(uc, UDMA_CHAN_RT_SBCNT_REG, val);
+-		if (!uc->bchan)
++		if (!uc->bchan && uc->config.ep_type != PSIL_EP_NATIVE)
+ 			udma_tchanrt_write(uc, UDMA_CHAN_RT_PEER_BCNT_REG, val);
+ 	}
+ }
 -- 
 2.39.0
 
