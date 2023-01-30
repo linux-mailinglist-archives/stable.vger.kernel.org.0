@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B54C5681080
-	for <lists+stable@lfdr.de>; Mon, 30 Jan 2023 15:04:06 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9D359681168
+	for <lists+stable@lfdr.de>; Mon, 30 Jan 2023 15:13:21 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237035AbjA3OEF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 30 Jan 2023 09:04:05 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46312 "EHLO
+        id S237275AbjA3ONU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 30 Jan 2023 09:13:20 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56908 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237033AbjA3OD7 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 30 Jan 2023 09:03:59 -0500
-Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C8DE15264
-        for <stable@vger.kernel.org>; Mon, 30 Jan 2023 06:03:56 -0800 (PST)
+        with ESMTP id S237274AbjA3ONO (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 30 Jan 2023 09:13:14 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B078716AC2
+        for <stable@vger.kernel.org>; Mon, 30 Jan 2023 06:12:58 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 13D52CE16AC
-        for <stable@vger.kernel.org>; Mon, 30 Jan 2023 14:03:55 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id CB59CC433EF;
-        Mon, 30 Jan 2023 14:03:52 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 4E5E961089
+        for <stable@vger.kernel.org>; Mon, 30 Jan 2023 14:12:58 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 530C3C433D2;
+        Mon, 30 Jan 2023 14:12:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1675087433;
-        bh=67/+PveVQo0kseaAnuvU5gi+av7iXo0LgzJR7sULXe4=;
+        s=korg; t=1675087977;
+        bh=NxrHvvFT5My6cG6qxXoZGdOAwmb1fc0K47iCZGwbUTk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ehhTs/fOItKbPqB7QfsRUE9Z8UvNQZgahvXGvZ1k7IowOgvdcZyDqfE40TueXK6tm
-         I+Ss31tJd2e0JwJsA9HmDxvAv4dZe5u326FmBNnS4L6FR0l0B/ShNkmcIomOLRsN+C
-         XquvBGJX/YEWcVs+8fNDtE4ta2znwNc/3B3NKDsI=
+        b=bY3bYEKJgz1qhqZbZ9Ub+sNNlHmBH7bM8h4F/5VdabXSbAFXTMPhXV3FioajFRi9m
+         Cz+wwpJn0M6DZjNkL207HuNrUDnNxOLfXSnNXP6YwneYr16Gi9LaIpHCRnvdLRqO96
+         ij9PMzB8BAo3ToFumCkk3SidLmZez9d3ztN80fkI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Eric Huang <jinhuieric.huang@amd.com>,
-        Felix Kuehling <Felix.Kuehling@amd.com>,
-        Alex Deucher <alexander.deucher@amd.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 175/313] drm/amdkfd: Fix NULL pointer error for GC 11.0.1 on mGPU
+        patches@lists.linux.dev,
+        Szymon Heidrich <szymon.heidrich@gmail.com>,
+        Alexander Duyck <alexanderduyck@fb.com>,
+        Kalle Valo <kvalo@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.15 045/204] wifi: rndis_wlan: Prevent buffer overflow in rndis_query_oid
 Date:   Mon, 30 Jan 2023 14:50:10 +0100
-Message-Id: <20230130134344.842290742@linuxfoundation.org>
+Message-Id: <20230130134318.292029219@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.1
-In-Reply-To: <20230130134336.532886729@linuxfoundation.org>
-References: <20230130134336.532886729@linuxfoundation.org>
+In-Reply-To: <20230130134316.327556078@linuxfoundation.org>
+References: <20230130134316.327556078@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,49 +54,73 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eric Huang <jinhuieric.huang@amd.com>
+From: Szymon Heidrich <szymon.heidrich@gmail.com>
 
-[ Upstream commit a6941f89d7c6a6ba49316bbd7da2fb2f719119a7 ]
+[ Upstream commit b870e73a56c4cccbec33224233eaf295839f228c ]
 
-The point bo->kfd_bo is NULL for queue's write pointer BO
-when creating queue on mGPU. To avoid using the pointer
-fixes the error.
+Since resplen and respoffs are signed integers sufficiently
+large values of unsigned int len and offset members of RNDIS
+response will result in negative values of prior variables.
+This may be utilized to bypass implemented security checks
+to either extract memory contents by manipulating offset or
+overflow the data buffer via memcpy by manipulating both
+offset and len.
 
-Signed-off-by: Eric Huang <jinhuieric.huang@amd.com>
-Reviewed-by: Felix Kuehling <Felix.Kuehling@amd.com>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+Additionally assure that sum of resplen and respoffs does not
+overflow so buffer boundaries are kept.
+
+Fixes: 80f8c5b434f9 ("rndis_wlan: copy only useful data from rndis_command respond")
+Signed-off-by: Szymon Heidrich <szymon.heidrich@gmail.com>
+Reviewed-by: Alexander Duyck <alexanderduyck@fb.com>
+Signed-off-by: Kalle Valo <kvalo@kernel.org>
+Link: https://lore.kernel.org/r/20230111175031.7049-1-szymon.heidrich@gmail.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/amd/amdgpu/amdgpu_amdkfd_gpuvm.c      | 2 +-
- drivers/gpu/drm/amd/amdkfd/kfd_device_queue_manager.c | 2 +-
- 2 files changed, 2 insertions(+), 2 deletions(-)
+ drivers/net/wireless/rndis_wlan.c | 19 ++++++-------------
+ 1 file changed, 6 insertions(+), 13 deletions(-)
 
-diff --git a/drivers/gpu/drm/amd/amdgpu/amdgpu_amdkfd_gpuvm.c b/drivers/gpu/drm/amd/amdgpu/amdgpu_amdkfd_gpuvm.c
-index 29f045079a3e..404c839683b1 100644
---- a/drivers/gpu/drm/amd/amdgpu/amdgpu_amdkfd_gpuvm.c
-+++ b/drivers/gpu/drm/amd/amdgpu/amdgpu_amdkfd_gpuvm.c
-@@ -2130,7 +2130,7 @@ int amdgpu_amdkfd_map_gtt_bo_to_gart(struct amdgpu_device *adev, struct amdgpu_b
- 	}
+diff --git a/drivers/net/wireless/rndis_wlan.c b/drivers/net/wireless/rndis_wlan.c
+index 63ce2443f136..70841d131d72 100644
+--- a/drivers/net/wireless/rndis_wlan.c
++++ b/drivers/net/wireless/rndis_wlan.c
+@@ -694,8 +694,8 @@ static int rndis_query_oid(struct usbnet *dev, u32 oid, void *data, int *len)
+ 		struct rndis_query	*get;
+ 		struct rndis_query_c	*get_c;
+ 	} u;
+-	int ret, buflen;
+-	int resplen, respoffs, copylen;
++	int ret;
++	size_t buflen, resplen, respoffs, copylen;
  
- 	amdgpu_amdkfd_remove_eviction_fence(
--		bo, bo->kfd_bo->process_info->eviction_fence);
-+		bo, bo->vm_bo->vm->process_info->eviction_fence);
+ 	buflen = *len + sizeof(*u.get);
+ 	if (buflen < CONTROL_BUFFER_SIZE)
+@@ -730,22 +730,15 @@ static int rndis_query_oid(struct usbnet *dev, u32 oid, void *data, int *len)
  
- 	amdgpu_bo_unreserve(bo);
+ 		if (respoffs > buflen) {
+ 			/* Device returned data offset outside buffer, error. */
+-			netdev_dbg(dev->net, "%s(%s): received invalid "
+-				"data offset: %d > %d\n", __func__,
+-				oid_to_string(oid), respoffs, buflen);
++			netdev_dbg(dev->net,
++				   "%s(%s): received invalid data offset: %zu > %zu\n",
++				   __func__, oid_to_string(oid), respoffs, buflen);
  
-diff --git a/drivers/gpu/drm/amd/amdkfd/kfd_device_queue_manager.c b/drivers/gpu/drm/amd/amdkfd/kfd_device_queue_manager.c
-index ecb4c3abc629..c06ada0844ba 100644
---- a/drivers/gpu/drm/amd/amdkfd/kfd_device_queue_manager.c
-+++ b/drivers/gpu/drm/amd/amdkfd/kfd_device_queue_manager.c
-@@ -200,7 +200,7 @@ static int add_queue_mes(struct device_queue_manager *dqm, struct queue *q,
- 	queue_input.wptr_addr = (uint64_t)q->properties.write_ptr;
+ 			ret = -EINVAL;
+ 			goto exit_unlock;
+ 		}
  
- 	if (q->wptr_bo) {
--		wptr_addr_off = (uint64_t)q->properties.write_ptr - (uint64_t)q->wptr_bo->kfd_bo->va;
-+		wptr_addr_off = (uint64_t)q->properties.write_ptr & (PAGE_SIZE - 1);
- 		queue_input.wptr_mc_addr = ((uint64_t)q->wptr_bo->tbo.resource->start << PAGE_SHIFT) + wptr_addr_off;
- 	}
+-		if ((resplen + respoffs) > buflen) {
+-			/* Device would have returned more data if buffer would
+-			 * have been big enough. Copy just the bits that we got.
+-			 */
+-			copylen = buflen - respoffs;
+-		} else {
+-			copylen = resplen;
+-		}
++		copylen = min(resplen, buflen - respoffs);
  
+ 		if (copylen > *len)
+ 			copylen = *len;
 -- 
 2.39.0
 
