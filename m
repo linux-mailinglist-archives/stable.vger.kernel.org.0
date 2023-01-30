@@ -2,41 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E6848680F99
-	for <lists+stable@lfdr.de>; Mon, 30 Jan 2023 14:55:10 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C076E680F9B
+	for <lists+stable@lfdr.de>; Mon, 30 Jan 2023 14:55:12 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236527AbjA3NzK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 30 Jan 2023 08:55:10 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33896 "EHLO
+        id S236373AbjA3NzM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 30 Jan 2023 08:55:12 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33864 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236410AbjA3NzD (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 30 Jan 2023 08:55:03 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7700239B88
-        for <stable@vger.kernel.org>; Mon, 30 Jan 2023 05:55:02 -0800 (PST)
+        with ESMTP id S236452AbjA3NzL (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 30 Jan 2023 08:55:11 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6A789392AE
+        for <stable@vger.kernel.org>; Mon, 30 Jan 2023 05:55:09 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 2FA45B81141
-        for <stable@vger.kernel.org>; Mon, 30 Jan 2023 13:55:01 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6DDC1C433EF;
-        Mon, 30 Jan 2023 13:54:59 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id EB25AB8114A
+        for <stable@vger.kernel.org>; Mon, 30 Jan 2023 13:55:07 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0E81BC433D2;
+        Mon, 30 Jan 2023 13:55:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1675086899;
-        bh=ZOHy4zDgMFlK6xjhcbJMwUmPeR8ZEwcxRMhxMNPe9/Q=;
+        s=korg; t=1675086906;
+        bh=vh9Ayqt402fgEwA43rC3MxhNN0cs4DcJCK674QcSb8I=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Q5UgDoP89D8+2nCnupsoECH1JZObAZxx7wVzVtYseyUzZUFzrS6lwPZdbKQsi+S+t
-         DftxL/Tj77r8jeAN0a1nbLuLQlFnlhCzSN+iMLvyqV5kTyg60pUCN5YvBjE3agiTf4
-         8HVGd/rUF8rxtgddBiq5ui00jRudANlRAuR6o2ZM=
+        b=nqxzio5uk37eIpHZvaf0+9qIr/b1SXoToFvpHR73M+iznXfzGGlqRrkcv/5Pp2HXR
+         Q5sb/EFy15TPQPWJlLvblRAI5/pq4ffPS3pwxrIRxXDDSyQ+lBZGMVAGo+msKKBAxL
+         wLlyGThFflCjHdFYTy8B3A3v+1Kg2DTikS15Cpio=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Masahiro Yamada <masahiroy@kernel.org>,
-        Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 033/313] tomoyo: fix broken dependency on *.conf.default
-Date:   Mon, 30 Jan 2023 14:47:48 +0100
-Message-Id: <20230130134338.218816726@linuxfoundation.org>
+        patches@lists.linux.dev, Christoph Hellwig <hch@lst.de>,
+        Keith Busch <kbusch@kernel.org>,
+        Ming Lei <ming.lei@redhat.com>,
+        Chao Leng <lengchao@huawei.com>,
+        Sagi Grimberg <sagi@grimberg.me>,
+        Hannes Reinecke <hare@suse.de>,
+        Chaitanya Kulkarni <kch@nvidia.com>,
+        Jens Axboe <axboe@kernel.dk>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 6.1 034/313] blk-mq: move the srcu_struct used for quiescing to the tagset
+Date:   Mon, 30 Jan 2023 14:47:49 +0100
+Message-Id: <20230130134338.265983952@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.1
 In-Reply-To: <20230130134336.532886729@linuxfoundation.org>
 References: <20230130134336.532886729@linuxfoundation.org>
@@ -44,8 +49,8 @@ User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
         SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -53,59 +58,356 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Masahiro Yamada <masahiroy@kernel.org>
+From: Christoph Hellwig <hch@lst.de>
 
-[ Upstream commit eaf2213ba563b2d74a1f2c13a6b258273f689802 ]
+[ Upstream commit 80bd4a7aab4c9ce59bf5e35fdf52aa23d8a3c9f5 ]
 
-If *.conf.default is updated, builtin-policy.h should be rebuilt,
-but this does not work when compiled with O= option.
+All I/O submissions have fairly similar latencies, and a tagset-wide
+quiesce is a fairly common operation.
 
-[Without this commit]
-
-  $ touch security/tomoyo/policy/exception_policy.conf.default
-  $ make O=/tmp security/tomoyo/
-  make[1]: Entering directory '/tmp'
-    GEN     Makefile
-    CALL    /home/masahiro/ref/linux/scripts/checksyscalls.sh
-    DESCEND objtool
-  make[1]: Leaving directory '/tmp'
-
-[With this commit]
-
-  $ touch security/tomoyo/policy/exception_policy.conf.default
-  $ make O=/tmp security/tomoyo/
-  make[1]: Entering directory '/tmp'
-    GEN     Makefile
-    CALL    /home/masahiro/ref/linux/scripts/checksyscalls.sh
-    DESCEND objtool
-    POLICY  security/tomoyo/builtin-policy.h
-    CC      security/tomoyo/common.o
-    AR      security/tomoyo/built-in.a
-  make[1]: Leaving directory '/tmp'
-
-$(srctree)/ is essential because $(wildcard ) does not follow VPATH.
-
-Fixes: f02dee2d148b ("tomoyo: Do not generate empty policy files")
-Signed-off-by: Masahiro Yamada <masahiroy@kernel.org>
-Signed-off-by: Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>
+Signed-off-by: Christoph Hellwig <hch@lst.de>
+Reviewed-by: Keith Busch <kbusch@kernel.org>
+Reviewed-by: Ming Lei <ming.lei@redhat.com>
+Reviewed-by: Chao Leng <lengchao@huawei.com>
+Reviewed-by: Sagi Grimberg <sagi@grimberg.me>
+Reviewed-by: Hannes Reinecke <hare@suse.de>
+Reviewed-by: Chaitanya Kulkarni <kch@nvidia.com>
+Link: https://lore.kernel.org/r/20221101150050.3510-12-hch@lst.de
+[axboe: fix whitespace]
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
+Stable-dep-of: 49e4d04f0486 ("block: Drop spurious might_sleep() from blk_put_queue()")
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- security/tomoyo/Makefile | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ block/blk-core.c       | 27 +++++----------------------
+ block/blk-mq.c         | 33 +++++++++++++++++++++++++--------
+ block/blk-mq.h         | 14 +++++++-------
+ block/blk-sysfs.c      |  9 ++-------
+ block/blk.h            |  9 +--------
+ block/genhd.c          |  2 +-
+ include/linux/blk-mq.h |  4 ++++
+ include/linux/blkdev.h |  9 ---------
+ 8 files changed, 45 insertions(+), 62 deletions(-)
 
-diff --git a/security/tomoyo/Makefile b/security/tomoyo/Makefile
-index cca5a3012fee..221eaadffb09 100644
---- a/security/tomoyo/Makefile
-+++ b/security/tomoyo/Makefile
-@@ -10,7 +10,7 @@ endef
- quiet_cmd_policy  = POLICY  $@
-       cmd_policy  = ($(call do_policy,profile); $(call do_policy,exception_policy); $(call do_policy,domain_policy); $(call do_policy,manager); $(call do_policy,stat)) >$@
+diff --git a/block/blk-core.c b/block/blk-core.c
+index 5487912befe8..9d6a947024ea 100644
+--- a/block/blk-core.c
++++ b/block/blk-core.c
+@@ -65,7 +65,6 @@ DEFINE_IDA(blk_queue_ida);
+  * For queue allocation
+  */
+ struct kmem_cache *blk_requestq_cachep;
+-struct kmem_cache *blk_requestq_srcu_cachep;
  
--$(obj)/builtin-policy.h: $(wildcard $(obj)/policy/*.conf $(src)/policy/*.conf.default) FORCE
-+$(obj)/builtin-policy.h: $(wildcard $(obj)/policy/*.conf $(srctree)/$(src)/policy/*.conf.default) FORCE
- 	$(call if_changed,policy)
+ /*
+  * Controlling structure to kblockd
+@@ -373,26 +372,20 @@ static void blk_timeout_work(struct work_struct *work)
+ {
+ }
  
- $(obj)/common.o: $(obj)/builtin-policy.h
+-struct request_queue *blk_alloc_queue(int node_id, bool alloc_srcu)
++struct request_queue *blk_alloc_queue(int node_id)
+ {
+ 	struct request_queue *q;
+ 
+-	q = kmem_cache_alloc_node(blk_get_queue_kmem_cache(alloc_srcu),
+-			GFP_KERNEL | __GFP_ZERO, node_id);
++	q = kmem_cache_alloc_node(blk_requestq_cachep, GFP_KERNEL | __GFP_ZERO,
++				  node_id);
+ 	if (!q)
+ 		return NULL;
+ 
+-	if (alloc_srcu) {
+-		blk_queue_flag_set(QUEUE_FLAG_HAS_SRCU, q);
+-		if (init_srcu_struct(q->srcu) != 0)
+-			goto fail_q;
+-	}
+-
+ 	q->last_merge = NULL;
+ 
+ 	q->id = ida_alloc(&blk_queue_ida, GFP_KERNEL);
+ 	if (q->id < 0)
+-		goto fail_srcu;
++		goto fail_q;
+ 
+ 	q->stats = blk_alloc_queue_stats();
+ 	if (!q->stats)
+@@ -434,11 +427,8 @@ struct request_queue *blk_alloc_queue(int node_id, bool alloc_srcu)
+ 	blk_free_queue_stats(q->stats);
+ fail_id:
+ 	ida_free(&blk_queue_ida, q->id);
+-fail_srcu:
+-	if (alloc_srcu)
+-		cleanup_srcu_struct(q->srcu);
+ fail_q:
+-	kmem_cache_free(blk_get_queue_kmem_cache(alloc_srcu), q);
++	kmem_cache_free(blk_requestq_cachep, q);
+ 	return NULL;
+ }
+ 
+@@ -1183,9 +1173,6 @@ int __init blk_dev_init(void)
+ 			sizeof_field(struct request, cmd_flags));
+ 	BUILD_BUG_ON(REQ_OP_BITS + REQ_FLAG_BITS > 8 *
+ 			sizeof_field(struct bio, bi_opf));
+-	BUILD_BUG_ON(ALIGN(offsetof(struct request_queue, srcu),
+-			   __alignof__(struct request_queue)) !=
+-		     sizeof(struct request_queue));
+ 
+ 	/* used for unplugging and affects IO latency/throughput - HIGHPRI */
+ 	kblockd_workqueue = alloc_workqueue("kblockd",
+@@ -1196,10 +1183,6 @@ int __init blk_dev_init(void)
+ 	blk_requestq_cachep = kmem_cache_create("request_queue",
+ 			sizeof(struct request_queue), 0, SLAB_PANIC, NULL);
+ 
+-	blk_requestq_srcu_cachep = kmem_cache_create("request_queue_srcu",
+-			sizeof(struct request_queue) +
+-			sizeof(struct srcu_struct), 0, SLAB_PANIC, NULL);
+-
+ 	blk_debugfs_root = debugfs_create_dir("block", NULL);
+ 
+ 	return 0;
+diff --git a/block/blk-mq.c b/block/blk-mq.c
+index 63abbe342b28..bbf500537f75 100644
+--- a/block/blk-mq.c
++++ b/block/blk-mq.c
+@@ -261,8 +261,8 @@ EXPORT_SYMBOL_GPL(blk_mq_quiesce_queue_nowait);
+  */
+ void blk_mq_wait_quiesce_done(struct request_queue *q)
+ {
+-	if (blk_queue_has_srcu(q))
+-		synchronize_srcu(q->srcu);
++	if (q->tag_set->flags & BLK_MQ_F_BLOCKING)
++		synchronize_srcu(q->tag_set->srcu);
+ 	else
+ 		synchronize_rcu();
+ }
+@@ -4010,7 +4010,7 @@ static struct request_queue *blk_mq_init_queue_data(struct blk_mq_tag_set *set,
+ 	struct request_queue *q;
+ 	int ret;
+ 
+-	q = blk_alloc_queue(set->numa_node, set->flags & BLK_MQ_F_BLOCKING);
++	q = blk_alloc_queue(set->numa_node);
+ 	if (!q)
+ 		return ERR_PTR(-ENOMEM);
+ 	q->queuedata = queuedata;
+@@ -4182,9 +4182,6 @@ static void blk_mq_update_poll_flag(struct request_queue *q)
+ int blk_mq_init_allocated_queue(struct blk_mq_tag_set *set,
+ 		struct request_queue *q)
+ {
+-	WARN_ON_ONCE(blk_queue_has_srcu(q) !=
+-			!!(set->flags & BLK_MQ_F_BLOCKING));
+-
+ 	/* mark the queue as mq asap */
+ 	q->mq_ops = set->ops;
+ 
+@@ -4441,8 +4438,18 @@ int blk_mq_alloc_tag_set(struct blk_mq_tag_set *set)
+ 	if (set->nr_maps == 1 && set->nr_hw_queues > nr_cpu_ids)
+ 		set->nr_hw_queues = nr_cpu_ids;
+ 
+-	if (blk_mq_alloc_tag_set_tags(set, set->nr_hw_queues) < 0)
+-		return -ENOMEM;
++	if (set->flags & BLK_MQ_F_BLOCKING) {
++		set->srcu = kmalloc(sizeof(*set->srcu), GFP_KERNEL);
++		if (!set->srcu)
++			return -ENOMEM;
++		ret = init_srcu_struct(set->srcu);
++		if (ret)
++			goto out_free_srcu;
++	}
++
++	ret = blk_mq_alloc_tag_set_tags(set, set->nr_hw_queues);
++	if (ret)
++		goto out_cleanup_srcu;
+ 
+ 	ret = -ENOMEM;
+ 	for (i = 0; i < set->nr_maps; i++) {
+@@ -4472,6 +4479,12 @@ int blk_mq_alloc_tag_set(struct blk_mq_tag_set *set)
+ 	}
+ 	kfree(set->tags);
+ 	set->tags = NULL;
++out_cleanup_srcu:
++	if (set->flags & BLK_MQ_F_BLOCKING)
++		cleanup_srcu_struct(set->srcu);
++out_free_srcu:
++	if (set->flags & BLK_MQ_F_BLOCKING)
++		kfree(set->srcu);
+ 	return ret;
+ }
+ EXPORT_SYMBOL(blk_mq_alloc_tag_set);
+@@ -4511,6 +4524,10 @@ void blk_mq_free_tag_set(struct blk_mq_tag_set *set)
+ 
+ 	kfree(set->tags);
+ 	set->tags = NULL;
++	if (set->flags & BLK_MQ_F_BLOCKING) {
++		cleanup_srcu_struct(set->srcu);
++		kfree(set->srcu);
++	}
+ }
+ EXPORT_SYMBOL(blk_mq_free_tag_set);
+ 
+diff --git a/block/blk-mq.h b/block/blk-mq.h
+index 0b2870839cdd..ef59fee62780 100644
+--- a/block/blk-mq.h
++++ b/block/blk-mq.h
+@@ -377,17 +377,17 @@ static inline bool hctx_may_queue(struct blk_mq_hw_ctx *hctx,
+ /* run the code block in @dispatch_ops with rcu/srcu read lock held */
+ #define __blk_mq_run_dispatch_ops(q, check_sleep, dispatch_ops)	\
+ do {								\
+-	if (!blk_queue_has_srcu(q)) {				\
+-		rcu_read_lock();				\
+-		(dispatch_ops);					\
+-		rcu_read_unlock();				\
+-	} else {						\
++	if ((q)->tag_set->flags & BLK_MQ_F_BLOCKING) {		\
+ 		int srcu_idx;					\
+ 								\
+ 		might_sleep_if(check_sleep);			\
+-		srcu_idx = srcu_read_lock((q)->srcu);		\
++		srcu_idx = srcu_read_lock((q)->tag_set->srcu);	\
+ 		(dispatch_ops);					\
+-		srcu_read_unlock((q)->srcu, srcu_idx);		\
++		srcu_read_unlock((q)->tag_set->srcu, srcu_idx);	\
++	} else {						\
++		rcu_read_lock();				\
++		(dispatch_ops);					\
++		rcu_read_unlock();				\
+ 	}							\
+ } while (0)
+ 
+diff --git a/block/blk-sysfs.c b/block/blk-sysfs.c
+index e71b3b43927c..e7871665825a 100644
+--- a/block/blk-sysfs.c
++++ b/block/blk-sysfs.c
+@@ -739,10 +739,8 @@ queue_attr_store(struct kobject *kobj, struct attribute *attr,
+ 
+ static void blk_free_queue_rcu(struct rcu_head *rcu_head)
+ {
+-	struct request_queue *q = container_of(rcu_head, struct request_queue,
+-					       rcu_head);
+-
+-	kmem_cache_free(blk_get_queue_kmem_cache(blk_queue_has_srcu(q)), q);
++	kmem_cache_free(blk_requestq_cachep,
++			container_of(rcu_head, struct request_queue, rcu_head));
+ }
+ 
+ /**
+@@ -779,9 +777,6 @@ static void blk_release_queue(struct kobject *kobj)
+ 	if (queue_is_mq(q))
+ 		blk_mq_release(q);
+ 
+-	if (blk_queue_has_srcu(q))
+-		cleanup_srcu_struct(q->srcu);
+-
+ 	ida_free(&blk_queue_ida, q->id);
+ 	call_rcu(&q->rcu_head, blk_free_queue_rcu);
+ }
+diff --git a/block/blk.h b/block/blk.h
+index 8b75a95b28d6..0661fa4b3a4d 100644
+--- a/block/blk.h
++++ b/block/blk.h
+@@ -27,7 +27,6 @@ struct blk_flush_queue {
+ };
+ 
+ extern struct kmem_cache *blk_requestq_cachep;
+-extern struct kmem_cache *blk_requestq_srcu_cachep;
+ extern struct kobj_type blk_queue_ktype;
+ extern struct ida blk_queue_ida;
+ 
+@@ -428,13 +427,7 @@ int bio_add_hw_page(struct request_queue *q, struct bio *bio,
+ 		struct page *page, unsigned int len, unsigned int offset,
+ 		unsigned int max_sectors, bool *same_page);
+ 
+-static inline struct kmem_cache *blk_get_queue_kmem_cache(bool srcu)
+-{
+-	if (srcu)
+-		return blk_requestq_srcu_cachep;
+-	return blk_requestq_cachep;
+-}
+-struct request_queue *blk_alloc_queue(int node_id, bool alloc_srcu);
++struct request_queue *blk_alloc_queue(int node_id);
+ 
+ int disk_scan_partitions(struct gendisk *disk, fmode_t mode, void *owner);
+ 
+diff --git a/block/genhd.c b/block/genhd.c
+index c4765681a8b4..f4f3f3b55634 100644
+--- a/block/genhd.c
++++ b/block/genhd.c
+@@ -1417,7 +1417,7 @@ struct gendisk *__blk_alloc_disk(int node, struct lock_class_key *lkclass)
+ 	struct request_queue *q;
+ 	struct gendisk *disk;
+ 
+-	q = blk_alloc_queue(node, false);
++	q = blk_alloc_queue(node);
+ 	if (!q)
+ 		return NULL;
+ 
+diff --git a/include/linux/blk-mq.h b/include/linux/blk-mq.h
+index d6119c5d1069..2952c28410e3 100644
+--- a/include/linux/blk-mq.h
++++ b/include/linux/blk-mq.h
+@@ -7,6 +7,7 @@
+ #include <linux/lockdep.h>
+ #include <linux/scatterlist.h>
+ #include <linux/prefetch.h>
++#include <linux/srcu.h>
+ 
+ struct blk_mq_tags;
+ struct blk_flush_queue;
+@@ -501,6 +502,8 @@ enum hctx_type {
+  * @tag_list_lock: Serializes tag_list accesses.
+  * @tag_list:	   List of the request queues that use this tag set. See also
+  *		   request_queue.tag_set_list.
++ * @srcu:	   Use as lock when type of the request queue is blocking
++ *		   (BLK_MQ_F_BLOCKING).
+  */
+ struct blk_mq_tag_set {
+ 	struct blk_mq_queue_map	map[HCTX_MAX_TYPES];
+@@ -521,6 +524,7 @@ struct blk_mq_tag_set {
+ 
+ 	struct mutex		tag_list_lock;
+ 	struct list_head	tag_list;
++	struct srcu_struct	*srcu;
+ };
+ 
+ /**
+diff --git a/include/linux/blkdev.h b/include/linux/blkdev.h
+index 891f8cbcd043..36c286d22fb2 100644
+--- a/include/linux/blkdev.h
++++ b/include/linux/blkdev.h
+@@ -22,7 +22,6 @@
+ #include <linux/blkzoned.h>
+ #include <linux/sched.h>
+ #include <linux/sbitmap.h>
+-#include <linux/srcu.h>
+ #include <linux/uuid.h>
+ #include <linux/xarray.h>
+ 
+@@ -544,18 +543,11 @@ struct request_queue {
+ 	struct mutex		debugfs_mutex;
+ 
+ 	bool			mq_sysfs_init_done;
+-
+-	/**
+-	 * @srcu: Sleepable RCU. Use as lock when type of the request queue
+-	 * is blocking (BLK_MQ_F_BLOCKING). Must be the last member
+-	 */
+-	struct srcu_struct	srcu[];
+ };
+ 
+ /* Keep blk_queue_flag_name[] in sync with the definitions below */
+ #define QUEUE_FLAG_STOPPED	0	/* queue is stopped */
+ #define QUEUE_FLAG_DYING	1	/* queue being torn down */
+-#define QUEUE_FLAG_HAS_SRCU	2	/* SRCU is allocated */
+ #define QUEUE_FLAG_NOMERGES     3	/* disable merge attempts */
+ #define QUEUE_FLAG_SAME_COMP	4	/* complete on same CPU-group */
+ #define QUEUE_FLAG_FAIL_IO	5	/* fake timeout */
+@@ -591,7 +583,6 @@ bool blk_queue_flag_test_and_set(unsigned int flag, struct request_queue *q);
+ 
+ #define blk_queue_stopped(q)	test_bit(QUEUE_FLAG_STOPPED, &(q)->queue_flags)
+ #define blk_queue_dying(q)	test_bit(QUEUE_FLAG_DYING, &(q)->queue_flags)
+-#define blk_queue_has_srcu(q)	test_bit(QUEUE_FLAG_HAS_SRCU, &(q)->queue_flags)
+ #define blk_queue_init_done(q)	test_bit(QUEUE_FLAG_INIT_DONE, &(q)->queue_flags)
+ #define blk_queue_nomerges(q)	test_bit(QUEUE_FLAG_NOMERGES, &(q)->queue_flags)
+ #define blk_queue_noxmerges(q)	\
 -- 
 2.39.0
 
