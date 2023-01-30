@@ -2,32 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C31A2680FAB
-	for <lists+stable@lfdr.de>; Mon, 30 Jan 2023 14:55:57 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C6616680FAD
+	for <lists+stable@lfdr.de>; Mon, 30 Jan 2023 14:55:58 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235426AbjA3Nz4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 30 Jan 2023 08:55:56 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34712 "EHLO
+        id S231186AbjA3Nz5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 30 Jan 2023 08:55:57 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34644 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236536AbjA3Nzy (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 30 Jan 2023 08:55:54 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 030F338EB6
-        for <stable@vger.kernel.org>; Mon, 30 Jan 2023 05:55:48 -0800 (PST)
+        with ESMTP id S236501AbjA3Nzz (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 30 Jan 2023 08:55:55 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 76882392AD
+        for <stable@vger.kernel.org>; Mon, 30 Jan 2023 05:55:52 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 92D6461028
-        for <stable@vger.kernel.org>; Mon, 30 Jan 2023 13:55:47 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 794BDC433D2;
-        Mon, 30 Jan 2023 13:55:46 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 30E45B8114D
+        for <stable@vger.kernel.org>; Mon, 30 Jan 2023 13:55:51 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 913CFC433D2;
+        Mon, 30 Jan 2023 13:55:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1675086947;
-        bh=rRXW8RAyTP+SNS9mW3dpFaiceZ9QYODxddylbZ7j+XU=;
+        s=korg; t=1675086949;
+        bh=zphkk/STirm+8kjrMKHxIPjeZOC7FHtDUn63nYLdnmc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=pnhcBGw4oOLsT2hBZZZmM9ksGEQ4I9e3WtzQeeKjGlUuHlkOut82qXZbZva54iVuT
-         nBnWqSu/jOAKqPAmI8pVVjFHxD0qIHYMJ7Xd8nMrkIcM70hJwGqLbtJs5mJkXasCUe
-         KcEtCMcjCtbqy0CSMua0oWrDXzupnudK2qh9dkWk=
+        b=Cc3Baa1q31a/ugXG05OxuEr3/J4IoXr6AhfmBIT7qtdraceNePGu//p5OyiAzJqvo
+         XIwPd0A7ME75O9cJVior1dr8jGz4BAYQ+2PymMA0Zyn0X+L60rBlvUwnSiAXFwQFl4
+         GKl4h3xQjHI7x0whf1fhUBiaK3oe6xv9tA2483h0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
@@ -36,9 +36,9 @@ Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         Dennis Dalessandro <dennis.dalessandro@cornelisnetworks.com>,
         Leon Romanovsky <leon@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 049/313] IB/hfi1: Immediately remove invalid memory from hardware
-Date:   Mon, 30 Jan 2023 14:48:04 +0100
-Message-Id: <20230130134338.983458359@linuxfoundation.org>
+Subject: [PATCH 6.1 050/313] IB/hfi1: Remove user expected buffer invalidate race
+Date:   Mon, 30 Jan 2023 14:48:05 +0100
+Message-Id: <20230130134339.034002471@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.1
 In-Reply-To: <20230130134336.532886729@linuxfoundation.org>
 References: <20230130134336.532886729@linuxfoundation.org>
@@ -46,8 +46,8 @@ User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
         SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -57,146 +57,170 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Dean Luick <dean.luick@cornelisnetworks.com>
 
-[ Upstream commit 1c7edde1b5720ddb0aff5ca8c7f605a0f92526eb ]
+[ Upstream commit b3deec25847bda34e34d5d7be02f633caf000bd8 ]
 
-When a user expected receive page is unmapped, it should be
-immediately removed from hardware rather than depend on a
-reaction from user space.
+During setup, there is a possible race between a page invalidate
+and hardware programming.  Add a covering invalidate over the user
+target range during setup.  If anything within that range is
+invalidated during setup, fail the setup.  Once set up, each
+TID will have its own invalidate callback and invalidate.
 
-Fixes: 2677a7680e77 ("IB/hfi1: Fix memory leak during unexpected shutdown")
+Fixes: 3889551db212 ("RDMA/hfi1: Use mmu_interval_notifier_insert for user_exp_rcv")
 Signed-off-by: Dean Luick <dean.luick@cornelisnetworks.com>
 Signed-off-by: Dennis Dalessandro <dennis.dalessandro@cornelisnetworks.com>
-Link: https://lore.kernel.org/r/167328548663.1472310.7871808081861622659.stgit@awfm-02.cornelisnetworks.com
+Link: https://lore.kernel.org/r/167328549178.1472310.9867497376936699488.stgit@awfm-02.cornelisnetworks.com
 Signed-off-by: Leon Romanovsky <leon@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/infiniband/hw/hfi1/user_exp_rcv.c | 43 +++++++++++++++--------
- drivers/infiniband/hw/hfi1/user_exp_rcv.h |  1 +
- 2 files changed, 30 insertions(+), 14 deletions(-)
+ drivers/infiniband/hw/hfi1/user_exp_rcv.c | 58 +++++++++++++++++++++--
+ drivers/infiniband/hw/hfi1/user_exp_rcv.h |  2 +
+ 2 files changed, 55 insertions(+), 5 deletions(-)
 
 diff --git a/drivers/infiniband/hw/hfi1/user_exp_rcv.c b/drivers/infiniband/hw/hfi1/user_exp_rcv.c
-index 88df8ca4bb57..f402af1e2903 100644
+index f402af1e2903..b02f2f0809c8 100644
 --- a/drivers/infiniband/hw/hfi1/user_exp_rcv.c
 +++ b/drivers/infiniband/hw/hfi1/user_exp_rcv.c
-@@ -28,8 +28,9 @@ static int program_rcvarray(struct hfi1_filedata *fd, struct tid_user_buf *,
+@@ -23,6 +23,9 @@ static void cacheless_tid_rb_remove(struct hfi1_filedata *fdata,
+ static bool tid_rb_invalidate(struct mmu_interval_notifier *mni,
+ 			      const struct mmu_notifier_range *range,
+ 			      unsigned long cur_seq);
++static bool tid_cover_invalidate(struct mmu_interval_notifier *mni,
++			         const struct mmu_notifier_range *range,
++			         unsigned long cur_seq);
+ static int program_rcvarray(struct hfi1_filedata *fd, struct tid_user_buf *,
+ 			    struct tid_group *grp,
  			    unsigned int start, u16 count,
- 			    u32 *tidlist, unsigned int *tididx,
- 			    unsigned int *pmapped);
--static int unprogram_rcvarray(struct hfi1_filedata *fd, u32 tidinfo,
--			      struct tid_group **grp);
-+static int unprogram_rcvarray(struct hfi1_filedata *fd, u32 tidinfo);
-+static void __clear_tid_node(struct hfi1_filedata *fd,
-+			     struct tid_rb_node *node);
- static void clear_tid_node(struct hfi1_filedata *fd, struct tid_rb_node *node);
- 
+@@ -36,6 +39,9 @@ static void clear_tid_node(struct hfi1_filedata *fd, struct tid_rb_node *node);
  static const struct mmu_interval_notifier_ops tid_mn_ops = {
-@@ -469,7 +470,7 @@ int hfi1_user_exp_rcv_clear(struct hfi1_filedata *fd,
+ 	.invalidate = tid_rb_invalidate,
+ };
++static const struct mmu_interval_notifier_ops tid_cover_ops = {
++	.invalidate = tid_cover_invalidate,
++};
  
- 	mutex_lock(&uctxt->exp_mutex);
- 	for (tididx = 0; tididx < tinfo->tidcnt; tididx++) {
--		ret = unprogram_rcvarray(fd, tidinfo[tididx], NULL);
-+		ret = unprogram_rcvarray(fd, tidinfo[tididx]);
- 		if (ret) {
- 			hfi1_cdbg(TID, "Failed to unprogram rcv array %d",
- 				  ret);
-@@ -723,6 +724,7 @@ static int set_rcvarray_entry(struct hfi1_filedata *fd,
+ /*
+  * Initialize context and file private data needed for Expected
+@@ -254,6 +260,7 @@ int hfi1_user_exp_rcv_setup(struct hfi1_filedata *fd,
+ 		tididx = 0, mapped, mapped_pages = 0;
+ 	u32 *tidlist = NULL;
+ 	struct tid_user_buf *tidbuf;
++	unsigned long mmu_seq = 0;
+ 
+ 	if (!PAGE_ALIGNED(tinfo->vaddr))
+ 		return -EINVAL;
+@@ -264,6 +271,7 @@ int hfi1_user_exp_rcv_setup(struct hfi1_filedata *fd,
+ 	if (!tidbuf)
+ 		return -ENOMEM;
+ 
++	mutex_init(&tidbuf->cover_mutex);
+ 	tidbuf->vaddr = tinfo->vaddr;
+ 	tidbuf->length = tinfo->length;
+ 	tidbuf->psets = kcalloc(uctxt->expected_count, sizeof(*tidbuf->psets),
+@@ -273,6 +281,16 @@ int hfi1_user_exp_rcv_setup(struct hfi1_filedata *fd,
+ 		goto fail_release_mem;
  	}
  
- 	node->fdata = fd;
-+	mutex_init(&node->invalidate_mutex);
- 	node->phys = page_to_phys(pages[0]);
- 	node->npages = npages;
- 	node->rcventry = rcventry;
-@@ -762,8 +764,7 @@ static int set_rcvarray_entry(struct hfi1_filedata *fd,
- 	return -EFAULT;
- }
- 
--static int unprogram_rcvarray(struct hfi1_filedata *fd, u32 tidinfo,
--			      struct tid_group **grp)
-+static int unprogram_rcvarray(struct hfi1_filedata *fd, u32 tidinfo)
- {
- 	struct hfi1_ctxtdata *uctxt = fd->uctxt;
- 	struct hfi1_devdata *dd = uctxt->dd;
-@@ -786,9 +787,6 @@ static int unprogram_rcvarray(struct hfi1_filedata *fd, u32 tidinfo,
- 	if (!node || node->rcventry != (uctxt->expected_base + rcventry))
- 		return -EBADF;
- 
--	if (grp)
--		*grp = node->grp;
--
- 	if (fd->use_mn)
- 		mmu_interval_notifier_remove(&node->notifier);
- 	cacheless_tid_rb_remove(fd, node);
-@@ -796,23 +794,34 @@ static int unprogram_rcvarray(struct hfi1_filedata *fd, u32 tidinfo,
- 	return 0;
- }
- 
--static void clear_tid_node(struct hfi1_filedata *fd, struct tid_rb_node *node)
-+static void __clear_tid_node(struct hfi1_filedata *fd, struct tid_rb_node *node)
- {
- 	struct hfi1_ctxtdata *uctxt = fd->uctxt;
- 	struct hfi1_devdata *dd = uctxt->dd;
- 
-+	mutex_lock(&node->invalidate_mutex);
-+	if (node->freed)
-+		goto done;
-+	node->freed = true;
++	if (fd->use_mn) {
++		ret = mmu_interval_notifier_insert(
++			&tidbuf->notifier, current->mm,
++			tidbuf->vaddr, tidbuf->npages * PAGE_SIZE,
++			&tid_cover_ops);
++		if (ret)
++			goto fail_release_mem;
++		mmu_seq = mmu_interval_read_begin(&tidbuf->notifier);
++	}
 +
- 	trace_hfi1_exp_tid_unreg(uctxt->ctxt, fd->subctxt, node->rcventry,
- 				 node->npages,
- 				 node->notifier.interval_tree.start, node->phys,
- 				 node->dma_addr);
+ 	pinned = pin_rcv_pages(fd, tidbuf);
+ 	if (pinned <= 0) {
+ 		ret = (pinned < 0) ? pinned : -ENOSPC;
+@@ -415,6 +433,20 @@ int hfi1_user_exp_rcv_setup(struct hfi1_filedata *fd,
+ 	unpin_rcv_pages(fd, tidbuf, NULL, mapped_pages, pinned - mapped_pages,
+ 			false);
  
--	/*
--	 * Make sure device has seen the write before we unpin the
--	 * pages.
--	 */
-+	/* Make sure device has seen the write before pages are unpinned */
- 	hfi1_put_tid(dd, node->rcventry, PT_INVALID_FLUSH, 0, 0);
++	if (fd->use_mn) {
++		/* check for an invalidate during setup */
++		bool fail = false;
++
++		mutex_lock(&tidbuf->cover_mutex);
++		fail = mmu_interval_read_retry(&tidbuf->notifier, mmu_seq);
++		mutex_unlock(&tidbuf->cover_mutex);
++
++		if (fail) {
++			ret = -EBUSY;
++			goto fail_unprogram;
++		}
++	}
++
+ 	tinfo->tidcnt = tididx;
+ 	tinfo->length = mapped_pages * PAGE_SIZE;
  
- 	unpin_rcv_pages(fd, NULL, node, 0, node->npages, true);
-+done:
-+	mutex_unlock(&node->invalidate_mutex);
+@@ -424,6 +456,8 @@ int hfi1_user_exp_rcv_setup(struct hfi1_filedata *fd,
+ 		goto fail_unprogram;
+ 	}
+ 
++	if (fd->use_mn)
++		mmu_interval_notifier_remove(&tidbuf->notifier);
+ 	kfree(tidbuf->pages);
+ 	kfree(tidbuf->psets);
+ 	kfree(tidbuf);
+@@ -442,6 +476,8 @@ int hfi1_user_exp_rcv_setup(struct hfi1_filedata *fd,
+ 	fd->tid_used -= pageset_count;
+ 	spin_unlock(&fd->tid_lock);
+ fail_unpin:
++	if (fd->use_mn)
++		mmu_interval_notifier_remove(&tidbuf->notifier);
+ 	if (pinned > 0)
+ 		unpin_rcv_pages(fd, tidbuf, NULL, 0, pinned, false);
+ fail_release_mem:
+@@ -740,11 +776,6 @@ static int set_rcvarray_entry(struct hfi1_filedata *fd,
+ 			&tid_mn_ops);
+ 		if (ret)
+ 			goto out_unmap;
+-		/*
+-		 * FIXME: This is in the wrong order, the notifier should be
+-		 * established before the pages are pinned by pin_rcv_pages.
+-		 */
+-		mmu_interval_read_begin(&node->notifier);
+ 	}
+ 	fd->entry_to_rb[node->rcventry - uctxt->expected_base] = node;
+ 
+@@ -919,6 +950,23 @@ static bool tid_rb_invalidate(struct mmu_interval_notifier *mni,
+ 	return true;
+ }
+ 
++static bool tid_cover_invalidate(struct mmu_interval_notifier *mni,
++			         const struct mmu_notifier_range *range,
++			         unsigned long cur_seq)
++{
++	struct tid_user_buf *tidbuf =
++		container_of(mni, struct tid_user_buf, notifier);
++
++	/* take action only if unmapping */
++	if (range->event == MMU_NOTIFY_UNMAP) {
++		mutex_lock(&tidbuf->cover_mutex);
++		mmu_interval_set_seq(mni, cur_seq);
++		mutex_unlock(&tidbuf->cover_mutex);
++	}
++
++	return true;
 +}
 +
-+static void clear_tid_node(struct hfi1_filedata *fd, struct tid_rb_node *node)
-+{
-+	struct hfi1_ctxtdata *uctxt = fd->uctxt;
-+
-+	__clear_tid_node(fd, node);
- 
- 	node->grp->used--;
- 	node->grp->map &= ~(1 << (node->rcventry - node->grp->base));
-@@ -871,10 +880,16 @@ static bool tid_rb_invalidate(struct mmu_interval_notifier *mni,
- 	if (node->freed)
- 		return true;
- 
-+	/* take action only if unmapping */
-+	if (range->event != MMU_NOTIFY_UNMAP)
-+		return true;
-+
- 	trace_hfi1_exp_tid_inval(uctxt->ctxt, fdata->subctxt,
- 				 node->notifier.interval_tree.start,
- 				 node->rcventry, node->npages, node->dma_addr);
--	node->freed = true;
-+
-+	/* clear the hardware rcvarray entry */
-+	__clear_tid_node(fdata, node);
- 
- 	spin_lock(&fdata->invalid_lock);
- 	if (fdata->invalid_tid_idx < uctxt->expected_count) {
+ static void cacheless_tid_rb_remove(struct hfi1_filedata *fdata,
+ 				    struct tid_rb_node *tnode)
+ {
 diff --git a/drivers/infiniband/hw/hfi1/user_exp_rcv.h b/drivers/infiniband/hw/hfi1/user_exp_rcv.h
-index 8c53e416bf84..2ddb3dac7d91 100644
+index 2ddb3dac7d91..f8ee997d0050 100644
 --- a/drivers/infiniband/hw/hfi1/user_exp_rcv.h
 +++ b/drivers/infiniband/hw/hfi1/user_exp_rcv.h
-@@ -27,6 +27,7 @@ struct tid_user_buf {
- struct tid_rb_node {
- 	struct mmu_interval_notifier notifier;
- 	struct hfi1_filedata *fdata;
-+	struct mutex invalidate_mutex; /* covers hw removal */
- 	unsigned long phys;
- 	struct tid_group *grp;
- 	u32 rcventry;
+@@ -16,6 +16,8 @@ struct tid_pageset {
+ };
+ 
+ struct tid_user_buf {
++	struct mmu_interval_notifier notifier;
++	struct mutex cover_mutex;
+ 	unsigned long vaddr;
+ 	unsigned long length;
+ 	unsigned int npages;
 -- 
 2.39.0
 
