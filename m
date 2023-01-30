@@ -2,51 +2,50 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 7C23A681123
-	for <lists+stable@lfdr.de>; Mon, 30 Jan 2023 15:10:41 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 77E8B68103A
+	for <lists+stable@lfdr.de>; Mon, 30 Jan 2023 15:01:51 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235531AbjA3OKk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 30 Jan 2023 09:10:40 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51902 "EHLO
+        id S237005AbjA3OBt (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 30 Jan 2023 09:01:49 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41360 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237204AbjA3OK3 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 30 Jan 2023 09:10:29 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8EE273C292
-        for <stable@vger.kernel.org>; Mon, 30 Jan 2023 06:10:12 -0800 (PST)
+        with ESMTP id S236956AbjA3OBS (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 30 Jan 2023 09:01:18 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9B2913B66E
+        for <stable@vger.kernel.org>; Mon, 30 Jan 2023 06:00:56 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 4003BB8117E
-        for <stable@vger.kernel.org>; Mon, 30 Jan 2023 14:10:11 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 91C69C433EF;
-        Mon, 30 Jan 2023 14:10:09 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 4C829B81154
+        for <stable@vger.kernel.org>; Mon, 30 Jan 2023 14:00:55 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A14D3C433EF;
+        Mon, 30 Jan 2023 14:00:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1675087809;
-        bh=JWV/LZ4M/HhUsHtYVWN7lXThWaXbYb+kb5ffyuLctmw=;
+        s=korg; t=1675087254;
+        bh=HXrhd37rkLoma/ArAtFccRMEdMq7Mw1mNmj4y/DffBM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=L9Dbupe/RFVuRdTmNO4K+Km2DztYAowfouTM/o4WW+SoKah0q1mN9ofvNDnqmOKYW
-         oyicT1nuyjxwWzLkhrn3VDSmsIE8CbEVTnU7OEKQS9D1csxJzHj55rwF5lA2Hsd9Sk
-         xJALQX3G6IbdN8D+Ns62cmaJrwZAWijtIt8fYKo4=
+        b=xKUSzIlQhnpIdLCOCk8cedwIi22eZ5r/fL9yKRiLsY9bNeQHGXHfA0FHeHmRIrSME
+         3S7EjUdwwAAXrJBROmchkIq82Ac9bph6tJpjcqO6Q6OSH/X6O/WnK7zNRM2dW94izb
+         +k7dNPHOSfUeZgVhh4W1igekGvMOcWEoBEn6khks=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Cristian Marussi <cristian.marussi@arm.com>,
-        Sudeep Holla <sudeep.holla@arm.com>,
+        patches@lists.linux.dev, Sumit Gupta <sumitg@nvidia.com>,
+        Viresh Kumar <viresh.kumar@linaro.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 018/204] firmware: arm_scmi: Harden shared memory access in fetch_notification
+Subject: [PATCH 6.1 148/313] cpufreq: Add Tegra234 to cpufreq-dt-platdev blocklist
 Date:   Mon, 30 Jan 2023 14:49:43 +0100
-Message-Id: <20230130134317.091667812@linuxfoundation.org>
+Message-Id: <20230130134343.555116705@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.1
-In-Reply-To: <20230130134316.327556078@linuxfoundation.org>
-References: <20230130134316.327556078@linuxfoundation.org>
+In-Reply-To: <20230130134336.532886729@linuxfoundation.org>
+References: <20230130134336.532886729@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
         SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -54,38 +53,33 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Cristian Marussi <cristian.marussi@arm.com>
+From: Sumit Gupta <sumitg@nvidia.com>
 
-[ Upstream commit 9bae076cd4e3e3c3dc185cae829d80b2dddec86e ]
+[ Upstream commit 01c5bb0cc2a39fbc56ff9a5ef28b79447f0c2351 ]
 
-A misbheaving SCMI platform firmware could reply with out-of-spec
-notifications, shorter than the mimimum size comprising a header.
+Tegra234 platform uses the tegra194-cpufreq driver, so add it
+to the blocklist in cpufreq-dt-platdev driver to avoid the cpufreq
+driver registration from there.
 
-Fixes: d5141f37c42e ("firmware: arm_scmi: Add notifications support in transport layer")
-Signed-off-by: Cristian Marussi <cristian.marussi@arm.com>
-Link: https://lore.kernel.org/r/20221222183823.518856-4-cristian.marussi@arm.com
-Signed-off-by: Sudeep Holla <sudeep.holla@arm.com>
+Signed-off-by: Sumit Gupta <sumitg@nvidia.com>
+Signed-off-by: Viresh Kumar <viresh.kumar@linaro.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/firmware/arm_scmi/shmem.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ drivers/cpufreq/cpufreq-dt-platdev.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/firmware/arm_scmi/shmem.c b/drivers/firmware/arm_scmi/shmem.c
-index 415ef7df8fc3..56a1f61aa3ff 100644
---- a/drivers/firmware/arm_scmi/shmem.c
-+++ b/drivers/firmware/arm_scmi/shmem.c
-@@ -71,8 +71,10 @@ void shmem_fetch_response(struct scmi_shared_mem __iomem *shmem,
- void shmem_fetch_notification(struct scmi_shared_mem __iomem *shmem,
- 			      size_t max_len, struct scmi_xfer *xfer)
- {
-+	size_t len = ioread32(&shmem->length);
-+
- 	/* Skip only the length of header in shmem area i.e 4 bytes */
--	xfer->rx.len = min_t(size_t, max_len, ioread32(&shmem->length) - 4);
-+	xfer->rx.len = min_t(size_t, max_len, len > 4 ? len - 4 : 0);
+diff --git a/drivers/cpufreq/cpufreq-dt-platdev.c b/drivers/cpufreq/cpufreq-dt-platdev.c
+index 6ac3800db450..54ae8118d528 100644
+--- a/drivers/cpufreq/cpufreq-dt-platdev.c
++++ b/drivers/cpufreq/cpufreq-dt-platdev.c
+@@ -135,6 +135,7 @@ static const struct of_device_id blocklist[] __initconst = {
+ 	{ .compatible = "nvidia,tegra30", },
+ 	{ .compatible = "nvidia,tegra124", },
+ 	{ .compatible = "nvidia,tegra210", },
++	{ .compatible = "nvidia,tegra234", },
  
- 	/* Take a copy to the rx buffer.. */
- 	memcpy_fromio(xfer->rx.buf, shmem->msg_payload, xfer->rx.len);
+ 	{ .compatible = "qcom,apq8096", },
+ 	{ .compatible = "qcom,msm8996", },
 -- 
 2.39.0
 
