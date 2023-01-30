@@ -2,50 +2,50 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 0AC1F6812B3
-	for <lists+stable@lfdr.de>; Mon, 30 Jan 2023 15:24:14 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D18616810D5
+	for <lists+stable@lfdr.de>; Mon, 30 Jan 2023 15:07:16 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236816AbjA3OYM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 30 Jan 2023 09:24:12 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41576 "EHLO
+        id S237105AbjA3OHQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 30 Jan 2023 09:07:16 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49430 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237394AbjA3OXx (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 30 Jan 2023 09:23:53 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7299F3D093
-        for <stable@vger.kernel.org>; Mon, 30 Jan 2023 06:22:46 -0800 (PST)
+        with ESMTP id S237107AbjA3OHP (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 30 Jan 2023 09:07:15 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 947213B661
+        for <stable@vger.kernel.org>; Mon, 30 Jan 2023 06:07:12 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 710C86108C
-        for <stable@vger.kernel.org>; Mon, 30 Jan 2023 14:21:51 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7C1DCC433D2;
-        Mon, 30 Jan 2023 14:21:50 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 2DBEE61084
+        for <stable@vger.kernel.org>; Mon, 30 Jan 2023 14:07:12 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3D6F3C433D2;
+        Mon, 30 Jan 2023 14:07:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1675088510;
-        bh=ZPBNkYHNdaXUw3YjMlw/9uRgVvvBokfJ/ELHRsCy8Jw=;
+        s=korg; t=1675087631;
+        bh=xYmaA+wONafaHmY7s1tEfwKwVF4wo4/dWHD+JYFlK3g=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=oH/13o35f98gg91zU/QhRYKKYK8FHZoJXT17KDMh5OdbelhXxmnXGWfPmV7vVKVTy
-         z5xeBXKnWNoM/slA3sAneeIz5R2d/YTusyEcCVPKkZJwXwHR+lawY2HHo9IAN2M/ZE
-         8xs4btqZ/lebeWzYlyF2cZI/b8h1Tl1pOol7OWxE=
+        b=sm9kO3lny8ttRRdB4b/AxGe3uRUj5NXfKlcn42JXOqBKMRCfKwHdLfCSeHtW2TPzG
+         3jUzhI0SfGKXE8upkKHze8zdyQtkvEzp/1n5bIVVfzckjkWci02ZPKZEuawq/wG4T+
+         TxJYGtN0rVw7XIv3mGFCeW5JTLAR5Nchlia9axPA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Christian Zigotzky <chzigotzky@xenosoft.de>,
-        Jiri Kosina <jkosina@suse.cz>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 043/143] HID: revert CHERRY_MOUSE_000C quirk
+        patches@lists.linux.dev, Stefano Brivio <sbrivio@redhat.com>,
+        Pablo Neira Ayuso <pablo@netfilter.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 6.1 265/313] netfilter: nft_set_rbtree: skip elements in transaction from garbage collection
 Date:   Mon, 30 Jan 2023 14:51:40 +0100
-Message-Id: <20230130134308.623779136@linuxfoundation.org>
+Message-Id: <20230130134349.083730967@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.1
-In-Reply-To: <20230130134306.862721518@linuxfoundation.org>
-References: <20230130134306.862721518@linuxfoundation.org>
+In-Reply-To: <20230130134336.532886729@linuxfoundation.org>
+References: <20230130134336.532886729@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
         SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -53,47 +53,66 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jiri Kosina <jkosina@suse.cz>
+From: Pablo Neira Ayuso <pablo@netfilter.org>
 
-[ Upstream commit cbf44580ce6b310272a73e3e794233fd064330bd ]
+[ Upstream commit 5d235d6ce75c12a7fdee375eb211e4116f7ab01b ]
 
-This partially reverts commit f6d910a89a2391 ("HID: usbhid: Add ALWAYS_POLL quirk
-for some mice"), as it turns out to break reboot on some platforms for reason
-yet to be understood.
+Skip interference with an ongoing transaction, do not perform garbage
+collection on inactive elements. Reset annotated previous end interval
+if the expired element is marked as busy (control plane removed the
+element right before expiration).
 
-Fixes: f6d910a89a2391 ("HID: usbhid: Add ALWAYS_POLL quirk for some mice")
-Reported-by: Christian Zigotzky <chzigotzky@xenosoft.de>
-Signed-off-by: Jiri Kosina <jkosina@suse.cz>
+Fixes: 8d8540c4f5e0 ("netfilter: nft_set_rbtree: add timeout support")
+Reviewed-by: Stefano Brivio <sbrivio@redhat.com>
+Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/hid/hid-ids.h    | 1 -
- drivers/hid/hid-quirks.c | 1 -
- 2 files changed, 2 deletions(-)
+ net/netfilter/nft_set_rbtree.c | 16 +++++++++++++++-
+ 1 file changed, 15 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
-index 09c3f30f10d3..1d1306a6004e 100644
---- a/drivers/hid/hid-ids.h
-+++ b/drivers/hid/hid-ids.h
-@@ -257,7 +257,6 @@
- #define USB_DEVICE_ID_CH_AXIS_295	0x001c
+diff --git a/net/netfilter/nft_set_rbtree.c b/net/netfilter/nft_set_rbtree.c
+index 217225e13faf..19ea4d3c3553 100644
+--- a/net/netfilter/nft_set_rbtree.c
++++ b/net/netfilter/nft_set_rbtree.c
+@@ -563,23 +563,37 @@ static void nft_rbtree_gc(struct work_struct *work)
+ 	struct nft_rbtree *priv;
+ 	struct rb_node *node;
+ 	struct nft_set *set;
++	struct net *net;
++	u8 genmask;
  
- #define USB_VENDOR_ID_CHERRY		0x046a
--#define USB_DEVICE_ID_CHERRY_MOUSE_000C	0x000c
- #define USB_DEVICE_ID_CHERRY_CYMOTION	0x0023
- #define USB_DEVICE_ID_CHERRY_CYMOTION_SOLAR	0x0027
+ 	priv = container_of(work, struct nft_rbtree, gc_work.work);
+ 	set  = nft_set_container_of(priv);
++	net  = read_pnet(&set->net);
++	genmask = nft_genmask_cur(net);
  
-diff --git a/drivers/hid/hid-quirks.c b/drivers/hid/hid-quirks.c
-index 1efde40e5136..9f1fcbea19eb 100644
---- a/drivers/hid/hid-quirks.c
-+++ b/drivers/hid/hid-quirks.c
-@@ -54,7 +54,6 @@ static const struct hid_device_id hid_quirks[] = {
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_CH, USB_DEVICE_ID_CH_FLIGHT_SIM_YOKE), HID_QUIRK_NOGET },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_CH, USB_DEVICE_ID_CH_PRO_PEDALS), HID_QUIRK_NOGET },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_CH, USB_DEVICE_ID_CH_PRO_THROTTLE), HID_QUIRK_NOGET },
--	{ HID_USB_DEVICE(USB_VENDOR_ID_CHERRY, USB_DEVICE_ID_CHERRY_MOUSE_000C), HID_QUIRK_ALWAYS_POLL },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_CORSAIR, USB_DEVICE_ID_CORSAIR_K65RGB), HID_QUIRK_NO_INIT_REPORTS },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_CORSAIR, USB_DEVICE_ID_CORSAIR_K65RGB_RAPIDFIRE), HID_QUIRK_NO_INIT_REPORTS | HID_QUIRK_ALWAYS_POLL },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_CORSAIR, USB_DEVICE_ID_CORSAIR_K70RGB), HID_QUIRK_NO_INIT_REPORTS },
+ 	write_lock_bh(&priv->lock);
+ 	write_seqcount_begin(&priv->count);
+ 	for (node = rb_first(&priv->root); node != NULL; node = rb_next(node)) {
+ 		rbe = rb_entry(node, struct nft_rbtree_elem, node);
+ 
++		if (!nft_set_elem_active(&rbe->ext, genmask))
++			continue;
++
++		/* elements are reversed in the rbtree for historical reasons,
++		 * from highest to lowest value, that is why end element is
++		 * always visited before the start element.
++		 */
+ 		if (nft_rbtree_interval_end(rbe)) {
+ 			rbe_end = rbe;
+ 			continue;
+ 		}
+ 		if (!nft_set_elem_expired(&rbe->ext))
+ 			continue;
+-		if (nft_set_elem_mark_busy(&rbe->ext))
++
++		if (nft_set_elem_mark_busy(&rbe->ext)) {
++			rbe_end = NULL;
+ 			continue;
++		}
+ 
+ 		if (rbe_prev) {
+ 			rb_erase(&rbe_prev->node, &priv->root);
 -- 
 2.39.0
 
