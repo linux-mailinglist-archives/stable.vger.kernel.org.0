@@ -2,54 +2,52 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 927F968116A
-	for <lists+stable@lfdr.de>; Mon, 30 Jan 2023 15:13:26 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5284468107A
+	for <lists+stable@lfdr.de>; Mon, 30 Jan 2023 15:03:56 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237270AbjA3ONZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 30 Jan 2023 09:13:25 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56908 "EHLO
+        id S236909AbjA3ODy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 30 Jan 2023 09:03:54 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43110 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237289AbjA3ONT (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 30 Jan 2023 09:13:19 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5A5C037B5B;
-        Mon, 30 Jan 2023 06:13:06 -0800 (PST)
+        with ESMTP id S236979AbjA3ODp (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 30 Jan 2023 09:03:45 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 213FC769C
+        for <stable@vger.kernel.org>; Mon, 30 Jan 2023 06:03:38 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 106E5B8117B;
-        Mon, 30 Jan 2023 14:13:05 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4A7FFC433D2;
-        Mon, 30 Jan 2023 14:13:03 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id CF669B811BD
+        for <stable@vger.kernel.org>; Mon, 30 Jan 2023 14:03:36 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 357A1C433EF;
+        Mon, 30 Jan 2023 14:03:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1675087983;
-        bh=sRHtvw+ovoZY11QOQItx8cHaleNwdkkqv03jsMtLQN8=;
+        s=korg; t=1675087415;
+        bh=CqcJOYrmMwrHvHr1l/AqBsW2JJ1N7PeAWS74POW7m1A=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=mRFplPSpXvabR/8DYkfCIArP0QHvimB63Hd8by3AAnczDn/Z8wngqjqzaOYbQIbQO
-         tNfdKlsMekUIEtG8T/mOR0IKiarWxVT9RO6M5NtblUq3SJ/EVW+zG+3DIC8F+ui4NR
-         HQ1hkicgH4uF6YvLRSY4v8I+dw4R7/vs82gv59wI=
+        b=xX8NvFIkKowq4O+vumQkLt8j6jX/800oDijoq0d0sQUqbUA8tTXpGG7DAoMraR49R
+         /99Rg6+izGlA4MX9yJ8i2eampwqcVGFEEh62CwAm5TH/tJ2qEx/DLhY3nPmbPXTaAk
+         ycNQVXHV3bG0MHE311J0E8gBcF2eiKf+1j1BlbPI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Randy Dunlap <rdunlap@infradead.org>,
-        Eli Cohen <eli@mellanox.com>,
-        Saeed Mahameed <saeedm@nvidia.com>,
-        Leon Romanovsky <leon@kernel.org>, linux-rdma@vger.kernel.org,
-        Ira Weiny <ira.weiny@intel.com>,
-        Leon Romanovsky <leonro@nvidia.com>,
+        patches@lists.linux.dev,
+        =?UTF-8?q?Ville=20Syrj=C3=A4l=C3=A4?= 
+        <ville.syrjala@linux.intel.com>,
+        Jani Nikula <jani.nikula@intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 068/204] net: mlx5: eliminate anonymous module_init & module_exit
-Date:   Mon, 30 Jan 2023 14:50:33 +0100
-Message-Id: <20230130134319.313551271@linuxfoundation.org>
+Subject: [PATCH 6.1 199/313] drm/i915: Allow alternate fixed modes always for eDP
+Date:   Mon, 30 Jan 2023 14:50:34 +0100
+Message-Id: <20230130134345.976764621@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.1
-In-Reply-To: <20230130134316.327556078@linuxfoundation.org>
-References: <20230130134316.327556078@linuxfoundation.org>
+In-Reply-To: <20230130134336.532886729@linuxfoundation.org>
+References: <20230130134336.532886729@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
         SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -57,74 +55,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Randy Dunlap <rdunlap@infradead.org>
+From: Ville Syrjälä <ville.syrjala@linux.intel.com>
 
-[ Upstream commit 2c1e1b949024989e20907b84e11a731a50778416 ]
+[ Upstream commit 55cfeecc2197de68e9cc30f77c711dcbcdf27510 ]
 
-Eliminate anonymous module_init() and module_exit(), which can lead to
-confusion or ambiguity when reading System.map, crashes/oops/bugs,
-or an initcall_debug log.
+Stop considering VBT's static DRRS support when deciding whether
+to use alternate fixed modes or not. It looks like Windows more
+or less just uses that to decide whether to automagically switch
+refresh rates on AC<->battery changes, or perhaps whether to
+even expose a control for that in some UI thing. Either way it
+seems happy to always use all EDID modes, and I guess the
+DRRS/VRR stuff more or less adjusts how said modes get
+actually used.
 
-Give each of these init and exit functions unique driver-specific
-names to eliminate the anonymous names.
+Let's do the same and just accept all the suitable looking
+modes from EDID, whether we have DRRS or VRR.
 
-Example 1: (System.map)
- ffffffff832fc78c t init
- ffffffff832fc79e t init
- ffffffff832fc8f8 t init
-
-Example 2: (initcall_debug log)
- calling  init+0x0/0x12 @ 1
- initcall init+0x0/0x12 returned 0 after 15 usecs
- calling  init+0x0/0x60 @ 1
- initcall init+0x0/0x60 returned 0 after 2 usecs
- calling  init+0x0/0x9a @ 1
- initcall init+0x0/0x9a returned 0 after 74 usecs
-
-Fixes: e126ba97dba9 ("mlx5: Add driver for Mellanox Connect-IB adapters")
-Signed-off-by: Randy Dunlap <rdunlap@infradead.org>
-Cc: Eli Cohen <eli@mellanox.com>
-Cc: Saeed Mahameed <saeedm@nvidia.com>
-Cc: Leon Romanovsky <leon@kernel.org>
-Cc: linux-rdma@vger.kernel.org
-Reviewed-by: Ira Weiny <ira.weiny@intel.com>
-Reviewed-by: Leon Romanovsky <leonro@nvidia.com>
-Signed-off-by: Saeed Mahameed <saeedm@nvidia.com>
+Closes: https://gitlab.freedesktop.org/drm/intel/-/issues/6323
+Closes: https://gitlab.freedesktop.org/drm/intel/-/issues/6484
+Signed-off-by: Ville Syrjälä <ville.syrjala@linux.intel.com>
+Link: https://patchwork.freedesktop.org/patch/msgid/20220927180615.25476-3-ville.syrjala@linux.intel.com
+Reviewed-by: Jani Nikula <jani.nikula@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/mellanox/mlx5/core/main.c | 8 ++++----
- 1 file changed, 4 insertions(+), 4 deletions(-)
+ drivers/gpu/drm/i915/display/intel_dp.c | 4 +---
+ 1 file changed, 1 insertion(+), 3 deletions(-)
 
-diff --git a/drivers/net/ethernet/mellanox/mlx5/core/main.c b/drivers/net/ethernet/mellanox/mlx5/core/main.c
-index 145e56f5eeee..9e15eea9743f 100644
---- a/drivers/net/ethernet/mellanox/mlx5/core/main.c
-+++ b/drivers/net/ethernet/mellanox/mlx5/core/main.c
-@@ -1849,7 +1849,7 @@ static void mlx5_core_verify_params(void)
- 	}
- }
+diff --git a/drivers/gpu/drm/i915/display/intel_dp.c b/drivers/gpu/drm/i915/display/intel_dp.c
+index 78b3427471bd..b94bcceeff70 100644
+--- a/drivers/gpu/drm/i915/display/intel_dp.c
++++ b/drivers/gpu/drm/i915/display/intel_dp.c
+@@ -5216,9 +5216,7 @@ static bool intel_edp_init_connector(struct intel_dp *intel_dp,
+ 	intel_bios_init_panel(dev_priv, &intel_connector->panel,
+ 			      encoder->devdata, IS_ERR(edid) ? NULL : edid);
  
--static int __init init(void)
-+static int __init mlx5_init(void)
- {
- 	int err;
+-	intel_panel_add_edid_fixed_modes(intel_connector,
+-					 intel_connector->panel.vbt.drrs_type != DRRS_TYPE_NONE ||
+-					 intel_vrr_is_capable(intel_connector));
++	intel_panel_add_edid_fixed_modes(intel_connector, true);
  
-@@ -1885,7 +1885,7 @@ static int __init init(void)
- 	return err;
- }
- 
--static void __exit cleanup(void)
-+static void __exit mlx5_cleanup(void)
- {
- 	mlx5e_cleanup();
- 	mlx5_sf_driver_unregister();
-@@ -1893,5 +1893,5 @@ static void __exit cleanup(void)
- 	mlx5_unregister_debugfs();
- }
- 
--module_init(init);
--module_exit(cleanup);
-+module_init(mlx5_init);
-+module_exit(mlx5_cleanup);
+ 	/* MSO requires information from the EDID */
+ 	intel_edp_mso_init(intel_dp);
 -- 
 2.39.0
 
