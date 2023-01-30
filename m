@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 1E39F681069
-	for <lists+stable@lfdr.de>; Mon, 30 Jan 2023 15:03:22 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 20B1B681156
+	for <lists+stable@lfdr.de>; Mon, 30 Jan 2023 15:12:27 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237037AbjA3ODV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 30 Jan 2023 09:03:21 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42766 "EHLO
+        id S237249AbjA3OM0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 30 Jan 2023 09:12:26 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55186 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237046AbjA3ODD (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 30 Jan 2023 09:03:03 -0500
+        with ESMTP id S237248AbjA3OMV (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 30 Jan 2023 09:12:21 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BE887EB62
-        for <stable@vger.kernel.org>; Mon, 30 Jan 2023 06:02:59 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D31AB3BD99
+        for <stable@vger.kernel.org>; Mon, 30 Jan 2023 06:12:12 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 78C02B80E70
-        for <stable@vger.kernel.org>; Mon, 30 Jan 2023 14:02:58 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7D361C433EF;
-        Mon, 30 Jan 2023 14:02:56 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 8D559B8117B
+        for <stable@vger.kernel.org>; Mon, 30 Jan 2023 14:12:11 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C98FEC4339B;
+        Mon, 30 Jan 2023 14:12:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1675087377;
-        bh=R/Kjb4ZXSeF2C4HNIzIgC5BNI0tQG0DW+T6TS+0qdzw=;
+        s=korg; t=1675087930;
+        bh=0jqfAtpwCkDIii3LModyXnp0/FQ2UcnSI+7s3ACTzgI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=VaLdMdbEcIoyOxf8wrCFEb+8JVsXeUiT9N30UTNQEqddWOvG+NcPCoLWeeZ2usOA2
-         3XqGTmzppmRhdh32P7GwwjG8sCCOfCdE+9vB6Oto8kuWaakV2+fVcr0d19krPxbox1
-         +gDmuOGYe9BOI0jMvEpN3hLpIZD0Dw6jXcvkXWjk=
+        b=C1IEHbkvpHQsAKkn/f2qhh5vbX5z2AGD8QfZsrDaURND2wT+sO8R4VNC5feKp2sx7
+         F6sBMO3xQ1eDQAH4HpX4JriXTt5OP7B5FXRiyN7r5PRJhcbKBuvxoidegvJc/zXzVD
+         cfnnXyF5lo5wqEd+8hgwup4MdSfe62UWUFfK1jWg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Henning Schild <henning.schild@siemens.com>,
-        Hans de Goede <hdegoede@redhat.com>,
+        patches@lists.linux.dev, Heiner Kallweit <hkallweit1@gmail.com>,
+        Andrew Lunn <andrew@lunn.ch>, Paolo Abeni <pabeni@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 187/313] platform/x86: simatic-ipc: correct name of a model
+Subject: [PATCH 5.15 057/204] net: mdio: validate parameter addr in mdiobus_get_phy()
 Date:   Mon, 30 Jan 2023 14:50:22 +0100
-Message-Id: <20230130134345.412190863@linuxfoundation.org>
+Message-Id: <20230130134318.815789794@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.1
-In-Reply-To: <20230130134336.532886729@linuxfoundation.org>
-References: <20230130134336.532886729@linuxfoundation.org>
+In-Reply-To: <20230130134316.327556078@linuxfoundation.org>
+References: <20230130134316.327556078@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,49 +53,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Henning Schild <henning.schild@siemens.com>
+From: Heiner Kallweit <hkallweit1@gmail.com>
 
-[ Upstream commit ed058eab22d64c00663563e8e1e112989c65c59f ]
+[ Upstream commit 867dbe784c5010a466f00a7d1467c1c5ea569c75 ]
 
-What we called IPC427G should be renamed to BX-39A to be more in line
-with the actual product name.
+The caller may pass any value as addr, what may result in an out-of-bounds
+access to array mdio_map. One existing case is stmmac_init_phy() that
+may pass -1 as addr. Therefore validate addr before using it.
 
-Signed-off-by: Henning Schild <henning.schild@siemens.com>
-Link: https://lore.kernel.org/r/20221222103720.8546-2-henning.schild@siemens.com
-Reviewed-by: Hans de Goede <hdegoede@redhat.com>
-Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+Fixes: 7f854420fbfe ("phy: Add API for {un}registering an mdio device to a bus.")
+Signed-off-by: Heiner Kallweit <hkallweit1@gmail.com>
+Reviewed-by: Andrew Lunn <andrew@lunn.ch>
+Link: https://lore.kernel.org/r/cdf664ea-3312-e915-73f8-021678d08887@gmail.com
+Signed-off-by: Paolo Abeni <pabeni@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/platform/x86/simatic-ipc.c            | 2 +-
- include/linux/platform_data/x86/simatic-ipc.h | 2 +-
- 2 files changed, 2 insertions(+), 2 deletions(-)
+ drivers/net/phy/mdio_bus.c | 7 ++++++-
+ 1 file changed, 6 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/platform/x86/simatic-ipc.c b/drivers/platform/x86/simatic-ipc.c
-index ca76076fc706..2ab1f8da32b0 100644
---- a/drivers/platform/x86/simatic-ipc.c
-+++ b/drivers/platform/x86/simatic-ipc.c
-@@ -46,7 +46,7 @@ static struct {
- 	{SIMATIC_IPC_IPC427D, SIMATIC_IPC_DEVICE_427E, SIMATIC_IPC_DEVICE_NONE},
- 	{SIMATIC_IPC_IPC427E, SIMATIC_IPC_DEVICE_427E, SIMATIC_IPC_DEVICE_427E},
- 	{SIMATIC_IPC_IPC477E, SIMATIC_IPC_DEVICE_NONE, SIMATIC_IPC_DEVICE_427E},
--	{SIMATIC_IPC_IPC427G, SIMATIC_IPC_DEVICE_227G, SIMATIC_IPC_DEVICE_227G},
-+	{SIMATIC_IPC_IPCBX_39A, SIMATIC_IPC_DEVICE_227G, SIMATIC_IPC_DEVICE_227G},
- };
+diff --git a/drivers/net/phy/mdio_bus.c b/drivers/net/phy/mdio_bus.c
+index dd7739b5f791..5f89828fd9f1 100644
+--- a/drivers/net/phy/mdio_bus.c
++++ b/drivers/net/phy/mdio_bus.c
+@@ -108,7 +108,12 @@ EXPORT_SYMBOL(mdiobus_unregister_device);
  
- static int register_platform_devices(u32 station_id)
-diff --git a/include/linux/platform_data/x86/simatic-ipc.h b/include/linux/platform_data/x86/simatic-ipc.h
-index 632320ec8f08..a4a6cba412cb 100644
---- a/include/linux/platform_data/x86/simatic-ipc.h
-+++ b/include/linux/platform_data/x86/simatic-ipc.h
-@@ -32,7 +32,7 @@ enum simatic_ipc_station_ids {
- 	SIMATIC_IPC_IPC477E = 0x00000A02,
- 	SIMATIC_IPC_IPC127E = 0x00000D01,
- 	SIMATIC_IPC_IPC227G = 0x00000F01,
--	SIMATIC_IPC_IPC427G = 0x00001001,
-+	SIMATIC_IPC_IPCBX_39A = 0x00001001,
- };
+ struct phy_device *mdiobus_get_phy(struct mii_bus *bus, int addr)
+ {
+-	struct mdio_device *mdiodev = bus->mdio_map[addr];
++	struct mdio_device *mdiodev;
++
++	if (addr < 0 || addr >= ARRAY_SIZE(bus->mdio_map))
++		return NULL;
++
++	mdiodev = bus->mdio_map[addr];
  
- static inline u32 simatic_ipc_get_station_id(u8 *data, int max_len)
+ 	if (!mdiodev)
+ 		return NULL;
 -- 
 2.39.0
 
