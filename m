@@ -2,50 +2,51 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 562D1681241
-	for <lists+stable@lfdr.de>; Mon, 30 Jan 2023 15:19:38 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A05F66810F8
+	for <lists+stable@lfdr.de>; Mon, 30 Jan 2023 15:09:00 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237669AbjA3OTf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 30 Jan 2023 09:19:35 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33412 "EHLO
+        id S237140AbjA3OJA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 30 Jan 2023 09:09:00 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51032 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237586AbjA3OTP (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 30 Jan 2023 09:19:15 -0500
-Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4EB7D38669
-        for <stable@vger.kernel.org>; Mon, 30 Jan 2023 06:18:11 -0800 (PST)
+        with ESMTP id S237138AbjA3OI7 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 30 Jan 2023 09:08:59 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9F2FC303E7
+        for <stable@vger.kernel.org>; Mon, 30 Jan 2023 06:08:58 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 70209CE1409
-        for <stable@vger.kernel.org>; Mon, 30 Jan 2023 14:18:07 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4DB0FC433D2;
-        Mon, 30 Jan 2023 14:18:05 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 3ADCF61085
+        for <stable@vger.kernel.org>; Mon, 30 Jan 2023 14:08:58 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 42E84C433EF;
+        Mon, 30 Jan 2023 14:08:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1675088285;
-        bh=9bSnuSPJl9quzG4XE8YPlSI0noB9XRB6LHYE+i3XjRM=;
+        s=korg; t=1675087737;
+        bh=J8LXrL5/cDE6Nqk6k0FSkDqCzgdGnZOYzoBdJumJSGI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=BtLHlgbWnXdnPr3/7c0ZjrgDfDgR7DWsRJnVuPUNFzR3B8h4gboJrtaxVJOwaTrS0
-         YoJQNF9hRktfV2znP0ptsmZNYcXgPK37tX7IUV1+lE0yKe3QJ62pyDbvUmYn/ADO5A
-         PmvUlOpVYvZRQzMV2vfNmF5eoJXDeYsUBKZNbp0s=
+        b=bREq8s+ut95uhLe1xWIQDi9EeB8sph7spmTVQBO8mosTovEm2VOWsXZA6uHR4fOHF
+         J2axFMvp5IVTbUPDQfQY3Xe9HcexM9J/+H714qhAyqdCIS1dundP5cQVd1GMze11XO
+         WNkG8ELd7FLiVrIcdY+z+q2fgDUquIU7d8TTZVXY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Eric Dumazet <edumazet@google.com>,
-        Jakub Kicinski <kuba@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 178/204] ipv4: prevent potential spectre v1 gadget in ip_metrics_convert()
+        patches@lists.linux.dev, Guo Ren <guoren@kernel.org>,
+        Conor Dooley <conor.dooley@microchip.com>,
+        Rob Herring <robh@kernel.org>,
+        Palmer Dabbelt <palmer@rivosinc.com>
+Subject: [PATCH 6.1 308/313] dt-bindings: riscv: fix underscore requirement for multi-letter extensions
 Date:   Mon, 30 Jan 2023 14:52:23 +0100
-Message-Id: <20230130134324.374772073@linuxfoundation.org>
+Message-Id: <20230130134351.090765428@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.1
-In-Reply-To: <20230130134316.327556078@linuxfoundation.org>
-References: <20230130134316.327556078@linuxfoundation.org>
+In-Reply-To: <20230130134336.532886729@linuxfoundation.org>
+References: <20230130134336.532886729@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
         SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -53,50 +54,50 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eric Dumazet <edumazet@google.com>
+From: Conor Dooley <conor.dooley@microchip.com>
 
-[ Upstream commit 1d1d63b612801b3f0a39b7d4467cad0abd60e5c8 ]
+commit ec64efc4966edf19fa1bc398a26bddfbadc1605f upstream.
 
-if (!type)
-		continue;
-	if (type > RTAX_MAX)
-		return -EINVAL;
-	...
-	metrics[type - 1] = val;
+The RISC-V ISA Manual allows the first multi-letter extension to avoid
+a leading underscore. Underscores are only required between multi-letter
+extensions.
 
-@type being used as an array index, we need to prevent
-cpu speculation or risk leaking kernel memory content.
+The dt-binding does not validate that a multi-letter extension is
+canonically ordered, as that'd need an even worse regex than is here,
+but it should not fail validation for valid ISA strings.
 
-Fixes: 6cf9dfd3bd62 ("net: fib: move metrics parsing to a helper")
-Signed-off-by: Eric Dumazet <edumazet@google.com>
-Link: https://lore.kernel.org/r/20230120133040.3623463-1-edumazet@google.com
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Allow the first multi-letter extension to appear immediately after
+the single-letter extensions.
+
+Link: https://github.com/riscv/riscv-isa-manual/releases/tag/riscv-unpriv-pdf-from-asciidoc-15112022 # Chapter 29.5
+Fixes: 299824e68bd0 ("dt-bindings: riscv: add new riscv,isa strings for emulators")
+Acked-by: Guo Ren <guoren@kernel.org>
+Signed-off-by: Conor Dooley <conor.dooley@microchip.com>
+Acked-by: Rob Herring <robh@kernel.org>
+Reviewed-by: Palmer Dabbelt <palmer@rivosinc.com>
+Acked-by: Palmer Dabbelt <palmer@rivosinc.com>
+Link: https://lore.kernel.org/r/20221205174459.60195-2-conor@kernel.org
+Signed-off-by: Palmer Dabbelt <palmer@rivosinc.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/ipv4/metrics.c | 2 ++
- 1 file changed, 2 insertions(+)
+ Documentation/devicetree/bindings/riscv/cpus.yaml | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/net/ipv4/metrics.c b/net/ipv4/metrics.c
-index 25ea6ac44db9..6a1427916c7d 100644
---- a/net/ipv4/metrics.c
-+++ b/net/ipv4/metrics.c
-@@ -1,5 +1,6 @@
- // SPDX-License-Identifier: GPL-2.0-only
- #include <linux/netlink.h>
-+#include <linux/nospec.h>
- #include <linux/rtnetlink.h>
- #include <linux/types.h>
- #include <net/ip.h>
-@@ -28,6 +29,7 @@ static int ip_metrics_convert(struct net *net, struct nlattr *fc_mx,
- 			return -EINVAL;
- 		}
+diff --git a/Documentation/devicetree/bindings/riscv/cpus.yaml b/Documentation/devicetree/bindings/riscv/cpus.yaml
+index 90a7cabf58fe..97659bb71811 100644
+--- a/Documentation/devicetree/bindings/riscv/cpus.yaml
++++ b/Documentation/devicetree/bindings/riscv/cpus.yaml
+@@ -80,7 +80,7 @@ properties:
+       insensitive, letters in the riscv,isa string must be all
+       lowercase to simplify parsing.
+     $ref: "/schemas/types.yaml#/definitions/string"
+-    pattern: ^rv(?:64|32)imaf?d?q?c?b?v?k?h?(?:_[hsxz](?:[a-z])+)*$
++    pattern: ^rv(?:64|32)imaf?d?q?c?b?v?k?h?(?:[hsxz](?:[a-z])+)?(?:_[hsxz](?:[a-z])+)*$
  
-+		type = array_index_nospec(type, RTAX_MAX + 1);
- 		if (type == RTAX_CC_ALGO) {
- 			char tmp[TCP_CA_NAME_MAX];
- 
+   # RISC-V requires 'timebase-frequency' in /cpus, so disallow it here
+   timebase-frequency: false
 -- 
-2.39.0
+2.39.1
 
 
 
