@@ -2,54 +2,53 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id F23A66811DF
-	for <lists+stable@lfdr.de>; Mon, 30 Jan 2023 15:17:06 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B336E6810DE
+	for <lists+stable@lfdr.de>; Mon, 30 Jan 2023 15:07:48 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237443AbjA3ORF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 30 Jan 2023 09:17:05 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:32942 "EHLO
+        id S237110AbjA3OHq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 30 Jan 2023 09:07:46 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49626 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237444AbjA3OQw (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 30 Jan 2023 09:16:52 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E6CB13CE30
-        for <stable@vger.kernel.org>; Mon, 30 Jan 2023 06:16:45 -0800 (PST)
+        with ESMTP id S237119AbjA3OHm (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 30 Jan 2023 09:07:42 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8F9823B661
+        for <stable@vger.kernel.org>; Mon, 30 Jan 2023 06:07:41 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 7D95C61083
-        for <stable@vger.kernel.org>; Mon, 30 Jan 2023 14:16:45 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6766FC433EF;
-        Mon, 30 Jan 2023 14:16:44 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 41F6DB811C7
+        for <stable@vger.kernel.org>; Mon, 30 Jan 2023 14:07:40 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 66ED8C433D2;
+        Mon, 30 Jan 2023 14:07:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1675088204;
-        bh=py5Id8UF3tih0zkrTCVFvCxcpXEDE+FhXYVN0vEAASc=;
+        s=korg; t=1675087658;
+        bh=C4+1NCGshatBTcXabSWAElGtsT0hVdZRKnXYKE57Q4c=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=u27sF6sKzOQ2SfVtLxrnyEE1QOX8aWsn7/KyBPLE2gawYtN4HqoHbF1DF61dUOVlZ
-         zNktcF5igrY1BaTnBkZ6Qtjt3jx0LM1BefuSnNgDSkWiMYr21pihFAyL2m+48yZ91d
-         4FUlUmvwSGX2+9vGB5pvatUER6NbRnsinqIU124I=
+        b=dTIfvRczBdG5gj10m5BmHvZLMb38Y2Fn6n+VFugvXlKjRD7DY05IpIhhMng1MdyiX
+         QH2ZjHWrhF1wZrsLgxISrMRXL8t1b6R2oDxvnUyCHfELFFiAotGdgspn9s3Nxm7Mm0
+         GT1MDx8LUEva7UY4O0hH7IC2aUXLLIOFw+Fo1eGU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, "Paulo Alcantara (SUSE)" <pc@cjr.nz>,
-        Tom Talpey <tom@talpey.com>,
-        David Howells <dhowells@redhat.com>,
-        Long Li <longli@microsoft.com>,
-        Pavel Shilovsky <piastryyy@gmail.com>,
-        Ronnie Sahlberg <lsahlber@redhat.com>,
-        Steve French <stfrench@microsoft.com>
-Subject: [PATCH 5.15 151/204] cifs: Fix oops due to uncleared server->smbd_conn in reconnect
-Date:   Mon, 30 Jan 2023 14:51:56 +0100
-Message-Id: <20230130134323.204806583@linuxfoundation.org>
+        patches@lists.linux.dev,
+        Pietro Borrello <borrello@diag.uniroma1.it>,
+        Marcelo Ricardo Leitner <marcelo.leitner@gmail.com>,
+        Xin Long <lucien.xin@gmail.com>,
+        Jakub Kicinski <kuba@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 6.1 282/313] sctp: fail if no bound addresses can be used for a given scope
+Date:   Mon, 30 Jan 2023 14:51:57 +0100
+Message-Id: <20230130134349.867726189@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.1
-In-Reply-To: <20230130134316.327556078@linuxfoundation.org>
-References: <20230130134316.327556078@linuxfoundation.org>
+In-Reply-To: <20230130134336.532886729@linuxfoundation.org>
+References: <20230130134336.532886729@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
         SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -57,37 +56,68 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: David Howells <dhowells@redhat.com>
+From: Marcelo Ricardo Leitner <marcelo.leitner@gmail.com>
 
-commit b7ab9161cf5ddc42a288edf9d1a61f3bdffe17c7 upstream.
+[ Upstream commit 458e279f861d3f61796894cd158b780765a1569f ]
 
-In smbd_destroy(), clear the server->smbd_conn pointer after freeing the
-smbd_connection struct that it points to so that reconnection doesn't get
-confused.
+Currently, if you bind the socket to something like:
+        servaddr.sin6_family = AF_INET6;
+        servaddr.sin6_port = htons(0);
+        servaddr.sin6_scope_id = 0;
+        inet_pton(AF_INET6, "::1", &servaddr.sin6_addr);
 
-Fixes: 8ef130f9ec27 ("CIFS: SMBD: Implement function to destroy a SMB Direct connection")
-Cc: stable@vger.kernel.org
-Reviewed-by: Paulo Alcantara (SUSE) <pc@cjr.nz>
-Acked-by: Tom Talpey <tom@talpey.com>
-Signed-off-by: David Howells <dhowells@redhat.com>
-Cc: Long Li <longli@microsoft.com>
-Cc: Pavel Shilovsky <piastryyy@gmail.com>
-Cc: Ronnie Sahlberg <lsahlber@redhat.com>
-Signed-off-by: Steve French <stfrench@microsoft.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+And then request a connect to:
+        connaddr.sin6_family = AF_INET6;
+        connaddr.sin6_port = htons(20000);
+        connaddr.sin6_scope_id = if_nametoindex("lo");
+        inet_pton(AF_INET6, "fe88::1", &connaddr.sin6_addr);
+
+What the stack does is:
+ - bind the socket
+ - create a new asoc
+ - to handle the connect
+   - copy the addresses that can be used for the given scope
+   - try to connect
+
+But the copy returns 0 addresses, and the effect is that it ends up
+trying to connect as if the socket wasn't bound, which is not the
+desired behavior. This unexpected behavior also allows KASLR leaks
+through SCTP diag interface.
+
+The fix here then is, if when trying to copy the addresses that can
+be used for the scope used in connect() it returns 0 addresses, bail
+out. This is what TCP does with a similar reproducer.
+
+Reported-by: Pietro Borrello <borrello@diag.uniroma1.it>
+Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
+Signed-off-by: Marcelo Ricardo Leitner <marcelo.leitner@gmail.com>
+Reviewed-by: Xin Long <lucien.xin@gmail.com>
+Link: https://lore.kernel.org/r/9fcd182f1099f86c6661f3717f63712ddd1c676c.1674496737.git.marcelo.leitner@gmail.com
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/cifs/smbdirect.c |    1 +
- 1 file changed, 1 insertion(+)
+ net/sctp/bind_addr.c | 6 ++++++
+ 1 file changed, 6 insertions(+)
 
---- a/fs/cifs/smbdirect.c
-+++ b/fs/cifs/smbdirect.c
-@@ -1405,6 +1405,7 @@ void smbd_destroy(struct TCP_Server_Info
- 	destroy_workqueue(info->workqueue);
- 	log_rdma_event(INFO,  "rdma session destroyed\n");
- 	kfree(info);
-+	server->smbd_conn = NULL;
- }
+diff --git a/net/sctp/bind_addr.c b/net/sctp/bind_addr.c
+index 59e653b528b1..6b95d3ba8fe1 100644
+--- a/net/sctp/bind_addr.c
++++ b/net/sctp/bind_addr.c
+@@ -73,6 +73,12 @@ int sctp_bind_addr_copy(struct net *net, struct sctp_bind_addr *dest,
+ 		}
+ 	}
  
- /*
++	/* If somehow no addresses were found that can be used with this
++	 * scope, it's an error.
++	 */
++	if (list_empty(&dest->address_list))
++		error = -ENETUNREACH;
++
+ out:
+ 	if (error)
+ 		sctp_bind_addr_clean(dest);
+-- 
+2.39.0
+
 
 
