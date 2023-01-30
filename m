@@ -2,32 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C4166680F81
-	for <lists+stable@lfdr.de>; Mon, 30 Jan 2023 14:54:24 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6215A680F82
+	for <lists+stable@lfdr.de>; Mon, 30 Jan 2023 14:54:30 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230197AbjA3NyW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 30 Jan 2023 08:54:22 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33104 "EHLO
+        id S235984AbjA3Ny3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 30 Jan 2023 08:54:29 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33158 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230291AbjA3NyV (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 30 Jan 2023 08:54:21 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4AF2F39CCB
-        for <stable@vger.kernel.org>; Mon, 30 Jan 2023 05:54:11 -0800 (PST)
+        with ESMTP id S236284AbjA3NyY (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 30 Jan 2023 08:54:24 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8E49E36FE9
+        for <stable@vger.kernel.org>; Mon, 30 Jan 2023 05:54:12 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 001FEB81145
-        for <stable@vger.kernel.org>; Mon, 30 Jan 2023 13:54:09 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 51C6AC433D2;
-        Mon, 30 Jan 2023 13:54:08 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 2419861028
+        for <stable@vger.kernel.org>; Mon, 30 Jan 2023 13:54:12 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 265CFC4339B;
+        Mon, 30 Jan 2023 13:54:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1675086848;
-        bh=E2QG5MAz10LUzruRVDYcrq3m3Q6nVEp3darxDjuisQ8=;
+        s=korg; t=1675086851;
+        bh=hKJmJhD1xtAkPmNDmMbLjXX3s1IvUv4E/amn+7+KCHQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=TYMYS29gnIHi8fcXIv0BQ+2bzKVTkeKtSUUn9lxe8xoklQdx9DHbCJ2agiTJnroUC
-         AgAUHRguqcFZ3PS2gbjXhQZc0zNeBDh8paEv/iUxBpb90MfOcbPiEffNoiEwqJhTx/
-         DfXciP2d+uXJesfT3ES2N55aDgyMvNCPapVRWNoc=
+        b=xqT3nj33oClTzSSc5Ov45UYnp2rGkYagHCvymXcTbh4tDDjFoVJ7KOX8tce11GGi5
+         WTluVMZ2m0VuwKQiRlFM1lp1JydsWIRLcg6gHJraYUWPJ2p/38oNlVbnkAaRWQHysO
+         C23nSOGV26pp3q7ShFT3v3m41RYekQ/vOzF2KnRE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
@@ -35,9 +35,9 @@ Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         Laurent Pinchart <laurent.pinchart@ideasonboard.com>,
         Shawn Guo <shawnguo@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 018/313] arm64: dts: imx8mp: Fix missing GPC Interrupt
-Date:   Mon, 30 Jan 2023 14:47:33 +0100
-Message-Id: <20230130134337.513187856@linuxfoundation.org>
+Subject: [PATCH 6.1 019/313] arm64: dts: imx8mp: Fix power-domain typo
+Date:   Mon, 30 Jan 2023 14:47:34 +0100
+Message-Id: <20230130134337.549255520@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.1
 In-Reply-To: <20230130134336.532886729@linuxfoundation.org>
 References: <20230130134336.532886729@linuxfoundation.org>
@@ -45,8 +45,8 @@ User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
         SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -56,33 +56,36 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Adam Ford <aford173@gmail.com>
 
-[ Upstream commit b3b75ace2085aca623c57e04ea7218ae690090fb ]
+[ Upstream commit 10e2f328bd900787fd2db24e474f87e1d525ccc4 ]
 
-The GPC node references an interrupt parent, but it doesn't
-state the interrupt itself.  According to the TRM, this IRQ
-is 87. This also eliminate an error detected from dt_binding_check
+dt_binding_check detects an issue with the pgc_hsiomix power
+domain:
+  pgc: 'power-domains@17' does not match any of the regexes
 
-Fixes: fc0f05124621 ("arm64: dts: imx8mp: add GPC node with GPU power domains")
+This is because 'power-domains' should be 'power-domain'
+
+Fixes: 2ae42e0c0b67 ("arm64: dts: imx8mp: add HSIO power-domains")
 Signed-off-by: Adam Ford <aford173@gmail.com>
 Reviewed-by: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
 Signed-off-by: Shawn Guo <shawnguo@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm64/boot/dts/freescale/imx8mp.dtsi | 1 +
- 1 file changed, 1 insertion(+)
+ arch/arm64/boot/dts/freescale/imx8mp.dtsi | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
 diff --git a/arch/arm64/boot/dts/freescale/imx8mp.dtsi b/arch/arm64/boot/dts/freescale/imx8mp.dtsi
-index d944ecca1b3c..4d06bb707a02 100644
+index 4d06bb707a02..47fd6a0ba05a 100644
 --- a/arch/arm64/boot/dts/freescale/imx8mp.dtsi
 +++ b/arch/arm64/boot/dts/freescale/imx8mp.dtsi
-@@ -523,6 +523,7 @@ gpc: gpc@303a0000 {
- 				compatible = "fsl,imx8mp-gpc";
- 				reg = <0x303a0000 0x1000>;
- 				interrupt-parent = <&gic>;
-+				interrupts = <GIC_SPI 87 IRQ_TYPE_LEVEL_HIGH>;
- 				interrupt-controller;
- 				#interrupt-cells = <3>;
+@@ -590,7 +590,7 @@ pgc_mipi_phy2: power-domain@16 {
+ 						reg = <IMX8MP_POWER_DOMAIN_MIPI_PHY2>;
+ 					};
  
+-					pgc_hsiomix: power-domains@17 {
++					pgc_hsiomix: power-domain@17 {
+ 						#power-domain-cells = <0>;
+ 						reg = <IMX8MP_POWER_DOMAIN_HSIOMIX>;
+ 						clocks = <&clk IMX8MP_CLK_HSIO_AXI>,
 -- 
 2.39.0
 
