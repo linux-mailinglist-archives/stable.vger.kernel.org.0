@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E4E056812CE
-	for <lists+stable@lfdr.de>; Mon, 30 Jan 2023 15:25:40 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6C7E66810FE
+	for <lists+stable@lfdr.de>; Mon, 30 Jan 2023 15:09:18 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237394AbjA3OZi (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 30 Jan 2023 09:25:38 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41578 "EHLO
+        id S237143AbjA3OJR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 30 Jan 2023 09:09:17 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51236 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237716AbjA3OY5 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 30 Jan 2023 09:24:57 -0500
+        with ESMTP id S229691AbjA3OJQ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 30 Jan 2023 09:09:16 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DDCB736473
-        for <stable@vger.kernel.org>; Mon, 30 Jan 2023 06:23:52 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 19764303E7
+        for <stable@vger.kernel.org>; Mon, 30 Jan 2023 06:09:16 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 2896B610A4
-        for <stable@vger.kernel.org>; Mon, 30 Jan 2023 14:23:31 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 30AC5C433EF;
-        Mon, 30 Jan 2023 14:23:30 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id A878D61085
+        for <stable@vger.kernel.org>; Mon, 30 Jan 2023 14:09:15 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B7631C433D2;
+        Mon, 30 Jan 2023 14:09:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1675088610;
-        bh=xn0tX10HHtiHaK7JF2asy5N+UhPNlImdQWd8e6Ip+88=;
+        s=korg; t=1675087755;
+        bh=nSQI4aZcqZMCkR+QIe23Aneyj+M7p/BIQRYKz8EfHqc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=g1HlPAt1fX3m5Y9uhV/4lc2Tr16cofLHb1VYnKrokmyjSUpgdM8rOSGdun290JhX4
-         7oDGjnv6tOrDyl7WJo12bYQpwn+8JFKAp+DmKQWb+vnPSzcGJcPgU9XFqMBtEoaiNT
-         IxkhSXQF4MULeVIw35hXZ4hb4yeJ/q6Ad8169QYA=
+        b=GvbWgbaKYwdvrnGUfne3BD1PhQka/N6mp0ok9q+MUqqfA/rgES8F63QK1Bd4ccQB+
+         G0YP5KeOu06bdJ23CX7QnYq3elNhHCPe8e0lkm3ar7aALD8PzBZcfLaO5ZC4fOFUfC
+         1G3vIowAmCl7QJhm5/Hle7WmzTil2EBe4Xr+poAw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Florian Westphal <fw@strlen.de>,
-        Pablo Neira Ayuso <pablo@netfilter.org>,
+        patches@lists.linux.dev,
+        "Harris, James R" <james.r.harris@intel.com>,
+        Ming Lei <ming.lei@redhat.com>, Jens Axboe <axboe@kernel.dk>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 076/143] netfilter: conntrack: do not renew entry stuck in tcp SYN_SENT state
-Date:   Mon, 30 Jan 2023 14:52:13 +0100
-Message-Id: <20230130134310.016886445@linuxfoundation.org>
+Subject: [PATCH 6.1 299/313] block: ublk: move ublk_chr_class destroying after devices are removed
+Date:   Mon, 30 Jan 2023 14:52:14 +0100
+Message-Id: <20230130134350.660239670@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.1
-In-Reply-To: <20230130134306.862721518@linuxfoundation.org>
-References: <20230130134306.862721518@linuxfoundation.org>
+In-Reply-To: <20230130134336.532886729@linuxfoundation.org>
+References: <20230130134336.532886729@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,58 +54,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Florian Westphal <fw@strlen.de>
+From: Ming Lei <ming.lei@redhat.com>
 
-[ Upstream commit e15d4cdf27cb0c1e977270270b2cea12e0955edd ]
+[ Upstream commit 8e4ff684762b6503db45e8906e258faee080c336 ]
 
-Consider:
-  client -----> conntrack ---> Host
+The 'ublk_chr_class' is needed when deleting ublk char devices in
+ublk_exit(), so move it after devices(idle) are removed.
 
-client sends a SYN, but $Host is unreachable/silent.
-Client eventually gives up and the conntrack entry will time out.
+Fixes the following warning reported by Harris, James R:
 
-However, if the client is restarted with same addr/port pair, it
-may prevent the conntrack entry from timing out.
+[  859.178950] sysfs group 'power' not found for kobject 'ublkc0'
+[  859.178962] WARNING: CPU: 3 PID: 1109 at fs/sysfs/group.c:278 sysfs_remove_group+0x9c/0xb0
 
-This is noticeable when the existing conntrack entry has no NAT
-transformation or an outdated one and port reuse happens either
-on client or due to a NAT middlebox.
-
-This change prevents refresh of the timeout for SYN retransmits,
-so entry is going away after nf_conntrack_tcp_timeout_syn_sent
-seconds (default: 60).
-
-Entry will be re-created on next connection attempt, but then
-nat rules will be evaluated again.
-
-Signed-off-by: Florian Westphal <fw@strlen.de>
-Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
+Reported-by: "Harris, James R" <james.r.harris@intel.com>
+Fixes: 71f28f3136af ("ublk_drv: add io_uring based userspace block driver")
+Link: https://lore.kernel.org/linux-block/Y9JlFmSgDl3+zy3N@T590/T/#t
+Signed-off-by: Ming Lei <ming.lei@redhat.com>
+Tested-by: Jim Harris <james.r.harris@intel.com>
+Link: https://lore.kernel.org/r/20230126115346.263344-1-ming.lei@redhat.com
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/netfilter/nf_conntrack_proto_tcp.c | 10 ++++++++++
- 1 file changed, 10 insertions(+)
+ drivers/block/ublk_drv.c | 7 +++----
+ 1 file changed, 3 insertions(+), 4 deletions(-)
 
-diff --git a/net/netfilter/nf_conntrack_proto_tcp.c b/net/netfilter/nf_conntrack_proto_tcp.c
-index 3f785bdfa942..c1d02c0b4f00 100644
---- a/net/netfilter/nf_conntrack_proto_tcp.c
-+++ b/net/netfilter/nf_conntrack_proto_tcp.c
-@@ -1158,6 +1158,16 @@ int nf_conntrack_tcp_packet(struct nf_conn *ct,
- 			nf_ct_kill_acct(ct, ctinfo, skb);
- 			return NF_ACCEPT;
- 		}
+diff --git a/drivers/block/ublk_drv.c b/drivers/block/ublk_drv.c
+index 17b677b5d3b2..e54693204630 100644
+--- a/drivers/block/ublk_drv.c
++++ b/drivers/block/ublk_drv.c
+@@ -2092,13 +2092,12 @@ static void __exit ublk_exit(void)
+ 	struct ublk_device *ub;
+ 	int id;
+ 
+-	class_destroy(ublk_chr_class);
+-
+-	misc_deregister(&ublk_misc);
+-
+ 	idr_for_each_entry(&ublk_index_idr, ub, id)
+ 		ublk_remove(ub);
+ 
++	class_destroy(ublk_chr_class);
++	misc_deregister(&ublk_misc);
 +
-+		if (index == TCP_SYN_SET && old_state == TCP_CONNTRACK_SYN_SENT) {
-+			/* do not renew timeout on SYN retransmit.
-+			 *
-+			 * Else port reuse by client or NAT middlebox can keep
-+			 * entry alive indefinitely (including nat info).
-+			 */
-+			return NF_ACCEPT;
-+		}
-+
- 		/* ESTABLISHED without SEEN_REPLY, i.e. mid-connection
- 		 * pickup with loose=1. Avoid large ESTABLISHED timeout.
- 		 */
+ 	idr_destroy(&ublk_index_idr);
+ 	unregister_chrdev_region(ublk_chr_devt, UBLK_MINORS);
+ }
 -- 
 2.39.0
 
