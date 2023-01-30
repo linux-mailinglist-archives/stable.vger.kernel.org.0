@@ -2,50 +2,51 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 8217E6812C2
-	for <lists+stable@lfdr.de>; Mon, 30 Jan 2023 15:25:31 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9387668120A
+	for <lists+stable@lfdr.de>; Mon, 30 Jan 2023 15:18:04 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236154AbjA3OZ2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 30 Jan 2023 09:25:28 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41016 "EHLO
+        id S237576AbjA3OSC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 30 Jan 2023 09:18:02 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33030 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237515AbjA3OYo (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 30 Jan 2023 09:24:44 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E93967681
-        for <stable@vger.kernel.org>; Mon, 30 Jan 2023 06:23:39 -0800 (PST)
+        with ESMTP id S237366AbjA3ORf (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 30 Jan 2023 09:17:35 -0500
+Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2E13F3E617
+        for <stable@vger.kernel.org>; Mon, 30 Jan 2023 06:17:06 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id B51E1B811D5
-        for <stable@vger.kernel.org>; Mon, 30 Jan 2023 14:22:51 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 00F57C433EF;
-        Mon, 30 Jan 2023 14:22:49 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 5D3ECCE16BA
+        for <stable@vger.kernel.org>; Mon, 30 Jan 2023 14:17:04 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 224AAC4339C;
+        Mon, 30 Jan 2023 14:17:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1675088570;
-        bh=iotfxC6gX3+waooXzUDPz5egyLXcWTSdKdt6M8DbW68=;
+        s=korg; t=1675088222;
+        bh=BLPU/h1OVwpyyXRbJPfv6bho7zCl8sAoPAbsZxcMUWo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=cVtdmk8c40Q0CdtwlDZs3V4Epl0Pi5EQisBZXJ2TtDfVijlUsmJ3+hlA6WFSwQ6iF
-         X7UsC6k7uDym5iqR+sZy4M3vTHWsZ6+yZqsVeeJWmTUWzngP2zqdfXuGpszPXvzZTf
-         EfO+NqkUkru/qBMoeAyiROhdJj8J27/LbqMavaJE=
+        b=g4YEch/WFseDe8gqQNm5C/dJjIrzdzKfMqjSKeD7aJ846ugB2vByxtvxOlXXwvnsW
+         7KZsP+6KCorJbP8dPYuilrkOCii/dG0bYjr5Hux93Xm8ffwgl7oyF9GcTIKeJ47+xi
+         8iusNXUxn27tSkDdfetDTAfnA5cBginqLmo0/IWg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Patrick Thompson <ptf@google.com>,
-        Daniel Vetter <daniel.vetter@ffwll.ch>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 064/143] drm: Add orientation quirk for Lenovo ideapad D330-10IGL
+        patches@lists.linux.dev,
+        Marios Makassikis <mmakassikis@freebox.fr>,
+        Namjae Jeon <linkinjeon@kernel.org>,
+        Steve French <stfrench@microsoft.com>
+Subject: [PATCH 5.15 156/204] ksmbd: do not sign response to session request for guest login
 Date:   Mon, 30 Jan 2023 14:52:01 +0100
-Message-Id: <20230130134309.488625491@linuxfoundation.org>
+Message-Id: <20230130134323.400272950@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.1
-In-Reply-To: <20230130134306.862721518@linuxfoundation.org>
-References: <20230130134306.862721518@linuxfoundation.org>
+In-Reply-To: <20230130134316.327556078@linuxfoundation.org>
+References: <20230130134316.327556078@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
         SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -53,39 +54,50 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Patrick Thompson <ptf@google.com>
+From: Marios Makassikis <mmakassikis@freebox.fr>
 
-[ Upstream commit 0688773f0710528e1ab302c3d6317e269f2e2e6e ]
+commit 5fde3c21cf33830eda7bfd006dc7f4bf07ec9fe6 upstream.
 
-Panel is 800x1280 but mounted on a detachable form factor sideways.
+If ksmbd.mountd is configured to assign unknown users to the guest account
+("map to guest = bad user" in the config), ksmbd signs the response.
 
-Signed-off-by: Patrick Thompson <ptf@google.com>
-Signed-off-by: Daniel Vetter <daniel.vetter@ffwll.ch>
-Link: https://patchwork.freedesktop.org/patch/msgid/20221220205826.178008-1-ptf@google.com
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+This is wrong according to MS-SMB2 3.3.5.5.3:
+   12. If the SMB2_SESSION_FLAG_IS_GUEST bit is not set in the SessionFlags
+   field, and Session.IsAnonymous is FALSE, the server MUST sign the
+   final session setup response before sending it to the client, as
+   follows:
+    [...]
+
+This fixes libsmb2 based applications failing to establish a session
+("Wrong signature in received").
+
+Fixes: e2f34481b24d ("cifsd: add server-side procedures for SMB3")
+Cc: stable@vger.kernel.org
+Signed-off-by: Marios Makassikis <mmakassikis@freebox.fr>
+Acked-by: Namjae Jeon <linkinjeon@kernel.org>
+Signed-off-by: Steve French <stfrench@microsoft.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/gpu/drm/drm_panel_orientation_quirks.c | 6 ++++++
- 1 file changed, 6 insertions(+)
+ fs/ksmbd/smb2pdu.c |    2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/drivers/gpu/drm/drm_panel_orientation_quirks.c b/drivers/gpu/drm/drm_panel_orientation_quirks.c
-index ca0fefeaab20..ce739ba45c55 100644
---- a/drivers/gpu/drm/drm_panel_orientation_quirks.c
-+++ b/drivers/gpu/drm/drm_panel_orientation_quirks.c
-@@ -272,6 +272,12 @@ static const struct dmi_system_id orientation_data[] = {
- 		  DMI_EXACT_MATCH(DMI_PRODUCT_VERSION, "Lenovo ideapad D330-10IGM"),
- 		},
- 		.driver_data = (void *)&lcd1200x1920_rightside_up,
-+	}, {	/* Lenovo Ideapad D330-10IGL (HD) */
-+		.matches = {
-+		  DMI_EXACT_MATCH(DMI_SYS_VENDOR, "LENOVO"),
-+		  DMI_EXACT_MATCH(DMI_PRODUCT_VERSION, "Lenovo ideapad D330-10IGL"),
-+		},
-+		.driver_data = (void *)&lcd800x1280_rightside_up,
- 	}, {	/* Lenovo Yoga Book X90F / X91F / X91L */
- 		.matches = {
- 		  /* Non exact match to match all versions */
--- 
-2.39.0
-
+--- a/fs/ksmbd/smb2pdu.c
++++ b/fs/ksmbd/smb2pdu.c
+@@ -8613,6 +8613,7 @@ int smb3_decrypt_req(struct ksmbd_work *
+ bool smb3_11_final_sess_setup_resp(struct ksmbd_work *work)
+ {
+ 	struct ksmbd_conn *conn = work->conn;
++	struct ksmbd_session *sess = work->sess;
+ 	struct smb2_hdr *rsp = work->response_buf;
+ 
+ 	if (conn->dialect < SMB30_PROT_ID)
+@@ -8622,6 +8623,7 @@ bool smb3_11_final_sess_setup_resp(struc
+ 		rsp = ksmbd_resp_buf_next(work);
+ 
+ 	if (le16_to_cpu(rsp->Command) == SMB2_SESSION_SETUP_HE &&
++	    sess->user && !user_guest(sess->user) &&
+ 	    rsp->Status == STATUS_SUCCESS)
+ 		return true;
+ 	return false;
 
 
