@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 5ADAC6811A8
-	for <lists+stable@lfdr.de>; Mon, 30 Jan 2023 15:15:48 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1F8816810C5
+	for <lists+stable@lfdr.de>; Mon, 30 Jan 2023 15:06:36 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237339AbjA3OPr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 30 Jan 2023 09:15:47 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59646 "EHLO
+        id S237085AbjA3OGf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 30 Jan 2023 09:06:35 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48936 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237286AbjA3OPq (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 30 Jan 2023 09:15:46 -0500
+        with ESMTP id S237088AbjA3OGe (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 30 Jan 2023 09:06:34 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 671B93B669
-        for <stable@vger.kernel.org>; Mon, 30 Jan 2023 06:15:43 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3BEB21F5E6
+        for <stable@vger.kernel.org>; Mon, 30 Jan 2023 06:06:33 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id EC048B8117E
-        for <stable@vger.kernel.org>; Mon, 30 Jan 2023 14:15:41 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1F073C433A0;
-        Mon, 30 Jan 2023 14:15:39 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id E76F7B81145
+        for <stable@vger.kernel.org>; Mon, 30 Jan 2023 14:06:31 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1D29FC433D2;
+        Mon, 30 Jan 2023 14:06:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1675088140;
-        bh=jJMN0arHABUhFSM4TBNp9Hxw4qQWLT8KqYnUKFf9/AM=;
+        s=korg; t=1675087590;
+        bh=6B49tPf7Yh4d+JaVXRuJRfB7Mpp2mAvEKuL1d/mwQBA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=T6gbWgmOJzevM0uH4cJVLl5565qXmsrcIHjbIJCr3XlXDQ9djKXxAVjrFWe8NXYfJ
-         8LB16M1Fp/9B+Zu8fFIL/kjssPwlOpQWjEo35x6ZC/gJKz2uruGgvMKNawwpfrNglu
-         A5NrWgWD5cvoxmixLmGfA4IF42OH9mzolKDI/07E=
+        b=Xx1+cqD9OC+4LqnCKWk/0oBkBzrl6hGhCeqEpqTvKuwnBpUJDfVRRMRXnvsZeHmbH
+         XkPyD9y5r00mSefp8iQtilJdV4FWwaXmcrasQTP2YGdTCPT18O9F4AiRj7MqorVtY1
+         kJDFAAA67j6XmzYkBVIh+h/UI0qOHdui/FBRzfrM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        "Eric W. Biederman" <ebiederm@xmission.com>,
-        Eric Biggers <ebiggers@google.com>,
+        patches@lists.linux.dev, Christoph Hellwig <hch@lst.de>,
+        Sagi Grimberg <sagi@grimberg.me>,
+        Chaitanya Kulkarni <kch@nvidia.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 128/204] exit: Add and use make_task_dead.
+Subject: [PATCH 6.1 258/313] nvme: consolidate setting the tagset flags
 Date:   Mon, 30 Jan 2023 14:51:33 +0100
-Message-Id: <20230130134322.154043380@linuxfoundation.org>
+Message-Id: <20230130134348.741689092@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.1
-In-Reply-To: <20230130134316.327556078@linuxfoundation.org>
-References: <20230130134316.327556078@linuxfoundation.org>
+In-Reply-To: <20230130134336.532886729@linuxfoundation.org>
+References: <20230130134336.532886729@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,688 +54,202 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eric W. Biederman <ebiederm@xmission.com>
+From: Christoph Hellwig <hch@lst.de>
 
-commit 0e25498f8cd43c1b5aa327f373dd094e9a006da7 upstream.
+[ Upstream commit db45e1a5ddccc034eb60d62fc5352022d7963ae2 ]
 
-There are two big uses of do_exit.  The first is it's design use to be
-the guts of the exit(2) system call.  The second use is to terminate
-a task after something catastrophic has happened like a NULL pointer
-in kernel code.
+All nvme transports should be using the same flags for their tagsets,
+with the exception for the blocking flag that should only be set for
+transports that can block in ->queue_rq.
 
-Add a function make_task_dead that is initialy exactly the same as
-do_exit to cover the cases where do_exit is called to handle
-catastrophic failure.  In time this can probably be reduced to just a
-light wrapper around do_task_dead. For now keep it exactly the same so
-that there will be no behavioral differences introducing this new
-concept.
+Add a NVME_F_BLOCKING flag to nvme_ctrl_ops to control the blocking
+behavior and lift setting the flags into nvme_alloc_{admin,io}_tag_set.
 
-Replace all of the uses of do_exit that use it for catastraphic
-task cleanup with make_task_dead to make it clear what the code
-is doing.
-
-As part of this rename rewind_stack_do_exit
-rewind_stack_and_make_dead.
-
-Signed-off-by: "Eric W. Biederman" <ebiederm@xmission.com>
-Signed-off-by: Eric Biggers <ebiggers@google.com>
+Signed-off-by: Christoph Hellwig <hch@lst.de>
+Reviewed-by: Sagi Grimberg <sagi@grimberg.me>
+Reviewed-by: Chaitanya Kulkarni <kch@nvidia.com>
+Stable-dep-of: 98e3528012cd ("nvme-fc: fix initialization order")
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/alpha/kernel/traps.c           | 6 +++---
- arch/alpha/mm/fault.c               | 2 +-
- arch/arm/kernel/traps.c             | 2 +-
- arch/arm/mm/fault.c                 | 2 +-
- arch/arm64/kernel/traps.c           | 2 +-
- arch/arm64/mm/fault.c               | 2 +-
- arch/csky/abiv1/alignment.c         | 2 +-
- arch/csky/kernel/traps.c            | 2 +-
- arch/csky/mm/fault.c                | 2 +-
- arch/h8300/kernel/traps.c           | 2 +-
- arch/h8300/mm/fault.c               | 2 +-
- arch/hexagon/kernel/traps.c         | 2 +-
- arch/ia64/kernel/mca_drv.c          | 2 +-
- arch/ia64/kernel/traps.c            | 2 +-
- arch/ia64/mm/fault.c                | 2 +-
- arch/m68k/kernel/traps.c            | 2 +-
- arch/m68k/mm/fault.c                | 2 +-
- arch/microblaze/kernel/exceptions.c | 4 ++--
- arch/mips/kernel/traps.c            | 2 +-
- arch/nds32/kernel/fpu.c             | 2 +-
- arch/nds32/kernel/traps.c           | 8 ++++----
- arch/nios2/kernel/traps.c           | 4 ++--
- arch/openrisc/kernel/traps.c        | 2 +-
- arch/parisc/kernel/traps.c          | 2 +-
- arch/powerpc/kernel/traps.c         | 8 ++++----
- arch/riscv/kernel/traps.c           | 2 +-
- arch/riscv/mm/fault.c               | 2 +-
- arch/s390/kernel/dumpstack.c        | 2 +-
- arch/s390/kernel/nmi.c              | 2 +-
- arch/sh/kernel/traps.c              | 2 +-
- arch/sparc/kernel/traps_32.c        | 4 +---
- arch/sparc/kernel/traps_64.c        | 4 +---
- arch/x86/entry/entry_32.S           | 6 +++---
- arch/x86/entry/entry_64.S           | 6 +++---
- arch/x86/kernel/dumpstack.c         | 4 ++--
- arch/xtensa/kernel/traps.c          | 2 +-
- include/linux/sched/task.h          | 1 +
- kernel/exit.c                       | 9 +++++++++
- tools/objtool/check.c               | 3 ++-
- 39 files changed, 63 insertions(+), 56 deletions(-)
+ drivers/nvme/host/core.c   | 15 +++++++++------
+ drivers/nvme/host/fc.c     |  4 ++--
+ drivers/nvme/host/nvme.h   |  9 +++++----
+ drivers/nvme/host/rdma.c   |  3 +--
+ drivers/nvme/host/tcp.c    |  5 ++---
+ drivers/nvme/target/loop.c |  4 ++--
+ 6 files changed, 21 insertions(+), 19 deletions(-)
 
-diff --git a/arch/alpha/kernel/traps.c b/arch/alpha/kernel/traps.c
-index e805106409f7..f5ba12adde67 100644
---- a/arch/alpha/kernel/traps.c
-+++ b/arch/alpha/kernel/traps.c
-@@ -192,7 +192,7 @@ die_if_kernel(char * str, struct pt_regs *regs, long err, unsigned long *r9_15)
- 		local_irq_enable();
- 		while (1);
- 	}
--	do_exit(SIGSEGV);
-+	make_task_dead(SIGSEGV);
- }
+diff --git a/drivers/nvme/host/core.c b/drivers/nvme/host/core.c
+index badc6984ff83..9e9ad91618ab 100644
+--- a/drivers/nvme/host/core.c
++++ b/drivers/nvme/host/core.c
+@@ -4840,8 +4840,7 @@ void nvme_complete_async_event(struct nvme_ctrl *ctrl, __le16 status,
+ EXPORT_SYMBOL_GPL(nvme_complete_async_event);
  
- #ifndef CONFIG_MATHEMU
-@@ -577,7 +577,7 @@ do_entUna(void * va, unsigned long opcode, unsigned long reg,
- 
- 	printk("Bad unaligned kernel access at %016lx: %p %lx %lu\n",
- 		pc, va, opcode, reg);
--	do_exit(SIGSEGV);
-+	make_task_dead(SIGSEGV);
- 
- got_exception:
- 	/* Ok, we caught the exception, but we don't want it.  Is there
-@@ -632,7 +632,7 @@ do_entUna(void * va, unsigned long opcode, unsigned long reg,
- 		local_irq_enable();
- 		while (1);
- 	}
--	do_exit(SIGSEGV);
-+	make_task_dead(SIGSEGV);
- }
- 
- /*
-diff --git a/arch/alpha/mm/fault.c b/arch/alpha/mm/fault.c
-index eee5102c3d88..e9193d52222e 100644
---- a/arch/alpha/mm/fault.c
-+++ b/arch/alpha/mm/fault.c
-@@ -204,7 +204,7 @@ do_page_fault(unsigned long address, unsigned long mmcsr,
- 	printk(KERN_ALERT "Unable to handle kernel paging request at "
- 	       "virtual address %016lx\n", address);
- 	die_if_kernel("Oops", regs, cause, (unsigned long*)regs - 16);
--	do_exit(SIGKILL);
-+	make_task_dead(SIGKILL);
- 
- 	/* We ran out of memory, or some other thing happened to us that
- 	   made us unable to handle the page fault gracefully.  */
-diff --git a/arch/arm/kernel/traps.c b/arch/arm/kernel/traps.c
-index 54abd8720dde..91e757bb054e 100644
---- a/arch/arm/kernel/traps.c
-+++ b/arch/arm/kernel/traps.c
-@@ -334,7 +334,7 @@ static void oops_end(unsigned long flags, struct pt_regs *regs, int signr)
- 	if (panic_on_oops)
- 		panic("Fatal exception");
- 	if (signr)
--		do_exit(signr);
-+		make_task_dead(signr);
- }
- 
- /*
-diff --git a/arch/arm/mm/fault.c b/arch/arm/mm/fault.c
-index efa402025031..af5177801fb1 100644
---- a/arch/arm/mm/fault.c
-+++ b/arch/arm/mm/fault.c
-@@ -125,7 +125,7 @@ __do_kernel_fault(struct mm_struct *mm, unsigned long addr, unsigned int fsr,
- 	show_pte(KERN_ALERT, mm, addr);
- 	die("Oops", regs, fsr);
- 	bust_spinlocks(0);
--	do_exit(SIGKILL);
-+	make_task_dead(SIGKILL);
- }
- 
- /*
-diff --git a/arch/arm64/kernel/traps.c b/arch/arm64/kernel/traps.c
-index f859cc870d5b..21e69a991bc8 100644
---- a/arch/arm64/kernel/traps.c
-+++ b/arch/arm64/kernel/traps.c
-@@ -235,7 +235,7 @@ void die(const char *str, struct pt_regs *regs, int err)
- 	raw_spin_unlock_irqrestore(&die_lock, flags);
- 
- 	if (ret != NOTIFY_STOP)
--		do_exit(SIGSEGV);
-+		make_task_dead(SIGSEGV);
- }
- 
- static void arm64_show_signal(int signo, const char *str)
-diff --git a/arch/arm64/mm/fault.c b/arch/arm64/mm/fault.c
-index d09b21faa0b2..97a93ee756a2 100644
---- a/arch/arm64/mm/fault.c
-+++ b/arch/arm64/mm/fault.c
-@@ -302,7 +302,7 @@ static void die_kernel_fault(const char *msg, unsigned long addr,
- 	show_pte(addr);
- 	die("Oops", regs, esr);
- 	bust_spinlocks(0);
--	do_exit(SIGKILL);
-+	make_task_dead(SIGKILL);
- }
- 
- #ifdef CONFIG_KASAN_HW_TAGS
-diff --git a/arch/csky/abiv1/alignment.c b/arch/csky/abiv1/alignment.c
-index cb2a0d94a144..5e2fb45d605c 100644
---- a/arch/csky/abiv1/alignment.c
-+++ b/arch/csky/abiv1/alignment.c
-@@ -294,7 +294,7 @@ void csky_alignment(struct pt_regs *regs)
- 				__func__, opcode, rz, rx, imm, addr);
- 		show_regs(regs);
- 		bust_spinlocks(0);
--		do_exit(SIGKILL);
-+		make_dead_task(SIGKILL);
- 	}
- 
- 	force_sig_fault(SIGBUS, BUS_ADRALN, (void __user *)addr);
-diff --git a/arch/csky/kernel/traps.c b/arch/csky/kernel/traps.c
-index 2020af88b636..b445c5aee220 100644
---- a/arch/csky/kernel/traps.c
-+++ b/arch/csky/kernel/traps.c
-@@ -109,7 +109,7 @@ void die(struct pt_regs *regs, const char *str)
- 	if (panic_on_oops)
- 		panic("Fatal exception");
- 	if (ret != NOTIFY_STOP)
--		do_exit(SIGSEGV);
-+		make_dead_task(SIGSEGV);
- }
- 
- void do_trap(struct pt_regs *regs, int signo, int code, unsigned long addr)
-diff --git a/arch/csky/mm/fault.c b/arch/csky/mm/fault.c
-index 466ad949818a..7215a46b6b8e 100644
---- a/arch/csky/mm/fault.c
-+++ b/arch/csky/mm/fault.c
-@@ -67,7 +67,7 @@ static inline void no_context(struct pt_regs *regs, unsigned long addr)
- 	pr_alert("Unable to handle kernel paging request at virtual "
- 		 "addr 0x%08lx, pc: 0x%08lx\n", addr, regs->pc);
- 	die(regs, "Oops");
--	do_exit(SIGKILL);
-+	make_task_dead(SIGKILL);
- }
- 
- static inline void mm_fault_error(struct pt_regs *regs, unsigned long addr, vm_fault_t fault)
-diff --git a/arch/h8300/kernel/traps.c b/arch/h8300/kernel/traps.c
-index bdbe988d8dbc..3d4e0bde37ae 100644
---- a/arch/h8300/kernel/traps.c
-+++ b/arch/h8300/kernel/traps.c
-@@ -106,7 +106,7 @@ void die(const char *str, struct pt_regs *fp, unsigned long err)
- 	dump(fp);
- 
- 	spin_unlock_irq(&die_lock);
--	do_exit(SIGSEGV);
-+	make_dead_task(SIGSEGV);
- }
- 
- static int kstack_depth_to_print = 24;
-diff --git a/arch/h8300/mm/fault.c b/arch/h8300/mm/fault.c
-index d4bc9c16f2df..0223528565dd 100644
---- a/arch/h8300/mm/fault.c
-+++ b/arch/h8300/mm/fault.c
-@@ -51,7 +51,7 @@ asmlinkage int do_page_fault(struct pt_regs *regs, unsigned long address,
- 	printk(" at virtual address %08lx\n", address);
- 	if (!user_mode(regs))
- 		die("Oops", regs, error_code);
--	do_exit(SIGKILL);
-+	make_dead_task(SIGKILL);
- 
- 	return 1;
- }
-diff --git a/arch/hexagon/kernel/traps.c b/arch/hexagon/kernel/traps.c
-index edfc35dafeb1..6dd6cf0ab711 100644
---- a/arch/hexagon/kernel/traps.c
-+++ b/arch/hexagon/kernel/traps.c
-@@ -214,7 +214,7 @@ int die(const char *str, struct pt_regs *regs, long err)
- 		panic("Fatal exception");
- 
- 	oops_exit();
--	do_exit(err);
-+	make_dead_task(err);
- 	return 0;
- }
- 
-diff --git a/arch/ia64/kernel/mca_drv.c b/arch/ia64/kernel/mca_drv.c
-index 5bfc79be4cef..23c203639a96 100644
---- a/arch/ia64/kernel/mca_drv.c
-+++ b/arch/ia64/kernel/mca_drv.c
-@@ -176,7 +176,7 @@ mca_handler_bh(unsigned long paddr, void *iip, unsigned long ipsr)
- 	spin_unlock(&mca_bh_lock);
- 
- 	/* This process is about to be killed itself */
--	do_exit(SIGKILL);
-+	make_task_dead(SIGKILL);
- }
- 
- /**
-diff --git a/arch/ia64/kernel/traps.c b/arch/ia64/kernel/traps.c
-index e13cb905930f..753642366e12 100644
---- a/arch/ia64/kernel/traps.c
-+++ b/arch/ia64/kernel/traps.c
-@@ -85,7 +85,7 @@ die (const char *str, struct pt_regs *regs, long err)
- 	if (panic_on_oops)
- 		panic("Fatal exception");
- 
--  	do_exit(SIGSEGV);
-+	make_task_dead(SIGSEGV);
- 	return 0;
- }
- 
-diff --git a/arch/ia64/mm/fault.c b/arch/ia64/mm/fault.c
-index 02de2e70c587..4796cccbf74f 100644
---- a/arch/ia64/mm/fault.c
-+++ b/arch/ia64/mm/fault.c
-@@ -259,7 +259,7 @@ ia64_do_page_fault (unsigned long address, unsigned long isr, struct pt_regs *re
- 		regs = NULL;
- 	bust_spinlocks(0);
- 	if (regs)
--		do_exit(SIGKILL);
-+		make_task_dead(SIGKILL);
- 	return;
- 
-   out_of_memory:
-diff --git a/arch/m68k/kernel/traps.c b/arch/m68k/kernel/traps.c
-index 34d6458340b0..59fc63feb0dc 100644
---- a/arch/m68k/kernel/traps.c
-+++ b/arch/m68k/kernel/traps.c
-@@ -1131,7 +1131,7 @@ void die_if_kernel (char *str, struct pt_regs *fp, int nr)
- 	pr_crit("%s: %08x\n", str, nr);
- 	show_registers(fp);
- 	add_taint(TAINT_DIE, LOCKDEP_NOW_UNRELIABLE);
--	do_exit(SIGSEGV);
-+	make_task_dead(SIGSEGV);
- }
- 
- asmlinkage void set_esp0(unsigned long ssp)
-diff --git a/arch/m68k/mm/fault.c b/arch/m68k/mm/fault.c
-index ef46e77e97a5..fcb3a0d8421c 100644
---- a/arch/m68k/mm/fault.c
-+++ b/arch/m68k/mm/fault.c
-@@ -48,7 +48,7 @@ int send_fault_sig(struct pt_regs *regs)
- 			pr_alert("Unable to handle kernel access");
- 		pr_cont(" at virtual address %p\n", addr);
- 		die_if_kernel("Oops", regs, 0 /*error_code*/);
--		do_exit(SIGKILL);
-+		make_task_dead(SIGKILL);
- 	}
- 
- 	return 1;
-diff --git a/arch/microblaze/kernel/exceptions.c b/arch/microblaze/kernel/exceptions.c
-index 908788497b28..fd153d5fab98 100644
---- a/arch/microblaze/kernel/exceptions.c
-+++ b/arch/microblaze/kernel/exceptions.c
-@@ -44,10 +44,10 @@ void die(const char *str, struct pt_regs *fp, long err)
- 	pr_warn("Oops: %s, sig: %ld\n", str, err);
- 	show_regs(fp);
- 	spin_unlock_irq(&die_lock);
--	/* do_exit() should take care of panic'ing from an interrupt
-+	/* make_task_dead() should take care of panic'ing from an interrupt
- 	 * context so we don't handle it here
- 	 */
--	do_exit(err);
-+	make_task_dead(err);
- }
- 
- /* for user application debugging */
-diff --git a/arch/mips/kernel/traps.c b/arch/mips/kernel/traps.c
-index edd93430b954..afb2c955d99e 100644
---- a/arch/mips/kernel/traps.c
-+++ b/arch/mips/kernel/traps.c
-@@ -416,7 +416,7 @@ void __noreturn die(const char *str, struct pt_regs *regs)
- 	if (regs && kexec_should_crash(current))
- 		crash_kexec(regs);
- 
--	do_exit(sig);
-+	make_task_dead(sig);
- }
- 
- extern struct exception_table_entry __start___dbe_table[];
-diff --git a/arch/nds32/kernel/fpu.c b/arch/nds32/kernel/fpu.c
-index 9edd7ed7d7bf..701c09a668de 100644
---- a/arch/nds32/kernel/fpu.c
-+++ b/arch/nds32/kernel/fpu.c
-@@ -223,7 +223,7 @@ inline void handle_fpu_exception(struct pt_regs *regs)
- 		}
- 	} else if (fpcsr & FPCSR_mskRIT) {
- 		if (!user_mode(regs))
--			do_exit(SIGILL);
-+			make_task_dead(SIGILL);
- 		si_signo = SIGILL;
- 	}
- 
-diff --git a/arch/nds32/kernel/traps.c b/arch/nds32/kernel/traps.c
-index f06421c645af..b90030e8e546 100644
---- a/arch/nds32/kernel/traps.c
-+++ b/arch/nds32/kernel/traps.c
-@@ -141,7 +141,7 @@ void die(const char *str, struct pt_regs *regs, int err)
- 
- 	bust_spinlocks(0);
- 	spin_unlock_irq(&die_lock);
--	do_exit(SIGSEGV);
-+	make_task_dead(SIGSEGV);
- }
- 
- EXPORT_SYMBOL(die);
-@@ -240,7 +240,7 @@ void unhandled_interruption(struct pt_regs *regs)
- 	pr_emerg("unhandled_interruption\n");
- 	show_regs(regs);
- 	if (!user_mode(regs))
--		do_exit(SIGKILL);
-+		make_task_dead(SIGKILL);
- 	force_sig(SIGKILL);
- }
- 
-@@ -251,7 +251,7 @@ void unhandled_exceptions(unsigned long entry, unsigned long addr,
- 		 addr, type);
- 	show_regs(regs);
- 	if (!user_mode(regs))
--		do_exit(SIGKILL);
-+		make_task_dead(SIGKILL);
- 	force_sig(SIGKILL);
- }
- 
-@@ -278,7 +278,7 @@ void do_revinsn(struct pt_regs *regs)
- 	pr_emerg("Reserved Instruction\n");
- 	show_regs(regs);
- 	if (!user_mode(regs))
--		do_exit(SIGILL);
-+		make_task_dead(SIGILL);
- 	force_sig(SIGILL);
- }
- 
-diff --git a/arch/nios2/kernel/traps.c b/arch/nios2/kernel/traps.c
-index 596986a74a26..85ac49d64cf7 100644
---- a/arch/nios2/kernel/traps.c
-+++ b/arch/nios2/kernel/traps.c
-@@ -37,10 +37,10 @@ void die(const char *str, struct pt_regs *regs, long err)
- 	show_regs(regs);
- 	spin_unlock_irq(&die_lock);
- 	/*
--	 * do_exit() should take care of panic'ing from an interrupt
-+	 * make_task_dead() should take care of panic'ing from an interrupt
- 	 * context so we don't handle it here
- 	 */
--	do_exit(err);
-+	make_task_dead(err);
- }
- 
- void _exception(int signo, struct pt_regs *regs, int code, unsigned long addr)
-diff --git a/arch/openrisc/kernel/traps.c b/arch/openrisc/kernel/traps.c
-index aa1e709405ac..9df1d85bfe1d 100644
---- a/arch/openrisc/kernel/traps.c
-+++ b/arch/openrisc/kernel/traps.c
-@@ -212,7 +212,7 @@ void die(const char *str, struct pt_regs *regs, long err)
- 	__asm__ __volatile__("l.nop   1");
- 	do {} while (1);
- #endif
--	do_exit(SIGSEGV);
-+	make_task_dead(SIGSEGV);
- }
- 
- /* This is normally the 'Oops' routine */
-diff --git a/arch/parisc/kernel/traps.c b/arch/parisc/kernel/traps.c
-index 6fe5a3e98edc..70ace3687950 100644
---- a/arch/parisc/kernel/traps.c
-+++ b/arch/parisc/kernel/traps.c
-@@ -268,7 +268,7 @@ void die_if_kernel(char *str, struct pt_regs *regs, long err)
- 		panic("Fatal exception");
- 
- 	oops_exit();
--	do_exit(SIGSEGV);
-+	make_task_dead(SIGSEGV);
- }
- 
- /* gdb uses break 4,8 */
-diff --git a/arch/powerpc/kernel/traps.c b/arch/powerpc/kernel/traps.c
-index 11741703d26e..a08bb7cefdc5 100644
---- a/arch/powerpc/kernel/traps.c
-+++ b/arch/powerpc/kernel/traps.c
-@@ -245,7 +245,7 @@ static void oops_end(unsigned long flags, struct pt_regs *regs,
- 
- 	if (panic_on_oops)
- 		panic("Fatal exception");
--	do_exit(signr);
-+	make_task_dead(signr);
- }
- NOKPROBE_SYMBOL(oops_end);
- 
-@@ -792,9 +792,9 @@ int machine_check_generic(struct pt_regs *regs)
- void die_mce(const char *str, struct pt_regs *regs, long err)
+ int nvme_alloc_admin_tag_set(struct nvme_ctrl *ctrl, struct blk_mq_tag_set *set,
+-		const struct blk_mq_ops *ops, unsigned int flags,
+-		unsigned int cmd_size)
++		const struct blk_mq_ops *ops, unsigned int cmd_size)
  {
- 	/*
--	 * The machine check wants to kill the interrupted context, but
--	 * do_exit() checks for in_interrupt() and panics in that case, so
--	 * exit the irq/nmi before calling die.
-+	 * The machine check wants to kill the interrupted context,
-+	 * but make_task_dead() checks for in_interrupt() and panics
-+	 * in that case, so exit the irq/nmi before calling die.
- 	 */
- 	if (in_nmi())
- 		nmi_exit();
-diff --git a/arch/riscv/kernel/traps.c b/arch/riscv/kernel/traps.c
-index 4102c97309cc..6084bd93d2f5 100644
---- a/arch/riscv/kernel/traps.c
-+++ b/arch/riscv/kernel/traps.c
-@@ -59,7 +59,7 @@ void die(struct pt_regs *regs, const char *str)
- 	if (panic_on_oops)
- 		panic("Fatal exception");
- 	if (ret != NOTIFY_STOP)
--		do_exit(SIGSEGV);
-+		make_task_dead(SIGSEGV);
- }
+ 	int ret;
  
- void do_trap(struct pt_regs *regs, int signo, int code, unsigned long addr)
-diff --git a/arch/riscv/mm/fault.c b/arch/riscv/mm/fault.c
-index 7cfaf366463f..676a3f28811f 100644
---- a/arch/riscv/mm/fault.c
-+++ b/arch/riscv/mm/fault.c
-@@ -31,7 +31,7 @@ static void die_kernel_fault(const char *msg, unsigned long addr,
+@@ -4851,7 +4850,9 @@ int nvme_alloc_admin_tag_set(struct nvme_ctrl *ctrl, struct blk_mq_tag_set *set,
+ 	if (ctrl->ops->flags & NVME_F_FABRICS)
+ 		set->reserved_tags = NVMF_RESERVED_TAGS;
+ 	set->numa_node = ctrl->numa_node;
+-	set->flags = flags;
++	set->flags = BLK_MQ_F_NO_SCHED;
++	if (ctrl->ops->flags & NVME_F_BLOCKING)
++		set->flags |= BLK_MQ_F_BLOCKING;
+ 	set->cmd_size = cmd_size;
+ 	set->driver_data = ctrl;
+ 	set->nr_hw_queues = 1;
+@@ -4895,8 +4896,8 @@ void nvme_remove_admin_tag_set(struct nvme_ctrl *ctrl)
+ EXPORT_SYMBOL_GPL(nvme_remove_admin_tag_set);
  
- 	bust_spinlocks(0);
- 	die(regs, "Oops");
--	do_exit(SIGKILL);
-+	make_task_dead(SIGKILL);
- }
- 
- static inline void no_context(struct pt_regs *regs, unsigned long addr)
-diff --git a/arch/s390/kernel/dumpstack.c b/arch/s390/kernel/dumpstack.c
-index db1bc00229ca..272ef8597e20 100644
---- a/arch/s390/kernel/dumpstack.c
-+++ b/arch/s390/kernel/dumpstack.c
-@@ -224,5 +224,5 @@ void die(struct pt_regs *regs, const char *str)
- 	if (panic_on_oops)
- 		panic("Fatal exception: panic_on_oops");
- 	oops_exit();
--	do_exit(SIGSEGV);
-+	make_task_dead(SIGSEGV);
- }
-diff --git a/arch/s390/kernel/nmi.c b/arch/s390/kernel/nmi.c
-index 383b4799b6dd..d4f071e73a0a 100644
---- a/arch/s390/kernel/nmi.c
-+++ b/arch/s390/kernel/nmi.c
-@@ -175,7 +175,7 @@ void __s390_handle_mcck(void)
- 		       "malfunction (code 0x%016lx).\n", mcck.mcck_code);
- 		printk(KERN_EMERG "mcck: task: %s, pid: %d.\n",
- 		       current->comm, current->pid);
--		do_exit(SIGSEGV);
-+		make_task_dead(SIGSEGV);
- 	}
- }
- 
-diff --git a/arch/sh/kernel/traps.c b/arch/sh/kernel/traps.c
-index e76b22157099..361b764700b7 100644
---- a/arch/sh/kernel/traps.c
-+++ b/arch/sh/kernel/traps.c
-@@ -57,7 +57,7 @@ void die(const char *str, struct pt_regs *regs, long err)
- 	if (panic_on_oops)
- 		panic("Fatal exception");
- 
--	do_exit(SIGSEGV);
-+	make_task_dead(SIGSEGV);
- }
- 
- void die_if_kernel(const char *str, struct pt_regs *regs, long err)
-diff --git a/arch/sparc/kernel/traps_32.c b/arch/sparc/kernel/traps_32.c
-index 5630e5a395e0..179aabfa712e 100644
---- a/arch/sparc/kernel/traps_32.c
-+++ b/arch/sparc/kernel/traps_32.c
-@@ -86,9 +86,7 @@ void __noreturn die_if_kernel(char *str, struct pt_regs *regs)
- 	}
- 	printk("Instruction DUMP:");
- 	instruction_dump ((unsigned long *) regs->pc);
--	if(regs->psr & PSR_PS)
--		do_exit(SIGKILL);
--	do_exit(SIGSEGV);
-+	make_task_dead((regs->psr & PSR_PS) ? SIGKILL : SIGSEGV);
- }
- 
- void do_hw_interrupt(struct pt_regs *regs, unsigned long type)
-diff --git a/arch/sparc/kernel/traps_64.c b/arch/sparc/kernel/traps_64.c
-index 6863025ed56d..21077821f427 100644
---- a/arch/sparc/kernel/traps_64.c
-+++ b/arch/sparc/kernel/traps_64.c
-@@ -2559,9 +2559,7 @@ void __noreturn die_if_kernel(char *str, struct pt_regs *regs)
- 	}
- 	if (panic_on_oops)
- 		panic("Fatal exception");
--	if (regs->tstate & TSTATE_PRIV)
--		do_exit(SIGKILL);
--	do_exit(SIGSEGV);
-+	make_task_dead((regs->tstate & TSTATE_PRIV)? SIGKILL : SIGSEGV);
- }
- EXPORT_SYMBOL(die_if_kernel);
- 
-diff --git a/arch/x86/entry/entry_32.S b/arch/x86/entry/entry_32.S
-index 6b44263d7efb..e309e7156038 100644
---- a/arch/x86/entry/entry_32.S
-+++ b/arch/x86/entry/entry_32.S
-@@ -1239,14 +1239,14 @@ SYM_CODE_START(asm_exc_nmi)
- SYM_CODE_END(asm_exc_nmi)
- 
- .pushsection .text, "ax"
--SYM_CODE_START(rewind_stack_do_exit)
-+SYM_CODE_START(rewind_stack_and_make_dead)
- 	/* Prevent any naive code from trying to unwind to our caller. */
- 	xorl	%ebp, %ebp
- 
- 	movl	PER_CPU_VAR(cpu_current_top_of_stack), %esi
- 	leal	-TOP_OF_KERNEL_STACK_PADDING-PTREGS_SIZE(%esi), %esp
- 
--	call	do_exit
-+	call	make_task_dead
- 1:	jmp 1b
--SYM_CODE_END(rewind_stack_do_exit)
-+SYM_CODE_END(rewind_stack_and_make_dead)
- .popsection
-diff --git a/arch/x86/entry/entry_64.S b/arch/x86/entry/entry_64.S
-index a3af2a9159b1..9f1333a9ee41 100644
---- a/arch/x86/entry/entry_64.S
-+++ b/arch/x86/entry/entry_64.S
-@@ -1487,7 +1487,7 @@ SYM_CODE_END(ignore_sysret)
- #endif
- 
- .pushsection .text, "ax"
--SYM_CODE_START(rewind_stack_do_exit)
-+SYM_CODE_START(rewind_stack_and_make_dead)
- 	UNWIND_HINT_FUNC
- 	/* Prevent any naive code from trying to unwind to our caller. */
- 	xorl	%ebp, %ebp
-@@ -1496,6 +1496,6 @@ SYM_CODE_START(rewind_stack_do_exit)
- 	leaq	-PTREGS_SIZE(%rax), %rsp
- 	UNWIND_HINT_REGS
- 
--	call	do_exit
--SYM_CODE_END(rewind_stack_do_exit)
-+	call	make_task_dead
-+SYM_CODE_END(rewind_stack_and_make_dead)
- .popsection
-diff --git a/arch/x86/kernel/dumpstack.c b/arch/x86/kernel/dumpstack.c
-index ea4fe192189d..53de044e5654 100644
---- a/arch/x86/kernel/dumpstack.c
-+++ b/arch/x86/kernel/dumpstack.c
-@@ -351,7 +351,7 @@ unsigned long oops_begin(void)
- }
- NOKPROBE_SYMBOL(oops_begin);
- 
--void __noreturn rewind_stack_do_exit(int signr);
-+void __noreturn rewind_stack_and_make_dead(int signr);
- 
- void oops_end(unsigned long flags, struct pt_regs *regs, int signr)
+ int nvme_alloc_io_tag_set(struct nvme_ctrl *ctrl, struct blk_mq_tag_set *set,
+-		const struct blk_mq_ops *ops, unsigned int flags,
+-		unsigned int nr_maps, unsigned int cmd_size)
++		const struct blk_mq_ops *ops, unsigned int nr_maps,
++		unsigned int cmd_size)
  {
-@@ -386,7 +386,7 @@ void oops_end(unsigned long flags, struct pt_regs *regs, int signr)
- 	 * reuse the task stack and that existing poisons are invalid.
- 	 */
- 	kasan_unpoison_task_stack(current);
--	rewind_stack_do_exit(signr);
-+	rewind_stack_and_make_dead(signr);
- }
- NOKPROBE_SYMBOL(oops_end);
+ 	int ret;
  
-diff --git a/arch/xtensa/kernel/traps.c b/arch/xtensa/kernel/traps.c
-index 874b6efc6fb3..904086ad5682 100644
---- a/arch/xtensa/kernel/traps.c
-+++ b/arch/xtensa/kernel/traps.c
-@@ -552,5 +552,5 @@ void die(const char * str, struct pt_regs * regs, long err)
- 	if (panic_on_oops)
- 		panic("Fatal exception");
+@@ -4905,7 +4906,9 @@ int nvme_alloc_io_tag_set(struct nvme_ctrl *ctrl, struct blk_mq_tag_set *set,
+ 	set->queue_depth = ctrl->sqsize + 1;
+ 	set->reserved_tags = NVMF_RESERVED_TAGS;
+ 	set->numa_node = ctrl->numa_node;
+-	set->flags = flags;
++	set->flags = BLK_MQ_F_SHOULD_MERGE;
++	if (ctrl->ops->flags & NVME_F_BLOCKING)
++		set->flags |= BLK_MQ_F_BLOCKING;
+ 	set->cmd_size = cmd_size,
+ 	set->driver_data = ctrl;
+ 	set->nr_hw_queues = ctrl->queue_count - 1;
+diff --git a/drivers/nvme/host/fc.c b/drivers/nvme/host/fc.c
+index 20b0c29a9a34..5f07a6b29276 100644
+--- a/drivers/nvme/host/fc.c
++++ b/drivers/nvme/host/fc.c
+@@ -2903,7 +2903,7 @@ nvme_fc_create_io_queues(struct nvme_fc_ctrl *ctrl)
+ 	nvme_fc_init_io_queues(ctrl);
  
--	do_exit(err);
-+	make_task_dead(err);
- }
-diff --git a/include/linux/sched/task.h b/include/linux/sched/task.h
-index caae8e045160..d351f1b362ef 100644
---- a/include/linux/sched/task.h
-+++ b/include/linux/sched/task.h
-@@ -59,6 +59,7 @@ extern void sched_post_fork(struct task_struct *p);
- extern void sched_dead(struct task_struct *p);
+ 	ret = nvme_alloc_io_tag_set(&ctrl->ctrl, &ctrl->tag_set,
+-			&nvme_fc_mq_ops, BLK_MQ_F_SHOULD_MERGE, 1,
++			&nvme_fc_mq_ops, 1,
+ 			struct_size((struct nvme_fcp_op_w_sgl *)NULL, priv,
+ 				    ctrl->lport->ops->fcprqst_priv_sz));
+ 	if (ret)
+@@ -3509,7 +3509,7 @@ nvme_fc_init_ctrl(struct device *dev, struct nvmf_ctrl_options *opts,
+ 	nvme_fc_init_queue(ctrl, 0);
  
- void __noreturn do_task_dead(void);
-+void __noreturn make_task_dead(int signr);
- 
- extern void proc_caches_init(void);
- 
-diff --git a/kernel/exit.c b/kernel/exit.c
-index aefe7445508d..5d1a507fd4ba 100644
---- a/kernel/exit.c
-+++ b/kernel/exit.c
-@@ -877,6 +877,15 @@ void __noreturn do_exit(long code)
- }
- EXPORT_SYMBOL_GPL(do_exit);
- 
-+void __noreturn make_task_dead(int signr)
-+{
-+	/*
-+	 * Take the task off the cpu after something catastrophic has
-+	 * happened.
-+	 */
-+	do_exit(signr);
-+}
+ 	ret = nvme_alloc_admin_tag_set(&ctrl->ctrl, &ctrl->admin_tag_set,
+-			&nvme_fc_admin_mq_ops, BLK_MQ_F_NO_SCHED,
++			&nvme_fc_admin_mq_ops,
+ 			struct_size((struct nvme_fcp_op_w_sgl *)NULL, priv,
+ 				    ctrl->lport->ops->fcprqst_priv_sz));
+ 	if (ret)
+diff --git a/drivers/nvme/host/nvme.h b/drivers/nvme/host/nvme.h
+index aef3693ba5d3..01d90424af53 100644
+--- a/drivers/nvme/host/nvme.h
++++ b/drivers/nvme/host/nvme.h
+@@ -508,6 +508,8 @@ struct nvme_ctrl_ops {
+ 	unsigned int flags;
+ #define NVME_F_FABRICS			(1 << 0)
+ #define NVME_F_METADATA_SUPPORTED	(1 << 1)
++#define NVME_F_BLOCKING			(1 << 2)
 +
- void complete_and_exit(struct completion *comp, long code)
- {
- 	if (comp)
-diff --git a/tools/objtool/check.c b/tools/objtool/check.c
-index 308c8806ad94..82ade76dcef2 100644
---- a/tools/objtool/check.c
-+++ b/tools/objtool/check.c
-@@ -169,6 +169,7 @@ static bool __dead_end_function(struct objtool_file *file, struct symbol *func,
- 		"panic",
- 		"do_exit",
- 		"do_task_dead",
-+		"make_task_dead",
- 		"__module_put_and_exit",
- 		"complete_and_exit",
- 		"__reiserfs_panic",
-@@ -176,7 +177,7 @@ static bool __dead_end_function(struct objtool_file *file, struct symbol *func,
- 		"fortify_panic",
- 		"usercopy_abort",
- 		"machine_real_restart",
--		"rewind_stack_do_exit",
-+		"rewind_stack_and_make_dead"
- 		"kunit_try_catch_throw",
- 		"xen_start_kernel",
- 		"cpu_bringup_and_idle",
+ 	const struct attribute_group **dev_attr_groups;
+ 	int (*reg_read32)(struct nvme_ctrl *ctrl, u32 off, u32 *val);
+ 	int (*reg_write32)(struct nvme_ctrl *ctrl, u32 off, u32 val);
+@@ -739,12 +741,11 @@ void nvme_start_ctrl(struct nvme_ctrl *ctrl);
+ void nvme_stop_ctrl(struct nvme_ctrl *ctrl);
+ int nvme_init_ctrl_finish(struct nvme_ctrl *ctrl);
+ int nvme_alloc_admin_tag_set(struct nvme_ctrl *ctrl, struct blk_mq_tag_set *set,
+-		const struct blk_mq_ops *ops, unsigned int flags,
+-		unsigned int cmd_size);
++		const struct blk_mq_ops *ops, unsigned int cmd_size);
+ void nvme_remove_admin_tag_set(struct nvme_ctrl *ctrl);
+ int nvme_alloc_io_tag_set(struct nvme_ctrl *ctrl, struct blk_mq_tag_set *set,
+-		const struct blk_mq_ops *ops, unsigned int flags,
+-		unsigned int nr_maps, unsigned int cmd_size);
++		const struct blk_mq_ops *ops, unsigned int nr_maps,
++		unsigned int cmd_size);
+ void nvme_remove_io_tag_set(struct nvme_ctrl *ctrl);
+ 
+ void nvme_remove_namespaces(struct nvme_ctrl *ctrl);
+diff --git a/drivers/nvme/host/rdma.c b/drivers/nvme/host/rdma.c
+index a55d3e8b607d..6f918e61b6ae 100644
+--- a/drivers/nvme/host/rdma.c
++++ b/drivers/nvme/host/rdma.c
+@@ -798,7 +798,7 @@ static int nvme_rdma_alloc_tag_set(struct nvme_ctrl *ctrl)
+ 			    NVME_RDMA_METADATA_SGL_SIZE;
+ 
+ 	return nvme_alloc_io_tag_set(ctrl, &to_rdma_ctrl(ctrl)->tag_set,
+-			&nvme_rdma_mq_ops, BLK_MQ_F_SHOULD_MERGE,
++			&nvme_rdma_mq_ops,
+ 			ctrl->opts->nr_poll_queues ? HCTX_MAX_TYPES : 2,
+ 			cmd_size);
+ }
+@@ -848,7 +848,6 @@ static int nvme_rdma_configure_admin_queue(struct nvme_rdma_ctrl *ctrl,
+ 	if (new) {
+ 		error = nvme_alloc_admin_tag_set(&ctrl->ctrl,
+ 				&ctrl->admin_tag_set, &nvme_rdma_admin_mq_ops,
+-				BLK_MQ_F_NO_SCHED,
+ 				sizeof(struct nvme_rdma_request) +
+ 				NVME_RDMA_DATA_SGL_SIZE);
+ 		if (error)
+diff --git a/drivers/nvme/host/tcp.c b/drivers/nvme/host/tcp.c
+index 83735c52d34a..eacd445b5333 100644
+--- a/drivers/nvme/host/tcp.c
++++ b/drivers/nvme/host/tcp.c
+@@ -1867,7 +1867,6 @@ static int nvme_tcp_configure_io_queues(struct nvme_ctrl *ctrl, bool new)
+ 	if (new) {
+ 		ret = nvme_alloc_io_tag_set(ctrl, &to_tcp_ctrl(ctrl)->tag_set,
+ 				&nvme_tcp_mq_ops,
+-				BLK_MQ_F_SHOULD_MERGE | BLK_MQ_F_BLOCKING,
+ 				ctrl->opts->nr_poll_queues ? HCTX_MAX_TYPES : 2,
+ 				sizeof(struct nvme_tcp_request));
+ 		if (ret)
+@@ -1943,7 +1942,7 @@ static int nvme_tcp_configure_admin_queue(struct nvme_ctrl *ctrl, bool new)
+ 	if (new) {
+ 		error = nvme_alloc_admin_tag_set(ctrl,
+ 				&to_tcp_ctrl(ctrl)->admin_tag_set,
+-				&nvme_tcp_admin_mq_ops, BLK_MQ_F_BLOCKING,
++				&nvme_tcp_admin_mq_ops,
+ 				sizeof(struct nvme_tcp_request));
+ 		if (error)
+ 			goto out_free_queue;
+@@ -2524,7 +2523,7 @@ static const struct blk_mq_ops nvme_tcp_admin_mq_ops = {
+ static const struct nvme_ctrl_ops nvme_tcp_ctrl_ops = {
+ 	.name			= "tcp",
+ 	.module			= THIS_MODULE,
+-	.flags			= NVME_F_FABRICS,
++	.flags			= NVME_F_FABRICS | NVME_F_BLOCKING,
+ 	.reg_read32		= nvmf_reg_read32,
+ 	.reg_read64		= nvmf_reg_read64,
+ 	.reg_write32		= nvmf_reg_write32,
+diff --git a/drivers/nvme/target/loop.c b/drivers/nvme/target/loop.c
+index 08c583258e90..c864e902e91e 100644
+--- a/drivers/nvme/target/loop.c
++++ b/drivers/nvme/target/loop.c
+@@ -353,7 +353,7 @@ static int nvme_loop_configure_admin_queue(struct nvme_loop_ctrl *ctrl)
+ 	ctrl->ctrl.queue_count = 1;
+ 
+ 	error = nvme_alloc_admin_tag_set(&ctrl->ctrl, &ctrl->admin_tag_set,
+-			&nvme_loop_admin_mq_ops, BLK_MQ_F_NO_SCHED,
++			&nvme_loop_admin_mq_ops,
+ 			sizeof(struct nvme_loop_iod) +
+ 			NVME_INLINE_SG_CNT * sizeof(struct scatterlist));
+ 	if (error)
+@@ -494,7 +494,7 @@ static int nvme_loop_create_io_queues(struct nvme_loop_ctrl *ctrl)
+ 		return ret;
+ 
+ 	ret = nvme_alloc_io_tag_set(&ctrl->ctrl, &ctrl->tag_set,
+-			&nvme_loop_mq_ops, BLK_MQ_F_SHOULD_MERGE, 1,
++			&nvme_loop_mq_ops, 1,
+ 			sizeof(struct nvme_loop_iod) +
+ 			NVME_INLINE_SG_CNT * sizeof(struct scatterlist));
+ 	if (ret)
 -- 
 2.39.0
 
