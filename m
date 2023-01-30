@@ -2,48 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 7A3E46812D8
-	for <lists+stable@lfdr.de>; Mon, 30 Jan 2023 15:25:49 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2115B68125D
+	for <lists+stable@lfdr.de>; Mon, 30 Jan 2023 15:20:32 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237557AbjA3OZs (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 30 Jan 2023 09:25:48 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41430 "EHLO
+        id S237411AbjA3OUa (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 30 Jan 2023 09:20:30 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60770 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237837AbjA3OZS (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 30 Jan 2023 09:25:18 -0500
+        with ESMTP id S237367AbjA3OUC (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 30 Jan 2023 09:20:02 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EB4A61117D
-        for <stable@vger.kernel.org>; Mon, 30 Jan 2023 06:24:05 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 45F5C3F2A3
+        for <stable@vger.kernel.org>; Mon, 30 Jan 2023 06:18:51 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id E7B3561149
-        for <stable@vger.kernel.org>; Mon, 30 Jan 2023 14:23:24 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id EA77FC433D2;
-        Mon, 30 Jan 2023 14:23:23 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 825A861149
+        for <stable@vger.kernel.org>; Mon, 30 Jan 2023 14:17:54 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8959FC433EF;
+        Mon, 30 Jan 2023 14:17:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1675088604;
-        bh=PiQIi1sGWYNyhdFwLS8tLrQSCzg4TBXd2U/CVxrfxjI=;
+        s=korg; t=1675088273;
+        bh=sx80RY1j1NA+28Zxc/ujMkWRNWUMKpnPcPs4BqBBH0M=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=pDprNTsDnwgXxi2nITAwjzNMxYKEiMog3G+M094gpDohNlU96hO5GCAwliusoUieM
-         GGuxDcT2zl3owx9h1kw1neRVPh9DnEqSfzyVwIJ8FxpZU64R7Uf8qKAclvG1wtNoWC
-         bQ506sfk8FwKHpXN1SHRn6uQH1VLnLcgYxe0H1ig=
+        b=bKw0iHdcI0NYDlziC34upVHf5SHSKvJpULx8VBeQWhH6gyZspspY+q2ZHgCL2gWVb
+         cc8HBavDqhEzLS45wWNx7lx8kC66B/ttM7zXZ9HSEbns0lNvwxO84FqBjq4DzIj78n
+         ybHgDNaPK5CDMPJca+e2kyMP+Nogzq90yjj1ourk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Mateusz Guzik <mjguzik@gmail.com>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Sasha Levin <sashal@kernel.org>,
-        Tony Luck <tony.luck@intel.com>,
-        Nicholas Piggin <npiggin@gmail.com>,
-        Will Deacon <will@kernel.org>
-Subject: [PATCH 5.10 074/143] lockref: stop doing cpu_relax in the cmpxchg loop
+        patches@lists.linux.dev, Steev Klimaszewski <steev@kali.org>,
+        Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>,
+        "Borislav Petkov (AMD)" <bp@alien8.de>,
+        Andrew Halaney <ahalaney@redhat.com>
+Subject: [PATCH 5.15 166/204] EDAC/qcom: Do not pass llcc_driv_data as edac_device_ctl_infos pvt_info
 Date:   Mon, 30 Jan 2023 14:52:11 +0100
-Message-Id: <20230130134309.929208085@linuxfoundation.org>
+Message-Id: <20230130134323.866405310@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.1
-In-Reply-To: <20230130134306.862721518@linuxfoundation.org>
-References: <20230130134306.862721518@linuxfoundation.org>
+In-Reply-To: <20230130134316.327556078@linuxfoundation.org>
+References: <20230130134316.327556078@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -57,107 +54,58 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mateusz Guzik <mjguzik@gmail.com>
+From: Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>
 
-[ Upstream commit f5fe24ef17b5fbe6db49534163e77499fb10ae8c ]
+commit 977c6ba624f24ae20cf0faee871257a39348d4a9 upstream.
 
-On the x86-64 architecture even a failing cmpxchg grants exclusive
-access to the cacheline, making it preferable to retry the failed op
-immediately instead of stalling with the pause instruction.
+The memory for llcc_driv_data is allocated by the LLCC driver. But when
+it is passed as the private driver info to the EDAC core, it will get freed
+during the qcom_edac driver release. So when the qcom_edac driver gets probed
+again, it will try to use the freed data leading to the use-after-free bug.
 
-To illustrate the impact, below are benchmark results obtained by
-running various will-it-scale tests on top of the 6.2-rc3 kernel and
-Cascade Lake (2 sockets * 24 cores * 2 threads) CPU.
+Hence, do not pass llcc_driv_data as pvt_info but rather reference it
+using the platform_data pointer in the qcom_edac driver.
 
-All results in ops/s.  Note there is some variance in re-runs, but the
-code is consistently faster when contention is present.
-
-  open3 ("Same file open/close"):
-  proc          stock       no-pause
-     1         805603         814942       (+%1)
-     2        1054980        1054781       (-0%)
-     8        1544802        1822858      (+18%)
-    24        1191064        2199665      (+84%)
-    48         851582        1469860      (+72%)
-    96         609481        1427170     (+134%)
-
-  fstat2 ("Same file fstat"):
-  proc          stock       no-pause
-     1        3013872        3047636       (+1%)
-     2        4284687        4400421       (+2%)
-     8        3257721        5530156      (+69%)
-    24        2239819        5466127     (+144%)
-    48        1701072        5256609     (+209%)
-    96        1269157        6649326     (+423%)
-
-Additionally, a kernel with a private patch to help access() scalability:
-access2 ("Same file access"):
-
-  proc          stock        patched      patched
-                                         +nopause
-    24        2378041        2005501      5370335  (-15% / +125%)
-
-That is, fixing the problems in access itself *reduces* scalability
-after the cacheline ping-pong only happens in lockref with the pause
-instruction.
-
-Note that fstat and access benchmarks are not currently integrated into
-will-it-scale, but interested parties can find them in pull requests to
-said project.
-
-Code at hand has a rather tortured history.  First modification showed
-up in commit d472d9d98b46 ("lockref: Relax in cmpxchg loop"), written
-with Itanium in mind.  Later it got patched up to use an arch-dependent
-macro to stop doing it on s390 where it caused a significant regression.
-Said macro had undergone revisions and was ultimately eliminated later,
-going back to cpu_relax.
-
-While I intended to only remove cpu_relax for x86-64, I got the
-following comment from Linus:
-
-    I would actually prefer just removing it entirely and see if
-    somebody else hollers. You have the numbers to prove it hurts on
-    real hardware, and I don't think we have any numbers to the
-    contrary.
-
-    So I think it's better to trust the numbers and remove it as a
-    failure, than say "let's just remove it on x86-64 and leave
-    everybody else with the potentially broken code"
-
-Additionally, Will Deacon (maintainer of the arm64 port, one of the
-architectures previously benchmarked):
-
-    So, from the arm64 side of the fence, I'm perfectly happy just
-    removing the cpu_relax() calls from lockref.
-
-As such, come back full circle in history and whack it altogether.
-
-Signed-off-by: Mateusz Guzik <mjguzik@gmail.com>
-Link: https://lore.kernel.org/all/CAGudoHHx0Nqg6DE70zAVA75eV-HXfWyhVMWZ-aSeOofkA_=WdA@mail.gmail.com/
-Acked-by: Tony Luck <tony.luck@intel.com> # ia64
-Acked-by: Nicholas Piggin <npiggin@gmail.com> # powerpc
-Acked-by: Will Deacon <will@kernel.org> # arm64
-Acked-by: Peter Zijlstra <peterz@infradead.org>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes: 27450653f1db ("drivers: edac: Add EDAC driver support for QCOM SoCs")
+Reported-by: Steev Klimaszewski <steev@kali.org>
+Signed-off-by: Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>
+Signed-off-by: Borislav Petkov (AMD) <bp@alien8.de>
+Tested-by: Steev Klimaszewski <steev@kali.org> # Thinkpad X13s
+Tested-by: Andrew Halaney <ahalaney@redhat.com> # sa8540p-ride
+Cc: <stable@vger.kernel.org> # 4.20
+Link: https://lore.kernel.org/r/20230118150904.26913-4-manivannan.sadhasivam@linaro.org
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- lib/lockref.c | 1 -
- 1 file changed, 1 deletion(-)
+ drivers/edac/qcom_edac.c |    5 ++---
+ 1 file changed, 2 insertions(+), 3 deletions(-)
 
-diff --git a/lib/lockref.c b/lib/lockref.c
-index 5b34bbd3eba8..81ac5f355242 100644
---- a/lib/lockref.c
-+++ b/lib/lockref.c
-@@ -24,7 +24,6 @@
- 		}								\
- 		if (!--retry)							\
- 			break;							\
--		cpu_relax();							\
- 	}									\
- } while (0)
+--- a/drivers/edac/qcom_edac.c
++++ b/drivers/edac/qcom_edac.c
+@@ -252,7 +252,7 @@ clear:
+ static int
+ dump_syn_reg(struct edac_device_ctl_info *edev_ctl, int err_type, u32 bank)
+ {
+-	struct llcc_drv_data *drv = edev_ctl->pvt_info;
++	struct llcc_drv_data *drv = edev_ctl->dev->platform_data;
+ 	int ret;
  
--- 
-2.39.0
-
+ 	ret = dump_syn_reg_values(drv, bank, err_type);
+@@ -289,7 +289,7 @@ static irqreturn_t
+ llcc_ecc_irq_handler(int irq, void *edev_ctl)
+ {
+ 	struct edac_device_ctl_info *edac_dev_ctl = edev_ctl;
+-	struct llcc_drv_data *drv = edac_dev_ctl->pvt_info;
++	struct llcc_drv_data *drv = edac_dev_ctl->dev->platform_data;
+ 	irqreturn_t irq_rc = IRQ_NONE;
+ 	u32 drp_error, trp_error, i;
+ 	int ret;
+@@ -358,7 +358,6 @@ static int qcom_llcc_edac_probe(struct p
+ 	edev_ctl->dev_name = dev_name(dev);
+ 	edev_ctl->ctl_name = "llcc";
+ 	edev_ctl->panic_on_ue = LLCC_ERP_PANIC_ON_UE;
+-	edev_ctl->pvt_info = llcc_driv_data;
+ 
+ 	rc = edac_device_add_device(edev_ctl);
+ 	if (rc)
 
 
