@@ -2,46 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 8B9BF68112F
-	for <lists+stable@lfdr.de>; Mon, 30 Jan 2023 15:11:03 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6DAAC681045
+	for <lists+stable@lfdr.de>; Mon, 30 Jan 2023 15:02:08 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237206AbjA3OLB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 30 Jan 2023 09:11:01 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52576 "EHLO
+        id S236838AbjA3OCH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 30 Jan 2023 09:02:07 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43084 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237227AbjA3OKz (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 30 Jan 2023 09:10:55 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D38833BDA8
-        for <stable@vger.kernel.org>; Mon, 30 Jan 2023 06:10:44 -0800 (PST)
+        with ESMTP id S236885AbjA3OBa (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 30 Jan 2023 09:01:30 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4C8211116F
+        for <stable@vger.kernel.org>; Mon, 30 Jan 2023 06:01:29 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 7F8A8B80E60
-        for <stable@vger.kernel.org>; Mon, 30 Jan 2023 14:10:43 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id CC5D9C4339E;
-        Mon, 30 Jan 2023 14:10:41 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id D854D61031
+        for <stable@vger.kernel.org>; Mon, 30 Jan 2023 14:01:28 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id DA654C4339B;
+        Mon, 30 Jan 2023 14:01:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1675087842;
-        bh=YP/bWdo0qc/r2ZzqofNSvoyZwF5S60a7YbSCar0qDLI=;
+        s=korg; t=1675087288;
+        bh=9328XOerKdCrcTCiNJnUz6QMS9D74muTVUNidtj2W2M=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=NPWuc7JuzssNgRQY47Qu0sMEhp9M72pcVPUJEZB07IfOs6oh/KIHHw9AcplBr1Bu5
-         iWZFemsgkrOmrRBwJRCwSXeh8lQp0IoaKjBoBG1nOfA89JGcgNhl30E0h9ppTS7Nfr
-         DoPUUPZX8A/laBBplyEqsiEWegmLwrq98d0ivra4=
+        b=D88yPi9cXZjOga6U8muyjoSDB/NwbOC3q6gkLiYQ8c4EPdCNFh0nU8bmudIyoixlS
+         75jWgw9xcGEbDJFiUFO2tEt7CKUy8et4vVFHnqnjyPlB57HFpSr56wit+2FOYtSXiw
+         oT/mTdveZIGRWhg0QzfHP9BaQMIlkzwNDgSiZDbE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Christophe JAILLET <christophe.jaillet@wanadoo.fr>,
-        Ulf Hansson <ulf.hansson@linaro.org>,
-        Bjorn Andersson <andersson@kernel.org>,
+        patches@lists.linux.dev, Patrick Thompson <ptf@google.com>,
+        Daniel Vetter <daniel.vetter@ffwll.ch>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 027/204] PM: AVS: qcom-cpr: Fix an error handling path in cpr_probe()
-Date:   Mon, 30 Jan 2023 14:49:52 +0100
-Message-Id: <20230130134317.503662608@linuxfoundation.org>
+Subject: [PATCH 6.1 158/313] drm: Add orientation quirk for Lenovo ideapad D330-10IGL
+Date:   Mon, 30 Jan 2023 14:49:53 +0100
+Message-Id: <20230130134344.021738558@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.1
-In-Reply-To: <20230130134316.327556078@linuxfoundation.org>
-References: <20230130134316.327556078@linuxfoundation.org>
+In-Reply-To: <20230130134336.532886729@linuxfoundation.org>
+References: <20230130134336.532886729@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,48 +53,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
+From: Patrick Thompson <ptf@google.com>
 
-[ Upstream commit 6049aae52392539e505bfb8ccbcff3c26f1d2f0b ]
+[ Upstream commit 0688773f0710528e1ab302c3d6317e269f2e2e6e ]
 
-If an error occurs after a successful pm_genpd_init() call, it should be
-undone by a corresponding pm_genpd_remove().
+Panel is 800x1280 but mounted on a detachable form factor sideways.
 
-Add the missing call in the error handling path, as already done in the
-remove function.
-
-Fixes: bf6910abf548 ("power: avs: Add support for CPR (Core Power Reduction)")
-Signed-off-by: Christophe JAILLET <christophe.jaillet@wanadoo.fr>
-Reviewed-by: Ulf Hansson <ulf.hansson@linaro.org>
-Signed-off-by: Bjorn Andersson <andersson@kernel.org>
-Link: https://lore.kernel.org/r/0f520597dbad89ab99c217c8986912fa53eaf5f9.1671293108.git.christophe.jaillet@wanadoo.fr
+Signed-off-by: Patrick Thompson <ptf@google.com>
+Signed-off-by: Daniel Vetter <daniel.vetter@ffwll.ch>
+Link: https://patchwork.freedesktop.org/patch/msgid/20221220205826.178008-1-ptf@google.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/soc/qcom/cpr.c | 6 +++++-
- 1 file changed, 5 insertions(+), 1 deletion(-)
+ drivers/gpu/drm/drm_panel_orientation_quirks.c | 6 ++++++
+ 1 file changed, 6 insertions(+)
 
-diff --git a/drivers/soc/qcom/cpr.c b/drivers/soc/qcom/cpr.c
-index 84dd93472a25..e61cff3d9c8a 100644
---- a/drivers/soc/qcom/cpr.c
-+++ b/drivers/soc/qcom/cpr.c
-@@ -1710,12 +1710,16 @@ static int cpr_probe(struct platform_device *pdev)
- 
- 	ret = of_genpd_add_provider_simple(dev->of_node, &drv->pd);
- 	if (ret)
--		return ret;
-+		goto err_remove_genpd;
- 
- 	platform_set_drvdata(pdev, drv);
- 	cpr_debugfs_init(drv);
- 
- 	return 0;
-+
-+err_remove_genpd:
-+	pm_genpd_remove(&drv->pd);
-+	return ret;
- }
- 
- static int cpr_remove(struct platform_device *pdev)
+diff --git a/drivers/gpu/drm/drm_panel_orientation_quirks.c b/drivers/gpu/drm/drm_panel_orientation_quirks.c
+index 52d8800a8ab8..3659f0465a72 100644
+--- a/drivers/gpu/drm/drm_panel_orientation_quirks.c
++++ b/drivers/gpu/drm/drm_panel_orientation_quirks.c
+@@ -304,6 +304,12 @@ static const struct dmi_system_id orientation_data[] = {
+ 		  DMI_EXACT_MATCH(DMI_PRODUCT_VERSION, "Lenovo ideapad D330-10IGM"),
+ 		},
+ 		.driver_data = (void *)&lcd1200x1920_rightside_up,
++	}, {	/* Lenovo Ideapad D330-10IGL (HD) */
++		.matches = {
++		  DMI_EXACT_MATCH(DMI_SYS_VENDOR, "LENOVO"),
++		  DMI_EXACT_MATCH(DMI_PRODUCT_VERSION, "Lenovo ideapad D330-10IGL"),
++		},
++		.driver_data = (void *)&lcd800x1280_rightside_up,
+ 	}, {	/* Lenovo Yoga Book X90F / X91F / X91L */
+ 		.matches = {
+ 		  /* Non exact match to match all versions */
 -- 
 2.39.0
 
