@@ -2,44 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 27B84680FE0
-	for <lists+stable@lfdr.de>; Mon, 30 Jan 2023 14:57:36 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 47EC2680FE1
+	for <lists+stable@lfdr.de>; Mon, 30 Jan 2023 14:57:43 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236623AbjA3N5e (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 30 Jan 2023 08:57:34 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36384 "EHLO
+        id S236696AbjA3N5m (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 30 Jan 2023 08:57:42 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36428 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236647AbjA3N5R (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 30 Jan 2023 08:57:17 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DA3153A585
-        for <stable@vger.kernel.org>; Mon, 30 Jan 2023 05:57:16 -0800 (PST)
+        with ESMTP id S236619AbjA3N5c (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 30 Jan 2023 08:57:32 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 849313A58B
+        for <stable@vger.kernel.org>; Mon, 30 Jan 2023 05:57:26 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 7473961032
-        for <stable@vger.kernel.org>; Mon, 30 Jan 2023 13:57:16 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 659BAC4339C;
-        Mon, 30 Jan 2023 13:57:15 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id F336AB8114D
+        for <stable@vger.kernel.org>; Mon, 30 Jan 2023 13:57:24 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 55D37C433EF;
+        Mon, 30 Jan 2023 13:57:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1675087035;
-        bh=/A1goj0Hay/q+vRHKZLohhH96PauuW0UNPP8GmJz78M=;
+        s=korg; t=1675087043;
+        bh=FZxNbkG5VDd6Aq9baRX33FptO3reFlSqB4aa9lbKUq8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=tyRw3tAS0Q7CSPvicakbBbaI5wp/tj8YmupedzOUZPgRvwwFlqTY3/1Ct47AR7XoF
-         hqcd9JMrlkHzSYvAmddZbT4v9E6Fz89wsSRx+mnxfvS8UKnfcQHvHVpnVaW5/RyQE/
-         /CyAhTvndXtv75uZ7p2LGEFxCX8V3MpWLGy5C0Ds=
+        b=xsJ2rbf11dwMwOHlPDrYEUm3W/WqfnQ7v7WW9cYZClA5+3gSuAchHcy2/RLt+Ywjo
+         Qd3gDXcDwsjr5zlDmxGjyWSDOe44BzJOabKVNWRQ8JKxfbHGWVei4PMI2WTV9Fh98j
+         jdwvh8B0NQe5l2WpvMHvIQXLGnlhee26FiwQ4qtU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, syzbot <syzkaller@googlegroups.com>,
+        patches@lists.linux.dev,
+        Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>,
+        Guillaume Nault <gnault@redhat.com>,
+        Jakub Sitnicki <jakub@cloudflare.com>,
         Eric Dumazet <edumazet@google.com>,
-        Alexander Potapenko <glider@google.com>,
-        Vinicius Costa Gomes <vinicius.gomes@intel.com>,
+        Tom Parkin <tparkin@katalix.com>,
+        Cong Wang <cong.wang@bytedance.com>,
         "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 079/313] net/sched: sch_taprio: fix possible use-after-free
-Date:   Mon, 30 Jan 2023 14:48:34 +0100
-Message-Id: <20230130134340.326893870@linuxfoundation.org>
+Subject: [PATCH 6.1 080/313] l2tp: convert l2tp_tunnel_list to idr
+Date:   Mon, 30 Jan 2023 14:48:35 +0100
+Message-Id: <20230130134340.367931730@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.1
 In-Reply-To: <20230130134336.532886729@linuxfoundation.org>
 References: <20230130134336.532886729@linuxfoundation.org>
@@ -56,126 +59,227 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eric Dumazet <edumazet@google.com>
+From: Cong Wang <cong.wang@bytedance.com>
 
-[ Upstream commit 3a415d59c1dbec9d772dbfab2d2520d98360caae ]
+[ Upstream commit c4d48a58f32c5972174a1d01c33b296fe378cce0 ]
 
-syzbot reported a nasty crash [1] in net_tx_action() which
-made little sense until we got a repro.
+l2tp uses l2tp_tunnel_list to track all registered tunnels and
+to allocate tunnel ID's. IDR can do the same job.
 
-This repro installs a taprio qdisc, but providing an
-invalid TCA_RATE attribute.
+More importantly, with IDR we can hold the ID before a successful
+registration so that we don't need to worry about late error
+handling, it is not easy to rollback socket changes.
 
-qdisc_create() has to destroy the just initialized
-taprio qdisc, and taprio_destroy() is called.
+This is a preparation for the following fix.
 
-However, the hrtimer used by taprio had already fired,
-therefore advance_sched() called __netif_schedule().
-
-Then net_tx_action was trying to use a destroyed qdisc.
-
-We can not undo the __netif_schedule(), so we must wait
-until one cpu serviced the qdisc before we can proceed.
-
-Many thanks to Alexander Potapenko for his help.
-
-[1]
-BUG: KMSAN: uninit-value in queued_spin_trylock include/asm-generic/qspinlock.h:94 [inline]
-BUG: KMSAN: uninit-value in do_raw_spin_trylock include/linux/spinlock.h:191 [inline]
-BUG: KMSAN: uninit-value in __raw_spin_trylock include/linux/spinlock_api_smp.h:89 [inline]
-BUG: KMSAN: uninit-value in _raw_spin_trylock+0x92/0xa0 kernel/locking/spinlock.c:138
- queued_spin_trylock include/asm-generic/qspinlock.h:94 [inline]
- do_raw_spin_trylock include/linux/spinlock.h:191 [inline]
- __raw_spin_trylock include/linux/spinlock_api_smp.h:89 [inline]
- _raw_spin_trylock+0x92/0xa0 kernel/locking/spinlock.c:138
- spin_trylock include/linux/spinlock.h:359 [inline]
- qdisc_run_begin include/net/sch_generic.h:187 [inline]
- qdisc_run+0xee/0x540 include/net/pkt_sched.h:125
- net_tx_action+0x77c/0x9a0 net/core/dev.c:5086
- __do_softirq+0x1cc/0x7fb kernel/softirq.c:571
- run_ksoftirqd+0x2c/0x50 kernel/softirq.c:934
- smpboot_thread_fn+0x554/0x9f0 kernel/smpboot.c:164
- kthread+0x31b/0x430 kernel/kthread.c:376
- ret_from_fork+0x1f/0x30
-
-Uninit was created at:
- slab_post_alloc_hook mm/slab.h:732 [inline]
- slab_alloc_node mm/slub.c:3258 [inline]
- __kmalloc_node_track_caller+0x814/0x1250 mm/slub.c:4970
- kmalloc_reserve net/core/skbuff.c:358 [inline]
- __alloc_skb+0x346/0xcf0 net/core/skbuff.c:430
- alloc_skb include/linux/skbuff.h:1257 [inline]
- nlmsg_new include/net/netlink.h:953 [inline]
- netlink_ack+0x5f3/0x12b0 net/netlink/af_netlink.c:2436
- netlink_rcv_skb+0x55d/0x6c0 net/netlink/af_netlink.c:2507
- rtnetlink_rcv+0x30/0x40 net/core/rtnetlink.c:6108
- netlink_unicast_kernel net/netlink/af_netlink.c:1319 [inline]
- netlink_unicast+0xf3b/0x1270 net/netlink/af_netlink.c:1345
- netlink_sendmsg+0x1288/0x1440 net/netlink/af_netlink.c:1921
- sock_sendmsg_nosec net/socket.c:714 [inline]
- sock_sendmsg net/socket.c:734 [inline]
- ____sys_sendmsg+0xabc/0xe90 net/socket.c:2482
- ___sys_sendmsg+0x2a1/0x3f0 net/socket.c:2536
- __sys_sendmsg net/socket.c:2565 [inline]
- __do_sys_sendmsg net/socket.c:2574 [inline]
- __se_sys_sendmsg net/socket.c:2572 [inline]
- __x64_sys_sendmsg+0x367/0x540 net/socket.c:2572
- do_syscall_x64 arch/x86/entry/common.c:50 [inline]
- do_syscall_64+0x3d/0xb0 arch/x86/entry/common.c:80
- entry_SYSCALL_64_after_hwframe+0x63/0xcd
-
-CPU: 0 PID: 13 Comm: ksoftirqd/0 Not tainted 6.0.0-rc2-syzkaller-47461-gac3859c02d7f #0
-Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS Google 07/22/2022
-
-Fixes: 5a781ccbd19e ("tc: Add support for configuring the taprio scheduler")
-Reported-by: syzbot <syzkaller@googlegroups.com>
-Signed-off-by: Eric Dumazet <edumazet@google.com>
-Cc: Alexander Potapenko <glider@google.com>
-Cc: Vinicius Costa Gomes <vinicius.gomes@intel.com>
+Cc: Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>
+Cc: Guillaume Nault <gnault@redhat.com>
+Cc: Jakub Sitnicki <jakub@cloudflare.com>
+Cc: Eric Dumazet <edumazet@google.com>
+Cc: Tom Parkin <tparkin@katalix.com>
+Signed-off-by: Cong Wang <cong.wang@bytedance.com>
+Reviewed-by: Guillaume Nault <gnault@redhat.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
+Stable-dep-of: 0b2c59720e65 ("l2tp: close all race conditions in l2tp_tunnel_register()")
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- include/net/sch_generic.h | 7 +++++++
- net/sched/sch_taprio.c    | 3 +++
- 2 files changed, 10 insertions(+)
+ net/l2tp/l2tp_core.c | 85 ++++++++++++++++++++++----------------------
+ 1 file changed, 42 insertions(+), 43 deletions(-)
 
-diff --git a/include/net/sch_generic.h b/include/net/sch_generic.h
-index d5517719af4e..af4aa66aaa4e 100644
---- a/include/net/sch_generic.h
-+++ b/include/net/sch_generic.h
-@@ -1288,4 +1288,11 @@ void mq_change_real_num_tx(struct Qdisc *sch, unsigned int new_real_tx);
+diff --git a/net/l2tp/l2tp_core.c b/net/l2tp/l2tp_core.c
+index 9a1415fe3fa7..e9c0ce0b7972 100644
+--- a/net/l2tp/l2tp_core.c
++++ b/net/l2tp/l2tp_core.c
+@@ -104,9 +104,9 @@ static struct workqueue_struct *l2tp_wq;
+ /* per-net private data for this module */
+ static unsigned int l2tp_net_id;
+ struct l2tp_net {
+-	struct list_head l2tp_tunnel_list;
+-	/* Lock for write access to l2tp_tunnel_list */
+-	spinlock_t l2tp_tunnel_list_lock;
++	/* Lock for write access to l2tp_tunnel_idr */
++	spinlock_t l2tp_tunnel_idr_lock;
++	struct idr l2tp_tunnel_idr;
+ 	struct hlist_head l2tp_session_hlist[L2TP_HASH_SIZE_2];
+ 	/* Lock for write access to l2tp_session_hlist */
+ 	spinlock_t l2tp_session_hlist_lock;
+@@ -208,13 +208,10 @@ struct l2tp_tunnel *l2tp_tunnel_get(const struct net *net, u32 tunnel_id)
+ 	struct l2tp_tunnel *tunnel;
  
- int sch_frag_xmit_hook(struct sk_buff *skb, int (*xmit)(struct sk_buff *skb));
+ 	rcu_read_lock_bh();
+-	list_for_each_entry_rcu(tunnel, &pn->l2tp_tunnel_list, list) {
+-		if (tunnel->tunnel_id == tunnel_id &&
+-		    refcount_inc_not_zero(&tunnel->ref_count)) {
+-			rcu_read_unlock_bh();
+-
+-			return tunnel;
+-		}
++	tunnel = idr_find(&pn->l2tp_tunnel_idr, tunnel_id);
++	if (tunnel && refcount_inc_not_zero(&tunnel->ref_count)) {
++		rcu_read_unlock_bh();
++		return tunnel;
+ 	}
+ 	rcu_read_unlock_bh();
  
-+/* Make sure qdisc is no longer in SCHED state. */
-+static inline void qdisc_synchronize(const struct Qdisc *q)
+@@ -224,13 +221,14 @@ EXPORT_SYMBOL_GPL(l2tp_tunnel_get);
+ 
+ struct l2tp_tunnel *l2tp_tunnel_get_nth(const struct net *net, int nth)
+ {
+-	const struct l2tp_net *pn = l2tp_pernet(net);
++	struct l2tp_net *pn = l2tp_pernet(net);
++	unsigned long tunnel_id, tmp;
+ 	struct l2tp_tunnel *tunnel;
+ 	int count = 0;
+ 
+ 	rcu_read_lock_bh();
+-	list_for_each_entry_rcu(tunnel, &pn->l2tp_tunnel_list, list) {
+-		if (++count > nth &&
++	idr_for_each_entry_ul(&pn->l2tp_tunnel_idr, tunnel, tmp, tunnel_id) {
++		if (tunnel && ++count > nth &&
+ 		    refcount_inc_not_zero(&tunnel->ref_count)) {
+ 			rcu_read_unlock_bh();
+ 			return tunnel;
+@@ -1227,6 +1225,15 @@ static void l2tp_udp_encap_destroy(struct sock *sk)
+ 		l2tp_tunnel_delete(tunnel);
+ }
+ 
++static void l2tp_tunnel_remove(struct net *net, struct l2tp_tunnel *tunnel)
 +{
-+	while (test_bit(__QDISC_STATE_SCHED, &q->state))
-+		msleep(1);
++	struct l2tp_net *pn = l2tp_pernet(net);
++
++	spin_lock_bh(&pn->l2tp_tunnel_idr_lock);
++	idr_remove(&pn->l2tp_tunnel_idr, tunnel->tunnel_id);
++	spin_unlock_bh(&pn->l2tp_tunnel_idr_lock);
 +}
 +
- #endif
-diff --git a/net/sched/sch_taprio.c b/net/sched/sch_taprio.c
-index 570389f6cdd7..9a11a499ea2d 100644
---- a/net/sched/sch_taprio.c
-+++ b/net/sched/sch_taprio.c
-@@ -1700,6 +1700,8 @@ static void taprio_reset(struct Qdisc *sch)
- 	int i;
+ /* Workqueue tunnel deletion function */
+ static void l2tp_tunnel_del_work(struct work_struct *work)
+ {
+@@ -1234,7 +1241,6 @@ static void l2tp_tunnel_del_work(struct work_struct *work)
+ 						  del_work);
+ 	struct sock *sk = tunnel->sock;
+ 	struct socket *sock = sk->sk_socket;
+-	struct l2tp_net *pn;
  
- 	hrtimer_cancel(&q->advance_timer);
-+	qdisc_synchronize(sch);
+ 	l2tp_tunnel_closeall(tunnel);
+ 
+@@ -1248,12 +1254,7 @@ static void l2tp_tunnel_del_work(struct work_struct *work)
+ 		}
+ 	}
+ 
+-	/* Remove the tunnel struct from the tunnel list */
+-	pn = l2tp_pernet(tunnel->l2tp_net);
+-	spin_lock_bh(&pn->l2tp_tunnel_list_lock);
+-	list_del_rcu(&tunnel->list);
+-	spin_unlock_bh(&pn->l2tp_tunnel_list_lock);
+-
++	l2tp_tunnel_remove(tunnel->l2tp_net, tunnel);
+ 	/* drop initial ref */
+ 	l2tp_tunnel_dec_refcount(tunnel);
+ 
+@@ -1455,12 +1456,19 @@ static int l2tp_validate_socket(const struct sock *sk, const struct net *net,
+ int l2tp_tunnel_register(struct l2tp_tunnel *tunnel, struct net *net,
+ 			 struct l2tp_tunnel_cfg *cfg)
+ {
+-	struct l2tp_tunnel *tunnel_walk;
+-	struct l2tp_net *pn;
++	struct l2tp_net *pn = l2tp_pernet(net);
++	u32 tunnel_id = tunnel->tunnel_id;
+ 	struct socket *sock;
+ 	struct sock *sk;
+ 	int ret;
+ 
++	spin_lock_bh(&pn->l2tp_tunnel_idr_lock);
++	ret = idr_alloc_u32(&pn->l2tp_tunnel_idr, NULL, &tunnel_id, tunnel_id,
++			    GFP_ATOMIC);
++	spin_unlock_bh(&pn->l2tp_tunnel_idr_lock);
++	if (ret)
++		return ret == -ENOSPC ? -EEXIST : ret;
 +
- 	if (q->qdiscs) {
- 		for (i = 0; i < dev->num_tx_queues; i++)
- 			if (q->qdiscs[i])
-@@ -1720,6 +1722,7 @@ static void taprio_destroy(struct Qdisc *sch)
- 	 * happens in qdisc_create(), after taprio_init() has been called.
- 	 */
- 	hrtimer_cancel(&q->advance_timer);
-+	qdisc_synchronize(sch);
+ 	if (tunnel->fd < 0) {
+ 		ret = l2tp_tunnel_sock_create(net, tunnel->tunnel_id,
+ 					      tunnel->peer_tunnel_id, cfg,
+@@ -1481,23 +1489,13 @@ int l2tp_tunnel_register(struct l2tp_tunnel *tunnel, struct net *net,
+ 	rcu_assign_sk_user_data(sk, tunnel);
+ 	write_unlock_bh(&sk->sk_callback_lock);
  
- 	taprio_disable_offload(dev, q, NULL);
+-	tunnel->l2tp_net = net;
+-	pn = l2tp_pernet(net);
+-
+ 	sock_hold(sk);
+ 	tunnel->sock = sk;
++	tunnel->l2tp_net = net;
  
+-	spin_lock_bh(&pn->l2tp_tunnel_list_lock);
+-	list_for_each_entry(tunnel_walk, &pn->l2tp_tunnel_list, list) {
+-		if (tunnel_walk->tunnel_id == tunnel->tunnel_id) {
+-			spin_unlock_bh(&pn->l2tp_tunnel_list_lock);
+-			sock_put(sk);
+-			ret = -EEXIST;
+-			goto err_sock;
+-		}
+-	}
+-	list_add_rcu(&tunnel->list, &pn->l2tp_tunnel_list);
+-	spin_unlock_bh(&pn->l2tp_tunnel_list_lock);
++	spin_lock_bh(&pn->l2tp_tunnel_idr_lock);
++	idr_replace(&pn->l2tp_tunnel_idr, tunnel, tunnel->tunnel_id);
++	spin_unlock_bh(&pn->l2tp_tunnel_idr_lock);
+ 
+ 	if (tunnel->encap == L2TP_ENCAPTYPE_UDP) {
+ 		struct udp_tunnel_sock_cfg udp_cfg = {
+@@ -1523,9 +1521,6 @@ int l2tp_tunnel_register(struct l2tp_tunnel *tunnel, struct net *net,
+ 
+ 	return 0;
+ 
+-err_sock:
+-	write_lock_bh(&sk->sk_callback_lock);
+-	rcu_assign_sk_user_data(sk, NULL);
+ err_inval_sock:
+ 	write_unlock_bh(&sk->sk_callback_lock);
+ 
+@@ -1534,6 +1529,7 @@ int l2tp_tunnel_register(struct l2tp_tunnel *tunnel, struct net *net,
+ 	else
+ 		sockfd_put(sock);
+ err:
++	l2tp_tunnel_remove(net, tunnel);
+ 	return ret;
+ }
+ EXPORT_SYMBOL_GPL(l2tp_tunnel_register);
+@@ -1647,8 +1643,8 @@ static __net_init int l2tp_init_net(struct net *net)
+ 	struct l2tp_net *pn = net_generic(net, l2tp_net_id);
+ 	int hash;
+ 
+-	INIT_LIST_HEAD(&pn->l2tp_tunnel_list);
+-	spin_lock_init(&pn->l2tp_tunnel_list_lock);
++	idr_init(&pn->l2tp_tunnel_idr);
++	spin_lock_init(&pn->l2tp_tunnel_idr_lock);
+ 
+ 	for (hash = 0; hash < L2TP_HASH_SIZE_2; hash++)
+ 		INIT_HLIST_HEAD(&pn->l2tp_session_hlist[hash]);
+@@ -1662,11 +1658,13 @@ static __net_exit void l2tp_exit_net(struct net *net)
+ {
+ 	struct l2tp_net *pn = l2tp_pernet(net);
+ 	struct l2tp_tunnel *tunnel = NULL;
++	unsigned long tunnel_id, tmp;
+ 	int hash;
+ 
+ 	rcu_read_lock_bh();
+-	list_for_each_entry_rcu(tunnel, &pn->l2tp_tunnel_list, list) {
+-		l2tp_tunnel_delete(tunnel);
++	idr_for_each_entry_ul(&pn->l2tp_tunnel_idr, tunnel, tmp, tunnel_id) {
++		if (tunnel)
++			l2tp_tunnel_delete(tunnel);
+ 	}
+ 	rcu_read_unlock_bh();
+ 
+@@ -1676,6 +1674,7 @@ static __net_exit void l2tp_exit_net(struct net *net)
+ 
+ 	for (hash = 0; hash < L2TP_HASH_SIZE_2; hash++)
+ 		WARN_ON_ONCE(!hlist_empty(&pn->l2tp_session_hlist[hash]));
++	idr_destroy(&pn->l2tp_tunnel_idr);
+ }
+ 
+ static struct pernet_operations l2tp_net_ops = {
 -- 
 2.39.0
 
