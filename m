@@ -2,52 +2,49 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 4FD966812D9
-	for <lists+stable@lfdr.de>; Mon, 30 Jan 2023 15:25:50 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D2EDB6810D8
+	for <lists+stable@lfdr.de>; Mon, 30 Jan 2023 15:07:23 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237497AbjA3OZt (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 30 Jan 2023 09:25:49 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42096 "EHLO
+        id S237106AbjA3OHW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 30 Jan 2023 09:07:22 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49520 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237850AbjA3OZU (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 30 Jan 2023 09:25:20 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 102EB38669
-        for <stable@vger.kernel.org>; Mon, 30 Jan 2023 06:24:08 -0800 (PST)
+        with ESMTP id S237108AbjA3OHW (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 30 Jan 2023 09:07:22 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 627B63B3FE
+        for <stable@vger.kernel.org>; Mon, 30 Jan 2023 06:07:21 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id C8C71B80FA0
-        for <stable@vger.kernel.org>; Mon, 30 Jan 2023 14:23:52 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 07185C433EF;
-        Mon, 30 Jan 2023 14:23:50 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id F323A61083
+        for <stable@vger.kernel.org>; Mon, 30 Jan 2023 14:07:20 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1029DC433EF;
+        Mon, 30 Jan 2023 14:07:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1675088631;
-        bh=NPhttOZXlzAZ5Mk8usBy7pJhstL8FxsN8MtgLzoSqWE=;
+        s=korg; t=1675087640;
+        bh=NEcAUwmfP1Pl4DqjkoblaE/AK37RaHOFEb56yhnWZh8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=kn2MEFHzetf6j5yQJ1GRZzHLoPfyYlcDCfryiiLxKB6Do1mjEjt1DDCQnxtKtKIU+
-         34XiTNqzJg6FLSuOatLk+3ipMwaCxCQs419re/1yTwGOPfPPF1PN3mER6wZiKaZm1H
-         3L/63ftGFhSWvEPUu5saIukEkgjSDobrJRId4KgE=
+        b=sh6qKCO7h4Ok7ji6/PkxazxwIq4hqfsXBFqTAmVxLGMItZZw9so82PuDYkvNB4+X2
+         nJNt3RWz98k0OA56+PWzUNCYAEG6k2pq96fu+fWfxGHWWbc9SPL7WcpzYc9UakQiqF
+         HXjcKGc5gu5P0lbcW2dlqRI1zjNM6wDvFbvTopMg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Eric Dumazet <edumazet@google.com>,
-        Jason Xing <kernelxing@tencent.com>,
-        Kuniyuki Iwashima <kuniyu@amazon.com>,
-        Paolo Abeni <pabeni@redhat.com>,
+        patches@lists.linux.dev, Hans de Goede <hdegoede@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 054/143] tcp: avoid the lookup process failing to get sk in ehash table
+Subject: [PATCH 6.1 276/313] platform/x86: asus-wmi: Fix kbd_dock_devid tablet-switch reporting
 Date:   Mon, 30 Jan 2023 14:51:51 +0100
-Message-Id: <20230130134309.103365845@linuxfoundation.org>
+Message-Id: <20230130134349.586677161@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.1
-In-Reply-To: <20230130134306.862721518@linuxfoundation.org>
-References: <20230130134306.862721518@linuxfoundation.org>
+In-Reply-To: <20230130134336.532886729@linuxfoundation.org>
+References: <20230130134336.532886729@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
         SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -55,119 +52,85 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jason Xing <kernelxing@tencent.com>
+From: Hans de Goede <hdegoede@redhat.com>
 
-[ Upstream commit 3f4ca5fafc08881d7a57daa20449d171f2887043 ]
+[ Upstream commit fdcc0602d64f22185f61c70747214b630049cc33 ]
 
-While one cpu is working on looking up the right socket from ehash
-table, another cpu is done deleting the request socket and is about
-to add (or is adding) the big socket from the table. It means that
-we could miss both of them, even though it has little chance.
+Commit 1ea0d3b46798 ("platform/x86: asus-wmi: Simplify tablet-mode-switch
+handling") unified the asus-wmi tablet-switch handling, but it did not take
+into account that the value returned for the kbd_dock_devid WMI method is
+inverted where as the other ones are not inverted.
 
-Let me draw a call trace map of the server side.
-   CPU 0                           CPU 1
-   -----                           -----
-tcp_v4_rcv()                  syn_recv_sock()
-                            inet_ehash_insert()
-                            -> sk_nulls_del_node_init_rcu(osk)
-__inet_lookup_established()
-                            -> __sk_nulls_add_node_rcu(sk, list)
+This causes asus-wmi to report an inverted tablet-switch state for devices
+which use the kbd_dock_devid, which causes libinput to ignore touchpad
+events while the affected T10x model 2-in-1s are docked.
 
-Notice that the CPU 0 is receiving the data after the final ack
-during 3-way shakehands and CPU 1 is still handling the final ack.
+Add inverting of the return value in the kbd_dock_devid case to fix this.
 
-Why could this be a real problem?
-This case is happening only when the final ack and the first data
-receiving by different CPUs. Then the server receiving data with
-ACK flag tries to search one proper established socket from ehash
-table, but apparently it fails as my map shows above. After that,
-the server fetches a listener socket and then sends a RST because
-it finds a ACK flag in the skb (data), which obeys RST definition
-in RFC 793.
-
-Besides, Eric pointed out there's one more race condition where it
-handles tw socket hashdance. Only by adding to the tail of the list
-before deleting the old one can we avoid the race if the reader has
-already begun the bucket traversal and it would possibly miss the head.
-
-Many thanks to Eric for great help from beginning to end.
-
-Fixes: 5e0724d027f0 ("tcp/dccp: fix hashdance race for passive sessions")
-Suggested-by: Eric Dumazet <edumazet@google.com>
-Signed-off-by: Jason Xing <kernelxing@tencent.com>
-Reviewed-by: Eric Dumazet <edumazet@google.com>
-Reviewed-by: Kuniyuki Iwashima <kuniyu@amazon.com>
-Link: https://lore.kernel.org/lkml/20230112065336.41034-1-kerneljasonxing@gmail.com/
-Link: https://lore.kernel.org/r/20230118015941.1313-1-kerneljasonxing@gmail.com
-Signed-off-by: Paolo Abeni <pabeni@redhat.com>
+Fixes: 1ea0d3b46798 ("platform/x86: asus-wmi: Simplify tablet-mode-switch handling")
+Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+Link: https://lore.kernel.org/r/20230120143441.527334-1-hdegoede@redhat.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/ipv4/inet_hashtables.c    | 17 +++++++++++++++--
- net/ipv4/inet_timewait_sock.c |  8 ++++----
- 2 files changed, 19 insertions(+), 6 deletions(-)
+ drivers/platform/x86/asus-wmi.c | 17 ++++++++++++-----
+ 1 file changed, 12 insertions(+), 5 deletions(-)
 
-diff --git a/net/ipv4/inet_hashtables.c b/net/ipv4/inet_hashtables.c
-index c68a1dae25ca..2615b72118d1 100644
---- a/net/ipv4/inet_hashtables.c
-+++ b/net/ipv4/inet_hashtables.c
-@@ -571,8 +571,20 @@ bool inet_ehash_insert(struct sock *sk, struct sock *osk, bool *found_dup_sk)
- 	spin_lock(lock);
- 	if (osk) {
- 		WARN_ON_ONCE(sk->sk_hash != osk->sk_hash);
--		ret = sk_nulls_del_node_init_rcu(osk);
--	} else if (found_dup_sk) {
-+		ret = sk_hashed(osk);
-+		if (ret) {
-+			/* Before deleting the node, we insert a new one to make
-+			 * sure that the look-up-sk process would not miss either
-+			 * of them and that at least one node would exist in ehash
-+			 * table all the time. Otherwise there's a tiny chance
-+			 * that lookup process could find nothing in ehash table.
-+			 */
-+			__sk_nulls_add_node_tail_rcu(sk, list);
-+			sk_nulls_del_node_init_rcu(osk);
-+		}
-+		goto unlock;
-+	}
-+	if (found_dup_sk) {
- 		*found_dup_sk = inet_ehash_lookup_by_sk(sk, list);
- 		if (*found_dup_sk)
- 			ret = false;
-@@ -581,6 +593,7 @@ bool inet_ehash_insert(struct sock *sk, struct sock *osk, bool *found_dup_sk)
- 	if (ret)
- 		__sk_nulls_add_node_rcu(sk, list);
+diff --git a/drivers/platform/x86/asus-wmi.c b/drivers/platform/x86/asus-wmi.c
+index 8e317d57ecc3..02bf28692418 100644
+--- a/drivers/platform/x86/asus-wmi.c
++++ b/drivers/platform/x86/asus-wmi.c
+@@ -225,6 +225,7 @@ struct asus_wmi {
  
-+unlock:
- 	spin_unlock(lock);
+ 	int tablet_switch_event_code;
+ 	u32 tablet_switch_dev_id;
++	bool tablet_switch_inverted;
  
- 	return ret;
-diff --git a/net/ipv4/inet_timewait_sock.c b/net/ipv4/inet_timewait_sock.c
-index c411c87ae865..a00102d7c7fd 100644
---- a/net/ipv4/inet_timewait_sock.c
-+++ b/net/ipv4/inet_timewait_sock.c
-@@ -81,10 +81,10 @@ void inet_twsk_put(struct inet_timewait_sock *tw)
+ 	enum fan_type fan_type;
+ 	enum fan_type gpu_fan_type;
+@@ -493,6 +494,13 @@ static bool asus_wmi_dev_is_present(struct asus_wmi *asus, u32 dev_id)
  }
- EXPORT_SYMBOL_GPL(inet_twsk_put);
  
--static void inet_twsk_add_node_rcu(struct inet_timewait_sock *tw,
--				   struct hlist_nulls_head *list)
-+static void inet_twsk_add_node_tail_rcu(struct inet_timewait_sock *tw,
-+					struct hlist_nulls_head *list)
+ /* Input **********************************************************************/
++static void asus_wmi_tablet_sw_report(struct asus_wmi *asus, bool value)
++{
++	input_report_switch(asus->inputdev, SW_TABLET_MODE,
++			    asus->tablet_switch_inverted ? !value : value);
++	input_sync(asus->inputdev);
++}
++
+ static void asus_wmi_tablet_sw_init(struct asus_wmi *asus, u32 dev_id, int event_code)
  {
--	hlist_nulls_add_head_rcu(&tw->tw_node, list);
-+	hlist_nulls_add_tail_rcu(&tw->tw_node, list);
+ 	struct device *dev = &asus->platform_device->dev;
+@@ -501,7 +509,7 @@ static void asus_wmi_tablet_sw_init(struct asus_wmi *asus, u32 dev_id, int event
+ 	result = asus_wmi_get_devstate_simple(asus, dev_id);
+ 	if (result >= 0) {
+ 		input_set_capability(asus->inputdev, EV_SW, SW_TABLET_MODE);
+-		input_report_switch(asus->inputdev, SW_TABLET_MODE, result);
++		asus_wmi_tablet_sw_report(asus, result);
+ 		asus->tablet_switch_dev_id = dev_id;
+ 		asus->tablet_switch_event_code = event_code;
+ 	} else if (result == -ENODEV) {
+@@ -534,6 +542,7 @@ static int asus_wmi_input_init(struct asus_wmi *asus)
+ 	case asus_wmi_no_tablet_switch:
+ 		break;
+ 	case asus_wmi_kbd_dock_devid:
++		asus->tablet_switch_inverted = true;
+ 		asus_wmi_tablet_sw_init(asus, ASUS_WMI_DEVID_KBD_DOCK, NOTIFY_KBD_DOCK_CHANGE);
+ 		break;
+ 	case asus_wmi_lid_flip_devid:
+@@ -573,10 +582,8 @@ static void asus_wmi_tablet_mode_get_state(struct asus_wmi *asus)
+ 		return;
+ 
+ 	result = asus_wmi_get_devstate_simple(asus, asus->tablet_switch_dev_id);
+-	if (result >= 0) {
+-		input_report_switch(asus->inputdev, SW_TABLET_MODE, result);
+-		input_sync(asus->inputdev);
+-	}
++	if (result >= 0)
++		asus_wmi_tablet_sw_report(asus, result);
  }
  
- static void inet_twsk_add_bind_node(struct inet_timewait_sock *tw,
-@@ -120,7 +120,7 @@ void inet_twsk_hashdance(struct inet_timewait_sock *tw, struct sock *sk,
- 
- 	spin_lock(lock);
- 
--	inet_twsk_add_node_rcu(tw, &ehead->chain);
-+	inet_twsk_add_node_tail_rcu(tw, &ehead->chain);
- 
- 	/* Step 3: Remove SK from hash chain */
- 	if (__sk_nulls_del_node_init_rcu(sk))
+ /* dGPU ********************************************************************/
 -- 
 2.39.0
 
