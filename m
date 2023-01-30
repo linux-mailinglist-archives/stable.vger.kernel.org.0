@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 6B6356810F6
-	for <lists+stable@lfdr.de>; Mon, 30 Jan 2023 15:08:55 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E4E056812CE
+	for <lists+stable@lfdr.de>; Mon, 30 Jan 2023 15:25:40 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237139AbjA3OIy (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 30 Jan 2023 09:08:54 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50970 "EHLO
+        id S237394AbjA3OZi (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 30 Jan 2023 09:25:38 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41578 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237138AbjA3OIy (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 30 Jan 2023 09:08:54 -0500
+        with ESMTP id S237716AbjA3OY5 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 30 Jan 2023 09:24:57 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8F74435257
-        for <stable@vger.kernel.org>; Mon, 30 Jan 2023 06:08:52 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DDCB736473
+        for <stable@vger.kernel.org>; Mon, 30 Jan 2023 06:23:52 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 2BE9161025
-        for <stable@vger.kernel.org>; Mon, 30 Jan 2023 14:08:52 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1F2C5C433EF;
-        Mon, 30 Jan 2023 14:08:50 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 2896B610A4
+        for <stable@vger.kernel.org>; Mon, 30 Jan 2023 14:23:31 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 30AC5C433EF;
+        Mon, 30 Jan 2023 14:23:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1675087731;
-        bh=i9AgXzbzlRfbOlOxsCvvLO1PSA69dmBWGkHJbequ90o=;
+        s=korg; t=1675088610;
+        bh=xn0tX10HHtiHaK7JF2asy5N+UhPNlImdQWd8e6Ip+88=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=1mfH7I2/3RjrLVyFDSk6c9PHGKwo5MU+bdZGRIxDXRPdfhWkQHq+kaaxrOmkNmjh8
-         vbW8MNz8zMXTI+71h8w9yqCzgXVuiwEUKfgdbEqYJH4biDzBiYe5fbARd1QGTGOpP9
-         pfRBXEIQdYOHNU15f+TOUHRE53SGV5mj3cuZ6dR4=
+        b=g1HlPAt1fX3m5Y9uhV/4lc2Tr16cofLHb1VYnKrokmyjSUpgdM8rOSGdun290JhX4
+         7oDGjnv6tOrDyl7WJo12bYQpwn+8JFKAp+DmKQWb+vnPSzcGJcPgU9XFqMBtEoaiNT
+         IxkhSXQF4MULeVIw35hXZ4hb4yeJ/q6Ad8169QYA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Ilkka Koskinen <ilkka@os.amperecomputing.com>,
-        Robin Murphy <robin.murphy@arm.com>,
-        Will Deacon <will@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 298/313] Partially revert "perf/arm-cmn: Optimise DTC counter accesses"
+        patches@lists.linux.dev, Florian Westphal <fw@strlen.de>,
+        Pablo Neira Ayuso <pablo@netfilter.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 076/143] netfilter: conntrack: do not renew entry stuck in tcp SYN_SENT state
 Date:   Mon, 30 Jan 2023 14:52:13 +0100
-Message-Id: <20230130134350.618901914@linuxfoundation.org>
+Message-Id: <20230130134310.016886445@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.1
-In-Reply-To: <20230130134336.532886729@linuxfoundation.org>
-References: <20230130134336.532886729@linuxfoundation.org>
+In-Reply-To: <20230130134306.862721518@linuxfoundation.org>
+References: <20230130134306.862721518@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,59 +53,58 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Robin Murphy <robin.murphy@arm.com>
+From: Florian Westphal <fw@strlen.de>
 
-[ Upstream commit a428eb4b99ab80454f06ad256b25e930fe8a4954 ]
+[ Upstream commit e15d4cdf27cb0c1e977270270b2cea12e0955edd ]
 
-It turns out the optimisation implemented by commit 4f2c3872dde5 is
-totally broken, since all the places that consume hw->dtcs_used for
-events other than cycle count are still not expecting it to be sparsely
-populated, and fail to read all the relevant DTC counters correctly if
-so.
+Consider:
+  client -----> conntrack ---> Host
 
-If implemented correctly, the optimisation potentially saves up to 3
-register reads per event update, which is reasonably significant for
-events targeting a single node, but still not worth a massive amount of
-additional code complexity overall. Getting it right within the current
-design looks a fair bit more involved than it was ever intended to be,
-so let's just make a functional revert which restores the old behaviour
-while still backporting easily.
+client sends a SYN, but $Host is unreachable/silent.
+Client eventually gives up and the conntrack entry will time out.
 
-Fixes: 4f2c3872dde5 ("perf/arm-cmn: Optimise DTC counter accesses")
-Reported-by: Ilkka Koskinen <ilkka@os.amperecomputing.com>
-Signed-off-by: Robin Murphy <robin.murphy@arm.com>
-Link: https://lore.kernel.org/r/b41bb4ed7283c3d8400ce5cf5e6ec94915e6750f.1674498637.git.robin.murphy@arm.com
-Signed-off-by: Will Deacon <will@kernel.org>
+However, if the client is restarted with same addr/port pair, it
+may prevent the conntrack entry from timing out.
+
+This is noticeable when the existing conntrack entry has no NAT
+transformation or an outdated one and port reuse happens either
+on client or due to a NAT middlebox.
+
+This change prevents refresh of the timeout for SYN retransmits,
+so entry is going away after nf_conntrack_tcp_timeout_syn_sent
+seconds (default: 60).
+
+Entry will be re-created on next connection attempt, but then
+nat rules will be evaluated again.
+
+Signed-off-by: Florian Westphal <fw@strlen.de>
+Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/perf/arm-cmn.c | 7 ++++++-
- 1 file changed, 6 insertions(+), 1 deletion(-)
+ net/netfilter/nf_conntrack_proto_tcp.c | 10 ++++++++++
+ 1 file changed, 10 insertions(+)
 
-diff --git a/drivers/perf/arm-cmn.c b/drivers/perf/arm-cmn.c
-index b80a9b74662b..1deb61b22bc7 100644
---- a/drivers/perf/arm-cmn.c
-+++ b/drivers/perf/arm-cmn.c
-@@ -1576,7 +1576,6 @@ static int arm_cmn_event_init(struct perf_event *event)
- 			hw->dn++;
- 			continue;
+diff --git a/net/netfilter/nf_conntrack_proto_tcp.c b/net/netfilter/nf_conntrack_proto_tcp.c
+index 3f785bdfa942..c1d02c0b4f00 100644
+--- a/net/netfilter/nf_conntrack_proto_tcp.c
++++ b/net/netfilter/nf_conntrack_proto_tcp.c
+@@ -1158,6 +1158,16 @@ int nf_conntrack_tcp_packet(struct nf_conn *ct,
+ 			nf_ct_kill_acct(ct, ctinfo, skb);
+ 			return NF_ACCEPT;
  		}
--		hw->dtcs_used |= arm_cmn_node_to_xp(cmn, dn)->dtc;
- 		hw->num_dns++;
- 		if (bynodeid)
- 			break;
-@@ -1589,6 +1588,12 @@ static int arm_cmn_event_init(struct perf_event *event)
- 			nodeid, nid.x, nid.y, nid.port, nid.dev, type);
- 		return -EINVAL;
- 	}
-+	/*
-+	 * Keep assuming non-cycles events count in all DTC domains; turns out
-+	 * it's hard to make a worthwhile optimisation around this, short of
-+	 * going all-in with domain-local counter allocation as well.
-+	 */
-+	hw->dtcs_used = (1U << cmn->num_dtcs) - 1;
- 
- 	return arm_cmn_validate_group(cmn, event);
- }
++
++		if (index == TCP_SYN_SET && old_state == TCP_CONNTRACK_SYN_SENT) {
++			/* do not renew timeout on SYN retransmit.
++			 *
++			 * Else port reuse by client or NAT middlebox can keep
++			 * entry alive indefinitely (including nat info).
++			 */
++			return NF_ACCEPT;
++		}
++
+ 		/* ESTABLISHED without SEEN_REPLY, i.e. mid-connection
+ 		 * pickup with loose=1. Avoid large ESTABLISHED timeout.
+ 		 */
 -- 
 2.39.0
 
