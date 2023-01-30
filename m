@@ -2,49 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A828568119B
-	for <lists+stable@lfdr.de>; Mon, 30 Jan 2023 15:15:11 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3A6776812C0
+	for <lists+stable@lfdr.de>; Mon, 30 Jan 2023 15:25:29 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237233AbjA3OPK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 30 Jan 2023 09:15:10 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59108 "EHLO
+        id S235769AbjA3OZ2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 30 Jan 2023 09:25:28 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41574 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237326AbjA3OPJ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 30 Jan 2023 09:15:09 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3F38D1ABE3
-        for <stable@vger.kernel.org>; Mon, 30 Jan 2023 06:15:07 -0800 (PST)
+        with ESMTP id S237524AbjA3OYo (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 30 Jan 2023 09:24:44 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 281953867A
+        for <stable@vger.kernel.org>; Mon, 30 Jan 2023 06:23:40 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id EB85BB80E60
-        for <stable@vger.kernel.org>; Mon, 30 Jan 2023 14:15:05 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 35688C433EF;
-        Mon, 30 Jan 2023 14:15:04 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 0A7F461047
+        for <stable@vger.kernel.org>; Mon, 30 Jan 2023 14:22:21 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 01C24C433D2;
+        Mon, 30 Jan 2023 14:22:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1675088104;
-        bh=DvqY4zbmbFW77b1cKIU/1IBDL/FxujeF5PglJoGY+5A=;
+        s=korg; t=1675088540;
+        bh=4ElO/R3L3+EGeDHZXIAMKMXT98lXaw7ijyereow6mwI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=yd3gRjDIrko4GVroLHaojriFmbYm02I3MRLjvjb0IQVjIYfEV2vag4zKJPGBPQDwj
-         HvM0Aetf6mRDHk/5hn3/Arituriqs9Vf4tNk4RXnbPemRmdpePR8y24UY+NRAiJ+jw
-         Udd9rYVhUWCL+05bI+4HOyVKeGisbMNQ+t5tn6HE=
+        b=gxTshhDifc4rgYMaxc5+wOToQgifvmOZLHReDpN8RJ1BQTiqt7gzMEcXd50QgPeCN
+         d03tEzOh/Ttkk3rLvoAY0AfREvbLtH/KsBnbFqxrzYmXyF1t/6WT52Qfgu/JcxXB5p
+         nNoJVPhRk+f3ws7xa1ugOnHm69W9T0g4X2m9fwjA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Paul Menzel <pmenzel@molgen.mpg.de>,
-        Jack Rosenthal <jrosenth@chromium.org>,
-        Guenter Roeck <groeck@chromium.org>,
-        Julius Werner <jwerner@chromium.org>,
-        Brian Norris <briannorris@chromium.org>,
-        Stephen Boyd <swboyd@chromium.org>,
-        Kees Cook <keescook@chromium.org>,
+        patches@lists.linux.dev, Ajith Nayak <Ajith.Nayak@amd.com>,
+        Raju Rangoju <Raju.Rangoju@amd.com>,
+        Shyam Sundar S K <Shyam-sundar.S-k@amd.com>,
+        Jakub Kicinski <kuba@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 117/204] firmware: coreboot: Check size of table entry and use flex-array
+Subject: [PATCH 5.10 025/143] amd-xgbe: TX Flow Ctrl Registers are h/w ver dependent
 Date:   Mon, 30 Jan 2023 14:51:22 +0100
-Message-Id: <20230130134321.618762009@linuxfoundation.org>
+Message-Id: <20230130134307.918808441@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.1
-In-Reply-To: <20230130134316.327556078@linuxfoundation.org>
-References: <20230130134316.327556078@linuxfoundation.org>
+In-Reply-To: <20230130134306.862721518@linuxfoundation.org>
+References: <20230130134306.862721518@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -58,79 +55,87 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kees Cook <keescook@chromium.org>
+From: Raju Rangoju <Raju.Rangoju@amd.com>
 
-[ Upstream commit 3b293487b8752cc42c1cbf8a0447bc6076c075fa ]
+[ Upstream commit 579923d84b04abb6cd4cd1fd9974096a2dd1832b ]
 
-The memcpy() of the data following a coreboot_table_entry couldn't
-be evaluated by the compiler under CONFIG_FORTIFY_SOURCE. To make it
-easier to reason about, add an explicit flexible array member to struct
-coreboot_device so the entire entry can be copied at once. Additionally,
-validate the sizes before copying. Avoids this run-time false positive
-warning:
+There is difference in the TX Flow Control registers (TFCR) between the
+revisions of the hardware. The older revisions of hardware used to have
+single register per queue. Whereas, the newer revision of hardware (from
+ver 30H onwards) have one register per priority.
 
-  memcpy: detected field-spanning write (size 168) of single field "&device->entry" at drivers/firmware/google/coreboot_table.c:103 (size 8)
+Update the driver to use the TFCR based on the reported version of the
+hardware.
 
-Reported-by: Paul Menzel <pmenzel@molgen.mpg.de>
-Link: https://lore.kernel.org/all/03ae2704-8c30-f9f0-215b-7cdf4ad35a9a@molgen.mpg.de/
-Cc: Jack Rosenthal <jrosenth@chromium.org>
-Cc: Guenter Roeck <groeck@chromium.org>
-Cc: Julius Werner <jwerner@chromium.org>
-Cc: Brian Norris <briannorris@chromium.org>
-Cc: Stephen Boyd <swboyd@chromium.org>
-Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Signed-off-by: Kees Cook <keescook@chromium.org>
-Reviewed-by: Julius Werner <jwerner@chromium.org>
-Reviewed-by: Guenter Roeck <groeck@chromium.org>
-Link: https://lore.kernel.org/r/20230107031406.gonna.761-kees@kernel.org
-Reviewed-by: Stephen Boyd <swboyd@chromium.org>
-Reviewed-by: Jack Rosenthal <jrosenth@chromium.org>
-Link: https://lore.kernel.org/r/20230112230312.give.446-kees@kernel.org
+Fixes: c5aa9e3b8156 ("amd-xgbe: Initial AMD 10GbE platform driver")
+Co-developed-by: Ajith Nayak <Ajith.Nayak@amd.com>
+Signed-off-by: Ajith Nayak <Ajith.Nayak@amd.com>
+Signed-off-by: Raju Rangoju <Raju.Rangoju@amd.com>
+Acked-by: Shyam Sundar S K <Shyam-sundar.S-k@amd.com>
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/firmware/google/coreboot_table.c | 9 +++++++--
- drivers/firmware/google/coreboot_table.h | 1 +
- 2 files changed, 8 insertions(+), 2 deletions(-)
+ drivers/net/ethernet/amd/xgbe/xgbe-dev.c | 23 +++++++++++++++--------
+ 1 file changed, 15 insertions(+), 8 deletions(-)
 
-diff --git a/drivers/firmware/google/coreboot_table.c b/drivers/firmware/google/coreboot_table.c
-index 9ca21feb9d45..f3694d347801 100644
---- a/drivers/firmware/google/coreboot_table.c
-+++ b/drivers/firmware/google/coreboot_table.c
-@@ -93,7 +93,12 @@ static int coreboot_table_populate(struct device *dev, void *ptr)
- 	for (i = 0; i < header->table_entries; i++) {
- 		entry = ptr_entry;
+diff --git a/drivers/net/ethernet/amd/xgbe/xgbe-dev.c b/drivers/net/ethernet/amd/xgbe/xgbe-dev.c
+index d5fd49dd25f3..decc1c09a031 100644
+--- a/drivers/net/ethernet/amd/xgbe/xgbe-dev.c
++++ b/drivers/net/ethernet/amd/xgbe/xgbe-dev.c
+@@ -524,19 +524,28 @@ static void xgbe_disable_vxlan(struct xgbe_prv_data *pdata)
+ 	netif_dbg(pdata, drv, pdata->netdev, "VXLAN acceleration disabled\n");
+ }
  
--		device = kzalloc(sizeof(struct device) + entry->size, GFP_KERNEL);
-+		if (entry->size < sizeof(*entry)) {
-+			dev_warn(dev, "coreboot table entry too small!\n");
-+			return -EINVAL;
-+		}
++static unsigned int xgbe_get_fc_queue_count(struct xgbe_prv_data *pdata)
++{
++	unsigned int max_q_count = XGMAC_MAX_FLOW_CONTROL_QUEUES;
 +
-+		device = kzalloc(sizeof(device->dev) + entry->size, GFP_KERNEL);
- 		if (!device)
- 			return -ENOMEM;
++	/* From MAC ver 30H the TFCR is per priority, instead of per queue */
++	if (XGMAC_GET_BITS(pdata->hw_feat.version, MAC_VR, SNPSVER) >= 0x30)
++		return max_q_count;
++	else
++		return min_t(unsigned int, pdata->tx_q_count, max_q_count);
++}
++
+ static int xgbe_disable_tx_flow_control(struct xgbe_prv_data *pdata)
+ {
+-	unsigned int max_q_count, q_count;
+ 	unsigned int reg, reg_val;
+-	unsigned int i;
++	unsigned int i, q_count;
  
-@@ -101,7 +106,7 @@ static int coreboot_table_populate(struct device *dev, void *ptr)
- 		device->dev.parent = dev;
- 		device->dev.bus = &coreboot_bus_type;
- 		device->dev.release = coreboot_device_release;
--		memcpy(&device->entry, ptr_entry, entry->size);
-+		memcpy(device->raw, ptr_entry, entry->size);
+ 	/* Clear MTL flow control */
+ 	for (i = 0; i < pdata->rx_q_count; i++)
+ 		XGMAC_MTL_IOWRITE_BITS(pdata, i, MTL_Q_RQOMR, EHFC, 0);
  
- 		ret = device_register(&device->dev);
- 		if (ret) {
-diff --git a/drivers/firmware/google/coreboot_table.h b/drivers/firmware/google/coreboot_table.h
-index beb778674acd..4a89277b99a3 100644
---- a/drivers/firmware/google/coreboot_table.h
-+++ b/drivers/firmware/google/coreboot_table.h
-@@ -66,6 +66,7 @@ struct coreboot_device {
- 		struct coreboot_table_entry entry;
- 		struct lb_cbmem_ref cbmem_ref;
- 		struct lb_framebuffer framebuffer;
-+		DECLARE_FLEX_ARRAY(u8, raw);
- 	};
- };
+ 	/* Clear MAC flow control */
+-	max_q_count = XGMAC_MAX_FLOW_CONTROL_QUEUES;
+-	q_count = min_t(unsigned int, pdata->tx_q_count, max_q_count);
++	q_count = xgbe_get_fc_queue_count(pdata);
+ 	reg = MAC_Q0TFCR;
+ 	for (i = 0; i < q_count; i++) {
+ 		reg_val = XGMAC_IOREAD(pdata, reg);
+@@ -553,9 +562,8 @@ static int xgbe_enable_tx_flow_control(struct xgbe_prv_data *pdata)
+ {
+ 	struct ieee_pfc *pfc = pdata->pfc;
+ 	struct ieee_ets *ets = pdata->ets;
+-	unsigned int max_q_count, q_count;
+ 	unsigned int reg, reg_val;
+-	unsigned int i;
++	unsigned int i, q_count;
  
+ 	/* Set MTL flow control */
+ 	for (i = 0; i < pdata->rx_q_count; i++) {
+@@ -579,8 +587,7 @@ static int xgbe_enable_tx_flow_control(struct xgbe_prv_data *pdata)
+ 	}
+ 
+ 	/* Set MAC flow control */
+-	max_q_count = XGMAC_MAX_FLOW_CONTROL_QUEUES;
+-	q_count = min_t(unsigned int, pdata->tx_q_count, max_q_count);
++	q_count = xgbe_get_fc_queue_count(pdata);
+ 	reg = MAC_Q0TFCR;
+ 	for (i = 0; i < q_count; i++) {
+ 		reg_val = XGMAC_IOREAD(pdata, reg);
 -- 
 2.39.0
 
