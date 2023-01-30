@@ -2,51 +2,51 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 1AE77681128
-	for <lists+stable@lfdr.de>; Mon, 30 Jan 2023 15:10:53 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1E59168103F
+	for <lists+stable@lfdr.de>; Mon, 30 Jan 2023 15:02:01 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237187AbjA3OKw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 30 Jan 2023 09:10:52 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52708 "EHLO
+        id S237026AbjA3OCA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 30 Jan 2023 09:02:00 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42744 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237186AbjA3OKl (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 30 Jan 2023 09:10:41 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4A0963B0F8
-        for <stable@vger.kernel.org>; Mon, 30 Jan 2023 06:10:29 -0800 (PST)
+        with ESMTP id S236863AbjA3OBX (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 30 Jan 2023 09:01:23 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D24E227987
+        for <stable@vger.kernel.org>; Mon, 30 Jan 2023 06:01:12 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id EE959B8117E
-        for <stable@vger.kernel.org>; Mon, 30 Jan 2023 14:10:27 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5802BC433D2;
-        Mon, 30 Jan 2023 14:10:26 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 826ACB81178
+        for <stable@vger.kernel.org>; Mon, 30 Jan 2023 14:01:11 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id AD48DC433D2;
+        Mon, 30 Jan 2023 14:01:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1675087826;
-        bh=VvzwojkYDmUgdP6b2KvJMcjkc7UthmubadaKiz506bQ=;
+        s=korg; t=1675087270;
+        bh=+UCMugQgBL6AvBb/1w2McZlh1/XB+vbYdHDXmC+la9Y=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=wwY+038oddqoDSlX3U7qHo4R3blpiQN6QcONFT858JXD228ZSiSdkhmhqVX/AKxLZ
-         YW8HOhHKEFJ2g0fF7+xtx9DNsePJOSf38QJftuxiE7WmoqBplPcmwmn0pjgvFd1bRX
-         +KXnaEhg7VukYeqMfNSalqbS9FZxSGjafKAz1IVU=
+        b=00sDb7XsB7oI1ZHRFPivaPW3tu00psN+VntmEOspgV5FPrDjnQ0n20mqwfuBKAdQf
+         Q552MGkUNn34IoKDIkxfeTFkny9IwpOymCq+TyK9MfBSxkXkURtmWPsaKi6IVTJr7V
+         uydZmREi9T210coXUj7wYksrI9v+zRx5WXHhOsGw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Teresa Remmet <t.remmet@phytec.de>,
-        Fabio Estevam <festevam@denx.de>,
-        Shawn Guo <shawnguo@kernel.org>,
+        patches@lists.linux.dev, Dan Carpenter <dan.carpenter@oracle.com>,
+        Viresh Kumar <viresh.kumar@linaro.org>,
+        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 005/204] arm64: dts: imx8mp-phycore-som: Remove invalid PMIC property
+Subject: [PATCH 6.1 135/313] thermal: Validate new state in cur_state_store()
 Date:   Mon, 30 Jan 2023 14:49:30 +0100
-Message-Id: <20230130134316.541592574@linuxfoundation.org>
+Message-Id: <20230130134342.948036597@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.1
-In-Reply-To: <20230130134316.327556078@linuxfoundation.org>
-References: <20230130134316.327556078@linuxfoundation.org>
+In-Reply-To: <20230130134336.532886729@linuxfoundation.org>
+References: <20230130134336.532886729@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
         SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -54,113 +54,134 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Fabio Estevam <festevam@denx.de>
+From: Viresh Kumar <viresh.kumar@linaro.org>
 
-[ Upstream commit cfd04dd1c4b6c33afc2a934b957d71cf8ddd1539 ]
+[ Upstream commit c408b3d1d9bbc7de5fb0304fea424ef2539da616 ]
 
-'regulator-compatible' is not a valid property according to
-nxp,pca9450-regulator.yaml and causes the following warning:
+In cur_state_store(), the new state of the cooling device is received
+from user-space and is not validated by the thermal core but the same is
+left for the individual drivers to take care of. Apart from duplicating
+the code it leaves possibility for introducing bugs where a driver may
+not do it right.
 
-  DTC_CHK arch/arm64/boot/dts/freescale/imx8mp-dhcom-pdk2.dtb
-...
-pmic@25: regulators:LDO1: Unevaluated properties are not allowed ('regulator-compatible' was unexpected)
+Lets make the thermal core check the new state itself and store the max
+value in the cooling device structure.
 
-Remove the invalid 'regulator-compatible' property.
-
-Cc: Teresa Remmet <t.remmet@phytec.de>
-Fixes: 88f7f6bcca37 ("arm64: dts: freescale: Add support for phyBOARD-Pollux-i.MX8MP")
-Signed-off-by: Fabio Estevam <festevam@denx.de>
-Reviewed-by: Teresa Remmet <t.remmet@phytec.de>
-Signed-off-by: Shawn Guo <shawnguo@kernel.org>
+Link: https://lore.kernel.org/all/Y0ltRJRjO7AkawvE@kili/
+Reported-by: Dan Carpenter <dan.carpenter@oracle.com>
+Signed-off-by: Viresh Kumar <viresh.kumar@linaro.org>
+Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+Stable-dep-of: 6c54b7bc8a31 ("thermal: core: call put_device() only after device_register() fails")
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm64/boot/dts/freescale/imx8mp-phycore-som.dtsi | 10 ----------
- 1 file changed, 10 deletions(-)
+ drivers/thermal/gov_fair_share.c |  6 +-----
+ drivers/thermal/thermal_core.c   | 15 +++++++--------
+ drivers/thermal/thermal_sysfs.c  | 11 +++++------
+ include/linux/thermal.h          |  1 +
+ 4 files changed, 14 insertions(+), 19 deletions(-)
 
-diff --git a/arch/arm64/boot/dts/freescale/imx8mp-phycore-som.dtsi b/arch/arm64/boot/dts/freescale/imx8mp-phycore-som.dtsi
-index fc178eebf8aa..8e189d899794 100644
---- a/arch/arm64/boot/dts/freescale/imx8mp-phycore-som.dtsi
-+++ b/arch/arm64/boot/dts/freescale/imx8mp-phycore-som.dtsi
-@@ -98,7 +98,6 @@ pmic: pmic@25 {
+diff --git a/drivers/thermal/gov_fair_share.c b/drivers/thermal/gov_fair_share.c
+index a4ee4661e9cc..1cfeac16e7ac 100644
+--- a/drivers/thermal/gov_fair_share.c
++++ b/drivers/thermal/gov_fair_share.c
+@@ -49,11 +49,7 @@ static int get_trip_level(struct thermal_zone_device *tz)
+ static long get_target_state(struct thermal_zone_device *tz,
+ 		struct thermal_cooling_device *cdev, int percentage, int level)
+ {
+-	unsigned long max_state;
+-
+-	cdev->ops->get_max_state(cdev, &max_state);
+-
+-	return (long)(percentage * level * max_state) / (100 * tz->num_trips);
++	return (long)(percentage * level * cdev->max_state) / (100 * tz->num_trips);
+ }
  
- 		regulators {
- 			buck1: BUCK1 {
--				regulator-compatible = "BUCK1";
- 				regulator-min-microvolt = <600000>;
- 				regulator-max-microvolt = <2187500>;
- 				regulator-boot-on;
-@@ -107,7 +106,6 @@ buck1: BUCK1 {
- 			};
+ /**
+diff --git a/drivers/thermal/thermal_core.c b/drivers/thermal/thermal_core.c
+index 615fdda3a5de..328da2f1d339 100644
+--- a/drivers/thermal/thermal_core.c
++++ b/drivers/thermal/thermal_core.c
+@@ -603,8 +603,7 @@ int thermal_zone_bind_cooling_device(struct thermal_zone_device *tz,
+ 	struct thermal_instance *pos;
+ 	struct thermal_zone_device *pos1;
+ 	struct thermal_cooling_device *pos2;
+-	unsigned long max_state;
+-	int result, ret;
++	int result;
  
- 			buck2: BUCK2 {
--				regulator-compatible = "BUCK2";
- 				regulator-min-microvolt = <600000>;
- 				regulator-max-microvolt = <2187500>;
- 				regulator-boot-on;
-@@ -116,7 +114,6 @@ buck2: BUCK2 {
- 			};
+ 	if (trip >= tz->num_trips || trip < 0)
+ 		return -EINVAL;
+@@ -621,15 +620,11 @@ int thermal_zone_bind_cooling_device(struct thermal_zone_device *tz,
+ 	if (tz != pos1 || cdev != pos2)
+ 		return -EINVAL;
  
- 			buck4: BUCK4 {
--				regulator-compatible = "BUCK4";
- 				regulator-min-microvolt = <600000>;
- 				regulator-max-microvolt = <3400000>;
- 				regulator-boot-on;
-@@ -124,7 +121,6 @@ buck4: BUCK4 {
- 			};
+-	ret = cdev->ops->get_max_state(cdev, &max_state);
+-	if (ret)
+-		return ret;
+-
+ 	/* lower default 0, upper default max_state */
+ 	lower = lower == THERMAL_NO_LIMIT ? 0 : lower;
+-	upper = upper == THERMAL_NO_LIMIT ? max_state : upper;
++	upper = upper == THERMAL_NO_LIMIT ? cdev->max_state : upper;
  
- 			buck5: BUCK5 {
--				regulator-compatible = "BUCK5";
- 				regulator-min-microvolt = <600000>;
- 				regulator-max-microvolt = <3400000>;
- 				regulator-boot-on;
-@@ -132,7 +128,6 @@ buck5: BUCK5 {
- 			};
+-	if (lower > upper || upper > max_state)
++	if (lower > upper || upper > cdev->max_state)
+ 		return -EINVAL;
  
- 			buck6: BUCK6 {
--				regulator-compatible = "BUCK6";
- 				regulator-min-microvolt = <600000>;
- 				regulator-max-microvolt = <3400000>;
- 				regulator-boot-on;
-@@ -140,7 +135,6 @@ buck6: BUCK6 {
- 			};
+ 	dev = kzalloc(sizeof(*dev), GFP_KERNEL);
+@@ -896,6 +891,10 @@ __thermal_cooling_device_register(struct device_node *np,
+ 	cdev->updated = false;
+ 	cdev->device.class = &thermal_class;
+ 	cdev->devdata = devdata;
++
++	if (cdev->ops->get_max_state(cdev, &cdev->max_state))
++		goto out_kfree_type;
++
+ 	thermal_cooling_device_setup_sysfs(cdev);
+ 	ret = dev_set_name(&cdev->device, "cooling_device%d", cdev->id);
+ 	if (ret) {
+diff --git a/drivers/thermal/thermal_sysfs.c b/drivers/thermal/thermal_sysfs.c
+index ec495c7dff03..bd7596125461 100644
+--- a/drivers/thermal/thermal_sysfs.c
++++ b/drivers/thermal/thermal_sysfs.c
+@@ -589,13 +589,8 @@ static ssize_t max_state_show(struct device *dev, struct device_attribute *attr,
+ 			      char *buf)
+ {
+ 	struct thermal_cooling_device *cdev = to_cooling_device(dev);
+-	unsigned long state;
+-	int ret;
  
- 			ldo1: LDO1 {
--				regulator-compatible = "LDO1";
- 				regulator-min-microvolt = <1600000>;
- 				regulator-max-microvolt = <3300000>;
- 				regulator-boot-on;
-@@ -148,7 +142,6 @@ ldo1: LDO1 {
- 			};
+-	ret = cdev->ops->get_max_state(cdev, &state);
+-	if (ret)
+-		return ret;
+-	return sprintf(buf, "%ld\n", state);
++	return sprintf(buf, "%ld\n", cdev->max_state);
+ }
  
- 			ldo2: LDO2 {
--				regulator-compatible = "LDO2";
- 				regulator-min-microvolt = <800000>;
- 				regulator-max-microvolt = <1150000>;
- 				regulator-boot-on;
-@@ -156,7 +149,6 @@ ldo2: LDO2 {
- 			};
+ static ssize_t cur_state_show(struct device *dev, struct device_attribute *attr,
+@@ -625,6 +620,10 @@ cur_state_store(struct device *dev, struct device_attribute *attr,
+ 	if ((long)state < 0)
+ 		return -EINVAL;
  
- 			ldo3: LDO3 {
--				regulator-compatible = "LDO3";
- 				regulator-min-microvolt = <800000>;
- 				regulator-max-microvolt = <3300000>;
- 				regulator-boot-on;
-@@ -164,7 +156,6 @@ ldo3: LDO3 {
- 			};
++	/* Requested state should be less than max_state + 1 */
++	if (state > cdev->max_state)
++		return -EINVAL;
++
+ 	mutex_lock(&cdev->lock);
  
- 			ldo4: LDO4 {
--				regulator-compatible = "LDO4";
- 				regulator-min-microvolt = <800000>;
- 				regulator-max-microvolt = <3300000>;
- 				regulator-boot-on;
-@@ -172,7 +163,6 @@ ldo4: LDO4 {
- 			};
- 
- 			ldo5: LDO5 {
--				regulator-compatible = "LDO5";
- 				regulator-min-microvolt = <1800000>;
- 				regulator-max-microvolt = <3300000>;
- 			};
+ 	result = cdev->ops->set_cur_state(cdev, state);
+diff --git a/include/linux/thermal.h b/include/linux/thermal.h
+index 9ecc128944a1..5e093602e8fc 100644
+--- a/include/linux/thermal.h
++++ b/include/linux/thermal.h
+@@ -100,6 +100,7 @@ struct thermal_cooling_device_ops {
+ struct thermal_cooling_device {
+ 	int id;
+ 	char *type;
++	unsigned long max_state;
+ 	struct device device;
+ 	struct device_node *np;
+ 	void *devdata;
 -- 
 2.39.0
 
