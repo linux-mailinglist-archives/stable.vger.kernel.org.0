@@ -2,43 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id BF4086812C5
-	for <lists+stable@lfdr.de>; Mon, 30 Jan 2023 15:25:33 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1A84168119F
+	for <lists+stable@lfdr.de>; Mon, 30 Jan 2023 15:15:22 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237010AbjA3OZb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 30 Jan 2023 09:25:31 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41326 "EHLO
+        id S237329AbjA3OPV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 30 Jan 2023 09:15:21 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59302 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237221AbjA3OYt (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 30 Jan 2023 09:24:49 -0500
-Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C7D91BB9F
-        for <stable@vger.kernel.org>; Mon, 30 Jan 2023 06:23:44 -0800 (PST)
+        with ESMTP id S237336AbjA3OPT (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 30 Jan 2023 09:15:19 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7E8DE18A9F
+        for <stable@vger.kernel.org>; Mon, 30 Jan 2023 06:15:17 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 4DC82CE1718
-        for <stable@vger.kernel.org>; Mon, 30 Jan 2023 14:22:31 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1A376C433D2;
-        Mon, 30 Jan 2023 14:22:28 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 1ACAA61047
+        for <stable@vger.kernel.org>; Mon, 30 Jan 2023 14:15:17 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 12FFAC433EF;
+        Mon, 30 Jan 2023 14:15:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1675088549;
-        bh=o9AmVNrHVvTrWTQtIe/3HxesMWS/04CGTxw2YvVY8lg=;
+        s=korg; t=1675088116;
+        bh=RXNmd/dgWjvRq0zz7xmzDRzW+wE2hOYWXcVsO/eLZ+8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ziViqAjiZMf95+FIaSAgCFQLbM0Spdz3aJDxK9CV6cYfb3sAo688Y+w972DMriCU2
-         HsOeQBExk4wtUmgY8tZj3ISuldfJZIHe+uD9UJmdRW90kjOur1y76Vw0Wqz10ywP3V
-         HPzxvaBDwDPN9Y7eOmY1lhNURhDFZ5VcOiG3Qpnc=
+        b=h1KxrVIA3o0s9mJs85psGUMQf02vc5sSawV6kP5+kSPmuNOXSa//B+P6Mo2eunvLU
+         nkmxm5OD+tRa2V4envTfC2BPkd4SBehgI8H9EKBmj6eXETM4kY4Ue00wQLJRFkT0f7
+         Mk3EDR8/n2VWglrh4sG4GbaupWb3pXPUnvic4ABs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Shang XiaoJing <shangxiaojing@huawei.com>,
-        Vinod Koul <vkoul@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 028/143] phy: rockchip-inno-usb2: Fix missing clk_disable_unprepare() in rockchip_usb2phy_power_on()
+        patches@lists.linux.dev, Nirmoy Das <nirmoy.das@intel.com>,
+        Rodrigo Vivi <rodrigo.vivi@intel.com>
+Subject: [PATCH 5.15 120/204] drm/i915: Remove unused variable
 Date:   Mon, 30 Jan 2023 14:51:25 +0100
-Message-Id: <20230130134308.029679627@linuxfoundation.org>
+Message-Id: <20230130134321.765091723@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.1
-In-Reply-To: <20230130134306.862721518@linuxfoundation.org>
-References: <20230130134306.862721518@linuxfoundation.org>
+In-Reply-To: <20230130134316.327556078@linuxfoundation.org>
+References: <20230130134316.327556078@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -52,40 +52,33 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Shang XiaoJing <shangxiaojing@huawei.com>
+From: Nirmoy Das <nirmoy.das@intel.com>
 
-[ Upstream commit 5daba914da0e48950e9407ea4d75fa57029c9adc ]
+commit 2293a73ad4f3b6c37c06713ff1b67659d92ef43d upstream.
 
-The clk_disable_unprepare() should be called in the error handling of
-rockchip_usb2phy_power_on().
+Removed unused i915 var.
 
-Fixes: 0e08d2a727e6 ("phy: rockchip-inno-usb2: add a new driver for Rockchip usb2phy")
-Signed-off-by: Shang XiaoJing <shangxiaojing@huawei.com>
-Link: https://lore.kernel.org/r/20221205115823.16957-1-shangxiaojing@huawei.com
-Signed-off-by: Vinod Koul <vkoul@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes: a273e95721e9 ("drm/i915: Allow switching away via vga-switcheroo if uninitialized")
+Signed-off-by: Nirmoy Das <nirmoy.das@intel.com>
+Reviewed-by: Rodrigo Vivi <rodrigo.vivi@intel.com>
+Signed-off-by: Rodrigo Vivi <rodrigo.vivi@intel.com>
+Link: https://patchwork.freedesktop.org/patch/msgid/20230118170624.9326-1-nirmoy.das@intel.com
+Signed-off-by: Rodrigo Vivi <rodrigo.vivi@intel.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/phy/rockchip/phy-rockchip-inno-usb2.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ drivers/gpu/drm/i915/i915_drv.c |    2 --
+ 1 file changed, 2 deletions(-)
 
-diff --git a/drivers/phy/rockchip/phy-rockchip-inno-usb2.c b/drivers/phy/rockchip/phy-rockchip-inno-usb2.c
-index 46ebdb1460a3..cab6a94bf161 100644
---- a/drivers/phy/rockchip/phy-rockchip-inno-usb2.c
-+++ b/drivers/phy/rockchip/phy-rockchip-inno-usb2.c
-@@ -467,8 +467,10 @@ static int rockchip_usb2phy_power_on(struct phy *phy)
- 		return ret;
+--- a/drivers/gpu/drm/i915/i915_drv.c
++++ b/drivers/gpu/drm/i915/i915_drv.c
+@@ -986,8 +986,6 @@ static int i915_driver_open(struct drm_d
+  */
+ static void i915_driver_lastclose(struct drm_device *dev)
+ {
+-	struct drm_i915_private *i915 = to_i915(dev);
+-
+ 	intel_fbdev_restore_mode(dev);
  
- 	ret = property_enable(base, &rport->port_cfg->phy_sus, false);
--	if (ret)
-+	if (ret) {
-+		clk_disable_unprepare(rphy->clk480m);
- 		return ret;
-+	}
- 
- 	/* waiting for the utmi_clk to become stable */
- 	usleep_range(1500, 2000);
--- 
-2.39.0
-
+ 	vga_switcheroo_process_delayed_switch();
 
 
