@@ -2,44 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 2C8DC68114C
-	for <lists+stable@lfdr.de>; Mon, 30 Jan 2023 15:11:54 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E5B5B68114D
+	for <lists+stable@lfdr.de>; Mon, 30 Jan 2023 15:11:57 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237162AbjA3OLx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 30 Jan 2023 09:11:53 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54244 "EHLO
+        id S237195AbjA3OL4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 30 Jan 2023 09:11:56 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54572 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237195AbjA3OLw (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 30 Jan 2023 09:11:52 -0500
+        with ESMTP id S237233AbjA3OLz (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 30 Jan 2023 09:11:55 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 80BE43BD87
-        for <stable@vger.kernel.org>; Mon, 30 Jan 2023 06:11:47 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5F6723B67B
+        for <stable@vger.kernel.org>; Mon, 30 Jan 2023 06:11:50 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id EF47F6108A
-        for <stable@vger.kernel.org>; Mon, 30 Jan 2023 14:11:46 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E1339C433D2;
-        Mon, 30 Jan 2023 14:11:45 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id DE4DE61025
+        for <stable@vger.kernel.org>; Mon, 30 Jan 2023 14:11:49 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id DBAA3C433D2;
+        Mon, 30 Jan 2023 14:11:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1675087906;
-        bh=eFYx3TNNvA7y0yV7IxrgEJaeHyogYEQgkFiuevykvPU=;
+        s=korg; t=1675087909;
+        bh=k8Wccc6b/AE9vgZcPZSyLNIZ8/Ph8ltAcQl64CQ/3YQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=kPZf8Er3SQFIFAHf/5zw4sG47btI1t7H2Y5QQWVXIwEzwbGM7DH/8Sjf9yeISdh0u
-         REjK1aUkcHSeRV2VUkYH0a991CMCM45ruC4+qoQA32MHAkkt419XRRIQUReBI3VxsE
-         kIVVa5Cbqk+nsGlhppl1rAOGV4q29DLphkBV4SR8=
+        b=tIeHzbRS62XhtpV5tTtEwY+rhB1cSWbyyl7I/Gfg0dx9wULnnqVCvqrqaruYPQSMH
+         3ENh8wYjLP4mMgxRHJ/m6Z/I58nkvbvD07jcMXwKgFnexdo3O2ejwYvuUUXF8Iy4oR
+         Oc65rkwvOrc8mBQUfJcyGY53Ym3FAgxonaN1hfnE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, syzbot <syzkaller@googlegroups.com>,
-        Eric Dumazet <edumazet@google.com>,
-        Alexander Potapenko <glider@google.com>,
-        Vinicius Costa Gomes <vinicius.gomes@intel.com>,
+        patches@lists.linux.dev, Tom Parkin <tparkin@katalix.com>,
+        Haowei Yan <g1042620637@gmail.com>,
+        Jakub Sitnicki <jakub@cloudflare.com>,
         "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 050/204] net/sched: sch_taprio: fix possible use-after-free
-Date:   Mon, 30 Jan 2023 14:50:15 +0100
-Message-Id: <20230130134318.522583807@linuxfoundation.org>
+Subject: [PATCH 5.15 051/204] l2tp: Serialize access to sk_user_data with sk_callback_lock
+Date:   Mon, 30 Jan 2023 14:50:16 +0100
+Message-Id: <20230130134318.567455501@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.1
 In-Reply-To: <20230130134316.327556078@linuxfoundation.org>
 References: <20230130134316.327556078@linuxfoundation.org>
@@ -56,126 +55,121 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eric Dumazet <edumazet@google.com>
+From: Jakub Sitnicki <jakub@cloudflare.com>
 
-[ Upstream commit 3a415d59c1dbec9d772dbfab2d2520d98360caae ]
+[ Upstream commit b68777d54fac21fc833ec26ea1a2a84f975ab035 ]
 
-syzbot reported a nasty crash [1] in net_tx_action() which
-made little sense until we got a repro.
+sk->sk_user_data has multiple users, which are not compatible with each
+other. Writers must synchronize by grabbing the sk->sk_callback_lock.
 
-This repro installs a taprio qdisc, but providing an
-invalid TCA_RATE attribute.
+l2tp currently fails to grab the lock when modifying the underlying tunnel
+socket fields. Fix it by adding appropriate locking.
 
-qdisc_create() has to destroy the just initialized
-taprio qdisc, and taprio_destroy() is called.
+We err on the side of safety and grab the sk_callback_lock also inside the
+sk_destruct callback overridden by l2tp, even though there should be no
+refs allowing access to the sock at the time when sk_destruct gets called.
 
-However, the hrtimer used by taprio had already fired,
-therefore advance_sched() called __netif_schedule().
+v4:
+- serialize write to sk_user_data in l2tp sk_destruct
 
-Then net_tx_action was trying to use a destroyed qdisc.
+v3:
+- switch from sock lock to sk_callback_lock
+- document write-protection for sk_user_data
 
-We can not undo the __netif_schedule(), so we must wait
-until one cpu serviced the qdisc before we can proceed.
+v2:
+- update Fixes to point to origin of the bug
+- use real names in Reported/Tested-by tags
 
-Many thanks to Alexander Potapenko for his help.
-
-[1]
-BUG: KMSAN: uninit-value in queued_spin_trylock include/asm-generic/qspinlock.h:94 [inline]
-BUG: KMSAN: uninit-value in do_raw_spin_trylock include/linux/spinlock.h:191 [inline]
-BUG: KMSAN: uninit-value in __raw_spin_trylock include/linux/spinlock_api_smp.h:89 [inline]
-BUG: KMSAN: uninit-value in _raw_spin_trylock+0x92/0xa0 kernel/locking/spinlock.c:138
- queued_spin_trylock include/asm-generic/qspinlock.h:94 [inline]
- do_raw_spin_trylock include/linux/spinlock.h:191 [inline]
- __raw_spin_trylock include/linux/spinlock_api_smp.h:89 [inline]
- _raw_spin_trylock+0x92/0xa0 kernel/locking/spinlock.c:138
- spin_trylock include/linux/spinlock.h:359 [inline]
- qdisc_run_begin include/net/sch_generic.h:187 [inline]
- qdisc_run+0xee/0x540 include/net/pkt_sched.h:125
- net_tx_action+0x77c/0x9a0 net/core/dev.c:5086
- __do_softirq+0x1cc/0x7fb kernel/softirq.c:571
- run_ksoftirqd+0x2c/0x50 kernel/softirq.c:934
- smpboot_thread_fn+0x554/0x9f0 kernel/smpboot.c:164
- kthread+0x31b/0x430 kernel/kthread.c:376
- ret_from_fork+0x1f/0x30
-
-Uninit was created at:
- slab_post_alloc_hook mm/slab.h:732 [inline]
- slab_alloc_node mm/slub.c:3258 [inline]
- __kmalloc_node_track_caller+0x814/0x1250 mm/slub.c:4970
- kmalloc_reserve net/core/skbuff.c:358 [inline]
- __alloc_skb+0x346/0xcf0 net/core/skbuff.c:430
- alloc_skb include/linux/skbuff.h:1257 [inline]
- nlmsg_new include/net/netlink.h:953 [inline]
- netlink_ack+0x5f3/0x12b0 net/netlink/af_netlink.c:2436
- netlink_rcv_skb+0x55d/0x6c0 net/netlink/af_netlink.c:2507
- rtnetlink_rcv+0x30/0x40 net/core/rtnetlink.c:6108
- netlink_unicast_kernel net/netlink/af_netlink.c:1319 [inline]
- netlink_unicast+0xf3b/0x1270 net/netlink/af_netlink.c:1345
- netlink_sendmsg+0x1288/0x1440 net/netlink/af_netlink.c:1921
- sock_sendmsg_nosec net/socket.c:714 [inline]
- sock_sendmsg net/socket.c:734 [inline]
- ____sys_sendmsg+0xabc/0xe90 net/socket.c:2482
- ___sys_sendmsg+0x2a1/0x3f0 net/socket.c:2536
- __sys_sendmsg net/socket.c:2565 [inline]
- __do_sys_sendmsg net/socket.c:2574 [inline]
- __se_sys_sendmsg net/socket.c:2572 [inline]
- __x64_sys_sendmsg+0x367/0x540 net/socket.c:2572
- do_syscall_x64 arch/x86/entry/common.c:50 [inline]
- do_syscall_64+0x3d/0xb0 arch/x86/entry/common.c:80
- entry_SYSCALL_64_after_hwframe+0x63/0xcd
-
-CPU: 0 PID: 13 Comm: ksoftirqd/0 Not tainted 6.0.0-rc2-syzkaller-47461-gac3859c02d7f #0
-Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS Google 07/22/2022
-
-Fixes: 5a781ccbd19e ("tc: Add support for configuring the taprio scheduler")
-Reported-by: syzbot <syzkaller@googlegroups.com>
-Signed-off-by: Eric Dumazet <edumazet@google.com>
-Cc: Alexander Potapenko <glider@google.com>
-Cc: Vinicius Costa Gomes <vinicius.gomes@intel.com>
+Cc: Tom Parkin <tparkin@katalix.com>
+Fixes: 3557baabf280 ("[L2TP]: PPP over L2TP driver core")
+Reported-by: Haowei Yan <g1042620637@gmail.com>
+Signed-off-by: Jakub Sitnicki <jakub@cloudflare.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
+Stable-dep-of: 0b2c59720e65 ("l2tp: close all race conditions in l2tp_tunnel_register()")
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- include/net/sch_generic.h | 7 +++++++
- net/sched/sch_taprio.c    | 3 +++
- 2 files changed, 10 insertions(+)
+ include/net/sock.h   |  2 +-
+ net/l2tp/l2tp_core.c | 19 +++++++++++++------
+ 2 files changed, 14 insertions(+), 7 deletions(-)
 
-diff --git a/include/net/sch_generic.h b/include/net/sch_generic.h
-index 891b44d80c98..6906da5c733e 100644
---- a/include/net/sch_generic.h
-+++ b/include/net/sch_generic.h
-@@ -1335,4 +1335,11 @@ void mini_qdisc_pair_block_init(struct mini_Qdisc_pair *miniqp,
+diff --git a/include/net/sock.h b/include/net/sock.h
+index e1a303e4f0f7..3e9db5146765 100644
+--- a/include/net/sock.h
++++ b/include/net/sock.h
+@@ -323,7 +323,7 @@ struct bpf_local_storage;
+   *	@sk_tskey: counter to disambiguate concurrent tstamp requests
+   *	@sk_zckey: counter to order MSG_ZEROCOPY notifications
+   *	@sk_socket: Identd and reporting IO signals
+-  *	@sk_user_data: RPC layer private data
++  *	@sk_user_data: RPC layer private data. Write-protected by @sk_callback_lock.
+   *	@sk_frag: cached page frag
+   *	@sk_peek_off: current peek_offset value
+   *	@sk_send_head: front of stuff to transmit
+diff --git a/net/l2tp/l2tp_core.c b/net/l2tp/l2tp_core.c
+index 93271a2632b8..c77032638a06 100644
+--- a/net/l2tp/l2tp_core.c
++++ b/net/l2tp/l2tp_core.c
+@@ -1150,8 +1150,10 @@ static void l2tp_tunnel_destruct(struct sock *sk)
+ 	}
  
- int sch_frag_xmit_hook(struct sk_buff *skb, int (*xmit)(struct sk_buff *skb));
+ 	/* Remove hooks into tunnel socket */
++	write_lock_bh(&sk->sk_callback_lock);
+ 	sk->sk_destruct = tunnel->old_sk_destruct;
+ 	sk->sk_user_data = NULL;
++	write_unlock_bh(&sk->sk_callback_lock);
  
-+/* Make sure qdisc is no longer in SCHED state. */
-+static inline void qdisc_synchronize(const struct Qdisc *q)
-+{
-+	while (test_bit(__QDISC_STATE_SCHED, &q->state))
-+		msleep(1);
-+}
+ 	/* Call the original destructor */
+ 	if (sk->sk_destruct)
+@@ -1471,16 +1473,18 @@ int l2tp_tunnel_register(struct l2tp_tunnel *tunnel, struct net *net,
+ 		sock = sockfd_lookup(tunnel->fd, &ret);
+ 		if (!sock)
+ 			goto err;
+-
+-		ret = l2tp_validate_socket(sock->sk, net, tunnel->encap);
+-		if (ret < 0)
+-			goto err_sock;
+ 	}
+ 
++	sk = sock->sk;
++	write_lock(&sk->sk_callback_lock);
 +
- #endif
-diff --git a/net/sched/sch_taprio.c b/net/sched/sch_taprio.c
-index bd10a8eeb82d..a76a2afe9585 100644
---- a/net/sched/sch_taprio.c
-+++ b/net/sched/sch_taprio.c
-@@ -1632,6 +1632,8 @@ static void taprio_reset(struct Qdisc *sch)
- 	int i;
- 
- 	hrtimer_cancel(&q->advance_timer);
-+	qdisc_synchronize(sch);
++	ret = l2tp_validate_socket(sk, net, tunnel->encap);
++	if (ret < 0)
++		goto err_sock;
 +
- 	if (q->qdiscs) {
- 		for (i = 0; i < dev->num_tx_queues; i++)
- 			if (q->qdiscs[i])
-@@ -1653,6 +1655,7 @@ static void taprio_destroy(struct Qdisc *sch)
- 	 * happens in qdisc_create(), after taprio_init() has been called.
- 	 */
- 	hrtimer_cancel(&q->advance_timer);
-+	qdisc_synchronize(sch);
+ 	tunnel->l2tp_net = net;
+ 	pn = l2tp_pernet(net);
  
- 	taprio_disable_offload(dev, q, NULL);
+-	sk = sock->sk;
+ 	sock_hold(sk);
+ 	tunnel->sock = sk;
  
+@@ -1506,7 +1510,7 @@ int l2tp_tunnel_register(struct l2tp_tunnel *tunnel, struct net *net,
+ 
+ 		setup_udp_tunnel_sock(net, sock, &udp_cfg);
+ 	} else {
+-		sk->sk_user_data = tunnel;
++		rcu_assign_sk_user_data(sk, tunnel);
+ 	}
+ 
+ 	tunnel->old_sk_destruct = sk->sk_destruct;
+@@ -1520,6 +1524,7 @@ int l2tp_tunnel_register(struct l2tp_tunnel *tunnel, struct net *net,
+ 	if (tunnel->fd >= 0)
+ 		sockfd_put(sock);
+ 
++	write_unlock(&sk->sk_callback_lock);
+ 	return 0;
+ 
+ err_sock:
+@@ -1527,6 +1532,8 @@ int l2tp_tunnel_register(struct l2tp_tunnel *tunnel, struct net *net,
+ 		sock_release(sock);
+ 	else
+ 		sockfd_put(sock);
++
++	write_unlock(&sk->sk_callback_lock);
+ err:
+ 	return ret;
+ }
 -- 
 2.39.0
 
