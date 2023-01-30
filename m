@@ -2,46 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 208886810ED
-	for <lists+stable@lfdr.de>; Mon, 30 Jan 2023 15:08:30 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D5D556812CC
+	for <lists+stable@lfdr.de>; Mon, 30 Jan 2023 15:25:37 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237132AbjA3OI2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 30 Jan 2023 09:08:28 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50710 "EHLO
+        id S237387AbjA3OZg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 30 Jan 2023 09:25:36 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41572 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237130AbjA3OI1 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 30 Jan 2023 09:08:27 -0500
+        with ESMTP id S237686AbjA3OYz (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 30 Jan 2023 09:24:55 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 53538303E7
-        for <stable@vger.kernel.org>; Mon, 30 Jan 2023 06:08:26 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B79BB41B58
+        for <stable@vger.kernel.org>; Mon, 30 Jan 2023 06:23:50 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 0C949B81151
-        for <stable@vger.kernel.org>; Mon, 30 Jan 2023 14:08:25 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4F659C433EF;
-        Mon, 30 Jan 2023 14:08:23 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id A4889B81151
+        for <stable@vger.kernel.org>; Mon, 30 Jan 2023 14:23:22 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id EDC0CC433EF;
+        Mon, 30 Jan 2023 14:23:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1675087703;
-        bh=5tWisySBMkAeTCnBTIYLyTp8TabqmRXXx/3GY1UtUFA=;
+        s=korg; t=1675088601;
+        bh=3nYKLkEgZG0NtkENZa3lZlMvRtbbyxaKDAOHrPCwbfY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ia7ZY3jBn79sFpeVqd3BO/+fl6ZdcmM/J9jHmKXroZKZSNgrN99RJg9Zi38KrTzyK
-         DfFmHG5hLn+uGKPkV7kg69iZJHy6K6Rz8u6PtAiYwtHRsjAvPL/vsssYw+1bYDTHXK
-         1twl2BITzUm+OhUlOdDSSdfFYk4WIZ+WkN0aUrFU=
+        b=IZBQWJ5aPHF7vtvhXZI4JSXuBWpWTYcrlaw4/cp78QKZzEZDb+ZdrxBJkqtITGBj5
+         OJyd4ObLVxFyiq8Sv7Kef/EBoHuxcMxET2We6nGXRy1kEu5vhxPkDDQ/DK2FJmdu4a
+         cDFYCj+DLVYNTrHl0jKQ+ktZf4EV7Ti249afOzEE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        David Christensen <drc@linux.vnet.ibm.com>,
-        Pavan Chebbi <pavan.chebbi@broadcom.com>,
-        Jakub Kicinski <kuba@kernel.org>,
+        patches@lists.linux.dev, Nemcev Aleksey <Nemcev_Aleksey@inbox.ru>,
+        Hans de Goede <hdegoede@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 295/313] net/tg3: resolve deadlock in tg3_reset_task() during EEH
+Subject: [PATCH 5.10 073/143] platform/x86: asus-nb-wmi: Add alternate mapping for KEY_SCREENLOCK
 Date:   Mon, 30 Jan 2023 14:52:10 +0100
-Message-Id: <20230130134350.478251421@linuxfoundation.org>
+Message-Id: <20230130134309.877385342@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.1
-In-Reply-To: <20230130134336.532886729@linuxfoundation.org>
-References: <20230130134336.532886729@linuxfoundation.org>
+In-Reply-To: <20230130134306.862721518@linuxfoundation.org>
+References: <20230130134306.862721518@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,117 +53,32 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: David Christensen <drc@linux.vnet.ibm.com>
+From: Hans de Goede <hdegoede@redhat.com>
 
-[ Upstream commit 6c4ca03bd890566d873e3593b32d034bf2f5a087 ]
+[ Upstream commit db9494895b405bf318dc7e563dee6daa51b3b6ed ]
 
-During EEH error injection testing, a deadlock was encountered in the tg3
-driver when tg3_io_error_detected() was attempting to cancel outstanding
-reset tasks:
+The 0x33 keycode is emitted by Fn + F6 on a ASUS FX705GE laptop.
 
-crash> foreach UN bt
-...
-PID: 159    TASK: c0000000067c6000  CPU: 8   COMMAND: "eehd"
-...
- #5 [c00000000681f990] __cancel_work_timer at c00000000019fd18
- #6 [c00000000681fa30] tg3_io_error_detected at c00800000295f098 [tg3]
- #7 [c00000000681faf0] eeh_report_error at c00000000004e25c
-...
-
-PID: 290    TASK: c000000036e5f800  CPU: 6   COMMAND: "kworker/6:1"
-...
- #4 [c00000003721fbc0] rtnl_lock at c000000000c940d8
- #5 [c00000003721fbe0] tg3_reset_task at c008000002969358 [tg3]
- #6 [c00000003721fc60] process_one_work at c00000000019e5c4
-...
-
-PID: 296    TASK: c000000037a65800  CPU: 21  COMMAND: "kworker/21:1"
-...
- #4 [c000000037247bc0] rtnl_lock at c000000000c940d8
- #5 [c000000037247be0] tg3_reset_task at c008000002969358 [tg3]
- #6 [c000000037247c60] process_one_work at c00000000019e5c4
-...
-
-PID: 655    TASK: c000000036f49000  CPU: 16  COMMAND: "kworker/16:2"
-...:1
-
- #4 [c0000000373ebbc0] rtnl_lock at c000000000c940d8
- #5 [c0000000373ebbe0] tg3_reset_task at c008000002969358 [tg3]
- #6 [c0000000373ebc60] process_one_work at c00000000019e5c4
-...
-
-Code inspection shows that both tg3_io_error_detected() and
-tg3_reset_task() attempt to acquire the RTNL lock at the beginning of
-their code blocks.  If tg3_reset_task() should happen to execute between
-the times when tg3_io_error_deteced() acquires the RTNL lock and
-tg3_reset_task_cancel() is called, a deadlock will occur.
-
-Moving tg3_reset_task_cancel() call earlier within the code block, prior
-to acquiring RTNL, prevents this from happening, but also exposes another
-deadlock issue where tg3_reset_task() may execute AFTER
-tg3_io_error_detected() has executed:
-
-crash> foreach UN bt
-PID: 159    TASK: c0000000067d2000  CPU: 9   COMMAND: "eehd"
-...
- #4 [c000000006867a60] rtnl_lock at c000000000c940d8
- #5 [c000000006867a80] tg3_io_slot_reset at c0080000026c2ea8 [tg3]
- #6 [c000000006867b00] eeh_report_reset at c00000000004de88
-...
-PID: 363    TASK: c000000037564000  CPU: 6   COMMAND: "kworker/6:1"
-...
- #3 [c000000036c1bb70] msleep at c000000000259e6c
- #4 [c000000036c1bba0] napi_disable at c000000000c6b848
- #5 [c000000036c1bbe0] tg3_reset_task at c0080000026d942c [tg3]
- #6 [c000000036c1bc60] process_one_work at c00000000019e5c4
-...
-
-This issue can be avoided by aborting tg3_reset_task() if EEH error
-recovery is already in progress.
-
-Fixes: db84bf43ef23 ("tg3: tg3_reset_task() needs to use rtnl_lock to synchronize")
-Signed-off-by: David Christensen <drc@linux.vnet.ibm.com>
-Reviewed-by: Pavan Chebbi <pavan.chebbi@broadcom.com>
-Link: https://lore.kernel.org/r/20230124185339.225806-1-drc@linux.vnet.ibm.com
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Reported-by: Nemcev Aleksey <Nemcev_Aleksey@inbox.ru>
+Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+Link: https://lore.kernel.org/r/20230112181841.84652-1-hdegoede@redhat.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/broadcom/tg3.c | 8 ++++----
- 1 file changed, 4 insertions(+), 4 deletions(-)
+ drivers/platform/x86/asus-nb-wmi.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/net/ethernet/broadcom/tg3.c b/drivers/net/ethernet/broadcom/tg3.c
-index 4179a12fc881..af9ea5e4371b 100644
---- a/drivers/net/ethernet/broadcom/tg3.c
-+++ b/drivers/net/ethernet/broadcom/tg3.c
-@@ -11174,7 +11174,7 @@ static void tg3_reset_task(struct work_struct *work)
- 	rtnl_lock();
- 	tg3_full_lock(tp, 0);
- 
--	if (!netif_running(tp->dev)) {
-+	if (tp->pcierr_recovery || !netif_running(tp->dev)) {
- 		tg3_flag_clear(tp, RESET_TASK_PENDING);
- 		tg3_full_unlock(tp);
- 		rtnl_unlock();
-@@ -18109,6 +18109,9 @@ static pci_ers_result_t tg3_io_error_detected(struct pci_dev *pdev,
- 
- 	netdev_info(netdev, "PCI I/O error detected\n");
- 
-+	/* Want to make sure that the reset task doesn't run */
-+	tg3_reset_task_cancel(tp);
-+
- 	rtnl_lock();
- 
- 	/* Could be second call or maybe we don't have netdev yet */
-@@ -18125,9 +18128,6 @@ static pci_ers_result_t tg3_io_error_detected(struct pci_dev *pdev,
- 
- 	tg3_timer_stop(tp);
- 
--	/* Want to make sure that the reset task doesn't run */
--	tg3_reset_task_cancel(tp);
--
- 	netif_device_detach(netdev);
- 
- 	/* Clean up software state, even if MMIO is blocked */
+diff --git a/drivers/platform/x86/asus-nb-wmi.c b/drivers/platform/x86/asus-nb-wmi.c
+index 949ddeb673bc..74637bd0433e 100644
+--- a/drivers/platform/x86/asus-nb-wmi.c
++++ b/drivers/platform/x86/asus-nb-wmi.c
+@@ -478,6 +478,7 @@ static const struct key_entry asus_nb_wmi_keymap[] = {
+ 	{ KE_KEY, 0x30, { KEY_VOLUMEUP } },
+ 	{ KE_KEY, 0x31, { KEY_VOLUMEDOWN } },
+ 	{ KE_KEY, 0x32, { KEY_MUTE } },
++	{ KE_KEY, 0x33, { KEY_SCREENLOCK } },
+ 	{ KE_KEY, 0x35, { KEY_SCREENLOCK } },
+ 	{ KE_KEY, 0x40, { KEY_PREVIOUSSONG } },
+ 	{ KE_KEY, 0x41, { KEY_NEXTSONG } },
 -- 
 2.39.0
 
