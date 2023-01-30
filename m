@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 455D3681341
-	for <lists+stable@lfdr.de>; Mon, 30 Jan 2023 15:30:34 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2DB7C6811AD
+	for <lists+stable@lfdr.de>; Mon, 30 Jan 2023 15:16:00 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237839AbjA3Oab (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 30 Jan 2023 09:30:31 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49608 "EHLO
+        id S237341AbjA3OP5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 30 Jan 2023 09:15:57 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59808 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237844AbjA3O3y (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 30 Jan 2023 09:29:54 -0500
+        with ESMTP id S237350AbjA3OPz (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 30 Jan 2023 09:15:55 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6BE283FF27
-        for <stable@vger.kernel.org>; Mon, 30 Jan 2023 06:28:38 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A16173B677
+        for <stable@vger.kernel.org>; Mon, 30 Jan 2023 06:15:54 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 27146B811DC
-        for <stable@vger.kernel.org>; Mon, 30 Jan 2023 14:21:40 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7750FC4339B;
-        Mon, 30 Jan 2023 14:21:38 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 4DEEBB811D2
+        for <stable@vger.kernel.org>; Mon, 30 Jan 2023 14:15:53 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8805DC433EF;
+        Mon, 30 Jan 2023 14:15:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1675088498;
-        bh=Zd0NEtMvirAzblY4F/dZMttRUfQ6d4OYmPwA6KaVl14=;
+        s=korg; t=1675088152;
+        bh=mj6lICcpa7m0Utsdikf997YzThqHVEMnmpZqgic5Fik=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=qY4hVwZCcgGZaIPkczb6nNxMctb9SCOVFfllh4DXFVQL85YLWstx6HMpHOCXowZ/v
-         JjJn8BfRsOsRtnqxFnYfaeciZCYfYx/4BBv9KK/KTesTHHLXimzks54uFEA7gGVkUL
-         CKFIM87YbAokKXOSFjHUhYWHb67pUPFn9yE95PxE=
+        b=RUPd7jIWXd8y03KTMlY12fvkKuWEQ1wkRdbqn8jRf4sJIJg6X1RkcNlJFz/6YtcMB
+         URfcHvzmP1ysWVaxwhbq3WvFADyYN4dy7LJPBTL/jhkzXOBwHCktjnKOkHKtzaGEHk
+         OhFagq9TjVLBzDvTNj7FYJFzqzQshZgh/kPNNLrg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Heiner Kallweit <hkallweit1@gmail.com>,
-        Andrew Lunn <andrew@lunn.ch>, Paolo Abeni <pabeni@redhat.com>,
+        patches@lists.linux.dev, Nathan Chancellor <nathan@kernel.org>,
+        "Eric W. Biederman" <ebiederm@xmission.com>,
+        Eric Biggers <ebiggers@google.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 039/143] net: mdio: validate parameter addr in mdiobus_get_phy()
+Subject: [PATCH 5.15 131/204] h8300: Fix build errors from do_exit() to make_task_dead() transition
 Date:   Mon, 30 Jan 2023 14:51:36 +0100
-Message-Id: <20230130134308.471588612@linuxfoundation.org>
+Message-Id: <20230130134322.297285956@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.1
-In-Reply-To: <20230130134306.862721518@linuxfoundation.org>
-References: <20230130134306.862721518@linuxfoundation.org>
+In-Reply-To: <20230130134316.327556078@linuxfoundation.org>
+References: <20230130134316.327556078@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,42 +54,76 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Heiner Kallweit <hkallweit1@gmail.com>
+From: Nathan Chancellor <nathan@kernel.org>
 
-[ Upstream commit 867dbe784c5010a466f00a7d1467c1c5ea569c75 ]
+commit ab4ababdf77ccc56c7301c751dff49c79709c51c upstream.
 
-The caller may pass any value as addr, what may result in an out-of-bounds
-access to array mdio_map. One existing case is stmmac_init_phy() that
-may pass -1 as addr. Therefore validate addr before using it.
+When building ARCH=h8300 defconfig:
 
-Fixes: 7f854420fbfe ("phy: Add API for {un}registering an mdio device to a bus.")
-Signed-off-by: Heiner Kallweit <hkallweit1@gmail.com>
-Reviewed-by: Andrew Lunn <andrew@lunn.ch>
-Link: https://lore.kernel.org/r/cdf664ea-3312-e915-73f8-021678d08887@gmail.com
-Signed-off-by: Paolo Abeni <pabeni@redhat.com>
+arch/h8300/kernel/traps.c: In function 'die':
+arch/h8300/kernel/traps.c:109:2: error: implicit declaration of function
+'make_dead_task' [-Werror=implicit-function-declaration]
+  109 |  make_dead_task(SIGSEGV);
+      |  ^~~~~~~~~~~~~~
+
+arch/h8300/mm/fault.c: In function 'do_page_fault':
+arch/h8300/mm/fault.c:54:2: error: implicit declaration of function
+'make_dead_task' [-Werror=implicit-function-declaration]
+   54 |  make_dead_task(SIGKILL);
+      |  ^~~~~~~~~~~~~~
+
+The function's name is make_task_dead(), change it so there is no more
+build error.
+
+Additionally, include linux/sched/task.h in arch/h8300/kernel/traps.c
+to avoid the same error because do_exit()'s declaration is in kernel.h
+but make_task_dead()'s is in task.h, which is not included in traps.c.
+
+Fixes: 0e25498f8cd4 ("exit: Add and use make_task_dead.")
+Signed-off-by: Nathan Chancellor <nathan@kernel.org>
+Link: https://lkml.kernel.org/r/20211227184851.2297759-3-nathan@kernel.org
+Signed-off-by: Eric W. Biederman <ebiederm@xmission.com>
+Signed-off-by: Eric Biggers <ebiggers@google.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/phy/mdio_bus.c | 7 ++++++-
- 1 file changed, 6 insertions(+), 1 deletion(-)
+ arch/h8300/kernel/traps.c | 3 ++-
+ arch/h8300/mm/fault.c     | 2 +-
+ 2 files changed, 3 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/net/phy/mdio_bus.c b/drivers/net/phy/mdio_bus.c
-index 77ba6c3c7a09..e9303be48655 100644
---- a/drivers/net/phy/mdio_bus.c
-+++ b/drivers/net/phy/mdio_bus.c
-@@ -108,7 +108,12 @@ EXPORT_SYMBOL(mdiobus_unregister_device);
+diff --git a/arch/h8300/kernel/traps.c b/arch/h8300/kernel/traps.c
+index 3d4e0bde37ae..a92c39e03802 100644
+--- a/arch/h8300/kernel/traps.c
++++ b/arch/h8300/kernel/traps.c
+@@ -17,6 +17,7 @@
+ #include <linux/types.h>
+ #include <linux/sched.h>
+ #include <linux/sched/debug.h>
++#include <linux/sched/task.h>
+ #include <linux/mm_types.h>
+ #include <linux/kernel.h>
+ #include <linux/errno.h>
+@@ -106,7 +107,7 @@ void die(const char *str, struct pt_regs *fp, unsigned long err)
+ 	dump(fp);
  
- struct phy_device *mdiobus_get_phy(struct mii_bus *bus, int addr)
- {
--	struct mdio_device *mdiodev = bus->mdio_map[addr];
-+	struct mdio_device *mdiodev;
-+
-+	if (addr < 0 || addr >= ARRAY_SIZE(bus->mdio_map))
-+		return NULL;
-+
-+	mdiodev = bus->mdio_map[addr];
+ 	spin_unlock_irq(&die_lock);
+-	make_dead_task(SIGSEGV);
++	make_task_dead(SIGSEGV);
+ }
  
- 	if (!mdiodev)
- 		return NULL;
+ static int kstack_depth_to_print = 24;
+diff --git a/arch/h8300/mm/fault.c b/arch/h8300/mm/fault.c
+index 0223528565dd..b465441f490d 100644
+--- a/arch/h8300/mm/fault.c
++++ b/arch/h8300/mm/fault.c
+@@ -51,7 +51,7 @@ asmlinkage int do_page_fault(struct pt_regs *regs, unsigned long address,
+ 	printk(" at virtual address %08lx\n", address);
+ 	if (!user_mode(regs))
+ 		die("Oops", regs, error_code);
+-	make_dead_task(SIGKILL);
++	make_task_dead(SIGKILL);
+ 
+ 	return 1;
+ }
 -- 
 2.39.0
 
