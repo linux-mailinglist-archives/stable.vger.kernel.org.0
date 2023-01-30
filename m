@@ -2,43 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E31D968100C
-	for <lists+stable@lfdr.de>; Mon, 30 Jan 2023 14:59:14 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B0E6768100D
+	for <lists+stable@lfdr.de>; Mon, 30 Jan 2023 14:59:17 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236889AbjA3N7N (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 30 Jan 2023 08:59:13 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39952 "EHLO
+        id S236905AbjA3N7Q (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 30 Jan 2023 08:59:16 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39976 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236892AbjA3N7B (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 30 Jan 2023 08:59:01 -0500
+        with ESMTP id S236906AbjA3N7C (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 30 Jan 2023 08:59:02 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B651D3B0F5
-        for <stable@vger.kernel.org>; Mon, 30 Jan 2023 05:58:42 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DA1033B3EC
+        for <stable@vger.kernel.org>; Mon, 30 Jan 2023 05:58:45 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id B6BB561034
-        for <stable@vger.kernel.org>; Mon, 30 Jan 2023 13:58:40 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A8307C4339C;
-        Mon, 30 Jan 2023 13:58:39 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id E3E2F6102D
+        for <stable@vger.kernel.org>; Mon, 30 Jan 2023 13:58:43 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D3768C433D2;
+        Mon, 30 Jan 2023 13:58:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1675087120;
-        bh=6WHQDc8uigQEnEIpjhMNOOk/exoAJWKCJDBgrhIhimM=;
+        s=korg; t=1675087123;
+        bh=SpKR6kXQ7uEP5pqQ7D79aqSZpEYKhGNStOZ+YFs1cYc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Q2KrUKp5kTaIPVKViJ1lkWKkdbyWCWMknaaARTo/9+FXiA3a7hMKafrxDf3oxiaAL
-         fhECFVA0cZTU4vLy+RzO141AIdiZ8WUbej7wpp6G2RY4olpUyPdYdKqASajH1ZxX07
-         1eIIelz2cKQtEH31M6AhTyw5V1P8/NNJjsD5IptU=
+        b=mhCG6N1tWi/RtJ37Y9nAdnjRVCVIz0EmuTjy5fuY85uMYGHnxwzJpWVLPNd3BcWb4
+         b1n+Lhzzy7ms3JNaNHkVykr+ONBZPSVIyl0B+d1qDeBeEE0+tJvYNRFBwYB2NrEQ9v
+         m//PNzz2x68Q+hVp7/qV+xaJDCHapyOdQ9Eb/C4k=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Rahul Rameshbabu <rrameshbabu@nvidia.com>,
-        Saeed Mahameed <saeedm@nvidia.com>,
-        Maxim Mikityanskiy <maxtram95@gmail.com>,
-        Jiri Pirko <jiri@nvidia.com>, Jakub Kicinski <kuba@kernel.org>,
+        patches@lists.linux.dev, Linus Walleij <linus.walleij@linaro.org>,
+        Marc Zyngier <maz@kernel.org>, Marek Vasut <marex@denx.de>,
+        Bartosz Golaszewski <bartosz.golaszewski@linaro.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 073/313] sch_htb: Avoid grafting on htb_destroy_class_offload when destroying htb
-Date:   Mon, 30 Jan 2023 14:48:28 +0100
-Message-Id: <20230130134340.058333253@linuxfoundation.org>
+Subject: [PATCH 6.1 074/313] gpio: mxc: Protect GPIO irqchip RMW with bgpio spinlock
+Date:   Mon, 30 Jan 2023 14:48:29 +0100
+Message-Id: <20230130134340.099948509@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.1
 In-Reply-To: <20230130134336.532886729@linuxfoundation.org>
 References: <20230130134336.532886729@linuxfoundation.org>
@@ -55,91 +54,84 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Rahul Rameshbabu <rrameshbabu@nvidia.com>
+From: Marek Vasut <marex@denx.de>
 
-[ Upstream commit a22b7388d658ecfcd226600c8c34ce4481e88655 ]
+[ Upstream commit e5464277625c1aca5c002e0f470377cdd6816dcf ]
 
-Peek at old qdisc and graft only when deleting a leaf class in the htb,
-rather than when deleting the htb itself. Do not peek at the qdisc of the
-netdev queue when destroying the htb. The caller may already have grafted a
-new qdisc that is not part of the htb structure being destroyed.
+The driver currently performs register read-modify-write without locking
+in its irqchip part, this could lead to a race condition when configuring
+interrupt mode setting. Add the missing bgpio spinlock lock/unlock around
+the register read-modify-write.
 
-This fix resolves two use cases.
-
-  1. Using tc to destroy the htb.
-    - Netdev was being prematurely activated before the htb was fully
-      destroyed.
-  2. Using tc to replace the htb with another qdisc (which also leads to
-     the htb being destroyed).
-    - Premature netdev activation like previous case. Newly grafted qdisc
-      was also getting accidentally overwritten when destroying the htb.
-
-Fixes: d03b195b5aa0 ("sch_htb: Hierarchical QoS hardware offload")
-Signed-off-by: Rahul Rameshbabu <rrameshbabu@nvidia.com>
-Reviewed-by: Saeed Mahameed <saeedm@nvidia.com>
-Reviewed-by: Maxim Mikityanskiy <maxtram95@gmail.com>
-Reviewed-by: Jiri Pirko <jiri@nvidia.com>
-Link: https://lore.kernel.org/r/20230113005528.302625-1-rrameshbabu@nvidia.com
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Reviewed-by: Linus Walleij <linus.walleij@linaro.org>
+Reviewed-by: Marc Zyngier <maz@kernel.org>
+Fixes: 07bd1a6cc7cbb ("MXC arch: Add gpio support for the whole platform")
+Signed-off-by: Marek Vasut <marex@denx.de>
+Signed-off-by: Bartosz Golaszewski <bartosz.golaszewski@linaro.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/sched/sch_htb.c | 27 ++++++++++++++++-----------
- 1 file changed, 16 insertions(+), 11 deletions(-)
+ drivers/gpio/gpio-mxc.c | 11 +++++++++++
+ 1 file changed, 11 insertions(+)
 
-diff --git a/net/sched/sch_htb.c b/net/sched/sch_htb.c
-index e5b4bbf3ce3d..3afac9c21a76 100644
---- a/net/sched/sch_htb.c
-+++ b/net/sched/sch_htb.c
-@@ -1545,7 +1545,7 @@ static int htb_destroy_class_offload(struct Qdisc *sch, struct htb_class *cl,
- 	struct tc_htb_qopt_offload offload_opt;
- 	struct netdev_queue *dev_queue;
- 	struct Qdisc *q = cl->leaf.q;
--	struct Qdisc *old = NULL;
-+	struct Qdisc *old;
- 	int err;
+diff --git a/drivers/gpio/gpio-mxc.c b/drivers/gpio/gpio-mxc.c
+index c871602fc5ba..6cc98a5684ae 100644
+--- a/drivers/gpio/gpio-mxc.c
++++ b/drivers/gpio/gpio-mxc.c
+@@ -18,6 +18,7 @@
+ #include <linux/module.h>
+ #include <linux/platform_device.h>
+ #include <linux/slab.h>
++#include <linux/spinlock.h>
+ #include <linux/syscore_ops.h>
+ #include <linux/gpio/driver.h>
+ #include <linux/of.h>
+@@ -147,6 +148,7 @@ static int gpio_set_irq_type(struct irq_data *d, u32 type)
+ {
+ 	struct irq_chip_generic *gc = irq_data_get_irq_chip_data(d);
+ 	struct mxc_gpio_port *port = gc->private;
++	unsigned long flags;
+ 	u32 bit, val;
+ 	u32 gpio_idx = d->hwirq;
+ 	int edge;
+@@ -185,6 +187,8 @@ static int gpio_set_irq_type(struct irq_data *d, u32 type)
+ 		return -EINVAL;
+ 	}
  
- 	if (cl->level)
-@@ -1553,14 +1553,17 @@ static int htb_destroy_class_offload(struct Qdisc *sch, struct htb_class *cl,
++	raw_spin_lock_irqsave(&port->gc.bgpio_lock, flags);
++
+ 	if (GPIO_EDGE_SEL >= 0) {
+ 		val = readl(port->base + GPIO_EDGE_SEL);
+ 		if (edge == GPIO_INT_BOTH_EDGES)
+@@ -204,15 +208,20 @@ static int gpio_set_irq_type(struct irq_data *d, u32 type)
  
- 	WARN_ON(!q);
- 	dev_queue = htb_offload_get_queue(cl);
--	old = htb_graft_helper(dev_queue, NULL);
--	if (destroying)
--		/* Before HTB is destroyed, the kernel grafts noop_qdisc to
--		 * all queues.
-+	/* When destroying, caller qdisc_graft grafts the new qdisc and invokes
-+	 * qdisc_put for the qdisc being destroyed. htb_destroy_class_offload
-+	 * does not need to graft or qdisc_put the qdisc being destroyed.
-+	 */
-+	if (!destroying) {
-+		old = htb_graft_helper(dev_queue, NULL);
-+		/* Last qdisc grafted should be the same as cl->leaf.q when
-+		 * calling htb_delete.
- 		 */
--		WARN_ON(!(old->flags & TCQ_F_BUILTIN));
--	else
- 		WARN_ON(old != q);
-+	}
+ 	writel(1 << gpio_idx, port->base + GPIO_ISR);
  
- 	if (cl->parent) {
- 		_bstats_update(&cl->parent->bstats_bias,
-@@ -1577,10 +1580,12 @@ static int htb_destroy_class_offload(struct Qdisc *sch, struct htb_class *cl,
- 	};
- 	err = htb_offload(qdisc_dev(sch), &offload_opt);
++	raw_spin_unlock_irqrestore(&port->gc.bgpio_lock, flags);
++
+ 	return 0;
+ }
  
--	if (!err || destroying)
--		qdisc_put(old);
--	else
--		htb_graft_helper(dev_queue, old);
-+	if (!destroying) {
-+		if (!err)
-+			qdisc_put(old);
-+		else
-+			htb_graft_helper(dev_queue, old);
-+	}
+ static void mxc_flip_edge(struct mxc_gpio_port *port, u32 gpio)
+ {
+ 	void __iomem *reg = port->base;
++	unsigned long flags;
+ 	u32 bit, val;
+ 	int edge;
  
- 	if (last_child)
- 		return err;
++	raw_spin_lock_irqsave(&port->gc.bgpio_lock, flags);
++
+ 	reg += GPIO_ICR1 + ((gpio & 0x10) >> 2); /* lower or upper register */
+ 	bit = gpio & 0xf;
+ 	val = readl(reg);
+@@ -230,6 +239,8 @@ static void mxc_flip_edge(struct mxc_gpio_port *port, u32 gpio)
+ 		return;
+ 	}
+ 	writel(val | (edge << (bit << 1)), reg);
++
++	raw_spin_unlock_irqrestore(&port->gc.bgpio_lock, flags);
+ }
+ 
+ /* handle 32 interrupts in one status register */
 -- 
 2.39.0
 
