@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 5DCD36811AA
-	for <lists+stable@lfdr.de>; Mon, 30 Jan 2023 15:15:50 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7DC6A68128C
+	for <lists+stable@lfdr.de>; Mon, 30 Jan 2023 15:22:29 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237338AbjA3OPt (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 30 Jan 2023 09:15:49 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59660 "EHLO
+        id S237647AbjA3OW2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 30 Jan 2023 09:22:28 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41864 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237346AbjA3OPs (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 30 Jan 2023 09:15:48 -0500
+        with ESMTP id S237407AbjA3OWI (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 30 Jan 2023 09:22:08 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 546113B67D
-        for <stable@vger.kernel.org>; Mon, 30 Jan 2023 06:15:47 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BC47A868E
+        for <stable@vger.kernel.org>; Mon, 30 Jan 2023 06:20:59 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id E251061085
-        for <stable@vger.kernel.org>; Mon, 30 Jan 2023 14:15:46 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E01D7C433D2;
-        Mon, 30 Jan 2023 14:15:45 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 976FC61049
+        for <stable@vger.kernel.org>; Mon, 30 Jan 2023 14:20:12 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A8194C433EF;
+        Mon, 30 Jan 2023 14:20:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1675088146;
-        bh=9wYsGPt01SM5B7DLK6/+TO3cr8wzvrNlWYrTwa8gmwE=;
+        s=korg; t=1675088412;
+        bh=VvIdiigehAz4PxJOaDkEDsq4A8cHs3gn6LdfPo6Cieg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=HbzkQrgkLH45jeCIxDMhue9LdHNHDUlrnN9NI9ErA9WvJ2l4sOidmR96kbOO3pafo
-         HkG4D2QRAED87GjdIq/ZE2x4IGmd9Yo9QvgbZbV/xViIq2WEiuwLFY6umXtNYf02iS
-         kttWXAMGcQCS1As2En3S9Dxqfx9IsotOdKpXpM6Q=
+        b=rWLApDv0/3Q5rbV27K/FTH83ZIEEoChCoQbpB8H2YLqD5YwJO8ITUWiO+/IZ+Zax7
+         V7QyYiExzI+NZhnXp6JUjfFwT/34Se/83crPAsgy0oeHLbO/NIh07iB70Uw+nX3jP3
+         O1futXx8+y7WLXfE661ctdx5Z93spoVxmb7e7/Vg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Niklas Schnelle <schnelle@linux.ibm.com>,
-        Heiko Carstens <hca@linux.ibm.com>,
+        patches@lists.linux.dev, Miaoqian Lin <linmq006@gmail.com>,
+        "Borislav Petkov (AMD)" <bp@alien8.de>,
+        Andre Przywara <andre.przywara@arm.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 103/204] s390/debug: add _ASM_S390_ prefix to header guard
+Subject: [PATCH 5.10 011/143] EDAC/highbank: Fix memory leak in highbank_mc_probe()
 Date:   Mon, 30 Jan 2023 14:51:08 +0100
-Message-Id: <20230130134320.865538768@linuxfoundation.org>
+Message-Id: <20230130134307.354688839@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.1
-In-Reply-To: <20230130134316.327556078@linuxfoundation.org>
-References: <20230130134316.327556078@linuxfoundation.org>
+In-Reply-To: <20230130134306.862721518@linuxfoundation.org>
+References: <20230130134306.862721518@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,44 +54,52 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Niklas Schnelle <schnelle@linux.ibm.com>
+From: Miaoqian Lin <linmq006@gmail.com>
 
-[ Upstream commit 0d4d52361b6c29bf771acd4fa461f06d78fb2fac ]
+[ Upstream commit e7a293658c20a7945014570e1921bf7d25d68a36 ]
 
-Using DEBUG_H without a prefix is very generic and inconsistent with
-other header guards in arch/s390/include/asm. In fact it collides with
-the same name in the ath9k wireless driver though that depends on !S390
-via disabled wireless support. Let's just use a consistent header guard
-name and prevent possible future trouble.
+When devres_open_group() fails, it returns -ENOMEM without freeing memory
+allocated by edac_mc_alloc().
 
-Signed-off-by: Niklas Schnelle <schnelle@linux.ibm.com>
-Signed-off-by: Heiko Carstens <hca@linux.ibm.com>
+Call edac_mc_free() on the error handling path to avoid a memory leak.
+
+  [ bp: Massage commit message. ]
+
+Fixes: a1b01edb2745 ("edac: add support for Calxeda highbank memory controller")
+Signed-off-by: Miaoqian Lin <linmq006@gmail.com>
+Signed-off-by: Borislav Petkov (AMD) <bp@alien8.de>
+Reviewed-by: Andre Przywara <andre.przywara@arm.com>
+Link: https://lore.kernel.org/r/20221229054825.1361993-1-linmq006@gmail.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/s390/include/asm/debug.h | 6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ drivers/edac/highbank_mc_edac.c | 7 +++++--
+ 1 file changed, 5 insertions(+), 2 deletions(-)
 
-diff --git a/arch/s390/include/asm/debug.h b/arch/s390/include/asm/debug.h
-index 19a55e1e3a0c..5fc91a90657e 100644
---- a/arch/s390/include/asm/debug.h
-+++ b/arch/s390/include/asm/debug.h
-@@ -4,8 +4,8 @@
-  *
-  *    Copyright IBM Corp. 1999, 2020
-  */
--#ifndef DEBUG_H
--#define DEBUG_H
-+#ifndef _ASM_S390_DEBUG_H
-+#define _ASM_S390_DEBUG_H
+diff --git a/drivers/edac/highbank_mc_edac.c b/drivers/edac/highbank_mc_edac.c
+index 61b76ec226af..19fba258ae10 100644
+--- a/drivers/edac/highbank_mc_edac.c
++++ b/drivers/edac/highbank_mc_edac.c
+@@ -174,8 +174,10 @@ static int highbank_mc_probe(struct platform_device *pdev)
+ 	drvdata = mci->pvt_info;
+ 	platform_set_drvdata(pdev, mci);
  
- #include <linux/string.h>
- #include <linux/spinlock.h>
-@@ -487,4 +487,4 @@ void debug_register_static(debug_info_t *id, int pages_per_area, int nr_areas);
+-	if (!devres_open_group(&pdev->dev, NULL, GFP_KERNEL))
+-		return -ENOMEM;
++	if (!devres_open_group(&pdev->dev, NULL, GFP_KERNEL)) {
++		res = -ENOMEM;
++		goto free;
++	}
  
- #endif /* MODULE */
- 
--#endif /* DEBUG_H */
-+#endif /* _ASM_S390_DEBUG_H */
+ 	r = platform_get_resource(pdev, IORESOURCE_MEM, 0);
+ 	if (!r) {
+@@ -243,6 +245,7 @@ static int highbank_mc_probe(struct platform_device *pdev)
+ 	edac_mc_del_mc(&pdev->dev);
+ err:
+ 	devres_release_group(&pdev->dev, NULL);
++free:
+ 	edac_mc_free(mci);
+ 	return res;
+ }
 -- 
 2.39.0
 
