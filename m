@@ -2,42 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 4D6E2680F98
-	for <lists+stable@lfdr.de>; Mon, 30 Jan 2023 14:55:07 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E6848680F99
+	for <lists+stable@lfdr.de>; Mon, 30 Jan 2023 14:55:10 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236491AbjA3NzF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 30 Jan 2023 08:55:05 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33898 "EHLO
+        id S236527AbjA3NzK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 30 Jan 2023 08:55:10 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33896 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236673AbjA3NzA (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 30 Jan 2023 08:55:00 -0500
+        with ESMTP id S236410AbjA3NzD (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 30 Jan 2023 08:55:03 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A943438EBF
-        for <stable@vger.kernel.org>; Mon, 30 Jan 2023 05:54:59 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7700239B88
+        for <stable@vger.kernel.org>; Mon, 30 Jan 2023 05:55:02 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 6A505B81154
-        for <stable@vger.kernel.org>; Mon, 30 Jan 2023 13:54:58 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B6AB1C433D2;
-        Mon, 30 Jan 2023 13:54:56 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 2FA45B81141
+        for <stable@vger.kernel.org>; Mon, 30 Jan 2023 13:55:01 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6DDC1C433EF;
+        Mon, 30 Jan 2023 13:54:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1675086897;
-        bh=RCu4RJBGgWcZMQnuJaEiuE7asbaPiXO+CRPI8qCzY9A=;
+        s=korg; t=1675086899;
+        bh=ZOHy4zDgMFlK6xjhcbJMwUmPeR8ZEwcxRMhxMNPe9/Q=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=S+UK3gjOIVdILI4FceMx/IcAftFQCWqDPEfH8DAQdD6DTzaSFG14Zmmx3ikZlyJqX
-         o1Np4Je1EHQ413mKHMM1oGLKaCoEeRyC4pQpQg0nY9kBLDHS3ScNn/r1oejOCYTrkz
-         v+tbYhqY27cPiL8UkFXg66hOre9wjk50hgTIx63U=
+        b=Q5UgDoP89D8+2nCnupsoECH1JZObAZxx7wVzVtYseyUzZUFzrS6lwPZdbKQsi+S+t
+         DftxL/Tj77r8jeAN0a1nbLuLQlFnlhCzSN+iMLvyqV5kTyg60pUCN5YvBjE3agiTf4
+         8HVGd/rUF8rxtgddBiq5ui00jRudANlRAuR6o2ZM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, kernel test robot <lkp@intel.com>,
-        Dan Carpenter <error27@gmail.com>,
-        Basavaraj Natikar <Basavaraj.Natikar@amd.com>,
-        Jiri Kosina <jkosina@suse.cz>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 032/313] HID: amd_sfh: Fix warning unwind goto
-Date:   Mon, 30 Jan 2023 14:47:47 +0100
-Message-Id: <20230130134338.178341093@linuxfoundation.org>
+        patches@lists.linux.dev, Masahiro Yamada <masahiroy@kernel.org>,
+        Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 6.1 033/313] tomoyo: fix broken dependency on *.conf.default
+Date:   Mon, 30 Jan 2023 14:47:48 +0100
+Message-Id: <20230130134338.218816726@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.1
 In-Reply-To: <20230130134336.532886729@linuxfoundation.org>
 References: <20230130134336.532886729@linuxfoundation.org>
@@ -54,52 +53,59 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Basavaraj Natikar <Basavaraj.Natikar@amd.com>
+From: Masahiro Yamada <masahiroy@kernel.org>
 
-[ Upstream commit 2a33ad4a0ba5a527b92aeef9a313aefec197fe28 ]
+[ Upstream commit eaf2213ba563b2d74a1f2c13a6b258273f689802 ]
 
-Return directly instead of using existing goto will not cleanup
-previously allocated resources. Hence replace return with goto
-to fix warning unwind goto which cleanups previously allocated
-resources.
+If *.conf.default is updated, builtin-policy.h should be rebuilt,
+but this does not work when compiled with O= option.
 
-Fixes: 93ce5e0231d7 ("HID: amd_sfh: Implement SFH1.1 functionality")
-Reported-by: kernel test robot <lkp@intel.com>
-Reported-by: Dan Carpenter <error27@gmail.com>
-Signed-off-by: Basavaraj Natikar <Basavaraj.Natikar@amd.com>
-Signed-off-by: Jiri Kosina <jkosina@suse.cz>
+[Without this commit]
+
+  $ touch security/tomoyo/policy/exception_policy.conf.default
+  $ make O=/tmp security/tomoyo/
+  make[1]: Entering directory '/tmp'
+    GEN     Makefile
+    CALL    /home/masahiro/ref/linux/scripts/checksyscalls.sh
+    DESCEND objtool
+  make[1]: Leaving directory '/tmp'
+
+[With this commit]
+
+  $ touch security/tomoyo/policy/exception_policy.conf.default
+  $ make O=/tmp security/tomoyo/
+  make[1]: Entering directory '/tmp'
+    GEN     Makefile
+    CALL    /home/masahiro/ref/linux/scripts/checksyscalls.sh
+    DESCEND objtool
+    POLICY  security/tomoyo/builtin-policy.h
+    CC      security/tomoyo/common.o
+    AR      security/tomoyo/built-in.a
+  make[1]: Leaving directory '/tmp'
+
+$(srctree)/ is essential because $(wildcard ) does not follow VPATH.
+
+Fixes: f02dee2d148b ("tomoyo: Do not generate empty policy files")
+Signed-off-by: Masahiro Yamada <masahiroy@kernel.org>
+Signed-off-by: Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/hid/amd-sfh-hid/amd_sfh_client.c      | 2 +-
- drivers/hid/amd-sfh-hid/sfh1_1/amd_sfh_init.c | 2 +-
- 2 files changed, 2 insertions(+), 2 deletions(-)
+ security/tomoyo/Makefile | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/hid/amd-sfh-hid/amd_sfh_client.c b/drivers/hid/amd-sfh-hid/amd_sfh_client.c
-index ab125f79408f..1fb0f7105fb2 100644
---- a/drivers/hid/amd-sfh-hid/amd_sfh_client.c
-+++ b/drivers/hid/amd-sfh-hid/amd_sfh_client.c
-@@ -282,7 +282,7 @@ int amd_sfh_hid_client_init(struct amd_mp2_dev *privdata)
- 		}
- 		rc = mp2_ops->get_rep_desc(cl_idx, cl_data->report_descr[i]);
- 		if (rc)
--			return rc;
-+			goto cleanup;
- 		mp2_ops->start(privdata, info);
- 		status = amd_sfh_wait_for_response
- 				(privdata, cl_data->sensor_idx[i], SENSOR_ENABLED);
-diff --git a/drivers/hid/amd-sfh-hid/sfh1_1/amd_sfh_init.c b/drivers/hid/amd-sfh-hid/sfh1_1/amd_sfh_init.c
-index 4da2f9f62aba..a1d6e08fab7d 100644
---- a/drivers/hid/amd-sfh-hid/sfh1_1/amd_sfh_init.c
-+++ b/drivers/hid/amd-sfh-hid/sfh1_1/amd_sfh_init.c
-@@ -160,7 +160,7 @@ static int amd_sfh1_1_hid_client_init(struct amd_mp2_dev *privdata)
- 		}
- 		rc = mp2_ops->get_rep_desc(cl_idx, cl_data->report_descr[i]);
- 		if (rc)
--			return rc;
-+			goto cleanup;
+diff --git a/security/tomoyo/Makefile b/security/tomoyo/Makefile
+index cca5a3012fee..221eaadffb09 100644
+--- a/security/tomoyo/Makefile
++++ b/security/tomoyo/Makefile
+@@ -10,7 +10,7 @@ endef
+ quiet_cmd_policy  = POLICY  $@
+       cmd_policy  = ($(call do_policy,profile); $(call do_policy,exception_policy); $(call do_policy,domain_policy); $(call do_policy,manager); $(call do_policy,stat)) >$@
  
- 		writel(0, privdata->mmio + AMD_P2C_MSG(0));
- 		mp2_ops->start(privdata, info);
+-$(obj)/builtin-policy.h: $(wildcard $(obj)/policy/*.conf $(src)/policy/*.conf.default) FORCE
++$(obj)/builtin-policy.h: $(wildcard $(obj)/policy/*.conf $(srctree)/$(src)/policy/*.conf.default) FORCE
+ 	$(call if_changed,policy)
+ 
+ $(obj)/common.o: $(obj)/builtin-policy.h
 -- 
 2.39.0
 
