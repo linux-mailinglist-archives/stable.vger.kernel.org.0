@@ -2,45 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 3B5556812AF
-	for <lists+stable@lfdr.de>; Mon, 30 Jan 2023 15:23:56 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E32536810B9
+	for <lists+stable@lfdr.de>; Mon, 30 Jan 2023 15:06:03 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236851AbjA3OXy (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 30 Jan 2023 09:23:54 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42168 "EHLO
+        id S237080AbjA3OGD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 30 Jan 2023 09:06:03 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48580 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237168AbjA3OXg (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 30 Jan 2023 09:23:36 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1A32BCDFB
-        for <stable@vger.kernel.org>; Mon, 30 Jan 2023 06:22:28 -0800 (PST)
+        with ESMTP id S237076AbjA3OGC (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 30 Jan 2023 09:06:02 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B529813D5C
+        for <stable@vger.kernel.org>; Mon, 30 Jan 2023 06:06:01 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id A2943B80CB4
-        for <stable@vger.kernel.org>; Mon, 30 Jan 2023 14:22:27 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id EDCCEC433D2;
-        Mon, 30 Jan 2023 14:22:25 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 51FD261026
+        for <stable@vger.kernel.org>; Mon, 30 Jan 2023 14:06:01 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6888AC433D2;
+        Mon, 30 Jan 2023 14:06:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1675088546;
-        bh=1nMo8rvLB28FcSXfBo3wijcq1J+GXuaoNEn322cXJoo=;
+        s=korg; t=1675087560;
+        bh=QhQ7BzoNhchZCDAyyU04IcTh+COTyiJSpggSGvTQd38=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=BLY0BPqmnahK9OJzRNeCiuh9M3FTEQiBtXS1j4Hg8Aur14xEcHlfG1xQFTHekHrUG
-         GqLI7QnVQYkHb3pHoQpDEFptfXiJnn5LOC4QCx3o6PURLxKMqc4J9rfhdPFeB//3Be
-         LssKvf06eMMOP8ghoXL1yG+MyrtsxFKQ5vjndxYw=
+        b=r3srgGL8+8UmaCcjdl8yGAqSoEY0tgHj1piQ7qIk8tCJH+tLvPWflqctDXB3Ya194
+         7XIEYTD3nj7cbaFwrPNl4etqsJyTAcZZhHSwk8SmtHlWyiQSNJ4xhM0/vZ5LLrSpT6
+         M9b1PL1q3CI5jdrM+wWlXADjVeicpCHUE8KVhSUs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Luis Gerhorst <gerhorst@cs.fau.de>,
-        Daniel Borkmann <daniel@iogearbox.net>,
-        Henriette Hofmeier <henriette.hofmeier@rub.de>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 027/143] bpf: Fix pointer-leak due to insufficient speculative store bypass mitigation
+        patches@lists.linux.dev,
+        Richard Fitzgerald <rf@opensource.cirrus.com>,
+        Hans de Goede <hdegoede@redhat.com>,
+        Jarkko Nikula <jarkko.nikula@linux.intel.com>,
+        Wolfram Sang <wsa@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 6.1 249/313] i2c: designware: Fix unbalanced suspended flag
 Date:   Mon, 30 Jan 2023 14:51:24 +0100
-Message-Id: <20230130134307.989887459@linuxfoundation.org>
+Message-Id: <20230130134348.309361267@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.1
-In-Reply-To: <20230130134306.862721518@linuxfoundation.org>
-References: <20230130134306.862721518@linuxfoundation.org>
+In-Reply-To: <20230130134336.532886729@linuxfoundation.org>
+References: <20230130134336.532886729@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,106 +55,101 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Luis Gerhorst <gerhorst@cs.fau.de>
+From: Richard Fitzgerald <rf@opensource.cirrus.com>
 
-[ Upstream commit e4f4db47794c9f474b184ee1418f42e6a07412b6 ]
+[ Upstream commit 75507a319876aba88932e2c7dab58b6c22d89f6b ]
 
-To mitigate Spectre v4, 2039f26f3aca ("bpf: Fix leakage due to
-insufficient speculative store bypass mitigation") inserts lfence
-instructions after 1) initializing a stack slot and 2) spilling a
-pointer to the stack.
+Ensure that i2c_mark_adapter_suspended() is always balanced by a call to
+i2c_mark_adapter_resumed().
 
-However, this does not cover cases where a stack slot is first
-initialized with a pointer (subject to sanitization) but then
-overwritten with a scalar (not subject to sanitization because
-the slot was already initialized). In this case, the second write
-may be subject to speculative store bypass (SSB) creating a
-speculative pointer-as-scalar type confusion. This allows the
-program to subsequently leak the numerical pointer value using,
-for example, a branch-based cache side channel.
+dw_i2c_plat_resume() must always be called, so that
+i2c_mark_adapter_resumed() is called. This is not compatible with
+DPM_FLAG_MAY_SKIP_RESUME, so remove the flag.
 
-To fix this, also sanitize scalars if they write a stack slot
-that previously contained a pointer. Assuming that pointer-spills
-are only generated by LLVM on register-pressure, the performance
-impact on most real-world BPF programs should be small.
+Since the controller is always resumed on system resume the
+dw_i2c_plat_complete() callback is redundant and has been removed.
 
-The following unprivileged BPF bytecode drafts a minimal exploit
-and the mitigation:
+The unbalanced suspended flag was introduced by commit c57813b8b288
+("i2c: designware: Lock the adapter while setting the suspended flag")
 
-  [...]
-  // r6 = 0 or 1 (skalar, unknown user input)
-  // r7 = accessible ptr for side channel
-  // r10 = frame pointer (fp), to be leaked
-  //
-  r9 = r10 # fp alias to encourage ssb
-  *(u64 *)(r9 - 8) = r10 // fp[-8] = ptr, to be leaked
-  // lfence added here because of pointer spill to stack.
-  //
-  // Ommitted: Dummy bpf_ringbuf_output() here to train alias predictor
-  // for no r9-r10 dependency.
-  //
-  *(u64 *)(r10 - 8) = r6 // fp[-8] = scalar, overwrites ptr
-  // 2039f26f3aca: no lfence added because stack slot was not STACK_INVALID,
-  // store may be subject to SSB
-  //
-  // fix: also add an lfence when the slot contained a ptr
-  //
-  r8 = *(u64 *)(r9 - 8)
-  // r8 = architecturally a scalar, speculatively a ptr
-  //
-  // leak ptr using branch-based cache side channel:
-  r8 &= 1 // choose bit to leak
-  if r8 == 0 goto SLOW // no mispredict
-  // architecturally dead code if input r6 is 0,
-  // only executes speculatively iff ptr bit is 1
-  r8 = *(u64 *)(r7 + 0) # encode bit in cache (0: slow, 1: fast)
-SLOW:
-  [...]
+Before that commit, the system and runtime PM used the same functions. The
+DPM_FLAG_MAY_SKIP_RESUME was used to skip the system resume if the driver
+had been in runtime-suspend. If system resume was skipped, the suspended
+flag would be cleared by the next runtime resume. The check of the
+suspended flag was _after_ the call to pm_runtime_get_sync() in
+i2c_dw_xfer(). So either a system resume or a runtime resume would clear
+the flag before it was checked.
 
-After running this, the program can time the access to *(r7 + 0) to
-determine whether the chosen pointer bit was 0 or 1. Repeat this 64
-times to recover the whole address on amd64.
+Having introduced the unbalanced suspended flag with that commit, a further
+commit 80704a84a9f8
+("i2c: designware: Use the i2c_mark_adapter_suspended/resumed() helpers")
 
-In summary, sanitization can only be skipped if one scalar is
-overwritten with another scalar. Scalar-confusion due to speculative
-store bypass can not lead to invalid accesses because the pointer
-bounds deducted during verification are enforced using branchless
-logic. See 979d63d50c0c ("bpf: prevent out of bounds speculation on
-pointer arithmetic") for details.
+changed from using a local suspended flag to using the
+i2c_mark_adapter_suspended/resumed() functions. These use a flag that is
+checked by I2C core code before issuing the transfer to the bus driver, so
+there was no opportunity for the bus driver to runtime resume itself before
+the flag check.
 
-Do not make the mitigation depend on !env->allow_{uninit_stack,ptr_leaks}
-because speculative leaks are likely unexpected if these were enabled.
-For example, leaking the address to a protected log file may be acceptable
-while disabling the mitigation might unintentionally leak the address
-into the cached-state of a map that is accessible to unprivileged
-processes.
-
-Fixes: 2039f26f3aca ("bpf: Fix leakage due to insufficient speculative store bypass mitigation")
-Signed-off-by: Luis Gerhorst <gerhorst@cs.fau.de>
-Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
-Acked-by: Henriette Hofmeier <henriette.hofmeier@rub.de>
-Link: https://lore.kernel.org/bpf/edc95bad-aada-9cfc-ffe2-fa9bb206583c@cs.fau.de
-Link: https://lore.kernel.org/bpf/20230109150544.41465-1-gerhorst@cs.fau.de
+Signed-off-by: Richard Fitzgerald <rf@opensource.cirrus.com>
+Fixes: c57813b8b288 ("i2c: designware: Lock the adapter while setting the suspended flag")
+Reviewed-by: Hans de Goede <hdegoede@redhat.com>
+Acked-by: Jarkko Nikula <jarkko.nikula@linux.intel.com>
+Signed-off-by: Wolfram Sang <wsa@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/bpf/verifier.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ drivers/i2c/busses/i2c-designware-platdrv.c | 20 ++------------------
+ 1 file changed, 2 insertions(+), 18 deletions(-)
 
-diff --git a/kernel/bpf/verifier.c b/kernel/bpf/verifier.c
-index 232c93357b90..a6c931fed39b 100644
---- a/kernel/bpf/verifier.c
-+++ b/kernel/bpf/verifier.c
-@@ -2319,7 +2319,9 @@ static int check_stack_write_fixed_off(struct bpf_verifier_env *env,
- 		bool sanitize = reg && is_spillable_regtype(reg->type);
+diff --git a/drivers/i2c/busses/i2c-designware-platdrv.c b/drivers/i2c/busses/i2c-designware-platdrv.c
+index ba043b547393..74182db03a88 100644
+--- a/drivers/i2c/busses/i2c-designware-platdrv.c
++++ b/drivers/i2c/busses/i2c-designware-platdrv.c
+@@ -351,13 +351,11 @@ static int dw_i2c_plat_probe(struct platform_device *pdev)
  
- 		for (i = 0; i < size; i++) {
--			if (state->stack[spi].slot_type[i] == STACK_INVALID) {
-+			u8 type = state->stack[spi].slot_type[i];
-+
-+			if (type != STACK_MISC && type != STACK_ZERO) {
- 				sanitize = true;
- 				break;
- 			}
+ 	if (dev->flags & ACCESS_NO_IRQ_SUSPEND) {
+ 		dev_pm_set_driver_flags(&pdev->dev,
+-					DPM_FLAG_SMART_PREPARE |
+-					DPM_FLAG_MAY_SKIP_RESUME);
++					DPM_FLAG_SMART_PREPARE);
+ 	} else {
+ 		dev_pm_set_driver_flags(&pdev->dev,
+ 					DPM_FLAG_SMART_PREPARE |
+-					DPM_FLAG_SMART_SUSPEND |
+-					DPM_FLAG_MAY_SKIP_RESUME);
++					DPM_FLAG_SMART_SUSPEND);
+ 	}
+ 
+ 	device_enable_async_suspend(&pdev->dev);
+@@ -419,21 +417,8 @@ static int dw_i2c_plat_prepare(struct device *dev)
+ 	 */
+ 	return !has_acpi_companion(dev);
+ }
+-
+-static void dw_i2c_plat_complete(struct device *dev)
+-{
+-	/*
+-	 * The device can only be in runtime suspend at this point if it has not
+-	 * been resumed throughout the ending system suspend/resume cycle, so if
+-	 * the platform firmware might mess up with it, request the runtime PM
+-	 * framework to resume it.
+-	 */
+-	if (pm_runtime_suspended(dev) && pm_resume_via_firmware())
+-		pm_request_resume(dev);
+-}
+ #else
+ #define dw_i2c_plat_prepare	NULL
+-#define dw_i2c_plat_complete	NULL
+ #endif
+ 
+ #ifdef CONFIG_PM
+@@ -483,7 +468,6 @@ static int __maybe_unused dw_i2c_plat_resume(struct device *dev)
+ 
+ static const struct dev_pm_ops dw_i2c_dev_pm_ops = {
+ 	.prepare = dw_i2c_plat_prepare,
+-	.complete = dw_i2c_plat_complete,
+ 	SET_LATE_SYSTEM_SLEEP_PM_OPS(dw_i2c_plat_suspend, dw_i2c_plat_resume)
+ 	SET_RUNTIME_PM_OPS(dw_i2c_plat_runtime_suspend, dw_i2c_plat_runtime_resume, NULL)
+ };
 -- 
 2.39.0
 
