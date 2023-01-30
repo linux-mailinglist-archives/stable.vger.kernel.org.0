@@ -2,43 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 03ADA68113B
-	for <lists+stable@lfdr.de>; Mon, 30 Jan 2023 15:11:24 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C0A74681169
+	for <lists+stable@lfdr.de>; Mon, 30 Jan 2023 15:13:25 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237255AbjA3OLW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 30 Jan 2023 09:11:22 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51884 "EHLO
+        id S237261AbjA3ONY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 30 Jan 2023 09:13:24 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56658 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237265AbjA3OLM (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 30 Jan 2023 09:11:12 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A02433BDAC
-        for <stable@vger.kernel.org>; Mon, 30 Jan 2023 06:11:09 -0800 (PST)
+        with ESMTP id S237271AbjA3ONS (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 30 Jan 2023 09:13:18 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AC35C2B2B0
+        for <stable@vger.kernel.org>; Mon, 30 Jan 2023 06:13:03 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 407EAB8117E
-        for <stable@vger.kernel.org>; Mon, 30 Jan 2023 14:11:09 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9A022C4339E;
-        Mon, 30 Jan 2023 14:11:07 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id F3766B80E60
+        for <stable@vger.kernel.org>; Mon, 30 Jan 2023 14:13:01 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 60404C433EF;
+        Mon, 30 Jan 2023 14:13:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1675087868;
-        bh=HUrkAexcccMEp7kXG9tEI7qhMvnOIq/+Oq/eJegQM1k=;
+        s=korg; t=1675087980;
+        bh=hjrGJHb7L9YVdL6fGAwLrRptTN1oiIj6TyuxROCeCOk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=TKCfCCcr6FBJx6MryeX4cWY8/ziOsfJ/TQ5Le1pyr/KAjN0/C0bGkrRi0Z+/gI7KM
-         Oz2JkuRTBSUG+TUjWob8dJiVv4mFecy4ihukSdpJ0gY3T67uIsLJubtqP+0YBitmC1
-         zjRWNDJpgvmSdr+Yf4M02nvui/YVxVNsypMvn2Jc=
+        b=VJi5tpnHocKQ8O6YNuNu1Ai6sLD9bczd49hT1DjaUTtrOhmeEII+S+Qiai8tM+YlY
+         /YR15D54mh4DFqIji6MB+o9I/E04CAfoYwZXpMzpRqjqRw/tsGPoSb13iynkKmsYKv
+         fhYFP5CglIdoE5DwwlIGVKVSUiW5wY11gvxpNHDk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Sudheesh Mavila <sudheesh.mavila@amd.com>,
-        Raju Rangoju <Raju.Rangoju@amd.com>,
-        Shyam Sundar S K <Shyam-sundar.S-k@amd.com>,
-        Jakub Kicinski <kuba@kernel.org>,
+        patches@lists.linux.dev, Luis Gerhorst <gerhorst@cs.fau.de>,
+        Daniel Borkmann <daniel@iogearbox.net>,
+        Henriette Hofmeier <henriette.hofmeier@rub.de>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 035/204] amd-xgbe: Delay AN timeout during KR training
-Date:   Mon, 30 Jan 2023 14:50:00 +0100
-Message-Id: <20230130134317.855997645@linuxfoundation.org>
+Subject: [PATCH 5.15 036/204] bpf: Fix pointer-leak due to insufficient speculative store bypass mitigation
+Date:   Mon, 30 Jan 2023 14:50:01 +0100
+Message-Id: <20230130134317.895470225@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.1
 In-Reply-To: <20230130134316.327556078@linuxfoundation.org>
 References: <20230130134316.327556078@linuxfoundation.org>
@@ -46,8 +45,8 @@ User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
         SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -55,98 +54,106 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Raju Rangoju <Raju.Rangoju@amd.com>
+From: Luis Gerhorst <gerhorst@cs.fau.de>
 
-[ Upstream commit 926446ae24c03311a480fb96eb78f0ce7ea6d091 ]
+[ Upstream commit e4f4db47794c9f474b184ee1418f42e6a07412b6 ]
 
-AN restart triggered during KR training not only aborts the KR training
-process but also move the HW to unstable state. Driver has to wait upto
-500ms or until the KR training is completed before restarting AN cycle.
+To mitigate Spectre v4, 2039f26f3aca ("bpf: Fix leakage due to
+insufficient speculative store bypass mitigation") inserts lfence
+instructions after 1) initializing a stack slot and 2) spilling a
+pointer to the stack.
 
-Fixes: 7c12aa08779c ("amd-xgbe: Move the PHY support into amd-xgbe")
-Co-developed-by: Sudheesh Mavila <sudheesh.mavila@amd.com>
-Signed-off-by: Sudheesh Mavila <sudheesh.mavila@amd.com>
-Signed-off-by: Raju Rangoju <Raju.Rangoju@amd.com>
-Acked-by: Shyam Sundar S K <Shyam-sundar.S-k@amd.com>
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+However, this does not cover cases where a stack slot is first
+initialized with a pointer (subject to sanitization) but then
+overwritten with a scalar (not subject to sanitization because
+the slot was already initialized). In this case, the second write
+may be subject to speculative store bypass (SSB) creating a
+speculative pointer-as-scalar type confusion. This allows the
+program to subsequently leak the numerical pointer value using,
+for example, a branch-based cache side channel.
+
+To fix this, also sanitize scalars if they write a stack slot
+that previously contained a pointer. Assuming that pointer-spills
+are only generated by LLVM on register-pressure, the performance
+impact on most real-world BPF programs should be small.
+
+The following unprivileged BPF bytecode drafts a minimal exploit
+and the mitigation:
+
+  [...]
+  // r6 = 0 or 1 (skalar, unknown user input)
+  // r7 = accessible ptr for side channel
+  // r10 = frame pointer (fp), to be leaked
+  //
+  r9 = r10 # fp alias to encourage ssb
+  *(u64 *)(r9 - 8) = r10 // fp[-8] = ptr, to be leaked
+  // lfence added here because of pointer spill to stack.
+  //
+  // Ommitted: Dummy bpf_ringbuf_output() here to train alias predictor
+  // for no r9-r10 dependency.
+  //
+  *(u64 *)(r10 - 8) = r6 // fp[-8] = scalar, overwrites ptr
+  // 2039f26f3aca: no lfence added because stack slot was not STACK_INVALID,
+  // store may be subject to SSB
+  //
+  // fix: also add an lfence when the slot contained a ptr
+  //
+  r8 = *(u64 *)(r9 - 8)
+  // r8 = architecturally a scalar, speculatively a ptr
+  //
+  // leak ptr using branch-based cache side channel:
+  r8 &= 1 // choose bit to leak
+  if r8 == 0 goto SLOW // no mispredict
+  // architecturally dead code if input r6 is 0,
+  // only executes speculatively iff ptr bit is 1
+  r8 = *(u64 *)(r7 + 0) # encode bit in cache (0: slow, 1: fast)
+SLOW:
+  [...]
+
+After running this, the program can time the access to *(r7 + 0) to
+determine whether the chosen pointer bit was 0 or 1. Repeat this 64
+times to recover the whole address on amd64.
+
+In summary, sanitization can only be skipped if one scalar is
+overwritten with another scalar. Scalar-confusion due to speculative
+store bypass can not lead to invalid accesses because the pointer
+bounds deducted during verification are enforced using branchless
+logic. See 979d63d50c0c ("bpf: prevent out of bounds speculation on
+pointer arithmetic") for details.
+
+Do not make the mitigation depend on !env->allow_{uninit_stack,ptr_leaks}
+because speculative leaks are likely unexpected if these were enabled.
+For example, leaking the address to a protected log file may be acceptable
+while disabling the mitigation might unintentionally leak the address
+into the cached-state of a map that is accessible to unprivileged
+processes.
+
+Fixes: 2039f26f3aca ("bpf: Fix leakage due to insufficient speculative store bypass mitigation")
+Signed-off-by: Luis Gerhorst <gerhorst@cs.fau.de>
+Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
+Acked-by: Henriette Hofmeier <henriette.hofmeier@rub.de>
+Link: https://lore.kernel.org/bpf/edc95bad-aada-9cfc-ffe2-fa9bb206583c@cs.fau.de
+Link: https://lore.kernel.org/bpf/20230109150544.41465-1-gerhorst@cs.fau.de
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/amd/xgbe/xgbe-mdio.c | 24 +++++++++++++++++++++++
- drivers/net/ethernet/amd/xgbe/xgbe.h      |  2 ++
- 2 files changed, 26 insertions(+)
+ kernel/bpf/verifier.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/net/ethernet/amd/xgbe/xgbe-mdio.c b/drivers/net/ethernet/amd/xgbe/xgbe-mdio.c
-index 0c5c1b155683..43fdd111235a 100644
---- a/drivers/net/ethernet/amd/xgbe/xgbe-mdio.c
-+++ b/drivers/net/ethernet/amd/xgbe/xgbe-mdio.c
-@@ -496,6 +496,7 @@ static enum xgbe_an xgbe_an73_tx_training(struct xgbe_prv_data *pdata,
- 	reg |= XGBE_KR_TRAINING_ENABLE;
- 	reg |= XGBE_KR_TRAINING_START;
- 	XMDIO_WRITE(pdata, MDIO_MMD_PMAPMD, MDIO_PMA_10GBR_PMD_CTRL, reg);
-+	pdata->kr_start_time = jiffies;
+diff --git a/kernel/bpf/verifier.c b/kernel/bpf/verifier.c
+index 488225bb42f6..49e51fc0c2f4 100644
+--- a/kernel/bpf/verifier.c
++++ b/kernel/bpf/verifier.c
+@@ -2653,7 +2653,9 @@ static int check_stack_write_fixed_off(struct bpf_verifier_env *env,
+ 		bool sanitize = reg && is_spillable_regtype(reg->type);
  
- 	netif_dbg(pdata, link, pdata->netdev,
- 		  "KR training initiated\n");
-@@ -632,6 +633,8 @@ static enum xgbe_an xgbe_an73_incompat_link(struct xgbe_prv_data *pdata)
- 
- 	xgbe_switch_mode(pdata);
- 
-+	pdata->an_result = XGBE_AN_READY;
+ 		for (i = 0; i < size; i++) {
+-			if (state->stack[spi].slot_type[i] == STACK_INVALID) {
++			u8 type = state->stack[spi].slot_type[i];
 +
- 	xgbe_an_restart(pdata);
- 
- 	return XGBE_AN_INCOMPAT_LINK;
-@@ -1275,9 +1278,30 @@ static bool xgbe_phy_aneg_done(struct xgbe_prv_data *pdata)
- static void xgbe_check_link_timeout(struct xgbe_prv_data *pdata)
- {
- 	unsigned long link_timeout;
-+	unsigned long kr_time;
-+	int wait;
- 
- 	link_timeout = pdata->link_check + (XGBE_LINK_TIMEOUT * HZ);
- 	if (time_after(jiffies, link_timeout)) {
-+		if ((xgbe_cur_mode(pdata) == XGBE_MODE_KR) &&
-+		    pdata->phy.autoneg == AUTONEG_ENABLE) {
-+			/* AN restart should not happen while KR training is in progress.
-+			 * The while loop ensures no AN restart during KR training,
-+			 * waits up to 500ms and AN restart is triggered only if KR
-+			 * training is failed.
-+			 */
-+			wait = XGBE_KR_TRAINING_WAIT_ITER;
-+			while (wait--) {
-+				kr_time = pdata->kr_start_time +
-+					  msecs_to_jiffies(XGBE_AN_MS_TIMEOUT);
-+				if (time_after(jiffies, kr_time))
-+					break;
-+				/* AN restart is not required, if AN result is COMPLETE */
-+				if (pdata->an_result == XGBE_AN_COMPLETE)
-+					return;
-+				usleep_range(10000, 11000);
-+			}
-+		}
- 		netif_dbg(pdata, link, pdata->netdev, "AN link timeout\n");
- 		xgbe_phy_config_aneg(pdata);
- 	}
-diff --git a/drivers/net/ethernet/amd/xgbe/xgbe.h b/drivers/net/ethernet/amd/xgbe/xgbe.h
-index 3305979a9f7c..e0b8f3c4cc0b 100644
---- a/drivers/net/ethernet/amd/xgbe/xgbe.h
-+++ b/drivers/net/ethernet/amd/xgbe/xgbe.h
-@@ -289,6 +289,7 @@
- /* Auto-negotiation */
- #define XGBE_AN_MS_TIMEOUT		500
- #define XGBE_LINK_TIMEOUT		5
-+#define XGBE_KR_TRAINING_WAIT_ITER	50
- 
- #define XGBE_SGMII_AN_LINK_STATUS	BIT(1)
- #define XGBE_SGMII_AN_LINK_SPEED	(BIT(2) | BIT(3))
-@@ -1253,6 +1254,7 @@ struct xgbe_prv_data {
- 	unsigned int parallel_detect;
- 	unsigned int fec_ability;
- 	unsigned long an_start;
-+	unsigned long kr_start_time;
- 	enum xgbe_an_mode an_mode;
- 
- 	/* I2C support */
++			if (type != STACK_MISC && type != STACK_ZERO) {
+ 				sanitize = true;
+ 				break;
+ 			}
 -- 
 2.39.0
 
