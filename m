@@ -2,44 +2,48 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C49926810EF
-	for <lists+stable@lfdr.de>; Mon, 30 Jan 2023 15:08:33 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5EE0C68129D
+	for <lists+stable@lfdr.de>; Mon, 30 Jan 2023 15:23:20 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237130AbjA3OIc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 30 Jan 2023 09:08:32 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50760 "EHLO
+        id S237462AbjA3OXT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 30 Jan 2023 09:23:19 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41864 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237133AbjA3OIb (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 30 Jan 2023 09:08:31 -0500
+        with ESMTP id S236731AbjA3OXC (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 30 Jan 2023 09:23:02 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C21833802F
-        for <stable@vger.kernel.org>; Mon, 30 Jan 2023 06:08:30 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D7424402D9;
+        Mon, 30 Jan 2023 06:22:00 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 5E81961086
-        for <stable@vger.kernel.org>; Mon, 30 Jan 2023 14:08:30 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1B8C8C433EF;
-        Mon, 30 Jan 2023 14:08:28 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 4347261049;
+        Mon, 30 Jan 2023 14:22:00 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4B970C4339C;
+        Mon, 30 Jan 2023 14:21:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1675087709;
-        bh=IF909m9jF6pdyQlq+PDiqLPD0ZJ1ETp4gTpC3/O2tx4=;
+        s=korg; t=1675088519;
+        bh=SYbamkHUAh7SO2/XCkhZFZVPZCew/g1XBLcll1P10J4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=QlQCKDGIT0DBrjIDM0kBtvZIPEMH1MsY45eg2gEIkvNaLv065Kf+44SzVajyf2eSB
-         afzeP8fak72zdNN8XVW19sOjQdefTX7tk/5725i3VkUSaLYID4/sT4Lz+o08wetToK
-         lcrZBJqY5AZA44MTYsot7ybVC22IwB/WaVoHs5B4=
+        b=QzR328xYoriI/9gy+Kf92PAOUxrbZBMlBjZz2nnTVcT6QjeZv+ZaK6MwB4UZYxM3I
+         bUW08RkC/BVVD7RBpaaPNjvlr2PGWVZr1RrWp3JeAvEg+YTM3jCSomQ7EtDM9W0AbH
+         9ZMUaKZs980ct6Z6B6IV3xLRT8oxWhWeAWnYDGjs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Eric Dumazet <edumazet@google.com>,
-        Jakub Kicinski <kuba@kernel.org>,
+        patches@lists.linux.dev, Randy Dunlap <rdunlap@infradead.org>,
+        Eli Cohen <eli@mellanox.com>,
+        Saeed Mahameed <saeedm@nvidia.com>,
+        Leon Romanovsky <leon@kernel.org>, linux-rdma@vger.kernel.org,
+        Ira Weiny <ira.weiny@intel.com>,
+        Leon Romanovsky <leonro@nvidia.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 268/313] netlink: annotate data races around sk_state
+Subject: [PATCH 5.10 046/143] net: mlx5: eliminate anonymous module_init & module_exit
 Date:   Mon, 30 Jan 2023 14:51:43 +0100
-Message-Id: <20230130134349.225784699@linuxfoundation.org>
+Message-Id: <20230130134308.762370156@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.1
-In-Reply-To: <20230130134336.532886729@linuxfoundation.org>
-References: <20230130134336.532886729@linuxfoundation.org>
+In-Reply-To: <20230130134306.862721518@linuxfoundation.org>
+References: <20230130134306.862721518@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,56 +57,74 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eric Dumazet <edumazet@google.com>
+From: Randy Dunlap <rdunlap@infradead.org>
 
-[ Upstream commit 9b663b5cbb15b494ef132a3c937641c90646eb73 ]
+[ Upstream commit 2c1e1b949024989e20907b84e11a731a50778416 ]
 
-netlink_getsockbyportid() reads sk_state while a concurrent
-netlink_connect() can change its value.
+Eliminate anonymous module_init() and module_exit(), which can lead to
+confusion or ambiguity when reading System.map, crashes/oops/bugs,
+or an initcall_debug log.
 
-Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
-Signed-off-by: Eric Dumazet <edumazet@google.com>
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Give each of these init and exit functions unique driver-specific
+names to eliminate the anonymous names.
+
+Example 1: (System.map)
+ ffffffff832fc78c t init
+ ffffffff832fc79e t init
+ ffffffff832fc8f8 t init
+
+Example 2: (initcall_debug log)
+ calling  init+0x0/0x12 @ 1
+ initcall init+0x0/0x12 returned 0 after 15 usecs
+ calling  init+0x0/0x60 @ 1
+ initcall init+0x0/0x60 returned 0 after 2 usecs
+ calling  init+0x0/0x9a @ 1
+ initcall init+0x0/0x9a returned 0 after 74 usecs
+
+Fixes: e126ba97dba9 ("mlx5: Add driver for Mellanox Connect-IB adapters")
+Signed-off-by: Randy Dunlap <rdunlap@infradead.org>
+Cc: Eli Cohen <eli@mellanox.com>
+Cc: Saeed Mahameed <saeedm@nvidia.com>
+Cc: Leon Romanovsky <leon@kernel.org>
+Cc: linux-rdma@vger.kernel.org
+Reviewed-by: Ira Weiny <ira.weiny@intel.com>
+Reviewed-by: Leon Romanovsky <leonro@nvidia.com>
+Signed-off-by: Saeed Mahameed <saeedm@nvidia.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/netlink/af_netlink.c | 10 ++++++----
- 1 file changed, 6 insertions(+), 4 deletions(-)
+ drivers/net/ethernet/mellanox/mlx5/core/main.c | 8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
 
-diff --git a/net/netlink/af_netlink.c b/net/netlink/af_netlink.c
-index a597e4dac7fd..e50671296791 100644
---- a/net/netlink/af_netlink.c
-+++ b/net/netlink/af_netlink.c
-@@ -1087,7 +1087,8 @@ static int netlink_connect(struct socket *sock, struct sockaddr *addr,
- 		return -EINVAL;
+diff --git a/drivers/net/ethernet/mellanox/mlx5/core/main.c b/drivers/net/ethernet/mellanox/mlx5/core/main.c
+index 29bc1df28aeb..112eaef186e1 100644
+--- a/drivers/net/ethernet/mellanox/mlx5/core/main.c
++++ b/drivers/net/ethernet/mellanox/mlx5/core/main.c
+@@ -1642,7 +1642,7 @@ static void mlx5_core_verify_params(void)
+ 	}
+ }
  
- 	if (addr->sa_family == AF_UNSPEC) {
--		sk->sk_state	= NETLINK_UNCONNECTED;
-+		/* paired with READ_ONCE() in netlink_getsockbyportid() */
-+		WRITE_ONCE(sk->sk_state, NETLINK_UNCONNECTED);
- 		/* dst_portid and dst_group can be read locklessly */
- 		WRITE_ONCE(nlk->dst_portid, 0);
- 		WRITE_ONCE(nlk->dst_group, 0);
-@@ -1111,7 +1112,8 @@ static int netlink_connect(struct socket *sock, struct sockaddr *addr,
- 		err = netlink_autobind(sock);
+-static int __init init(void)
++static int __init mlx5_init(void)
+ {
+ 	int err;
  
- 	if (err == 0) {
--		sk->sk_state	= NETLINK_CONNECTED;
-+		/* paired with READ_ONCE() in netlink_getsockbyportid() */
-+		WRITE_ONCE(sk->sk_state, NETLINK_CONNECTED);
- 		/* dst_portid and dst_group can be read locklessly */
- 		WRITE_ONCE(nlk->dst_portid, nladdr->nl_pid);
- 		WRITE_ONCE(nlk->dst_group, ffs(nladdr->nl_groups));
-@@ -1163,8 +1165,8 @@ static struct sock *netlink_getsockbyportid(struct sock *ssk, u32 portid)
+@@ -1667,7 +1667,7 @@ static int __init init(void)
+ 	return err;
+ }
  
- 	/* Don't bother queuing skb if kernel socket has no input function */
- 	nlk = nlk_sk(sock);
--	/* dst_portid can be changed in netlink_connect() */
--	if (sock->sk_state == NETLINK_CONNECTED &&
-+	/* dst_portid and sk_state can be changed in netlink_connect() */
-+	if (READ_ONCE(sock->sk_state) == NETLINK_CONNECTED &&
- 	    READ_ONCE(nlk->dst_portid) != nlk_sk(ssk)->portid) {
- 		sock_put(sock);
- 		return ERR_PTR(-ECONNREFUSED);
+-static void __exit cleanup(void)
++static void __exit mlx5_cleanup(void)
+ {
+ #ifdef CONFIG_MLX5_CORE_EN
+ 	mlx5e_cleanup();
+@@ -1676,5 +1676,5 @@ static void __exit cleanup(void)
+ 	mlx5_unregister_debugfs();
+ }
+ 
+-module_init(init);
+-module_exit(cleanup);
++module_init(mlx5_init);
++module_exit(mlx5_cleanup);
 -- 
 2.39.0
 
