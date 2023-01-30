@@ -2,45 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 6C7E66810FE
-	for <lists+stable@lfdr.de>; Mon, 30 Jan 2023 15:09:18 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 49A75681285
+	for <lists+stable@lfdr.de>; Mon, 30 Jan 2023 15:21:59 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237143AbjA3OJR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 30 Jan 2023 09:09:17 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51236 "EHLO
+        id S237607AbjA3OV6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 30 Jan 2023 09:21:58 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40900 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229691AbjA3OJQ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 30 Jan 2023 09:09:16 -0500
+        with ESMTP id S237513AbjA3OVg (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 30 Jan 2023 09:21:36 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 19764303E7
-        for <stable@vger.kernel.org>; Mon, 30 Jan 2023 06:09:16 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4FD7341B58
+        for <stable@vger.kernel.org>; Mon, 30 Jan 2023 06:20:30 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id A878D61085
-        for <stable@vger.kernel.org>; Mon, 30 Jan 2023 14:09:15 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B7631C433D2;
-        Mon, 30 Jan 2023 14:09:14 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 0DC9461163
+        for <stable@vger.kernel.org>; Mon, 30 Jan 2023 14:19:26 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0D71AC433D2;
+        Mon, 30 Jan 2023 14:19:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1675087755;
-        bh=nSQI4aZcqZMCkR+QIe23Aneyj+M7p/BIQRYKz8EfHqc=;
+        s=korg; t=1675088365;
+        bh=1gryz0cv82+0ccF08W16vekhIdzYwFssQ/bTF71gZiY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=GvbWgbaKYwdvrnGUfne3BD1PhQka/N6mp0ok9q+MUqqfA/rgES8F63QK1Bd4ccQB+
-         G0YP5KeOu06bdJ23CX7QnYq3elNhHCPe8e0lkm3ar7aALD8PzBZcfLaO5ZC4fOFUfC
-         1G3vIowAmCl7QJhm5/Hle7WmzTil2EBe4Xr+poAw=
+        b=V6EsxLNfU5JH8PUzMTD/zwCx1CZYhqQtM2QJLamAtzOfacx4L3sahuzNUTPjMM0RM
+         LqM5vAizlSTa4A8Tc9F2y4XCkTal+Mh7hG2NuipeFf0LE8xlLD7x6CcvPgwrTh8lXI
+         jrWDrAiNvGxxl77dn6+iIAfodHjeFrHQui6L4Q5M=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        "Harris, James R" <james.r.harris@intel.com>,
-        Ming Lei <ming.lei@redhat.com>, Jens Axboe <axboe@kernel.dk>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 299/313] block: ublk: move ublk_chr_class destroying after devices are removed
+        patches@lists.linux.dev, Lareine Khawaly <lareine@amazon.com>,
+        Hanna Hawa <hhhawa@amazon.com>,
+        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
+        Jarkko Nikula <jarkko.nikula@linux.intel.com>,
+        Wolfram Sang <wsa@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.15 169/204] i2c: designware: use casting of u64 in clock multiplication to avoid overflow
 Date:   Mon, 30 Jan 2023 14:52:14 +0100
-Message-Id: <20230130134350.660239670@linuxfoundation.org>
+Message-Id: <20230130134324.008833552@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.1
-In-Reply-To: <20230130134336.532886729@linuxfoundation.org>
-References: <20230130134336.532886729@linuxfoundation.org>
+In-Reply-To: <20230130134316.327556078@linuxfoundation.org>
+References: <20230130134316.327556078@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,51 +55,63 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ming Lei <ming.lei@redhat.com>
+From: Lareine Khawaly <lareine@amazon.com>
 
-[ Upstream commit 8e4ff684762b6503db45e8906e258faee080c336 ]
+[ Upstream commit c8c37bc514514999e62a17e95160ed9ebf75ca8d ]
 
-The 'ublk_chr_class' is needed when deleting ublk char devices in
-ublk_exit(), so move it after devices(idle) are removed.
+In functions i2c_dw_scl_lcnt() and i2c_dw_scl_hcnt() may have overflow
+by depending on the values of the given parameters including the ic_clk.
+For example in our use case where ic_clk is larger than one million,
+multiplication of ic_clk * 4700 will result in 32 bit overflow.
 
-Fixes the following warning reported by Harris, James R:
+Add cast of u64 to the calculation to avoid multiplication overflow, and
+use the corresponding define for divide.
 
-[  859.178950] sysfs group 'power' not found for kobject 'ublkc0'
-[  859.178962] WARNING: CPU: 3 PID: 1109 at fs/sysfs/group.c:278 sysfs_remove_group+0x9c/0xb0
-
-Reported-by: "Harris, James R" <james.r.harris@intel.com>
-Fixes: 71f28f3136af ("ublk_drv: add io_uring based userspace block driver")
-Link: https://lore.kernel.org/linux-block/Y9JlFmSgDl3+zy3N@T590/T/#t
-Signed-off-by: Ming Lei <ming.lei@redhat.com>
-Tested-by: Jim Harris <james.r.harris@intel.com>
-Link: https://lore.kernel.org/r/20230126115346.263344-1-ming.lei@redhat.com
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
+Fixes: 2373f6b9744d ("i2c-designware: split of i2c-designware.c into core and bus specific parts")
+Signed-off-by: Lareine Khawaly <lareine@amazon.com>
+Signed-off-by: Hanna Hawa <hhhawa@amazon.com>
+Reviewed-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Acked-by: Jarkko Nikula <jarkko.nikula@linux.intel.com>
+Signed-off-by: Wolfram Sang <wsa@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/block/ublk_drv.c | 7 +++----
- 1 file changed, 3 insertions(+), 4 deletions(-)
+ drivers/i2c/busses/i2c-designware-common.c | 9 ++++++---
+ 1 file changed, 6 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/block/ublk_drv.c b/drivers/block/ublk_drv.c
-index 17b677b5d3b2..e54693204630 100644
---- a/drivers/block/ublk_drv.c
-+++ b/drivers/block/ublk_drv.c
-@@ -2092,13 +2092,12 @@ static void __exit ublk_exit(void)
- 	struct ublk_device *ub;
- 	int id;
- 
--	class_destroy(ublk_chr_class);
--
--	misc_deregister(&ublk_misc);
--
- 	idr_for_each_entry(&ublk_index_idr, ub, id)
- 		ublk_remove(ub);
- 
-+	class_destroy(ublk_chr_class);
-+	misc_deregister(&ublk_misc);
-+
- 	idr_destroy(&ublk_index_idr);
- 	unregister_chrdev_region(ublk_chr_devt, UBLK_MINORS);
+diff --git a/drivers/i2c/busses/i2c-designware-common.c b/drivers/i2c/busses/i2c-designware-common.c
+index a1100e37626e..4af65f101dac 100644
+--- a/drivers/i2c/busses/i2c-designware-common.c
++++ b/drivers/i2c/busses/i2c-designware-common.c
+@@ -351,7 +351,8 @@ u32 i2c_dw_scl_hcnt(u32 ic_clk, u32 tSYMBOL, u32 tf, int cond, int offset)
+ 		 *
+ 		 * If your hardware is free from tHD;STA issue, try this one.
+ 		 */
+-		return DIV_ROUND_CLOSEST(ic_clk * tSYMBOL, MICRO) - 8 + offset;
++		return DIV_ROUND_CLOSEST_ULL((u64)ic_clk * tSYMBOL, MICRO) -
++		       8 + offset;
+ 	else
+ 		/*
+ 		 * Conditional expression:
+@@ -367,7 +368,8 @@ u32 i2c_dw_scl_hcnt(u32 ic_clk, u32 tSYMBOL, u32 tf, int cond, int offset)
+ 		 * The reason why we need to take into account "tf" here,
+ 		 * is the same as described in i2c_dw_scl_lcnt().
+ 		 */
+-		return DIV_ROUND_CLOSEST(ic_clk * (tSYMBOL + tf), MICRO) - 3 + offset;
++		return DIV_ROUND_CLOSEST_ULL((u64)ic_clk * (tSYMBOL + tf), MICRO) -
++		       3 + offset;
  }
+ 
+ u32 i2c_dw_scl_lcnt(u32 ic_clk, u32 tLOW, u32 tf, int offset)
+@@ -383,7 +385,8 @@ u32 i2c_dw_scl_lcnt(u32 ic_clk, u32 tLOW, u32 tf, int offset)
+ 	 * account the fall time of SCL signal (tf).  Default tf value
+ 	 * should be 0.3 us, for safety.
+ 	 */
+-	return DIV_ROUND_CLOSEST(ic_clk * (tLOW + tf), MICRO) - 1 + offset;
++	return DIV_ROUND_CLOSEST_ULL((u64)ic_clk * (tLOW + tf), MICRO) -
++	       1 + offset;
+ }
+ 
+ int i2c_dw_set_sda_hold(struct dw_i2c_dev *dev)
 -- 
 2.39.0
 
