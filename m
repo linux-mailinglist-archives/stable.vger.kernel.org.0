@@ -2,54 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 660026812E9
-	for <lists+stable@lfdr.de>; Mon, 30 Jan 2023 15:26:24 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4AB0568126F
+	for <lists+stable@lfdr.de>; Mon, 30 Jan 2023 15:21:08 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237436AbjA3O0W (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 30 Jan 2023 09:26:22 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42044 "EHLO
+        id S237663AbjA3OVH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 30 Jan 2023 09:21:07 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60946 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237423AbjA3OZ7 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 30 Jan 2023 09:25:59 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0090D3EFD6
-        for <stable@vger.kernel.org>; Mon, 30 Jan 2023 06:24:37 -0800 (PST)
+        with ESMTP id S237664AbjA3OUv (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 30 Jan 2023 09:20:51 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 589CF38669
+        for <stable@vger.kernel.org>; Mon, 30 Jan 2023 06:19:36 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id B5583B8117E
-        for <stable@vger.kernel.org>; Mon, 30 Jan 2023 14:24:35 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D1598C433D2;
-        Mon, 30 Jan 2023 14:24:33 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 0DA286116E
+        for <stable@vger.kernel.org>; Mon, 30 Jan 2023 14:19:01 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 00317C4339C;
+        Mon, 30 Jan 2023 14:18:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1675088674;
-        bh=00tXwpANIqfoedYdIG7Pm+XgsPbIa7RAKzfE1Rm319U=;
+        s=korg; t=1675088340;
+        bh=u0n9NZ4jo00qux4YYb48cj2+ZzRuRyVk1GCkKeK4zdw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=SSNY4Xeum05PVREBH9H1G/ejr3vCO8j3rv7eBxwoq8YPfpAn76ojTNUsNNi5zYL6d
-         jaelJQR1BvP4FWGc16hl9bbpriwA1vZ9CdNLQMQWKghWmVlT5x4DGywhuGND4TSlEV
-         eEhw95qLpjjsSKb4RXR8rC6cw0lrtlqC/S/O5XII=
+        b=HoWA6GnL2JDKRsj/yrlgqmhfrntBetu5zkO4N6gBPvwIgY1H48EmMbd7kXOtBm3GO
+         XoUV1pHZIWbVIfwuAOs+6MNGzsZ5vp9a+A0rLU5b+9SzQbz0llEsg7JOVbij2Hx7AF
+         b18P+BKpzJ6kc0DEqAwlPCmy0aZJMaswMzJZ8LU4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Peter Zijlstra <peterz@infradead.org>,
-        "Eric W. Biederman" <ebiederm@xmission.com>,
-        Jann Horn <jannh@google.com>, Arnd Bergmann <arnd@arndb.de>,
-        Petr Mladek <pmladek@suse.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Luis Chamberlain <mcgrof@kernel.org>,
-        Marco Elver <elver@google.com>,
-        tangmeng <tangmeng@uniontech.com>,
-        Sebastian Andrzej Siewior <bigeasy@linutronix.de>,
-        Tiezhu Yang <yangtiezhu@loongson.cn>,
-        Kees Cook <keescook@chromium.org>,
-        Eric Biggers <ebiggers@google.com>,
+        patches@lists.linux.dev, Jeremy Kerr <jk@codeconstruct.com.au>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 098/143] exit: Use READ_ONCE() for all oops/warn limit reads
-Date:   Mon, 30 Jan 2023 14:52:35 +0100
-Message-Id: <20230130134310.900320438@linuxfoundation.org>
+Subject: [PATCH 5.15 191/204] net: mctp: mark socks as dead on unhash, prevent re-add
+Date:   Mon, 30 Jan 2023 14:52:36 +0100
+Message-Id: <20230130134324.959799091@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.1
-In-Reply-To: <20230130134306.862721518@linuxfoundation.org>
-References: <20230130134306.862721518@linuxfoundation.org>
+In-Reply-To: <20230130134316.327556078@linuxfoundation.org>
+References: <20230130134316.327556078@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -63,82 +53,64 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kees Cook <keescook@chromium.org>
+From: Jeremy Kerr <jk@codeconstruct.com.au>
 
-commit 7535b832c6399b5ebfc5b53af5c51dd915ee2538 upstream.
+[ Upstream commit b98e1a04e27fddfdc808bf46fe78eca30db89ab3 ]
 
-Use a temporary variable to take full advantage of READ_ONCE() behavior.
-Without this, the report (and even the test) might be out of sync with
-the initial test.
+Once a socket has been unhashed, we want to prevent it from being
+re-used in a sk_key entry as part of a routing operation.
 
-Reported-by: Peter Zijlstra <peterz@infradead.org>
-Link: https://lore.kernel.org/lkml/Y5x7GXeluFmZ8E0E@hirez.programming.kicks-ass.net
-Fixes: 9fc9e278a5c0 ("panic: Introduce warn_limit")
-Fixes: d4ccd54d28d3 ("exit: Put an upper limit on how often we can oops")
-Cc: "Eric W. Biederman" <ebiederm@xmission.com>
-Cc: Jann Horn <jannh@google.com>
-Cc: Arnd Bergmann <arnd@arndb.de>
-Cc: Petr Mladek <pmladek@suse.com>
-Cc: Andrew Morton <akpm@linux-foundation.org>
-Cc: Luis Chamberlain <mcgrof@kernel.org>
-Cc: Marco Elver <elver@google.com>
-Cc: tangmeng <tangmeng@uniontech.com>
-Cc: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
-Cc: Tiezhu Yang <yangtiezhu@loongson.cn>
-Signed-off-by: Kees Cook <keescook@chromium.org>
-Signed-off-by: Eric Biggers <ebiggers@google.com>
+This change marks the sk as SOCK_DEAD on unhash, which prevents addition
+into the net's key list.
+
+We need to do this during the key add path, rather than key lookup, as
+we release the net keys_lock between those operations.
+
+Fixes: 4a992bbd3650 ("mctp: Implement message fragmentation & reassembly")
+Signed-off-by: Jeremy Kerr <jk@codeconstruct.com.au>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/exit.c  | 6 ++++--
- kernel/panic.c | 7 +++++--
- 2 files changed, 9 insertions(+), 4 deletions(-)
+ net/mctp/af_mctp.c | 1 +
+ net/mctp/route.c   | 6 ++++++
+ 2 files changed, 7 insertions(+)
 
-diff --git a/kernel/exit.c b/kernel/exit.c
-index 8c820aa7b9c5..bacdaf980933 100644
---- a/kernel/exit.c
-+++ b/kernel/exit.c
-@@ -916,6 +916,7 @@ void __noreturn make_task_dead(int signr)
- 	 * Take the task off the cpu after something catastrophic has
- 	 * happened.
- 	 */
-+	unsigned int limit;
+diff --git a/net/mctp/af_mctp.c b/net/mctp/af_mctp.c
+index cbbde0f73a08..a77fafbc31cf 100644
+--- a/net/mctp/af_mctp.c
++++ b/net/mctp/af_mctp.c
+@@ -288,6 +288,7 @@ static void mctp_sk_unhash(struct sock *sk)
  
- 	/*
- 	 * Every time the system oopses, if the oops happens while a reference
-@@ -927,8 +928,9 @@ void __noreturn make_task_dead(int signr)
- 	 * To make sure this can't happen, place an upper bound on how often the
- 	 * kernel may oops without panic().
- 	 */
--	if (atomic_inc_return(&oops_count) >= READ_ONCE(oops_limit) && oops_limit)
--		panic("Oopsed too often (kernel.oops_limit is %d)", oops_limit);
-+	limit = READ_ONCE(oops_limit);
-+	if (atomic_inc_return(&oops_count) >= limit && limit)
-+		panic("Oopsed too often (kernel.oops_limit is %d)", limit);
+ 		kfree_rcu(key, rcu);
+ 	}
++	sock_set_flag(sk, SOCK_DEAD);
+ 	spin_unlock_irqrestore(&net->mctp.keys_lock, flags);
  
- 	do_exit(signr);
- }
-diff --git a/kernel/panic.c b/kernel/panic.c
-index 6e30455eb2e7..bc39e2b27d31 100644
---- a/kernel/panic.c
-+++ b/kernel/panic.c
-@@ -222,12 +222,15 @@ static void panic_print_sys_info(void)
+ 	synchronize_rcu();
+diff --git a/net/mctp/route.c b/net/mctp/route.c
+index 6aebb4a3eded..89e67399249b 100644
+--- a/net/mctp/route.c
++++ b/net/mctp/route.c
+@@ -135,6 +135,11 @@ static int mctp_key_add(struct mctp_sk_key *key, struct mctp_sock *msk)
  
- void check_panic_on_warn(const char *origin)
- {
-+	unsigned int limit;
+ 	spin_lock_irqsave(&net->mctp.keys_lock, flags);
+ 
++	if (sock_flag(&msk->sk, SOCK_DEAD)) {
++		rc = -EINVAL;
++		goto out_unlock;
++	}
 +
- 	if (panic_on_warn)
- 		panic("%s: panic_on_warn set ...\n", origin);
+ 	hlist_for_each_entry(tmp, &net->mctp.keys, hlist) {
+ 		if (mctp_key_match(tmp, key->local_addr, key->peer_addr,
+ 				   key->tag)) {
+@@ -148,6 +153,7 @@ static int mctp_key_add(struct mctp_sk_key *key, struct mctp_sock *msk)
+ 		hlist_add_head(&key->sklist, &msk->keys);
+ 	}
  
--	if (atomic_inc_return(&warn_count) >= READ_ONCE(warn_limit) && warn_limit)
-+	limit = READ_ONCE(warn_limit);
-+	if (atomic_inc_return(&warn_count) >= limit && limit)
- 		panic("%s: system warned too often (kernel.warn_limit is %d)",
--		      origin, warn_limit);
-+		      origin, limit);
- }
++out_unlock:
+ 	spin_unlock_irqrestore(&net->mctp.keys_lock, flags);
  
- /**
+ 	return rc;
 -- 
 2.39.0
 
