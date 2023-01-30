@@ -2,50 +2,52 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 6232D6810E7
-	for <lists+stable@lfdr.de>; Mon, 30 Jan 2023 15:08:09 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D71A5681221
+	for <lists+stable@lfdr.de>; Mon, 30 Jan 2023 15:18:34 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237122AbjA3OII (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 30 Jan 2023 09:08:08 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50480 "EHLO
+        id S237599AbjA3OSc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 30 Jan 2023 09:18:32 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60786 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237123AbjA3OIH (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 30 Jan 2023 09:08:07 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 950C22E83A
-        for <stable@vger.kernel.org>; Mon, 30 Jan 2023 06:08:06 -0800 (PST)
+        with ESMTP id S237502AbjA3OSE (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 30 Jan 2023 09:18:04 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7A9D03EC4D
+        for <stable@vger.kernel.org>; Mon, 30 Jan 2023 06:17:25 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 31C8A61089
-        for <stable@vger.kernel.org>; Mon, 30 Jan 2023 14:08:06 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0B7A0C4339B;
-        Mon, 30 Jan 2023 14:08:04 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id D2AEA6108C
+        for <stable@vger.kernel.org>; Mon, 30 Jan 2023 14:17:14 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id DF583C433A0;
+        Mon, 30 Jan 2023 14:17:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1675087685;
-        bh=RiMduKbuLamA74C98UqKheL4ulsBqT74/8dKmISunWQ=;
+        s=korg; t=1675088234;
+        bh=vrqWO4+3MevkJXcvVUI52O8Kk+KBT5nxFowLW8d/ihY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Y1dU3YaPIWjKNAgJfhqTufUQco1kfVBeKXP0fga1iPxZWkLKETGNO63eDYZ3pjJAC
-         xyLb2PBCJTaWSmJ2bLdsGyEffLlrmPaZldl7Lk4ipnh1wPlJR5tKg6iDWUArOvcUCj
-         HLO39cs/EBlf9nmb/jYPdLuAN3Kn/mvId37Mn064=
+        b=CHFBlxEH7V1PhRbASAEagA5v91cIAUSq7uR43lv2s0MOJ8CIMDGZr51nSBumGeDUE
+         RXRGFijM774awrCgsCxGt1hEIv3M5o9Woh7WDdcMjVNOFjEVyahmdocQXmgMn0LdW+
+         w1/8NfjRcQFgGjL6LHf67jc7h1fG+s36tItYGYig=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Jeremy Kerr <jk@codeconstruct.com.au>,
-        "David S. Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 290/313] net: mctp: move expiry timer delete to unhash
+        patches@lists.linux.dev, Alexander Graf <graf@amazon.de>,
+        Hendrik Borghorst <hborghor@amazon.de>,
+        Jim Mattson <jmattson@google.com>,
+        Alexander Graf <graf@amazon.com>,
+        Paolo Bonzini <pbonzini@redhat.com>
+Subject: [PATCH 5.15 160/204] KVM: x86/vmx: Do not skip segment attributes if unusable bit is set
 Date:   Mon, 30 Jan 2023 14:52:05 +0100
-Message-Id: <20230130134350.243104077@linuxfoundation.org>
+Message-Id: <20230130134323.590721981@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.1
-In-Reply-To: <20230130134336.532886729@linuxfoundation.org>
-References: <20230130134336.532886729@linuxfoundation.org>
+In-Reply-To: <20230130134316.327556078@linuxfoundation.org>
+References: <20230130134316.327556078@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
         SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -53,54 +55,86 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jeremy Kerr <jk@codeconstruct.com.au>
+From: Hendrik Borghorst <hborghor@amazon.de>
 
-[ Upstream commit 5f41ae6fca9d40ab3cb9b0507931ef7a9b3ea50b ]
+commit a44b331614e6f7e63902ed7dff7adc8c85edd8bc upstream.
 
-Currently, we delete the key expiry timer (in sk->close) before
-unhashing the sk. This means that another thread may find the sk through
-its presence on the key list, and re-queue the timer.
+When serializing and deserializing kvm_sregs, attributes of the segment
+descriptors are stored by user space. For unusable segments,
+vmx_segment_access_rights skips all attributes and sets them to 0.
 
-This change moves the timer deletion to the unhash, after we have made
-the key no longer observable, so the timer cannot be re-queued.
+This means we zero out the DPL (Descriptor Privilege Level) for unusable
+entries.
 
-Fixes: 7b14e15ae6f4 ("mctp: Implement a timeout for tags")
-Signed-off-by: Jeremy Kerr <jk@codeconstruct.com.au>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Unusable segments are - contrary to their name - usable in 64bit mode and
+are used by guests to for example create a linear map through the
+NULL selector.
+
+VMENTER checks if SS.DPL is correct depending on the CS segment type.
+For types 9 (Execute Only) and 11 (Execute Read), CS.DPL must be equal to
+SS.DPL [1].
+
+We have seen real world guests setting CS to a usable segment with DPL=3
+and SS to an unusable segment with DPL=3. Once we go through an sregs
+get/set cycle, SS.DPL turns to 0. This causes the virtual machine to crash
+reproducibly.
+
+This commit changes the attribute logic to always preserve attributes for
+unusable segments. According to [2] SS.DPL is always saved on VM exits,
+regardless of the unusable bit so user space applications should have saved
+the information on serialization correctly.
+
+[3] specifies that besides SS.DPL the rest of the attributes of the
+descriptors are undefined after VM entry if unusable bit is set. So, there
+should be no harm in setting them all to the previous state.
+
+[1] Intel SDM Vol 3C 26.3.1.2 Checks on Guest Segment Registers
+[2] Intel SDM Vol 3C 27.3.2 Saving Segment Registers and Descriptor-Table
+Registers
+[3] Intel SDM Vol 3C 26.3.2.2 Loading Guest Segment Registers and
+Descriptor-Table Registers
+
+Cc: Alexander Graf <graf@amazon.de>
+Cc: stable@vger.kernel.org
+Signed-off-by: Hendrik Borghorst <hborghor@amazon.de>
+Reviewed-by: Jim Mattson <jmattson@google.com>
+Reviewed-by: Alexander Graf <graf@amazon.com>
+Message-Id: <20221114164823.69555-1-hborghor@amazon.de>
+Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/mctp/af_mctp.c | 9 ++++++---
- 1 file changed, 6 insertions(+), 3 deletions(-)
+ arch/x86/kvm/vmx/vmx.c |   21 +++++++++------------
+ 1 file changed, 9 insertions(+), 12 deletions(-)
 
-diff --git a/net/mctp/af_mctp.c b/net/mctp/af_mctp.c
-index fc9e728b6333..fb6ae3110528 100644
---- a/net/mctp/af_mctp.c
-+++ b/net/mctp/af_mctp.c
-@@ -544,9 +544,6 @@ static int mctp_sk_init(struct sock *sk)
- 
- static void mctp_sk_close(struct sock *sk, long timeout)
+--- a/arch/x86/kvm/vmx/vmx.c
++++ b/arch/x86/kvm/vmx/vmx.c
+@@ -3361,18 +3361,15 @@ static u32 vmx_segment_access_rights(str
  {
--	struct mctp_sock *msk = container_of(sk, struct mctp_sock, sk);
--
--	del_timer_sync(&msk->key_expiry);
- 	sk_common_release(sk);
- }
+ 	u32 ar;
  
-@@ -581,6 +578,12 @@ static void mctp_sk_unhash(struct sock *sk)
- 		__mctp_key_remove(key, net, fl2, MCTP_TRACE_KEY_CLOSED);
- 	}
- 	spin_unlock_irqrestore(&net->mctp.keys_lock, flags);
-+
-+	/* Since there are no more tag allocations (we have removed all of the
-+	 * keys), stop any pending expiry events. the timer cannot be re-queued
-+	 * as the sk is no longer observable
-+	 */
-+	del_timer_sync(&msk->key_expiry);
- }
+-	if (var->unusable || !var->present)
+-		ar = 1 << 16;
+-	else {
+-		ar = var->type & 15;
+-		ar |= (var->s & 1) << 4;
+-		ar |= (var->dpl & 3) << 5;
+-		ar |= (var->present & 1) << 7;
+-		ar |= (var->avl & 1) << 12;
+-		ar |= (var->l & 1) << 13;
+-		ar |= (var->db & 1) << 14;
+-		ar |= (var->g & 1) << 15;
+-	}
++	ar = var->type & 15;
++	ar |= (var->s & 1) << 4;
++	ar |= (var->dpl & 3) << 5;
++	ar |= (var->present & 1) << 7;
++	ar |= (var->avl & 1) << 12;
++	ar |= (var->l & 1) << 13;
++	ar |= (var->db & 1) << 14;
++	ar |= (var->g & 1) << 15;
++	ar |= (var->unusable || !var->present) << 16;
  
- static struct proto mctp_proto = {
--- 
-2.39.0
-
+ 	return ar;
+ }
 
 
