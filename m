@@ -2,51 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 544E0680FC0
-	for <lists+stable@lfdr.de>; Mon, 30 Jan 2023 14:56:45 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 14FF5680FBE
+	for <lists+stable@lfdr.de>; Mon, 30 Jan 2023 14:56:38 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236632AbjA3N4o (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 30 Jan 2023 08:56:44 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35806 "EHLO
+        id S232267AbjA3N4h (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 30 Jan 2023 08:56:37 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35758 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236628AbjA3N4n (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 30 Jan 2023 08:56:43 -0500
-Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4BF9F39BA9
-        for <stable@vger.kernel.org>; Mon, 30 Jan 2023 05:56:38 -0800 (PST)
+        with ESMTP id S236624AbjA3N4f (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 30 Jan 2023 08:56:35 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9EE3739B8C
+        for <stable@vger.kernel.org>; Mon, 30 Jan 2023 05:56:34 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id C1ED7CE16AE
-        for <stable@vger.kernel.org>; Mon, 30 Jan 2023 13:56:32 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6D518C433D2;
-        Mon, 30 Jan 2023 13:56:30 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 39F076101F
+        for <stable@vger.kernel.org>; Mon, 30 Jan 2023 13:56:34 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4F56CC433D2;
+        Mon, 30 Jan 2023 13:56:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1675086991;
-        bh=7PESLxxDozXNuZeqjgN7jyFJ9OLFxz7MrVtkncdlevQ=;
+        s=korg; t=1675086993;
+        bh=nEGRtUBBR9pjzINghAhjNOV3KFiHldKp3r41gPsvoQc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=K+tCqmGoEJIIYcurMvM9gtPOvN6afSuP/uRReJ8yF2XvGq/bBhShZIaojYa8dUj8m
-         d34WEhp2e37qKGpoS+BtAfwysogNc0bEwVJTmYMvAOndcKPHPRtVi9N7ln77gDuMqn
-         PQn0GNYcWiJ6JbHC6UZIo9Y2J0TD1g+aEpfWhysE=
+        b=WYeAJ45VhWlpBf71xWI4YRNbojFvQ9rFB4uvIbiG8LSxm9bHJgJHJJ7gLRRiGaABG
+         zzoS02WbBl7Q0xmthOW0QCtYn+KA1j1zLf3hXmwq55WQElxO6JfoRPDZ8tIZv58bpZ
+         QRlABAnbe1M5mYwuDwJPJ8Jj8y0PXBWr2M6mpHEw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Tonghao Zhang <tong@infragraf.org>,
-        Alexei Starovoitov <ast@kernel.org>,
-        Daniel Borkmann <daniel@iogearbox.net>,
-        Andrii Nakryiko <andrii@kernel.org>,
-        Martin KaFai Lau <martin.lau@linux.dev>,
-        Song Liu <song@kernel.org>, Yonghong Song <yhs@fb.com>,
-        John Fastabend <john.fastabend@gmail.com>,
-        KP Singh <kpsingh@kernel.org>,
-        Stanislav Fomichev <sdf@google.com>,
-        Hao Luo <haoluo@google.com>, Jiri Olsa <jolsa@kernel.org>,
-        Hou Tao <houtao1@huawei.com>,
-        Martin KaFai Lau <martin.lau@kernel.org>,
+        patches@lists.linux.dev, Ajith Nayak <Ajith.Nayak@amd.com>,
+        Raju Rangoju <Raju.Rangoju@amd.com>,
+        Shyam Sundar S K <Shyam-sundar.S-k@amd.com>,
+        Jakub Kicinski <kuba@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 063/313] bpf: hash map, avoid deadlock with suitable hash mask
-Date:   Mon, 30 Jan 2023 14:48:18 +0100
-Message-Id: <20230130134339.607002421@linuxfoundation.org>
+Subject: [PATCH 6.1 064/313] amd-xgbe: TX Flow Ctrl Registers are h/w ver dependent
+Date:   Mon, 30 Jan 2023 14:48:19 +0100
+Message-Id: <20230130134339.658535806@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.1
 In-Reply-To: <20230130134336.532886729@linuxfoundation.org>
 References: <20230130134336.532886729@linuxfoundation.org>
@@ -63,66 +55,87 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tonghao Zhang <tong@infragraf.org>
+From: Raju Rangoju <Raju.Rangoju@amd.com>
 
-[ Upstream commit 9f907439dc80e4a2fcfb949927b36c036468dbb3 ]
+[ Upstream commit 579923d84b04abb6cd4cd1fd9974096a2dd1832b ]
 
-The deadlock still may occur while accessed in NMI and non-NMI
-context. Because in NMI, we still may access the same bucket but with
-different map_locked index.
+There is difference in the TX Flow Control registers (TFCR) between the
+revisions of the hardware. The older revisions of hardware used to have
+single register per queue. Whereas, the newer revision of hardware (from
+ver 30H onwards) have one register per priority.
 
-For example, on the same CPU, .max_entries = 2, we update the hash map,
-with key = 4, while running bpf prog in NMI nmi_handle(), to update
-hash map with key = 20, so it will have the same bucket index but have
-different map_locked index.
+Update the driver to use the TFCR based on the reported version of the
+hardware.
 
-To fix this issue, using min mask to hash again.
-
-Fixes: 20b6cc34ea74 ("bpf: Avoid hashtab deadlock with map_locked")
-Signed-off-by: Tonghao Zhang <tong@infragraf.org>
-Cc: Alexei Starovoitov <ast@kernel.org>
-Cc: Daniel Borkmann <daniel@iogearbox.net>
-Cc: Andrii Nakryiko <andrii@kernel.org>
-Cc: Martin KaFai Lau <martin.lau@linux.dev>
-Cc: Song Liu <song@kernel.org>
-Cc: Yonghong Song <yhs@fb.com>
-Cc: John Fastabend <john.fastabend@gmail.com>
-Cc: KP Singh <kpsingh@kernel.org>
-Cc: Stanislav Fomichev <sdf@google.com>
-Cc: Hao Luo <haoluo@google.com>
-Cc: Jiri Olsa <jolsa@kernel.org>
-Cc: Hou Tao <houtao1@huawei.com>
-Acked-by: Yonghong Song <yhs@fb.com>
-Acked-by: Hou Tao <houtao1@huawei.com>
-Link: https://lore.kernel.org/r/20230111092903.92389-1-tong@infragraf.org
-Signed-off-by: Martin KaFai Lau <martin.lau@kernel.org>
+Fixes: c5aa9e3b8156 ("amd-xgbe: Initial AMD 10GbE platform driver")
+Co-developed-by: Ajith Nayak <Ajith.Nayak@amd.com>
+Signed-off-by: Ajith Nayak <Ajith.Nayak@amd.com>
+Signed-off-by: Raju Rangoju <Raju.Rangoju@amd.com>
+Acked-by: Shyam Sundar S K <Shyam-sundar.S-k@amd.com>
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/bpf/hashtab.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/net/ethernet/amd/xgbe/xgbe-dev.c | 23 +++++++++++++++--------
+ 1 file changed, 15 insertions(+), 8 deletions(-)
 
-diff --git a/kernel/bpf/hashtab.c b/kernel/bpf/hashtab.c
-index f39ee3e05589..c4811984fafa 100644
---- a/kernel/bpf/hashtab.c
-+++ b/kernel/bpf/hashtab.c
-@@ -152,7 +152,7 @@ static inline int htab_lock_bucket(const struct bpf_htab *htab,
- {
- 	unsigned long flags;
+diff --git a/drivers/net/ethernet/amd/xgbe/xgbe-dev.c b/drivers/net/ethernet/amd/xgbe/xgbe-dev.c
+index 3936543a74d8..4030d619e84f 100644
+--- a/drivers/net/ethernet/amd/xgbe/xgbe-dev.c
++++ b/drivers/net/ethernet/amd/xgbe/xgbe-dev.c
+@@ -524,19 +524,28 @@ static void xgbe_disable_vxlan(struct xgbe_prv_data *pdata)
+ 	netif_dbg(pdata, drv, pdata->netdev, "VXLAN acceleration disabled\n");
+ }
  
--	hash = hash & HASHTAB_MAP_LOCK_MASK;
-+	hash = hash & min_t(u32, HASHTAB_MAP_LOCK_MASK, htab->n_buckets - 1);
- 
- 	preempt_disable();
- 	if (unlikely(__this_cpu_inc_return(*(htab->map_locked[hash])) != 1)) {
-@@ -171,7 +171,7 @@ static inline void htab_unlock_bucket(const struct bpf_htab *htab,
- 				      struct bucket *b, u32 hash,
- 				      unsigned long flags)
++static unsigned int xgbe_get_fc_queue_count(struct xgbe_prv_data *pdata)
++{
++	unsigned int max_q_count = XGMAC_MAX_FLOW_CONTROL_QUEUES;
++
++	/* From MAC ver 30H the TFCR is per priority, instead of per queue */
++	if (XGMAC_GET_BITS(pdata->hw_feat.version, MAC_VR, SNPSVER) >= 0x30)
++		return max_q_count;
++	else
++		return min_t(unsigned int, pdata->tx_q_count, max_q_count);
++}
++
+ static int xgbe_disable_tx_flow_control(struct xgbe_prv_data *pdata)
  {
--	hash = hash & HASHTAB_MAP_LOCK_MASK;
-+	hash = hash & min_t(u32, HASHTAB_MAP_LOCK_MASK, htab->n_buckets - 1);
- 	raw_spin_unlock_irqrestore(&b->raw_lock, flags);
- 	__this_cpu_dec(*(htab->map_locked[hash]));
- 	preempt_enable();
+-	unsigned int max_q_count, q_count;
+ 	unsigned int reg, reg_val;
+-	unsigned int i;
++	unsigned int i, q_count;
+ 
+ 	/* Clear MTL flow control */
+ 	for (i = 0; i < pdata->rx_q_count; i++)
+ 		XGMAC_MTL_IOWRITE_BITS(pdata, i, MTL_Q_RQOMR, EHFC, 0);
+ 
+ 	/* Clear MAC flow control */
+-	max_q_count = XGMAC_MAX_FLOW_CONTROL_QUEUES;
+-	q_count = min_t(unsigned int, pdata->tx_q_count, max_q_count);
++	q_count = xgbe_get_fc_queue_count(pdata);
+ 	reg = MAC_Q0TFCR;
+ 	for (i = 0; i < q_count; i++) {
+ 		reg_val = XGMAC_IOREAD(pdata, reg);
+@@ -553,9 +562,8 @@ static int xgbe_enable_tx_flow_control(struct xgbe_prv_data *pdata)
+ {
+ 	struct ieee_pfc *pfc = pdata->pfc;
+ 	struct ieee_ets *ets = pdata->ets;
+-	unsigned int max_q_count, q_count;
+ 	unsigned int reg, reg_val;
+-	unsigned int i;
++	unsigned int i, q_count;
+ 
+ 	/* Set MTL flow control */
+ 	for (i = 0; i < pdata->rx_q_count; i++) {
+@@ -579,8 +587,7 @@ static int xgbe_enable_tx_flow_control(struct xgbe_prv_data *pdata)
+ 	}
+ 
+ 	/* Set MAC flow control */
+-	max_q_count = XGMAC_MAX_FLOW_CONTROL_QUEUES;
+-	q_count = min_t(unsigned int, pdata->tx_q_count, max_q_count);
++	q_count = xgbe_get_fc_queue_count(pdata);
+ 	reg = MAC_Q0TFCR;
+ 	for (i = 0; i < q_count; i++) {
+ 		reg_val = XGMAC_IOREAD(pdata, reg);
 -- 
 2.39.0
 
