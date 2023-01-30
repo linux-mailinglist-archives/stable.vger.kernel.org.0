@@ -2,42 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A9EF068119E
-	for <lists+stable@lfdr.de>; Mon, 30 Jan 2023 15:15:20 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3B5556812AF
+	for <lists+stable@lfdr.de>; Mon, 30 Jan 2023 15:23:56 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237334AbjA3OPT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 30 Jan 2023 09:15:19 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59258 "EHLO
+        id S236851AbjA3OXy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 30 Jan 2023 09:23:54 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42168 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237330AbjA3OPS (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 30 Jan 2023 09:15:18 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E60693B67D
-        for <stable@vger.kernel.org>; Mon, 30 Jan 2023 06:15:11 -0800 (PST)
+        with ESMTP id S237168AbjA3OXg (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 30 Jan 2023 09:23:36 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1A32BCDFB
+        for <stable@vger.kernel.org>; Mon, 30 Jan 2023 06:22:28 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 3DD6561022
-        for <stable@vger.kernel.org>; Mon, 30 Jan 2023 14:15:11 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4EF2DC433D2;
-        Mon, 30 Jan 2023 14:15:10 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id A2943B80CB4
+        for <stable@vger.kernel.org>; Mon, 30 Jan 2023 14:22:27 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id EDCCEC433D2;
+        Mon, 30 Jan 2023 14:22:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1675088110;
-        bh=SFUeGrhlGwCqZj6iCEsVuoL5vHnQGn/pAym4rJEkuro=;
+        s=korg; t=1675088546;
+        bh=1nMo8rvLB28FcSXfBo3wijcq1J+GXuaoNEn322cXJoo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=qR/Jr0CmiyDRF7uLykIb5ZvJuDURBlUp9ornxDQoLxdr3vh1WQp+FUBOUNG7/5QzD
-         Hg+O0fJsYj4++33UYYR+OZlqpSf212XQ0lNxihrckcInuC4behmoAtJSo8V1+kGMac
-         EBLKpaOjFT4k+28AhCfTvbMGWOPvDCRVp+CWKxqk=
+        b=BLY0BPqmnahK9OJzRNeCiuh9M3FTEQiBtXS1j4Hg8Aur14xEcHlfG1xQFTHekHrUG
+         GqLI7QnVQYkHb3pHoQpDEFptfXiJnn5LOC4QCx3o6PURLxKMqc4J9rfhdPFeB//3Be
+         LssKvf06eMMOP8ghoXL1yG+MyrtsxFKQ5vjndxYw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 119/204] Revert "selftests/bpf: check null propagation only neither reg is PTR_TO_BTF_ID"
+        patches@lists.linux.dev, Luis Gerhorst <gerhorst@cs.fau.de>,
+        Daniel Borkmann <daniel@iogearbox.net>,
+        Henriette Hofmeier <henriette.hofmeier@rub.de>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 027/143] bpf: Fix pointer-leak due to insufficient speculative store bypass mitigation
 Date:   Mon, 30 Jan 2023 14:51:24 +0100
-Message-Id: <20230130134321.712209527@linuxfoundation.org>
+Message-Id: <20230130134307.989887459@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.1
-In-Reply-To: <20230130134316.327556078@linuxfoundation.org>
-References: <20230130134316.327556078@linuxfoundation.org>
+In-Reply-To: <20230130134306.862721518@linuxfoundation.org>
+References: <20230130134306.862721518@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -51,72 +54,108 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-This reverts commit 95fc28a8e92169cff4b649ae9f4a209a783f2c91.
+From: Luis Gerhorst <gerhorst@cs.fau.de>
 
+[ Upstream commit e4f4db47794c9f474b184ee1418f42e6a07412b6 ]
+
+To mitigate Spectre v4, 2039f26f3aca ("bpf: Fix leakage due to
+insufficient speculative store bypass mitigation") inserts lfence
+instructions after 1) initializing a stack slot and 2) spilling a
+pointer to the stack.
+
+However, this does not cover cases where a stack slot is first
+initialized with a pointer (subject to sanitization) but then
+overwritten with a scalar (not subject to sanitization because
+the slot was already initialized). In this case, the second write
+may be subject to speculative store bypass (SSB) creating a
+speculative pointer-as-scalar type confusion. This allows the
+program to subsequently leak the numerical pointer value using,
+for example, a branch-based cache side channel.
+
+To fix this, also sanitize scalars if they write a stack slot
+that previously contained a pointer. Assuming that pointer-spills
+are only generated by LLVM on register-pressure, the performance
+impact on most real-world BPF programs should be small.
+
+The following unprivileged BPF bytecode drafts a minimal exploit
+and the mitigation:
+
+  [...]
+  // r6 = 0 or 1 (skalar, unknown user input)
+  // r7 = accessible ptr for side channel
+  // r10 = frame pointer (fp), to be leaked
+  //
+  r9 = r10 # fp alias to encourage ssb
+  *(u64 *)(r9 - 8) = r10 // fp[-8] = ptr, to be leaked
+  // lfence added here because of pointer spill to stack.
+  //
+  // Ommitted: Dummy bpf_ringbuf_output() here to train alias predictor
+  // for no r9-r10 dependency.
+  //
+  *(u64 *)(r10 - 8) = r6 // fp[-8] = scalar, overwrites ptr
+  // 2039f26f3aca: no lfence added because stack slot was not STACK_INVALID,
+  // store may be subject to SSB
+  //
+  // fix: also add an lfence when the slot contained a ptr
+  //
+  r8 = *(u64 *)(r9 - 8)
+  // r8 = architecturally a scalar, speculatively a ptr
+  //
+  // leak ptr using branch-based cache side channel:
+  r8 &= 1 // choose bit to leak
+  if r8 == 0 goto SLOW // no mispredict
+  // architecturally dead code if input r6 is 0,
+  // only executes speculatively iff ptr bit is 1
+  r8 = *(u64 *)(r7 + 0) # encode bit in cache (0: slow, 1: fast)
+SLOW:
+  [...]
+
+After running this, the program can time the access to *(r7 + 0) to
+determine whether the chosen pointer bit was 0 or 1. Repeat this 64
+times to recover the whole address on amd64.
+
+In summary, sanitization can only be skipped if one scalar is
+overwritten with another scalar. Scalar-confusion due to speculative
+store bypass can not lead to invalid accesses because the pointer
+bounds deducted during verification are enforced using branchless
+logic. See 979d63d50c0c ("bpf: prevent out of bounds speculation on
+pointer arithmetic") for details.
+
+Do not make the mitigation depend on !env->allow_{uninit_stack,ptr_leaks}
+because speculative leaks are likely unexpected if these were enabled.
+For example, leaking the address to a protected log file may be acceptable
+while disabling the mitigation might unintentionally leak the address
+into the cached-state of a map that is accessible to unprivileged
+processes.
+
+Fixes: 2039f26f3aca ("bpf: Fix leakage due to insufficient speculative store bypass mitigation")
+Signed-off-by: Luis Gerhorst <gerhorst@cs.fau.de>
+Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
+Acked-by: Henriette Hofmeier <henriette.hofmeier@rub.de>
+Link: https://lore.kernel.org/bpf/edc95bad-aada-9cfc-ffe2-fa9bb206583c@cs.fau.de
+Link: https://lore.kernel.org/bpf/20230109150544.41465-1-gerhorst@cs.fau.de
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/testing/selftests/bpf/prog_tests/jeq_infer_not_null.c |    9 --
- tools/testing/selftests/bpf/progs/jeq_infer_not_null_fail.c |   42 ------------
- 2 files changed, 51 deletions(-)
- delete mode 100644 tools/testing/selftests/bpf/prog_tests/jeq_infer_not_null.c
- delete mode 100644 tools/testing/selftests/bpf/progs/jeq_infer_not_null_fail.c
+ kernel/bpf/verifier.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
---- a/tools/testing/selftests/bpf/prog_tests/jeq_infer_not_null.c
-+++ /dev/null
-@@ -1,9 +0,0 @@
--// SPDX-License-Identifier: GPL-2.0
--
--#include <test_progs.h>
--#include "jeq_infer_not_null_fail.skel.h"
--
--void test_jeq_infer_not_null(void)
--{
--	RUN_TESTS(jeq_infer_not_null_fail);
--}
---- a/tools/testing/selftests/bpf/progs/jeq_infer_not_null_fail.c
-+++ /dev/null
-@@ -1,42 +0,0 @@
--// SPDX-License-Identifier: GPL-2.0
--
--#include "vmlinux.h"
--#include <bpf/bpf_helpers.h>
--#include "bpf_misc.h"
--
--char _license[] SEC("license") = "GPL";
--
--struct {
--	__uint(type, BPF_MAP_TYPE_HASH);
--	__uint(max_entries, 1);
--	__type(key, u64);
--	__type(value, u64);
--} m_hash SEC(".maps");
--
--SEC("?raw_tp")
--__failure __msg("R8 invalid mem access 'map_value_or_null")
--int jeq_infer_not_null_ptr_to_btfid(void *ctx)
--{
--	struct bpf_map *map = (struct bpf_map *)&m_hash;
--	struct bpf_map *inner_map = map->inner_map_meta;
--	u64 key = 0, ret = 0, *val;
--
--	val = bpf_map_lookup_elem(map, &key);
--	/* Do not mark ptr as non-null if one of them is
--	 * PTR_TO_BTF_ID (R9), reject because of invalid
--	 * access to map value (R8).
--	 *
--	 * Here, we need to inline those insns to access
--	 * R8 directly, since compiler may use other reg
--	 * once it figures out val==inner_map.
--	 */
--	asm volatile("r8 = %[val];\n"
--		     "r9 = %[inner_map];\n"
--		     "if r8 != r9 goto +1;\n"
--		     "%[ret] = *(u64 *)(r8 +0);\n"
--		     : [ret] "+r"(ret)
--		     : [inner_map] "r"(inner_map), [val] "r"(val)
--		     : "r8", "r9");
--
--	return ret;
--}
+diff --git a/kernel/bpf/verifier.c b/kernel/bpf/verifier.c
+index 232c93357b90..a6c931fed39b 100644
+--- a/kernel/bpf/verifier.c
++++ b/kernel/bpf/verifier.c
+@@ -2319,7 +2319,9 @@ static int check_stack_write_fixed_off(struct bpf_verifier_env *env,
+ 		bool sanitize = reg && is_spillable_regtype(reg->type);
+ 
+ 		for (i = 0; i < size; i++) {
+-			if (state->stack[spi].slot_type[i] == STACK_INVALID) {
++			u8 type = state->stack[spi].slot_type[i];
++
++			if (type != STACK_MISC && type != STACK_ZERO) {
+ 				sanitize = true;
+ 				break;
+ 			}
+-- 
+2.39.0
+
 
 
