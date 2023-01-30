@@ -2,43 +2,49 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 90B4B6810B6
-	for <lists+stable@lfdr.de>; Mon, 30 Jan 2023 15:05:58 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A828568119B
+	for <lists+stable@lfdr.de>; Mon, 30 Jan 2023 15:15:11 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237070AbjA3OF5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 30 Jan 2023 09:05:57 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48522 "EHLO
+        id S237233AbjA3OPK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 30 Jan 2023 09:15:10 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59108 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237086AbjA3OF4 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 30 Jan 2023 09:05:56 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 271133B3ED
-        for <stable@vger.kernel.org>; Mon, 30 Jan 2023 06:05:56 -0800 (PST)
+        with ESMTP id S237326AbjA3OPJ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 30 Jan 2023 09:15:09 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3F38D1ABE3
+        for <stable@vger.kernel.org>; Mon, 30 Jan 2023 06:15:07 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id B20496102D
-        for <stable@vger.kernel.org>; Mon, 30 Jan 2023 14:05:55 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C936AC4339B;
-        Mon, 30 Jan 2023 14:05:54 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id EB85BB80E60
+        for <stable@vger.kernel.org>; Mon, 30 Jan 2023 14:15:05 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 35688C433EF;
+        Mon, 30 Jan 2023 14:15:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1675087555;
-        bh=KuzU3Yrb8LHAcq2AnsOQ30vhxfHViegiJW7XXM+wUE8=;
+        s=korg; t=1675088104;
+        bh=DvqY4zbmbFW77b1cKIU/1IBDL/FxujeF5PglJoGY+5A=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=dUDUtyXKbVmzQZ0+Wtb+YGTc5S5Wsl6UsXDkyQbq5dJvS3GwX96nmKJFnPWHj7duC
-         W8DXWKzZTSFyVS6NxSR8gJvyQuAWSG8fS5vLfDpIlKlLZ/fOZYEI2f9cYa+K8QGsoN
-         KNGQCA3Lp9xZEfNfEjWObhQO5V1ByhnxIupWiDlo=
+        b=yd3gRjDIrko4GVroLHaojriFmbYm02I3MRLjvjb0IQVjIYfEV2vag4zKJPGBPQDwj
+         HvM0Aetf6mRDHk/5hn3/Arituriqs9Vf4tNk4RXnbPemRmdpePR8y24UY+NRAiJ+jw
+         Udd9rYVhUWCL+05bI+4HOyVKeGisbMNQ+t5tn6HE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Dylan Yudaken <dylany@meta.com>,
-        Jens Axboe <axboe@kernel.dk>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 247/313] io_uring: always prep_async for drain requests
+        patches@lists.linux.dev, Paul Menzel <pmenzel@molgen.mpg.de>,
+        Jack Rosenthal <jrosenth@chromium.org>,
+        Guenter Roeck <groeck@chromium.org>,
+        Julius Werner <jwerner@chromium.org>,
+        Brian Norris <briannorris@chromium.org>,
+        Stephen Boyd <swboyd@chromium.org>,
+        Kees Cook <keescook@chromium.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.15 117/204] firmware: coreboot: Check size of table entry and use flex-array
 Date:   Mon, 30 Jan 2023 14:51:22 +0100
-Message-Id: <20230130134348.205579242@linuxfoundation.org>
+Message-Id: <20230130134321.618762009@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.1
-In-Reply-To: <20230130134336.532886729@linuxfoundation.org>
-References: <20230130134336.532886729@linuxfoundation.org>
+In-Reply-To: <20230130134316.327556078@linuxfoundation.org>
+References: <20230130134316.327556078@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -52,83 +58,79 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dylan Yudaken <dylany@meta.com>
+From: Kees Cook <keescook@chromium.org>
 
-[ Upstream commit ef5c600adb1d985513d2b612cc90403a148ff287 ]
+[ Upstream commit 3b293487b8752cc42c1cbf8a0447bc6076c075fa ]
 
-Drain requests all go through io_drain_req, which has a quick exit in case
-there is nothing pending (ie the drain is not useful). In that case it can
-run the issue the request immediately.
+The memcpy() of the data following a coreboot_table_entry couldn't
+be evaluated by the compiler under CONFIG_FORTIFY_SOURCE. To make it
+easier to reason about, add an explicit flexible array member to struct
+coreboot_device so the entire entry can be copied at once. Additionally,
+validate the sizes before copying. Avoids this run-time false positive
+warning:
 
-However for safety it queues it through task work.
-The problem is that in this case the request is run asynchronously, but
-the async work has not been prepared through io_req_prep_async.
+  memcpy: detected field-spanning write (size 168) of single field "&device->entry" at drivers/firmware/google/coreboot_table.c:103 (size 8)
 
-This has not been a problem up to now, as the task work always would run
-before returning to userspace, and so the user would not have a chance to
-race with it.
-
-However - with IORING_SETUP_DEFER_TASKRUN - this is no longer the case and
-the work might be defered, giving userspace a chance to change data being
-referred to in the request.
-
-Instead _always_ prep_async for drain requests, which is simpler anyway
-and removes this issue.
-
-Cc: stable@vger.kernel.org
-Fixes: c0e0d6ba25f1 ("io_uring: add IORING_SETUP_DEFER_TASKRUN")
-Signed-off-by: Dylan Yudaken <dylany@meta.com>
-Link: https://lore.kernel.org/r/20230127105911.2420061-1-dylany@meta.com
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
+Reported-by: Paul Menzel <pmenzel@molgen.mpg.de>
+Link: https://lore.kernel.org/all/03ae2704-8c30-f9f0-215b-7cdf4ad35a9a@molgen.mpg.de/
+Cc: Jack Rosenthal <jrosenth@chromium.org>
+Cc: Guenter Roeck <groeck@chromium.org>
+Cc: Julius Werner <jwerner@chromium.org>
+Cc: Brian Norris <briannorris@chromium.org>
+Cc: Stephen Boyd <swboyd@chromium.org>
+Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Kees Cook <keescook@chromium.org>
+Reviewed-by: Julius Werner <jwerner@chromium.org>
+Reviewed-by: Guenter Roeck <groeck@chromium.org>
+Link: https://lore.kernel.org/r/20230107031406.gonna.761-kees@kernel.org
+Reviewed-by: Stephen Boyd <swboyd@chromium.org>
+Reviewed-by: Jack Rosenthal <jrosenth@chromium.org>
+Link: https://lore.kernel.org/r/20230112230312.give.446-kees@kernel.org
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- io_uring/io_uring.c | 18 ++++++++----------
- 1 file changed, 8 insertions(+), 10 deletions(-)
+ drivers/firmware/google/coreboot_table.c | 9 +++++++--
+ drivers/firmware/google/coreboot_table.h | 1 +
+ 2 files changed, 8 insertions(+), 2 deletions(-)
 
-diff --git a/io_uring/io_uring.c b/io_uring/io_uring.c
-index 13a60f51b283..862e05e6691d 100644
---- a/io_uring/io_uring.c
-+++ b/io_uring/io_uring.c
-@@ -1634,17 +1634,12 @@ static __cold void io_drain_req(struct io_kiocb *req)
- 	}
- 	spin_unlock(&ctx->completion_lock);
+diff --git a/drivers/firmware/google/coreboot_table.c b/drivers/firmware/google/coreboot_table.c
+index 9ca21feb9d45..f3694d347801 100644
+--- a/drivers/firmware/google/coreboot_table.c
++++ b/drivers/firmware/google/coreboot_table.c
+@@ -93,7 +93,12 @@ static int coreboot_table_populate(struct device *dev, void *ptr)
+ 	for (i = 0; i < header->table_entries; i++) {
+ 		entry = ptr_entry;
  
--	ret = io_req_prep_async(req);
--	if (ret) {
--fail:
--		io_req_complete_failed(req, ret);
--		return;
--	}
- 	io_prep_async_link(req);
- 	de = kmalloc(sizeof(*de), GFP_KERNEL);
- 	if (!de) {
- 		ret = -ENOMEM;
--		goto fail;
-+		io_req_complete_failed(req, ret);
-+		return;
- 	}
- 
- 	spin_lock(&ctx->completion_lock);
-@@ -1918,13 +1913,16 @@ static void io_queue_sqe_fallback(struct io_kiocb *req)
- 		req->flags &= ~REQ_F_HARDLINK;
- 		req->flags |= REQ_F_LINK;
- 		io_req_complete_failed(req, req->cqe.res);
--	} else if (unlikely(req->ctx->drain_active)) {
--		io_drain_req(req);
- 	} else {
- 		int ret = io_req_prep_async(req);
- 
--		if (unlikely(ret))
-+		if (unlikely(ret)) {
- 			io_req_complete_failed(req, ret);
-+			return;
+-		device = kzalloc(sizeof(struct device) + entry->size, GFP_KERNEL);
++		if (entry->size < sizeof(*entry)) {
++			dev_warn(dev, "coreboot table entry too small!\n");
++			return -EINVAL;
 +		}
 +
-+		if (unlikely(req->ctx->drain_active))
-+			io_drain_req(req);
- 		else
- 			io_queue_iowq(req, NULL);
- 	}
++		device = kzalloc(sizeof(device->dev) + entry->size, GFP_KERNEL);
+ 		if (!device)
+ 			return -ENOMEM;
+ 
+@@ -101,7 +106,7 @@ static int coreboot_table_populate(struct device *dev, void *ptr)
+ 		device->dev.parent = dev;
+ 		device->dev.bus = &coreboot_bus_type;
+ 		device->dev.release = coreboot_device_release;
+-		memcpy(&device->entry, ptr_entry, entry->size);
++		memcpy(device->raw, ptr_entry, entry->size);
+ 
+ 		ret = device_register(&device->dev);
+ 		if (ret) {
+diff --git a/drivers/firmware/google/coreboot_table.h b/drivers/firmware/google/coreboot_table.h
+index beb778674acd..4a89277b99a3 100644
+--- a/drivers/firmware/google/coreboot_table.h
++++ b/drivers/firmware/google/coreboot_table.h
+@@ -66,6 +66,7 @@ struct coreboot_device {
+ 		struct coreboot_table_entry entry;
+ 		struct lb_cbmem_ref cbmem_ref;
+ 		struct lb_framebuffer framebuffer;
++		DECLARE_FLEX_ARRAY(u8, raw);
+ 	};
+ };
+ 
 -- 
 2.39.0
 
