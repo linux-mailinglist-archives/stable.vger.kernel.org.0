@@ -2,92 +2,97 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id CD88F680F46
-	for <lists+stable@lfdr.de>; Mon, 30 Jan 2023 14:48:32 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 41AC1680FED
+	for <lists+stable@lfdr.de>; Mon, 30 Jan 2023 14:58:05 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S235232AbjA3Nsb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 30 Jan 2023 08:48:31 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56568 "EHLO
+        id S236785AbjA3N6E (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 30 Jan 2023 08:58:04 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37056 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231191AbjA3Nsa (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 30 Jan 2023 08:48:30 -0500
-Received: from exchange.fintech.ru (e10edge.fintech.ru [195.54.195.159])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CBF8739B8E;
-        Mon, 30 Jan 2023 05:48:27 -0800 (PST)
-Received: from Ex16-01.fintech.ru (10.0.10.18) by exchange.fintech.ru
- (195.54.195.159) with Microsoft SMTP Server (TLS) id 14.3.498.0; Mon, 30 Jan
- 2023 16:48:24 +0300
-Received: from Ex16-01.fintech.ru (10.0.10.18) by Ex16-01.fintech.ru
- (10.0.10.18) with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id 15.1.2242.4; Mon, 30 Jan
- 2023 16:48:24 +0300
-Received: from Ex16-01.fintech.ru ([fe80::2534:7600:5275:d3f9]) by
- Ex16-01.fintech.ru ([fe80::2534:7600:5275:d3f9%7]) with mapi id
- 15.01.2242.004; Mon, 30 Jan 2023 16:48:24 +0300
-From:   =?utf-8?B?0JbQsNC90LTQsNGA0L7QstC40Ycg0J3QuNC60LjRgtCwINCY0LPQvtGA0LU=?=
-         =?utf-8?B?0LLQuNGH?= <n.zhandarovich@fintech.ru>
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-CC:     "stable@vger.kernel.org" <stable@vger.kernel.org>,
-        Felix Fietkau <nbd@nbd.name>,
-        Lorenzo Bianconi <lorenzo.bianconi83@gmail.com>,
-        Ryder Lee <ryder.lee@mediatek.com>,
-        Kalle Valo <kvalo@codeaurora.org>,
-        "David S. Miller" <davem@davemloft.net>,
+        with ESMTP id S236771AbjA3N56 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 30 Jan 2023 08:57:58 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3CA4C10AB3
+        for <stable@vger.kernel.org>; Mon, 30 Jan 2023 05:57:54 -0800 (PST)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by ams.source.kernel.org (Postfix) with ESMTPS id B7302B8117E
+        for <stable@vger.kernel.org>; Mon, 30 Jan 2023 13:57:52 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 046C3C433D2;
+        Mon, 30 Jan 2023 13:57:50 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
+        s=korg; t=1675087071;
+        bh=4HY3mxBLrKhK4xF7LmMadNcI7hQNXnUjtPSFLpNT1VY=;
+        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+        b=hg31Ouoh/mNJuv+Z6SMa1OXR4ZS5wzRblUUdDPLXDfqYQ8YchhgMpXAFV+ka8EVvI
+         JfQ499WFJJCq+s0raOj0qaKRM7dsIZplgbZqMwJI0VtnW2utMACE+yZW8sR7hn7+A2
+         I0fD/ZSaDnGBbSneRAasIKteE255pH2UJOSlxr5w=
+From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+To:     stable@vger.kernel.org
+Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        patches@lists.linux.dev, Esina Ekaterina <eesina@astralinux.ru>,
         Jakub Kicinski <kuba@kernel.org>,
-        "linux-wireless@vger.kernel.org" <linux-wireless@vger.kernel.org>,
-        "netdev@vger.kernel.org" <netdev@vger.kernel.org>,
-        "linux-mediatek@lists.infradead.org" 
-        <linux-mediatek@lists.infradead.org>,
-        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-        "Alexey Khoroshilov" <khoroshilov@ispras.ru>,
-        "lvc-project@linuxtesting.org" <lvc-project@linuxtesting.org>
-Subject: RE: [PATCH 5.10 1/1] mt76: fix mt7615_init_tx_queues() return value
-Thread-Topic: [PATCH 5.10 1/1] mt76: fix mt7615_init_tx_queues() return value
-Thread-Index: AQHZNKePV9Tuf82zRk2tMrTfyN8UZK62u2sAgAA3O6D//9G7AIAANNZg
-Date:   Mon, 30 Jan 2023 13:48:24 +0000
-Message-ID: <e17c785dbacf4605a726cc939bee6533@fintech.ru>
-References: <20230130123655.86339-1-n.zhandarovich@fintech.ru>
- <20230130123655.86339-2-n.zhandarovich@fintech.ru>
- <Y9fAkt/5BRist//g@kroah.com> <b945bd5f3d414ac5bc589d65cf439f7b@fintech.ru>
- <Y9fIFirNHNP06e1L@kroah.com>
-In-Reply-To: <Y9fIFirNHNP06e1L@kroah.com>
-Accept-Language: ru-RU, en-US
-Content-Language: ru-RU
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-x-originating-ip: [10.0.253.138]
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 6.1 070/313] net: wan: Add checks for NULL for utdm in undo_uhdlc_init and unmap_si_regs
+Date:   Mon, 30 Jan 2023 14:48:25 +0100
+Message-Id: <20230130134339.945679741@linuxfoundation.org>
+X-Mailer: git-send-email 2.39.1
+In-Reply-To: <20230130134336.532886729@linuxfoundation.org>
+References: <20230130134336.532886729@linuxfoundation.org>
+User-Agent: quilt/0.67
 MIME-Version: 1.0
-X-Spam-Status: No, score=-1.9 required=5.0 tests=BAYES_00,SPF_HELO_NONE,
-        SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
+        SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-PiBPbiBNb24sIEphbiAzMCwgMjAyMyBhdCAwMToyNzoyNlBNICswMDAwLCDQltCw0L3QtNCw0YDQ
-vtCy0LjRhyDQndC40LrQuNGC0LAg0JjQs9C+0YDQtdCy0LjRhw0KPiB3cm90ZToNCj4gPiA+IFdo
-YXQgaXMgdGhlIGdpdCBjb21taXQgaWQgb2YgdGhpcyB1cHN0cmVhbT8NCj4gPiA+DQo+ID4gPiBB
-bmQgSSBjYW4ndCBhcHBseSB0aGlzIGFzLWlzIGZvciB0aGUgb2J2aW91cyByZWFzb24gaXQgd291
-bGQgbWVzcyB1cA0KPiA+ID4gdGhlIGNoYW5nZWxvZywgaG93IGRpZCB5b3UgY3JlYXRlIHRoaXM/
-DQo+ID4gPg0KPiA+ID4gY29uZnVzZWQsDQo+ID4gPg0KPiA+ID4gZ3JlZyBrLWgNCj4gPg0KPiA+
-IENvbW1pdCBpbiBxdWVzdGlvbiBpcyBiNjcxZGEzM2QxYzU5NzNmOTBmMDk4ZmY2NmE5MTk1MzY5
-MWRmNTgyDQo+ID4gdXBzdHJlYW0uIEkgd2Fzbid0IGNlcnRhaW4gaXQgbWFrZXMgc2Vuc2UgdG8g
-YmFja3BvcnQgdGhlIHdob2xlIHBhdGNoDQo+ID4gYXMgb25seSBhIHNtYWxsIHBvcnRpb24gb2Yg
-aXQgcGVydGFpbnMgdG8gdGhlIGZhdWx0IGF0IHF1ZXN0aW9uLg0KPiANCj4gV2hhdCBpcyB0aGUg
-ImZhdWx0Ij8NCg0KSW4gNS4xMC55ICJtdDc2MTVfaW5pdF90eF9xdWV1ZXMoKSByZXR1cm5zIDAg
-cmVnYXJkbGVzcyBvZiBob3cgZmluYWwNCm10NzYxNV9pbml0X3R4X3F1ZXVlKCkgcGVyZm9ybXMu
-IElmIG10NzYxNV9pbml0X3R4X3F1ZXVlKCkgZmFpbHMgKGR1ZSB0bw0KbWVtb3J5IGlzc3Vlcywg
-Zm9yIGluc3RhbmNlKSwgcGFyZW50IGZ1bmN0aW9uIHdpbGwgc3RpbGwgZXJyb25lb3VzbHkNCnJl
-dHVybiAwLiINCg0KVGhpcyB3YXMgZml4ZWQgdXBzdHJlYW0sIGFsdGhvdWdoIHRoYXQgcGFydGlj
-dWxhciBjb21taXQncyBzY29wZSB3YXMgYnJvYWRlci4NCg0KPiBBbmQgd2h5IG5vdCB0YWtlIHRo
-ZSB3aG9sZSB0aGluZz8gIFdoYXQncyB3cm9uZyB3aXRoIHRoYXQ/ICBXZSBhbG1vc3QNCj4gYWx3
-YXlzIHdhbnQgdG8gdGFrZSB3aGF0ZXZlciBpcyBpbiBMaW51cydzIHRyZWUgYmVjYXVzZSB3aGVu
-IHdlIGRvIG5vdCwgd2UNCj4gYWxtb3N0IGFsd2F5cyBjYXVzZSBidWdzIG9yIG90aGVyIHByb2Js
-ZW1zIChsYXRlciBtZXJnZSBpc3N1ZXMuKQ0KPiANCj4gU28gYWx3YXlzIHRha2UgdGhlIG9yaWdp
-bmFsIGZpeCBwbGVhc2UuDQo+IA0KPiB0aGFua3MsDQo+IA0KPiBncmVnIGstaA0KDQpUaGF0IG1h
-a2VzIHNlbnNlLCBvZiBjb3Vyc2UuIFRoYW5rcyBmb3IgeW91ciBwYXRpZW5jZSwgd2lsbCB3b3Jr
-IHRvd2FyZCBiYWNrcG9ydGluZyB0aGUgd2hvbGUgdGhpbmcuDQoNCnJlZ2FyZHMsDQoNCk5pa2l0
-YQ0K
+From: Esina Ekaterina <eesina@astralinux.ru>
+
+[ Upstream commit 488e0bf7f34af3d42d1d5e56f7a5a7beaff188a3 ]
+
+If uhdlc_priv_tsa != 1 then utdm is not initialized.
+And if ret != NULL then goto undo_uhdlc_init, where
+utdm is dereferenced. Same if dev == NULL.
+
+Found by Astra Linux on behalf of Linux Verification Center
+(linuxtesting.org) with SVACE.
+
+Fixes: 8d68100ab4ad ("soc/fsl/qe: fix err handling of ucc_of_parse_tdm")
+Signed-off-by: Esina Ekaterina <eesina@astralinux.ru>
+Link: https://lore.kernel.org/r/20230112074703.13558-1-eesina@astralinux.ru
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
+---
+ drivers/net/wan/fsl_ucc_hdlc.c | 6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
+
+diff --git a/drivers/net/wan/fsl_ucc_hdlc.c b/drivers/net/wan/fsl_ucc_hdlc.c
+index 22edea6ca4b8..1c53b5546927 100644
+--- a/drivers/net/wan/fsl_ucc_hdlc.c
++++ b/drivers/net/wan/fsl_ucc_hdlc.c
+@@ -1243,9 +1243,11 @@ static int ucc_hdlc_probe(struct platform_device *pdev)
+ free_dev:
+ 	free_netdev(dev);
+ undo_uhdlc_init:
+-	iounmap(utdm->siram);
++	if (utdm)
++		iounmap(utdm->siram);
+ unmap_si_regs:
+-	iounmap(utdm->si_regs);
++	if (utdm)
++		iounmap(utdm->si_regs);
+ free_utdm:
+ 	if (uhdlc_priv->tsa)
+ 		kfree(utdm);
+-- 
+2.39.0
+
+
+
