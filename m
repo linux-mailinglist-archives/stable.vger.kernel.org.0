@@ -2,45 +2,50 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 1F8816810C5
-	for <lists+stable@lfdr.de>; Mon, 30 Jan 2023 15:06:36 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E4B646812AB
+	for <lists+stable@lfdr.de>; Mon, 30 Jan 2023 15:23:51 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237085AbjA3OGf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 30 Jan 2023 09:06:35 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48936 "EHLO
+        id S237637AbjA3OXv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 30 Jan 2023 09:23:51 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41430 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237088AbjA3OGe (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 30 Jan 2023 09:06:34 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3BEB21F5E6
-        for <stable@vger.kernel.org>; Mon, 30 Jan 2023 06:06:33 -0800 (PST)
+        with ESMTP id S237543AbjA3OXe (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 30 Jan 2023 09:23:34 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CAA99402EA
+        for <stable@vger.kernel.org>; Mon, 30 Jan 2023 06:22:25 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id E76F7B81145
-        for <stable@vger.kernel.org>; Mon, 30 Jan 2023 14:06:31 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1D29FC433D2;
-        Mon, 30 Jan 2023 14:06:29 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id D80726115D
+        for <stable@vger.kernel.org>; Mon, 30 Jan 2023 14:21:27 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id CE877C433EF;
+        Mon, 30 Jan 2023 14:21:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1675087590;
-        bh=6B49tPf7Yh4d+JaVXRuJRfB7Mpp2mAvEKuL1d/mwQBA=;
+        s=korg; t=1675088487;
+        bh=LYQ4SzeXN3VaikKE2+arJMM355aCVM86+H0aq2OmA6U=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Xx1+cqD9OC+4LqnCKWk/0oBkBzrl6hGhCeqEpqTvKuwnBpUJDfVRRMRXnvsZeHmbH
-         XkPyD9y5r00mSefp8iQtilJdV4FWwaXmcrasQTP2YGdTCPT18O9F4AiRj7MqorVtY1
-         kJDFAAA67j6XmzYkBVIh+h/UI0qOHdui/FBRzfrM=
+        b=GAOtXS/ieaDNDpyY4qxCH6lc44F9G/KN45kHlhWNvUYSWdF6Iahn9O0mKq/7zDF7m
+         pyCb+NZ1UOMHRlDtexC3xwN+2wn3jEZqn2aAqQuKQ4oDiXZvq7IK2bC0cbrcO8gcPz
+         d1qJ/YrOVYODo98knGephu+XETTP1d0oIPfx7iqM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Christoph Hellwig <hch@lst.de>,
-        Sagi Grimberg <sagi@grimberg.me>,
-        Chaitanya Kulkarni <kch@nvidia.com>,
+        patches@lists.linux.dev,
+        Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>,
+        Guillaume Nault <gnault@redhat.com>,
+        Jakub Sitnicki <jakub@cloudflare.com>,
+        Eric Dumazet <edumazet@google.com>,
+        Tom Parkin <tparkin@katalix.com>,
+        Cong Wang <cong.wang@bytedance.com>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 258/313] nvme: consolidate setting the tagset flags
+Subject: [PATCH 5.10 036/143] l2tp: convert l2tp_tunnel_list to idr
 Date:   Mon, 30 Jan 2023 14:51:33 +0100
-Message-Id: <20230130134348.741689092@linuxfoundation.org>
+Message-Id: <20230130134308.344566980@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.1
-In-Reply-To: <20230130134336.532886729@linuxfoundation.org>
-References: <20230130134336.532886729@linuxfoundation.org>
+In-Reply-To: <20230130134306.862721518@linuxfoundation.org>
+References: <20230130134306.862721518@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,202 +59,227 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Christoph Hellwig <hch@lst.de>
+From: Cong Wang <cong.wang@bytedance.com>
 
-[ Upstream commit db45e1a5ddccc034eb60d62fc5352022d7963ae2 ]
+[ Upstream commit c4d48a58f32c5972174a1d01c33b296fe378cce0 ]
 
-All nvme transports should be using the same flags for their tagsets,
-with the exception for the blocking flag that should only be set for
-transports that can block in ->queue_rq.
+l2tp uses l2tp_tunnel_list to track all registered tunnels and
+to allocate tunnel ID's. IDR can do the same job.
 
-Add a NVME_F_BLOCKING flag to nvme_ctrl_ops to control the blocking
-behavior and lift setting the flags into nvme_alloc_{admin,io}_tag_set.
+More importantly, with IDR we can hold the ID before a successful
+registration so that we don't need to worry about late error
+handling, it is not easy to rollback socket changes.
 
-Signed-off-by: Christoph Hellwig <hch@lst.de>
-Reviewed-by: Sagi Grimberg <sagi@grimberg.me>
-Reviewed-by: Chaitanya Kulkarni <kch@nvidia.com>
-Stable-dep-of: 98e3528012cd ("nvme-fc: fix initialization order")
+This is a preparation for the following fix.
+
+Cc: Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>
+Cc: Guillaume Nault <gnault@redhat.com>
+Cc: Jakub Sitnicki <jakub@cloudflare.com>
+Cc: Eric Dumazet <edumazet@google.com>
+Cc: Tom Parkin <tparkin@katalix.com>
+Signed-off-by: Cong Wang <cong.wang@bytedance.com>
+Reviewed-by: Guillaume Nault <gnault@redhat.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Stable-dep-of: 0b2c59720e65 ("l2tp: close all race conditions in l2tp_tunnel_register()")
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/nvme/host/core.c   | 15 +++++++++------
- drivers/nvme/host/fc.c     |  4 ++--
- drivers/nvme/host/nvme.h   |  9 +++++----
- drivers/nvme/host/rdma.c   |  3 +--
- drivers/nvme/host/tcp.c    |  5 ++---
- drivers/nvme/target/loop.c |  4 ++--
- 6 files changed, 21 insertions(+), 19 deletions(-)
+ net/l2tp/l2tp_core.c | 85 ++++++++++++++++++++++----------------------
+ 1 file changed, 42 insertions(+), 43 deletions(-)
 
-diff --git a/drivers/nvme/host/core.c b/drivers/nvme/host/core.c
-index badc6984ff83..9e9ad91618ab 100644
---- a/drivers/nvme/host/core.c
-+++ b/drivers/nvme/host/core.c
-@@ -4840,8 +4840,7 @@ void nvme_complete_async_event(struct nvme_ctrl *ctrl, __le16 status,
- EXPORT_SYMBOL_GPL(nvme_complete_async_event);
+diff --git a/net/l2tp/l2tp_core.c b/net/l2tp/l2tp_core.c
+index d6bb1795329a..1bd52b8bb29f 100644
+--- a/net/l2tp/l2tp_core.c
++++ b/net/l2tp/l2tp_core.c
+@@ -104,9 +104,9 @@ static struct workqueue_struct *l2tp_wq;
+ /* per-net private data for this module */
+ static unsigned int l2tp_net_id;
+ struct l2tp_net {
+-	struct list_head l2tp_tunnel_list;
+-	/* Lock for write access to l2tp_tunnel_list */
+-	spinlock_t l2tp_tunnel_list_lock;
++	/* Lock for write access to l2tp_tunnel_idr */
++	spinlock_t l2tp_tunnel_idr_lock;
++	struct idr l2tp_tunnel_idr;
+ 	struct hlist_head l2tp_session_hlist[L2TP_HASH_SIZE_2];
+ 	/* Lock for write access to l2tp_session_hlist */
+ 	spinlock_t l2tp_session_hlist_lock;
+@@ -208,13 +208,10 @@ struct l2tp_tunnel *l2tp_tunnel_get(const struct net *net, u32 tunnel_id)
+ 	struct l2tp_tunnel *tunnel;
  
- int nvme_alloc_admin_tag_set(struct nvme_ctrl *ctrl, struct blk_mq_tag_set *set,
--		const struct blk_mq_ops *ops, unsigned int flags,
--		unsigned int cmd_size)
-+		const struct blk_mq_ops *ops, unsigned int cmd_size)
+ 	rcu_read_lock_bh();
+-	list_for_each_entry_rcu(tunnel, &pn->l2tp_tunnel_list, list) {
+-		if (tunnel->tunnel_id == tunnel_id &&
+-		    refcount_inc_not_zero(&tunnel->ref_count)) {
+-			rcu_read_unlock_bh();
+-
+-			return tunnel;
+-		}
++	tunnel = idr_find(&pn->l2tp_tunnel_idr, tunnel_id);
++	if (tunnel && refcount_inc_not_zero(&tunnel->ref_count)) {
++		rcu_read_unlock_bh();
++		return tunnel;
+ 	}
+ 	rcu_read_unlock_bh();
+ 
+@@ -224,13 +221,14 @@ EXPORT_SYMBOL_GPL(l2tp_tunnel_get);
+ 
+ struct l2tp_tunnel *l2tp_tunnel_get_nth(const struct net *net, int nth)
  {
- 	int ret;
+-	const struct l2tp_net *pn = l2tp_pernet(net);
++	struct l2tp_net *pn = l2tp_pernet(net);
++	unsigned long tunnel_id, tmp;
+ 	struct l2tp_tunnel *tunnel;
+ 	int count = 0;
  
-@@ -4851,7 +4850,9 @@ int nvme_alloc_admin_tag_set(struct nvme_ctrl *ctrl, struct blk_mq_tag_set *set,
- 	if (ctrl->ops->flags & NVME_F_FABRICS)
- 		set->reserved_tags = NVMF_RESERVED_TAGS;
- 	set->numa_node = ctrl->numa_node;
--	set->flags = flags;
-+	set->flags = BLK_MQ_F_NO_SCHED;
-+	if (ctrl->ops->flags & NVME_F_BLOCKING)
-+		set->flags |= BLK_MQ_F_BLOCKING;
- 	set->cmd_size = cmd_size;
- 	set->driver_data = ctrl;
- 	set->nr_hw_queues = 1;
-@@ -4895,8 +4896,8 @@ void nvme_remove_admin_tag_set(struct nvme_ctrl *ctrl)
- EXPORT_SYMBOL_GPL(nvme_remove_admin_tag_set);
- 
- int nvme_alloc_io_tag_set(struct nvme_ctrl *ctrl, struct blk_mq_tag_set *set,
--		const struct blk_mq_ops *ops, unsigned int flags,
--		unsigned int nr_maps, unsigned int cmd_size)
-+		const struct blk_mq_ops *ops, unsigned int nr_maps,
-+		unsigned int cmd_size)
- {
- 	int ret;
- 
-@@ -4905,7 +4906,9 @@ int nvme_alloc_io_tag_set(struct nvme_ctrl *ctrl, struct blk_mq_tag_set *set,
- 	set->queue_depth = ctrl->sqsize + 1;
- 	set->reserved_tags = NVMF_RESERVED_TAGS;
- 	set->numa_node = ctrl->numa_node;
--	set->flags = flags;
-+	set->flags = BLK_MQ_F_SHOULD_MERGE;
-+	if (ctrl->ops->flags & NVME_F_BLOCKING)
-+		set->flags |= BLK_MQ_F_BLOCKING;
- 	set->cmd_size = cmd_size,
- 	set->driver_data = ctrl;
- 	set->nr_hw_queues = ctrl->queue_count - 1;
-diff --git a/drivers/nvme/host/fc.c b/drivers/nvme/host/fc.c
-index 20b0c29a9a34..5f07a6b29276 100644
---- a/drivers/nvme/host/fc.c
-+++ b/drivers/nvme/host/fc.c
-@@ -2903,7 +2903,7 @@ nvme_fc_create_io_queues(struct nvme_fc_ctrl *ctrl)
- 	nvme_fc_init_io_queues(ctrl);
- 
- 	ret = nvme_alloc_io_tag_set(&ctrl->ctrl, &ctrl->tag_set,
--			&nvme_fc_mq_ops, BLK_MQ_F_SHOULD_MERGE, 1,
-+			&nvme_fc_mq_ops, 1,
- 			struct_size((struct nvme_fcp_op_w_sgl *)NULL, priv,
- 				    ctrl->lport->ops->fcprqst_priv_sz));
- 	if (ret)
-@@ -3509,7 +3509,7 @@ nvme_fc_init_ctrl(struct device *dev, struct nvmf_ctrl_options *opts,
- 	nvme_fc_init_queue(ctrl, 0);
- 
- 	ret = nvme_alloc_admin_tag_set(&ctrl->ctrl, &ctrl->admin_tag_set,
--			&nvme_fc_admin_mq_ops, BLK_MQ_F_NO_SCHED,
-+			&nvme_fc_admin_mq_ops,
- 			struct_size((struct nvme_fcp_op_w_sgl *)NULL, priv,
- 				    ctrl->lport->ops->fcprqst_priv_sz));
- 	if (ret)
-diff --git a/drivers/nvme/host/nvme.h b/drivers/nvme/host/nvme.h
-index aef3693ba5d3..01d90424af53 100644
---- a/drivers/nvme/host/nvme.h
-+++ b/drivers/nvme/host/nvme.h
-@@ -508,6 +508,8 @@ struct nvme_ctrl_ops {
- 	unsigned int flags;
- #define NVME_F_FABRICS			(1 << 0)
- #define NVME_F_METADATA_SUPPORTED	(1 << 1)
-+#define NVME_F_BLOCKING			(1 << 2)
-+
- 	const struct attribute_group **dev_attr_groups;
- 	int (*reg_read32)(struct nvme_ctrl *ctrl, u32 off, u32 *val);
- 	int (*reg_write32)(struct nvme_ctrl *ctrl, u32 off, u32 val);
-@@ -739,12 +741,11 @@ void nvme_start_ctrl(struct nvme_ctrl *ctrl);
- void nvme_stop_ctrl(struct nvme_ctrl *ctrl);
- int nvme_init_ctrl_finish(struct nvme_ctrl *ctrl);
- int nvme_alloc_admin_tag_set(struct nvme_ctrl *ctrl, struct blk_mq_tag_set *set,
--		const struct blk_mq_ops *ops, unsigned int flags,
--		unsigned int cmd_size);
-+		const struct blk_mq_ops *ops, unsigned int cmd_size);
- void nvme_remove_admin_tag_set(struct nvme_ctrl *ctrl);
- int nvme_alloc_io_tag_set(struct nvme_ctrl *ctrl, struct blk_mq_tag_set *set,
--		const struct blk_mq_ops *ops, unsigned int flags,
--		unsigned int nr_maps, unsigned int cmd_size);
-+		const struct blk_mq_ops *ops, unsigned int nr_maps,
-+		unsigned int cmd_size);
- void nvme_remove_io_tag_set(struct nvme_ctrl *ctrl);
- 
- void nvme_remove_namespaces(struct nvme_ctrl *ctrl);
-diff --git a/drivers/nvme/host/rdma.c b/drivers/nvme/host/rdma.c
-index a55d3e8b607d..6f918e61b6ae 100644
---- a/drivers/nvme/host/rdma.c
-+++ b/drivers/nvme/host/rdma.c
-@@ -798,7 +798,7 @@ static int nvme_rdma_alloc_tag_set(struct nvme_ctrl *ctrl)
- 			    NVME_RDMA_METADATA_SGL_SIZE;
- 
- 	return nvme_alloc_io_tag_set(ctrl, &to_rdma_ctrl(ctrl)->tag_set,
--			&nvme_rdma_mq_ops, BLK_MQ_F_SHOULD_MERGE,
-+			&nvme_rdma_mq_ops,
- 			ctrl->opts->nr_poll_queues ? HCTX_MAX_TYPES : 2,
- 			cmd_size);
+ 	rcu_read_lock_bh();
+-	list_for_each_entry_rcu(tunnel, &pn->l2tp_tunnel_list, list) {
+-		if (++count > nth &&
++	idr_for_each_entry_ul(&pn->l2tp_tunnel_idr, tunnel, tmp, tunnel_id) {
++		if (tunnel && ++count > nth &&
+ 		    refcount_inc_not_zero(&tunnel->ref_count)) {
+ 			rcu_read_unlock_bh();
+ 			return tunnel;
+@@ -1229,6 +1227,15 @@ static void l2tp_udp_encap_destroy(struct sock *sk)
+ 		l2tp_tunnel_delete(tunnel);
  }
-@@ -848,7 +848,6 @@ static int nvme_rdma_configure_admin_queue(struct nvme_rdma_ctrl *ctrl,
- 	if (new) {
- 		error = nvme_alloc_admin_tag_set(&ctrl->ctrl,
- 				&ctrl->admin_tag_set, &nvme_rdma_admin_mq_ops,
--				BLK_MQ_F_NO_SCHED,
- 				sizeof(struct nvme_rdma_request) +
- 				NVME_RDMA_DATA_SGL_SIZE);
- 		if (error)
-diff --git a/drivers/nvme/host/tcp.c b/drivers/nvme/host/tcp.c
-index 83735c52d34a..eacd445b5333 100644
---- a/drivers/nvme/host/tcp.c
-+++ b/drivers/nvme/host/tcp.c
-@@ -1867,7 +1867,6 @@ static int nvme_tcp_configure_io_queues(struct nvme_ctrl *ctrl, bool new)
- 	if (new) {
- 		ret = nvme_alloc_io_tag_set(ctrl, &to_tcp_ctrl(ctrl)->tag_set,
- 				&nvme_tcp_mq_ops,
--				BLK_MQ_F_SHOULD_MERGE | BLK_MQ_F_BLOCKING,
- 				ctrl->opts->nr_poll_queues ? HCTX_MAX_TYPES : 2,
- 				sizeof(struct nvme_tcp_request));
- 		if (ret)
-@@ -1943,7 +1942,7 @@ static int nvme_tcp_configure_admin_queue(struct nvme_ctrl *ctrl, bool new)
- 	if (new) {
- 		error = nvme_alloc_admin_tag_set(ctrl,
- 				&to_tcp_ctrl(ctrl)->admin_tag_set,
--				&nvme_tcp_admin_mq_ops, BLK_MQ_F_BLOCKING,
-+				&nvme_tcp_admin_mq_ops,
- 				sizeof(struct nvme_tcp_request));
- 		if (error)
- 			goto out_free_queue;
-@@ -2524,7 +2523,7 @@ static const struct blk_mq_ops nvme_tcp_admin_mq_ops = {
- static const struct nvme_ctrl_ops nvme_tcp_ctrl_ops = {
- 	.name			= "tcp",
- 	.module			= THIS_MODULE,
--	.flags			= NVME_F_FABRICS,
-+	.flags			= NVME_F_FABRICS | NVME_F_BLOCKING,
- 	.reg_read32		= nvmf_reg_read32,
- 	.reg_read64		= nvmf_reg_read64,
- 	.reg_write32		= nvmf_reg_write32,
-diff --git a/drivers/nvme/target/loop.c b/drivers/nvme/target/loop.c
-index 08c583258e90..c864e902e91e 100644
---- a/drivers/nvme/target/loop.c
-+++ b/drivers/nvme/target/loop.c
-@@ -353,7 +353,7 @@ static int nvme_loop_configure_admin_queue(struct nvme_loop_ctrl *ctrl)
- 	ctrl->ctrl.queue_count = 1;
  
- 	error = nvme_alloc_admin_tag_set(&ctrl->ctrl, &ctrl->admin_tag_set,
--			&nvme_loop_admin_mq_ops, BLK_MQ_F_NO_SCHED,
-+			&nvme_loop_admin_mq_ops,
- 			sizeof(struct nvme_loop_iod) +
- 			NVME_INLINE_SG_CNT * sizeof(struct scatterlist));
- 	if (error)
-@@ -494,7 +494,7 @@ static int nvme_loop_create_io_queues(struct nvme_loop_ctrl *ctrl)
- 		return ret;
++static void l2tp_tunnel_remove(struct net *net, struct l2tp_tunnel *tunnel)
++{
++	struct l2tp_net *pn = l2tp_pernet(net);
++
++	spin_lock_bh(&pn->l2tp_tunnel_idr_lock);
++	idr_remove(&pn->l2tp_tunnel_idr, tunnel->tunnel_id);
++	spin_unlock_bh(&pn->l2tp_tunnel_idr_lock);
++}
++
+ /* Workqueue tunnel deletion function */
+ static void l2tp_tunnel_del_work(struct work_struct *work)
+ {
+@@ -1236,7 +1243,6 @@ static void l2tp_tunnel_del_work(struct work_struct *work)
+ 						  del_work);
+ 	struct sock *sk = tunnel->sock;
+ 	struct socket *sock = sk->sk_socket;
+-	struct l2tp_net *pn;
  
- 	ret = nvme_alloc_io_tag_set(&ctrl->ctrl, &ctrl->tag_set,
--			&nvme_loop_mq_ops, BLK_MQ_F_SHOULD_MERGE, 1,
-+			&nvme_loop_mq_ops, 1,
- 			sizeof(struct nvme_loop_iod) +
- 			NVME_INLINE_SG_CNT * sizeof(struct scatterlist));
- 	if (ret)
+ 	l2tp_tunnel_closeall(tunnel);
+ 
+@@ -1250,12 +1256,7 @@ static void l2tp_tunnel_del_work(struct work_struct *work)
+ 		}
+ 	}
+ 
+-	/* Remove the tunnel struct from the tunnel list */
+-	pn = l2tp_pernet(tunnel->l2tp_net);
+-	spin_lock_bh(&pn->l2tp_tunnel_list_lock);
+-	list_del_rcu(&tunnel->list);
+-	spin_unlock_bh(&pn->l2tp_tunnel_list_lock);
+-
++	l2tp_tunnel_remove(tunnel->l2tp_net, tunnel);
+ 	/* drop initial ref */
+ 	l2tp_tunnel_dec_refcount(tunnel);
+ 
+@@ -1457,12 +1458,19 @@ static int l2tp_validate_socket(const struct sock *sk, const struct net *net,
+ int l2tp_tunnel_register(struct l2tp_tunnel *tunnel, struct net *net,
+ 			 struct l2tp_tunnel_cfg *cfg)
+ {
+-	struct l2tp_tunnel *tunnel_walk;
+-	struct l2tp_net *pn;
++	struct l2tp_net *pn = l2tp_pernet(net);
++	u32 tunnel_id = tunnel->tunnel_id;
+ 	struct socket *sock;
+ 	struct sock *sk;
+ 	int ret;
+ 
++	spin_lock_bh(&pn->l2tp_tunnel_idr_lock);
++	ret = idr_alloc_u32(&pn->l2tp_tunnel_idr, NULL, &tunnel_id, tunnel_id,
++			    GFP_ATOMIC);
++	spin_unlock_bh(&pn->l2tp_tunnel_idr_lock);
++	if (ret)
++		return ret == -ENOSPC ? -EEXIST : ret;
++
+ 	if (tunnel->fd < 0) {
+ 		ret = l2tp_tunnel_sock_create(net, tunnel->tunnel_id,
+ 					      tunnel->peer_tunnel_id, cfg,
+@@ -1483,23 +1491,13 @@ int l2tp_tunnel_register(struct l2tp_tunnel *tunnel, struct net *net,
+ 	rcu_assign_sk_user_data(sk, tunnel);
+ 	write_unlock_bh(&sk->sk_callback_lock);
+ 
+-	tunnel->l2tp_net = net;
+-	pn = l2tp_pernet(net);
+-
+ 	sock_hold(sk);
+ 	tunnel->sock = sk;
++	tunnel->l2tp_net = net;
+ 
+-	spin_lock_bh(&pn->l2tp_tunnel_list_lock);
+-	list_for_each_entry(tunnel_walk, &pn->l2tp_tunnel_list, list) {
+-		if (tunnel_walk->tunnel_id == tunnel->tunnel_id) {
+-			spin_unlock_bh(&pn->l2tp_tunnel_list_lock);
+-			sock_put(sk);
+-			ret = -EEXIST;
+-			goto err_sock;
+-		}
+-	}
+-	list_add_rcu(&tunnel->list, &pn->l2tp_tunnel_list);
+-	spin_unlock_bh(&pn->l2tp_tunnel_list_lock);
++	spin_lock_bh(&pn->l2tp_tunnel_idr_lock);
++	idr_replace(&pn->l2tp_tunnel_idr, tunnel, tunnel->tunnel_id);
++	spin_unlock_bh(&pn->l2tp_tunnel_idr_lock);
+ 
+ 	if (tunnel->encap == L2TP_ENCAPTYPE_UDP) {
+ 		struct udp_tunnel_sock_cfg udp_cfg = {
+@@ -1525,9 +1523,6 @@ int l2tp_tunnel_register(struct l2tp_tunnel *tunnel, struct net *net,
+ 
+ 	return 0;
+ 
+-err_sock:
+-	write_lock_bh(&sk->sk_callback_lock);
+-	rcu_assign_sk_user_data(sk, NULL);
+ err_inval_sock:
+ 	write_unlock_bh(&sk->sk_callback_lock);
+ 
+@@ -1536,6 +1531,7 @@ int l2tp_tunnel_register(struct l2tp_tunnel *tunnel, struct net *net,
+ 	else
+ 		sockfd_put(sock);
+ err:
++	l2tp_tunnel_remove(net, tunnel);
+ 	return ret;
+ }
+ EXPORT_SYMBOL_GPL(l2tp_tunnel_register);
+@@ -1649,8 +1645,8 @@ static __net_init int l2tp_init_net(struct net *net)
+ 	struct l2tp_net *pn = net_generic(net, l2tp_net_id);
+ 	int hash;
+ 
+-	INIT_LIST_HEAD(&pn->l2tp_tunnel_list);
+-	spin_lock_init(&pn->l2tp_tunnel_list_lock);
++	idr_init(&pn->l2tp_tunnel_idr);
++	spin_lock_init(&pn->l2tp_tunnel_idr_lock);
+ 
+ 	for (hash = 0; hash < L2TP_HASH_SIZE_2; hash++)
+ 		INIT_HLIST_HEAD(&pn->l2tp_session_hlist[hash]);
+@@ -1664,11 +1660,13 @@ static __net_exit void l2tp_exit_net(struct net *net)
+ {
+ 	struct l2tp_net *pn = l2tp_pernet(net);
+ 	struct l2tp_tunnel *tunnel = NULL;
++	unsigned long tunnel_id, tmp;
+ 	int hash;
+ 
+ 	rcu_read_lock_bh();
+-	list_for_each_entry_rcu(tunnel, &pn->l2tp_tunnel_list, list) {
+-		l2tp_tunnel_delete(tunnel);
++	idr_for_each_entry_ul(&pn->l2tp_tunnel_idr, tunnel, tmp, tunnel_id) {
++		if (tunnel)
++			l2tp_tunnel_delete(tunnel);
+ 	}
+ 	rcu_read_unlock_bh();
+ 
+@@ -1678,6 +1676,7 @@ static __net_exit void l2tp_exit_net(struct net *net)
+ 
+ 	for (hash = 0; hash < L2TP_HASH_SIZE_2; hash++)
+ 		WARN_ON_ONCE(!hlist_empty(&pn->l2tp_session_hlist[hash]));
++	idr_destroy(&pn->l2tp_tunnel_idr);
+ }
+ 
+ static struct pernet_operations l2tp_net_ops = {
 -- 
 2.39.0
 
