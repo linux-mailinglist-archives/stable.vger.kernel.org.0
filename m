@@ -2,52 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 148436812E5
-	for <lists+stable@lfdr.de>; Mon, 30 Jan 2023 15:26:07 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 802AD681272
+	for <lists+stable@lfdr.de>; Mon, 30 Jan 2023 15:21:13 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237619AbjA3O0F (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 30 Jan 2023 09:26:05 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41714 "EHLO
+        id S237704AbjA3OVM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 30 Jan 2023 09:21:12 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33052 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237616AbjA3OZv (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 30 Jan 2023 09:25:51 -0500
+        with ESMTP id S237709AbjA3OU6 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 30 Jan 2023 09:20:58 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 393343D0A1;
-        Mon, 30 Jan 2023 06:24:28 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5D0B938B64
+        for <stable@vger.kernel.org>; Mon, 30 Jan 2023 06:19:44 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 41D8561014;
-        Mon, 30 Jan 2023 14:24:20 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A6155C433EF;
-        Mon, 30 Jan 2023 14:24:18 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 5CFA461014
+        for <stable@vger.kernel.org>; Mon, 30 Jan 2023 14:18:42 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 420F4C433EF;
+        Mon, 30 Jan 2023 14:18:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1675088659;
-        bh=3G0ZZUBImsFjr7o0+Tgf9yPFPvSyb49WohDTm+KJ2kw=;
+        s=korg; t=1675088321;
+        bh=fpReE+b5+GjmPdd6xk2PqV/Ar4GK3VsfGhgIRkBBu68=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Og0Io5FBfb6all2GWxv64N5UoM1lB+ROeP1/2MFClySWjXkTHYUCbxzolU3OlcENv
-         AsF1IFjbAmXqVAtmyn3JUzL4NTUMdSUzc83cDs6nl2y4H3e0aUboirD7kSoSAbAhPS
-         ComH3NCKRsALQneOA+x9nUddCPGamLNuK2SKvaAw=
+        b=ejmBtTW9Gd6uQ1yJyIcC+WFLG3sWgxB2kmd/bBk7qIzQzDh0xdlPbvAEbqKu1LD9W
+         +c6VSSO5w0p72QkcfcGbCU1icc6r4xojv1hyF4TGKEdAtg7mRhrP8gwAGEBrklq+kv
+         JmO8zqu3c2Cyc26fS3hzeQorAxDr0+bNHRB1Wy3k=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Jann Horn <jannh@google.com>,
-        Jonathan Corbet <corbet@lwn.net>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Baolin Wang <baolin.wang@linux.alibaba.com>,
-        "Jason A. Donenfeld" <Jason@zx2c4.com>,
-        Eric Biggers <ebiggers@google.com>,
-        Huang Ying <ying.huang@intel.com>,
-        "Eric W. Biederman" <ebiederm@xmission.com>,
-        Arnd Bergmann <arnd@arndb.de>, linux-doc@vger.kernel.org,
-        Kees Cook <keescook@chromium.org>,
+        patches@lists.linux.dev, Liao Chang <liaochang1@huawei.com>,
+        Guo Ren <guoren@kernel.org>,
+        Palmer Dabbelt <palmer@rivosinc.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 093/143] exit: Allow oops_limit to be disabled
+Subject: [PATCH 5.15 185/204] riscv/kprobe: Fix instruction simulation of JALR
 Date:   Mon, 30 Jan 2023 14:52:30 +0100
-Message-Id: <20230130134310.716144510@linuxfoundation.org>
+Message-Id: <20230130134324.686085518@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.1
-In-Reply-To: <20230130134306.862721518@linuxfoundation.org>
-References: <20230130134306.862721518@linuxfoundation.org>
+In-Reply-To: <20230130134316.327556078@linuxfoundation.org>
+References: <20230130134316.327556078@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -61,60 +54,69 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kees Cook <keescook@chromium.org>
+From: Liao Chang <liaochang1@huawei.com>
 
-commit de92f65719cd672f4b48397540b9f9eff67eca40 upstream.
+[ Upstream commit ca0254998be4d74cf6add70ccfab0d2dbd362a10 ]
 
-In preparation for keeping oops_limit logic in sync with warn_limit,
-have oops_limit == 0 disable checking the Oops counter.
+Set kprobe at 'jalr 1140(ra)' of vfs_write results in the following
+crash:
 
-Cc: Jann Horn <jannh@google.com>
-Cc: Jonathan Corbet <corbet@lwn.net>
-Cc: Andrew Morton <akpm@linux-foundation.org>
-Cc: Baolin Wang <baolin.wang@linux.alibaba.com>
-Cc: "Jason A. Donenfeld" <Jason@zx2c4.com>
-Cc: Eric Biggers <ebiggers@google.com>
-Cc: Huang Ying <ying.huang@intel.com>
-Cc: "Eric W. Biederman" <ebiederm@xmission.com>
-Cc: Arnd Bergmann <arnd@arndb.de>
-Cc: linux-doc@vger.kernel.org
-Signed-off-by: Kees Cook <keescook@chromium.org>
-Signed-off-by: Eric Biggers <ebiggers@google.com>
+[   32.092235] Unable to handle kernel access to user memory without uaccess routines at virtual address 00aaaaaad77b1170
+[   32.093115] Oops [#1]
+[   32.093251] Modules linked in:
+[   32.093626] CPU: 0 PID: 135 Comm: ftracetest Not tainted 6.2.0-rc2-00013-gb0aa5e5df0cb-dirty #16
+[   32.093985] Hardware name: riscv-virtio,qemu (DT)
+[   32.094280] epc : ksys_read+0x88/0xd6
+[   32.094855]  ra : ksys_read+0xc0/0xd6
+[   32.095016] epc : ffffffff801cda80 ra : ffffffff801cdab8 sp : ff20000000d7bdc0
+[   32.095227]  gp : ffffffff80f14000 tp : ff60000080f9cb40 t0 : ffffffff80f13e80
+[   32.095500]  t1 : ffffffff8000c29c t2 : ffffffff800dbc54 s0 : ff20000000d7be60
+[   32.095716]  s1 : 0000000000000000 a0 : ffffffff805a64ae a1 : ffffffff80a83708
+[   32.095921]  a2 : ffffffff80f160a0 a3 : 0000000000000000 a4 : f229b0afdb165300
+[   32.096171]  a5 : f229b0afdb165300 a6 : ffffffff80eeebd0 a7 : 00000000000003ff
+[   32.096411]  s2 : ff6000007ff76800 s3 : fffffffffffffff7 s4 : 00aaaaaad77b1170
+[   32.096638]  s5 : ffffffff80f160a0 s6 : ff6000007ff76800 s7 : 0000000000000030
+[   32.096865]  s8 : 00ffffffc3d97be0 s9 : 0000000000000007 s10: 00aaaaaad77c9410
+[   32.097092]  s11: 0000000000000000 t3 : ffffffff80f13e48 t4 : ffffffff8000c29c
+[   32.097317]  t5 : ffffffff8000c29c t6 : ffffffff800dbc54
+[   32.097505] status: 0000000200000120 badaddr: 00aaaaaad77b1170 cause: 000000000000000d
+[   32.098011] [<ffffffff801cdb72>] ksys_write+0x6c/0xd6
+[   32.098222] [<ffffffff801cdc06>] sys_write+0x2a/0x38
+[   32.098405] [<ffffffff80003c76>] ret_from_syscall+0x0/0x2
+
+Since the rs1 and rd might be the same one, such as 'jalr 1140(ra)',
+hence it requires obtaining the target address from rs1 followed by
+updating rd.
+
+Fixes: c22b0bcb1dd0 ("riscv: Add kprobes supported")
+Signed-off-by: Liao Chang <liaochang1@huawei.com>
+Reviewed-by: Guo Ren <guoren@kernel.org>
+Link: https://lore.kernel.org/r/20230116064342.2092136-1-liaochang1@huawei.com
+[Palmer: Pick Guo's cleanup]
+Signed-off-by: Palmer Dabbelt <palmer@rivosinc.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- Documentation/admin-guide/sysctl/kernel.rst | 5 +++--
- kernel/exit.c                               | 2 +-
- 2 files changed, 4 insertions(+), 3 deletions(-)
+ arch/riscv/kernel/probes/simulate-insn.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/Documentation/admin-guide/sysctl/kernel.rst b/Documentation/admin-guide/sysctl/kernel.rst
-index cd9247b48fc7..470262c08858 100644
---- a/Documentation/admin-guide/sysctl/kernel.rst
-+++ b/Documentation/admin-guide/sysctl/kernel.rst
-@@ -667,8 +667,9 @@ oops_limit
- ==========
+diff --git a/arch/riscv/kernel/probes/simulate-insn.c b/arch/riscv/kernel/probes/simulate-insn.c
+index d73e96f6ed7c..a20568bd1f1a 100644
+--- a/arch/riscv/kernel/probes/simulate-insn.c
++++ b/arch/riscv/kernel/probes/simulate-insn.c
+@@ -71,11 +71,11 @@ bool __kprobes simulate_jalr(u32 opcode, unsigned long addr, struct pt_regs *reg
+ 	u32 rd_index = (opcode >> 7) & 0x1f;
+ 	u32 rs1_index = (opcode >> 15) & 0x1f;
  
- Number of kernel oopses after which the kernel should panic when
--``panic_on_oops`` is not set. Setting this to 0 or 1 has the same effect
--as setting ``panic_on_oops=1``.
-+``panic_on_oops`` is not set. Setting this to 0 disables checking
-+the count. Setting this to  1 has the same effect as setting
-+``panic_on_oops=1``. The default value is 10000.
+-	ret = rv_insn_reg_set_val(regs, rd_index, addr + 4);
++	ret = rv_insn_reg_get_val(regs, rs1_index, &base_addr);
+ 	if (!ret)
+ 		return ret;
  
+-	ret = rv_insn_reg_get_val(regs, rs1_index, &base_addr);
++	ret = rv_insn_reg_set_val(regs, rd_index, addr + 4);
+ 	if (!ret)
+ 		return ret;
  
- osrelease, ostype & version
-diff --git a/kernel/exit.c b/kernel/exit.c
-index b519abee2c54..8c820aa7b9c5 100644
---- a/kernel/exit.c
-+++ b/kernel/exit.c
-@@ -927,7 +927,7 @@ void __noreturn make_task_dead(int signr)
- 	 * To make sure this can't happen, place an upper bound on how often the
- 	 * kernel may oops without panic().
- 	 */
--	if (atomic_inc_return(&oops_count) >= READ_ONCE(oops_limit))
-+	if (atomic_inc_return(&oops_count) >= READ_ONCE(oops_limit) && oops_limit)
- 		panic("Oopsed too often (kernel.oops_limit is %d)", oops_limit);
- 
- 	do_exit(signr);
 -- 
 2.39.0
 
