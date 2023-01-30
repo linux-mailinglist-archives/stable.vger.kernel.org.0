@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 6BB11681197
-	for <lists+stable@lfdr.de>; Mon, 30 Jan 2023 15:15:01 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 353B56812AC
+	for <lists+stable@lfdr.de>; Mon, 30 Jan 2023 15:23:53 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237323AbjA3OO7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 30 Jan 2023 09:14:59 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58848 "EHLO
+        id S237543AbjA3OXv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 30 Jan 2023 09:23:51 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42102 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237338AbjA3OOy (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 30 Jan 2023 09:14:54 -0500
+        with ESMTP id S236853AbjA3OXe (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 30 Jan 2023 09:23:34 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8A8DF40DD
-        for <stable@vger.kernel.org>; Mon, 30 Jan 2023 06:14:53 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3C1CE2330B
+        for <stable@vger.kernel.org>; Mon, 30 Jan 2023 06:22:28 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 2570961047
-        for <stable@vger.kernel.org>; Mon, 30 Jan 2023 14:14:53 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2FC07C433D2;
-        Mon, 30 Jan 2023 14:14:51 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 8209961036
+        for <stable@vger.kernel.org>; Mon, 30 Jan 2023 14:21:36 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8D57DC4339C;
+        Mon, 30 Jan 2023 14:21:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1675088092;
-        bh=E0opZVpGMvHLTfupELEr0tewt30goMO+tLp5tw2iaxE=;
+        s=korg; t=1675088495;
+        bh=C3T/drTwnYIHjZ+cx2ji8QJ/6jcOeY2ZhJ70qDXqITk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=18ksk2HgqVSFUNud/kVjgOwmedoEhQ9XyRaR4VPki5GFJt2isFgo0LCeYfW4R3r0n
-         ZIur1m/cLfo80yRHTN4llBCJXYgO6r/UbL3Ms2slmUzvdwAkcRFXaWnfs4DxEwfAVn
-         H2GqrFE1oLqitehHeUIcwhFsNsL3cFM1z5+ufvRQ=
+        b=eqbt+HFt5DQfzma0VxJEK3u7F6BoH/lnWLJgPJbe47Q5sf/o5FMwGbXrEHMBFxMTu
+         S86+GKYzTlUHUUZpg4S2HaAE2skl23DY6oRFYLyO+w7oePi/s87vqA20+K+6LrOb4U
+         PaqP6XmLljNKcKRQhlgVwlp60zBQh5vtML3cEqf8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Andre Przywara <andre.przywara@arm.com>,
-        Paolo Abeni <pabeni@redhat.com>,
+        patches@lists.linux.dev, Eric Biggers <ebiggers@kernel.org>,
+        Alexander Potapenko <glider@google.com>,
+        David Sterba <dsterba@suse.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 113/204] r8152: add vendor/device ID pair for Microsoft Devkit
+Subject: [PATCH 5.10 021/143] affs: initialize fsdata in affs_truncate()
 Date:   Mon, 30 Jan 2023 14:51:18 +0100
-Message-Id: <20230130134321.426214511@linuxfoundation.org>
+Message-Id: <20230130134307.754541062@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.1
-In-Reply-To: <20230130134316.327556078@linuxfoundation.org>
-References: <20230130134316.327556078@linuxfoundation.org>
+In-Reply-To: <20230130134306.862721518@linuxfoundation.org>
+References: <20230130134306.862721518@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,38 +54,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Andre Przywara <andre.przywara@arm.com>
+From: Alexander Potapenko <glider@google.com>
 
-[ Upstream commit be53771c87f4e322a9835d3faa9cd73a4ecdec5b ]
+[ Upstream commit eef034ac6690118c88f357b00e2b3239c9d8575d ]
 
-The Microsoft Devkit 2023 is a an ARM64 based machine featuring a
-Realtek 8153 USB3.0-to-GBit Ethernet adapter. As in their other
-machines, Microsoft uses a custom USB device ID.
+When aops->write_begin() does not initialize fsdata, KMSAN may report
+an error passing the latter to aops->write_end().
 
-Add the respective ID values to the driver. This makes Ethernet work on
-the MS Devkit device. The chip has been visually confirmed to be a
-RTL8153.
+Fix this by unconditionally initializing fsdata.
 
-Signed-off-by: Andre Przywara <andre.przywara@arm.com>
-Link: https://lore.kernel.org/r/20230111133228.190801-1-andre.przywara@arm.com
-Signed-off-by: Paolo Abeni <pabeni@redhat.com>
+Fixes: f2b6a16eb8f5 ("fs: affs convert to new aops")
+Suggested-by: Eric Biggers <ebiggers@kernel.org>
+Signed-off-by: Alexander Potapenko <glider@google.com>
+Reviewed-by: David Sterba <dsterba@suse.com>
+Signed-off-by: David Sterba <dsterba@suse.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/usb/r8152.c | 1 +
- 1 file changed, 1 insertion(+)
+ fs/affs/file.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/net/usb/r8152.c b/drivers/net/usb/r8152.c
-index 109c288d8b47..cf6941b1d280 100644
---- a/drivers/net/usb/r8152.c
-+++ b/drivers/net/usb/r8152.c
-@@ -9809,6 +9809,7 @@ static const struct usb_device_id rtl8152_table[] = {
- 	REALTEK_USB_DEVICE(VENDOR_ID_MICROSOFT, 0x07ab),
- 	REALTEK_USB_DEVICE(VENDOR_ID_MICROSOFT, 0x07c6),
- 	REALTEK_USB_DEVICE(VENDOR_ID_MICROSOFT, 0x0927),
-+	REALTEK_USB_DEVICE(VENDOR_ID_MICROSOFT, 0x0c5e),
- 	REALTEK_USB_DEVICE(VENDOR_ID_SAMSUNG, 0xa101),
- 	REALTEK_USB_DEVICE(VENDOR_ID_LENOVO,  0x304f),
- 	REALTEK_USB_DEVICE(VENDOR_ID_LENOVO,  0x3054),
+diff --git a/fs/affs/file.c b/fs/affs/file.c
+index d91b0133d95d..c3d89fa1bab7 100644
+--- a/fs/affs/file.c
++++ b/fs/affs/file.c
+@@ -879,7 +879,7 @@ affs_truncate(struct inode *inode)
+ 	if (inode->i_size > AFFS_I(inode)->mmu_private) {
+ 		struct address_space *mapping = inode->i_mapping;
+ 		struct page *page;
+-		void *fsdata;
++		void *fsdata = NULL;
+ 		loff_t isize = inode->i_size;
+ 		int res;
+ 
 -- 
 2.39.0
 
