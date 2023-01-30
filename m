@@ -2,52 +2,50 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 6D73568125E
-	for <lists+stable@lfdr.de>; Mon, 30 Jan 2023 15:20:32 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 89B216810FC
+	for <lists+stable@lfdr.de>; Mon, 30 Jan 2023 15:09:13 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237448AbjA3OUb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 30 Jan 2023 09:20:31 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33132 "EHLO
+        id S237144AbjA3OJM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 30 Jan 2023 09:09:12 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51186 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237440AbjA3OUD (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 30 Jan 2023 09:20:03 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 13DB93F282
-        for <stable@vger.kernel.org>; Mon, 30 Jan 2023 06:18:51 -0800 (PST)
+        with ESMTP id S237145AbjA3OJL (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 30 Jan 2023 09:09:11 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 500813802F
+        for <stable@vger.kernel.org>; Mon, 30 Jan 2023 06:09:10 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 5FC1E6108E
-        for <stable@vger.kernel.org>; Mon, 30 Jan 2023 14:18:30 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6FFD8C4339B;
-        Mon, 30 Jan 2023 14:18:29 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id DEDFB61025
+        for <stable@vger.kernel.org>; Mon, 30 Jan 2023 14:09:09 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E0BEFC433EF;
+        Mon, 30 Jan 2023 14:09:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1675088309;
-        bh=b1grx+0ni3uWa3ow56kR1h6FHvRUggVisBq7oraVU1s=;
+        s=korg; t=1675087749;
+        bh=I7Nd11qdbBLVtQGNrUt15WRTFkbtcZ0Zc2MQ91P5Z+c=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=eMWlAzY4uOda0jht2Pc9y2Dvx42gNcvPRO8J8245kTaXC5VHiCbgpHWzjzGDzP3ZZ
-         pZbKmfIx9JhndticQR6Z5cgwg83l1y8trJNIY4i0ui9o7YmvXvxJa4t4s+xACoN4sG
-         MP8/y0wkzr/PbhaDQ7X3k3jAbSvA+X7yHnLIEB5E=
+        b=vvXyNX0WFL3vOktdsK4BDAsuRaYFYEJT8XOGfsTRRcRY8CcnQMOHnEiaeBxKJcArD
+         LfaZ73wspGVkYnH1l+1RjFCsJGU3pcDQmllNymyhri9yPhNVNfl+4q+xyxQUeQ7sdI
+         FJrzufNnj7ISfzy+rrRjBxkvfNRdkGa/Edll0MvI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         patches@lists.linux.dev,
-        syzbot+5fafd5cfe1fc91f6b352@syzkaller.appspotmail.com,
-        Kuniyuki Iwashima <kuniyu@amazon.com>,
-        Paolo Abeni <pabeni@redhat.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 182/204] netrom: Fix use-after-free of a listening socket.
+        Sriram Yagnaraman <sriram.yagnaraman@est.tech>,
+        Pablo Neira Ayuso <pablo@netfilter.org>
+Subject: [PATCH 6.1 312/313] netfilter: conntrack: unify established states for SCTP paths
 Date:   Mon, 30 Jan 2023 14:52:27 +0100
-Message-Id: <20230130134324.557981816@linuxfoundation.org>
+Message-Id: <20230130134351.276252642@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.1
-In-Reply-To: <20230130134316.327556078@linuxfoundation.org>
-References: <20230130134316.327556078@linuxfoundation.org>
+In-Reply-To: <20230130134336.532886729@linuxfoundation.org>
+References: <20230130134336.532886729@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
         SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -55,161 +53,244 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kuniyuki Iwashima <kuniyu@amazon.com>
+From: Sriram Yagnaraman <sriram.yagnaraman@est.tech>
 
-[ Upstream commit 409db27e3a2eb5e8ef7226ca33be33361b3ed1c9 ]
+commit a44b7651489f26271ac784b70895e8a85d0cebf4 upstream.
 
-syzbot reported a use-after-free in do_accept(), precisely nr_accept()
-as sk_prot_alloc() allocated the memory and sock_put() frees it. [0]
+An SCTP endpoint can start an association through a path and tear it
+down over another one. That means the initial path will not see the
+shutdown sequence, and the conntrack entry will remain in ESTABLISHED
+state for 5 days.
 
-The issue could happen if the heartbeat timer is fired and
-nr_heartbeat_expiry() calls nr_destroy_socket(), where a socket
-has SOCK_DESTROY or a listening socket has SOCK_DEAD.
+By merging the HEARTBEAT_ACKED and ESTABLISHED states into one
+ESTABLISHED state, there remains no difference between a primary or
+secondary path. The timeout for the merged ESTABLISHED state is set to
+210 seconds (hb_interval * max_path_retrans + rto_max). So, even if a
+path doesn't see the shutdown sequence, it will expire in a reasonable
+amount of time.
 
-In this case, the first condition cannot be true.  SOCK_DESTROY is
-flagged in nr_release() only when the file descriptor is close()d,
-but accept() is being called for the listening socket, so the second
-condition must be true.
+With this change in place, there is now more than one state from which
+we can transition to ESTABLISHED, COOKIE_ECHOED and HEARTBEAT_SENT, so
+handle the setting of ASSURED bit whenever a state change has happened
+and the new state is ESTABLISHED. Removed the check for dir==REPLY since
+the transition to ESTABLISHED can happen only in the reply direction.
 
-Usually, the AF_NETROM listener neither starts timers nor sets
-SOCK_DEAD.  However, the condition is met if connect() fails before
-listen().  connect() starts the t1 timer and heartbeat timer, and
-t1timer calls nr_disconnect() when timeout happens.  Then, SOCK_DEAD
-is set, and if we call listen(), the heartbeat timer calls
-nr_destroy_socket().
-
-  nr_connect
-    nr_establish_data_link(sk)
-      nr_start_t1timer(sk)
-    nr_start_heartbeat(sk)
-                                    nr_t1timer_expiry
-                                      nr_disconnect(sk, ETIMEDOUT)
-                                        nr_sk(sk)->state = NR_STATE_0
-                                        sk->sk_state = TCP_CLOSE
-                                        sock_set_flag(sk, SOCK_DEAD)
-nr_listen
-  if (sk->sk_state != TCP_LISTEN)
-    sk->sk_state = TCP_LISTEN
-                                    nr_heartbeat_expiry
-                                      switch (nr->state)
-                                      case NR_STATE_0
-                                        if (sk->sk_state == TCP_LISTEN &&
-                                            sock_flag(sk, SOCK_DEAD))
-                                          nr_destroy_socket(sk)
-
-This path seems expected, and nr_destroy_socket() is called to clean
-up resources.  Initially, there was sock_hold() before nr_destroy_socket()
-so that the socket would not be freed, but the commit 517a16b1a88b
-("netrom: Decrease sock refcount when sock timers expire") accidentally
-removed it.
-
-To fix use-after-free, let's add sock_hold().
-
-[0]:
-BUG: KASAN: use-after-free in do_accept+0x483/0x510 net/socket.c:1848
-Read of size 8 at addr ffff88807978d398 by task syz-executor.3/5315
-
-CPU: 0 PID: 5315 Comm: syz-executor.3 Not tainted 6.2.0-rc3-syzkaller-00165-gd9fc1511728c #0
-Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS Google 10/26/2022
-Call Trace:
- <TASK>
- __dump_stack lib/dump_stack.c:88 [inline]
- dump_stack_lvl+0xd1/0x138 lib/dump_stack.c:106
- print_address_description mm/kasan/report.c:306 [inline]
- print_report+0x15e/0x461 mm/kasan/report.c:417
- kasan_report+0xbf/0x1f0 mm/kasan/report.c:517
- do_accept+0x483/0x510 net/socket.c:1848
- __sys_accept4_file net/socket.c:1897 [inline]
- __sys_accept4+0x9a/0x120 net/socket.c:1927
- __do_sys_accept net/socket.c:1944 [inline]
- __se_sys_accept net/socket.c:1941 [inline]
- __x64_sys_accept+0x75/0xb0 net/socket.c:1941
- do_syscall_x64 arch/x86/entry/common.c:50 [inline]
- do_syscall_64+0x39/0xb0 arch/x86/entry/common.c:80
- entry_SYSCALL_64_after_hwframe+0x63/0xcd
-RIP: 0033:0x7fa436a8c0c9
-Code: 28 00 00 00 75 05 48 83 c4 28 c3 e8 f1 19 00 00 90 48 89 f8 48 89 f7 48 89 d6 48 89 ca 4d 89 c2 4d 89 c8 4c 8b 4c 24 08 0f 05 <48> 3d 01 f0 ff ff 73 01 c3 48 c7 c1 b8 ff ff ff f7 d8 64 89 01 48
-RSP: 002b:00007fa437784168 EFLAGS: 00000246 ORIG_RAX: 000000000000002b
-RAX: ffffffffffffffda RBX: 00007fa436bac050 RCX: 00007fa436a8c0c9
-RDX: 0000000000000000 RSI: 0000000000000000 RDI: 0000000000000005
-RBP: 00007fa436ae7ae9 R08: 0000000000000000 R09: 0000000000000000
-R10: 0000000000000000 R11: 0000000000000246 R12: 0000000000000000
-R13: 00007ffebc6700df R14: 00007fa437784300 R15: 0000000000022000
- </TASK>
-
-Allocated by task 5294:
- kasan_save_stack+0x22/0x40 mm/kasan/common.c:45
- kasan_set_track+0x25/0x30 mm/kasan/common.c:52
- ____kasan_kmalloc mm/kasan/common.c:371 [inline]
- ____kasan_kmalloc mm/kasan/common.c:330 [inline]
- __kasan_kmalloc+0xa3/0xb0 mm/kasan/common.c:380
- kasan_kmalloc include/linux/kasan.h:211 [inline]
- __do_kmalloc_node mm/slab_common.c:968 [inline]
- __kmalloc+0x5a/0xd0 mm/slab_common.c:981
- kmalloc include/linux/slab.h:584 [inline]
- sk_prot_alloc+0x140/0x290 net/core/sock.c:2038
- sk_alloc+0x3a/0x7a0 net/core/sock.c:2091
- nr_create+0xb6/0x5f0 net/netrom/af_netrom.c:433
- __sock_create+0x359/0x790 net/socket.c:1515
- sock_create net/socket.c:1566 [inline]
- __sys_socket_create net/socket.c:1603 [inline]
- __sys_socket_create net/socket.c:1588 [inline]
- __sys_socket+0x133/0x250 net/socket.c:1636
- __do_sys_socket net/socket.c:1649 [inline]
- __se_sys_socket net/socket.c:1647 [inline]
- __x64_sys_socket+0x73/0xb0 net/socket.c:1647
- do_syscall_x64 arch/x86/entry/common.c:50 [inline]
- do_syscall_64+0x39/0xb0 arch/x86/entry/common.c:80
- entry_SYSCALL_64_after_hwframe+0x63/0xcd
-
-Freed by task 14:
- kasan_save_stack+0x22/0x40 mm/kasan/common.c:45
- kasan_set_track+0x25/0x30 mm/kasan/common.c:52
- kasan_save_free_info+0x2b/0x40 mm/kasan/generic.c:518
- ____kasan_slab_free mm/kasan/common.c:236 [inline]
- ____kasan_slab_free+0x13b/0x1a0 mm/kasan/common.c:200
- kasan_slab_free include/linux/kasan.h:177 [inline]
- __cache_free mm/slab.c:3394 [inline]
- __do_kmem_cache_free mm/slab.c:3580 [inline]
- __kmem_cache_free+0xcd/0x3b0 mm/slab.c:3587
- sk_prot_free net/core/sock.c:2074 [inline]
- __sk_destruct+0x5df/0x750 net/core/sock.c:2166
- sk_destruct net/core/sock.c:2181 [inline]
- __sk_free+0x175/0x460 net/core/sock.c:2192
- sk_free+0x7c/0xa0 net/core/sock.c:2203
- sock_put include/net/sock.h:1991 [inline]
- nr_heartbeat_expiry+0x1d7/0x460 net/netrom/nr_timer.c:148
- call_timer_fn+0x1da/0x7c0 kernel/time/timer.c:1700
- expire_timers+0x2c6/0x5c0 kernel/time/timer.c:1751
- __run_timers kernel/time/timer.c:2022 [inline]
- __run_timers kernel/time/timer.c:1995 [inline]
- run_timer_softirq+0x326/0x910 kernel/time/timer.c:2035
- __do_softirq+0x1fb/0xadc kernel/softirq.c:571
-
-Fixes: 517a16b1a88b ("netrom: Decrease sock refcount when sock timers expire")
-Reported-by: syzbot+5fafd5cfe1fc91f6b352@syzkaller.appspotmail.com
-Signed-off-by: Kuniyuki Iwashima <kuniyu@amazon.com>
-Link: https://lore.kernel.org/r/20230120231927.51711-1-kuniyu@amazon.com
-Signed-off-by: Paolo Abeni <pabeni@redhat.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes: 9fb9cbb1082d ("[NETFILTER]: Add nf_conntrack subsystem.")
+Signed-off-by: Sriram Yagnaraman <sriram.yagnaraman@est.tech>
+Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/netrom/nr_timer.c | 1 +
- 1 file changed, 1 insertion(+)
+ include/uapi/linux/netfilter/nf_conntrack_sctp.h   |    2 
+ include/uapi/linux/netfilter/nfnetlink_cttimeout.h |    2 
+ net/netfilter/nf_conntrack_proto_sctp.c            |   93 ++++++++-------------
+ net/netfilter/nf_conntrack_standalone.c            |    8 -
+ 4 files changed, 41 insertions(+), 64 deletions(-)
 
-diff --git a/net/netrom/nr_timer.c b/net/netrom/nr_timer.c
-index a8da88db7893..4e7c968cde2d 100644
---- a/net/netrom/nr_timer.c
-+++ b/net/netrom/nr_timer.c
-@@ -121,6 +121,7 @@ static void nr_heartbeat_expiry(struct timer_list *t)
- 		   is accepted() it isn't 'dead' so doesn't get removed. */
- 		if (sock_flag(sk, SOCK_DESTROY) ||
- 		    (sk->sk_state == TCP_LISTEN && sock_flag(sk, SOCK_DEAD))) {
-+			sock_hold(sk);
- 			bh_unlock_sock(sk);
- 			nr_destroy_socket(sk);
- 			goto out;
--- 
-2.39.0
-
+--- a/include/uapi/linux/netfilter/nf_conntrack_sctp.h
++++ b/include/uapi/linux/netfilter/nf_conntrack_sctp.h
+@@ -15,7 +15,7 @@ enum sctp_conntrack {
+ 	SCTP_CONNTRACK_SHUTDOWN_RECD,
+ 	SCTP_CONNTRACK_SHUTDOWN_ACK_SENT,
+ 	SCTP_CONNTRACK_HEARTBEAT_SENT,
+-	SCTP_CONNTRACK_HEARTBEAT_ACKED,
++	SCTP_CONNTRACK_HEARTBEAT_ACKED,	/* no longer used */
+ 	SCTP_CONNTRACK_MAX
+ };
+ 
+--- a/include/uapi/linux/netfilter/nfnetlink_cttimeout.h
++++ b/include/uapi/linux/netfilter/nfnetlink_cttimeout.h
+@@ -94,7 +94,7 @@ enum ctattr_timeout_sctp {
+ 	CTA_TIMEOUT_SCTP_SHUTDOWN_RECD,
+ 	CTA_TIMEOUT_SCTP_SHUTDOWN_ACK_SENT,
+ 	CTA_TIMEOUT_SCTP_HEARTBEAT_SENT,
+-	CTA_TIMEOUT_SCTP_HEARTBEAT_ACKED,
++	CTA_TIMEOUT_SCTP_HEARTBEAT_ACKED, /* no longer used */
+ 	__CTA_TIMEOUT_SCTP_MAX
+ };
+ #define CTA_TIMEOUT_SCTP_MAX (__CTA_TIMEOUT_SCTP_MAX - 1)
+--- a/net/netfilter/nf_conntrack_proto_sctp.c
++++ b/net/netfilter/nf_conntrack_proto_sctp.c
+@@ -27,22 +27,16 @@
+ #include <net/netfilter/nf_conntrack_ecache.h>
+ #include <net/netfilter/nf_conntrack_timeout.h>
+ 
+-/* FIXME: Examine ipfilter's timeouts and conntrack transitions more
+-   closely.  They're more complex. --RR
+-
+-   And so for me for SCTP :D -Kiran */
+-
+ static const char *const sctp_conntrack_names[] = {
+-	"NONE",
+-	"CLOSED",
+-	"COOKIE_WAIT",
+-	"COOKIE_ECHOED",
+-	"ESTABLISHED",
+-	"SHUTDOWN_SENT",
+-	"SHUTDOWN_RECD",
+-	"SHUTDOWN_ACK_SENT",
+-	"HEARTBEAT_SENT",
+-	"HEARTBEAT_ACKED",
++	[SCTP_CONNTRACK_NONE]			= "NONE",
++	[SCTP_CONNTRACK_CLOSED]			= "CLOSED",
++	[SCTP_CONNTRACK_COOKIE_WAIT]		= "COOKIE_WAIT",
++	[SCTP_CONNTRACK_COOKIE_ECHOED]		= "COOKIE_ECHOED",
++	[SCTP_CONNTRACK_ESTABLISHED]		= "ESTABLISHED",
++	[SCTP_CONNTRACK_SHUTDOWN_SENT]		= "SHUTDOWN_SENT",
++	[SCTP_CONNTRACK_SHUTDOWN_RECD]		= "SHUTDOWN_RECD",
++	[SCTP_CONNTRACK_SHUTDOWN_ACK_SENT]	= "SHUTDOWN_ACK_SENT",
++	[SCTP_CONNTRACK_HEARTBEAT_SENT]		= "HEARTBEAT_SENT",
+ };
+ 
+ #define SECS  * HZ
+@@ -54,12 +48,11 @@ static const unsigned int sctp_timeouts[
+ 	[SCTP_CONNTRACK_CLOSED]			= 10 SECS,
+ 	[SCTP_CONNTRACK_COOKIE_WAIT]		= 3 SECS,
+ 	[SCTP_CONNTRACK_COOKIE_ECHOED]		= 3 SECS,
+-	[SCTP_CONNTRACK_ESTABLISHED]		= 5 DAYS,
++	[SCTP_CONNTRACK_ESTABLISHED]		= 210 SECS,
+ 	[SCTP_CONNTRACK_SHUTDOWN_SENT]		= 300 SECS / 1000,
+ 	[SCTP_CONNTRACK_SHUTDOWN_RECD]		= 300 SECS / 1000,
+ 	[SCTP_CONNTRACK_SHUTDOWN_ACK_SENT]	= 3 SECS,
+ 	[SCTP_CONNTRACK_HEARTBEAT_SENT]		= 30 SECS,
+-	[SCTP_CONNTRACK_HEARTBEAT_ACKED]	= 210 SECS,
+ };
+ 
+ #define	SCTP_FLAG_HEARTBEAT_VTAG_FAILED	1
+@@ -73,7 +66,6 @@ static const unsigned int sctp_timeouts[
+ #define	sSR SCTP_CONNTRACK_SHUTDOWN_RECD
+ #define	sSA SCTP_CONNTRACK_SHUTDOWN_ACK_SENT
+ #define	sHS SCTP_CONNTRACK_HEARTBEAT_SENT
+-#define	sHA SCTP_CONNTRACK_HEARTBEAT_ACKED
+ #define	sIV SCTP_CONNTRACK_MAX
+ 
+ /*
+@@ -96,9 +88,6 @@ SHUTDOWN_ACK_SENT - We have seen a SHUTD
+ CLOSED            - We have seen a SHUTDOWN_COMPLETE chunk in the direction of
+ 		    the SHUTDOWN chunk. Connection is closed.
+ HEARTBEAT_SENT    - We have seen a HEARTBEAT in a new flow.
+-HEARTBEAT_ACKED   - We have seen a HEARTBEAT-ACK in the direction opposite to
+-		    that of the HEARTBEAT chunk. Secondary connection is
+-		    established.
+ */
+ 
+ /* TODO
+@@ -115,33 +104,33 @@ cookie echoed to closed.
+ static const u8 sctp_conntracks[2][11][SCTP_CONNTRACK_MAX] = {
+ 	{
+ /*	ORIGINAL	*/
+-/*                  sNO, sCL, sCW, sCE, sES, sSS, sSR, sSA, sHS, sHA */
+-/* init         */ {sCL, sCL, sCW, sCE, sES, sSS, sSR, sSA, sCW, sHA},
+-/* init_ack     */ {sCL, sCL, sCW, sCE, sES, sSS, sSR, sSA, sCL, sHA},
+-/* abort        */ {sCL, sCL, sCL, sCL, sCL, sCL, sCL, sCL, sCL, sCL},
+-/* shutdown     */ {sCL, sCL, sCW, sCE, sSS, sSS, sSR, sSA, sCL, sSS},
+-/* shutdown_ack */ {sSA, sCL, sCW, sCE, sES, sSA, sSA, sSA, sSA, sHA},
+-/* error        */ {sCL, sCL, sCW, sCE, sES, sSS, sSR, sSA, sCL, sHA},/* Can't have Stale cookie*/
+-/* cookie_echo  */ {sCL, sCL, sCE, sCE, sES, sSS, sSR, sSA, sCL, sHA},/* 5.2.4 - Big TODO */
+-/* cookie_ack   */ {sCL, sCL, sCW, sCE, sES, sSS, sSR, sSA, sCL, sHA},/* Can't come in orig dir */
+-/* shutdown_comp*/ {sCL, sCL, sCW, sCE, sES, sSS, sSR, sCL, sCL, sHA},
+-/* heartbeat    */ {sHS, sCL, sCW, sCE, sES, sSS, sSR, sSA, sHS, sHA},
+-/* heartbeat_ack*/ {sCL, sCL, sCW, sCE, sES, sSS, sSR, sSA, sHS, sHA}
++/*                  sNO, sCL, sCW, sCE, sES, sSS, sSR, sSA, sHS */
++/* init         */ {sCL, sCL, sCW, sCE, sES, sSS, sSR, sSA, sCW},
++/* init_ack     */ {sCL, sCL, sCW, sCE, sES, sSS, sSR, sSA, sCL},
++/* abort        */ {sCL, sCL, sCL, sCL, sCL, sCL, sCL, sCL, sCL},
++/* shutdown     */ {sCL, sCL, sCW, sCE, sSS, sSS, sSR, sSA, sCL},
++/* shutdown_ack */ {sSA, sCL, sCW, sCE, sES, sSA, sSA, sSA, sSA},
++/* error        */ {sCL, sCL, sCW, sCE, sES, sSS, sSR, sSA, sCL},/* Can't have Stale cookie*/
++/* cookie_echo  */ {sCL, sCL, sCE, sCE, sES, sSS, sSR, sSA, sCL},/* 5.2.4 - Big TODO */
++/* cookie_ack   */ {sCL, sCL, sCW, sCE, sES, sSS, sSR, sSA, sCL},/* Can't come in orig dir */
++/* shutdown_comp*/ {sCL, sCL, sCW, sCE, sES, sSS, sSR, sCL, sCL},
++/* heartbeat    */ {sHS, sCL, sCW, sCE, sES, sSS, sSR, sSA, sHS},
++/* heartbeat_ack*/ {sCL, sCL, sCW, sCE, sES, sSS, sSR, sSA, sHS},
+ 	},
+ 	{
+ /*	REPLY	*/
+-/*                  sNO, sCL, sCW, sCE, sES, sSS, sSR, sSA, sHS, sHA */
+-/* init         */ {sIV, sCL, sCW, sCE, sES, sSS, sSR, sSA, sIV, sHA},/* INIT in sCL Big TODO */
+-/* init_ack     */ {sIV, sCW, sCW, sCE, sES, sSS, sSR, sSA, sIV, sHA},
+-/* abort        */ {sIV, sCL, sCL, sCL, sCL, sCL, sCL, sCL, sIV, sCL},
+-/* shutdown     */ {sIV, sCL, sCW, sCE, sSR, sSS, sSR, sSA, sIV, sSR},
+-/* shutdown_ack */ {sIV, sCL, sCW, sCE, sES, sSA, sSA, sSA, sIV, sHA},
+-/* error        */ {sIV, sCL, sCW, sCL, sES, sSS, sSR, sSA, sIV, sHA},
+-/* cookie_echo  */ {sIV, sCL, sCW, sCE, sES, sSS, sSR, sSA, sIV, sHA},/* Can't come in reply dir */
+-/* cookie_ack   */ {sIV, sCL, sCW, sES, sES, sSS, sSR, sSA, sIV, sHA},
+-/* shutdown_comp*/ {sIV, sCL, sCW, sCE, sES, sSS, sSR, sCL, sIV, sHA},
+-/* heartbeat    */ {sIV, sCL, sCW, sCE, sES, sSS, sSR, sSA, sHS, sHA},
+-/* heartbeat_ack*/ {sIV, sCL, sCW, sCE, sES, sSS, sSR, sSA, sHA, sHA}
++/*                  sNO, sCL, sCW, sCE, sES, sSS, sSR, sSA, sHS */
++/* init         */ {sIV, sCL, sCW, sCE, sES, sSS, sSR, sSA, sIV},/* INIT in sCL Big TODO */
++/* init_ack     */ {sIV, sCW, sCW, sCE, sES, sSS, sSR, sSA, sIV},
++/* abort        */ {sIV, sCL, sCL, sCL, sCL, sCL, sCL, sCL, sIV},
++/* shutdown     */ {sIV, sCL, sCW, sCE, sSR, sSS, sSR, sSA, sIV},
++/* shutdown_ack */ {sIV, sCL, sCW, sCE, sES, sSA, sSA, sSA, sIV},
++/* error        */ {sIV, sCL, sCW, sCL, sES, sSS, sSR, sSA, sIV},
++/* cookie_echo  */ {sIV, sCL, sCW, sCE, sES, sSS, sSR, sSA, sIV},/* Can't come in reply dir */
++/* cookie_ack   */ {sIV, sCL, sCW, sES, sES, sSS, sSR, sSA, sIV},
++/* shutdown_comp*/ {sIV, sCL, sCW, sCE, sES, sSS, sSR, sCL, sIV},
++/* heartbeat    */ {sIV, sCL, sCW, sCE, sES, sSS, sSR, sSA, sHS},
++/* heartbeat_ack*/ {sIV, sCL, sCW, sCE, sES, sSS, sSR, sSA, sES},
+ 	}
+ };
+ 
+@@ -508,8 +497,12 @@ int nf_conntrack_sctp_packet(struct nf_c
+ 		}
+ 
+ 		ct->proto.sctp.state = new_state;
+-		if (old_state != new_state)
++		if (old_state != new_state) {
+ 			nf_conntrack_event_cache(IPCT_PROTOINFO, ct);
++			if (new_state == SCTP_CONNTRACK_ESTABLISHED &&
++			    !test_and_set_bit(IPS_ASSURED_BIT, &ct->status))
++				nf_conntrack_event_cache(IPCT_ASSURED, ct);
++		}
+ 	}
+ 	spin_unlock_bh(&ct->lock);
+ 
+@@ -523,14 +516,6 @@ int nf_conntrack_sctp_packet(struct nf_c
+ 
+ 	nf_ct_refresh_acct(ct, ctinfo, skb, timeouts[new_state]);
+ 
+-	if (old_state == SCTP_CONNTRACK_COOKIE_ECHOED &&
+-	    dir == IP_CT_DIR_REPLY &&
+-	    new_state == SCTP_CONNTRACK_ESTABLISHED) {
+-		pr_debug("Setting assured bit\n");
+-		set_bit(IPS_ASSURED_BIT, &ct->status);
+-		nf_conntrack_event_cache(IPCT_ASSURED, ct);
+-	}
+-
+ 	return NF_ACCEPT;
+ 
+ out_unlock:
+--- a/net/netfilter/nf_conntrack_standalone.c
++++ b/net/netfilter/nf_conntrack_standalone.c
+@@ -601,7 +601,6 @@ enum nf_ct_sysctl_index {
+ 	NF_SYSCTL_CT_PROTO_TIMEOUT_SCTP_SHUTDOWN_RECD,
+ 	NF_SYSCTL_CT_PROTO_TIMEOUT_SCTP_SHUTDOWN_ACK_SENT,
+ 	NF_SYSCTL_CT_PROTO_TIMEOUT_SCTP_HEARTBEAT_SENT,
+-	NF_SYSCTL_CT_PROTO_TIMEOUT_SCTP_HEARTBEAT_ACKED,
+ #endif
+ #ifdef CONFIG_NF_CT_PROTO_DCCP
+ 	NF_SYSCTL_CT_PROTO_TIMEOUT_DCCP_REQUEST,
+@@ -886,12 +885,6 @@ static struct ctl_table nf_ct_sysctl_tab
+ 		.mode		= 0644,
+ 		.proc_handler	= proc_dointvec_jiffies,
+ 	},
+-	[NF_SYSCTL_CT_PROTO_TIMEOUT_SCTP_HEARTBEAT_ACKED] = {
+-		.procname       = "nf_conntrack_sctp_timeout_heartbeat_acked",
+-		.maxlen         = sizeof(unsigned int),
+-		.mode           = 0644,
+-		.proc_handler   = proc_dointvec_jiffies,
+-	},
+ #endif
+ #ifdef CONFIG_NF_CT_PROTO_DCCP
+ 	[NF_SYSCTL_CT_PROTO_TIMEOUT_DCCP_REQUEST] = {
+@@ -1035,7 +1028,6 @@ static void nf_conntrack_standalone_init
+ 	XASSIGN(SHUTDOWN_RECD, sn);
+ 	XASSIGN(SHUTDOWN_ACK_SENT, sn);
+ 	XASSIGN(HEARTBEAT_SENT, sn);
+-	XASSIGN(HEARTBEAT_ACKED, sn);
+ #undef XASSIGN
+ #endif
+ }
 
 
