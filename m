@@ -2,52 +2,52 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 0E087681261
-	for <lists+stable@lfdr.de>; Mon, 30 Jan 2023 15:20:37 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 08698681306
+	for <lists+stable@lfdr.de>; Mon, 30 Jan 2023 15:27:35 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237662AbjA3OUg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 30 Jan 2023 09:20:36 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60726 "EHLO
+        id S237570AbjA3O1d (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 30 Jan 2023 09:27:33 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49428 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237667AbjA3OUJ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 30 Jan 2023 09:20:09 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EBAE43FF29
-        for <stable@vger.kernel.org>; Mon, 30 Jan 2023 06:18:55 -0800 (PST)
+        with ESMTP id S237734AbjA3O1O (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 30 Jan 2023 09:27:14 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 186B9CDD4
+        for <stable@vger.kernel.org>; Mon, 30 Jan 2023 06:25:42 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id D820DB80DEB
-        for <stable@vger.kernel.org>; Mon, 30 Jan 2023 14:18:33 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 42454C433EF;
-        Mon, 30 Jan 2023 14:18:32 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id B606AB811C7
+        for <stable@vger.kernel.org>; Mon, 30 Jan 2023 14:25:40 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id EB885C433D2;
+        Mon, 30 Jan 2023 14:25:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1675088312;
-        bh=SvxnhjYNi6FmJB93D9MbmOrsKsFMyL41TbpfMBs8iMs=;
+        s=korg; t=1675088739;
+        bh=EW4My3mM8GfFjW6I5iI3ir8gR1WIaAIyJOjcXSN3+Mg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=SebviqSBgSqMjEdUdsWvv5Yx1RJ16oQTaMxYuE8tTlXtLEmxr5rfZUuhotY62wYQ2
-         ZwVFxju8bZjoup0GGSG2KcGN0QRTnWN1a5KplbfATkgGN0EJ8NdR6ZevEI0IHQVX3P
-         EMWqt+/fjF1J/vDyyR3XMS00k2m4lq670GrHrON0=
+        b=b25bA0vXZdcxZefeumm7Q5azVA6f7xoiH6BimcNcyoG/q6ziXO9FvZZwuV5iCxXN0
+         5VQHu8KgtW1mauH64sgAaunFLOiQVmpbzi1K5YePKM2bdYU0EOL+u3m83Q0hDL87uV
+         tb93Q13PclgkfauZamJq8APlFkidrK9Vzth46/AY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, syzbot <syzkaller@googlegroups.com>,
-        Eric Dumazet <edumazet@google.com>,
-        Vinicius Costa Gomes <vinicius.gomes@intel.com>,
-        Jakub Kicinski <kuba@kernel.org>,
+        patches@lists.linux.dev, Jann Horn <jannh@google.com>,
+        Luis Chamberlain <mcgrof@kernel.org>,
+        Kees Cook <keescook@chromium.org>,
+        Eric Biggers <ebiggers@google.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 183/204] net/sched: sch_taprio: do not schedule in taprio_reset()
+Subject: [PATCH 5.10 091/143] exit: Put an upper limit on how often we can oops
 Date:   Mon, 30 Jan 2023 14:52:28 +0100
-Message-Id: <20230130134324.607069068@linuxfoundation.org>
+Message-Id: <20230130134310.645894736@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.1
-In-Reply-To: <20230130134316.327556078@linuxfoundation.org>
-References: <20230130134316.327556078@linuxfoundation.org>
+In-Reply-To: <20230130134306.862721518@linuxfoundation.org>
+References: <20230130134306.862721518@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
         SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -55,87 +55,145 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eric Dumazet <edumazet@google.com>
+From: Jann Horn <jannh@google.com>
 
-[ Upstream commit ea4fdbaa2f7798cb25adbe4fd52ffc6356f097bb ]
+commit d4ccd54d28d3c8598e2354acc13e28c060961dbb upstream.
 
-As reported by syzbot and hinted by Vinicius, I should not have added
-a qdisc_synchronize() call in taprio_reset()
+Many Linux systems are configured to not panic on oops; but allowing an
+attacker to oops the system **really** often can make even bugs that look
+completely unexploitable exploitable (like NULL dereferences and such) if
+each crash elevates a refcount by one or a lock is taken in read mode, and
+this causes a counter to eventually overflow.
 
-taprio_reset() can be called with qdisc spinlock held (and BH disabled)
-as shown in included syzbot report [1].
+The most interesting counters for this are 32 bits wide (like open-coded
+refcounts that don't use refcount_t). (The ldsem reader count on 32-bit
+platforms is just 16 bits, but probably nobody cares about 32-bit platforms
+that much nowadays.)
 
-Only taprio_destroy() needed this synchronization, as explained
-in the blamed commit changelog.
+So let's panic the system if the kernel is constantly oopsing.
 
-[1]
+The speed of oopsing 2^32 times probably depends on several factors, like
+how long the stack trace is and which unwinder you're using; an empirically
+important one is whether your console is showing a graphical environment or
+a text console that oopses will be printed to.
+In a quick single-threaded benchmark, it looks like oopsing in a vfork()
+child with a very short stack trace only takes ~510 microseconds per run
+when a graphical console is active; but switching to a text console that
+oopses are printed to slows it down around 87x, to ~45 milliseconds per
+run.
+(Adding more threads makes this faster, but the actual oops printing
+happens under &die_lock on x86, so you can maybe speed this up by a factor
+of around 2 and then any further improvement gets eaten up by lock
+contention.)
 
-BUG: scheduling while atomic: syz-executor150/5091/0x00000202
-2 locks held by syz-executor150/5091:
-Modules linked in:
-Preemption disabled at:
-[<0000000000000000>] 0x0
-Kernel panic - not syncing: scheduling while atomic: panic_on_warn set ...
-CPU: 1 PID: 5091 Comm: syz-executor150 Not tainted 6.2.0-rc3-syzkaller-00219-g010a74f52203 #0
-Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS Google 01/12/2023
-Call Trace:
-<TASK>
-__dump_stack lib/dump_stack.c:88 [inline]
-dump_stack_lvl+0xd1/0x138 lib/dump_stack.c:106
-panic+0x2cc/0x626 kernel/panic.c:318
-check_panic_on_warn.cold+0x19/0x35 kernel/panic.c:238
-__schedule_bug.cold+0xd5/0xfe kernel/sched/core.c:5836
-schedule_debug kernel/sched/core.c:5865 [inline]
-__schedule+0x34e4/0x5450 kernel/sched/core.c:6500
-schedule+0xde/0x1b0 kernel/sched/core.c:6682
-schedule_timeout+0x14e/0x2a0 kernel/time/timer.c:2167
-schedule_timeout_uninterruptible kernel/time/timer.c:2201 [inline]
-msleep+0xb6/0x100 kernel/time/timer.c:2322
-qdisc_synchronize include/net/sch_generic.h:1295 [inline]
-taprio_reset+0x93/0x270 net/sched/sch_taprio.c:1703
-qdisc_reset+0x10c/0x770 net/sched/sch_generic.c:1022
-dev_reset_queue+0x92/0x130 net/sched/sch_generic.c:1285
-netdev_for_each_tx_queue include/linux/netdevice.h:2464 [inline]
-dev_deactivate_many+0x36d/0x9f0 net/sched/sch_generic.c:1351
-dev_deactivate+0xed/0x1b0 net/sched/sch_generic.c:1374
-qdisc_graft+0xe4a/0x1380 net/sched/sch_api.c:1080
-tc_modify_qdisc+0xb6b/0x19a0 net/sched/sch_api.c:1689
-rtnetlink_rcv_msg+0x43e/0xca0 net/core/rtnetlink.c:6141
-netlink_rcv_skb+0x165/0x440 net/netlink/af_netlink.c:2564
-netlink_unicast_kernel net/netlink/af_netlink.c:1330 [inline]
-netlink_unicast+0x547/0x7f0 net/netlink/af_netlink.c:1356
-netlink_sendmsg+0x91b/0xe10 net/netlink/af_netlink.c:1932
-sock_sendmsg_nosec net/socket.c:714 [inline]
-sock_sendmsg+0xd3/0x120 net/socket.c:734
-____sys_sendmsg+0x712/0x8c0 net/socket.c:2476
-___sys_sendmsg+0x110/0x1b0 net/socket.c:2530
-__sys_sendmsg+0xf7/0x1c0 net/socket.c:2559
-do_syscall_x64 arch/x86/entry/common.c:50 [inline]
+It looks like it would take around 8-12 days to overflow a 32-bit counter
+with repeated oopsing on a multi-core X86 system running a graphical
+environment; both me (in an X86 VM) and Seth (with a distro kernel on
+normal hardware in a standard configuration) got numbers in that ballpark.
 
-Fixes: 3a415d59c1db ("net/sched: sch_taprio: fix possible use-after-free")
-Link: https://lore.kernel.org/netdev/167387581653.2747.13878941339893288655.git-patchwork-notify@kernel.org/T/
-Reported-by: syzbot <syzkaller@googlegroups.com>
-Signed-off-by: Eric Dumazet <edumazet@google.com>
-Cc: Vinicius Costa Gomes <vinicius.gomes@intel.com>
-Link: https://lore.kernel.org/r/20230123084552.574396-1-edumazet@google.com
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+12 days aren't *that* short on a desktop system, and you'd likely need much
+longer on a typical server system (assuming that people don't run graphical
+desktop environments on their servers), and this is a *very* noisy and
+violent approach to exploiting the kernel; and it also seems to take orders
+of magnitude longer on some machines, probably because stuff like EFI
+pstore will slow it down a ton if that's active.
+
+Signed-off-by: Jann Horn <jannh@google.com>
+Link: https://lore.kernel.org/r/20221107201317.324457-1-jannh@google.com
+Reviewed-by: Luis Chamberlain <mcgrof@kernel.org>
+Signed-off-by: Kees Cook <keescook@chromium.org>
+Link: https://lore.kernel.org/r/20221117234328.594699-2-keescook@chromium.org
+Signed-off-by: Eric Biggers <ebiggers@google.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/sched/sch_taprio.c | 1 -
- 1 file changed, 1 deletion(-)
+ Documentation/admin-guide/sysctl/kernel.rst |  8 ++++
+ kernel/exit.c                               | 43 +++++++++++++++++++++
+ 2 files changed, 51 insertions(+)
 
-diff --git a/net/sched/sch_taprio.c b/net/sched/sch_taprio.c
-index a76a2afe9585..135ea8b3816f 100644
---- a/net/sched/sch_taprio.c
-+++ b/net/sched/sch_taprio.c
-@@ -1632,7 +1632,6 @@ static void taprio_reset(struct Qdisc *sch)
- 	int i;
+diff --git a/Documentation/admin-guide/sysctl/kernel.rst b/Documentation/admin-guide/sysctl/kernel.rst
+index a4b1ebc2e70b..cd9247b48fc7 100644
+--- a/Documentation/admin-guide/sysctl/kernel.rst
++++ b/Documentation/admin-guide/sysctl/kernel.rst
+@@ -663,6 +663,14 @@ This is the default behavior.
+ an oops event is detected.
  
- 	hrtimer_cancel(&q->advance_timer);
--	qdisc_synchronize(sch);
  
- 	if (q->qdiscs) {
- 		for (i = 0; i < dev->num_tx_queues; i++)
++oops_limit
++==========
++
++Number of kernel oopses after which the kernel should panic when
++``panic_on_oops`` is not set. Setting this to 0 or 1 has the same effect
++as setting ``panic_on_oops=1``.
++
++
+ osrelease, ostype & version
+ ===========================
+ 
+diff --git a/kernel/exit.c b/kernel/exit.c
+index 8d7577940077..db832cff6b7b 100644
+--- a/kernel/exit.c
++++ b/kernel/exit.c
+@@ -69,6 +69,33 @@
+ #include <asm/unistd.h>
+ #include <asm/mmu_context.h>
+ 
++/*
++ * The default value should be high enough to not crash a system that randomly
++ * crashes its kernel from time to time, but low enough to at least not permit
++ * overflowing 32-bit refcounts or the ldsem writer count.
++ */
++static unsigned int oops_limit = 10000;
++
++#ifdef CONFIG_SYSCTL
++static struct ctl_table kern_exit_table[] = {
++	{
++		.procname       = "oops_limit",
++		.data           = &oops_limit,
++		.maxlen         = sizeof(oops_limit),
++		.mode           = 0644,
++		.proc_handler   = proc_douintvec,
++	},
++	{ }
++};
++
++static __init int kernel_exit_sysctls_init(void)
++{
++	register_sysctl_init("kernel", kern_exit_table);
++	return 0;
++}
++late_initcall(kernel_exit_sysctls_init);
++#endif
++
+ static void __unhash_process(struct task_struct *p, bool group_dead)
+ {
+ 	nr_threads--;
+@@ -865,10 +892,26 @@ EXPORT_SYMBOL_GPL(do_exit);
+ 
+ void __noreturn make_task_dead(int signr)
+ {
++	static atomic_t oops_count = ATOMIC_INIT(0);
++
+ 	/*
+ 	 * Take the task off the cpu after something catastrophic has
+ 	 * happened.
+ 	 */
++
++	/*
++	 * Every time the system oopses, if the oops happens while a reference
++	 * to an object was held, the reference leaks.
++	 * If the oops doesn't also leak memory, repeated oopsing can cause
++	 * reference counters to wrap around (if they're not using refcount_t).
++	 * This means that repeated oopsing can make unexploitable-looking bugs
++	 * exploitable through repeated oopsing.
++	 * To make sure this can't happen, place an upper bound on how often the
++	 * kernel may oops without panic().
++	 */
++	if (atomic_inc_return(&oops_count) >= READ_ONCE(oops_limit))
++		panic("Oopsed too often (kernel.oops_limit is %d)", oops_limit);
++
+ 	do_exit(signr);
+ }
+ 
 -- 
 2.39.0
 
