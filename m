@@ -2,42 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 90C2A680FB2
-	for <lists+stable@lfdr.de>; Mon, 30 Jan 2023 14:56:04 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B61A4680FB4
+	for <lists+stable@lfdr.de>; Mon, 30 Jan 2023 14:56:08 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236520AbjA3N4D (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 30 Jan 2023 08:56:03 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34950 "EHLO
+        id S236601AbjA3N4H (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 30 Jan 2023 08:56:07 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35092 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236557AbjA3N4C (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 30 Jan 2023 08:56:02 -0500
+        with ESMTP id S236610AbjA3N4F (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 30 Jan 2023 08:56:05 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 337F8392A1
-        for <stable@vger.kernel.org>; Mon, 30 Jan 2023 05:56:01 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D5ED739B8C
+        for <stable@vger.kernel.org>; Mon, 30 Jan 2023 05:56:03 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id E073FB81150
-        for <stable@vger.kernel.org>; Mon, 30 Jan 2023 13:55:59 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 43962C433EF;
-        Mon, 30 Jan 2023 13:55:58 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 8C319B81151
+        for <stable@vger.kernel.org>; Mon, 30 Jan 2023 13:56:02 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id DFEBAC433D2;
+        Mon, 30 Jan 2023 13:56:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1675086958;
-        bh=66UZHVx8mU4XpU43MdVHUlmkiXznqZbQd+ephi2GD4w=;
+        s=korg; t=1675086961;
+        bh=kDPhmFj641UDeMR7aIB8c9oXm6hHlVDMC0Lvs5ILrio=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=dSUnQb3rd/rJkesXujHqxPaGIfrO9Jq3rLkK1aEr2jb/2na4q+73mcxviMM1ueZ4b
-         qiP9RThgXw4DCplUrDhRp0HCz0XdJU5EyKhZajXD1pH+nTClN2dMnZ+8gl1ryqA4/N
-         LPxYPeu/OQLiAX+/QMcJ9hnM8dtuso8/FH9zzw00=
+        b=jsfNBqwS0BUe3yd0X1qFOIhG0TrK5H++Lti8JOhGlYse0IZD67tnCD6Wcy4gDdUos
+         WFAGmE/2l3oOaQ5OdyDFUEFu5liizzHTD3ZX1ruRAfwmUYTlpKibDCLPePtZ5GYG7X
+         1j1cYCRHnMlO3oeTWbkBW7ktkjbp94dUY23Rp0pE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Eugene Lepshy <fekz115@gmail.com>,
-        Konrad Dybcio <konrad.dybcio@linaro.org>,
+        patches@lists.linux.dev, Konrad Dybcio <konrad.dybcio@linaro.org>,
         Bjorn Andersson <andersson@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 053/313] arm64: dts: qcom: msm8992: Dont use sfpb mutex
-Date:   Mon, 30 Jan 2023 14:48:08 +0100
-Message-Id: <20230130134339.165802267@linuxfoundation.org>
+Subject: [PATCH 6.1 054/313] arm64: dts: qcom: msm8992-libra: Fix the memory map
+Date:   Mon, 30 Jan 2023 14:48:09 +0100
+Message-Id: <20230130134339.214053285@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.1
 In-Reply-To: <20230130134336.532886729@linuxfoundation.org>
 References: <20230130134336.532886729@linuxfoundation.org>
@@ -56,37 +55,129 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Konrad Dybcio <konrad.dybcio@linaro.org>
 
-[ Upstream commit 2bd5ab93335bf2c4d22c8db427822ae637ed8dc3 ]
+[ Upstream commit 69876bc6fd4de3ad2dc7826fe269e91fa2c1807f ]
 
-MSM8992 uses the same mutex hardware as MSM8994. This was wrong
-from the start, but never presented as an issue until the sfpb
-compatible was given different driver data.
+The memory map was wrong. Fix it to prevent the device from randomly
+rebooting.
 
-Fixes: 6a6d1978f9c0 ("arm64: dts: msm8992 SoC and LG Bullhead (Nexus 5X) support")
-Reported-by: Eugene Lepshy <fekz115@gmail.com>
+Fixes: 0f5cdb31e850 ("arm64: dts: qcom: Add Xiaomi Libra (Mi 4C) device tree")
 Signed-off-by: Konrad Dybcio <konrad.dybcio@linaro.org>
 Signed-off-by: Bjorn Andersson <andersson@kernel.org>
-Link: https://lore.kernel.org/r/20221219131918.446587-1-konrad.dybcio@linaro.org
+Link: https://lore.kernel.org/r/20221219131918.446587-2-konrad.dybcio@linaro.org
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm64/boot/dts/qcom/msm8992.dtsi | 4 ----
- 1 file changed, 4 deletions(-)
+ .../boot/dts/qcom/msm8992-xiaomi-libra.dts    | 77 +++++++++++++++----
+ 1 file changed, 60 insertions(+), 17 deletions(-)
 
-diff --git a/arch/arm64/boot/dts/qcom/msm8992.dtsi b/arch/arm64/boot/dts/qcom/msm8992.dtsi
-index 750643763a76..f4be09fc1b15 100644
---- a/arch/arm64/boot/dts/qcom/msm8992.dtsi
-+++ b/arch/arm64/boot/dts/qcom/msm8992.dtsi
-@@ -36,10 +36,6 @@ &rpmcc {
- 	compatible = "qcom,rpmcc-msm8992", "qcom,rpmcc";
+diff --git a/arch/arm64/boot/dts/qcom/msm8992-xiaomi-libra.dts b/arch/arm64/boot/dts/qcom/msm8992-xiaomi-libra.dts
+index c4e87d0aec42..3ab0ad14e870 100644
+--- a/arch/arm64/boot/dts/qcom/msm8992-xiaomi-libra.dts
++++ b/arch/arm64/boot/dts/qcom/msm8992-xiaomi-libra.dts
+@@ -11,6 +11,12 @@
+ #include <dt-bindings/gpio/gpio.h>
+ #include <dt-bindings/input/gpio-keys.h>
+ 
++/delete-node/ &adsp_mem;
++/delete-node/ &audio_mem;
++/delete-node/ &mpss_mem;
++/delete-node/ &peripheral_region;
++/delete-node/ &rmtfs_mem;
++
+ / {
+ 	model = "Xiaomi Mi 4C";
+ 	compatible = "xiaomi,libra", "qcom,msm8992";
+@@ -70,25 +76,67 @@ reserved-memory {
+ 		#size-cells = <2>;
+ 		ranges;
+ 
+-		/* This is for getting crash logs using Android downstream kernels */
+-		ramoops@dfc00000 {
+-			compatible = "ramoops";
+-			reg = <0x0 0xdfc00000 0x0 0x40000>;
+-			console-size = <0x10000>;
+-			record-size = <0x10000>;
+-			ftrace-size = <0x10000>;
+-			pmsg-size = <0x20000>;
++		memory_hole: hole@6400000 {
++			reg = <0 0x06400000 0 0x600000>;
++			no-map;
++		};
++
++		memory_hole2: hole2@6c00000 {
++			reg = <0 0x06c00000 0 0x2400000>;
++			no-map;
++		};
++
++		mpss_mem: mpss@9000000 {
++			reg = <0 0x09000000 0 0x5a00000>;
++			no-map;
++		};
++
++		tzapp: tzapp@ea00000 {
++			reg = <0 0x0ea00000 0 0x1900000>;
++			no-map;
++		};
++
++		mdm_rfsa_mem: mdm-rfsa@ca0b0000 {
++			reg = <0 0xca0b0000 0 0x10000>;
++			no-map;
++		};
++
++		rmtfs_mem: rmtfs@ca100000 {
++			compatible = "qcom,rmtfs-mem";
++			reg = <0 0xca100000 0 0x180000>;
++			no-map;
++
++			qcom,client-id = <1>;
+ 		};
+ 
+-		modem_region: modem_region@9000000 {
+-			reg = <0x0 0x9000000 0x0 0x5a00000>;
++		audio_mem: audio@cb400000 {
++			reg = <0 0xcb000000 0 0x400000>;
++			no-mem;
++		};
++
++		qseecom_mem: qseecom@cb400000 {
++			reg = <0 0xcb400000 0 0x1c00000>;
++			no-mem;
++		};
++
++		adsp_rfsa_mem: adsp-rfsa@cd000000 {
++			reg = <0 0xcd000000 0 0x10000>;
+ 			no-map;
+ 		};
+ 
+-		tzapp: modem_region@ea00000 {
+-			reg = <0x0 0xea00000 0x0 0x1900000>;
++		sensor_rfsa_mem: sensor-rfsa@cd010000 {
++			reg = <0 0xcd010000 0 0x10000>;
+ 			no-map;
+ 		};
++
++		ramoops@dfc00000 {
++			compatible = "ramoops";
++			reg = <0 0xdfc00000 0 0x40000>;
++			console-size = <0x10000>;
++			record-size = <0x10000>;
++			ftrace-size = <0x10000>;
++			pmsg-size = <0x20000>;
++		};
+ 	};
  };
  
--&tcsr_mutex {
--	compatible = "qcom,sfpb-mutex";
+@@ -130,11 +178,6 @@ &blsp2_uart2 {
+ 	status = "okay";
+ };
+ 
+-&peripheral_region {
+-	reg = <0x0 0x7400000 0x0 0x1c00000>;
+-	no-map;
 -};
 -
- &timer {
- 	interrupts = <GIC_PPI 2 (GIC_CPU_MASK_SIMPLE(4) | IRQ_TYPE_LEVEL_LOW)>,
- 			     <GIC_PPI 3 (GIC_CPU_MASK_SIMPLE(4) | IRQ_TYPE_LEVEL_LOW)>,
+ &pm8994_spmi_regulators {
+ 	VDD_APC0: s8 {
+ 		regulator-min-microvolt = <680000>;
 -- 
 2.39.0
 
