@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 4184E6812D0
-	for <lists+stable@lfdr.de>; Mon, 30 Jan 2023 15:25:42 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6232D6810E7
+	for <lists+stable@lfdr.de>; Mon, 30 Jan 2023 15:08:09 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237400AbjA3OZl (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 30 Jan 2023 09:25:41 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41746 "EHLO
+        id S237122AbjA3OII (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 30 Jan 2023 09:08:08 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50480 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237757AbjA3OY7 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 30 Jan 2023 09:24:59 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 757373D928
-        for <stable@vger.kernel.org>; Mon, 30 Jan 2023 06:23:55 -0800 (PST)
+        with ESMTP id S237123AbjA3OIH (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 30 Jan 2023 09:08:07 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 950C22E83A
+        for <stable@vger.kernel.org>; Mon, 30 Jan 2023 06:08:06 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 72C9FB811D9
-        for <stable@vger.kernel.org>; Mon, 30 Jan 2023 14:23:04 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 781EAC433EF;
-        Mon, 30 Jan 2023 14:23:02 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 31C8A61089
+        for <stable@vger.kernel.org>; Mon, 30 Jan 2023 14:08:06 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0B7A0C4339B;
+        Mon, 30 Jan 2023 14:08:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1675088583;
-        bh=j5Kz3K4+JOm/ft/pKabc8hj2q7h0FbmpBPDhhufJ4Z0=;
+        s=korg; t=1675087685;
+        bh=RiMduKbuLamA74C98UqKheL4ulsBqT74/8dKmISunWQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=wfIESlQiqrUMJNstxIl4cXfvJ6ViOIbqdgJmvHicnfaJJGhf6EuYqapREJUpM8hXi
-         c5ccpf1Bb+XzfdaxDj/p5froFPc2h2NojIpDZMEWb0oFKbERuXMWE/AyLHsCBTO29m
-         ERgqxJp/P4B9OrWsSnvSZAQHdOY0BJ125g85vKds=
+        b=Y1dU3YaPIWjKNAgJfhqTufUQco1kfVBeKXP0fga1iPxZWkLKETGNO63eDYZ3pjJAC
+         xyLb2PBCJTaWSmJ2bLdsGyEffLlrmPaZldl7Lk4ipnh1wPlJR5tKg6iDWUArOvcUCj
+         HLO39cs/EBlf9nmb/jYPdLuAN3Kn/mvId37Mn064=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Shengjiu Wang <shengjiu.wang@gmail.com>,
-        Mark Brown <broonie@kernel.org>,
+        patches@lists.linux.dev, Jeremy Kerr <jk@codeconstruct.com.au>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 068/143] ASoC: fsl-asoc-card: Fix naming of AC97 CODEC widgets
+Subject: [PATCH 6.1 290/313] net: mctp: move expiry timer delete to unhash
 Date:   Mon, 30 Jan 2023 14:52:05 +0100
-Message-Id: <20230130134309.653493804@linuxfoundation.org>
+Message-Id: <20230130134350.243104077@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.1
-In-Reply-To: <20230130134306.862721518@linuxfoundation.org>
-References: <20230130134306.862721518@linuxfoundation.org>
+In-Reply-To: <20230130134336.532886729@linuxfoundation.org>
+References: <20230130134336.532886729@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,40 +53,52 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mark Brown <broonie@kernel.org>
+From: Jeremy Kerr <jk@codeconstruct.com.au>
 
-[ Upstream commit 242fc66ae6e1e2b8519daacc7590a73cd0e8a6e4 ]
+[ Upstream commit 5f41ae6fca9d40ab3cb9b0507931ef7a9b3ea50b ]
 
-The fsl-asoc-card AC'97 support currently tries to route to Playback and
-Capture widgets provided by the AC'97 CODEC. This doesn't work since the
-generic AC'97 driver registers with an "AC97" at the front of the stream
-and hence widget names, update to reflect reality. It's not clear to me
-if or how this ever worked.
+Currently, we delete the key expiry timer (in sk->close) before
+unhashing the sk. This means that another thread may find the sk through
+its presence on the key list, and re-queue the timer.
 
-Acked-by: Shengjiu Wang <shengjiu.wang@gmail.com>
-Signed-off-by: Mark Brown <broonie@kernel.org>
-Link: https://lore.kernel.org/r/20230106-asoc-udoo-probe-v1-2-a5d7469d4f67@kernel.org
-Signed-off-by: Mark Brown <broonie@kernel.org>
+This change moves the timer deletion to the unhash, after we have made
+the key no longer observable, so the timer cannot be re-queued.
+
+Fixes: 7b14e15ae6f4 ("mctp: Implement a timeout for tags")
+Signed-off-by: Jeremy Kerr <jk@codeconstruct.com.au>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/soc/fsl/fsl-asoc-card.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ net/mctp/af_mctp.c | 9 ++++++---
+ 1 file changed, 6 insertions(+), 3 deletions(-)
 
-diff --git a/sound/soc/fsl/fsl-asoc-card.c b/sound/soc/fsl/fsl-asoc-card.c
-index 8c976fde44f0..9a756d0a6032 100644
---- a/sound/soc/fsl/fsl-asoc-card.c
-+++ b/sound/soc/fsl/fsl-asoc-card.c
-@@ -117,8 +117,8 @@ static const struct snd_soc_dapm_route audio_map[] = {
+diff --git a/net/mctp/af_mctp.c b/net/mctp/af_mctp.c
+index fc9e728b6333..fb6ae3110528 100644
+--- a/net/mctp/af_mctp.c
++++ b/net/mctp/af_mctp.c
+@@ -544,9 +544,6 @@ static int mctp_sk_init(struct sock *sk)
  
- static const struct snd_soc_dapm_route audio_map_ac97[] = {
- 	/* 1st half -- Normal DAPM routes */
--	{"Playback",  NULL, "CPU AC97 Playback"},
--	{"CPU AC97 Capture",  NULL, "Capture"},
-+	{"AC97 Playback",  NULL, "CPU AC97 Playback"},
-+	{"CPU AC97 Capture",  NULL, "AC97 Capture"},
- 	/* 2nd half -- ASRC DAPM routes */
- 	{"CPU AC97 Playback",  NULL, "ASRC-Playback"},
- 	{"ASRC-Capture",  NULL, "CPU AC97 Capture"},
+ static void mctp_sk_close(struct sock *sk, long timeout)
+ {
+-	struct mctp_sock *msk = container_of(sk, struct mctp_sock, sk);
+-
+-	del_timer_sync(&msk->key_expiry);
+ 	sk_common_release(sk);
+ }
+ 
+@@ -581,6 +578,12 @@ static void mctp_sk_unhash(struct sock *sk)
+ 		__mctp_key_remove(key, net, fl2, MCTP_TRACE_KEY_CLOSED);
+ 	}
+ 	spin_unlock_irqrestore(&net->mctp.keys_lock, flags);
++
++	/* Since there are no more tag allocations (we have removed all of the
++	 * keys), stop any pending expiry events. the timer cannot be re-queued
++	 * as the sk is no longer observable
++	 */
++	del_timer_sync(&msk->key_expiry);
+ }
+ 
+ static struct proto mctp_proto = {
 -- 
 2.39.0
 
