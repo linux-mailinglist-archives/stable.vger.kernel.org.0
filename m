@@ -2,51 +2,49 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 9DAC96811D1
-	for <lists+stable@lfdr.de>; Mon, 30 Jan 2023 15:16:53 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6830A6812E3
+	for <lists+stable@lfdr.de>; Mon, 30 Jan 2023 15:26:06 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237442AbjA3OQw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 30 Jan 2023 09:16:52 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60752 "EHLO
+        id S237606AbjA3O0F (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 30 Jan 2023 09:26:05 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41710 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237398AbjA3OQj (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 30 Jan 2023 09:16:39 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 850F03CE11
-        for <stable@vger.kernel.org>; Mon, 30 Jan 2023 06:16:35 -0800 (PST)
+        with ESMTP id S237608AbjA3OZv (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 30 Jan 2023 09:25:51 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0FFB81114D
+        for <stable@vger.kernel.org>; Mon, 30 Jan 2023 06:24:28 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 40FD2B80DEB
-        for <stable@vger.kernel.org>; Mon, 30 Jan 2023 14:16:34 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7EEACC433EF;
-        Mon, 30 Jan 2023 14:16:32 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 0033461085
+        for <stable@vger.kernel.org>; Mon, 30 Jan 2023 14:23:58 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id EBE5AC433EF;
+        Mon, 30 Jan 2023 14:23:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1675088192;
-        bh=EiKjJ7FsNyfZU1RHsJUX+ZsAjry5xWTV31n2bG/h9nI=;
+        s=korg; t=1675088637;
+        bh=0Ff1wA/jsyyzrcmDhgicIlBx8qhymYYf+T9UwvZxt8o=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=JieAQekD9m4gABkOzVrcwTyIHfDajMGbgr2Eair7uXqbnHW4CYQdWsCNv9OZ9hMXP
-         20mtkKlrzL/dtGiIcwIecNzXyBrFWMt3aX1xy6Y2wUeO367qy2NUOiX87phzCbHHsC
-         Omij23DLJPcpL35nFu4+S+ySExHhbkz6acrl/Y68=
+        b=ZOOQD0uQNAkhEhRcOIcljHd2KaAjpBmNHAh79zrlml85pnbG1K8oOReUpiwwDkU3z
+         kdmgkRNXwdXi7Y+z6Uyxq1j/Rt3dwulr7DHZjZtaREKmyjPwV2xgw66bcPK8JRrsgv
+         s88oFxWq2FUQfZUJv6z0ATRaZ+1jYu5FRVLL2pjg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Martin Wilck <mwilck@suse.com>,
-        Petr Pavlu <petr.pavlu@suse.com>,
-        Petr Mladek <pmladek@suse.com>,
-        Luis Chamberlain <mcgrof@kernel.org>
-Subject: [PATCH 5.15 147/204] module: Dont wait for GOING modules
-Date:   Mon, 30 Jan 2023 14:51:52 +0100
-Message-Id: <20230130134323.016245138@linuxfoundation.org>
+        patches@lists.linux.dev, Yang Yingliang <yangyingliang@huawei.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 056/143] w1: fix WARNING after calling w1_process()
+Date:   Mon, 30 Jan 2023 14:51:53 +0100
+Message-Id: <20230130134309.185051367@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.1
-In-Reply-To: <20230130134316.327556078@linuxfoundation.org>
-References: <20230130134316.327556078@linuxfoundation.org>
+In-Reply-To: <20230130134306.862721518@linuxfoundation.org>
+References: <20230130134306.862721518@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
         SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -54,111 +52,55 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Petr Pavlu <petr.pavlu@suse.com>
+From: Yang Yingliang <yangyingliang@huawei.com>
 
-commit 0254127ab977e70798707a7a2b757c9f3c971210 upstream.
+[ Upstream commit 36225a7c72e9e3e1ce4001b6ce72849f5c9a2d3b ]
 
-During a system boot, it can happen that the kernel receives a burst of
-requests to insert the same module but loading it eventually fails
-during its init call. For instance, udev can make a request to insert
-a frequency module for each individual CPU when another frequency module
-is already loaded which causes the init function of the new module to
-return an error.
+I got the following WARNING message while removing driver(ds2482):
 
-Since commit 6e6de3dee51a ("kernel/module.c: Only return -EEXIST for
-modules that have finished loading"), the kernel waits for modules in
-MODULE_STATE_GOING state to finish unloading before making another
-attempt to load the same module.
+------------[ cut here ]------------
+do not call blocking ops when !TASK_RUNNING; state=1 set at [<000000002d50bfb6>] w1_process+0x9e/0x1d0 [wire]
+WARNING: CPU: 0 PID: 262 at kernel/sched/core.c:9817 __might_sleep+0x98/0xa0
+CPU: 0 PID: 262 Comm: w1_bus_master1 Tainted: G                 N 6.1.0-rc3+ #307
+RIP: 0010:__might_sleep+0x98/0xa0
+Call Trace:
+ exit_signals+0x6c/0x550
+ do_exit+0x2b4/0x17e0
+ kthread_exit+0x52/0x60
+ kthread+0x16d/0x1e0
+ ret_from_fork+0x1f/0x30
 
-This creates unnecessary work in the described scenario and delays the
-boot. In the worst case, it can prevent udev from loading drivers for
-other devices and might cause timeouts of services waiting on them and
-subsequently a failed boot.
+The state of task is set to TASK_INTERRUPTIBLE in loop in w1_process(),
+set it to TASK_RUNNING when it breaks out of the loop to avoid the
+warning.
 
-This patch attempts a different solution for the problem 6e6de3dee51a
-was trying to solve. Rather than waiting for the unloading to complete,
-it returns a different error code (-EBUSY) for modules in the GOING
-state. This should avoid the error situation that was described in
-6e6de3dee51a (user space attempting to load a dependent module because
-the -EEXIST error code would suggest to user space that the first module
-had been loaded successfully), while avoiding the delay situation too.
-
-This has been tested on linux-next since December 2022 and passes
-all kmod selftests except test 0009 with module compression enabled
-but it has been confirmed that this issue has existed and has gone
-unnoticed since prior to this commit and can also be reproduced without
-module compression with a simple usleep(5000000) on tools/modprobe.c [0].
-These failures are caused by hitting the kernel mod_concurrent_max and can
-happen either due to a self inflicted kernel module auto-loead DoS somehow
-or on a system with large CPU count and each CPU count incorrectly triggering
-many module auto-loads. Both of those issues need to be fixed in-kernel.
-
-[0] https://lore.kernel.org/all/Y9A4fiobL6IHp%2F%2FP@bombadil.infradead.org/
-
-Fixes: 6e6de3dee51a ("kernel/module.c: Only return -EEXIST for modules that have finished loading")
-Co-developed-by: Martin Wilck <mwilck@suse.com>
-Signed-off-by: Martin Wilck <mwilck@suse.com>
-Signed-off-by: Petr Pavlu <petr.pavlu@suse.com>
-Cc: stable@vger.kernel.org
-Reviewed-by: Petr Mladek <pmladek@suse.com>
-[mcgrof: enhance commit log with testing and kmod test result interpretation ]
-Signed-off-by: Luis Chamberlain <mcgrof@kernel.org>
+Fixes: 3c52e4e62789 ("W1: w1_process, block or sleep")
+Signed-off-by: Yang Yingliang <yangyingliang@huawei.com>
+Link: https://lore.kernel.org/r/20221205101558.3599162-1-yangyingliang@huawei.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/module.c |   26 +++++++++++++++++++++-----
- 1 file changed, 21 insertions(+), 5 deletions(-)
+ drivers/w1/w1.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
---- a/kernel/module.c
-+++ b/kernel/module.c
-@@ -3665,7 +3665,8 @@ static bool finished_loading(const char
- 	sched_annotate_sleep();
- 	mutex_lock(&module_mutex);
- 	mod = find_module_all(name, strlen(name), true);
--	ret = !mod || mod->state == MODULE_STATE_LIVE;
-+	ret = !mod || mod->state == MODULE_STATE_LIVE
-+		|| mod->state == MODULE_STATE_GOING;
- 	mutex_unlock(&module_mutex);
+diff --git a/drivers/w1/w1.c b/drivers/w1/w1.c
+index 6e9f3569971d..15842377c8d2 100644
+--- a/drivers/w1/w1.c
++++ b/drivers/w1/w1.c
+@@ -1160,8 +1160,10 @@ int w1_process(void *data)
+ 		 */
+ 		mutex_unlock(&dev->list_mutex);
  
- 	return ret;
-@@ -3835,20 +3836,35 @@ static int add_unformed_module(struct mo
+-		if (kthread_should_stop())
++		if (kthread_should_stop()) {
++			__set_current_state(TASK_RUNNING);
+ 			break;
++		}
  
- 	mod->state = MODULE_STATE_UNFORMED;
- 
--again:
- 	mutex_lock(&module_mutex);
- 	old = find_module_all(mod->name, strlen(mod->name), true);
- 	if (old != NULL) {
--		if (old->state != MODULE_STATE_LIVE) {
-+		if (old->state == MODULE_STATE_COMING
-+		    || old->state == MODULE_STATE_UNFORMED) {
- 			/* Wait in case it fails to load. */
- 			mutex_unlock(&module_mutex);
- 			err = wait_event_interruptible(module_wq,
- 					       finished_loading(mod->name));
- 			if (err)
- 				goto out_unlocked;
--			goto again;
-+
-+			/* The module might have gone in the meantime. */
-+			mutex_lock(&module_mutex);
-+			old = find_module_all(mod->name, strlen(mod->name),
-+					      true);
- 		}
--		err = -EEXIST;
-+
-+		/*
-+		 * We are here only when the same module was being loaded. Do
-+		 * not try to load it again right now. It prevents long delays
-+		 * caused by serialized module load failures. It might happen
-+		 * when more devices of the same type trigger load of
-+		 * a particular module.
-+		 */
-+		if (old && old->state == MODULE_STATE_LIVE)
-+			err = -EEXIST;
-+		else
-+			err = -EBUSY;
- 		goto out;
- 	}
- 	mod_update_bounds(mod);
+ 		/* Only sleep when the search is active. */
+ 		if (dev->search_count) {
+-- 
+2.39.0
+
 
 
