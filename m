@@ -2,50 +2,53 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 5A94D68113E
-	for <lists+stable@lfdr.de>; Mon, 30 Jan 2023 15:11:29 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 38686681052
+	for <lists+stable@lfdr.de>; Mon, 30 Jan 2023 15:02:31 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237173AbjA3OL2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 30 Jan 2023 09:11:28 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53632 "EHLO
+        id S237020AbjA3OC2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 30 Jan 2023 09:02:28 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42604 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237170AbjA3OLV (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 30 Jan 2023 09:11:21 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4B2DE3B0DB
-        for <stable@vger.kernel.org>; Mon, 30 Jan 2023 06:11:20 -0800 (PST)
+        with ESMTP id S236963AbjA3OCN (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 30 Jan 2023 09:02:13 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D43BE2BF2C
+        for <stable@vger.kernel.org>; Mon, 30 Jan 2023 06:02:04 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 01BB2B811C7
-        for <stable@vger.kernel.org>; Mon, 30 Jan 2023 14:11:19 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 48EDBC433D2;
-        Mon, 30 Jan 2023 14:11:17 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 62A7E60FE0
+        for <stable@vger.kernel.org>; Mon, 30 Jan 2023 14:02:04 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 76CA4C433EF;
+        Mon, 30 Jan 2023 14:02:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1675087877;
-        bh=MMB9CQ2KpKN+7UXWcI6GtILonH1QPGIf1UDRa32Q6C4=;
+        s=korg; t=1675087323;
+        bh=YX4RugcpItiVM8A7NG6e5fEYq5hgkGcvBR9y9xKIkjc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ClGmauPZa5oynOcylOX5sV7iuYIicYKudl0M/NZ3oljC7KR6EqDj84yasUVGTpHde
-         BTM1dV7z+yeZtDAEmMJytdhU+KahKvok6qGTMSt+WJiYxRbrXUsDBpfiwr/ILpjM0U
-         3dry7l/XoqjjFTwb68xdZ+/C/P77P+ik/mE1c88I=
+        b=a4FMsrDHVjtn5O+wz0iRtDHzxG9N6izejiuxyYNZ3bpuAkYYjsYwHRrkl9Q+I2vMZ
+         lNcODFbWkXawdpeM71mWEXF7k0o3pAfY34pe8zYLcxvbxOWNM22Br0U9oTdlKo+mny
+         r9lfaT+LwMSTYebUwRcwPf/b/yMBHG9bTJc/M7SY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Adam Ford <aford173@gmail.com>,
-        Shawn Guo <shawnguo@kernel.org>,
+        patches@lists.linux.dev, Yuchung Cheng <ycheng@google.com>,
+        David Morley <morleyd@google.com>,
+        Neal Cardwell <ncardwell@google.com>,
+        Eric Dumazet <edumazet@google.com>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 009/204] arm64: dts: imx8mm-beacon: Fix ecspi2 pinmux
-Date:   Mon, 30 Jan 2023 14:49:34 +0100
-Message-Id: <20230130134316.716598775@linuxfoundation.org>
+Subject: [PATCH 6.1 140/313] tcp: fix rate_app_limited to default to 1
+Date:   Mon, 30 Jan 2023 14:49:35 +0100
+Message-Id: <20230130134343.174504672@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.1
-In-Reply-To: <20230130134316.327556078@linuxfoundation.org>
-References: <20230130134316.327556078@linuxfoundation.org>
+In-Reply-To: <20230130134336.532886729@linuxfoundation.org>
+References: <20230130134336.532886729@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
         SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -53,46 +56,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Adam Ford <aford173@gmail.com>
+From: David Morley <morleyd@google.com>
 
-[ Upstream commit 5225ba9db112ec4ed67da5e4d8b72e618573955e ]
+[ Upstream commit 300b655db1b5152d6101bcb6801d50899b20c2d6 ]
 
-Early hardware did not support hardware handshaking on the UART, but
-final production hardware did.  When the hardware was updated the chip
-select was changed to facilitate hardware handshaking on UART3.  Fix the
-ecspi2 pin mux to eliminate a pin conflict with UART3 and allow the
-EEPROM to operate again.
+The initial default value of 0 for tp->rate_app_limited was incorrect,
+since a flow is indeed application-limited until it first sends
+data. Fixing the default to be 1 is generally correct but also
+specifically will help user-space applications avoid using the initial
+tcpi_delivery_rate value of 0 that persists until the connection has
+some non-zero bandwidth sample.
 
-Fixes: 4ce01ce36d77 ("arm64: dts: imx8mm-beacon: Enable RTS-CTS on UART3")
-Signed-off-by: Adam Ford <aford173@gmail.com>
-Signed-off-by: Shawn Guo <shawnguo@kernel.org>
+Fixes: eb8329e0a04d ("tcp: export data delivery rate")
+Suggested-by: Yuchung Cheng <ycheng@google.com>
+Signed-off-by: David Morley <morleyd@google.com>
+Signed-off-by: Neal Cardwell <ncardwell@google.com>
+Tested-by: David Morley <morleyd@google.com>
+Reviewed-by: Eric Dumazet <edumazet@google.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm64/boot/dts/freescale/imx8mm-beacon-baseboard.dtsi | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ net/ipv4/tcp.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/arch/arm64/boot/dts/freescale/imx8mm-beacon-baseboard.dtsi b/arch/arm64/boot/dts/freescale/imx8mm-beacon-baseboard.dtsi
-index 94e5fa8ca957..bb18354c10f0 100644
---- a/arch/arm64/boot/dts/freescale/imx8mm-beacon-baseboard.dtsi
-+++ b/arch/arm64/boot/dts/freescale/imx8mm-beacon-baseboard.dtsi
-@@ -70,7 +70,7 @@ sound {
- &ecspi2 {
- 	pinctrl-names = "default";
- 	pinctrl-0 = <&pinctrl_espi2>;
--	cs-gpios = <&gpio5 9 GPIO_ACTIVE_LOW>;
-+	cs-gpios = <&gpio5 13 GPIO_ACTIVE_LOW>;
- 	status = "okay";
+diff --git a/net/ipv4/tcp.c b/net/ipv4/tcp.c
+index 4f2205756cfe..ec19ed722453 100644
+--- a/net/ipv4/tcp.c
++++ b/net/ipv4/tcp.c
+@@ -435,6 +435,7 @@ void tcp_init_sock(struct sock *sk)
  
- 	eeprom@0 {
-@@ -186,7 +186,7 @@ pinctrl_espi2: espi2grp {
- 			MX8MM_IOMUXC_ECSPI2_SCLK_ECSPI2_SCLK		0x82
- 			MX8MM_IOMUXC_ECSPI2_MOSI_ECSPI2_MOSI		0x82
- 			MX8MM_IOMUXC_ECSPI2_MISO_ECSPI2_MISO		0x82
--			MX8MM_IOMUXC_ECSPI1_SS0_GPIO5_IO9		0x41
-+			MX8MM_IOMUXC_ECSPI2_SS0_GPIO5_IO13              0x41
- 		>;
- 	};
+ 	/* There's a bubble in the pipe until at least the first ACK. */
+ 	tp->app_limited = ~0U;
++	tp->rate_app_limited = 1;
  
+ 	/* See draft-stevens-tcpca-spec-01 for discussion of the
+ 	 * initialization of these values.
+@@ -3177,6 +3178,7 @@ int tcp_disconnect(struct sock *sk, int flags)
+ 	tp->last_oow_ack_time = 0;
+ 	/* There's a bubble in the pipe until at least the first ACK. */
+ 	tp->app_limited = ~0U;
++	tp->rate_app_limited = 1;
+ 	tp->rack.mstamp = 0;
+ 	tp->rack.advanced = 0;
+ 	tp->rack.reo_wnd_steps = 1;
 -- 
 2.39.0
 
