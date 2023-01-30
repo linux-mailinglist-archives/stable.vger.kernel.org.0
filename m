@@ -2,50 +2,54 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id AA69168109C
-	for <lists+stable@lfdr.de>; Mon, 30 Jan 2023 15:05:11 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E924F68118D
+	for <lists+stable@lfdr.de>; Mon, 30 Jan 2023 15:14:30 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236600AbjA3OFK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 30 Jan 2023 09:05:10 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47460 "EHLO
+        id S237288AbjA3OOa (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 30 Jan 2023 09:14:30 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58208 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237046AbjA3OFH (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 30 Jan 2023 09:05:07 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1801B13D5C
-        for <stable@vger.kernel.org>; Mon, 30 Jan 2023 06:05:07 -0800 (PST)
+        with ESMTP id S237267AbjA3OO3 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 30 Jan 2023 09:14:29 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5734B1BAEC
+        for <stable@vger.kernel.org>; Mon, 30 Jan 2023 06:14:27 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 8F97861026
-        for <stable@vger.kernel.org>; Mon, 30 Jan 2023 14:05:06 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8C51FC4339B;
-        Mon, 30 Jan 2023 14:05:05 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id DD5AB6102E
+        for <stable@vger.kernel.org>; Mon, 30 Jan 2023 14:14:26 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id EED1CC433D2;
+        Mon, 30 Jan 2023 14:14:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1675087506;
-        bh=o8Gh7NTXKb+nGnOzWOA0gXN2mSnZqAXiIsHFkMSsGY8=;
+        s=korg; t=1675088066;
+        bh=ffzel8X/qV7MnDhW26+rmNDsh9ooM5L26oNnOs9qV/M=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=sLqSmOzP2NvTGnLyiQfLRSxcsxu+z5KNvoQImbQexchQWEYllHiAZ/Q3zUD5FPFxp
-         jAJf7DHyTBMdRhOP/7w0SR+Xkav7ttQGOV8tagzNFzqSIP5SfXq8I9pS/y1FZLy+y9
-         CfWcNSqjRlsSRPViDN09f/0yxE4ApZoWWb6Ma7BE=
+        b=xNONLbgDfPoGsADhm0x8/UcNnOzVzOUl2Ee91X0H0+7y43NcRI6IWnlYEeV7URsly
+         dl1eVWpx556EuwQJqUfxrMYVapE4ul8aCGEn0q/GG2K0Z559/Qa6W7/r1bJ7N5vw1o
+         1yKV53FkXxT+oySNELq8jvQIOMvl0HPMbfioceQ8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, kernel test robot <oliver.sang@intel.com>,
-        Alexander Wetzel <alexander@wetzel-home.de>,
-        Johannes Berg <johannes.berg@intel.com>
-Subject: [PATCH 6.1 203/313] wifi: mac80211: Fix iTXQ AMPDU fragmentation handling
+        patches@lists.linux.dev,
+        syzbot+bbd35b345c7cab0d9a08@syzkaller.appspotmail.com,
+        Eric Dumazet <edumazet@google.com>,
+        Cong Wang <cong.wang@bytedance.com>,
+        Guillaume Nault <gnault@redhat.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.15 073/204] l2tp: prevent lockdep issue in l2tp_tunnel_register()
 Date:   Mon, 30 Jan 2023 14:50:38 +0100
-Message-Id: <20230130134346.160692158@linuxfoundation.org>
+Message-Id: <20230130134319.545869747@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.1
-In-Reply-To: <20230130134336.532886729@linuxfoundation.org>
-References: <20230130134336.532886729@linuxfoundation.org>
+In-Reply-To: <20230130134316.327556078@linuxfoundation.org>
+References: <20230130134316.327556078@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
         SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -53,132 +57,58 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alexander Wetzel <alexander@wetzel-home.de>
+From: Eric Dumazet <edumazet@google.com>
 
-commit 592234e941f1addaa598601c9227e3b72d608625 upstream.
+[ Upstream commit b9fb10d131b8c84af9bb14e2078d5c63600c7dea ]
 
-mac80211 must not enable aggregation wile transmitting a fragmented
-MPDU. Enforce that for mac80211 internal TX queues (iTXQs).
+lockdep complains with the following lock/unlock sequence:
 
-Reported-by: kernel test robot <oliver.sang@intel.com>
-Link: https://lore.kernel.org/oe-lkp/202301021738.7cd3e6ae-oliver.sang@intel.com
-Signed-off-by: Alexander Wetzel <alexander@wetzel-home.de>
-Link: https://lore.kernel.org/r/20230106223141.98696-1-alexander@wetzel-home.de
-Cc: stable@vger.kernel.org
-Signed-off-by: Johannes Berg <johannes.berg@intel.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+     lock_sock(sk);
+     write_lock_bh(&sk->sk_callback_lock);
+[1]  release_sock(sk);
+[2]  write_unlock_bh(&sk->sk_callback_lock);
+
+We need to swap [1] and [2] to fix this issue.
+
+Fixes: 0b2c59720e65 ("l2tp: close all race conditions in l2tp_tunnel_register()")
+Reported-by: syzbot+bbd35b345c7cab0d9a08@syzkaller.appspotmail.com
+Signed-off-by: Eric Dumazet <edumazet@google.com>
+Link: https://lore.kernel.org/netdev/20230114030137.672706-1-xiyou.wangcong@gmail.com/T/#m1164ff20628671b0f326a24cb106ab3239c70ce3
+Cc: Cong Wang <cong.wang@bytedance.com>
+Cc: Guillaume Nault <gnault@redhat.com>
+Reviewed-by: Guillaume Nault <gnault@redhat.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/mac80211/agg-tx.c |    2 --
- net/mac80211/ht.c     |   37 +++++++++++++++++++++++++++++++++++++
- net/mac80211/tx.c     |   13 +++++++------
- 3 files changed, 44 insertions(+), 8 deletions(-)
+ net/l2tp/l2tp_core.c | 5 ++---
+ 1 file changed, 2 insertions(+), 3 deletions(-)
 
---- a/net/mac80211/agg-tx.c
-+++ b/net/mac80211/agg-tx.c
-@@ -511,8 +511,6 @@ void ieee80211_tx_ba_session_handle_star
- 	 */
- 	clear_bit(HT_AGG_STATE_WANT_START, &tid_tx->state);
+diff --git a/net/l2tp/l2tp_core.c b/net/l2tp/l2tp_core.c
+index 4c5227048be4..a2b13e213e06 100644
+--- a/net/l2tp/l2tp_core.c
++++ b/net/l2tp/l2tp_core.c
+@@ -1485,10 +1485,8 @@ int l2tp_tunnel_register(struct l2tp_tunnel *tunnel, struct net *net,
+ 	lock_sock(sk);
+ 	write_lock_bh(&sk->sk_callback_lock);
+ 	ret = l2tp_validate_socket(sk, net, tunnel->encap);
+-	if (ret < 0) {
+-		release_sock(sk);
++	if (ret < 0)
+ 		goto err_inval_sock;
+-	}
+ 	rcu_assign_sk_user_data(sk, tunnel);
+ 	write_unlock_bh(&sk->sk_callback_lock);
  
--	ieee80211_agg_stop_txq(sta, tid);
--
- 	/*
- 	 * Make sure no packets are being processed. This ensures that
- 	 * we have a valid starting sequence number and that in-flight
---- a/net/mac80211/ht.c
-+++ b/net/mac80211/ht.c
-@@ -391,6 +391,43 @@ void ieee80211_ba_session_work(struct wo
+@@ -1525,6 +1523,7 @@ int l2tp_tunnel_register(struct l2tp_tunnel *tunnel, struct net *net,
  
- 		tid_tx = sta->ampdu_mlme.tid_start_tx[tid];
- 		if (!blocked && tid_tx) {
-+			struct ieee80211_sub_if_data *sdata = sta->sdata;
-+			struct ieee80211_local *local = sdata->local;
-+
-+			if (local->ops->wake_tx_queue) {
-+				struct txq_info *txqi =
-+					to_txq_info(sta->sta.txq[tid]);
-+				struct fq *fq = &local->fq;
-+
-+				spin_lock_bh(&fq->lock);
-+
-+				/* Allow only frags to be dequeued */
-+				set_bit(IEEE80211_TXQ_STOP, &txqi->flags);
-+
-+				if (!skb_queue_empty(&txqi->frags)) {
-+					/* Fragmented Tx is ongoing, wait for it
-+					 * to finish. Reschedule worker to retry
-+					 * later.
-+					 */
-+
-+					spin_unlock_bh(&fq->lock);
-+					spin_unlock_bh(&sta->lock);
-+
-+					/* Give the task working on the txq a
-+					 * chance to send out the queued frags
-+					 */
-+					synchronize_net();
-+
-+					mutex_unlock(&sta->ampdu_mlme.mtx);
-+
-+					ieee80211_queue_work(&sdata->local->hw,
-+							     work);
-+					return;
-+				}
-+
-+				spin_unlock_bh(&fq->lock);
-+			}
-+
- 			/*
- 			 * Assign it over to the normal tid_tx array
- 			 * where it "goes live".
---- a/net/mac80211/tx.c
-+++ b/net/mac80211/tx.c
-@@ -1295,7 +1295,8 @@ ieee80211_tx_prepare(struct ieee80211_su
- 	if (!(info->flags & IEEE80211_TX_CTL_DONTFRAG)) {
- 		if (!(tx->flags & IEEE80211_TX_UNICAST) ||
- 		    skb->len + FCS_LEN <= local->hw.wiphy->frag_threshold ||
--		    info->flags & IEEE80211_TX_CTL_AMPDU)
-+		    (info->flags & IEEE80211_TX_CTL_AMPDU &&
-+		     !local->ops->wake_tx_queue))
- 			info->flags |= IEEE80211_TX_CTL_DONTFRAG;
- 	}
+ err_inval_sock:
+ 	write_unlock_bh(&sk->sk_callback_lock);
++	release_sock(sk);
  
-@@ -3725,7 +3726,6 @@ struct sk_buff *ieee80211_tx_dequeue(str
- 		return NULL;
- 
- begin:
--	skb = NULL;
- 	spin_lock(&local->queue_stop_reason_lock);
- 	q_stopped = local->queue_stop_reasons[q];
- 	spin_unlock(&local->queue_stop_reason_lock);
-@@ -3738,9 +3738,6 @@ begin:
- 
- 	spin_lock_bh(&fq->lock);
- 
--	if (unlikely(test_bit(IEEE80211_TXQ_STOP, &txqi->flags)))
--		goto out;
--
- 	/* Make sure fragments stay together. */
- 	skb = __skb_dequeue(&txqi->frags);
- 	if (unlikely(skb)) {
-@@ -3750,6 +3747,9 @@ begin:
- 		IEEE80211_SKB_CB(skb)->control.flags &=
- 			~IEEE80211_TX_INTCFL_NEED_TXPROCESSING;
- 	} else {
-+		if (unlikely(test_bit(IEEE80211_TXQ_STOP, &txqi->flags)))
-+			goto out;
-+
- 		skb = fq_tin_dequeue(fq, tin, fq_tin_dequeue_func);
- 	}
- 
-@@ -3800,7 +3800,8 @@ begin:
- 	}
- 
- 	if (test_bit(IEEE80211_TXQ_AMPDU, &txqi->flags))
--		info->flags |= IEEE80211_TX_CTL_AMPDU;
-+		info->flags |= (IEEE80211_TX_CTL_AMPDU |
-+				IEEE80211_TX_CTL_DONTFRAG);
- 	else
- 		info->flags &= ~IEEE80211_TX_CTL_AMPDU;
- 
+ 	if (tunnel->fd < 0)
+ 		sock_release(sock);
+-- 
+2.39.0
+
 
 
