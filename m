@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id DDFBB6812B4
-	for <lists+stable@lfdr.de>; Mon, 30 Jan 2023 15:24:21 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 75F586810EB
+	for <lists+stable@lfdr.de>; Mon, 30 Jan 2023 15:08:24 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237626AbjA3OYT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 30 Jan 2023 09:24:19 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41944 "EHLO
+        id S237126AbjA3OIX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 30 Jan 2023 09:08:23 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50638 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237221AbjA3OYE (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 30 Jan 2023 09:24:04 -0500
+        with ESMTP id S237127AbjA3OIW (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 30 Jan 2023 09:08:22 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DFF1583E8
-        for <stable@vger.kernel.org>; Mon, 30 Jan 2023 06:22:57 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 52E1D35241
+        for <stable@vger.kernel.org>; Mon, 30 Jan 2023 06:08:20 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id F0B8EB81151
-        for <stable@vger.kernel.org>; Mon, 30 Jan 2023 14:21:57 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 390FEC433EF;
-        Mon, 30 Jan 2023 14:21:56 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 13923B811C7
+        for <stable@vger.kernel.org>; Mon, 30 Jan 2023 14:08:19 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 51CAEC4339B;
+        Mon, 30 Jan 2023 14:08:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1675088516;
-        bh=FTRYo/Ns6R5edo9V8iYuUkWucgf4uPANuqvMF7ti19U=;
+        s=korg; t=1675087697;
+        bh=C0prHw3etiA2Cjxcbqfog4S4TxWSrS0dHOSTAxqoQ3U=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=DaO5ZnujeyripNoByj86kYceqqSsWcccRk6u9Np0UqMvOWpLeLapBI/4XH3GKhgoh
-         irW4+6dy+R0rX2aGbqQnvlXOuv+NJuaDsfAbodAOh1CZGv8vxMIX00rbClCpa8nsgG
-         amKiIse1bHvRiHnif1Gva1P+NXWBahb7uv4i3+dU=
+        b=efiSKvwY3IO9RTD3jowxmwc/1x06hunpqlDO8vkFVmR6fmFaS15jZ/7Mo6sY8deul
+         4chvZZUTUSLhWFPTjiqAAKaEgB6bTyCm53FdhORBBoY9k5GAUY7SOClQ8lwqdqwSdX
+         ru5hBBGrmcNnon1NnE0lRNboqXHwv4HBq+jvc808=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Udipto Goswami <quic_ugoswami@quicinc.com>,
-        Krishna Kurapati <quic_kriskura@quicinc.com>,
+        patches@lists.linux.dev, Eric Dumazet <edumazet@google.com>,
+        Jakub Kicinski <kuba@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 045/143] usb: gadget: f_fs: Ensure ep0req is dequeued before free_request
+Subject: [PATCH 6.1 267/313] netlink: annotate data races around dst_portid and dst_group
 Date:   Mon, 30 Jan 2023 14:51:42 +0100
-Message-Id: <20230130134308.713596261@linuxfoundation.org>
+Message-Id: <20230130134349.175723215@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.1
-In-Reply-To: <20230130134306.862721518@linuxfoundation.org>
-References: <20230130134306.862721518@linuxfoundation.org>
+In-Reply-To: <20230130134336.532886729@linuxfoundation.org>
+References: <20230130134336.532886729@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,41 +53,85 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Udipto Goswami <quic_ugoswami@quicinc.com>
+From: Eric Dumazet <edumazet@google.com>
 
-[ Upstream commit ce405d561b020e5a46340eb5146805a625dcacee ]
+[ Upstream commit 004db64d185a5f23dfb891d7701e23713b2420ee ]
 
-As per the documentation, function usb_ep_free_request guarantees
-the request will not be queued or no longer be re-queued (or
-otherwise used). However, with the current implementation it
-doesn't make sure that the request in ep0 isn't reused.
+netlink_getname(), netlink_sendmsg() and netlink_getsockbyportid()
+can read nlk->dst_portid and nlk->dst_group while another
+thread is changing them.
 
-Fix this by dequeuing the ep0req on functionfs_unbind before
-freeing the request to align with the definition.
-
-Fixes: ddf8abd25994 ("USB: f_fs: the FunctionFS driver")
-Signed-off-by: Udipto Goswami <quic_ugoswami@quicinc.com>
-Tested-by: Krishna Kurapati <quic_kriskura@quicinc.com>
-Link: https://lore.kernel.org/r/20221215052906.8993-3-quic_ugoswami@quicinc.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
+Signed-off-by: Eric Dumazet <edumazet@google.com>
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/usb/gadget/function/f_fs.c | 2 ++
- 1 file changed, 2 insertions(+)
+ net/netlink/af_netlink.c | 23 ++++++++++++++---------
+ 1 file changed, 14 insertions(+), 9 deletions(-)
 
-diff --git a/drivers/usb/gadget/function/f_fs.c b/drivers/usb/gadget/function/f_fs.c
-index 38942c6d3019..94000fd190e5 100644
---- a/drivers/usb/gadget/function/f_fs.c
-+++ b/drivers/usb/gadget/function/f_fs.c
-@@ -1884,6 +1884,8 @@ static void functionfs_unbind(struct ffs_data *ffs)
- 	ENTER();
+diff --git a/net/netlink/af_netlink.c b/net/netlink/af_netlink.c
+index 11a6309f17a3..a597e4dac7fd 100644
+--- a/net/netlink/af_netlink.c
++++ b/net/netlink/af_netlink.c
+@@ -1088,8 +1088,9 @@ static int netlink_connect(struct socket *sock, struct sockaddr *addr,
  
- 	if (!WARN_ON(!ffs->gadget)) {
-+		/* dequeue before freeing ep0req */
-+		usb_ep_dequeue(ffs->gadget->ep0, ffs->ep0req);
- 		mutex_lock(&ffs->mutex);
- 		usb_ep_free_request(ffs->gadget->ep0, ffs->ep0req);
- 		ffs->ep0req = NULL;
+ 	if (addr->sa_family == AF_UNSPEC) {
+ 		sk->sk_state	= NETLINK_UNCONNECTED;
+-		nlk->dst_portid	= 0;
+-		nlk->dst_group  = 0;
++		/* dst_portid and dst_group can be read locklessly */
++		WRITE_ONCE(nlk->dst_portid, 0);
++		WRITE_ONCE(nlk->dst_group, 0);
+ 		return 0;
+ 	}
+ 	if (addr->sa_family != AF_NETLINK)
+@@ -1111,8 +1112,9 @@ static int netlink_connect(struct socket *sock, struct sockaddr *addr,
+ 
+ 	if (err == 0) {
+ 		sk->sk_state	= NETLINK_CONNECTED;
+-		nlk->dst_portid = nladdr->nl_pid;
+-		nlk->dst_group  = ffs(nladdr->nl_groups);
++		/* dst_portid and dst_group can be read locklessly */
++		WRITE_ONCE(nlk->dst_portid, nladdr->nl_pid);
++		WRITE_ONCE(nlk->dst_group, ffs(nladdr->nl_groups));
+ 	}
+ 
+ 	return err;
+@@ -1129,8 +1131,9 @@ static int netlink_getname(struct socket *sock, struct sockaddr *addr,
+ 	nladdr->nl_pad = 0;
+ 
+ 	if (peer) {
+-		nladdr->nl_pid = nlk->dst_portid;
+-		nladdr->nl_groups = netlink_group_mask(nlk->dst_group);
++		/* Paired with WRITE_ONCE() in netlink_connect() */
++		nladdr->nl_pid = READ_ONCE(nlk->dst_portid);
++		nladdr->nl_groups = netlink_group_mask(READ_ONCE(nlk->dst_group));
+ 	} else {
+ 		/* Paired with WRITE_ONCE() in netlink_insert() */
+ 		nladdr->nl_pid = READ_ONCE(nlk->portid);
+@@ -1160,8 +1163,9 @@ static struct sock *netlink_getsockbyportid(struct sock *ssk, u32 portid)
+ 
+ 	/* Don't bother queuing skb if kernel socket has no input function */
+ 	nlk = nlk_sk(sock);
++	/* dst_portid can be changed in netlink_connect() */
+ 	if (sock->sk_state == NETLINK_CONNECTED &&
+-	    nlk->dst_portid != nlk_sk(ssk)->portid) {
++	    READ_ONCE(nlk->dst_portid) != nlk_sk(ssk)->portid) {
+ 		sock_put(sock);
+ 		return ERR_PTR(-ECONNREFUSED);
+ 	}
+@@ -1878,8 +1882,9 @@ static int netlink_sendmsg(struct socket *sock, struct msghdr *msg, size_t len)
+ 			goto out;
+ 		netlink_skb_flags |= NETLINK_SKB_DST;
+ 	} else {
+-		dst_portid = nlk->dst_portid;
+-		dst_group = nlk->dst_group;
++		/* Paired with WRITE_ONCE() in netlink_connect() */
++		dst_portid = READ_ONCE(nlk->dst_portid);
++		dst_group = READ_ONCE(nlk->dst_group);
+ 	}
+ 
+ 	/* Paired with WRITE_ONCE() in netlink_insert() */
 -- 
 2.39.0
 
