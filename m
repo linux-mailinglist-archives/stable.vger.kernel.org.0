@@ -2,49 +2,54 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E8960681093
-	for <lists+stable@lfdr.de>; Mon, 30 Jan 2023 15:04:59 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id DCFFB681181
+	for <lists+stable@lfdr.de>; Mon, 30 Jan 2023 15:14:07 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237013AbjA3OE6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 30 Jan 2023 09:04:58 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47246 "EHLO
+        id S237298AbjA3OOH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 30 Jan 2023 09:14:07 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57368 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236993AbjA3OEo (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 30 Jan 2023 09:04:44 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D09AD30F7
-        for <stable@vger.kernel.org>; Mon, 30 Jan 2023 06:04:43 -0800 (PST)
+        with ESMTP id S237272AbjA3OOA (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 30 Jan 2023 09:14:00 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6EF8E2D148
+        for <stable@vger.kernel.org>; Mon, 30 Jan 2023 06:13:59 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 7B508B80C9B
-        for <stable@vger.kernel.org>; Mon, 30 Jan 2023 14:04:42 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B859FC433D2;
-        Mon, 30 Jan 2023 14:04:40 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 2782BB811CE
+        for <stable@vger.kernel.org>; Mon, 30 Jan 2023 14:13:58 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 76E41C433EF;
+        Mon, 30 Jan 2023 14:13:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1675087481;
-        bh=QezxbJLgVDif6EPAzlMXoFPqAwcZZ3KYR6AnYe4NI+8=;
+        s=korg; t=1675088036;
+        bh=rcU/SFQkgcdXRl7/mxKiQ86/PHCp6o4MBFdOvXdqN7s=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=qfOiEKXr9IFN4adyg0f5SL23U09yeka7SBLVPKKhYyAhmQXPAx+4OK0wcN50N13fn
-         P0cBlk0IjIW92nLAQNFZfKzSpCGwNkBmy8PvvGUNw/zOuciLGcs83schITkSNWrr2+
-         5ppPKXmhY6++qkoivYDUnCELWV5ISmJIjulL4olk=
+        b=J6Yt5O40Asd83WbpN2Nqds6zCFUycbVBSkXcmDaotTGw8JGnQeZz8jZ5pHqPxPQxM
+         LrIKedGvzwEX4KbmNNPsdKLeuTU6zQZFnJ286F6YVPJbge0/+ZxEMjqGyP7OYGHTvI
+         eTlnL2RexiiPhJB5PE32CyxzaU1fbI2Lr7Tr8LMY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Dylan Yudaken <dylany@meta.com>,
-        Jens Axboe <axboe@kernel.dk>
-Subject: [PATCH 6.1 222/313] io_uring/net: cache provided buffer group value for multishot receives
-Date:   Mon, 30 Jan 2023 14:50:57 +0100
-Message-Id: <20230130134347.051307365@linuxfoundation.org>
+        patches@lists.linux.dev,
+        Caleb Connolly <caleb.connolly@linaro.org>,
+        Viresh Kumar <viresh.kumar@linaro.org>,
+        Frank Rowand <frowand.list@gmail.com>,
+        Yang Yingliang <yangyingliang@huawei.com>,
+        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.15 093/204] thermal: core: call put_device() only after device_register() fails
+Date:   Mon, 30 Jan 2023 14:50:58 +0100
+Message-Id: <20230130134320.440451297@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.1
-In-Reply-To: <20230130134336.532886729@linuxfoundation.org>
-References: <20230130134336.532886729@linuxfoundation.org>
+In-Reply-To: <20230130134316.327556078@linuxfoundation.org>
+References: <20230130134316.327556078@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
         SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -52,69 +57,72 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jens Axboe <axboe@kernel.dk>
+From: Viresh Kumar <viresh.kumar@linaro.org>
 
-commit b00c51ef8f72ced0965d021a291b98ff822c5337 upstream.
+[ Upstream commit 6c54b7bc8a31ce0f7cc7f8deef05067df414f1d8 ]
 
-If we're using ring provided buffers with multishot receive, and we end
-up doing an io-wq based issue at some points that also needs to select
-a buffer, we'll lose the initially assigned buffer group as
-io_ring_buffer_select() correctly clears the buffer group list as the
-issue isn't serialized by the ctx uring_lock. This is fine for normal
-receives as the request puts the buffer and finishes, but for multishot,
-we will re-arm and do further receives. On the next trigger for this
-multishot receive, the receive will try and pick from a buffer group
-whose value is the same as the buffer ID of the las receive. That is
-obviously incorrect, and will result in a premature -ENOUFS error for
-the receive even if we had available buffers in the correct group.
+put_device() shouldn't be called before a prior call to
+device_register(). __thermal_cooling_device_register() doesn't follow
+that properly and needs fixing. Also
+thermal_cooling_device_destroy_sysfs() is getting called unnecessarily
+on few error paths.
 
-Cache the buffer group value at prep time, so we can restore it for
-future receives. This only needs doing for the above mentioned case, but
-just do it by default to keep it easier to read.
+Fix all this by placing the calls at the right place.
 
-Cc: stable@vger.kernel.org
-Fixes: b3fdea6ecb55 ("io_uring: multishot recv")
-Fixes: 9bb66906f23e ("io_uring: support multishot in recvmsg")
-Cc: Dylan Yudaken <dylany@meta.com>
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Based on initial work done by Caleb Connolly.
+
+Fixes: 4748f9687caa ("thermal: core: fix some possible name leaks in error paths")
+Fixes: c408b3d1d9bb ("thermal: Validate new state in cur_state_store()")
+Reported-by: Caleb Connolly <caleb.connolly@linaro.org>
+Signed-off-by: Viresh Kumar <viresh.kumar@linaro.org>
+Tested-by: Frank Rowand <frowand.list@gmail.com>
+Reviewed-by: Yang Yingliang <yangyingliang@huawei.com>
+Tested-by: Caleb Connolly <caleb.connolly@linaro.org>
+Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- io_uring/net.c |   11 +++++++++++
- 1 file changed, 11 insertions(+)
+ drivers/thermal/thermal_core.c | 13 ++++++++++---
+ 1 file changed, 10 insertions(+), 3 deletions(-)
 
---- a/io_uring/net.c
-+++ b/io_uring/net.c
-@@ -62,6 +62,7 @@ struct io_sr_msg {
- 	u16				flags;
- 	/* initialised and used only by !msg send variants */
- 	u16				addr_len;
-+	u16				buf_group;
- 	void __user			*addr;
- 	/* used only for send zerocopy */
- 	struct io_kiocb 		*notif;
-@@ -565,6 +566,15 @@ int io_recvmsg_prep(struct io_kiocb *req
- 		if (req->opcode == IORING_OP_RECV && sr->len)
- 			return -EINVAL;
- 		req->flags |= REQ_F_APOLL_MULTISHOT;
-+		/*
-+		 * Store the buffer group for this multishot receive separately,
-+		 * as if we end up doing an io-wq based issue that selects a
-+		 * buffer, it has to be committed immediately and that will
-+		 * clear ->buf_list. This means we lose the link to the buffer
-+		 * list, and the eventual buffer put on completion then cannot
-+		 * restore it.
-+		 */
-+		sr->buf_group = req->buf_index;
+diff --git a/drivers/thermal/thermal_core.c b/drivers/thermal/thermal_core.c
+index b21d886aef22..052e8e8fbb21 100644
+--- a/drivers/thermal/thermal_core.c
++++ b/drivers/thermal/thermal_core.c
+@@ -915,15 +915,20 @@ __thermal_cooling_device_register(struct device_node *np,
+ 	cdev->devdata = devdata;
+ 
+ 	ret = cdev->ops->get_max_state(cdev, &cdev->max_state);
+-	if (ret)
+-		goto out_kfree_type;
++	if (ret) {
++		kfree(cdev->type);
++		goto out_ida_remove;
++	}
+ 
+ 	thermal_cooling_device_setup_sysfs(cdev);
++
+ 	ret = dev_set_name(&cdev->device, "cooling_device%d", cdev->id);
+ 	if (ret) {
++		kfree(cdev->type);
+ 		thermal_cooling_device_destroy_sysfs(cdev);
+-		goto out_kfree_type;
++		goto out_ida_remove;
  	}
- 
- #ifdef CONFIG_COMPAT
-@@ -581,6 +591,7 @@ static inline void io_recv_prep_retry(st
- 
- 	sr->done_io = 0;
- 	sr->len = 0; /* get from the provided buffer */
-+	req->buf_index = sr->buf_group;
- }
- 
- /*
++
+ 	ret = device_register(&cdev->device);
+ 	if (ret)
+ 		goto out_kfree_type;
+@@ -949,6 +954,8 @@ __thermal_cooling_device_register(struct device_node *np,
+ 	thermal_cooling_device_destroy_sysfs(cdev);
+ 	kfree(cdev->type);
+ 	put_device(&cdev->device);
++
++	/* thermal_release() takes care of the rest */
+ 	cdev = NULL;
+ out_ida_remove:
+ 	ida_simple_remove(&thermal_cdev_ida, id);
+-- 
+2.39.0
+
 
 
