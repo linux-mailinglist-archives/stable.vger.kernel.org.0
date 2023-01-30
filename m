@@ -2,41 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 671F9681009
-	for <lists+stable@lfdr.de>; Mon, 30 Jan 2023 14:59:09 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2871B681032
+	for <lists+stable@lfdr.de>; Mon, 30 Jan 2023 15:01:22 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236772AbjA3N7I (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 30 Jan 2023 08:59:08 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39042 "EHLO
+        id S236975AbjA3OBU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 30 Jan 2023 09:01:20 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42596 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236856AbjA3N66 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 30 Jan 2023 08:58:58 -0500
+        with ESMTP id S236978AbjA3OBI (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 30 Jan 2023 09:01:08 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F10CF3B0E5
-        for <stable@vger.kernel.org>; Mon, 30 Jan 2023 05:58:38 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3B8F53A87A
+        for <stable@vger.kernel.org>; Mon, 30 Jan 2023 06:00:34 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 59997B8117A
-        for <stable@vger.kernel.org>; Mon, 30 Jan 2023 13:58:35 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 85822C433EF;
-        Mon, 30 Jan 2023 13:58:33 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id D07BAB81154
+        for <stable@vger.kernel.org>; Mon, 30 Jan 2023 14:00:33 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 295E5C433EF;
+        Mon, 30 Jan 2023 14:00:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1675087114;
-        bh=WK9M1JMhE4yIcDv0R2RgSIobbe4NY9UaaaXM3uuJVt4=;
+        s=korg; t=1675087232;
+        bh=/AtZ171hcy3lK77hjSXHT4ByeUuFjW0My9FptyVAOio=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=m8kR/rnHRgxAtWG6MlobMAQ7Oy6TK14WikJnpwoD0n/9eaCt61FD7XCGt3SxHfY12
-         wPCFR/NIZcOCpVGuxncKB24hE2z+1UwCT9nmi9Y99AIaEeV2G8QXm79pbhb9A3SmXU
-         9IRkPvM3pVyEE5amN+mCVYskARfgsX+TCJsynjoE=
+        b=cjVNYSVcg9Rj7WGOohG14D5PGvHnL713SjjhtZ205ch1DC57dKzLTqyCyZ3wEn1Up
+         hFj0bcJeq3urgZwMZuCUzpCHnFiXr/uHfSCuZwPygBFoZkrawNj5o3Vjli2KRuN5sw
+         IM6lSRIbVViGA+MNh7wBUb7j3tXtIX/SsZeAvLOU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Zhengchao Shao <shaozhengchao@huawei.com>,
+        patches@lists.linux.dev,
         Luiz Augusto von Dentz <luiz.von.dentz@intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 100/313] Bluetooth: hci_sync: fix memory leak in hci_update_adv_data()
-Date:   Mon, 30 Jan 2023 14:48:55 +0100
-Message-Id: <20230130134341.293145273@linuxfoundation.org>
+Subject: [PATCH 6.1 101/313] Bluetooth: ISO: Avoid circular locking dependency
+Date:   Mon, 30 Jan 2023 14:48:56 +0100
+Message-Id: <20230130134341.344126113@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.1
 In-Reply-To: <20230130134336.532886729@linuxfoundation.org>
 References: <20230130134336.532886729@linuxfoundation.org>
@@ -53,50 +53,273 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zhengchao Shao <shaozhengchao@huawei.com>
+From: Luiz Augusto von Dentz <luiz.von.dentz@intel.com>
 
-[ Upstream commit 1ed8b37cbaf14574c779064ef1372af62e8ba6aa ]
+[ Upstream commit 241f51931c35085449502c10f64fb3ecd6e02171 ]
 
-When hci_cmd_sync_queue() failed in hci_update_adv_data(), inst_ptr is
-not freed, which will cause memory leak, convert to use ERR_PTR/PTR_ERR
-to pass the instance to callback so no memory needs to be allocated.
+This attempts to avoid circular locking dependency between sock_lock
+and hdev_lock:
 
-Fixes: 651cd3d65b0f ("Bluetooth: convert hci_update_adv_data to hci_sync")
-Signed-off-by: Zhengchao Shao <shaozhengchao@huawei.com>
+WARNING: possible circular locking dependency detected
+6.0.0-rc7-03728-g18dd8ab0a783 #3 Not tainted
+------------------------------------------------------
+kworker/u3:2/53 is trying to acquire lock:
+ffff888000254130 (sk_lock-AF_BLUETOOTH-BTPROTO_ISO){+.+.}-{0:0}, at:
+iso_conn_del+0xbd/0x1d0
+but task is already holding lock:
+ffffffff9f39a080 (hci_cb_list_lock){+.+.}-{3:3}, at:
+hci_le_cis_estabilished_evt+0x1b5/0x500
+which lock already depends on the new lock.
+the existing dependency chain (in reverse order) is:
+-> #2 (hci_cb_list_lock){+.+.}-{3:3}:
+       __mutex_lock+0x10e/0xfe0
+       hci_le_remote_feat_complete_evt+0x17f/0x320
+       hci_event_packet+0x39c/0x7d0
+       hci_rx_work+0x2bf/0x950
+       process_one_work+0x569/0x980
+       worker_thread+0x2a3/0x6f0
+       kthread+0x153/0x180
+       ret_from_fork+0x22/0x30
+-> #1 (&hdev->lock){+.+.}-{3:3}:
+       __mutex_lock+0x10e/0xfe0
+       iso_connect_cis+0x6f/0x5a0
+       iso_sock_connect+0x1af/0x710
+       __sys_connect+0x17e/0x1b0
+       __x64_sys_connect+0x37/0x50
+       do_syscall_64+0x43/0x90
+       entry_SYSCALL_64_after_hwframe+0x62/0xcc
+-> #0 (sk_lock-AF_BLUETOOTH-BTPROTO_ISO){+.+.}-{0:0}:
+       __lock_acquire+0x1b51/0x33d0
+       lock_acquire+0x16f/0x3b0
+       lock_sock_nested+0x32/0x80
+       iso_conn_del+0xbd/0x1d0
+       iso_connect_cfm+0x226/0x680
+       hci_le_cis_estabilished_evt+0x1ed/0x500
+       hci_event_packet+0x39c/0x7d0
+       hci_rx_work+0x2bf/0x950
+       process_one_work+0x569/0x980
+       worker_thread+0x2a3/0x6f0
+       kthread+0x153/0x180
+       ret_from_fork+0x22/0x30
+other info that might help us debug this:
+Chain exists of:
+  sk_lock-AF_BLUETOOTH-BTPROTO_ISO --> &hdev->lock --> hci_cb_list_lock
+ Possible unsafe locking scenario:
+       CPU0                    CPU1
+       ----                    ----
+  lock(hci_cb_list_lock);
+                               lock(&hdev->lock);
+                               lock(hci_cb_list_lock);
+  lock(sk_lock-AF_BLUETOOTH-BTPROTO_ISO);
+ *** DEADLOCK ***
+4 locks held by kworker/u3:2/53:
+ #0: ffff8880021d9130 ((wq_completion)hci0#2){+.+.}-{0:0}, at:
+ process_one_work+0x4ad/0x980
+ #1: ffff888002387de0 ((work_completion)(&hdev->rx_work)){+.+.}-{0:0},
+ at: process_one_work+0x4ad/0x980
+ #2: ffff888001ac0070 (&hdev->lock){+.+.}-{3:3}, at:
+ hci_le_cis_estabilished_evt+0xc3/0x500
+ #3: ffffffff9f39a080 (hci_cb_list_lock){+.+.}-{3:3}, at:
+ hci_le_cis_estabilished_evt+0x1b5/0x500
+
 Signed-off-by: Luiz Augusto von Dentz <luiz.von.dentz@intel.com>
+Stable-dep-of: 6a5ad251b7cd ("Bluetooth: ISO: Fix possible circular locking dependency")
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/bluetooth/hci_sync.c | 13 +++----------
- 1 file changed, 3 insertions(+), 10 deletions(-)
+ net/bluetooth/iso.c | 61 ++++++++++++++++++++++++++++-----------------
+ 1 file changed, 38 insertions(+), 23 deletions(-)
 
-diff --git a/net/bluetooth/hci_sync.c b/net/bluetooth/hci_sync.c
-index 8d6c8cbfe1de..67dd4c9fa4a5 100644
---- a/net/bluetooth/hci_sync.c
-+++ b/net/bluetooth/hci_sync.c
-@@ -6168,20 +6168,13 @@ int hci_get_random_address(struct hci_dev *hdev, bool require_privacy,
+diff --git a/net/bluetooth/iso.c b/net/bluetooth/iso.c
+index 26db929b97c4..df57cbe27b3d 100644
+--- a/net/bluetooth/iso.c
++++ b/net/bluetooth/iso.c
+@@ -261,13 +261,13 @@ static int iso_connect_bis(struct sock *sk)
  
- static int _update_adv_data_sync(struct hci_dev *hdev, void *data)
+ 	if (!bis_capable(hdev)) {
+ 		err = -EOPNOTSUPP;
+-		goto done;
++		goto unlock;
+ 	}
+ 
+ 	/* Fail if out PHYs are marked as disabled */
+ 	if (!iso_pi(sk)->qos.out.phy) {
+ 		err = -EINVAL;
+-		goto done;
++		goto unlock;
+ 	}
+ 
+ 	hcon = hci_connect_bis(hdev, &iso_pi(sk)->dst, iso_pi(sk)->dst_type,
+@@ -275,22 +275,27 @@ static int iso_connect_bis(struct sock *sk)
+ 			       iso_pi(sk)->base);
+ 	if (IS_ERR(hcon)) {
+ 		err = PTR_ERR(hcon);
+-		goto done;
++		goto unlock;
+ 	}
+ 
+ 	conn = iso_conn_add(hcon);
+ 	if (!conn) {
+ 		hci_conn_drop(hcon);
+ 		err = -ENOMEM;
+-		goto done;
++		goto unlock;
+ 	}
+ 
++	hci_dev_unlock(hdev);
++	hci_dev_put(hdev);
++
++	lock_sock(sk);
++
+ 	/* Update source addr of the socket */
+ 	bacpy(&iso_pi(sk)->src, &hcon->src);
+ 
+ 	err = iso_chan_add(conn, sk, NULL);
+ 	if (err)
+-		goto done;
++		goto release;
+ 
+ 	if (hcon->state == BT_CONNECTED) {
+ 		iso_sock_clear_timer(sk);
+@@ -300,7 +305,11 @@ static int iso_connect_bis(struct sock *sk)
+ 		iso_sock_set_timer(sk, sk->sk_sndtimeo);
+ 	}
+ 
+-done:
++release:
++	release_sock(sk);
++	return err;
++
++unlock:
+ 	hci_dev_unlock(hdev);
+ 	hci_dev_put(hdev);
+ 	return err;
+@@ -324,13 +333,13 @@ static int iso_connect_cis(struct sock *sk)
+ 
+ 	if (!cis_central_capable(hdev)) {
+ 		err = -EOPNOTSUPP;
+-		goto done;
++		goto unlock;
+ 	}
+ 
+ 	/* Fail if either PHYs are marked as disabled */
+ 	if (!iso_pi(sk)->qos.in.phy && !iso_pi(sk)->qos.out.phy) {
+ 		err = -EINVAL;
+-		goto done;
++		goto unlock;
+ 	}
+ 
+ 	/* Just bind if DEFER_SETUP has been set */
+@@ -340,7 +349,7 @@ static int iso_connect_cis(struct sock *sk)
+ 				    &iso_pi(sk)->qos);
+ 		if (IS_ERR(hcon)) {
+ 			err = PTR_ERR(hcon);
+-			goto done;
++			goto unlock;
+ 		}
+ 	} else {
+ 		hcon = hci_connect_cis(hdev, &iso_pi(sk)->dst,
+@@ -348,7 +357,7 @@ static int iso_connect_cis(struct sock *sk)
+ 				       &iso_pi(sk)->qos);
+ 		if (IS_ERR(hcon)) {
+ 			err = PTR_ERR(hcon);
+-			goto done;
++			goto unlock;
+ 		}
+ 	}
+ 
+@@ -356,15 +365,20 @@ static int iso_connect_cis(struct sock *sk)
+ 	if (!conn) {
+ 		hci_conn_drop(hcon);
+ 		err = -ENOMEM;
+-		goto done;
++		goto unlock;
+ 	}
+ 
++	hci_dev_unlock(hdev);
++	hci_dev_put(hdev);
++
++	lock_sock(sk);
++
+ 	/* Update source addr of the socket */
+ 	bacpy(&iso_pi(sk)->src, &hcon->src);
+ 
+ 	err = iso_chan_add(conn, sk, NULL);
+ 	if (err)
+-		goto done;
++		goto release;
+ 
+ 	if (hcon->state == BT_CONNECTED) {
+ 		iso_sock_clear_timer(sk);
+@@ -377,7 +391,11 @@ static int iso_connect_cis(struct sock *sk)
+ 		iso_sock_set_timer(sk, sk->sk_sndtimeo);
+ 	}
+ 
+-done:
++release:
++	release_sock(sk);
++	return err;
++
++unlock:
+ 	hci_dev_unlock(hdev);
+ 	hci_dev_put(hdev);
+ 	return err;
+@@ -831,20 +849,23 @@ static int iso_sock_connect(struct socket *sock, struct sockaddr *addr,
+ 	bacpy(&iso_pi(sk)->dst, &sa->iso_bdaddr);
+ 	iso_pi(sk)->dst_type = sa->iso_bdaddr_type;
+ 
++	release_sock(sk);
++
+ 	if (bacmp(&iso_pi(sk)->dst, BDADDR_ANY))
+ 		err = iso_connect_cis(sk);
+ 	else
+ 		err = iso_connect_bis(sk);
+ 
+ 	if (err)
+-		goto done;
++		return err;
++
++	lock_sock(sk);
+ 
+ 	if (!test_bit(BT_SK_DEFER_SETUP, &bt_sk(sk)->flags)) {
+ 		err = bt_sock_wait_state(sk, BT_CONNECTED,
+ 					 sock_sndtimeo(sk, flags & O_NONBLOCK));
+ 	}
+ 
+-done:
+ 	release_sock(sk);
+ 	return err;
+ }
+@@ -1099,28 +1120,22 @@ static int iso_sock_recvmsg(struct socket *sock, struct msghdr *msg,
  {
--	u8 instance = *(u8 *)data;
--
--	kfree(data);
-+	u8 instance = PTR_ERR(data);
+ 	struct sock *sk = sock->sk;
+ 	struct iso_pinfo *pi = iso_pi(sk);
+-	int err;
  
- 	return hci_update_adv_data_sync(hdev, instance);
+ 	BT_DBG("sk %p", sk);
+ 
+-	lock_sock(sk);
+-
+ 	if (test_and_clear_bit(BT_SK_DEFER_SETUP, &bt_sk(sk)->flags)) {
+ 		switch (sk->sk_state) {
+ 		case BT_CONNECT2:
++			lock_sock(sk);
+ 			iso_conn_defer_accept(pi->conn->hcon);
+ 			sk->sk_state = BT_CONFIG;
+ 			release_sock(sk);
+ 			return 0;
+ 		case BT_CONNECT:
+-			err = iso_connect_cis(sk);
+-			release_sock(sk);
+-			return err;
++			return iso_connect_cis(sk);
+ 		}
+ 	}
+ 
+-	release_sock(sk);
+-
+ 	return bt_sock_recvmsg(sock, msg, len, flags);
  }
  
- int hci_update_adv_data(struct hci_dev *hdev, u8 instance)
- {
--	u8 *inst_ptr = kmalloc(1, GFP_KERNEL);
--
--	if (!inst_ptr)
--		return -ENOMEM;
--
--	*inst_ptr = instance;
--	return hci_cmd_sync_queue(hdev, _update_adv_data_sync, inst_ptr, NULL);
-+	return hci_cmd_sync_queue(hdev, _update_adv_data_sync,
-+				  ERR_PTR(instance), NULL);
- }
 -- 
 2.39.0
 
