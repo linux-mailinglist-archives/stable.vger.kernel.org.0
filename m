@@ -2,51 +2,56 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 1724768113D
-	for <lists+stable@lfdr.de>; Mon, 30 Jan 2023 15:11:28 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 83E5C681050
+	for <lists+stable@lfdr.de>; Mon, 30 Jan 2023 15:02:24 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237163AbjA3OL1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 30 Jan 2023 09:11:27 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51914 "EHLO
+        id S236928AbjA3OCX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 30 Jan 2023 09:02:23 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43112 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237251AbjA3OLT (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 30 Jan 2023 09:11:19 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 020D23B662
-        for <stable@vger.kernel.org>; Mon, 30 Jan 2023 06:11:17 -0800 (PST)
+        with ESMTP id S236909AbjA3OCI (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 30 Jan 2023 09:02:08 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1664839CF0;
+        Mon, 30 Jan 2023 06:02:02 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 9D5FFB80E60
-        for <stable@vger.kernel.org>; Mon, 30 Jan 2023 14:11:15 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A487CC433EF;
-        Mon, 30 Jan 2023 14:11:13 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id A2B3F61031;
+        Mon, 30 Jan 2023 14:02:01 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8DF4DC433D2;
+        Mon, 30 Jan 2023 14:02:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1675087874;
-        bh=VCiv2t3tLltmhUmRkHNXEt3uq2TKRgICSc8Gt1PdXFM=;
+        s=korg; t=1675087321;
+        bh=aUHe/ku59CJyZQYm3tJm3BPQl1OqQXpECyjv8TUP338=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=wHZEBnWRXpngtnIWye08y4QjeBlMIkKVTbQn7fXdH4ascdkPClRRxd6UYX5KUi4bG
-         9TNo8X7DFs8AZs8qNZRAiifHMgjmsHNMrlCsoVsaz/1u/1cElvNeT8C7RzSNtOcf/+
-         oA/xEeDBXy2NbLK5CRV+gm2izQrkOxzxZ+7v1c9g=
+        b=LIbnsMlyR/6YDlxxmjI5FfUDPNV+gmD/SfSs+li+gj+2lSfQk78RwFlyOCRNwu2Jo
+         DqtSaJM4KfHdrNwBFClJnBcQBwWOZWqqra4ClYPDCjvUJBMJDdF145CkEkCfsbcz3m
+         ClTvwDbxQHbHcmEsEu6mgJXDiuCvh0s9FBYKSxtQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Fabio Estevam <festevam@denx.de>,
-        Tim Harvey <tharvey@gateworks.com>,
-        Shawn Guo <shawnguo@kernel.org>,
+        patches@lists.linux.dev, Niklas Cassel <Niklas.Cassel@wdc.com>,
+        Michael Chan <michael.chan@broadcom.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        Eric Dumazet <edumazet@google.com>,
+        Jakub Kicinski <kuba@kernel.org>,
+        Paolo Abeni <pabeni@redhat.com>, netdev@vger.kernel.org,
+        Kees Cook <keescook@chromium.org>,
+        Niklas Cassel <niklas.cassel@wdc.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 008/204] ARM: dts: imx6qdl-gw560x: Remove incorrect uart-has-rtscts
-Date:   Mon, 30 Jan 2023 14:49:33 +0100
-Message-Id: <20230130134316.672594997@linuxfoundation.org>
+Subject: [PATCH 6.1 139/313] bnxt: Do not read past the end of test names
+Date:   Mon, 30 Jan 2023 14:49:34 +0100
+Message-Id: <20230130134343.125552398@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.1
-In-Reply-To: <20230130134316.327556078@linuxfoundation.org>
-References: <20230130134316.327556078@linuxfoundation.org>
+In-Reply-To: <20230130134336.532886729@linuxfoundation.org>
+References: <20230130134336.532886729@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
         SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -54,46 +59,93 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Fabio Estevam <festevam@denx.de>
+From: Kees Cook <keescook@chromium.org>
 
-[ Upstream commit 9dfbc72256b5de608ad10989bcbafdbbd1ac8d4e ]
+[ Upstream commit d3e599c090fc6977331150c5f0a69ab8ce87da21 ]
 
-The following build warning is seen when running:
+Test names were being concatenated based on a offset beyond the end of
+the first name, which tripped the buffer overflow detection logic:
 
-make dtbs_check DT_SCHEMA_FILES=fsl-imx-uart.yaml
+ detected buffer overflow in strnlen
+ [...]
+ Call Trace:
+ bnxt_ethtool_init.cold+0x18/0x18
 
-arch/arm/boot/dts/imx6dl-gw560x.dtb: serial@2020000: rts-gpios: False schema does not allow [[20, 1, 0]]
-	From schema: Documentation/devicetree/bindings/serial/fsl-imx-uart.yaml
+Refactor struct hwrm_selftest_qlist_output to use an actual array,
+and adjust the concatenation to use snprintf() rather than a series of
+strncat() calls.
 
-The imx6qdl-gw560x board does not expose the UART RTS and CTS
-as native UART pins, so 'uart-has-rtscts' should not be used.
-
-Using 'uart-has-rtscts' with 'rts-gpios' is an invalid combination
-detected by serial.yaml.
-
-Fix the problem by removing the incorrect 'uart-has-rtscts' property.
-
-Fixes: b8a559feffb2 ("ARM: dts: imx: add Gateworks Ventana GW5600 support")
-Signed-off-by: Fabio Estevam <festevam@denx.de>
-Acked-by: Tim Harvey <tharvey@gateworks.com>
-Signed-off-by: Shawn Guo <shawnguo@kernel.org>
+Reported-by: Niklas Cassel <Niklas.Cassel@wdc.com>
+Link: https://lore.kernel.org/lkml/Y8F%2F1w1AZTvLglFX@x1-carbon/
+Tested-by: Niklas Cassel <Niklas.Cassel@wdc.com>
+Fixes: eb51365846bc ("bnxt_en: Add basic ethtool -t selftest support.")
+Cc: Michael Chan <michael.chan@broadcom.com>
+Cc: "David S. Miller" <davem@davemloft.net>
+Cc: Eric Dumazet <edumazet@google.com>
+Cc: Jakub Kicinski <kuba@kernel.org>
+Cc: Paolo Abeni <pabeni@redhat.com>
+Cc: netdev@vger.kernel.org
+Signed-off-by: Kees Cook <keescook@chromium.org>
+Reviewed-by: Michael Chan <michael.chan@broadcom.com>
+Reviewed-by: Niklas Cassel <niklas.cassel@wdc.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm/boot/dts/imx6qdl-gw560x.dtsi | 1 -
- 1 file changed, 1 deletion(-)
+ drivers/net/ethernet/broadcom/bnxt/bnxt_ethtool.c | 13 ++++---------
+ drivers/net/ethernet/broadcom/bnxt/bnxt_hsi.h     |  9 +--------
+ 2 files changed, 5 insertions(+), 17 deletions(-)
 
-diff --git a/arch/arm/boot/dts/imx6qdl-gw560x.dtsi b/arch/arm/boot/dts/imx6qdl-gw560x.dtsi
-index 4bc4371e6bae..4b81a975c979 100644
---- a/arch/arm/boot/dts/imx6qdl-gw560x.dtsi
-+++ b/arch/arm/boot/dts/imx6qdl-gw560x.dtsi
-@@ -632,7 +632,6 @@ &ssi1 {
- &uart1 {
- 	pinctrl-names = "default";
- 	pinctrl-0 = <&pinctrl_uart1>;
--	uart-has-rtscts;
- 	rts-gpios = <&gpio7 1 GPIO_ACTIVE_HIGH>;
- 	status = "okay";
- };
+diff --git a/drivers/net/ethernet/broadcom/bnxt/bnxt_ethtool.c b/drivers/net/ethernet/broadcom/bnxt/bnxt_ethtool.c
+index 8cad15c458b3..703fc163235f 100644
+--- a/drivers/net/ethernet/broadcom/bnxt/bnxt_ethtool.c
++++ b/drivers/net/ethernet/broadcom/bnxt/bnxt_ethtool.c
+@@ -3865,7 +3865,7 @@ void bnxt_ethtool_init(struct bnxt *bp)
+ 		test_info->timeout = HWRM_CMD_TIMEOUT;
+ 	for (i = 0; i < bp->num_tests; i++) {
+ 		char *str = test_info->string[i];
+-		char *fw_str = resp->test0_name + i * 32;
++		char *fw_str = resp->test_name[i];
+ 
+ 		if (i == BNXT_MACLPBK_TEST_IDX) {
+ 			strcpy(str, "Mac loopback test (offline)");
+@@ -3876,14 +3876,9 @@ void bnxt_ethtool_init(struct bnxt *bp)
+ 		} else if (i == BNXT_IRQ_TEST_IDX) {
+ 			strcpy(str, "Interrupt_test (offline)");
+ 		} else {
+-			strscpy(str, fw_str, ETH_GSTRING_LEN);
+-			strncat(str, " test", ETH_GSTRING_LEN - strlen(str));
+-			if (test_info->offline_mask & (1 << i))
+-				strncat(str, " (offline)",
+-					ETH_GSTRING_LEN - strlen(str));
+-			else
+-				strncat(str, " (online)",
+-					ETH_GSTRING_LEN - strlen(str));
++			snprintf(str, ETH_GSTRING_LEN, "%s test (%s)",
++				 fw_str, test_info->offline_mask & (1 << i) ?
++					"offline" : "online");
+ 		}
+ 	}
+ 
+diff --git a/drivers/net/ethernet/broadcom/bnxt/bnxt_hsi.h b/drivers/net/ethernet/broadcom/bnxt/bnxt_hsi.h
+index b753032a1047..fb78fc38530d 100644
+--- a/drivers/net/ethernet/broadcom/bnxt/bnxt_hsi.h
++++ b/drivers/net/ethernet/broadcom/bnxt/bnxt_hsi.h
+@@ -10099,14 +10099,7 @@ struct hwrm_selftest_qlist_output {
+ 	u8	unused_0;
+ 	__le16	test_timeout;
+ 	u8	unused_1[2];
+-	char	test0_name[32];
+-	char	test1_name[32];
+-	char	test2_name[32];
+-	char	test3_name[32];
+-	char	test4_name[32];
+-	char	test5_name[32];
+-	char	test6_name[32];
+-	char	test7_name[32];
++	char	test_name[8][32];
+ 	u8	eyescope_target_BER_support;
+ 	#define SELFTEST_QLIST_RESP_EYESCOPE_TARGET_BER_SUPPORT_BER_1E8_SUPPORTED  0x0UL
+ 	#define SELFTEST_QLIST_RESP_EYESCOPE_TARGET_BER_SUPPORT_BER_1E9_SUPPORTED  0x1UL
 -- 
 2.39.0
 
