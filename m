@@ -2,51 +2,50 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 7B65C68108D
-	for <lists+stable@lfdr.de>; Mon, 30 Jan 2023 15:04:32 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4624568117B
+	for <lists+stable@lfdr.de>; Mon, 30 Jan 2023 15:13:54 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236989AbjA3OEb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 30 Jan 2023 09:04:31 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46244 "EHLO
+        id S237311AbjA3ONx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 30 Jan 2023 09:13:53 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57460 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236991AbjA3OEY (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 30 Jan 2023 09:04:24 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1324DE3BB
-        for <stable@vger.kernel.org>; Mon, 30 Jan 2023 06:04:24 -0800 (PST)
+        with ESMTP id S237315AbjA3ONl (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 30 Jan 2023 09:13:41 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4893FA253
+        for <stable@vger.kernel.org>; Mon, 30 Jan 2023 06:13:40 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id A425F61049
-        for <stable@vger.kernel.org>; Mon, 30 Jan 2023 14:04:23 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B341BC433D2;
-        Mon, 30 Jan 2023 14:04:22 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id C12676102E
+        for <stable@vger.kernel.org>; Mon, 30 Jan 2023 14:13:39 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id BD385C433EF;
+        Mon, 30 Jan 2023 14:13:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1675087463;
-        bh=a1CuucqzvtiC7qVxZGxrEI9PDlQBfwrCUQy8TOiw01o=;
+        s=korg; t=1675088019;
+        bh=wo77f1gol9r3kJlnjUy3gjDY0jKGeZscQov/Gooo0dM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=UR8vTjjbxIn0Cni6RlNYcsRpR36aZAZiHUr7FZ0OQ+4EQgbuqxvwnuzNzPpL+X7Xm
-         TdNlsD+o0kulFDK714brOIfqbu0rU6mrW2E1DL8rW87ZGEMX4Ocyv8lfl5kvVUabdr
-         lT0RIvQv+F19nFtCh126u177YUITC/wrVZTQo9co=
+        b=qpGr45tUMUIxd7DEysbANLILjjEBz+pqGC4gnPXeQ/rl2pGDyWsuN2a6Hgch9E/kF
+         CDqCU5K/td6MiOFoO3tDsYMWPPtM8An3QGGrx9OX3vZKTQffbl6lI9etnr4uhReSqZ
+         sEAktn0kHF+ZTmUahlpWrQvPjRVqN06oPxHEwTu4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Marios Makassikis <mmakassikis@freebox.fr>,
-        Namjae Jeon <linkinjeon@kernel.org>,
-        Steve French <stfrench@microsoft.com>
-Subject: [PATCH 6.1 217/313] ksmbd: do not sign response to session request for guest login
+        patches@lists.linux.dev, Willem de Bruijn <willemb@google.com>,
+        Jakub Kicinski <kuba@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.15 087/204] selftests/net: toeplitz: fix race on tpacket_v3 block close
 Date:   Mon, 30 Jan 2023 14:50:52 +0100
-Message-Id: <20230130134346.815235688@linuxfoundation.org>
+Message-Id: <20230130134320.160061031@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.1
-In-Reply-To: <20230130134336.532886729@linuxfoundation.org>
-References: <20230130134336.532886729@linuxfoundation.org>
+In-Reply-To: <20230130134316.327556078@linuxfoundation.org>
+References: <20230130134316.327556078@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
         SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -54,50 +53,88 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Marios Makassikis <mmakassikis@freebox.fr>
+From: Willem de Bruijn <willemb@google.com>
 
-commit 5fde3c21cf33830eda7bfd006dc7f4bf07ec9fe6 upstream.
+[ Upstream commit 903848249a781d76d59561d51676c95b3a4d7162 ]
 
-If ksmbd.mountd is configured to assign unknown users to the guest account
-("map to guest = bad user" in the config), ksmbd signs the response.
+Avoid race between process wakeup and tpacket_v3 block timeout.
 
-This is wrong according to MS-SMB2 3.3.5.5.3:
-   12. If the SMB2_SESSION_FLAG_IS_GUEST bit is not set in the SessionFlags
-   field, and Session.IsAnonymous is FALSE, the server MUST sign the
-   final session setup response before sending it to the client, as
-   follows:
-    [...]
+The test waits for cfg_timeout_msec for packets to arrive. Packets
+arrive in tpacket_v3 rings, which pass packets ("frames") to the
+process in batches ("blocks"). The sk waits for req3.tp_retire_blk_tov
+msec to release a block.
 
-This fixes libsmb2 based applications failing to establish a session
-("Wrong signature in received").
+Set the block timeout lower than the process waiting time, else
+the process may find that no block has been released by the time it
+scans the socket list. Convert to a ring of more than one, smaller,
+blocks with shorter timeouts. Blocks must be page aligned, so >= 64KB.
 
-Fixes: e2f34481b24d ("cifsd: add server-side procedures for SMB3")
-Cc: stable@vger.kernel.org
-Signed-off-by: Marios Makassikis <mmakassikis@freebox.fr>
-Acked-by: Namjae Jeon <linkinjeon@kernel.org>
-Signed-off-by: Steve French <stfrench@microsoft.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: 5ebfb4cc3048 ("selftests/net: toeplitz test")
+Signed-off-by: Willem de Bruijn <willemb@google.com>
+Link: https://lore.kernel.org/r/20230118151847.4124260-1-willemdebruijn.kernel@gmail.com
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/ksmbd/smb2pdu.c |    2 ++
- 1 file changed, 2 insertions(+)
+ tools/testing/selftests/net/toeplitz.c | 12 +++++++-----
+ 1 file changed, 7 insertions(+), 5 deletions(-)
 
---- a/fs/ksmbd/smb2pdu.c
-+++ b/fs/ksmbd/smb2pdu.c
-@@ -8657,6 +8657,7 @@ int smb3_decrypt_req(struct ksmbd_work *
- bool smb3_11_final_sess_setup_resp(struct ksmbd_work *work)
+diff --git a/tools/testing/selftests/net/toeplitz.c b/tools/testing/selftests/net/toeplitz.c
+index c5489341cfb8..8ce96028341d 100644
+--- a/tools/testing/selftests/net/toeplitz.c
++++ b/tools/testing/selftests/net/toeplitz.c
+@@ -213,7 +213,7 @@ static char *recv_frame(const struct ring_state *ring, char *frame)
+ }
+ 
+ /* A single TPACKET_V3 block can hold multiple frames */
+-static void recv_block(struct ring_state *ring)
++static bool recv_block(struct ring_state *ring)
  {
- 	struct ksmbd_conn *conn = work->conn;
-+	struct ksmbd_session *sess = work->sess;
- 	struct smb2_hdr *rsp = smb2_get_msg(work->response_buf);
+ 	struct tpacket_block_desc *block;
+ 	char *frame;
+@@ -221,7 +221,7 @@ static void recv_block(struct ring_state *ring)
  
- 	if (conn->dialect < SMB30_PROT_ID)
-@@ -8666,6 +8667,7 @@ bool smb3_11_final_sess_setup_resp(struc
- 		rsp = ksmbd_resp_buf_next(work);
+ 	block = (void *)(ring->mmap + ring->idx * ring_block_sz);
+ 	if (!(block->hdr.bh1.block_status & TP_STATUS_USER))
+-		return;
++		return false;
  
- 	if (le16_to_cpu(rsp->Command) == SMB2_SESSION_SETUP_HE &&
-+	    sess->user && !user_guest(sess->user) &&
- 	    rsp->Status == STATUS_SUCCESS)
- 		return true;
- 	return false;
+ 	frame = (char *)block;
+ 	frame += block->hdr.bh1.offset_to_first_pkt;
+@@ -233,6 +233,8 @@ static void recv_block(struct ring_state *ring)
+ 
+ 	block->hdr.bh1.block_status = TP_STATUS_KERNEL;
+ 	ring->idx = (ring->idx + 1) % ring_block_nr;
++
++	return true;
+ }
+ 
+ /* simple test: sleep once unconditionally and then process all rings */
+@@ -243,7 +245,7 @@ static void process_rings(void)
+ 	usleep(1000 * cfg_timeout_msec);
+ 
+ 	for (i = 0; i < num_cpus; i++)
+-		recv_block(&rings[i]);
++		do {} while (recv_block(&rings[i]));
+ 
+ 	fprintf(stderr, "count: pass=%u nohash=%u fail=%u\n",
+ 		frames_received - frames_nohash - frames_error,
+@@ -255,12 +257,12 @@ static char *setup_ring(int fd)
+ 	struct tpacket_req3 req3 = {0};
+ 	void *ring;
+ 
+-	req3.tp_retire_blk_tov = cfg_timeout_msec;
++	req3.tp_retire_blk_tov = cfg_timeout_msec / 8;
+ 	req3.tp_feature_req_word = TP_FT_REQ_FILL_RXHASH;
+ 
+ 	req3.tp_frame_size = 2048;
+ 	req3.tp_frame_nr = 1 << 10;
+-	req3.tp_block_nr = 2;
++	req3.tp_block_nr = 16;
+ 
+ 	req3.tp_block_size = req3.tp_frame_size * req3.tp_frame_nr;
+ 	req3.tp_block_size /= req3.tp_block_nr;
+-- 
+2.39.0
+
 
 
