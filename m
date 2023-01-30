@@ -2,43 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 31E3068102B
-	for <lists+stable@lfdr.de>; Mon, 30 Jan 2023 15:01:12 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E187068102D
+	for <lists+stable@lfdr.de>; Mon, 30 Jan 2023 15:01:13 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236864AbjA3OBK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 30 Jan 2023 09:01:10 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42598 "EHLO
+        id S236935AbjA3OBL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 30 Jan 2023 09:01:11 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42570 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236823AbjA3OBE (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 30 Jan 2023 09:01:04 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D15E239CC2
-        for <stable@vger.kernel.org>; Mon, 30 Jan 2023 06:00:14 -0800 (PST)
+        with ESMTP id S236931AbjA3OBF (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 30 Jan 2023 09:01:05 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 034763A866
+        for <stable@vger.kernel.org>; Mon, 30 Jan 2023 06:00:19 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id B1FFE61047
-        for <stable@vger.kernel.org>; Mon, 30 Jan 2023 14:00:14 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C3A6CC433EF;
-        Mon, 30 Jan 2023 14:00:13 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 72287B81181
+        for <stable@vger.kernel.org>; Mon, 30 Jan 2023 14:00:18 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 89A90C4339B;
+        Mon, 30 Jan 2023 14:00:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1675087214;
-        bh=u/bHuEvwUY1kZpF0c9ICgUNpLJtKGMAKMohQXnpGcCY=;
+        s=korg; t=1675087217;
+        bh=6pMOUk8vzGQ2LO6digutwYmWcSIH4O/R7GyLTkeW3Xo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Aj0Ub094D58t05Jw/wPCmxlVXGn3t4kQVv2udnDh7MYc8u4/wmlh/HR6/xq+c2/HK
-         mNUUkUdoP4+PnODxL6SoJ2KI7+9RmBk+4MA6ffinuZlfr5j0V/PHw0AuhECr+FgrV5
-         G949SdXgoZbNJCG5z3j3i8gSBQgJ9oP4t6B3dAfE=
+        b=GRs0jgs0uDSHguUOxYH22CSaPFCE0YsKn88du82v5ja7c0h9h5c7T63NPZgBj/RSm
+         eAddN1QWM7KT3043sKMsidXeyLajLzAKQhOr/HbGFboqo2DGGcSn8DqJ1wI3hVdSyZ
+         KVsytSj0MQQxSvtlL1QRmZ5StZWo/EfJv6nioBTc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Caleb Connolly <caleb.connolly@linaro.org>,
-        Alex Elder <elder@linaro.org>,
-        Jakub Kicinski <kuba@kernel.org>,
+        patches@lists.linux.dev, Vlad Buslov <vladbu@nvidia.com>,
+        Eli Cohen <elic@nvidia.com>, Roi Dayan <roid@nvidia.com>,
+        Saeed Mahameed <saeedm@nvidia.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 105/313] net: ipa: disable ipa interrupt during suspend
-Date:   Mon, 30 Jan 2023 14:49:00 +0100
-Message-Id: <20230130134341.531476705@linuxfoundation.org>
+Subject: [PATCH 6.1 106/313] net/mlx5e: Avoid false lock dependency warning on tc_ht even more
+Date:   Mon, 30 Jan 2023 14:49:01 +0100
+Message-Id: <20230130134341.585191415@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.1
 In-Reply-To: <20230130134336.532886729@linuxfoundation.org>
 References: <20230130134336.532886729@linuxfoundation.org>
@@ -46,8 +45,8 @@ User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
         SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -55,117 +54,242 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Caleb Connolly <caleb.connolly@linaro.org>
+From: Vlad Buslov <vladbu@nvidia.com>
 
-[ Upstream commit 9ec9b2a30853ba843b70ea16f196e5fe3327be5f ]
+[ Upstream commit 5aa56105930374928d567744595fd7ac525d0688 ]
 
-The IPA interrupt can fire when pm_runtime is disabled due to it racing
-with the PM suspend/resume code. This causes a splat in the interrupt
-handler when it tries to call pm_runtime_get().
+The cited commit changed class of tc_ht internal mutex in order to avoid
+false lock dependency with fs_core node and flow_table hash table
+structures. However, hash table implementation internally also includes a
+workqueue task with its own lockdep map which causes similar bogus lockdep
+splat[0]. Fix it by also adding dedicated class for hash table workqueue
+work structure of tc_ht.
 
-Explicitly disable the interrupt in our ->suspend callback, and
-re-enable it in ->resume to avoid this. If there is an interrupt pending
-it will be handled after resuming. The interrupt is a wake_irq, as a
-result even when disabled if it fires it will cause the system to wake
-from suspend as well as cancel any suspend transition that may be in
-progress. If there is an interrupt pending, the ipa_isr_thread handler
-will be called after resuming.
+[0]:
 
-Fixes: 1aac309d3207 ("net: ipa: use autosuspend")
-Signed-off-by: Caleb Connolly <caleb.connolly@linaro.org>
-Reviewed-by: Alex Elder <elder@linaro.org>
-Link: https://lore.kernel.org/r/20230115175925.465918-1-caleb.connolly@linaro.org
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+[ 1139.672465] ======================================================
+[ 1139.673552] WARNING: possible circular locking dependency detected
+[ 1139.674635] 6.1.0_for_upstream_debug_2022_12_12_17_02 #1 Not tainted
+[ 1139.675734] ------------------------------------------------------
+[ 1139.676801] modprobe/5998 is trying to acquire lock:
+[ 1139.677726] ffff88811e7b93b8 (&node->lock){++++}-{3:3}, at: down_write_ref_node+0x7c/0xe0 [mlx5_core]
+[ 1139.679662]
+               but task is already holding lock:
+[ 1139.680703] ffff88813c1f96a0 (&tc_ht_lock_key){+.+.}-{3:3}, at: rhashtable_free_and_destroy+0x38/0x6f0
+[ 1139.682223]
+               which lock already depends on the new lock.
+
+[ 1139.683640]
+               the existing dependency chain (in reverse order) is:
+[ 1139.684887]
+               -> #2 (&tc_ht_lock_key){+.+.}-{3:3}:
+[ 1139.685975]        __mutex_lock+0x12c/0x14b0
+[ 1139.686659]        rht_deferred_worker+0x35/0x1540
+[ 1139.687405]        process_one_work+0x7c2/0x1310
+[ 1139.688134]        worker_thread+0x59d/0xec0
+[ 1139.688820]        kthread+0x28f/0x330
+[ 1139.689444]        ret_from_fork+0x1f/0x30
+[ 1139.690106]
+               -> #1 ((work_completion)(&ht->run_work)){+.+.}-{0:0}:
+[ 1139.691250]        __flush_work+0xe8/0x900
+[ 1139.691915]        __cancel_work_timer+0x2ca/0x3f0
+[ 1139.692655]        rhashtable_free_and_destroy+0x22/0x6f0
+[ 1139.693472]        del_sw_flow_table+0x22/0xb0 [mlx5_core]
+[ 1139.694592]        tree_put_node+0x24c/0x450 [mlx5_core]
+[ 1139.695686]        tree_remove_node+0x6e/0x100 [mlx5_core]
+[ 1139.696803]        mlx5_destroy_flow_table+0x187/0x690 [mlx5_core]
+[ 1139.698017]        mlx5e_tc_nic_cleanup+0x2f8/0x400 [mlx5_core]
+[ 1139.699217]        mlx5e_cleanup_nic_rx+0x2b/0x210 [mlx5_core]
+[ 1139.700397]        mlx5e_detach_netdev+0x19d/0x2b0 [mlx5_core]
+[ 1139.701571]        mlx5e_suspend+0xdb/0x140 [mlx5_core]
+[ 1139.702665]        mlx5e_remove+0x89/0x190 [mlx5_core]
+[ 1139.703756]        auxiliary_bus_remove+0x52/0x70
+[ 1139.704492]        device_release_driver_internal+0x3c1/0x600
+[ 1139.705360]        bus_remove_device+0x2a5/0x560
+[ 1139.706080]        device_del+0x492/0xb80
+[ 1139.706724]        mlx5_rescan_drivers_locked+0x194/0x6a0 [mlx5_core]
+[ 1139.707961]        mlx5_unregister_device+0x7a/0xa0 [mlx5_core]
+[ 1139.709138]        mlx5_uninit_one+0x5f/0x160 [mlx5_core]
+[ 1139.710252]        remove_one+0xd1/0x160 [mlx5_core]
+[ 1139.711297]        pci_device_remove+0x96/0x1c0
+[ 1139.722721]        device_release_driver_internal+0x3c1/0x600
+[ 1139.723590]        unbind_store+0x1b1/0x200
+[ 1139.724259]        kernfs_fop_write_iter+0x348/0x520
+[ 1139.725019]        vfs_write+0x7b2/0xbf0
+[ 1139.725658]        ksys_write+0xf3/0x1d0
+[ 1139.726292]        do_syscall_64+0x3d/0x90
+[ 1139.726942]        entry_SYSCALL_64_after_hwframe+0x46/0xb0
+[ 1139.727769]
+               -> #0 (&node->lock){++++}-{3:3}:
+[ 1139.728698]        __lock_acquire+0x2cf5/0x62f0
+[ 1139.729415]        lock_acquire+0x1c1/0x540
+[ 1139.730076]        down_write+0x8e/0x1f0
+[ 1139.730709]        down_write_ref_node+0x7c/0xe0 [mlx5_core]
+[ 1139.731841]        mlx5_del_flow_rules+0x6f/0x610 [mlx5_core]
+[ 1139.732982]        __mlx5_eswitch_del_rule+0xdd/0x560 [mlx5_core]
+[ 1139.734207]        mlx5_eswitch_del_offloaded_rule+0x14/0x20 [mlx5_core]
+[ 1139.735491]        mlx5e_tc_rule_unoffload+0x104/0x2b0 [mlx5_core]
+[ 1139.736716]        mlx5e_tc_unoffload_fdb_rules+0x10c/0x1f0 [mlx5_core]
+[ 1139.738007]        mlx5e_tc_del_fdb_flow+0xc3c/0xfa0 [mlx5_core]
+[ 1139.739213]        mlx5e_tc_del_flow+0x146/0xa20 [mlx5_core]
+[ 1139.740377]        _mlx5e_tc_del_flow+0x38/0x60 [mlx5_core]
+[ 1139.741534]        rhashtable_free_and_destroy+0x3be/0x6f0
+[ 1139.742351]        mlx5e_tc_ht_cleanup+0x1b/0x30 [mlx5_core]
+[ 1139.743512]        mlx5e_cleanup_rep_tx+0x4a/0xe0 [mlx5_core]
+[ 1139.744683]        mlx5e_detach_netdev+0x1ca/0x2b0 [mlx5_core]
+[ 1139.745860]        mlx5e_netdev_change_profile+0xd9/0x1c0 [mlx5_core]
+[ 1139.747098]        mlx5e_netdev_attach_nic_profile+0x1b/0x30 [mlx5_core]
+[ 1139.748372]        mlx5e_vport_rep_unload+0x16a/0x1b0 [mlx5_core]
+[ 1139.749590]        __esw_offloads_unload_rep+0xb1/0xd0 [mlx5_core]
+[ 1139.750813]        mlx5_eswitch_unregister_vport_reps+0x409/0x5f0 [mlx5_core]
+[ 1139.752147]        mlx5e_rep_remove+0x62/0x80 [mlx5_core]
+[ 1139.753293]        auxiliary_bus_remove+0x52/0x70
+[ 1139.754028]        device_release_driver_internal+0x3c1/0x600
+[ 1139.754885]        driver_detach+0xc1/0x180
+[ 1139.755553]        bus_remove_driver+0xef/0x2e0
+[ 1139.756260]        auxiliary_driver_unregister+0x16/0x50
+[ 1139.757059]        mlx5e_rep_cleanup+0x19/0x30 [mlx5_core]
+[ 1139.758207]        mlx5e_cleanup+0x12/0x30 [mlx5_core]
+[ 1139.759295]        mlx5_cleanup+0xc/0x49 [mlx5_core]
+[ 1139.760384]        __x64_sys_delete_module+0x2b5/0x450
+[ 1139.761166]        do_syscall_64+0x3d/0x90
+[ 1139.761827]        entry_SYSCALL_64_after_hwframe+0x46/0xb0
+[ 1139.762663]
+               other info that might help us debug this:
+
+[ 1139.763925] Chain exists of:
+                 &node->lock --> (work_completion)(&ht->run_work) --> &tc_ht_lock_key
+
+[ 1139.765743]  Possible unsafe locking scenario:
+
+[ 1139.766688]        CPU0                    CPU1
+[ 1139.767399]        ----                    ----
+[ 1139.768111]   lock(&tc_ht_lock_key);
+[ 1139.768704]                                lock((work_completion)(&ht->run_work));
+[ 1139.769869]                                lock(&tc_ht_lock_key);
+[ 1139.770770]   lock(&node->lock);
+[ 1139.771326]
+                *** DEADLOCK ***
+
+[ 1139.772345] 2 locks held by modprobe/5998:
+[ 1139.772994]  #0: ffff88813c1ff0e8 (&dev->mutex){....}-{3:3}, at: device_release_driver_internal+0x8d/0x600
+[ 1139.774399]  #1: ffff88813c1f96a0 (&tc_ht_lock_key){+.+.}-{3:3}, at: rhashtable_free_and_destroy+0x38/0x6f0
+[ 1139.775822]
+               stack backtrace:
+[ 1139.776579] CPU: 3 PID: 5998 Comm: modprobe Not tainted 6.1.0_for_upstream_debug_2022_12_12_17_02 #1
+[ 1139.777935] Hardware name: QEMU Standard PC (Q35 + ICH9, 2009), BIOS rel-1.13.0-0-gf21b5a4aeb02-prebuilt.qemu.org 04/01/2014
+[ 1139.779529] Call Trace:
+[ 1139.779992]  <TASK>
+[ 1139.780409]  dump_stack_lvl+0x57/0x7d
+[ 1139.781015]  check_noncircular+0x278/0x300
+[ 1139.781687]  ? print_circular_bug+0x460/0x460
+[ 1139.782381]  ? rcu_read_lock_sched_held+0x3f/0x70
+[ 1139.783121]  ? lock_release+0x487/0x7c0
+[ 1139.783759]  ? orc_find.part.0+0x1f1/0x330
+[ 1139.784423]  ? mark_lock.part.0+0xef/0x2fc0
+[ 1139.785091]  __lock_acquire+0x2cf5/0x62f0
+[ 1139.785754]  ? register_lock_class+0x18e0/0x18e0
+[ 1139.786483]  lock_acquire+0x1c1/0x540
+[ 1139.787093]  ? down_write_ref_node+0x7c/0xe0 [mlx5_core]
+[ 1139.788195]  ? lockdep_hardirqs_on_prepare+0x3f0/0x3f0
+[ 1139.788978]  ? register_lock_class+0x18e0/0x18e0
+[ 1139.789715]  down_write+0x8e/0x1f0
+[ 1139.790292]  ? down_write_ref_node+0x7c/0xe0 [mlx5_core]
+[ 1139.791380]  ? down_write_killable+0x220/0x220
+[ 1139.792080]  ? find_held_lock+0x2d/0x110
+[ 1139.792713]  down_write_ref_node+0x7c/0xe0 [mlx5_core]
+[ 1139.793795]  mlx5_del_flow_rules+0x6f/0x610 [mlx5_core]
+[ 1139.794879]  __mlx5_eswitch_del_rule+0xdd/0x560 [mlx5_core]
+[ 1139.796032]  ? __esw_offloads_unload_rep+0xd0/0xd0 [mlx5_core]
+[ 1139.797227]  ? xa_load+0x11a/0x200
+[ 1139.797800]  ? __xa_clear_mark+0xf0/0xf0
+[ 1139.798438]  mlx5_eswitch_del_offloaded_rule+0x14/0x20 [mlx5_core]
+[ 1139.799660]  mlx5e_tc_rule_unoffload+0x104/0x2b0 [mlx5_core]
+[ 1139.800821]  mlx5e_tc_unoffload_fdb_rules+0x10c/0x1f0 [mlx5_core]
+[ 1139.802049]  ? mlx5_eswitch_get_uplink_priv+0x25/0x80 [mlx5_core]
+[ 1139.803260]  mlx5e_tc_del_fdb_flow+0xc3c/0xfa0 [mlx5_core]
+[ 1139.804398]  ? __cancel_work_timer+0x1c2/0x3f0
+[ 1139.805099]  ? mlx5e_tc_unoffload_from_slow_path+0x460/0x460 [mlx5_core]
+[ 1139.806387]  mlx5e_tc_del_flow+0x146/0xa20 [mlx5_core]
+[ 1139.807481]  _mlx5e_tc_del_flow+0x38/0x60 [mlx5_core]
+[ 1139.808564]  rhashtable_free_and_destroy+0x3be/0x6f0
+[ 1139.809336]  ? mlx5e_tc_del_flow+0xa20/0xa20 [mlx5_core]
+[ 1139.809336]  ? mlx5e_tc_del_flow+0xa20/0xa20 [mlx5_core]
+[ 1139.810455]  mlx5e_tc_ht_cleanup+0x1b/0x30 [mlx5_core]
+[ 1139.811552]  mlx5e_cleanup_rep_tx+0x4a/0xe0 [mlx5_core]
+[ 1139.812655]  mlx5e_detach_netdev+0x1ca/0x2b0 [mlx5_core]
+[ 1139.813768]  mlx5e_netdev_change_profile+0xd9/0x1c0 [mlx5_core]
+[ 1139.814952]  mlx5e_netdev_attach_nic_profile+0x1b/0x30 [mlx5_core]
+[ 1139.816166]  mlx5e_vport_rep_unload+0x16a/0x1b0 [mlx5_core]
+[ 1139.817336]  __esw_offloads_unload_rep+0xb1/0xd0 [mlx5_core]
+[ 1139.818507]  mlx5_eswitch_unregister_vport_reps+0x409/0x5f0 [mlx5_core]
+[ 1139.819788]  ? mlx5_eswitch_uplink_get_proto_dev+0x30/0x30 [mlx5_core]
+[ 1139.821051]  ? kernfs_find_ns+0x137/0x310
+[ 1139.821705]  mlx5e_rep_remove+0x62/0x80 [mlx5_core]
+[ 1139.822778]  auxiliary_bus_remove+0x52/0x70
+[ 1139.823449]  device_release_driver_internal+0x3c1/0x600
+[ 1139.824240]  driver_detach+0xc1/0x180
+[ 1139.824842]  bus_remove_driver+0xef/0x2e0
+[ 1139.825504]  auxiliary_driver_unregister+0x16/0x50
+[ 1139.826245]  mlx5e_rep_cleanup+0x19/0x30 [mlx5_core]
+[ 1139.827322]  mlx5e_cleanup+0x12/0x30 [mlx5_core]
+[ 1139.828345]  mlx5_cleanup+0xc/0x49 [mlx5_core]
+[ 1139.829382]  __x64_sys_delete_module+0x2b5/0x450
+[ 1139.830119]  ? module_flags+0x300/0x300
+[ 1139.830750]  ? task_work_func_match+0x50/0x50
+[ 1139.831440]  ? task_work_cancel+0x20/0x20
+[ 1139.832088]  ? lockdep_hardirqs_on_prepare+0x273/0x3f0
+[ 1139.832873]  ? syscall_enter_from_user_mode+0x1d/0x50
+[ 1139.833661]  ? trace_hardirqs_on+0x2d/0x100
+[ 1139.834328]  do_syscall_64+0x3d/0x90
+[ 1139.834922]  entry_SYSCALL_64_after_hwframe+0x46/0xb0
+[ 1139.835700] RIP: 0033:0x7f153e71288b
+[ 1139.836302] Code: 73 01 c3 48 8b 0d 9d 75 0e 00 f7 d8 64 89 01 48 83 c8 ff c3 66 2e 0f 1f 84 00 00 00 00 00 90 f3 0f 1e fa b8 b0 00 00 00 0f 05 <48> 3d 01 f0 ff ff 73 01 c3 48 8b 0d 6d 75 0e 00 f7 d8 64 89 01 48
+[ 1139.838866] RSP: 002b:00007ffe0a3ed938 EFLAGS: 00000206 ORIG_RAX: 00000000000000b0
+[ 1139.840020] RAX: ffffffffffffffda RBX: 0000564c2cbf8220 RCX: 00007f153e71288b
+[ 1139.841043] RDX: 0000000000000000 RSI: 0000000000000800 RDI: 0000564c2cbf8288
+[ 1139.842072] RBP: 0000564c2cbf8220 R08: 0000000000000000 R09: 0000000000000000
+[ 1139.843094] R10: 00007f153e7a3ac0 R11: 0000000000000206 R12: 0000564c2cbf8288
+[ 1139.844118] R13: 0000000000000000 R14: 0000564c2cbf7ae8 R15: 00007ffe0a3efcb8
+
+Fixes: 9ba33339c043 ("net/mlx5e: Avoid false lock depenency warning on tc_ht")
+Signed-off-by: Vlad Buslov <vladbu@nvidia.com>
+Reviewed-by: Eli Cohen <elic@nvidia.com>
+Reviewed-by: Roi Dayan <roid@nvidia.com>
+Signed-off-by: Saeed Mahameed <saeedm@nvidia.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ipa/ipa_interrupt.c | 10 ++++++++++
- drivers/net/ipa/ipa_interrupt.h | 16 ++++++++++++++++
- drivers/net/ipa/ipa_power.c     | 17 +++++++++++++++++
- 3 files changed, 43 insertions(+)
+ drivers/net/ethernet/mellanox/mlx5/core/en_tc.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/drivers/net/ipa/ipa_interrupt.c b/drivers/net/ipa/ipa_interrupt.c
-index c269432f9c2e..a89a3e3ff81c 100644
---- a/drivers/net/ipa/ipa_interrupt.c
-+++ b/drivers/net/ipa/ipa_interrupt.c
-@@ -127,6 +127,16 @@ static irqreturn_t ipa_isr_thread(int irq, void *dev_id)
- 	return IRQ_HANDLED;
- }
- 
-+void ipa_interrupt_irq_disable(struct ipa *ipa)
-+{
-+	disable_irq(ipa->interrupt->irq);
-+}
-+
-+void ipa_interrupt_irq_enable(struct ipa *ipa)
-+{
-+	enable_irq(ipa->interrupt->irq);
-+}
-+
- /* Common function used to enable/disable TX_SUSPEND for an endpoint */
- static void ipa_interrupt_suspend_control(struct ipa_interrupt *interrupt,
- 					  u32 endpoint_id, bool enable)
-diff --git a/drivers/net/ipa/ipa_interrupt.h b/drivers/net/ipa/ipa_interrupt.h
-index f31fd9965fdc..8a1bd5b89393 100644
---- a/drivers/net/ipa/ipa_interrupt.h
-+++ b/drivers/net/ipa/ipa_interrupt.h
-@@ -85,6 +85,22 @@ void ipa_interrupt_suspend_clear_all(struct ipa_interrupt *interrupt);
+diff --git a/drivers/net/ethernet/mellanox/mlx5/core/en_tc.c b/drivers/net/ethernet/mellanox/mlx5/core/en_tc.c
+index 4c313b7424bf..c1cf3917baa4 100644
+--- a/drivers/net/ethernet/mellanox/mlx5/core/en_tc.c
++++ b/drivers/net/ethernet/mellanox/mlx5/core/en_tc.c
+@@ -157,6 +157,7 @@ struct mlx5_fs_chains *mlx5e_nic_chains(struct mlx5e_tc_table *tc)
+  * it's different than the ht->mutex here.
   */
- void ipa_interrupt_simulate_suspend(struct ipa_interrupt *interrupt);
+ static struct lock_class_key tc_ht_lock_key;
++static struct lock_class_key tc_ht_wq_key;
  
-+/**
-+ * ipa_interrupt_irq_enable() - Enable IPA interrupts
-+ * @ipa:	IPA pointer
-+ *
-+ * This enables the IPA interrupt line
-+ */
-+void ipa_interrupt_irq_enable(struct ipa *ipa);
-+
-+/**
-+ * ipa_interrupt_irq_disable() - Disable IPA interrupts
-+ * @ipa:	IPA pointer
-+ *
-+ * This disables the IPA interrupt line
-+ */
-+void ipa_interrupt_irq_disable(struct ipa *ipa);
-+
- /**
-  * ipa_interrupt_config() - Configure the IPA interrupt framework
-  * @ipa:	IPA pointer
-diff --git a/drivers/net/ipa/ipa_power.c b/drivers/net/ipa/ipa_power.c
-index 8420f93128a2..8057be8cda80 100644
---- a/drivers/net/ipa/ipa_power.c
-+++ b/drivers/net/ipa/ipa_power.c
-@@ -181,6 +181,17 @@ static int ipa_suspend(struct device *dev)
+ static void mlx5e_put_flow_tunnel_id(struct mlx5e_tc_flow *flow);
+ static void free_flow_post_acts(struct mlx5e_tc_flow *flow);
+@@ -4971,6 +4972,7 @@ int mlx5e_tc_nic_init(struct mlx5e_priv *priv)
+ 		return err;
  
- 	__set_bit(IPA_POWER_FLAG_SYSTEM, ipa->power->flags);
+ 	lockdep_set_class(&tc->ht.mutex, &tc_ht_lock_key);
++	lockdep_init_map(&tc->ht.run_work.lockdep_map, "tc_ht_wq_key", &tc_ht_wq_key, 0);
  
-+	/* Increment the disable depth to ensure that the IRQ won't
-+	 * be re-enabled until the matching _enable call in
-+	 * ipa_resume(). We do this to ensure that the interrupt
-+	 * handler won't run whilst PM runtime is disabled.
-+	 *
-+	 * Note that disabling the IRQ is NOT the same as disabling
-+	 * irq wake. If wakeup is enabled for the IPA then the IRQ
-+	 * will still cause the system to wake up, see irq_set_irq_wake().
-+	 */
-+	ipa_interrupt_irq_disable(ipa);
-+
- 	return pm_runtime_force_suspend(dev);
+ 	mapping_id = mlx5_query_nic_system_image_guid(dev);
+ 
+@@ -5077,6 +5079,7 @@ int mlx5e_tc_ht_init(struct rhashtable *tc_ht)
+ 		return err;
+ 
+ 	lockdep_set_class(&tc_ht->mutex, &tc_ht_lock_key);
++	lockdep_init_map(&tc_ht->run_work.lockdep_map, "tc_ht_wq_key", &tc_ht_wq_key, 0);
+ 
+ 	return 0;
  }
- 
-@@ -193,6 +204,12 @@ static int ipa_resume(struct device *dev)
- 
- 	__clear_bit(IPA_POWER_FLAG_SYSTEM, ipa->power->flags);
- 
-+	/* Now that PM runtime is enabled again it's safe
-+	 * to turn the IRQ back on and process any data
-+	 * that was received during suspend.
-+	 */
-+	ipa_interrupt_irq_enable(ipa);
-+
- 	return ret;
- }
- 
 -- 
 2.39.0
 
