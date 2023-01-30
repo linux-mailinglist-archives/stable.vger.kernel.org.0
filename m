@@ -2,41 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 6F3B6681090
-	for <lists+stable@lfdr.de>; Mon, 30 Jan 2023 15:04:36 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id AA69168109C
+	for <lists+stable@lfdr.de>; Mon, 30 Jan 2023 15:05:11 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236991AbjA3OEf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 30 Jan 2023 09:04:35 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47116 "EHLO
+        id S236600AbjA3OFK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 30 Jan 2023 09:05:10 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47460 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236961AbjA3OEe (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 30 Jan 2023 09:04:34 -0500
+        with ESMTP id S237046AbjA3OFH (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 30 Jan 2023 09:05:07 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 490ED11142
-        for <stable@vger.kernel.org>; Mon, 30 Jan 2023 06:04:33 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1801B13D5C
+        for <stable@vger.kernel.org>; Mon, 30 Jan 2023 06:05:07 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id D925861036
-        for <stable@vger.kernel.org>; Mon, 30 Jan 2023 14:04:32 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id CF3CBC433EF;
-        Mon, 30 Jan 2023 14:04:31 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 8F97861026
+        for <stable@vger.kernel.org>; Mon, 30 Jan 2023 14:05:06 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8C51FC4339B;
+        Mon, 30 Jan 2023 14:05:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1675087472;
-        bh=U65pbiX9FuqiQ3xZZPTQyh4tMo1FHfGmx/7+n0LdAAM=;
+        s=korg; t=1675087506;
+        bh=o8Gh7NTXKb+nGnOzWOA0gXN2mSnZqAXiIsHFkMSsGY8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=sMkMD8GhaCSoPEB1sphGh8MVW0TMiMAuKiXENo1bj0d9n9y7aQ5Cwaisba7gIcIm1
-         R7CHvnbKFseq+f5nKpSw5UHhmXLYHxPe3ztO7VFa5KwXhr0xhEvuDd8fA9SJNp2qDr
-         lms8ksb7vQRnuCNUa8JsGrr+SzTWu2FCNkGwfRWY=
+        b=sLqSmOzP2NvTGnLyiQfLRSxcsxu+z5KNvoQImbQexchQWEYllHiAZ/Q3zUD5FPFxp
+         jAJf7DHyTBMdRhOP/7w0SR+Xkav7ttQGOV8tagzNFzqSIP5SfXq8I9pS/y1FZLy+y9
+         CfWcNSqjRlsSRPViDN09f/0yxE4ApZoWWb6Ma7BE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
+        patches@lists.linux.dev, kernel test robot <oliver.sang@intel.com>,
         Alexander Wetzel <alexander@wetzel-home.de>,
         Johannes Berg <johannes.berg@intel.com>
-Subject: [PATCH 6.1 202/313] wifi: mac80211: Proper mark iTXQs for resumption
-Date:   Mon, 30 Jan 2023 14:50:37 +0100
-Message-Id: <20230130134346.118629566@linuxfoundation.org>
+Subject: [PATCH 6.1 203/313] wifi: mac80211: Fix iTXQ AMPDU fragmentation handling
+Date:   Mon, 30 Jan 2023 14:50:38 +0100
+Message-Id: <20230130134346.160692158@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.1
 In-Reply-To: <20230130134336.532886729@linuxfoundation.org>
 References: <20230130134336.532886729@linuxfoundation.org>
@@ -55,199 +55,130 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Alexander Wetzel <alexander@wetzel-home.de>
 
-commit 4444bc2116aecdcde87dce80373540adc8bd478b upstream.
+commit 592234e941f1addaa598601c9227e3b72d608625 upstream.
 
-When a running wake_tx_queue() call is aborted due to a hw queue stop
-the corresponding iTXQ is not always correctly marked for resumption:
-wake_tx_push_queue() can stops the queue run without setting
-@IEEE80211_TXQ_STOP_NETIF_TX.
+mac80211 must not enable aggregation wile transmitting a fragmented
+MPDU. Enforce that for mac80211 internal TX queues (iTXQs).
 
-Without the @IEEE80211_TXQ_STOP_NETIF_TX flag __ieee80211_wake_txqs()
-will not schedule a new queue run and remaining frames in the queue get
-stuck till another frame is queued to it.
-
-Fix the issue for all drivers - also the ones with custom wake_tx_queue
-callbacks - by moving the logic into ieee80211_tx_dequeue() and drop the
-redundant @txqs_stopped.
-
-@IEEE80211_TXQ_STOP_NETIF_TX is also renamed to @IEEE80211_TXQ_DIRTY to
-better describe the flag.
-
-Fixes: c850e31f79f0 ("wifi: mac80211: add internal handler for wake_tx_queue")
+Reported-by: kernel test robot <oliver.sang@intel.com>
+Link: https://lore.kernel.org/oe-lkp/202301021738.7cd3e6ae-oliver.sang@intel.com
 Signed-off-by: Alexander Wetzel <alexander@wetzel-home.de>
-Link: https://lore.kernel.org/r/20221230121850.218810-1-alexander@wetzel-home.de
+Link: https://lore.kernel.org/r/20230106223141.98696-1-alexander@wetzel-home.de
 Cc: stable@vger.kernel.org
 Signed-off-by: Johannes Berg <johannes.berg@intel.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- include/net/mac80211.h     |    4 ----
- net/mac80211/debugfs_sta.c |    5 +++--
- net/mac80211/driver-ops.h  |    2 +-
- net/mac80211/ieee80211_i.h |    2 +-
- net/mac80211/tx.c          |   23 +++++++++++++++--------
- net/mac80211/util.c        |   20 ++++++--------------
- 6 files changed, 26 insertions(+), 30 deletions(-)
+ net/mac80211/agg-tx.c |    2 --
+ net/mac80211/ht.c     |   37 +++++++++++++++++++++++++++++++++++++
+ net/mac80211/tx.c     |   13 +++++++------
+ 3 files changed, 44 insertions(+), 8 deletions(-)
 
---- a/include/net/mac80211.h
-+++ b/include/net/mac80211.h
-@@ -1827,8 +1827,6 @@ struct ieee80211_vif_cfg {
-  * @drv_priv: data area for driver use, will always be aligned to
-  *	sizeof(void \*).
-  * @txq: the multicast data TX queue (if driver uses the TXQ abstraction)
-- * @txqs_stopped: per AC flag to indicate that intermediate TXQs are stopped,
-- *	protected by fq->lock.
-  * @offload_flags: 802.3 -> 802.11 enapsulation offload flags, see
-  *	&enum ieee80211_offload_flags.
-  * @mbssid_tx_vif: Pointer to the transmitting interface if MBSSID is enabled.
-@@ -1857,8 +1855,6 @@ struct ieee80211_vif {
- 	bool probe_req_reg;
- 	bool rx_mcast_action_reg;
+--- a/net/mac80211/agg-tx.c
++++ b/net/mac80211/agg-tx.c
+@@ -511,8 +511,6 @@ void ieee80211_tx_ba_session_handle_star
+ 	 */
+ 	clear_bit(HT_AGG_STATE_WANT_START, &tid_tx->state);
  
--	bool txqs_stopped[IEEE80211_NUM_ACS];
+-	ieee80211_agg_stop_txq(sta, tid);
 -
- 	struct ieee80211_vif *mbssid_tx_vif;
+ 	/*
+ 	 * Make sure no packets are being processed. This ensures that
+ 	 * we have a valid starting sequence number and that in-flight
+--- a/net/mac80211/ht.c
++++ b/net/mac80211/ht.c
+@@ -391,6 +391,43 @@ void ieee80211_ba_session_work(struct wo
  
- 	/* must be last */
---- a/net/mac80211/debugfs_sta.c
-+++ b/net/mac80211/debugfs_sta.c
-@@ -167,7 +167,7 @@ static ssize_t sta_aqm_read(struct file
- 			continue;
- 		txqi = to_txq_info(sta->sta.txq[i]);
- 		p += scnprintf(p, bufsz + buf - p,
--			       "%d %d %u %u %u %u %u %u %u %u %u 0x%lx(%s%s%s)\n",
-+			       "%d %d %u %u %u %u %u %u %u %u %u 0x%lx(%s%s%s%s)\n",
- 			       txqi->txq.tid,
- 			       txqi->txq.ac,
- 			       txqi->tin.backlog_bytes,
-@@ -182,7 +182,8 @@ static ssize_t sta_aqm_read(struct file
- 			       txqi->flags,
- 			       test_bit(IEEE80211_TXQ_STOP, &txqi->flags) ? "STOP" : "RUN",
- 			       test_bit(IEEE80211_TXQ_AMPDU, &txqi->flags) ? " AMPDU" : "",
--			       test_bit(IEEE80211_TXQ_NO_AMSDU, &txqi->flags) ? " NO-AMSDU" : "");
-+			       test_bit(IEEE80211_TXQ_NO_AMSDU, &txqi->flags) ? " NO-AMSDU" : "",
-+			       test_bit(IEEE80211_TXQ_DIRTY, &txqi->flags) ? " DIRTY" : "");
- 	}
- 
- 	rcu_read_unlock();
---- a/net/mac80211/driver-ops.h
-+++ b/net/mac80211/driver-ops.h
-@@ -1183,7 +1183,7 @@ static inline void drv_wake_tx_queue(str
- 
- 	/* In reconfig don't transmit now, but mark for waking later */
- 	if (local->in_reconfig) {
--		set_bit(IEEE80211_TXQ_STOP_NETIF_TX, &txq->flags);
-+		set_bit(IEEE80211_TXQ_DIRTY, &txq->flags);
- 		return;
- 	}
- 
---- a/net/mac80211/ieee80211_i.h
-+++ b/net/mac80211/ieee80211_i.h
-@@ -836,7 +836,7 @@ enum txq_info_flags {
- 	IEEE80211_TXQ_STOP,
- 	IEEE80211_TXQ_AMPDU,
- 	IEEE80211_TXQ_NO_AMSDU,
--	IEEE80211_TXQ_STOP_NETIF_TX,
-+	IEEE80211_TXQ_DIRTY,
- };
- 
- /**
+ 		tid_tx = sta->ampdu_mlme.tid_start_tx[tid];
+ 		if (!blocked && tid_tx) {
++			struct ieee80211_sub_if_data *sdata = sta->sdata;
++			struct ieee80211_local *local = sdata->local;
++
++			if (local->ops->wake_tx_queue) {
++				struct txq_info *txqi =
++					to_txq_info(sta->sta.txq[tid]);
++				struct fq *fq = &local->fq;
++
++				spin_lock_bh(&fq->lock);
++
++				/* Allow only frags to be dequeued */
++				set_bit(IEEE80211_TXQ_STOP, &txqi->flags);
++
++				if (!skb_queue_empty(&txqi->frags)) {
++					/* Fragmented Tx is ongoing, wait for it
++					 * to finish. Reschedule worker to retry
++					 * later.
++					 */
++
++					spin_unlock_bh(&fq->lock);
++					spin_unlock_bh(&sta->lock);
++
++					/* Give the task working on the txq a
++					 * chance to send out the queued frags
++					 */
++					synchronize_net();
++
++					mutex_unlock(&sta->ampdu_mlme.mtx);
++
++					ieee80211_queue_work(&sdata->local->hw,
++							     work);
++					return;
++				}
++
++				spin_unlock_bh(&fq->lock);
++			}
++
+ 			/*
+ 			 * Assign it over to the normal tid_tx array
+ 			 * where it "goes live".
 --- a/net/mac80211/tx.c
 +++ b/net/mac80211/tx.c
-@@ -3709,13 +3709,15 @@ struct sk_buff *ieee80211_tx_dequeue(str
- 	struct ieee80211_local *local = hw_to_local(hw);
- 	struct txq_info *txqi = container_of(txq, struct txq_info, txq);
- 	struct ieee80211_hdr *hdr;
--	struct sk_buff *skb = NULL;
- 	struct fq *fq = &local->fq;
- 	struct fq_tin *tin = &txqi->tin;
- 	struct ieee80211_tx_info *info;
- 	struct ieee80211_tx_data tx;
-+	struct sk_buff *skb;
- 	ieee80211_tx_result r;
- 	struct ieee80211_vif *vif = txq->vif;
-+	int q = vif->hw_queue[txq->ac];
-+	bool q_stopped;
+@@ -1295,7 +1295,8 @@ ieee80211_tx_prepare(struct ieee80211_su
+ 	if (!(info->flags & IEEE80211_TX_CTL_DONTFRAG)) {
+ 		if (!(tx->flags & IEEE80211_TX_UNICAST) ||
+ 		    skb->len + FCS_LEN <= local->hw.wiphy->frag_threshold ||
+-		    info->flags & IEEE80211_TX_CTL_AMPDU)
++		    (info->flags & IEEE80211_TX_CTL_AMPDU &&
++		     !local->ops->wake_tx_queue))
+ 			info->flags |= IEEE80211_TX_CTL_DONTFRAG;
+ 	}
  
- 	WARN_ON_ONCE(softirq_count() == 0);
- 
-@@ -3723,16 +3725,21 @@ struct sk_buff *ieee80211_tx_dequeue(str
+@@ -3725,7 +3726,6 @@ struct sk_buff *ieee80211_tx_dequeue(str
  		return NULL;
  
  begin:
--	spin_lock_bh(&fq->lock);
-+	skb = NULL;
-+	spin_lock(&local->queue_stop_reason_lock);
-+	q_stopped = local->queue_stop_reasons[q];
-+	spin_unlock(&local->queue_stop_reason_lock);
-+
-+	if (unlikely(q_stopped)) {
-+		/* mark for waking later */
-+		set_bit(IEEE80211_TXQ_DIRTY, &txqi->flags);
-+		return NULL;
-+	}
+-	skb = NULL;
+ 	spin_lock(&local->queue_stop_reason_lock);
+ 	q_stopped = local->queue_stop_reasons[q];
+ 	spin_unlock(&local->queue_stop_reason_lock);
+@@ -3738,9 +3738,6 @@ begin:
  
--	if (test_bit(IEEE80211_TXQ_STOP, &txqi->flags) ||
--	    test_bit(IEEE80211_TXQ_STOP_NETIF_TX, &txqi->flags))
+ 	spin_lock_bh(&fq->lock);
+ 
+-	if (unlikely(test_bit(IEEE80211_TXQ_STOP, &txqi->flags)))
 -		goto out;
-+	spin_lock_bh(&fq->lock);
- 
--	if (vif->txqs_stopped[txq->ac]) {
--		set_bit(IEEE80211_TXQ_STOP_NETIF_TX, &txqi->flags);
-+	if (unlikely(test_bit(IEEE80211_TXQ_STOP, &txqi->flags)))
- 		goto out;
--	}
- 
+-
  	/* Make sure fragments stay together. */
  	skb = __skb_dequeue(&txqi->frags);
---- a/net/mac80211/util.c
-+++ b/net/mac80211/util.c
-@@ -301,8 +301,6 @@ static void __ieee80211_wake_txqs(struct
- 	local_bh_disable();
- 	spin_lock(&fq->lock);
- 
--	sdata->vif.txqs_stopped[ac] = false;
--
- 	if (!test_bit(SDATA_STATE_RUNNING, &sdata->state))
- 		goto out;
- 
-@@ -324,7 +322,7 @@ static void __ieee80211_wake_txqs(struct
- 			if (ac != txq->ac)
- 				continue;
- 
--			if (!test_and_clear_bit(IEEE80211_TXQ_STOP_NETIF_TX,
-+			if (!test_and_clear_bit(IEEE80211_TXQ_DIRTY,
- 						&txqi->flags))
- 				continue;
- 
-@@ -339,7 +337,7 @@ static void __ieee80211_wake_txqs(struct
- 
- 	txqi = to_txq_info(vif->txq);
- 
--	if (!test_and_clear_bit(IEEE80211_TXQ_STOP_NETIF_TX, &txqi->flags) ||
-+	if (!test_and_clear_bit(IEEE80211_TXQ_DIRTY, &txqi->flags) ||
- 	    (ps && atomic_read(&ps->num_sta_ps)) || ac != vif->txq->ac)
- 		goto out;
- 
-@@ -537,16 +535,10 @@ static void __ieee80211_stop_queue(struc
- 			continue;
- 
- 		for (ac = 0; ac < n_acs; ac++) {
--			if (sdata->vif.hw_queue[ac] == queue ||
--			    sdata->vif.cab_queue == queue) {
--				if (!local->ops->wake_tx_queue) {
--					netif_stop_subqueue(sdata->dev, ac);
--					continue;
--				}
--				spin_lock(&local->fq.lock);
--				sdata->vif.txqs_stopped[ac] = true;
--				spin_unlock(&local->fq.lock);
--			}
-+			if (!local->ops->wake_tx_queue &&
-+			    (sdata->vif.hw_queue[ac] == queue ||
-+			     sdata->vif.cab_queue == queue))
-+				netif_stop_subqueue(sdata->dev, ac);
- 		}
+ 	if (unlikely(skb)) {
+@@ -3750,6 +3747,9 @@ begin:
+ 		IEEE80211_SKB_CB(skb)->control.flags &=
+ 			~IEEE80211_TX_INTCFL_NEED_TXPROCESSING;
+ 	} else {
++		if (unlikely(test_bit(IEEE80211_TXQ_STOP, &txqi->flags)))
++			goto out;
++
+ 		skb = fq_tin_dequeue(fq, tin, fq_tin_dequeue_func);
  	}
- 	rcu_read_unlock();
+ 
+@@ -3800,7 +3800,8 @@ begin:
+ 	}
+ 
+ 	if (test_bit(IEEE80211_TXQ_AMPDU, &txqi->flags))
+-		info->flags |= IEEE80211_TX_CTL_AMPDU;
++		info->flags |= (IEEE80211_TX_CTL_AMPDU |
++				IEEE80211_TX_CTL_DONTFRAG);
+ 	else
+ 		info->flags &= ~IEEE80211_TX_CTL_AMPDU;
+ 
 
 
