@@ -2,43 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 6830A6812E3
-	for <lists+stable@lfdr.de>; Mon, 30 Jan 2023 15:26:06 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D633F6811D6
+	for <lists+stable@lfdr.de>; Mon, 30 Jan 2023 15:16:57 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237606AbjA3O0F (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 30 Jan 2023 09:26:05 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41710 "EHLO
+        id S237456AbjA3OQ4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 30 Jan 2023 09:16:56 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60532 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237608AbjA3OZv (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 30 Jan 2023 09:25:51 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0FFB81114D
-        for <stable@vger.kernel.org>; Mon, 30 Jan 2023 06:24:28 -0800 (PST)
+        with ESMTP id S237354AbjA3OQl (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 30 Jan 2023 09:16:41 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BA8823CE38
+        for <stable@vger.kernel.org>; Mon, 30 Jan 2023 06:16:38 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 0033461085
-        for <stable@vger.kernel.org>; Mon, 30 Jan 2023 14:23:58 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id EBE5AC433EF;
-        Mon, 30 Jan 2023 14:23:56 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 640A9B8117E
+        for <stable@vger.kernel.org>; Mon, 30 Jan 2023 14:16:37 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7F8ADC4339B;
+        Mon, 30 Jan 2023 14:16:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1675088637;
-        bh=0Ff1wA/jsyyzrcmDhgicIlBx8qhymYYf+T9UwvZxt8o=;
+        s=korg; t=1675088196;
+        bh=+dSm4+JTlN4B6EYmXhsFiDoHWJBACJVqN7cvkb0A9pA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ZOOQD0uQNAkhEhRcOIcljHd2KaAjpBmNHAh79zrlml85pnbG1K8oOReUpiwwDkU3z
-         kdmgkRNXwdXi7Y+z6Uyxq1j/Rt3dwulr7DHZjZtaREKmyjPwV2xgw66bcPK8JRrsgv
-         s88oFxWq2FUQfZUJv6z0ATRaZ+1jYu5FRVLL2pjg=
+        b=eqTVBPK8jXshPEjNWNhqAFscq16F3I1r5wPnOTgvSGdBKm/7nusCv8sB6+g6D8ywt
+         UbGHuJnst0hN8z3oGxOVHsCMNac/5zCsjlxW4maMMOyItLv3kNu1ItM3mU4CL+gTb5
+         ZpV3HzD+ZQpuayoq9fvYzTfmz7FYqzGOv7ieb8fA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Yang Yingliang <yangyingliang@huawei.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 056/143] w1: fix WARNING after calling w1_process()
+        patches@lists.linux.dev, Masami Hiramatsu <mhiramat@kernel.org>,
+        "Joel Fernandes (Google)" <joel@joelfernandes.org>,
+        "Steven Rostedt (Google)" <rostedt@goodmis.org>
+Subject: [PATCH 5.15 148/204] tracing: Make sure trace_printk() can output as soon as it can be used
 Date:   Mon, 30 Jan 2023 14:51:53 +0100
-Message-Id: <20230130134309.185051367@linuxfoundation.org>
+Message-Id: <20230130134323.069755220@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.1
-In-Reply-To: <20230130134306.862721518@linuxfoundation.org>
-References: <20230130134306.862721518@linuxfoundation.org>
+In-Reply-To: <20230130134316.327556078@linuxfoundation.org>
+References: <20230130134316.327556078@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -52,55 +53,80 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yang Yingliang <yangyingliang@huawei.com>
+From: Steven Rostedt (Google) <rostedt@goodmis.org>
 
-[ Upstream commit 36225a7c72e9e3e1ce4001b6ce72849f5c9a2d3b ]
+commit 3bb06eb6e9acf7c4a3e1b5bc87aed398ff8e2253 upstream.
 
-I got the following WARNING message while removing driver(ds2482):
+Currently trace_printk() can be used as soon as early_trace_init() is
+called from start_kernel(). But if a crash happens, and
+"ftrace_dump_on_oops" is set on the kernel command line, all you get will
+be:
 
-------------[ cut here ]------------
-do not call blocking ops when !TASK_RUNNING; state=1 set at [<000000002d50bfb6>] w1_process+0x9e/0x1d0 [wire]
-WARNING: CPU: 0 PID: 262 at kernel/sched/core.c:9817 __might_sleep+0x98/0xa0
-CPU: 0 PID: 262 Comm: w1_bus_master1 Tainted: G                 N 6.1.0-rc3+ #307
-RIP: 0010:__might_sleep+0x98/0xa0
-Call Trace:
- exit_signals+0x6c/0x550
- do_exit+0x2b4/0x17e0
- kthread_exit+0x52/0x60
- kthread+0x16d/0x1e0
- ret_from_fork+0x1f/0x30
+  [    0.456075]   <idle>-0         0dN.2. 347519us : Unknown type 6
+  [    0.456075]   <idle>-0         0dN.2. 353141us : Unknown type 6
+  [    0.456075]   <idle>-0         0dN.2. 358684us : Unknown type 6
 
-The state of task is set to TASK_INTERRUPTIBLE in loop in w1_process(),
-set it to TASK_RUNNING when it breaks out of the loop to avoid the
-warning.
+This is because the trace_printk() event (type 6) hasn't been registered
+yet. That gets done via an early_initcall(), which may be early, but not
+early enough.
 
-Fixes: 3c52e4e62789 ("W1: w1_process, block or sleep")
-Signed-off-by: Yang Yingliang <yangyingliang@huawei.com>
-Link: https://lore.kernel.org/r/20221205101558.3599162-1-yangyingliang@huawei.com
+Instead of registering the trace_printk() event (and other ftrace events,
+which are not trace events) via an early_initcall(), have them registered at
+the same time that trace_printk() can be used. This way, if there is a
+crash before early_initcall(), then the trace_printk()s will actually be
+useful.
+
+Link: https://lkml.kernel.org/r/20230104161412.019f6c55@gandalf.local.home
+
+Cc: stable@vger.kernel.org
+Cc: Masami Hiramatsu <mhiramat@kernel.org>
+Fixes: e725c731e3bb1 ("tracing: Split tracing initialization into two for early initialization")
+Reported-by: "Joel Fernandes (Google)" <joel@joelfernandes.org>
+Tested-by: Joel Fernandes (Google) <joel@joelfernandes.org>
+Signed-off-by: Steven Rostedt (Google) <rostedt@goodmis.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/w1/w1.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ kernel/trace/trace.c        |    2 ++
+ kernel/trace/trace.h        |    1 +
+ kernel/trace/trace_output.c |    3 +--
+ 3 files changed, 4 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/w1/w1.c b/drivers/w1/w1.c
-index 6e9f3569971d..15842377c8d2 100644
---- a/drivers/w1/w1.c
-+++ b/drivers/w1/w1.c
-@@ -1160,8 +1160,10 @@ int w1_process(void *data)
- 		 */
- 		mutex_unlock(&dev->list_mutex);
+--- a/kernel/trace/trace.c
++++ b/kernel/trace/trace.c
+@@ -10217,6 +10217,8 @@ void __init early_trace_init(void)
+ 			static_key_enable(&tracepoint_printk_key.key);
+ 	}
+ 	tracer_alloc_buffers();
++
++	init_events();
+ }
  
--		if (kthread_should_stop())
-+		if (kthread_should_stop()) {
-+			__set_current_state(TASK_RUNNING);
- 			break;
-+		}
+ void __init trace_init(void)
+--- a/kernel/trace/trace.h
++++ b/kernel/trace/trace.h
+@@ -1500,6 +1500,7 @@ extern void trace_event_enable_cmd_recor
+ extern void trace_event_enable_tgid_record(bool enable);
  
- 		/* Only sleep when the search is active. */
- 		if (dev->search_count) {
--- 
-2.39.0
-
+ extern int event_trace_init(void);
++extern int init_events(void);
+ extern int event_trace_add_tracer(struct dentry *parent, struct trace_array *tr);
+ extern int event_trace_del_tracer(struct trace_array *tr);
+ extern void __trace_early_add_events(struct trace_array *tr);
+--- a/kernel/trace/trace_output.c
++++ b/kernel/trace/trace_output.c
+@@ -1569,7 +1569,7 @@ static struct trace_event *events[] __in
+ 	NULL
+ };
+ 
+-__init static int init_events(void)
++__init int init_events(void)
+ {
+ 	struct trace_event *event;
+ 	int i, ret;
+@@ -1587,4 +1587,3 @@ __init static int init_events(void)
+ 
+ 	return 0;
+ }
+-early_initcall(init_events);
 
 
