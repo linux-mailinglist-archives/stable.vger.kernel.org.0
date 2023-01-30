@@ -2,44 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 8681B68108A
-	for <lists+stable@lfdr.de>; Mon, 30 Jan 2023 15:04:30 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2802F681174
+	for <lists+stable@lfdr.de>; Mon, 30 Jan 2023 15:13:39 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236863AbjA3OE2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 30 Jan 2023 09:04:28 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46312 "EHLO
+        id S237274AbjA3ONg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 30 Jan 2023 09:13:36 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56788 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237042AbjA3OEQ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 30 Jan 2023 09:04:16 -0500
+        with ESMTP id S237301AbjA3ONb (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 30 Jan 2023 09:13:31 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5947013D5C
-        for <stable@vger.kernel.org>; Mon, 30 Jan 2023 06:04:15 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5EB51366B5
+        for <stable@vger.kernel.org>; Mon, 30 Jan 2023 06:13:28 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id CC80461036
-        for <stable@vger.kernel.org>; Mon, 30 Jan 2023 14:04:14 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id DBA70C433D2;
-        Mon, 30 Jan 2023 14:04:13 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id DD20061035
+        for <stable@vger.kernel.org>; Mon, 30 Jan 2023 14:13:27 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id F02CFC4339E;
+        Mon, 30 Jan 2023 14:13:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1675087454;
-        bh=tMi/I2IQP7Y1fVtCtwAubQHLyulTqFBBke+i7It+p7E=;
+        s=korg; t=1675088007;
+        bh=gpwzdyVOFULh0qWwfN70dlQcQ2gD66eXLB0zvnF8/RA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=CbM3Z7U8OHPjsCZ3V74GngHbxTZMiRyb5qQmLarEdHr/VJtHBEGBCCCKgeSEo3xXF
-         CBlOu4wA5h/HhOPyj/wkRhXO9YH0nXTARok+5SroWzz5hS8ZIh59QWhEJAvVY0y6AT
-         2D+lPFAOP6uJ36VjaQVv+zMdTe1CcrmpZfektP4k=
+        b=k5FoB2SLWTrP/n51MmbnNuE4dJ7FY1jblgs7U9HJFmMlCrnAVD7v2FUfFf6xGrEbl
+         USjTJ/MdNibLVtkA39tq8ogEOByRusQlSsrPnIATvdKYc4iBliyxSmRNniPzIG7iOX
+         79fG6TMFHaF4WtVqrcVXqNlvYbRVf7nc9sSqWkqI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Masami Hiramatsu <mhiramat@kernel.org>,
-        Mark Rutland <mark.rutland@arm.com>,
-        "Steven Rostedt (Google)" <rostedt@goodmis.org>
-Subject: [PATCH 6.1 214/313] ftrace/scripts: Update the instructions for ftrace-bisect.sh
+        patches@lists.linux.dev, Yang Yingliang <yangyingliang@huawei.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.15 084/204] w1: fix deadloop in __w1_remove_master_device()
 Date:   Mon, 30 Jan 2023 14:50:49 +0100
-Message-Id: <20230130134346.675435778@linuxfoundation.org>
+Message-Id: <20230130134320.021878580@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.1
-In-Reply-To: <20230130134336.532886729@linuxfoundation.org>
-References: <20230130134336.532886729@linuxfoundation.org>
+In-Reply-To: <20230130134316.327556078@linuxfoundation.org>
+References: <20230130134316.327556078@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,98 +52,83 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Steven Rostedt (Google) <rostedt@goodmis.org>
+From: Yang Yingliang <yangyingliang@huawei.com>
 
-commit 7ae4ba7195b1bac04a4210a499da9d8c63b0ba9c upstream.
+[ Upstream commit 25d5648802f12ae486076ceca5d7ddf1fef792b2 ]
 
-The instructions for the ftrace-bisect.sh script, which is used to find
-what function is being traced that is causing a kernel crash, and possibly
-a triple fault reboot, uses the old method. In 5.1, a new feature was
-added that let the user write in the index into available_filter_functions
-that maps to the function a user wants to set in set_ftrace_filter (or
-set_ftrace_notrace). This takes O(1) to set, as suppose to writing a
-function name, which takes O(n) (where n is the number of functions in
-available_filter_functions).
+I got a deadloop report while doing device(ds2482) add/remove test:
 
-The ftrace-bisect.sh requires setting half of the functions in
-available_filter_functions, which is O(n^2) using the name method to enable
-and can take several minutes to complete. The number method is O(n) which
-takes less than a second to complete. Using the number method for any
-kernel 5.1 and after is the proper way to do the bisect.
+  [  162.241881] w1_master_driver w1_bus_master1: Waiting for w1_bus_master1 to become free: refcnt=1.
+  [  163.272251] w1_master_driver w1_bus_master1: Waiting for w1_bus_master1 to become free: refcnt=1.
+  [  164.296157] w1_master_driver w1_bus_master1: Waiting for w1_bus_master1 to become free: refcnt=1.
+  ...
 
-Update the usage to reflect the new change, as well as using the
-/sys/kernel/tracing path instead of the obsolete debugfs path.
+__w1_remove_master_device() can't return, because the dev->refcnt is not zero.
 
-Link: https://lkml.kernel.org/r/20230123112252.022003dd@gandalf.local.home
+w1_add_master_device()			|
+  w1_alloc_dev()			|
+    atomic_set(&dev->refcnt, 2)		|
+  kthread_run()				|
+					|__w1_remove_master_device()
+					|  kthread_stop()
+  // KTHREAD_SHOULD_STOP is set,	|
+  // threadfn(w1_process) won't be	|
+  // called.				|
+  kthread()				|
+					|  // refcnt will never be 0, it's deadloop.
+					|  while (atomic_read(&dev->refcnt)) {...}
 
-Cc: stable@vger.kernel.org
-Cc: Masami Hiramatsu <mhiramat@kernel.org>
-Acked-by: Mark Rutland <mark.rutland@arm.com>
-Fixes: f79b3f338564e ("ftrace: Allow enabling of filters via index of available_filter_functions")
-Signed-off-by: Steven Rostedt (Google) <rostedt@goodmis.org>
+After calling w1_add_master_device(), w1_process() is not really
+invoked, before w1_process() starting, if kthread_stop() is called
+in __w1_remove_master_device(), w1_process() will never be called,
+the refcnt can not be decreased, then it causes deadloop in remove
+function because of non-zero refcnt.
+
+We need to make sure w1_process() is really started, so move the
+set refcnt into w1_process() to fix this problem.
+
+Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
+Signed-off-by: Yang Yingliang <yangyingliang@huawei.com>
+Link: https://lore.kernel.org/r/20221205080434.3149205-1-yangyingliang@huawei.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- scripts/tracing/ftrace-bisect.sh |   34 ++++++++++++++++++++++++++--------
- 1 file changed, 26 insertions(+), 8 deletions(-)
+ drivers/w1/w1.c     | 2 ++
+ drivers/w1/w1_int.c | 5 ++---
+ 2 files changed, 4 insertions(+), 3 deletions(-)
 
---- a/scripts/tracing/ftrace-bisect.sh
-+++ b/scripts/tracing/ftrace-bisect.sh
-@@ -12,7 +12,7 @@
- #   (note, if this is a problem with function_graph tracing, then simply
- #    replace "function" with "function_graph" in the following steps).
- #
--#  # cd /sys/kernel/debug/tracing
-+#  # cd /sys/kernel/tracing
- #  # echo schedule > set_ftrace_filter
- #  # echo function > current_tracer
- #
-@@ -20,22 +20,40 @@
- #
- #  # echo nop > current_tracer
- #
--#  # cat available_filter_functions > ~/full-file
-+# Starting with v5.1 this can be done with numbers, making it much faster:
-+#
-+# The old (slow) way, for kernels before v5.1.
-+#
-+# [old-way] # cat available_filter_functions > ~/full-file
-+#
-+# [old-way] *** Note ***  this process will take several minutes to update the
-+# [old-way] filters. Setting multiple functions is an O(n^2) operation, and we
-+# [old-way] are dealing with thousands of functions. So go have coffee, talk
-+# [old-way] with your coworkers, read facebook. And eventually, this operation
-+# [old-way] will end.
-+#
-+# The new way (using numbers) is an O(n) operation, and usually takes less than a second.
-+#
-+# seq `wc -l available_filter_functions | cut -d' ' -f1` > ~/full-file
-+#
-+# This will create a sequence of numbers that match the functions in
-+# available_filter_functions, and when echoing in a number into the
-+# set_ftrace_filter file, it will enable the corresponding function in
-+# O(1) time. Making enabling all functions O(n) where n is the number of
-+# functions to enable.
-+#
-+# For either the new or old way, the rest of the operations remain the same.
-+#
- #  # ftrace-bisect ~/full-file ~/test-file ~/non-test-file
- #  # cat ~/test-file > set_ftrace_filter
- #
--# *** Note *** this will take several minutes. Setting multiple functions is
--# an O(n^2) operation, and we are dealing with thousands of functions. So go
--# have  coffee, talk with your coworkers, read facebook. And eventually, this
--# operation will end.
--#
- #  # echo function > current_tracer
- #
- # If it crashes, we know that ~/test-file has a bad function.
- #
- #   Reboot back to test kernel.
- #
--#     # cd /sys/kernel/debug/tracing
-+#     # cd /sys/kernel/tracing
- #     # mv ~/test-file ~/full-file
- #
- # If it didn't crash.
+diff --git a/drivers/w1/w1.c b/drivers/w1/w1.c
+index f2ae2e563dc5..8b35fae4cd61 100644
+--- a/drivers/w1/w1.c
++++ b/drivers/w1/w1.c
+@@ -1166,6 +1166,8 @@ int w1_process(void *data)
+ 	/* remainder if it woke up early */
+ 	unsigned long jremain = 0;
+ 
++	atomic_inc(&dev->refcnt);
++
+ 	for (;;) {
+ 
+ 		if (!jremain && dev->search_count) {
+diff --git a/drivers/w1/w1_int.c b/drivers/w1/w1_int.c
+index b3e1792d9c49..3a71c5eb2f83 100644
+--- a/drivers/w1/w1_int.c
++++ b/drivers/w1/w1_int.c
+@@ -51,10 +51,9 @@ static struct w1_master *w1_alloc_dev(u32 id, int slave_count, int slave_ttl,
+ 	dev->search_count	= w1_search_count;
+ 	dev->enable_pullup	= w1_enable_pullup;
+ 
+-	/* 1 for w1_process to decrement
+-	 * 1 for __w1_remove_master_device to decrement
++	/* For __w1_remove_master_device to decrement
+ 	 */
+-	atomic_set(&dev->refcnt, 2);
++	atomic_set(&dev->refcnt, 1);
+ 
+ 	INIT_LIST_HEAD(&dev->slist);
+ 	INIT_LIST_HEAD(&dev->async_list);
+-- 
+2.39.0
+
 
 
