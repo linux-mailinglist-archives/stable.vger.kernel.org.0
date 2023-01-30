@@ -2,46 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 837A768127D
-	for <lists+stable@lfdr.de>; Mon, 30 Jan 2023 15:21:32 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 37AA66812F4
+	for <lists+stable@lfdr.de>; Mon, 30 Jan 2023 15:26:49 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237383AbjA3OVa (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 30 Jan 2023 09:21:30 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33232 "EHLO
+        id S237071AbjA3O0s (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 30 Jan 2023 09:26:48 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41012 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237738AbjA3OVP (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 30 Jan 2023 09:21:15 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2B03C3E0B5
-        for <stable@vger.kernel.org>; Mon, 30 Jan 2023 06:20:06 -0800 (PST)
+        with ESMTP id S237515AbjA3O03 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 30 Jan 2023 09:26:29 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 44C8C3FF29
+        for <stable@vger.kernel.org>; Mon, 30 Jan 2023 06:25:09 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 35A306115D
-        for <stable@vger.kernel.org>; Mon, 30 Jan 2023 14:19:07 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3D630C433EF;
-        Mon, 30 Jan 2023 14:19:06 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 0DF4CB810C5
+        for <stable@vger.kernel.org>; Mon, 30 Jan 2023 14:24:51 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 54E2DC433EF;
+        Mon, 30 Jan 2023 14:24:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1675088346;
-        bh=b9mhJCY7VyH+ak6ttcE8umrGGeb40RB/jBMUH7rpU8Y=;
+        s=korg; t=1675088689;
+        bh=stv/+knP+OaF/OBFSiGVoA6E7tNKO1oMr3AiugFGxTE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=jz6h/G64FQ0L8EMPzYlfc6OnPp29f4SimZ2cF/T5UGsuKHQe1aYXrExY3hIuevcHr
-         wRTqlAJxWYub5OVTp0zDGJ9Ua59lC3I+G3tPQyPU4lX4zA8hwcgoERJt2J0L6OQRR+
-         D+q/4K6hgxokk0EeNvdgIm2fACqrO1a5q+veEND4=
+        b=Db3qO/WjR/UI2PI62gyrZhE1qxbtecLXWtIU1kXeRmIaKm5lQ4XEjfAEkSKZqKLUU
+         Bjz4Msq6yr66omhSJs9YHNNR2Bh6AKPxpWvJtanbEp0c/SkbmKXioVnR65Q3Sskn3I
+         msHGAY5ENuPO5vuItNA4vXFHnFKmZT5PnbdNaZB4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        David Christensen <drc@linux.vnet.ibm.com>,
-        Pavan Chebbi <pavan.chebbi@broadcom.com>,
-        Jakub Kicinski <kuba@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 193/204] net/tg3: resolve deadlock in tg3_reset_task() during EEH
-Date:   Mon, 30 Jan 2023 14:52:38 +0100
-Message-Id: <20230130134325.054744019@linuxfoundation.org>
+        patches@lists.linux.dev, Martin Wilck <mwilck@suse.com>,
+        Petr Pavlu <petr.pavlu@suse.com>,
+        Petr Mladek <pmladek@suse.com>,
+        Luis Chamberlain <mcgrof@kernel.org>
+Subject: [PATCH 5.10 102/143] module: Dont wait for GOING modules
+Date:   Mon, 30 Jan 2023 14:52:39 +0100
+Message-Id: <20230130134311.079632780@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.1
-In-Reply-To: <20230130134316.327556078@linuxfoundation.org>
-References: <20230130134316.327556078@linuxfoundation.org>
+In-Reply-To: <20230130134306.862721518@linuxfoundation.org>
+References: <20230130134306.862721518@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,119 +54,111 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: David Christensen <drc@linux.vnet.ibm.com>
+From: Petr Pavlu <petr.pavlu@suse.com>
 
-[ Upstream commit 6c4ca03bd890566d873e3593b32d034bf2f5a087 ]
+commit 0254127ab977e70798707a7a2b757c9f3c971210 upstream.
 
-During EEH error injection testing, a deadlock was encountered in the tg3
-driver when tg3_io_error_detected() was attempting to cancel outstanding
-reset tasks:
+During a system boot, it can happen that the kernel receives a burst of
+requests to insert the same module but loading it eventually fails
+during its init call. For instance, udev can make a request to insert
+a frequency module for each individual CPU when another frequency module
+is already loaded which causes the init function of the new module to
+return an error.
 
-crash> foreach UN bt
-...
-PID: 159    TASK: c0000000067c6000  CPU: 8   COMMAND: "eehd"
-...
- #5 [c00000000681f990] __cancel_work_timer at c00000000019fd18
- #6 [c00000000681fa30] tg3_io_error_detected at c00800000295f098 [tg3]
- #7 [c00000000681faf0] eeh_report_error at c00000000004e25c
-...
+Since commit 6e6de3dee51a ("kernel/module.c: Only return -EEXIST for
+modules that have finished loading"), the kernel waits for modules in
+MODULE_STATE_GOING state to finish unloading before making another
+attempt to load the same module.
 
-PID: 290    TASK: c000000036e5f800  CPU: 6   COMMAND: "kworker/6:1"
-...
- #4 [c00000003721fbc0] rtnl_lock at c000000000c940d8
- #5 [c00000003721fbe0] tg3_reset_task at c008000002969358 [tg3]
- #6 [c00000003721fc60] process_one_work at c00000000019e5c4
-...
+This creates unnecessary work in the described scenario and delays the
+boot. In the worst case, it can prevent udev from loading drivers for
+other devices and might cause timeouts of services waiting on them and
+subsequently a failed boot.
 
-PID: 296    TASK: c000000037a65800  CPU: 21  COMMAND: "kworker/21:1"
-...
- #4 [c000000037247bc0] rtnl_lock at c000000000c940d8
- #5 [c000000037247be0] tg3_reset_task at c008000002969358 [tg3]
- #6 [c000000037247c60] process_one_work at c00000000019e5c4
-...
+This patch attempts a different solution for the problem 6e6de3dee51a
+was trying to solve. Rather than waiting for the unloading to complete,
+it returns a different error code (-EBUSY) for modules in the GOING
+state. This should avoid the error situation that was described in
+6e6de3dee51a (user space attempting to load a dependent module because
+the -EEXIST error code would suggest to user space that the first module
+had been loaded successfully), while avoiding the delay situation too.
 
-PID: 655    TASK: c000000036f49000  CPU: 16  COMMAND: "kworker/16:2"
-...:1
+This has been tested on linux-next since December 2022 and passes
+all kmod selftests except test 0009 with module compression enabled
+but it has been confirmed that this issue has existed and has gone
+unnoticed since prior to this commit and can also be reproduced without
+module compression with a simple usleep(5000000) on tools/modprobe.c [0].
+These failures are caused by hitting the kernel mod_concurrent_max and can
+happen either due to a self inflicted kernel module auto-loead DoS somehow
+or on a system with large CPU count and each CPU count incorrectly triggering
+many module auto-loads. Both of those issues need to be fixed in-kernel.
 
- #4 [c0000000373ebbc0] rtnl_lock at c000000000c940d8
- #5 [c0000000373ebbe0] tg3_reset_task at c008000002969358 [tg3]
- #6 [c0000000373ebc60] process_one_work at c00000000019e5c4
-...
+[0] https://lore.kernel.org/all/Y9A4fiobL6IHp%2F%2FP@bombadil.infradead.org/
 
-Code inspection shows that both tg3_io_error_detected() and
-tg3_reset_task() attempt to acquire the RTNL lock at the beginning of
-their code blocks.  If tg3_reset_task() should happen to execute between
-the times when tg3_io_error_deteced() acquires the RTNL lock and
-tg3_reset_task_cancel() is called, a deadlock will occur.
-
-Moving tg3_reset_task_cancel() call earlier within the code block, prior
-to acquiring RTNL, prevents this from happening, but also exposes another
-deadlock issue where tg3_reset_task() may execute AFTER
-tg3_io_error_detected() has executed:
-
-crash> foreach UN bt
-PID: 159    TASK: c0000000067d2000  CPU: 9   COMMAND: "eehd"
-...
- #4 [c000000006867a60] rtnl_lock at c000000000c940d8
- #5 [c000000006867a80] tg3_io_slot_reset at c0080000026c2ea8 [tg3]
- #6 [c000000006867b00] eeh_report_reset at c00000000004de88
-...
-PID: 363    TASK: c000000037564000  CPU: 6   COMMAND: "kworker/6:1"
-...
- #3 [c000000036c1bb70] msleep at c000000000259e6c
- #4 [c000000036c1bba0] napi_disable at c000000000c6b848
- #5 [c000000036c1bbe0] tg3_reset_task at c0080000026d942c [tg3]
- #6 [c000000036c1bc60] process_one_work at c00000000019e5c4
-...
-
-This issue can be avoided by aborting tg3_reset_task() if EEH error
-recovery is already in progress.
-
-Fixes: db84bf43ef23 ("tg3: tg3_reset_task() needs to use rtnl_lock to synchronize")
-Signed-off-by: David Christensen <drc@linux.vnet.ibm.com>
-Reviewed-by: Pavan Chebbi <pavan.chebbi@broadcom.com>
-Link: https://lore.kernel.org/r/20230124185339.225806-1-drc@linux.vnet.ibm.com
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes: 6e6de3dee51a ("kernel/module.c: Only return -EEXIST for modules that have finished loading")
+Co-developed-by: Martin Wilck <mwilck@suse.com>
+Signed-off-by: Martin Wilck <mwilck@suse.com>
+Signed-off-by: Petr Pavlu <petr.pavlu@suse.com>
+Cc: stable@vger.kernel.org
+Reviewed-by: Petr Mladek <pmladek@suse.com>
+[mcgrof: enhance commit log with testing and kmod test result interpretation ]
+Signed-off-by: Luis Chamberlain <mcgrof@kernel.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ethernet/broadcom/tg3.c | 8 ++++----
- 1 file changed, 4 insertions(+), 4 deletions(-)
+ kernel/module.c |   26 +++++++++++++++++++++-----
+ 1 file changed, 21 insertions(+), 5 deletions(-)
 
-diff --git a/drivers/net/ethernet/broadcom/tg3.c b/drivers/net/ethernet/broadcom/tg3.c
-index 8aab07419263..50f86bebbc19 100644
---- a/drivers/net/ethernet/broadcom/tg3.c
-+++ b/drivers/net/ethernet/broadcom/tg3.c
-@@ -11176,7 +11176,7 @@ static void tg3_reset_task(struct work_struct *work)
- 	rtnl_lock();
- 	tg3_full_lock(tp, 0);
+--- a/kernel/module.c
++++ b/kernel/module.c
+@@ -3661,7 +3661,8 @@ static bool finished_loading(const char
+ 	sched_annotate_sleep();
+ 	mutex_lock(&module_mutex);
+ 	mod = find_module_all(name, strlen(name), true);
+-	ret = !mod || mod->state == MODULE_STATE_LIVE;
++	ret = !mod || mod->state == MODULE_STATE_LIVE
++		|| mod->state == MODULE_STATE_GOING;
+ 	mutex_unlock(&module_mutex);
  
--	if (!netif_running(tp->dev)) {
-+	if (tp->pcierr_recovery || !netif_running(tp->dev)) {
- 		tg3_flag_clear(tp, RESET_TASK_PENDING);
- 		tg3_full_unlock(tp);
- 		rtnl_unlock();
-@@ -18111,6 +18111,9 @@ static pci_ers_result_t tg3_io_error_detected(struct pci_dev *pdev,
+ 	return ret;
+@@ -3827,20 +3828,35 @@ static int add_unformed_module(struct mo
  
- 	netdev_info(netdev, "PCI I/O error detected\n");
+ 	mod->state = MODULE_STATE_UNFORMED;
  
-+	/* Want to make sure that the reset task doesn't run */
-+	tg3_reset_task_cancel(tp);
+-again:
+ 	mutex_lock(&module_mutex);
+ 	old = find_module_all(mod->name, strlen(mod->name), true);
+ 	if (old != NULL) {
+-		if (old->state != MODULE_STATE_LIVE) {
++		if (old->state == MODULE_STATE_COMING
++		    || old->state == MODULE_STATE_UNFORMED) {
+ 			/* Wait in case it fails to load. */
+ 			mutex_unlock(&module_mutex);
+ 			err = wait_event_interruptible(module_wq,
+ 					       finished_loading(mod->name));
+ 			if (err)
+ 				goto out_unlocked;
+-			goto again;
 +
- 	rtnl_lock();
- 
- 	/* Could be second call or maybe we don't have netdev yet */
-@@ -18127,9 +18130,6 @@ static pci_ers_result_t tg3_io_error_detected(struct pci_dev *pdev,
- 
- 	tg3_timer_stop(tp);
- 
--	/* Want to make sure that the reset task doesn't run */
--	tg3_reset_task_cancel(tp);
--
- 	netif_device_detach(netdev);
- 
- 	/* Clean up software state, even if MMIO is blocked */
--- 
-2.39.0
-
++			/* The module might have gone in the meantime. */
++			mutex_lock(&module_mutex);
++			old = find_module_all(mod->name, strlen(mod->name),
++					      true);
+ 		}
+-		err = -EEXIST;
++
++		/*
++		 * We are here only when the same module was being loaded. Do
++		 * not try to load it again right now. It prevents long delays
++		 * caused by serialized module load failures. It might happen
++		 * when more devices of the same type trigger load of
++		 * a particular module.
++		 */
++		if (old && old->state == MODULE_STATE_LIVE)
++			err = -EEXIST;
++		else
++			err = -EBUSY;
+ 		goto out;
+ 	}
+ 	mod_update_bounds(mod);
 
 
