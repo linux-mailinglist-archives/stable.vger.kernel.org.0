@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 332EC68125C
-	for <lists+stable@lfdr.de>; Mon, 30 Jan 2023 15:20:29 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 76521681104
+	for <lists+stable@lfdr.de>; Mon, 30 Jan 2023 15:09:39 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237725AbjA3OU1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 30 Jan 2023 09:20:27 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60500 "EHLO
+        id S229691AbjA3OJi (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 30 Jan 2023 09:09:38 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51392 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237742AbjA3OT4 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 30 Jan 2023 09:19:56 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AD2023E601
-        for <stable@vger.kernel.org>; Mon, 30 Jan 2023 06:18:46 -0800 (PST)
+        with ESMTP id S237151AbjA3OJh (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 30 Jan 2023 09:09:37 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7C1CE3B0EE
+        for <stable@vger.kernel.org>; Mon, 30 Jan 2023 06:09:36 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 5C8956104A
-        for <stable@vger.kernel.org>; Mon, 30 Jan 2023 14:17:57 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5FDABC433EF;
-        Mon, 30 Jan 2023 14:17:56 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 320A2B8117B
+        for <stable@vger.kernel.org>; Mon, 30 Jan 2023 14:09:35 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1BB45C433EF;
+        Mon, 30 Jan 2023 14:09:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1675088276;
-        bh=d83yDMRhfWu2mHNXIQ5Zwj2WzAEprSJTeJ9B8AU63dk=;
+        s=korg; t=1675087773;
+        bh=22vqKdte5+ZuoITYXeS0JfPR8v7M/2G5VV2jnLBEAhw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=RCVE0+7wkv2aCfgX64P1Hb9i/UObAzHdK7lN0Z6SrlI2UQjrFCB2bi/TvB3rHzbLF
-         bWQWz7GViw9rPvIN3VG9XBJRD05XKb1BvnmY2eiSU/8ASkA9cbGc/hX+HiqlSTj4rS
-         mzvzxqAARq9pp0gjNPBLZ6ciGJrlp/47cvc8k9i8=
+        b=ryjP8mhiVzrqaicJ6P67jk97frgd5z1wf605ioMm6vkGJTlE6uTWNRFU0FN1vuaks
+         dNvredZbv+v1Y+B1EjqfKB5f802c+tC56ArqRT3xC41nAP+m6ERSs9XDBEm99oZ8OR
+         ssghkPuc7wWyq9X9p5adUkcMKYKQPs/+pAss9Z3w=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Eric Dumazet <edumazet@google.com>,
-        syzbot <syzkaller@googlegroups.com>,
-        Jakub Kicinski <kuba@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 175/204] netlink: annotate data races around nlk->portid
+        patches@lists.linux.dev, Werner Sembach <wse@tuxedocomputers.com>,
+        Hans de Goede <hdegoede@redhat.com>,
+        Mattijs Korpershoek <mkorpershoek@baylibre.com>,
+        Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: [PATCH 6.1 305/313] Input: i8042 - add Clevo PCX0DX to i8042 quirk table
 Date:   Mon, 30 Jan 2023 14:52:20 +0100
-Message-Id: <20230130134324.249531738@linuxfoundation.org>
+Message-Id: <20230130134350.952521547@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.1
-In-Reply-To: <20230130134316.327556078@linuxfoundation.org>
-References: <20230130134316.327556078@linuxfoundation.org>
+In-Reply-To: <20230130134336.532886729@linuxfoundation.org>
+References: <20230130134336.532886729@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,87 +54,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eric Dumazet <edumazet@google.com>
+From: Werner Sembach <wse@tuxedocomputers.com>
 
-[ Upstream commit c1bb9484e3b05166880da8574504156ccbd0549e ]
+commit 9c445d2637c938a800fcc8b5f0b10e60c94460c7 upstream.
 
-syzbot reminds us netlink_getname() runs locklessly [1]
+The Clevo PCX0DX/TUXEDO XP1511, need quirks for the keyboard to not be
+occasionally unresponsive after resume.
 
-This first patch annotates the race against nlk->portid.
-
-Following patches take care of the remaining races.
-
-[1]
-BUG: KCSAN: data-race in netlink_getname / netlink_insert
-
-write to 0xffff88814176d310 of 4 bytes by task 2315 on cpu 1:
-netlink_insert+0xf1/0x9a0 net/netlink/af_netlink.c:583
-netlink_autobind+0xae/0x180 net/netlink/af_netlink.c:856
-netlink_sendmsg+0x444/0x760 net/netlink/af_netlink.c:1895
-sock_sendmsg_nosec net/socket.c:714 [inline]
-sock_sendmsg net/socket.c:734 [inline]
-____sys_sendmsg+0x38f/0x500 net/socket.c:2476
-___sys_sendmsg net/socket.c:2530 [inline]
-__sys_sendmsg+0x19a/0x230 net/socket.c:2559
-__do_sys_sendmsg net/socket.c:2568 [inline]
-__se_sys_sendmsg net/socket.c:2566 [inline]
-__x64_sys_sendmsg+0x42/0x50 net/socket.c:2566
-do_syscall_x64 arch/x86/entry/common.c:50 [inline]
-do_syscall_64+0x2b/0x70 arch/x86/entry/common.c:80
-entry_SYSCALL_64_after_hwframe+0x63/0xcd
-
-read to 0xffff88814176d310 of 4 bytes by task 2316 on cpu 0:
-netlink_getname+0xcd/0x1a0 net/netlink/af_netlink.c:1144
-__sys_getsockname+0x11d/0x1b0 net/socket.c:2026
-__do_sys_getsockname net/socket.c:2041 [inline]
-__se_sys_getsockname net/socket.c:2038 [inline]
-__x64_sys_getsockname+0x3e/0x50 net/socket.c:2038
-do_syscall_x64 arch/x86/entry/common.c:50 [inline]
-do_syscall_64+0x2b/0x70 arch/x86/entry/common.c:80
-entry_SYSCALL_64_after_hwframe+0x63/0xcd
-
-value changed: 0x00000000 -> 0xc9a49780
-
-Reported by Kernel Concurrency Sanitizer on:
-CPU: 0 PID: 2316 Comm: syz-executor.2 Not tainted 6.2.0-rc3-syzkaller-00030-ge8f60cd7db24-dirty #0
-Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS Google 10/26/2022
-
-Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
-Signed-off-by: Eric Dumazet <edumazet@google.com>
-Reported-by: syzbot <syzkaller@googlegroups.com>
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Signed-off-by: Werner Sembach <wse@tuxedocomputers.com>
+Cc: stable@vger.kernel.org
+Reviewed-by: Hans de Goede <hdegoede@redhat.com>
+Reviewed-by: Mattijs Korpershoek <mkorpershoek@baylibre.com>
+Link: https://lore.kernel.org/r/20230110134524.553620-1-wse@tuxedocomputers.com
+Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/netlink/af_netlink.c | 7 +++++--
- 1 file changed, 5 insertions(+), 2 deletions(-)
+ drivers/input/serio/i8042-acpipnpio.h |    7 +++++++
+ 1 file changed, 7 insertions(+)
 
-diff --git a/net/netlink/af_netlink.c b/net/netlink/af_netlink.c
-index 974d32632ef4..1eab80af5112 100644
---- a/net/netlink/af_netlink.c
-+++ b/net/netlink/af_netlink.c
-@@ -578,7 +578,9 @@ static int netlink_insert(struct sock *sk, u32 portid)
- 	if (nlk_sk(sk)->bound)
- 		goto err;
- 
--	nlk_sk(sk)->portid = portid;
-+	/* portid can be read locklessly from netlink_getname(). */
-+	WRITE_ONCE(nlk_sk(sk)->portid, portid);
-+
- 	sock_hold(sk);
- 
- 	err = __netlink_insert(table, sk);
-@@ -1132,7 +1134,8 @@ static int netlink_getname(struct socket *sock, struct sockaddr *addr,
- 		nladdr->nl_pid = nlk->dst_portid;
- 		nladdr->nl_groups = netlink_group_mask(nlk->dst_group);
- 	} else {
--		nladdr->nl_pid = nlk->portid;
-+		/* Paired with WRITE_ONCE() in netlink_insert() */
-+		nladdr->nl_pid = READ_ONCE(nlk->portid);
- 		netlink_lock_table();
- 		nladdr->nl_groups = nlk->groups ? nlk->groups[0] : 0;
- 		netlink_unlock_table();
--- 
-2.39.0
-
+--- a/drivers/input/serio/i8042-acpipnpio.h
++++ b/drivers/input/serio/i8042-acpipnpio.h
+@@ -1240,6 +1240,13 @@ static const struct dmi_system_id i8042_
+ 	},
+ 	{
+ 		.matches = {
++			DMI_MATCH(DMI_BOARD_NAME, "PCX0DX"),
++		},
++		.driver_data = (void *)(SERIO_QUIRK_NOMUX | SERIO_QUIRK_RESET_ALWAYS |
++					SERIO_QUIRK_NOLOOP | SERIO_QUIRK_NOPNP)
++	},
++	{
++		.matches = {
+ 			DMI_MATCH(DMI_BOARD_NAME, "X170SM"),
+ 		},
+ 		.driver_data = (void *)(SERIO_QUIRK_NOMUX | SERIO_QUIRK_RESET_ALWAYS |
 
 
