@@ -2,48 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E924F68118D
-	for <lists+stable@lfdr.de>; Mon, 30 Jan 2023 15:14:30 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 029AD6810A3
+	for <lists+stable@lfdr.de>; Mon, 30 Jan 2023 15:05:22 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237288AbjA3OOa (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 30 Jan 2023 09:14:30 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58208 "EHLO
+        id S237050AbjA3OFV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 30 Jan 2023 09:05:21 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47626 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237267AbjA3OO3 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 30 Jan 2023 09:14:29 -0500
+        with ESMTP id S237066AbjA3OFQ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 30 Jan 2023 09:05:16 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5734B1BAEC
-        for <stable@vger.kernel.org>; Mon, 30 Jan 2023 06:14:27 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 48A1D1ADC2
+        for <stable@vger.kernel.org>; Mon, 30 Jan 2023 06:05:15 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id DD5AB6102E
-        for <stable@vger.kernel.org>; Mon, 30 Jan 2023 14:14:26 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id EED1CC433D2;
-        Mon, 30 Jan 2023 14:14:25 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id D72CE61036
+        for <stable@vger.kernel.org>; Mon, 30 Jan 2023 14:05:14 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id EE2D5C433D2;
+        Mon, 30 Jan 2023 14:05:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1675088066;
-        bh=ffzel8X/qV7MnDhW26+rmNDsh9ooM5L26oNnOs9qV/M=;
+        s=korg; t=1675087514;
+        bh=DtPozjq3otwUFtiMwPh58GGZVMOrQ5hpDU2WH9qPGW0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=xNONLbgDfPoGsADhm0x8/UcNnOzVzOUl2Ee91X0H0+7y43NcRI6IWnlYEeV7URsly
-         dl1eVWpx556EuwQJqUfxrMYVapE4ul8aCGEn0q/GG2K0Z559/Qa6W7/r1bJ7N5vw1o
-         1yKV53FkXxT+oySNELq8jvQIOMvl0HPMbfioceQ8=
+        b=k5Pu9RCacq0qlAsnPrGN1omAYZVCq/3Cg/3/23o4A90ofuxICoL3qHfn1aD0xOONr
+         aWr4qQOVfgFeTa7K4oq/uO9atpOM06+qglk+lqNDqwIAPnOMr9pc0wU4LPY0+K3gG4
+         1Lfono+FxCqWrFwPWFetEWvE42zDqQ5wtweUHQzI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        syzbot+bbd35b345c7cab0d9a08@syzkaller.appspotmail.com,
-        Eric Dumazet <edumazet@google.com>,
-        Cong Wang <cong.wang@bytedance.com>,
-        Guillaume Nault <gnault@redhat.com>,
-        "David S. Miller" <davem@davemloft.net>,
+        patches@lists.linux.dev, Pierre Gondois <pierre.gondois@arm.com>,
+        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
+        Dietmar Eggemann <dietmar.eggemann@arm.com>,
+        Vincent Guittot <vincent.guittot@linaro.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 073/204] l2tp: prevent lockdep issue in l2tp_tunnel_register()
-Date:   Mon, 30 Jan 2023 14:50:38 +0100
-Message-Id: <20230130134319.545869747@linuxfoundation.org>
+Subject: [PATCH 6.1 204/313] sched/fair: Check if prev_cpu has highest spare cap in feec()
+Date:   Mon, 30 Jan 2023 14:50:39 +0100
+Message-Id: <20230130134346.204278839@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.1
-In-Reply-To: <20230130134316.327556078@linuxfoundation.org>
-References: <20230130134316.327556078@linuxfoundation.org>
+In-Reply-To: <20230130134336.532886729@linuxfoundation.org>
+References: <20230130134336.532886729@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -57,56 +55,96 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eric Dumazet <edumazet@google.com>
+From: Pierre Gondois <pierre.gondois@arm.com>
 
-[ Upstream commit b9fb10d131b8c84af9bb14e2078d5c63600c7dea ]
+[ Upstream commit ad841e569f5c88e3332b32a000f251f33ff32187 ]
 
-lockdep complains with the following lock/unlock sequence:
+When evaluating the CPU candidates in the perf domain (pd) containing
+the previously used CPU (prev_cpu), find_energy_efficient_cpu()
+evaluates the energy of the pd:
+- without the task (base_energy)
+- with the task placed on prev_cpu (if the task fits)
+- with the task placed on the CPU with the highest spare capacity,
+  prev_cpu being excluded from this set
 
-     lock_sock(sk);
-     write_lock_bh(&sk->sk_callback_lock);
-[1]  release_sock(sk);
-[2]  write_unlock_bh(&sk->sk_callback_lock);
+If prev_cpu is already the CPU with the highest spare capacity,
+max_spare_cap_cpu will be the CPU with the second highest spare
+capacity.
 
-We need to swap [1] and [2] to fix this issue.
+On an Arm64 Juno-r2, with a workload of 10 tasks at a 10% duty cycle,
+when prev_cpu and max_spare_cap_cpu are both valid candidates,
+prev_spare_cap > max_spare_cap at ~82%.
+Thus the energy of the pd when placing the task on max_spare_cap_cpu
+is computed with no possible positive outcome 82% most of the time.
 
-Fixes: 0b2c59720e65 ("l2tp: close all race conditions in l2tp_tunnel_register()")
-Reported-by: syzbot+bbd35b345c7cab0d9a08@syzkaller.appspotmail.com
-Signed-off-by: Eric Dumazet <edumazet@google.com>
-Link: https://lore.kernel.org/netdev/20230114030137.672706-1-xiyou.wangcong@gmail.com/T/#m1164ff20628671b0f326a24cb106ab3239c70ce3
-Cc: Cong Wang <cong.wang@bytedance.com>
-Cc: Guillaume Nault <gnault@redhat.com>
-Reviewed-by: Guillaume Nault <gnault@redhat.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Do not consider max_spare_cap_cpu as a valid candidate if
+prev_spare_cap > max_spare_cap.
+
+Signed-off-by: Pierre Gondois <pierre.gondois@arm.com>
+Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+Reviewed-by: Dietmar Eggemann <dietmar.eggemann@arm.com>
+Reviewed-by: Vincent Guittot <vincent.guittot@linaro.org>
+Link: https://lore.kernel.org/r/20221006081052.3862167-2-pierre.gondois@arm.com
+Stable-dep-of: e26fd28db828 ("sched/uclamp: Fix a uninitialized variable warnings")
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/l2tp/l2tp_core.c | 5 ++---
- 1 file changed, 2 insertions(+), 3 deletions(-)
+ kernel/sched/fair.c | 13 +++++++------
+ 1 file changed, 7 insertions(+), 6 deletions(-)
 
-diff --git a/net/l2tp/l2tp_core.c b/net/l2tp/l2tp_core.c
-index 4c5227048be4..a2b13e213e06 100644
---- a/net/l2tp/l2tp_core.c
-+++ b/net/l2tp/l2tp_core.c
-@@ -1485,10 +1485,8 @@ int l2tp_tunnel_register(struct l2tp_tunnel *tunnel, struct net *net,
- 	lock_sock(sk);
- 	write_lock_bh(&sk->sk_callback_lock);
- 	ret = l2tp_validate_socket(sk, net, tunnel->encap);
--	if (ret < 0) {
--		release_sock(sk);
-+	if (ret < 0)
- 		goto err_inval_sock;
--	}
- 	rcu_assign_sk_user_data(sk, tunnel);
- 	write_unlock_bh(&sk->sk_callback_lock);
+diff --git a/kernel/sched/fair.c b/kernel/sched/fair.c
+index 0f32acb05055..bb04ca795fc3 100644
+--- a/kernel/sched/fair.c
++++ b/kernel/sched/fair.c
+@@ -7217,7 +7217,7 @@ static int find_energy_efficient_cpu(struct task_struct *p, int prev_cpu)
+ 		unsigned long cur_delta, max_spare_cap = 0;
+ 		unsigned long rq_util_min, rq_util_max;
+ 		unsigned long util_min, util_max;
+-		bool compute_prev_delta = false;
++		unsigned long prev_spare_cap = 0;
+ 		int max_spare_cap_cpu = -1;
+ 		unsigned long base_energy;
  
-@@ -1525,6 +1523,7 @@ int l2tp_tunnel_register(struct l2tp_tunnel *tunnel, struct net *net,
+@@ -7279,18 +7279,19 @@ static int find_energy_efficient_cpu(struct task_struct *p, int prev_cpu)
  
- err_inval_sock:
- 	write_unlock_bh(&sk->sk_callback_lock);
-+	release_sock(sk);
+ 			if (cpu == prev_cpu) {
+ 				/* Always use prev_cpu as a candidate. */
+-				compute_prev_delta = true;
++				prev_spare_cap = cpu_cap;
+ 			} else if (cpu_cap > max_spare_cap) {
+ 				/*
+ 				 * Find the CPU with the maximum spare capacity
+-				 * in the performance domain.
++				 * among the remaining CPUs in the performance
++				 * domain.
+ 				 */
+ 				max_spare_cap = cpu_cap;
+ 				max_spare_cap_cpu = cpu;
+ 			}
+ 		}
  
- 	if (tunnel->fd < 0)
- 		sock_release(sock);
+-		if (max_spare_cap_cpu < 0 && !compute_prev_delta)
++		if (max_spare_cap_cpu < 0 && prev_spare_cap == 0)
+ 			continue;
+ 
+ 		eenv_pd_busy_time(&eenv, cpus, p);
+@@ -7298,7 +7299,7 @@ static int find_energy_efficient_cpu(struct task_struct *p, int prev_cpu)
+ 		base_energy = compute_energy(&eenv, pd, cpus, p, -1);
+ 
+ 		/* Evaluate the energy impact of using prev_cpu. */
+-		if (compute_prev_delta) {
++		if (prev_spare_cap > 0) {
+ 			prev_delta = compute_energy(&eenv, pd, cpus, p,
+ 						    prev_cpu);
+ 			/* CPU utilization has changed */
+@@ -7309,7 +7310,7 @@ static int find_energy_efficient_cpu(struct task_struct *p, int prev_cpu)
+ 		}
+ 
+ 		/* Evaluate the energy impact of using max_spare_cap_cpu. */
+-		if (max_spare_cap_cpu >= 0) {
++		if (max_spare_cap_cpu >= 0 && max_spare_cap > prev_spare_cap) {
+ 			cur_delta = compute_energy(&eenv, pd, cpus, p,
+ 						   max_spare_cap_cpu);
+ 			/* CPU utilization has changed */
 -- 
 2.39.0
 
