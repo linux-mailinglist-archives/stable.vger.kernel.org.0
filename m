@@ -2,43 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B284E6810B3
-	for <lists+stable@lfdr.de>; Mon, 30 Jan 2023 15:05:52 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B2BB56812BB
+	for <lists+stable@lfdr.de>; Mon, 30 Jan 2023 15:24:40 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237046AbjA3OFv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 30 Jan 2023 09:05:51 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48252 "EHLO
+        id S237476AbjA3OYj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 30 Jan 2023 09:24:39 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42004 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237072AbjA3OFu (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 30 Jan 2023 09:05:50 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7823D11670
-        for <stable@vger.kernel.org>; Mon, 30 Jan 2023 06:05:49 -0800 (PST)
+        with ESMTP id S236126AbjA3OYT (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 30 Jan 2023 09:24:19 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 521F53FF20
+        for <stable@vger.kernel.org>; Mon, 30 Jan 2023 06:23:13 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 1503A61034
-        for <stable@vger.kernel.org>; Mon, 30 Jan 2023 14:05:49 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2887CC433D2;
-        Mon, 30 Jan 2023 14:05:47 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id C5679B811D7
+        for <stable@vger.kernel.org>; Mon, 30 Jan 2023 14:22:18 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1F3FBC433EF;
+        Mon, 30 Jan 2023 14:22:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1675087548;
-        bh=olP8qaEoHY4JxM9omDC91K4yhdjk4v7OkoiIzzGVBoQ=;
+        s=korg; t=1675088537;
+        bh=HIuAtD7PP0GscvnFPtW6sWcXVA2xXCCEW3Lsq9AnqR0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=YLJwyfdxvVupaKrV0TAWG+8LDkitAX1uX/takptFKyAGW/Pt/M25kkUWqbEtrZMvX
-         eYoPzGmdwsi+egF/rKQPWn5P+ebOunX8JlgNpALiRugtZZGBsQMdxjMk3gGIx7SyoM
-         9VOhL5U3G9d4tRHX7V6pusseDR3qfAXUQb7hUkRo=
+        b=JJ1znMWt1JqWm4NU192sQwHCMqKRPcjp/3VAc0y85y2B8rXnVZPDLM5ievSxfz4xS
+         sOmOF9P5jOCJCCCWyEX6fn0bpMGl4eIApSzF3tq+6olafrfHQHUh2yxlSFQU0SSgX2
+         wtunEIlU861zD8OAtyoZ4sGpFj5WrpAQuLBd0hvE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Pavel Begunkov <asml.silence@gmail.com>,
-        Jens Axboe <axboe@kernel.dk>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 245/313] io_uring: inline __io_req_complete_put()
-Date:   Mon, 30 Jan 2023 14:51:20 +0100
-Message-Id: <20230130134348.110369907@linuxfoundation.org>
+        patches@lists.linux.dev,
+        Claudiu Beznea <claudiu.beznea@microchip.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 024/143] ARM: dts: at91: sam9x60: fix the ddr clock for sam9x60
+Date:   Mon, 30 Jan 2023 14:51:21 +0100
+Message-Id: <20230130134307.872255440@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.1
-In-Reply-To: <20230130134336.532886729@linuxfoundation.org>
-References: <20230130134336.532886729@linuxfoundation.org>
+In-Reply-To: <20230130134306.862721518@linuxfoundation.org>
+References: <20230130134306.862721518@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -52,65 +53,33 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pavel Begunkov <asml.silence@gmail.com>
+From: Claudiu Beznea <claudiu.beznea@microchip.com>
 
-[ Upstream commit fa18fa2272c7469e470dcb7bf838ea50a25494ca ]
+[ Upstream commit 9bfa2544dbd1133f0b0af4e967de3bb9c1e3a497 ]
 
-Inline __io_req_complete_put() into io_req_complete_post(), there are no
-other users.
+The 2nd DDR clock for sam9x60 DDR controller is peripheral clock with
+id 49.
 
-Signed-off-by: Pavel Begunkov <asml.silence@gmail.com>
-Link: https://lore.kernel.org/r/1923a4dfe80fa877f859a22ed3df2d5fc8ecf02b.1669203009.git.asml.silence@gmail.com
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
-Stable-dep-of: ef5c600adb1d ("io_uring: always prep_async for drain requests")
+Fixes: 1e5f532c2737 ("ARM: dts: at91: sam9x60: add device tree for soc and board")
+Signed-off-by: Claudiu Beznea <claudiu.beznea@microchip.com>
+Link: https://lore.kernel.org/r/20221208115241.36312-1-claudiu.beznea@microchip.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- io_uring/io_uring.c | 20 +++++++-------------
- 1 file changed, 7 insertions(+), 13 deletions(-)
+ arch/arm/boot/dts/sam9x60.dtsi | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/io_uring/io_uring.c b/io_uring/io_uring.c
-index 50f959ffb55c..13a60f51b283 100644
---- a/io_uring/io_uring.c
-+++ b/io_uring/io_uring.c
-@@ -823,15 +823,19 @@ bool io_post_aux_cqe(struct io_ring_ctx *ctx,
- 	return filled;
- }
- 
--static void __io_req_complete_put(struct io_kiocb *req)
-+void io_req_complete_post(struct io_kiocb *req)
- {
-+	struct io_ring_ctx *ctx = req->ctx;
-+
-+	io_cq_lock(ctx);
-+	if (!(req->flags & REQ_F_CQE_SKIP))
-+		__io_fill_cqe_req(ctx, req);
-+
- 	/*
- 	 * If we're the last reference to this request, add to our locked
- 	 * free_list cache.
- 	 */
- 	if (req_ref_put_and_test(req)) {
--		struct io_ring_ctx *ctx = req->ctx;
--
- 		if (req->flags & IO_REQ_LINK_FLAGS) {
- 			if (req->flags & IO_DISARM_MASK)
- 				io_disarm_next(req);
-@@ -852,16 +856,6 @@ static void __io_req_complete_put(struct io_kiocb *req)
- 		wq_list_add_head(&req->comp_list, &ctx->locked_free_list);
- 		ctx->locked_free_nr++;
- 	}
--}
--
--void io_req_complete_post(struct io_kiocb *req)
--{
--	struct io_ring_ctx *ctx = req->ctx;
--
--	io_cq_lock(ctx);
--	if (!(req->flags & REQ_F_CQE_SKIP))
--		__io_fill_cqe_req(ctx, req);
--	__io_req_complete_put(req);
- 	io_cq_unlock_post(ctx);
- }
+diff --git a/arch/arm/boot/dts/sam9x60.dtsi b/arch/arm/boot/dts/sam9x60.dtsi
+index ec45ced3cde6..e1e0dec8cc1f 100644
+--- a/arch/arm/boot/dts/sam9x60.dtsi
++++ b/arch/arm/boot/dts/sam9x60.dtsi
+@@ -567,7 +567,7 @@ pmecc: ecc-engine@ffffe000 {
+ 			mpddrc: mpddrc@ffffe800 {
+ 				compatible = "microchip,sam9x60-ddramc", "atmel,sama5d3-ddramc";
+ 				reg = <0xffffe800 0x200>;
+-				clocks = <&pmc PMC_TYPE_SYSTEM 2>, <&pmc PMC_TYPE_CORE PMC_MCK>;
++				clocks = <&pmc PMC_TYPE_SYSTEM 2>, <&pmc PMC_TYPE_PERIPHERAL 49>;
+ 				clock-names = "ddrck", "mpddr";
+ 			};
  
 -- 
 2.39.0
