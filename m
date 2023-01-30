@@ -2,44 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A69DC68122E
-	for <lists+stable@lfdr.de>; Mon, 30 Jan 2023 15:19:09 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id EA7776810E8
+	for <lists+stable@lfdr.de>; Mon, 30 Jan 2023 15:08:14 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237361AbjA3OTI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 30 Jan 2023 09:19:08 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60578 "EHLO
+        id S237123AbjA3OIN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 30 Jan 2023 09:08:13 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50530 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237417AbjA3OSR (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 30 Jan 2023 09:18:17 -0500
+        with ESMTP id S237125AbjA3OIM (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 30 Jan 2023 09:08:12 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 588603D91B
-        for <stable@vger.kernel.org>; Mon, 30 Jan 2023 06:17:32 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4497734C3F
+        for <stable@vger.kernel.org>; Mon, 30 Jan 2023 06:08:11 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 6EBD6B810C5
-        for <stable@vger.kernel.org>; Mon, 30 Jan 2023 14:17:18 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C0E83C433D2;
-        Mon, 30 Jan 2023 14:17:16 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id D77ADB811C7
+        for <stable@vger.kernel.org>; Mon, 30 Jan 2023 14:08:09 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1E034C433EF;
+        Mon, 30 Jan 2023 14:08:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1675088237;
-        bh=JRdR2tAV0xWWMvYrGkwM7jDSLYmM55/YMwHZllp6xF8=;
+        s=korg; t=1675087688;
+        bh=M/aktztpZwKdVqcLJ+0jxXh5C5RuzZNHsXpKmRhmdJI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Cn+pGlcfX03C4+MtHuLTtRrDymtLekwAIgQrumSS9qeSpwHa04Pk6HAihNo8SUykN
-         I2cZcigS4u2M9Zt59WPBQ+VXyTBIB+ivzgFCDLRdpexOdm6uj/NC0G039gEsxyZv8z
-         o39nfFah5FCCDaeyoqvCVzr54PQQNdOz4Y1UTKlk=
+        b=LO7RHamEStDPEqOSfylQF9fTVwwbublG98VRcq75oEzPxs8beApsNX80gER1JBiCt
+         EyFFalDkpsZRZTBQaUGgO9MuplEFXpqeXnh3WQlL/kkyO9l4lDP9M8FUh1a4ftlU/B
+         KJnw7mmbZVBklCVafG0P+TSJaOcrUdSj3E7LBph0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Shanker Donthineni <sdonthineni@nvidia.com>,
-        Marc Zyngier <maz@kernel.org>
-Subject: [PATCH 5.15 161/204] KVM: arm64: GICv4.1: Fix race with doorbell on VPE activation/deactivation
+        patches@lists.linux.dev, Noam Rathaus <noamr@ssd-disclosure.com>,
+        Paolo Abeni <pabeni@redhat.com>,
+        Jeremy Kerr <jk@codeconstruct.com.au>,
+        "David S. Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 6.1 291/313] net: mctp: hold key reference when looking up a general key
 Date:   Mon, 30 Jan 2023 14:52:06 +0100
-Message-Id: <20230130134323.642829003@linuxfoundation.org>
+Message-Id: <20230130134350.292920424@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.1
-In-Reply-To: <20230130134316.327556078@linuxfoundation.org>
-References: <20230130134316.327556078@linuxfoundation.org>
+In-Reply-To: <20230130134336.532886729@linuxfoundation.org>
+References: <20230130134336.532886729@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,133 +55,72 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Marc Zyngier <maz@kernel.org>
+From: Paolo Abeni <pabeni@redhat.com>
 
-commit ef3691683d7bfd0a2acf48812e4ffe894f10bfa8 upstream.
+[ Upstream commit 6e54ea37e344f145665c2dc3cc534b92529e8de5 ]
 
-To save the vgic LPI pending state with GICv4.1, the VPEs must all be
-unmapped from the ITSs so that the sGIC caches can be flushed.
-The opposite is done once the state is saved.
+Currently, we have a race where we look up a sock through a "general"
+(ie, not directly associated with the (src,dest,tag) tuple) key, then
+drop the key reference while still holding the key's sock.
 
-This is all done by using the activate/deactivate irqdomain callbacks
-directly from the vgic code. Crutially, this is done without holding
-the irqdesc lock for the interrupts that represent the VPE. And these
-callbacks are changing the state of the irqdesc. What could possibly
-go wrong?
+This change expands the key reference until we've finished using the
+sock, and hence the sock reference too.
 
-If a doorbell fires while we are messing with the irqdesc state,
-it will acquire the lock and change the interrupt state concurrently.
-Since we don't hole the lock, curruption occurs in on the interrupt
-state. Oh well.
+Commit message changes from Jeremy Kerr <jk@codeconstruct.com.au>.
 
-While acquiring the lock would fix this (and this was Shanker's
-initial approach), this is still a layering violation we could do
-without. A better approach is actually to free the VPE interrupt,
-do what we have to do, and re-request it.
-
-It is more work, but this usually happens only once in the lifetime
-of the VM and we don't really care about this sort of overhead.
-
-Fixes: f66b7b151e00 ("KVM: arm64: GICv4.1: Try to save VLPI state in save_pending_tables")
-Reported-by: Shanker Donthineni <sdonthineni@nvidia.com>
-Signed-off-by: Marc Zyngier <maz@kernel.org>
-Cc: stable@vger.kernel.org
-Link: https://lore.kernel.org/r/20230118022348.4137094-1-sdonthineni@nvidia.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Reported-by: Noam Rathaus <noamr@ssd-disclosure.com>
+Fixes: 73c618456dc5 ("mctp: locking, lifetime and validity changes for sk_keys")
+Signed-off-by: Paolo Abeni <pabeni@redhat.com>
+Signed-off-by: Jeremy Kerr <jk@codeconstruct.com.au>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm64/kvm/vgic/vgic-v3.c |   25 +++++++++++--------------
- arch/arm64/kvm/vgic/vgic-v4.c |    8 ++++++--
- arch/arm64/kvm/vgic/vgic.h    |    1 +
- 3 files changed, 18 insertions(+), 16 deletions(-)
+ net/mctp/route.c | 14 +++++++-------
+ 1 file changed, 7 insertions(+), 7 deletions(-)
 
---- a/arch/arm64/kvm/vgic/vgic-v3.c
-+++ b/arch/arm64/kvm/vgic/vgic-v3.c
-@@ -347,26 +347,23 @@ retry:
-  * The deactivation of the doorbell interrupt will trigger the
-  * unmapping of the associated vPE.
-  */
--static void unmap_all_vpes(struct vgic_dist *dist)
-+static void unmap_all_vpes(struct kvm *kvm)
+diff --git a/net/mctp/route.c b/net/mctp/route.c
+index ce10ba7ae839..06c0de21984d 100644
+--- a/net/mctp/route.c
++++ b/net/mctp/route.c
+@@ -317,8 +317,8 @@ static int mctp_frag_queue(struct mctp_sk_key *key, struct sk_buff *skb)
+ 
+ static int mctp_route_input(struct mctp_route *route, struct sk_buff *skb)
  {
--	struct irq_desc *desc;
-+	struct vgic_dist *dist = &kvm->arch.vgic;
- 	int i;
++	struct mctp_sk_key *key, *any_key = NULL;
+ 	struct net *net = dev_net(skb->dev);
+-	struct mctp_sk_key *key;
+ 	struct mctp_sock *msk;
+ 	struct mctp_hdr *mh;
+ 	unsigned long f;
+@@ -363,13 +363,11 @@ static int mctp_route_input(struct mctp_route *route, struct sk_buff *skb)
+ 			 * key for reassembly - we'll create a more specific
+ 			 * one for future packets if required (ie, !EOM).
+ 			 */
+-			key = mctp_lookup_key(net, skb, MCTP_ADDR_ANY, &f);
+-			if (key) {
+-				msk = container_of(key->sk,
++			any_key = mctp_lookup_key(net, skb, MCTP_ADDR_ANY, &f);
++			if (any_key) {
++				msk = container_of(any_key->sk,
+ 						   struct mctp_sock, sk);
+-				spin_unlock_irqrestore(&key->lock, f);
+-				mctp_key_unref(key);
+-				key = NULL;
++				spin_unlock_irqrestore(&any_key->lock, f);
+ 			}
+ 		}
  
--	for (i = 0; i < dist->its_vm.nr_vpes; i++) {
--		desc = irq_to_desc(dist->its_vm.vpes[i]->irq);
--		irq_domain_deactivate_irq(irq_desc_get_irq_data(desc));
--	}
-+	for (i = 0; i < dist->its_vm.nr_vpes; i++)
-+		free_irq(dist->its_vm.vpes[i]->irq, kvm_get_vcpu(kvm, i));
- }
- 
--static void map_all_vpes(struct vgic_dist *dist)
-+static void map_all_vpes(struct kvm *kvm)
- {
--	struct irq_desc *desc;
-+	struct vgic_dist *dist = &kvm->arch.vgic;
- 	int i;
- 
--	for (i = 0; i < dist->its_vm.nr_vpes; i++) {
--		desc = irq_to_desc(dist->its_vm.vpes[i]->irq);
--		irq_domain_activate_irq(irq_desc_get_irq_data(desc), false);
--	}
-+	for (i = 0; i < dist->its_vm.nr_vpes; i++)
-+		WARN_ON(vgic_v4_request_vpe_irq(kvm_get_vcpu(kvm, i),
-+						dist->its_vm.vpes[i]->irq));
- }
- 
- /**
-@@ -391,7 +388,7 @@ int vgic_v3_save_pending_tables(struct k
- 	 * and enabling of the doorbells have already been done.
- 	 */
- 	if (kvm_vgic_global_state.has_gicv4_1) {
--		unmap_all_vpes(dist);
-+		unmap_all_vpes(kvm);
- 		vlpi_avail = true;
+@@ -475,6 +473,8 @@ static int mctp_route_input(struct mctp_route *route, struct sk_buff *skb)
+ 		spin_unlock_irqrestore(&key->lock, f);
+ 		mctp_key_unref(key);
  	}
- 
-@@ -441,7 +438,7 @@ int vgic_v3_save_pending_tables(struct k
- 
++	if (any_key)
++		mctp_key_unref(any_key);
  out:
- 	if (vlpi_avail)
--		map_all_vpes(dist);
-+		map_all_vpes(kvm);
- 
- 	return ret;
- }
---- a/arch/arm64/kvm/vgic/vgic-v4.c
-+++ b/arch/arm64/kvm/vgic/vgic-v4.c
-@@ -222,6 +222,11 @@ void vgic_v4_get_vlpi_state(struct vgic_
- 	*val = !!(*ptr & mask);
- }
- 
-+int vgic_v4_request_vpe_irq(struct kvm_vcpu *vcpu, int irq)
-+{
-+	return request_irq(irq, vgic_v4_doorbell_handler, 0, "vcpu", vcpu);
-+}
-+
- /**
-  * vgic_v4_init - Initialize the GICv4 data structures
-  * @kvm:	Pointer to the VM being initialized
-@@ -282,8 +287,7 @@ int vgic_v4_init(struct kvm *kvm)
- 			irq_flags &= ~IRQ_NOAUTOEN;
- 		irq_set_status_flags(irq, irq_flags);
- 
--		ret = request_irq(irq, vgic_v4_doorbell_handler,
--				  0, "vcpu", vcpu);
-+		ret = vgic_v4_request_vpe_irq(vcpu, irq);
- 		if (ret) {
- 			kvm_err("failed to allocate vcpu IRQ%d\n", irq);
- 			/*
---- a/arch/arm64/kvm/vgic/vgic.h
-+++ b/arch/arm64/kvm/vgic/vgic.h
-@@ -321,5 +321,6 @@ int vgic_v4_init(struct kvm *kvm);
- void vgic_v4_teardown(struct kvm *kvm);
- void vgic_v4_configure_vsgis(struct kvm *kvm);
- void vgic_v4_get_vlpi_state(struct vgic_irq *irq, bool *val);
-+int vgic_v4_request_vpe_irq(struct kvm_vcpu *vcpu, int irq);
- 
- #endif
+ 	if (rc)
+ 		kfree_skb(skb);
+-- 
+2.39.0
+
 
 
