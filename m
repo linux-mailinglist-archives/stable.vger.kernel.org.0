@@ -2,46 +2,51 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 01F9C68126D
-	for <lists+stable@lfdr.de>; Mon, 30 Jan 2023 15:21:07 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1870A6812E7
+	for <lists+stable@lfdr.de>; Mon, 30 Jan 2023 15:26:16 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237650AbjA3OVF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 30 Jan 2023 09:21:05 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60722 "EHLO
+        id S237674AbjA3O0O (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 30 Jan 2023 09:26:14 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41940 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237644AbjA3OUu (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 30 Jan 2023 09:20:50 -0500
+        with ESMTP id S235678AbjA3OZ4 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 30 Jan 2023 09:25:56 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7700912878
-        for <stable@vger.kernel.org>; Mon, 30 Jan 2023 06:19:34 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 526E038E82
+        for <stable@vger.kernel.org>; Mon, 30 Jan 2023 06:24:33 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 9B0326108C
-        for <stable@vger.kernel.org>; Mon, 30 Jan 2023 14:18:51 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8E306C433D2;
-        Mon, 30 Jan 2023 14:18:50 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 1193761049
+        for <stable@vger.kernel.org>; Mon, 30 Jan 2023 14:24:29 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id DA210C433EF;
+        Mon, 30 Jan 2023 14:24:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1675088331;
-        bh=Zj0lnm3OL0VumF5Vhr/lc+VXp5n79EcDQ42fFkkOMOs=;
+        s=korg; t=1675088668;
+        bh=5XZ63fZy0h0BwF4ApRYHMT/WisTgl45O9Ydv0D4p28w=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=TBurd8peelbz0OOZVCm66jAnEBmHFSJ1awTq5wMtGkMNZGlSakwyHrNFZsxpA9GLf
-         SprqzaR/JtGgy5/EJ1uQtYeSaklHE4mPy4G7MWxket2YqcwwNcMl5Ppc2LKAL4G3/I
-         t6UupM4imaeEuhjxOpGXYLikAEXMMnEfzzTHP87s=
+        b=sVyJn3AAw38XnMPV3bff2lRpxz/MQB5IUMU3xlkhR0oIhlvf7CiMBmhfzQK6pw6bE
+         me5rcrZcc/ISZddImTT50g+yVb8hLQrYFYxI5y7OimaZxOWSaQ/1CK6KLUednVe2hp
+         Op1KrzwLHIPkjeS2+AO1lyEpDb+yBgOiAt3G/Js0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Biju Das <biju.das.jz@bp.renesas.com>,
-        Sergey Shtylyov <s.shtylyov@omp.ru>,
-        Lad Prabhakar <prabhakar.mahadev-lad.rj@bp.renesas.com>,
-        "David S. Miller" <davem@davemloft.net>,
+        patches@lists.linux.dev, Petr Mladek <pmladek@suse.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        tangmeng <tangmeng@uniontech.com>,
+        "Guilherme G. Piccoli" <gpiccoli@igalia.com>,
+        Sebastian Andrzej Siewior <bigeasy@linutronix.de>,
+        Tiezhu Yang <yangtiezhu@loongson.cn>,
+        Luis Chamberlain <mcgrof@kernel.org>,
+        Kees Cook <keescook@chromium.org>,
+        Eric Biggers <ebiggers@google.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 188/204] ravb: Rename "no_ptp_cfg_active" and "ptp_cfg_active" variables
+Subject: [PATCH 5.10 096/143] panic: Expose "warn_count" to sysfs
 Date:   Mon, 30 Jan 2023 14:52:33 +0100
-Message-Id: <20230130134324.810759176@linuxfoundation.org>
+Message-Id: <20230130134310.824363465@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.1
-In-Reply-To: <20230130134316.327556078@linuxfoundation.org>
-References: <20230130134316.327556078@linuxfoundation.org>
+In-Reply-To: <20230130134306.862721518@linuxfoundation.org>
+References: <20230130134306.862721518@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,162 +60,89 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Biju Das <biju.das.jz@bp.renesas.com>
+From: Kees Cook <keescook@chromium.org>
 
-[ Upstream commit 2b061b545cd0d393585da2909044b15db1ac426f ]
+commit 8b05aa26336113c4cea25f1c333ee8cd4fc212a6 upstream.
 
-Rename the variable "no_ptp_cfg_active" with "gptp" and
-"ptp_cfg_active" with "ccc_gac" to match the HW features.
+Since Warn count is now tracked and is a fairly interesting signal, add
+the entry /sys/kernel/warn_count to expose it to userspace.
 
-There is no functional change.
-
-Signed-off-by: Biju Das <biju.das.jz@bp.renesas.com>
-Suggested-by: Sergey Shtylyov <s.shtylyov@omp.ru>
-Reviewed-by: Lad Prabhakar <prabhakar.mahadev-lad.rj@bp.renesas.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Stable-dep-of: c2b6cdee1d13 ("net: ravb: Fix lack of register setting after system resumed for Gen3")
+Cc: Petr Mladek <pmladek@suse.com>
+Cc: Andrew Morton <akpm@linux-foundation.org>
+Cc: tangmeng <tangmeng@uniontech.com>
+Cc: "Guilherme G. Piccoli" <gpiccoli@igalia.com>
+Cc: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
+Cc: Tiezhu Yang <yangtiezhu@loongson.cn>
+Reviewed-by: Luis Chamberlain <mcgrof@kernel.org>
+Signed-off-by: Kees Cook <keescook@chromium.org>
+Link: https://lore.kernel.org/r/20221117234328.594699-6-keescook@chromium.org
+Signed-off-by: Eric Biggers <ebiggers@google.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/renesas/ravb.h      |  4 ++--
- drivers/net/ethernet/renesas/ravb_main.c | 26 ++++++++++++------------
- 2 files changed, 15 insertions(+), 15 deletions(-)
+ .../ABI/testing/sysfs-kernel-warn_count       |  6 +++++
+ kernel/panic.c                                | 22 +++++++++++++++++--
+ 2 files changed, 26 insertions(+), 2 deletions(-)
+ create mode 100644 Documentation/ABI/testing/sysfs-kernel-warn_count
 
-diff --git a/drivers/net/ethernet/renesas/ravb.h b/drivers/net/ethernet/renesas/ravb.h
-index 47c5377e4f42..a475f54a6b63 100644
---- a/drivers/net/ethernet/renesas/ravb.h
-+++ b/drivers/net/ethernet/renesas/ravb.h
-@@ -1000,8 +1000,8 @@ struct ravb_hw_info {
- 	unsigned internal_delay:1;	/* AVB-DMAC has internal delays */
- 	unsigned tx_counters:1;		/* E-MAC has TX counters */
- 	unsigned multi_irqs:1;		/* AVB-DMAC and E-MAC has multiple irqs */
--	unsigned no_ptp_cfg_active:1;	/* AVB-DMAC does not support gPTP active in config mode */
--	unsigned ptp_cfg_active:1;	/* AVB-DMAC has gPTP support active in config mode */
-+	unsigned gptp:1;		/* AVB-DMAC has gPTP support */
-+	unsigned ccc_gac:1;		/* AVB-DMAC has gPTP support active in config mode */
- };
+diff --git a/Documentation/ABI/testing/sysfs-kernel-warn_count b/Documentation/ABI/testing/sysfs-kernel-warn_count
+new file mode 100644
+index 000000000000..08f083d2fd51
+--- /dev/null
++++ b/Documentation/ABI/testing/sysfs-kernel-warn_count
+@@ -0,0 +1,6 @@
++What:		/sys/kernel/oops_count
++Date:		November 2022
++KernelVersion:	6.2.0
++Contact:	Linux Kernel Hardening List <linux-hardening@vger.kernel.org>
++Description:
++		Shows how many times the system has Warned since last boot.
+diff --git a/kernel/panic.c b/kernel/panic.c
+index e341366bd3e8..6e30455eb2e7 100644
+--- a/kernel/panic.c
++++ b/kernel/panic.c
+@@ -31,6 +31,7 @@
+ #include <linux/bug.h>
+ #include <linux/ratelimit.h>
+ #include <linux/debugfs.h>
++#include <linux/sysfs.h>
+ #include <asm/sections.h>
  
- struct ravb_private {
-diff --git a/drivers/net/ethernet/renesas/ravb_main.c b/drivers/net/ethernet/renesas/ravb_main.c
-index c89bcdd15f16..dcb18f1e6db0 100644
---- a/drivers/net/ethernet/renesas/ravb_main.c
-+++ b/drivers/net/ethernet/renesas/ravb_main.c
-@@ -1275,7 +1275,7 @@ static int ravb_set_ringparam(struct net_device *ndev,
- 	if (netif_running(ndev)) {
- 		netif_device_detach(ndev);
- 		/* Stop PTP Clock driver */
--		if (info->no_ptp_cfg_active)
-+		if (info->gptp)
- 			ravb_ptp_stop(ndev);
- 		/* Wait for DMA stopping */
- 		error = ravb_stop_dma(ndev);
-@@ -1307,7 +1307,7 @@ static int ravb_set_ringparam(struct net_device *ndev,
- 		ravb_emac_init(ndev);
+ #define PANIC_TIMER_STEP 100
+@@ -104,6 +105,25 @@ static __init int kernel_panic_sysctls_init(void)
+ late_initcall(kernel_panic_sysctls_init);
+ #endif
  
- 		/* Initialise PTP Clock driver */
--		if (info->no_ptp_cfg_active)
-+		if (info->gptp)
- 			ravb_ptp_init(ndev, priv->pdev);
++static atomic_t warn_count = ATOMIC_INIT(0);
++
++#ifdef CONFIG_SYSFS
++static ssize_t warn_count_show(struct kobject *kobj, struct kobj_attribute *attr,
++			       char *page)
++{
++	return sysfs_emit(page, "%d\n", atomic_read(&warn_count));
++}
++
++static struct kobj_attribute warn_count_attr = __ATTR_RO(warn_count);
++
++static __init int kernel_panic_sysfs_init(void)
++{
++	sysfs_add_file_to_group(kernel_kobj, &warn_count_attr.attr, NULL);
++	return 0;
++}
++late_initcall(kernel_panic_sysfs_init);
++#endif
++
+ static long no_blink(int state)
+ {
+ 	return 0;
+@@ -202,8 +222,6 @@ static void panic_print_sys_info(void)
  
- 		netif_device_attach(ndev);
-@@ -1447,7 +1447,7 @@ static int ravb_open(struct net_device *ndev)
- 	ravb_emac_init(ndev);
+ void check_panic_on_warn(const char *origin)
+ {
+-	static atomic_t warn_count = ATOMIC_INIT(0);
+-
+ 	if (panic_on_warn)
+ 		panic("%s: panic_on_warn set ...\n", origin);
  
- 	/* Initialise PTP Clock driver */
--	if (info->no_ptp_cfg_active)
-+	if (info->gptp)
- 		ravb_ptp_init(ndev, priv->pdev);
- 
- 	netif_tx_start_all_queues(ndev);
-@@ -1461,7 +1461,7 @@ static int ravb_open(struct net_device *ndev)
- 
- out_ptp_stop:
- 	/* Stop PTP Clock driver */
--	if (info->no_ptp_cfg_active)
-+	if (info->gptp)
- 		ravb_ptp_stop(ndev);
- out_free_irq_nc_tx:
- 	if (!info->multi_irqs)
-@@ -1509,7 +1509,7 @@ static void ravb_tx_timeout_work(struct work_struct *work)
- 	netif_tx_stop_all_queues(ndev);
- 
- 	/* Stop PTP Clock driver */
--	if (info->no_ptp_cfg_active)
-+	if (info->gptp)
- 		ravb_ptp_stop(ndev);
- 
- 	/* Wait for DMA stopping */
-@@ -1544,7 +1544,7 @@ static void ravb_tx_timeout_work(struct work_struct *work)
- 
- out:
- 	/* Initialise PTP Clock driver */
--	if (info->no_ptp_cfg_active)
-+	if (info->gptp)
- 		ravb_ptp_init(ndev, priv->pdev);
- 
- 	netif_tx_start_all_queues(ndev);
-@@ -1753,7 +1753,7 @@ static int ravb_close(struct net_device *ndev)
- 	ravb_write(ndev, 0, TIC);
- 
- 	/* Stop PTP Clock driver */
--	if (info->no_ptp_cfg_active)
-+	if (info->gptp)
- 		ravb_ptp_stop(ndev);
- 
- 	/* Set the config mode to stop the AVB-DMAC's processes */
-@@ -2019,7 +2019,7 @@ static const struct ravb_hw_info ravb_gen3_hw_info = {
- 	.internal_delay = 1,
- 	.tx_counters = 1,
- 	.multi_irqs = 1,
--	.ptp_cfg_active = 1,
-+	.ccc_gac = 1,
- };
- 
- static const struct ravb_hw_info ravb_gen2_hw_info = {
-@@ -2038,7 +2038,7 @@ static const struct ravb_hw_info ravb_gen2_hw_info = {
- 	.stats_len = ARRAY_SIZE(ravb_gstrings_stats),
- 	.max_rx_len = RX_BUF_SZ + RAVB_ALIGN - 1,
- 	.aligned_tx = 1,
--	.no_ptp_cfg_active = 1,
-+	.gptp = 1,
- };
- 
- static const struct of_device_id ravb_match_table[] = {
-@@ -2080,7 +2080,7 @@ static void ravb_set_config_mode(struct net_device *ndev)
- 	struct ravb_private *priv = netdev_priv(ndev);
- 	const struct ravb_hw_info *info = priv->info;
- 
--	if (info->no_ptp_cfg_active) {
-+	if (info->gptp) {
- 		ravb_modify(ndev, CCC, CCC_OPC, CCC_OPC_CONFIG);
- 		/* Set CSEL value */
- 		ravb_modify(ndev, CCC, CCC_CSEL, CCC_CSEL_HPB);
-@@ -2301,7 +2301,7 @@ static int ravb_probe(struct platform_device *pdev)
- 	INIT_LIST_HEAD(&priv->ts_skb_list);
- 
- 	/* Initialise PTP Clock driver */
--	if (info->ptp_cfg_active)
-+	if (info->ccc_gac)
- 		ravb_ptp_init(ndev, pdev);
- 
- 	/* Debug message level */
-@@ -2349,7 +2349,7 @@ static int ravb_probe(struct platform_device *pdev)
- 			  priv->desc_bat_dma);
- 
- 	/* Stop PTP Clock driver */
--	if (info->ptp_cfg_active)
-+	if (info->ccc_gac)
- 		ravb_ptp_stop(ndev);
- out_disable_refclk:
- 	clk_disable_unprepare(priv->refclk);
-@@ -2369,7 +2369,7 @@ static int ravb_remove(struct platform_device *pdev)
- 	const struct ravb_hw_info *info = priv->info;
- 
- 	/* Stop PTP Clock driver */
--	if (info->ptp_cfg_active)
-+	if (info->ccc_gac)
- 		ravb_ptp_stop(ndev);
- 
- 	clk_disable_unprepare(priv->refclk);
 -- 
 2.39.0
 
