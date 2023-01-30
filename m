@@ -2,43 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B24636812B2
-	for <lists+stable@lfdr.de>; Mon, 30 Jan 2023 15:24:13 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 28F0B6810E1
+	for <lists+stable@lfdr.de>; Mon, 30 Jan 2023 15:07:57 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237676AbjA3OYL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 30 Jan 2023 09:24:11 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41578 "EHLO
+        id S237117AbjA3OHz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 30 Jan 2023 09:07:55 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50214 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236816AbjA3OXw (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 30 Jan 2023 09:23:52 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 071FD3CE2E
-        for <stable@vger.kernel.org>; Mon, 30 Jan 2023 06:22:46 -0800 (PST)
+        with ESMTP id S237113AbjA3OHy (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 30 Jan 2023 09:07:54 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AE9493B660
+        for <stable@vger.kernel.org>; Mon, 30 Jan 2023 06:07:48 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 9D1ECB811D6
-        for <stable@vger.kernel.org>; Mon, 30 Jan 2023 14:22:45 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E0A16C433EF;
-        Mon, 30 Jan 2023 14:22:43 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 2BB1661086
+        for <stable@vger.kernel.org>; Mon, 30 Jan 2023 14:07:48 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 355FFC433EF;
+        Mon, 30 Jan 2023 14:07:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1675088564;
-        bh=cdHe+udxpYgClHlqye1cFOO9CWwTQDqhBz7JE/8s0dg=;
+        s=korg; t=1675087667;
+        bh=brB7bgfLoakBLH/oGDpWQsl69DTnzmDQyIWgGBlFcjs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=wXh+Q7c0BqMc2+3Bs4/3Yu4m5+gK6RBDxE+D0y8k52Fa5QLweGffb6enfMegEIsaH
-         raAnRNztOYwCR4hPPsSVsFc6otTpSdUtvGiOM3FPHpFLZ4K+3zF23xqhFlTnJ4PVfP
-         SCDIuSapNaJcyVNEMyyF8Ax8CA7ikLZioDux5A58=
+        b=CBsd4xfcb0bX1XinwpKyLH4xx2Q0J+fDEX5zE4OtCb/n3ctnUy5poa4yua2Wr/1tn
+         6HgVWQeS5Fb+LsCQaWurEDel2lhnBHLHXO7iqxZmX9Y1GvrPjucwTaUuRzKbm27/Ik
+         yrm2+I+LyDWjaIQGaQgMSgG+qXe/n95tJ2gpJSDQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Max Filippov <jcmvbkbc@gmail.com>,
-        Marco Elver <elver@google.com>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 062/143] kcsan: test: dont put the expect array on the stack
+        patches@lists.linux.dev, Keith Busch <kbusch@kernel.org>,
+        Christoph Hellwig <hch@lst.de>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 6.1 284/313] nvme: fix passthrough csi check
 Date:   Mon, 30 Jan 2023 14:51:59 +0100
-Message-Id: <20230130134309.412251750@linuxfoundation.org>
+Message-Id: <20230130134349.949679108@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.1
-In-Reply-To: <20230130134306.862721518@linuxfoundation.org>
-References: <20230130134306.862721518@linuxfoundation.org>
+In-Reply-To: <20230130134336.532886729@linuxfoundation.org>
+References: <20230130134336.532886729@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -52,62 +52,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Max Filippov <jcmvbkbc@gmail.com>
+From: Keith Busch <kbusch@kernel.org>
 
-[ Upstream commit 5b24ac2dfd3eb3e36f794af3aa7f2828b19035bd ]
+[ Upstream commit 85eee6341abb81ac6a35062ffd5c3029eb53be6b ]
 
-Size of the 'expect' array in the __report_matches is 1536 bytes, which
-is exactly the default frame size warning limit of the xtensa
-architecture.
-As a result allmodconfig xtensa kernel builds with the gcc that does not
-support the compiler plugins (which otherwise would push the said
-warning limit to 2K) fail with the following message:
+The namespace head saves the Command Set Indicator enum, so use that
+instead of the Command Set Selected. The two values are not the same.
 
-  kernel/kcsan/kcsan_test.c:257:1: error: the frame size of 1680 bytes
-    is larger than 1536 bytes
-
-Fix it by dynamically allocating the 'expect' array.
-
-Signed-off-by: Max Filippov <jcmvbkbc@gmail.com>
-Reviewed-by: Marco Elver <elver@google.com>
-Tested-by: Marco Elver <elver@google.com>
+Fixes: 831ed60c2aca2d ("nvme: also return I/O command effects from nvme_command_effects")
+Signed-off-by: Keith Busch <kbusch@kernel.org>
+Signed-off-by: Christoph Hellwig <hch@lst.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/kcsan/kcsan-test.c | 7 ++++++-
- 1 file changed, 6 insertions(+), 1 deletion(-)
+ drivers/nvme/host/core.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/kernel/kcsan/kcsan-test.c b/kernel/kcsan/kcsan-test.c
-index ebe7fd245104..8a8ccaf4f38f 100644
---- a/kernel/kcsan/kcsan-test.c
-+++ b/kernel/kcsan/kcsan-test.c
-@@ -149,7 +149,7 @@ static bool report_matches(const struct expect_report *r)
- 	const bool is_assert = (r->access[0].type | r->access[1].type) & KCSAN_ACCESS_ASSERT;
- 	bool ret = false;
- 	unsigned long flags;
--	typeof(observed.lines) expect;
-+	typeof(*observed.lines) *expect;
- 	const char *end;
- 	char *cur;
- 	int i;
-@@ -158,6 +158,10 @@ static bool report_matches(const struct expect_report *r)
- 	if (!report_available())
- 		return false;
- 
-+	expect = kmalloc(sizeof(observed.lines), GFP_KERNEL);
-+	if (WARN_ON(!expect))
-+		return false;
-+
- 	/* Generate expected report contents. */
- 
- 	/* Title */
-@@ -241,6 +245,7 @@ static bool report_matches(const struct expect_report *r)
- 		strstr(observed.lines[2], expect[1])));
- out:
- 	spin_unlock_irqrestore(&observed.lock, flags);
-+	kfree(expect);
- 	return ret;
- }
- 
+diff --git a/drivers/nvme/host/core.c b/drivers/nvme/host/core.c
+index 9e9ad91618ab..25ade4ce8e0a 100644
+--- a/drivers/nvme/host/core.c
++++ b/drivers/nvme/host/core.c
+@@ -1088,7 +1088,7 @@ u32 nvme_command_effects(struct nvme_ctrl *ctrl, struct nvme_ns *ns, u8 opcode)
+ 	if (ns) {
+ 		if (ns->head->effects)
+ 			effects = le32_to_cpu(ns->head->effects->iocs[opcode]);
+-		if (ns->head->ids.csi == NVME_CAP_CSS_NVM)
++		if (ns->head->ids.csi == NVME_CSI_NVM)
+ 			effects |= nvme_known_nvm_effects(opcode);
+ 		if (effects & ~(NVME_CMD_EFFECTS_CSUPP | NVME_CMD_EFFECTS_LBCC))
+ 			dev_warn_once(ctrl->device,
 -- 
 2.39.0
 
