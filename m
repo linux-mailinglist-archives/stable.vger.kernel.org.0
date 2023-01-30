@@ -2,42 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 66EB1681016
-	for <lists+stable@lfdr.de>; Mon, 30 Jan 2023 15:00:06 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5D82168100E
+	for <lists+stable@lfdr.de>; Mon, 30 Jan 2023 14:59:28 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236877AbjA3OAE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 30 Jan 2023 09:00:04 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41230 "EHLO
+        id S236933AbjA3N71 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 30 Jan 2023 08:59:27 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39732 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236826AbjA3OAA (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 30 Jan 2023 09:00:00 -0500
-Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 892113A585
-        for <stable@vger.kernel.org>; Mon, 30 Jan 2023 05:59:30 -0800 (PST)
+        with ESMTP id S236821AbjA3N7J (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 30 Jan 2023 08:59:09 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6FB0A1C338
+        for <stable@vger.kernel.org>; Mon, 30 Jan 2023 05:58:59 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 2ABD1CE16A2
-        for <stable@vger.kernel.org>; Mon, 30 Jan 2023 13:58:51 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C45D1C433D2;
-        Mon, 30 Jan 2023 13:58:48 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 630E4B81178
+        for <stable@vger.kernel.org>; Mon, 30 Jan 2023 13:58:53 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id BDA64C433D2;
+        Mon, 30 Jan 2023 13:58:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1675087129;
-        bh=MCTorT43Jz+5c57L8MDjQkWfYPRYx5Z5nD5S8weD8E0=;
+        s=korg; t=1675087132;
+        bh=tkpPod23MZrQlfWaoJQ7LVtRRjAyUGjIFigyL+Sj2Sk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=C2l/q7wR0rG3KBOcQe6aQGbeQ60hPtLtpTLI3OstUY11E8K14rcLHmyqrCDIc0q2h
-         s1Pc+lGSmfFJncK3VFBUdAKGBUgaCg+Yrj8WYkzYdEds6s8Fl9lT+qyW/erv9CZ29L
-         MvfFuoJG7AwJMW3/mQYjwG2FvRR002y6a+XXrGog=
+        b=pFHaRd1+h3GCX3L2suMiJVEFaxLDvW+DaakOdKh42GyNkkUuVRa8sRSr4XTjRxzTO
+         bbJxwj3Q0iNo77gCYnI5BBvXzgsTjtvqpsOSvbfx6YIj3jfVjXp00PMRKHbzFpddaQ
+         /7s7EA5U9vKEeR0mC/o3cOPut5ZJBlmZaaH11iVM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Szymon Heidrich <szymon.heidrich@gmail.com>,
-        Alexander Duyck <alexanderduyck@fb.com>,
-        Kalle Valo <kvalo@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 076/313] wifi: rndis_wlan: Prevent buffer overflow in rndis_query_oid
-Date:   Mon, 30 Jan 2023 14:48:31 +0100
-Message-Id: <20230130134340.185841670@linuxfoundation.org>
+        patches@lists.linux.dev, Jonas Karlman <jonas@kwiboo.se>,
+        Heiko Stuebner <heiko@sntech.de>,
+        Jianqun Xu <jay.xu@rock-chips.com>,
+        Linus Walleij <linus.walleij@linaro.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 6.1 077/313] pinctrl: rockchip: fix reading pull type on rk3568
+Date:   Mon, 30 Jan 2023 14:48:32 +0100
+Message-Id: <20230130134340.230131146@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.1
 In-Reply-To: <20230130134336.532886729@linuxfoundation.org>
 References: <20230130134336.532886729@linuxfoundation.org>
@@ -45,8 +46,8 @@ User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
         SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -54,73 +55,62 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Szymon Heidrich <szymon.heidrich@gmail.com>
+From: Jonas Karlman <jonas@kwiboo.se>
 
-[ Upstream commit b870e73a56c4cccbec33224233eaf295839f228c ]
+[ Upstream commit 31b62a98de42cf65d76e4dcfb571af067d27d83a ]
 
-Since resplen and respoffs are signed integers sufficiently
-large values of unsigned int len and offset members of RNDIS
-response will result in negative values of prior variables.
-This may be utilized to bypass implemented security checks
-to either extract memory contents by manipulating offset or
-overflow the data buffer via memcpy by manipulating both
-offset and len.
+When reading pinconf-pins from debugfs it fails to get the configured pull
+type on RK3568, "unsupported pinctrl type" error messages is also reported.
 
-Additionally assure that sum of resplen and respoffs does not
-overflow so buffer boundaries are kept.
+Fix this by adding support for RK3568 in rockchip_get_pull, including a
+reverse of the pull-up value swap applied in rockchip_set_pull so that
+pull-up is correctly reported in pinconf-pins.
+Also update the workaround comment to reflect affected pins, GPIO0_D3-D6.
 
-Fixes: 80f8c5b434f9 ("rndis_wlan: copy only useful data from rndis_command respond")
-Signed-off-by: Szymon Heidrich <szymon.heidrich@gmail.com>
-Reviewed-by: Alexander Duyck <alexanderduyck@fb.com>
-Signed-off-by: Kalle Valo <kvalo@kernel.org>
-Link: https://lore.kernel.org/r/20230111175031.7049-1-szymon.heidrich@gmail.com
+Fixes: c0dadc0e47a8 ("pinctrl: rockchip: add support for rk3568")
+Signed-off-by: Jonas Karlman <jonas@kwiboo.se>
+Reviewed-by: Heiko Stuebner <heiko@sntech.de>
+Reviewed-by: Jianqun Xu <jay.xu@rock-chips.com>
+Link: https://lore.kernel.org/r/20230110172955.1258840-1-jonas@kwiboo.se
+Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/wireless/rndis_wlan.c | 19 ++++++-------------
- 1 file changed, 6 insertions(+), 13 deletions(-)
+ drivers/pinctrl/pinctrl-rockchip.c | 11 ++++++++++-
+ 1 file changed, 10 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/net/wireless/rndis_wlan.c b/drivers/net/wireless/rndis_wlan.c
-index 82a7458e01ae..bf72e5fd39cf 100644
---- a/drivers/net/wireless/rndis_wlan.c
-+++ b/drivers/net/wireless/rndis_wlan.c
-@@ -696,8 +696,8 @@ static int rndis_query_oid(struct usbnet *dev, u32 oid, void *data, int *len)
- 		struct rndis_query	*get;
- 		struct rndis_query_c	*get_c;
- 	} u;
--	int ret, buflen;
--	int resplen, respoffs, copylen;
-+	int ret;
-+	size_t buflen, resplen, respoffs, copylen;
+diff --git a/drivers/pinctrl/pinctrl-rockchip.c b/drivers/pinctrl/pinctrl-rockchip.c
+index da974ff2d75d..c3b9313e5be1 100644
+--- a/drivers/pinctrl/pinctrl-rockchip.c
++++ b/drivers/pinctrl/pinctrl-rockchip.c
+@@ -2436,10 +2436,19 @@ static int rockchip_get_pull(struct rockchip_pin_bank *bank, int pin_num)
+ 	case RK3308:
+ 	case RK3368:
+ 	case RK3399:
++	case RK3568:
+ 	case RK3588:
+ 		pull_type = bank->pull_type[pin_num / 8];
+ 		data >>= bit;
+ 		data &= (1 << RK3188_PULL_BITS_PER_PIN) - 1;
++		/*
++		 * In the TRM, pull-up being 1 for everything except the GPIO0_D3-D6,
++		 * where that pull up value becomes 3.
++		 */
++		if (ctrl->type == RK3568 && bank->bank_num == 0 && pin_num >= 27 && pin_num <= 30) {
++			if (data == 3)
++				data = 1;
++		}
  
- 	buflen = *len + sizeof(*u.get);
- 	if (buflen < CONTROL_BUFFER_SIZE)
-@@ -732,22 +732,15 @@ static int rndis_query_oid(struct usbnet *dev, u32 oid, void *data, int *len)
- 
- 		if (respoffs > buflen) {
- 			/* Device returned data offset outside buffer, error. */
--			netdev_dbg(dev->net, "%s(%s): received invalid "
--				"data offset: %d > %d\n", __func__,
--				oid_to_string(oid), respoffs, buflen);
-+			netdev_dbg(dev->net,
-+				   "%s(%s): received invalid data offset: %zu > %zu\n",
-+				   __func__, oid_to_string(oid), respoffs, buflen);
- 
- 			ret = -EINVAL;
- 			goto exit_unlock;
+ 		return rockchip_pull_list[pull_type][data];
+ 	default:
+@@ -2497,7 +2506,7 @@ static int rockchip_set_pull(struct rockchip_pin_bank *bank,
+ 			}
  		}
- 
--		if ((resplen + respoffs) > buflen) {
--			/* Device would have returned more data if buffer would
--			 * have been big enough. Copy just the bits that we got.
--			 */
--			copylen = buflen - respoffs;
--		} else {
--			copylen = resplen;
--		}
-+		copylen = min(resplen, buflen - respoffs);
- 
- 		if (copylen > *len)
- 			copylen = *len;
+ 		/*
+-		 * In the TRM, pull-up being 1 for everything except the GPIO0_D0-D6,
++		 * In the TRM, pull-up being 1 for everything except the GPIO0_D3-D6,
+ 		 * where that pull up value becomes 3.
+ 		 */
+ 		if (ctrl->type == RK3568 && bank->bank_num == 0 && pin_num >= 27 && pin_num <= 30) {
 -- 
 2.39.0
 
