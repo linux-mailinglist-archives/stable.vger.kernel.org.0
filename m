@@ -2,46 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id CB5A9681075
-	for <lists+stable@lfdr.de>; Mon, 30 Jan 2023 15:03:45 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E9B73681191
+	for <lists+stable@lfdr.de>; Mon, 30 Jan 2023 15:14:43 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236900AbjA3ODp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 30 Jan 2023 09:03:45 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43110 "EHLO
+        id S237301AbjA3OOm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 30 Jan 2023 09:14:42 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58662 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236884AbjA3ODh (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 30 Jan 2023 09:03:37 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A156011173
-        for <stable@vger.kernel.org>; Mon, 30 Jan 2023 06:03:30 -0800 (PST)
+        with ESMTP id S237308AbjA3OOl (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 30 Jan 2023 09:14:41 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 739721ABE3
+        for <stable@vger.kernel.org>; Mon, 30 Jan 2023 06:14:40 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 38B6E61047
-        for <stable@vger.kernel.org>; Mon, 30 Jan 2023 14:03:30 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 49D7CC433EF;
-        Mon, 30 Jan 2023 14:03:29 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 300E7B80DEB
+        for <stable@vger.kernel.org>; Mon, 30 Jan 2023 14:14:39 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 85AC6C433EF;
+        Mon, 30 Jan 2023 14:14:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1675087409;
-        bh=l1H+fOC0Nc1Nao39+ApHRgz7glpZpqmOr+cw/n12dh0=;
+        s=korg; t=1675088077;
+        bh=LdbWgqhOCwigN/XNs+dNRbgNbm0z9zRrtlv+osUfzbI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ID+A6vR2lPJlOt+MdC08fx/9WPgfRfW66HnkXqfSpvv+1VsN+6U581KTrhQqX1FBH
-         hPT5KuZ6TK43WWgyomhaujudZgB2uh6YnmLPVtuJt+VWD8AGMyz7NVrto2ASC52sKe
-         +Yc4pifSi4xOe1qaHWRlioCecJo1273moeAS4a6g=
+        b=0U3G4KWbOnXuuwfMQtXpDq+a7S26IdhrqpdnfBoTaq+hZf5aITpVwP0WzyitGTREs
+         wDzvYgDDt0JP8g3NOAxWFSWxbiWR2dfqHQyIL9rTrL5VUQSQrUaGVRQeW0wLmfYIjM
+         wXTyLr6OcbB/yMUZW7GQ+F7C2UEpugOWYW6A2ur8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Archie Pusaka <apusaka@chromium.org>,
-        Abhishek Pandit-Subedi <abhishekpandit@google.com>,
-        Luiz Augusto von Dentz <luiz.von.dentz@intel.com>,
-        Fedor Pchelkin <pchelkin@ispras.ru>,
+        patches@lists.linux.dev, Maor Dickman <maord@nvidia.com>,
+        Eli Cohen <elic@nvidia.com>,
+        Saeed Mahameed <saeedm@nvidia.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 197/313] Bluetooth: hci_sync: cancel cmd_timer if hci_open failed
+Subject: [PATCH 5.15 067/204] net/mlx5: E-switch, Fix setting of reserved fields on MODIFY_SCHEDULING_ELEMENT
 Date:   Mon, 30 Jan 2023 14:50:32 +0100
-Message-Id: <20230130134345.879993697@linuxfoundation.org>
+Message-Id: <20230130134319.265283902@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.1
-In-Reply-To: <20230130134336.532886729@linuxfoundation.org>
-References: <20230130134336.532886729@linuxfoundation.org>
+In-Reply-To: <20230130134316.327556078@linuxfoundation.org>
+References: <20230130134316.327556078@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,34 +54,79 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Archie Pusaka <apusaka@chromium.org>
+From: Maor Dickman <maord@nvidia.com>
 
-commit 97dfaf073f5881c624856ef293be307b6166115c upstream.
+[ Upstream commit f51471d1935ce1f504fce6c115ce3bfbc32032b0 ]
 
-If a command is already sent, we take care of freeing it, but we
-also need to cancel the timeout as well.
+According to HW spec element_type, element_attributes and parent_element_id fields
+should be reserved (0x0) when calling MODIFY_SCHEDULING_ELEMENT command.
 
-Signed-off-by: Archie Pusaka <apusaka@chromium.org>
-Reviewed-by: Abhishek Pandit-Subedi <abhishekpandit@google.com>
-Signed-off-by: Luiz Augusto von Dentz <luiz.von.dentz@intel.com>
-Signed-off-by: Fedor Pchelkin <pchelkin@ispras.ru>
+This patch remove initialization of these fields when calling the command.
+
+Fixes: bd77bf1cb595 ("net/mlx5: Add SRIOV VF max rate configuration support")
+Signed-off-by: Maor Dickman <maord@nvidia.com>
+Reviewed-by: Eli Cohen <elic@nvidia.com>
+Signed-off-by: Saeed Mahameed <saeedm@nvidia.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/bluetooth/hci_sync.c | 1 +
- 1 file changed, 1 insertion(+)
+ .../net/ethernet/mellanox/mlx5/core/esw/qos.c  | 18 +++---------------
+ 1 file changed, 3 insertions(+), 15 deletions(-)
 
-diff --git a/net/bluetooth/hci_sync.c b/net/bluetooth/hci_sync.c
-index 67dd4c9fa4a5..3eec688a88a9 100644
---- a/net/bluetooth/hci_sync.c
-+++ b/net/bluetooth/hci_sync.c
-@@ -4703,6 +4703,7 @@ int hci_dev_open_sync(struct hci_dev *hdev)
- 			hdev->flush(hdev);
+diff --git a/drivers/net/ethernet/mellanox/mlx5/core/esw/qos.c b/drivers/net/ethernet/mellanox/mlx5/core/esw/qos.c
+index d377ddc70fc7..65c8f1f08472 100644
+--- a/drivers/net/ethernet/mellanox/mlx5/core/esw/qos.c
++++ b/drivers/net/ethernet/mellanox/mlx5/core/esw/qos.c
+@@ -22,15 +22,13 @@ struct mlx5_esw_rate_group {
+ };
  
- 		if (hdev->sent_cmd) {
-+			cancel_delayed_work_sync(&hdev->cmd_timer);
- 			kfree_skb(hdev->sent_cmd);
- 			hdev->sent_cmd = NULL;
- 		}
+ static int esw_qos_tsar_config(struct mlx5_core_dev *dev, u32 *sched_ctx,
+-			       u32 parent_ix, u32 tsar_ix,
+-			       u32 max_rate, u32 bw_share)
++			       u32 tsar_ix, u32 max_rate, u32 bw_share)
+ {
+ 	u32 bitmask = 0;
+ 
+ 	if (!MLX5_CAP_GEN(dev, qos) || !MLX5_CAP_QOS(dev, esw_scheduling))
+ 		return -EOPNOTSUPP;
+ 
+-	MLX5_SET(scheduling_context, sched_ctx, parent_element_id, parent_ix);
+ 	MLX5_SET(scheduling_context, sched_ctx, max_average_bw, max_rate);
+ 	MLX5_SET(scheduling_context, sched_ctx, bw_share, bw_share);
+ 	bitmask |= MODIFY_SCHEDULING_ELEMENT_IN_MODIFY_BITMASK_MAX_AVERAGE_BW;
+@@ -51,7 +49,7 @@ static int esw_qos_group_config(struct mlx5_eswitch *esw, struct mlx5_esw_rate_g
+ 	int err;
+ 
+ 	err = esw_qos_tsar_config(dev, sched_ctx,
+-				  esw->qos.root_tsar_ix, group->tsar_ix,
++				  group->tsar_ix,
+ 				  max_rate, bw_share);
+ 	if (err)
+ 		NL_SET_ERR_MSG_MOD(extack, "E-Switch modify group TSAR element failed");
+@@ -67,23 +65,13 @@ static int esw_qos_vport_config(struct mlx5_eswitch *esw,
+ 				struct netlink_ext_ack *extack)
+ {
+ 	u32 sched_ctx[MLX5_ST_SZ_DW(scheduling_context)] = {};
+-	struct mlx5_esw_rate_group *group = vport->qos.group;
+ 	struct mlx5_core_dev *dev = esw->dev;
+-	u32 parent_tsar_ix;
+-	void *vport_elem;
+ 	int err;
+ 
+ 	if (!vport->qos.enabled)
+ 		return -EIO;
+ 
+-	parent_tsar_ix = group ? group->tsar_ix : esw->qos.root_tsar_ix;
+-	MLX5_SET(scheduling_context, sched_ctx, element_type,
+-		 SCHEDULING_CONTEXT_ELEMENT_TYPE_VPORT);
+-	vport_elem = MLX5_ADDR_OF(scheduling_context, sched_ctx,
+-				  element_attributes);
+-	MLX5_SET(vport_element, vport_elem, vport_number, vport->vport);
+-
+-	err = esw_qos_tsar_config(dev, sched_ctx, parent_tsar_ix, vport->qos.esw_tsar_ix,
++	err = esw_qos_tsar_config(dev, sched_ctx, vport->qos.esw_tsar_ix,
+ 				  max_rate, bw_share);
+ 	if (err) {
+ 		esw_warn(esw->dev,
 -- 
 2.39.0
 
