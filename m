@@ -2,52 +2,51 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 5E8D06812FF
-	for <lists+stable@lfdr.de>; Mon, 30 Jan 2023 15:27:10 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8AB5468127B
+	for <lists+stable@lfdr.de>; Mon, 30 Jan 2023 15:21:27 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237414AbjA3O1J (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 30 Jan 2023 09:27:09 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48534 "EHLO
+        id S237689AbjA3OV0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 30 Jan 2023 09:21:26 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33112 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236382AbjA3O0m (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 30 Jan 2023 09:26:42 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 52A763F29F
-        for <stable@vger.kernel.org>; Mon, 30 Jan 2023 06:25:24 -0800 (PST)
+        with ESMTP id S237559AbjA3OVL (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 30 Jan 2023 09:21:11 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 493EC3F296
+        for <stable@vger.kernel.org>; Mon, 30 Jan 2023 06:20:01 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 009B8B80C9B
-        for <stable@vger.kernel.org>; Mon, 30 Jan 2023 14:25:23 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 568CFC433D2;
-        Mon, 30 Jan 2023 14:25:21 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 2A93761089
+        for <stable@vger.kernel.org>; Mon, 30 Jan 2023 14:20:01 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1B6DAC433EF;
+        Mon, 30 Jan 2023 14:19:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1675088721;
-        bh=t81y/5xpFsM6gTyCVxAYwDAiqeJZDU1W2qaORAleL+M=;
+        s=korg; t=1675088400;
+        bh=Fs4O7yNNkJaVBuTo+BxpRGzHOGEJ8b9hW7bwfAVHSAg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Bu8ayYZEpP0U4e/WtG21i8fKYL6Um4+1t3Jh86g1uzjXNGFgDNRb3WYJ22clBMr8g
-         103ptoE8ojEuDhYHWQ0d7YqRpfD11q5qsSYAqS70qjRF10qofpqGDgvF5b/gMkJjYP
-         6IyJ5lUXLToRytkuakX0iVNi9VLlN486cWOf4aI0=
+        b=WyZMOl9g2Pt1OPMZuc6+u/z7CoG8quT1shgDEJABa3ZQMlZROnoroNzNf37qtt149
+         n5eSqdE3uLXVh8KZ4ibT8zOW486Os4Z/SHwUZUBveNeI9vjhb8a0SVCgw7rhsAjT+5
+         cD1fv176ICcXkMWAoDv+Jl/aC4AfzKaWcdKuguwg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Daniel Lezcano <daniel.lezcano@linaro.org>,
-        Lukasz Luba <lukasz.luba@arm.com>,
-        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 112/143] units: Add Watt units
+        patches@lists.linux.dev, Colin Ian King <colin.i.king@gmail.com>,
+        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
+        Ian Rogers <irogers@google.com>,
+        Kim Phillips <kim.phillips@amd.com>
+Subject: [PATCH 5.15 204/204] perf/x86/amd: fix potential integer overflow on shift of a int
 Date:   Mon, 30 Jan 2023 14:52:49 +0100
-Message-Id: <20230130134311.481185460@linuxfoundation.org>
+Message-Id: <20230130134325.513283253@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.1
-In-Reply-To: <20230130134306.862721518@linuxfoundation.org>
-References: <20230130134306.862721518@linuxfoundation.org>
+In-Reply-To: <20230130134316.327556078@linuxfoundation.org>
+References: <20230130134316.327556078@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
         SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -55,38 +54,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Daniel Lezcano <daniel.lezcano@linaro.org>
+From: Colin Ian King <colin.i.king@gmail.com>
 
-[ Upstream commit 2ee5f8f05949735fa2f4c463a5e13fcb3660c719 ]
+commit 08245672cdc6505550d1a5020603b0a8d4a6dcc7 upstream.
 
-As there are the temperature units, let's add the Watt macros definition.
+The left shift of int 32 bit integer constant 1 is evaluated using 32 bit
+arithmetic and then passed as a 64 bit function argument. In the case where
+i is 32 or more this can lead to an overflow.  Avoid this by shifting
+using the BIT_ULL macro instead.
 
-Signed-off-by: Daniel Lezcano <daniel.lezcano@linaro.org>
-Reviewed-by: Lukasz Luba <lukasz.luba@arm.com>
-Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
-Stable-dep-of: c8c37bc51451 ("i2c: designware: use casting of u64 in clock multiplication to avoid overflow")
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes: 471af006a747 ("perf/x86/amd: Constrain Large Increment per Cycle events")
+Signed-off-by: Colin Ian King <colin.i.king@gmail.com>
+Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+Acked-by: Ian Rogers <irogers@google.com>
+Acked-by: Kim Phillips <kim.phillips@amd.com>
+Link: https://lore.kernel.org/r/20221202135149.1797974-1-colin.i.king@gmail.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- include/linux/units.h | 4 ++++
- 1 file changed, 4 insertions(+)
+ arch/x86/events/amd/core.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/include/linux/units.h b/include/linux/units.h
-index aaf716364ec3..92c234e71cab 100644
---- a/include/linux/units.h
-+++ b/include/linux/units.h
-@@ -4,6 +4,10 @@
+--- a/arch/x86/events/amd/core.c
++++ b/arch/x86/events/amd/core.c
+@@ -976,7 +976,7 @@ static int __init amd_core_pmu_init(void
+ 		 * numbered counter following it.
+ 		 */
+ 		for (i = 0; i < x86_pmu.num_counters - 1; i += 2)
+-			even_ctr_mask |= 1 << i;
++			even_ctr_mask |= BIT_ULL(i);
  
- #include <linux/kernel.h>
- 
-+#define MILLIWATT_PER_WATT	1000L
-+#define MICROWATT_PER_MILLIWATT	1000L
-+#define MICROWATT_PER_WATT	1000000L
-+
- #define ABSOLUTE_ZERO_MILLICELSIUS -273150
- 
- static inline long milli_kelvin_to_millicelsius(long t)
--- 
-2.39.0
-
+ 		pair_constraint = (struct event_constraint)
+ 				    __EVENT_CONSTRAINT(0, even_ctr_mask, 0,
 
 
