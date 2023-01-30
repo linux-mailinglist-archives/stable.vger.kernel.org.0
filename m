@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C0A74681169
-	for <lists+stable@lfdr.de>; Mon, 30 Jan 2023 15:13:25 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 31147681084
+	for <lists+stable@lfdr.de>; Mon, 30 Jan 2023 15:04:09 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237261AbjA3ONY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 30 Jan 2023 09:13:24 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56658 "EHLO
+        id S236963AbjA3OEI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 30 Jan 2023 09:04:08 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42714 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237271AbjA3ONS (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 30 Jan 2023 09:13:18 -0500
+        with ESMTP id S236990AbjA3OEC (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 30 Jan 2023 09:04:02 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AC35C2B2B0
-        for <stable@vger.kernel.org>; Mon, 30 Jan 2023 06:13:03 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CFFC110414
+        for <stable@vger.kernel.org>; Mon, 30 Jan 2023 06:03:58 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id F3766B80E60
-        for <stable@vger.kernel.org>; Mon, 30 Jan 2023 14:13:01 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 60404C433EF;
-        Mon, 30 Jan 2023 14:13:00 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 83EDDB81132
+        for <stable@vger.kernel.org>; Mon, 30 Jan 2023 14:03:57 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C42DFC433EF;
+        Mon, 30 Jan 2023 14:03:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1675087980;
-        bh=hjrGJHb7L9YVdL6fGAwLrRptTN1oiIj6TyuxROCeCOk=;
+        s=korg; t=1675087436;
+        bh=kPGzsg3iak9bUhKpj7DoiBI4rzmGDwMtLp3JfFiEzvM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=VJi5tpnHocKQ8O6YNuNu1Ai6sLD9bczd49hT1DjaUTtrOhmeEII+S+Qiai8tM+YlY
-         /YR15D54mh4DFqIji6MB+o9I/E04CAfoYwZXpMzpRqjqRw/tsGPoSb13iynkKmsYKv
-         fhYFP5CglIdoE5DwwlIGVKVSUiW5wY11gvxpNHDk=
+        b=ycwKo0Mbd83eqiRvdnURM04gruB1pfrpJZ6gg5OpDDt5uGo7185An2b7Mc8GNwt77
+         rwM5HM3fTRPCw4wiAsN0VvS8IBdphW+716GqPWsACvhOEgixikgb1Jyssrqjh8aPb+
+         0peIs5mVxnJzz3hXTdHnRQjl5epxSEpUzJjPtkB4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Luis Gerhorst <gerhorst@cs.fau.de>,
-        Daniel Borkmann <daniel@iogearbox.net>,
-        Henriette Hofmeier <henriette.hofmeier@rub.de>,
+        patches@lists.linux.dev, Sven Schnelle <svens@linux.ibm.com>,
+        Willy Tarreau <w@1wt.eu>,
+        "Paul E. McKenney" <paulmck@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 036/204] bpf: Fix pointer-leak due to insufficient speculative store bypass mitigation
+Subject: [PATCH 6.1 166/313] nolibc: fix fd_set type
 Date:   Mon, 30 Jan 2023 14:50:01 +0100
-Message-Id: <20230130134317.895470225@linuxfoundation.org>
+Message-Id: <20230130134344.396762979@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.1
-In-Reply-To: <20230130134316.327556078@linuxfoundation.org>
-References: <20230130134316.327556078@linuxfoundation.org>
+In-Reply-To: <20230130134336.532886729@linuxfoundation.org>
+References: <20230130134336.532886729@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,106 +54,97 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Luis Gerhorst <gerhorst@cs.fau.de>
+From: Sven Schnelle <svens@linux.ibm.com>
 
-[ Upstream commit e4f4db47794c9f474b184ee1418f42e6a07412b6 ]
+[ Upstream commit feaf75658783a919410f8c2039dbc24b6a29603d ]
 
-To mitigate Spectre v4, 2039f26f3aca ("bpf: Fix leakage due to
-insufficient speculative store bypass mitigation") inserts lfence
-instructions after 1) initializing a stack slot and 2) spilling a
-pointer to the stack.
+The kernel uses unsigned long for the fd_set bitmap,
+but nolibc use u32. This works fine on little endian
+machines, but fails on big endian. Convert to unsigned
+long to fix this.
 
-However, this does not cover cases where a stack slot is first
-initialized with a pointer (subject to sanitization) but then
-overwritten with a scalar (not subject to sanitization because
-the slot was already initialized). In this case, the second write
-may be subject to speculative store bypass (SSB) creating a
-speculative pointer-as-scalar type confusion. This allows the
-program to subsequently leak the numerical pointer value using,
-for example, a branch-based cache side channel.
-
-To fix this, also sanitize scalars if they write a stack slot
-that previously contained a pointer. Assuming that pointer-spills
-are only generated by LLVM on register-pressure, the performance
-impact on most real-world BPF programs should be small.
-
-The following unprivileged BPF bytecode drafts a minimal exploit
-and the mitigation:
-
-  [...]
-  // r6 = 0 or 1 (skalar, unknown user input)
-  // r7 = accessible ptr for side channel
-  // r10 = frame pointer (fp), to be leaked
-  //
-  r9 = r10 # fp alias to encourage ssb
-  *(u64 *)(r9 - 8) = r10 // fp[-8] = ptr, to be leaked
-  // lfence added here because of pointer spill to stack.
-  //
-  // Ommitted: Dummy bpf_ringbuf_output() here to train alias predictor
-  // for no r9-r10 dependency.
-  //
-  *(u64 *)(r10 - 8) = r6 // fp[-8] = scalar, overwrites ptr
-  // 2039f26f3aca: no lfence added because stack slot was not STACK_INVALID,
-  // store may be subject to SSB
-  //
-  // fix: also add an lfence when the slot contained a ptr
-  //
-  r8 = *(u64 *)(r9 - 8)
-  // r8 = architecturally a scalar, speculatively a ptr
-  //
-  // leak ptr using branch-based cache side channel:
-  r8 &= 1 // choose bit to leak
-  if r8 == 0 goto SLOW // no mispredict
-  // architecturally dead code if input r6 is 0,
-  // only executes speculatively iff ptr bit is 1
-  r8 = *(u64 *)(r7 + 0) # encode bit in cache (0: slow, 1: fast)
-SLOW:
-  [...]
-
-After running this, the program can time the access to *(r7 + 0) to
-determine whether the chosen pointer bit was 0 or 1. Repeat this 64
-times to recover the whole address on amd64.
-
-In summary, sanitization can only be skipped if one scalar is
-overwritten with another scalar. Scalar-confusion due to speculative
-store bypass can not lead to invalid accesses because the pointer
-bounds deducted during verification are enforced using branchless
-logic. See 979d63d50c0c ("bpf: prevent out of bounds speculation on
-pointer arithmetic") for details.
-
-Do not make the mitigation depend on !env->allow_{uninit_stack,ptr_leaks}
-because speculative leaks are likely unexpected if these were enabled.
-For example, leaking the address to a protected log file may be acceptable
-while disabling the mitigation might unintentionally leak the address
-into the cached-state of a map that is accessible to unprivileged
-processes.
-
-Fixes: 2039f26f3aca ("bpf: Fix leakage due to insufficient speculative store bypass mitigation")
-Signed-off-by: Luis Gerhorst <gerhorst@cs.fau.de>
-Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
-Acked-by: Henriette Hofmeier <henriette.hofmeier@rub.de>
-Link: https://lore.kernel.org/bpf/edc95bad-aada-9cfc-ffe2-fa9bb206583c@cs.fau.de
-Link: https://lore.kernel.org/bpf/20230109150544.41465-1-gerhorst@cs.fau.de
+Signed-off-by: Sven Schnelle <svens@linux.ibm.com>
+Signed-off-by: Willy Tarreau <w@1wt.eu>
+Signed-off-by: Paul E. McKenney <paulmck@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/bpf/verifier.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ tools/include/nolibc/types.h | 53 ++++++++++++++++++++----------------
+ 1 file changed, 30 insertions(+), 23 deletions(-)
 
-diff --git a/kernel/bpf/verifier.c b/kernel/bpf/verifier.c
-index 488225bb42f6..49e51fc0c2f4 100644
---- a/kernel/bpf/verifier.c
-+++ b/kernel/bpf/verifier.c
-@@ -2653,7 +2653,9 @@ static int check_stack_write_fixed_off(struct bpf_verifier_env *env,
- 		bool sanitize = reg && is_spillable_regtype(reg->type);
+diff --git a/tools/include/nolibc/types.h b/tools/include/nolibc/types.h
+index 959997034e55..300e0ff1cd58 100644
+--- a/tools/include/nolibc/types.h
++++ b/tools/include/nolibc/types.h
+@@ -89,39 +89,46 @@
+ #define EXIT_SUCCESS 0
+ #define EXIT_FAILURE 1
  
- 		for (i = 0; i < size; i++) {
--			if (state->stack[spi].slot_type[i] == STACK_INVALID) {
-+			u8 type = state->stack[spi].slot_type[i];
++#define FD_SETIDXMASK (8 * sizeof(unsigned long))
++#define FD_SETBITMASK (8 * sizeof(unsigned long)-1)
 +
-+			if (type != STACK_MISC && type != STACK_ZERO) {
- 				sanitize = true;
- 				break;
- 			}
+ /* for select() */
+ typedef struct {
+-	uint32_t fd32[(FD_SETSIZE + 31) / 32];
++	unsigned long fds[(FD_SETSIZE + FD_SETBITMASK) / FD_SETIDXMASK];
+ } fd_set;
+ 
+-#define FD_CLR(fd, set) do {                                            \
+-		fd_set *__set = (set);                                  \
+-		int __fd = (fd);                                        \
+-		if (__fd >= 0)                                          \
+-			__set->fd32[__fd / 32] &= ~(1U << (__fd & 31)); \
++#define FD_CLR(fd, set) do {						\
++		fd_set *__set = (set);					\
++		int __fd = (fd);					\
++		if (__fd >= 0)						\
++			__set->fds[__fd / FD_SETIDXMASK] &=		\
++				~(1U << (__fd & FX_SETBITMASK));	\
+ 	} while (0)
+ 
+-#define FD_SET(fd, set) do {                                            \
+-		fd_set *__set = (set);                                  \
+-		int __fd = (fd);                                        \
+-		if (__fd >= 0)                                          \
+-			__set->fd32[__fd / 32] |= 1U << (__fd & 31);    \
++#define FD_SET(fd, set) do {						\
++		fd_set *__set = (set);					\
++		int __fd = (fd);					\
++		if (__fd >= 0)						\
++			__set->fds[__fd / FD_SETIDXMASK] |=		\
++				1 << (__fd & FD_SETBITMASK);		\
+ 	} while (0)
+ 
+-#define FD_ISSET(fd, set) ({                                                  \
+-		fd_set *__set = (set);                                        \
+-		int __fd = (fd);                                              \
+-		int __r = 0;                                                  \
+-		if (__fd >= 0)                                                \
+-			__r = !!(__set->fd32[__fd / 32] & 1U << (__fd & 31)); \
+-		__r;                                                          \
++#define FD_ISSET(fd, set) ({						\
++			fd_set *__set = (set);				\
++			int __fd = (fd);				\
++		int __r = 0;						\
++		if (__fd >= 0)						\
++			__r = !!(__set->fds[__fd / FD_SETIDXMASK] &	\
++1U << (__fd & FD_SET_BITMASK));						\
++		__r;							\
+ 	})
+ 
+-#define FD_ZERO(set) do {                                               \
+-		fd_set *__set = (set);                                  \
+-		int __idx;                                              \
+-		for (__idx = 0; __idx < (FD_SETSIZE+31) / 32; __idx ++) \
+-			__set->fd32[__idx] = 0;                         \
++#define FD_ZERO(set) do {						\
++		fd_set *__set = (set);					\
++		int __idx;						\
++		int __size = (FD_SETSIZE+FD_SETBITMASK) / FD_SETIDXMASK;\
++		for (__idx = 0; __idx < __size; __idx++)		\
++			__set->fds[__idx] = 0;				\
+ 	} while (0)
+ 
+ /* for poll() */
 -- 
 2.39.0
 
