@@ -2,45 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 8AAE1681193
-	for <lists+stable@lfdr.de>; Mon, 30 Jan 2023 15:14:47 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E64106810D1
+	for <lists+stable@lfdr.de>; Mon, 30 Jan 2023 15:07:05 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237186AbjA3OOq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 30 Jan 2023 09:14:46 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58710 "EHLO
+        id S237102AbjA3OHF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 30 Jan 2023 09:07:05 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49300 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237309AbjA3OOp (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 30 Jan 2023 09:14:45 -0500
+        with ESMTP id S237099AbjA3OHE (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 30 Jan 2023 09:07:04 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D44881BAEC
-        for <stable@vger.kernel.org>; Mon, 30 Jan 2023 06:14:44 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9C7133B644
+        for <stable@vger.kernel.org>; Mon, 30 Jan 2023 06:07:03 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 6C72961089
-        for <stable@vger.kernel.org>; Mon, 30 Jan 2023 14:14:44 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6B229C4339B;
-        Mon, 30 Jan 2023 14:14:43 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 38E936102D
+        for <stable@vger.kernel.org>; Mon, 30 Jan 2023 14:07:03 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 39979C433D2;
+        Mon, 30 Jan 2023 14:07:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1675088083;
-        bh=8JY8sU+CLjn8g1bawyang7tEx8ZTh7aes2g7aqcXurE=;
+        s=korg; t=1675087622;
+        bh=tPpC3oTeTUOvpksg8hiU7270p4ewTdGdTk6rEf+rkS4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=wO8FYQMPoqTVIwxZ5egoquc2FcvKQaPUNZhmgwzWE7wxcwiOD8f1Os5cfAp52r3j9
-         EP0JgTKRzVeqcZ5SHTxLIMmmXfhHiI2QtrxX8n7ZTLJrMyXb2kjkIxGY+mTFnVA+WW
-         /N9zNZLr3zMqEJsdCurTGi58ELSgb8gIj9pjNiNM=
+        b=hEoaAS2IqHZNFZ8D73BkwGpyHA/+s6SLkmkJt1GN1npL0WhRVp0OI3HkY1dhZFfsE
+         /YOJuIcXaOD80wY0Bxp6K4pghZa9X4sg+RXXyGvQOi72wtnaBwaG2HLWMUntmARTqI
+         9hWDZLVQqmKitVmp7qvT5RBD2g5bJjF/hc741X0g=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Bartosz Golaszewski <bartosz.golaszewski@linaro.org>,
-        Mark Brown <broonie@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 110/204] spi: spidev: remove debug messages that access spidev->spi without locking
+        patches@lists.linux.dev, Pavel Begunkov <asml.silence@gmail.com>,
+        Jens Axboe <axboe@kernel.dk>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 6.1 240/313] io_uring: inline io_req_task_work_add()
 Date:   Mon, 30 Jan 2023 14:51:15 +0100
-Message-Id: <20230130134321.199319747@linuxfoundation.org>
+Message-Id: <20230130134347.867056593@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.1
-In-Reply-To: <20230130134316.327556078@linuxfoundation.org>
-References: <20230130134316.327556078@linuxfoundation.org>
+In-Reply-To: <20230130134336.532886729@linuxfoundation.org>
+References: <20230130134336.532886729@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,43 +52,82 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Bartosz Golaszewski <bartosz.golaszewski@linaro.org>
+From: Pavel Begunkov <asml.silence@gmail.com>
 
-[ Upstream commit 6b35b173dbc1711f8d272e3f322d2ad697015919 ]
+[ Upstream commit e52d2e583e4ad1d5d0b804d79c2b8752eb0e5ceb ]
 
-The two debug messages in spidev_open() dereference spidev->spi without
-taking the lock and without checking if it's not null. This can lead to
-a crash. Drop the messages as they're not needed - the user-space will
-get informed about ENOMEM with the syscall return value.
+__io_req_task_work_add() is huge but marked inline, that makes compilers
+to generate lots of garbage. Inline the wrapper caller
+io_req_task_work_add() instead.
 
-Signed-off-by: Bartosz Golaszewski <bartosz.golaszewski@linaro.org>
-Link: https://lore.kernel.org/r/20230106100719.196243-2-brgl@bgdev.pl
-Signed-off-by: Mark Brown <broonie@kernel.org>
+before and after:
+   text    data     bss     dec     hex filename
+  47347   16248       8   63603    f873 io_uring/io_uring.o
+   text    data     bss     dec     hex filename
+  45303   16248       8   61559    f077 io_uring/io_uring.o
+
+Signed-off-by: Pavel Begunkov <asml.silence@gmail.com>
+Link: https://lore.kernel.org/r/26dc8c28ca0160e3269ef3e55c5a8b917c4d4450.1668162751.git.asml.silence@gmail.com
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
+Stable-dep-of: ef5c600adb1d ("io_uring: always prep_async for drain requests")
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/spi/spidev.c | 2 --
- 1 file changed, 2 deletions(-)
+ io_uring/io_uring.c | 7 +------
+ io_uring/io_uring.h | 7 ++++++-
+ 2 files changed, 7 insertions(+), 7 deletions(-)
 
-diff --git a/drivers/spi/spidev.c b/drivers/spi/spidev.c
-index d233e2424ad1..922d778df064 100644
---- a/drivers/spi/spidev.c
-+++ b/drivers/spi/spidev.c
-@@ -592,7 +592,6 @@ static int spidev_open(struct inode *inode, struct file *filp)
- 	if (!spidev->tx_buffer) {
- 		spidev->tx_buffer = kmalloc(bufsiz, GFP_KERNEL);
- 		if (!spidev->tx_buffer) {
--			dev_dbg(&spidev->spi->dev, "open/ENOMEM\n");
- 			status = -ENOMEM;
- 			goto err_find_dev;
- 		}
-@@ -601,7 +600,6 @@ static int spidev_open(struct inode *inode, struct file *filp)
- 	if (!spidev->rx_buffer) {
- 		spidev->rx_buffer = kmalloc(bufsiz, GFP_KERNEL);
- 		if (!spidev->rx_buffer) {
--			dev_dbg(&spidev->spi->dev, "open/ENOMEM\n");
- 			status = -ENOMEM;
- 			goto err_alloc_rx_buf;
- 		}
+diff --git a/io_uring/io_uring.c b/io_uring/io_uring.c
+index cea5de98c423..b4f9707730b8 100644
+--- a/io_uring/io_uring.c
++++ b/io_uring/io_uring.c
+@@ -1133,7 +1133,7 @@ static void io_req_local_work_add(struct io_kiocb *req)
+ 	percpu_ref_put(&ctx->refs);
+ }
+ 
+-static inline void __io_req_task_work_add(struct io_kiocb *req, bool allow_local)
++void __io_req_task_work_add(struct io_kiocb *req, bool allow_local)
+ {
+ 	struct io_uring_task *tctx = req->task->io_uring;
+ 	struct io_ring_ctx *ctx = req->ctx;
+@@ -1165,11 +1165,6 @@ static inline void __io_req_task_work_add(struct io_kiocb *req, bool allow_local
+ 	}
+ }
+ 
+-void io_req_task_work_add(struct io_kiocb *req)
+-{
+-	__io_req_task_work_add(req, true);
+-}
+-
+ static void __cold io_move_task_work_from_local(struct io_ring_ctx *ctx)
+ {
+ 	struct llist_node *node;
+diff --git a/io_uring/io_uring.h b/io_uring/io_uring.h
+index 4334cd30c423..56ecc1550476 100644
+--- a/io_uring/io_uring.h
++++ b/io_uring/io_uring.h
+@@ -51,9 +51,9 @@ static inline bool io_req_ffs_set(struct io_kiocb *req)
+ 	return req->flags & REQ_F_FIXED_FILE;
+ }
+ 
++void __io_req_task_work_add(struct io_kiocb *req, bool allow_local);
+ bool io_is_uring_fops(struct file *file);
+ bool io_alloc_async_data(struct io_kiocb *req);
+-void io_req_task_work_add(struct io_kiocb *req);
+ void io_req_tw_post_queue(struct io_kiocb *req, s32 res, u32 cflags);
+ void io_req_task_queue(struct io_kiocb *req);
+ void io_queue_iowq(struct io_kiocb *req, bool *dont_use);
+@@ -83,6 +83,11 @@ bool __io_alloc_req_refill(struct io_ring_ctx *ctx);
+ bool io_match_task_safe(struct io_kiocb *head, struct task_struct *task,
+ 			bool cancel_all);
+ 
++static inline void io_req_task_work_add(struct io_kiocb *req)
++{
++	__io_req_task_work_add(req, true);
++}
++
+ #define io_for_each_link(pos, head) \
+ 	for (pos = (head); pos; pos = pos->link)
+ 
 -- 
 2.39.0
 
