@@ -2,50 +2,51 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 676C868107B
-	for <lists+stable@lfdr.de>; Mon, 30 Jan 2023 15:03:57 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D3B94681162
+	for <lists+stable@lfdr.de>; Mon, 30 Jan 2023 15:13:12 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236893AbjA3ODz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 30 Jan 2023 09:03:55 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42584 "EHLO
+        id S237214AbjA3ONL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 30 Jan 2023 09:13:11 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56334 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236991AbjA3ODp (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 30 Jan 2023 09:03:45 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 145C51040D
-        for <stable@vger.kernel.org>; Mon, 30 Jan 2023 06:03:39 -0800 (PST)
+        with ESMTP id S237263AbjA3ONH (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 30 Jan 2023 09:13:07 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6C3B6303E7
+        for <stable@vger.kernel.org>; Mon, 30 Jan 2023 06:12:44 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 3D1BE6104D
-        for <stable@vger.kernel.org>; Mon, 30 Jan 2023 14:03:39 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2F746C4339B;
-        Mon, 30 Jan 2023 14:03:37 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 0DB84B8117E
+        for <stable@vger.kernel.org>; Mon, 30 Jan 2023 14:12:44 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 59923C433D2;
+        Mon, 30 Jan 2023 14:12:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1675087418;
-        bh=rh6YdPCnnzwUAhXFkmFU17VRgN02RSBWmABVeMwQwYs=;
+        s=korg; t=1675087962;
+        bh=O2ATFCr5Bp6JCp/jjo8gRPqNH4H9jidCSx/S1HljqTI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=k8K+E+M4GzEjza+wPWcoTUiKzYKFuqGPbPq8imm4xyexs7nrMr4ltmewhiHTEa1WZ
-         OzKEwn+6GmqEDotKHIZkcXXy7UNYQBkq5b8K6GPLgY8/xtatXJFDKVVaXsRCwZjPd8
-         wkpTTSPQBxDC58ew7owetn6+OedBOBybpdNpA0fg=
+        b=yx0OWDvihYXex4ATw07cEvs75CoEao1u+qyGTVQ5mc75Tpt1G+M0BTKfda/cmTqpq
+         W7f5aAECL0z6FLIglS8YY3JQDTgBWHJIT801JExIUUca8wLIzbe8c3CEIA8MRcB1zu
+         eEM82aWFeds8ZISMBW8wZcwUtIlNab6WldoBXNp8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Miles Chen <miles.chen@mediatek.com>,
-        Viresh Kumar <viresh.kumar@linaro.org>,
+        patches@lists.linux.dev, Vladimir Oltean <vladimir.oltean@nxp.com>,
+        Alexander Duyck <alexanderduyck@fb.com>,
+        Jakub Kicinski <kuba@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 170/313] cpufreq: armada-37xx: stop using 0 as NULL pointer
+Subject: [PATCH 5.15 040/204] net: enetc: avoid deadlock in enetc_tx_onestep_tstamp()
 Date:   Mon, 30 Jan 2023 14:50:05 +0100
-Message-Id: <20230130134344.587829946@linuxfoundation.org>
+Message-Id: <20230130134318.074236771@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.1
-In-Reply-To: <20230130134336.532886729@linuxfoundation.org>
-References: <20230130134336.532886729@linuxfoundation.org>
+In-Reply-To: <20230130134316.327556078@linuxfoundation.org>
+References: <20230130134316.327556078@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
         SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -53,33 +54,116 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Miles Chen <miles.chen@mediatek.com>
+From: Vladimir Oltean <vladimir.oltean@nxp.com>
 
-[ Upstream commit 08f0adb193c008de640fde34a2e00a666c01d77c ]
+[ Upstream commit 3c463721a73bdb57a913e0d3124677a3758886fc ]
 
-Use NULL for NULL pointer to fix the following sparse warning:
-drivers/cpufreq/armada-37xx-cpufreq.c:448:32: sparse: warning: Using plain integer as NULL pointer
+This lockdep splat says it better than I could:
 
-Signed-off-by: Miles Chen <miles.chen@mediatek.com>
-Signed-off-by: Viresh Kumar <viresh.kumar@linaro.org>
+================================
+WARNING: inconsistent lock state
+6.2.0-rc2-07010-ga9b9500ffaac-dirty #967 Not tainted
+--------------------------------
+inconsistent {IN-SOFTIRQ-W} -> {SOFTIRQ-ON-W} usage.
+kworker/1:3/179 [HC0[0]:SC0[0]:HE1:SE1] takes:
+ffff3ec4036ce098 (_xmit_ETHER#2){+.?.}-{3:3}, at: netif_freeze_queues+0x5c/0xc0
+{IN-SOFTIRQ-W} state was registered at:
+  _raw_spin_lock+0x5c/0xc0
+  sch_direct_xmit+0x148/0x37c
+  __dev_queue_xmit+0x528/0x111c
+  ip6_finish_output2+0x5ec/0xb7c
+  ip6_finish_output+0x240/0x3f0
+  ip6_output+0x78/0x360
+  ndisc_send_skb+0x33c/0x85c
+  ndisc_send_rs+0x54/0x12c
+  addrconf_rs_timer+0x154/0x260
+  call_timer_fn+0xb8/0x3a0
+  __run_timers.part.0+0x214/0x26c
+  run_timer_softirq+0x3c/0x74
+  __do_softirq+0x14c/0x5d8
+  ____do_softirq+0x10/0x20
+  call_on_irq_stack+0x2c/0x5c
+  do_softirq_own_stack+0x1c/0x30
+  __irq_exit_rcu+0x168/0x1a0
+  irq_exit_rcu+0x10/0x40
+  el1_interrupt+0x38/0x64
+irq event stamp: 7825
+hardirqs last  enabled at (7825): [<ffffdf1f7200cae4>] exit_to_kernel_mode+0x34/0x130
+hardirqs last disabled at (7823): [<ffffdf1f708105f0>] __do_softirq+0x550/0x5d8
+softirqs last  enabled at (7824): [<ffffdf1f7081050c>] __do_softirq+0x46c/0x5d8
+softirqs last disabled at (7811): [<ffffdf1f708166e0>] ____do_softirq+0x10/0x20
+
+other info that might help us debug this:
+ Possible unsafe locking scenario:
+
+       CPU0
+       ----
+  lock(_xmit_ETHER#2);
+  <Interrupt>
+    lock(_xmit_ETHER#2);
+
+ *** DEADLOCK ***
+
+3 locks held by kworker/1:3/179:
+ #0: ffff3ec400004748 ((wq_completion)events){+.+.}-{0:0}, at: process_one_work+0x1f4/0x6c0
+ #1: ffff80000a0bbdc8 ((work_completion)(&priv->tx_onestep_tstamp)){+.+.}-{0:0}, at: process_one_work+0x1f4/0x6c0
+ #2: ffff3ec4036cd438 (&dev->tx_global_lock){+.+.}-{3:3}, at: netif_tx_lock+0x1c/0x34
+
+Workqueue: events enetc_tx_onestep_tstamp
+Call trace:
+ print_usage_bug.part.0+0x208/0x22c
+ mark_lock+0x7f0/0x8b0
+ __lock_acquire+0x7c4/0x1ce0
+ lock_acquire.part.0+0xe0/0x220
+ lock_acquire+0x68/0x84
+ _raw_spin_lock+0x5c/0xc0
+ netif_freeze_queues+0x5c/0xc0
+ netif_tx_lock+0x24/0x34
+ enetc_tx_onestep_tstamp+0x20/0x100
+ process_one_work+0x28c/0x6c0
+ worker_thread+0x74/0x450
+ kthread+0x118/0x11c
+
+but I'll say it anyway: the enetc_tx_onestep_tstamp() work item runs in
+process context, therefore with softirqs enabled (i.o.w., it can be
+interrupted by a softirq). If we hold the netif_tx_lock() when there is
+an interrupt, and the NET_TX softirq then gets scheduled, this will take
+the netif_tx_lock() a second time and deadlock the kernel.
+
+To solve this, use netif_tx_lock_bh(), which blocks softirqs from
+running.
+
+Fixes: 7294380c5211 ("enetc: support PTP Sync packet one-step timestamping")
+Signed-off-by: Vladimir Oltean <vladimir.oltean@nxp.com>
+Reviewed-by: Alexander Duyck <alexanderduyck@fb.com>
+Link: https://lore.kernel.org/r/20230112105440.1786799-1-vladimir.oltean@nxp.com
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/cpufreq/armada-37xx-cpufreq.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/net/ethernet/freescale/enetc/enetc.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/cpufreq/armada-37xx-cpufreq.c b/drivers/cpufreq/armada-37xx-cpufreq.c
-index c10fc33b29b1..b74289a95a17 100644
---- a/drivers/cpufreq/armada-37xx-cpufreq.c
-+++ b/drivers/cpufreq/armada-37xx-cpufreq.c
-@@ -445,7 +445,7 @@ static int __init armada37xx_cpufreq_driver_init(void)
- 		return -ENODEV;
- 	}
+diff --git a/drivers/net/ethernet/freescale/enetc/enetc.c b/drivers/net/ethernet/freescale/enetc/enetc.c
+index adccb14c1644..8b7c93447770 100644
+--- a/drivers/net/ethernet/freescale/enetc/enetc.c
++++ b/drivers/net/ethernet/freescale/enetc/enetc.c
+@@ -2000,14 +2000,14 @@ static void enetc_tx_onestep_tstamp(struct work_struct *work)
  
--	clk = clk_get(cpu_dev, 0);
-+	clk = clk_get(cpu_dev, NULL);
- 	if (IS_ERR(clk)) {
- 		dev_err(cpu_dev, "Cannot get clock for CPU0\n");
- 		return PTR_ERR(clk);
+ 	priv = container_of(work, struct enetc_ndev_priv, tx_onestep_tstamp);
+ 
+-	netif_tx_lock(priv->ndev);
++	netif_tx_lock_bh(priv->ndev);
+ 
+ 	clear_bit_unlock(ENETC_TX_ONESTEP_TSTAMP_IN_PROGRESS, &priv->flags);
+ 	skb = skb_dequeue(&priv->tx_skbs);
+ 	if (skb)
+ 		enetc_start_xmit(skb, priv->ndev);
+ 
+-	netif_tx_unlock(priv->ndev);
++	netif_tx_unlock_bh(priv->ndev);
+ }
+ 
+ static void enetc_tx_onestep_tstamp_init(struct enetc_ndev_priv *priv)
 -- 
 2.39.0
 
