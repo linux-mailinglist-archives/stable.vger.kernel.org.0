@@ -2,42 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 387C968101A
-	for <lists+stable@lfdr.de>; Mon, 30 Jan 2023 15:00:11 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 996D5681026
+	for <lists+stable@lfdr.de>; Mon, 30 Jan 2023 15:01:05 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236867AbjA3OAK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 30 Jan 2023 09:00:10 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41438 "EHLO
+        id S236918AbjA3OBE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 30 Jan 2023 09:01:04 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42548 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236820AbjA3OAD (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 30 Jan 2023 09:00:03 -0500
+        with ESMTP id S236787AbjA3OBB (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 30 Jan 2023 09:01:01 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3FCAD2C64C
-        for <stable@vger.kernel.org>; Mon, 30 Jan 2023 05:59:45 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 32D2B3A871
+        for <stable@vger.kernel.org>; Mon, 30 Jan 2023 06:00:08 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 1EB0661049
-        for <stable@vger.kernel.org>; Mon, 30 Jan 2023 13:59:45 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1F978C433EF;
-        Mon, 30 Jan 2023 13:59:43 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 062316104F
+        for <stable@vger.kernel.org>; Mon, 30 Jan 2023 13:59:48 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0F147C433EF;
+        Mon, 30 Jan 2023 13:59:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1675087184;
-        bh=fWKNo9YVWCEv3yEo+ZJpJE/0kVWmKsWjQOfVM5cqo9I=;
+        s=korg; t=1675087187;
+        bh=XsIuqD+h8m4IcaE0snM79LxLKguNwnFYHdyqaxTe938=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=vfgdX3heW8sXJIGwM08/EHaJh276hm6FBynPFECXBcSPyPVlYEqiaT7PInOMzPbxc
-         PZUpGTyBtelFdQzU2XYIHUbB3bm91thQQAgSHjR0+b4AtGGb9nZhRXkj2GwMdnGi/S
-         06TMmaguv5vV5WFs9i4G9RWiA477MNGGIYbl5a8k=
+        b=C3tO+U9QemCa9jEcJqLXaSa5WLJvAx1v75q4YEIFuwdJJ18dC6JxBGq3q6lYcJrXF
+         xUeYqBUnGeuwKHGe1RuEz37Uu7PmSHcgNNUSRdtzvdUF2X4+AXmkStLK5wgWyMYWtL
+         sTUx5xkNYNYcOzKa1eb0tak0Yy9kSOPU9bMKs6AA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Linux Kernel Functional Testing <lkft@linaro.org>,
-        Jakub Kicinski <kuba@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 124/313] net: sched: gred: prevent races when adding offloads to stats
-Date:   Mon, 30 Jan 2023 14:49:19 +0100
-Message-Id: <20230130134342.418986216@linuxfoundation.org>
+        patches@lists.linux.dev, Keith Busch <kbusch@kernel.org>,
+        Christoph Hellwig <hch@lst.de>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 6.1 125/313] nvme-pci: fix timeout request state check
+Date:   Mon, 30 Jan 2023 14:49:20 +0100
+Message-Id: <20230130134342.463535931@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.1
 In-Reply-To: <20230130134336.532886729@linuxfoundation.org>
 References: <20230130134336.532886729@linuxfoundation.org>
@@ -54,47 +52,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jakub Kicinski <kuba@kernel.org>
+From: Keith Busch <kbusch@kernel.org>
 
-[ Upstream commit 339346d49ae0859fe19b860998867861d37f1a76 ]
+[ Upstream commit 1c5842085851f786eba24a39ecd02650ad892064 ]
 
-Naresh reports seeing a warning that gred is calling
-u64_stats_update_begin() with preemption enabled.
-Arnd points out it's coming from _bstats_update().
+Polling the completion can progress the request state to IDLE, either
+inline with the completion, or through softirq. Either way, the state
+may not be COMPLETED, so don't check for that. We only care if the state
+isn't IN_FLIGHT.
 
-We should be holding the qdisc lock when writing
-to stats, they are also updated from the datapath.
+This is fixing an issue where the driver aborts an IO that we just
+completed. Seeing the "aborting" message instead of "polled" is very
+misleading as to where the timeout problem resides.
 
-Reported-by: Linux Kernel Functional Testing <lkft@linaro.org>
-Link: https://lore.kernel.org/all/CA+G9fYsTr9_r893+62u6UGD3dVaCE-kN9C-Apmb2m=hxjc1Cqg@mail.gmail.com/
-Fixes: e49efd5288bd ("net: sched: gred: support reporting stats from offloads")
-Link: https://lore.kernel.org/r/20230113044137.1383067-1-kuba@kernel.org
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Fixes: bf392a5dc02a9b ("nvme-pci: Remove tag from process cq")
+Signed-off-by: Keith Busch <kbusch@kernel.org>
+Signed-off-by: Christoph Hellwig <hch@lst.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/sched/sch_gred.c | 2 ++
- 1 file changed, 2 insertions(+)
+ drivers/nvme/host/pci.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/net/sched/sch_gred.c b/net/sched/sch_gred.c
-index a661b062cca8..872d127c9db4 100644
---- a/net/sched/sch_gred.c
-+++ b/net/sched/sch_gred.c
-@@ -377,6 +377,7 @@ static int gred_offload_dump_stats(struct Qdisc *sch)
- 	/* Even if driver returns failure adjust the stats - in case offload
- 	 * ended but driver still wants to adjust the values.
- 	 */
-+	sch_tree_lock(sch);
- 	for (i = 0; i < MAX_DPs; i++) {
- 		if (!table->tab[i])
- 			continue;
-@@ -393,6 +394,7 @@ static int gred_offload_dump_stats(struct Qdisc *sch)
- 		sch->qstats.overlimits += hw_stats->stats.qstats[i].overlimits;
- 	}
- 	_bstats_update(&sch->bstats, bytes, packets);
-+	sch_tree_unlock(sch);
+diff --git a/drivers/nvme/host/pci.c b/drivers/nvme/host/pci.c
+index 115d81def567..e2de5d0de5d9 100644
+--- a/drivers/nvme/host/pci.c
++++ b/drivers/nvme/host/pci.c
+@@ -1367,7 +1367,7 @@ static enum blk_eh_timer_return nvme_timeout(struct request *req)
+ 	else
+ 		nvme_poll_irqdisable(nvmeq);
  
- 	kfree(hw_stats);
- 	return ret;
+-	if (blk_mq_request_completed(req)) {
++	if (blk_mq_rq_state(req) != MQ_RQ_IN_FLIGHT) {
+ 		dev_warn(dev->ctrl.device,
+ 			 "I/O %d QID %d timeout, completion polled\n",
+ 			 req->tag, nvmeq->qid);
 -- 
 2.39.0
 
