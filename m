@@ -2,40 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 02C5768131D
-	for <lists+stable@lfdr.de>; Mon, 30 Jan 2023 15:28:28 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 554F268131E
+	for <lists+stable@lfdr.de>; Mon, 30 Jan 2023 15:28:29 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237695AbjA3O20 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 30 Jan 2023 09:28:26 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48584 "EHLO
+        id S237529AbjA3O22 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 30 Jan 2023 09:28:28 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48638 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237423AbjA3O2M (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 30 Jan 2023 09:28:12 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8D5553D92C
-        for <stable@vger.kernel.org>; Mon, 30 Jan 2023 06:26:45 -0800 (PST)
+        with ESMTP id S237712AbjA3O2N (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 30 Jan 2023 09:28:13 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C18083FF3D
+        for <stable@vger.kernel.org>; Mon, 30 Jan 2023 06:26:47 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 28008B810C5
-        for <stable@vger.kernel.org>; Mon, 30 Jan 2023 14:26:45 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 73ED7C433EF;
-        Mon, 30 Jan 2023 14:26:43 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 4C3B960CEE
+        for <stable@vger.kernel.org>; Mon, 30 Jan 2023 14:26:47 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 552BCC433EF;
+        Mon, 30 Jan 2023 14:26:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1675088803;
-        bh=/kf3B+xPe72iydFm4rav9awomDkPmHf5K8qGjpi2dBw=;
+        s=korg; t=1675088806;
+        bh=mBl9K2e9TJepKIEmHlVBVazvrnGATlTMJ3DSlH5Uby4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=EU/ztzJBQ+QjJV/usIb5MoUVNHvN0FbgcbpZVfH5C3sIflpDH5HF+iD8xrOMEDVLb
-         c0x2cFdxEUiPSXRfiLdMU5EDwcl4bTfiIRpGnQ1nnDDmdimCN+aeu8dJFMRi2rUjGG
-         TaBL7LEW142YZjycVotV30ZvS4uevXlyVQTtvCKE=
+        b=G+MMKOA90Prjae8BnemtIXilW80iRfs2k6Tapk93qEOcNM3dRbV1i1EZax7fpHIkU
+         lXTb+SNc3rmPyRAVb3ZgFZXZmxGXbqEFH19+I/S2j0Gnn7Qo7cB4X3sBsDbmdLFmmz
+         fSwyh/PdJdEww+rLwZep08GtQmBFuusJ+wn2JlQ0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Baoquan He <bhe@redhat.com>,
-        Thomas Gleixner <tglx@linutronix.de>
-Subject: [PATCH 5.10 140/143] x86/i8259: Mark legacy PIC interrupts with IRQ_LEVEL
-Date:   Mon, 30 Jan 2023 14:53:17 +0100
-Message-Id: <20230130134312.638294295@linuxfoundation.org>
+        patches@lists.linux.dev,
+        Sriram Yagnaraman <sriram.yagnaraman@est.tech>,
+        Pablo Neira Ayuso <pablo@netfilter.org>
+Subject: [PATCH 5.10 141/143] netfilter: conntrack: unify established states for SCTP paths
+Date:   Mon, 30 Jan 2023 14:53:18 +0100
+Message-Id: <20230130134312.680651285@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.1
 In-Reply-To: <20230130134306.862721518@linuxfoundation.org>
 References: <20230130134306.862721518@linuxfoundation.org>
@@ -52,61 +53,244 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Thomas Gleixner <tglx@linutronix.de>
+From: Sriram Yagnaraman <sriram.yagnaraman@est.tech>
 
-commit 5fa55950729d0762a787451dc52862c3f850f859 upstream.
+commit a44b7651489f26271ac784b70895e8a85d0cebf4 upstream.
 
-Baoquan reported that after triggering a crash the subsequent crash-kernel
-fails to boot about half of the time. It triggers a NULL pointer
-dereference in the periodic tick code.
+An SCTP endpoint can start an association through a path and tear it
+down over another one. That means the initial path will not see the
+shutdown sequence, and the conntrack entry will remain in ESTABLISHED
+state for 5 days.
 
-This happens because the legacy timer interrupt (IRQ0) is resent in
-software which happens in soft interrupt (tasklet) context. In this context
-get_irq_regs() returns NULL which leads to the NULL pointer dereference.
+By merging the HEARTBEAT_ACKED and ESTABLISHED states into one
+ESTABLISHED state, there remains no difference between a primary or
+secondary path. The timeout for the merged ESTABLISHED state is set to
+210 seconds (hb_interval * max_path_retrans + rto_max). So, even if a
+path doesn't see the shutdown sequence, it will expire in a reasonable
+amount of time.
 
-The reason for the resend is a spurious APIC interrupt on the IRQ0 vector
-which is captured and leads to a resend when the legacy timer interrupt is
-enabled. This is wrong because the legacy PIC interrupts are level
-triggered and therefore should never be resent in software, but nothing
-ever sets the IRQ_LEVEL flag on those interrupts, so the core code does not
-know about their trigger type.
+With this change in place, there is now more than one state from which
+we can transition to ESTABLISHED, COOKIE_ECHOED and HEARTBEAT_SENT, so
+handle the setting of ASSURED bit whenever a state change has happened
+and the new state is ESTABLISHED. Removed the check for dir==REPLY since
+the transition to ESTABLISHED can happen only in the reply direction.
 
-Ensure that IRQ_LEVEL is set when the legacy PCI interrupts are set up.
-
-Fixes: a4633adcdbc1 ("[PATCH] genirq: add genirq sw IRQ-retrigger")
-Reported-by: Baoquan He <bhe@redhat.com>
-Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
-Tested-by: Baoquan He <bhe@redhat.com>
-Link: https://lore.kernel.org/r/87mt6rjrra.ffs@tglx
+Fixes: 9fb9cbb1082d ("[NETFILTER]: Add nf_conntrack subsystem.")
+Signed-off-by: Sriram Yagnaraman <sriram.yagnaraman@est.tech>
+Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/x86/kernel/i8259.c   |    1 +
- arch/x86/kernel/irqinit.c |    4 +++-
- 2 files changed, 4 insertions(+), 1 deletion(-)
+ include/uapi/linux/netfilter/nf_conntrack_sctp.h   |    2 
+ include/uapi/linux/netfilter/nfnetlink_cttimeout.h |    2 
+ net/netfilter/nf_conntrack_proto_sctp.c            |   93 ++++++++-------------
+ net/netfilter/nf_conntrack_standalone.c            |    8 -
+ 4 files changed, 41 insertions(+), 64 deletions(-)
 
---- a/arch/x86/kernel/i8259.c
-+++ b/arch/x86/kernel/i8259.c
-@@ -114,6 +114,7 @@ static void make_8259A_irq(unsigned int
- 	disable_irq_nosync(irq);
- 	io_apic_irqs &= ~(1<<irq);
- 	irq_set_chip_and_handler(irq, &i8259A_chip, handle_level_irq);
-+	irq_set_status_flags(irq, IRQ_LEVEL);
- 	enable_irq(irq);
- 	lapic_assign_legacy_vector(irq, true);
+--- a/include/uapi/linux/netfilter/nf_conntrack_sctp.h
++++ b/include/uapi/linux/netfilter/nf_conntrack_sctp.h
+@@ -15,7 +15,7 @@ enum sctp_conntrack {
+ 	SCTP_CONNTRACK_SHUTDOWN_RECD,
+ 	SCTP_CONNTRACK_SHUTDOWN_ACK_SENT,
+ 	SCTP_CONNTRACK_HEARTBEAT_SENT,
+-	SCTP_CONNTRACK_HEARTBEAT_ACKED,
++	SCTP_CONNTRACK_HEARTBEAT_ACKED,	/* no longer used */
+ 	SCTP_CONNTRACK_MAX
+ };
+ 
+--- a/include/uapi/linux/netfilter/nfnetlink_cttimeout.h
++++ b/include/uapi/linux/netfilter/nfnetlink_cttimeout.h
+@@ -94,7 +94,7 @@ enum ctattr_timeout_sctp {
+ 	CTA_TIMEOUT_SCTP_SHUTDOWN_RECD,
+ 	CTA_TIMEOUT_SCTP_SHUTDOWN_ACK_SENT,
+ 	CTA_TIMEOUT_SCTP_HEARTBEAT_SENT,
+-	CTA_TIMEOUT_SCTP_HEARTBEAT_ACKED,
++	CTA_TIMEOUT_SCTP_HEARTBEAT_ACKED, /* no longer used */
+ 	__CTA_TIMEOUT_SCTP_MAX
+ };
+ #define CTA_TIMEOUT_SCTP_MAX (__CTA_TIMEOUT_SCTP_MAX - 1)
+--- a/net/netfilter/nf_conntrack_proto_sctp.c
++++ b/net/netfilter/nf_conntrack_proto_sctp.c
+@@ -27,22 +27,16 @@
+ #include <net/netfilter/nf_conntrack_ecache.h>
+ #include <net/netfilter/nf_conntrack_timeout.h>
+ 
+-/* FIXME: Examine ipfilter's timeouts and conntrack transitions more
+-   closely.  They're more complex. --RR
+-
+-   And so for me for SCTP :D -Kiran */
+-
+ static const char *const sctp_conntrack_names[] = {
+-	"NONE",
+-	"CLOSED",
+-	"COOKIE_WAIT",
+-	"COOKIE_ECHOED",
+-	"ESTABLISHED",
+-	"SHUTDOWN_SENT",
+-	"SHUTDOWN_RECD",
+-	"SHUTDOWN_ACK_SENT",
+-	"HEARTBEAT_SENT",
+-	"HEARTBEAT_ACKED",
++	[SCTP_CONNTRACK_NONE]			= "NONE",
++	[SCTP_CONNTRACK_CLOSED]			= "CLOSED",
++	[SCTP_CONNTRACK_COOKIE_WAIT]		= "COOKIE_WAIT",
++	[SCTP_CONNTRACK_COOKIE_ECHOED]		= "COOKIE_ECHOED",
++	[SCTP_CONNTRACK_ESTABLISHED]		= "ESTABLISHED",
++	[SCTP_CONNTRACK_SHUTDOWN_SENT]		= "SHUTDOWN_SENT",
++	[SCTP_CONNTRACK_SHUTDOWN_RECD]		= "SHUTDOWN_RECD",
++	[SCTP_CONNTRACK_SHUTDOWN_ACK_SENT]	= "SHUTDOWN_ACK_SENT",
++	[SCTP_CONNTRACK_HEARTBEAT_SENT]		= "HEARTBEAT_SENT",
+ };
+ 
+ #define SECS  * HZ
+@@ -54,12 +48,11 @@ static const unsigned int sctp_timeouts[
+ 	[SCTP_CONNTRACK_CLOSED]			= 10 SECS,
+ 	[SCTP_CONNTRACK_COOKIE_WAIT]		= 3 SECS,
+ 	[SCTP_CONNTRACK_COOKIE_ECHOED]		= 3 SECS,
+-	[SCTP_CONNTRACK_ESTABLISHED]		= 5 DAYS,
++	[SCTP_CONNTRACK_ESTABLISHED]		= 210 SECS,
+ 	[SCTP_CONNTRACK_SHUTDOWN_SENT]		= 300 SECS / 1000,
+ 	[SCTP_CONNTRACK_SHUTDOWN_RECD]		= 300 SECS / 1000,
+ 	[SCTP_CONNTRACK_SHUTDOWN_ACK_SENT]	= 3 SECS,
+ 	[SCTP_CONNTRACK_HEARTBEAT_SENT]		= 30 SECS,
+-	[SCTP_CONNTRACK_HEARTBEAT_ACKED]	= 210 SECS,
+ };
+ 
+ #define	SCTP_FLAG_HEARTBEAT_VTAG_FAILED	1
+@@ -73,7 +66,6 @@ static const unsigned int sctp_timeouts[
+ #define	sSR SCTP_CONNTRACK_SHUTDOWN_RECD
+ #define	sSA SCTP_CONNTRACK_SHUTDOWN_ACK_SENT
+ #define	sHS SCTP_CONNTRACK_HEARTBEAT_SENT
+-#define	sHA SCTP_CONNTRACK_HEARTBEAT_ACKED
+ #define	sIV SCTP_CONNTRACK_MAX
+ 
+ /*
+@@ -96,9 +88,6 @@ SHUTDOWN_ACK_SENT - We have seen a SHUTD
+ CLOSED            - We have seen a SHUTDOWN_COMPLETE chunk in the direction of
+ 		    the SHUTDOWN chunk. Connection is closed.
+ HEARTBEAT_SENT    - We have seen a HEARTBEAT in a new flow.
+-HEARTBEAT_ACKED   - We have seen a HEARTBEAT-ACK in the direction opposite to
+-		    that of the HEARTBEAT chunk. Secondary connection is
+-		    established.
+ */
+ 
+ /* TODO
+@@ -115,33 +104,33 @@ cookie echoed to closed.
+ static const u8 sctp_conntracks[2][11][SCTP_CONNTRACK_MAX] = {
+ 	{
+ /*	ORIGINAL	*/
+-/*                  sNO, sCL, sCW, sCE, sES, sSS, sSR, sSA, sHS, sHA */
+-/* init         */ {sCL, sCL, sCW, sCE, sES, sSS, sSR, sSA, sCW, sHA},
+-/* init_ack     */ {sCL, sCL, sCW, sCE, sES, sSS, sSR, sSA, sCL, sHA},
+-/* abort        */ {sCL, sCL, sCL, sCL, sCL, sCL, sCL, sCL, sCL, sCL},
+-/* shutdown     */ {sCL, sCL, sCW, sCE, sSS, sSS, sSR, sSA, sCL, sSS},
+-/* shutdown_ack */ {sSA, sCL, sCW, sCE, sES, sSA, sSA, sSA, sSA, sHA},
+-/* error        */ {sCL, sCL, sCW, sCE, sES, sSS, sSR, sSA, sCL, sHA},/* Can't have Stale cookie*/
+-/* cookie_echo  */ {sCL, sCL, sCE, sCE, sES, sSS, sSR, sSA, sCL, sHA},/* 5.2.4 - Big TODO */
+-/* cookie_ack   */ {sCL, sCL, sCW, sCE, sES, sSS, sSR, sSA, sCL, sHA},/* Can't come in orig dir */
+-/* shutdown_comp*/ {sCL, sCL, sCW, sCE, sES, sSS, sSR, sCL, sCL, sHA},
+-/* heartbeat    */ {sHS, sCL, sCW, sCE, sES, sSS, sSR, sSA, sHS, sHA},
+-/* heartbeat_ack*/ {sCL, sCL, sCW, sCE, sES, sSS, sSR, sSA, sHS, sHA}
++/*                  sNO, sCL, sCW, sCE, sES, sSS, sSR, sSA, sHS */
++/* init         */ {sCL, sCL, sCW, sCE, sES, sSS, sSR, sSA, sCW},
++/* init_ack     */ {sCL, sCL, sCW, sCE, sES, sSS, sSR, sSA, sCL},
++/* abort        */ {sCL, sCL, sCL, sCL, sCL, sCL, sCL, sCL, sCL},
++/* shutdown     */ {sCL, sCL, sCW, sCE, sSS, sSS, sSR, sSA, sCL},
++/* shutdown_ack */ {sSA, sCL, sCW, sCE, sES, sSA, sSA, sSA, sSA},
++/* error        */ {sCL, sCL, sCW, sCE, sES, sSS, sSR, sSA, sCL},/* Can't have Stale cookie*/
++/* cookie_echo  */ {sCL, sCL, sCE, sCE, sES, sSS, sSR, sSA, sCL},/* 5.2.4 - Big TODO */
++/* cookie_ack   */ {sCL, sCL, sCW, sCE, sES, sSS, sSR, sSA, sCL},/* Can't come in orig dir */
++/* shutdown_comp*/ {sCL, sCL, sCW, sCE, sES, sSS, sSR, sCL, sCL},
++/* heartbeat    */ {sHS, sCL, sCW, sCE, sES, sSS, sSR, sSA, sHS},
++/* heartbeat_ack*/ {sCL, sCL, sCW, sCE, sES, sSS, sSR, sSA, sHS},
+ 	},
+ 	{
+ /*	REPLY	*/
+-/*                  sNO, sCL, sCW, sCE, sES, sSS, sSR, sSA, sHS, sHA */
+-/* init         */ {sIV, sCL, sCW, sCE, sES, sSS, sSR, sSA, sIV, sHA},/* INIT in sCL Big TODO */
+-/* init_ack     */ {sIV, sCW, sCW, sCE, sES, sSS, sSR, sSA, sIV, sHA},
+-/* abort        */ {sIV, sCL, sCL, sCL, sCL, sCL, sCL, sCL, sIV, sCL},
+-/* shutdown     */ {sIV, sCL, sCW, sCE, sSR, sSS, sSR, sSA, sIV, sSR},
+-/* shutdown_ack */ {sIV, sCL, sCW, sCE, sES, sSA, sSA, sSA, sIV, sHA},
+-/* error        */ {sIV, sCL, sCW, sCL, sES, sSS, sSR, sSA, sIV, sHA},
+-/* cookie_echo  */ {sIV, sCL, sCW, sCE, sES, sSS, sSR, sSA, sIV, sHA},/* Can't come in reply dir */
+-/* cookie_ack   */ {sIV, sCL, sCW, sES, sES, sSS, sSR, sSA, sIV, sHA},
+-/* shutdown_comp*/ {sIV, sCL, sCW, sCE, sES, sSS, sSR, sCL, sIV, sHA},
+-/* heartbeat    */ {sIV, sCL, sCW, sCE, sES, sSS, sSR, sSA, sHS, sHA},
+-/* heartbeat_ack*/ {sIV, sCL, sCW, sCE, sES, sSS, sSR, sSA, sHA, sHA}
++/*                  sNO, sCL, sCW, sCE, sES, sSS, sSR, sSA, sHS */
++/* init         */ {sIV, sCL, sCW, sCE, sES, sSS, sSR, sSA, sIV},/* INIT in sCL Big TODO */
++/* init_ack     */ {sIV, sCW, sCW, sCE, sES, sSS, sSR, sSA, sIV},
++/* abort        */ {sIV, sCL, sCL, sCL, sCL, sCL, sCL, sCL, sIV},
++/* shutdown     */ {sIV, sCL, sCW, sCE, sSR, sSS, sSR, sSA, sIV},
++/* shutdown_ack */ {sIV, sCL, sCW, sCE, sES, sSA, sSA, sSA, sIV},
++/* error        */ {sIV, sCL, sCW, sCL, sES, sSS, sSR, sSA, sIV},
++/* cookie_echo  */ {sIV, sCL, sCW, sCE, sES, sSS, sSR, sSA, sIV},/* Can't come in reply dir */
++/* cookie_ack   */ {sIV, sCL, sCW, sES, sES, sSS, sSR, sSA, sIV},
++/* shutdown_comp*/ {sIV, sCL, sCW, sCE, sES, sSS, sSR, sCL, sIV},
++/* heartbeat    */ {sIV, sCL, sCW, sCE, sES, sSS, sSR, sSA, sHS},
++/* heartbeat_ack*/ {sIV, sCL, sCW, sCE, sES, sSS, sSR, sSA, sES},
+ 	}
+ };
+ 
+@@ -508,8 +497,12 @@ int nf_conntrack_sctp_packet(struct nf_c
+ 		}
+ 
+ 		ct->proto.sctp.state = new_state;
+-		if (old_state != new_state)
++		if (old_state != new_state) {
+ 			nf_conntrack_event_cache(IPCT_PROTOINFO, ct);
++			if (new_state == SCTP_CONNTRACK_ESTABLISHED &&
++			    !test_and_set_bit(IPS_ASSURED_BIT, &ct->status))
++				nf_conntrack_event_cache(IPCT_ASSURED, ct);
++		}
+ 	}
+ 	spin_unlock_bh(&ct->lock);
+ 
+@@ -523,14 +516,6 @@ int nf_conntrack_sctp_packet(struct nf_c
+ 
+ 	nf_ct_refresh_acct(ct, ctinfo, skb, timeouts[new_state]);
+ 
+-	if (old_state == SCTP_CONNTRACK_COOKIE_ECHOED &&
+-	    dir == IP_CT_DIR_REPLY &&
+-	    new_state == SCTP_CONNTRACK_ESTABLISHED) {
+-		pr_debug("Setting assured bit\n");
+-		set_bit(IPS_ASSURED_BIT, &ct->status);
+-		nf_conntrack_event_cache(IPCT_ASSURED, ct);
+-	}
+-
+ 	return NF_ACCEPT;
+ 
+ out_unlock:
+--- a/net/netfilter/nf_conntrack_standalone.c
++++ b/net/netfilter/nf_conntrack_standalone.c
+@@ -583,7 +583,6 @@ enum nf_ct_sysctl_index {
+ 	NF_SYSCTL_CT_PROTO_TIMEOUT_SCTP_SHUTDOWN_RECD,
+ 	NF_SYSCTL_CT_PROTO_TIMEOUT_SCTP_SHUTDOWN_ACK_SENT,
+ 	NF_SYSCTL_CT_PROTO_TIMEOUT_SCTP_HEARTBEAT_SENT,
+-	NF_SYSCTL_CT_PROTO_TIMEOUT_SCTP_HEARTBEAT_ACKED,
+ #endif
+ #ifdef CONFIG_NF_CT_PROTO_DCCP
+ 	NF_SYSCTL_CT_PROTO_TIMEOUT_DCCP_REQUEST,
+@@ -853,12 +852,6 @@ static struct ctl_table nf_ct_sysctl_tab
+ 		.mode		= 0644,
+ 		.proc_handler	= proc_dointvec_jiffies,
+ 	},
+-	[NF_SYSCTL_CT_PROTO_TIMEOUT_SCTP_HEARTBEAT_ACKED] = {
+-		.procname       = "nf_conntrack_sctp_timeout_heartbeat_acked",
+-		.maxlen         = sizeof(unsigned int),
+-		.mode           = 0644,
+-		.proc_handler   = proc_dointvec_jiffies,
+-	},
+ #endif
+ #ifdef CONFIG_NF_CT_PROTO_DCCP
+ 	[NF_SYSCTL_CT_PROTO_TIMEOUT_DCCP_REQUEST] = {
+@@ -987,7 +980,6 @@ static void nf_conntrack_standalone_init
+ 	XASSIGN(SHUTDOWN_RECD, sn);
+ 	XASSIGN(SHUTDOWN_ACK_SENT, sn);
+ 	XASSIGN(HEARTBEAT_SENT, sn);
+-	XASSIGN(HEARTBEAT_ACKED, sn);
+ #undef XASSIGN
+ #endif
  }
---- a/arch/x86/kernel/irqinit.c
-+++ b/arch/x86/kernel/irqinit.c
-@@ -65,8 +65,10 @@ void __init init_ISA_irqs(void)
- 
- 	legacy_pic->init(0);
- 
--	for (i = 0; i < nr_legacy_irqs(); i++)
-+	for (i = 0; i < nr_legacy_irqs(); i++) {
- 		irq_set_chip_and_handler(i, chip, handle_level_irq);
-+		irq_set_status_flags(i, IRQ_LEVEL);
-+	}
- }
- 
- void __init init_IRQ(void)
 
 
