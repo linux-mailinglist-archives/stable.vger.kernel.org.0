@@ -2,46 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 2C2396810D7
-	for <lists+stable@lfdr.de>; Mon, 30 Jan 2023 15:07:23 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4FD966812D9
+	for <lists+stable@lfdr.de>; Mon, 30 Jan 2023 15:25:50 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237109AbjA3OHW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 30 Jan 2023 09:07:22 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49518 "EHLO
+        id S237497AbjA3OZt (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 30 Jan 2023 09:25:49 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42096 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237106AbjA3OHV (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 30 Jan 2023 09:07:21 -0500
+        with ESMTP id S237850AbjA3OZU (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 30 Jan 2023 09:25:20 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5B15C3B659
-        for <stable@vger.kernel.org>; Mon, 30 Jan 2023 06:07:20 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 102EB38669
+        for <stable@vger.kernel.org>; Mon, 30 Jan 2023 06:24:08 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 129E6B811BD
-        for <stable@vger.kernel.org>; Mon, 30 Jan 2023 14:07:19 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 38A0EC433EF;
-        Mon, 30 Jan 2023 14:07:16 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id C8C71B80FA0
+        for <stable@vger.kernel.org>; Mon, 30 Jan 2023 14:23:52 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 07185C433EF;
+        Mon, 30 Jan 2023 14:23:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1675087637;
-        bh=b1grx+0ni3uWa3ow56kR1h6FHvRUggVisBq7oraVU1s=;
+        s=korg; t=1675088631;
+        bh=NPhttOZXlzAZ5Mk8usBy7pJhstL8FxsN8MtgLzoSqWE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=zNT8g59TtgLt9mCujlrWh+aDEgdJG29BZAn9QiD9NJyK5a4LzWD/4N0l+kcdzXuhk
-         iezx3dKn8lShkXsbrDGmswkLdCeX3guy1Ga4hSY1DluBfyqp4PyXfx35f2wbzVAcu5
-         V9/R379Q4pUUkrffYmPs4rurDwLdjYzIgUy7Q7Dw=
+        b=kn2MEFHzetf6j5yQJ1GRZzHLoPfyYlcDCfryiiLxKB6Do1mjEjt1DDCQnxtKtKIU+
+         34XiTNqzJg6FLSuOatLk+3ipMwaCxCQs419re/1yTwGOPfPPF1PN3mER6wZiKaZm1H
+         3L/63ftGFhSWvEPUu5saIukEkgjSDobrJRId4KgE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        syzbot+5fafd5cfe1fc91f6b352@syzkaller.appspotmail.com,
+        patches@lists.linux.dev, Eric Dumazet <edumazet@google.com>,
+        Jason Xing <kernelxing@tencent.com>,
         Kuniyuki Iwashima <kuniyu@amazon.com>,
         Paolo Abeni <pabeni@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 275/313] netrom: Fix use-after-free of a listening socket.
-Date:   Mon, 30 Jan 2023 14:51:50 +0100
-Message-Id: <20230130134349.547641568@linuxfoundation.org>
+Subject: [PATCH 5.10 054/143] tcp: avoid the lookup process failing to get sk in ehash table
+Date:   Mon, 30 Jan 2023 14:51:51 +0100
+Message-Id: <20230130134309.103365845@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.1
-In-Reply-To: <20230130134336.532886729@linuxfoundation.org>
-References: <20230130134336.532886729@linuxfoundation.org>
+In-Reply-To: <20230130134306.862721518@linuxfoundation.org>
+References: <20230130134306.862721518@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,159 +55,119 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kuniyuki Iwashima <kuniyu@amazon.com>
+From: Jason Xing <kernelxing@tencent.com>
 
-[ Upstream commit 409db27e3a2eb5e8ef7226ca33be33361b3ed1c9 ]
+[ Upstream commit 3f4ca5fafc08881d7a57daa20449d171f2887043 ]
 
-syzbot reported a use-after-free in do_accept(), precisely nr_accept()
-as sk_prot_alloc() allocated the memory and sock_put() frees it. [0]
+While one cpu is working on looking up the right socket from ehash
+table, another cpu is done deleting the request socket and is about
+to add (or is adding) the big socket from the table. It means that
+we could miss both of them, even though it has little chance.
 
-The issue could happen if the heartbeat timer is fired and
-nr_heartbeat_expiry() calls nr_destroy_socket(), where a socket
-has SOCK_DESTROY or a listening socket has SOCK_DEAD.
+Let me draw a call trace map of the server side.
+   CPU 0                           CPU 1
+   -----                           -----
+tcp_v4_rcv()                  syn_recv_sock()
+                            inet_ehash_insert()
+                            -> sk_nulls_del_node_init_rcu(osk)
+__inet_lookup_established()
+                            -> __sk_nulls_add_node_rcu(sk, list)
 
-In this case, the first condition cannot be true.  SOCK_DESTROY is
-flagged in nr_release() only when the file descriptor is close()d,
-but accept() is being called for the listening socket, so the second
-condition must be true.
+Notice that the CPU 0 is receiving the data after the final ack
+during 3-way shakehands and CPU 1 is still handling the final ack.
 
-Usually, the AF_NETROM listener neither starts timers nor sets
-SOCK_DEAD.  However, the condition is met if connect() fails before
-listen().  connect() starts the t1 timer and heartbeat timer, and
-t1timer calls nr_disconnect() when timeout happens.  Then, SOCK_DEAD
-is set, and if we call listen(), the heartbeat timer calls
-nr_destroy_socket().
+Why could this be a real problem?
+This case is happening only when the final ack and the first data
+receiving by different CPUs. Then the server receiving data with
+ACK flag tries to search one proper established socket from ehash
+table, but apparently it fails as my map shows above. After that,
+the server fetches a listener socket and then sends a RST because
+it finds a ACK flag in the skb (data), which obeys RST definition
+in RFC 793.
 
-  nr_connect
-    nr_establish_data_link(sk)
-      nr_start_t1timer(sk)
-    nr_start_heartbeat(sk)
-                                    nr_t1timer_expiry
-                                      nr_disconnect(sk, ETIMEDOUT)
-                                        nr_sk(sk)->state = NR_STATE_0
-                                        sk->sk_state = TCP_CLOSE
-                                        sock_set_flag(sk, SOCK_DEAD)
-nr_listen
-  if (sk->sk_state != TCP_LISTEN)
-    sk->sk_state = TCP_LISTEN
-                                    nr_heartbeat_expiry
-                                      switch (nr->state)
-                                      case NR_STATE_0
-                                        if (sk->sk_state == TCP_LISTEN &&
-                                            sock_flag(sk, SOCK_DEAD))
-                                          nr_destroy_socket(sk)
+Besides, Eric pointed out there's one more race condition where it
+handles tw socket hashdance. Only by adding to the tail of the list
+before deleting the old one can we avoid the race if the reader has
+already begun the bucket traversal and it would possibly miss the head.
 
-This path seems expected, and nr_destroy_socket() is called to clean
-up resources.  Initially, there was sock_hold() before nr_destroy_socket()
-so that the socket would not be freed, but the commit 517a16b1a88b
-("netrom: Decrease sock refcount when sock timers expire") accidentally
-removed it.
+Many thanks to Eric for great help from beginning to end.
 
-To fix use-after-free, let's add sock_hold().
-
-[0]:
-BUG: KASAN: use-after-free in do_accept+0x483/0x510 net/socket.c:1848
-Read of size 8 at addr ffff88807978d398 by task syz-executor.3/5315
-
-CPU: 0 PID: 5315 Comm: syz-executor.3 Not tainted 6.2.0-rc3-syzkaller-00165-gd9fc1511728c #0
-Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS Google 10/26/2022
-Call Trace:
- <TASK>
- __dump_stack lib/dump_stack.c:88 [inline]
- dump_stack_lvl+0xd1/0x138 lib/dump_stack.c:106
- print_address_description mm/kasan/report.c:306 [inline]
- print_report+0x15e/0x461 mm/kasan/report.c:417
- kasan_report+0xbf/0x1f0 mm/kasan/report.c:517
- do_accept+0x483/0x510 net/socket.c:1848
- __sys_accept4_file net/socket.c:1897 [inline]
- __sys_accept4+0x9a/0x120 net/socket.c:1927
- __do_sys_accept net/socket.c:1944 [inline]
- __se_sys_accept net/socket.c:1941 [inline]
- __x64_sys_accept+0x75/0xb0 net/socket.c:1941
- do_syscall_x64 arch/x86/entry/common.c:50 [inline]
- do_syscall_64+0x39/0xb0 arch/x86/entry/common.c:80
- entry_SYSCALL_64_after_hwframe+0x63/0xcd
-RIP: 0033:0x7fa436a8c0c9
-Code: 28 00 00 00 75 05 48 83 c4 28 c3 e8 f1 19 00 00 90 48 89 f8 48 89 f7 48 89 d6 48 89 ca 4d 89 c2 4d 89 c8 4c 8b 4c 24 08 0f 05 <48> 3d 01 f0 ff ff 73 01 c3 48 c7 c1 b8 ff ff ff f7 d8 64 89 01 48
-RSP: 002b:00007fa437784168 EFLAGS: 00000246 ORIG_RAX: 000000000000002b
-RAX: ffffffffffffffda RBX: 00007fa436bac050 RCX: 00007fa436a8c0c9
-RDX: 0000000000000000 RSI: 0000000000000000 RDI: 0000000000000005
-RBP: 00007fa436ae7ae9 R08: 0000000000000000 R09: 0000000000000000
-R10: 0000000000000000 R11: 0000000000000246 R12: 0000000000000000
-R13: 00007ffebc6700df R14: 00007fa437784300 R15: 0000000000022000
- </TASK>
-
-Allocated by task 5294:
- kasan_save_stack+0x22/0x40 mm/kasan/common.c:45
- kasan_set_track+0x25/0x30 mm/kasan/common.c:52
- ____kasan_kmalloc mm/kasan/common.c:371 [inline]
- ____kasan_kmalloc mm/kasan/common.c:330 [inline]
- __kasan_kmalloc+0xa3/0xb0 mm/kasan/common.c:380
- kasan_kmalloc include/linux/kasan.h:211 [inline]
- __do_kmalloc_node mm/slab_common.c:968 [inline]
- __kmalloc+0x5a/0xd0 mm/slab_common.c:981
- kmalloc include/linux/slab.h:584 [inline]
- sk_prot_alloc+0x140/0x290 net/core/sock.c:2038
- sk_alloc+0x3a/0x7a0 net/core/sock.c:2091
- nr_create+0xb6/0x5f0 net/netrom/af_netrom.c:433
- __sock_create+0x359/0x790 net/socket.c:1515
- sock_create net/socket.c:1566 [inline]
- __sys_socket_create net/socket.c:1603 [inline]
- __sys_socket_create net/socket.c:1588 [inline]
- __sys_socket+0x133/0x250 net/socket.c:1636
- __do_sys_socket net/socket.c:1649 [inline]
- __se_sys_socket net/socket.c:1647 [inline]
- __x64_sys_socket+0x73/0xb0 net/socket.c:1647
- do_syscall_x64 arch/x86/entry/common.c:50 [inline]
- do_syscall_64+0x39/0xb0 arch/x86/entry/common.c:80
- entry_SYSCALL_64_after_hwframe+0x63/0xcd
-
-Freed by task 14:
- kasan_save_stack+0x22/0x40 mm/kasan/common.c:45
- kasan_set_track+0x25/0x30 mm/kasan/common.c:52
- kasan_save_free_info+0x2b/0x40 mm/kasan/generic.c:518
- ____kasan_slab_free mm/kasan/common.c:236 [inline]
- ____kasan_slab_free+0x13b/0x1a0 mm/kasan/common.c:200
- kasan_slab_free include/linux/kasan.h:177 [inline]
- __cache_free mm/slab.c:3394 [inline]
- __do_kmem_cache_free mm/slab.c:3580 [inline]
- __kmem_cache_free+0xcd/0x3b0 mm/slab.c:3587
- sk_prot_free net/core/sock.c:2074 [inline]
- __sk_destruct+0x5df/0x750 net/core/sock.c:2166
- sk_destruct net/core/sock.c:2181 [inline]
- __sk_free+0x175/0x460 net/core/sock.c:2192
- sk_free+0x7c/0xa0 net/core/sock.c:2203
- sock_put include/net/sock.h:1991 [inline]
- nr_heartbeat_expiry+0x1d7/0x460 net/netrom/nr_timer.c:148
- call_timer_fn+0x1da/0x7c0 kernel/time/timer.c:1700
- expire_timers+0x2c6/0x5c0 kernel/time/timer.c:1751
- __run_timers kernel/time/timer.c:2022 [inline]
- __run_timers kernel/time/timer.c:1995 [inline]
- run_timer_softirq+0x326/0x910 kernel/time/timer.c:2035
- __do_softirq+0x1fb/0xadc kernel/softirq.c:571
-
-Fixes: 517a16b1a88b ("netrom: Decrease sock refcount when sock timers expire")
-Reported-by: syzbot+5fafd5cfe1fc91f6b352@syzkaller.appspotmail.com
-Signed-off-by: Kuniyuki Iwashima <kuniyu@amazon.com>
-Link: https://lore.kernel.org/r/20230120231927.51711-1-kuniyu@amazon.com
+Fixes: 5e0724d027f0 ("tcp/dccp: fix hashdance race for passive sessions")
+Suggested-by: Eric Dumazet <edumazet@google.com>
+Signed-off-by: Jason Xing <kernelxing@tencent.com>
+Reviewed-by: Eric Dumazet <edumazet@google.com>
+Reviewed-by: Kuniyuki Iwashima <kuniyu@amazon.com>
+Link: https://lore.kernel.org/lkml/20230112065336.41034-1-kerneljasonxing@gmail.com/
+Link: https://lore.kernel.org/r/20230118015941.1313-1-kerneljasonxing@gmail.com
 Signed-off-by: Paolo Abeni <pabeni@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/netrom/nr_timer.c | 1 +
- 1 file changed, 1 insertion(+)
+ net/ipv4/inet_hashtables.c    | 17 +++++++++++++++--
+ net/ipv4/inet_timewait_sock.c |  8 ++++----
+ 2 files changed, 19 insertions(+), 6 deletions(-)
 
-diff --git a/net/netrom/nr_timer.c b/net/netrom/nr_timer.c
-index a8da88db7893..4e7c968cde2d 100644
---- a/net/netrom/nr_timer.c
-+++ b/net/netrom/nr_timer.c
-@@ -121,6 +121,7 @@ static void nr_heartbeat_expiry(struct timer_list *t)
- 		   is accepted() it isn't 'dead' so doesn't get removed. */
- 		if (sock_flag(sk, SOCK_DESTROY) ||
- 		    (sk->sk_state == TCP_LISTEN && sock_flag(sk, SOCK_DEAD))) {
-+			sock_hold(sk);
- 			bh_unlock_sock(sk);
- 			nr_destroy_socket(sk);
- 			goto out;
+diff --git a/net/ipv4/inet_hashtables.c b/net/ipv4/inet_hashtables.c
+index c68a1dae25ca..2615b72118d1 100644
+--- a/net/ipv4/inet_hashtables.c
++++ b/net/ipv4/inet_hashtables.c
+@@ -571,8 +571,20 @@ bool inet_ehash_insert(struct sock *sk, struct sock *osk, bool *found_dup_sk)
+ 	spin_lock(lock);
+ 	if (osk) {
+ 		WARN_ON_ONCE(sk->sk_hash != osk->sk_hash);
+-		ret = sk_nulls_del_node_init_rcu(osk);
+-	} else if (found_dup_sk) {
++		ret = sk_hashed(osk);
++		if (ret) {
++			/* Before deleting the node, we insert a new one to make
++			 * sure that the look-up-sk process would not miss either
++			 * of them and that at least one node would exist in ehash
++			 * table all the time. Otherwise there's a tiny chance
++			 * that lookup process could find nothing in ehash table.
++			 */
++			__sk_nulls_add_node_tail_rcu(sk, list);
++			sk_nulls_del_node_init_rcu(osk);
++		}
++		goto unlock;
++	}
++	if (found_dup_sk) {
+ 		*found_dup_sk = inet_ehash_lookup_by_sk(sk, list);
+ 		if (*found_dup_sk)
+ 			ret = false;
+@@ -581,6 +593,7 @@ bool inet_ehash_insert(struct sock *sk, struct sock *osk, bool *found_dup_sk)
+ 	if (ret)
+ 		__sk_nulls_add_node_rcu(sk, list);
+ 
++unlock:
+ 	spin_unlock(lock);
+ 
+ 	return ret;
+diff --git a/net/ipv4/inet_timewait_sock.c b/net/ipv4/inet_timewait_sock.c
+index c411c87ae865..a00102d7c7fd 100644
+--- a/net/ipv4/inet_timewait_sock.c
++++ b/net/ipv4/inet_timewait_sock.c
+@@ -81,10 +81,10 @@ void inet_twsk_put(struct inet_timewait_sock *tw)
+ }
+ EXPORT_SYMBOL_GPL(inet_twsk_put);
+ 
+-static void inet_twsk_add_node_rcu(struct inet_timewait_sock *tw,
+-				   struct hlist_nulls_head *list)
++static void inet_twsk_add_node_tail_rcu(struct inet_timewait_sock *tw,
++					struct hlist_nulls_head *list)
+ {
+-	hlist_nulls_add_head_rcu(&tw->tw_node, list);
++	hlist_nulls_add_tail_rcu(&tw->tw_node, list);
+ }
+ 
+ static void inet_twsk_add_bind_node(struct inet_timewait_sock *tw,
+@@ -120,7 +120,7 @@ void inet_twsk_hashdance(struct inet_timewait_sock *tw, struct sock *sk,
+ 
+ 	spin_lock(lock);
+ 
+-	inet_twsk_add_node_rcu(tw, &ehead->chain);
++	inet_twsk_add_node_tail_rcu(tw, &ehead->chain);
+ 
+ 	/* Step 3: Remove SK from hash chain */
+ 	if (__sk_nulls_del_node_init_rcu(sk))
 -- 
 2.39.0
 
