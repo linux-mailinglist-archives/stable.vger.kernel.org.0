@@ -2,51 +2,51 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 2B2BA681298
-	for <lists+stable@lfdr.de>; Mon, 30 Jan 2023 15:23:11 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 941C06810BD
+	for <lists+stable@lfdr.de>; Mon, 30 Jan 2023 15:06:17 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236799AbjA3OXJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 30 Jan 2023 09:23:09 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41430 "EHLO
+        id S237076AbjA3OGQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 30 Jan 2023 09:06:16 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48670 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236764AbjA3OWw (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 30 Jan 2023 09:22:52 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 373163F298
-        for <stable@vger.kernel.org>; Mon, 30 Jan 2023 06:21:48 -0800 (PST)
+        with ESMTP id S237087AbjA3OGN (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 30 Jan 2023 09:06:13 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 48E613B3FC
+        for <stable@vger.kernel.org>; Mon, 30 Jan 2023 06:06:12 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id BCFFF61047
-        for <stable@vger.kernel.org>; Mon, 30 Jan 2023 14:20:15 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B9EB7C433EF;
-        Mon, 30 Jan 2023 14:20:14 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id E5032B80C9B
+        for <stable@vger.kernel.org>; Mon, 30 Jan 2023 14:06:10 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1F4ADC433EF;
+        Mon, 30 Jan 2023 14:06:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1675088415;
-        bh=oe1vOrC3J2wIMZvCNfvW0PTVXGscd+F91npwP/L0YFk=;
+        s=korg; t=1675087569;
+        bh=H0Sy5modqtHNlqSQqS/P3ouBfyqA3VdUvVxORAxQ5nY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=oxiNA6lXDgaL0VCf0TKnkofJ8KxtdBWUzmveelDTayBmUasiSHSMY290oiEyITN9P
-         LOQEFIeAYmubegdaT9uQyJEQCwGQE51xey/QlfA054gntDA+CFKWXLdUjO/IsdXqmq
-         btWbTLRXp83Fpw0sb/YiX5ev6plvusXFouiq3nOM=
+        b=fX6UostAWp3y1sxE3IXkPYh+Nfid3CNhxYHmvlffamQMeQ6d/km10V0HllS+ocgBs
+         0cv1XA5wbY3rSQlefR0L3n6uMc8TmAzxob1MKJ1+5L3ZEDyjXiJW2wGJbRbbiP2WIM
+         0iHLG2nmR9t2EKEj9NqoWh0raGLyFjwj5dIC22DM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Cristian Marussi <cristian.marussi@arm.com>,
-        Sudeep Holla <sudeep.holla@arm.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 012/143] firmware: arm_scmi: Harden shared memory access in fetch_response
+        patches@lists.linux.dev, Wayne Lin <Wayne.Lin@amd.com>,
+        Harry Wentland <harry.wentland@amd.com>,
+        Lyude Paul <lyude@redhat.com>, Didier Raboud <odyx@debian.org>,
+        Alex Deucher <alexander.deucher@amd.com>
+Subject: [PATCH 6.1 234/313] drm/display/dp_mst: Correct the kref of port.
 Date:   Mon, 30 Jan 2023 14:51:09 +0100
-Message-Id: <20230130134307.393121517@linuxfoundation.org>
+Message-Id: <20230130134347.601453014@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.1
-In-Reply-To: <20230130134306.862721518@linuxfoundation.org>
-References: <20230130134306.862721518@linuxfoundation.org>
+In-Reply-To: <20230130134336.532886729@linuxfoundation.org>
+References: <20230130134336.532886729@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
         SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -54,44 +54,52 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Cristian Marussi <cristian.marussi@arm.com>
+From: Wayne Lin <Wayne.Lin@amd.com>
 
-[ Upstream commit ad78b81a1077f7d956952cd8bdfe1e61504e3eb8 ]
+commit d8bf2df715bb8ac964f91fe8bf67c37c5d916463 upstream.
 
-A misbheaving SCMI platform firmware could reply with out-of-spec messages,
-shorter than the mimimum size comprising a header and a status field.
+[why & how]
+We still need to refer to port while removing payload at commit_tail.
+we should keep the kref till then to release.
 
-Harden shmem_fetch_response to properly truncate such a bad messages.
-
-Fixes: 5c8a47a5a91d ("firmware: arm_scmi: Make scmi core independent of the transport type")
-Signed-off-by: Cristian Marussi <cristian.marussi@arm.com>
-Link: https://lore.kernel.org/r/20221222183823.518856-3-cristian.marussi@arm.com
-Signed-off-by: Sudeep Holla <sudeep.holla@arm.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Bug: https://gitlab.freedesktop.org/drm/amd/-/issues/2171
+Signed-off-by: Wayne Lin <Wayne.Lin@amd.com>
+Signed-off-by: Harry Wentland <harry.wentland@amd.com>
+Fixes: 4d07b0bc4034 ("drm/display/dp_mst: Move all payload info into the atomic state")
+Cc: stable@vger.kernel.org # 6.1
+Acked-by: Harry Wentland <harry.wentland@amd.com>
+Reviewed-by: Lyude Paul <lyude@redhat.com>
+Tested-by: Didier Raboud <odyx@debian.org>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/firmware/arm_scmi/shmem.c | 5 +++--
- 1 file changed, 3 insertions(+), 2 deletions(-)
+ drivers/gpu/drm/display/drm_dp_mst_topology.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/firmware/arm_scmi/shmem.c b/drivers/firmware/arm_scmi/shmem.c
-index 0e3eaea5d852..415ef7df8fc3 100644
---- a/drivers/firmware/arm_scmi/shmem.c
-+++ b/drivers/firmware/arm_scmi/shmem.c
-@@ -58,10 +58,11 @@ u32 shmem_read_header(struct scmi_shared_mem __iomem *shmem)
- void shmem_fetch_response(struct scmi_shared_mem __iomem *shmem,
- 			  struct scmi_xfer *xfer)
- {
-+	size_t len = ioread32(&shmem->length);
-+
- 	xfer->hdr.status = ioread32(shmem->msg_payload);
- 	/* Skip the length of header and status in shmem area i.e 8 bytes */
--	xfer->rx.len = min_t(size_t, xfer->rx.len,
--			     ioread32(&shmem->length) - 8);
-+	xfer->rx.len = min_t(size_t, xfer->rx.len, len > 8 ? len - 8 : 0);
+diff --git a/drivers/gpu/drm/display/drm_dp_mst_topology.c b/drivers/gpu/drm/display/drm_dp_mst_topology.c
+index 51a46689cda7..4ca37261584a 100644
+--- a/drivers/gpu/drm/display/drm_dp_mst_topology.c
++++ b/drivers/gpu/drm/display/drm_dp_mst_topology.c
+@@ -3372,6 +3372,9 @@ void drm_dp_remove_payload(struct drm_dp_mst_topology_mgr *mgr,
  
- 	/* Take a copy to the rx buffer.. */
- 	memcpy_fromio(xfer->rx.buf, shmem->msg_payload + 4, xfer->rx.len);
+ 	mgr->payload_count--;
+ 	mgr->next_start_slot -= payload->time_slots;
++
++	if (payload->delete)
++		drm_dp_mst_put_port_malloc(payload->port);
+ }
+ EXPORT_SYMBOL(drm_dp_remove_payload);
+ 
+@@ -4327,7 +4330,6 @@ int drm_dp_atomic_release_time_slots(struct drm_atomic_state *state,
+ 
+ 	drm_dbg_atomic(mgr->dev, "[MST PORT:%p] TU %d -> 0\n", port, payload->time_slots);
+ 	if (!payload->delete) {
+-		drm_dp_mst_put_port_malloc(port);
+ 		payload->pbn = 0;
+ 		payload->delete = true;
+ 		topology_state->payload_mask &= ~BIT(payload->vcpi - 1);
 -- 
-2.39.0
+2.39.1
 
 
 
