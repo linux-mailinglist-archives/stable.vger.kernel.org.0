@@ -2,80 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 60A99680B90
-	for <lists+stable@lfdr.de>; Mon, 30 Jan 2023 12:04:17 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3424E680B92
+	for <lists+stable@lfdr.de>; Mon, 30 Jan 2023 12:05:02 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236586AbjA3LEQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 30 Jan 2023 06:04:16 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48942 "EHLO
+        id S235293AbjA3LFA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 30 Jan 2023 06:05:00 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49468 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236414AbjA3LD2 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 30 Jan 2023 06:03:28 -0500
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9D78E16318
-        for <stable@vger.kernel.org>; Mon, 30 Jan 2023 03:02:46 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1675076565;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=xrhkYxUg1sVS4wjJEVeX59jr7DaVZyuaAbdOXs//pmg=;
-        b=OorlzCxmGH8GI10mjsyXtvNX1+idf2x/h4SpDEMzfKhfxNO0spKgAwYqatmoj/ymaaScQ6
-        zA4eFrzZcmULfiWNwHm8rmnD4JFih4b8lM7RaKshtadYGCQwm/1+Acry2xv0okRRGuh4k2
-        ycsL9Ac+XRAhDTYUoJM7GPtsaTXFhB4=
-Received: from mail-pf1-f198.google.com (mail-pf1-f198.google.com
- [209.85.210.198]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_128_GCM_SHA256) id
- us-mta-584-b743vsiSMVi4nlUsJYnzTQ-1; Mon, 30 Jan 2023 06:02:44 -0500
-X-MC-Unique: b743vsiSMVi4nlUsJYnzTQ-1
-Received: by mail-pf1-f198.google.com with SMTP id y10-20020a056a001c8a00b00593b33e0d70so1414373pfw.10
-        for <stable@vger.kernel.org>; Mon, 30 Jan 2023 03:02:44 -0800 (PST)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=content-transfer-encoding:in-reply-to:from:content-language
-         :references:cc:to:subject:user-agent:mime-version:date:message-id
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=xrhkYxUg1sVS4wjJEVeX59jr7DaVZyuaAbdOXs//pmg=;
-        b=fdU3dkvvuSbC8v2aUak3XuTiB2d9mkJxiEgYv5iOCgvD6rEf6eQAX18P/QBUPaGxlw
-         XTzVGADCYH3JaSojLKJUKpPGD4j/8vrO5LL4+4iT7WAowwQU8il20cfMK52VikjsNvDH
-         iyc0A37CL4B1LmDsNm+Z09Yb6a6eIywBEJPYixSjO6q9Pd4wyxuNuSBIjPNyzs0IdXUm
-         DcWxBCbS3Ab9GkW887lMYC1bgt/jYr+XU0vcFXcKDMVzRqPakzMyjWd4fxT14ifPgwQc
-         l7QeszcAuUITT9on4t6qzSi9/EoWbJBANFrviZ0Zt4+CbM16MBPZeDMN1Xb2fisBwstG
-         hPCg==
-X-Gm-Message-State: AO0yUKX/dqWx2v2qLU+LjBOXdk8vOhkhP7Vut1PWnR2JCWu/1I5EvUyw
-        0xMkEcFU1JDIyXTp/XDGqlDyjsM/CvFzirE/ylA/imPwVKPmCzfda3YYcPP7D9P6ipJw7B+KI5Q
-        a5bAWzW4O95rgpAmo
-X-Received: by 2002:a62:1c10:0:b0:57d:56f1:6ae7 with SMTP id c16-20020a621c10000000b0057d56f16ae7mr15159713pfc.33.1675076563477;
-        Mon, 30 Jan 2023 03:02:43 -0800 (PST)
-X-Google-Smtp-Source: AK7set8m0RyNEgR5f3rWVe/zyRzEpNVx5HRq7H5Jqo8RJzxw0tWURGyor8eTfAhfNe5T/TppLaH6lA==
-X-Received: by 2002:a62:1c10:0:b0:57d:56f1:6ae7 with SMTP id c16-20020a621c10000000b0057d56f16ae7mr15159693pfc.33.1675076563241;
-        Mon, 30 Jan 2023 03:02:43 -0800 (PST)
-Received: from [10.72.13.217] ([209.132.188.80])
-        by smtp.gmail.com with ESMTPSA id p6-20020a056a000a0600b00581013fcbe1sm7105092pfh.159.2023.01.30.03.02.40
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Mon, 30 Jan 2023 03:02:42 -0800 (PST)
-Message-ID: <2afdde92-d0b1-0a24-dc2f-22da2e3d369d@redhat.com>
-Date:   Mon, 30 Jan 2023 19:02:37 +0800
+        with ESMTP id S231161AbjA3LET (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 30 Jan 2023 06:04:19 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 66D61F778
+        for <stable@vger.kernel.org>; Mon, 30 Jan 2023 03:03:30 -0800 (PST)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 1AA12B80EC6
+        for <stable@vger.kernel.org>; Mon, 30 Jan 2023 11:03:29 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4FD28C433D2;
+        Mon, 30 Jan 2023 11:03:27 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
+        s=korg; t=1675076607;
+        bh=wL7XShci69I51RP74vpmYW4yn47YTC4mnaJepke8Cek=;
+        h=Subject:To:Cc:From:Date:From;
+        b=f5BVnxvaRlj/8DQ8nvuAqdGn2Eb94nMjZKnwIgh2EY9Wte3XXBIlrXtMwL2Ayfsw+
+         cJTAXq0Te/t8GU9f5zNH3JxOF5ueeHxtB7mzWIvDskd4NEUH0VaWuBM+Ky1IFg9BsY
+         qJIo9ODGaC9fl2eF/yUDas0GFGJLCyIUBcxGyhVU=
+Subject: FAILED: patch "[PATCH] netfilter: conntrack: unify established states for SCTP paths" failed to apply to 4.14-stable tree
+To:     sriram.yagnaraman@est.tech, pablo@netfilter.org
+Cc:     <stable@vger.kernel.org>
+From:   <gregkh@linuxfoundation.org>
+Date:   Mon, 30 Jan 2023 12:03:23 +0100
+Message-ID: <167507660324450@kroah.com>
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
- Thunderbird/102.6.0
-Subject: Re: [PATCH v6] ceph: blocklist the kclient when receiving corrupted
- snap trace
-To:     Venky Shankar <vshankar@redhat.com>
-Cc:     idryomov@gmail.com, ceph-devel@vger.kernel.org, jlayton@kernel.org,
-        mchangir@redhat.com, stable@vger.kernel.org
-References: <20230112085602.14583-1-xiubli@redhat.com>
- <CACPzV1k_KMTPLmTxjH39OqHAb63=WHo8GPGM9SuZA6N_d4FhWQ@mail.gmail.com>
-Content-Language: en-US
-From:   Xiubo Li <xiubli@redhat.com>
-In-Reply-To: <CACPzV1k_KMTPLmTxjH39OqHAb63=WHo8GPGM9SuZA6N_d4FhWQ@mail.gmail.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-2.2 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,NICE_REPLY_A,
-        RCVD_IN_DNSWL_NONE,RCVD_IN_MSPIKE_H2,SPF_HELO_NONE,SPF_NONE
-        autolearn=ham autolearn_force=no version=3.4.6
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+        SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
@@ -83,36 +47,290 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-On 30/01/2023 18:01, Venky Shankar wrote:
-> On Thu, Jan 12, 2023 at 2:26 PM <xiubli@redhat.com> wrote:
-[...]
->> diff --git a/fs/ceph/super.h b/fs/ceph/super.h
->> index ec1edfae20a0..22086f78732f 100644
->> --- a/fs/ceph/super.h
->> +++ b/fs/ceph/super.h
->> @@ -111,6 +111,7 @@ enum {
->>          CEPH_MOUNT_UNMOUNTED,
->>          CEPH_MOUNT_SHUTDOWN,
->>          CEPH_MOUNT_RECOVER,
->> +       CEPH_MOUNT_FENCE_IO,
->>   };
->>
->>   #define CEPH_ASYNC_CREATE_CONFLICT_BITS 8
->> --
->> 2.31.1
->>
-> Looks good.
->
-> Tested-by: Venky Shankar <vshankar@redhat.com>
->
-Thanks Venky.
+The patch below does not apply to the 4.14-stable tree.
+If someone wants it applied there, or to any other stable or longterm
+tree, then please email the backport, including the original git commit
+id to <stable@vger.kernel.org>.
 
+Possible dependencies:
 
--- 
-Best Regards,
+a44b7651489f ("netfilter: conntrack: unify established states for SCTP paths")
+13bd9b31a969 ("Revert "netfilter: conntrack: add sctp DATA_SENT state"")
+7ae9888d6e1c ("Merge git://git.kernel.org/pub/scm/linux/kernel/git/netfilter/nf")
 
-Xiubo Li (李秀波)
+thanks,
 
-Email: xiubli@redhat.com/xiubli@ibm.com
-Slack: @Xiubo Li
+greg k-h
+
+------------------ original commit in Linus's tree ------------------
+
+From a44b7651489f26271ac784b70895e8a85d0cebf4 Mon Sep 17 00:00:00 2001
+From: Sriram Yagnaraman <sriram.yagnaraman@est.tech>
+Date: Tue, 24 Jan 2023 02:47:21 +0100
+Subject: [PATCH] netfilter: conntrack: unify established states for SCTP paths
+
+An SCTP endpoint can start an association through a path and tear it
+down over another one. That means the initial path will not see the
+shutdown sequence, and the conntrack entry will remain in ESTABLISHED
+state for 5 days.
+
+By merging the HEARTBEAT_ACKED and ESTABLISHED states into one
+ESTABLISHED state, there remains no difference between a primary or
+secondary path. The timeout for the merged ESTABLISHED state is set to
+210 seconds (hb_interval * max_path_retrans + rto_max). So, even if a
+path doesn't see the shutdown sequence, it will expire in a reasonable
+amount of time.
+
+With this change in place, there is now more than one state from which
+we can transition to ESTABLISHED, COOKIE_ECHOED and HEARTBEAT_SENT, so
+handle the setting of ASSURED bit whenever a state change has happened
+and the new state is ESTABLISHED. Removed the check for dir==REPLY since
+the transition to ESTABLISHED can happen only in the reply direction.
+
+Fixes: 9fb9cbb1082d ("[NETFILTER]: Add nf_conntrack subsystem.")
+Signed-off-by: Sriram Yagnaraman <sriram.yagnaraman@est.tech>
+Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
+
+diff --git a/Documentation/networking/nf_conntrack-sysctl.rst b/Documentation/networking/nf_conntrack-sysctl.rst
+index 49db1d11d7c4..8b1045c3b59e 100644
+--- a/Documentation/networking/nf_conntrack-sysctl.rst
++++ b/Documentation/networking/nf_conntrack-sysctl.rst
+@@ -173,7 +173,9 @@ nf_conntrack_sctp_timeout_cookie_echoed - INTEGER (seconds)
+ 	default 3
+ 
+ nf_conntrack_sctp_timeout_established - INTEGER (seconds)
+-	default 432000 (5 days)
++	default 210
++
++	Default is set to (hb_interval * path_max_retrans + rto_max)
+ 
+ nf_conntrack_sctp_timeout_shutdown_sent - INTEGER (seconds)
+ 	default 0.3
+@@ -190,12 +192,6 @@ nf_conntrack_sctp_timeout_heartbeat_sent - INTEGER (seconds)
+ 	This timeout is used to setup conntrack entry on secondary paths.
+ 	Default is set to hb_interval.
+ 
+-nf_conntrack_sctp_timeout_heartbeat_acked - INTEGER (seconds)
+-	default 210
+-
+-	This timeout is used to setup conntrack entry on secondary paths.
+-	Default is set to (hb_interval * path_max_retrans + rto_max)
+-
+ nf_conntrack_udp_timeout - INTEGER (seconds)
+ 	default 30
+ 
+diff --git a/include/uapi/linux/netfilter/nf_conntrack_sctp.h b/include/uapi/linux/netfilter/nf_conntrack_sctp.h
+index edc6ddab0de6..2d6f80d75ae7 100644
+--- a/include/uapi/linux/netfilter/nf_conntrack_sctp.h
++++ b/include/uapi/linux/netfilter/nf_conntrack_sctp.h
+@@ -15,7 +15,7 @@ enum sctp_conntrack {
+ 	SCTP_CONNTRACK_SHUTDOWN_RECD,
+ 	SCTP_CONNTRACK_SHUTDOWN_ACK_SENT,
+ 	SCTP_CONNTRACK_HEARTBEAT_SENT,
+-	SCTP_CONNTRACK_HEARTBEAT_ACKED,
++	SCTP_CONNTRACK_HEARTBEAT_ACKED,	/* no longer used */
+ 	SCTP_CONNTRACK_MAX
+ };
+ 
+diff --git a/include/uapi/linux/netfilter/nfnetlink_cttimeout.h b/include/uapi/linux/netfilter/nfnetlink_cttimeout.h
+index 6b20fb22717b..aa805e6d4e28 100644
+--- a/include/uapi/linux/netfilter/nfnetlink_cttimeout.h
++++ b/include/uapi/linux/netfilter/nfnetlink_cttimeout.h
+@@ -94,7 +94,7 @@ enum ctattr_timeout_sctp {
+ 	CTA_TIMEOUT_SCTP_SHUTDOWN_RECD,
+ 	CTA_TIMEOUT_SCTP_SHUTDOWN_ACK_SENT,
+ 	CTA_TIMEOUT_SCTP_HEARTBEAT_SENT,
+-	CTA_TIMEOUT_SCTP_HEARTBEAT_ACKED,
++	CTA_TIMEOUT_SCTP_HEARTBEAT_ACKED, /* no longer used */
+ 	__CTA_TIMEOUT_SCTP_MAX
+ };
+ #define CTA_TIMEOUT_SCTP_MAX (__CTA_TIMEOUT_SCTP_MAX - 1)
+diff --git a/net/netfilter/nf_conntrack_proto_sctp.c b/net/netfilter/nf_conntrack_proto_sctp.c
+index 01cf3e06f042..945dd40e7077 100644
+--- a/net/netfilter/nf_conntrack_proto_sctp.c
++++ b/net/netfilter/nf_conntrack_proto_sctp.c
+@@ -27,22 +27,16 @@
+ #include <net/netfilter/nf_conntrack_ecache.h>
+ #include <net/netfilter/nf_conntrack_timeout.h>
+ 
+-/* FIXME: Examine ipfilter's timeouts and conntrack transitions more
+-   closely.  They're more complex. --RR
+-
+-   And so for me for SCTP :D -Kiran */
+-
+ static const char *const sctp_conntrack_names[] = {
+-	"NONE",
+-	"CLOSED",
+-	"COOKIE_WAIT",
+-	"COOKIE_ECHOED",
+-	"ESTABLISHED",
+-	"SHUTDOWN_SENT",
+-	"SHUTDOWN_RECD",
+-	"SHUTDOWN_ACK_SENT",
+-	"HEARTBEAT_SENT",
+-	"HEARTBEAT_ACKED",
++	[SCTP_CONNTRACK_NONE]			= "NONE",
++	[SCTP_CONNTRACK_CLOSED]			= "CLOSED",
++	[SCTP_CONNTRACK_COOKIE_WAIT]		= "COOKIE_WAIT",
++	[SCTP_CONNTRACK_COOKIE_ECHOED]		= "COOKIE_ECHOED",
++	[SCTP_CONNTRACK_ESTABLISHED]		= "ESTABLISHED",
++	[SCTP_CONNTRACK_SHUTDOWN_SENT]		= "SHUTDOWN_SENT",
++	[SCTP_CONNTRACK_SHUTDOWN_RECD]		= "SHUTDOWN_RECD",
++	[SCTP_CONNTRACK_SHUTDOWN_ACK_SENT]	= "SHUTDOWN_ACK_SENT",
++	[SCTP_CONNTRACK_HEARTBEAT_SENT]		= "HEARTBEAT_SENT",
+ };
+ 
+ #define SECS  * HZ
+@@ -54,12 +48,11 @@ static const unsigned int sctp_timeouts[SCTP_CONNTRACK_MAX] = {
+ 	[SCTP_CONNTRACK_CLOSED]			= 10 SECS,
+ 	[SCTP_CONNTRACK_COOKIE_WAIT]		= 3 SECS,
+ 	[SCTP_CONNTRACK_COOKIE_ECHOED]		= 3 SECS,
+-	[SCTP_CONNTRACK_ESTABLISHED]		= 5 DAYS,
++	[SCTP_CONNTRACK_ESTABLISHED]		= 210 SECS,
+ 	[SCTP_CONNTRACK_SHUTDOWN_SENT]		= 300 SECS / 1000,
+ 	[SCTP_CONNTRACK_SHUTDOWN_RECD]		= 300 SECS / 1000,
+ 	[SCTP_CONNTRACK_SHUTDOWN_ACK_SENT]	= 3 SECS,
+ 	[SCTP_CONNTRACK_HEARTBEAT_SENT]		= 30 SECS,
+-	[SCTP_CONNTRACK_HEARTBEAT_ACKED]	= 210 SECS,
+ };
+ 
+ #define	SCTP_FLAG_HEARTBEAT_VTAG_FAILED	1
+@@ -73,7 +66,6 @@ static const unsigned int sctp_timeouts[SCTP_CONNTRACK_MAX] = {
+ #define	sSR SCTP_CONNTRACK_SHUTDOWN_RECD
+ #define	sSA SCTP_CONNTRACK_SHUTDOWN_ACK_SENT
+ #define	sHS SCTP_CONNTRACK_HEARTBEAT_SENT
+-#define	sHA SCTP_CONNTRACK_HEARTBEAT_ACKED
+ #define	sIV SCTP_CONNTRACK_MAX
+ 
+ /*
+@@ -96,9 +88,6 @@ SHUTDOWN_ACK_SENT - We have seen a SHUTDOWN_ACK chunk in the direction opposite
+ CLOSED            - We have seen a SHUTDOWN_COMPLETE chunk in the direction of
+ 		    the SHUTDOWN chunk. Connection is closed.
+ HEARTBEAT_SENT    - We have seen a HEARTBEAT in a new flow.
+-HEARTBEAT_ACKED   - We have seen a HEARTBEAT-ACK in the direction opposite to
+-		    that of the HEARTBEAT chunk. Secondary connection is
+-		    established.
+ */
+ 
+ /* TODO
+@@ -115,33 +104,33 @@ cookie echoed to closed.
+ static const u8 sctp_conntracks[2][11][SCTP_CONNTRACK_MAX] = {
+ 	{
+ /*	ORIGINAL	*/
+-/*                  sNO, sCL, sCW, sCE, sES, sSS, sSR, sSA, sHS, sHA */
+-/* init         */ {sCL, sCL, sCW, sCE, sES, sSS, sSR, sSA, sCW, sHA},
+-/* init_ack     */ {sCL, sCL, sCW, sCE, sES, sSS, sSR, sSA, sCL, sHA},
+-/* abort        */ {sCL, sCL, sCL, sCL, sCL, sCL, sCL, sCL, sCL, sCL},
+-/* shutdown     */ {sCL, sCL, sCW, sCE, sSS, sSS, sSR, sSA, sCL, sSS},
+-/* shutdown_ack */ {sSA, sCL, sCW, sCE, sES, sSA, sSA, sSA, sSA, sHA},
+-/* error        */ {sCL, sCL, sCW, sCE, sES, sSS, sSR, sSA, sCL, sHA},/* Can't have Stale cookie*/
+-/* cookie_echo  */ {sCL, sCL, sCE, sCE, sES, sSS, sSR, sSA, sCL, sHA},/* 5.2.4 - Big TODO */
+-/* cookie_ack   */ {sCL, sCL, sCW, sCE, sES, sSS, sSR, sSA, sCL, sHA},/* Can't come in orig dir */
+-/* shutdown_comp*/ {sCL, sCL, sCW, sCE, sES, sSS, sSR, sCL, sCL, sHA},
+-/* heartbeat    */ {sHS, sCL, sCW, sCE, sES, sSS, sSR, sSA, sHS, sHA},
+-/* heartbeat_ack*/ {sCL, sCL, sCW, sCE, sES, sSS, sSR, sSA, sHS, sHA}
++/*                  sNO, sCL, sCW, sCE, sES, sSS, sSR, sSA, sHS */
++/* init         */ {sCL, sCL, sCW, sCE, sES, sSS, sSR, sSA, sCW},
++/* init_ack     */ {sCL, sCL, sCW, sCE, sES, sSS, sSR, sSA, sCL},
++/* abort        */ {sCL, sCL, sCL, sCL, sCL, sCL, sCL, sCL, sCL},
++/* shutdown     */ {sCL, sCL, sCW, sCE, sSS, sSS, sSR, sSA, sCL},
++/* shutdown_ack */ {sSA, sCL, sCW, sCE, sES, sSA, sSA, sSA, sSA},
++/* error        */ {sCL, sCL, sCW, sCE, sES, sSS, sSR, sSA, sCL},/* Can't have Stale cookie*/
++/* cookie_echo  */ {sCL, sCL, sCE, sCE, sES, sSS, sSR, sSA, sCL},/* 5.2.4 - Big TODO */
++/* cookie_ack   */ {sCL, sCL, sCW, sCE, sES, sSS, sSR, sSA, sCL},/* Can't come in orig dir */
++/* shutdown_comp*/ {sCL, sCL, sCW, sCE, sES, sSS, sSR, sCL, sCL},
++/* heartbeat    */ {sHS, sCL, sCW, sCE, sES, sSS, sSR, sSA, sHS},
++/* heartbeat_ack*/ {sCL, sCL, sCW, sCE, sES, sSS, sSR, sSA, sHS},
+ 	},
+ 	{
+ /*	REPLY	*/
+-/*                  sNO, sCL, sCW, sCE, sES, sSS, sSR, sSA, sHS, sHA */
+-/* init         */ {sIV, sCL, sCW, sCE, sES, sSS, sSR, sSA, sIV, sHA},/* INIT in sCL Big TODO */
+-/* init_ack     */ {sIV, sCW, sCW, sCE, sES, sSS, sSR, sSA, sIV, sHA},
+-/* abort        */ {sIV, sCL, sCL, sCL, sCL, sCL, sCL, sCL, sIV, sCL},
+-/* shutdown     */ {sIV, sCL, sCW, sCE, sSR, sSS, sSR, sSA, sIV, sSR},
+-/* shutdown_ack */ {sIV, sCL, sCW, sCE, sES, sSA, sSA, sSA, sIV, sHA},
+-/* error        */ {sIV, sCL, sCW, sCL, sES, sSS, sSR, sSA, sIV, sHA},
+-/* cookie_echo  */ {sIV, sCL, sCW, sCE, sES, sSS, sSR, sSA, sIV, sHA},/* Can't come in reply dir */
+-/* cookie_ack   */ {sIV, sCL, sCW, sES, sES, sSS, sSR, sSA, sIV, sHA},
+-/* shutdown_comp*/ {sIV, sCL, sCW, sCE, sES, sSS, sSR, sCL, sIV, sHA},
+-/* heartbeat    */ {sIV, sCL, sCW, sCE, sES, sSS, sSR, sSA, sHS, sHA},
+-/* heartbeat_ack*/ {sIV, sCL, sCW, sCE, sES, sSS, sSR, sSA, sHA, sHA}
++/*                  sNO, sCL, sCW, sCE, sES, sSS, sSR, sSA, sHS */
++/* init         */ {sIV, sCL, sCW, sCE, sES, sSS, sSR, sSA, sIV},/* INIT in sCL Big TODO */
++/* init_ack     */ {sIV, sCW, sCW, sCE, sES, sSS, sSR, sSA, sIV},
++/* abort        */ {sIV, sCL, sCL, sCL, sCL, sCL, sCL, sCL, sIV},
++/* shutdown     */ {sIV, sCL, sCW, sCE, sSR, sSS, sSR, sSA, sIV},
++/* shutdown_ack */ {sIV, sCL, sCW, sCE, sES, sSA, sSA, sSA, sIV},
++/* error        */ {sIV, sCL, sCW, sCL, sES, sSS, sSR, sSA, sIV},
++/* cookie_echo  */ {sIV, sCL, sCW, sCE, sES, sSS, sSR, sSA, sIV},/* Can't come in reply dir */
++/* cookie_ack   */ {sIV, sCL, sCW, sES, sES, sSS, sSR, sSA, sIV},
++/* shutdown_comp*/ {sIV, sCL, sCW, sCE, sES, sSS, sSR, sCL, sIV},
++/* heartbeat    */ {sIV, sCL, sCW, sCE, sES, sSS, sSR, sSA, sHS},
++/* heartbeat_ack*/ {sIV, sCL, sCW, sCE, sES, sSS, sSR, sSA, sES},
+ 	}
+ };
+ 
+@@ -508,8 +497,12 @@ int nf_conntrack_sctp_packet(struct nf_conn *ct,
+ 		}
+ 
+ 		ct->proto.sctp.state = new_state;
+-		if (old_state != new_state)
++		if (old_state != new_state) {
+ 			nf_conntrack_event_cache(IPCT_PROTOINFO, ct);
++			if (new_state == SCTP_CONNTRACK_ESTABLISHED &&
++			    !test_and_set_bit(IPS_ASSURED_BIT, &ct->status))
++				nf_conntrack_event_cache(IPCT_ASSURED, ct);
++		}
+ 	}
+ 	spin_unlock_bh(&ct->lock);
+ 
+@@ -523,14 +516,6 @@ int nf_conntrack_sctp_packet(struct nf_conn *ct,
+ 
+ 	nf_ct_refresh_acct(ct, ctinfo, skb, timeouts[new_state]);
+ 
+-	if (old_state == SCTP_CONNTRACK_COOKIE_ECHOED &&
+-	    dir == IP_CT_DIR_REPLY &&
+-	    new_state == SCTP_CONNTRACK_ESTABLISHED) {
+-		pr_debug("Setting assured bit\n");
+-		set_bit(IPS_ASSURED_BIT, &ct->status);
+-		nf_conntrack_event_cache(IPCT_ASSURED, ct);
+-	}
+-
+ 	return NF_ACCEPT;
+ 
+ out_unlock:
+diff --git a/net/netfilter/nf_conntrack_standalone.c b/net/netfilter/nf_conntrack_standalone.c
+index bca839ab1ae8..460294bd4b60 100644
+--- a/net/netfilter/nf_conntrack_standalone.c
++++ b/net/netfilter/nf_conntrack_standalone.c
+@@ -601,7 +601,6 @@ enum nf_ct_sysctl_index {
+ 	NF_SYSCTL_CT_PROTO_TIMEOUT_SCTP_SHUTDOWN_RECD,
+ 	NF_SYSCTL_CT_PROTO_TIMEOUT_SCTP_SHUTDOWN_ACK_SENT,
+ 	NF_SYSCTL_CT_PROTO_TIMEOUT_SCTP_HEARTBEAT_SENT,
+-	NF_SYSCTL_CT_PROTO_TIMEOUT_SCTP_HEARTBEAT_ACKED,
+ #endif
+ #ifdef CONFIG_NF_CT_PROTO_DCCP
+ 	NF_SYSCTL_CT_PROTO_TIMEOUT_DCCP_REQUEST,
+@@ -886,12 +885,6 @@ static struct ctl_table nf_ct_sysctl_table[] = {
+ 		.mode		= 0644,
+ 		.proc_handler	= proc_dointvec_jiffies,
+ 	},
+-	[NF_SYSCTL_CT_PROTO_TIMEOUT_SCTP_HEARTBEAT_ACKED] = {
+-		.procname       = "nf_conntrack_sctp_timeout_heartbeat_acked",
+-		.maxlen         = sizeof(unsigned int),
+-		.mode           = 0644,
+-		.proc_handler   = proc_dointvec_jiffies,
+-	},
+ #endif
+ #ifdef CONFIG_NF_CT_PROTO_DCCP
+ 	[NF_SYSCTL_CT_PROTO_TIMEOUT_DCCP_REQUEST] = {
+@@ -1035,7 +1028,6 @@ static void nf_conntrack_standalone_init_sctp_sysctl(struct net *net,
+ 	XASSIGN(SHUTDOWN_RECD, sn);
+ 	XASSIGN(SHUTDOWN_ACK_SENT, sn);
+ 	XASSIGN(HEARTBEAT_SENT, sn);
+-	XASSIGN(HEARTBEAT_ACKED, sn);
+ #undef XASSIGN
+ #endif
+ }
 
