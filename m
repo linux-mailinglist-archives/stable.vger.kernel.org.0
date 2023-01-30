@@ -2,53 +2,49 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 9FC8268118B
-	for <lists+stable@lfdr.de>; Mon, 30 Jan 2023 15:14:28 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 41479681085
+	for <lists+stable@lfdr.de>; Mon, 30 Jan 2023 15:04:11 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237304AbjA3OO1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 30 Jan 2023 09:14:27 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58238 "EHLO
+        id S236979AbjA3OEI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 30 Jan 2023 09:04:08 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46752 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237288AbjA3OO0 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 30 Jan 2023 09:14:26 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0BBA01BAEC
-        for <stable@vger.kernel.org>; Mon, 30 Jan 2023 06:14:23 -0800 (PST)
+        with ESMTP id S237018AbjA3OEE (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 30 Jan 2023 09:04:04 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4CA7F11142
+        for <stable@vger.kernel.org>; Mon, 30 Jan 2023 06:04:00 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id ADC83B80DEB
-        for <stable@vger.kernel.org>; Mon, 30 Jan 2023 14:14:21 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id F033EC433EF;
-        Mon, 30 Jan 2023 14:14:19 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id C518161047
+        for <stable@vger.kernel.org>; Mon, 30 Jan 2023 14:03:59 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id BD908C433D2;
+        Mon, 30 Jan 2023 14:03:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1675088060;
-        bh=bk05yq3BLEKKoF6Scw2iMs1+O3oVJJo3UqnqA1aZfro=;
+        s=korg; t=1675087439;
+        bh=8ZSKvPOum3MLw1r1dtetFSXC3ZryVls5EoDCTJNmMVs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=XWoD+9xZl/Eyn6ArfpWPvNFXjgC/WAzNJMiOsZZZURYVXPC2rRRGW6meI4Em5YN2N
-         JJLkGj0+KTbP+gt7CPt8bBIVyO2s7MO+EGGQb04kHUJiK57B8Khtf7/UL/py4GsgG1
-         doZE8MJblL9yCYI+4IBgB9bm6v/hiXpcc6Ys7USc=
+        b=Svewyk/Y0bFqjbcJfmsKzb018mbIFwVm9fqBufL7Fs6vltwCRFb2vYIS7/+ECFqZp
+         JL3HCTAdYjzajuueyydhuQ4yOyYopuGEOp5RcbeeDvcvdS96rzSJNyr+ElyEGDow2/
+         Lpo7PIKsZy6lC4weQK5A6NLVpmhbsSWTihFFlkGI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Robert Hancock <robert.hancock@calian.com>,
-        Jacob Keller <jacob.e.keller@intel.com>,
-        Claudiu Beznea <claudiu.beznea@microchip.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 071/204] net: macb: fix PTP TX timestamp failure due to packet padding
+        patches@lists.linux.dev, Pavel Begunkov <asml.silence@gmail.com>,
+        Jens Axboe <axboe@kernel.dk>
+Subject: [PATCH 6.1 201/313] io_uring/msg_ring: fix remote queue to disabled ring
 Date:   Mon, 30 Jan 2023 14:50:36 +0100
-Message-Id: <20230130134319.453290883@linuxfoundation.org>
+Message-Id: <20230130134346.078425111@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.1
-In-Reply-To: <20230130134316.327556078@linuxfoundation.org>
-References: <20230130134316.327556078@linuxfoundation.org>
+In-Reply-To: <20230130134336.532886729@linuxfoundation.org>
+References: <20230130134336.532886729@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
         SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -56,77 +52,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Robert Hancock <robert.hancock@calian.com>
+From: Pavel Begunkov <asml.silence@gmail.com>
 
-[ Upstream commit 7b90f5a665acd46efbbfa677a3a3a18d01ad6487 ]
+commit 8579538c89e33ce78be2feb41e07489c8cbf8f31 upstream.
 
-PTP TX timestamp handling was observed to be broken with this driver
-when using the raw Layer 2 PTP encapsulation. ptp4l was not receiving
-the expected TX timestamp after transmitting a packet, causing it to
-enter a failure state.
+IORING_SETUP_R_DISABLED rings don't have the submitter task set, so
+it's not always safe to use ->submitter_task. Disallow posting msg_ring
+messaged to disabled rings. Also add task NULL check for loosy sync
+around testing for IORING_SETUP_R_DISABLED.
 
-The problem appears to be due to the way that the driver pads packets
-which are smaller than the Ethernet minimum of 60 bytes. If headroom
-space was available in the SKB, this caused the driver to move the data
-back to utilize it. However, this appears to cause other data references
-in the SKB to become inconsistent. In particular, this caused the
-ptp_one_step_sync function to later (in the TX completion path) falsely
-detect the packet as a one-step SYNC packet, even when it was not, which
-caused the TX timestamp to not be processed when it should be.
-
-Using the headroom for this purpose seems like an unnecessary complexity
-as this is not a hot path in the driver, and in most cases it appears
-that there is sufficient tailroom to not require using the headroom
-anyway. Remove this usage of headroom to prevent this inconsistency from
-occurring and causing other problems.
-
-Fixes: 653e92a9175e ("net: macb: add support for padding and fcs computation")
-Signed-off-by: Robert Hancock <robert.hancock@calian.com>
-Reviewed-by: Jacob Keller <jacob.e.keller@intel.com>
-Tested-by: Claudiu Beznea <claudiu.beznea@microchip.com> # on SAMA7G5
-Reviewed-by: Claudiu Beznea <claudiu.beznea@microchip.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Cc: stable@vger.kernel.org
+Fixes: 6d043ee1164ca ("io_uring: do msg_ring in target task via tw")
+Signed-off-by: Pavel Begunkov <asml.silence@gmail.com>
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ethernet/cadence/macb_main.c | 9 +--------
- 1 file changed, 1 insertion(+), 8 deletions(-)
+ io_uring/msg_ring.c |    4 ++++
+ 1 file changed, 4 insertions(+)
 
-diff --git a/drivers/net/ethernet/cadence/macb_main.c b/drivers/net/ethernet/cadence/macb_main.c
-index 61efb2350412..906c5bbefaac 100644
---- a/drivers/net/ethernet/cadence/macb_main.c
-+++ b/drivers/net/ethernet/cadence/macb_main.c
-@@ -2154,7 +2154,6 @@ static int macb_pad_and_fcs(struct sk_buff **skb, struct net_device *ndev)
- 	bool cloned = skb_cloned(*skb) || skb_header_cloned(*skb) ||
- 		      skb_is_nonlinear(*skb);
- 	int padlen = ETH_ZLEN - (*skb)->len;
--	int headroom = skb_headroom(*skb);
- 	int tailroom = skb_tailroom(*skb);
- 	struct sk_buff *nskb;
- 	u32 fcs;
-@@ -2168,9 +2167,6 @@ static int macb_pad_and_fcs(struct sk_buff **skb, struct net_device *ndev)
- 		/* FCS could be appeded to tailroom. */
- 		if (tailroom >= ETH_FCS_LEN)
- 			goto add_fcs;
--		/* FCS could be appeded by moving data to headroom. */
--		else if (!cloned && headroom + tailroom >= ETH_FCS_LEN)
--			padlen = 0;
- 		/* No room for FCS, need to reallocate skb. */
- 		else
- 			padlen = ETH_FCS_LEN;
-@@ -2179,10 +2175,7 @@ static int macb_pad_and_fcs(struct sk_buff **skb, struct net_device *ndev)
- 		padlen += ETH_FCS_LEN;
- 	}
+--- a/io_uring/msg_ring.c
++++ b/io_uring/msg_ring.c
+@@ -30,6 +30,8 @@ static int io_msg_ring_data(struct io_ki
  
--	if (!cloned && headroom + tailroom >= padlen) {
--		(*skb)->data = memmove((*skb)->head, (*skb)->data, (*skb)->len);
--		skb_set_tail_pointer(*skb, (*skb)->len);
--	} else {
-+	if (cloned || tailroom < padlen) {
- 		nskb = skb_copy_expand(*skb, 0, padlen, GFP_ATOMIC);
- 		if (!nskb)
- 			return -ENOMEM;
--- 
-2.39.0
-
+ 	if (msg->src_fd || msg->dst_fd || msg->flags)
+ 		return -EINVAL;
++	if (target_ctx->flags & IORING_SETUP_R_DISABLED)
++		return -EBADFD;
+ 
+ 	if (io_post_aux_cqe(target_ctx, msg->user_data, msg->len, 0, true))
+ 		return 0;
+@@ -84,6 +86,8 @@ static int io_msg_send_fd(struct io_kioc
+ 
+ 	if (target_ctx == ctx)
+ 		return -EINVAL;
++	if (target_ctx->flags & IORING_SETUP_R_DISABLED)
++		return -EBADFD;
+ 
+ 	ret = io_double_lock_ctx(ctx, target_ctx, issue_flags);
+ 	if (unlikely(ret))
 
 
