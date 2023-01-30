@@ -2,41 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 4624568117B
-	for <lists+stable@lfdr.de>; Mon, 30 Jan 2023 15:13:54 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id DDBDC68117C
+	for <lists+stable@lfdr.de>; Mon, 30 Jan 2023 15:13:56 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237311AbjA3ONx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 30 Jan 2023 09:13:53 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57460 "EHLO
+        id S237291AbjA3ON4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 30 Jan 2023 09:13:56 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57580 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237315AbjA3ONl (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 30 Jan 2023 09:13:41 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4893FA253
-        for <stable@vger.kernel.org>; Mon, 30 Jan 2023 06:13:40 -0800 (PST)
+        with ESMTP id S237292AbjA3ONp (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 30 Jan 2023 09:13:45 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 97F413B658
+        for <stable@vger.kernel.org>; Mon, 30 Jan 2023 06:13:44 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id C12676102E
-        for <stable@vger.kernel.org>; Mon, 30 Jan 2023 14:13:39 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id BD385C433EF;
-        Mon, 30 Jan 2023 14:13:38 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 4E373B80DEB
+        for <stable@vger.kernel.org>; Mon, 30 Jan 2023 14:13:43 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id AB936C433D2;
+        Mon, 30 Jan 2023 14:13:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1675088019;
-        bh=wo77f1gol9r3kJlnjUy3gjDY0jKGeZscQov/Gooo0dM=;
+        s=korg; t=1675088022;
+        bh=ps18Zd3wCBOuDn8FiObSAS7S3BfyvVMvklDAr41AKyc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=qpGr45tUMUIxd7DEysbANLILjjEBz+pqGC4gnPXeQ/rl2pGDyWsuN2a6Hgch9E/kF
-         CDqCU5K/td6MiOFoO3tDsYMWPPtM8An3QGGrx9OX3vZKTQffbl6lI9etnr4uhReSqZ
-         sEAktn0kHF+ZTmUahlpWrQvPjRVqN06oPxHEwTu4=
+        b=KhYU9UeAz8Zt03hCx3gBGIaIXjyKybGSFLfpUzCTtcOAgN32u+u/9k2+Y6jO5wOFI
+         VYA1NwnJDQ7CncP0zdxrvmMCqzhOX02N3Av0Y4GZlCcFB/0lmCL5rrfYBiPpJ9MGYc
+         spYQCm7NOgukqSlABPIHXiNwvM6s5Kp3ju6neRyQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Willem de Bruijn <willemb@google.com>,
+        patches@lists.linux.dev,
+        Rakesh Sankaranarayanan <rakesh.sankaranarayanan@microchip.com>,
+        Vladimir Oltean <olteanv@gmail.com>,
         Jakub Kicinski <kuba@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 087/204] selftests/net: toeplitz: fix race on tpacket_v3 block close
-Date:   Mon, 30 Jan 2023 14:50:52 +0100
-Message-Id: <20230130134320.160061031@linuxfoundation.org>
+Subject: [PATCH 5.15 088/204] net: dsa: microchip: ksz9477: port map correction in ALU table entry register
+Date:   Mon, 30 Jan 2023 14:50:53 +0100
+Message-Id: <20230130134320.210451815@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.1
 In-Reply-To: <20230130134316.327556078@linuxfoundation.org>
 References: <20230130134316.327556078@linuxfoundation.org>
@@ -53,86 +55,53 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Willem de Bruijn <willemb@google.com>
+From: Rakesh Sankaranarayanan <rakesh.sankaranarayanan@microchip.com>
 
-[ Upstream commit 903848249a781d76d59561d51676c95b3a4d7162 ]
+[ Upstream commit 6c977c5c2e4c5d8ad1b604724cc344e38f96fe9b ]
 
-Avoid race between process wakeup and tpacket_v3 block timeout.
+ALU table entry 2 register in KSZ9477 have bit positions reserved for
+forwarding port map. This field is referred in ksz9477_fdb_del() for
+clearing forward port map and alu table.
 
-The test waits for cfg_timeout_msec for packets to arrive. Packets
-arrive in tpacket_v3 rings, which pass packets ("frames") to the
-process in batches ("blocks"). The sk waits for req3.tp_retire_blk_tov
-msec to release a block.
+But current fdb_del refer ALU table entry 3 register for accessing forward
+port map. Update ksz9477_fdb_del() to get forward port map from correct
+alu table entry register.
 
-Set the block timeout lower than the process waiting time, else
-the process may find that no block has been released by the time it
-scans the socket list. Convert to a ring of more than one, smaller,
-blocks with shorter timeouts. Blocks must be page aligned, so >= 64KB.
+With this bug, issue can be observed while deleting static MAC entries.
+Delete any specific MAC entry using "bridge fdb del" command. This should
+clear all the specified MAC entries. But it is observed that entries with
+self static alone are retained.
 
-Fixes: 5ebfb4cc3048 ("selftests/net: toeplitz test")
-Signed-off-by: Willem de Bruijn <willemb@google.com>
-Link: https://lore.kernel.org/r/20230118151847.4124260-1-willemdebruijn.kernel@gmail.com
+Tested on LAN9370 EVB since ksz9477_fdb_del() is used common across
+LAN937x and KSZ series.
+
+Fixes: b987e98e50ab ("dsa: add DSA switch driver for Microchip KSZ9477")
+Signed-off-by: Rakesh Sankaranarayanan <rakesh.sankaranarayanan@microchip.com>
+Reviewed-by: Vladimir Oltean <olteanv@gmail.com>
+Link: https://lore.kernel.org/r/20230118174735.702377-1-rakesh.sankaranarayanan@microchip.com
 Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/testing/selftests/net/toeplitz.c | 12 +++++++-----
- 1 file changed, 7 insertions(+), 5 deletions(-)
+ drivers/net/dsa/microchip/ksz9477.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/tools/testing/selftests/net/toeplitz.c b/tools/testing/selftests/net/toeplitz.c
-index c5489341cfb8..8ce96028341d 100644
---- a/tools/testing/selftests/net/toeplitz.c
-+++ b/tools/testing/selftests/net/toeplitz.c
-@@ -213,7 +213,7 @@ static char *recv_frame(const struct ring_state *ring, char *frame)
- }
+diff --git a/drivers/net/dsa/microchip/ksz9477.c b/drivers/net/dsa/microchip/ksz9477.c
+index 379b38c5844f..bf788e17f408 100644
+--- a/drivers/net/dsa/microchip/ksz9477.c
++++ b/drivers/net/dsa/microchip/ksz9477.c
+@@ -675,10 +675,10 @@ static int ksz9477_port_fdb_del(struct dsa_switch *ds, int port,
+ 		ksz_read32(dev, REG_SW_ALU_VAL_D, &alu_table[3]);
  
- /* A single TPACKET_V3 block can hold multiple frames */
--static void recv_block(struct ring_state *ring)
-+static bool recv_block(struct ring_state *ring)
- {
- 	struct tpacket_block_desc *block;
- 	char *frame;
-@@ -221,7 +221,7 @@ static void recv_block(struct ring_state *ring)
+ 		/* clear forwarding port */
+-		alu_table[2] &= ~BIT(port);
++		alu_table[1] &= ~BIT(port);
  
- 	block = (void *)(ring->mmap + ring->idx * ring_block_sz);
- 	if (!(block->hdr.bh1.block_status & TP_STATUS_USER))
--		return;
-+		return false;
- 
- 	frame = (char *)block;
- 	frame += block->hdr.bh1.offset_to_first_pkt;
-@@ -233,6 +233,8 @@ static void recv_block(struct ring_state *ring)
- 
- 	block->hdr.bh1.block_status = TP_STATUS_KERNEL;
- 	ring->idx = (ring->idx + 1) % ring_block_nr;
-+
-+	return true;
- }
- 
- /* simple test: sleep once unconditionally and then process all rings */
-@@ -243,7 +245,7 @@ static void process_rings(void)
- 	usleep(1000 * cfg_timeout_msec);
- 
- 	for (i = 0; i < num_cpus; i++)
--		recv_block(&rings[i]);
-+		do {} while (recv_block(&rings[i]));
- 
- 	fprintf(stderr, "count: pass=%u nohash=%u fail=%u\n",
- 		frames_received - frames_nohash - frames_error,
-@@ -255,12 +257,12 @@ static char *setup_ring(int fd)
- 	struct tpacket_req3 req3 = {0};
- 	void *ring;
- 
--	req3.tp_retire_blk_tov = cfg_timeout_msec;
-+	req3.tp_retire_blk_tov = cfg_timeout_msec / 8;
- 	req3.tp_feature_req_word = TP_FT_REQ_FILL_RXHASH;
- 
- 	req3.tp_frame_size = 2048;
- 	req3.tp_frame_nr = 1 << 10;
--	req3.tp_block_nr = 2;
-+	req3.tp_block_nr = 16;
- 
- 	req3.tp_block_size = req3.tp_frame_size * req3.tp_frame_nr;
- 	req3.tp_block_size /= req3.tp_block_nr;
+ 		/* if there is no port to forward, clear table */
+-		if ((alu_table[2] & ALU_V_PORT_MAP) == 0) {
++		if ((alu_table[1] & ALU_V_PORT_MAP) == 0) {
+ 			alu_table[0] = 0;
+ 			alu_table[1] = 0;
+ 			alu_table[2] = 0;
 -- 
 2.39.0
 
