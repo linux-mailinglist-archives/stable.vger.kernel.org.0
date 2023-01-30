@@ -2,44 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 2F6F268110F
-	for <lists+stable@lfdr.de>; Mon, 30 Jan 2023 15:09:55 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0137868102C
+	for <lists+stable@lfdr.de>; Mon, 30 Jan 2023 15:01:13 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237171AbjA3OJy (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 30 Jan 2023 09:09:54 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51634 "EHLO
+        id S236882AbjA3OBL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 30 Jan 2023 09:01:11 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42586 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237178AbjA3OJu (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 30 Jan 2023 09:09:50 -0500
+        with ESMTP id S236838AbjA3OBD (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 30 Jan 2023 09:01:03 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 354C03B670
-        for <stable@vger.kernel.org>; Mon, 30 Jan 2023 06:09:46 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 786A03A5AD
+        for <stable@vger.kernel.org>; Mon, 30 Jan 2023 06:00:12 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 7913561086
-        for <stable@vger.kernel.org>; Mon, 30 Jan 2023 14:09:46 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 70B0BC4339E;
-        Mon, 30 Jan 2023 14:09:45 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 0DD0D6102C
+        for <stable@vger.kernel.org>; Mon, 30 Jan 2023 14:00:12 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 23A5EC433D2;
+        Mon, 30 Jan 2023 14:00:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1675087785;
-        bh=HdwkosLvFl4Eg2pq4SB31AaUfIR9aVUGypswrbgFuUs=;
+        s=korg; t=1675087211;
+        bh=YCFfEabIbt+SX4g+RzLZtUyy6+cBtZ2YEqSOFBiNtIk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=lpRGOob9Ia+q9/a3ZY3V5hIeUko9/dcp2yD4jb9Nf7r/FNFFk8FTYodUDBU+1zwGR
-         z9mjwoYLWxQGX0uQBEAeOHAtIhAeoiXF1HpqBCsxmf6jY6noSh/m9bTXbKg/TV3KFO
-         mSyu9Shq0h2/YOhOZCPbvULmNxXERdziKvRNoIvA=
+        b=W1wScm0yXR4EKKStfcLA5ZALGDNy2B9PiR2Nkir/7mrvIV+Bf6oOM/8mNxj/TvVM0
+         Vqk+wjR8k7a/jMSlRLoMV5c+BSM+dMwp2PNRDv4MNrjp09jtId9ECivD3DNpeiyV7m
+         4zsadEivwgt61IBNf4+YpeRmevKMpPfS72VS7hAA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Gaosheng Cui <cuigaosheng1@huawei.com>,
-        Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>,
+        patches@lists.linux.dev, Chen Zhongjin <chenzhongjin@huawei.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 002/204] memory: atmel-sdramc: Fix missing clk_disable_unprepare in atmel_ramc_probe()
+Subject: [PATCH 6.1 132/313] driver core: Fix test_async_probe_init saves device in wrong array
 Date:   Mon, 30 Jan 2023 14:49:27 +0100
-Message-Id: <20230130134316.430794788@linuxfoundation.org>
+Message-Id: <20230130134342.805986593@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.1
-In-Reply-To: <20230130134316.327556078@linuxfoundation.org>
-References: <20230130134316.327556078@linuxfoundation.org>
+In-Reply-To: <20230130134336.532886729@linuxfoundation.org>
+References: <20230130134336.532886729@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,49 +52,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Gaosheng Cui <cuigaosheng1@huawei.com>
+From: Chen Zhongjin <chenzhongjin@huawei.com>
 
-[ Upstream commit 340cb392a038cf70540a4cdf2e98a247c66b6df4 ]
+[ Upstream commit 9be182da0a7526f1b9a3777a336f83baa2e64d23 ]
 
-The clk_disable_unprepare() should be called in the error handling
-of caps->has_mpddr_clk, fix it by replacing devm_clk_get and
-clk_prepare_enable by devm_clk_get_enabled.
+In test_async_probe_init, second set of asynchronous devices are saved
+in sync_dev[sync_id], which should be async_dev[async_id].
+This makes these devices not unregistered when exit.
 
-Fixes: e81b6abebc87 ("memory: add a driver for atmel ram controllers")
-Signed-off-by: Gaosheng Cui <cuigaosheng1@huawei.com>
-Link: https://lore.kernel.org/r/20221125073757.3535219-1-cuigaosheng1@huawei.com
-Signed-off-by: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
+> modprobe test_async_driver_probe && \
+> modprobe -r test_async_driver_probe && \
+> modprobe test_async_driver_probe
+ ...
+> sysfs: cannot create duplicate filename '/devices/platform/test_async_driver.4'
+> kobject_add_internal failed for test_async_driver.4 with -EEXIST,
+  don't try to register things with the same name in the same directory.
+
+Fixes: 57ea974fb871 ("driver core: Rewrite test_async_driver_probe to cover serialization and NUMA affinity")
+Signed-off-by: Chen Zhongjin <chenzhongjin@huawei.com>
+Link: https://lore.kernel.org/r/20221125063541.241328-1-chenzhongjin@huawei.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/memory/atmel-sdramc.c | 6 ++----
- 1 file changed, 2 insertions(+), 4 deletions(-)
+ drivers/base/test/test_async_driver_probe.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/memory/atmel-sdramc.c b/drivers/memory/atmel-sdramc.c
-index 9c49d00c2a96..ea6e9e1eaf04 100644
---- a/drivers/memory/atmel-sdramc.c
-+++ b/drivers/memory/atmel-sdramc.c
-@@ -47,19 +47,17 @@ static int atmel_ramc_probe(struct platform_device *pdev)
- 	caps = of_device_get_match_data(&pdev->dev);
+diff --git a/drivers/base/test/test_async_driver_probe.c b/drivers/base/test/test_async_driver_probe.c
+index 4d1976ca5072..929410d0dd6f 100644
+--- a/drivers/base/test/test_async_driver_probe.c
++++ b/drivers/base/test/test_async_driver_probe.c
+@@ -145,7 +145,7 @@ static int __init test_async_probe_init(void)
+ 	calltime = ktime_get();
+ 	for_each_online_cpu(cpu) {
+ 		nid = cpu_to_node(cpu);
+-		pdev = &sync_dev[sync_id];
++		pdev = &async_dev[async_id];
  
- 	if (caps->has_ddrck) {
--		clk = devm_clk_get(&pdev->dev, "ddrck");
-+		clk = devm_clk_get_enabled(&pdev->dev, "ddrck");
- 		if (IS_ERR(clk))
- 			return PTR_ERR(clk);
--		clk_prepare_enable(clk);
- 	}
- 
- 	if (caps->has_mpddr_clk) {
--		clk = devm_clk_get(&pdev->dev, "mpddr");
-+		clk = devm_clk_get_enabled(&pdev->dev, "mpddr");
- 		if (IS_ERR(clk)) {
- 			pr_err("AT91 RAMC: couldn't get mpddr clock\n");
- 			return PTR_ERR(clk);
- 		}
--		clk_prepare_enable(clk);
- 	}
- 
- 	return 0;
+ 		*pdev = test_platform_device_register_node("test_async_driver",
+ 							   async_id,
 -- 
 2.39.0
 
