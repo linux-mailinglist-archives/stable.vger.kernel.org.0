@@ -2,44 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 6565B68113A
-	for <lists+stable@lfdr.de>; Mon, 30 Jan 2023 15:11:21 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0C4A868104C
+	for <lists+stable@lfdr.de>; Mon, 30 Jan 2023 15:02:17 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237203AbjA3OLU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 30 Jan 2023 09:11:20 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53618 "EHLO
+        id S236903AbjA3OCQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 30 Jan 2023 09:02:16 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41458 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237256AbjA3OLK (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 30 Jan 2023 09:11:10 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EAE6F3BD9D
-        for <stable@vger.kernel.org>; Mon, 30 Jan 2023 06:11:04 -0800 (PST)
+        with ESMTP id S236989AbjA3OCA (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 30 Jan 2023 09:02:00 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3F6C93B3D1
+        for <stable@vger.kernel.org>; Mon, 30 Jan 2023 06:01:50 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id A31A6B8117B
-        for <stable@vger.kernel.org>; Mon, 30 Jan 2023 14:11:03 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D45CDC433D2;
-        Mon, 30 Jan 2023 14:11:01 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id BA2F260FE0
+        for <stable@vger.kernel.org>; Mon, 30 Jan 2023 14:01:49 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B1239C433EF;
+        Mon, 30 Jan 2023 14:01:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1675087862;
-        bh=HIuAtD7PP0GscvnFPtW6sWcXVA2xXCCEW3Lsq9AnqR0=;
+        s=korg; t=1675087309;
+        bh=RN7VLJp+O7Bz4vKfVO30MZU6lj4S2u5GUiHV5ezFWUo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=SptBtG51DU9Iroea/a0s2fXJuOz59EiVR+nD8EIGSXLOczCDxW1DxbeXJm4R99ZZt
-         Ajg8cVFBxqv3PEgp+gnL45rKLIxgadRAXUtZ2jgZbCbm3M+mgU/eVdtVN/MfjGmZJy
-         6vrUoFs0PW7+7jKp0rbDVPSz4bxxdrD0WdU3IOOI=
+        b=BKUKBkppv+pHpopwYWTphPnjv+Ga5iCtqh9cFkUusqU06v7FQN2SV8l7/HSLU0M/c
+         EMoAZiPWqXlNsnQaVViy3VOSTfMSNS2egEh4PsOeuncbTCy6gSHaT/el053ZMJ8l8s
+         Wt1w0pDkMHbLHMVilr1+wOukhsiBZtcnYqTkTZe4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Claudiu Beznea <claudiu.beznea@microchip.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 033/204] ARM: dts: at91: sam9x60: fix the ddr clock for sam9x60
-Date:   Mon, 30 Jan 2023 14:49:58 +0100
-Message-Id: <20230130134317.765302386@linuxfoundation.org>
+        patches@lists.linux.dev, Kan Liang <kan.liang@linux.intel.com>,
+        Ingo Molnar <mingo@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 6.1 164/313] perf/x86/msr: Add Emerald Rapids
+Date:   Mon, 30 Jan 2023 14:49:59 +0100
+Message-Id: <20230130134344.308875732@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.1
-In-Reply-To: <20230130134316.327556078@linuxfoundation.org>
-References: <20230130134316.327556078@linuxfoundation.org>
+In-Reply-To: <20230130134336.532886729@linuxfoundation.org>
+References: <20230130134336.532886729@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,34 +52,33 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Claudiu Beznea <claudiu.beznea@microchip.com>
+From: Kan Liang <kan.liang@linux.intel.com>
 
-[ Upstream commit 9bfa2544dbd1133f0b0af4e967de3bb9c1e3a497 ]
+[ Upstream commit 69ced4160969025821f2999ff92163ed26568f1c ]
 
-The 2nd DDR clock for sam9x60 DDR controller is peripheral clock with
-id 49.
+The same as Sapphire Rapids, the SMI_COUNT MSR is also supported on
+Emerald Rapids. Add Emerald Rapids model.
 
-Fixes: 1e5f532c2737 ("ARM: dts: at91: sam9x60: add device tree for soc and board")
-Signed-off-by: Claudiu Beznea <claudiu.beznea@microchip.com>
-Link: https://lore.kernel.org/r/20221208115241.36312-1-claudiu.beznea@microchip.com
+Signed-off-by: Kan Liang <kan.liang@linux.intel.com>
+Signed-off-by: Ingo Molnar <mingo@kernel.org>
+Link: https://lore.kernel.org/r/20230106160449.3566477-3-kan.liang@linux.intel.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm/boot/dts/sam9x60.dtsi | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ arch/x86/events/msr.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/arch/arm/boot/dts/sam9x60.dtsi b/arch/arm/boot/dts/sam9x60.dtsi
-index ec45ced3cde6..e1e0dec8cc1f 100644
---- a/arch/arm/boot/dts/sam9x60.dtsi
-+++ b/arch/arm/boot/dts/sam9x60.dtsi
-@@ -567,7 +567,7 @@ pmecc: ecc-engine@ffffe000 {
- 			mpddrc: mpddrc@ffffe800 {
- 				compatible = "microchip,sam9x60-ddramc", "atmel,sama5d3-ddramc";
- 				reg = <0xffffe800 0x200>;
--				clocks = <&pmc PMC_TYPE_SYSTEM 2>, <&pmc PMC_TYPE_CORE PMC_MCK>;
-+				clocks = <&pmc PMC_TYPE_SYSTEM 2>, <&pmc PMC_TYPE_PERIPHERAL 49>;
- 				clock-names = "ddrck", "mpddr";
- 			};
+diff --git a/arch/x86/events/msr.c b/arch/x86/events/msr.c
+index 074150d28fa8..c65d8906cbcf 100644
+--- a/arch/x86/events/msr.c
++++ b/arch/x86/events/msr.c
+@@ -69,6 +69,7 @@ static bool test_intel(int idx, void *data)
+ 	case INTEL_FAM6_BROADWELL_G:
+ 	case INTEL_FAM6_BROADWELL_X:
+ 	case INTEL_FAM6_SAPPHIRERAPIDS_X:
++	case INTEL_FAM6_EMERALDRAPIDS_X:
  
+ 	case INTEL_FAM6_ATOM_SILVERMONT:
+ 	case INTEL_FAM6_ATOM_SILVERMONT_D:
 -- 
 2.39.0
 
