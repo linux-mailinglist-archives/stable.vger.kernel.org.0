@@ -2,53 +2,52 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id BA4AD6810A4
-	for <lists+stable@lfdr.de>; Mon, 30 Jan 2023 15:05:25 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3305568118E
+	for <lists+stable@lfdr.de>; Mon, 30 Jan 2023 15:14:36 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237054AbjA3OFY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 30 Jan 2023 09:05:24 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47668 "EHLO
+        id S237283AbjA3OOf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 30 Jan 2023 09:14:35 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58552 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237059AbjA3OFV (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 30 Jan 2023 09:05:21 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1EC6C1F5E6
-        for <stable@vger.kernel.org>; Mon, 30 Jan 2023 06:05:20 -0800 (PST)
+        with ESMTP id S237301AbjA3OOe (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 30 Jan 2023 09:14:34 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EEF4040DD
+        for <stable@vger.kernel.org>; Mon, 30 Jan 2023 06:14:32 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id C4669B81132
-        for <stable@vger.kernel.org>; Mon, 30 Jan 2023 14:05:18 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 209E4C433EF;
-        Mon, 30 Jan 2023 14:05:16 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 8C4256104A
+        for <stable@vger.kernel.org>; Mon, 30 Jan 2023 14:14:32 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 93D3AC433EF;
+        Mon, 30 Jan 2023 14:14:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1675087517;
-        bh=U6uvrp33YWiHXyyne+1WMFhq5/IADpvUTMZrmfymyro=;
+        s=korg; t=1675088072;
+        bh=nwg9DuutqA/VAJGrJmRSbb0ZVbAoxopA6OjCEa6nptA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=IoF061Z74XFMzgG+cFICRDcq+iNyE4YYkpiriikVGQmiUoT8LjvnonyfOJLlNC5Uh
-         Dcj4g402u0pSePh/Gp0Sah0TooJFOdnyFYY7W2Q5IUV7afcfD/6QgN3WYSstZ7NrQ0
-         s/9HpoFWQCyZRRkBMf1IiyKh+n93wUNEKoRPrw0o=
+        b=1xvuBx4HWgTgmxXZ4ZPgBxYeHaOY93OU+W2jLwRVCEevwDyGy3HEdw8xjq6JFixXp
+         tfWu+Zcz299N9dVVgf4CFpL3/XQJlUZapr0m1bTqycfQxJj9OJg95UOsatABkhpEkc
+         ekmLamRrHYkBDfpe1gyjPlHqhO1bpzKr4pige9WI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, kernel test robot <lkp@intel.com>,
-        Dan Carpenter <error27@gmail.com>,
-        "Qais Yousef (Google)" <qyousef@layalina.io>,
-        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
-        Vincent Guittot <vincent.guittot@linaro.org>,
+        patches@lists.linux.dev,
+        =?UTF-8?q?Aur=C3=A9lien=20Aptel?= <aurelien.aptel@gmail.com>,
+        "Paulo Alcantara (SUSE)" <pc@cjr.nz>,
+        Steve French <stfrench@microsoft.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 205/313] sched/uclamp: Fix a uninitialized variable warnings
+Subject: [PATCH 5.15 075/204] cifs: fix potential deadlock in cache_refresh_path()
 Date:   Mon, 30 Jan 2023 14:50:40 +0100
-Message-Id: <20230130134346.251654203@linuxfoundation.org>
+Message-Id: <20230130134319.639227377@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.1
-In-Reply-To: <20230130134336.532886729@linuxfoundation.org>
-References: <20230130134336.532886729@linuxfoundation.org>
+In-Reply-To: <20230130134316.327556078@linuxfoundation.org>
+References: <20230130134316.327556078@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
         SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -56,94 +55,114 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Qais Yousef <qyousef@layalina.io>
+From: Paulo Alcantara <pc@cjr.nz>
 
-[ Upstream commit e26fd28db82899be71b4b949527373d0a6be1e65 ]
+[ Upstream commit 9fb0db40513e27537fde63287aea920b60557a69 ]
 
-Addresses the following warnings:
+Avoid getting DFS referral from an exclusive lock in
+cache_refresh_path() because the tcon IPC used for getting the
+referral could be disconnected and thus causing a deadlock as shown
+below:
 
-> config: riscv-randconfig-m031-20221111
-> compiler: riscv64-linux-gcc (GCC) 12.1.0
->
-> smatch warnings:
-> kernel/sched/fair.c:7263 find_energy_efficient_cpu() error: uninitialized symbol 'util_min'.
-> kernel/sched/fair.c:7263 find_energy_efficient_cpu() error: uninitialized symbol 'util_max'.
+task A                       task B
+======                       ======
+cifs_demultiplex_thread()    dfs_cache_find()
+ cifs_handle_standard()       cache_refresh_path()
+  reconnect_dfs_server()       down_write()
+   dfs_cache_noreq_find()       get_dfs_referral()
+    down_read() <- deadlock      smb2_get_dfs_refer()
+                                  SMB2_ioctl()
+				   cifs_send_recv()
+				    compound_send_recv()
+				     wait_for_response()
 
-Fixes: 244226035a1f ("sched/uclamp: Fix fits_capacity() check in feec()")
-Reported-by: kernel test robot <lkp@intel.com>
-Reported-by: Dan Carpenter <error27@gmail.com>
-Signed-off-by: Qais Yousef (Google) <qyousef@layalina.io>
-Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
-Reviewed-by: Vincent Guittot <vincent.guittot@linaro.org>
-Link: https://lore.kernel.org/r/20230112122708.330667-2-qyousef@layalina.io
+where task A cannot wake up task B because it is blocked on
+down_read() due to the exclusive lock held in cache_refresh_path() and
+therefore not being able to make progress.
+
+Fixes: c9f711039905 ("cifs: keep referral server sessions alive")
+Reviewed-by: Aurélien Aptel <aurelien.aptel@gmail.com>
+Signed-off-by: Paulo Alcantara (SUSE) <pc@cjr.nz>
+Signed-off-by: Steve French <stfrench@microsoft.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/sched/fair.c | 35 ++++++++++++++++-------------------
- 1 file changed, 16 insertions(+), 19 deletions(-)
+ fs/cifs/dfs_cache.c | 42 +++++++++++++++++++++++-------------------
+ 1 file changed, 23 insertions(+), 19 deletions(-)
 
-diff --git a/kernel/sched/fair.c b/kernel/sched/fair.c
-index bb04ca795fc3..2c3d0d49c80e 100644
---- a/kernel/sched/fair.c
-+++ b/kernel/sched/fair.c
-@@ -7213,10 +7213,10 @@ static int find_energy_efficient_cpu(struct task_struct *p, int prev_cpu)
- 	eenv_task_busy_time(&eenv, p, prev_cpu);
+diff --git a/fs/cifs/dfs_cache.c b/fs/cifs/dfs_cache.c
+index 1f3efa7821a0..8c98fa507768 100644
+--- a/fs/cifs/dfs_cache.c
++++ b/fs/cifs/dfs_cache.c
+@@ -792,26 +792,27 @@ static int get_dfs_referral(const unsigned int xid, struct cifs_ses *ses, const
+  */
+ static int cache_refresh_path(const unsigned int xid, struct cifs_ses *ses, const char *path)
+ {
+-	int rc;
+-	struct cache_entry *ce;
+ 	struct dfs_info3_param *refs = NULL;
++	struct cache_entry *ce;
+ 	int numrefs = 0;
+-	bool newent = false;
++	int rc;
  
- 	for (; pd; pd = pd->next) {
-+		unsigned long util_min = p_util_min, util_max = p_util_max;
- 		unsigned long cpu_cap, cpu_thermal_cap, util;
- 		unsigned long cur_delta, max_spare_cap = 0;
- 		unsigned long rq_util_min, rq_util_max;
--		unsigned long util_min, util_max;
- 		unsigned long prev_spare_cap = 0;
- 		int max_spare_cap_cpu = -1;
- 		unsigned long base_energy;
-@@ -7235,6 +7235,8 @@ static int find_energy_efficient_cpu(struct task_struct *p, int prev_cpu)
- 		eenv.pd_cap = 0;
+ 	cifs_dbg(FYI, "%s: search path: %s\n", __func__, path);
  
- 		for_each_cpu(cpu, cpus) {
-+			struct rq *rq = cpu_rq(cpu);
-+
- 			eenv.pd_cap += cpu_thermal_cap;
+-	down_write(&htable_rw_lock);
++	down_read(&htable_rw_lock);
  
- 			if (!cpumask_test_cpu(cpu, sched_domain_span(sd)))
-@@ -7253,24 +7255,19 @@ static int find_energy_efficient_cpu(struct task_struct *p, int prev_cpu)
- 			 * much capacity we can get out of the CPU; this is
- 			 * aligned with sched_cpu_util().
- 			 */
--			if (uclamp_is_used()) {
--				if (uclamp_rq_is_idle(cpu_rq(cpu))) {
--					util_min = p_util_min;
--					util_max = p_util_max;
--				} else {
--					/*
--					 * Open code uclamp_rq_util_with() except for
--					 * the clamp() part. Ie: apply max aggregation
--					 * only. util_fits_cpu() logic requires to
--					 * operate on non clamped util but must use the
--					 * max-aggregated uclamp_{min, max}.
--					 */
--					rq_util_min = uclamp_rq_get(cpu_rq(cpu), UCLAMP_MIN);
--					rq_util_max = uclamp_rq_get(cpu_rq(cpu), UCLAMP_MAX);
+ 	ce = lookup_cache_entry(path);
+-	if (!IS_ERR(ce)) {
+-		if (!cache_entry_expired(ce)) {
+-			dump_ce(ce);
+-			up_write(&htable_rw_lock);
+-			return 0;
+-		}
+-	} else {
+-		newent = true;
++	if (!IS_ERR(ce) && !cache_entry_expired(ce)) {
++		up_read(&htable_rw_lock);
++		return 0;
+ 	}
++	/*
++	 * Unlock shared access as we don't want to hold any locks while getting
++	 * a new referral.  The @ses used for performing the I/O could be
++	 * reconnecting and it acquires @htable_rw_lock to look up the dfs cache
++	 * in order to failover -- if necessary.
++	 */
++	up_read(&htable_rw_lock);
+ 
+ 	/*
+ 	 * Either the entry was not found, or it is expired.
+@@ -819,19 +820,22 @@ static int cache_refresh_path(const unsigned int xid, struct cifs_ses *ses, cons
+ 	 */
+ 	rc = get_dfs_referral(xid, ses, path, &refs, &numrefs);
+ 	if (rc)
+-		goto out_unlock;
++		goto out;
+ 
+ 	dump_refs(refs, numrefs);
+ 
+-	if (!newent) {
+-		rc = update_cache_entry_locked(ce, refs, numrefs);
+-		goto out_unlock;
++	down_write(&htable_rw_lock);
++	/* Re-check as another task might have it added or refreshed already */
++	ce = lookup_cache_entry(path);
++	if (!IS_ERR(ce)) {
++		if (cache_entry_expired(ce))
++			rc = update_cache_entry_locked(ce, refs, numrefs);
++	} else {
++		rc = add_cache_entry_locked(refs, numrefs);
+ 	}
+ 
+-	rc = add_cache_entry_locked(refs, numrefs);
 -
--					util_min = max(rq_util_min, p_util_min);
--					util_max = max(rq_util_max, p_util_max);
--				}
-+			if (uclamp_is_used() && !uclamp_rq_is_idle(rq)) {
-+				/*
-+				 * Open code uclamp_rq_util_with() except for
-+				 * the clamp() part. Ie: apply max aggregation
-+				 * only. util_fits_cpu() logic requires to
-+				 * operate on non clamped util but must use the
-+				 * max-aggregated uclamp_{min, max}.
-+				 */
-+				rq_util_min = uclamp_rq_get(rq, UCLAMP_MIN);
-+				rq_util_max = uclamp_rq_get(rq, UCLAMP_MAX);
-+
-+				util_min = max(rq_util_min, p_util_min);
-+				util_max = max(rq_util_max, p_util_max);
- 			}
- 			if (!util_fits_cpu(util, util_min, util_max, cpu))
- 				continue;
+-out_unlock:
+ 	up_write(&htable_rw_lock);
++out:
+ 	free_dfs_info_array(refs, numrefs);
+ 	return rc;
+ }
 -- 
 2.39.0
 
