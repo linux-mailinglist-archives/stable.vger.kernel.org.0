@@ -2,43 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 29F1E68130F
-	for <lists+stable@lfdr.de>; Mon, 30 Jan 2023 15:28:07 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id F20B4681310
+	for <lists+stable@lfdr.de>; Mon, 30 Jan 2023 15:28:08 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237735AbjA3O2F (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 30 Jan 2023 09:28:05 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49032 "EHLO
+        id S237767AbjA3O2H (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 30 Jan 2023 09:28:07 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49520 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237642AbjA3O1g (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 30 Jan 2023 09:27:36 -0500
-Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 00EE6360B4
-        for <stable@vger.kernel.org>; Mon, 30 Jan 2023 06:26:03 -0800 (PST)
+        with ESMTP id S237601AbjA3O1j (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 30 Jan 2023 09:27:39 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F2C629768
+        for <stable@vger.kernel.org>; Mon, 30 Jan 2023 06:26:05 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 4C0C7CE1717
-        for <stable@vger.kernel.org>; Mon, 30 Jan 2023 14:26:02 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0C737C433D2;
-        Mon, 30 Jan 2023 14:25:59 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id A2528B80FA0
+        for <stable@vger.kernel.org>; Mon, 30 Jan 2023 14:26:04 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 050EEC4339B;
+        Mon, 30 Jan 2023 14:26:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1675088760;
-        bh=b1grx+0ni3uWa3ow56kR1h6FHvRUggVisBq7oraVU1s=;
+        s=korg; t=1675088763;
+        bh=19B6fjPOwPYnsENfk4aWb8JftQvLlRr3q/hEybvbKTk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=vsL9iRHK3M1a8BZilu6RwIunYPVE1Fj2bMptFx2YWkYPXmcD/n6mnHRDkBYGValah
-         SNuHOZeDVlZndETryWah6HnHoy8JBPJRq7X6Vp9SLiuCyNQ1dZMFlaZA3DGe+YbGDT
-         /Bd/4xIEHPMyW5mHW77epakl/waPOr+UJPbUCJ7U=
+        b=uP25ZeY0sQi2OBCI8Qe4hnexLUaJzyLEgVXneE4fXN8NQcKblyJFKpCT1F0gJiyLK
+         iHlWhwY8ztp86YKevQ6qJg/mGneUvDV0tcMMNUDUP/tjZWhkv0SMQC3QSDh0/oMzu3
+         KhGiRKkvAdIhlT+vRPLaJrNegg7vdY7s2oH7HoGA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        syzbot+5fafd5cfe1fc91f6b352@syzkaller.appspotmail.com,
-        Kuniyuki Iwashima <kuniyu@amazon.com>,
-        Paolo Abeni <pabeni@redhat.com>,
+        patches@lists.linux.dev, syzbot <syzkaller@googlegroups.com>,
+        Eric Dumazet <edumazet@google.com>,
+        Vinicius Costa Gomes <vinicius.gomes@intel.com>,
+        Jakub Kicinski <kuba@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 127/143] netrom: Fix use-after-free of a listening socket.
-Date:   Mon, 30 Jan 2023 14:53:04 +0100
-Message-Id: <20230130134312.087165933@linuxfoundation.org>
+Subject: [PATCH 5.10 128/143] net/sched: sch_taprio: do not schedule in taprio_reset()
+Date:   Mon, 30 Jan 2023 14:53:05 +0100
+Message-Id: <20230130134312.120209289@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.1
 In-Reply-To: <20230130134306.862721518@linuxfoundation.org>
 References: <20230130134306.862721518@linuxfoundation.org>
@@ -55,159 +55,87 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kuniyuki Iwashima <kuniyu@amazon.com>
+From: Eric Dumazet <edumazet@google.com>
 
-[ Upstream commit 409db27e3a2eb5e8ef7226ca33be33361b3ed1c9 ]
+[ Upstream commit ea4fdbaa2f7798cb25adbe4fd52ffc6356f097bb ]
 
-syzbot reported a use-after-free in do_accept(), precisely nr_accept()
-as sk_prot_alloc() allocated the memory and sock_put() frees it. [0]
+As reported by syzbot and hinted by Vinicius, I should not have added
+a qdisc_synchronize() call in taprio_reset()
 
-The issue could happen if the heartbeat timer is fired and
-nr_heartbeat_expiry() calls nr_destroy_socket(), where a socket
-has SOCK_DESTROY or a listening socket has SOCK_DEAD.
+taprio_reset() can be called with qdisc spinlock held (and BH disabled)
+as shown in included syzbot report [1].
 
-In this case, the first condition cannot be true.  SOCK_DESTROY is
-flagged in nr_release() only when the file descriptor is close()d,
-but accept() is being called for the listening socket, so the second
-condition must be true.
+Only taprio_destroy() needed this synchronization, as explained
+in the blamed commit changelog.
 
-Usually, the AF_NETROM listener neither starts timers nor sets
-SOCK_DEAD.  However, the condition is met if connect() fails before
-listen().  connect() starts the t1 timer and heartbeat timer, and
-t1timer calls nr_disconnect() when timeout happens.  Then, SOCK_DEAD
-is set, and if we call listen(), the heartbeat timer calls
-nr_destroy_socket().
+[1]
 
-  nr_connect
-    nr_establish_data_link(sk)
-      nr_start_t1timer(sk)
-    nr_start_heartbeat(sk)
-                                    nr_t1timer_expiry
-                                      nr_disconnect(sk, ETIMEDOUT)
-                                        nr_sk(sk)->state = NR_STATE_0
-                                        sk->sk_state = TCP_CLOSE
-                                        sock_set_flag(sk, SOCK_DEAD)
-nr_listen
-  if (sk->sk_state != TCP_LISTEN)
-    sk->sk_state = TCP_LISTEN
-                                    nr_heartbeat_expiry
-                                      switch (nr->state)
-                                      case NR_STATE_0
-                                        if (sk->sk_state == TCP_LISTEN &&
-                                            sock_flag(sk, SOCK_DEAD))
-                                          nr_destroy_socket(sk)
-
-This path seems expected, and nr_destroy_socket() is called to clean
-up resources.  Initially, there was sock_hold() before nr_destroy_socket()
-so that the socket would not be freed, but the commit 517a16b1a88b
-("netrom: Decrease sock refcount when sock timers expire") accidentally
-removed it.
-
-To fix use-after-free, let's add sock_hold().
-
-[0]:
-BUG: KASAN: use-after-free in do_accept+0x483/0x510 net/socket.c:1848
-Read of size 8 at addr ffff88807978d398 by task syz-executor.3/5315
-
-CPU: 0 PID: 5315 Comm: syz-executor.3 Not tainted 6.2.0-rc3-syzkaller-00165-gd9fc1511728c #0
-Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS Google 10/26/2022
+BUG: scheduling while atomic: syz-executor150/5091/0x00000202
+2 locks held by syz-executor150/5091:
+Modules linked in:
+Preemption disabled at:
+[<0000000000000000>] 0x0
+Kernel panic - not syncing: scheduling while atomic: panic_on_warn set ...
+CPU: 1 PID: 5091 Comm: syz-executor150 Not tainted 6.2.0-rc3-syzkaller-00219-g010a74f52203 #0
+Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS Google 01/12/2023
 Call Trace:
- <TASK>
- __dump_stack lib/dump_stack.c:88 [inline]
- dump_stack_lvl+0xd1/0x138 lib/dump_stack.c:106
- print_address_description mm/kasan/report.c:306 [inline]
- print_report+0x15e/0x461 mm/kasan/report.c:417
- kasan_report+0xbf/0x1f0 mm/kasan/report.c:517
- do_accept+0x483/0x510 net/socket.c:1848
- __sys_accept4_file net/socket.c:1897 [inline]
- __sys_accept4+0x9a/0x120 net/socket.c:1927
- __do_sys_accept net/socket.c:1944 [inline]
- __se_sys_accept net/socket.c:1941 [inline]
- __x64_sys_accept+0x75/0xb0 net/socket.c:1941
- do_syscall_x64 arch/x86/entry/common.c:50 [inline]
- do_syscall_64+0x39/0xb0 arch/x86/entry/common.c:80
- entry_SYSCALL_64_after_hwframe+0x63/0xcd
-RIP: 0033:0x7fa436a8c0c9
-Code: 28 00 00 00 75 05 48 83 c4 28 c3 e8 f1 19 00 00 90 48 89 f8 48 89 f7 48 89 d6 48 89 ca 4d 89 c2 4d 89 c8 4c 8b 4c 24 08 0f 05 <48> 3d 01 f0 ff ff 73 01 c3 48 c7 c1 b8 ff ff ff f7 d8 64 89 01 48
-RSP: 002b:00007fa437784168 EFLAGS: 00000246 ORIG_RAX: 000000000000002b
-RAX: ffffffffffffffda RBX: 00007fa436bac050 RCX: 00007fa436a8c0c9
-RDX: 0000000000000000 RSI: 0000000000000000 RDI: 0000000000000005
-RBP: 00007fa436ae7ae9 R08: 0000000000000000 R09: 0000000000000000
-R10: 0000000000000000 R11: 0000000000000246 R12: 0000000000000000
-R13: 00007ffebc6700df R14: 00007fa437784300 R15: 0000000000022000
- </TASK>
+<TASK>
+__dump_stack lib/dump_stack.c:88 [inline]
+dump_stack_lvl+0xd1/0x138 lib/dump_stack.c:106
+panic+0x2cc/0x626 kernel/panic.c:318
+check_panic_on_warn.cold+0x19/0x35 kernel/panic.c:238
+__schedule_bug.cold+0xd5/0xfe kernel/sched/core.c:5836
+schedule_debug kernel/sched/core.c:5865 [inline]
+__schedule+0x34e4/0x5450 kernel/sched/core.c:6500
+schedule+0xde/0x1b0 kernel/sched/core.c:6682
+schedule_timeout+0x14e/0x2a0 kernel/time/timer.c:2167
+schedule_timeout_uninterruptible kernel/time/timer.c:2201 [inline]
+msleep+0xb6/0x100 kernel/time/timer.c:2322
+qdisc_synchronize include/net/sch_generic.h:1295 [inline]
+taprio_reset+0x93/0x270 net/sched/sch_taprio.c:1703
+qdisc_reset+0x10c/0x770 net/sched/sch_generic.c:1022
+dev_reset_queue+0x92/0x130 net/sched/sch_generic.c:1285
+netdev_for_each_tx_queue include/linux/netdevice.h:2464 [inline]
+dev_deactivate_many+0x36d/0x9f0 net/sched/sch_generic.c:1351
+dev_deactivate+0xed/0x1b0 net/sched/sch_generic.c:1374
+qdisc_graft+0xe4a/0x1380 net/sched/sch_api.c:1080
+tc_modify_qdisc+0xb6b/0x19a0 net/sched/sch_api.c:1689
+rtnetlink_rcv_msg+0x43e/0xca0 net/core/rtnetlink.c:6141
+netlink_rcv_skb+0x165/0x440 net/netlink/af_netlink.c:2564
+netlink_unicast_kernel net/netlink/af_netlink.c:1330 [inline]
+netlink_unicast+0x547/0x7f0 net/netlink/af_netlink.c:1356
+netlink_sendmsg+0x91b/0xe10 net/netlink/af_netlink.c:1932
+sock_sendmsg_nosec net/socket.c:714 [inline]
+sock_sendmsg+0xd3/0x120 net/socket.c:734
+____sys_sendmsg+0x712/0x8c0 net/socket.c:2476
+___sys_sendmsg+0x110/0x1b0 net/socket.c:2530
+__sys_sendmsg+0xf7/0x1c0 net/socket.c:2559
+do_syscall_x64 arch/x86/entry/common.c:50 [inline]
 
-Allocated by task 5294:
- kasan_save_stack+0x22/0x40 mm/kasan/common.c:45
- kasan_set_track+0x25/0x30 mm/kasan/common.c:52
- ____kasan_kmalloc mm/kasan/common.c:371 [inline]
- ____kasan_kmalloc mm/kasan/common.c:330 [inline]
- __kasan_kmalloc+0xa3/0xb0 mm/kasan/common.c:380
- kasan_kmalloc include/linux/kasan.h:211 [inline]
- __do_kmalloc_node mm/slab_common.c:968 [inline]
- __kmalloc+0x5a/0xd0 mm/slab_common.c:981
- kmalloc include/linux/slab.h:584 [inline]
- sk_prot_alloc+0x140/0x290 net/core/sock.c:2038
- sk_alloc+0x3a/0x7a0 net/core/sock.c:2091
- nr_create+0xb6/0x5f0 net/netrom/af_netrom.c:433
- __sock_create+0x359/0x790 net/socket.c:1515
- sock_create net/socket.c:1566 [inline]
- __sys_socket_create net/socket.c:1603 [inline]
- __sys_socket_create net/socket.c:1588 [inline]
- __sys_socket+0x133/0x250 net/socket.c:1636
- __do_sys_socket net/socket.c:1649 [inline]
- __se_sys_socket net/socket.c:1647 [inline]
- __x64_sys_socket+0x73/0xb0 net/socket.c:1647
- do_syscall_x64 arch/x86/entry/common.c:50 [inline]
- do_syscall_64+0x39/0xb0 arch/x86/entry/common.c:80
- entry_SYSCALL_64_after_hwframe+0x63/0xcd
-
-Freed by task 14:
- kasan_save_stack+0x22/0x40 mm/kasan/common.c:45
- kasan_set_track+0x25/0x30 mm/kasan/common.c:52
- kasan_save_free_info+0x2b/0x40 mm/kasan/generic.c:518
- ____kasan_slab_free mm/kasan/common.c:236 [inline]
- ____kasan_slab_free+0x13b/0x1a0 mm/kasan/common.c:200
- kasan_slab_free include/linux/kasan.h:177 [inline]
- __cache_free mm/slab.c:3394 [inline]
- __do_kmem_cache_free mm/slab.c:3580 [inline]
- __kmem_cache_free+0xcd/0x3b0 mm/slab.c:3587
- sk_prot_free net/core/sock.c:2074 [inline]
- __sk_destruct+0x5df/0x750 net/core/sock.c:2166
- sk_destruct net/core/sock.c:2181 [inline]
- __sk_free+0x175/0x460 net/core/sock.c:2192
- sk_free+0x7c/0xa0 net/core/sock.c:2203
- sock_put include/net/sock.h:1991 [inline]
- nr_heartbeat_expiry+0x1d7/0x460 net/netrom/nr_timer.c:148
- call_timer_fn+0x1da/0x7c0 kernel/time/timer.c:1700
- expire_timers+0x2c6/0x5c0 kernel/time/timer.c:1751
- __run_timers kernel/time/timer.c:2022 [inline]
- __run_timers kernel/time/timer.c:1995 [inline]
- run_timer_softirq+0x326/0x910 kernel/time/timer.c:2035
- __do_softirq+0x1fb/0xadc kernel/softirq.c:571
-
-Fixes: 517a16b1a88b ("netrom: Decrease sock refcount when sock timers expire")
-Reported-by: syzbot+5fafd5cfe1fc91f6b352@syzkaller.appspotmail.com
-Signed-off-by: Kuniyuki Iwashima <kuniyu@amazon.com>
-Link: https://lore.kernel.org/r/20230120231927.51711-1-kuniyu@amazon.com
-Signed-off-by: Paolo Abeni <pabeni@redhat.com>
+Fixes: 3a415d59c1db ("net/sched: sch_taprio: fix possible use-after-free")
+Link: https://lore.kernel.org/netdev/167387581653.2747.13878941339893288655.git-patchwork-notify@kernel.org/T/
+Reported-by: syzbot <syzkaller@googlegroups.com>
+Signed-off-by: Eric Dumazet <edumazet@google.com>
+Cc: Vinicius Costa Gomes <vinicius.gomes@intel.com>
+Link: https://lore.kernel.org/r/20230123084552.574396-1-edumazet@google.com
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/netrom/nr_timer.c | 1 +
- 1 file changed, 1 insertion(+)
+ net/sched/sch_taprio.c | 1 -
+ 1 file changed, 1 deletion(-)
 
-diff --git a/net/netrom/nr_timer.c b/net/netrom/nr_timer.c
-index a8da88db7893..4e7c968cde2d 100644
---- a/net/netrom/nr_timer.c
-+++ b/net/netrom/nr_timer.c
-@@ -121,6 +121,7 @@ static void nr_heartbeat_expiry(struct timer_list *t)
- 		   is accepted() it isn't 'dead' so doesn't get removed. */
- 		if (sock_flag(sk, SOCK_DESTROY) ||
- 		    (sk->sk_state == TCP_LISTEN && sock_flag(sk, SOCK_DEAD))) {
-+			sock_hold(sk);
- 			bh_unlock_sock(sk);
- 			nr_destroy_socket(sk);
- 			goto out;
+diff --git a/net/sched/sch_taprio.c b/net/sched/sch_taprio.c
+index 5411bb4cdfc8..e25fe44899ff 100644
+--- a/net/sched/sch_taprio.c
++++ b/net/sched/sch_taprio.c
+@@ -1621,7 +1621,6 @@ static void taprio_reset(struct Qdisc *sch)
+ 	int i;
+ 
+ 	hrtimer_cancel(&q->advance_timer);
+-	qdisc_synchronize(sch);
+ 
+ 	if (q->qdiscs) {
+ 		for (i = 0; i < dev->num_tx_queues; i++)
 -- 
 2.39.0
 
