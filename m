@@ -2,44 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A37C76812FA
-	for <lists+stable@lfdr.de>; Mon, 30 Jan 2023 15:27:01 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0FECA681283
+	for <lists+stable@lfdr.de>; Mon, 30 Jan 2023 15:21:58 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237644AbjA3O07 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 30 Jan 2023 09:26:59 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41866 "EHLO
+        id S237362AbjA3OV5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 30 Jan 2023 09:21:57 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60722 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237653AbjA3O0d (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 30 Jan 2023 09:26:33 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A2E3541B69
-        for <stable@vger.kernel.org>; Mon, 30 Jan 2023 06:25:13 -0800 (PST)
+        with ESMTP id S237563AbjA3OVc (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 30 Jan 2023 09:21:32 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 393923EC6E
+        for <stable@vger.kernel.org>; Mon, 30 Jan 2023 06:20:29 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id B0D10B811BD
-        for <stable@vger.kernel.org>; Mon, 30 Jan 2023 14:25:11 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0A9CDC433D2;
-        Mon, 30 Jan 2023 14:25:09 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 7F87E61085
+        for <stable@vger.kernel.org>; Mon, 30 Jan 2023 14:19:55 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8C52AC433D2;
+        Mon, 30 Jan 2023 14:19:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1675088710;
-        bh=EGO3d7qa3WnWSD0R15KD+MAJrmkHxqH8AkOLkEEfJMc=;
+        s=korg; t=1675088394;
+        bh=/kf3B+xPe72iydFm4rav9awomDkPmHf5K8qGjpi2dBw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=vYZIJUW4aK5dusEwSnKk5grQlxnPvUZyRF9gRIeZCM+waWa/laV8EI7DpwiEfmsmJ
-         iqpFO+h/93iZn8NRxH0Ti88jHqXh0OzGcZ74CdTkk4T0KHg5N9/yFSc9CvM1/4CEB+
-         jToAWPkm+++f15mxF8BZvpB1NM4e3T88BVKXKlfA=
+        b=moEgkL29PKAjd/GS7Ow8dsG/MYTUFMZSg0BP2zaxufi/FO341l5YbWTUVV/OJoAu4
+         llOLAZCz5yn3rXN8MkuKvNIVsSYRIocBU+SQi1ASUNjctMOc70kPSB95QKMRPZvPr9
+         7lv5qz2rVBRWzm1hZjIKntIcDZ2qBBb8x1E/WaI0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Giulio Benetti <giulio.benetti@benettiengineering.com>,
-        "Russell King (Oracle)" <rmk+kernel@armlinux.org.uk>
-Subject: [PATCH 5.10 109/143] ARM: 9280/1: mm: fix warning on phys_addr_t to void pointer assignment
-Date:   Mon, 30 Jan 2023 14:52:46 +0100
-Message-Id: <20230130134311.362619158@linuxfoundation.org>
+        patches@lists.linux.dev, Baoquan He <bhe@redhat.com>,
+        Thomas Gleixner <tglx@linutronix.de>
+Subject: [PATCH 5.15 202/204] x86/i8259: Mark legacy PIC interrupts with IRQ_LEVEL
+Date:   Mon, 30 Jan 2023 14:52:47 +0100
+Message-Id: <20230130134325.426808175@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.1
-In-Reply-To: <20230130134306.862721518@linuxfoundation.org>
-References: <20230130134306.862721518@linuxfoundation.org>
+In-Reply-To: <20230130134316.327556078@linuxfoundation.org>
+References: <20230130134316.327556078@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,34 +52,61 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Giulio Benetti <giulio.benetti@benettiengineering.com>
+From: Thomas Gleixner <tglx@linutronix.de>
 
-commit a4e03921c1bb118e6718e0a3b0322a2c13ed172b upstream.
+commit 5fa55950729d0762a787451dc52862c3f850f859 upstream.
 
-zero_page is a void* pointer but memblock_alloc() returns phys_addr_t type
-so this generates a warning while using clang and with -Wint-error enabled
-that becomes and error. So let's cast the return of memblock_alloc() to
-(void *).
+Baoquan reported that after triggering a crash the subsequent crash-kernel
+fails to boot about half of the time. It triggers a NULL pointer
+dereference in the periodic tick code.
 
-Cc: <stable@vger.kernel.org> # 4.14.x +
-Fixes: 340a982825f7 ("ARM: 9266/1: mm: fix no-MMU ZERO_PAGE() implementation")
-Signed-off-by: Giulio Benetti <giulio.benetti@benettiengineering.com>
-Signed-off-by: Russell King (Oracle) <rmk+kernel@armlinux.org.uk>
+This happens because the legacy timer interrupt (IRQ0) is resent in
+software which happens in soft interrupt (tasklet) context. In this context
+get_irq_regs() returns NULL which leads to the NULL pointer dereference.
+
+The reason for the resend is a spurious APIC interrupt on the IRQ0 vector
+which is captured and leads to a resend when the legacy timer interrupt is
+enabled. This is wrong because the legacy PIC interrupts are level
+triggered and therefore should never be resent in software, but nothing
+ever sets the IRQ_LEVEL flag on those interrupts, so the core code does not
+know about their trigger type.
+
+Ensure that IRQ_LEVEL is set when the legacy PCI interrupts are set up.
+
+Fixes: a4633adcdbc1 ("[PATCH] genirq: add genirq sw IRQ-retrigger")
+Reported-by: Baoquan He <bhe@redhat.com>
+Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
+Tested-by: Baoquan He <bhe@redhat.com>
+Link: https://lore.kernel.org/r/87mt6rjrra.ffs@tglx
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/arm/mm/nommu.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ arch/x86/kernel/i8259.c   |    1 +
+ arch/x86/kernel/irqinit.c |    4 +++-
+ 2 files changed, 4 insertions(+), 1 deletion(-)
 
---- a/arch/arm/mm/nommu.c
-+++ b/arch/arm/mm/nommu.c
-@@ -161,7 +161,7 @@ void __init paging_init(const struct mac
- 	mpu_setup();
+--- a/arch/x86/kernel/i8259.c
++++ b/arch/x86/kernel/i8259.c
+@@ -114,6 +114,7 @@ static void make_8259A_irq(unsigned int
+ 	disable_irq_nosync(irq);
+ 	io_apic_irqs &= ~(1<<irq);
+ 	irq_set_chip_and_handler(irq, &i8259A_chip, handle_level_irq);
++	irq_set_status_flags(irq, IRQ_LEVEL);
+ 	enable_irq(irq);
+ 	lapic_assign_legacy_vector(irq, true);
+ }
+--- a/arch/x86/kernel/irqinit.c
++++ b/arch/x86/kernel/irqinit.c
+@@ -65,8 +65,10 @@ void __init init_ISA_irqs(void)
  
- 	/* allocate the zero page. */
--	zero_page = memblock_alloc(PAGE_SIZE, PAGE_SIZE);
-+	zero_page = (void *)memblock_alloc(PAGE_SIZE, PAGE_SIZE);
- 	if (!zero_page)
- 		panic("%s: Failed to allocate %lu bytes align=0x%lx\n",
- 		      __func__, PAGE_SIZE, PAGE_SIZE);
+ 	legacy_pic->init(0);
+ 
+-	for (i = 0; i < nr_legacy_irqs(); i++)
++	for (i = 0; i < nr_legacy_irqs(); i++) {
+ 		irq_set_chip_and_handler(i, chip, handle_level_irq);
++		irq_set_status_flags(i, IRQ_LEVEL);
++	}
+ }
+ 
+ void __init init_IRQ(void)
 
 
