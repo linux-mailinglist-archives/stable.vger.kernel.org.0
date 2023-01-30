@@ -2,42 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 4AAAD68131A
-	for <lists+stable@lfdr.de>; Mon, 30 Jan 2023 15:28:22 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6001C68131B
+	for <lists+stable@lfdr.de>; Mon, 30 Jan 2023 15:28:27 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237668AbjA3O2V (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S237670AbjA3O2V (ORCPT <rfc822;lists+stable@lfdr.de>);
         Mon, 30 Jan 2023 09:28:21 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49274 "EHLO
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49596 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237653AbjA3O2J (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 30 Jan 2023 09:28:09 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1843F3FF17
-        for <stable@vger.kernel.org>; Mon, 30 Jan 2023 06:26:35 -0800 (PST)
+        with ESMTP id S236493AbjA3O2K (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 30 Jan 2023 09:28:10 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 69B003D086
+        for <stable@vger.kernel.org>; Mon, 30 Jan 2023 06:26:37 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id ADA26B80CB4
-        for <stable@vger.kernel.org>; Mon, 30 Jan 2023 14:26:34 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id F0F75C433EF;
-        Mon, 30 Jan 2023 14:26:32 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 04DD261015
+        for <stable@vger.kernel.org>; Mon, 30 Jan 2023 14:26:37 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 11650C433EF;
+        Mon, 30 Jan 2023 14:26:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1675088793;
-        bh=tDgGZyx8dUZUuYOkhR7nRnqLCbsiRF69YF6tjUnVi0w=;
+        s=korg; t=1675088796;
+        bh=ezzE3+CW8K03nv60S3Y5tB/PV/lTwsGqG3OO2IAdH58=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=PD4ypF0jDXUu3nem/6YZdAI/l/NwAarIpd+khHcvwPMfSuYty2SMdvbyN8/AzptWJ
-         BIYX8UjGyrt5VIKuaA6g7C+pSMYOeYbPUTiAq9nU3HleQo0Ebib04ZvH2+fgwvrNLD
-         wb5u5LUreDdPmX6hF60Xk5ZGfvvLHNy9B4aA/T8I=
+        b=oS7jyKeEeAdENhW+hZSwJp3yzOadTx2RC6+ZTjvPjKcUPk6QgRIbcpmnGOPz/CMM9
+         7N07Fv5g0iLnfAQPszTjDVUHfSxCOAzyGreSQVEzgJu6+gK+RJAFCRDz5MpzoBcCbY
+         nJd2lGkKiD3Vmg3rgJ8SKwUN7fKs+9SzYCW/3IJw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Trond Myklebust <trond.myklebust@hammerspace.com>,
-        Chuck Lever <chuck.lever@oracle.com>,
-        Nikos Tsironis <ntsironis@arrikto.com>
-Subject: [PATCH 5.10 137/143] nfsd: Ensure knfsd shuts down when the "nfsd" pseudofs is unmounted
-Date:   Mon, 30 Jan 2023 14:53:14 +0100
-Message-Id: <20230130134312.493734898@linuxfoundation.org>
+        patches@lists.linux.dev, Chen Zhongjin <chenzhongjin@huawei.com>,
+        Zheng Yejian <zhengyejian1@huawei.com>
+Subject: [PATCH 5.10 138/143] Revert "selftests/ftrace: Update synthetic event syntax errors"
+Date:   Mon, 30 Jan 2023 14:53:15 +0100
+Message-Id: <20230130134312.537877225@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.1
 In-Reply-To: <20230130134306.862721518@linuxfoundation.org>
 References: <20230130134306.862721518@linuxfoundation.org>
@@ -45,8 +43,8 @@ User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
         SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -54,187 +52,76 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Trond Myklebust <trond.myklebust@hammerspace.com>
+From: Zheng Yejian <zhengyejian1@huawei.com>
 
-commit c6c7f2a84da459bcc3714044e74a9cb66de31039 upstream.
+This reverts commit 31c2e369b5335d70e913afee3ae11e54d61afef2 which is commit
+b5734e997e1117afb479ffda500e36fa91aea3e8 upstream.
 
-In order to ensure that knfsd threads don't linger once the nfsd
-pseudofs is unmounted (e.g. when the container is killed) we let
-nfsd_umount() shut down those threads and wait for them to exit.
+The reverted commit belongs to patchset which updated synthetic event
+command parsing and testcase 'trigger-synthetic_event_syntax_errors.tc'
+Link: https://lore.kernel.org/all/20210211020950.102294806@goodmis.org/
 
-This also should ensure that we don't need to do a kernel mount of
-the pseudofs, since the thread lifetime is now limited by the
-lifetime of the filesystem.
+However this testcase update was backported alone without feature
+update, which makes the testcase cannot pass on stable branch.
 
-Signed-off-by: Trond Myklebust <trond.myklebust@hammerspace.com>
-Signed-off-by: Chuck Lever <chuck.lever@oracle.com>
-Signed-off-by: Nikos Tsironis <ntsironis@arrikto.com>
+Revert this commit to make the testcase correct.
+
+Fixes: 31c2e369b533 ("selftests/ftrace: Update synthetic event syntax errors")
+Reported-by: Chen Zhongjin <chenzhongjin@huawei.com>
+Signed-off-by: Zheng Yejian <zhengyejian1@huawei.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/nfsd/netns.h     |    6 +++---
- fs/nfsd/nfs4state.c |    8 +-------
- fs/nfsd/nfsctl.c    |   14 ++------------
- fs/nfsd/nfsd.h      |    3 +--
- fs/nfsd/nfssvc.c    |   35 ++++++++++++++++++++++++++++++++++-
- 5 files changed, 41 insertions(+), 25 deletions(-)
+ tools/testing/selftests/ftrace/test.d/trigger/inter-event/trigger-synthetic_event_syntax_errors.tc |   35 ++--------
+ 1 file changed, 8 insertions(+), 27 deletions(-)
 
---- a/fs/nfsd/netns.h
-+++ b/fs/nfsd/netns.h
-@@ -42,9 +42,6 @@ struct nfsd_net {
- 	bool grace_ended;
- 	time64_t boot_time;
+--- a/tools/testing/selftests/ftrace/test.d/trigger/inter-event/trigger-synthetic_event_syntax_errors.tc
++++ b/tools/testing/selftests/ftrace/test.d/trigger/inter-event/trigger-synthetic_event_syntax_errors.tc
+@@ -1,38 +1,19 @@
+ #!/bin/sh
+ # SPDX-License-Identifier: GPL-2.0
+ # description: event trigger - test synthetic_events syntax parser errors
+-# requires: synthetic_events error_log "char name[]' >> synthetic_events":README
++# requires: synthetic_events error_log
  
--	/* internal mount of the "nfsd" pseudofilesystem: */
--	struct vfsmount *nfsd_mnt;
--
- 	struct dentry *nfsd_client_dir;
- 
- 	/*
-@@ -121,6 +118,9 @@ struct nfsd_net {
- 	wait_queue_head_t ntf_wq;
- 	atomic_t ntf_refcnt;
- 
-+	/* Allow umount to wait for nfsd state cleanup */
-+	struct completion nfsd_shutdown_complete;
-+
- 	/*
- 	 * clientid and stateid data for construction of net unique COPY
- 	 * stateids.
---- a/fs/nfsd/nfs4state.c
-+++ b/fs/nfsd/nfs4state.c
-@@ -7394,14 +7394,9 @@ nfs4_state_start_net(struct net *net)
- 	struct nfsd_net *nn = net_generic(net, nfsd_net_id);
- 	int ret;
- 
--	ret = get_nfsdfs(net);
--	if (ret)
--		return ret;
- 	ret = nfs4_state_create_net(net);
--	if (ret) {
--		mntput(nn->nfsd_mnt);
-+	if (ret)
- 		return ret;
--	}
- 	locks_start_grace(net, &nn->nfsd4_manager);
- 	nfsd4_client_tracking_init(net);
- 	if (nn->track_reclaim_completes && nn->reclaim_str_hashtbl_size == 0)
-@@ -7471,7 +7466,6 @@ nfs4_state_shutdown_net(struct net *net)
- 
- 	nfsd4_client_tracking_exit(net);
- 	nfs4_state_destroy_net(net);
--	mntput(nn->nfsd_mnt);
+ check_error() { # command-with-error-pos-by-^
+     ftrace_errlog_check 'synthetic_events' "$1" 'synthetic_events'
  }
  
- void
---- a/fs/nfsd/nfsctl.c
-+++ b/fs/nfsd/nfsctl.c
-@@ -1417,6 +1417,8 @@ static void nfsd_umount(struct super_blo
- {
- 	struct net *net = sb->s_fs_info;
- 
-+	nfsd_shutdown_threads(net);
-+
- 	kill_litter_super(sb);
- 	put_net(net);
- }
-@@ -1429,18 +1431,6 @@ static struct file_system_type nfsd_fs_t
- };
- MODULE_ALIAS_FS("nfsd");
- 
--int get_nfsdfs(struct net *net)
--{
--	struct nfsd_net *nn = net_generic(net, nfsd_net_id);
--	struct vfsmount *mnt;
--
--	mnt =  vfs_kern_mount(&nfsd_fs_type, SB_KERNMOUNT, "nfsd", NULL);
--	if (IS_ERR(mnt))
--		return PTR_ERR(mnt);
--	nn->nfsd_mnt = mnt;
--	return 0;
+-check_dyn_error() { # command-with-error-pos-by-^
+-    ftrace_errlog_check 'synthetic_events' "$1" 'dynamic_events'
 -}
 -
- #ifdef CONFIG_PROC_FS
- static int create_proc_exports_entry(void)
- {
---- a/fs/nfsd/nfsd.h
-+++ b/fs/nfsd/nfsd.h
-@@ -85,13 +85,12 @@ int		nfsd_get_nrthreads(int n, int *, st
- int		nfsd_set_nrthreads(int n, int *, struct net *);
- int		nfsd_pool_stats_open(struct inode *, struct file *);
- int		nfsd_pool_stats_release(struct inode *, struct file *);
-+void		nfsd_shutdown_threads(struct net *net);
- 
- void		nfsd_destroy(struct net *net);
- 
- bool		i_am_nfsd(void);
- 
--int get_nfsdfs(struct net *);
+ check_error 'myevent ^chr arg'			# INVALID_TYPE
+-check_error 'myevent ^unsigned arg'		# INCOMPLETE_TYPE
 -
- struct nfsdfs_client {
- 	struct kref cl_ref;
- 	void (*cl_release)(struct kref *kref);
---- a/fs/nfsd/nfssvc.c
-+++ b/fs/nfsd/nfssvc.c
-@@ -600,6 +600,37 @@ static const struct svc_serv_ops nfsd_th
- 	.svo_module		= THIS_MODULE,
- };
+-check_error 'myevent char ^str]; int v'		# BAD_NAME
+-check_error '^mye-vent char str[]'		# BAD_NAME
+-check_error 'myevent char ^st-r[]'		# BAD_NAME
+-
+-check_error 'myevent char str;^[]'		# INVALID_FIELD
+-check_error 'myevent char str; ^int'		# INVALID_FIELD
+-
+-check_error 'myevent char ^str[; int v'		# INVALID_ARRAY_SPEC
+-check_error 'myevent char ^str[kdjdk]'		# INVALID_ARRAY_SPEC
+-check_error 'myevent char ^str[257]'		# INVALID_ARRAY_SPEC
+-
+-check_error '^mye;vent char str[]'		# INVALID_CMD
+-check_error '^myevent ; char str[]'		# INVALID_CMD
+-check_error '^myevent; char str[]'		# INVALID_CMD
+-check_error '^myevent ;char str[]'		# INVALID_CMD
+-check_error '^; char str[]'			# INVALID_CMD
+-check_error '^;myevent char str[]'		# INVALID_CMD
+-check_error '^myevent'				# INVALID_CMD
+-
+-check_dyn_error '^s:junk/myevent char str['	# INVALID_DYN_CMD
++check_error 'myevent ^char str[];; int v'	# INVALID_TYPE
++check_error 'myevent char ^str]; int v'		# INVALID_NAME
++check_error 'myevent char ^str;[]'		# INVALID_NAME
++check_error 'myevent ^char str[; int v'		# INVALID_TYPE
++check_error '^mye;vent char str[]'		# BAD_NAME
++check_error 'myevent char str[]; ^int'		# INVALID_FIELD
++check_error '^myevent'				# INCOMPLETE_CMD
  
-+static void nfsd_complete_shutdown(struct net *net)
-+{
-+	struct nfsd_net *nn = net_generic(net, nfsd_net_id);
-+
-+	WARN_ON(!mutex_is_locked(&nfsd_mutex));
-+
-+	nn->nfsd_serv = NULL;
-+	complete(&nn->nfsd_shutdown_complete);
-+}
-+
-+void nfsd_shutdown_threads(struct net *net)
-+{
-+	struct nfsd_net *nn = net_generic(net, nfsd_net_id);
-+	struct svc_serv *serv;
-+
-+	mutex_lock(&nfsd_mutex);
-+	serv = nn->nfsd_serv;
-+	if (serv == NULL) {
-+		mutex_unlock(&nfsd_mutex);
-+		return;
-+	}
-+
-+	svc_get(serv);
-+	/* Kill outstanding nfsd threads */
-+	serv->sv_ops->svo_setup(serv, NULL, 0);
-+	nfsd_destroy(net);
-+	mutex_unlock(&nfsd_mutex);
-+	/* Wait for shutdown of nfsd_serv to complete */
-+	wait_for_completion(&nn->nfsd_shutdown_complete);
-+}
-+
- bool i_am_nfsd(void)
- {
- 	return kthread_func(current) == nfsd;
-@@ -622,11 +653,13 @@ int nfsd_create_serv(struct net *net)
- 						&nfsd_thread_sv_ops);
- 	if (nn->nfsd_serv == NULL)
- 		return -ENOMEM;
-+	init_completion(&nn->nfsd_shutdown_complete);
- 
- 	nn->nfsd_serv->sv_maxconn = nn->max_connections;
- 	error = svc_bind(nn->nfsd_serv, net);
- 	if (error < 0) {
- 		svc_destroy(nn->nfsd_serv);
-+		nfsd_complete_shutdown(net);
- 		return error;
- 	}
- 
-@@ -675,7 +708,7 @@ void nfsd_destroy(struct net *net)
- 		svc_shutdown_net(nn->nfsd_serv, net);
- 	svc_destroy(nn->nfsd_serv);
- 	if (destroy)
--		nn->nfsd_serv = NULL;
-+		nfsd_complete_shutdown(net);
- }
- 
- int nfsd_set_nrthreads(int n, int *nthreads, struct net *net)
+ exit 0
 
 
