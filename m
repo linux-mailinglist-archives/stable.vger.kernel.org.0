@@ -2,43 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D224A6812EC
-	for <lists+stable@lfdr.de>; Mon, 30 Jan 2023 15:26:38 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4A2B7681278
+	for <lists+stable@lfdr.de>; Mon, 30 Jan 2023 15:21:25 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237671AbjA3O0i (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 30 Jan 2023 09:26:38 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41344 "EHLO
+        id S237641AbjA3OVX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 30 Jan 2023 09:21:23 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:32908 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236034AbjA3O0O (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 30 Jan 2023 09:26:14 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7F1AE3D086
-        for <stable@vger.kernel.org>; Mon, 30 Jan 2023 06:24:56 -0800 (PST)
+        with ESMTP id S237670AbjA3OVI (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 30 Jan 2023 09:21:08 -0500
+Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4D0A1402E1
+        for <stable@vger.kernel.org>; Mon, 30 Jan 2023 06:19:59 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 5F00A61014
-        for <stable@vger.kernel.org>; Mon, 30 Jan 2023 14:24:56 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 52168C433EF;
-        Mon, 30 Jan 2023 14:24:55 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 5B71CCE1710
+        for <stable@vger.kernel.org>; Mon, 30 Jan 2023 14:19:24 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1D3C0C433D2;
+        Mon, 30 Jan 2023 14:19:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1675088695;
-        bh=QY3P6+9xFiKRCIVEw6awfLAZZfy2UItLKnbxaWuwuMY=;
+        s=korg; t=1675088362;
+        bh=W90CcxRv/GgdKjJd8nx1g0Z2YD6sfIrrwvsaf4h/13Y=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=cfI9XY/50ED0Tl/h5m4J4oHS/mdPWIhIIgZr7Hm0HNcBj0NPnMxml4GTiYOV314S4
-         a/R3aTgLKNtxTR6Hf20PfckXrDi98E2+yMthrFgOFZWQ/kMJZQSZwP6i6I5cYdL3aU
-         d4LZjTaOWxoJez+b6u8/qpU541wOaOU/qpj433MY=
+        b=fL81ys6I76v4bJP2DtkHhUpGBQia7cOgApyDrp3YCRqsiCJTHC1bXFGxsu13VMWB7
+         mIctlZPL9M9U6ZAEaDDyGIP7ElMv/J6w9rLlZlG176r+sKtPobE2xClGpPP0EhM6tC
+         7EMrHTp+wUJVd6bhQMb8LstP+38WDwkVqef7cjp8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Natalia Petrova <n.petrova@fintech.ru>,
-        "Steven Rostedt (Google)" <rostedt@goodmis.org>
-Subject: [PATCH 5.10 104/143] trace_events_hist: add check for return value of create_hist_field
-Date:   Mon, 30 Jan 2023 14:52:41 +0100
-Message-Id: <20230130134311.152957051@linuxfoundation.org>
+        patches@lists.linux.dev, Jiri Slaby <jirislaby@kernel.org>,
+        Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: [PATCH 5.15 197/204] Revert "Input: synaptics - switch touchpad on HP Laptop 15-da3001TU to RMI mode"
+Date:   Mon, 30 Jan 2023 14:52:42 +0100
+Message-Id: <20230130134325.236709261@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.1
-In-Reply-To: <20230130134306.862721518@linuxfoundation.org>
-References: <20230130134306.862721518@linuxfoundation.org>
+In-Reply-To: <20230130134316.327556078@linuxfoundation.org>
+References: <20230130134316.327556078@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -52,37 +52,33 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Natalia Petrova <n.petrova@fintech.ru>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 
-commit 8b152e9150d07a885f95e1fd401fc81af202d9a4 upstream.
+commit 3c44e2b6cde674797b76e76d3a903a63ce8a18bb upstream.
 
-Function 'create_hist_field' is called recursively at
-trace_events_hist.c:1954 and can return NULL-value that's why we have
-to check it to avoid null pointer dereference.
+This reverts commit ac5408991ea6b06e29129b4d4861097c4c3e0d59 because
+it causes loss of keyboard on HP 15-da1xxx.
 
-Found by Linux Verification Center (linuxtesting.org) with SVACE.
-
-Link: https://lkml.kernel.org/r/20230111120409.4111-1-n.petrova@fintech.ru
-
+Fixes: ac5408991ea6 ("Input: synaptics - switch touchpad on HP Laptop 15-da3001TU to RMI mode")
+Reported-by: Jiri Slaby <jirislaby@kernel.org>
+Link: https://lore.kernel.org/r/824effa5-8b9a-c28a-82bb-9b0ab24623e1@kernel.org
+Bugzilla: https://bugzilla.suse.com/show_bug.cgi?id=1206358
 Cc: stable@vger.kernel.org
-Fixes: 30350d65ac56 ("tracing: Add variable support to hist triggers")
-Signed-off-by: Natalia Petrova <n.petrova@fintech.ru>
-Signed-off-by: Steven Rostedt (Google) <rostedt@goodmis.org>
+Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- kernel/trace/trace_events_hist.c |    2 ++
- 1 file changed, 2 insertions(+)
+ drivers/input/mouse/synaptics.c |    1 -
+ 1 file changed, 1 deletion(-)
 
---- a/kernel/trace/trace_events_hist.c
-+++ b/kernel/trace/trace_events_hist.c
-@@ -1646,6 +1646,8 @@ static struct hist_field *create_hist_fi
- 		unsigned long fl = flags & ~HIST_FIELD_FL_LOG2;
- 		hist_field->fn = hist_field_log2;
- 		hist_field->operands[0] = create_hist_field(hist_data, field, fl, NULL);
-+		if (!hist_field->operands[0])
-+			goto free;
- 		hist_field->size = hist_field->operands[0]->size;
- 		hist_field->type = kstrdup(hist_field->operands[0]->type, GFP_KERNEL);
- 		if (!hist_field->type)
+--- a/drivers/input/mouse/synaptics.c
++++ b/drivers/input/mouse/synaptics.c
+@@ -191,7 +191,6 @@ static const char * const smbus_pnp_ids[
+ 	"SYN3221", /* HP 15-ay000 */
+ 	"SYN323d", /* HP Spectre X360 13-w013dx */
+ 	"SYN3257", /* HP Envy 13-ad105ng */
+-	"SYN3286", /* HP Laptop 15-da3001TU */
+ 	NULL
+ };
+ 
 
 
