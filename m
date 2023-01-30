@@ -2,52 +2,51 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B4BDF681294
-	for <lists+stable@lfdr.de>; Mon, 30 Jan 2023 15:22:58 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B378B6810D0
+	for <lists+stable@lfdr.de>; Mon, 30 Jan 2023 15:07:03 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237440AbjA3OW4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 30 Jan 2023 09:22:56 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42174 "EHLO
+        id S237094AbjA3OHC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 30 Jan 2023 09:07:02 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49262 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237667AbjA3OWd (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 30 Jan 2023 09:22:33 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6A0E63F29D
-        for <stable@vger.kernel.org>; Mon, 30 Jan 2023 06:21:33 -0800 (PST)
+        with ESMTP id S237102AbjA3OHB (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 30 Jan 2023 09:07:01 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AA3B13B3FE
+        for <stable@vger.kernel.org>; Mon, 30 Jan 2023 06:07:00 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 6DFA4B81151
-        for <stable@vger.kernel.org>; Mon, 30 Jan 2023 14:20:31 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id AC020C433D2;
-        Mon, 30 Jan 2023 14:20:29 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 45A6D61026
+        for <stable@vger.kernel.org>; Mon, 30 Jan 2023 14:07:00 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5C1B6C433D2;
+        Mon, 30 Jan 2023 14:06:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1675088430;
-        bh=gHlPMaOgS6FPp3ojpd/qqAIvyC0uF+49MU2zbAkwKYU=;
+        s=korg; t=1675087619;
+        bh=/Q68WvVQEMJAHQFG4dJgYFDyWNUfbbkq37cIYVX3zzw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=hQcczWi+zJfSbhrRS7jaFpIPO2ekTbwrcj87S2yNp33lbK6+QjRnH7lvSwJzACb9Y
-         l0/M9LWqxx/spyqP/53p6K4g6u72p0TC/cin62zIhlWnu9SqYM5vLtFjZ4jsXeda9I
-         2UW8PiyUd6NqKjK56zj8e3YAaJEpBjy0B1aDeWkE=
+        b=LIp/uGZaeHz8U5B5y8iIZj5M5/oIU1i4enGMQSDs9unQnPvDiJHBpIoy0VbV2CJoO
+         Y/DRF+iiNwbjhXZr8jX6yT7czQCN4a+Y+NDhOUVZdGgIIpyIG7a6nGV5QZCT4Sk4y5
+         R3BLf3CWxFURG3fu3iVE1onCRICGZpkh52e2OKlo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Dean Luick <dean.luick@cornelisnetworks.com>,
-        Dennis Dalessandro <dennis.dalessandro@cornelisnetworks.com>,
-        Leon Romanovsky <leon@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 017/143] IB/hfi1: Reserve user expected TIDs
+        patches@lists.linux.dev, Wayne Lin <Wayne.Lin@amd.com>,
+        Harry Wentland <harry.wentland@amd.com>,
+        Lyude Paul <lyude@redhat.com>, Didier Raboud <odyx@debian.org>,
+        Alex Deucher <alexander.deucher@amd.com>
+Subject: [PATCH 6.1 239/313] drm/amdgpu/display/mst: update mst_mgr relevant variable when long HPD
 Date:   Mon, 30 Jan 2023 14:51:14 +0100
-Message-Id: <20230130134307.598775923@linuxfoundation.org>
+Message-Id: <20230130134347.815444398@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.1
-In-Reply-To: <20230130134306.862721518@linuxfoundation.org>
-References: <20230130134306.862721518@linuxfoundation.org>
+In-Reply-To: <20230130134336.532886729@linuxfoundation.org>
+References: <20230130134336.532886729@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
         SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -55,63 +54,80 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dean Luick <dean.luick@cornelisnetworks.com>
+From: Wayne Lin <Wayne.Lin@amd.com>
 
-[ Upstream commit ecf91551cdd2925ed6d9a9d99074fa5f67b90596 ]
+commit f85c5e25fd28fe0bf6d6d0563cf83758a4e05c8f upstream.
 
-To avoid a race, reserve the number of user expected
-TIDs before setup.
+[Why & How]
+Now the vc_start_slot is controlled at drm side. When we
+service a long HPD, we still need to run
+dm_helpers_dp_mst_write_payload_allocation_table() to update
+drm mst_mgr's relevant variable. Otherwise, on the next plug-in,
+payload will get assigned with a wrong start slot.
 
-Fixes: 7e7a436ecb6e ("staging/hfi1: Add TID entry program function body")
-Signed-off-by: Dean Luick <dean.luick@cornelisnetworks.com>
-Signed-off-by: Dennis Dalessandro <dennis.dalessandro@cornelisnetworks.com>
-Link: https://lore.kernel.org/r/167328547636.1472310.7419712824785353905.stgit@awfm-02.cornelisnetworks.com
-Signed-off-by: Leon Romanovsky <leon@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Bug: https://gitlab.freedesktop.org/drm/amd/-/issues/2171
+Signed-off-by: Wayne Lin <Wayne.Lin@amd.com>
+Signed-off-by: Harry Wentland <harry.wentland@amd.com>
+Fixes: 4d07b0bc4034 ("drm/display/dp_mst: Move all payload info into the atomic state")
+Cc: stable@vger.kernel.org # 6.1
+Acked-by: Harry Wentland <harry.wentland@amd.com>
+Reviewed-by: Lyude Paul <lyude@redhat.com>
+Tested-by: Didier Raboud <odyx@debian.org>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/infiniband/hw/hfi1/user_exp_rcv.c | 14 ++++++--------
- 1 file changed, 6 insertions(+), 8 deletions(-)
+ drivers/gpu/drm/amd/display/dc/core/dc_link.c | 14 ++++++++++++--
+ 1 file changed, 12 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/infiniband/hw/hfi1/user_exp_rcv.c b/drivers/infiniband/hw/hfi1/user_exp_rcv.c
-index dd8ce2a62d2b..1278cd55a480 100644
---- a/drivers/infiniband/hw/hfi1/user_exp_rcv.c
-+++ b/drivers/infiniband/hw/hfi1/user_exp_rcv.c
-@@ -324,16 +324,13 @@ int hfi1_user_exp_rcv_setup(struct hfi1_filedata *fd,
- 	/* Find sets of physically contiguous pages */
- 	tidbuf->n_psets = find_phys_blocks(tidbuf, pinned);
+diff --git a/drivers/gpu/drm/amd/display/dc/core/dc_link.c b/drivers/gpu/drm/amd/display/dc/core/dc_link.c
+index 342e906ae26e..c88f044666fe 100644
+--- a/drivers/gpu/drm/amd/display/dc/core/dc_link.c
++++ b/drivers/gpu/drm/amd/display/dc/core/dc_link.c
+@@ -3995,10 +3995,13 @@ static enum dc_status deallocate_mst_payload(struct pipe_ctx *pipe_ctx)
+ 	struct fixed31_32 avg_time_slots_per_mtp = dc_fixpt_from_int(0);
+ 	int i;
+ 	bool mst_mode = (link->type == dc_connection_mst_branch);
++	/* adjust for drm changes*/
++	bool update_drm_mst_state = true;
+ 	const struct link_hwss *link_hwss = get_link_hwss(link, &pipe_ctx->link_res);
+ 	const struct dc_link_settings empty_link_settings = {0};
+ 	DC_LOGGER_INIT(link->ctx->logger);
  
--	/*
--	 * We don't need to access this under a lock since tid_used is per
--	 * process and the same process cannot be in hfi1_user_exp_rcv_clear()
--	 * and hfi1_user_exp_rcv_setup() at the same time.
--	 */
-+	/* Reserve the number of expected tids to be used. */
- 	spin_lock(&fd->tid_lock);
- 	if (fd->tid_used + tidbuf->n_psets > fd->tid_limit)
- 		pageset_count = fd->tid_limit - fd->tid_used;
- 	else
- 		pageset_count = tidbuf->n_psets;
-+	fd->tid_used += pageset_count;
- 	spin_unlock(&fd->tid_lock);
++
+ 	/* deallocate_mst_payload is called before disable link. When mode or
+ 	 * disable/enable monitor, new stream is created which is not in link
+ 	 * stream[] yet. For this, payload is not allocated yet, so de-alloc
+@@ -4014,7 +4017,7 @@ static enum dc_status deallocate_mst_payload(struct pipe_ctx *pipe_ctx)
+ 				&empty_link_settings,
+ 				avg_time_slots_per_mtp);
  
- 	if (!pageset_count)
-@@ -442,10 +439,11 @@ int hfi1_user_exp_rcv_setup(struct hfi1_filedata *fd,
- nomem:
- 	hfi1_cdbg(TID, "total mapped: tidpairs:%u pages:%u (%d)", tididx,
- 		  mapped_pages, ret);
-+	/* adjust reserved tid_used to actual count */
-+	spin_lock(&fd->tid_lock);
-+	fd->tid_used -= pageset_count - tididx;
-+	spin_unlock(&fd->tid_lock);
- 	if (tididx) {
--		spin_lock(&fd->tid_lock);
--		fd->tid_used += tididx;
--		spin_unlock(&fd->tid_lock);
- 		tinfo->tidcnt = tididx;
- 		tinfo->length = mapped_pages * PAGE_SIZE;
+-	if (mst_mode) {
++	if (mst_mode || update_drm_mst_state) {
+ 		/* when link is in mst mode, reply on mst manager to remove
+ 		 * payload
+ 		 */
+@@ -4077,11 +4080,18 @@ static enum dc_status deallocate_mst_payload(struct pipe_ctx *pipe_ctx)
+ 			stream->ctx,
+ 			stream);
  
++		if (!update_drm_mst_state)
++			dm_helpers_dp_mst_send_payload_allocation(
++				stream->ctx,
++				stream,
++				false);
++	}
++
++	if (update_drm_mst_state)
+ 		dm_helpers_dp_mst_send_payload_allocation(
+ 			stream->ctx,
+ 			stream,
+ 			false);
+-	}
+ 
+ 	return DC_OK;
+ }
 -- 
-2.39.0
+2.39.1
 
 
 
