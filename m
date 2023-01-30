@@ -2,41 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C3BF5681073
-	for <lists+stable@lfdr.de>; Mon, 30 Jan 2023 15:03:40 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 676C868107B
+	for <lists+stable@lfdr.de>; Mon, 30 Jan 2023 15:03:57 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236869AbjA3ODj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 30 Jan 2023 09:03:39 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42718 "EHLO
+        id S236893AbjA3ODz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 30 Jan 2023 09:03:55 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42584 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237033AbjA3ODa (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 30 Jan 2023 09:03:30 -0500
+        with ESMTP id S236991AbjA3ODp (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 30 Jan 2023 09:03:45 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A2C6412840
-        for <stable@vger.kernel.org>; Mon, 30 Jan 2023 06:03:24 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 145C51040D
+        for <stable@vger.kernel.org>; Mon, 30 Jan 2023 06:03:39 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 2EEE96104D
-        for <stable@vger.kernel.org>; Mon, 30 Jan 2023 14:03:24 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3FE71C4339B;
-        Mon, 30 Jan 2023 14:03:23 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 3D1BE6104D
+        for <stable@vger.kernel.org>; Mon, 30 Jan 2023 14:03:39 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2F746C4339B;
+        Mon, 30 Jan 2023 14:03:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1675087403;
-        bh=byea834qYCPLEZDaybRi9t7oYbN0K3ZyeJQ0Hp83vsM=;
+        s=korg; t=1675087418;
+        bh=rh6YdPCnnzwUAhXFkmFU17VRgN02RSBWmABVeMwQwYs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=PeIrbrkWBeaItPifBc49PClm2m+7M+/OrKeUHh1IawHIGsfVeg6KU+MBDLbYit07g
-         oKMpzUKpLSLUqbLCC5p3Bjib9AqgWcTWxZGw2VM+vbnholruSZG9Q4DSmy7RfQVuMj
-         pPlLk6gKP9mBqvlbWcp8z83lMofSns5ZTnJbHjhM=
+        b=k8K+E+M4GzEjza+wPWcoTUiKzYKFuqGPbPq8imm4xyexs7nrMr4ltmewhiHTEa1WZ
+         OzKEwn+6GmqEDotKHIZkcXXy7UNYQBkq5b8K6GPLgY8/xtatXJFDKVVaXsRCwZjPd8
+         wkpTTSPQBxDC58ew7owetn6+OedBOBybpdNpA0fg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Willy Tarreau <w@1wt.eu>,
-        "Paul E. McKenney" <paulmck@kernel.org>,
+        patches@lists.linux.dev, Miles Chen <miles.chen@mediatek.com>,
+        Viresh Kumar <viresh.kumar@linaro.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 169/313] tools/nolibc: prevent gcc from making memset() loop over itself
-Date:   Mon, 30 Jan 2023 14:50:04 +0100
-Message-Id: <20230130134344.535704244@linuxfoundation.org>
+Subject: [PATCH 6.1 170/313] cpufreq: armada-37xx: stop using 0 as NULL pointer
+Date:   Mon, 30 Jan 2023 14:50:05 +0100
+Message-Id: <20230130134344.587829946@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.1
 In-Reply-To: <20230130134336.532886729@linuxfoundation.org>
 References: <20230130134336.532886729@linuxfoundation.org>
@@ -53,54 +53,33 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Willy Tarreau <w@1wt.eu>
+From: Miles Chen <miles.chen@mediatek.com>
 
-[ Upstream commit 1bfbe1f3e96720daf185f03d101f072d69753f88 ]
+[ Upstream commit 08f0adb193c008de640fde34a2e00a666c01d77c ]
 
-When building on ARM in thumb mode with gcc-11.3 at -O2 or -O3,
-nolibc-test segfaults during the select() tests. It turns out that at
-this level, gcc recognizes an opportunity for using memset() to zero
-the fd_set, but it miscompiles it because it also recognizes a memset
-pattern as well, and decides to call memset() from the memset() code:
+Use NULL for NULL pointer to fix the following sparse warning:
+drivers/cpufreq/armada-37xx-cpufreq.c:448:32: sparse: warning: Using plain integer as NULL pointer
 
-  000122bc <memset>:
-     122bc:       b510            push    {r4, lr}
-     122be:       0004            movs    r4, r0
-     122c0:       2a00            cmp     r2, #0
-     122c2:       d003            beq.n   122cc <memset+0x10>
-     122c4:       23ff            movs    r3, #255        ; 0xff
-     122c6:       4019            ands    r1, r3
-     122c8:       f7ff fff8       bl      122bc <memset>
-     122cc:       0020            movs    r0, r4
-     122ce:       bd10            pop     {r4, pc}
-
-Simply placing an empty asm() statement inside the loop suffices to
-avoid this.
-
-Signed-off-by: Willy Tarreau <w@1wt.eu>
-Signed-off-by: Paul E. McKenney <paulmck@kernel.org>
+Signed-off-by: Miles Chen <miles.chen@mediatek.com>
+Signed-off-by: Viresh Kumar <viresh.kumar@linaro.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/include/nolibc/string.h | 5 ++++-
- 1 file changed, 4 insertions(+), 1 deletion(-)
+ drivers/cpufreq/armada-37xx-cpufreq.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/tools/include/nolibc/string.h b/tools/include/nolibc/string.h
-index 0932db3817d2..fffdaf6ff467 100644
---- a/tools/include/nolibc/string.h
-+++ b/tools/include/nolibc/string.h
-@@ -88,8 +88,11 @@ void *memset(void *dst, int b, size_t len)
- {
- 	char *p = dst;
+diff --git a/drivers/cpufreq/armada-37xx-cpufreq.c b/drivers/cpufreq/armada-37xx-cpufreq.c
+index c10fc33b29b1..b74289a95a17 100644
+--- a/drivers/cpufreq/armada-37xx-cpufreq.c
++++ b/drivers/cpufreq/armada-37xx-cpufreq.c
+@@ -445,7 +445,7 @@ static int __init armada37xx_cpufreq_driver_init(void)
+ 		return -ENODEV;
+ 	}
  
--	while (len--)
-+	while (len--) {
-+		/* prevent gcc from recognizing memset() here */
-+		asm volatile("");
- 		*(p++) = b;
-+	}
- 	return dst;
- }
- 
+-	clk = clk_get(cpu_dev, 0);
++	clk = clk_get(cpu_dev, NULL);
+ 	if (IS_ERR(clk)) {
+ 		dev_err(cpu_dev, "Cannot get clock for CPU0\n");
+ 		return PTR_ERR(clk);
 -- 
 2.39.0
 
