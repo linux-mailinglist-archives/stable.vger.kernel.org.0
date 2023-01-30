@@ -2,46 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id CC7C5681196
-	for <lists+stable@lfdr.de>; Mon, 30 Jan 2023 15:14:59 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6F8616810D3
+	for <lists+stable@lfdr.de>; Mon, 30 Jan 2023 15:07:14 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237312AbjA3OO6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 30 Jan 2023 09:14:58 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58838 "EHLO
+        id S237104AbjA3OHN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 30 Jan 2023 09:07:13 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49336 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237334AbjA3OOx (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 30 Jan 2023 09:14:53 -0500
+        with ESMTP id S237101AbjA3OHJ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 30 Jan 2023 09:07:09 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 704EB1ABE3
-        for <stable@vger.kernel.org>; Mon, 30 Jan 2023 06:14:49 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3A0663B3FD
+        for <stable@vger.kernel.org>; Mon, 30 Jan 2023 06:07:08 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 1A50BB811C9
-        for <stable@vger.kernel.org>; Mon, 30 Jan 2023 14:14:48 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 67716C433EF;
-        Mon, 30 Jan 2023 14:14:46 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id DE72DB81147
+        for <stable@vger.kernel.org>; Mon, 30 Jan 2023 14:07:06 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3BC67C433EF;
+        Mon, 30 Jan 2023 14:07:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1675088086;
-        bh=tr5zK0C8q0wp18TqMxxo82b+L+xwEXrLcx9cnV+T3Oo=;
+        s=korg; t=1675087625;
+        bh=c8ZVW4xjWEJnhftBdbzNSiYJSGcA/I0CN+tSqmItAbw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=p4VfGQ1oq6VsCls7V3LBQoIYtXLp31BHkpTVEIAtI1NtL0sPcMj98tei9Y+8SptoQ
-         0fdTR+ddOVnaEK3tH0MqbU4eJcGK7f+CPF6HA5OXQEHgKSkhdU6ielNxx76SQzcTY5
-         PxCLonQd79OE8TXwK7GBGAwR0BiUErGXYk1enFyI=
+        b=LGjtYTwp9MBYVYEf5ToIGVBoklw4HUyhtLkJmhBD6ocoaO9/JSk72f1p0JN1c30F0
+         OzXrpPwIObEZ/nsch+gcTCL+uHkfi23v91BqyMYwo5CIHFxBIMYcom+W9PoxwTbcvX
+         UCfmp/g1qWgB3QQF+iFPnQhd74iMHcfsF37dk6s0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Christian Borntraeger <borntraeger@linux.ibm.com>,
-        Claudio Imbrenda <imbrenda@linux.ibm.com>,
-        Heiko Carstens <hca@linux.ibm.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 111/204] KVM: s390: interrupt: use READ_ONCE() before cmpxchg()
+        patches@lists.linux.dev, Pavel Begunkov <asml.silence@gmail.com>,
+        Jens Axboe <axboe@kernel.dk>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 6.1 241/313] io_uring: inline __io_req_complete_post()
 Date:   Mon, 30 Jan 2023 14:51:16 +0100
-Message-Id: <20230130134321.325342695@linuxfoundation.org>
+Message-Id: <20230130134347.913633952@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.1
-In-Reply-To: <20230130134316.327556078@linuxfoundation.org>
-References: <20230130134316.327556078@linuxfoundation.org>
+In-Reply-To: <20230130134336.532886729@linuxfoundation.org>
+References: <20230130134336.532886729@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,70 +52,61 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Heiko Carstens <hca@linux.ibm.com>
+From: Pavel Begunkov <asml.silence@gmail.com>
 
-[ Upstream commit 42400d99e9f0728c17240edb9645637ead40f6b9 ]
+[ Upstream commit f9d567c75ec216447f36da6e855500023504fa04 ]
 
-Use READ_ONCE() before cmpxchg() to prevent that the compiler generates
-code that fetches the to be compared old value several times from memory.
+There is only one user of __io_req_complete_post(), inline it.
 
-Reviewed-by: Christian Borntraeger <borntraeger@linux.ibm.com>
-Acked-by: Christian Borntraeger <borntraeger@linux.ibm.com>
-Reviewed-by: Claudio Imbrenda <imbrenda@linux.ibm.com>
-Link: https://lore.kernel.org/r/20230109145456.2895385-1-hca@linux.ibm.com
-Signed-off-by: Heiko Carstens <hca@linux.ibm.com>
+Signed-off-by: Pavel Begunkov <asml.silence@gmail.com>
+Link: https://lore.kernel.org/r/ef4c9059950a3da5cf68df00f977f1fd13bd9306.1668597569.git.asml.silence@gmail.com
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
+Stable-dep-of: ef5c600adb1d ("io_uring: always prep_async for drain requests")
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/s390/kvm/interrupt.c | 12 ++++++++----
- 1 file changed, 8 insertions(+), 4 deletions(-)
+ io_uring/io_uring.c | 11 +++--------
+ io_uring/io_uring.h |  1 -
+ 2 files changed, 3 insertions(+), 9 deletions(-)
 
-diff --git a/arch/s390/kvm/interrupt.c b/arch/s390/kvm/interrupt.c
-index 8ce03a5ca863..ca7d09f09809 100644
---- a/arch/s390/kvm/interrupt.c
-+++ b/arch/s390/kvm/interrupt.c
-@@ -81,8 +81,9 @@ static int sca_inject_ext_call(struct kvm_vcpu *vcpu, int src_id)
- 		struct esca_block *sca = vcpu->kvm->arch.sca;
- 		union esca_sigp_ctrl *sigp_ctrl =
- 			&(sca->cpu[vcpu->vcpu_id].sigp_ctrl);
--		union esca_sigp_ctrl new_val = {0}, old_val = *sigp_ctrl;
-+		union esca_sigp_ctrl new_val = {0}, old_val;
- 
-+		old_val = READ_ONCE(*sigp_ctrl);
- 		new_val.scn = src_id;
- 		new_val.c = 1;
- 		old_val.c = 0;
-@@ -93,8 +94,9 @@ static int sca_inject_ext_call(struct kvm_vcpu *vcpu, int src_id)
- 		struct bsca_block *sca = vcpu->kvm->arch.sca;
- 		union bsca_sigp_ctrl *sigp_ctrl =
- 			&(sca->cpu[vcpu->vcpu_id].sigp_ctrl);
--		union bsca_sigp_ctrl new_val = {0}, old_val = *sigp_ctrl;
-+		union bsca_sigp_ctrl new_val = {0}, old_val;
- 
-+		old_val = READ_ONCE(*sigp_ctrl);
- 		new_val.scn = src_id;
- 		new_val.c = 1;
- 		old_val.c = 0;
-@@ -124,16 +126,18 @@ static void sca_clear_ext_call(struct kvm_vcpu *vcpu)
- 		struct esca_block *sca = vcpu->kvm->arch.sca;
- 		union esca_sigp_ctrl *sigp_ctrl =
- 			&(sca->cpu[vcpu->vcpu_id].sigp_ctrl);
--		union esca_sigp_ctrl old = *sigp_ctrl;
-+		union esca_sigp_ctrl old;
- 
-+		old = READ_ONCE(*sigp_ctrl);
- 		expect = old.value;
- 		rc = cmpxchg(&sigp_ctrl->value, old.value, 0);
- 	} else {
- 		struct bsca_block *sca = vcpu->kvm->arch.sca;
- 		union bsca_sigp_ctrl *sigp_ctrl =
- 			&(sca->cpu[vcpu->vcpu_id].sigp_ctrl);
--		union bsca_sigp_ctrl old = *sigp_ctrl;
-+		union bsca_sigp_ctrl old;
- 
-+		old = READ_ONCE(*sigp_ctrl);
- 		expect = old.value;
- 		rc = cmpxchg(&sigp_ctrl->value, old.value, 0);
+diff --git a/io_uring/io_uring.c b/io_uring/io_uring.c
+index b4f9707730b8..9b1c917c99d9 100644
+--- a/io_uring/io_uring.c
++++ b/io_uring/io_uring.c
+@@ -854,19 +854,14 @@ static void __io_req_complete_put(struct io_kiocb *req)
  	}
+ }
+ 
+-void __io_req_complete_post(struct io_kiocb *req)
+-{
+-	if (!(req->flags & REQ_F_CQE_SKIP))
+-		__io_fill_cqe_req(req->ctx, req);
+-	__io_req_complete_put(req);
+-}
+-
+ void io_req_complete_post(struct io_kiocb *req)
+ {
+ 	struct io_ring_ctx *ctx = req->ctx;
+ 
+ 	io_cq_lock(ctx);
+-	__io_req_complete_post(req);
++	if (!(req->flags & REQ_F_CQE_SKIP))
++		__io_fill_cqe_req(ctx, req);
++	__io_req_complete_put(req);
+ 	io_cq_unlock_post(ctx);
+ }
+ 
+diff --git a/io_uring/io_uring.h b/io_uring/io_uring.h
+index 56ecc1550476..0cf544ba6656 100644
+--- a/io_uring/io_uring.h
++++ b/io_uring/io_uring.h
+@@ -33,7 +33,6 @@ int io_run_local_work(struct io_ring_ctx *ctx);
+ void io_req_complete_failed(struct io_kiocb *req, s32 res);
+ void __io_req_complete(struct io_kiocb *req, unsigned issue_flags);
+ void io_req_complete_post(struct io_kiocb *req);
+-void __io_req_complete_post(struct io_kiocb *req);
+ bool io_post_aux_cqe(struct io_ring_ctx *ctx, u64 user_data, s32 res, u32 cflags,
+ 		     bool allow_overflow);
+ bool io_fill_cqe_aux(struct io_ring_ctx *ctx, u64 user_data, s32 res, u32 cflags,
 -- 
 2.39.0
 
