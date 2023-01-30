@@ -2,40 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 43861681096
-	for <lists+stable@lfdr.de>; Mon, 30 Jan 2023 15:05:02 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 66D60681098
+	for <lists+stable@lfdr.de>; Mon, 30 Jan 2023 15:05:03 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237031AbjA3OFB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 30 Jan 2023 09:05:01 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47296 "EHLO
+        id S236961AbjA3OFC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 30 Jan 2023 09:05:02 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47330 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237104AbjA3OE5 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 30 Jan 2023 09:04:57 -0500
+        with ESMTP id S236993AbjA3OFA (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 30 Jan 2023 09:05:00 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id ED374AD30
-        for <stable@vger.kernel.org>; Mon, 30 Jan 2023 06:04:56 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BDABB9EF5
+        for <stable@vger.kernel.org>; Mon, 30 Jan 2023 06:04:59 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 95029B80E60
-        for <stable@vger.kernel.org>; Mon, 30 Jan 2023 14:04:55 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id BADBEC433D2;
-        Mon, 30 Jan 2023 14:04:53 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 66721B80E60
+        for <stable@vger.kernel.org>; Mon, 30 Jan 2023 14:04:58 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A857DC433D2;
+        Mon, 30 Jan 2023 14:04:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1675087494;
-        bh=putQd0gXnR4TvDcQELnGportIinjgo/0yDj4neAvYUQ=;
+        s=korg; t=1675087497;
+        bh=NuOBLGWAYgmRap10Ieh1WLunH460rVT+96k5ULgr8vo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=QTBR4+/WsnHOyQsFqQMjQEQeKvbTHJGXcqNlA5PFM2pwry3sGnmgka5KzkXB0qp+P
-         ssh0hWFSEhLCq7lalfh1uOReKQIKuEOxZcolkn+7Lb7JOgme6csD/b7aTNGDE2FMja
-         AO6+EfOzXvl3Lvl+YwGQU7YrY3krG6m2VOUwbk8k=
+        b=QUxPcFcQxUjOOK71yLe8ktAZQvHAbGQbt7vNrqv/1BpK3ls8pwTHZhg6FS8JGMy6w
+         4U3+Hip2FIeq9Ue+AbW1/dLCg60oPsdzJOAaFiQXmpQIjOTT/SVcUY/h3mtwP2rxDd
+         mXvAG7Qrvrz1SBNeerJFU8LrfqANdZX1vo8pl/Cs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Masahiro Yamada <masahiroy@kernel.org>,
-        Palmer Dabbelt <palmer@rivosinc.com>
-Subject: [PATCH 6.1 226/313] riscv: fix -Wundef warning for CONFIG_RISCV_BOOT_SPINWAIT
-Date:   Mon, 30 Jan 2023 14:51:01 +0100
-Message-Id: <20230130134347.246062573@linuxfoundation.org>
+        patches@lists.linux.dev,
+        Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>,
+        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>
+Subject: [PATCH 6.1 227/313] thermal: intel: int340x: Protect trip temperature from concurrent updates
+Date:   Mon, 30 Jan 2023 14:51:02 +0100
+Message-Id: <20230130134347.292939821@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.1
 In-Reply-To: <20230130134336.532886729@linuxfoundation.org>
 References: <20230130134336.532886729@linuxfoundation.org>
@@ -52,42 +53,117 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Masahiro Yamada <masahiroy@kernel.org>
+From: Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>
 
-commit 5b89c6f9b2df2b7cf6da8e0b2b87c8995b378cad upstream.
+commit 6757a7abe47bcb12cb2d45661067e182424b0ee3 upstream.
 
-Since commit 80b6093b55e3 ("kbuild: add -Wundef to KBUILD_CPPFLAGS
-for W=1 builds"), building with W=1 detects misuse of #if.
+Trip temperatures are read using ACPI methods and stored in the memory
+during zone initializtion and when the firmware sends a notification for
+change. This trip temperature is returned when the thermal core calls via
+callback get_trip_temp().
 
-  $ make W=1 ARCH=riscv CROSS_COMPILE=riscv64-linux-gnu- arch/riscv/kernel/
-    [snip]
-    AS      arch/riscv/kernel/head.o
-  arch/riscv/kernel/head.S:329:5: warning: "CONFIG_RISCV_BOOT_SPINWAIT" is not defined, evaluates to 0 [-Wundef]
-    329 | #if CONFIG_RISCV_BOOT_SPINWAIT
-        |     ^~~~~~~~~~~~~~~~~~~~~~~~~~
+But it is possible that while updating the memory copy of the trips when
+the firmware sends a notification for change, thermal core is reading the
+trip temperature via the callback get_trip_temp(). This may return invalid
+trip temperature.
 
-CONFIG_RISCV_BOOT_SPINWAIT is a bool option. #ifdef should be used.
+To address this add a mutex to protect the invalid temperature reads in
+the callback get_trip_temp() and int340x_thermal_read_trips().
 
-Signed-off-by: Masahiro Yamada <masahiroy@kernel.org>
-Fixes: 2ffc48fc7071 ("RISC-V: Move spinwait booting method to its own config")
-Link: https://lore.kernel.org/r/20230106161213.2374093-1-masahiroy@kernel.org
-Cc: stable@vger.kernel.org
-Signed-off-by: Palmer Dabbelt <palmer@rivosinc.com>
+Fixes: 5fbf7f27fa3d ("Thermal/int340x: Add common thermal zone handler")
+Signed-off-by: Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>
+Cc: 5.0+ <stable@vger.kernel.org> # 5.0+
+Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/riscv/kernel/head.S |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/thermal/intel/int340x_thermal/int340x_thermal_zone.c |   18 +++++++++--
+ drivers/thermal/intel/int340x_thermal/int340x_thermal_zone.h |    1 
+ 2 files changed, 16 insertions(+), 3 deletions(-)
 
---- a/arch/riscv/kernel/head.S
-+++ b/arch/riscv/kernel/head.S
-@@ -326,7 +326,7 @@ clear_bss_done:
- 	call soc_early_init
- 	tail start_kernel
+--- a/drivers/thermal/intel/int340x_thermal/int340x_thermal_zone.c
++++ b/drivers/thermal/intel/int340x_thermal/int340x_thermal_zone.c
+@@ -44,11 +44,13 @@ static int int340x_thermal_get_trip_temp
+ 					 int trip, int *temp)
+ {
+ 	struct int34x_thermal_zone *d = zone->devdata;
+-	int i;
++	int i, ret = 0;
  
--#if CONFIG_RISCV_BOOT_SPINWAIT
-+#ifdef CONFIG_RISCV_BOOT_SPINWAIT
- .Lsecondary_start:
- 	/* Set trap vector to spin forever to help debug */
- 	la a3, .Lsecondary_park
+ 	if (d->override_ops && d->override_ops->get_trip_temp)
+ 		return d->override_ops->get_trip_temp(zone, trip, temp);
+ 
++	mutex_lock(&d->trip_mutex);
++
+ 	if (trip < d->aux_trip_nr)
+ 		*temp = d->aux_trips[trip];
+ 	else if (trip == d->crt_trip_id)
+@@ -66,10 +68,12 @@ static int int340x_thermal_get_trip_temp
+ 			}
+ 		}
+ 		if (i == INT340X_THERMAL_MAX_ACT_TRIP_COUNT)
+-			return -EINVAL;
++			ret = -EINVAL;
+ 	}
+ 
+-	return 0;
++	mutex_unlock(&d->trip_mutex);
++
++	return ret;
+ }
+ 
+ static int int340x_thermal_get_trip_type(struct thermal_zone_device *zone,
+@@ -180,6 +184,8 @@ int int340x_thermal_read_trips(struct in
+ 	int trip_cnt = int34x_zone->aux_trip_nr;
+ 	int i;
+ 
++	mutex_lock(&int34x_zone->trip_mutex);
++
+ 	int34x_zone->crt_trip_id = -1;
+ 	if (!int340x_thermal_get_trip_config(int34x_zone->adev->handle, "_CRT",
+ 					     &int34x_zone->crt_temp))
+@@ -207,6 +213,8 @@ int int340x_thermal_read_trips(struct in
+ 		int34x_zone->act_trips[i].valid = true;
+ 	}
+ 
++	mutex_unlock(&int34x_zone->trip_mutex);
++
+ 	return trip_cnt;
+ }
+ EXPORT_SYMBOL_GPL(int340x_thermal_read_trips);
+@@ -230,6 +238,8 @@ struct int34x_thermal_zone *int340x_ther
+ 	if (!int34x_thermal_zone)
+ 		return ERR_PTR(-ENOMEM);
+ 
++	mutex_init(&int34x_thermal_zone->trip_mutex);
++
+ 	int34x_thermal_zone->adev = adev;
+ 	int34x_thermal_zone->override_ops = override_ops;
+ 
+@@ -281,6 +291,7 @@ err_thermal_zone:
+ 	acpi_lpat_free_conversion_table(int34x_thermal_zone->lpat_table);
+ 	kfree(int34x_thermal_zone->aux_trips);
+ err_trip_alloc:
++	mutex_destroy(&int34x_thermal_zone->trip_mutex);
+ 	kfree(int34x_thermal_zone);
+ 	return ERR_PTR(ret);
+ }
+@@ -292,6 +303,7 @@ void int340x_thermal_zone_remove(struct
+ 	thermal_zone_device_unregister(int34x_thermal_zone->zone);
+ 	acpi_lpat_free_conversion_table(int34x_thermal_zone->lpat_table);
+ 	kfree(int34x_thermal_zone->aux_trips);
++	mutex_destroy(&int34x_thermal_zone->trip_mutex);
+ 	kfree(int34x_thermal_zone);
+ }
+ EXPORT_SYMBOL_GPL(int340x_thermal_zone_remove);
+--- a/drivers/thermal/intel/int340x_thermal/int340x_thermal_zone.h
++++ b/drivers/thermal/intel/int340x_thermal/int340x_thermal_zone.h
+@@ -32,6 +32,7 @@ struct int34x_thermal_zone {
+ 	struct thermal_zone_device_ops *override_ops;
+ 	void *priv_data;
+ 	struct acpi_lpat_conversion_table *lpat_table;
++	struct mutex trip_mutex;
+ };
+ 
+ struct int34x_thermal_zone *int340x_thermal_zone_add(struct acpi_device *,
 
 
