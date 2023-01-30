@@ -2,41 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D18616810D5
-	for <lists+stable@lfdr.de>; Mon, 30 Jan 2023 15:07:16 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id DF98C6810E0
+	for <lists+stable@lfdr.de>; Mon, 30 Jan 2023 15:07:51 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237105AbjA3OHQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 30 Jan 2023 09:07:16 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49430 "EHLO
+        id S237115AbjA3OHu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 30 Jan 2023 09:07:50 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49836 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237107AbjA3OHP (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 30 Jan 2023 09:07:15 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 947213B661
-        for <stable@vger.kernel.org>; Mon, 30 Jan 2023 06:07:12 -0800 (PST)
+        with ESMTP id S237113AbjA3OHq (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 30 Jan 2023 09:07:46 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B0B1B3B661
+        for <stable@vger.kernel.org>; Mon, 30 Jan 2023 06:07:45 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 2DBEE61084
-        for <stable@vger.kernel.org>; Mon, 30 Jan 2023 14:07:12 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3D6F3C433D2;
-        Mon, 30 Jan 2023 14:07:11 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 4CDEF61088
+        for <stable@vger.kernel.org>; Mon, 30 Jan 2023 14:07:45 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 48069C4339B;
+        Mon, 30 Jan 2023 14:07:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1675087631;
-        bh=xYmaA+wONafaHmY7s1tEfwKwVF4wo4/dWHD+JYFlK3g=;
+        s=korg; t=1675087664;
+        bh=C5AIB/N586WmG+ZYg/2u63rf5n6diiGXqHHgsLEsvD4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=sm9kO3lny8ttRRdB4b/AxGe3uRUj5NXfKlcn42JXOqBKMRCfKwHdLfCSeHtW2TPzG
-         3jUzhI0SfGKXE8upkKHze8zdyQtkvEzp/1n5bIVVfzckjkWci02ZPKZEuawq/wG4T+
-         TxJYGtN0rVw7XIv3mGFCeW5JTLAR5Nchlia9axPA=
+        b=RRsLToIE6t7oj32LnbjRWaR2PlwmZr7oZoNQSYzgFMUzlCbItDoRl32oMf3RWNZh/
+         dCHDxd9QGTp0vjfkvB4eRZKYl//X1R3bxAMNPs2/3OhkkGQ5DEps1IdaFXc5pM+t+y
+         nsGz3HA0MLxHHYLaATA8dJtYYH95UvPBXZOI7gzY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Stefano Brivio <sbrivio@redhat.com>,
-        Pablo Neira Ayuso <pablo@netfilter.org>,
+        patches@lists.linux.dev, Eric Dumazet <edumazet@google.com>,
+        syzbot <syzkaller@googlegroups.com>,
+        Jakub Kicinski <kuba@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 265/313] netfilter: nft_set_rbtree: skip elements in transaction from garbage collection
-Date:   Mon, 30 Jan 2023 14:51:40 +0100
-Message-Id: <20230130134349.083730967@linuxfoundation.org>
+Subject: [PATCH 6.1 266/313] netlink: annotate data races around nlk->portid
+Date:   Mon, 30 Jan 2023 14:51:41 +0100
+Message-Id: <20230130134349.124418259@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.1
 In-Reply-To: <20230130134336.532886729@linuxfoundation.org>
 References: <20230130134336.532886729@linuxfoundation.org>
@@ -44,8 +45,8 @@ User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
         SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -53,66 +54,85 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pablo Neira Ayuso <pablo@netfilter.org>
+From: Eric Dumazet <edumazet@google.com>
 
-[ Upstream commit 5d235d6ce75c12a7fdee375eb211e4116f7ab01b ]
+[ Upstream commit c1bb9484e3b05166880da8574504156ccbd0549e ]
 
-Skip interference with an ongoing transaction, do not perform garbage
-collection on inactive elements. Reset annotated previous end interval
-if the expired element is marked as busy (control plane removed the
-element right before expiration).
+syzbot reminds us netlink_getname() runs locklessly [1]
 
-Fixes: 8d8540c4f5e0 ("netfilter: nft_set_rbtree: add timeout support")
-Reviewed-by: Stefano Brivio <sbrivio@redhat.com>
-Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
+This first patch annotates the race against nlk->portid.
+
+Following patches take care of the remaining races.
+
+[1]
+BUG: KCSAN: data-race in netlink_getname / netlink_insert
+
+write to 0xffff88814176d310 of 4 bytes by task 2315 on cpu 1:
+netlink_insert+0xf1/0x9a0 net/netlink/af_netlink.c:583
+netlink_autobind+0xae/0x180 net/netlink/af_netlink.c:856
+netlink_sendmsg+0x444/0x760 net/netlink/af_netlink.c:1895
+sock_sendmsg_nosec net/socket.c:714 [inline]
+sock_sendmsg net/socket.c:734 [inline]
+____sys_sendmsg+0x38f/0x500 net/socket.c:2476
+___sys_sendmsg net/socket.c:2530 [inline]
+__sys_sendmsg+0x19a/0x230 net/socket.c:2559
+__do_sys_sendmsg net/socket.c:2568 [inline]
+__se_sys_sendmsg net/socket.c:2566 [inline]
+__x64_sys_sendmsg+0x42/0x50 net/socket.c:2566
+do_syscall_x64 arch/x86/entry/common.c:50 [inline]
+do_syscall_64+0x2b/0x70 arch/x86/entry/common.c:80
+entry_SYSCALL_64_after_hwframe+0x63/0xcd
+
+read to 0xffff88814176d310 of 4 bytes by task 2316 on cpu 0:
+netlink_getname+0xcd/0x1a0 net/netlink/af_netlink.c:1144
+__sys_getsockname+0x11d/0x1b0 net/socket.c:2026
+__do_sys_getsockname net/socket.c:2041 [inline]
+__se_sys_getsockname net/socket.c:2038 [inline]
+__x64_sys_getsockname+0x3e/0x50 net/socket.c:2038
+do_syscall_x64 arch/x86/entry/common.c:50 [inline]
+do_syscall_64+0x2b/0x70 arch/x86/entry/common.c:80
+entry_SYSCALL_64_after_hwframe+0x63/0xcd
+
+value changed: 0x00000000 -> 0xc9a49780
+
+Reported by Kernel Concurrency Sanitizer on:
+CPU: 0 PID: 2316 Comm: syz-executor.2 Not tainted 6.2.0-rc3-syzkaller-00030-ge8f60cd7db24-dirty #0
+Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS Google 10/26/2022
+
+Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
+Signed-off-by: Eric Dumazet <edumazet@google.com>
+Reported-by: syzbot <syzkaller@googlegroups.com>
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/netfilter/nft_set_rbtree.c | 16 +++++++++++++++-
- 1 file changed, 15 insertions(+), 1 deletion(-)
+ net/netlink/af_netlink.c | 7 +++++--
+ 1 file changed, 5 insertions(+), 2 deletions(-)
 
-diff --git a/net/netfilter/nft_set_rbtree.c b/net/netfilter/nft_set_rbtree.c
-index 217225e13faf..19ea4d3c3553 100644
---- a/net/netfilter/nft_set_rbtree.c
-+++ b/net/netfilter/nft_set_rbtree.c
-@@ -563,23 +563,37 @@ static void nft_rbtree_gc(struct work_struct *work)
- 	struct nft_rbtree *priv;
- 	struct rb_node *node;
- 	struct nft_set *set;
-+	struct net *net;
-+	u8 genmask;
+diff --git a/net/netlink/af_netlink.c b/net/netlink/af_netlink.c
+index a662e8a5ff84..11a6309f17a3 100644
+--- a/net/netlink/af_netlink.c
++++ b/net/netlink/af_netlink.c
+@@ -580,7 +580,9 @@ static int netlink_insert(struct sock *sk, u32 portid)
+ 	if (nlk_sk(sk)->bound)
+ 		goto err;
  
- 	priv = container_of(work, struct nft_rbtree, gc_work.work);
- 	set  = nft_set_container_of(priv);
-+	net  = read_pnet(&set->net);
-+	genmask = nft_genmask_cur(net);
- 
- 	write_lock_bh(&priv->lock);
- 	write_seqcount_begin(&priv->count);
- 	for (node = rb_first(&priv->root); node != NULL; node = rb_next(node)) {
- 		rbe = rb_entry(node, struct nft_rbtree_elem, node);
- 
-+		if (!nft_set_elem_active(&rbe->ext, genmask))
-+			continue;
+-	nlk_sk(sk)->portid = portid;
++	/* portid can be read locklessly from netlink_getname(). */
++	WRITE_ONCE(nlk_sk(sk)->portid, portid);
 +
-+		/* elements are reversed in the rbtree for historical reasons,
-+		 * from highest to lowest value, that is why end element is
-+		 * always visited before the start element.
-+		 */
- 		if (nft_rbtree_interval_end(rbe)) {
- 			rbe_end = rbe;
- 			continue;
- 		}
- 		if (!nft_set_elem_expired(&rbe->ext))
- 			continue;
--		if (nft_set_elem_mark_busy(&rbe->ext))
-+
-+		if (nft_set_elem_mark_busy(&rbe->ext)) {
-+			rbe_end = NULL;
- 			continue;
-+		}
+ 	sock_hold(sk);
  
- 		if (rbe_prev) {
- 			rb_erase(&rbe_prev->node, &priv->root);
+ 	err = __netlink_insert(table, sk);
+@@ -1130,7 +1132,8 @@ static int netlink_getname(struct socket *sock, struct sockaddr *addr,
+ 		nladdr->nl_pid = nlk->dst_portid;
+ 		nladdr->nl_groups = netlink_group_mask(nlk->dst_group);
+ 	} else {
+-		nladdr->nl_pid = nlk->portid;
++		/* Paired with WRITE_ONCE() in netlink_insert() */
++		nladdr->nl_pid = READ_ONCE(nlk->portid);
+ 		netlink_lock_table();
+ 		nladdr->nl_groups = nlk->groups ? nlk->groups[0] : 0;
+ 		netlink_unlock_table();
 -- 
 2.39.0
 
