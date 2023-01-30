@@ -2,48 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A207E68119A
-	for <lists+stable@lfdr.de>; Mon, 30 Jan 2023 15:15:07 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4D42C6810B5
+	for <lists+stable@lfdr.de>; Mon, 30 Jan 2023 15:05:56 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237296AbjA3OPG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 30 Jan 2023 09:15:06 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59040 "EHLO
+        id S237072AbjA3OFy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 30 Jan 2023 09:05:54 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48442 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237310AbjA3OPF (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 30 Jan 2023 09:15:05 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6E2567698
-        for <stable@vger.kernel.org>; Mon, 30 Jan 2023 06:15:04 -0800 (PST)
+        with ESMTP id S237075AbjA3OFx (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 30 Jan 2023 09:05:53 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 53FA913D5C
+        for <stable@vger.kernel.org>; Mon, 30 Jan 2023 06:05:52 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 1DBEFB80DEB
-        for <stable@vger.kernel.org>; Mon, 30 Jan 2023 14:15:03 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1ED4AC433EF;
-        Mon, 30 Jan 2023 14:15:00 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id B5C1C61025
+        for <stable@vger.kernel.org>; Mon, 30 Jan 2023 14:05:51 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C39ECC433D2;
+        Mon, 30 Jan 2023 14:05:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1675088101;
-        bh=PiQIi1sGWYNyhdFwLS8tLrQSCzg4TBXd2U/CVxrfxjI=;
+        s=korg; t=1675087551;
+        bh=4TDDO4gslvH0QlCL6gOlFERQW1wrBhzV6t4Olgknzgc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=eSa3rLhVsOhY2s52waTbcvXuxi2vXCspn4fEyAO1xGf6VyfKPUedRhSu5Ya6Hr4zs
-         KkT3iMsexFuce3QXmegpWulk3Q/JlnwOloWG5KLEtRqV82grOoGNUhcwVoI2uIZgw6
-         SvIux2kcAePnjrQ4RfAbUvhfk5zYNIJ4Jx1cfrX4=
+        b=Acq7Pak5ax9+dIZ9H77C58YgmylNYWkUxf7nmKzOuzVCWkz94jm63/nHp2ouTr3xi
+         OZgKBYKWAJJnUDTPw5izkCabyKEM6XyB4JwiX1Zv9hb8UgJ25tFbUvou1kH2Zf0zRT
+         6qnIgkSeiS/jiv6Px0INY/CT8y65roH+M/CGzsCw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Mateusz Guzik <mjguzik@gmail.com>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Sasha Levin <sashal@kernel.org>,
-        Tony Luck <tony.luck@intel.com>,
-        Nicholas Piggin <npiggin@gmail.com>,
-        Will Deacon <will@kernel.org>
-Subject: [PATCH 5.15 116/204] lockref: stop doing cpu_relax in the cmpxchg loop
+        patches@lists.linux.dev, Haiyang Zhang <haiyangz@microsoft.com>,
+        Jesse Brandeburg <jesse.brandeburg@intel.com>,
+        Jakub Kicinski <kuba@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 6.1 246/313] net: mana: Fix IRQ name - add PCI and queue number
 Date:   Mon, 30 Jan 2023 14:51:21 +0100
-Message-Id: <20230130134321.567176074@linuxfoundation.org>
+Message-Id: <20230130134348.161750663@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.1
-In-Reply-To: <20230130134316.327556078@linuxfoundation.org>
-References: <20230130134316.327556078@linuxfoundation.org>
+In-Reply-To: <20230130134336.532886729@linuxfoundation.org>
+References: <20230130134336.532886729@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -57,105 +54,70 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mateusz Guzik <mjguzik@gmail.com>
+From: Haiyang Zhang <haiyangz@microsoft.com>
 
-[ Upstream commit f5fe24ef17b5fbe6db49534163e77499fb10ae8c ]
+[ Upstream commit 20e3028c39a5bf882e91e717da96d14f1acec40e ]
 
-On the x86-64 architecture even a failing cmpxchg grants exclusive
-access to the cacheline, making it preferable to retry the failed op
-immediately instead of stalling with the pause instruction.
+The PCI and queue number info is missing in IRQ names.
 
-To illustrate the impact, below are benchmark results obtained by
-running various will-it-scale tests on top of the 6.2-rc3 kernel and
-Cascade Lake (2 sockets * 24 cores * 2 threads) CPU.
+Add PCI and queue number to IRQ names, to allow CPU affinity
+tuning scripts to work.
 
-All results in ops/s.  Note there is some variance in re-runs, but the
-code is consistently faster when contention is present.
-
-  open3 ("Same file open/close"):
-  proc          stock       no-pause
-     1         805603         814942       (+%1)
-     2        1054980        1054781       (-0%)
-     8        1544802        1822858      (+18%)
-    24        1191064        2199665      (+84%)
-    48         851582        1469860      (+72%)
-    96         609481        1427170     (+134%)
-
-  fstat2 ("Same file fstat"):
-  proc          stock       no-pause
-     1        3013872        3047636       (+1%)
-     2        4284687        4400421       (+2%)
-     8        3257721        5530156      (+69%)
-    24        2239819        5466127     (+144%)
-    48        1701072        5256609     (+209%)
-    96        1269157        6649326     (+423%)
-
-Additionally, a kernel with a private patch to help access() scalability:
-access2 ("Same file access"):
-
-  proc          stock        patched      patched
-                                         +nopause
-    24        2378041        2005501      5370335  (-15% / +125%)
-
-That is, fixing the problems in access itself *reduces* scalability
-after the cacheline ping-pong only happens in lockref with the pause
-instruction.
-
-Note that fstat and access benchmarks are not currently integrated into
-will-it-scale, but interested parties can find them in pull requests to
-said project.
-
-Code at hand has a rather tortured history.  First modification showed
-up in commit d472d9d98b46 ("lockref: Relax in cmpxchg loop"), written
-with Itanium in mind.  Later it got patched up to use an arch-dependent
-macro to stop doing it on s390 where it caused a significant regression.
-Said macro had undergone revisions and was ultimately eliminated later,
-going back to cpu_relax.
-
-While I intended to only remove cpu_relax for x86-64, I got the
-following comment from Linus:
-
-    I would actually prefer just removing it entirely and see if
-    somebody else hollers. You have the numbers to prove it hurts on
-    real hardware, and I don't think we have any numbers to the
-    contrary.
-
-    So I think it's better to trust the numbers and remove it as a
-    failure, than say "let's just remove it on x86-64 and leave
-    everybody else with the potentially broken code"
-
-Additionally, Will Deacon (maintainer of the arm64 port, one of the
-architectures previously benchmarked):
-
-    So, from the arm64 side of the fence, I'm perfectly happy just
-    removing the cpu_relax() calls from lockref.
-
-As such, come back full circle in history and whack it altogether.
-
-Signed-off-by: Mateusz Guzik <mjguzik@gmail.com>
-Link: https://lore.kernel.org/all/CAGudoHHx0Nqg6DE70zAVA75eV-HXfWyhVMWZ-aSeOofkA_=WdA@mail.gmail.com/
-Acked-by: Tony Luck <tony.luck@intel.com> # ia64
-Acked-by: Nicholas Piggin <npiggin@gmail.com> # powerpc
-Acked-by: Will Deacon <will@kernel.org> # arm64
-Acked-by: Peter Zijlstra <peterz@infradead.org>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Cc: stable@vger.kernel.org
+Fixes: ca9c54d2d6a5 ("net: mana: Add a driver for Microsoft Azure Network Adapter (MANA)")
+Signed-off-by: Haiyang Zhang <haiyangz@microsoft.com>
+Reviewed-by: Jesse Brandeburg <jesse.brandeburg@intel.com>
+Link: https://lore.kernel.org/r/1674161950-19708-1-git-send-email-haiyangz@microsoft.com
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- lib/lockref.c | 1 -
- 1 file changed, 1 deletion(-)
+ drivers/net/ethernet/microsoft/mana/gdma.h      | 3 +++
+ drivers/net/ethernet/microsoft/mana/gdma_main.c | 9 ++++++++-
+ 2 files changed, 11 insertions(+), 1 deletion(-)
 
-diff --git a/lib/lockref.c b/lib/lockref.c
-index 5b34bbd3eba8..81ac5f355242 100644
---- a/lib/lockref.c
-+++ b/lib/lockref.c
-@@ -24,7 +24,6 @@
- 		}								\
- 		if (!--retry)							\
- 			break;							\
--		cpu_relax();							\
- 	}									\
- } while (0)
+diff --git a/drivers/net/ethernet/microsoft/mana/gdma.h b/drivers/net/ethernet/microsoft/mana/gdma.h
+index 65c24ee49efd..48b0ab56bdb0 100644
+--- a/drivers/net/ethernet/microsoft/mana/gdma.h
++++ b/drivers/net/ethernet/microsoft/mana/gdma.h
+@@ -324,9 +324,12 @@ struct gdma_queue_spec {
+ 	};
+ };
  
++#define MANA_IRQ_NAME_SZ 32
++
+ struct gdma_irq_context {
+ 	void (*handler)(void *arg);
+ 	void *arg;
++	char name[MANA_IRQ_NAME_SZ];
+ };
+ 
+ struct gdma_context {
+diff --git a/drivers/net/ethernet/microsoft/mana/gdma_main.c b/drivers/net/ethernet/microsoft/mana/gdma_main.c
+index a6f99b4344d9..d674ebda2053 100644
+--- a/drivers/net/ethernet/microsoft/mana/gdma_main.c
++++ b/drivers/net/ethernet/microsoft/mana/gdma_main.c
+@@ -1233,13 +1233,20 @@ static int mana_gd_setup_irqs(struct pci_dev *pdev)
+ 		gic->handler = NULL;
+ 		gic->arg = NULL;
+ 
++		if (!i)
++			snprintf(gic->name, MANA_IRQ_NAME_SZ, "mana_hwc@pci:%s",
++				 pci_name(pdev));
++		else
++			snprintf(gic->name, MANA_IRQ_NAME_SZ, "mana_q%d@pci:%s",
++				 i - 1, pci_name(pdev));
++
+ 		irq = pci_irq_vector(pdev, i);
+ 		if (irq < 0) {
+ 			err = irq;
+ 			goto free_irq;
+ 		}
+ 
+-		err = request_irq(irq, mana_gd_intr, 0, "mana_intr", gic);
++		err = request_irq(irq, mana_gd_intr, 0, gic->name, gic);
+ 		if (err)
+ 			goto free_irq;
+ 	}
 -- 
 2.39.0
 
