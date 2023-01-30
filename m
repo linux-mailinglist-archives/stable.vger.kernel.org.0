@@ -2,41 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 52DB0681043
-	for <lists+stable@lfdr.de>; Mon, 30 Jan 2023 15:02:07 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 209C8681044
+	for <lists+stable@lfdr.de>; Mon, 30 Jan 2023 15:02:08 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237030AbjA3OCG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 30 Jan 2023 09:02:06 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42576 "EHLO
+        id S236883AbjA3OCH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 30 Jan 2023 09:02:07 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42806 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236926AbjA3OB0 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 30 Jan 2023 09:01:26 -0500
+        with ESMTP id S236838AbjA3OB1 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 30 Jan 2023 09:01:27 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 56B6C2799E
-        for <stable@vger.kernel.org>; Mon, 30 Jan 2023 06:01:23 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4B1B511172
+        for <stable@vger.kernel.org>; Mon, 30 Jan 2023 06:01:26 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id E65C261031
-        for <stable@vger.kernel.org>; Mon, 30 Jan 2023 14:01:22 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 059D9C433D2;
-        Mon, 30 Jan 2023 14:01:21 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id DC9196102C
+        for <stable@vger.kernel.org>; Mon, 30 Jan 2023 14:01:25 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E3267C433D2;
+        Mon, 30 Jan 2023 14:01:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1675087282;
-        bh=T76+MV6P5E+vCULiQnsuChBayLA50K+junCa4W2o0aE=;
+        s=korg; t=1675087285;
+        bh=C2k/+Tw63+kTu638Qy9uS6BccY6mfRsWYacK6cf2BLg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=sVlbhl7LQ/w/db2/tRbidivnyU7FaDKrW54wCP0OXS+wKMte9uCegXRM0dvoQTm+q
-         Sw+MrgCdoqFqmAKEkJLAcBwCtIU1GXVoRbHvMpDYoseT3WBXbJufIr/0pdQCIVhZBI
-         6F5re9sqgM+KIcqBj3xwu/XnkQTxtcwDwEZbJQD0=
+        b=BtIqKypQV6Qnx57qrEpQUXqydIROvU4YMLgJ3dOzR04YzAnjF6WySlhScnrCNsEJ1
+         OyiZo/IsNRMOuklsiWTVk4PRwfaDuXv/gKdaH3JkzoFkNSVU6dulWrqxAY5ZlX5Blk
+         Eloekz3PIr2lbHtBbEvoVjXe6t/RVwj/x4Ngu28c=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Akhil P Oommen <quic_akhilpo@quicinc.com>,
-        Rob Clark <robdclark@chromium.org>,
+        patches@lists.linux.dev, Hui Wang <hui.wang@canonical.com>,
+        Jiri Pirko <jiri@nvidia.com>, Jakub Kicinski <kuba@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 156/313] drm/msm/a6xx: Avoid gx gbit halt during rpm suspend
-Date:   Mon, 30 Jan 2023 14:49:51 +0100
-Message-Id: <20230130134343.922692479@linuxfoundation.org>
+Subject: [PATCH 6.1 157/313] net: usb: cdc_ether: add support for Thales Cinterion PLS62-W modem
+Date:   Mon, 30 Jan 2023 14:49:52 +0100
+Message-Id: <20230130134343.971984221@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.1
 In-Reply-To: <20230130134336.532886729@linuxfoundation.org>
 References: <20230130134336.532886729@linuxfoundation.org>
@@ -53,108 +53,53 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Akhil P Oommen <quic_akhilpo@quicinc.com>
+From: Hui Wang <hui.wang@canonical.com>
 
-[ Upstream commit f4a75b5933c998e60fd812a7680e0971eb1c7cee ]
+[ Upstream commit eea8ce81fbb544e3caad1a1c876ba1af467b3d3c ]
 
-As per the downstream driver, gx gbif halt is required only during
-recovery sequence. So lets avoid it during regular rpm suspend.
+This modem has 7 interfaces, 5 of them are serial interfaces and are
+driven by cdc_acm, while 2 of them are wwan interfaces and are driven
+by cdc_ether:
+If 0: Abstract (modem)
+If 1: Abstract (modem)
+If 2: Abstract (modem)
+If 3: Abstract (modem)
+If 4: Abstract (modem)
+If 5: Ethernet Networking
+If 6: Ethernet Networking
 
-Signed-off-by: Akhil P Oommen <quic_akhilpo@quicinc.com>
-Patchwork: https://patchwork.freedesktop.org/patch/515279/
-Link: https://lore.kernel.org/r/20221216223253.1.Ice9c47bfeb1fddb8dc377a3491a043a3ee7fca7d@changeid
-Signed-off-by: Rob Clark <robdclark@chromium.org>
+Without this change, the 2 network interfaces will be named to usb0
+and usb1, our QA think the names are confusing and filed a bug on it.
+
+After applying this change, the name will be wwan0 and wwan1, and
+they could work well with modem manager.
+
+Signed-off-by: Hui Wang <hui.wang@canonical.com>
+Reviewed-by: Jiri Pirko <jiri@nvidia.com>
+Link: https://lore.kernel.org/r/20230105034249.10433-1-hui.wang@canonical.com
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/msm/adreno/a6xx_gmu.c | 15 +++++++++------
- drivers/gpu/drm/msm/adreno/a6xx_gpu.c |  7 +++++++
- drivers/gpu/drm/msm/adreno/a6xx_gpu.h |  1 +
- 3 files changed, 17 insertions(+), 6 deletions(-)
+ drivers/net/usb/cdc_ether.c | 6 ++++++
+ 1 file changed, 6 insertions(+)
 
-diff --git a/drivers/gpu/drm/msm/adreno/a6xx_gmu.c b/drivers/gpu/drm/msm/adreno/a6xx_gmu.c
-index e033d6a67a20..870252bef23f 100644
---- a/drivers/gpu/drm/msm/adreno/a6xx_gmu.c
-+++ b/drivers/gpu/drm/msm/adreno/a6xx_gmu.c
-@@ -876,7 +876,8 @@ static void a6xx_gmu_rpmh_off(struct a6xx_gmu *gmu)
- #define GBIF_CLIENT_HALT_MASK             BIT(0)
- #define GBIF_ARB_HALT_MASK                BIT(1)
- 
--static void a6xx_bus_clear_pending_transactions(struct adreno_gpu *adreno_gpu)
-+static void a6xx_bus_clear_pending_transactions(struct adreno_gpu *adreno_gpu,
-+		bool gx_off)
- {
- 	struct msm_gpu *gpu = &adreno_gpu->base;
- 
-@@ -889,9 +890,11 @@ static void a6xx_bus_clear_pending_transactions(struct adreno_gpu *adreno_gpu)
- 		return;
- 	}
- 
--	/* Halt the gx side of GBIF */
--	gpu_write(gpu, REG_A6XX_RBBM_GBIF_HALT, 1);
--	spin_until(gpu_read(gpu, REG_A6XX_RBBM_GBIF_HALT_ACK) & 1);
-+	if (gx_off) {
-+		/* Halt the gx side of GBIF */
-+		gpu_write(gpu, REG_A6XX_RBBM_GBIF_HALT, 1);
-+		spin_until(gpu_read(gpu, REG_A6XX_RBBM_GBIF_HALT_ACK) & 1);
-+	}
- 
- 	/* Halt new client requests on GBIF */
- 	gpu_write(gpu, REG_A6XX_GBIF_HALT, GBIF_CLIENT_HALT_MASK);
-@@ -929,7 +932,7 @@ static void a6xx_gmu_force_off(struct a6xx_gmu *gmu)
- 	/* Halt the gmu cm3 core */
- 	gmu_write(gmu, REG_A6XX_GMU_CM3_SYSRESET, 1);
- 
--	a6xx_bus_clear_pending_transactions(adreno_gpu);
-+	a6xx_bus_clear_pending_transactions(adreno_gpu, true);
- 
- 	/* Reset GPU core blocks */
- 	gpu_write(gpu, REG_A6XX_RBBM_SW_RESET_CMD, 1);
-@@ -1083,7 +1086,7 @@ static void a6xx_gmu_shutdown(struct a6xx_gmu *gmu)
- 			return;
- 		}
- 
--		a6xx_bus_clear_pending_transactions(adreno_gpu);
-+		a6xx_bus_clear_pending_transactions(adreno_gpu, a6xx_gpu->hung);
- 
- 		/* tell the GMU we want to slumber */
- 		ret = a6xx_gmu_notify_slumber(gmu);
-diff --git a/drivers/gpu/drm/msm/adreno/a6xx_gpu.c b/drivers/gpu/drm/msm/adreno/a6xx_gpu.c
-index e846e629c00d..9d7fc44c1e2a 100644
---- a/drivers/gpu/drm/msm/adreno/a6xx_gpu.c
-+++ b/drivers/gpu/drm/msm/adreno/a6xx_gpu.c
-@@ -1277,6 +1277,12 @@ static void a6xx_recover(struct msm_gpu *gpu)
- 	if (hang_debug)
- 		a6xx_dump(gpu);
- 
-+	/*
-+	 * To handle recovery specific sequences during the rpm suspend we are
-+	 * about to trigger
-+	 */
-+	a6xx_gpu->hung = true;
-+
- 	/* Halt SQE first */
- 	gpu_write(gpu, REG_A6XX_CP_SQE_CNTL, 3);
- 
-@@ -1319,6 +1325,7 @@ static void a6xx_recover(struct msm_gpu *gpu)
- 	mutex_unlock(&gpu->active_lock);
- 
- 	msm_gpu_hw_init(gpu);
-+	a6xx_gpu->hung = false;
- }
- 
- static const char *a6xx_uche_fault_block(struct msm_gpu *gpu, u32 mid)
-diff --git a/drivers/gpu/drm/msm/adreno/a6xx_gpu.h b/drivers/gpu/drm/msm/adreno/a6xx_gpu.h
-index ab853f61db63..eea2e60ce3b7 100644
---- a/drivers/gpu/drm/msm/adreno/a6xx_gpu.h
-+++ b/drivers/gpu/drm/msm/adreno/a6xx_gpu.h
-@@ -32,6 +32,7 @@ struct a6xx_gpu {
- 	void *llc_slice;
- 	void *htw_llc_slice;
- 	bool have_mmu500;
-+	bool hung;
- };
- 
- #define to_a6xx_gpu(x) container_of(x, struct a6xx_gpu, base)
+diff --git a/drivers/net/usb/cdc_ether.c b/drivers/net/usb/cdc_ether.c
+index e11f70911acc..fb5f59d0d55d 100644
+--- a/drivers/net/usb/cdc_ether.c
++++ b/drivers/net/usb/cdc_ether.c
+@@ -1001,6 +1001,12 @@ static const struct usb_device_id	products[] = {
+ 				      USB_CDC_SUBCLASS_ETHERNET,
+ 				      USB_CDC_PROTO_NONE),
+ 	.driver_info = (unsigned long)&wwan_info,
++}, {
++	/* Cinterion PLS62-W modem by GEMALTO/THALES */
++	USB_DEVICE_AND_INTERFACE_INFO(0x1e2d, 0x005b, USB_CLASS_COMM,
++				      USB_CDC_SUBCLASS_ETHERNET,
++				      USB_CDC_PROTO_NONE),
++	.driver_info = (unsigned long)&wwan_info,
+ }, {
+ 	/* Cinterion PLS83/PLS63 modem by GEMALTO/THALES */
+ 	USB_DEVICE_AND_INTERFACE_INFO(0x1e2d, 0x0069, USB_CLASS_COMM,
 -- 
 2.39.0
 
