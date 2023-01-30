@@ -2,53 +2,52 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 96F936812DB
-	for <lists+stable@lfdr.de>; Mon, 30 Jan 2023 15:25:57 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B15CE6810DC
+	for <lists+stable@lfdr.de>; Mon, 30 Jan 2023 15:07:46 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236126AbjA3OZ4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 30 Jan 2023 09:25:56 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41838 "EHLO
+        id S237108AbjA3OHo (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 30 Jan 2023 09:07:44 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49774 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S235994AbjA3OZ2 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 30 Jan 2023 09:25:28 -0500
-Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A2B0741B54
-        for <stable@vger.kernel.org>; Mon, 30 Jan 2023 06:24:16 -0800 (PST)
+        with ESMTP id S237136AbjA3OHk (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 30 Jan 2023 09:07:40 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 95E523BD85
+        for <stable@vger.kernel.org>; Mon, 30 Jan 2023 06:07:38 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 0E266CE1409
-        for <stable@vger.kernel.org>; Mon, 30 Jan 2023 14:24:09 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id DBFA0C433D2;
-        Mon, 30 Jan 2023 14:24:06 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 38E73B811C7
+        for <stable@vger.kernel.org>; Mon, 30 Jan 2023 14:07:37 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 854C7C433EF;
+        Mon, 30 Jan 2023 14:07:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1675088647;
-        bh=TL0psT4H0udZfqqE8PT0TB58jYH10Y7qd/xNfl9kObM=;
+        s=korg; t=1675087655;
+        bh=DGRg+d9VrdRlVyM1wGoVHvCTfuhebUUHNbyoX8Ocw1E=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=F1JLouP8EUBYt2zWA28xTU/zOONrfenYw+2c0DEeWa5HHA7frScCW3JXEmQKWYCR8
-         aw1rMWoz5TUZQtbTTBDmfr7AzDZybGwwQVz/I3HBUJ0hnCw4rJ/fFoaSysAETrHdqh
-         CTyi9CEAQjJNxyEOuSMuriNxPe5RG4uo67U5fno8=
+        b=bUpohfg741PdE+KlzlU5oHherNz0FZqt62OfABQJnB8IzFNy4XsJSRJOuyJqmq70U
+         2iaRKQsfMmfzAVynu82OuBi/kxwLOBnnHrUUjHnHHKQUxXCRkWmJeZ04m/26wVLamD
+         /BdiV6cK6BlSTdiPcbZwRmxDXhp8GYTikVuaqyh4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Yuchung Cheng <ycheng@google.com>,
-        David Morley <morleyd@google.com>,
-        Neal Cardwell <ncardwell@google.com>,
+        patches@lists.linux.dev, syzbot <syzkaller@googlegroups.com>,
         Eric Dumazet <edumazet@google.com>,
-        "David S. Miller" <davem@davemloft.net>,
+        Vinicius Costa Gomes <vinicius.gomes@intel.com>,
+        Jakub Kicinski <kuba@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 059/143] tcp: fix rate_app_limited to default to 1
+Subject: [PATCH 6.1 281/313] net/sched: sch_taprio: do not schedule in taprio_reset()
 Date:   Mon, 30 Jan 2023 14:51:56 +0100
-Message-Id: <20230130134309.305458496@linuxfoundation.org>
+Message-Id: <20230130134349.819525671@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.1
-In-Reply-To: <20230130134306.862721518@linuxfoundation.org>
-References: <20230130134306.862721518@linuxfoundation.org>
+In-Reply-To: <20230130134336.532886729@linuxfoundation.org>
+References: <20230130134336.532886729@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
         SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -56,49 +55,87 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: David Morley <morleyd@google.com>
+From: Eric Dumazet <edumazet@google.com>
 
-[ Upstream commit 300b655db1b5152d6101bcb6801d50899b20c2d6 ]
+[ Upstream commit ea4fdbaa2f7798cb25adbe4fd52ffc6356f097bb ]
 
-The initial default value of 0 for tp->rate_app_limited was incorrect,
-since a flow is indeed application-limited until it first sends
-data. Fixing the default to be 1 is generally correct but also
-specifically will help user-space applications avoid using the initial
-tcpi_delivery_rate value of 0 that persists until the connection has
-some non-zero bandwidth sample.
+As reported by syzbot and hinted by Vinicius, I should not have added
+a qdisc_synchronize() call in taprio_reset()
 
-Fixes: eb8329e0a04d ("tcp: export data delivery rate")
-Suggested-by: Yuchung Cheng <ycheng@google.com>
-Signed-off-by: David Morley <morleyd@google.com>
-Signed-off-by: Neal Cardwell <ncardwell@google.com>
-Tested-by: David Morley <morleyd@google.com>
-Reviewed-by: Eric Dumazet <edumazet@google.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+taprio_reset() can be called with qdisc spinlock held (and BH disabled)
+as shown in included syzbot report [1].
+
+Only taprio_destroy() needed this synchronization, as explained
+in the blamed commit changelog.
+
+[1]
+
+BUG: scheduling while atomic: syz-executor150/5091/0x00000202
+2 locks held by syz-executor150/5091:
+Modules linked in:
+Preemption disabled at:
+[<0000000000000000>] 0x0
+Kernel panic - not syncing: scheduling while atomic: panic_on_warn set ...
+CPU: 1 PID: 5091 Comm: syz-executor150 Not tainted 6.2.0-rc3-syzkaller-00219-g010a74f52203 #0
+Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS Google 01/12/2023
+Call Trace:
+<TASK>
+__dump_stack lib/dump_stack.c:88 [inline]
+dump_stack_lvl+0xd1/0x138 lib/dump_stack.c:106
+panic+0x2cc/0x626 kernel/panic.c:318
+check_panic_on_warn.cold+0x19/0x35 kernel/panic.c:238
+__schedule_bug.cold+0xd5/0xfe kernel/sched/core.c:5836
+schedule_debug kernel/sched/core.c:5865 [inline]
+__schedule+0x34e4/0x5450 kernel/sched/core.c:6500
+schedule+0xde/0x1b0 kernel/sched/core.c:6682
+schedule_timeout+0x14e/0x2a0 kernel/time/timer.c:2167
+schedule_timeout_uninterruptible kernel/time/timer.c:2201 [inline]
+msleep+0xb6/0x100 kernel/time/timer.c:2322
+qdisc_synchronize include/net/sch_generic.h:1295 [inline]
+taprio_reset+0x93/0x270 net/sched/sch_taprio.c:1703
+qdisc_reset+0x10c/0x770 net/sched/sch_generic.c:1022
+dev_reset_queue+0x92/0x130 net/sched/sch_generic.c:1285
+netdev_for_each_tx_queue include/linux/netdevice.h:2464 [inline]
+dev_deactivate_many+0x36d/0x9f0 net/sched/sch_generic.c:1351
+dev_deactivate+0xed/0x1b0 net/sched/sch_generic.c:1374
+qdisc_graft+0xe4a/0x1380 net/sched/sch_api.c:1080
+tc_modify_qdisc+0xb6b/0x19a0 net/sched/sch_api.c:1689
+rtnetlink_rcv_msg+0x43e/0xca0 net/core/rtnetlink.c:6141
+netlink_rcv_skb+0x165/0x440 net/netlink/af_netlink.c:2564
+netlink_unicast_kernel net/netlink/af_netlink.c:1330 [inline]
+netlink_unicast+0x547/0x7f0 net/netlink/af_netlink.c:1356
+netlink_sendmsg+0x91b/0xe10 net/netlink/af_netlink.c:1932
+sock_sendmsg_nosec net/socket.c:714 [inline]
+sock_sendmsg+0xd3/0x120 net/socket.c:734
+____sys_sendmsg+0x712/0x8c0 net/socket.c:2476
+___sys_sendmsg+0x110/0x1b0 net/socket.c:2530
+__sys_sendmsg+0xf7/0x1c0 net/socket.c:2559
+do_syscall_x64 arch/x86/entry/common.c:50 [inline]
+
+Fixes: 3a415d59c1db ("net/sched: sch_taprio: fix possible use-after-free")
+Link: https://lore.kernel.org/netdev/167387581653.2747.13878941339893288655.git-patchwork-notify@kernel.org/T/
+Reported-by: syzbot <syzkaller@googlegroups.com>
+Signed-off-by: Eric Dumazet <edumazet@google.com>
+Cc: Vinicius Costa Gomes <vinicius.gomes@intel.com>
+Link: https://lore.kernel.org/r/20230123084552.574396-1-edumazet@google.com
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/ipv4/tcp.c | 2 ++
- 1 file changed, 2 insertions(+)
+ net/sched/sch_taprio.c | 1 -
+ 1 file changed, 1 deletion(-)
 
-diff --git a/net/ipv4/tcp.c b/net/ipv4/tcp.c
-index cc588bc2b11d..6a0560a735ce 100644
---- a/net/ipv4/tcp.c
-+++ b/net/ipv4/tcp.c
-@@ -432,6 +432,7 @@ void tcp_init_sock(struct sock *sk)
+diff --git a/net/sched/sch_taprio.c b/net/sched/sch_taprio.c
+index 9a11a499ea2d..c322a61eaeea 100644
+--- a/net/sched/sch_taprio.c
++++ b/net/sched/sch_taprio.c
+@@ -1700,7 +1700,6 @@ static void taprio_reset(struct Qdisc *sch)
+ 	int i;
  
- 	/* There's a bubble in the pipe until at least the first ACK. */
- 	tp->app_limited = ~0U;
-+	tp->rate_app_limited = 1;
+ 	hrtimer_cancel(&q->advance_timer);
+-	qdisc_synchronize(sch);
  
- 	/* See draft-stevens-tcpca-spec-01 for discussion of the
- 	 * initialization of these values.
-@@ -2837,6 +2838,7 @@ int tcp_disconnect(struct sock *sk, int flags)
- 	tp->last_oow_ack_time = 0;
- 	/* There's a bubble in the pipe until at least the first ACK. */
- 	tp->app_limited = ~0U;
-+	tp->rate_app_limited = 1;
- 	tp->rack.mstamp = 0;
- 	tp->rack.advanced = 0;
- 	tp->rack.reo_wnd_steps = 1;
+ 	if (q->qdiscs) {
+ 		for (i = 0; i < dev->num_tx_queues; i++)
 -- 
 2.39.0
 
