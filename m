@@ -2,43 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D2EDB6810D8
-	for <lists+stable@lfdr.de>; Mon, 30 Jan 2023 15:07:23 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7D9F76811C2
+	for <lists+stable@lfdr.de>; Mon, 30 Jan 2023 15:16:41 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237106AbjA3OHW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 30 Jan 2023 09:07:22 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49520 "EHLO
+        id S237365AbjA3OQk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 30 Jan 2023 09:16:40 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60528 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237108AbjA3OHW (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 30 Jan 2023 09:07:22 -0500
+        with ESMTP id S237383AbjA3OQc (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 30 Jan 2023 09:16:32 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 627B63B3FE
-        for <stable@vger.kernel.org>; Mon, 30 Jan 2023 06:07:21 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E034C3CE1F
+        for <stable@vger.kernel.org>; Mon, 30 Jan 2023 06:16:30 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id F323A61083
-        for <stable@vger.kernel.org>; Mon, 30 Jan 2023 14:07:20 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1029DC433EF;
-        Mon, 30 Jan 2023 14:07:19 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 7D42061047
+        for <stable@vger.kernel.org>; Mon, 30 Jan 2023 14:16:30 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8E9E4C433EF;
+        Mon, 30 Jan 2023 14:16:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1675087640;
-        bh=NEcAUwmfP1Pl4DqjkoblaE/AK37RaHOFEb56yhnWZh8=;
+        s=korg; t=1675088189;
+        bh=yP+C9jsDkhvmUpRU0rh3670V1w1/7fAVpedJOou/BHg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=sh6qKCO7h4Ok7ji6/PkxazxwIq4hqfsXBFqTAmVxLGMItZZw9so82PuDYkvNB4+X2
-         nJNt3RWz98k0OA56+PWzUNCYAEG6k2pq96fu+fWfxGHWWbc9SPL7WcpzYc9UakQiqF
-         HXjcKGc5gu5P0lbcW2dlqRI1zjNM6wDvFbvTopMg=
+        b=wmWr6XEzBO9sOKbms0+0DseR+rRa4kIgM8DqYnvKn1U7OUHB5y0Kz3q/kdeifAmfO
+         iuKtA/JwOcKfAQJk+BbCnmjl3sce9ZpNbrG6ArwQCWkXeJc8W9Z3qRbqqN1Yixz+gb
+         vCEQ+VBJdxL3dwAdNpAMFV480ozQ5ey/5WoHI6y0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Hans de Goede <hdegoede@redhat.com>,
+        patches@lists.linux.dev, Maxim Levitsky <mlevitsk@redhat.com>,
+        Paolo Bonzini <pbonzini@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 276/313] platform/x86: asus-wmi: Fix kbd_dock_devid tablet-switch reporting
+Subject: [PATCH 5.15 146/204] KVM: SVM: fix tsc scaling cache logic
 Date:   Mon, 30 Jan 2023 14:51:51 +0100
-Message-Id: <20230130134349.586677161@linuxfoundation.org>
+Message-Id: <20230130134322.967580282@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.1
-In-Reply-To: <20230130134336.532886729@linuxfoundation.org>
-References: <20230130134336.532886729@linuxfoundation.org>
+In-Reply-To: <20230130134316.327556078@linuxfoundation.org>
+References: <20230130134316.327556078@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -52,85 +53,130 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hans de Goede <hdegoede@redhat.com>
+From: Maxim Levitsky <mlevitsk@redhat.com>
 
-[ Upstream commit fdcc0602d64f22185f61c70747214b630049cc33 ]
+[ Upstream commit 11d39e8cc43e1c6737af19ca9372e590061b5ad2 ]
 
-Commit 1ea0d3b46798 ("platform/x86: asus-wmi: Simplify tablet-mode-switch
-handling") unified the asus-wmi tablet-switch handling, but it did not take
-into account that the value returned for the kbd_dock_devid WMI method is
-inverted where as the other ones are not inverted.
+SVM uses a per-cpu variable to cache the current value of the
+tsc scaling multiplier msr on each cpu.
 
-This causes asus-wmi to report an inverted tablet-switch state for devices
-which use the kbd_dock_devid, which causes libinput to ignore touchpad
-events while the affected T10x model 2-in-1s are docked.
+Commit 1ab9287add5e2
+("KVM: X86: Add vendor callbacks for writing the TSC multiplier")
+broke this caching logic.
 
-Add inverting of the return value in the kbd_dock_devid case to fix this.
+Refactor the code so that all TSC scaling multiplier writes go through
+a single function which checks and updates the cache.
 
-Fixes: 1ea0d3b46798 ("platform/x86: asus-wmi: Simplify tablet-mode-switch handling")
-Signed-off-by: Hans de Goede <hdegoede@redhat.com>
-Link: https://lore.kernel.org/r/20230120143441.527334-1-hdegoede@redhat.com
+This fixes the following scenario:
+
+1. A CPU runs a guest with some tsc scaling ratio.
+
+2. New guest with different tsc scaling ratio starts on this CPU
+   and terminates almost immediately.
+
+   This ensures that the short running guest had set the tsc scaling ratio just
+   once when it was set via KVM_SET_TSC_KHZ. Due to the bug,
+   the per-cpu cache is not updated.
+
+3. The original guest continues to run, it doesn't restore the msr
+   value back to its own value, because the cache matches,
+   and thus continues to run with a wrong tsc scaling ratio.
+
+Fixes: 1ab9287add5e2 ("KVM: X86: Add vendor callbacks for writing the TSC multiplier")
+Signed-off-by: Maxim Levitsky <mlevitsk@redhat.com>
+Message-Id: <20220606181149.103072-1-mlevitsk@redhat.com>
+Cc: stable@vger.kernel.org
+Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/platform/x86/asus-wmi.c | 17 ++++++++++++-----
- 1 file changed, 12 insertions(+), 5 deletions(-)
+ arch/x86/kvm/svm/svm.c | 34 +++++++++++++++++++++++-----------
+ arch/x86/kvm/svm/svm.h |  1 +
+ 2 files changed, 24 insertions(+), 11 deletions(-)
 
-diff --git a/drivers/platform/x86/asus-wmi.c b/drivers/platform/x86/asus-wmi.c
-index 8e317d57ecc3..02bf28692418 100644
---- a/drivers/platform/x86/asus-wmi.c
-+++ b/drivers/platform/x86/asus-wmi.c
-@@ -225,6 +225,7 @@ struct asus_wmi {
- 
- 	int tablet_switch_event_code;
- 	u32 tablet_switch_dev_id;
-+	bool tablet_switch_inverted;
- 
- 	enum fan_type fan_type;
- 	enum fan_type gpu_fan_type;
-@@ -493,6 +494,13 @@ static bool asus_wmi_dev_is_present(struct asus_wmi *asus, u32 dev_id)
+diff --git a/arch/x86/kvm/svm/svm.c b/arch/x86/kvm/svm/svm.c
+index 773420203305..c1a758038892 100644
+--- a/arch/x86/kvm/svm/svm.c
++++ b/arch/x86/kvm/svm/svm.c
+@@ -465,11 +465,24 @@ static int has_svm(void)
+ 	return 1;
  }
  
- /* Input **********************************************************************/
-+static void asus_wmi_tablet_sw_report(struct asus_wmi *asus, bool value)
++void __svm_write_tsc_multiplier(u64 multiplier)
 +{
-+	input_report_switch(asus->inputdev, SW_TABLET_MODE,
-+			    asus->tablet_switch_inverted ? !value : value);
-+	input_sync(asus->inputdev);
++	preempt_disable();
++
++	if (multiplier == __this_cpu_read(current_tsc_ratio))
++		goto out;
++
++	wrmsrl(MSR_AMD64_TSC_RATIO, multiplier);
++	__this_cpu_write(current_tsc_ratio, multiplier);
++out:
++	preempt_enable();
 +}
 +
- static void asus_wmi_tablet_sw_init(struct asus_wmi *asus, u32 dev_id, int event_code)
+ static void svm_hardware_disable(void)
  {
- 	struct device *dev = &asus->platform_device->dev;
-@@ -501,7 +509,7 @@ static void asus_wmi_tablet_sw_init(struct asus_wmi *asus, u32 dev_id, int event
- 	result = asus_wmi_get_devstate_simple(asus, dev_id);
- 	if (result >= 0) {
- 		input_set_capability(asus->inputdev, EV_SW, SW_TABLET_MODE);
--		input_report_switch(asus->inputdev, SW_TABLET_MODE, result);
-+		asus_wmi_tablet_sw_report(asus, result);
- 		asus->tablet_switch_dev_id = dev_id;
- 		asus->tablet_switch_event_code = event_code;
- 	} else if (result == -ENODEV) {
-@@ -534,6 +542,7 @@ static int asus_wmi_input_init(struct asus_wmi *asus)
- 	case asus_wmi_no_tablet_switch:
- 		break;
- 	case asus_wmi_kbd_dock_devid:
-+		asus->tablet_switch_inverted = true;
- 		asus_wmi_tablet_sw_init(asus, ASUS_WMI_DEVID_KBD_DOCK, NOTIFY_KBD_DOCK_CHANGE);
- 		break;
- 	case asus_wmi_lid_flip_devid:
-@@ -573,10 +582,8 @@ static void asus_wmi_tablet_mode_get_state(struct asus_wmi *asus)
- 		return;
+ 	/* Make sure we clean up behind us */
+ 	if (static_cpu_has(X86_FEATURE_TSCRATEMSR))
+-		wrmsrl(MSR_AMD64_TSC_RATIO, TSC_RATIO_DEFAULT);
++		__svm_write_tsc_multiplier(TSC_RATIO_DEFAULT);
  
- 	result = asus_wmi_get_devstate_simple(asus, asus->tablet_switch_dev_id);
--	if (result >= 0) {
--		input_report_switch(asus->inputdev, SW_TABLET_MODE, result);
--		input_sync(asus->inputdev);
--	}
-+	if (result >= 0)
-+		asus_wmi_tablet_sw_report(asus, result);
+ 	cpu_svm_disable();
+ 
+@@ -511,8 +524,11 @@ static int svm_hardware_enable(void)
+ 	wrmsrl(MSR_VM_HSAVE_PA, __sme_page_pa(sd->save_area));
+ 
+ 	if (static_cpu_has(X86_FEATURE_TSCRATEMSR)) {
+-		wrmsrl(MSR_AMD64_TSC_RATIO, TSC_RATIO_DEFAULT);
+-		__this_cpu_write(current_tsc_ratio, TSC_RATIO_DEFAULT);
++		/*
++		 * Set the default value, even if we don't use TSC scaling
++		 * to avoid having stale value in the msr
++		 */
++		__svm_write_tsc_multiplier(TSC_RATIO_DEFAULT);
+ 	}
+ 
+ 
+@@ -1125,9 +1141,10 @@ static void svm_write_tsc_offset(struct kvm_vcpu *vcpu, u64 offset)
+ 
+ static void svm_write_tsc_multiplier(struct kvm_vcpu *vcpu, u64 multiplier)
+ {
+-	wrmsrl(MSR_AMD64_TSC_RATIO, multiplier);
++	__svm_write_tsc_multiplier(multiplier);
  }
  
- /* dGPU ********************************************************************/
++
+ /* Evaluate instruction intercepts that depend on guest CPUID features. */
+ static void svm_recalc_instruction_intercepts(struct kvm_vcpu *vcpu,
+ 					      struct vcpu_svm *svm)
+@@ -1451,13 +1468,8 @@ static void svm_prepare_guest_switch(struct kvm_vcpu *vcpu)
+ 		vmsave(__sme_page_pa(sd->save_area));
+ 	}
+ 
+-	if (static_cpu_has(X86_FEATURE_TSCRATEMSR)) {
+-		u64 tsc_ratio = vcpu->arch.tsc_scaling_ratio;
+-		if (tsc_ratio != __this_cpu_read(current_tsc_ratio)) {
+-			__this_cpu_write(current_tsc_ratio, tsc_ratio);
+-			wrmsrl(MSR_AMD64_TSC_RATIO, tsc_ratio);
+-		}
+-	}
++	if (static_cpu_has(X86_FEATURE_TSCRATEMSR))
++		__svm_write_tsc_multiplier(vcpu->arch.tsc_scaling_ratio);
+ 
+ 	if (likely(tsc_aux_uret_slot >= 0))
+ 		kvm_set_user_return_msr(tsc_aux_uret_slot, svm->tsc_aux, -1ull);
+diff --git a/arch/x86/kvm/svm/svm.h b/arch/x86/kvm/svm/svm.h
+index 7004f356edf9..1d9b1a9e4398 100644
+--- a/arch/x86/kvm/svm/svm.h
++++ b/arch/x86/kvm/svm/svm.h
+@@ -487,6 +487,7 @@ int nested_svm_check_exception(struct vcpu_svm *svm, unsigned nr,
+ int nested_svm_exit_special(struct vcpu_svm *svm);
+ void nested_load_control_from_vmcb12(struct vcpu_svm *svm,
+ 				     struct vmcb_control_area *control);
++void __svm_write_tsc_multiplier(u64 multiplier);
+ void nested_sync_control_from_vmcb02(struct vcpu_svm *svm);
+ void nested_vmcb02_compute_g_pat(struct vcpu_svm *svm);
+ void svm_switch_vmcb(struct vcpu_svm *svm, struct kvm_vmcb_info *target_vmcb);
 -- 
 2.39.0
 
