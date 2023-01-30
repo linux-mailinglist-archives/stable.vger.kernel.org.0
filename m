@@ -2,51 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B4B876811EA
-	for <lists+stable@lfdr.de>; Mon, 30 Jan 2023 15:17:18 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 662586810F5
+	for <lists+stable@lfdr.de>; Mon, 30 Jan 2023 15:08:53 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237466AbjA3ORR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 30 Jan 2023 09:17:17 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60644 "EHLO
+        id S237135AbjA3OIw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 30 Jan 2023 09:08:52 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50958 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237465AbjA3OQ4 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 30 Jan 2023 09:16:56 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6E4803D90F
-        for <stable@vger.kernel.org>; Mon, 30 Jan 2023 06:16:50 -0800 (PST)
+        with ESMTP id S237139AbjA3OIv (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 30 Jan 2023 09:08:51 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 767B73802F
+        for <stable@vger.kernel.org>; Mon, 30 Jan 2023 06:08:49 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 17869B810C5
-        for <stable@vger.kernel.org>; Mon, 30 Jan 2023 14:16:49 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2E409C433EF;
-        Mon, 30 Jan 2023 14:16:47 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 04A4D61083
+        for <stable@vger.kernel.org>; Mon, 30 Jan 2023 14:08:49 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E8BBAC433D2;
+        Mon, 30 Jan 2023 14:08:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1675088207;
-        bh=R29o+Ealo2OZ7uz9hWdmktkIJ6ogxgZfAo46nn6ETW8=;
+        s=korg; t=1675087728;
+        bh=sQRYlcooWYqh1ux2DK0qIio0EvSlNaYf46p4g0pxamQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=BWqboHtHQHTOgLU3NENmFxNTpSVpnhvorIWGq6/3Gb/UektXw+qMLI8SXhM+citZe
-         +F8DbP+ItLSzFoEDWRU8bxD+0jqqLH95xdn5pKEDkNT5SzG2DLAB1rS/Catq8a9Bgq
-         4WBNbG26SPM/cpsCTbojoqTkQQ/WwpSqG33XibO8=
+        b=ICahJ5S6ZLLMyf7KO8Dlt2eQLl32zqah19faP2EWTbj5dPcslDlhaQA7LT0dmmq6X
+         +p//Wh58qJIQIMmNqxreNYDb0YTykQyDh1ni1/eRVUlrB73VZCO8byNJJCenbp0dzO
+         sR0qBrhjnvHKqK7wffK6iC1LAWvvZ3bDqLXshTtw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Petr Mladek <pmladek@suse.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        tangmeng <tangmeng@uniontech.com>,
-        "Guilherme G. Piccoli" <gpiccoli@igalia.com>,
-        Tiezhu Yang <yangtiezhu@loongson.cn>,
-        Sebastian Andrzej Siewior <bigeasy@linutronix.de>,
-        Luis Chamberlain <mcgrof@kernel.org>,
-        Kees Cook <keescook@chromium.org>,
-        Eric Biggers <ebiggers@google.com>,
+        patches@lists.linux.dev, Stefano Brivio <sbrivio@redhat.com>,
+        Pablo Neira Ayuso <pablo@netfilter.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 134/204] panic: Separate sysctl logic from CONFIG_SMP
+Subject: [PATCH 6.1 264/313] netfilter: nft_set_rbtree: Switch to node list walk for overlap detection
 Date:   Mon, 30 Jan 2023 14:51:39 +0100
-Message-Id: <20230130134322.425637798@linuxfoundation.org>
+Message-Id: <20230130134349.033870740@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.1
-In-Reply-To: <20230130134316.327556078@linuxfoundation.org>
-References: <20230130134316.327556078@linuxfoundation.org>
+In-Reply-To: <20230130134336.532886729@linuxfoundation.org>
+References: <20230130134336.532886729@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -60,51 +53,425 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kees Cook <keescook@chromium.org>
+From: Pablo Neira Ayuso <pablo@netfilter.org>
 
-commit 9360d035a579d95d1e76c471061b9065b18a0eb1 upstream.
+[ Upstream commit c9e6978e2725a7d4b6cd23b2facd3f11422c0643 ]
 
-In preparation for adding more sysctls directly in kernel/panic.c, split
-CONFIG_SMP from the logic that adds sysctls.
+...instead of a tree descent, which became overly complicated in an
+attempt to cover cases where expired or inactive elements would affect
+comparisons with the new element being inserted.
 
-Cc: Petr Mladek <pmladek@suse.com>
-Cc: Andrew Morton <akpm@linux-foundation.org>
-Cc: tangmeng <tangmeng@uniontech.com>
-Cc: "Guilherme G. Piccoli" <gpiccoli@igalia.com>
-Cc: Tiezhu Yang <yangtiezhu@loongson.cn>
-Cc: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
-Reviewed-by: Luis Chamberlain <mcgrof@kernel.org>
-Signed-off-by: Kees Cook <keescook@chromium.org>
-Link: https://lore.kernel.org/r/20221117234328.594699-1-keescook@chromium.org
-Signed-off-by: Eric Biggers <ebiggers@google.com>
+Further, it turned out that it's probably impossible to cover all those
+cases, as inactive nodes might entirely hide subtrees consisting of a
+complete interval plus a node that makes the current insertion not
+overlap.
+
+To speed up the overlap check, descent the tree to find a greater
+element that is closer to the key value to insert. Then walk down the
+node list for overlap detection. Starting the overlap check from
+rb_first() unconditionally is slow, it takes 10 times longer due to the
+full linear traversal of the list.
+
+Moreover, perform garbage collection of expired elements when walking
+down the node list to avoid bogus overlap reports.
+
+For the insertion operation itself, this essentially reverts back to the
+implementation before commit 7c84d41416d8 ("netfilter: nft_set_rbtree:
+Detect partial overlaps on insertion"), except that cases of complete
+overlap are already handled in the overlap detection phase itself, which
+slightly simplifies the loop to find the insertion point.
+
+Based on initial patch from Stefano Brivio, including text from the
+original patch description too.
+
+Fixes: 7c84d41416d8 ("netfilter: nft_set_rbtree: Detect partial overlaps on insertion")
+Reviewed-by: Stefano Brivio <sbrivio@redhat.com>
+Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/panic.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ net/netfilter/nft_set_rbtree.c | 316 ++++++++++++++++++++-------------
+ 1 file changed, 189 insertions(+), 127 deletions(-)
 
-diff --git a/kernel/panic.c b/kernel/panic.c
-index 5ed1ad06f9a3..0b560312878c 100644
---- a/kernel/panic.c
-+++ b/kernel/panic.c
-@@ -73,8 +73,9 @@ ATOMIC_NOTIFIER_HEAD(panic_notifier_list);
+diff --git a/net/netfilter/nft_set_rbtree.c b/net/netfilter/nft_set_rbtree.c
+index 7325bee7d144..217225e13faf 100644
+--- a/net/netfilter/nft_set_rbtree.c
++++ b/net/netfilter/nft_set_rbtree.c
+@@ -38,10 +38,12 @@ static bool nft_rbtree_interval_start(const struct nft_rbtree_elem *rbe)
+ 	return !nft_rbtree_interval_end(rbe);
+ }
  
- EXPORT_SYMBOL(panic_notifier_list);
+-static bool nft_rbtree_equal(const struct nft_set *set, const void *this,
+-			     const struct nft_rbtree_elem *interval)
++static int nft_rbtree_cmp(const struct nft_set *set,
++			  const struct nft_rbtree_elem *e1,
++			  const struct nft_rbtree_elem *e2)
+ {
+-	return memcmp(this, nft_set_ext_key(&interval->ext), set->klen) == 0;
++	return memcmp(nft_set_ext_key(&e1->ext), nft_set_ext_key(&e2->ext),
++		      set->klen);
+ }
  
--#if defined(CONFIG_SMP) && defined(CONFIG_SYSCTL)
-+#ifdef CONFIG_SYSCTL
- static struct ctl_table kern_panic_table[] = {
-+#ifdef CONFIG_SMP
- 	{
- 		.procname       = "oops_all_cpu_backtrace",
- 		.data           = &sysctl_oops_all_cpu_backtrace,
-@@ -84,6 +85,7 @@ static struct ctl_table kern_panic_table[] = {
- 		.extra1         = SYSCTL_ZERO,
- 		.extra2         = SYSCTL_ONE,
- 	},
-+#endif
- 	{ }
- };
+ static bool __nft_rbtree_lookup(const struct net *net, const struct nft_set *set,
+@@ -52,7 +54,6 @@ static bool __nft_rbtree_lookup(const struct net *net, const struct nft_set *set
+ 	const struct nft_rbtree_elem *rbe, *interval = NULL;
+ 	u8 genmask = nft_genmask_cur(net);
+ 	const struct rb_node *parent;
+-	const void *this;
+ 	int d;
  
+ 	parent = rcu_dereference_raw(priv->root.rb_node);
+@@ -62,12 +63,11 @@ static bool __nft_rbtree_lookup(const struct net *net, const struct nft_set *set
+ 
+ 		rbe = rb_entry(parent, struct nft_rbtree_elem, node);
+ 
+-		this = nft_set_ext_key(&rbe->ext);
+-		d = memcmp(this, key, set->klen);
++		d = memcmp(nft_set_ext_key(&rbe->ext), key, set->klen);
+ 		if (d < 0) {
+ 			parent = rcu_dereference_raw(parent->rb_left);
+ 			if (interval &&
+-			    nft_rbtree_equal(set, this, interval) &&
++			    !nft_rbtree_cmp(set, rbe, interval) &&
+ 			    nft_rbtree_interval_end(rbe) &&
+ 			    nft_rbtree_interval_start(interval))
+ 				continue;
+@@ -215,154 +215,216 @@ static void *nft_rbtree_get(const struct net *net, const struct nft_set *set,
+ 	return rbe;
+ }
+ 
++static int nft_rbtree_gc_elem(const struct nft_set *__set,
++			      struct nft_rbtree *priv,
++			      struct nft_rbtree_elem *rbe)
++{
++	struct nft_set *set = (struct nft_set *)__set;
++	struct rb_node *prev = rb_prev(&rbe->node);
++	struct nft_rbtree_elem *rbe_prev;
++	struct nft_set_gc_batch *gcb;
++
++	gcb = nft_set_gc_batch_check(set, NULL, GFP_ATOMIC);
++	if (!gcb)
++		return -ENOMEM;
++
++	/* search for expired end interval coming before this element. */
++	do {
++		rbe_prev = rb_entry(prev, struct nft_rbtree_elem, node);
++		if (nft_rbtree_interval_end(rbe_prev))
++			break;
++
++		prev = rb_prev(prev);
++	} while (prev != NULL);
++
++	rb_erase(&rbe_prev->node, &priv->root);
++	rb_erase(&rbe->node, &priv->root);
++	atomic_sub(2, &set->nelems);
++
++	nft_set_gc_batch_add(gcb, rbe);
++	nft_set_gc_batch_complete(gcb);
++
++	return 0;
++}
++
++static bool nft_rbtree_update_first(const struct nft_set *set,
++				    struct nft_rbtree_elem *rbe,
++				    struct rb_node *first)
++{
++	struct nft_rbtree_elem *first_elem;
++
++	first_elem = rb_entry(first, struct nft_rbtree_elem, node);
++	/* this element is closest to where the new element is to be inserted:
++	 * update the first element for the node list path.
++	 */
++	if (nft_rbtree_cmp(set, rbe, first_elem) < 0)
++		return true;
++
++	return false;
++}
++
+ static int __nft_rbtree_insert(const struct net *net, const struct nft_set *set,
+ 			       struct nft_rbtree_elem *new,
+ 			       struct nft_set_ext **ext)
+ {
+-	bool overlap = false, dup_end_left = false, dup_end_right = false;
++	struct nft_rbtree_elem *rbe, *rbe_le = NULL, *rbe_ge = NULL;
++	struct rb_node *node, *parent, **p, *first = NULL;
+ 	struct nft_rbtree *priv = nft_set_priv(set);
+ 	u8 genmask = nft_genmask_next(net);
+-	struct nft_rbtree_elem *rbe;
+-	struct rb_node *parent, **p;
+-	int d;
++	int d, err;
+ 
+-	/* Detect overlaps as we descend the tree. Set the flag in these cases:
+-	 *
+-	 * a1. _ _ __>|  ?_ _ __|  (insert end before existing end)
+-	 * a2. _ _ ___|  ?_ _ _>|  (insert end after existing end)
+-	 * a3. _ _ ___? >|_ _ __|  (insert start before existing end)
+-	 *
+-	 * and clear it later on, as we eventually reach the points indicated by
+-	 * '?' above, in the cases described below. We'll always meet these
+-	 * later, locally, due to tree ordering, and overlaps for the intervals
+-	 * that are the closest together are always evaluated last.
+-	 *
+-	 * b1. _ _ __>|  !_ _ __|  (insert end before existing start)
+-	 * b2. _ _ ___|  !_ _ _>|  (insert end after existing start)
+-	 * b3. _ _ ___! >|_ _ __|  (insert start after existing end, as a leaf)
+-	 *            '--' no nodes falling in this range
+-	 * b4.          >|_ _   !  (insert start before existing start)
+-	 *
+-	 * Case a3. resolves to b3.:
+-	 * - if the inserted start element is the leftmost, because the '0'
+-	 *   element in the tree serves as end element
+-	 * - otherwise, if an existing end is found immediately to the left. If
+-	 *   there are existing nodes in between, we need to further descend the
+-	 *   tree before we can conclude the new start isn't causing an overlap
+-	 *
+-	 * or to b4., which, preceded by a3., means we already traversed one or
+-	 * more existing intervals entirely, from the right.
+-	 *
+-	 * For a new, rightmost pair of elements, we'll hit cases b3. and b2.,
+-	 * in that order.
+-	 *
+-	 * The flag is also cleared in two special cases:
+-	 *
+-	 * b5. |__ _ _!|<_ _ _   (insert start right before existing end)
+-	 * b6. |__ _ >|!__ _ _   (insert end right after existing start)
+-	 *
+-	 * which always happen as last step and imply that no further
+-	 * overlapping is possible.
+-	 *
+-	 * Another special case comes from the fact that start elements matching
+-	 * an already existing start element are allowed: insertion is not
+-	 * performed but we return -EEXIST in that case, and the error will be
+-	 * cleared by the caller if NLM_F_EXCL is not present in the request.
+-	 * This way, request for insertion of an exact overlap isn't reported as
+-	 * error to userspace if not desired.
+-	 *
+-	 * However, if the existing start matches a pre-existing start, but the
+-	 * end element doesn't match the corresponding pre-existing end element,
+-	 * we need to report a partial overlap. This is a local condition that
+-	 * can be noticed without need for a tracking flag, by checking for a
+-	 * local duplicated end for a corresponding start, from left and right,
+-	 * separately.
++	/* Descend the tree to search for an existing element greater than the
++	 * key value to insert that is greater than the new element. This is the
++	 * first element to walk the ordered elements to find possible overlap.
+ 	 */
+-
+ 	parent = NULL;
+ 	p = &priv->root.rb_node;
+ 	while (*p != NULL) {
+ 		parent = *p;
+ 		rbe = rb_entry(parent, struct nft_rbtree_elem, node);
+-		d = memcmp(nft_set_ext_key(&rbe->ext),
+-			   nft_set_ext_key(&new->ext),
+-			   set->klen);
++		d = nft_rbtree_cmp(set, rbe, new);
++
+ 		if (d < 0) {
+ 			p = &parent->rb_left;
+-
+-			if (nft_rbtree_interval_start(new)) {
+-				if (nft_rbtree_interval_end(rbe) &&
+-				    nft_set_elem_active(&rbe->ext, genmask) &&
+-				    !nft_set_elem_expired(&rbe->ext) && !*p)
+-					overlap = false;
+-			} else {
+-				if (dup_end_left && !*p)
+-					return -ENOTEMPTY;
+-
+-				overlap = nft_rbtree_interval_end(rbe) &&
+-					  nft_set_elem_active(&rbe->ext,
+-							      genmask) &&
+-					  !nft_set_elem_expired(&rbe->ext);
+-
+-				if (overlap) {
+-					dup_end_right = true;
+-					continue;
+-				}
+-			}
+ 		} else if (d > 0) {
+-			p = &parent->rb_right;
++			if (!first ||
++			    nft_rbtree_update_first(set, rbe, first))
++				first = &rbe->node;
+ 
+-			if (nft_rbtree_interval_end(new)) {
+-				if (dup_end_right && !*p)
+-					return -ENOTEMPTY;
+-
+-				overlap = nft_rbtree_interval_end(rbe) &&
+-					  nft_set_elem_active(&rbe->ext,
+-							      genmask) &&
+-					  !nft_set_elem_expired(&rbe->ext);
+-
+-				if (overlap) {
+-					dup_end_left = true;
+-					continue;
+-				}
+-			} else if (nft_set_elem_active(&rbe->ext, genmask) &&
+-				   !nft_set_elem_expired(&rbe->ext)) {
+-				overlap = nft_rbtree_interval_end(rbe);
+-			}
++			p = &parent->rb_right;
+ 		} else {
+-			if (nft_rbtree_interval_end(rbe) &&
+-			    nft_rbtree_interval_start(new)) {
++			if (nft_rbtree_interval_end(rbe))
+ 				p = &parent->rb_left;
+-
+-				if (nft_set_elem_active(&rbe->ext, genmask) &&
+-				    !nft_set_elem_expired(&rbe->ext))
+-					overlap = false;
+-			} else if (nft_rbtree_interval_start(rbe) &&
+-				   nft_rbtree_interval_end(new)) {
++			else
+ 				p = &parent->rb_right;
++		}
++	}
++
++	if (!first)
++		first = rb_first(&priv->root);
++
++	/* Detect overlap by going through the list of valid tree nodes.
++	 * Values stored in the tree are in reversed order, starting from
++	 * highest to lowest value.
++	 */
++	for (node = first; node != NULL; node = rb_next(node)) {
++		rbe = rb_entry(node, struct nft_rbtree_elem, node);
++
++		if (!nft_set_elem_active(&rbe->ext, genmask))
++			continue;
+ 
+-				if (nft_set_elem_active(&rbe->ext, genmask) &&
+-				    !nft_set_elem_expired(&rbe->ext))
+-					overlap = false;
+-			} else if (nft_set_elem_active(&rbe->ext, genmask) &&
+-				   !nft_set_elem_expired(&rbe->ext)) {
+-				*ext = &rbe->ext;
+-				return -EEXIST;
+-			} else {
+-				overlap = false;
+-				if (nft_rbtree_interval_end(rbe))
+-					p = &parent->rb_left;
+-				else
+-					p = &parent->rb_right;
++		/* perform garbage collection to avoid bogus overlap reports. */
++		if (nft_set_elem_expired(&rbe->ext)) {
++			err = nft_rbtree_gc_elem(set, priv, rbe);
++			if (err < 0)
++				return err;
++
++			continue;
++		}
++
++		d = nft_rbtree_cmp(set, rbe, new);
++		if (d == 0) {
++			/* Matching end element: no need to look for an
++			 * overlapping greater or equal element.
++			 */
++			if (nft_rbtree_interval_end(rbe)) {
++				rbe_le = rbe;
++				break;
++			}
++
++			/* first element that is greater or equal to key value. */
++			if (!rbe_ge) {
++				rbe_ge = rbe;
++				continue;
++			}
++
++			/* this is a closer more or equal element, update it. */
++			if (nft_rbtree_cmp(set, rbe_ge, new) != 0) {
++				rbe_ge = rbe;
++				continue;
+ 			}
++
++			/* element is equal to key value, make sure flags are
++			 * the same, an existing more or equal start element
++			 * must not be replaced by more or equal end element.
++			 */
++			if ((nft_rbtree_interval_start(new) &&
++			     nft_rbtree_interval_start(rbe_ge)) ||
++			    (nft_rbtree_interval_end(new) &&
++			     nft_rbtree_interval_end(rbe_ge))) {
++				rbe_ge = rbe;
++				continue;
++			}
++		} else if (d > 0) {
++			/* annotate element greater than the new element. */
++			rbe_ge = rbe;
++			continue;
++		} else if (d < 0) {
++			/* annotate element less than the new element. */
++			rbe_le = rbe;
++			break;
+ 		}
++	}
+ 
+-		dup_end_left = dup_end_right = false;
++	/* - new start element matching existing start element: full overlap
++	 *   reported as -EEXIST, cleared by caller if NLM_F_EXCL is not given.
++	 */
++	if (rbe_ge && !nft_rbtree_cmp(set, new, rbe_ge) &&
++	    nft_rbtree_interval_start(rbe_ge) == nft_rbtree_interval_start(new)) {
++		*ext = &rbe_ge->ext;
++		return -EEXIST;
++	}
++
++	/* - new end element matching existing end element: full overlap
++	 *   reported as -EEXIST, cleared by caller if NLM_F_EXCL is not given.
++	 */
++	if (rbe_le && !nft_rbtree_cmp(set, new, rbe_le) &&
++	    nft_rbtree_interval_end(rbe_le) == nft_rbtree_interval_end(new)) {
++		*ext = &rbe_le->ext;
++		return -EEXIST;
+ 	}
+ 
+-	if (overlap)
++	/* - new start element with existing closest, less or equal key value
++	 *   being a start element: partial overlap, reported as -ENOTEMPTY.
++	 *   Anonymous sets allow for two consecutive start element since they
++	 *   are constant, skip them to avoid bogus overlap reports.
++	 */
++	if (!nft_set_is_anonymous(set) && rbe_le &&
++	    nft_rbtree_interval_start(rbe_le) && nft_rbtree_interval_start(new))
++		return -ENOTEMPTY;
++
++	/* - new end element with existing closest, less or equal key value
++	 *   being a end element: partial overlap, reported as -ENOTEMPTY.
++	 */
++	if (rbe_le &&
++	    nft_rbtree_interval_end(rbe_le) && nft_rbtree_interval_end(new))
+ 		return -ENOTEMPTY;
+ 
++	/* - new end element with existing closest, greater or equal key value
++	 *   being an end element: partial overlap, reported as -ENOTEMPTY
++	 */
++	if (rbe_ge &&
++	    nft_rbtree_interval_end(rbe_ge) && nft_rbtree_interval_end(new))
++		return -ENOTEMPTY;
++
++	/* Accepted element: pick insertion point depending on key value */
++	parent = NULL;
++	p = &priv->root.rb_node;
++	while (*p != NULL) {
++		parent = *p;
++		rbe = rb_entry(parent, struct nft_rbtree_elem, node);
++		d = nft_rbtree_cmp(set, rbe, new);
++
++		if (d < 0)
++			p = &parent->rb_left;
++		else if (d > 0)
++			p = &parent->rb_right;
++		else if (nft_rbtree_interval_end(rbe))
++			p = &parent->rb_left;
++		else
++			p = &parent->rb_right;
++	}
++
+ 	rb_link_node_rcu(&new->node, parent, p);
+ 	rb_insert_color(&new->node, &priv->root);
+ 	return 0;
 -- 
 2.39.0
 
