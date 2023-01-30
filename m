@@ -2,43 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 66E766811A2
-	for <lists+stable@lfdr.de>; Mon, 30 Jan 2023 15:15:28 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D23976812B0
+	for <lists+stable@lfdr.de>; Mon, 30 Jan 2023 15:24:01 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237330AbjA3OP1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 30 Jan 2023 09:15:27 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59414 "EHLO
+        id S237509AbjA3OYA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 30 Jan 2023 09:24:00 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41774 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237324AbjA3OPZ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 30 Jan 2023 09:15:25 -0500
+        with ESMTP id S237664AbjA3OXm (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 30 Jan 2023 09:23:42 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CB03D1BAEC
-        for <stable@vger.kernel.org>; Mon, 30 Jan 2023 06:15:24 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 39AEF360BA
+        for <stable@vger.kernel.org>; Mon, 30 Jan 2023 06:22:34 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 74554B80E60
-        for <stable@vger.kernel.org>; Mon, 30 Jan 2023 14:15:23 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id BBB7FC4339B;
-        Mon, 30 Jan 2023 14:15:21 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 50229B811C9
+        for <stable@vger.kernel.org>; Mon, 30 Jan 2023 14:21:13 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A87C1C4339B;
+        Mon, 30 Jan 2023 14:21:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1675088122;
-        bh=6MfuKjXEDnSAb+9hBv/+/5bMaAmAbN3vlKWvof2M07w=;
+        s=korg; t=1675088472;
+        bh=l58uQNwwjlLA8+R+oSjguZR6Ix7PbOlcnBA75A3DKH0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=x9bPEKtDYH+khxkW+xtCaml7dKwBSMDrxA95mWoE5baEf09lUK3hfk/q/qVGZAQot
-         sboFyLwNXLdLQ/v2DXO5SkbPr3lDSownkfIEjof9TTLr+2SCVjtAybO3sKGRgitlB9
-         /MFgvxwFSFvdhQ3gIuYFRNWLv52FANUXOGEhe9bo=
+        b=zJmRgDTv3EiHHRpE59QyJE40HOUCsR7cs0B8oIEmQkv6VK/dMVK+YnBbNmsOTWkFo
+         C+eF5AI9+rgggk+KPtEDWNVXWji084rD/A/H1lXVQi/i3VFyr30pAQAjFY5Q94EoUk
+         OAMpqzafZAY6x+Ifz1TMtTg1CKDVFaTT+b5wJ5lk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Dongliang Mu <mudongliangabcd@gmail.com>,
-        Jan Kara <jack@suse.cz>, Fedor Pchelkin <pchelkin@ispras.ru>
-Subject: [PATCH 5.15 122/204] fs: reiserfs: remove useless new_opts in reiserfs_remount
-Date:   Mon, 30 Jan 2023 14:51:27 +0100
-Message-Id: <20230130134321.851853049@linuxfoundation.org>
+        patches@lists.linux.dev, Linus Walleij <linus.walleij@linaro.org>,
+        Marek Vasut <marex@denx.de>,
+        Bartosz Golaszewski <bartosz.golaszewski@linaro.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 031/143] gpio: mxc: Always set GPIOs used as interrupt source to INPUT mode
+Date:   Mon, 30 Jan 2023 14:51:28 +0100
+Message-Id: <20230130134308.131799675@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.1
-In-Reply-To: <20230130134316.327556078@linuxfoundation.org>
-References: <20230130134316.327556078@linuxfoundation.org>
+In-Reply-To: <20230130134306.862721518@linuxfoundation.org>
+References: <20230130134306.862721518@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -52,56 +54,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dongliang Mu <mudongliangabcd@gmail.com>
+From: Marek Vasut <marex@denx.de>
 
-commit 81dedaf10c20959bdf5624f9783f408df26ba7a4 upstream.
+[ Upstream commit 8e88a0feebb241cab0253698b2f7358b6ebec802 ]
 
-Since the commit c3d98ea08291 ("VFS: Don't use save/replace_mount_options
-if not using generic_show_options") eliminates replace_mount_options
-in reiserfs_remount, but does not handle the allocated new_opts,
-it will cause memory leak in the reiserfs_remount.
+Always configure GPIO pins which are used as interrupt source as INPUTs.
+In case the default pin configuration is OUTPUT, or the prior stage does
+configure the pins as OUTPUT, then Linux will not reconfigure the pin as
+INPUT and no interrupts are received.
 
-Because new_opts is useless in reiserfs_mount, so we fix this bug by
-removing the useless new_opts in reiserfs_remount.
+Always configure the interrupt source GPIO pin as input to fix the above case.
 
-Fixes: c3d98ea08291 ("VFS: Don't use save/replace_mount_options if not using generic_show_options")
-Link: https://lore.kernel.org/r/20211027143445.4156459-1-mudongliangabcd@gmail.com
-Signed-off-by: Dongliang Mu <mudongliangabcd@gmail.com>
-Signed-off-by: Jan Kara <jack@suse.cz>
-Signed-off-by: Fedor Pchelkin <pchelkin@ispras.ru>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Reviewed-by: Linus Walleij <linus.walleij@linaro.org>
+Fixes: 07bd1a6cc7cbb ("MXC arch: Add gpio support for the whole platform")
+Signed-off-by: Marek Vasut <marex@denx.de>
+Signed-off-by: Bartosz Golaszewski <bartosz.golaszewski@linaro.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/reiserfs/super.c |    6 ------
- 1 file changed, 6 deletions(-)
+ drivers/gpio/gpio-mxc.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/fs/reiserfs/super.c
-+++ b/fs/reiserfs/super.c
-@@ -1437,7 +1437,6 @@ static int reiserfs_remount(struct super
- 	unsigned long safe_mask = 0;
- 	unsigned int commit_max_age = (unsigned int)-1;
- 	struct reiserfs_journal *journal = SB_JOURNAL(s);
--	char *new_opts;
- 	int err;
- 	char *qf_names[REISERFS_MAXQUOTAS];
- 	unsigned int qfmt = 0;
-@@ -1445,10 +1444,6 @@ static int reiserfs_remount(struct super
- 	int i;
- #endif
+diff --git a/drivers/gpio/gpio-mxc.c b/drivers/gpio/gpio-mxc.c
+index ba6ed2a413f5..0d5a9fee3c70 100644
+--- a/drivers/gpio/gpio-mxc.c
++++ b/drivers/gpio/gpio-mxc.c
+@@ -231,7 +231,7 @@ static int gpio_set_irq_type(struct irq_data *d, u32 type)
  
--	new_opts = kstrdup(arg, GFP_KERNEL);
--	if (arg && !new_opts)
--		return -ENOMEM;
--
- 	sync_filesystem(s);
- 	reiserfs_write_lock(s);
+ 	writel(1 << gpio_idx, port->base + GPIO_ISR);
  
-@@ -1599,7 +1594,6 @@ out_ok_unlocked:
- out_err_unlock:
- 	reiserfs_write_unlock(s);
- out_err:
--	kfree(new_opts);
- 	return err;
+-	return 0;
++	return port->gc.direction_input(&port->gc, gpio_idx);
  }
  
+ static void mxc_flip_edge(struct mxc_gpio_port *port, u32 gpio)
+-- 
+2.39.0
+
 
 
