@@ -2,44 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 158366811B3
-	for <lists+stable@lfdr.de>; Mon, 30 Jan 2023 15:16:19 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6E9E8681295
+	for <lists+stable@lfdr.de>; Mon, 30 Jan 2023 15:23:02 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237364AbjA3OQR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 30 Jan 2023 09:16:17 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59972 "EHLO
+        id S236644AbjA3OXB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 30 Jan 2023 09:23:01 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41066 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237348AbjA3OQM (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 30 Jan 2023 09:16:12 -0500
+        with ESMTP id S237450AbjA3OWh (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 30 Jan 2023 09:22:37 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4B0773C2B0
-        for <stable@vger.kernel.org>; Mon, 30 Jan 2023 06:16:10 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E97673EC58
+        for <stable@vger.kernel.org>; Mon, 30 Jan 2023 06:21:36 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id C5A6861022
-        for <stable@vger.kernel.org>; Mon, 30 Jan 2023 14:16:09 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id CA1D4C433D2;
-        Mon, 30 Jan 2023 14:16:08 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id B62D561149
+        for <stable@vger.kernel.org>; Mon, 30 Jan 2023 14:20:33 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id BDF7DC433EF;
+        Mon, 30 Jan 2023 14:20:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1675088169;
-        bh=HHC/z2XE0bIF+5GXUVS5Upiz2E+Ymxj7p9v+1oSjCHM=;
+        s=korg; t=1675088433;
+        bh=OfUvxWib2k4uUPoMpkRcfQNA0be/TsmcL7rrXMzVl0k=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=D+CLYWmMJ+J8WWJzoy0dld/E85gbayCL/bgBmTNNDbCte1XiKgZZq+Z9bRDF70zGX
-         vu1R8mzVFeFRZMPq0h4/lwRgioscH2njgBmt1nMF56ILDx12I4S5KTZ343pS5tb719
-         fRunDSrP1Mxsgt/mKgII3fhDY32sifUiPmoIJgjE=
+        b=zB0vlNGISxRysUbcTedVeYxnh5mBXy+dnlPIuGYJ39qy30y49yOwXU/llqCAO8Gtl
+         QKvrSKI4w2rO+R/p6sHcfYvO4k9WnvCvV8lu2hrdWlPMxfpkYLvaWqgZLTv2+ZtEYj
+         ExRRzZeeZPQ++rVBzJHRW9PFyyHNcHqfEnUMMmyQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Shengjiu Wang <shengjiu.wang@gmail.com>,
-        Mark Brown <broonie@kernel.org>,
+        patches@lists.linux.dev,
+        Dean Luick <dean.luick@cornelisnetworks.com>,
+        Dennis Dalessandro <dennis.dalessandro@cornelisnetworks.com>,
+        Leon Romanovsky <leon@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 109/204] ASoC: fsl-asoc-card: Fix naming of AC97 CODEC widgets
-Date:   Mon, 30 Jan 2023 14:51:14 +0100
-Message-Id: <20230130134321.150319253@linuxfoundation.org>
+Subject: [PATCH 5.10 018/143] IB/hfi1: Fix expected receive setup error exit issues
+Date:   Mon, 30 Jan 2023 14:51:15 +0100
+Message-Id: <20230130134307.635996421@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.1
-In-Reply-To: <20230130134316.327556078@linuxfoundation.org>
-References: <20230130134316.327556078@linuxfoundation.org>
+In-Reply-To: <20230130134306.862721518@linuxfoundation.org>
+References: <20230130134306.862721518@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,40 +55,168 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mark Brown <broonie@kernel.org>
+From: Dean Luick <dean.luick@cornelisnetworks.com>
 
-[ Upstream commit 242fc66ae6e1e2b8519daacc7590a73cd0e8a6e4 ]
+[ Upstream commit e0c4a422f5246abefbf7c178ef99a1f2dc3c5f62 ]
 
-The fsl-asoc-card AC'97 support currently tries to route to Playback and
-Capture widgets provided by the AC'97 CODEC. This doesn't work since the
-generic AC'97 driver registers with an "AC97" at the front of the stream
-and hence widget names, update to reflect reality. It's not clear to me
-if or how this ever worked.
+Fix three error exit issues in expected receive setup.
+Re-arrange error exits to increase readability.
 
-Acked-by: Shengjiu Wang <shengjiu.wang@gmail.com>
-Signed-off-by: Mark Brown <broonie@kernel.org>
-Link: https://lore.kernel.org/r/20230106-asoc-udoo-probe-v1-2-a5d7469d4f67@kernel.org
-Signed-off-by: Mark Brown <broonie@kernel.org>
+Issues and fixes:
+1. Possible missed page unpin if tidlist copyout fails and
+   not all pinned pages where made part of a TID.
+   Fix: Unpin the unused pages.
+
+2. Return success with unset return values tidcnt and length
+   when no pages were pinned.
+   Fix: Return -ENOSPC if no pages were pinned.
+
+3. Return success with unset return values tidcnt and length when
+   no rcvarray entries available.
+   Fix: Return -ENOSPC if no rcvarray entries are available.
+
+Fixes: 7e7a436ecb6e ("staging/hfi1: Add TID entry program function body")
+Fixes: 97736f36dbeb ("IB/hfi1: Validate page aligned for a given virtual addres")
+Fixes: f404ca4c7ea8 ("IB/hfi1: Refactor hfi_user_exp_rcv_setup() IOCTL")
+Signed-off-by: Dean Luick <dean.luick@cornelisnetworks.com>
+Signed-off-by: Dennis Dalessandro <dennis.dalessandro@cornelisnetworks.com>
+Link: https://lore.kernel.org/r/167328548150.1472310.1492305874804187634.stgit@awfm-02.cornelisnetworks.com
+Signed-off-by: Leon Romanovsky <leon@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/soc/fsl/fsl-asoc-card.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/infiniband/hw/hfi1/user_exp_rcv.c | 83 ++++++++++++++---------
+ 1 file changed, 50 insertions(+), 33 deletions(-)
 
-diff --git a/sound/soc/fsl/fsl-asoc-card.c b/sound/soc/fsl/fsl-asoc-card.c
-index 978496c2fc09..5000d779aade 100644
---- a/sound/soc/fsl/fsl-asoc-card.c
-+++ b/sound/soc/fsl/fsl-asoc-card.c
-@@ -120,8 +120,8 @@ static const struct snd_soc_dapm_route audio_map[] = {
+diff --git a/drivers/infiniband/hw/hfi1/user_exp_rcv.c b/drivers/infiniband/hw/hfi1/user_exp_rcv.c
+index 1278cd55a480..ba61d327a85d 100644
+--- a/drivers/infiniband/hw/hfi1/user_exp_rcv.c
++++ b/drivers/infiniband/hw/hfi1/user_exp_rcv.c
+@@ -310,15 +310,14 @@ int hfi1_user_exp_rcv_setup(struct hfi1_filedata *fd,
+ 	tidbuf->psets = kcalloc(uctxt->expected_count, sizeof(*tidbuf->psets),
+ 				GFP_KERNEL);
+ 	if (!tidbuf->psets) {
+-		kfree(tidbuf);
+-		return -ENOMEM;
++		ret = -ENOMEM;
++		goto fail_release_mem;
+ 	}
  
- static const struct snd_soc_dapm_route audio_map_ac97[] = {
- 	/* 1st half -- Normal DAPM routes */
--	{"Playback",  NULL, "CPU AC97 Playback"},
--	{"CPU AC97 Capture",  NULL, "Capture"},
-+	{"AC97 Playback",  NULL, "CPU AC97 Playback"},
-+	{"CPU AC97 Capture",  NULL, "AC97 Capture"},
- 	/* 2nd half -- ASRC DAPM routes */
- 	{"CPU AC97 Playback",  NULL, "ASRC-Playback"},
- 	{"ASRC-Capture",  NULL, "CPU AC97 Capture"},
+ 	pinned = pin_rcv_pages(fd, tidbuf);
+ 	if (pinned <= 0) {
+-		kfree(tidbuf->psets);
+-		kfree(tidbuf);
+-		return pinned;
++		ret = (pinned < 0) ? pinned : -ENOSPC;
++		goto fail_unpin;
+ 	}
+ 
+ 	/* Find sets of physically contiguous pages */
+@@ -333,14 +332,16 @@ int hfi1_user_exp_rcv_setup(struct hfi1_filedata *fd,
+ 	fd->tid_used += pageset_count;
+ 	spin_unlock(&fd->tid_lock);
+ 
+-	if (!pageset_count)
+-		goto bail;
++	if (!pageset_count) {
++		ret = -ENOSPC;
++		goto fail_unreserve;
++	}
+ 
+ 	ngroups = pageset_count / dd->rcv_entries.group_size;
+ 	tidlist = kcalloc(pageset_count, sizeof(*tidlist), GFP_KERNEL);
+ 	if (!tidlist) {
+ 		ret = -ENOMEM;
+-		goto nomem;
++		goto fail_unreserve;
+ 	}
+ 
+ 	tididx = 0;
+@@ -436,44 +437,60 @@ int hfi1_user_exp_rcv_setup(struct hfi1_filedata *fd,
+ 	}
+ unlock:
+ 	mutex_unlock(&uctxt->exp_mutex);
+-nomem:
+ 	hfi1_cdbg(TID, "total mapped: tidpairs:%u pages:%u (%d)", tididx,
+ 		  mapped_pages, ret);
++
++	/* fail if nothing was programmed, set error if none provided */
++	if (tididx == 0) {
++		if (ret >= 0)
++			ret = -ENOSPC;
++		goto fail_unreserve;
++	}
++
+ 	/* adjust reserved tid_used to actual count */
+ 	spin_lock(&fd->tid_lock);
+ 	fd->tid_used -= pageset_count - tididx;
+ 	spin_unlock(&fd->tid_lock);
+-	if (tididx) {
+-		tinfo->tidcnt = tididx;
+-		tinfo->length = mapped_pages * PAGE_SIZE;
+ 
+-		if (copy_to_user(u64_to_user_ptr(tinfo->tidlist),
+-				 tidlist, sizeof(tidlist[0]) * tididx)) {
+-			/*
+-			 * On failure to copy to the user level, we need to undo
+-			 * everything done so far so we don't leak resources.
+-			 */
+-			tinfo->tidlist = (unsigned long)&tidlist;
+-			hfi1_user_exp_rcv_clear(fd, tinfo);
+-			tinfo->tidlist = 0;
+-			ret = -EFAULT;
+-			goto bail;
+-		}
++	/* unpin all pages not covered by a TID */
++	unpin_rcv_pages(fd, tidbuf, NULL, mapped_pages, pinned - mapped_pages,
++			false);
++
++	tinfo->tidcnt = tididx;
++	tinfo->length = mapped_pages * PAGE_SIZE;
++
++	if (copy_to_user(u64_to_user_ptr(tinfo->tidlist),
++			 tidlist, sizeof(tidlist[0]) * tididx)) {
++		ret = -EFAULT;
++		goto fail_unprogram;
+ 	}
+ 
+-	/*
+-	 * If not everything was mapped (due to insufficient RcvArray entries,
+-	 * for example), unpin all unmapped pages so we can pin them nex time.
+-	 */
+-	if (mapped_pages != pinned)
+-		unpin_rcv_pages(fd, tidbuf, NULL, mapped_pages,
+-				(pinned - mapped_pages), false);
+-bail:
++	kfree(tidbuf->pages);
+ 	kfree(tidbuf->psets);
++	kfree(tidbuf);
+ 	kfree(tidlist);
++	return 0;
++
++fail_unprogram:
++	/* unprogram, unmap, and unpin all allocated TIDs */
++	tinfo->tidlist = (unsigned long)tidlist;
++	hfi1_user_exp_rcv_clear(fd, tinfo);
++	tinfo->tidlist = 0;
++	pinned = 0;		/* nothing left to unpin */
++	pageset_count = 0;	/* nothing left reserved */
++fail_unreserve:
++	spin_lock(&fd->tid_lock);
++	fd->tid_used -= pageset_count;
++	spin_unlock(&fd->tid_lock);
++fail_unpin:
++	if (pinned > 0)
++		unpin_rcv_pages(fd, tidbuf, NULL, 0, pinned, false);
++fail_release_mem:
+ 	kfree(tidbuf->pages);
++	kfree(tidbuf->psets);
+ 	kfree(tidbuf);
+-	return ret > 0 ? 0 : ret;
++	kfree(tidlist);
++	return ret;
+ }
+ 
+ int hfi1_user_exp_rcv_clear(struct hfi1_filedata *fd,
 -- 
 2.39.0
 
