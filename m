@@ -2,58 +2,50 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E25DA681249
-	for <lists+stable@lfdr.de>; Mon, 30 Jan 2023 15:19:47 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C49926810EF
+	for <lists+stable@lfdr.de>; Mon, 30 Jan 2023 15:08:33 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S237562AbjA3OTp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 30 Jan 2023 09:19:45 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33190 "EHLO
+        id S237130AbjA3OIc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 30 Jan 2023 09:08:32 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50760 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237633AbjA3OTX (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 30 Jan 2023 09:19:23 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A50FC3B676;
-        Mon, 30 Jan 2023 06:18:18 -0800 (PST)
+        with ESMTP id S237133AbjA3OIb (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 30 Jan 2023 09:08:31 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C21833802F
+        for <stable@vger.kernel.org>; Mon, 30 Jan 2023 06:08:30 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 412C2B80CB4;
-        Mon, 30 Jan 2023 14:17:37 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 687F0C433D2;
-        Mon, 30 Jan 2023 14:17:35 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 5E81961086
+        for <stable@vger.kernel.org>; Mon, 30 Jan 2023 14:08:30 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1B8C8C433EF;
+        Mon, 30 Jan 2023 14:08:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1675088256;
-        bh=/JLBjvpUeGFzGaqOLac65hg0LUDi7EjcSMuQocrLXAU=;
+        s=korg; t=1675087709;
+        bh=IF909m9jF6pdyQlq+PDiqLPD0ZJ1ETp4gTpC3/O2tx4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=oywtRi7ITJLh+2dCGqSIxDsOdNGnHnYwYaUe7XS8Mk2X7AHfvmTIVFNKTSDwl1tCj
-         MWT2NmH9GOeqGsnIQDfeyiFIHM4fiaw8lSjs5iV33wVR0Kg71tu7kPYxQG3K/mWbYv
-         BW72NioYIfkAnsoPnH6Zizt+xRpr4+eKtv1qU888=
+        b=QlQCKDGIT0DBrjIDM0kBtvZIPEMH1MsY45eg2gEIkvNaLv065Kf+44SzVajyf2eSB
+         afzeP8fak72zdNN8XVW19sOjQdefTX7tk/5725i3VkUSaLYID4/sT4Lz+o08wetToK
+         lcrZBJqY5AZA44MTYsot7ybVC22IwB/WaVoHs5B4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Jann Horn <jannh@google.com>,
-        Jonathan Corbet <corbet@lwn.net>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Baolin Wang <baolin.wang@linux.alibaba.com>,
-        "Jason A. Donenfeld" <Jason@zx2c4.com>,
-        Eric Biggers <ebiggers@google.com>,
-        Huang Ying <ying.huang@intel.com>,
-        "Eric W. Biederman" <ebiederm@xmission.com>,
-        Arnd Bergmann <arnd@arndb.de>, linux-doc@vger.kernel.org,
-        Kees Cook <keescook@chromium.org>,
+        patches@lists.linux.dev, Eric Dumazet <edumazet@google.com>,
+        Jakub Kicinski <kuba@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 137/204] exit: Allow oops_limit to be disabled
-Date:   Mon, 30 Jan 2023 14:51:42 +0100
-Message-Id: <20230130134322.551323128@linuxfoundation.org>
+Subject: [PATCH 6.1 268/313] netlink: annotate data races around sk_state
+Date:   Mon, 30 Jan 2023 14:51:43 +0100
+Message-Id: <20230130134349.225784699@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.1
-In-Reply-To: <20230130134316.327556078@linuxfoundation.org>
-References: <20230130134316.327556078@linuxfoundation.org>
+In-Reply-To: <20230130134336.532886729@linuxfoundation.org>
+References: <20230130134336.532886729@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
         SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -61,60 +53,56 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kees Cook <keescook@chromium.org>
+From: Eric Dumazet <edumazet@google.com>
 
-commit de92f65719cd672f4b48397540b9f9eff67eca40 upstream.
+[ Upstream commit 9b663b5cbb15b494ef132a3c937641c90646eb73 ]
 
-In preparation for keeping oops_limit logic in sync with warn_limit,
-have oops_limit == 0 disable checking the Oops counter.
+netlink_getsockbyportid() reads sk_state while a concurrent
+netlink_connect() can change its value.
 
-Cc: Jann Horn <jannh@google.com>
-Cc: Jonathan Corbet <corbet@lwn.net>
-Cc: Andrew Morton <akpm@linux-foundation.org>
-Cc: Baolin Wang <baolin.wang@linux.alibaba.com>
-Cc: "Jason A. Donenfeld" <Jason@zx2c4.com>
-Cc: Eric Biggers <ebiggers@google.com>
-Cc: Huang Ying <ying.huang@intel.com>
-Cc: "Eric W. Biederman" <ebiederm@xmission.com>
-Cc: Arnd Bergmann <arnd@arndb.de>
-Cc: linux-doc@vger.kernel.org
-Signed-off-by: Kees Cook <keescook@chromium.org>
-Signed-off-by: Eric Biggers <ebiggers@google.com>
+Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
+Signed-off-by: Eric Dumazet <edumazet@google.com>
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- Documentation/admin-guide/sysctl/kernel.rst | 5 +++--
- kernel/exit.c                               | 2 +-
- 2 files changed, 4 insertions(+), 3 deletions(-)
+ net/netlink/af_netlink.c | 10 ++++++----
+ 1 file changed, 6 insertions(+), 4 deletions(-)
 
-diff --git a/Documentation/admin-guide/sysctl/kernel.rst b/Documentation/admin-guide/sysctl/kernel.rst
-index b6e68d6f297e..d6f1d3892e71 100644
---- a/Documentation/admin-guide/sysctl/kernel.rst
-+++ b/Documentation/admin-guide/sysctl/kernel.rst
-@@ -675,8 +675,9 @@ oops_limit
- ==========
+diff --git a/net/netlink/af_netlink.c b/net/netlink/af_netlink.c
+index a597e4dac7fd..e50671296791 100644
+--- a/net/netlink/af_netlink.c
++++ b/net/netlink/af_netlink.c
+@@ -1087,7 +1087,8 @@ static int netlink_connect(struct socket *sock, struct sockaddr *addr,
+ 		return -EINVAL;
  
- Number of kernel oopses after which the kernel should panic when
--``panic_on_oops`` is not set. Setting this to 0 or 1 has the same effect
--as setting ``panic_on_oops=1``.
-+``panic_on_oops`` is not set. Setting this to 0 disables checking
-+the count. Setting this to  1 has the same effect as setting
-+``panic_on_oops=1``. The default value is 10000.
+ 	if (addr->sa_family == AF_UNSPEC) {
+-		sk->sk_state	= NETLINK_UNCONNECTED;
++		/* paired with READ_ONCE() in netlink_getsockbyportid() */
++		WRITE_ONCE(sk->sk_state, NETLINK_UNCONNECTED);
+ 		/* dst_portid and dst_group can be read locklessly */
+ 		WRITE_ONCE(nlk->dst_portid, 0);
+ 		WRITE_ONCE(nlk->dst_group, 0);
+@@ -1111,7 +1112,8 @@ static int netlink_connect(struct socket *sock, struct sockaddr *addr,
+ 		err = netlink_autobind(sock);
  
+ 	if (err == 0) {
+-		sk->sk_state	= NETLINK_CONNECTED;
++		/* paired with READ_ONCE() in netlink_getsockbyportid() */
++		WRITE_ONCE(sk->sk_state, NETLINK_CONNECTED);
+ 		/* dst_portid and dst_group can be read locklessly */
+ 		WRITE_ONCE(nlk->dst_portid, nladdr->nl_pid);
+ 		WRITE_ONCE(nlk->dst_group, ffs(nladdr->nl_groups));
+@@ -1163,8 +1165,8 @@ static struct sock *netlink_getsockbyportid(struct sock *ssk, u32 portid)
  
- osrelease, ostype & version
-diff --git a/kernel/exit.c b/kernel/exit.c
-index f68a9c6adfc9..f6c85101dba0 100644
---- a/kernel/exit.c
-+++ b/kernel/exit.c
-@@ -941,7 +941,7 @@ void __noreturn make_task_dead(int signr)
- 	 * To make sure this can't happen, place an upper bound on how often the
- 	 * kernel may oops without panic().
- 	 */
--	if (atomic_inc_return(&oops_count) >= READ_ONCE(oops_limit))
-+	if (atomic_inc_return(&oops_count) >= READ_ONCE(oops_limit) && oops_limit)
- 		panic("Oopsed too often (kernel.oops_limit is %d)", oops_limit);
- 
- 	do_exit(signr);
+ 	/* Don't bother queuing skb if kernel socket has no input function */
+ 	nlk = nlk_sk(sock);
+-	/* dst_portid can be changed in netlink_connect() */
+-	if (sock->sk_state == NETLINK_CONNECTED &&
++	/* dst_portid and sk_state can be changed in netlink_connect() */
++	if (READ_ONCE(sock->sk_state) == NETLINK_CONNECTED &&
+ 	    READ_ONCE(nlk->dst_portid) != nlk_sk(ssk)->portid) {
+ 		sock_put(sock);
+ 		return ERR_PTR(-ECONNREFUSED);
 -- 
 2.39.0
 
