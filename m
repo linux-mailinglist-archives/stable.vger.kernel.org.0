@@ -2,43 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C416368104E
-	for <lists+stable@lfdr.de>; Mon, 30 Jan 2023 15:02:21 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 03ADA68113B
+	for <lists+stable@lfdr.de>; Mon, 30 Jan 2023 15:11:24 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236870AbjA3OCU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 30 Jan 2023 09:02:20 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42666 "EHLO
+        id S237255AbjA3OLW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 30 Jan 2023 09:11:22 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51884 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S237013AbjA3OCF (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 30 Jan 2023 09:02:05 -0500
-Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E9E333B3D5
-        for <stable@vger.kernel.org>; Mon, 30 Jan 2023 06:01:55 -0800 (PST)
+        with ESMTP id S237265AbjA3OLM (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 30 Jan 2023 09:11:12 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A02433BDAC
+        for <stable@vger.kernel.org>; Mon, 30 Jan 2023 06:11:09 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 3B6A1CE16B5
-        for <stable@vger.kernel.org>; Mon, 30 Jan 2023 14:01:54 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 00315C433EF;
-        Mon, 30 Jan 2023 14:01:51 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 407EAB8117E
+        for <stable@vger.kernel.org>; Mon, 30 Jan 2023 14:11:09 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9A022C4339E;
+        Mon, 30 Jan 2023 14:11:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1675087312;
-        bh=g1rADwtBVumM584AfBYV+dah6G7IhrkLersgHrfMTbw=;
+        s=korg; t=1675087868;
+        bh=HUrkAexcccMEp7kXG9tEI7qhMvnOIq/+Oq/eJegQM1k=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=XiJdZkD06g9RzKRhKEWpOImippbPoIBXRactWHbqXZOX0/OEF+DCQwrgtpqatWGAU
-         zpjE25fPJRtSFWLfUcfWXT5DoiZcaTqqMPg7Tx0Zi6CMw+bI3sy2snjqhx2kVb8gRk
-         XI90L07hM3jiZqqt54AS/ShmLY2XAUqooj//4UWY=
+        b=TKCfCCcr6FBJx6MryeX4cWY8/ziOsfJ/TQ5Le1pyr/KAjN0/C0bGkrRi0Z+/gI7KM
+         Oz2JkuRTBSUG+TUjWob8dJiVv4mFecy4ihukSdpJ0gY3T67uIsLJubtqP+0YBitmC1
+         zjRWNDJpgvmSdr+Yf4M02nvui/YVxVNsypMvn2Jc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Kan Liang <kan.liang@linux.intel.com>,
-        Ingo Molnar <mingo@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 165/313] perf/x86/intel/uncore: Add Emerald Rapids
+        patches@lists.linux.dev, Sudheesh Mavila <sudheesh.mavila@amd.com>,
+        Raju Rangoju <Raju.Rangoju@amd.com>,
+        Shyam Sundar S K <Shyam-sundar.S-k@amd.com>,
+        Jakub Kicinski <kuba@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.15 035/204] amd-xgbe: Delay AN timeout during KR training
 Date:   Mon, 30 Jan 2023 14:50:00 +0100
-Message-Id: <20230130134344.347480559@linuxfoundation.org>
+Message-Id: <20230130134317.855997645@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.1
-In-Reply-To: <20230130134336.532886729@linuxfoundation.org>
-References: <20230130134336.532886729@linuxfoundation.org>
+In-Reply-To: <20230130134316.327556078@linuxfoundation.org>
+References: <20230130134316.327556078@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -52,34 +55,98 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kan Liang <kan.liang@linux.intel.com>
+From: Raju Rangoju <Raju.Rangoju@amd.com>
 
-[ Upstream commit 5268a2842066c227e6ccd94bac562f1e1000244f ]
+[ Upstream commit 926446ae24c03311a480fb96eb78f0ce7ea6d091 ]
 
->From the perspective of the uncore PMU, the new Emerald Rapids is the
-same as the Sapphire Rapids. The only difference is the event list,
-which will be supported in the perf tool later.
+AN restart triggered during KR training not only aborts the KR training
+process but also move the HW to unstable state. Driver has to wait upto
+500ms or until the KR training is completed before restarting AN cycle.
 
-Signed-off-by: Kan Liang <kan.liang@linux.intel.com>
-Signed-off-by: Ingo Molnar <mingo@kernel.org>
-Link: https://lore.kernel.org/r/20230106160449.3566477-4-kan.liang@linux.intel.com
+Fixes: 7c12aa08779c ("amd-xgbe: Move the PHY support into amd-xgbe")
+Co-developed-by: Sudheesh Mavila <sudheesh.mavila@amd.com>
+Signed-off-by: Sudheesh Mavila <sudheesh.mavila@amd.com>
+Signed-off-by: Raju Rangoju <Raju.Rangoju@amd.com>
+Acked-by: Shyam Sundar S K <Shyam-sundar.S-k@amd.com>
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/x86/events/intel/uncore.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/net/ethernet/amd/xgbe/xgbe-mdio.c | 24 +++++++++++++++++++++++
+ drivers/net/ethernet/amd/xgbe/xgbe.h      |  2 ++
+ 2 files changed, 26 insertions(+)
 
-diff --git a/arch/x86/events/intel/uncore.c b/arch/x86/events/intel/uncore.c
-index 6f1ccc57a692..459b1aafd4d4 100644
---- a/arch/x86/events/intel/uncore.c
-+++ b/arch/x86/events/intel/uncore.c
-@@ -1833,6 +1833,7 @@ static const struct x86_cpu_id intel_uncore_match[] __initconst = {
- 	X86_MATCH_INTEL_FAM6_MODEL(RAPTORLAKE_P,	&adl_uncore_init),
- 	X86_MATCH_INTEL_FAM6_MODEL(RAPTORLAKE_S,	&adl_uncore_init),
- 	X86_MATCH_INTEL_FAM6_MODEL(SAPPHIRERAPIDS_X,	&spr_uncore_init),
-+	X86_MATCH_INTEL_FAM6_MODEL(EMERALDRAPIDS_X,	&spr_uncore_init),
- 	X86_MATCH_INTEL_FAM6_MODEL(ATOM_TREMONT_D,	&snr_uncore_init),
- 	{},
- };
+diff --git a/drivers/net/ethernet/amd/xgbe/xgbe-mdio.c b/drivers/net/ethernet/amd/xgbe/xgbe-mdio.c
+index 0c5c1b155683..43fdd111235a 100644
+--- a/drivers/net/ethernet/amd/xgbe/xgbe-mdio.c
++++ b/drivers/net/ethernet/amd/xgbe/xgbe-mdio.c
+@@ -496,6 +496,7 @@ static enum xgbe_an xgbe_an73_tx_training(struct xgbe_prv_data *pdata,
+ 	reg |= XGBE_KR_TRAINING_ENABLE;
+ 	reg |= XGBE_KR_TRAINING_START;
+ 	XMDIO_WRITE(pdata, MDIO_MMD_PMAPMD, MDIO_PMA_10GBR_PMD_CTRL, reg);
++	pdata->kr_start_time = jiffies;
+ 
+ 	netif_dbg(pdata, link, pdata->netdev,
+ 		  "KR training initiated\n");
+@@ -632,6 +633,8 @@ static enum xgbe_an xgbe_an73_incompat_link(struct xgbe_prv_data *pdata)
+ 
+ 	xgbe_switch_mode(pdata);
+ 
++	pdata->an_result = XGBE_AN_READY;
++
+ 	xgbe_an_restart(pdata);
+ 
+ 	return XGBE_AN_INCOMPAT_LINK;
+@@ -1275,9 +1278,30 @@ static bool xgbe_phy_aneg_done(struct xgbe_prv_data *pdata)
+ static void xgbe_check_link_timeout(struct xgbe_prv_data *pdata)
+ {
+ 	unsigned long link_timeout;
++	unsigned long kr_time;
++	int wait;
+ 
+ 	link_timeout = pdata->link_check + (XGBE_LINK_TIMEOUT * HZ);
+ 	if (time_after(jiffies, link_timeout)) {
++		if ((xgbe_cur_mode(pdata) == XGBE_MODE_KR) &&
++		    pdata->phy.autoneg == AUTONEG_ENABLE) {
++			/* AN restart should not happen while KR training is in progress.
++			 * The while loop ensures no AN restart during KR training,
++			 * waits up to 500ms and AN restart is triggered only if KR
++			 * training is failed.
++			 */
++			wait = XGBE_KR_TRAINING_WAIT_ITER;
++			while (wait--) {
++				kr_time = pdata->kr_start_time +
++					  msecs_to_jiffies(XGBE_AN_MS_TIMEOUT);
++				if (time_after(jiffies, kr_time))
++					break;
++				/* AN restart is not required, if AN result is COMPLETE */
++				if (pdata->an_result == XGBE_AN_COMPLETE)
++					return;
++				usleep_range(10000, 11000);
++			}
++		}
+ 		netif_dbg(pdata, link, pdata->netdev, "AN link timeout\n");
+ 		xgbe_phy_config_aneg(pdata);
+ 	}
+diff --git a/drivers/net/ethernet/amd/xgbe/xgbe.h b/drivers/net/ethernet/amd/xgbe/xgbe.h
+index 3305979a9f7c..e0b8f3c4cc0b 100644
+--- a/drivers/net/ethernet/amd/xgbe/xgbe.h
++++ b/drivers/net/ethernet/amd/xgbe/xgbe.h
+@@ -289,6 +289,7 @@
+ /* Auto-negotiation */
+ #define XGBE_AN_MS_TIMEOUT		500
+ #define XGBE_LINK_TIMEOUT		5
++#define XGBE_KR_TRAINING_WAIT_ITER	50
+ 
+ #define XGBE_SGMII_AN_LINK_STATUS	BIT(1)
+ #define XGBE_SGMII_AN_LINK_SPEED	(BIT(2) | BIT(3))
+@@ -1253,6 +1254,7 @@ struct xgbe_prv_data {
+ 	unsigned int parallel_detect;
+ 	unsigned int fec_ability;
+ 	unsigned long an_start;
++	unsigned long kr_start_time;
+ 	enum xgbe_an_mode an_mode;
+ 
+ 	/* I2C support */
 -- 
 2.39.0
 
