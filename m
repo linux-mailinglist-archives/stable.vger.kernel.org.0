@@ -2,32 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B0F3768102E
-	for <lists+stable@lfdr.de>; Mon, 30 Jan 2023 15:01:14 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6F81768102F
+	for <lists+stable@lfdr.de>; Mon, 30 Jan 2023 15:01:15 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236892AbjA3OBN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 30 Jan 2023 09:01:13 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41966 "EHLO
+        id S236931AbjA3OBO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 30 Jan 2023 09:01:14 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42668 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236932AbjA3OBF (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 30 Jan 2023 09:01:05 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 899A411172
-        for <stable@vger.kernel.org>; Mon, 30 Jan 2023 06:00:22 -0800 (PST)
+        with ESMTP id S236945AbjA3OBG (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 30 Jan 2023 09:01:06 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7313238E82
+        for <stable@vger.kernel.org>; Mon, 30 Jan 2023 06:00:24 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 3A0CFB81180
-        for <stable@vger.kernel.org>; Mon, 30 Jan 2023 14:00:21 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8D035C433D2;
-        Mon, 30 Jan 2023 14:00:19 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 0661D61049
+        for <stable@vger.kernel.org>; Mon, 30 Jan 2023 14:00:23 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 622A8C433D2;
+        Mon, 30 Jan 2023 14:00:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1675087219;
-        bh=YsN1J+aUDRJpSwKk0lDIQrE3QthGXGIKqz3QpAuQtrM=;
+        s=korg; t=1675087223;
+        bh=ClwabCaJRBJ5oOrcHjDDD6ggp9Vy0snJSewr0mS3DLg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=xSkmAv99XwFKbkEJ46HxXyTuJaarPnBVtQyLBtIi5DWR7+ibdW4jENJprtp64eJBM
-         8HYdaolKvJg1y5vpjpPq+ohY3X7TZhHSXF61LsPOeU7MDoyTHn0qRLI5zUi4fjZMGW
-         5AOOgSzbt5EWvmcjND/Z07F0pBYqfYfFlipZwjMk=
+        b=LjXObooT9zOHACQ53Rwg7RDD0vW+yrHG3QoE0Y5XaM/3tgZN6BUa0sZ+phO/o1lFp
+         ia1hOiwmQjhbh4UobwuldMGgxXCgpICFYrjgJ1U53OSnJAxQnzTsvEu3rkT7vqh0jn
+         +pwfe1BG8/abAd9783RgFqrzPutPRpTSOYcethLs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
@@ -35,9 +35,9 @@ Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         Eli Cohen <elic@nvidia.com>,
         Saeed Mahameed <saeedm@nvidia.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 107/313] net/mlx5: E-switch, Fix setting of reserved fields on MODIFY_SCHEDULING_ELEMENT
-Date:   Mon, 30 Jan 2023 14:49:02 +0100
-Message-Id: <20230130134341.635879315@linuxfoundation.org>
+Subject: [PATCH 6.1 108/313] net/mlx5e: QoS, Fix wrongfully setting parent_element_id on MODIFY_SCHEDULING_ELEMENT
+Date:   Mon, 30 Jan 2023 14:49:03 +0100
+Message-Id: <20230130134341.684372122@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.1
 In-Reply-To: <20230130134336.532886729@linuxfoundation.org>
 References: <20230130134336.532886729@linuxfoundation.org>
@@ -56,77 +56,79 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Maor Dickman <maord@nvidia.com>
 
-[ Upstream commit f51471d1935ce1f504fce6c115ce3bfbc32032b0 ]
+[ Upstream commit 4ddf77f9bc76092d268bd3af447d60d9cc62b652 ]
 
-According to HW spec element_type, element_attributes and parent_element_id fields
-should be reserved (0x0) when calling MODIFY_SCHEDULING_ELEMENT command.
+According to HW spec parent_element_id field should be reserved (0x0) when calling
+MODIFY_SCHEDULING_ELEMENT command.
 
-This patch remove initialization of these fields when calling the command.
+This patch remove the wrong initialization of reserved field, parent_element_id, on
+mlx5_qos_update_node.
 
-Fixes: bd77bf1cb595 ("net/mlx5: Add SRIOV VF max rate configuration support")
+Fixes: 214baf22870c ("net/mlx5e: Support HTB offload")
 Signed-off-by: Maor Dickman <maord@nvidia.com>
 Reviewed-by: Eli Cohen <elic@nvidia.com>
 Signed-off-by: Saeed Mahameed <saeedm@nvidia.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- .../net/ethernet/mellanox/mlx5/core/esw/qos.c  | 18 +++---------------
- 1 file changed, 3 insertions(+), 15 deletions(-)
+ drivers/net/ethernet/mellanox/mlx5/core/en/htb.c | 4 ++--
+ drivers/net/ethernet/mellanox/mlx5/core/qos.c    | 3 +--
+ drivers/net/ethernet/mellanox/mlx5/core/qos.h    | 2 +-
+ 3 files changed, 4 insertions(+), 5 deletions(-)
 
-diff --git a/drivers/net/ethernet/mellanox/mlx5/core/esw/qos.c b/drivers/net/ethernet/mellanox/mlx5/core/esw/qos.c
-index 4f8a24d84a86..75015d370922 100644
---- a/drivers/net/ethernet/mellanox/mlx5/core/esw/qos.c
-+++ b/drivers/net/ethernet/mellanox/mlx5/core/esw/qos.c
-@@ -22,15 +22,13 @@ struct mlx5_esw_rate_group {
- };
+diff --git a/drivers/net/ethernet/mellanox/mlx5/core/en/htb.c b/drivers/net/ethernet/mellanox/mlx5/core/en/htb.c
+index 6dac76fa58a3..09d441ecb9f6 100644
+--- a/drivers/net/ethernet/mellanox/mlx5/core/en/htb.c
++++ b/drivers/net/ethernet/mellanox/mlx5/core/en/htb.c
+@@ -637,7 +637,7 @@ mlx5e_htb_update_children(struct mlx5e_htb *htb, struct mlx5e_qos_node *node,
+ 		if (child->bw_share == old_bw_share)
+ 			continue;
  
- static int esw_qos_tsar_config(struct mlx5_core_dev *dev, u32 *sched_ctx,
--			       u32 parent_ix, u32 tsar_ix,
--			       u32 max_rate, u32 bw_share)
-+			       u32 tsar_ix, u32 max_rate, u32 bw_share)
+-		err_one = mlx5_qos_update_node(htb->mdev, child->hw_id, child->bw_share,
++		err_one = mlx5_qos_update_node(htb->mdev, child->bw_share,
+ 					       child->max_average_bw, child->hw_id);
+ 		if (!err && err_one) {
+ 			err = err_one;
+@@ -671,7 +671,7 @@ mlx5e_htb_node_modify(struct mlx5e_htb *htb, u16 classid, u64 rate, u64 ceil,
+ 	mlx5e_htb_convert_rate(htb, rate, node->parent, &bw_share);
+ 	mlx5e_htb_convert_ceil(htb, ceil, &max_average_bw);
+ 
+-	err = mlx5_qos_update_node(htb->mdev, node->parent->hw_id, bw_share,
++	err = mlx5_qos_update_node(htb->mdev, bw_share,
+ 				   max_average_bw, node->hw_id);
+ 	if (err) {
+ 		NL_SET_ERR_MSG_MOD(extack, "Firmware error when modifying a node.");
+diff --git a/drivers/net/ethernet/mellanox/mlx5/core/qos.c b/drivers/net/ethernet/mellanox/mlx5/core/qos.c
+index 0777be24a307..8bce730b5c5b 100644
+--- a/drivers/net/ethernet/mellanox/mlx5/core/qos.c
++++ b/drivers/net/ethernet/mellanox/mlx5/core/qos.c
+@@ -62,13 +62,12 @@ int mlx5_qos_create_root_node(struct mlx5_core_dev *mdev, u32 *id)
+ 	return mlx5_qos_create_inner_node(mdev, MLX5_QOS_DEFAULT_DWRR_UID, 0, 0, id);
+ }
+ 
+-int mlx5_qos_update_node(struct mlx5_core_dev *mdev, u32 parent_id,
++int mlx5_qos_update_node(struct mlx5_core_dev *mdev,
+ 			 u32 bw_share, u32 max_avg_bw, u32 id)
  {
+ 	u32 sched_ctx[MLX5_ST_SZ_DW(scheduling_context)] = {0};
  	u32 bitmask = 0;
  
- 	if (!MLX5_CAP_GEN(dev, qos) || !MLX5_CAP_QOS(dev, esw_scheduling))
- 		return -EOPNOTSUPP;
- 
--	MLX5_SET(scheduling_context, sched_ctx, parent_element_id, parent_ix);
- 	MLX5_SET(scheduling_context, sched_ctx, max_average_bw, max_rate);
+-	MLX5_SET(scheduling_context, sched_ctx, parent_element_id, parent_id);
  	MLX5_SET(scheduling_context, sched_ctx, bw_share, bw_share);
- 	bitmask |= MODIFY_SCHEDULING_ELEMENT_IN_MODIFY_BITMASK_MAX_AVERAGE_BW;
-@@ -51,7 +49,7 @@ static int esw_qos_group_config(struct mlx5_eswitch *esw, struct mlx5_esw_rate_g
- 	int err;
+ 	MLX5_SET(scheduling_context, sched_ctx, max_average_bw, max_avg_bw);
  
- 	err = esw_qos_tsar_config(dev, sched_ctx,
--				  esw->qos.root_tsar_ix, group->tsar_ix,
-+				  group->tsar_ix,
- 				  max_rate, bw_share);
- 	if (err)
- 		NL_SET_ERR_MSG_MOD(extack, "E-Switch modify group TSAR element failed");
-@@ -67,23 +65,13 @@ static int esw_qos_vport_config(struct mlx5_eswitch *esw,
- 				struct netlink_ext_ack *extack)
- {
- 	u32 sched_ctx[MLX5_ST_SZ_DW(scheduling_context)] = {};
--	struct mlx5_esw_rate_group *group = vport->qos.group;
- 	struct mlx5_core_dev *dev = esw->dev;
--	u32 parent_tsar_ix;
--	void *vport_elem;
- 	int err;
+diff --git a/drivers/net/ethernet/mellanox/mlx5/core/qos.h b/drivers/net/ethernet/mellanox/mlx5/core/qos.h
+index 125e4e47e6f7..624ce822b7f5 100644
+--- a/drivers/net/ethernet/mellanox/mlx5/core/qos.h
++++ b/drivers/net/ethernet/mellanox/mlx5/core/qos.h
+@@ -23,7 +23,7 @@ int mlx5_qos_create_leaf_node(struct mlx5_core_dev *mdev, u32 parent_id,
+ int mlx5_qos_create_inner_node(struct mlx5_core_dev *mdev, u32 parent_id,
+ 			       u32 bw_share, u32 max_avg_bw, u32 *id);
+ int mlx5_qos_create_root_node(struct mlx5_core_dev *mdev, u32 *id);
+-int mlx5_qos_update_node(struct mlx5_core_dev *mdev, u32 parent_id, u32 bw_share,
++int mlx5_qos_update_node(struct mlx5_core_dev *mdev, u32 bw_share,
+ 			 u32 max_avg_bw, u32 id);
+ int mlx5_qos_destroy_node(struct mlx5_core_dev *mdev, u32 id);
  
- 	if (!vport->qos.enabled)
- 		return -EIO;
- 
--	parent_tsar_ix = group ? group->tsar_ix : esw->qos.root_tsar_ix;
--	MLX5_SET(scheduling_context, sched_ctx, element_type,
--		 SCHEDULING_CONTEXT_ELEMENT_TYPE_VPORT);
--	vport_elem = MLX5_ADDR_OF(scheduling_context, sched_ctx,
--				  element_attributes);
--	MLX5_SET(vport_element, vport_elem, vport_number, vport->vport);
--
--	err = esw_qos_tsar_config(dev, sched_ctx, parent_tsar_ix, vport->qos.esw_tsar_ix,
-+	err = esw_qos_tsar_config(dev, sched_ctx, vport->qos.esw_tsar_ix,
- 				  max_rate, bw_share);
- 	if (err) {
- 		esw_warn(esw->dev,
 -- 
 2.39.0
 
