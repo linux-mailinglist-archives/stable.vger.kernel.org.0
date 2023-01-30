@@ -2,45 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id CF770681011
-	for <lists+stable@lfdr.de>; Mon, 30 Jan 2023 14:59:30 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id CB5E9681014
+	for <lists+stable@lfdr.de>; Mon, 30 Jan 2023 14:59:57 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S236939AbjA3N73 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 30 Jan 2023 08:59:29 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39762 "EHLO
+        id S236822AbjA3N7u (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 30 Jan 2023 08:59:50 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38880 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S236947AbjA3N7L (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 30 Jan 2023 08:59:11 -0500
+        with ESMTP id S236823AbjA3N7o (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 30 Jan 2023 08:59:44 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5A9C811179;
-        Mon, 30 Jan 2023 05:59:02 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 44A3C1BADA
+        for <stable@vger.kernel.org>; Mon, 30 Jan 2023 05:59:19 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 3900660FE0;
-        Mon, 30 Jan 2023 13:59:02 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id F1C8FC433EF;
-        Mon, 30 Jan 2023 13:59:00 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 6B79761034
+        for <stable@vger.kernel.org>; Mon, 30 Jan 2023 13:59:05 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5A0E0C433EF;
+        Mon, 30 Jan 2023 13:59:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1675087141;
-        bh=bQGkPhK9j4/zWMExVl339q2m/S9giFKq73ihTtHmKxY=;
+        s=korg; t=1675087144;
+        bh=SS0WzppCYlwNltGN0ZBE83Js9glLGUV2yfnXvr3ncwM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ZjxSpCGmi0ExXTzhT/uunMpnIpfbxY+gmD9wSzJI6CPjJbxg6MYfzP7cHcLfECzzg
-         5I2075jYxhdJD3LGlifi794Hmu7VmSraIWibyjIGA9kxrs0pnl65ioZxz3LYl1pQ3Q
-         dY6ljAXFyg17zSeP41M36JREax1Kyg7hZ5TowTWM=
+        b=BDbVmxWYthHHBE4dtZU3lgr+/fuxxuVWWwUjBMTwh/AG3e95rmAv3jbvY7VdrSPSv
+         4On1eGq5kBJjSFmlnonNDkWsyf3Zq9Du67neGW6XpAon6JXrM68du2r19OcEuvO942
+         GOQvjRiDdviLV59TshOR8JopRlgHKM/JvHIQHzrk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Randy Dunlap <rdunlap@infradead.org>,
-        Eli Cohen <eli@mellanox.com>,
-        Saeed Mahameed <saeedm@nvidia.com>,
-        Leon Romanovsky <leon@kernel.org>, linux-rdma@vger.kernel.org,
-        Ira Weiny <ira.weiny@intel.com>,
-        Leon Romanovsky <leonro@nvidia.com>,
+        patches@lists.linux.dev, Arnd Bergmann <arnd@arndb.de>,
+        Steven Price <steven.price@arm.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 111/313] net: mlx5: eliminate anonymous module_init & module_exit
-Date:   Mon, 30 Jan 2023 14:49:06 +0100
-Message-Id: <20230130134341.825871779@linuxfoundation.org>
+Subject: [PATCH 6.1 112/313] drm/panfrost: fix GENERIC_ATOMIC64 dependency
+Date:   Mon, 30 Jan 2023 14:49:07 +0100
+Message-Id: <20230130134341.873970888@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.1
 In-Reply-To: <20230130134336.532886729@linuxfoundation.org>
 References: <20230130134336.532886729@linuxfoundation.org>
@@ -57,74 +53,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Randy Dunlap <rdunlap@infradead.org>
+From: Arnd Bergmann <arnd@arndb.de>
 
-[ Upstream commit 2c1e1b949024989e20907b84e11a731a50778416 ]
+[ Upstream commit 6437a549ae178a3f5a5c03e983f291ebcdc2bbc7 ]
 
-Eliminate anonymous module_init() and module_exit(), which can lead to
-confusion or ambiguity when reading System.map, crashes/oops/bugs,
-or an initcall_debug log.
+On ARMv5 and earlier, a randconfig build can still run into
 
-Give each of these init and exit functions unique driver-specific
-names to eliminate the anonymous names.
+WARNING: unmet direct dependencies detected for IOMMU_IO_PGTABLE_LPAE
+  Depends on [n]: IOMMU_SUPPORT [=y] && (ARM [=y] || ARM64 || COMPILE_TEST [=y]) && !GENERIC_ATOMIC64 [=y]
+  Selected by [y]:
+  - DRM_PANFROST [=y] && HAS_IOMEM [=y] && DRM [=y] && (ARM [=y] || ARM64 || COMPILE_TEST [=y] && !GENERIC_ATOMIC64 [=y]) && MMU [=y]
 
-Example 1: (System.map)
- ffffffff832fc78c t init
- ffffffff832fc79e t init
- ffffffff832fc8f8 t init
+Rework the dependencies to always require a working cmpxchg64.
 
-Example 2: (initcall_debug log)
- calling  init+0x0/0x12 @ 1
- initcall init+0x0/0x12 returned 0 after 15 usecs
- calling  init+0x0/0x60 @ 1
- initcall init+0x0/0x60 returned 0 after 2 usecs
- calling  init+0x0/0x9a @ 1
- initcall init+0x0/0x9a returned 0 after 74 usecs
-
-Fixes: e126ba97dba9 ("mlx5: Add driver for Mellanox Connect-IB adapters")
-Signed-off-by: Randy Dunlap <rdunlap@infradead.org>
-Cc: Eli Cohen <eli@mellanox.com>
-Cc: Saeed Mahameed <saeedm@nvidia.com>
-Cc: Leon Romanovsky <leon@kernel.org>
-Cc: linux-rdma@vger.kernel.org
-Reviewed-by: Ira Weiny <ira.weiny@intel.com>
-Reviewed-by: Leon Romanovsky <leonro@nvidia.com>
-Signed-off-by: Saeed Mahameed <saeedm@nvidia.com>
+Fixes: db594ba3fcf9 ("drm/panfrost: depend on !GENERIC_ATOMIC64 when using COMPILE_TEST")
+Signed-off-by: Arnd Bergmann <arnd@arndb.de>
+Reviewed-by: Steven Price <steven.price@arm.com>
+Signed-off-by: Steven Price <steven.price@arm.com>
+Link: https://patchwork.freedesktop.org/patch/msgid/20230117164456.1591901-1-arnd@kernel.org
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/mellanox/mlx5/core/main.c | 8 ++++----
- 1 file changed, 4 insertions(+), 4 deletions(-)
+ drivers/gpu/drm/panfrost/Kconfig | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/net/ethernet/mellanox/mlx5/core/main.c b/drivers/net/ethernet/mellanox/mlx5/core/main.c
-index 00758312df06..d4db1adae3e3 100644
---- a/drivers/net/ethernet/mellanox/mlx5/core/main.c
-+++ b/drivers/net/ethernet/mellanox/mlx5/core/main.c
-@@ -2082,7 +2082,7 @@ static void mlx5_core_verify_params(void)
- 	}
- }
- 
--static int __init init(void)
-+static int __init mlx5_init(void)
- {
- 	int err;
- 
-@@ -2117,7 +2117,7 @@ static int __init init(void)
- 	return err;
- }
- 
--static void __exit cleanup(void)
-+static void __exit mlx5_cleanup(void)
- {
- 	mlx5e_cleanup();
- 	mlx5_sf_driver_unregister();
-@@ -2125,5 +2125,5 @@ static void __exit cleanup(void)
- 	mlx5_unregister_debugfs();
- }
- 
--module_init(init);
--module_exit(cleanup);
-+module_init(mlx5_init);
-+module_exit(mlx5_cleanup);
+diff --git a/drivers/gpu/drm/panfrost/Kconfig b/drivers/gpu/drm/panfrost/Kconfig
+index 079600328be1..e6403a9d66ad 100644
+--- a/drivers/gpu/drm/panfrost/Kconfig
++++ b/drivers/gpu/drm/panfrost/Kconfig
+@@ -3,7 +3,8 @@
+ config DRM_PANFROST
+ 	tristate "Panfrost (DRM support for ARM Mali Midgard/Bifrost GPUs)"
+ 	depends on DRM
+-	depends on ARM || ARM64 || (COMPILE_TEST && !GENERIC_ATOMIC64)
++	depends on ARM || ARM64 || COMPILE_TEST
++	depends on !GENERIC_ATOMIC64    # for IOMMU_IO_PGTABLE_LPAE
+ 	depends on MMU
+ 	select DRM_SCHED
+ 	select IOMMU_SUPPORT
 -- 
 2.39.0
 
