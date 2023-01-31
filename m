@@ -2,120 +2,110 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 21E56683928
-	for <lists+stable@lfdr.de>; Tue, 31 Jan 2023 23:18:09 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 070BD683A34
+	for <lists+stable@lfdr.de>; Wed,  1 Feb 2023 00:05:07 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229518AbjAaWSG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 31 Jan 2023 17:18:06 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45798 "EHLO
+        id S231272AbjAaXFF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 31 Jan 2023 18:05:05 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49326 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230249AbjAaWSE (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 31 Jan 2023 17:18:04 -0500
-Received: from qproxy6-pub.mail.unifiedlayer.com (qproxy6-pub.mail.unifiedlayer.com [69.89.23.12])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 287735A825
-        for <stable@vger.kernel.org>; Tue, 31 Jan 2023 14:17:50 -0800 (PST)
-Received: from outbound-ss-820.bluehost.com (outbound-ss-820.bluehost.com [69.89.24.241])
-        by qproxy6.mail.unifiedlayer.com (Postfix) with ESMTP id 88DF7803B5CF
-        for <stable@vger.kernel.org>; Tue, 31 Jan 2023 22:17:50 +0000 (UTC)
-Received: from cmgw11.mail.unifiedlayer.com (unknown [10.0.90.126])
-        by progateway2.mail.pro1.eigbox.com (Postfix) with ESMTP id 2D95610048559
-        for <stable@vger.kernel.org>; Tue, 31 Jan 2023 22:17:50 +0000 (UTC)
-Received: from box5620.bluehost.com ([162.241.219.59])
-        by cmsmtp with ESMTP
-        id Mywopgs6bGjYaMywopCANA; Tue, 31 Jan 2023 22:17:50 +0000
-X-Authority-Reason: nr=8
-X-Authority-Analysis: v=2.4 cv=cdgXElPM c=1 sm=1 tr=0 ts=63d9938e
- a=30941lsx5skRcbJ0JMGu9A==:117 a=30941lsx5skRcbJ0JMGu9A==:17
- a=dLZJa+xiwSxG16/P+YVxDGlgEgI=:19 a=IkcTkHD0fZMA:10:nop_charset_1
- a=RvmDmJFTN0MA:10:nop_rcvd_month_year
- a=-Ou01B_BuAIA:10:endurance_base64_authed_username_1 a=VwQbUJbxAAAA:8
- a=HaFmDPmJAAAA:8 a=GJu6-S3nnsZq6mQa6O8A:9 a=QEXdDO2ut3YA:10:nop_charset_2
- a=AjGcO6oz07-iQ99wixmX:22 a=nmWuMzfKamIsx3l42hEX:22
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=w6rz.net;
-        s=default; h=Content-Transfer-Encoding:Content-Type:MIME-Version:Date:
-        Message-ID:From:In-Reply-To:References:Cc:To:Subject:Sender:Reply-To:
-        Content-ID:Content-Description:Resent-Date:Resent-From:Resent-Sender:
-        Resent-To:Resent-Cc:Resent-Message-ID:List-Id:List-Help:List-Unsubscribe:
-        List-Subscribe:List-Post:List-Owner:List-Archive;
-        bh=ogul/3P+0fBr842LZyIYdpdnHH6FmcaSD6blNeYVVhY=; b=m6ADB0NIvJRyJEVsqlAM0keJDW
-        psmgkvli3Q8eJSXp9UdLf3JApohN4ExTzTqVHklQCzOIjxQT1J9TNiFtxGx5OXM5XVRhxMu86g0rU
-        aKmX4Ag1NmzLi7m6ODYQPPVmj7MaDtHcN3LSjyeQJRSUJzcdzeP5RM94ABJvlV8Wj/4iEoB73ulTj
-        x6epqBVu4rwqdwDhdUx9lMnLhGLHwiFhAQvnPKysDVUWxzUbxiZaNXnRmAosi1sWKu73O4dVVrDth
-        PLgVZxIc55HRYTmKnPCCcbG4GYhawf6KJOokCjrHAJ8puIvIVSA3NctnDAsa4ZBZF6gU4zljFOBh/
-        2KqXZpCg==;
-Received: from c-73-162-232-9.hsd1.ca.comcast.net ([73.162.232.9]:53154 helo=[10.0.1.47])
-        by box5620.bluehost.com with esmtpsa  (TLS1.2) tls TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256
-        (Exim 4.95)
-        (envelope-from <re@w6rz.net>)
-        id 1pMywn-000hUQ-B4;
-        Tue, 31 Jan 2023 15:17:49 -0700
-Subject: Re: [PATCH 6.1 000/306] 6.1.9-rc3 review
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org
-Cc:     patches@lists.linux.dev, linux-kernel@vger.kernel.org,
-        torvalds@linux-foundation.org, akpm@linux-foundation.org,
-        linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
-        lkft-triage@lists.linaro.org, pavel@denx.de, jonathanh@nvidia.com,
-        f.fainelli@gmail.com, sudipm.mukherjee@gmail.com,
-        srw@sladewatkins.net, rwarsow@gmx.de
-References: <20230131072621.746783417@linuxfoundation.org>
-In-Reply-To: <20230131072621.746783417@linuxfoundation.org>
-From:   Ron Economos <re@w6rz.net>
-Message-ID: <03c296a8-6267-e73f-d10a-c0557cd26d11@w6rz.net>
-Date:   Tue, 31 Jan 2023 14:17:45 -0800
-User-Agent: Mozilla/5.0 (X11; Linux armv7l; rv:78.0) Gecko/20100101
- Thunderbird/78.14.0
-MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Transfer-Encoding: 7bit
-Content-Language: en-US
-X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
-X-AntiAbuse: Primary Hostname - box5620.bluehost.com
-X-AntiAbuse: Original Domain - vger.kernel.org
-X-AntiAbuse: Originator/Caller UID/GID - [47 12] / [47 12]
-X-AntiAbuse: Sender Address Domain - w6rz.net
-X-BWhitelist: no
-X-Source-IP: 73.162.232.9
-X-Source-L: No
-X-Exim-ID: 1pMywn-000hUQ-B4
-X-Source: 
-X-Source-Args: 
-X-Source-Dir: 
-X-Source-Sender: c-73-162-232-9.hsd1.ca.comcast.net ([10.0.1.47]) [73.162.232.9]:53154
-X-Source-Auth: re@w6rz.net
-X-Email-Count: 2
-X-Source-Cap: d3NpeHJ6bmU7d3NpeHJ6bmU7Ym94NTYyMC5ibHVlaG9zdC5jb20=
-X-Local-Domain: yes
-X-Spam-Status: No, score=-2.2 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,NICE_REPLY_A,RCVD_IN_DNSWL_NONE,
-        RCVD_IN_MSPIKE_H2,SPF_HELO_NONE,SPF_PASS autolearn=ham
-        autolearn_force=no version=3.4.6
+        with ESMTP id S229637AbjAaXFD (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 31 Jan 2023 18:05:03 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AE1CD46727;
+        Tue, 31 Jan 2023 15:05:02 -0800 (PST)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 627E1B81D75;
+        Tue, 31 Jan 2023 23:05:01 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id F0FADC433D2;
+        Tue, 31 Jan 2023 23:04:59 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linux-foundation.org;
+        s=korg; t=1675206300;
+        bh=QYQS1A/J1Iclq4udrWsNEzAhunY/lgnhAR71yi4vVhc=;
+        h=Date:To:From:Subject:From;
+        b=CvKVvXYk/koyYCSoqQKcKzeA8I81XfPlGvPNlSgYYdbwWCglSPTS8dBXx1Xax+d1F
+         jI7Z2Ppv3hZRcCrYzUbupXqoeqRL2KpS8n43pjbP7bVQDLKdTSUwJnXteC62Wd/fAI
+         lpZZBu9IrOXL6QVXC/zaTPpp2yaXTRKxAvd/t/Og=
+Date:   Tue, 31 Jan 2023 15:04:59 -0800
+To:     mm-commits@vger.kernel.org, xemul@parallels.com,
+        viro@zeniv.linux.org.uk, stable@vger.kernel.org, jannh@google.com,
+        bcrl@kvack.org, sethjenkins@google.com, akpm@linux-foundation.org
+From:   Andrew Morton <akpm@linux-foundation.org>
+Subject: [to-be-updated] aio-fix-mremap-after-fork-null-deref.patch removed from -mm tree
+Message-Id: <20230131230459.F0FADC433D2@smtp.kernel.org>
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,SPF_HELO_NONE,
+        SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 1/30/23 11:34 PM, Greg Kroah-Hartman wrote:
-> This is the start of the stable review cycle for the 6.1.9 release.
-> There are 306 patches in this series, all will be posted as a response
-> to this one.  If anyone has any issues with these being applied, please
-> let me know.
->
-> Responses should be made by Thu, 02 Feb 2023 07:25:23 +0000.
-> Anything received after that time might be too late.
->
-> The whole patch series can be found in one patch at:
-> 	https://www.kernel.org/pub/linux/kernel/v6.x/stable-review/patch-6.1.9-rc3.gz
-> or in the git tree and branch at:
-> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-6.1.y
-> and the diffstat can be found below.
->
-> thanks,
->
-> greg k-h
 
-Built and booted successfully on RISC-V RV64 (HiFive Unmatched).
+The quilt patch titled
+     Subject: aio: fix mremap after fork null-deref
+has been removed from the -mm tree.  Its filename was
+     aio-fix-mremap-after-fork-null-deref.patch
 
-Tested-by: Ron Economos <re@w6rz.net>
+This patch was dropped because an updated version will be merged
+
+------------------------------------------------------
+From: Seth Jenkins <sethjenkins@google.com>
+Subject: aio: fix mremap after fork null-deref
+Date: Fri, 4 Nov 2022 17:25:19 -0400
+
+Commit e4a0d3e720e7 ("aio: Make it possible to remap aio ring") introduced
+a null-deref if mremap is called on an old aio mapping after fork as
+mm->ioctx_table will be set to NULL.
+
+Link: https://lkml.kernel.org/r/20221104212519.538108-1-sethjenkins@google.com
+Fixes: e4a0d3e720e7 ("aio: Make it possible to remap aio ring")
+Signed-off-by: Seth Jenkins <sethjenkins@google.com>
+Cc: Alexander Viro <viro@zeniv.linux.org.uk>
+Cc: Benjamin LaHaise <bcrl@kvack.org>
+Cc: Jann Horn <jannh@google.com>
+Cc: Pavel Emelyanov <xemul@parallels.com>
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+---
+
+ fs/aio.c |   18 ++++++++++--------
+ 1 file changed, 10 insertions(+), 8 deletions(-)
+
+--- a/fs/aio.c~aio-fix-mremap-after-fork-null-deref
++++ a/fs/aio.c
+@@ -361,16 +361,18 @@ static int aio_ring_mremap(struct vm_are
+ 	spin_lock(&mm->ioctx_lock);
+ 	rcu_read_lock();
+ 	table = rcu_dereference(mm->ioctx_table);
+-	for (i = 0; i < table->nr; i++) {
+-		struct kioctx *ctx;
++	if (table) {
++		for (i = 0; i < table->nr; i++) {
++			struct kioctx *ctx;
+ 
+-		ctx = rcu_dereference(table->table[i]);
+-		if (ctx && ctx->aio_ring_file == file) {
+-			if (!atomic_read(&ctx->dead)) {
+-				ctx->user_id = ctx->mmap_base = vma->vm_start;
+-				res = 0;
++			ctx = rcu_dereference(table->table[i]);
++			if (ctx && ctx->aio_ring_file == file) {
++				if (!atomic_read(&ctx->dead)) {
++					ctx->user_id = ctx->mmap_base = vma->vm_start;
++					res = 0;
++				}
++				break;
+ 			}
+-			break;
+ 		}
+ 	}
+ 
+_
+
+Patches currently in -mm which might be from sethjenkins@google.com are
+
 
