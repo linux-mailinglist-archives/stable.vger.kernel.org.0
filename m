@@ -2,120 +2,120 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 7C58168389C
-	for <lists+stable@lfdr.de>; Tue, 31 Jan 2023 22:27:59 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 21E56683928
+	for <lists+stable@lfdr.de>; Tue, 31 Jan 2023 23:18:09 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232183AbjAaV1y (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 31 Jan 2023 16:27:54 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50976 "EHLO
+        id S229518AbjAaWSG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 31 Jan 2023 17:18:06 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45798 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232214AbjAaV1t (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 31 Jan 2023 16:27:49 -0500
-Received: from mail-pg1-x535.google.com (mail-pg1-x535.google.com [IPv6:2607:f8b0:4864:20::535])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DB0725618F;
-        Tue, 31 Jan 2023 13:27:46 -0800 (PST)
-Received: by mail-pg1-x535.google.com with SMTP id 78so11035266pgb.8;
-        Tue, 31 Jan 2023 13:27:46 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:sender:from:to:cc:subject:date:message-id
-         :reply-to;
-        bh=AzK7zbHqMHdeBmanV3yZyUjocxSjOS0P2zK4GlPV5fg=;
-        b=D6wvD2En7fL/J4jxZGOIQBNq1r2srmO4HOmSSPNUtrliYfnfu+LBoGk5BxIcMiuq2I
-         +zwJ+mRwxgYtBtoDsGT1p7nE5JifYqFUf8hP1sgEtkOKyHfWhW4umWi9ewBl4h6lpann
-         1FKRMTut+C+QYs/Mg9T/XGdMWHxAvc4vm7coGsd3WvOgoQt73PDTLpV3MfO+X+lC2HD/
-         QNpAi6vLbe5SEo1NIxJIxqYOYG4hgDKEIE7e8sbyQhb8Yes6j5hPRgz/GjUPNoMDssZL
-         IfTNvheB70L2NHCzBcWcOzJp3YlrWN80ciuNtnhhN2fCo38Ky5KInmRB9oeQm46P5CX+
-         WVnQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:sender:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=AzK7zbHqMHdeBmanV3yZyUjocxSjOS0P2zK4GlPV5fg=;
-        b=6YN+Wct8BdUN/kT/tPaAhOxv0QX3gGAPiyGCpIXh0VS2nANxzdChcTdyHeEL7AoI8k
-         B1pmLVfHVlIx/VHBopABxBSjinwofhX5Tne0P4DOnLlR9FHZ2EGE584s2wlAhvWs/JoO
-         vDMi7plbtRR8se3VgzQ+4nZsKO5YeWJVI137PqkdUuNRS4292df026XnBCci7pNVoXvE
-         9bCq/mJZ/QOUAEAOqW0HpN5H6yVhiA4Lt96VIa/eEsdi3t7MvcNuH+q9da03pNtYcOCp
-         CfRSPdZQ9Tsfc2q3mJDdEzXyiqLfeShghq2R8t6j9MBRjHJFfFirWPa5bJCGLbkXaDSR
-         glLA==
-X-Gm-Message-State: AO0yUKU8ZF9dr9W733ACgh7KdsDFgLjCsYpxU37Zt7ID71+3Si/py76l
-        7Z5K4K99sEKpbkriHVwvLjY=
-X-Google-Smtp-Source: AK7set+AB9728U0/MEi1UBcwr36wg/R1RBbFv281U6594rkVfdnrCQy9OnZENcOw/xOdf9mhMZ4riA==
-X-Received: by 2002:a62:7b0e:0:b0:593:a131:3692 with SMTP id w14-20020a627b0e000000b00593a1313692mr4489pfc.13.1675200466095;
-        Tue, 31 Jan 2023 13:27:46 -0800 (PST)
-Received: from localhost ([2620:10d:c090:400::5:1ad6])
-        by smtp.gmail.com with ESMTPSA id j14-20020a62e90e000000b00590684f016bsm9913968pfh.137.2023.01.31.13.27.45
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 31 Jan 2023 13:27:45 -0800 (PST)
-Sender: Tejun Heo <htejun@gmail.com>
-Date:   Tue, 31 Jan 2023 11:27:44 -1000
-From:   Tejun Heo <tj@kernel.org>
-To:     Matthew Wilcox <willy@infradead.org>
-Cc:     Eric Biggers <ebiggers@kernel.org>,
-        "Theodore Y . Ts'o" <tytso@mit.edu>,
-        Jaegeuk Kim <jaegeuk@kernel.org>,
-        linux-fscrypt@vger.kernel.org, linux-fsdevel@vger.kernel.org,
-        linux-ext4@vger.kernel.org, linux-f2fs-devel@lists.sourceforge.net,
-        stable@vger.kernel.org, cgroups@vger.kernel.org
-Subject: Re: [PATCH] fscrypt: Copy the memcg information to the ciphertext
- page
-Message-ID: <Y9mH0PCcZoGPryXw@slm.duckdns.org>
-References: <20230129121851.2248378-1-willy@infradead.org>
- <Y9a2m8uvmXmCVYvE@sol.localdomain>
- <Y9bkoasmAmtQ2nSV@casper.infradead.org>
+        with ESMTP id S230249AbjAaWSE (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 31 Jan 2023 17:18:04 -0500
+Received: from qproxy6-pub.mail.unifiedlayer.com (qproxy6-pub.mail.unifiedlayer.com [69.89.23.12])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 287735A825
+        for <stable@vger.kernel.org>; Tue, 31 Jan 2023 14:17:50 -0800 (PST)
+Received: from outbound-ss-820.bluehost.com (outbound-ss-820.bluehost.com [69.89.24.241])
+        by qproxy6.mail.unifiedlayer.com (Postfix) with ESMTP id 88DF7803B5CF
+        for <stable@vger.kernel.org>; Tue, 31 Jan 2023 22:17:50 +0000 (UTC)
+Received: from cmgw11.mail.unifiedlayer.com (unknown [10.0.90.126])
+        by progateway2.mail.pro1.eigbox.com (Postfix) with ESMTP id 2D95610048559
+        for <stable@vger.kernel.org>; Tue, 31 Jan 2023 22:17:50 +0000 (UTC)
+Received: from box5620.bluehost.com ([162.241.219.59])
+        by cmsmtp with ESMTP
+        id Mywopgs6bGjYaMywopCANA; Tue, 31 Jan 2023 22:17:50 +0000
+X-Authority-Reason: nr=8
+X-Authority-Analysis: v=2.4 cv=cdgXElPM c=1 sm=1 tr=0 ts=63d9938e
+ a=30941lsx5skRcbJ0JMGu9A==:117 a=30941lsx5skRcbJ0JMGu9A==:17
+ a=dLZJa+xiwSxG16/P+YVxDGlgEgI=:19 a=IkcTkHD0fZMA:10:nop_charset_1
+ a=RvmDmJFTN0MA:10:nop_rcvd_month_year
+ a=-Ou01B_BuAIA:10:endurance_base64_authed_username_1 a=VwQbUJbxAAAA:8
+ a=HaFmDPmJAAAA:8 a=GJu6-S3nnsZq6mQa6O8A:9 a=QEXdDO2ut3YA:10:nop_charset_2
+ a=AjGcO6oz07-iQ99wixmX:22 a=nmWuMzfKamIsx3l42hEX:22
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=w6rz.net;
+        s=default; h=Content-Transfer-Encoding:Content-Type:MIME-Version:Date:
+        Message-ID:From:In-Reply-To:References:Cc:To:Subject:Sender:Reply-To:
+        Content-ID:Content-Description:Resent-Date:Resent-From:Resent-Sender:
+        Resent-To:Resent-Cc:Resent-Message-ID:List-Id:List-Help:List-Unsubscribe:
+        List-Subscribe:List-Post:List-Owner:List-Archive;
+        bh=ogul/3P+0fBr842LZyIYdpdnHH6FmcaSD6blNeYVVhY=; b=m6ADB0NIvJRyJEVsqlAM0keJDW
+        psmgkvli3Q8eJSXp9UdLf3JApohN4ExTzTqVHklQCzOIjxQT1J9TNiFtxGx5OXM5XVRhxMu86g0rU
+        aKmX4Ag1NmzLi7m6ODYQPPVmj7MaDtHcN3LSjyeQJRSUJzcdzeP5RM94ABJvlV8Wj/4iEoB73ulTj
+        x6epqBVu4rwqdwDhdUx9lMnLhGLHwiFhAQvnPKysDVUWxzUbxiZaNXnRmAosi1sWKu73O4dVVrDth
+        PLgVZxIc55HRYTmKnPCCcbG4GYhawf6KJOokCjrHAJ8puIvIVSA3NctnDAsa4ZBZF6gU4zljFOBh/
+        2KqXZpCg==;
+Received: from c-73-162-232-9.hsd1.ca.comcast.net ([73.162.232.9]:53154 helo=[10.0.1.47])
+        by box5620.bluehost.com with esmtpsa  (TLS1.2) tls TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256
+        (Exim 4.95)
+        (envelope-from <re@w6rz.net>)
+        id 1pMywn-000hUQ-B4;
+        Tue, 31 Jan 2023 15:17:49 -0700
+Subject: Re: [PATCH 6.1 000/306] 6.1.9-rc3 review
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        stable@vger.kernel.org
+Cc:     patches@lists.linux.dev, linux-kernel@vger.kernel.org,
+        torvalds@linux-foundation.org, akpm@linux-foundation.org,
+        linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
+        lkft-triage@lists.linaro.org, pavel@denx.de, jonathanh@nvidia.com,
+        f.fainelli@gmail.com, sudipm.mukherjee@gmail.com,
+        srw@sladewatkins.net, rwarsow@gmx.de
+References: <20230131072621.746783417@linuxfoundation.org>
+In-Reply-To: <20230131072621.746783417@linuxfoundation.org>
+From:   Ron Economos <re@w6rz.net>
+Message-ID: <03c296a8-6267-e73f-d10a-c0557cd26d11@w6rz.net>
+Date:   Tue, 31 Jan 2023 14:17:45 -0800
+User-Agent: Mozilla/5.0 (X11; Linux armv7l; rv:78.0) Gecko/20100101
+ Thunderbird/78.14.0
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Y9bkoasmAmtQ2nSV@casper.infradead.org>
-X-Spam-Status: No, score=-1.5 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_EF,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
-        HEADER_FROM_DIFFERENT_DOMAINS,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,
-        SPF_PASS autolearn=no autolearn_force=no version=3.4.6
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Transfer-Encoding: 7bit
+Content-Language: en-US
+X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
+X-AntiAbuse: Primary Hostname - box5620.bluehost.com
+X-AntiAbuse: Original Domain - vger.kernel.org
+X-AntiAbuse: Originator/Caller UID/GID - [47 12] / [47 12]
+X-AntiAbuse: Sender Address Domain - w6rz.net
+X-BWhitelist: no
+X-Source-IP: 73.162.232.9
+X-Source-L: No
+X-Exim-ID: 1pMywn-000hUQ-B4
+X-Source: 
+X-Source-Args: 
+X-Source-Dir: 
+X-Source-Sender: c-73-162-232-9.hsd1.ca.comcast.net ([10.0.1.47]) [73.162.232.9]:53154
+X-Source-Auth: re@w6rz.net
+X-Email-Count: 2
+X-Source-Cap: d3NpeHJ6bmU7d3NpeHJ6bmU7Ym94NTYyMC5ibHVlaG9zdC5jb20=
+X-Local-Domain: yes
+X-Spam-Status: No, score=-2.2 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,NICE_REPLY_A,RCVD_IN_DNSWL_NONE,
+        RCVD_IN_MSPIKE_H2,SPF_HELO_NONE,SPF_PASS autolearn=ham
+        autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hello,
+On 1/30/23 11:34 PM, Greg Kroah-Hartman wrote:
+> This is the start of the stable review cycle for the 6.1.9 release.
+> There are 306 patches in this series, all will be posted as a response
+> to this one.  If anyone has any issues with these being applied, please
+> let me know.
+>
+> Responses should be made by Thu, 02 Feb 2023 07:25:23 +0000.
+> Anything received after that time might be too late.
+>
+> The whole patch series can be found in one patch at:
+> 	https://www.kernel.org/pub/linux/kernel/v6.x/stable-review/patch-6.1.9-rc3.gz
+> or in the git tree and branch at:
+> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-6.1.y
+> and the diffstat can be found below.
+>
+> thanks,
+>
+> greg k-h
 
-On Sun, Jan 29, 2023 at 09:26:57PM +0000, Matthew Wilcox wrote:
-> > > diff --git a/fs/crypto/crypto.c b/fs/crypto/crypto.c
-> > > index e78be66bbf01..a4e76f96f291 100644
-> > > --- a/fs/crypto/crypto.c
-> > > +++ b/fs/crypto/crypto.c
-> > > @@ -205,6 +205,9 @@ struct page *fscrypt_encrypt_pagecache_blocks(struct page *page,
-> > >  	}
-> > >  	SetPagePrivate(ciphertext_page);
-> > >  	set_page_private(ciphertext_page, (unsigned long)page);
-> > > +#ifdef CONFIG_MEMCG
-> > > +	ciphertext_page->memcg_data = page->memcg_data;
-> > > +#endif
-> > >  	return ciphertext_page;
-> > >  }
-> > 
-> > Nothing outside mm/ and include/linux/memcontrol.h does anything with memcg_data
-> > directly.  Are you sure this is the right thing to do here?
-> 
-> Nope ;-)  Happy to hear from people who know more about cgroups than I
-> do.  Adding some more ccs.
-> 
-> > Also, this patch causes the following:
-> 
-> Oops.  Clearly memcg_data needs to be set to NULL before we free it.
+Built and booted successfully on RISC-V RV64 (HiFive Unmatched).
 
-These can usually be handled by explicitly associating the bio's to the
-desired cgroups using one of bio_associate_blkg*() or
-bio_clone_blkg_association(). It is possible to go through memcg ownership
-too using set_active_memcg() so that the page is owned by the target cgroup;
-however, the page ownership doesn't directly map to IO ownership as the
-relationship depends on the type of the page (e.g. IO ownership for
-pagecache writeback is determined per-inode, not per-page). If the in-flight
-pages are limited, it probably is better to set bio association directly.
+Tested-by: Ron Economos <re@w6rz.net>
 
-Thanks.
-
--- 
-tejun
