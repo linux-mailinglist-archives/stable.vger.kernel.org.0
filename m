@@ -2,80 +2,130 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 886986825EC
-	for <lists+stable@lfdr.de>; Tue, 31 Jan 2023 08:54:21 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5348B682854
+	for <lists+stable@lfdr.de>; Tue, 31 Jan 2023 10:12:07 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229787AbjAaHyT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 31 Jan 2023 02:54:19 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55610 "EHLO
+        id S232373AbjAaJLt (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 31 Jan 2023 04:11:49 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35356 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230273AbjAaHyS (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 31 Jan 2023 02:54:18 -0500
-Received: from mout.gmx.net (mout.gmx.net [212.227.17.20])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DC39029406;
-        Mon, 30 Jan 2023 23:54:10 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=gmx.de; s=s31663417;
-        t=1675151649; bh=mD8CL799/ivFKlFLLXZUVe+X80GvHc8yo2ph30a3qFk=;
-        h=X-UI-Sender-Class:Date:From:To:Cc:Subject;
-        b=H3E9fjzTJOvLaPG7uDuB1U/x6lt/GUk4eWscD0xFSyTP1lUkAQQE29oANo97f1/l5
-         Y7Af0x2/GR9m49unhtGKeLD7By+n9CWvzfB/SiekpMq5vXv4TvwgQZwEdugxIDfHT/
-         cnhKwfl7Ox/EWTopVmNYClGFeS/bYiAMfkb5Sc4tkuWszj43y9SWJ3MTIGooBRfqdm
-         2Q/JjuGv7G4e0AO8YBoJXGLM4T14mDfuuhOVrSRzes/dft2rRgT4mjmP7V2qkwcKI9
-         FB7Q7u5KtwraAOqG1u42iST1mOCTVyTc8/dgLzJl7fo68lpBYAuACb/bBe3bHmVJgs
-         eyGsK6tpewCFg==
-X-UI-Sender-Class: 724b4f7f-cbec-4199-ad4e-598c01a50d3a
-Received: from [192.168.100.20] ([46.142.35.76]) by mail.gmx.net (mrgmx104
- [212.227.17.168]) with ESMTPSA (Nemesis) id 1M89L1-1pJCy33ehX-005KWc; Tue, 31
- Jan 2023 08:54:08 +0100
-Message-ID: <4563b862-b0c0-390c-9212-89cf7f5d8e45@gmx.de>
-Date:   Tue, 31 Jan 2023 08:54:08 +0100
+        with ESMTP id S232430AbjAaJLa (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 31 Jan 2023 04:11:30 -0500
+X-Greylist: delayed 583 seconds by postgrey-1.37 at lindbergh.monkeyblade.net; Tue, 31 Jan 2023 01:08:30 PST
+Received: from mail.8bytes.org (mail.8bytes.org [85.214.250.239])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTP id 582F24B185;
+        Tue, 31 Jan 2023 01:08:30 -0800 (PST)
+Received: from cap.home.8bytes.org (p5b006afb.dip0.t-ipconnect.de [91.0.106.251])
+        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+         key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
+        (No client certificate requested)
+        by mail.8bytes.org (Postfix) with ESMTPSA id 0403F22407A;
+        Tue, 31 Jan 2023 09:57:20 +0100 (CET)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=8bytes.org;
+        s=default; t=1675155440;
+        bh=tjpmrJmEC8/t0L/DgQl6lz3ODpFwS2ZQUFHcwjQbBD4=;
+        h=From:To:Cc:Subject:Date:From;
+        b=G4EJSS3ZR19gw9wllrj689Nrveho1wdJgPwWYf6gmIAFBmGd4SNBbBS2/zGqwo6mj
+         ejnOjzP2RB+vZKyFmZ7T90e/UtIqDerJ1gMjDXjok6JXT9bsHe+mlkjc2ORkZi31Oy
+         TdLqsoldJbbWY2TUTL/w3Z11aV+GhCx5+70y+oysVX6Y/hkLHD+56Y6n+BNGDRUrVf
+         viu0RDsT9HXGWFPVpRNUFm1PdaJhCgSyydpgu9GA3gtCmNlD4NXbU6Gi2FYYWOJzlt
+         SBmJJvPvMYZRT527Qz3vItuYSr/EPAm1VP9bKYIjmY5MZwpivhFB4gL17jAWPtq60s
+         9G0ZMLp3rZ/Rw==
+From:   Joerg Roedel <joro@8bytes.org>
+To:     x86@kernel.org
+Cc:     Thomas Gleixner <tglx@linutronix.de>,
+        Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>,
+        Dave Hansen <dave.hansen@linux.intel.com>, hpa@zytor.com,
+        Joerg Roedel <jroedel@suse.de>,
+        Sean Christopherson <seanjc@google.com>, peterz@infradead.org,
+        Alexey Kardashevskiy <aik@amd.com>,
+        linux-kernel@vger.kernel.org, stable@vger.kernel.org
+Subject: [PATCH v2] x86/debug: Fix stack recursion caused by DR7 accesses
+Date:   Tue, 31 Jan 2023 09:57:18 +0100
+Message-Id: <20230131085718.16009-1-joro@8bytes.org>
+X-Mailer: git-send-email 2.39.0
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
- Thunderbird/102.6.0
-From:   Ronald Warsow <rwarsow@gmx.de>
-To:     linux-kernel@vger.kernel.org
-Cc:     stable@vger.kernel.org
-Content-Language: de-DE
-Subject: Re: [PATCH 6.1 000/306] 6.1.9-rc3 review
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Provags-ID: V03:K1:xKjpXjn8WRt1KXFf5vhYf3zOCMmr6HzkCFOjNgQBovusylteV7G
- G4ff5Ag8BpIfp1CEbZoEkMCrBYyxifAMjfhXcBmqyO00Vv5tPawEiRBPSOGFRkSuIIQSTQo
- sd6rX16fw6zMiWtc92qship1cb6ySBKzdztPq24oEDtPJ0M1Yby8+xUT5Bww/mBnqni1tB0
- aB1g9QrOgaMtYd/e8tJTw==
-UI-OutboundReport: notjunk:1;M01:P0:Vv5BOeygXSY=;rSG097n6EK0FtTY9LLA5zjyOU4l
- zEvMtmZBvmOFqiHa+GbLU1ZmfBOEwNGceOLq/CipUSX4b4Qiln85AFMDKHVu6Uo8qbB4awjqt
- 9hEZ4Cd/cp8nB07uZPQiGA31ORRG6BCp0I2mNhsTn/aCwGi4rXRIAvk2N7r0US9cu4nWsDUbE
- CR3fYZBFr8MG/FDduzcO2tDfmnEHshyD+UMgZhcYWYlE1BO66JkKaSCh16k1tauBqEsx1sKxo
- bsZ4H8oLwKs8vETWSWWpy2UkFNShgdxx2m31+ACONotbRcpP7Y1Da15FKyIkKVrCZVp5okHxR
- jeL4Hzz+uhYibnAsCF/Uk8tBen4Kr3F2QKiMqOuj6bP0LFFf5uLlrNOUuP2wa1TMhItDq29Ay
- +yEmRoUFRcs+CyKG+Qq0/QUNJsA5BFxiAXLz6Gf/HobWJ4QV7j7yCtMDQYJvisD7PzQwNNMio
- s8MTz0eHdfER9yIlYd8OKgAjZ/deyfIUKmNMQFKc1g20k2ZLi6/17B+sf8pRKEldDesLifUcV
- chpzaf3320rU03LM58eaCt8XrQ1quY7Hovluv6NSKRtwq0At1dQoCTf6kmKvAqCH24OqbSsZW
- VwiXhrHbhG9a2kxZgKv8gwTEtNszJ5H8nE/YkfIiLEr18lhpaD2pcO9nUdKVrg0vdH5407SAT
- o9mhhby28hPqlcwX4P2oBj8mWpSEEs1h2eUazKukY85MGVLAKmIt/vHybYQPzx6MYBhBXglMX
- ze2ImfptGxcBHcPEIv9kP94LUNMrVyULT1YiR3L+frvfWMwqLZEW4OcEbJdsW6qyCBDO7ULlo
- ELxTjtqTp1PZbyJalFbM3O7mU0/txvSbk9FIcuBaPixu//k4hkTuBP7VmYL2DMAbVdpM0vreR
- PclvGddrsMqPiYwt77GZvm8Ls+Yb++u2n2plv+QKtiy8cXTwPco0sekL1JFe4P6U5TWxNjOLx
- QCN4dA==
-X-Spam-Status: No, score=-2.8 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_FROM,RCVD_IN_DNSWL_LOW,
-        RCVD_IN_MSPIKE_H2,SPF_HELO_NONE,SPF_PASS autolearn=ham
-        autolearn_force=no version=3.4.6
+Content-Transfer-Encoding: 8bit
+X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,SPF_HELO_NONE,SPF_PASS
+        autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hi Greg
+From: Joerg Roedel <jroedel@suse.de>
 
-6.1.9-rc3
+In kernels compiled with CONFIG_PARAVIRT=n the compiler re-orders the
+DR7 read in exc_nmi() to happen before the call to sev_es_ist_enter().
 
-compiles, boots and runs here on x86_64
-(Intel i5-11400, Fedora 37)
+This is problematic when running as an SEV-ES guest because in this
+environment the DR7 read might cause a #VC exception, and taking #VC
+exceptions is not safe in exc_nmi() before sev_es_ist_enter() has run.
 
-Thanks
+The result is stack recursion if the NMI was caused on the #VC IST
+stack, because a subsequent #VC exception in the NMI handler will
+overwrite the stack frame of the interrupted #VC handler.
 
-Tested-by: Ronald Warsow <rwarsow@gmx.de>
+As there are no compiler barriers affecting the ordering of DR7
+reads/writes, make the accesses to this register volatile, forbidding
+the compiler to re-order them.
+
+  [ bp: Massage text. ]
+
+Cc: stable@vger.kernel.org
+Fixes: 315562c9af3d ("x86/sev-es: Adjust #VC IST Stack on entering NMI handler")
+Signed-off-by: Joerg Roedel <jroedel@suse.de>
+---
+ arch/x86/include/asm/debugreg.h | 27 ++++++++++++++++++++++++---
+ 1 file changed, 24 insertions(+), 3 deletions(-)
+
+diff --git a/arch/x86/include/asm/debugreg.h b/arch/x86/include/asm/debugreg.h
+index b049d950612f..d54d5dbfb4b9 100644
+--- a/arch/x86/include/asm/debugreg.h
++++ b/arch/x86/include/asm/debugreg.h
+@@ -39,7 +39,20 @@ static __always_inline unsigned long native_get_debugreg(int regno)
+ 		asm("mov %%db6, %0" :"=r" (val));
+ 		break;
+ 	case 7:
+-		asm("mov %%db7, %0" :"=r" (val));
++		/*
++		 * Apply __FORCE_ORDER to DR7 reads to forbid re-ordering them
++		 * with other code.
++		 *
++		 * This is needed because a DR7 access can cause a #VC exception
++		 * when running under SEV-ES. Taking a #VC exception is not a
++		 * safe thing to do just anywhere in the entry code and
++		 * re-ordering might place the access into an unsafe location.
++		 *
++		 * This happened in the NMI handler, where the DR7 read was
++		 * re-ordered to happen before the call to sev_es_ist_enter(),
++		 * causing stack recursion.
++		 */
++		asm("mov %%db7, %0" : "=r" (val) : __FORCE_ORDER);
+ 		break;
+ 	default:
+ 		BUG();
+@@ -66,8 +79,16 @@ static __always_inline void native_set_debugreg(int regno, unsigned long value)
+ 		asm("mov %0, %%db6"	::"r" (value));
+ 		break;
+ 	case 7:
+-		asm("mov %0, %%db7"	::"r" (value));
+-		break;
++		/*
++		 * Apply __FORCE_ORDER to DR7 writes to forbid re-ordering them
++		 * with other code.
++		 *
++		 * While is didn't happen with a DR7 write (see the DR7 read
++		 * comment above which explains where it happened), add the
++		 * __FORCE_ORDER here too to avoid similar problems in the
++		 * future.
++		 */
++		asm("mov %0, %%db7"	::"r" (value), __FORCE_ORDER); break;
+ 	default:
+ 		BUG();
+ 	}
+-- 
+2.39.0
 
