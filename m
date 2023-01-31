@@ -2,45 +2,51 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D9FE3683054
-	for <lists+stable@lfdr.de>; Tue, 31 Jan 2023 16:01:10 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 360E5683060
+	for <lists+stable@lfdr.de>; Tue, 31 Jan 2023 16:01:43 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232681AbjAaPBI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 31 Jan 2023 10:01:08 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60046 "EHLO
+        id S232597AbjAaPBj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 31 Jan 2023 10:01:39 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60476 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232536AbjAaPAX (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 31 Jan 2023 10:00:23 -0500
+        with ESMTP id S232476AbjAaPAe (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 31 Jan 2023 10:00:34 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9472423124;
-        Tue, 31 Jan 2023 07:00:19 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9F7C9539B3;
+        Tue, 31 Jan 2023 07:00:24 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 18B3761565;
-        Tue, 31 Jan 2023 15:00:19 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6EAE0C433D2;
-        Tue, 31 Jan 2023 15:00:17 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 3443B61562;
+        Tue, 31 Jan 2023 15:00:24 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id AA279C433EF;
+        Tue, 31 Jan 2023 15:00:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1675177218;
-        bh=ck5tqw9FEbpJWj1+WLah6xnAqqZGfcEuwF/xC2J1Jhg=;
+        s=k20201202; t=1675177223;
+        bh=oCVM42IRNyag+dX2TI9jas4V2944v2wF4/babOP+wLw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=eu4jMPvd42+wq0Lby1ybUhzVpthIsngykDa69JWCbQ0yA+5mrZDlaVPhqA6RCRovG
-         o+Ecwnq5sQ37E+O0qGMJM+un17/o7rRFsIj7I4kGZM2E6g8Wlovh35ZU582Yel7ybw
-         pJbD0dK5gTQ6cafQqErNAA7D+9GumaPKCPcVjy8nwAYgVMcr6/2YAHjvOanNbQsf7e
-         DwR0IdVb1crPeCPa7Z9zy7Tm4rqixXskK1rGngFo49usizvz1PzhVk2i6K3tR274Fa
-         InePjKrssCr21xvxyS5oAD0dnHUecUG4OFxyMqVRSGK9vkD00E9FjrrR5VT6JfcEuV
-         YKzZfwLYX1mrQ==
+        b=b3NXkvUlOp1xRpOl8ddZijHUODPbclF0QgPURKg77dPAjzd5+9HoV21oUupyL8Iuv
+         +UGbT+OMsKuWx5G5OlPUAnIp8O+FFizkPGzVIX3Wtas66JYFKwPM2yD2s8rWIucNJc
+         0Gk6Ikv6ARivYjBE/7p9zRtNmF1kTPWFKESDa7opNOjlh513WfMzg1zJ65eWAli2UB
+         veaYRR3FqgajBaUoRyjEkUuc2ZoY4uJ2bW0MXtRKSPmlKrMVAvzuRd7PsyzCKMI50s
+         85c+vNST/6H6VF+GR5zJHVHc/jb3H5LzxRiKuZTP9H4OY0WtV8pN90wl3TYvRe9gto
+         zLYBTwS30YcuA==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Hyunwoo Kim <v4bel@theori.io>,
-        "David S . Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>, ms@dev.tdt.de,
-        edumazet@google.com, kuba@kernel.org, pabeni@redhat.com,
-        linux-x25@vger.kernel.org, netdev@vger.kernel.org
-Subject: [PATCH AUTOSEL 6.1 17/20] net/x25: Fix to not accept on connected socket
-Date:   Tue, 31 Jan 2023 09:59:43 -0500
-Message-Id: <20230131145946.1249850-17-sashal@kernel.org>
+Cc:     Aurabindo Pillai <aurabindo.pillai@amd.com>,
+        Nicholas Kazlauskas <Nicholas.Kazlauskas@amd.com>,
+        Alan Liu <HaoPing.Liu@amd.com>,
+        Daniel Wheeler <daniel.wheeler@amd.com>,
+        Alex Deucher <alexander.deucher@amd.com>,
+        Sasha Levin <sashal@kernel.org>, harry.wentland@amd.com,
+        sunpeng.li@amd.com, Rodrigo.Siqueira@amd.com,
+        christian.koenig@amd.com, Xinhui.Pan@amd.com, airlied@gmail.com,
+        daniel@ffwll.ch, roman.li@amd.com, lyude@redhat.com,
+        Jerry.Zuo@amd.com, stylon.wang@amd.com,
+        amd-gfx@lists.freedesktop.org, dri-devel@lists.freedesktop.org
+Subject: [PATCH AUTOSEL 6.1 18/20] drm/amd/display: Fix timing not changning when freesync video is enabled
+Date:   Tue, 31 Jan 2023 09:59:44 -0500
+Message-Id: <20230131145946.1249850-18-sashal@kernel.org>
 X-Mailer: git-send-email 2.39.0
 In-Reply-To: <20230131145946.1249850-1-sashal@kernel.org>
 References: <20230131145946.1249850-1-sashal@kernel.org>
@@ -57,45 +63,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hyunwoo Kim <v4bel@theori.io>
+From: Aurabindo Pillai <aurabindo.pillai@amd.com>
 
-[ Upstream commit f2b0b5210f67c56a3bcdf92ff665fb285d6e0067 ]
+[ Upstream commit 4b069553246f993c4221e382d0d0ae34f5ba730e ]
 
-When listen() and accept() are called on an x25 socket
-that connect() succeeds, accept() succeeds immediately.
-This is because x25_connect() queues the skb to
-sk->sk_receive_queue, and x25_accept() dequeues it.
+[Why&How]
+Switching between certain modes that are freesync video modes and those
+are not freesync video modes result in timing not changing as seen by
+the monitor due to incorrect timing being driven.
 
-This creates a child socket with the sk of the parent
-x25 socket, which can cause confusion.
+The issue is fixed by ensuring that when a non freesync video mode is
+set, we reset the freesync status on the crtc.
 
-Fix x25_listen() to return -EINVAL if the socket has
-already been successfully connect()ed to avoid this issue.
-
-Signed-off-by: Hyunwoo Kim <v4bel@theori.io>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Reviewed-by: Nicholas Kazlauskas <Nicholas.Kazlauskas@amd.com>
+Acked-by: Alan Liu <HaoPing.Liu@amd.com>
+Signed-off-by: Aurabindo Pillai <aurabindo.pillai@amd.com>
+Tested-by: Daniel Wheeler <daniel.wheeler@amd.com>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/x25/af_x25.c | 6 ++++++
- 1 file changed, 6 insertions(+)
+ drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c | 7 +++++++
+ 1 file changed, 7 insertions(+)
 
-diff --git a/net/x25/af_x25.c b/net/x25/af_x25.c
-index 3b55502b2965..5c7ad301d742 100644
---- a/net/x25/af_x25.c
-+++ b/net/x25/af_x25.c
-@@ -482,6 +482,12 @@ static int x25_listen(struct socket *sock, int backlog)
- 	int rc = -EOPNOTSUPP;
+diff --git a/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c b/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c
+index e10f1f15c9c4..15b408e3a705 100644
+--- a/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c
++++ b/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c
+@@ -8788,6 +8788,13 @@ static int dm_update_crtc_state(struct amdgpu_display_manager *dm,
+ 		if (!dm_old_crtc_state->stream)
+ 			goto skip_modeset;
  
- 	lock_sock(sk);
-+	if (sock->state != SS_UNCONNECTED) {
-+		rc = -EINVAL;
-+		release_sock(sk);
-+		return rc;
-+	}
++		/* Unset freesync video if it was active before */
++		if (dm_old_crtc_state->freesync_config.state == VRR_STATE_ACTIVE_FIXED) {
++			dm_new_crtc_state->freesync_config.state = VRR_STATE_INACTIVE;
++			dm_new_crtc_state->freesync_config.fixed_refresh_in_uhz = 0;
++		}
 +
- 	if (sk->sk_state != TCP_LISTEN) {
- 		memset(&x25_sk(sk)->dest_addr, 0, X25_ADDR_LEN);
- 		sk->sk_max_ack_backlog = backlog;
++		/* Now check if we should set freesync video mode */
+ 		if (amdgpu_freesync_vid_mode && dm_new_crtc_state->stream &&
+ 		    is_timing_unchanged_for_freesync(new_crtc_state,
+ 						     old_crtc_state)) {
 -- 
 2.39.0
 
