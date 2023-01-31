@@ -2,45 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 7D25C68306D
-	for <lists+stable@lfdr.de>; Tue, 31 Jan 2023 16:02:15 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1C11F683072
+	for <lists+stable@lfdr.de>; Tue, 31 Jan 2023 16:02:17 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232770AbjAaPCM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 31 Jan 2023 10:02:12 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59340 "EHLO
+        id S232738AbjAaPCP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 31 Jan 2023 10:02:15 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60490 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232705AbjAaPBd (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 31 Jan 2023 10:01:33 -0500
+        with ESMTP id S232469AbjAaPBh (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 31 Jan 2023 10:01:37 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 96CCD8A72;
-        Tue, 31 Jan 2023 07:00:38 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B0DA253B08;
+        Tue, 31 Jan 2023 07:00:40 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 7F8CB61562;
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 2F3E06156A;
+        Tue, 31 Jan 2023 15:00:40 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5FF00C433EF;
         Tue, 31 Jan 2023 15:00:38 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 26DF8C433A0;
-        Tue, 31 Jan 2023 15:00:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1675177237;
-        bh=DWj+O7moT18+ZTe+Ogcv2iDKxrxaudaFhD+wXevmfXU=;
+        s=k20201202; t=1675177239;
+        bh=xl5CdGc9FXmafuFWPGYkGctlj1wt/31j2ZBGedgp7gk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=cEEMwZApbIqhlUvB3D6XKChGhwBFgW5uduXWukUh5Q3oVxNGrrR8Ckie++ROUDhR4
-         qh4pTterhgXlnQQCZuzDmvFuvqLK2Q+Ije4A6K1636q+STgiRpD5XaAzZ1r0CShPiV
-         iiLd7G4AjSqNQfpATeI0n0YGAD62G3rhfW9FUUzCDq+qCuapRyCAPN7Wkpdpj7agk4
-         zhLJdUNvZJhDisMJRH9G23mdwdCvEif+LA4qWjeSTt3GtuTPIxMwldei+ffWXxynAH
-         ssXRuvUGlbqAymSnxDfoBYR7Xu3q4TRrDTiloiofzkZrFumwgRCneIw9Y93oARD2Z0
-         4HcfnqOQotu5Q==
+        b=kKepbLTAHoPG39PDnPhmzeBgk00TYPAnf2zj4goIlgrCXYGBz+TIQTwWmu6fB+IW7
+         qJ+z02pzYj3Kp+3wtkgA1+fRM8rlYv6qz+oxeWMQQg3R2+uCJpVsa+RI98iLnrndiG
+         /XvavmzNEbZhg9XhTpF787e+9Pu+0F5a1d4lcRTa6tJvmL22/91amjXT30k/PAajtt
+         QNiNJomYDn4ljq0okvti1oA/ZWJh1ZMxeumeLQFZ1i7uQZo0+PZn5fxsAN2fdCvKpW
+         yr/7VcPivhP+9cIsQw9JeNW/Fv0Zv65/IrEFvqkgQi9xCtUUGUYM7yhA0OFqTCv+mo
+         HOpfYsq6d1L9w==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Maurizio Lombardi <mlombard@redhat.com>,
-        Christoph Hellwig <hch@lst.de>,
-        "Martin K . Petersen" <martin.petersen@oracle.com>,
-        Sasha Levin <sashal@kernel.org>, linux-scsi@vger.kernel.org,
-        target-devel@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.15 03/12] scsi: target: core: Fix warning on RT kernels
-Date:   Tue, 31 Jan 2023 10:00:21 -0500
-Message-Id: <20230131150030.1250104-3-sashal@kernel.org>
+Cc:     Kan Liang <kan.liang@linux.intel.com>,
+        Ingo Molnar <mingo@kernel.org>,
+        Sasha Levin <sashal@kernel.org>, peterz@infradead.org,
+        mingo@redhat.com, acme@kernel.org, tglx@linutronix.de,
+        bp@alien8.de, dave.hansen@linux.intel.com, x86@kernel.org,
+        linux-perf-users@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.15 04/12] perf/x86/intel: Add Emerald Rapids
+Date:   Tue, 31 Jan 2023 10:00:22 -0500
+Message-Id: <20230131150030.1250104-4-sashal@kernel.org>
 X-Mailer: git-send-email 2.39.0
 In-Reply-To: <20230131150030.1250104-1-sashal@kernel.org>
 References: <20230131150030.1250104-1-sashal@kernel.org>
@@ -57,38 +58,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Maurizio Lombardi <mlombard@redhat.com>
+From: Kan Liang <kan.liang@linux.intel.com>
 
-[ Upstream commit 84ed64b1a7a7fcd507598dee7708c1f225123711 ]
+[ Upstream commit 6795e558e9cc6123c24e2100a2ebe88e58a792bc ]
 
-Calling spin_lock_irqsave() does not disable the interrupts on realtime
-kernels, remove the warning and replace assert_spin_locked() with
-lockdep_assert_held().
+From core PMU's perspective, Emerald Rapids is the same as the Sapphire
+Rapids. The only difference is the event list, which will be
+supported in the perf tool later.
 
-Signed-off-by: Maurizio Lombardi <mlombard@redhat.com>
-Reviewed-by: Christoph Hellwig <hch@lst.de>
-Link: https://lore.kernel.org/r/20230110125310.55884-1-mlombard@redhat.com
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Signed-off-by: Kan Liang <kan.liang@linux.intel.com>
+Signed-off-by: Ingo Molnar <mingo@kernel.org>
+Link: https://lore.kernel.org/r/20230106160449.3566477-1-kan.liang@linux.intel.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/target/target_core_tmr.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ arch/x86/events/intel/core.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/target/target_core_tmr.c b/drivers/target/target_core_tmr.c
-index bac111456fa1..2b95b4550a63 100644
---- a/drivers/target/target_core_tmr.c
-+++ b/drivers/target/target_core_tmr.c
-@@ -73,8 +73,8 @@ static bool __target_check_io_state(struct se_cmd *se_cmd,
- {
- 	struct se_session *sess = se_cmd->se_sess;
+diff --git a/arch/x86/events/intel/core.c b/arch/x86/events/intel/core.c
+index f36fda2672e0..b70e1522a27a 100644
+--- a/arch/x86/events/intel/core.c
++++ b/arch/x86/events/intel/core.c
+@@ -6109,6 +6109,7 @@ __init int intel_pmu_init(void)
+ 		break;
  
--	assert_spin_locked(&sess->sess_cmd_lock);
--	WARN_ON_ONCE(!irqs_disabled());
-+	lockdep_assert_held(&sess->sess_cmd_lock);
-+
- 	/*
- 	 * If command already reached CMD_T_COMPLETE state within
- 	 * target_complete_cmd() or CMD_T_FABRIC_STOP due to shutdown,
+ 	case INTEL_FAM6_SAPPHIRERAPIDS_X:
++	case INTEL_FAM6_EMERALDRAPIDS_X:
+ 		pmem = true;
+ 		x86_pmu.late_ack = true;
+ 		memcpy(hw_cache_event_ids, spr_hw_cache_event_ids, sizeof(hw_cache_event_ids));
 -- 
 2.39.0
 
