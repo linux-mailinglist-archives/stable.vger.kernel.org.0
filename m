@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 990A068298E
-	for <lists+stable@lfdr.de>; Tue, 31 Jan 2023 10:53:02 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B82AF68298D
+	for <lists+stable@lfdr.de>; Tue, 31 Jan 2023 10:53:00 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230354AbjAaJw7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 31 Jan 2023 04:52:59 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53556 "EHLO
+        id S230338AbjAaJw5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 31 Jan 2023 04:52:57 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53798 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230480AbjAaJw6 (ORCPT
-        <rfc822;Stable@vger.kernel.org>); Tue, 31 Jan 2023 04:52:58 -0500
+        with ESMTP id S231344AbjAaJwz (ORCPT
+        <rfc822;Stable@vger.kernel.org>); Tue, 31 Jan 2023 04:52:55 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B74BC61A3
-        for <Stable@vger.kernel.org>; Tue, 31 Jan 2023 01:52:54 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2C008AF
+        for <Stable@vger.kernel.org>; Tue, 31 Jan 2023 01:52:51 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id D7736B81ACC
-        for <Stable@vger.kernel.org>; Tue, 31 Jan 2023 09:52:52 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2D589C4339B;
-        Tue, 31 Jan 2023 09:52:51 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id D534BB81AC8
+        for <Stable@vger.kernel.org>; Tue, 31 Jan 2023 09:52:49 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 33EC8C433D2;
+        Tue, 31 Jan 2023 09:52:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1675158771;
-        bh=ONCKEiRJ8ulZkZQNhNE40vJNiYCF+KeUkPwZZ9amfTQ=;
+        s=korg; t=1675158768;
+        bh=CZUgddo5B701+5i69/dsZegxxzOmzwL1Ud+728AzoyU=;
         h=Subject:To:From:Date:From;
-        b=0oCIhpSsGCf+R4rs8/WjUjR6TfHN2Zwiryo5YLAp2wll5UAEAf3vzkHvmtYlzHpCX
-         bVdGKyb9q0yME/UQrlUHOO1tQP7Eh6UCVMsMQ2CVD9dwbjcPa5ihwBMID8lfZzIGCH
-         hB+OmnswAE02jhAk46KCyvQYEN10sMI6GLvpvrIo=
-Subject: patch "iio: imx8qxp-adc: fix irq flood when call imx8qxp_adc_read_raw()" added to char-misc-linus
-To:     Frank.Li@nxp.com, Jonathan.Cameron@huawei.com,
-        Stable@vger.kernel.org, cai.huoqing@linux.dev, haibo.chen@nxp.com
+        b=cMzKTxF4didlinbMIHlwWjTjI9mOQF1aqcqnsuEEE+MopSqWhSgz2mk+3ofaF1xC4
+         tyxMf2G9l9tbPlujcQUyce18zJlnUZGiQm7P9JWVDJqcmxaW9l4em2XZxeWjSKixJ6
+         wEGmdC+ITr83z38wuwQrdS0hYvabX2mT8qecLPkA=
+Subject: patch "iio:adc:twl6030: Enable measurements of VUSB, VBAT and others" added to char-misc-linus
+To:     andreas@kemnade.info, Jonathan.Cameron@huawei.com,
+        Stable@vger.kernel.org
 From:   <gregkh@linuxfoundation.org>
 Date:   Tue, 31 Jan 2023 10:52:38 +0100
-Message-ID: <1675158758170107@kroah.com>
+Message-ID: <1675158758241125@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -49,7 +49,7 @@ X-Mailing-List: stable@vger.kernel.org
 
 This is a note to let you know that I've just added the patch titled
 
-    iio: imx8qxp-adc: fix irq flood when call imx8qxp_adc_read_raw()
+    iio:adc:twl6030: Enable measurements of VUSB, VBAT and others
 
 to my char-misc git tree which can be found at
     git://git.kernel.org/pub/scm/linux/kernel/git/gregkh/char-misc.git
@@ -64,93 +64,73 @@ next -rc kernel release.
 If you have any questions about this process, please let me know.
 
 
-From 0fc3562a993c3dc41d1177b3983d9300d0db1d4d Mon Sep 17 00:00:00 2001
-From: Frank Li <Frank.Li@nxp.com>
-Date: Thu, 1 Dec 2022 09:01:10 -0500
-Subject: iio: imx8qxp-adc: fix irq flood when call imx8qxp_adc_read_raw()
+From f804bd0dc28683a93a60f271aaefb2fc5b0853dd Mon Sep 17 00:00:00 2001
+From: Andreas Kemnade <andreas@kemnade.info>
+Date: Thu, 1 Dec 2022 19:16:35 +0100
+Subject: iio:adc:twl6030: Enable measurements of VUSB, VBAT and others
 
-irq flood happen when run
-    cat /sys/bus/iio/devices/iio:device0/in_voltage1_raw
+Some inputs need to be wired up to produce proper measurements,
+without this change only near zero values are reported.
 
-imx8qxp_adc_read_raw()
-{
-	...
-	enable irq
-	/* adc start */
-	writel(1, adc->regs + IMX8QXP_ADR_ADC_SWTRIG);
-	^^^^ trigger irq flood.
-	wait_for_completion_interruptible_timeout();
-	readl(adc->regs + IMX8QXP_ADR_ADC_RESFIFO);
-	^^^^ clear irq here.
-	...
-}
-
-There is only FIFO watermark interrupt at this ADC controller.
-IRQ line will be assert until software read data from FIFO.
-So IRQ flood happen during wait_for_completion_interruptible_timeout().
-
-Move FIFO read into irq handle to avoid irq flood.
-
-Fixes: 1e23dcaa1a9f ("iio: imx8qxp-adc: Add driver support for NXP IMX8QXP ADC")
-Cc: stable@vger.kernel.org
-
-Signed-off-by: Frank Li <Frank.Li@nxp.com>
-Reviewed-by: Cai Huoqing <cai.huoqing@linux.dev>
-Reviewed-by: Haibo Chen <haibo.chen@nxp.com>
-Link: https://lore.kernel.org/r/20221201140110.2653501-1-Frank.Li@nxp.com
+Signed-off-by: Andreas Kemnade <andreas@kemnade.info>
+Fixes: 1696f36482e70 ("iio: twl6030-gpadc: TWL6030, TWL6032 GPADC driver")
+Link: https://lore.kernel.org/r/20221201181635.3522962-1-andreas@kemnade.info
 Cc: <Stable@vger.kernel.org>
 Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
 ---
- drivers/iio/adc/imx8qxp-adc.c | 11 +++++++++--
- 1 file changed, 9 insertions(+), 2 deletions(-)
+ drivers/iio/adc/twl6030-gpadc.c | 32 ++++++++++++++++++++++++++++++++
+ 1 file changed, 32 insertions(+)
 
-diff --git a/drivers/iio/adc/imx8qxp-adc.c b/drivers/iio/adc/imx8qxp-adc.c
-index 36777b827165..f5a0fc9e64c5 100644
---- a/drivers/iio/adc/imx8qxp-adc.c
-+++ b/drivers/iio/adc/imx8qxp-adc.c
-@@ -86,6 +86,8 @@
+diff --git a/drivers/iio/adc/twl6030-gpadc.c b/drivers/iio/adc/twl6030-gpadc.c
+index f53e8558b560..40438e5b4970 100644
+--- a/drivers/iio/adc/twl6030-gpadc.c
++++ b/drivers/iio/adc/twl6030-gpadc.c
+@@ -57,6 +57,18 @@
+ #define TWL6030_GPADCS				BIT(1)
+ #define TWL6030_GPADCR				BIT(0)
  
- #define IMX8QXP_ADC_TIMEOUT		msecs_to_jiffies(100)
- 
-+#define IMX8QXP_ADC_MAX_FIFO_SIZE		16
++#define USB_VBUS_CTRL_SET			0x04
++#define USB_ID_CTRL_SET				0x06
 +
- struct imx8qxp_adc {
- 	struct device *dev;
- 	void __iomem *regs;
-@@ -95,6 +97,7 @@ struct imx8qxp_adc {
- 	/* Serialise ADC channel reads */
- 	struct mutex lock;
- 	struct completion completion;
-+	u32 fifo[IMX8QXP_ADC_MAX_FIFO_SIZE];
- };
- 
- #define IMX8QXP_ADC_CHAN(_idx) {				\
-@@ -238,8 +241,7 @@ static int imx8qxp_adc_read_raw(struct iio_dev *indio_dev,
- 			return ret;
- 		}
- 
--		*val = FIELD_GET(IMX8QXP_ADC_RESFIFO_VAL_MASK,
--				 readl(adc->regs + IMX8QXP_ADR_ADC_RESFIFO));
-+		*val = adc->fifo[0];
- 
- 		mutex_unlock(&adc->lock);
- 		return IIO_VAL_INT;
-@@ -265,10 +267,15 @@ static irqreturn_t imx8qxp_adc_isr(int irq, void *dev_id)
- {
- 	struct imx8qxp_adc *adc = dev_id;
- 	u32 fifo_count;
-+	int i;
- 
- 	fifo_count = FIELD_GET(IMX8QXP_ADC_FCTRL_FCOUNT_MASK,
- 			       readl(adc->regs + IMX8QXP_ADR_ADC_FCTRL));
- 
-+	for (i = 0; i < fifo_count; i++)
-+		adc->fifo[i] = FIELD_GET(IMX8QXP_ADC_RESFIFO_VAL_MASK,
-+				readl_relaxed(adc->regs + IMX8QXP_ADR_ADC_RESFIFO));
++#define TWL6030_MISC1				0xE4
++#define VBUS_MEAS				0x01
++#define ID_MEAS					0x01
 +
- 	if (fifo_count)
- 		complete(&adc->completion);
++#define VAC_MEAS                0x04
++#define VBAT_MEAS               0x02
++#define BB_MEAS                 0x01
++
++
+ /**
+  * struct twl6030_chnl_calib - channel calibration
+  * @gain:		slope coefficient for ideal curve
+@@ -927,6 +939,26 @@ static int twl6030_gpadc_probe(struct platform_device *pdev)
+ 		return ret;
+ 	}
  
++	ret = twl_i2c_write_u8(TWL_MODULE_USB, VBUS_MEAS, USB_VBUS_CTRL_SET);
++	if (ret < 0) {
++		dev_err(dev, "failed to wire up inputs\n");
++		return ret;
++	}
++
++	ret = twl_i2c_write_u8(TWL_MODULE_USB, ID_MEAS, USB_ID_CTRL_SET);
++	if (ret < 0) {
++		dev_err(dev, "failed to wire up inputs\n");
++		return ret;
++	}
++
++	ret = twl_i2c_write_u8(TWL6030_MODULE_ID0,
++				VBAT_MEAS | BB_MEAS | BB_MEAS,
++				TWL6030_MISC1);
++	if (ret < 0) {
++		dev_err(dev, "failed to wire up inputs\n");
++		return ret;
++	}
++
+ 	indio_dev->name = DRIVER_NAME;
+ 	indio_dev->info = &twl6030_gpadc_iio_info;
+ 	indio_dev->modes = INDIO_DIRECT_MODE;
 -- 
 2.39.1
 
