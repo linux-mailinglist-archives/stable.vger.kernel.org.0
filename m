@@ -2,45 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 6330A68305E
-	for <lists+stable@lfdr.de>; Tue, 31 Jan 2023 16:01:42 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 05E5E683063
+	for <lists+stable@lfdr.de>; Tue, 31 Jan 2023 16:01:56 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232589AbjAaPBi (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 31 Jan 2023 10:01:38 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60534 "EHLO
+        id S232521AbjAaPBx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 31 Jan 2023 10:01:53 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59938 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232283AbjAaPAg (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 31 Jan 2023 10:00:36 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0B167539A6;
-        Tue, 31 Jan 2023 07:00:26 -0800 (PST)
+        with ESMTP id S232673AbjAaPBF (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 31 Jan 2023 10:01:05 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 008BB530CB;
+        Tue, 31 Jan 2023 07:00:32 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 9578961565;
-        Tue, 31 Jan 2023 15:00:25 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 22602C4339E;
-        Tue, 31 Jan 2023 15:00:24 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 42C4BB81D4B;
+        Tue, 31 Jan 2023 15:00:31 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3EC78C433EF;
+        Tue, 31 Jan 2023 15:00:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1675177225;
-        bh=2eJvU72bguGWNcOSPX5RnYvIcsZFnsi3YJtrC2eEK7I=;
+        s=k20201202; t=1675177229;
+        bh=IR2ghLgr2g4QmwmZiIXnJ7xh3SC++vSjGxGy/gKx3gY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=FF7N+hOU3dPlZ2reCprCMbWhFtMARMJ2CXpdZQ48ehokiBpZCRQa2o92dRgSeFx8D
-         S+IS+9Csw2F8IfIlfoYc0/mBluHtCl0JSI8MBluJJ4R6ooQ5aXVNuGv+IrqeQRavgn
-         QYHWeG0PMQwK3qQpnDpaFK3mi1vxfB9mOPSCc5ANyX1jGhRxNWNyAqKnWlH35D1g2a
-         uAr5n8cYqjjCrFan/GVupfgtNq9A9Uf2hs8MRr/TYu8ZsSd0A/4jPKKISKGV+/LlVL
-         VSNL65YyeZegbIQDIoZuMSXpiU6xEKlXpSEC6Ldc3IIJ3FfMHHdNwRLAdGNK++Vb09
-         734XkCsyaDgKQ==
+        b=EUBKvfG0BosAafqvTJF1dOqKOpUfQmASK+Q4g/Vx+Cj8KNowP8g+d/YhhM1lPRH9p
+         NLqLt7Dpsao+qkEHSnRGKQHP+0UAOXIcwHUDdyABAqBZYhnfgi0kqeW2ukayuyNdtr
+         zaqH6xvR7OGckqnEyLNlLAtWAy8MosMwRjcEpME7q2lBbm6kU3bLFNtZyaGNMQ+2YN
+         RxVWauXnQ5Vc6+NK9QulVVOUYCfUPnGoSFn6trJZQawAwLgu6TIziuHSgtS8nKqa/S
+         WOA/VF/F+EotpFasfaQAh/kK7VNKEEVpUEF8EKmu2+0/iXFDVuJWlzGvr7nfhHT+Ke
+         XktkPhuoHXi6w==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Kees Cook <keescook@chromium.org>,
-        Alexandre Pereira <alexpereira@disroot.org>,
-        Coly Li <colyli@suse.de>,
-        Kent Overstreet <kent.overstreet@gmail.com>,
-        linux-bcache@vger.kernel.org, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 6.1 19/20] bcache: Silence memcpy() run-time false positive warnings
-Date:   Tue, 31 Jan 2023 09:59:45 -0500
-Message-Id: <20230131145946.1249850-19-sashal@kernel.org>
+Cc:     Dave Airlie <airlied@redhat.com>, Sasha Levin <sashal@kernel.org>,
+        harry.wentland@amd.com, sunpeng.li@amd.com,
+        Rodrigo.Siqueira@amd.com, alexander.deucher@amd.com,
+        christian.koenig@amd.com, Xinhui.Pan@amd.com, airlied@gmail.com,
+        daniel@ffwll.ch, roman.li@amd.com, stylon.wang@amd.com,
+        aurabindo.pillai@amd.com, Jerry.Zuo@amd.com,
+        amd-gfx@lists.freedesktop.org, dri-devel@lists.freedesktop.org
+Subject: [PATCH AUTOSEL 6.1 20/20] amdgpu: fix build on non-DCN platforms.
+Date:   Tue, 31 Jan 2023 09:59:46 -0500
+Message-Id: <20230131145946.1249850-20-sashal@kernel.org>
 X-Mailer: git-send-email 2.39.0
 In-Reply-To: <20230131145946.1249850-1-sashal@kernel.org>
 References: <20230131145946.1249850-1-sashal@kernel.org>
@@ -57,61 +59,31 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kees Cook <keescook@chromium.org>
+From: Dave Airlie <airlied@redhat.com>
 
-[ Upstream commit be0d8f48ad97f5b775b0af3310343f676dbf318a ]
+[ Upstream commit f439a959dcfb6b39d6fd4b85ca1110a1d1de1587 ]
 
-struct bkey has internal padding in a union, but it isn't always named
-the same (e.g. key ## _pad, key_p, etc). This makes it extremely hard
-for the compiler to reason about the available size of copies done
-against such keys. Use unsafe_memcpy() for now, to silence the many
-run-time false positive warnings:
+This fixes the build here locally on my 32-bit arm build.
 
-  memcpy: detected field-spanning write (size 264) of single field "&i->j" at drivers/md/bcache/journal.c:152 (size 240)
-  memcpy: detected field-spanning write (size 24) of single field "&b->key" at drivers/md/bcache/btree.c:939 (size 16)
-  memcpy: detected field-spanning write (size 24) of single field "&temp.key" at drivers/md/bcache/extents.c:428 (size 16)
-
-Reported-by: Alexandre Pereira <alexpereira@disroot.org>
-Link: https://bugzilla.kernel.org/show_bug.cgi?id=216785
-Acked-by: Coly Li <colyli@suse.de>
-Cc: Kent Overstreet <kent.overstreet@gmail.com>
-Cc: linux-bcache@vger.kernel.org
-Signed-off-by: Kees Cook <keescook@chromium.org>
-Link: https://lore.kernel.org/r/20230106060229.never.047-kees@kernel.org
+Signed-off-by: Dave Airlie <airlied@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/md/bcache/bcache_ondisk.h | 3 ++-
- drivers/md/bcache/journal.c       | 3 ++-
- 2 files changed, 4 insertions(+), 2 deletions(-)
+ drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/drivers/md/bcache/bcache_ondisk.h b/drivers/md/bcache/bcache_ondisk.h
-index 97413586195b..f96034e0ba4f 100644
---- a/drivers/md/bcache/bcache_ondisk.h
-+++ b/drivers/md/bcache/bcache_ondisk.h
-@@ -106,7 +106,8 @@ static inline unsigned long bkey_bytes(const struct bkey *k)
- 	return bkey_u64s(k) * sizeof(__u64);
- }
+diff --git a/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c b/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c
+index 15b408e3a705..d756a606b5e2 100644
+--- a/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c
++++ b/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c
+@@ -9411,6 +9411,8 @@ static int amdgpu_dm_atomic_check(struct drm_device *dev,
+ 	bool lock_and_validation_needed = false;
+ 	struct dm_crtc_state *dm_old_crtc_state, *dm_new_crtc_state;
+ #if defined(CONFIG_DRM_AMD_DC_DCN)
++	struct drm_dp_mst_topology_mgr *mgr;
++	struct drm_dp_mst_topology_state *mst_state;
+ 	struct dsc_mst_fairness_vars vars[MAX_PIPES];
+ #endif
  
--#define bkey_copy(_dest, _src)	memcpy(_dest, _src, bkey_bytes(_src))
-+#define bkey_copy(_dest, _src)	unsafe_memcpy(_dest, _src, bkey_bytes(_src), \
-+					/* bkey is always padded */)
- 
- static inline void bkey_copy_key(struct bkey *dest, const struct bkey *src)
- {
-diff --git a/drivers/md/bcache/journal.c b/drivers/md/bcache/journal.c
-index e5da469a4235..c182c21de2e8 100644
---- a/drivers/md/bcache/journal.c
-+++ b/drivers/md/bcache/journal.c
-@@ -149,7 +149,8 @@ reread:		left = ca->sb.bucket_size - offset;
- 				    bytes, GFP_KERNEL);
- 			if (!i)
- 				return -ENOMEM;
--			memcpy(&i->j, j, bytes);
-+			unsafe_memcpy(&i->j, j, bytes,
-+				/* "bytes" was calculated by set_bytes() above */);
- 			/* Add to the location after 'where' points to */
- 			list_add(&i->list, where);
- 			ret = 1;
 -- 
 2.39.0
 
