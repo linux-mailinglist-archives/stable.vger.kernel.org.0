@@ -2,29 +2,29 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 32F29682DE4
-	for <lists+stable@lfdr.de>; Tue, 31 Jan 2023 14:30:35 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2C1EA682E0A
+	for <lists+stable@lfdr.de>; Tue, 31 Jan 2023 14:34:30 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232250AbjAaNad (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 31 Jan 2023 08:30:33 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41924 "EHLO
+        id S232284AbjAaNe2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 31 Jan 2023 08:34:28 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46926 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232254AbjAaNaL (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 31 Jan 2023 08:30:11 -0500
+        with ESMTP id S232317AbjAaNeS (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 31 Jan 2023 08:34:18 -0500
 Received: from mail.ispras.ru (mail.ispras.ru [83.149.199.84])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 369B04FCF2;
-        Tue, 31 Jan 2023 05:30:03 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0F87851423;
+        Tue, 31 Jan 2023 05:34:11 -0800 (PST)
 Received: from fpc.intra.ispras.ru (unknown [10.10.165.11])
-        by mail.ispras.ru (Postfix) with ESMTPSA id 5E07844C101C;
-        Tue, 31 Jan 2023 13:30:01 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 mail.ispras.ru 5E07844C101C
+        by mail.ispras.ru (Postfix) with ESMTPSA id 45C2C40D403D;
+        Tue, 31 Jan 2023 13:34:09 +0000 (UTC)
+DKIM-Filter: OpenDKIM Filter v2.11.0 mail.ispras.ru 45C2C40D403D
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ispras.ru;
-        s=default; t=1675171801;
-        bh=mI19dm7Fk00QlQvujoR9rtAuLR5XJESDyEf9vZSEIpU=;
+        s=default; t=1675172049;
+        bh=GO7rQ3YnyPbvVQ6S5q0dnpEgom7k1sfTIO7vuJhqQNg=;
         h=From:To:Cc:Subject:Date:From;
-        b=Hf5gL8ZZYTkT5jwoo18OKYu6LCX0r5Wcn8jIK0Gd1jF9QFGZ/vtLBrMXPMaE12Zho
-         NTHCfGEwP4fBAg6vhAJgfvKEJu7EB5QH8I+/ObFe566WqnKeGNW+0rkWI1VQL6cHR5
-         /yJlfQtFlzR7GMGlJFh8cRWSFUxumbFkrsFpNtr8=
+        b=JLYGt7Brmw3nzlsjfYBKYhS55VRekLCSrgfI90Ug80FZhn3BTVAsh/hdv3yaPnhR9
+         dk99zL7faN+ySXaiGvCs4I3Y8GKGEubAcDtiePR/tMc7wSAP7qilHf8kokKwdWhaW2
+         40BTAiisobOgu9FDafFrLiw6sFWjkID4E0IsUpBo=
 From:   Fedor Pchelkin <pchelkin@ispras.ru>
 To:     stable@vger.kernel.org,
         Greg Kroah-Hartman <gregkh@linuxfoundation.org>
@@ -35,9 +35,9 @@ Cc:     Fedor Pchelkin <pchelkin@ispras.ru>, Jens Axboe <axboe@kernel.dk>,
         linux-block@vger.kernel.org, linux-kernel@vger.kernel.org,
         lvc-project@linuxtesting.org,
         Alexey Khoroshilov <khoroshilov@ispras.ru>
-Subject: [PATCH v2 5.4] block: fix and cleanup bio_check_ro
-Date:   Tue, 31 Jan 2023 16:29:50 +0300
-Message-Id: <20230131132950.873202-1-pchelkin@ispras.ru>
+Subject: [PATCH v2 4.19] block: fix and cleanup bio_check_ro
+Date:   Tue, 31 Jan 2023 16:34:01 +0300
+Message-Id: <20230131133401.877826-1-pchelkin@ispras.ru>
 X-Mailer: git-send-email 2.30.2
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
@@ -75,10 +75,10 @@ v1->v2: added backport comment
  1 file changed, 1 insertion(+), 3 deletions(-)
 
 diff --git a/block/blk-core.c b/block/blk-core.c
-index 5808baa950c3..030de4fdf9b1 100644
+index 80f3e729fdd4..4fbf915d9cb0 100644
 --- a/block/blk-core.c
 +++ b/block/blk-core.c
-@@ -793,10 +793,7 @@ static inline bool bio_check_ro(struct bio *bio, struct hd_struct *part)
+@@ -2179,10 +2179,7 @@ static inline bool bio_check_ro(struct bio *bio, struct hd_struct *part)
  
  		if (op_is_flush(bio->bi_opf) && !bio_sectors(bio))
  			return false;
@@ -92,3 +92,4 @@ index 5808baa950c3..030de4fdf9b1 100644
  		return false;
 -- 
 2.34.1
+
