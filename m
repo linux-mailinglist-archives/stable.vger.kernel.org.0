@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C14A668298A
-	for <lists+stable@lfdr.de>; Tue, 31 Jan 2023 10:52:53 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6B63768298C
+	for <lists+stable@lfdr.de>; Tue, 31 Jan 2023 10:53:00 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231993AbjAaJwu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 31 Jan 2023 04:52:50 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53584 "EHLO
+        id S230026AbjAaJwy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 31 Jan 2023 04:52:54 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53690 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230026AbjAaJwr (ORCPT
-        <rfc822;Stable@vger.kernel.org>); Tue, 31 Jan 2023 04:52:47 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 884DC4EC2
-        for <Stable@vger.kernel.org>; Tue, 31 Jan 2023 01:52:45 -0800 (PST)
+        with ESMTP id S232700AbjAaJws (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 31 Jan 2023 04:52:48 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E876814492
+        for <stable@vger.kernel.org>; Tue, 31 Jan 2023 01:52:46 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 3B933B81AC8
-        for <Stable@vger.kernel.org>; Tue, 31 Jan 2023 09:52:44 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 680D3C4339B;
-        Tue, 31 Jan 2023 09:52:41 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 5C9686148B
+        for <stable@vger.kernel.org>; Tue, 31 Jan 2023 09:52:46 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 53D07C433EF;
+        Tue, 31 Jan 2023 09:52:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1675158762;
-        bh=2HI0FG44KjtwgenQrPXWBRHbTmy0OZuQaO2lehFvuOE=;
+        s=korg; t=1675158765;
+        bh=GYwPb/KkDMUg/XIDKgnprFKSRnEOYKtUdgJabTOE6Ao=;
         h=Subject:To:From:Date:From;
-        b=QkGqkUi8ki6UekPrUBjmQLGJ+lkc0c0fDtrsC/9L35vwgqU4dpkqyQQ4VjKS5tG+V
-         zd84lenaok7N1PNZ5VggiH4eCjNwpOHok9AgRW9YvxEWvsOyE3V7XfxvR/+ZXIPhyg
-         324eOgYvQeQYPoHypldKniegtcBbW2IhvdYI/nqE=
-Subject: patch "iio: adc: berlin2-adc: Add missing of_node_put() in error path" added to char-misc-linus
-To:     wangxiongfeng2@huawei.com, Jonathan.Cameron@huawei.com,
-        Stable@vger.kernel.org
+        b=vSzmlXqZAItPTzzJgfYNuwIrT7EdHrrxlkaOA7ZkN+NuYBQl2cBs4Xh0I3/NZorRM
+         XyUvoNrprTUXmg4xuQ9668ilESsQP75opMGsu5Q8tSRevn1ZnUDLXJiy0lJMSASx/a
+         LLGegsQPkiUlsDLkd6TzlLUrZADHGTQJ+dwLpUek=
+Subject: patch "iio: adc: xilinx-ams: fix devm_krealloc() return value check" added to char-misc-linus
+To:     marpagan@redhat.com, Jonathan.Cameron@huawei.com,
+        michal.simek@amd.com, stable@vger.kernel.org
 From:   <gregkh@linuxfoundation.org>
-Date:   Tue, 31 Jan 2023 10:52:36 +0100
-Message-ID: <167515875620151@kroah.com>
+Date:   Tue, 31 Jan 2023 10:52:37 +0100
+Message-ID: <167515875752143@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -49,7 +49,7 @@ X-Mailing-List: stable@vger.kernel.org
 
 This is a note to let you know that I've just added the patch titled
 
-    iio: adc: berlin2-adc: Add missing of_node_put() in error path
+    iio: adc: xilinx-ams: fix devm_krealloc() return value check
 
 to my char-misc git tree which can be found at
     git://git.kernel.org/pub/scm/linux/kernel/git/gregkh/char-misc.git
@@ -64,40 +64,40 @@ next -rc kernel release.
 If you have any questions about this process, please let me know.
 
 
-From cbd3a0153cd18a2cbef6bf3cf31bb406c3fc9f55 Mon Sep 17 00:00:00 2001
-From: Xiongfeng Wang <wangxiongfeng2@huawei.com>
-Date: Tue, 29 Nov 2022 10:03:16 +0800
-Subject: iio: adc: berlin2-adc: Add missing of_node_put() in error path
+From 6794ed0cfcc6ce737240eccc48b3e8190df36703 Mon Sep 17 00:00:00 2001
+From: Marco Pagani <marpagan@redhat.com>
+Date: Fri, 25 Nov 2022 12:31:12 +0100
+Subject: iio: adc: xilinx-ams: fix devm_krealloc() return value check
 
-of_get_parent() will return a device_node pointer with refcount
-incremented. We need to use of_node_put() on it when done. Add the
-missing of_node_put() in the error path of berlin2_adc_probe();
+The clang-analyzer reported a warning: "Value stored to 'ret'
+is never read".
 
-Fixes: 70f1937911ca ("iio: adc: add support for Berlin")
-Signed-off-by: Xiongfeng Wang <wangxiongfeng2@huawei.com>
-Link: https://lore.kernel.org/r/20221129020316.191731-1-wangxiongfeng2@huawei.com
-Cc: <Stable@vger.kernel.org>
+Fix the return value check if devm_krealloc() fails to resize
+ams_channels.
+
+Fixes: d5c70627a794 ("iio: adc: Add Xilinx AMS driver")
+Signed-off-by: Marco Pagani <marpagan@redhat.com>
+Acked-by: Michal Simek <michal.simek@amd.com>
+Link: https://lore.kernel.org/r/20221125113112.219290-1-marpagan@redhat.com
+Cc: <stable@vger.kernel.org>
 Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
 ---
- drivers/iio/adc/berlin2-adc.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ drivers/iio/adc/xilinx-ams.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/iio/adc/berlin2-adc.c b/drivers/iio/adc/berlin2-adc.c
-index 3d2e8b4db61a..a4e7c7eff5ac 100644
---- a/drivers/iio/adc/berlin2-adc.c
-+++ b/drivers/iio/adc/berlin2-adc.c
-@@ -298,8 +298,10 @@ static int berlin2_adc_probe(struct platform_device *pdev)
- 	int ret;
+diff --git a/drivers/iio/adc/xilinx-ams.c b/drivers/iio/adc/xilinx-ams.c
+index 5b4bdf3a26bb..a507d2e17079 100644
+--- a/drivers/iio/adc/xilinx-ams.c
++++ b/drivers/iio/adc/xilinx-ams.c
+@@ -1329,7 +1329,7 @@ static int ams_parse_firmware(struct iio_dev *indio_dev)
  
- 	indio_dev = devm_iio_device_alloc(&pdev->dev, sizeof(*priv));
--	if (!indio_dev)
-+	if (!indio_dev) {
-+		of_node_put(parent_np);
- 		return -ENOMEM;
-+	}
+ 	dev_channels = devm_krealloc(dev, ams_channels, dev_size, GFP_KERNEL);
+ 	if (!dev_channels)
+-		ret = -ENOMEM;
++		return -ENOMEM;
  
- 	priv = iio_priv(indio_dev);
- 
+ 	indio_dev->channels = dev_channels;
+ 	indio_dev->num_channels = num_channels;
 -- 
 2.39.1
 
