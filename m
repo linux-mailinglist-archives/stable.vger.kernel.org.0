@@ -2,55 +2,54 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id CD20F68308C
-	for <lists+stable@lfdr.de>; Tue, 31 Jan 2023 16:03:37 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9003A683087
+	for <lists+stable@lfdr.de>; Tue, 31 Jan 2023 16:03:28 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232754AbjAaPD2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 31 Jan 2023 10:03:28 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59340 "EHLO
+        id S232839AbjAaPD0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 31 Jan 2023 10:03:26 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58682 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232760AbjAaPCL (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 31 Jan 2023 10:02:11 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CA3975422C;
+        with ESMTP id S232557AbjAaPCJ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 31 Jan 2023 10:02:09 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B2D4F5529B;
         Tue, 31 Jan 2023 07:00:49 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 577B1B81D58;
-        Tue, 31 Jan 2023 15:00:48 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 27858C4339B;
-        Tue, 31 Jan 2023 15:00:46 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 1B91861566;
+        Tue, 31 Jan 2023 15:00:49 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 73AA8C433D2;
+        Tue, 31 Jan 2023 15:00:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1675177247;
-        bh=n8Hio6+XVc1JL+1LkjfNJWCmSJmAHqg6Y5zxk4lWsec=;
+        s=k20201202; t=1675177248;
+        bh=31PGigVaWwsYxdx0F+/sk0jL4EAU83tF/tnCicsEiYQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=uoVk6mH9E8zBkOcF2RS+gNSqFZ6B9c9zZxSL6Z2OQ2fl4L/DiLzGyLf2Wpx26yOxf
-         JZeCfEgyDPkpiPy2CQacVKOZxR29+uNgtYIi6r/NMIbkkxWZQCR750ubDJTrY8QgD3
-         GKU15wGJIGkvj8tddzZHMUbmrmwLXOZ0GhF6lqEvuoRk1ZyIic2sTSToPAIdez7KwZ
-         nM2jbm7wvEbaf/aTAWRXve7Iz/KgfQKM97ycWB5eSLW0w37dhaNmSTAtfb0bIOgyVZ
-         UUtvhrHDTsQdGglNuMjD8dtLc3mTnwVNyM6X6ryNP1HrabEjRH1323E99ObeiLY+f/
-         RKoAQNE+Ul0QQ==
+        b=s6YcLnKSzXabknbYXZNOTC722baf/3znSvSJeJZ0ZvrLxV0+TUNN0HQfEAvwjbaH/
+         I9g/obPwWSJQBx1V+YBOvMfLh+rh2N9Ai76dGQKkCi7zj+8c/TqYd0xbHKlhIEV1K4
+         bAbT1XmZMP3oKaXd8la1XNIJA39X5SPJ7z5JMQ08zx8I9eBl6HjUiU1CpWSf04Ja/n
+         +IdSnfV+VTMkCs6lJVK+Yr/qP6RfIfnK5mF4z8WLHxWitAbiFVIutZU7if0s7S0/bq
+         +SETBimdNULx9Tcrl+IrN2DAfmc3T2BeFD0Y0b5Lt/ckB9OWRjKv0MdJ6650JusRjX
+         kZjCYseLeRwyA==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Kevin Kuriakose <kevinmkuriakose@gmail.com>,
-        =?UTF-8?q?Thomas=20Wei=C3=9Fschuh?= <linux@weissschuh.net>,
-        Hans de Goede <hdegoede@redhat.com>,
-        Sasha Levin <sashal@kernel.org>, thomas@weissschuh.net,
-        markgross@kernel.org, platform-driver-x86@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.15 09/12] platform/x86: gigabyte-wmi: add support for B450M DS3H WIFI-CF
-Date:   Tue, 31 Jan 2023 10:00:27 -0500
-Message-Id: <20230131150030.1250104-9-sashal@kernel.org>
+Cc:     Hyunwoo Kim <v4bel@theori.io>,
+        "David S . Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>, ms@dev.tdt.de,
+        edumazet@google.com, kuba@kernel.org, pabeni@redhat.com,
+        linux-x25@vger.kernel.org, netdev@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.15 10/12] net/x25: Fix to not accept on connected socket
+Date:   Tue, 31 Jan 2023 10:00:28 -0500
+Message-Id: <20230131150030.1250104-10-sashal@kernel.org>
 X-Mailer: git-send-email 2.39.0
 In-Reply-To: <20230131150030.1250104-1-sashal@kernel.org>
 References: <20230131150030.1250104-1-sashal@kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
 X-stable: review
 X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
         SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -58,36 +57,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kevin Kuriakose <kevinmkuriakose@gmail.com>
+From: Hyunwoo Kim <v4bel@theori.io>
 
-[ Upstream commit a410429a3b7e748a9db9f357e71e2e085a21c902 ]
+[ Upstream commit f2b0b5210f67c56a3bcdf92ff665fb285d6e0067 ]
 
-To the best of my knowledge this is the same board as the B450M DS3H-CF,
-but with an added WiFi card. Name obtained using dmidecode, tested
-with force_load on v6.1.6
+When listen() and accept() are called on an x25 socket
+that connect() succeeds, accept() succeeds immediately.
+This is because x25_connect() queues the skb to
+sk->sk_receive_queue, and x25_accept() dequeues it.
 
-Signed-off-by: Kevin Kuriakose <kevinmkuriakose@gmail.com>
-Acked-by: Thomas Weißschuh <linux@weissschuh.net>
-Link: https://lore.kernel.org/r/20230119150925.31962-1-kevinmkuriakose@gmail.com
-Reviewed-by: Hans de Goede <hdegoede@redhat.com>
-Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+This creates a child socket with the sk of the parent
+x25 socket, which can cause confusion.
+
+Fix x25_listen() to return -EINVAL if the socket has
+already been successfully connect()ed to avoid this issue.
+
+Signed-off-by: Hyunwoo Kim <v4bel@theori.io>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/platform/x86/gigabyte-wmi.c | 1 +
- 1 file changed, 1 insertion(+)
+ net/x25/af_x25.c | 6 ++++++
+ 1 file changed, 6 insertions(+)
 
-diff --git a/drivers/platform/x86/gigabyte-wmi.c b/drivers/platform/x86/gigabyte-wmi.c
-index ebd15c1d13ec..0163e912fafe 100644
---- a/drivers/platform/x86/gigabyte-wmi.c
-+++ b/drivers/platform/x86/gigabyte-wmi.c
-@@ -141,6 +141,7 @@ static u8 gigabyte_wmi_detect_sensor_usability(struct wmi_device *wdev)
+diff --git a/net/x25/af_x25.c b/net/x25/af_x25.c
+index 3a171828638b..07f6206e7cb4 100644
+--- a/net/x25/af_x25.c
++++ b/net/x25/af_x25.c
+@@ -482,6 +482,12 @@ static int x25_listen(struct socket *sock, int backlog)
+ 	int rc = -EOPNOTSUPP;
  
- static const struct dmi_system_id gigabyte_wmi_known_working_platforms[] = {
- 	DMI_EXACT_MATCH_GIGABYTE_BOARD_NAME("B450M DS3H-CF"),
-+	DMI_EXACT_MATCH_GIGABYTE_BOARD_NAME("B450M DS3H WIFI-CF"),
- 	DMI_EXACT_MATCH_GIGABYTE_BOARD_NAME("B450M S2H V2"),
- 	DMI_EXACT_MATCH_GIGABYTE_BOARD_NAME("B550 AORUS ELITE AX V2"),
- 	DMI_EXACT_MATCH_GIGABYTE_BOARD_NAME("B550 AORUS ELITE"),
+ 	lock_sock(sk);
++	if (sock->state != SS_UNCONNECTED) {
++		rc = -EINVAL;
++		release_sock(sk);
++		return rc;
++	}
++
+ 	if (sk->sk_state != TCP_LISTEN) {
+ 		memset(&x25_sk(sk)->dest_addr, 0, X25_ADDR_LEN);
+ 		sk->sk_max_ack_backlog = backlog;
 -- 
 2.39.0
 
