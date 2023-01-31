@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 59B8E683119
-	for <lists+stable@lfdr.de>; Tue, 31 Jan 2023 16:15:46 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 02BD968313E
+	for <lists+stable@lfdr.de>; Tue, 31 Jan 2023 16:20:07 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232873AbjAaPPo (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 31 Jan 2023 10:15:44 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47336 "EHLO
+        id S231384AbjAaPUE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 31 Jan 2023 10:20:04 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55162 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232856AbjAaPPU (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 31 Jan 2023 10:15:20 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 878E458961;
-        Tue, 31 Jan 2023 07:13:39 -0800 (PST)
+        with ESMTP id S229499AbjAaPT2 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 31 Jan 2023 10:19:28 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AD06B29E38;
+        Tue, 31 Jan 2023 07:17:32 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 126ECB81D4D;
+        by dfw.source.kernel.org (Postfix) with ESMTPS id E25D261574;
         Tue, 31 Jan 2023 15:01:10 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 19D36C433D2;
-        Tue, 31 Jan 2023 15:01:08 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 40F14C4339B;
+        Tue, 31 Jan 2023 15:01:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1675177268;
-        bh=8d91AQT1e3CnN4jFQL+iFmU6yHLD1qbExdC4WZSdfkk=;
+        s=k20201202; t=1675177270;
+        bh=ix94DxuV/QtR2kk4loRy2CIZBhfC2bzbmIuT+Fcl75Q=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=OW+Cfm1nnyJ3r3topnoujRF2OtKlw5BPv2JTkAOu5Kz53rX3LGho5JuY8ZNXlvJvS
-         Mn4vnIlXBvXIW1tHPhZDSMHxv3AFOKqyRNAfLMj97VVlb53975YIbyWsiRhQcATRW8
-         IM/EUSLs7JEEQoEDswVzFzvHvVEjHbaBqSfry+wjaeG5EsTKskhRiQe3qwFKDTDH72
-         kC59KTg3ezgjCxUYUWffoXBUfc1GJN2xFthlam2HdoWzEEM7yQ3RykyBEl0NqGl+F/
-         /7sKMAZJnAyt44CVD8i/NYZV9zqQzm8OG9TXzh4U8s1TEDe3rq+X30uof6vqXDdDH3
-         T+DCew/vKfAKg==
+        b=TciZ+BOlyi3qSbsA87XV81llaI0woQkBkHP8FvnQdRkSAR/NQ4SSdgPjcD6oRCcnn
+         gc8rEAWBtlFn6Haiu+dtmpiayGx9Ry/x1Qdk1NdlEEbJ6SnKOXS0fMtpxE61Tt0hKa
+         z/ssjIhKTnFSMRMKx9cVT07PCaLczV8An6Go80IPb7Eb+0Cym3o2NYa3GPLSt2lZKX
+         EzscysSyk6IzeXw70hI+qio0fiIn58ZuTOE6hd/LtQhgbHh9SVyrYg0guWxAYtzTMX
+         M3cC6XkyoousS+e+GFGOzM08QSnrQeAUJMbYfMcFztDvUTqVejjHFbnU280b+bPVcH
+         8rHkghQ9+fdNA==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Koba Ko <koba.ko@canonical.com>,
-        Hans de Goede <hdegoede@redhat.com>,
-        Sasha Levin <sashal@kernel.org>, markgross@kernel.org,
-        platform-driver-x86@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.10 5/6] platform/x86: dell-wmi: Add a keymap for KEY_MUTE in type 0x0010 table
-Date:   Tue, 31 Jan 2023 10:00:57 -0500
-Message-Id: <20230131150100.1250267-5-sashal@kernel.org>
+Cc:     Hyunwoo Kim <v4bel@theori.io>,
+        "David S . Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>, ms@dev.tdt.de,
+        edumazet@google.com, kuba@kernel.org, pabeni@redhat.com,
+        linux-x25@vger.kernel.org, netdev@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.10 6/6] net/x25: Fix to not accept on connected socket
+Date:   Tue, 31 Jan 2023 10:00:58 -0500
+Message-Id: <20230131150100.1250267-6-sashal@kernel.org>
 X-Mailer: git-send-email 2.39.0
 In-Reply-To: <20230131150100.1250267-1-sashal@kernel.org>
 References: <20230131150100.1250267-1-sashal@kernel.org>
@@ -47,8 +48,8 @@ MIME-Version: 1.0
 X-stable: review
 X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
         SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -56,38 +57,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Koba Ko <koba.ko@canonical.com>
+From: Hyunwoo Kim <v4bel@theori.io>
 
-[ Upstream commit 83bcf3e52e9cfc727df33f1055ef0618c91719d0 ]
+[ Upstream commit f2b0b5210f67c56a3bcdf92ff665fb285d6e0067 ]
 
-Some platforms send the speaker-mute key from EC. dell-wmi can't
-recognize it.
+When listen() and accept() are called on an x25 socket
+that connect() succeeds, accept() succeeds immediately.
+This is because x25_connect() queues the skb to
+sk->sk_receive_queue, and x25_accept() dequeues it.
 
-Add a new keymap for KEY_MUTE in type 0x0010 table.
+This creates a child socket with the sk of the parent
+x25 socket, which can cause confusion.
 
-Signed-off-by: Koba Ko <koba.ko@canonical.com>
-Link: https://lore.kernel.org/r/20230117123436.200440-1-koba.ko@canonical.com
-Reviewed-by: Hans de Goede <hdegoede@redhat.com>
-Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+Fix x25_listen() to return -EINVAL if the socket has
+already been successfully connect()ed to avoid this issue.
+
+Signed-off-by: Hyunwoo Kim <v4bel@theori.io>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/platform/x86/dell-wmi.c | 3 +++
- 1 file changed, 3 insertions(+)
+ net/x25/af_x25.c | 6 ++++++
+ 1 file changed, 6 insertions(+)
 
-diff --git a/drivers/platform/x86/dell-wmi.c b/drivers/platform/x86/dell-wmi.c
-index bbdb3e860892..6ef327a80ccf 100644
---- a/drivers/platform/x86/dell-wmi.c
-+++ b/drivers/platform/x86/dell-wmi.c
-@@ -259,6 +259,9 @@ static const struct key_entry dell_wmi_keymap_type_0010[] = {
- 	{ KE_KEY,    0x57, { KEY_BRIGHTNESSDOWN } },
- 	{ KE_KEY,    0x58, { KEY_BRIGHTNESSUP } },
+diff --git a/net/x25/af_x25.c b/net/x25/af_x25.c
+index d231d4620c38..161dc194e634 100644
+--- a/net/x25/af_x25.c
++++ b/net/x25/af_x25.c
+@@ -492,6 +492,12 @@ static int x25_listen(struct socket *sock, int backlog)
+ 	int rc = -EOPNOTSUPP;
  
-+	/*Speaker Mute*/
-+	{ KE_KEY, 0x109, { KEY_MUTE} },
+ 	lock_sock(sk);
++	if (sock->state != SS_UNCONNECTED) {
++		rc = -EINVAL;
++		release_sock(sk);
++		return rc;
++	}
 +
- 	/* Mic mute */
- 	{ KE_KEY, 0x150, { KEY_MICMUTE } },
- 
+ 	if (sk->sk_state != TCP_LISTEN) {
+ 		memset(&x25_sk(sk)->dest_addr, 0, X25_ADDR_LEN);
+ 		sk->sk_max_ack_backlog = backlog;
 -- 
 2.39.0
 
