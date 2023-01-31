@@ -2,51 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 360E5683060
-	for <lists+stable@lfdr.de>; Tue, 31 Jan 2023 16:01:43 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6330A68305E
+	for <lists+stable@lfdr.de>; Tue, 31 Jan 2023 16:01:42 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232597AbjAaPBj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 31 Jan 2023 10:01:39 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60476 "EHLO
+        id S232589AbjAaPBi (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 31 Jan 2023 10:01:38 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60534 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232476AbjAaPAe (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 31 Jan 2023 10:00:34 -0500
+        with ESMTP id S232283AbjAaPAg (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 31 Jan 2023 10:00:36 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9F7C9539B3;
-        Tue, 31 Jan 2023 07:00:24 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0B167539A6;
+        Tue, 31 Jan 2023 07:00:26 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 3443B61562;
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 9578961565;
+        Tue, 31 Jan 2023 15:00:25 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 22602C4339E;
         Tue, 31 Jan 2023 15:00:24 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id AA279C433EF;
-        Tue, 31 Jan 2023 15:00:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1675177223;
-        bh=oCVM42IRNyag+dX2TI9jas4V2944v2wF4/babOP+wLw=;
+        s=k20201202; t=1675177225;
+        bh=2eJvU72bguGWNcOSPX5RnYvIcsZFnsi3YJtrC2eEK7I=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=b3NXkvUlOp1xRpOl8ddZijHUODPbclF0QgPURKg77dPAjzd5+9HoV21oUupyL8Iuv
-         +UGbT+OMsKuWx5G5OlPUAnIp8O+FFizkPGzVIX3Wtas66JYFKwPM2yD2s8rWIucNJc
-         0Gk6Ikv6ARivYjBE/7p9zRtNmF1kTPWFKESDa7opNOjlh513WfMzg1zJ65eWAli2UB
-         veaYRR3FqgajBaUoRyjEkUuc2ZoY4uJ2bW0MXtRKSPmlKrMVAvzuRd7PsyzCKMI50s
-         85c+vNST/6H6VF+GR5zJHVHc/jb3H5LzxRiKuZTP9H4OY0WtV8pN90wl3TYvRe9gto
-         zLYBTwS30YcuA==
+        b=FF7N+hOU3dPlZ2reCprCMbWhFtMARMJ2CXpdZQ48ehokiBpZCRQa2o92dRgSeFx8D
+         S+IS+9Csw2F8IfIlfoYc0/mBluHtCl0JSI8MBluJJ4R6ooQ5aXVNuGv+IrqeQRavgn
+         QYHWeG0PMQwK3qQpnDpaFK3mi1vxfB9mOPSCc5ANyX1jGhRxNWNyAqKnWlH35D1g2a
+         uAr5n8cYqjjCrFan/GVupfgtNq9A9Uf2hs8MRr/TYu8ZsSd0A/4jPKKISKGV+/LlVL
+         VSNL65YyeZegbIQDIoZuMSXpiU6xEKlXpSEC6Ldc3IIJ3FfMHHdNwRLAdGNK++Vb09
+         734XkCsyaDgKQ==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Aurabindo Pillai <aurabindo.pillai@amd.com>,
-        Nicholas Kazlauskas <Nicholas.Kazlauskas@amd.com>,
-        Alan Liu <HaoPing.Liu@amd.com>,
-        Daniel Wheeler <daniel.wheeler@amd.com>,
-        Alex Deucher <alexander.deucher@amd.com>,
-        Sasha Levin <sashal@kernel.org>, harry.wentland@amd.com,
-        sunpeng.li@amd.com, Rodrigo.Siqueira@amd.com,
-        christian.koenig@amd.com, Xinhui.Pan@amd.com, airlied@gmail.com,
-        daniel@ffwll.ch, roman.li@amd.com, lyude@redhat.com,
-        Jerry.Zuo@amd.com, stylon.wang@amd.com,
-        amd-gfx@lists.freedesktop.org, dri-devel@lists.freedesktop.org
-Subject: [PATCH AUTOSEL 6.1 18/20] drm/amd/display: Fix timing not changning when freesync video is enabled
-Date:   Tue, 31 Jan 2023 09:59:44 -0500
-Message-Id: <20230131145946.1249850-18-sashal@kernel.org>
+Cc:     Kees Cook <keescook@chromium.org>,
+        Alexandre Pereira <alexpereira@disroot.org>,
+        Coly Li <colyli@suse.de>,
+        Kent Overstreet <kent.overstreet@gmail.com>,
+        linux-bcache@vger.kernel.org, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH AUTOSEL 6.1 19/20] bcache: Silence memcpy() run-time false positive warnings
+Date:   Tue, 31 Jan 2023 09:59:45 -0500
+Message-Id: <20230131145946.1249850-19-sashal@kernel.org>
 X-Mailer: git-send-email 2.39.0
 In-Reply-To: <20230131145946.1249850-1-sashal@kernel.org>
 References: <20230131145946.1249850-1-sashal@kernel.org>
@@ -63,46 +57,61 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Aurabindo Pillai <aurabindo.pillai@amd.com>
+From: Kees Cook <keescook@chromium.org>
 
-[ Upstream commit 4b069553246f993c4221e382d0d0ae34f5ba730e ]
+[ Upstream commit be0d8f48ad97f5b775b0af3310343f676dbf318a ]
 
-[Why&How]
-Switching between certain modes that are freesync video modes and those
-are not freesync video modes result in timing not changing as seen by
-the monitor due to incorrect timing being driven.
+struct bkey has internal padding in a union, but it isn't always named
+the same (e.g. key ## _pad, key_p, etc). This makes it extremely hard
+for the compiler to reason about the available size of copies done
+against such keys. Use unsafe_memcpy() for now, to silence the many
+run-time false positive warnings:
 
-The issue is fixed by ensuring that when a non freesync video mode is
-set, we reset the freesync status on the crtc.
+  memcpy: detected field-spanning write (size 264) of single field "&i->j" at drivers/md/bcache/journal.c:152 (size 240)
+  memcpy: detected field-spanning write (size 24) of single field "&b->key" at drivers/md/bcache/btree.c:939 (size 16)
+  memcpy: detected field-spanning write (size 24) of single field "&temp.key" at drivers/md/bcache/extents.c:428 (size 16)
 
-Reviewed-by: Nicholas Kazlauskas <Nicholas.Kazlauskas@amd.com>
-Acked-by: Alan Liu <HaoPing.Liu@amd.com>
-Signed-off-by: Aurabindo Pillai <aurabindo.pillai@amd.com>
-Tested-by: Daniel Wheeler <daniel.wheeler@amd.com>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+Reported-by: Alexandre Pereira <alexpereira@disroot.org>
+Link: https://bugzilla.kernel.org/show_bug.cgi?id=216785
+Acked-by: Coly Li <colyli@suse.de>
+Cc: Kent Overstreet <kent.overstreet@gmail.com>
+Cc: linux-bcache@vger.kernel.org
+Signed-off-by: Kees Cook <keescook@chromium.org>
+Link: https://lore.kernel.org/r/20230106060229.never.047-kees@kernel.org
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c | 7 +++++++
- 1 file changed, 7 insertions(+)
+ drivers/md/bcache/bcache_ondisk.h | 3 ++-
+ drivers/md/bcache/journal.c       | 3 ++-
+ 2 files changed, 4 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c b/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c
-index e10f1f15c9c4..15b408e3a705 100644
---- a/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c
-+++ b/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c
-@@ -8788,6 +8788,13 @@ static int dm_update_crtc_state(struct amdgpu_display_manager *dm,
- 		if (!dm_old_crtc_state->stream)
- 			goto skip_modeset;
+diff --git a/drivers/md/bcache/bcache_ondisk.h b/drivers/md/bcache/bcache_ondisk.h
+index 97413586195b..f96034e0ba4f 100644
+--- a/drivers/md/bcache/bcache_ondisk.h
++++ b/drivers/md/bcache/bcache_ondisk.h
+@@ -106,7 +106,8 @@ static inline unsigned long bkey_bytes(const struct bkey *k)
+ 	return bkey_u64s(k) * sizeof(__u64);
+ }
  
-+		/* Unset freesync video if it was active before */
-+		if (dm_old_crtc_state->freesync_config.state == VRR_STATE_ACTIVE_FIXED) {
-+			dm_new_crtc_state->freesync_config.state = VRR_STATE_INACTIVE;
-+			dm_new_crtc_state->freesync_config.fixed_refresh_in_uhz = 0;
-+		}
-+
-+		/* Now check if we should set freesync video mode */
- 		if (amdgpu_freesync_vid_mode && dm_new_crtc_state->stream &&
- 		    is_timing_unchanged_for_freesync(new_crtc_state,
- 						     old_crtc_state)) {
+-#define bkey_copy(_dest, _src)	memcpy(_dest, _src, bkey_bytes(_src))
++#define bkey_copy(_dest, _src)	unsafe_memcpy(_dest, _src, bkey_bytes(_src), \
++					/* bkey is always padded */)
+ 
+ static inline void bkey_copy_key(struct bkey *dest, const struct bkey *src)
+ {
+diff --git a/drivers/md/bcache/journal.c b/drivers/md/bcache/journal.c
+index e5da469a4235..c182c21de2e8 100644
+--- a/drivers/md/bcache/journal.c
++++ b/drivers/md/bcache/journal.c
+@@ -149,7 +149,8 @@ reread:		left = ca->sb.bucket_size - offset;
+ 				    bytes, GFP_KERNEL);
+ 			if (!i)
+ 				return -ENOMEM;
+-			memcpy(&i->j, j, bytes);
++			unsafe_memcpy(&i->j, j, bytes,
++				/* "bytes" was calculated by set_bytes() above */);
+ 			/* Add to the location after 'where' points to */
+ 			list_add(&i->list, where);
+ 			ret = 1;
 -- 
 2.39.0
 
