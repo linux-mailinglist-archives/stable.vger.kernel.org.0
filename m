@@ -2,48 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 9D8486830AC
-	for <lists+stable@lfdr.de>; Tue, 31 Jan 2023 16:05:22 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id BCD8368316E
+	for <lists+stable@lfdr.de>; Tue, 31 Jan 2023 16:25:10 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232881AbjAaPFU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 31 Jan 2023 10:05:20 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36706 "EHLO
+        id S233301AbjAaPZJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 31 Jan 2023 10:25:09 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38032 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232971AbjAaPEz (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 31 Jan 2023 10:04:55 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2110656EC5;
-        Tue, 31 Jan 2023 07:02:04 -0800 (PST)
+        with ESMTP id S233440AbjAaPYz (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 31 Jan 2023 10:24:55 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EB3AC4489;
+        Tue, 31 Jan 2023 07:23:41 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 632B861580;
-        Tue, 31 Jan 2023 15:01:26 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B77E5C4339E;
-        Tue, 31 Jan 2023 15:01:24 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 183F6B81D48;
+        Tue, 31 Jan 2023 15:01:30 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0CB44C433EF;
+        Tue, 31 Jan 2023 15:01:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1675177285;
-        bh=EPTn8O+W9FKdSwBQm8cf1uuYZqyWDXkvTKEHGB5MubY=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=kQwLAKlo0JdHyrHikqBtKP8HqlDlitZpD0FRSoR4VurlkmQWScvdFa5OEVsUSc+Y4
-         BHzteNCUMh5kfFgYCFOx9rYCIhWDdFPadA4iedSnc0ZAuSJ/YnmWzzyL8lMSrRbt4q
-         PwQisnX2VZAF9eCdbgqEe2yFQVP3QngD0dnF4V6tpnoD/RRPEFSGwvMQzE+BB/9xaX
-         RZ+Y4DjiqWOKclvHoUGsQMV4VSN9gDL2CBp1peW6S0pe3xWMEwoa86L8367MZntHmi
-         aumkNhw4BhS/wCEyUtLWCPp3OJXRtPcLaeUXCUopj4xNrWcssNLIZuyt1uXn/C5cws
-         IUNYVqac+n8tA==
+        s=k20201202; t=1675177288;
+        bh=H++bLpgSQ3LW38jFWQWLP+we9kkB45v6L+5nzrE2P3k=;
+        h=From:To:Cc:Subject:Date:From;
+        b=awOD87kZ2mUZ9AqxU/Maj4sr0UB6NyhpE/QcgzhCAGHaHdUDdbb9X/1jQ08H/zEH+
+         bnKwTsUHXZ80IlzZlkKiVxCXIEFXzWet/TTnE+XnbiW1uaItdFOlbsFkiocn86nCAr
+         b3R3qFyN8DGr7f0+Qoc/KZyrclswXfkIqpI3E5XzQvZsfg+iUHl86NQad+l9uzwOEg
+         qRjR/shT0L20m2D0pYBuOFBm4I5s2GmQBmJtaAjPGw8XdSt/1t5xfX0htpHk0AgNNZ
+         CVwp++lZ6wqdSNVk1tNh71Sl8bD2FWpb6mG/dGCsvX6NNblMmcBY9podFKPTqyWNfm
+         Ibksl+40jIyww==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Hyunwoo Kim <v4bel@theori.io>,
-        "David S . Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>, ms@dev.tdt.de,
-        edumazet@google.com, kuba@kernel.org, pabeni@redhat.com,
-        linux-x25@vger.kernel.org, netdev@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.19 4/4] net/x25: Fix to not accept on connected socket
-Date:   Tue, 31 Jan 2023 10:01:18 -0500
-Message-Id: <20230131150118.1250409-4-sashal@kernel.org>
+Cc:     Maurizio Lombardi <mlombard@redhat.com>,
+        Christoph Hellwig <hch@lst.de>,
+        "Martin K . Petersen" <martin.petersen@oracle.com>,
+        Sasha Levin <sashal@kernel.org>, linux-scsi@vger.kernel.org,
+        target-devel@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.14 1/3] scsi: target: core: Fix warning on RT kernels
+Date:   Tue, 31 Jan 2023 10:01:24 -0500
+Message-Id: <20230131150126.1250471-1-sashal@kernel.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20230131150118.1250409-1-sashal@kernel.org>
-References: <20230131150118.1250409-1-sashal@kernel.org>
 MIME-Version: 1.0
 X-stable: review
 X-Patchwork-Hint: Ignore
@@ -57,45 +55,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hyunwoo Kim <v4bel@theori.io>
+From: Maurizio Lombardi <mlombard@redhat.com>
 
-[ Upstream commit f2b0b5210f67c56a3bcdf92ff665fb285d6e0067 ]
+[ Upstream commit 84ed64b1a7a7fcd507598dee7708c1f225123711 ]
 
-When listen() and accept() are called on an x25 socket
-that connect() succeeds, accept() succeeds immediately.
-This is because x25_connect() queues the skb to
-sk->sk_receive_queue, and x25_accept() dequeues it.
+Calling spin_lock_irqsave() does not disable the interrupts on realtime
+kernels, remove the warning and replace assert_spin_locked() with
+lockdep_assert_held().
 
-This creates a child socket with the sk of the parent
-x25 socket, which can cause confusion.
-
-Fix x25_listen() to return -EINVAL if the socket has
-already been successfully connect()ed to avoid this issue.
-
-Signed-off-by: Hyunwoo Kim <v4bel@theori.io>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Maurizio Lombardi <mlombard@redhat.com>
+Reviewed-by: Christoph Hellwig <hch@lst.de>
+Link: https://lore.kernel.org/r/20230110125310.55884-1-mlombard@redhat.com
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/x25/af_x25.c | 6 ++++++
- 1 file changed, 6 insertions(+)
+ drivers/target/target_core_tmr.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/net/x25/af_x25.c b/net/x25/af_x25.c
-index 77d8adb27ec7..9d0328bb30ca 100644
---- a/net/x25/af_x25.c
-+++ b/net/x25/af_x25.c
-@@ -497,6 +497,12 @@ static int x25_listen(struct socket *sock, int backlog)
- 	int rc = -EOPNOTSUPP;
+diff --git a/drivers/target/target_core_tmr.c b/drivers/target/target_core_tmr.c
+index 9c7bc1ca341a..e72bfb10a3f0 100644
+--- a/drivers/target/target_core_tmr.c
++++ b/drivers/target/target_core_tmr.c
+@@ -114,8 +114,8 @@ static bool __target_check_io_state(struct se_cmd *se_cmd,
+ {
+ 	struct se_session *sess = se_cmd->se_sess;
  
- 	lock_sock(sk);
-+	if (sock->state != SS_UNCONNECTED) {
-+		rc = -EINVAL;
-+		release_sock(sk);
-+		return rc;
-+	}
+-	assert_spin_locked(&sess->sess_cmd_lock);
+-	WARN_ON_ONCE(!irqs_disabled());
++	lockdep_assert_held(&sess->sess_cmd_lock);
 +
- 	if (sk->sk_state != TCP_LISTEN) {
- 		memset(&x25_sk(sk)->dest_addr, 0, X25_ADDR_LEN);
- 		sk->sk_max_ack_backlog = backlog;
+ 	/*
+ 	 * If command already reached CMD_T_COMPLETE state within
+ 	 * target_complete_cmd() or CMD_T_FABRIC_STOP due to shutdown,
 -- 
 2.39.0
 
