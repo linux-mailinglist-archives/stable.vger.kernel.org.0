@@ -2,50 +2,49 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id BFEAB6830EE
-	for <lists+stable@lfdr.de>; Tue, 31 Jan 2023 16:10:49 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5D52D6830F0
+	for <lists+stable@lfdr.de>; Tue, 31 Jan 2023 16:10:51 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231912AbjAaPKs (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S232664AbjAaPKs (ORCPT <rfc822;lists+stable@lfdr.de>);
         Tue, 31 Jan 2023 10:10:48 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39596 "EHLO
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40718 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232802AbjAaPJi (ORCPT
+        with ESMTP id S232831AbjAaPJi (ORCPT
         <rfc822;stable@vger.kernel.org>); Tue, 31 Jan 2023 10:09:38 -0500
 Received: from mga17.intel.com (mga17.intel.com [192.55.52.151])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 695AE56191
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E5FCF59272
         for <stable@vger.kernel.org>; Tue, 31 Jan 2023 07:07:19 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
   d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
   t=1675177639; x=1706713639;
   h=from:to:cc:subject:date:message-id:in-reply-to:
    references:mime-version:content-transfer-encoding;
-  bh=j8Y2LV0W5VcgqRvSCj3NHM2NvF5FUThc1MCS7fVqAcM=;
-  b=IRaJQbvcJsBgCx8ICXa83Grq9UK8Qs6//EL88RXw80iichqEISX4B8v+
-   6mJbOMksitTYz1J+sOlNa/TGWmPVd0NFzmRMtMdlEjEvOhV6JRzeDgBig
-   FhavV1e5nu3vFGA4LhbIFKq4whn2aoTk1xbJhOikXpj0WlkzJeEqDUL7M
-   +ExWZSPhqPLgJTMHP+lfdB/av9qELoURhubzm+OWaIpULUTb//tpkB+po
-   yyft5bhZnMX5vYiLHcDRckhP62sXgE67FTBwk8ODvhbYmHyeykxz31ivG
-   j3LaOy+FEiEr7ImRv3S8ks8s65Av2jCBFixItU7p9IqVnpVZ8uYLByS6s
-   w==;
-X-IronPort-AV: E=McAfee;i="6500,9779,10606"; a="308205515"
+  bh=OVU92fLhhCnmsHRSjXxgmVjiG9w68pV/VSaJlXdgk/s=;
+  b=IfKm3TARDs5J1ov3feUYcNpx/sRm7vPcCX8nxFr+xvpFHMi5Y7fktmzU
+   ewKfmIGDYgKAx7sonEFl1MRzURupgKLe5+tThpcEbseVa/sb0NMIxOG86
+   sdgnoCJ2FXgSaAZb1FkezQxxmYy1DF8uC1Ve2SSNdp4zVXjOz1ayHYeLF
+   dxKDZuBEGPttmmKxWpI5H2IvtPfi66gMCJvZivJ2Ved3cPDceexXiWUU4
+   XbQ+7xz8D/0VRbCeaD2PiIeKM7AE9mXOvibu5VFy+GuPUUCoF5PjiqfJe
+   dnvfB1lS7b+wy1OXnjm+MGQT43RmcQHbwhlRbcYZTomM19S0dSjcvorDW
+   Q==;
+X-IronPort-AV: E=McAfee;i="6500,9779,10606"; a="308205525"
 X-IronPort-AV: E=Sophos;i="5.97,261,1669104000"; 
-   d="scan'208";a="308205515"
+   d="scan'208";a="308205525"
 Received: from fmsmga001.fm.intel.com ([10.253.24.23])
-  by fmsmga107.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 31 Jan 2023 07:05:57 -0800
-X-IronPort-AV: E=McAfee;i="6500,9779,10606"; a="807155293"
+  by fmsmga107.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 31 Jan 2023 07:05:58 -0800
+X-IronPort-AV: E=McAfee;i="6500,9779,10606"; a="807155295"
 X-IronPort-AV: E=Sophos;i="5.97,261,1669104000"; 
-   d="scan'208";a="807155293"
+   d="scan'208";a="807155295"
 Received: from ideak-desk.fi.intel.com ([10.237.72.58])
-  by fmsmga001-auth.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 31 Jan 2023 07:05:55 -0800
+  by fmsmga001-auth.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 31 Jan 2023 07:05:57 -0800
 From:   Imre Deak <imre.deak@intel.com>
 To:     intel-gfx@lists.freedesktop.org
 Cc:     Lyude Paul <lyude@redhat.com>,
         =?UTF-8?q?Ville=20Syrj=C3=A4l=C3=A4?= 
-        <ville.syrjala@linux.intel.com>, stable@vger.kernel.org,
-        dri-devel@lists.freedesktop.org
-Subject: [PATCH v2 03/17] drm/display/dp_mst: Add drm_atomic_get_old_mst_topology_state()
-Date:   Tue, 31 Jan 2023 17:05:34 +0200
-Message-Id: <20230131150548.1614458-4-imre.deak@intel.com>
+        <ville.syrjala@linux.intel.com>, stable@vger.kernel.org
+Subject: [PATCH v2 04/17] drm/i915/dp_mst: Fix payload removal during output disabling
+Date:   Tue, 31 Jan 2023 17:05:35 +0200
+Message-Id: <20230131150548.1614458-5-imre.deak@intel.com>
 X-Mailer: git-send-email 2.31.1.189.g2e36527f23
 In-Reply-To: <20230131150548.1614458-1-imre.deak@intel.com>
 References: <20230131150548.1614458-1-imre.deak@intel.com>
@@ -61,103 +60,72 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Add a function to get the old MST topology state, required by a
-follow-up i915 patch.
+Use the correct old/new topology and payload states in
+intel_mst_disable_dp(). So far drm_atomic_get_mst_topology_state() it
+used returned either the old state, in case the state was added already
+earlier during the atomic check phase or otherwise the new state (but
+the latter could fail, which can't be handled in the enable/disable
+hooks). After the first patch in the patchset, the state should always
+get added already during the check phase, so here we can get the
+old/new states without a failure.
 
-While at it clarify the code comment of
-drm_atomic_get_new_mst_topology_state() and add _new prefix
-to the new state pointer to remind about its difference from the old
-state.
+drm_dp_remove_payload() should use time_slots from the old payload state
+and vc_start_slot in the new one. It should update the new payload
+states to reflect the sink's current payload table after the payload is
+removed. Pass the new topology state and the old and new payload states
+accordingly.
 
-v2: Use old_/new_ prefixes for the state pointers. (Ville)
+This also fixes a problem where the payload allocations for multiple MST
+streams on the same link got inconsistent after a few commits, as
+during payload removal the old instead of the new payload state got
+updated, so the subsequent enabling sequence and commits used a stale
+payload state.
+
+v2: Constify the old payload state pointer. (Ville)
 
 Cc: Lyude Paul <lyude@redhat.com>
 Cc: Ville Syrjälä <ville.syrjala@linux.intel.com>
 Cc: stable@vger.kernel.org # 6.1
-Cc: dri-devel@lists.freedesktop.org
 Reviewed-by: Ville Syrjälä <ville.syrjala@linux.intel.com>
 Signed-off-by: Imre Deak <imre.deak@intel.com>
 ---
- drivers/gpu/drm/display/drm_dp_mst_topology.c | 33 ++++++++++++++++---
- include/drm/display/drm_dp_mst_helper.h       |  3 ++
- 2 files changed, 32 insertions(+), 4 deletions(-)
+ drivers/gpu/drm/i915/display/intel_dp_mst.c | 16 ++++++++++------
+ 1 file changed, 10 insertions(+), 6 deletions(-)
 
-diff --git a/drivers/gpu/drm/display/drm_dp_mst_topology.c b/drivers/gpu/drm/display/drm_dp_mst_topology.c
-index 1990ff5dc7ddd..38dab76ae69ea 100644
---- a/drivers/gpu/drm/display/drm_dp_mst_topology.c
-+++ b/drivers/gpu/drm/display/drm_dp_mst_topology.c
-@@ -5364,28 +5364,53 @@ struct drm_dp_mst_topology_state *drm_atomic_get_mst_topology_state(struct drm_a
+diff --git a/drivers/gpu/drm/i915/display/intel_dp_mst.c b/drivers/gpu/drm/i915/display/intel_dp_mst.c
+index dc4e5ff1dbb31..054a009e800d7 100644
+--- a/drivers/gpu/drm/i915/display/intel_dp_mst.c
++++ b/drivers/gpu/drm/i915/display/intel_dp_mst.c
+@@ -524,10 +524,14 @@ static void intel_mst_disable_dp(struct intel_atomic_state *state,
+ 	struct intel_dp *intel_dp = &dig_port->dp;
+ 	struct intel_connector *connector =
+ 		to_intel_connector(old_conn_state->connector);
+-	struct drm_dp_mst_topology_state *mst_state =
+-		drm_atomic_get_mst_topology_state(&state->base, &intel_dp->mst_mgr);
+-	struct drm_dp_mst_atomic_payload *payload =
+-		drm_atomic_get_mst_payload_state(mst_state, connector->port);
++	struct drm_dp_mst_topology_state *old_mst_state =
++		drm_atomic_get_old_mst_topology_state(&state->base, &intel_dp->mst_mgr);
++	struct drm_dp_mst_topology_state *new_mst_state =
++		drm_atomic_get_new_mst_topology_state(&state->base, &intel_dp->mst_mgr);
++	const struct drm_dp_mst_atomic_payload *old_payload =
++		drm_atomic_get_mst_payload_state(old_mst_state, connector->port);
++	struct drm_dp_mst_atomic_payload *new_payload =
++		drm_atomic_get_mst_payload_state(new_mst_state, connector->port);
+ 	struct drm_i915_private *i915 = to_i915(connector->base.dev);
+ 
+ 	drm_dbg_kms(&i915->drm, "active links %d\n",
+@@ -535,8 +539,8 @@ static void intel_mst_disable_dp(struct intel_atomic_state *state,
+ 
+ 	intel_hdcp_disable(intel_mst->connector);
+ 
+-	drm_dp_remove_payload(&intel_dp->mst_mgr, mst_state,
+-			      payload, payload);
++	drm_dp_remove_payload(&intel_dp->mst_mgr, new_mst_state,
++			      old_payload, new_payload);
+ 
+ 	intel_audio_codec_disable(encoder, old_crtc_state, old_conn_state);
  }
- EXPORT_SYMBOL(drm_atomic_get_mst_topology_state);
- 
-+/**
-+ * drm_atomic_get_old_mst_topology_state: get old MST topology state in atomic state, if any
-+ * @state: global atomic state
-+ * @mgr: MST topology manager, also the private object in this case
-+ *
-+ * This function wraps drm_atomic_get_old_private_obj_state() passing in the MST atomic
-+ * state vtable so that the private object state returned is that of a MST
-+ * topology object.
-+ *
-+ * Returns:
-+ *
-+ * The old MST topology state, or NULL if there's no topology state for this MST mgr
-+ * in the global atomic state
-+ */
-+struct drm_dp_mst_topology_state *
-+drm_atomic_get_old_mst_topology_state(struct drm_atomic_state *state,
-+				      struct drm_dp_mst_topology_mgr *mgr)
-+{
-+	struct drm_private_state *old_priv_state =
-+		drm_atomic_get_old_private_obj_state(state, &mgr->base);
-+
-+	return old_priv_state ? to_dp_mst_topology_state(old_priv_state) : NULL;
-+}
-+EXPORT_SYMBOL(drm_atomic_get_old_mst_topology_state);
-+
- /**
-  * drm_atomic_get_new_mst_topology_state: get new MST topology state in atomic state, if any
-  * @state: global atomic state
-  * @mgr: MST topology manager, also the private object in this case
-  *
-- * This function wraps drm_atomic_get_priv_obj_state() passing in the MST atomic
-+ * This function wraps drm_atomic_get_new_private_obj_state() passing in the MST atomic
-  * state vtable so that the private object state returned is that of a MST
-  * topology object.
-  *
-  * Returns:
-  *
-- * The MST topology state, or NULL if there's no topology state for this MST mgr
-+ * The new MST topology state, or NULL if there's no topology state for this MST mgr
-  * in the global atomic state
-  */
- struct drm_dp_mst_topology_state *
- drm_atomic_get_new_mst_topology_state(struct drm_atomic_state *state,
- 				      struct drm_dp_mst_topology_mgr *mgr)
- {
--	struct drm_private_state *priv_state =
-+	struct drm_private_state *new_priv_state =
- 		drm_atomic_get_new_private_obj_state(state, &mgr->base);
- 
--	return priv_state ? to_dp_mst_topology_state(priv_state) : NULL;
-+	return new_priv_state ? to_dp_mst_topology_state(new_priv_state) : NULL;
- }
- EXPORT_SYMBOL(drm_atomic_get_new_mst_topology_state);
- 
-diff --git a/include/drm/display/drm_dp_mst_helper.h b/include/drm/display/drm_dp_mst_helper.h
-index f5eb9aa152b14..32c764fb9cb56 100644
---- a/include/drm/display/drm_dp_mst_helper.h
-+++ b/include/drm/display/drm_dp_mst_helper.h
-@@ -868,6 +868,9 @@ struct drm_dp_mst_topology_state *
- drm_atomic_get_mst_topology_state(struct drm_atomic_state *state,
- 				  struct drm_dp_mst_topology_mgr *mgr);
- struct drm_dp_mst_topology_state *
-+drm_atomic_get_old_mst_topology_state(struct drm_atomic_state *state,
-+				      struct drm_dp_mst_topology_mgr *mgr);
-+struct drm_dp_mst_topology_state *
- drm_atomic_get_new_mst_topology_state(struct drm_atomic_state *state,
- 				      struct drm_dp_mst_topology_mgr *mgr);
- struct drm_dp_mst_atomic_payload *
 -- 
 2.37.1
 
