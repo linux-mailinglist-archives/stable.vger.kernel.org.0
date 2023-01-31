@@ -2,52 +2,56 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id BCD8368316E
-	for <lists+stable@lfdr.de>; Tue, 31 Jan 2023 16:25:10 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 84B976830A5
+	for <lists+stable@lfdr.de>; Tue, 31 Jan 2023 16:05:05 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233301AbjAaPZJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 31 Jan 2023 10:25:09 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38032 "EHLO
+        id S230490AbjAaPFD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 31 Jan 2023 10:05:03 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59340 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233440AbjAaPYz (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 31 Jan 2023 10:24:55 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EB3AC4489;
-        Tue, 31 Jan 2023 07:23:41 -0800 (PST)
+        with ESMTP id S232664AbjAaPEZ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 31 Jan 2023 10:04:25 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E5CEC46D7E;
+        Tue, 31 Jan 2023 07:01:47 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 183F6B81D48;
+        by dfw.source.kernel.org (Postfix) with ESMTPS id EA15161569;
         Tue, 31 Jan 2023 15:01:30 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0CB44C433EF;
-        Tue, 31 Jan 2023 15:01:27 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 45C58C433D2;
+        Tue, 31 Jan 2023 15:01:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1675177288;
-        bh=H++bLpgSQ3LW38jFWQWLP+we9kkB45v6L+5nzrE2P3k=;
-        h=From:To:Cc:Subject:Date:From;
-        b=awOD87kZ2mUZ9AqxU/Maj4sr0UB6NyhpE/QcgzhCAGHaHdUDdbb9X/1jQ08H/zEH+
-         bnKwTsUHXZ80IlzZlkKiVxCXIEFXzWet/TTnE+XnbiW1uaItdFOlbsFkiocn86nCAr
-         b3R3qFyN8DGr7f0+Qoc/KZyrclswXfkIqpI3E5XzQvZsfg+iUHl86NQad+l9uzwOEg
-         qRjR/shT0L20m2D0pYBuOFBm4I5s2GmQBmJtaAjPGw8XdSt/1t5xfX0htpHk0AgNNZ
-         CVwp++lZ6wqdSNVk1tNh71Sl8bD2FWpb6mG/dGCsvX6NNblMmcBY9podFKPTqyWNfm
-         Ibksl+40jIyww==
+        s=k20201202; t=1675177290;
+        bh=nFL98HanffDr/9tMYNjucP1NEOPJIbYQ6Acved+q6Sk=;
+        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+        b=mthMomAgppBYBY+fsgoj3PryiJ9uiOxJsJZAUBISVcirqkog1+LRkx1KYUqQj0fbN
+         SUlkw2csWe2ZEQ5PTIOu6545pyp8TbFeMtlhPKL7IB1SUvPSIciW90GhqJr56XD+Ai
+         br8TSKU9YEp4NxiNo4Wo8B4kYV6CUw2G/kPZl+CwxkhoEcQ4TqeWOspC2feSM2w3n2
+         W7c7pZsJRTBr61RdqIZ0KmN2nZNUDcIlbsGNkAivqS5Ke3DkRWaJTFwmTlrKoJRfEk
+         R8QXttOcGqa9B529tndCkMDBQp/mseDlzjlxYDcBlsCyT9J9eU/bUqFpTQamOPzKMW
+         IV3/6V/4jYLZQ==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Maurizio Lombardi <mlombard@redhat.com>,
-        Christoph Hellwig <hch@lst.de>,
+Cc:     Mike Christie <michael.christie@oracle.com>,
+        Lee Duncan <lduncan@suse.com>,
+        Ding Hui <dinghui@sangfor.com.cn>,
         "Martin K . Petersen" <martin.petersen@oracle.com>,
-        Sasha Levin <sashal@kernel.org>, linux-scsi@vger.kernel.org,
-        target-devel@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.14 1/3] scsi: target: core: Fix warning on RT kernels
-Date:   Tue, 31 Jan 2023 10:01:24 -0500
-Message-Id: <20230131150126.1250471-1-sashal@kernel.org>
+        Sasha Levin <sashal@kernel.org>, cleech@redhat.com,
+        jejb@linux.ibm.com, open-iscsi@googlegroups.com,
+        linux-scsi@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.14 2/3] scsi: iscsi_tcp: Fix UAF during login when accessing the shost ipaddress
+Date:   Tue, 31 Jan 2023 10:01:25 -0500
+Message-Id: <20230131150126.1250471-2-sashal@kernel.org>
 X-Mailer: git-send-email 2.39.0
+In-Reply-To: <20230131150126.1250471-1-sashal@kernel.org>
+References: <20230131150126.1250471-1-sashal@kernel.org>
 MIME-Version: 1.0
 X-stable: review
 X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
         SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -55,38 +59,66 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Maurizio Lombardi <mlombard@redhat.com>
+From: Mike Christie <michael.christie@oracle.com>
 
-[ Upstream commit 84ed64b1a7a7fcd507598dee7708c1f225123711 ]
+[ Upstream commit f484a794e4ee2a9ce61f52a78e810ac45f3fe3b3 ]
 
-Calling spin_lock_irqsave() does not disable the interrupts on realtime
-kernels, remove the warning and replace assert_spin_locked() with
-lockdep_assert_held().
+If during iscsi_sw_tcp_session_create() iscsi_tcp_r2tpool_alloc() fails,
+userspace could be accessing the host's ipaddress attr. If we then free the
+session via iscsi_session_teardown() while userspace is still accessing the
+session we will hit a use after free bug.
 
-Signed-off-by: Maurizio Lombardi <mlombard@redhat.com>
-Reviewed-by: Christoph Hellwig <hch@lst.de>
-Link: https://lore.kernel.org/r/20230110125310.55884-1-mlombard@redhat.com
+Set the tcp_sw_host->session after we have completed session creation and
+can no longer fail.
+
+Link: https://lore.kernel.org/r/20230117193937.21244-3-michael.christie@oracle.com
+Signed-off-by: Mike Christie <michael.christie@oracle.com>
+Reviewed-by: Lee Duncan <lduncan@suse.com>
+Acked-by: Ding Hui <dinghui@sangfor.com.cn>
 Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/target/target_core_tmr.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/scsi/iscsi_tcp.c | 9 ++++++---
+ 1 file changed, 6 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/target/target_core_tmr.c b/drivers/target/target_core_tmr.c
-index 9c7bc1ca341a..e72bfb10a3f0 100644
---- a/drivers/target/target_core_tmr.c
-+++ b/drivers/target/target_core_tmr.c
-@@ -114,8 +114,8 @@ static bool __target_check_io_state(struct se_cmd *se_cmd,
+diff --git a/drivers/scsi/iscsi_tcp.c b/drivers/scsi/iscsi_tcp.c
+index e3ca16043f9a..9161fe8fba88 100644
+--- a/drivers/scsi/iscsi_tcp.c
++++ b/drivers/scsi/iscsi_tcp.c
+@@ -773,7 +773,7 @@ static int iscsi_sw_tcp_host_get_param(struct Scsi_Host *shost,
+ 				       enum iscsi_host_param param, char *buf)
  {
- 	struct se_session *sess = se_cmd->se_sess;
+ 	struct iscsi_sw_tcp_host *tcp_sw_host = iscsi_host_priv(shost);
+-	struct iscsi_session *session = tcp_sw_host->session;
++	struct iscsi_session *session;
+ 	struct iscsi_conn *conn;
+ 	struct iscsi_tcp_conn *tcp_conn;
+ 	struct iscsi_sw_tcp_conn *tcp_sw_conn;
+@@ -782,6 +782,7 @@ static int iscsi_sw_tcp_host_get_param(struct Scsi_Host *shost,
  
--	assert_spin_locked(&sess->sess_cmd_lock);
--	WARN_ON_ONCE(!irqs_disabled());
-+	lockdep_assert_held(&sess->sess_cmd_lock);
+ 	switch (param) {
+ 	case ISCSI_HOST_PARAM_IPADDRESS:
++		session = tcp_sw_host->session;
+ 		if (!session)
+ 			return -ENOTCONN;
+ 
+@@ -870,12 +871,14 @@ iscsi_sw_tcp_session_create(struct iscsi_endpoint *ep, uint16_t cmds_max,
+ 	if (!cls_session)
+ 		goto remove_host;
+ 	session = cls_session->dd_data;
+-	tcp_sw_host = iscsi_host_priv(shost);
+-	tcp_sw_host->session = session;
+ 
+ 	shost->can_queue = session->scsi_cmds_max;
+ 	if (iscsi_tcp_r2tpool_alloc(session))
+ 		goto remove_session;
 +
- 	/*
- 	 * If command already reached CMD_T_COMPLETE state within
- 	 * target_complete_cmd() or CMD_T_FABRIC_STOP due to shutdown,
++	/* We are now fully setup so expose the session to sysfs. */
++	tcp_sw_host = iscsi_host_priv(shost);
++	tcp_sw_host->session = session;
+ 	return cls_session;
+ 
+ remove_session:
 -- 
 2.39.0
 
