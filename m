@@ -2,114 +2,109 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 1464A686B00
-	for <lists+stable@lfdr.de>; Wed,  1 Feb 2023 17:00:11 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5FECF686D47
+	for <lists+stable@lfdr.de>; Wed,  1 Feb 2023 18:44:23 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230447AbjBAQAI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 1 Feb 2023 11:00:08 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39836 "EHLO
+        id S231582AbjBARoV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 1 Feb 2023 12:44:21 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37768 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231963AbjBAQAG (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 1 Feb 2023 11:00:06 -0500
-Received: from mga05.intel.com (mga05.intel.com [192.55.52.43])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 81C16273B;
-        Wed,  1 Feb 2023 07:59:55 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
-  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1675267195; x=1706803195;
-  h=from:to:cc:subject:date:message-id:mime-version:
-   content-transfer-encoding;
-  bh=0J/+bcc/kBvFoqYMM1Kp8Sv8LAgfC3hzyVRuwc24ypo=;
-  b=fuePT1qEVBXeZlNmF3BLya8LJEKfTY89IFpGdAgBIiBg08iG1PEr7Hz3
-   /GUE8b0fu+aDM/9oBU8ZoplSv6yfL2X19hB5prI8g7on2tMwNywox59sN
-   HTDTgH/G8KUIpwEzWDQWQh4gddH4gqQMEni38AEFX4Opt2+FM5ZvvqOgm
-   3fJTWRIUoXNru47Jbr2ndMjZ7OY4KvCYriFKLkbloOkoKicLGdCVXc3Tm
-   e6JlUa27uYAmCwkWCRzV2l0R3E53TFYTedepTN4Ttd4Q9ufW+57PaxrN3
-   Xoscm6G2oExyeTbhEIlQ+1wYg4ZOSwcg/ksCXSp2cjfIB8nHyUwfwmzxP
-   g==;
-X-IronPort-AV: E=McAfee;i="6500,9779,10608"; a="414389921"
-X-IronPort-AV: E=Sophos;i="5.97,263,1669104000"; 
-   d="scan'208";a="414389921"
-Received: from orsmga008.jf.intel.com ([10.7.209.65])
-  by fmsmga105.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 01 Feb 2023 07:59:52 -0800
-X-ExtLoop1: 1
-X-IronPort-AV: E=McAfee;i="6500,9779,10608"; a="695396360"
-X-IronPort-AV: E=Sophos;i="5.97,263,1669104000"; 
-   d="scan'208";a="695396360"
-Received: from silpixa00400314.ir.intel.com (HELO silpixa00400314.ger.corp.intel.com) ([10.237.222.76])
-  by orsmga008.jf.intel.com with ESMTP; 01 Feb 2023 07:59:50 -0800
-From:   Giovanni Cabiddu <giovanni.cabiddu@intel.com>
-To:     herbert@gondor.apana.org.au
-Cc:     linux-crypto@vger.kernel.org, qat-linux@intel.com,
-        Giovanni Cabiddu <giovanni.cabiddu@intel.com>,
-        stable@vger.kernel.org, Vladis Dronov <vdronov@redhat.com>,
-        Fiona Trahe <fiona.trahe@intel.com>
-Subject: [PATCH] crypto: qat - fix out-of-bounds read
-Date:   Wed,  1 Feb 2023 15:59:44 +0000
-Message-Id: <20230201155944.23379-1-giovanni.cabiddu@intel.com>
-X-Mailer: git-send-email 2.39.1
+        with ESMTP id S230214AbjBARoV (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 1 Feb 2023 12:44:21 -0500
+Received: from mail-qt1-x832.google.com (mail-qt1-x832.google.com [IPv6:2607:f8b0:4864:20::832])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A34A22D5F;
+        Wed,  1 Feb 2023 09:44:19 -0800 (PST)
+Received: by mail-qt1-x832.google.com with SMTP id g7so1939825qto.11;
+        Wed, 01 Feb 2023 09:44:19 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20210112;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date:message-id:reply-to;
+        bh=0grifz9oyU58374EdScY3NpybfPtk3g+WDr7VXFF15k=;
+        b=R8cgjkJ9K6RB/P7cY+kyT0nYrGhg/J7hCkQdazFYGDEqtDAe38PggKOEoXIeTWavj+
+         JhVyTEAMvuT7d2YRzcNj64BK2vYcNUsIOiFVb7WoMmD9uQTMVclMVNauC6x7p7r93R0z
+         VdIji2IHoB+aCCrPA/a3phZddBzlA85AOrnNjEE2cS3HIukuUcsKlgYQBNaY6mq6PoOw
+         SdCElwgzCgYs0iC3lMx38pHsLVBrXjrn21P+DgnZZvgRUoexebhqWkHnjj69aYc4pDpp
+         A9TCk1zCXrAV/V4tPOVEtGE1SaB5q+2N/AqMNhQ1ZM6IePMjfSysShtZ1clHnJgqfUrK
+         5j5g==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=0grifz9oyU58374EdScY3NpybfPtk3g+WDr7VXFF15k=;
+        b=I2EA0Z9EO4QNVmmdGscRFvJmyLqWKi8E6cAhzr2Vo2VHGQ3kNSnSQjxa8cuJAgPoEV
+         jaqLQheeQTRZSPiKLF+xrJVddZAvgNDmfCuH/PfA5vpNJt1eccNfRrkWzNpvtt7uena3
+         JxggimI/RgcZwpLQWANxhCSjPhf6qK7H5SxWcW4ilv0xoOhPqILG8/9ltjD53Zx8Hgg4
+         GBsCeQQbA21ldudSBwF2bs9joE+AwXuernVhOUf2l7/S4OCkRUjvFDbsiF8oMkXwd9q9
+         +OV0AONHnl3J9gVNUZpjAqYweRZIjLDESGGqbLWLwPcFwRP1xubJ5UVTFnzmrvvG8MNE
+         NthQ==
+X-Gm-Message-State: AO0yUKXHOYWpqADsepXfkJJp6nOSJTWHcDoFM2zhReHT0Y58ndcz06pO
+        LjqauQBDNEuO+WnfxZ2WGa0EsmsEsgpysA==
+X-Google-Smtp-Source: AK7set8ClY4Osb1Wp19ezjIbCkAEdc8H96qba4/SjoW8MbiYJU+201JCIx+2udG1IXW3um8xRtgs/A==
+X-Received: by 2002:ac8:5f52:0:b0:3b9:bdb0:7aa1 with SMTP id y18-20020ac85f52000000b003b9bdb07aa1mr3215892qta.41.1675273458214;
+        Wed, 01 Feb 2023 09:44:18 -0800 (PST)
+Received: from fainelli-desktop.igp.broadcom.net ([192.19.223.252])
+        by smtp.gmail.com with ESMTPSA id f23-20020ac80157000000b003b868cdc689sm6681784qtg.5.2023.02.01.09.44.13
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 01 Feb 2023 09:44:14 -0800 (PST)
+From:   Florian Fainelli <f.fainelli@gmail.com>
+To:     linux-kernel@vger.kernel.org
+Cc:     stable@vger.kernel.org, Peter Chen <peter.chen@nxp.com>,
+        Matthias Kaehlcke <mka@chromium.org>,
+        Mathias Nyman <mathias.nyman@linux.intel.com>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Florian Fainelli <f.fainelli@gmail.com>,
+        Mathias Nyman <mathias.nyman@intel.com>,
+        linux-usb@vger.kernel.org (open list:USB XHCI DRIVER)
+Subject: [PATCH stable 4.14] usb: host: xhci-plat: add wakeup entry at sysfs
+Date:   Wed,  1 Feb 2023 09:44:02 -0800
+Message-Id: <20230201174404.32777-1-f.fainelli@gmail.com>
+X-Mailer: git-send-email 2.34.1
 MIME-Version: 1.0
-Organization: Intel Research and Development Ireland Ltd - Co. Reg. #308263 - Collinstown Industrial Park, Leixlip, County Kildare - Ireland
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
-        SPF_HELO_NONE,SPF_NONE autolearn=ham autolearn_force=no version=3.4.6
+X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_FROM,
+        RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS autolearn=ham
+        autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-When preparing an AER-CTR request, the driver copies the key provided by
-the user into a data structure that is accessible by the firmware.
-If the target device is QAT GEN4, the key size is rounded up by 16 since
-a rounded up size is expected by the device.
-If the key size is rounded up before the copy, the size used for copying
-the key might be bigger than the size of the region containing the key,
-causing an out-of-bounds read.
+From: Peter Chen <peter.chen@nxp.com>
 
-Fix by doing the copy first and then update the keylen.
+commit 4bb4fc0dbfa23acab9b762949b91ffd52106fe4b upstream
 
-This is to fix the following warning reported by KASAN:
+With this change, there will be a wakeup entry at /sys/../power/wakeup,
+and the user could use this entry to choose whether enable xhci wakeup
+features (wake up system from suspend) or not.
 
-	[  138.150574] BUG: KASAN: global-out-of-bounds in qat_alg_skcipher_init_com.isra.0+0x197/0x250 [intel_qat]
-	[  138.150641] Read of size 32 at addr ffffffff88c402c0 by task cryptomgr_test/2340
-
-	[  138.150651] CPU: 15 PID: 2340 Comm: cryptomgr_test Not tainted 6.2.0-rc1+ #45
-	[  138.150659] Hardware name: Intel Corporation ArcherCity/ArcherCity, BIOS EGSDCRB1.86B.0087.D13.2208261706 08/26/2022
-	[  138.150663] Call Trace:
-	[  138.150668]  <TASK>
-	[  138.150922]  kasan_check_range+0x13a/0x1c0
-	[  138.150931]  memcpy+0x1f/0x60
-	[  138.150940]  qat_alg_skcipher_init_com.isra.0+0x197/0x250 [intel_qat]
-	[  138.151006]  qat_alg_skcipher_init_sessions+0xc1/0x240 [intel_qat]
-	[  138.151073]  crypto_skcipher_setkey+0x82/0x160
-	[  138.151085]  ? prepare_keybuf+0xa2/0xd0
-	[  138.151095]  test_skcipher_vec_cfg+0x2b8/0x800
-
-Fixes: 67916c951689 ("crypto: qat - add AES-CTR support for QAT GEN4 devices")
-Cc: <stable@vger.kernel.org>
-Reported-by: Vladis Dronov <vdronov@redhat.com>
-Signed-off-by: Giovanni Cabiddu <giovanni.cabiddu@intel.com>
-Reviewed-by: Fiona Trahe <fiona.trahe@intel.com>
+Tested-by: Matthias Kaehlcke <mka@chromium.org>
+Reviewed-by: Matthias Kaehlcke <mka@chromium.org>
+Signed-off-by: Peter Chen <peter.chen@nxp.com>
+Signed-off-by: Mathias Nyman <mathias.nyman@linux.intel.com>
+Link: https://lore.kernel.org/r/20200918131752.16488-6-mathias.nyman@linux.intel.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Florian Fainelli <f.fainelli@gmail.com>
 ---
- drivers/crypto/qat/qat_common/qat_algs.c | 2 +-
+ drivers/usb/host/xhci-plat.c | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/crypto/qat/qat_common/qat_algs.c b/drivers/crypto/qat/qat_common/qat_algs.c
-index b4b9f0aa59b9..b61ada559158 100644
---- a/drivers/crypto/qat/qat_common/qat_algs.c
-+++ b/drivers/crypto/qat/qat_common/qat_algs.c
-@@ -435,8 +435,8 @@ static void qat_alg_skcipher_init_com(struct qat_alg_skcipher_ctx *ctx,
- 	} else if (aes_v2_capable && mode == ICP_QAT_HW_CIPHER_CTR_MODE) {
- 		ICP_QAT_FW_LA_SLICE_TYPE_SET(header->serv_specif_flags,
- 					     ICP_QAT_FW_LA_USE_UCS_SLICE_TYPE);
--		keylen = round_up(keylen, 16);
- 		memcpy(cd->ucs_aes.key, key, keylen);
-+		keylen = round_up(keylen, 16);
- 	} else {
- 		memcpy(cd->aes.key, key, keylen);
+diff --git a/drivers/usb/host/xhci-plat.c b/drivers/usb/host/xhci-plat.c
+index 2a73592908e1..3d20fe9c415f 100644
+--- a/drivers/usb/host/xhci-plat.c
++++ b/drivers/usb/host/xhci-plat.c
+@@ -252,7 +252,7 @@ static int xhci_plat_probe(struct platform_device *pdev)
+ 			*priv = *priv_match;
  	}
+ 
+-	device_wakeup_enable(hcd->self.controller);
++	device_set_wakeup_capable(&pdev->dev, true);
+ 
+ 	xhci->clk = clk;
+ 	xhci->main_hcd = hcd;
 -- 
-2.39.1
+2.34.1
 
