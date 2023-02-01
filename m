@@ -2,44 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D1069685C5A
-	for <lists+stable@lfdr.de>; Wed,  1 Feb 2023 01:45:44 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4301C685C5B
+	for <lists+stable@lfdr.de>; Wed,  1 Feb 2023 01:45:45 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231849AbjBAApn (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 31 Jan 2023 19:45:43 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41084 "EHLO
+        id S231838AbjBAApo (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 31 Jan 2023 19:45:44 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41090 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231838AbjBAApW (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 31 Jan 2023 19:45:22 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 315F151C5D;
-        Tue, 31 Jan 2023 16:45:20 -0800 (PST)
+        with ESMTP id S231859AbjBAApX (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 31 Jan 2023 19:45:23 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0B191530D1;
+        Tue, 31 Jan 2023 16:45:22 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id C47BCB81FCA;
-        Wed,  1 Feb 2023 00:45:18 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 65EABC433EF;
-        Wed,  1 Feb 2023 00:45:17 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 91C286175C;
+        Wed,  1 Feb 2023 00:45:21 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id EE2DFC433EF;
+        Wed,  1 Feb 2023 00:45:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linux-foundation.org;
-        s=korg; t=1675212317;
-        bh=w6ItKZ8AEWAP7ZzdTEoJg79cK3lt8+SqmjGD5C2JF3A=;
+        s=korg; t=1675212321;
+        bh=ClQFzhWGiebJjaqQk73jRR8JO9ZTkLw1LzetM/miyOA=;
         h=Date:To:From:Subject:From;
-        b=dsZcucDmQ/HTTPJEHyAah0iVLOxtAyfLTby0/x8NYVdUGi3f0bU5cp5C8FpXrTnSj
-         FKRg0GtsMOJ8e+tD0g73CCedBVh3dxSyknQtHxn4Zt553nxS2TuKueMS7HUivRVR+B
-         K1vcUh6BqJHgge/H3s+WeRpY+SpWKbH0ZUVDmXYc=
-Date:   Tue, 31 Jan 2023 16:45:16 -0800
-To:     mm-commits@vger.kernel.org, viro@zeniv.linux.org.uk,
-        tony.luck@intel.com, tglx@linutronix.de, stable@vger.kernel.org,
-        keescook@chromium.org, ira.weiny@intel.com, glider@google.com,
-        fmdefrancesco@gmail.com, dsterba@suse.com, deller@gmx.de,
-        bigeasy@linutronix.de, bagasdotme@gmail.com, andreyknvl@gmail.com,
-        willy@infradead.org, akpm@linux-foundation.org
+        b=j+HBi84RbMBORQLof06It7BURdgBeY1zszklTZRhzqTHflth6CTwtq1fPJmcpTcoA
+         jAFWazKH9f4k4c/cF8pmnDvM12KEjxGM2Ap4JaPtx0NPS3r3rCt4bDCRFUY+mX08v5
+         0kK7qEDG4u8bG41ud9HLXdu7IB4CDaY23+p7TCgg=
+Date:   Tue, 31 Jan 2023 16:45:20 -0800
+To:     mm-commits@vger.kernel.org,
+        syzbot+082fa4af80a5bb1a9843@syzkaller.appspotmail.com,
+        stable@vger.kernel.org, pchelkin@ispras.ru, khoroshilov@ispras.ru,
+        phillip@squashfs.org.uk, akpm@linux-foundation.org
 From:   Andrew Morton <akpm@linux-foundation.org>
-Subject: [merged mm-hotfixes-stable] highmem-round-down-the-address-passed-to-kunmap_flush_on_unmap.patch removed from -mm tree
-Message-Id: <20230201004517.65EABC433EF@smtp.kernel.org>
-X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,SPF_HELO_NONE,
+Subject: [merged mm-hotfixes-stable] squashfs-fix-handling-and-sanity-checking-of-xattr_ids-count.patch removed from -mm tree
+Message-Id: <20230201004520.EE2DFC433EF@smtp.kernel.org>
+X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,SPF_HELO_NONE,
         SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -49,117 +47,154 @@ X-Mailing-List: stable@vger.kernel.org
 
 
 The quilt patch titled
-     Subject: highmem: round down the address passed to kunmap_flush_on_unmap()
+     Subject: Squashfs: fix handling and sanity checking of xattr_ids count
 has been removed from the -mm tree.  Its filename was
-     highmem-round-down-the-address-passed-to-kunmap_flush_on_unmap.patch
+     squashfs-fix-handling-and-sanity-checking-of-xattr_ids-count.patch
 
 This patch was dropped because it was merged into the mm-hotfixes-stable branch
 of git://git.kernel.org/pub/scm/linux/kernel/git/akpm/mm
 
 ------------------------------------------------------
-From: "Matthew Wilcox (Oracle)" <willy@infradead.org>
-Subject: highmem: round down the address passed to kunmap_flush_on_unmap()
-Date: Thu, 26 Jan 2023 20:07:27 +0000
+From: Phillip Lougher <phillip@squashfs.org.uk>
+Subject: Squashfs: fix handling and sanity checking of xattr_ids count
+Date: Fri, 27 Jan 2023 06:18:42 +0000
 
-We already round down the address in kunmap_local_indexed() which is the
-other implementation of __kunmap_local().  The only implementation of
-kunmap_flush_on_unmap() is PA-RISC which is expecting a page-aligned
-address.  This may be causing PA-RISC to be flushing the wrong addresses
-currently.
+A Sysbot [1] corrupted filesystem exposes two flaws in the handling and
+sanity checking of the xattr_ids count in the filesystem.  Both of these
+flaws cause computation overflow due to incorrect typing.
 
-Link: https://lkml.kernel.org/r/20230126200727.1680362-1-willy@infradead.org
-Signed-off-by: Matthew Wilcox (Oracle) <willy@infradead.org>
-Fixes: 298fa1ad5571 ("highmem: Provide generic variant of kmap_atomic*")
-Reviewed-by: Ira Weiny <ira.weiny@intel.com>
-Cc: "Fabio M. De Francesco" <fmdefrancesco@gmail.com>
-Cc: Al Viro <viro@zeniv.linux.org.uk>
-Cc: Thomas Gleixner <tglx@linutronix.de>
-Cc: Helge Deller <deller@gmx.de>
-Cc: Alexander Potapenko <glider@google.com>
-Cc: Andrey Konovalov <andreyknvl@gmail.com>
-Cc: Bagas Sanjaya <bagasdotme@gmail.com>
-Cc: David Sterba <dsterba@suse.com>
-Cc: Kees Cook <keescook@chromium.org>
-Cc: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
-Cc: Tony Luck <tony.luck@intel.com>
+In the corrupted filesystem the xattr_ids value is 4294967071, which
+stored in a signed variable becomes the negative number -225.
+
+Flaw 1 (64-bit systems only):
+
+The signed integer xattr_ids variable causes sign extension.
+
+This causes variable overflow in the SQUASHFS_XATTR_*(A) macros.  The
+variable is first multiplied by sizeof(struct squashfs_xattr_id) where the
+type of the sizeof operator is "unsigned long".
+
+On a 64-bit system this is 64-bits in size, and causes the negative number
+to be sign extended and widened to 64-bits and then become unsigned.  This
+produces the very large number 18446744073709548016 or 2^64 - 3600.  This
+number when rounded up by SQUASHFS_METADATA_SIZE - 1 (8191 bytes) and
+divided by SQUASHFS_METADATA_SIZE overflows and produces a length of 0
+(stored in len).
+
+Flaw 2 (32-bit systems only):
+
+On a 32-bit system the integer variable is not widened by the unsigned
+long type of the sizeof operator (32-bits), and the signedness of the
+variable has no effect due it always being treated as unsigned.
+
+The above corrupted xattr_ids value of 4294967071, when multiplied
+overflows and produces the number 4294963696 or 2^32 - 3400.  This number
+when rounded up by SQUASHFS_METADATA_SIZE - 1 (8191 bytes) and divided by
+SQUASHFS_METADATA_SIZE overflows again and produces a length of 0.
+
+The effect of the 0 length computation:
+
+In conjunction with the corrupted xattr_ids field, the filesystem also has
+a corrupted xattr_table_start value, where it matches the end of
+filesystem value of 850.
+
+This causes the following sanity check code to fail because the
+incorrectly computed len of 0 matches the incorrect size of the table
+reported by the superblock (0 bytes).
+
+    len = SQUASHFS_XATTR_BLOCK_BYTES(*xattr_ids);
+    indexes = SQUASHFS_XATTR_BLOCKS(*xattr_ids);
+
+    /*
+     * The computed size of the index table (len bytes) should exactly
+     * match the table start and end points
+    */
+    start = table_start + sizeof(*id_table);
+    end = msblk->bytes_used;
+
+    if (len != (end - start))
+            return ERR_PTR(-EINVAL);
+
+Changing the xattr_ids variable to be "usigned int" fixes the flaw on a
+64-bit system.  This relies on the fact the computation is widened by the
+unsigned long type of the sizeof operator.
+
+Casting the variable to u64 in the above macro fixes this flaw on a 32-bit
+system.
+
+It also means 64-bit systems do not implicitly rely on the type of the
+sizeof operator to widen the computation.
+
+[1] https://lore.kernel.org/lkml/000000000000cd44f005f1a0f17f@google.com/
+
+Link: https://lkml.kernel.org/r/20230127061842.10965-1-phillip@squashfs.org.uk
+Fixes: 506220d2ba21 ("squashfs: add more sanity checks in xattr id lookup")
+Signed-off-by: Phillip Lougher <phillip@squashfs.org.uk>
+Reported-by: <syzbot+082fa4af80a5bb1a9843@syzkaller.appspotmail.com>
+Cc: Alexey Khoroshilov <khoroshilov@ispras.ru>
+Cc: Fedor Pchelkin <pchelkin@ispras.ru>
 Cc: <stable@vger.kernel.org>
 Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
 ---
 
- include/linux/highmem-internal.h |    4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ fs/squashfs/squashfs_fs.h    |    2 +-
+ fs/squashfs/squashfs_fs_sb.h |    2 +-
+ fs/squashfs/xattr.h          |    4 ++--
+ fs/squashfs/xattr_id.c       |    2 +-
+ 4 files changed, 5 insertions(+), 5 deletions(-)
 
---- a/include/linux/highmem-internal.h~highmem-round-down-the-address-passed-to-kunmap_flush_on_unmap
-+++ a/include/linux/highmem-internal.h
-@@ -200,7 +200,7 @@ static inline void *kmap_local_pfn(unsig
- static inline void __kunmap_local(const void *addr)
- {
- #ifdef ARCH_HAS_FLUSH_ON_KUNMAP
--	kunmap_flush_on_unmap(addr);
-+	kunmap_flush_on_unmap(PTR_ALIGN_DOWN(addr, PAGE_SIZE));
- #endif
- }
+--- a/fs/squashfs/squashfs_fs.h~squashfs-fix-handling-and-sanity-checking-of-xattr_ids-count
++++ a/fs/squashfs/squashfs_fs.h
+@@ -183,7 +183,7 @@ static inline int squashfs_block_size(__
+ #define SQUASHFS_ID_BLOCK_BYTES(A)	(SQUASHFS_ID_BLOCKS(A) *\
+ 					sizeof(u64))
+ /* xattr id lookup table defines */
+-#define SQUASHFS_XATTR_BYTES(A)		((A) * sizeof(struct squashfs_xattr_id))
++#define SQUASHFS_XATTR_BYTES(A)		(((u64) (A)) * sizeof(struct squashfs_xattr_id))
  
-@@ -227,7 +227,7 @@ static inline void *kmap_atomic_pfn(unsi
- static inline void __kunmap_atomic(const void *addr)
+ #define SQUASHFS_XATTR_BLOCK(A)		(SQUASHFS_XATTR_BYTES(A) / \
+ 					SQUASHFS_METADATA_SIZE)
+--- a/fs/squashfs/squashfs_fs_sb.h~squashfs-fix-handling-and-sanity-checking-of-xattr_ids-count
++++ a/fs/squashfs/squashfs_fs_sb.h
+@@ -63,7 +63,7 @@ struct squashfs_sb_info {
+ 	long long				bytes_used;
+ 	unsigned int				inodes;
+ 	unsigned int				fragments;
+-	int					xattr_ids;
++	unsigned int				xattr_ids;
+ 	unsigned int				ids;
+ 	bool					panic_on_errors;
+ 	const struct squashfs_decompressor_thread_ops *thread_ops;
+--- a/fs/squashfs/xattr.h~squashfs-fix-handling-and-sanity-checking-of-xattr_ids-count
++++ a/fs/squashfs/xattr.h
+@@ -10,12 +10,12 @@
+ 
+ #ifdef CONFIG_SQUASHFS_XATTR
+ extern __le64 *squashfs_read_xattr_id_table(struct super_block *, u64,
+-		u64 *, int *);
++		u64 *, unsigned int *);
+ extern int squashfs_xattr_lookup(struct super_block *, unsigned int, int *,
+ 		unsigned int *, unsigned long long *);
+ #else
+ static inline __le64 *squashfs_read_xattr_id_table(struct super_block *sb,
+-		u64 start, u64 *xattr_table_start, int *xattr_ids)
++		u64 start, u64 *xattr_table_start, unsigned int *xattr_ids)
  {
- #ifdef ARCH_HAS_FLUSH_ON_KUNMAP
--	kunmap_flush_on_unmap(addr);
-+	kunmap_flush_on_unmap(PTR_ALIGN_DOWN(addr, PAGE_SIZE));
- #endif
- 	pagefault_enable();
- 	if (IS_ENABLED(CONFIG_PREEMPT_RT))
+ 	struct squashfs_xattr_id_table *id_table;
+ 
+--- a/fs/squashfs/xattr_id.c~squashfs-fix-handling-and-sanity-checking-of-xattr_ids-count
++++ a/fs/squashfs/xattr_id.c
+@@ -56,7 +56,7 @@ int squashfs_xattr_lookup(struct super_b
+  * Read uncompressed xattr id lookup table indexes from disk into memory
+  */
+ __le64 *squashfs_read_xattr_id_table(struct super_block *sb, u64 table_start,
+-		u64 *xattr_table_start, int *xattr_ids)
++		u64 *xattr_table_start, unsigned int *xattr_ids)
+ {
+ 	struct squashfs_sb_info *msblk = sb->s_fs_info;
+ 	unsigned int len, indexes;
 _
 
-Patches currently in -mm which might be from willy@infradead.org are
+Patches currently in -mm which might be from phillip@squashfs.org.uk are
 
-mm-remove-folio_pincount_ptr-and-head_compound_pincount.patch
-mm-convert-head_subpages_mapcount-into-folio_nr_pages_mapped.patch
-doc-clarify-refcount-section-by-referring-to-folios-pages.patch
-mm-convert-total_compound_mapcount-to-folio_total_mapcount.patch
-mm-convert-page_remove_rmap-to-use-a-folio-internally.patch
-mm-convert-page_add_anon_rmap-to-use-a-folio-internally.patch
-mm-convert-page_add_file_rmap-to-use-a-folio-internally.patch
-mm-add-folio_add_new_anon_rmap.patch
-mm-add-folio_add_new_anon_rmap-fix-2.patch
-page_alloc-use-folio-fields-directly.patch
-mm-use-a-folio-in-hugepage_add_anon_rmap-and-hugepage_add_new_anon_rmap.patch
-mm-use-entire_mapcount-in-__page_dup_rmap.patch
-mm-debug-remove-call-to-head_compound_mapcount.patch
-hugetlb-remove-uses-of-folio_mapcount_ptr.patch
-mm-convert-page_mapcount-to-use-folio_entire_mapcount.patch
-mm-remove-head_compound_mapcount-and-_ptr-functions.patch
-mm-reimplement-compound_order.patch
-mm-reimplement-compound_nr.patch
-mm-reimplement-compound_nr-fix.patch
-mm-convert-set_compound_page_dtor-and-set_compound_order-to-folios.patch
-mm-convert-is_transparent_hugepage-to-use-a-folio.patch
-mm-convert-destroy_large_folio-to-use-folio_dtor.patch
-hugetlb-remove-uses-of-compound_dtor-and-compound_nr.patch
-mm-remove-first-tail-page-members-from-struct-page.patch
-doc-correct-struct-folio-kernel-doc.patch
-mm-move-page-deferred_list-to-folio-_deferred_list.patch
-mm-huge_memory-remove-page_deferred_list.patch
-mm-huge_memory-convert-get_deferred_split_queue-to-take-a-folio.patch
-mm-convert-deferred_split_huge_page-to-deferred_split_folio.patch
-shmem-convert-shmem_write_end-to-use-a-folio.patch
-mm-add-vma_alloc_zeroed_movable_folio.patch
-mm-convert-do_anonymous_page-to-use-a-folio.patch
-mm-convert-wp_page_copy-to-use-folios.patch
-mm-use-a-folio-in-copy_pte_range.patch
-mm-use-a-folio-in-copy_present_pte.patch
-mm-fs-convert-inode_attach_wb-to-take-a-folio.patch
-mm-convert-mem_cgroup_css_from_page-to-mem_cgroup_css_from_folio.patch
-mm-remove-page_evictable.patch
-mm-remove-mlock_vma_page.patch
-mm-remove-munlock_vma_page.patch
-mm-clean-up-mlock_page-munlock_page-references-in-comments.patch
-rmap-add-folio-parameter-to-__page_set_anon_rmap.patch
-filemap-convert-filemap_map_pmd-to-take-a-folio.patch
-filemap-convert-filemap_range_has_page-to-use-a-folio.patch
-readahead-convert-readahead_expand-to-use-a-folio.patch
-mm-add-memcpy_from_file_folio.patch
-fs-convert-writepage_t-callback-to-pass-a-folio.patch
-mpage-convert-__mpage_writepage-to-use-a-folio-more-fully.patch
-mpage-convert-__mpage_writepage-to-use-a-folio-more-fully-fix.patch
 
