@@ -2,43 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 564BC685C55
-	for <lists+stable@lfdr.de>; Wed,  1 Feb 2023 01:45:21 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D7AE4685C56
+	for <lists+stable@lfdr.de>; Wed,  1 Feb 2023 01:45:22 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231508AbjBAApU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 31 Jan 2023 19:45:20 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40868 "EHLO
+        id S231830AbjBAApV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 31 Jan 2023 19:45:21 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40886 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231837AbjBAApM (ORCPT
+        with ESMTP id S231841AbjBAApM (ORCPT
         <rfc822;stable@vger.kernel.org>); Tue, 31 Jan 2023 19:45:12 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B3CFB51C6C;
-        Tue, 31 Jan 2023 16:45:06 -0800 (PST)
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4034551C7E;
+        Tue, 31 Jan 2023 16:45:11 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 6ED8AB81FCA;
-        Wed,  1 Feb 2023 00:45:05 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 14042C433EF;
-        Wed,  1 Feb 2023 00:45:04 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id D04936175A;
+        Wed,  1 Feb 2023 00:45:10 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3336CC433D2;
+        Wed,  1 Feb 2023 00:45:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linux-foundation.org;
-        s=korg; t=1675212304;
-        bh=Ge440yvx8mZjEWkMt9FTMGo5nRv1nmUf8kEwmDscsmo=;
+        s=korg; t=1675212310;
+        bh=xlf9bGU48+SnDhZ4w89ISkqujpEh9Ulqm/zUn92nDYA=;
         h=Date:To:From:Subject:From;
-        b=ycD9gFE7WAyy7MaWrVW0zeDQq2HraP/nzqq2cEjKrOpyWwBjaIo5QSIBwSlGpBbFg
-         Tr7/zPg6IQd6PZEoraLGJTgd7gpXDhIckWDeeJQdr1WJjcowaq4M0iPOy6ys3r7lqe
-         URguN6fhlZ79tFWm3uCcCeG0M5zTewYMKX0UbEqE=
-Date:   Tue, 31 Jan 2023 16:45:03 -0800
+        b=UytXmMPeb+B24ikjW69Hnnc/JACAGEXdHsa5FkEc+/7S8kIx94Htn3ZBeAjMKRwTJ
+         vaW16Vn9qDnN/fYKHgu8Tfp8WB3TC07VUbbOTY6LECdm69lkyAijTL3M6WN14qUsv+
+         pMduUWEZ3X82g7eNN50B6KhoiWw7n4UY/s1PKtJY=
+Date:   Tue, 31 Jan 2023 16:45:09 -0800
 To:     mm-commits@vger.kernel.org, stable@vger.kernel.org,
-        matenajakub@gmail.com, fvogt@suse.com, vbabka@suse.cz,
-        akpm@linux-foundation.org
+        saravanak@google.com, robh+dt@kernel.org, frowand.list@gmail.com,
+        catalin.marinas@arm.com, calvinzhang.cool@gmail.com,
+        isaacmanjarres@google.com, akpm@linux-foundation.org
 From:   Andrew Morton <akpm@linux-foundation.org>
-Subject: [merged mm-hotfixes-stable] mm-mremap-fix-mremap-expanding-for-vmas-with-vm_ops-close.patch removed from -mm tree
-Message-Id: <20230201004504.14042C433EF@smtp.kernel.org>
-X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,PP_MIME_FAKE_ASCII_TEXT,
-        RCVD_IN_DNSWL_MED,SPF_HELO_NONE,SPF_PASS autolearn=ham
-        autolearn_force=no version=3.4.6
+Subject: [merged mm-hotfixes-stable] revert-mm-kmemleak-alloc-gray-object-for-reserved-region-with-direct-map.patch removed from -mm tree
+Message-Id: <20230201004510.3336CC433D2@smtp.kernel.org>
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,SPF_HELO_NONE,
+        SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
@@ -47,88 +47,67 @@ X-Mailing-List: stable@vger.kernel.org
 
 
 The quilt patch titled
-     Subject: mm, mremap: fix mremap() expanding for vma's with vm_ops->close()
+     Subject: Revert "mm: kmemleak: alloc gray object for reserved region with direct map"
 has been removed from the -mm tree.  Its filename was
-     mm-mremap-fix-mremap-expanding-for-vmas-with-vm_ops-close.patch
+     revert-mm-kmemleak-alloc-gray-object-for-reserved-region-with-direct-map.patch
 
 This patch was dropped because it was merged into the mm-hotfixes-stable branch
 of git://git.kernel.org/pub/scm/linux/kernel/git/akpm/mm
 
 ------------------------------------------------------
-From: Vlastimil Babka <vbabka@suse.cz>
-Subject: mm, mremap: fix mremap() expanding for vma's with vm_ops->close()
-Date: Tue, 17 Jan 2023 11:19:39 +0100
+From: "Isaac J. Manjarres" <isaacmanjarres@google.com>
+Subject: Revert "mm: kmemleak: alloc gray object for reserved region with direct map"
+Date: Tue, 24 Jan 2023 15:02:54 -0800
 
-Fabian has reported another regression in 6.1 due to ca3d76b0aa80 ("mm:
-add merging after mremap resize").  The problem is that vma_merge() can
-fail when vma has a vm_ops->close() method, causing is_mergeable_vma()
-test to be negative.  This was happening for vma mapping a file from
-fuse-overlayfs, which does have the method.  But when we are simply
-expanding the vma, we never remove it due to the "merge" with the added
-area, so the test should not prevent the expansion.
+This reverts commit 972fa3a7c17c9d60212e32ecc0205dc585b1e769.
 
-As a quick fix, check for such vmas and expand them using vma_adjust()
-directly as was done before commit ca3d76b0aa80.  For a more robust long
-term solution we should try to limit the check for vma_ops->close only to
-cases that actually result in vma removal, so that no merge would be
-prevented unnecessarily.
+Kmemleak operates by periodically scanning memory regions for pointers to
+allocated memory blocks to determine if they are leaked or not.  However,
+reserved memory regions can be used for DMA transactions between a device
+and a CPU, and thus, wouldn't contain pointers to allocated memory blocks,
+making them inappropriate for kmemleak to scan.  Thus, revert this commit.
 
-[akpm@linux-foundation.org: fix indenting whitespace, reflow comment]
-Link: https://lkml.kernel.org/r/20230117101939.9753-1-vbabka@suse.cz
-Fixes: ca3d76b0aa80 ("mm: add merging after mremap resize")
-Signed-off-by: Vlastimil Babka <vbabka@suse.cz>
-Reported-by: Fabian Vogt <fvogt@suse.com>
-  Link: https://bugzilla.suse.com/show_bug.cgi?id=1206359#c35
-Tested-by: Fabian Vogt <fvogt@suse.com>
-Cc: Jakub Matěna <matenajakub@gmail.com>
-Cc: <stable@vger.kernel.org>
+Link: https://lkml.kernel.org/r/20230124230254.295589-1-isaacmanjarres@google.com
+Fixes: 972fa3a7c17c9 ("mm: kmemleak: alloc gray object for reserved region with direct map")
+Signed-off-by: Isaac J. Manjarres <isaacmanjarres@google.com>
+Acked-by: Catalin Marinas <catalin.marinas@arm.com>
+Cc: Calvin Zhang <calvinzhang.cool@gmail.com>
+Cc: Frank Rowand <frowand.list@gmail.com>
+Cc: Rob Herring <robh+dt@kernel.org>
+Cc: Saravana Kannan <saravanak@google.com>
+Cc: <stable@vger.kernel.org>	[5.17+]
 Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
 ---
 
- mm/mremap.c |   25 +++++++++++++++++++------
- 1 file changed, 19 insertions(+), 6 deletions(-)
+ drivers/of/fdt.c |    6 +-----
+ 1 file changed, 1 insertion(+), 5 deletions(-)
 
---- a/mm/mremap.c~mm-mremap-fix-mremap-expanding-for-vmas-with-vm_ops-close
-+++ a/mm/mremap.c
-@@ -1027,16 +1027,29 @@ SYSCALL_DEFINE5(mremap, unsigned long, a
- 			}
+--- a/drivers/of/fdt.c~revert-mm-kmemleak-alloc-gray-object-for-reserved-region-with-direct-map
++++ a/drivers/of/fdt.c
+@@ -26,7 +26,6 @@
+ #include <linux/serial_core.h>
+ #include <linux/sysfs.h>
+ #include <linux/random.h>
+-#include <linux/kmemleak.h>
  
- 			/*
--			 * Function vma_merge() is called on the extension we are adding to
--			 * the already existing vma, vma_merge() will merge this extension with
--			 * the already existing vma (expand operation itself) and possibly also
--			 * with the next vma if it becomes adjacent to the expanded vma and
--			 * otherwise compatible.
-+			 * Function vma_merge() is called on the extension we
-+			 * are adding to the already existing vma, vma_merge()
-+			 * will merge this extension with the already existing
-+			 * vma (expand operation itself) and possibly also with
-+			 * the next vma if it becomes adjacent to the expanded
-+			 * vma and  otherwise compatible.
-+			 *
-+			 * However, vma_merge() can currently fail due to
-+			 * is_mergeable_vma() check for vm_ops->close (see the
-+			 * comment there). Yet this should not prevent vma
-+			 * expanding, so perform a simple expand for such vma.
-+			 * Ideally the check for close op should be only done
-+			 * when a vma would be actually removed due to a merge.
- 			 */
--			vma = vma_merge(mm, vma, extension_start, extension_end,
-+			if (!vma->vm_ops || !vma->vm_ops->close) {
-+				vma = vma_merge(mm, vma, extension_start, extension_end,
- 					vma->vm_flags, vma->anon_vma, vma->vm_file,
- 					extension_pgoff, vma_policy(vma),
- 					vma->vm_userfaultfd_ctx, anon_vma_name(vma));
-+			} else if (vma_adjust(vma, vma->vm_start, addr + new_len,
-+				   vma->vm_pgoff, NULL)) {
-+				vma = NULL;
-+			}
- 			if (!vma) {
- 				vm_unacct_memory(pages);
- 				ret = -ENOMEM;
+ #include <asm/setup.h>  /* for COMMAND_LINE_SIZE */
+ #include <asm/page.h>
+@@ -525,12 +524,9 @@ static int __init __reserved_mem_reserve
+ 		size = dt_mem_next_cell(dt_root_size_cells, &prop);
+ 
+ 		if (size &&
+-		    early_init_dt_reserve_memory(base, size, nomap) == 0) {
++		    early_init_dt_reserve_memory(base, size, nomap) == 0)
+ 			pr_debug("Reserved memory: reserved region for node '%s': base %pa, size %lu MiB\n",
+ 				uname, &base, (unsigned long)(size / SZ_1M));
+-			if (!nomap)
+-				kmemleak_alloc_phys(base, size, 0);
+-		}
+ 		else
+ 			pr_err("Reserved memory: failed to reserve memory for node '%s': base %pa, size %lu MiB\n",
+ 			       uname, &base, (unsigned long)(size / SZ_1M));
 _
 
-Patches currently in -mm which might be from vbabka@suse.cz are
+Patches currently in -mm which might be from isaacmanjarres@google.com are
 
-revert-mm-compaction-fix-set-skip-in-fast_find_migrateblock.patch
 
