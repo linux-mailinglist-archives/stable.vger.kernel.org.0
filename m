@@ -2,33 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 220CB685C58
-	for <lists+stable@lfdr.de>; Wed,  1 Feb 2023 01:45:34 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id F0A0B685C59
+	for <lists+stable@lfdr.de>; Wed,  1 Feb 2023 01:45:42 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231865AbjBAApd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 31 Jan 2023 19:45:33 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40940 "EHLO
+        id S231881AbjBAApl (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 31 Jan 2023 19:45:41 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40884 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229907AbjBAApP (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 31 Jan 2023 19:45:15 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B07175140B;
-        Tue, 31 Jan 2023 16:45:14 -0800 (PST)
+        with ESMTP id S231825AbjBAApV (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 31 Jan 2023 19:45:21 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 57FB5518F3;
+        Tue, 31 Jan 2023 16:45:18 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 4C38361759;
-        Wed,  1 Feb 2023 00:45:14 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A17FBC433EF;
-        Wed,  1 Feb 2023 00:45:13 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 11B43B81FCC;
+        Wed,  1 Feb 2023 00:45:17 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A39EBC433EF;
+        Wed,  1 Feb 2023 00:45:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linux-foundation.org;
-        s=korg; t=1675212313;
-        bh=nAYCSkJYZcY59a696y7A7A/df0zq+ox1TRyY4NDD2fo=;
+        s=korg; t=1675212315;
+        bh=EWTgTEOIMxG1EfqFDsYGH1ozZkMpoOJN84Jo4ZGShQ0=;
         h=Date:To:From:Subject:From;
-        b=fpqWIVa0U9ba0Kp5m78LDPWDUCj3Nb6CPhiYYfn0e7BKXno8YizzhsgDfItL+Jc3S
-         /0fCgEuWVwLo+3wGNSLALpkggo/U/Yk1owqo4TT0C+PcsD2GjGglv81h+cl2PYArfp
-         +4wEFpEzClKTPJXpCuHJ4+lqQpmbIhGEsmu4Mkgw=
-Date:   Tue, 31 Jan 2023 16:45:13 -0800
+        b=KQwV2KLq0oc6Y4OTcC4Je6LWKS2Ih2MhOwbR4XxggOvFx1voGCOBWbnc10OHkE6qs
+         fnKN4ai1YgIW0ZwOkmoivYhOJMHyonlEY1O/MCfTcBUgnrHOu2PjFx7in8deVh6fT5
+         Ws8OazmshLg4QEYQWnx+aRvMD5hjTOoGp7FJ2t/0=
+Date:   Tue, 31 Jan 2023 16:45:15 -0800
 To:     mm-commits@vger.kernel.org, willy@infradead.org,
         vishal.moola@gmail.com, stable@vger.kernel.org,
         songmuchun@bytedance.com, shy828301@gmail.com, peterx@redhat.com,
@@ -36,10 +36,10 @@ To:     mm-commits@vger.kernel.org, willy@infradead.org,
         david@redhat.com, mike.kravetz@oracle.com,
         akpm@linux-foundation.org
 From:   Andrew Morton <akpm@linux-foundation.org>
-Subject: [merged mm-hotfixes-stable] mm-hugetlb-proc-check-for-hugetlb-shared-pmd-in-proc-pid-smaps.patch removed from -mm tree
-Message-Id: <20230201004513.A17FBC433EF@smtp.kernel.org>
-X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,SPF_HELO_NONE,
+Subject: [merged mm-hotfixes-stable] migrate-hugetlb-check-for-hugetlb-shared-pmd-in-node-migration.patch removed from -mm tree
+Message-Id: <20230201004515.A39EBC433EF@smtp.kernel.org>
+X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,SPF_HELO_NONE,
         SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -49,49 +49,33 @@ X-Mailing-List: stable@vger.kernel.org
 
 
 The quilt patch titled
-     Subject: mm: hugetlb: proc: check for hugetlb shared PMD in /proc/PID/smaps
+     Subject: migrate: hugetlb: check for hugetlb shared PMD in node migration
 has been removed from the -mm tree.  Its filename was
-     mm-hugetlb-proc-check-for-hugetlb-shared-pmd-in-proc-pid-smaps.patch
+     migrate-hugetlb-check-for-hugetlb-shared-pmd-in-node-migration.patch
 
 This patch was dropped because it was merged into the mm-hotfixes-stable branch
 of git://git.kernel.org/pub/scm/linux/kernel/git/akpm/mm
 
 ------------------------------------------------------
 From: Mike Kravetz <mike.kravetz@oracle.com>
-Subject: mm: hugetlb: proc: check for hugetlb shared PMD in /proc/PID/smaps
-Date: Thu, 26 Jan 2023 14:27:20 -0800
+Subject: migrate: hugetlb: check for hugetlb shared PMD in node migration
+Date: Thu, 26 Jan 2023 14:27:21 -0800
 
-Patch series "Fixes for hugetlb mapcount at most 1 for shared PMDs".
-
-This issue of mapcount in hugetlb pages referenced by shared PMDs was
-discussed in [1].  The following two patches address user visible behavior
-caused by this issue.
-
-[1] https://lore.kernel.org/linux-mm/Y9BF+OCdWnCSilEu@monkey/
-
-
-This patch (of 2):
-
-A hugetlb page will have a mapcount of 1 if mapped by multiple processes
-via a shared PMD.  This is because only the first process increases the
-map count, and subsequent processes just add the shared PMD page to their
-page table.
-
-page_mapcount is being used to decide if a hugetlb page is shared or
-private in /proc/PID/smaps.  Pages referenced via a shared PMD were
-incorrectly being counted as private.
+migrate_pages/mempolicy semantics state that CAP_SYS_NICE is required to
+move pages shared with another process to a different node.  page_mapcount
+> 1 is being used to determine if a hugetlb page is shared.  However, a
+hugetlb page will have a mapcount of 1 if mapped by multiple processes via
+a shared PMD.  As a result, hugetlb pages shared by multiple processes and
+mapped with a shared PMD can be moved by a process without CAP_SYS_NICE.
 
 To fix, check for a shared PMD if mapcount is 1.  If a shared PMD is found
-count the hugetlb page as shared.  A new helper to check for a shared PMD
-is added.
+consider the page shared.
 
-[akpm@linux-foundation.org: simplification, per David]
-[akpm@linux-foundation.org: hugetlb.h: include page_ref.h for page_count()]
-Link: https://lkml.kernel.org/r/20230126222721.222195-2-mike.kravetz@oracle.com
-Fixes: 25ee01a2fca0 ("mm: hugetlb: proc: add hugetlb-related fields to /proc/PID/smaps")
+Link: https://lkml.kernel.org/r/20230126222721.222195-3-mike.kravetz@oracle.com
+Fixes: e2d8cf405525 ("migrate: add hugepage migration code to migrate_pages()")
 Signed-off-by: Mike Kravetz <mike.kravetz@oracle.com>
 Acked-by: Peter Xu <peterx@redhat.com>
-Cc: David Hildenbrand <david@redhat.com>
+Acked-by: David Hildenbrand <david@redhat.com>
 Cc: James Houghton <jthoughton@google.com>
 Cc: Matthew Wilcox <willy@infradead.org>
 Cc: Michal Hocko <mhocko@suse.com>
@@ -103,52 +87,21 @@ Cc: <stable@vger.kernel.org>
 Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
 ---
 
- fs/proc/task_mmu.c      |    4 +---
- include/linux/hugetlb.h |   13 +++++++++++++
- 2 files changed, 14 insertions(+), 3 deletions(-)
+ mm/mempolicy.c |    3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
---- a/fs/proc/task_mmu.c~mm-hugetlb-proc-check-for-hugetlb-shared-pmd-in-proc-pid-smaps
-+++ a/fs/proc/task_mmu.c
-@@ -745,9 +745,7 @@ static int smaps_hugetlb_range(pte_t *pt
- 			page = pfn_swap_entry_to_page(swpent);
- 	}
- 	if (page) {
--		int mapcount = page_mapcount(page);
--
--		if (mapcount >= 2)
-+		if (page_mapcount(page) >= 2 || hugetlb_pmd_shared(pte))
- 			mss->shared_hugetlb += huge_page_size(hstate_vma(vma));
- 		else
- 			mss->private_hugetlb += huge_page_size(hstate_vma(vma));
---- a/include/linux/hugetlb.h~mm-hugetlb-proc-check-for-hugetlb-shared-pmd-in-proc-pid-smaps
-+++ a/include/linux/hugetlb.h
-@@ -7,6 +7,7 @@
- #include <linux/fs.h>
- #include <linux/hugetlb_inline.h>
- #include <linux/cgroup.h>
-+#include <linux/page_ref.h>
- #include <linux/list.h>
- #include <linux/kref.h>
- #include <linux/pgtable.h>
-@@ -1187,6 +1188,18 @@ static inline __init void hugetlb_cma_re
- }
- #endif
+--- a/mm/mempolicy.c~migrate-hugetlb-check-for-hugetlb-shared-pmd-in-node-migration
++++ a/mm/mempolicy.c
+@@ -600,7 +600,8 @@ static int queue_pages_hugetlb(pte_t *pt
  
-+#ifdef CONFIG_ARCH_WANT_HUGE_PMD_SHARE
-+static inline bool hugetlb_pmd_shared(pte_t *pte)
-+{
-+	return page_count(virt_to_page(pte)) > 1;
-+}
-+#else
-+static inline bool hugetlb_pmd_shared(pte_t *pte)
-+{
-+	return false;
-+}
-+#endif
-+
- bool want_pmd_share(struct vm_area_struct *vma, unsigned long addr);
- 
- #ifndef __HAVE_ARCH_FLUSH_HUGETLB_TLB_RANGE
+ 	/* With MPOL_MF_MOVE, we migrate only unshared hugepage. */
+ 	if (flags & (MPOL_MF_MOVE_ALL) ||
+-	    (flags & MPOL_MF_MOVE && page_mapcount(page) == 1)) {
++	    (flags & MPOL_MF_MOVE && page_mapcount(page) == 1 &&
++	     !hugetlb_pmd_shared(pte))) {
+ 		if (isolate_hugetlb(page, qp->pagelist) &&
+ 			(flags & MPOL_MF_STRICT))
+ 			/*
 _
 
 Patches currently in -mm which might be from mike.kravetz@oracle.com are
