@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A7DD36863D4
-	for <lists+stable@lfdr.de>; Wed,  1 Feb 2023 11:17:02 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C5B236863C7
+	for <lists+stable@lfdr.de>; Wed,  1 Feb 2023 11:16:58 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231851AbjBAKQ6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 1 Feb 2023 05:16:58 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52086 "EHLO
+        id S230236AbjBAKQx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 1 Feb 2023 05:16:53 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52094 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230294AbjBAKQj (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 1 Feb 2023 05:16:39 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1E901521D9;
+        with ESMTP id S232207AbjBAKQk (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 1 Feb 2023 05:16:40 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2C18B58295;
         Wed,  1 Feb 2023 02:16:38 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 3EF7DB8215F;
+        by ams.source.kernel.org (Postfix) with ESMTPS id 40B72B82166;
         Wed,  1 Feb 2023 10:16:35 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 78D66C43178;
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7ED75C43179;
         Wed,  1 Feb 2023 10:16:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
         s=k20201202; t=1675246593;
-        bh=/IShi5hUhU0AZjNAGVVo4Am8FiGtjGGx4tIm3pmMj/8=;
+        bh=CAmkaGLoDox81dvLZbm9L9PKvEdTSmxQ1M1A4V7S128=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=HbhC0t32wJQOguBC5M6Bkmb8iS1AX/QNr2cdxYUVhuHpgPtnxYMFLyyX6CKCpJ10c
-         IReLoM/GmLUTIUpt3PIO+B3Ui6iBFFzqgG9K717PLiOtmjWka8k0jZFOOL+iVTrGcv
-         Y0gP6bNUx+vg/wmlS0taTc9YbdMY0ShFQ0cn8Pluf/yzGC6uTO+dsiFNQdUBLa9OSn
-         ubdB33SvaTLCSN2c+63rB6ExGj5rJqNOo9iPnWtDNQy/SUIeh/QDQ1OqGjSQrZjveU
-         dtlIa6MEJagsuQu6n9oLL9ltjMteNhUclRrRVF+ucuq9f+/yeXbjOCZWCwwsM40pEb
-         lMOqC2dk09T0g==
+        b=lXicU4ULDiKBdYLaI6OJLURZuf4h4Sone8mHpQvDusQheD9XUR5aRV5T8Hzl1lgHy
+         x2S0uJ9qNzKpZivI945NV/5sfhlOc3ig6aOxo9ICkUBL/JaOrpbWSqzdzawAnAqcCS
+         PWkdz5ikuRHr62U1fIbjZdeXnsRlNJr4wkf1DtCf3CW3rQvrc1UfxePjiiE1OMdD09
+         nIiNqFbgZ2rsLe/R0IGJ3t/E/cAzT3tj3sYsMMqkuIkAmdkqPjylJCRS8lgOBhhUfe
+         Hpl+Stp1qRTh3ct/Rs+dOFwDftgTQKgfeYbD4MbTCVGEVQpRIV+IdkdnRGcBfOsAb8
+         4rLvopnrLdLuA==
 Received: from johan by xi.lan with local (Exim 4.94.2)
         (envelope-from <johan+linaro@kernel.org>)
-        id 1pNAAg-00044W-LZ; Wed, 01 Feb 2023 11:16:54 +0100
+        id 1pNAAg-00044Z-OS; Wed, 01 Feb 2023 11:16:54 +0100
 From:   Johan Hovold <johan+linaro@kernel.org>
 To:     Georgi Djakov <djakov@kernel.org>
 Cc:     Shawn Guo <shawnguo@kernel.org>,
@@ -55,16 +55,16 @@ Cc:     Shawn Guo <shawnguo@kernel.org>,
         linux-tegra@vger.kernel.org, linux-kernel@vger.kernel.org,
         Johan Hovold <johan+linaro@kernel.org>, stable@vger.kernel.org,
         Dmitry Osipenko <digetx@gmail.com>
-Subject: [PATCH 19/23] memory: tegra20-emc: fix interconnect registration race
-Date:   Wed,  1 Feb 2023 11:15:55 +0100
-Message-Id: <20230201101559.15529-20-johan+linaro@kernel.org>
+Subject: [PATCH 20/23] memory: tegra30-emc: fix interconnect registration race
+Date:   Wed,  1 Feb 2023 11:15:56 +0100
+Message-Id: <20230201101559.15529-21-johan+linaro@kernel.org>
 X-Mailer: git-send-email 2.39.1
 In-Reply-To: <20230201101559.15529-1-johan+linaro@kernel.org>
 References: <20230201101559.15529-1-johan+linaro@kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
         SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -84,14 +84,14 @@ Cc: stable@vger.kernel.org      # 5.11
 Cc: Dmitry Osipenko <digetx@gmail.com>
 Signed-off-by: Johan Hovold <johan+linaro@kernel.org>
 ---
- drivers/memory/tegra/tegra20-emc.c | 12 ++++++------
+ drivers/memory/tegra/tegra30-emc.c | 12 ++++++------
  1 file changed, 6 insertions(+), 6 deletions(-)
 
-diff --git a/drivers/memory/tegra/tegra20-emc.c b/drivers/memory/tegra/tegra20-emc.c
-index bd4e37b6552d..fd595c851a27 100644
---- a/drivers/memory/tegra/tegra20-emc.c
-+++ b/drivers/memory/tegra/tegra20-emc.c
-@@ -1021,15 +1021,13 @@ static int tegra_emc_interconnect_init(struct tegra_emc *emc)
+diff --git a/drivers/memory/tegra/tegra30-emc.c b/drivers/memory/tegra/tegra30-emc.c
+index 77706e9bc543..c91e9b7e2e01 100644
+--- a/drivers/memory/tegra/tegra30-emc.c
++++ b/drivers/memory/tegra/tegra30-emc.c
+@@ -1533,15 +1533,13 @@ static int tegra_emc_interconnect_init(struct tegra_emc *emc)
  	emc->provider.aggregate = soc->icc_ops->aggregate;
  	emc->provider.xlate_extended = emc_of_icc_xlate_extended;
  
@@ -109,7 +109,7 @@ index bd4e37b6552d..fd595c851a27 100644
  	}
  
  	node->name = "External Memory Controller";
-@@ -1050,12 +1048,14 @@ static int tegra_emc_interconnect_init(struct tegra_emc *emc)
+@@ -1562,12 +1560,14 @@ static int tegra_emc_interconnect_init(struct tegra_emc *emc)
  	node->name = "External Memory (DRAM)";
  	icc_node_add(node, &emc->provider);
  
