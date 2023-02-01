@@ -2,52 +2,53 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 5FECF686D47
-	for <lists+stable@lfdr.de>; Wed,  1 Feb 2023 18:44:23 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7B366686D4A
+	for <lists+stable@lfdr.de>; Wed,  1 Feb 2023 18:44:26 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231582AbjBARoV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 1 Feb 2023 12:44:21 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37768 "EHLO
+        id S231754AbjBARoY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 1 Feb 2023 12:44:24 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37822 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230214AbjBARoV (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 1 Feb 2023 12:44:21 -0500
-Received: from mail-qt1-x832.google.com (mail-qt1-x832.google.com [IPv6:2607:f8b0:4864:20::832])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A34A22D5F;
-        Wed,  1 Feb 2023 09:44:19 -0800 (PST)
-Received: by mail-qt1-x832.google.com with SMTP id g7so1939825qto.11;
-        Wed, 01 Feb 2023 09:44:19 -0800 (PST)
+        with ESMTP id S230214AbjBARoX (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 1 Feb 2023 12:44:23 -0500
+Received: from mail-qt1-x835.google.com (mail-qt1-x835.google.com [IPv6:2607:f8b0:4864:20::835])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C23AF86A9;
+        Wed,  1 Feb 2023 09:44:22 -0800 (PST)
+Received: by mail-qt1-x835.google.com with SMTP id bb40so10326105qtb.2;
+        Wed, 01 Feb 2023 09:44:22 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20210112;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:from:to:cc:subject:date:message-id:reply-to;
-        bh=0grifz9oyU58374EdScY3NpybfPtk3g+WDr7VXFF15k=;
-        b=R8cgjkJ9K6RB/P7cY+kyT0nYrGhg/J7hCkQdazFYGDEqtDAe38PggKOEoXIeTWavj+
-         JhVyTEAMvuT7d2YRzcNj64BK2vYcNUsIOiFVb7WoMmD9uQTMVclMVNauC6x7p7r93R0z
-         VdIji2IHoB+aCCrPA/a3phZddBzlA85AOrnNjEE2cS3HIukuUcsKlgYQBNaY6mq6PoOw
-         SdCElwgzCgYs0iC3lMx38pHsLVBrXjrn21P+DgnZZvgRUoexebhqWkHnjj69aYc4pDpp
-         A9TCk1zCXrAV/V4tPOVEtGE1SaB5q+2N/AqMNhQ1ZM6IePMjfSysShtZ1clHnJgqfUrK
-         5j5g==
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=OAlxWpOyE8wRsJOXBCXiv/nkAGyEl3lqtZ+cp+0vZ6c=;
+        b=VFb8UYsu27ate0K8pAh48CNR3pqQhmRGgiSyBDRK0lzMpMUsrcVnUpLiSKGsialNLV
+         /rFkNSg9fYlJxkOJG/qdY29EY/pR5c39wYsP1tVdE1Im55dztHN27Xh0jTe7enyE/AsQ
+         Ls6q+ANEVBUhgHHC18NLip8YeBO7ZGHdaSjqexvxrSdmwl5LGTSzmXPHlEqR05KJS1dP
+         y7MJzd7sHXtqxWKrAVeB6KXfAsqA316biylGwtFkrwdShf3EtRX9IoIPKjNQntGGeXEF
+         7zbWDF97IwaTdc+Km4U3T8LUNKoY9B4tyJQaMyHtxSW1k1/NlhGypoGONjsoU7lAvFfz
+         gRyA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:x-gm-message-state:from:to:cc:subject:date:message-id
-         :reply-to;
-        bh=0grifz9oyU58374EdScY3NpybfPtk3g+WDr7VXFF15k=;
-        b=I2EA0Z9EO4QNVmmdGscRFvJmyLqWKi8E6cAhzr2Vo2VHGQ3kNSnSQjxa8cuJAgPoEV
-         jaqLQheeQTRZSPiKLF+xrJVddZAvgNDmfCuH/PfA5vpNJt1eccNfRrkWzNpvtt7uena3
-         JxggimI/RgcZwpLQWANxhCSjPhf6qK7H5SxWcW4ilv0xoOhPqILG8/9ltjD53Zx8Hgg4
-         GBsCeQQbA21ldudSBwF2bs9joE+AwXuernVhOUf2l7/S4OCkRUjvFDbsiF8oMkXwd9q9
-         +OV0AONHnl3J9gVNUZpjAqYweRZIjLDESGGqbLWLwPcFwRP1xubJ5UVTFnzmrvvG8MNE
-         NthQ==
-X-Gm-Message-State: AO0yUKXHOYWpqADsepXfkJJp6nOSJTWHcDoFM2zhReHT0Y58ndcz06pO
-        LjqauQBDNEuO+WnfxZ2WGa0EsmsEsgpysA==
-X-Google-Smtp-Source: AK7set8ClY4Osb1Wp19ezjIbCkAEdc8H96qba4/SjoW8MbiYJU+201JCIx+2udG1IXW3um8xRtgs/A==
-X-Received: by 2002:ac8:5f52:0:b0:3b9:bdb0:7aa1 with SMTP id y18-20020ac85f52000000b003b9bdb07aa1mr3215892qta.41.1675273458214;
-        Wed, 01 Feb 2023 09:44:18 -0800 (PST)
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:date:subject:cc:to:from:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=OAlxWpOyE8wRsJOXBCXiv/nkAGyEl3lqtZ+cp+0vZ6c=;
+        b=hBoJKQ0XulTdWdlYGG46kJFSocZA6vF3enhH637PHJkgAZ6EPFDT2v3zu0riwcwxEL
+         CFELg5CNW3ft7SJ/DjruWWNQdC88yS2rBh9sJFBcoPAKxnp7elwyzKC6PFR4Q2hsfYaP
+         1Jl9zdbKM96cElJFRiAAQnivPQYebOqhIIAn5kcbhjEvVKHZ1vVYNG8d5nBTq69tbHVt
+         6fK8Omx/oOUckjoCZ+1YQGntmSiknd9euakIp+p9/0h1F8/l5JXVy5dk5Tn7tVK6HFbK
+         1WNPRrc5+0H2tkr8mlHFxjbktLJWTbhhj7SYxa4NkfEuDMgbPxSEC8l0Wc9ABPjQIVtP
+         LoFQ==
+X-Gm-Message-State: AO0yUKW4cqWePyuDpIYTmkjJHr5NXo62skYcmlumpT2F5dK2BNUnrBvQ
+        XyKRdTq8dJwgVO258/pJdtriVrn+zFMqkQ==
+X-Google-Smtp-Source: AK7set+QbyAcgXy8WrKOyJRLFrf+LvOGfIhSPA8/MmWZSwkSBalSbo/WwY3bOQuvcpdF5twAPvdYYg==
+X-Received: by 2002:a05:622a:130b:b0:3a8:2f65:6ccb with SMTP id v11-20020a05622a130b00b003a82f656ccbmr5619884qtk.65.1675273461541;
+        Wed, 01 Feb 2023 09:44:21 -0800 (PST)
 Received: from fainelli-desktop.igp.broadcom.net ([192.19.223.252])
-        by smtp.gmail.com with ESMTPSA id f23-20020ac80157000000b003b868cdc689sm6681784qtg.5.2023.02.01.09.44.13
+        by smtp.gmail.com with ESMTPSA id f23-20020ac80157000000b003b868cdc689sm6681784qtg.5.2023.02.01.09.44.18
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 01 Feb 2023 09:44:14 -0800 (PST)
+        Wed, 01 Feb 2023 09:44:19 -0800 (PST)
 From:   Florian Fainelli <f.fainelli@gmail.com>
 To:     linux-kernel@vger.kernel.org
 Cc:     stable@vger.kernel.org, Peter Chen <peter.chen@nxp.com>,
@@ -57,10 +58,12 @@ Cc:     stable@vger.kernel.org, Peter Chen <peter.chen@nxp.com>,
         Florian Fainelli <f.fainelli@gmail.com>,
         Mathias Nyman <mathias.nyman@intel.com>,
         linux-usb@vger.kernel.org (open list:USB XHCI DRIVER)
-Subject: [PATCH stable 4.14] usb: host: xhci-plat: add wakeup entry at sysfs
-Date:   Wed,  1 Feb 2023 09:44:02 -0800
-Message-Id: <20230201174404.32777-1-f.fainelli@gmail.com>
+Subject: [PATCH stable 4.19] usb: host: xhci-plat: add wakeup entry at sysfs
+Date:   Wed,  1 Feb 2023 09:44:03 -0800
+Message-Id: <20230201174404.32777-2-f.fainelli@gmail.com>
 X-Mailer: git-send-email 2.34.1
+In-Reply-To: <20230201174404.32777-1-f.fainelli@gmail.com>
+References: <20230201174404.32777-1-f.fainelli@gmail.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
@@ -75,7 +78,7 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Peter Chen <peter.chen@nxp.com>
 
-commit 4bb4fc0dbfa23acab9b762949b91ffd52106fe4b upstream
+commit  4bb4fc0dbfa23acab9b762949b91ffd52106fe4b upstream
 
 With this change, there will be a wakeup entry at /sys/../power/wakeup,
 and the user could use this entry to choose whether enable xhci wakeup
@@ -93,10 +96,10 @@ Signed-off-by: Florian Fainelli <f.fainelli@gmail.com>
  1 file changed, 1 insertion(+), 1 deletion(-)
 
 diff --git a/drivers/usb/host/xhci-plat.c b/drivers/usb/host/xhci-plat.c
-index 2a73592908e1..3d20fe9c415f 100644
+index adc437ca83b8..cb3ba2adae64 100644
 --- a/drivers/usb/host/xhci-plat.c
 +++ b/drivers/usb/host/xhci-plat.c
-@@ -252,7 +252,7 @@ static int xhci_plat_probe(struct platform_device *pdev)
+@@ -261,7 +261,7 @@ static int xhci_plat_probe(struct platform_device *pdev)
  			*priv = *priv_match;
  	}
  
@@ -104,7 +107,7 @@ index 2a73592908e1..3d20fe9c415f 100644
 +	device_set_wakeup_capable(&pdev->dev, true);
  
  	xhci->clk = clk;
- 	xhci->main_hcd = hcd;
+ 	xhci->reg_clk = reg_clk;
 -- 
 2.34.1
 
