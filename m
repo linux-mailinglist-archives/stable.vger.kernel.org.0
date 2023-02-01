@@ -2,84 +2,212 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A69C6686813
-	for <lists+stable@lfdr.de>; Wed,  1 Feb 2023 15:20:38 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 51F74686858
+	for <lists+stable@lfdr.de>; Wed,  1 Feb 2023 15:34:50 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232304AbjBAOUh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 1 Feb 2023 09:20:37 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36932 "EHLO
+        id S231564AbjBAOes (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 1 Feb 2023 09:34:48 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42958 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231941AbjBAOUh (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 1 Feb 2023 09:20:37 -0500
-Received: from mail-wr1-x42a.google.com (mail-wr1-x42a.google.com [IPv6:2a00:1450:4864:20::42a])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2333A125B1
-        for <stable@vger.kernel.org>; Wed,  1 Feb 2023 06:20:36 -0800 (PST)
-Received: by mail-wr1-x42a.google.com with SMTP id a3so10771627wrt.6
-        for <stable@vger.kernel.org>; Wed, 01 Feb 2023 06:20:36 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112;
-        h=to:subject:message-id:date:from:reply-to:mime-version:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=pFYOULzI/6Rsq8lmSA71Pdfa6A26okyV6fa+vCzhUwM=;
-        b=lIjPjxtQsNfCzlOVNTmWxs/SruESJgIdZyBMAhldkpNfAKLevqf8cYY7o1tz1us2Id
-         YTGI+nxEYQQyzWPGFFgKo5BcyFgUaTpO6e4/0HUE/hgRKoKzbsM/Ct3yQc82bacCuE05
-         eWg09hDgy3jFWiREZNH7uxvuvRtewcMkU8OWDTIo4UOD8mrSdr1Hq6QW25dUgmlu2VmK
-         dpD5/+T8K55s+udcXX8Dg0lVr/bpHBAWzUolyzfmJo9RLXdUYdraEp6Om+BnGo2QnYCB
-         Z2PwFTtp1kJBTPPBofOE927NjrsVru8reRonFM6TCD2cFahUSoq4ykTwQT3MX1YD6rtb
-         wFqg==
+        with ESMTP id S231302AbjBAOer (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 1 Feb 2023 09:34:47 -0500
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D697A46D6B
+        for <stable@vger.kernel.org>; Wed,  1 Feb 2023 06:33:57 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1675262036;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=nQV4MSRR5AyeZEpBORcUlNAjy632Kxh6QOq4hbhVmNQ=;
+        b=Qu2Pi3RtYiRBFNGmcMIo34YwfoDcQM8KuEbJTIHED7Wsj7natPC6qnO4vegepZ2rZ5+XQQ
+        Zg8rmIeo2AfG5Mp0IpdRCl6jHgrdACND7buj+ioUYpzkOyKJBSLB8mh8EgPY8thN7eRIJr
+        mM3w5Ju/XpFldhcN/9mOPLo3vuQ8a64=
+Received: from mail-yb1-f199.google.com (mail-yb1-f199.google.com
+ [209.85.219.199]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_128_GCM_SHA256) id
+ us-mta-426-B7nSJ8quO6G-70phGIccCg-1; Wed, 01 Feb 2023 09:33:55 -0500
+X-MC-Unique: B7nSJ8quO6G-70phGIccCg-1
+Received: by mail-yb1-f199.google.com with SMTP id a9-20020a25af09000000b0083fa6f15c2fso3911837ybh.16
+        for <stable@vger.kernel.org>; Wed, 01 Feb 2023 06:33:55 -0800 (PST)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=to:subject:message-id:date:from:reply-to:mime-version
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=pFYOULzI/6Rsq8lmSA71Pdfa6A26okyV6fa+vCzhUwM=;
-        b=cbPI2pT/EgK9mFoDJfqK2bLKwEl29CdYIcemMBiC73i7LXP0AcSXjgwNbGKTbKzabZ
-         4Q4Q4RPEkpQYUK42nyGTKi+6bZlWzguVgrk2YY6Dqw5ANtdgGzbh2rz65yQp9UQrD/BO
-         VrildfzM6ERfsdYVhXk8WUqCJCKQcnDGTnPTvmlbCIbcomh+Dmghgkax4nXvYjKgtZzF
-         RxHYcAjwF0HHLG86Z1l5tG5VGoKxSFsJ5QGLIe7tAXLhJrW/EXO1SciJ9gpciAplJeI+
-         FdAvB1SXNVq7HKqiXcejDl17LQMGjhWwiUHUee4BiC8vrsFAQUmKktnfSU6r/CnV3lRk
-         RNUA==
-X-Gm-Message-State: AO0yUKU2/ZxXD98uA8vrYalc1espuIbMfvs9P5Eg5ALGZCWuBr1KVfQJ
-        B6Fq+XKslKQClVYutlFeuY8X0khDuKZu0zrrQ5Y=
-X-Google-Smtp-Source: AK7set/3rBl7pc7lMRgMP0EDuD8bxtfC3RUd35YUE4g4Gw/Z+9zghivG+/DmyUyxuamS7uSv2waDY2AbnCIU91RMm9E=
-X-Received: by 2002:a05:6000:68d:b0:2bf:966c:485e with SMTP id
- bo13-20020a056000068d00b002bf966c485emr77579wrb.1.1675261234589; Wed, 01 Feb
- 2023 06:20:34 -0800 (PST)
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=nQV4MSRR5AyeZEpBORcUlNAjy632Kxh6QOq4hbhVmNQ=;
+        b=FE37cZFMEAqK1JvhhPf1F3vn6IfdcvqvdEkCoV+neWrilDv0QUxmym3Dit2mf30MFV
+         PTzFtL7TZj4SCrlfhEDpNJ3bssqssjORIWY2XcM+9kxY2mbqmKm8sA+cuLyLAu3ZZNkq
+         6YppRaAOo7QiT77hSQjMng8Q2BTf5NfTF3wnkMYWveLXPTBhC3qP7BYnVGfymuES9Zlb
+         Jffp3JnIBQ3l59i8UF1ikuURn86RbLTCgg/TDeR8yY9T+VrQJv1munJlN3jC2bjYnHha
+         4N8NmqMQH6MKo1GXDjQAUbp7RcjMxDoU7X+6WCMv4GWeM4vQkrZzPk69CqRa/HOKUa4P
+         jewQ==
+X-Gm-Message-State: AO0yUKXAaezySBAdmOwPHO3o3QYKhf8OPqcYU2VElmdKvYvGBKFIvMod
+        qsDz39HHmXwe/BzQlrpzBvHYOd4hCOOTYjwwNA76ANUKEfMykUCpZt9Uqw6dXldmYs2BFaMcSo8
+        vovHXOlSZ9/iS3zN+k6/1xg6FzlP96xH9
+X-Received: by 2002:a81:a204:0:b0:51c:2c61:8c9f with SMTP id w4-20020a81a204000000b0051c2c618c9fmr288754ywg.5.1675262034775;
+        Wed, 01 Feb 2023 06:33:54 -0800 (PST)
+X-Google-Smtp-Source: AK7set+Pa5hOTLw/v3C7ub4sGvVIlhED9LaoJ7haug72PIG1FuUjVpf37Cm5B5jCLXGJDOamuuBgOGEITTKn8R07gTM=
+X-Received: by 2002:a81:a204:0:b0:51c:2c61:8c9f with SMTP id
+ w4-20020a81a204000000b0051c2c618c9fmr288749ywg.5.1675262034488; Wed, 01 Feb
+ 2023 06:33:54 -0800 (PST)
 MIME-Version: 1.0
-Received: by 2002:a5d:420d:0:0:0:0:0 with HTTP; Wed, 1 Feb 2023 06:20:34 -0800 (PST)
-Reply-To: mrs.lorencegonzalez03@yahoo.com
-From:   "Mrs.lorence gonzalez" <sanoulaure70@gmail.com>
-Date:   Wed, 1 Feb 2023 06:20:34 -0800
-Message-ID: <CA+_b5GAE2qKpQr+jkzf8U09xhvyvZ7KnMHfVjyfSj3x2aOfTkw@mail.gmail.com>
-Subject: May the good God bless you
-To:     undisclosed-recipients:;
+References: <CAJD_bPJ1VYTSQvogui4S9xWn9jQzQq8JRXOzXmus+qoRyrybOA@mail.gmail.com>
+ <Y9Vg26wjGfkCicYv@kroah.com> <CAJD_bPLkkgbk+GO66Ec9RmiW6MfYrG32WP75oLzXsz2+rpREWg@mail.gmail.com>
+ <CAJD_bPK=m0mX8_Qq=6iwD8sL8AkR99PEzBbE3RcSaJmxuJmW6g@mail.gmail.com>
+ <02834fa9-4fb0-08fb-4b5f-e9646c1501d6@leemhuis.info> <288d7ff4-75aa-7ad1-c49c-579373cab3ed@intel.com>
+ <CALFERdw=GwNYafR3q=5=k=H_jrzTZMyDBQLouFGV0JGu8i9sCg@mail.gmail.com>
+ <04a9f939-8a98-9a46-e165-8e9fb8801a83@intel.com> <CAJD_bP+Te5a=OfjN9YrjGOG2PzudQ87=5FEKj6YLFxfKyFe5bw@mail.gmail.com>
+ <6262bd72-cc2b-9d2a-e8f0-55c2b2bb7861@linux.intel.com>
+In-Reply-To: <6262bd72-cc2b-9d2a-e8f0-55c2b2bb7861@linux.intel.com>
+From:   Jason Montleon <jmontleo@redhat.com>
+Date:   Wed, 1 Feb 2023 09:33:43 -0500
+Message-ID: <CAJD_bPKxbsDi10FGX2mrMeuxcphDOvO8Q87j+AvnnQpe5cvmSA@mail.gmail.com>
+Subject: Re: Google Pixelbook EVE, no sound in kernel 6.1.x
+To:     =?UTF-8?B?QW1hZGV1c3ogU8WCYXdpxYRza2k=?= 
+        <amadeuszx.slawinski@linux.intel.com>
+Cc:     Cezary Rojewski <cezary.rojewski@intel.com>,
+        Sasa Ostrouska <casaxa@gmail.com>,
+        Linux regressions mailing list <regressions@lists.linux.dev>,
+        Greg KH <gregkh@linuxfoundation.org>, lma@semihalf.com,
+        Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>,
+        stable@vger.kernel.org, Takashi Iwai <tiwai@suse.de>
 Content-Type: text/plain; charset="UTF-8"
-X-Spam-Status: No, score=4.9 required=5.0 tests=BAYES_50,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_ENVFROM_END_DIGIT,
-        FREEMAIL_FROM,FREEMAIL_REPLYTO,FREEMAIL_REPLYTO_END_DIGIT,
-        RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS,T_HK_NAME_FM_MR_MRS,
-        UNDISC_FREEM autolearn=no autolearn_force=no version=3.4.6
-X-Spam-Level: ****
+Content-Transfer-Encoding: quoted-printable
+X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_NONE,
+        RCVD_IN_MSPIKE_H2,SPF_HELO_NONE,SPF_NONE autolearn=ham
+        autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
--- 
+On Wed, Feb 1, 2023 at 6:05 AM Amadeusz S=C5=82awi=C5=84ski
+<amadeuszx.slawinski@linux.intel.com> wrote:
+>
+> On 1/31/2023 4:16 PM, Jason Montleon wrote:
+> > On Tue, Jan 31, 2023 at 7:37 AM Cezary Rojewski
+> > <cezary.rojewski@intel.com> wrote:
+> >>
+> >> On 2023-01-30 1:22 PM, Sasa Ostrouska wrote:
+> >>
+> >>> Dear Czarek, many thanks for the answer and taking care of it. If
+> >>> needed something from my side please jest let me know
+> >>> and I will try to do it.
+> >>
+> >>
+> >> Hello Sasa,
+> >>
+> >> Could you provide us with the topology and firmware binary present on
+> >> your machine?
+> >>
+> >> Audio topology is located at /lib/firmware and named:
+> >>
+> >> 9d71-GOOGLE-EVEMAX-0-tplg.bin
+> >> -or-
+> >> dfw_sst.bin
+> >>
+> >> Firmware on the other hand is found in /lib/firmware/intel/.
+> >> 'dsp_fw_kbl.bin' will lie there, it shall be a symlink pointing to an
+> >> actual AudioDSP firmware binary.
+> >>
+> > Maybe this is the problem.
+> >
+> > I think most of us are pulling the topology and firmware from the
+> > chromeos recovery images for lack of any other known source, and it
+> > looks a little different than this. Those can be downloaded like so:
+> > https://gist.github.com/jmontleon/8899cb83138f2653f520fbbcc5b830a0
+> >
+> > After placing the topology file you'll see these errors and audio will
+> > not work until they're also copied in place.
+> > snd_soc_skl 0000:00:1f.3: Direct firmware load for
+> > dsp_lib_dsm_core_spt_release.bin failed with error -2
+> > snd_soc_skl 0000:00:1f.3: Direct firmware load for
+> > intel/dsp_fw_C75061F3-F2B2-4DCC-8F9F-82ABB4131E66.bin failed with
+> > error -2
+> >
+> > Once those were in place, up to 6.0.18 audio worked.
+> >
+> > Is there a better source for the topology file?
+> >
+> >> The reasoning for these asks is fact that problem stopped reproducing =
+on
+> >> our end once we started playing with kernel versions (moved away from
+> >> status quo with Fedora). Neither on Lukasz EVE nor on my SKL RVP.
+> >> However, we might be using newer configuration files when compared to
+> >> equivalent of yours.
+> >>
+> >> Recent v6.2-rc5 broonie/sound/for-next - no repro
+> >> Our internal tree based on Mark's for-next - no repro
+> >> 6.1.7 stable [1] - no repro
+> >>
+> >> Of course we will continue with our attempts. Will notify about the
+> >> progress.
+> >>
+> >>
+> >> [1]:
+> >> https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git/commi=
+t/?h=3Dv6.1.7&id=3D21e996306a6afaae88295858de0ffb8955173a15
+> >>
+> >>
+> >> Kind regards,
+> >> Czarek
+> >>
+> >
+> >
+>
+> Hi Jason,
+>
+> as I understand you've tried to do bisect, can you instead try building
+> kernels checking out following tags:
+> v6.1      v6.1.1    v6.1.2    v6.1.3    v6.1.4    v6.1.5    v6.1.6
+> v6.1.7    v6.1.8
+> and report when it stops working, so it narrows scope of what we look
+> at? I assume that kernel builds are done using upstream stable kernel
+> (from https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git/).
+>
+> Thanks,
+> Amadeusz
+>
+Hi Amadeusz,
+Yes, I did the bisects using
+https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git/
 
+The only thing I did to these was add
+392cc13c5ec72ccd6bbfb1bc2339502cc59dd285, otherwise audio breaks with
+the dai not registered error message in dmesg from the rt5514 bug from
+6.0 and up. It wasn't added to 6.1 until rc6, I believe. If there's a
+better way to work around the multiple bugs I can try again, otherwise
+I will start working on builds from tags and see if I learn anything.
 
+FWIW, I've seen two people complain that Arch isn't working either
+since it moved to 6.1. For the one who was trying, patching out the
+commit I came to with the first bisect did not regain them sound like
+it did for me. And yet Sasa reports Slackware is mostly working for
+him with 6.1.8 on Slackware. I don't know what to make of it, but
+thought I'd share in case it helps point someone else to something.
+https://github.com/jmontleon/pixelbook-fedora/issues/51#issuecomment-141022=
+2840
+https://github.com/jmontleon/pixelbook-fedora/issues/51#issuecomment-141067=
+3371
+https://github.com/jmontleon/pixelbook-fedora/issues/53#issuecomment-140869=
+9252
 
+Probably less relevant since they aren't from upstream and I know they
+don't mean as much, but I have tried 6.1.5-6.1.8 Fedora packages for
+certain, and went back trying several others from koji back into rc
+builds, although using prebuilt kernels, anything before 6.1-rc6 won't
+work, as mentioned above. Nothing worked. But as I said I'll build
+from tags and see if I can learn anything.
 
-I Am a dying woman here in the hospital, i was diagnose as a Cancer
-patient over  2 Years ago. I am A business woman how
-dealing with Gold Exportation. I Am from Us California
-I have a charitable and unfufilment
+Thank you,
+Jason Montleon
 
-project that am about to handover to you, if you are interested please
-Reply, hope to hear from you.
+--=20
+Jason Montleon        | email: jmontleo@redhat.com
+Red Hat, Inc.         | gpg key: 0x069E3022
+Cell: 508-496-0663    | irc: jmontleo / jmontleon
 
-Please Reply Me with my private Email for Faster Communication
-
-mrs.lorencegonzalez03@yahoo.com
-
-From  Mrs.lorence Gonzalez
