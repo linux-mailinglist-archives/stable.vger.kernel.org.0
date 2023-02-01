@@ -2,86 +2,74 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 773EB6869FA
-	for <lists+stable@lfdr.de>; Wed,  1 Feb 2023 16:21:22 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A6091686A1B
+	for <lists+stable@lfdr.de>; Wed,  1 Feb 2023 16:22:33 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231476AbjBAPVV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 1 Feb 2023 10:21:21 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:32980 "EHLO
+        id S232578AbjBAPWb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 1 Feb 2023 10:22:31 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34328 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231513AbjBAPVU (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 1 Feb 2023 10:21:20 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 59FE4CC34;
-        Wed,  1 Feb 2023 07:21:16 -0800 (PST)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id B14F9617F2;
-        Wed,  1 Feb 2023 15:21:15 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id F1997C4339B;
-        Wed,  1 Feb 2023 15:21:14 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1675264875;
-        bh=PkANlXBc7sReU5iRFn4yb7QGnOdMq/TjAGL4DKThOAc=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=GUpSskTAsEV2wje8PR7p3h1sE9QFt5Z+buWHP6qbT9UpmbGVvvmzXiyy5mNZzKEfA
-         +ZK3IvmTEyTQDSJiPb914185tlMkZumgFSeIzyjb9pSlDGeKAU3mTIs8WlHhOco1JU
-         lFOY0Inudu8zhB1C3XZP/C3IcRujVXpzlFOfz6o9WfPvT11ZwnjBiWhW11qnU7C5az
-         gf92brkrPl57rQOFwD3SssGkiOGlrsxmblfqbIqZ76btpHOyUDrXgH69R1avCHUYEr
-         gQPbFXeKdccRJ1oa3xnNXOkF3j8AaGFzfb7rfUEWuhAL38kPQfoNhtC/P/sNlAyIwg
-         rlhfWNu/OH+5A==
-Date:   Wed, 1 Feb 2023 10:21:13 -0500
-From:   Sasha Levin <sashal@kernel.org>
-To:     David Sterba <dsterba@suse.cz>
-Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
-        Christoph Hellwig <hch@lst.de>,
-        David Sterba <dsterba@suse.com>, clm@fb.com,
-        josef@toxicpanda.com, linux-btrfs@vger.kernel.org
-Subject: Re: [PATCH AUTOSEL 6.1 15/35] btrfs: stop using write_one_page in
- btrfs_scratch_superblock
-Message-ID: <Y9qDacTWGdANiOJ7@sashalap>
-References: <20230124134131.637036-1-sashal@kernel.org>
- <20230124134131.637036-15-sashal@kernel.org>
- <20230124165716.GS11562@twin.jikos.cz>
+        with ESMTP id S232716AbjBAPWO (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 1 Feb 2023 10:22:14 -0500
+Received: from hr2.samba.org (hr2.samba.org [IPv6:2a01:4f8:192:486::2:0])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C90D56E41C;
+        Wed,  1 Feb 2023 07:21:53 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=samba.org;
+        s=42; h=Message-Id:Date:Cc:To:From;
+        bh=wD8siuOqPy8QdM3QhALWZ11+ViYWKi90WD+pfYmy/iI=; b=KDRiPsB4l7vlyNgmQGn/FdBLGe
+        TqLeq8QfqbZxqIR4FD8MEUNXeEuKFtD1jFiUAAb9ZHCvCmTFEt9dCx0O6cjcweQpgChlJzbAZRNYn
+        sHFXC1jYLJ4xCFem9u7LFgB0h1pP3yvodW0XTMD6IV13WA/qQz79ycYwxMt9uk0cWTfCFf4p5tzL1
+        RDD7bRvkp6HbsTel59egxjAsWbGQk6H07t/RBqh4X9/8aEZ79yznoH+nKmpkHp/phK5+5FmrTE9/w
+        G3adpt/xOaVfZP/sbFIhQIughfVq/nB09mGI6pU6VqdPAHV011ZLdQ7HslAjc8U62J94p72A1u2pS
+        Y9GdHRR0Cv/iv3o6EdzAQm8EB7XBdkwCtk18oyQG+CUXyLEp/lVpBclo5e+4fiwTPmXnZpD/qy+3W
+        SkeA+nEQ4GN4GCsL+kHobvojOnkjdrrM3i7fKe29Ig61x9BQBhN+erRf0KGuBpjbb9gWu/uiZl6S2
+        ziI0VipR9eifObBEPBv+ylo4;
+Received: from [127.0.0.2] (localhost [127.0.0.1])
+        by hr2.samba.org with esmtpsa (TLS1.3:ECDHE_SECP256R1__ECDSA_SECP256R1_SHA256__CHACHA20_POLY1305:256)
+        (Exim)
+        id 1pNEvl-00BFZO-Gs; Wed, 01 Feb 2023 15:21:49 +0000
+From:   Stefan Metzmacher <metze@samba.org>
+To:     linux-cifs@vger.kernel.org
+Cc:     Stefan Metzmacher <metze@samba.org>,
+        Steve French <smfrench@gmail.com>, Tom Talpey <tom@talpey.com>,
+        Long Li <longli@microsoft.com>,
+        Namjae Jeon <linkinjeon@kernel.org>,
+        David Howells <dhowells@redhat.com>, stable@vger.kernel.org
+Subject: [PATCH v2 0/3] avoid plaintext rdma offload if encryption is required
+Date:   Wed,  1 Feb 2023 16:21:38 +0100
+Message-Id: <cover.1675264648.git.metze@samba.org>
+X-Mailer: git-send-email 2.34.1
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Disposition: inline
-In-Reply-To: <20230124165716.GS11562@twin.jikos.cz>
-X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
-        SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
+Content-Transfer-Encoding: 8bit
+X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,SPF_HELO_NONE,
+        SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, Jan 24, 2023 at 05:57:16PM +0100, David Sterba wrote:
->On Tue, Jan 24, 2023 at 08:41:11AM -0500, Sasha Levin wrote:
->> From: Christoph Hellwig <hch@lst.de>
->>
->> [ Upstream commit 26ecf243e407be54807ad67210f7e83b9fad71ea ]
->>
->> write_one_page is an awkward interface that expects the page locked and
->> ->writepage to be implemented.  Replace that by zeroing the signature
->> bytes and synchronize the block device page using the proper bdev
->> helpers.
->>
->> Signed-off-by: Christoph Hellwig <hch@lst.de>
->> Reviewed-by: David Sterba <dsterba@suse.com>
->> [ update changelog ]
->> Signed-off-by: David Sterba <dsterba@suse.com>
->> Signed-off-by: Sasha Levin <sashal@kernel.org>
->
->Please drop this patch and "btrfs: factor out scratching of one regular
->super block" from all stable queues. It's not a fix, only preparatory
->work to allow removing write_one_page from MM code.
->
->Commit ids: 0e0078f72be81bbb and 26ecf243e407be54
+I think it is a security problem to send confidential data in plaintext
+over the wire, so we should avoid doing that even if rdma is in use.
 
-Ack, dropped.
+We already have a similar check to prevent data integrity problems
+for rdma offload.
+
+Modern Windows servers support signed and encrypted rdma offload,
+but we don't support this yet...
+
+Changes v2:
+- Added missing Cc: list on commit 2/3
+
+Stefan Metzmacher (3):
+  cifs: introduce cifs_io_parms in smb2_async_writev()
+  cifs: split out smb3_use_rdma_offload() helper
+  cifs: don't try to use rdma offload on encrypted connections
+
+ fs/cifs/smb2pdu.c | 89 +++++++++++++++++++++++++++++++++++++----------
+ 1 file changed, 70 insertions(+), 19 deletions(-)
 
 -- 
-Thanks,
-Sasha
+2.34.1
+
