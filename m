@@ -2,212 +2,266 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 51F74686858
-	for <lists+stable@lfdr.de>; Wed,  1 Feb 2023 15:34:50 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 858F7686995
+	for <lists+stable@lfdr.de>; Wed,  1 Feb 2023 16:09:09 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231564AbjBAOes (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 1 Feb 2023 09:34:48 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42958 "EHLO
+        id S232572AbjBAPJH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 1 Feb 2023 10:09:07 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41392 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231302AbjBAOer (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 1 Feb 2023 09:34:47 -0500
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D697A46D6B
-        for <stable@vger.kernel.org>; Wed,  1 Feb 2023 06:33:57 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1675262036;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=nQV4MSRR5AyeZEpBORcUlNAjy632Kxh6QOq4hbhVmNQ=;
-        b=Qu2Pi3RtYiRBFNGmcMIo34YwfoDcQM8KuEbJTIHED7Wsj7natPC6qnO4vegepZ2rZ5+XQQ
-        Zg8rmIeo2AfG5Mp0IpdRCl6jHgrdACND7buj+ioUYpzkOyKJBSLB8mh8EgPY8thN7eRIJr
-        mM3w5Ju/XpFldhcN/9mOPLo3vuQ8a64=
-Received: from mail-yb1-f199.google.com (mail-yb1-f199.google.com
- [209.85.219.199]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_128_GCM_SHA256) id
- us-mta-426-B7nSJ8quO6G-70phGIccCg-1; Wed, 01 Feb 2023 09:33:55 -0500
-X-MC-Unique: B7nSJ8quO6G-70phGIccCg-1
-Received: by mail-yb1-f199.google.com with SMTP id a9-20020a25af09000000b0083fa6f15c2fso3911837ybh.16
-        for <stable@vger.kernel.org>; Wed, 01 Feb 2023 06:33:55 -0800 (PST)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=nQV4MSRR5AyeZEpBORcUlNAjy632Kxh6QOq4hbhVmNQ=;
-        b=FE37cZFMEAqK1JvhhPf1F3vn6IfdcvqvdEkCoV+neWrilDv0QUxmym3Dit2mf30MFV
-         PTzFtL7TZj4SCrlfhEDpNJ3bssqssjORIWY2XcM+9kxY2mbqmKm8sA+cuLyLAu3ZZNkq
-         6YppRaAOo7QiT77hSQjMng8Q2BTf5NfTF3wnkMYWveLXPTBhC3qP7BYnVGfymuES9Zlb
-         Jffp3JnIBQ3l59i8UF1ikuURn86RbLTCgg/TDeR8yY9T+VrQJv1munJlN3jC2bjYnHha
-         4N8NmqMQH6MKo1GXDjQAUbp7RcjMxDoU7X+6WCMv4GWeM4vQkrZzPk69CqRa/HOKUa4P
-         jewQ==
-X-Gm-Message-State: AO0yUKXAaezySBAdmOwPHO3o3QYKhf8OPqcYU2VElmdKvYvGBKFIvMod
-        qsDz39HHmXwe/BzQlrpzBvHYOd4hCOOTYjwwNA76ANUKEfMykUCpZt9Uqw6dXldmYs2BFaMcSo8
-        vovHXOlSZ9/iS3zN+k6/1xg6FzlP96xH9
-X-Received: by 2002:a81:a204:0:b0:51c:2c61:8c9f with SMTP id w4-20020a81a204000000b0051c2c618c9fmr288754ywg.5.1675262034775;
-        Wed, 01 Feb 2023 06:33:54 -0800 (PST)
-X-Google-Smtp-Source: AK7set+Pa5hOTLw/v3C7ub4sGvVIlhED9LaoJ7haug72PIG1FuUjVpf37Cm5B5jCLXGJDOamuuBgOGEITTKn8R07gTM=
-X-Received: by 2002:a81:a204:0:b0:51c:2c61:8c9f with SMTP id
- w4-20020a81a204000000b0051c2c618c9fmr288749ywg.5.1675262034488; Wed, 01 Feb
- 2023 06:33:54 -0800 (PST)
+        with ESMTP id S232591AbjBAPIx (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 1 Feb 2023 10:08:53 -0500
+Received: from mga05.intel.com (mga05.intel.com [192.55.52.43])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 62AE573774
+        for <stable@vger.kernel.org>; Wed,  1 Feb 2023 07:07:19 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
+  t=1675264039; x=1706800039;
+  h=date:from:to:cc:subject:message-id:reply-to:references:
+   mime-version:content-transfer-encoding:in-reply-to;
+  bh=BHxsIY/7jH6te6tixzX2E2VsdkFeeq5JFtBpD5bW1UE=;
+  b=H8KtPEwdyEa9plnsLNm1ggRtJv1ZrY8F0AK6iR6+LcGI5T4lsV3tGhcl
+   Fk23U+AYvQjWmgtxGZdcTCjkXKSM/4PUhbvyaBrk8ivwomDvSA+RIdSD1
+   1sPWY9mW9ATp5sDZiASnx7bsHViBp3rVamYoNox6XMVoEOeew/cnmawzJ
+   TW9u0lrZXTED+RCXSgvQ3DkkihJI4OFnVBwoN9USpAfMM5lGudNrliq+w
+   4KzpEYgOOsR5riQyWRZNK0DGXHZfVUY1S32ymIfZhOqVnLwRIw0qY8kyW
+   wBXl9QYwzZ3tqKf6O7gKZtqb3eqWTnQ1cncUY5OUbE+LpeOiG6XhHwKoZ
+   A==;
+X-IronPort-AV: E=McAfee;i="6500,9779,10608"; a="414373211"
+X-IronPort-AV: E=Sophos;i="5.97,263,1669104000"; 
+   d="scan'208";a="414373211"
+Received: from orsmga004.jf.intel.com ([10.7.209.38])
+  by fmsmga105.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 01 Feb 2023 07:04:14 -0800
+X-IronPort-AV: E=McAfee;i="6500,9779,10608"; a="788919254"
+X-IronPort-AV: E=Sophos;i="5.97,263,1669104000"; 
+   d="scan'208";a="788919254"
+Received: from ideak-desk.fi.intel.com ([10.237.72.58])
+  by orsmga004-auth.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 01 Feb 2023 07:04:10 -0800
+Date:   Wed, 1 Feb 2023 17:04:06 +0200
+From:   Imre Deak <imre.deak@intel.com>
+To:     Lyude Paul <lyude@redhat.com>
+Cc:     intel-gfx@lists.freedesktop.org,
+        Ville =?iso-8859-1?Q?Syrj=E4l=E4?= 
+        <ville.syrjala@linux.intel.com>, Ben Skeggs <bskeggs@redhat.com>,
+        Karol Herbst <kherbst@redhat.com>,
+        Harry Wentland <harry.wentland@amd.com>,
+        Alex Deucher <alexander.deucher@amd.com>,
+        Wayne Lin <Wayne.Lin@amd.com>, stable@vger.kernel.org,
+        dri-devel@lists.freedesktop.org
+Subject: Re: [PATCH v2 02/17] drm/display/dp_mst: Handle old/new payload
+ states in drm_dp_remove_payload()
+Message-ID: <Y9p/ZqVVpW/YMdUy@ideak-desk.fi.intel.com>
+Reply-To: imre.deak@intel.com
+References: <20230131150548.1614458-1-imre.deak@intel.com>
+ <20230131150548.1614458-3-imre.deak@intel.com>
+ <ed8b73096a576f317979c3dd65392371d5b77612.camel@redhat.com>
 MIME-Version: 1.0
-References: <CAJD_bPJ1VYTSQvogui4S9xWn9jQzQq8JRXOzXmus+qoRyrybOA@mail.gmail.com>
- <Y9Vg26wjGfkCicYv@kroah.com> <CAJD_bPLkkgbk+GO66Ec9RmiW6MfYrG32WP75oLzXsz2+rpREWg@mail.gmail.com>
- <CAJD_bPK=m0mX8_Qq=6iwD8sL8AkR99PEzBbE3RcSaJmxuJmW6g@mail.gmail.com>
- <02834fa9-4fb0-08fb-4b5f-e9646c1501d6@leemhuis.info> <288d7ff4-75aa-7ad1-c49c-579373cab3ed@intel.com>
- <CALFERdw=GwNYafR3q=5=k=H_jrzTZMyDBQLouFGV0JGu8i9sCg@mail.gmail.com>
- <04a9f939-8a98-9a46-e165-8e9fb8801a83@intel.com> <CAJD_bP+Te5a=OfjN9YrjGOG2PzudQ87=5FEKj6YLFxfKyFe5bw@mail.gmail.com>
- <6262bd72-cc2b-9d2a-e8f0-55c2b2bb7861@linux.intel.com>
-In-Reply-To: <6262bd72-cc2b-9d2a-e8f0-55c2b2bb7861@linux.intel.com>
-From:   Jason Montleon <jmontleo@redhat.com>
-Date:   Wed, 1 Feb 2023 09:33:43 -0500
-Message-ID: <CAJD_bPKxbsDi10FGX2mrMeuxcphDOvO8Q87j+AvnnQpe5cvmSA@mail.gmail.com>
-Subject: Re: Google Pixelbook EVE, no sound in kernel 6.1.x
-To:     =?UTF-8?B?QW1hZGV1c3ogU8WCYXdpxYRza2k=?= 
-        <amadeuszx.slawinski@linux.intel.com>
-Cc:     Cezary Rojewski <cezary.rojewski@intel.com>,
-        Sasa Ostrouska <casaxa@gmail.com>,
-        Linux regressions mailing list <regressions@lists.linux.dev>,
-        Greg KH <gregkh@linuxfoundation.org>, lma@semihalf.com,
-        Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>,
-        stable@vger.kernel.org, Takashi Iwai <tiwai@suse.de>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
-X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_NONE,
-        RCVD_IN_MSPIKE_H2,SPF_HELO_NONE,SPF_NONE autolearn=ham
-        autolearn_force=no version=3.4.6
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <ed8b73096a576f317979c3dd65392371d5b77612.camel@redhat.com>
+X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
+        SPF_HELO_NONE,SPF_NONE autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Wed, Feb 1, 2023 at 6:05 AM Amadeusz S=C5=82awi=C5=84ski
-<amadeuszx.slawinski@linux.intel.com> wrote:
->
-> On 1/31/2023 4:16 PM, Jason Montleon wrote:
-> > On Tue, Jan 31, 2023 at 7:37 AM Cezary Rojewski
-> > <cezary.rojewski@intel.com> wrote:
-> >>
-> >> On 2023-01-30 1:22 PM, Sasa Ostrouska wrote:
-> >>
-> >>> Dear Czarek, many thanks for the answer and taking care of it. If
-> >>> needed something from my side please jest let me know
-> >>> and I will try to do it.
-> >>
-> >>
-> >> Hello Sasa,
-> >>
-> >> Could you provide us with the topology and firmware binary present on
-> >> your machine?
-> >>
-> >> Audio topology is located at /lib/firmware and named:
-> >>
-> >> 9d71-GOOGLE-EVEMAX-0-tplg.bin
-> >> -or-
-> >> dfw_sst.bin
-> >>
-> >> Firmware on the other hand is found in /lib/firmware/intel/.
-> >> 'dsp_fw_kbl.bin' will lie there, it shall be a symlink pointing to an
-> >> actual AudioDSP firmware binary.
-> >>
-> > Maybe this is the problem.
-> >
-> > I think most of us are pulling the topology and firmware from the
-> > chromeos recovery images for lack of any other known source, and it
-> > looks a little different than this. Those can be downloaded like so:
-> > https://gist.github.com/jmontleon/8899cb83138f2653f520fbbcc5b830a0
-> >
-> > After placing the topology file you'll see these errors and audio will
-> > not work until they're also copied in place.
-> > snd_soc_skl 0000:00:1f.3: Direct firmware load for
-> > dsp_lib_dsm_core_spt_release.bin failed with error -2
-> > snd_soc_skl 0000:00:1f.3: Direct firmware load for
-> > intel/dsp_fw_C75061F3-F2B2-4DCC-8F9F-82ABB4131E66.bin failed with
-> > error -2
-> >
-> > Once those were in place, up to 6.0.18 audio worked.
-> >
-> > Is there a better source for the topology file?
-> >
-> >> The reasoning for these asks is fact that problem stopped reproducing =
-on
-> >> our end once we started playing with kernel versions (moved away from
-> >> status quo with Fedora). Neither on Lukasz EVE nor on my SKL RVP.
-> >> However, we might be using newer configuration files when compared to
-> >> equivalent of yours.
-> >>
-> >> Recent v6.2-rc5 broonie/sound/for-next - no repro
-> >> Our internal tree based on Mark's for-next - no repro
-> >> 6.1.7 stable [1] - no repro
-> >>
-> >> Of course we will continue with our attempts. Will notify about the
-> >> progress.
-> >>
-> >>
-> >> [1]:
-> >> https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git/commi=
-t/?h=3Dv6.1.7&id=3D21e996306a6afaae88295858de0ffb8955173a15
-> >>
-> >>
-> >> Kind regards,
-> >> Czarek
-> >>
-> >
-> >
->
-> Hi Jason,
->
-> as I understand you've tried to do bisect, can you instead try building
-> kernels checking out following tags:
-> v6.1      v6.1.1    v6.1.2    v6.1.3    v6.1.4    v6.1.5    v6.1.6
-> v6.1.7    v6.1.8
-> and report when it stops working, so it narrows scope of what we look
-> at? I assume that kernel builds are done using upstream stable kernel
-> (from https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git/).
->
-> Thanks,
-> Amadeusz
->
-Hi Amadeusz,
-Yes, I did the bisects using
-https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git/
+On Tue, Jan 31, 2023 at 06:13:10PM -0500, Lyude Paul wrote:
+> On Tue, 2023-01-31 at 17:05 +0200, Imre Deak wrote:
+> > Atm, drm_dp_remove_payload() uses the same payload state to both get the
+> > vc_start_slot required for the payload removal DPCD message and to
+> > deduct time_slots from vc_start_slot of all payloads after the one being
+> > removed.
+> > 
+> > The above isn't always correct, as vc_start_slot must be the up-to-date
+> > version contained in the new payload state, but time_slots must be the
+> > one used when the payload was previously added, contained in the old
+> > payload state. The new payload's time_slots can change vs. the old one
+> > if the current atomic commit changes the corresponding mode.
+> > 
+> > This patch let's drivers pass the old and new payload states to
+> > drm_dp_remove_payload(), but keeps these the same for now in all drivers
+> > not to change the behavior. A follow-up i915 patch will pass in that
+> > driver the correct old and new states to the function.
+> 
+> Oh wow, this was definitely a mistake on my part, thanks for catching this!
+> TBH, I think this behavior is correct so (now that I actually have a setup
+> capable of testing amdgpu's MST fully thanks to gitlab issue 2171…) if you'd
+> like to change it on other drivers as well I can test it fully.
 
-The only thing I did to these was add
-392cc13c5ec72ccd6bbfb1bc2339502cc59dd285, otherwise audio breaks with
-the dai not registered error message in dmesg from the rt5514 bug from
-6.0 and up. It wasn't added to 6.1 until rc6, I believe. If there's a
-better way to work around the multiple bugs I can try again, otherwise
-I will start working on builds from tags and see if I learn anything.
+I only checked that the other drivers pass the new payload state to
+drm_dp_remove_payload(), so not sure how that works atm if the same
+commit has to both remove the payload (with the old time_slots value)
+and add it back (with a new time_slots value). Maybe that can't happen
+in those drivers, or time_slots get updated between remove and readd.
 
-FWIW, I've seen two people complain that Arch isn't working either
-since it moved to 6.1. For the one who was trying, patching out the
-commit I came to with the first bisect did not regain them sound like
-it did for me. And yet Sasa reports Slackware is mostly working for
-him with 6.1.8 on Slackware. I don't know what to make of it, but
-thought I'd share in case it helps point someone else to something.
-https://github.com/jmontleon/pixelbook-fedora/issues/51#issuecomment-141022=
-2840
-https://github.com/jmontleon/pixelbook-fedora/issues/51#issuecomment-141067=
-3371
-https://github.com/jmontleon/pixelbook-fedora/issues/53#issuecomment-140869=
-9252
+> Or feel free to leave it to me, shouldn't be too difficult I think :).
 
-Probably less relevant since they aren't from upstream and I know they
-don't mean as much, but I have tried 6.1.5-6.1.8 Fedora packages for
-certain, and went back trying several others from koji back into rc
-builds, although using prebuilt kernels, anything before 6.1-rc6 won't
-work, as mentioned above. Nothing worked. But as I said I'll build
-from tags and see if I can learn anything.
+Yes, this patch should have no functional change, so please check what
+would apply to other drivers as well.
 
-Thank you,
-Jason Montleon
+Could you also check Ville's comment about storing start_slot elsewhere
+than the atomic state (leaving only time_slots there). I wonder if that
+would work, at least it would simplify things I think.
 
---=20
-Jason Montleon        | email: jmontleo@redhat.com
-Red Hat, Inc.         | gpg key: 0x069E3022
-Cell: 508-496-0663    | irc: jmontleo / jmontleon
+> For 0-2:
+> 
+> Reviewed-by: Lyude Paul <lyude@redhat.com>
 
+Thanks.
+
+> 
+> > 
+> > Cc: Lyude Paul <lyude@redhat.com>
+> > Cc: Ville Syrjälä <ville.syrjala@linux.intel.com>
+> > Cc: Ben Skeggs <bskeggs@redhat.com>
+> > Cc: Karol Herbst <kherbst@redhat.com>
+> > Cc: Harry Wentland <harry.wentland@amd.com>
+> > Cc: Alex Deucher <alexander.deucher@amd.com>
+> > Cc: Wayne Lin <Wayne.Lin@amd.com>
+> > Cc: stable@vger.kernel.org # 6.1
+> > Cc: dri-devel@lists.freedesktop.org
+> > Reviewed-by: Ville Syrjälä <ville.syrjala@linux.intel.com>
+> > Signed-off-by: Imre Deak <imre.deak@intel.com>
+> > ---
+> >  .../amd/display/amdgpu_dm/amdgpu_dm_helpers.c |  2 +-
+> >  drivers/gpu/drm/display/drm_dp_mst_topology.c | 26 ++++++++++---------
+> >  drivers/gpu/drm/i915/display/intel_dp_mst.c   |  4 ++-
+> >  drivers/gpu/drm/nouveau/dispnv50/disp.c       |  2 +-
+> >  include/drm/display/drm_dp_mst_helper.h       |  3 ++-
+> >  5 files changed, 21 insertions(+), 16 deletions(-)
+> > 
+> > diff --git a/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm_helpers.c b/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm_helpers.c
+> > index a50319fc42b11..180d3893b68da 100644
+> > --- a/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm_helpers.c
+> > +++ b/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm_helpers.c
+> > @@ -208,7 +208,7 @@ bool dm_helpers_dp_mst_write_payload_allocation_table(
+> >  	if (enable)
+> >  		drm_dp_add_payload_part1(mst_mgr, mst_state, payload);
+> >  	else
+> > -		drm_dp_remove_payload(mst_mgr, mst_state, payload);
+> > +		drm_dp_remove_payload(mst_mgr, mst_state, payload, payload);
+> >  
+> >  	/* mst_mgr->->payloads are VC payload notify MST branch using DPCD or
+> >  	 * AUX message. The sequence is slot 1-63 allocated sequence for each
+> > diff --git a/drivers/gpu/drm/display/drm_dp_mst_topology.c b/drivers/gpu/drm/display/drm_dp_mst_topology.c
+> > index 847c10aa2098c..1990ff5dc7ddd 100644
+> > --- a/drivers/gpu/drm/display/drm_dp_mst_topology.c
+> > +++ b/drivers/gpu/drm/display/drm_dp_mst_topology.c
+> > @@ -3342,7 +3342,8 @@ EXPORT_SYMBOL(drm_dp_add_payload_part1);
+> >   * drm_dp_remove_payload() - Remove an MST payload
+> >   * @mgr: Manager to use.
+> >   * @mst_state: The MST atomic state
+> > - * @payload: The payload to write
+> > + * @old_payload: The payload with its old state
+> > + * @new_payload: The payload to write
+> >   *
+> >   * Removes a payload from an MST topology if it was successfully assigned a start slot. Also updates
+> >   * the starting time slots of all other payloads which would have been shifted towards the start of
+> > @@ -3350,36 +3351,37 @@ EXPORT_SYMBOL(drm_dp_add_payload_part1);
+> >   */
+> >  void drm_dp_remove_payload(struct drm_dp_mst_topology_mgr *mgr,
+> >  			   struct drm_dp_mst_topology_state *mst_state,
+> > -			   struct drm_dp_mst_atomic_payload *payload)
+> > +			   const struct drm_dp_mst_atomic_payload *old_payload,
+> > +			   struct drm_dp_mst_atomic_payload *new_payload)
+> >  {
+> >  	struct drm_dp_mst_atomic_payload *pos;
+> >  	bool send_remove = false;
+> >  
+> >  	/* We failed to make the payload, so nothing to do */
+> > -	if (payload->vc_start_slot == -1)
+> > +	if (new_payload->vc_start_slot == -1)
+> >  		return;
+> >  
+> >  	mutex_lock(&mgr->lock);
+> > -	send_remove = drm_dp_mst_port_downstream_of_branch(payload->port, mgr->mst_primary);
+> > +	send_remove = drm_dp_mst_port_downstream_of_branch(new_payload->port, mgr->mst_primary);
+> >  	mutex_unlock(&mgr->lock);
+> >  
+> >  	if (send_remove)
+> > -		drm_dp_destroy_payload_step1(mgr, mst_state, payload);
+> > +		drm_dp_destroy_payload_step1(mgr, mst_state, new_payload);
+> >  	else
+> >  		drm_dbg_kms(mgr->dev, "Payload for VCPI %d not in topology, not sending remove\n",
+> > -			    payload->vcpi);
+> > +			    new_payload->vcpi);
+> >  
+> >  	list_for_each_entry(pos, &mst_state->payloads, next) {
+> > -		if (pos != payload && pos->vc_start_slot > payload->vc_start_slot)
+> > -			pos->vc_start_slot -= payload->time_slots;
+> > +		if (pos != new_payload && pos->vc_start_slot > new_payload->vc_start_slot)
+> > +			pos->vc_start_slot -= old_payload->time_slots;
+> >  	}
+> > -	payload->vc_start_slot = -1;
+> > +	new_payload->vc_start_slot = -1;
+> >  
+> >  	mgr->payload_count--;
+> > -	mgr->next_start_slot -= payload->time_slots;
+> > +	mgr->next_start_slot -= old_payload->time_slots;
+> >  
+> > -	if (payload->delete)
+> > -		drm_dp_mst_put_port_malloc(payload->port);
+> > +	if (new_payload->delete)
+> > +		drm_dp_mst_put_port_malloc(new_payload->port);
+> >  }
+> >  EXPORT_SYMBOL(drm_dp_remove_payload);
+> >  
+> > diff --git a/drivers/gpu/drm/i915/display/intel_dp_mst.c b/drivers/gpu/drm/i915/display/intel_dp_mst.c
+> > index f3cb12dcfe0a7..dc4e5ff1dbb31 100644
+> > --- a/drivers/gpu/drm/i915/display/intel_dp_mst.c
+> > +++ b/drivers/gpu/drm/i915/display/intel_dp_mst.c
+> > @@ -526,6 +526,8 @@ static void intel_mst_disable_dp(struct intel_atomic_state *state,
+> >  		to_intel_connector(old_conn_state->connector);
+> >  	struct drm_dp_mst_topology_state *mst_state =
+> >  		drm_atomic_get_mst_topology_state(&state->base, &intel_dp->mst_mgr);
+> > +	struct drm_dp_mst_atomic_payload *payload =
+> > +		drm_atomic_get_mst_payload_state(mst_state, connector->port);
+> >  	struct drm_i915_private *i915 = to_i915(connector->base.dev);
+> >  
+> >  	drm_dbg_kms(&i915->drm, "active links %d\n",
+> > @@ -534,7 +536,7 @@ static void intel_mst_disable_dp(struct intel_atomic_state *state,
+> >  	intel_hdcp_disable(intel_mst->connector);
+> >  
+> >  	drm_dp_remove_payload(&intel_dp->mst_mgr, mst_state,
+> > -			      drm_atomic_get_mst_payload_state(mst_state, connector->port));
+> > +			      payload, payload);
+> >  
+> >  	intel_audio_codec_disable(encoder, old_crtc_state, old_conn_state);
+> >  }
+> > diff --git a/drivers/gpu/drm/nouveau/dispnv50/disp.c b/drivers/gpu/drm/nouveau/dispnv50/disp.c
+> > index edcb2529b4025..ed9d374147b8d 100644
+> > --- a/drivers/gpu/drm/nouveau/dispnv50/disp.c
+> > +++ b/drivers/gpu/drm/nouveau/dispnv50/disp.c
+> > @@ -885,7 +885,7 @@ nv50_msto_prepare(struct drm_atomic_state *state,
+> >  
+> >  	// TODO: Figure out if we want to do a better job of handling VCPI allocation failures here?
+> >  	if (msto->disabled) {
+> > -		drm_dp_remove_payload(mgr, mst_state, payload);
+> > +		drm_dp_remove_payload(mgr, mst_state, payload, payload);
+> >  
+> >  		nvif_outp_dp_mst_vcpi(&mstm->outp->outp, msto->head->base.index, 0, 0, 0, 0);
+> >  	} else {
+> > diff --git a/include/drm/display/drm_dp_mst_helper.h b/include/drm/display/drm_dp_mst_helper.h
+> > index 41fd8352ab656..f5eb9aa152b14 100644
+> > --- a/include/drm/display/drm_dp_mst_helper.h
+> > +++ b/include/drm/display/drm_dp_mst_helper.h
+> > @@ -841,7 +841,8 @@ int drm_dp_add_payload_part2(struct drm_dp_mst_topology_mgr *mgr,
+> >  			     struct drm_dp_mst_atomic_payload *payload);
+> >  void drm_dp_remove_payload(struct drm_dp_mst_topology_mgr *mgr,
+> >  			   struct drm_dp_mst_topology_state *mst_state,
+> > -			   struct drm_dp_mst_atomic_payload *payload);
+> > +			   const struct drm_dp_mst_atomic_payload *old_payload,
+> > +			   struct drm_dp_mst_atomic_payload *new_payload);
+> >  
+> >  int drm_dp_check_act_status(struct drm_dp_mst_topology_mgr *mgr);
+> >  
+> 
+> -- 
+> Cheers,
+>  Lyude Paul (she/her)
+>  Software Engineer at Red Hat
+> 
