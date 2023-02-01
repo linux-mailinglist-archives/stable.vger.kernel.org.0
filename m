@@ -2,152 +2,158 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E79C4685FC1
-	for <lists+stable@lfdr.de>; Wed,  1 Feb 2023 07:31:40 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0B5E8686066
+	for <lists+stable@lfdr.de>; Wed,  1 Feb 2023 08:14:41 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230491AbjBAGbj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 1 Feb 2023 01:31:39 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58286 "EHLO
+        id S230482AbjBAHOk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 1 Feb 2023 02:14:40 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52792 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230266AbjBAGbi (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 1 Feb 2023 01:31:38 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C4672564B1;
-        Tue, 31 Jan 2023 22:31:36 -0800 (PST)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 18568B81F2D;
-        Wed,  1 Feb 2023 06:31:35 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 46DECC4339C;
-        Wed,  1 Feb 2023 06:31:33 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1675233093;
-        bh=kODbu8v8FoJJKSYLR/mctHsB9SNw4l1AhxYgBT5F4R8=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=a9FoKfofj9I8z7FRGoI5KTEFES31+jAGm9T1tXLHLt1ICF1vzD9lVLQ1PMHKF118R
-         6gxgIJ4cvI9lNcgU8jhgYhiEgv0BWrRs5Y/zh8bBLAXcpiK3QfXg6S7LZIzG/slYMS
-         swQmWjHUhSmrxd2OTgLY5hwoNrZgsycTEcAuddMz581Mil5Ri2sQKK3WIB2+xpqArZ
-         kEhjGm4ZjunZ/TEXjM0KgrLsC6WGXeZTQmZl679nScLECIBqVi2GGuQ9cdxWQq4Zgo
-         u0iSFo5+bK8fU17enBhGUD60FFec9CC5212xX0Hf8PjBrr4OTPvVVBpviTK7zVBKNh
-         4741njuFWUngA==
-Date:   Tue, 31 Jan 2023 22:31:31 -0800
-From:   Eric Biggers <ebiggers@kernel.org>
-To:     Tejun Heo <tj@kernel.org>
-Cc:     Matthew Wilcox <willy@infradead.org>,
-        "Theodore Y . Ts'o" <tytso@mit.edu>,
-        Jaegeuk Kim <jaegeuk@kernel.org>,
-        linux-fscrypt@vger.kernel.org, linux-fsdevel@vger.kernel.org,
-        linux-ext4@vger.kernel.org, linux-f2fs-devel@lists.sourceforge.net,
-        stable@vger.kernel.org, cgroups@vger.kernel.org
-Subject: Re: [PATCH] fscrypt: Copy the memcg information to the ciphertext
- page
-Message-ID: <Y9oHQ6MfRbfwmFyK@sol.localdomain>
-References: <20230129121851.2248378-1-willy@infradead.org>
- <Y9a2m8uvmXmCVYvE@sol.localdomain>
- <Y9bkoasmAmtQ2nSV@casper.infradead.org>
- <Y9mH0PCcZoGPryXw@slm.duckdns.org>
+        with ESMTP id S229483AbjBAHOj (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 1 Feb 2023 02:14:39 -0500
+Received: from mail-pj1-x1030.google.com (mail-pj1-x1030.google.com [IPv6:2607:f8b0:4864:20::1030])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C17295FD5
+        for <stable@vger.kernel.org>; Tue, 31 Jan 2023 23:14:37 -0800 (PST)
+Received: by mail-pj1-x1030.google.com with SMTP id c10-20020a17090a1d0a00b0022e63a94799so1177124pjd.2
+        for <stable@vger.kernel.org>; Tue, 31 Jan 2023 23:14:37 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20210112;
+        h=content-transfer-encoding:in-reply-to:from:content-language
+         :references:cc:to:subject:user-agent:mime-version:date:message-id
+         :from:to:cc:subject:date:message-id:reply-to;
+        bh=R0g4NQe1aCHgCRTvEl02z86KS94f8ECDTiqslCJ76Lo=;
+        b=YULnFVkEgbufS3L38Mpf7SDnHmMCfetj5/KjmgIKmRTuxlOpqYaBM2SfeMLHYl0OP8
+         fFhc4SLcfe3MogXyMdUSPmSIrN7QrYlVy6HdtD8qpyxZlk/g2WdFv6IOE7XvG4bPrJYN
+         fVsnXYqLRN7PXz2/P2O7R7zMdeYdZcrV4GoTzv+3zvAdmNLKw7a50Xs0P02ExSV1mM5G
+         8EyZsDaJ71pkLi/W4jKih4GPxXe9JxRPHnxNzaySAP7lB7emK4/4gMg6zu07GlV7vi2/
+         nB8+Jybf1zxkz5tVqk+sIXfCirmN9MJRX/MF0xO0r9bblKcBjQajQtpSezUGDC7RzWg8
+         ybYA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=content-transfer-encoding:in-reply-to:from:content-language
+         :references:cc:to:subject:user-agent:mime-version:date:message-id
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
+        bh=R0g4NQe1aCHgCRTvEl02z86KS94f8ECDTiqslCJ76Lo=;
+        b=2eaAAJMK1ReUOpRkmAREG8NdXcYlKJwPYnvY2T7qs0tyyyDpuIxkH74zzVvQ5lw6tp
+         9kXAyA/HMkO8VpKLN30RIZc//pjuLkGRQV9z/mBMpZgomGVvSr8NuCpLb3u8/Y6aGCJs
+         yIKzPNMQHUR9FuBMBzBLjV2+SvgxmYtaT8oKDTRhaywdpBgk0jvBphvTz83UXufrvnfO
+         t3WEOWXXHGtoGqMGl8xkQLSCH1haKB80cRkLX91qsnWo5EIifcpbCSwT3MS6aO+PLd1e
+         LEF2ogp9v9wqBJQ2qG1t4PupKfZNF9g3pAET9LtoVv7CaRz4LNaht1LA/xEBFzS6b8SH
+         Uu1A==
+X-Gm-Message-State: AO0yUKWDvWSg6s7A3tDidNIswOqWr7wZmeTIR5+RncGsqZv5EIzWPq3y
+        4Lsa3dw0pHYcK2jtZCL8NGw=
+X-Google-Smtp-Source: AK7set+zX1I5Td1RK9VNQtrjF8E7cYW1MUA7eNsm8VbebFIOvlUVDRi+mpSspK9966f7RE8GqrVLrg==
+X-Received: by 2002:a17:903:1108:b0:196:2124:c590 with SMTP id n8-20020a170903110800b001962124c590mr19429996plh.33.1675235677139;
+        Tue, 31 Jan 2023 23:14:37 -0800 (PST)
+Received: from [192.168.0.10] (KD106168128197.ppp-bb.dion.ne.jp. [106.168.128.197])
+        by smtp.gmail.com with ESMTPSA id l16-20020a170903245000b0019896d29197sm2922480pls.46.2023.01.31.23.14.34
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Tue, 31 Jan 2023 23:14:36 -0800 (PST)
+Message-ID: <ac22752e-4251-b56b-bd86-06d7477d5565@gmail.com>
+Date:   Wed, 1 Feb 2023 16:14:33 +0900
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Y9mH0PCcZoGPryXw@slm.duckdns.org>
-X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
-        SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
+User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:102.0) Gecko/20100101
+ Thunderbird/102.6.1
+Subject: Re: [PATCH 1/2] mtd: spi-nor: spansion: Consider reserved bits in
+ CFR5 register
+To:     Dhruva Gole <d-gole@ti.com>, Pratyush Yadav <ptyadav@amazon.de>,
+        Tudor Ambarus <tudor.ambarus@linaro.org>
+Cc:     Takahiro.Kuwano@infineon.com, linux-mtd@lists.infradead.org,
+        pratyush@kernel.org, michael@walle.cc, miquel.raynal@bootlin.com,
+        richard@nod.at, Bacem.Daassi@infineon.com, stable@vger.kernel.org
+References: <493d9a10-aaf3-70f6-36c3-9a2cf39f0759@linaro.org>
+ <20230110164703.83413-1-tudor.ambarus@linaro.org>
+ <mafs0v8kxb9mb.fsf_-_@amazon.de>
+ <e02d6aa5-2189-4afb-2521-6034feaa3460@ti.com>
+Content-Language: en-US
+From:   Takahiro Kuwano <tkuw584924@gmail.com>
+In-Reply-To: <e02d6aa5-2189-4afb-2521-6034feaa3460@ti.com>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
+X-Spam-Status: No, score=-1.9 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_ENVFROM_END_DIGIT,
+        FREEMAIL_FROM,NICE_REPLY_A,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS
+        autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, Jan 31, 2023 at 11:27:44AM -1000, Tejun Heo wrote:
-> Hello,
+Hi Dhruva and Pratyush,
+
+On 1/24/2023 1:31 AM, Dhruva Gole wrote:
+> Hi Pratyush,
 > 
-> On Sun, Jan 29, 2023 at 09:26:57PM +0000, Matthew Wilcox wrote:
-> > > > diff --git a/fs/crypto/crypto.c b/fs/crypto/crypto.c
-> > > > index e78be66bbf01..a4e76f96f291 100644
-> > > > --- a/fs/crypto/crypto.c
-> > > > +++ b/fs/crypto/crypto.c
-> > > > @@ -205,6 +205,9 @@ struct page *fscrypt_encrypt_pagecache_blocks(struct page *page,
-> > > >  	}
-> > > >  	SetPagePrivate(ciphertext_page);
-> > > >  	set_page_private(ciphertext_page, (unsigned long)page);
-> > > > +#ifdef CONFIG_MEMCG
-> > > > +	ciphertext_page->memcg_data = page->memcg_data;
-> > > > +#endif
-> > > >  	return ciphertext_page;
-> > > >  }
-> > > 
-> > > Nothing outside mm/ and include/linux/memcontrol.h does anything with memcg_data
-> > > directly.  Are you sure this is the right thing to do here?
-> > 
-> > Nope ;-)  Happy to hear from people who know more about cgroups than I
-> > do.  Adding some more ccs.
-> > 
-> > > Also, this patch causes the following:
-> > 
-> > Oops.  Clearly memcg_data needs to be set to NULL before we free it.
+> On 23/01/23 20:07, Pratyush Yadav wrote:
+>> +Cc Dhruva
+> I had already reviewed this, but now I have locally applied the patches,
+> to linux master and built and tested - seems okay,
+I had tested on my side as well. Sorry for the late reply.
+
+>> Hi Tudor,
+>>
+>> On Tue, Jan 10 2023, Tudor Ambarus wrote:
+>>
+>>> CFR5[6] is reserved bit and must be always 1. Set it to comply with flash
+>>> requirements. While fixing SPINOR_REG_CYPRESS_CFR5V_OCT_DTR_{EN, DS}
+>>> definition, stop using magic numbers and describe the missing bit fields
+>>> in CFR5 register. This is useful for both readability and future possible
+>>> addition of Octal STR mode support.
+>>>
+>>> Fixes: c3266af101f2 ("mtd: spi-nor: spansion: add support for Cypress Semper flash")
+>>> Cc: stable@vger.kernel.org
+>>> Reported-by: Takahiro Kuwano <Takahiro.Kuwano@infineon.com>
+>>> Signed-off-by: Tudor Ambarus <tudor.ambarus@linaro.org>
+>>> ---
+>>>  drivers/mtd/spi-nor/spansion.c | 9 +++++++--
+>>>  1 file changed, 7 insertions(+), 2 deletions(-)
+>>>
+>>> diff --git a/drivers/mtd/spi-nor/spansion.c b/drivers/mtd/spi-nor/spansion.c
+>>> index b621cdfd506f..07fe0f6fdfe3 100644
+>>> --- a/drivers/mtd/spi-nor/spansion.c
+>>> +++ b/drivers/mtd/spi-nor/spansion.c
+>>> @@ -21,8 +21,13 @@
+>>>  #define SPINOR_REG_CYPRESS_CFR3V               0x00800004
+>>>  #define SPINOR_REG_CYPRESS_CFR3V_PGSZ          BIT(4) /* Page size. */
+>>>  #define SPINOR_REG_CYPRESS_CFR5V               0x00800006
+>>> -#define SPINOR_REG_CYPRESS_CFR5V_OCT_DTR_EN    0x3
+>>> -#define SPINOR_REG_CYPRESS_CFR5V_OCT_DTR_DS    0
+>>> +#define SPINOR_REG_CYPRESS_CFR5_BIT6           BIT(6)
+>> Perhaps comment here that this bit is reserved. Otherwise it is not
+>> obvious what this does and why we are setting it without going through
+>> git-blame. No need for a re-roll, I think it is fine if you add this
+>> when applying.
+>>
+>>> +#define SPINOR_REG_CYPRESS_CFR5_DDR            BIT(1)
+>>> +#define SPINOR_REG_CYPRESS_CFR5_OPI            BIT(0)
+>>> +#define SPINOR_REG_CYPRESS_CFR5V_OCT_DTR_EN                            \
+>>> +       (SPINOR_REG_CYPRESS_CFR5_BIT6 | SPINOR_REG_CYPRESS_CFR5_DDR |   \
+>>> +        SPINOR_REG_CYPRESS_CFR5_OPI)
+>>> +#define SPINOR_REG_CYPRESS_CFR5V_OCT_DTR_DS    SPINOR_REG_CYPRESS_CFR5_BIT6
+>> I would say don't fix what isn't broken. But if you do, test it. Do you
+>> or Takahiro have a Cypress S28* flash to test this change on? If no,
+>> then perhaps Dhruva can help here since TI uses this flash on a bunch of
+>> their boards?
+>>
+>> The change looks fine to me with the above comment added, I just would
+>> like someone to test it once.
+> Tested OSPI_S_FUNC_DD_RW_ERASESIZE_UBIFS from ltp-ddt and test seemed to pass on my
+> AM625 SK EVM having an OSPI NOR S28HS512T Flash.
+>>
+>> Reviewed-by: Pratyush Yadav <ptyadav@amazon.de>
+> For this series,
 > 
-> These can usually be handled by explicitly associating the bio's to the
-> desired cgroups using one of bio_associate_blkg*() or
-> bio_clone_blkg_association().
+> Tested-by: Dhruva Gole <d-gole@ti.com>
+> 
+Thank you!
 
-Here that already happens in wbc_init_bio(), called from io_submit_init_bio() in
-fs/ext4/page-io.c.
-
-> It is possible to go through memcg ownership
-> too using set_active_memcg() so that the page is owned by the target cgroup;
-> however, the page ownership doesn't directly map to IO ownership as the
-> relationship depends on the type of the page (e.g. IO ownership for
-> pagecache writeback is determined per-inode, not per-page). If the in-flight
-> pages are limited, it probably is better to set bio association directly.
-
-ext4 also calls wbc_account_cgroup_owner() for each pagecache page that's
-written out.  It seems this is for a different purpose -- it looks like the
-fs-writeback code is trying to figure out which cgroup "owns" the inode based on
-which cgroup "owns" most of the pagecache pages?
-
-The bug we're discussing here is that when ext4 writes out a pagecache page in
-an encrypted file, it first encrypts the data into a bounce page, then passes
-the bounce page (which don't have a memcg) to wbc_account_cgroup_owner().  Maybe
-the proper fix is to just pass the pagecache page to wbc_account_cgroup_owner()
-instead?  See below for ext4 (a separate patch would be needed for f2fs):
-
-diff --git a/fs/ext4/page-io.c b/fs/ext4/page-io.c
-index beaec6d81074a..1e4db96a04e63 100644
---- a/fs/ext4/page-io.c
-+++ b/fs/ext4/page-io.c
-@@ -409,7 +409,8 @@ static void io_submit_init_bio(struct ext4_io_submit *io,
- 
- static void io_submit_add_bh(struct ext4_io_submit *io,
- 			     struct inode *inode,
--			     struct page *page,
-+			     struct page *pagecache_page,
-+			     struct page *bounce_page,
- 			     struct buffer_head *bh)
- {
- 	int ret;
-@@ -421,10 +422,11 @@ static void io_submit_add_bh(struct ext4_io_submit *io,
- 	}
- 	if (io->io_bio == NULL)
- 		io_submit_init_bio(io, bh);
--	ret = bio_add_page(io->io_bio, page, bh->b_size, bh_offset(bh));
-+	ret = bio_add_page(io->io_bio, bounce_page ?: pagecache_page,
-+			   bh->b_size, bh_offset(bh));
- 	if (ret != bh->b_size)
- 		goto submit_and_retry;
--	wbc_account_cgroup_owner(io->io_wbc, page, bh->b_size);
-+	wbc_account_cgroup_owner(io->io_wbc, pagecache_page, bh->b_size);
- 	io->io_next_block++;
- }
- 
-@@ -561,8 +563,7 @@ int ext4_bio_write_page(struct ext4_io_submit *io,
- 	do {
- 		if (!buffer_async_write(bh))
- 			continue;
--		io_submit_add_bh(io, inode,
--				 bounce_page ? bounce_page : page, bh);
-+		io_submit_add_bh(io, inode, page, bounce_page, bh);
- 	} while ((bh = bh->b_this_page) != head);
- unlock:
- 	unlock_page(page);
+>>>  #define SPINOR_OP_CYPRESS_RD_FAST              0xee
+>>>
+>>>  /* Cypress SPI NOR flash operations. */
+>>> --
+>>> 2.34.1
+>>>
+>>>
+> 
+Takahiro
