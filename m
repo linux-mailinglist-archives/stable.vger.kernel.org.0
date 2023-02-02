@@ -2,69 +2,72 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 9DDB668878D
-	for <lists+stable@lfdr.de>; Thu,  2 Feb 2023 20:37:28 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B3343688790
+	for <lists+stable@lfdr.de>; Thu,  2 Feb 2023 20:38:27 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232147AbjBBTh1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 2 Feb 2023 14:37:27 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59040 "EHLO
+        id S232370AbjBBTiZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 2 Feb 2023 14:38:25 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59736 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229848AbjBBTh0 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 2 Feb 2023 14:37:26 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C04005C0E1;
-        Thu,  2 Feb 2023 11:37:24 -0800 (PST)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 4D42F61CC6;
-        Thu,  2 Feb 2023 19:37:24 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 227E3C433D2;
-        Thu,  2 Feb 2023 19:37:22 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1675366643;
-        bh=4e46JInjnjZKjRFMgQ2weMULqLe3vkPvhBUGL2iO9W4=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=swT4RJMJgm1m3BZS2L3c0weByeIpHR112Xp37PERpjxlHh5ba4Xq8QQkakegPF5qz
-         nnOmKROiAvinBP5lnL49KMWMz0s37jlyO7xb1Auc36om0btfUxWjO77hTwW97KonRt
-         Tpe9Tjd9KUAJfkIFQiW6JuFjxY4gZb89IsMShk+ZuPxEHHjBq7epJjjyvpbPwXaWjN
-         6nDilk6B5bmjtQ+sDtMGhVMK7WmboHxFFYfceeV+K0tVPCfoe8XJ++fJJOg9Xy/301
-         6B/ckEu296OBwB2bBhKNyptDwUR+H0k5UvTHLkqW28xVHDH0Jfhqxw4o9uwS/6k/Bs
-         oUCh833BeT0Nw==
-From:   SeongJae Park <sj@kernel.org>
-To:     Eric Biggers <ebiggers@kernel.org>
-Cc:     stable@vger.kernel.org,
-        Harshit Mogalapalli <harshit.m.mogalapalli@oracle.com>,
-        Kees Cook <keescook@chromium.org>,
-        SeongJae Park <sj@kernel.org>,
-        Seth Jenkins <sethjenkins@google.com>,
-        Jann Horn <jannh@google.com>,
-        "Eric W . Biederman" <ebiederm@xmission.com>,
-        linux-hardening@vger.kernel.org, linux-kernel@vger.kernel.org,
-        Andrey Ryabinin <aryabinin@virtuozzo.com>,
-        Dmitry Vyukov <dvyukov@google.com>,
-        Ingo Molnar <mingo@redhat.com>,
-        Juri Lelli <juri.lelli@redhat.com>,
-        Patricia Alfonso <trishalfonso@google.com>,
-        Peter Zijlstra <a.p.zijlstra@chello.nl>,
-        Shuah Khan <shuah@kernel.org>,
-        Vincent Guittot <vincent.guittot@linaro.org>,
-        David Gow <davidgow@google.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Andrey Konovalov <andreyknvl@google.com>,
-        Brendan Higgins <brendanhiggins@google.com>,
-        Linus Torvalds <torvalds@linux-foundation.org>
-Subject: Re: [PATCH 4.19 03/16] mm: kasan: do not panic if both panic_on_warn and kasan_multishot set
-Date:   Thu,  2 Feb 2023 19:37:20 +0000
-Message-Id: <20230202193720.168040-1-sj@kernel.org>
-X-Mailer: git-send-email 2.25.1
-In-Reply-To: <20230202052604.179184-4-ebiggers@kernel.org>
-References: 
+        with ESMTP id S229848AbjBBTiY (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 2 Feb 2023 14:38:24 -0500
+Received: from mail-wr1-x42c.google.com (mail-wr1-x42c.google.com [IPv6:2a00:1450:4864:20::42c])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F043B36FED
+        for <stable@vger.kernel.org>; Thu,  2 Feb 2023 11:38:21 -0800 (PST)
+Received: by mail-wr1-x42c.google.com with SMTP id m7so2687369wru.8
+        for <stable@vger.kernel.org>; Thu, 02 Feb 2023 11:38:21 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=linaro.org; s=google;
+        h=content-transfer-encoding:in-reply-to:from:references:cc:to
+         :content-language:subject:user-agent:mime-version:date:message-id
+         :from:to:cc:subject:date:message-id:reply-to;
+        bh=C2XOALXv/Lj/lmT5IZS4EM/O7xBhsu0gzTnxmxxQFEQ=;
+        b=ai9z93zWh1nxHEkpgAWM67OPWJvM+Vu/PU636V4sK11yJK5hofcc+GRwN7jHMsJ6XR
+         /zKW7doxAUt0kd1mATR0eqPJYI1nVtsEESa/7dRgW8TyvKurmbXBqgc87VH1O/vQeqm5
+         01bc8AfORXvBuBtt8FB2MuskPcYUCZxiK2rfLdapeFSp5wW0wj8tKWC1IQmJYTPRLN1R
+         wtezcpROIwmk/hmhr9qPtQ2FEEGxKCzsBR4MMyqbrxPBgnL5nXDJdT0pd1ApYpBMZiNw
+         OKw6dQicHrecpnrLh6aHnBp9VHL1Cpulnoht+DAufVcxvY3IWsmfO7ieHqcK6AdEo7qh
+         7heA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=content-transfer-encoding:in-reply-to:from:references:cc:to
+         :content-language:subject:user-agent:mime-version:date:message-id
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
+        bh=C2XOALXv/Lj/lmT5IZS4EM/O7xBhsu0gzTnxmxxQFEQ=;
+        b=LI/7U4d1gOKxeb3DssLfgKzK3Sk+0AVfy/BbO+R+SHcJsO0VHzB3Gc/v/PrtYrZoMa
+         kM9gcK63QkRqDawK5hSnKIQnvcjGUzgZ4s3X4rHXTla/awjIHxBXV6/mmj81WdZ/1lPQ
+         fQyVpElmLjeUsI368lCwTHGCk5+ERgg72k9dDBP2Uk5AB27GJtldL64dkPsNyaWoJRBj
+         D3gqr/Egq5WOlx5eGBiXfax5CjMDolQ9+SajAVjaiIpJt+PBgxSf4rd7HvJtbnu0WxyN
+         XqP95AMIgdqJMZAdEO4hcmrVUq8jRPAQtjwsCKjvzaQJoLoANsmutMVG06nYXhuxsfUJ
+         WOqQ==
+X-Gm-Message-State: AO0yUKWc7REJb+lXH3oP798MfU2xsqaJW7tuDkHepZI6aUXoKCGr5gwY
+        ekCbFJAgV9+Dk9oZpCEE4OCUDQ==
+X-Google-Smtp-Source: AK7set8s31+8dJyviAqvWfgopAsB11o+t1DPesoqoYzMeakMwcxI34bHHjVpqWOgbQ1STdhN0+87TA==
+X-Received: by 2002:adf:fe86:0:b0:2bf:f6b7:7a63 with SMTP id l6-20020adffe86000000b002bff6b77a63mr8081615wrr.0.1675366700524;
+        Thu, 02 Feb 2023 11:38:20 -0800 (PST)
+Received: from [192.168.2.104] ([79.115.63.122])
+        by smtp.gmail.com with ESMTPSA id q6-20020adfab06000000b002bfcc940014sm265280wrc.82.2023.02.02.11.38.19
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Thu, 02 Feb 2023 11:38:20 -0800 (PST)
+Message-ID: <8757b9bc-c771-a612-1d6a-1a704e7a7688@linaro.org>
+Date:   Thu, 2 Feb 2023 21:38:18 +0200
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
+ Thunderbird/102.4.2
+Subject: Re: [PATCH v2] mtd: spi-nor: Fix shift-out-of-bounds in
+ spi_nor_set_erase_type
+Content-Language: en-US
+To:     pratyush@kernel.org, michael@walle.cc,
+        Alexander.Stein@tq-group.com, lrannou@baylibre.com
+Cc:     linux-mtd@lists.infradead.org, linux-kernel@vger.kernel.org,
+        stable@vger.kernel.org
+References: <20230202191451.35142-1-tudor.ambarus@linaro.org>
+From:   Tudor Ambarus <tudor.ambarus@linaro.org>
+In-Reply-To: <20230202191451.35142-1-tudor.ambarus@linaro.org>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Spam-Status: No, score=-2.2 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,NICE_REPLY_A,RCVD_IN_DNSWL_NONE,
         SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -72,120 +75,80 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Wed, 1 Feb 2023 21:25:51 -0800 Eric Biggers <ebiggers@kernel.org> wrote:
+> diff --git a/drivers/mtd/spi-nor/core.c b/drivers/mtd/spi-nor/core.c
+> index 247d1014879a..9b90d941d87a 100644
+> --- a/drivers/mtd/spi-nor/core.c
+> +++ b/drivers/mtd/spi-nor/core.c
+> @@ -2019,10 +2019,22 @@ void spi_nor_set_erase_type(struct spi_nor_erase_type *erase, u32 size,
+>   			    u8 opcode)
+>   {
+>   	erase->size = size;
+> -	erase->opcode = opcode;
+> -	/* JEDEC JESD216B Standard imposes erase sizes to be power of 2. */
+> -	erase->size_shift = ffs(erase->size) - 1;
+> -	erase->size_mask = (1 << erase->size_shift) - 1;
+> +
+> +	if (size) {
 
-> From: David Gow <davidgow@google.com>
-> 
-> commit be4f1ae978ffe98cc95ec49ceb95386fb4474974 upstream.
-> 
-> KASAN errors will currently trigger a panic when panic_on_warn is set.
-> This renders kasan_multishot useless, as further KASAN errors won't be
-> reported if the kernel has already paniced.  By making kasan_multishot
-> disable this behaviour for KASAN errors, we can still have the benefits of
-> panic_on_warn for non-KASAN warnings, yet be able to use kasan_multishot.
-> 
-> This is particularly important when running KASAN tests, which need to
-> trigger multiple KASAN errors: previously these would panic the system if
-> panic_on_warn was set, now they can run (and will panic the system should
-> non-KASAN warnings show up).
-> 
-> Signed-off-by: David Gow <davidgow@google.com>
-> Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-> Tested-by: Andrey Konovalov <andreyknvl@google.com>
-> Reviewed-by: Andrey Konovalov <andreyknvl@google.com>
-> Reviewed-by: Brendan Higgins <brendanhiggins@google.com>
-> Cc: Andrey Ryabinin <aryabinin@virtuozzo.com>
-> Cc: Dmitry Vyukov <dvyukov@google.com>
-> Cc: Ingo Molnar <mingo@redhat.com>
-> Cc: Juri Lelli <juri.lelli@redhat.com>
-> Cc: Patricia Alfonso <trishalfonso@google.com>
-> Cc: Peter Zijlstra <a.p.zijlstra@chello.nl>
-> Cc: Shuah Khan <shuah@kernel.org>
-> Cc: Vincent Guittot <vincent.guittot@linaro.org>
-> Link: https://lkml.kernel.org/r/20200915035828.570483-6-davidgow@google.com
-> Link: https://lkml.kernel.org/r/20200910070331.3358048-6-davidgow@google.com
-> Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
-> Signed-off-by: Eric Biggers <ebiggers@google.com>
-> ---
->  mm/kasan/report.c | 2 +-
->  1 file changed, 1 insertion(+), 1 deletion(-)
-> 
-> diff --git a/mm/kasan/report.c b/mm/kasan/report.c
-> index 5c169aa688fde..90fdb261a5e2d 100644
-> --- a/mm/kasan/report.c
-> +++ b/mm/kasan/report.c
-> @@ -176,7 +176,7 @@ static void kasan_end_report(unsigned long *flags)
->  	pr_err("==================================================================\n");
->  	add_taint(TAINT_BAD_PAGE, LOCKDEP_NOW_UNRELIABLE);
->  	spin_unlock_irqrestore(&report_lock, *flags);
-> -	if (panic_on_warn)
-> +	if (panic_on_warn && !test_bit(KASAN_BIT_MULTI_SHOT, &kasan_flags))
->  		panic("panic_on_warn set ...\n");
->  	kasan_enable_current();
+actually this is not needed now that spi_nor_mask_erase_type() is 
+introduced. All the callers of spi_nor_set_erase_type() guarantee that
+erase_size is not zero.
 
+> +		erase->opcode = opcode;
+> +		/* JEDEC JESD216B imposes erase sizes to be power of 2. */
+> +		erase->size_shift = ffs(size) - 1;
+> +		erase->size_mask = (1 << erase->size_shift) - 1;
+> +	}
+> +}
+> +
 
-Seems this introduced a build failure when CONFIG_KASAN is enabled, as also
-reported by Sasha[1].
+So the fix should just contain the introduction of 
+spi_nor_mask_erase_type(). Louis, do you want to authorship v3?
 
-    mm/kasan/report.c: In function ‘kasan_end_report’:
-    mm/kasan/report.c:179:16: error: ‘KASAN_BIT_MULTI_SHOT’ undeclared (first use in this function)
-      179 |  if (!test_bit(KASAN_BIT_MULTI_SHOT, &kasan_flags))
-          |                ^~~~~~~~~~~~~~~~~~~~
-    arch/x86/include/asm/bitops.h:342:25: note: in definition of macro ‘test_bit’
-      342 |  (__builtin_constant_p((nr))  \
-          |                         ^~
-    mm/kasan/report.c:179:16: note: each undeclared identifier is reported only once for each function it appears in
-      179 |  if (!test_bit(KASAN_BIT_MULTI_SHOT, &kasan_flags))
-          |                ^~~~~~~~~~~~~~~~~~~~
-    arch/x86/include/asm/bitops.h:342:25: note: in definition of macro ‘test_bit’
-      342 |  (__builtin_constant_p((nr))  \
-          |                         ^~
-    mm/kasan/report.c:179:39: error: ‘kasan_flags’ undeclared (first use in this function)
-      179 |  if (!test_bit(KASAN_BIT_MULTI_SHOT, &kasan_flags))
-          |                                       ^~~~~~~~~~~
-    arch/x86/include/asm/bitops.h:343:30: note: in definition of macro ‘test_bit’
-      343 |   ? constant_test_bit((nr), (addr)) \
-          |                              ^~~~
+> +/**
+> + * spi_nor_mask_erase_type() - mask out an SPI NOR erase type
+> + * @erase:	pointer to a structure that describes a SPI NOR erase type
 
-I confirmed dropping this patch fixes the build failure.  It causes a conflict
-to a following patch[1], but seems it's not that difficult to resolve.  I
-updated kernel/panic.c part of the patch like attached below to resolve the
-conflict.
+an SPI
 
-[1] https://lore.kernel.org/stable/Y9v3G6UantaCo29G@sashalap/
-[2] https://lore.kernel.org/stable/20230202052604.179184-13-ebiggers@kernel.org/
-
-
-Thanks,
-SJ
-
-
-================================ >8 ===========================================
-
-diff --git a/kernel/panic.c b/kernel/panic.c
-index a078d413042f..08b8adc55b2b 100644
---- a/kernel/panic.c
-+++ b/kernel/panic.c
-@@ -125,6 +125,12 @@ void nmi_panic(struct pt_regs *regs, const char *msg)
- }
- EXPORT_SYMBOL(nmi_panic);
-
-+void check_panic_on_warn(const char *origin)
-+{
-+       if (panic_on_warn)
-+               panic("%s: panic_on_warn set ...\n", origin);
-+}
-+
- /**
-  *     panic - halt the system
-  *     @fmt: The text string to print
-@@ -540,8 +546,7 @@ void __warn(const char *file, int line, void *caller, unsigned taint,
-        if (args)
-                vprintk(args->fmt, args->args);
-
--       if (panic_on_warn)
--               panic("panic_on_warn set ...\n");
-+       check_panic_on_warn("kernel");
-
-        print_modules();
-
+> + */
+> +void spi_nor_mask_erase_type(struct spi_nor_erase_type *erase)
+> +{
+> +	erase->size = 0;
+>   }
+>   
+>   /**
+> diff --git a/drivers/mtd/spi-nor/core.h b/drivers/mtd/spi-nor/core.h
+> index f6d012e1f681..25423225c29d 100644
+> --- a/drivers/mtd/spi-nor/core.h
+> +++ b/drivers/mtd/spi-nor/core.h
+> @@ -681,6 +681,7 @@ void spi_nor_set_pp_settings(struct spi_nor_pp_command *pp, u8 opcode,
+>   
+>   void spi_nor_set_erase_type(struct spi_nor_erase_type *erase, u32 size,
+>   			    u8 opcode);
+> +void spi_nor_mask_erase_type(struct spi_nor_erase_type *erase);
+>   struct spi_nor_erase_region *
+>   spi_nor_region_next(struct spi_nor_erase_region *region);
+>   void spi_nor_init_uniform_erase_map(struct spi_nor_erase_map *map,
+> diff --git a/drivers/mtd/spi-nor/sfdp.c b/drivers/mtd/spi-nor/sfdp.c
+> index fd4daf8fa5df..298ab5e53a8c 100644
+> --- a/drivers/mtd/spi-nor/sfdp.c
+> +++ b/drivers/mtd/spi-nor/sfdp.c
+> @@ -875,7 +875,7 @@ static int spi_nor_init_non_uniform_erase_map(struct spi_nor *nor,
+>   	 */
+>   	for (i = 0; i < SNOR_ERASE_TYPE_MAX; i++)
+>   		if (!(regions_erase_type & BIT(erase[i].idx)))
+> -			spi_nor_set_erase_type(&erase[i], 0, 0xFF);
+> +			spi_nor_mask_erase_type(&erase[i]);
+>   
+>   	return 0;
+>   }
+> @@ -1089,7 +1089,7 @@ static int spi_nor_parse_4bait(struct spi_nor *nor,
+>   			erase_type[i].opcode = (dwords[SFDP_DWORD(2)] >>
+>   						erase_type[i].idx * 8) & 0xFF;
+>   		else
+> -			spi_nor_set_erase_type(&erase_type[i], 0u, 0xFF);
+> +			spi_nor_mask_erase_type(&erase_type[i]);
+>   	}
+>   
+>   	/*
