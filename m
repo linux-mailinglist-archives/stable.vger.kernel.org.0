@@ -2,159 +2,338 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id CCCF668759C
-	for <lists+stable@lfdr.de>; Thu,  2 Feb 2023 06:52:21 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0AA5C6876B6
+	for <lists+stable@lfdr.de>; Thu,  2 Feb 2023 08:47:30 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230046AbjBBFwU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 2 Feb 2023 00:52:20 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46100 "EHLO
+        id S231926AbjBBHr2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 2 Feb 2023 02:47:28 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44482 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230389AbjBBFv4 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 2 Feb 2023 00:51:56 -0500
-Received: from mx0a-0031df01.pphosted.com (mx0a-0031df01.pphosted.com [205.220.168.131])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 70ED84B89E;
-        Wed,  1 Feb 2023 21:51:28 -0800 (PST)
-Received: from pps.filterd (m0279864.ppops.net [127.0.0.1])
-        by mx0a-0031df01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 3125MKxh027015;
-        Thu, 2 Feb 2023 05:51:25 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=quicinc.com; h=message-id : date :
- mime-version : subject : to : cc : references : from : in-reply-to :
- content-type : content-transfer-encoding; s=qcppdkim1;
- bh=46a241Qrz+Hgzj/mu1IRBLRssCv218yOz5mY3agGF2E=;
- b=S8gzdTt3Wj35CmcF2VdhNUM1m4evjb4ti3Kx4Ur9jfNChn+LQCnJUfQaqJpgchVs6xz0
- nCZLw+BUN0c4iF1PsSYHfBZKvKxdaL72BwKP4KqCTRjPH7AVM3OQVRz2TcIc4I1xK8hM
- zY0tCjfRNGcoCTyxtYn5lMiUmxak3ahofuKQ1+oTOVQ2LKFmzKbimHB9DKmwWCslpO5Z
- bu66kSgUyGOUELbDsvJCbGsTGNx286X6QQB6jt26/dB9gBSzGCwhjBh6VHoGEb/XqOEm
- pWAbtRFIfc5gCsWgay9s6frvKBjruYODu3n1CgA7B0O1GXRgMzvNW6G6ZOHHdaHHALAg 3w== 
-Received: from nalasppmta01.qualcomm.com (Global_NAT1.qualcomm.com [129.46.96.20])
-        by mx0a-0031df01.pphosted.com (PPS) with ESMTPS id 3nfqt3hsv3-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Thu, 02 Feb 2023 05:51:25 +0000
-Received: from nalasex01b.na.qualcomm.com (nalasex01b.na.qualcomm.com [10.47.209.197])
-        by NALASPPMTA01.qualcomm.com (8.17.1.5/8.17.1.5) with ESMTPS id 3125pOEa014989
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Thu, 2 Feb 2023 05:51:24 GMT
-Received: from [10.233.19.102] (10.80.80.8) by nalasex01b.na.qualcomm.com
- (10.47.209.197) with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.2.986.36; Wed, 1 Feb 2023
- 21:51:22 -0800
-Message-ID: <197a1446-9382-3d83-d26e-694e4d707679@quicinc.com>
-Date:   Thu, 2 Feb 2023 13:51:19 +0800
+        with ESMTP id S231903AbjBBHrX (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 2 Feb 2023 02:47:23 -0500
+Received: from mail-pj1-x102c.google.com (mail-pj1-x102c.google.com [IPv6:2607:f8b0:4864:20::102c])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8D69B2A14C
+        for <stable@vger.kernel.org>; Wed,  1 Feb 2023 23:46:57 -0800 (PST)
+Received: by mail-pj1-x102c.google.com with SMTP id c10-20020a17090a1d0a00b0022e63a94799so4779918pjd.2
+        for <stable@vger.kernel.org>; Wed, 01 Feb 2023 23:46:57 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=kernelci-org.20210112.gappssmtp.com; s=20210112;
+        h=from:to:subject:content-transfer-encoding:mime-version:date
+         :message-id:from:to:cc:subject:date:message-id:reply-to;
+        bh=NcQ0y1B3oOpn7msq4twenQ6s53o6uoLRVdI3pK6krVk=;
+        b=2xBfD+JSH1PhQkWFtwYr0OhJB1Oe4pT786yCpVPhIgM2qxgiqDDvAHKM5ygnD9f81w
+         SQL8TYxGFMw5uONXpsvLBl/5T7vTxy/nq7dw+Efxcu5KFk+YPhCnPSAx7gQiTGLxYoC7
+         JRoB4bmR4ZEL0dOnSJat0jiOoKsWqMoXmMWWRlUvxM+l0YBOtylxX21/puY3Um+XkD8B
+         h2hKDitHHqq8GAYba2OFEvOwfWVt13X7oVLmE5008yhe1/tEfJQlb/UMMWFhj0ozRk/n
+         +Hh5mBP8huf4MWevx7ov23rCuE84bt9oqNxi6wN0Q7a1rycGzFiwKU68J1MrjqLzSMGF
+         kIiQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=from:to:subject:content-transfer-encoding:mime-version:date
+         :message-id:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=NcQ0y1B3oOpn7msq4twenQ6s53o6uoLRVdI3pK6krVk=;
+        b=uLMKxNVZkVIylnwPwwyfTkYbA3SqSyUZ355j8G8VzzSGRxuj9NYaGd9nVBt+MqO5Xp
+         WsyNmWCszVENI7lsFPga88tyXEQ/rrSax4DnT9Mqdf9iqRxCF47DtyUXCxtJ/DgkuDgL
+         3HaaDnsUCQCWgrBjzk7To5TiIO2zpoQt5sEIAQ8LkaBSseoJEKOEo28Va902PzzWNA36
+         KRwR+qUQnT5GktH/sgtMMpJTRnk8LSo/lYsQ0iPBuSWBJCWdBdj1BKERcmvYQjPCF1nY
+         gkSL9g964Q66TcmAg65DJuEaB9d/Yo1M+u8O155MJsP+0rHUUQqOlh6EoLzcyq9fgpja
+         1iCA==
+X-Gm-Message-State: AO0yUKU07pNJ12ON0EWl2a2n38d5Q/4Ip9s2Xk9G1Sj7281z4SWqI4gK
+        KkNiBw0N6leVy+BRo3EWVcQhW6rqYi+Xt8CgdYMDPA==
+X-Google-Smtp-Source: AK7set/lExjyoQLCjeUSAts7LthjJTpRm2pi8pj8+/iJ2wOIiO8RUQqq6L5VaN5tUcHGYag7fupWkw==
+X-Received: by 2002:a17:903:1cc:b0:196:63d0:a674 with SMTP id e12-20020a17090301cc00b0019663d0a674mr7378455plh.9.1675323960184;
+        Wed, 01 Feb 2023 23:46:00 -0800 (PST)
+Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
+        by smtp.gmail.com with ESMTPSA id c6-20020a170903234600b001947ba0ac8fsm9695000plh.236.2023.02.01.23.45.59
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 01 Feb 2023 23:45:59 -0800 (PST)
+Message-ID: <63db6a37.170a0220.200a0.1be6@mx.google.com>
+Date:   Wed, 01 Feb 2023 23:45:59 -0800 (PST)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:102.0) Gecko/20100101
- Thunderbird/102.6.1
-Subject: Re: [PATCH] usb: dwc3: update link state when process wakeup
- interrupt
-Content-Language: en-US
-To:     Thinh Nguyen <Thinh.Nguyen@synopsys.com>
-CC:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        "linux-usb@vger.kernel.org" <linux-usb@vger.kernel.org>,
-        "stable@vger.kernel.org" <stable@vger.kernel.org>,
-        Jack Pham <quic_jackp@quicinc.com>,
-        Wesley Cheng <quic_wcheng@quicinc.com>
-References: <1675221286-23833-1-git-send-email-quic_linyyuan@quicinc.com>
- <20230201190550.jozzrvwdi5lcwtbo@synopsys.com>
-From:   Linyu Yuan <quic_linyyuan@quicinc.com>
-In-Reply-To: <20230201190550.jozzrvwdi5lcwtbo@synopsys.com>
-Content-Type: text/plain; charset="UTF-8"; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Originating-IP: [10.80.80.8]
-X-ClientProxiedBy: nasanex01a.na.qualcomm.com (10.52.223.231) To
- nalasex01b.na.qualcomm.com (10.47.209.197)
-X-QCInternal: smtphost
-X-Proofpoint-Virus-Version: vendor=nai engine=6200 definitions=5800 signatures=585085
-X-Proofpoint-ORIG-GUID: RRQlmk7snKutWypixmhAlaTBlHKpWhBX
-X-Proofpoint-GUID: RRQlmk7snKutWypixmhAlaTBlHKpWhBX
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.219,Aquarius:18.0.930,Hydra:6.0.562,FMLib:17.11.122.1
- definitions=2023-02-01_15,2023-01-31_01,2022-06-22_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 malwarescore=0 suspectscore=0
- bulkscore=0 adultscore=0 mlxlogscore=751 impostorscore=0
- priorityscore=1501 mlxscore=0 phishscore=0 spamscore=0 lowpriorityscore=0
- clxscore=1015 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2212070000 definitions=main-2302020054
-X-Spam-Status: No, score=-2.9 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,NICE_REPLY_A,RCVD_IN_DNSWL_LOW,
-        SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Tree: stable-rc
+X-Kernelci-Branch: queue/5.10
+X-Kernelci-Kernel: v5.10.165-149-gfd12020450ea
+X-Kernelci-Report-Type: test
+Subject: stable-rc/queue/5.10 baseline: 178 runs,
+ 5 regressions (v5.10.165-149-gfd12020450ea)
+To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
+        kernelci-results@groups.io
+From:   "kernelci.org bot" <bot@kernelci.org>
+X-Spam-Status: No, score=-1.9 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_NONE autolearn=ham
+        autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+stable-rc/queue/5.10 baseline: 178 runs, 5 regressions (v5.10.165-149-gfd12=
+020450ea)
 
-On 2/2/2023 3:05 AM, Thinh Nguyen wrote:
-> On Wed, Feb 01, 2023, Linyu Yuan wrote:
->> Consider there is interrpt sequences as suspend (U3) -> wakeup (U0) ->
-> interrupt?
+Regressions Summary
+-------------------
 
+platform                     | arch  | lab             | compiler | defconf=
+ig           | regressions
+-----------------------------+-------+-----------------+----------+--------=
+-------------+------------
+bcm2711-rpi-4-b              | arm64 | lab-linaro-lkft | gcc-10   | defconf=
+ig           | 1          =
 
-thanks, will change next version.
+beagle-xm                    | arm   | lab-baylibre    | gcc-10   | omap2pl=
+us_defconfig | 1          =
 
+cubietruck                   | arm   | lab-baylibre    | gcc-10   | multi_v=
+7_defconfig  | 1          =
 
->
->> suspend (U3), as there is no update to link state in wakeup interrupt,
-> Instead of "no update", can you note in the commit that the link state
-> change event is not enabled for most devices, so the driver doesn't
-> update its link_state.
+stm32mp157c-dk2              | arm   | lab-baylibre    | gcc-10   | multi_v=
+7_defconfig  | 1          =
 
-
-thanks, will change next version.
-
-
->
->> the second suspend interrupt will not report to upper layer.
->>
->> Fix it by update link state in wakeup interrupt handler.
->>
->> Cc: stable@vger.kernel.org
-> Can you add fix tag?
+sun8i-h3-libretech-all-h3-cc | arm   | lab-baylibre    | gcc-10   | multi_v=
+7_defconfig  | 1          =
 
 
-seem this change can apply to all current stable kernel.
+  Details:  https://kernelci.org/test/job/stable-rc/branch/queue%2F5.10/ker=
+nel/v5.10.165-149-gfd12020450ea/plan/baseline/
 
-I think CC stable is good. also it is not good to find appreciate tag.
+  Test:     baseline
+  Tree:     stable-rc
+  Branch:   queue/5.10
+  Describe: v5.10.165-149-gfd12020450ea
+  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
+able-rc.git
+  SHA:      fd12020450ead2b166f9af695bb56ca40ca11d7d =
 
 
->
->> Signed-off-by: Linyu Yuan <quic_linyyuan@quicinc.com>
->> ---
->>   drivers/usb/dwc3/gadget.c | 6 ++++--
->>   1 file changed, 4 insertions(+), 2 deletions(-)
->>
->> diff --git a/drivers/usb/dwc3/gadget.c b/drivers/usb/dwc3/gadget.c
->> index 89dcfac..3533241 100644
->> --- a/drivers/usb/dwc3/gadget.c
->> +++ b/drivers/usb/dwc3/gadget.c
->> @@ -4066,7 +4066,7 @@ static void dwc3_gadget_conndone_interrupt(struct dwc3 *dwc)
->>   	 */
->>   }
->>   
->> -static void dwc3_gadget_wakeup_interrupt(struct dwc3 *dwc)
->> +static void dwc3_gadget_wakeup_interrupt(struct dwc3 *dwc, unsigned int evtinfo)
->>   {
->>   	/*
->>   	 * TODO take core out of low power mode when that's
->> @@ -4078,6 +4078,8 @@ static void dwc3_gadget_wakeup_interrupt(struct dwc3 *dwc)
->>   		dwc->gadget_driver->resume(dwc->gadget);
->>   		spin_lock(&dwc->lock);
->>   	}
->> +
->> +	dwc->link_state = evtinfo & DWC3_LINK_STATE_MASK;
->>   }
->>   
->>   static void dwc3_gadget_linksts_change_interrupt(struct dwc3 *dwc,
->> @@ -4227,7 +4229,7 @@ static void dwc3_gadget_interrupt(struct dwc3 *dwc,
->>   		dwc3_gadget_conndone_interrupt(dwc);
->>   		break;
->>   	case DWC3_DEVICE_EVENT_WAKEUP:
->> -		dwc3_gadget_wakeup_interrupt(dwc);
->> +		dwc3_gadget_wakeup_interrupt(dwc, event->event_info);
->>   		break;
->>   	case DWC3_DEVICE_EVENT_HIBER_REQ:
->>   		if (dev_WARN_ONCE(dwc->dev, !dwc->has_hibernation,
->> -- 
->> 2.7.4
->>
-> Thanks,
-> Thinh
+
+Test Regressions
+---------------- =
+
+
+
+platform                     | arch  | lab             | compiler | defconf=
+ig           | regressions
+-----------------------------+-------+-----------------+----------+--------=
+-------------+------------
+bcm2711-rpi-4-b              | arm64 | lab-linaro-lkft | gcc-10   | defconf=
+ig           | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/63db6978b1e4dee516915ebd
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: defconfig
+  Compiler:    gcc-10 (aarch64-linux-gnu-gcc (Debian 10.2.1-6) 10.2.1 20210=
+110)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.10/v5.10.165=
+-149-gfd12020450ea/arm64/defconfig/gcc-10/lab-linaro-lkft/baseline-bcm2711-=
+rpi-4-b.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.10/v5.10.165=
+-149-gfd12020450ea/arm64/defconfig/gcc-10/lab-linaro-lkft/baseline-bcm2711-=
+rpi-4-b.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
+t-baseline/20230127.0/arm64/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/63db6978b1e4dee516915=
+ebe
+        new failure (last pass: v5.10.165-149-ge30e8271d674) =
+
+ =
+
+
+
+platform                     | arch  | lab             | compiler | defconf=
+ig           | regressions
+-----------------------------+-------+-----------------+----------+--------=
+-------------+------------
+beagle-xm                    | arm   | lab-baylibre    | gcc-10   | omap2pl=
+us_defconfig | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/63db36ba427c993222915eb9
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: omap2plus_defconfig
+  Compiler:    gcc-10 (arm-linux-gnueabihf-gcc (Debian 10.2.1-6) 10.2.1 202=
+10110)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.10/v5.10.165=
+-149-gfd12020450ea/arm/omap2plus_defconfig/gcc-10/lab-baylibre/baseline-bea=
+gle-xm.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.10/v5.10.165=
+-149-gfd12020450ea/arm/omap2plus_defconfig/gcc-10/lab-baylibre/baseline-bea=
+gle-xm.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
+t-baseline/20230127.0/armel/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/63db36ba427c993222915=
+eba
+        new failure (last pass: v5.10.165-149-ge30e8271d674) =
+
+ =
+
+
+
+platform                     | arch  | lab             | compiler | defconf=
+ig           | regressions
+-----------------------------+-------+-----------------+----------+--------=
+-------------+------------
+cubietruck                   | arm   | lab-baylibre    | gcc-10   | multi_v=
+7_defconfig  | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/63db37637073be15ed915ec4
+
+  Results:     5 PASS, 1 FAIL, 1 SKIP
+  Full config: multi_v7_defconfig
+  Compiler:    gcc-10 (arm-linux-gnueabihf-gcc (Debian 10.2.1-6) 10.2.1 202=
+10110)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.10/v5.10.165=
+-149-gfd12020450ea/arm/multi_v7_defconfig/gcc-10/lab-baylibre/baseline-cubi=
+etruck.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.10/v5.10.165=
+-149-gfd12020450ea/arm/multi_v7_defconfig/gcc-10/lab-baylibre/baseline-cubi=
+etruck.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
+t-baseline/20230127.0/armel/rootfs.cpio.gz =
+
+
+
+  * baseline.bootrr.deferred-probe-empty: https://kernelci.org/test/case/id=
+/63db37637073be15ed915ec9
+        failing since 6 days (last pass: v5.10.165-76-g5c2e982fcf18, first =
+fail: v5.10.165-77-g4600242c13ed)
+
+    2023-02-02T04:08:39.578665  <8>[   11.123129] <LAVA_SIGNAL_ENDRUN 0_dme=
+sg 3270082_1.5.2.4.1>
+    2023-02-02T04:08:39.685404  / # #
+    2023-02-02T04:08:39.787215  export SHELL=3D/bin/sh
+    2023-02-02T04:08:39.787639  #
+    2023-02-02T04:08:39.888926  / # export SHELL=3D/bin/sh. /lava-3270082/e=
+nvironment
+    2023-02-02T04:08:39.889335  =
+
+    2023-02-02T04:08:39.990688  / # . /lava-3270082/environment/lava-327008=
+2/bin/lava-test-runner /lava-3270082/1
+    2023-02-02T04:08:39.992181  =
+
+    2023-02-02T04:08:39.992675  / # <3>[   11.451907] Bluetooth: hci0: comm=
+and 0x0c03 tx timeout
+    2023-02-02T04:08:39.996501  /lava-3270082/bin/lava-test-runner /lava-32=
+70082/1 =
+
+    ... (12 line(s) more)  =
+
+ =
+
+
+
+platform                     | arch  | lab             | compiler | defconf=
+ig           | regressions
+-----------------------------+-------+-----------------+----------+--------=
+-------------+------------
+stm32mp157c-dk2              | arm   | lab-baylibre    | gcc-10   | multi_v=
+7_defconfig  | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/63db364c8ee23f46ae915f12
+
+  Results:     5 PASS, 1 FAIL, 1 SKIP
+  Full config: multi_v7_defconfig
+  Compiler:    gcc-10 (arm-linux-gnueabihf-gcc (Debian 10.2.1-6) 10.2.1 202=
+10110)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.10/v5.10.165=
+-149-gfd12020450ea/arm/multi_v7_defconfig/gcc-10/lab-baylibre/baseline-stm3=
+2mp157c-dk2.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.10/v5.10.165=
+-149-gfd12020450ea/arm/multi_v7_defconfig/gcc-10/lab-baylibre/baseline-stm3=
+2mp157c-dk2.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
+t-baseline/20230127.0/armel/rootfs.cpio.gz =
+
+
+
+  * baseline.bootrr.deferred-probe-empty: https://kernelci.org/test/case/id=
+/63db364c8ee23f46ae915f17
+        failing since 0 day (last pass: v5.10.147-29-g9a9285d3dc114, first =
+fail: v5.10.165-149-ge30e8271d674)
+
+    2023-02-02T04:04:12.185118  <8>[   12.700050] <LAVA_SIGNAL_ENDRUN 0_dme=
+sg 3270087_1.5.2.4.1>
+    2023-02-02T04:04:12.291091  / # #
+    2023-02-02T04:04:12.393738  export SHELL=3D/bin/sh
+    2023-02-02T04:04:12.394482  #
+    2023-02-02T04:04:12.496285  / # export SHELL=3D/bin/sh. /lava-3270087/e=
+nvironment
+    2023-02-02T04:04:12.496782  =
+
+    2023-02-02T04:04:12.598400  / # . /lava-3270087/environment/lava-327008=
+7/bin/lava-test-runner /lava-3270087/1
+    2023-02-02T04:04:12.599665  =
+
+    2023-02-02T04:04:12.603186  / # /lava-3270087/bin/lava-test-runner /lav=
+a-3270087/1
+    2023-02-02T04:04:12.669336  + export 'TESTRUN_ID=3D1_bootrr' =
+
+    ... (11 line(s) more)  =
+
+ =
+
+
+
+platform                     | arch  | lab             | compiler | defconf=
+ig           | regressions
+-----------------------------+-------+-----------------+----------+--------=
+-------------+------------
+sun8i-h3-libretech-all-h3-cc | arm   | lab-baylibre    | gcc-10   | multi_v=
+7_defconfig  | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/63db3670e18db4fab4915eb9
+
+  Results:     5 PASS, 1 FAIL, 1 SKIP
+  Full config: multi_v7_defconfig
+  Compiler:    gcc-10 (arm-linux-gnueabihf-gcc (Debian 10.2.1-6) 10.2.1 202=
+10110)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.10/v5.10.165=
+-149-gfd12020450ea/arm/multi_v7_defconfig/gcc-10/lab-baylibre/baseline-sun8=
+i-h3-libretech-all-h3-cc.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.10/v5.10.165=
+-149-gfd12020450ea/arm/multi_v7_defconfig/gcc-10/lab-baylibre/baseline-sun8=
+i-h3-libretech-all-h3-cc.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
+t-baseline/20230127.0/armel/rootfs.cpio.gz =
+
+
+
+  * baseline.bootrr.deferred-probe-empty: https://kernelci.org/test/case/id=
+/63db3670e18db4fab4915ebe
+        failing since 0 day (last pass: v5.10.165-139-gefb57ce0f880, first =
+fail: v5.10.165-149-ge30e8271d674)
+
+    2023-02-02T04:04:46.568709  / # #
+    2023-02-02T04:04:46.670376  export SHELL=3D/bin/sh
+    2023-02-02T04:04:46.670723  #
+    2023-02-02T04:04:46.772028  / # export SHELL=3D/bin/sh. /lava-3270086/e=
+nvironment
+    2023-02-02T04:04:46.772374  =
+
+    2023-02-02T04:04:46.873746  / # . /lava-3270086/environment/lava-327008=
+6/bin/lava-test-runner /lava-3270086/1
+    2023-02-02T04:04:46.874344  =
+
+    2023-02-02T04:04:46.880029  / # /lava-3270086/bin/lava-test-runner /lav=
+a-3270086/1
+    2023-02-02T04:04:46.944116  + export 'TESTRUN_ID=3D1_bootrr'
+    2023-02-02T04:04:46.978882  + cd /lava-3270086/1/tests/1_bootrr =
+
+    ... (10 line(s) more)  =
+
+ =20
