@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 30287687488
-	for <lists+stable@lfdr.de>; Thu,  2 Feb 2023 05:44:37 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E7C9A68748A
+	for <lists+stable@lfdr.de>; Thu,  2 Feb 2023 05:44:41 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231642AbjBBEod (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 1 Feb 2023 23:44:33 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34600 "EHLO
+        id S231714AbjBBEog (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 1 Feb 2023 23:44:36 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34576 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231537AbjBBEoN (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 1 Feb 2023 23:44:13 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5F56679F35;
-        Wed,  1 Feb 2023 20:43:53 -0800 (PST)
+        with ESMTP id S231571AbjBBEo1 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 1 Feb 2023 23:44:27 -0500
+Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EB0507B428;
+        Wed,  1 Feb 2023 20:43:54 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id C86C8B82419;
-        Thu,  2 Feb 2023 04:43:51 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 35618C433A8;
+        by sin.source.kernel.org (Postfix) with ESMTPS id AE2D0CE2776;
+        Thu,  2 Feb 2023 04:43:52 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A48C5C4339E;
         Thu,  2 Feb 2023 04:43:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1675313030;
-        bh=w2+gKam0hgvqls1hiqaw8OhtqAs87LqFnf26zQZbz5Y=;
+        s=k20201202; t=1675313031;
+        bh=XY8YPabANMgGP9lCwC3nPujZmuktFJoup7VESPIQyWY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=GSlRYvtkuUFWe4vbS/HNXihmDyie8RQeqw+ns+JXTbzbI2stS5ZtZmI5tW88p7p9P
-         3zOUOHQhOab0uZA11IDkNDz4ni3/KlpN58Sj/bTx1yCxg/kwC2ciUBD745WJBkZ8d4
-         3K67pxTWaYRYojL5FJBo+7yP92zbVNlOnPwEVxy+fQPiNjEk8XfzfgDawCTWIUEzLh
-         nkr8sBUaa/gumUuJLGVa4+EQjjnTJYGkgTDK1r0+RsB3upNATXzjgUHwfocpcQ20zD
-         YVBH086RxKANA2ETy6Zv9M0EBamaTFOxMPdEL9jRbCzhw8Pg6mJ6S9YdF65mnwYPri
-         8Z9nNa359BmsA==
+        b=GAL6uaZisjV10y2TJ+F4UyPLXR3ccmBea7qqRfYfYLjb+5tDTzgIMcht9juKhY315
+         5HlIgt0CsPyyF7CeOW184WN5KpHJae+Xrr3QiU9GG/3z1Uvwom1O2YCkKTJUWcnbeL
+         hhivg3rYXVrRVAIcGd+gu+MX0o/LkclsGCUkR638obM101+aGTQD54w4IN2ys9ZVoG
+         pzt+5crpb2AIcRB9Qkhonc+YNyXw1xjUUQ5K7Hqii588KYcynX+n29aCpMNU98y46l
+         dAfkOZZXZNkAHQMk1Bb0uBCOIy+7F9TEGXLhHDgfXT4Qek55wg22n1RCGgMOj39oxO
+         ntSx8HQEjo3Uw==
 From:   Eric Biggers <ebiggers@kernel.org>
 To:     stable@vger.kernel.org
 Cc:     Harshit Mogalapalli <harshit.m.mogalapalli@oracle.com>,
@@ -40,17 +40,18 @@ Cc:     Harshit Mogalapalli <harshit.m.mogalapalli@oracle.com>,
         Jann Horn <jannh@google.com>,
         "Eric W . Biederman" <ebiederm@xmission.com>,
         linux-hardening@vger.kernel.org, linux-kernel@vger.kernel.org,
-        Nathan Chancellor <nathan@kernel.org>
-Subject: [PATCH 5.4 07/17] h8300: Fix build errors from do_exit() to make_task_dead() transition
-Date:   Wed,  1 Feb 2023 20:42:45 -0800
-Message-Id: <20230202044255.128815-8-ebiggers@kernel.org>
+        Nathan Chancellor <nathan@kernel.org>,
+        Guo Ren <guoren@kernel.org>
+Subject: [PATCH 5.4 08/17] csky: Fix function name in csky_alignment() and die()
+Date:   Wed,  1 Feb 2023 20:42:46 -0800
+Message-Id: <20230202044255.128815-9-ebiggers@kernel.org>
 X-Mailer: git-send-email 2.39.1
 In-Reply-To: <20230202044255.128815-1-ebiggers@kernel.org>
 References: <20230202044255.128815-1-ebiggers@kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
         SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -60,73 +61,56 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Nathan Chancellor <nathan@kernel.org>
 
-commit ab4ababdf77ccc56c7301c751dff49c79709c51c upstream.
+commit 751971af2e3615dc5bd12674080bc795505fefeb upstream.
 
-When building ARCH=h8300 defconfig:
+When building ARCH=csky defconfig:
 
-arch/h8300/kernel/traps.c: In function 'die':
-arch/h8300/kernel/traps.c:109:2: error: implicit declaration of function
+arch/csky/kernel/traps.c: In function 'die':
+arch/csky/kernel/traps.c:112:17: error: implicit declaration of function
 'make_dead_task' [-Werror=implicit-function-declaration]
-  109 |  make_dead_task(SIGSEGV);
-      |  ^~~~~~~~~~~~~~
-
-arch/h8300/mm/fault.c: In function 'do_page_fault':
-arch/h8300/mm/fault.c:54:2: error: implicit declaration of function
-'make_dead_task' [-Werror=implicit-function-declaration]
-   54 |  make_dead_task(SIGKILL);
-      |  ^~~~~~~~~~~~~~
+  112 |                 make_dead_task(SIGSEGV);
+      |                 ^~~~~~~~~~~~~~
 
 The function's name is make_task_dead(), change it so there is no more
 build error.
 
-Additionally, include linux/sched/task.h in arch/h8300/kernel/traps.c
-to avoid the same error because do_exit()'s declaration is in kernel.h
-but make_task_dead()'s is in task.h, which is not included in traps.c.
-
 Fixes: 0e25498f8cd4 ("exit: Add and use make_task_dead.")
 Signed-off-by: Nathan Chancellor <nathan@kernel.org>
-Link: https://lkml.kernel.org/r/20211227184851.2297759-3-nathan@kernel.org
+Reviewed-by: Guo Ren <guoren@kernel.org>
+Link: https://lkml.kernel.org/r/20211227184851.2297759-4-nathan@kernel.org
 Signed-off-by: Eric W. Biederman <ebiederm@xmission.com>
 Signed-off-by: Eric Biggers <ebiggers@google.com>
 ---
- arch/h8300/kernel/traps.c | 3 ++-
- arch/h8300/mm/fault.c     | 2 +-
- 2 files changed, 3 insertions(+), 2 deletions(-)
+ arch/csky/abiv1/alignment.c | 2 +-
+ arch/csky/kernel/traps.c    | 2 +-
+ 2 files changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/arch/h8300/kernel/traps.c b/arch/h8300/kernel/traps.c
-index a284c126f07a6..090adaee4b84c 100644
---- a/arch/h8300/kernel/traps.c
-+++ b/arch/h8300/kernel/traps.c
-@@ -17,6 +17,7 @@
- #include <linux/types.h>
- #include <linux/sched.h>
- #include <linux/sched/debug.h>
-+#include <linux/sched/task.h>
- #include <linux/mm_types.h>
- #include <linux/kernel.h>
- #include <linux/errno.h>
-@@ -110,7 +111,7 @@ void die(const char *str, struct pt_regs *fp, unsigned long err)
- 	dump(fp);
+diff --git a/arch/csky/abiv1/alignment.c b/arch/csky/abiv1/alignment.c
+index 5e2fb45d605cf..2df115d0e2105 100644
+--- a/arch/csky/abiv1/alignment.c
++++ b/arch/csky/abiv1/alignment.c
+@@ -294,7 +294,7 @@ void csky_alignment(struct pt_regs *regs)
+ 				__func__, opcode, rz, rx, imm, addr);
+ 		show_regs(regs);
+ 		bust_spinlocks(0);
+-		make_dead_task(SIGKILL);
++		make_task_dead(SIGKILL);
+ 	}
  
- 	spin_unlock_irq(&die_lock);
+ 	force_sig_fault(SIGBUS, BUS_ADRALN, (void __user *)addr);
+diff --git a/arch/csky/kernel/traps.c b/arch/csky/kernel/traps.c
+index af7562907f7fa..8cdbbcb5ed875 100644
+--- a/arch/csky/kernel/traps.c
++++ b/arch/csky/kernel/traps.c
+@@ -85,7 +85,7 @@ void die_if_kernel(char *str, struct pt_regs *regs, int nr)
+ 	pr_err("%s: %08x\n", str, nr);
+ 	show_regs(regs);
+ 	add_taint(TAINT_DIE, LOCKDEP_NOW_UNRELIABLE);
 -	make_dead_task(SIGSEGV);
 +	make_task_dead(SIGSEGV);
  }
  
- static int kstack_depth_to_print = 24;
-diff --git a/arch/h8300/mm/fault.c b/arch/h8300/mm/fault.c
-index a8d8fc63780e4..573825c3cb708 100644
---- a/arch/h8300/mm/fault.c
-+++ b/arch/h8300/mm/fault.c
-@@ -52,7 +52,7 @@ asmlinkage int do_page_fault(struct pt_regs *regs, unsigned long address,
- 	printk(" at virtual address %08lx\n", address);
- 	if (!user_mode(regs))
- 		die("Oops", regs, error_code);
--	make_dead_task(SIGKILL);
-+	make_task_dead(SIGKILL);
- 
- 	return 1;
- }
+ void buserr(struct pt_regs *regs)
 -- 
 2.39.1
 
