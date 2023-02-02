@@ -2,53 +2,56 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id ECB8F688533
-	for <lists+stable@lfdr.de>; Thu,  2 Feb 2023 18:17:06 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 11E2068853D
+	for <lists+stable@lfdr.de>; Thu,  2 Feb 2023 18:18:27 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232040AbjBBRRF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 2 Feb 2023 12:17:05 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43356 "EHLO
+        id S232532AbjBBRSZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 2 Feb 2023 12:18:25 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44294 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231977AbjBBRQ6 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 2 Feb 2023 12:16:58 -0500
+        with ESMTP id S232530AbjBBRSV (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 2 Feb 2023 12:18:21 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E6B946FD31;
-        Thu,  2 Feb 2023 09:16:56 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 68BDD2B625;
+        Thu,  2 Feb 2023 09:18:19 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 97D53B8275D;
-        Thu,  2 Feb 2023 17:16:55 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 15B8CC433EF;
-        Thu,  2 Feb 2023 17:16:54 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 115A9B8275B;
+        Thu,  2 Feb 2023 17:18:18 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8D285C433EF;
+        Thu,  2 Feb 2023 17:18:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1675358214;
-        bh=2QIKzSTkeTLb3Ws9Xh3yl46wURTVrxCvDvgQo81IKTA=;
+        s=k20201202; t=1675358296;
+        bh=8EOYqjD89rhTIJQftQCfFlO/orv5JhWP/InSywBVBlo=;
         h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=MWeg0AqtrLH7TJAuW6VKPK1slPK5BiniE8SO0w+Kfg0tli4IFnai/fiLCwX1C42Wt
-         UNs1No+u72j3HltNfP/xFvP3FZQJ68cmEVdRCFYXyRDQNFiYDHPPEKiogsk+aDdv0v
-         2y4KNh51RfyZL7xPM8mRF5q8gmRfUikiGrvENI8YDVQ1Ab6fiTAy0dwAa/1Lp/R2fR
-         721uw0USFpGO4bPFxRggfV5slOboQxCxB0u0ZbvWGhp0NHX3tePoyOEWEGpbtOBlhf
-         rZTomc2zNeQwqTlBFdmtZXD7sduYGx/QdIgcjxra35nl2La6fbhtEaxr5x4SEzlv8I
-         EhOJVLLPT+/pQ==
-Date:   Thu, 2 Feb 2023 12:16:52 -0500
+        b=vRJBpddAQ7CHarsSyFTSBHW/Io9IZRJlLGuxh29jVpSBr/TSZK3DYHQiavjUr3inL
+         uE0LwXF7HHayQIGgFOjq/OewG1CZ3G9a7SI+pXDdPdsbtXzay5RL1BzspSD0B0w520
+         ZihxmhVn+ta27UynzQE0OrqfKdz8/6elEUx0BNUVpfv/CORQ4oz3JqBSiomFxf4xAz
+         lOZKYC/uUql7b9aq4ZI21SHsBRuRLSpWc/H65BrOe+3kUK/CsmlmXhiOh1twX3Yvk/
+         zNkrG6x4SE+rpETQ9K1Pp7qe9Zg7wbTG/AHTNO2Yu6dYOKEIGZL4IRaBJUeMhsAtHv
+         zChotfrDxiTtw==
+Date:   Thu, 2 Feb 2023 12:18:15 -0500
 From:   Sasha Levin <sashal@kernel.org>
-To:     Eric Biggers <ebiggers@kernel.org>
-Cc:     stable@vger.kernel.org,
-        Harshit Mogalapalli <harshit.m.mogalapalli@oracle.com>,
-        Kees Cook <keescook@chromium.org>,
-        SeongJae Park <sj@kernel.org>,
-        Seth Jenkins <sethjenkins@google.com>,
-        Jann Horn <jannh@google.com>,
-        "Eric W . Biederman" <ebiederm@xmission.com>,
-        linux-hardening@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 5.4 00/17] Backport oops_limit to 5.4
-Message-ID: <Y9vwBL2+NWtwMnA4@sashalap>
-References: <20230202044255.128815-1-ebiggers@kernel.org>
+To:     Mario Limonciello <mario.limonciello@amd.com>
+Cc:     "stable-commits@vger.kernel.org" <stable-commits@vger.kernel.org>,
+        "stable@vger.kernel.org" <stable@vger.kernel.org>,
+        Mika Westerberg <mika.westerberg@linux.intel.com>,
+        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
+        Linus Walleij <linus.walleij@linaro.org>,
+        Bartosz Golaszewski <brgl@bgdev.pl>
+Subject: Re: Patch "gpiolib: acpi: Allow ignoring wake capability on pins
+ that aren't in _AEI" has been added to the 6.1-stable tree
+Message-ID: <Y9vwV8aTJYLZc0hE@sashalap>
+References: <20230201164307.1305059-1-sashal@kernel.org>
+ <MN0PR12MB6101CA1D078964276862BBAAE2D19@MN0PR12MB6101.namprd12.prod.outlook.com>
+ <Y9sozVJN7/7ltSCq@sashalap>
+ <bc927cb2-0d61-c38c-3e6f-a43ee3bec2c9@amd.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Type: text/plain; charset=iso-8859-1; format=flowed
 Content-Disposition: inline
-In-Reply-To: <20230202044255.128815-1-ebiggers@kernel.org>
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <bc927cb2-0d61-c38c-3e6f-a43ee3bec2c9@amd.com>
 X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
         DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
         SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
@@ -58,19 +61,76 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Wed, Feb 01, 2023 at 08:42:38PM -0800, Eric Biggers wrote:
->This series backports the patchset
->"exit: Put an upper limit on how often we can oops"
->(https://lore.kernel.org/linux-mm/20221117233838.give.484-kees@kernel.org/T/#u)
->to 5.4, as recommended at
->https://googleprojectzero.blogspot.com/2023/01/exploiting-null-dereferences-in-linux.html
->This follows the backports to 5.10 and 5.15 which already released.
+On Wed, Feb 01, 2023 at 09:10:01PM -0600, Mario Limonciello wrote:
+>On 2/1/23 21:06, Sasha Levin wrote:
+>>On Wed, Feb 01, 2023 at 07:39:29PM +0000, Limonciello, Mario wrote:
+>>>[Public]
+>>>
+>>>
+>>>
+>>>>-----Original Message-----
+>>>>From: Sasha Levin <sashal@kernel.org>
+>>>>Sent: Wednesday, February 1, 2023 10:43
+>>>>To: stable-commits@vger.kernel.org; Limonciello, Mario
+>>>><Mario.Limonciello@amd.com>
+>>>>Cc: Mika Westerberg <mika.westerberg@linux.intel.com>; Andy Shevchenko
+>>>><andriy.shevchenko@linux.intel.com>; Linus Walleij
+>>>><linus.walleij@linaro.org>; Bartosz Golaszewski <brgl@bgdev.pl>
+>>>>Subject: Patch "gpiolib: acpi: Allow ignoring wake capability on 
+>>>>pins that aren't
+>>>>in _AEI" has been added to the 6.1-stable tree
+>>>>
+>>>>This is a note to let you know that I've just added the patch titled
+>>>>
+>>>>    gpiolib: acpi: Allow ignoring wake capability on pins that 
+>>>>aren't in _AEI
+>>>>
+>>>>to the 6.1-stable tree which can be found at:
+>>>>    http://www.kernel.org/git/?p=linux/kernel/git/stable/stable-
+>>>>queue.git;a=summary
+>>>>
+>>>>The filename of the patch is:
+>>>>     gpiolib-acpi-allow-ignoring-wake-capability-on-pins-.patch
+>>>>and it can be found in the queue-6.1 subdirectory.
+>>>>
+>>>>If you, or anyone else, feels it should not be added to the stable tree,
+>>>>please let <stable@vger.kernel.org> know about it.
+>>>
+>>>Hi Sasha,
+>>>
+>>>I suggest you also pick up two other fixes to go with this one.
+>>>
+>>>1) this fix which was in the same series:
+>>>
+>>>4cb786180dfb ("gpiolib: acpi: Add a ignore wakeup quirk for Clevo 
+>>>NL5xRU")
+>>
+>>This commit has a fixes tag which points to a commit we don't have in
+>>the 6.1 tree: 1796f808e4bb ("HID: i2c-hid: acpi: Stop setting
+>>wakeup_capable"), could you confirm?
 >
->This required backporting various prerequisite patches.
+>Yes; technically it's already problematic in 6.1 but the default 
+>policy doesn't set it for enabled.  If a user manually set it to 
+>enabled the problem happens.
 >
->I've tested that oops_limit and warn_limit work correctly on x86_64.
+>6.2 it happens automatically because policy changed from that commit.
+>
+>So I think this one makes sense.
+>
+>>
+>>>2) This fix which is tangentially related (fixes something from 
+>>>the same original
+>>>series that exposed the regressions).
+>>>
+>>>d63f11c02b8d ("gpiolib-acpi: Don't set GPIOs for wakeup in S3 mode")
+>>
+>>Same as above.
+>
+>This has two fixes tags, one of them is in 6.1.  It makes sense to 
+>take back to 6.1, the reporters first noticed it in 6.1.
+>
 
-Queued up all 3 backports, thanks!
+Queued both, thanks!
 
 -- 
 Thanks,
