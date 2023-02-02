@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 366C3687515
-	for <lists+stable@lfdr.de>; Thu,  2 Feb 2023 06:28:05 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id F098B68751C
+	for <lists+stable@lfdr.de>; Thu,  2 Feb 2023 06:28:16 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230225AbjBBF2D (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 2 Feb 2023 00:28:03 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57860 "EHLO
+        id S231886AbjBBF2O (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 2 Feb 2023 00:28:14 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57910 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229881AbjBBF2D (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 2 Feb 2023 00:28:03 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3BAC886B3;
-        Wed,  1 Feb 2023 21:28:01 -0800 (PST)
+        with ESMTP id S231744AbjBBF2H (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 2 Feb 2023 00:28:07 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B1422CA1D;
+        Wed,  1 Feb 2023 21:28:04 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id C776B60ABE;
+        by ams.source.kernel.org (Postfix) with ESMTPS id 2C776B824B2;
+        Thu,  2 Feb 2023 05:28:03 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5974BC4339C;
         Thu,  2 Feb 2023 05:28:00 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id DD5D8C433EF;
-        Thu,  2 Feb 2023 05:27:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1675315680;
-        bh=NhqgdfaLi4iMMTFGDQKY/H8WKJ0eXjK92fSiRVm2+qM=;
-        h=From:To:Cc:Subject:Date:From;
-        b=r+4oJTpJCIYwur0074FiTYZTKUfcWG8k5EEUvYXL43RZdhLnftbKsrlGTAb8oLUGR
-         /1GqLnZ8Xq+Ju676LY+SSuyBTkwCOJRMG5S8oGPDUBOyb4EQbBOtPdgZtbmRPOagEz
-         KwQXDVEbrshNDlq5pBRwNH7kAWs/Gfs2DfRRa2xi61SsgY9h05sphkmQ2gy2RTC44/
-         dBUX5aiyx8Q0RKS8T8+PoxVrYRN+x9XB2bMOdVO0aokQrCX0T89FthLdk4akUqsZp7
-         FH/tSiTmGVAfpmiKWZo/Q4K+69uC4+Gom14jD9ZvavSpj5Jm8M1vpRbjghTz7SsWbX
-         nfXH3jCKsvELQ==
+        s=k20201202; t=1675315681;
+        bh=OH/dOk5Gf673apnyAgJwouhC08eKKKT868bTFMniw+0=;
+        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+        b=MmjsxqV49tF6T7r6g7BkUkiH53k2SQHPlCXeeI2UVR+GH2l6V4KLwoF8jsthhwFgT
+         DUVWHHVEC57/XF9Li9b3AQjpoVXFlyFlkgHkgko2OhILyfkdZl8kGQonJaqFZn2FJT
+         Prx3QAfJ2JmpLjjMwYId6FEs0w5nf3PnaeaeT+tU6piNQB609NZAktCE9QGRbWhoC1
+         ktfRd0dCCT6rAArHr6SklVeZ/UDrV265Vto7aOGBwyCVqbFxNiAurUWx2Dz2SgfvWm
+         tL0Yxsnp/aCMEUK8sHqBCz4/JQe451w6RjOasDVNT4GaBVa/WakyMFr+MwzeDd2gHD
+         g3qUPBCW/OeZw==
 From:   Eric Biggers <ebiggers@kernel.org>
 To:     stable@vger.kernel.org
 Cc:     Harshit Mogalapalli <harshit.m.mogalapalli@oracle.com>,
@@ -39,11 +39,53 @@ Cc:     Harshit Mogalapalli <harshit.m.mogalapalli@oracle.com>,
         Seth Jenkins <sethjenkins@google.com>,
         Jann Horn <jannh@google.com>,
         "Eric W . Biederman" <ebiederm@xmission.com>,
-        linux-hardening@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: [PATCH 4.19 00/16] Backport oops_limit to 4.19
-Date:   Wed,  1 Feb 2023 21:25:48 -0800
-Message-Id: <20230202052604.179184-1-ebiggers@kernel.org>
+        linux-hardening@vger.kernel.org, linux-kernel@vger.kernel.org,
+        Iurii Zaikin <yzaikin@google.com>,
+        Peter Zijlstra <peterz@infradead.org>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Paul Turner <pjt@google.com>,
+        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
+        Sebastian Reichel <sre@kernel.org>,
+        Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>,
+        Petr Mladek <pmladek@suse.com>,
+        Sergey Senozhatsky <senozhatsky@chromium.org>,
+        Qing Wang <wangqing@vivo.com>,
+        Benjamin LaHaise <bcrl@kvack.org>,
+        Al Viro <viro@zeniv.linux.org.uk>, Jan Kara <jack@suse.cz>,
+        Amir Goldstein <amir73il@gmail.com>,
+        Stephen Kitt <steve@sk2.org>, Antti Palosaari <crope@iki.fi>,
+        Arnd Bergmann <arnd@arndb.de>,
+        Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+        Clemens Ladisch <clemens@ladisch.de>,
+        David Airlie <airlied@linux.ie>,
+        Jani Nikula <jani.nikula@linux.intel.com>,
+        Joel Becker <jlbec@evilplan.org>,
+        Joonas Lahtinen <joonas.lahtinen@linux.intel.com>,
+        Joseph Qi <joseph.qi@linux.alibaba.com>,
+        Julia Lawall <julia.lawall@inria.fr>,
+        Lukas Middendorf <kernel@tuxforce.de>,
+        Mark Fasheh <mark@fasheh.com>,
+        Phillip Potter <phil@philpotter.co.uk>,
+        Rodrigo Vivi <rodrigo.vivi@intel.com>,
+        Douglas Gilbert <dgilbert@interlog.com>,
+        "James E . J . Bottomley" <jejb@linux.ibm.com>,
+        Jani Nikula <jani.nikula@intel.com>,
+        John Ogness <john.ogness@linutronix.de>,
+        "Martin K . Petersen" <martin.petersen@oracle.com>,
+        "Rafael J. Wysocki" <rafael@kernel.org>,
+        Steven Rostedt <rostedt@goodmis.org>,
+        Suren Baghdasaryan <surenb@google.com>,
+        "Theodore Ts'o" <tytso@mit.edu>,
+        Xiaoming Ni <nixiaoming@huawei.com>,
+        Luis Chamberlain <mcgrof@kernel.org>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>
+Subject: [PATCH 4.19 01/16] sysctl: add a new register_sysctl_init() interface
+Date:   Wed,  1 Feb 2023 21:25:49 -0800
+Message-Id: <20230202052604.179184-2-ebiggers@kernel.org>
 X-Mailer: git-send-email 2.39.1
+In-Reply-To: <20230202052604.179184-1-ebiggers@kernel.org>
+References: <20230202052604.179184-1-ebiggers@kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
@@ -55,101 +97,179 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-This series backports the patchset
-"exit: Put an upper limit on how often we can oops"
-(https://lore.kernel.org/linux-mm/20221117233838.give.484-kees@kernel.org/T/#u)
-to 4.19, as recommended at
-https://googleprojectzero.blogspot.com/2023/01/exploiting-null-dereferences-in-linux.html
-This follows the backports to 5.10 and 5.15 which already released, and
-the backport to 5.4 that I just sent out too.
+From: Xiaoming Ni <nixiaoming@huawei.com>
 
-This required backporting various prerequisite patches.
+commit 3ddd9a808cee7284931312f2f3e854c9617f44b2 upstream.
 
-I've tested that oops_limit and warn_limit work correctly on x86_64.
+Patch series "sysctl: first set of kernel/sysctl cleanups", v2.
 
-David Gow (1):
-  mm: kasan: do not panic if both panic_on_warn and kasan_multishot set
+Finally had time to respin the series of the work we had started last
+year on cleaning up the kernel/sysct.c kitchen sink.  People keeps
+stuffing their sysctls in that file and this creates a maintenance
+burden.  So this effort is aimed at placing sysctls where they actually
+belong.
 
-Eric W. Biederman (2):
-  exit: Add and use make_task_dead.
-  objtool: Add a missing comma to avoid string concatenation
+I'm going to split patches up into series as there is quite a bit of
+work.
 
-Jann Horn (1):
-  exit: Put an upper limit on how often we can oops
+This first set adds register_sysctl_init() for uses of registerting a
+sysctl on the init path, adds const where missing to a few places,
+generalizes common values so to be more easy to share, and starts the
+move of a few kernel/sysctl.c out where they belong.
 
-Kees Cook (7):
-  exit: Expose "oops_count" to sysfs
-  exit: Allow oops_limit to be disabled
-  panic: Consolidate open-coded panic_on_warn checks
-  panic: Introduce warn_limit
-  panic: Expose "warn_count" to sysfs
-  docs: Fix path paste-o for /sys/kernel/warn_count
-  exit: Use READ_ONCE() for all oops/warn limit reads
+The majority of rework on v2 in this first patch set is 0-day fixes.
+Eric Biederman's feedback is later addressed in subsequent patch sets.
 
-Nathan Chancellor (2):
-  hexagon: Fix function name in die()
-  h8300: Fix build errors from do_exit() to make_task_dead() transition
+I'll only post the first two patch sets for now.  We can address the
+rest once the first two patch sets get completely reviewed / Acked.
 
-Randy Dunlap (1):
-  ia64: make IA64_MCA_RECOVERY bool instead of tristate
+This patch (of 9):
 
-Tiezhu Yang (1):
-  panic: unset panic_on_warn inside panic()
+The kernel/sysctl.c is a kitchen sink where everyone leaves their dirty
+dishes, this makes it very difficult to maintain.
 
-Xiaoming Ni (1):
-  sysctl: add a new register_sysctl_init() interface
+To help with this maintenance let's start by moving sysctls to places
+where they actually belong.  The proc sysctl maintainers do not want to
+know what sysctl knobs you wish to add for your own piece of code, we
+just care about the core logic.
 
- .../ABI/testing/sysfs-kernel-oops_count       |  6 ++
- .../ABI/testing/sysfs-kernel-warn_count       |  6 ++
- Documentation/sysctl/kernel.txt               | 20 +++++
- arch/alpha/kernel/traps.c                     |  6 +-
- arch/alpha/mm/fault.c                         |  2 +-
- arch/arm/kernel/traps.c                       |  2 +-
- arch/arm/mm/fault.c                           |  2 +-
- arch/arm64/kernel/traps.c                     |  2 +-
- arch/arm64/mm/fault.c                         |  2 +-
- arch/h8300/kernel/traps.c                     |  3 +-
- arch/h8300/mm/fault.c                         |  2 +-
- arch/hexagon/kernel/traps.c                   |  2 +-
- arch/ia64/Kconfig                             |  2 +-
- arch/ia64/kernel/mca_drv.c                    |  2 +-
- arch/ia64/kernel/traps.c                      |  2 +-
- arch/ia64/mm/fault.c                          |  2 +-
- arch/m68k/kernel/traps.c                      |  2 +-
- arch/m68k/mm/fault.c                          |  2 +-
- arch/microblaze/kernel/exceptions.c           |  4 +-
- arch/mips/kernel/traps.c                      |  2 +-
- arch/nds32/kernel/traps.c                     |  8 +-
- arch/nios2/kernel/traps.c                     |  4 +-
- arch/openrisc/kernel/traps.c                  |  2 +-
- arch/parisc/kernel/traps.c                    |  2 +-
- arch/powerpc/kernel/traps.c                   |  2 +-
- arch/riscv/kernel/traps.c                     |  2 +-
- arch/riscv/mm/fault.c                         |  2 +-
- arch/s390/kernel/dumpstack.c                  |  2 +-
- arch/s390/kernel/nmi.c                        |  2 +-
- arch/sh/kernel/traps.c                        |  2 +-
- arch/sparc/kernel/traps_32.c                  |  4 +-
- arch/sparc/kernel/traps_64.c                  |  4 +-
- arch/x86/entry/entry_32.S                     |  6 +-
- arch/x86/entry/entry_64.S                     |  6 +-
- arch/x86/kernel/dumpstack.c                   |  4 +-
- arch/xtensa/kernel/traps.c                    |  2 +-
- fs/proc/proc_sysctl.c                         | 33 ++++++++
- include/linux/kernel.h                        |  1 +
- include/linux/sched/task.h                    |  1 +
- include/linux/sysctl.h                        |  3 +
- kernel/exit.c                                 | 72 ++++++++++++++++++
- kernel/panic.c                                | 75 ++++++++++++++++---
- kernel/sched/core.c                           |  3 +-
- mm/kasan/report.c                             |  4 +-
- tools/objtool/check.c                         |  3 +-
- 45 files changed, 258 insertions(+), 64 deletions(-)
- create mode 100644 Documentation/ABI/testing/sysfs-kernel-oops_count
- create mode 100644 Documentation/ABI/testing/sysfs-kernel-warn_count
+Today though folks heavily rely on tables on kernel/sysctl.c so they can
+easily just extend this table with their needed sysctls.  In order to
+help users move their sysctls out we need to provide a helper which can
+be used during code initialization.
 
+We special-case the initialization use of register_sysctl() since it
+*is* safe to fail, given all that sysctls do is provide a dynamic
+interface to query or modify at runtime an existing variable.  So the
+use case of register_sysctl() on init should *not* stop if the sysctls
+don't end up getting registered.  It would be counter productive to stop
+boot if a simple sysctl registration failed.
 
-base-commit: b17faf2c4e88ac0deb894f068bda67ace57e9c0a
+Provide a helper for init then, and document the recommended init levels
+to use for callers of this routine.  We will later use this in
+subsequent patches to start slimming down kernel/sysctl.c tables and
+moving sysctl registration to the code which actually needs these
+sysctls.
+
+[mcgrof@kernel.org: major commit log and documentation rephrasing also moved to fs/proc/proc_sysctl.c                  ]
+
+Link: https://lkml.kernel.org/r/20211123202347.818157-1-mcgrof@kernel.org
+Link: https://lkml.kernel.org/r/20211123202347.818157-2-mcgrof@kernel.org
+Signed-off-by: Xiaoming Ni <nixiaoming@huawei.com>
+Signed-off-by: Luis Chamberlain <mcgrof@kernel.org>
+Reviewed-by: Kees Cook <keescook@chromium.org>
+Cc: Iurii Zaikin <yzaikin@google.com>
+Cc: "Eric W. Biederman" <ebiederm@xmission.com>
+Cc: Peter Zijlstra <peterz@infradead.org>
+Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc: Paul Turner <pjt@google.com>
+Cc: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Cc: Sebastian Reichel <sre@kernel.org>
+Cc: Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>
+Cc: Petr Mladek <pmladek@suse.com>
+Cc: Sergey Senozhatsky <senozhatsky@chromium.org>
+Cc: Qing Wang <wangqing@vivo.com>
+Cc: Benjamin LaHaise <bcrl@kvack.org>
+Cc: Al Viro <viro@zeniv.linux.org.uk>
+Cc: Jan Kara <jack@suse.cz>
+Cc: Amir Goldstein <amir73il@gmail.com>
+Cc: Stephen Kitt <steve@sk2.org>
+Cc: Antti Palosaari <crope@iki.fi>
+Cc: Arnd Bergmann <arnd@arndb.de>
+Cc: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+Cc: Clemens Ladisch <clemens@ladisch.de>
+Cc: David Airlie <airlied@linux.ie>
+Cc: Jani Nikula <jani.nikula@linux.intel.com>
+Cc: Joel Becker <jlbec@evilplan.org>
+Cc: Joonas Lahtinen <joonas.lahtinen@linux.intel.com>
+Cc: Joseph Qi <joseph.qi@linux.alibaba.com>
+Cc: Julia Lawall <julia.lawall@inria.fr>
+Cc: Lukas Middendorf <kernel@tuxforce.de>
+Cc: Mark Fasheh <mark@fasheh.com>
+Cc: Phillip Potter <phil@philpotter.co.uk>
+Cc: Rodrigo Vivi <rodrigo.vivi@intel.com>
+Cc: Douglas Gilbert <dgilbert@interlog.com>
+Cc: James E.J. Bottomley <jejb@linux.ibm.com>
+Cc: Jani Nikula <jani.nikula@intel.com>
+Cc: John Ogness <john.ogness@linutronix.de>
+Cc: Martin K. Petersen <martin.petersen@oracle.com>
+Cc: "Rafael J. Wysocki" <rafael@kernel.org>
+Cc: Steven Rostedt (VMware) <rostedt@goodmis.org>
+Cc: Suren Baghdasaryan <surenb@google.com>
+Cc: "Theodore Ts'o" <tytso@mit.edu>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Signed-off-by: Eric Biggers <ebiggers@google.com>
+---
+ fs/proc/proc_sysctl.c  | 33 +++++++++++++++++++++++++++++++++
+ include/linux/sysctl.h |  3 +++
+ 2 files changed, 36 insertions(+)
+
+diff --git a/fs/proc/proc_sysctl.c b/fs/proc/proc_sysctl.c
+index c95f32b83a942..7c62a526506c1 100644
+--- a/fs/proc/proc_sysctl.c
++++ b/fs/proc/proc_sysctl.c
+@@ -13,6 +13,7 @@
+ #include <linux/namei.h>
+ #include <linux/mm.h>
+ #include <linux/module.h>
++#include <linux/kmemleak.h>
+ #include "internal.h"
+ 
+ static const struct dentry_operations proc_sys_dentry_operations;
+@@ -1376,6 +1377,38 @@ struct ctl_table_header *register_sysctl(const char *path, struct ctl_table *tab
+ }
+ EXPORT_SYMBOL(register_sysctl);
+ 
++/**
++ * __register_sysctl_init() - register sysctl table to path
++ * @path: path name for sysctl base
++ * @table: This is the sysctl table that needs to be registered to the path
++ * @table_name: The name of sysctl table, only used for log printing when
++ *              registration fails
++ *
++ * The sysctl interface is used by userspace to query or modify at runtime
++ * a predefined value set on a variable. These variables however have default
++ * values pre-set. Code which depends on these variables will always work even
++ * if register_sysctl() fails. If register_sysctl() fails you'd just loose the
++ * ability to query or modify the sysctls dynamically at run time. Chances of
++ * register_sysctl() failing on init are extremely low, and so for both reasons
++ * this function does not return any error as it is used by initialization code.
++ *
++ * Context: Can only be called after your respective sysctl base path has been
++ * registered. So for instance, most base directories are registered early on
++ * init before init levels are processed through proc_sys_init() and
++ * sysctl_init().
++ */
++void __init __register_sysctl_init(const char *path, struct ctl_table *table,
++				 const char *table_name)
++{
++	struct ctl_table_header *hdr = register_sysctl(path, table);
++
++	if (unlikely(!hdr)) {
++		pr_err("failed when register_sysctl %s to %s\n", table_name, path);
++		return;
++	}
++	kmemleak_not_leak(hdr);
++}
++
+ static char *append_path(const char *path, char *pos, const char *name)
+ {
+ 	int namelen;
+diff --git a/include/linux/sysctl.h b/include/linux/sysctl.h
+index b769ecfcc3bd4..0a980aecc8f02 100644
+--- a/include/linux/sysctl.h
++++ b/include/linux/sysctl.h
+@@ -198,6 +198,9 @@ struct ctl_table_header *register_sysctl_paths(const struct ctl_path *path,
+ void unregister_sysctl_table(struct ctl_table_header * table);
+ 
+ extern int sysctl_init(void);
++extern void __register_sysctl_init(const char *path, struct ctl_table *table,
++				 const char *table_name);
++#define register_sysctl_init(path, table) __register_sysctl_init(path, table, #table)
+ 
+ extern struct ctl_table sysctl_mount_point[];
+ 
 -- 
 2.39.1
 
