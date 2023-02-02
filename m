@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A8E0F68751A
-	for <lists+stable@lfdr.de>; Thu,  2 Feb 2023 06:28:14 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id AC3AB687525
+	for <lists+stable@lfdr.de>; Thu,  2 Feb 2023 06:28:33 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231824AbjBBF2M (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 2 Feb 2023 00:28:12 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57922 "EHLO
+        id S231607AbjBBF22 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 2 Feb 2023 00:28:28 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58448 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231679AbjBBF2H (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 2 Feb 2023 00:28:07 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C1F291449C;
-        Wed,  1 Feb 2023 21:28:05 -0800 (PST)
+        with ESMTP id S231357AbjBBF2T (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 2 Feb 2023 00:28:19 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D886818155;
+        Wed,  1 Feb 2023 21:28:08 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 3FAEF615E9;
+        by ams.source.kernel.org (Postfix) with ESMTPS id EE551B824B6;
+        Thu,  2 Feb 2023 05:28:06 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3ABCDC433D2;
         Thu,  2 Feb 2023 05:28:05 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id BF024C4339C;
-        Thu,  2 Feb 2023 05:28:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
         s=k20201202; t=1675315685;
-        bh=w2+gKam0hgvqls1hiqaw8OhtqAs87LqFnf26zQZbz5Y=;
+        bh=XvMp8OxqN686wYYBuokqdDG9zEqwVzaClZ28PNpdlgw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=bAr2FIfCLyzidKouTHr6RULNPnaA6klX1WwsIRPzSvd8r3RyE0PwXvCwH5qTRPOr2
-         h0gG/sCiynmjC6+JDp7Q8rXdffRovgf3vyPOxzO35TlaYz+o4GXc1fE9G/wVuusjEJ
-         /dmk4ELX0FjZ1v0jMO9iSMClmOmPE9LB6NHU1uaXZlqv1JLzPIb6gQ02xdKfAKEkbc
-         k/R4AZ3bZNokcV1voRi0mRlKK2iw3rstFbeDjvgWYiteqtfXWKdwBct4cannhNchRw
-         x1d+cJZlI/ybnC3EkGDeKWOtPZPVExZZDoXLolZNRQHU4iHR/31I3X9BwH9H4dwx5V
-         bF6759vbqO5dg==
+        b=WcdfRrlSbdKncAZuzC0qEsWO7IHkpVyImUDNOAEdGOchVIlLlmNKSE+oj6ZWrJefp
+         zvnOgiZ72xZ4gdgv8oU2lmpoXBl/U4kSTbqI8EtCri8Dqe7HTp8KJObPIXTCVnjm9U
+         UqaUbs7ToyHXGlaSX/vpVPvFd45djSpHA3WlSxlQZw9wH/VBZF6Hn0ubVGP4cWiGlG
+         ymWXSqUUN/Q4rPol4AuWicm3BibmjufLLIo5/7DiJ5ln4yJpzMS7KzJEg3fBKdI58o
+         J5YMdq+bLudQfPpWlL1MzDEcdF6j32njIzOdJRf73Y3FMhqsnmgl1ZHAU38aWi/q5d
+         dn+w/t7nSG/9w==
 From:   Eric Biggers <ebiggers@kernel.org>
 To:     stable@vger.kernel.org
 Cc:     Harshit Mogalapalli <harshit.m.mogalapalli@oracle.com>,
@@ -40,10 +40,15 @@ Cc:     Harshit Mogalapalli <harshit.m.mogalapalli@oracle.com>,
         Jann Horn <jannh@google.com>,
         "Eric W . Biederman" <ebiederm@xmission.com>,
         linux-hardening@vger.kernel.org, linux-kernel@vger.kernel.org,
-        Nathan Chancellor <nathan@kernel.org>
-Subject: [PATCH 4.19 07/16] h8300: Fix build errors from do_exit() to make_task_dead() transition
-Date:   Wed,  1 Feb 2023 21:25:55 -0800
-Message-Id: <20230202052604.179184-8-ebiggers@kernel.org>
+        Tony Luck <tony.luck@intel.com>,
+        Randy Dunlap <rdunlap@infradead.org>,
+        Christoph Hellwig <hch@infradead.org>,
+        Christoph Hellwig <hch@lst.de>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>
+Subject: [PATCH 4.19 08/16] ia64: make IA64_MCA_RECOVERY bool instead of tristate
+Date:   Wed,  1 Feb 2023 21:25:56 -0800
+Message-Id: <20230202052604.179184-9-ebiggers@kernel.org>
 X-Mailer: git-send-email 2.39.1
 In-Reply-To: <20230202052604.179184-1-ebiggers@kernel.org>
 References: <20230202052604.179184-1-ebiggers@kernel.org>
@@ -58,75 +63,50 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nathan Chancellor <nathan@kernel.org>
+From: Randy Dunlap <rdunlap@infradead.org>
 
-commit ab4ababdf77ccc56c7301c751dff49c79709c51c upstream.
+commit dbecf9b8b8ce580f4e11afed9d61e8aa294cddd2 upstream.
 
-When building ARCH=h8300 defconfig:
+In linux-next, IA64_MCA_RECOVERY uses the (new) function
+make_task_dead(), which is not exported for use by modules.  Instead of
+exporting it for one user, convert IA64_MCA_RECOVERY to be a bool
+Kconfig symbol.
 
-arch/h8300/kernel/traps.c: In function 'die':
-arch/h8300/kernel/traps.c:109:2: error: implicit declaration of function
-'make_dead_task' [-Werror=implicit-function-declaration]
-  109 |  make_dead_task(SIGSEGV);
-      |  ^~~~~~~~~~~~~~
+In a config file from "kernel test robot <lkp@intel.com>" for a
+different problem, this linker error was exposed when
+CONFIG_IA64_MCA_RECOVERY=m.
 
-arch/h8300/mm/fault.c: In function 'do_page_fault':
-arch/h8300/mm/fault.c:54:2: error: implicit declaration of function
-'make_dead_task' [-Werror=implicit-function-declaration]
-   54 |  make_dead_task(SIGKILL);
-      |  ^~~~~~~~~~~~~~
+Fixes this build error:
 
-The function's name is make_task_dead(), change it so there is no more
-build error.
+  ERROR: modpost: "make_task_dead" [arch/ia64/kernel/mca_recovery.ko] undefined!
 
-Additionally, include linux/sched/task.h in arch/h8300/kernel/traps.c
-to avoid the same error because do_exit()'s declaration is in kernel.h
-but make_task_dead()'s is in task.h, which is not included in traps.c.
-
+Link: https://lkml.kernel.org/r/20220124213129.29306-1-rdunlap@infradead.org
 Fixes: 0e25498f8cd4 ("exit: Add and use make_task_dead.")
-Signed-off-by: Nathan Chancellor <nathan@kernel.org>
-Link: https://lkml.kernel.org/r/20211227184851.2297759-3-nathan@kernel.org
-Signed-off-by: Eric W. Biederman <ebiederm@xmission.com>
+Signed-off-by: Randy Dunlap <rdunlap@infradead.org>
+Suggested-by: Christoph Hellwig <hch@infradead.org>
+Reviewed-by: Christoph Hellwig <hch@lst.de>
+Reviewed-by: "Eric W. Biederman" <ebiederm@xmission.com>
+Cc: Tony Luck <tony.luck@intel.com>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Signed-off-by: Eric Biggers <ebiggers@google.com>
 ---
- arch/h8300/kernel/traps.c | 3 ++-
- arch/h8300/mm/fault.c     | 2 +-
- 2 files changed, 3 insertions(+), 2 deletions(-)
+ arch/ia64/Kconfig | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/arch/h8300/kernel/traps.c b/arch/h8300/kernel/traps.c
-index a284c126f07a6..090adaee4b84c 100644
---- a/arch/h8300/kernel/traps.c
-+++ b/arch/h8300/kernel/traps.c
-@@ -17,6 +17,7 @@
- #include <linux/types.h>
- #include <linux/sched.h>
- #include <linux/sched/debug.h>
-+#include <linux/sched/task.h>
- #include <linux/mm_types.h>
- #include <linux/kernel.h>
- #include <linux/errno.h>
-@@ -110,7 +111,7 @@ void die(const char *str, struct pt_regs *fp, unsigned long err)
- 	dump(fp);
+diff --git a/arch/ia64/Kconfig b/arch/ia64/Kconfig
+index 8b4a0c1748c03..0d56b19b7511a 100644
+--- a/arch/ia64/Kconfig
++++ b/arch/ia64/Kconfig
+@@ -445,7 +445,7 @@ config ARCH_PROC_KCORE_TEXT
+ 	depends on PROC_KCORE
  
- 	spin_unlock_irq(&die_lock);
--	make_dead_task(SIGSEGV);
-+	make_task_dead(SIGSEGV);
- }
+ config IA64_MCA_RECOVERY
+-	tristate "MCA recovery from errors other than TLB."
++	bool "MCA recovery from errors other than TLB."
  
- static int kstack_depth_to_print = 24;
-diff --git a/arch/h8300/mm/fault.c b/arch/h8300/mm/fault.c
-index a8d8fc63780e4..573825c3cb708 100644
---- a/arch/h8300/mm/fault.c
-+++ b/arch/h8300/mm/fault.c
-@@ -52,7 +52,7 @@ asmlinkage int do_page_fault(struct pt_regs *regs, unsigned long address,
- 	printk(" at virtual address %08lx\n", address);
- 	if (!user_mode(regs))
- 		die("Oops", regs, error_code);
--	make_dead_task(SIGKILL);
-+	make_task_dead(SIGKILL);
- 
- 	return 1;
- }
+ config PERFMON
+ 	bool "Performance monitor support"
 -- 
 2.39.1
 
