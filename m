@@ -2,204 +2,156 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 32E3E68803B
-	for <lists+stable@lfdr.de>; Thu,  2 Feb 2023 15:35:45 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id CA411688091
+	for <lists+stable@lfdr.de>; Thu,  2 Feb 2023 15:52:36 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232274AbjBBOfn (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 2 Feb 2023 09:35:43 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47714 "EHLO
+        id S229593AbjBBOwf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 2 Feb 2023 09:52:35 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59288 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232230AbjBBOfm (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 2 Feb 2023 09:35:42 -0500
-Received: from mail-pf1-x429.google.com (mail-pf1-x429.google.com [IPv6:2607:f8b0:4864:20::429])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5048E8B315
-        for <stable@vger.kernel.org>; Thu,  2 Feb 2023 06:35:10 -0800 (PST)
-Received: by mail-pf1-x429.google.com with SMTP id z3so1331472pfb.2
-        for <stable@vger.kernel.org>; Thu, 02 Feb 2023 06:35:10 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20210112.gappssmtp.com; s=20210112;
-        h=from:to:subject:content-transfer-encoding:mime-version:date
-         :message-id:from:to:cc:subject:date:message-id:reply-to;
-        bh=hzFrRQhxLDyLXM5A6waRsVUjj06wX42nhKMhkpX1vv8=;
-        b=5FmEXRJlLBDMzo3CYz9DIrtYCktwQx6ertpbMIXpE8e2lOLi2wx6uRCbj6DfiOItoy
-         iOxACdcLUWCSEfa3k6uhSheuBuNuPcnvWSOU29OHbyxwAUSlzZ2GXWiU1SL2SG8SFgg0
-         h1dGyC2LvtS+ndF38X0jhooov/OKZ81DM9mdn2gh1AMI2Kpyy1tPlFMW0IYCLgGaeowL
-         39fNGBWjZpNmZHxkJmC1wtFfnTjvzHDpUti/3TqvuKLu+w5FKGHGSoOggNhJJymnKJld
-         GOHy3StEV9xsGsGEhMMaRGl11BBqVo/64+PTiyH37dHYc7gFVjelcFRnqAtwa6wDgQTM
-         7oxA==
+        with ESMTP id S231391AbjBBOwd (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 2 Feb 2023 09:52:33 -0500
+Received: from mail-ej1-f47.google.com (mail-ej1-f47.google.com [209.85.218.47])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 85CD49189B;
+        Thu,  2 Feb 2023 06:52:12 -0800 (PST)
+Received: by mail-ej1-f47.google.com with SMTP id bk15so6608199ejb.9;
+        Thu, 02 Feb 2023 06:52:12 -0800 (PST)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=from:to:subject:content-transfer-encoding:mime-version:date
-         :message-id:x-gm-message-state:from:to:cc:subject:date:message-id
+        h=cc:to:subject:message-id:date:from:in-reply-to:references
+         :mime-version:x-gm-message-state:from:to:cc:subject:date:message-id
          :reply-to;
-        bh=hzFrRQhxLDyLXM5A6waRsVUjj06wX42nhKMhkpX1vv8=;
-        b=KbaQrG1Y2xhUtbRuEIbRELgL/lVGZ6BnPA7fdNt5jxbnMz0TcZVQ7hWkSYropwrbAj
-         eXitxgeorngm9JJjNl8JKbc1XNODJpX5WnIPFTmMXi6xGk7Gt8qjpVRLdqmNWHiaS6hR
-         KPKfmOePSk8Yrfw9tyt2jorw9ytma2JMDTkjZH6DOMIr5mW6g8EwLlzor3jch+T/y9WU
-         IUWVdsVdL8KD14mdDLvaqNvqICpLaJHBKzupNTPddm2gzpta/QFbn4YHj2okCvRQPqqd
-         Ur7bIKATa978CnUdOrO4kTHPW8tgsoi/9DSa6ponmIz1HxY0/U4YI82ZwMrhOkw4jtlf
-         DSsw==
-X-Gm-Message-State: AO0yUKW01Bmurl52kgMrhV+IuP/9jsba6d+U8cVR5g+9RC1mKL96Ndr2
-        S26dpuEgvo4ppfxg+J2ppEFJQG96QpHNzn6veCZo9g==
-X-Google-Smtp-Source: AK7set9zz3AP7vgXuNjXMpOeZ1ehQ0xZ3ZPcElmUQFI6yxUDJ272DSGkziJ7KnNTlC21fZKc6wZ/DA==
-X-Received: by 2002:a05:6a00:8a:b0:593:d1c4:c164 with SMTP id c10-20020a056a00008a00b00593d1c4c164mr6121942pfj.17.1675348509574;
-        Thu, 02 Feb 2023 06:35:09 -0800 (PST)
-Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id dc6-20020a056a0035c600b005897f5436c0sm13873238pfb.118.2023.02.02.06.35.09
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 02 Feb 2023 06:35:09 -0800 (PST)
-Message-ID: <63dbca1d.050a0220.36a5e.8aa3@mx.google.com>
-Date:   Thu, 02 Feb 2023 06:35:09 -0800 (PST)
-Content-Type: text/plain; charset="utf-8"
+        bh=tVkiy6fyJJUhDInSdWKIu6TvOC7zzv+pfj7iyuJ54pw=;
+        b=IpFgN+D3kL7+KjME3WA0ulQviVq9E2haqALso/OUneyoDz4raI0hMDiaCAKgr2RUFO
+         8jxxsEVZ8TO5PI/Gm0h9UIafOspjtOuRdjGe4DVulyL/Uz06PAQmKJ5MOkOHXC4XnFW1
+         siz9Fdn58NG2DxzrdiFSwmvEo+74XW5QvKyUVZmIgJaP/gSe4M2TFj9pqvnNSSCpRCGC
+         /HILpgK4gwpWWcJBTjAynxTxtn53AWDcXnJ2aYtITVAAJ0iEgKfBqhMjPnZ28bE9Zv6R
+         mAH5EEnAYEgOLG2UMRIiEPO7wDO+w8swEnzylbTVbwq3Scq1JFzw+zuw9AJLxQQuzq1h
+         VsSg==
+X-Gm-Message-State: AO0yUKWWyVVt03/b54YSfTyQ6+MNAzqu+BWDQZmApWui6qugCI2NShZ9
+        yibOEBImszXr2dyJ8fMa3CilSLSsriWKAKTOY9s=
+X-Google-Smtp-Source: AK7set+Xeo3VH6AqENA2DUWa329xs2MKj1F6DptSOSs4aJYIWKjbeDoLprtbeYnT8dZpggmhpU34CqORZoTc33ZMDfA=
+X-Received: by 2002:a17:906:85c7:b0:878:581b:63ee with SMTP id
+ i7-20020a17090685c700b00878581b63eemr1733284ejy.244.1675349499550; Thu, 02
+ Feb 2023 06:51:39 -0800 (PST)
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Tree: stable-rc
-X-Kernelci-Branch: linux-5.10.y
-X-Kernelci-Kernel: v5.10.166
-X-Kernelci-Report-Type: test
-Subject: stable-rc/linux-5.10.y baseline: 126 runs, 2 regressions (v5.10.166)
-To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
-        kernelci-results@groups.io
-From:   "kernelci.org bot" <bot@kernelci.org>
-X-Spam-Status: No, score=-1.9 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_NONE autolearn=ham
-        autolearn_force=no version=3.4.6
+References: <20230201203941.2166530-1-srinivas.pandruvada@linux.intel.com>
+In-Reply-To: <20230201203941.2166530-1-srinivas.pandruvada@linux.intel.com>
+From:   "Rafael J. Wysocki" <rafael@kernel.org>
+Date:   Thu, 2 Feb 2023 15:51:28 +0100
+Message-ID: <CAJZ5v0jGJ_UVGYaEk=guv5q4N7axGAJJyTwtraY9zFaBjs9Ejw@mail.gmail.com>
+Subject: Re: [PATCH v2] thermal: intel_powerclamp: Fix cur_state for multi
+ package system
+To:     Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>
+Cc:     rafael@kernel.org, linux-pm@vger.kernel.org,
+        linux-kernel@vger.kernel.org, daniel.lezcano@linaro.org,
+        rui.zhang@intel.com, stable@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
+X-Spam-Status: No, score=-1.4 required=5.0 tests=BAYES_00,
+        FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,HEADER_FROM_DIFFERENT_DOMAINS,
+        RCVD_IN_DNSWL_NONE,RCVD_IN_MSPIKE_H2,SPF_HELO_NONE,SPF_PASS
+        autolearn=no autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/linux-5.10.y baseline: 126 runs, 2 regressions (v5.10.166)
+On Wed, Feb 1, 2023 at 9:39 PM Srinivas Pandruvada
+<srinivas.pandruvada@linux.intel.com> wrote:
+>
+> The powerclamp cooling device cur_state shows actual idle observed by
+> package C-state idle counters. But the implementation is not sufficient
+> for multi package or multi die system. The cur_state value is incorrect.
+> On these systems, these counters must be read from each package/die and
+> somehow aggregate them. But there is no good method for aggregation.
+>
+> It was not a problem when explicit CPU model addition was required to
+> enable intel powerclamp. In this way certain CPU models could have
+> been avoided. But with the removal of CPU model check with the
+> availability of Package C-state counters, the driver is loaded on most
+> of the recent systems.
+>
+> For multi package/die systems, just show the actual target idle state,
+> the system is trying to achieve. In powerclamp this is the user set
+> state minus one.
+>
+> Also there is no use of starting a worker thread for polling package
+> C-state counters and applying any compensation for multiple package
+> or multiple die systems.
+>
+> Fixes: b721ca0d1927 ("thermal/powerclamp: remove cpu whitelist")
+> Signed-off-by: Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>
+> Cc: stable@vger.kernel.org # 4.14+
+> ---
+> v2:
+> Changed: (true == clamping) to (clamping)
+> Updated commit description for the last paragraph
+>
+>  drivers/thermal/intel/intel_powerclamp.c | 20 ++++++++++++++++----
+>  1 file changed, 16 insertions(+), 4 deletions(-)
+>
+> diff --git a/drivers/thermal/intel/intel_powerclamp.c b/drivers/thermal/intel/intel_powerclamp.c
+> index b80e25ec1261..2f4cbfdf26a0 100644
+> --- a/drivers/thermal/intel/intel_powerclamp.c
+> +++ b/drivers/thermal/intel/intel_powerclamp.c
+> @@ -57,6 +57,7 @@
+>
+>  static unsigned int target_mwait;
+>  static struct dentry *debug_dir;
+> +static bool poll_pkg_cstate_enable;
+>
+>  /* user selected target */
+>  static unsigned int set_target_ratio;
+> @@ -261,6 +262,9 @@ static unsigned int get_compensation(int ratio)
+>  {
+>         unsigned int comp = 0;
+>
+> +       if (!poll_pkg_cstate_enable)
+> +               return 0;
+> +
+>         /* we only use compensation if all adjacent ones are good */
+>         if (ratio == 1 &&
+>                 cal_data[ratio].confidence >= CONFIDENCE_OK &&
+> @@ -519,7 +523,8 @@ static int start_power_clamp(void)
+>         control_cpu = cpumask_first(cpu_online_mask);
+>
+>         clamping = true;
+> -       schedule_delayed_work(&poll_pkg_cstate_work, 0);
+> +       if (poll_pkg_cstate_enable)
+> +               schedule_delayed_work(&poll_pkg_cstate_work, 0);
+>
+>         /* start one kthread worker per online cpu */
+>         for_each_online_cpu(cpu) {
+> @@ -585,11 +590,15 @@ static int powerclamp_get_max_state(struct thermal_cooling_device *cdev,
+>  static int powerclamp_get_cur_state(struct thermal_cooling_device *cdev,
+>                                  unsigned long *state)
+>  {
+> -       if (true == clamping)
+> -               *state = pkg_cstate_ratio_cur;
+> -       else
+> +       if (clamping) {
+> +               if (poll_pkg_cstate_enable)
+> +                       *state = pkg_cstate_ratio_cur;
+> +               else
+> +                       *state = set_target_ratio;
+> +       } else {
+>                 /* to save power, do not poll idle ratio while not clamping */
+>                 *state = -1; /* indicates invalid state */
+> +       }
+>
+>         return 0;
+>  }
+> @@ -712,6 +721,9 @@ static int __init powerclamp_init(void)
+>                 goto exit_unregister;
+>         }
+>
+> +       if (topology_max_packages() == 1 && topology_max_die_per_package() == 1)
+> +               poll_pkg_cstate_enable = true;
+> +
+>         cooling_dev = thermal_cooling_device_register("intel_powerclamp", NULL,
+>                                                 &powerclamp_cooling_ops);
+>         if (IS_ERR(cooling_dev)) {
+> --
 
-Regressions Summary
--------------------
-
-platform               | arch  | lab          | compiler | defconfig | regr=
-essions
------------------------+-------+--------------+----------+-----------+-----=
--------
-sun50i-a64-pine64-plus | arm64 | lab-baylibre | gcc-10   | defconfig | 1   =
-       =
-
-sun50i-a64-pine64-plus | arm64 | lab-broonie  | gcc-10   | defconfig | 1   =
-       =
-
-
-  Details:  https://kernelci.org/test/job/stable-rc/branch/linux-5.10.y/ker=
-nel/v5.10.166/plan/baseline/
-
-  Test:     baseline
-  Tree:     stable-rc
-  Branch:   linux-5.10.y
-  Describe: v5.10.166
-  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
-able-rc.git
-  SHA:      8d823aaa220eebec88c9f307225d3e163252ea95 =
-
-
-
-Test Regressions
----------------- =
-
-
-
-platform               | arch  | lab          | compiler | defconfig | regr=
-essions
------------------------+-------+--------------+----------+-----------+-----=
--------
-sun50i-a64-pine64-plus | arm64 | lab-baylibre | gcc-10   | defconfig | 1   =
-       =
-
-
-  Details:     https://kernelci.org/test/plan/id/63db9bc9408629ec2a915ef1
-
-  Results:     5 PASS, 1 FAIL, 1 SKIP
-  Full config: defconfig
-  Compiler:    gcc-10 (aarch64-linux-gnu-gcc (Debian 10.2.1-6) 10.2.1 20210=
-110)
-  Plain log:   https://storage.kernelci.org//stable-rc/linux-5.10.y/v5.10.1=
-66/arm64/defconfig/gcc-10/lab-baylibre/baseline-sun50i-a64-pine64-plus.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/linux-5.10.y/v5.10.1=
-66/arm64/defconfig/gcc-10/lab-baylibre/baseline-sun50i-a64-pine64-plus.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
-t-baseline/20230127.0/arm64/rootfs.cpio.gz =
-
-
-
-  * baseline.bootrr.deferred-probe-empty: https://kernelci.org/test/case/id=
-/63db9bc9408629ec2a915ef6
-        failing since 2 days (last pass: v5.10.158-107-g6b6a42c25ed4, first=
- fail: v5.10.165-144-g930bc29c79c4)
-
-    2023-02-02T11:16:44.443120  + set +x
-    2023-02-02T11:16:44.447113  <8>[   17.084290] <LAVA_SIGNAL_ENDRUN 0_dme=
-sg 3272538_1.5.2.4.1>
-    2023-02-02T11:16:44.567066  / # #
-    2023-02-02T11:16:44.672574  export SHELL=3D/bin/sh
-    2023-02-02T11:16:44.674067  #
-    2023-02-02T11:16:44.777485  / # export SHELL=3D/bin/sh. /lava-3272538/e=
-nvironment
-    2023-02-02T11:16:44.779036  =
-
-    2023-02-02T11:16:44.882472  / # . /lava-3272538/environment/lava-327253=
-8/bin/lava-test-runner /lava-3272538/1
-    2023-02-02T11:16:44.885185  =
-
-    2023-02-02T11:16:44.888510  / # /lava-3272538/bin/lava-test-runner /lav=
-a-3272538/1 =
-
-    ... (12 line(s) more)  =
-
- =
-
-
-
-platform               | arch  | lab          | compiler | defconfig | regr=
-essions
------------------------+-------+--------------+----------+-----------+-----=
--------
-sun50i-a64-pine64-plus | arm64 | lab-broonie  | gcc-10   | defconfig | 1   =
-       =
-
-
-  Details:     https://kernelci.org/test/plan/id/63db99d5caa9d62236915f20
-
-  Results:     5 PASS, 1 FAIL, 1 SKIP
-  Full config: defconfig
-  Compiler:    gcc-10 (aarch64-linux-gnu-gcc (Debian 10.2.1-6) 10.2.1 20210=
-110)
-  Plain log:   https://storage.kernelci.org//stable-rc/linux-5.10.y/v5.10.1=
-66/arm64/defconfig/gcc-10/lab-broonie/baseline-sun50i-a64-pine64-plus.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/linux-5.10.y/v5.10.1=
-66/arm64/defconfig/gcc-10/lab-broonie/baseline-sun50i-a64-pine64-plus.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
-t-baseline/20230127.0/arm64/rootfs.cpio.gz =
-
-
-
-  * baseline.bootrr.deferred-probe-empty: https://kernelci.org/test/case/id=
-/63db99d5caa9d62236915f25
-        failing since 2 days (last pass: v5.10.158-107-g6b6a42c25ed4, first=
- fail: v5.10.165-144-g930bc29c79c4)
-
-    2023-02-02T11:08:44.661257  + set +x
-    2023-02-02T11:08:44.665359  <8>[   17.159553] <LAVA_SIGNAL_ENDRUN 0_dme=
-sg 236343_1.5.2.4.1>
-    2023-02-02T11:08:44.776882  / # #
-    2023-02-02T11:08:44.879965  export SHELL=3D/bin/sh
-    2023-02-02T11:08:44.880808  #
-    2023-02-02T11:08:44.982947  / # export SHELL=3D/bin/sh. /lava-236343/en=
-vironment
-    2023-02-02T11:08:44.983535  =
-
-    2023-02-02T11:08:45.085845  / # . /lava-236343/environment/lava-236343/=
-bin/lava-test-runner /lava-236343/1
-    2023-02-02T11:08:45.086996  =
-
-    2023-02-02T11:08:45.091193  / # /lava-236343/bin/lava-test-runner /lava=
--236343/1 =
-
-    ... (12 line(s) more)  =
-
- =20
+Applied as 6.3 material, thanks!
