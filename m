@@ -2,130 +2,156 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 0740368832E
-	for <lists+stable@lfdr.de>; Thu,  2 Feb 2023 16:55:06 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6CD1C6884D4
+	for <lists+stable@lfdr.de>; Thu,  2 Feb 2023 17:52:13 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232952AbjBBPzD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 2 Feb 2023 10:55:03 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57030 "EHLO
+        id S232430AbjBBQwM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 2 Feb 2023 11:52:12 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57690 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233090AbjBBPy4 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 2 Feb 2023 10:54:56 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A876F5C0E7;
-        Thu,  2 Feb 2023 07:54:46 -0800 (PST)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 6B6ADB826E3;
-        Thu,  2 Feb 2023 15:54:45 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 11607C433D2;
-        Thu,  2 Feb 2023 15:54:44 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1675353284;
-        bh=DNEhyu7u4f062FvvbtsFWr1nXt0qu/y1C2h9iu3ZUpA=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Crd/TYuEL8DJxQ0a2XDcDn4yAcww9b6Q1P+39IWXTMH+TE3Iz9buN3WDENf3sj3ly
-         rDPpqAlt9Tr8PwHVM/lQ764YHjfI35192eS7iWZorMlolTaHop3YHkvWne4xPkorGu
-         Y2Ra7jefcQNUiJClOA9eok/mw/XK1hCIKm4id6HdRtoqPAO84QamkpXx1WpyrqgxXE
-         5nM6HGr3IXM+0FPPEb3aI69eXDJa10vnEfFaGkhCP1duJxYHlleLlmeA/W6NMJk026
-         rsEh77j/wI4OkCO9E+BkH4x+/vfuJJ5AQJJpvlLPUQ2DWXnfhHZ6VRk0orYu4rELoq
-         MGzj5ritN+/PQ==
-Received: from johan by xi.lan with local (Exim 4.94.2)
-        (envelope-from <johan+linaro@kernel.org>)
-        id 1pNbvY-0001lj-Is; Thu, 02 Feb 2023 16:55:08 +0100
-From:   Johan Hovold <johan+linaro@kernel.org>
-To:     Alexandre Belloni <alexandre.belloni@bootlin.com>,
-        Bjorn Andersson <andersson@kernel.org>
-Cc:     Andy Gross <agross@kernel.org>,
-        Konrad Dybcio <konrad.dybcio@linaro.org>,
-        Alessandro Zummo <a.zummo@towertech.it>,
-        Rob Herring <robh+dt@kernel.org>,
-        Krzysztof Kozlowski <krzysztof.kozlowski+dt@linaro.org>,
-        Maximilian Luz <luzmaximilian@gmail.com>,
-        linux-arm-msm@vger.kernel.org, linux-rtc@vger.kernel.org,
-        devicetree@vger.kernel.org, linux-kernel@vger.kernel.org,
-        Johan Hovold <johan+linaro@kernel.org>, stable@vger.kernel.org
-Subject: [PATCH v2 01/22] rtc: pm8xxx: fix set-alarm race
-Date:   Thu,  2 Feb 2023 16:54:27 +0100
-Message-Id: <20230202155448.6715-2-johan+linaro@kernel.org>
-X-Mailer: git-send-email 2.39.1
-In-Reply-To: <20230202155448.6715-1-johan+linaro@kernel.org>
-References: <20230202155448.6715-1-johan+linaro@kernel.org>
+        with ESMTP id S232234AbjBBQwJ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 2 Feb 2023 11:52:09 -0500
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 025B56DFFE
+        for <stable@vger.kernel.org>; Thu,  2 Feb 2023 08:51:25 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1675356685;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         in-reply-to:in-reply-to:references:references;
+        bh=JTzAWBEi5HSO9Co7j9eqLuzQVPsmDG7KdLe0XlcpLzA=;
+        b=FZoAtLQlSkbZFuc1znEA8swY1JHzKm2msc/ELekFhcRqucDklMyTMhUhMLjIPDNeU4tmTp
+        9xPyx0oe/mhA0wpc8vkauCxsIdHJKLwf8yjDZKC+1okpg+r4oQAuekKimzeA50XbLG70uR
+        9zWe/eFh+scNdGwpRBSgGgtAlZ9ov6Y=
+Received: from mail-qk1-f199.google.com (mail-qk1-f199.google.com
+ [209.85.222.199]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_128_GCM_SHA256) id
+ us-mta-620--4NqKZscN8moVVC20qt4Qg-1; Thu, 02 Feb 2023 11:51:16 -0500
+X-MC-Unique: -4NqKZscN8moVVC20qt4Qg-1
+Received: by mail-qk1-f199.google.com with SMTP id u10-20020a05620a0c4a00b00705e77d6207so1634648qki.5
+        for <stable@vger.kernel.org>; Thu, 02 Feb 2023 08:51:16 -0800 (PST)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=cc:to:subject:message-id:date:from:in-reply-to:references
+         :mime-version:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=JTzAWBEi5HSO9Co7j9eqLuzQVPsmDG7KdLe0XlcpLzA=;
+        b=i3nokl7RCcdckyDGfTkafmuJ8RobWB7Rh6SxKVBAN1rKMs1tLg83YSfdJ324Ldo7ze
+         V7yTCFodXVxm90Qf/SUXjB5KmF3SI+qqs5V+hiaxwxBaAIgKuyGnNQhdp7SLcshX0GlI
+         BXJrfirTzMIRJ+WODdTBG3cCkLOMr5Fm25rlGfQAEp447KHnxFZaC7+BAlKv2jMbeUmd
+         F1OV4fdfGlePXwPmWjfeCnmkzM39GG9f4ai0hgZ/3gF+Qi3xgGF9Z9JsqQHJSSoPQy2F
+         hL23k7acauE4Fv0efaq6fCOWMR5BpGSa1Q6k2kErYO1IzM3V34EBWFFjSDb97ATAAQk9
+         Z0TA==
+X-Gm-Message-State: AO0yUKWvLvpaB7LXfDTSJkji4gTkuJpbCC1tuhsCY4Ez9QqXt09vCRAt
+        cTSEAw0VH1jVCbpZD2RT/9Vfh/UFuyys9z19+aWy1xAKp7AWOZt3lLYdfvggujWTpJocN05ks7u
+        KWeaxbkotAbKRFj3BzTlX7Hbf1o59+tvy
+X-Received: by 2002:ac8:5bcb:0:b0:3b8:4aed:5e35 with SMTP id b11-20020ac85bcb000000b003b84aed5e35mr755703qtb.377.1675356675868;
+        Thu, 02 Feb 2023 08:51:15 -0800 (PST)
+X-Google-Smtp-Source: AK7set9CdlG5MCbspTLzaIYSjOuDOOu9+Li9sUJHoDTil1GB7T0FTEtXJ34q3qGH8hAtfqWNRKuEkLMS14ckMfg0JSQ=
+X-Received: by 2002:ac8:5bcb:0:b0:3b8:4aed:5e35 with SMTP id
+ b11-20020ac85bcb000000b003b84aed5e35mr755698qtb.377.1675356675572; Thu, 02
+ Feb 2023 08:51:15 -0800 (PST)
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
-        SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
+References: <20230201155944.23379-1-giovanni.cabiddu@intel.com>
+In-Reply-To: <20230201155944.23379-1-giovanni.cabiddu@intel.com>
+From:   Vladis Dronov <vdronov@redhat.com>
+Date:   Thu, 2 Feb 2023 17:51:04 +0100
+Message-ID: <CAMusb+TdiP=RJ_gQ0K8Wx1_6MoNBfb=7QUrvEeJcF3G45Yo-aA@mail.gmail.com>
+Subject: Re: [PATCH] crypto: qat - fix out-of-bounds read
+To:     Giovanni Cabiddu <giovanni.cabiddu@intel.com>
+Cc:     herbert@gondor.apana.org.au, linux-crypto@vger.kernel.org,
+        qat-linux@intel.com, stable@vger.kernel.org,
+        Fiona Trahe <fiona.trahe@intel.com>
+Content-Type: text/plain; charset="UTF-8"
+X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_NONE,
+        RCVD_IN_MSPIKE_H2,SPF_HELO_NONE,SPF_NONE autolearn=unavailable
+        autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Make sure to disable the alarm before updating the four alarm time
-registers to avoid spurious alarms during the update.
+ Hi, Giovanni, all,
 
-Note that the disable needs to be done outside of the ctrl_reg_lock
-section to prevent a racing alarm interrupt from disabling the newly set
-alarm when the lock is released.
+On Wed, Feb 1, 2023 at 4:59 PM Giovanni Cabiddu
+<giovanni.cabiddu@intel.com> wrote:
+>
+> When preparing an AER-CTR request, the driver copies the key provided by
+> the user into a data structure that is accessible by the firmware.
+> If the target device is QAT GEN4, the key size is rounded up by 16 since
+> a rounded up size is expected by the device.
+> If the key size is rounded up before the copy, the size used for copying
+> the key might be bigger than the size of the region containing the key,
+> causing an out-of-bounds read.
+>
+> Fix by doing the copy first and then update the keylen.
+>
+> This is to fix the following warning reported by KASAN:
+>
+>         [  138.150574] BUG: KASAN: global-out-of-bounds in qat_alg_skcipher_init_com.isra.0+0x197/0x250 [intel_qat]
+>         [  138.150641] Read of size 32 at addr ffffffff88c402c0 by task cryptomgr_test/2340
+>
+>         [  138.150651] CPU: 15 PID: 2340 Comm: cryptomgr_test Not tainted 6.2.0-rc1+ #45
+>         [  138.150659] Hardware name: Intel Corporation ArcherCity/ArcherCity, BIOS EGSDCRB1.86B.0087.D13.2208261706 08/26/2022
+>         [  138.150663] Call Trace:
+>         [  138.150668]  <TASK>
+>         [  138.150922]  kasan_check_range+0x13a/0x1c0
+>         [  138.150931]  memcpy+0x1f/0x60
+>         [  138.150940]  qat_alg_skcipher_init_com.isra.0+0x197/0x250 [intel_qat]
+>         [  138.151006]  qat_alg_skcipher_init_sessions+0xc1/0x240 [intel_qat]
+>         [  138.151073]  crypto_skcipher_setkey+0x82/0x160
+>         [  138.151085]  ? prepare_keybuf+0xa2/0xd0
+>         [  138.151095]  test_skcipher_vec_cfg+0x2b8/0x800
+>
+> Fixes: 67916c951689 ("crypto: qat - add AES-CTR support for QAT GEN4 devices")
+> Cc: <stable@vger.kernel.org>
+> Reported-by: Vladis Dronov <vdronov@redhat.com>
+> Signed-off-by: Giovanni Cabiddu <giovanni.cabiddu@intel.com>
+> Reviewed-by: Fiona Trahe <fiona.trahe@intel.com>
+> ---
+>  drivers/crypto/qat/qat_common/qat_algs.c | 2 +-
+>  1 file changed, 1 insertion(+), 1 deletion(-)
+>
+> diff --git a/drivers/crypto/qat/qat_common/qat_algs.c b/drivers/crypto/qat/qat_common/qat_algs.c
+> index b4b9f0aa59b9..b61ada559158 100644
+> --- a/drivers/crypto/qat/qat_common/qat_algs.c
+> +++ b/drivers/crypto/qat/qat_common/qat_algs.c
+> @@ -435,8 +435,8 @@ static void qat_alg_skcipher_init_com(struct qat_alg_skcipher_ctx *ctx,
+>         } else if (aes_v2_capable && mode == ICP_QAT_HW_CIPHER_CTR_MODE) {
+>                 ICP_QAT_FW_LA_SLICE_TYPE_SET(header->serv_specif_flags,
+>                                              ICP_QAT_FW_LA_USE_UCS_SLICE_TYPE);
+> -               keylen = round_up(keylen, 16);
+>                 memcpy(cd->ucs_aes.key, key, keylen);
+> +               keylen = round_up(keylen, 16);
+>         } else {
+>                 memcpy(cd->aes.key, key, keylen);
+>         }
+> --
+> 2.39.1
+>
 
-Fixes: 9a9a54ad7aa2 ("drivers/rtc: add support for Qualcomm PMIC8xxx RTC")
-Cc: stable@vger.kernel.org      # 3.1
-Signed-off-by: Johan Hovold <johan+linaro@kernel.org>
----
- drivers/rtc/rtc-pm8xxx.c | 24 ++++++++++--------------
- 1 file changed, 10 insertions(+), 14 deletions(-)
+Thanks, the fix seems to be working. It was tested on "Intel(R) Xeon(R)
+Platinum 8468H / Sapphire Rapids 4 skt (SPR) XCC-SP, Qual E-3
+stepping" machine with 8086:4940 (rev 40) QAT device:
 
-diff --git a/drivers/rtc/rtc-pm8xxx.c b/drivers/rtc/rtc-pm8xxx.c
-index 716e5d9ad74d..d114f0da537d 100644
---- a/drivers/rtc/rtc-pm8xxx.c
-+++ b/drivers/rtc/rtc-pm8xxx.c
-@@ -221,7 +221,6 @@ static int pm8xxx_rtc_set_alarm(struct device *dev, struct rtc_wkalrm *alarm)
- {
- 	int rc, i;
- 	u8 value[NUM_8_BIT_RTC_REGS];
--	unsigned int ctrl_reg;
- 	unsigned long secs, irq_flags;
- 	struct pm8xxx_rtc *rtc_dd = dev_get_drvdata(dev);
- 	const struct pm8xxx_rtc_regs *regs = rtc_dd->regs;
-@@ -233,6 +232,11 @@ static int pm8xxx_rtc_set_alarm(struct device *dev, struct rtc_wkalrm *alarm)
- 		secs >>= 8;
- 	}
- 
-+	rc = regmap_update_bits(rtc_dd->regmap, regs->alarm_ctrl,
-+				regs->alarm_en, 0);
-+	if (rc)
-+		return rc;
-+
- 	spin_lock_irqsave(&rtc_dd->ctrl_reg_lock, irq_flags);
- 
- 	rc = regmap_bulk_write(rtc_dd->regmap, regs->alarm_rw, value,
-@@ -242,19 +246,11 @@ static int pm8xxx_rtc_set_alarm(struct device *dev, struct rtc_wkalrm *alarm)
- 		goto rtc_rw_fail;
- 	}
- 
--	rc = regmap_read(rtc_dd->regmap, regs->alarm_ctrl, &ctrl_reg);
--	if (rc)
--		goto rtc_rw_fail;
--
--	if (alarm->enabled)
--		ctrl_reg |= regs->alarm_en;
--	else
--		ctrl_reg &= ~regs->alarm_en;
--
--	rc = regmap_write(rtc_dd->regmap, regs->alarm_ctrl, ctrl_reg);
--	if (rc) {
--		dev_err(dev, "Write to RTC alarm control register failed\n");
--		goto rtc_rw_fail;
-+	if (alarm->enabled) {
-+		rc = regmap_update_bits(rtc_dd->regmap, regs->alarm_ctrl,
-+					regs->alarm_en, regs->alarm_en);
-+		if (rc)
-+			goto rtc_rw_fail;
- 	}
- 
- 	dev_dbg(dev, "Alarm Set for h:m:s=%ptRt, y-m-d=%ptRdr\n",
--- 
-2.39.1
+Without the fix:
+
+# dmesg | grep KASAN
+[  142.612847] BUG: KASAN: global-out-of-bounds in
+qat_alg_skcipher_init_com.isra.0+0x2fe/0x440 [intel_qat]
+
+With the fix:
+
+# dmesg | grep KASAN
+<no output>
+
+So,
+
+Reviewed-by: Vladis Dronov <vdronov@redhat.com>
+Tested-by: Vladis Dronov <vdronov@redhat.com>
+
+Best regards,
+Vladis Dronov | Red Hat, Inc. | The Core Kernel | Senior Software Engineer
 
