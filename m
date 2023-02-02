@@ -2,144 +2,152 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 87CE46877A5
-	for <lists+stable@lfdr.de>; Thu,  2 Feb 2023 09:37:07 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 11FAF687764
+	for <lists+stable@lfdr.de>; Thu,  2 Feb 2023 09:31:40 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231137AbjBBIhE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 2 Feb 2023 03:37:04 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53080 "EHLO
+        id S231552AbjBBIbi (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 2 Feb 2023 03:31:38 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46088 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229974AbjBBIhE (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 2 Feb 2023 03:37:04 -0500
-X-Greylist: delayed 575 seconds by postgrey-1.37 at lindbergh.monkeyblade.net; Thu, 02 Feb 2023 00:36:35 PST
-Received: from mx0.infotecs.ru (mx0.infotecs.ru [91.244.183.115])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7E4BF10273
-        for <stable@vger.kernel.org>; Thu,  2 Feb 2023 00:36:34 -0800 (PST)
-Received: from mx0.infotecs-nt (localhost [127.0.0.1])
-        by mx0.infotecs.ru (Postfix) with ESMTP id E8FC013ED236;
-        Thu,  2 Feb 2023 11:26:56 +0300 (MSK)
-DKIM-Filter: OpenDKIM Filter v2.11.0 mx0.infotecs.ru E8FC013ED236
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=infotecs.ru; s=mx;
-        t=1675326417; bh=P4Sz+Or5QkPB22EwbVluoSpgaCwjgCRN0S/0gr+vhzU=;
-        h=From:To:CC:Subject:Date:References:In-Reply-To:From;
-        b=hUfRX5pCc32k5dkeDAzM5xQL98bzrQ3Aao7+lHC3atpQrZSEvTGKrTJgTNCRdhInz
-         5Cq+8V1yFtZMGIhjlZFI0zE7ML7YCTbolOQOMvmQvQFF+5Z5pJZab22Xz2YBBsjUKM
-         UWgefXPVUtuUUnMigIUKSqrqLVjIX2b9cqwahszs=
-Received: from msk-exch-01.infotecs-nt (msk-exch-01.infotecs-nt [10.0.7.191])
-        by mx0.infotecs-nt (Postfix) with ESMTP id E388D3069DA4;
-        Thu,  2 Feb 2023 11:26:56 +0300 (MSK)
-From:   Gavrilov Ilia <Ilia.Gavrilov@infotecs.ru>
-To:     "kim.phillips@amd.com" <kim.phillips@amd.com>
-CC:     Gavrilov Ilia <Ilia.Gavrilov@infotecs.ru>,
-        "Vincent.Wan@amd.com" <Vincent.Wan@amd.com>,
-        "iommu@lists.linux.dev" <iommu@lists.linux.dev>,
-        "joro@8bytes.org" <joro@8bytes.org>,
+        with ESMTP id S231245AbjBBIbh (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 2 Feb 2023 03:31:37 -0500
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6B079D53E
+        for <stable@vger.kernel.org>; Thu,  2 Feb 2023 00:30:52 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1675326651;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=80FPjEat9xWRh1CoI72Gthl8r1ple2zW+6cWRK3cZyU=;
+        b=JwjarO1aaRSO4jXOhbVD669sum0GZEU1Bymu13pnXT0Qne61KqDPzwuWGyPS8aK6QiIW0S
+        b+D5lSy3EjPqQtWQVhr+eNOG08+12PornNJZHTirzYDaM+uJTSvopZceKWU84WtoNRZRi9
+        rdv0SCv+d8xnUOvOfn6CUCCcB3dR8tY=
+Received: from mail-qk1-f197.google.com (mail-qk1-f197.google.com
+ [209.85.222.197]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_128_GCM_SHA256) id
+ us-mta-402-cF_K9uHCPcSXrnj_dG5WEw-1; Thu, 02 Feb 2023 03:30:50 -0500
+X-MC-Unique: cF_K9uHCPcSXrnj_dG5WEw-1
+Received: by mail-qk1-f197.google.com with SMTP id c9-20020a05620a11a900b0072a014ecc4aso906513qkk.18
+        for <stable@vger.kernel.org>; Thu, 02 Feb 2023 00:30:50 -0800 (PST)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=mime-version:user-agent:content-transfer-encoding:references
+         :in-reply-to:date:cc:to:from:subject:message-id:x-gm-message-state
+         :from:to:cc:subject:date:message-id:reply-to;
+        bh=80FPjEat9xWRh1CoI72Gthl8r1ple2zW+6cWRK3cZyU=;
+        b=hrzaNpuo44AYU8f2/zZGuhvg8hTD94EQTSpA0CUXGogyE3z8eqCaqsTeofE/kq4zDv
+         UQQl4Wp10pyQtLu4MI+VR8iIjkDuF2LOe+TInSwdsvkZU4y8pHvLVYro561PoAjt9Efv
+         5qHhN1d/MWdqNL3xNJebRB4WMdJf3H8dzT5x/j7vtlabR6U0ujrr9VFYQJPwPLnwI3AT
+         ZA3mTopK7wY6XDDlhON2lmfBLI+mgZMPWst6aH5+4sxxPfvE/XxE8QYxK8iSsoPoCpTG
+         LGP+lCbsDRw3VAtpK0m8lDVzdkvipENToQbqEvhg27i+m0jiWbFu1VzBkv4uDZdCGKP7
+         0r7w==
+X-Gm-Message-State: AO0yUKX8L6VgfmY7k3LAsqIQuNT2hERvQFrWsed7iJicAM9qH2frt0Gt
+        VtGc7SQcggRQVi+manU/d15XFxykIFpSRlfmZBLNxt8wVLL66TUU8MDvmLkaziq+6X28+/iPKPe
+        aQAVetSZ+ZY1I1wrX
+X-Received: by 2002:ac8:4b79:0:b0:3b9:b801:8744 with SMTP id g25-20020ac84b79000000b003b9b8018744mr7367865qts.4.1675326649833;
+        Thu, 02 Feb 2023 00:30:49 -0800 (PST)
+X-Google-Smtp-Source: AK7set+XwGpHzz3PSxQBwrvbOYbYJ2Djz1B611kpWp+2snxz+FIhXQHy+mOjeXyvKH5A9iNpelANOg==
+X-Received: by 2002:ac8:4b79:0:b0:3b9:b801:8744 with SMTP id g25-20020ac84b79000000b003b9b8018744mr7367843qts.4.1675326649589;
+        Thu, 02 Feb 2023 00:30:49 -0800 (PST)
+Received: from gerbillo.redhat.com (146-241-113-28.dyn.eolo.it. [146.241.113.28])
+        by smtp.gmail.com with ESMTPSA id e11-20020ac8010b000000b003b630ea0ea1sm13293508qtg.19.2023.02.02.00.30.47
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Thu, 02 Feb 2023 00:30:49 -0800 (PST)
+Message-ID: <8a4d08f94d3e6fe8b6da68440eaa89a088ad84f9.camel@redhat.com>
+Subject: Re: [PATCH net 1/1] hv_netvsc: Fix missed pagebuf entries in
+ netvsc_dma_map/unmap()
+From:   Paolo Abeni <pabeni@redhat.com>
+To:     "Michael Kelley (LINUX)" <mikelley@microsoft.com>,
+        Jakub Kicinski <kuba@kernel.org>
+Cc:     KY Srinivasan <kys@microsoft.com>,
+        Haiyang Zhang <haiyangz@microsoft.com>,
+        "wei.liu@kernel.org" <wei.liu@kernel.org>,
+        Dexuan Cui <decui@microsoft.com>,
+        "davem@davemloft.net" <davem@davemloft.net>,
+        "edumazet@google.com" <edumazet@google.com>,
+        "netdev@vger.kernel.org" <netdev@vger.kernel.org>,
+        "linux-hyperv@vger.kernel.org" <linux-hyperv@vger.kernel.org>,
         "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-        "lvc-project@linuxtesting.org" <lvc-project@linuxtesting.org>,
-        "robin.murphy@arm.com" <robin.murphy@arm.com>,
-        "suravee.suthikulpanit@amd.com" <suravee.suthikulpanit@amd.com>,
-        "will@kernel.org" <will@kernel.org>,
         "stable@vger.kernel.org" <stable@vger.kernel.org>
-Subject: [PATCH v2] iommu/amd: Add a length limitation for the ivrs_acpihid
- command-line parameter
-Thread-Topic: [PATCH v2] iommu/amd: Add a length limitation for the
- ivrs_acpihid command-line parameter
-Thread-Index: AQHZNuAcYYi++x82V0GUoMRoGydTPg==
-Date:   Thu, 2 Feb 2023 08:26:56 +0000
-Message-ID: <20230202082719.1513849-1-Ilia.Gavrilov@infotecs.ru>
-References: <39506e9f-9bbb-fcf6-b488-542fd3657eae@amd.com>
-In-Reply-To: <39506e9f-9bbb-fcf6-b488-542fd3657eae@amd.com>
-Accept-Language: ru-RU, en-US
-Content-Language: en-US
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-x-originating-ip: [10.17.0.10]
-x-exclaimer-md-config: 208ac3cd-1ed4-4982-a353-bdefac89ac0a
-Content-Type: text/plain; charset="iso-8859-1"
+Date:   Thu, 02 Feb 2023 09:30:45 +0100
+In-Reply-To: <BYAPR21MB1688B7F47F9ADF2E40E9DEE4D7D69@BYAPR21MB1688.namprd21.prod.outlook.com>
+References: <1675135986-254490-1-git-send-email-mikelley@microsoft.com>
+         <20230201210107.450ff5d3@kernel.org>
+         <BYAPR21MB1688B7F47F9ADF2E40E9DEE4D7D69@BYAPR21MB1688.namprd21.prod.outlook.com>
+Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
+User-Agent: Evolution 3.46.3 (3.46.3-1.fc37) 
 MIME-Version: 1.0
-X-KLMS-Rule-ID: 1
-X-KLMS-Message-Action: clean
-X-KLMS-AntiSpam-Lua-Profiles: 175194 [Feb 02 2023]
-X-KLMS-AntiSpam-Version: 5.9.59.0
-X-KLMS-AntiSpam-Envelope-From: Ilia.Gavrilov@infotecs.ru
-X-KLMS-AntiSpam-Rate: 0
-X-KLMS-AntiSpam-Status: not_detected
-X-KLMS-AntiSpam-Method: none
-X-KLMS-AntiSpam-Auth: dkim=none
-X-KLMS-AntiSpam-Info: LuaCore: 502 502 69dee8ef46717dd3cb3eeb129cb7cc8dab9e30f6, {Tracking_from_domain_doesnt_match_to}, infotecs.ru:7.1.1;127.0.0.199:7.1.2;d41d8cd98f00b204e9800998ecf8427e.com:7.1.1
-X-MS-Exchange-Organization-SCL: -1
-X-KLMS-AntiSpam-Interceptor-Info: scan successful
-X-KLMS-AntiPhishing: Clean, bases: 2023/02/02 07:35:00
-X-KLMS-AntiVirus: Kaspersky Security for Linux Mail Server, version 8.0.3.30, bases: 2023/02/02 02:42:00 #20830374
-X-KLMS-AntiVirus-Status: Clean, skipped
-X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,SPF_HELO_NONE,SPF_PASS
-        autolearn=unavailable autolearn_force=no version=3.4.6
+X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_NONE,
+        RCVD_IN_MSPIKE_H2,SPF_HELO_NONE,SPF_NONE autolearn=unavailable
+        autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-The 'acpiid' buffer in the parse_ivrs_acpihid function may overflow,
-because the string specifier in the format string sscanf()
-has no width limitation.
+On Thu, 2023-02-02 at 05:20 +0000, Michael Kelley (LINUX) wrote:
+> From: Jakub Kicinski <kuba@kernel.org> Sent: Wednesday, February 1, 2023 =
+9:01 PM
+> >=20
+> > On Mon, 30 Jan 2023 19:33:06 -0800 Michael Kelley wrote:
+> > > @@ -990,9 +987,7 @@ static int netvsc_dma_map(struct hv_device *hv_de=
+v,
+> > >  			  struct hv_netvsc_packet *packet,
+> > >  			  struct hv_page_buffer *pb)
+> > >  {
+> > > -	u32 page_count =3D  packet->cp_partial ?
+> > > -		packet->page_buf_cnt - packet->rmsg_pgcnt :
+> > > -		packet->page_buf_cnt;
+> > > +	u32 page_count =3D packet->page_buf_cnt;
+> > >  	dma_addr_t dma;
+> > >  	int i;
+> >=20
+> > Suspiciously, the caller still does:
+> >=20
+> >                 if (packet->cp_partial)
+> >                         pb +=3D packet->rmsg_pgcnt;
+> >=20
+> >                 ret =3D netvsc_dma_map(ndev_ctx->device_ctx, packet, pb=
+);
+> >=20
+> > Shouldn't that if () pb +=3D... also go away?
+>=20
+> No -- it's correct.
+>=20
+> In netvsc_send(), cp_partial is tested and packet->page_buf_cnt is
+> adjusted.  But the pointer into the pagebuf array is not adjusted in
+> netvsc_send().  Instead it is adjusted here in netvsc_send_pkt(), which
+> brings it back in sync with packet->page_buf_cnt.
 
-Found by InfoTeCS on behalf of Linux Verification Center
-(linuxtesting.org) with SVACE.
+Ok
 
-Fixes: ca3bf5d47cec ("iommu/amd: Introduces ivrs_acpihid kernel parameter")
-Cc: stable@vger.kernel.org
-Signed-off-by: Ilia.Gavrilov <Ilia.Gavrilov@infotecs.ru>
----
-V2: Fix typo in the subject
- drivers/iommu/amd/init.c | 16 +++++++++++++++-
- 1 file changed, 15 insertions(+), 1 deletion(-)
+> I don't know if there's a good reason for the adjustment being split
+> across two different functions.  It doesn't seem like the most
+> straightforward approach.  From a quick glance at the code it looks
+> like this adjustment to 'pb' could move to netvsc_send() to be
+> together with the adjustment to packet->page_buf_cnt,  but maybe
+> there's a reason for the split that I'm not familiar with.
+>=20
+> Haiyang -- any insight?
 
-diff --git a/drivers/iommu/amd/init.c b/drivers/iommu/amd/init.c
-index 467b194975b3..19a46b9f7357 100644
---- a/drivers/iommu/amd/init.c
-+++ b/drivers/iommu/amd/init.c
-@@ -3475,15 +3475,26 @@ static int __init parse_ivrs_hpet(char *str)
- 	return 1;
- }
-=20
-+#define ACPIID_LEN (ACPIHID_UID_LEN + ACPIHID_HID_LEN)
-+
- static int __init parse_ivrs_acpihid(char *str)
- {
- 	u32 seg =3D 0, bus, dev, fn;
- 	char *hid, *uid, *p, *addr;
--	char acpiid[ACPIHID_UID_LEN + ACPIHID_HID_LEN] =3D {0};
-+	char acpiid[ACPIID_LEN] =3D {0};
- 	int i;
-=20
- 	addr =3D strchr(str, '@');
- 	if (!addr) {
-+		addr =3D strchr(str, '=3D');
-+		if (!addr)
-+			goto not_found;
-+
-+		++addr;
-+
-+		if (strlen(addr) > ACPIID_LEN)
-+			goto not_found;
-+
- 		if (sscanf(str, "[%x:%x.%x]=3D%s", &bus, &dev, &fn, acpiid) =3D=3D 4 ||
- 		    sscanf(str, "[%x:%x:%x.%x]=3D%s", &seg, &bus, &dev, &fn, acpiid) =3D=
-=3D 5) {
- 			pr_warn("ivrs_acpihid%s option format deprecated; use ivrs_acpihid=3D%s=
-@%04x:%02x:%02x.%d instead\n",
-@@ -3496,6 +3507,9 @@ static int __init parse_ivrs_acpihid(char *str)
- 	/* We have the '@', make it the terminator to get just the acpiid */
- 	*addr++ =3D 0;
-=20
-+	if (strlen(str) > ACPIID_LEN + 1)
-+		goto not_found;
-+
- 	if (sscanf(str, "=3D%s", acpiid) !=3D 1)
- 		goto not_found;
-=20
---=20
-2.30.2
+While at that, please also have a look at the following allocation in
+netvsc_dma_map():
+
+	packet->dma_range =3D kcalloc(page_count,
+                                    sizeof(*packet->dma_range),
+                                    GFP_KERNEL);
+
+which looks wrong - netvsc_dma_map() should be in atomic context.
+
+Anyway it's a topic unrelated from this patch. I just stumbled upon it
+while reviewing.
+
+Cheers,
+
+Paolo
+
