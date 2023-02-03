@@ -2,52 +2,50 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E44626894FE
-	for <lists+stable@lfdr.de>; Fri,  3 Feb 2023 11:15:55 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4752368968E
+	for <lists+stable@lfdr.de>; Fri,  3 Feb 2023 11:32:15 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232702AbjBCKPI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 3 Feb 2023 05:15:08 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35150 "EHLO
+        id S233455AbjBCK1K (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 3 Feb 2023 05:27:10 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50478 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232178AbjBCKPI (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 3 Feb 2023 05:15:08 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 276DD8E68D
-        for <stable@vger.kernel.org>; Fri,  3 Feb 2023 02:15:07 -0800 (PST)
+        with ESMTP id S233578AbjBCK0X (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 3 Feb 2023 05:26:23 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B9D349EE17
+        for <stable@vger.kernel.org>; Fri,  3 Feb 2023 02:26:04 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id AC7F360691
-        for <stable@vger.kernel.org>; Fri,  3 Feb 2023 10:15:06 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 768E3C433D2;
-        Fri,  3 Feb 2023 10:15:05 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 10AF0B82A6F
+        for <stable@vger.kernel.org>; Fri,  3 Feb 2023 10:26:03 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 60D8BC433D2;
+        Fri,  3 Feb 2023 10:26:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1675419305;
-        bh=Zyo5FTrGry/McMnAJYMNO149LS+7CakmgYvSCFniIGY=;
+        s=korg; t=1675419961;
+        bh=qKcVylxzsMcxn4O1NEHkHClE7cloRYRruBReRrf6bvE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=dNZO5qH65olaAN6a/NnKLJQY33CIK4N+jl+32MLVIThrYRVhvNse9prslWOEhZL6o
-         0vY6cK7JVcGK3PxNSeVFfm7rXyUxencHB8RRndwTagLOIm//aIEDG0cjpopuym8D8g
-         K/V6lWIVaNeob1Cbir3uLIXCa5VAQKwaYKiCDGNE=
+        b=feI6aYWUJBPQGHiTI0iTXvQ0qwdSGBULwOessboPotmKy4KhTGVzjXA4+SlYawpPX
+         Xv7izL1ITcHkwZi7/+LuEwe+ng9QKGq8PtKnedcGryepqQLnthwxYjRMhPq1gI3UkP
+         3Ikq8gGb4ZOgMVEjIKzjwIL9/A5E/sFUPtQmNFIQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Archie Pusaka <apusaka@chromium.org>,
-        Abhishek Pandit-Subedi <abhishekpandit@google.com>,
-        Luiz Augusto von Dentz <luiz.von.dentz@intel.com>,
-        Fedor Pchelkin <pchelkin@ispras.ru>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 24/62] Bluetooth: hci_sync: cancel cmd_timer if hci_open failed
+        patches@lists.linux.dev,
+        Christian Zigotzky <chzigotzky@xenosoft.de>,
+        Jiri Kosina <jkosina@suse.cz>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 035/134] HID: revert CHERRY_MOUSE_000C quirk
 Date:   Fri,  3 Feb 2023 11:12:20 +0100
-Message-Id: <20230203101014.059672721@linuxfoundation.org>
+Message-Id: <20230203101025.435677355@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.1
-In-Reply-To: <20230203101012.959398849@linuxfoundation.org>
-References: <20230203101012.959398849@linuxfoundation.org>
+In-Reply-To: <20230203101023.832083974@linuxfoundation.org>
+References: <20230203101023.832083974@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
         SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -55,34 +53,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Archie Pusaka <apusaka@chromium.org>
+From: Jiri Kosina <jkosina@suse.cz>
 
-commit 97dfaf073f5881c624856ef293be307b6166115c upstream.
+[ Upstream commit cbf44580ce6b310272a73e3e794233fd064330bd ]
 
-If a command is already sent, we take care of freeing it, but we
-also need to cancel the timeout as well.
+This partially reverts commit f6d910a89a2391 ("HID: usbhid: Add ALWAYS_POLL quirk
+for some mice"), as it turns out to break reboot on some platforms for reason
+yet to be understood.
 
-Signed-off-by: Archie Pusaka <apusaka@chromium.org>
-Reviewed-by: Abhishek Pandit-Subedi <abhishekpandit@google.com>
-Signed-off-by: Luiz Augusto von Dentz <luiz.von.dentz@intel.com>
-Signed-off-by: Fedor Pchelkin <pchelkin@ispras.ru>
+Fixes: f6d910a89a2391 ("HID: usbhid: Add ALWAYS_POLL quirk for some mice")
+Reported-by: Christian Zigotzky <chzigotzky@xenosoft.de>
+Signed-off-by: Jiri Kosina <jkosina@suse.cz>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/bluetooth/hci_core.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/hid/hid-ids.h    | 1 -
+ drivers/hid/hid-quirks.c | 1 -
+ 2 files changed, 2 deletions(-)
 
-diff --git a/net/bluetooth/hci_core.c b/net/bluetooth/hci_core.c
-index 81a151ca4a24..1fd6498e3387 100644
---- a/net/bluetooth/hci_core.c
-+++ b/net/bluetooth/hci_core.c
-@@ -1479,6 +1479,7 @@ static int hci_dev_do_open(struct hci_dev *hdev)
- 			hdev->flush(hdev);
+diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
+index 222f525c3d04..1c034c397e3e 100644
+--- a/drivers/hid/hid-ids.h
++++ b/drivers/hid/hid-ids.h
+@@ -259,7 +259,6 @@
+ #define USB_DEVICE_ID_CH_AXIS_295	0x001c
  
- 		if (hdev->sent_cmd) {
-+			cancel_delayed_work_sync(&hdev->cmd_timer);
- 			kfree_skb(hdev->sent_cmd);
- 			hdev->sent_cmd = NULL;
- 		}
+ #define USB_VENDOR_ID_CHERRY		0x046a
+-#define USB_DEVICE_ID_CHERRY_MOUSE_000C	0x000c
+ #define USB_DEVICE_ID_CHERRY_CYMOTION	0x0023
+ #define USB_DEVICE_ID_CHERRY_CYMOTION_SOLAR	0x0027
+ 
+diff --git a/drivers/hid/hid-quirks.c b/drivers/hid/hid-quirks.c
+index baad65fcdff7..e5dcc47586ee 100644
+--- a/drivers/hid/hid-quirks.c
++++ b/drivers/hid/hid-quirks.c
+@@ -54,7 +54,6 @@ static const struct hid_device_id hid_quirks[] = {
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_CH, USB_DEVICE_ID_CH_FLIGHT_SIM_YOKE), HID_QUIRK_NOGET },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_CH, USB_DEVICE_ID_CH_PRO_PEDALS), HID_QUIRK_NOGET },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_CH, USB_DEVICE_ID_CH_PRO_THROTTLE), HID_QUIRK_NOGET },
+-	{ HID_USB_DEVICE(USB_VENDOR_ID_CHERRY, USB_DEVICE_ID_CHERRY_MOUSE_000C), HID_QUIRK_ALWAYS_POLL },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_CORSAIR, USB_DEVICE_ID_CORSAIR_K65RGB), HID_QUIRK_NO_INIT_REPORTS },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_CORSAIR, USB_DEVICE_ID_CORSAIR_K65RGB_RAPIDFIRE), HID_QUIRK_NO_INIT_REPORTS | HID_QUIRK_ALWAYS_POLL },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_CORSAIR, USB_DEVICE_ID_CORSAIR_K70RGB), HID_QUIRK_NO_INIT_REPORTS },
 -- 
 2.39.0
 
