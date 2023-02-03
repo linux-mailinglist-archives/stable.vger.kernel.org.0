@@ -2,50 +2,49 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 2E645689643
-	for <lists+stable@lfdr.de>; Fri,  3 Feb 2023 11:31:47 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id AFA0D6894F8
+	for <lists+stable@lfdr.de>; Fri,  3 Feb 2023 11:15:53 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233487AbjBCK2Z (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 3 Feb 2023 05:28:25 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50826 "EHLO
+        id S232727AbjBCKO7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 3 Feb 2023 05:14:59 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35054 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233498AbjBCK2D (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 3 Feb 2023 05:28:03 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B393E9D5AB
-        for <stable@vger.kernel.org>; Fri,  3 Feb 2023 02:27:24 -0800 (PST)
+        with ESMTP id S232178AbjBCKO6 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 3 Feb 2023 05:14:58 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D1F888D62E
+        for <stable@vger.kernel.org>; Fri,  3 Feb 2023 02:14:57 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 462D261E93
-        for <stable@vger.kernel.org>; Fri,  3 Feb 2023 10:27:24 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 143CDC433D2;
-        Fri,  3 Feb 2023 10:27:22 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 6465261E94
+        for <stable@vger.kernel.org>; Fri,  3 Feb 2023 10:14:57 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 55E1DC433EF;
+        Fri,  3 Feb 2023 10:14:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1675420043;
-        bh=OyGkbB0Xcmun0roV4XTypLnYbPxrfpMwRKJULzS3kv0=;
+        s=korg; t=1675419296;
+        bh=YFugI6fF0y/pLwD8xkHIPODEv09xlUpUaHCLgIt+uw0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=wXvWiJX/HJ2DtMsOHP6ihb8PBbpopnXw/OXXVONH94tcJnpp6dWnU2UtWistzrIWR
-         ZG+lGWj6SYL8AhMojQm+R27k+sL8vtSSGiq2fagOEdZoBOqYpXmR8sKlAQB+1vsPGf
-         PBkBxR71uhV1KlNpaQ/SDLfgXbCnKDYzUzHBcJdw=
+        b=nO+EnPMDX4cuexsTb9y78PN2dbtFl6UyxNMooTFukitfUGm0A79dmhpkxnWmNWoWw
+         QU4YTzTPPClEujl+uNdT/x29E5Zc6uRUwvH3KiZ1TR/0M//Ie4eudBLtPQTChFfMZH
+         qRMMuqiPFgXoEIB1zF+DFT/je0w1tKxyvKlQOxFo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Heiner Kallweit <hkallweit1@gmail.com>,
-        Andrew Lunn <andrew@lunn.ch>, Paolo Abeni <pabeni@redhat.com>,
+        patches@lists.linux.dev, Yang Yingliang <yangyingliang@huawei.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 031/134] net: mdio: validate parameter addr in mdiobus_get_phy()
-Date:   Fri,  3 Feb 2023 11:12:16 +0100
-Message-Id: <20230203101025.263157212@linuxfoundation.org>
+Subject: [PATCH 4.14 21/62] w1: fix WARNING after calling w1_process()
+Date:   Fri,  3 Feb 2023 11:12:17 +0100
+Message-Id: <20230203101013.931978137@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.1
-In-Reply-To: <20230203101023.832083974@linuxfoundation.org>
-References: <20230203101023.832083974@linuxfoundation.org>
+In-Reply-To: <20230203101012.959398849@linuxfoundation.org>
+References: <20230203101012.959398849@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
         SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -53,42 +52,53 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Heiner Kallweit <hkallweit1@gmail.com>
+From: Yang Yingliang <yangyingliang@huawei.com>
 
-[ Upstream commit 867dbe784c5010a466f00a7d1467c1c5ea569c75 ]
+[ Upstream commit 36225a7c72e9e3e1ce4001b6ce72849f5c9a2d3b ]
 
-The caller may pass any value as addr, what may result in an out-of-bounds
-access to array mdio_map. One existing case is stmmac_init_phy() that
-may pass -1 as addr. Therefore validate addr before using it.
+I got the following WARNING message while removing driver(ds2482):
 
-Fixes: 7f854420fbfe ("phy: Add API for {un}registering an mdio device to a bus.")
-Signed-off-by: Heiner Kallweit <hkallweit1@gmail.com>
-Reviewed-by: Andrew Lunn <andrew@lunn.ch>
-Link: https://lore.kernel.org/r/cdf664ea-3312-e915-73f8-021678d08887@gmail.com
-Signed-off-by: Paolo Abeni <pabeni@redhat.com>
+------------[ cut here ]------------
+do not call blocking ops when !TASK_RUNNING; state=1 set at [<000000002d50bfb6>] w1_process+0x9e/0x1d0 [wire]
+WARNING: CPU: 0 PID: 262 at kernel/sched/core.c:9817 __might_sleep+0x98/0xa0
+CPU: 0 PID: 262 Comm: w1_bus_master1 Tainted: G                 N 6.1.0-rc3+ #307
+RIP: 0010:__might_sleep+0x98/0xa0
+Call Trace:
+ exit_signals+0x6c/0x550
+ do_exit+0x2b4/0x17e0
+ kthread_exit+0x52/0x60
+ kthread+0x16d/0x1e0
+ ret_from_fork+0x1f/0x30
+
+The state of task is set to TASK_INTERRUPTIBLE in loop in w1_process(),
+set it to TASK_RUNNING when it breaks out of the loop to avoid the
+warning.
+
+Fixes: 3c52e4e62789 ("W1: w1_process, block or sleep")
+Signed-off-by: Yang Yingliang <yangyingliang@huawei.com>
+Link: https://lore.kernel.org/r/20221205101558.3599162-1-yangyingliang@huawei.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/phy/mdio_bus.c | 7 ++++++-
- 1 file changed, 6 insertions(+), 1 deletion(-)
+ drivers/w1/w1.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/net/phy/mdio_bus.c b/drivers/net/phy/mdio_bus.c
-index 757763735e1f..fdf8221f46fa 100644
---- a/drivers/net/phy/mdio_bus.c
-+++ b/drivers/net/phy/mdio_bus.c
-@@ -117,7 +117,12 @@ EXPORT_SYMBOL(mdiobus_unregister_device);
+diff --git a/drivers/w1/w1.c b/drivers/w1/w1.c
+index 44315f9fd669..4d43c373e5c6 100644
+--- a/drivers/w1/w1.c
++++ b/drivers/w1/w1.c
+@@ -1165,8 +1165,10 @@ int w1_process(void *data)
+ 		 */
+ 		mutex_unlock(&dev->list_mutex);
  
- struct phy_device *mdiobus_get_phy(struct mii_bus *bus, int addr)
- {
--	struct mdio_device *mdiodev = bus->mdio_map[addr];
-+	struct mdio_device *mdiodev;
-+
-+	if (addr < 0 || addr >= ARRAY_SIZE(bus->mdio_map))
-+		return NULL;
-+
-+	mdiodev = bus->mdio_map[addr];
+-		if (kthread_should_stop())
++		if (kthread_should_stop()) {
++			__set_current_state(TASK_RUNNING);
+ 			break;
++		}
  
- 	if (!mdiodev)
- 		return NULL;
+ 		/* Only sleep when the search is active. */
+ 		if (dev->search_count) {
 -- 
 2.39.0
 
