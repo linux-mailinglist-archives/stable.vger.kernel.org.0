@@ -2,50 +2,51 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E6B11689537
-	for <lists+stable@lfdr.de>; Fri,  3 Feb 2023 11:18:47 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 05B3968967E
+	for <lists+stable@lfdr.de>; Fri,  3 Feb 2023 11:32:10 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230504AbjBCKQt (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 3 Feb 2023 05:16:49 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37414 "EHLO
+        id S231406AbjBCKaK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 3 Feb 2023 05:30:10 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50826 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232118AbjBCKQr (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 3 Feb 2023 05:16:47 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 907C99D04E
-        for <stable@vger.kernel.org>; Fri,  3 Feb 2023 02:16:27 -0800 (PST)
+        with ESMTP id S233703AbjBCK3p (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 3 Feb 2023 05:29:45 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0BC9CA2A71
+        for <stable@vger.kernel.org>; Fri,  3 Feb 2023 02:28:55 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 80CD061E94
-        for <stable@vger.kernel.org>; Fri,  3 Feb 2023 10:16:24 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 65039C433D2;
-        Fri,  3 Feb 2023 10:16:23 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 9B08161EC3
+        for <stable@vger.kernel.org>; Fri,  3 Feb 2023 10:28:55 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 73F6AC433EF;
+        Fri,  3 Feb 2023 10:28:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1675419383;
-        bh=6mpH6DCoGUNZe3bSD5ZQcPu3PFFJ6IekXZRWb2eHIoY=;
+        s=korg; t=1675420134;
+        bh=uLrnuPXvmEB4t/Ocblxf6CQynp2+xtpCgsh7wazHjGs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=X91vtsVOe/nYLOJJkJ42wjDbMCFKjy6dQZ5axmN8P5mgY/Wc0VI8CHrV6jsw+Ojx/
-         tsMU1aJbMVW49Wr8uC+/DdkWwzF9Jpqa76pbsx2eKKVM58u7aI5I3ieG+2xU9zNosj
-         iSPqqnMDLCPB0IjA4VQY3r/8fy+crirKannMfTBE=
+        b=QKx6PFY0ATNso2AR/n9Won76KN6kJC2dUcmU6hpZQXjuYR161OQt07R93ir4ic5Pi
+         DVI/eJbUJRE4hoDm9zSnurNDsnVhDo6mvysVwmvKhxMchDp3HvbiX45J5jciczwehR
+         FuxcwptCFC8e7HJRzvnE8epOWJ1lwlAF8bbSZl4A=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Nathan Chancellor <nathan@kernel.org>,
-        "Eric W. Biederman" <ebiederm@xmission.com>,
-        Eric Biggers <ebiggers@google.com>
-Subject: [PATCH 4.14 50/62] h8300: Fix build errors from do_exit() to make_task_dead() transition
+        patches@lists.linux.dev, Yihang Li <liyihang9@huawei.com>,
+        Xiang Chen <chenxiang66@hisilicon.com>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 061/134] scsi: hisi_sas: Set a port invalid only if there are no devices attached when refreshing port id
 Date:   Fri,  3 Feb 2023 11:12:46 +0100
-Message-Id: <20230203101015.075191178@linuxfoundation.org>
+Message-Id: <20230203101026.622349002@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.1
-In-Reply-To: <20230203101012.959398849@linuxfoundation.org>
-References: <20230203101012.959398849@linuxfoundation.org>
+In-Reply-To: <20230203101023.832083974@linuxfoundation.org>
+References: <20230203101023.832083974@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
         SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -53,71 +54,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nathan Chancellor <nathan@kernel.org>
+From: Yihang Li <liyihang9@huawei.com>
 
-commit ab4ababdf77ccc56c7301c751dff49c79709c51c upstream.
+[ Upstream commit f58c89700630da6554b24fd3df293a24874c10c1 ]
 
-When building ARCH=h8300 defconfig:
+Currently the driver sets the port invalid if one phy in the port is not
+enabled, which may cause issues in expander situation. In directly attached
+situation, if phy up doesn't occur in time when refreshing port id, the
+port is incorrectly set to invalid which will also cause disk lost.
 
-arch/h8300/kernel/traps.c: In function 'die':
-arch/h8300/kernel/traps.c:109:2: error: implicit declaration of function
-'make_dead_task' [-Werror=implicit-function-declaration]
-  109 |  make_dead_task(SIGSEGV);
-      |  ^~~~~~~~~~~~~~
+Therefore set a port invalid only if there are no devices attached to the
+port.
 
-arch/h8300/mm/fault.c: In function 'do_page_fault':
-arch/h8300/mm/fault.c:54:2: error: implicit declaration of function
-'make_dead_task' [-Werror=implicit-function-declaration]
-   54 |  make_dead_task(SIGKILL);
-      |  ^~~~~~~~~~~~~~
-
-The function's name is make_task_dead(), change it so there is no more
-build error.
-
-Additionally, include linux/sched/task.h in arch/h8300/kernel/traps.c
-to avoid the same error because do_exit()'s declaration is in kernel.h
-but make_task_dead()'s is in task.h, which is not included in traps.c.
-
-Fixes: 0e25498f8cd4 ("exit: Add and use make_task_dead.")
-Signed-off-by: Nathan Chancellor <nathan@kernel.org>
-Link: https://lkml.kernel.org/r/20211227184851.2297759-3-nathan@kernel.org
-Signed-off-by: Eric W. Biederman <ebiederm@xmission.com>
-Signed-off-by: Eric Biggers <ebiggers@google.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Yihang Li <liyihang9@huawei.com>
+Signed-off-by: Xiang Chen <chenxiang66@hisilicon.com>
+Link: https://lore.kernel.org/r/1672805000-141102-3-git-send-email-chenxiang66@hisilicon.com
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/h8300/kernel/traps.c |    3 ++-
- arch/h8300/mm/fault.c     |    2 +-
- 2 files changed, 3 insertions(+), 2 deletions(-)
+ drivers/scsi/hisi_sas/hisi_sas_main.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/arch/h8300/kernel/traps.c
-+++ b/arch/h8300/kernel/traps.c
-@@ -17,6 +17,7 @@
- #include <linux/types.h>
- #include <linux/sched.h>
- #include <linux/sched/debug.h>
-+#include <linux/sched/task.h>
- #include <linux/mm_types.h>
- #include <linux/kernel.h>
- #include <linux/errno.h>
-@@ -110,7 +111,7 @@ void die(const char *str, struct pt_regs
- 	dump(fp);
+diff --git a/drivers/scsi/hisi_sas/hisi_sas_main.c b/drivers/scsi/hisi_sas/hisi_sas_main.c
+index 031aa4043c5e..7135bbe5abb8 100644
+--- a/drivers/scsi/hisi_sas/hisi_sas_main.c
++++ b/drivers/scsi/hisi_sas/hisi_sas_main.c
+@@ -1397,7 +1397,7 @@ static void hisi_sas_refresh_port_id(struct hisi_hba *hisi_hba)
+ 				device->linkrate = phy->sas_phy.linkrate;
  
- 	spin_unlock_irq(&die_lock);
--	make_dead_task(SIGSEGV);
-+	make_task_dead(SIGSEGV);
+ 			hisi_hba->hw->setup_itct(hisi_hba, sas_dev);
+-		} else
++		} else if (!port->port_attached)
+ 			port->id = 0xff;
+ 	}
  }
- 
- static int kstack_depth_to_print = 24;
---- a/arch/h8300/mm/fault.c
-+++ b/arch/h8300/mm/fault.c
-@@ -52,7 +52,7 @@ asmlinkage int do_page_fault(struct pt_r
- 	printk(" at virtual address %08lx\n", address);
- 	if (!user_mode(regs))
- 		die("Oops", regs, error_code);
--	make_dead_task(SIGKILL);
-+	make_task_dead(SIGKILL);
- 
- 	return 1;
- }
+-- 
+2.39.0
+
 
 
