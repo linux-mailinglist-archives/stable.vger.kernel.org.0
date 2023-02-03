@@ -2,46 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 9C6F4689661
-	for <lists+stable@lfdr.de>; Fri,  3 Feb 2023 11:31:57 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4BDB1689505
+	for <lists+stable@lfdr.de>; Fri,  3 Feb 2023 11:15:58 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233589AbjBCK1y (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 3 Feb 2023 05:27:54 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51336 "EHLO
+        id S232005AbjBCKPz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 3 Feb 2023 05:15:55 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35866 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233595AbjBCK1f (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 3 Feb 2023 05:27:35 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 50481A2A49
-        for <stable@vger.kernel.org>; Fri,  3 Feb 2023 02:26:51 -0800 (PST)
+        with ESMTP id S233257AbjBCKPx (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 3 Feb 2023 05:15:53 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 31C789A820
+        for <stable@vger.kernel.org>; Fri,  3 Feb 2023 02:15:49 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id D77BCB82A6E
-        for <stable@vger.kernel.org>; Fri,  3 Feb 2023 10:26:50 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 233E1C433EF;
-        Fri,  3 Feb 2023 10:26:48 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id BEA1861E4C
+        for <stable@vger.kernel.org>; Fri,  3 Feb 2023 10:15:48 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8C618C4339B;
+        Fri,  3 Feb 2023 10:15:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1675420009;
-        bh=kMbTJuFZtzVYtqEkw9Nukwqo6dOiIlkQQ5VHAiXr5tQ=;
+        s=korg; t=1675419348;
+        bh=CeJ2r+/LSNxIsohXanKRY9uSKANAWJGw/9fWllbpYtY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=a4V9DjrvfkfDOTyJm5E4/SspAm6uQBh/awkcUhXtTMH6VvdUMv186Pj+sozTvCRGS
-         WfUw8cj5YgbpVwS7RocBX+nnfF8cOKlCT+JS8cMoggnB56Q7+0vzU6vKaDv+Izz5cV
-         eEQDmhXONnddnF1DVwVkHgsjZk4RBO+T5ohhx1ZY=
+        b=K5MgEeaG2J4t5l1tPHq9DpgfwPZY98WSSR50V37AHc+1YSnj8Uy5tGyej2HfKyoqP
+         HgCdxnXAHGpl9VxnIjOwGAOGhpArBKVvMWXM7frhGKTPPEGOm9WxaH3xENZqFHOS7B
+         ++UaLmFUlk2gENhYYZVUM6XWvRzGxBggYRp/xRxE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Rakesh Sankaranarayanan <rakesh.sankaranarayanan@microchip.com>,
-        Vladimir Oltean <olteanv@gmail.com>,
-        Jakub Kicinski <kuba@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 050/134] net: dsa: microchip: ksz9477: port map correction in ALU table entry register
+        patches@lists.linux.dev, Nathan Chancellor <nathan@kernel.org>,
+        Dokyung Song <dokyungs@yonsei.ac.kr>,
+        Jisoo Jang <jisoo.jang@yonsei.ac.kr>,
+        Minsuk Kang <linuxlovemin@yonsei.ac.kr>,
+        Kalle Valo <kvalo@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.14 39/62] wifi: brcmfmac: fix up incorrect 4.14.y backport for brcmf_fw_map_chip_to_name()
 Date:   Fri,  3 Feb 2023 11:12:35 +0100
-Message-Id: <20230203101026.123697664@linuxfoundation.org>
+Message-Id: <20230203101014.663497180@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.1
-In-Reply-To: <20230203101023.832083974@linuxfoundation.org>
-References: <20230203101023.832083974@linuxfoundation.org>
+In-Reply-To: <20230203101012.959398849@linuxfoundation.org>
+References: <20230203101012.959398849@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,55 +55,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Rakesh Sankaranarayanan <rakesh.sankaranarayanan@microchip.com>
+From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-[ Upstream commit 6c977c5c2e4c5d8ad1b604724cc344e38f96fe9b ]
+In commit bc45aa1911bf699b9905f12414e3c1879d6b784f which is commit
+81d17f6f3331f03c8eafdacea68ab773426c1e3c upstream, the return value of the
+error condition needs to be reworked to return a real error and not NULL.
 
-ALU table entry 2 register in KSZ9477 have bit positions reserved for
-forwarding port map. This field is referred in ksz9477_fdb_del() for
-clearing forward port map and alu table.
-
-But current fdb_del refer ALU table entry 3 register for accessing forward
-port map. Update ksz9477_fdb_del() to get forward port map from correct
-alu table entry register.
-
-With this bug, issue can be observed while deleting static MAC entries.
-Delete any specific MAC entry using "bridge fdb del" command. This should
-clear all the specified MAC entries. But it is observed that entries with
-self static alone are retained.
-
-Tested on LAN9370 EVB since ksz9477_fdb_del() is used common across
-LAN937x and KSZ series.
-
-Fixes: b987e98e50ab ("dsa: add DSA switch driver for Microchip KSZ9477")
-Signed-off-by: Rakesh Sankaranarayanan <rakesh.sankaranarayanan@microchip.com>
-Reviewed-by: Vladimir Oltean <olteanv@gmail.com>
-Link: https://lore.kernel.org/r/20230118174735.702377-1-rakesh.sankaranarayanan@microchip.com
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Reported-by: Nathan Chancellor <nathan@kernel.org>
+Cc: Dokyung Song <dokyungs@yonsei.ac.kr>
+Cc: Jisoo Jang <jisoo.jang@yonsei.ac.kr>
+Cc: Minsuk Kang <linuxlovemin@yonsei.ac.kr>
+Cc: Kalle Valo <kvalo@kernel.org>
+Cc: Sasha Levin <sashal@kernel.org>
+Link: https://lore.kernel.org/r/Y8gccXXyE30sbPSg@dev-arch.thelio-3990X
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/dsa/microchip/ksz9477.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/net/wireless/broadcom/brcm80211/brcmfmac/firmware.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/net/dsa/microchip/ksz9477.c b/drivers/net/dsa/microchip/ksz9477.c
-index c66e78b2870d..ba2dc01e0f6b 100644
---- a/drivers/net/dsa/microchip/ksz9477.c
-+++ b/drivers/net/dsa/microchip/ksz9477.c
-@@ -682,10 +682,10 @@ static int ksz9477_port_fdb_del(struct dsa_switch *ds, int port,
- 		ksz_read32(dev, REG_SW_ALU_VAL_D, &alu_table[3]);
+--- a/drivers/net/wireless/broadcom/brcm80211/brcmfmac/firmware.c
++++ b/drivers/net/wireless/broadcom/brcm80211/brcmfmac/firmware.c
+@@ -574,7 +574,7 @@ int brcmf_fw_map_chip_to_name(u32 chip,
  
- 		/* clear forwarding port */
--		alu_table[2] &= ~BIT(port);
-+		alu_table[1] &= ~BIT(port);
+ 	if (chiprev >= BITS_PER_TYPE(u32)) {
+ 		brcmf_err("Invalid chip revision %u\n", chiprev);
+-		return NULL;
++		return -EINVAL;
+ 	}
  
- 		/* if there is no port to forward, clear table */
--		if ((alu_table[2] & ALU_V_PORT_MAP) == 0) {
-+		if ((alu_table[1] & ALU_V_PORT_MAP) == 0) {
- 			alu_table[0] = 0;
- 			alu_table[1] = 0;
- 			alu_table[2] = 0;
--- 
-2.39.0
-
+ 	for (i = 0; i < table_size; i++) {
 
 
