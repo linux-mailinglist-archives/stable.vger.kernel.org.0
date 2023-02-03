@@ -2,45 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C677568951A
-	for <lists+stable@lfdr.de>; Fri,  3 Feb 2023 11:18:36 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id DC7246895D6
+	for <lists+stable@lfdr.de>; Fri,  3 Feb 2023 11:24:35 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233237AbjBCKQI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 3 Feb 2023 05:16:08 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36282 "EHLO
+        id S232853AbjBCKUw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 3 Feb 2023 05:20:52 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42614 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232951AbjBCKQG (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 3 Feb 2023 05:16:06 -0500
+        with ESMTP id S233163AbjBCKUo (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 3 Feb 2023 05:20:44 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 66DEF9DEF8
-        for <stable@vger.kernel.org>; Fri,  3 Feb 2023 02:15:58 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 279B4305F5
+        for <stable@vger.kernel.org>; Fri,  3 Feb 2023 02:20:27 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id DE08D61E4C
-        for <stable@vger.kernel.org>; Fri,  3 Feb 2023 10:15:57 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A72CDC433D2;
-        Fri,  3 Feb 2023 10:15:56 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id E7A6161ECA
+        for <stable@vger.kernel.org>; Fri,  3 Feb 2023 10:19:45 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id CC89DC433EF;
+        Fri,  3 Feb 2023 10:19:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1675419357;
-        bh=hdaUjU7GJ6ATGvbFasBr8txneDTa8HH0FqNFA5ulQ1A=;
+        s=korg; t=1675419585;
+        bh=7TB58F2YJRfwdowX6BjU2VDFV/ZoHgwBV6QbWTkAs9k=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=eKhhK1PeRapiHCMVYzPepWqWGOo/d/PzP4+9i16r2qSpCDVamCljO5k+cfcVleM/7
-         qaIM/qMPK84qsIWDK2DnWkNvwstsT9FyKEY5Ylcz7dKivYspZ3PCvg4+iGa2aaGo0y
-         vuWgzprMdZ//M5jpKPQqw/ekQolQWWxN25eqp0mA=
+        b=gSglw9BF8t0hfAIgBNjY5Cr9D889qEfMMv41nOChPUo40M3RicZP80gO2Hw4LpT2q
+         xvDQo2z5xPIcJ/yKHKc262qF6ViVfAsihmfZzXws5z2uwBa2xfoKBzda/5LigaT+sd
+         7R7pQBaP7wdVvCrw879KBO8i2MIIrO/QHE1Zdn98=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Christoph Hellwig <hch@lst.de>,
-        Johannes Thumshirn <jthumshirn@suse.de>,
-        Himanshu Madhani <himanshu.madhani@cavium.com>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>
-Subject: [PATCH 4.14 42/62] scsi: qla2xxx: dont break the bsg-lib abstractions
+        patches@lists.linux.dev, Luca Weiss <luca.weiss@fairphone.com>,
+        Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>,
+        "Borislav Petkov (AMD)" <bp@alien8.de>,
+        Steev Klimaszewski <steev@kali.org>,
+        Andrew Halaney <ahalaney@redhat.com>
+Subject: [PATCH 4.19 44/80] EDAC/device: Respect any driver-supplied workqueue polling value
 Date:   Fri,  3 Feb 2023 11:12:38 +0100
-Message-Id: <20230203101014.763575331@linuxfoundation.org>
+Message-Id: <20230203101017.085896565@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.1
-In-Reply-To: <20230203101012.959398849@linuxfoundation.org>
-References: <20230203101012.959398849@linuxfoundation.org>
+In-Reply-To: <20230203101015.263854890@linuxfoundation.org>
+References: <20230203101015.263854890@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,115 +55,79 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Christoph Hellwig <hch@lst.de>
+From: Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>
 
-commit 05231a3bb7981b01f6933c0a847fcaac25622bfd upstream.
+commit cec669ff716cc83505c77b242aecf6f7baad869d upstream.
 
-Always use bsg_job->reply instead of scsi_req(bsg_job->req)->sense), as
-they always point to the same memory.
+The EDAC drivers may optionally pass the poll_msec value. Use that value
+if available, else fall back to 1000ms.
 
-Never set scsi_req(bsg_job->req)->result and we'll set that value
-through bsg_job_done.
+  [ bp: Touchups. ]
 
-[mkp: applied by hand, fixed whitespace]
-
-Signed-off-by: Christoph Hellwig <hch@lst.de>
-Reviewed-by: Johannes Thumshirn <jthumshirn@suse.de>
-Reviewed-by: Himanshu Madhani <himanshu.madhani@cavium.com>
-Tested-by: Himanshu Madhani <himanshu.madhani@cavium.com>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Fixes: e27e3dac6517 ("drivers/edac: add edac_device class")
+Reported-by: Luca Weiss <luca.weiss@fairphone.com>
+Signed-off-by: Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>
+Signed-off-by: Borislav Petkov (AMD) <bp@alien8.de>
+Tested-by: Steev Klimaszewski <steev@kali.org> # Thinkpad X13s
+Tested-by: Andrew Halaney <ahalaney@redhat.com> # sa8540p-ride
+Cc: <stable@vger.kernel.org> # 4.9
+Link: https://lore.kernel.org/r/COZYL8MWN97H.MROQ391BGA09@otso
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/scsi/qla2xxx/qla_bsg.c |   10 ++++------
- drivers/scsi/qla2xxx/qla_isr.c |   12 +++---------
- drivers/scsi/qla2xxx/qla_mr.c  |    3 +--
- 3 files changed, 8 insertions(+), 17 deletions(-)
+ drivers/edac/edac_device.c |   15 +++++++--------
+ 1 file changed, 7 insertions(+), 8 deletions(-)
 
---- a/drivers/scsi/qla2xxx/qla_bsg.c
-+++ b/drivers/scsi/qla2xxx/qla_bsg.c
-@@ -924,9 +924,9 @@ qla2x00_process_loopback(struct bsg_job
+--- a/drivers/edac/edac_device.c
++++ b/drivers/edac/edac_device.c
+@@ -34,6 +34,9 @@
+ static DEFINE_MUTEX(device_ctls_mutex);
+ static LIST_HEAD(edac_device_list);
  
- 	bsg_job->reply_len = sizeof(struct fc_bsg_reply) +
- 	    sizeof(response) + sizeof(uint8_t);
--	fw_sts_ptr = ((uint8_t *)scsi_req(bsg_job->req)->sense) +
--	    sizeof(struct fc_bsg_reply);
--	memcpy(fw_sts_ptr, response, sizeof(response));
-+	fw_sts_ptr = bsg_job->reply + sizeof(struct fc_bsg_reply);
-+	memcpy(bsg_job->reply + sizeof(struct fc_bsg_reply), response,
-+			sizeof(response));
- 	fw_sts_ptr += sizeof(response);
- 	*fw_sts_ptr = command_sent;
++/* Default workqueue processing interval on this instance, in msecs */
++#define DEFAULT_POLL_INTERVAL 1000
++
+ #ifdef CONFIG_EDAC_DEBUG
+ static void edac_device_dump_device(struct edac_device_ctl_info *edac_dev)
+ {
+@@ -366,7 +369,7 @@ static void edac_device_workq_function(s
+ 	 * whole one second to save timers firing all over the period
+ 	 * between integral seconds
+ 	 */
+-	if (edac_dev->poll_msec == 1000)
++	if (edac_dev->poll_msec == DEFAULT_POLL_INTERVAL)
+ 		edac_queue_work(&edac_dev->work, round_jiffies_relative(edac_dev->delay));
+ 	else
+ 		edac_queue_work(&edac_dev->work, edac_dev->delay);
+@@ -396,7 +399,7 @@ static void edac_device_workq_setup(stru
+ 	 * timers firing on sub-second basis, while they are happy
+ 	 * to fire together on the 1 second exactly
+ 	 */
+-	if (edac_dev->poll_msec == 1000)
++	if (edac_dev->poll_msec == DEFAULT_POLL_INTERVAL)
+ 		edac_queue_work(&edac_dev->work, round_jiffies_relative(edac_dev->delay));
+ 	else
+ 		edac_queue_work(&edac_dev->work, edac_dev->delay);
+@@ -430,7 +433,7 @@ void edac_device_reset_delay_period(stru
+ 	edac_dev->delay	    = msecs_to_jiffies(msec);
  
-@@ -2558,13 +2558,11 @@ qla24xx_bsg_timeout(struct bsg_job *bsg_
- 						ql_log(ql_log_warn, vha, 0x7089,
- 						    "mbx abort_command "
- 						    "failed.\n");
--						scsi_req(bsg_job->req)->result =
- 						bsg_reply->result = -EIO;
- 					} else {
- 						ql_dbg(ql_dbg_user, vha, 0x708a,
- 						    "mbx abort_command "
- 						    "success.\n");
--						scsi_req(bsg_job->req)->result =
- 						bsg_reply->result = 0;
- 					}
- 					spin_lock_irqsave(&ha->hardware_lock, flags);
-@@ -2575,7 +2573,7 @@ qla24xx_bsg_timeout(struct bsg_job *bsg_
+ 	/* See comment in edac_device_workq_setup() above */
+-	if (edac_dev->poll_msec == 1000)
++	if (edac_dev->poll_msec == DEFAULT_POLL_INTERVAL)
+ 		edac_mod_work(&edac_dev->work, round_jiffies_relative(edac_dev->delay));
+ 	else
+ 		edac_mod_work(&edac_dev->work, edac_dev->delay);
+@@ -472,11 +475,7 @@ int edac_device_add_device(struct edac_d
+ 		/* This instance is NOW RUNNING */
+ 		edac_dev->op_state = OP_RUNNING_POLL;
+ 
+-		/*
+-		 * enable workq processing on this instance,
+-		 * default = 1000 msec
+-		 */
+-		edac_device_workq_setup(edac_dev, 1000);
++		edac_device_workq_setup(edac_dev, edac_dev->poll_msec ?: DEFAULT_POLL_INTERVAL);
+ 	} else {
+ 		edac_dev->op_state = OP_RUNNING_INTERRUPT;
  	}
- 	spin_unlock_irqrestore(&ha->hardware_lock, flags);
- 	ql_log(ql_log_info, vha, 0x708b, "SRB not found to abort.\n");
--	scsi_req(bsg_job->req)->result = bsg_reply->result = -ENXIO;
-+	bsg_reply->result = -ENXIO;
- 	return 0;
- 
- done:
---- a/drivers/scsi/qla2xxx/qla_isr.c
-+++ b/drivers/scsi/qla2xxx/qla_isr.c
-@@ -1540,7 +1540,6 @@ qla24xx_els_ct_entry(scsi_qla_host_t *vh
- 	struct fc_bsg_reply *bsg_reply;
- 	uint16_t comp_status;
- 	uint32_t fw_status[3];
--	uint8_t* fw_sts_ptr;
- 	int res;
- 
- 	sp = qla2x00_get_sp_from_handle(vha, func, req, pkt);
-@@ -1601,11 +1600,7 @@ qla24xx_els_ct_entry(scsi_qla_host_t *vh
- 			    type, sp->handle, comp_status, fw_status[1], fw_status[2],
- 			    le16_to_cpu(((struct els_sts_entry_24xx *)
- 				pkt)->total_byte_count));
--			fw_sts_ptr = ((uint8_t*)scsi_req(bsg_job->req)->sense) +
--				sizeof(struct fc_bsg_reply);
--			memcpy( fw_sts_ptr, fw_status, sizeof(fw_status));
--		}
--		else {
-+		} else {
- 			ql_dbg(ql_dbg_user, vha, 0x5040,
- 			    "ELS-CT pass-through-%s error hdl=%x comp_status-status=0x%x "
- 			    "error subcode 1=0x%x error subcode 2=0x%x.\n",
-@@ -1616,10 +1611,9 @@ qla24xx_els_ct_entry(scsi_qla_host_t *vh
- 				    pkt)->error_subcode_2));
- 			res = DID_ERROR << 16;
- 			bsg_reply->reply_payload_rcv_len = 0;
--			fw_sts_ptr = ((uint8_t*)scsi_req(bsg_job->req)->sense) +
--					sizeof(struct fc_bsg_reply);
--			memcpy( fw_sts_ptr, fw_status, sizeof(fw_status));
- 		}
-+		memcpy(bsg_job->reply + sizeof(struct fc_bsg_reply),
-+		       fw_status, sizeof(fw_status));
- 		ql_dump_buffer(ql_dbg_user + ql_dbg_buffer, vha, 0x5056,
- 				(uint8_t *)pkt, sizeof(*pkt));
- 	}
---- a/drivers/scsi/qla2xxx/qla_mr.c
-+++ b/drivers/scsi/qla2xxx/qla_mr.c
-@@ -2222,8 +2222,7 @@ qlafx00_ioctl_iosb_entry(scsi_qla_host_t
- 		memcpy(fstatus.reserved_3,
- 		    pkt->reserved_2, 20 * sizeof(uint8_t));
- 
--		fw_sts_ptr = ((uint8_t *)scsi_req(bsg_job->req)->sense) +
--		    sizeof(struct fc_bsg_reply);
-+		fw_sts_ptr = bsg_job->reply + sizeof(struct fc_bsg_reply);
- 
- 		memcpy(fw_sts_ptr, (uint8_t *)&fstatus,
- 		    sizeof(struct qla_mt_iocb_rsp_fx00));
 
 
