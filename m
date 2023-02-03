@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 561566895EE
-	for <lists+stable@lfdr.de>; Fri,  3 Feb 2023 11:24:43 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 887B96896CB
+	for <lists+stable@lfdr.de>; Fri,  3 Feb 2023 11:36:47 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233428AbjBCKYa (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 3 Feb 2023 05:24:30 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48092 "EHLO
+        id S231836AbjBCKcz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 3 Feb 2023 05:32:55 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58196 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233423AbjBCKYA (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 3 Feb 2023 05:24:00 -0500
-Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A98E91E1F3
-        for <stable@vger.kernel.org>; Fri,  3 Feb 2023 02:23:39 -0800 (PST)
+        with ESMTP id S233716AbjBCKbW (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 3 Feb 2023 05:31:22 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C4278A0E84
+        for <stable@vger.kernel.org>; Fri,  3 Feb 2023 02:30:02 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id BEE9CCE2FB9
-        for <stable@vger.kernel.org>; Fri,  3 Feb 2023 10:23:34 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id BDE31C4339B;
-        Fri,  3 Feb 2023 10:23:32 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 667C0B82A65
+        for <stable@vger.kernel.org>; Fri,  3 Feb 2023 10:30:02 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id AE4E0C433EF;
+        Fri,  3 Feb 2023 10:30:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1675419813;
-        bh=QQyJ6UbkHg3jK72rd5CD8YVecxmP6Cpa9pLZ1/xTCGQ=;
+        s=korg; t=1675420201;
+        bh=KDl2zacnSK0FLUxtKWcIV32UB7/5CvDpOu567wZ5mOc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=JifTXNgCRePzBaMgjH7Yn0rjVfKzgoAHg0lJ29+/Yy9riZ/TySpSr3BUf5yypdxed
-         eBJA4OE5ioM26Ao9SfYqy7UaOk/iqKerG+sCucxiD75tBHyUpGtuK92JD8DTAmChYq
-         NBsniE5fItb5TTApJ3oIiqc9UvrAoY7E7h+SSXAA=
+        b=rzYnJEyCU7o4HjWR902uP0pmVONaqFJc2CXzx19Y6h0B/bIaM449fNNelEfrhDceK
+         8ri8LIUBU2ibxm4o/UoZILVzZGaRHW/gov/Y3TqF2hhi9jMqFrUfSiDI39KZq7C1j5
+         l5Kh8wq1zv6zml99TQrYg6PqKtkEwyyefzA4Sl+k=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Daniel Borkmann <daniel@iogearbox.net>,
-        Willem de Bruijn <willemb@google.com>,
-        Yan Zhai <yan@cloudflare.com>, Jakub Kicinski <kuba@kernel.org>
-Subject: [PATCH 5.10 9/9] net: fix NULL pointer in skb_segment_list
+        patches@lists.linux.dev, Hui Wang <hui.wang@canonical.com>,
+        Sascha Hauer <s.hauer@pengutronix.de>,
+        Vinod Koul <vkoul@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 113/134] dmaengine: imx-sdma: Fix a possible memory leak in sdma_transfer_init
 Date:   Fri,  3 Feb 2023 11:13:38 +0100
-Message-Id: <20230203101006.783007808@linuxfoundation.org>
+Message-Id: <20230203101028.919903470@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.1
-In-Reply-To: <20230203101006.422534094@linuxfoundation.org>
-References: <20230203101006.422534094@linuxfoundation.org>
+In-Reply-To: <20230203101023.832083974@linuxfoundation.org>
+References: <20230203101023.832083974@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,76 +53,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yan Zhai <yan@cloudflare.com>
+From: Hui Wang <hui.wang@canonical.com>
 
-commit 876e8ca8366735a604bac86ff7e2732fc9d85d2d upstream.
+[ Upstream commit 1417f59ac0b02130ee56c0c50794b9b257be3d17 ]
 
-Commit 3a1296a38d0c ("net: Support GRO/GSO fraglist chaining.")
-introduced UDP listifyed GRO. The segmentation relies on frag_list being
-untouched when passing through the network stack. This assumption can be
-broken sometimes, where frag_list itself gets pulled into linear area,
-leaving frag_list being NULL. When this happens it can trigger
-following NULL pointer dereference, and panic the kernel. Reverse the
-test condition should fix it.
+If the function sdma_load_context() fails, the sdma_desc will be
+freed, but the allocated desc->bd is forgot to be freed.
 
-[19185.577801][    C1] BUG: kernel NULL pointer dereference, address:
+We already met the sdma_load_context() failure case and the log as
+below:
+[ 450.699064] imx-sdma 30bd0000.dma-controller: Timeout waiting for CH0 ready
 ...
-[19185.663775][    C1] RIP: 0010:skb_segment_list+0x1cc/0x390
-...
-[19185.834644][    C1] Call Trace:
-[19185.841730][    C1]  <TASK>
-[19185.848563][    C1]  __udp_gso_segment+0x33e/0x510
-[19185.857370][    C1]  inet_gso_segment+0x15b/0x3e0
-[19185.866059][    C1]  skb_mac_gso_segment+0x97/0x110
-[19185.874939][    C1]  __skb_gso_segment+0xb2/0x160
-[19185.883646][    C1]  udp_queue_rcv_skb+0xc3/0x1d0
-[19185.892319][    C1]  udp_unicast_rcv_skb+0x75/0x90
-[19185.900979][    C1]  ip_protocol_deliver_rcu+0xd2/0x200
-[19185.910003][    C1]  ip_local_deliver_finish+0x44/0x60
-[19185.918757][    C1]  __netif_receive_skb_one_core+0x8b/0xa0
-[19185.927834][    C1]  process_backlog+0x88/0x130
-[19185.935840][    C1]  __napi_poll+0x27/0x150
-[19185.943447][    C1]  net_rx_action+0x27e/0x5f0
-[19185.951331][    C1]  ? mlx5_cq_tasklet_cb+0x70/0x160 [mlx5_core]
-[19185.960848][    C1]  __do_softirq+0xbc/0x25d
-[19185.968607][    C1]  irq_exit_rcu+0x83/0xb0
-[19185.976247][    C1]  common_interrupt+0x43/0xa0
-[19185.984235][    C1]  asm_common_interrupt+0x22/0x40
-...
-[19186.094106][    C1]  </TASK>
 
-Fixes: 3a1296a38d0c ("net: Support GRO/GSO fraglist chaining.")
-Suggested-by: Daniel Borkmann <daniel@iogearbox.net>
-Reviewed-by: Willem de Bruijn <willemb@google.com>
-Signed-off-by: Yan Zhai <yan@cloudflare.com>
-Acked-by: Daniel Borkmann <daniel@iogearbox.net>
-Link: https://lore.kernel.org/r/Y9gt5EUizK1UImEP@debian
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+In this case, the desc->bd will not be freed without this change.
+
+Signed-off-by: Hui Wang <hui.wang@canonical.com>
+Reviewed-by: Sascha Hauer <s.hauer@pengutronix.de>
+Link: https://lore.kernel.org/r/20221130090800.102035-1-hui.wang@canonical.com
+Signed-off-by: Vinod Koul <vkoul@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/core/skbuff.c |    5 ++---
- 1 file changed, 2 insertions(+), 3 deletions(-)
+ drivers/dma/imx-sdma.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
---- a/net/core/skbuff.c
-+++ b/net/core/skbuff.c
-@@ -3688,7 +3688,7 @@ struct sk_buff *skb_segment_list(struct
+diff --git a/drivers/dma/imx-sdma.c b/drivers/dma/imx-sdma.c
+index 8ec7a7041e84..8dbff2f6c3b8 100644
+--- a/drivers/dma/imx-sdma.c
++++ b/drivers/dma/imx-sdma.c
+@@ -1360,10 +1360,12 @@ static struct sdma_desc *sdma_transfer_init(struct sdma_channel *sdmac,
+ 		sdma_config_ownership(sdmac, false, true, false);
  
- 	skb_shinfo(skb)->frag_list = NULL;
+ 	if (sdma_load_context(sdmac))
+-		goto err_desc_out;
++		goto err_bd_out;
  
--	do {
-+	while (list_skb) {
- 		nskb = list_skb;
- 		list_skb = list_skb->next;
+ 	return desc;
  
-@@ -3732,8 +3732,7 @@ struct sk_buff *skb_segment_list(struct
- 		if (skb_needs_linearize(nskb, features) &&
- 		    __skb_linearize(nskb))
- 			goto err_linearize;
--
--	} while (list_skb);
-+	}
- 
- 	skb->truesize = skb->truesize - delta_truesize;
- 	skb->data_len = skb->data_len - delta_len;
++err_bd_out:
++	sdma_free_bd(desc);
+ err_desc_out:
+ 	kfree(desc);
+ err_out:
+-- 
+2.39.0
+
 
 
