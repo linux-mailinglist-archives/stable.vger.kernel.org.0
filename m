@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 9C701689630
-	for <lists+stable@lfdr.de>; Fri,  3 Feb 2023 11:31:40 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6A47868958B
+	for <lists+stable@lfdr.de>; Fri,  3 Feb 2023 11:24:10 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233001AbjBCKaC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 3 Feb 2023 05:30:02 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51300 "EHLO
+        id S232090AbjBCKVB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 3 Feb 2023 05:21:01 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42544 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233663AbjBCK3e (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 3 Feb 2023 05:29:34 -0500
+        with ESMTP id S233348AbjBCKU7 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 3 Feb 2023 05:20:59 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4A0FDA2A44
-        for <stable@vger.kernel.org>; Fri,  3 Feb 2023 02:28:44 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 121679EE04
+        for <stable@vger.kernel.org>; Fri,  3 Feb 2023 02:20:41 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 64411B82A6B
-        for <stable@vger.kernel.org>; Fri,  3 Feb 2023 10:28:14 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9CFBCC433D2;
-        Fri,  3 Feb 2023 10:28:12 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id A333DB82A6C
+        for <stable@vger.kernel.org>; Fri,  3 Feb 2023 10:20:40 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0152BC433D2;
+        Fri,  3 Feb 2023 10:20:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1675420093;
-        bh=tMi/I2IQP7Y1fVtCtwAubQHLyulTqFBBke+i7It+p7E=;
+        s=korg; t=1675419639;
+        bh=6mpH6DCoGUNZe3bSD5ZQcPu3PFFJ6IekXZRWb2eHIoY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=zTXXpkcB7rVaYNBDzF1/s2mfiMNa7FpRBKEzosQn/qA5B9I1sAf6noqhkhSMMuRbB
-         Ns2IcFxdbyX3C3CMZDaBaYUFfQhEQbp90Oq0DBPjzd43yeecytH3k27vYayAw4viLc
-         gVHX3MupZwFRiE48IywUoNmRpziPjuB1v9bmH/CM=
+        b=BbZL1X7E0qBfwEkwUZFosvYZ+o5wX5zNnu4aMOsL06eunXmAy9O0bgQcCoez8CToY
+         kTIOkHocXGMJHhSQYptOvr++tY1und+VACpmF4C5HSJtTYMm5pNttfacPMMyFTxMbL
+         NMQGL9rg4eyrHmDeu3mP2GLRP5O3D10t0GYECUxA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Masami Hiramatsu <mhiramat@kernel.org>,
-        Mark Rutland <mark.rutland@arm.com>,
-        "Steven Rostedt (Google)" <rostedt@goodmis.org>
-Subject: [PATCH 5.4 077/134] ftrace/scripts: Update the instructions for ftrace-bisect.sh
-Date:   Fri,  3 Feb 2023 11:13:02 +0100
-Message-Id: <20230203101027.326234440@linuxfoundation.org>
+        patches@lists.linux.dev, Nathan Chancellor <nathan@kernel.org>,
+        "Eric W. Biederman" <ebiederm@xmission.com>,
+        Eric Biggers <ebiggers@google.com>
+Subject: [PATCH 4.19 69/80] h8300: Fix build errors from do_exit() to make_task_dead() transition
+Date:   Fri,  3 Feb 2023 11:13:03 +0100
+Message-Id: <20230203101018.177097266@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.1
-In-Reply-To: <20230203101023.832083974@linuxfoundation.org>
-References: <20230203101023.832083974@linuxfoundation.org>
+In-Reply-To: <20230203101015.263854890@linuxfoundation.org>
+References: <20230203101015.263854890@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,98 +53,71 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Steven Rostedt (Google) <rostedt@goodmis.org>
+From: Nathan Chancellor <nathan@kernel.org>
 
-commit 7ae4ba7195b1bac04a4210a499da9d8c63b0ba9c upstream.
+commit ab4ababdf77ccc56c7301c751dff49c79709c51c upstream.
 
-The instructions for the ftrace-bisect.sh script, which is used to find
-what function is being traced that is causing a kernel crash, and possibly
-a triple fault reboot, uses the old method. In 5.1, a new feature was
-added that let the user write in the index into available_filter_functions
-that maps to the function a user wants to set in set_ftrace_filter (or
-set_ftrace_notrace). This takes O(1) to set, as suppose to writing a
-function name, which takes O(n) (where n is the number of functions in
-available_filter_functions).
+When building ARCH=h8300 defconfig:
 
-The ftrace-bisect.sh requires setting half of the functions in
-available_filter_functions, which is O(n^2) using the name method to enable
-and can take several minutes to complete. The number method is O(n) which
-takes less than a second to complete. Using the number method for any
-kernel 5.1 and after is the proper way to do the bisect.
+arch/h8300/kernel/traps.c: In function 'die':
+arch/h8300/kernel/traps.c:109:2: error: implicit declaration of function
+'make_dead_task' [-Werror=implicit-function-declaration]
+  109 |  make_dead_task(SIGSEGV);
+      |  ^~~~~~~~~~~~~~
 
-Update the usage to reflect the new change, as well as using the
-/sys/kernel/tracing path instead of the obsolete debugfs path.
+arch/h8300/mm/fault.c: In function 'do_page_fault':
+arch/h8300/mm/fault.c:54:2: error: implicit declaration of function
+'make_dead_task' [-Werror=implicit-function-declaration]
+   54 |  make_dead_task(SIGKILL);
+      |  ^~~~~~~~~~~~~~
 
-Link: https://lkml.kernel.org/r/20230123112252.022003dd@gandalf.local.home
+The function's name is make_task_dead(), change it so there is no more
+build error.
 
-Cc: stable@vger.kernel.org
-Cc: Masami Hiramatsu <mhiramat@kernel.org>
-Acked-by: Mark Rutland <mark.rutland@arm.com>
-Fixes: f79b3f338564e ("ftrace: Allow enabling of filters via index of available_filter_functions")
-Signed-off-by: Steven Rostedt (Google) <rostedt@goodmis.org>
+Additionally, include linux/sched/task.h in arch/h8300/kernel/traps.c
+to avoid the same error because do_exit()'s declaration is in kernel.h
+but make_task_dead()'s is in task.h, which is not included in traps.c.
+
+Fixes: 0e25498f8cd4 ("exit: Add and use make_task_dead.")
+Signed-off-by: Nathan Chancellor <nathan@kernel.org>
+Link: https://lkml.kernel.org/r/20211227184851.2297759-3-nathan@kernel.org
+Signed-off-by: Eric W. Biederman <ebiederm@xmission.com>
+Signed-off-by: Eric Biggers <ebiggers@google.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- scripts/tracing/ftrace-bisect.sh |   34 ++++++++++++++++++++++++++--------
- 1 file changed, 26 insertions(+), 8 deletions(-)
+ arch/h8300/kernel/traps.c |    3 ++-
+ arch/h8300/mm/fault.c     |    2 +-
+ 2 files changed, 3 insertions(+), 2 deletions(-)
 
---- a/scripts/tracing/ftrace-bisect.sh
-+++ b/scripts/tracing/ftrace-bisect.sh
-@@ -12,7 +12,7 @@
- #   (note, if this is a problem with function_graph tracing, then simply
- #    replace "function" with "function_graph" in the following steps).
- #
--#  # cd /sys/kernel/debug/tracing
-+#  # cd /sys/kernel/tracing
- #  # echo schedule > set_ftrace_filter
- #  # echo function > current_tracer
- #
-@@ -20,22 +20,40 @@
- #
- #  # echo nop > current_tracer
- #
--#  # cat available_filter_functions > ~/full-file
-+# Starting with v5.1 this can be done with numbers, making it much faster:
-+#
-+# The old (slow) way, for kernels before v5.1.
-+#
-+# [old-way] # cat available_filter_functions > ~/full-file
-+#
-+# [old-way] *** Note ***  this process will take several minutes to update the
-+# [old-way] filters. Setting multiple functions is an O(n^2) operation, and we
-+# [old-way] are dealing with thousands of functions. So go have coffee, talk
-+# [old-way] with your coworkers, read facebook. And eventually, this operation
-+# [old-way] will end.
-+#
-+# The new way (using numbers) is an O(n) operation, and usually takes less than a second.
-+#
-+# seq `wc -l available_filter_functions | cut -d' ' -f1` > ~/full-file
-+#
-+# This will create a sequence of numbers that match the functions in
-+# available_filter_functions, and when echoing in a number into the
-+# set_ftrace_filter file, it will enable the corresponding function in
-+# O(1) time. Making enabling all functions O(n) where n is the number of
-+# functions to enable.
-+#
-+# For either the new or old way, the rest of the operations remain the same.
-+#
- #  # ftrace-bisect ~/full-file ~/test-file ~/non-test-file
- #  # cat ~/test-file > set_ftrace_filter
- #
--# *** Note *** this will take several minutes. Setting multiple functions is
--# an O(n^2) operation, and we are dealing with thousands of functions. So go
--# have  coffee, talk with your coworkers, read facebook. And eventually, this
--# operation will end.
--#
- #  # echo function > current_tracer
- #
- # If it crashes, we know that ~/test-file has a bad function.
- #
- #   Reboot back to test kernel.
- #
--#     # cd /sys/kernel/debug/tracing
-+#     # cd /sys/kernel/tracing
- #     # mv ~/test-file ~/full-file
- #
- # If it didn't crash.
+--- a/arch/h8300/kernel/traps.c
++++ b/arch/h8300/kernel/traps.c
+@@ -17,6 +17,7 @@
+ #include <linux/types.h>
+ #include <linux/sched.h>
+ #include <linux/sched/debug.h>
++#include <linux/sched/task.h>
+ #include <linux/mm_types.h>
+ #include <linux/kernel.h>
+ #include <linux/errno.h>
+@@ -110,7 +111,7 @@ void die(const char *str, struct pt_regs
+ 	dump(fp);
+ 
+ 	spin_unlock_irq(&die_lock);
+-	make_dead_task(SIGSEGV);
++	make_task_dead(SIGSEGV);
+ }
+ 
+ static int kstack_depth_to_print = 24;
+--- a/arch/h8300/mm/fault.c
++++ b/arch/h8300/mm/fault.c
+@@ -52,7 +52,7 @@ asmlinkage int do_page_fault(struct pt_r
+ 	printk(" at virtual address %08lx\n", address);
+ 	if (!user_mode(regs))
+ 		die("Oops", regs, error_code);
+-	make_dead_task(SIGKILL);
++	make_task_dead(SIGKILL);
+ 
+ 	return 1;
+ }
 
 
