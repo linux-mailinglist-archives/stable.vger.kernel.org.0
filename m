@@ -2,46 +2,49 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 3283C6895BF
-	for <lists+stable@lfdr.de>; Fri,  3 Feb 2023 11:24:28 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id CB530689524
+	for <lists+stable@lfdr.de>; Fri,  3 Feb 2023 11:18:40 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233205AbjBCKU1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 3 Feb 2023 05:20:27 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42130 "EHLO
+        id S231737AbjBCKQu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 3 Feb 2023 05:16:50 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37460 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233245AbjBCKUY (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 3 Feb 2023 05:20:24 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F00A1305F5
-        for <stable@vger.kernel.org>; Fri,  3 Feb 2023 02:19:49 -0800 (PST)
+        with ESMTP id S232233AbjBCKQs (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 3 Feb 2023 05:16:48 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0CFC7903BC
+        for <stable@vger.kernel.org>; Fri,  3 Feb 2023 02:16:28 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 6FD20B8287A
-        for <stable@vger.kernel.org>; Fri,  3 Feb 2023 10:19:49 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id BE366C4339B;
-        Fri,  3 Feb 2023 10:19:47 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 90C1161E68
+        for <stable@vger.kernel.org>; Fri,  3 Feb 2023 10:16:27 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 76471C433EF;
+        Fri,  3 Feb 2023 10:16:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1675419588;
-        bh=zqopiyW3p9GCd5wuca4dTfP4WgEtM+Uqg8178/tnTLg=;
+        s=korg; t=1675419386;
+        bh=b9fBsfoaASCdmYjp6MLwb8s4Fxxdn7Wcbtw6Q7BGoIg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=deViJ88msz64Fdcyxjyk8dGgqNxqEtpGYQi72pliFvV1CMWYcHdBfco1E2M6JdD+d
-         JM6/mi/Z74esv1IpwE8BiPEjYB/eznl9PReqIEf1PqYH73kWs3zLSnXcmKZjOmJhGp
-         8KCLp4cvjM2XNVdhDt5frJwW/pZb+l3JmJn0/RV4=
+        b=JZ76ibWCWCXnHF2qbgTUoe8437VQ9UBIrNC1nMInPyN5qBhOOGCtQdrIF67UUDX76
+         uwkMNuLYDy49a4557nSUuZFvSdrK29JWeXFHf8e1a1V6Mw7kK94OwoB/JBBBv5aTq8
+         th568/DZALKJO4eic1wxQdxHacLSy/aRaXbMfZkc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        syzbot+5fafd5cfe1fc91f6b352@syzkaller.appspotmail.com,
-        Kuniyuki Iwashima <kuniyu@amazon.com>,
-        Paolo Abeni <pabeni@redhat.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 53/80] netrom: Fix use-after-free of a listening socket.
+        patches@lists.linux.dev, Randy Dunlap <rdunlap@infradead.org>,
+        Christoph Hellwig <hch@infradead.org>,
+        Christoph Hellwig <hch@lst.de>,
+        "Eric W. Biederman" <ebiederm@xmission.com>,
+        Tony Luck <tony.luck@intel.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Eric Biggers <ebiggers@google.com>
+Subject: [PATCH 4.14 51/62] ia64: make IA64_MCA_RECOVERY bool instead of tristate
 Date:   Fri,  3 Feb 2023 11:12:47 +0100
-Message-Id: <20230203101017.477607573@linuxfoundation.org>
+Message-Id: <20230203101015.117382097@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.1
-In-Reply-To: <20230203101015.263854890@linuxfoundation.org>
-References: <20230203101015.263854890@linuxfoundation.org>
+In-Reply-To: <20230203101012.959398849@linuxfoundation.org>
+References: <20230203101012.959398849@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,161 +58,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kuniyuki Iwashima <kuniyu@amazon.com>
+From: Randy Dunlap <rdunlap@infradead.org>
 
-[ Upstream commit 409db27e3a2eb5e8ef7226ca33be33361b3ed1c9 ]
+commit dbecf9b8b8ce580f4e11afed9d61e8aa294cddd2 upstream.
 
-syzbot reported a use-after-free in do_accept(), precisely nr_accept()
-as sk_prot_alloc() allocated the memory and sock_put() frees it. [0]
+In linux-next, IA64_MCA_RECOVERY uses the (new) function
+make_task_dead(), which is not exported for use by modules.  Instead of
+exporting it for one user, convert IA64_MCA_RECOVERY to be a bool
+Kconfig symbol.
 
-The issue could happen if the heartbeat timer is fired and
-nr_heartbeat_expiry() calls nr_destroy_socket(), where a socket
-has SOCK_DESTROY or a listening socket has SOCK_DEAD.
+In a config file from "kernel test robot <lkp@intel.com>" for a
+different problem, this linker error was exposed when
+CONFIG_IA64_MCA_RECOVERY=m.
 
-In this case, the first condition cannot be true.  SOCK_DESTROY is
-flagged in nr_release() only when the file descriptor is close()d,
-but accept() is being called for the listening socket, so the second
-condition must be true.
+Fixes this build error:
 
-Usually, the AF_NETROM listener neither starts timers nor sets
-SOCK_DEAD.  However, the condition is met if connect() fails before
-listen().  connect() starts the t1 timer and heartbeat timer, and
-t1timer calls nr_disconnect() when timeout happens.  Then, SOCK_DEAD
-is set, and if we call listen(), the heartbeat timer calls
-nr_destroy_socket().
+  ERROR: modpost: "make_task_dead" [arch/ia64/kernel/mca_recovery.ko] undefined!
 
-  nr_connect
-    nr_establish_data_link(sk)
-      nr_start_t1timer(sk)
-    nr_start_heartbeat(sk)
-                                    nr_t1timer_expiry
-                                      nr_disconnect(sk, ETIMEDOUT)
-                                        nr_sk(sk)->state = NR_STATE_0
-                                        sk->sk_state = TCP_CLOSE
-                                        sock_set_flag(sk, SOCK_DEAD)
-nr_listen
-  if (sk->sk_state != TCP_LISTEN)
-    sk->sk_state = TCP_LISTEN
-                                    nr_heartbeat_expiry
-                                      switch (nr->state)
-                                      case NR_STATE_0
-                                        if (sk->sk_state == TCP_LISTEN &&
-                                            sock_flag(sk, SOCK_DEAD))
-                                          nr_destroy_socket(sk)
-
-This path seems expected, and nr_destroy_socket() is called to clean
-up resources.  Initially, there was sock_hold() before nr_destroy_socket()
-so that the socket would not be freed, but the commit 517a16b1a88b
-("netrom: Decrease sock refcount when sock timers expire") accidentally
-removed it.
-
-To fix use-after-free, let's add sock_hold().
-
-[0]:
-BUG: KASAN: use-after-free in do_accept+0x483/0x510 net/socket.c:1848
-Read of size 8 at addr ffff88807978d398 by task syz-executor.3/5315
-
-CPU: 0 PID: 5315 Comm: syz-executor.3 Not tainted 6.2.0-rc3-syzkaller-00165-gd9fc1511728c #0
-Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS Google 10/26/2022
-Call Trace:
- <TASK>
- __dump_stack lib/dump_stack.c:88 [inline]
- dump_stack_lvl+0xd1/0x138 lib/dump_stack.c:106
- print_address_description mm/kasan/report.c:306 [inline]
- print_report+0x15e/0x461 mm/kasan/report.c:417
- kasan_report+0xbf/0x1f0 mm/kasan/report.c:517
- do_accept+0x483/0x510 net/socket.c:1848
- __sys_accept4_file net/socket.c:1897 [inline]
- __sys_accept4+0x9a/0x120 net/socket.c:1927
- __do_sys_accept net/socket.c:1944 [inline]
- __se_sys_accept net/socket.c:1941 [inline]
- __x64_sys_accept+0x75/0xb0 net/socket.c:1941
- do_syscall_x64 arch/x86/entry/common.c:50 [inline]
- do_syscall_64+0x39/0xb0 arch/x86/entry/common.c:80
- entry_SYSCALL_64_after_hwframe+0x63/0xcd
-RIP: 0033:0x7fa436a8c0c9
-Code: 28 00 00 00 75 05 48 83 c4 28 c3 e8 f1 19 00 00 90 48 89 f8 48 89 f7 48 89 d6 48 89 ca 4d 89 c2 4d 89 c8 4c 8b 4c 24 08 0f 05 <48> 3d 01 f0 ff ff 73 01 c3 48 c7 c1 b8 ff ff ff f7 d8 64 89 01 48
-RSP: 002b:00007fa437784168 EFLAGS: 00000246 ORIG_RAX: 000000000000002b
-RAX: ffffffffffffffda RBX: 00007fa436bac050 RCX: 00007fa436a8c0c9
-RDX: 0000000000000000 RSI: 0000000000000000 RDI: 0000000000000005
-RBP: 00007fa436ae7ae9 R08: 0000000000000000 R09: 0000000000000000
-R10: 0000000000000000 R11: 0000000000000246 R12: 0000000000000000
-R13: 00007ffebc6700df R14: 00007fa437784300 R15: 0000000000022000
- </TASK>
-
-Allocated by task 5294:
- kasan_save_stack+0x22/0x40 mm/kasan/common.c:45
- kasan_set_track+0x25/0x30 mm/kasan/common.c:52
- ____kasan_kmalloc mm/kasan/common.c:371 [inline]
- ____kasan_kmalloc mm/kasan/common.c:330 [inline]
- __kasan_kmalloc+0xa3/0xb0 mm/kasan/common.c:380
- kasan_kmalloc include/linux/kasan.h:211 [inline]
- __do_kmalloc_node mm/slab_common.c:968 [inline]
- __kmalloc+0x5a/0xd0 mm/slab_common.c:981
- kmalloc include/linux/slab.h:584 [inline]
- sk_prot_alloc+0x140/0x290 net/core/sock.c:2038
- sk_alloc+0x3a/0x7a0 net/core/sock.c:2091
- nr_create+0xb6/0x5f0 net/netrom/af_netrom.c:433
- __sock_create+0x359/0x790 net/socket.c:1515
- sock_create net/socket.c:1566 [inline]
- __sys_socket_create net/socket.c:1603 [inline]
- __sys_socket_create net/socket.c:1588 [inline]
- __sys_socket+0x133/0x250 net/socket.c:1636
- __do_sys_socket net/socket.c:1649 [inline]
- __se_sys_socket net/socket.c:1647 [inline]
- __x64_sys_socket+0x73/0xb0 net/socket.c:1647
- do_syscall_x64 arch/x86/entry/common.c:50 [inline]
- do_syscall_64+0x39/0xb0 arch/x86/entry/common.c:80
- entry_SYSCALL_64_after_hwframe+0x63/0xcd
-
-Freed by task 14:
- kasan_save_stack+0x22/0x40 mm/kasan/common.c:45
- kasan_set_track+0x25/0x30 mm/kasan/common.c:52
- kasan_save_free_info+0x2b/0x40 mm/kasan/generic.c:518
- ____kasan_slab_free mm/kasan/common.c:236 [inline]
- ____kasan_slab_free+0x13b/0x1a0 mm/kasan/common.c:200
- kasan_slab_free include/linux/kasan.h:177 [inline]
- __cache_free mm/slab.c:3394 [inline]
- __do_kmem_cache_free mm/slab.c:3580 [inline]
- __kmem_cache_free+0xcd/0x3b0 mm/slab.c:3587
- sk_prot_free net/core/sock.c:2074 [inline]
- __sk_destruct+0x5df/0x750 net/core/sock.c:2166
- sk_destruct net/core/sock.c:2181 [inline]
- __sk_free+0x175/0x460 net/core/sock.c:2192
- sk_free+0x7c/0xa0 net/core/sock.c:2203
- sock_put include/net/sock.h:1991 [inline]
- nr_heartbeat_expiry+0x1d7/0x460 net/netrom/nr_timer.c:148
- call_timer_fn+0x1da/0x7c0 kernel/time/timer.c:1700
- expire_timers+0x2c6/0x5c0 kernel/time/timer.c:1751
- __run_timers kernel/time/timer.c:2022 [inline]
- __run_timers kernel/time/timer.c:1995 [inline]
- run_timer_softirq+0x326/0x910 kernel/time/timer.c:2035
- __do_softirq+0x1fb/0xadc kernel/softirq.c:571
-
-Fixes: 517a16b1a88b ("netrom: Decrease sock refcount when sock timers expire")
-Reported-by: syzbot+5fafd5cfe1fc91f6b352@syzkaller.appspotmail.com
-Signed-off-by: Kuniyuki Iwashima <kuniyu@amazon.com>
-Link: https://lore.kernel.org/r/20230120231927.51711-1-kuniyu@amazon.com
-Signed-off-by: Paolo Abeni <pabeni@redhat.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Link: https://lkml.kernel.org/r/20220124213129.29306-1-rdunlap@infradead.org
+Fixes: 0e25498f8cd4 ("exit: Add and use make_task_dead.")
+Signed-off-by: Randy Dunlap <rdunlap@infradead.org>
+Suggested-by: Christoph Hellwig <hch@infradead.org>
+Reviewed-by: Christoph Hellwig <hch@lst.de>
+Reviewed-by: "Eric W. Biederman" <ebiederm@xmission.com>
+Cc: Tony Luck <tony.luck@intel.com>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Signed-off-by: Eric Biggers <ebiggers@google.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/netrom/nr_timer.c | 1 +
- 1 file changed, 1 insertion(+)
+ arch/ia64/Kconfig |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/net/netrom/nr_timer.c b/net/netrom/nr_timer.c
-index 426d49609524..2bf99bd5be58 100644
---- a/net/netrom/nr_timer.c
-+++ b/net/netrom/nr_timer.c
-@@ -124,6 +124,7 @@ static void nr_heartbeat_expiry(struct timer_list *t)
- 		   is accepted() it isn't 'dead' so doesn't get removed. */
- 		if (sock_flag(sk, SOCK_DESTROY) ||
- 		    (sk->sk_state == TCP_LISTEN && sock_flag(sk, SOCK_DEAD))) {
-+			sock_hold(sk);
- 			bh_unlock_sock(sk);
- 			nr_destroy_socket(sk);
- 			goto out;
--- 
-2.39.0
-
+--- a/arch/ia64/Kconfig
++++ b/arch/ia64/Kconfig
+@@ -461,7 +461,7 @@ config ARCH_PROC_KCORE_TEXT
+ 	depends on PROC_KCORE
+ 
+ config IA64_MCA_RECOVERY
+-	tristate "MCA recovery from errors other than TLB."
++	bool "MCA recovery from errors other than TLB."
+ 
+ config PERFMON
+ 	bool "Performance monitor support"
 
 
