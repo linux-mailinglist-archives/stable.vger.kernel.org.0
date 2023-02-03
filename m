@@ -2,46 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 7900F689644
-	for <lists+stable@lfdr.de>; Fri,  3 Feb 2023 11:31:47 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id BE3D668951F
+	for <lists+stable@lfdr.de>; Fri,  3 Feb 2023 11:18:38 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233405AbjBCK3I (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 3 Feb 2023 05:29:08 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50864 "EHLO
+        id S233081AbjBCKR6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 3 Feb 2023 05:17:58 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38702 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233616AbjBCK2q (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 3 Feb 2023 05:28:46 -0500
+        with ESMTP id S233333AbjBCKRp (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 3 Feb 2023 05:17:45 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 57B04358D
-        for <stable@vger.kernel.org>; Fri,  3 Feb 2023 02:28:00 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 645229E9C9
+        for <stable@vger.kernel.org>; Fri,  3 Feb 2023 02:17:23 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 9275761ED2
-        for <stable@vger.kernel.org>; Fri,  3 Feb 2023 10:27:58 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 77E25C433D2;
-        Fri,  3 Feb 2023 10:27:57 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id D204961E54
+        for <stable@vger.kernel.org>; Fri,  3 Feb 2023 10:17:22 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B82D3C433EF;
+        Fri,  3 Feb 2023 10:17:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1675420077;
-        bh=MxF7jsI00vTqB1YGsqfnXGr8nEe1oRgp6NH2ha/3qGw=;
+        s=korg; t=1675419442;
+        bh=lHqXY8BP9PluxY4FmrLgcaVVPxYBjoSn6ptrU+YrONU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=R6DxoyZvRjTTXaTG97QQ8ZATOpoE12tLfSyAfr7Q9kwEum49+vsntwpnWNzO2NF5F
-         ZWhL1BHRDCO7l2gzcd2dQzcUWNYZG7oh/Pmnplj7Hvo4FonhfGvF4dGI7HBQJIISCq
-         m5yivYz6j2HGKOIHWDTFEhRYPDZDY3WWsoGBRnDE=
+        b=rn81KPHGzRmfvAqw1MQG2DTb7WEDjrNdi99YNsvFftFxrJ2Ehy8Gir6Y7Z5oT5t8d
+         FBFadtVLzpMuQv/Ho572O+Umb4ha5CumsE6sBu93Eu33Tp5suiazRrqovMPoghYRr2
+         dI40Y82BGjB6BpHCh7I6AxM0Ajs82rMjL4ygbhSo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        "Alexey V. Vissarionov" <gremlin@altlinux.org>,
-        Don Brace <don.brace@microchip.com>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 073/134] scsi: hpsa: Fix allocation size for scsi_host_alloc()
+        patches@lists.linux.dev, Matthias Kaehlcke <mka@chromium.org>,
+        Peter Chen <peter.chen@nxp.com>,
+        Mathias Nyman <mathias.nyman@linux.intel.com>,
+        Florian Fainelli <f.fainelli@gmail.com>
+Subject: [PATCH 4.14 62/62] usb: host: xhci-plat: add wakeup entry at sysfs
 Date:   Fri,  3 Feb 2023 11:12:58 +0100
-Message-Id: <20230203101027.144814125@linuxfoundation.org>
+Message-Id: <20230203101015.639554272@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.1
-In-Reply-To: <20230203101023.832083974@linuxfoundation.org>
-References: <20230203101023.832083974@linuxfoundation.org>
+In-Reply-To: <20230203101012.959398849@linuxfoundation.org>
+References: <20230203101012.959398849@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,40 +54,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alexey V. Vissarionov <gremlin@altlinux.org>
+From: Peter Chen <peter.chen@nxp.com>
 
-[ Upstream commit bbbd25499100c810ceaf5193c3cfcab9f7402a33 ]
+commit 4bb4fc0dbfa23acab9b762949b91ffd52106fe4b upstream.
 
-The 'h' is a pointer to struct ctlr_info, so it's just 4 or 8 bytes, while
-the structure itself is much bigger.
+With this change, there will be a wakeup entry at /sys/../power/wakeup,
+and the user could use this entry to choose whether enable xhci wakeup
+features (wake up system from suspend) or not.
 
-Found by Linux Verification Center (linuxtesting.org) with SVACE.
-
-Fixes: edd163687ea5 ("hpsa: add driver for HP Smart Array controllers.")
-Link: https://lore.kernel.org/r/20230118031255.GE15213@altlinux.org
-Signed-off-by: Alexey V. Vissarionov <gremlin@altlinux.org>
-Acked-by: Don Brace <don.brace@microchip.com>
-Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Tested-by: Matthias Kaehlcke <mka@chromium.org>
+Reviewed-by: Matthias Kaehlcke <mka@chromium.org>
+Signed-off-by: Peter Chen <peter.chen@nxp.com>
+Signed-off-by: Mathias Nyman <mathias.nyman@linux.intel.com>
+Link: https://lore.kernel.org/r/20200918131752.16488-6-mathias.nyman@linux.intel.com
+Signed-off-by: Florian Fainelli <f.fainelli@gmail.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/scsi/hpsa.c | 2 +-
+ drivers/usb/host/xhci-plat.c |    2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/scsi/hpsa.c b/drivers/scsi/hpsa.c
-index ba125ed7e06a..e670cce0cb6e 100644
---- a/drivers/scsi/hpsa.c
-+++ b/drivers/scsi/hpsa.c
-@@ -5810,7 +5810,7 @@ static int hpsa_scsi_host_alloc(struct ctlr_info *h)
- {
- 	struct Scsi_Host *sh;
+--- a/drivers/usb/host/xhci-plat.c
++++ b/drivers/usb/host/xhci-plat.c
+@@ -252,7 +252,7 @@ static int xhci_plat_probe(struct platfo
+ 			*priv = *priv_match;
+ 	}
  
--	sh = scsi_host_alloc(&hpsa_driver_template, sizeof(h));
-+	sh = scsi_host_alloc(&hpsa_driver_template, sizeof(struct ctlr_info));
- 	if (sh == NULL) {
- 		dev_err(&h->pdev->dev, "scsi_host_alloc failed\n");
- 		return -ENOMEM;
--- 
-2.39.0
-
+-	device_wakeup_enable(hcd->self.controller);
++	device_set_wakeup_capable(&pdev->dev, true);
+ 
+ 	xhci->clk = clk;
+ 	xhci->main_hcd = hcd;
 
 
