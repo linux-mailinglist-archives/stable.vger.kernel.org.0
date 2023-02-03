@@ -2,155 +2,268 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 2FE81689028
-	for <lists+stable@lfdr.de>; Fri,  3 Feb 2023 08:10:29 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 590D66890BB
+	for <lists+stable@lfdr.de>; Fri,  3 Feb 2023 08:25:13 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232058AbjBCHIZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 3 Feb 2023 02:08:25 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59528 "EHLO
+        id S231185AbjBCHZI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 3 Feb 2023 02:25:08 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45926 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232168AbjBCHIX (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 3 Feb 2023 02:08:23 -0500
-Received: from mail-wr1-x431.google.com (mail-wr1-x431.google.com [IPv6:2a00:1450:4864:20::431])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id ACED52A168
-        for <stable@vger.kernel.org>; Thu,  2 Feb 2023 23:07:58 -0800 (PST)
-Received: by mail-wr1-x431.google.com with SMTP id d14so3765298wrr.9
-        for <stable@vger.kernel.org>; Thu, 02 Feb 2023 23:07:58 -0800 (PST)
+        with ESMTP id S230147AbjBCHZH (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 3 Feb 2023 02:25:07 -0500
+Received: from mail-pf1-x429.google.com (mail-pf1-x429.google.com [IPv6:2607:f8b0:4864:20::429])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6221F8B7E8
+        for <stable@vger.kernel.org>; Thu,  2 Feb 2023 23:25:06 -0800 (PST)
+Received: by mail-pf1-x429.google.com with SMTP id z3so2953863pfb.2
+        for <stable@vger.kernel.org>; Thu, 02 Feb 2023 23:25:06 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:from:to:cc:subject:date:message-id:reply-to;
-        bh=3Giys0e8XwfnOYt8CH3fApqsktaZBDa/ad6diM4SxSw=;
-        b=NqOBCeckuZU3sbTdDABRPvqrpp7ftOw9GXJMpQklxBU8O1XSRHIVQadAReQY+xP/qU
-         JGYMtotwgpYyDuXc7RzpVvYSLez1sBLmF+6Mh96vDP08xBZmol/H+PRwSXmZloy82IAN
-         U2N39pF3Hjtl97Jg1S4Ty60iMmByHsj7+tW5y6ZkIuNKR8uHUXCq2o9kpuRoCj9eUs0O
-         mlHl4ROwlgi9gYiIsCM4ImAThRoDTi7alkaQYTDwvhA71DfQpVSuzQEI1T1XjicflILU
-         mchuRkOpChOLPGb85xzqwOzUNj//J3BkQLVHRpQ7aQT3UrbVeKxSM60+aTiCg0KwZBbe
-         tjIw==
+        d=kernelci-org.20210112.gappssmtp.com; s=20210112;
+        h=from:to:subject:content-transfer-encoding:mime-version:date
+         :message-id:from:to:cc:subject:date:message-id:reply-to;
+        bh=3/oqknfb6n+IjaczPSOTEur4HILMOzqlr/quEA/E0ps=;
+        b=RorJzzysBzq2B2Yt0gJLpvDLsBcYUuM1Gm1k4OVRVZlSnswyDvSOybDW0H72pKJJYe
+         ivfsdsBlziAmEzVJ7fl+8A6sTvPMbQevHM7UmSFCcvCMTTeRoXX+Mo+1/sKUPi5TyXsx
+         IUqo+2P220wZLB1mLqAsIkbz0KCVJLAjYMYg673ZiHsiY6t5dumb3ysKoYIbNWu7Yt/B
+         aChGmvQfj9GoFsAvWB2xl9nRWZ07l1HAUEp3Df6qg/diMcpZlFLJCxg17HIl+DrCjE70
+         xVgZzEMYSXazMeoSJkpQsmk/LGFssPJyNv2IIC5v5qx2Lv5Gx1KeJPY+PYgaIQubheeC
+         jmfQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:x-gm-message-state:from:to:cc:subject:date:message-id
+        h=from:to:subject:content-transfer-encoding:mime-version:date
+         :message-id:x-gm-message-state:from:to:cc:subject:date:message-id
          :reply-to;
-        bh=3Giys0e8XwfnOYt8CH3fApqsktaZBDa/ad6diM4SxSw=;
-        b=NbXNaZw3k/nBDbIiZ1JoItik9HwptFbIKZoo6NtXbnELAEp0jnyB+hKeFR1X2+1to8
-         AhbEx148YKP1k7tRpFwbZ2OYBtHqdmG7uD/y5G5vt8yhjLYkMtclNKhBYC02tIt94A0L
-         mMkQ7j3C0Jme8VN/a5wctFcCjTmS5oz0Lu8R+dP+HbPrcD52Wv3GcMht1l0Sdi8WSGGQ
-         VryO0UjxJSXWXRO4qaVgBvm3Hyx83y9B5Zrr+kUGmjFsNvmrHZcTPX37PceaWOcVHtFC
-         dms81opKagEg0bQvU43kVSpbgUkOwaf5VrJ2FyQmZwFgqqGnmPt+3sU/aEZPsFKG9pS/
-         RTpw==
-X-Gm-Message-State: AO0yUKUVEaFdBngnRn379FP/KN92xEy6rNj+s0s2jZc3cib2IU6v2uJu
-        UIQ1SU8A4bgY4EEQ5p+PsmN0qA==
-X-Google-Smtp-Source: AK7set84MRYw+mqtHLSwbpio6M2OBEi0AtOQqqxiJWr6xHG6OCYgNLmnDw2Mi5mn/BGlY3y1RH2Gkw==
-X-Received: by 2002:a5d:44ca:0:b0:2bf:ee9a:2a95 with SMTP id z10-20020a5d44ca000000b002bfee9a2a95mr2819535wrr.60.1675408077159;
-        Thu, 02 Feb 2023 23:07:57 -0800 (PST)
-Received: from 1.. ([79.115.63.122])
-        by smtp.gmail.com with ESMTPSA id f17-20020a5d50d1000000b002bfe266d710sm1242440wrt.90.2023.02.02.23.07.56
+        bh=3/oqknfb6n+IjaczPSOTEur4HILMOzqlr/quEA/E0ps=;
+        b=THJJ1hA4TL/9FbeCvDD/hcV3iCTitjEOKskDtc3G2PHeaLjHfKPm9ZcfNn/MN6jNkV
+         wFlARtpa5yKH/dz8PtjuNMuwUB4v3mag1n3o0cCVKtVffxhhwqtq+lkwCpovbw1HOnYc
+         St+/JEnDg3fAEO6mK3NWKKGwaIkVIYFZdRGgxDHtXY1/5o7B4u4xujvyLhAMmX4al1+H
+         JuB4m1KGO7pVDq7z2P5aEAMW3jmGovgZZqaqzIlfOchLIEHoi+YR6KrcOn8PpdLBtbpI
+         ZAa5M6EKceuQr8fPmpyS6VndcLL+vdWuRjjEY0WXI9+ARep+zlI5L0ke4AD4/zbCzOZU
+         nn1g==
+X-Gm-Message-State: AO0yUKXCy76FsXhza3qTpG5ldj3auAMGH4GFy7h2doX+ryd5sw8TWTb5
+        7yoOGqNcdWiq0sMmEDSMc/PFJzFTxkkDnliXoh8=
+X-Google-Smtp-Source: AK7set/NB32WtyRWykK6oOe9H2JiUgUMVwVQK7PNKSH+EPxucw8oveUF0pF3lti076gQ+k+9EQ/+iA==
+X-Received: by 2002:aa7:82cb:0:b0:594:335f:928a with SMTP id f11-20020aa782cb000000b00594335f928amr3690266pfn.7.1675409105581;
+        Thu, 02 Feb 2023 23:25:05 -0800 (PST)
+Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
+        by smtp.gmail.com with ESMTPSA id k131-20020a628489000000b0058dbd7a5e0esm932729pfd.89.2023.02.02.23.25.05
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 02 Feb 2023 23:07:56 -0800 (PST)
-From:   Tudor Ambarus <tudor.ambarus@linaro.org>
-To:     pratyush@kernel.org, michael@walle.cc, lrannou@baylibre.com,
-        Alexander.Stein@tq-group.com
-Cc:     linux-mtd@lists.infradead.org, linux-kernel@vger.kernel.org,
-        stable@vger.kernel.org, Tudor Ambarus <tudor.ambarus@linaro.org>
-Subject: [PATCH v3] mtd: spi-nor: Fix shift-out-of-bounds in spi_nor_set_erase_type
-Date:   Fri,  3 Feb 2023 09:07:54 +0200
-Message-Id: <20230203070754.50677-1-tudor.ambarus@linaro.org>
-X-Mailer: git-send-email 2.34.1
+        Thu, 02 Feb 2023 23:25:05 -0800 (PST)
+Message-ID: <63dcb6d1.620a0220.a9d58.1d7e@mx.google.com>
+Date:   Thu, 02 Feb 2023 23:25:05 -0800 (PST)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-X-Developer-Signature: v=1; a=openpgp-sha256; l=3316; i=tudor.ambarus@linaro.org; h=from:subject; bh=Yio6+NRvq86fhGC+1jON5Jhb/KmYRqPSN3DXkVZPQz4=; b=owEBbQGS/pANAwAKAUtVT0eljRTpAcsmYgBj3LLJy49HFYsjPWQGPaS1Esj9tN0xBXOmoRCPu WYVeyFIn8uJATMEAAEKAB0WIQQdQirKzw7IbV4d/t9LVU9HpY0U6QUCY9yyyQAKCRBLVU9HpY0U 6YzUCADDFixg6QvFGcUyDX6FD/eLlRmmLZOh8joe445suZ5puOL8lyU9eBn2orlkWY6lUIyTctO UGwM51FgQjsaTEzLGfp6VcSG3qTBEqXiylXrElwTtzzrpbqXwp9M3qXjvi/RE32duOrPkSyKVV2 7ZMrGp12EQ1qeTGNHa7Y11ZkDISp47j0boXpDFiGsuC5Dpm3bQbLtk0FJWoNhoEovhTCPnSzpuQ BH7enbvkE/pWAkfhDokFJCVcZShWVkE+FlbVSmIOlULsoGXMa/HHnYgbYp9oyINeZep5k+FHAuh s9kJyUeti/dmXj2VdTAm105wl1QcBFp9nCNJ8o/ABlUioK51
-X-Developer-Key: i=tudor.ambarus@linaro.org; a=openpgp; fpr=280B06FD4CAAD2980C46DDDF4DB1B079AD29CF3D
-Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_NONE,
-        SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Tree: stable-rc
+X-Kernelci-Branch: queue/5.15
+X-Kernelci-Kernel: v5.15.91-12-g3290f78df1ab
+X-Kernelci-Report-Type: test
+Subject: stable-rc/queue/5.15 baseline: 118 runs,
+ 3 regressions (v5.15.91-12-g3290f78df1ab)
+To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
+        kernelci-results@groups.io
+From:   "kernelci.org bot" <bot@kernelci.org>
+X-Spam-Status: No, score=-1.9 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_NONE autolearn=ham
+        autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Louis Rannou <lrannou@baylibre.com>
+stable-rc/queue/5.15 baseline: 118 runs, 3 regressions (v5.15.91-12-g3290f7=
+8df1ab)
 
-spi_nor_set_erase_type() was used either to set or to mask out an erase
-type. When we used it to mask out an erase type a shift-out-of-bounds
-was hit:
-UBSAN: shift-out-of-bounds in drivers/mtd/spi-nor/core.c:2237:24
-shift exponent 4294967295 is too large for 32-bit type 'int'
+Regressions Summary
+-------------------
 
-The setting of the size_{shift, mask} and of the opcode are unnecessary
-when the erase size is zero, as throughout the code just the erase size
-is considered to determine whether an erase type is supported or not.
-Setting the opcode to 0xFF was wrong too as nobody guarantees that 0xFF
-is an unused opcode. Thus when masking out an erase type, just set the
-erase size to zero. This will fix the shift-out-of-bounds.
+platform        | arch | lab             | compiler | defconfig          | =
+regressions
+----------------+------+-----------------+----------+--------------------+-=
+-----------
+cubietruck      | arm  | lab-baylibre    | gcc-10   | multi_v7_defconfig | =
+1          =
 
-Fixes: 5390a8df769e ("mtd: spi-nor: add support to non-uniform SFDP SPI NOR flash memories")
-Cc: stable@vger.kernel.org
-Reported-by: Alexander Stein <Alexander.Stein@tq-group.com>
-Signed-off-by: Louis Rannou <lrannou@baylibre.com>
-[ta: refine changes, new commit message, fix compilation error]
-Signed-off-by: Tudor Ambarus <tudor.ambarus@linaro.org>
----
- drivers/mtd/spi-nor/core.c | 9 +++++++++
- drivers/mtd/spi-nor/core.h | 1 +
- drivers/mtd/spi-nor/sfdp.c | 4 ++--
- 3 files changed, 12 insertions(+), 2 deletions(-)
+imx53-qsrb      | arm  | lab-pengutronix | gcc-10   | multi_v7_defconfig | =
+1          =
 
-diff --git a/drivers/mtd/spi-nor/core.c b/drivers/mtd/spi-nor/core.c
-index 247d1014879a..22cb18b6c941 100644
---- a/drivers/mtd/spi-nor/core.c
-+++ b/drivers/mtd/spi-nor/core.c
-@@ -2025,6 +2025,15 @@ void spi_nor_set_erase_type(struct spi_nor_erase_type *erase, u32 size,
- 	erase->size_mask = (1 << erase->size_shift) - 1;
- }
- 
-+/**
-+ * spi_nor_mask_erase_type() - mask out an SPI NOR erase type
-+ * @erase:	pointer to a structure that describes an SPI NOR erase type
-+ */
-+void spi_nor_mask_erase_type(struct spi_nor_erase_type *erase)
-+{
-+	erase->size = 0;
-+}
-+
- /**
-  * spi_nor_init_uniform_erase_map() - Initialize uniform erase map
-  * @map:		the erase map of the SPI NOR
-diff --git a/drivers/mtd/spi-nor/core.h b/drivers/mtd/spi-nor/core.h
-index f6d012e1f681..25423225c29d 100644
---- a/drivers/mtd/spi-nor/core.h
-+++ b/drivers/mtd/spi-nor/core.h
-@@ -681,6 +681,7 @@ void spi_nor_set_pp_settings(struct spi_nor_pp_command *pp, u8 opcode,
- 
- void spi_nor_set_erase_type(struct spi_nor_erase_type *erase, u32 size,
- 			    u8 opcode);
-+void spi_nor_mask_erase_type(struct spi_nor_erase_type *erase);
- struct spi_nor_erase_region *
- spi_nor_region_next(struct spi_nor_erase_region *region);
- void spi_nor_init_uniform_erase_map(struct spi_nor_erase_map *map,
-diff --git a/drivers/mtd/spi-nor/sfdp.c b/drivers/mtd/spi-nor/sfdp.c
-index fd4daf8fa5df..298ab5e53a8c 100644
---- a/drivers/mtd/spi-nor/sfdp.c
-+++ b/drivers/mtd/spi-nor/sfdp.c
-@@ -875,7 +875,7 @@ static int spi_nor_init_non_uniform_erase_map(struct spi_nor *nor,
- 	 */
- 	for (i = 0; i < SNOR_ERASE_TYPE_MAX; i++)
- 		if (!(regions_erase_type & BIT(erase[i].idx)))
--			spi_nor_set_erase_type(&erase[i], 0, 0xFF);
-+			spi_nor_mask_erase_type(&erase[i]);
- 
- 	return 0;
- }
-@@ -1089,7 +1089,7 @@ static int spi_nor_parse_4bait(struct spi_nor *nor,
- 			erase_type[i].opcode = (dwords[SFDP_DWORD(2)] >>
- 						erase_type[i].idx * 8) & 0xFF;
- 		else
--			spi_nor_set_erase_type(&erase_type[i], 0u, 0xFF);
-+			spi_nor_mask_erase_type(&erase_type[i]);
- 	}
- 
- 	/*
--- 
-2.34.1
+stm32mp157c-dk2 | arm  | lab-baylibre    | gcc-10   | multi_v7_defconfig | =
+1          =
 
+
+  Details:  https://kernelci.org/test/job/stable-rc/branch/queue%2F5.15/ker=
+nel/v5.15.91-12-g3290f78df1ab/plan/baseline/
+
+  Test:     baseline
+  Tree:     stable-rc
+  Branch:   queue/5.15
+  Describe: v5.15.91-12-g3290f78df1ab
+  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
+able-rc.git
+  SHA:      3290f78df1ab39a84577b1c25ba31a00ee45568f =
+
+
+
+Test Regressions
+---------------- =
+
+
+
+platform        | arch | lab             | compiler | defconfig          | =
+regressions
+----------------+------+-----------------+----------+--------------------+-=
+-----------
+cubietruck      | arm  | lab-baylibre    | gcc-10   | multi_v7_defconfig | =
+1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/63dc8405ff8275a554915ebf
+
+  Results:     5 PASS, 1 FAIL, 1 SKIP
+  Full config: multi_v7_defconfig
+  Compiler:    gcc-10 (arm-linux-gnueabihf-gcc (Debian 10.2.1-6) 10.2.1 202=
+10110)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.15/v5.15.91-=
+12-g3290f78df1ab/arm/multi_v7_defconfig/gcc-10/lab-baylibre/baseline-cubiet=
+ruck.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.15/v5.15.91-=
+12-g3290f78df1ab/arm/multi_v7_defconfig/gcc-10/lab-baylibre/baseline-cubiet=
+ruck.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
+t-baseline/20230127.0/armel/rootfs.cpio.gz =
+
+
+
+  * baseline.bootrr.deferred-probe-empty: https://kernelci.org/test/case/id=
+/63dc8405ff8275a554915ec4
+        failing since 16 days (last pass: v5.15.82-123-gd03dbdba21ef, first=
+ fail: v5.15.87-100-ge215d5ead661)
+
+    2023-02-03T03:48:02.541359  <8>[   10.096696] <LAVA_SIGNAL_ENDRUN 0_dme=
+sg 3279378_1.5.2.4.1>
+    2023-02-03T03:48:02.651516  / # #
+    2023-02-03T03:48:02.754923  export SHELL=3D/bin/sh
+    2023-02-03T03:48:02.755807  #<3>[   10.193846] Bluetooth: hci0: command=
+ 0xfc18 tx timeout
+    2023-02-03T03:48:02.756251  =
+
+    2023-02-03T03:48:02.858068  / # export SHELL=3D/bin/sh. /lava-3279378/e=
+nvironment
+    2023-02-03T03:48:02.860233  =
+
+    2023-02-03T03:48:02.962525  / # . /lava-3279378/environment/lava-327937=
+8/bin/lava-test-runner /lava-3279378/1
+    2023-02-03T03:48:02.963251  =
+
+    2023-02-03T03:48:02.967457  / # /lava-3279378/bin/lava-test-runner /lav=
+a-3279378/1 =
+
+    ... (12 line(s) more)  =
+
+ =
+
+
+
+platform        | arch | lab             | compiler | defconfig          | =
+regressions
+----------------+------+-----------------+----------+--------------------+-=
+-----------
+imx53-qsrb      | arm  | lab-pengutronix | gcc-10   | multi_v7_defconfig | =
+1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/63dc83d543aba456e7915ec9
+
+  Results:     5 PASS, 1 FAIL, 1 SKIP
+  Full config: multi_v7_defconfig
+  Compiler:    gcc-10 (arm-linux-gnueabihf-gcc (Debian 10.2.1-6) 10.2.1 202=
+10110)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.15/v5.15.91-=
+12-g3290f78df1ab/arm/multi_v7_defconfig/gcc-10/lab-pengutronix/baseline-imx=
+53-qsrb.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.15/v5.15.91-=
+12-g3290f78df1ab/arm/multi_v7_defconfig/gcc-10/lab-pengutronix/baseline-imx=
+53-qsrb.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
+t-baseline/20230127.0/armel/rootfs.cpio.gz =
+
+
+
+  * baseline.bootrr.deferred-probe-empty: https://kernelci.org/test/case/id=
+/63dc83d543aba456e7915ece
+        failing since 6 days (last pass: v5.15.81-121-gcb14018a85f6, first =
+fail: v5.15.90-146-gbf7101723cc0)
+
+    2023-02-03T03:47:09.723894  + set +x
+    2023-02-03T03:47:09.724087  [    9.358308] <LAVA_SIGNAL_ENDRUN 0_dmesg =
+896843_1.5.2.3.1>
+    2023-02-03T03:47:09.831029  / # #
+    2023-02-03T03:47:09.932690  export SHELL=3D/bin/sh
+    2023-02-03T03:47:09.933138  #
+    2023-02-03T03:47:10.034342  / # export SHELL=3D/bin/sh. /lava-896843/en=
+vironment
+    2023-02-03T03:47:10.034932  =
+
+    2023-02-03T03:47:10.136322  / # . /lava-896843/environment/lava-896843/=
+bin/lava-test-runner /lava-896843/1
+    2023-02-03T03:47:10.137194  =
+
+    2023-02-03T03:47:10.139249  / # /lava-896843/bin/lava-test-runner /lava=
+-896843/1 =
+
+    ... (12 line(s) more)  =
+
+ =
+
+
+
+platform        | arch | lab             | compiler | defconfig          | =
+regressions
+----------------+------+-----------------+----------+--------------------+-=
+-----------
+stm32mp157c-dk2 | arm  | lab-baylibre    | gcc-10   | multi_v7_defconfig | =
+1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/63dc83d143aba456e7915eb9
+
+  Results:     5 PASS, 1 FAIL, 1 SKIP
+  Full config: multi_v7_defconfig
+  Compiler:    gcc-10 (arm-linux-gnueabihf-gcc (Debian 10.2.1-6) 10.2.1 202=
+10110)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.15/v5.15.91-=
+12-g3290f78df1ab/arm/multi_v7_defconfig/gcc-10/lab-baylibre/baseline-stm32m=
+p157c-dk2.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.15/v5.15.91-=
+12-g3290f78df1ab/arm/multi_v7_defconfig/gcc-10/lab-baylibre/baseline-stm32m=
+p157c-dk2.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
+t-baseline/20230127.0/armel/rootfs.cpio.gz =
+
+
+
+  * baseline.bootrr.deferred-probe-empty: https://kernelci.org/test/case/id=
+/63dc83d143aba456e7915ebe
+        failing since 1 day (last pass: v5.15.72-36-g3886958cda706, first f=
+ail: v5.15.90-215-gdf99871482a0)
+
+    2023-02-03T03:47:20.205826  <8>[   11.507530] <LAVA_SIGNAL_ENDRUN 0_dme=
+sg 3279417_1.5.2.4.1>
+    2023-02-03T03:47:20.311853  / # #
+    2023-02-03T03:47:20.414603  export SHELL=3D/bin/sh
+    2023-02-03T03:47:20.415223  #
+    2023-02-03T03:47:20.516866  / # export SHELL=3D/bin/sh. /lava-3279417/e=
+nvironment
+    2023-02-03T03:47:20.517619  =
+
+    2023-02-03T03:47:20.619109  / # . /lava-3279417/environment/lava-327941=
+7/bin/lava-test-runner /lava-3279417/1
+    2023-02-03T03:47:20.620405  =
+
+    2023-02-03T03:47:20.623890  / # /lava-3279417/bin/lava-test-runner /lav=
+a-3279417/1
+    2023-02-03T03:47:20.691819  + export 'TESTRUN_ID=3D1_bootrr' =
+
+    ... (11 line(s) more)  =
+
+ =20
