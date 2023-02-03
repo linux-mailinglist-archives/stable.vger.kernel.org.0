@@ -2,47 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 9EFD4689698
-	for <lists+stable@lfdr.de>; Fri,  3 Feb 2023 11:32:18 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id CE364689642
+	for <lists+stable@lfdr.de>; Fri,  3 Feb 2023 11:31:46 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233507AbjBCK3L (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 3 Feb 2023 05:29:11 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51302 "EHLO
+        id S230280AbjBCK2Y (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 3 Feb 2023 05:28:24 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50766 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233617AbjBCK2t (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 3 Feb 2023 05:28:49 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 94E0912840
-        for <stable@vger.kernel.org>; Fri,  3 Feb 2023 02:28:03 -0800 (PST)
+        with ESMTP id S233470AbjBCK2C (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 3 Feb 2023 05:28:02 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 22454A428C
+        for <stable@vger.kernel.org>; Fri,  3 Feb 2023 02:27:22 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 2598561ED1
-        for <stable@vger.kernel.org>; Fri,  3 Feb 2023 10:27:18 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id BEB49C433A4;
-        Fri,  3 Feb 2023 10:27:16 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id AA670B82A65
+        for <stable@vger.kernel.org>; Fri,  3 Feb 2023 10:27:21 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E3835C4339B;
+        Fri,  3 Feb 2023 10:27:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1675420037;
-        bh=isKdncxTb2IcMl3+kZ+rEkuN9QBwR4mSC9h8Gx7Rejk=;
+        s=korg; t=1675420040;
+        bh=TEBPdHf5iqfyUasc8iSZHTJoSRvhWtPhfFnE2kBk2+k=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=1zdySp10m3r2we0dV+bwpDvKFvLGtAjShfbxwjmITaWRlyjx1G2sF3quxQELdsKh9
-         HONwpUA1MRuiapy0iJDiPn/Kg6GaCfiYXP3K2vlLIb14w5b/lY8BI/E8if1tQgn/Nh
-         rSTiPt1YiXn4ouE0uWfuvSs7Q0QAT4nu2zJtC92U=
+        b=Mazwu2+2dSC01KN6CgEh/VMICyDBkdC9HsTCY2Sf5+H0aeKvJmM8jDSTaHxBf2wNN
+         OIkLG69lSvz2eFYRGqkCoIAHqHqiXDDQw2uWqYPU5tKRdnJAEC9pmjK33UkTIahxHB
+         8r3Vd7POgCIgxS7cA+xiOknaYmB9xddiCVEz8UrQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Tom Parkin <tparkin@katalix.com>,
-        Tetsuo Handa <penguin-kernel@i-love.sakura.ne.jp>,
-        Eric Dumazet <edumazet@google.com>,
-        syzbot+703d9e154b3b58277261@syzkaller.appspotmail.com,
-        syzbot+50680ced9e98a61f7698@syzkaller.appspotmail.com,
-        syzbot+de987172bb74a381879b@syzkaller.appspotmail.com,
-        Jakub Sitnicki <jakub@cloudflare.com>,
-        "David S. Miller" <davem@davemloft.net>,
+        patches@lists.linux.dev,
+        Szymon Heidrich <szymon.heidrich@gmail.com>,
+        Paolo Abeni <pabeni@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 029/134] l2tp: Dont sleep and disable BH under writer-side sk_callback_lock
-Date:   Fri,  3 Feb 2023 11:12:14 +0100
-Message-Id: <20230203101025.169372985@linuxfoundation.org>
+Subject: [PATCH 5.4 030/134] net: usb: sr9700: Handle negative len
+Date:   Fri,  3 Feb 2023 11:12:15 +0100
+Message-Id: <20230203101025.223660802@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.1
 In-Reply-To: <20230203101023.832083974@linuxfoundation.org>
 References: <20230203101023.832083974@linuxfoundation.org>
@@ -50,8 +45,8 @@ User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
         SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -59,125 +54,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jakub Sitnicki <jakub@cloudflare.com>
+From: Szymon Heidrich <szymon.heidrich@gmail.com>
 
-[ Upstream commit af295e854a4e3813ffbdef26dbb6a4d6226c3ea1 ]
+[ Upstream commit ecf7cf8efb59789e2b21d2f9ab926142579092b2 ]
 
-When holding a reader-writer spin lock we cannot sleep. Calling
-setup_udp_tunnel_sock() with write lock held violates this rule, because we
-end up calling percpu_down_read(), which might sleep, as syzbot reports
-[1]:
+Packet len computed as difference of length word extracted from
+skb data and four may result in a negative value. In such case
+processing of the buffer should be interrupted rather than
+setting sr_skb->len to an unexpectedly large value (due to cast
+from signed to unsigned integer) and passing sr_skb to
+usbnet_skb_return.
 
- __might_resched.cold+0x222/0x26b kernel/sched/core.c:9890
- percpu_down_read include/linux/percpu-rwsem.h:49 [inline]
- cpus_read_lock+0x1b/0x140 kernel/cpu.c:310
- static_key_slow_inc+0x12/0x20 kernel/jump_label.c:158
- udp_tunnel_encap_enable include/net/udp_tunnel.h:187 [inline]
- setup_udp_tunnel_sock+0x43d/0x550 net/ipv4/udp_tunnel_core.c:81
- l2tp_tunnel_register+0xc51/0x1210 net/l2tp/l2tp_core.c:1509
- pppol2tp_connect+0xcdc/0x1a10 net/l2tp/l2tp_ppp.c:723
-
-Trim the writer-side critical section for sk_callback_lock down to the
-minimum, so that it covers only operations on sk_user_data.
-
-Also, when grabbing the sk_callback_lock, we always need to disable BH, as
-Eric points out. Failing to do so leads to deadlocks because we acquire
-sk_callback_lock in softirq context, which can get stuck waiting on us if:
-
-1) it runs on the same CPU, or
-
-       CPU0
-       ----
-  lock(clock-AF_INET6);
-  <Interrupt>
-    lock(clock-AF_INET6);
-
-2) lock ordering leads to priority inversion
-
-       CPU0                    CPU1
-       ----                    ----
-  lock(clock-AF_INET6);
-                               local_irq_disable();
-                               lock(&tcp_hashinfo.bhash[i].lock);
-                               lock(clock-AF_INET6);
-  <Interrupt>
-    lock(&tcp_hashinfo.bhash[i].lock);
-
-... as syzbot reports [2,3]. Use the _bh variants for write_(un)lock.
-
-[1] https://lore.kernel.org/netdev/0000000000004e78ec05eda79749@google.com/
-[2] https://lore.kernel.org/netdev/000000000000e38b6605eda76f98@google.com/
-[3] https://lore.kernel.org/netdev/000000000000dfa31e05eda76f75@google.com/
-
-v2:
-- Check and set sk_user_data while holding sk_callback_lock for both
-  L2TP encapsulation types (IP and UDP) (Tetsuo)
-
-Cc: Tom Parkin <tparkin@katalix.com>
-Cc: Tetsuo Handa <penguin-kernel@i-love.sakura.ne.jp>
-Fixes: b68777d54fac ("l2tp: Serialize access to sk_user_data with sk_callback_lock")
-Reported-by: Eric Dumazet <edumazet@google.com>
-Reported-by: syzbot+703d9e154b3b58277261@syzkaller.appspotmail.com
-Reported-by: syzbot+50680ced9e98a61f7698@syzkaller.appspotmail.com
-Reported-by: syzbot+de987172bb74a381879b@syzkaller.appspotmail.com
-Signed-off-by: Jakub Sitnicki <jakub@cloudflare.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Fixes: e9da0b56fe27 ("sr9700: sanity check for packet length")
+Signed-off-by: Szymon Heidrich <szymon.heidrich@gmail.com>
+Link: https://lore.kernel.org/r/20230114182326.30479-1-szymon.heidrich@gmail.com
+Signed-off-by: Paolo Abeni <pabeni@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/l2tp/l2tp_core.c | 17 +++++++++--------
- 1 file changed, 9 insertions(+), 8 deletions(-)
+ drivers/net/usb/sr9700.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/net/l2tp/l2tp_core.c b/net/l2tp/l2tp_core.c
-index 0e0f3e96b80e..d001e254bada 100644
---- a/net/l2tp/l2tp_core.c
-+++ b/net/l2tp/l2tp_core.c
-@@ -1496,11 +1496,12 @@ int l2tp_tunnel_register(struct l2tp_tunnel *tunnel, struct net *net,
- 	}
+diff --git a/drivers/net/usb/sr9700.c b/drivers/net/usb/sr9700.c
+index fce6713e970b..811c8751308c 100644
+--- a/drivers/net/usb/sr9700.c
++++ b/drivers/net/usb/sr9700.c
+@@ -410,7 +410,7 @@ static int sr9700_rx_fixup(struct usbnet *dev, struct sk_buff *skb)
+ 		/* ignore the CRC length */
+ 		len = (skb->data[1] | (skb->data[2] << 8)) - 4;
  
- 	sk = sock->sk;
--	write_lock(&sk->sk_callback_lock);
--
-+	write_lock_bh(&sk->sk_callback_lock);
- 	ret = l2tp_validate_socket(sk, net, tunnel->encap);
- 	if (ret < 0)
--		goto err_sock;
-+		goto err_inval_sock;
-+	rcu_assign_sk_user_data(sk, tunnel);
-+	write_unlock_bh(&sk->sk_callback_lock);
+-		if (len > ETH_FRAME_LEN || len > skb->len)
++		if (len > ETH_FRAME_LEN || len > skb->len || len < 0)
+ 			return 0;
  
- 	tunnel->l2tp_net = net;
- 	pn = l2tp_pernet(net);
-@@ -1529,8 +1530,6 @@ int l2tp_tunnel_register(struct l2tp_tunnel *tunnel, struct net *net,
- 		};
- 
- 		setup_udp_tunnel_sock(net, sock, &udp_cfg);
--	} else {
--		rcu_assign_sk_user_data(sk, tunnel);
- 	}
- 
- 	tunnel->old_sk_destruct = sk->sk_destruct;
-@@ -1542,16 +1541,18 @@ int l2tp_tunnel_register(struct l2tp_tunnel *tunnel, struct net *net,
- 	if (tunnel->fd >= 0)
- 		sockfd_put(sock);
- 
--	write_unlock(&sk->sk_callback_lock);
- 	return 0;
- 
- err_sock:
-+	write_lock_bh(&sk->sk_callback_lock);
-+	rcu_assign_sk_user_data(sk, NULL);
-+err_inval_sock:
-+	write_unlock_bh(&sk->sk_callback_lock);
-+
- 	if (tunnel->fd < 0)
- 		sock_release(sock);
- 	else
- 		sockfd_put(sock);
--
--	write_unlock(&sk->sk_callback_lock);
- err:
- 	return ret;
- }
+ 		/* the last packet of current skb */
 -- 
 2.39.0
 
