@@ -2,49 +2,51 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 72A7A689633
-	for <lists+stable@lfdr.de>; Fri,  3 Feb 2023 11:31:41 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1A72D68959D
+	for <lists+stable@lfdr.de>; Fri,  3 Feb 2023 11:24:16 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233485AbjBCK1t (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 3 Feb 2023 05:27:49 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49500 "EHLO
+        id S233245AbjBCKUq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 3 Feb 2023 05:20:46 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42132 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233506AbjBCK11 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 3 Feb 2023 05:27:27 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E7588A0034
-        for <stable@vger.kernel.org>; Fri,  3 Feb 2023 02:26:41 -0800 (PST)
+        with ESMTP id S233271AbjBCKUj (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 3 Feb 2023 05:20:39 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EE1C3C15B
+        for <stable@vger.kernel.org>; Fri,  3 Feb 2023 02:20:23 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 275B761EC9
-        for <stable@vger.kernel.org>; Fri,  3 Feb 2023 10:26:41 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id EC6E3C433EF;
-        Fri,  3 Feb 2023 10:26:39 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 02C92B82A71
+        for <stable@vger.kernel.org>; Fri,  3 Feb 2023 10:19:07 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 32C4BC4339B;
+        Fri,  3 Feb 2023 10:19:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1675420000;
-        bh=BTTPIwi8bnXr+I8yxXvlcdUEYS1LQcH+Pwxq3JEea3U=;
+        s=korg; t=1675419545;
+        bh=kqlII9pu1edN7KmoX0tTHaNSDR/WSbiznGbZ2VEHXjY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=kbh7MYnUTmJd128ThbHMEy6jUCPU0LwjZv6tXigZNsVIzDBGc2K/ZgJZkSVIMLVPe
-         /NrhRTx7KJtf00RBrOA/0Kt+3jwy6lBlf/8Utk1MlYdyapdqGIQHG37AKyqznXjQkK
-         S6f/3bQXLGu+x76Frle2zcZXcC45w6fpaeHOTY5k=
+        b=gTWj5KSsAOve0Cp5CwpoZ+NjosrThVpl74VSE6Vd1gLxn9EIq8FIUi3a4zxSUtnfM
+         FLMQ84MOnam6FVHS6B0zfH0e2j6RVNO7qfEB5+lX6kCBhemUCxiw4wzz64x23EYWrT
+         erWQyQhjh9ztJN6x7cnOWvwYt6M+BNUZM+SuVFFw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Yang Yingliang <yangyingliang@huawei.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 047/134] w1: fix deadloop in __w1_remove_master_device()
+        patches@lists.linux.dev, Martin Wilck <mwilck@suse.com>,
+        Petr Pavlu <petr.pavlu@suse.com>,
+        Petr Mladek <pmladek@suse.com>,
+        Luis Chamberlain <mcgrof@kernel.org>
+Subject: [PATCH 4.19 38/80] module: Dont wait for GOING modules
 Date:   Fri,  3 Feb 2023 11:12:32 +0100
-Message-Id: <20230203101026.005043183@linuxfoundation.org>
+Message-Id: <20230203101016.822107122@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.1
-In-Reply-To: <20230203101023.832083974@linuxfoundation.org>
-References: <20230203101023.832083974@linuxfoundation.org>
+In-Reply-To: <20230203101015.263854890@linuxfoundation.org>
+References: <20230203101015.263854890@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
         SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -52,83 +54,111 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yang Yingliang <yangyingliang@huawei.com>
+From: Petr Pavlu <petr.pavlu@suse.com>
 
-[ Upstream commit 25d5648802f12ae486076ceca5d7ddf1fef792b2 ]
+commit 0254127ab977e70798707a7a2b757c9f3c971210 upstream.
 
-I got a deadloop report while doing device(ds2482) add/remove test:
+During a system boot, it can happen that the kernel receives a burst of
+requests to insert the same module but loading it eventually fails
+during its init call. For instance, udev can make a request to insert
+a frequency module for each individual CPU when another frequency module
+is already loaded which causes the init function of the new module to
+return an error.
 
-  [  162.241881] w1_master_driver w1_bus_master1: Waiting for w1_bus_master1 to become free: refcnt=1.
-  [  163.272251] w1_master_driver w1_bus_master1: Waiting for w1_bus_master1 to become free: refcnt=1.
-  [  164.296157] w1_master_driver w1_bus_master1: Waiting for w1_bus_master1 to become free: refcnt=1.
-  ...
+Since commit 6e6de3dee51a ("kernel/module.c: Only return -EEXIST for
+modules that have finished loading"), the kernel waits for modules in
+MODULE_STATE_GOING state to finish unloading before making another
+attempt to load the same module.
 
-__w1_remove_master_device() can't return, because the dev->refcnt is not zero.
+This creates unnecessary work in the described scenario and delays the
+boot. In the worst case, it can prevent udev from loading drivers for
+other devices and might cause timeouts of services waiting on them and
+subsequently a failed boot.
 
-w1_add_master_device()			|
-  w1_alloc_dev()			|
-    atomic_set(&dev->refcnt, 2)		|
-  kthread_run()				|
-					|__w1_remove_master_device()
-					|  kthread_stop()
-  // KTHREAD_SHOULD_STOP is set,	|
-  // threadfn(w1_process) won't be	|
-  // called.				|
-  kthread()				|
-					|  // refcnt will never be 0, it's deadloop.
-					|  while (atomic_read(&dev->refcnt)) {...}
+This patch attempts a different solution for the problem 6e6de3dee51a
+was trying to solve. Rather than waiting for the unloading to complete,
+it returns a different error code (-EBUSY) for modules in the GOING
+state. This should avoid the error situation that was described in
+6e6de3dee51a (user space attempting to load a dependent module because
+the -EEXIST error code would suggest to user space that the first module
+had been loaded successfully), while avoiding the delay situation too.
 
-After calling w1_add_master_device(), w1_process() is not really
-invoked, before w1_process() starting, if kthread_stop() is called
-in __w1_remove_master_device(), w1_process() will never be called,
-the refcnt can not be decreased, then it causes deadloop in remove
-function because of non-zero refcnt.
+This has been tested on linux-next since December 2022 and passes
+all kmod selftests except test 0009 with module compression enabled
+but it has been confirmed that this issue has existed and has gone
+unnoticed since prior to this commit and can also be reproduced without
+module compression with a simple usleep(5000000) on tools/modprobe.c [0].
+These failures are caused by hitting the kernel mod_concurrent_max and can
+happen either due to a self inflicted kernel module auto-loead DoS somehow
+or on a system with large CPU count and each CPU count incorrectly triggering
+many module auto-loads. Both of those issues need to be fixed in-kernel.
 
-We need to make sure w1_process() is really started, so move the
-set refcnt into w1_process() to fix this problem.
+[0] https://lore.kernel.org/all/Y9A4fiobL6IHp%2F%2FP@bombadil.infradead.org/
 
-Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
-Signed-off-by: Yang Yingliang <yangyingliang@huawei.com>
-Link: https://lore.kernel.org/r/20221205080434.3149205-1-yangyingliang@huawei.com
+Fixes: 6e6de3dee51a ("kernel/module.c: Only return -EEXIST for modules that have finished loading")
+Co-developed-by: Martin Wilck <mwilck@suse.com>
+Signed-off-by: Martin Wilck <mwilck@suse.com>
+Signed-off-by: Petr Pavlu <petr.pavlu@suse.com>
+Cc: stable@vger.kernel.org
+Reviewed-by: Petr Mladek <pmladek@suse.com>
+[mcgrof: enhance commit log with testing and kmod test result interpretation ]
+Signed-off-by: Luis Chamberlain <mcgrof@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/w1/w1.c     | 2 ++
- drivers/w1/w1_int.c | 5 ++---
- 2 files changed, 4 insertions(+), 3 deletions(-)
+ kernel/module.c |   26 +++++++++++++++++++++-----
+ 1 file changed, 21 insertions(+), 5 deletions(-)
 
-diff --git a/drivers/w1/w1.c b/drivers/w1/w1.c
-index e58c7592008d..9a9c6f54304e 100644
---- a/drivers/w1/w1.c
-+++ b/drivers/w1/w1.c
-@@ -1131,6 +1131,8 @@ int w1_process(void *data)
- 	/* remainder if it woke up early */
- 	unsigned long jremain = 0;
+--- a/kernel/module.c
++++ b/kernel/module.c
+@@ -3478,7 +3478,8 @@ static bool finished_loading(const char
+ 	sched_annotate_sleep();
+ 	mutex_lock(&module_mutex);
+ 	mod = find_module_all(name, strlen(name), true);
+-	ret = !mod || mod->state == MODULE_STATE_LIVE;
++	ret = !mod || mod->state == MODULE_STATE_LIVE
++		|| mod->state == MODULE_STATE_GOING;
+ 	mutex_unlock(&module_mutex);
  
-+	atomic_inc(&dev->refcnt);
+ 	return ret;
+@@ -3632,20 +3633,35 @@ static int add_unformed_module(struct mo
+ 
+ 	mod->state = MODULE_STATE_UNFORMED;
+ 
+-again:
+ 	mutex_lock(&module_mutex);
+ 	old = find_module_all(mod->name, strlen(mod->name), true);
+ 	if (old != NULL) {
+-		if (old->state != MODULE_STATE_LIVE) {
++		if (old->state == MODULE_STATE_COMING
++		    || old->state == MODULE_STATE_UNFORMED) {
+ 			/* Wait in case it fails to load. */
+ 			mutex_unlock(&module_mutex);
+ 			err = wait_event_interruptible(module_wq,
+ 					       finished_loading(mod->name));
+ 			if (err)
+ 				goto out_unlocked;
+-			goto again;
 +
- 	for (;;) {
- 
- 		if (!jremain && dev->search_count) {
-diff --git a/drivers/w1/w1_int.c b/drivers/w1/w1_int.c
-index b3e1792d9c49..3a71c5eb2f83 100644
---- a/drivers/w1/w1_int.c
-+++ b/drivers/w1/w1_int.c
-@@ -51,10 +51,9 @@ static struct w1_master *w1_alloc_dev(u32 id, int slave_count, int slave_ttl,
- 	dev->search_count	= w1_search_count;
- 	dev->enable_pullup	= w1_enable_pullup;
- 
--	/* 1 for w1_process to decrement
--	 * 1 for __w1_remove_master_device to decrement
-+	/* For __w1_remove_master_device to decrement
- 	 */
--	atomic_set(&dev->refcnt, 2);
-+	atomic_set(&dev->refcnt, 1);
- 
- 	INIT_LIST_HEAD(&dev->slist);
- 	INIT_LIST_HEAD(&dev->async_list);
--- 
-2.39.0
-
++			/* The module might have gone in the meantime. */
++			mutex_lock(&module_mutex);
++			old = find_module_all(mod->name, strlen(mod->name),
++					      true);
+ 		}
+-		err = -EEXIST;
++
++		/*
++		 * We are here only when the same module was being loaded. Do
++		 * not try to load it again right now. It prevents long delays
++		 * caused by serialized module load failures. It might happen
++		 * when more devices of the same type trigger load of
++		 * a particular module.
++		 */
++		if (old && old->state == MODULE_STATE_LIVE)
++			err = -EEXIST;
++		else
++			err = -EBUSY;
+ 		goto out;
+ 	}
+ 	mod_update_bounds(mod);
 
 
