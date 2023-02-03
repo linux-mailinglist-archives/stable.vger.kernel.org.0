@@ -2,69 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 1E3F468957A
-	for <lists+stable@lfdr.de>; Fri,  3 Feb 2023 11:24:05 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2C6556895B6
+	for <lists+stable@lfdr.de>; Fri,  3 Feb 2023 11:24:25 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233463AbjBCKXh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 3 Feb 2023 05:23:37 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46658 "EHLO
+        id S233400AbjBCKWk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 3 Feb 2023 05:22:40 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45370 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233425AbjBCKX2 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 3 Feb 2023 05:23:28 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C41DD22789
-        for <stable@vger.kernel.org>; Fri,  3 Feb 2023 02:23:06 -0800 (PST)
+        with ESMTP id S233419AbjBCKWf (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 3 Feb 2023 05:22:35 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D6B1E7EEA
+        for <stable@vger.kernel.org>; Fri,  3 Feb 2023 02:22:19 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id B7DA661EBA
-        for <stable@vger.kernel.org>; Fri,  3 Feb 2023 10:23:05 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7899FC433D2;
-        Fri,  3 Feb 2023 10:23:04 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 75A65B82A71
+        for <stable@vger.kernel.org>; Fri,  3 Feb 2023 10:22:18 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B3B73C433EF;
+        Fri,  3 Feb 2023 10:22:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1675419785;
-        bh=FbUetLhw79WW3EuXs6rQ4Ut0dLEdVl38E2k3pLvcuxU=;
+        s=korg; t=1675419737;
+        bh=iybTctbjMJ1gz+niId1IJbZDt4T31oDZ7QcrLv+nC6A=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=KBHhxWWPsxyIhrgmBBuAAdURU/MbHCAdsFA5l5HhCF9+QEX/07BEDDIrNpBenwXKp
-         xlUc7H1HkpYbySfQM2o+qrmurMGLgVXhs5D8jiY3oJ0IfZiu/Pi5Dm5p2QTbc0pz0B
-         m6o6IhLm/R98xUNr6lQhx2Y+f6i8o9VWHx7K6vbU=
+        b=DvLaNmg2P3A1DvvMlC0CpwLmtWj7Q5SfQTdrngH1yJYPQJ6Wri/X6osM5Yoi0Njhl
+         bY7r56n+YTIqbMCezVG9nO17Y7PouMCYTzYD8qyn6zo9on1wO+oue8yeP9xrshQF3G
+         4aop3U0QYbrG0w9uPm2Q8XHUU66BEeFsWIT7zBWQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Marco Elver <elver@google.com>,
-        Dmitry Vyukov <dvyukov@google.com>,
-        Ingo Molnar <mingo@redhat.com>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Juri Lelli <juri.lelli@redhat.com>,
-        Vincent Guittot <vincent.guittot@linaro.org>,
-        Dietmar Eggemann <dietmar.eggemann@arm.com>,
-        Steven Rostedt <rostedt@goodmis.org>,
-        Ben Segall <bsegall@google.com>, Mel Gorman <mgorman@suse.de>,
-        Daniel Bristot de Oliveira <bristot@redhat.com>,
-        Valentin Schneider <vschneid@redhat.com>,
-        Andrey Ryabinin <ryabinin.a.a@gmail.com>,
-        Alexander Potapenko <glider@google.com>,
-        Andrey Konovalov <andreyknvl@gmail.com>,
-        Vincenzo Frascino <vincenzo.frascino@arm.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        David Gow <davidgow@google.com>,
-        tangmeng <tangmeng@uniontech.com>, Jann Horn <jannh@google.com>,
-        Shuah Khan <skhan@linuxfoundation.org>,
-        Petr Mladek <pmladek@suse.com>,
-        "Paul E. McKenney" <paulmck@kernel.org>,
-        Sebastian Andrzej Siewior <bigeasy@linutronix.de>,
-        "Guilherme G. Piccoli" <gpiccoli@igalia.com>,
-        Tiezhu Yang <yangtiezhu@loongson.cn>,
-        kasan-dev@googlegroups.com, linux-mm@kvack.org,
-        Luis Chamberlain <mcgrof@kernel.org>,
-        Kees Cook <keescook@chromium.org>,
-        Eric Biggers <ebiggers@google.com>
-Subject: [PATCH 4.19 74/80] panic: Consolidate open-coded panic_on_warn checks
+        patches@lists.linux.dev, Hui Wang <hui.wang@canonical.com>,
+        Sascha Hauer <s.hauer@pengutronix.de>,
+        Vinod Koul <vkoul@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 6.1 20/28] dmaengine: imx-sdma: Fix a possible memory leak in sdma_transfer_init
 Date:   Fri,  3 Feb 2023 11:13:08 +0100
-Message-Id: <20230203101018.408088099@linuxfoundation.org>
+Message-Id: <20230203101010.836950668@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.1
-In-Reply-To: <20230203101015.263854890@linuxfoundation.org>
-References: <20230203101015.263854890@linuxfoundation.org>
+In-Reply-To: <20230203101009.946745030@linuxfoundation.org>
+References: <20230203101009.946745030@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -78,115 +53,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kees Cook <keescook@chromium.org>
+From: Hui Wang <hui.wang@canonical.com>
 
-commit 79cc1ba7badf9e7a12af99695a557e9ce27ee967 upstream.
+[ Upstream commit 1417f59ac0b02130ee56c0c50794b9b257be3d17 ]
 
-Several run-time checkers (KASAN, UBSAN, KFENCE, KCSAN, sched) roll
-their own warnings, and each check "panic_on_warn". Consolidate this
-into a single function so that future instrumentation can be added in
-a single location.
+If the function sdma_load_context() fails, the sdma_desc will be
+freed, but the allocated desc->bd is forgot to be freed.
 
-Cc: Marco Elver <elver@google.com>
-Cc: Dmitry Vyukov <dvyukov@google.com>
-Cc: Ingo Molnar <mingo@redhat.com>
-Cc: Peter Zijlstra <peterz@infradead.org>
-Cc: Juri Lelli <juri.lelli@redhat.com>
-Cc: Vincent Guittot <vincent.guittot@linaro.org>
-Cc: Dietmar Eggemann <dietmar.eggemann@arm.com>
-Cc: Steven Rostedt <rostedt@goodmis.org>
-Cc: Ben Segall <bsegall@google.com>
-Cc: Mel Gorman <mgorman@suse.de>
-Cc: Daniel Bristot de Oliveira <bristot@redhat.com>
-Cc: Valentin Schneider <vschneid@redhat.com>
-Cc: Andrey Ryabinin <ryabinin.a.a@gmail.com>
-Cc: Alexander Potapenko <glider@google.com>
-Cc: Andrey Konovalov <andreyknvl@gmail.com>
-Cc: Vincenzo Frascino <vincenzo.frascino@arm.com>
-Cc: Andrew Morton <akpm@linux-foundation.org>
-Cc: David Gow <davidgow@google.com>
-Cc: tangmeng <tangmeng@uniontech.com>
-Cc: Jann Horn <jannh@google.com>
-Cc: Shuah Khan <skhan@linuxfoundation.org>
-Cc: Petr Mladek <pmladek@suse.com>
-Cc: "Paul E. McKenney" <paulmck@kernel.org>
-Cc: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
-Cc: "Guilherme G. Piccoli" <gpiccoli@igalia.com>
-Cc: Tiezhu Yang <yangtiezhu@loongson.cn>
-Cc: kasan-dev@googlegroups.com
-Cc: linux-mm@kvack.org
-Reviewed-by: Luis Chamberlain <mcgrof@kernel.org>
-Signed-off-by: Kees Cook <keescook@chromium.org>
-Reviewed-by: Marco Elver <elver@google.com>
-Reviewed-by: Andrey Konovalov <andreyknvl@gmail.com>
-Link: https://lore.kernel.org/r/20221117234328.594699-4-keescook@chromium.org
-Signed-off-by: Eric Biggers <ebiggers@google.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+We already met the sdma_load_context() failure case and the log as
+below:
+[ 450.699064] imx-sdma 30bd0000.dma-controller: Timeout waiting for CH0 ready
+...
+
+In this case, the desc->bd will not be freed without this change.
+
+Signed-off-by: Hui Wang <hui.wang@canonical.com>
+Reviewed-by: Sascha Hauer <s.hauer@pengutronix.de>
+Link: https://lore.kernel.org/r/20221130090800.102035-1-hui.wang@canonical.com
+Signed-off-by: Vinod Koul <vkoul@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- include/linux/kernel.h |    1 +
- kernel/panic.c         |    9 +++++++--
- kernel/sched/core.c    |    3 +--
- mm/kasan/report.c      |    3 +--
- 4 files changed, 10 insertions(+), 6 deletions(-)
+ drivers/dma/imx-sdma.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
---- a/include/linux/kernel.h
-+++ b/include/linux/kernel.h
-@@ -327,6 +327,7 @@ extern long (*panic_blink)(int state);
- __printf(1, 2)
- void panic(const char *fmt, ...) __noreturn __cold;
- void nmi_panic(struct pt_regs *regs, const char *msg);
-+void check_panic_on_warn(const char *origin);
- extern void oops_enter(void);
- extern void oops_exit(void);
- void print_oops_end_marker(void);
---- a/kernel/panic.c
-+++ b/kernel/panic.c
-@@ -125,6 +125,12 @@ void nmi_panic(struct pt_regs *regs, con
- }
- EXPORT_SYMBOL(nmi_panic);
+diff --git a/drivers/dma/imx-sdma.c b/drivers/dma/imx-sdma.c
+index fbea5f62dd98..b926abe4fa43 100644
+--- a/drivers/dma/imx-sdma.c
++++ b/drivers/dma/imx-sdma.c
+@@ -1521,10 +1521,12 @@ static struct sdma_desc *sdma_transfer_init(struct sdma_channel *sdmac,
+ 		sdma_config_ownership(sdmac, false, true, false);
  
-+void check_panic_on_warn(const char *origin)
-+{
-+	if (panic_on_warn)
-+		panic("%s: panic_on_warn set ...\n", origin);
-+}
-+
- /**
-  *	panic - halt the system
-  *	@fmt: The text string to print
-@@ -540,8 +546,7 @@ void __warn(const char *file, int line,
- 	if (args)
- 		vprintk(args->fmt, args->args);
+ 	if (sdma_load_context(sdmac))
+-		goto err_desc_out;
++		goto err_bd_out;
  
--	if (panic_on_warn)
--		panic("panic_on_warn set ...\n");
-+	check_panic_on_warn("kernel");
+ 	return desc;
  
- 	print_modules();
- 
---- a/kernel/sched/core.c
-+++ b/kernel/sched/core.c
-@@ -3316,8 +3316,7 @@ static noinline void __schedule_bug(stru
- 		print_ip_sym(preempt_disable_ip);
- 		pr_cont("\n");
- 	}
--	if (panic_on_warn)
--		panic("scheduling while atomic\n");
-+	check_panic_on_warn("scheduling while atomic");
- 
- 	dump_stack();
- 	add_taint(TAINT_WARN, LOCKDEP_STILL_OK);
---- a/mm/kasan/report.c
-+++ b/mm/kasan/report.c
-@@ -176,8 +176,7 @@ static void kasan_end_report(unsigned lo
- 	pr_err("==================================================================\n");
- 	add_taint(TAINT_BAD_PAGE, LOCKDEP_NOW_UNRELIABLE);
- 	spin_unlock_irqrestore(&report_lock, *flags);
--	if (panic_on_warn)
--		panic("panic_on_warn set ...\n");
-+	check_panic_on_warn("KASAN");
- 	kasan_enable_current();
- }
- 
++err_bd_out:
++	sdma_free_bd(desc);
+ err_desc_out:
+ 	kfree(desc);
+ err_out:
+-- 
+2.39.0
+
 
 
