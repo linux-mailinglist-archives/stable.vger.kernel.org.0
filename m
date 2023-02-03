@@ -2,46 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 4C9906895AA
-	for <lists+stable@lfdr.de>; Fri,  3 Feb 2023 11:24:20 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8ED2568964D
+	for <lists+stable@lfdr.de>; Fri,  3 Feb 2023 11:31:50 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233421AbjBCKWx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 3 Feb 2023 05:22:53 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45190 "EHLO
+        id S233470AbjBCKaG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 3 Feb 2023 05:30:06 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50996 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233423AbjBCKWp (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 3 Feb 2023 05:22:45 -0500
+        with ESMTP id S233670AbjBCK3h (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 3 Feb 2023 05:29:37 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B1D829EE34
-        for <stable@vger.kernel.org>; Fri,  3 Feb 2023 02:22:30 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8E636A0027
+        for <stable@vger.kernel.org>; Fri,  3 Feb 2023 02:28:48 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 542DDB82A5F
-        for <stable@vger.kernel.org>; Fri,  3 Feb 2023 10:22:30 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 99930C433EF;
-        Fri,  3 Feb 2023 10:22:28 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 1498FB82A64
+        for <stable@vger.kernel.org>; Fri,  3 Feb 2023 10:28:47 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 641B9C433D2;
+        Fri,  3 Feb 2023 10:28:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1675419749;
-        bh=30/fEIyNjO78NLd5i12CCS3QFu3r/KSi4jfHb1LtoB4=;
+        s=korg; t=1675420125;
+        bh=DN6WAWGk4mR2vG1qLQxr4WGBOAdnCJHzc4uEPRHQHCo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=CkjmOged+dFfo6MLtIGvv+Ueh0qNmul/P5TxMMLFu+sFaTgfx6LWFT2p2oJoAdxPC
-         +n+C2zya+KuQ/TRi5gxzhcl7Ioe3q24xHrXvLhBbKNE+HzTsk22K3DSQgd0YNxgd+h
-         CtoIeKSbESh2JoPLlhHEyToUOSPz3mpfbm3jO27Q=
+        b=fimA7YMjlXtNFJGHi7C92HupturuFb2fj917qy5/3BK25w2aJoLjP4nBzFbABVQnD
+         KPY7aX5W31BMKoaNpmuvVE45YFZvOtJxAr0Qp2i5vMSdkIXDGj3zzQMEdCi+YPjFIg
+         QlJgVomUHC0Dr71/ogX6jMSdImpmxvCmdJNsduKg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Werner Sembach <wse@tuxedocomputers.com>,
-        Mario Limonciello <mario.limonciello@amd.com>,
-        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
-        Bartosz Golaszewski <bartosz.golaszewski@linaro.org>,
+        patches@lists.linux.dev, Eric Dumazet <edumazet@google.com>,
+        syzbot <syzkaller@googlegroups.com>,
+        Jakub Kicinski <kuba@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 24/28] gpiolib: acpi: Add a ignore wakeup quirk for Clevo NL5xRU
+Subject: [PATCH 5.4 087/134] netlink: annotate data races around nlk->portid
 Date:   Fri,  3 Feb 2023 11:13:12 +0100
-Message-Id: <20230203101010.993729441@linuxfoundation.org>
+Message-Id: <20230203101027.767524968@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.1
-In-Reply-To: <20230203101009.946745030@linuxfoundation.org>
-References: <20230203101009.946745030@linuxfoundation.org>
+In-Reply-To: <20230203101023.832083974@linuxfoundation.org>
+References: <20230203101023.832083974@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,59 +54,85 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mario Limonciello <mario.limonciello@amd.com>
+From: Eric Dumazet <edumazet@google.com>
 
-[ Upstream commit 4cb786180dfb5258ff3111181b5e4ecb1d4a297b ]
+[ Upstream commit c1bb9484e3b05166880da8574504156ccbd0549e ]
 
-commit 1796f808e4bb ("HID: i2c-hid: acpi: Stop setting wakeup_capable")
-changed the policy such that I2C touchpads may be able to wake up the
-system by default if the system is configured as such.
+syzbot reminds us netlink_getname() runs locklessly [1]
 
-However on Clevo NL5xRU there is a mistake in the ACPI tables that the
-TP_ATTN# signal connected to GPIO 9 is configured as ActiveLow and level
-triggered but connected to a pull up. As soon as the system suspends the
-touchpad loses power and then the system wakes up.
+This first patch annotates the race against nlk->portid.
 
-To avoid this problem, introduce a quirk for this model that will prevent
-the wakeup capability for being set for GPIO 9.
+Following patches take care of the remaining races.
 
-Fixes: 1796f808e4bb ("HID: i2c-hid: acpi: Stop setting wakeup_capable")
-Reported-by: Werner Sembach <wse@tuxedocomputers.com>
-Link: https://gitlab.freedesktop.org/drm/amd/-/issues/1722#note_1720627
-Co-developed-by: Werner Sembach <wse@tuxedocomputers.com>
-Signed-off-by: Werner Sembach <wse@tuxedocomputers.com>
-Signed-off-by: Mario Limonciello <mario.limonciello@amd.com>
-Reviewed-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Signed-off-by: Bartosz Golaszewski <bartosz.golaszewski@linaro.org>
+[1]
+BUG: KCSAN: data-race in netlink_getname / netlink_insert
+
+write to 0xffff88814176d310 of 4 bytes by task 2315 on cpu 1:
+netlink_insert+0xf1/0x9a0 net/netlink/af_netlink.c:583
+netlink_autobind+0xae/0x180 net/netlink/af_netlink.c:856
+netlink_sendmsg+0x444/0x760 net/netlink/af_netlink.c:1895
+sock_sendmsg_nosec net/socket.c:714 [inline]
+sock_sendmsg net/socket.c:734 [inline]
+____sys_sendmsg+0x38f/0x500 net/socket.c:2476
+___sys_sendmsg net/socket.c:2530 [inline]
+__sys_sendmsg+0x19a/0x230 net/socket.c:2559
+__do_sys_sendmsg net/socket.c:2568 [inline]
+__se_sys_sendmsg net/socket.c:2566 [inline]
+__x64_sys_sendmsg+0x42/0x50 net/socket.c:2566
+do_syscall_x64 arch/x86/entry/common.c:50 [inline]
+do_syscall_64+0x2b/0x70 arch/x86/entry/common.c:80
+entry_SYSCALL_64_after_hwframe+0x63/0xcd
+
+read to 0xffff88814176d310 of 4 bytes by task 2316 on cpu 0:
+netlink_getname+0xcd/0x1a0 net/netlink/af_netlink.c:1144
+__sys_getsockname+0x11d/0x1b0 net/socket.c:2026
+__do_sys_getsockname net/socket.c:2041 [inline]
+__se_sys_getsockname net/socket.c:2038 [inline]
+__x64_sys_getsockname+0x3e/0x50 net/socket.c:2038
+do_syscall_x64 arch/x86/entry/common.c:50 [inline]
+do_syscall_64+0x2b/0x70 arch/x86/entry/common.c:80
+entry_SYSCALL_64_after_hwframe+0x63/0xcd
+
+value changed: 0x00000000 -> 0xc9a49780
+
+Reported by Kernel Concurrency Sanitizer on:
+CPU: 0 PID: 2316 Comm: syz-executor.2 Not tainted 6.2.0-rc3-syzkaller-00030-ge8f60cd7db24-dirty #0
+Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS Google 10/26/2022
+
+Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
+Signed-off-by: Eric Dumazet <edumazet@google.com>
+Reported-by: syzbot <syzkaller@googlegroups.com>
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpio/gpiolib-acpi.c | 13 +++++++++++++
- 1 file changed, 13 insertions(+)
+ net/netlink/af_netlink.c | 7 +++++--
+ 1 file changed, 5 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/gpio/gpiolib-acpi.c b/drivers/gpio/gpiolib-acpi.c
-index 27f234637a15..e2ab4d5253be 100644
---- a/drivers/gpio/gpiolib-acpi.c
-+++ b/drivers/gpio/gpiolib-acpi.c
-@@ -1599,6 +1599,19 @@ static const struct dmi_system_id gpiolib_acpi_quirks[] __initconst = {
- 			.ignore_interrupt = "AMDI0030:00@18",
- 		},
- 	},
-+	{
-+		/*
-+		 * Spurious wakeups from TP_ATTN# pin
-+		 * Found in BIOS 1.7.8
-+		 * https://gitlab.freedesktop.org/drm/amd/-/issues/1722#note_1720627
-+		 */
-+		.matches = {
-+			DMI_MATCH(DMI_BOARD_NAME, "NL5xRU"),
-+		},
-+		.driver_data = &(struct acpi_gpiolib_dmi_quirk) {
-+			.ignore_wake = "ELAN0415:00@9",
-+		},
-+	},
- 	{} /* Terminating entry */
- };
+diff --git a/net/netlink/af_netlink.c b/net/netlink/af_netlink.c
+index 86b70385dce3..f6b985877d9c 100644
+--- a/net/netlink/af_netlink.c
++++ b/net/netlink/af_netlink.c
+@@ -569,7 +569,9 @@ static int netlink_insert(struct sock *sk, u32 portid)
+ 	if (nlk_sk(sk)->bound)
+ 		goto err;
  
+-	nlk_sk(sk)->portid = portid;
++	/* portid can be read locklessly from netlink_getname(). */
++	WRITE_ONCE(nlk_sk(sk)->portid, portid);
++
+ 	sock_hold(sk);
+ 
+ 	err = __netlink_insert(table, sk);
+@@ -1123,7 +1125,8 @@ static int netlink_getname(struct socket *sock, struct sockaddr *addr,
+ 		nladdr->nl_pid = nlk->dst_portid;
+ 		nladdr->nl_groups = netlink_group_mask(nlk->dst_group);
+ 	} else {
+-		nladdr->nl_pid = nlk->portid;
++		/* Paired with WRITE_ONCE() in netlink_insert() */
++		nladdr->nl_pid = READ_ONCE(nlk->portid);
+ 		netlink_lock_table();
+ 		nladdr->nl_groups = nlk->groups ? nlk->groups[0] : 0;
+ 		netlink_unlock_table();
 -- 
 2.39.0
 
