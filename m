@@ -2,51 +2,49 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id BE3D668951F
-	for <lists+stable@lfdr.de>; Fri,  3 Feb 2023 11:18:38 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 281A96895B9
+	for <lists+stable@lfdr.de>; Fri,  3 Feb 2023 11:24:26 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233081AbjBCKR6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 3 Feb 2023 05:17:58 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38702 "EHLO
+        id S232233AbjBCKWY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 3 Feb 2023 05:22:24 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44914 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233333AbjBCKRp (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 3 Feb 2023 05:17:45 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 645229E9C9
-        for <stable@vger.kernel.org>; Fri,  3 Feb 2023 02:17:23 -0800 (PST)
+        with ESMTP id S233364AbjBCKWX (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 3 Feb 2023 05:22:23 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4E0E09D04C
+        for <stable@vger.kernel.org>; Fri,  3 Feb 2023 02:22:06 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id D204961E54
-        for <stable@vger.kernel.org>; Fri,  3 Feb 2023 10:17:22 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B82D3C433EF;
-        Fri,  3 Feb 2023 10:17:21 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 69D8A61EC2
+        for <stable@vger.kernel.org>; Fri,  3 Feb 2023 10:21:44 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 33BAFC4339E;
+        Fri,  3 Feb 2023 10:21:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1675419442;
-        bh=lHqXY8BP9PluxY4FmrLgcaVVPxYBjoSn6ptrU+YrONU=;
+        s=korg; t=1675419703;
+        bh=WZl2eKdtabjmBmr+WssfJF8VVwfHHWPXijY6QfNZVV8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=rn81KPHGzRmfvAqw1MQG2DTb7WEDjrNdi99YNsvFftFxrJ2Ehy8Gir6Y7Z5oT5t8d
-         FBFadtVLzpMuQv/Ho572O+Umb4ha5CumsE6sBu93Eu33Tp5suiazRrqovMPoghYRr2
-         dI40Y82BGjB6BpHCh7I6AxM0Ajs82rMjL4ygbhSo=
+        b=deBI4TwsW6IUYQFIaTGU+4s0z8QQuo4Fk5wxNtcjMJnweT03txGVsCbXbSzXDEB9H
+         bCmcRTqCf1jFSXqrcn+dl8KVPmZuukZ0modcxppq8LYniNBNXA+ygVTqLGAunsN4Sm
+         q3huiIStFhR5EsUda/FlFZ6KlMEwodb2k04O8pzA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Matthias Kaehlcke <mka@chromium.org>,
-        Peter Chen <peter.chen@nxp.com>,
-        Mathias Nyman <mathias.nyman@linux.intel.com>,
-        Florian Fainelli <f.fainelli@gmail.com>
-Subject: [PATCH 4.14 62/62] usb: host: xhci-plat: add wakeup entry at sysfs
+        patches@lists.linux.dev, Aaro Koskinen <aaro.koskinen@iki.fi>,
+        Arnd Bergmann <arnd@arndb.de>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 6.1 10/28] ARM: omap1: fix building gpio15xx
 Date:   Fri,  3 Feb 2023 11:12:58 +0100
-Message-Id: <20230203101015.639554272@linuxfoundation.org>
+Message-Id: <20230203101010.410641102@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.1
-In-Reply-To: <20230203101012.959398849@linuxfoundation.org>
-References: <20230203101012.959398849@linuxfoundation.org>
+In-Reply-To: <20230203101009.946745030@linuxfoundation.org>
+References: <20230203101009.946745030@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
         SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -54,35 +52,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Peter Chen <peter.chen@nxp.com>
+From: Arnd Bergmann <arnd@arndb.de>
 
-commit 4bb4fc0dbfa23acab9b762949b91ffd52106fe4b upstream.
+[ Upstream commit 9d46ce57f4d1c626bb48170226ea5e35deb5877c ]
 
-With this change, there will be a wakeup entry at /sys/../power/wakeup,
-and the user could use this entry to choose whether enable xhci wakeup
-features (wake up system from suspend) or not.
+In some randconfig builds, the asm/irq.h header is not included
+in gpio15xx.c, so add an explicit include to avoid a build fialure:
 
-Tested-by: Matthias Kaehlcke <mka@chromium.org>
-Reviewed-by: Matthias Kaehlcke <mka@chromium.org>
-Signed-off-by: Peter Chen <peter.chen@nxp.com>
-Signed-off-by: Mathias Nyman <mathias.nyman@linux.intel.com>
-Link: https://lore.kernel.org/r/20200918131752.16488-6-mathias.nyman@linux.intel.com
-Signed-off-by: Florian Fainelli <f.fainelli@gmail.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+In file included from arch/arm/mach-omap1/gpio15xx.c:15:
+arch/arm/mach-omap1/irqs.h:99:34: error: 'NR_IRQS_LEGACY' undeclared here (not in a function)
+   99 | #define IH2_BASE                (NR_IRQS_LEGACY + 32)
+      |                                  ^~~~~~~~~~~~~~
+arch/arm/mach-omap1/irqs.h:105:38: note: in expansion of macro 'IH2_BASE'
+  105 | #define INT_MPUIO               (5 + IH2_BASE)
+      |                                      ^~~~~~~~
+arch/arm/mach-omap1/gpio15xx.c:28:27: note: in expansion of macro 'INT_MPUIO'
+   28 |                 .start  = INT_MPUIO,
+      |                           ^~~~~~~~~
+
+Acked-by: Aaro Koskinen <aaro.koskinen@iki.fi>
+Signed-off-by: Arnd Bergmann <arnd@arndb.de>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/usb/host/xhci-plat.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ arch/arm/mach-omap1/gpio15xx.c | 1 +
+ 1 file changed, 1 insertion(+)
 
---- a/drivers/usb/host/xhci-plat.c
-+++ b/drivers/usb/host/xhci-plat.c
-@@ -252,7 +252,7 @@ static int xhci_plat_probe(struct platfo
- 			*priv = *priv_match;
- 	}
+diff --git a/arch/arm/mach-omap1/gpio15xx.c b/arch/arm/mach-omap1/gpio15xx.c
+index c675f11de99d..61fa26efd865 100644
+--- a/arch/arm/mach-omap1/gpio15xx.c
++++ b/arch/arm/mach-omap1/gpio15xx.c
+@@ -11,6 +11,7 @@
+ #include <linux/gpio.h>
+ #include <linux/platform_data/gpio-omap.h>
+ #include <linux/soc/ti/omap1-soc.h>
++#include <asm/irq.h>
  
--	device_wakeup_enable(hcd->self.controller);
-+	device_set_wakeup_capable(&pdev->dev, true);
+ #include "irqs.h"
  
- 	xhci->clk = clk;
- 	xhci->main_hcd = hcd;
+-- 
+2.39.0
+
 
 
