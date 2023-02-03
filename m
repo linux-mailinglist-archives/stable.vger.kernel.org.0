@@ -2,45 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id CEE2C689547
-	for <lists+stable@lfdr.de>; Fri,  3 Feb 2023 11:18:54 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 15632689673
+	for <lists+stable@lfdr.de>; Fri,  3 Feb 2023 11:32:05 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232071AbjBCKSJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 3 Feb 2023 05:18:09 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38214 "EHLO
+        id S233476AbjBCKZb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 3 Feb 2023 05:25:31 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47800 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233288AbjBCKRx (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 3 Feb 2023 05:17:53 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DE07C9E9DF
-        for <stable@vger.kernel.org>; Fri,  3 Feb 2023 02:17:38 -0800 (PST)
+        with ESMTP id S233477AbjBCKZW (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 3 Feb 2023 05:25:22 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 82E289D59C
+        for <stable@vger.kernel.org>; Fri,  3 Feb 2023 02:24:58 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 60B9BB82A6A
-        for <stable@vger.kernel.org>; Fri,  3 Feb 2023 10:17:38 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A0EDBC4339B;
-        Fri,  3 Feb 2023 10:17:36 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 5DCF661ED5
+        for <stable@vger.kernel.org>; Fri,  3 Feb 2023 10:24:58 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 26619C433D2;
+        Fri,  3 Feb 2023 10:24:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1675419457;
-        bh=0YPwNPiOFEzX4+43YB82x9sDmQ4Vka+SLvGPPPgIAFs=;
+        s=korg; t=1675419897;
+        bh=aNU1B65HKTeCEfVyCNfC70O/XZudIRAfxi046krNWEk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=LoJnJBJ3fcsUJ98MFEw2f67hY0dga5C0tWPvjeOc73pk+7FqMOJ7wZ8GkhC89r6+s
-         EoFl7dvs3AHV9OoHpuhhN48xLuIc0Z5I+jlcVHR2WdAYqzA5kCHaOj+C7tW1w6y+iq
-         chVXmPGHQsUcZKzntVuDdIQFi1aVHOPzjMhO/Wtk=
+        b=gejDrsPjcgyi0JBiY48Yomzoi4i+Y73hazUDqHDiKZOGGNCpycDZem5Q4Y8eUHgrw
+         k1wY4PcWPJKhvEgvwyoeAyyjZ1iGaWjxSOBodOxp2D5Hs2TzB/a3AmWd4WfcJhgw1z
+         Jem2ncvrjq1sMQKZ0Djbztd1eQthwSzNhgOKkwkU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Miaoqian Lin <linmq006@gmail.com>,
-        "Borislav Petkov (AMD)" <bp@alien8.de>,
-        Andre Przywara <andre.przywara@arm.com>,
+        patches@lists.linux.dev,
+        Dean Luick <dean.luick@cornelisnetworks.com>,
+        Dennis Dalessandro <dennis.dalessandro@cornelisnetworks.com>,
+        Leon Romanovsky <leon@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 04/80] EDAC/highbank: Fix memory leak in highbank_mc_probe()
-Date:   Fri,  3 Feb 2023 11:11:58 +0100
-Message-Id: <20230203101015.447558368@linuxfoundation.org>
+Subject: [PATCH 5.4 014/134] IB/hfi1: Reject a zero-length user expected buffer
+Date:   Fri,  3 Feb 2023 11:11:59 +0100
+Message-Id: <20230203101024.504443222@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.1
-In-Reply-To: <20230203101015.263854890@linuxfoundation.org>
-References: <20230203101015.263854890@linuxfoundation.org>
+In-Reply-To: <20230203101023.832083974@linuxfoundation.org>
+References: <20230203101023.832083974@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,52 +55,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Miaoqian Lin <linmq006@gmail.com>
+From: Dean Luick <dean.luick@cornelisnetworks.com>
 
-[ Upstream commit e7a293658c20a7945014570e1921bf7d25d68a36 ]
+[ Upstream commit 0a0a6e80472c98947d73c3d13bcd7d101895f55d ]
 
-When devres_open_group() fails, it returns -ENOMEM without freeing memory
-allocated by edac_mc_alloc().
+A zero length user buffer makes no sense and the code
+does not handle it correctly.  Instead, reject a
+zero length as invalid.
 
-Call edac_mc_free() on the error handling path to avoid a memory leak.
-
-  [ bp: Massage commit message. ]
-
-Fixes: a1b01edb2745 ("edac: add support for Calxeda highbank memory controller")
-Signed-off-by: Miaoqian Lin <linmq006@gmail.com>
-Signed-off-by: Borislav Petkov (AMD) <bp@alien8.de>
-Reviewed-by: Andre Przywara <andre.przywara@arm.com>
-Link: https://lore.kernel.org/r/20221229054825.1361993-1-linmq006@gmail.com
+Fixes: 97736f36dbeb ("IB/hfi1: Validate page aligned for a given virtual addres")
+Signed-off-by: Dean Luick <dean.luick@cornelisnetworks.com>
+Signed-off-by: Dennis Dalessandro <dennis.dalessandro@cornelisnetworks.com>
+Link: https://lore.kernel.org/r/167328547120.1472310.6362802432127399257.stgit@awfm-02.cornelisnetworks.com
+Signed-off-by: Leon Romanovsky <leon@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/edac/highbank_mc_edac.c | 7 +++++--
- 1 file changed, 5 insertions(+), 2 deletions(-)
+ drivers/infiniband/hw/hfi1/user_exp_rcv.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/drivers/edac/highbank_mc_edac.c b/drivers/edac/highbank_mc_edac.c
-index 6092e61be605..bcf41601a977 100644
---- a/drivers/edac/highbank_mc_edac.c
-+++ b/drivers/edac/highbank_mc_edac.c
-@@ -185,8 +185,10 @@ static int highbank_mc_probe(struct platform_device *pdev)
- 	drvdata = mci->pvt_info;
- 	platform_set_drvdata(pdev, mci);
+diff --git a/drivers/infiniband/hw/hfi1/user_exp_rcv.c b/drivers/infiniband/hw/hfi1/user_exp_rcv.c
+index 4d732353379d..28f1b3c37a4f 100644
+--- a/drivers/infiniband/hw/hfi1/user_exp_rcv.c
++++ b/drivers/infiniband/hw/hfi1/user_exp_rcv.c
+@@ -325,6 +325,8 @@ int hfi1_user_exp_rcv_setup(struct hfi1_filedata *fd,
  
--	if (!devres_open_group(&pdev->dev, NULL, GFP_KERNEL))
--		return -ENOMEM;
-+	if (!devres_open_group(&pdev->dev, NULL, GFP_KERNEL)) {
-+		res = -ENOMEM;
-+		goto free;
-+	}
+ 	if (!PAGE_ALIGNED(tinfo->vaddr))
+ 		return -EINVAL;
++	if (tinfo->length == 0)
++		return -EINVAL;
  
- 	r = platform_get_resource(pdev, IORESOURCE_MEM, 0);
- 	if (!r) {
-@@ -254,6 +256,7 @@ static int highbank_mc_probe(struct platform_device *pdev)
- 	edac_mc_del_mc(&pdev->dev);
- err:
- 	devres_release_group(&pdev->dev, NULL);
-+free:
- 	edac_mc_free(mci);
- 	return res;
- }
+ 	tidbuf = kzalloc(sizeof(*tidbuf), GFP_KERNEL);
+ 	if (!tidbuf)
 -- 
 2.39.0
 
