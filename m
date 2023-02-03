@@ -2,49 +2,51 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 281A96895B9
-	for <lists+stable@lfdr.de>; Fri,  3 Feb 2023 11:24:26 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5FC4D689639
+	for <lists+stable@lfdr.de>; Fri,  3 Feb 2023 11:31:43 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232233AbjBCKWY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 3 Feb 2023 05:22:24 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44914 "EHLO
+        id S233662AbjBCK3K (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 3 Feb 2023 05:29:10 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51292 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233364AbjBCKWX (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 3 Feb 2023 05:22:23 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4E0E09D04C
-        for <stable@vger.kernel.org>; Fri,  3 Feb 2023 02:22:06 -0800 (PST)
+        with ESMTP id S233507AbjBCK2t (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 3 Feb 2023 05:28:49 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 58217D509
+        for <stable@vger.kernel.org>; Fri,  3 Feb 2023 02:28:02 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 69D8A61EC2
-        for <stable@vger.kernel.org>; Fri,  3 Feb 2023 10:21:44 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 33BAFC4339E;
-        Fri,  3 Feb 2023 10:21:43 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id A662361ED3
+        for <stable@vger.kernel.org>; Fri,  3 Feb 2023 10:28:01 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 807E6C433D2;
+        Fri,  3 Feb 2023 10:28:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1675419703;
-        bh=WZl2eKdtabjmBmr+WssfJF8VVwfHHWPXijY6QfNZVV8=;
+        s=korg; t=1675420080;
+        bh=/w84pOef1tMY3fc1sWOSqXxi4jqk57Tg2fV45DIehe8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=deBI4TwsW6IUYQFIaTGU+4s0z8QQuo4Fk5wxNtcjMJnweT03txGVsCbXbSzXDEB9H
-         bCmcRTqCf1jFSXqrcn+dl8KVPmZuukZ0modcxppq8LYniNBNXA+ygVTqLGAunsN4Sm
-         q3huiIStFhR5EsUda/FlFZ6KlMEwodb2k04O8pzA=
+        b=F5dLpTuEUP+5kahPqLB0s4ADn0e43W8beDsOVjfDX6hk7qeOq6VzsEvkaGWWMJ+WW
+         z3cW4UCBn57+zjwgO2BMqXaI1J8kWyltWvxTai9YfHg4eFrEfFqiefCVSyxKybrenQ
+         XBnnHktc6KZSpBceJh5cb5CDpU9lMohYgdUI6lto=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Aaro Koskinen <aaro.koskinen@iki.fi>,
-        Arnd Bergmann <arnd@arndb.de>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 10/28] ARM: omap1: fix building gpio15xx
-Date:   Fri,  3 Feb 2023 11:12:58 +0100
-Message-Id: <20230203101010.410641102@linuxfoundation.org>
+        patches@lists.linux.dev, Martin Wilck <mwilck@suse.com>,
+        Petr Pavlu <petr.pavlu@suse.com>,
+        Petr Mladek <pmladek@suse.com>,
+        Luis Chamberlain <mcgrof@kernel.org>
+Subject: [PATCH 5.4 074/134] module: Dont wait for GOING modules
+Date:   Fri,  3 Feb 2023 11:12:59 +0100
+Message-Id: <20230203101027.193080938@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.1
-In-Reply-To: <20230203101009.946745030@linuxfoundation.org>
-References: <20230203101009.946745030@linuxfoundation.org>
+In-Reply-To: <20230203101023.832083974@linuxfoundation.org>
+References: <20230203101023.832083974@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
         SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -52,45 +54,111 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Arnd Bergmann <arnd@arndb.de>
+From: Petr Pavlu <petr.pavlu@suse.com>
 
-[ Upstream commit 9d46ce57f4d1c626bb48170226ea5e35deb5877c ]
+commit 0254127ab977e70798707a7a2b757c9f3c971210 upstream.
 
-In some randconfig builds, the asm/irq.h header is not included
-in gpio15xx.c, so add an explicit include to avoid a build fialure:
+During a system boot, it can happen that the kernel receives a burst of
+requests to insert the same module but loading it eventually fails
+during its init call. For instance, udev can make a request to insert
+a frequency module for each individual CPU when another frequency module
+is already loaded which causes the init function of the new module to
+return an error.
 
-In file included from arch/arm/mach-omap1/gpio15xx.c:15:
-arch/arm/mach-omap1/irqs.h:99:34: error: 'NR_IRQS_LEGACY' undeclared here (not in a function)
-   99 | #define IH2_BASE                (NR_IRQS_LEGACY + 32)
-      |                                  ^~~~~~~~~~~~~~
-arch/arm/mach-omap1/irqs.h:105:38: note: in expansion of macro 'IH2_BASE'
-  105 | #define INT_MPUIO               (5 + IH2_BASE)
-      |                                      ^~~~~~~~
-arch/arm/mach-omap1/gpio15xx.c:28:27: note: in expansion of macro 'INT_MPUIO'
-   28 |                 .start  = INT_MPUIO,
-      |                           ^~~~~~~~~
+Since commit 6e6de3dee51a ("kernel/module.c: Only return -EEXIST for
+modules that have finished loading"), the kernel waits for modules in
+MODULE_STATE_GOING state to finish unloading before making another
+attempt to load the same module.
 
-Acked-by: Aaro Koskinen <aaro.koskinen@iki.fi>
-Signed-off-by: Arnd Bergmann <arnd@arndb.de>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+This creates unnecessary work in the described scenario and delays the
+boot. In the worst case, it can prevent udev from loading drivers for
+other devices and might cause timeouts of services waiting on them and
+subsequently a failed boot.
+
+This patch attempts a different solution for the problem 6e6de3dee51a
+was trying to solve. Rather than waiting for the unloading to complete,
+it returns a different error code (-EBUSY) for modules in the GOING
+state. This should avoid the error situation that was described in
+6e6de3dee51a (user space attempting to load a dependent module because
+the -EEXIST error code would suggest to user space that the first module
+had been loaded successfully), while avoiding the delay situation too.
+
+This has been tested on linux-next since December 2022 and passes
+all kmod selftests except test 0009 with module compression enabled
+but it has been confirmed that this issue has existed and has gone
+unnoticed since prior to this commit and can also be reproduced without
+module compression with a simple usleep(5000000) on tools/modprobe.c [0].
+These failures are caused by hitting the kernel mod_concurrent_max and can
+happen either due to a self inflicted kernel module auto-loead DoS somehow
+or on a system with large CPU count and each CPU count incorrectly triggering
+many module auto-loads. Both of those issues need to be fixed in-kernel.
+
+[0] https://lore.kernel.org/all/Y9A4fiobL6IHp%2F%2FP@bombadil.infradead.org/
+
+Fixes: 6e6de3dee51a ("kernel/module.c: Only return -EEXIST for modules that have finished loading")
+Co-developed-by: Martin Wilck <mwilck@suse.com>
+Signed-off-by: Martin Wilck <mwilck@suse.com>
+Signed-off-by: Petr Pavlu <petr.pavlu@suse.com>
+Cc: stable@vger.kernel.org
+Reviewed-by: Petr Mladek <pmladek@suse.com>
+[mcgrof: enhance commit log with testing and kmod test result interpretation ]
+Signed-off-by: Luis Chamberlain <mcgrof@kernel.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/arm/mach-omap1/gpio15xx.c | 1 +
- 1 file changed, 1 insertion(+)
+ kernel/module.c |   26 +++++++++++++++++++++-----
+ 1 file changed, 21 insertions(+), 5 deletions(-)
 
-diff --git a/arch/arm/mach-omap1/gpio15xx.c b/arch/arm/mach-omap1/gpio15xx.c
-index c675f11de99d..61fa26efd865 100644
---- a/arch/arm/mach-omap1/gpio15xx.c
-+++ b/arch/arm/mach-omap1/gpio15xx.c
-@@ -11,6 +11,7 @@
- #include <linux/gpio.h>
- #include <linux/platform_data/gpio-omap.h>
- #include <linux/soc/ti/omap1-soc.h>
-+#include <asm/irq.h>
+--- a/kernel/module.c
++++ b/kernel/module.c
+@@ -3654,7 +3654,8 @@ static bool finished_loading(const char
+ 	sched_annotate_sleep();
+ 	mutex_lock(&module_mutex);
+ 	mod = find_module_all(name, strlen(name), true);
+-	ret = !mod || mod->state == MODULE_STATE_LIVE;
++	ret = !mod || mod->state == MODULE_STATE_LIVE
++		|| mod->state == MODULE_STATE_GOING;
+ 	mutex_unlock(&module_mutex);
  
- #include "irqs.h"
+ 	return ret;
+@@ -3820,20 +3821,35 @@ static int add_unformed_module(struct mo
  
--- 
-2.39.0
-
+ 	mod->state = MODULE_STATE_UNFORMED;
+ 
+-again:
+ 	mutex_lock(&module_mutex);
+ 	old = find_module_all(mod->name, strlen(mod->name), true);
+ 	if (old != NULL) {
+-		if (old->state != MODULE_STATE_LIVE) {
++		if (old->state == MODULE_STATE_COMING
++		    || old->state == MODULE_STATE_UNFORMED) {
+ 			/* Wait in case it fails to load. */
+ 			mutex_unlock(&module_mutex);
+ 			err = wait_event_interruptible(module_wq,
+ 					       finished_loading(mod->name));
+ 			if (err)
+ 				goto out_unlocked;
+-			goto again;
++
++			/* The module might have gone in the meantime. */
++			mutex_lock(&module_mutex);
++			old = find_module_all(mod->name, strlen(mod->name),
++					      true);
+ 		}
+-		err = -EEXIST;
++
++		/*
++		 * We are here only when the same module was being loaded. Do
++		 * not try to load it again right now. It prevents long delays
++		 * caused by serialized module load failures. It might happen
++		 * when more devices of the same type trigger load of
++		 * a particular module.
++		 */
++		if (old && old->state == MODULE_STATE_LIVE)
++			err = -EEXIST;
++		else
++			err = -EBUSY;
+ 		goto out;
+ 	}
+ 	mod_update_bounds(mod);
 
 
