@@ -2,32 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 4C7EF689612
-	for <lists+stable@lfdr.de>; Fri,  3 Feb 2023 11:31:30 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 02FB4689540
+	for <lists+stable@lfdr.de>; Fri,  3 Feb 2023 11:18:52 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233468AbjBCKZf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 3 Feb 2023 05:25:35 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49516 "EHLO
+        id S233311AbjBCKS2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 3 Feb 2023 05:18:28 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38742 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233510AbjBCKZ1 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 3 Feb 2023 05:25:27 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A8D8C9D5B2
-        for <stable@vger.kernel.org>; Fri,  3 Feb 2023 02:25:04 -0800 (PST)
+        with ESMTP id S233331AbjBCKSE (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 3 Feb 2023 05:18:04 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 61E119E9DA
+        for <stable@vger.kernel.org>; Fri,  3 Feb 2023 02:17:50 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 6602461EBF
-        for <stable@vger.kernel.org>; Fri,  3 Feb 2023 10:25:04 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 49CEFC433EF;
-        Fri,  3 Feb 2023 10:25:03 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id ED71261E89
+        for <stable@vger.kernel.org>; Fri,  3 Feb 2023 10:17:49 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C8FDEC4339B;
+        Fri,  3 Feb 2023 10:17:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1675419903;
-        bh=INmcdVg3RPnELl01J82Iy7k78ksSjh8zqgEkZwW4IUk=;
+        s=korg; t=1675419469;
+        bh=TJYn6pFigaSa6DDq0uiMG52JfV+oie/WBXa63YEobA0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=AUqz8KxDhN1MSjv2xrQyJXpCUfZxNgWCPA9ZdpOxvD38wqIAfbC9X/iyP2X0r9pbT
-         /o4AQz/wuGnGXYnfgab+afPzQpB8HVzFhssTNBdcmuJFIUZ2PSjvXvZMykubxibgIk
-         pLum/NUutqdfSA7heTmt5pc1bgfDvH1dUAtk4Up8=
+        b=Y69kgfVC6ZSdVyhrvJpjX3ks8l6KCB7SncT69BTFI3M6xb6Ldq2O0ZUIO/Rz/ArrF
+         v08DvyAgd2hpS1w3Aa02A7DYr8Qv0ErtCF1p2+1/M7pixQbbeHAk+oEQw8xf1/Tj3d
+         hL5mqj8GMP4yV1UwmFn91SqeAaOahIcvQKwUTxWU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
@@ -36,18 +36,18 @@ Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         Dennis Dalessandro <dennis.dalessandro@cornelisnetworks.com>,
         Leon Romanovsky <leon@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 016/134] IB/hfi1: Fix expected receive setup error exit issues
-Date:   Fri,  3 Feb 2023 11:12:01 +0100
-Message-Id: <20230203101024.600046379@linuxfoundation.org>
+Subject: [PATCH 4.19 08/80] IB/hfi1: Fix expected receive setup error exit issues
+Date:   Fri,  3 Feb 2023 11:12:02 +0100
+Message-Id: <20230203101015.604493884@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.1
-In-Reply-To: <20230203101023.832083974@linuxfoundation.org>
-References: <20230203101023.832083974@linuxfoundation.org>
+In-Reply-To: <20230203101015.263854890@linuxfoundation.org>
+References: <20230203101015.263854890@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
         SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -88,7 +88,7 @@ Signed-off-by: Sasha Levin <sashal@kernel.org>
  1 file changed, 50 insertions(+), 33 deletions(-)
 
 diff --git a/drivers/infiniband/hw/hfi1/user_exp_rcv.c b/drivers/infiniband/hw/hfi1/user_exp_rcv.c
-index 7623cb61ec4c..e7daa65589ab 100644
+index 0a118f2963fb..dab823aac95e 100644
 --- a/drivers/infiniband/hw/hfi1/user_exp_rcv.c
 +++ b/drivers/infiniband/hw/hfi1/user_exp_rcv.c
 @@ -337,15 +337,14 @@ int hfi1_user_exp_rcv_setup(struct hfi1_filedata *fd,
