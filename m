@@ -2,45 +2,69 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 53FFB689697
-	for <lists+stable@lfdr.de>; Fri,  3 Feb 2023 11:32:18 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1E3F468957A
+	for <lists+stable@lfdr.de>; Fri,  3 Feb 2023 11:24:05 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233699AbjBCK3k (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 3 Feb 2023 05:29:40 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50428 "EHLO
+        id S233463AbjBCKXh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 3 Feb 2023 05:23:37 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46658 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233689AbjBCK3V (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 3 Feb 2023 05:29:21 -0500
+        with ESMTP id S233425AbjBCKX2 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 3 Feb 2023 05:23:28 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E77319D5B0
-        for <stable@vger.kernel.org>; Fri,  3 Feb 2023 02:28:31 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C41DD22789
+        for <stable@vger.kernel.org>; Fri,  3 Feb 2023 02:23:06 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id C473861ECE
-        for <stable@vger.kernel.org>; Fri,  3 Feb 2023 10:28:31 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A1760C433A7;
-        Fri,  3 Feb 2023 10:28:30 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id B7DA661EBA
+        for <stable@vger.kernel.org>; Fri,  3 Feb 2023 10:23:05 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7899FC433D2;
+        Fri,  3 Feb 2023 10:23:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1675420111;
-        bh=sx80RY1j1NA+28Zxc/ujMkWRNWUMKpnPcPs4BqBBH0M=;
+        s=korg; t=1675419785;
+        bh=FbUetLhw79WW3EuXs6rQ4Ut0dLEdVl38E2k3pLvcuxU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=v9Q5t1T37+AcVphpz3UpO0xx1IrgQkwOiV982VSHZut83sNiWHcKbnGrhwH8ifeXt
-         t954CHVE+dJf48aRWbe7GMytr/PXzwrznmUBBWYKDSF0HNHQEljXYyD1xu2GjeUo8f
-         MUey4IFQliUdXJeMpKHZukjhr0X4KY1s4iGrEe5c=
+        b=KBHhxWWPsxyIhrgmBBuAAdURU/MbHCAdsFA5l5HhCF9+QEX/07BEDDIrNpBenwXKp
+         xlUc7H1HkpYbySfQM2o+qrmurMGLgVXhs5D8jiY3oJ0IfZiu/Pi5Dm5p2QTbc0pz0B
+         m6o6IhLm/R98xUNr6lQhx2Y+f6i8o9VWHx7K6vbU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Steev Klimaszewski <steev@kali.org>,
-        Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>,
-        "Borislav Petkov (AMD)" <bp@alien8.de>,
-        Andrew Halaney <ahalaney@redhat.com>
-Subject: [PATCH 5.4 083/134] EDAC/qcom: Do not pass llcc_driv_data as edac_device_ctl_infos pvt_info
+        patches@lists.linux.dev, Marco Elver <elver@google.com>,
+        Dmitry Vyukov <dvyukov@google.com>,
+        Ingo Molnar <mingo@redhat.com>,
+        Peter Zijlstra <peterz@infradead.org>,
+        Juri Lelli <juri.lelli@redhat.com>,
+        Vincent Guittot <vincent.guittot@linaro.org>,
+        Dietmar Eggemann <dietmar.eggemann@arm.com>,
+        Steven Rostedt <rostedt@goodmis.org>,
+        Ben Segall <bsegall@google.com>, Mel Gorman <mgorman@suse.de>,
+        Daniel Bristot de Oliveira <bristot@redhat.com>,
+        Valentin Schneider <vschneid@redhat.com>,
+        Andrey Ryabinin <ryabinin.a.a@gmail.com>,
+        Alexander Potapenko <glider@google.com>,
+        Andrey Konovalov <andreyknvl@gmail.com>,
+        Vincenzo Frascino <vincenzo.frascino@arm.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        David Gow <davidgow@google.com>,
+        tangmeng <tangmeng@uniontech.com>, Jann Horn <jannh@google.com>,
+        Shuah Khan <skhan@linuxfoundation.org>,
+        Petr Mladek <pmladek@suse.com>,
+        "Paul E. McKenney" <paulmck@kernel.org>,
+        Sebastian Andrzej Siewior <bigeasy@linutronix.de>,
+        "Guilherme G. Piccoli" <gpiccoli@igalia.com>,
+        Tiezhu Yang <yangtiezhu@loongson.cn>,
+        kasan-dev@googlegroups.com, linux-mm@kvack.org,
+        Luis Chamberlain <mcgrof@kernel.org>,
+        Kees Cook <keescook@chromium.org>,
+        Eric Biggers <ebiggers@google.com>
+Subject: [PATCH 4.19 74/80] panic: Consolidate open-coded panic_on_warn checks
 Date:   Fri,  3 Feb 2023 11:13:08 +0100
-Message-Id: <20230203101027.588817283@linuxfoundation.org>
+Message-Id: <20230203101018.408088099@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.1
-In-Reply-To: <20230203101023.832083974@linuxfoundation.org>
-References: <20230203101023.832083974@linuxfoundation.org>
+In-Reply-To: <20230203101015.263854890@linuxfoundation.org>
+References: <20230203101015.263854890@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,58 +78,115 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>
+From: Kees Cook <keescook@chromium.org>
 
-commit 977c6ba624f24ae20cf0faee871257a39348d4a9 upstream.
+commit 79cc1ba7badf9e7a12af99695a557e9ce27ee967 upstream.
 
-The memory for llcc_driv_data is allocated by the LLCC driver. But when
-it is passed as the private driver info to the EDAC core, it will get freed
-during the qcom_edac driver release. So when the qcom_edac driver gets probed
-again, it will try to use the freed data leading to the use-after-free bug.
+Several run-time checkers (KASAN, UBSAN, KFENCE, KCSAN, sched) roll
+their own warnings, and each check "panic_on_warn". Consolidate this
+into a single function so that future instrumentation can be added in
+a single location.
 
-Hence, do not pass llcc_driv_data as pvt_info but rather reference it
-using the platform_data pointer in the qcom_edac driver.
-
-Fixes: 27450653f1db ("drivers: edac: Add EDAC driver support for QCOM SoCs")
-Reported-by: Steev Klimaszewski <steev@kali.org>
-Signed-off-by: Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>
-Signed-off-by: Borislav Petkov (AMD) <bp@alien8.de>
-Tested-by: Steev Klimaszewski <steev@kali.org> # Thinkpad X13s
-Tested-by: Andrew Halaney <ahalaney@redhat.com> # sa8540p-ride
-Cc: <stable@vger.kernel.org> # 4.20
-Link: https://lore.kernel.org/r/20230118150904.26913-4-manivannan.sadhasivam@linaro.org
+Cc: Marco Elver <elver@google.com>
+Cc: Dmitry Vyukov <dvyukov@google.com>
+Cc: Ingo Molnar <mingo@redhat.com>
+Cc: Peter Zijlstra <peterz@infradead.org>
+Cc: Juri Lelli <juri.lelli@redhat.com>
+Cc: Vincent Guittot <vincent.guittot@linaro.org>
+Cc: Dietmar Eggemann <dietmar.eggemann@arm.com>
+Cc: Steven Rostedt <rostedt@goodmis.org>
+Cc: Ben Segall <bsegall@google.com>
+Cc: Mel Gorman <mgorman@suse.de>
+Cc: Daniel Bristot de Oliveira <bristot@redhat.com>
+Cc: Valentin Schneider <vschneid@redhat.com>
+Cc: Andrey Ryabinin <ryabinin.a.a@gmail.com>
+Cc: Alexander Potapenko <glider@google.com>
+Cc: Andrey Konovalov <andreyknvl@gmail.com>
+Cc: Vincenzo Frascino <vincenzo.frascino@arm.com>
+Cc: Andrew Morton <akpm@linux-foundation.org>
+Cc: David Gow <davidgow@google.com>
+Cc: tangmeng <tangmeng@uniontech.com>
+Cc: Jann Horn <jannh@google.com>
+Cc: Shuah Khan <skhan@linuxfoundation.org>
+Cc: Petr Mladek <pmladek@suse.com>
+Cc: "Paul E. McKenney" <paulmck@kernel.org>
+Cc: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
+Cc: "Guilherme G. Piccoli" <gpiccoli@igalia.com>
+Cc: Tiezhu Yang <yangtiezhu@loongson.cn>
+Cc: kasan-dev@googlegroups.com
+Cc: linux-mm@kvack.org
+Reviewed-by: Luis Chamberlain <mcgrof@kernel.org>
+Signed-off-by: Kees Cook <keescook@chromium.org>
+Reviewed-by: Marco Elver <elver@google.com>
+Reviewed-by: Andrey Konovalov <andreyknvl@gmail.com>
+Link: https://lore.kernel.org/r/20221117234328.594699-4-keescook@chromium.org
+Signed-off-by: Eric Biggers <ebiggers@google.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/edac/qcom_edac.c |    5 ++---
- 1 file changed, 2 insertions(+), 3 deletions(-)
+ include/linux/kernel.h |    1 +
+ kernel/panic.c         |    9 +++++++--
+ kernel/sched/core.c    |    3 +--
+ mm/kasan/report.c      |    3 +--
+ 4 files changed, 10 insertions(+), 6 deletions(-)
 
---- a/drivers/edac/qcom_edac.c
-+++ b/drivers/edac/qcom_edac.c
-@@ -252,7 +252,7 @@ clear:
- static int
- dump_syn_reg(struct edac_device_ctl_info *edev_ctl, int err_type, u32 bank)
- {
--	struct llcc_drv_data *drv = edev_ctl->pvt_info;
-+	struct llcc_drv_data *drv = edev_ctl->dev->platform_data;
- 	int ret;
+--- a/include/linux/kernel.h
++++ b/include/linux/kernel.h
+@@ -327,6 +327,7 @@ extern long (*panic_blink)(int state);
+ __printf(1, 2)
+ void panic(const char *fmt, ...) __noreturn __cold;
+ void nmi_panic(struct pt_regs *regs, const char *msg);
++void check_panic_on_warn(const char *origin);
+ extern void oops_enter(void);
+ extern void oops_exit(void);
+ void print_oops_end_marker(void);
+--- a/kernel/panic.c
++++ b/kernel/panic.c
+@@ -125,6 +125,12 @@ void nmi_panic(struct pt_regs *regs, con
+ }
+ EXPORT_SYMBOL(nmi_panic);
  
- 	ret = dump_syn_reg_values(drv, bank, err_type);
-@@ -289,7 +289,7 @@ static irqreturn_t
- llcc_ecc_irq_handler(int irq, void *edev_ctl)
- {
- 	struct edac_device_ctl_info *edac_dev_ctl = edev_ctl;
--	struct llcc_drv_data *drv = edac_dev_ctl->pvt_info;
-+	struct llcc_drv_data *drv = edac_dev_ctl->dev->platform_data;
- 	irqreturn_t irq_rc = IRQ_NONE;
- 	u32 drp_error, trp_error, i;
- 	int ret;
-@@ -358,7 +358,6 @@ static int qcom_llcc_edac_probe(struct p
- 	edev_ctl->dev_name = dev_name(dev);
- 	edev_ctl->ctl_name = "llcc";
- 	edev_ctl->panic_on_ue = LLCC_ERP_PANIC_ON_UE;
--	edev_ctl->pvt_info = llcc_driv_data;
++void check_panic_on_warn(const char *origin)
++{
++	if (panic_on_warn)
++		panic("%s: panic_on_warn set ...\n", origin);
++}
++
+ /**
+  *	panic - halt the system
+  *	@fmt: The text string to print
+@@ -540,8 +546,7 @@ void __warn(const char *file, int line,
+ 	if (args)
+ 		vprintk(args->fmt, args->args);
  
- 	rc = edac_device_add_device(edev_ctl);
- 	if (rc)
+-	if (panic_on_warn)
+-		panic("panic_on_warn set ...\n");
++	check_panic_on_warn("kernel");
+ 
+ 	print_modules();
+ 
+--- a/kernel/sched/core.c
++++ b/kernel/sched/core.c
+@@ -3316,8 +3316,7 @@ static noinline void __schedule_bug(stru
+ 		print_ip_sym(preempt_disable_ip);
+ 		pr_cont("\n");
+ 	}
+-	if (panic_on_warn)
+-		panic("scheduling while atomic\n");
++	check_panic_on_warn("scheduling while atomic");
+ 
+ 	dump_stack();
+ 	add_taint(TAINT_WARN, LOCKDEP_STILL_OK);
+--- a/mm/kasan/report.c
++++ b/mm/kasan/report.c
+@@ -176,8 +176,7 @@ static void kasan_end_report(unsigned lo
+ 	pr_err("==================================================================\n");
+ 	add_taint(TAINT_BAD_PAGE, LOCKDEP_NOW_UNRELIABLE);
+ 	spin_unlock_irqrestore(&report_lock, *flags);
+-	if (panic_on_warn)
+-		panic("panic_on_warn set ...\n");
++	check_panic_on_warn("KASAN");
+ 	kasan_enable_current();
+ }
+ 
 
 
