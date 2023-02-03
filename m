@@ -2,51 +2,51 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id AAB9D689678
-	for <lists+stable@lfdr.de>; Fri,  3 Feb 2023 11:32:06 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C677568951A
+	for <lists+stable@lfdr.de>; Fri,  3 Feb 2023 11:18:36 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233637AbjBCK2E (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 3 Feb 2023 05:28:04 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50864 "EHLO
+        id S233237AbjBCKQI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 3 Feb 2023 05:16:08 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36282 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233508AbjBCK1u (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 3 Feb 2023 05:27:50 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 11A53A07F6
-        for <stable@vger.kernel.org>; Fri,  3 Feb 2023 02:27:06 -0800 (PST)
+        with ESMTP id S232951AbjBCKQG (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 3 Feb 2023 05:16:06 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 66DEF9DEF8
+        for <stable@vger.kernel.org>; Fri,  3 Feb 2023 02:15:58 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 2DF6AB82A72
-        for <stable@vger.kernel.org>; Fri,  3 Feb 2023 10:27:03 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 73754C4339C;
-        Fri,  3 Feb 2023 10:27:01 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id DE08D61E4C
+        for <stable@vger.kernel.org>; Fri,  3 Feb 2023 10:15:57 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A72CDC433D2;
+        Fri,  3 Feb 2023 10:15:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1675420021;
-        bh=TTVbymY3co61EGMFHmiVi5fEYSK/KYrckzYo1ExY5AU=;
+        s=korg; t=1675419357;
+        bh=hdaUjU7GJ6ATGvbFasBr8txneDTa8HH0FqNFA5ulQ1A=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=RKqB7MNs6awxOJwycXXZbru0Td852NvTWwmlSVcoePhCfl3oFosgYbZYGJ0jBPGcJ
-         4gRNaBIc4GwwU1jvUPP2RweSCeyATkJL0Xzpo/VaFPyGHNyP3cac1IEHxxZl43zgbR
-         Ad+9oiwlwZW0xAQkiiCzN10BArkGPkvVbeu3PTWE=
+        b=eKhhK1PeRapiHCMVYzPepWqWGOo/d/PzP4+9i16r2qSpCDVamCljO5k+cfcVleM/7
+         qaIM/qMPK84qsIWDK2DnWkNvwstsT9FyKEY5Ylcz7dKivYspZ3PCvg4+iGa2aaGo0y
+         vuWgzprMdZ//M5jpKPQqw/ekQolQWWxN25eqp0mA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Chancel Liu <chancel.liu@nxp.com>,
-        Shengjiu Wang <shengjiu.wang@gmail.com>,
-        Mark Brown <broonie@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 053/134] ASoC: fsl_micfil: Correct the number of steps on SX controls
+        patches@lists.linux.dev, Christoph Hellwig <hch@lst.de>,
+        Johannes Thumshirn <jthumshirn@suse.de>,
+        Himanshu Madhani <himanshu.madhani@cavium.com>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>
+Subject: [PATCH 4.14 42/62] scsi: qla2xxx: dont break the bsg-lib abstractions
 Date:   Fri,  3 Feb 2023 11:12:38 +0100
-Message-Id: <20230203101026.260845639@linuxfoundation.org>
+Message-Id: <20230203101014.763575331@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.1
-In-Reply-To: <20230203101023.832083974@linuxfoundation.org>
-References: <20230203101023.832083974@linuxfoundation.org>
+In-Reply-To: <20230203101012.959398849@linuxfoundation.org>
+References: <20230203101012.959398849@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
         SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -54,59 +54,115 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Chancel Liu <chancel.liu@nxp.com>
+From: Christoph Hellwig <hch@lst.de>
 
-[ Upstream commit cdfa92eb90f5770b26a79824ef213ebdbbd988b1 ]
+commit 05231a3bb7981b01f6933c0a847fcaac25622bfd upstream.
 
-The parameter "max" of SOC_SINGLE_SX_TLV() means the number of steps
-rather than maximum value. This patch corrects the minimum value to -8
-and the number of steps to 15.
+Always use bsg_job->reply instead of scsi_req(bsg_job->req)->sense), as
+they always point to the same memory.
 
-Signed-off-by: Chancel Liu <chancel.liu@nxp.com>
-Acked-by: Shengjiu Wang <shengjiu.wang@gmail.com>
-Link: https://lore.kernel.org/r/20230104025754.3019235-1-chancel.liu@nxp.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Never set scsi_req(bsg_job->req)->result and we'll set that value
+through bsg_job_done.
+
+[mkp: applied by hand, fixed whitespace]
+
+Signed-off-by: Christoph Hellwig <hch@lst.de>
+Reviewed-by: Johannes Thumshirn <jthumshirn@suse.de>
+Reviewed-by: Himanshu Madhani <himanshu.madhani@cavium.com>
+Tested-by: Himanshu Madhani <himanshu.madhani@cavium.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- sound/soc/fsl/fsl_micfil.c | 16 ++++++++--------
- 1 file changed, 8 insertions(+), 8 deletions(-)
+ drivers/scsi/qla2xxx/qla_bsg.c |   10 ++++------
+ drivers/scsi/qla2xxx/qla_isr.c |   12 +++---------
+ drivers/scsi/qla2xxx/qla_mr.c  |    3 +--
+ 3 files changed, 8 insertions(+), 17 deletions(-)
 
-diff --git a/sound/soc/fsl/fsl_micfil.c b/sound/soc/fsl/fsl_micfil.c
-index f7f2d29f1bfe..b33746d58633 100644
---- a/sound/soc/fsl/fsl_micfil.c
-+++ b/sound/soc/fsl/fsl_micfil.c
-@@ -87,21 +87,21 @@ static DECLARE_TLV_DB_SCALE(gain_tlv, 0, 100, 0);
+--- a/drivers/scsi/qla2xxx/qla_bsg.c
++++ b/drivers/scsi/qla2xxx/qla_bsg.c
+@@ -924,9 +924,9 @@ qla2x00_process_loopback(struct bsg_job
  
- static const struct snd_kcontrol_new fsl_micfil_snd_controls[] = {
- 	SOC_SINGLE_SX_TLV("CH0 Volume", REG_MICFIL_OUT_CTRL,
--			  MICFIL_OUTGAIN_CHX_SHIFT(0), 0xF, 0x7, gain_tlv),
-+			  MICFIL_OUTGAIN_CHX_SHIFT(0), 0x8, 0xF, gain_tlv),
- 	SOC_SINGLE_SX_TLV("CH1 Volume", REG_MICFIL_OUT_CTRL,
--			  MICFIL_OUTGAIN_CHX_SHIFT(1), 0xF, 0x7, gain_tlv),
-+			  MICFIL_OUTGAIN_CHX_SHIFT(1), 0x8, 0xF, gain_tlv),
- 	SOC_SINGLE_SX_TLV("CH2 Volume", REG_MICFIL_OUT_CTRL,
--			  MICFIL_OUTGAIN_CHX_SHIFT(2), 0xF, 0x7, gain_tlv),
-+			  MICFIL_OUTGAIN_CHX_SHIFT(2), 0x8, 0xF, gain_tlv),
- 	SOC_SINGLE_SX_TLV("CH3 Volume", REG_MICFIL_OUT_CTRL,
--			  MICFIL_OUTGAIN_CHX_SHIFT(3), 0xF, 0x7, gain_tlv),
-+			  MICFIL_OUTGAIN_CHX_SHIFT(3), 0x8, 0xF, gain_tlv),
- 	SOC_SINGLE_SX_TLV("CH4 Volume", REG_MICFIL_OUT_CTRL,
--			  MICFIL_OUTGAIN_CHX_SHIFT(4), 0xF, 0x7, gain_tlv),
-+			  MICFIL_OUTGAIN_CHX_SHIFT(4), 0x8, 0xF, gain_tlv),
- 	SOC_SINGLE_SX_TLV("CH5 Volume", REG_MICFIL_OUT_CTRL,
--			  MICFIL_OUTGAIN_CHX_SHIFT(5), 0xF, 0x7, gain_tlv),
-+			  MICFIL_OUTGAIN_CHX_SHIFT(5), 0x8, 0xF, gain_tlv),
- 	SOC_SINGLE_SX_TLV("CH6 Volume", REG_MICFIL_OUT_CTRL,
--			  MICFIL_OUTGAIN_CHX_SHIFT(6), 0xF, 0x7, gain_tlv),
-+			  MICFIL_OUTGAIN_CHX_SHIFT(6), 0x8, 0xF, gain_tlv),
- 	SOC_SINGLE_SX_TLV("CH7 Volume", REG_MICFIL_OUT_CTRL,
--			  MICFIL_OUTGAIN_CHX_SHIFT(7), 0xF, 0x7, gain_tlv),
-+			  MICFIL_OUTGAIN_CHX_SHIFT(7), 0x8, 0xF, gain_tlv),
- 	SOC_ENUM_EXT("MICFIL Quality Select",
- 		     fsl_micfil_quality_enum,
- 		     snd_soc_get_enum_double, snd_soc_put_enum_double),
--- 
-2.39.0
-
+ 	bsg_job->reply_len = sizeof(struct fc_bsg_reply) +
+ 	    sizeof(response) + sizeof(uint8_t);
+-	fw_sts_ptr = ((uint8_t *)scsi_req(bsg_job->req)->sense) +
+-	    sizeof(struct fc_bsg_reply);
+-	memcpy(fw_sts_ptr, response, sizeof(response));
++	fw_sts_ptr = bsg_job->reply + sizeof(struct fc_bsg_reply);
++	memcpy(bsg_job->reply + sizeof(struct fc_bsg_reply), response,
++			sizeof(response));
+ 	fw_sts_ptr += sizeof(response);
+ 	*fw_sts_ptr = command_sent;
+ 
+@@ -2558,13 +2558,11 @@ qla24xx_bsg_timeout(struct bsg_job *bsg_
+ 						ql_log(ql_log_warn, vha, 0x7089,
+ 						    "mbx abort_command "
+ 						    "failed.\n");
+-						scsi_req(bsg_job->req)->result =
+ 						bsg_reply->result = -EIO;
+ 					} else {
+ 						ql_dbg(ql_dbg_user, vha, 0x708a,
+ 						    "mbx abort_command "
+ 						    "success.\n");
+-						scsi_req(bsg_job->req)->result =
+ 						bsg_reply->result = 0;
+ 					}
+ 					spin_lock_irqsave(&ha->hardware_lock, flags);
+@@ -2575,7 +2573,7 @@ qla24xx_bsg_timeout(struct bsg_job *bsg_
+ 	}
+ 	spin_unlock_irqrestore(&ha->hardware_lock, flags);
+ 	ql_log(ql_log_info, vha, 0x708b, "SRB not found to abort.\n");
+-	scsi_req(bsg_job->req)->result = bsg_reply->result = -ENXIO;
++	bsg_reply->result = -ENXIO;
+ 	return 0;
+ 
+ done:
+--- a/drivers/scsi/qla2xxx/qla_isr.c
++++ b/drivers/scsi/qla2xxx/qla_isr.c
+@@ -1540,7 +1540,6 @@ qla24xx_els_ct_entry(scsi_qla_host_t *vh
+ 	struct fc_bsg_reply *bsg_reply;
+ 	uint16_t comp_status;
+ 	uint32_t fw_status[3];
+-	uint8_t* fw_sts_ptr;
+ 	int res;
+ 
+ 	sp = qla2x00_get_sp_from_handle(vha, func, req, pkt);
+@@ -1601,11 +1600,7 @@ qla24xx_els_ct_entry(scsi_qla_host_t *vh
+ 			    type, sp->handle, comp_status, fw_status[1], fw_status[2],
+ 			    le16_to_cpu(((struct els_sts_entry_24xx *)
+ 				pkt)->total_byte_count));
+-			fw_sts_ptr = ((uint8_t*)scsi_req(bsg_job->req)->sense) +
+-				sizeof(struct fc_bsg_reply);
+-			memcpy( fw_sts_ptr, fw_status, sizeof(fw_status));
+-		}
+-		else {
++		} else {
+ 			ql_dbg(ql_dbg_user, vha, 0x5040,
+ 			    "ELS-CT pass-through-%s error hdl=%x comp_status-status=0x%x "
+ 			    "error subcode 1=0x%x error subcode 2=0x%x.\n",
+@@ -1616,10 +1611,9 @@ qla24xx_els_ct_entry(scsi_qla_host_t *vh
+ 				    pkt)->error_subcode_2));
+ 			res = DID_ERROR << 16;
+ 			bsg_reply->reply_payload_rcv_len = 0;
+-			fw_sts_ptr = ((uint8_t*)scsi_req(bsg_job->req)->sense) +
+-					sizeof(struct fc_bsg_reply);
+-			memcpy( fw_sts_ptr, fw_status, sizeof(fw_status));
+ 		}
++		memcpy(bsg_job->reply + sizeof(struct fc_bsg_reply),
++		       fw_status, sizeof(fw_status));
+ 		ql_dump_buffer(ql_dbg_user + ql_dbg_buffer, vha, 0x5056,
+ 				(uint8_t *)pkt, sizeof(*pkt));
+ 	}
+--- a/drivers/scsi/qla2xxx/qla_mr.c
++++ b/drivers/scsi/qla2xxx/qla_mr.c
+@@ -2222,8 +2222,7 @@ qlafx00_ioctl_iosb_entry(scsi_qla_host_t
+ 		memcpy(fstatus.reserved_3,
+ 		    pkt->reserved_2, 20 * sizeof(uint8_t));
+ 
+-		fw_sts_ptr = ((uint8_t *)scsi_req(bsg_job->req)->sense) +
+-		    sizeof(struct fc_bsg_reply);
++		fw_sts_ptr = bsg_job->reply + sizeof(struct fc_bsg_reply);
+ 
+ 		memcpy(fw_sts_ptr, (uint8_t *)&fstatus,
+ 		    sizeof(struct qla_mt_iocb_rsp_fx00));
 
 
