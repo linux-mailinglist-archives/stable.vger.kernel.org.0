@@ -2,90 +2,52 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 14C8C6896EE
-	for <lists+stable@lfdr.de>; Fri,  3 Feb 2023 11:36:59 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id AEF2D68961D
+	for <lists+stable@lfdr.de>; Fri,  3 Feb 2023 11:31:34 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231744AbjBCKcz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 3 Feb 2023 05:32:55 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58964 "EHLO
+        id S233448AbjBCKZS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 3 Feb 2023 05:25:18 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49500 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231989AbjBCKcM (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 3 Feb 2023 05:32:12 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A2897A0E87
-        for <stable@vger.kernel.org>; Fri,  3 Feb 2023 02:30:06 -0800 (PST)
+        with ESMTP id S233468AbjBCKZF (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 3 Feb 2023 05:25:05 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 187DF5CD33
+        for <stable@vger.kernel.org>; Fri,  3 Feb 2023 02:24:42 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 49C4DB82A6C
-        for <stable@vger.kernel.org>; Fri,  3 Feb 2023 10:30:05 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6D468C433A1;
-        Fri,  3 Feb 2023 10:30:03 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 7B75CB82A69
+        for <stable@vger.kernel.org>; Fri,  3 Feb 2023 10:24:40 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B15AEC433D2;
+        Fri,  3 Feb 2023 10:24:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1675420204;
-        bh=siVPkn/J/uv2rw60GCRTZxKiWXHWaRhlWO6+UJNwrgw=;
+        s=korg; t=1675419879;
+        bh=D50oKx3n1eCGDmz5refqipGnKtd7W0OefKjfjzeW8EY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=dKDRI+84/dUlS5HXZaCXq+qhohv8kQWxoKOPOUbHI50ArcggI+FkzS0kbfmEOyztM
-         ISoO8PxmYcWKrlkE+VJpLtRWRTb2eJBzbDOR0NHNwas087Uq316UIgZy4zv/mckNtX
-         bdJe2h3xvbMLlvrdnTJ6QZ9vxhKyijy64m9qB7k0=
+        b=Fxpqlh0h5nHQ9LjB4B8Kwpw1IZWjkGzeF9liQzwJm10DUMKAhfk299bmYMrmWI3ex
+         xYpbsS+5On2vnDvQtgkQw4pr6MxCygvT+pSulqMMDPRi5G8lsmMq3AYbWjV8EqBZ19
+         R/mTNe/XYKjjCTkOsaX4x2XXScceWOJHjo4Lo02E=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Xiaoming Ni <nixiaoming@huawei.com>,
-        Luis Chamberlain <mcgrof@kernel.org>,
-        Kees Cook <keescook@chromium.org>,
-        Iurii Zaikin <yzaikin@google.com>,
-        "Eric W. Biederman" <ebiederm@xmission.com>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Paul Turner <pjt@google.com>,
-        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
-        Sebastian Reichel <sre@kernel.org>,
-        Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>,
-        Petr Mladek <pmladek@suse.com>,
-        Sergey Senozhatsky <senozhatsky@chromium.org>,
-        Qing Wang <wangqing@vivo.com>,
-        Benjamin LaHaise <bcrl@kvack.org>,
-        Al Viro <viro@zeniv.linux.org.uk>, Jan Kara <jack@suse.cz>,
-        Amir Goldstein <amir73il@gmail.com>,
-        Stephen Kitt <steve@sk2.org>, Antti Palosaari <crope@iki.fi>,
-        Arnd Bergmann <arnd@arndb.de>,
-        Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-        Clemens Ladisch <clemens@ladisch.de>,
-        David Airlie <airlied@linux.ie>,
-        Jani Nikula <jani.nikula@linux.intel.com>,
-        Joel Becker <jlbec@evilplan.org>,
-        Joonas Lahtinen <joonas.lahtinen@linux.intel.com>,
-        Joseph Qi <joseph.qi@linux.alibaba.com>,
-        Julia Lawall <julia.lawall@inria.fr>,
-        Lukas Middendorf <kernel@tuxforce.de>,
-        Mark Fasheh <mark@fasheh.com>,
-        Phillip Potter <phil@philpotter.co.uk>,
-        Rodrigo Vivi <rodrigo.vivi@intel.com>,
-        Douglas Gilbert <dgilbert@interlog.com>,
-        "James E.J. Bottomley" <jejb@linux.ibm.com>,
-        Jani Nikula <jani.nikula@intel.com>,
-        John Ogness <john.ogness@linutronix.de>,
-        "Martin K. Petersen" <martin.petersen@oracle.com>,
-        "Rafael J. Wysocki" <rafael@kernel.org>,
-        "Steven Rostedt (VMware)" <rostedt@goodmis.org>,
-        Suren Baghdasaryan <surenb@google.com>,
-        "Theodore Tso" <tytso@mit.edu>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Eric Biggers <ebiggers@google.com>,
+        patches@lists.linux.dev, Baokun Li <libaokun1@huawei.com>,
+        "Darrick J. Wong" <djwong@kernel.org>, Jan Kara <jack@suse.cz>,
+        stable@kernel.org, Theodore Tso <tytso@mit.edu>,
+        Oleksandr Tymoshenko <ovt@google.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 114/134] sysctl: add a new register_sysctl_init() interface
+Subject: [PATCH 5.15 12/20] ext4: fix bad checksum after online resize
 Date:   Fri,  3 Feb 2023 11:13:39 +0100
-Message-Id: <20230203101028.964081479@linuxfoundation.org>
+Message-Id: <20230203101008.530057770@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.1
-In-Reply-To: <20230203101023.832083974@linuxfoundation.org>
-References: <20230203101023.832083974@linuxfoundation.org>
+In-Reply-To: <20230203101007.985835823@linuxfoundation.org>
+References: <20230203101007.985835823@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
         SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -93,180 +55,58 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Xiaoming Ni <nixiaoming@huawei.com>
+From: Baokun Li <libaokun1@huawei.com>
 
-commit 3ddd9a808cee7284931312f2f3e854c9617f44b2 upstream.
+commit a408f33e895e455f16cf964cb5cd4979b658db7b upstream.
 
-Patch series "sysctl: first set of kernel/sysctl cleanups", v2.
+When online resizing is performed twice consecutively, the error message
+"Superblock checksum does not match superblock" is displayed for the
+second time. Here's the reproducer:
 
-Finally had time to respin the series of the work we had started last
-year on cleaning up the kernel/sysct.c kitchen sink.  People keeps
-stuffing their sysctls in that file and this creates a maintenance
-burden.  So this effort is aimed at placing sysctls where they actually
-belong.
+	mkfs.ext4 -F /dev/sdb 100M
+	mount /dev/sdb /tmp/test
+	resize2fs /dev/sdb 5G
+	resize2fs /dev/sdb 6G
 
-I'm going to split patches up into series as there is quite a bit of
-work.
+To solve this issue, we moved the update of the checksum after the
+es->s_overhead_clusters is updated.
 
-This first set adds register_sysctl_init() for uses of registerting a
-sysctl on the init path, adds const where missing to a few places,
-generalizes common values so to be more easy to share, and starts the
-move of a few kernel/sysctl.c out where they belong.
-
-The majority of rework on v2 in this first patch set is 0-day fixes.
-Eric Biederman's feedback is later addressed in subsequent patch sets.
-
-I'll only post the first two patch sets for now.  We can address the
-rest once the first two patch sets get completely reviewed / Acked.
-
-This patch (of 9):
-
-The kernel/sysctl.c is a kitchen sink where everyone leaves their dirty
-dishes, this makes it very difficult to maintain.
-
-To help with this maintenance let's start by moving sysctls to places
-where they actually belong.  The proc sysctl maintainers do not want to
-know what sysctl knobs you wish to add for your own piece of code, we
-just care about the core logic.
-
-Today though folks heavily rely on tables on kernel/sysctl.c so they can
-easily just extend this table with their needed sysctls.  In order to
-help users move their sysctls out we need to provide a helper which can
-be used during code initialization.
-
-We special-case the initialization use of register_sysctl() since it
-*is* safe to fail, given all that sysctls do is provide a dynamic
-interface to query or modify at runtime an existing variable.  So the
-use case of register_sysctl() on init should *not* stop if the sysctls
-don't end up getting registered.  It would be counter productive to stop
-boot if a simple sysctl registration failed.
-
-Provide a helper for init then, and document the recommended init levels
-to use for callers of this routine.  We will later use this in
-subsequent patches to start slimming down kernel/sysctl.c tables and
-moving sysctl registration to the code which actually needs these
-sysctls.
-
-[mcgrof@kernel.org: major commit log and documentation rephrasing also moved to fs/proc/proc_sysctl.c                  ]
-
-Link: https://lkml.kernel.org/r/20211123202347.818157-1-mcgrof@kernel.org
-Link: https://lkml.kernel.org/r/20211123202347.818157-2-mcgrof@kernel.org
-Signed-off-by: Xiaoming Ni <nixiaoming@huawei.com>
-Signed-off-by: Luis Chamberlain <mcgrof@kernel.org>
-Reviewed-by: Kees Cook <keescook@chromium.org>
-Cc: Iurii Zaikin <yzaikin@google.com>
-Cc: "Eric W. Biederman" <ebiederm@xmission.com>
-Cc: Peter Zijlstra <peterz@infradead.org>
-Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc: Paul Turner <pjt@google.com>
-Cc: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Cc: Sebastian Reichel <sre@kernel.org>
-Cc: Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>
-Cc: Petr Mladek <pmladek@suse.com>
-Cc: Sergey Senozhatsky <senozhatsky@chromium.org>
-Cc: Qing Wang <wangqing@vivo.com>
-Cc: Benjamin LaHaise <bcrl@kvack.org>
-Cc: Al Viro <viro@zeniv.linux.org.uk>
-Cc: Jan Kara <jack@suse.cz>
-Cc: Amir Goldstein <amir73il@gmail.com>
-Cc: Stephen Kitt <steve@sk2.org>
-Cc: Antti Palosaari <crope@iki.fi>
-Cc: Arnd Bergmann <arnd@arndb.de>
-Cc: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-Cc: Clemens Ladisch <clemens@ladisch.de>
-Cc: David Airlie <airlied@linux.ie>
-Cc: Jani Nikula <jani.nikula@linux.intel.com>
-Cc: Joel Becker <jlbec@evilplan.org>
-Cc: Joonas Lahtinen <joonas.lahtinen@linux.intel.com>
-Cc: Joseph Qi <joseph.qi@linux.alibaba.com>
-Cc: Julia Lawall <julia.lawall@inria.fr>
-Cc: Lukas Middendorf <kernel@tuxforce.de>
-Cc: Mark Fasheh <mark@fasheh.com>
-Cc: Phillip Potter <phil@philpotter.co.uk>
-Cc: Rodrigo Vivi <rodrigo.vivi@intel.com>
-Cc: Douglas Gilbert <dgilbert@interlog.com>
-Cc: James E.J. Bottomley <jejb@linux.ibm.com>
-Cc: Jani Nikula <jani.nikula@intel.com>
-Cc: John Ogness <john.ogness@linutronix.de>
-Cc: Martin K. Petersen <martin.petersen@oracle.com>
-Cc: "Rafael J. Wysocki" <rafael@kernel.org>
-Cc: Steven Rostedt (VMware) <rostedt@goodmis.org>
-Cc: Suren Baghdasaryan <surenb@google.com>
-Cc: "Theodore Ts'o" <tytso@mit.edu>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
-Signed-off-by: Eric Biggers <ebiggers@google.com>
+Fixes: 026d0d27c488 ("ext4: reduce computation of overhead during resize")
+Fixes: de394a86658f ("ext4: update s_overhead_clusters in the superblock during an on-line resize")
+Signed-off-by: Baokun Li <libaokun1@huawei.com>
+Reviewed-by: Darrick J. Wong <djwong@kernel.org>
+Reviewed-by: Jan Kara <jack@suse.cz>
+Cc: stable@kernel.org
+Link: https://lore.kernel.org/r/20221117040341.1380702-2-libaokun1@huawei.com
+Signed-off-by: Theodore Ts'o <tytso@mit.edu>
+Signed-off-by: Oleksandr Tymoshenko <ovt@google.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/proc/proc_sysctl.c  | 33 +++++++++++++++++++++++++++++++++
- include/linux/sysctl.h |  3 +++
- 2 files changed, 36 insertions(+)
+ fs/ext4/resize.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/fs/proc/proc_sysctl.c b/fs/proc/proc_sysctl.c
-index d80989b6c344..f4264dd4ea31 100644
---- a/fs/proc/proc_sysctl.c
-+++ b/fs/proc/proc_sysctl.c
-@@ -14,6 +14,7 @@
- #include <linux/mm.h>
- #include <linux/module.h>
- #include <linux/bpf-cgroup.h>
-+#include <linux/kmemleak.h>
- #include "internal.h"
+diff --git a/fs/ext4/resize.c b/fs/ext4/resize.c
+index 405c68085055..589ed99856f3 100644
+--- a/fs/ext4/resize.c
++++ b/fs/ext4/resize.c
+@@ -1445,8 +1445,6 @@ static void ext4_update_super(struct super_block *sb,
+ 	 * active. */
+ 	ext4_r_blocks_count_set(es, ext4_r_blocks_count(es) +
+ 				reserved_blocks);
+-	ext4_superblock_csum_set(sb);
+-	unlock_buffer(sbi->s_sbh);
  
- static const struct dentry_operations proc_sys_dentry_operations;
-@@ -1397,6 +1398,38 @@ struct ctl_table_header *register_sysctl(const char *path, struct ctl_table *tab
- }
- EXPORT_SYMBOL(register_sysctl);
+ 	/* Update the free space counts */
+ 	percpu_counter_add(&sbi->s_freeclusters_counter,
+@@ -1474,6 +1472,8 @@ static void ext4_update_super(struct super_block *sb,
+ 	ext4_calculate_overhead(sb);
+ 	es->s_overhead_clusters = cpu_to_le32(sbi->s_overhead);
  
-+/**
-+ * __register_sysctl_init() - register sysctl table to path
-+ * @path: path name for sysctl base
-+ * @table: This is the sysctl table that needs to be registered to the path
-+ * @table_name: The name of sysctl table, only used for log printing when
-+ *              registration fails
-+ *
-+ * The sysctl interface is used by userspace to query or modify at runtime
-+ * a predefined value set on a variable. These variables however have default
-+ * values pre-set. Code which depends on these variables will always work even
-+ * if register_sysctl() fails. If register_sysctl() fails you'd just loose the
-+ * ability to query or modify the sysctls dynamically at run time. Chances of
-+ * register_sysctl() failing on init are extremely low, and so for both reasons
-+ * this function does not return any error as it is used by initialization code.
-+ *
-+ * Context: Can only be called after your respective sysctl base path has been
-+ * registered. So for instance, most base directories are registered early on
-+ * init before init levels are processed through proc_sys_init() and
-+ * sysctl_init().
-+ */
-+void __init __register_sysctl_init(const char *path, struct ctl_table *table,
-+				 const char *table_name)
-+{
-+	struct ctl_table_header *hdr = register_sysctl(path, table);
-+
-+	if (unlikely(!hdr)) {
-+		pr_err("failed when register_sysctl %s to %s\n", table_name, path);
-+		return;
-+	}
-+	kmemleak_not_leak(hdr);
-+}
-+
- static char *append_path(const char *path, char *pos, const char *name)
- {
- 	int namelen;
-diff --git a/include/linux/sysctl.h b/include/linux/sysctl.h
-index 6df477329b76..aa615a0863f5 100644
---- a/include/linux/sysctl.h
-+++ b/include/linux/sysctl.h
-@@ -208,6 +208,9 @@ struct ctl_table_header *register_sysctl_paths(const struct ctl_path *path,
- void unregister_sysctl_table(struct ctl_table_header * table);
- 
- extern int sysctl_init(void);
-+extern void __register_sysctl_init(const char *path, struct ctl_table *table,
-+				 const char *table_name);
-+#define register_sysctl_init(path, table) __register_sysctl_init(path, table, #table)
- 
- extern struct ctl_table sysctl_mount_point[];
- 
++	ext4_superblock_csum_set(sb);
++	unlock_buffer(sbi->s_sbh);
+ 	if (test_opt(sb, DEBUG))
+ 		printk(KERN_DEBUG "EXT4-fs: added group %u:"
+ 		       "%llu blocks(%llu free %llu reserved)\n", flex_gd->count,
 -- 
 2.39.0
 
