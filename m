@@ -2,50 +2,49 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 5D3C56894FA
-	for <lists+stable@lfdr.de>; Fri,  3 Feb 2023 11:15:54 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3A6AB6895E0
+	for <lists+stable@lfdr.de>; Fri,  3 Feb 2023 11:24:39 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233160AbjBCKOX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 3 Feb 2023 05:14:23 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34642 "EHLO
+        id S231245AbjBCKTz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 3 Feb 2023 05:19:55 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38242 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233132AbjBCKOW (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 3 Feb 2023 05:14:22 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6FF518E6B1
-        for <stable@vger.kernel.org>; Fri,  3 Feb 2023 02:14:21 -0800 (PST)
+        with ESMTP id S233403AbjBCKTs (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 3 Feb 2023 05:19:48 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 050EC15C97
+        for <stable@vger.kernel.org>; Fri,  3 Feb 2023 02:19:15 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 061AA61E72
-        for <stable@vger.kernel.org>; Fri,  3 Feb 2023 10:14:21 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id DF62DC433EF;
-        Fri,  3 Feb 2023 10:14:19 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id AD49AB82A5F
+        for <stable@vger.kernel.org>; Fri,  3 Feb 2023 10:19:12 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 136E4C433EF;
+        Fri,  3 Feb 2023 10:19:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1675419260;
-        bh=iTMDER6kmVBfK+VHPLjIC8+2uW8lqnJ4Xb0bn9X+5ng=;
+        s=korg; t=1675419551;
+        bh=xdVSzrx6mttr7f0mXuAQ7HK2cVQMe6xjPKToJBwQdj0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=AUkoJdtnwkYyXncBiSTFIJjD8IbJk4ElEgtJNiEcrIHd2P5pj79Au4Ha9NyHnoE8h
-         xazxQvA+IY9zC3EgfPBa5LaycqT3WvcT1GYGxreHneqLJbEGUxAFArAYjP5iXp4Ucd
-         U3lQU2yigbqQIJFj4pGquKC3LoPjvGaFmpwScNZs=
+        b=0fkhXRHr92z2ytFJI8t9ygsOFPyDEfW3aDlxFPC8dX4KrX0r9vL85341znHUbcA6v
+         SCADjbXEdNOlN4jcjqAmwyYPfw1mXN6fXPRj/EI+wPtYdykRHKukrcrJoulpmFv+6e
+         E+a6wTjjDt/w1dgZwgxApThFXeJFFMeW3wFzkQhs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Jisoo Jang <jisoo.jang@yonsei.ac.kr>,
-        Jakub Kicinski <kuba@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 10/62] net: nfc: Fix use-after-free in local_cleanup()
-Date:   Fri,  3 Feb 2023 11:12:06 +0100
-Message-Id: <20230203101013.440896840@linuxfoundation.org>
+        patches@lists.linux.dev, Shang XiaoJing <shangxiaojing@huawei.com>,
+        Vinod Koul <vkoul@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 13/80] phy: rockchip-inno-usb2: Fix missing clk_disable_unprepare() in rockchip_usb2phy_power_on()
+Date:   Fri,  3 Feb 2023 11:12:07 +0100
+Message-Id: <20230203101015.782697441@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.1
-In-Reply-To: <20230203101012.959398849@linuxfoundation.org>
-References: <20230203101012.959398849@linuxfoundation.org>
+In-Reply-To: <20230203101015.263854890@linuxfoundation.org>
+References: <20230203101015.263854890@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
         SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -53,110 +52,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jisoo Jang <jisoo.jang@yonsei.ac.kr>
+From: Shang XiaoJing <shangxiaojing@huawei.com>
 
-[ Upstream commit 4bb4db7f3187c6e3de6b229ffc87cdb30a2d22b6 ]
+[ Upstream commit 5daba914da0e48950e9407ea4d75fa57029c9adc ]
 
-Fix a use-after-free that occurs in kfree_skb() called from
-local_cleanup(). This could happen when killing nfc daemon (e.g. neard)
-after detaching an nfc device.
-When detaching an nfc device, local_cleanup() called from
-nfc_llcp_unregister_device() frees local->rx_pending and decreases
-local->ref by kref_put() in nfc_llcp_local_put().
-In the terminating process, nfc daemon releases all sockets and it leads
-to decreasing local->ref. After the last release of local->ref,
-local_cleanup() called from local_release() frees local->rx_pending
-again, which leads to the bug.
+The clk_disable_unprepare() should be called in the error handling of
+rockchip_usb2phy_power_on().
 
-Setting local->rx_pending to NULL in local_cleanup() could prevent
-use-after-free when local_cleanup() is called twice.
-
-Found by a modified version of syzkaller.
-
-BUG: KASAN: use-after-free in kfree_skb()
-
-Call Trace:
-dump_stack_lvl (lib/dump_stack.c:106)
-print_address_description.constprop.0.cold (mm/kasan/report.c:306)
-kasan_check_range (mm/kasan/generic.c:189)
-kfree_skb (net/core/skbuff.c:955)
-local_cleanup (net/nfc/llcp_core.c:159)
-nfc_llcp_local_put.part.0 (net/nfc/llcp_core.c:172)
-nfc_llcp_local_put (net/nfc/llcp_core.c:181)
-llcp_sock_destruct (net/nfc/llcp_sock.c:959)
-__sk_destruct (net/core/sock.c:2133)
-sk_destruct (net/core/sock.c:2181)
-__sk_free (net/core/sock.c:2192)
-sk_free (net/core/sock.c:2203)
-llcp_sock_release (net/nfc/llcp_sock.c:646)
-__sock_release (net/socket.c:650)
-sock_close (net/socket.c:1365)
-__fput (fs/file_table.c:306)
-task_work_run (kernel/task_work.c:179)
-ptrace_notify (kernel/signal.c:2354)
-syscall_exit_to_user_mode_prepare (kernel/entry/common.c:278)
-syscall_exit_to_user_mode (kernel/entry/common.c:296)
-do_syscall_64 (arch/x86/entry/common.c:86)
-entry_SYSCALL_64_after_hwframe (arch/x86/entry/entry_64.S:106)
-
-Allocated by task 4719:
-kasan_save_stack (mm/kasan/common.c:45)
-__kasan_slab_alloc (mm/kasan/common.c:325)
-slab_post_alloc_hook (mm/slab.h:766)
-kmem_cache_alloc_node (mm/slub.c:3497)
-__alloc_skb (net/core/skbuff.c:552)
-pn533_recv_response (drivers/nfc/pn533/usb.c:65)
-__usb_hcd_giveback_urb (drivers/usb/core/hcd.c:1671)
-usb_giveback_urb_bh (drivers/usb/core/hcd.c:1704)
-tasklet_action_common.isra.0 (kernel/softirq.c:797)
-__do_softirq (kernel/softirq.c:571)
-
-Freed by task 1901:
-kasan_save_stack (mm/kasan/common.c:45)
-kasan_set_track (mm/kasan/common.c:52)
-kasan_save_free_info (mm/kasan/genericdd.c:518)
-__kasan_slab_free (mm/kasan/common.c:236)
-kmem_cache_free (mm/slub.c:3809)
-kfree_skbmem (net/core/skbuff.c:874)
-kfree_skb (net/core/skbuff.c:931)
-local_cleanup (net/nfc/llcp_core.c:159)
-nfc_llcp_unregister_device (net/nfc/llcp_core.c:1617)
-nfc_unregister_device (net/nfc/core.c:1179)
-pn53x_unregister_nfc (drivers/nfc/pn533/pn533.c:2846)
-pn533_usb_disconnect (drivers/nfc/pn533/usb.c:579)
-usb_unbind_interface (drivers/usb/core/driver.c:458)
-device_release_driver_internal (drivers/base/dd.c:1279)
-bus_remove_device (drivers/base/bus.c:529)
-device_del (drivers/base/core.c:3665)
-usb_disable_device (drivers/usb/core/message.c:1420)
-usb_disconnect (drivers/usb/core.c:2261)
-hub_event (drivers/usb/core/hub.c:5833)
-process_one_work (arch/x86/include/asm/jump_label.h:27 include/linux/jump_label.h:212 include/trace/events/workqueue.h:108 kernel/workqueue.c:2281)
-worker_thread (include/linux/list.h:282 kernel/workqueue.c:2423)
-kthread (kernel/kthread.c:319)
-ret_from_fork (arch/x86/entry/entry_64.S:301)
-
-Fixes: 3536da06db0b ("NFC: llcp: Clean local timers and works when removing a device")
-Signed-off-by: Jisoo Jang <jisoo.jang@yonsei.ac.kr>
-Link: https://lore.kernel.org/r/20230111131914.3338838-1-jisoo.jang@yonsei.ac.kr
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Fixes: 0e08d2a727e6 ("phy: rockchip-inno-usb2: add a new driver for Rockchip usb2phy")
+Signed-off-by: Shang XiaoJing <shangxiaojing@huawei.com>
+Link: https://lore.kernel.org/r/20221205115823.16957-1-shangxiaojing@huawei.com
+Signed-off-by: Vinod Koul <vkoul@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/nfc/llcp_core.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/phy/rockchip/phy-rockchip-inno-usb2.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/net/nfc/llcp_core.c b/net/nfc/llcp_core.c
-index 7e619ff8a653..150f7ffbf6bc 100644
---- a/net/nfc/llcp_core.c
-+++ b/net/nfc/llcp_core.c
-@@ -171,6 +171,7 @@ static void local_cleanup(struct nfc_llcp_local *local)
- 	cancel_work_sync(&local->rx_work);
- 	cancel_work_sync(&local->timeout_work);
- 	kfree_skb(local->rx_pending);
-+	local->rx_pending = NULL;
- 	del_timer_sync(&local->sdreq_timer);
- 	cancel_work_sync(&local->sdreq_timeout_work);
- 	nfc_llcp_free_sdp_tlv_list(&local->pending_sdreqs);
+diff --git a/drivers/phy/rockchip/phy-rockchip-inno-usb2.c b/drivers/phy/rockchip/phy-rockchip-inno-usb2.c
+index 5049dac79bd0..77c1c3ffaed7 100644
+--- a/drivers/phy/rockchip/phy-rockchip-inno-usb2.c
++++ b/drivers/phy/rockchip/phy-rockchip-inno-usb2.c
+@@ -477,8 +477,10 @@ static int rockchip_usb2phy_power_on(struct phy *phy)
+ 		return ret;
+ 
+ 	ret = property_enable(base, &rport->port_cfg->phy_sus, false);
+-	if (ret)
++	if (ret) {
++		clk_disable_unprepare(rphy->clk480m);
+ 		return ret;
++	}
+ 
+ 	/* waiting for the utmi_clk to become stable */
+ 	usleep_range(1500, 2000);
 -- 
 2.39.0
 
