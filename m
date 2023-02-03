@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 896826895D8
-	for <lists+stable@lfdr.de>; Fri,  3 Feb 2023 11:24:36 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 30AD068953B
+	for <lists+stable@lfdr.de>; Fri,  3 Feb 2023 11:18:50 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233254AbjBCKVm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 3 Feb 2023 05:21:42 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43956 "EHLO
+        id S232361AbjBCKQf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 3 Feb 2023 05:16:35 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37046 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232070AbjBCKVk (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 3 Feb 2023 05:21:40 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2E8749D04C
-        for <stable@vger.kernel.org>; Fri,  3 Feb 2023 02:21:17 -0800 (PST)
+        with ESMTP id S232233AbjBCKQe (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 3 Feb 2023 05:16:34 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3FD829AFC9
+        for <stable@vger.kernel.org>; Fri,  3 Feb 2023 02:16:16 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id C6C8AB82A68
-        for <stable@vger.kernel.org>; Fri,  3 Feb 2023 10:21:16 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 10C57C433EF;
-        Fri,  3 Feb 2023 10:21:14 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id C775D61E92
+        for <stable@vger.kernel.org>; Fri,  3 Feb 2023 10:16:15 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id AA09AC433D2;
+        Fri,  3 Feb 2023 10:16:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1675419675;
-        bh=tCAFNcMYeJMRAWPy+NsaP6tFSFsg7RjJm+qmpIYNJmk=;
+        s=korg; t=1675419375;
+        bh=qnLPHtZQTE9q7e2E0Wf+OtakEwXUvHF1kxaXVnr2Dv8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=YGujaYb8Jp5RjLNE4wK1UhutvPlPYCs5l3Y2/ghT786H8XuQSTdUUAdoAGU/0mQzN
-         W/iDJ9bZZKbJ6PkiJBs2pcuDoEkU/ka7yx3eI8KCg9jYFt8cw/sqBOEKb23KF+G08Q
-         EiyfYPn1yXVZ2LGnW6vjFmh0Qp0yIvFNeqVvDnB0=
+        b=jXlRyW7XgFiD94imHKeWYlUFVFRbfIxUrCwUg0qUryTmhmZ4buzQ9kUXdcN4TTdSo
+         HOy/pbSMfVF7nxs1GS0ZuZrZvbc7pDR2+iUGdQ6wKQpAtWfoAV4cieAXHPEWUCg3wA
+         WTW063Xq6XsaL6BT0EA0rExfFr9JQXF6fvLSrMU8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Eric Dumazet <edumazet@google.com>,
-        Jakub Kicinski <kuba@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 50/80] netlink: annotate data races around sk_state
+        patches@lists.linux.dev, kernel test robot <lkp@intel.com>,
+        "Eric W. Biederman" <ebiederm@xmission.com>,
+        Eric Biggers <ebiggers@google.com>
+Subject: [PATCH 4.14 48/62] objtool: Add a missing comma to avoid string concatenation
 Date:   Fri,  3 Feb 2023 11:12:44 +0100
-Message-Id: <20230203101017.359880728@linuxfoundation.org>
+Message-Id: <20230203101014.991216206@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.1
-In-Reply-To: <20230203101015.263854890@linuxfoundation.org>
-References: <20230203101015.263854890@linuxfoundation.org>
+In-Reply-To: <20230203101012.959398849@linuxfoundation.org>
+References: <20230203101012.959398849@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,58 +53,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eric Dumazet <edumazet@google.com>
+From: "Eric W. Biederman" <ebiederm@xmission.com>
 
-[ Upstream commit 9b663b5cbb15b494ef132a3c937641c90646eb73 ]
+commit 1fb466dff904e4a72282af336f2c355f011eec61 upstream.
 
-netlink_getsockbyportid() reads sk_state while a concurrent
-netlink_connect() can change its value.
+Recently the kbuild robot reported two new errors:
 
-Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
-Signed-off-by: Eric Dumazet <edumazet@google.com>
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+>> lib/kunit/kunit-example-test.o: warning: objtool: .text.unlikely: unexpected end of section
+>> arch/x86/kernel/dumpstack.o: warning: objtool: oops_end() falls through to next function show_opcodes()
+
+I don't know why they did not occur in my test setup but after digging
+it I realized I had accidentally dropped a comma in
+tools/objtool/check.c when I renamed rewind_stack_do_exit to
+rewind_stack_and_make_dead.
+
+Add that comma back to fix objtool errors.
+
+Link: https://lkml.kernel.org/r/202112140949.Uq5sFKR1-lkp@intel.com
+Fixes: 0e25498f8cd4 ("exit: Add and use make_task_dead.")
+Reported-by: kernel test robot <lkp@intel.com>
+Signed-off-by: "Eric W. Biederman" <ebiederm@xmission.com>
+Signed-off-by: Eric Biggers <ebiggers@google.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/netlink/af_netlink.c | 10 ++++++----
- 1 file changed, 6 insertions(+), 4 deletions(-)
+ tools/objtool/check.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/net/netlink/af_netlink.c b/net/netlink/af_netlink.c
-index 5c630506b7cd..6a49c0aa55bd 100644
---- a/net/netlink/af_netlink.c
-+++ b/net/netlink/af_netlink.c
-@@ -1090,7 +1090,8 @@ static int netlink_connect(struct socket *sock, struct sockaddr *addr,
- 		return -EINVAL;
+--- a/tools/objtool/check.c
++++ b/tools/objtool/check.c
+@@ -167,7 +167,7 @@ static int __dead_end_function(struct ob
+ 		"lbug_with_loc",
+ 		"fortify_panic",
+ 		"machine_real_restart",
+-		"rewind_stack_and_make_dead"
++		"rewind_stack_and_make_dead",
+ 	};
  
- 	if (addr->sa_family == AF_UNSPEC) {
--		sk->sk_state	= NETLINK_UNCONNECTED;
-+		/* paired with READ_ONCE() in netlink_getsockbyportid() */
-+		WRITE_ONCE(sk->sk_state, NETLINK_UNCONNECTED);
- 		/* dst_portid and dst_group can be read locklessly */
- 		WRITE_ONCE(nlk->dst_portid, 0);
- 		WRITE_ONCE(nlk->dst_group, 0);
-@@ -1114,7 +1115,8 @@ static int netlink_connect(struct socket *sock, struct sockaddr *addr,
- 		err = netlink_autobind(sock);
- 
- 	if (err == 0) {
--		sk->sk_state	= NETLINK_CONNECTED;
-+		/* paired with READ_ONCE() in netlink_getsockbyportid() */
-+		WRITE_ONCE(sk->sk_state, NETLINK_CONNECTED);
- 		/* dst_portid and dst_group can be read locklessly */
- 		WRITE_ONCE(nlk->dst_portid, nladdr->nl_pid);
- 		WRITE_ONCE(nlk->dst_group, ffs(nladdr->nl_groups));
-@@ -1166,8 +1168,8 @@ static struct sock *netlink_getsockbyportid(struct sock *ssk, u32 portid)
- 
- 	/* Don't bother queuing skb if kernel socket has no input function */
- 	nlk = nlk_sk(sock);
--	/* dst_portid can be changed in netlink_connect() */
--	if (sock->sk_state == NETLINK_CONNECTED &&
-+	/* dst_portid and sk_state can be changed in netlink_connect() */
-+	if (READ_ONCE(sock->sk_state) == NETLINK_CONNECTED &&
- 	    READ_ONCE(nlk->dst_portid) != nlk_sk(ssk)->portid) {
- 		sock_put(sock);
- 		return ERR_PTR(-ECONNREFUSED);
--- 
-2.39.0
-
+ 	if (func->bind == STB_WEAK)
 
 
