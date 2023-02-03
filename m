@@ -2,51 +2,53 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A2BD3689583
-	for <lists+stable@lfdr.de>; Fri,  3 Feb 2023 11:24:07 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4D13A6895B4
+	for <lists+stable@lfdr.de>; Fri,  3 Feb 2023 11:24:24 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232279AbjBCKV5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 3 Feb 2023 05:21:57 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44234 "EHLO
+        id S233431AbjBCKXA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 3 Feb 2023 05:23:00 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45864 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233345AbjBCKVz (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 3 Feb 2023 05:21:55 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 542099E9F6
-        for <stable@vger.kernel.org>; Fri,  3 Feb 2023 02:21:35 -0800 (PST)
+        with ESMTP id S233438AbjBCKWt (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 3 Feb 2023 05:22:49 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6ED289F9D6
+        for <stable@vger.kernel.org>; Fri,  3 Feb 2023 02:22:38 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 30F6561EBA
-        for <stable@vger.kernel.org>; Fri,  3 Feb 2023 10:21:35 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1B54FC433EF;
-        Fri,  3 Feb 2023 10:21:33 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id AAFA561E53
+        for <stable@vger.kernel.org>; Fri,  3 Feb 2023 10:22:32 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9DBF0C433D2;
+        Fri,  3 Feb 2023 10:22:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1675419694;
-        bh=n7iZVRZCPGxn55ZItX8hVgljGjXwUKaTrOHJAspUczE=;
+        s=korg; t=1675419752;
+        bh=Q7qWOqn0uiYG3USKw39AvmFMkIF2KP0q1VKW1kHFr/Q=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=zA4OK/ZHlZQtVzD5TriopQL6qI7DbTntUyHsZ0oHQz65mlmRjerh1fmK8D4Ux3tY6
-         VG35Tc/6pWjjsIvdOn5wqGeA7BetNU2x3MQa5bgKbNtoXN5PaaXEJCF9TiRfj4YIZ5
-         1EoDUDb24BpOr2D5gRkz2CTT8ps8Ak9IDbrsvT80=
+        b=GSyGmzbRFWIusLe4bJAxEY5LYf380nWuxR+dEIWFQHRcBdrAbewSsami9zU3Dfy4Q
+         0Hv8FbCHrVGYSnvMSVscAhZZHpWDY50Atd8TQ/jIq4+iXLf25NCgyPTOHB5/na58bA
+         Wp6gi5dF3EiWlHMbyCghlmOLQ7NnOEoSrqb7/yFQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, syzbot <syzkaller@googlegroups.com>,
-        Eric Dumazet <edumazet@google.com>,
-        Jakub Kicinski <kuba@kernel.org>,
-        Tudor Ambarus <tudor.ambarus@linaro.org>
-Subject: [PATCH 4.19 79/80] ipv6: ensure sane device mtu in tunnels
+        patches@lists.linux.dev, Nathan Smythe <ncsmythe@scruboak.org>,
+        Raul Rangel <rrangel@chromium.org>,
+        Mario Limonciello <mario.limonciello@amd.com>,
+        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
+        Bartosz Golaszewski <bartosz.golaszewski@linaro.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 6.1 25/28] gpiolib-acpi: Dont set GPIOs for wakeup in S3 mode
 Date:   Fri,  3 Feb 2023 11:13:13 +0100
-Message-Id: <20230203101018.635953965@linuxfoundation.org>
+Message-Id: <20230203101011.032529307@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.1
-In-Reply-To: <20230203101015.263854890@linuxfoundation.org>
-References: <20230203101015.263854890@linuxfoundation.org>
+In-Reply-To: <20230203101009.946745030@linuxfoundation.org>
+References: <20230203101009.946745030@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
         SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -54,151 +56,52 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eric Dumazet <edumazet@google.com>
+From: Mario Limonciello <mario.limonciello@amd.com>
 
-commit d89d7ff01235f218dad37de84457717f699dee79 upstream.
+[ Upstream commit d63f11c02b8d3e54bdb65d8c309f73b7f474aec4 ]
 
-Another syzbot report [1] with no reproducer hints
-at a bug in ip6_gre tunnel (dev:ip6gretap0)
+commit 1796f808e4bb ("HID: i2c-hid: acpi: Stop setting wakeup_capable")
+adjusted the policy to enable wakeup by default if the ACPI tables
+indicated that a device was wake capable.
 
-Since ipv6 mcast code makes sure to read dev->mtu once
-and applies a sanity check on it (see commit b9b312a7a451
-"ipv6: mcast: better catch silly mtu values"), a remaining
-possibility is that a layer is able to set dev->mtu to
-an underflowed value (high order bit set).
+It was reported however that this broke suspend on at least two System76
+systems in S3 mode and two Lenovo Gen2a systems, but only with S3.
+When the machines are set to s2idle, wakeup behaves properly.
 
-This could happen indeed in ip6gre_tnl_link_config_route(),
-ip6_tnl_link_config() and ipip6_tunnel_bind_dev()
+Configuring the GPIOs for wakeup with S3 doesn't work properly, so only
+set it when the system supports low power idle.
 
-Make sure to sanitize mtu value in a local variable before
-it is written once on dev->mtu, as lockless readers could
-catch wrong temporary value.
-
-[1]
-skbuff: skb_over_panic: text:ffff80000b7a2f38 len:40 put:40 head:ffff000149dcf200 data:ffff000149dcf2b0 tail:0xd8 end:0xc0 dev:ip6gretap0
-------------[ cut here ]------------
-kernel BUG at net/core/skbuff.c:120
-Internal error: Oops - BUG: 00000000f2000800 [#1] PREEMPT SMP
-Modules linked in:
-CPU: 1 PID: 10241 Comm: kworker/1:1 Not tainted 6.0.0-rc7-syzkaller-18095-gbbed346d5a96 #0
-Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS Google 09/30/2022
-Workqueue: mld mld_ifc_work
-pstate: 60400005 (nZCv daif +PAN -UAO -TCO -DIT -SSBS BTYPE=--)
-pc : skb_panic+0x4c/0x50 net/core/skbuff.c:116
-lr : skb_panic+0x4c/0x50 net/core/skbuff.c:116
-sp : ffff800020dd3b60
-x29: ffff800020dd3b70 x28: 0000000000000000 x27: ffff00010df2a800
-x26: 00000000000000c0 x25: 00000000000000b0 x24: ffff000149dcf200
-x23: 00000000000000c0 x22: 00000000000000d8 x21: ffff80000b7a2f38
-x20: ffff00014c2f7800 x19: 0000000000000028 x18: 00000000000001a9
-x17: 0000000000000000 x16: ffff80000db49158 x15: ffff000113bf1a80
-x14: 0000000000000000 x13: 00000000ffffffff x12: ffff000113bf1a80
-x11: ff808000081c0d5c x10: 0000000000000000 x9 : 73f125dc5c63ba00
-x8 : 73f125dc5c63ba00 x7 : ffff800008161d1c x6 : 0000000000000000
-x5 : 0000000000000080 x4 : 0000000000000001 x3 : 0000000000000000
-x2 : ffff0001fefddcd0 x1 : 0000000100000000 x0 : 0000000000000089
-Call trace:
-skb_panic+0x4c/0x50 net/core/skbuff.c:116
-skb_over_panic net/core/skbuff.c:125 [inline]
-skb_put+0xd4/0xdc net/core/skbuff.c:2049
-ip6_mc_hdr net/ipv6/mcast.c:1714 [inline]
-mld_newpack+0x14c/0x270 net/ipv6/mcast.c:1765
-add_grhead net/ipv6/mcast.c:1851 [inline]
-add_grec+0xa20/0xae0 net/ipv6/mcast.c:1989
-mld_send_cr+0x438/0x5a8 net/ipv6/mcast.c:2115
-mld_ifc_work+0x38/0x290 net/ipv6/mcast.c:2653
-process_one_work+0x2d8/0x504 kernel/workqueue.c:2289
-worker_thread+0x340/0x610 kernel/workqueue.c:2436
-kthread+0x12c/0x158 kernel/kthread.c:376
-ret_from_fork+0x10/0x20 arch/arm64/kernel/entry.S:860
-Code: 91011400 aa0803e1 a90027ea 94373093 (d4210000)
-
-Fixes: c12b395a4664 ("gre: Support GRE over IPv6")
-Reported-by: syzbot <syzkaller@googlegroups.com>
-Signed-off-by: Eric Dumazet <edumazet@google.com>
-Link: https://lore.kernel.org/r/20221024020124.3756833-1-eric.dumazet@gmail.com
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
-[ta: Backport patch for stable kernels < 5.10.y. Fix conflict in
-net/ipv6/ip6_tunnel.c, mtu initialized with:
-mtu = rt->dst.dev->mtu - t_hlen;]
-Cc: <stable@vger.kernel.org> # 4.14.y, 4.19.y, 5.4.y
-Signed-off-by: Tudor Ambarus <tudor.ambarus@linaro.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: 1796f808e4bb ("HID: i2c-hid: acpi: Stop setting wakeup_capable")
+Fixes: b38f2d5d9615c ("i2c: acpi: Use ACPI wake capability bit to set wake_irq")
+Link: https://gitlab.freedesktop.org/drm/amd/-/issues/2357
+Link: https://bugzilla.redhat.com/show_bug.cgi?id=2162013
+Reported-by: Nathan Smythe <ncsmythe@scruboak.org>
+Tested-by: Nathan Smythe <ncsmythe@scruboak.org>
+Suggested-by: Raul Rangel <rrangel@chromium.org>
+Signed-off-by: Mario Limonciello <mario.limonciello@amd.com>
+Acked-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Signed-off-by: Bartosz Golaszewski <bartosz.golaszewski@linaro.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/ipv6/ip6_gre.c    |   12 +++++++-----
- net/ipv6/ip6_tunnel.c |   10 ++++++----
- net/ipv6/sit.c        |    8 +++++---
- 3 files changed, 18 insertions(+), 12 deletions(-)
+ drivers/gpio/gpiolib-acpi.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
---- a/net/ipv6/ip6_gre.c
-+++ b/net/ipv6/ip6_gre.c
-@@ -1154,14 +1154,16 @@ static void ip6gre_tnl_link_config_route
- 				dev->needed_headroom = dst_len;
- 
- 			if (set_mtu) {
--				dev->mtu = rt->dst.dev->mtu - t_hlen;
-+				int mtu = rt->dst.dev->mtu - t_hlen;
-+
- 				if (!(t->parms.flags & IP6_TNL_F_IGN_ENCAP_LIMIT))
--					dev->mtu -= 8;
-+					mtu -= 8;
- 				if (dev->type == ARPHRD_ETHER)
--					dev->mtu -= ETH_HLEN;
-+					mtu -= ETH_HLEN;
- 
--				if (dev->mtu < IPV6_MIN_MTU)
--					dev->mtu = IPV6_MIN_MTU;
-+				if (mtu < IPV6_MIN_MTU)
-+					mtu = IPV6_MIN_MTU;
-+				WRITE_ONCE(dev->mtu, mtu);
+diff --git a/drivers/gpio/gpiolib-acpi.c b/drivers/gpio/gpiolib-acpi.c
+index e2ab4d5253be..fa3de3c3010c 100644
+--- a/drivers/gpio/gpiolib-acpi.c
++++ b/drivers/gpio/gpiolib-acpi.c
+@@ -1080,7 +1080,8 @@ int acpi_dev_gpio_irq_wake_get_by(struct acpi_device *adev, const char *name, in
+ 				dev_dbg(&adev->dev, "IRQ %d already in use\n", irq);
  			}
- 		}
- 		ip6_rt_put(rt);
---- a/net/ipv6/ip6_tunnel.c
-+++ b/net/ipv6/ip6_tunnel.c
-@@ -1435,6 +1435,7 @@ static void ip6_tnl_link_config(struct i
- 	struct __ip6_tnl_parm *p = &t->parms;
- 	struct flowi6 *fl6 = &t->fl.u.ip6;
- 	int t_hlen;
-+	int mtu;
  
- 	memcpy(dev->dev_addr, &p->laddr, sizeof(struct in6_addr));
- 	memcpy(dev->broadcast, &p->raddr, sizeof(struct in6_addr));
-@@ -1477,12 +1478,13 @@ static void ip6_tnl_link_config(struct i
- 			dev->hard_header_len = rt->dst.dev->hard_header_len +
- 				t_hlen;
+-			if (wake_capable)
++			/* avoid suspend issues with GPIOs when systems are using S3 */
++			if (wake_capable && acpi_gbl_FADT.flags & ACPI_FADT_LOW_POWER_S0)
+ 				*wake_capable = info.wake_capable;
  
--			dev->mtu = rt->dst.dev->mtu - t_hlen;
-+			mtu = rt->dst.dev->mtu - t_hlen;
- 			if (!(t->parms.flags & IP6_TNL_F_IGN_ENCAP_LIMIT))
--				dev->mtu -= 8;
-+				mtu -= 8;
- 
--			if (dev->mtu < IPV6_MIN_MTU)
--				dev->mtu = IPV6_MIN_MTU;
-+			if (mtu < IPV6_MIN_MTU)
-+				mtu = IPV6_MIN_MTU;
-+			WRITE_ONCE(dev->mtu, mtu);
- 		}
- 		ip6_rt_put(rt);
- 	}
---- a/net/ipv6/sit.c
-+++ b/net/ipv6/sit.c
-@@ -1082,10 +1082,12 @@ static void ipip6_tunnel_bind_dev(struct
- 
- 	if (tdev && !netif_is_l3_master(tdev)) {
- 		int t_hlen = tunnel->hlen + sizeof(struct iphdr);
-+		int mtu;
- 
--		dev->mtu = tdev->mtu - t_hlen;
--		if (dev->mtu < IPV6_MIN_MTU)
--			dev->mtu = IPV6_MIN_MTU;
-+		mtu = tdev->mtu - t_hlen;
-+		if (mtu < IPV6_MIN_MTU)
-+			mtu = IPV6_MIN_MTU;
-+		WRITE_ONCE(dev->mtu, mtu);
- 	}
- }
- 
+ 			return irq;
+-- 
+2.39.0
+
 
 
