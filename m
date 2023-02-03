@@ -2,45 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 1F8AE6896E7
-	for <lists+stable@lfdr.de>; Fri,  3 Feb 2023 11:36:57 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C775D68966F
+	for <lists+stable@lfdr.de>; Fri,  3 Feb 2023 11:32:03 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232892AbjBCKc7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 3 Feb 2023 05:32:59 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57642 "EHLO
+        id S233420AbjBCK0s (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 3 Feb 2023 05:26:48 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47640 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233618AbjBCKcV (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 3 Feb 2023 05:32:21 -0500
+        with ESMTP id S232836AbjBCKY6 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 3 Feb 2023 05:24:58 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5F4676EAC
-        for <stable@vger.kernel.org>; Fri,  3 Feb 2023 02:30:23 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D80199D599
+        for <stable@vger.kernel.org>; Fri,  3 Feb 2023 02:24:29 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id B1E7D61E42
-        for <stable@vger.kernel.org>; Fri,  3 Feb 2023 10:30:22 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8AC2AC433EF;
-        Fri,  3 Feb 2023 10:30:21 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id EC4CB61ED1
+        for <stable@vger.kernel.org>; Fri,  3 Feb 2023 10:24:27 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B6372C433AA;
+        Fri,  3 Feb 2023 10:24:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1675420221;
-        bh=T1fxqDkPY2/wb0zKSnnB1uc6PN1+e2oObFc1+Y5YXkU=;
+        s=korg; t=1675419867;
+        bh=dsy3YWhkKzp2txKhA8z4hxCJ1vOdg+ndBt0MQUuhYXA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=19qmym9XPMXMHY06s12WZORd6r/9G0WSA2XlwNIoDCy58EpghAZ6RTQNzdpeQZx9J
-         DSOExSLTIWUzeT0Q3ivFiP0ZcU5TMWVAuvuMsMGJFMmG6dnqI2TvJ4RD0mwekfgJOn
-         eNz8Qtn7H2ZgPJSBkf5NDr0jRuMTlT/UsV1wCPE8=
+        b=On0LpP9kQ783vxxrSPi1R7pwVUF/ROEVywSTfNNNN/n0djI9runNvxqXc1u1gwwu2
+         OwDmu+mrawGW9wkPiHAL5EbQSrGj02NUq3T35+Pik+t/db9cIJd9/ehCcFtU/aWL6K
+         sskk9Y4L/FXWmmIPkRoCWtEzxmhdMz9ZYQYLD/BE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Nathan Chancellor <nathan@kernel.org>,
-        "Eric W. Biederman" <ebiederm@xmission.com>,
-        Eric Biggers <ebiggers@google.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 119/134] hexagon: Fix function name in die()
+        patches@lists.linux.dev, Shuah Khan <skhan@linuxfoundation.org>,
+        Kyle Huey <me@kylehuey.com>
+Subject: [PATCH 5.15 17/20] selftests/vm: remove ARRAY_SIZE define from individual tests
 Date:   Fri,  3 Feb 2023 11:13:44 +0100
-Message-Id: <20230203101029.172862892@linuxfoundation.org>
+Message-Id: <20230203101008.714697109@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.1
-In-Reply-To: <20230203101023.832083974@linuxfoundation.org>
-References: <20230203101023.832083974@linuxfoundation.org>
+In-Reply-To: <20230203101007.985835823@linuxfoundation.org>
+References: <20230203101007.985835823@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,45 +52,66 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nathan Chancellor <nathan@kernel.org>
+From: Shuah Khan <skhan@linuxfoundation.org>
 
-commit 4f0712ccec09c071e221242a2db9a6779a55a949 upstream.
+commit e89908201e2509354c40158b517945bf3d645812 upstream.
 
-When building ARCH=hexagon defconfig:
+ARRAY_SIZE is defined in several selftests. Remove definitions from
+individual test files and include header file for the define instead.
+ARRAY_SIZE define is added in a separate patch to prepare for this
+change.
 
-arch/hexagon/kernel/traps.c:217:2: error: implicit declaration of
-function 'make_dead_task' [-Werror,-Wimplicit-function-declaration]
-        make_dead_task(err);
-        ^
+Remove ARRAY_SIZE from vm tests and pickup the one defined in
+kselftest.h.
 
-The function's name is make_task_dead(), change it so there is no more
-build error.
-
-Fixes: 0e25498f8cd4 ("exit: Add and use make_task_dead.")
-Signed-off-by: Nathan Chancellor <nathan@kernel.org>
-Link: https://lkml.kernel.org/r/20211227184851.2297759-2-nathan@kernel.org
-Signed-off-by: Eric W. Biederman <ebiederm@xmission.com>
-Signed-off-by: Eric Biggers <ebiggers@google.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Signed-off-by: Shuah Khan <skhan@linuxfoundation.org>
+Cc: Kyle Huey <me@kylehuey.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/hexagon/kernel/traps.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ tools/testing/selftests/vm/mremap_test.c    |    1 -
+ tools/testing/selftests/vm/pkey-helpers.h   |    3 ++-
+ tools/testing/selftests/vm/va_128TBswitch.c |    2 +-
+ 3 files changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/arch/hexagon/kernel/traps.c b/arch/hexagon/kernel/traps.c
-index bfd04a388bca..f69eae3f32bd 100644
---- a/arch/hexagon/kernel/traps.c
-+++ b/arch/hexagon/kernel/traps.c
-@@ -221,7 +221,7 @@ int die(const char *str, struct pt_regs *regs, long err)
- 		panic("Fatal exception");
+--- a/tools/testing/selftests/vm/mremap_test.c
++++ b/tools/testing/selftests/vm/mremap_test.c
+@@ -22,7 +22,6 @@
+ #define VALIDATION_DEFAULT_THRESHOLD 4	/* 4MB */
+ #define VALIDATION_NO_THRESHOLD 0	/* Verify the entire region */
  
- 	oops_exit();
--	make_dead_task(err);
-+	make_task_dead(err);
- 	return 0;
+-#define ARRAY_SIZE(x) (sizeof(x) / sizeof((x)[0]))
+ #define MIN(X, Y) ((X) < (Y) ? (X) : (Y))
+ 
+ struct config {
+--- a/tools/testing/selftests/vm/pkey-helpers.h
++++ b/tools/testing/selftests/vm/pkey-helpers.h
+@@ -13,6 +13,8 @@
+ #include <ucontext.h>
+ #include <sys/mman.h>
+ 
++#include "../kselftest.h"
++
+ /* Define some kernel-like types */
+ #define  u8 __u8
+ #define u16 __u16
+@@ -175,7 +177,6 @@ static inline void __pkey_write_allow(in
+ 	dprintf4("pkey_reg now: %016llx\n", read_pkey_reg());
  }
  
--- 
-2.39.0
-
+-#define ARRAY_SIZE(x) (sizeof(x) / sizeof(*(x)))
+ #define ALIGN_UP(x, align_to)	(((x) + ((align_to)-1)) & ~((align_to)-1))
+ #define ALIGN_DOWN(x, align_to) ((x) & ~((align_to)-1))
+ #define ALIGN_PTR_UP(p, ptr_align_to)	\
+--- a/tools/testing/selftests/vm/va_128TBswitch.c
++++ b/tools/testing/selftests/vm/va_128TBswitch.c
+@@ -9,7 +9,7 @@
+ #include <sys/mman.h>
+ #include <string.h>
+ 
+-#define ARRAY_SIZE(arr) (sizeof(arr) / sizeof((arr)[0]))
++#include "../kselftest.h"
+ 
+ #ifdef __powerpc64__
+ #define PAGE_SIZE	(64 << 10)
 
 
