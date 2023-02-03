@@ -2,43 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id DC7246895D6
-	for <lists+stable@lfdr.de>; Fri,  3 Feb 2023 11:24:35 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id CA6F368956D
+	for <lists+stable@lfdr.de>; Fri,  3 Feb 2023 11:24:00 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232853AbjBCKUw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 3 Feb 2023 05:20:52 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42614 "EHLO
+        id S233342AbjBCKVU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 3 Feb 2023 05:21:20 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43364 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233163AbjBCKUo (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 3 Feb 2023 05:20:44 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 279B4305F5
-        for <stable@vger.kernel.org>; Fri,  3 Feb 2023 02:20:27 -0800 (PST)
+        with ESMTP id S229698AbjBCKVQ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 3 Feb 2023 05:21:16 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 917F018157
+        for <stable@vger.kernel.org>; Fri,  3 Feb 2023 02:20:56 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id E7A6161ECA
-        for <stable@vger.kernel.org>; Fri,  3 Feb 2023 10:19:45 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id CC89DC433EF;
-        Fri,  3 Feb 2023 10:19:44 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 047ECB82A72
+        for <stable@vger.kernel.org>; Fri,  3 Feb 2023 10:20:20 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4ECACC433EF;
+        Fri,  3 Feb 2023 10:20:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1675419585;
-        bh=7TB58F2YJRfwdowX6BjU2VDFV/ZoHgwBV6QbWTkAs9k=;
+        s=korg; t=1675419618;
+        bh=yZeVBRzF9qaAzDk/WOJiW7bdNtpKJN9r/vxJM+E3XrA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=gSglw9BF8t0hfAIgBNjY5Cr9D889qEfMMv41nOChPUo40M3RicZP80gO2Hw4LpT2q
-         xvDQo2z5xPIcJ/yKHKc262qF6ViVfAsihmfZzXws5z2uwBa2xfoKBzda/5LigaT+sd
-         7R7pQBaP7wdVvCrw879KBO8i2MIIrO/QHE1Zdn98=
+        b=yoS3G9YpxNint5hEVX8J3b9cBW6fRw5PM94fcgsPLN1i+9AeP+4pWrmduScB3CiC7
+         lA4DCqeMTGXYNVUPScZtHqgPxtOr6gCS0zv0czl4S8ATJbGl9Lw+zt4zpi4+qwwl2A
+         Pw1XCKMMQYSwuE+4bX8HmSZInviLXAsQ7zaCIwe8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Luca Weiss <luca.weiss@fairphone.com>,
-        Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>,
-        "Borislav Petkov (AMD)" <bp@alien8.de>,
-        Steev Klimaszewski <steev@kali.org>,
-        Andrew Halaney <ahalaney@redhat.com>
-Subject: [PATCH 4.19 44/80] EDAC/device: Respect any driver-supplied workqueue polling value
-Date:   Fri,  3 Feb 2023 11:12:38 +0100
-Message-Id: <20230203101017.085896565@linuxfoundation.org>
+        patches@lists.linux.dev, Paolo Abeni <pabeni@redhat.com>,
+        Simon Horman <simon.horman@corigine.com>,
+        Jakub Kicinski <kuba@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 45/80] net: fix UaF in netns ops registration error path
+Date:   Fri,  3 Feb 2023 11:12:39 +0100
+Message-Id: <20230203101017.138681537@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.1
 In-Reply-To: <20230203101015.263854890@linuxfoundation.org>
 References: <20230203101015.263854890@linuxfoundation.org>
@@ -46,8 +45,8 @@ User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
         SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -55,79 +54,84 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>
+From: Paolo Abeni <pabeni@redhat.com>
 
-commit cec669ff716cc83505c77b242aecf6f7baad869d upstream.
+[ Upstream commit 71ab9c3e2253619136c31c89dbb2c69305cc89b1 ]
 
-The EDAC drivers may optionally pass the poll_msec value. Use that value
-if available, else fall back to 1000ms.
+If net_assign_generic() fails, the current error path in ops_init() tries
+to clear the gen pointer slot. Anyway, in such error path, the gen pointer
+itself has not been modified yet, and the existing and accessed one is
+smaller than the accessed index, causing an out-of-bounds error:
 
-  [ bp: Touchups. ]
+ BUG: KASAN: slab-out-of-bounds in ops_init+0x2de/0x320
+ Write of size 8 at addr ffff888109124978 by task modprobe/1018
 
-Fixes: e27e3dac6517 ("drivers/edac: add edac_device class")
-Reported-by: Luca Weiss <luca.weiss@fairphone.com>
-Signed-off-by: Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>
-Signed-off-by: Borislav Petkov (AMD) <bp@alien8.de>
-Tested-by: Steev Klimaszewski <steev@kali.org> # Thinkpad X13s
-Tested-by: Andrew Halaney <ahalaney@redhat.com> # sa8540p-ride
-Cc: <stable@vger.kernel.org> # 4.9
-Link: https://lore.kernel.org/r/COZYL8MWN97H.MROQ391BGA09@otso
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+ CPU: 2 PID: 1018 Comm: modprobe Not tainted 6.2.0-rc2.mptcp_ae5ac65fbed5+ #1641
+ Hardware name: QEMU Standard PC (Q35 + ICH9, 2009), BIOS 1.16.1-2.fc37 04/01/2014
+ Call Trace:
+  <TASK>
+  dump_stack_lvl+0x6a/0x9f
+  print_address_description.constprop.0+0x86/0x2b5
+  print_report+0x11b/0x1fb
+  kasan_report+0x87/0xc0
+  ops_init+0x2de/0x320
+  register_pernet_operations+0x2e4/0x750
+  register_pernet_subsys+0x24/0x40
+  tcf_register_action+0x9f/0x560
+  do_one_initcall+0xf9/0x570
+  do_init_module+0x190/0x650
+  load_module+0x1fa5/0x23c0
+  __do_sys_finit_module+0x10d/0x1b0
+  do_syscall_64+0x58/0x80
+  entry_SYSCALL_64_after_hwframe+0x72/0xdc
+ RIP: 0033:0x7f42518f778d
+ Code: 00 c3 66 2e 0f 1f 84 00 00 00 00 00 90 f3 0f 1e fa 48 89 f8 48 89 f7 48
+       89 d6 48 89 ca 4d 89 c2 4d 89 c8 4c 8b 4c 24 08 0f 05 <48> 3d 01 f0 ff
+       ff 73 01 c3 48 8b 0d cb 56 2c 00 f7 d8 64 89 01 48
+ RSP: 002b:00007fff96869688 EFLAGS: 00000246 ORIG_RAX: 0000000000000139
+ RAX: ffffffffffffffda RBX: 00005568ef7f7c90 RCX: 00007f42518f778d
+ RDX: 0000000000000000 RSI: 00005568ef41d796 RDI: 0000000000000003
+ RBP: 00005568ef41d796 R08: 0000000000000000 R09: 0000000000000000
+ R10: 0000000000000003 R11: 0000000000000246 R12: 0000000000000000
+ R13: 00005568ef7f7d30 R14: 0000000000040000 R15: 0000000000000000
+  </TASK>
+
+This change addresses the issue by skipping the gen pointer
+de-reference in the mentioned error-path.
+
+Found by code inspection and verified with explicit error injection
+on a kasan-enabled kernel.
+
+Fixes: d266935ac43d ("net: fix UAF issue in nfqnl_nf_hook_drop() when ops_init() failed")
+Signed-off-by: Paolo Abeni <pabeni@redhat.com>
+Reviewed-by: Simon Horman <simon.horman@corigine.com>
+Link: https://lore.kernel.org/r/cec4e0f3bb2c77ac03a6154a8508d3930beb5f0f.1674154348.git.pabeni@redhat.com
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/edac/edac_device.c |   15 +++++++--------
- 1 file changed, 7 insertions(+), 8 deletions(-)
+ net/core/net_namespace.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/edac/edac_device.c
-+++ b/drivers/edac/edac_device.c
-@@ -34,6 +34,9 @@
- static DEFINE_MUTEX(device_ctls_mutex);
- static LIST_HEAD(edac_device_list);
+diff --git a/net/core/net_namespace.c b/net/core/net_namespace.c
+index 56c240c98a56..a87774424829 100644
+--- a/net/core/net_namespace.c
++++ b/net/core/net_namespace.c
+@@ -132,12 +132,12 @@ static int ops_init(const struct pernet_operations *ops, struct net *net)
+ 		return 0;
  
-+/* Default workqueue processing interval on this instance, in msecs */
-+#define DEFAULT_POLL_INTERVAL 1000
-+
- #ifdef CONFIG_EDAC_DEBUG
- static void edac_device_dump_device(struct edac_device_ctl_info *edac_dev)
- {
-@@ -366,7 +369,7 @@ static void edac_device_workq_function(s
- 	 * whole one second to save timers firing all over the period
- 	 * between integral seconds
- 	 */
--	if (edac_dev->poll_msec == 1000)
-+	if (edac_dev->poll_msec == DEFAULT_POLL_INTERVAL)
- 		edac_queue_work(&edac_dev->work, round_jiffies_relative(edac_dev->delay));
- 	else
- 		edac_queue_work(&edac_dev->work, edac_dev->delay);
-@@ -396,7 +399,7 @@ static void edac_device_workq_setup(stru
- 	 * timers firing on sub-second basis, while they are happy
- 	 * to fire together on the 1 second exactly
- 	 */
--	if (edac_dev->poll_msec == 1000)
-+	if (edac_dev->poll_msec == DEFAULT_POLL_INTERVAL)
- 		edac_queue_work(&edac_dev->work, round_jiffies_relative(edac_dev->delay));
- 	else
- 		edac_queue_work(&edac_dev->work, edac_dev->delay);
-@@ -430,7 +433,7 @@ void edac_device_reset_delay_period(stru
- 	edac_dev->delay	    = msecs_to_jiffies(msec);
- 
- 	/* See comment in edac_device_workq_setup() above */
--	if (edac_dev->poll_msec == 1000)
-+	if (edac_dev->poll_msec == DEFAULT_POLL_INTERVAL)
- 		edac_mod_work(&edac_dev->work, round_jiffies_relative(edac_dev->delay));
- 	else
- 		edac_mod_work(&edac_dev->work, edac_dev->delay);
-@@ -472,11 +475,7 @@ int edac_device_add_device(struct edac_d
- 		/* This instance is NOW RUNNING */
- 		edac_dev->op_state = OP_RUNNING_POLL;
- 
--		/*
--		 * enable workq processing on this instance,
--		 * default = 1000 msec
--		 */
--		edac_device_workq_setup(edac_dev, 1000);
-+		edac_device_workq_setup(edac_dev, edac_dev->poll_msec ?: DEFAULT_POLL_INTERVAL);
- 	} else {
- 		edac_dev->op_state = OP_RUNNING_INTERRUPT;
+ 	if (ops->id && ops->size) {
+-cleanup:
+ 		ng = rcu_dereference_protected(net->gen,
+ 					       lockdep_is_held(&pernet_ops_rwsem));
+ 		ng->ptr[*ops->id] = NULL;
  	}
+ 
++cleanup:
+ 	kfree(data);
+ 
+ out:
+-- 
+2.39.0
+
 
 
