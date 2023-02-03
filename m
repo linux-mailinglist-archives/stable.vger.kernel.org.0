@@ -2,48 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D4F136895D9
+	by mail.lfdr.de (Postfix) with ESMTP id 3DF066895D7
 	for <lists+stable@lfdr.de>; Fri,  3 Feb 2023 11:24:36 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232995AbjBCKWN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 3 Feb 2023 05:22:13 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44300 "EHLO
+        id S233268AbjBCKUy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 3 Feb 2023 05:20:54 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42482 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233263AbjBCKWM (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 3 Feb 2023 05:22:12 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9DD049EE2F
-        for <stable@vger.kernel.org>; Fri,  3 Feb 2023 02:21:53 -0800 (PST)
+        with ESMTP id S233252AbjBCKUq (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 3 Feb 2023 05:20:46 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2747B9EE21
+        for <stable@vger.kernel.org>; Fri,  3 Feb 2023 02:20:31 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id A7C29B82A6E
-        for <stable@vger.kernel.org>; Fri,  3 Feb 2023 10:20:58 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C8E01C433EF;
-        Fri,  3 Feb 2023 10:20:56 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 1E88E61ECD
+        for <stable@vger.kernel.org>; Fri,  3 Feb 2023 10:19:55 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 029E2C4339E;
+        Fri,  3 Feb 2023 10:19:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1675419657;
-        bh=WxcJGs9JmjBIz7MtnQGfiAVBOir7rh3JhjDNt+dDZOk=;
+        s=korg; t=1675419594;
+        bh=E7ILEv6xYLIze7BuDctwewhya2kxi7QeYBzfDzeccc4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=eK7CZ852qB0sQMkGi/kL1+h5EvInD3rzjG8yowbdKP/elrlVNngOHFJrAfxNSaPRr
-         LtuQp53x7qj1q0L0HnWy57Oxd4c0HvJs4ISpfv7U+5Sj+zgzWrjnStvIz9t5c7viKE
-         V7DMDsUIpnq3a2UQcVHPHe2SLzSfU8FP38ubdYA8=
+        b=GCxrAT5GQfiC1P5bHibB72g2Yq0l97nx1JK0kEbCnR3A6CVyo4KUDCL293YInKEzA
+         Wk18MJ1MKOvCZ/Oc2osvit1ujkgT2p/u5j0/2pwLeC6g844lF5aAcZ6MaRuUkhNCxw
+         vMaSl+ggek/OZufOT8cn2ITmLx1KsBSrD4sIDN5g=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         patches@lists.linux.dev,
-        Geert Uytterhoeven <geert+renesas@glider.be>,
-        Shawn Guo <shawnguo@kernel.org>,
+        Yoshihiro Shimoda <yoshihiro.shimoda.uh@renesas.com>,
+        Sergey Shtylyov <s.shtylyov@omp.ru>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 01/28] ARM: dts: imx: Fix pca9547 i2c-mux node name
+Subject: [PATCH 4.19 55/80] net: ravb: Fix possible hang if RIS2_QFF1 happen
 Date:   Fri,  3 Feb 2023 11:12:49 +0100
-Message-Id: <20230203101010.026482587@linuxfoundation.org>
+Message-Id: <20230203101017.546752261@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.1
-In-Reply-To: <20230203101009.946745030@linuxfoundation.org>
-References: <20230203101009.946745030@linuxfoundation.org>
+In-Reply-To: <20230203101015.263854890@linuxfoundation.org>
+References: <20230203101015.263854890@linuxfoundation.org>
 User-Agent: quilt/0.67
-X-stable: review
-X-Patchwork-Hint: ignore
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -56,41 +55,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Geert Uytterhoeven <geert+renesas@glider.be>
+From: Yoshihiro Shimoda <yoshihiro.shimoda.uh@renesas.com>
 
-[ Upstream commit f78985f9f58380eec37f82c8a2c765aa7670fc29 ]
+[ Upstream commit f3c07758c9007a6bfff5290d9e19d3c41930c897 ]
 
-"make dtbs_check":
+Since this driver enables the interrupt by RIC2_QFE1, this driver
+should clear the interrupt flag if it happens. Otherwise, the interrupt
+causes to hang the system.
 
-    arch/arm/boot/dts/imx53-ppd.dtb: i2c-switch@70: $nodename:0: 'i2c-switch@70' does not match '^(i2c-?)?mux'
-	    From schema: Documentation/devicetree/bindings/i2c/i2c-mux-pca954x.yaml
-    arch/arm/boot/dts/imx53-ppd.dtb: i2c-switch@70: Unevaluated properties are not allowed ('#address-cells', '#size-cells', 'i2c@0', 'i2c@1', 'i2c@2', 'i2c@3', 'i2c@4', 'i2c@5', 'i2c@6', 'i2c@7' were unexpected)
-	    From schema: Documentation/devicetree/bindings/i2c/i2c-mux-pca954x.yaml
+Note that this also fix a minor coding style (a comment indentation)
+around the fixed code.
 
-Fix this by renaming the PCA9547 node to "i2c-mux", to match the I2C bus
-multiplexer/switch DT bindings and the Generic Names Recommendation in
-the Devicetree Specification.
-
-Signed-off-by: Geert Uytterhoeven <geert+renesas@glider.be>
-Signed-off-by: Shawn Guo <shawnguo@kernel.org>
+Fixes: c156633f1353 ("Renesas Ethernet AVB driver proper")
+Signed-off-by: Yoshihiro Shimoda <yoshihiro.shimoda.uh@renesas.com>
+Reviewed-by: Sergey Shtylyov <s.shtylyov@omp.ru>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm/boot/dts/imx53-ppd.dts | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/net/ethernet/renesas/ravb_main.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/arch/arm/boot/dts/imx53-ppd.dts b/arch/arm/boot/dts/imx53-ppd.dts
-index 37d0cffea99c..70c4a4852256 100644
---- a/arch/arm/boot/dts/imx53-ppd.dts
-+++ b/arch/arm/boot/dts/imx53-ppd.dts
-@@ -488,7 +488,7 @@ &i2c1 {
- 	scl-gpios = <&gpio3 21 GPIO_ACTIVE_HIGH>;
- 	status = "okay";
+diff --git a/drivers/net/ethernet/renesas/ravb_main.c b/drivers/net/ethernet/renesas/ravb_main.c
+index ff374d0d80a7..a1906804c139 100644
+--- a/drivers/net/ethernet/renesas/ravb_main.c
++++ b/drivers/net/ethernet/renesas/ravb_main.c
+@@ -738,14 +738,14 @@ static void ravb_error_interrupt(struct net_device *ndev)
+ 	ravb_write(ndev, ~(EIS_QFS | EIS_RESERVED), EIS);
+ 	if (eis & EIS_QFS) {
+ 		ris2 = ravb_read(ndev, RIS2);
+-		ravb_write(ndev, ~(RIS2_QFF0 | RIS2_RFFF | RIS2_RESERVED),
++		ravb_write(ndev, ~(RIS2_QFF0 | RIS2_QFF1 | RIS2_RFFF | RIS2_RESERVED),
+ 			   RIS2);
  
--	i2c-switch@70 {
-+	i2c-mux@70 {
- 		compatible = "nxp,pca9547";
- 		#address-cells = <1>;
- 		#size-cells = <0>;
+ 		/* Receive Descriptor Empty int */
+ 		if (ris2 & RIS2_QFF0)
+ 			priv->stats[RAVB_BE].rx_over_errors++;
+ 
+-		    /* Receive Descriptor Empty int */
++		/* Receive Descriptor Empty int */
+ 		if (ris2 & RIS2_QFF1)
+ 			priv->stats[RAVB_NC].rx_over_errors++;
+ 
 -- 
 2.39.0
 
