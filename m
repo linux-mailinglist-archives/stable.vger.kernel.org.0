@@ -2,49 +2,52 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 58F8C68957E
-	for <lists+stable@lfdr.de>; Fri,  3 Feb 2023 11:24:06 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6FA7B689519
+	for <lists+stable@lfdr.de>; Fri,  3 Feb 2023 11:18:36 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231760AbjBCKTy (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 3 Feb 2023 05:19:54 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39634 "EHLO
+        id S233219AbjBCKRu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 3 Feb 2023 05:17:50 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38286 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233393AbjBCKT2 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 3 Feb 2023 05:19:28 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 551E29EE0C
-        for <stable@vger.kernel.org>; Fri,  3 Feb 2023 02:19:01 -0800 (PST)
+        with ESMTP id S233221AbjBCKRl (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 3 Feb 2023 05:17:41 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 53EB39D06C
+        for <stable@vger.kernel.org>; Fri,  3 Feb 2023 02:17:02 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id A30FCB8287A
-        for <stable@vger.kernel.org>; Fri,  3 Feb 2023 10:18:57 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id F219BC433EF;
-        Fri,  3 Feb 2023 10:18:55 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 9F0E761EBB
+        for <stable@vger.kernel.org>; Fri,  3 Feb 2023 10:17:01 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7924CC433EF;
+        Fri,  3 Feb 2023 10:17:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1675419536;
-        bh=7XpHiww4oRNskhgKyhp0bZboDML/MPxINlsbuHs4678=;
+        s=korg; t=1675419420;
+        bh=i4vmRfqBporIReJD+zGRuS1YLpDVpdHhvg+BRBgHoHg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=z+BKyPJzS7E8jCzxj5NvKv/xzyyyBthOkccuopivfkn9GG5VTW7GeoeCNsMx4ay8t
-         BiHvZs3c3PX5tBS7J5fy1L8Sc7/MUyCyprLiSG9om8CjeivdDAkxpPWCTHunl6EW0t
-         ph+7gnxPNJrdPgQs6n0DsPfjwFGpaQpPMG4FfAWE=
+        b=EUfHAHmVDi8aEi0dLwrhPOYQuRibpSc0Vrl3KrSBvPm0eNgulhcDZVMkfBUJd1PwP
+         3FwgB1rJDWWC5m7eF6XeOeLHGZQ2OInweGUM5k4EKPHSWaUAcrSD/Pkc8feh8clNcL
+         XWbpy5PAqMSAhzysKsDOWItvO9QK8KBgkQMZT3KQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Dongliang Mu <mudongliangabcd@gmail.com>,
-        Jan Kara <jack@suse.cz>, Fedor Pchelkin <pchelkin@ispras.ru>
-Subject: [PATCH 4.19 35/80] fs: reiserfs: remove useless new_opts in reiserfs_remount
+        patches@lists.linux.dev,
+        syzbot+5fafd5cfe1fc91f6b352@syzkaller.appspotmail.com,
+        Kuniyuki Iwashima <kuniyu@amazon.com>,
+        Paolo Abeni <pabeni@redhat.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.14 33/62] netrom: Fix use-after-free of a listening socket.
 Date:   Fri,  3 Feb 2023 11:12:29 +0100
-Message-Id: <20230203101016.674723198@linuxfoundation.org>
+Message-Id: <20230203101014.436959814@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.1
-In-Reply-To: <20230203101015.263854890@linuxfoundation.org>
-References: <20230203101015.263854890@linuxfoundation.org>
+In-Reply-To: <20230203101012.959398849@linuxfoundation.org>
+References: <20230203101012.959398849@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
         SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -52,56 +55,161 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dongliang Mu <mudongliangabcd@gmail.com>
+From: Kuniyuki Iwashima <kuniyu@amazon.com>
 
-commit 81dedaf10c20959bdf5624f9783f408df26ba7a4 upstream.
+[ Upstream commit 409db27e3a2eb5e8ef7226ca33be33361b3ed1c9 ]
 
-Since the commit c3d98ea08291 ("VFS: Don't use save/replace_mount_options
-if not using generic_show_options") eliminates replace_mount_options
-in reiserfs_remount, but does not handle the allocated new_opts,
-it will cause memory leak in the reiserfs_remount.
+syzbot reported a use-after-free in do_accept(), precisely nr_accept()
+as sk_prot_alloc() allocated the memory and sock_put() frees it. [0]
 
-Because new_opts is useless in reiserfs_mount, so we fix this bug by
-removing the useless new_opts in reiserfs_remount.
+The issue could happen if the heartbeat timer is fired and
+nr_heartbeat_expiry() calls nr_destroy_socket(), where a socket
+has SOCK_DESTROY or a listening socket has SOCK_DEAD.
 
-Fixes: c3d98ea08291 ("VFS: Don't use save/replace_mount_options if not using generic_show_options")
-Link: https://lore.kernel.org/r/20211027143445.4156459-1-mudongliangabcd@gmail.com
-Signed-off-by: Dongliang Mu <mudongliangabcd@gmail.com>
-Signed-off-by: Jan Kara <jack@suse.cz>
-Signed-off-by: Fedor Pchelkin <pchelkin@ispras.ru>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+In this case, the first condition cannot be true.  SOCK_DESTROY is
+flagged in nr_release() only when the file descriptor is close()d,
+but accept() is being called for the listening socket, so the second
+condition must be true.
+
+Usually, the AF_NETROM listener neither starts timers nor sets
+SOCK_DEAD.  However, the condition is met if connect() fails before
+listen().  connect() starts the t1 timer and heartbeat timer, and
+t1timer calls nr_disconnect() when timeout happens.  Then, SOCK_DEAD
+is set, and if we call listen(), the heartbeat timer calls
+nr_destroy_socket().
+
+  nr_connect
+    nr_establish_data_link(sk)
+      nr_start_t1timer(sk)
+    nr_start_heartbeat(sk)
+                                    nr_t1timer_expiry
+                                      nr_disconnect(sk, ETIMEDOUT)
+                                        nr_sk(sk)->state = NR_STATE_0
+                                        sk->sk_state = TCP_CLOSE
+                                        sock_set_flag(sk, SOCK_DEAD)
+nr_listen
+  if (sk->sk_state != TCP_LISTEN)
+    sk->sk_state = TCP_LISTEN
+                                    nr_heartbeat_expiry
+                                      switch (nr->state)
+                                      case NR_STATE_0
+                                        if (sk->sk_state == TCP_LISTEN &&
+                                            sock_flag(sk, SOCK_DEAD))
+                                          nr_destroy_socket(sk)
+
+This path seems expected, and nr_destroy_socket() is called to clean
+up resources.  Initially, there was sock_hold() before nr_destroy_socket()
+so that the socket would not be freed, but the commit 517a16b1a88b
+("netrom: Decrease sock refcount when sock timers expire") accidentally
+removed it.
+
+To fix use-after-free, let's add sock_hold().
+
+[0]:
+BUG: KASAN: use-after-free in do_accept+0x483/0x510 net/socket.c:1848
+Read of size 8 at addr ffff88807978d398 by task syz-executor.3/5315
+
+CPU: 0 PID: 5315 Comm: syz-executor.3 Not tainted 6.2.0-rc3-syzkaller-00165-gd9fc1511728c #0
+Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS Google 10/26/2022
+Call Trace:
+ <TASK>
+ __dump_stack lib/dump_stack.c:88 [inline]
+ dump_stack_lvl+0xd1/0x138 lib/dump_stack.c:106
+ print_address_description mm/kasan/report.c:306 [inline]
+ print_report+0x15e/0x461 mm/kasan/report.c:417
+ kasan_report+0xbf/0x1f0 mm/kasan/report.c:517
+ do_accept+0x483/0x510 net/socket.c:1848
+ __sys_accept4_file net/socket.c:1897 [inline]
+ __sys_accept4+0x9a/0x120 net/socket.c:1927
+ __do_sys_accept net/socket.c:1944 [inline]
+ __se_sys_accept net/socket.c:1941 [inline]
+ __x64_sys_accept+0x75/0xb0 net/socket.c:1941
+ do_syscall_x64 arch/x86/entry/common.c:50 [inline]
+ do_syscall_64+0x39/0xb0 arch/x86/entry/common.c:80
+ entry_SYSCALL_64_after_hwframe+0x63/0xcd
+RIP: 0033:0x7fa436a8c0c9
+Code: 28 00 00 00 75 05 48 83 c4 28 c3 e8 f1 19 00 00 90 48 89 f8 48 89 f7 48 89 d6 48 89 ca 4d 89 c2 4d 89 c8 4c 8b 4c 24 08 0f 05 <48> 3d 01 f0 ff ff 73 01 c3 48 c7 c1 b8 ff ff ff f7 d8 64 89 01 48
+RSP: 002b:00007fa437784168 EFLAGS: 00000246 ORIG_RAX: 000000000000002b
+RAX: ffffffffffffffda RBX: 00007fa436bac050 RCX: 00007fa436a8c0c9
+RDX: 0000000000000000 RSI: 0000000000000000 RDI: 0000000000000005
+RBP: 00007fa436ae7ae9 R08: 0000000000000000 R09: 0000000000000000
+R10: 0000000000000000 R11: 0000000000000246 R12: 0000000000000000
+R13: 00007ffebc6700df R14: 00007fa437784300 R15: 0000000000022000
+ </TASK>
+
+Allocated by task 5294:
+ kasan_save_stack+0x22/0x40 mm/kasan/common.c:45
+ kasan_set_track+0x25/0x30 mm/kasan/common.c:52
+ ____kasan_kmalloc mm/kasan/common.c:371 [inline]
+ ____kasan_kmalloc mm/kasan/common.c:330 [inline]
+ __kasan_kmalloc+0xa3/0xb0 mm/kasan/common.c:380
+ kasan_kmalloc include/linux/kasan.h:211 [inline]
+ __do_kmalloc_node mm/slab_common.c:968 [inline]
+ __kmalloc+0x5a/0xd0 mm/slab_common.c:981
+ kmalloc include/linux/slab.h:584 [inline]
+ sk_prot_alloc+0x140/0x290 net/core/sock.c:2038
+ sk_alloc+0x3a/0x7a0 net/core/sock.c:2091
+ nr_create+0xb6/0x5f0 net/netrom/af_netrom.c:433
+ __sock_create+0x359/0x790 net/socket.c:1515
+ sock_create net/socket.c:1566 [inline]
+ __sys_socket_create net/socket.c:1603 [inline]
+ __sys_socket_create net/socket.c:1588 [inline]
+ __sys_socket+0x133/0x250 net/socket.c:1636
+ __do_sys_socket net/socket.c:1649 [inline]
+ __se_sys_socket net/socket.c:1647 [inline]
+ __x64_sys_socket+0x73/0xb0 net/socket.c:1647
+ do_syscall_x64 arch/x86/entry/common.c:50 [inline]
+ do_syscall_64+0x39/0xb0 arch/x86/entry/common.c:80
+ entry_SYSCALL_64_after_hwframe+0x63/0xcd
+
+Freed by task 14:
+ kasan_save_stack+0x22/0x40 mm/kasan/common.c:45
+ kasan_set_track+0x25/0x30 mm/kasan/common.c:52
+ kasan_save_free_info+0x2b/0x40 mm/kasan/generic.c:518
+ ____kasan_slab_free mm/kasan/common.c:236 [inline]
+ ____kasan_slab_free+0x13b/0x1a0 mm/kasan/common.c:200
+ kasan_slab_free include/linux/kasan.h:177 [inline]
+ __cache_free mm/slab.c:3394 [inline]
+ __do_kmem_cache_free mm/slab.c:3580 [inline]
+ __kmem_cache_free+0xcd/0x3b0 mm/slab.c:3587
+ sk_prot_free net/core/sock.c:2074 [inline]
+ __sk_destruct+0x5df/0x750 net/core/sock.c:2166
+ sk_destruct net/core/sock.c:2181 [inline]
+ __sk_free+0x175/0x460 net/core/sock.c:2192
+ sk_free+0x7c/0xa0 net/core/sock.c:2203
+ sock_put include/net/sock.h:1991 [inline]
+ nr_heartbeat_expiry+0x1d7/0x460 net/netrom/nr_timer.c:148
+ call_timer_fn+0x1da/0x7c0 kernel/time/timer.c:1700
+ expire_timers+0x2c6/0x5c0 kernel/time/timer.c:1751
+ __run_timers kernel/time/timer.c:2022 [inline]
+ __run_timers kernel/time/timer.c:1995 [inline]
+ run_timer_softirq+0x326/0x910 kernel/time/timer.c:2035
+ __do_softirq+0x1fb/0xadc kernel/softirq.c:571
+
+Fixes: 517a16b1a88b ("netrom: Decrease sock refcount when sock timers expire")
+Reported-by: syzbot+5fafd5cfe1fc91f6b352@syzkaller.appspotmail.com
+Signed-off-by: Kuniyuki Iwashima <kuniyu@amazon.com>
+Link: https://lore.kernel.org/r/20230120231927.51711-1-kuniyu@amazon.com
+Signed-off-by: Paolo Abeni <pabeni@redhat.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/reiserfs/super.c |    6 ------
- 1 file changed, 6 deletions(-)
+ net/netrom/nr_timer.c | 1 +
+ 1 file changed, 1 insertion(+)
 
---- a/fs/reiserfs/super.c
-+++ b/fs/reiserfs/super.c
-@@ -1443,7 +1443,6 @@ static int reiserfs_remount(struct super
- 	unsigned long safe_mask = 0;
- 	unsigned int commit_max_age = (unsigned int)-1;
- 	struct reiserfs_journal *journal = SB_JOURNAL(s);
--	char *new_opts;
- 	int err;
- 	char *qf_names[REISERFS_MAXQUOTAS];
- 	unsigned int qfmt = 0;
-@@ -1451,10 +1450,6 @@ static int reiserfs_remount(struct super
- 	int i;
- #endif
- 
--	new_opts = kstrdup(arg, GFP_KERNEL);
--	if (arg && !new_opts)
--		return -ENOMEM;
--
- 	sync_filesystem(s);
- 	reiserfs_write_lock(s);
- 
-@@ -1605,7 +1600,6 @@ out_ok_unlocked:
- out_err_unlock:
- 	reiserfs_write_unlock(s);
- out_err:
--	kfree(new_opts);
- 	return err;
- }
- 
+diff --git a/net/netrom/nr_timer.c b/net/netrom/nr_timer.c
+index d1a0b7056743..1fb9084bb937 100644
+--- a/net/netrom/nr_timer.c
++++ b/net/netrom/nr_timer.c
+@@ -125,6 +125,7 @@ static void nr_heartbeat_expiry(unsigned long param)
+ 		   is accepted() it isn't 'dead' so doesn't get removed. */
+ 		if (sock_flag(sk, SOCK_DESTROY) ||
+ 		    (sk->sk_state == TCP_LISTEN && sock_flag(sk, SOCK_DEAD))) {
++			sock_hold(sk);
+ 			bh_unlock_sock(sk);
+ 			nr_destroy_socket(sk);
+ 			goto out;
+-- 
+2.39.0
+
 
 
