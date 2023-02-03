@@ -2,42 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id BBF1B6895F2
-	for <lists+stable@lfdr.de>; Fri,  3 Feb 2023 11:24:57 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id AA4ED68963A
+	for <lists+stable@lfdr.de>; Fri,  3 Feb 2023 11:31:43 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233528AbjBCKYl (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 3 Feb 2023 05:24:41 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48538 "EHLO
+        id S231579AbjBCKZA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 3 Feb 2023 05:25:00 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47896 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233509AbjBCKYN (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 3 Feb 2023 05:24:13 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A1E06A07DF
-        for <stable@vger.kernel.org>; Fri,  3 Feb 2023 02:23:52 -0800 (PST)
+        with ESMTP id S233469AbjBCKYg (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 3 Feb 2023 05:24:36 -0500
+Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9E143A144C
+        for <stable@vger.kernel.org>; Fri,  3 Feb 2023 02:24:06 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 69F2761E6D
-        for <stable@vger.kernel.org>; Fri,  3 Feb 2023 10:23:52 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 40234C433EF;
-        Fri,  3 Feb 2023 10:23:51 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 7F27ECE2FBF
+        for <stable@vger.kernel.org>; Fri,  3 Feb 2023 10:23:56 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 450E3C433EF;
+        Fri,  3 Feb 2023 10:23:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1675419831;
-        bh=RGlr1LkGioBLIozP1bfdUdUeK4FQ6SN15MftzeI9kik=;
+        s=korg; t=1675419834;
+        bh=LkoBjuiq2polH/rK24e4vvUSa+FRr/93moqEdFoFrqM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=L/EbvTEPiuMtdnh7k4abETubOpNojg4c99wIiHZTKRBXTZz+Sm1UGPYxjOOS8E+65
-         9422esaKUao6+j+oi+tncm/DL561WZ3W+Pr+OYv1inHaFUMB0MvnTY4ChwqC30rGrf
-         rFZbQvXAkfl6JgQinGdALp605HlthRdVJrHuycYE=
+        b=MjBr27Q8EcbrGiZSFfghuL3Lkcq2UymZFTo3JGYzrPeTY6DcVZUi8+wMfR62H8+bp
+         99pAlNa6wdiCDaPVVHtS9nDB7UhDxxU07t6FE33iK5Za+3RSH7/hPbByEE4ln5KSNd
+         Ji4PqWNIkTtO7f7wfNwmRyUB29/dFZkeFkbkHsLg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         patches@lists.linux.dev,
-        Geert Uytterhoeven <geert+renesas@glider.be>,
+        Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>,
         Shawn Guo <shawnguo@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 03/20] arm64: dts: freescale: Fix pca954x i2c-mux node names
-Date:   Fri,  3 Feb 2023 11:13:30 +0100
-Message-Id: <20230203101008.150459646@linuxfoundation.org>
+Subject: [PATCH 5.15 04/20] arm64: dts: imx8mq-thor96: fix no-mmc property for SDHCI
+Date:   Fri,  3 Feb 2023 11:13:31 +0100
+Message-Id: <20230203101008.190292039@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.1
 In-Reply-To: <20230203101007.985835823@linuxfoundation.org>
 References: <20230203101007.985835823@linuxfoundation.org>
@@ -45,8 +45,8 @@ User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
         SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -54,205 +54,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Geert Uytterhoeven <geert+renesas@glider.be>
+From: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
 
-[ Upstream commit b025b4f5c288e29bbea421613a5b4eacf9261fbb ]
+[ Upstream commit ef10d57936ead5e817ef7cea6a87531085e77773 ]
 
-"make dtbs_check":
+There is no "no-emmc" property, so intention for SD/SDIO only nodes was
+to use "no-mmc".
 
-    arch/arm64/boot/dts/freescale/fsl-ls1012a-qds.dtb: pca9547@77: $nodename:0: 'pca9547@77' does not match '^(i2c-?)?mux'
-	    From schema: Documentation/devicetree/bindings/i2c/i2c-mux-pca954x.yaml
-    arch/arm64/boot/dts/freescale/fsl-ls1012a-qds.dtb: pca9547@77: Unevaluated properties are not allowed ('#address-cells', '#size-cells', 'i2c@4' were unexpected)
-	    From schema: Documentation/devicetree/bindings/i2c/i2c-mux-pca954x.yaml
-    ...
-
-Fix this by renaming PCA954x nodes to "i2c-mux", to match the I2C bus
-multiplexer/switch DT bindings and the Generic Names Recommendation in
-the Devicetree Specification.
-
-Signed-off-by: Geert Uytterhoeven <geert+renesas@glider.be>
+Signed-off-by: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
 Signed-off-by: Shawn Guo <shawnguo@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm64/boot/dts/freescale/fsl-ls1012a-qds.dts    | 2 +-
- arch/arm64/boot/dts/freescale/fsl-ls1043a-qds.dts    | 2 +-
- arch/arm64/boot/dts/freescale/fsl-ls1046a-qds.dts    | 2 +-
- arch/arm64/boot/dts/freescale/fsl-ls1088a-qds.dts    | 2 +-
- arch/arm64/boot/dts/freescale/fsl-ls1088a-rdb.dts    | 2 +-
- arch/arm64/boot/dts/freescale/fsl-ls1088a-ten64.dts  | 2 +-
- arch/arm64/boot/dts/freescale/fsl-ls208xa-qds.dtsi   | 2 +-
- arch/arm64/boot/dts/freescale/fsl-ls208xa-rdb.dtsi   | 2 +-
- arch/arm64/boot/dts/freescale/fsl-lx2160a-cex7.dtsi  | 2 +-
- arch/arm64/boot/dts/freescale/imx8mm-nitrogen-r2.dts | 2 +-
- arch/arm64/boot/dts/freescale/imx8mq-nitrogen.dts    | 4 ++--
- arch/arm64/boot/dts/freescale/imx8qxp-mek.dts        | 2 +-
- 12 files changed, 13 insertions(+), 13 deletions(-)
+ arch/arm64/boot/dts/freescale/imx8mq-thor96.dts | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/arch/arm64/boot/dts/freescale/fsl-ls1012a-qds.dts b/arch/arm64/boot/dts/freescale/fsl-ls1012a-qds.dts
-index e22c5e77fecd..9615f3b9ee60 100644
---- a/arch/arm64/boot/dts/freescale/fsl-ls1012a-qds.dts
-+++ b/arch/arm64/boot/dts/freescale/fsl-ls1012a-qds.dts
-@@ -110,7 +110,7 @@ &esdhc1 {
- &i2c0 {
+diff --git a/arch/arm64/boot/dts/freescale/imx8mq-thor96.dts b/arch/arm64/boot/dts/freescale/imx8mq-thor96.dts
+index 5d5aa6537225..6e6182709d22 100644
+--- a/arch/arm64/boot/dts/freescale/imx8mq-thor96.dts
++++ b/arch/arm64/boot/dts/freescale/imx8mq-thor96.dts
+@@ -339,7 +339,7 @@ &usdhc1 {
+ 	bus-width = <4>;
+ 	non-removable;
+ 	no-sd;
+-	no-emmc;
++	no-mmc;
  	status = "okay";
  
--	pca9547@77 {
-+	i2c-mux@77 {
- 		compatible = "nxp,pca9547";
- 		reg = <0x77>;
- 		#address-cells = <1>;
-diff --git a/arch/arm64/boot/dts/freescale/fsl-ls1043a-qds.dts b/arch/arm64/boot/dts/freescale/fsl-ls1043a-qds.dts
-index fea167d222cf..14856bc79b22 100644
---- a/arch/arm64/boot/dts/freescale/fsl-ls1043a-qds.dts
-+++ b/arch/arm64/boot/dts/freescale/fsl-ls1043a-qds.dts
-@@ -70,7 +70,7 @@ fpga: board-control@2,0 {
- &i2c0 {
+ 	brcmf: wifi@1 {
+@@ -359,7 +359,7 @@ &usdhc2 {
+ 	cd-gpios = <&gpio2 12 GPIO_ACTIVE_LOW>;
+ 	bus-width = <4>;
+ 	no-sdio;
+-	no-emmc;
++	no-mmc;
+ 	disable-wp;
  	status = "okay";
- 
--	pca9547@77 {
-+	i2c-mux@77 {
- 		compatible = "nxp,pca9547";
- 		reg = <0x77>;
- 		#address-cells = <1>;
-diff --git a/arch/arm64/boot/dts/freescale/fsl-ls1046a-qds.dts b/arch/arm64/boot/dts/freescale/fsl-ls1046a-qds.dts
-index eec62c63dafe..9ee9928f71b4 100644
---- a/arch/arm64/boot/dts/freescale/fsl-ls1046a-qds.dts
-+++ b/arch/arm64/boot/dts/freescale/fsl-ls1046a-qds.dts
-@@ -76,7 +76,7 @@ &duart1 {
- &i2c0 {
- 	status = "okay";
- 
--	pca9547@77 {
-+	i2c-mux@77 {
- 		compatible = "nxp,pca9547";
- 		reg = <0x77>;
- 		#address-cells = <1>;
-diff --git a/arch/arm64/boot/dts/freescale/fsl-ls1088a-qds.dts b/arch/arm64/boot/dts/freescale/fsl-ls1088a-qds.dts
-index 41d8b15f25a5..aa52ff73ff9e 100644
---- a/arch/arm64/boot/dts/freescale/fsl-ls1088a-qds.dts
-+++ b/arch/arm64/boot/dts/freescale/fsl-ls1088a-qds.dts
-@@ -53,7 +53,7 @@ flash@2 {
- &i2c0 {
- 	status = "okay";
- 
--	i2c-switch@77 {
-+	i2c-mux@77 {
- 		compatible = "nxp,pca9547";
- 		reg = <0x77>;
- 		#address-cells = <1>;
-diff --git a/arch/arm64/boot/dts/freescale/fsl-ls1088a-rdb.dts b/arch/arm64/boot/dts/freescale/fsl-ls1088a-rdb.dts
-index 1bfbce69cc8b..ee8e932628d1 100644
---- a/arch/arm64/boot/dts/freescale/fsl-ls1088a-rdb.dts
-+++ b/arch/arm64/boot/dts/freescale/fsl-ls1088a-rdb.dts
-@@ -136,7 +136,7 @@ mdio2_aquantia_phy: ethernet-phy@0 {
- &i2c0 {
- 	status = "okay";
- 
--	i2c-switch@77 {
-+	i2c-mux@77 {
- 		compatible = "nxp,pca9547";
- 		reg = <0x77>;
- 		#address-cells = <1>;
-diff --git a/arch/arm64/boot/dts/freescale/fsl-ls1088a-ten64.dts b/arch/arm64/boot/dts/freescale/fsl-ls1088a-ten64.dts
-index d3f03dcbb8c3..a9c6682a3955 100644
---- a/arch/arm64/boot/dts/freescale/fsl-ls1088a-ten64.dts
-+++ b/arch/arm64/boot/dts/freescale/fsl-ls1088a-ten64.dts
-@@ -245,7 +245,7 @@ rx8035: rtc@32 {
- &i2c3 {
- 	status = "okay";
- 
--	i2c-switch@70 {
-+	i2c-mux@70 {
- 		compatible = "nxp,pca9540";
- 		#address-cells = <1>;
- 		#size-cells = <0>;
-diff --git a/arch/arm64/boot/dts/freescale/fsl-ls208xa-qds.dtsi b/arch/arm64/boot/dts/freescale/fsl-ls208xa-qds.dtsi
-index 10d2fe091965..8d96d18c3697 100644
---- a/arch/arm64/boot/dts/freescale/fsl-ls208xa-qds.dtsi
-+++ b/arch/arm64/boot/dts/freescale/fsl-ls208xa-qds.dtsi
-@@ -44,7 +44,7 @@ cpld@3,0 {
- 
- &i2c0 {
- 	status = "okay";
--	pca9547@77 {
-+	i2c-mux@77 {
- 		compatible = "nxp,pca9547";
- 		reg = <0x77>;
- 		#address-cells = <1>;
-diff --git a/arch/arm64/boot/dts/freescale/fsl-ls208xa-rdb.dtsi b/arch/arm64/boot/dts/freescale/fsl-ls208xa-rdb.dtsi
-index 4b71c4fcb35f..787e408da002 100644
---- a/arch/arm64/boot/dts/freescale/fsl-ls208xa-rdb.dtsi
-+++ b/arch/arm64/boot/dts/freescale/fsl-ls208xa-rdb.dtsi
-@@ -44,7 +44,7 @@ cpld@3,0 {
- 
- &i2c0 {
- 	status = "okay";
--	pca9547@75 {
-+	i2c-mux@75 {
- 		compatible = "nxp,pca9547";
- 		reg = <0x75>;
- 		#address-cells = <1>;
-diff --git a/arch/arm64/boot/dts/freescale/fsl-lx2160a-cex7.dtsi b/arch/arm64/boot/dts/freescale/fsl-lx2160a-cex7.dtsi
-index afb455210bd0..d32a52ab00a4 100644
---- a/arch/arm64/boot/dts/freescale/fsl-lx2160a-cex7.dtsi
-+++ b/arch/arm64/boot/dts/freescale/fsl-lx2160a-cex7.dtsi
-@@ -54,7 +54,7 @@ &esdhc1 {
- &i2c0 {
- 	status = "okay";
- 
--	i2c-switch@77 {
-+	i2c-mux@77 {
- 		compatible = "nxp,pca9547";
- 		#address-cells = <1>;
- 		#size-cells = <0>;
-diff --git a/arch/arm64/boot/dts/freescale/imx8mm-nitrogen-r2.dts b/arch/arm64/boot/dts/freescale/imx8mm-nitrogen-r2.dts
-index 74c09891600f..6357078185ed 100644
---- a/arch/arm64/boot/dts/freescale/imx8mm-nitrogen-r2.dts
-+++ b/arch/arm64/boot/dts/freescale/imx8mm-nitrogen-r2.dts
-@@ -214,7 +214,7 @@ &i2c3 {
- 	pinctrl-0 = <&pinctrl_i2c3>;
- 	status = "okay";
- 
--	i2cmux@70 {
-+	i2c-mux@70 {
- 		compatible = "nxp,pca9540";
- 		reg = <0x70>;
- 		#address-cells = <1>;
-diff --git a/arch/arm64/boot/dts/freescale/imx8mq-nitrogen.dts b/arch/arm64/boot/dts/freescale/imx8mq-nitrogen.dts
-index f70fb32b96b0..cf14ab5f7404 100644
---- a/arch/arm64/boot/dts/freescale/imx8mq-nitrogen.dts
-+++ b/arch/arm64/boot/dts/freescale/imx8mq-nitrogen.dts
-@@ -133,7 +133,7 @@ &i2c1 {
- 	pinctrl-0 = <&pinctrl_i2c1>;
- 	status = "okay";
- 
--	i2cmux@70 {
-+	i2c-mux@70 {
- 		compatible = "nxp,pca9546";
- 		pinctrl-names = "default";
- 		pinctrl-0 = <&pinctrl_i2c1_pca9546>;
-@@ -216,7 +216,7 @@ &i2c4 {
- 	pinctrl-0 = <&pinctrl_i2c4>;
- 	status = "okay";
- 
--	pca9546: i2cmux@70 {
-+	pca9546: i2c-mux@70 {
- 		compatible = "nxp,pca9546";
- 		reg = <0x70>;
- 		#address-cells = <1>;
-diff --git a/arch/arm64/boot/dts/freescale/imx8qxp-mek.dts b/arch/arm64/boot/dts/freescale/imx8qxp-mek.dts
-index 863232a47004..4497763d57cc 100644
---- a/arch/arm64/boot/dts/freescale/imx8qxp-mek.dts
-+++ b/arch/arm64/boot/dts/freescale/imx8qxp-mek.dts
-@@ -61,7 +61,7 @@ &i2c1 {
- 	pinctrl-0 = <&pinctrl_lpi2c1 &pinctrl_ioexp_rst>;
- 	status = "okay";
- 
--	i2c-switch@71 {
-+	i2c-mux@71 {
- 		compatible = "nxp,pca9646", "nxp,pca9546";
- 		#address-cells = <1>;
- 		#size-cells = <0>;
+ };
 -- 
 2.39.0
 
