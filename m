@@ -2,119 +2,139 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id F14FB6894D4
-	for <lists+stable@lfdr.de>; Fri,  3 Feb 2023 11:12:52 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9DD976895CF
+	for <lists+stable@lfdr.de>; Fri,  3 Feb 2023 11:24:33 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232019AbjBCKMu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 3 Feb 2023 05:12:50 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33218 "EHLO
+        id S232070AbjBCKWE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 3 Feb 2023 05:22:04 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44286 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231526AbjBCKMt (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 3 Feb 2023 05:12:49 -0500
-Received: from mail-pf1-x42c.google.com (mail-pf1-x42c.google.com [IPv6:2607:f8b0:4864:20::42c])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BA3C18F536;
-        Fri,  3 Feb 2023 02:12:48 -0800 (PST)
-Received: by mail-pf1-x42c.google.com with SMTP id 144so3176559pfv.11;
-        Fri, 03 Feb 2023 02:12:48 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112;
-        h=content-transfer-encoding:in-reply-to:from:references:cc:to
-         :content-language:subject:user-agent:mime-version:date:message-id
-         :from:to:cc:subject:date:message-id:reply-to;
-        bh=xc4zNEQSLGBYVVdCnHoQd3NA3HSHi+8rouHFV7QJuGY=;
-        b=JOzDvd5LsZ3EgbZD6gWg9Z/8vRuOVfXiUDAGQ8fTpQnjcmoI/JgG6mL5wvZLjqsm2X
-         gg6cKvU8zD6Nt2gEZUM0930bwkX04ce1yQG29AwWmb8Ris45jL7B/8cEYKqFBTxGAUb/
-         FuZ+e2plaVIGRtqoIsUEWL7+wK6XzPssZK3LMf/aJqMVPIlnU41n4//WYXzOkyLFLj7C
-         uzlADp9OQPCoccvUrmDHktkLpsAOrOG5j9FkxoGI7BCkTPtZgmHsjQx5gmzpjeTUp2jp
-         raaw96NvBl6Ft/Nm2+qFUFh9Ox8aPcIM0vvBt4HilPi5VjAT3+3yg+c9hRkzLV9ZatzS
-         VMTQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=content-transfer-encoding:in-reply-to:from:references:cc:to
-         :content-language:subject:user-agent:mime-version:date:message-id
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=xc4zNEQSLGBYVVdCnHoQd3NA3HSHi+8rouHFV7QJuGY=;
-        b=j4AssNqfAOR1s3Jdk4a8ZDzIqLzF+w0g4Bkb/03rTzS8OBl6lZG17UKYW0hRTt26ps
-         BBIejq/NN/bFwqQDl8tLGjbOlw/nNaDlL7jl2njzgo5/IVS59nus0RoXO015y7VCyjkr
-         Kgyqf2oZc+Wx8g5CdI0IXwFT2BA8KRzOngjofO1BLq93TEx0rtQZQaRBU+S6BT8dWcy8
-         jRzJR0/iW0EN1qOHNGlN/1vHEeuRi2hligkh9re9NvmhA4rp8K8zIWgLetfYvrY1wITF
-         vC0j1xODGKoqUGpp2AdVAUCkZCv1lLdH+ieXpnvRec/ex8IuTIB9V9b6PPyMPDIgc1zG
-         wsOw==
-X-Gm-Message-State: AO0yUKXThLCtapIRLGfQ8Z96JJltJlu+AvodeTPYb9+MHC6049nyRJeW
-        7hQxmjlP9CA55hdXeQYUpMk=
-X-Google-Smtp-Source: AK7set/fxwU5SJgZPEBZHeBE7gfBXk4CftDHur76XonH+IliZOsNtCTkSx2c8mHryCianb91rX489g==
-X-Received: by 2002:a62:4ec1:0:b0:593:dc7e:9882 with SMTP id c184-20020a624ec1000000b00593dc7e9882mr9516107pfb.27.1675419168266;
-        Fri, 03 Feb 2023 02:12:48 -0800 (PST)
-Received: from [192.168.43.80] (subs10b-223-255-225-232.three.co.id. [223.255.225.232])
-        by smtp.gmail.com with ESMTPSA id b23-20020aa78717000000b00585cb0efebbsm1341448pfo.175.2023.02.03.02.12.43
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Fri, 03 Feb 2023 02:12:47 -0800 (PST)
-Message-ID: <48e1ae98-8f29-96d2-61af-d79ce22dcc62@gmail.com>
-Date:   Fri, 3 Feb 2023 17:12:42 +0700
-MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
- Thunderbird/102.6.1
-Subject: Re: [PATCH] Linux 6.1.9
-Content-Language: en-US
-To:     Vinayak Hegde <vinayakph123@gmail.com>
+        with ESMTP id S232746AbjBCKWD (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 3 Feb 2023 05:22:03 -0500
+Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 36EFFCDCC
+        for <stable@vger.kernel.org>; Fri,  3 Feb 2023 02:21:42 -0800 (PST)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by sin.source.kernel.org (Postfix) with ESMTPS id CD602CE2FC2
+        for <stable@vger.kernel.org>; Fri,  3 Feb 2023 10:21:10 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A588DC433D2;
+        Fri,  3 Feb 2023 10:21:08 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
+        s=korg; t=1675419669;
+        bh=pVFhmK1OzbLwAKw8v2EFl1woG6UUyLfwuaTOEDUyuDI=;
+        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+        b=jz+VuyhhewXJIEoBcCFBxMO4PyhWStArFGSyEKa4KL5QdcwBLX4hPRN0dUuEMTGK/
+         95EboZBpLGNk4KKt6ouucLEkBfj7+LdO8sAUGm5Y2SdIAYxXNevtx23dT2FSkfsz8B
+         WX7GJbFS3dYT9HUHaJKqs/A2PLvvhu0ExD5tfCVU=
+From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Florian Fainelli <f.fainelli@gmail.com>,
-        Shuah Khan <skhan@linuxfoundation.org>,
-        Conor Dooley <conor.dooley@microchip.com>,
-        "Justin M . Forbes" <jforbes@fedoraproject.org>,
-        Takeshi Ogasawara <takeshi.ogasawara@futuring-girl.com>,
-        Ronald Warsow <rwarsow@gmx.de>,
-        Guenter Roeck <linux@roeck-us.net>,
-        Sudip Mukherjee <sudip.mukherjee@codethink.co.uk>,
-        Salvatore Bonaccorso <carnil@debian.org>,
-        Jon Hunter <jonathanh@nvidia.com>,
-        Linux Kernel Functional Testing <lkft@linaro.org>,
-        Allen Pais <apais@linux.microsoft.com>,
-        Fenil Jain <fkjainco@gmail.com>, Ron Economos <re@w6rz.net>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-        Linux Stable <stable@vger.kernel.org>
-References: <20230203093811.2678-1-vinayakph123@gmail.com>
- <CAJesESYM1URn3_hMjPoMkfFo=5k-Yb9HZuyy9__kyKoZPoAsRA@mail.gmail.com>
-From:   Bagas Sanjaya <bagasdotme@gmail.com>
-In-Reply-To: <CAJesESYM1URn3_hMjPoMkfFo=5k-Yb9HZuyy9__kyKoZPoAsRA@mail.gmail.com>
+        patches@lists.linux.dev, Eric Dumazet <edumazet@google.com>,
+        syzbot <syzkaller@googlegroups.com>,
+        Jakub Kicinski <kuba@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 48/80] netlink: annotate data races around nlk->portid
+Date:   Fri,  3 Feb 2023 11:12:42 +0100
+Message-Id: <20230203101017.278060031@linuxfoundation.org>
+X-Mailer: git-send-email 2.39.1
+In-Reply-To: <20230203101015.263854890@linuxfoundation.org>
+References: <20230203101015.263854890@linuxfoundation.org>
+User-Agent: quilt/0.67
+MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-0.7 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_FROM,NICE_REPLY_A,
-        RCVD_IN_DNSWL_NONE,RCVD_IN_SORBS_WEB,SPF_HELO_NONE,SPF_PASS
-        autolearn=no autolearn_force=no version=3.4.6
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+        SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 2/3/23 16:42, Vinayak Hegde wrote:
-> Hi Everyone,
-> I was going through A Beginner's Guide to Linux Kernel Development (LFD103) course and was trying out a few things
-> mistakenly sending this mail.
-> 
+From: Eric Dumazet <edumazet@google.com>
 
-Hi and welcome to LKML!
+[ Upstream commit c1bb9484e3b05166880da8574504156ccbd0549e ]
 
-Some netiquette tips:
+syzbot reminds us netlink_getname() runs locklessly [1]
 
-* Don't top-post when replying; reply inline with appropriate context
-  instead. Some people (like me) tends to cut quoted reply below
-  if you top-post.
-* Don't send HTML emails - many kernel development lists (including
-  LKML) don't like them for being common spam method.
-* Wait for at least a day before replying - people may respond to
-  your message at different pace.
-* Use git-send-email(1) to submit patches (see
-  Documentation/process/submitting-patches.rst for how to do that).
+This first patch annotates the race against nlk->portid.
 
-Regarding your patch, I think Greg has already bumped SUBLEVEL
-whenever new stable release is made, so no need to send separate
-patch just for that.
+Following patches take care of the remaining races.
 
-Thanks.
+[1]
+BUG: KCSAN: data-race in netlink_getname / netlink_insert
 
+write to 0xffff88814176d310 of 4 bytes by task 2315 on cpu 1:
+netlink_insert+0xf1/0x9a0 net/netlink/af_netlink.c:583
+netlink_autobind+0xae/0x180 net/netlink/af_netlink.c:856
+netlink_sendmsg+0x444/0x760 net/netlink/af_netlink.c:1895
+sock_sendmsg_nosec net/socket.c:714 [inline]
+sock_sendmsg net/socket.c:734 [inline]
+____sys_sendmsg+0x38f/0x500 net/socket.c:2476
+___sys_sendmsg net/socket.c:2530 [inline]
+__sys_sendmsg+0x19a/0x230 net/socket.c:2559
+__do_sys_sendmsg net/socket.c:2568 [inline]
+__se_sys_sendmsg net/socket.c:2566 [inline]
+__x64_sys_sendmsg+0x42/0x50 net/socket.c:2566
+do_syscall_x64 arch/x86/entry/common.c:50 [inline]
+do_syscall_64+0x2b/0x70 arch/x86/entry/common.c:80
+entry_SYSCALL_64_after_hwframe+0x63/0xcd
+
+read to 0xffff88814176d310 of 4 bytes by task 2316 on cpu 0:
+netlink_getname+0xcd/0x1a0 net/netlink/af_netlink.c:1144
+__sys_getsockname+0x11d/0x1b0 net/socket.c:2026
+__do_sys_getsockname net/socket.c:2041 [inline]
+__se_sys_getsockname net/socket.c:2038 [inline]
+__x64_sys_getsockname+0x3e/0x50 net/socket.c:2038
+do_syscall_x64 arch/x86/entry/common.c:50 [inline]
+do_syscall_64+0x2b/0x70 arch/x86/entry/common.c:80
+entry_SYSCALL_64_after_hwframe+0x63/0xcd
+
+value changed: 0x00000000 -> 0xc9a49780
+
+Reported by Kernel Concurrency Sanitizer on:
+CPU: 0 PID: 2316 Comm: syz-executor.2 Not tainted 6.2.0-rc3-syzkaller-00030-ge8f60cd7db24-dirty #0
+Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS Google 10/26/2022
+
+Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
+Signed-off-by: Eric Dumazet <edumazet@google.com>
+Reported-by: syzbot <syzkaller@googlegroups.com>
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
+---
+ net/netlink/af_netlink.c | 7 +++++--
+ 1 file changed, 5 insertions(+), 2 deletions(-)
+
+diff --git a/net/netlink/af_netlink.c b/net/netlink/af_netlink.c
+index 966c709c3831..52bf99ed7093 100644
+--- a/net/netlink/af_netlink.c
++++ b/net/netlink/af_netlink.c
+@@ -578,7 +578,9 @@ static int netlink_insert(struct sock *sk, u32 portid)
+ 	if (nlk_sk(sk)->bound)
+ 		goto err;
+ 
+-	nlk_sk(sk)->portid = portid;
++	/* portid can be read locklessly from netlink_getname(). */
++	WRITE_ONCE(nlk_sk(sk)->portid, portid);
++
+ 	sock_hold(sk);
+ 
+ 	err = __netlink_insert(table, sk);
+@@ -1133,7 +1135,8 @@ static int netlink_getname(struct socket *sock, struct sockaddr *addr,
+ 		nladdr->nl_pid = nlk->dst_portid;
+ 		nladdr->nl_groups = netlink_group_mask(nlk->dst_group);
+ 	} else {
+-		nladdr->nl_pid = nlk->portid;
++		/* Paired with WRITE_ONCE() in netlink_insert() */
++		nladdr->nl_pid = READ_ONCE(nlk->portid);
+ 		netlink_lock_table();
+ 		nladdr->nl_groups = nlk->groups ? nlk->groups[0] : 0;
+ 		netlink_unlock_table();
 -- 
-An old man doll... just what I always wanted! - Clara
+2.39.0
+
+
 
