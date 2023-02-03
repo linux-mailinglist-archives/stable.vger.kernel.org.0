@@ -2,46 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 814CB6895E7
-	for <lists+stable@lfdr.de>; Fri,  3 Feb 2023 11:24:41 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2929B6896A3
+	for <lists+stable@lfdr.de>; Fri,  3 Feb 2023 11:32:22 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233464AbjBCKYF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 3 Feb 2023 05:24:05 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47818 "EHLO
+        id S232280AbjBCK0q (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 3 Feb 2023 05:26:46 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48452 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233472AbjBCKXu (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 3 Feb 2023 05:23:50 -0500
+        with ESMTP id S233621AbjBCKYy (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 3 Feb 2023 05:24:54 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D11129EE27
-        for <stable@vger.kernel.org>; Fri,  3 Feb 2023 02:23:28 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1FA49193E1
+        for <stable@vger.kernel.org>; Fri,  3 Feb 2023 02:24:23 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 6BC32B82A68
-        for <stable@vger.kernel.org>; Fri,  3 Feb 2023 10:23:28 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9B439C433D2;
-        Fri,  3 Feb 2023 10:23:26 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 949EAB8287A
+        for <stable@vger.kernel.org>; Fri,  3 Feb 2023 10:24:10 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E20F0C4339B;
+        Fri,  3 Feb 2023 10:24:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1675419807;
-        bh=8JDGmsW+EDZdp4zJlrpTtfRQzLAL6ptwiShdtutgHTA=;
+        s=korg; t=1675419849;
+        bh=FcTV8jsLLGGcPAnVa/CJ/Aog1C5dMMbIq5g6SMp1UnQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=pXWRJTmz1qV/5v/EMSZEDuiqMM3cmYcMIHtBv+OiwB7LnANpQWy+5hhcOQZEnu5V6
-         hFZ6a8EUcr3O9UcEm7II9o1Q6vX9TC87VzKcEtaNuBbkHpfX3oHbUYBPdjidtNy5IZ
-         2sL0FrLDYrgfcT3vZii/Eg302/mzkAICLYNY4KLs=
+        b=lYihssFVuWxvp25Ko8usMs5Z+oZHJB1ThRxRLFbkqlYduDAIsPEo31vt7RNXIM+SY
+         yFJRSNaWaiAupLPna/ngyODaGx/2FUyL3s8Ym8UzAF3U5lSSZuKxpbpbk2aN0AVSZE
+         Z/jQB8ktqVtgK4qKLEpPRyXqKsRdOgk9FtkjjMts=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, K Prateek Nayak <kprateek.nayak@amd.com>,
-        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
-        Dave Hansen <dave.hansen@linux.intel.com>,
-        Mario Limonciello <mario.limonciello@amd.com>,
-        "Guilherme G. Piccoli" <gpiccoli@igalia.com>
-Subject: [PATCH 5.10 7/9] ACPI: processor idle: Practically limit "Dummy wait" workaround to old Intel systems
+        patches@lists.linux.dev,
+        Roderick Colenbrander <roderick.colenbrander@sony.com>,
+        Jiri Kosina <jkosina@suse.cz>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.15 09/20] HID: playstation: sanity check DualSense calibration data.
 Date:   Fri,  3 Feb 2023 11:13:36 +0100
-Message-Id: <20230203101006.716757022@linuxfoundation.org>
+Message-Id: <20230203101008.395104293@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.1
-In-Reply-To: <20230203101006.422534094@linuxfoundation.org>
-References: <20230203101006.422534094@linuxfoundation.org>
+In-Reply-To: <20230203101007.985835823@linuxfoundation.org>
+References: <20230203101007.985835823@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,77 +53,87 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dave Hansen <dave.hansen@intel.com>
+From: Roderick Colenbrander <roderick@gaikai.com>
 
-commit e400ad8b7e6a1b9102123c6240289a811501f7d9 upstream.
+[ Upstream commit ccf1e1626d37745d0a697db67407beec9ae9d4b8 ]
 
-Old, circa 2002 chipsets have a bug: they don't go idle when they are
-supposed to.  So, a workaround was added to slow the CPU down and
-ensure that the CPU waits a bit for the chipset to actually go idle.
-This workaround is ancient and has been in place in some form since
-the original kernel ACPI implementation.
+Make sure calibration values are defined to prevent potential kernel
+crashes. This fixes a hypothetical issue for virtual or clone devices
+inspired by a similar fix for DS4.
 
-But, this workaround is very painful on modern systems.  The "inl()"
-can take thousands of cycles (see Link: for some more detailed
-numbers and some fun kernel archaeology).
-
-First and foremost, modern systems should not be using this code.
-Typical Intel systems have not used it in over a decade because it is
-horribly inferior to MWAIT-based idle.
-
-Despite this, people do seem to be tripping over this workaround on
-AMD system today.
-
-Limit the "dummy wait" workaround to Intel systems.  Keep Modern AMD
-systems from tripping over the workaround.  Remotely modern Intel
-systems use intel_idle instead of this code and will, in practice,
-remain unaffected by the dummy wait.
-
-Reported-by: K Prateek Nayak <kprateek.nayak@amd.com>
-Suggested-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
-Signed-off-by: Dave Hansen <dave.hansen@linux.intel.com>
-Reviewed-by: Mario Limonciello <mario.limonciello@amd.com>
-Tested-by: K Prateek Nayak <kprateek.nayak@amd.com>
-Link: https://lore.kernel.org/all/20220921063638.2489-1-kprateek.nayak@amd.com/
-Link: https://lkml.kernel.org/r/20220922184745.3252932-1-dave.hansen@intel.com
-Signed-off-by: Guilherme G. Piccoli <gpiccoli@igalia.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Roderick Colenbrander <roderick.colenbrander@sony.com>
+Signed-off-by: Jiri Kosina <jkosina@suse.cz>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/acpi/processor_idle.c |   23 ++++++++++++++++++++---
- 1 file changed, 20 insertions(+), 3 deletions(-)
+ drivers/hid/hid-playstation.c | 32 ++++++++++++++++++++++++++++++++
+ 1 file changed, 32 insertions(+)
 
---- a/drivers/acpi/processor_idle.c
-+++ b/drivers/acpi/processor_idle.c
-@@ -536,10 +536,27 @@ static void wait_for_freeze(void)
- 	/* No delay is needed if we are in guest */
- 	if (boot_cpu_has(X86_FEATURE_HYPERVISOR))
- 		return;
-+	/*
-+	 * Modern (>=Nehalem) Intel systems use ACPI via intel_idle,
-+	 * not this code.  Assume that any Intel systems using this
-+	 * are ancient and may need the dummy wait.  This also assumes
-+	 * that the motivating chipset issue was Intel-only.
-+	 */
-+	if (boot_cpu_data.x86_vendor != X86_VENDOR_INTEL)
-+		return;
- #endif
--	/* Dummy wait op - must do something useless after P_LVL2 read
--	   because chipsets cannot guarantee that STPCLK# signal
--	   gets asserted in time to freeze execution properly. */
-+	/*
-+	 * Dummy wait op - must do something useless after P_LVL2 read
-+	 * because chipsets cannot guarantee that STPCLK# signal gets
-+	 * asserted in time to freeze execution properly
-+	 *
-+	 * This workaround has been in place since the original ACPI
-+	 * implementation was merged, circa 2002.
-+	 *
-+	 * If a profile is pointing to this instruction, please first
-+	 * consider moving your system to a more modern idle
-+	 * mechanism.
-+	 */
- 	inl(acpi_gbl_FADT.xpm_timer_block.address);
- }
+diff --git a/drivers/hid/hid-playstation.c b/drivers/hid/hid-playstation.c
+index bd0e0fe2f627..944e5e5ff134 100644
+--- a/drivers/hid/hid-playstation.c
++++ b/drivers/hid/hid-playstation.c
+@@ -626,6 +626,7 @@ static const struct attribute_group ps_device_attribute_group = {
  
+ static int dualsense_get_calibration_data(struct dualsense *ds)
+ {
++	struct hid_device *hdev = ds->base.hdev;
+ 	short gyro_pitch_bias, gyro_pitch_plus, gyro_pitch_minus;
+ 	short gyro_yaw_bias, gyro_yaw_plus, gyro_yaw_minus;
+ 	short gyro_roll_bias, gyro_roll_plus, gyro_roll_minus;
+@@ -636,6 +637,7 @@ static int dualsense_get_calibration_data(struct dualsense *ds)
+ 	int speed_2x;
+ 	int range_2g;
+ 	int ret = 0;
++	int i;
+ 	uint8_t *buf;
+ 
+ 	buf = kzalloc(DS_FEATURE_REPORT_CALIBRATION_SIZE, GFP_KERNEL);
+@@ -687,6 +689,21 @@ static int dualsense_get_calibration_data(struct dualsense *ds)
+ 	ds->gyro_calib_data[2].sens_numer = speed_2x*DS_GYRO_RES_PER_DEG_S;
+ 	ds->gyro_calib_data[2].sens_denom = gyro_roll_plus - gyro_roll_minus;
+ 
++	/*
++	 * Sanity check gyro calibration data. This is needed to prevent crashes
++	 * during report handling of virtual, clone or broken devices not implementing
++	 * calibration data properly.
++	 */
++	for (i = 0; i < ARRAY_SIZE(ds->gyro_calib_data); i++) {
++		if (ds->gyro_calib_data[i].sens_denom == 0) {
++			hid_warn(hdev, "Invalid gyro calibration data for axis (%d), disabling calibration.",
++					ds->gyro_calib_data[i].abs_code);
++			ds->gyro_calib_data[i].bias = 0;
++			ds->gyro_calib_data[i].sens_numer = DS_GYRO_RANGE;
++			ds->gyro_calib_data[i].sens_denom = S16_MAX;
++		}
++	}
++
+ 	/*
+ 	 * Set accelerometer calibration and normalization parameters.
+ 	 * Data values will be normalized to 1/DS_ACC_RES_PER_G g.
+@@ -709,6 +726,21 @@ static int dualsense_get_calibration_data(struct dualsense *ds)
+ 	ds->accel_calib_data[2].sens_numer = 2*DS_ACC_RES_PER_G;
+ 	ds->accel_calib_data[2].sens_denom = range_2g;
+ 
++	/*
++	 * Sanity check accelerometer calibration data. This is needed to prevent crashes
++	 * during report handling of virtual, clone or broken devices not implementing calibration
++	 * data properly.
++	 */
++	for (i = 0; i < ARRAY_SIZE(ds->accel_calib_data); i++) {
++		if (ds->accel_calib_data[i].sens_denom == 0) {
++			hid_warn(hdev, "Invalid accelerometer calibration data for axis (%d), disabling calibration.",
++					ds->accel_calib_data[i].abs_code);
++			ds->accel_calib_data[i].bias = 0;
++			ds->accel_calib_data[i].sens_numer = DS_ACC_RANGE;
++			ds->accel_calib_data[i].sens_denom = S16_MAX;
++		}
++	}
++
+ err_free:
+ 	kfree(buf);
+ 	return ret;
+-- 
+2.39.0
+
 
 
