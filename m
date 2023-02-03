@@ -2,46 +2,51 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B4B87689637
-	for <lists+stable@lfdr.de>; Fri,  3 Feb 2023 11:31:42 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 03E7B689584
+	for <lists+stable@lfdr.de>; Fri,  3 Feb 2023 11:24:08 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233459AbjBCK3i (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 3 Feb 2023 05:29:38 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49516 "EHLO
+        id S233271AbjBCKVd (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 3 Feb 2023 05:21:33 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43658 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233222AbjBCK3V (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 3 Feb 2023 05:29:21 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C3EABA07FE
-        for <stable@vger.kernel.org>; Fri,  3 Feb 2023 02:28:29 -0800 (PST)
+        with ESMTP id S233330AbjBCKV3 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 3 Feb 2023 05:21:29 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2A7CF12F21;
+        Fri,  3 Feb 2023 02:21:07 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 66599B82A6E
-        for <stable@vger.kernel.org>; Fri,  3 Feb 2023 10:28:29 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 90E34C4339B;
-        Fri,  3 Feb 2023 10:28:27 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id DACB061EBA;
+        Fri,  3 Feb 2023 10:21:00 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 915CBC433D2;
+        Fri,  3 Feb 2023 10:20:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1675420108;
-        bh=7TB58F2YJRfwdowX6BjU2VDFV/ZoHgwBV6QbWTkAs9k=;
+        s=korg; t=1675419660;
+        bh=/VgTckNen0NoZp3QkraZBalffdZWyEDO/GFqKXBbjzI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=jggVobb6+2ZV9FriOqZErpAZ8JauWqGnsyOlXMB0fxrBewuLHFAYuEaa+7p5voN2y
-         p+/vgU6ePp9jzIxSJVVEzWxmJGW8wonz50VMcBYV6kuW9g2PyDuudcc1B3BIYIMPOO
-         C/rL/dzbE1OPYR3TTbVwD/3Jh0dnssefhbKp85yQ=
+        b=2UsKDAgOdKmrnYVaGx8QTiPvphAiZXc1PLFJQ0QK/Sxkmss0OskLZeImq736FypTa
+         TPmANKdaASkXR82JTNH2O0HUpafrxAyQcZ/vPV8uwIYXkJ45p6PALlGSkJf4GJqAfE
+         xEvEWv9CbMaMgABw9z27QJUGdq//TUAg15eMCSLA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Luca Weiss <luca.weiss@fairphone.com>,
-        Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>,
-        "Borislav Petkov (AMD)" <bp@alien8.de>,
-        Steev Klimaszewski <steev@kali.org>,
-        Andrew Halaney <ahalaney@redhat.com>
-Subject: [PATCH 5.4 082/134] EDAC/device: Respect any driver-supplied workqueue polling value
+        patches@lists.linux.dev, Jann Horn <jannh@google.com>,
+        Jonathan Corbet <corbet@lwn.net>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Baolin Wang <baolin.wang@linux.alibaba.com>,
+        "Jason A. Donenfeld" <Jason@zx2c4.com>,
+        Eric Biggers <ebiggers@google.com>,
+        Huang Ying <ying.huang@intel.com>,
+        "Eric W. Biederman" <ebiederm@xmission.com>,
+        Arnd Bergmann <arnd@arndb.de>, linux-doc@vger.kernel.org,
+        Kees Cook <keescook@chromium.org>
+Subject: [PATCH 4.19 73/80] exit: Allow oops_limit to be disabled
 Date:   Fri,  3 Feb 2023 11:13:07 +0100
-Message-Id: <20230203101027.547238145@linuxfoundation.org>
+Message-Id: <20230203101018.358100986@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.1
-In-Reply-To: <20230203101023.832083974@linuxfoundation.org>
-References: <20230203101023.832083974@linuxfoundation.org>
+In-Reply-To: <20230203101015.263854890@linuxfoundation.org>
+References: <20230203101015.263854890@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,79 +60,55 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>
+From: Kees Cook <keescook@chromium.org>
 
-commit cec669ff716cc83505c77b242aecf6f7baad869d upstream.
+commit de92f65719cd672f4b48397540b9f9eff67eca40 upstream.
 
-The EDAC drivers may optionally pass the poll_msec value. Use that value
-if available, else fall back to 1000ms.
+In preparation for keeping oops_limit logic in sync with warn_limit,
+have oops_limit == 0 disable checking the Oops counter.
 
-  [ bp: Touchups. ]
-
-Fixes: e27e3dac6517 ("drivers/edac: add edac_device class")
-Reported-by: Luca Weiss <luca.weiss@fairphone.com>
-Signed-off-by: Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>
-Signed-off-by: Borislav Petkov (AMD) <bp@alien8.de>
-Tested-by: Steev Klimaszewski <steev@kali.org> # Thinkpad X13s
-Tested-by: Andrew Halaney <ahalaney@redhat.com> # sa8540p-ride
-Cc: <stable@vger.kernel.org> # 4.9
-Link: https://lore.kernel.org/r/COZYL8MWN97H.MROQ391BGA09@otso
+Cc: Jann Horn <jannh@google.com>
+Cc: Jonathan Corbet <corbet@lwn.net>
+Cc: Andrew Morton <akpm@linux-foundation.org>
+Cc: Baolin Wang <baolin.wang@linux.alibaba.com>
+Cc: "Jason A. Donenfeld" <Jason@zx2c4.com>
+Cc: Eric Biggers <ebiggers@google.com>
+Cc: Huang Ying <ying.huang@intel.com>
+Cc: "Eric W. Biederman" <ebiederm@xmission.com>
+Cc: Arnd Bergmann <arnd@arndb.de>
+Cc: linux-doc@vger.kernel.org
+Signed-off-by: Kees Cook <keescook@chromium.org>
+Signed-off-by: Eric Biggers <ebiggers@google.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/edac/edac_device.c |   15 +++++++--------
- 1 file changed, 7 insertions(+), 8 deletions(-)
+ Documentation/sysctl/kernel.txt |    5 +++--
+ kernel/exit.c                   |    2 +-
+ 2 files changed, 4 insertions(+), 3 deletions(-)
 
---- a/drivers/edac/edac_device.c
-+++ b/drivers/edac/edac_device.c
-@@ -34,6 +34,9 @@
- static DEFINE_MUTEX(device_ctls_mutex);
- static LIST_HEAD(edac_device_list);
+--- a/Documentation/sysctl/kernel.txt
++++ b/Documentation/sysctl/kernel.txt
+@@ -559,8 +559,9 @@ scanned for a given scan.
+ oops_limit:
  
-+/* Default workqueue processing interval on this instance, in msecs */
-+#define DEFAULT_POLL_INTERVAL 1000
-+
- #ifdef CONFIG_EDAC_DEBUG
- static void edac_device_dump_device(struct edac_device_ctl_info *edac_dev)
- {
-@@ -366,7 +369,7 @@ static void edac_device_workq_function(s
- 	 * whole one second to save timers firing all over the period
- 	 * between integral seconds
+ Number of kernel oopses after which the kernel should panic when
+-``panic_on_oops`` is not set. Setting this to 0 or 1 has the same effect
+-as setting ``panic_on_oops=1``.
++``panic_on_oops`` is not set. Setting this to 0 disables checking
++the count. Setting this to  1 has the same effect as setting
++``panic_on_oops=1``. The default value is 10000.
+ 
+ ==============================================================
+ 
+--- a/kernel/exit.c
++++ b/kernel/exit.c
+@@ -986,7 +986,7 @@ void __noreturn make_task_dead(int signr
+ 	 * To make sure this can't happen, place an upper bound on how often the
+ 	 * kernel may oops without panic().
  	 */
--	if (edac_dev->poll_msec == 1000)
-+	if (edac_dev->poll_msec == DEFAULT_POLL_INTERVAL)
- 		edac_queue_work(&edac_dev->work, round_jiffies_relative(edac_dev->delay));
- 	else
- 		edac_queue_work(&edac_dev->work, edac_dev->delay);
-@@ -396,7 +399,7 @@ static void edac_device_workq_setup(stru
- 	 * timers firing on sub-second basis, while they are happy
- 	 * to fire together on the 1 second exactly
- 	 */
--	if (edac_dev->poll_msec == 1000)
-+	if (edac_dev->poll_msec == DEFAULT_POLL_INTERVAL)
- 		edac_queue_work(&edac_dev->work, round_jiffies_relative(edac_dev->delay));
- 	else
- 		edac_queue_work(&edac_dev->work, edac_dev->delay);
-@@ -430,7 +433,7 @@ void edac_device_reset_delay_period(stru
- 	edac_dev->delay	    = msecs_to_jiffies(msec);
+-	if (atomic_inc_return(&oops_count) >= READ_ONCE(oops_limit))
++	if (atomic_inc_return(&oops_count) >= READ_ONCE(oops_limit) && oops_limit)
+ 		panic("Oopsed too often (kernel.oops_limit is %d)", oops_limit);
  
- 	/* See comment in edac_device_workq_setup() above */
--	if (edac_dev->poll_msec == 1000)
-+	if (edac_dev->poll_msec == DEFAULT_POLL_INTERVAL)
- 		edac_mod_work(&edac_dev->work, round_jiffies_relative(edac_dev->delay));
- 	else
- 		edac_mod_work(&edac_dev->work, edac_dev->delay);
-@@ -472,11 +475,7 @@ int edac_device_add_device(struct edac_d
- 		/* This instance is NOW RUNNING */
- 		edac_dev->op_state = OP_RUNNING_POLL;
- 
--		/*
--		 * enable workq processing on this instance,
--		 * default = 1000 msec
--		 */
--		edac_device_workq_setup(edac_dev, 1000);
-+		edac_device_workq_setup(edac_dev, edac_dev->poll_msec ?: DEFAULT_POLL_INTERVAL);
- 	} else {
- 		edac_dev->op_state = OP_RUNNING_INTERRUPT;
- 	}
+ 	do_exit(signr);
 
 
