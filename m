@@ -2,43 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 62B0F6895A1
-	for <lists+stable@lfdr.de>; Fri,  3 Feb 2023 11:24:17 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4644568959A
+	for <lists+stable@lfdr.de>; Fri,  3 Feb 2023 11:24:15 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233438AbjBCKXA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 3 Feb 2023 05:23:00 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45180 "EHLO
+        id S233419AbjBCKXf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 3 Feb 2023 05:23:35 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46104 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233440AbjBCKWw (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 3 Feb 2023 05:22:52 -0500
+        with ESMTP id S233471AbjBCKX0 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 3 Feb 2023 05:23:26 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 57CD29F9C7
-        for <stable@vger.kernel.org>; Fri,  3 Feb 2023 02:22:38 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8D21C19694;
+        Fri,  3 Feb 2023 02:23:05 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 40CE7B82A68
-        for <stable@vger.kernel.org>; Fri,  3 Feb 2023 10:22:27 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7B4A3C433EF;
-        Fri,  3 Feb 2023 10:22:25 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 82D59B82A68;
+        Fri,  3 Feb 2023 10:22:57 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id AD8D2C433EF;
+        Fri,  3 Feb 2023 10:22:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1675419746;
-        bh=SGhr37+TV6G0LvjAGKsSRgYYqvpyCDZRUG+oipTEypM=;
+        s=korg; t=1675419776;
+        bh=zQYHj2KM02S7NwV8wPHwHGe2qHKXTCHAN6ATf9utus8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ukEfSm1tfsA3xFZjSIqV8m0fT6GAOgi3qmxhjDm9hOh2iV5ElUs4L3rDDE2LOH5oL
-         TSMzcMDv4xXPCTWJMdIWR3TdafQe7fIDsGERUUgjsECotNukqtFKhQaAyp0HQVNWGr
-         aHCuopzYPMoosVpqSqO19YvMmibFsg5rgb5mihss=
+        b=SNP3a22+Ohd1n0QVErt9ueJifs8fLtRNrxXJT1hRoAcBE7RFItIipXVo8HwRcraVg
+         yONpeSRn+a2uBqF3rIRdNmafKbm3MH+Q9ySrOfw5zXZlZz+X5IPjUwPyE1eiHcdbXL
+         VEKh3WKTEOOsqBJ25ja25lMH8ZXotjlVMMBroX4A=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Janne Grunau <j@jannau.net>,
-        Christoph Hellwig <hch@lst.de>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 23/28] nvme-apple: only reset the controller when RTKit is running
+        patches@lists.linux.dev, kernel test robot <lkp@intel.com>,
+        linux-hardening@vger.kernel.org, Kees Cook <keescook@chromium.org>,
+        Eric Biggers <ebiggers@google.com>
+Subject: [PATCH 4.19 77/80] docs: Fix path paste-o for /sys/kernel/warn_count
 Date:   Fri,  3 Feb 2023 11:13:11 +0100
-Message-Id: <20230203101010.958075281@linuxfoundation.org>
+Message-Id: <20230203101018.546022139@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.1
-In-Reply-To: <20230203101009.946745030@linuxfoundation.org>
-References: <20230203101009.946745030@linuxfoundation.org>
+In-Reply-To: <20230203101015.263854890@linuxfoundation.org>
+References: <20230203101015.263854890@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -52,42 +53,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Janne Grunau <j@jannau.net>
+From: Kees Cook <keescook@chromium.org>
 
-[ Upstream commit c0a4a1eafbd48e02829045bba3e6163c03037276 ]
+commit 00dd027f721e0458418f7750d8a5a664ed3e5994 upstream.
 
-NVMe controller register access hangs indefinitely when the co-processor
-is not running. A missed reset is preferable over a hanging thread since
-it could be recoverable.
+Running "make htmldocs" shows that "/sys/kernel/oops_count" was
+duplicated. This should have been "warn_count":
 
-Signed-off-by: Janne Grunau <j@jannau.net>
-Signed-off-by: Christoph Hellwig <hch@lst.de>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+  Warning: /sys/kernel/oops_count is defined 2 times:
+  ./Documentation/ABI/testing/sysfs-kernel-warn_count:0
+  ./Documentation/ABI/testing/sysfs-kernel-oops_count:0
+
+Fix the typo.
+
+Reported-by: kernel test robot <lkp@intel.com>
+Link: https://lore.kernel.org/linux-doc/202212110529.A3Qav8aR-lkp@intel.com
+Fixes: 8b05aa263361 ("panic: Expose "warn_count" to sysfs")
+Cc: linux-hardening@vger.kernel.org
+Signed-off-by: Kees Cook <keescook@chromium.org>
+Signed-off-by: Eric Biggers <ebiggers@google.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/nvme/host/apple.c | 6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ Documentation/ABI/testing/sysfs-kernel-warn_count |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/nvme/host/apple.c b/drivers/nvme/host/apple.c
-index ff8b083dc5c6..262d2b60ac6d 100644
---- a/drivers/nvme/host/apple.c
-+++ b/drivers/nvme/host/apple.c
-@@ -987,11 +987,11 @@ static void apple_nvme_reset_work(struct work_struct *work)
- 		goto out;
- 	}
- 
--	if (anv->ctrl.ctrl_config & NVME_CC_ENABLE)
--		apple_nvme_disable(anv, false);
--
- 	/* RTKit must be shut down cleanly for the (soft)-reset to work */
- 	if (apple_rtkit_is_running(anv->rtk)) {
-+		/* reset the controller if it is enabled */
-+		if (anv->ctrl.ctrl_config & NVME_CC_ENABLE)
-+			apple_nvme_disable(anv, false);
- 		dev_dbg(anv->dev, "Trying to shut down RTKit before reset.");
- 		ret = apple_rtkit_shutdown(anv->rtk);
- 		if (ret)
--- 
-2.39.0
-
+--- a/Documentation/ABI/testing/sysfs-kernel-warn_count
++++ b/Documentation/ABI/testing/sysfs-kernel-warn_count
+@@ -1,4 +1,4 @@
+-What:		/sys/kernel/oops_count
++What:		/sys/kernel/warn_count
+ Date:		November 2022
+ KernelVersion:	6.2.0
+ Contact:	Linux Kernel Hardening List <linux-hardening@vger.kernel.org>
 
 
