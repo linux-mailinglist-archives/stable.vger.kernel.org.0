@@ -2,41 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 51E3D68967F
-	for <lists+stable@lfdr.de>; Fri,  3 Feb 2023 11:32:10 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6A554689636
+	for <lists+stable@lfdr.de>; Fri,  3 Feb 2023 11:31:42 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233496AbjBCK20 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 3 Feb 2023 05:28:26 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50868 "EHLO
+        id S231759AbjBCK2B (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 3 Feb 2023 05:28:01 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50284 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233499AbjBCK2D (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 3 Feb 2023 05:28:03 -0500
+        with ESMTP id S230280AbjBCK1n (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 3 Feb 2023 05:27:43 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B474BA4293
-        for <stable@vger.kernel.org>; Fri,  3 Feb 2023 02:27:24 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E26F7A2A78
+        for <stable@vger.kernel.org>; Fri,  3 Feb 2023 02:27:01 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id E9BEC61EBA
-        for <stable@vger.kernel.org>; Fri,  3 Feb 2023 10:26:22 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id CDE76C433EF;
-        Fri,  3 Feb 2023 10:26:21 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id E1F9261EC2
+        for <stable@vger.kernel.org>; Fri,  3 Feb 2023 10:26:28 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D909AC433EF;
+        Fri,  3 Feb 2023 10:26:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1675419982;
-        bh=N/ZEUfMEHi/7Ti8SnwWQXS17rCalQc//wZIl1EmhCqI=;
+        s=korg; t=1675419988;
+        bh=JQHZBqIBruppcoaMDjh/ee0haDJY5sRTY4Wk+pKdAi8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Zif0PnwI/eJ1AGjWjNPycxVbkPEvjX8j9N2MJQYlp5G61EbMsG2KQDRHfnC5/Cu3P
-         d+6rApoZHOeRbFjcfn/egWf+6agmHMdbc0hdfHmrIs+6ixKCNCj4w7a2zlhfCPQQ41
-         N6P4cXjeQQAjIKqSnPQkorb3Ajweov3vAEPHAMlQ=
+        b=qJxUYfUebd5t5U+fre/XLdaiRN3oJwpMA4gh185Mf3/22RkHDu9XhuFL+1ZAUKyY9
+         S2u95NiuJCCwqw/x/DxlYdzc6pilquww84jX65ersFsP7MPyDW/SQO8Ya+3t26v++5
+         THQd1NJz9t+Roau2/zigyAjZCUMihMR814/1fky0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         patches@lists.linux.dev,
-        Pietro Borrello <borrello@diag.uniroma1.it>,
-        Jiri Kosina <jkosina@suse.cz>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 042/134] HID: betop: check shape of output reports
-Date:   Fri,  3 Feb 2023 11:12:27 +0100
-Message-Id: <20230203101025.760841428@linuxfoundation.org>
+        Radhey Shyam Pandey <radhey.shyam.pandey@xilinx.com>,
+        Vinod Koul <vkoul@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 043/134] dmaengine: xilinx_dma: use devm_platform_ioremap_resource()
+Date:   Fri,  3 Feb 2023 11:12:28 +0100
+Message-Id: <20230203101025.809964642@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.1
 In-Reply-To: <20230203101023.832083974@linuxfoundation.org>
 References: <20230203101023.832083974@linuxfoundation.org>
@@ -53,66 +53,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pietro Borrello <borrello@diag.uniroma1.it>
+From: Radhey Shyam Pandey <radhey.shyam.pandey@xilinx.com>
 
-[ Upstream commit 3782c0d6edf658b71354a64d60aa7a296188fc90 ]
+[ Upstream commit a8bd47542863947e2433db35558477caf0d89995 ]
 
-betopff_init() only checks the total sum of the report counts for each
-report field to be at least 4, but hid_betopff_play() expects 4 report
-fields.
-A device advertising an output report with one field and 4 report counts
-would pass the check but crash the kernel with a NULL pointer dereference
-in hid_betopff_play().
+Replace the chain of platform_get_resource() and devm_ioremap_resource()
+with devm_platform_ioremap_resource(). It simplifies the flow and there
+is no functional change.
 
-Fixes: 52cd7785f3cd ("HID: betop: add drivers/hid/hid-betopff.c")
-Signed-off-by: Pietro Borrello <borrello@diag.uniroma1.it>
-Signed-off-by: Jiri Kosina <jkosina@suse.cz>
+Fixes below cocinelle warning-
+WARNING: Use devm_platform_ioremap_resource for xdev -> regs
+
+Signed-off-by: Radhey Shyam Pandey <radhey.shyam.pandey@xilinx.com>
+Link: https://lore.kernel.org/r/1569495060-18117-4-git-send-email-radhey.shyam.pandey@xilinx.com
+Signed-off-by: Vinod Koul <vkoul@kernel.org>
+Stable-dep-of: 596b53ccc36a ("dmaengine: xilinx_dma: call of_node_put() when breaking out of for_each_child_of_node()")
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/hid/hid-betopff.c | 17 +++++++++--------
- 1 file changed, 9 insertions(+), 8 deletions(-)
+ drivers/dma/xilinx/xilinx_dma.c | 4 +---
+ 1 file changed, 1 insertion(+), 3 deletions(-)
 
-diff --git a/drivers/hid/hid-betopff.c b/drivers/hid/hid-betopff.c
-index 467d789f9bc2..25ed7b9a917e 100644
---- a/drivers/hid/hid-betopff.c
-+++ b/drivers/hid/hid-betopff.c
-@@ -60,7 +60,6 @@ static int betopff_init(struct hid_device *hid)
- 	struct list_head *report_list =
- 			&hid->report_enum[HID_OUTPUT_REPORT].report_list;
- 	struct input_dev *dev;
--	int field_count = 0;
- 	int error;
- 	int i, j;
+diff --git a/drivers/dma/xilinx/xilinx_dma.c b/drivers/dma/xilinx/xilinx_dma.c
+index 3bb711e735ab..8a7606bc326a 100644
+--- a/drivers/dma/xilinx/xilinx_dma.c
++++ b/drivers/dma/xilinx/xilinx_dma.c
+@@ -2626,7 +2626,6 @@ static int xilinx_dma_probe(struct platform_device *pdev)
+ 	struct device_node *node = pdev->dev.of_node;
+ 	struct xilinx_dma_device *xdev;
+ 	struct device_node *child, *np = pdev->dev.of_node;
+-	struct resource *io;
+ 	u32 num_frames, addr_width, len_width;
+ 	int i, err;
  
-@@ -86,19 +85,21 @@ static int betopff_init(struct hid_device *hid)
- 	 * -----------------------------------------
- 	 * Do init them with default value.
- 	 */
-+	if (report->maxfield < 4) {
-+		hid_err(hid, "not enough fields in the report: %d\n",
-+				report->maxfield);
-+		return -ENODEV;
-+	}
- 	for (i = 0; i < report->maxfield; i++) {
-+		if (report->field[i]->report_count < 1) {
-+			hid_err(hid, "no values in the field\n");
-+			return -ENODEV;
-+		}
- 		for (j = 0; j < report->field[i]->report_count; j++) {
- 			report->field[i]->value[j] = 0x00;
--			field_count++;
- 		}
- 	}
+@@ -2652,8 +2651,7 @@ static int xilinx_dma_probe(struct platform_device *pdev)
+ 		return err;
  
--	if (field_count < 4) {
--		hid_err(hid, "not enough fields in the report: %d\n",
--				field_count);
--		return -ENODEV;
--	}
--
- 	betopff = kzalloc(sizeof(*betopff), GFP_KERNEL);
- 	if (!betopff)
- 		return -ENOMEM;
+ 	/* Request and map I/O memory */
+-	io = platform_get_resource(pdev, IORESOURCE_MEM, 0);
+-	xdev->regs = devm_ioremap_resource(&pdev->dev, io);
++	xdev->regs = devm_platform_ioremap_resource(pdev, 0);
+ 	if (IS_ERR(xdev->regs))
+ 		return PTR_ERR(xdev->regs);
+ 
 -- 
 2.39.0
 
