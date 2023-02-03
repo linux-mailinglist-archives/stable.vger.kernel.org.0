@@ -2,50 +2,54 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 6A7C8689575
-	for <lists+stable@lfdr.de>; Fri,  3 Feb 2023 11:24:03 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3453F68965D
+	for <lists+stable@lfdr.de>; Fri,  3 Feb 2023 11:31:56 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233286AbjBCKTd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 3 Feb 2023 05:19:33 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40316 "EHLO
+        id S233640AbjBCK1P (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 3 Feb 2023 05:27:15 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50868 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233328AbjBCKTQ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 3 Feb 2023 05:19:16 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 11E40C67C
-        for <stable@vger.kernel.org>; Fri,  3 Feb 2023 02:18:36 -0800 (PST)
+        with ESMTP id S233671AbjBCK0o (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 3 Feb 2023 05:26:44 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4E81929E07;
+        Fri,  3 Feb 2023 02:26:12 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 91522B82A5F
-        for <stable@vger.kernel.org>; Fri,  3 Feb 2023 10:18:31 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id F291BC433A0;
-        Fri,  3 Feb 2023 10:18:29 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id E4159B82A64;
+        Fri,  3 Feb 2023 10:26:11 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 341F7C433EF;
+        Fri,  3 Feb 2023 10:26:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1675419510;
-        bh=T9VIyIm1xO5cjFvakPl7Bn+647iGGVdR06RocoiRhtc=;
+        s=korg; t=1675419970;
+        bh=VcV/YUL7hzCBqPMmzwqjqpefyyMIj0Z33w9qYR1G+Vg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Nt9sOsgWVzxmY8cmuD7SMBa1b6FycWFK2gPN84HpNrGQ4HjEulnwPy7Y/mx2tzOHk
-         zR6Y9oDYg5uF9qdxTuhxDJMw78SAROQ9PuPAsM4wtNrNm0FroM4hmAQfiY0dCcyWT+
-         ovWLYd1mEscsgzHRkgnI/Xdi0GzeHPj923QNdKZs=
+        b=ya1CmiFde+fAMrEHJzZoOJCCuGqCM/Mz0DUZQ0aFQBm/NqX62Nrbhz4mrOiGc7CYO
+         TOTyeJ03LGplczN3Dr8Y/5Cu4y0qomH+RZM/tVVnk7DDjF8a6nhXX9qQuiyHPV3Nsd
+         B5lQmgJsCLGWYHGvxWYexpOdniAda8caPHPWFveI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Liu Shixin <liushixin2@huawei.com>,
-        Peter Korsgaard <peter@korsgaard.com>,
-        Vinod Koul <vkoul@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 28/80] dmaengine: xilinx_dma: call of_node_put() when breaking out of for_each_child_of_node()
-Date:   Fri,  3 Feb 2023 11:12:22 +0100
-Message-Id: <20230203101016.370368918@linuxfoundation.org>
+        patches@lists.linux.dev, Randy Dunlap <rdunlap@infradead.org>,
+        Eli Cohen <eli@mellanox.com>,
+        Saeed Mahameed <saeedm@nvidia.com>,
+        Leon Romanovsky <leon@kernel.org>, linux-rdma@vger.kernel.org,
+        Ira Weiny <ira.weiny@intel.com>,
+        Leon Romanovsky <leonro@nvidia.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 038/134] net: mlx5: eliminate anonymous module_init & module_exit
+Date:   Fri,  3 Feb 2023 11:12:23 +0100
+Message-Id: <20230203101025.566572539@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.1
-In-Reply-To: <20230203101015.263854890@linuxfoundation.org>
-References: <20230203101015.263854890@linuxfoundation.org>
+In-Reply-To: <20230203101023.832083974@linuxfoundation.org>
+References: <20230203101023.832083974@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
         SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -53,39 +57,74 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Liu Shixin <liushixin2@huawei.com>
+From: Randy Dunlap <rdunlap@infradead.org>
 
-[ Upstream commit 596b53ccc36a546ab28e8897315c5b4d1d5a0200 ]
+[ Upstream commit 2c1e1b949024989e20907b84e11a731a50778416 ]
 
-Since for_each_child_of_node() will increase the refcount of node, we need
-to call of_node_put() manually when breaking out of the iteration.
+Eliminate anonymous module_init() and module_exit(), which can lead to
+confusion or ambiguity when reading System.map, crashes/oops/bugs,
+or an initcall_debug log.
 
-Fixes: 9cd4360de609 ("dma: Add Xilinx AXI Video Direct Memory Access Engine driver support")
-Signed-off-by: Liu Shixin <liushixin2@huawei.com>
-Acked-by: Peter Korsgaard <peter@korsgaard.com>
-Link: https://lore.kernel.org/r/20221122021612.1908866-1-liushixin2@huawei.com
-Signed-off-by: Vinod Koul <vkoul@kernel.org>
+Give each of these init and exit functions unique driver-specific
+names to eliminate the anonymous names.
+
+Example 1: (System.map)
+ ffffffff832fc78c t init
+ ffffffff832fc79e t init
+ ffffffff832fc8f8 t init
+
+Example 2: (initcall_debug log)
+ calling  init+0x0/0x12 @ 1
+ initcall init+0x0/0x12 returned 0 after 15 usecs
+ calling  init+0x0/0x60 @ 1
+ initcall init+0x0/0x60 returned 0 after 2 usecs
+ calling  init+0x0/0x9a @ 1
+ initcall init+0x0/0x9a returned 0 after 74 usecs
+
+Fixes: e126ba97dba9 ("mlx5: Add driver for Mellanox Connect-IB adapters")
+Signed-off-by: Randy Dunlap <rdunlap@infradead.org>
+Cc: Eli Cohen <eli@mellanox.com>
+Cc: Saeed Mahameed <saeedm@nvidia.com>
+Cc: Leon Romanovsky <leon@kernel.org>
+Cc: linux-rdma@vger.kernel.org
+Reviewed-by: Ira Weiny <ira.weiny@intel.com>
+Reviewed-by: Leon Romanovsky <leonro@nvidia.com>
+Signed-off-by: Saeed Mahameed <saeedm@nvidia.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/dma/xilinx/xilinx_dma.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ drivers/net/ethernet/mellanox/mlx5/core/main.c | 8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/dma/xilinx/xilinx_dma.c b/drivers/dma/xilinx/xilinx_dma.c
-index c56ce7cd1f6f..5f9945651e95 100644
---- a/drivers/dma/xilinx/xilinx_dma.c
-+++ b/drivers/dma/xilinx/xilinx_dma.c
-@@ -2759,8 +2759,10 @@ static int xilinx_dma_probe(struct platform_device *pdev)
- 	/* Initialize the channels */
- 	for_each_child_of_node(node, child) {
- 		err = xilinx_dma_child_probe(xdev, child);
--		if (err < 0)
-+		if (err < 0) {
-+			of_node_put(child);
- 			goto error;
-+		}
+diff --git a/drivers/net/ethernet/mellanox/mlx5/core/main.c b/drivers/net/ethernet/mellanox/mlx5/core/main.c
+index f2657cd3ffa4..83ee9429e7c6 100644
+--- a/drivers/net/ethernet/mellanox/mlx5/core/main.c
++++ b/drivers/net/ethernet/mellanox/mlx5/core/main.c
+@@ -1640,7 +1640,7 @@ static void mlx5_core_verify_params(void)
  	}
+ }
  
- 	if (xdev->dma_config->dmatype == XDMA_TYPE_VDMA) {
+-static int __init init(void)
++static int __init mlx5_init(void)
+ {
+ 	int err;
+ 
+@@ -1665,7 +1665,7 @@ static int __init init(void)
+ 	return err;
+ }
+ 
+-static void __exit cleanup(void)
++static void __exit mlx5_cleanup(void)
+ {
+ #ifdef CONFIG_MLX5_CORE_EN
+ 	mlx5e_cleanup();
+@@ -1674,5 +1674,5 @@ static void __exit cleanup(void)
+ 	mlx5_unregister_debugfs();
+ }
+ 
+-module_init(init);
+-module_exit(cleanup);
++module_init(mlx5_init);
++module_exit(mlx5_cleanup);
 -- 
 2.39.0
 
