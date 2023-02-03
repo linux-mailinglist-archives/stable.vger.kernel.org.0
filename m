@@ -2,46 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A86D16895C6
-	for <lists+stable@lfdr.de>; Fri,  3 Feb 2023 11:24:30 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 850EC68954F
+	for <lists+stable@lfdr.de>; Fri,  3 Feb 2023 11:18:57 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233363AbjBCKXf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 3 Feb 2023 05:23:35 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47190 "EHLO
+        id S232614AbjBCKRt (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 3 Feb 2023 05:17:49 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38574 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233406AbjBCKXZ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 3 Feb 2023 05:23:25 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DB3AB11E80
-        for <stable@vger.kernel.org>; Fri,  3 Feb 2023 02:23:04 -0800 (PST)
+        with ESMTP id S233284AbjBCKRk (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 3 Feb 2023 05:17:40 -0500
+Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F42199D047
+        for <stable@vger.kernel.org>; Fri,  3 Feb 2023 02:17:01 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 117CE61E6D
-        for <stable@vger.kernel.org>; Fri,  3 Feb 2023 10:23:00 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id BF2A3C433D2;
-        Fri,  3 Feb 2023 10:22:58 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id C5593CE2FAB
+        for <stable@vger.kernel.org>; Fri,  3 Feb 2023 10:16:59 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7CF67C433D2;
+        Fri,  3 Feb 2023 10:16:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1675419779;
-        bh=0+jcL0cpGh18gP3DGO0pTxKbweqX1ksJ6xgS3QQQsZc=;
+        s=korg; t=1675419418;
+        bh=jyPm1KNSmKtjnTkr16Tccpsz8TSyV0ZpYicolQ7H54s=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=giNSH+V0tF9YC4KVCHtRpU+dZ4TQ8gQrDOqAj0nn5PA+tN0Q1beG1/cIC7Cp0tZWi
-         Gf1DOYtYkIibtzXOaGJoHDTPA30YqVkITSfPMG9BhegxmJCnV5OL5ddgFt4EfowgJS
-         HqRvsqNCROPcFJHSIDnBhuZcPyDFtybwm5OytxAQ=
+        b=z1wZfgjAwc1I7qE7cIOJ3ijYSjf+BGoJ7W4vf1Mo59c1ek0A19wCKvJEr6BH2TPXj
+         5VL1huVPCzssNpb3MxVSyocmvYDIS/240dA7KJ+29RBUZbdGbzmLTWcWz1Gtm0Bhnb
+         QtcJBy7dSBz91bpjyw3yEXTV3TSGfu9RJbqJjgHE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        syzbot+a8e049cd3abd342936b6@syzkaller.appspotmail.com,
-        Gao Xiang <hsiangkao@linux.alibaba.com>,
-        Siddh Raman Pant <code@siddh.me>, Chao Yu <chao@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 07/28] erofs/zmap.c: Fix incorrect offset calculation
-Date:   Fri,  3 Feb 2023 11:12:55 +0100
-Message-Id: <20230203101010.285433065@linuxfoundation.org>
+        patches@lists.linux.dev, Michal Hocko <mhocko@suse.com>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Tom Herbert <tom@quantonium.net>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Rishabh Bhatnagar <risbhat@amazon.com>
+Subject: [PATCH 4.14 60/62] mm: kvmalloc does not fallback to vmalloc for incompatible gfp flags
+Date:   Fri,  3 Feb 2023 11:12:56 +0100
+Message-Id: <20230203101015.541835783@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.1
-In-Reply-To: <20230203101009.946745030@linuxfoundation.org>
-References: <20230203101009.946745030@linuxfoundation.org>
+In-Reply-To: <20230203101012.959398849@linuxfoundation.org>
+References: <20230203101012.959398849@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,61 +55,59 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Siddh Raman Pant <code@siddh.me>
+From: Michal Hocko <mhocko@suse.com>
 
-[ Upstream commit 6acd87d50998ef0afafc441613aeaf5a8f5c9eff ]
+commit ce91f6ee5b3bbbad8caff61b1c46d845c8db19bf upstream.
 
-Effective offset to add to length was being incorrectly calculated,
-which resulted in iomap->length being set to 0, triggering a WARN_ON
-in iomap_iter_done().
+kvmalloc warned about incompatible gfp_mask to catch abusers (mostly
+GFP_NOFS) with an intention that this will motivate authors of the code
+to fix those.  Linus argues that this just motivates people to do even
+more hacks like
 
-Fix that, and describe it in comments.
+	if (gfp == GFP_KERNEL)
+		kvmalloc
+	else
+		kmalloc
 
-This was reported as a crash by syzbot under an issue about a warning
-encountered in iomap_iter_done(), but unrelated to erofs.
+I haven't seen this happening much (Linus pointed to bucket_lock special
+cases an atomic allocation but my git foo hasn't found much more) but it
+is true that we can grow those in future.  Therefore Linus suggested to
+simply not fallback to vmalloc for incompatible gfp flags and rather
+stick with the kmalloc path.
 
-C reproducer: https://syzkaller.appspot.com/text?tag=ReproC&x=1037a6b2880000
-Kernel config: https://syzkaller.appspot.com/text?tag=KernelConfig&x=e2021a61197ebe02
-Dashboard link: https://syzkaller.appspot.com/bug?extid=a8e049cd3abd342936b6
-
-Reported-by: syzbot+a8e049cd3abd342936b6@syzkaller.appspotmail.com
-Suggested-by: Gao Xiang <hsiangkao@linux.alibaba.com>
-Signed-off-by: Siddh Raman Pant <code@siddh.me>
-Reviewed-by: Gao Xiang <hsiangkao@linux.alibaba.com>
-Reviewed-by: Chao Yu <chao@kernel.org>
-Link: https://lore.kernel.org/r/20221209102151.311049-1-code@siddh.me
-Signed-off-by: Gao Xiang <hsiangkao@linux.alibaba.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Link: http://lkml.kernel.org/r/20180601115329.27807-1-mhocko@kernel.org
+Signed-off-by: Michal Hocko <mhocko@suse.com>
+Suggested-by: Linus Torvalds <torvalds@linux-foundation.org>
+Cc: Tom Herbert <tom@quantonium.net>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Signed-off-by: Rishabh Bhatnagar <risbhat@amazon.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/erofs/zmap.c | 10 +++++++---
- 1 file changed, 7 insertions(+), 3 deletions(-)
+ mm/util.c |    6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
 
-diff --git a/fs/erofs/zmap.c b/fs/erofs/zmap.c
-index e6d5d7a18fb0..39cc014dba40 100644
---- a/fs/erofs/zmap.c
-+++ b/fs/erofs/zmap.c
-@@ -793,12 +793,16 @@ static int z_erofs_iomap_begin_report(struct inode *inode, loff_t offset,
- 		iomap->type = IOMAP_HOLE;
- 		iomap->addr = IOMAP_NULL_ADDR;
- 		/*
--		 * No strict rule how to describe extents for post EOF, yet
--		 * we need do like below. Otherwise, iomap itself will get
-+		 * No strict rule on how to describe extents for post EOF, yet
-+		 * we need to do like below. Otherwise, iomap itself will get
- 		 * into an endless loop on post EOF.
-+		 *
-+		 * Calculate the effective offset by subtracting extent start
-+		 * (map.m_la) from the requested offset, and add it to length.
-+		 * (NB: offset >= map.m_la always)
- 		 */
- 		if (iomap->offset >= inode->i_size)
--			iomap->length = length + map.m_la - offset;
-+			iomap->length = length + offset - map.m_la;
- 	}
- 	iomap->flags = 0;
- 	return 0;
--- 
-2.39.0
-
+--- a/mm/util.c
++++ b/mm/util.c
+@@ -400,7 +400,8 @@ EXPORT_SYMBOL(vm_mmap);
+  * __GFP_RETRY_MAYFAIL is supported, and it should be used only if kmalloc is
+  * preferable to the vmalloc fallback, due to visible performance drawbacks.
+  *
+- * Any use of gfp flags outside of GFP_KERNEL should be consulted with mm people.
++ * Please note that any use of gfp flags outside of GFP_KERNEL is careful to not
++ * fall back to vmalloc.
+  */
+ void *kvmalloc_node(size_t size, gfp_t flags, int node)
+ {
+@@ -411,7 +412,8 @@ void *kvmalloc_node(size_t size, gfp_t f
+ 	 * vmalloc uses GFP_KERNEL for some internal allocations (e.g page tables)
+ 	 * so the given set of flags has to be compatible.
+ 	 */
+-	WARN_ON_ONCE((flags & GFP_KERNEL) != GFP_KERNEL);
++	if ((flags & GFP_KERNEL) != GFP_KERNEL)
++		return kmalloc_node(size, flags, node);
+ 
+ 	/*
+ 	 * We want to attempt a large physically contiguous block first because
 
 
