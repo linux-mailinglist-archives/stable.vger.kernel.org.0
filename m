@@ -2,49 +2,49 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 689F7689616
-	for <lists+stable@lfdr.de>; Fri,  3 Feb 2023 11:31:31 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 27AEE689548
+	for <lists+stable@lfdr.de>; Fri,  3 Feb 2023 11:18:55 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233626AbjBCK1x (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 3 Feb 2023 05:27:53 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51302 "EHLO
+        id S233056AbjBCKR6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 3 Feb 2023 05:17:58 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38700 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233641AbjBCK1c (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 3 Feb 2023 05:27:32 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3E8C58AC07
-        for <stable@vger.kernel.org>; Fri,  3 Feb 2023 02:26:49 -0800 (PST)
+        with ESMTP id S233332AbjBCKRp (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 3 Feb 2023 05:17:45 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A3F9C9E9C2
+        for <stable@vger.kernel.org>; Fri,  3 Feb 2023 02:17:22 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 11664B82A71
-        for <stable@vger.kernel.org>; Fri,  3 Feb 2023 10:26:48 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 34DDDC433D2;
-        Fri,  3 Feb 2023 10:26:46 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 5FFCEB82A68
+        for <stable@vger.kernel.org>; Fri,  3 Feb 2023 10:17:17 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id BF6F9C433EF;
+        Fri,  3 Feb 2023 10:17:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1675420006;
-        bh=S7wEEfAUdIx5jrUJ1SbKokddBYPBiPwSPs3PZ6941d4=;
+        s=korg; t=1675419436;
+        bh=Y+IBNpG8WHY4TlSbPlQo/difBj8aGI83NtMEs+c9kMo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=xvC4ZyLtUYds382V/exxPQSIqFZLlCuLf15FGUieCpCxpcvuOZp/kA3EhKrMWthcF
-         QgnZO9Lwb9aUPzod2BLq7Evy/qNrgmU0hw07t/kRVRWf5gLBbl5gBGmqHeMzMf8F2k
-         WKVpRMP1qXXiZRgxXD1gtuHPkduyVeGACOxQtYdI=
+        b=TsJq85x1dE5OuWrt8ZgZgVAlKXhvFCxnPMtfuqgSMi1biO1TAd4Y8NAUIJRArNokl
+         YugY09UagQlehCd36JHrWov/0ykcb/xG2p+/qLO6eTfxNekOEGhCKAp+dP927KSYjD
+         oYEb7p89o/kdrLJkhKV+VwAEBalzZvsicop0+hN8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Chen Zhongjin <chenzhongjin@huawei.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 049/134] driver core: Fix test_async_probe_init saves device in wrong array
+        patches@lists.linux.dev, Baoquan He <bhe@redhat.com>,
+        Thomas Gleixner <tglx@linutronix.de>
+Subject: [PATCH 4.14 38/62] x86/i8259: Mark legacy PIC interrupts with IRQ_LEVEL
 Date:   Fri,  3 Feb 2023 11:12:34 +0100
-Message-Id: <20230203101026.075163074@linuxfoundation.org>
+Message-Id: <20230203101014.633031651@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.1
-In-Reply-To: <20230203101023.832083974@linuxfoundation.org>
-References: <20230203101023.832083974@linuxfoundation.org>
+In-Reply-To: <20230203101012.959398849@linuxfoundation.org>
+References: <20230203101012.959398849@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
         SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -52,46 +52,61 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Chen Zhongjin <chenzhongjin@huawei.com>
+From: Thomas Gleixner <tglx@linutronix.de>
 
-[ Upstream commit 9be182da0a7526f1b9a3777a336f83baa2e64d23 ]
+commit 5fa55950729d0762a787451dc52862c3f850f859 upstream.
 
-In test_async_probe_init, second set of asynchronous devices are saved
-in sync_dev[sync_id], which should be async_dev[async_id].
-This makes these devices not unregistered when exit.
+Baoquan reported that after triggering a crash the subsequent crash-kernel
+fails to boot about half of the time. It triggers a NULL pointer
+dereference in the periodic tick code.
 
-> modprobe test_async_driver_probe && \
-> modprobe -r test_async_driver_probe && \
-> modprobe test_async_driver_probe
- ...
-> sysfs: cannot create duplicate filename '/devices/platform/test_async_driver.4'
-> kobject_add_internal failed for test_async_driver.4 with -EEXIST,
-  don't try to register things with the same name in the same directory.
+This happens because the legacy timer interrupt (IRQ0) is resent in
+software which happens in soft interrupt (tasklet) context. In this context
+get_irq_regs() returns NULL which leads to the NULL pointer dereference.
 
-Fixes: 57ea974fb871 ("driver core: Rewrite test_async_driver_probe to cover serialization and NUMA affinity")
-Signed-off-by: Chen Zhongjin <chenzhongjin@huawei.com>
-Link: https://lore.kernel.org/r/20221125063541.241328-1-chenzhongjin@huawei.com
+The reason for the resend is a spurious APIC interrupt on the IRQ0 vector
+which is captured and leads to a resend when the legacy timer interrupt is
+enabled. This is wrong because the legacy PIC interrupts are level
+triggered and therefore should never be resent in software, but nothing
+ever sets the IRQ_LEVEL flag on those interrupts, so the core code does not
+know about their trigger type.
+
+Ensure that IRQ_LEVEL is set when the legacy PCI interrupts are set up.
+
+Fixes: a4633adcdbc1 ("[PATCH] genirq: add genirq sw IRQ-retrigger")
+Reported-by: Baoquan He <bhe@redhat.com>
+Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
+Tested-by: Baoquan He <bhe@redhat.com>
+Link: https://lore.kernel.org/r/87mt6rjrra.ffs@tglx
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/base/test/test_async_driver_probe.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ arch/x86/kernel/i8259.c   |    1 +
+ arch/x86/kernel/irqinit.c |    4 +++-
+ 2 files changed, 4 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/base/test/test_async_driver_probe.c b/drivers/base/test/test_async_driver_probe.c
-index 3bb7beb127a9..c157a912d673 100644
---- a/drivers/base/test/test_async_driver_probe.c
-+++ b/drivers/base/test/test_async_driver_probe.c
-@@ -146,7 +146,7 @@ static int __init test_async_probe_init(void)
- 	calltime = ktime_get();
- 	for_each_online_cpu(cpu) {
- 		nid = cpu_to_node(cpu);
--		pdev = &sync_dev[sync_id];
-+		pdev = &async_dev[async_id];
+--- a/arch/x86/kernel/i8259.c
++++ b/arch/x86/kernel/i8259.c
+@@ -114,6 +114,7 @@ static void make_8259A_irq(unsigned int
+ 	disable_irq_nosync(irq);
+ 	io_apic_irqs &= ~(1<<irq);
+ 	irq_set_chip_and_handler(irq, &i8259A_chip, handle_level_irq);
++	irq_set_status_flags(irq, IRQ_LEVEL);
+ 	enable_irq(irq);
+ }
  
- 		*pdev = test_platform_device_register_node("test_async_driver",
- 							   async_id,
--- 
-2.39.0
-
+--- a/arch/x86/kernel/irqinit.c
++++ b/arch/x86/kernel/irqinit.c
+@@ -67,8 +67,10 @@ void __init init_ISA_irqs(void)
+ #endif
+ 	legacy_pic->init(0);
+ 
+-	for (i = 0; i < nr_legacy_irqs(); i++)
++	for (i = 0; i < nr_legacy_irqs(); i++) {
+ 		irq_set_chip_and_handler(i, chip, handle_level_irq);
++		irq_set_status_flags(i, IRQ_LEVEL);
++	}
+ }
+ 
+ void __init init_IRQ(void)
 
 
