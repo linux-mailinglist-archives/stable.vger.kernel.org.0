@@ -2,41 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 2C6556895B6
-	for <lists+stable@lfdr.de>; Fri,  3 Feb 2023 11:24:25 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id BB9F368957C
+	for <lists+stable@lfdr.de>; Fri,  3 Feb 2023 11:24:05 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233400AbjBCKWk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 3 Feb 2023 05:22:40 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45370 "EHLO
+        id S233416AbjBCKWl (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 3 Feb 2023 05:22:41 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45230 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233419AbjBCKWf (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 3 Feb 2023 05:22:35 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D6B1E7EEA
-        for <stable@vger.kernel.org>; Fri,  3 Feb 2023 02:22:19 -0800 (PST)
+        with ESMTP id S233404AbjBCKWg (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 3 Feb 2023 05:22:36 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E75AC305F5
+        for <stable@vger.kernel.org>; Fri,  3 Feb 2023 02:22:20 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 75A65B82A71
-        for <stable@vger.kernel.org>; Fri,  3 Feb 2023 10:22:18 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B3B73C433EF;
-        Fri,  3 Feb 2023 10:22:16 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id C17B961E93
+        for <stable@vger.kernel.org>; Fri,  3 Feb 2023 10:22:20 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A970CC433D2;
+        Fri,  3 Feb 2023 10:22:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1675419737;
-        bh=iybTctbjMJ1gz+niId1IJbZDt4T31oDZ7QcrLv+nC6A=;
+        s=korg; t=1675419740;
+        bh=ELbqlGDDb+UQ0WFgO9/o22krNJoEoYaraEgDXwcPN1c=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=DvLaNmg2P3A1DvvMlC0CpwLmtWj7Q5SfQTdrngH1yJYPQJ6Wri/X6osM5Yoi0Njhl
-         bY7r56n+YTIqbMCezVG9nO17Y7PouMCYTzYD8qyn6zo9on1wO+oue8yeP9xrshQF3G
-         4aop3U0QYbrG0w9uPm2Q8XHUU66BEeFsWIT7zBWQ=
+        b=G58s7tBnbDyPITnfofdWdGqvK7n6PT0pHl1f8kUxdXGNc/LV/gEMvnVkcLR+yNt0O
+         wX1wLvdkTf/krP0CbnNn1T1IEqwIxLj60KvXqrykL4egDGpy0EZF7zESotS4HEGtED
+         4i2D9caTLkM52Mp4wXMNq56PVSyPiNbox4Fa5BIM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Hui Wang <hui.wang@canonical.com>,
-        Sascha Hauer <s.hauer@pengutronix.de>,
-        Vinod Koul <vkoul@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 20/28] dmaengine: imx-sdma: Fix a possible memory leak in sdma_transfer_init
-Date:   Fri,  3 Feb 2023 11:13:08 +0100
-Message-Id: <20230203101010.836950668@linuxfoundation.org>
+        patches@lists.linux.dev, Raul Rangel <rrangel@chromium.org>,
+        Mario Limonciello <mario.limonciello@amd.com>,
+        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
+        Bartosz Golaszewski <bartosz.golaszewski@linaro.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 6.1 21/28] gpiolib: acpi: Allow ignoring wake capability on pins that arent in _AEI
+Date:   Fri,  3 Feb 2023 11:13:09 +0100
+Message-Id: <20230203101010.877506293@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.1
 In-Reply-To: <20230203101009.946745030@linuxfoundation.org>
 References: <20230203101009.946745030@linuxfoundation.org>
@@ -53,47 +55,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hui Wang <hui.wang@canonical.com>
+From: Mario Limonciello <mario.limonciello@amd.com>
 
-[ Upstream commit 1417f59ac0b02130ee56c0c50794b9b257be3d17 ]
+[ Upstream commit 0e3b175f079247f0d40d2ab695999c309d3a7498 ]
 
-If the function sdma_load_context() fails, the sdma_desc will be
-freed, but the allocated desc->bd is forgot to be freed.
+Using the `ignore_wake` quirk or module parameter doesn't work for any pin
+that has been specified in the _CRS instead of _AEI.
 
-We already met the sdma_load_context() failure case and the log as
-below:
-[ 450.699064] imx-sdma 30bd0000.dma-controller: Timeout waiting for CH0 ready
-...
+Extend the `acpi_gpio_irq_is_wake` check to cover both places.
 
-In this case, the desc->bd will not be freed without this change.
-
-Signed-off-by: Hui Wang <hui.wang@canonical.com>
-Reviewed-by: Sascha Hauer <s.hauer@pengutronix.de>
-Link: https://lore.kernel.org/r/20221130090800.102035-1-hui.wang@canonical.com
-Signed-off-by: Vinod Koul <vkoul@kernel.org>
+Suggested-by: Raul Rangel <rrangel@chromium.org>
+Link: https://gitlab.freedesktop.org/drm/amd/-/issues/1722#note_1722335
+Signed-off-by: Mario Limonciello <mario.limonciello@amd.com>
+Reviewed-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Signed-off-by: Bartosz Golaszewski <bartosz.golaszewski@linaro.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/dma/imx-sdma.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ drivers/gpio/gpiolib-acpi.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/dma/imx-sdma.c b/drivers/dma/imx-sdma.c
-index fbea5f62dd98..b926abe4fa43 100644
---- a/drivers/dma/imx-sdma.c
-+++ b/drivers/dma/imx-sdma.c
-@@ -1521,10 +1521,12 @@ static struct sdma_desc *sdma_transfer_init(struct sdma_channel *sdmac,
- 		sdma_config_ownership(sdmac, false, true, false);
+diff --git a/drivers/gpio/gpiolib-acpi.c b/drivers/gpio/gpiolib-acpi.c
+index a7d2358736fe..27f234637a15 100644
+--- a/drivers/gpio/gpiolib-acpi.c
++++ b/drivers/gpio/gpiolib-acpi.c
+@@ -361,7 +361,7 @@ static bool acpi_gpio_in_ignore_list(const char *ignore_list, const char *contro
+ }
  
- 	if (sdma_load_context(sdmac))
--		goto err_desc_out;
-+		goto err_bd_out;
+ static bool acpi_gpio_irq_is_wake(struct device *parent,
+-				  struct acpi_resource_gpio *agpio)
++				  const struct acpi_resource_gpio *agpio)
+ {
+ 	unsigned int pin = agpio->pin_table[0];
  
- 	return desc;
+@@ -754,7 +754,7 @@ static int acpi_populate_gpio_lookup(struct acpi_resource *ares, void *data)
+ 		lookup->info.pin_config = agpio->pin_config;
+ 		lookup->info.debounce = agpio->debounce_timeout;
+ 		lookup->info.gpioint = gpioint;
+-		lookup->info.wake_capable = agpio->wake_capable == ACPI_WAKE_CAPABLE;
++		lookup->info.wake_capable = acpi_gpio_irq_is_wake(&lookup->info.adev->dev, agpio);
  
-+err_bd_out:
-+	sdma_free_bd(desc);
- err_desc_out:
- 	kfree(desc);
- err_out:
+ 		/*
+ 		 * Polarity and triggering are only specified for GpioInt
 -- 
 2.39.0
 
