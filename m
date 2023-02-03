@@ -2,50 +2,56 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 0AD1568963B
-	for <lists+stable@lfdr.de>; Fri,  3 Feb 2023 11:31:44 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 593606896D3
+	for <lists+stable@lfdr.de>; Fri,  3 Feb 2023 11:36:50 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233467AbjBCKZT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 3 Feb 2023 05:25:19 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48452 "EHLO
+        id S231764AbjBCKdH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 3 Feb 2023 05:33:07 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57504 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233486AbjBCKZJ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 3 Feb 2023 05:25:09 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8CE5F5CFF6
-        for <stable@vger.kernel.org>; Fri,  3 Feb 2023 02:24:49 -0800 (PST)
+        with ESMTP id S233799AbjBCKcl (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 3 Feb 2023 05:32:41 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9E81E9B710
+        for <stable@vger.kernel.org>; Fri,  3 Feb 2023 02:30:50 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id E5D0661E53
-        for <stable@vger.kernel.org>; Fri,  3 Feb 2023 10:24:36 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D1839C433D2;
-        Fri,  3 Feb 2023 10:24:35 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id B5BDC61E93
+        for <stable@vger.kernel.org>; Fri,  3 Feb 2023 10:30:49 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 71BA6C433D2;
+        Fri,  3 Feb 2023 10:30:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1675419876;
-        bh=2EkidmGYR9Fi14vrQ/xIDvANimnqugpun2Vo+Jh5rfs=;
+        s=korg; t=1675420249;
+        bh=9FidlJcEhJHtishjM7jVZMhDHOWZFApTavm2KXLgwXU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=BsFEG5ab/nAdTlBKZFAd0B2mhBbCv62JNKwS1QnEpjX40QH4l2OVeMhh5GFhnz2Ps
-         wvmU+QaZP/l26o/rlVmZzDhr3SDVwzgo2jVMDVBWXejMNCaM8vnolP+UaPwjUr9IP+
-         htIiZSXUiA+2vJD7hGtoJtOEClABvX1jmRJ21vUY=
+        b=tRPn0ayBLKEVi/MQdc0UNrrNFBtuVYXTaK8qp4IMY4tCTMEEI1G9h9+LJjpQ2A3ZT
+         nXDMUfipYyRQmHYY2q/l5A21fRGymg12KwHbUUpn3W3507zXFvVu2R68u91eNQTWI7
+         84SmfFi1Jw8mnGVB+WFjgByGnhXKpch1Lt0a1tog=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Jeremy Kerr <jk@codeconstruct.com.au>,
-        Pavan Chebbi <pavan.chebbi@broadcom.com>,
-        Jakub Kicinski <kuba@kernel.org>
-Subject: [PATCH 5.15 20/20] net: mctp: purge receive queues on sk destruction
+        patches@lists.linux.dev, Randy Dunlap <rdunlap@infradead.org>,
+        Christoph Hellwig <hch@infradead.org>,
+        Christoph Hellwig <hch@lst.de>,
+        "Eric W. Biederman" <ebiederm@xmission.com>,
+        Tony Luck <tony.luck@intel.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Eric Biggers <ebiggers@google.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 122/134] ia64: make IA64_MCA_RECOVERY bool instead of tristate
 Date:   Fri,  3 Feb 2023 11:13:47 +0100
-Message-Id: <20230203101008.845565463@linuxfoundation.org>
+Message-Id: <20230203101029.302949128@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.1
-In-Reply-To: <20230203101007.985835823@linuxfoundation.org>
-References: <20230203101007.985835823@linuxfoundation.org>
+In-Reply-To: <20230203101023.832083974@linuxfoundation.org>
+References: <20230203101023.832083974@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
         SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -53,46 +59,53 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jeremy Kerr <jk@codeconstruct.com.au>
+From: Randy Dunlap <rdunlap@infradead.org>
 
-commit 60bd1d9008a50cc78c4033a16a6f5d78210d481c upstream.
+commit dbecf9b8b8ce580f4e11afed9d61e8aa294cddd2 upstream.
 
-We may have pending skbs in the receive queue when the sk is being
-destroyed; add a destructor to purge the queue.
+In linux-next, IA64_MCA_RECOVERY uses the (new) function
+make_task_dead(), which is not exported for use by modules.  Instead of
+exporting it for one user, convert IA64_MCA_RECOVERY to be a bool
+Kconfig symbol.
 
-MCTP doesn't use the error queue, so only the receive_queue is purged.
+In a config file from "kernel test robot <lkp@intel.com>" for a
+different problem, this linker error was exposed when
+CONFIG_IA64_MCA_RECOVERY=m.
 
-Fixes: 833ef3b91de6 ("mctp: Populate socket implementation")
-Signed-off-by: Jeremy Kerr <jk@codeconstruct.com.au>
-Reviewed-by: Pavan Chebbi <pavan.chebbi@broadcom.com>
-Link: https://lore.kernel.org/r/20230126064551.464468-1-jk@codeconstruct.com.au
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes this build error:
+
+  ERROR: modpost: "make_task_dead" [arch/ia64/kernel/mca_recovery.ko] undefined!
+
+Link: https://lkml.kernel.org/r/20220124213129.29306-1-rdunlap@infradead.org
+Fixes: 0e25498f8cd4 ("exit: Add and use make_task_dead.")
+Signed-off-by: Randy Dunlap <rdunlap@infradead.org>
+Suggested-by: Christoph Hellwig <hch@infradead.org>
+Reviewed-by: Christoph Hellwig <hch@lst.de>
+Reviewed-by: "Eric W. Biederman" <ebiederm@xmission.com>
+Cc: Tony Luck <tony.luck@intel.com>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Signed-off-by: Eric Biggers <ebiggers@google.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/mctp/af_mctp.c |    6 ++++++
- 1 file changed, 6 insertions(+)
+ arch/ia64/Kconfig | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/net/mctp/af_mctp.c
-+++ b/net/mctp/af_mctp.c
-@@ -294,6 +294,11 @@ static void mctp_sk_unhash(struct sock *
- 	synchronize_rcu();
- }
+diff --git a/arch/ia64/Kconfig b/arch/ia64/Kconfig
+index 16714477eef4..6a6036f16abe 100644
+--- a/arch/ia64/Kconfig
++++ b/arch/ia64/Kconfig
+@@ -360,7 +360,7 @@ config ARCH_PROC_KCORE_TEXT
+ 	depends on PROC_KCORE
  
-+static void mctp_sk_destruct(struct sock *sk)
-+{
-+	skb_queue_purge(&sk->sk_receive_queue);
-+}
-+
- static struct proto mctp_proto = {
- 	.name		= "MCTP",
- 	.owner		= THIS_MODULE,
-@@ -330,6 +335,7 @@ static int mctp_pf_create(struct net *ne
- 		return -ENOMEM;
+ config IA64_MCA_RECOVERY
+-	tristate "MCA recovery from errors other than TLB."
++	bool "MCA recovery from errors other than TLB."
  
- 	sock_init_data(sock, sk);
-+	sk->sk_destruct = mctp_sk_destruct;
- 
- 	rc = 0;
- 	if (sk->sk_prot->init)
+ config PERFMON
+ 	bool "Performance monitor support"
+-- 
+2.39.0
+
 
 
