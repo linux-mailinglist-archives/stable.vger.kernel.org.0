@@ -2,32 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id ADCC36895A2
-	for <lists+stable@lfdr.de>; Fri,  3 Feb 2023 11:24:17 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1F6E6689635
+	for <lists+stable@lfdr.de>; Fri,  3 Feb 2023 11:31:42 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233452AbjBCKXr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 3 Feb 2023 05:23:47 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47140 "EHLO
+        id S232768AbjBCKY6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 3 Feb 2023 05:24:58 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47816 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233443AbjBCKXk (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 3 Feb 2023 05:23:40 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A611C5A370
-        for <stable@vger.kernel.org>; Fri,  3 Feb 2023 02:23:20 -0800 (PST)
+        with ESMTP id S233439AbjBCKYd (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 3 Feb 2023 05:24:33 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EC2C9A1445
+        for <stable@vger.kernel.org>; Fri,  3 Feb 2023 02:24:02 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id AD981B82A70
-        for <stable@vger.kernel.org>; Fri,  3 Feb 2023 10:23:18 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id EBACBC433EF;
-        Fri,  3 Feb 2023 10:23:16 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 4CACE61E53
+        for <stable@vger.kernel.org>; Fri,  3 Feb 2023 10:24:01 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 36FF5C433D2;
+        Fri,  3 Feb 2023 10:24:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1675419797;
-        bh=kDp6C65pVdVqhY4qD81CaQMBTLjF4OYidp1jbJSNjkk=;
+        s=korg; t=1675419840;
+        bh=3vgnvte2osfMBtMjrtOmBoOUizzuO4dZOocQHADAMOo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=JXv2Ode6pLPlbVowOVbZD7PA2CGcA3UycjZ7k1tvcKMQUrm3/Rmrrnh+jDt8HqcAF
-         F+itqiDzJqnnIp1mTuue0MN/p37XQpe5xQujJ8DM174QbUg7rn97Rc261lXanldFeg
-         ta+VjyqDFilxni4xHMLe5m2wtAuqfbjuA8e+0SM4=
+        b=UjNvF7teWmCgHuH+CQ50oTrYtfvlwaDmSibO1U8vpS/X7wCTAfLQdcylg+aauCSmR
+         wg1DHJxY5H4xmXlOnfhO7N0qe6mTcg+6eFsqRZNcX/d+X/83CP+fIhmNPizJKy2YZ7
+         Oo8r7I5fmDm7qYu49LjWwrp5cQmxDYVJc8gsKGFw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
@@ -35,19 +35,20 @@ Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         Daniel Borkmann <daniel@iogearbox.net>,
         Stanislav Fomichev <sdf@google.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 4/9] bpf: Skip task with pid=1 in send_signal_common()
+Subject: [PATCH 5.15 06/20] bpf: Skip task with pid=1 in send_signal_common()
 Date:   Fri,  3 Feb 2023 11:13:33 +0100
-Message-Id: <20230203101006.615032192@linuxfoundation.org>
+Message-Id: <20230203101008.264445148@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.1
-In-Reply-To: <20230203101006.422534094@linuxfoundation.org>
-References: <20230203101006.422534094@linuxfoundation.org>
+In-Reply-To: <20230203101007.985835823@linuxfoundation.org>
+References: <20230203101007.985835823@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
         DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
-        SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
+        SPF_HELO_NONE,SPF_PASS autolearn=unavailable autolearn_force=no
+        version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
@@ -94,10 +95,10 @@ Signed-off-by: Sasha Levin <sashal@kernel.org>
  1 file changed, 3 insertions(+)
 
 diff --git a/kernel/trace/bpf_trace.c b/kernel/trace/bpf_trace.c
-index a9e074769881..ab4f51716645 100644
+index c289010b0964..4daf1e044556 100644
 --- a/kernel/trace/bpf_trace.c
 +++ b/kernel/trace/bpf_trace.c
-@@ -1072,6 +1072,9 @@ static int bpf_send_signal_common(u32 sig, enum pid_type type)
+@@ -793,6 +793,9 @@ static int bpf_send_signal_common(u32 sig, enum pid_type type)
  		return -EPERM;
  	if (unlikely(!nmi_uaccess_okay()))
  		return -EPERM;
