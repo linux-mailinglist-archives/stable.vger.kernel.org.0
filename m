@@ -2,52 +2,57 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 87CA06895C0
-	for <lists+stable@lfdr.de>; Fri,  3 Feb 2023 11:24:28 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2DCBF689525
+	for <lists+stable@lfdr.de>; Fri,  3 Feb 2023 11:18:41 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232320AbjBCKUa (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 3 Feb 2023 05:20:30 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42152 "EHLO
+        id S232943AbjBCKR1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 3 Feb 2023 05:17:27 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37892 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233252AbjBCKU1 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 3 Feb 2023 05:20:27 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7FE959D077
-        for <stable@vger.kernel.org>; Fri,  3 Feb 2023 02:19:58 -0800 (PST)
+        with ESMTP id S232774AbjBCKRK (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 3 Feb 2023 05:17:10 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2BECA9A81D;
+        Fri,  3 Feb 2023 02:16:41 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 5CC1F61EC7
-        for <stable@vger.kernel.org>; Fri,  3 Feb 2023 10:19:58 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 36E15C43445;
-        Fri,  3 Feb 2023 10:19:56 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 5C780B82A6B;
+        Fri,  3 Feb 2023 10:16:37 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 56B72C433EF;
+        Fri,  3 Feb 2023 10:16:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1675419597;
-        bh=/7tGmQpodQQCCoquCRtHw2lMQVC10Tt6IbLG1z+ngzw=;
+        s=korg; t=1675419396;
+        bh=N+rV6EKhDZsum/KiBap1+KzA3Es3Qr9XZnZ+bEtsFeQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ccLyTnJ2nhjeafcVJU4UJr9w3ovnVMhihjYzlgzAoAasHctyIzNP18LmI9X7piKcS
-         f9UjV3tFh67TmEHAs2hedq0J4oH6PO5THc4fyNLLYYGZrlLOxsxU0A4d/XeuSLtApk
-         byNpEuj/6/T4b3DT+gL8f9/zUZ41wEd1OPpnLixM=
+        b=VYydFemeHJYfyhryNJw8nyPu3TRwZwSZ8NiIogePiyANQLfEYSWbOJ7fw/vwn7BMj
+         ZycOk/LZfuvSL4WZ1jcrMXwiktpS9F7ZMGmlAs7X3iIRagDdQXF57saYsOI/OSM6mO
+         hUmiLM36qscePgGa2wiwNiKcTe9rhUU4RRVYc7DU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        David Christensen <drc@linux.vnet.ibm.com>,
-        Pavan Chebbi <pavan.chebbi@broadcom.com>,
-        Jakub Kicinski <kuba@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 56/80] net/tg3: resolve deadlock in tg3_reset_task() during EEH
+        patches@lists.linux.dev, Jann Horn <jannh@google.com>,
+        Jonathan Corbet <corbet@lwn.net>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Baolin Wang <baolin.wang@linux.alibaba.com>,
+        "Jason A. Donenfeld" <Jason@zx2c4.com>,
+        Eric Biggers <ebiggers@google.com>,
+        Huang Ying <ying.huang@intel.com>,
+        "Eric W. Biederman" <ebiederm@xmission.com>,
+        Arnd Bergmann <arnd@arndb.de>, linux-doc@vger.kernel.org,
+        Kees Cook <keescook@chromium.org>
+Subject: [PATCH 4.14 54/62] exit: Allow oops_limit to be disabled
 Date:   Fri,  3 Feb 2023 11:12:50 +0100
-Message-Id: <20230203101017.593729487@linuxfoundation.org>
+Message-Id: <20230203101015.275705468@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.1
-In-Reply-To: <20230203101015.263854890@linuxfoundation.org>
-References: <20230203101015.263854890@linuxfoundation.org>
+In-Reply-To: <20230203101012.959398849@linuxfoundation.org>
+References: <20230203101012.959398849@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
         SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -55,119 +60,55 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: David Christensen <drc@linux.vnet.ibm.com>
+From: Kees Cook <keescook@chromium.org>
 
-[ Upstream commit 6c4ca03bd890566d873e3593b32d034bf2f5a087 ]
+commit de92f65719cd672f4b48397540b9f9eff67eca40 upstream.
 
-During EEH error injection testing, a deadlock was encountered in the tg3
-driver when tg3_io_error_detected() was attempting to cancel outstanding
-reset tasks:
+In preparation for keeping oops_limit logic in sync with warn_limit,
+have oops_limit == 0 disable checking the Oops counter.
 
-crash> foreach UN bt
-...
-PID: 159    TASK: c0000000067c6000  CPU: 8   COMMAND: "eehd"
-...
- #5 [c00000000681f990] __cancel_work_timer at c00000000019fd18
- #6 [c00000000681fa30] tg3_io_error_detected at c00800000295f098 [tg3]
- #7 [c00000000681faf0] eeh_report_error at c00000000004e25c
-...
-
-PID: 290    TASK: c000000036e5f800  CPU: 6   COMMAND: "kworker/6:1"
-...
- #4 [c00000003721fbc0] rtnl_lock at c000000000c940d8
- #5 [c00000003721fbe0] tg3_reset_task at c008000002969358 [tg3]
- #6 [c00000003721fc60] process_one_work at c00000000019e5c4
-...
-
-PID: 296    TASK: c000000037a65800  CPU: 21  COMMAND: "kworker/21:1"
-...
- #4 [c000000037247bc0] rtnl_lock at c000000000c940d8
- #5 [c000000037247be0] tg3_reset_task at c008000002969358 [tg3]
- #6 [c000000037247c60] process_one_work at c00000000019e5c4
-...
-
-PID: 655    TASK: c000000036f49000  CPU: 16  COMMAND: "kworker/16:2"
-...:1
-
- #4 [c0000000373ebbc0] rtnl_lock at c000000000c940d8
- #5 [c0000000373ebbe0] tg3_reset_task at c008000002969358 [tg3]
- #6 [c0000000373ebc60] process_one_work at c00000000019e5c4
-...
-
-Code inspection shows that both tg3_io_error_detected() and
-tg3_reset_task() attempt to acquire the RTNL lock at the beginning of
-their code blocks.  If tg3_reset_task() should happen to execute between
-the times when tg3_io_error_deteced() acquires the RTNL lock and
-tg3_reset_task_cancel() is called, a deadlock will occur.
-
-Moving tg3_reset_task_cancel() call earlier within the code block, prior
-to acquiring RTNL, prevents this from happening, but also exposes another
-deadlock issue where tg3_reset_task() may execute AFTER
-tg3_io_error_detected() has executed:
-
-crash> foreach UN bt
-PID: 159    TASK: c0000000067d2000  CPU: 9   COMMAND: "eehd"
-...
- #4 [c000000006867a60] rtnl_lock at c000000000c940d8
- #5 [c000000006867a80] tg3_io_slot_reset at c0080000026c2ea8 [tg3]
- #6 [c000000006867b00] eeh_report_reset at c00000000004de88
-...
-PID: 363    TASK: c000000037564000  CPU: 6   COMMAND: "kworker/6:1"
-...
- #3 [c000000036c1bb70] msleep at c000000000259e6c
- #4 [c000000036c1bba0] napi_disable at c000000000c6b848
- #5 [c000000036c1bbe0] tg3_reset_task at c0080000026d942c [tg3]
- #6 [c000000036c1bc60] process_one_work at c00000000019e5c4
-...
-
-This issue can be avoided by aborting tg3_reset_task() if EEH error
-recovery is already in progress.
-
-Fixes: db84bf43ef23 ("tg3: tg3_reset_task() needs to use rtnl_lock to synchronize")
-Signed-off-by: David Christensen <drc@linux.vnet.ibm.com>
-Reviewed-by: Pavan Chebbi <pavan.chebbi@broadcom.com>
-Link: https://lore.kernel.org/r/20230124185339.225806-1-drc@linux.vnet.ibm.com
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Cc: Jann Horn <jannh@google.com>
+Cc: Jonathan Corbet <corbet@lwn.net>
+Cc: Andrew Morton <akpm@linux-foundation.org>
+Cc: Baolin Wang <baolin.wang@linux.alibaba.com>
+Cc: "Jason A. Donenfeld" <Jason@zx2c4.com>
+Cc: Eric Biggers <ebiggers@google.com>
+Cc: Huang Ying <ying.huang@intel.com>
+Cc: "Eric W. Biederman" <ebiederm@xmission.com>
+Cc: Arnd Bergmann <arnd@arndb.de>
+Cc: linux-doc@vger.kernel.org
+Signed-off-by: Kees Cook <keescook@chromium.org>
+Signed-off-by: Eric Biggers <ebiggers@google.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ethernet/broadcom/tg3.c | 8 ++++----
- 1 file changed, 4 insertions(+), 4 deletions(-)
+ Documentation/sysctl/kernel.txt |    5 +++--
+ kernel/exit.c                   |    2 +-
+ 2 files changed, 4 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/net/ethernet/broadcom/tg3.c b/drivers/net/ethernet/broadcom/tg3.c
-index d1ca3d3f51a7..2cf144bbef3e 100644
---- a/drivers/net/ethernet/broadcom/tg3.c
-+++ b/drivers/net/ethernet/broadcom/tg3.c
-@@ -11189,7 +11189,7 @@ static void tg3_reset_task(struct work_struct *work)
- 	rtnl_lock();
- 	tg3_full_lock(tp, 0);
+--- a/Documentation/sysctl/kernel.txt
++++ b/Documentation/sysctl/kernel.txt
+@@ -519,8 +519,9 @@ scanned for a given scan.
+ oops_limit:
  
--	if (!netif_running(tp->dev)) {
-+	if (tp->pcierr_recovery || !netif_running(tp->dev)) {
- 		tg3_flag_clear(tp, RESET_TASK_PENDING);
- 		tg3_full_unlock(tp);
- 		rtnl_unlock();
-@@ -18240,6 +18240,9 @@ static pci_ers_result_t tg3_io_error_detected(struct pci_dev *pdev,
+ Number of kernel oopses after which the kernel should panic when
+-``panic_on_oops`` is not set. Setting this to 0 or 1 has the same effect
+-as setting ``panic_on_oops=1``.
++``panic_on_oops`` is not set. Setting this to 0 disables checking
++the count. Setting this to  1 has the same effect as setting
++``panic_on_oops=1``. The default value is 10000.
  
- 	netdev_info(netdev, "PCI I/O error detected\n");
+ ==============================================================
  
-+	/* Want to make sure that the reset task doesn't run */
-+	tg3_reset_task_cancel(tp);
-+
- 	rtnl_lock();
+--- a/kernel/exit.c
++++ b/kernel/exit.c
+@@ -984,7 +984,7 @@ void __noreturn make_task_dead(int signr
+ 	 * To make sure this can't happen, place an upper bound on how often the
+ 	 * kernel may oops without panic().
+ 	 */
+-	if (atomic_inc_return(&oops_count) >= READ_ONCE(oops_limit))
++	if (atomic_inc_return(&oops_count) >= READ_ONCE(oops_limit) && oops_limit)
+ 		panic("Oopsed too often (kernel.oops_limit is %d)", oops_limit);
  
- 	/* Could be second call or maybe we don't have netdev yet */
-@@ -18256,9 +18259,6 @@ static pci_ers_result_t tg3_io_error_detected(struct pci_dev *pdev,
- 
- 	tg3_timer_stop(tp);
- 
--	/* Want to make sure that the reset task doesn't run */
--	tg3_reset_task_cancel(tp);
--
- 	netif_device_detach(netdev);
- 
- 	/* Clean up software state, even if MMIO is blocked */
--- 
-2.39.0
-
+ 	do_exit(signr);
 
 
