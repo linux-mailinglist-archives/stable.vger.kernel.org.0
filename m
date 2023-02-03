@@ -2,43 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 6B0866896EF
-	for <lists+stable@lfdr.de>; Fri,  3 Feb 2023 11:36:59 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 521A368962F
+	for <lists+stable@lfdr.de>; Fri,  3 Feb 2023 11:31:40 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232455AbjBCKdE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 3 Feb 2023 05:33:04 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57054 "EHLO
+        id S233708AbjBCKa0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 3 Feb 2023 05:30:26 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50316 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233786AbjBCKci (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 3 Feb 2023 05:32:38 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1D6D3A001F
-        for <stable@vger.kernel.org>; Fri,  3 Feb 2023 02:30:46 -0800 (PST)
+        with ESMTP id S233825AbjBCKaA (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 3 Feb 2023 05:30:00 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CDA47CA08
+        for <stable@vger.kernel.org>; Fri,  3 Feb 2023 02:29:16 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 5BBE7B82A64
-        for <stable@vger.kernel.org>; Fri,  3 Feb 2023 10:30:44 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 87F1DC433EF;
-        Fri,  3 Feb 2023 10:30:42 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 8B74061EC3
+        for <stable@vger.kernel.org>; Fri,  3 Feb 2023 10:29:16 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7F14DC433D2;
+        Fri,  3 Feb 2023 10:29:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1675420243;
-        bh=aPSnzCcBEqjgNcnqUr+4Ouij1d5VjhzztWABYHevL60=;
+        s=korg; t=1675420155;
+        bh=HN0VHEpgGcHB0xexks/sWMOfOg7F/2yWXVj5l/Vt4X8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=y8TWHyYEBhg2LVHQFkMvLjslQhOXvg6RjQI+RTq0DdChEjYaxmuTOmsN8dXn2wNa9
-         DtlHviHgToQgJVBj602M8/WHhVMYCGiWzFk0HswI9w8BjvEuyH2xHKrkg304KmdFQ0
-         2KNXrOzuFP0WCfefzkirhznC4PiPWFDNtmVUKJGs=
+        b=ffknQllCU1e7GeKrVvk5aZ5VKQxWzou/jFkelxjy7JnV+dImUXHH7TLlHp7b/v28B
+         F6t6xtBKsuKHHHRoKVJBDSKR08XtujHUEINTEm3Ryz+fOqUUarE//5XdQG0HJy1Yu7
+         Ctx4tGA23lKqytclrfcIv4Lel3qhTG1uVh5DUIQY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        David Christensen <drc@linux.vnet.ibm.com>,
-        Pavan Chebbi <pavan.chebbi@broadcom.com>,
-        Jakub Kicinski <kuba@kernel.org>,
+        patches@lists.linux.dev, Florian Fainelli <f.fainelli@gmail.com>,
+        Andrew Lunn <andrew@lunn.ch>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 098/134] net/tg3: resolve deadlock in tg3_reset_task() during EEH
-Date:   Fri,  3 Feb 2023 11:13:23 +0100
-Message-Id: <20230203101028.261102275@linuxfoundation.org>
+Subject: [PATCH 5.4 099/134] net/phy/mdio-i2c: Move header file to include/linux/mdio
+Date:   Fri,  3 Feb 2023 11:13:24 +0100
+Message-Id: <20230203101028.300350389@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.1
 In-Reply-To: <20230203101023.832083974@linuxfoundation.org>
 References: <20230203101023.832083974@linuxfoundation.org>
@@ -55,117 +54,83 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: David Christensen <drc@linux.vnet.ibm.com>
+From: Andrew Lunn <andrew@lunn.ch>
 
-[ Upstream commit 6c4ca03bd890566d873e3593b32d034bf2f5a087 ]
+[ Upstream commit fcba68bd75bb1d42b3aec7f471d382a9e639a672 ]
 
-During EEH error injection testing, a deadlock was encountered in the tg3
-driver when tg3_io_error_detected() was attempting to cancel outstanding
-reset tasks:
+In preparation for moving all MDIO drivers into drivers/net/mdio, move
+the mdio-i2c header file into include/linux/mdio so it can be used by
+both the MDIO driver and the SFP code which instantiates I2C MDIO
+busses.
 
-crash> foreach UN bt
-...
-PID: 159    TASK: c0000000067c6000  CPU: 8   COMMAND: "eehd"
-...
- #5 [c00000000681f990] __cancel_work_timer at c00000000019fd18
- #6 [c00000000681fa30] tg3_io_error_detected at c00800000295f098 [tg3]
- #7 [c00000000681faf0] eeh_report_error at c00000000004e25c
-...
+v2:
+Add include/linux/mdio
 
-PID: 290    TASK: c000000036e5f800  CPU: 6   COMMAND: "kworker/6:1"
-...
- #4 [c00000003721fbc0] rtnl_lock at c000000000c940d8
- #5 [c00000003721fbe0] tg3_reset_task at c008000002969358 [tg3]
- #6 [c00000003721fc60] process_one_work at c00000000019e5c4
-...
-
-PID: 296    TASK: c000000037a65800  CPU: 21  COMMAND: "kworker/21:1"
-...
- #4 [c000000037247bc0] rtnl_lock at c000000000c940d8
- #5 [c000000037247be0] tg3_reset_task at c008000002969358 [tg3]
- #6 [c000000037247c60] process_one_work at c00000000019e5c4
-...
-
-PID: 655    TASK: c000000036f49000  CPU: 16  COMMAND: "kworker/16:2"
-...:1
-
- #4 [c0000000373ebbc0] rtnl_lock at c000000000c940d8
- #5 [c0000000373ebbe0] tg3_reset_task at c008000002969358 [tg3]
- #6 [c0000000373ebc60] process_one_work at c00000000019e5c4
-...
-
-Code inspection shows that both tg3_io_error_detected() and
-tg3_reset_task() attempt to acquire the RTNL lock at the beginning of
-their code blocks.  If tg3_reset_task() should happen to execute between
-the times when tg3_io_error_deteced() acquires the RTNL lock and
-tg3_reset_task_cancel() is called, a deadlock will occur.
-
-Moving tg3_reset_task_cancel() call earlier within the code block, prior
-to acquiring RTNL, prevents this from happening, but also exposes another
-deadlock issue where tg3_reset_task() may execute AFTER
-tg3_io_error_detected() has executed:
-
-crash> foreach UN bt
-PID: 159    TASK: c0000000067d2000  CPU: 9   COMMAND: "eehd"
-...
- #4 [c000000006867a60] rtnl_lock at c000000000c940d8
- #5 [c000000006867a80] tg3_io_slot_reset at c0080000026c2ea8 [tg3]
- #6 [c000000006867b00] eeh_report_reset at c00000000004de88
-...
-PID: 363    TASK: c000000037564000  CPU: 6   COMMAND: "kworker/6:1"
-...
- #3 [c000000036c1bb70] msleep at c000000000259e6c
- #4 [c000000036c1bba0] napi_disable at c000000000c6b848
- #5 [c000000036c1bbe0] tg3_reset_task at c0080000026d942c [tg3]
- #6 [c000000036c1bc60] process_one_work at c00000000019e5c4
-...
-
-This issue can be avoided by aborting tg3_reset_task() if EEH error
-recovery is already in progress.
-
-Fixes: db84bf43ef23 ("tg3: tg3_reset_task() needs to use rtnl_lock to synchronize")
-Signed-off-by: David Christensen <drc@linux.vnet.ibm.com>
-Reviewed-by: Pavan Chebbi <pavan.chebbi@broadcom.com>
-Link: https://lore.kernel.org/r/20230124185339.225806-1-drc@linux.vnet.ibm.com
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Reviewed-by: Florian Fainelli <f.fainelli@gmail.com>
+Signed-off-by: Andrew Lunn <andrew@lunn.ch>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Stable-dep-of: 7083df59abbc ("net: mdio-mux-meson-g12a: force internal PHY off on mux switch")
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/broadcom/tg3.c | 8 ++++----
- 1 file changed, 4 insertions(+), 4 deletions(-)
+ MAINTAINERS                                        | 1 +
+ drivers/net/phy/mdio-i2c.c                         | 3 +--
+ drivers/net/phy/sfp.c                              | 2 +-
+ {drivers/net/phy => include/linux/mdio}/mdio-i2c.h | 0
+ 4 files changed, 3 insertions(+), 3 deletions(-)
+ rename {drivers/net/phy => include/linux/mdio}/mdio-i2c.h (100%)
 
-diff --git a/drivers/net/ethernet/broadcom/tg3.c b/drivers/net/ethernet/broadcom/tg3.c
-index a9962474d551..d0cd86af29d9 100644
---- a/drivers/net/ethernet/broadcom/tg3.c
-+++ b/drivers/net/ethernet/broadcom/tg3.c
-@@ -11195,7 +11195,7 @@ static void tg3_reset_task(struct work_struct *work)
- 	rtnl_lock();
- 	tg3_full_lock(tp, 0);
+diff --git a/MAINTAINERS b/MAINTAINERS
+index 973fcc9143d1..ea8f1c885089 100644
+--- a/MAINTAINERS
++++ b/MAINTAINERS
+@@ -14661,6 +14661,7 @@ L:	netdev@vger.kernel.org
+ S:	Maintained
+ F:	drivers/net/phy/phylink.c
+ F:	drivers/net/phy/sfp*
++F:	include/linux/mdio/mdio-i2c.h
+ F:	include/linux/phylink.h
+ F:	include/linux/sfp.h
+ K:	phylink
+diff --git a/drivers/net/phy/mdio-i2c.c b/drivers/net/phy/mdio-i2c.c
+index 0dce67672548..5969878e0aa7 100644
+--- a/drivers/net/phy/mdio-i2c.c
++++ b/drivers/net/phy/mdio-i2c.c
+@@ -10,10 +10,9 @@
+  * of their settings.
+  */
+ #include <linux/i2c.h>
++#include <linux/mdio/mdio-i2c.h>
+ #include <linux/phy.h>
  
--	if (!netif_running(tp->dev)) {
-+	if (tp->pcierr_recovery || !netif_running(tp->dev)) {
- 		tg3_flag_clear(tp, RESET_TASK_PENDING);
- 		tg3_full_unlock(tp);
- 		rtnl_unlock();
-@@ -18187,6 +18187,9 @@ static pci_ers_result_t tg3_io_error_detected(struct pci_dev *pdev,
- 
- 	netdev_info(netdev, "PCI I/O error detected\n");
- 
-+	/* Want to make sure that the reset task doesn't run */
-+	tg3_reset_task_cancel(tp);
-+
- 	rtnl_lock();
- 
- 	/* Could be second call or maybe we don't have netdev yet */
-@@ -18203,9 +18206,6 @@ static pci_ers_result_t tg3_io_error_detected(struct pci_dev *pdev,
- 
- 	tg3_timer_stop(tp);
- 
--	/* Want to make sure that the reset task doesn't run */
--	tg3_reset_task_cancel(tp);
+-#include "mdio-i2c.h"
 -
- 	netif_device_detach(netdev);
+ /*
+  * I2C bus addresses 0x50 and 0x51 are normally an EEPROM, which is
+  * specified to be present in SFP modules.  These correspond with PHY
+diff --git a/drivers/net/phy/sfp.c b/drivers/net/phy/sfp.c
+index beaa00342a13..9639aa181968 100644
+--- a/drivers/net/phy/sfp.c
++++ b/drivers/net/phy/sfp.c
+@@ -7,6 +7,7 @@
+ #include <linux/i2c.h>
+ #include <linux/interrupt.h>
+ #include <linux/jiffies.h>
++#include <linux/mdio/mdio-i2c.h>
+ #include <linux/module.h>
+ #include <linux/mutex.h>
+ #include <linux/of.h>
+@@ -16,7 +17,6 @@
+ #include <linux/slab.h>
+ #include <linux/workqueue.h>
  
- 	/* Clean up software state, even if MMIO is blocked */
+-#include "mdio-i2c.h"
+ #include "sfp.h"
+ #include "swphy.h"
+ 
+diff --git a/drivers/net/phy/mdio-i2c.h b/include/linux/mdio/mdio-i2c.h
+similarity index 100%
+rename from drivers/net/phy/mdio-i2c.h
+rename to include/linux/mdio/mdio-i2c.h
 -- 
 2.39.0
 
