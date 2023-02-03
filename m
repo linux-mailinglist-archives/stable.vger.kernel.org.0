@@ -2,41 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 2A4C86896D5
-	for <lists+stable@lfdr.de>; Fri,  3 Feb 2023 11:36:51 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id F26546896CC
+	for <lists+stable@lfdr.de>; Fri,  3 Feb 2023 11:36:47 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233575AbjBCKdK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 3 Feb 2023 05:33:10 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58142 "EHLO
+        id S229553AbjBCKd3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 3 Feb 2023 05:33:29 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58964 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233827AbjBCKcs (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 3 Feb 2023 05:32:48 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DDC27A2A40
-        for <stable@vger.kernel.org>; Fri,  3 Feb 2023 02:30:57 -0800 (PST)
+        with ESMTP id S233840AbjBCKct (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 3 Feb 2023 05:32:49 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A4AD8A2A63
+        for <stable@vger.kernel.org>; Fri,  3 Feb 2023 02:31:00 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 85973B82A5F
-        for <stable@vger.kernel.org>; Fri,  3 Feb 2023 10:30:56 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B7D1BC433D2;
-        Fri,  3 Feb 2023 10:30:54 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 3928961ECF
+        for <stable@vger.kernel.org>; Fri,  3 Feb 2023 10:31:00 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id EB91EC433D2;
+        Fri,  3 Feb 2023 10:30:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1675420255;
-        bh=7WjKQhiTGM0FmWrOZWOPyG+HZZ6gAir80nqDcQUt/Wk=;
+        s=korg; t=1675420259;
+        bh=s9EO09A7jGa0pE2suhkwAC1LBbgCyvujRVdgXEuCMms=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=mKpX2u3ujhXJXlr7ZCtMZX86aCGkfo6qUoMqrG8HVY6QZ1NoTz25cssCyEV0n6Qiw
-         98Fm0jHcu1HWNoia7O2FDF+fm46DrYn8hueHD+vzTc08goLsvKVG8+7+Mfv++58rXv
-         SmmKTtyo1tyuc5awLVdznr8Hn6ro7u80aJ8lTVd8=
+        b=uqmRyyX6mHK5ZBgfyrqFP0vNx+M4fPyISZ1hYfRJMNFqI1ndu3BqR7jItejfgV7hb
+         0r64j+N8qdmfi4UBqVdQKRUjxa6LCokCmRkch3bampACqgUVraiQzzvhv9hSonSGw1
+         xP25WnL6CAz375jIJHQRY8TIbGqdAKOgPd6zxeoY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Soenke Huster <soenke.huster@eknoes.de>,
-        Luiz Augusto von Dentz <luiz.von.dentz@intel.com>,
-        Ovidiu Panait <ovidiu.panait@eng.windriver.com>
-Subject: [PATCH 5.4 132/134] Bluetooth: fix null ptr deref on hci_sync_conn_complete_evt
-Date:   Fri,  3 Feb 2023 11:13:57 +0100
-Message-Id: <20230203101029.764495846@linuxfoundation.org>
+        patches@lists.linux.dev, Matthias Kaehlcke <mka@chromium.org>,
+        Peter Chen <peter.chen@nxp.com>,
+        Mathias Nyman <mathias.nyman@linux.intel.com>,
+        Florian Fainelli <f.fainelli@gmail.com>
+Subject: [PATCH 5.4 133/134] usb: host: xhci-plat: add wakeup entry at sysfs
+Date:   Fri,  3 Feb 2023 11:13:58 +0100
+Message-Id: <20230203101029.811047239@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.1
 In-Reply-To: <20230203101023.832083974@linuxfoundation.org>
 References: <20230203101023.832083974@linuxfoundation.org>
@@ -44,8 +45,8 @@ User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
         SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -53,45 +54,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Soenke Huster <soenke.huster@eknoes.de>
+From: Peter Chen <peter.chen@nxp.com>
 
-commit 3afee2118132e93e5f6fa636dfde86201a860ab3 upstream.
+commit 4bb4fc0dbfa23acab9b762949b91ffd52106fe4b upstream.
 
-This event is just specified for SCO and eSCO link types.
-On the reception of a HCI_Synchronous_Connection_Complete for a BDADDR
-of an existing LE connection, LE link type and a status that triggers the
-second case of the packet processing a NULL pointer dereference happens,
-as conn->link is NULL.
+With this change, there will be a wakeup entry at /sys/../power/wakeup,
+and the user could use this entry to choose whether enable xhci wakeup
+features (wake up system from suspend) or not.
 
-Signed-off-by: Soenke Huster <soenke.huster@eknoes.de>
-Signed-off-by: Luiz Augusto von Dentz <luiz.von.dentz@intel.com>
-Signed-off-by: Ovidiu Panait <ovidiu.panait@eng.windriver.com>
+Tested-by: Matthias Kaehlcke <mka@chromium.org>
+Reviewed-by: Matthias Kaehlcke <mka@chromium.org>
+Signed-off-by: Peter Chen <peter.chen@nxp.com>
+Signed-off-by: Mathias Nyman <mathias.nyman@linux.intel.com>
+Link: https://lore.kernel.org/r/20200918131752.16488-6-mathias.nyman@linux.intel.com
+Signed-off-by: Florian Fainelli <f.fainelli@gmail.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/bluetooth/hci_event.c |   13 +++++++++++++
- 1 file changed, 13 insertions(+)
+ drivers/usb/host/xhci-plat.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/net/bluetooth/hci_event.c
-+++ b/net/bluetooth/hci_event.c
-@@ -4177,6 +4177,19 @@ static void hci_sync_conn_complete_evt(s
- 	struct hci_ev_sync_conn_complete *ev = (void *) skb->data;
- 	struct hci_conn *conn;
+--- a/drivers/usb/host/xhci-plat.c
++++ b/drivers/usb/host/xhci-plat.c
+@@ -276,7 +276,7 @@ static int xhci_plat_probe(struct platfo
+ 			*priv = *priv_match;
+ 	}
  
-+	switch (ev->link_type) {
-+	case SCO_LINK:
-+	case ESCO_LINK:
-+		break;
-+	default:
-+		/* As per Core 5.3 Vol 4 Part E 7.7.35 (p.2219), Link_Type
-+		 * for HCI_Synchronous_Connection_Complete is limited to
-+		 * either SCO or eSCO
-+		 */
-+		bt_dev_err(hdev, "Ignoring connect complete event for invalid link type");
-+		return;
-+	}
-+
- 	BT_DBG("%s status 0x%2.2x", hdev->name, ev->status);
+-	device_wakeup_enable(hcd->self.controller);
++	device_set_wakeup_capable(&pdev->dev, true);
  
- 	hci_dev_lock(hdev);
+ 	xhci->main_hcd = hcd;
+ 	xhci->shared_hcd = __usb_create_hcd(driver, sysdev, &pdev->dev,
 
 
