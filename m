@@ -2,44 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 5D2A36895C5
-	for <lists+stable@lfdr.de>; Fri,  3 Feb 2023 11:24:30 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B5A8C6894F5
+	for <lists+stable@lfdr.de>; Fri,  3 Feb 2023 11:15:52 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233043AbjBCKTE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 3 Feb 2023 05:19:04 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39170 "EHLO
+        id S231536AbjBCKPC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 3 Feb 2023 05:15:02 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35082 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232934AbjBCKS0 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 3 Feb 2023 05:18:26 -0500
+        with ESMTP id S232178AbjBCKPB (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 3 Feb 2023 05:15:01 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 62BCF305E6
-        for <stable@vger.kernel.org>; Fri,  3 Feb 2023 02:18:15 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DDAEF8E68D
+        for <stable@vger.kernel.org>; Fri,  3 Feb 2023 02:15:00 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id E707361E94
-        for <stable@vger.kernel.org>; Fri,  3 Feb 2023 10:18:14 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9D0AFC433EF;
-        Fri,  3 Feb 2023 10:18:13 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 7350360691
+        for <stable@vger.kernel.org>; Fri,  3 Feb 2023 10:15:00 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5331AC433D2;
+        Fri,  3 Feb 2023 10:14:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1675419494;
-        bh=twGPChpdZ98XnD1BBqZMI3mT6NfYcmysUOtBNIE5HFQ=;
+        s=korg; t=1675419299;
+        bh=QsKsbBGiRqVtLWs+WkLHLaGbKXKHzpxMZzMwdkHnCaE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=WOFNHa44tRw4/ZA5NyrLqpVqolP+tHmADON3DnVib6uWTzO060oMwlQGsscwQ9L2V
-         Uxg11vOaCyhvznActuw2GtTecy+OdIMp9fMlFUQD1va25gWFY8FUJ5Xs3PV30MHsJ+
-         qp/nz80sSv6p97326KuzAELlBOfaVW4mlQBmL/nk=
+        b=sfb11ODLQJvakpzSHn61M2wqsi3+HSYusaOyJU1T1Ra3bjtth7IOPefKvEHVmXFSq
+         0nwTPiIKvjF+GEI73wUp8A8OBJja3ILLzZKPxyQEIKr7LLMhA505ZESpitatb3AZsf
+         RteZyKqCE1EAwgiEwPFeCL6nWbQs7OLFxpwBtAyU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Pietro Borrello <borrello@diag.uniroma1.it>,
-        Jiri Kosina <jkosina@suse.cz>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 24/80] HID: betop: check shape of output reports
+        patches@lists.linux.dev, Ian Abbott <abbotti@mev.co.uk>
+Subject: [PATCH 4.14 22/62] comedi: adv_pci1760: Fix PWM instruction handling
 Date:   Fri,  3 Feb 2023 11:12:18 +0100
-Message-Id: <20230203101016.215667274@linuxfoundation.org>
+Message-Id: <20230203101013.974210835@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.1
-In-Reply-To: <20230203101015.263854890@linuxfoundation.org>
-References: <20230203101015.263854890@linuxfoundation.org>
+In-Reply-To: <20230203101012.959398849@linuxfoundation.org>
+References: <20230203101012.959398849@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,68 +51,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pietro Borrello <borrello@diag.uniroma1.it>
+From: Ian Abbott <abbotti@mev.co.uk>
 
-[ Upstream commit 3782c0d6edf658b71354a64d60aa7a296188fc90 ]
+commit 2efb6edd52dc50273f5e68ad863dd1b1fb2f2d1c upstream.
 
-betopff_init() only checks the total sum of the report counts for each
-report field to be at least 4, but hid_betopff_play() expects 4 report
-fields.
-A device advertising an output report with one field and 4 report counts
-would pass the check but crash the kernel with a NULL pointer dereference
-in hid_betopff_play().
+(Actually, this is fixing the "Read the Current Status" command sent to
+the device's outgoing mailbox, but it is only currently used for the PWM
+instructions.)
 
-Fixes: 52cd7785f3cd ("HID: betop: add drivers/hid/hid-betopff.c")
-Signed-off-by: Pietro Borrello <borrello@diag.uniroma1.it>
-Signed-off-by: Jiri Kosina <jkosina@suse.cz>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+The PCI-1760 is operated mostly by sending commands to a set of Outgoing
+Mailbox registers, waiting for the command to complete, and reading the
+result from the Incoming Mailbox registers.  One of these commands is
+the "Read the Current Status" command.  The number of this command is
+0x07 (see the User's Manual for the PCI-1760 at
+<https://advdownload.advantech.com/productfile/Downloadfile2/1-11P6653/PCI-1760.pdf>.
+The `PCI1760_CMD_GET_STATUS` macro defined in the driver should expand
+to this command number 0x07, but unfortunately it currently expands to
+0x03.  (Command number 0x03 is not defined in the User's Manual.)
+Correct the definition of the `PCI1760_CMD_GET_STATUS` macro to fix it.
+
+This is used by all the PWM subdevice related instructions handled by
+`pci1760_pwm_insn_config()` which are probably all broken.  The effect
+of sending the undefined command number 0x03 is not known.
+
+Fixes: 14b93bb6bbf0 ("staging: comedi: adv_pci_dio: separate out PCI-1760 support")
+Cc: <stable@vger.kernel.org> # v4.5+
+Signed-off-by: Ian Abbott <abbotti@mev.co.uk>
+Link: https://lore.kernel.org/r/20230103143754.17564-1-abbotti@mev.co.uk
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/hid/hid-betopff.c | 17 +++++++++--------
- 1 file changed, 9 insertions(+), 8 deletions(-)
+ drivers/staging/comedi/drivers/adv_pci1760.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/hid/hid-betopff.c b/drivers/hid/hid-betopff.c
-index 9b60efe6ec44..ba386e5aa055 100644
---- a/drivers/hid/hid-betopff.c
-+++ b/drivers/hid/hid-betopff.c
-@@ -63,7 +63,6 @@ static int betopff_init(struct hid_device *hid)
- 	struct list_head *report_list =
- 			&hid->report_enum[HID_OUTPUT_REPORT].report_list;
- 	struct input_dev *dev;
--	int field_count = 0;
- 	int error;
- 	int i, j;
- 
-@@ -89,19 +88,21 @@ static int betopff_init(struct hid_device *hid)
- 	 * -----------------------------------------
- 	 * Do init them with default value.
- 	 */
-+	if (report->maxfield < 4) {
-+		hid_err(hid, "not enough fields in the report: %d\n",
-+				report->maxfield);
-+		return -ENODEV;
-+	}
- 	for (i = 0; i < report->maxfield; i++) {
-+		if (report->field[i]->report_count < 1) {
-+			hid_err(hid, "no values in the field\n");
-+			return -ENODEV;
-+		}
- 		for (j = 0; j < report->field[i]->report_count; j++) {
- 			report->field[i]->value[j] = 0x00;
--			field_count++;
- 		}
- 	}
- 
--	if (field_count < 4) {
--		hid_err(hid, "not enough fields in the report: %d\n",
--				field_count);
--		return -ENODEV;
--	}
--
- 	betopff = kzalloc(sizeof(*betopff), GFP_KERNEL);
- 	if (!betopff)
- 		return -ENOMEM;
--- 
-2.39.0
-
+--- a/drivers/staging/comedi/drivers/adv_pci1760.c
++++ b/drivers/staging/comedi/drivers/adv_pci1760.c
+@@ -68,7 +68,7 @@
+ #define PCI1760_CMD_CLR_IMB2		0x00	/* Clears IMB2 */
+ #define PCI1760_CMD_SET_DO		0x01	/* Set output state */
+ #define PCI1760_CMD_GET_DO		0x02	/* Read output status */
+-#define PCI1760_CMD_GET_STATUS		0x03	/* Read current status */
++#define PCI1760_CMD_GET_STATUS		0x07	/* Read current status */
+ #define PCI1760_CMD_GET_FW_VER		0x0e	/* Read firware version */
+ #define PCI1760_CMD_GET_HW_VER		0x0f	/* Read hardware version */
+ #define PCI1760_CMD_SET_PWM_HI(x)	(0x10 + (x) * 2) /* Set "hi" period */
 
 
