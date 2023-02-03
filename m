@@ -2,43 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id BFD1D688C24
-	for <lists+stable@lfdr.de>; Fri,  3 Feb 2023 01:56:24 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9491F688C38
+	for <lists+stable@lfdr.de>; Fri,  3 Feb 2023 02:03:33 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232704AbjBCA4X (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 2 Feb 2023 19:56:23 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42866 "EHLO
+        id S231237AbjBCBDb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 2 Feb 2023 20:03:31 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44900 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230021AbjBCA4W (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 2 Feb 2023 19:56:22 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E2DAB6602B;
-        Thu,  2 Feb 2023 16:56:21 -0800 (PST)
+        with ESMTP id S230021AbjBCBDa (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 2 Feb 2023 20:03:30 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A1C40470AE;
+        Thu,  2 Feb 2023 17:03:29 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 916C4B828E3;
-        Fri,  3 Feb 2023 00:56:20 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0CC02C433EF;
-        Fri,  3 Feb 2023 00:56:19 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 3CACE61D3D;
+        Fri,  3 Feb 2023 01:03:29 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6C9BDC433D2;
+        Fri,  3 Feb 2023 01:03:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1675385779;
-        bh=KKty1jXeM2baCto4GRCXVHlUIStHIIdXC20p04DvIxA=;
+        s=k20201202; t=1675386208;
+        bh=sh0TjyWGQ9JudO9PAEgymM1IjtlW0nUu2xMRWylfafA=;
         h=From:To:Cc:Subject:Date:From;
-        b=uxHJQYlzJSp/wLQ7ixz5DdCAqK+ysRvV58HrFewbe3BLCqRZJJY9YcsJAyyJQzaZM
-         tRKnB1EimvL5b8LlhNxURXA5OyvcPd1ZlI6TxFcyJncqKpBOiuXfSmB3Cziq1SSuX9
-         9ynl5FkZex2Lz11leDosqdX3jUklwVYsFS3aPYURpoeyLrVkzC/m+BjO6JiqGTijpS
-         kO5ZfM9Fi5T5Xe5WxNGqXY1o/UQhOZ+/B+YVGruSHVQ+xZlBhBeKutXUM9dUDI4sxP
-         87q3m8Qu5HSWEiY3oPPQU/++C8UhbP+uDfiVemCTzdMt/Wz9avv2jl3k/LY1GoAnvv
-         9cewnIqdDFLmw==
+        b=pYGKbv7GLtPxXrXlNcebSiLkqQkWtfqvrf3Ekj6KOLFIBU7lcVEq3uKBozBfFShYt
+         ITK3HHTz+DRvde7O4jU3ZpH8DJGQiGWE2GujCxhwijWyEaSJuRg+nGOieKkBTAqtCv
+         Z+Tpa9LXinGC7xez25ol2fXXniG0rrcQBTBm3sFfaz+rlDJd7Eh+wdyiXdPRmuM+H0
+         zkyxnafvPoVAj8yKFsDIP4uwhmzLPhlP1zIVVJRUPvawAe6I93d+xGVy2kBV72PVIM
+         rGcY2ZP6SAhF2ph7XhuxzocLGD7GSHJqlwdIGLXzctf6sf8ZuKJqvPAz4+oNpbTPMh
+         mGGl/HxcPRdSg==
 From:   Eric Biggers <ebiggers@kernel.org>
-To:     linux-ext4@vger.kernel.org
+To:     linux-f2fs-devel@lists.sourceforge.net
 Cc:     linux-fscrypt@vger.kernel.org, linux-fsdevel@vger.kernel.org,
         Matthew Wilcox <willy@infradead.org>,
-        Tejun Heo <tj@kernel.org>, stable@vger.kernel.org
-Subject: [PATCH] ext4: fix cgroup writeback accounting with fs-layer encryption
-Date:   Thu,  2 Feb 2023 16:55:03 -0800
-Message-Id: <20230203005503.141557-1-ebiggers@kernel.org>
+        Tejun Heo <tj@kernel.org>, Yufen Yu <yuyufen@huawei.com>,
+        stable@vger.kernel.org
+Subject: [PATCH] f2fs: fix cgroup writeback accounting with fs-layer encryption
+Date:   Thu,  2 Feb 2023 17:02:39 -0800
+Message-Id: <20230203010239.216421-1-ebiggers@kernel.org>
 X-Mailer: git-send-email 2.39.1
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
@@ -54,7 +55,7 @@ X-Mailing-List: stable@vger.kernel.org
 From: Eric Biggers <ebiggers@google.com>
 
 When writing a page from an encrypted file that is using
-filesystem-layer encryption (not inline encryption), ext4 encrypts the
+filesystem-layer encryption (not inline encryption), f2fs encrypts the
 pagecache page into a bounce page, then writes the bounce page.
 
 It also passes the bounce page to wbc_account_cgroup_owner().  That's
@@ -66,54 +67,47 @@ of the pagecache page as it should.
 Fix this by always passing the pagecache page to
 wbc_account_cgroup_owner().
 
-Fixes: 001e4a8775f6 ("ext4: implement cgroup writeback support")
+Fixes: 578c647879f7 ("f2fs: implement cgroup writeback support")
 Cc: stable@vger.kernel.org
 Reported-by: Matthew Wilcox (Oracle) <willy@infradead.org>
 Signed-off-by: Eric Biggers <ebiggers@google.com>
 ---
- fs/ext4/page-io.c | 11 ++++++-----
- 1 file changed, 6 insertions(+), 5 deletions(-)
+ fs/f2fs/data.c | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/fs/ext4/page-io.c b/fs/ext4/page-io.c
-index beaec6d81074a..1e4db96a04e63 100644
---- a/fs/ext4/page-io.c
-+++ b/fs/ext4/page-io.c
-@@ -409,7 +409,8 @@ static void io_submit_init_bio(struct ext4_io_submit *io,
- 
- static void io_submit_add_bh(struct ext4_io_submit *io,
- 			     struct inode *inode,
--			     struct page *page,
-+			     struct page *pagecache_page,
-+			     struct page *bounce_page,
- 			     struct buffer_head *bh)
- {
- 	int ret;
-@@ -421,10 +422,11 @@ static void io_submit_add_bh(struct ext4_io_submit *io,
+diff --git a/fs/f2fs/data.c b/fs/f2fs/data.c
+index 754841bce389f..8a636500db0ef 100644
+--- a/fs/f2fs/data.c
++++ b/fs/f2fs/data.c
+@@ -739,7 +739,7 @@ int f2fs_submit_page_bio(struct f2fs_io_info *fio)
  	}
- 	if (io->io_bio == NULL)
- 		io_submit_init_bio(io, bh);
--	ret = bio_add_page(io->io_bio, page, bh->b_size, bh_offset(bh));
-+	ret = bio_add_page(io->io_bio, bounce_page ?: pagecache_page,
-+			   bh->b_size, bh_offset(bh));
- 	if (ret != bh->b_size)
- 		goto submit_and_retry;
--	wbc_account_cgroup_owner(io->io_wbc, page, bh->b_size);
-+	wbc_account_cgroup_owner(io->io_wbc, pagecache_page, bh->b_size);
- 	io->io_next_block++;
- }
  
-@@ -561,8 +563,7 @@ int ext4_bio_write_page(struct ext4_io_submit *io,
- 	do {
- 		if (!buffer_async_write(bh))
- 			continue;
--		io_submit_add_bh(io, inode,
--				 bounce_page ? bounce_page : page, bh);
-+		io_submit_add_bh(io, inode, page, bounce_page, bh);
- 	} while ((bh = bh->b_this_page) != head);
- unlock:
- 	unlock_page(page);
+ 	if (fio->io_wbc && !is_read_io(fio->op))
+-		wbc_account_cgroup_owner(fio->io_wbc, page, PAGE_SIZE);
++		wbc_account_cgroup_owner(fio->io_wbc, fio->page, PAGE_SIZE);
+ 
+ 	inc_page_count(fio->sbi, is_read_io(fio->op) ?
+ 			__read_io_type(page) : WB_DATA_TYPE(fio->page));
+@@ -949,7 +949,7 @@ int f2fs_merge_page_bio(struct f2fs_io_info *fio)
+ 	}
+ 
+ 	if (fio->io_wbc)
+-		wbc_account_cgroup_owner(fio->io_wbc, page, PAGE_SIZE);
++		wbc_account_cgroup_owner(fio->io_wbc, fio->page, PAGE_SIZE);
+ 
+ 	inc_page_count(fio->sbi, WB_DATA_TYPE(page));
+ 
+@@ -1023,7 +1023,7 @@ void f2fs_submit_page_write(struct f2fs_io_info *fio)
+ 	}
+ 
+ 	if (fio->io_wbc)
+-		wbc_account_cgroup_owner(fio->io_wbc, bio_page, PAGE_SIZE);
++		wbc_account_cgroup_owner(fio->io_wbc, fio->page, PAGE_SIZE);
+ 
+ 	io->last_block_in_bio = fio->new_blkaddr;
+ 
 
-base-commit: 6d796c50f84ca79f1722bb131799e5a5710c4700
+base-commit: de6b3a5e09b29c014bd04044b023896107cfa2ee
 -- 
 2.39.1
 
