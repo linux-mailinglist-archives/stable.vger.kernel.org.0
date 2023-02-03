@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 94AA2688BEC
-	for <lists+stable@lfdr.de>; Fri,  3 Feb 2023 01:36:45 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 98B0F688BE9
+	for <lists+stable@lfdr.de>; Fri,  3 Feb 2023 01:36:44 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233227AbjBCAfm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S233027AbjBCAfm (ORCPT <rfc822;lists+stable@lfdr.de>);
         Thu, 2 Feb 2023 19:35:42 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60822 "EHLO
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60894 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233034AbjBCAfe (ORCPT
+        with ESMTP id S233038AbjBCAfe (ORCPT
         <rfc822;stable@vger.kernel.org>); Thu, 2 Feb 2023 19:35:34 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 017D064DBE;
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6D8EE6811E;
         Thu,  2 Feb 2023 16:35:31 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 91CEF61D11;
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 0AFB861D57;
+        Fri,  3 Feb 2023 00:35:31 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2B6C0C433A1;
         Fri,  3 Feb 2023 00:35:30 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 86034C4339E;
-        Fri,  3 Feb 2023 00:35:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
         s=k20201202; t=1675384530;
-        bh=F6gV3Nc4RzN8pDwwOc0MdHuzOpEsbmsKn97m0ZuPXgY=;
+        bh=jO10o07RAKyXXgWsy3XBxX0WTtST48LzT0RY2uOU2ZU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=B17f5OJMelAjPElARYnT7FyqrGvd/oWoBwQGQ8VlSWxMxns7+CSHbmNzj9TeIeu6h
-         vQm3OeofonQwSdWq7zaejedjdWr3EZ7AF1lXfBv9kelGbB+sdXOGs8EZ016vW0vuC4
-         r1RLzx/MDkrIMGbf9qq4apMCdLOg26pA5Gqdxvs/iH6cAHioFE2Y5WZ+1qjKn9CnHZ
-         JWITi1NKpT/PB6KqUNi+5OeO+tCOnAx+7YbetuUPm7nq/bzyQvanigNnP0h+ZRSdKy
-         y94XuLBmpA+ccARLXyX8qLVYBiQ6w3HF+XyD4sA1JmC2n3MkLoYjKD7qDehDIGlzbJ
-         EZDhCiq1F266Q==
+        b=RY6nyg6mKaRHOHiJ/+iYACWYKOZujIyKZE5ymoG0EU46cWocUy6bBhYYKCpy2eTiF
+         7fxvtUqSBdZhe87XT5TAD867QP4ieiSgxZLOozRBT35wHtt9qPYwm3iaVBKvSx0aXt
+         TVcA0IiI4goWzvvZSuzkEHcSRSY5g/k2tfzXLdSlf54oOuYpq4bxhu6dCFoPVKFioX
+         r5qL0GdC2pJEXfgTGdho8aFMDMLhAbEOUP1FNkLX8Pt5wLxuj/bxm7yCs42wOF9xQ2
+         79BKhFfwzyiiiN6vMLNabmxCYdErCxfWvGgbW4sWiOGqezzHjJHBZMblcY8MYRr/cy
+         u8QbiGA3/oAiA==
 From:   Eric Biggers <ebiggers@kernel.org>
 To:     stable@vger.kernel.org
 Cc:     Harshit Mogalapalli <harshit.m.mogalapalli@oracle.com>,
@@ -40,23 +40,17 @@ Cc:     Harshit Mogalapalli <harshit.m.mogalapalli@oracle.com>,
         Jann Horn <jannh@google.com>,
         "Eric W . Biederman" <ebiederm@xmission.com>,
         linux-hardening@vger.kernel.org, linux-kernel@vger.kernel.org,
-        Petr Mladek <pmladek@suse.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        tangmeng <tangmeng@uniontech.com>,
-        "Guilherme G. Piccoli" <gpiccoli@igalia.com>,
-        Sebastian Andrzej Siewior <bigeasy@linutronix.de>,
-        Tiezhu Yang <yangtiezhu@loongson.cn>,
-        Luis Chamberlain <mcgrof@kernel.org>
-Subject: [PATCH 4.14 v2 13/15] panic: Expose "warn_count" to sysfs
-Date:   Thu,  2 Feb 2023 16:33:52 -0800
-Message-Id: <20230203003354.85691-14-ebiggers@kernel.org>
+        kernel test robot <lkp@intel.com>
+Subject: [PATCH 4.14 v2 14/15] docs: Fix path paste-o for /sys/kernel/warn_count
+Date:   Thu,  2 Feb 2023 16:33:53 -0800
+Message-Id: <20230203003354.85691-15-ebiggers@kernel.org>
 X-Mailer: git-send-email 2.39.1
 In-Reply-To: <20230203003354.85691-1-ebiggers@kernel.org>
 References: <20230203003354.85691-1-ebiggers@kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
         SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -66,86 +60,37 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Kees Cook <keescook@chromium.org>
 
-commit 8b05aa26336113c4cea25f1c333ee8cd4fc212a6 upstream.
+commit 00dd027f721e0458418f7750d8a5a664ed3e5994 upstream.
 
-Since Warn count is now tracked and is a fairly interesting signal, add
-the entry /sys/kernel/warn_count to expose it to userspace.
+Running "make htmldocs" shows that "/sys/kernel/oops_count" was
+duplicated. This should have been "warn_count":
 
-Cc: Petr Mladek <pmladek@suse.com>
-Cc: Andrew Morton <akpm@linux-foundation.org>
-Cc: tangmeng <tangmeng@uniontech.com>
-Cc: "Guilherme G. Piccoli" <gpiccoli@igalia.com>
-Cc: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
-Cc: Tiezhu Yang <yangtiezhu@loongson.cn>
-Reviewed-by: Luis Chamberlain <mcgrof@kernel.org>
+  Warning: /sys/kernel/oops_count is defined 2 times:
+  ./Documentation/ABI/testing/sysfs-kernel-warn_count:0
+  ./Documentation/ABI/testing/sysfs-kernel-oops_count:0
+
+Fix the typo.
+
+Reported-by: kernel test robot <lkp@intel.com>
+Link: https://lore.kernel.org/linux-doc/202212110529.A3Qav8aR-lkp@intel.com
+Fixes: 8b05aa263361 ("panic: Expose "warn_count" to sysfs")
+Cc: linux-hardening@vger.kernel.org
 Signed-off-by: Kees Cook <keescook@chromium.org>
-Link: https://lore.kernel.org/r/20221117234328.594699-6-keescook@chromium.org
 Signed-off-by: Eric Biggers <ebiggers@google.com>
 ---
- .../ABI/testing/sysfs-kernel-warn_count       |  6 +++++
- kernel/panic.c                                | 22 +++++++++++++++++--
- 2 files changed, 26 insertions(+), 2 deletions(-)
- create mode 100644 Documentation/ABI/testing/sysfs-kernel-warn_count
+ Documentation/ABI/testing/sysfs-kernel-warn_count | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
 diff --git a/Documentation/ABI/testing/sysfs-kernel-warn_count b/Documentation/ABI/testing/sysfs-kernel-warn_count
-new file mode 100644
-index 0000000000000..08f083d2fd51b
---- /dev/null
+index 08f083d2fd51b..90a029813717d 100644
+--- a/Documentation/ABI/testing/sysfs-kernel-warn_count
 +++ b/Documentation/ABI/testing/sysfs-kernel-warn_count
-@@ -0,0 +1,6 @@
-+What:		/sys/kernel/oops_count
-+Date:		November 2022
-+KernelVersion:	6.2.0
-+Contact:	Linux Kernel Hardening List <linux-hardening@vger.kernel.org>
-+Description:
-+		Shows how many times the system has Warned since last boot.
-diff --git a/kernel/panic.c b/kernel/panic.c
-index bfe6e4c5cd0e7..8f7bf0a8cef1a 100644
---- a/kernel/panic.c
-+++ b/kernel/panic.c
-@@ -28,6 +28,7 @@
- #include <linux/console.h>
- #include <linux/bug.h>
- #include <linux/ratelimit.h>
-+#include <linux/sysfs.h>
- 
- #define PANIC_TIMER_STEP 100
- #define PANIC_BLINK_SPD 18
-@@ -68,6 +69,25 @@ static __init int kernel_panic_sysctls_init(void)
- late_initcall(kernel_panic_sysctls_init);
- #endif
- 
-+static atomic_t warn_count = ATOMIC_INIT(0);
-+
-+#ifdef CONFIG_SYSFS
-+static ssize_t warn_count_show(struct kobject *kobj, struct kobj_attribute *attr,
-+			       char *page)
-+{
-+	return sysfs_emit(page, "%d\n", atomic_read(&warn_count));
-+}
-+
-+static struct kobj_attribute warn_count_attr = __ATTR_RO(warn_count);
-+
-+static __init int kernel_panic_sysfs_init(void)
-+{
-+	sysfs_add_file_to_group(kernel_kobj, &warn_count_attr.attr, NULL);
-+	return 0;
-+}
-+late_initcall(kernel_panic_sysfs_init);
-+#endif
-+
- static long no_blink(int state)
- {
- 	return 0;
-@@ -145,8 +165,6 @@ EXPORT_SYMBOL(nmi_panic);
- 
- void check_panic_on_warn(const char *origin)
- {
--	static atomic_t warn_count = ATOMIC_INIT(0);
--
- 	if (panic_on_warn)
- 		panic("%s: panic_on_warn set ...\n", origin);
- 
+@@ -1,4 +1,4 @@
+-What:		/sys/kernel/oops_count
++What:		/sys/kernel/warn_count
+ Date:		November 2022
+ KernelVersion:	6.2.0
+ Contact:	Linux Kernel Hardening List <linux-hardening@vger.kernel.org>
 -- 
 2.39.1
 
