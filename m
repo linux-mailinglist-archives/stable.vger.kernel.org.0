@@ -2,45 +2,84 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 137E76895F3
-	for <lists+stable@lfdr.de>; Fri,  3 Feb 2023 11:24:58 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 14C8C6896EE
+	for <lists+stable@lfdr.de>; Fri,  3 Feb 2023 11:36:59 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233516AbjBCKYn (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 3 Feb 2023 05:24:43 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48076 "EHLO
+        id S231744AbjBCKcz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 3 Feb 2023 05:32:55 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58964 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233397AbjBCKYX (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 3 Feb 2023 05:24:23 -0500
-Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 295E4A07FF
-        for <stable@vger.kernel.org>; Fri,  3 Feb 2023 02:23:56 -0800 (PST)
+        with ESMTP id S231989AbjBCKcM (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 3 Feb 2023 05:32:12 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A2897A0E87
+        for <stable@vger.kernel.org>; Fri,  3 Feb 2023 02:30:06 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 0CB62CE2FBE
-        for <stable@vger.kernel.org>; Fri,  3 Feb 2023 10:23:48 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4457DC433EF;
-        Fri,  3 Feb 2023 10:23:45 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 49C4DB82A6C
+        for <stable@vger.kernel.org>; Fri,  3 Feb 2023 10:30:05 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6D468C433A1;
+        Fri,  3 Feb 2023 10:30:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1675419825;
-        bh=qk5tTsGIO8023rVFYdm44Dfw3q3U3Zcp9VWIK+8jgcs=;
+        s=korg; t=1675420204;
+        bh=siVPkn/J/uv2rw60GCRTZxKiWXHWaRhlWO6+UJNwrgw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=R/1jwv9Q0kMq8C3qUE2pFeko0dO0G7ozjSP/ME3uW/+U60xvFAT5u064rdSKqadYM
-         F2clLV271seB30/9anaFQHe9K0GXiwjS8auvn8eMTDjHbH/VlZepl4/u7pFeMGV7/X
-         yOA+WSEdasewBX0M93jAVm85ARSgwkLZX3/M5NNY=
+        b=dKDRI+84/dUlS5HXZaCXq+qhohv8kQWxoKOPOUbHI50ArcggI+FkzS0kbfmEOyztM
+         ISoO8PxmYcWKrlkE+VJpLtRWRTb2eJBzbDOR0NHNwas087Uq316UIgZy4zv/mckNtX
+         bdJe2h3xvbMLlvrdnTJ6QZ9vxhKyijy64m9qB7k0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, kernel test robot <lkp@intel.com>,
-        "Paulo Alcantara (SUSE)" <pc@cjr.nz>,
-        Steve French <stfrench@microsoft.com>,
+        patches@lists.linux.dev, Xiaoming Ni <nixiaoming@huawei.com>,
+        Luis Chamberlain <mcgrof@kernel.org>,
+        Kees Cook <keescook@chromium.org>,
+        Iurii Zaikin <yzaikin@google.com>,
+        "Eric W. Biederman" <ebiederm@xmission.com>,
+        Peter Zijlstra <peterz@infradead.org>,
+        Paul Turner <pjt@google.com>,
+        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
+        Sebastian Reichel <sre@kernel.org>,
+        Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>,
+        Petr Mladek <pmladek@suse.com>,
+        Sergey Senozhatsky <senozhatsky@chromium.org>,
+        Qing Wang <wangqing@vivo.com>,
+        Benjamin LaHaise <bcrl@kvack.org>,
+        Al Viro <viro@zeniv.linux.org.uk>, Jan Kara <jack@suse.cz>,
+        Amir Goldstein <amir73il@gmail.com>,
+        Stephen Kitt <steve@sk2.org>, Antti Palosaari <crope@iki.fi>,
+        Arnd Bergmann <arnd@arndb.de>,
+        Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+        Clemens Ladisch <clemens@ladisch.de>,
+        David Airlie <airlied@linux.ie>,
+        Jani Nikula <jani.nikula@linux.intel.com>,
+        Joel Becker <jlbec@evilplan.org>,
+        Joonas Lahtinen <joonas.lahtinen@linux.intel.com>,
+        Joseph Qi <joseph.qi@linux.alibaba.com>,
+        Julia Lawall <julia.lawall@inria.fr>,
+        Lukas Middendorf <kernel@tuxforce.de>,
+        Mark Fasheh <mark@fasheh.com>,
+        Phillip Potter <phil@philpotter.co.uk>,
+        Rodrigo Vivi <rodrigo.vivi@intel.com>,
+        Douglas Gilbert <dgilbert@interlog.com>,
+        "James E.J. Bottomley" <jejb@linux.ibm.com>,
+        Jani Nikula <jani.nikula@intel.com>,
+        John Ogness <john.ogness@linutronix.de>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>,
+        "Rafael J. Wysocki" <rafael@kernel.org>,
+        "Steven Rostedt (VMware)" <rostedt@goodmis.org>,
+        Suren Baghdasaryan <surenb@google.com>,
+        "Theodore Tso" <tytso@mit.edu>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Eric Biggers <ebiggers@google.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 11/20] cifs: fix return of uninitialized rc in dfs_cache_update_tgthint()
-Date:   Fri,  3 Feb 2023 11:13:38 +0100
-Message-Id: <20230203101008.486859284@linuxfoundation.org>
+Subject: [PATCH 5.4 114/134] sysctl: add a new register_sysctl_init() interface
+Date:   Fri,  3 Feb 2023 11:13:39 +0100
+Message-Id: <20230203101028.964081479@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.1
-In-Reply-To: <20230203101007.985835823@linuxfoundation.org>
-References: <20230203101007.985835823@linuxfoundation.org>
+In-Reply-To: <20230203101023.832083974@linuxfoundation.org>
+References: <20230203101023.832083974@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,40 +93,180 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Paulo Alcantara <pc@cjr.nz>
+From: Xiaoming Ni <nixiaoming@huawei.com>
 
-[ Upstream commit d6a49e8c4ca4d399ed65ac219585187fc8c2e2b1 ]
+commit 3ddd9a808cee7284931312f2f3e854c9617f44b2 upstream.
 
-Fix this by initializing rc to 0 as cache_refresh_path() would not set
-it in case of success.
+Patch series "sysctl: first set of kernel/sysctl cleanups", v2.
 
-Reported-by: kernel test robot <lkp@intel.com>
-Link: https://lore.kernel.org/all/202301190004.bEHvbKG6-lkp@intel.com/
-Signed-off-by: Paulo Alcantara (SUSE) <pc@cjr.nz>
-Signed-off-by: Steve French <stfrench@microsoft.com>
+Finally had time to respin the series of the work we had started last
+year on cleaning up the kernel/sysct.c kitchen sink.  People keeps
+stuffing their sysctls in that file and this creates a maintenance
+burden.  So this effort is aimed at placing sysctls where they actually
+belong.
+
+I'm going to split patches up into series as there is quite a bit of
+work.
+
+This first set adds register_sysctl_init() for uses of registerting a
+sysctl on the init path, adds const where missing to a few places,
+generalizes common values so to be more easy to share, and starts the
+move of a few kernel/sysctl.c out where they belong.
+
+The majority of rework on v2 in this first patch set is 0-day fixes.
+Eric Biederman's feedback is later addressed in subsequent patch sets.
+
+I'll only post the first two patch sets for now.  We can address the
+rest once the first two patch sets get completely reviewed / Acked.
+
+This patch (of 9):
+
+The kernel/sysctl.c is a kitchen sink where everyone leaves their dirty
+dishes, this makes it very difficult to maintain.
+
+To help with this maintenance let's start by moving sysctls to places
+where they actually belong.  The proc sysctl maintainers do not want to
+know what sysctl knobs you wish to add for your own piece of code, we
+just care about the core logic.
+
+Today though folks heavily rely on tables on kernel/sysctl.c so they can
+easily just extend this table with their needed sysctls.  In order to
+help users move their sysctls out we need to provide a helper which can
+be used during code initialization.
+
+We special-case the initialization use of register_sysctl() since it
+*is* safe to fail, given all that sysctls do is provide a dynamic
+interface to query or modify at runtime an existing variable.  So the
+use case of register_sysctl() on init should *not* stop if the sysctls
+don't end up getting registered.  It would be counter productive to stop
+boot if a simple sysctl registration failed.
+
+Provide a helper for init then, and document the recommended init levels
+to use for callers of this routine.  We will later use this in
+subsequent patches to start slimming down kernel/sysctl.c tables and
+moving sysctl registration to the code which actually needs these
+sysctls.
+
+[mcgrof@kernel.org: major commit log and documentation rephrasing also moved to fs/proc/proc_sysctl.c                  ]
+
+Link: https://lkml.kernel.org/r/20211123202347.818157-1-mcgrof@kernel.org
+Link: https://lkml.kernel.org/r/20211123202347.818157-2-mcgrof@kernel.org
+Signed-off-by: Xiaoming Ni <nixiaoming@huawei.com>
+Signed-off-by: Luis Chamberlain <mcgrof@kernel.org>
+Reviewed-by: Kees Cook <keescook@chromium.org>
+Cc: Iurii Zaikin <yzaikin@google.com>
+Cc: "Eric W. Biederman" <ebiederm@xmission.com>
+Cc: Peter Zijlstra <peterz@infradead.org>
+Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc: Paul Turner <pjt@google.com>
+Cc: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Cc: Sebastian Reichel <sre@kernel.org>
+Cc: Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>
+Cc: Petr Mladek <pmladek@suse.com>
+Cc: Sergey Senozhatsky <senozhatsky@chromium.org>
+Cc: Qing Wang <wangqing@vivo.com>
+Cc: Benjamin LaHaise <bcrl@kvack.org>
+Cc: Al Viro <viro@zeniv.linux.org.uk>
+Cc: Jan Kara <jack@suse.cz>
+Cc: Amir Goldstein <amir73il@gmail.com>
+Cc: Stephen Kitt <steve@sk2.org>
+Cc: Antti Palosaari <crope@iki.fi>
+Cc: Arnd Bergmann <arnd@arndb.de>
+Cc: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+Cc: Clemens Ladisch <clemens@ladisch.de>
+Cc: David Airlie <airlied@linux.ie>
+Cc: Jani Nikula <jani.nikula@linux.intel.com>
+Cc: Joel Becker <jlbec@evilplan.org>
+Cc: Joonas Lahtinen <joonas.lahtinen@linux.intel.com>
+Cc: Joseph Qi <joseph.qi@linux.alibaba.com>
+Cc: Julia Lawall <julia.lawall@inria.fr>
+Cc: Lukas Middendorf <kernel@tuxforce.de>
+Cc: Mark Fasheh <mark@fasheh.com>
+Cc: Phillip Potter <phil@philpotter.co.uk>
+Cc: Rodrigo Vivi <rodrigo.vivi@intel.com>
+Cc: Douglas Gilbert <dgilbert@interlog.com>
+Cc: James E.J. Bottomley <jejb@linux.ibm.com>
+Cc: Jani Nikula <jani.nikula@intel.com>
+Cc: John Ogness <john.ogness@linutronix.de>
+Cc: Martin K. Petersen <martin.petersen@oracle.com>
+Cc: "Rafael J. Wysocki" <rafael@kernel.org>
+Cc: Steven Rostedt (VMware) <rostedt@goodmis.org>
+Cc: Suren Baghdasaryan <surenb@google.com>
+Cc: "Theodore Ts'o" <tytso@mit.edu>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Signed-off-by: Eric Biggers <ebiggers@google.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/cifs/dfs_cache.c | 6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ fs/proc/proc_sysctl.c  | 33 +++++++++++++++++++++++++++++++++
+ include/linux/sysctl.h |  3 +++
+ 2 files changed, 36 insertions(+)
 
-diff --git a/fs/cifs/dfs_cache.c b/fs/cifs/dfs_cache.c
-index 8c98fa507768..1864bdadf3dd 100644
---- a/fs/cifs/dfs_cache.c
-+++ b/fs/cifs/dfs_cache.c
-@@ -1050,10 +1050,10 @@ int dfs_cache_update_tgthint(const unsigned int xid, struct cifs_ses *ses,
- 			     const struct nls_table *cp, int remap, const char *path,
- 			     const struct dfs_cache_tgt_iterator *it)
- {
--	int rc;
--	const char *npath;
--	struct cache_entry *ce;
- 	struct cache_dfs_tgt *t;
-+	struct cache_entry *ce;
-+	const char *npath;
-+	int rc = 0;
+diff --git a/fs/proc/proc_sysctl.c b/fs/proc/proc_sysctl.c
+index d80989b6c344..f4264dd4ea31 100644
+--- a/fs/proc/proc_sysctl.c
++++ b/fs/proc/proc_sysctl.c
+@@ -14,6 +14,7 @@
+ #include <linux/mm.h>
+ #include <linux/module.h>
+ #include <linux/bpf-cgroup.h>
++#include <linux/kmemleak.h>
+ #include "internal.h"
  
- 	npath = dfs_cache_canonical_path(path, cp, remap);
- 	if (IS_ERR(npath))
+ static const struct dentry_operations proc_sys_dentry_operations;
+@@ -1397,6 +1398,38 @@ struct ctl_table_header *register_sysctl(const char *path, struct ctl_table *tab
+ }
+ EXPORT_SYMBOL(register_sysctl);
+ 
++/**
++ * __register_sysctl_init() - register sysctl table to path
++ * @path: path name for sysctl base
++ * @table: This is the sysctl table that needs to be registered to the path
++ * @table_name: The name of sysctl table, only used for log printing when
++ *              registration fails
++ *
++ * The sysctl interface is used by userspace to query or modify at runtime
++ * a predefined value set on a variable. These variables however have default
++ * values pre-set. Code which depends on these variables will always work even
++ * if register_sysctl() fails. If register_sysctl() fails you'd just loose the
++ * ability to query or modify the sysctls dynamically at run time. Chances of
++ * register_sysctl() failing on init are extremely low, and so for both reasons
++ * this function does not return any error as it is used by initialization code.
++ *
++ * Context: Can only be called after your respective sysctl base path has been
++ * registered. So for instance, most base directories are registered early on
++ * init before init levels are processed through proc_sys_init() and
++ * sysctl_init().
++ */
++void __init __register_sysctl_init(const char *path, struct ctl_table *table,
++				 const char *table_name)
++{
++	struct ctl_table_header *hdr = register_sysctl(path, table);
++
++	if (unlikely(!hdr)) {
++		pr_err("failed when register_sysctl %s to %s\n", table_name, path);
++		return;
++	}
++	kmemleak_not_leak(hdr);
++}
++
+ static char *append_path(const char *path, char *pos, const char *name)
+ {
+ 	int namelen;
+diff --git a/include/linux/sysctl.h b/include/linux/sysctl.h
+index 6df477329b76..aa615a0863f5 100644
+--- a/include/linux/sysctl.h
++++ b/include/linux/sysctl.h
+@@ -208,6 +208,9 @@ struct ctl_table_header *register_sysctl_paths(const struct ctl_path *path,
+ void unregister_sysctl_table(struct ctl_table_header * table);
+ 
+ extern int sysctl_init(void);
++extern void __register_sysctl_init(const char *path, struct ctl_table *table,
++				 const char *table_name);
++#define register_sysctl_init(path, table) __register_sysctl_init(path, table, #table)
+ 
+ extern struct ctl_table sysctl_mount_point[];
+ 
 -- 
 2.39.0
 
