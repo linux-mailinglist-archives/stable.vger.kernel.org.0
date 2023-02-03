@@ -2,110 +2,108 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A00CD689F88
-	for <lists+stable@lfdr.de>; Fri,  3 Feb 2023 17:46:47 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id AA9B6689FA8
+	for <lists+stable@lfdr.de>; Fri,  3 Feb 2023 17:51:08 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232783AbjBCQqp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 3 Feb 2023 11:46:45 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37272 "EHLO
+        id S233332AbjBCQvH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 3 Feb 2023 11:51:07 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41672 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232600AbjBCQqo (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 3 Feb 2023 11:46:44 -0500
-Received: from mail-il1-x136.google.com (mail-il1-x136.google.com [IPv6:2607:f8b0:4864:20::136])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E721468AFF
-        for <stable@vger.kernel.org>; Fri,  3 Feb 2023 08:46:43 -0800 (PST)
-Received: by mail-il1-x136.google.com with SMTP id z2so2300773ilq.2
-        for <stable@vger.kernel.org>; Fri, 03 Feb 2023 08:46:43 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linuxfoundation.org; s=google;
-        h=content-transfer-encoding:in-reply-to:from:references:cc:to
-         :content-language:subject:user-agent:mime-version:date:message-id
-         :from:to:cc:subject:date:message-id:reply-to;
-        bh=fpdkLgPklBFJN/zZhaetYuhJzTuu3xpdAsK6groGA1Y=;
-        b=JQ7X8f5pg2YJwEN+s3K6LyyxAgyzVLO8Xf+SXbt6ii1BKjClLzlFB6TqEkoiYAWNe7
-         PFgPO+Dw6wpA+k7TdoSM4MFDwtk91tamXdkV4GPOJPK4pQLTLtjGHhVP+WspCS0j8NK7
-         SkEHI2VWwYVpWX1zfgVe9UM2zAOylbTDpPwFg=
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=content-transfer-encoding:in-reply-to:from:references:cc:to
-         :content-language:subject:user-agent:mime-version:date:message-id
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=fpdkLgPklBFJN/zZhaetYuhJzTuu3xpdAsK6groGA1Y=;
-        b=NunB3m0aOoE0mQhKFwdG+r8LPpMo+FbMIQ78q1wBFwF+CUkZhFiA/vnA5NVecpg77d
-         +s21Y7A3WZUDCvtUAP9k6D4wbek0wTlXHiJbaieJjH9554OcwEgyqlWRkGeBIeJsFweG
-         W69Zusj1S6CtsGPxfeU3nJceesGcUhTAFgE9AdHUG2+RdXQluF0kgv/mbjXfJt/X0GFg
-         1rVnfzYKbzgxfXc4Hd6euzerAwQozOa0yotGkKobDq7djZ5ET2TC0ZZCX0IvLDLAHG1x
-         redJnJiiC/fZFIOi8CXg29KO6zXUJX6NJ9QsgltkHESfTgU/LORnP3HO3JK4eo8rIOVt
-         8dDQ==
-X-Gm-Message-State: AO0yUKVKK7E/AIK0H1R+F5fegJ6Hj5yoDOf+1A2tuu/uPIdcV/KfJOYm
-        gyvwC1sTcE+DHPfCeLlOWTDKyg==
-X-Google-Smtp-Source: AK7set/2VlpenuhWmd7WjxknhQtKu7ZjvIBUmJUYZIUNG64PBzvUgAxN6/wOZMlxUXaHomgNPzNNOQ==
-X-Received: by 2002:a05:6e02:110f:b0:30e:f89b:6652 with SMTP id u15-20020a056e02110f00b0030ef89b6652mr5194229ilk.0.1675442803197;
-        Fri, 03 Feb 2023 08:46:43 -0800 (PST)
-Received: from [192.168.1.128] ([38.15.45.1])
-        by smtp.gmail.com with ESMTPSA id g26-20020a02b71a000000b003affa7891ccsm984291jam.105.2023.02.03.08.46.42
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Fri, 03 Feb 2023 08:46:42 -0800 (PST)
-Message-ID: <df93cbb8-0097-db63-5e0d-b7dd2ec1ea55@linuxfoundation.org>
-Date:   Fri, 3 Feb 2023 09:46:41 -0700
+        with ESMTP id S233473AbjBCQvG (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 3 Feb 2023 11:51:06 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4268B1F4B0;
+        Fri,  3 Feb 2023 08:50:56 -0800 (PST)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by ams.source.kernel.org (Postfix) with ESMTPS id DF082B82B5F;
+        Fri,  3 Feb 2023 16:50:54 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id AC8FAC433EF;
+        Fri,  3 Feb 2023 16:50:52 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
+        s=korg; t=1675443053;
+        bh=SjoJfbszA6IwZ5mm7oiipmZnw/+CGJcvKpjmC2dOlic=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=SGkZmf4R+On2arKkwi/u6ADnvk6W4Ed9hNYVJnL9OhIDjECJbRnww29HJyEQpPfkH
+         RmRBwSTN6cmIhP732iH8scj/xIGTbVpcuidZXcaprlLz+yYUsUK3IZG47pfWRnl2Y0
+         zQP4oji+tK/UTtkxbB+Mq1pvRgHB/nIwCZlvPwH0=
+Date:   Fri, 3 Feb 2023 17:50:49 +0100
+From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+To:     Naresh Kamboju <naresh.kamboju@linaro.org>
+Cc:     Gaosheng Cui <cuigaosheng1@huawei.com>, stable@vger.kernel.org,
+        patches@lists.linux.dev, linux-kernel@vger.kernel.org,
+        torvalds@linux-foundation.org, akpm@linux-foundation.org,
+        linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
+        lkft-triage@lists.linaro.org, pavel@denx.de, jonathanh@nvidia.com,
+        f.fainelli@gmail.com, sudipm.mukherjee@gmail.com,
+        srw@sladewatkins.net, rwarsow@gmx.de,
+        Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
+Subject: Re: [PATCH 4.19 00/80] 4.19.272-rc1 review
+Message-ID: <Y907af0mqs6RbgjI@kroah.com>
+References: <20230203101015.263854890@linuxfoundation.org>
+ <CA+G9fYvd8D3LfxPg2afZXKFC3WNHrhyE7c3fFLViaG4WhJeHVg@mail.gmail.com>
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
- Thunderbird/102.4.2
-Subject: Re: [PATCH] Linux 6.1.9
-Content-Language: en-US
-To:     Bagas Sanjaya <bagasdotme@gmail.com>,
-        Vinayak Hegde <vinayakph123@gmail.com>
-Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-        Linux Stable <stable@vger.kernel.org>
-References: <20230203093811.2678-1-vinayakph123@gmail.com>
- <CAJesESYM1URn3_hMjPoMkfFo=5k-Yb9HZuyy9__kyKoZPoAsRA@mail.gmail.com>
- <48e1ae98-8f29-96d2-61af-d79ce22dcc62@gmail.com>
-From:   Shuah Khan <skhan@linuxfoundation.org>
-In-Reply-To: <48e1ae98-8f29-96d2-61af-d79ce22dcc62@gmail.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-2.2 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,NICE_REPLY_A,
-        RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS autolearn=ham
-        autolearn_force=no version=3.4.6
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <CA+G9fYvd8D3LfxPg2afZXKFC3WNHrhyE7c3fFLViaG4WhJeHVg@mail.gmail.com>
+X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
+        SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 2/3/23 03:12, Bagas Sanjaya wrote:
-> On 2/3/23 16:42, Vinayak Hegde wrote:
->> Hi Everyone,
->> I was going through A Beginner's Guide to Linux Kernel Development (LFD103) course and was trying out a few things
->> mistakenly sending this mail.
->>
+On Fri, Feb 03, 2023 at 04:34:40PM +0530, Naresh Kamboju wrote:
+> On Fri, 3 Feb 2023 at 15:48, Greg Kroah-Hartman
+> <gregkh@linuxfoundation.org> wrote:
+> >
+> > This is the start of the stable review cycle for the 4.19.272 release.
+> > There are 80 patches in this series, all will be posted as a response
+> > to this one.  If anyone has any issues with these being applied, please
+> > let me know.
+> >
+> > Responses should be made by Sun, 05 Feb 2023 10:09:58 +0000.
+> > Anything received after that time might be too late.
+> >
+> > The whole patch series can be found in one patch at:
+> >         https://www.kernel.org/pub/linux/kernel/v4.x/stable-review/patch-4.19.272-rc1.gz
+> > or in the git tree and branch at:
+> >         git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-4.19.y
+> > and the diffstat can be found below.
+> >
+> > thanks,
+> >
+> > greg k-h
+> >
 > 
-> Hi and welcome to LKML!
+> Following patch caused build error on arm,
 > 
-> Some netiquette tips:
+> > Gaosheng Cui <cuigaosheng1@huawei.com>
+> >     memory: mvebu-devbus: Fix missing clk_disable_unprepare in mvebu_devbus_probe()
 > 
-> * Don't top-post when replying; reply inline with appropriate context
->    instead. Some people (like me) tends to cut quoted reply below
->    if you top-post.
-> * Don't send HTML emails - many kernel development lists (including
->    LKML) don't like them for being common spam method.
-> * Wait for at least a day before replying - people may respond to
->    your message at different pace.
-> * Use git-send-email(1) to submit patches (see
->    Documentation/process/submitting-patches.rst for how to do that).
->> Regarding your patch, I think Greg has already bumped SUBLEVEL
-> whenever new stable release is made, so no need to send separate
-> patch just for that.
+> drivers/memory/mvebu-devbus.c: In function 'mvebu_devbus_probe':
+> drivers/memory/mvebu-devbus.c:297:8: error: implicit declaration of
+> function 'devm_clk_get_enabled'
+> [-Werror=implicit-function-declaration]
+>   297 |  clk = devm_clk_get_enabled(&pdev->dev, NULL);
+>       |        ^~~~~~~~~~~~~~~~~~~~
+> drivers/memory/mvebu-devbus.c:297:6: warning: assignment to 'struct
+> clk *' from 'int' makes pointer from integer without a cast
+> [-Wint-conversion]
+>   297 |  clk = devm_clk_get_enabled(&pdev->dev, NULL);
+>       |      ^
+> cc1: some warnings being treated as errors
 > 
+> Reported-by: Linux Kernel Functional Testing <lkft@linaro.org>
+> 
+> Build link, https://storage.tuxsuite.com/public/linaro/lkft/builds/2LDxPVbsGpzKKtYLew33pC6wCSc/
 
-[Trimmed the email list to reduce noise.]
-
-If you read this email more carefully, you would have noticed that this
-email was sent by mistake while taking LFD103 class. The sender said this
-isn't a patch.
+Ick, sorry about that, I'll go drop the offending patch now and push out
+a -rc2.
 
 thanks,
--- Shuah
 
+greg k-h
