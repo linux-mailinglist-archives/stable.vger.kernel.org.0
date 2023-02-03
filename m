@@ -2,45 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 94CE06894E2
-	for <lists+stable@lfdr.de>; Fri,  3 Feb 2023 11:15:46 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 21C74689669
+	for <lists+stable@lfdr.de>; Fri,  3 Feb 2023 11:32:01 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232209AbjBCKPh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 3 Feb 2023 05:15:37 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35458 "EHLO
+        id S233510AbjBCKZh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 3 Feb 2023 05:25:37 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50028 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233228AbjBCKPg (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 3 Feb 2023 05:15:36 -0500
+        with ESMTP id S233561AbjBCKZ3 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 3 Feb 2023 05:25:29 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 947B8903BC
-        for <stable@vger.kernel.org>; Fri,  3 Feb 2023 02:15:35 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 08382CDD1
+        for <stable@vger.kernel.org>; Fri,  3 Feb 2023 02:25:14 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 49CBBB82A5C
-        for <stable@vger.kernel.org>; Fri,  3 Feb 2023 10:15:34 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7EE09C433EF;
-        Fri,  3 Feb 2023 10:15:32 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id BC8C5B82A6E
+        for <stable@vger.kernel.org>; Fri,  3 Feb 2023 10:25:12 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id EF501C433D2;
+        Fri,  3 Feb 2023 10:25:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1675419333;
-        bh=G/su3jtvzH9r0NThXvyHeCffHzpTOyo5BMuGrBz7T14=;
+        s=korg; t=1675419911;
+        bh=4ElO/R3L3+EGeDHZXIAMKMXT98lXaw7ijyereow6mwI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=l5t8CIzFaXmHOWqbjgVTsH3ev4efcCVJaSQ9I5Jazt8DUgy3727Ro+By4ljFBPXhL
-         VmEsjv4x5mIDOaz37qdGeJIHCHSn/cGIZ6TNLy+W7fxRKzps8rIudJPHLSpNw3EWNr
-         Dj8iqs9ItO2njvIeNn5jod0SFS382Ry1mlbg/lEs=
+        b=T9lVaYgxRs5OrgbKXr8pZIG1zppt9H+g/SI0vj6AzKaz53tJ4KkvPtrTwMVNQLXxA
+         5Z0zG4C/wopAeCRkyJKwyqhXVih3udk9PY5raNf1NfQBOKA1eiL7anCVJQY5uO4kBD
+         4g75vYKqvUX/HWSy3/MhzvRJFESpz4JbFO6l6+qk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Eric Biggers <ebiggers@kernel.org>,
-        Alexander Potapenko <glider@google.com>,
-        David Sterba <dsterba@suse.com>,
+        patches@lists.linux.dev, Ajith Nayak <Ajith.Nayak@amd.com>,
+        Raju Rangoju <Raju.Rangoju@amd.com>,
+        Shyam Sundar S K <Shyam-sundar.S-k@amd.com>,
+        Jakub Kicinski <kuba@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 07/62] affs: initialize fsdata in affs_truncate()
+Subject: [PATCH 5.4 018/134] amd-xgbe: TX Flow Ctrl Registers are h/w ver dependent
 Date:   Fri,  3 Feb 2023 11:12:03 +0100
-Message-Id: <20230203101013.300404674@linuxfoundation.org>
+Message-Id: <20230203101024.671274277@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.1
-In-Reply-To: <20230203101012.959398849@linuxfoundation.org>
-References: <20230203101012.959398849@linuxfoundation.org>
+In-Reply-To: <20230203101023.832083974@linuxfoundation.org>
+References: <20230203101023.832083974@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,38 +55,87 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alexander Potapenko <glider@google.com>
+From: Raju Rangoju <Raju.Rangoju@amd.com>
 
-[ Upstream commit eef034ac6690118c88f357b00e2b3239c9d8575d ]
+[ Upstream commit 579923d84b04abb6cd4cd1fd9974096a2dd1832b ]
 
-When aops->write_begin() does not initialize fsdata, KMSAN may report
-an error passing the latter to aops->write_end().
+There is difference in the TX Flow Control registers (TFCR) between the
+revisions of the hardware. The older revisions of hardware used to have
+single register per queue. Whereas, the newer revision of hardware (from
+ver 30H onwards) have one register per priority.
 
-Fix this by unconditionally initializing fsdata.
+Update the driver to use the TFCR based on the reported version of the
+hardware.
 
-Fixes: f2b6a16eb8f5 ("fs: affs convert to new aops")
-Suggested-by: Eric Biggers <ebiggers@kernel.org>
-Signed-off-by: Alexander Potapenko <glider@google.com>
-Reviewed-by: David Sterba <dsterba@suse.com>
-Signed-off-by: David Sterba <dsterba@suse.com>
+Fixes: c5aa9e3b8156 ("amd-xgbe: Initial AMD 10GbE platform driver")
+Co-developed-by: Ajith Nayak <Ajith.Nayak@amd.com>
+Signed-off-by: Ajith Nayak <Ajith.Nayak@amd.com>
+Signed-off-by: Raju Rangoju <Raju.Rangoju@amd.com>
+Acked-by: Shyam Sundar S K <Shyam-sundar.S-k@amd.com>
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/affs/file.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/net/ethernet/amd/xgbe/xgbe-dev.c | 23 +++++++++++++++--------
+ 1 file changed, 15 insertions(+), 8 deletions(-)
 
-diff --git a/fs/affs/file.c b/fs/affs/file.c
-index ba084b0b214b..82bb38370aa9 100644
---- a/fs/affs/file.c
-+++ b/fs/affs/file.c
-@@ -878,7 +878,7 @@ affs_truncate(struct inode *inode)
- 	if (inode->i_size > AFFS_I(inode)->mmu_private) {
- 		struct address_space *mapping = inode->i_mapping;
- 		struct page *page;
--		void *fsdata;
-+		void *fsdata = NULL;
- 		loff_t isize = inode->i_size;
- 		int res;
+diff --git a/drivers/net/ethernet/amd/xgbe/xgbe-dev.c b/drivers/net/ethernet/amd/xgbe/xgbe-dev.c
+index d5fd49dd25f3..decc1c09a031 100644
+--- a/drivers/net/ethernet/amd/xgbe/xgbe-dev.c
++++ b/drivers/net/ethernet/amd/xgbe/xgbe-dev.c
+@@ -524,19 +524,28 @@ static void xgbe_disable_vxlan(struct xgbe_prv_data *pdata)
+ 	netif_dbg(pdata, drv, pdata->netdev, "VXLAN acceleration disabled\n");
+ }
  
++static unsigned int xgbe_get_fc_queue_count(struct xgbe_prv_data *pdata)
++{
++	unsigned int max_q_count = XGMAC_MAX_FLOW_CONTROL_QUEUES;
++
++	/* From MAC ver 30H the TFCR is per priority, instead of per queue */
++	if (XGMAC_GET_BITS(pdata->hw_feat.version, MAC_VR, SNPSVER) >= 0x30)
++		return max_q_count;
++	else
++		return min_t(unsigned int, pdata->tx_q_count, max_q_count);
++}
++
+ static int xgbe_disable_tx_flow_control(struct xgbe_prv_data *pdata)
+ {
+-	unsigned int max_q_count, q_count;
+ 	unsigned int reg, reg_val;
+-	unsigned int i;
++	unsigned int i, q_count;
+ 
+ 	/* Clear MTL flow control */
+ 	for (i = 0; i < pdata->rx_q_count; i++)
+ 		XGMAC_MTL_IOWRITE_BITS(pdata, i, MTL_Q_RQOMR, EHFC, 0);
+ 
+ 	/* Clear MAC flow control */
+-	max_q_count = XGMAC_MAX_FLOW_CONTROL_QUEUES;
+-	q_count = min_t(unsigned int, pdata->tx_q_count, max_q_count);
++	q_count = xgbe_get_fc_queue_count(pdata);
+ 	reg = MAC_Q0TFCR;
+ 	for (i = 0; i < q_count; i++) {
+ 		reg_val = XGMAC_IOREAD(pdata, reg);
+@@ -553,9 +562,8 @@ static int xgbe_enable_tx_flow_control(struct xgbe_prv_data *pdata)
+ {
+ 	struct ieee_pfc *pfc = pdata->pfc;
+ 	struct ieee_ets *ets = pdata->ets;
+-	unsigned int max_q_count, q_count;
+ 	unsigned int reg, reg_val;
+-	unsigned int i;
++	unsigned int i, q_count;
+ 
+ 	/* Set MTL flow control */
+ 	for (i = 0; i < pdata->rx_q_count; i++) {
+@@ -579,8 +587,7 @@ static int xgbe_enable_tx_flow_control(struct xgbe_prv_data *pdata)
+ 	}
+ 
+ 	/* Set MAC flow control */
+-	max_q_count = XGMAC_MAX_FLOW_CONTROL_QUEUES;
+-	q_count = min_t(unsigned int, pdata->tx_q_count, max_q_count);
++	q_count = xgbe_get_fc_queue_count(pdata);
+ 	reg = MAC_Q0TFCR;
+ 	for (i = 0; i < q_count; i++) {
+ 		reg_val = XGMAC_IOREAD(pdata, reg);
 -- 
 2.39.0
 
