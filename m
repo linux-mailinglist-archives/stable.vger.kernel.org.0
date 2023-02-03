@@ -2,46 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 8097F6896D6
-	for <lists+stable@lfdr.de>; Fri,  3 Feb 2023 11:36:51 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id BF243689634
+	for <lists+stable@lfdr.de>; Fri,  3 Feb 2023 11:31:41 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233346AbjBCKdh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 3 Feb 2023 05:33:37 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57994 "EHLO
+        id S232729AbjBCKZR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 3 Feb 2023 05:25:17 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47906 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232149AbjBCKdF (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 3 Feb 2023 05:33:05 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 755D1A4299
-        for <stable@vger.kernel.org>; Fri,  3 Feb 2023 02:31:30 -0800 (PST)
+        with ESMTP id S233467AbjBCKZF (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 3 Feb 2023 05:25:05 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C9F4A241F2
+        for <stable@vger.kernel.org>; Fri,  3 Feb 2023 02:24:38 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 0E41F61ECF
-        for <stable@vger.kernel.org>; Fri,  3 Feb 2023 10:31:30 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E6E93C433D2;
-        Fri,  3 Feb 2023 10:31:28 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 8E7DFB82A5F
+        for <stable@vger.kernel.org>; Fri,  3 Feb 2023 10:24:34 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id DA18EC433D2;
+        Fri,  3 Feb 2023 10:24:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1675420289;
-        bh=b1yZA9BhvISqTldKefzHm6YwhVGopOL6TPdcuDbEgSQ=;
+        s=korg; t=1675419873;
+        bh=WrO/68LB4oCa8ErJLVtJfvUUIEJ8E6Qhl/qeO6r1k98=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=0m+onB7OVIeI9D6q0PYvYsn6Fx+hEKvzYc0k9agqabcOVBSMns+DjFWsqoUoEAMA/
-         vJT/4WFhCzhAmoahiNtfxlcZihGG9I0RStXnXWcj/OOHHIvynsWfE/Qt5NZkYWDZ3U
-         5eNmaGyzjsEIyx+kP1u9EavKLU+vUIgyW7885XqM=
+        b=XaQvCAgJZuCWo7W0ntJwxpSmsF9cB0HUV2IXZGa4wc2+S7z4EMIinQmc/iObeQ8Nw
+         nLz8RqH1rzhcgyFfB2gYZQ2ZwowLr5zhRv1o9N973Rb3KxGV4lHxXU3oiopr4rQDhd
+         lzbBhnYeH0KwvsrUfUkGZ+//xU80CuinAc/WWxgU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Nathan Chancellor <nathan@kernel.org>,
-        Guo Ren <guoren@kernel.org>,
-        "Eric W. Biederman" <ebiederm@xmission.com>,
-        Eric Biggers <ebiggers@google.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 121/134] csky: Fix function name in csky_alignment() and die()
+        patches@lists.linux.dev, Daniel Borkmann <daniel@iogearbox.net>,
+        Willem de Bruijn <willemb@google.com>,
+        Yan Zhai <yan@cloudflare.com>, Jakub Kicinski <kuba@kernel.org>
+Subject: [PATCH 5.15 19/20] net: fix NULL pointer in skb_segment_list
 Date:   Fri,  3 Feb 2023 11:13:46 +0100
-Message-Id: <20230203101029.254899632@linuxfoundation.org>
+Message-Id: <20230203101008.795120228@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.1
-In-Reply-To: <20230203101023.832083974@linuxfoundation.org>
-References: <20230203101023.832083974@linuxfoundation.org>
+In-Reply-To: <20230203101007.985835823@linuxfoundation.org>
+References: <20230203101007.985835823@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,61 +53,76 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nathan Chancellor <nathan@kernel.org>
+From: Yan Zhai <yan@cloudflare.com>
 
-commit 751971af2e3615dc5bd12674080bc795505fefeb upstream.
+commit 876e8ca8366735a604bac86ff7e2732fc9d85d2d upstream.
 
-When building ARCH=csky defconfig:
+Commit 3a1296a38d0c ("net: Support GRO/GSO fraglist chaining.")
+introduced UDP listifyed GRO. The segmentation relies on frag_list being
+untouched when passing through the network stack. This assumption can be
+broken sometimes, where frag_list itself gets pulled into linear area,
+leaving frag_list being NULL. When this happens it can trigger
+following NULL pointer dereference, and panic the kernel. Reverse the
+test condition should fix it.
 
-arch/csky/kernel/traps.c: In function 'die':
-arch/csky/kernel/traps.c:112:17: error: implicit declaration of function
-'make_dead_task' [-Werror=implicit-function-declaration]
-  112 |                 make_dead_task(SIGSEGV);
-      |                 ^~~~~~~~~~~~~~
+[19185.577801][    C1] BUG: kernel NULL pointer dereference, address:
+...
+[19185.663775][    C1] RIP: 0010:skb_segment_list+0x1cc/0x390
+...
+[19185.834644][    C1] Call Trace:
+[19185.841730][    C1]  <TASK>
+[19185.848563][    C1]  __udp_gso_segment+0x33e/0x510
+[19185.857370][    C1]  inet_gso_segment+0x15b/0x3e0
+[19185.866059][    C1]  skb_mac_gso_segment+0x97/0x110
+[19185.874939][    C1]  __skb_gso_segment+0xb2/0x160
+[19185.883646][    C1]  udp_queue_rcv_skb+0xc3/0x1d0
+[19185.892319][    C1]  udp_unicast_rcv_skb+0x75/0x90
+[19185.900979][    C1]  ip_protocol_deliver_rcu+0xd2/0x200
+[19185.910003][    C1]  ip_local_deliver_finish+0x44/0x60
+[19185.918757][    C1]  __netif_receive_skb_one_core+0x8b/0xa0
+[19185.927834][    C1]  process_backlog+0x88/0x130
+[19185.935840][    C1]  __napi_poll+0x27/0x150
+[19185.943447][    C1]  net_rx_action+0x27e/0x5f0
+[19185.951331][    C1]  ? mlx5_cq_tasklet_cb+0x70/0x160 [mlx5_core]
+[19185.960848][    C1]  __do_softirq+0xbc/0x25d
+[19185.968607][    C1]  irq_exit_rcu+0x83/0xb0
+[19185.976247][    C1]  common_interrupt+0x43/0xa0
+[19185.984235][    C1]  asm_common_interrupt+0x22/0x40
+...
+[19186.094106][    C1]  </TASK>
 
-The function's name is make_task_dead(), change it so there is no more
-build error.
-
-Fixes: 0e25498f8cd4 ("exit: Add and use make_task_dead.")
-Signed-off-by: Nathan Chancellor <nathan@kernel.org>
-Reviewed-by: Guo Ren <guoren@kernel.org>
-Link: https://lkml.kernel.org/r/20211227184851.2297759-4-nathan@kernel.org
-Signed-off-by: Eric W. Biederman <ebiederm@xmission.com>
-Signed-off-by: Eric Biggers <ebiggers@google.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes: 3a1296a38d0c ("net: Support GRO/GSO fraglist chaining.")
+Suggested-by: Daniel Borkmann <daniel@iogearbox.net>
+Reviewed-by: Willem de Bruijn <willemb@google.com>
+Signed-off-by: Yan Zhai <yan@cloudflare.com>
+Acked-by: Daniel Borkmann <daniel@iogearbox.net>
+Link: https://lore.kernel.org/r/Y9gt5EUizK1UImEP@debian
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/csky/abiv1/alignment.c | 2 +-
- arch/csky/kernel/traps.c    | 2 +-
- 2 files changed, 2 insertions(+), 2 deletions(-)
+ net/core/skbuff.c |    5 ++---
+ 1 file changed, 2 insertions(+), 3 deletions(-)
 
-diff --git a/arch/csky/abiv1/alignment.c b/arch/csky/abiv1/alignment.c
-index 5e2fb45d605c..2df115d0e210 100644
---- a/arch/csky/abiv1/alignment.c
-+++ b/arch/csky/abiv1/alignment.c
-@@ -294,7 +294,7 @@ void csky_alignment(struct pt_regs *regs)
- 				__func__, opcode, rz, rx, imm, addr);
- 		show_regs(regs);
- 		bust_spinlocks(0);
--		make_dead_task(SIGKILL);
-+		make_task_dead(SIGKILL);
- 	}
+--- a/net/core/skbuff.c
++++ b/net/core/skbuff.c
+@@ -3884,7 +3884,7 @@ struct sk_buff *skb_segment_list(struct
  
- 	force_sig_fault(SIGBUS, BUS_ADRALN, (void __user *)addr);
-diff --git a/arch/csky/kernel/traps.c b/arch/csky/kernel/traps.c
-index af7562907f7f..8cdbbcb5ed87 100644
---- a/arch/csky/kernel/traps.c
-+++ b/arch/csky/kernel/traps.c
-@@ -85,7 +85,7 @@ void die_if_kernel(char *str, struct pt_regs *regs, int nr)
- 	pr_err("%s: %08x\n", str, nr);
- 	show_regs(regs);
- 	add_taint(TAINT_DIE, LOCKDEP_NOW_UNRELIABLE);
--	make_dead_task(SIGSEGV);
-+	make_task_dead(SIGSEGV);
- }
+ 	skb_shinfo(skb)->frag_list = NULL;
  
- void buserr(struct pt_regs *regs)
--- 
-2.39.0
-
+-	do {
++	while (list_skb) {
+ 		nskb = list_skb;
+ 		list_skb = list_skb->next;
+ 
+@@ -3930,8 +3930,7 @@ struct sk_buff *skb_segment_list(struct
+ 		if (skb_needs_linearize(nskb, features) &&
+ 		    __skb_linearize(nskb))
+ 			goto err_linearize;
+-
+-	} while (list_skb);
++	}
+ 
+ 	skb->truesize = skb->truesize - delta_truesize;
+ 	skb->data_len = skb->data_len - delta_len;
 
 
