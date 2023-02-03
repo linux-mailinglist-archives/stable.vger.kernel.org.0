@@ -2,96 +2,95 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 59BD8689178
-	for <lists+stable@lfdr.de>; Fri,  3 Feb 2023 09:02:42 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 666426891BE
+	for <lists+stable@lfdr.de>; Fri,  3 Feb 2023 09:14:43 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232753AbjBCICB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 3 Feb 2023 03:02:01 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41432 "EHLO
+        id S232059AbjBCIMO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 3 Feb 2023 03:12:14 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49284 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232585AbjBCIBU (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 3 Feb 2023 03:01:20 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 40E2195D14;
-        Fri,  3 Feb 2023 00:00:24 -0800 (PST)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id E8485B827B1;
-        Fri,  3 Feb 2023 08:00:22 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 350F3C433EF;
-        Fri,  3 Feb 2023 08:00:21 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1675411221;
-        bh=doIPG1PHyzm6d1DSa5nWk+jTUGsI/pTAYkKovWY+noQ=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=zMgPy/kfGYHzVvcTtpmjprlI/6J7/W5Zdi1LGRDmANAAo6W5/kf3E/zNj08qu+zh5
-         5+1Fh1IpIQVab84AayR0NE7O6t3qO9BoQG421ZFfFELOUQcrbs2+ascSimzOKxVwKu
-         XqNBTqdKMcXkipXOJX58QSENB0zLIZGK/TxxnxPM=
-Date:   Fri, 3 Feb 2023 09:00:18 +0100
-From:   Greg KH <gregkh@linuxfoundation.org>
-To:     Rishabh Bhatnagar <risbhat@amazon.com>
-Cc:     stable@vger.kernel.org, linux-mm@kvack.org,
-        linux-kernel@vger.kernel.org, mhocko@suse.co
-Subject: Re: [PATCH stable 4.14 0/1] Fix ext4 xfstests failure
-Message-ID: <Y9y/ElCYnDLTrLv6@kroah.com>
-References: <20230131043815.14989-1-risbhat@amazon.com>
+        with ESMTP id S232005AbjBCILq (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 3 Feb 2023 03:11:46 -0500
+X-Greylist: delayed 498 seconds by postgrey-1.37 at lindbergh.monkeyblade.net; Fri, 03 Feb 2023 00:11:09 PST
+Received: from wnew2-smtp.messagingengine.com (wnew2-smtp.messagingengine.com [64.147.123.27])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B0F09953EC;
+        Fri,  3 Feb 2023 00:11:09 -0800 (PST)
+Received: from compute6.internal (compute6.nyi.internal [10.202.2.47])
+        by mailnew.west.internal (Postfix) with ESMTP id 9EB552B060A2;
+        Fri,  3 Feb 2023 03:02:49 -0500 (EST)
+Received: from mailfrontend2 ([10.202.2.163])
+  by compute6.internal (MEProxy); Fri, 03 Feb 2023 03:02:51 -0500
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kroah.com; h=cc
+        :cc:content-type:date:date:from:from:in-reply-to:in-reply-to
+        :message-id:mime-version:references:reply-to:sender:subject
+        :subject:to:to; s=fm3; t=1675411369; x=1675418569; bh=jMNVoa9gKw
+        55vU4unYeVZ44RU46+1Ba6hlWIJchZw04=; b=M/azB01xSCNL0dVFFXXhUUrZ1J
+        xxyAFJ5/QOMKVToH7P+sdG0wdk58Zz3cE9HwpWYBHTL/7GZTlAssDWiw3Y3Rd2DT
+        Z3xXKyd9ufLT5bheY5jDc5znklf7q3H6EB/6e607kgfGBxVkHwPAhE6lDjlRzGma
+        mQu/u67NeDR6pJy0OOoo2n/wa6veAjyootGh5sDezKwXHyCrdnT9jaqDPvddImTL
+        9wz5bhFuuZVBsmY2uZXF/KqxeRInYQrWuwvJB6ApFVB+T51ZFkwxg6luxLa6Oktf
+        GcVcgYfXkFYBFQC6x9AVjvLH7/YxINeoYlzAGqDQanoOMSSNDAYereDPdxFA==
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
+        messagingengine.com; h=cc:cc:content-type:date:date:feedback-id
+        :feedback-id:from:from:in-reply-to:in-reply-to:message-id
+        :mime-version:references:reply-to:sender:subject:subject:to:to
+        :x-me-proxy:x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=
+        fm3; t=1675411369; x=1675418569; bh=jMNVoa9gKw55vU4unYeVZ44RU46+
+        1Ba6hlWIJchZw04=; b=MVyoyvNsSdtKmETAp/lhuqiMCOf361FsKJX/fgwmLGjz
+        GCXMPTVftGZRS5rWkDF3IvaWaYJducb95A0Rhago2RZfQ+DBAmGUYLWPzmCX8Ur4
+        OdpwyLTZPNNFcPGso2xHHRK8DmPud87JICOt2PnP2rBhF39iEnouwmt5+sH5RJP0
+        oluE9O+SkIC2e+MhD4GG+eunmlXAxw4t8RSgu1kUnDaXa1ACZgciUND7Six5pPD8
+        Vq3Oo6MBhhMkw+a8B7S8h/kVKOM0I8mKoklmSk3uX+zYUIrzdNJ0GhGyjGCtLxFv
+        8JMj63ObdKxJO67EQlj9IWR6TerR/AE1ZPX4KEIG9w==
+X-ME-Sender: <xms:p7_cYwj2H2ApWxiWXFa-NfV0RETTS2yPBxFuJHiZuCfm3eDC5BGiHw>
+    <xme:p7_cY5AN_avd_7jnBC0h6bc-z-nGFhN4F7xe4AnE-ms8duk-Ezmyba7bXbZrNt6N4
+    DVNVYE8DK1nlg>
+X-ME-Received: <xmr:p7_cY4F-Du1OoycKIijEWs9-hZ-DTu09Et-sCMqTp_Vtv66kTmGsNO1WvmanmgWybl1-VCX7MAkZPb_bUnx3AqNW2gdb7MND4KrpOg>
+X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedvhedrudefledguddufecutefuodetggdotefrod
+    ftvfcurfhrohhfihhlvgemucfhrghsthforghilhdpqfgfvfdpuffrtefokffrpgfnqfgh
+    necuuegrihhlohhuthemuceftddtnecusecvtfgvtghiphhivghnthhsucdlqddutddtmd
+    enucfjughrpeffhffvvefukfhfgggtuggjsehttdertddttddvnecuhfhrohhmpefirhgv
+    ghcumffjuceoghhrvghgsehkrhhorghhrdgtohhmqeenucggtffrrghtthgvrhhnpeehge
+    dvvedvleejuefgtdduudfhkeeltdeihfevjeekjeeuhfdtueefhffgheekteenucevlhhu
+    shhtvghrufhiiigvpedtnecurfgrrhgrmhepmhgrihhlfhhrohhmpehgrhgvgheskhhroh
+    grhhdrtghomh
+X-ME-Proxy: <xmx:p7_cYxQvo7aq9PKqcLhsnxuvehUBpL480xd5C0e0rAQFKuNiVcKn6A>
+    <xmx:p7_cY9zHelrfzgM3S-pTqEzXaTqTMWouecS46kAtX_S7E_tXyh0x0g>
+    <xmx:p7_cY_5cjV0KN8zgYYM-u6ixQA1hNzNBRU7Ew2kB3IyiaGeFp6CB7A>
+    <xmx:qb_cYywLxYth8MDLcuLMwq1fUJQG6OfV2h59teJ3aldgf7BbZFffdVR5fj0>
+Feedback-ID: i787e41f1:Fastmail
+Received: by mail.messagingengine.com (Postfix) with ESMTPA; Fri,
+ 3 Feb 2023 03:02:46 -0500 (EST)
+Date:   Fri, 3 Feb 2023 09:02:44 +0100
+From:   Greg KH <greg@kroah.com>
+To:     Tudor Ambarus <tudor.ambarus@linaro.org>
+Cc:     stable@vger.kernel.org, davem@davemloft.net, kuznet@ms2.inr.ac.ru,
+        yoshfuji@linux-ipv6.org, netdev@vger.kernel.org,
+        linux-kernel@vger.kernel.org, joneslee@google.com,
+        Eric Dumazet <edumazet@google.com>,
+        syzbot <syzkaller@googlegroups.com>,
+        Jakub Kicinski <kuba@kernel.org>
+Subject: Re: [PATCH][for stable {4.14, 4.19, 5.4}.y] ipv6: ensure sane device
+ mtu in tunnels
+Message-ID: <Y9y/pE4eusSxGGto@kroah.com>
+References: <20230201095533.2628469-1-tudor.ambarus@linaro.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20230131043815.14989-1-risbhat@amazon.com>
-X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
-        SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
+In-Reply-To: <20230201095533.2628469-1-tudor.ambarus@linaro.org>
+X-Spam-Status: No, score=-2.8 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_LOW,SPF_HELO_PASS,
+        SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, Jan 31, 2023 at 04:38:14AM +0000, Rishabh Bhatnagar wrote:
-> While running xfstests on 4.14.304 version we see a warning being
-> generated in one of ext4 tests with the following stack trace.
+On Wed, Feb 01, 2023 at 09:55:33AM +0000, Tudor Ambarus wrote:
+> From: Eric Dumazet <edumazet@google.com>
 > 
-> WARNING: CPU: 4 PID: 15332 at mm/util.c:414
-> kvmalloc_node+0x67/0x70
-> ext4_expand_extra_isize_ea+0x2b4/0x870 [ext4]
-> __ext4_expand_extra_isize+0xcb/0x120 [ext4]
-> ext4_mark_inode_dirty+0x1a5/0x1d0 [ext4]
-> ext4_ext_truncate+0x1f/0x90 [ext4]
-> ext4_truncate+0x363/0x400 [ext4]
-> ext4_setattr+0x392/0xa00 [ext4]
-> notify_change+0x300/0x420
-> ? ext4_xattr_security_set+0x20/0x20 [ext4]
-> do_truncate+0x75/0xc0
-> ? ext4_release_file+0xa0/0xa0 [ext4]
-> path_openat+0x737/0x16f0
-> do_filp_open+0x9b/0x110
-> ? __check_object_size+0xb4/0x190
-> ? do_sys_open+0x1bd/0x250
-> do_sys_open+0x1bd/0x250
-> do_syscall_64+0x67/0x110
-> entry_SYSCALL_64_after_hwframe+0x59/0xbe
-> 
-> It seems rebase to 4.14.304 brings a bunch of ext4 changes.
-> Commit ext4: allocate extended attribute value in vmalloc area
-> (73c44f61dab180b5f2dee9f15397aba36a75a882) tries to allocate buffer
-> using kvmalloc with improper flags that generates this warning.
-> To fix backport an upstream commit mm: kvmalloc does not
-> fallback to vmalloc for incompatible gfp flags
-> (170f26afa0481c72af93aa61b7398b5663451651). This removes the WARN_ON and
-> fallsback to kmalloc if correct flags are not passed.
-> 
-> 
-> Michal Hocko (1):
->   mm: kvmalloc does not fallback to vmalloc for incompatible gfp flags
-> 
->  mm/util.c | 6 ++++--
->  1 file changed, 4 insertions(+), 2 deletions(-)
-> 
-> -- 
-> 2.38.1
-> 
+> [ Upstream commit d89d7ff01235f218dad37de84457717f699dee79 ]
 
 Now queued up, thanks.
 
