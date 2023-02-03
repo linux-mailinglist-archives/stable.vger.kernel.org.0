@@ -2,43 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 61DD9688F3F
-	for <lists+stable@lfdr.de>; Fri,  3 Feb 2023 07:00:07 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 967BA688F40
+	for <lists+stable@lfdr.de>; Fri,  3 Feb 2023 07:00:26 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229662AbjBCGAF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 3 Feb 2023 01:00:05 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48194 "EHLO
+        id S232067AbjBCGAY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 3 Feb 2023 01:00:24 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48274 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232142AbjBCGAE (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 3 Feb 2023 01:00:04 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5B0BF6FD2B
-        for <stable@vger.kernel.org>; Thu,  2 Feb 2023 22:00:02 -0800 (PST)
+        with ESMTP id S232138AbjBCGAK (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 3 Feb 2023 01:00:10 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8E23C8A7EB
+        for <stable@vger.kernel.org>; Thu,  2 Feb 2023 22:00:07 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id D7F9861D5C
-        for <stable@vger.kernel.org>; Fri,  3 Feb 2023 06:00:00 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id CF6F4C433D2;
-        Fri,  3 Feb 2023 05:59:59 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 1D32961D5C
+        for <stable@vger.kernel.org>; Fri,  3 Feb 2023 06:00:07 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 27454C433D2;
+        Fri,  3 Feb 2023 06:00:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1675404000;
-        bh=MUX11QXcdtryiPh9YYdWL0LEKfpJ+MB21o4iwYhwm5o=;
+        s=korg; t=1675404006;
+        bh=vX4CWnFS6vYouAbhI17QAAdL1Os0zuieC64WDYVjs8E=;
         h=Subject:To:From:Date:From;
-        b=nyVXIOjN+Te4HJwfBJ39b2UmL844WsCLdS5yYKyuXZR0ldpvQgWgjZq/Ax9zJsgXs
-         mlKY8tNU9eHo7260m896UAW17FokM3U7v712geXgPeXLNZFHFH6hQlpY8+AliE8vRJ
-         miECfaiEm8CM20G7gnSqO6ow/eXBRaT2ymps2fS8=
-Subject: patch "bus: mhi: ep: Save channel state locally during suspend and resume" added to char-misc-testing
-To:     manivannan.sadhasivam@linaro.org, quic_jhugo@quicinc.com,
-        stable@vger.kernel.org
+        b=E/dt+B5Hpm0BQWEElU7ENHFmxrRa3QEpRwnnVU1oa2P9dFmtNOj0T8nY9RDnoWN+n
+         qvIukI76lXR6Ueg878oiKCTF8wQ58IMyOI7AaAC3rjvOiq9HiRcsyNVYFLxmLDUm9l
+         RznPJVE7g9nxaZjDfPKuDh4h0oDdsMGTOy8b+Tt0=
+Subject: patch "bus: mhi: ep: Change state_lock to mutex" added to char-misc-testing
+To:     manivannan.sadhasivam@linaro.org, error27@gmail.com,
+        quic_jhugo@quicinc.com, stable@vger.kernel.org
 From:   <gregkh@linuxfoundation.org>
-Date:   Fri, 03 Feb 2023 06:59:38 +0100
-Message-ID: <1675403978146131@kroah.com>
+Date:   Fri, 03 Feb 2023 06:59:39 +0100
+Message-ID: <167540397913979@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
         SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -49,7 +49,7 @@ X-Mailing-List: stable@vger.kernel.org
 
 This is a note to let you know that I've just added the patch titled
 
-    bus: mhi: ep: Save channel state locally during suspend and resume
+    bus: mhi: ep: Change state_lock to mutex
 
 to my char-misc git tree which can be found at
     git://git.kernel.org/pub/scm/linux/kernel/git/gregkh/char-misc.git
@@ -64,47 +64,208 @@ after it passes testing, and the merge window is open.
 If you have any questions about this process, please let me know.
 
 
-From 8a1c24bb908f9ecbc4be0fea014df67d43161551 Mon Sep 17 00:00:00 2001
+From 1ddc7618294084fff8d673217a9479550990ee84 Mon Sep 17 00:00:00 2001
 From: Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>
-Date: Wed, 28 Dec 2022 21:47:04 +0530
-Subject: bus: mhi: ep: Save channel state locally during suspend and resume
+Date: Mon, 23 Jan 2023 12:59:45 +0530
+Subject: bus: mhi: ep: Change state_lock to mutex
 
-During suspend and resume, the channel state needs to be saved locally.
-Otherwise, the endpoint may access the channels while they were being
-suspended and causing access violations.
+state_lock, the spinlock type is meant to protect race against concurrent
+MHI state transitions. In mhi_ep_set_m0_state(), while the state_lock is
+being held, the channels are resumed in mhi_ep_resume_channels() if the
+previous state was M3. This causes sleeping in atomic bug, since
+mhi_ep_resume_channels() use mutex internally.
 
-Fix it by saving the channel state locally during suspend and resume.
+Since the state_lock is supposed to be held throughout the state change,
+it is not ideal to drop the lock before calling mhi_ep_resume_channels().
+So to fix this issue, let's change the type of state_lock to mutex. This
+would also allow holding the lock throughout all state transitions thereby
+avoiding any potential race.
 
 Cc: <stable@vger.kernel.org> # 5.19
 Fixes: e4b7b5f0f30a ("bus: mhi: ep: Add support for suspending and resuming channels")
-Signed-off-by: Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>
-Reviewed-by: Jeffrey Hugo <quic_jhugo@quicinc.com)
-Link: https://lore.kernel.org/r/20221228161704.255268-7-manivannan.sadhasivam@linaro.org
+Reported-by: Dan Carpenter <error27@gmail.com>
+Reviewed-by: Jeffrey Hugo <quic_jhugo@quicinc.com>
 Signed-off-by: Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>
 ---
- drivers/bus/mhi/ep/main.c | 2 ++
- 1 file changed, 2 insertions(+)
+ drivers/bus/mhi/ep/main.c |  8 +++++---
+ drivers/bus/mhi/ep/sm.c   | 42 ++++++++++++++++++++++-----------------
+ include/linux/mhi_ep.h    |  4 ++--
+ 3 files changed, 31 insertions(+), 23 deletions(-)
 
 diff --git a/drivers/bus/mhi/ep/main.c b/drivers/bus/mhi/ep/main.c
-index 2362fcc8b32c..bcaaba97ef63 100644
+index bcaaba97ef63..528c00b232bf 100644
 --- a/drivers/bus/mhi/ep/main.c
 +++ b/drivers/bus/mhi/ep/main.c
-@@ -1122,6 +1122,7 @@ void mhi_ep_suspend_channels(struct mhi_ep_cntrl *mhi_cntrl)
+@@ -1001,11 +1001,11 @@ static void mhi_ep_reset_worker(struct work_struct *work)
  
- 		dev_dbg(&mhi_chan->mhi_dev->dev, "Suspending channel\n");
- 		/* Set channel state to SUSPENDED */
-+		mhi_chan->state = MHI_CH_STATE_SUSPENDED;
- 		tmp &= ~CHAN_CTX_CHSTATE_MASK;
- 		tmp |= FIELD_PREP(CHAN_CTX_CHSTATE_MASK, MHI_CH_STATE_SUSPENDED);
- 		mhi_cntrl->ch_ctx_cache[i].chcfg = cpu_to_le32(tmp);
-@@ -1151,6 +1152,7 @@ void mhi_ep_resume_channels(struct mhi_ep_cntrl *mhi_cntrl)
+ 	mhi_ep_power_down(mhi_cntrl);
  
- 		dev_dbg(&mhi_chan->mhi_dev->dev, "Resuming channel\n");
- 		/* Set channel state to RUNNING */
-+		mhi_chan->state = MHI_CH_STATE_RUNNING;
- 		tmp &= ~CHAN_CTX_CHSTATE_MASK;
- 		tmp |= FIELD_PREP(CHAN_CTX_CHSTATE_MASK, MHI_CH_STATE_RUNNING);
- 		mhi_cntrl->ch_ctx_cache[i].chcfg = cpu_to_le32(tmp);
+-	spin_lock_bh(&mhi_cntrl->state_lock);
++	mutex_lock(&mhi_cntrl->state_lock);
++
+ 	/* Reset MMIO to signal host that the MHI_RESET is completed in endpoint */
+ 	mhi_ep_mmio_reset(mhi_cntrl);
+ 	cur_state = mhi_cntrl->mhi_state;
+-	spin_unlock_bh(&mhi_cntrl->state_lock);
+ 
+ 	/*
+ 	 * Only proceed further if the reset is due to SYS_ERR. The host will
+@@ -1014,6 +1014,8 @@ static void mhi_ep_reset_worker(struct work_struct *work)
+ 	 */
+ 	if (cur_state == MHI_STATE_SYS_ERR)
+ 		mhi_ep_power_up(mhi_cntrl);
++
++	mutex_unlock(&mhi_cntrl->state_lock);
+ }
+ 
+ /*
+@@ -1386,8 +1388,8 @@ int mhi_ep_register_controller(struct mhi_ep_cntrl *mhi_cntrl,
+ 
+ 	INIT_LIST_HEAD(&mhi_cntrl->st_transition_list);
+ 	INIT_LIST_HEAD(&mhi_cntrl->ch_db_list);
+-	spin_lock_init(&mhi_cntrl->state_lock);
+ 	spin_lock_init(&mhi_cntrl->list_lock);
++	mutex_init(&mhi_cntrl->state_lock);
+ 	mutex_init(&mhi_cntrl->event_lock);
+ 
+ 	/* Set MHI version and AMSS EE before enumeration */
+diff --git a/drivers/bus/mhi/ep/sm.c b/drivers/bus/mhi/ep/sm.c
+index 3655c19e23c7..fd200b2ac0bb 100644
+--- a/drivers/bus/mhi/ep/sm.c
++++ b/drivers/bus/mhi/ep/sm.c
+@@ -63,24 +63,23 @@ int mhi_ep_set_m0_state(struct mhi_ep_cntrl *mhi_cntrl)
+ 	int ret;
+ 
+ 	/* If MHI is in M3, resume suspended channels */
+-	spin_lock_bh(&mhi_cntrl->state_lock);
++	mutex_lock(&mhi_cntrl->state_lock);
++
+ 	old_state = mhi_cntrl->mhi_state;
+ 	if (old_state == MHI_STATE_M3)
+ 		mhi_ep_resume_channels(mhi_cntrl);
+ 
+ 	ret = mhi_ep_set_mhi_state(mhi_cntrl, MHI_STATE_M0);
+-	spin_unlock_bh(&mhi_cntrl->state_lock);
+-
+ 	if (ret) {
+ 		mhi_ep_handle_syserr(mhi_cntrl);
+-		return ret;
++		goto err_unlock;
+ 	}
+ 
+ 	/* Signal host that the device moved to M0 */
+ 	ret = mhi_ep_send_state_change_event(mhi_cntrl, MHI_STATE_M0);
+ 	if (ret) {
+ 		dev_err(dev, "Failed sending M0 state change event\n");
+-		return ret;
++		goto err_unlock;
+ 	}
+ 
+ 	if (old_state == MHI_STATE_READY) {
+@@ -88,11 +87,14 @@ int mhi_ep_set_m0_state(struct mhi_ep_cntrl *mhi_cntrl)
+ 		ret = mhi_ep_send_ee_event(mhi_cntrl, MHI_EE_AMSS);
+ 		if (ret) {
+ 			dev_err(dev, "Failed sending AMSS EE event\n");
+-			return ret;
++			goto err_unlock;
+ 		}
+ 	}
+ 
+-	return 0;
++err_unlock:
++	mutex_unlock(&mhi_cntrl->state_lock);
++
++	return ret;
+ }
+ 
+ int mhi_ep_set_m3_state(struct mhi_ep_cntrl *mhi_cntrl)
+@@ -100,13 +102,12 @@ int mhi_ep_set_m3_state(struct mhi_ep_cntrl *mhi_cntrl)
+ 	struct device *dev = &mhi_cntrl->mhi_dev->dev;
+ 	int ret;
+ 
+-	spin_lock_bh(&mhi_cntrl->state_lock);
+-	ret = mhi_ep_set_mhi_state(mhi_cntrl, MHI_STATE_M3);
+-	spin_unlock_bh(&mhi_cntrl->state_lock);
++	mutex_lock(&mhi_cntrl->state_lock);
+ 
++	ret = mhi_ep_set_mhi_state(mhi_cntrl, MHI_STATE_M3);
+ 	if (ret) {
+ 		mhi_ep_handle_syserr(mhi_cntrl);
+-		return ret;
++		goto err_unlock;
+ 	}
+ 
+ 	mhi_ep_suspend_channels(mhi_cntrl);
+@@ -115,10 +116,13 @@ int mhi_ep_set_m3_state(struct mhi_ep_cntrl *mhi_cntrl)
+ 	ret = mhi_ep_send_state_change_event(mhi_cntrl, MHI_STATE_M3);
+ 	if (ret) {
+ 		dev_err(dev, "Failed sending M3 state change event\n");
+-		return ret;
++		goto err_unlock;
+ 	}
+ 
+-	return 0;
++err_unlock:
++	mutex_unlock(&mhi_cntrl->state_lock);
++
++	return ret;
+ }
+ 
+ int mhi_ep_set_ready_state(struct mhi_ep_cntrl *mhi_cntrl)
+@@ -127,22 +131,24 @@ int mhi_ep_set_ready_state(struct mhi_ep_cntrl *mhi_cntrl)
+ 	enum mhi_state mhi_state;
+ 	int ret, is_ready;
+ 
+-	spin_lock_bh(&mhi_cntrl->state_lock);
++	mutex_lock(&mhi_cntrl->state_lock);
++
+ 	/* Ensure that the MHISTATUS is set to RESET by host */
+ 	mhi_state = mhi_ep_mmio_masked_read(mhi_cntrl, EP_MHISTATUS, MHISTATUS_MHISTATE_MASK);
+ 	is_ready = mhi_ep_mmio_masked_read(mhi_cntrl, EP_MHISTATUS, MHISTATUS_READY_MASK);
+ 
+ 	if (mhi_state != MHI_STATE_RESET || is_ready) {
+ 		dev_err(dev, "READY state transition failed. MHI host not in RESET state\n");
+-		spin_unlock_bh(&mhi_cntrl->state_lock);
+-		return -EIO;
++		ret = -EIO;
++		goto err_unlock;
+ 	}
+ 
+ 	ret = mhi_ep_set_mhi_state(mhi_cntrl, MHI_STATE_READY);
+-	spin_unlock_bh(&mhi_cntrl->state_lock);
+-
+ 	if (ret)
+ 		mhi_ep_handle_syserr(mhi_cntrl);
+ 
++err_unlock:
++	mutex_unlock(&mhi_cntrl->state_lock);
++
+ 	return ret;
+ }
+diff --git a/include/linux/mhi_ep.h b/include/linux/mhi_ep.h
+index 478aece17046..f198a8ac7ee7 100644
+--- a/include/linux/mhi_ep.h
++++ b/include/linux/mhi_ep.h
+@@ -70,8 +70,8 @@ struct mhi_ep_db_info {
+  * @cmd_ctx_cache_phys: Physical address of the host command context cache
+  * @chdb: Array of channel doorbell interrupt info
+  * @event_lock: Lock for protecting event rings
+- * @list_lock: Lock for protecting state transition and channel doorbell lists
+  * @state_lock: Lock for protecting state transitions
++ * @list_lock: Lock for protecting state transition and channel doorbell lists
+  * @st_transition_list: List of state transitions
+  * @ch_db_list: List of queued channel doorbells
+  * @wq: Dedicated workqueue for handling rings and state changes
+@@ -117,8 +117,8 @@ struct mhi_ep_cntrl {
+ 
+ 	struct mhi_ep_db_info chdb[4];
+ 	struct mutex event_lock;
++	struct mutex state_lock;
+ 	spinlock_t list_lock;
+-	spinlock_t state_lock;
+ 
+ 	struct list_head st_transition_list;
+ 	struct list_head ch_db_list;
 -- 
 2.39.1
 
