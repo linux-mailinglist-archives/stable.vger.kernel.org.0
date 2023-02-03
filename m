@@ -2,49 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 4AA3F6895D1
-	for <lists+stable@lfdr.de>; Fri,  3 Feb 2023 11:24:34 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9C791689680
+	for <lists+stable@lfdr.de>; Fri,  3 Feb 2023 11:32:10 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233274AbjBCKVD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 3 Feb 2023 05:21:03 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42504 "EHLO
+        id S233348AbjBCKaE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 3 Feb 2023 05:30:04 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51298 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233331AbjBCKVC (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 3 Feb 2023 05:21:02 -0500
+        with ESMTP id S233578AbjBCK3e (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 3 Feb 2023 05:29:34 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 54A5D9EE07
-        for <stable@vger.kernel.org>; Fri,  3 Feb 2023 02:20:43 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id ECE70A2A57
+        for <stable@vger.kernel.org>; Fri,  3 Feb 2023 02:28:44 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 2F28761ECA
-        for <stable@vger.kernel.org>; Fri,  3 Feb 2023 10:20:43 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0BA89C433EF;
-        Fri,  3 Feb 2023 10:20:41 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id E125961ECF
+        for <stable@vger.kernel.org>; Fri,  3 Feb 2023 10:28:19 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C9960C4339B;
+        Fri,  3 Feb 2023 10:28:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1675419642;
-        bh=NpIcMv6liOdVHf2PZXzPDLHYoNp54e/OD+2ATZPye6o=;
+        s=korg; t=1675420099;
+        bh=E8SD8xX5pWy1GDgFQ3PMN5rDFGmtrkI/w8dbWxEmWXI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=nY6TJJlv32tNuUt+HgSnJcfFbVzx355Y1GrUVfdN4U+eyECfZptIflDueewL+qXJU
-         ySsnhg1iBZZxT5GHyxqPzFQ8Q8BsX/949/Up+ygggPPIAMjBLlmlHyAXHtAveQXJA3
-         tegLuROhoZnU8OTMlf2kaT1RFMkxTAZLI1U6SLGk=
+        b=qbGJXqraGAropn/Mlr+uQCMw2Nu8Bc+8r4UJaABxNinapwMbXBWX0F+YOSe5MjNp0
+         5i63LxOmiu3JfmtjWzR4eESaGY5Ux/FYwMe1U2X1YyNGJJ0MkRsGz0LEfRsCYFefxf
+         JVbsKE6zp4SCJzKy7isAHO8f3FZe0S+QXeatum7Y=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Randy Dunlap <rdunlap@infradead.org>,
-        Christoph Hellwig <hch@infradead.org>,
-        Christoph Hellwig <hch@lst.de>,
-        "Eric W. Biederman" <ebiederm@xmission.com>,
-        Tony Luck <tony.luck@intel.com>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Eric Biggers <ebiggers@google.com>
-Subject: [PATCH 4.19 70/80] ia64: make IA64_MCA_RECOVERY bool instead of tristate
+        patches@lists.linux.dev, Alexander Graf <graf@amazon.de>,
+        Hendrik Borghorst <hborghor@amazon.de>,
+        Jim Mattson <jmattson@google.com>,
+        Alexander Graf <graf@amazon.com>,
+        Paolo Bonzini <pbonzini@redhat.com>
+Subject: [PATCH 5.4 079/134] KVM: x86/vmx: Do not skip segment attributes if unusable bit is set
 Date:   Fri,  3 Feb 2023 11:13:04 +0100
-Message-Id: <20230203101018.227499813@linuxfoundation.org>
+Message-Id: <20230203101027.410874049@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.1
-In-Reply-To: <20230203101015.263854890@linuxfoundation.org>
-References: <20230203101015.263854890@linuxfoundation.org>
+In-Reply-To: <20230203101023.832083974@linuxfoundation.org>
+References: <20230203101023.832083974@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -58,48 +55,86 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Randy Dunlap <rdunlap@infradead.org>
+From: Hendrik Borghorst <hborghor@amazon.de>
 
-commit dbecf9b8b8ce580f4e11afed9d61e8aa294cddd2 upstream.
+commit a44b331614e6f7e63902ed7dff7adc8c85edd8bc upstream.
 
-In linux-next, IA64_MCA_RECOVERY uses the (new) function
-make_task_dead(), which is not exported for use by modules.  Instead of
-exporting it for one user, convert IA64_MCA_RECOVERY to be a bool
-Kconfig symbol.
+When serializing and deserializing kvm_sregs, attributes of the segment
+descriptors are stored by user space. For unusable segments,
+vmx_segment_access_rights skips all attributes and sets them to 0.
 
-In a config file from "kernel test robot <lkp@intel.com>" for a
-different problem, this linker error was exposed when
-CONFIG_IA64_MCA_RECOVERY=m.
+This means we zero out the DPL (Descriptor Privilege Level) for unusable
+entries.
 
-Fixes this build error:
+Unusable segments are - contrary to their name - usable in 64bit mode and
+are used by guests to for example create a linear map through the
+NULL selector.
 
-  ERROR: modpost: "make_task_dead" [arch/ia64/kernel/mca_recovery.ko] undefined!
+VMENTER checks if SS.DPL is correct depending on the CS segment type.
+For types 9 (Execute Only) and 11 (Execute Read), CS.DPL must be equal to
+SS.DPL [1].
 
-Link: https://lkml.kernel.org/r/20220124213129.29306-1-rdunlap@infradead.org
-Fixes: 0e25498f8cd4 ("exit: Add and use make_task_dead.")
-Signed-off-by: Randy Dunlap <rdunlap@infradead.org>
-Suggested-by: Christoph Hellwig <hch@infradead.org>
-Reviewed-by: Christoph Hellwig <hch@lst.de>
-Reviewed-by: "Eric W. Biederman" <ebiederm@xmission.com>
-Cc: Tony Luck <tony.luck@intel.com>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
-Signed-off-by: Eric Biggers <ebiggers@google.com>
+We have seen real world guests setting CS to a usable segment with DPL=3
+and SS to an unusable segment with DPL=3. Once we go through an sregs
+get/set cycle, SS.DPL turns to 0. This causes the virtual machine to crash
+reproducibly.
+
+This commit changes the attribute logic to always preserve attributes for
+unusable segments. According to [2] SS.DPL is always saved on VM exits,
+regardless of the unusable bit so user space applications should have saved
+the information on serialization correctly.
+
+[3] specifies that besides SS.DPL the rest of the attributes of the
+descriptors are undefined after VM entry if unusable bit is set. So, there
+should be no harm in setting them all to the previous state.
+
+[1] Intel SDM Vol 3C 26.3.1.2 Checks on Guest Segment Registers
+[2] Intel SDM Vol 3C 27.3.2 Saving Segment Registers and Descriptor-Table
+Registers
+[3] Intel SDM Vol 3C 26.3.2.2 Loading Guest Segment Registers and
+Descriptor-Table Registers
+
+Cc: Alexander Graf <graf@amazon.de>
+Cc: stable@vger.kernel.org
+Signed-off-by: Hendrik Borghorst <hborghor@amazon.de>
+Reviewed-by: Jim Mattson <jmattson@google.com>
+Reviewed-by: Alexander Graf <graf@amazon.com>
+Message-Id: <20221114164823.69555-1-hborghor@amazon.de>
+Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/ia64/Kconfig |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ arch/x86/kvm/vmx/vmx.c |   21 +++++++++------------
+ 1 file changed, 9 insertions(+), 12 deletions(-)
 
---- a/arch/ia64/Kconfig
-+++ b/arch/ia64/Kconfig
-@@ -445,7 +445,7 @@ config ARCH_PROC_KCORE_TEXT
- 	depends on PROC_KCORE
+--- a/arch/x86/kvm/vmx/vmx.c
++++ b/arch/x86/kvm/vmx/vmx.c
+@@ -3241,18 +3241,15 @@ static u32 vmx_segment_access_rights(str
+ {
+ 	u32 ar;
  
- config IA64_MCA_RECOVERY
--	tristate "MCA recovery from errors other than TLB."
-+	bool "MCA recovery from errors other than TLB."
+-	if (var->unusable || !var->present)
+-		ar = 1 << 16;
+-	else {
+-		ar = var->type & 15;
+-		ar |= (var->s & 1) << 4;
+-		ar |= (var->dpl & 3) << 5;
+-		ar |= (var->present & 1) << 7;
+-		ar |= (var->avl & 1) << 12;
+-		ar |= (var->l & 1) << 13;
+-		ar |= (var->db & 1) << 14;
+-		ar |= (var->g & 1) << 15;
+-	}
++	ar = var->type & 15;
++	ar |= (var->s & 1) << 4;
++	ar |= (var->dpl & 3) << 5;
++	ar |= (var->present & 1) << 7;
++	ar |= (var->avl & 1) << 12;
++	ar |= (var->l & 1) << 13;
++	ar |= (var->db & 1) << 14;
++	ar |= (var->g & 1) << 15;
++	ar |= (var->unusable || !var->present) << 16;
  
- config PERFMON
- 	bool "Performance monitor support"
+ 	return ar;
+ }
 
 
