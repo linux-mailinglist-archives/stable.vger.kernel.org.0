@@ -2,52 +2,52 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 23152689518
-	for <lists+stable@lfdr.de>; Fri,  3 Feb 2023 11:18:36 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id BB9C0689573
+	for <lists+stable@lfdr.de>; Fri,  3 Feb 2023 11:24:02 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233289AbjBCKRx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 3 Feb 2023 05:17:53 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38626 "EHLO
+        id S232487AbjBCKTy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 3 Feb 2023 05:19:54 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41100 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233295AbjBCKRm (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 3 Feb 2023 05:17:42 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 626F19D072
-        for <stable@vger.kernel.org>; Fri,  3 Feb 2023 02:17:08 -0800 (PST)
+        with ESMTP id S233205AbjBCKTc (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 3 Feb 2023 05:19:32 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D1366305F5
+        for <stable@vger.kernel.org>; Fri,  3 Feb 2023 02:19:03 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id E6DF760691
-        for <stable@vger.kernel.org>; Fri,  3 Feb 2023 10:17:07 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B3312C433D2;
-        Fri,  3 Feb 2023 10:17:06 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 4479961EC9
+        for <stable@vger.kernel.org>; Fri,  3 Feb 2023 10:19:03 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E330DC433D2;
+        Fri,  3 Feb 2023 10:19:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1675419427;
-        bh=Hx7TD4L8XcQe37t7DyYmF6jD2VNPYkkI34qNqAZigI0=;
+        s=korg; t=1675419542;
+        bh=GOa9En7Rw2eVzcZ3taWhcDMBAV+YCeIZnJNNCxbfAiU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=w9Zj3ENFc2Kjgpbv3DiQkN0XM/XFbVzWncYI2kVQ4La7OBChEVc6Xqt44HalXktJU
-         ApS+YwPtlgSj+fJGOB7NXoZIAh+H+pfyg8nKEy8s7j30CzbHpb3jIIvyP+CJeUTEca
-         OxuaR/72Fgn4vsojh9+K0iqdd0Bs95uRHHJ2h6Sw=
+        b=ACBOlvGhjPSUcuStwwCVrSkU9z+soFNlNiaPf6p0M5yvItwRtmT4X/Jsp6z2KrZ0D
+         WG9wqcYc925wOlk90DTUAtiOlAXzKb0tfyHxCxU0H1MZPnC4OO6XnCr2V6IcKIL4i9
+         +1AoWVi1cvCG/K9o1VindgXN4dBgKTuNRMJIAb44=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         patches@lists.linux.dev,
-        Yoshihiro Shimoda <yoshihiro.shimoda.uh@renesas.com>,
-        Sergey Shtylyov <s.shtylyov@omp.ru>,
-        "David S. Miller" <davem@davemloft.net>,
+        "Alexey V. Vissarionov" <gremlin@altlinux.org>,
+        Don Brace <don.brace@microchip.com>,
+        "Martin K. Petersen" <martin.petersen@oracle.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 35/62] net: ravb: Fix possible hang if RIS2_QFF1 happen
+Subject: [PATCH 4.19 37/80] scsi: hpsa: Fix allocation size for scsi_host_alloc()
 Date:   Fri,  3 Feb 2023 11:12:31 +0100
-Message-Id: <20230203101014.518787639@linuxfoundation.org>
+Message-Id: <20230203101016.770399729@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.1
-In-Reply-To: <20230203101012.959398849@linuxfoundation.org>
-References: <20230203101012.959398849@linuxfoundation.org>
+In-Reply-To: <20230203101015.263854890@linuxfoundation.org>
+References: <20230203101015.263854890@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
         SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -55,47 +55,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yoshihiro Shimoda <yoshihiro.shimoda.uh@renesas.com>
+From: Alexey V. Vissarionov <gremlin@altlinux.org>
 
-[ Upstream commit f3c07758c9007a6bfff5290d9e19d3c41930c897 ]
+[ Upstream commit bbbd25499100c810ceaf5193c3cfcab9f7402a33 ]
 
-Since this driver enables the interrupt by RIC2_QFE1, this driver
-should clear the interrupt flag if it happens. Otherwise, the interrupt
-causes to hang the system.
+The 'h' is a pointer to struct ctlr_info, so it's just 4 or 8 bytes, while
+the structure itself is much bigger.
 
-Note that this also fix a minor coding style (a comment indentation)
-around the fixed code.
+Found by Linux Verification Center (linuxtesting.org) with SVACE.
 
-Fixes: c156633f1353 ("Renesas Ethernet AVB driver proper")
-Signed-off-by: Yoshihiro Shimoda <yoshihiro.shimoda.uh@renesas.com>
-Reviewed-by: Sergey Shtylyov <s.shtylyov@omp.ru>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Fixes: edd163687ea5 ("hpsa: add driver for HP Smart Array controllers.")
+Link: https://lore.kernel.org/r/20230118031255.GE15213@altlinux.org
+Signed-off-by: Alexey V. Vissarionov <gremlin@altlinux.org>
+Acked-by: Don Brace <don.brace@microchip.com>
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/renesas/ravb_main.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/scsi/hpsa.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/net/ethernet/renesas/ravb_main.c b/drivers/net/ethernet/renesas/ravb_main.c
-index 4c8a4e6efb9f..4acea1ab6000 100644
---- a/drivers/net/ethernet/renesas/ravb_main.c
-+++ b/drivers/net/ethernet/renesas/ravb_main.c
-@@ -727,14 +727,14 @@ static void ravb_error_interrupt(struct net_device *ndev)
- 	ravb_write(ndev, ~(EIS_QFS | EIS_RESERVED), EIS);
- 	if (eis & EIS_QFS) {
- 		ris2 = ravb_read(ndev, RIS2);
--		ravb_write(ndev, ~(RIS2_QFF0 | RIS2_RFFF | RIS2_RESERVED),
-+		ravb_write(ndev, ~(RIS2_QFF0 | RIS2_QFF1 | RIS2_RFFF | RIS2_RESERVED),
- 			   RIS2);
+diff --git a/drivers/scsi/hpsa.c b/drivers/scsi/hpsa.c
+index 13931c5c0eff..25d9bdd4bc69 100644
+--- a/drivers/scsi/hpsa.c
++++ b/drivers/scsi/hpsa.c
+@@ -5771,7 +5771,7 @@ static int hpsa_scsi_host_alloc(struct ctlr_info *h)
+ {
+ 	struct Scsi_Host *sh;
  
- 		/* Receive Descriptor Empty int */
- 		if (ris2 & RIS2_QFF0)
- 			priv->stats[RAVB_BE].rx_over_errors++;
- 
--		    /* Receive Descriptor Empty int */
-+		/* Receive Descriptor Empty int */
- 		if (ris2 & RIS2_QFF1)
- 			priv->stats[RAVB_NC].rx_over_errors++;
- 
+-	sh = scsi_host_alloc(&hpsa_driver_template, sizeof(h));
++	sh = scsi_host_alloc(&hpsa_driver_template, sizeof(struct ctlr_info));
+ 	if (sh == NULL) {
+ 		dev_err(&h->pdev->dev, "scsi_host_alloc failed\n");
+ 		return -ENOMEM;
 -- 
 2.39.0
 
