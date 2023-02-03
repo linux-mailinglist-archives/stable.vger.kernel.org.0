@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A15A3688BBF
-	for <lists+stable@lfdr.de>; Fri,  3 Feb 2023 01:28:17 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B59A5688BC7
+	for <lists+stable@lfdr.de>; Fri,  3 Feb 2023 01:28:23 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233087AbjBCA2P (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 2 Feb 2023 19:28:15 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54414 "EHLO
+        id S233248AbjBCA2V (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 2 Feb 2023 19:28:21 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54568 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232852AbjBCA2J (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 2 Feb 2023 19:28:09 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2D6221ADF8;
-        Thu,  2 Feb 2023 16:28:07 -0800 (PST)
+        with ESMTP id S233077AbjBCA2P (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 2 Feb 2023 19:28:15 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3D52B30187;
+        Thu,  2 Feb 2023 16:28:09 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 0F30F61D42;
+        by ams.source.kernel.org (Postfix) with ESMTPS id A5DB1B828DA;
+        Fri,  3 Feb 2023 00:28:08 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0A745C433D2;
         Fri,  3 Feb 2023 00:28:07 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 69D85C4339C;
-        Fri,  3 Feb 2023 00:28:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1675384086;
-        bh=XvMp8OxqN686wYYBuokqdDG9zEqwVzaClZ28PNpdlgw=;
+        s=k20201202; t=1675384087;
+        bh=lwTsMszefw5rHZqf0ZxqDJa/9KBH+8q5OL/uceUU0fo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=i+Tjn7mUedQaJpBgwabWbvI+0CE1KZpZrX2t/5K51Syaq4D73en4K35JjCTxR0ST2
-         LWymy2wieDp3AJCu4zjBO0T4k3i6lU4P7Ob7cLBmsGPY1E3E/1ebOKRBSmtBIuFv37
-         JJWuDvGqZCXx7TXWvsXcazxK57mcTsJk2HVPRpXPul5GMPX0vAnH3e/SGBUiYGtpkk
-         frgiiZlPXAOPVyswRiwjIJS6wWk9XjNzKJiBeIewnT2Rj9wEyghZp+g1X/SXwNDPMv
-         V6wl6HoMGPLWl1ekdGz6dqILAuquOP8uwR+G46UPH3lofEwQmisT0c4pYVwwojPnma
-         ZRPimnfUO2J5w==
+        b=rhd6VBWliuTiYnmfw71LvW/Shl1jqUGI0neLZFFSIH6Bb36u4D0Ud9p50cihtQ3+X
+         EdzgeG9MSTbJPGhHgKnSZ5vTnp4yZfIwn1Wsl8TSJCxMTFlOHaQ/QXm1QCtDfYcbIL
+         Gk+qbtS6leRYCs1y86to5/FfdLpsQf8VL+flmiWixMf6Zr1Xxtq2w2NUBTSWhMoGDJ
+         m8ZfYN/FyYDJPbXL3QtQ6auJeKfLRMhnCzzloi9VhniEjm0fhot3zn/dwQTlB8UNM8
+         ymEKV1qWj3VX3QbFeAOXvUsxMhJc2r8OFAkny6rzhY/8xs4MAQ8Ux4Dk+ae/VExTPs
+         EQtKpqRvypEyA==
 From:   Eric Biggers <ebiggers@kernel.org>
 To:     stable@vger.kernel.org
 Cc:     Harshit Mogalapalli <harshit.m.mogalapalli@oracle.com>,
@@ -40,15 +40,10 @@ Cc:     Harshit Mogalapalli <harshit.m.mogalapalli@oracle.com>,
         Jann Horn <jannh@google.com>,
         "Eric W . Biederman" <ebiederm@xmission.com>,
         linux-hardening@vger.kernel.org, linux-kernel@vger.kernel.org,
-        Tony Luck <tony.luck@intel.com>,
-        Randy Dunlap <rdunlap@infradead.org>,
-        Christoph Hellwig <hch@infradead.org>,
-        Christoph Hellwig <hch@lst.de>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>
-Subject: [PATCH 4.19 v2 07/15] ia64: make IA64_MCA_RECOVERY bool instead of tristate
-Date:   Thu,  2 Feb 2023 16:27:09 -0800
-Message-Id: <20230203002717.49198-8-ebiggers@kernel.org>
+        Luis Chamberlain <mcgrof@kernel.org>
+Subject: [PATCH 4.19 v2 08/15] exit: Put an upper limit on how often we can oops
+Date:   Thu,  2 Feb 2023 16:27:10 -0800
+Message-Id: <20230203002717.49198-9-ebiggers@kernel.org>
 X-Mailer: git-send-email 2.39.1
 In-Reply-To: <20230203002717.49198-1-ebiggers@kernel.org>
 References: <20230203002717.49198-1-ebiggers@kernel.org>
@@ -63,50 +58,152 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Randy Dunlap <rdunlap@infradead.org>
+From: Jann Horn <jannh@google.com>
 
-commit dbecf9b8b8ce580f4e11afed9d61e8aa294cddd2 upstream.
+commit d4ccd54d28d3c8598e2354acc13e28c060961dbb upstream.
 
-In linux-next, IA64_MCA_RECOVERY uses the (new) function
-make_task_dead(), which is not exported for use by modules.  Instead of
-exporting it for one user, convert IA64_MCA_RECOVERY to be a bool
-Kconfig symbol.
+Many Linux systems are configured to not panic on oops; but allowing an
+attacker to oops the system **really** often can make even bugs that look
+completely unexploitable exploitable (like NULL dereferences and such) if
+each crash elevates a refcount by one or a lock is taken in read mode, and
+this causes a counter to eventually overflow.
 
-In a config file from "kernel test robot <lkp@intel.com>" for a
-different problem, this linker error was exposed when
-CONFIG_IA64_MCA_RECOVERY=m.
+The most interesting counters for this are 32 bits wide (like open-coded
+refcounts that don't use refcount_t). (The ldsem reader count on 32-bit
+platforms is just 16 bits, but probably nobody cares about 32-bit platforms
+that much nowadays.)
 
-Fixes this build error:
+So let's panic the system if the kernel is constantly oopsing.
 
-  ERROR: modpost: "make_task_dead" [arch/ia64/kernel/mca_recovery.ko] undefined!
+The speed of oopsing 2^32 times probably depends on several factors, like
+how long the stack trace is and which unwinder you're using; an empirically
+important one is whether your console is showing a graphical environment or
+a text console that oopses will be printed to.
+In a quick single-threaded benchmark, it looks like oopsing in a vfork()
+child with a very short stack trace only takes ~510 microseconds per run
+when a graphical console is active; but switching to a text console that
+oopses are printed to slows it down around 87x, to ~45 milliseconds per
+run.
+(Adding more threads makes this faster, but the actual oops printing
+happens under &die_lock on x86, so you can maybe speed this up by a factor
+of around 2 and then any further improvement gets eaten up by lock
+contention.)
 
-Link: https://lkml.kernel.org/r/20220124213129.29306-1-rdunlap@infradead.org
-Fixes: 0e25498f8cd4 ("exit: Add and use make_task_dead.")
-Signed-off-by: Randy Dunlap <rdunlap@infradead.org>
-Suggested-by: Christoph Hellwig <hch@infradead.org>
-Reviewed-by: Christoph Hellwig <hch@lst.de>
-Reviewed-by: "Eric W. Biederman" <ebiederm@xmission.com>
-Cc: Tony Luck <tony.luck@intel.com>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+It looks like it would take around 8-12 days to overflow a 32-bit counter
+with repeated oopsing on a multi-core X86 system running a graphical
+environment; both me (in an X86 VM) and Seth (with a distro kernel on
+normal hardware in a standard configuration) got numbers in that ballpark.
+
+12 days aren't *that* short on a desktop system, and you'd likely need much
+longer on a typical server system (assuming that people don't run graphical
+desktop environments on their servers), and this is a *very* noisy and
+violent approach to exploiting the kernel; and it also seems to take orders
+of magnitude longer on some machines, probably because stuff like EFI
+pstore will slow it down a ton if that's active.
+
+Signed-off-by: Jann Horn <jannh@google.com>
+Link: https://lore.kernel.org/r/20221107201317.324457-1-jannh@google.com
+Reviewed-by: Luis Chamberlain <mcgrof@kernel.org>
+Signed-off-by: Kees Cook <keescook@chromium.org>
+Link: https://lore.kernel.org/r/20221117234328.594699-2-keescook@chromium.org
 Signed-off-by: Eric Biggers <ebiggers@google.com>
 ---
- arch/ia64/Kconfig | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ Documentation/sysctl/kernel.txt |  9 +++++++
+ kernel/exit.c                   | 43 +++++++++++++++++++++++++++++++++
+ 2 files changed, 52 insertions(+)
 
-diff --git a/arch/ia64/Kconfig b/arch/ia64/Kconfig
-index 8b4a0c1748c03..0d56b19b7511a 100644
---- a/arch/ia64/Kconfig
-+++ b/arch/ia64/Kconfig
-@@ -445,7 +445,7 @@ config ARCH_PROC_KCORE_TEXT
- 	depends on PROC_KCORE
+diff --git a/Documentation/sysctl/kernel.txt b/Documentation/sysctl/kernel.txt
+index db1676525ca35..fd65f4e651d55 100644
+--- a/Documentation/sysctl/kernel.txt
++++ b/Documentation/sysctl/kernel.txt
+@@ -51,6 +51,7 @@ show up in /proc/sys/kernel:
+ - msgmnb
+ - msgmni
+ - nmi_watchdog
++- oops_limit
+ - osrelease
+ - ostype
+ - overflowgid
+@@ -555,6 +556,14 @@ scanned for a given scan.
  
- config IA64_MCA_RECOVERY
--	tristate "MCA recovery from errors other than TLB."
-+	bool "MCA recovery from errors other than TLB."
+ ==============================================================
  
- config PERFMON
- 	bool "Performance monitor support"
++oops_limit:
++
++Number of kernel oopses after which the kernel should panic when
++``panic_on_oops`` is not set. Setting this to 0 or 1 has the same effect
++as setting ``panic_on_oops=1``.
++
++==============================================================
++
+ osrelease, ostype & version:
+ 
+ # cat osrelease
+diff --git a/kernel/exit.c b/kernel/exit.c
+index 2147bbc2c7c32..fa3004ff33362 100644
+--- a/kernel/exit.c
++++ b/kernel/exit.c
+@@ -68,6 +68,33 @@
+ #include <asm/pgtable.h>
+ #include <asm/mmu_context.h>
+ 
++/*
++ * The default value should be high enough to not crash a system that randomly
++ * crashes its kernel from time to time, but low enough to at least not permit
++ * overflowing 32-bit refcounts or the ldsem writer count.
++ */
++static unsigned int oops_limit = 10000;
++
++#ifdef CONFIG_SYSCTL
++static struct ctl_table kern_exit_table[] = {
++	{
++		.procname       = "oops_limit",
++		.data           = &oops_limit,
++		.maxlen         = sizeof(oops_limit),
++		.mode           = 0644,
++		.proc_handler   = proc_douintvec,
++	},
++	{ }
++};
++
++static __init int kernel_exit_sysctls_init(void)
++{
++	register_sysctl_init("kernel", kern_exit_table);
++	return 0;
++}
++late_initcall(kernel_exit_sysctls_init);
++#endif
++
+ static void __unhash_process(struct task_struct *p, bool group_dead)
+ {
+ 	nr_threads--;
+@@ -924,10 +951,26 @@ EXPORT_SYMBOL_GPL(do_exit);
+ 
+ void __noreturn make_task_dead(int signr)
+ {
++	static atomic_t oops_count = ATOMIC_INIT(0);
++
+ 	/*
+ 	 * Take the task off the cpu after something catastrophic has
+ 	 * happened.
+ 	 */
++
++	/*
++	 * Every time the system oopses, if the oops happens while a reference
++	 * to an object was held, the reference leaks.
++	 * If the oops doesn't also leak memory, repeated oopsing can cause
++	 * reference counters to wrap around (if they're not using refcount_t).
++	 * This means that repeated oopsing can make unexploitable-looking bugs
++	 * exploitable through repeated oopsing.
++	 * To make sure this can't happen, place an upper bound on how often the
++	 * kernel may oops without panic().
++	 */
++	if (atomic_inc_return(&oops_count) >= READ_ONCE(oops_limit))
++		panic("Oopsed too often (kernel.oops_limit is %d)", oops_limit);
++
+ 	do_exit(signr);
+ }
+ 
 -- 
 2.39.1
 
