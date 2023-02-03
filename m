@@ -2,53 +2,49 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A156F6895EF
-	for <lists+stable@lfdr.de>; Fri,  3 Feb 2023 11:24:43 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 79D3D6896A1
+	for <lists+stable@lfdr.de>; Fri,  3 Feb 2023 11:32:21 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231463AbjBCKYd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 3 Feb 2023 05:24:33 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47510 "EHLO
+        id S233686AbjBCKbA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 3 Feb 2023 05:31:00 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50826 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233309AbjBCKYB (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 3 Feb 2023 05:24:01 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2F9BC199DA
-        for <stable@vger.kernel.org>; Fri,  3 Feb 2023 02:23:43 -0800 (PST)
+        with ESMTP id S233697AbjBCKaZ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 3 Feb 2023 05:30:25 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 70A89A07CA
+        for <stable@vger.kernel.org>; Fri,  3 Feb 2023 02:29:35 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 94564B82A71
-        for <stable@vger.kernel.org>; Fri,  3 Feb 2023 10:23:37 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D0BFDC4339B;
-        Fri,  3 Feb 2023 10:23:35 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 2041761E93
+        for <stable@vger.kernel.org>; Fri,  3 Feb 2023 10:29:35 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id CDC8BC433D2;
+        Fri,  3 Feb 2023 10:29:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1675419816;
-        bh=PkH1ckxbwV8PR9YZccXb30VGjW1ffGRBVluUZi7xmMk=;
+        s=korg; t=1675420174;
+        bh=zDpHAm1OUlImzdPXBA0SE2thcz18ap7cRJsY/4du8Zw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=UJLG7DdYyzL4FjM/XoV5ioYC6DG+F06Nk948KS8+/BGRf23jZ+NUhYOeO5536Sk2L
-         5HFTHQQvx8Ob5mH+XklsH6sKjiVHwpLqEGw0ZLPflqXN2ClLEUeBIhDhwK3NN23+Sy
-         0uRuixYjHgXui9DowrZUDDQMI6IVbfT6vnevOjlI=
+        b=NV46xF5WHRVVS603upbpjDTccM0+EjpZuyBMhx66dem8xzMjrYIbflaqNV6dhFdG3
+         UJ8dViL38jCAo5AcN+2J5J5cguKboh2RVJQOKtM81PMTq8yyc2vk1sHZlEzMV8FQY7
+         BQ5kS91/CAl2PrRs1SR/dw6yovW0GWjdPuir93pE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Geert Uytterhoeven <geert+renesas@glider.be>,
-        Shawn Guo <shawnguo@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 1/9] ARM: dts: imx: Fix pca9547 i2c-mux node name
+        patches@lists.linux.dev, Baoquan He <bhe@redhat.com>,
+        Thomas Gleixner <tglx@linutronix.de>
+Subject: [PATCH 5.4 105/134] x86/i8259: Mark legacy PIC interrupts with IRQ_LEVEL
 Date:   Fri,  3 Feb 2023 11:13:30 +0100
-Message-Id: <20230203101006.486606694@linuxfoundation.org>
+Message-Id: <20230203101028.565304817@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.1
-In-Reply-To: <20230203101006.422534094@linuxfoundation.org>
-References: <20230203101006.422534094@linuxfoundation.org>
+In-Reply-To: <20230203101023.832083974@linuxfoundation.org>
+References: <20230203101023.832083974@linuxfoundation.org>
 User-Agent: quilt/0.67
-X-stable: review
-X-Patchwork-Hint: ignore
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
         SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -56,43 +52,61 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Geert Uytterhoeven <geert+renesas@glider.be>
+From: Thomas Gleixner <tglx@linutronix.de>
 
-[ Upstream commit f78985f9f58380eec37f82c8a2c765aa7670fc29 ]
+commit 5fa55950729d0762a787451dc52862c3f850f859 upstream.
 
-"make dtbs_check":
+Baoquan reported that after triggering a crash the subsequent crash-kernel
+fails to boot about half of the time. It triggers a NULL pointer
+dereference in the periodic tick code.
 
-    arch/arm/boot/dts/imx53-ppd.dtb: i2c-switch@70: $nodename:0: 'i2c-switch@70' does not match '^(i2c-?)?mux'
-	    From schema: Documentation/devicetree/bindings/i2c/i2c-mux-pca954x.yaml
-    arch/arm/boot/dts/imx53-ppd.dtb: i2c-switch@70: Unevaluated properties are not allowed ('#address-cells', '#size-cells', 'i2c@0', 'i2c@1', 'i2c@2', 'i2c@3', 'i2c@4', 'i2c@5', 'i2c@6', 'i2c@7' were unexpected)
-	    From schema: Documentation/devicetree/bindings/i2c/i2c-mux-pca954x.yaml
+This happens because the legacy timer interrupt (IRQ0) is resent in
+software which happens in soft interrupt (tasklet) context. In this context
+get_irq_regs() returns NULL which leads to the NULL pointer dereference.
 
-Fix this by renaming the PCA9547 node to "i2c-mux", to match the I2C bus
-multiplexer/switch DT bindings and the Generic Names Recommendation in
-the Devicetree Specification.
+The reason for the resend is a spurious APIC interrupt on the IRQ0 vector
+which is captured and leads to a resend when the legacy timer interrupt is
+enabled. This is wrong because the legacy PIC interrupts are level
+triggered and therefore should never be resent in software, but nothing
+ever sets the IRQ_LEVEL flag on those interrupts, so the core code does not
+know about their trigger type.
 
-Signed-off-by: Geert Uytterhoeven <geert+renesas@glider.be>
-Signed-off-by: Shawn Guo <shawnguo@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Ensure that IRQ_LEVEL is set when the legacy PCI interrupts are set up.
+
+Fixes: a4633adcdbc1 ("[PATCH] genirq: add genirq sw IRQ-retrigger")
+Reported-by: Baoquan He <bhe@redhat.com>
+Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
+Tested-by: Baoquan He <bhe@redhat.com>
+Link: https://lore.kernel.org/r/87mt6rjrra.ffs@tglx
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/arm/boot/dts/imx53-ppd.dts | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ arch/x86/kernel/i8259.c   |    1 +
+ arch/x86/kernel/irqinit.c |    4 +++-
+ 2 files changed, 4 insertions(+), 1 deletion(-)
 
-diff --git a/arch/arm/boot/dts/imx53-ppd.dts b/arch/arm/boot/dts/imx53-ppd.dts
-index 006fbd7f5432..54e39db447c4 100644
---- a/arch/arm/boot/dts/imx53-ppd.dts
-+++ b/arch/arm/boot/dts/imx53-ppd.dts
-@@ -487,7 +487,7 @@ &i2c1 {
- 	scl-gpios = <&gpio3 21 GPIO_ACTIVE_HIGH>;
- 	status = "okay";
+--- a/arch/x86/kernel/i8259.c
++++ b/arch/x86/kernel/i8259.c
+@@ -114,6 +114,7 @@ static void make_8259A_irq(unsigned int
+ 	disable_irq_nosync(irq);
+ 	io_apic_irqs &= ~(1<<irq);
+ 	irq_set_chip_and_handler(irq, &i8259A_chip, handle_level_irq);
++	irq_set_status_flags(irq, IRQ_LEVEL);
+ 	enable_irq(irq);
+ 	lapic_assign_legacy_vector(irq, true);
+ }
+--- a/arch/x86/kernel/irqinit.c
++++ b/arch/x86/kernel/irqinit.c
+@@ -72,8 +72,10 @@ void __init init_ISA_irqs(void)
  
--	i2c-switch@70 {
-+	i2c-mux@70 {
- 		compatible = "nxp,pca9547";
- 		#address-cells = <1>;
- 		#size-cells = <0>;
--- 
-2.39.0
-
+ 	legacy_pic->init(0);
+ 
+-	for (i = 0; i < nr_legacy_irqs(); i++)
++	for (i = 0; i < nr_legacy_irqs(); i++) {
+ 		irq_set_chip_and_handler(i, chip, handle_level_irq);
++		irq_set_status_flags(i, IRQ_LEVEL);
++	}
+ }
+ 
+ void __init init_IRQ(void)
 
 
