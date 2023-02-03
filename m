@@ -2,44 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 5F6AB6894EB
-	for <lists+stable@lfdr.de>; Fri,  3 Feb 2023 11:15:49 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 011ED6895A9
+	for <lists+stable@lfdr.de>; Fri,  3 Feb 2023 11:24:20 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231644AbjBCKPW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 3 Feb 2023 05:15:22 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35308 "EHLO
+        id S232406AbjBCKT4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 3 Feb 2023 05:19:56 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38522 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232203AbjBCKPV (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 3 Feb 2023 05:15:21 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 65B338E68D
-        for <stable@vger.kernel.org>; Fri,  3 Feb 2023 02:15:20 -0800 (PST)
+        with ESMTP id S233405AbjBCKTs (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 3 Feb 2023 05:19:48 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 956858FB78
+        for <stable@vger.kernel.org>; Fri,  3 Feb 2023 02:19:16 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 23C2BB82A63
-        for <stable@vger.kernel.org>; Fri,  3 Feb 2023 10:15:19 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5503EC433D2;
-        Fri,  3 Feb 2023 10:15:17 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 20DA761E93
+        for <stable@vger.kernel.org>; Fri,  3 Feb 2023 10:18:45 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id ECE85C433D2;
+        Fri,  3 Feb 2023 10:18:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1675419317;
-        bh=hUQfo4+1iKSUEdsk7P3uxdCbOpmrcSc9vBqSdDunrbg=;
+        s=korg; t=1675419524;
+        bh=744CDKKi8E7YUCWU6p1rLxd7RRXaOcHUycsnTVTv/1g=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=INWbmlRK39vSQyfkZ+/r6EXaBlHFIo68TYDEolM/rJHHkTj6tzhDiAKeiKLewY7t9
-         mDzzBgGuO3Z1+kIzkvln1E0gmxqQU6fIUjF3ja36qUfvF1nrDPojZ/bd2c/4RppiE0
-         Bze6O7S+w7LyOrO5h4ZOcmfTEO1gaMcyK20fqbP4=
+        b=bsE1mkoLrrgB8NPvzc+pbnSdS13ts5TWs8J0GxjPgHOCB0xU9Y6MvHA341lCtmluk
+         wX/Ut83ThSlEUHh48v2fH19eSjmb+vg19aHtloF7Z6tei79tK+Ts5SOyM/XWjObdWu
+         xAe9HU6/HWvdTwyiR3Xiqznw4KP3Zuiq7x1Rh7YI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Giulio Benetti <giulio.benetti@benettiengineering.com>,
-        "Russell King (Oracle)" <rmk+kernel@armlinux.org.uk>
-Subject: [PATCH 4.14 28/62] ARM: 9280/1: mm: fix warning on phys_addr_t to void pointer assignment
-Date:   Fri,  3 Feb 2023 11:12:24 +0100
-Message-Id: <20230203101014.234878562@linuxfoundation.org>
+        patches@lists.linux.dev, Yang Yingliang <yangyingliang@huawei.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 31/80] w1: fix WARNING after calling w1_process()
+Date:   Fri,  3 Feb 2023 11:12:25 +0100
+Message-Id: <20230203101016.495674998@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.1
-In-Reply-To: <20230203101012.959398849@linuxfoundation.org>
-References: <20230203101012.959398849@linuxfoundation.org>
+In-Reply-To: <20230203101015.263854890@linuxfoundation.org>
+References: <20230203101015.263854890@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,34 +52,55 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Giulio Benetti <giulio.benetti@benettiengineering.com>
+From: Yang Yingliang <yangyingliang@huawei.com>
 
-commit a4e03921c1bb118e6718e0a3b0322a2c13ed172b upstream.
+[ Upstream commit 36225a7c72e9e3e1ce4001b6ce72849f5c9a2d3b ]
 
-zero_page is a void* pointer but memblock_alloc() returns phys_addr_t type
-so this generates a warning while using clang and with -Wint-error enabled
-that becomes and error. So let's cast the return of memblock_alloc() to
-(void *).
+I got the following WARNING message while removing driver(ds2482):
 
-Cc: <stable@vger.kernel.org> # 4.14.x +
-Fixes: 340a982825f7 ("ARM: 9266/1: mm: fix no-MMU ZERO_PAGE() implementation")
-Signed-off-by: Giulio Benetti <giulio.benetti@benettiengineering.com>
-Signed-off-by: Russell King (Oracle) <rmk+kernel@armlinux.org.uk>
+------------[ cut here ]------------
+do not call blocking ops when !TASK_RUNNING; state=1 set at [<000000002d50bfb6>] w1_process+0x9e/0x1d0 [wire]
+WARNING: CPU: 0 PID: 262 at kernel/sched/core.c:9817 __might_sleep+0x98/0xa0
+CPU: 0 PID: 262 Comm: w1_bus_master1 Tainted: G                 N 6.1.0-rc3+ #307
+RIP: 0010:__might_sleep+0x98/0xa0
+Call Trace:
+ exit_signals+0x6c/0x550
+ do_exit+0x2b4/0x17e0
+ kthread_exit+0x52/0x60
+ kthread+0x16d/0x1e0
+ ret_from_fork+0x1f/0x30
+
+The state of task is set to TASK_INTERRUPTIBLE in loop in w1_process(),
+set it to TASK_RUNNING when it breaks out of the loop to avoid the
+warning.
+
+Fixes: 3c52e4e62789 ("W1: w1_process, block or sleep")
+Signed-off-by: Yang Yingliang <yangyingliang@huawei.com>
+Link: https://lore.kernel.org/r/20221205101558.3599162-1-yangyingliang@huawei.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm/mm/nommu.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/w1/w1.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
---- a/arch/arm/mm/nommu.c
-+++ b/arch/arm/mm/nommu.c
-@@ -379,7 +379,7 @@ void __init paging_init(const struct mac
- 	mpu_setup();
+diff --git a/drivers/w1/w1.c b/drivers/w1/w1.c
+index c1d0e723fabc..cb3650efc29c 100644
+--- a/drivers/w1/w1.c
++++ b/drivers/w1/w1.c
+@@ -1169,8 +1169,10 @@ int w1_process(void *data)
+ 		 */
+ 		mutex_unlock(&dev->list_mutex);
  
- 	/* allocate the zero page. */
--	zero_page = memblock_alloc(PAGE_SIZE, PAGE_SIZE);
-+	zero_page = (void *)memblock_alloc(PAGE_SIZE, PAGE_SIZE);
- 	if (!zero_page)
- 		panic("%s: Failed to allocate %lu bytes align=0x%lx\n",
- 		      __func__, PAGE_SIZE, PAGE_SIZE);
+-		if (kthread_should_stop())
++		if (kthread_should_stop()) {
++			__set_current_state(TASK_RUNNING);
+ 			break;
++		}
+ 
+ 		/* Only sleep when the search is active. */
+ 		if (dev->search_count) {
+-- 
+2.39.0
+
 
 
