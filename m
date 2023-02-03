@@ -2,46 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 25EE4689587
-	for <lists+stable@lfdr.de>; Fri,  3 Feb 2023 11:24:09 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 65B5B689629
+	for <lists+stable@lfdr.de>; Fri,  3 Feb 2023 11:31:38 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233330AbjBCKWM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 3 Feb 2023 05:22:12 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44564 "EHLO
+        id S233607AbjBCK3X (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 3 Feb 2023 05:29:23 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50490 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233252AbjBCKWK (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 3 Feb 2023 05:22:10 -0500
+        with ESMTP id S233536AbjBCK27 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 3 Feb 2023 05:28:59 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BAEA89EE28
-        for <stable@vger.kernel.org>; Fri,  3 Feb 2023 02:21:52 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1FED195D2F
+        for <stable@vger.kernel.org>; Fri,  3 Feb 2023 02:28:13 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 51636B82A70
-        for <stable@vger.kernel.org>; Fri,  3 Feb 2023 10:21:51 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6FE76C4339B;
-        Fri,  3 Feb 2023 10:21:49 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 4ACCDB82A6C
+        for <stable@vger.kernel.org>; Fri,  3 Feb 2023 10:28:11 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8B2E6C433EF;
+        Fri,  3 Feb 2023 10:28:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1675419709;
-        bh=3KKifScuk1hhvnnfmlwGuRuD5jQ4e0Nucu2H8lY9BBk=;
+        s=korg; t=1675420090;
+        bh=N1No8VHBGzrYCWl0VMuFSPCS4kD9cyYqRKLukILRu4Y=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=m9hb3QZ2G3YSP5e/EZ7qS9pnCLgScyFJnISNexXePbYdl6B3uYUBjdn1SPSIHBjsc
-         S0hiYA+i0jDVJfepnZ9C8031cteEnmxBKpFJvyN1X28pgfwdFBtM13Iao8/qHcez2R
-         WQE18HL/pfklXlmCMORyQAJWS6TbivcBKMXbLtYw=
+        b=od6NmBl8xqf7c4NneXLI3pBJQUsIHrdEM9kTgjvrf+S6bJzKzZhsX99Zq5XK4PkUJ
+         V0LEIN9onorkHcQr+PVBfOqbCP8WpXyt1/7Vlhbucgkky2okB0Nxx9k3v6IA//F99c
+         K4TxIKUolN7nMULHiIzy6pYvhA556nVwgMejaISY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Yue Hu <huyue2@coolpad.com>,
-        Chao Yu <chao@kernel.org>,
-        Jingbo Xu <jefflexu@linux.alibaba.com>,
-        Gao Xiang <hsiangkao@linux.alibaba.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 12/28] erofs: clean up parsing of fscache related options
-Date:   Fri,  3 Feb 2023 11:13:00 +0100
-Message-Id: <20230203101010.485999238@linuxfoundation.org>
+        patches@lists.linux.dev, Natalia Petrova <n.petrova@fintech.ru>,
+        "Steven Rostedt (Google)" <rostedt@goodmis.org>
+Subject: [PATCH 5.4 076/134] trace_events_hist: add check for return value of create_hist_field
+Date:   Fri,  3 Feb 2023 11:13:01 +0100
+Message-Id: <20230203101027.279301732@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.1
-In-Reply-To: <20230203101009.946745030@linuxfoundation.org>
-References: <20230203101009.946745030@linuxfoundation.org>
+In-Reply-To: <20230203101023.832083974@linuxfoundation.org>
+References: <20230203101023.832083974@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,63 +52,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jingbo Xu <jefflexu@linux.alibaba.com>
+From: Natalia Petrova <n.petrova@fintech.ru>
 
-[ Upstream commit e02ac3e7329f76c5de40cba2746cbe165f571dff ]
+commit 8b152e9150d07a885f95e1fd401fc81af202d9a4 upstream.
 
-... to avoid the mess of conditional preprocessing as we are continually
-adding fscache related mount options.
+Function 'create_hist_field' is called recursively at
+trace_events_hist.c:1954 and can return NULL-value that's why we have
+to check it to avoid null pointer dereference.
 
-Reviewd-by: Gao Xiang <hsiangkao@linux.alibaba.com>
-Reviewed-by: Yue Hu <huyue2@coolpad.com>
-Reviewed-by: Chao Yu <chao@kernel.org>
-Signed-off-by: Jingbo Xu <jefflexu@linux.alibaba.com>
-Link: https://lore.kernel.org/r/20230112065431.124926-3-jefflexu@linux.alibaba.com
-Signed-off-by: Gao Xiang <hsiangkao@linux.alibaba.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Found by Linux Verification Center (linuxtesting.org) with SVACE.
+
+Link: https://lkml.kernel.org/r/20230111120409.4111-1-n.petrova@fintech.ru
+
+Cc: stable@vger.kernel.org
+Fixes: 30350d65ac56 ("tracing: Add variable support to hist triggers")
+Signed-off-by: Natalia Petrova <n.petrova@fintech.ru>
+Signed-off-by: Steven Rostedt (Google) <rostedt@goodmis.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/erofs/super.c | 13 ++++++-------
- 1 file changed, 6 insertions(+), 7 deletions(-)
+ kernel/trace/trace_events_hist.c |    2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/fs/erofs/super.c b/fs/erofs/super.c
-index 481788c24a68..626a615dafc2 100644
---- a/fs/erofs/super.c
-+++ b/fs/erofs/super.c
-@@ -577,26 +577,25 @@ static int erofs_fc_parse_param(struct fs_context *fc,
- 		}
- 		++ctx->devs->extra_devices;
- 		break;
--	case Opt_fsid:
- #ifdef CONFIG_EROFS_FS_ONDEMAND
-+	case Opt_fsid:
- 		kfree(ctx->fsid);
- 		ctx->fsid = kstrdup(param->string, GFP_KERNEL);
- 		if (!ctx->fsid)
- 			return -ENOMEM;
--#else
--		errorfc(fc, "fsid option not supported");
--#endif
- 		break;
- 	case Opt_domain_id:
--#ifdef CONFIG_EROFS_FS_ONDEMAND
- 		kfree(ctx->domain_id);
- 		ctx->domain_id = kstrdup(param->string, GFP_KERNEL);
- 		if (!ctx->domain_id)
- 			return -ENOMEM;
-+		break;
- #else
--		errorfc(fc, "domain_id option not supported");
--#endif
-+	case Opt_fsid:
-+	case Opt_domain_id:
-+		errorfc(fc, "%s option not supported", erofs_fs_parameters[opt].name);
- 		break;
-+#endif
- 	default:
- 		return -ENOPARAM;
- 	}
--- 
-2.39.0
-
+--- a/kernel/trace/trace_events_hist.c
++++ b/kernel/trace/trace_events_hist.c
+@@ -2552,6 +2552,8 @@ static struct hist_field *create_hist_fi
+ 		unsigned long fl = flags & ~HIST_FIELD_FL_LOG2;
+ 		hist_field->fn = hist_field_log2;
+ 		hist_field->operands[0] = create_hist_field(hist_data, field, fl, NULL);
++		if (!hist_field->operands[0])
++			goto free;
+ 		hist_field->size = hist_field->operands[0]->size;
+ 		hist_field->type = kstrdup(hist_field->operands[0]->type, GFP_KERNEL);
+ 		if (!hist_field->type)
 
 
