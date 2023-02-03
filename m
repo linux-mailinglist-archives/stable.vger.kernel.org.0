@@ -2,48 +2,50 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 97746689506
-	for <lists+stable@lfdr.de>; Fri,  3 Feb 2023 11:15:58 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id BD408689695
+	for <lists+stable@lfdr.de>; Fri,  3 Feb 2023 11:32:17 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232465AbjBCKP5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 3 Feb 2023 05:15:57 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35906 "EHLO
+        id S233644AbjBCK22 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 3 Feb 2023 05:28:28 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51256 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232733AbjBCKPy (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 3 Feb 2023 05:15:54 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 456E591193
-        for <stable@vger.kernel.org>; Fri,  3 Feb 2023 02:15:52 -0800 (PST)
+        with ESMTP id S233539AbjBCK2E (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 3 Feb 2023 05:28:04 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 91EF39F9E7
+        for <stable@vger.kernel.org>; Fri,  3 Feb 2023 02:27:28 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id D10B561E4C
-        for <stable@vger.kernel.org>; Fri,  3 Feb 2023 10:15:51 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9E6CDC433EF;
-        Fri,  3 Feb 2023 10:15:50 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 433A661E53
+        for <stable@vger.kernel.org>; Fri,  3 Feb 2023 10:26:56 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 24B2DC4339B;
+        Fri,  3 Feb 2023 10:26:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1675419351;
-        bh=ci2wQ74Ka6aZRuRC4wL+H/8zkWkpnEHNMXxW19TnQWY=;
+        s=korg; t=1675420015;
+        bh=Kk8FnmoasE2R9oGQXn6GDqDXhEe4AJA/YZ2Hwj/Gxp8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=HrLs+4BuLNw2iywtnE9XxHABwlyRPOpqUYrgDkzLU3PJ15zj8Nz8205AutIOF1nJm
-         O91iNmrRUu/BVCpSdRwsRTQcdEhULL6jx+GhZ63Zt05TNSrIfigawJGlYmoRapp/LB
-         4R/Nqn+1Ma9rKmZHMtIqcrU3eiAkqmBF7ywgX3as=
+        b=FCzY6YVCpeV2XbuziLB7qCS4HSF9UmIWBkhzz7TSnLiFUNy0ctSh4wybDzgc3iuRv
+         cek+KsuUdyM949r4fIQUG2loEZuzTpwL3FTf0KhgKtVUS77/JUybWQJZNPYMZHfNSC
+         oaduMAGE8RP+CIj6Hra2DHFZBCalGc+Xc0+Acd2E=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev
-Subject: [PATCH 4.14 40/62] xen: Fix up build warning with xen_init_time_ops() reference
-Date:   Fri,  3 Feb 2023 11:12:36 +0100
-Message-Id: <20230203101014.695568832@linuxfoundation.org>
+        patches@lists.linux.dev, Sumit Gupta <sumitg@nvidia.com>,
+        Viresh Kumar <viresh.kumar@linaro.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 052/134] cpufreq: Add Tegra234 to cpufreq-dt-platdev blocklist
+Date:   Fri,  3 Feb 2023 11:12:37 +0100
+Message-Id: <20230203101026.222395686@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.1
-In-Reply-To: <20230203101012.959398849@linuxfoundation.org>
-References: <20230203101012.959398849@linuxfoundation.org>
+In-Reply-To: <20230203101023.832083974@linuxfoundation.org>
+References: <20230203101023.832083974@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
         SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -51,32 +53,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+From: Sumit Gupta <sumitg@nvidia.com>
 
-Somehow the xen_init_time_ops() reference got out of sync in the 4.14.y
-tree (or it never was in sync), and now there's a build warning.  Fix
-that up by making xen_init_time_ops() be __init, not __ref.
+[ Upstream commit 01c5bb0cc2a39fbc56ff9a5ef28b79447f0c2351 ]
 
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Tegra234 platform uses the tegra194-cpufreq driver, so add it
+to the blocklist in cpufreq-dt-platdev driver to avoid the cpufreq
+driver registration from there.
+
+Signed-off-by: Sumit Gupta <sumitg@nvidia.com>
+Signed-off-by: Viresh Kumar <viresh.kumar@linaro.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/x86/xen/time.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/cpufreq/cpufreq-dt-platdev.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/arch/x86/xen/time.c b/arch/x86/xen/time.c
-index 03706331f567..8ecc38110bcc 100644
---- a/arch/x86/xen/time.c
-+++ b/arch/x86/xen/time.c
-@@ -516,7 +516,7 @@ static void __init xen_time_init(void)
- 		pvclock_gtod_register_notifier(&xen_pvclock_gtod_notifier);
- }
+diff --git a/drivers/cpufreq/cpufreq-dt-platdev.c b/drivers/cpufreq/cpufreq-dt-platdev.c
+index 1200842c3da4..5d28553b69f5 100644
+--- a/drivers/cpufreq/cpufreq-dt-platdev.c
++++ b/drivers/cpufreq/cpufreq-dt-platdev.c
+@@ -126,6 +126,7 @@ static const struct of_device_id blacklist[] __initconst = {
  
--void __ref xen_init_time_ops(void)
-+void __init xen_init_time_ops(void)
- {
- 	xen_sched_clock_offset = xen_clocksource_read();
- 	pv_time_ops = xen_time_ops;
+ 	{ .compatible = "nvidia,tegra124", },
+ 	{ .compatible = "nvidia,tegra210", },
++	{ .compatible = "nvidia,tegra234", },
+ 
+ 	{ .compatible = "qcom,apq8096", },
+ 	{ .compatible = "qcom,msm8996", },
 -- 
-2.39.1
+2.39.0
 
 
 
