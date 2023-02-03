@@ -2,44 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 924E1689500
-	for <lists+stable@lfdr.de>; Fri,  3 Feb 2023 11:15:56 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 21B1668956E
+	for <lists+stable@lfdr.de>; Fri,  3 Feb 2023 11:24:01 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232544AbjBCKPR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 3 Feb 2023 05:15:17 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35296 "EHLO
+        id S232844AbjBCKT5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 3 Feb 2023 05:19:57 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41400 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233214AbjBCKPQ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 3 Feb 2023 05:15:16 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 05D90903BC
-        for <stable@vger.kernel.org>; Fri,  3 Feb 2023 02:15:16 -0800 (PST)
+        with ESMTP id S233406AbjBCKTt (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 3 Feb 2023 05:19:49 -0500
+Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 940AD26AD
+        for <stable@vger.kernel.org>; Fri,  3 Feb 2023 02:19:16 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 8F70860691
-        for <stable@vger.kernel.org>; Fri,  3 Feb 2023 10:15:15 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5FBF3C433D2;
-        Fri,  3 Feb 2023 10:15:14 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 37221CE2FBD
+        for <stable@vger.kernel.org>; Fri,  3 Feb 2023 10:18:36 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D96FBC4339B;
+        Fri,  3 Feb 2023 10:18:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1675419314;
-        bh=vJ13PiUs1ztiB8qu3vu0O605Lor91EoBchOYMk3urF0=;
+        s=korg; t=1675419514;
+        bh=rG1SKxKYeeWmXXAijIM6HLGVMA+L85yg6UhhYDCDE78=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=iLnQygPf6qNPMZJtaElX/i5yeNK6QWHJlyOPpoyWzVa0Zywlem7zTk+cX1iDvsZ7O
-         VzNGyEfy7jeiAnj03APXOvdJM5scHRYfRtnoAJl7kIIoeuJD6AZXLguqDnoCHx+kyN
-         Z52ZzSfrAd8NjJKk/faSgI8b8FrqKNFlYhrY055w=
+        b=1C+TRL6z8WGdxYj3GXvHlQJRY1tpybXX9YLy+MDaCRuGIsCRy0Uq8iLcN2KAUr7u/
+         TrgJUw/hy+lxkOb7Ox89Z4meHlvGfJj8ObeTdlP6L8nq68MucEU9q3dJI2je/0YAU2
+         es0wj4gYuxpJslm8uNCanD/BhXoDMxS1S3WXfdYo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Masami Hiramatsu <mhiramat@kernel.org>,
-        "Joel Fernandes (Google)" <joel@joelfernandes.org>,
-        "Steven Rostedt (Google)" <rostedt@goodmis.org>
-Subject: [PATCH 4.14 27/62] tracing: Make sure trace_printk() can output as soon as it can be used
+        patches@lists.linux.dev, Eric Dumazet <edumazet@google.com>,
+        Jason Xing <kernelxing@tencent.com>,
+        Kuniyuki Iwashima <kuniyu@amazon.com>,
+        Paolo Abeni <pabeni@redhat.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 29/80] tcp: avoid the lookup process failing to get sk in ehash table
 Date:   Fri,  3 Feb 2023 11:12:23 +0100
-Message-Id: <20230203101014.183857152@linuxfoundation.org>
+Message-Id: <20230203101016.412855262@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.1
-In-Reply-To: <20230203101012.959398849@linuxfoundation.org>
-References: <20230203101012.959398849@linuxfoundation.org>
+In-Reply-To: <20230203101015.263854890@linuxfoundation.org>
+References: <20230203101015.263854890@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,80 +55,121 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Steven Rostedt (Google) <rostedt@goodmis.org>
+From: Jason Xing <kernelxing@tencent.com>
 
-commit 3bb06eb6e9acf7c4a3e1b5bc87aed398ff8e2253 upstream.
+[ Upstream commit 3f4ca5fafc08881d7a57daa20449d171f2887043 ]
 
-Currently trace_printk() can be used as soon as early_trace_init() is
-called from start_kernel(). But if a crash happens, and
-"ftrace_dump_on_oops" is set on the kernel command line, all you get will
-be:
+While one cpu is working on looking up the right socket from ehash
+table, another cpu is done deleting the request socket and is about
+to add (or is adding) the big socket from the table. It means that
+we could miss both of them, even though it has little chance.
 
-  [    0.456075]   <idle>-0         0dN.2. 347519us : Unknown type 6
-  [    0.456075]   <idle>-0         0dN.2. 353141us : Unknown type 6
-  [    0.456075]   <idle>-0         0dN.2. 358684us : Unknown type 6
+Let me draw a call trace map of the server side.
+   CPU 0                           CPU 1
+   -----                           -----
+tcp_v4_rcv()                  syn_recv_sock()
+                            inet_ehash_insert()
+                            -> sk_nulls_del_node_init_rcu(osk)
+__inet_lookup_established()
+                            -> __sk_nulls_add_node_rcu(sk, list)
 
-This is because the trace_printk() event (type 6) hasn't been registered
-yet. That gets done via an early_initcall(), which may be early, but not
-early enough.
+Notice that the CPU 0 is receiving the data after the final ack
+during 3-way shakehands and CPU 1 is still handling the final ack.
 
-Instead of registering the trace_printk() event (and other ftrace events,
-which are not trace events) via an early_initcall(), have them registered at
-the same time that trace_printk() can be used. This way, if there is a
-crash before early_initcall(), then the trace_printk()s will actually be
-useful.
+Why could this be a real problem?
+This case is happening only when the final ack and the first data
+receiving by different CPUs. Then the server receiving data with
+ACK flag tries to search one proper established socket from ehash
+table, but apparently it fails as my map shows above. After that,
+the server fetches a listener socket and then sends a RST because
+it finds a ACK flag in the skb (data), which obeys RST definition
+in RFC 793.
 
-Link: https://lkml.kernel.org/r/20230104161412.019f6c55@gandalf.local.home
+Besides, Eric pointed out there's one more race condition where it
+handles tw socket hashdance. Only by adding to the tail of the list
+before deleting the old one can we avoid the race if the reader has
+already begun the bucket traversal and it would possibly miss the head.
 
-Cc: stable@vger.kernel.org
-Cc: Masami Hiramatsu <mhiramat@kernel.org>
-Fixes: e725c731e3bb1 ("tracing: Split tracing initialization into two for early initialization")
-Reported-by: "Joel Fernandes (Google)" <joel@joelfernandes.org>
-Tested-by: Joel Fernandes (Google) <joel@joelfernandes.org>
-Signed-off-by: Steven Rostedt (Google) <rostedt@goodmis.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Many thanks to Eric for great help from beginning to end.
+
+Fixes: 5e0724d027f0 ("tcp/dccp: fix hashdance race for passive sessions")
+Suggested-by: Eric Dumazet <edumazet@google.com>
+Signed-off-by: Jason Xing <kernelxing@tencent.com>
+Reviewed-by: Eric Dumazet <edumazet@google.com>
+Reviewed-by: Kuniyuki Iwashima <kuniyu@amazon.com>
+Link: https://lore.kernel.org/lkml/20230112065336.41034-1-kerneljasonxing@gmail.com/
+Link: https://lore.kernel.org/r/20230118015941.1313-1-kerneljasonxing@gmail.com
+Signed-off-by: Paolo Abeni <pabeni@redhat.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/trace/trace.c        |    2 ++
- kernel/trace/trace.h        |    1 +
- kernel/trace/trace_output.c |    3 +--
- 3 files changed, 4 insertions(+), 2 deletions(-)
+ net/ipv4/inet_hashtables.c    | 17 +++++++++++++++--
+ net/ipv4/inet_timewait_sock.c |  8 ++++----
+ 2 files changed, 19 insertions(+), 6 deletions(-)
 
---- a/kernel/trace/trace.c
-+++ b/kernel/trace/trace.c
-@@ -8487,6 +8487,8 @@ void __init early_trace_init(void)
- 			static_key_enable(&tracepoint_printk_key.key);
- 	}
- 	tracer_alloc_buffers();
-+
-+	init_events();
+diff --git a/net/ipv4/inet_hashtables.c b/net/ipv4/inet_hashtables.c
+index 3c58019f0718..d64522af9c3a 100644
+--- a/net/ipv4/inet_hashtables.c
++++ b/net/ipv4/inet_hashtables.c
+@@ -579,8 +579,20 @@ bool inet_ehash_insert(struct sock *sk, struct sock *osk, bool *found_dup_sk)
+ 	spin_lock(lock);
+ 	if (osk) {
+ 		WARN_ON_ONCE(sk->sk_hash != osk->sk_hash);
+-		ret = sk_nulls_del_node_init_rcu(osk);
+-	} else if (found_dup_sk) {
++		ret = sk_hashed(osk);
++		if (ret) {
++			/* Before deleting the node, we insert a new one to make
++			 * sure that the look-up-sk process would not miss either
++			 * of them and that at least one node would exist in ehash
++			 * table all the time. Otherwise there's a tiny chance
++			 * that lookup process could find nothing in ehash table.
++			 */
++			__sk_nulls_add_node_tail_rcu(sk, list);
++			sk_nulls_del_node_init_rcu(osk);
++		}
++		goto unlock;
++	}
++	if (found_dup_sk) {
+ 		*found_dup_sk = inet_ehash_lookup_by_sk(sk, list);
+ 		if (*found_dup_sk)
+ 			ret = false;
+@@ -589,6 +601,7 @@ bool inet_ehash_insert(struct sock *sk, struct sock *osk, bool *found_dup_sk)
+ 	if (ret)
+ 		__sk_nulls_add_node_rcu(sk, list);
+ 
++unlock:
+ 	spin_unlock(lock);
+ 
+ 	return ret;
+diff --git a/net/ipv4/inet_timewait_sock.c b/net/ipv4/inet_timewait_sock.c
+index 88c5069b5d20..fedd19c22b39 100644
+--- a/net/ipv4/inet_timewait_sock.c
++++ b/net/ipv4/inet_timewait_sock.c
+@@ -80,10 +80,10 @@ void inet_twsk_put(struct inet_timewait_sock *tw)
  }
+ EXPORT_SYMBOL_GPL(inet_twsk_put);
  
- void __init trace_init(void)
---- a/kernel/trace/trace.h
-+++ b/kernel/trace/trace.h
-@@ -1531,6 +1531,7 @@ trace_find_event_field(struct trace_even
- extern void trace_event_enable_cmd_record(bool enable);
- extern void trace_event_enable_tgid_record(bool enable);
- 
-+extern int init_events(void);
- extern int event_trace_add_tracer(struct dentry *parent, struct trace_array *tr);
- extern int event_trace_del_tracer(struct trace_array *tr);
- 
---- a/kernel/trace/trace_output.c
-+++ b/kernel/trace/trace_output.c
-@@ -1394,7 +1394,7 @@ static struct trace_event *events[] __in
- 	NULL
- };
- 
--__init static int init_events(void)
-+__init int init_events(void)
+-static void inet_twsk_add_node_rcu(struct inet_timewait_sock *tw,
+-				   struct hlist_nulls_head *list)
++static void inet_twsk_add_node_tail_rcu(struct inet_timewait_sock *tw,
++					struct hlist_nulls_head *list)
  {
- 	struct trace_event *event;
- 	int i, ret;
-@@ -1412,4 +1412,3 @@ __init static int init_events(void)
- 
- 	return 0;
+-	hlist_nulls_add_head_rcu(&tw->tw_node, list);
++	hlist_nulls_add_tail_rcu(&tw->tw_node, list);
  }
--early_initcall(init_events);
+ 
+ static void inet_twsk_add_bind_node(struct inet_timewait_sock *tw,
+@@ -119,7 +119,7 @@ void inet_twsk_hashdance(struct inet_timewait_sock *tw, struct sock *sk,
+ 
+ 	spin_lock(lock);
+ 
+-	inet_twsk_add_node_rcu(tw, &ehead->chain);
++	inet_twsk_add_node_tail_rcu(tw, &ehead->chain);
+ 
+ 	/* Step 3: Remove SK from hash chain */
+ 	if (__sk_nulls_del_node_init_rcu(sk))
+-- 
+2.39.0
+
 
 
