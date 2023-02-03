@@ -2,59 +2,60 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D716A688D6F
-	for <lists+stable@lfdr.de>; Fri,  3 Feb 2023 03:54:11 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C8EC1688D77
+	for <lists+stable@lfdr.de>; Fri,  3 Feb 2023 03:55:01 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230047AbjBCCyJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 2 Feb 2023 21:54:09 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59888 "EHLO
+        id S232110AbjBCCy7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 2 Feb 2023 21:54:59 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60890 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232019AbjBCCyI (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 2 Feb 2023 21:54:08 -0500
-Received: from mail-ej1-x62b.google.com (mail-ej1-x62b.google.com [IPv6:2a00:1450:4864:20::62b])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 662FD8A7F9
-        for <stable@vger.kernel.org>; Thu,  2 Feb 2023 18:53:58 -0800 (PST)
-Received: by mail-ej1-x62b.google.com with SMTP id ud5so11748877ejc.4
-        for <stable@vger.kernel.org>; Thu, 02 Feb 2023 18:53:58 -0800 (PST)
+        with ESMTP id S230368AbjBCCy6 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 2 Feb 2023 21:54:58 -0500
+Received: from mail-ej1-x631.google.com (mail-ej1-x631.google.com [IPv6:2a00:1450:4864:20::631])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EDFD48A7E2
+        for <stable@vger.kernel.org>; Thu,  2 Feb 2023 18:54:37 -0800 (PST)
+Received: by mail-ej1-x631.google.com with SMTP id p26so11632110ejx.13
+        for <stable@vger.kernel.org>; Thu, 02 Feb 2023 18:54:37 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=linaro.org; s=google;
         h=content-transfer-encoding:in-reply-to:from:references:cc:to
          :content-language:subject:user-agent:mime-version:date:message-id
          :from:to:cc:subject:date:message-id:reply-to;
-        bh=/gjAdjMgntSc2V+0JCh5W3UQ5YtCxuSW7UX1/RImx9U=;
-        b=r2/ojgy3wlbssfealO65rOyentvFfKc8Xc2q5F6Gawxe2muvitDP3D/qinUOSurCEE
-         GdYWGgJwNKR4rLcIHwkqfsloahAJkbz7K33id165R9BHg5qGAROmo3pVLOqNE97wNbuB
-         DzQrqzZLZtlTX090m9uR7vWaML4wvc3LZtnNQGEJuVVmMeUUUf86/nxZbpoa5/Mc3wFJ
-         mS2Bx/FFieIx9jCC1QRcBWueb4N3FNzNuoQfpT9+R5IRWi9uf6KI1EPiBLLf/96PuR9k
-         2hTsQw1ZWwXxRs1UV+1jsic2DTFBPf+4DbCkbjT/VGiH7oB1O9XCfpnGnhIA35SwD1rn
-         8QDQ==
+        bh=Mstc3lGV61M7IlWy9Tj/AynBNvHW1063jMNmi6YxKdM=;
+        b=EwSK1PKItdH+q6dSJObpy51LA1YXHFfVx8e4Oi6pmtI19f2iZcR7itHWWLNE47WdYu
+         YJpnqX0mEaPxrQTfbpcaWnWCYRZmfAMHPSNkSQRGSKdlWVYs59DC+dbZuBYArkGydu95
+         8upRgKGUJbkXoq7mzYRq6HlOj7ARJbeAjxqbILH8A+7JzwijtFc9htOb0rLc8gAL8ANa
+         nn8hQJy8eEcX4mA4Nnaqhf6g3jtsY0MeHgIRXKoqwyPNFW082XgDZg8V5R5L94OLTCTj
+         cx0m5UUBOB7MUVeiSHm5A3Bn0CyGRhD75wSyd+8TUqCxfrhOQtD/G7bFKJRWfPtnbldX
+         M4lQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
         h=content-transfer-encoding:in-reply-to:from:references:cc:to
          :content-language:subject:user-agent:mime-version:date:message-id
          :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=/gjAdjMgntSc2V+0JCh5W3UQ5YtCxuSW7UX1/RImx9U=;
-        b=wPQl1KOVXsL4uvKGOvC00LDPv6wDR/aetjEI5p1sABNvMuWAfWyPzbiKM+COve00P7
-         /QqGRDOMovMtZQcx/Pfw9HpFBtNAmc3f61IHUVWXpr5JueVt29pQBpU1F9ux16XEQr7N
-         RFdrk34ZJX4/5Z28eM2R+NZaipSudXVfDylMGmTHwt9M5IvCQYeNWtcC7FDP2SdsqiX5
-         LOG1fAsFhWtgZn6W8CLtzUDx3VVUXvrKOtt/slgnehkZ6tclocuH/CdsRC1pTUEIdZ4E
-         Vesk7khxJ+7sI/tIp1hXRhrpWYKCPkKpyhd5W08tsfjvQd9ibkFN4rx8hpoVXN0VerWj
-         cUbA==
-X-Gm-Message-State: AO0yUKUfDGdeKzNjkqDa16/XWkqWLS2Rv83rvMA7qT8MkZKbisNU7KKY
-        3IU1A9np0pgqg0bGaz9ZEyovgA==
-X-Google-Smtp-Source: AK7set+exeVHhx5lH4QHq60LJIjL4PJsX/fg5A7/SPoAayXl6UnezMk0KP2iYWt4w2IOyrwX9gLBrw==
-X-Received: by 2002:a17:907:3e82:b0:885:8f79:d6d7 with SMTP id hs2-20020a1709073e8200b008858f79d6d7mr11541664ejc.61.1675392836850;
-        Thu, 02 Feb 2023 18:53:56 -0800 (PST)
+        bh=Mstc3lGV61M7IlWy9Tj/AynBNvHW1063jMNmi6YxKdM=;
+        b=U9BoIEQSLeCNzJqNd8T6mDc3vl2dVtwMpCtW7+D7cBC6LCagy5elyNyiFsCE1zJ0Fb
+         I3zr6YBLtFY4KTVqVUc2sQb+5S8anltwsi2Rgb3HXi5UklpUZwBz9BmTlGzQyFfQLJdE
+         0Z6NwINAsQUBRexRKs3KV2Eb/Z40z1Y+0K1gti/laE4KXYmDsJomNx6EkX8ZWFDZyz52
+         gVmnNRJ/n7KUUUdKJVeZ4ti/qvzoFaSJGN4/emeajIe6iLXiIQYvcfYmtsUbE0b2ukqG
+         5gqDMTPh7f6/++G/bR6ePkJoWUZlKLaWBZiwiBrUZwno/PU+sKbX3KRcklsUt9C2qTdS
+         vBAw==
+X-Gm-Message-State: AO0yUKULCdGCp5XyhgDVaw9G0eJ4fQDMp+yR5HK3sgVlhQbpvLKMqayQ
+        N4yVN9Q1w5DSojCeBKtXHVF1yQ==
+X-Google-Smtp-Source: AK7set9Fvqh4uyhksVh4KGxRmNAduUsq4iHnfJ/wNYurtkD/LQNUMA5P+dGxpteJuOXUnkLvgxMHag==
+X-Received: by 2002:a17:907:1707:b0:884:3174:119d with SMTP id le7-20020a170907170700b008843174119dmr9499413ejc.14.1675392876041;
+        Thu, 02 Feb 2023 18:54:36 -0800 (PST)
 Received: from [192.168.1.101] (abyl20.neoplus.adsl.tpnet.pl. [83.9.31.20])
-        by smtp.gmail.com with ESMTPSA id r5-20020a170906a20500b008710789d85fsm665313ejy.156.2023.02.02.18.53.54
+        by smtp.gmail.com with ESMTPSA id ek26-20020a056402371a00b00495c3573b36sm489953edb.32.2023.02.02.18.54.33
         (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Thu, 02 Feb 2023 18:53:56 -0800 (PST)
-Message-ID: <92cbad8e-6e18-4ecf-17a7-3d40a429cad9@linaro.org>
-Date:   Fri, 3 Feb 2023 03:53:54 +0100
+        Thu, 02 Feb 2023 18:54:35 -0800 (PST)
+Message-ID: <4969bf69-ca1f-a6e2-48cd-2cb27ee5a25e@linaro.org>
+Date:   Fri, 3 Feb 2023 03:54:33 +0100
 MIME-Version: 1.0
 User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
  Thunderbird/102.7.0
-Subject: Re: [PATCH 08/23] interconnect: qcom: rpm: fix registration race
+Subject: Re: [PATCH 09/23] interconnect: qcom: rpmh: fix probe child-node
+ error handling
 Content-Language: en-US
 To:     Johan Hovold <johan+linaro@kernel.org>,
         Georgi Djakov <djakov@kernel.org>
@@ -74,12 +75,11 @@ Cc:     Shawn Guo <shawnguo@kernel.org>,
         linux-pm@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
         linux-arm-msm@vger.kernel.org, linux-samsung-soc@vger.kernel.org,
         linux-tegra@vger.kernel.org, linux-kernel@vger.kernel.org,
-        stable@vger.kernel.org, Jun Nie <jun.nie@linaro.org>,
-        Georgi Djakov <georgi.djakov@linaro.org>
+        stable@vger.kernel.org, Luca Weiss <luca.weiss@fairphone.com>
 References: <20230201101559.15529-1-johan+linaro@kernel.org>
- <20230201101559.15529-9-johan+linaro@kernel.org>
+ <20230201101559.15529-10-johan+linaro@kernel.org>
 From:   Konrad Dybcio <konrad.dybcio@linaro.org>
-In-Reply-To: <20230201101559.15529-9-johan+linaro@kernel.org>
+In-Reply-To: <20230201101559.15529-10-johan+linaro@kernel.org>
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 7bit
 X-Spam-Status: No, score=-2.2 required=5.0 tests=BAYES_00,DKIM_SIGNED,
@@ -95,97 +95,35 @@ X-Mailing-List: stable@vger.kernel.org
 
 
 On 1.02.2023 11:15, Johan Hovold wrote:
-> The current interconnect provider registration interface is inherently
-> racy as nodes are not added until the after adding the provider. This
-> can specifically cause racing DT lookups to fail.
+> Make sure to clean up and release resources properly also in case probe
+> fails when populating child devices.
 > 
-> Switch to using the new API where the provider is not registered until
-> after it has been fully initialised.
-> 
-> Fixes: 62feb14ee8a3 ("interconnect: qcom: Consolidate interconnect RPM support")
-> Fixes: 30c8fa3ec61a ("interconnect: qcom: Add MSM8916 interconnect provider driver")
-> Cc: stable@vger.kernel.org	# 5.7
-> Cc: Jun Nie <jun.nie@linaro.org>
-> Cc: Georgi Djakov <georgi.djakov@linaro.org>
+> Fixes: 57eb14779dfd ("interconnect: qcom: icc-rpmh: Support child NoC device probe")
+> Cc: stable@vger.kernel.org      # 6.0
+> Cc: Luca Weiss <luca.weiss@fairphone.com>
 > Signed-off-by: Johan Hovold <johan+linaro@kernel.org>
 > ---
 Reviewed-by: Konrad Dybcio <konrad.dybcio@linaro.org>
 
 Konrad
->  drivers/interconnect/qcom/icc-rpm.c | 23 ++++++++++++-----------
->  1 file changed, 12 insertions(+), 11 deletions(-)
+>  drivers/interconnect/qcom/icc-rpmh.c | 7 +++++--
+>  1 file changed, 5 insertions(+), 2 deletions(-)
 > 
-> diff --git a/drivers/interconnect/qcom/icc-rpm.c b/drivers/interconnect/qcom/icc-rpm.c
-> index da595059cafd..4d0997b210f7 100644
-> --- a/drivers/interconnect/qcom/icc-rpm.c
-> +++ b/drivers/interconnect/qcom/icc-rpm.c
-> @@ -502,7 +502,6 @@ int qnoc_probe(struct platform_device *pdev)
->  	}
->  
->  	provider = &qp->provider;
-> -	INIT_LIST_HEAD(&provider->nodes);
->  	provider->dev = dev;
->  	provider->set = qcom_icc_set;
->  	provider->pre_aggregate = qcom_icc_pre_bw_aggregate;
-> @@ -510,11 +509,7 @@ int qnoc_probe(struct platform_device *pdev)
->  	provider->xlate_extended = qcom_icc_xlate_extended;
->  	provider->data = data;
->  
-> -	ret = icc_provider_add(provider);
-> -	if (ret) {
-> -		dev_err(dev, "error adding interconnect provider: %d\n", ret);
-> -		goto err_disable_clks;
-> -	}
-> +	icc_provider_init(provider);
->  
->  	for (i = 0; i < num_nodes; i++) {
->  		size_t j;
-> @@ -522,7 +517,7 @@ int qnoc_probe(struct platform_device *pdev)
->  		node = icc_node_create(qnodes[i]->id);
->  		if (IS_ERR(node)) {
->  			ret = PTR_ERR(node);
-> -			goto err;
-> +			goto err_remove_nodes;
->  		}
->  
->  		node->name = qnodes[i]->name;
-> @@ -536,19 +531,25 @@ int qnoc_probe(struct platform_device *pdev)
->  	}
->  	data->num_nodes = num_nodes;
->  
-> +	ret = icc_provider_register(provider);
-> +	if (ret)
-> +		goto err_remove_nodes;
-> +
+> diff --git a/drivers/interconnect/qcom/icc-rpmh.c b/drivers/interconnect/qcom/icc-rpmh.c
+> index fd17291c61eb..5168bbf3d92f 100644
+> --- a/drivers/interconnect/qcom/icc-rpmh.c
+> +++ b/drivers/interconnect/qcom/icc-rpmh.c
+> @@ -235,8 +235,11 @@ int qcom_icc_rpmh_probe(struct platform_device *pdev)
 >  	platform_set_drvdata(pdev, qp);
 >  
 >  	/* Populate child NoC devices if any */
->  	if (of_get_child_count(dev->of_node) > 0) {
->  		ret = of_platform_populate(dev->of_node, NULL, NULL, dev);
->  		if (ret)
-> -			goto err;
-> +			goto err_deregister_provider;
->  	}
+> -	if (of_get_child_count(dev->of_node) > 0)
+> -		return of_platform_populate(dev->of_node, NULL, NULL, dev);
+> +	if (of_get_child_count(dev->of_node) > 0) {
+> +		ret = of_platform_populate(dev->of_node, NULL, NULL, dev);
+> +		if (ret)
+> +			goto err;
+> +	}
 >  
 >  	return 0;
-> -err:
-> +
-> +err_deregister_provider:
-> +	icc_provider_deregister(provider);
-> +err_remove_nodes:
->  	icc_nodes_remove(provider);
-> -	icc_provider_del(provider);
->  err_disable_clks:
->  	clk_bulk_disable_unprepare(qp->num_clks, qp->bus_clks);
->  
-> @@ -560,9 +561,9 @@ int qnoc_remove(struct platform_device *pdev)
->  {
->  	struct qcom_icc_provider *qp = platform_get_drvdata(pdev);
->  
-> +	icc_provider_deregister(&qp->provider);
->  	icc_nodes_remove(&qp->provider);
->  	clk_bulk_disable_unprepare(qp->num_clks, qp->bus_clks);
-> -	icc_provider_del(&qp->provider);
->  
->  	return 0;
->  }
+>  err:
