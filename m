@@ -2,50 +2,51 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 523FA6895CE
-	for <lists+stable@lfdr.de>; Fri,  3 Feb 2023 11:24:33 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id CE48D689580
+	for <lists+stable@lfdr.de>; Fri,  3 Feb 2023 11:24:06 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233163AbjBCKUy (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 3 Feb 2023 05:20:54 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42644 "EHLO
+        id S233361AbjBCKWX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 3 Feb 2023 05:22:23 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44932 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233396AbjBCKUq (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 3 Feb 2023 05:20:46 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6711526AD
-        for <stable@vger.kernel.org>; Fri,  3 Feb 2023 02:20:30 -0800 (PST)
+        with ESMTP id S233354AbjBCKWR (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 3 Feb 2023 05:22:17 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2F7149E9F6
+        for <stable@vger.kernel.org>; Fri,  3 Feb 2023 02:21:59 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id A9F13B82A6F
-        for <stable@vger.kernel.org>; Fri,  3 Feb 2023 10:20:22 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 03F7CC433D2;
-        Fri,  3 Feb 2023 10:20:20 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 37DFB61EC1
+        for <stable@vger.kernel.org>; Fri,  3 Feb 2023 10:21:38 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 108FFC433EF;
+        Fri,  3 Feb 2023 10:21:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1675419621;
-        bh=qHVGKWz40xcyB0e9AaLwqgL438Tb2zBWiEAi4PrIKCY=;
+        s=korg; t=1675419697;
+        bh=qbSGnQlAtzWva+t/AgMOcqav+DHSqPi2FkRVLWcY2gI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=f3nv3169r4FvVQGRluSZlH8qrlzUbInN89YW1DbVgkL0nh7YEfyh/x6l/5FvKu6Bo
-         JLDiTp8glUFmHPq5Om8T7ayoJs72Zom0o5Pnb7bGjIS8i1zeumAc4zVYbyLSZPJZm/
-         XhTrUC5kQe+oXwbXT3vt6+ron5LcgDvbdJDtvr8U=
+        b=gsbKyeAZkioiGFXd7HARptpb2O1GyvjDNglcXfntkhNp8jVkZ+VKzN0MoUfDFZCyu
+         96h5aA1eygf1/J70Z+/WkfVCCZFjX7izIu5xv54O0iI3ItzHczoZnsxDFSgZ5u48aR
+         PuFoyzLxtoyUe5wTBqOKPIn6x+lpMyd9t1Fciwqc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Hui Wang <hui.wang@canonical.com>,
-        Sascha Hauer <s.hauer@pengutronix.de>,
-        Vinod Koul <vkoul@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 63/80] dmaengine: imx-sdma: Fix a possible memory leak in sdma_transfer_init
+        patches@lists.linux.dev, Petr Vorel <petr.vorel@gmail.com>,
+        Dominik Kobinski <dominikkobinski314@gmail.com>,
+        Bjorn Andersson <andersson@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 6.1 09/28] arm64: dts: msm8994-angler: fix the memory map
 Date:   Fri,  3 Feb 2023 11:12:57 +0100
-Message-Id: <20230203101017.921017113@linuxfoundation.org>
+Message-Id: <20230203101010.368148359@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.1
-In-Reply-To: <20230203101015.263854890@linuxfoundation.org>
-References: <20230203101015.263854890@linuxfoundation.org>
+In-Reply-To: <20230203101009.946745030@linuxfoundation.org>
+References: <20230203101009.946745030@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
         SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -53,47 +54,61 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hui Wang <hui.wang@canonical.com>
+From: Dominik Kobinski <dominikkobinski314@gmail.com>
 
-[ Upstream commit 1417f59ac0b02130ee56c0c50794b9b257be3d17 ]
+[ Upstream commit 380cd3a34b7f9825a60ccb045611af9cb4533b70 ]
 
-If the function sdma_load_context() fails, the sdma_desc will be
-freed, but the allocated desc->bd is forgot to be freed.
+Add reserved regions for memory hole and tz app mem to prevent
+rebooting. Also enable cont_splash_mem, it is the same as the
+generic 8994 one.
 
-We already met the sdma_load_context() failure case and the log as
-below:
-[ 450.699064] imx-sdma 30bd0000.dma-controller: Timeout waiting for CH0 ready
-...
-
-In this case, the desc->bd will not be freed without this change.
-
-Signed-off-by: Hui Wang <hui.wang@canonical.com>
-Reviewed-by: Sascha Hauer <s.hauer@pengutronix.de>
-Link: https://lore.kernel.org/r/20221130090800.102035-1-hui.wang@canonical.com
-Signed-off-by: Vinod Koul <vkoul@kernel.org>
+Reported-by: Petr Vorel <petr.vorel@gmail.com>
+Signed-off-by: Dominik Kobinski <dominikkobinski314@gmail.com>
+Reviewed-by: Petr Vorel <petr.vorel@gmail.com>
+Signed-off-by: Bjorn Andersson <andersson@kernel.org>
+Link: https://lore.kernel.org/r/20221230194845.57780-1-dominikkobinski314@gmail.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/dma/imx-sdma.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ .../qcom/msm8994-huawei-angler-rev-101.dts    | 19 ++++++++++++++++---
+ 1 file changed, 16 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/dma/imx-sdma.c b/drivers/dma/imx-sdma.c
-index 709ead443fc5..5794d3120bb8 100644
---- a/drivers/dma/imx-sdma.c
-+++ b/drivers/dma/imx-sdma.c
-@@ -1347,10 +1347,12 @@ static struct sdma_desc *sdma_transfer_init(struct sdma_channel *sdmac,
- 		sdma_config_ownership(sdmac, false, true, false);
+diff --git a/arch/arm64/boot/dts/qcom/msm8994-huawei-angler-rev-101.dts b/arch/arm64/boot/dts/qcom/msm8994-huawei-angler-rev-101.dts
+index dbfbb77e9ff5..7e2c0dcc11ab 100644
+--- a/arch/arm64/boot/dts/qcom/msm8994-huawei-angler-rev-101.dts
++++ b/arch/arm64/boot/dts/qcom/msm8994-huawei-angler-rev-101.dts
+@@ -8,9 +8,6 @@
  
- 	if (sdma_load_context(sdmac))
--		goto err_desc_out;
-+		goto err_bd_out;
+ #include "msm8994.dtsi"
  
- 	return desc;
+-/* Angler's firmware does not report where the memory is allocated */
+-/delete-node/ &cont_splash_mem;
+-
+ / {
+ 	model = "Huawei Nexus 6P";
+ 	compatible = "huawei,angler", "qcom,msm8994";
+@@ -27,6 +24,22 @@ aliases {
+ 	chosen {
+ 		stdout-path = "serial0:115200n8";
+ 	};
++
++	reserved-memory {
++		#address-cells = <2>;
++		#size-cells = <2>;
++		ranges;
++
++		tzapp_mem: tzapp@4800000 {
++			reg = <0 0x04800000 0 0x1900000>;
++			no-map;
++		};
++
++		removed_region: reserved@6300000 {
++			reg = <0 0x06300000 0 0xD00000>;
++			no-map;
++		};
++	};
+ };
  
-+err_bd_out:
-+	sdma_free_bd(desc);
- err_desc_out:
- 	kfree(desc);
- err_out:
+ &blsp1_uart2 {
 -- 
 2.39.0
 
