@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 75B18688BE0
-	for <lists+stable@lfdr.de>; Fri,  3 Feb 2023 01:35:38 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 20F21688BE2
+	for <lists+stable@lfdr.de>; Fri,  3 Feb 2023 01:35:39 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232666AbjBCAfg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 2 Feb 2023 19:35:36 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60752 "EHLO
+        id S233179AbjBCAfh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 2 Feb 2023 19:35:37 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60874 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230233AbjBCAfa (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 2 Feb 2023 19:35:30 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C85856384F;
-        Thu,  2 Feb 2023 16:35:24 -0800 (PST)
+        with ESMTP id S232768AbjBCAfc (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 2 Feb 2023 19:35:32 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 470B064683;
+        Thu,  2 Feb 2023 16:35:25 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 6395061D4A;
+        by dfw.source.kernel.org (Postfix) with ESMTPS id D1EC761D4D;
         Fri,  3 Feb 2023 00:35:24 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E09D1C433A8;
-        Fri,  3 Feb 2023 00:35:23 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5CB4FC433A7;
+        Fri,  3 Feb 2023 00:35:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
         s=k20201202; t=1675384524;
-        bh=Q1iK07+TfUGftVW45xfnQtsOGOOjDYaWhjdzlKJkRcs=;
+        bh=sg1KwdXv0FVnbAh1B0Mu7C1aCwLVKT+GZqGfNjJjHPY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ZzWVcBWpbkKGjiEs5IuYVj2pTpiqZIxYjIxFTadGmuWgHfCQA/1/nDEHB8WwXqefI
-         YaUZjh0KqqrEP0Z9OrUmra9UHr9i35yn7IEafLLmVzz6N1zyuqr6VPermlWzh7wMUp
-         7pO+p2n0zmGFaH7TZA/3DXS5BngX1xxzkmQFR/3SAAw3rCcWZlfHbZ0SfYqWYXk2bL
-         goyxJTwuhK4B+Ts6VUFrNbJe3Te2J9V2kxpLS6JBGPk2Z/NrGUOPzGPu6SKhHUlwgm
-         lhFLQDDuidFNimVBYZHYNpwKOfsYUJ7C6YJEvTI3lMAe4Sgics7lA1ohA/Yr1q1ZVs
-         0ayFrusU69Ztg==
+        b=VG3wZplwO+GVQzyMRZG4X8sAF1pnYmkNRAn+pss8ExFm2/AlwKxwbRYTd1QQqV66x
+         3Ft5woMVhizrh9ICmdyzd13rc5bUYSO4IR5NiFU4POeWxwPmNskOtQrUokGylnrbXs
+         Riq6wbQobN9HJoN5XB7kjrvX7ANky5pQPOLg0H8f6xZZSfkDqX6snFCXdcM/i/i+3Y
+         vJ7ewIepA0UjqtnxyQlKFzX4/hdZbL+RFEwsLiIP7kS4r35Mg8JNdvQZ1i6K5R1CH4
+         KgGNALkT0yOAck/R1zXQAQxaCy9II1uSTnPKOpD6Y29OZ6tSCoUEdwLN3nVJwBBvQp
+         gp9eHXEA/UP9Q==
 From:   Eric Biggers <ebiggers@kernel.org>
 To:     stable@vger.kernel.org
 Cc:     Harshit Mogalapalli <harshit.m.mogalapalli@oracle.com>,
@@ -40,17 +40,17 @@ Cc:     Harshit Mogalapalli <harshit.m.mogalapalli@oracle.com>,
         Jann Horn <jannh@google.com>,
         "Eric W . Biederman" <ebiederm@xmission.com>,
         linux-hardening@vger.kernel.org, linux-kernel@vger.kernel.org,
-        kernel test robot <lkp@intel.com>
-Subject: [PATCH 4.14 v2 04/15] objtool: Add a missing comma to avoid string concatenation
-Date:   Thu,  2 Feb 2023 16:33:43 -0800
-Message-Id: <20230203003354.85691-5-ebiggers@kernel.org>
+        Nathan Chancellor <nathan@kernel.org>
+Subject: [PATCH 4.14 v2 05/15] hexagon: Fix function name in die()
+Date:   Thu,  2 Feb 2023 16:33:44 -0800
+Message-Id: <20230203003354.85691-6-ebiggers@kernel.org>
 X-Mailer: git-send-email 2.39.1
 In-Reply-To: <20230203003354.85691-1-ebiggers@kernel.org>
 References: <20230203003354.85691-1-ebiggers@kernel.org>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
         SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -58,44 +58,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: "Eric W. Biederman" <ebiederm@xmission.com>
+From: Nathan Chancellor <nathan@kernel.org>
 
-commit 1fb466dff904e4a72282af336f2c355f011eec61 upstream.
+commit 4f0712ccec09c071e221242a2db9a6779a55a949 upstream.
 
-Recently the kbuild robot reported two new errors:
+When building ARCH=hexagon defconfig:
 
->> lib/kunit/kunit-example-test.o: warning: objtool: .text.unlikely: unexpected end of section
->> arch/x86/kernel/dumpstack.o: warning: objtool: oops_end() falls through to next function show_opcodes()
+arch/hexagon/kernel/traps.c:217:2: error: implicit declaration of
+function 'make_dead_task' [-Werror,-Wimplicit-function-declaration]
+        make_dead_task(err);
+        ^
 
-I don't know why they did not occur in my test setup but after digging
-it I realized I had accidentally dropped a comma in
-tools/objtool/check.c when I renamed rewind_stack_do_exit to
-rewind_stack_and_make_dead.
+The function's name is make_task_dead(), change it so there is no more
+build error.
 
-Add that comma back to fix objtool errors.
-
-Link: https://lkml.kernel.org/r/202112140949.Uq5sFKR1-lkp@intel.com
 Fixes: 0e25498f8cd4 ("exit: Add and use make_task_dead.")
-Reported-by: kernel test robot <lkp@intel.com>
-Signed-off-by: "Eric W. Biederman" <ebiederm@xmission.com>
+Signed-off-by: Nathan Chancellor <nathan@kernel.org>
+Link: https://lkml.kernel.org/r/20211227184851.2297759-2-nathan@kernel.org
+Signed-off-by: Eric W. Biederman <ebiederm@xmission.com>
 Signed-off-by: Eric Biggers <ebiggers@google.com>
 ---
- tools/objtool/check.c | 2 +-
+ arch/hexagon/kernel/traps.c | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/tools/objtool/check.c b/tools/objtool/check.c
-index 9048b02b54474..e93c061654a79 100644
---- a/tools/objtool/check.c
-+++ b/tools/objtool/check.c
-@@ -167,7 +167,7 @@ static int __dead_end_function(struct objtool_file *file, struct symbol *func,
- 		"lbug_with_loc",
- 		"fortify_panic",
- 		"machine_real_restart",
--		"rewind_stack_and_make_dead"
-+		"rewind_stack_and_make_dead",
- 	};
+diff --git a/arch/hexagon/kernel/traps.c b/arch/hexagon/kernel/traps.c
+index 797608772f8a4..65330343bdc33 100644
+--- a/arch/hexagon/kernel/traps.c
++++ b/arch/hexagon/kernel/traps.c
+@@ -234,7 +234,7 @@ int die(const char *str, struct pt_regs *regs, long err)
+ 		panic("Fatal exception");
  
- 	if (func->bind == STB_WEAK)
+ 	oops_exit();
+-	make_dead_task(err);
++	make_task_dead(err);
+ 	return 0;
+ }
+ 
 -- 
 2.39.1
 
