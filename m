@@ -2,49 +2,51 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 63A086894F7
-	for <lists+stable@lfdr.de>; Fri,  3 Feb 2023 11:15:53 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id EB684689614
+	for <lists+stable@lfdr.de>; Fri,  3 Feb 2023 11:31:30 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233214AbjBCKPn (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 3 Feb 2023 05:15:43 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35618 "EHLO
+        id S233529AbjBCKZj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 3 Feb 2023 05:25:39 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47818 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233158AbjBCKPm (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 3 Feb 2023 05:15:42 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B729D8E68D
-        for <stable@vger.kernel.org>; Fri,  3 Feb 2023 02:15:41 -0800 (PST)
+        with ESMTP id S233491AbjBCKZc (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 3 Feb 2023 05:25:32 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B5CF4CDCC
+        for <stable@vger.kernel.org>; Fri,  3 Feb 2023 02:25:22 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 70A93B82A5F
-        for <stable@vger.kernel.org>; Fri,  3 Feb 2023 10:15:40 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id BB990C4339B;
-        Fri,  3 Feb 2023 10:15:38 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 60901B8287A
+        for <stable@vger.kernel.org>; Fri,  3 Feb 2023 10:25:21 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B2A3DC4339B;
+        Fri,  3 Feb 2023 10:25:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1675419339;
-        bh=bFWhRROI9lZjnVlPfKcAhjwcNPrDYvSu72BK9rEnZMY=;
+        s=korg; t=1675419920;
+        bh=6V2N52S5wUtnDEMgzOvpyIQyBIUtek4WQdHbFtI3pZA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=T7o67TyTk2L1TEXTToYsTdVon1qWDaOBN3ZbXo5tVN2m9RIG+uCKJ8cfjCS9xBw2B
-         Re3PSC19xUYJ7jMVQdj95CJDltSQCN1nZnuoCp8yXij1wxTK5GeiQ20OG+lC1rNzp8
-         G2vUAfMvVHcKIL386h2rA/aDtbbdVXSqmGtGDWA0=
+        b=1dK/jrsB8mMTYGLUGyojTBpFeIA0WehuiiBWSHw4DfelQV8f/ooT3d6gJPmJS7+sE
+         608B4kmtfDWXEW2ysR2/bi2Qs8Ultypqkq67XteWQGUsAi81H6M6WO0eTZxg/H3iJl
+         aQhGVD6wM+LJ1ip/vLw9Y4RbTHI4DQ2LS7yeZzAE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Shang XiaoJing <shangxiaojing@huawei.com>,
-        Vinod Koul <vkoul@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 09/62] phy: rockchip-inno-usb2: Fix missing clk_disable_unprepare() in rockchip_usb2phy_power_on()
+        patches@lists.linux.dev, Luis Gerhorst <gerhorst@cs.fau.de>,
+        Daniel Borkmann <daniel@iogearbox.net>,
+        Henriette Hofmeier <henriette.hofmeier@rub.de>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 020/134] bpf: Fix pointer-leak due to insufficient speculative store bypass mitigation
 Date:   Fri,  3 Feb 2023 11:12:05 +0100
-Message-Id: <20230203101013.398889280@linuxfoundation.org>
+Message-Id: <20230203101024.757798424@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.1
-In-Reply-To: <20230203101012.959398849@linuxfoundation.org>
-References: <20230203101012.959398849@linuxfoundation.org>
+In-Reply-To: <20230203101023.832083974@linuxfoundation.org>
+References: <20230203101023.832083974@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
         SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -52,38 +54,106 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Shang XiaoJing <shangxiaojing@huawei.com>
+From: Luis Gerhorst <gerhorst@cs.fau.de>
 
-[ Upstream commit 5daba914da0e48950e9407ea4d75fa57029c9adc ]
+[ Upstream commit e4f4db47794c9f474b184ee1418f42e6a07412b6 ]
 
-The clk_disable_unprepare() should be called in the error handling of
-rockchip_usb2phy_power_on().
+To mitigate Spectre v4, 2039f26f3aca ("bpf: Fix leakage due to
+insufficient speculative store bypass mitigation") inserts lfence
+instructions after 1) initializing a stack slot and 2) spilling a
+pointer to the stack.
 
-Fixes: 0e08d2a727e6 ("phy: rockchip-inno-usb2: add a new driver for Rockchip usb2phy")
-Signed-off-by: Shang XiaoJing <shangxiaojing@huawei.com>
-Link: https://lore.kernel.org/r/20221205115823.16957-1-shangxiaojing@huawei.com
-Signed-off-by: Vinod Koul <vkoul@kernel.org>
+However, this does not cover cases where a stack slot is first
+initialized with a pointer (subject to sanitization) but then
+overwritten with a scalar (not subject to sanitization because
+the slot was already initialized). In this case, the second write
+may be subject to speculative store bypass (SSB) creating a
+speculative pointer-as-scalar type confusion. This allows the
+program to subsequently leak the numerical pointer value using,
+for example, a branch-based cache side channel.
+
+To fix this, also sanitize scalars if they write a stack slot
+that previously contained a pointer. Assuming that pointer-spills
+are only generated by LLVM on register-pressure, the performance
+impact on most real-world BPF programs should be small.
+
+The following unprivileged BPF bytecode drafts a minimal exploit
+and the mitigation:
+
+  [...]
+  // r6 = 0 or 1 (skalar, unknown user input)
+  // r7 = accessible ptr for side channel
+  // r10 = frame pointer (fp), to be leaked
+  //
+  r9 = r10 # fp alias to encourage ssb
+  *(u64 *)(r9 - 8) = r10 // fp[-8] = ptr, to be leaked
+  // lfence added here because of pointer spill to stack.
+  //
+  // Ommitted: Dummy bpf_ringbuf_output() here to train alias predictor
+  // for no r9-r10 dependency.
+  //
+  *(u64 *)(r10 - 8) = r6 // fp[-8] = scalar, overwrites ptr
+  // 2039f26f3aca: no lfence added because stack slot was not STACK_INVALID,
+  // store may be subject to SSB
+  //
+  // fix: also add an lfence when the slot contained a ptr
+  //
+  r8 = *(u64 *)(r9 - 8)
+  // r8 = architecturally a scalar, speculatively a ptr
+  //
+  // leak ptr using branch-based cache side channel:
+  r8 &= 1 // choose bit to leak
+  if r8 == 0 goto SLOW // no mispredict
+  // architecturally dead code if input r6 is 0,
+  // only executes speculatively iff ptr bit is 1
+  r8 = *(u64 *)(r7 + 0) # encode bit in cache (0: slow, 1: fast)
+SLOW:
+  [...]
+
+After running this, the program can time the access to *(r7 + 0) to
+determine whether the chosen pointer bit was 0 or 1. Repeat this 64
+times to recover the whole address on amd64.
+
+In summary, sanitization can only be skipped if one scalar is
+overwritten with another scalar. Scalar-confusion due to speculative
+store bypass can not lead to invalid accesses because the pointer
+bounds deducted during verification are enforced using branchless
+logic. See 979d63d50c0c ("bpf: prevent out of bounds speculation on
+pointer arithmetic") for details.
+
+Do not make the mitigation depend on !env->allow_{uninit_stack,ptr_leaks}
+because speculative leaks are likely unexpected if these were enabled.
+For example, leaking the address to a protected log file may be acceptable
+while disabling the mitigation might unintentionally leak the address
+into the cached-state of a map that is accessible to unprivileged
+processes.
+
+Fixes: 2039f26f3aca ("bpf: Fix leakage due to insufficient speculative store bypass mitigation")
+Signed-off-by: Luis Gerhorst <gerhorst@cs.fau.de>
+Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
+Acked-by: Henriette Hofmeier <henriette.hofmeier@rub.de>
+Link: https://lore.kernel.org/bpf/edc95bad-aada-9cfc-ffe2-fa9bb206583c@cs.fau.de
+Link: https://lore.kernel.org/bpf/20230109150544.41465-1-gerhorst@cs.fau.de
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/phy/rockchip/phy-rockchip-inno-usb2.c | 4 +++-
+ kernel/bpf/verifier.c | 4 +++-
  1 file changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/phy/rockchip/phy-rockchip-inno-usb2.c b/drivers/phy/rockchip/phy-rockchip-inno-usb2.c
-index ee7ce5ee53f9..a088cb027657 100644
---- a/drivers/phy/rockchip/phy-rockchip-inno-usb2.c
-+++ b/drivers/phy/rockchip/phy-rockchip-inno-usb2.c
-@@ -477,8 +477,10 @@ static int rockchip_usb2phy_power_on(struct phy *phy)
- 		return ret;
+diff --git a/kernel/bpf/verifier.c b/kernel/bpf/verifier.c
+index 32b32ecad770..ca7e05ddbb46 100644
+--- a/kernel/bpf/verifier.c
++++ b/kernel/bpf/verifier.c
+@@ -1924,7 +1924,9 @@ static int check_stack_write(struct bpf_verifier_env *env,
+ 		bool sanitize = reg && is_spillable_regtype(reg->type);
  
- 	ret = property_enable(base, &rport->port_cfg->phy_sus, false);
--	if (ret)
-+	if (ret) {
-+		clk_disable_unprepare(rphy->clk480m);
- 		return ret;
-+	}
- 
- 	/* waiting for the utmi_clk to become stable */
- 	usleep_range(1500, 2000);
+ 		for (i = 0; i < size; i++) {
+-			if (state->stack[spi].slot_type[i] == STACK_INVALID) {
++			u8 type = state->stack[spi].slot_type[i];
++
++			if (type != STACK_MISC && type != STACK_ZERO) {
+ 				sanitize = true;
+ 				break;
+ 			}
 -- 
 2.39.0
 
