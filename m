@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 546BA6895A7
-	for <lists+stable@lfdr.de>; Fri,  3 Feb 2023 11:24:19 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A6C8468965E
+	for <lists+stable@lfdr.de>; Fri,  3 Feb 2023 11:31:56 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229698AbjBCKVY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 3 Feb 2023 05:21:24 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43404 "EHLO
+        id S233601AbjBCK2P (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 3 Feb 2023 05:28:15 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50996 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233271AbjBCKVX (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 3 Feb 2023 05:21:23 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CD3728B7E6
-        for <stable@vger.kernel.org>; Fri,  3 Feb 2023 02:21:00 -0800 (PST)
+        with ESMTP id S233599AbjBCK14 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 3 Feb 2023 05:27:56 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1E09C1043E
+        for <stable@vger.kernel.org>; Fri,  3 Feb 2023 02:27:13 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id D82BFB82A5F
-        for <stable@vger.kernel.org>; Fri,  3 Feb 2023 10:20:52 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 165F6C4339B;
-        Fri,  3 Feb 2023 10:20:50 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 2210561EC7
+        for <stable@vger.kernel.org>; Fri,  3 Feb 2023 10:27:09 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E2248C433EF;
+        Fri,  3 Feb 2023 10:27:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1675419651;
-        bh=KTsOGgZg/N52JsjP5wNGo/1nNIZVhjKXumN3kZlzkyM=;
+        s=korg; t=1675420028;
+        bh=cvLq+yvxkJlEFaASeVrLiMX4COBGk8+rYUWfYsjkzSM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=XX3gRJnNONcDfpXrN6w1qCTyOK6nJb8vZfH52+8R1bkKdQ2K40hnvddq/9zT+cS/Z
-         t+cQXygXOH022Wy2ysp1vGqRRYo1fxiz1ah1AeIQoEpWfdflEHUwi3Qt0tsOT7zE+Y
-         5LSZtWLwn5rJsKImwXcXGtKb6vIp8KhlnhED1V5s=
+        b=uAHrNAllN5y5iuxmiBIDakHFvJFxiX9/iVcBa9awzARm0f8+5zceUmBuNmhxjnRz0
+         QYhJ4rhjHf9KfNlY8XjIOlbeoun/XGe8sLjuCpRR2fcYYwiPJqe/4O4HLmGS2e7HO2
+         KytgARbmrylInBIyRF+UqzwcV4YAdZS0omNK1C2s=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Stefano Brivio <sbrivio@redhat.com>,
-        Pablo Neira Ayuso <pablo@netfilter.org>,
+        patches@lists.linux.dev, Niklas Schnelle <schnelle@linux.ibm.com>,
+        Heiko Carstens <hca@linux.ibm.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 46/80] netfilter: nft_set_rbtree: skip elements in transaction from garbage collection
+Subject: [PATCH 5.4 055/134] s390/debug: add _ASM_S390_ prefix to header guard
 Date:   Fri,  3 Feb 2023 11:12:40 +0100
-Message-Id: <20230203101017.187596011@linuxfoundation.org>
+Message-Id: <20230203101026.357817812@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.1
-In-Reply-To: <20230203101015.263854890@linuxfoundation.org>
-References: <20230203101015.263854890@linuxfoundation.org>
+In-Reply-To: <20230203101023.832083974@linuxfoundation.org>
+References: <20230203101023.832083974@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,66 +53,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pablo Neira Ayuso <pablo@netfilter.org>
+From: Niklas Schnelle <schnelle@linux.ibm.com>
 
-[ Upstream commit 5d235d6ce75c12a7fdee375eb211e4116f7ab01b ]
+[ Upstream commit 0d4d52361b6c29bf771acd4fa461f06d78fb2fac ]
 
-Skip interference with an ongoing transaction, do not perform garbage
-collection on inactive elements. Reset annotated previous end interval
-if the expired element is marked as busy (control plane removed the
-element right before expiration).
+Using DEBUG_H without a prefix is very generic and inconsistent with
+other header guards in arch/s390/include/asm. In fact it collides with
+the same name in the ath9k wireless driver though that depends on !S390
+via disabled wireless support. Let's just use a consistent header guard
+name and prevent possible future trouble.
 
-Fixes: 8d8540c4f5e0 ("netfilter: nft_set_rbtree: add timeout support")
-Reviewed-by: Stefano Brivio <sbrivio@redhat.com>
-Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
+Signed-off-by: Niklas Schnelle <schnelle@linux.ibm.com>
+Signed-off-by: Heiko Carstens <hca@linux.ibm.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/netfilter/nft_set_rbtree.c | 16 +++++++++++++++-
- 1 file changed, 15 insertions(+), 1 deletion(-)
+ arch/s390/include/asm/debug.h | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/net/netfilter/nft_set_rbtree.c b/net/netfilter/nft_set_rbtree.c
-index 84d317418d18..78a0f4283787 100644
---- a/net/netfilter/nft_set_rbtree.c
-+++ b/net/netfilter/nft_set_rbtree.c
-@@ -375,23 +375,37 @@ static void nft_rbtree_gc(struct work_struct *work)
- 	struct nft_rbtree *priv;
- 	struct rb_node *node;
- 	struct nft_set *set;
-+	struct net *net;
-+	u8 genmask;
+diff --git a/arch/s390/include/asm/debug.h b/arch/s390/include/asm/debug.h
+index 310134015541..54f4bc5d1108 100644
+--- a/arch/s390/include/asm/debug.h
++++ b/arch/s390/include/asm/debug.h
+@@ -4,8 +4,8 @@
+  *
+  *    Copyright IBM Corp. 1999, 2000
+  */
+-#ifndef DEBUG_H
+-#define DEBUG_H
++#ifndef _ASM_S390_DEBUG_H
++#define _ASM_S390_DEBUG_H
  
- 	priv = container_of(work, struct nft_rbtree, gc_work.work);
- 	set  = nft_set_container_of(priv);
-+	net  = read_pnet(&set->net);
-+	genmask = nft_genmask_cur(net);
+ #include <linux/string.h>
+ #include <linux/spinlock.h>
+@@ -416,4 +416,4 @@ int debug_unregister_view(debug_info_t *id, struct debug_view *view);
+ #define PRINT_FATAL(x...)	printk(KERN_DEBUG PRINTK_HEADER x)
+ #endif /* DASD_DEBUG */
  
- 	write_lock_bh(&priv->lock);
- 	write_seqcount_begin(&priv->count);
- 	for (node = rb_first(&priv->root); node != NULL; node = rb_next(node)) {
- 		rbe = rb_entry(node, struct nft_rbtree_elem, node);
- 
-+		if (!nft_set_elem_active(&rbe->ext, genmask))
-+			continue;
-+
-+		/* elements are reversed in the rbtree for historical reasons,
-+		 * from highest to lowest value, that is why end element is
-+		 * always visited before the start element.
-+		 */
- 		if (nft_rbtree_interval_end(rbe)) {
- 			rbe_end = rbe;
- 			continue;
- 		}
- 		if (!nft_set_elem_expired(&rbe->ext))
- 			continue;
--		if (nft_set_elem_mark_busy(&rbe->ext))
-+
-+		if (nft_set_elem_mark_busy(&rbe->ext)) {
-+			rbe_end = NULL;
- 			continue;
-+		}
- 
- 		if (rbe_prev) {
- 			rb_erase(&rbe_prev->node, &priv->root);
+-#endif /* DEBUG_H */
++#endif /* _ASM_S390_DEBUG_H */
 -- 
 2.39.0
 
