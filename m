@@ -2,44 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id F17F468965F
-	for <lists+stable@lfdr.de>; Fri,  3 Feb 2023 11:31:56 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 25EE4689587
+	for <lists+stable@lfdr.de>; Fri,  3 Feb 2023 11:24:09 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233665AbjBCK3R (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 3 Feb 2023 05:29:17 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51312 "EHLO
+        id S233330AbjBCKWM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 3 Feb 2023 05:22:12 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44564 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233645AbjBCK2v (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 3 Feb 2023 05:28:51 -0500
+        with ESMTP id S233252AbjBCKWK (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 3 Feb 2023 05:22:10 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 96B4E1D92A
-        for <stable@vger.kernel.org>; Fri,  3 Feb 2023 02:28:06 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BAEA89EE28
+        for <stable@vger.kernel.org>; Fri,  3 Feb 2023 02:21:52 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 244CCB82A68
-        for <stable@vger.kernel.org>; Fri,  3 Feb 2023 10:28:05 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4E8E1C433D2;
-        Fri,  3 Feb 2023 10:28:03 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 51636B82A70
+        for <stable@vger.kernel.org>; Fri,  3 Feb 2023 10:21:51 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6FE76C4339B;
+        Fri,  3 Feb 2023 10:21:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1675420083;
-        bh=yU/KHOVoY3cgHVv7ftkC4XUH3Cf97dmamGzRt85zphM=;
+        s=korg; t=1675419709;
+        bh=3KKifScuk1hhvnnfmlwGuRuD5jQ4e0Nucu2H8lY9BBk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Y9nU3l8H9V+aF0Gdi4JxfupM+PhwCmiP61wTgZ7PcgpL4NOG8HIG8qP6oqwCELUY6
-         m55dPYq+/kICx2P53GENhFzwThsh/7Wo/oqOqsBiUMR2sbNXavJPZoIn89wFz3eRtS
-         ewRvmTUGfqU4fNtXskQiodGHi5JQ4cYFX8PhDvYg=
+        b=m9hb3QZ2G3YSP5e/EZ7qS9pnCLgScyFJnISNexXePbYdl6B3uYUBjdn1SPSIHBjsc
+         S0hiYA+i0jDVJfepnZ9C8031cteEnmxBKpFJvyN1X28pgfwdFBtM13Iao8/qHcez2R
+         WQE18HL/pfklXlmCMORyQAJWS6TbivcBKMXbLtYw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Masami Hiramatsu <mhiramat@kernel.org>,
-        "Joel Fernandes (Google)" <joel@joelfernandes.org>,
-        "Steven Rostedt (Google)" <rostedt@goodmis.org>
-Subject: [PATCH 5.4 075/134] tracing: Make sure trace_printk() can output as soon as it can be used
+        patches@lists.linux.dev, Yue Hu <huyue2@coolpad.com>,
+        Chao Yu <chao@kernel.org>,
+        Jingbo Xu <jefflexu@linux.alibaba.com>,
+        Gao Xiang <hsiangkao@linux.alibaba.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 6.1 12/28] erofs: clean up parsing of fscache related options
 Date:   Fri,  3 Feb 2023 11:13:00 +0100
-Message-Id: <20230203101027.229420105@linuxfoundation.org>
+Message-Id: <20230203101010.485999238@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.1
-In-Reply-To: <20230203101023.832083974@linuxfoundation.org>
-References: <20230203101023.832083974@linuxfoundation.org>
+In-Reply-To: <20230203101009.946745030@linuxfoundation.org>
+References: <20230203101009.946745030@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,80 +55,63 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Steven Rostedt (Google) <rostedt@goodmis.org>
+From: Jingbo Xu <jefflexu@linux.alibaba.com>
 
-commit 3bb06eb6e9acf7c4a3e1b5bc87aed398ff8e2253 upstream.
+[ Upstream commit e02ac3e7329f76c5de40cba2746cbe165f571dff ]
 
-Currently trace_printk() can be used as soon as early_trace_init() is
-called from start_kernel(). But if a crash happens, and
-"ftrace_dump_on_oops" is set on the kernel command line, all you get will
-be:
+... to avoid the mess of conditional preprocessing as we are continually
+adding fscache related mount options.
 
-  [    0.456075]   <idle>-0         0dN.2. 347519us : Unknown type 6
-  [    0.456075]   <idle>-0         0dN.2. 353141us : Unknown type 6
-  [    0.456075]   <idle>-0         0dN.2. 358684us : Unknown type 6
-
-This is because the trace_printk() event (type 6) hasn't been registered
-yet. That gets done via an early_initcall(), which may be early, but not
-early enough.
-
-Instead of registering the trace_printk() event (and other ftrace events,
-which are not trace events) via an early_initcall(), have them registered at
-the same time that trace_printk() can be used. This way, if there is a
-crash before early_initcall(), then the trace_printk()s will actually be
-useful.
-
-Link: https://lkml.kernel.org/r/20230104161412.019f6c55@gandalf.local.home
-
-Cc: stable@vger.kernel.org
-Cc: Masami Hiramatsu <mhiramat@kernel.org>
-Fixes: e725c731e3bb1 ("tracing: Split tracing initialization into two for early initialization")
-Reported-by: "Joel Fernandes (Google)" <joel@joelfernandes.org>
-Tested-by: Joel Fernandes (Google) <joel@joelfernandes.org>
-Signed-off-by: Steven Rostedt (Google) <rostedt@goodmis.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Reviewd-by: Gao Xiang <hsiangkao@linux.alibaba.com>
+Reviewed-by: Yue Hu <huyue2@coolpad.com>
+Reviewed-by: Chao Yu <chao@kernel.org>
+Signed-off-by: Jingbo Xu <jefflexu@linux.alibaba.com>
+Link: https://lore.kernel.org/r/20230112065431.124926-3-jefflexu@linux.alibaba.com
+Signed-off-by: Gao Xiang <hsiangkao@linux.alibaba.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/trace/trace.c        |    2 ++
- kernel/trace/trace.h        |    1 +
- kernel/trace/trace_output.c |    3 +--
- 3 files changed, 4 insertions(+), 2 deletions(-)
+ fs/erofs/super.c | 13 ++++++-------
+ 1 file changed, 6 insertions(+), 7 deletions(-)
 
---- a/kernel/trace/trace.c
-+++ b/kernel/trace/trace.c
-@@ -9317,6 +9317,8 @@ void __init early_trace_init(void)
- 			static_key_enable(&tracepoint_printk_key.key);
+diff --git a/fs/erofs/super.c b/fs/erofs/super.c
+index 481788c24a68..626a615dafc2 100644
+--- a/fs/erofs/super.c
++++ b/fs/erofs/super.c
+@@ -577,26 +577,25 @@ static int erofs_fc_parse_param(struct fs_context *fc,
+ 		}
+ 		++ctx->devs->extra_devices;
+ 		break;
+-	case Opt_fsid:
+ #ifdef CONFIG_EROFS_FS_ONDEMAND
++	case Opt_fsid:
+ 		kfree(ctx->fsid);
+ 		ctx->fsid = kstrdup(param->string, GFP_KERNEL);
+ 		if (!ctx->fsid)
+ 			return -ENOMEM;
+-#else
+-		errorfc(fc, "fsid option not supported");
+-#endif
+ 		break;
+ 	case Opt_domain_id:
+-#ifdef CONFIG_EROFS_FS_ONDEMAND
+ 		kfree(ctx->domain_id);
+ 		ctx->domain_id = kstrdup(param->string, GFP_KERNEL);
+ 		if (!ctx->domain_id)
+ 			return -ENOMEM;
++		break;
+ #else
+-		errorfc(fc, "domain_id option not supported");
+-#endif
++	case Opt_fsid:
++	case Opt_domain_id:
++		errorfc(fc, "%s option not supported", erofs_fs_parameters[opt].name);
+ 		break;
++#endif
+ 	default:
+ 		return -ENOPARAM;
  	}
- 	tracer_alloc_buffers();
-+
-+	init_events();
- }
- 
- void __init trace_init(void)
---- a/kernel/trace/trace.h
-+++ b/kernel/trace/trace.h
-@@ -1590,6 +1590,7 @@ extern void trace_event_enable_cmd_recor
- extern void trace_event_enable_tgid_record(bool enable);
- 
- extern int event_trace_init(void);
-+extern int init_events(void);
- extern int event_trace_add_tracer(struct dentry *parent, struct trace_array *tr);
- extern int event_trace_del_tracer(struct trace_array *tr);
- 
---- a/kernel/trace/trace_output.c
-+++ b/kernel/trace/trace_output.c
-@@ -1366,7 +1366,7 @@ static struct trace_event *events[] __in
- 	NULL
- };
- 
--__init static int init_events(void)
-+__init int init_events(void)
- {
- 	struct trace_event *event;
- 	int i, ret;
-@@ -1384,4 +1384,3 @@ __init static int init_events(void)
- 
- 	return 0;
- }
--early_initcall(init_events);
+-- 
+2.39.0
+
 
 
