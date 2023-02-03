@@ -2,40 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C775D68966F
-	for <lists+stable@lfdr.de>; Fri,  3 Feb 2023 11:32:03 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B536D68960A
+	for <lists+stable@lfdr.de>; Fri,  3 Feb 2023 11:31:27 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233420AbjBCK0s (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 3 Feb 2023 05:26:48 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47640 "EHLO
+        id S232836AbjBCK0u (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 3 Feb 2023 05:26:50 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47830 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232836AbjBCKY6 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 3 Feb 2023 05:24:58 -0500
+        with ESMTP id S233423AbjBCKZB (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 3 Feb 2023 05:25:01 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D80199D599
-        for <stable@vger.kernel.org>; Fri,  3 Feb 2023 02:24:29 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 33D009D585
+        for <stable@vger.kernel.org>; Fri,  3 Feb 2023 02:24:32 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id EC4CB61ED1
-        for <stable@vger.kernel.org>; Fri,  3 Feb 2023 10:24:27 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B6372C433AA;
-        Fri,  3 Feb 2023 10:24:26 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id EC75561EC9
+        for <stable@vger.kernel.org>; Fri,  3 Feb 2023 10:24:30 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id CCBF1C433EF;
+        Fri,  3 Feb 2023 10:24:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1675419867;
-        bh=dsy3YWhkKzp2txKhA8z4hxCJ1vOdg+ndBt0MQUuhYXA=;
+        s=korg; t=1675419870;
+        bh=dPN+EQaYp+aYd2XWlihDeKFNLSXLqGOubMUwWGUkCTM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=On0LpP9kQ783vxxrSPi1R7pwVUF/ROEVywSTfNNNN/n0djI9runNvxqXc1u1gwwu2
-         OwDmu+mrawGW9wkPiHAL5EbQSrGj02NUq3T35+Pik+t/db9cIJd9/ehCcFtU/aWL6K
-         sskk9Y4L/FXWmmIPkRoCWtEzxmhdMz9ZYQYLD/BE=
+        b=GhrPHLZeRUWtGIjT998bppJA5W0bk+e1+gbuspx6zPu98ofAEr1CvwSuOukI6JDJ+
+         wynW9lR2eaVitdC3ULJtiLBWJYhzxEiqDUiIN8D2Jp3JKuscBdwg2MYOoeP2mB1A6G
+         RIT9nlmI9FlJy63ual0ZMBkHFoSznEm7Kpf2dIVg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         patches@lists.linux.dev, Shuah Khan <skhan@linuxfoundation.org>,
+        Reinette Chatre <reinette.chatre@intel.com>,
         Kyle Huey <me@kylehuey.com>
-Subject: [PATCH 5.15 17/20] selftests/vm: remove ARRAY_SIZE define from individual tests
-Date:   Fri,  3 Feb 2023 11:13:44 +0100
-Message-Id: <20230203101008.714697109@linuxfoundation.org>
+Subject: [PATCH 5.15 18/20] selftests: Provide local define of __cpuid_count()
+Date:   Fri,  3 Feb 2023 11:13:45 +0100
+Message-Id: <20230203101008.753709022@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.1
 In-Reply-To: <20230203101007.985835823@linuxfoundation.org>
 References: <20230203101007.985835823@linuxfoundation.org>
@@ -52,66 +53,60 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Shuah Khan <skhan@linuxfoundation.org>
+From: Reinette Chatre <reinette.chatre@intel.com>
 
-commit e89908201e2509354c40158b517945bf3d645812 upstream.
+commit a23039c7306f53416ba35d230201398ea34f4640 upstream.
 
-ARRAY_SIZE is defined in several selftests. Remove definitions from
-individual test files and include header file for the define instead.
-ARRAY_SIZE define is added in a separate patch to prepare for this
-change.
+Some selftests depend on information provided by the CPUID instruction.
+To support this dependency the selftests implement private wrappers for
+CPUID.
 
-Remove ARRAY_SIZE from vm tests and pickup the one defined in
-kselftest.h.
+Duplication of the CPUID wrappers should be avoided.
 
+Both gcc and clang/LLVM provide __cpuid_count() macros but neither
+the macro nor its header file are available in all the compiler
+versions that need to be supported by the selftests. __cpuid_count()
+as provided by gcc is available starting with gcc v4.4, so it is
+not available if the latest tests need to be run in all the
+environments required to support kernels v4.9 and v4.14 that
+have the minimal required gcc v3.2.
+
+Duplicate gcc's __cpuid_count() macro to provide a centrally defined
+macro for __cpuid_count() to help eliminate the duplicate CPUID wrappers
+while continuing to compile in older environments.
+
+Suggested-by: Shuah Khan <skhan@linuxfoundation.org>
+Signed-off-by: Reinette Chatre <reinette.chatre@intel.com>
 Signed-off-by: Shuah Khan <skhan@linuxfoundation.org>
 Cc: Kyle Huey <me@kylehuey.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- tools/testing/selftests/vm/mremap_test.c    |    1 -
- tools/testing/selftests/vm/pkey-helpers.h   |    3 ++-
- tools/testing/selftests/vm/va_128TBswitch.c |    2 +-
- 3 files changed, 3 insertions(+), 3 deletions(-)
+ tools/testing/selftests/kselftest.h |   15 +++++++++++++++
+ 1 file changed, 15 insertions(+)
 
---- a/tools/testing/selftests/vm/mremap_test.c
-+++ b/tools/testing/selftests/vm/mremap_test.c
-@@ -22,7 +22,6 @@
- #define VALIDATION_DEFAULT_THRESHOLD 4	/* 4MB */
- #define VALIDATION_NO_THRESHOLD 0	/* Verify the entire region */
+--- a/tools/testing/selftests/kselftest.h
++++ b/tools/testing/selftests/kselftest.h
+@@ -52,6 +52,21 @@
+ #define ARRAY_SIZE(arr) (sizeof(arr) / sizeof((arr)[0]))
+ #endif
  
--#define ARRAY_SIZE(x) (sizeof(x) / sizeof((x)[0]))
- #define MIN(X, Y) ((X) < (Y) ? (X) : (Y))
- 
- struct config {
---- a/tools/testing/selftests/vm/pkey-helpers.h
-+++ b/tools/testing/selftests/vm/pkey-helpers.h
-@@ -13,6 +13,8 @@
- #include <ucontext.h>
- #include <sys/mman.h>
- 
-+#include "../kselftest.h"
++/*
++ * gcc cpuid.h provides __cpuid_count() since v4.4.
++ * Clang/LLVM cpuid.h provides  __cpuid_count() since v3.4.0.
++ *
++ * Provide local define for tests needing __cpuid_count() because
++ * selftests need to work in older environments that do not yet
++ * have __cpuid_count().
++ */
++#ifndef __cpuid_count
++#define __cpuid_count(level, count, a, b, c, d)				\
++	__asm__ __volatile__ ("cpuid\n\t"				\
++			      : "=a" (a), "=b" (b), "=c" (c), "=d" (d)	\
++			      : "0" (level), "2" (count))
++#endif
 +
- /* Define some kernel-like types */
- #define  u8 __u8
- #define u16 __u16
-@@ -175,7 +177,6 @@ static inline void __pkey_write_allow(in
- 	dprintf4("pkey_reg now: %016llx\n", read_pkey_reg());
- }
- 
--#define ARRAY_SIZE(x) (sizeof(x) / sizeof(*(x)))
- #define ALIGN_UP(x, align_to)	(((x) + ((align_to)-1)) & ~((align_to)-1))
- #define ALIGN_DOWN(x, align_to) ((x) & ~((align_to)-1))
- #define ALIGN_PTR_UP(p, ptr_align_to)	\
---- a/tools/testing/selftests/vm/va_128TBswitch.c
-+++ b/tools/testing/selftests/vm/va_128TBswitch.c
-@@ -9,7 +9,7 @@
- #include <sys/mman.h>
- #include <string.h>
- 
--#define ARRAY_SIZE(arr) (sizeof(arr) / sizeof((arr)[0]))
-+#include "../kselftest.h"
- 
- #ifdef __powerpc64__
- #define PAGE_SIZE	(64 << 10)
+ /* define kselftest exit codes */
+ #define KSFT_PASS  0
+ #define KSFT_FAIL  1
 
 
