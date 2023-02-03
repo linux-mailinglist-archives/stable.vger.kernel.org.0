@@ -2,52 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B840168939D
-	for <lists+stable@lfdr.de>; Fri,  3 Feb 2023 10:27:17 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 966B16893D4
+	for <lists+stable@lfdr.de>; Fri,  3 Feb 2023 10:33:37 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232401AbjBCJ0F (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 3 Feb 2023 04:26:05 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43810 "EHLO
+        id S230496AbjBCJd1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 3 Feb 2023 04:33:27 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51492 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232790AbjBCJZh (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 3 Feb 2023 04:25:37 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4431561D5A
-        for <stable@vger.kernel.org>; Fri,  3 Feb 2023 01:25:32 -0800 (PST)
+        with ESMTP id S232363AbjBCJd1 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 3 Feb 2023 04:33:27 -0500
+Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B7E3A928CB;
+        Fri,  3 Feb 2023 01:33:23 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id CA413B829E0
-        for <stable@vger.kernel.org>; Fri,  3 Feb 2023 09:25:30 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2A9A4C433EF;
-        Fri,  3 Feb 2023 09:25:29 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 0FF99CE2DFC;
+        Fri,  3 Feb 2023 09:33:22 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 12E25C433D2;
+        Fri,  3 Feb 2023 09:33:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1675416329;
-        bh=vbvQLdXJzz3U3wn+spS+rWmWUdndzQ+tvfvHBwXLkHc=;
+        s=korg; t=1675416799;
+        bh=n0fwVlFONJ/V7dE/eNRSkJtZEoG/e2f5ZBIYhFBcQZQ=;
         h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=FNd+o2FbnK06zKV8CS/JtFjckF7RN+wlkuqa+bwd17Nn7hkWEcNcUKxs6dY0VCaun
-         naKtvFjtxlcbSZ4KyIvlSMBUQBBI7oK2BxkYmOL7SlQrZeDPHNgqFNwTGyNaK/BaGR
-         izYDNnYARXnxooTSmNbAzwDKJT0v4aeLp689d3ho=
-Date:   Fri, 3 Feb 2023 10:25:18 +0100
-From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     Harshit Mogalapalli <harshit.m.mogalapalli@oracle.com>
-Cc:     stable@vger.kernel.org, patches@lists.linux.dev,
-        Zhang Xiaoxu <zhangxiaoxu5@huawei.com>,
-        Trond Myklebust <trond.myklebust@hammerspace.com>,
-        Sasha Levin <sashal@kernel.org>,
-        Dan Carpenter <error27@gmail.com>,
-        Darren Kenny <darren.kenny@oracle.com>
-Subject: Re: [PATCH 5.4 185/658] xprtrdma: Fix regbuf data not freed in
- rpcrdma_req_create()
-Message-ID: <Y9zS/nOrhDLzV4r9@kroah.com>
-References: <20230116154909.645460653@linuxfoundation.org>
- <20230116154917.918263147@linuxfoundation.org>
- <4d2928e1-c836-b817-3dc2-3fe9adcaf2d6@oracle.com>
- <Y81RIkI9ygwWvheM@kroah.com>
+        b=M8ZVYhd9jpgJviu97EP/5IGt6nlATxaviuWLLI88cg8WKuu6XH19ucxIuLT5w6owj
+         3E06wcNi7wHc3LUz+z7KgpLIm2TRgSuVTynAm0wTP14DucEzVW9A4lhlYKnSkzZd0u
+         jF/LIXihWc12YU0BgIfZOPcFffD+ihFJ0CN56snc=
+Date:   Fri, 3 Feb 2023 10:33:16 +0100
+From:   Greg KH <gregkh@linuxfoundation.org>
+To:     Diederik de Haas <didi.debian@cknow.org>
+Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
+        LABBE Corentin <clabbe@baylibre.com>
+Subject: Re: crypto-rockchip patches queued for 6.1
+Message-ID: <Y9zU3KxsfMFGB/MF@kroah.com>
+References: <2236134.UumAgOJHRH@prancing-pony>
+ <Y6wdZHlnUIzzreTA@kroah.com>
+ <2589096.039tgBz4BG@prancing-pony>
+ <Y6w/O6zY3Jfe8ZKv@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <Y81RIkI9ygwWvheM@kroah.com>
+In-Reply-To: <Y6w/O6zY3Jfe8ZKv@kroah.com>
 X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
         DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
         SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
@@ -57,110 +52,75 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Sun, Jan 22, 2023 at 04:07:14PM +0100, Greg Kroah-Hartman wrote:
-> On Thu, Jan 19, 2023 at 11:39:35AM +0530, Harshit Mogalapalli wrote:
-> > Hi,
-> > 
-> > On 16/01/23 9:14 pm, Greg Kroah-Hartman wrote:
-> > > From: Zhang Xiaoxu <zhangxiaoxu5@huawei.com>
+On Wed, Dec 28, 2022 at 02:06:03PM +0100, Greg KH wrote:
+> On Wed, Dec 28, 2022 at 12:11:40PM +0100, Diederik de Haas wrote:
+> > On Wednesday, 28 December 2022 11:41:40 CET Greg KH wrote:
+> > > > All those patches have been merged into Linus' tree for 6.2 and there's a
+> > > > hotfix planned to be submitted for 6.2 here:
+> > > > https://git.kernel.org/pub/scm/linux/kernel/git/mmind/linux-rockchip.git/
+> > > > commit/?h=v6.2-armsoc/dtsfixes&id=53e8e1e6e9c1653095211a8edf17912f2374bb03
+> > > > 
+> > > > Wouldn't it make more sense to queue the whole patch set for 6.1?
+> > > > Or (at least) the whole crypto rockchip part as mentioned here:
+> > > > https://lore.kernel.org/all/Y5mGGrBJaDL6mnQJ@gondor.apana.org.au/
+> > > > under the "Corentin Labbe (32):" label?
 > > > 
-> > > [ Upstream commit 9181f40fb2952fd59ecb75e7158620c9c669eee3 ]
+> > > Please provide us a list of the specific git commits and in the order in
+> > > which you wish to see them applied and we will be glad to review them.
 > > > 
-> > > If rdma receive buffer allocate failed, should call rpcrdma_regbuf_free()
-> > > to free the send buffer, otherwise, the buffer data will be leaked.
-> > > 
-> > > Fixes: bb93a1ae2bf4 ("xprtrdma: Allocate req's regbufs at xprt create time")
-> > > Signed-off-by: Zhang Xiaoxu <zhangxiaoxu5@huawei.com>
-> > > Signed-off-by: Trond Myklebust <trond.myklebust@hammerspace.com>
-> > > Signed-off-by: Sasha Levin <sashal@kernel.org>
-> > > ---
-> > >   net/sunrpc/xprtrdma/verbs.c | 1 +
-> > >   1 file changed, 1 insertion(+)
-> > > 
-> > > diff --git a/net/sunrpc/xprtrdma/verbs.c b/net/sunrpc/xprtrdma/verbs.c
-> > > index 0f4d39fdb48f..e13115bbe719 100644
-> > > --- a/net/sunrpc/xprtrdma/verbs.c
-> > > +++ b/net/sunrpc/xprtrdma/verbs.c
-> > > @@ -1037,6 +1037,7 @@ struct rpcrdma_req *rpcrdma_req_create(struct rpcrdma_xprt *r_xprt, size_t size,
-> > >   	kfree(req->rl_sendbuf);
-> > >   out3:
-> > >   	kfree(req->rl_rdmabuf);
-> > > +	rpcrdma_regbuf_free(req->rl_sendbuf);
+> > > Looking at random links (that are wrapped and not able to be easily
+> > > used) is not going to work well.
 > > 
-> > I think this introduces a double free in rpcrdma_req_create() [5.4.y]
+> > These are the commits from Linus' tree (in the correct order):
 > > 
-> > Copying the function from 5.4.229 post the above patch here.
-> > 
-> > Comments added with //// marker.
-> > 
-> > struct rpcrdma_req *rpcrdma_req_create(struct rpcrdma_xprt *r_xprt, size_t
-> > size,
-> >                                        gfp_t flags)
-> > {
-> >         struct rpcrdma_buffer *buffer = &r_xprt->rx_buf;
-> >         struct rpcrdma_regbuf *rb;
-> >         struct rpcrdma_req *req;
-> >         size_t maxhdrsize;
-> > 
-> >         req = kzalloc(sizeof(*req), flags);
-> >         if (req == NULL)
-> >                 goto out1;
-> > 
-> >         /* Compute maximum header buffer size in bytes */
-> >         maxhdrsize = rpcrdma_fixed_maxsz + 3 +
-> >                      r_xprt->rx_ia.ri_max_segs * rpcrdma_readchunk_maxsz;
-> >         maxhdrsize *= sizeof(__be32);
-> >         rb = rpcrdma_regbuf_alloc(__roundup_pow_of_two(maxhdrsize),
-> >                                   DMA_TO_DEVICE, flags);
-> >         if (!rb)
-> >                 goto out2;
-> >         req->rl_rdmabuf = rb;
-> >         xdr_buf_init(&req->rl_hdrbuf, rdmab_data(rb), rdmab_length(rb));
-> > 
-> >         req->rl_sendbuf = rpcrdma_regbuf_alloc(size, DMA_TO_DEVICE, flags);
-> >         if (!req->rl_sendbuf)
-> >                 goto out3;
-> > 
-> >         req->rl_recvbuf = rpcrdma_regbuf_alloc(size, DMA_NONE, flags);
-> >         if (!req->rl_recvbuf)
-> >                 goto out4; ///// let us say we hit this.
-> > 
-> >         INIT_LIST_HEAD(&req->rl_free_mrs);
-> >         INIT_LIST_HEAD(&req->rl_registered);
-> >         spin_lock(&buffer->rb_lock);
-> >         list_add(&req->rl_all, &buffer->rb_allreqs);
-> >         spin_unlock(&buffer->rb_lock);
-> >         return req;
-> > 
-> > out4:
-> >         kfree(req->rl_sendbuf);
-> > //// free of (req->rl_sendbuf)
-> > out3:
-> >         kfree(req->rl_rdmabuf);
-> >         rpcrdma_regbuf_free(req->rl_sendbuf);
-> > //// double free of req->rl_sendbuf, we have a kfree in rpcrdma_regbuf_free.
-> > 
-> > out2:
-> >         kfree(req);
-> > out1:
-> >         return NULL;
-> > }
-> > 
-> > Found using smatch.
-> > 
-> > I looked at the history of the function, the reason is that we don't have
-> > commit b78de1dca00376aaba7a58bb5fe21c1606524abe in 5.4.y
-> > 
-> > This problem is only in 5.4.y not seen in newer LTS.
-> > 
-> > Please correct me if I am missing something here.
-> > 
+> > https://git.kernel.org/linus/299c481fa5c121f892420d97f1123a853b7f1079
+> > https://git.kernel.org/linus/8ccd9c8cd1d1618f5e073c86ffcfe15f292eefe6
+> > https://git.kernel.org/linus/c50ef1411c8cbad0c7db100c477126076b6e3348
+> > https://git.kernel.org/linus/6d11c9387865723fd779be00ae37a4588e60133d
+> > https://git.kernel.org/linus/87e356c4966444866186f68f05832fdcc0f351a3
+> > https://git.kernel.org/linus/68ef8af09a1a912a5ed2cfaa4cca7606f52cef90
+> > https://git.kernel.org/linus/816600485cb597b3ff7d6806a95a78512839f775
+> > https://git.kernel.org/linus/d6b23ccef82816050c2fd458c9dabfa0e0af09b9
+> > https://git.kernel.org/linus/bb3c7b73363c9a149b12b74c44ae94b73a8fddf8
+> > https://git.kernel.org/linus/57d67c6e8219b2a034c16d6149e30fb40fd39935
+> > https://git.kernel.org/linus/6d55c4a206d29006c733b5083ba5da8391abbdbd
+> > https://git.kernel.org/linus/48d904d428b68080abd9161148ca2ab1331124a4
+> > https://git.kernel.org/linus/a216be3964c15661579005012b1f0d7d20a1f265
+> > https://git.kernel.org/linus/6f61192549d0214f8d9d1e1d3152e450658ed1e9
+> > https://git.kernel.org/linus/3a6fd464f48ad35d8cf15d81fd92094132dc862a
+> > https://git.kernel.org/linus/e803188400d32d28ecfbef0878c289e3c7026723
+> > https://git.kernel.org/linus/37bc22159c456ad43fb852fc6ed60f4081df25df
+> > https://git.kernel.org/linus/456698746b40008eb0924eb7e9ec908330948b2d
+> > https://git.kernel.org/linus/e65e90101329de0fe304e2df057f68c5f0fa4748
+> > https://git.kernel.org/linus/a7fa0644dd0b91fab97398de7ea4672a6526261f
+> > https://git.kernel.org/linus/2e3b149578c30275db9c3501c1d9dec36d16622a
+> > https://git.kernel.org/linus/c018c7a9dd198ce965ca4d10c7b083849bc533be
+> > https://git.kernel.org/linus/ea389be9857721252367fd2cf81bc8068e060693
+> > https://git.kernel.org/linus/81aaf680e85207d6521b250b2a80ba7c91cc9cbe
+> > https://git.kernel.org/linus/d1b5749687618d969c0be6428174a18a7e94ebd2
+> > https://git.kernel.org/linus/b136468a0024ea90c1259767c732eed12ce6edba
+> > https://git.kernel.org/linus/d1152bc533c941f7e267bf53d344cee510ea2808
+> > https://git.kernel.org/linus/8c701fa6e38c43dba75282e4d919298a5cfc5b05
+> > https://git.kernel.org/linus/2d3c756adcd7a7ee15b6a55cf01b363e3f134e79
+> > https://git.kernel.org/linus/e220e6719438f7a99fe0a73e6e126481380202fa
+> > https://git.kernel.org/linus/0d31b14c9e4178a129a1aa5e491e4da1489c07de
+> > https://git.kernel.org/linus/c5a1e104c35e5134b6048f1e03960a6ac9c42935
+> > https://git.kernel.org/linus/9dcd71c863a6f6476378d076d3e9189c854d49fd
 > 
-> I think you are correct.  I'll look into fixing it on Monday, thanks for
-> the review!
+> That's a lot, I'll look at them in a week or so after catching up with
+> the rest of the stable queue.
 
-I've just reverted this commit from the tree now, a working backport
-would be appreciated :)
+I looked at this now, and some of the more obvious "fixes" are already
+in the 6.1.y tree (and older kernels).
+
+So this series does not apply as-is, and it seems like there is a lot of
+extra stuff in this series that is not needed (like a MAINTAINER entry?)
+
+Can you provide a patch series, that has been tested and with your
+signed-off-by for whatever you feel still needs to be applied to the
+6.1.y tree to resolve any existing bugs in 6.1.y for this driver (note,
+that does NOT mean that you can add new functionality that was never
+there...)
 
 thanks,
 
