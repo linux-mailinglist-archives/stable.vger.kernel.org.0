@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 7A0BD6896C1
-	for <lists+stable@lfdr.de>; Fri,  3 Feb 2023 11:32:33 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 84D34689650
+	for <lists+stable@lfdr.de>; Fri,  3 Feb 2023 11:31:51 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233617AbjBCKcU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 3 Feb 2023 05:32:20 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50490 "EHLO
+        id S230435AbjBCKZP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 3 Feb 2023 05:25:15 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47854 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233613AbjBCKap (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 3 Feb 2023 05:30:45 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3BE05B443
-        for <stable@vger.kernel.org>; Fri,  3 Feb 2023 02:29:54 -0800 (PST)
+        with ESMTP id S233575AbjBCKYt (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 3 Feb 2023 05:24:49 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DDC5DA147A
+        for <stable@vger.kernel.org>; Fri,  3 Feb 2023 02:24:18 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 834CEB82A6B
-        for <stable@vger.kernel.org>; Fri,  3 Feb 2023 10:29:53 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id BEA42C433EF;
-        Fri,  3 Feb 2023 10:29:51 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 3B1FD61ECC
+        for <stable@vger.kernel.org>; Fri,  3 Feb 2023 10:24:07 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1EDE2C4339B;
+        Fri,  3 Feb 2023 10:24:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1675420192;
-        bh=PKDqEiA9wpuk408a8IhDajU/bWJUc0MZMwjxAsjRxic=;
+        s=korg; t=1675419846;
+        bh=mJLPCi/3sB+LqCzxEK11/00G7g5mPE/RTW6D4kkkB5M=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=JAyZPxMXo18yXuhWj/XoZACbl3z+JL1fAshvD7skxKXRgusltqseDb2UUs/XRVXQ7
-         jgsqPNbHky/7nq02kUTuXWKCNcKqFv1IIiesGMws++41nnQrCNNwR7r2pX7osc2Rtb
-         KQDxKFZpDTysRJSsOGTNDqs1ASfV+ldSfDGFsoDI=
+        b=BEl0mRAeBCzfsebQXWZFncXAwv6mzGsgilz5WePhMzwQRQejYStV8HySRDV8WOqv7
+         0yDhWh8Ybw01FFG+oYPW3UYLAXPCKdDb5OxTreBaK6nK3NwIUdo4JqW5wp8KYRaiR2
+         B93128wu07MFvjfZ/2wG17Kol/0nqivHZn9rCbJ0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Geert Uytterhoeven <geert+renesas@glider.be>,
-        Shawn Guo <shawnguo@kernel.org>,
+        patches@lists.linux.dev, Yu Kuai <yukuai3@huawei.com>,
+        Tejun Heo <tj@kernel.org>, Jens Axboe <axboe@kernel.dk>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 110/134] ARM: dts: imx: Fix pca9547 i2c-mux node name
+Subject: [PATCH 5.15 08/20] blk-cgroup: fix missing pd_online_fn() while activating policy
 Date:   Fri,  3 Feb 2023 11:13:35 +0100
-Message-Id: <20230203101028.770872865@linuxfoundation.org>
+Message-Id: <20230203101008.347042352@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.1
-In-Reply-To: <20230203101023.832083974@linuxfoundation.org>
-References: <20230203101023.832083974@linuxfoundation.org>
+In-Reply-To: <20230203101007.985835823@linuxfoundation.org>
+References: <20230203101007.985835823@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,41 +53,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Geert Uytterhoeven <geert+renesas@glider.be>
+From: Yu Kuai <yukuai3@huawei.com>
 
-[ Upstream commit f78985f9f58380eec37f82c8a2c765aa7670fc29 ]
+[ Upstream commit e3ff8887e7db757360f97634e0d6f4b8e27a8c46 ]
 
-"make dtbs_check":
+If the policy defines pd_online_fn(), it should be called after
+pd_init_fn(), like blkg_create().
 
-    arch/arm/boot/dts/imx53-ppd.dtb: i2c-switch@70: $nodename:0: 'i2c-switch@70' does not match '^(i2c-?)?mux'
-	    From schema: Documentation/devicetree/bindings/i2c/i2c-mux-pca954x.yaml
-    arch/arm/boot/dts/imx53-ppd.dtb: i2c-switch@70: Unevaluated properties are not allowed ('#address-cells', '#size-cells', 'i2c@0', 'i2c@1', 'i2c@2', 'i2c@3', 'i2c@4', 'i2c@5', 'i2c@6', 'i2c@7' were unexpected)
-	    From schema: Documentation/devicetree/bindings/i2c/i2c-mux-pca954x.yaml
-
-Fix this by renaming the PCA9547 node to "i2c-mux", to match the I2C bus
-multiplexer/switch DT bindings and the Generic Names Recommendation in
-the Devicetree Specification.
-
-Signed-off-by: Geert Uytterhoeven <geert+renesas@glider.be>
-Signed-off-by: Shawn Guo <shawnguo@kernel.org>
+Signed-off-by: Yu Kuai <yukuai3@huawei.com>
+Acked-by: Tejun Heo <tj@kernel.org>
+Link: https://lore.kernel.org/r/20230103112833.2013432-1-yukuai1@huaweicloud.com
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm/boot/dts/imx53-ppd.dts | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ block/blk-cgroup.c | 4 ++++
+ 1 file changed, 4 insertions(+)
 
-diff --git a/arch/arm/boot/dts/imx53-ppd.dts b/arch/arm/boot/dts/imx53-ppd.dts
-index c80d1700e094..c01dc571b55c 100644
---- a/arch/arm/boot/dts/imx53-ppd.dts
-+++ b/arch/arm/boot/dts/imx53-ppd.dts
-@@ -461,7 +461,7 @@ &i2c1 {
- 	scl-gpios = <&gpio3 21 GPIO_ACTIVE_HIGH>;
- 	status = "okay";
+diff --git a/block/blk-cgroup.c b/block/blk-cgroup.c
+index ce5858dadca5..3ee4c1217b63 100644
+--- a/block/blk-cgroup.c
++++ b/block/blk-cgroup.c
+@@ -1360,6 +1360,10 @@ int blkcg_activate_policy(struct request_queue *q,
+ 		list_for_each_entry_reverse(blkg, &q->blkg_list, q_node)
+ 			pol->pd_init_fn(blkg->pd[pol->plid]);
  
--	i2c-switch@70 {
-+	i2c-mux@70 {
- 		compatible = "nxp,pca9547";
- 		#address-cells = <1>;
- 		#size-cells = <0>;
++	if (pol->pd_online_fn)
++		list_for_each_entry_reverse(blkg, &q->blkg_list, q_node)
++			pol->pd_online_fn(blkg->pd[pol->plid]);
++
+ 	__set_bit(pol->plid, q->blkcg_pols);
+ 	ret = 0;
+ 
 -- 
 2.39.0
 
