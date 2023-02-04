@@ -2,112 +2,133 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 58F8E68A7F5
-	for <lists+stable@lfdr.de>; Sat,  4 Feb 2023 04:28:31 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4FEC868A801
+	for <lists+stable@lfdr.de>; Sat,  4 Feb 2023 04:43:16 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229760AbjBDD2a (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 3 Feb 2023 22:28:30 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47288 "EHLO
+        id S232633AbjBDDnO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 3 Feb 2023 22:43:14 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50614 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229436AbjBDD23 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 3 Feb 2023 22:28:29 -0500
-Received: from mail-pj1-x1029.google.com (mail-pj1-x1029.google.com [IPv6:2607:f8b0:4864:20::1029])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C6E8CA5CA;
-        Fri,  3 Feb 2023 19:28:28 -0800 (PST)
-Received: by mail-pj1-x1029.google.com with SMTP id l4-20020a17090a850400b0023013402671so10536508pjn.5;
-        Fri, 03 Feb 2023 19:28:28 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
-        bh=CmdIpFXX/Pnd+rThHPSIEqn/ETUzOMU9w26EKl0vXWA=;
-        b=FaQQgRbSWlX6tu/FaH7yaf8hQo2SHcLcvhh+G+lbUttH4FO+9+mHKW+PvIkqQC08P9
-         IBvcZDTimIZZfqW92uIUEk0T0jPj4xi9492J2A+wfjGK9hDOwEOGijyVYhzhaT8pZNMt
-         BbG84gUM5ZgSCCLw0+1MxOEqPC9epG+8mCU2c+v5UlcLQE7sxcFQc8OMB7tuM70aK4+R
-         ipgDLvLqjadVTODjotX6B7QaK0gsu8eB62jn+0XEOZb5/oXfOI8gN7QBHgzag7Zw6yyu
-         rnd0AKr8pHK75QBBYfOnFtg0xylFylPmU9Ku07zqGPsHb9v9HJ8bGW3MWhJitNvWGCrp
-         iQvg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=CmdIpFXX/Pnd+rThHPSIEqn/ETUzOMU9w26EKl0vXWA=;
-        b=UTZz1l8J9cCPUnWe6NoENpDeC3dbM37CTsFiG4ICuM/m9HWOrUuWFeZz78/xNY0CM5
-         //Klrafx5/3dUyUcqF1W41EBoorAHWVxRyBOIHh4NSBG0whou90RKg07ZhDjz/BTzbUk
-         xSn7wVHZ+YrAhWVk16g2TiAYuX0eDKuGks5WpKEpZC/xQ2gTwub3wwddo7NUbPEXqE2+
-         xu6GTjmXimD1xJ8G9JDEh8l5FaJSW93hNuOTYx/fhEfwf+BmPRMGc9IDstOnMhSKLAE/
-         riCcOzfmGfJVV2KYzU7aUQLgwJa+btF9v4rJXDBI4hmp4h1gUqJsboZBY5yJbVUKg7X7
-         DykA==
-X-Gm-Message-State: AO0yUKX4GyUE+u9Q+iAuReMfp3rcgPdY52zjtrnb47OzVM5FufP5Wq3+
-        2krH4D20IAAKCepxeVDkDKxn2fqVtXTKxA==
-X-Google-Smtp-Source: AK7set+U1kE9VIbXjv60qobe9B9PSImxBIcUvcu0G5TQsQPkLsxmHIFlCLxBJagQRby/ps5Dl2OcCw==
-X-Received: by 2002:a17:902:e0d5:b0:196:3feb:1f1e with SMTP id e21-20020a170902e0d500b001963feb1f1emr9398591pla.47.1675481308285;
-        Fri, 03 Feb 2023 19:28:28 -0800 (PST)
-Received: from debian.me (subs02-180-214-232-73.three.co.id. [180.214.232.73])
-        by smtp.gmail.com with ESMTPSA id t7-20020aa79387000000b0058d9623e7f1sm2576612pfe.73.2023.02.03.19.28.27
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 03 Feb 2023 19:28:27 -0800 (PST)
-Received: by debian.me (Postfix, from userid 1000)
-        id 54C361052EA; Sat,  4 Feb 2023 10:28:23 +0700 (WIB)
-Date:   Sat, 4 Feb 2023 10:28:22 +0700
-From:   Bagas Sanjaya <bagasdotme@gmail.com>
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org
-Cc:     patches@lists.linux.dev, linux-kernel@vger.kernel.org,
-        torvalds@linux-foundation.org, akpm@linux-foundation.org,
-        linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
-        lkft-triage@lists.linaro.org, pavel@denx.de, jonathanh@nvidia.com,
-        f.fainelli@gmail.com, sudipm.mukherjee@gmail.com,
-        srw@sladewatkins.net, rwarsow@gmx.de
-Subject: Re: [PATCH 6.1 00/28] 6.1.10-rc1 review
-Message-ID: <Y93Q1iUQbFluIJPZ@debian.me>
-References: <20230203101009.946745030@linuxfoundation.org>
+        with ESMTP id S229657AbjBDDnN (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 3 Feb 2023 22:43:13 -0500
+Received: from mga01.intel.com (mga01.intel.com [192.55.52.88])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D088E1C7CC;
+        Fri,  3 Feb 2023 19:43:06 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
+  t=1675482186; x=1707018186;
+  h=message-id:date:mime-version:cc:subject:to:references:
+   from:in-reply-to:content-transfer-encoding;
+  bh=uMsa6W80lQBbzaUuhOxR/OchovtSZ5wheoHgf4HWRHM=;
+  b=B2Naam2E9jwDgErtfPuY5Jj4+1z+rK3OnTNA14wwdQmDPYNqRriF3kSc
+   tBN6i8926iJZeEsX7IokqJuZf3G1Gue8KB5NolQ6tGdZ7AdJcYEoHUDv3
+   mCqfA2durKqcHn2CrJmqvuOH847WGbGorGqvF4rplY54my2Gud9BgULNr
+   AAenP9bncCKjUqdrLmbf8oW2y2Nq5A0ka0L7HPUuSfj/PE0HCSKnmDgr/
+   JEwqa5rcwJfpZTra0+ccBrDqJOmf22U1Kke0IGTQZZI4fGIDMrn+AZ5EF
+   w+92NrF5WIIdz6rJx0GD0d0XNPTOpPPRmiEAxGhll84f80LU/dfhNdkDI
+   w==;
+X-IronPort-AV: E=McAfee;i="6500,9779,10610"; a="356258914"
+X-IronPort-AV: E=Sophos;i="5.97,272,1669104000"; 
+   d="scan'208";a="356258914"
+Received: from fmsmga001.fm.intel.com ([10.253.24.23])
+  by fmsmga101.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 03 Feb 2023 19:43:06 -0800
+X-IronPort-AV: E=McAfee;i="6500,9779,10610"; a="808552631"
+X-IronPort-AV: E=Sophos;i="5.97,272,1669104000"; 
+   d="scan'208";a="808552631"
+Received: from blu2-mobl.ccr.corp.intel.com (HELO [10.249.174.222]) ([10.249.174.222])
+  by fmsmga001-auth.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 03 Feb 2023 19:43:04 -0800
+Message-ID: <de4d0617-ceef-efca-69f1-a095ce91588e@linux.intel.com>
+Date:   Sat, 4 Feb 2023 11:43:01 +0800
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha512;
-        protocol="application/pgp-signature"; boundary="eKrxPjNJTcq3O9+b"
-Content-Disposition: inline
-In-Reply-To: <20230203101009.946745030@linuxfoundation.org>
-X-Spam-Status: No, score=-0.6 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_FROM,
-        RCVD_IN_DNSWL_NONE,RCVD_IN_SORBS_WEB,SPF_HELO_NONE,SPF_PASS
-        autolearn=no autolearn_force=no version=3.4.6
+User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:102.0) Gecko/20100101
+ Thunderbird/102.6.1
+Cc:     baolu.lu@linux.intel.com, David Woodhouse <dwmw2@infradead.org>,
+        Raj Ashok <ashok.raj@intel.com>,
+        "Tian, Kevin" <kevin.tian@intel.com>, Yi Liu <yi.l.liu@intel.com>,
+        stable@vger.kernel.org, Sukumar Ghorai <sukumar.ghorai@intel.com>
+Subject: Re: [PATCH] iommu/vt-d: Fix PASID directory pointer coherency
+Content-Language: en-US
+To:     Jacob Pan <jacob.jun.pan@linux.intel.com>,
+        LKML <linux-kernel@vger.kernel.org>, iommu@lists.linux.dev,
+        Joerg Roedel <joro@8bytes.org>
+References: <20230203220714.1283383-1-jacob.jun.pan@linux.intel.com>
+From:   Baolu Lu <baolu.lu@linux.intel.com>
+In-Reply-To: <20230203220714.1283383-1-jacob.jun.pan@linux.intel.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_EF,NICE_REPLY_A,RCVD_IN_DNSWL_MED,
+        RCVD_IN_MSPIKE_H3,RCVD_IN_MSPIKE_WL,SPF_HELO_NONE,SPF_NONE
+        autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+On 2023/2/4 6:07, Jacob Pan wrote:
+> On platforms that do not support IOMMU Extended capability bit 0
+> Page-walk Coherency, CPU caches are not snooped when IOMMU is accessing
+> any translation structures. IOMMU access goes only directly to
+> memory. Intel IOMMU code was missing a flush for the PASID table
+> directory that resulted in the unrecoverable fault as shown below.
 
---eKrxPjNJTcq3O9+b
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Thanks for the fix.
 
-On Fri, Feb 03, 2023 at 11:12:48AM +0100, Greg Kroah-Hartman wrote:
-> This is the start of the stable review cycle for the 6.1.10 release.
-> There are 28 patches in this series, all will be posted as a response
-> to this one.  If anyone has any issues with these being applied, please
-> let me know.
->=20
+> This patch adds a clflush when activating a PASID table directory.
+> There's no need to do clflush of the PASID directory pointer when we
+> deactivate a context entry in that IOMMU hardware will not see the old
+> PASID directory pointer after we clear the context entry.
+> 
+> [    0.555386] DMAR: DRHD: handling fault status reg 3
+> [    0.555805] DMAR: [DMA Read NO_PASID] Request device [00:0d.2] fault addr 0x1026a4000 [fault reason 0x51] SM: Present bit in Directory Entry is clear
+> [    0.556348] DMAR: Dump dmar1 table entries for IOVA 0x1026a4000
+> [    0.556348] DMAR: scalable mode root entry: hi 0x0000000102448001, low 0x0000000101b3e001
+> [    0.556348] DMAR: context entry: hi 0x0000000000000000, low 0x0000000101b4d401
+> [    0.556348] DMAR: pasid dir entry: 0x0000000101b4e001
+> [    0.556348] DMAR: pasid table entry[0]: 0x0000000000000109
+> [    0.556348] DMAR: pasid table entry[1]: 0x0000000000000001
+> [    0.556348] DMAR: pasid table entry[2]: 0x0000000000000000
+> [    0.556348] DMAR: pasid table entry[3]: 0x0000000000000000
+> [    0.556348] DMAR: pasid table entry[4]: 0x0000000000000000
+> [    0.556348] DMAR: pasid table entry[5]: 0x0000000000000000
+> [    0.556348] DMAR: pasid table entry[6]: 0x0000000000000000
+> [    0.556348] DMAR: pasid table entry[7]: 0x0000000000000000
+> [    0.556348] DMAR: PTE not present at level 4
+> 
+> Cc: <stable@vger.kernel.org>
+> Reported-by: Sukumar Ghorai <sukumar.ghorai@intel.com>
+> Signed-off-by: Ashok Raj <ashok.raj@intel.com>
+> Signed-off-by: Jacob Pan <jacob.jun.pan@linux.intel.com>
 
-Successfully cross-compiled for arm64 (bcm2711_defconfig, GCC 10.2.0) and
-powerpc (ps3_defconfig, GCC 12.2.0).
+Add a Fixes tag so that people know how far this fix should be back
+ported.
 
-Tested-by: Bagas Sanjaya <bagasdotme@gmail.com>
+> ---
+>   drivers/iommu/intel/iommu.c | 6 ++++++
+>   1 file changed, 6 insertions(+)
+> 
+> diff --git a/drivers/iommu/intel/iommu.c b/drivers/iommu/intel/iommu.c
+> index 59df7e42fd53..b4878c7ac008 100644
+> --- a/drivers/iommu/intel/iommu.c
+> +++ b/drivers/iommu/intel/iommu.c
+> @@ -1976,6 +1976,12 @@ static int domain_context_mapping_one(struct dmar_domain *domain,
+>   		pds = context_get_sm_pds(table);
+>   		context->lo = (u64)virt_to_phys(table->table) |
+>   				context_pdts(pds);
+> +		/*
+> +		 * Scalable-mode PASID directory pointer is not snooped if the
+> +		 * coherent bit is not set.
+> +		 */
+> +		if (!ecap_coherent(iommu->ecap))
+> +			clflush_cache_range(table->table, sizeof(void *));
 
---=20
-An old man doll... just what I always wanted! - Clara
+This isn't comprehensive. The clflush should be called whenever the
+pasid directory table is allocated or updated.
 
---eKrxPjNJTcq3O9+b
-Content-Type: application/pgp-signature; name="signature.asc"
+>   
+>   		/* Setup the RID_PASID field: */
+>   		context_set_sm_rid2pasid(context, PASID_RID2PASID);
 
------BEGIN PGP SIGNATURE-----
-
-iHUEABYKAB0WIQSSYQ6Cy7oyFNCHrUH2uYlJVVFOowUCY93QzQAKCRD2uYlJVVFO
-oztAAQCdjQyW8RqqYKwJH6cAjdNb40AxsP35XFAy3/AaWulmeAD+OAwoLS5PJwwv
-WeHJEmjhaC0KoMnLb/W9Uk6AX1mSgAg=
-=0bAs
------END PGP SIGNATURE-----
-
---eKrxPjNJTcq3O9+b--
+Best regards,
+baolu
