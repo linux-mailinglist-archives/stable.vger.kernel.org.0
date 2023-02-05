@@ -2,144 +2,236 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 9B61F68AE70
-	for <lists+stable@lfdr.de>; Sun,  5 Feb 2023 06:32:01 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 81D3668AEDA
+	for <lists+stable@lfdr.de>; Sun,  5 Feb 2023 09:31:32 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229452AbjBEFb7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 5 Feb 2023 00:31:59 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41788 "EHLO
+        id S229500AbjBEIba (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 5 Feb 2023 03:31:30 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36804 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229447AbjBEFb7 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 5 Feb 2023 00:31:59 -0500
-Received: from smtp-fw-9103.amazon.com (smtp-fw-9103.amazon.com [207.171.188.200])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0A0B11F5E2
-        for <stable@vger.kernel.org>; Sat,  4 Feb 2023 21:31:57 -0800 (PST)
+        with ESMTP id S229447AbjBEIb3 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 5 Feb 2023 03:31:29 -0500
+Received: from mail-vs1-xe2d.google.com (mail-vs1-xe2d.google.com [IPv6:2607:f8b0:4864:20::e2d])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A2FB9206A5
+        for <stable@vger.kernel.org>; Sun,  5 Feb 2023 00:31:28 -0800 (PST)
+Received: by mail-vs1-xe2d.google.com with SMTP id e9so9719596vsj.3
+        for <stable@vger.kernel.org>; Sun, 05 Feb 2023 00:31:28 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-  d=amazon.com; i=@amazon.com; q=dns/txt; s=amazon201209;
-  t=1675575118; x=1707111118;
-  h=from:to:cc:subject:date:message-id:in-reply-to:
-   references:mime-version:content-transfer-encoding;
-  bh=RiQroxHsMesevYUDkYjoMfOm7jVhlZoKX6jWWO+I6PY=;
-  b=jZHNBek/bbZB+ykvoPI6u81ozKQSUNL1vDx0bO+rGRMlnzThJeThtTd3
-   D+GA13l+h6wY/8VHywkxOk+ulm4KA8gChYJbYzhYUg1YL4RXGonx1b8Nm
-   Q2SQFOqpoFLFFvcs1ssnh5WYYAqOum1y3xmYhGwIYWhErk9bUmcKEr5a3
-   s=;
-X-IronPort-AV: E=Sophos;i="5.97,274,1669075200"; 
-   d="scan'208";a="1099380297"
-Received: from pdx4-co-svc-p1-lb2-vlan3.amazon.com (HELO email-inbound-relay-pdx-2b-m6i4x-0ec33b60.us-west-2.amazon.com) ([10.25.36.214])
-  by smtp-border-fw-9103.sea19.amazon.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 05 Feb 2023 05:31:57 +0000
-Received: from EX13MTAUWB001.ant.amazon.com (pdx1-ws-svc-p6-lb9-vlan2.pdx.amazon.com [10.236.137.194])
-        by email-inbound-relay-pdx-2b-m6i4x-0ec33b60.us-west-2.amazon.com (Postfix) with ESMTPS id 1ACD5A24AE;
-        Sun,  5 Feb 2023 05:31:57 +0000 (UTC)
-Received: from EX19D046UWB004.ant.amazon.com (10.13.139.164) by
- EX13MTAUWB001.ant.amazon.com (10.43.161.207) with Microsoft SMTP Server (TLS)
- id 15.0.1497.45; Sun, 5 Feb 2023 05:31:56 +0000
-Received: from dev-dsk-shaoyi-2b-b6ac9e9c.us-west-2.amazon.com (10.43.160.120)
- by EX19D046UWB004.ant.amazon.com (10.13.139.164) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA384) id
- 15.2.1118.24; Sun, 5 Feb 2023 05:31:56 +0000
-From:   Shaoying Xu <shaoyi@amazon.com>
-To:     <gregkh@linuxfoundation.org>
-CC:     <dsahern@kernel.org>, <idosch@nvidia.com>, <kuba@kernel.org>,
-        <patches@lists.linux.dev>, <sashal@kernel.org>,
-        <stable@vger.kernel.org>, Shaoying Xu <shaoyi@amazon.com>
-Subject: [PATCH stable 5.4 2/2] ipv4: Fix incorrect route flushing when source address is deleted
-Date:   Sun, 5 Feb 2023 05:31:00 +0000
-Message-ID: <20230205053100.15903-3-shaoyi@amazon.com>
-X-Mailer: git-send-email 2.38.1
-In-Reply-To: <20230205053100.15903-1-shaoyi@amazon.com>
-References: <20221212130920.482075438@linuxfoundation.org>
- <20230205053100.15903-1-shaoyi@amazon.com>
+        d=linaro.org; s=google;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=lYyeRq7xl+tuiz7ZJF3eYfcgQ/Nq1xTGEfXuuhTyZS8=;
+        b=MDaInQOuHRwY3UvQKjUpJWng3BGJl0oYIieGJwS+fQv52klvd6/Yw2EiWoLKsyTCJg
+         JEBgjy6wPl7EPexbSL4mUqQjs4WXZ7e0VpeE7ZC9fVaIJQOvinskcOD4BniqQvRfyjCB
+         yLlA8kg3m5ROPKQtWy4TjUCkp+54TRvZ2yy6cWmV92g2OCXgmtjibmJHh3SLp/Uypv8O
+         p6lwKIs6XNX8jldV2Sc0R2vS9nZ+sI4jHyv2si515yXiO6XQ2sdbs+LvDpTno4WQQMkX
+         qUwMtU4AkoqBRJm8sm+0TUMonIiMSM0cqnEmX8TBJltoGVFv0wXqoqg4/+Ni/JoxclgW
+         AwHw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=lYyeRq7xl+tuiz7ZJF3eYfcgQ/Nq1xTGEfXuuhTyZS8=;
+        b=H0to6XW/cFmWeddPK4cXISxpcrByeBwbCYfG7TOG41eOMmO/tuJJKrTngp404WnzWE
+         eaps5OqCegkO3Rm2T8CV0L2VyfSfDZi3SD8pc1dsWDE9jdi/iybFLw9yAoYehsgVc34N
+         k7PmzGEc+Ck1oQxgpx8MkrF+EV/Z83A2g1HeJvy94BMAKDyMjRT8G9RGMe7BR3ShpIRp
+         fowQrZdkvzYNrN7mMdLYEX4WYksPZVcMJ6uw/NcPNMH6Y2jFvFkN7WIaEuTIRp2pu2a/
+         egxtYAwF0BPiaLNbo59Jh5kT3nw2iP5l4vyJ6ML8iL3fCRtoSncI8jPD8CN2rokWCVrH
+         e6lg==
+X-Gm-Message-State: AO0yUKUFJ0gy3HcnSTeKGCssh94GKhJerpGaeOKkzap0scHt7easiyEO
+        VmMYKtdzEKuTPVB7leUi2r7sBwIHDW2R4ug86OF+j3Pp6EnUcnJP
+X-Google-Smtp-Source: AK7set9+Cs1D4X7WmBM9GG8sXxybA9CPmJ1iYp1Z46rKWLZjvHhBTY/ITZPkzOH61j85bu1inAVd1NGvpYpsXUl1D8w=
+X-Received: by 2002:a05:6102:204d:b0:3f1:53d4:9e87 with SMTP id
+ q13-20020a056102204d00b003f153d49e87mr2165046vsr.34.1675585887609; Sun, 05
+ Feb 2023 00:31:27 -0800 (PST)
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-Content-Type: text/plain
-X-Originating-IP: [10.43.160.120]
-X-ClientProxiedBy: EX13D41UWB004.ant.amazon.com (10.43.161.135) To
- EX19D046UWB004.ant.amazon.com (10.13.139.164)
-X-Spam-Status: No, score=-9.6 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_NONE,
-        RCVD_IN_MSPIKE_H2,SPF_HELO_NONE,SPF_PASS,USER_IN_DEF_SPF_WL
-        autolearn=ham autolearn_force=no version=3.4.6
+References: <20230204143608.813973353@linuxfoundation.org>
+In-Reply-To: <20230204143608.813973353@linuxfoundation.org>
+From:   Naresh Kamboju <naresh.kamboju@linaro.org>
+Date:   Sun, 5 Feb 2023 14:01:16 +0530
+Message-ID: <CA+G9fYujE69U12-h0jmsQou4Zh_7tzD2q_DkytcZB0pmc_bQSw@mail.gmail.com>
+Subject: Re: [PATCH 5.4 000/134] 5.4.231-rc2 review
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc:     stable@vger.kernel.org, patches@lists.linux.dev,
+        linux-kernel@vger.kernel.org, torvalds@linux-foundation.org,
+        akpm@linux-foundation.org, linux@roeck-us.net, shuah@kernel.org,
+        patches@kernelci.org, lkft-triage@lists.linaro.org, pavel@denx.de,
+        jonathanh@nvidia.com, f.fainelli@gmail.com,
+        sudipm.mukherjee@gmail.com, srw@sladewatkins.net, rwarsow@gmx.de
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
+X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_NONE,
+        SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ido Schimmel <idosch@nvidia.com>
+On Sat, 4 Feb 2023 at 20:12, Greg Kroah-Hartman
+<gregkh@linuxfoundation.org> wrote:
+>
+> This is the start of the stable review cycle for the 5.4.231 release.
+> There are 134 patches in this series, all will be posted as a response
+> to this one.  If anyone has any issues with these being applied, please
+> let me know.
+>
+> Responses should be made by Mon, 06 Feb 2023 14:35:41 +0000.
+> Anything received after that time might be too late.
+>
+> The whole patch series can be found in one patch at:
+>         https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-=
+5.4.231-rc2.gz
+> or in the git tree and branch at:
+>         git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable=
+-rc.git linux-5.4.y
+> and the diffstat can be found below.
+>
+> thanks,
+>
+> greg k-h
 
-[ Upstream commit f96a3d74554df537b6db5c99c27c80e7afadc8d1 ]
 
-Cited commit added the table ID to the FIB info structure, but did not
-prevent structures with different table IDs from being consolidated.
-This can lead to routes being flushed from a VRF when an address is
-deleted from a different VRF.
+Results from Linaro=E2=80=99s test farm.
+No regressions on arm64, arm, x86_64, and i386.
 
-Fix by taking the table ID into account when looking for a matching FIB
-info. This is already done for FIB info structures backed by a nexthop
-object in fib_find_info_nh().
+Tested-by: Linux Kernel Functional Testing <lkft@linaro.org>
 
-Add test cases that fail before the fix:
+## Build
+* kernel: 5.4.231-rc2
+* git: https://gitlab.com/Linaro/lkft/mirrors/stable/linux-stable-rc
+* git branch: linux-5.4.y
+* git commit: 9d36c855cb4a7dd9498bddd4095b51a237b3217f
+* git describe: v5.4.230-135-g9d36c855cb4a
+* test details:
+https://qa-reports.linaro.org/lkft/linux-stable-rc-linux-5.4.y/build/v5.4.2=
+30-135-g9d36c855cb4a
 
- # ./fib_tests.sh -t ipv4_del_addr
+## Test Regressions (compared to v5.4.230-135-gf094cca7f934)
 
- IPv4 delete address route tests
-     Regular FIB info
-     TEST: Route removed from VRF when source address deleted            [ OK ]
-     TEST: Route in default VRF not removed                              [ OK ]
-     TEST: Route removed in default VRF when source address deleted      [ OK ]
-     TEST: Route in VRF is not removed by address delete                 [ OK ]
-     Identical FIB info with different table ID
-     TEST: Route removed from VRF when source address deleted            [FAIL]
-     TEST: Route in default VRF not removed                              [ OK ]
- RTNETLINK answers: File exists
-     TEST: Route removed in default VRF when source address deleted      [ OK ]
-     TEST: Route in VRF is not removed by address delete                 [FAIL]
+## Metric Regressions (compared to v5.4.230-135-gf094cca7f934)
 
- Tests passed:   6
- Tests failed:   2
+## Test Fixes (compared to v5.4.230-135-gf094cca7f934)
 
-And pass after:
+## Metric Fixes (compared to v5.4.230-135-gf094cca7f934)
 
- # ./fib_tests.sh -t ipv4_del_addr
+## Test result summary
+total: 128559, pass: 103058, fail: 3021, skip: 22125, xfail: 355
 
- IPv4 delete address route tests
-     Regular FIB info
-     TEST: Route removed from VRF when source address deleted            [ OK ]
-     TEST: Route in default VRF not removed                              [ OK ]
-     TEST: Route removed in default VRF when source address deleted      [ OK ]
-     TEST: Route in VRF is not removed by address delete                 [ OK ]
-     Identical FIB info with different table ID
-     TEST: Route removed from VRF when source address deleted            [ OK ]
-     TEST: Route in default VRF not removed                              [ OK ]
-     TEST: Route removed in default VRF when source address deleted      [ OK ]
-     TEST: Route in VRF is not removed by address delete                 [ OK ]
+## Build Summary
+* arc: 5 total, 5 passed, 0 failed
+* arm: 144 total, 143 passed, 1 failed
+* arm64: 44 total, 40 passed, 4 failed
+* i386: 26 total, 20 passed, 6 failed
+* mips: 27 total, 27 passed, 0 failed
+* parisc: 6 total, 6 passed, 0 failed
+* powerpc: 30 total, 30 passed, 0 failed
+* riscv: 12 total, 11 passed, 1 failed
+* s390: 6 total, 6 passed, 0 failed
+* sh: 12 total, 12 passed, 0 failed
+* sparc: 6 total, 6 passed, 0 failed
+* x86_64: 37 total, 35 passed, 2 failed
 
- Tests passed:   8
- Tests failed:   0
+## Test suites summary
+* boot
+* fwts
+* kselftest-android
+* kselftest-arm64
+* kselftest-breakpoints
+* kselftest-capabilities
+* kselftest-cgroup
+* kselftest-clone3
+* kselftest-core
+* kselftest-cpu-hotplug
+* kselftest-cpufreq
+* kselftest-drivers-dma-buf
+* kselftest-efivarfs
+* kselftest-filesystems
+* kselftest-filesystems-binderfs
+* kselftest-firmware
+* kselftest-fpu
+* kselftest-futex
+* kselftest-gpio
+* kselftest-intel_pstate
+* kselftest-ipc
+* kselftest-ir
+* kselftest-kcmp
+* kselftest-kexec
+* kselftest-kvm
+* kselftest-lib
+* kselftest-livepatch
+* kselftest-membarrier
+* kselftest-memfd
+* kselftest-memory-hotplug
+* kselftest-mincore
+* kselftest-mount
+* kselftest-mqueue
+* kselftest-net
+* kselftest-net-forwarding
+* kselftest-net-mptcp
+* kselftest-netfilter
+* kselftest-nsfs
+* kselftest-openat2
+* kselftest-pid_namespace
+* kselftest-pidfd
+* kselftest-proc
+* kselftest-pstore
+* kselftest-ptrace
+* kselftest-rseq
+* kselftest-rtc
+* kselftest-seccomp
+* kselftest-tc-testing
+* kselftest-timens
+* kselftest-timers
+* kselftest-tmpfs
+* kselftest-tpm2
+* kselftest-user
+* kselftest-vm
+* kselftest-x86
+* kselftest-zram
+* kunit
+* kvm-unit-tests
+* libgpiod
+* libhugetlbfs
+* log-parser-boot
+* log-parser-test
+* ltp-cap_bounds
+* ltp-commands
+* ltp-containers
+* ltp-controllers
+* ltp-cpuhotplug
+* ltp-crypto
+* ltp-cve
+* ltp-dio
+* ltp-fcntl-locktests
+* ltp-filecaps
+* ltp-fs
+* ltp-fs_bind
+* ltp-fs_perms_simple
+* ltp-fsx
+* ltp-hugetlb
+* ltp-io
+* ltp-ipc
+* ltp-math
+* ltp-mm
+* ltp-nptl
+* ltp-open-posix-tests
+* ltp-pty
+* ltp-sched
+* ltp-securebits
+* ltp-smoke
+* ltp-syscalls
+* ltp-tracing
+* network-basic-tests
+* packetdrill
+* perf
+* rcutorture
+* v4l2-compliance
+* vdso
 
-Fixes: 5a56a0b3a45d ("net: Don't delete routes in different VRFs")
-Signed-off-by: Ido Schimmel <idosch@nvidia.com>
-Reviewed-by: David Ahern <dsahern@kernel.org>
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
-Signed-off-by: Shaoying Xu <shaoyi@amazon.com>
----
- net/ipv4/fib_semantics.c | 1 +
- 1 file changed, 1 insertion(+)
-
-diff --git a/net/ipv4/fib_semantics.c b/net/ipv4/fib_semantics.c
-index 908913d75847..f45b9daf62cf 100644
---- a/net/ipv4/fib_semantics.c
-+++ b/net/ipv4/fib_semantics.c
-@@ -420,6 +420,7 @@ static struct fib_info *fib_find_info(struct fib_info *nfi)
- 		    nfi->fib_prefsrc == fi->fib_prefsrc &&
- 		    nfi->fib_priority == fi->fib_priority &&
- 		    nfi->fib_type == fi->fib_type &&
-+		    nfi->fib_tb_id == fi->fib_tb_id &&
- 		    memcmp(nfi->fib_metrics, fi->fib_metrics,
- 			   sizeof(u32) * RTAX_MAX) == 0 &&
- 		    !((nfi->fib_flags ^ fi->fib_flags) & ~RTNH_COMPARE_MASK) &&
--- 
-2.38.1
-
+--
+Linaro LKFT
+https://lkft.linaro.org
