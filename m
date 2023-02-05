@@ -2,239 +2,125 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id CA09668AEDE
-	for <lists+stable@lfdr.de>; Sun,  5 Feb 2023 09:42:12 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7876968AEF5
+	for <lists+stable@lfdr.de>; Sun,  5 Feb 2023 10:10:05 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229502AbjBEImI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 5 Feb 2023 03:42:08 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38950 "EHLO
+        id S229458AbjBEJKB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 5 Feb 2023 04:10:01 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44692 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229460AbjBEImI (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 5 Feb 2023 03:42:08 -0500
-Received: from mail-vs1-xe2f.google.com (mail-vs1-xe2f.google.com [IPv6:2607:f8b0:4864:20::e2f])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9D7D9222F0
-        for <stable@vger.kernel.org>; Sun,  5 Feb 2023 00:42:06 -0800 (PST)
-Received: by mail-vs1-xe2f.google.com with SMTP id j7so9692765vsl.11
-        for <stable@vger.kernel.org>; Sun, 05 Feb 2023 00:42:06 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=W3WSvLiAEDdvc1pRKD7l9k6PhsyRBAsv121S6tLVwPU=;
-        b=FOdDLJxEyhkl03bWbzjeZkoZ9A6XjX411axCfeAxP3GonwoQnzt2B1BplAlpi39tFn
-         4vQp9S0RxlH+hf9uWwaXPYe55Tp5dV7mOLdtUMhYDXhfYOCxIxiejbebCQ8UgnTl50eQ
-         H8uJTuzEK5idv/FtyeuWzNSV2kZ9s0Ykb9db7bZ0sc66jyhZ2TQaU/s1Aq5xYQzlA6Y4
-         mmhuFJDaLJP43UHQzkKSDJbulRdn/N8lwKE6fz9FbcdSIW808ZTe55FFLKD+99IZ3wIX
-         Bo7HO6C/LkysovW2iTZFb7PbM1qETNpOk7W4gShSoJnvJ+sJauh8NW9mO59V2A1oEocs
-         dlLg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=W3WSvLiAEDdvc1pRKD7l9k6PhsyRBAsv121S6tLVwPU=;
-        b=t9G4OFGAxNN0ogC7diODp42KYEtd3ce9XhJYB8PVFVV64rn6K4fDlVQ+fCziIVZTxm
-         iTB1yUtiL9LPd9GDQuo3kLJJ7RFoIMZm4u3nUauJVAzAkgFmXgLSFJtc1iFFDzB2nl3S
-         rjR24oYW4SiuL5u0Ov/w/Q9Au64GQHHwJ+n/6a+gcbAxjjJ3nWGTh26wIwHH5okcV0Ve
-         j5Do1Frt29SuwGylRqPhSsNX3UK+US1mUvrkqQAwpnkAqFNz5oWR63LepiCmlpFLg8t6
-         vszuWoIvNPgvAJFJ50SxPNG5YWxv7MGjBK2FgzkmsszY1ikVoQrQP9oDQwXUymjFsVes
-         Jdnw==
-X-Gm-Message-State: AO0yUKVt/KlbtJfsKsnv1YceMuDbFIxmxpFKS9G+CFnZjb1dpOtw/ICD
-        CixZziJzZCtAY527OORvla3ekgbpW0svaxqC7nZ6Ag==
-X-Google-Smtp-Source: AK7set8M9uWwXVvCqF0IBhFBfdSf7R2hW/GD5Mai14e9HOLKenWOcjXeeJe/QrFgN+hdUGfyMtV4yPyQTKu4Z2mhkYw=
-X-Received: by 2002:a05:6102:3fa5:b0:3f7:4e35:cdfa with SMTP id
- o37-20020a0561023fa500b003f74e35cdfamr2258436vsv.83.1675586525533; Sun, 05
- Feb 2023 00:42:05 -0800 (PST)
+        with ESMTP id S229437AbjBEJKA (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 5 Feb 2023 04:10:00 -0500
+Received: from mx0a-00069f02.pphosted.com (mx0a-00069f02.pphosted.com [205.220.165.32])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 744871F5C5
+        for <stable@vger.kernel.org>; Sun,  5 Feb 2023 01:09:59 -0800 (PST)
+Received: from pps.filterd (m0246629.ppops.net [127.0.0.1])
+        by mx0b-00069f02.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 3152aKZQ009959;
+        Sun, 5 Feb 2023 09:09:36 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=oracle.com; h=from : to : cc :
+ subject : date : message-id : mime-version : content-transfer-encoding;
+ s=corp-2022-7-12; bh=Yu6OyVSki/HxPIsjC42Q2P5KumLjXQThfXqInybNxl4=;
+ b=kK0lm6pMoajCo7PGGr6okr4N36GsiedsnLEcrvA0loEUGUIJvKhclab7Xhs3RE6G9Gz5
+ rN+4ps7kD2HwfUNZM877UvQKSCN9O5aJ+DguPRDPwKrGvry+GE1JLU5Wg+jLOH6113CU
+ uzsYdLKZfwfY1B+i4dUg1aM30DXE4sLYOHZmQOfk/fo3IUHvpynkZ51SK/YjpVKiInAH
+ vpK3sYhMo24xOHydrVi3I/nU56UmO3bpN4vE2cRh2GmsQhdxfuddri3Bw145G4OxENy3
+ 6fW2CXHYZWPRq387pMfwtRbomrsQgHXwVuN4rRwZnicGceSj0e0b9QxNgyIj74TOGwoO Pw== 
+Received: from iadpaimrmta01.imrmtpd1.prodappiadaev1.oraclevcn.com (iadpaimrmta01.appoci.oracle.com [130.35.100.223])
+        by mx0b-00069f02.pphosted.com (PPS) with ESMTPS id 3nhf8a149k-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Sun, 05 Feb 2023 09:09:35 +0000
+Received: from pps.filterd (iadpaimrmta01.imrmtpd1.prodappiadaev1.oraclevcn.com [127.0.0.1])
+        by iadpaimrmta01.imrmtpd1.prodappiadaev1.oraclevcn.com (8.17.1.5/8.17.1.5) with ESMTP id 3154SXgH037008;
+        Sun, 5 Feb 2023 09:09:34 GMT
+Received: from pps.reinject (localhost [127.0.0.1])
+        by iadpaimrmta01.imrmtpd1.prodappiadaev1.oraclevcn.com (PPS) with ESMTPS id 3nhdt97h6j-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Sun, 05 Feb 2023 09:09:34 +0000
+Received: from iadpaimrmta01.imrmtpd1.prodappiadaev1.oraclevcn.com (iadpaimrmta01.imrmtpd1.prodappiadaev1.oraclevcn.com [127.0.0.1])
+        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 31599Y1F035762;
+        Sun, 5 Feb 2023 09:09:34 GMT
+Received: from ca-dev112.us.oracle.com (ca-dev112.us.oracle.com [10.129.136.47])
+        by iadpaimrmta01.imrmtpd1.prodappiadaev1.oraclevcn.com (PPS) with ESMTP id 3nhdt97h6d-1;
+        Sun, 05 Feb 2023 09:09:33 +0000
+From:   Harshit Mogalapalli <harshit.m.mogalapalli@oracle.com>
+To:     stable@vger.kernel.org
+Cc:     zhangxiaoxu5@huawei.com, anna.schumaker@netapp.com,
+        trond.myklebust@hammerspace.com, chuck.lever@oracle.com,
+        vegard.nossum@oracle.com, error27@gmail.com,
+        darren.kenny@oracle.com, gregkh@linuxfoundation.org,
+        sashal@kernel.org,
+        Harshit Mogalapalli <harshit.m.mogalapalli@oracle.com>
+Subject: [PATCH 5.4.y] xprtrdma: Fix regbuf data not freed in rpcrdma_req_create()
+Date:   Sun,  5 Feb 2023 01:09:13 -0800
+Message-Id: <20230205090913.1629173-1-harshit.m.mogalapalli@oracle.com>
+X-Mailer: git-send-email 2.39.1
 MIME-Version: 1.0
-References: <20230204143559.734584366@linuxfoundation.org>
-In-Reply-To: <20230204143559.734584366@linuxfoundation.org>
-From:   Naresh Kamboju <naresh.kamboju@linaro.org>
-Date:   Sun, 5 Feb 2023 14:11:54 +0530
-Message-ID: <CA+G9fYtfPDRFDCvPrW+So85XY80=QGS6mXSMDa5V3FphX6VWpQ@mail.gmail.com>
-Subject: Re: [PATCH 4.19 00/79] 4.19.272-rc3 review
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     stable@vger.kernel.org, patches@lists.linux.dev,
-        linux-kernel@vger.kernel.org, torvalds@linux-foundation.org,
-        akpm@linux-foundation.org, linux@roeck-us.net, shuah@kernel.org,
-        patches@kernelci.org, lkft-triage@lists.linaro.org, pavel@denx.de,
-        jonathanh@nvidia.com, f.fainelli@gmail.com,
-        sudipm.mukherjee@gmail.com, srw@sladewatkins.net, rwarsow@gmx.de
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
-X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_NONE,
-        SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
+Content-Transfer-Encoding: 8bit
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.219,Aquarius:18.0.930,Hydra:6.0.562,FMLib:17.11.122.1
+ definitions=2023-02-05_03,2023-02-03_01,2022-06-22_01
+X-Proofpoint-Spam-Details: rule=notspam policy=default score=0 bulkscore=0 suspectscore=0 adultscore=0
+ malwarescore=0 mlxscore=0 phishscore=0 spamscore=0 mlxlogscore=999
+ classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2212070000
+ definitions=main-2302050081
+X-Proofpoint-ORIG-GUID: 0U0Bk7VyDV5BuUP2mW1mQiKnvjT7GQEQ
+X-Proofpoint-GUID: 0U0Bk7VyDV5BuUP2mW1mQiKnvjT7GQEQ
+X-Spam-Status: No, score=-2.8 required=5.0 tests=BAYES_00,DKIMWL_WL_MED,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_LOW,
+        RCVD_IN_MSPIKE_H2,SPF_HELO_NONE,SPF_NONE autolearn=ham
+        autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Sat, 4 Feb 2023 at 20:12, Greg Kroah-Hartman
-<gregkh@linuxfoundation.org> wrote:
->
-> This is the start of the stable review cycle for the 4.19.272 release.
-> There are 79 patches in this series, all will be posted as a response
-> to this one.  If anyone has any issues with these being applied, please
-> let me know.
->
-> Responses should be made by Mon, 06 Feb 2023 14:35:41 +0000.
-> Anything received after that time might be too late.
->
-> The whole patch series can be found in one patch at:
->         https://www.kernel.org/pub/linux/kernel/v4.x/stable-review/patch-=
-4.19.272-rc3.gz
-> or in the git tree and branch at:
->         git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable=
--rc.git linux-4.19.y
-> and the diffstat can be found below.
->
-> thanks,
->
-> greg k-h
+From: Zhang Xiaoxu <zhangxiaoxu5@huawei.com>
 
+commit 9181f40fb2952fd59ecb75e7158620c9c669eee3 upstream.
 
-Results from Linaro=E2=80=99s test farm.
-No regressions on arm64, arm, x86_64, and i386.
+If rdma receive buffer allocate failed, should call rpcrdma_regbuf_free()
+to free the send buffer, otherwise, the buffer data will be leaked.
 
-Tested-by: Linux Kernel Functional Testing <lkft@linaro.org>
+Fixes: bb93a1ae2bf4 ("xprtrdma: Allocate req's regbufs at xprt create time")
+Signed-off-by: Zhang Xiaoxu <zhangxiaoxu5@huawei.com>
+Signed-off-by: Trond Myklebust <trond.myklebust@hammerspace.com>
+[Harshit: Backport to 5.4.y]
+Also make the same change for 'req->rl_rdmabuf' at the same time as
+this will also have the same memory leak problem as 'req->rl_sendbuf'
+(This is because commit b78de1dca00376aaba7a58bb5fe21c1606524abe is not
+in 5.4.y)
+Signed-off-by: Harshit Mogalapalli <harshit.m.mogalapalli@oracle.com>
+---
+Conflict resolution: Replace kfree(req->rl_sendbuf) with the correct free
+function rpcrdma_regbuf_free(req->rl_sendbuf) in out4 label.
 
-## Build
-* kernel: 4.19.272-rc3
-* git: https://gitlab.com/Linaro/lkft/mirrors/stable/linux-stable-rc
-* git branch: linux-4.19.y
-* git commit: 84a0c172d04c64ace38743c8f5b0203e20df828e
-* git describe: v4.19.271-80-g84a0c172d04c
-* test details:
-https://qa-reports.linaro.org/lkft/linux-stable-rc-linux-4.19.y/build/v4.19=
-.271-80-g84a0c172d04c
+Testing: Only compile and boot tested.
+Thanks to Vegard for pointing out the similar problem with
+'req->rl_rdmabuf'
 
-## Test Regressions (compared to v4.19.271-80-g825071b614ee)
+Previously the backport had some problems and was reverted [1]
+[1] https://lore.kernel.org/all/20230203101029.850099165@linuxfoundation.org/
+---
+ net/sunrpc/xprtrdma/verbs.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-## Metric Regressions (compared to v4.19.271-80-g825071b614ee)
+diff --git a/net/sunrpc/xprtrdma/verbs.c b/net/sunrpc/xprtrdma/verbs.c
+index 0f4d39fdb48f..cfae1a871578 100644
+--- a/net/sunrpc/xprtrdma/verbs.c
++++ b/net/sunrpc/xprtrdma/verbs.c
+@@ -1034,9 +1034,9 @@ struct rpcrdma_req *rpcrdma_req_create(struct rpcrdma_xprt *r_xprt, size_t size,
+ 	return req;
+ 
+ out4:
+-	kfree(req->rl_sendbuf);
++	rpcrdma_regbuf_free(req->rl_sendbuf);
+ out3:
+-	kfree(req->rl_rdmabuf);
++	rpcrdma_regbuf_free(req->rl_rdmabuf);
+ out2:
+ 	kfree(req);
+ out1:
+-- 
+2.31.1
 
-## Test Fixes (compared to v4.19.271-80-g825071b614ee)
-
-## Metric Fixes (compared to v4.19.271-80-g825071b614ee)
-
-## Test result summary
-total: 112407, pass: 85327, fail: 3218, skip: 23521, xfail: 341
-
-## Build Summary
-* arc: 10 total, 10 passed, 0 failed
-* arm: 321 total, 317 passed, 4 failed
-* arm64: 59 total, 58 passed, 1 failed
-* i386: 29 total, 28 passed, 1 failed
-* mips: 46 total, 46 passed, 0 failed
-* parisc: 12 total, 12 passed, 0 failed
-* powerpc: 63 total, 63 passed, 0 failed
-* s390: 15 total, 15 passed, 0 failed
-* sh: 24 total, 24 passed, 0 failed
-* sparc: 12 total, 12 passed, 0 failed
-* x86_64: 53 total, 52 passed, 1 failed
-
-## Test suites summary
-* boot
-* fwts
-* kselftest-android
-* kselftest-arm64
-* kselftest-breakpoints
-* kselftest-capabilities
-* kselftest-cgroup
-* kselftest-clone3
-* kselftest-core
-* kselftest-cpu-hotplug
-* kselftest-cpufreq
-* kselftest-drivers-dma-buf
-* kselftest-efivarfs
-* kselftest-filesystems
-* kselftest-filesystems-binderfs
-* kselftest-firmware
-* kselftest-fpu
-* kselftest-futex
-* kselftest-gpio
-* kselftest-intel_pstate
-* kselftest-ipc
-* kselftest-ir
-* kselftest-kcmp
-* kselftest-kexec
-* kselftest-kvm
-* kselftest-lib
-* kselftest-livepatch
-* kselftest-membarrier
-* kselftest-memfd
-* kselftest-memory-hotplug
-* kselftest-mincore
-* kselftest-mount
-* kselftest-mqueue
-* kselftest-net
-* kselftest-net-forwarding
-* kselftest-net-mptcp
-* kselftest-netfilter
-* kselftest-nsfs
-* kselftest-openat2
-* kselftest-pid_namespace
-* kselftest-pidfd
-* kselftest-proc
-* kselftest-pstore
-* kselftest-ptrace
-* kselftest-rseq
-* kselftest-rtc
-* kselftest-seccomp
-* kselftest-sigaltstack
-* kselftest-size
-* kselftest-splice
-* kselftest-static_keys
-* kselftest-sync
-* kselftest-sysctl
-* kselftest-tc-testing
-* kselftest-timens
-* kselftest-timers
-* kselftest-tmpfs
-* kselftest-tpm2
-* kselftest-user
-* kselftest-vm
-* kselftest-x86
-* kselftest-zram
-* kunit
-* kvm-unit-tests
-* libhugetlbfs
-* log-parser-boot
-* log-parser-test
-* ltp-cap_bounds
-* ltp-commands
-* ltp-containers
-* ltp-controllers
-* ltp-cpuhotplug
-* ltp-crypto
-* ltp-cve
-* ltp-dio
-* ltp-fcntl-locktests
-* ltp-filecaps
-* ltp-fs
-* ltp-fs_bind
-* ltp-fs_perms_simple
-* ltp-fsx
-* ltp-hugetlb
-* ltp-io
-* ltp-ipc
-* ltp-math
-* ltp-mm
-* ltp-nptl
-* ltp-open-posix-tests
-* ltp-pty
-* ltp-sched
-* ltp-securebits
-* ltp-smoke
-* ltp-syscalls
-* ltp-tracing
-* network-basic-tests
-* packetdrill
-* rcutorture
-* v4l2-compliance
-* vdso
-
---
-Linaro LKFT
-https://lkft.linaro.org
