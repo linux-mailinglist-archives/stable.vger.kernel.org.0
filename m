@@ -2,57 +2,57 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 81D3668AEDA
-	for <lists+stable@lfdr.de>; Sun,  5 Feb 2023 09:31:32 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id CA09668AEDE
+	for <lists+stable@lfdr.de>; Sun,  5 Feb 2023 09:42:12 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229500AbjBEIba (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 5 Feb 2023 03:31:30 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36804 "EHLO
+        id S229502AbjBEImI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 5 Feb 2023 03:42:08 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38950 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229447AbjBEIb3 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 5 Feb 2023 03:31:29 -0500
-Received: from mail-vs1-xe2d.google.com (mail-vs1-xe2d.google.com [IPv6:2607:f8b0:4864:20::e2d])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A2FB9206A5
-        for <stable@vger.kernel.org>; Sun,  5 Feb 2023 00:31:28 -0800 (PST)
-Received: by mail-vs1-xe2d.google.com with SMTP id e9so9719596vsj.3
-        for <stable@vger.kernel.org>; Sun, 05 Feb 2023 00:31:28 -0800 (PST)
+        with ESMTP id S229460AbjBEImI (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 5 Feb 2023 03:42:08 -0500
+Received: from mail-vs1-xe2f.google.com (mail-vs1-xe2f.google.com [IPv6:2607:f8b0:4864:20::e2f])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9D7D9222F0
+        for <stable@vger.kernel.org>; Sun,  5 Feb 2023 00:42:06 -0800 (PST)
+Received: by mail-vs1-xe2f.google.com with SMTP id j7so9692765vsl.11
+        for <stable@vger.kernel.org>; Sun, 05 Feb 2023 00:42:06 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=linaro.org; s=google;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=lYyeRq7xl+tuiz7ZJF3eYfcgQ/Nq1xTGEfXuuhTyZS8=;
-        b=MDaInQOuHRwY3UvQKjUpJWng3BGJl0oYIieGJwS+fQv52klvd6/Yw2EiWoLKsyTCJg
-         JEBgjy6wPl7EPexbSL4mUqQjs4WXZ7e0VpeE7ZC9fVaIJQOvinskcOD4BniqQvRfyjCB
-         yLlA8kg3m5ROPKQtWy4TjUCkp+54TRvZ2yy6cWmV92g2OCXgmtjibmJHh3SLp/Uypv8O
-         p6lwKIs6XNX8jldV2Sc0R2vS9nZ+sI4jHyv2si515yXiO6XQ2sdbs+LvDpTno4WQQMkX
-         qUwMtU4AkoqBRJm8sm+0TUMonIiMSM0cqnEmX8TBJltoGVFv0wXqoqg4/+Ni/JoxclgW
-         AwHw==
+        bh=W3WSvLiAEDdvc1pRKD7l9k6PhsyRBAsv121S6tLVwPU=;
+        b=FOdDLJxEyhkl03bWbzjeZkoZ9A6XjX411axCfeAxP3GonwoQnzt2B1BplAlpi39tFn
+         4vQp9S0RxlH+hf9uWwaXPYe55Tp5dV7mOLdtUMhYDXhfYOCxIxiejbebCQ8UgnTl50eQ
+         H8uJTuzEK5idv/FtyeuWzNSV2kZ9s0Ykb9db7bZ0sc66jyhZ2TQaU/s1Aq5xYQzlA6Y4
+         mmhuFJDaLJP43UHQzkKSDJbulRdn/N8lwKE6fz9FbcdSIW808ZTe55FFLKD+99IZ3wIX
+         Bo7HO6C/LkysovW2iTZFb7PbM1qETNpOk7W4gShSoJnvJ+sJauh8NW9mO59V2A1oEocs
+         dlLg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=lYyeRq7xl+tuiz7ZJF3eYfcgQ/Nq1xTGEfXuuhTyZS8=;
-        b=H0to6XW/cFmWeddPK4cXISxpcrByeBwbCYfG7TOG41eOMmO/tuJJKrTngp404WnzWE
-         eaps5OqCegkO3Rm2T8CV0L2VyfSfDZi3SD8pc1dsWDE9jdi/iybFLw9yAoYehsgVc34N
-         k7PmzGEc+Ck1oQxgpx8MkrF+EV/Z83A2g1HeJvy94BMAKDyMjRT8G9RGMe7BR3ShpIRp
-         fowQrZdkvzYNrN7mMdLYEX4WYksPZVcMJ6uw/NcPNMH6Y2jFvFkN7WIaEuTIRp2pu2a/
-         egxtYAwF0BPiaLNbo59Jh5kT3nw2iP5l4vyJ6ML8iL3fCRtoSncI8jPD8CN2rokWCVrH
-         e6lg==
-X-Gm-Message-State: AO0yUKUFJ0gy3HcnSTeKGCssh94GKhJerpGaeOKkzap0scHt7easiyEO
-        VmMYKtdzEKuTPVB7leUi2r7sBwIHDW2R4ug86OF+j3Pp6EnUcnJP
-X-Google-Smtp-Source: AK7set9+Cs1D4X7WmBM9GG8sXxybA9CPmJ1iYp1Z46rKWLZjvHhBTY/ITZPkzOH61j85bu1inAVd1NGvpYpsXUl1D8w=
-X-Received: by 2002:a05:6102:204d:b0:3f1:53d4:9e87 with SMTP id
- q13-20020a056102204d00b003f153d49e87mr2165046vsr.34.1675585887609; Sun, 05
- Feb 2023 00:31:27 -0800 (PST)
+        bh=W3WSvLiAEDdvc1pRKD7l9k6PhsyRBAsv121S6tLVwPU=;
+        b=t9G4OFGAxNN0ogC7diODp42KYEtd3ce9XhJYB8PVFVV64rn6K4fDlVQ+fCziIVZTxm
+         iTB1yUtiL9LPd9GDQuo3kLJJ7RFoIMZm4u3nUauJVAzAkgFmXgLSFJtc1iFFDzB2nl3S
+         rjR24oYW4SiuL5u0Ov/w/Q9Au64GQHHwJ+n/6a+gcbAxjjJ3nWGTh26wIwHH5okcV0Ve
+         j5Do1Frt29SuwGylRqPhSsNX3UK+US1mUvrkqQAwpnkAqFNz5oWR63LepiCmlpFLg8t6
+         vszuWoIvNPgvAJFJ50SxPNG5YWxv7MGjBK2FgzkmsszY1ikVoQrQP9oDQwXUymjFsVes
+         Jdnw==
+X-Gm-Message-State: AO0yUKVt/KlbtJfsKsnv1YceMuDbFIxmxpFKS9G+CFnZjb1dpOtw/ICD
+        CixZziJzZCtAY527OORvla3ekgbpW0svaxqC7nZ6Ag==
+X-Google-Smtp-Source: AK7set8M9uWwXVvCqF0IBhFBfdSf7R2hW/GD5Mai14e9HOLKenWOcjXeeJe/QrFgN+hdUGfyMtV4yPyQTKu4Z2mhkYw=
+X-Received: by 2002:a05:6102:3fa5:b0:3f7:4e35:cdfa with SMTP id
+ o37-20020a0561023fa500b003f74e35cdfamr2258436vsv.83.1675586525533; Sun, 05
+ Feb 2023 00:42:05 -0800 (PST)
 MIME-Version: 1.0
-References: <20230204143608.813973353@linuxfoundation.org>
-In-Reply-To: <20230204143608.813973353@linuxfoundation.org>
+References: <20230204143559.734584366@linuxfoundation.org>
+In-Reply-To: <20230204143559.734584366@linuxfoundation.org>
 From:   Naresh Kamboju <naresh.kamboju@linaro.org>
-Date:   Sun, 5 Feb 2023 14:01:16 +0530
-Message-ID: <CA+G9fYujE69U12-h0jmsQou4Zh_7tzD2q_DkytcZB0pmc_bQSw@mail.gmail.com>
-Subject: Re: [PATCH 5.4 000/134] 5.4.231-rc2 review
+Date:   Sun, 5 Feb 2023 14:11:54 +0530
+Message-ID: <CA+G9fYtfPDRFDCvPrW+So85XY80=QGS6mXSMDa5V3FphX6VWpQ@mail.gmail.com>
+Subject: Re: [PATCH 4.19 00/79] 4.19.272-rc3 review
 To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Cc:     stable@vger.kernel.org, patches@lists.linux.dev,
         linux-kernel@vger.kernel.org, torvalds@linux-foundation.org,
@@ -74,8 +74,8 @@ X-Mailing-List: stable@vger.kernel.org
 On Sat, 4 Feb 2023 at 20:12, Greg Kroah-Hartman
 <gregkh@linuxfoundation.org> wrote:
 >
-> This is the start of the stable review cycle for the 5.4.231 release.
-> There are 134 patches in this series, all will be posted as a response
+> This is the start of the stable review cycle for the 4.19.272 release.
+> There are 79 patches in this series, all will be posted as a response
 > to this one.  If anyone has any issues with these being applied, please
 > let me know.
 >
@@ -83,11 +83,11 @@ On Sat, 4 Feb 2023 at 20:12, Greg Kroah-Hartman
 > Anything received after that time might be too late.
 >
 > The whole patch series can be found in one patch at:
->         https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-=
-5.4.231-rc2.gz
+>         https://www.kernel.org/pub/linux/kernel/v4.x/stable-review/patch-=
+4.19.272-rc3.gz
 > or in the git tree and branch at:
 >         git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable=
--rc.git linux-5.4.y
+-rc.git linux-4.19.y
 > and the diffstat can be found below.
 >
 > thanks,
@@ -101,39 +101,38 @@ No regressions on arm64, arm, x86_64, and i386.
 Tested-by: Linux Kernel Functional Testing <lkft@linaro.org>
 
 ## Build
-* kernel: 5.4.231-rc2
+* kernel: 4.19.272-rc3
 * git: https://gitlab.com/Linaro/lkft/mirrors/stable/linux-stable-rc
-* git branch: linux-5.4.y
-* git commit: 9d36c855cb4a7dd9498bddd4095b51a237b3217f
-* git describe: v5.4.230-135-g9d36c855cb4a
+* git branch: linux-4.19.y
+* git commit: 84a0c172d04c64ace38743c8f5b0203e20df828e
+* git describe: v4.19.271-80-g84a0c172d04c
 * test details:
-https://qa-reports.linaro.org/lkft/linux-stable-rc-linux-5.4.y/build/v5.4.2=
-30-135-g9d36c855cb4a
+https://qa-reports.linaro.org/lkft/linux-stable-rc-linux-4.19.y/build/v4.19=
+.271-80-g84a0c172d04c
 
-## Test Regressions (compared to v5.4.230-135-gf094cca7f934)
+## Test Regressions (compared to v4.19.271-80-g825071b614ee)
 
-## Metric Regressions (compared to v5.4.230-135-gf094cca7f934)
+## Metric Regressions (compared to v4.19.271-80-g825071b614ee)
 
-## Test Fixes (compared to v5.4.230-135-gf094cca7f934)
+## Test Fixes (compared to v4.19.271-80-g825071b614ee)
 
-## Metric Fixes (compared to v5.4.230-135-gf094cca7f934)
+## Metric Fixes (compared to v4.19.271-80-g825071b614ee)
 
 ## Test result summary
-total: 128559, pass: 103058, fail: 3021, skip: 22125, xfail: 355
+total: 112407, pass: 85327, fail: 3218, skip: 23521, xfail: 341
 
 ## Build Summary
-* arc: 5 total, 5 passed, 0 failed
-* arm: 144 total, 143 passed, 1 failed
-* arm64: 44 total, 40 passed, 4 failed
-* i386: 26 total, 20 passed, 6 failed
-* mips: 27 total, 27 passed, 0 failed
-* parisc: 6 total, 6 passed, 0 failed
-* powerpc: 30 total, 30 passed, 0 failed
-* riscv: 12 total, 11 passed, 1 failed
-* s390: 6 total, 6 passed, 0 failed
-* sh: 12 total, 12 passed, 0 failed
-* sparc: 6 total, 6 passed, 0 failed
-* x86_64: 37 total, 35 passed, 2 failed
+* arc: 10 total, 10 passed, 0 failed
+* arm: 321 total, 317 passed, 4 failed
+* arm64: 59 total, 58 passed, 1 failed
+* i386: 29 total, 28 passed, 1 failed
+* mips: 46 total, 46 passed, 0 failed
+* parisc: 12 total, 12 passed, 0 failed
+* powerpc: 63 total, 63 passed, 0 failed
+* s390: 15 total, 15 passed, 0 failed
+* sh: 24 total, 24 passed, 0 failed
+* sparc: 12 total, 12 passed, 0 failed
+* x86_64: 53 total, 52 passed, 1 failed
 
 ## Test suites summary
 * boot
@@ -183,6 +182,12 @@ total: 128559, pass: 103058, fail: 3021, skip: 22125, xfail: 355
 * kselftest-rseq
 * kselftest-rtc
 * kselftest-seccomp
+* kselftest-sigaltstack
+* kselftest-size
+* kselftest-splice
+* kselftest-static_keys
+* kselftest-sync
+* kselftest-sysctl
 * kselftest-tc-testing
 * kselftest-timens
 * kselftest-timers
@@ -194,7 +199,6 @@ total: 128559, pass: 103058, fail: 3021, skip: 22125, xfail: 355
 * kselftest-zram
 * kunit
 * kvm-unit-tests
-* libgpiod
 * libhugetlbfs
 * log-parser-boot
 * log-parser-test
@@ -227,7 +231,6 @@ total: 128559, pass: 103058, fail: 3021, skip: 22125, xfail: 355
 * ltp-tracing
 * network-basic-tests
 * packetdrill
-* perf
 * rcutorture
 * v4l2-compliance
 * vdso
