@@ -2,75 +2,133 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 8690E68B0DE
-	for <lists+stable@lfdr.de>; Sun,  5 Feb 2023 17:15:49 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 138D068B173
+	for <lists+stable@lfdr.de>; Sun,  5 Feb 2023 20:51:23 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229648AbjBEQPr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 5 Feb 2023 11:15:47 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54128 "EHLO
+        id S229577AbjBETvV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 5 Feb 2023 14:51:21 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40738 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229519AbjBEQPr (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 5 Feb 2023 11:15:47 -0500
-Received: from mail-oa1-x34.google.com (mail-oa1-x34.google.com [IPv6:2001:4860:4864:20::34])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CDE1D1CF54
-        for <stable@vger.kernel.org>; Sun,  5 Feb 2023 08:15:44 -0800 (PST)
-Received: by mail-oa1-x34.google.com with SMTP id 586e51a60fabf-16332831ed0so12517749fac.10
-        for <stable@vger.kernel.org>; Sun, 05 Feb 2023 08:15:44 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112;
-        h=to:subject:message-id:date:from:reply-to:mime-version:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=sx/dZTCZTWSCpap2GSWkb+uyyIlUwE8/Jo1YiJR44m8=;
-        b=jMMwnJRdym4YX0ds/vsmSwPpYyKk7gRY9vllbhkhwyg2rrtp1Y17ofACrXzDLevCte
-         EdaV1AwU/hnJqk+mcD0c7R+iKKWIdTfK/ZcDBtE1AwhBsVyHI4ora1uqldgwBi3PeY7d
-         pFshWYjcZrEFOx9K7zaQ/x+QXK0OiNay9MZDOZ/Yj4jvALrtq2s0LGW7AaUr1av/sd+F
-         KawWYLaQ6ZO3CkImTxOW32UW9WeHiIKj003/Clu+Af/QiXMA+3osSILRWH5WJk5yUDJ9
-         Sdptc8LZ+E3GD9AsTbAHyuO8QCjI5JZ/bFmrc/SmpTLNebisuAPRbih7jk/Lzcn26Zqr
-         pe+w==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=to:subject:message-id:date:from:reply-to:mime-version
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=sx/dZTCZTWSCpap2GSWkb+uyyIlUwE8/Jo1YiJR44m8=;
-        b=FpGqFMIIAIEUH4oPp8xlpiyjdjcluub/jstaTyk4eyV/IfBHZjhPHh8Kc6KTacKZXc
-         eQ5UXMM533gUu6kgLoLVuNXB2ULahn0FehP15/VSdCLhQ5VTE4j3IJKxXTQ8GTN5eFPL
-         zGcUpn30B6lLO9vdNDZQdjamrEG+NibwtJU9/8JPxkKlZ+221FkYJILtXN205n/k+PuM
-         i+b5WnZ1ILuvPSBOmsm7Nv8cb4zukT3LJhaPPi7FmNmOdAP4ajDsAdZqplzObR5jg5rP
-         ZwN/tCINwLlpikiD0wBRjq0Jeab/T7IyXClljjvCXmDdrImwUD1hzq7VYZgvUhYSjHoR
-         lXUQ==
-X-Gm-Message-State: AO0yUKWuClGEm/74GprAvuZtqrT/1X1mLkuvZgrOfyiKqsKYVHb2Mu0l
-        dbAzApxEKXjXEE1ff8VeKzP6ixD0BnGpiiXc5mA=
-X-Google-Smtp-Source: AK7set+G3NhYcBlaGjsjhNJqml7z6eEn7zpFhinJbGsYlD/8epI/pNvp7A1FWvL2wdjgnDGC759JKOKYZ7ip6HsF6HA=
-X-Received: by 2002:a05:6870:d69b:b0:16a:3ec3:6585 with SMTP id
- z27-20020a056870d69b00b0016a3ec36585mr133810oap.292.1675613744065; Sun, 05
- Feb 2023 08:15:44 -0800 (PST)
+        with ESMTP id S229500AbjBETvU (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 5 Feb 2023 14:51:20 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 82FBD1B545;
+        Sun,  5 Feb 2023 11:51:19 -0800 (PST)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 1DD4F60BA6;
+        Sun,  5 Feb 2023 19:51:19 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 812EDC433EF;
+        Sun,  5 Feb 2023 19:51:17 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1675626678;
+        bh=Cfoi1fMvKQ+evElfR1WMirNcIoGAQaH3B+wkU7DqXV4=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=MvcZdFZg/xHLkp7b83g3kjNleHoLKzlz6oRoW47yybJHhOwV+lHds4wSQMBySE+cb
+         +3tYF/R6oPo4f5IgnmTSjUTrj5XWX61XTdok7Ee8ZvqOoTLRv6BTcEAZJtvmhkU/vw
+         Dje5Rhfe29c0vmfgLy07RqXvMu26ESVwXtbnoz4DD6EEKAW+PbSIs0WkcyA/7b3PyN
+         Wc3Gsxa+rB/LtL3QPaAiEAop6fdNzgyqHzUpf6nLBw0UlGjNWpYkm/y8HiaijMPKnp
+         +znSzrIREnMU1hMenIInjNOLVHQIOaPxvVKH7yGmVTTH7Lc8giryN3xrSG7hLGAwJ2
+         LFv+nxUUxja5Q==
+Date:   Sun, 5 Feb 2023 12:51:15 -0700
+From:   Nathan Chancellor <nathan@kernel.org>
+To:     Naresh Kamboju <naresh.kamboju@linaro.org>
+Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        stable@vger.kernel.org, patches@lists.linux.dev,
+        linux-kernel@vger.kernel.org, torvalds@linux-foundation.org,
+        akpm@linux-foundation.org, linux@roeck-us.net, shuah@kernel.org,
+        patches@kernelci.org, lkft-triage@lists.linaro.org, pavel@denx.de,
+        jonathanh@nvidia.com, f.fainelli@gmail.com,
+        sudipm.mukherjee@gmail.com, srw@sladewatkins.net, rwarsow@gmx.de,
+        llvm@lists.linux.dev
+Subject: Re: [PATCH 6.1 00/28] 6.1.10-rc1 review
+Message-ID: <Y+AIsz4/7Ms28aWK@dev-arch.thelio-3990X>
+References: <20230203101009.946745030@linuxfoundation.org>
+ <CA+G9fYtsSuw=W0LSpzJRzsXB6qGYS3og1v=FOrvPHSAdRPCDPA@mail.gmail.com>
 MIME-Version: 1.0
-Received: by 2002:ac9:491a:0:0:0:0:0 with HTTP; Sun, 5 Feb 2023 08:15:43 -0800 (PST)
-Reply-To: te463602@gmail.com
-From:   "Dr. Moustapha Sanon" <moustaphasanon4@gmail.com>
-Date:   Sun, 5 Feb 2023 08:15:43 -0800
-Message-ID: <CAPX2G2bR6TRokDjGrDjwWxyYRV_Ujfzj4BY=7+oMoPSUPBdSOA@mail.gmail.com>
-Subject: Very Urgent,
-To:     undisclosed-recipients:;
-Content-Type: text/plain; charset="UTF-8"
-X-Spam-Status: No, score=4.9 required=5.0 tests=BAYES_50,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_ENVFROM_END_DIGIT,
-        FREEMAIL_FROM,FREEMAIL_REPLYTO,FREEMAIL_REPLYTO_END_DIGIT,
-        RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS,UNDISC_FREEM autolearn=no
-        autolearn_force=no version=3.4.6
-X-Spam-Level: ****
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <CA+G9fYtsSuw=W0LSpzJRzsXB6qGYS3og1v=FOrvPHSAdRPCDPA@mail.gmail.com>
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+        SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
--- 
-Hello,
-I tried e-mailing you more than twice but my email bounced back
-failure, Note this, soonest you receive this email revert to me before
-I deliver the message it's importunate, pressing, crucial. Await your
-response.
+Hi Naresh,
 
-Best regards
-Dr. Moustapha Sanon
+On Sat, Feb 04, 2023 at 12:55:10PM +0530, Naresh Kamboju wrote:
+> On Fri, 3 Feb 2023 at 15:50, Greg Kroah-Hartman
+> <gregkh@linuxfoundation.org> wrote:
+> >
+> > This is the start of the stable review cycle for the 6.1.10 release.
+> > There are 28 patches in this series, all will be posted as a response
+> > to this one.  If anyone has any issues with these being applied, please
+> > let me know.
+> >
+> > Responses should be made by Sun, 05 Feb 2023 10:09:58 +0000.
+> > Anything received after that time might be too late.
+> >
+> > The whole patch series can be found in one patch at:
+> >         https://www.kernel.org/pub/linux/kernel/v6.x/stable-review/patch-6.1.10-rc1.gz
+> > or in the git tree and branch at:
+> >         git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-6.1.y
+> > and the diffstat can be found below.
+> >
+> > thanks,
+> >
+> > greg k-h
+> 
+> 
+> Results from Linaro’s test farm.
+> No regressions on arm64, arm, x86_64, and i386.
+> 
+> Tested-by: Linux Kernel Functional Testing <lkft@linaro.org>
+> 
+> NOTE:
+> 
+> clang-nightly-allmodconfig - Failed
+> 
+> Build error:
+> -----------
+>   include/linux/fortify-string.h:430:4: error: call to '__write_overflow_field'
+>    declared with 'warning' attribute: detected write beyond size of field
+>    (1st parameter); maybe use struct_group()? [-Werror,-Wattribute-warning]
+> 
+> This is already reported upstream,
+> https://lore.kernel.org/llvm/63d0c141.050a0220.c848b.4e93@mx.google.com/
+
+I think you copied the wrong warning, as the one upstream is a write
+warning, whereas the one I see in your build logs is a read error:
+
+In file included from /builds/linux/drivers/infiniband/core/cma.c:9:
+In file included from /builds/linux/include/linux/completion.h:12:
+In file included from /builds/linux/include/linux/swait.h:7:
+In file included from /builds/linux/include/linux/spinlock.h:56:
+In file included from /builds/linux/include/linux/preempt.h:78:
+In file included from /builds/linux/arch/x86/include/asm/preempt.h:7:
+In file included from /builds/linux/include/linux/thread_info.h:60:
+In file included from /builds/linux/arch/x86/include/asm/thread_info.h:53:
+In file included from /builds/linux/arch/x86/include/asm/cpufeature.h:5:
+In file included from /builds/linux/arch/x86/include/asm/processor.h:22:
+In file included from /builds/linux/arch/x86/include/asm/msr.h:11:
+In file included from /builds/linux/arch/x86/include/asm/cpumask.h:5:
+In file included from /builds/linux/include/linux/cpumask.h:12:
+In file included from /builds/linux/include/linux/bitmap.h:11:
+In file included from /builds/linux/include/linux/string.h:253:
+/builds/linux/include/linux/fortify-string.h:543:4: error: call to '__read_overflow' declared with 'error' attribute: detected read beyond size of object (1st parameter)
+                        __read_overflow();
+                        ^
+
+Regardless, this is still a clang bug that we are actively investigating, so it
+can still be safely ignored by the kernel folks.
+
+https://github.com/ClangBuiltLinux/linux/issues/1687
+
+Cheers,
+Nathan
