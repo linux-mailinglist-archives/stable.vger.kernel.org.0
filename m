@@ -2,51 +2,62 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 3593A68B441
-	for <lists+stable@lfdr.de>; Mon,  6 Feb 2023 03:55:37 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D1B2968B453
+	for <lists+stable@lfdr.de>; Mon,  6 Feb 2023 04:08:55 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229460AbjBFCze (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 5 Feb 2023 21:55:34 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57960 "EHLO
+        id S229524AbjBFDIy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 5 Feb 2023 22:08:54 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33030 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229448AbjBFCzd (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 5 Feb 2023 21:55:33 -0500
-Received: from szxga02-in.huawei.com (szxga02-in.huawei.com [45.249.212.188])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 59F98196BD;
-        Sun,  5 Feb 2023 18:55:28 -0800 (PST)
-Received: from dggpemm500024.china.huawei.com (unknown [172.30.72.55])
-        by szxga02-in.huawei.com (SkyGuard) with ESMTP id 4P99mf3gdNzRrpv;
-        Mon,  6 Feb 2023 10:53:06 +0800 (CST)
-Received: from [10.67.110.173] (10.67.110.173) by
- dggpemm500024.china.huawei.com (7.185.36.203) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
- 15.1.2375.34; Mon, 6 Feb 2023 10:55:26 +0800
-Message-ID: <6cb72764-29a3-73f1-cfe3-9e972d975333@huawei.com>
-Date:   Mon, 6 Feb 2023 10:55:26 +0800
+        with ESMTP id S229447AbjBFDIy (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 5 Feb 2023 22:08:54 -0500
+Received: from mail-pl1-x641.google.com (mail-pl1-x641.google.com [IPv6:2607:f8b0:4864:20::641])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 49E9A1A4AB;
+        Sun,  5 Feb 2023 19:08:53 -0800 (PST)
+Received: by mail-pl1-x641.google.com with SMTP id be8so10757055plb.7;
+        Sun, 05 Feb 2023 19:08:53 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20210112;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :mime-version:from:to:cc:subject:date:message-id:reply-to;
+        bh=RMxC7x6L+WxwPVlPfl0tkAj5/BL2kNspBRHg3VwU1s4=;
+        b=lDsMVLElVzpgoQN2srpKFeAQ+Krxozmbt3yUeP795SjPMi1RBTSKenSwoiYI0J1Tfi
+         9a9TkhbVOZll+Ta5OMqnKi6Vtwv6eFT5hQqZXtID2UPaHoRAWxUs/rjKROq6xR31nnF2
+         WFVBSZ82Apvhi3SovoGAihZOl3axIHONu6Rs6MIRmIjt1BgVrzxtINQqt09K2nFEBXSo
+         ucuYhn17IUUKCrciVp0S/FOgi093ysYyMcWowvjODqSz8hA45kGeG5d8seh/Cx3SToHp
+         NK+U7hW9GzA8z6fBDV58I0uZSUZkFk30kUZ847eSFeEWq3e/2HICS1jN+u4lkCxcjr59
+         W9RA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :mime-version:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=RMxC7x6L+WxwPVlPfl0tkAj5/BL2kNspBRHg3VwU1s4=;
+        b=s1K8hiCEWK1bsg15MVyorxEcknN6VY3uLo9axBZhmf7RnQnuUBxbyzt8h1OV3eBNGS
+         ZhDWTWIuAk4FA/vBmGX6yzQ+aWdP8YRjLVWTcNLLDCxUT72e+dp9jUdsgrRm4qxAL8EB
+         eg6NNuvFQoQ8fweRgE3CTaakoi4+Gl+lQq9eycrOPeTvRlYibMP5V3w6jYfVWFUUfhDB
+         FDnpFyZ37RvvuFdBeSaYiLdidMktRrkQ0X0RjFS7GfRxxVMvvcfVb7TjLamEOH3GdFsd
+         onp4rj+Dewc4/9lb/mkZDNZvBE1AZ9K5Us3GBWSjI9+Hx7J0dY3IJXwRKe0A0lvj9oG5
+         NEFQ==
+X-Gm-Message-State: AO0yUKVwCPq5uam1YMGnx4nZz5jfkf+mooSMmjFWcOvRX6fiCT+YjycQ
+        SAkacyPN2pDSiEghh1Vf9+WU1rpHeMJquhogyxS3kh6rJqyoQjvd
+X-Google-Smtp-Source: AK7set+1wu7zoy1JvaMxzaETcw7kTPscDTbapABdZWHZ56N8YzxsPrefpTrPqrqhDo/LALllQQ5oJKlDPMgetJAfaLI=
+X-Received: by 2002:a17:90b:e0d:b0:22b:fca9:4749 with SMTP id
+ ge13-20020a17090b0e0d00b0022bfca94749mr2497792pjb.0.1675652932772; Sun, 05
+ Feb 2023 19:08:52 -0800 (PST)
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:102.0) Gecko/20100101
- Thunderbird/102.7.0
-Subject: Re: [PATCH 4.19 0/3] Backport handling -ESTALE policy update failure
- to 4.19
-Content-Language: en-US
-To:     Greg KH <gregkh@linuxfoundation.org>
-CC:     Sasha Levin <sashal@kernel.org>, <stable@vger.kernel.org>,
-        <linux-kernel@vger.kernel.org>, <zohar@linux.ibm.com>,
-        <paul@paul-moore.com>, <luhuaxin1@huawei.com>
-References: <20230201023952.30247-1-guozihua@huawei.com>
- <Y9vw6RhQ6KJ5+E1I@sashalap> <02723ce8-0ad4-7860-b76c-7d2b30710dcf@huawei.com>
- <Y9y7c5sEX5phLybE@kroah.com> <Y9y8cYNR6TnAjnHS@kroah.com>
- <Y9y9tiHoOCkSutJT@kroah.com>
-From:   "Guozihua (Scott)" <guozihua@huawei.com>
-In-Reply-To: <Y9y9tiHoOCkSutJT@kroah.com>
+From:   Xinghui Li <korantwork@gmail.com>
+Date:   Mon, 6 Feb 2023 11:09:48 +0800
+Message-ID: <CAEm4hYXr28O8TOmZWEKfp-00Y9R7Ky7C6X3JTtfm-0AD42KbrA@mail.gmail.com>
+Subject: [bug report]warning about entry_64.S from objtool in v5.4 LTS
+To:     peterz@infradead.org, jpoimboe@redhat.com, tglx@linutronix.de
+Cc:     stable@vger.kernel.org, linux-kernel@vger.kernel.org,
+        x86@kernel.org, alexs@kernel.org
 Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: 7bit
-X-Originating-IP: [10.67.110.173]
-X-ClientProxiedBy: dggems703-chm.china.huawei.com (10.3.19.180) To
- dggpemm500024.china.huawei.com (7.185.36.203)
-X-CFilter-Loop: Reflected
-X-Spam-Status: No, score=-5.3 required=5.0 tests=BAYES_00,NICE_REPLY_A,
-        RCVD_IN_DNSWL_MED,SPF_HELO_NONE,SPF_PASS autolearn=ham
+Content-Transfer-Encoding: quoted-printable
+X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_FROM,
+        RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS autolearn=ham
         autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -54,63 +65,31 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 2023/2/3 15:54, Greg KH wrote:
-> On Fri, Feb 03, 2023 at 08:49:05AM +0100, Greg KH wrote:
->> On Fri, Feb 03, 2023 at 08:44:51AM +0100, Greg KH wrote:
->>> On Fri, Feb 03, 2023 at 09:10:13AM +0800, Guozihua (Scott) wrote:
->>>> On 2023/2/3 1:20, Sasha Levin wrote:
->>>>> On Wed, Feb 01, 2023 at 10:39:49AM +0800, GUO Zihua wrote:
->>>>>> This series backports patches in order to resolve the issue discussed
->>>>>> here:
->>>>>> https://lore.kernel.org/selinux/389334fe-6e12-96b2-6ce9-9f0e8fcb85bf@huawei.com/
->>>>>>
->>>>>> This required backporting the non-blocking LSM policy update mechanism
->>>>>> prerequisite patches.
->>>>>
->>>>> Do we not need this on newer kernels? Why only 4.19?
->>>>>
->>>> Hi Sasha.
->>>>
->>>> The issue mentioned in this patch was fixed already in the newer kernel.
->>>> All three patches here are backports from mainline.
->>>
->>> Ok, now queued up, thanks.
->>
->> Nope, I've now dropped them all as you did not include the needed fix up
->> commits as well.  We can not add patches to the stable tree that are
->> known broken, right?
->>
->> How well did you test this?  I see at least 3 missing patches that you
->> should have had in this patch series for it to work properly.
-> 
-> Ah, you didn't even test this series, as it breaks the build
-> as-submitted.
-> 
-> {sigh}
-> 
-> In order for us to take this, I think you need to find someone else who
-> will validate your patch series _FIRST_ before submitting it to us.  And
-> I want their tested-by on them validating that it did actually work (if
-> for no other reason than to have someone else be willing to be
-> responsible if things go bad.)
-> 
-> Breaking our builds and forcing me to point out missing patches is not
-> how the stable kernel process works in any sane manner.
-> 
-> greg k-h
-Sorry for the burden. Still trying to work out how things are done here.
+Hi all
+We found a warning from objtool:
+arch/x86/entry/entry_64.o: warning: objtool: .entry.text+0x1d1:
+unsupported intra-function call
 
-It seems that when I test it out, it did not build with the allmodconfig
-which would report an error. And by the "fixes up commit" I supposed it
-mean the commits with the "Fixes" tag points to the three commits I
-submitted.
+and if we enable retpoline in config:
+arch/x86/entry/entry_64.o: warning: objtool: .entry.text+0x1c1:
+unsupported intra-function call
+arch/x86/entry/entry_64.o: warning: objtool: If this is a retpoline,
+please patch it in with alternatives and annotate it with
+ANNOTATE_NOSPEC_ALTERNATIVE.
 
-I'll submit a new patch set soon, which would include the following
-fixes commits.
+I found this issue has been introduced since =E2=80=9Cx86/speculation: Chan=
+ge
+FILL_RETURN_BUFFER to work with objtool( commit 8afd1c7da2)=E2=80=9Dbackpor=
+ted
+in v5.4.217.
+Comparing with the upstream version(commit 089dd8e53):
+There is no =E2=80=9CANNOTATE_INTRA_FUNCTION_CALL=E2=80=9D in v5.4 for miss=
+ing
+dependency patch. When the =E2=80=9CANNOTATE_NOSPEC_ALTERNATIVE=E2=80=9D is=
+ removed,
+this issue just occurs.
 
-Again, sorry for the burden.
-
--- 
-Best
-GUO Zihua
-
+I tried to backport =E2=80=9CANNOTATE_INTRA_FUNCTION_CALL=E2=80=9Dand its d=
+ependency
+patchs in v5.4, but I met the CFA miss match issue from objtool.
+So, please help check this issue in v5.4 LTS version.
