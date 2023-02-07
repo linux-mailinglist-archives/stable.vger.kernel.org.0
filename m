@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D6DF068D8F2
-	for <lists+stable@lfdr.de>; Tue,  7 Feb 2023 14:14:22 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 60E4C68D86D
+	for <lists+stable@lfdr.de>; Tue,  7 Feb 2023 14:09:36 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232570AbjBGNOV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Feb 2023 08:14:21 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59866 "EHLO
+        id S232310AbjBGNJf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Feb 2023 08:09:35 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58328 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232604AbjBGNOF (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Feb 2023 08:14:05 -0500
+        with ESMTP id S232308AbjBGNJe (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Feb 2023 08:09:34 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5FCCB659C
-        for <stable@vger.kernel.org>; Tue,  7 Feb 2023 05:13:47 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 656F420D27
+        for <stable@vger.kernel.org>; Tue,  7 Feb 2023 05:09:02 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id EA7456140D
-        for <stable@vger.kernel.org>; Tue,  7 Feb 2023 13:12:44 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id DEC1FC433EF;
-        Tue,  7 Feb 2023 13:12:43 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 8F6FE61426
+        for <stable@vger.kernel.org>; Tue,  7 Feb 2023 13:08:12 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 90FD3C433EF;
+        Tue,  7 Feb 2023 13:08:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1675775564;
-        bh=UZoXbmAiNMVb0C7wIkEF54FHEltGJrek1o93zidJOxg=;
+        s=korg; t=1675775292;
+        bh=UpoLVT7g6V00nbnjrSzuK4ZlVZuL1+TKq7LFS53doko=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=02dhyqLLhC/azsquAGObon5GDiZ/2zpIvyusw2kmDx6E7B3wZSMXUK14UsvPVjYDD
-         W7+rPGdRtwCehTPulOS0skZm1Dri5kvBfWHYSqk71Nq850hH+mE1aha6Ht/8GPPPJC
-         diIyAFpuddR8GbgIrE6nvY3NIj8gYFaKJ8Z1BCvs=
+        b=TZIYUDVlT0zZ9Kl/F8MU+EHxzkF/7flEsSKqTZazF97G7+2qT//Wnw9Dxb4xZVqA3
+         Qvb+bDYBciXtlVyOh+p7krPpgzvY31HmxcZrpp8XuQ8vTCtMlsUkaEiS4O6ttJY6OG
+         JYBWVxyyYbaRG5lRYMW3xKQuS8OJ9zQ+KM6ff0/s=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Carlos Song <carlos.song@nxp.com>,
-        Stable@vger.kernel.org,
-        Jonathan Cameron <Jonathan.Cameron@huawei.com>
-Subject: [PATCH 5.15 083/120] iio: imu: fxos8700: fix failed initialization ODR mode assignment
+        patches@lists.linux.dev, Abdun Nihaal <abdun.nihaal@gmail.com>,
+        Konstantin Komarov <almaz.alexandrovich@paragon-software.com>,
+        syzbot+fa4648a5446460b7b963@syzkaller.appspotmail.com
+Subject: [PATCH 6.1 200/208] fs/ntfs3: Validate attribute data and valid sizes
 Date:   Tue,  7 Feb 2023 13:57:34 +0100
-Message-Id: <20230207125622.276761489@linuxfoundation.org>
+Message-Id: <20230207125643.553605626@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.1
-In-Reply-To: <20230207125618.699726054@linuxfoundation.org>
-References: <20230207125618.699726054@linuxfoundation.org>
+In-Reply-To: <20230207125634.292109991@linuxfoundation.org>
+References: <20230207125634.292109991@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,40 +53,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Carlos Song <carlos.song@nxp.com>
+From: Abdun Nihaal <abdun.nihaal@gmail.com>
 
-commit eb6d8f8705bc19141bac81d8161461f9e256948a upstream.
+commit 019d22eb0eb707fc099e6e8fad9b3933236a06d0 upstream.
 
-The absence of correct offset leads a failed initialization ODR mode
-assignment.
+The data_size and valid_size fields of non resident attributes should be
+less than the its alloc_size field, but this is not checked in
+ntfs_read_mft function.
 
-Select MAX ODR mode as the initialization ODR mode by field mask and
-FIELD_PREP.
+Syzbot reports a allocation order warning due to a large unchecked value
+of data_size getting assigned to inode->i_size which is then passed to
+kcalloc.
 
-Fixes: 84e5ddd5c46e ("iio: imu: Add support for the FXOS8700 IMU")
-Signed-off-by: Carlos Song <carlos.song@nxp.com>
-Link: https://lore.kernel.org/r/20230118074227.1665098-3-carlos.song@nxp.com
-Cc: <Stable@vger.kernel.org>
-Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
+Add sanity check for ensuring that the data_size and valid_size fields
+are not larger than alloc_size field.
+
+Link: https://syzkaller.appspot.com/bug?extid=fa4648a5446460b7b963
+Reported-and-tested-by: syzbot+fa4648a5446460b7b963@syzkaller.appspotmail.com
+Fixes: (82cae269cfa95) fs/ntfs3: Add initialization of super block
+Signed-off-by: Abdun Nihaal <abdun.nihaal@gmail.com>
+Signed-off-by: Konstantin Komarov <almaz.alexandrovich@paragon-software.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/iio/imu/fxos8700_core.c |    6 ++++--
- 1 file changed, 4 insertions(+), 2 deletions(-)
+ fs/ntfs3/inode.c |    7 +++++++
+ 1 file changed, 7 insertions(+)
 
---- a/drivers/iio/imu/fxos8700_core.c
-+++ b/drivers/iio/imu/fxos8700_core.c
-@@ -664,8 +664,10 @@ static int fxos8700_chip_init(struct fxo
- 		return ret;
+--- a/fs/ntfs3/inode.c
++++ b/fs/ntfs3/inode.c
+@@ -132,6 +132,13 @@ next_attr:
+ 	if (le16_to_cpu(attr->name_off) + attr->name_len > asize)
+ 		goto out;
  
- 	/* Max ODR (800Hz individual or 400Hz hybrid), active mode */
--	return regmap_write(data->regmap, FXOS8700_CTRL_REG1,
--			   FXOS8700_CTRL_ODR_MAX | FXOS8700_ACTIVE);
-+	return regmap_update_bits(data->regmap, FXOS8700_CTRL_REG1,
-+				FXOS8700_CTRL_ODR_MSK | FXOS8700_ACTIVE,
-+				FIELD_PREP(FXOS8700_CTRL_ODR_MSK, FXOS8700_CTRL_ODR_MAX) |
-+				FXOS8700_ACTIVE);
- }
- 
- static void fxos8700_chip_uninit(void *data)
++	if (attr->non_res) {
++		t64 = le64_to_cpu(attr->nres.alloc_size);
++		if (le64_to_cpu(attr->nres.data_size) > t64 ||
++		    le64_to_cpu(attr->nres.valid_size) > t64)
++			goto out;
++	}
++
+ 	switch (attr->type) {
+ 	case ATTR_STD:
+ 		if (attr->non_res ||
 
 
