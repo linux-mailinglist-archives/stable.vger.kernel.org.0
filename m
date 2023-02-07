@@ -2,41 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 3F21468D758
+	by mail.lfdr.de (Postfix) with ESMTP id B651B68D759
 	for <lists+stable@lfdr.de>; Tue,  7 Feb 2023 13:59:00 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231128AbjBGM67 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S231809AbjBGM67 (ORCPT <rfc822;lists+stable@lfdr.de>);
         Tue, 7 Feb 2023 07:58:59 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44336 "EHLO
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44346 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231517AbjBGM66 (ORCPT
+        with ESMTP id S231918AbjBGM66 (ORCPT
         <rfc822;stable@vger.kernel.org>); Tue, 7 Feb 2023 07:58:58 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6E7CD7EE4
-        for <stable@vger.kernel.org>; Tue,  7 Feb 2023 04:58:53 -0800 (PST)
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EF8C121A2E
+        for <stable@vger.kernel.org>; Tue,  7 Feb 2023 04:58:57 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 0A6DE613EF
-        for <stable@vger.kernel.org>; Tue,  7 Feb 2023 12:58:53 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 18AA0C433D2;
-        Tue,  7 Feb 2023 12:58:51 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id AC47FB8198C
+        for <stable@vger.kernel.org>; Tue,  7 Feb 2023 12:58:56 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0962DC4339B;
+        Tue,  7 Feb 2023 12:58:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1675774732;
-        bh=hefWZt4+TmIK+CwAIVGkNhVSKVHyTwxSDNS8V+h76iU=;
+        s=korg; t=1675774735;
+        bh=wXGwYkvpdBUu194YdF296ECcm5lErTVFBmIuJRS2o7k=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=oC2+glTYTyhnFCfS078XRd0TjO6vEaDNFBPNZkVmyTGkuvspZk1WVMgeyxpnlvb8k
-         5X6kw38tnP6A1VCZvwnbLGQLmDcawgc2epn1e9kmrufAB0WQkziS4g25/R1HwVLfHu
-         ju3CZ6RG3ftF1GQWTXEB3OtfGGoeLb+ddBh74fcw=
+        b=IWscCdlPeOetimZnRn6PFJgMOreh9wnhbdErQ5CwoW0uVj84F4+MMw2BSiDW/cAoC
+         Y5YI21S7+k+XLKUT8InZl3lR1MBz8maBTZhEfMw0EMjfOHUO1B5wuqpF7l82Mm6dfS
+         yXokya39aSxtZj+aPYQROStWv/j8NNkuCQoPIvk0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Eduard Zingerman <eddyz87@gmail.com>,
-        Alexei Starovoitov <ast@kernel.org>,
+        patches@lists.linux.dev, Pengfei Xu <pengfei.xu@intel.com>,
+        Javier Martinez Canillas <javierm@redhat.com>,
+        Shuah Khan <shuah@kernel.org>,
+        Andrew Morton <akpm@linux-foundation.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 016/208] bpf: Fix to preserve reg parent/live fields when copying range info
-Date:   Tue,  7 Feb 2023 13:54:30 +0100
-Message-Id: <20230207125635.067905314@linuxfoundation.org>
+Subject: [PATCH 6.1 017/208] selftests/filesystems: grant executable permission to run_fat_tests.sh
+Date:   Tue,  7 Feb 2023 13:54:31 +0100
+Message-Id: <20230207125635.103100289@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.1
 In-Reply-To: <20230207125634.292109991@linuxfoundation.org>
 References: <20230207125634.292109991@linuxfoundation.org>
@@ -44,8 +46,8 @@ User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
         SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -53,191 +55,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eduard Zingerman <eddyz87@gmail.com>
+From: Pengfei Xu <pengfei.xu@intel.com>
 
-[ Upstream commit 71f656a50176915d6813751188b5758daa8d012b ]
+[ Upstream commit 24b5308cf5ee9f52dd22f3af78a5b0cdc9d35e72 ]
 
-Register range information is copied in several places. The intent is
-to transfer range/id information from one register/stack spill to
-another. Currently this is done using direct register assignment, e.g.:
+When use tools/testing/selftests/kselftest_install.sh to make the
+kselftest-list.txt under tools/testing/selftests/kselftest_install.
 
-static void find_equal_scalars(..., struct bpf_reg_state *known_reg)
-{
-	...
-	struct bpf_reg_state *reg;
-	...
-			*reg = *known_reg;
-	...
-}
+Then use tools/testing/selftests/kselftest_install/run_kselftest.sh to run
+all the kselftests in kselftest-list.txt, it will be blocked by case
+"filesystems/fat: run_fat_tests.sh" with "Warning: file run_fat_tests.sh
+is not executable", so grant executable permission to run_fat_tests.sh to
+fix this issue.
 
-However, such assignments also copy the following bpf_reg_state fields:
-
-struct bpf_reg_state {
-	...
-	struct bpf_reg_state *parent;
-	...
-	enum bpf_reg_liveness live;
-	...
-};
-
-Copying of these fields is accidental and incorrect, as could be
-demonstrated by the following example:
-
-     0: call ktime_get_ns()
-     1: r6 = r0
-     2: call ktime_get_ns()
-     3: r7 = r0
-     4: if r0 > r6 goto +1             ; r0 & r6 are unbound thus generated
-                                       ; branch states are identical
-     5: *(u64 *)(r10 - 8) = 0xdeadbeef ; 64-bit write to fp[-8]
-    --- checkpoint ---
-     6: r1 = 42                        ; r1 marked as written
-     7: *(u8 *)(r10 - 8) = r1          ; 8-bit write, fp[-8] parent & live
-                                       ; overwritten
-     8: r2 = *(u64 *)(r10 - 8)
-     9: r0 = 0
-    10: exit
-
-This example is unsafe because 64-bit write to fp[-8] at (5) is
-conditional, thus not all bytes of fp[-8] are guaranteed to be set
-when it is read at (8). However, currently the example passes
-verification.
-
-First, the execution path 1-10 is examined by verifier.
-Suppose that a new checkpoint is created by is_state_visited() at (6).
-After checkpoint creation:
-- r1.parent points to checkpoint.r1,
-- fp[-8].parent points to checkpoint.fp[-8].
-At (6) the r1.live is set to REG_LIVE_WRITTEN.
-At (7) the fp[-8].parent is set to r1.parent and fp[-8].live is set to
-REG_LIVE_WRITTEN, because of the following code called in
-check_stack_write_fixed_off():
-
-static void save_register_state(struct bpf_func_state *state,
-				int spi, struct bpf_reg_state *reg,
-				int size)
-{
-	...
-	state->stack[spi].spilled_ptr = *reg;  // <--- parent & live copied
-	if (size == BPF_REG_SIZE)
-		state->stack[spi].spilled_ptr.live |= REG_LIVE_WRITTEN;
-	...
-}
-
-Note the intent to mark stack spill as written only if 8 bytes are
-spilled to a slot, however this intent is spoiled by a 'live' field copy.
-At (8) the checkpoint.fp[-8] should be marked as REG_LIVE_READ but
-this does not happen:
-- fp[-8] in a current state is already marked as REG_LIVE_WRITTEN;
-- fp[-8].parent points to checkpoint.r1, parentage chain is used by
-  mark_reg_read() to mark checkpoint states.
-At (10) the verification is finished for path 1-10 and jump 4-6 is
-examined. The checkpoint.fp[-8] never gets REG_LIVE_READ mark and this
-spill is pruned from the cached states by clean_live_states(). Hence
-verifier state obtained via path 1-4,6 is deemed identical to one
-obtained via path 1-6 and program marked as safe.
-
-Note: the example should be executed with BPF_F_TEST_STATE_FREQ flag
-set to force creation of intermediate verifier states.
-
-This commit revisits the locations where bpf_reg_state instances are
-copied and replaces the direct copies with a call to a function
-copy_register_state(dst, src) that preserves 'parent' and 'live'
-fields of the 'dst'.
-
-Fixes: 679c782de14b ("bpf/verifier: per-register parent pointers")
-Signed-off-by: Eduard Zingerman <eddyz87@gmail.com>
-Link: https://lore.kernel.org/r/20230106142214.1040390-2-eddyz87@gmail.com
-Signed-off-by: Alexei Starovoitov <ast@kernel.org>
+Link: https://lkml.kernel.org/r/dfdbba6df8a1ab34bb1e81cd8bd7ca3f9ed5c369.1673424747.git.pengfei.xu@intel.com
+Fixes: dd7c9be330d8 ("selftests/filesystems: add a vfat RENAME_EXCHANGE test")
+Signed-off-by: Pengfei Xu <pengfei.xu@intel.com>
+Reviewed-by: Javier Martinez Canillas <javierm@redhat.com>
+Cc: Shuah Khan <shuah@kernel.org>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/bpf/verifier.c | 25 ++++++++++++++++++-------
- 1 file changed, 18 insertions(+), 7 deletions(-)
+ tools/testing/selftests/filesystems/fat/run_fat_tests.sh | 0
+ 1 file changed, 0 insertions(+), 0 deletions(-)
+ mode change 100644 => 100755 tools/testing/selftests/filesystems/fat/run_fat_tests.sh
 
-diff --git a/kernel/bpf/verifier.c b/kernel/bpf/verifier.c
-index 398a0008aff7..82f2da71eb35 100644
---- a/kernel/bpf/verifier.c
-+++ b/kernel/bpf/verifier.c
-@@ -3011,13 +3011,24 @@ static bool __is_pointer_value(bool allow_ptr_leaks,
- 	return reg->type != SCALAR_VALUE;
- }
- 
-+/* Copy src state preserving dst->parent and dst->live fields */
-+static void copy_register_state(struct bpf_reg_state *dst, const struct bpf_reg_state *src)
-+{
-+	struct bpf_reg_state *parent = dst->parent;
-+	enum bpf_reg_liveness live = dst->live;
-+
-+	*dst = *src;
-+	dst->parent = parent;
-+	dst->live = live;
-+}
-+
- static void save_register_state(struct bpf_func_state *state,
- 				int spi, struct bpf_reg_state *reg,
- 				int size)
- {
- 	int i;
- 
--	state->stack[spi].spilled_ptr = *reg;
-+	copy_register_state(&state->stack[spi].spilled_ptr, reg);
- 	if (size == BPF_REG_SIZE)
- 		state->stack[spi].spilled_ptr.live |= REG_LIVE_WRITTEN;
- 
-@@ -3345,7 +3356,7 @@ static int check_stack_read_fixed_off(struct bpf_verifier_env *env,
- 				 */
- 				s32 subreg_def = state->regs[dst_regno].subreg_def;
- 
--				state->regs[dst_regno] = *reg;
-+				copy_register_state(&state->regs[dst_regno], reg);
- 				state->regs[dst_regno].subreg_def = subreg_def;
- 			} else {
- 				for (i = 0; i < size; i++) {
-@@ -3366,7 +3377,7 @@ static int check_stack_read_fixed_off(struct bpf_verifier_env *env,
- 
- 		if (dst_regno >= 0) {
- 			/* restore register state from stack */
--			state->regs[dst_regno] = *reg;
-+			copy_register_state(&state->regs[dst_regno], reg);
- 			/* mark reg as written since spilled pointer state likely
- 			 * has its liveness marks cleared by is_state_visited()
- 			 * which resets stack/reg liveness for state transitions
-@@ -8085,7 +8096,7 @@ static int sanitize_ptr_alu(struct bpf_verifier_env *env,
- 	 */
- 	if (!ptr_is_dst_reg) {
- 		tmp = *dst_reg;
--		*dst_reg = *ptr_reg;
-+		copy_register_state(dst_reg, ptr_reg);
- 	}
- 	ret = sanitize_speculative_path(env, NULL, env->insn_idx + 1,
- 					env->insn_idx);
-@@ -9338,7 +9349,7 @@ static int check_alu_op(struct bpf_verifier_env *env, struct bpf_insn *insn)
- 					 * to propagate min/max range.
- 					 */
- 					src_reg->id = ++env->id_gen;
--				*dst_reg = *src_reg;
-+				copy_register_state(dst_reg, src_reg);
- 				dst_reg->live |= REG_LIVE_WRITTEN;
- 				dst_reg->subreg_def = DEF_NOT_SUBREG;
- 			} else {
-@@ -9349,7 +9360,7 @@ static int check_alu_op(struct bpf_verifier_env *env, struct bpf_insn *insn)
- 						insn->src_reg);
- 					return -EACCES;
- 				} else if (src_reg->type == SCALAR_VALUE) {
--					*dst_reg = *src_reg;
-+					copy_register_state(dst_reg, src_reg);
- 					/* Make sure ID is cleared otherwise
- 					 * dst_reg min/max could be incorrectly
- 					 * propagated into src_reg by find_equal_scalars()
-@@ -10145,7 +10156,7 @@ static void find_equal_scalars(struct bpf_verifier_state *vstate,
- 
- 	bpf_for_each_reg_in_vstate(vstate, state, reg, ({
- 		if (reg->type == SCALAR_VALUE && reg->id == known_reg->id)
--			*reg = *known_reg;
-+			copy_register_state(reg, known_reg);
- 	}));
- }
- 
+diff --git a/tools/testing/selftests/filesystems/fat/run_fat_tests.sh b/tools/testing/selftests/filesystems/fat/run_fat_tests.sh
+old mode 100644
+new mode 100755
 -- 
 2.39.0
 
