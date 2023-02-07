@@ -2,41 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 1332568D910
-	for <lists+stable@lfdr.de>; Tue,  7 Feb 2023 14:15:32 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1750E68D908
+	for <lists+stable@lfdr.de>; Tue,  7 Feb 2023 14:15:16 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232599AbjBGNPa (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Feb 2023 08:15:30 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60056 "EHLO
+        id S232576AbjBGNPO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Feb 2023 08:15:14 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59868 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232608AbjBGNPS (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Feb 2023 08:15:18 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8523439BB9
-        for <stable@vger.kernel.org>; Tue,  7 Feb 2023 05:15:02 -0800 (PST)
+        with ESMTP id S232773AbjBGNPA (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Feb 2023 08:15:00 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A74833BD91
+        for <stable@vger.kernel.org>; Tue,  7 Feb 2023 05:14:45 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id C06AD6138B
-        for <stable@vger.kernel.org>; Tue,  7 Feb 2023 13:14:31 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id AD3ABC433D2;
-        Tue,  7 Feb 2023 13:14:30 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id E90A56140D
+        for <stable@vger.kernel.org>; Tue,  7 Feb 2023 13:14:34 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id EE568C433EF;
+        Tue,  7 Feb 2023 13:14:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1675775671;
-        bh=brEMxwWACbUQlTpj6yKwcFvvQP0T9MnzNwrgwlLn7S0=;
+        s=korg; t=1675775674;
+        bh=jEIoTRgOzjgIaneIfD0c2qqBpwTDDmZO80CD6QZlwjY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=nEF4xYVnwF+oTXj5V2o7YBlGYQYxwEI4R3tqIW/zAyOD8M8PltbpGKwHKmC1lD3Wa
-         7/j2f+vBA/ES+hV6wxPkkUsnJ7DK5tTsAa1pBnCqGx2d8B3OeihVtgk/h6tirCMlCs
-         EzWboBySDLjhSZrcDN4kroDf7NiR5GkyNN63NnIE=
+        b=EtY6tzOaqz9yCtO+IlMQ1SomFsteusDJpCfERKM9Bnrb7BLT5vcrrIjmMIoUh/n2U
+         N9wRjhSW90ejKYKXEUazY+LbkWa8pZxNzyarz2lC7xtw96mQqJDma/2AwB/cXyiECw
+         OfBw0iLhkOS46yTXAWp8uRHL6bJEuBcMVqv+P3ag=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         patches@lists.linux.dev,
-        syzbot+7bb81dfa9cda07d9cd9d@syzkaller.appspotmail.com,
-        Andreas Gruenbacher <agruenba@redhat.com>
-Subject: [PATCH 5.15 119/120] gfs2: Always check inode size of inline inodes
-Date:   Tue,  7 Feb 2023 13:58:10 +0100
-Message-Id: <20230207125623.849835413@linuxfoundation.org>
+        syzbot+4da3ff23081bafe74fc2@syzkaller.appspotmail.com,
+        Hao Sun <sunhao.th@gmail.com>,
+        Daniel Borkmann <daniel@iogearbox.net>,
+        Yonghong Song <yhs@fb.com>
+Subject: [PATCH 5.15 120/120] bpf: Skip invalid kfunc call in backtrack_insn
+Date:   Tue,  7 Feb 2023 13:58:11 +0100
+Message-Id: <20230207125623.896876762@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.1
 In-Reply-To: <20230207125618.699726054@linuxfoundation.org>
 References: <20230207125618.699726054@linuxfoundation.org>
@@ -44,8 +46,8 @@ User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
         SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -53,61 +55,55 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Andreas Gruenbacher <agruenba@redhat.com>
+From: Hao Sun <sunhao.th@gmail.com>
 
-commit 70376c7ff31221f1d21db5611d8209e677781d3a upstream.
+commit d3178e8a434b58678d99257c0387810a24042fb6 upstream.
 
-Check if the inode size of stuffed (inline) inodes is within the allowed
-range when reading inodes from disk (gfs2_dinode_in()).  This prevents
-us from on-disk corruption.
+The verifier skips invalid kfunc call in check_kfunc_call(), which
+would be captured in fixup_kfunc_call() if such insn is not eliminated
+by dead code elimination. However, this can lead to the following
+warning in backtrack_insn(), also see [1]:
 
-The two checks in stuffed_readpage() and gfs2_unstuffer_page() that just
-truncate inline data to the maximum allowed size don't actually make
-sense, and they can be removed now as well.
+  ------------[ cut here ]------------
+  verifier backtracking bug
+  WARNING: CPU: 6 PID: 8646 at kernel/bpf/verifier.c:2756 backtrack_insn
+  kernel/bpf/verifier.c:2756
+	__mark_chain_precision kernel/bpf/verifier.c:3065
+	mark_chain_precision kernel/bpf/verifier.c:3165
+	adjust_reg_min_max_vals kernel/bpf/verifier.c:10715
+	check_alu_op kernel/bpf/verifier.c:10928
+	do_check kernel/bpf/verifier.c:13821 [inline]
+	do_check_common kernel/bpf/verifier.c:16289
+  [...]
 
-Reported-by: syzbot+7bb81dfa9cda07d9cd9d@syzkaller.appspotmail.com
-Signed-off-by: Andreas Gruenbacher <agruenba@redhat.com>
+So make backtracking conservative with this by returning ENOTSUPP.
+
+  [1] https://lore.kernel.org/bpf/CACkBjsaXNceR8ZjkLG=dT3P=4A8SBsg0Z5h5PWLryF5=ghKq=g@mail.gmail.com/
+
+Reported-by: syzbot+4da3ff23081bafe74fc2@syzkaller.appspotmail.com
+Signed-off-by: Hao Sun <sunhao.th@gmail.com>
+Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
+Acked-by: Yonghong Song <yhs@fb.com>
+Link: https://lore.kernel.org/bpf/20230104014709.9375-1-sunhao.th@gmail.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/gfs2/aops.c  |    2 --
- fs/gfs2/bmap.c  |    3 ---
- fs/gfs2/glops.c |    3 +++
- 3 files changed, 3 insertions(+), 5 deletions(-)
+ kernel/bpf/verifier.c |    6 ++++++
+ 1 file changed, 6 insertions(+)
 
---- a/fs/gfs2/aops.c
-+++ b/fs/gfs2/aops.c
-@@ -452,8 +452,6 @@ static int stuffed_readpage(struct gfs2_
- 		return error;
- 
- 	kaddr = kmap_atomic(page);
--	if (dsize > gfs2_max_stuffed_size(ip))
--		dsize = gfs2_max_stuffed_size(ip);
- 	memcpy(kaddr, dibh->b_data + sizeof(struct gfs2_dinode), dsize);
- 	memset(kaddr + dsize, 0, PAGE_SIZE - dsize);
- 	kunmap_atomic(kaddr);
---- a/fs/gfs2/bmap.c
-+++ b/fs/gfs2/bmap.c
-@@ -61,9 +61,6 @@ static int gfs2_unstuffer_page(struct gf
- 		void *kaddr = kmap(page);
- 		u64 dsize = i_size_read(inode);
-  
--		if (dsize > gfs2_max_stuffed_size(ip))
--			dsize = gfs2_max_stuffed_size(ip);
--
- 		memcpy(kaddr, dibh->b_data + sizeof(struct gfs2_dinode), dsize);
- 		memset(kaddr + dsize, 0, PAGE_SIZE - dsize);
- 		kunmap(page);
---- a/fs/gfs2/glops.c
-+++ b/fs/gfs2/glops.c
-@@ -450,6 +450,9 @@ static int gfs2_dinode_in(struct gfs2_in
- 	ip->i_depth = (u8)depth;
- 	ip->i_entries = be32_to_cpu(str->di_entries);
- 
-+	if (gfs2_is_stuffed(ip) && inode->i_size > gfs2_max_stuffed_size(ip))
-+		goto corrupt;
-+
- 	if (S_ISREG(inode->i_mode))
- 		gfs2_set_aops(inode);
- 
+--- a/kernel/bpf/verifier.c
++++ b/kernel/bpf/verifier.c
+@@ -2261,6 +2261,12 @@ static int backtrack_insn(struct bpf_ver
+ 		if (opcode == BPF_CALL) {
+ 			if (insn->src_reg == BPF_PSEUDO_CALL)
+ 				return -ENOTSUPP;
++			/* kfunc with imm==0 is invalid and fixup_kfunc_call will
++			 * catch this error later. Make backtracking conservative
++			 * with ENOTSUPP.
++			 */
++			if (insn->src_reg == BPF_PSEUDO_KFUNC_CALL && insn->imm == 0)
++				return -ENOTSUPP;
+ 			/* regular helper call sets R0 */
+ 			*reg_mask &= ~1;
+ 			if (*reg_mask & 0x3f) {
 
 
