@@ -2,62 +2,62 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 0544F68D7FB
-	for <lists+stable@lfdr.de>; Tue,  7 Feb 2023 14:05:02 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id AEF2768D7FA
+	for <lists+stable@lfdr.de>; Tue,  7 Feb 2023 14:05:01 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232103AbjBGNE5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Feb 2023 08:04:57 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51838 "EHLO
+        id S232153AbjBGNE6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Feb 2023 08:04:58 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51878 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232144AbjBGNEu (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Feb 2023 08:04:50 -0500
-Received: from mail-wr1-x432.google.com (mail-wr1-x432.google.com [IPv6:2a00:1450:4864:20::432])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3EC8739BA0
-        for <stable@vger.kernel.org>; Tue,  7 Feb 2023 05:04:43 -0800 (PST)
-Received: by mail-wr1-x432.google.com with SMTP id d14so13468871wrr.9
-        for <stable@vger.kernel.org>; Tue, 07 Feb 2023 05:04:43 -0800 (PST)
+        with ESMTP id S232163AbjBGNEw (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Feb 2023 08:04:52 -0500
+Received: from mail-wr1-x436.google.com (mail-wr1-x436.google.com [IPv6:2a00:1450:4864:20::436])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 61DB83A590
+        for <stable@vger.kernel.org>; Tue,  7 Feb 2023 05:04:44 -0800 (PST)
+Received: by mail-wr1-x436.google.com with SMTP id i5so6312564wrc.0
+        for <stable@vger.kernel.org>; Tue, 07 Feb 2023 05:04:44 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=tessares.net; s=google;
-        h=cc:to:content-transfer-encoding:mime-version:message-id:date
-         :subject:from:from:to:cc:subject:date:message-id:reply-to;
-        bh=2LNCnTYQnKI2Qi+rIbkgnUL8Nmbo6Qz5VaHG00c9zYg=;
-        b=R6b16Anl58GF4Ndnmggam0JqBAZSqo0/T+bhnT/iYTRtuObc/dXZ6xloUhtLwWp9y+
-         UTJr92rFlrbCq+tzaHrs69ArfVTgoUR6PBj84O9mvc1/I1Exc0hMdlZGgTDvtwykl0Mt
-         IAX8Zic1dqgE42gMDp9jS6SSO/IL9ixdJoXYfBr4v5PBbsLwSy9yhHqt/9vY4ATmV22F
-         TPodadJqvEWI3SpF+/IqycXhFvTGxkOmBE5FiauyXH/rK6M+Lvo8f3W8t6OYeoKG60fV
-         dqB3sn4haHf/1mH9+XiRfXRDFqrw4o4xjICP9IXP2Yv0ka01Q52bcPpDKi+XDlW3l6rI
-         n2sA==
+        h=cc:to:in-reply-to:references:message-id:content-transfer-encoding
+         :mime-version:subject:date:from:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=YigoELKCrpUqlWaz+JzApl9ulOjOQ+EyFOAYydAJKAc=;
+        b=IfVVHcp3uqHqEHMUodirLKV+dXsscALBdeOGPQbKFW6YuAquAX6NESuO3GSahqcYWv
+         7KmTfF2qeaeD1eWvN8U5ylBM5V7qbox8mQN+p8wWvBj5u8hNLVx+iYK0pFmKU9UtOdnT
+         ujhNpsLiblDQ7eNJX1K6CFUipZw0/Is5c2yIBVfx1ieQmiA1aSlFw/yvbFY4AdA3wj9c
+         A4JiPQ7A9gl4wEt84KqtAVLIQfnoYLa/SwbSpJDEGodQsmXA2h1cfGDYUwTgDkvQnd+B
+         pNySZheaW08JAdpKf2EJKXwkDFdKAlwsmklctaEJmXtffXFoocF/b10vpsJf8lvp+e+Y
+         uHGQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=cc:to:content-transfer-encoding:mime-version:message-id:date
-         :subject:from:x-gm-message-state:from:to:cc:subject:date:message-id
-         :reply-to;
-        bh=2LNCnTYQnKI2Qi+rIbkgnUL8Nmbo6Qz5VaHG00c9zYg=;
-        b=JMhtLCMkf+xJlIjL/IxpMJBFCzriO/TJc8YVpGTA0in/q77vekan52xMvulNbl8po6
-         GnHQziAzpY/46fJLfQ0tGcog0vGQ8M3uAQvXtvk4/XbmxuTgmyQLeQlowjt1sr0zyWXO
-         IkDqH+9jWa2xLYhnNsCp0OshX+ICTiLynPOFI7RkVvMDf0PsTzMQrGRdehGHs7yZ+JP9
-         wOY4nDLnccXirZjhiEa1nE0Y227GOThevQ6FODxiJKkNvvYPEy3dTaGtn/FU9EziyGCC
-         toJ7d1TuJxrTxGoc1fmqs3w54457FhylIF4LttK8tbEIEop3y/NqnDqqr3q6clRgVtfV
-         jklw==
-X-Gm-Message-State: AO0yUKWEXox+Oiv3VQRJMn+sepIU8ilCbxwA2VzjG/PX8lPMYDRaIPrE
-        w9aOulxxB+gNZro2GIsnVCdxlw==
-X-Google-Smtp-Source: AK7set9YTo6jBw+wu7vaeuAeClfkKfkEd/2ijcXBN2UJsc6YhpTX+cpVF2pNclhOp4qg7ZOFKK1Euw==
-X-Received: by 2002:a5d:4806:0:b0:2c3:ea6b:ef83 with SMTP id l6-20020a5d4806000000b002c3ea6bef83mr2957523wrq.12.1675775081619;
-        Tue, 07 Feb 2023 05:04:41 -0800 (PST)
+        h=cc:to:in-reply-to:references:message-id:content-transfer-encoding
+         :mime-version:subject:date:from:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=YigoELKCrpUqlWaz+JzApl9ulOjOQ+EyFOAYydAJKAc=;
+        b=CfoXnlWoHtaYd1H1EiUXwPFgAx+KlcZnmVuR/y3Ab322L5FMHXCwdkjag1spT9cEc2
+         xzamyoLptvYk/1AmgSWLkGVIiSI25y26hNTOKsSTiKs5/m/p+7u7hVq8jRGlxiHupOFp
+         vt1LzHJZyvAcHAQj930Nh915t9o+v+/v+EnvqxiHpcLsOW0uftKikZk31p96Z6WREyzu
+         zUHfna9jHXkqoGbR0mkt+0VewOc5/SD4bY8LjNJAKGW7l498P6wzogi9rXElcrIYKFeC
+         G3znDm103rxhZ5slTRA/sArpMuPVxnx/GWHPi/ftZNqX7zgvg4tlaPhlTlottrfbSEHz
+         5bFw==
+X-Gm-Message-State: AO0yUKWktDXNEoSgTI3gQKq1cSm3tRXQrBkcS++cNn1h4YCe6pYQmomA
+        dXV8LPsxfNwJ/YqqNKD8INVdYA==
+X-Google-Smtp-Source: AK7set9MJrNmL54fvgoCvb2c3yURh10pY5u360N8noAgikphDF+SSpzSDOjfORofL68VUEULOFAIvg==
+X-Received: by 2002:a5d:6791:0:b0:2c3:f00c:ebaa with SMTP id v17-20020a5d6791000000b002c3f00cebaamr2686389wru.4.1675775082895;
+        Tue, 07 Feb 2023 05:04:42 -0800 (PST)
 Received: from vdi08.nix.tessares.net (static.219.156.76.144.clients.your-server.de. [144.76.156.219])
-        by smtp.gmail.com with ESMTPSA id n9-20020a5d5989000000b002bc7fcf08ddsm11645394wri.103.2023.02.07.05.04.40
+        by smtp.gmail.com with ESMTPSA id n9-20020a5d5989000000b002bc7fcf08ddsm11645394wri.103.2023.02.07.05.04.41
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 07 Feb 2023 05:04:41 -0800 (PST)
+        Tue, 07 Feb 2023 05:04:42 -0800 (PST)
 From:   Matthieu Baerts <matthieu.baerts@tessares.net>
-Subject: [PATCH net 0/6] mptcp: fixes for v6.2
-Date:   Tue, 07 Feb 2023 14:04:12 +0100
-Message-Id: <20230207-upstream-net-20230207-various-fix-6-2-v1-0-2031b495c7cc@tessares.net>
+Date:   Tue, 07 Feb 2023 14:04:13 +0100
+Subject: [PATCH net 1/6] mptcp: do not wait for bare sockets' timeout
 MIME-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 7bit
-X-B4-Tracking: v=1; b=H4sIAExM4mMC/z2OTQ6CQAyFr0K6tnEYFYhXMS46UKULBtLCxIRwd
- 2dcuHx/X94OxipscK92UE5iMscs6lMF/UjxzShD1uCdvzjvWtwWW5Vpwsgr/t1EKvNm+JIPNui
- x7q4dtbcQAjeQWYGMMSjFfiy0vB04FcR5IomlsSjn8e/Jo+TwPI4vG2YZcZ4AAAA=
+Message-Id: <20230207-upstream-net-20230207-various-fix-6-2-v1-1-2031b495c7cc@tessares.net>
+References: <20230207-upstream-net-20230207-various-fix-6-2-v1-0-2031b495c7cc@tessares.net>
+In-Reply-To: <20230207-upstream-net-20230207-various-fix-6-2-v1-0-2031b495c7cc@tessares.net>
 To:     mptcp@lists.linux.dev, "David S. Miller" <davem@davemloft.net>,
         Eric Dumazet <edumazet@google.com>,
         Jakub Kicinski <kuba@kernel.org>,
@@ -72,71 +72,91 @@ Cc:     netdev@vger.kernel.org, linux-kernel@vger.kernel.org,
         Matthieu Baerts <matthieu.baerts@tessares.net>,
         stable@vger.kernel.org
 X-Mailer: b4 0.12.1
-X-Developer-Signature: v=1; a=openpgp-sha256; l=1639;
+X-Developer-Signature: v=1; a=openpgp-sha256; l=1997;
  i=matthieu.baerts@tessares.net; h=from:subject:message-id;
- bh=2gwf1t1oLdLLnLS96VoPdbQ5z+6BonFJUbLHcasVbGo=;
- b=owEBbQKS/ZANAwAIAfa3gk9CaaBzAcsmYgBj4kxofU3dUJPYLTFtKKn31mjpfvMSn+lCifKCJ
- xo/SKVohx6JAjMEAAEIAB0WIQToy4X3aHcFem4n93r2t4JPQmmgcwUCY+JMaAAKCRD2t4JPQmmg
- c/UCD/9DpgQJ8kzrJ2KEQv1Xi/VGx2/EyabkZme7Vtis7wJFenjHLJAHALXsvAtTY/6mqc6YZ2+
- 9KnFFKfL46SvYBIcrieYB1ryxDWGQlmOn+OculZ6VWyUgJZRLOzaFrLTi/LJ3iVgsfDXDMoyPWz
- rtvyqO/nfdoeOQvPCjOuVAqHVkL7xK9lcZa27IyF1rPyLs3e80WmQ69DvcQuRkVXDTO9ZuxshV3
- zm0LCL43YCYh8/Gjmup5/nOG0FjbuJNzzNNZyeer1y6JbrvkXv1fleuSMrYC2fJdpPpWXN8eEk3
- 9PYliiKo2h7WT2p7jVe1L5dSZ5a46rNmuwXYiA3UKkkNJEGd5EGy09fhUBU3TuB9vHfZCiFaghk
- kC4o+sS80nxzoJqab2g3YbcaL1Pudgzye5XvjiScEcP0CNO2dIjTWeL9zlA3968vYhE11imsGK4
- yS8e8hDOb3meiFGAxQ4YcInNen9jFPsTIPU/1WjxZ6ciBBZL2rYZ7lwkIJlYVMYdeKjw7stSZar
- TS07d6zvKETpCIc31rtuesf4OcCATbRBWueZx3aE6VDeavG04zAVWu7IeYEq3g3YTWZi8oDi5Yt
- EilmNWGLySNbLcFgJhlcuTrsgZm1Y4Q1/wHOsdr4b0Qj8BT0g03A5QZDgODmLoZl1n6+knuogow
- pe75W2YZdKn34vg==
+ bh=BKFYEPn2x47UTnz/1wV7jxosBMkqNJMuzJVlkB5njrY=;
+ b=owEBbQKS/ZANAwAIAfa3gk9CaaBzAcsmYgBj4kxo9wElir7BZ5w/IUv9IpIMUHyT6BLACenEJ
+ tIVcWuEAdCJAjMEAAEIAB0WIQToy4X3aHcFem4n93r2t4JPQmmgcwUCY+JMaAAKCRD2t4JPQmmg
+ c994EADn03+OGgtrXU/XxOfxmNW5na0cI1MzmQxrlE78RGt7nyu9UXNYGaVzdzR+9wxLK9nFW61
+ pE4fpwus/sVZlWfwwGavQyzGrq1n5ij7Qp2oE36H5dQ6Nfm6yAfE+02CovR0thRQxR2eHaneBt1
+ W9U1YDIwqj3X/g3auJ8FIVlj+Ucb2FItNBO7VEu3hcwWU+LQ/kvJG6tR+OzLLVqZPQCcMrt8mTb
+ N9bpDWHWKmXQa0GLqz9Mdo4W/tmvZcr0htX/2TqhqWMgjQcJxJpdkpH9xyEY2fcuKiAcO4oZOxI
+ u5/YMJ418AMs+T2JPghbb7/rULAEZWPcLaL1sA/oCV2zJnCNzepVvPaQVI8zSVwdON0p0xBWAoO
+ vktbXiiyHyQCZyWIkhxmIFUpisvNOnqRnSCAvzvwrI732ONKUTEvxOb9uM1b4mFwvXGaAPbHTB/
+ nEXpoPCXJgGeoSRVsaRc4Wf1nEyGxnPWS9H+2CUayoajODACyHcMcVrCwcilimCCF5UaUPW1Gex
+ /fER7ayaSNmN0qwQyPwDvbtEZOTTwvF3iBa73l2IPRRK25qwyDMQFZOr6e5u4irG5SRQlrPSof2
+ JLT8IztvKWh9+84olpjQ7HNn1g6gSTPRj9G0S60GFvcWLNdjZS8F6bB9UN6BLZOVniEzXVaNttT
+ QM28cN8cFKZdsvw==
 X-Developer-Key: i=matthieu.baerts@tessares.net; a=openpgp;
  fpr=E8CB85F76877057A6E27F77AF6B7824F4269A073
 X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
         DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_NONE,
-        SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
+        SPF_HELO_NONE,SPF_PASS autolearn=unavailable autolearn_force=no
+        version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Patch 1 clears resources earlier if there is no more reasons to keep
-MPTCP sockets alive.
+From: Paolo Abeni <pabeni@redhat.com>
 
-Patches 2 and 3 fix some locking issues visible in some rare corner
-cases: the linked issues should be quite hard to reproduce.
+If the peer closes all the existing subflows for a given
+mptcp socket and later the application closes it, the current
+implementation let it survive until the timewait timeout expires.
 
-Patch 4 makes sure subflows are correctly cleaned after the end of a
-connection.
+While the above is allowed by the protocol specification it
+consumes resources for almost no reason and additionally
+causes sporadic self-tests failures.
 
-Patch 5 and 6 improve the selftests stability when running in a slow
-environment by transfering data for a longer period on one hand and by
-stopping the tests when all expected events have been observed on the
-other hand.
+Let's move the mptcp socket to the TCP_CLOSE state when there are
+no alive subflows at close time, so that the allocated resources
+will be freed immediately.
 
-All these patches fix issues introduced before v6.2.
-
+Fixes: e16163b6e2b7 ("mptcp: refactor shutdown and close")
+Cc: stable@vger.kernel.org
+Signed-off-by: Paolo Abeni <pabeni@redhat.com>
+Reviewed-by: Matthieu Baerts <matthieu.baerts@tessares.net>
 Signed-off-by: Matthieu Baerts <matthieu.baerts@tessares.net>
 ---
-Matthieu Baerts (1):
-      selftests: mptcp: stop tests earlier
+ net/mptcp/protocol.c | 9 +++++++++
+ 1 file changed, 9 insertions(+)
 
-Paolo Abeni (5):
-      mptcp: do not wait for bare sockets' timeout
-      mptcp: fix locking for setsockopt corner-case
-      mptcp: fix locking for in-kernel listener creation
-      mptcp: be careful on subflow status propagation on errors
-      selftests: mptcp: allow more slack for slow test-case
+diff --git a/net/mptcp/protocol.c b/net/mptcp/protocol.c
+index 8cd6cc67c2c5..bc6c1f62a690 100644
+--- a/net/mptcp/protocol.c
++++ b/net/mptcp/protocol.c
+@@ -2897,6 +2897,7 @@ bool __mptcp_close(struct sock *sk, long timeout)
+ 	struct mptcp_subflow_context *subflow;
+ 	struct mptcp_sock *msk = mptcp_sk(sk);
+ 	bool do_cancel_work = false;
++	int subflows_alive = 0;
+ 
+ 	sk->sk_shutdown = SHUTDOWN_MASK;
+ 
+@@ -2922,6 +2923,8 @@ bool __mptcp_close(struct sock *sk, long timeout)
+ 		struct sock *ssk = mptcp_subflow_tcp_sock(subflow);
+ 		bool slow = lock_sock_fast_nested(ssk);
+ 
++		subflows_alive += ssk->sk_state != TCP_CLOSE;
++
+ 		/* since the close timeout takes precedence on the fail one,
+ 		 * cancel the latter
+ 		 */
+@@ -2937,6 +2940,12 @@ bool __mptcp_close(struct sock *sk, long timeout)
+ 	}
+ 	sock_orphan(sk);
+ 
++	/* all the subflows are closed, only timeout can change the msk
++	 * state, let's not keep resources busy for no reasons
++	 */
++	if (subflows_alive == 0)
++		inet_sk_state_store(sk, TCP_CLOSE);
++
+ 	sock_hold(sk);
+ 	pr_debug("msk=%p state=%d", sk, sk->sk_state);
+ 	if (msk->token)
 
- net/mptcp/pm_netlink.c                          | 10 ++++++----
- net/mptcp/protocol.c                            |  9 +++++++++
- net/mptcp/sockopt.c                             | 11 +++++++++--
- net/mptcp/subflow.c                             | 12 ++++++++++--
- tools/testing/selftests/net/mptcp/mptcp_join.sh | 22 +++++++++++++++++-----
- 5 files changed, 51 insertions(+), 13 deletions(-)
----
-base-commit: 811d581194f7412eda97acc03d17fc77824b561f
-change-id: 20230207-upstream-net-20230207-various-fix-6-2-1848a75bbbe6
-
-Best regards,
 -- 
-Matthieu Baerts <matthieu.baerts@tessares.net>
+2.38.1
 
