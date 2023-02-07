@@ -2,41 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 1F17A68D8F5
-	for <lists+stable@lfdr.de>; Tue,  7 Feb 2023 14:14:28 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0879B68D8FA
+	for <lists+stable@lfdr.de>; Tue,  7 Feb 2023 14:14:39 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232480AbjBGNO1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Feb 2023 08:14:27 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59824 "EHLO
+        id S232441AbjBGNOh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Feb 2023 08:14:37 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60986 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232355AbjBGNOL (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Feb 2023 08:14:11 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 99D823B66A
-        for <stable@vger.kernel.org>; Tue,  7 Feb 2023 05:13:53 -0800 (PST)
+        with ESMTP id S232604AbjBGNOW (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Feb 2023 08:14:22 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 125043A5AB
+        for <stable@vger.kernel.org>; Tue,  7 Feb 2023 05:14:06 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id E9ED7B818E8
-        for <stable@vger.kernel.org>; Tue,  7 Feb 2023 13:13:08 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2E259C433D2;
-        Tue,  7 Feb 2023 13:13:07 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 098AC61452
+        for <stable@vger.kernel.org>; Tue,  7 Feb 2023 13:13:14 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 03A4BC433EF;
+        Tue,  7 Feb 2023 13:13:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1675775587;
-        bh=pm9XZgkdvp3mzqs89wg0NvNQEd7ddgjucM5+/O0kS0U=;
+        s=korg; t=1675775593;
+        bh=c3wjTMKDrHaQMQaifRoZbOSfF8kOcrUC6GKmohEviFs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Z0nc4y+wvW4JzNyyYYPhEXooaVY6kCLRdsl9IwUANF/KMOmG0zAjASMTknXBJp/yT
-         F1cPe/hoFsyVAEt47Pc7Z9774MAWw2xqB/CcpcUCEtKxKPDX8OxQaZeU8NWyN3unPX
-         cxvqVyBM2z8pS3E+BNMUqbzJy+ysrffZfYp4I2V4=
+        b=ecPpeEqPs4bUJfgkcK3qoPCagrAtyvIdjBRUsWxgJoYQw8oqc4oxrtpy6y/PW3Cop
+         6C9bO6dJezidwUcjsS7u+VMGXYV7pfwnlUurkeTWzfAHicZOjuPG3CEIgorxGKqtqk
+         fGxYzvp7m6Le813dHMv1USi/pz9+lX66F/AeEZdU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, stable <stable@kernel.org>,
-        Pratham Pratap <quic_ppratap@quicinc.com>,
-        Prashanth K <quic_prashk@quicinc.com>
-Subject: [PATCH 5.15 091/120] usb: gadget: f_uac2: Fix incorrect increment of bNumEndpoints
-Date:   Tue,  7 Feb 2023 13:57:42 +0100
-Message-Id: <20230207125622.635694020@linuxfoundation.org>
+        patches@lists.linux.dev, Thomas Gleixner <tglx@linutronix.de>,
+        stable <stable@kernel.org>, Marc Zyngier <maz@kernel.org>
+Subject: [PATCH 5.15 092/120] kernel/irq/irqdomain.c: fix memory leak with using debugfs_lookup()
+Date:   Tue,  7 Feb 2023 13:57:43 +0100
+Message-Id: <20230207125622.680603686@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.1
 In-Reply-To: <20230207125618.699726054@linuxfoundation.org>
 References: <20230207125618.699726054@linuxfoundation.org>
@@ -53,38 +52,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pratham Pratap <quic_ppratap@quicinc.com>
+From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-commit 2fa89458af9993fab8054daf827f38881e2ad473 upstream.
+commit d83d7ed260283560700d4034a80baad46620481b upstream.
 
-Currently connect/disconnect of USB cable calls afunc_bind and
-eventually increments the bNumEndpoints. Performing multiple
-plugin/plugout will increment bNumEndpoints incorrectly, and on
-the next plug-in it leads to invalid configuration of descriptor
-and hence enumeration fails.
+When calling debugfs_lookup() the result must have dput() called on it,
+otherwise the memory will leak over time.  To make things simpler, just
+call debugfs_lookup_and_remove() instead which handles all of the logic
+at once.
 
-Fix this by resetting the value of bNumEndpoints to 1 on every
-afunc_bind call.
-
-Fixes: 40c73b30546e ("usb: gadget: f_uac2: add adaptive sync support for capture")
+Cc: Thomas Gleixner <tglx@linutronix.de>
 Cc: stable <stable@kernel.org>
-Signed-off-by: Pratham Pratap <quic_ppratap@quicinc.com>
-Signed-off-by: Prashanth K <quic_prashk@quicinc.com>
-Link: https://lore.kernel.org/r/1674631645-28888-1-git-send-email-quic_prashk@quicinc.com
+Reviewed-by: Marc Zyngier <maz@kernel.org>
+Link: https://lore.kernel.org/r/20230202151554.2310273-1-gregkh@linuxfoundation.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/usb/gadget/function/f_uac2.c |    1 +
- 1 file changed, 1 insertion(+)
+ kernel/irq/irqdomain.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/usb/gadget/function/f_uac2.c
-+++ b/drivers/usb/gadget/function/f_uac2.c
-@@ -1069,6 +1069,7 @@ afunc_bind(struct usb_configuration *cfg
- 		}
- 		std_as_out_if0_desc.bInterfaceNumber = ret;
- 		std_as_out_if1_desc.bInterfaceNumber = ret;
-+		std_as_out_if1_desc.bNumEndpoints = 1;
- 		uac2->as_out_intf = ret;
- 		uac2->as_out_alt = 0;
+--- a/kernel/irq/irqdomain.c
++++ b/kernel/irq/irqdomain.c
+@@ -1913,7 +1913,7 @@ static void debugfs_add_domain_dir(struc
  
+ static void debugfs_remove_domain_dir(struct irq_domain *d)
+ {
+-	debugfs_remove(debugfs_lookup(d->name, domain_dir));
++	debugfs_lookup_and_remove(d->name, domain_dir);
+ }
+ 
+ void __init irq_domain_debugfs_init(struct dentry *root)
 
 
