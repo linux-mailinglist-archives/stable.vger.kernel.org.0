@@ -2,50 +2,54 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 5C00868D8AC
-	for <lists+stable@lfdr.de>; Tue,  7 Feb 2023 14:11:37 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 84F7368D7F4
+	for <lists+stable@lfdr.de>; Tue,  7 Feb 2023 14:04:58 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232506AbjBGNLg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Feb 2023 08:11:36 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59954 "EHLO
+        id S232117AbjBGNEz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Feb 2023 08:04:55 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51742 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232507AbjBGNLR (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Feb 2023 08:11:17 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 500DE3BDB9
-        for <stable@vger.kernel.org>; Tue,  7 Feb 2023 05:10:34 -0800 (PST)
+        with ESMTP id S232107AbjBGNEq (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Feb 2023 08:04:46 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6DF1C360BA
+        for <stable@vger.kernel.org>; Tue,  7 Feb 2023 05:04:34 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 2F22C61405
-        for <stable@vger.kernel.org>; Tue,  7 Feb 2023 13:10:34 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 314FBC433EF;
-        Tue,  7 Feb 2023 13:10:33 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 0C15F613DC
+        for <stable@vger.kernel.org>; Tue,  7 Feb 2023 13:04:34 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 06820C433EF;
+        Tue,  7 Feb 2023 13:04:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1675775433;
-        bh=D4uJcnqlzQZA7Yj2TZW96q1LMfDB2EspoZPGsxVT3iI=;
+        s=korg; t=1675775073;
+        bh=Jo+OmfsLt6OPHwjwTw3T4mdj9UgVT9DJAmEGCZR+fEM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Juita/RHUJniZNn5SZ0ccYMCa9EEBXfgdb3UNwAtzrNc0/ha3vgMKdAarmfCb2UQO
-         6fRYgs0/sB8ncVN6KqxaUEzRRPHEmTo5DUPpszn2xyzehLaDw71sr8iHTOob60Ogr6
-         Irlp/37NNOXuiI31s6FuGj3FYoWk/p/Ae1xmE9Mk=
+        b=uoA5QbdYSZK9QHwiIiNFnv9OXuu0UawgUIGvwGFPIhdUOi1uErpXvwso9iu3Q0bv7
+         EKRPuaYeqN6f1rC5cR1CirMDhRznYkpGA2CA0c+pIO2NSnDrJ2OuIrf5swygIOyc27
+         P4dzS73vHqwWTGhEqERPGiWs6Il4m+w+vVpf1HXI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Martin KaFai Lau <kafai@fb.com>,
-        Alexei Starovoitov <ast@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 011/120] bpf: Support <8-byte scalar spill and refill
-Date:   Tue,  7 Feb 2023 13:56:22 +0100
-Message-Id: <20230207125619.244203156@linuxfoundation.org>
+        patches@lists.linux.dev,
+        Bard Liao <yung-chuan.liao@linux.intel.com>,
+        Ranjani Sridharan <ranjani.sridharan@linux.intel.com>,
+        Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>,
+        Rander Wang <rander.wang@intel.com>,
+        Peter Ujfalusi <peter.ujfalusi@linux.intel.com>,
+        Mark Brown <broonie@kernel.org>
+Subject: [PATCH 6.1 129/208] ASoC: SOF: keep prepare/unprepare widgets in sink path
+Date:   Tue,  7 Feb 2023 13:56:23 +0100
+Message-Id: <20230207125640.266676599@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.1
-In-Reply-To: <20230207125618.699726054@linuxfoundation.org>
-References: <20230207125618.699726054@linuxfoundation.org>
+In-Reply-To: <20230207125634.292109991@linuxfoundation.org>
+References: <20230207125634.292109991@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
         SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -53,219 +57,54 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Martin KaFai Lau <kafai@fb.com>
+From: Bard Liao <yung-chuan.liao@linux.intel.com>
 
-[ Upstream commit 354e8f1970f821d4952458f77b1ab6c3eb24d530 ]
+commit cc755b4377b0520d594ae573497cf0824baea648 upstream.
 
-The verifier currently does not save the reg state when
-spilling <8byte bounded scalar to the stack.  The bpf program
-will be incorrectly rejected when this scalar is refilled to
-the reg and then used to offset into a packet header.
-The later patch has a simplified bpf prog from a real use case
-to demonstrate this case.  The current work around is
-to reparse the packet again such that this offset scalar
-is close to where the packet data will be accessed to
-avoid the spill.  Thus, the header is parsed twice.
+The existing code return when a widget doesn't need to
+prepare/unprepare. This will prevent widgets in the sink path from being
+prepared/unprepared.
 
-The llvm patch [1] will align the <8bytes spill to
-the 8-byte stack address.  This can simplify the verifier
-support by avoiding to store multiple reg states for
-each 8 byte stack slot.
-
-This patch changes the verifier to save the reg state when
-spilling <8bytes scalar to the stack.  This reg state saving
-is limited to spill aligned to the 8-byte stack address.
-The current refill logic has already called coerce_reg_to_size(),
-so coerce_reg_to_size() is not called on state->stack[spi].spilled_ptr
-during spill.
-
-When refilling in check_stack_read_fixed_off(),  it checks
-the refill size is the same as the number of bytes marked with
-STACK_SPILL before restoring the reg state.  When restoring
-the reg state to state->regs[dst_regno], it needs
-to avoid the state->regs[dst_regno].subreg_def being
-over written because it has been marked by the check_reg_arg()
-earlier [check_mem_access() is called after check_reg_arg() in
-do_check()].  Reordering check_mem_access() and check_reg_arg()
-will need a lot of changes in test_verifier's tests because
-of the difference in verifier's error message.  Thus, the
-patch here is to save the state->regs[dst_regno].subreg_def
-first in check_stack_read_fixed_off().
-
-There are cases that the verifier needs to scrub the spilled slot
-from STACK_SPILL to STACK_MISC.  After this patch the spill is not always
-in 8 bytes now, so it can no longer assume the other 7 bytes are always
-marked as STACK_SPILL.  In particular, the scrub needs to avoid marking
-an uninitialized byte from STACK_INVALID to STACK_MISC.  Otherwise, the
-verifier will incorrectly accept bpf program reading uninitialized bytes
-from the stack.  A new helper scrub_spilled_slot() is created for this
-purpose.
-
-[1]: https://reviews.llvm.org/D109073
-
-Signed-off-by: Martin KaFai Lau <kafai@fb.com>
-Signed-off-by: Alexei Starovoitov <ast@kernel.org>
-Link: https://lore.kernel.org/bpf/20210922004941.625398-1-kafai@fb.com
-Stable-dep-of: 71f656a50176 ("bpf: Fix to preserve reg parent/live fields when copying range info")
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Cc: <stable@vger.kernel.org> # 6.1
+Link: https://github.com/thesofproject/linux/issues/4021
+Signed-off-by: Bard Liao <yung-chuan.liao@linux.intel.com>
+Reviewed-by: Ranjani Sridharan <ranjani.sridharan@linux.intel.com>
+Reviewed-by: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
+Reviewed-by: Rander Wang <rander.wang@intel.com>
+Signed-off-by: Peter Ujfalusi <peter.ujfalusi@linux.intel.com>
+Link: https://lore.kernel.org/r/20230118101255.29139-4-peter.ujfalusi@linux.intel.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- kernel/bpf/verifier.c | 67 +++++++++++++++++++++++++++++++++----------
- 1 file changed, 52 insertions(+), 15 deletions(-)
+ sound/soc/sof/sof-audio.c | 5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
 
-diff --git a/kernel/bpf/verifier.c b/kernel/bpf/verifier.c
-index 49e51fc0c2f4..d2ccf7725e73 100644
---- a/kernel/bpf/verifier.c
-+++ b/kernel/bpf/verifier.c
-@@ -614,6 +614,12 @@ static bool is_spilled_reg(const struct bpf_stack_state *stack)
- 	return stack->slot_type[BPF_REG_SIZE - 1] == STACK_SPILL;
- }
+diff --git a/sound/soc/sof/sof-audio.c b/sound/soc/sof/sof-audio.c
+index 8c114e6a23c6..ff716bfbcb67 100644
+--- a/sound/soc/sof/sof-audio.c
++++ b/sound/soc/sof/sof-audio.c
+@@ -271,9 +271,9 @@ sof_unprepare_widgets_in_path(struct snd_sof_dev *sdev, struct snd_soc_dapm_widg
+ 	struct snd_sof_widget *swidget = widget->dobj.private;
+ 	struct snd_soc_dapm_path *p;
  
-+static void scrub_spilled_slot(u8 *stype)
-+{
-+	if (*stype != STACK_INVALID)
-+		*stype = STACK_MISC;
-+}
-+
- static void print_verifier_state(struct bpf_verifier_env *env,
- 				 const struct bpf_func_state *state)
- {
-@@ -2608,15 +2614,21 @@ static bool __is_pointer_value(bool allow_ptr_leaks,
- }
+-	/* return if the widget is in use or if it is already unprepared */
++	/* skip if the widget is in use or if it is already unprepared */
+ 	if (!swidget || !swidget->prepared || swidget->use_count > 0)
+-		return;
++		goto sink_unprepare;
  
- static void save_register_state(struct bpf_func_state *state,
--				int spi, struct bpf_reg_state *reg)
-+				int spi, struct bpf_reg_state *reg,
-+				int size)
- {
- 	int i;
+ 	if (widget_ops[widget->id].ipc_unprepare)
+ 		/* unprepare the source widget */
+@@ -281,6 +281,7 @@ sof_unprepare_widgets_in_path(struct snd_sof_dev *sdev, struct snd_soc_dapm_widg
  
- 	state->stack[spi].spilled_ptr = *reg;
--	state->stack[spi].spilled_ptr.live |= REG_LIVE_WRITTEN;
-+	if (size == BPF_REG_SIZE)
-+		state->stack[spi].spilled_ptr.live |= REG_LIVE_WRITTEN;
+ 	swidget->prepared = false;
  
--	for (i = 0; i < BPF_REG_SIZE; i++)
--		state->stack[spi].slot_type[i] = STACK_SPILL;
-+	for (i = BPF_REG_SIZE; i > BPF_REG_SIZE - size; i--)
-+		state->stack[spi].slot_type[i - 1] = STACK_SPILL;
-+
-+	/* size < 8 bytes spill */
-+	for (; i; i--)
-+		scrub_spilled_slot(&state->stack[spi].slot_type[i - 1]);
- }
- 
- /* check_stack_{read,write}_fixed_off functions track spill/fill of registers,
-@@ -2665,7 +2677,7 @@ static int check_stack_write_fixed_off(struct bpf_verifier_env *env,
- 			env->insn_aux_data[insn_idx].sanitize_stack_spill = true;
- 	}
- 
--	if (reg && size == BPF_REG_SIZE && register_is_bounded(reg) &&
-+	if (reg && !(off % BPF_REG_SIZE) && register_is_bounded(reg) &&
- 	    !register_is_null(reg) && env->bpf_capable) {
- 		if (dst_reg != BPF_REG_FP) {
- 			/* The backtracking logic can only recognize explicit
-@@ -2678,7 +2690,7 @@ static int check_stack_write_fixed_off(struct bpf_verifier_env *env,
- 			if (err)
- 				return err;
- 		}
--		save_register_state(state, spi, reg);
-+		save_register_state(state, spi, reg, size);
- 	} else if (reg && is_spillable_regtype(reg->type)) {
- 		/* register containing pointer is being spilled into stack */
- 		if (size != BPF_REG_SIZE) {
-@@ -2690,7 +2702,7 @@ static int check_stack_write_fixed_off(struct bpf_verifier_env *env,
- 			verbose(env, "cannot spill pointers to stack into stack frame of the caller\n");
- 			return -EINVAL;
- 		}
--		save_register_state(state, spi, reg);
-+		save_register_state(state, spi, reg, size);
- 	} else {
- 		u8 type = STACK_MISC;
- 
-@@ -2699,7 +2711,7 @@ static int check_stack_write_fixed_off(struct bpf_verifier_env *env,
- 		/* Mark slots as STACK_MISC if they belonged to spilled ptr. */
- 		if (is_spilled_reg(&state->stack[spi]))
- 			for (i = 0; i < BPF_REG_SIZE; i++)
--				state->stack[spi].slot_type[i] = STACK_MISC;
-+				scrub_spilled_slot(&state->stack[spi].slot_type[i]);
- 
- 		/* only mark the slot as written if all 8 bytes were written
- 		 * otherwise read propagation may incorrectly stop too soon
-@@ -2905,23 +2917,50 @@ static int check_stack_read_fixed_off(struct bpf_verifier_env *env,
- 	struct bpf_func_state *state = vstate->frame[vstate->curframe];
- 	int i, slot = -off - 1, spi = slot / BPF_REG_SIZE;
- 	struct bpf_reg_state *reg;
--	u8 *stype;
-+	u8 *stype, type;
- 
- 	stype = reg_state->stack[spi].slot_type;
- 	reg = &reg_state->stack[spi].spilled_ptr;
- 
- 	if (is_spilled_reg(&reg_state->stack[spi])) {
- 		if (size != BPF_REG_SIZE) {
-+			u8 scalar_size = 0;
-+
- 			if (reg->type != SCALAR_VALUE) {
- 				verbose_linfo(env, env->insn_idx, "; ");
- 				verbose(env, "invalid size of register fill\n");
- 				return -EACCES;
- 			}
--			if (dst_regno >= 0) {
-+
-+			mark_reg_read(env, reg, reg->parent, REG_LIVE_READ64);
-+			if (dst_regno < 0)
-+				return 0;
-+
-+			for (i = BPF_REG_SIZE; i > 0 && stype[i - 1] == STACK_SPILL; i--)
-+				scalar_size++;
-+
-+			if (!(off % BPF_REG_SIZE) && size == scalar_size) {
-+				/* The earlier check_reg_arg() has decided the
-+				 * subreg_def for this insn.  Save it first.
-+				 */
-+				s32 subreg_def = state->regs[dst_regno].subreg_def;
-+
-+				state->regs[dst_regno] = *reg;
-+				state->regs[dst_regno].subreg_def = subreg_def;
-+			} else {
-+				for (i = 0; i < size; i++) {
-+					type = stype[(slot - i) % BPF_REG_SIZE];
-+					if (type == STACK_SPILL)
-+						continue;
-+					if (type == STACK_MISC)
-+						continue;
-+					verbose(env, "invalid read from stack off %d+%d size %d\n",
-+						off, i, size);
-+					return -EACCES;
-+				}
- 				mark_reg_unknown(env, state->regs, dst_regno);
--				state->regs[dst_regno].live |= REG_LIVE_WRITTEN;
- 			}
--			mark_reg_read(env, reg, reg->parent, REG_LIVE_READ64);
-+			state->regs[dst_regno].live |= REG_LIVE_WRITTEN;
- 			return 0;
- 		}
- 		for (i = 1; i < BPF_REG_SIZE; i++) {
-@@ -2952,8 +2991,6 @@ static int check_stack_read_fixed_off(struct bpf_verifier_env *env,
- 		}
- 		mark_reg_read(env, reg, reg->parent, REG_LIVE_READ64);
- 	} else {
--		u8 type;
--
- 		for (i = 0; i < size; i++) {
- 			type = stype[(slot - i) % BPF_REG_SIZE];
- 			if (type == STACK_MISC)
-@@ -4559,7 +4596,7 @@ static int check_stack_range_initialized(
- 			if (clobber) {
- 				__mark_reg_unknown(env, &state->stack[spi].spilled_ptr);
- 				for (j = 0; j < BPF_REG_SIZE; j++)
--					state->stack[spi].slot_type[j] = STACK_MISC;
-+					scrub_spilled_slot(&state->stack[spi].slot_type[j]);
- 			}
- 			goto mark;
- 		}
++sink_unprepare:
+ 	/* unprepare all widgets in the sink paths */
+ 	snd_soc_dapm_widget_for_each_sink_path(widget, p) {
+ 		if (!p->walking && p->sink->dobj.private) {
 -- 
-2.39.0
+2.39.1
 
 
 
