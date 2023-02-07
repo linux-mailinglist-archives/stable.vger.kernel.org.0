@@ -2,44 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 7BB2D68D794
-	for <lists+stable@lfdr.de>; Tue,  7 Feb 2023 14:01:29 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id BB16668D79A
+	for <lists+stable@lfdr.de>; Tue,  7 Feb 2023 14:01:31 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231992AbjBGNB0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Feb 2023 08:01:26 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46664 "EHLO
+        id S232023AbjBGNB2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Feb 2023 08:01:28 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46844 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231996AbjBGNBK (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Feb 2023 08:01:10 -0500
+        with ESMTP id S232025AbjBGNBS (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Feb 2023 08:01:18 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C657139CD2
-        for <stable@vger.kernel.org>; Tue,  7 Feb 2023 05:00:33 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2AC7A3A5A2
+        for <stable@vger.kernel.org>; Tue,  7 Feb 2023 05:00:43 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 64276613DC
-        for <stable@vger.kernel.org>; Tue,  7 Feb 2023 13:00:33 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 55A87C433D2;
-        Tue,  7 Feb 2023 13:00:32 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id B1C3E61408
+        for <stable@vger.kernel.org>; Tue,  7 Feb 2023 13:00:42 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A3910C433EF;
+        Tue,  7 Feb 2023 13:00:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1675774832;
-        bh=nDZ4c6IeAO79IbW260qkxShQNhbumTjmUlSez4ZEPkg=;
+        s=korg; t=1675774842;
+        bh=SZ1g8TnfQKTRubrRPGLu3W/MOAQ5SQAttpPooeWndhU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=nBis5SCSCOSwJKBfbu8bTCitYzZ7JLiuky/llGb8uZz4qvggfuxcN5mBlk8arYxba
-         XzzpszQbwV1ChDdIycWBQkWzRa1iWZJFsL2NUDjsjSdohzYy+WvL9E5k3VLpKIAyTs
-         ih0uCEd0Nxi+MifBKkoJjvyZNM4463vdv+90FXgU=
+        b=O203lMQg/1v4ZfCot64r8Jkwi9kwv6NpEEmA6iEsfX9nPUgyLFfW4S0vwdLdCKFwg
+         5fqVfS2IIEeHcTPmtYmOPUeOgxskJiK2oaD2RisRfGR7sT8w0yCHNK1miyin8Eioie
+         aTHqwI9kH5aVMnHRyD8P+Al5wSROIsMzTRMKfN84=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         patches@lists.linux.dev,
-        syzbot+04c21ed96d861dccc5cd@syzkaller.appspotmail.com,
-        Jakub Sitnicki <jakub@cloudflare.com>,
-        John Fastabend <john.fastabend@gmail.com>,
-        Alexei Starovoitov <ast@kernel.org>,
+        Pierluigi Passaro <pierluigi.p@variscite.com>,
+        Fabio Estevam <festevam@gmail.com>,
+        Shawn Guo <shawnguo@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 021/208] bpf, sockmap: Check for any of tcp_bpf_prots when cloning a listener
-Date:   Tue,  7 Feb 2023 13:54:35 +0100
-Message-Id: <20230207125635.264501100@linuxfoundation.org>
+Subject: [PATCH 6.1 022/208] arm64: dts: imx8mm: Fix pad control for UART1_DTE_RX
+Date:   Tue,  7 Feb 2023 13:54:36 +0100
+Message-Id: <20230207125635.303044841@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.1
 In-Reply-To: <20230207125634.292109991@linuxfoundation.org>
 References: <20230207125634.292109991@linuxfoundation.org>
@@ -56,100 +55,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jakub Sitnicki <jakub@cloudflare.com>
+From: Pierluigi Passaro <pierluigi.p@variscite.com>
 
-[ Upstream commit ddce1e091757d0259107c6c0c7262df201de2b66 ]
+[ Upstream commit 47123900f3e4a7f769631d6ec15abf44086276f6 ]
 
-A listening socket linked to a sockmap has its sk_prot overridden. It
-points to one of the struct proto variants in tcp_bpf_prots. The variant
-depends on the socket's family and which sockmap programs are attached.
+According section
+    8.2.5.313 Select Input Register (IOMUXC_UART1_RXD_SELECT_INPUT)
+of 
+    i.MX 8M Mini Applications Processor Reference Manual, Rev. 3, 11/2020
+the required setting for this specific pin configuration is "1"
 
-A child socket cloned from a TCP listener initially inherits their sk_prot.
-But before cloning is finished, we restore the child's proto to the
-listener's original non-tcp_bpf_prots one. This happens in
-tcp_create_openreq_child -> tcp_bpf_clone.
-
-Today, in tcp_bpf_clone we detect if the child's proto should be restored
-by checking only for the TCP_BPF_BASE proto variant. This is not
-correct. The sk_prot of listening socket linked to a sockmap can point to
-to any variant in tcp_bpf_prots.
-
-If the listeners sk_prot happens to be not the TCP_BPF_BASE variant, then
-the child socket unintentionally is left if the inherited sk_prot by
-tcp_bpf_clone.
-
-This leads to issues like infinite recursion on close [1], because the
-child state is otherwise not set up for use with tcp_bpf_prot operations.
-
-Adjust the check in tcp_bpf_clone to detect all of tcp_bpf_prots variants.
-
-Note that it wouldn't be sufficient to check the socket state when
-overriding the sk_prot in tcp_bpf_update_proto in order to always use the
-TCP_BPF_BASE variant for listening sockets. Since commit
-b8b8315e39ff ("bpf, sockmap: Remove unhash handler for BPF sockmap usage")
-it is possible for a socket to transition to TCP_LISTEN state while already
-linked to a sockmap, e.g. connect() -> insert into map ->
-connect(AF_UNSPEC) -> listen().
-
-[1]: https://lore.kernel.org/all/00000000000073b14905ef2e7401@google.com/
-
-Fixes: e80251555f0b ("tcp_bpf: Don't let child socket inherit parent protocol ops on copy")
-Reported-by: syzbot+04c21ed96d861dccc5cd@syzkaller.appspotmail.com
-Signed-off-by: Jakub Sitnicki <jakub@cloudflare.com>
-Acked-by: John Fastabend <john.fastabend@gmail.com>
-Link: https://lore.kernel.org/r/20230113-sockmap-fix-v2-2-1e0ee7ac2f90@cloudflare.com
-Signed-off-by: Alexei Starovoitov <ast@kernel.org>
+Signed-off-by: Pierluigi Passaro <pierluigi.p@variscite.com>
+Reviewed-by: Fabio Estevam <festevam@gmail.com>
+Fixes: c1c9d41319c3 ("dt-bindings: imx: Add pinctrl binding doc for imx8mm")
+Signed-off-by: Shawn Guo <shawnguo@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- include/linux/util_macros.h | 12 ++++++++++++
- net/ipv4/tcp_bpf.c          |  4 ++--
- 2 files changed, 14 insertions(+), 2 deletions(-)
+ arch/arm64/boot/dts/freescale/imx8mm-pinfunc.h | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/include/linux/util_macros.h b/include/linux/util_macros.h
-index 72299f261b25..43db6e47503c 100644
---- a/include/linux/util_macros.h
-+++ b/include/linux/util_macros.h
-@@ -38,4 +38,16 @@
-  */
- #define find_closest_descending(x, a, as) __find_closest(x, a, as, >=)
- 
-+/**
-+ * is_insidevar - check if the @ptr points inside the @var memory range.
-+ * @ptr:	the pointer to a memory address.
-+ * @var:	the variable which address and size identify the memory range.
-+ *
-+ * Evaluates to true if the address in @ptr lies within the memory
-+ * range allocated to @var.
-+ */
-+#define is_insidevar(ptr, var)						\
-+	((uintptr_t)(ptr) >= (uintptr_t)(var) &&			\
-+	 (uintptr_t)(ptr) <  (uintptr_t)(var) + sizeof(var))
-+
- #endif
-diff --git a/net/ipv4/tcp_bpf.c b/net/ipv4/tcp_bpf.c
-index 94aad3870c5f..cf26d65ca389 100644
---- a/net/ipv4/tcp_bpf.c
-+++ b/net/ipv4/tcp_bpf.c
-@@ -6,6 +6,7 @@
- #include <linux/bpf.h>
- #include <linux/init.h>
- #include <linux/wait.h>
-+#include <linux/util_macros.h>
- 
- #include <net/inet_common.h>
- #include <net/tls.h>
-@@ -639,10 +640,9 @@ EXPORT_SYMBOL_GPL(tcp_bpf_update_proto);
-  */
- void tcp_bpf_clone(const struct sock *sk, struct sock *newsk)
- {
--	int family = sk->sk_family == AF_INET6 ? TCP_BPF_IPV6 : TCP_BPF_IPV4;
- 	struct proto *prot = newsk->sk_prot;
- 
--	if (prot == &tcp_bpf_prots[family][TCP_BPF_BASE])
-+	if (is_insidevar(prot, tcp_bpf_prots))
- 		newsk->sk_prot = sk->sk_prot_creator;
- }
- #endif /* CONFIG_BPF_SYSCALL */
+diff --git a/arch/arm64/boot/dts/freescale/imx8mm-pinfunc.h b/arch/arm64/boot/dts/freescale/imx8mm-pinfunc.h
+index 83c8f715cd90..b1f11098d248 100644
+--- a/arch/arm64/boot/dts/freescale/imx8mm-pinfunc.h
++++ b/arch/arm64/boot/dts/freescale/imx8mm-pinfunc.h
+@@ -602,7 +602,7 @@
+ #define MX8MM_IOMUXC_UART1_RXD_GPIO5_IO22                                   0x234 0x49C 0x000 0x5 0x0
+ #define MX8MM_IOMUXC_UART1_RXD_TPSMP_HDATA24                                0x234 0x49C 0x000 0x7 0x0
+ #define MX8MM_IOMUXC_UART1_TXD_UART1_DCE_TX                                 0x238 0x4A0 0x000 0x0 0x0
+-#define MX8MM_IOMUXC_UART1_TXD_UART1_DTE_RX                                 0x238 0x4A0 0x4F4 0x0 0x0
++#define MX8MM_IOMUXC_UART1_TXD_UART1_DTE_RX                                 0x238 0x4A0 0x4F4 0x0 0x1
+ #define MX8MM_IOMUXC_UART1_TXD_ECSPI3_MOSI                                  0x238 0x4A0 0x000 0x1 0x0
+ #define MX8MM_IOMUXC_UART1_TXD_GPIO5_IO23                                   0x238 0x4A0 0x000 0x5 0x0
+ #define MX8MM_IOMUXC_UART1_TXD_TPSMP_HDATA25                                0x238 0x4A0 0x000 0x7 0x0
 -- 
 2.39.0
 
