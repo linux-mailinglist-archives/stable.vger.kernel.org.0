@@ -2,45 +2,48 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 78BC868D878
-	for <lists+stable@lfdr.de>; Tue,  7 Feb 2023 14:10:03 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0B7B768D7F2
+	for <lists+stable@lfdr.de>; Tue,  7 Feb 2023 14:04:56 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232312AbjBGNKC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Feb 2023 08:10:02 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58954 "EHLO
+        id S232098AbjBGNEz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Feb 2023 08:04:55 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51694 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232333AbjBGNJ7 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Feb 2023 08:09:59 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 15DAA6A45
-        for <stable@vger.kernel.org>; Tue,  7 Feb 2023 05:09:40 -0800 (PST)
+        with ESMTP id S232099AbjBGNEp (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Feb 2023 08:04:45 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 94F683A598
+        for <stable@vger.kernel.org>; Tue,  7 Feb 2023 05:04:28 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id DE963B8198C
-        for <stable@vger.kernel.org>; Tue,  7 Feb 2023 13:09:28 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3C868C433EF;
-        Tue,  7 Feb 2023 13:09:27 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 32E4661407
+        for <stable@vger.kernel.org>; Tue,  7 Feb 2023 13:04:28 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 453C3C433D2;
+        Tue,  7 Feb 2023 13:04:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1675775367;
-        bh=a+t01uMYyk2rCNGNkO2xxMKo9F9aNL/7zohUX9orGP0=;
+        s=korg; t=1675775067;
+        bh=6pjUSuhAj9MlD6LYSGoLgPVu1Q8/WKJinH8jLawIQSE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=AnK73375khEaW0duaoyUSV7m2ecjUtwGLX6NEX4LPrYveiwzzgl1SuGf91SbNHKnj
-         wAKfkryBwMTS3BkbsWR2kSNgIBw6+r9yM5R7J76d+7OtVdeiZN6G3mEcOKWb877dsX
-         bgPeF+Oue5xYZfk+zpJXxLWrvhCCZUv5w1TNN2/w=
+        b=MGrVnL+CEndWRnz0tiyhajk3X5lp+z3dKHxUP2+jHB/046kDNL5Vs6L9v00QrUtvC
+         F0akicXM5rJjR/Fs6xP65H+TKm0iByEvRycDqYpRFpN7jcRKaIyrbdqlK8iiWmzLmw
+         JqE8AghIAnqK2CXnaZcEA7ys5rORwbGlaUQAycd0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Hao Sun <sunhao.th@gmail.com>,
-        Yonghong Song <yhs@fb.com>,
-        Alexei Starovoitov <ast@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 009/120] bpf: Fix a possible task gone issue with bpf_send_signal[_thread]() helpers
-Date:   Tue,  7 Feb 2023 13:56:20 +0100
-Message-Id: <20230207125619.165093678@linuxfoundation.org>
+        patches@lists.linux.dev,
+        Bard Liao <yung-chuan.liao@linux.intel.com>,
+        Ranjani Sridharan <ranjani.sridharan@linux.intel.com>,
+        Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>,
+        Rander Wang <rander.wang@intel.com>,
+        Peter Ujfalusi <peter.ujfalusi@linux.intel.com>,
+        Mark Brown <broonie@kernel.org>
+Subject: [PATCH 6.1 127/208] ASoC: SOF: sof-audio: unprepare when swidget->use_count > 0
+Date:   Tue,  7 Feb 2023 13:56:21 +0100
+Message-Id: <20230207125640.163465376@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.1
-In-Reply-To: <20230207125618.699726054@linuxfoundation.org>
-References: <20230207125618.699726054@linuxfoundation.org>
+In-Reply-To: <20230207125634.292109991@linuxfoundation.org>
+References: <20230207125634.292109991@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,54 +57,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yonghong Song <yhs@fb.com>
+From: Bard Liao <yung-chuan.liao@linux.intel.com>
 
-[ Upstream commit bdb7fdb0aca8b96cef9995d3a57e251c2289322f ]
+commit 7d2a67e02549c4b1feaac4d8b4151bf46424a047 upstream.
 
-In current bpf_send_signal() and bpf_send_signal_thread() helper
-implementation, irq_work is used to handle nmi context. Hao Sun
-reported in [1] that the current task at the entry of the helper
-might be gone during irq_work callback processing. To fix the issue,
-a reference is acquired for the current task before enqueuing into
-the irq_work so that the queued task is still available during
-irq_work callback processing.
+We should unprepare the widget if its use_count = 1.
 
-  [1] https://lore.kernel.org/bpf/20230109074425.12556-1-sunhao.th@gmail.com/
-
-Fixes: 8b401f9ed244 ("bpf: implement bpf_send_signal() helper")
-Tested-by: Hao Sun <sunhao.th@gmail.com>
-Reported-by: Hao Sun <sunhao.th@gmail.com>
-Signed-off-by: Yonghong Song <yhs@fb.com>
-Link: https://lore.kernel.org/r/20230118204815.3331855-1-yhs@fb.com
-Signed-off-by: Alexei Starovoitov <ast@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes: 9862dcf70245 ("ASoC: SOF: don't unprepare widget used other pipelines")
+Cc: <stable@vger.kernel.org> # 6.1
+Signed-off-by: Bard Liao <yung-chuan.liao@linux.intel.com>
+Reviewed-by: Ranjani Sridharan <ranjani.sridharan@linux.intel.com>
+Reviewed-by: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
+Reviewed-by: Rander Wang <rander.wang@intel.com>
+Signed-off-by: Peter Ujfalusi <peter.ujfalusi@linux.intel.com>
+Link: https://lore.kernel.org/r/20230118101255.29139-2-peter.ujfalusi@linux.intel.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- kernel/trace/bpf_trace.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ sound/soc/sof/sof-audio.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/kernel/trace/bpf_trace.c b/kernel/trace/bpf_trace.c
-index 4daf1e044556..b314e71a008c 100644
---- a/kernel/trace/bpf_trace.c
-+++ b/kernel/trace/bpf_trace.c
-@@ -776,6 +776,7 @@ static void do_bpf_send_signal(struct irq_work *entry)
+diff --git a/sound/soc/sof/sof-audio.c b/sound/soc/sof/sof-audio.c
+index 7306a2649857..e52ef62ce7a3 100644
+--- a/sound/soc/sof/sof-audio.c
++++ b/sound/soc/sof/sof-audio.c
+@@ -272,7 +272,7 @@ sof_unprepare_widgets_in_path(struct snd_sof_dev *sdev, struct snd_soc_dapm_widg
+ 	struct snd_soc_dapm_path *p;
  
- 	work = container_of(entry, struct send_signal_irq_work, irq_work);
- 	group_send_sig_info(work->sig, SEND_SIG_PRIV, work->task, work->type);
-+	put_task_struct(work->task);
- }
+ 	/* return if the widget is in use or if it is already unprepared */
+-	if (!swidget->prepared || swidget->use_count > 1)
++	if (!swidget->prepared || swidget->use_count > 0)
+ 		return;
  
- static int bpf_send_signal_common(u32 sig, enum pid_type type)
-@@ -812,7 +813,7 @@ static int bpf_send_signal_common(u32 sig, enum pid_type type)
- 		 * to the irq_work. The current task may change when queued
- 		 * irq works get executed.
- 		 */
--		work->task = current;
-+		work->task = get_task_struct(current);
- 		work->sig = sig;
- 		work->type = type;
- 		irq_work_queue(&work->irq_work);
+ 	if (widget_ops[widget->id].ipc_unprepare)
 -- 
-2.39.0
+2.39.1
 
 
 
