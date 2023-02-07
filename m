@@ -2,33 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 25FD768D25B
-	for <lists+stable@lfdr.de>; Tue,  7 Feb 2023 10:16:19 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 08ED768D25C
+	for <lists+stable@lfdr.de>; Tue,  7 Feb 2023 10:16:23 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231387AbjBGJQP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Feb 2023 04:16:15 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57086 "EHLO
+        id S231447AbjBGJQV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Feb 2023 04:16:21 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57370 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231400AbjBGJQM (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Feb 2023 04:16:12 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0B84A18B15
-        for <stable@vger.kernel.org>; Tue,  7 Feb 2023 01:16:11 -0800 (PST)
+        with ESMTP id S231396AbjBGJQQ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Feb 2023 04:16:16 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 03591241C5
+        for <stable@vger.kernel.org>; Tue,  7 Feb 2023 01:16:14 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id A8204B8184D
-        for <stable@vger.kernel.org>; Tue,  7 Feb 2023 09:16:09 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D6E8DC433EF;
-        Tue,  7 Feb 2023 09:16:07 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id A5DECB8184E
+        for <stable@vger.kernel.org>; Tue,  7 Feb 2023 09:16:12 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E4684C433D2;
+        Tue,  7 Feb 2023 09:16:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1675761368;
-        bh=2D9ipv8hnteIpKKvHbFciJZb76anMPTak7KVRTDJcNI=;
+        s=korg; t=1675761371;
+        bh=sXLWh4EqDAyHMgbV8tHdxLzwxmYEjOwX8AwFb83JwqU=;
         h=Subject:To:Cc:From:Date:From;
-        b=a+FafCj1MqSlAYLLU7nFSK7MoIDxpRXVbO1m5/fz+PG+3zgBT9FdPmZTOmEm/FAeg
-         1CbSnQdSP83rcmn5SzZaJNE1sqw3M9IAfgq+SQSrfC4Fpa9K8qeSJ6bb7JRMpC8Rj2
-         7KlgVdk4n0/gIx7fWZk4lCMWZm/HC7VcLN9bik0k=
-Subject: FAILED: patch "[PATCH] migrate: hugetlb: check for hugetlb shared PMD in node" failed to apply to 5.10-stable tree
+        b=MhWiJQTTD1tY36Vf8MI4ndtdAB3WAtEpo/nNv+XzCynBZh3BM4KeUmNgRFxjOUwcP
+         B9gqNAmaEwFTBM2Ke8wiemt4w43B1+/0eK5NXg+dgPXP4yVm5TKgyZJBa0+VFLlj0C
+         2d8u2P2wuqay+VaQSLbFkRVoIez01v9jdS39rpXE=
+Subject: FAILED: patch "[PATCH] migrate: hugetlb: check for hugetlb shared PMD in node" failed to apply to 5.4-stable tree
 To:     mike.kravetz@oracle.com, akpm@linux-foundation.org,
         david@redhat.com, jthoughton@google.com, mhocko@suse.com,
         naoya.horiguchi@linux.dev, peterx@redhat.com, shy828301@gmail.com,
@@ -36,13 +36,13 @@ To:     mike.kravetz@oracle.com, akpm@linux-foundation.org,
         vishal.moola@gmail.com, willy@infradead.org
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Tue, 07 Feb 2023 10:16:03 +0100
-Message-ID: <167576136311391@kroah.com>
+Date:   Tue, 07 Feb 2023 10:16:04 +0100
+Message-ID: <1675761364213238@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
         SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -51,7 +51,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.10-stable tree.
+The patch below does not apply to the 5.4-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
