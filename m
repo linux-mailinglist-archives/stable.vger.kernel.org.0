@@ -2,54 +2,50 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id CDE0C68D8C0
-	for <lists+stable@lfdr.de>; Tue,  7 Feb 2023 14:12:39 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D015E68D83D
+	for <lists+stable@lfdr.de>; Tue,  7 Feb 2023 14:07:56 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232459AbjBGNMj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Feb 2023 08:12:39 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59992 "EHLO
+        id S232241AbjBGNHz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Feb 2023 08:07:55 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55974 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232441AbjBGNMU (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Feb 2023 08:12:20 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BE40E3D0A7
-        for <stable@vger.kernel.org>; Tue,  7 Feb 2023 05:11:14 -0800 (PST)
+        with ESMTP id S232231AbjBGNHy (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Feb 2023 08:07:54 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4FE746A45
+        for <stable@vger.kernel.org>; Tue,  7 Feb 2023 05:07:30 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id AF07C61411
-        for <stable@vger.kernel.org>; Tue,  7 Feb 2023 13:11:04 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B8360C4339C;
-        Tue,  7 Feb 2023 13:11:03 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 18FEA613EA
+        for <stable@vger.kernel.org>; Tue,  7 Feb 2023 13:06:07 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2C917C433D2;
+        Tue,  7 Feb 2023 13:06:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1675775464;
-        bh=oMYNWlnrFQvgi2KFq0FfdDsk4wZiHAzCaidq0WhfHS8=;
+        s=korg; t=1675775166;
+        bh=FZT2osC+H4WvsZsg9w/cdCfwmx3I0ErHFAzT0Jyp6Aw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=XNDlH6FDmKcY7wBrv7u+MXdoVy+BtWe7hwnKmrz7aum+I9zASy+GNJU3ngEeAJZyW
-         s/+Qn1gJ+DcyeMt3GZSyFxq3BJKvkpppXjxDgVIIAVUDD7zgaw63Aaq0tvQZtjF7Hs
-         XlpgW5ffwYr6d4yZDRyRK//NVxEpQmQ9Evl3iyEA=
+        b=cK6pucL6b+AeVdK30o5YuacQr7AogZO4wRvmoEbcTSXfhZkSLDxHu6e8v3aZEOMWz
+         qlB6w1fqlyv6aBKIs5cIFWuDl4D7H8RDcu6pBBF9ACpFqyzjM9+p82mkHoJPxjSvkc
+         7eBnJnugBU0vKGF+TkEucxTl1LuCMZ00Krka8Usg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Tom Rix <trix@redhat.com>,
-        Simon Horman <simon.horman@corigine.com>,
-        Sasha Neftin <sasha.neftin@intel.com>,
-        Naama Meir <naamax.meir@linux.intel.com>,
-        Tony Nguyen <anthony.l.nguyen@intel.com>,
-        Jakub Kicinski <kuba@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 041/120] igc: return an error if the mac type is unknown in igc_ptp_systim_to_hwtstamp()
-Date:   Tue,  7 Feb 2023 13:56:52 +0100
-Message-Id: <20230207125620.520960195@linuxfoundation.org>
+        patches@lists.linux.dev, stable <stable@kernel.org>,
+        Pratham Pratap <quic_ppratap@quicinc.com>,
+        Prashanth K <quic_prashk@quicinc.com>
+Subject: [PATCH 6.1 159/208] usb: gadget: f_uac2: Fix incorrect increment of bNumEndpoints
+Date:   Tue,  7 Feb 2023 13:56:53 +0100
+Message-Id: <20230207125641.647563564@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.1
-In-Reply-To: <20230207125618.699726054@linuxfoundation.org>
-References: <20230207125618.699726054@linuxfoundation.org>
+In-Reply-To: <20230207125634.292109991@linuxfoundation.org>
+References: <20230207125634.292109991@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
         SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -57,75 +53,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tom Rix <trix@redhat.com>
+From: Pratham Pratap <quic_ppratap@quicinc.com>
 
-[ Upstream commit a2df8463e15c10a8a882090f3d7a760fdb7b189d ]
+commit 2fa89458af9993fab8054daf827f38881e2ad473 upstream.
 
-clang static analysis reports
-drivers/net/ethernet/intel/igc/igc_ptp.c:673:3: warning: The left operand of
-  '+' is a garbage value [core.UndefinedBinaryOperatorResult]
-   ktime_add_ns(shhwtstamps.hwtstamp, adjust);
-   ^            ~~~~~~~~~~~~~~~~~~~~
+Currently connect/disconnect of USB cable calls afunc_bind and
+eventually increments the bNumEndpoints. Performing multiple
+plugin/plugout will increment bNumEndpoints incorrectly, and on
+the next plug-in it leads to invalid configuration of descriptor
+and hence enumeration fails.
 
-igc_ptp_systim_to_hwtstamp() silently returns without setting the hwtstamp
-if the mac type is unknown.  This should be treated as an error.
+Fix this by resetting the value of bNumEndpoints to 1 on every
+afunc_bind call.
 
-Fixes: 81b055205e8b ("igc: Add support for RX timestamping")
-Signed-off-by: Tom Rix <trix@redhat.com>
-Reviewed-by: Simon Horman <simon.horman@corigine.com>
-Acked-by: Sasha Neftin <sasha.neftin@intel.com>
-Tested-by: Naama Meir <naamax.meir@linux.intel.com>
-Signed-off-by: Tony Nguyen <anthony.l.nguyen@intel.com>
-Link: https://lore.kernel.org/r/20230131215437.1528994-1-anthony.l.nguyen@intel.com
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes: 40c73b30546e ("usb: gadget: f_uac2: add adaptive sync support for capture")
+Cc: stable <stable@kernel.org>
+Signed-off-by: Pratham Pratap <quic_ppratap@quicinc.com>
+Signed-off-by: Prashanth K <quic_prashk@quicinc.com>
+Link: https://lore.kernel.org/r/1674631645-28888-1-git-send-email-quic_prashk@quicinc.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ethernet/intel/igc/igc_ptp.c | 14 +++++++++-----
- 1 file changed, 9 insertions(+), 5 deletions(-)
+ drivers/usb/gadget/function/f_uac2.c |    1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/net/ethernet/intel/igc/igc_ptp.c b/drivers/net/ethernet/intel/igc/igc_ptp.c
-index fbde7826927b..743c31659709 100644
---- a/drivers/net/ethernet/intel/igc/igc_ptp.c
-+++ b/drivers/net/ethernet/intel/igc/igc_ptp.c
-@@ -418,10 +418,12 @@ static int igc_ptp_verify_pin(struct ptp_clock_info *ptp, unsigned int pin,
-  *
-  * We need to convert the system time value stored in the RX/TXSTMP registers
-  * into a hwtstamp which can be used by the upper level timestamping functions.
-+ *
-+ * Returns 0 on success.
-  **/
--static void igc_ptp_systim_to_hwtstamp(struct igc_adapter *adapter,
--				       struct skb_shared_hwtstamps *hwtstamps,
--				       u64 systim)
-+static int igc_ptp_systim_to_hwtstamp(struct igc_adapter *adapter,
-+				      struct skb_shared_hwtstamps *hwtstamps,
-+				      u64 systim)
- {
- 	switch (adapter->hw.mac.type) {
- 	case igc_i225:
-@@ -431,8 +433,9 @@ static void igc_ptp_systim_to_hwtstamp(struct igc_adapter *adapter,
- 						systim & 0xFFFFFFFF);
- 		break;
- 	default:
--		break;
-+		return -EINVAL;
- 	}
-+	return 0;
- }
+--- a/drivers/usb/gadget/function/f_uac2.c
++++ b/drivers/usb/gadget/function/f_uac2.c
+@@ -1142,6 +1142,7 @@ afunc_bind(struct usb_configuration *cfg
+ 		}
+ 		std_as_out_if0_desc.bInterfaceNumber = ret;
+ 		std_as_out_if1_desc.bInterfaceNumber = ret;
++		std_as_out_if1_desc.bNumEndpoints = 1;
+ 		uac2->as_out_intf = ret;
+ 		uac2->as_out_alt = 0;
  
- /**
-@@ -657,7 +660,8 @@ static void igc_ptp_tx_hwtstamp(struct igc_adapter *adapter)
- 
- 	regval = rd32(IGC_TXSTMPL);
- 	regval |= (u64)rd32(IGC_TXSTMPH) << 32;
--	igc_ptp_systim_to_hwtstamp(adapter, &shhwtstamps, regval);
-+	if (igc_ptp_systim_to_hwtstamp(adapter, &shhwtstamps, regval))
-+		return;
- 
- 	switch (adapter->link_speed) {
- 	case SPEED_10:
--- 
-2.39.0
-
 
 
