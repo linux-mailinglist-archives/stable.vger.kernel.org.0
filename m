@@ -2,33 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 08ED768D25C
-	for <lists+stable@lfdr.de>; Tue,  7 Feb 2023 10:16:23 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0B20B68D25D
+	for <lists+stable@lfdr.de>; Tue,  7 Feb 2023 10:16:24 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231447AbjBGJQV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Feb 2023 04:16:21 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57370 "EHLO
+        id S231410AbjBGJQX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Feb 2023 04:16:23 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57440 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231396AbjBGJQQ (ORCPT
+        with ESMTP id S231411AbjBGJQQ (ORCPT
         <rfc822;stable@vger.kernel.org>); Tue, 7 Feb 2023 04:16:16 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 03591241C5
-        for <stable@vger.kernel.org>; Tue,  7 Feb 2023 01:16:14 -0800 (PST)
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7923418B15
+        for <stable@vger.kernel.org>; Tue,  7 Feb 2023 01:16:15 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id A5DECB8184E
-        for <stable@vger.kernel.org>; Tue,  7 Feb 2023 09:16:12 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E4684C433D2;
-        Tue,  7 Feb 2023 09:16:10 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 168D961217
+        for <stable@vger.kernel.org>; Tue,  7 Feb 2023 09:16:15 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 05CA5C433EF;
+        Tue,  7 Feb 2023 09:16:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1675761371;
-        bh=sXLWh4EqDAyHMgbV8tHdxLzwxmYEjOwX8AwFb83JwqU=;
+        s=korg; t=1675761374;
+        bh=njdSitPiXxcqaP8rmYO+wkup/xYfv6BXAgck40T3AYk=;
         h=Subject:To:Cc:From:Date:From;
-        b=MhWiJQTTD1tY36Vf8MI4ndtdAB3WAtEpo/nNv+XzCynBZh3BM4KeUmNgRFxjOUwcP
-         B9gqNAmaEwFTBM2Ke8wiemt4w43B1+/0eK5NXg+dgPXP4yVm5TKgyZJBa0+VFLlj0C
-         2d8u2P2wuqay+VaQSLbFkRVoIez01v9jdS39rpXE=
-Subject: FAILED: patch "[PATCH] migrate: hugetlb: check for hugetlb shared PMD in node" failed to apply to 5.4-stable tree
+        b=JdWQ6Fvr7OaCjIotVV+b4c7n8f+NVJx84D6IvTsAOv9QAYPi4ClKwB16gDshRbmbs
+         SSha5BxXqN59HS1MZhJJzxEqy8t/KzR79S79dsfsCr9xRIxJzL8ZgME7JWhzX8igtz
+         uNsCFfwSY/RsweYaIzrce3buO5Lsz2pOVbLf9Vkk=
+Subject: FAILED: patch "[PATCH] migrate: hugetlb: check for hugetlb shared PMD in node" failed to apply to 4.19-stable tree
 To:     mike.kravetz@oracle.com, akpm@linux-foundation.org,
         david@redhat.com, jthoughton@google.com, mhocko@suse.com,
         naoya.horiguchi@linux.dev, peterx@redhat.com, shy828301@gmail.com,
@@ -36,8 +36,8 @@ To:     mike.kravetz@oracle.com, akpm@linux-foundation.org,
         vishal.moola@gmail.com, willy@infradead.org
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Tue, 07 Feb 2023 10:16:04 +0100
-Message-ID: <1675761364213238@kroah.com>
+Date:   Tue, 07 Feb 2023 10:16:05 +0100
+Message-ID: <1675761365143@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -51,7 +51,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.4-stable tree.
+The patch below does not apply to the 4.19-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
