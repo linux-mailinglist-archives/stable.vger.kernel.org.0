@@ -2,94 +2,112 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 4935A68E0B1
-	for <lists+stable@lfdr.de>; Tue,  7 Feb 2023 20:00:21 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id DECCF68E0C0
+	for <lists+stable@lfdr.de>; Tue,  7 Feb 2023 20:02:09 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231658AbjBGTAU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Feb 2023 14:00:20 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50342 "EHLO
+        id S231843AbjBGTCE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Feb 2023 14:02:04 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52298 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231480AbjBGTAT (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Feb 2023 14:00:19 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id ED2AA30EAB;
-        Tue,  7 Feb 2023 11:00:18 -0800 (PST)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 87F3C6113A;
-        Tue,  7 Feb 2023 19:00:18 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPS id E8337C4339B;
-        Tue,  7 Feb 2023 19:00:17 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1675796417;
-        bh=r6UlP/dJGLR+YQx8+K0+rvbOWs3Gze3w+cUIcIpyEcQ=;
-        h=Subject:From:Date:References:In-Reply-To:To:Cc:From;
-        b=XBM05Z/dQUrHSGNNknUCuLAZG9cWOZ9cWABPZbwUMpodUiLcdKum9BtT12O8a0yia
-         1HWxcxHFD2FVBF/KXz5LYM69l73EIKEBsLeMCrdP26fc7sMqglH2Wwd1GIvqVkFwq5
-         C8V7pvQZaMSI/gsPO+C+ueqtxxFURWC4fjeZNGYFIoZhbLKObugpMCCq9ebyMAJrjw
-         ZCDFkYTSntfj7St3RvGr85fOR7/kCkglkxDjxsskun3KXI6ODRBokquJyr2uGKe+cP
-         qqA3jRzqJvOfSHyKETFgJbrv7w2vcDRW5xpktcd3ULzTAHGFGrxu4pNeaROxXI/sb8
-         qLA9hpdpRutLg==
-Received: from aws-us-west-2-korg-oddjob-1.ci.codeaurora.org (localhost.localdomain [127.0.0.1])
-        by aws-us-west-2-korg-oddjob-1.ci.codeaurora.org (Postfix) with ESMTP id C2E39E55EFD;
-        Tue,  7 Feb 2023 19:00:17 +0000 (UTC)
-Content-Type: text/plain; charset="utf-8"
+        with ESMTP id S229836AbjBGTCD (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Feb 2023 14:02:03 -0500
+Received: from smtp-fw-6002.amazon.com (smtp-fw-6002.amazon.com [52.95.49.90])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AA0831EBF9
+        for <stable@vger.kernel.org>; Tue,  7 Feb 2023 11:01:58 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+  d=amazon.com; i=@amazon.com; q=dns/txt; s=amazon201209;
+  t=1675796519; x=1707332519;
+  h=from:to:cc:subject:date:message-id:mime-version:
+   content-transfer-encoding;
+  bh=RAdG2zl9LksNYzqYMifhlBDlBLS2Nqdjxdy3sMKTCrk=;
+  b=hrHIQQQkjQe7jH1xLxnVPb7J6644CBIkk/2GaUoAXNTB+l/h7CyrMxmG
+   uFdTspvaL8jAFiRbxV6L68g9AIQEN1BwlkPNHQfrMVOtuz0/P7isWBd7f
+   vPqsdW/netEZpN+in6SmrSOsXNAXAzsCyO4H5BgyHpOHvuyCRGiIWB4OH
+   c=;
+X-IronPort-AV: E=Sophos;i="5.97,278,1669075200"; 
+   d="scan'208";a="294480865"
+Received: from iad12-co-svc-p1-lb1-vlan3.amazon.com (HELO email-inbound-relay-iad-1a-m6i4x-edda28d4.us-east-1.amazon.com) ([10.43.8.6])
+  by smtp-border-fw-6002.iad6.amazon.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 07 Feb 2023 19:01:58 +0000
+Received: from EX13MTAUWB001.ant.amazon.com (iad12-ws-svc-p26-lb9-vlan3.iad.amazon.com [10.40.163.38])
+        by email-inbound-relay-iad-1a-m6i4x-edda28d4.us-east-1.amazon.com (Postfix) with ESMTPS id 26C4381996;
+        Tue,  7 Feb 2023 19:01:56 +0000 (UTC)
+Received: from EX19D046UWB004.ant.amazon.com (10.13.139.164) by
+ EX13MTAUWB001.ant.amazon.com (10.43.161.249) with Microsoft SMTP Server (TLS)
+ id 15.0.1497.45; Tue, 7 Feb 2023 19:01:55 +0000
+Received: from dev-dsk-shaoyi-2b-b6ac9e9c.us-west-2.amazon.com (10.43.160.120)
+ by EX19D046UWB004.ant.amazon.com (10.13.139.164) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA384) id
+ 15.2.1118.24; Tue, 7 Feb 2023 19:01:55 +0000
+From:   Shaoying Xu <shaoyi@amazon.com>
+To:     <stable@vger.kernel.org>
+CC:     <abuehaze@amazon.com>, <peterz@infradead.org>,
+        <longman@redhat.com>, Shaoying Xu <shaoyi@amazon.com>
+Subject: [PATCH stable 5.10 0/7] Remove reader optimistic spinning
+Date:   Tue, 7 Feb 2023 19:01:28 +0000
+Message-ID: <20230207190135.25258-1-shaoyi@amazon.com>
+X-Mailer: git-send-email 2.38.1
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
-Subject: Re: [f2fs-dev] [PATCH] f2fs: fix kernel crash due to null io->bio
-From:   patchwork-bot+f2fs@kernel.org
-Message-Id: <167579641779.24576.11865638891088345725.git-patchwork-notify@kernel.org>
-Date:   Tue, 07 Feb 2023 19:00:17 +0000
-References: <20230206034344.724593-1-jaegeuk@kernel.org>
-In-Reply-To: <20230206034344.724593-1-jaegeuk@kernel.org>
-To:     Jaegeuk Kim <jaegeuk@kernel.org>
-Cc:     linux-kernel@vger.kernel.org,
-        linux-f2fs-devel@lists.sourceforge.net, stable@vger.kernel.org
-X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
-        SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
+Content-Type: text/plain
+X-Originating-IP: [10.43.160.120]
+X-ClientProxiedBy: EX13D30UWB002.ant.amazon.com (10.43.161.110) To
+ EX19D046UWB004.ant.amazon.com (10.13.139.164)
+X-Spam-Status: No, score=-11.9 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
+        RCVD_IN_MSPIKE_H2,SPF_HELO_NONE,SPF_PASS,USER_IN_DEF_SPF_WL
+        autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hello:
+This patch series is to remove reader optimistic spinning in
+kernel 5.10 to improve the MongoDB performance. Performance measurements
+(10 times running average of overall throughput ops/sec) are using
+MongoDB 5.0.11 and YCSB [1] microbenchmark with workloadA [2] on AWS EC2
+m5.4xlarge/m6g.4xlarge (16-vCPU 64GiB-memory) instances with a 512GB EBS
+IO1 drive disk with 5000 IOPS and separating MongoDB and YCSB load generator
+on 2 instances and setting recordcount=25000000 and operationcount=10000000
+to see the impacts of these changes:
 
-This patch was applied to jaegeuk/f2fs.git (dev)
-by Jaegeuk Kim <jaegeuk@kernel.org>:
+  Before - v5.10.165 kernel in OS Amazon Linux 2
+  After  - v5.10.165 kernel with reader spinning disabled in OS Amazon Linux 2
 
-On Sun,  5 Feb 2023 19:43:44 -0800 you wrote:
-> We should return when io->bio is null before doing anything. Otherwise, panic.
-> 
-> BUG: kernel NULL pointer dereference, address: 0000000000000010
-> RIP: 0010:__submit_merged_write_cond+0x164/0x240 [f2fs]
-> Call Trace:
->  <TASK>
->  f2fs_submit_merged_write+0x1d/0x30 [f2fs]
->  commit_checkpoint+0x110/0x1e0 [f2fs]
->  f2fs_write_checkpoint+0x9f7/0xf00 [f2fs]
->  ? __pfx_issue_checkpoint_thread+0x10/0x10 [f2fs]
->  __checkpoint_and_complete_reqs+0x84/0x190 [f2fs]
->  ? preempt_count_add+0x82/0xc0
->  ? __pfx_issue_checkpoint_thread+0x10/0x10 [f2fs]
->  issue_checkpoint_thread+0x4c/0xf0 [f2fs]
->  ? __pfx_autoremove_wake_function+0x10/0x10
->  kthread+0xff/0x130
->  ? __pfx_kthread+0x10/0x10
->  ret_from_fork+0x2c/0x50
->  </TASK>
-> 
-> [...]
+  | Arch    | Instance Type | Before  | After   |
+  |---------+---------------+---------+---------|
+  | x86_64  | m5.4xlarge    | 37365.4 | 42373.9 |
+  |---------+---------------+---------+---------|
+  | aarch64 | m6g.4xlarge   | 33823.1 | 43113.7 |
+  |---------+---------------+---------+---------|
 
-Here is the summary with links:
-  - [f2fs-dev] f2fs: fix kernel crash due to null io->bio
-    https://git.kernel.org/jaegeuk/f2fs/c/267c159f9c7b
+It can be seen that the MongoDB throughput can be improved around 13% in x86_64
+and 27% in aarch64 after disabling reader optimistic spinning and these patches 
+can be applied to 5.10 with no conflict so we wonder if it's possible to backport 
+them to stable 5.10? 
 
-You are awesome, thank you!
+[1] https://github.com/brianfrankcooper/YCSB/releases/download/0.17.0/ycsb-0.17.0.tar.gz
+[2] https://github.com/brianfrankcooper/YCSB/blob/master/workloads/workloada
+
+Thanks,
+Shaoying
+
+Peter Zijlstra (3):
+  locking/rwsem: Better collate rwsem_read_trylock()
+  locking/rwsem: Introduce rwsem_write_trylock()
+  locking/rwsem: Fold __down_{read,write}*()
+
+Waiman Long (4):
+  locking/rwsem: Pass the current atomic count to
+    rwsem_down_read_slowpath()
+  locking/rwsem: Prevent potential lock starvation
+  locking/rwsem: Enable reader optimistic lock stealing
+  locking/rwsem: Remove reader optimistic spinning
+
+ kernel/locking/lock_events_list.h |   6 +-
+ kernel/locking/rwsem.c            | 359 +++++++++---------------------
+ 2 files changed, 106 insertions(+), 259 deletions(-)
+
 -- 
-Deet-doot-dot, I am a bot.
-https://korg.docs.kernel.org/patchwork/pwbot.html
-
+2.38.1
 
