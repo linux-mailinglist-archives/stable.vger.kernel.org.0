@@ -2,46 +2,49 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 165DD68D8AE
-	for <lists+stable@lfdr.de>; Tue,  7 Feb 2023 14:11:48 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 720DE68D834
+	for <lists+stable@lfdr.de>; Tue,  7 Feb 2023 14:07:38 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232527AbjBGNLq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Feb 2023 08:11:46 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60970 "EHLO
+        id S232178AbjBGNHh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Feb 2023 08:07:37 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55548 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232291AbjBGNL2 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Feb 2023 08:11:28 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F3E323C289
-        for <stable@vger.kernel.org>; Tue,  7 Feb 2023 05:10:40 -0800 (PST)
+        with ESMTP id S232216AbjBGNHg (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Feb 2023 08:07:36 -0500
+Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2C4257697
+        for <stable@vger.kernel.org>; Tue,  7 Feb 2023 05:06:57 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 16166B8198E
-        for <stable@vger.kernel.org>; Tue,  7 Feb 2023 13:10:38 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 28F40C433D2;
-        Tue,  7 Feb 2023 13:10:35 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id B90FACE1D90
+        for <stable@vger.kernel.org>; Tue,  7 Feb 2023 13:05:56 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id AD8CCC4339B;
+        Tue,  7 Feb 2023 13:05:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1675775436;
-        bh=uRjtyO4j07J5l4XRzZHwbY5V0dkF2U/++5iYmH2kLLE=;
+        s=korg; t=1675775155;
+        bh=YuAxhSscfdcXIpSSCrr/6za3dBM/xLH3uBpNT/2Ut+c=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=dqqm5B1K+VnRcYXslPublkiCXLHenBAIpy/LVeyESHtCcSJ/U3ayYBWug2/SYTD0X
-         qcUUHZR1lCjVNwlSwRKpFqo3pYOxyYF44mYrkEKswfHrfBbKF2xn61CHCtcFurxOjA
-         p8ynl2pWDNOkDYzhw79CxCvFn+lmP7wYULroklEA=
+        b=kZ0Mul67Ydjxv3g0Mxj23eC7pUQWdZkoSLftJWMIE9CbTN1EGgokOlLFro40MAjhp
+         CjifWopFZJgaMkN45h+iZv6z9xbPafEvo4FCt4iYAwl9r77WC7yWYy1J/QO10ungoI
+         +QHJ0U4bm3YxCgpGRLERJIMyGJ25DhbPblV7NYRY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         patches@lists.linux.dev,
-        Thomas Winter <Thomas.Winter@alliedtelesis.co.nz>,
-        David Ahern <dsahern@kernel.org>,
-        Jakub Kicinski <kuba@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 038/120] ip/ip6_gre: Fix changing addr gen mode not generating IPv6 link local address
+        "Isaac J. Manjarres" <isaacmanjarres@google.com>,
+        Catalin Marinas <catalin.marinas@arm.com>,
+        Calvin Zhang <calvinzhang.cool@gmail.com>,
+        Frank Rowand <frowand.list@gmail.com>,
+        Rob Herring <robh+dt@kernel.org>,
+        Saravana Kannan <saravanak@google.com>,
+        Andrew Morton <akpm@linux-foundation.org>
+Subject: [PATCH 6.1 155/208] Revert "mm: kmemleak: alloc gray object for reserved region with direct map"
 Date:   Tue,  7 Feb 2023 13:56:49 +0100
-Message-Id: <20230207125620.400329718@linuxfoundation.org>
+Message-Id: <20230207125641.483877071@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.1
-In-Reply-To: <20230207125618.699726054@linuxfoundation.org>
-References: <20230207125618.699726054@linuxfoundation.org>
+In-Reply-To: <20230207125634.292109991@linuxfoundation.org>
+References: <20230207125634.292109991@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,128 +58,61 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Thomas Winter <Thomas.Winter@alliedtelesis.co.nz>
+From: Isaac J. Manjarres <isaacmanjarres@google.com>
 
-[ Upstream commit 23ca0c2c93406bdb1150659e720bda1cec1fad04 ]
+commit 8ef852f1cb426a5812aee700d3b4297aaa426acc upstream.
 
-For our point-to-point GRE tunnels, they have IN6_ADDR_GEN_MODE_NONE
-when they are created then we set IN6_ADDR_GEN_MODE_EUI64 when they
-come up to generate the IPv6 link local address for the interface.
-Recently we found that they were no longer generating IPv6 addresses.
-This issue would also have affected SIT tunnels.
+This reverts commit 972fa3a7c17c9d60212e32ecc0205dc585b1e769.
 
-Commit e5dd729460ca changed the code path so that GRE tunnels
-generate an IPv6 address based on the tunnel source address.
-It also changed the code path so GRE tunnels don't call addrconf_addr_gen
-in addrconf_dev_config which is called by addrconf_sysctl_addr_gen_mode
-when the IN6_ADDR_GEN_MODE is changed.
+Kmemleak operates by periodically scanning memory regions for pointers to
+allocated memory blocks to determine if they are leaked or not.  However,
+reserved memory regions can be used for DMA transactions between a device
+and a CPU, and thus, wouldn't contain pointers to allocated memory blocks,
+making them inappropriate for kmemleak to scan.  Thus, revert this commit.
 
-This patch aims to fix this issue by moving the code in addrconf_notify
-which calls the addr gen for GRE and SIT into a separate function
-and calling it in the places that expect the IPv6 address to be
-generated.
-
-The previous addrconf_dev_config is renamed to addrconf_eth_config
-since it only expected eth type interfaces and follows the
-addrconf_gre/sit_config format.
-
-A part of this changes means that the loopback address will be
-attempted to be configured when changing addr_gen_mode for lo.
-This should not be a problem because the address should exist anyway
-and if does already exist then no error is produced.
-
-Fixes: e5dd729460ca ("ip/ip6_gre: use the same logic as SIT interfaces when computing v6LL address")
-Signed-off-by: Thomas Winter <Thomas.Winter@alliedtelesis.co.nz>
-Reviewed-by: David Ahern <dsahern@kernel.org>
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Link: https://lkml.kernel.org/r/20230124230254.295589-1-isaacmanjarres@google.com
+Fixes: 972fa3a7c17c9 ("mm: kmemleak: alloc gray object for reserved region with direct map")
+Signed-off-by: Isaac J. Manjarres <isaacmanjarres@google.com>
+Acked-by: Catalin Marinas <catalin.marinas@arm.com>
+Cc: Calvin Zhang <calvinzhang.cool@gmail.com>
+Cc: Frank Rowand <frowand.list@gmail.com>
+Cc: Rob Herring <robh+dt@kernel.org>
+Cc: Saravana Kannan <saravanak@google.com>
+Cc: <stable@vger.kernel.org>	[5.17+]
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/ipv6/addrconf.c | 49 +++++++++++++++++++++++++--------------------
- 1 file changed, 27 insertions(+), 22 deletions(-)
+ drivers/of/fdt.c | 6 +-----
+ 1 file changed, 1 insertion(+), 5 deletions(-)
 
-diff --git a/net/ipv6/addrconf.c b/net/ipv6/addrconf.c
-index 8800987fdb40..cc1c94bc5b0e 100644
---- a/net/ipv6/addrconf.c
-+++ b/net/ipv6/addrconf.c
-@@ -3447,6 +3447,30 @@ static void addrconf_gre_config(struct net_device *dev)
- }
- #endif
+diff --git a/drivers/of/fdt.c b/drivers/of/fdt.c
+index f08b25195ae7..d1a68b6d03b3 100644
+--- a/drivers/of/fdt.c
++++ b/drivers/of/fdt.c
+@@ -26,7 +26,6 @@
+ #include <linux/serial_core.h>
+ #include <linux/sysfs.h>
+ #include <linux/random.h>
+-#include <linux/kmemleak.h>
  
-+static void addrconf_init_auto_addrs(struct net_device *dev)
-+{
-+	switch (dev->type) {
-+#if IS_ENABLED(CONFIG_IPV6_SIT)
-+	case ARPHRD_SIT:
-+		addrconf_sit_config(dev);
-+		break;
-+#endif
-+#if IS_ENABLED(CONFIG_NET_IPGRE) || IS_ENABLED(CONFIG_IPV6_GRE)
-+	case ARPHRD_IP6GRE:
-+	case ARPHRD_IPGRE:
-+		addrconf_gre_config(dev);
-+		break;
-+#endif
-+	case ARPHRD_LOOPBACK:
-+		init_loopback(dev);
-+		break;
-+
-+	default:
-+		addrconf_dev_config(dev);
-+		break;
-+	}
-+}
-+
- static int fixup_permanent_addr(struct net *net,
- 				struct inet6_dev *idev,
- 				struct inet6_ifaddr *ifp)
-@@ -3611,26 +3635,7 @@ static int addrconf_notify(struct notifier_block *this, unsigned long event,
- 			run_pending = 1;
- 		}
+ #include <asm/setup.h>  /* for COMMAND_LINE_SIZE */
+ #include <asm/page.h>
+@@ -525,12 +524,9 @@ static int __init __reserved_mem_reserve_reg(unsigned long node,
+ 		size = dt_mem_next_cell(dt_root_size_cells, &prop);
  
--		switch (dev->type) {
--#if IS_ENABLED(CONFIG_IPV6_SIT)
--		case ARPHRD_SIT:
--			addrconf_sit_config(dev);
--			break;
--#endif
--#if IS_ENABLED(CONFIG_NET_IPGRE) || IS_ENABLED(CONFIG_IPV6_GRE)
--		case ARPHRD_IP6GRE:
--		case ARPHRD_IPGRE:
--			addrconf_gre_config(dev);
--			break;
--#endif
--		case ARPHRD_LOOPBACK:
--			init_loopback(dev);
--			break;
--
--		default:
--			addrconf_dev_config(dev);
--			break;
+ 		if (size &&
+-		    early_init_dt_reserve_memory(base, size, nomap) == 0) {
++		    early_init_dt_reserve_memory(base, size, nomap) == 0)
+ 			pr_debug("Reserved memory: reserved region for node '%s': base %pa, size %lu MiB\n",
+ 				uname, &base, (unsigned long)(size / SZ_1M));
+-			if (!nomap)
+-				kmemleak_alloc_phys(base, size, 0);
 -		}
-+		addrconf_init_auto_addrs(dev);
- 
- 		if (!IS_ERR_OR_NULL(idev)) {
- 			if (run_pending)
-@@ -6385,7 +6390,7 @@ static int addrconf_sysctl_addr_gen_mode(struct ctl_table *ctl, int write,
- 
- 			if (idev->cnf.addr_gen_mode != new_val) {
- 				idev->cnf.addr_gen_mode = new_val;
--				addrconf_dev_config(idev->dev);
-+				addrconf_init_auto_addrs(idev->dev);
- 			}
- 		} else if (&net->ipv6.devconf_all->addr_gen_mode == ctl->data) {
- 			struct net_device *dev;
-@@ -6396,7 +6401,7 @@ static int addrconf_sysctl_addr_gen_mode(struct ctl_table *ctl, int write,
- 				if (idev &&
- 				    idev->cnf.addr_gen_mode != new_val) {
- 					idev->cnf.addr_gen_mode = new_val;
--					addrconf_dev_config(idev->dev);
-+					addrconf_init_auto_addrs(idev->dev);
- 				}
- 			}
- 		}
+ 		else
+ 			pr_err("Reserved memory: failed to reserve memory for node '%s': base %pa, size %lu MiB\n",
+ 			       uname, &base, (unsigned long)(size / SZ_1M));
 -- 
-2.39.0
+2.39.1
 
 
 
