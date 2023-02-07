@@ -2,49 +2,52 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 6E32F68D830
-	for <lists+stable@lfdr.de>; Tue,  7 Feb 2023 14:07:32 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 25F0C68D8EB
+	for <lists+stable@lfdr.de>; Tue,  7 Feb 2023 14:14:07 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232094AbjBGNHb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Feb 2023 08:07:31 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55406 "EHLO
+        id S232468AbjBGNOG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Feb 2023 08:14:06 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60986 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232204AbjBGNH3 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Feb 2023 08:07:29 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B50F79008
-        for <stable@vger.kernel.org>; Tue,  7 Feb 2023 05:06:51 -0800 (PST)
+        with ESMTP id S232466AbjBGNNv (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Feb 2023 08:13:51 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6919639CC8
+        for <stable@vger.kernel.org>; Tue,  7 Feb 2023 05:13:24 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 5FA36B81999
-        for <stable@vger.kernel.org>; Tue,  7 Feb 2023 13:06:16 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B56A1C433EF;
-        Tue,  7 Feb 2023 13:06:14 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id C47D6B81977
+        for <stable@vger.kernel.org>; Tue,  7 Feb 2023 13:12:24 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1CC74C4339B;
+        Tue,  7 Feb 2023 13:12:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1675775175;
-        bh=0diB4gK3m4UIbSO8LGaJXTRTVQeqYwtfrhA37jpzZkk=;
+        s=korg; t=1675775543;
+        bh=ryRjPv5+EV4SdbMn0PqZCEH2sX01BDvZSzs4Y9hggKk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=MnM48AOB5Ud4MSD8bV72VIDT4v8FP/0nxZmcjJvpAPxR/if5OhDGM+pOwR0K2Wnzr
-         MlGUjgijzKxochQcVufF70DrYqUMsoNOWclObNzAhZqkuV7zeljs70dObpBDx91kuC
-         LxPrAOy9zqUpctddkfpTciAlrqKB+3+0z7n/jRbg=
+        b=0uC2WCR2O4YzlezANUJ0KS4WsqOlZ51lpWjD18QuWkwvpTLR2HNOGLWYk6azCZdL2
+         CA56AvlgrNOA+io4UjTtEEuLb2e9OAq1lENhTZ/WfWxkzH6pK0s67I+dIUMAJOLAIJ
+         77OR0kk0DC072isdVndqabWVJ7oIffM8X0NeqSWI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Thomas Gleixner <tglx@linutronix.de>,
-        stable <stable@kernel.org>, Marc Zyngier <maz@kernel.org>
-Subject: [PATCH 6.1 162/208] kernel/irq/irqdomain.c: fix memory leak with using debugfs_lookup()
-Date:   Tue,  7 Feb 2023 13:56:56 +0100
-Message-Id: <20230207125641.760542147@linuxfoundation.org>
+        patches@lists.linux.dev,
+        Andrei Gherzan <andrei.gherzan@canonical.com>,
+        Paolo Abeni <pabeni@redhat.com>,
+        Willem de Bruijn <willemb@google.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.15 046/120] selftests: net: udpgso_bench: Fix racing bug between the rx/tx programs
+Date:   Tue,  7 Feb 2023 13:56:57 +0100
+Message-Id: <20230207125620.728697783@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.1
-In-Reply-To: <20230207125634.292109991@linuxfoundation.org>
-References: <20230207125634.292109991@linuxfoundation.org>
+In-Reply-To: <20230207125618.699726054@linuxfoundation.org>
+References: <20230207125618.699726054@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
         SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -52,34 +55,79 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+From: Andrei Gherzan <andrei.gherzan@canonical.com>
 
-commit d83d7ed260283560700d4034a80baad46620481b upstream.
+[ Upstream commit dafe93b9ee21028d625dce347118b82659652eff ]
 
-When calling debugfs_lookup() the result must have dput() called on it,
-otherwise the memory will leak over time.  To make things simpler, just
-call debugfs_lookup_and_remove() instead which handles all of the logic
-at once.
+"udpgro_bench.sh" invokes udpgso_bench_rx/udpgso_bench_tx programs
+subsequently and while doing so, there is a chance that the rx one is not
+ready to accept socket connections. This racing bug could fail the test
+with at least one of the following:
 
-Cc: Thomas Gleixner <tglx@linutronix.de>
-Cc: stable <stable@kernel.org>
-Reviewed-by: Marc Zyngier <maz@kernel.org>
-Link: https://lore.kernel.org/r/20230202151554.2310273-1-gregkh@linuxfoundation.org
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+./udpgso_bench_tx: connect: Connection refused
+./udpgso_bench_tx: sendmsg: Connection refused
+./udpgso_bench_tx: write: Connection refused
+
+This change addresses this by making udpgro_bench.sh wait for the rx
+program to be ready before firing off the tx one - up to a 10s timeout.
+
+Fixes: 3a687bef148d ("selftests: udp gso benchmark")
+Signed-off-by: Andrei Gherzan <andrei.gherzan@canonical.com>
+Cc: Paolo Abeni <pabeni@redhat.com>
+Cc: Willem de Bruijn <willemb@google.com>
+Reviewed-by: Willem de Bruijn <willemb@google.com>
+Link: https://lore.kernel.org/r/20230201001612.515730-3-andrei.gherzan@canonical.com
+Signed-off-by: Paolo Abeni <pabeni@redhat.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/irq/irqdomain.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ tools/testing/selftests/net/udpgso_bench.sh | 24 +++++++++++++++++----
+ 1 file changed, 20 insertions(+), 4 deletions(-)
 
---- a/kernel/irq/irqdomain.c
-+++ b/kernel/irq/irqdomain.c
-@@ -1915,7 +1915,7 @@ static void debugfs_add_domain_dir(struc
+diff --git a/tools/testing/selftests/net/udpgso_bench.sh b/tools/testing/selftests/net/udpgso_bench.sh
+index dc932fd65363..640bc43452fa 100755
+--- a/tools/testing/selftests/net/udpgso_bench.sh
++++ b/tools/testing/selftests/net/udpgso_bench.sh
+@@ -7,6 +7,7 @@ readonly GREEN='\033[0;92m'
+ readonly YELLOW='\033[0;33m'
+ readonly RED='\033[0;31m'
+ readonly NC='\033[0m' # No Color
++readonly TESTPORT=8000
  
- static void debugfs_remove_domain_dir(struct irq_domain *d)
- {
--	debugfs_remove(debugfs_lookup(d->name, domain_dir));
-+	debugfs_lookup_and_remove(d->name, domain_dir);
+ readonly KSFT_PASS=0
+ readonly KSFT_FAIL=1
+@@ -56,11 +57,26 @@ trap wake_children EXIT
+ 
+ run_one() {
+ 	local -r args=$@
++	local nr_socks=0
++	local i=0
++	local -r timeout=10
++
++	./udpgso_bench_rx -p "$TESTPORT" &
++	./udpgso_bench_rx -p "$TESTPORT" -t &
++
++	# Wait for the above test program to get ready to receive connections.
++	while [ "$i" -lt "$timeout" ]; do
++		nr_socks="$(ss -lnHi | grep -c "\*:${TESTPORT}")"
++		[ "$nr_socks" -eq 2 ] && break
++		i=$((i + 1))
++		sleep 1
++	done
++	if [ "$nr_socks" -ne 2 ]; then
++		echo "timed out while waiting for udpgso_bench_rx"
++		exit 1
++	fi
+ 
+-	./udpgso_bench_rx &
+-	./udpgso_bench_rx -t &
+-
+-	./udpgso_bench_tx ${args}
++	./udpgso_bench_tx -p "$TESTPORT" ${args}
  }
  
- void __init irq_domain_debugfs_init(struct dentry *root)
+ run_in_netns() {
+-- 
+2.39.0
+
 
 
