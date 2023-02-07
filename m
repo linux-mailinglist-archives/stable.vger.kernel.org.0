@@ -2,42 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 41FA868D8CC
-	for <lists+stable@lfdr.de>; Tue,  7 Feb 2023 14:13:11 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 60B2E68D8CE
+	for <lists+stable@lfdr.de>; Tue,  7 Feb 2023 14:13:13 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232591AbjBGNNK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Feb 2023 08:13:10 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59390 "EHLO
+        id S232516AbjBGNNL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Feb 2023 08:13:11 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60920 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232503AbjBGNMw (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Feb 2023 08:12:52 -0500
-Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 848C935270
-        for <stable@vger.kernel.org>; Tue,  7 Feb 2023 05:11:58 -0800 (PST)
+        with ESMTP id S232387AbjBGNMy (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Feb 2023 08:12:54 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1D80A3A5AB
+        for <stable@vger.kernel.org>; Tue,  7 Feb 2023 05:12:01 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 2CB80CE1C97
-        for <stable@vger.kernel.org>; Tue,  7 Feb 2023 13:11:49 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 118C5C433D2;
-        Tue,  7 Feb 2023 13:11:46 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 43208B8198C
+        for <stable@vger.kernel.org>; Tue,  7 Feb 2023 13:11:52 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 25A2AC433EF;
+        Tue,  7 Feb 2023 13:11:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1675775507;
-        bh=VABBjr9mrARkZ+fI/Xk9Qj9ilYzC4AM3ssk59QkQYgU=;
+        s=korg; t=1675775510;
+        bh=IpKskx7l58vHMhyYNb3eOTge3ScpB2wNf+nqYPud5O4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=gBPD/CW83kAaFwTeLdXQKY9zdhDidSH9yKifeN7Sqir1ztwmFN+Ij/KVyvLiCnc9n
-         vHySfAiWcI08Y3m0qSG4eZMPp+4y8Jn2clY6wuj0swahKYNXQFmmzHWsoe+DiSONA7
-         JlfSPq9OpkOGctWIskQRRShkkhaxyE6MORWwNL68=
+        b=IPbEwzb+nXdit+BPdRv9aZ+VsD2lcMjabTLa3QCUwO7pAu0CMgl7Wnp/YrxX1O2O1
+         +G62n+h2cPQ6kDsDZOt9JwlIFXfpX6rqLE3/MDk03FE227RFnNi+t5rA1W30RRU5yK
+         RJD3VURwEczgPCUenoSW+Adj2t82aQWWgrLQhtNY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Bryan ODonoghue <bryan.odonoghue@linaro.org>,
-        Neil Armstrong <neil.armstrong@linaro.org>,
+        patches@lists.linux.dev, John Keeping <john@metanate.com>,
+        Udipto Goswami <quic_ugoswami@quicinc.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 063/120] usb: dwc3: qcom: enable vbus override when in OTG dr-mode
-Date:   Tue,  7 Feb 2023 13:57:14 +0100
-Message-Id: <20230207125621.437706711@linuxfoundation.org>
+Subject: [PATCH 5.15 064/120] usb: gadget: f_fs: Fix unbalanced spinlock in __ffs_ep0_queue_wait
+Date:   Tue,  7 Feb 2023 13:57:15 +0100
+Message-Id: <20230207125621.475078310@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.1
 In-Reply-To: <20230207125618.699726054@linuxfoundation.org>
 References: <20230207125618.699726054@linuxfoundation.org>
@@ -54,37 +53,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Neil Armstrong <neil.armstrong@linaro.org>
+From: Udipto Goswami <quic_ugoswami@quicinc.com>
 
-[ Upstream commit eb320f76e31dc835b9f57f04af1a2353b13bb7d8 ]
+[ Upstream commit 921deb9da15851425ccbb6ee409dc2fd8fbdfe6b ]
 
-With vbus override enabled when in OTG dr_mode, Host<->Peripheral
-switch now works on SM8550, otherwise the DWC3 seems to be stuck
-in Host mode only.
+__ffs_ep0_queue_wait executes holding the spinlock of &ffs->ev.waitq.lock
+and unlocks it after the assignments to usb_request are done.
+However in the code if the request is already NULL we bail out returning
+-EINVAL but never unlocked the spinlock.
 
-Fixes: a4333c3a6ba9 ("usb: dwc3: Add Qualcomm DWC3 glue driver")
-Reviewed-by: Bryan O'Donoghue <bryan.odonoghue@linaro.org>
-Signed-off-by: Neil Armstrong <neil.armstrong@linaro.org>
-Link: https://lore.kernel.org/r/20230123-topic-sm8550-upstream-dwc3-qcom-otg-v2-1-2d400e598463@linaro.org
+Fix this by adding spin_unlock_irq &ffs->ev.waitq.lock before returning.
+
+Fixes: 6a19da111057 ("usb: gadget: f_fs: Prevent race during ffs_ep0_queue_wait")
+Reviewed-by: John Keeping <john@metanate.com>
+Signed-off-by: Udipto Goswami <quic_ugoswami@quicinc.com>
+Link: https://lore.kernel.org/r/20230124091149.18647-1-quic_ugoswami@quicinc.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/usb/dwc3/dwc3-qcom.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/usb/gadget/function/f_fs.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/usb/dwc3/dwc3-qcom.c b/drivers/usb/dwc3/dwc3-qcom.c
-index ec1de6f6c290..28bc7480acf3 100644
---- a/drivers/usb/dwc3/dwc3-qcom.c
-+++ b/drivers/usb/dwc3/dwc3-qcom.c
-@@ -836,7 +836,7 @@ static int dwc3_qcom_probe(struct platform_device *pdev)
- 	qcom->mode = usb_get_dr_mode(&qcom->dwc3->dev);
+diff --git a/drivers/usb/gadget/function/f_fs.c b/drivers/usb/gadget/function/f_fs.c
+index c9145ee95956..f975111bd974 100644
+--- a/drivers/usb/gadget/function/f_fs.c
++++ b/drivers/usb/gadget/function/f_fs.c
+@@ -279,8 +279,10 @@ static int __ffs_ep0_queue_wait(struct ffs_data *ffs, char *data, size_t len)
+ 	struct usb_request *req = ffs->ep0req;
+ 	int ret;
  
- 	/* enable vbus override for device mode */
--	if (qcom->mode == USB_DR_MODE_PERIPHERAL)
-+	if (qcom->mode != USB_DR_MODE_HOST)
- 		dwc3_qcom_vbus_override_enable(qcom, true);
+-	if (!req)
++	if (!req) {
++		spin_unlock_irq(&ffs->ev.waitq.lock);
+ 		return -EINVAL;
++	}
  
- 	/* register extcon to override sw_vbus on Vbus change later */
+ 	req->zero     = len < le16_to_cpu(ffs->ev.setup.wLength);
+ 
 -- 
 2.39.0
 
