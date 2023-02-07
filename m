@@ -2,55 +2,51 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 720DE68D834
-	for <lists+stable@lfdr.de>; Tue,  7 Feb 2023 14:07:38 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 589A368D8AF
+	for <lists+stable@lfdr.de>; Tue,  7 Feb 2023 14:11:49 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232178AbjBGNHh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Feb 2023 08:07:37 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55548 "EHLO
+        id S232409AbjBGNLr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Feb 2023 08:11:47 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60974 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232216AbjBGNHg (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Feb 2023 08:07:36 -0500
-Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2C4257697
-        for <stable@vger.kernel.org>; Tue,  7 Feb 2023 05:06:57 -0800 (PST)
+        with ESMTP id S232408AbjBGNL2 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Feb 2023 08:11:28 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6E56C3C28F
+        for <stable@vger.kernel.org>; Tue,  7 Feb 2023 05:10:41 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id B90FACE1D90
-        for <stable@vger.kernel.org>; Tue,  7 Feb 2023 13:05:56 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id AD8CCC4339B;
-        Tue,  7 Feb 2023 13:05:54 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 0DAA1B81991
+        for <stable@vger.kernel.org>; Tue,  7 Feb 2023 13:10:41 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4652DC4339C;
+        Tue,  7 Feb 2023 13:10:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1675775155;
-        bh=YuAxhSscfdcXIpSSCrr/6za3dBM/xLH3uBpNT/2Ut+c=;
+        s=korg; t=1675775439;
+        bh=8CHkmZt8aIAFvrdwZKg6ZmkSa5OcvrJUifyJDZ7JoWM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=kZ0Mul67Ydjxv3g0Mxj23eC7pUQWdZkoSLftJWMIE9CbTN1EGgokOlLFro40MAjhp
-         CjifWopFZJgaMkN45h+iZv6z9xbPafEvo4FCt4iYAwl9r77WC7yWYy1J/QO10ungoI
-         +QHJ0U4bm3YxCgpGRLERJIMyGJ25DhbPblV7NYRY=
+        b=IZMzbxYpGmJqA5WoO9fx7f+fup7+SulbxzhNXSgTKkjFouSX5pwyTgx8Hs8eOKQIM
+         kMS7d4fIqaBLWFzI/7w8TZ5zazknDUII7BHa/0XfRUEAi8A2GTe5/2Oc/qqrZOVZtA
+         eCkwaHkzUXVCk9fuEKbejmaM+oeix/C5ycmLw2FU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         patches@lists.linux.dev,
-        "Isaac J. Manjarres" <isaacmanjarres@google.com>,
-        Catalin Marinas <catalin.marinas@arm.com>,
-        Calvin Zhang <calvinzhang.cool@gmail.com>,
-        Frank Rowand <frowand.list@gmail.com>,
-        Rob Herring <robh+dt@kernel.org>,
-        Saravana Kannan <saravanak@google.com>,
-        Andrew Morton <akpm@linux-foundation.org>
-Subject: [PATCH 6.1 155/208] Revert "mm: kmemleak: alloc gray object for reserved region with direct map"
-Date:   Tue,  7 Feb 2023 13:56:49 +0100
-Message-Id: <20230207125641.483877071@linuxfoundation.org>
+        Thomas Winter <Thomas.Winter@alliedtelesis.co.nz>,
+        Jakub Kicinski <kuba@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.15 039/120] ip/ip6_gre: Fix non-point-to-point tunnel not generating IPv6 link local address
+Date:   Tue,  7 Feb 2023 13:56:50 +0100
+Message-Id: <20230207125620.440970175@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.1
-In-Reply-To: <20230207125634.292109991@linuxfoundation.org>
-References: <20230207125634.292109991@linuxfoundation.org>
+In-Reply-To: <20230207125618.699726054@linuxfoundation.org>
+References: <20230207125618.699726054@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
         SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -58,61 +54,61 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Isaac J. Manjarres <isaacmanjarres@google.com>
+From: Thomas Winter <Thomas.Winter@alliedtelesis.co.nz>
 
-commit 8ef852f1cb426a5812aee700d3b4297aaa426acc upstream.
+[ Upstream commit 30e2291f61f93f7132c060190f8360df52644ec1 ]
 
-This reverts commit 972fa3a7c17c9d60212e32ecc0205dc585b1e769.
+We recently found that our non-point-to-point tunnels were not
+generating any IPv6 link local address and instead generating an
+IPv6 compat address, breaking IPv6 communication on the tunnel.
 
-Kmemleak operates by periodically scanning memory regions for pointers to
-allocated memory blocks to determine if they are leaked or not.  However,
-reserved memory regions can be used for DMA transactions between a device
-and a CPU, and thus, wouldn't contain pointers to allocated memory blocks,
-making them inappropriate for kmemleak to scan.  Thus, revert this commit.
+Previously, addrconf_gre_config always would call addrconf_addr_gen
+and generate a EUI64 link local address for the tunnel.
+Then commit e5dd729460ca changed the code path so that add_v4_addrs
+is called but this only generates a compat IPv6 address for
+non-point-to-point tunnels.
 
-Link: https://lkml.kernel.org/r/20230124230254.295589-1-isaacmanjarres@google.com
-Fixes: 972fa3a7c17c9 ("mm: kmemleak: alloc gray object for reserved region with direct map")
-Signed-off-by: Isaac J. Manjarres <isaacmanjarres@google.com>
-Acked-by: Catalin Marinas <catalin.marinas@arm.com>
-Cc: Calvin Zhang <calvinzhang.cool@gmail.com>
-Cc: Frank Rowand <frowand.list@gmail.com>
-Cc: Rob Herring <robh+dt@kernel.org>
-Cc: Saravana Kannan <saravanak@google.com>
-Cc: <stable@vger.kernel.org>	[5.17+]
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+I assume the compat address is specifically for SIT tunnels so
+have kept that only for SIT - GRE tunnels now always generate link
+local addresses.
+
+Fixes: e5dd729460ca ("ip/ip6_gre: use the same logic as SIT interfaces when computing v6LL address")
+Signed-off-by: Thomas Winter <Thomas.Winter@alliedtelesis.co.nz>
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/of/fdt.c | 6 +-----
- 1 file changed, 1 insertion(+), 5 deletions(-)
+ net/ipv6/addrconf.c | 10 +++++-----
+ 1 file changed, 5 insertions(+), 5 deletions(-)
 
-diff --git a/drivers/of/fdt.c b/drivers/of/fdt.c
-index f08b25195ae7..d1a68b6d03b3 100644
---- a/drivers/of/fdt.c
-+++ b/drivers/of/fdt.c
-@@ -26,7 +26,6 @@
- #include <linux/serial_core.h>
- #include <linux/sysfs.h>
- #include <linux/random.h>
--#include <linux/kmemleak.h>
+diff --git a/net/ipv6/addrconf.c b/net/ipv6/addrconf.c
+index cc1c94bc5b0e..6ba34f51c411 100644
+--- a/net/ipv6/addrconf.c
++++ b/net/ipv6/addrconf.c
+@@ -3129,17 +3129,17 @@ static void add_v4_addrs(struct inet6_dev *idev)
+ 		offset = sizeof(struct in6_addr) - 4;
+ 	memcpy(&addr.s6_addr32[3], idev->dev->dev_addr + offset, 4);
  
- #include <asm/setup.h>  /* for COMMAND_LINE_SIZE */
- #include <asm/page.h>
-@@ -525,12 +524,9 @@ static int __init __reserved_mem_reserve_reg(unsigned long node,
- 		size = dt_mem_next_cell(dt_root_size_cells, &prop);
+-	if (idev->dev->flags&IFF_POINTOPOINT) {
++	if (!(idev->dev->flags & IFF_POINTOPOINT) && idev->dev->type == ARPHRD_SIT) {
++		scope = IPV6_ADDR_COMPATv4;
++		plen = 96;
++		pflags |= RTF_NONEXTHOP;
++	} else {
+ 		if (idev->cnf.addr_gen_mode == IN6_ADDR_GEN_MODE_NONE)
+ 			return;
  
- 		if (size &&
--		    early_init_dt_reserve_memory(base, size, nomap) == 0) {
-+		    early_init_dt_reserve_memory(base, size, nomap) == 0)
- 			pr_debug("Reserved memory: reserved region for node '%s': base %pa, size %lu MiB\n",
- 				uname, &base, (unsigned long)(size / SZ_1M));
--			if (!nomap)
--				kmemleak_alloc_phys(base, size, 0);
--		}
- 		else
- 			pr_err("Reserved memory: failed to reserve memory for node '%s': base %pa, size %lu MiB\n",
- 			       uname, &base, (unsigned long)(size / SZ_1M));
+ 		addr.s6_addr32[0] = htonl(0xfe800000);
+ 		scope = IFA_LINK;
+ 		plen = 64;
+-	} else {
+-		scope = IPV6_ADDR_COMPATv4;
+-		plen = 96;
+-		pflags |= RTF_NONEXTHOP;
+ 	}
+ 
+ 	if (addr.s6_addr32[3]) {
 -- 
-2.39.1
+2.39.0
 
 
 
