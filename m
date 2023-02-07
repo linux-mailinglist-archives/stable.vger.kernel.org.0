@@ -2,50 +2,49 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id DFCC068D905
-	for <lists+stable@lfdr.de>; Tue,  7 Feb 2023 14:15:12 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6561B68D85A
+	for <lists+stable@lfdr.de>; Tue,  7 Feb 2023 14:08:52 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232466AbjBGNPL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Feb 2023 08:15:11 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59394 "EHLO
+        id S232283AbjBGNIv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Feb 2023 08:08:51 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57416 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232740AbjBGNO5 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Feb 2023 08:14:57 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3FB832386B
-        for <stable@vger.kernel.org>; Tue,  7 Feb 2023 05:14:43 -0800 (PST)
+        with ESMTP id S232276AbjBGNIu (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Feb 2023 08:08:50 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A45893A869
+        for <stable@vger.kernel.org>; Tue,  7 Feb 2023 05:08:19 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 40D99B81977
-        for <stable@vger.kernel.org>; Tue,  7 Feb 2023 13:14:11 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7E51AC433EF;
-        Tue,  7 Feb 2023 13:14:09 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 14477B81996
+        for <stable@vger.kernel.org>; Tue,  7 Feb 2023 13:08:07 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 421C4C433D2;
+        Tue,  7 Feb 2023 13:08:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1675775650;
-        bh=E/2uAleW193iYSoF3EWEG2aHf0e9jDEeAf7JcQHrP8c=;
+        s=korg; t=1675775285;
+        bh=9GJdinjANYFCzCmhoC+afbNe+2RjdAv0oZ3PI/E+JV8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=AO1Cvdxsu1l/KY+lvvP/AD3WQ6D4N5eJH4cxVWkLWc268cMj2fL5XMFl/WIPcCqau
-         eOTT8asED3PabX+dxEONT1DfCJ/8HkydVmbvq9XZNVsplO/7zJE3d5d9n5cfFWvk0c
-         23RAf25eGF8wpJJGtudYUJU6xQMgfUrC9O+AI7Mw=
+        b=W9BHXzlofoQRly432gjj04s1i9XfQ4gF2dpahQj6IHQUgQtaCyi1exMkQSdDQzFk8
+         MJFvo1A+0BJ+sdaRblI2vPspOkbjCrTHQwHBBeEjmobmJolSHGR/9EPXTP3aF+IJHg
+         x4oURyCKAQD5TktYJ0vfWQb8oohYJ2xLdWvsosrc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Carlos Song <carlos.song@nxp.com>,
-        Stable@vger.kernel.org,
-        Jonathan Cameron <Jonathan.Cameron@huawei.com>
-Subject: [PATCH 5.15 081/120] iio: imu: fxos8700: fix swapped ACCEL and MAGN channels readback
+        patches@lists.linux.dev, Nicholas Piggin <npiggin@gmail.com>,
+        Michael Ellerman <mpe@ellerman.id.au>
+Subject: [PATCH 6.1 198/208] powerpc/64s: Fix local irq disable when PMIs are disabled
 Date:   Tue,  7 Feb 2023 13:57:32 +0100
-Message-Id: <20230207125622.181032721@linuxfoundation.org>
+Message-Id: <20230207125643.463143801@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.1
-In-Reply-To: <20230207125618.699726054@linuxfoundation.org>
-References: <20230207125618.699726054@linuxfoundation.org>
+In-Reply-To: <20230207125634.292109991@linuxfoundation.org>
+References: <20230207125634.292109991@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
         SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -53,50 +52,50 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Carlos Song <carlos.song@nxp.com>
+From: Nicholas Piggin <npiggin@gmail.com>
 
-commit c68b44bc7d9b1469774a1c985ee71d2cbc5ebef5 upstream.
+commit bc88ef663265676419555df2dc469a471c0add31 upstream.
 
-Because ACCEL and MAGN channels data register base address is
-swapped the accelerometer and magnetometer channels readback is
-swapped.
+When PMI interrupts are soft-masked, local_irq_save() will clear the PMI
+mask bit, allowing PMIs in and causing a race condition. This causes a
+deadlock in native_hpte_insert via hash_preload, which depends on PMIs
+being disabled since commit 8b91cee5eadd ("powerpc/64s/hash: Make hash
+faults work in NMI context"). native_hpte_insert calls local_irq_save().
+It's possible the lpar hash code is also affected when tracing is
+enabled because __trace_hcall_entry() calls local_irq_save().
 
-Fixes: 84e5ddd5c46e ("iio: imu: Add support for the FXOS8700 IMU")
-Signed-off-by: Carlos Song <carlos.song@nxp.com>
-Link: https://lore.kernel.org/r/20221208071911.2405922-3-carlos.song@nxp.com
-Cc: <Stable@vger.kernel.org>
-Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
+Fix this by making arch_local_irq_save() _or_ the IRQS_DISABLED bit into
+the mask.
+
+This was found with the stress_hpt option with a kbuild workload running
+together with `perf record -g`.
+
+Fixes: f442d004806e ("powerpc/64s: Add support to mask perf interrupts and replay them")
+Fixes: 8b91cee5eadd ("powerpc/64s/hash: Make hash faults work in NMI context")
+Signed-off-by: Nicholas Piggin <npiggin@gmail.com>
+[mpe: Just take the fix without the new warning]
+Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
+Link: https://lore.kernel.org/r/20230121095352.2823517-1-npiggin@gmail.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/iio/imu/fxos8700_core.c |   17 +++++++++++++++--
- 1 file changed, 15 insertions(+), 2 deletions(-)
+ arch/powerpc/include/asm/hw_irq.h | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/iio/imu/fxos8700_core.c
-+++ b/drivers/iio/imu/fxos8700_core.c
-@@ -420,9 +420,22 @@ static int fxos8700_get_data(struct fxos
- 	u8 base, reg;
- 	s16 tmp;
- 	int ret;
--	enum fxos8700_sensor type = fxos8700_to_sensor(chan_type);
+diff --git a/arch/powerpc/include/asm/hw_irq.h b/arch/powerpc/include/asm/hw_irq.h
+index 77fa88c2aed0..0b7d01d408ac 100644
+--- a/arch/powerpc/include/asm/hw_irq.h
++++ b/arch/powerpc/include/asm/hw_irq.h
+@@ -192,7 +192,7 @@ static inline void arch_local_irq_enable(void)
  
--	base = type ? FXOS8700_OUT_X_MSB : FXOS8700_M_OUT_X_MSB;
-+	/*
-+	 * Different register base addresses varies with channel types.
-+	 * This bug hasn't been noticed before because using an enum is
-+	 * really hard to read. Use an a switch statement to take over that.
-+	 */
-+	switch (chan_type) {
-+	case IIO_ACCEL:
-+		base = FXOS8700_OUT_X_MSB;
-+		break;
-+	case IIO_MAGN:
-+		base = FXOS8700_M_OUT_X_MSB;
-+		break;
-+	default:
-+		return -EINVAL;
-+	}
+ static inline unsigned long arch_local_irq_save(void)
+ {
+-	return irq_soft_mask_set_return(IRQS_DISABLED);
++	return irq_soft_mask_or_return(IRQS_DISABLED);
+ }
  
- 	/* Block read 6 bytes of device output registers to avoid data loss */
- 	ret = regmap_bulk_read(data->regmap, base, data->buf,
+ static inline bool arch_irqs_disabled_flags(unsigned long flags)
+-- 
+2.39.1
+
 
 
