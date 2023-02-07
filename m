@@ -2,47 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B427768D25E
-	for <lists+stable@lfdr.de>; Tue,  7 Feb 2023 10:16:25 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 38F6268D263
+	for <lists+stable@lfdr.de>; Tue,  7 Feb 2023 10:17:20 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231429AbjBGJQY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Feb 2023 04:16:24 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57504 "EHLO
+        id S231424AbjBGJRS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Feb 2023 04:17:18 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58436 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231438AbjBGJQT (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Feb 2023 04:16:19 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BC00537F14
-        for <stable@vger.kernel.org>; Tue,  7 Feb 2023 01:16:18 -0800 (PST)
+        with ESMTP id S231396AbjBGJRR (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Feb 2023 04:17:17 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 850162386B
+        for <stable@vger.kernel.org>; Tue,  7 Feb 2023 01:17:15 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 57C8F6123B
-        for <stable@vger.kernel.org>; Tue,  7 Feb 2023 09:16:18 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 48EA8C433D2;
-        Tue,  7 Feb 2023 09:16:17 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 184496123F
+        for <stable@vger.kernel.org>; Tue,  7 Feb 2023 09:17:15 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 06795C433EF;
+        Tue,  7 Feb 2023 09:17:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1675761377;
-        bh=GGRzdeUvL7W7IFS2GUQLX2i44Lr+IaXIUW2NOif9ils=;
+        s=korg; t=1675761434;
+        bh=lHEk1RJUwzl8zTkajIMyQWGjlMIG6M2xYSxaqQVoGgU=;
         h=Subject:To:Cc:From:Date:From;
-        b=ZiIQ6JsKKhhwcKrTpxsndSxcKT+v1jqLVO47VmRwP4wjZKf91xcb+Tch9ERAcRlt0
-         +HQmW6J12JnscpZRfaItUm2ChXyLIqnyGW/g/BxwiiSML4HKCM0NyzERRXiQUIPGHo
-         rF7up3lYayCLwaGduFtRGMSQ0ypgc+pDlFd8RmOc=
-Subject: FAILED: patch "[PATCH] migrate: hugetlb: check for hugetlb shared PMD in node" failed to apply to 4.14-stable tree
-To:     mike.kravetz@oracle.com, akpm@linux-foundation.org,
-        david@redhat.com, jthoughton@google.com, mhocko@suse.com,
-        naoya.horiguchi@linux.dev, peterx@redhat.com, shy828301@gmail.com,
-        songmuchun@bytedance.com, stable@vger.kernel.org,
-        vishal.moola@gmail.com, willy@infradead.org
+        b=dGnHF+X9RhCCqQvkYXt3IWLdpRXsu7tv8ON6qMHCJpziGV9iAF2ZKQUYZlG1dJhZa
+         N5AmFc/zO0yVaYBE2yu18O8i0PjfjoQibUQkwLxB5AnnfXsCPmrSaE0lZvAybqTv2h
+         evRYsUUA1u16nL5C5dGRdogqdu7HXtIM9QY5tmok=
+Subject: FAILED: patch "[PATCH] serial: 8250_dma: Fix DMA Rx rearm race" failed to apply to all-stable tree
+To:     ilpo.jarvinen@linux.intel.com, gilles.buloz@kontron.com,
+        gregkh@linuxfoundation.org
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Tue, 07 Feb 2023 10:16:06 +0100
-Message-ID: <167576136678198@kroah.com>
+Date:   Tue, 07 Feb 2023 10:17:11 +0100
+Message-ID: <16757614314665@kroah.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ANSI_X3.4-1968
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
         SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -51,33 +48,14 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.14-stable tree.
+The patch below does not apply to the all-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
 
 Possible dependencies:
 
-73bdf65ea748 ("migrate: hugetlb: check for hugetlb shared PMD in node migration")
-7ce82f4c3f3e ("mm/migration: return errno when isolate_huge_page failed")
-1b7f7e58decc ("mm/gup: Convert check_and_migrate_movable_pages() to use a folio")
-f9f38f78c5d5 ("mm: refactor check_and_migrate_movable_pages")
-5ac95884a784 ("mm/migrate: enable returning precise migrate_pages() success count")
-c5b5a3dd2c1f ("mm: thp: refactor NUMA fault handling")
-5db4f15c4fd7 ("mm: memory: add orig_pmd to struct vm_fault")
-8f34f1eac382 ("mm/userfaultfd: fix uffd-wp special cases for fork()")
-25182f05ffed ("mm,hwpoison: fix race with hugetlb page allocation")
-f68749ec342b ("mm/gup: longterm pin migration cleanup")
-d1e153fea2a8 ("mm/gup: migrate pinned pages out of movable zone")
-1a08ae36cf8b ("mm cma: rename PF_MEMALLOC_NOCMA to PF_MEMALLOC_PIN")
-6e7f34ebb8d2 ("mm/gup: check for isolation errors")
-f0f4463837da ("mm/gup: return an error on migration failure")
-83c02c23d074 ("mm/gup: check every subpage of a compound page during isolation")
-c991ffef7bce ("mm/gup: don't pin migrated cma pages in movable zone")
-7ee820ee7238 ("Revert "mm: migrate: skip shared exec THP for NUMA balancing"")
-ae37c7ff79f1 ("mm: make alloc_contig_range handle in-use hugetlb pages")
-369fa227c219 ("mm: make alloc_contig_range handle free hugetlb pages")
-c2ad7a1ffeaf ("mm,compaction: let isolate_migratepages_{range,block} return error codes")
+
 
 thanks,
 
@@ -85,49 +63,87 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From 73bdf65ea74857d7fb2ec3067a3cec0e261b1462 Mon Sep 17 00:00:00 2001
-From: Mike Kravetz <mike.kravetz@oracle.com>
-Date: Thu, 26 Jan 2023 14:27:21 -0800
-Subject: [PATCH] migrate: hugetlb: check for hugetlb shared PMD in node
- migration
+From 57e9af7831dcf211c5c689c2a6f209f4abdf0bce Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Ilpo=20J=C3=A4rvinen?= <ilpo.jarvinen@linux.intel.com>
+Date: Mon, 30 Jan 2023 13:48:41 +0200
+Subject: [PATCH] serial: 8250_dma: Fix DMA Rx rearm race
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
 
-migrate_pages/mempolicy semantics state that CAP_SYS_NICE is required to
-move pages shared with another process to a different node.  page_mapcount
-> 1 is being used to determine if a hugetlb page is shared.  However, a
-hugetlb page will have a mapcount of 1 if mapped by multiple processes via
-a shared PMD.  As a result, hugetlb pages shared by multiple processes and
-mapped with a shared PMD can be moved by a process without CAP_SYS_NICE.
+As DMA Rx can be completed from two places, it is possible that DMA Rx
+completes before DMA completion callback had a chance to complete it.
+Once the previous DMA Rx has been completed, a new one can be started
+on the next UART interrupt. The following race is possible
+(uart_unlock_and_check_sysrq_irqrestore() replaced with
+spin_unlock_irqrestore() for simplicity/clarity):
 
-To fix, check for a shared PMD if mapcount is 1.  If a shared PMD is found
-consider the page shared.
+CPU0					CPU1
+					dma_rx_complete()
+serial8250_handle_irq()
+  spin_lock_irqsave(&port->lock)
+  handle_rx_dma()
+    serial8250_rx_dma_flush()
+      __dma_rx_complete()
+        dma->rx_running = 0
+        // Complete DMA Rx
+  spin_unlock_irqrestore(&port->lock)
 
-Link: https://lkml.kernel.org/r/20230126222721.222195-3-mike.kravetz@oracle.com
-Fixes: e2d8cf405525 ("migrate: add hugepage migration code to migrate_pages()")
-Signed-off-by: Mike Kravetz <mike.kravetz@oracle.com>
-Acked-by: Peter Xu <peterx@redhat.com>
-Acked-by: David Hildenbrand <david@redhat.com>
-Cc: James Houghton <jthoughton@google.com>
-Cc: Matthew Wilcox <willy@infradead.org>
-Cc: Michal Hocko <mhocko@suse.com>
-Cc: Muchun Song <songmuchun@bytedance.com>
-Cc: Naoya Horiguchi <naoya.horiguchi@linux.dev>
-Cc: Vishal Moola (Oracle) <vishal.moola@gmail.com>
-Cc: Yang Shi <shy828301@gmail.com>
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+serial8250_handle_irq()
+  spin_lock_irqsave(&port->lock)
+  handle_rx_dma()
+    serial8250_rx_dma()
+      dma->rx_running = 1
+      // Setup a new DMA Rx
+  spin_unlock_irqrestore(&port->lock)
 
-diff --git a/mm/mempolicy.c b/mm/mempolicy.c
-index 02c8a712282f..f940395667c8 100644
---- a/mm/mempolicy.c
-+++ b/mm/mempolicy.c
-@@ -600,7 +600,8 @@ static int queue_pages_hugetlb(pte_t *pte, unsigned long hmask,
+					  spin_lock_irqsave(&port->lock)
+					  // sees dma->rx_running = 1
+					  __dma_rx_complete()
+					    dma->rx_running = 0
+					    // Incorrectly complete
+					    // running DMA Rx
+
+This race seems somewhat theoretical to occur for real but handle it
+correctly regardless. Check what is the DMA status before complething
+anything in __dma_rx_complete().
+
+Reported-by: Gilles BULOZ <gilles.buloz@kontron.com>
+Tested-by: Gilles BULOZ <gilles.buloz@kontron.com>
+Fixes: 9ee4b83e51f7 ("serial: 8250: Add support for dmaengine")
+Cc: stable@vger.kernel.org
+Signed-off-by: Ilpo Järvinen <ilpo.jarvinen@linux.intel.com>
+Link: https://lore.kernel.org/r/20230130114841.25749-3-ilpo.jarvinen@linux.intel.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+
+diff --git a/drivers/tty/serial/8250/8250_dma.c b/drivers/tty/serial/8250/8250_dma.c
+index 5594883a96f8..7fa66501792d 100644
+--- a/drivers/tty/serial/8250/8250_dma.c
++++ b/drivers/tty/serial/8250/8250_dma.c
+@@ -43,15 +43,23 @@ static void __dma_rx_complete(struct uart_8250_port *p)
+ 	struct uart_8250_dma	*dma = p->dma;
+ 	struct tty_port		*tty_port = &p->port.state->port;
+ 	struct dma_tx_state	state;
++	enum dma_status		dma_status;
+ 	int			count;
  
- 	/* With MPOL_MF_MOVE, we migrate only unshared hugepage. */
- 	if (flags & (MPOL_MF_MOVE_ALL) ||
--	    (flags & MPOL_MF_MOVE && page_mapcount(page) == 1)) {
-+	    (flags & MPOL_MF_MOVE && page_mapcount(page) == 1 &&
-+	     !hugetlb_pmd_shared(pte))) {
- 		if (isolate_hugetlb(page, qp->pagelist) &&
- 			(flags & MPOL_MF_STRICT))
- 			/*
+-	dma->rx_running = 0;
+-	dmaengine_tx_status(dma->rxchan, dma->rx_cookie, &state);
++	/*
++	 * New DMA Rx can be started during the completion handler before it
++	 * could acquire port's lock and it might still be ongoing. Don't to
++	 * anything in such case.
++	 */
++	dma_status = dmaengine_tx_status(dma->rxchan, dma->rx_cookie, &state);
++	if (dma_status == DMA_IN_PROGRESS)
++		return;
+ 
+ 	count = dma->rx_size - state.residue;
+ 
+ 	tty_insert_flip_string(tty_port, dma->rx_buf, count);
+ 	p->port.icount.rx += count;
++	dma->rx_running = 0;
+ 
+ 	tty_flip_buffer_push(tty_port);
+ }
 
