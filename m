@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 38F6268D263
-	for <lists+stable@lfdr.de>; Tue,  7 Feb 2023 10:17:20 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9B2F868D264
+	for <lists+stable@lfdr.de>; Tue,  7 Feb 2023 10:17:27 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231424AbjBGJRS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Feb 2023 04:17:18 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58436 "EHLO
+        id S231422AbjBGJR0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Feb 2023 04:17:26 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58640 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231396AbjBGJRR (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Feb 2023 04:17:17 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 850162386B
-        for <stable@vger.kernel.org>; Tue,  7 Feb 2023 01:17:15 -0800 (PST)
+        with ESMTP id S231440AbjBGJRY (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Feb 2023 04:17:24 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A323324484
+        for <stable@vger.kernel.org>; Tue,  7 Feb 2023 01:17:21 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 184496123F
-        for <stable@vger.kernel.org>; Tue,  7 Feb 2023 09:17:15 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 06795C433EF;
-        Tue,  7 Feb 2023 09:17:13 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 1DD6D6123A
+        for <stable@vger.kernel.org>; Tue,  7 Feb 2023 09:17:21 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2ACB5C433D2;
+        Tue,  7 Feb 2023 09:17:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1675761434;
-        bh=lHEk1RJUwzl8zTkajIMyQWGjlMIG6M2xYSxaqQVoGgU=;
+        s=korg; t=1675761440;
+        bh=CK0aQMUdZfL6jE794AIMLFgLNn/qE0FG5PsfN2CmafI=;
         h=Subject:To:Cc:From:Date:From;
-        b=dGnHF+X9RhCCqQvkYXt3IWLdpRXsu7tv8ON6qMHCJpziGV9iAF2ZKQUYZlG1dJhZa
-         N5AmFc/zO0yVaYBE2yu18O8i0PjfjoQibUQkwLxB5AnnfXsCPmrSaE0lZvAybqTv2h
-         evRYsUUA1u16nL5C5dGRdogqdu7HXtIM9QY5tmok=
-Subject: FAILED: patch "[PATCH] serial: 8250_dma: Fix DMA Rx rearm race" failed to apply to all-stable tree
+        b=uFBZMvQizpx/RUoXoNhIbu5SyhwTLHcWkY2idtBovO/gelM/jSbyITaThGS+YAW2o
+         bRaAKSall5ISnUo3W2tSYuT/LZYpf75SJKkCTQXBgb4/YkZmqPD4/Q1AIJJNrkB8cJ
+         lO0JAMjfG52gy5LKDHorgGYmtR1uq0ERgldxYyDk=
+Subject: FAILED: patch "[PATCH] serial: 8250_dma: Fix DMA Rx rearm race" failed to apply to 6.1-stable tree
 To:     ilpo.jarvinen@linux.intel.com, gilles.buloz@kontron.com,
         gregkh@linuxfoundation.org
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Tue, 07 Feb 2023 10:17:11 +0100
-Message-ID: <16757614314665@kroah.com>
+Date:   Tue, 07 Feb 2023 10:17:17 +0100
+Message-ID: <1675761437139210@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
         SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -48,14 +48,14 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the all-stable tree.
+The patch below does not apply to the 6.1-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
 
 Possible dependencies:
 
-
+57e9af7831dc ("serial: 8250_dma: Fix DMA Rx rearm race")
 
 thanks,
 
