@@ -2,44 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 9637568D8FE
-	for <lists+stable@lfdr.de>; Tue,  7 Feb 2023 14:15:08 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id EED8268D860
+	for <lists+stable@lfdr.de>; Tue,  7 Feb 2023 14:09:09 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232174AbjBGNPH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Feb 2023 08:15:07 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60922 "EHLO
+        id S232296AbjBGNJI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Feb 2023 08:09:08 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57872 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232562AbjBGNOq (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Feb 2023 08:14:46 -0500
+        with ESMTP id S232294AbjBGNJI (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Feb 2023 08:09:08 -0500
 Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5BB4939CD4
-        for <stable@vger.kernel.org>; Tue,  7 Feb 2023 05:14:24 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BCF4339B98
+        for <stable@vger.kernel.org>; Tue,  7 Feb 2023 05:08:31 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 57802CE1DAE
-        for <stable@vger.kernel.org>; Tue,  7 Feb 2023 13:14:00 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 81F9CC433EF;
-        Tue,  7 Feb 2023 13:13:57 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 61F01CE1DA0
+        for <stable@vger.kernel.org>; Tue,  7 Feb 2023 13:07:52 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1CA54C433EF;
+        Tue,  7 Feb 2023 13:07:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1675775637;
-        bh=Xt3IOYl9LSvImaehPZVqaYjoAJmamT99nIBsGcHE3nw=;
+        s=korg; t=1675775270;
+        bh=LdmUlfcJx7v6Z4LVgzmCWROplouTj3dNtEHHdETCLsA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=sNOHWZjOeITMNgunGvQmitVCMm4THVgy1nC710KprzLxw2wo+c0qpDS4mHnmKlAqQ
-         sLrfWSXnnozcnGc4x4AEAq8sIMeq0/WvzyV03rkTjmh3RjiLijA01CHxumK3D+wFNL
-         zKfCKr4Fd01tpn4v+D8SAHkKB8WwwlZr4a3xng8k=
+        b=nV6lBLH5tx9VR8N33dB5ld1Z+XwfblboSJ+a7XbiuE04XLjTR2HUJCSWXg9GtM0mk
+         SdwyB+uTW9qo0xNqY7s3KHm0FzGVV8HFFjzGwy1ZG6IMRtT5M82nH0ONYjz3EESIMN
+         x8rtEn/9BhGGdMtnVa+YJuSrri8CVPAr6C3vbTvA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Carlos Song <carlos.song@nxp.com>,
-        Stable@vger.kernel.org,
-        Jonathan Cameron <Jonathan.Cameron@huawei.com>
-Subject: [PATCH 5.15 077/120] iio: imu: fxos8700: fix ACCEL measurement range selection
+        patches@lists.linux.dev, Arnd Bergmann <arnd@arndb.de>,
+        Hans de Goede <hdegoede@redhat.com>
+Subject: [PATCH 6.1 194/208] platform/x86/amd: pmc: add CONFIG_SERIO dependency
 Date:   Tue,  7 Feb 2023 13:57:28 +0100
-Message-Id: <20230207125622.025779545@linuxfoundation.org>
+Message-Id: <20230207125643.270957414@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.1
-In-Reply-To: <20230207125618.699726054@linuxfoundation.org>
-References: <20230207125618.699726054@linuxfoundation.org>
+In-Reply-To: <20230207125634.292109991@linuxfoundation.org>
+References: <20230207125634.292109991@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,102 +52,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Carlos Song <carlos.song@nxp.com>
+From: Arnd Bergmann <arnd@arndb.de>
 
-commit 9d61c1820598a5ea474576ed55318a6dadee37ed upstream.
+commit abce209d18fd26e865b2406cc68819289db973f9 upstream.
 
-When device is in active mode, it fails to set an ACCEL full-scale
-range(2g/4g/8g) in FXOS8700_XYZ_DATA_CFG. This is not align with the
-datasheet, but it is a fxos8700 chip behavior.
+Using the serio subsystem now requires the code to be reachable:
 
-Keep the device in standby mode before setting ACCEL full-scale range
-into FXOS8700_XYZ_DATA_CFG in chip initialization phase and setting
-scale phase.
+x86_64-linux-ld: drivers/platform/x86/amd/pmc.o: in function `amd_pmc_suspend_handler':
+pmc.c:(.text+0x86c): undefined reference to `serio_bus'
 
-Fixes: 84e5ddd5c46e ("iio: imu: Add support for the FXOS8700 IMU")
-Signed-off-by: Carlos Song <carlos.song@nxp.com>
-Link: https://lore.kernel.org/r/20221208071911.2405922-6-carlos.song@nxp.com
-Cc: <Stable@vger.kernel.org>
-Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
+Add the usual dependency: as other users of serio use 'select'
+rather than 'depends on', use the same here.
+
+Fixes: 8e60615e8932 ("platform/x86/amd: pmc: Disable IRQ1 wakeup for RN/CZN")
+Signed-off-by: Arnd Bergmann <arnd@arndb.de>
+Link: https://lore.kernel.org/r/20230127093950.2368575-1-arnd@kernel.org
+Reviewed-by: Hans de Goede <hdegoede@redhat.com>
+Signed-off-by: Hans de Goede <hdegoede@redhat.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/iio/imu/fxos8700_core.c |   41 +++++++++++++++++++++++++++++++++-------
- 1 file changed, 34 insertions(+), 7 deletions(-)
+ drivers/platform/x86/amd/Kconfig |    1 +
+ 1 file changed, 1 insertion(+)
 
---- a/drivers/iio/imu/fxos8700_core.c
-+++ b/drivers/iio/imu/fxos8700_core.c
-@@ -345,7 +345,8 @@ static int fxos8700_set_active_mode(stru
- static int fxos8700_set_scale(struct fxos8700_data *data,
- 			      enum fxos8700_sensor t, int uscale)
- {
--	int i;
-+	int i, ret, val;
-+	bool active_mode;
- 	static const int scale_num = ARRAY_SIZE(fxos8700_accel_scale);
- 	struct device *dev = regmap_get_device(data->regmap);
- 
-@@ -354,6 +355,25 @@ static int fxos8700_set_scale(struct fxo
- 		return -EINVAL;
- 	}
- 
-+	/*
-+	 * When device is in active mode, it failed to set an ACCEL
-+	 * full-scale range(2g/4g/8g) in FXOS8700_XYZ_DATA_CFG.
-+	 * This is not align with the datasheet, but it is a fxos8700
-+	 * chip behavier. Set the device in standby mode before setting
-+	 * an ACCEL full-scale range.
-+	 */
-+	ret = regmap_read(data->regmap, FXOS8700_CTRL_REG1, &val);
-+	if (ret)
-+		return ret;
-+
-+	active_mode = val & FXOS8700_ACTIVE;
-+	if (active_mode) {
-+		ret = regmap_write(data->regmap, FXOS8700_CTRL_REG1,
-+				   val & ~FXOS8700_ACTIVE);
-+		if (ret)
-+			return ret;
-+	}
-+
- 	for (i = 0; i < scale_num; i++)
- 		if (fxos8700_accel_scale[i].uscale == uscale)
- 			break;
-@@ -361,8 +381,12 @@ static int fxos8700_set_scale(struct fxo
- 	if (i == scale_num)
- 		return -EINVAL;
- 
--	return regmap_write(data->regmap, FXOS8700_XYZ_DATA_CFG,
-+	ret = regmap_write(data->regmap, FXOS8700_XYZ_DATA_CFG,
- 			    fxos8700_accel_scale[i].bits);
-+	if (ret)
-+		return ret;
-+	return regmap_write(data->regmap, FXOS8700_CTRL_REG1,
-+				  active_mode);
- }
- 
- static int fxos8700_get_scale(struct fxos8700_data *data,
-@@ -592,14 +616,17 @@ static int fxos8700_chip_init(struct fxo
- 	if (ret)
- 		return ret;
- 
--	/* Max ODR (800Hz individual or 400Hz hybrid), active mode */
--	ret = regmap_write(data->regmap, FXOS8700_CTRL_REG1,
--			   FXOS8700_CTRL_ODR_MAX | FXOS8700_ACTIVE);
-+	/*
-+	 * Set max full-scale range (+/-8G) for ACCEL sensor in chip
-+	 * initialization then activate the device.
-+	 */
-+	ret = regmap_write(data->regmap, FXOS8700_XYZ_DATA_CFG, MODE_8G);
- 	if (ret)
- 		return ret;
- 
--	/* Set for max full-scale range (+/-8G) */
--	return regmap_write(data->regmap, FXOS8700_XYZ_DATA_CFG, MODE_8G);
-+	/* Max ODR (800Hz individual or 400Hz hybrid), active mode */
-+	return regmap_write(data->regmap, FXOS8700_CTRL_REG1,
-+			   FXOS8700_CTRL_ODR_MAX | FXOS8700_ACTIVE);
- }
- 
- static void fxos8700_chip_uninit(void *data)
+--- a/drivers/platform/x86/amd/Kconfig
++++ b/drivers/platform/x86/amd/Kconfig
+@@ -8,6 +8,7 @@ source "drivers/platform/x86/amd/pmf/Kco
+ config AMD_PMC
+ 	tristate "AMD SoC PMC driver"
+ 	depends on ACPI && PCI && RTC_CLASS
++	select SERIO
+ 	help
+ 	  The driver provides support for AMD Power Management Controller
+ 	  primarily responsible for S2Idle transactions that are driven from
 
 
