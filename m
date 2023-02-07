@@ -2,40 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 1F96468D914
-	for <lists+stable@lfdr.de>; Tue,  7 Feb 2023 14:15:41 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 146B368D90B
+	for <lists+stable@lfdr.de>; Tue,  7 Feb 2023 14:15:20 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232346AbjBGNPj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Feb 2023 08:15:39 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60334 "EHLO
+        id S232617AbjBGNPT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Feb 2023 08:15:19 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36904 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232644AbjBGNPW (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Feb 2023 08:15:22 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DF0133BD8F
-        for <stable@vger.kernel.org>; Tue,  7 Feb 2023 05:15:05 -0800 (PST)
+        with ESMTP id S232824AbjBGNPE (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Feb 2023 08:15:04 -0500
+Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9B1DE3C2A3
+        for <stable@vger.kernel.org>; Tue,  7 Feb 2023 05:14:48 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 69F15611AA
-        for <stable@vger.kernel.org>; Tue,  7 Feb 2023 13:14:43 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 734CEC433D2;
-        Tue,  7 Feb 2023 13:14:42 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 8B3A2CE1DA2
+        for <stable@vger.kernel.org>; Tue,  7 Feb 2023 13:14:47 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 887E8C433D2;
+        Tue,  7 Feb 2023 13:14:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1675775682;
-        bh=7babElETrdkgrPFTxFSououFNKzkmO7nRtQrIEGi7Qw=;
+        s=korg; t=1675775685;
+        bh=DwlcFkKoGLezM0ljw0M51wlhSRxHOwceXToLasPEvgA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ZvIPIFjpRji8YhWFLaRdey3cwdlParjapMu9opV+J6xxhIFgEBIe/30evdYz51NOX
-         2GzyleeB2Gksko5ATxIoCSmEZktTQnG0Wd2rw7JLwYERFxKxzpNLaKhrQq4NIYcRPq
-         +AID/AGPjkASf+aQkWMMiDGnK3qUpRitFyuJUdXs=
+        b=CcGA1wolUaYyhTmzcFfiRC6F0v77LZZPbZdl43dkubqeJ/8B1H1umwQ/uUvNvuLXy
+         u3LuN3xrGLXiHo1ZvLwzF/pVt9DENMRas4edifoiogMC19Y3++tIADpiv4uTMETE1m
+         vByq8XigFy+efD2oy6jbRg93FhmoWFhXXPU472ug=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Paul Chaignon <paul@isovalent.com>,
-        Alexei Starovoitov <ast@kernel.org>
-Subject: [PATCH 5.15 109/120] bpf: Fix incorrect state pruning for <8B spill/fill
-Date:   Tue,  7 Feb 2023 13:58:00 +0100
-Message-Id: <20230207125623.405260901@linuxfoundation.org>
+        patches@lists.linux.dev, Hengqi Chen <hengqi.chen@gmail.com>,
+        Yonghong Song <yhs@gmail.com>, Martin KaFai Lau <kafai@fb.com>,
+        Daniel Borkmann <daniel@iogearbox.net>,
+        Yonghong Song <yhs@fb.com>
+Subject: [PATCH 5.15 110/120] bpf: Do not reject when the stack read size is different from the tracked scalar size
+Date:   Tue,  7 Feb 2023 13:58:01 +0100
+Message-Id: <20230207125623.455375398@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.1
 In-Reply-To: <20230207125618.699726054@linuxfoundation.org>
 References: <20230207125618.699726054@linuxfoundation.org>
@@ -52,88 +54,88 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Paul Chaignon <paul@isovalent.com>
+From: Martin KaFai Lau <kafai@fb.com>
 
-commit 345e004d023343d38088fdfea39688aa11e06ccf upstream.
+commit f30d4968e9aee737e174fc97942af46cfb49b484 upstream.
 
-Commit 354e8f1970f8 ("bpf: Support <8-byte scalar spill and refill")
-introduced support in the verifier to track <8B spill/fills of scalars.
-The backtracking logic for the precision bit was however skipping
-spill/fills of less than 8B. That could cause state pruning to consider
-two states equivalent when they shouldn't be.
+Below is a simplified case from a report in bcc [0]:
 
-As an example, consider the following bytecode snippet:
+  r4 = 20
+  *(u32 *)(r10 -4) = r4
+  *(u32 *)(r10 -8) = r4  /* r4 state is tracked */
+  r4 = *(u64 *)(r10 -8)  /* Read more than the tracked 32bit scalar.
+			  * verifier rejects as 'corrupted spill memory'.
+			  */
 
-  0:  r7 = r1
-  1:  call bpf_get_prandom_u32
-  2:  r6 = 2
-  3:  if r0 == 0 goto pc+1
-  4:  r6 = 3
-  ...
-  8: [state pruning point]
-  ...
-  /* u32 spill/fill */
-  10: *(u32 *)(r10 - 8) = r6
-  11: r8 = *(u32 *)(r10 - 8)
-  12: r0 = 0
-  13: if r8 == 3 goto pc+1
-  14: r0 = 1
-  15: exit
+After commit 354e8f1970f8 ("bpf: Support <8-byte scalar spill and refill"),
+the 8-byte aligned 32bit spill is also tracked by the verifier and the
+register state is stored.
 
-The verifier first walks the path with R6=3. Given the support for <8B
-spill/fills, at instruction 13, it knows the condition is true and skips
-instruction 14. At that point, the backtracking logic kicks in but stops
-at the fill instruction since it only propagates the precision bit for
-8B spill/fill. When the verifier then walks the path with R6=2, it will
-consider it safe at instruction 8 because R6 is not marked as needing
-precision. Instruction 14 is thus never walked and is then incorrectly
-removed as 'dead code'.
+However, if 8 bytes are read from the stack instead of the tracked 4 byte
+scalar, then verifier currently rejects the program as "corrupted spill
+memory". This patch fixes this case by allowing it to read but marks the
+register as unknown.
 
-It's also possible to lead the verifier to accept e.g. an out-of-bound
-memory access instead of causing an incorrect dead code elimination.
+Also note that, if the prog is trying to corrupt/leak an earlier spilled
+pointer by spilling another <8 bytes register on top, this has already
+been rejected in the check_stack_write_fixed_off().
 
-This regression was found via Cilium's bpf-next CI where it was causing
-a conntrack map update to be silently skipped because the code had been
-removed by the verifier.
-
-This commit fixes it by enabling support for <8B spill/fills in the
-bactracking logic. In case of a <8B spill/fill, the full 8B stack slot
-will be marked as needing precision. Then, in __mark_chain_precision,
-any tracked register spilled in a marked slot will itself be marked as
-needing precision, regardless of the spill size. This logic makes two
-assumptions: (1) only 8B-aligned spill/fill are tracked and (2) spilled
-registers are only tracked if the spill and fill sizes are equal. Commit
-ef979017b837 ("bpf: selftest: Add verifier tests for <8-byte scalar
-spill and refill") covers the first assumption and the next commit in
-this patchset covers the second.
+  [0] https://github.com/iovisor/bcc/pull/3683
 
 Fixes: 354e8f1970f8 ("bpf: Support <8-byte scalar spill and refill")
-Signed-off-by: Paul Chaignon <paul@isovalent.com>
-Signed-off-by: Alexei Starovoitov <ast@kernel.org>
+Reported-by: Hengqi Chen <hengqi.chen@gmail.com>
+Reported-by: Yonghong Song <yhs@gmail.com>
+Signed-off-by: Martin KaFai Lau <kafai@fb.com>
+Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
+Tested-by: Hengqi Chen <hengqi.chen@gmail.com>
+Acked-by: Yonghong Song <yhs@fb.com>
+Link: https://lore.kernel.org/bpf/20211102064535.316018-1-kafai@fb.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- kernel/bpf/verifier.c |    4 ----
- 1 file changed, 4 deletions(-)
+ kernel/bpf/verifier.c |   18 ++++++------------
+ 1 file changed, 6 insertions(+), 12 deletions(-)
 
 --- a/kernel/bpf/verifier.c
 +++ b/kernel/bpf/verifier.c
-@@ -2224,8 +2224,6 @@ static int backtrack_insn(struct bpf_ver
- 		 */
- 		if (insn->src_reg != BPF_REG_FP)
- 			return 0;
--		if (BPF_SIZE(insn->code) != BPF_DW)
--			return 0;
+@@ -2930,9 +2930,12 @@ static int check_stack_read_fixed_off(st
+ 	reg = &reg_state->stack[spi].spilled_ptr;
  
- 		/* dreg = *(u64 *)[fp - off] was a fill from the stack.
- 		 * that [fp - off] slot contains scalar that needs to be
-@@ -2248,8 +2246,6 @@ static int backtrack_insn(struct bpf_ver
- 		/* scalars can only be spilled into stack */
- 		if (insn->dst_reg != BPF_REG_FP)
+ 	if (is_spilled_reg(&reg_state->stack[spi])) {
+-		if (size != BPF_REG_SIZE) {
+-			u8 scalar_size = 0;
++		u8 spill_size = 1;
+ 
++		for (i = BPF_REG_SIZE - 1; i > 0 && stype[i - 1] == STACK_SPILL; i--)
++			spill_size++;
++
++		if (size != BPF_REG_SIZE || spill_size != BPF_REG_SIZE) {
+ 			if (reg->type != SCALAR_VALUE) {
+ 				verbose_linfo(env, env->insn_idx, "; ");
+ 				verbose(env, "invalid size of register fill\n");
+@@ -2943,10 +2946,7 @@ static int check_stack_read_fixed_off(st
+ 			if (dst_regno < 0)
+ 				return 0;
+ 
+-			for (i = BPF_REG_SIZE; i > 0 && stype[i - 1] == STACK_SPILL; i--)
+-				scalar_size++;
+-
+-			if (!(off % BPF_REG_SIZE) && size == scalar_size) {
++			if (!(off % BPF_REG_SIZE) && size == spill_size) {
+ 				/* The earlier check_reg_arg() has decided the
+ 				 * subreg_def for this insn.  Save it first.
+ 				 */
+@@ -2970,12 +2970,6 @@ static int check_stack_read_fixed_off(st
+ 			state->regs[dst_regno].live |= REG_LIVE_WRITTEN;
  			return 0;
--		if (BPF_SIZE(insn->code) != BPF_DW)
--			return 0;
- 		spi = (-insn->off - 1) / BPF_REG_SIZE;
- 		if (spi >= 64) {
- 			verbose(env, "BUG spi %d\n", spi);
+ 		}
+-		for (i = 1; i < BPF_REG_SIZE; i++) {
+-			if (stype[(slot - i) % BPF_REG_SIZE] != STACK_SPILL) {
+-				verbose(env, "corrupted spill memory\n");
+-				return -EACCES;
+-			}
+-		}
+ 
+ 		if (dst_regno >= 0) {
+ 			/* restore register state from stack */
 
 
