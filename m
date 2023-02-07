@@ -2,43 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 2032E68D89E
-	for <lists+stable@lfdr.de>; Tue,  7 Feb 2023 14:11:18 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2BE3668D819
+	for <lists+stable@lfdr.de>; Tue,  7 Feb 2023 14:05:47 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232440AbjBGNLR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Feb 2023 08:11:17 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60280 "EHLO
+        id S232286AbjBGNFq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Feb 2023 08:05:46 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53158 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232444AbjBGNKo (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Feb 2023 08:10:44 -0500
+        with ESMTP id S232163AbjBGNFU (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Feb 2023 08:05:20 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 41B373B653
-        for <stable@vger.kernel.org>; Tue,  7 Feb 2023 05:10:21 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 468433B0D3
+        for <stable@vger.kernel.org>; Tue,  7 Feb 2023 05:05:02 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 164A761408
-        for <stable@vger.kernel.org>; Tue,  7 Feb 2023 13:09:34 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 082A4C4339B;
-        Tue,  7 Feb 2023 13:09:32 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id BD277613E2
+        for <stable@vger.kernel.org>; Tue,  7 Feb 2023 13:05:01 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B7F25C4339B;
+        Tue,  7 Feb 2023 13:05:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1675775373;
-        bh=ppPv8mMSl5LhMvNVuhVD3lzqsFermoPYvytexradPtQ=;
+        s=korg; t=1675775101;
+        bh=H/LupYvdUS0x6kEZJNiVzuw/Sy0/ep8lMySlGI4+KB4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=aVc6D9HaakbFtfyckQKFc2dhcDicRJInVsGVXTLM7osjuO6ZqlZxv63Zdjc1lZgU0
-         Fu/0Ez/pB4zXRhScuonaS8ydM6oWXkYhvQakXvyIYtQm13IMbhfzxNvtiNiD5WMuuI
-         x98hciLQdpO2JMRvK+JZqrPNlPT+DyMY5fpESDic=
+        b=euN4ni8c6McroOANfl9tLwpgb+pADAWdn57h/3iEg4W/kXD40kCM4ayPAswVz0D0U
+         avCtk7WrfUEf/rfA+sXRhhcEmikTkGjkx+gma2YG9foipfH4I3c2IT8CJHz2f9dHC7
+         ax4nsDS5Ix2/9Eiump83J9k3yrnHZ6BxXQAWDlG4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Al Viro <viro@zeniv.linux.org.uk>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 019/120] READ is "data destination", not source...
+        patches@lists.linux.dev, Frank Li <Frank.Li@nxp.com>,
+        Cai Huoqing <cai.huoqing@linux.dev>,
+        Haibo Chen <haibo.chen@nxp.com>, Stable@vger.kernel.org,
+        Jonathan Cameron <Jonathan.Cameron@huawei.com>
+Subject: [PATCH 6.1 136/208] iio: imx8qxp-adc: fix irq flood when call imx8qxp_adc_read_raw()
 Date:   Tue,  7 Feb 2023 13:56:30 +0100
-Message-Id: <20230207125619.587807819@linuxfoundation.org>
+Message-Id: <20230207125640.594926550@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.1
-In-Reply-To: <20230207125618.699726054@linuxfoundation.org>
-References: <20230207125618.699726054@linuxfoundation.org>
+In-Reply-To: <20230207125634.292109991@linuxfoundation.org>
+References: <20230207125634.292109991@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -52,31 +54,95 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Al Viro <viro@zeniv.linux.org.uk>
+From: Frank Li <Frank.Li@nxp.com>
 
-[ Upstream commit 355d2c2798e9dc39f6714fa7ef8902c0d4c5350b ]
+commit 0fc3562a993c3dc41d1177b3983d9300d0db1d4d upstream.
 
-Signed-off-by: Al Viro <viro@zeniv.linux.org.uk>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+irq flood happen when run
+    cat /sys/bus/iio/devices/iio:device0/in_voltage1_raw
+
+imx8qxp_adc_read_raw()
+{
+	...
+	enable irq
+	/* adc start */
+	writel(1, adc->regs + IMX8QXP_ADR_ADC_SWTRIG);
+	^^^^ trigger irq flood.
+	wait_for_completion_interruptible_timeout();
+	readl(adc->regs + IMX8QXP_ADR_ADC_RESFIFO);
+	^^^^ clear irq here.
+	...
+}
+
+There is only FIFO watermark interrupt at this ADC controller.
+IRQ line will be assert until software read data from FIFO.
+So IRQ flood happen during wait_for_completion_interruptible_timeout().
+
+Move FIFO read into irq handle to avoid irq flood.
+
+Fixes: 1e23dcaa1a9f ("iio: imx8qxp-adc: Add driver support for NXP IMX8QXP ADC")
+Cc: stable@vger.kernel.org
+
+Signed-off-by: Frank Li <Frank.Li@nxp.com>
+Reviewed-by: Cai Huoqing <cai.huoqing@linux.dev>
+Reviewed-by: Haibo Chen <haibo.chen@nxp.com>
+Link: https://lore.kernel.org/r/20221201140110.2653501-1-Frank.Li@nxp.com
+Cc: <Stable@vger.kernel.org>
+Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/infiniband/ulp/rtrs/rtrs-clt.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/iio/adc/imx8qxp-adc.c | 11 +++++++++--
+ 1 file changed, 9 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/infiniband/ulp/rtrs/rtrs-clt.c b/drivers/infiniband/ulp/rtrs/rtrs-clt.c
-index c644617725a8..54eb6556c63d 100644
---- a/drivers/infiniband/ulp/rtrs/rtrs-clt.c
-+++ b/drivers/infiniband/ulp/rtrs/rtrs-clt.c
-@@ -967,7 +967,7 @@ static void rtrs_clt_init_req(struct rtrs_clt_io_req *req,
- 	refcount_set(&req->ref, 1);
- 	req->mp_policy = clt_path->clt->mp_policy;
+diff --git a/drivers/iio/adc/imx8qxp-adc.c b/drivers/iio/adc/imx8qxp-adc.c
+index 36777b827165..f5a0fc9e64c5 100644
+--- a/drivers/iio/adc/imx8qxp-adc.c
++++ b/drivers/iio/adc/imx8qxp-adc.c
+@@ -86,6 +86,8 @@
  
--	iov_iter_kvec(&iter, READ, vec, 1, usr_len);
-+	iov_iter_kvec(&iter, WRITE, vec, 1, usr_len);
- 	len = _copy_from_iter(req->iu->buf, usr_len, &iter);
- 	WARN_ON(len != usr_len);
+ #define IMX8QXP_ADC_TIMEOUT		msecs_to_jiffies(100)
+ 
++#define IMX8QXP_ADC_MAX_FIFO_SIZE		16
++
+ struct imx8qxp_adc {
+ 	struct device *dev;
+ 	void __iomem *regs;
+@@ -95,6 +97,7 @@ struct imx8qxp_adc {
+ 	/* Serialise ADC channel reads */
+ 	struct mutex lock;
+ 	struct completion completion;
++	u32 fifo[IMX8QXP_ADC_MAX_FIFO_SIZE];
+ };
+ 
+ #define IMX8QXP_ADC_CHAN(_idx) {				\
+@@ -238,8 +241,7 @@ static int imx8qxp_adc_read_raw(struct iio_dev *indio_dev,
+ 			return ret;
+ 		}
+ 
+-		*val = FIELD_GET(IMX8QXP_ADC_RESFIFO_VAL_MASK,
+-				 readl(adc->regs + IMX8QXP_ADR_ADC_RESFIFO));
++		*val = adc->fifo[0];
+ 
+ 		mutex_unlock(&adc->lock);
+ 		return IIO_VAL_INT;
+@@ -265,10 +267,15 @@ static irqreturn_t imx8qxp_adc_isr(int irq, void *dev_id)
+ {
+ 	struct imx8qxp_adc *adc = dev_id;
+ 	u32 fifo_count;
++	int i;
+ 
+ 	fifo_count = FIELD_GET(IMX8QXP_ADC_FCTRL_FCOUNT_MASK,
+ 			       readl(adc->regs + IMX8QXP_ADR_ADC_FCTRL));
+ 
++	for (i = 0; i < fifo_count; i++)
++		adc->fifo[i] = FIELD_GET(IMX8QXP_ADC_RESFIFO_VAL_MASK,
++				readl_relaxed(adc->regs + IMX8QXP_ADR_ADC_RESFIFO));
++
+ 	if (fifo_count)
+ 		complete(&adc->completion);
  
 -- 
-2.39.0
+2.39.1
 
 
 
