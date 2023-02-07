@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D6D3468D2E0
-	for <lists+stable@lfdr.de>; Tue,  7 Feb 2023 10:33:27 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 048EB68D2E3
+	for <lists+stable@lfdr.de>; Tue,  7 Feb 2023 10:33:49 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230057AbjBGJd1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Feb 2023 04:33:27 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43912 "EHLO
+        id S231315AbjBGJds (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Feb 2023 04:33:48 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44304 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229923AbjBGJd0 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Feb 2023 04:33:26 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D9C0D20D02
-        for <stable@vger.kernel.org>; Tue,  7 Feb 2023 01:33:23 -0800 (PST)
+        with ESMTP id S229923AbjBGJdq (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Feb 2023 04:33:46 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0FDCE12F24
+        for <stable@vger.kernel.org>; Tue,  7 Feb 2023 01:33:44 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 8BEDEB816B7
-        for <stable@vger.kernel.org>; Tue,  7 Feb 2023 09:33:22 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C37BBC4339C;
-        Tue,  7 Feb 2023 09:33:20 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id A0F3E61259
+        for <stable@vger.kernel.org>; Tue,  7 Feb 2023 09:33:43 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 95B52C433D2;
+        Tue,  7 Feb 2023 09:33:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1675762401;
-        bh=HfKKgHv4mxgljFjFTaivomLdwtNEWejDq1w1xUA/trk=;
+        s=korg; t=1675762423;
+        bh=nvBVyqaYhvwu6fvq5hO/R947sVcIO/hHgKksN7PX4vY=;
         h=Subject:To:Cc:From:Date:From;
-        b=Liiu66a2/i5oNOrIeQ+aszH1vw3Z3qmr4wgTlZfqENki75vj5TkN5T7r6gB8uLP+w
-         pNvawIBGlo2+qReYE5cQ+Tjb4OtabYk/eWJD0DH4EU22i25YphJ981JjHqZuwW9nxW
-         VsnX4LwpYJ0kQ138LYh0iCVtSWt9n1/H2igQoA9s=
-Subject: FAILED: patch "[PATCH] nvmem: core: fix registration vs use race" failed to apply to 4.14-stable tree
-To:     rmk+kernel@armlinux.org.uk, gregkh@linuxfoundation.org,
+        b=b59+UjmDD5/7VZoMvVHPyj3sdPpUmxt2GzSDz4CEtjYGzah305zPlkJLXN/BeWj23
+         faH214cJLoFxdhtle+sCvxC17VSwfIojH8190nfpSzxI70GrHWHYV6ybrK/dOALFZ2
+         7Y/Jyo1SiOpnAHXLEpNoLEZMMoPn+/5cpmIrwCcE=
+Subject: FAILED: patch "[PATCH] nvmem: core: fix cell removal on error" failed to apply to 4.19-stable tree
+To:     michael@walle.cc, gregkh@linuxfoundation.org,
         srinivas.kandagatla@linaro.org
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Tue, 07 Feb 2023 10:33:11 +0100
-Message-ID: <167576239119537@kroah.com>
+Date:   Tue, 07 Feb 2023 10:33:39 +0100
+Message-ID: <167576241991245@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
         SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -48,33 +48,20 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.14-stable tree.
+The patch below does not apply to the 4.19-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
 
 Possible dependencies:
 
-ab3428cfd9aa ("nvmem: core: fix registration vs use race")
-560181d3ace6 ("nvmem: core: fix cleanup after dev_set_name()")
-569653f022a2 ("nvmem: core: remove nvmem_config wp_gpio")
-3bd747c7ea13 ("nvmem: core: initialise nvmem->id early")
-5544e90c8126 ("nvmem: core: add error handling for dev_set_name")
-bd1244561fa2 ("nvmem: core: Fix memleak in nvmem_register()")
-f6c052afe6f8 ("nvmem: core: Fix a conflict between MTD and NVMEM on wp-gpios property")
-de0534df9347 ("nvmem: core: fix error handling while validating keepout regions")
-1333a6779501 ("nvmem: core: allow specifying of_node")
-fd3bb8f54a88 ("nvmem: core: Add support for keepout regions")
-1eb51d6a4fce ("nvmem: switch to simpler IDA interface")
-731aa3fae813 ("nvmem: core: add support to auto devid")
-b96fc5416b09 ("nvmem: ensure sysfs writes handle write-protect pin")
-844003052719 ("nvmem: core: remove nvmem_sysfs_get_groups()")
-664f0549380c ("nvmem: core: use is_bin_visible for permissions")
-f60442ddc40c ("nvmem: core: use device_register and device_unregister")
-e6de179d7a88 ("nvmem: core: add root_only member to nvmem device struct")
-3c91ef69a3e9 ("nvmem: check for NULL reg_read and reg_write before dereferencing")
-a9c3766cb19c ("nvmem: release the write-protect pin")
-f7d8d7dcd978 ("nvmem: fix memory leak in error path")
+db3546d58b5a ("nvmem: core: fix cell removal on error")
+b985f4cba6db ("nvmem: add support for cell info")
+c7235ee3f4b8 ("nvmem: remove the global cell list")
+c1de7f43bd84 ("nvmem: use kref")
+fa72d847d68d ("nvmem: check the return value of nvmem_add_cells()")
+1852183e142e ("nvmem: use list_for_each_entry_safe in nvmem_device_remove_all_cells()")
+d7b9fd1669d4 ("nvmem: provide nvmem_dev_name()")
 
 thanks,
 
@@ -82,80 +69,41 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From ab3428cfd9aa2f3463ee4b2909b5bb2193bd0c4a Mon Sep 17 00:00:00 2001
-From: "Russell King (Oracle)" <rmk+kernel@armlinux.org.uk>
-Date: Fri, 27 Jan 2023 10:40:11 +0000
-Subject: [PATCH] nvmem: core: fix registration vs use race
+From db3546d58b5a0fa581d9c9f2bdc2856fa6c5e43e Mon Sep 17 00:00:00 2001
+From: Michael Walle <michael@walle.cc>
+Date: Fri, 27 Jan 2023 10:40:13 +0000
+Subject: [PATCH] nvmem: core: fix cell removal on error
 
-The i.MX6 CPU frequency driver sometimes fails to register at boot time
-due to nvmem_cell_read_u32() sporadically returning -ENOENT.
+nvmem_add_cells() could return an error after some cells are already
+added to the provider. In this case, the added cells are not removed.
+Remove any registered cells if nvmem_add_cells() fails.
 
-This happens because there is a window where __nvmem_device_get() in
-of_nvmem_cell_get() is able to return the nvmem device, but as cells
-have been setup, nvmem_find_cell_entry_by_node() returns NULL.
-
-The occurs because the nvmem core registration code violates one of the
-fundamental principles of kernel programming: do not publish data
-structures before their setup is complete.
-
-Fix this by making nvmem core code conform with this principle.
-
-Fixes: eace75cfdcf7 ("nvmem: Add a simple NVMEM framework for nvmem providers")
+Fixes: fa72d847d68d7 ("nvmem: check the return value of nvmem_add_cells()")
 Cc: stable@vger.kernel.org
-Signed-off-by: Russell King (Oracle) <rmk+kernel@armlinux.org.uk>
+Signed-off-by: Michael Walle <michael@walle.cc>
 Signed-off-by: Srinivas Kandagatla <srinivas.kandagatla@linaro.org>
-Link: https://lore.kernel.org/r/20230127104015.23839-7-srinivas.kandagatla@linaro.org
+Link: https://lore.kernel.org/r/20230127104015.23839-9-srinivas.kandagatla@linaro.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 diff --git a/drivers/nvmem/core.c b/drivers/nvmem/core.c
-index ac77a019aed7..e92c6f1aadbb 100644
+index cbe5df99db82..563116405b3d 100644
 --- a/drivers/nvmem/core.c
 +++ b/drivers/nvmem/core.c
-@@ -832,22 +832,16 @@ struct nvmem_device *nvmem_register(const struct nvmem_config *config)
- 	nvmem->dev.groups = nvmem_dev_groups;
- #endif
- 
--	dev_dbg(&nvmem->dev, "Registering nvmem device %s\n", config->name);
--
--	rval = device_add(&nvmem->dev);
--	if (rval)
--		goto err_put_device;
--
- 	if (nvmem->nkeepout) {
- 		rval = nvmem_validate_keepouts(nvmem);
- 		if (rval)
--			goto err_device_del;
-+			goto err_put_device;
- 	}
- 
- 	if (config->compat) {
- 		rval = nvmem_sysfs_setup_compat(nvmem, config);
- 		if (rval)
--			goto err_device_del;
-+			goto err_put_device;
- 	}
- 
+@@ -847,7 +847,7 @@ struct nvmem_device *nvmem_register(const struct nvmem_config *config)
  	if (config->cells) {
-@@ -864,6 +858,12 @@ struct nvmem_device *nvmem_register(const struct nvmem_config *config)
- 	if (rval)
- 		goto err_remove_cells;
+ 		rval = nvmem_add_cells(nvmem, config->cells, config->ncells);
+ 		if (rval)
+-			goto err_teardown_compat;
++			goto err_remove_cells;
+ 	}
  
-+	dev_dbg(&nvmem->dev, "Registering nvmem device %s\n", config->name);
-+
-+	rval = device_add(&nvmem->dev);
-+	if (rval)
-+		goto err_remove_cells;
-+
- 	blocking_notifier_call_chain(&nvmem_notifier, NVMEM_ADD, nvmem);
+ 	rval = nvmem_add_cells_from_table(nvmem);
+@@ -870,7 +870,6 @@ struct nvmem_device *nvmem_register(const struct nvmem_config *config)
  
- 	return nvmem;
-@@ -873,8 +873,6 @@ struct nvmem_device *nvmem_register(const struct nvmem_config *config)
- err_teardown_compat:
+ err_remove_cells:
+ 	nvmem_device_remove_all_cells(nvmem);
+-err_teardown_compat:
  	if (config->compat)
  		nvmem_sysfs_remove_compat(nvmem, config);
--err_device_del:
--	device_del(&nvmem->dev);
  err_put_device:
- 	put_device(&nvmem->dev);
- 
 
