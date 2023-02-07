@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 8DAF068D81C
-	for <lists+stable@lfdr.de>; Tue,  7 Feb 2023 14:06:02 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id F250F68D879
+	for <lists+stable@lfdr.de>; Tue,  7 Feb 2023 14:10:04 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232221AbjBGNGB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Feb 2023 08:06:01 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53524 "EHLO
+        id S232330AbjBGNKD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Feb 2023 08:10:03 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58974 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232224AbjBGNFq (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Feb 2023 08:05:46 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B02513B3D9
-        for <stable@vger.kernel.org>; Tue,  7 Feb 2023 05:05:12 -0800 (PST)
+        with ESMTP id S232322AbjBGNKC (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Feb 2023 08:10:02 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D96153A868
+        for <stable@vger.kernel.org>; Tue,  7 Feb 2023 05:09:42 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 5D906B818E8
-        for <stable@vger.kernel.org>; Tue,  7 Feb 2023 13:05:11 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B5E76C433D2;
-        Tue,  7 Feb 2023 13:05:09 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id AB73B613F8
+        for <stable@vger.kernel.org>; Tue,  7 Feb 2023 13:09:42 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id AA907C433D2;
+        Tue,  7 Feb 2023 13:09:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1675775110;
-        bh=Xt3IOYl9LSvImaehPZVqaYjoAJmamT99nIBsGcHE3nw=;
+        s=korg; t=1675775382;
+        bh=dvO6MOS9xFeW1IIX1g0fhigmi2eHksQ/Fw1l6t/lYfU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=DdxHIEQRqKdyyFo9KLIUFz4Dj3ERSDf2HF8iuUBg3MJEHK2b5ROCuXbMUpsdXjROe
-         LgAWiOKcN9uVxGVioWwAzznXQOEmaVmzbi6pG3fbwv/p3QArLo1C52u4DEL7jsDnjb
-         d+OQmmGKKOjk3Ci7vsckzETkZIhoGWhUdtDvTuaA=
+        b=e830pgF9FufzBN1ZNRyMLu2APe4CMwi2IklGqkZlXeheMltmWHFna2R3TbcTwFomF
+         1ZLxyY5g6hkQ4PRUqTt0vOnk4byeUEZPN8wxXao+FCL7hm7AI77onc5Jpu3VNTK5NW
+         d4ZicpFiucSYRWmYrgJL9GHLMRxHv9CiMQlyMY2s=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Carlos Song <carlos.song@nxp.com>,
-        Stable@vger.kernel.org,
-        Jonathan Cameron <Jonathan.Cameron@huawei.com>
-Subject: [PATCH 6.1 139/208] iio: imu: fxos8700: fix ACCEL measurement range selection
+        patches@lists.linux.dev, Dave Ertman <david.m.ertman@intel.com>,
+        Tony Nguyen <anthony.l.nguyen@intel.com>,
+        Sasha Levin <sashal@kernel.org>,
+        Gurucharan G <gurucharanx.g@intel.com>
+Subject: [PATCH 5.15 022/120] ice: Prevent set_channel from changing queues while RDMA active
 Date:   Tue,  7 Feb 2023 13:56:33 +0100
-Message-Id: <20230207125640.725608065@linuxfoundation.org>
+Message-Id: <20230207125619.724985017@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.1
-In-Reply-To: <20230207125634.292109991@linuxfoundation.org>
-References: <20230207125634.292109991@linuxfoundation.org>
+In-Reply-To: <20230207125618.699726054@linuxfoundation.org>
+References: <20230207125618.699726054@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,102 +54,211 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Carlos Song <carlos.song@nxp.com>
+From: Dave Ertman <david.m.ertman@intel.com>
 
-commit 9d61c1820598a5ea474576ed55318a6dadee37ed upstream.
+[ Upstream commit a6a0974aae4209d039ba81226ded5246eea14961 ]
 
-When device is in active mode, it fails to set an ACCEL full-scale
-range(2g/4g/8g) in FXOS8700_XYZ_DATA_CFG. This is not align with the
-datasheet, but it is a fxos8700 chip behavior.
+The PF controls the set of queues that the RDMA auxiliary_driver requests
+resources from.  The set_channel command will alter that pool and trigger a
+reconfiguration of the VSI, which breaks RDMA functionality.
 
-Keep the device in standby mode before setting ACCEL full-scale range
-into FXOS8700_XYZ_DATA_CFG in chip initialization phase and setting
-scale phase.
+Prevent set_channel from executing when RDMA driver bound to auxiliary
+device.
 
-Fixes: 84e5ddd5c46e ("iio: imu: Add support for the FXOS8700 IMU")
-Signed-off-by: Carlos Song <carlos.song@nxp.com>
-Link: https://lore.kernel.org/r/20221208071911.2405922-6-carlos.song@nxp.com
-Cc: <Stable@vger.kernel.org>
-Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Adding a locked variable to pass down the call chain to avoid double
+locking the device_lock.
+
+Fixes: 348048e724a0 ("ice: Implement iidc operations")
+Signed-off-by: Dave Ertman <david.m.ertman@intel.com>
+Tested-by: Gurucharan G <gurucharanx.g@intel.com> (A Contingent worker at Intel)
+Signed-off-by: Tony Nguyen <anthony.l.nguyen@intel.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/iio/imu/fxos8700_core.c |   41 +++++++++++++++++++++++++++++++++-------
- 1 file changed, 34 insertions(+), 7 deletions(-)
+ drivers/net/ethernet/intel/ice/ice.h         |  2 +-
+ drivers/net/ethernet/intel/ice/ice_dcb_lib.c | 23 +++++++++-------
+ drivers/net/ethernet/intel/ice/ice_dcb_lib.h |  4 +--
+ drivers/net/ethernet/intel/ice/ice_ethtool.c | 28 +++++++++++++++++---
+ drivers/net/ethernet/intel/ice/ice_main.c    |  5 ++--
+ 5 files changed, 43 insertions(+), 19 deletions(-)
 
---- a/drivers/iio/imu/fxos8700_core.c
-+++ b/drivers/iio/imu/fxos8700_core.c
-@@ -345,7 +345,8 @@ static int fxos8700_set_active_mode(stru
- static int fxos8700_set_scale(struct fxos8700_data *data,
- 			      enum fxos8700_sensor t, int uscale)
- {
--	int i;
-+	int i, ret, val;
-+	bool active_mode;
- 	static const int scale_num = ARRAY_SIZE(fxos8700_accel_scale);
- 	struct device *dev = regmap_get_device(data->regmap);
+diff --git a/drivers/net/ethernet/intel/ice/ice.h b/drivers/net/ethernet/intel/ice/ice.h
+index 89bca2ed895a..a5bc804dc67a 100644
+--- a/drivers/net/ethernet/intel/ice/ice.h
++++ b/drivers/net/ethernet/intel/ice/ice.h
+@@ -641,7 +641,7 @@ void ice_set_ethtool_ops(struct net_device *netdev);
+ void ice_set_ethtool_safe_mode_ops(struct net_device *netdev);
+ u16 ice_get_avail_txq_count(struct ice_pf *pf);
+ u16 ice_get_avail_rxq_count(struct ice_pf *pf);
+-int ice_vsi_recfg_qs(struct ice_vsi *vsi, int new_rx, int new_tx);
++int ice_vsi_recfg_qs(struct ice_vsi *vsi, int new_rx, int new_tx, bool locked);
+ void ice_update_vsi_stats(struct ice_vsi *vsi);
+ void ice_update_pf_stats(struct ice_pf *pf);
+ int ice_up(struct ice_vsi *vsi);
+diff --git a/drivers/net/ethernet/intel/ice/ice_dcb_lib.c b/drivers/net/ethernet/intel/ice/ice_dcb_lib.c
+index 926cf748c5ec..dd4195e964fa 100644
+--- a/drivers/net/ethernet/intel/ice/ice_dcb_lib.c
++++ b/drivers/net/ethernet/intel/ice/ice_dcb_lib.c
+@@ -355,7 +355,7 @@ int ice_pf_dcb_cfg(struct ice_pf *pf, struct ice_dcbx_cfg *new_cfg, bool locked)
+ 		goto out;
+ 	}
  
-@@ -354,6 +355,25 @@ static int fxos8700_set_scale(struct fxo
+-	ice_pf_dcb_recfg(pf);
++	ice_pf_dcb_recfg(pf, false);
+ 
+ out:
+ 	ice_ena_vsi(pf_vsi, true);
+@@ -644,12 +644,13 @@ static int ice_dcb_noncontig_cfg(struct ice_pf *pf)
+ /**
+  * ice_pf_dcb_recfg - Reconfigure all VEBs and VSIs
+  * @pf: pointer to the PF struct
++ * @locked: is adev device lock held
+  *
+  * Assumed caller has already disabled all VSIs before
+  * calling this function. Reconfiguring DCB based on
+  * local_dcbx_cfg.
+  */
+-void ice_pf_dcb_recfg(struct ice_pf *pf)
++void ice_pf_dcb_recfg(struct ice_pf *pf, bool locked)
+ {
+ 	struct ice_dcbx_cfg *dcbcfg = &pf->hw.port_info->qos_cfg.local_dcbx_cfg;
+ 	struct iidc_event *event;
+@@ -688,14 +689,16 @@ void ice_pf_dcb_recfg(struct ice_pf *pf)
+ 		if (vsi->type == ICE_VSI_PF)
+ 			ice_dcbnl_set_all(vsi);
+ 	}
+-	/* Notify the AUX drivers that TC change is finished */
+-	event = kzalloc(sizeof(*event), GFP_KERNEL);
+-	if (!event)
+-		return;
++	if (!locked) {
++		/* Notify the AUX drivers that TC change is finished */
++		event = kzalloc(sizeof(*event), GFP_KERNEL);
++		if (!event)
++			return;
+ 
+-	set_bit(IIDC_EVENT_AFTER_TC_CHANGE, event->type);
+-	ice_send_event_to_aux(pf, event);
+-	kfree(event);
++		set_bit(IIDC_EVENT_AFTER_TC_CHANGE, event->type);
++		ice_send_event_to_aux(pf, event);
++		kfree(event);
++	}
+ }
+ 
+ /**
+@@ -943,7 +946,7 @@ ice_dcb_process_lldp_set_mib_change(struct ice_pf *pf,
+ 	}
+ 
+ 	/* changes in configuration update VSI */
+-	ice_pf_dcb_recfg(pf);
++	ice_pf_dcb_recfg(pf, false);
+ 
+ 	ice_ena_vsi(pf_vsi, true);
+ unlock_rtnl:
+diff --git a/drivers/net/ethernet/intel/ice/ice_dcb_lib.h b/drivers/net/ethernet/intel/ice/ice_dcb_lib.h
+index 261b6e2ed7bc..33a609e92d25 100644
+--- a/drivers/net/ethernet/intel/ice/ice_dcb_lib.h
++++ b/drivers/net/ethernet/intel/ice/ice_dcb_lib.h
+@@ -23,7 +23,7 @@ u8 ice_dcb_get_tc(struct ice_vsi *vsi, int queue_index);
+ int
+ ice_pf_dcb_cfg(struct ice_pf *pf, struct ice_dcbx_cfg *new_cfg, bool locked);
+ int ice_dcb_bwchk(struct ice_pf *pf, struct ice_dcbx_cfg *dcbcfg);
+-void ice_pf_dcb_recfg(struct ice_pf *pf);
++void ice_pf_dcb_recfg(struct ice_pf *pf, bool locked);
+ void ice_vsi_cfg_dcb_rings(struct ice_vsi *vsi);
+ int ice_init_pf_dcb(struct ice_pf *pf, bool locked);
+ void ice_update_dcb_stats(struct ice_pf *pf);
+@@ -113,7 +113,7 @@ ice_is_pfc_causing_hung_q(struct ice_pf __always_unused *pf,
+ 	return false;
+ }
+ 
+-static inline void ice_pf_dcb_recfg(struct ice_pf *pf) { }
++static inline void ice_pf_dcb_recfg(struct ice_pf *pf, bool locked) { }
+ static inline void ice_vsi_cfg_dcb_rings(struct ice_vsi *vsi) { }
+ static inline void ice_update_dcb_stats(struct ice_pf *pf) { }
+ static inline void
+diff --git a/drivers/net/ethernet/intel/ice/ice_ethtool.c b/drivers/net/ethernet/intel/ice/ice_ethtool.c
+index f10d9c377c74..24001035910e 100644
+--- a/drivers/net/ethernet/intel/ice/ice_ethtool.c
++++ b/drivers/net/ethernet/intel/ice/ice_ethtool.c
+@@ -3393,7 +3393,9 @@ static int ice_set_channels(struct net_device *dev, struct ethtool_channels *ch)
+ 	struct ice_vsi *vsi = np->vsi;
+ 	struct ice_pf *pf = vsi->back;
+ 	int new_rx = 0, new_tx = 0;
++	bool locked = false;
+ 	u32 curr_combined;
++	int ret = 0;
+ 
+ 	/* do not support changing channels in Safe Mode */
+ 	if (ice_is_safe_mode(pf)) {
+@@ -3442,15 +3444,33 @@ static int ice_set_channels(struct net_device *dev, struct ethtool_channels *ch)
  		return -EINVAL;
  	}
  
-+	/*
-+	 * When device is in active mode, it failed to set an ACCEL
-+	 * full-scale range(2g/4g/8g) in FXOS8700_XYZ_DATA_CFG.
-+	 * This is not align with the datasheet, but it is a fxos8700
-+	 * chip behavier. Set the device in standby mode before setting
-+	 * an ACCEL full-scale range.
-+	 */
-+	ret = regmap_read(data->regmap, FXOS8700_CTRL_REG1, &val);
-+	if (ret)
-+		return ret;
-+
-+	active_mode = val & FXOS8700_ACTIVE;
-+	if (active_mode) {
-+		ret = regmap_write(data->regmap, FXOS8700_CTRL_REG1,
-+				   val & ~FXOS8700_ACTIVE);
-+		if (ret)
-+			return ret;
+-	ice_vsi_recfg_qs(vsi, new_rx, new_tx);
++	if (pf->adev) {
++		mutex_lock(&pf->adev_mutex);
++		device_lock(&pf->adev->dev);
++		locked = true;
++		if (pf->adev->dev.driver) {
++			netdev_err(dev, "Cannot change channels when RDMA is active\n");
++			ret = -EBUSY;
++			goto adev_unlock;
++		}
 +	}
 +
- 	for (i = 0; i < scale_num; i++)
- 		if (fxos8700_accel_scale[i].uscale == uscale)
- 			break;
-@@ -361,8 +381,12 @@ static int fxos8700_set_scale(struct fxo
- 	if (i == scale_num)
- 		return -EINVAL;
++	ice_vsi_recfg_qs(vsi, new_rx, new_tx, locked);
  
--	return regmap_write(data->regmap, FXOS8700_XYZ_DATA_CFG,
-+	ret = regmap_write(data->regmap, FXOS8700_XYZ_DATA_CFG,
- 			    fxos8700_accel_scale[i].bits);
-+	if (ret)
-+		return ret;
-+	return regmap_write(data->regmap, FXOS8700_CTRL_REG1,
-+				  active_mode);
+-	if (!netif_is_rxfh_configured(dev))
+-		return ice_vsi_set_dflt_rss_lut(vsi, new_rx);
++	if (!netif_is_rxfh_configured(dev)) {
++		ret = ice_vsi_set_dflt_rss_lut(vsi, new_rx);
++		goto adev_unlock;
++	}
+ 
+ 	/* Update rss_size due to change in Rx queues */
+ 	vsi->rss_size = ice_get_valid_rss_size(&pf->hw, new_rx);
+ 
+-	return 0;
++adev_unlock:
++	if (locked) {
++		device_unlock(&pf->adev->dev);
++		mutex_unlock(&pf->adev_mutex);
++	}
++	return ret;
  }
  
- static int fxos8700_get_scale(struct fxos8700_data *data,
-@@ -592,14 +616,17 @@ static int fxos8700_chip_init(struct fxo
- 	if (ret)
- 		return ret;
+ /**
+diff --git a/drivers/net/ethernet/intel/ice/ice_main.c b/drivers/net/ethernet/intel/ice/ice_main.c
+index ffbba5f6b7a5..348105aa5cf5 100644
+--- a/drivers/net/ethernet/intel/ice/ice_main.c
++++ b/drivers/net/ethernet/intel/ice/ice_main.c
+@@ -3776,12 +3776,13 @@ bool ice_is_wol_supported(struct ice_hw *hw)
+  * @vsi: VSI being changed
+  * @new_rx: new number of Rx queues
+  * @new_tx: new number of Tx queues
++ * @locked: is adev device_lock held
+  *
+  * Only change the number of queues if new_tx, or new_rx is non-0.
+  *
+  * Returns 0 on success.
+  */
+-int ice_vsi_recfg_qs(struct ice_vsi *vsi, int new_rx, int new_tx)
++int ice_vsi_recfg_qs(struct ice_vsi *vsi, int new_rx, int new_tx, bool locked)
+ {
+ 	struct ice_pf *pf = vsi->back;
+ 	int err = 0, timeout = 50;
+@@ -3810,7 +3811,7 @@ int ice_vsi_recfg_qs(struct ice_vsi *vsi, int new_rx, int new_tx)
  
--	/* Max ODR (800Hz individual or 400Hz hybrid), active mode */
--	ret = regmap_write(data->regmap, FXOS8700_CTRL_REG1,
--			   FXOS8700_CTRL_ODR_MAX | FXOS8700_ACTIVE);
-+	/*
-+	 * Set max full-scale range (+/-8G) for ACCEL sensor in chip
-+	 * initialization then activate the device.
-+	 */
-+	ret = regmap_write(data->regmap, FXOS8700_XYZ_DATA_CFG, MODE_8G);
- 	if (ret)
- 		return ret;
- 
--	/* Set for max full-scale range (+/-8G) */
--	return regmap_write(data->regmap, FXOS8700_XYZ_DATA_CFG, MODE_8G);
-+	/* Max ODR (800Hz individual or 400Hz hybrid), active mode */
-+	return regmap_write(data->regmap, FXOS8700_CTRL_REG1,
-+			   FXOS8700_CTRL_ODR_MAX | FXOS8700_ACTIVE);
- }
- 
- static void fxos8700_chip_uninit(void *data)
+ 	ice_vsi_close(vsi);
+ 	ice_vsi_rebuild(vsi, false);
+-	ice_pf_dcb_recfg(pf);
++	ice_pf_dcb_recfg(pf, locked);
+ 	ice_vsi_open(vsi);
+ done:
+ 	clear_bit(ICE_CFG_BUSY, pf->state);
+-- 
+2.39.0
+
 
 
