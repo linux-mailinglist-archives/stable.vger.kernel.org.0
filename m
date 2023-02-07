@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 2DA8968D5D7
-	for <lists+stable@lfdr.de>; Tue,  7 Feb 2023 12:42:43 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A7D6368D5D9
+	for <lists+stable@lfdr.de>; Tue,  7 Feb 2023 12:42:59 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231201AbjBGLml (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Feb 2023 06:42:41 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59318 "EHLO
+        id S231476AbjBGLm7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Feb 2023 06:42:59 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59496 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231963AbjBGLm2 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Feb 2023 06:42:28 -0500
+        with ESMTP id S231849AbjBGLmg (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Feb 2023 06:42:36 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8F9DA38E91
-        for <stable@vger.kernel.org>; Tue,  7 Feb 2023 03:42:14 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 11F3F3928E
+        for <stable@vger.kernel.org>; Tue,  7 Feb 2023 03:42:19 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 2458B61353
-        for <stable@vger.kernel.org>; Tue,  7 Feb 2023 11:42:14 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1BE80C433D2;
-        Tue,  7 Feb 2023 11:42:12 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 7C16761350
+        for <stable@vger.kernel.org>; Tue,  7 Feb 2023 11:42:18 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 85BF1C433EF;
+        Tue,  7 Feb 2023 11:42:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1675770133;
-        bh=2ECX2rJArrMRvPyGhaM9xOBJGMA/xVQwBlHKjfZ0IuI=;
+        s=korg; t=1675770137;
+        bh=H2Y44mzxHcUzk2oeyxsZX+BVJlW+N+ViX6rJgfMP1Z4=;
         h=Subject:To:Cc:From:Date:From;
-        b=UBFjKG9wJQCz/Cp3HsExiNzj1LaTh3impfV4CKLZjmOk/rZH3N6ZrwzQVLE8ViLyt
-         /CsYmgsl6/bj5T4roxSRm2W6pIZrZtLhMI7pUZIhpuHbrKiaGXURF5fGUNu+L+WNkw
-         egZyP92UtEV+SYDPpzBnHWa31nAzYuiStz8lz6Rw=
-Subject: FAILED: patch "[PATCH] powerpc/64s/radix: Fix crash with unaligned relocated kernel" failed to apply to 5.15-stable tree
+        b=JA/IiWhncbJSl2EtR9FHW8g/r70xlL+5SN2Ai6LSJwLGYvH4WdwZ+jFcfWtXU2T6r
+         ILvQJJzPnnppDidYBOvABrw0FAtEqPieauHmQcWXK18MSqm75KHaBMLG9Fh5KVgOUH
+         EYo28k2kVgmN2jnFYmL+1eaSuNb76JNt35rZN3fo=
+Subject: FAILED: patch "[PATCH] powerpc/64s/radix: Fix crash with unaligned relocated kernel" failed to apply to 5.10-stable tree
 To:     mpe@ellerman.id.au
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Tue, 07 Feb 2023 12:42:10 +0100
-Message-ID: <167577013034247@kroah.com>
+Date:   Tue, 07 Feb 2023 12:42:12 +0100
+Message-ID: <167577013210129@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -47,7 +47,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.15-stable tree.
+The patch below does not apply to the 5.10-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
@@ -58,6 +58,8 @@ Possible dependencies:
 b150a4d12b91 ("powerpc/vmlinux.lds: Add an explicit symbol for the SRWX boundary")
 331771e836e6 ("powerpc/vmlinux.lds: Ensure STRICT_ALIGN_SIZE is at least page aligned")
 2a0fb3c155c9 ("powerpc/32: Set an IBAT covering up to _einittext during init")
+c4a22611bf6c ("powerpc/603: Use SPRN_SDR1 to store the pgdir phys address")
+035b19a15a98 ("powerpc/32s: Always map kernel text and rodata with BATs")
 
 thanks,
 
