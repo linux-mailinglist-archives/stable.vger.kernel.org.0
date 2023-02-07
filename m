@@ -2,66 +2,86 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 4E67768DE97
-	for <lists+stable@lfdr.de>; Tue,  7 Feb 2023 18:14:58 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8258568DEDE
+	for <lists+stable@lfdr.de>; Tue,  7 Feb 2023 18:27:33 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231566AbjBGROz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Feb 2023 12:14:55 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50610 "EHLO
+        id S231181AbjBGR1c (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Feb 2023 12:27:32 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33582 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232251AbjBGROu (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Feb 2023 12:14:50 -0500
-Received: from mail-pf1-x449.google.com (mail-pf1-x449.google.com [IPv6:2607:f8b0:4864:20::449])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3E9FA3E0BB
-        for <stable@vger.kernel.org>; Tue,  7 Feb 2023 09:14:00 -0800 (PST)
-Received: by mail-pf1-x449.google.com with SMTP id e9-20020a62ee09000000b0058db55a8d7aso4728212pfi.21
-        for <stable@vger.kernel.org>; Tue, 07 Feb 2023 09:14:00 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20210112;
-        h=cc:to:from:subject:mime-version:message-id:date:from:to:cc:subject
-         :date:message-id:reply-to;
-        bh=gaqlkUHlROHo1Iu/mvu/VhOVerpPZOfXGd0nbt/7zs8=;
-        b=aFSF+mDkwXMPhNXoGe9Q/j26WS0JRqyy750UYsBMIHe2uxsn5RTNKfWiXtceSvhxa5
-         jtE+wKy5v7XDg0HNBzSH2kcs5k0RPiVdlmiHEigKt+L/Dx/GRZ95cfV/8haSHCcm6e/6
-         OybLUuEDpssvqVROntd3VOoMTRGRn3FgHA9N+aXExjoJwgShq1wHpm1S9S4NV9pWuTKE
-         i5zm3mZuh6Ca6I6q+iuYH0CnU3MAA2KomIjb8tuhX7oH1H7M0Apn3rrYCm++euStY1AV
-         PNE0SoqrGOrbbcoQEfj7ugB8nDtisZYJRPB0h5jKDccuxm6DHEpGAQlJRqPlDIfjEJLR
-         nlSA==
+        with ESMTP id S230180AbjBGR1c (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Feb 2023 12:27:32 -0500
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E851715C97
+        for <stable@vger.kernel.org>; Tue,  7 Feb 2023 09:26:40 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1675790800;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=A1UvW0wrHQWigj5Ouf4r26jfQmoM0gSCL18qsIrw6jw=;
+        b=Tg+ABsdA/fzxLjz8Cr4uPoSxLllQFadiTYTzmMGpJlK0Mm9TDkYirnTzSpaXG3ZPWlCrli
+        apvov+TXEJ3BipvBGmpbItA66toNGzm5MAVjjVx9jh9cAZM+4Ff4xSqkl0LC30l/rqgxAu
+        C+VXB8xZG7K5gLJy4Pt8OuzDR8xRRWA=
+Received: from mail-qt1-f198.google.com (mail-qt1-f198.google.com
+ [209.85.160.198]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_128_GCM_SHA256) id
+ us-mta-153-upacRr_GNeib2FSnZ6FB8w-1; Tue, 07 Feb 2023 12:26:36 -0500
+X-MC-Unique: upacRr_GNeib2FSnZ6FB8w-1
+Received: by mail-qt1-f198.google.com with SMTP id f22-20020a05622a1a1600b003b8674f2302so8946963qtb.7
+        for <stable@vger.kernel.org>; Tue, 07 Feb 2023 09:26:36 -0800 (PST)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=cc:to:from:subject:mime-version:message-id:date:x-gm-message-state
-         :from:to:cc:subject:date:message-id:reply-to;
-        bh=gaqlkUHlROHo1Iu/mvu/VhOVerpPZOfXGd0nbt/7zs8=;
-        b=R1qJMgbFTto0CkgZtTP2gQUq5ad657yKhoiy4KsQLJawAl6yzyr92I0ro+38sXDVXY
-         bbjXmmGUBweCD4i4T8nqQMw0oWlfGd7uZpP1wN0i7Jx6JXXGq3ZAjwTToUa1/eaMT6wt
-         LAnyrpppSm19Ee+ZHLjstkyr6ykqImnEbhgj1rhMGoV6c4TGYtsF1I9ukEQaxuW0Gnbk
-         M4nQc/x+GNgZFyPjJAwIYBCbgsbZ6h034FXBtlFP02LnUre+gpxIrLpCpQf/ime09R10
-         vKAc1Vb4Wvdt8JfLubuSYR/aYjaK+s/RdOuQZRAkpnUUmK63NL1pOQlMTMeJCH0EE/k4
-         AdeQ==
-X-Gm-Message-State: AO0yUKVWv8F3JYe1G83PkMzabbH0KA59Bjqeo4ay5swDkbKerHPFttMB
-        stw8kHb2Pv2tWOH38Amjd2876vj7IG4=
-X-Google-Smtp-Source: AK7set+er4Uv/iKukfLeR1lCffkTft0lTR8HoB29ISgFrwHdoSYSqGHr9L2MtrFudzW2cCM4F0rt08AXC9k=
-X-Received: from pgonda1.kir.corp.google.com ([2620:0:1008:11:346e:6fd8:c3bf:b38f])
- (user=pgonda job=sendgmr) by 2002:a17:902:a3ce:b0:196:3672:f24b with SMTP id
- q14-20020a170902a3ce00b001963672f24bmr868930plb.32.1675790039532; Tue, 07 Feb
- 2023 09:13:59 -0800 (PST)
-Date:   Tue,  7 Feb 2023 09:13:54 -0800
-Message-Id: <20230207171354.4012821-1-pgonda@google.com>
-Mime-Version: 1.0
-X-Mailer: git-send-email 2.39.1.519.gcb327c4b5f-goog
-Subject: [PATCH V2] KVM: sev: Fix potential overflow send|recieve_update_data
-From:   Peter Gonda <pgonda@google.com>
-To:     kvm@vger.kernel.org
-Cc:     Peter Gonda <pgonda@google.com>, Andy Nguyen <theflow@google.com>,
-        Thomas Lendacky <thomas.lendacky@amd.com>,
-        David Rientjes <rientjes@google.com>,
-        Paolo Bonzini <pbonzini@redhat.com>,
-        Sean Christopherson <seanjc@google.com>,
-        stable@vger.kernel.org, linux-kernel@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
-X-Spam-Status: No, score=-9.6 required=5.0 tests=BAYES_00,DKIMWL_WL_MED,
+        h=in-reply-to:content-transfer-encoding:content-disposition
+         :mime-version:references:message-id:subject:cc:to:from:date
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
+        bh=A1UvW0wrHQWigj5Ouf4r26jfQmoM0gSCL18qsIrw6jw=;
+        b=H4mlkqY0RDqbjYsSrqBa9FOsg20aLu3yWbJ0dCsPuXZAx7vPbnSDOhFOit3xbSTSln
+         G2qsyb7H3zhSNeJGeGHUEepQN6IUqc1MdljLD1yWbA2jtjfCfMyQy/C13jVmLEHCvqaa
+         cgDSFPrnO+pRxEt2SRCQeb9vEFGzggCYHX0/rWxVKKiiEXjrHLtR7q/cR49zKO4AlIp4
+         a8dsXwZDt19RLSPdPvDN8fKZEpX8Qqai06hb36VmBhW4dfSM99lxeox09YSFpq98aHpa
+         +YDZfoJ5y+8+TPryKxLxjbhhJW0AhrP5BwkXU6JPc81yITdNg1hQ7XPSuhGw4K84bgXO
+         L/hg==
+X-Gm-Message-State: AO0yUKVWeeDRV2VsQAnqsbPeiN1aYCcSN3fGV2q1U0kAenVTpTA+6R28
+        WN4K2mbjx5wsBGx3afullDv2LJ4h2HkXjvlovquWYYSsWPL0FOcwo/Q/xtn8o67Dc+f2YcZLDyS
+        sL444qyG4CYup3Rh4
+X-Received: by 2002:ac8:5f4a:0:b0:3b8:6801:90b3 with SMTP id y10-20020ac85f4a000000b003b8680190b3mr8018603qta.0.1675790796169;
+        Tue, 07 Feb 2023 09:26:36 -0800 (PST)
+X-Google-Smtp-Source: AK7set+G8xGUvyalZMLlK6nlAAPgyJL+bwcDkz+CtGrVcO3QWHRQv0maEwKkbLk5D0mzcwb/8BJN8A==
+X-Received: by 2002:ac8:5f4a:0:b0:3b8:6801:90b3 with SMTP id y10-20020ac85f4a000000b003b8680190b3mr8018567qta.0.1675790795820;
+        Tue, 07 Feb 2023 09:26:35 -0800 (PST)
+Received: from x1n (bras-base-aurron9127w-grc-56-70-30-145-63.dsl.bell.ca. [70.30.145.63])
+        by smtp.gmail.com with ESMTPSA id j24-20020a37ef18000000b0072396cb73cdsm9781553qkk.13.2023.02.07.09.26.34
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 07 Feb 2023 09:26:35 -0800 (PST)
+Date:   Tue, 7 Feb 2023 12:26:33 -0500
+From:   Peter Xu <peterx@redhat.com>
+To:     Naresh Kamboju <naresh.kamboju@linaro.org>
+Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        stable@vger.kernel.org, patches@lists.linux.dev,
+        linux-kernel@vger.kernel.org, torvalds@linux-foundation.org,
+        akpm@linux-foundation.org, linux@roeck-us.net, shuah@kernel.org,
+        patches@kernelci.org, lkft-triage@lists.linaro.org, pavel@denx.de,
+        jonathanh@nvidia.com, f.fainelli@gmail.com,
+        sudipm.mukherjee@gmail.com, srw@sladewatkins.net, rwarsow@gmx.de,
+        Mike Kravetz <mike.kravetz@oracle.com>,
+        Jann Horn <jannh@google.com>,
+        Anders Roxell <anders.roxell@linaro.org>,
+        "open list:KERNEL SELFTEST FRAMEWORK" 
+        <linux-kselftest@vger.kernel.org>
+Subject: Re: [PATCH 6.1 000/208] 6.1.11-rc1 review
+Message-ID: <Y+KJyTsiio0XMQJ+@x1n>
+References: <20230207125634.292109991@linuxfoundation.org>
+ <CA+G9fYtgJX507GJ3fG7-G+vGhG4BnU=kzu3fOH_a-_aMU0S_0w@mail.gmail.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <CA+G9fYtgJX507GJ3fG7-G+vGhG4BnU=kzu3fOH_a-_aMU0S_0w@mail.gmail.com>
+X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
         DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_NONE,
-        SPF_HELO_NONE,SPF_PASS,USER_IN_DEF_DKIM_WL autolearn=ham
+        RCVD_IN_MSPIKE_H2,SPF_HELO_NONE,SPF_NONE autolearn=unavailable
         autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -69,64 +89,71 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-KVM_SEV_SEND_UPDATE_DATA and KVM_SEV_RECEIVE_UPDATE_DATA have an integer
-overflow issue. Params.guest_len and offset are both 32bite wide, with a
-large params.guest_len the check to confirm a page boundary is not
-crossed can falsely pass:
+On Tue, Feb 07, 2023 at 10:35:19PM +0530, Naresh Kamboju wrote:
+> On Tue, 7 Feb 2023 at 18:29, Greg Kroah-Hartman
+> <gregkh@linuxfoundation.org> wrote:
+> >
+> > This is the start of the stable review cycle for the 6.1.11 release.
+> > There are 208 patches in this series, all will be posted as a response
+> > to this one.  If anyone has any issues with these being applied, please
+> > let me know.
+> >
+> > Responses should be made by Thu, 09 Feb 2023 12:55:54 +0000.
+> > Anything received after that time might be too late.
+> >
+> > The whole patch series can be found in one patch at:
+> >         https://www.kernel.org/pub/linux/kernel/v6.x/stable-review/patch-6.1.11-rc1.gz
+> > or in the git tree and branch at:
+> >         git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-6.1.y
+> > and the diffstat can be found below.
+> >
+> > thanks,
+> >
+> > greg k-h
+> 
+> Results from Linaro’s test farm.
+> Following build regressions noticed while building
+> selftests/vm/hugetlb-madvise.c
+> with kselftest-merge configs.
+> 
+> Reported-by: Linux Kernel Functional Testing <lkft@linaro.org>
+> 
+> Build errors:
+> ----------
+> hugetlb-madvise.c:242:13: warning: implicit declaration of function
+> 'fallocate'; did you mean 'alloca'? [-Wimplicit-function-declaration]
+>   242 |         if (fallocate(fd, 0, 0, NR_HUGE_PAGES * huge_page_size)) {
+>       |             ^~~~~~~~~
+>       |             alloca
+> hugetlb-madvise.c:289:27: error: 'FALLOC_FL_PUNCH_HOLE' undeclared
+> (first use in this function)
+>   289 |         if (fallocate(fd, FALLOC_FL_PUNCH_HOLE | FALLOC_FL_KEEP_SIZE,
+>       |                           ^~~~~~~~~~~~~~~~~~~~
+> hugetlb-madvise.c:289:27: note: each undeclared identifier is reported
+> only once for each function it appears in
+> hugetlb-madvise.c:289:50: error: 'FALLOC_FL_KEEP_SIZE' undeclared
+> (first use in this function)
+>   289 |         if (fallocate(fd, FALLOC_FL_PUNCH_HOLE | FALLOC_FL_KEEP_SIZE,
+>       |                                                  ^~~~~~~~~~~~~~~~~~~
+> make[3]: *** [../lib.mk:145:
+> /home/tuxbuild/.cache/tuxmake/builds/1/build/kselftest/vm/hugetlb-madvise]
+> Error 1
+> 
+> Build log:
+> https://gitlab.com/Linaro/lkft/mirrors/stable/linux-stable-rc/-/jobs/3728198425#L1676
+> https://storage.tuxsuite.com/public/linaro/lkft/builds/2LPeQeCIu0YEfltwqAFCvDaj29A/
 
-    /* Check if we are crossing the page boundary *
-    offset = params.guest_uaddr & (PAGE_SIZE - 1);
-    if ((params.guest_len + offset > PAGE_SIZE))
+I think we should drop the patch "[PATCH 6.1 012/208] selftests/vm: remove
+__USE_GNU in hugetlb-madvise.c" from this merge.
 
-Add an additional check to this conditional to confirm that
-params.guest_len itself is not greater than PAGE_SIZE.
+That patch fixes commit 62f33fa22800 ("selftests/vm: use memfd for
+hugetlb-madvise test"), but that's only in 6.2-rc1 and it's not in 6.1.
 
-The current code is can only overflow with a params.guest_len of greater
-than 0xfffff000. And the FW spec says these commands fail with lengths
-greater than 16KB. So this issue should not be a security concern
+I don't really know why it got picked for 6.1 stable backport, because the
+original patch doesn't contain "CC: stable".
 
-Fixes: 15fb7de1a7f5 ("KVM: SVM: Add KVM_SEV_RECEIVE_UPDATE_DATA command")
-Fixes: d3d1af85e2c7 ("KVM: SVM: Add KVM_SEND_UPDATE_DATA command")
-Reported-by: Andy Nguyen <theflow@google.com>
-Suggested-by: Thomas Lendacky <thomas.lendacky@amd.com>
-Signed-off-by: Peter Gonda <pgonda@google.com>
-Cc: David Rientjes <rientjes@google.com>
-Cc: Paolo Bonzini <pbonzini@redhat.com>
-Cc: Sean Christopherson <seanjc@google.com>
-Cc: kvm@vger.kernel.org
-Cc: stable@vger.kernel.org
-Cc: linux-kernel@vger.kernel.org
----
+Thanks,
 
-V2
- * Updated conditional based on feedback from Tom.
-
----
- arch/x86/kvm/svm/sev.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
-
-diff --git a/arch/x86/kvm/svm/sev.c b/arch/x86/kvm/svm/sev.c
-index 273cba809328..3d74facaead8 100644
---- a/arch/x86/kvm/svm/sev.c
-+++ b/arch/x86/kvm/svm/sev.c
-@@ -1294,7 +1294,7 @@ static int sev_send_update_data(struct kvm *kvm, struct kvm_sev_cmd *argp)
- 
- 	/* Check if we are crossing the page boundary */
- 	offset = params.guest_uaddr & (PAGE_SIZE - 1);
--	if ((params.guest_len + offset > PAGE_SIZE))
-+	if (params.guest_len > PAGE_SIZE || (params.guest_len + offset) > PAGE_SIZE)
- 		return -EINVAL;
- 
- 	/* Pin guest memory */
-@@ -1474,7 +1474,7 @@ static int sev_receive_update_data(struct kvm *kvm, struct kvm_sev_cmd *argp)
- 
- 	/* Check if we are crossing the page boundary */
- 	offset = params.guest_uaddr & (PAGE_SIZE - 1);
--	if ((params.guest_len + offset > PAGE_SIZE))
-+	if (params.guest_len > PAGE_SIZE || (params.guest_len + offset) > PAGE_SIZE)
- 		return -EINVAL;
- 
- 	hdr = psp_copy_user_blob(params.hdr_uaddr, params.hdr_len);
 -- 
-2.39.1.519.gcb327c4b5f-goog
+Peter Xu
 
