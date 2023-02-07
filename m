@@ -2,41 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 9649F68D85E
-	for <lists+stable@lfdr.de>; Tue,  7 Feb 2023 14:09:05 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id CDD1A68D864
+	for <lists+stable@lfdr.de>; Tue,  7 Feb 2023 14:09:11 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232295AbjBGNJE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Feb 2023 08:09:04 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57790 "EHLO
+        id S232301AbjBGNJK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Feb 2023 08:09:10 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57892 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232290AbjBGNJD (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Feb 2023 08:09:03 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D56593B0D3
-        for <stable@vger.kernel.org>; Tue,  7 Feb 2023 05:08:26 -0800 (PST)
+        with ESMTP id S232294AbjBGNJJ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Feb 2023 08:09:09 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D16593B0E0
+        for <stable@vger.kernel.org>; Tue,  7 Feb 2023 05:08:31 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 13A12B81989
-        for <stable@vger.kernel.org>; Tue,  7 Feb 2023 13:08:25 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 48968C433EF;
-        Tue,  7 Feb 2023 13:08:23 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 3E450611AA
+        for <stable@vger.kernel.org>; Tue,  7 Feb 2023 13:08:30 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3E027C433EF;
+        Tue,  7 Feb 2023 13:08:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1675775303;
-        bh=Kk9Kw8/Tbi6SmjZ3zkhvg2Pc9yw8tuZ7fpKKh0ABlB0=;
+        s=korg; t=1675775309;
+        bh=mQ5FYBaENysT7iXJJxljnO8krs+vaO5G9JGt9Y5ZgMw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=bmGRH7Htk81EnGYSWoFmmxUt92OSa8e0MSyoDwzHhD8c4qeMhL6YSFlG6/Q2htRw7
-         UnAHnzyKIWj690TaWIiR84lZ/pRYdx45kzeuGG3gRhW6U+siDHFTgZAZrbbbrdWkg3
-         K28REYqYnHx4keGhPOb8V1sStS4JQj42cZMMYa18=
+        b=YMMYu5MyEZbDBXbkXxqDhv5TOnNmwfnFtX3mGEI+BDw9RG/6olve0tDBPpbWemuqO
+         CPY414WRsgQh5X9fpxh0AKR5uNfTKBaX7a9h8hnMaqBrMPC0Qder+k1dwwIbdtaHH7
+         asJa5J2e9fFyGnViEyf4aG+HB62LIhT9DJJJJsgg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        syzbot+f8f3dfa4abc489e768a1@syzkaller.appspotmail.com,
-        Chao Yu <chao@kernel.org>, Jaegeuk Kim <jaegeuk@kernel.org>
-Subject: [PATCH 6.1 204/208] f2fs: fix to do sanity check on i_extra_isize in is_alive()
-Date:   Tue,  7 Feb 2023 13:57:38 +0100
-Message-Id: <20230207125643.754128404@linuxfoundation.org>
+        patches@lists.linux.dev, Dokyung Song <dokyungs@yonsei.ac.kr>,
+        Jisoo Jang <jisoo.jang@yonsei.ac.kr>,
+        Minsuk Kang <linuxlovemin@yonsei.ac.kr>,
+        Arend van Spriel <arend.vanspriel@broadcom.com>,
+        Kalle Valo <kvalo@kernel.org>
+Subject: [PATCH 6.1 205/208] wifi: brcmfmac: Check the count value of channel spec to prevent out-of-bounds reads
+Date:   Tue,  7 Feb 2023 13:57:39 +0100
+Message-Id: <20230207125643.804784297@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.1
 In-Reply-To: <20230207125634.292109991@linuxfoundation.org>
 References: <20230207125634.292109991@linuxfoundation.org>
@@ -53,95 +55,254 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Chao Yu <chao@kernel.org>
+From: Minsuk Kang <linuxlovemin@yonsei.ac.kr>
 
-commit d3b7b4afd6b2c344eabf9cc26b8bfa903c164c7c upstream.
+commit 4920ab131b2dbae7464b72bdcac465d070254209 upstream.
 
-syzbot found a f2fs bug:
+This patch fixes slab-out-of-bounds reads in brcmfmac that occur in
+brcmf_construct_chaninfo() and brcmf_enable_bw40_2g() when the count
+value of channel specifications provided by the device is greater than
+the length of 'list->element[]', decided by the size of the 'list'
+allocated with kzalloc(). The patch adds checks that make the functions
+free the buffer and return -EINVAL if that is the case. Note that the
+negative return is handled by the caller, brcmf_setup_wiphybands() or
+brcmf_cfg80211_attach().
 
-BUG: KASAN: slab-out-of-bounds in data_blkaddr fs/f2fs/f2fs.h:2891 [inline]
-BUG: KASAN: slab-out-of-bounds in is_alive fs/f2fs/gc.c:1117 [inline]
-BUG: KASAN: slab-out-of-bounds in gc_data_segment fs/f2fs/gc.c:1520 [inline]
-BUG: KASAN: slab-out-of-bounds in do_garbage_collect+0x386a/0x3df0 fs/f2fs/gc.c:1734
-Read of size 4 at addr ffff888076557568 by task kworker/u4:3/52
+Found by a modified version of syzkaller.
 
-CPU: 1 PID: 52 Comm: kworker/u4:3 Not tainted 6.1.0-rc4-syzkaller-00362-gfef7fd48922d #0
-Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS Google 10/26/2022
-Workqueue: writeback wb_workfn (flush-7:0)
+Crash Report from brcmf_construct_chaninfo():
+==================================================================
+BUG: KASAN: slab-out-of-bounds in brcmf_setup_wiphybands+0x1238/0x1430
+Read of size 4 at addr ffff888115f24600 by task kworker/0:2/1896
+
+CPU: 0 PID: 1896 Comm: kworker/0:2 Tainted: G        W  O      5.14.0+ #132
+Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS rel-1.12.1-0-ga5cab58e9a3f-prebuilt.qemu.org 04/01/2014
+Workqueue: usb_hub_wq hub_event
 Call Trace:
-<TASK>
-__dump_stack lib/dump_stack.c:88 [inline]
-dump_stack_lvl+0xcd/0x134 lib/dump_stack.c:106
-print_address_description mm/kasan/report.c:284 [inline]
-print_report+0x15e/0x45d mm/kasan/report.c:395
-kasan_report+0xbb/0x1f0 mm/kasan/report.c:495
-data_blkaddr fs/f2fs/f2fs.h:2891 [inline]
-is_alive fs/f2fs/gc.c:1117 [inline]
-gc_data_segment fs/f2fs/gc.c:1520 [inline]
-do_garbage_collect+0x386a/0x3df0 fs/f2fs/gc.c:1734
-f2fs_gc+0x88c/0x20a0 fs/f2fs/gc.c:1831
-f2fs_balance_fs+0x544/0x6b0 fs/f2fs/segment.c:410
-f2fs_write_inode+0x57e/0xe20 fs/f2fs/inode.c:753
-write_inode fs/fs-writeback.c:1440 [inline]
-__writeback_single_inode+0xcfc/0x1440 fs/fs-writeback.c:1652
-writeback_sb_inodes+0x54d/0xf90 fs/fs-writeback.c:1870
-wb_writeback+0x2c5/0xd70 fs/fs-writeback.c:2044
-wb_do_writeback fs/fs-writeback.c:2187 [inline]
-wb_workfn+0x2dc/0x12f0 fs/fs-writeback.c:2227
-process_one_work+0x9bf/0x1710 kernel/workqueue.c:2289
-worker_thread+0x665/0x1080 kernel/workqueue.c:2436
-kthread+0x2e4/0x3a0 kernel/kthread.c:376
-ret_from_fork+0x1f/0x30 arch/x86/entry/entry_64.S:306
+ dump_stack_lvl+0x57/0x7d
+ print_address_description.constprop.0.cold+0x93/0x334
+ kasan_report.cold+0x83/0xdf
+ brcmf_setup_wiphybands+0x1238/0x1430
+ brcmf_cfg80211_attach+0x2118/0x3fd0
+ brcmf_attach+0x389/0xd40
+ brcmf_usb_probe+0x12de/0x1690
+ usb_probe_interface+0x25f/0x710
+ really_probe+0x1be/0xa90
+ __driver_probe_device+0x2ab/0x460
+ driver_probe_device+0x49/0x120
+ __device_attach_driver+0x18a/0x250
+ bus_for_each_drv+0x123/0x1a0
+ __device_attach+0x207/0x330
+ bus_probe_device+0x1a2/0x260
+ device_add+0xa61/0x1ce0
+ usb_set_configuration+0x984/0x1770
+ usb_generic_driver_probe+0x69/0x90
+ usb_probe_device+0x9c/0x220
+ really_probe+0x1be/0xa90
+ __driver_probe_device+0x2ab/0x460
+ driver_probe_device+0x49/0x120
+ __device_attach_driver+0x18a/0x250
+ bus_for_each_drv+0x123/0x1a0
+ __device_attach+0x207/0x330
+ bus_probe_device+0x1a2/0x260
+ device_add+0xa61/0x1ce0
+ usb_new_device.cold+0x463/0xf66
+ hub_event+0x10d5/0x3330
+ process_one_work+0x873/0x13e0
+ worker_thread+0x8b/0xd10
+ kthread+0x379/0x450
+ ret_from_fork+0x1f/0x30
 
-The root cause is that we forgot to do sanity check on .i_extra_isize
-in below path, result in accessing invalid address later, fix it.
-- gc_data_segment
- - is_alive
-  - data_blkaddr
-   - offset_in_addr
+Allocated by task 1896:
+ kasan_save_stack+0x1b/0x40
+ __kasan_kmalloc+0x7c/0x90
+ kmem_cache_alloc_trace+0x19e/0x330
+ brcmf_setup_wiphybands+0x290/0x1430
+ brcmf_cfg80211_attach+0x2118/0x3fd0
+ brcmf_attach+0x389/0xd40
+ brcmf_usb_probe+0x12de/0x1690
+ usb_probe_interface+0x25f/0x710
+ really_probe+0x1be/0xa90
+ __driver_probe_device+0x2ab/0x460
+ driver_probe_device+0x49/0x120
+ __device_attach_driver+0x18a/0x250
+ bus_for_each_drv+0x123/0x1a0
+ __device_attach+0x207/0x330
+ bus_probe_device+0x1a2/0x260
+ device_add+0xa61/0x1ce0
+ usb_set_configuration+0x984/0x1770
+ usb_generic_driver_probe+0x69/0x90
+ usb_probe_device+0x9c/0x220
+ really_probe+0x1be/0xa90
+ __driver_probe_device+0x2ab/0x460
+ driver_probe_device+0x49/0x120
+ __device_attach_driver+0x18a/0x250
+ bus_for_each_drv+0x123/0x1a0
+ __device_attach+0x207/0x330
+ bus_probe_device+0x1a2/0x260
+ device_add+0xa61/0x1ce0
+ usb_new_device.cold+0x463/0xf66
+ hub_event+0x10d5/0x3330
+ process_one_work+0x873/0x13e0
+ worker_thread+0x8b/0xd10
+ kthread+0x379/0x450
+ ret_from_fork+0x1f/0x30
 
-Reported-by: syzbot+f8f3dfa4abc489e768a1@syzkaller.appspotmail.com
-Link: https://lore.kernel.org/linux-f2fs-devel/0000000000003cb3c405ed5c17f9@google.com/T/#u
-Signed-off-by: Chao Yu <chao@kernel.org>
-Signed-off-by: Jaegeuk Kim <jaegeuk@kernel.org>
+The buggy address belongs to the object at ffff888115f24000
+ which belongs to the cache kmalloc-2k of size 2048
+The buggy address is located 1536 bytes inside of
+ 2048-byte region [ffff888115f24000, ffff888115f24800)
+
+Memory state around the buggy address:
+ ffff888115f24500: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+ ffff888115f24580: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+>ffff888115f24600: fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc
+                   ^
+ ffff888115f24680: fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc
+ ffff888115f24700: fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc
+==================================================================
+
+Crash Report from brcmf_enable_bw40_2g():
+==================================================================
+BUG: KASAN: slab-out-of-bounds in brcmf_cfg80211_attach+0x3d11/0x3fd0
+Read of size 4 at addr ffff888103787600 by task kworker/0:2/1896
+
+CPU: 0 PID: 1896 Comm: kworker/0:2 Tainted: G        W  O      5.14.0+ #132
+Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS rel-1.12.1-0-ga5cab58e9a3f-prebuilt.qemu.org 04/01/2014
+Workqueue: usb_hub_wq hub_event
+Call Trace:
+ dump_stack_lvl+0x57/0x7d
+ print_address_description.constprop.0.cold+0x93/0x334
+ kasan_report.cold+0x83/0xdf
+ brcmf_cfg80211_attach+0x3d11/0x3fd0
+ brcmf_attach+0x389/0xd40
+ brcmf_usb_probe+0x12de/0x1690
+ usb_probe_interface+0x25f/0x710
+ really_probe+0x1be/0xa90
+ __driver_probe_device+0x2ab/0x460
+ driver_probe_device+0x49/0x120
+ __device_attach_driver+0x18a/0x250
+ bus_for_each_drv+0x123/0x1a0
+ __device_attach+0x207/0x330
+ bus_probe_device+0x1a2/0x260
+ device_add+0xa61/0x1ce0
+ usb_set_configuration+0x984/0x1770
+ usb_generic_driver_probe+0x69/0x90
+ usb_probe_device+0x9c/0x220
+ really_probe+0x1be/0xa90
+ __driver_probe_device+0x2ab/0x460
+ driver_probe_device+0x49/0x120
+ __device_attach_driver+0x18a/0x250
+ bus_for_each_drv+0x123/0x1a0
+ __device_attach+0x207/0x330
+ bus_probe_device+0x1a2/0x260
+ device_add+0xa61/0x1ce0
+ usb_new_device.cold+0x463/0xf66
+ hub_event+0x10d5/0x3330
+ process_one_work+0x873/0x13e0
+ worker_thread+0x8b/0xd10
+ kthread+0x379/0x450
+ ret_from_fork+0x1f/0x30
+
+Allocated by task 1896:
+ kasan_save_stack+0x1b/0x40
+ __kasan_kmalloc+0x7c/0x90
+ kmem_cache_alloc_trace+0x19e/0x330
+ brcmf_cfg80211_attach+0x3302/0x3fd0
+ brcmf_attach+0x389/0xd40
+ brcmf_usb_probe+0x12de/0x1690
+ usb_probe_interface+0x25f/0x710
+ really_probe+0x1be/0xa90
+ __driver_probe_device+0x2ab/0x460
+ driver_probe_device+0x49/0x120
+ __device_attach_driver+0x18a/0x250
+ bus_for_each_drv+0x123/0x1a0
+ __device_attach+0x207/0x330
+ bus_probe_device+0x1a2/0x260
+ device_add+0xa61/0x1ce0
+ usb_set_configuration+0x984/0x1770
+ usb_generic_driver_probe+0x69/0x90
+ usb_probe_device+0x9c/0x220
+ really_probe+0x1be/0xa90
+ __driver_probe_device+0x2ab/0x460
+ driver_probe_device+0x49/0x120
+ __device_attach_driver+0x18a/0x250
+ bus_for_each_drv+0x123/0x1a0
+ __device_attach+0x207/0x330
+ bus_probe_device+0x1a2/0x260
+ device_add+0xa61/0x1ce0
+ usb_new_device.cold+0x463/0xf66
+ hub_event+0x10d5/0x3330
+ process_one_work+0x873/0x13e0
+ worker_thread+0x8b/0xd10
+ kthread+0x379/0x450
+ ret_from_fork+0x1f/0x30
+
+The buggy address belongs to the object at ffff888103787000
+ which belongs to the cache kmalloc-2k of size 2048
+The buggy address is located 1536 bytes inside of
+ 2048-byte region [ffff888103787000, ffff888103787800)
+
+Memory state around the buggy address:
+ ffff888103787500: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+ ffff888103787580: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+>ffff888103787600: fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc
+                   ^
+ ffff888103787680: fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc
+ ffff888103787700: fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc
+==================================================================
+
+Reported-by: Dokyung Song <dokyungs@yonsei.ac.kr>
+Reported-by: Jisoo Jang <jisoo.jang@yonsei.ac.kr>
+Reported-by: Minsuk Kang <linuxlovemin@yonsei.ac.kr>
+Reviewed-by: Arend van Spriel <arend.vanspriel@broadcom.com>
+Signed-off-by: Minsuk Kang <linuxlovemin@yonsei.ac.kr>
+Signed-off-by: Kalle Valo <kvalo@kernel.org>
+Link: https://lore.kernel.org/r/20221116142952.518241-1-linuxlovemin@yonsei.ac.kr
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/f2fs/gc.c |   18 ++++++++++++------
- 1 file changed, 12 insertions(+), 6 deletions(-)
+ drivers/net/wireless/broadcom/brcm80211/brcmfmac/cfg80211.c |   17 ++++++++++++
+ 1 file changed, 17 insertions(+)
 
---- a/fs/f2fs/gc.c
-+++ b/fs/f2fs/gc.c
-@@ -1078,7 +1078,7 @@ static bool is_alive(struct f2fs_sb_info
+--- a/drivers/net/wireless/broadcom/brcm80211/brcmfmac/cfg80211.c
++++ b/drivers/net/wireless/broadcom/brcm80211/brcmfmac/cfg80211.c
+@@ -91,6 +91,9 @@
+ #define BRCMF_ASSOC_PARAMS_FIXED_SIZE \
+ 	(sizeof(struct brcmf_assoc_params_le) - sizeof(u16))
+ 
++#define BRCMF_MAX_CHANSPEC_LIST \
++	(BRCMF_DCMD_MEDLEN / sizeof(__le32) - 1)
++
+ static bool check_vif_up(struct brcmf_cfg80211_vif *vif)
  {
- 	struct page *node_page;
- 	nid_t nid;
--	unsigned int ofs_in_node, max_addrs;
-+	unsigned int ofs_in_node, max_addrs, base;
- 	block_t source_blkaddr;
+ 	if (!test_bit(BRCMF_VIF_STATUS_READY, &vif->sme_state)) {
+@@ -6556,6 +6559,13 @@ static int brcmf_construct_chaninfo(stru
+ 			band->channels[i].flags = IEEE80211_CHAN_DISABLED;
  
- 	nid = le32_to_cpu(sum->nid);
-@@ -1104,11 +1104,17 @@ static bool is_alive(struct f2fs_sb_info
- 		return false;
- 	}
- 
--	max_addrs = IS_INODE(node_page) ? DEF_ADDRS_PER_INODE :
--						DEF_ADDRS_PER_BLOCK;
--	if (ofs_in_node >= max_addrs) {
--		f2fs_err(sbi, "Inconsistent ofs_in_node:%u in summary, ino:%u, nid:%u, max:%u",
--			ofs_in_node, dni->ino, dni->nid, max_addrs);
-+	if (IS_INODE(node_page)) {
-+		base = offset_in_addr(F2FS_INODE(node_page));
-+		max_addrs = DEF_ADDRS_PER_INODE;
-+	} else {
-+		base = 0;
-+		max_addrs = DEF_ADDRS_PER_BLOCK;
+ 	total = le32_to_cpu(list->count);
++	if (total > BRCMF_MAX_CHANSPEC_LIST) {
++		bphy_err(drvr, "Invalid count of channel Spec. (%u)\n",
++			 total);
++		err = -EINVAL;
++		goto fail_pbuf;
 +	}
 +
-+	if (base + ofs_in_node >= max_addrs) {
-+		f2fs_err(sbi, "Inconsistent blkaddr offset: base:%u, ofs_in_node:%u, max:%u, ino:%u, nid:%u",
-+			base, ofs_in_node, max_addrs, dni->ino, dni->nid);
- 		f2fs_put_page(node_page, 1);
- 		return false;
- 	}
+ 	for (i = 0; i < total; i++) {
+ 		ch.chspec = (u16)le32_to_cpu(list->element[i]);
+ 		cfg->d11inf.decchspec(&ch);
+@@ -6701,6 +6711,13 @@ static int brcmf_enable_bw40_2g(struct b
+ 		band = cfg_to_wiphy(cfg)->bands[NL80211_BAND_2GHZ];
+ 		list = (struct brcmf_chanspec_list *)pbuf;
+ 		num_chan = le32_to_cpu(list->count);
++		if (num_chan > BRCMF_MAX_CHANSPEC_LIST) {
++			bphy_err(drvr, "Invalid count of channel Spec. (%u)\n",
++				 num_chan);
++			kfree(pbuf);
++			return -EINVAL;
++		}
++
+ 		for (i = 0; i < num_chan; i++) {
+ 			ch.chspec = (u16)le32_to_cpu(list->element[i]);
+ 			cfg->d11inf.decchspec(&ch);
 
 
