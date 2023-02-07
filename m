@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 4620268D275
-	for <lists+stable@lfdr.de>; Tue,  7 Feb 2023 10:17:53 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5B3BB68D277
+	for <lists+stable@lfdr.de>; Tue,  7 Feb 2023 10:18:03 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231533AbjBGJRv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Feb 2023 04:17:51 -0500
+        id S231489AbjBGJSC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Feb 2023 04:18:02 -0500
 Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58890 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231474AbjBGJRm (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Feb 2023 04:17:42 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C5D55360B3
-        for <stable@vger.kernel.org>; Tue,  7 Feb 2023 01:17:37 -0800 (PST)
+        with ESMTP id S231531AbjBGJRv (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Feb 2023 04:17:51 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E0F003803E
+        for <stable@vger.kernel.org>; Tue,  7 Feb 2023 01:17:43 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 406836123F
-        for <stable@vger.kernel.org>; Tue,  7 Feb 2023 09:17:37 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 55380C4339B;
-        Tue,  7 Feb 2023 09:17:36 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 595736123B
+        for <stable@vger.kernel.org>; Tue,  7 Feb 2023 09:17:43 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6C409C433EF;
+        Tue,  7 Feb 2023 09:17:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1675761456;
-        bh=7/pVsxPQS2HnZl6yBnrmSgvB8P4h0b+ns6sBnloO3Ho=;
+        s=korg; t=1675761462;
+        bh=1o1QsgCYAZpnKRLbKIZkp7ub3HwOhG2psDT5R4/t9xA=;
         h=Subject:To:Cc:From:Date:From;
-        b=NXuraipbhnUniAECtSjqUTDBlyQFKE/uA4pcCJc4VAppJD0k2UAl7PJalaFk/DbnC
-         Tolw3f20dlMY3UudaqaKsS+qSpalW3rzcFXeWU25B2XlMQHaPerXMHszf80+oGwtQG
-         g7UqgqIBa8Pw2oYwtXM5AhRFC0IU0V3HjZ/3/zKc=
-Subject: FAILED: patch "[PATCH] serial: 8250_dma: Fix DMA Rx rearm race" failed to apply to 4.14-stable tree
+        b=tkeOFpFttnoVFkWZtml63I0b7zwO57OMMSRB+1ViZabya8gXen1ePE/aZtCbldzFH
+         OakGhLexb1zctVJDn0JhY8Smjgu7hrn6MPJD58+5JsgWv7FabWbhABOsSOwVEdHu0S
+         l9fpmfR06tjHS9LZRU21YGlivF5ku0YtWxvE9I94=
+Subject: FAILED: patch "[PATCH] serial: 8250_dma: Fix DMA Rx completion race" failed to apply to 6.1-stable tree
 To:     ilpo.jarvinen@linux.intel.com, gilles.buloz@kontron.com,
         gregkh@linuxfoundation.org
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Tue, 07 Feb 2023 10:17:24 +0100
-Message-ID: <1675761444195235@kroah.com>
+Date:   Tue, 07 Feb 2023 10:17:29 +0100
+Message-ID: <16757614492540@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
         SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -48,14 +48,15 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.14-stable tree.
+The patch below does not apply to the 6.1-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
 
 Possible dependencies:
 
-57e9af7831dc ("serial: 8250_dma: Fix DMA Rx rearm race")
+31352811e13d ("serial: 8250_dma: Fix DMA Rx completion race")
+56dc5074cbec ("serial: 8250_dma: Rearm DMA Rx if more data is pending")
 
 thanks,
 
@@ -63,87 +64,51 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From 57e9af7831dcf211c5c689c2a6f209f4abdf0bce Mon Sep 17 00:00:00 2001
+From 31352811e13dc2313f101b890fd4b1ce760b5fe7 Mon Sep 17 00:00:00 2001
 From: =?UTF-8?q?Ilpo=20J=C3=A4rvinen?= <ilpo.jarvinen@linux.intel.com>
-Date: Mon, 30 Jan 2023 13:48:41 +0200
-Subject: [PATCH] serial: 8250_dma: Fix DMA Rx rearm race
+Date: Mon, 30 Jan 2023 13:48:40 +0200
+Subject: [PATCH] serial: 8250_dma: Fix DMA Rx completion race
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 
-As DMA Rx can be completed from two places, it is possible that DMA Rx
-completes before DMA completion callback had a chance to complete it.
-Once the previous DMA Rx has been completed, a new one can be started
-on the next UART interrupt. The following race is possible
-(uart_unlock_and_check_sysrq_irqrestore() replaced with
-spin_unlock_irqrestore() for simplicity/clarity):
+__dma_rx_complete() is called from two places:
+  - Through the DMA completion callback dma_rx_complete()
+  - From serial8250_rx_dma_flush() after IIR_RLSI or IIR_RX_TIMEOUT
+The former does not hold port's lock during __dma_rx_complete() which
+allows these two to race and potentially insert the same data twice.
 
-CPU0					CPU1
-					dma_rx_complete()
-serial8250_handle_irq()
-  spin_lock_irqsave(&port->lock)
-  handle_rx_dma()
-    serial8250_rx_dma_flush()
-      __dma_rx_complete()
-        dma->rx_running = 0
-        // Complete DMA Rx
-  spin_unlock_irqrestore(&port->lock)
-
-serial8250_handle_irq()
-  spin_lock_irqsave(&port->lock)
-  handle_rx_dma()
-    serial8250_rx_dma()
-      dma->rx_running = 1
-      // Setup a new DMA Rx
-  spin_unlock_irqrestore(&port->lock)
-
-					  spin_lock_irqsave(&port->lock)
-					  // sees dma->rx_running = 1
-					  __dma_rx_complete()
-					    dma->rx_running = 0
-					    // Incorrectly complete
-					    // running DMA Rx
-
-This race seems somewhat theoretical to occur for real but handle it
-correctly regardless. Check what is the DMA status before complething
-anything in __dma_rx_complete().
+Extend port's lock coverage in dma_rx_complete() to prevent the race
+and check if the DMA Rx is still pending completion before calling
+into __dma_rx_complete().
 
 Reported-by: Gilles BULOZ <gilles.buloz@kontron.com>
 Tested-by: Gilles BULOZ <gilles.buloz@kontron.com>
 Fixes: 9ee4b83e51f7 ("serial: 8250: Add support for dmaengine")
 Cc: stable@vger.kernel.org
 Signed-off-by: Ilpo Järvinen <ilpo.jarvinen@linux.intel.com>
-Link: https://lore.kernel.org/r/20230130114841.25749-3-ilpo.jarvinen@linux.intel.com
+Link: https://lore.kernel.org/r/20230130114841.25749-2-ilpo.jarvinen@linux.intel.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 diff --git a/drivers/tty/serial/8250/8250_dma.c b/drivers/tty/serial/8250/8250_dma.c
-index 5594883a96f8..7fa66501792d 100644
+index 37d6af2ec427..5594883a96f8 100644
 --- a/drivers/tty/serial/8250/8250_dma.c
 +++ b/drivers/tty/serial/8250/8250_dma.c
-@@ -43,15 +43,23 @@ static void __dma_rx_complete(struct uart_8250_port *p)
- 	struct uart_8250_dma	*dma = p->dma;
- 	struct tty_port		*tty_port = &p->port.state->port;
- 	struct dma_tx_state	state;
-+	enum dma_status		dma_status;
- 	int			count;
+@@ -62,9 +62,14 @@ static void dma_rx_complete(void *param)
+ 	struct uart_8250_dma *dma = p->dma;
+ 	unsigned long flags;
  
--	dma->rx_running = 0;
--	dmaengine_tx_status(dma->rxchan, dma->rx_cookie, &state);
+-	__dma_rx_complete(p);
+-
+ 	spin_lock_irqsave(&p->port.lock, flags);
++	if (dma->rx_running)
++		__dma_rx_complete(p);
++
 +	/*
-+	 * New DMA Rx can be started during the completion handler before it
-+	 * could acquire port's lock and it might still be ongoing. Don't to
-+	 * anything in such case.
++	 * Cannot be combined with the previous check because __dma_rx_complete()
++	 * changes dma->rx_running.
 +	 */
-+	dma_status = dmaengine_tx_status(dma->rxchan, dma->rx_cookie, &state);
-+	if (dma_status == DMA_IN_PROGRESS)
-+		return;
- 
- 	count = dma->rx_size - state.residue;
- 
- 	tty_insert_flip_string(tty_port, dma->rx_buf, count);
- 	p->port.icount.rx += count;
-+	dma->rx_running = 0;
- 
- 	tty_flip_buffer_push(tty_port);
- }
+ 	if (!dma->rx_running && (serial_lsr_in(p) & UART_LSR_DR))
+ 		p->dma->rx_dma(p);
+ 	spin_unlock_irqrestore(&p->port.lock, flags);
 
