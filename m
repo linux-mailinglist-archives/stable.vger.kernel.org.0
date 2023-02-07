@@ -2,44 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 672A168D81F
-	for <lists+stable@lfdr.de>; Tue,  7 Feb 2023 14:06:15 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id BE10368D87C
+	for <lists+stable@lfdr.de>; Tue,  7 Feb 2023 14:10:09 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232082AbjBGNGO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Feb 2023 08:06:14 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51942 "EHLO
+        id S232360AbjBGNKI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Feb 2023 08:10:08 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59132 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232224AbjBGNGD (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Feb 2023 08:06:03 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 95EBB3B3F2
-        for <stable@vger.kernel.org>; Tue,  7 Feb 2023 05:05:20 -0800 (PST)
+        with ESMTP id S232333AbjBGNKH (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Feb 2023 08:10:07 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AAAE0CDDE
+        for <stable@vger.kernel.org>; Tue,  7 Feb 2023 05:09:51 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 1668EB81995
-        for <stable@vger.kernel.org>; Tue,  7 Feb 2023 13:05:18 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6B5F1C4339C;
-        Tue,  7 Feb 2023 13:05:16 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 6707661423
+        for <stable@vger.kernel.org>; Tue,  7 Feb 2023 13:09:48 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 735CBC433EF;
+        Tue,  7 Feb 2023 13:09:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1675775116;
-        bh=zw3Ej4DQHnK68ivRbJEMtNpSPtbdX+rbd1524cdgHL8=;
+        s=korg; t=1675775387;
+        bh=TIUHxUK7dqNIgpch7SnrrQMY2niILT/y+yxnIVgYOXA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=T4RLR26+0Nwdw2Gc/bQsU3euV4T0LfbHmX0y0mo5dMG88JWDguaCFPp2kX3veM40/
-         b4zt70ZvBh/JMnt1oJ2YqEGQ67XqKK1/Zds3cDm6mdKL7t/jTnaLYBZqup8WAtTjme
-         bwJ/qkCnldKvvNumQo94AfW2zqErGTofO+zKaMA0=
+        b=ai1iTH1BPSnuSG/uBm0W0ynZJlJdBjEeLntU+wIiYqM6L0njsSy3zV5kxBdEkbRzF
+         WXVJW11BSyk9GIc+mLN+DiN/JPFx7slVQHOAwv9Mg6Q7gCqWtf4rDKMoGlkjgF+lw/
+         HrV+yTPFkcWvydhp343phyQh3qen7TQPRcB6I5og=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Carlos Song <carlos.song@nxp.com>,
-        Stable@vger.kernel.org,
-        Jonathan Cameron <Jonathan.Cameron@huawei.com>
-Subject: [PATCH 6.1 141/208] iio: imu: fxos8700: fix IMU data bits returned to user space
+        patches@lists.linux.dev,
+        Magnus Karlsson <magnus.karlsson@intel.com>,
+        =?UTF-8?q?Toke=20H=C3=B8iland-J=C3=B8rgensen?= <toke@redhat.com>,
+        "Michael S. Tsirkin" <mst@redhat.com>,
+        Jakub Kicinski <kuba@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.15 024/120] virtio-net: execute xdp_do_flush() before napi_complete_done()
 Date:   Tue,  7 Feb 2023 13:56:35 +0100
-Message-Id: <20230207125640.813155230@linuxfoundation.org>
+Message-Id: <20230207125619.825056722@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.1
-In-Reply-To: <20230207125634.292109991@linuxfoundation.org>
-References: <20230207125634.292109991@linuxfoundation.org>
+In-Reply-To: <20230207125618.699726054@linuxfoundation.org>
+References: <20230207125618.699726054@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,73 +56,60 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Carlos Song <carlos.song@nxp.com>
+From: Magnus Karlsson <magnus.karlsson@intel.com>
 
-commit a53f945879c0cb9de3a4c05a665f5157884b5208 upstream.
+[ Upstream commit ad7e615f646c9b5b2cf655cdfb9d91a28db4f25a ]
 
-ACCEL output data registers contain the X-axis, Y-axis, and Z-axis
-14-bit left-justified sample data and MAGN output data registers
-contain the X-axis, Y-axis, and Z-axis 16-bit sample data. The ACCEL
-raw register output data should be divided by 4 before sent to
-userspace.
+Make sure that xdp_do_flush() is always executed before
+napi_complete_done(). This is important for two reasons. First, a
+redirect to an XSKMAP assumes that a call to xdp_do_redirect() from
+napi context X on CPU Y will be followed by a xdp_do_flush() from the
+same napi context and CPU. This is not guaranteed if the
+napi_complete_done() is executed before xdp_do_flush(), as it tells
+the napi logic that it is fine to schedule napi context X on another
+CPU. Details from a production system triggering this bug using the
+veth driver can be found following the first link below.
 
-Apply a 2 bits signed right shift to the raw data from ACCEL output
-data register but keep that from MAGN sensor as the origin.
+The second reason is that the XDP_REDIRECT logic in itself relies on
+being inside a single NAPI instance through to the xdp_do_flush() call
+for RCU protection of all in-kernel data structures. Details can be
+found in the second link below.
 
-Fixes: 84e5ddd5c46e ("iio: imu: Add support for the FXOS8700 IMU")
-Signed-off-by: Carlos Song <carlos.song@nxp.com>
-Link: https://lore.kernel.org/r/20221208071911.2405922-5-carlos.song@nxp.com
-Cc: <Stable@vger.kernel.org>
-Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: 186b3c998c50 ("virtio-net: support XDP_REDIRECT")
+Signed-off-by: Magnus Karlsson <magnus.karlsson@intel.com>
+Acked-by: Toke Høiland-Jørgensen <toke@redhat.com>
+Link: https://lore.kernel.org/r/20221220185903.1105011-1-sbohrer@cloudflare.com
+Link: https://lore.kernel.org/all/20210624160609.292325-1-toke@redhat.com/
+Acked-by: Michael S. Tsirkin <mst@redhat.com>
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/iio/imu/fxos8700_core.c |   28 +++++++++++++++++++++++++++-
- 1 file changed, 27 insertions(+), 1 deletion(-)
+ drivers/net/virtio_net.c | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
---- a/drivers/iio/imu/fxos8700_core.c
-+++ b/drivers/iio/imu/fxos8700_core.c
-@@ -418,6 +418,7 @@ static int fxos8700_get_data(struct fxos
- 			     int axis, int *val)
- {
- 	u8 base, reg;
-+	s16 tmp;
- 	int ret;
- 	enum fxos8700_sensor type = fxos8700_to_sensor(chan_type);
+diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
+index 9222be208aba..a5ec81c76155 100644
+--- a/drivers/net/virtio_net.c
++++ b/drivers/net/virtio_net.c
+@@ -1580,13 +1580,13 @@ static int virtnet_poll(struct napi_struct *napi, int budget)
  
-@@ -432,8 +433,33 @@ static int fxos8700_get_data(struct fxos
- 	/* Convert axis to buffer index */
- 	reg = axis - IIO_MOD_X;
+ 	received = virtnet_receive(rq, budget, &xdp_xmit);
  
-+	/*
-+	 * Convert to native endianness. The accel data and magn data
-+	 * are signed, so a forced type conversion is needed.
-+	 */
-+	tmp = be16_to_cpu(data->buf[reg]);
++	if (xdp_xmit & VIRTIO_XDP_REDIR)
++		xdp_do_flush();
 +
-+	/*
-+	 * ACCEL output data registers contain the X-axis, Y-axis, and Z-axis
-+	 * 14-bit left-justified sample data and MAGN output data registers
-+	 * contain the X-axis, Y-axis, and Z-axis 16-bit sample data. Apply
-+	 * a signed 2 bits right shift to the readback raw data from ACCEL
-+	 * output data register and keep that from MAGN sensor as the origin.
-+	 * Value should be extended to 32 bit.
-+	 */
-+	switch (chan_type) {
-+	case IIO_ACCEL:
-+		tmp = tmp >> 2;
-+		break;
-+	case IIO_MAGN:
-+		/* Nothing to do */
-+		break;
-+	default:
-+		return -EINVAL;
-+	}
-+
- 	/* Convert to native endianness */
--	*val = sign_extend32(be16_to_cpu(data->buf[reg]), 15);
-+	*val = sign_extend32(tmp, 15);
+ 	/* Out of packets? */
+ 	if (received < budget)
+ 		virtqueue_napi_complete(napi, rq->vq, received);
  
- 	return 0;
- }
+-	if (xdp_xmit & VIRTIO_XDP_REDIR)
+-		xdp_do_flush();
+-
+ 	if (xdp_xmit & VIRTIO_XDP_TX) {
+ 		sq = virtnet_xdp_get_sq(vi);
+ 		if (virtqueue_kick_prepare(sq->vq) && virtqueue_notify(sq->vq)) {
+-- 
+2.39.0
+
 
 
