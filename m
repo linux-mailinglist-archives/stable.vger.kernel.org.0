@@ -2,40 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id BA33B68D7BF
-	for <lists+stable@lfdr.de>; Tue,  7 Feb 2023 14:03:07 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E98B768D7CB
+	for <lists+stable@lfdr.de>; Tue,  7 Feb 2023 14:03:21 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232037AbjBGNDF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Feb 2023 08:03:05 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49346 "EHLO
+        id S232042AbjBGNDT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Feb 2023 08:03:19 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49660 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232096AbjBGNC4 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Feb 2023 08:02:56 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 35A40360AD
-        for <stable@vger.kernel.org>; Tue,  7 Feb 2023 05:02:34 -0800 (PST)
+        with ESMTP id S232047AbjBGNDK (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Feb 2023 08:03:10 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 609B2EC68
+        for <stable@vger.kernel.org>; Tue,  7 Feb 2023 05:03:09 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id C35156140B
-        for <stable@vger.kernel.org>; Tue,  7 Feb 2023 13:02:33 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id BE1FBC433D2;
-        Tue,  7 Feb 2023 13:02:32 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 0D68CB81995
+        for <stable@vger.kernel.org>; Tue,  7 Feb 2023 13:03:08 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 52495C433D2;
+        Tue,  7 Feb 2023 13:03:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1675774953;
-        bh=VvzWuZ6lOQSA6XIOVbU1yB1uevXoo+XQGbn7rXzbx6A=;
+        s=korg; t=1675774986;
+        bh=O7eBE4jfHcGPJUk25Olfzak2s63pZcqZLlVDUxzvnbg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=pi49qr+wy0MYkmOKZpE4i2aUOG6/ShUiCj8im5RpnpUU46ajsZKibW0MFZNGiRFZt
-         4RyOxK1V6b6FvNxgO8yX8PM0oo29h8sUtwF8dITA19TO2BRb3gQqSMeLjzxlN6bcwe
-         6E5P8l6jdUGPeysPCSHiy6eB44oww/T0MG7+lCBs=
+        b=L7nTBA0F6eLUM9v4gkMY8CnRqx74iG1iR4MTBQYPrHhcTQhwvJJlZcoAy9UZB4CM5
+         hj7iLhdUx2ixbc93AXj2ippWtBiZmhvy5Oau83/MlcEmuenmlEQ7LmYf5yOXrAJqsS
+         6cjnY31/uzOMfB99Ov82eWg+4tx6TWaQNx3Poz5A=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Marc Kleine-Budde <mkl@pengutronix.de>,
+        patches@lists.linux.dev, Marius Dinu <marius@psihoexpert.ro>,
+        Niklas Cassel <niklas.cassel@wdc.com>,
+        Damien Le Moal <damien.lemoal@opensource.wdc.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 081/208] can: mcp251xfd: mcp251xfd_ring_set_ringparam(): assign missing tx_obj_num_coalesce_irq
-Date:   Tue,  7 Feb 2023 13:55:35 +0100
-Message-Id: <20230207125637.999605370@linuxfoundation.org>
+Subject: [PATCH 6.1 082/208] ata: libata: Fix sata_down_spd_limit() when no link speed is reported
+Date:   Tue,  7 Feb 2023 13:55:36 +0100
+Message-Id: <20230207125638.055141208@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.1
 In-Reply-To: <20230207125634.292109991@linuxfoundation.org>
 References: <20230207125634.292109991@linuxfoundation.org>
@@ -52,34 +54,55 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Marc Kleine-Budde <mkl@pengutronix.de>
+From: Damien Le Moal <damien.lemoal@opensource.wdc.com>
 
-[ Upstream commit 1613fff7a32e1d9e2ac09db73feba0e71a188445 ]
+[ Upstream commit 69f2c9346313ba3d3dfa4091ff99df26c67c9021 ]
 
-If the a new ring layout is set, the max coalesced frames for RX and
-TX are re-calculated, too. Add the missing assignment of the newly
-calculated TX max coalesced frames.
+Commit 2dc0b46b5ea3 ("libata: sata_down_spd_limit should return if
+driver has not recorded sstatus speed") changed the behavior of
+sata_down_spd_limit() to return doing nothing if a drive does not report
+a current link speed, to avoid reducing the link speed to the lowest 1.5
+Gbps speed.
 
-Fixes: 656fc12ddaf8 ("can: mcp251xfd: add TX IRQ coalescing ethtool support")
-Link: https://lore.kernel.org/all/20230130154334.1578518-1-mkl@pengutronix.de
-Signed-off-by: Marc Kleine-Budde <mkl@pengutronix.de>
+However, the change assumed that a speed was recorded before probing
+(e.g. before a suspend/resume) and set in link->sata_spd. This causes
+problems with adapters/drives combination failing to establish a link
+speed during probe autonegotiation. One example reported of this problem
+is an mvebu adapter with a 3Gbps port-multiplier box: autonegotiation
+fails, leaving no recorded link speed and no reported current link
+speed. Probe retries also fail as no action is taken by sata_set_spd()
+after each retry.
+
+Fix this by returning early in sata_down_spd_limit() only if we do have
+a recorded link speed, that is, if link->sata_spd is not 0. With this
+fix, a failed probe not leading to a recorded link speed is retried at
+the lower 1.5 Gbps speed, with the link speed potentially increased
+later on the second revalidate of the device if the device reports
+that it supports higher link speeds.
+
+Reported-by: Marius Dinu <marius@psihoexpert.ro>
+Fixes: 2dc0b46b5ea3 ("libata: sata_down_spd_limit should return if driver has not recorded sstatus speed")
+Reviewed-by: Niklas Cassel <niklas.cassel@wdc.com>
+Tested-by: Marius Dinu <marius@psihoexpert.ro>
+Signed-off-by: Damien Le Moal <damien.lemoal@opensource.wdc.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/can/spi/mcp251xfd/mcp251xfd-ethtool.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/ata/libata-core.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/net/can/spi/mcp251xfd/mcp251xfd-ethtool.c b/drivers/net/can/spi/mcp251xfd/mcp251xfd-ethtool.c
-index 3585f02575df..57eeb066a945 100644
---- a/drivers/net/can/spi/mcp251xfd/mcp251xfd-ethtool.c
-+++ b/drivers/net/can/spi/mcp251xfd/mcp251xfd-ethtool.c
-@@ -48,6 +48,7 @@ mcp251xfd_ring_set_ringparam(struct net_device *ndev,
- 	priv->rx_obj_num = layout.cur_rx;
- 	priv->rx_obj_num_coalesce_irq = layout.rx_coalesce;
- 	priv->tx->obj_num = layout.cur_tx;
-+	priv->tx_obj_num_coalesce_irq = layout.tx_coalesce;
+diff --git a/drivers/ata/libata-core.c b/drivers/ata/libata-core.c
+index d3ce5c383f3a..26a75f5cce95 100644
+--- a/drivers/ata/libata-core.c
++++ b/drivers/ata/libata-core.c
+@@ -3108,7 +3108,7 @@ int sata_down_spd_limit(struct ata_link *link, u32 spd_limit)
+ 	 */
+ 	if (spd > 1)
+ 		mask &= (1 << (spd - 1)) - 1;
+-	else
++	else if (link->sata_spd)
+ 		return -EINVAL;
  
- 	return 0;
- }
+ 	/* were we already at the bottom? */
 -- 
 2.39.0
 
