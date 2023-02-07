@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 4B68068D80A
-	for <lists+stable@lfdr.de>; Tue,  7 Feb 2023 14:05:22 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 487AD68D8B7
+	for <lists+stable@lfdr.de>; Tue,  7 Feb 2023 14:12:11 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232225AbjBGNFU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Feb 2023 08:05:20 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51928 "EHLO
+        id S232530AbjBGNMK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Feb 2023 08:12:10 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59816 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232163AbjBGNFA (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Feb 2023 08:05:00 -0500
+        with ESMTP id S232421AbjBGNLw (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Feb 2023 08:11:52 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4229A3A5AB
-        for <stable@vger.kernel.org>; Tue,  7 Feb 2023 05:04:50 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 711ED3CE05
+        for <stable@vger.kernel.org>; Tue,  7 Feb 2023 05:10:53 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 9F4336140B
-        for <stable@vger.kernel.org>; Tue,  7 Feb 2023 13:04:49 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A694DC433D2;
-        Tue,  7 Feb 2023 13:04:48 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 091AC611AA
+        for <stable@vger.kernel.org>; Tue,  7 Feb 2023 13:10:53 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id EEEB8C433EF;
+        Tue,  7 Feb 2023 13:10:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1675775089;
-        bh=R8yxPxswQfdVA4vNsGwfUaT5orb6tITM5WhgNHlhtt0=;
+        s=korg; t=1675775452;
+        bh=FxBU7vErTeNHAohOXWl9BD2RiOQuUY5rggdj3gXBc5o=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=qZWvZfaxarSiel2hoIGjSdNez2r6RzuooWy4WiybvkYagx2EFvrXwvC8Ef+WJdKMs
-         myj82OzSyMq2Fwdn4m+D69sDmpvq5RHb8UgKb2dKHMefdmp7HTq3xOj+sUq7WrTf9w
-         QhvsHol1EfGGkRWKOSiI4DC9lIX9CMatAbXgKqEo=
+        b=OyR0XYzEKfSk8ls0aoFCsIH39+Ix8t1zKtEjG8CN+6epr3t0WOmcfNs7UlciHZnXP
+         inDhTK5mlVJyEHsJEnYvBRfVSeSnTiDR4ZU/oTbxxUSatFoNV7bjtVqJgX9Subc+n0
+         EEkyrDKNb0t/WGeIRYqABVWRXvaPJFkU/+9uYtHs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Dmitry Perchanov <dmitry.perchanov@intel.com>,
-        Stable@vger.kernel.org,
-        Jonathan Cameron <Jonathan.Cameron@huawei.com>
-Subject: [PATCH 6.1 132/208] iio: hid: fix the retval in accel_3d_capture_sample
+        patches@lists.linux.dev, Hans Verkuil <hverkuil-cisco@xs4all.nl>,
+        Maxime Ripard <maxime@cerno.tech>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.15 015/120] drm/vc4: hdmi: make CEC adapter name unique
 Date:   Tue,  7 Feb 2023 13:56:26 +0100
-Message-Id: <20230207125640.400571599@linuxfoundation.org>
+Message-Id: <20230207125619.403223495@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.1
-In-Reply-To: <20230207125634.292109991@linuxfoundation.org>
-References: <20230207125634.292109991@linuxfoundation.org>
+In-Reply-To: <20230207125618.699726054@linuxfoundation.org>
+References: <20230207125618.699726054@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,32 +53,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dmitry Perchanov <dmitry.perchanov@intel.com>
+From: Hans Verkuil <hverkuil-cisco@xs4all.nl>
 
-commit f7b23d1c35d8b8de1425bdfccaefd01f3b7c9d1c upstream.
+[ Upstream commit 51128c3f2a7c98055ea1d27e34910dc10977f618 ]
 
-Return value should be zero for success. This was forgotten for timestamp
-feature. Verified on RealSense cameras.
+The bcm2711 has two HDMI outputs, each with their own CEC adapter.
+The CEC adapter name has to be unique, but it is currently
+hardcoded to "vc4" for both outputs. Change this to use the card_name
+from the variant information in order to make the adapter name unique.
 
-Fixes: a96cd0f901ee ("iio: accel: hid-sensor-accel-3d: Add timestamp")
-Signed-off-by: Dmitry Perchanov <dmitry.perchanov@intel.com>
-Link: https://lore.kernel.org/r/a6dc426498221c81fa71045b41adf782ebd42136.camel@intel.com
-Cc: <Stable@vger.kernel.org>
-Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
+Fixes: 15b4511a4af6 ("drm/vc4: add HDMI CEC support")
+Signed-off-by: Maxime Ripard <maxime@cerno.tech>
+Link: https://patchwork.freedesktop.org/patch/msgid/dcf1db75-d9cc-62cc-fa12-baf1b2b3bf31@xs4all.nl
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/iio/accel/hid-sensor-accel-3d.c |    1 +
- 1 file changed, 1 insertion(+)
+ drivers/gpu/drm/vc4/vc4_hdmi.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
---- a/drivers/iio/accel/hid-sensor-accel-3d.c
-+++ b/drivers/iio/accel/hid-sensor-accel-3d.c
-@@ -280,6 +280,7 @@ static int accel_3d_capture_sample(struc
- 			hid_sensor_convert_timestamp(
- 					&accel_state->common_attributes,
- 					*(int64_t *)raw_data);
-+		ret = 0;
- 	break;
- 	default:
- 		break;
+diff --git a/drivers/gpu/drm/vc4/vc4_hdmi.c b/drivers/gpu/drm/vc4/vc4_hdmi.c
+index 9b3e642a08e1..665f772f9ffc 100644
+--- a/drivers/gpu/drm/vc4/vc4_hdmi.c
++++ b/drivers/gpu/drm/vc4/vc4_hdmi.c
+@@ -1854,7 +1854,8 @@ static int vc4_hdmi_cec_init(struct vc4_hdmi *vc4_hdmi)
+ 	}
+ 
+ 	vc4_hdmi->cec_adap = cec_allocate_adapter(&vc4_hdmi_cec_adap_ops,
+-						  vc4_hdmi, "vc4",
++						  vc4_hdmi,
++						  vc4_hdmi->variant->card_name,
+ 						  CEC_CAP_DEFAULTS |
+ 						  CEC_CAP_CONNECTOR_INFO, 1);
+ 	ret = PTR_ERR_OR_ZERO(vc4_hdmi->cec_adap);
+-- 
+2.39.0
+
 
 
