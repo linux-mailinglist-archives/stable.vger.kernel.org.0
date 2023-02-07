@@ -2,80 +2,118 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id F2A0068D321
-	for <lists+stable@lfdr.de>; Tue,  7 Feb 2023 10:45:21 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E123168D32B
+	for <lists+stable@lfdr.de>; Tue,  7 Feb 2023 10:47:30 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230149AbjBGJpT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Feb 2023 04:45:19 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51312 "EHLO
+        id S230515AbjBGJr2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Feb 2023 04:47:28 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52258 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229692AbjBGJpS (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Feb 2023 04:45:18 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 218694224
-        for <stable@vger.kernel.org>; Tue,  7 Feb 2023 01:45:18 -0800 (PST)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id B0E9561245
-        for <stable@vger.kernel.org>; Tue,  7 Feb 2023 09:45:17 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id BE611C433EF;
-        Tue,  7 Feb 2023 09:45:16 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1675763117;
-        bh=KOf3Uv+dcLyrkArrPfY20LxJS2T93cS9l8VoOwQ7OIU=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=oiPVofDo/YeAMRizXCVbzZMNWbBfQfkmTKBftSs3m9DKJmnm3PaSYQyQQDooB+RkQ
-         nHSowngfuzn+LbduhGeKJq6oDlF3UWOGfU9srViD/P2SMLyETZJYaV6BeTqUu21Vkl
-         fO0cYUZELUieXAVchXU6fUl3B5Vv4NqMEa1RtNFc=
-Date:   Tue, 7 Feb 2023 10:45:14 +0100
-From:   Greg KH <gregkh@linuxfoundation.org>
-To:     Nobel Barakat <nobelbarakat@google.com>
-Cc:     Jan Kara <jack@suse.cz>,
-        butt3rflyh4ck <butterflyhuangxx@gmail.com>,
-        stable@vger.kernel.org
-Subject: Re: [PATCH 5.4] udf: Avoid using stale lengthOfImpUse
-Message-ID: <Y+IdqvBEMeUgvOxy@kroah.com>
-References: <20230206224918.3636940-1-nobelbarakat@google.com>
+        with ESMTP id S230011AbjBGJr2 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Feb 2023 04:47:28 -0500
+Received: from mga09.intel.com (mga09.intel.com [134.134.136.24])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5B60B2117
+        for <stable@vger.kernel.org>; Tue,  7 Feb 2023 01:47:27 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
+  t=1675763247; x=1707299247;
+  h=from:to:cc:subject:date:message-id:mime-version:
+   content-transfer-encoding;
+  bh=kKipc7Uip9Q0ZQVHmNZwTlV+oesFmZGD/4twEY47hSQ=;
+  b=le+5Yerv0i7yRmEEX/fgh27QrnLo7y9whnDD4p0cFSiGt4ZW3PQ9UTcn
+   sXlqWbMIIGiSXQ2Yj+YJUa10LdKaDwGt+KirX8qvLOPQ72lJCXHHSJpIK
+   gQ2bYLhrQjl2gASAJVeFRgYUiZh3cg48irbFvGANaaOMZjMBrA5ko8Ea/
+   Y+X1QynX+LLUbsxQgV4N9QMZvh8KkRrOMo3gw0kR+vvXiWaL96eFdd61F
+   VmNHeZuSJa7Wp8F5Jn31WW1p8VhOewiAtw+JR5hCsCLw9Kne6L9nGcBE0
+   kyLJE5IJ/YvIv14d0Th1L/nymjKJFQ8PJOsC/9Md40hezDPJ6TWDiRPZx
+   w==;
+X-IronPort-AV: E=McAfee;i="6500,9779,10613"; a="330754164"
+X-IronPort-AV: E=Sophos;i="5.97,278,1669104000"; 
+   d="scan'208";a="330754164"
+Received: from fmsmga007.fm.intel.com ([10.253.24.52])
+  by orsmga102.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 07 Feb 2023 01:47:26 -0800
+X-IronPort-AV: E=McAfee;i="6500,9779,10613"; a="668727747"
+X-IronPort-AV: E=Sophos;i="5.97,278,1669104000"; 
+   d="scan'208";a="668727747"
+Received: from aamakine-mobl.ger.corp.intel.com (HELO ijarvine-MOBL2.ger.corp.intel.com) ([10.249.36.72])
+  by fmsmga007-auth.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 07 Feb 2023 01:47:24 -0800
+From:   =?UTF-8?q?Ilpo=20J=C3=A4rvinen?= <ilpo.jarvinen@linux.intel.com>
+To:     stable@vger.kernel.org
+Cc:     =?UTF-8?q?Ilpo=20J=C3=A4rvinen?= <ilpo.jarvinen@linux.intel.com>,
+        Gilles BULOZ <gilles.buloz@kontron.com>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Subject: [PATCH backport to 6.1 1/2] serial: 8250_dma: Fix DMA Rx completion race
+Date:   Tue,  7 Feb 2023 11:47:16 +0200
+Message-Id: <20230207094717.27197-1-ilpo.jarvinen@linux.intel.com>
+X-Mailer: git-send-email 2.30.2
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20230206224918.3636940-1-nobelbarakat@google.com>
-X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
-        SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+X-Spam-Status: No, score=-4.3 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
+        RCVD_IN_MSPIKE_H3,RCVD_IN_MSPIKE_WL,SPF_HELO_NONE,SPF_NONE
+        autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, Feb 06, 2023 at 10:49:18PM +0000, Nobel Barakat wrote:
-> From: Jan Kara <jack@suse.cz>
-> 
-> commit c1ad35dd0548ce947d97aaf92f7f2f9a202951cf upstream
-> 
-> udf_write_fi() uses lengthOfImpUse of the entry it is writing to.
-> However this field has not yet been initialized so it either contains
-> completely bogus value or value from last directory entry at that place.
-> In either case this is wrong and can lead to filesystem corruption or
-> kernel crashes.
-> 
-> This patch deviates from the original upstream patch because in the original
-> upstream patch, udf_get_fi_ident(sfi) was being used instead of (uint8_t *)sfi->fileIdent + liu
-> as the first arg to memcpy at line 77 and line 81. Those subsequent lines have been
-> replaced with what the upstream patch passes in to memcpy.
-> 
-> 
-> Reported-by: butt3rflyh4ck <butterflyhuangxx@gmail.com>
-> CC: stable@vger.kernel.org
-> Fixes: 979a6e28dd96 ("udf: Get rid of 0-length arrays in struct fileIdentDesc")
-> Signed-off-by: Jan Kara <jack@suse.cz>
-> Signed-off-by: Nobel Barakat <nobelbarakat@google.com>
-> ---
->  fs/udf/namei.c | 9 ++++-----
->  1 file changed, 4 insertions(+), 5 deletions(-)
+[ Upstream commit 31352811e13dc2313f101b890fd4b1ce760b5fe7 ]
 
-Both now queued up, thanks.
+__dma_rx_complete() is called from two places:
+  - Through the DMA completion callback dma_rx_complete()
+  - From serial8250_rx_dma_flush() after IIR_RLSI or IIR_RX_TIMEOUT
+The former does not hold port's lock during __dma_rx_complete() which
+allows these two to race and potentially insert the same data twice.
 
-greg k-h
+Extend port's lock coverage in dma_rx_complete() to prevent the race
+and check if the DMA Rx is still pending completion before calling
+into __dma_rx_complete().
+
+Reported-by: Gilles BULOZ <gilles.buloz@kontron.com>
+Tested-by: Gilles BULOZ <gilles.buloz@kontron.com>
+Fixes: 9ee4b83e51f7 ("serial: 8250: Add support for dmaengine")
+Cc: stable@vger.kernel.org
+Signed-off-by: Ilpo Järvinen <ilpo.jarvinen@linux.intel.com>
+Link: https://lore.kernel.org/r/20230130114841.25749-2-ilpo.jarvinen@linux.intel.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+---
+ drivers/tty/serial/8250/8250_dma.c | 14 +++++++++++++-
+ 1 file changed, 13 insertions(+), 1 deletion(-)
+
+diff --git a/drivers/tty/serial/8250/8250_dma.c b/drivers/tty/serial/8250/8250_dma.c
+index b85c82616e8c..cc521f6232fd 100644
+--- a/drivers/tty/serial/8250/8250_dma.c
++++ b/drivers/tty/serial/8250/8250_dma.c
+@@ -57,6 +57,18 @@ static void __dma_rx_complete(void *param)
+ 	tty_flip_buffer_push(tty_port);
+ }
+ 
++static void dma_rx_complete(void *param)
++{
++	struct uart_8250_port *p = param;
++	struct uart_8250_dma *dma = p->dma;
++	unsigned long flags;
++
++	spin_lock_irqsave(&p->port.lock, flags);
++	if (dma->rx_running)
++		__dma_rx_complete(p);
++	spin_unlock_irqrestore(&p->port.lock, flags);
++}
++
+ int serial8250_tx_dma(struct uart_8250_port *p)
+ {
+ 	struct uart_8250_dma		*dma = p->dma;
+@@ -130,7 +142,7 @@ int serial8250_rx_dma(struct uart_8250_port *p)
+ 		return -EBUSY;
+ 
+ 	dma->rx_running = 1;
+-	desc->callback = __dma_rx_complete;
++	desc->callback = dma_rx_complete;
+ 	desc->callback_param = p;
+ 
+ 	dma->rx_cookie = dmaengine_submit(desc);
+-- 
+2.30.2
+
