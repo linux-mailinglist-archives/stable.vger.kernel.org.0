@@ -2,245 +2,114 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id CC92E68DC9A
-	for <lists+stable@lfdr.de>; Tue,  7 Feb 2023 16:11:21 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 39FA568DCA7
+	for <lists+stable@lfdr.de>; Tue,  7 Feb 2023 16:13:21 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232004AbjBGPLU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Feb 2023 10:11:20 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54052 "EHLO
+        id S231383AbjBGPNS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Feb 2023 10:13:18 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56558 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231793AbjBGPLN (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Feb 2023 10:11:13 -0500
-Received: from mail-pf1-x42e.google.com (mail-pf1-x42e.google.com [IPv6:2607:f8b0:4864:20::42e])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7AA813BD91
-        for <stable@vger.kernel.org>; Tue,  7 Feb 2023 07:10:53 -0800 (PST)
-Received: by mail-pf1-x42e.google.com with SMTP id y132so30805pfg.2
-        for <stable@vger.kernel.org>; Tue, 07 Feb 2023 07:10:53 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20210112.gappssmtp.com; s=20210112;
-        h=from:to:subject:content-transfer-encoding:mime-version:date
-         :message-id:from:to:cc:subject:date:message-id:reply-to;
-        bh=F2lsTRW7o8u7jryd8AuW6fA1TPE1dMjArtaM/zMadLs=;
-        b=ehtvJxPEwtZjY0dOGzopJ4sIZXUk4pnHqvfpuI/BHbV+KKlQGoICC1LL62KsZq2xjL
-         1GVu/6JxZ041BlhQGWLz0R5f9SX4MGtY6yV9xxdZO2k/ivaWkpxNrZGrFSe1GinkrvAb
-         BDIh6HrmA7eTxFSdc4cO716NFtjbVGgSCJxNu7UpeR+PVyd2h4ZQrQi0DGLOa0zLl6Sz
-         7p04flVIkswr3v4UG//y41ZceN42htwDOhwbl/Ocune7+OgOcT5Mcn87GKszLkBigRHw
-         J/X3R3LQJlqk4isSkEUDTLInzSf/nTDaZFiojlMoWLMWZf86ppk/NqZQoSK6n26oTLOD
-         jR+g==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=from:to:subject:content-transfer-encoding:mime-version:date
-         :message-id:x-gm-message-state:from:to:cc:subject:date:message-id
-         :reply-to;
-        bh=F2lsTRW7o8u7jryd8AuW6fA1TPE1dMjArtaM/zMadLs=;
-        b=aW0jCFJPlkyx700InjyVTwk8SF8yx9haYlzUxVxyocQsMWc8oqVpZA7q+JCeKndYKo
-         GkaEEQGOnrF9bRDUyBZjccIHMfQPgYgpPtKWz0L7rV0TUy/DZUTwixJpmtKlf7wC7XK3
-         1Iek1ssPgUxz0iNwOBRNiRbw93L2Jbc2oiMdM/bhWrxci92RBMBq8NYICEuSGLzM3czD
-         0KHNNuYhs8UDCncksaHxMi71qmkmt2Y1i34Jk21wo6ZSeNY4Qai1gvrZWgvLBUyNpPEb
-         ziX7SSDsCLFWRn2Dqoji2OltWuI52lOwY/QmXLCSvYLv06YquxRyu0yuiZ0dOASprkzO
-         Bc/w==
-X-Gm-Message-State: AO0yUKVsOv5Kwd9HeX+jZevG41vb5F/q9DMjvu/+dMKqfjs6jVb9+8/W
-        0wppFmj3hkuwy//+xHJcbRJM1ta7numamwg/aF56Bw==
-X-Google-Smtp-Source: AK7set8pe+UGIQRorzRflq+zS8C0u/7856xsZMUlbFQeFfJSIyJHMCUYAgGE6YMVBhAAV70eKJD6Zg==
-X-Received: by 2002:aa7:971b:0:b0:594:1f1c:3d35 with SMTP id a27-20020aa7971b000000b005941f1c3d35mr13963601pfg.10.1675782650996;
-        Tue, 07 Feb 2023 07:10:50 -0800 (PST)
-Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id j7-20020aa78007000000b00593baab06dcsm3925626pfi.198.2023.02.07.07.10.50
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 07 Feb 2023 07:10:50 -0800 (PST)
-Message-ID: <63e269fa.a70a0220.a7402.760a@mx.google.com>
-Date:   Tue, 07 Feb 2023 07:10:50 -0800 (PST)
-Content-Type: text/plain; charset="utf-8"
+        with ESMTP id S231562AbjBGPNK (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Feb 2023 10:13:10 -0500
+Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7F0C019A;
+        Tue,  7 Feb 2023 07:13:08 -0800 (PST)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by sin.source.kernel.org (Postfix) with ESMTPS id B2801CE1DCE;
+        Tue,  7 Feb 2023 15:13:04 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id CCF6DC433EF;
+        Tue,  7 Feb 2023 15:13:02 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1675782782;
+        bh=+iuzdFRsNhoD92k7qzMiT68UuchzgtnGrtdx2uA8Hv4=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=bUSONOSW6adCrv+WlH69HNhsmO3faIP8fMgeX0M9DuTQZkhY/N1r7gRvXxZKgY7/m
+         WhmMzilQ2i0HoACidLaqU2eq2EXdkyXtL8WQvLXbst4yFPxk4ne5xW4LYCn7jpqOfJ
+         UZzv4nACdlPwkM9nEwxHyyqs6C3uTOWfSkgki5ubGY1afI8wOq/MVcXu4fyVOCxJAx
+         Pqbfv2jmZeFU7naTCoh4yxB18omZhmSrCmx0iLVGMC9Es744evJRWfP5a6orkmHuG3
+         dK4vMbfzUwlGWT34DUxJDuXKawfVb7nER+18+GALur0PsIjgmKNMXHxlY535mJctxf
+         8XMlk8guSO7IA==
+Received: from johan by xi.lan with local (Exim 4.94.2)
+        (envelope-from <johan@kernel.org>)
+        id 1pPPf5-00027L-Nn; Tue, 07 Feb 2023 16:13:36 +0100
+Date:   Tue, 7 Feb 2023 16:13:35 +0100
+From:   Johan Hovold <johan@kernel.org>
+To:     David Collins <quic_collinsd@quicinc.com>
+Cc:     Johan Hovold <johan+linaro@kernel.org>,
+        Alexandre Belloni <alexandre.belloni@bootlin.com>,
+        Bjorn Andersson <andersson@kernel.org>,
+        Andy Gross <agross@kernel.org>,
+        Konrad Dybcio <konrad.dybcio@linaro.org>,
+        Alessandro Zummo <a.zummo@towertech.it>,
+        Rob Herring <robh+dt@kernel.org>,
+        Krzysztof Kozlowski <krzysztof.kozlowski+dt@linaro.org>,
+        Maximilian Luz <luzmaximilian@gmail.com>,
+        linux-arm-msm@vger.kernel.org, linux-rtc@vger.kernel.org,
+        devicetree@vger.kernel.org, linux-kernel@vger.kernel.org,
+        stable@vger.kernel.org
+Subject: Re: [PATCH v2 01/22] rtc: pm8xxx: fix set-alarm race
+Message-ID: <Y+Jqn5/Yt0BaitQd@hovoldconsulting.com>
+References: <20230202155448.6715-1-johan+linaro@kernel.org>
+ <20230202155448.6715-2-johan+linaro@kernel.org>
+ <efab844a-4ffe-bc68-d99e-8688ad222e3a@quicinc.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Branch: queue/5.10
-X-Kernelci-Tree: stable-rc
-X-Kernelci-Kernel: v5.10.166-92-g66e7380d4d04
-X-Kernelci-Report-Type: test
-Subject: stable-rc/queue/5.10 baseline: 169 runs,
- 3 regressions (v5.10.166-92-g66e7380d4d04)
-To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
-        kernelci-results@groups.io
-From:   "kernelci.org bot" <bot@kernelci.org>
-X-Spam-Status: No, score=-1.9 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_NONE autolearn=ham
-        autolearn_force=no version=3.4.6
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <efab844a-4ffe-bc68-d99e-8688ad222e3a@quicinc.com>
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+        SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/queue/5.10 baseline: 169 runs, 3 regressions (v5.10.166-92-g66e73=
-80d4d04)
+On Mon, Feb 06, 2023 at 07:12:43PM -0800, David Collins wrote:
+> On 2/2/23 07:54, Johan Hovold wrote:
+> > Make sure to disable the alarm before updating the four alarm time
+> > registers to avoid spurious alarms during the update.
+> 
+> What scenario can encounter a spurious alarm triggering upon writing the
+> new alarm time inside of pm8xxx_rtc_set_alarm()?
 
-Regressions Summary
--------------------
+The alarm is stored in four bytes in little-endian order. Consider
+having had an alarm set and expired at:
 
-platform                     | arch | lab          | compiler | defconfig  =
-        | regressions
------------------------------+------+--------------+----------+------------=
---------+------------
-at91-sama5d4_xplained        | arm  | lab-baylibre | gcc-10   | multi_v7_de=
-fconfig | 1          =
+	00 01 00 00
 
-cubietruck                   | arm  | lab-baylibre | gcc-10   | multi_v7_de=
-fconfig | 1          =
+and now you want to set an alarm at
 
-sun8i-h3-libretech-all-h3-cc | arm  | lab-baylibre | gcc-10   | multi_v7_de=
-fconfig | 1          =
+	01 02 00 00
 
+Unless the alarm is disabled before the update the alarm could go off at
 
-  Details:  https://kernelci.org/test/job/stable-rc/branch/queue%2F5.10/ker=
-nel/v5.10.166-92-g66e7380d4d04/plan/baseline/
+	01 01 00 00
 
-  Test:     baseline
-  Tree:     stable-rc
-  Branch:   queue/5.10
-  Describe: v5.10.166-92-g66e7380d4d04
-  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
-able-rc.git
-  SHA:      66e7380d4d0485789372201e3fbf92590f466155 =
+after updating the first byte.
+ 
+> > Note that the disable needs to be done outside of the ctrl_reg_lock
+> > section to prevent a racing alarm interrupt from disabling the newly set
+> > alarm when the lock is released.
+> 
+> What scenario shows the IRQ race issue that you mentioned?  How does not
+> protecting this register write with a lock avoid the race condition?
 
+If a previously set alarm goes off after disabling interrupts but before
+disabling the alarm inside the critical section, then that interrupt
+could be serviced as soon as interrupts are re-enabled and the handler
+would disable the newly set alarm.
 
+> > Fixes: 9a9a54ad7aa2 ("drivers/rtc: add support for Qualcomm PMIC8xxx RTC")
+> > Cc: stable@vger.kernel.org      # 3.1
+> > Signed-off-by: Johan Hovold <johan+linaro@kernel.org>
+> > ---
+> >  drivers/rtc/rtc-pm8xxx.c | 24 ++++++++++--------------
+> >  1 file changed, 10 insertions(+), 14 deletions(-)
+> 
+> Note that since locking is removed later in the patch series, my
+> questions above are mainly for the sake of curiosity.
 
-Test Regressions
----------------- =
-
-
-
-platform                     | arch | lab          | compiler | defconfig  =
-        | regressions
------------------------------+------+--------------+----------+------------=
---------+------------
-at91-sama5d4_xplained        | arm  | lab-baylibre | gcc-10   | multi_v7_de=
-fconfig | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/63e2366e4f37d77b608c866e
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: multi_v7_defconfig
-  Compiler:    gcc-10 (arm-linux-gnueabihf-gcc (Debian 10.2.1-6) 10.2.1 202=
-10110)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.10/v5.10.166=
--92-g66e7380d4d04/arm/multi_v7_defconfig/gcc-10/lab-baylibre/baseline-at91-=
-sama5d4_xplained.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.10/v5.10.166=
--92-g66e7380d4d04/arm/multi_v7_defconfig/gcc-10/lab-baylibre/baseline-at91-=
-sama5d4_xplained.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
-t-baseline/20230203.0/armel/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/63e2366e4f37d77b608c8=
-66f
-        new failure (last pass: v5.10.166-9-gd4e703ee981a) =
-
- =
-
-
-
-platform                     | arch | lab          | compiler | defconfig  =
-        | regressions
------------------------------+------+--------------+----------+------------=
---------+------------
-cubietruck                   | arm  | lab-baylibre | gcc-10   | multi_v7_de=
-fconfig | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/63e23582ccb3191f488c8662
-
-  Results:     5 PASS, 1 FAIL, 1 SKIP
-  Full config: multi_v7_defconfig
-  Compiler:    gcc-10 (arm-linux-gnueabihf-gcc (Debian 10.2.1-6) 10.2.1 202=
-10110)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.10/v5.10.166=
--92-g66e7380d4d04/arm/multi_v7_defconfig/gcc-10/lab-baylibre/baseline-cubie=
-truck.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.10/v5.10.166=
--92-g66e7380d4d04/arm/multi_v7_defconfig/gcc-10/lab-baylibre/baseline-cubie=
-truck.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
-t-baseline/20230203.0/armel/rootfs.cpio.gz =
-
-
-
-  * baseline.bootrr.deferred-probe-empty: https://kernelci.org/test/case/id=
-/63e23582ccb3191f488c866b
-        failing since 11 days (last pass: v5.10.165-76-g5c2e982fcf18, first=
- fail: v5.10.165-77-g4600242c13ed)
-
-    2023-02-07T11:26:17.306821  <8>[   10.966421] <LAVA_SIGNAL_ENDRUN 0_dme=
-sg 3301074_1.5.2.4.1>
-    2023-02-07T11:26:17.417237  / # #
-    2023-02-07T11:26:17.520511  export SHELL=3D/bin/sh
-    2023-02-07T11:26:17.521395  #
-    2023-02-07T11:26:17.623443  / # export SHELL=3D/bin/sh. /lava-3301074/e=
-nvironment
-    2023-02-07T11:26:17.624377  =
-
-    2023-02-07T11:26:17.726331  / # . /lava-3301074/environment/lava-330107=
-4/bin/lava-test-runner /lava-3301074/1
-    2023-02-07T11:26:17.727955  =
-
-    2023-02-07T11:26:17.728451  / # /lava-3301074/bin/lava-test-runner /lav=
-a-3301074/1<3>[   11.374826] Bluetooth: hci0: command 0x0c03 tx timeout
-    2023-02-07T11:26:17.732475   =
-
-    ... (12 line(s) more)  =
-
- =
-
-
-
-platform                     | arch | lab          | compiler | defconfig  =
-        | regressions
------------------------------+------+--------------+----------+------------=
---------+------------
-sun8i-h3-libretech-all-h3-cc | arm  | lab-baylibre | gcc-10   | multi_v7_de=
-fconfig | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/63e23547b1676db62c8c865b
-
-  Results:     5 PASS, 1 FAIL, 1 SKIP
-  Full config: multi_v7_defconfig
-  Compiler:    gcc-10 (arm-linux-gnueabihf-gcc (Debian 10.2.1-6) 10.2.1 202=
-10110)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.10/v5.10.166=
--92-g66e7380d4d04/arm/multi_v7_defconfig/gcc-10/lab-baylibre/baseline-sun8i=
--h3-libretech-all-h3-cc.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.10/v5.10.166=
--92-g66e7380d4d04/arm/multi_v7_defconfig/gcc-10/lab-baylibre/baseline-sun8i=
--h3-libretech-all-h3-cc.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
-t-baseline/20230203.0/armel/rootfs.cpio.gz =
-
-
-
-  * baseline.bootrr.deferred-probe-empty: https://kernelci.org/test/case/id=
-/63e23547b1676db62c8c8664
-        failing since 5 days (last pass: v5.10.165-139-gefb57ce0f880, first=
- fail: v5.10.165-149-ge30e8271d674)
-
-    2023-02-07T11:25:48.894319  / # #
-    2023-02-07T11:25:48.996429  export SHELL=3D/bin/sh
-    2023-02-07T11:25:48.996951  #
-    2023-02-07T11:25:49.098524  / # export SHELL=3D/bin/sh. /lava-3301072/e=
-nvironment
-    2023-02-07T11:25:49.099167  =
-
-    2023-02-07T11:25:49.200768  / # . /lava-3301072/environment/lava-330107=
-2/bin/lava-test-runner /lava-3301072/1
-    2023-02-07T11:25:49.201735  =
-
-    2023-02-07T11:25:49.219055  / # /lava-3301072/bin/lava-test-runner /lav=
-a-3301072/1
-    2023-02-07T11:25:49.306854  + export 'TESTRUN_ID=3D1_bootrr'
-    2023-02-07T11:25:49.307297  + cd /lava-3301072/1/tests/1_bootrr =
-
-    ... (10 line(s) more)  =
-
- =20
+Johan
