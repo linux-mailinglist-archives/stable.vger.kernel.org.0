@@ -2,45 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 0D80868D8A4
-	for <lists+stable@lfdr.de>; Tue,  7 Feb 2023 14:11:22 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 470B968D836
+	for <lists+stable@lfdr.de>; Tue,  7 Feb 2023 14:07:46 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232372AbjBGNLS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Feb 2023 08:11:18 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60488 "EHLO
+        id S232215AbjBGNHp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Feb 2023 08:07:45 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55654 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232363AbjBGNKr (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Feb 2023 08:10:47 -0500
-Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 665A93B656
-        for <stable@vger.kernel.org>; Tue,  7 Feb 2023 05:10:22 -0800 (PST)
+        with ESMTP id S232218AbjBGNHo (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Feb 2023 08:07:44 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9A29830B31
+        for <stable@vger.kernel.org>; Tue,  7 Feb 2023 05:07:08 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id C7323CE1DA2
-        for <stable@vger.kernel.org>; Tue,  7 Feb 2023 13:10:14 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id AC041C433EF;
-        Tue,  7 Feb 2023 13:10:12 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id B0C0FB8199F
+        for <stable@vger.kernel.org>; Tue,  7 Feb 2023 13:07:03 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id F0BB9C4339B;
+        Tue,  7 Feb 2023 13:07:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1675775413;
-        bh=6jbNHd1eQUoxntpkfl8uJxx3uT68UlEhaqwE7kSFWFI=;
+        s=korg; t=1675775222;
+        bh=sW2sqmw7CZZM1sIiWHvBXxQBmrWLvLJjyCvk8m7LSR4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=rVovZDsHo/4Gua4KQc7cIYvZaMionMtbPxJA69Enlg5hGnjD6Sf8f/lC7vCz0vsed
-         ScQnv2XysEuky7X3Lb2GWBo4x5exkc9vhRPAO5HcfmugptMgFRIs3XdLm1MaYXIDVw
-         NHMgCQ8/tYvhCRP3CmOp/scelgeluAEeNOyRYy2s=
+        b=1RIkwP7JL61K6THu2UAogkcS5vMS15erlB47FQJA+QcptOms9dIO/lZhB7i4+s4JA
+         JbkLjbZJf2vrup1z68cYuJgcPHSix+cKOBH7SeDu7q84azsHjB4o1griyuFY7KbHz2
+         HVUt7IV4aNOSIvefB2N4ttjjyfH7w/8pmkkIOLCM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Yu Kuai <yukuai3@huawei.com>,
-        Jan Kara <jack@suse.cz>, Jens Axboe <axboe@kernel.dk>,
-        Sasha Levin <sashal@kernel.org>,
-        Shinichiro Kawasaki <shinichiro.kawasaki@wdc.com>
-Subject: [PATCH 5.15 031/120] block, bfq: fix uaf for bfqq in bic_set_bfqq()
+        patches@lists.linux.dev, Jiasheng Jiang <jiasheng@iscas.ac.cn>,
+        Srinivas Kandagatla <srinivas.kandagatla@linaro.org>
+Subject: [PATCH 6.1 148/208] nvmem: brcm_nvram: Add check for kzalloc
 Date:   Tue,  7 Feb 2023 13:56:42 +0100
-Message-Id: <20230207125620.111998525@linuxfoundation.org>
+Message-Id: <20230207125641.137790659@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.1
-In-Reply-To: <20230207125618.699726054@linuxfoundation.org>
-References: <20230207125618.699726054@linuxfoundation.org>
+In-Reply-To: <20230207125634.292109991@linuxfoundation.org>
+References: <20230207125634.292109991@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,62 +52,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yu Kuai <yukuai3@huawei.com>
+From: Jiasheng Jiang <jiasheng@iscas.ac.cn>
 
-[ Upstream commit b600de2d7d3a16f9007fad1bdae82a3951a26af2 ]
+commit b0576ade3aaf24b376ea1a4406ae138e2a22b0c0 upstream.
 
-After commit 64dc8c732f5c ("block, bfq: fix possible uaf for 'bfqq->bic'"),
-bic->bfqq will be accessed in bic_set_bfqq(), however, in some context
-bic->bfqq will be freed, and bic_set_bfqq() is called with the freed
-bic->bfqq.
+Add the check for the return value of kzalloc in order to avoid
+NULL pointer dereference.
 
-Fix the problem by always freeing bfqq after bic_set_bfqq().
-
-Fixes: 64dc8c732f5c ("block, bfq: fix possible uaf for 'bfqq->bic'")
-Reported-and-tested-by: Shinichiro Kawasaki <shinichiro.kawasaki@wdc.com>
-Signed-off-by: Yu Kuai <yukuai3@huawei.com>
-Reviewed-by: Jan Kara <jack@suse.cz>
-Link: https://lore.kernel.org/r/20230130014136.591038-1-yukuai1@huaweicloud.com
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes: 6e977eaa8280 ("nvmem: brcm_nvram: parse NVRAM content into NVMEM cells")
+Cc: stable@vger.kernel.org
+Signed-off-by: Jiasheng Jiang <jiasheng@iscas.ac.cn>
+Signed-off-by: Srinivas Kandagatla <srinivas.kandagatla@linaro.org>
+Link: https://lore.kernel.org/r/20230127104015.23839-2-srinivas.kandagatla@linaro.org
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- block/bfq-cgroup.c  | 2 +-
- block/bfq-iosched.c | 4 +++-
- 2 files changed, 4 insertions(+), 2 deletions(-)
+ drivers/nvmem/brcm_nvram.c |    3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/block/bfq-cgroup.c b/block/bfq-cgroup.c
-index 4ac6f59a3679..53e275e377a7 100644
---- a/block/bfq-cgroup.c
-+++ b/block/bfq-cgroup.c
-@@ -756,8 +756,8 @@ static void *__bfq_bic_change_cgroup(struct bfq_data *bfqd,
- 				 * request from the old cgroup.
- 				 */
- 				bfq_put_cooperator(sync_bfqq);
--				bfq_release_process_ref(bfqd, sync_bfqq);
- 				bic_set_bfqq(bic, NULL, true);
-+				bfq_release_process_ref(bfqd, sync_bfqq);
- 			}
- 		}
- 	}
-diff --git a/block/bfq-iosched.c b/block/bfq-iosched.c
-index 8d967a67318c..f54554906451 100644
---- a/block/bfq-iosched.c
-+++ b/block/bfq-iosched.c
-@@ -5359,9 +5359,11 @@ static void bfq_check_ioprio_change(struct bfq_io_cq *bic, struct bio *bio)
+--- a/drivers/nvmem/brcm_nvram.c
++++ b/drivers/nvmem/brcm_nvram.c
+@@ -97,6 +97,9 @@ static int brcm_nvram_parse(struct brcm_
+ 	len = le32_to_cpu(header.len);
  
- 	bfqq = bic_to_bfqq(bic, false);
- 	if (bfqq) {
--		bfq_release_process_ref(bfqd, bfqq);
-+		struct bfq_queue *old_bfqq = bfqq;
+ 	data = kzalloc(len, GFP_KERNEL);
++	if (!data)
++		return -ENOMEM;
 +
- 		bfqq = bfq_get_queue(bfqd, bio, false, bic, true);
- 		bic_set_bfqq(bic, bfqq, false);
-+		bfq_release_process_ref(bfqd, old_bfqq);
- 	}
+ 	memcpy_fromio(data, priv->base, len);
+ 	data[len - 1] = '\0';
  
- 	bfqq = bic_to_bfqq(bic, true);
--- 
-2.39.0
-
 
 
