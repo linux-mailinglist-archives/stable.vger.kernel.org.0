@@ -2,43 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E4A9D68D1B4
-	for <lists+stable@lfdr.de>; Tue,  7 Feb 2023 09:48:18 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A1C9468D24B
+	for <lists+stable@lfdr.de>; Tue,  7 Feb 2023 10:14:33 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229960AbjBGIsS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Feb 2023 03:48:18 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36434 "EHLO
+        id S230361AbjBGJOc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Feb 2023 04:14:32 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55648 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229847AbjBGIsR (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Feb 2023 03:48:17 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 230CF30FB
-        for <stable@vger.kernel.org>; Tue,  7 Feb 2023 00:48:16 -0800 (PST)
+        with ESMTP id S231164AbjBGJOb (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Feb 2023 04:14:31 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C3E4D23846
+        for <stable@vger.kernel.org>; Tue,  7 Feb 2023 01:14:29 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id AF4096121B
-        for <stable@vger.kernel.org>; Tue,  7 Feb 2023 08:48:15 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C61DEC433D2;
-        Tue,  7 Feb 2023 08:48:14 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 600D761236
+        for <stable@vger.kernel.org>; Tue,  7 Feb 2023 09:14:29 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 691F3C433EF;
+        Tue,  7 Feb 2023 09:14:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1675759695;
-        bh=t2+RnFXBsEbxLyBEld/BUEa52rzrRd3050rMWkjYec0=;
+        s=korg; t=1675761268;
+        bh=V49J6oOyJ1X3MrpcW9daJeCNjYQGuOsqYwHFQ1LoQAI=;
         h=Subject:To:Cc:From:Date:From;
-        b=LnG50ZoeN5I5GzbMbp82ZP+XlZRcIHDdmXNyKvLVFKNcUOO8cVbHj1XEX+NHDSRR0
-         2aBIu58YSu5SIqeR+hms0z2CoVjVYJhvbnw53tfkSYzus++EBcOLkvnWqFG+Q5xgPa
-         P64PBIascy7yxUOTrxII6DDueNqVXOyhBDAgeUwQ=
-Subject: FAILED: patch "[PATCH] powerpc/kexec_file: Fix division by zero in extra size" failed to apply to 5.10-stable tree
-To:     mpe@ellerman.id.au
+        b=qvX9J7+Im4cwpBCJQ4LZbYNDJJUMDAbFvXVw89k1y1ljmUPuoh8GTLUyJgjzLXsLY
+         6HfvVZoxyrQPqdCgDyRiBN3lleYtWAfOwuEi8Zgvw64OKLMYNwnvrBgUMtJP0podWx
+         iptlHfIK+cgdkarR10UewD6NECDNgUO4nb7cGx/M=
+Subject: FAILED: patch "[PATCH] mm/khugepaged: fix ->anon_vma race" failed to apply to 5.15-stable tree
+To:     jannh@google.com, akpm@linux-foundation.org, david@redhat.com,
+        kirill.shutemov@intel.linux.com, shy828301@gmail.com,
+        stable@vger.kernel.org, zokeefe@google.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Tue, 07 Feb 2023 09:48:12 +0100
-Message-ID: <16757596922892@kroah.com>
+Date:   Tue, 07 Feb 2023 10:14:25 +0100
+Message-ID: <167576126515117@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
         SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -47,19 +49,33 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.10-stable tree.
+The patch below does not apply to the 5.15-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
 
 Possible dependencies:
 
-7294194b47e9 ("powerpc/kexec_file: Fix division by zero in extra size estimation")
-340a4a9f8773 ("powerpc: Take in account addition CPU node when building kexec FDT")
-886db32398ab ("powerpc/kexec_file: Restore FDT size estimation for kdump kernel")
-3c985d31ad66 ("powerpc: Use common of_kexec_alloc_and_setup_fdt()")
-e6635bab530d ("powerpc: Use ELF fields defined in 'struct kimage'")
-2377c92e37fe ("powerpc/kexec_file: fix FDT size estimation for kdump kernel")
+023f47a8250c ("mm/khugepaged: fix ->anon_vma race")
+34488399fa08 ("mm/madvise: add file and shmem support to MADV_COLLAPSE")
+58ac9a8993a1 ("mm/khugepaged: attempt to map file/shmem-backed pte-mapped THPs by pmds")
+780a4b6fb865 ("mm/khugepaged: check compound_order() in collapse_pte_mapped_thp()")
+b26e27015ec9 ("mm: thp: convert to use common struct mm_slot")
+685405020b9f ("mm/khugepaged: stop using vma linked list")
+7d2c4385c341 ("mm/khugepaged: rename prefix of shared collapse functions")
+7d8faaf15545 ("mm/madvise: introduce MADV_COLLAPSE sync hugepage collapse")
+507228044236 ("mm/khugepaged: record SCAN_PMD_MAPPED when scan_pmd() finds hugepage")
+a7f4e6e4c47c ("mm/thp: add flag to enforce sysfs THP in hugepage_vma_check()")
+50ad2f24b3b4 ("mm/khugepaged: propagate enum scan_result codes back to callers")
+9710a78ab2ae ("mm/khugepaged: dedup and simplify hugepage alloc and charging")
+34d6b470ab9c ("mm/khugepaged: add struct collapse_control")
+c6a7f445a272 ("mm: khugepaged: don't carry huge page to the next loop for !CONFIG_NUMA")
+1064026bab9f ("mm: khugepaged: reorg some khugepaged helpers")
+7da4e2cb8b1f ("mm: thp: kill __transhuge_page_enabled()")
+9fec51689ff6 ("mm: thp: kill transparent_hugepage_active()")
+f707fa493784 ("mm: khugepaged: better comments for anon vma check in hugepage_vma_revalidate")
+4fa6893faeaa ("mm: thp: consolidate vma size check to transhuge_vma_suitable")
+66137fb34a4b ("mm: khugepaged: check THP flag in hugepage_vma_check()")
 
 thanks,
 
@@ -67,71 +83,75 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From 7294194b47e994753a86eee8cf1c61f3f36458a3 Mon Sep 17 00:00:00 2001
-From: Michael Ellerman <mpe@ellerman.id.au>
-Date: Mon, 30 Jan 2023 12:47:07 +1100
-Subject: [PATCH] powerpc/kexec_file: Fix division by zero in extra size
- estimation
+From 023f47a8250c6bdb4aebe744db4bf7f73414028b Mon Sep 17 00:00:00 2001
+From: Jann Horn <jannh@google.com>
+Date: Wed, 11 Jan 2023 14:33:51 +0100
+Subject: [PATCH] mm/khugepaged: fix ->anon_vma race
 
-In kexec_extra_fdt_size_ppc64() there's logic to estimate how much
-extra space will be needed in the device tree for some memory related
-properties.
+If an ->anon_vma is attached to the VMA, collapse_and_free_pmd() requires
+it to be locked.
 
-That logic uses the size of RAM divided by drmem_lmb_size() to do the
-estimation. However drmem_lmb_size() can be zero if the machine has no
-hotpluggable memory configured, which is the case when booting with qemu
-and no maxmem=x parameter is passed (the default).
+Page table traversal is allowed under any one of the mmap lock, the
+anon_vma lock (if the VMA is associated with an anon_vma), and the
+mapping lock (if the VMA is associated with a mapping); and so to be
+able to remove page tables, we must hold all three of them.
+retract_page_tables() bails out if an ->anon_vma is attached, but does
+this check before holding the mmap lock (as the comment above the check
+explains).
 
-The division by zero is reported by UBSAN, and can also lead to an
-overflow and a warning from kvmalloc, and kdump kernel loading fails:
+If we racily merged an existing ->anon_vma (shared with a child
+process) from a neighboring VMA, subsequent rmap traversals on pages
+belonging to the child will be able to see the page tables that we are
+concurrently removing while assuming that nothing else can access them.
 
-  WARNING: CPU: 0 PID: 133 at mm/util.c:596 kvmalloc_node+0x15c/0x160
-  Modules linked in:
-  CPU: 0 PID: 133 Comm: kexec Not tainted 6.2.0-rc5-03455-g07358bd97810 #223
-  Hardware name: IBM pSeries (emulated by qemu) POWER9 (raw) 0x4e1200 0xf000005 of:SLOF,git-dd0dca pSeries
-  NIP:  c00000000041ff4c LR: c00000000041fe58 CTR: 0000000000000000
-  REGS: c0000000096ef750 TRAP: 0700   Not tainted  (6.2.0-rc5-03455-g07358bd97810)
-  MSR:  800000000282b033 <SF,VEC,VSX,EE,FP,ME,IR,DR,RI,LE>  CR: 24248242  XER: 2004011e
-  CFAR: c00000000041fed0 IRQMASK: 0
-  ...
-  NIP kvmalloc_node+0x15c/0x160
-  LR  kvmalloc_node+0x68/0x160
-  Call Trace:
-    kvmalloc_node+0x68/0x160 (unreliable)
-    of_kexec_alloc_and_setup_fdt+0xb8/0x7d0
-    elf64_load+0x25c/0x4a0
-    kexec_image_load_default+0x58/0x80
-    sys_kexec_file_load+0x5c0/0x920
-    system_call_exception+0x128/0x330
-    system_call_vectored_common+0x15c/0x2ec
+Repeat the ->anon_vma check once we hold the mmap lock to ensure that
+there really is no concurrent page table access.
 
-To fix it, skip the calculation if drmem_lmb_size() is zero.
+Hitting this bug causes a lockdep warning in collapse_and_free_pmd(),
+in the line "lockdep_assert_held_write(&vma->anon_vma->root->rwsem)".
+It can also lead to use-after-free access.
 
-Fixes: 2377c92e37fe ("powerpc/kexec_file: fix FDT size estimation for kdump kernel")
-Cc: stable@vger.kernel.org # v5.12+
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://lore.kernel.org/r/20230130014707.541110-1-mpe@ellerman.id.au
+Link: https://lore.kernel.org/linux-mm/CAG48ez3434wZBKFFbdx4M9j6eUwSUVPd4dxhzW_k_POneSDF+A@mail.gmail.com/
+Link: https://lkml.kernel.org/r/20230111133351.807024-1-jannh@google.com
+Fixes: f3f0e1d2150b ("khugepaged: add support of collapse for tmpfs/shmem pages")
+Signed-off-by: Jann Horn <jannh@google.com>
+Reported-by: Zach O'Keefe <zokeefe@google.com>
+Acked-by: Kirill A. Shutemov <kirill.shutemov@intel.linux.com>
+Reviewed-by: Yang Shi <shy828301@gmail.com>
+Cc: David Hildenbrand <david@redhat.com>
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
 
-diff --git a/arch/powerpc/kexec/file_load_64.c b/arch/powerpc/kexec/file_load_64.c
-index af8854f9eae3..19d084682bc2 100644
---- a/arch/powerpc/kexec/file_load_64.c
-+++ b/arch/powerpc/kexec/file_load_64.c
-@@ -989,10 +989,13 @@ unsigned int kexec_extra_fdt_size_ppc64(struct kimage *image)
- 	 * linux,drconf-usable-memory properties. Get an approximate on the
- 	 * number of usable memory entries and use for FDT size estimation.
- 	 */
--	usm_entries = ((memblock_end_of_DRAM() / drmem_lmb_size()) +
--		       (2 * (resource_size(&crashk_res) / drmem_lmb_size())));
--
--	extra_size = (unsigned int)(usm_entries * sizeof(u64));
-+	if (drmem_lmb_size()) {
-+		usm_entries = ((memblock_end_of_DRAM() / drmem_lmb_size()) +
-+			       (2 * (resource_size(&crashk_res) / drmem_lmb_size())));
-+		extra_size = (unsigned int)(usm_entries * sizeof(u64));
-+	} else {
-+		extra_size = 0;
-+	}
- 
- 	/*
- 	 * Get the number of CPU nodes in the current DT. This allows to
+diff --git a/mm/khugepaged.c b/mm/khugepaged.c
+index 79be13133322..935aa8b71d1c 100644
+--- a/mm/khugepaged.c
++++ b/mm/khugepaged.c
+@@ -1642,7 +1642,7 @@ static int retract_page_tables(struct address_space *mapping, pgoff_t pgoff,
+ 		 * has higher cost too. It would also probably require locking
+ 		 * the anon_vma.
+ 		 */
+-		if (vma->anon_vma) {
++		if (READ_ONCE(vma->anon_vma)) {
+ 			result = SCAN_PAGE_ANON;
+ 			goto next;
+ 		}
+@@ -1670,6 +1670,18 @@ static int retract_page_tables(struct address_space *mapping, pgoff_t pgoff,
+ 		result = SCAN_PTE_MAPPED_HUGEPAGE;
+ 		if ((cc->is_khugepaged || is_target) &&
+ 		    mmap_write_trylock(mm)) {
++			/*
++			 * Re-check whether we have an ->anon_vma, because
++			 * collapse_and_free_pmd() requires that either no
++			 * ->anon_vma exists or the anon_vma is locked.
++			 * We already checked ->anon_vma above, but that check
++			 * is racy because ->anon_vma can be populated under the
++			 * mmap lock in read mode.
++			 */
++			if (vma->anon_vma) {
++				result = SCAN_PAGE_ANON;
++				goto unlock_next;
++			}
+ 			/*
+ 			 * When a vma is registered with uffd-wp, we can't
+ 			 * recycle the pmd pgtable because there can be pte
 
