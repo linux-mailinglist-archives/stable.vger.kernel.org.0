@@ -2,44 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 8198A68D7B9
-	for <lists+stable@lfdr.de>; Tue,  7 Feb 2023 14:03:02 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id CE91A68D7EA
+	for <lists+stable@lfdr.de>; Tue,  7 Feb 2023 14:04:23 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231922AbjBGNDB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Feb 2023 08:03:01 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49236 "EHLO
+        id S231683AbjBGNEW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Feb 2023 08:04:22 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51290 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232059AbjBGNCs (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Feb 2023 08:02:48 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 34EF9EC68
-        for <stable@vger.kernel.org>; Tue,  7 Feb 2023 05:02:24 -0800 (PST)
+        with ESMTP id S230301AbjBGNEW (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Feb 2023 08:04:22 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5E31E3A856
+        for <stable@vger.kernel.org>; Tue,  7 Feb 2023 05:04:07 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 008ECB8198D
-        for <stable@vger.kernel.org>; Tue,  7 Feb 2023 13:02:08 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 55040C433D2;
-        Tue,  7 Feb 2023 13:02:06 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id EE7D56138B
+        for <stable@vger.kernel.org>; Tue,  7 Feb 2023 13:04:06 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0FC94C433EF;
+        Tue,  7 Feb 2023 13:04:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1675774926;
-        bh=gYGHPw3ENpPznyq1j2cJTE//ba/G0A0Hp6On5NHJEvo=;
+        s=korg; t=1675775046;
+        bh=mioz/qpi8BJ3OFa7/gLnj2gJ2G9Cfjkn96jv3tWsk0I=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=p8nPlXrb54zUS185UmRCebAXcZel7i+6ljrkiH+c1VehegtkHNla+Anbxe1Q7HHb3
-         P4yOscYjr+WYfk6Az5mc8ROysx7W7nm1uo09ZR40WdpvKFLQ0KIrsY64p2wcNBGF4h
-         yqFQdxynUw4ETeA6KX9AZQdHDj6QwSetQak7rFwA=
+        b=kPOfq4TP/OvlKbaNnBJ5crRBXIBSQTjqaDATBT/XNl5oU3oJO4TNx1alp/3iP/aRD
+         p0EKeAfCwjj2URo32/gQJL9M1dU42Gmi93DPy+WZ3+udLpwv7l7Jz6AkQDSKq2V8Bu
+         TPTukDsRA9WxIPGROwI3byjVssvIwLU53ylPIp4k=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        syzbot+9981a614060dcee6eeca@syzkaller.appspotmail.com,
-        Ziyang Xuan <william.xuanziyang@huawei.com>,
-        Oleksij Rempel <o.rempel@pengutronix.de>,
+        patches@lists.linux.dev, Oliver Hartkopp <socketcan@hartkopp.net>,
         Marc Kleine-Budde <mkl@pengutronix.de>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 079/208] can: j1939: fix errant WARN_ON_ONCE in j1939_session_deactivate
-Date:   Tue,  7 Feb 2023 13:55:33 +0100
-Message-Id: <20230207125637.909914730@linuxfoundation.org>
+Subject: [PATCH 6.1 080/208] can: raw: fix CAN FD frame transmissions over CAN XL devices
+Date:   Tue,  7 Feb 2023 13:55:34 +0100
+Message-Id: <20230207125637.958938165@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.1
 In-Reply-To: <20230207125634.292109991@linuxfoundation.org>
 References: <20230207125634.292109991@linuxfoundation.org>
@@ -56,75 +53,123 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ziyang Xuan <william.xuanziyang@huawei.com>
+From: Oliver Hartkopp <socketcan@hartkopp.net>
 
-[ Upstream commit d0553680f94c49bbe0e39eb50d033ba563b4212d ]
+[ Upstream commit 3793301cbaa4a62d83e21f685307da7671f812ab ]
 
-The conclusion "j1939_session_deactivate() should be called with a
-session ref-count of at least 2" is incorrect. In some concurrent
-scenarios, j1939_session_deactivate can be called with the session
-ref-count less than 2. But there is not any problem because it
-will check the session active state before session putting in
-j1939_session_deactivate_locked().
+A CAN XL device is always capable to process CAN FD frames. The former
+check when sending CAN FD frames relied on the existence of a CAN FD
+device and did not check for a CAN XL device that would be correct
+too.
 
-Here is the concurrent scenario of the problem reported by syzbot
-and my reproduction log.
+With this patch the CAN FD feature is enabled automatically when CAN
+XL is switched on - and CAN FD cannot be switch off while CAN XL is
+enabled.
 
-        cpu0                            cpu1
-                                j1939_xtp_rx_eoma
-j1939_xtp_rx_abort_one
-                                j1939_session_get_by_addr [kref == 2]
-j1939_session_get_by_addr [kref == 3]
-j1939_session_deactivate [kref == 2]
-j1939_session_put [kref == 1]
-				j1939_session_completed
-				j1939_session_deactivate
-				WARN_ON_ONCE(kref < 2)
+This precondition also leads to a clean up and reduction of checks in
+the hot path in raw_rcv() and raw_sendmsg(). Some conditions are
+reordered to handle simple checks first.
 
-=====================================================
-WARNING: CPU: 1 PID: 21 at net/can/j1939/transport.c:1088 j1939_session_deactivate+0x5f/0x70
-CPU: 1 PID: 21 Comm: ksoftirqd/1 Not tainted 5.14.0-rc7+ #32
-Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS 1.13.0-1ubuntu1 04/01/2014
-RIP: 0010:j1939_session_deactivate+0x5f/0x70
-Call Trace:
- j1939_session_deactivate_activate_next+0x11/0x28
- j1939_xtp_rx_eoma+0x12a/0x180
- j1939_tp_recv+0x4a2/0x510
- j1939_can_recv+0x226/0x380
- can_rcv_filter+0xf8/0x220
- can_receive+0x102/0x220
- ? process_backlog+0xf0/0x2c0
- can_rcv+0x53/0xf0
- __netif_receive_skb_one_core+0x67/0x90
- ? process_backlog+0x97/0x2c0
- __netif_receive_skb+0x22/0x80
+changes since v1: https://lore.kernel.org/all/20230131091012.50553-1-socketcan@hartkopp.net
+- fixed typo: devive -> device
+changes since v2: https://lore.kernel.org/all/20230131091824.51026-1-socketcan@hartkopp.net/
+- reorder checks in if statements to handle simple checks first
 
-Fixes: 0c71437dd50d ("can: j1939: j1939_session_deactivate(): clarify lifetime of session object")
-Reported-by: syzbot+9981a614060dcee6eeca@syzkaller.appspotmail.com
-Signed-off-by: Ziyang Xuan <william.xuanziyang@huawei.com>
-Acked-by: Oleksij Rempel <o.rempel@pengutronix.de>
-Link: https://lore.kernel.org/all/20210906094200.95868-1-william.xuanziyang@huawei.com
+Fixes: 626332696d75 ("can: raw: add CAN XL support")
+Signed-off-by: Oliver Hartkopp <socketcan@hartkopp.net>
+Link: https://lore.kernel.org/all/20230131105613.55228-1-socketcan@hartkopp.net
 Signed-off-by: Marc Kleine-Budde <mkl@pengutronix.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/can/j1939/transport.c | 4 ----
- 1 file changed, 4 deletions(-)
+ net/can/raw.c | 47 +++++++++++++++++++++++++++++++----------------
+ 1 file changed, 31 insertions(+), 16 deletions(-)
 
-diff --git a/net/can/j1939/transport.c b/net/can/j1939/transport.c
-index 55f29c9f9e08..4177e9617070 100644
---- a/net/can/j1939/transport.c
-+++ b/net/can/j1939/transport.c
-@@ -1092,10 +1092,6 @@ static bool j1939_session_deactivate(struct j1939_session *session)
- 	bool active;
+diff --git a/net/can/raw.c b/net/can/raw.c
+index 3eb7d3e2b541..4abab2c3011a 100644
+--- a/net/can/raw.c
++++ b/net/can/raw.c
+@@ -132,8 +132,8 @@ static void raw_rcv(struct sk_buff *oskb, void *data)
+ 		return;
  
- 	j1939_session_list_lock(priv);
--	/* This function should be called with a session ref-count of at
--	 * least 2.
--	 */
--	WARN_ON_ONCE(kref_read(&session->kref) < 2);
- 	active = j1939_session_deactivate_locked(session);
- 	j1939_session_list_unlock(priv);
+ 	/* make sure to not pass oversized frames to the socket */
+-	if ((can_is_canfd_skb(oskb) && !ro->fd_frames && !ro->xl_frames) ||
+-	    (can_is_canxl_skb(oskb) && !ro->xl_frames))
++	if ((!ro->fd_frames && can_is_canfd_skb(oskb)) ||
++	    (!ro->xl_frames && can_is_canxl_skb(oskb)))
+ 		return;
  
+ 	/* eliminate multiple filter matches for the same skb */
+@@ -670,6 +670,11 @@ static int raw_setsockopt(struct socket *sock, int level, int optname,
+ 		if (copy_from_sockptr(&ro->fd_frames, optval, optlen))
+ 			return -EFAULT;
+ 
++		/* Enabling CAN XL includes CAN FD */
++		if (ro->xl_frames && !ro->fd_frames) {
++			ro->fd_frames = ro->xl_frames;
++			return -EINVAL;
++		}
+ 		break;
+ 
+ 	case CAN_RAW_XL_FRAMES:
+@@ -679,6 +684,9 @@ static int raw_setsockopt(struct socket *sock, int level, int optname,
+ 		if (copy_from_sockptr(&ro->xl_frames, optval, optlen))
+ 			return -EFAULT;
+ 
++		/* Enabling CAN XL includes CAN FD */
++		if (ro->xl_frames)
++			ro->fd_frames = ro->xl_frames;
+ 		break;
+ 
+ 	case CAN_RAW_JOIN_FILTERS:
+@@ -786,6 +794,25 @@ static int raw_getsockopt(struct socket *sock, int level, int optname,
+ 	return 0;
+ }
+ 
++static bool raw_bad_txframe(struct raw_sock *ro, struct sk_buff *skb, int mtu)
++{
++	/* Classical CAN -> no checks for flags and device capabilities */
++	if (can_is_can_skb(skb))
++		return false;
++
++	/* CAN FD -> needs to be enabled and a CAN FD or CAN XL device */
++	if (ro->fd_frames && can_is_canfd_skb(skb) &&
++	    (mtu == CANFD_MTU || can_is_canxl_dev_mtu(mtu)))
++		return false;
++
++	/* CAN XL -> needs to be enabled and a CAN XL device */
++	if (ro->xl_frames && can_is_canxl_skb(skb) &&
++	    can_is_canxl_dev_mtu(mtu))
++		return false;
++
++	return true;
++}
++
+ static int raw_sendmsg(struct socket *sock, struct msghdr *msg, size_t size)
+ {
+ 	struct sock *sk = sock->sk;
+@@ -833,20 +860,8 @@ static int raw_sendmsg(struct socket *sock, struct msghdr *msg, size_t size)
+ 		goto free_skb;
+ 
+ 	err = -EINVAL;
+-	if (ro->xl_frames && can_is_canxl_dev_mtu(dev->mtu)) {
+-		/* CAN XL, CAN FD and Classical CAN */
+-		if (!can_is_canxl_skb(skb) && !can_is_canfd_skb(skb) &&
+-		    !can_is_can_skb(skb))
+-			goto free_skb;
+-	} else if (ro->fd_frames && dev->mtu == CANFD_MTU) {
+-		/* CAN FD and Classical CAN */
+-		if (!can_is_canfd_skb(skb) && !can_is_can_skb(skb))
+-			goto free_skb;
+-	} else {
+-		/* Classical CAN */
+-		if (!can_is_can_skb(skb))
+-			goto free_skb;
+-	}
++	if (raw_bad_txframe(ro, skb, dev->mtu))
++		goto free_skb;
+ 
+ 	sockcm_init(&sockc, sk);
+ 	if (msg->msg_controllen) {
 -- 
 2.39.0
 
