@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 53C7F68D280
-	for <lists+stable@lfdr.de>; Tue,  7 Feb 2023 10:18:29 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2CE0268D281
+	for <lists+stable@lfdr.de>; Tue,  7 Feb 2023 10:18:31 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231439AbjBGJS1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Feb 2023 04:18:27 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60032 "EHLO
+        id S231479AbjBGJSa (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Feb 2023 04:18:30 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59012 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231158AbjBGJSQ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Feb 2023 04:18:16 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6B3E729422
-        for <stable@vger.kernel.org>; Tue,  7 Feb 2023 01:18:00 -0800 (PST)
+        with ESMTP id S231501AbjBGJSV (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Feb 2023 04:18:21 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 83BC03801F
+        for <stable@vger.kernel.org>; Tue,  7 Feb 2023 01:18:03 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 0861261202
-        for <stable@vger.kernel.org>; Tue,  7 Feb 2023 09:18:00 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id F00D9C4339C;
-        Tue,  7 Feb 2023 09:17:58 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 1DBB261234
+        for <stable@vger.kernel.org>; Tue,  7 Feb 2023 09:18:03 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0D5FDC433EF;
+        Tue,  7 Feb 2023 09:18:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1675761479;
-        bh=JeJ6+q6fujHr4WtQtUQ9zB1dtk8LWF5Az2vCv2u4uLc=;
+        s=korg; t=1675761482;
+        bh=axGVPs31pXQd7TP6kgbSp+0AEtwjTtUAN+LmWMroZFk=;
         h=Subject:To:Cc:From:Date:From;
-        b=r5qqOqx0I3A4fCMmk9a4aOq4iFTcXmDv5qjcE4HGjxOWTXgR57uhZ37FEik/+bS3L
-         6SlMvXwWW2+IVop/SV0b83tJFl0emwC41Or9mtEzamEwO4uUeNE6OotB5ENodyJYPw
-         OM6Kwa5kw93Zc/jQHm1ayetqxKLqqRz1wDuHxGA8=
-Subject: FAILED: patch "[PATCH] serial: stm32: Merge hard IRQ and threaded IRQ handling into" failed to apply to 5.15-stable tree
+        b=nz91AczqK3A4E2eltDeCg9Qxzx9i6mZBz5jGgmdBtA/ULdXaIsE4TO7x6cR2Ec14S
+         xy5m1XzW2nxxFxR3J4Rfh2Q2rQUyqs0Jwz8Hrva2YaYeAvf7FlM3x9TdpBvgSJDIO6
+         4toFbCZCSDUjYCZliVADcWslVtih1a8zRP3fXr54=
+Subject: FAILED: patch "[PATCH] serial: stm32: Merge hard IRQ and threaded IRQ handling into" failed to apply to 5.10-stable tree
 To:     marex@denx.de, bigeasy@linutronix.de, gregkh@linuxfoundation.org,
         valentin.caron@foss.st.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Tue, 07 Feb 2023 10:17:50 +0100
-Message-ID: <167576147049124@kroah.com>
+Date:   Tue, 07 Feb 2023 10:17:51 +0100
+Message-ID: <16757614716686@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
         SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -48,7 +48,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.15-stable tree.
+The patch below does not apply to the 5.10-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
@@ -62,6 +62,19 @@ e0abc903deea ("serial: stm32: rework RX dma initialization and release")
 d1ec8a2eabe9 ("serial: stm32: update throttle and unthrottle ops for dma mode")
 33bb2f6ac308 ("serial: stm32: rework RX over DMA")
 cc58d0a3f0a4 ("serial: stm32: re-introduce an irq flag condition in usart_receive_chars")
+59bd4eedf118 ("serial: stm32: use the defined variable to simplify code")
+a7770a4bfcf4 ("serial: stm32: defer probe for dma devices")
+cea37afd28f1 ("serial: stm32: defer sysrq processing")
+e359b4411c28 ("serial: stm32: fix threaded interrupt handling")
+3d530017bef1 ("serial: stm32: update wakeup IRQ management")
+c0f3332cb5f2 ("serial: stm32: clean wakeup handling in serial_suspend")
+1631eeeaf084 ("serial: stm32: rework wakeup management")
+9f77d19207a0 ("serial: stm32: add FIFO flush when port is closed")
+12761869f0ef ("serial: stm32: fix wake-up flag handling")
+ad7676812437 ("serial: stm32: fix a deadlock condition with wakeup event")
+25a8e7611da5 ("serial: stm32: fix TX and RX FIFO thresholds")
+f4518a8a75f5 ("serial: stm32: fix startup by enabling usart for reception")
+87fd0741d6dc ("serial: stm32: fix probe and remove order for dma")
 
 thanks,
 
