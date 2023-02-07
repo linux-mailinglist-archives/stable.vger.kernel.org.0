@@ -2,42 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D023568D8E7
-	for <lists+stable@lfdr.de>; Tue,  7 Feb 2023 14:14:05 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9649F68D85E
+	for <lists+stable@lfdr.de>; Tue,  7 Feb 2023 14:09:05 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232507AbjBGNOE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Feb 2023 08:14:04 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59238 "EHLO
+        id S232295AbjBGNJE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Feb 2023 08:09:04 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57790 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232569AbjBGNNs (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Feb 2023 08:13:48 -0500
-Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D727236467
-        for <stable@vger.kernel.org>; Tue,  7 Feb 2023 05:13:17 -0800 (PST)
+        with ESMTP id S232290AbjBGNJD (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Feb 2023 08:09:03 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D56593B0D3
+        for <stable@vger.kernel.org>; Tue,  7 Feb 2023 05:08:26 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 879A2CE1C97
-        for <stable@vger.kernel.org>; Tue,  7 Feb 2023 13:12:57 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 86581C4339E;
-        Tue,  7 Feb 2023 13:12:55 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 13A12B81989
+        for <stable@vger.kernel.org>; Tue,  7 Feb 2023 13:08:25 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 48968C433EF;
+        Tue,  7 Feb 2023 13:08:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1675775575;
-        bh=vBQlF3wUTm9Jvg/vzYJMvqLV82FTX+EhwONVtgc1A8M=;
+        s=korg; t=1675775303;
+        bh=Kk9Kw8/Tbi6SmjZ3zkhvg2Pc9yw8tuZ7fpKKh0ABlB0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=J6381JkDFEKCFPMZmW5EdlKLnwYvOtTTRqJ57r7qexqGWG2tWpBhGUIf9U7gaFCGF
-         hhEJJr1YmtUumNA2jyn5KwaM5+ygr2R6XTVH9Nf1KLcj4Hd044Gsfw20IZZFVGL4sh
-         P0FxZwxSfYbs/SX2fbzebnS5xapWLTHosQVwrrM4=
+        b=bmGRH7Htk81EnGYSWoFmmxUt92OSa8e0MSyoDwzHhD8c4qeMhL6YSFlG6/Q2htRw7
+         UnAHnzyKIWj690TaWIiR84lZ/pRYdx45kzeuGG3gRhW6U+siDHFTgZAZrbbbrdWkg3
+         K28REYqYnHx4keGhPOb8V1sStS4JQj42cZMMYa18=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Helge Deller <deller@gmx.de>
-Subject: [PATCH 5.15 087/120] parisc: Fix return code of pdc_iodc_print()
+        patches@lists.linux.dev,
+        syzbot+f8f3dfa4abc489e768a1@syzkaller.appspotmail.com,
+        Chao Yu <chao@kernel.org>, Jaegeuk Kim <jaegeuk@kernel.org>
+Subject: [PATCH 6.1 204/208] f2fs: fix to do sanity check on i_extra_isize in is_alive()
 Date:   Tue,  7 Feb 2023 13:57:38 +0100
-Message-Id: <20230207125622.454249725@linuxfoundation.org>
+Message-Id: <20230207125643.754128404@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.1
-In-Reply-To: <20230207125618.699726054@linuxfoundation.org>
-References: <20230207125618.699726054@linuxfoundation.org>
+In-Reply-To: <20230207125634.292109991@linuxfoundation.org>
+References: <20230207125634.292109991@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -51,47 +53,95 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Helge Deller <deller@gmx.de>
+From: Chao Yu <chao@kernel.org>
 
-commit 5d1335dabb3c493a3d6d5b233953b6ac7b6c1ff2 upstream.
+commit d3b7b4afd6b2c344eabf9cc26b8bfa903c164c7c upstream.
 
-There is an off-by-one if the printed string includes a new-line
-char.
+syzbot found a f2fs bug:
 
-Cc: stable@vger.kernel.org
-Signed-off-by: Helge Deller <deller@gmx.de>
+BUG: KASAN: slab-out-of-bounds in data_blkaddr fs/f2fs/f2fs.h:2891 [inline]
+BUG: KASAN: slab-out-of-bounds in is_alive fs/f2fs/gc.c:1117 [inline]
+BUG: KASAN: slab-out-of-bounds in gc_data_segment fs/f2fs/gc.c:1520 [inline]
+BUG: KASAN: slab-out-of-bounds in do_garbage_collect+0x386a/0x3df0 fs/f2fs/gc.c:1734
+Read of size 4 at addr ffff888076557568 by task kworker/u4:3/52
+
+CPU: 1 PID: 52 Comm: kworker/u4:3 Not tainted 6.1.0-rc4-syzkaller-00362-gfef7fd48922d #0
+Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS Google 10/26/2022
+Workqueue: writeback wb_workfn (flush-7:0)
+Call Trace:
+<TASK>
+__dump_stack lib/dump_stack.c:88 [inline]
+dump_stack_lvl+0xcd/0x134 lib/dump_stack.c:106
+print_address_description mm/kasan/report.c:284 [inline]
+print_report+0x15e/0x45d mm/kasan/report.c:395
+kasan_report+0xbb/0x1f0 mm/kasan/report.c:495
+data_blkaddr fs/f2fs/f2fs.h:2891 [inline]
+is_alive fs/f2fs/gc.c:1117 [inline]
+gc_data_segment fs/f2fs/gc.c:1520 [inline]
+do_garbage_collect+0x386a/0x3df0 fs/f2fs/gc.c:1734
+f2fs_gc+0x88c/0x20a0 fs/f2fs/gc.c:1831
+f2fs_balance_fs+0x544/0x6b0 fs/f2fs/segment.c:410
+f2fs_write_inode+0x57e/0xe20 fs/f2fs/inode.c:753
+write_inode fs/fs-writeback.c:1440 [inline]
+__writeback_single_inode+0xcfc/0x1440 fs/fs-writeback.c:1652
+writeback_sb_inodes+0x54d/0xf90 fs/fs-writeback.c:1870
+wb_writeback+0x2c5/0xd70 fs/fs-writeback.c:2044
+wb_do_writeback fs/fs-writeback.c:2187 [inline]
+wb_workfn+0x2dc/0x12f0 fs/fs-writeback.c:2227
+process_one_work+0x9bf/0x1710 kernel/workqueue.c:2289
+worker_thread+0x665/0x1080 kernel/workqueue.c:2436
+kthread+0x2e4/0x3a0 kernel/kthread.c:376
+ret_from_fork+0x1f/0x30 arch/x86/entry/entry_64.S:306
+
+The root cause is that we forgot to do sanity check on .i_extra_isize
+in below path, result in accessing invalid address later, fix it.
+- gc_data_segment
+ - is_alive
+  - data_blkaddr
+   - offset_in_addr
+
+Reported-by: syzbot+f8f3dfa4abc489e768a1@syzkaller.appspotmail.com
+Link: https://lore.kernel.org/linux-f2fs-devel/0000000000003cb3c405ed5c17f9@google.com/T/#u
+Signed-off-by: Chao Yu <chao@kernel.org>
+Signed-off-by: Jaegeuk Kim <jaegeuk@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/parisc/kernel/firmware.c |    5 +++--
- 1 file changed, 3 insertions(+), 2 deletions(-)
+ fs/f2fs/gc.c |   18 ++++++++++++------
+ 1 file changed, 12 insertions(+), 6 deletions(-)
 
---- a/arch/parisc/kernel/firmware.c
-+++ b/arch/parisc/kernel/firmware.c
-@@ -1230,7 +1230,7 @@ static char __attribute__((aligned(64)))
-  */
- int pdc_iodc_print(const unsigned char *str, unsigned count)
+--- a/fs/f2fs/gc.c
++++ b/fs/f2fs/gc.c
+@@ -1078,7 +1078,7 @@ static bool is_alive(struct f2fs_sb_info
  {
--	unsigned int i;
-+	unsigned int i, found = 0;
- 	unsigned long flags;
+ 	struct page *node_page;
+ 	nid_t nid;
+-	unsigned int ofs_in_node, max_addrs;
++	unsigned int ofs_in_node, max_addrs, base;
+ 	block_t source_blkaddr;
  
- 	for (i = 0; i < count;) {
-@@ -1239,6 +1239,7 @@ int pdc_iodc_print(const unsigned char *
- 			iodc_dbuf[i+0] = '\r';
- 			iodc_dbuf[i+1] = '\n';
- 			i += 2;
-+			found = 1;
- 			goto print;
- 		default:
- 			iodc_dbuf[i] = str[i];
-@@ -1255,7 +1256,7 @@ print:
-                     __pa(iodc_retbuf), 0, __pa(iodc_dbuf), i, 0);
-         spin_unlock_irqrestore(&pdc_lock, flags);
+ 	nid = le32_to_cpu(sum->nid);
+@@ -1104,11 +1104,17 @@ static bool is_alive(struct f2fs_sb_info
+ 		return false;
+ 	}
  
--	return i;
-+	return i - found;
- }
- 
- #if !defined(BOOTLOADER)
+-	max_addrs = IS_INODE(node_page) ? DEF_ADDRS_PER_INODE :
+-						DEF_ADDRS_PER_BLOCK;
+-	if (ofs_in_node >= max_addrs) {
+-		f2fs_err(sbi, "Inconsistent ofs_in_node:%u in summary, ino:%u, nid:%u, max:%u",
+-			ofs_in_node, dni->ino, dni->nid, max_addrs);
++	if (IS_INODE(node_page)) {
++		base = offset_in_addr(F2FS_INODE(node_page));
++		max_addrs = DEF_ADDRS_PER_INODE;
++	} else {
++		base = 0;
++		max_addrs = DEF_ADDRS_PER_BLOCK;
++	}
++
++	if (base + ofs_in_node >= max_addrs) {
++		f2fs_err(sbi, "Inconsistent blkaddr offset: base:%u, ofs_in_node:%u, max:%u, ino:%u, nid:%u",
++			base, ofs_in_node, max_addrs, dni->ino, dni->nid);
+ 		f2fs_put_page(node_page, 1);
+ 		return false;
+ 	}
 
 
