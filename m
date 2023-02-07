@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 46E5468D8E1
-	for <lists+stable@lfdr.de>; Tue,  7 Feb 2023 14:13:59 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 57D7768D835
+	for <lists+stable@lfdr.de>; Tue,  7 Feb 2023 14:07:41 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232624AbjBGNN6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Feb 2023 08:13:58 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59242 "EHLO
+        id S232206AbjBGNHk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Feb 2023 08:07:40 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55606 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232342AbjBGNNl (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Feb 2023 08:13:41 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7A7D03B673
-        for <stable@vger.kernel.org>; Tue,  7 Feb 2023 05:13:08 -0800 (PST)
+        with ESMTP id S232214AbjBGNHj (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Feb 2023 08:07:39 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D5E1635246
+        for <stable@vger.kernel.org>; Tue,  7 Feb 2023 05:07:01 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 607F96138B
-        for <stable@vger.kernel.org>; Tue,  7 Feb 2023 13:12:09 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5CBEDC4339C;
-        Tue,  7 Feb 2023 13:12:08 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 76F7CB818E8
+        for <stable@vger.kernel.org>; Tue,  7 Feb 2023 13:06:13 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id CC444C433EF;
+        Tue,  7 Feb 2023 13:06:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1675775528;
-        bh=mL2Xv086YHKFQ132QvU+UqfkzeMBMdu3wLN6CGZo3vs=;
+        s=korg; t=1675775172;
+        bh=zs3eS/gc82oxlqyBtAntTvrWRIJpO7o0OutcSgAAh0Y=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=TfaHvKk3YuaLXpLYu7hdKMajJtyWLFlhFVGSKfUtl9x9WrflbYwc1VA3mht3xTUjz
-         rnB6vyayzLwU93YZFCeGvdvRIVM9OKxF4TTJ+esw/P6IYKQVZPDiJxPuMNS5g+BKAq
-         NUpFPWk2k8Q/Mcep8xsQxkUENQJf3+XwPk6bo2x4=
+        b=lKcr7JYpQe0S1P7abw2NHQLwT0HKsDZVkaDubgRloT0u3iLpHBnzKoRNhNAiPzotM
+         BR/JK2G+mZlSj6exSy+ypeTFzxBnMtKu0auCAZU+dFHyTZhTntU2b3cxAQL+IIFK/y
+         xWcaKWOEIYPtb2nd/0yvRDjJUeVsL6m5HMosHCJY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Marius Dinu <marius@psihoexpert.ro>,
-        Niklas Cassel <niklas.cassel@wdc.com>,
-        Damien Le Moal <damien.lemoal@opensource.wdc.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 043/120] ata: libata: Fix sata_down_spd_limit() when no link speed is reported
-Date:   Tue,  7 Feb 2023 13:56:54 +0100
-Message-Id: <20230207125620.595951563@linuxfoundation.org>
+        patches@lists.linux.dev, stable <stable@kernel.org>,
+        Aaro Koskinen <aaro.koskinen@iki.fi>,
+        Alan Stern <stern@rowland.harvard.edu>
+Subject: [PATCH 6.1 161/208] usb: gadget: udc: do not clear gadget driver.bus
+Date:   Tue,  7 Feb 2023 13:56:55 +0100
+Message-Id: <20230207125641.713719096@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.1
-In-Reply-To: <20230207125618.699726054@linuxfoundation.org>
-References: <20230207125618.699726054@linuxfoundation.org>
+In-Reply-To: <20230207125634.292109991@linuxfoundation.org>
+References: <20230207125634.292109991@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,57 +53,202 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Damien Le Moal <damien.lemoal@opensource.wdc.com>
+From: Aaro Koskinen <aaro.koskinen@iki.fi>
 
-[ Upstream commit 69f2c9346313ba3d3dfa4091ff99df26c67c9021 ]
+commit 30d09b3131f5b1b9d54ad9b7ee171a45e21362b3 upstream.
 
-Commit 2dc0b46b5ea3 ("libata: sata_down_spd_limit should return if
-driver has not recorded sstatus speed") changed the behavior of
-sata_down_spd_limit() to return doing nothing if a drive does not report
-a current link speed, to avoid reducing the link speed to the lowest 1.5
-Gbps speed.
+Before the commit fc274c1e9973 ("USB: gadget: Add a new bus for gadgets")
+gadget driver.bus was unused. For whatever reason, many UDC drivers set
+this field explicitly to NULL in udc_start(). With the newly added gadget
+bus, doing this will crash the driver during the attach.
 
-However, the change assumed that a speed was recorded before probing
-(e.g. before a suspend/resume) and set in link->sata_spd. This causes
-problems with adapters/drives combination failing to establish a link
-speed during probe autonegotiation. One example reported of this problem
-is an mvebu adapter with a 3Gbps port-multiplier box: autonegotiation
-fails, leaving no recorded link speed and no reported current link
-speed. Probe retries also fail as no action is taken by sata_set_spd()
-after each retry.
+The problem was first reported, fixed and tested with OMAP UDC and g_ether.
+Other drivers are changed based on code analysis only.
 
-Fix this by returning early in sata_down_spd_limit() only if we do have
-a recorded link speed, that is, if link->sata_spd is not 0. With this
-fix, a failed probe not leading to a recorded link speed is retried at
-the lower 1.5 Gbps speed, with the link speed potentially increased
-later on the second revalidate of the device if the device reports
-that it supports higher link speeds.
-
-Reported-by: Marius Dinu <marius@psihoexpert.ro>
-Fixes: 2dc0b46b5ea3 ("libata: sata_down_spd_limit should return if driver has not recorded sstatus speed")
-Reviewed-by: Niklas Cassel <niklas.cassel@wdc.com>
-Tested-by: Marius Dinu <marius@psihoexpert.ro>
-Signed-off-by: Damien Le Moal <damien.lemoal@opensource.wdc.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes: fc274c1e9973 ("USB: gadget: Add a new bus for gadgets")
+Cc: stable <stable@kernel.org>
+Signed-off-by: Aaro Koskinen <aaro.koskinen@iki.fi>
+Acked-by: Alan Stern <stern@rowland.harvard.edu>
+Link: https://lore.kernel.org/r/20230201220125.GD2415@darkstar.musicnaut.iki.fi
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/ata/libata-core.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/usb/gadget/udc/bcm63xx_udc.c   |    1 -
+ drivers/usb/gadget/udc/fotg210-udc.c   |    1 -
+ drivers/usb/gadget/udc/fsl_qe_udc.c    |    1 -
+ drivers/usb/gadget/udc/fsl_udc_core.c  |    1 -
+ drivers/usb/gadget/udc/fusb300_udc.c   |    1 -
+ drivers/usb/gadget/udc/goku_udc.c      |    1 -
+ drivers/usb/gadget/udc/gr_udc.c        |    1 -
+ drivers/usb/gadget/udc/m66592-udc.c    |    1 -
+ drivers/usb/gadget/udc/max3420_udc.c   |    1 -
+ drivers/usb/gadget/udc/mv_u3d_core.c   |    1 -
+ drivers/usb/gadget/udc/mv_udc_core.c   |    1 -
+ drivers/usb/gadget/udc/net2272.c       |    1 -
+ drivers/usb/gadget/udc/net2280.c       |    1 -
+ drivers/usb/gadget/udc/omap_udc.c      |    1 -
+ drivers/usb/gadget/udc/pch_udc.c       |    1 -
+ drivers/usb/gadget/udc/snps_udc_core.c |    1 -
+ 16 files changed, 16 deletions(-)
 
-diff --git a/drivers/ata/libata-core.c b/drivers/ata/libata-core.c
-index c430cd3cfa17..025260b80a94 100644
---- a/drivers/ata/libata-core.c
-+++ b/drivers/ata/libata-core.c
-@@ -3076,7 +3076,7 @@ int sata_down_spd_limit(struct ata_link *link, u32 spd_limit)
- 	 */
- 	if (spd > 1)
- 		mask &= (1 << (spd - 1)) - 1;
--	else
-+	else if (link->sata_spd)
- 		return -EINVAL;
+--- a/drivers/usb/gadget/udc/bcm63xx_udc.c
++++ b/drivers/usb/gadget/udc/bcm63xx_udc.c
+@@ -1830,7 +1830,6 @@ static int bcm63xx_udc_start(struct usb_
+ 	bcm63xx_select_phy_mode(udc, true);
  
- 	/* were we already at the bottom? */
--- 
-2.39.0
-
+ 	udc->driver = driver;
+-	driver->driver.bus = NULL;
+ 	udc->gadget.dev.of_node = udc->dev->of_node;
+ 
+ 	spin_unlock_irqrestore(&udc->lock, flags);
+--- a/drivers/usb/gadget/udc/fotg210-udc.c
++++ b/drivers/usb/gadget/udc/fotg210-udc.c
+@@ -1009,7 +1009,6 @@ static int fotg210_udc_start(struct usb_
+ 	u32 value;
+ 
+ 	/* hook up the driver */
+-	driver->driver.bus = NULL;
+ 	fotg210->driver = driver;
+ 
+ 	/* enable device global interrupt */
+--- a/drivers/usb/gadget/udc/fsl_qe_udc.c
++++ b/drivers/usb/gadget/udc/fsl_qe_udc.c
+@@ -2285,7 +2285,6 @@ static int fsl_qe_start(struct usb_gadge
+ 	/* lock is needed but whether should use this lock or another */
+ 	spin_lock_irqsave(&udc->lock, flags);
+ 
+-	driver->driver.bus = NULL;
+ 	/* hook up the driver */
+ 	udc->driver = driver;
+ 	udc->gadget.speed = driver->max_speed;
+--- a/drivers/usb/gadget/udc/fsl_udc_core.c
++++ b/drivers/usb/gadget/udc/fsl_udc_core.c
+@@ -1943,7 +1943,6 @@ static int fsl_udc_start(struct usb_gadg
+ 	/* lock is needed but whether should use this lock or another */
+ 	spin_lock_irqsave(&udc_controller->lock, flags);
+ 
+-	driver->driver.bus = NULL;
+ 	/* hook up the driver */
+ 	udc_controller->driver = driver;
+ 	spin_unlock_irqrestore(&udc_controller->lock, flags);
+--- a/drivers/usb/gadget/udc/fusb300_udc.c
++++ b/drivers/usb/gadget/udc/fusb300_udc.c
+@@ -1311,7 +1311,6 @@ static int fusb300_udc_start(struct usb_
+ 	struct fusb300 *fusb300 = to_fusb300(g);
+ 
+ 	/* hook up the driver */
+-	driver->driver.bus = NULL;
+ 	fusb300->driver = driver;
+ 
+ 	return 0;
+--- a/drivers/usb/gadget/udc/goku_udc.c
++++ b/drivers/usb/gadget/udc/goku_udc.c
+@@ -1375,7 +1375,6 @@ static int goku_udc_start(struct usb_gad
+ 	struct goku_udc	*dev = to_goku_udc(g);
+ 
+ 	/* hook up the driver */
+-	driver->driver.bus = NULL;
+ 	dev->driver = driver;
+ 
+ 	/*
+--- a/drivers/usb/gadget/udc/gr_udc.c
++++ b/drivers/usb/gadget/udc/gr_udc.c
+@@ -1906,7 +1906,6 @@ static int gr_udc_start(struct usb_gadge
+ 	spin_lock(&dev->lock);
+ 
+ 	/* Hook up the driver */
+-	driver->driver.bus = NULL;
+ 	dev->driver = driver;
+ 
+ 	/* Get ready for host detection */
+--- a/drivers/usb/gadget/udc/m66592-udc.c
++++ b/drivers/usb/gadget/udc/m66592-udc.c
+@@ -1454,7 +1454,6 @@ static int m66592_udc_start(struct usb_g
+ 	struct m66592 *m66592 = to_m66592(g);
+ 
+ 	/* hook up the driver */
+-	driver->driver.bus = NULL;
+ 	m66592->driver = driver;
+ 
+ 	m66592_bset(m66592, M66592_VBSE | M66592_URST, M66592_INTENB0);
+--- a/drivers/usb/gadget/udc/max3420_udc.c
++++ b/drivers/usb/gadget/udc/max3420_udc.c
+@@ -1108,7 +1108,6 @@ static int max3420_udc_start(struct usb_
+ 
+ 	spin_lock_irqsave(&udc->lock, flags);
+ 	/* hook up the driver */
+-	driver->driver.bus = NULL;
+ 	udc->driver = driver;
+ 	udc->gadget.speed = USB_SPEED_FULL;
+ 
+--- a/drivers/usb/gadget/udc/mv_u3d_core.c
++++ b/drivers/usb/gadget/udc/mv_u3d_core.c
+@@ -1243,7 +1243,6 @@ static int mv_u3d_start(struct usb_gadge
+ 	}
+ 
+ 	/* hook up the driver ... */
+-	driver->driver.bus = NULL;
+ 	u3d->driver = driver;
+ 
+ 	u3d->ep0_dir = USB_DIR_OUT;
+--- a/drivers/usb/gadget/udc/mv_udc_core.c
++++ b/drivers/usb/gadget/udc/mv_udc_core.c
+@@ -1359,7 +1359,6 @@ static int mv_udc_start(struct usb_gadge
+ 	spin_lock_irqsave(&udc->lock, flags);
+ 
+ 	/* hook up the driver ... */
+-	driver->driver.bus = NULL;
+ 	udc->driver = driver;
+ 
+ 	udc->usb_state = USB_STATE_ATTACHED;
+--- a/drivers/usb/gadget/udc/net2272.c
++++ b/drivers/usb/gadget/udc/net2272.c
+@@ -1451,7 +1451,6 @@ static int net2272_start(struct usb_gadg
+ 		dev->ep[i].irqs = 0;
+ 	/* hook up the driver ... */
+ 	dev->softconnect = 1;
+-	driver->driver.bus = NULL;
+ 	dev->driver = driver;
+ 
+ 	/* ... then enable host detection and ep0; and we're ready
+--- a/drivers/usb/gadget/udc/net2280.c
++++ b/drivers/usb/gadget/udc/net2280.c
+@@ -2423,7 +2423,6 @@ static int net2280_start(struct usb_gadg
+ 		dev->ep[i].irqs = 0;
+ 
+ 	/* hook up the driver ... */
+-	driver->driver.bus = NULL;
+ 	dev->driver = driver;
+ 
+ 	retval = device_create_file(&dev->pdev->dev, &dev_attr_function);
+--- a/drivers/usb/gadget/udc/omap_udc.c
++++ b/drivers/usb/gadget/udc/omap_udc.c
+@@ -2066,7 +2066,6 @@ static int omap_udc_start(struct usb_gad
+ 	udc->softconnect = 1;
+ 
+ 	/* hook up the driver */
+-	driver->driver.bus = NULL;
+ 	udc->driver = driver;
+ 	spin_unlock_irqrestore(&udc->lock, flags);
+ 
+--- a/drivers/usb/gadget/udc/pch_udc.c
++++ b/drivers/usb/gadget/udc/pch_udc.c
+@@ -2908,7 +2908,6 @@ static int pch_udc_start(struct usb_gadg
+ {
+ 	struct pch_udc_dev	*dev = to_pch_udc(g);
+ 
+-	driver->driver.bus = NULL;
+ 	dev->driver = driver;
+ 
+ 	/* get ready for ep0 traffic */
+--- a/drivers/usb/gadget/udc/snps_udc_core.c
++++ b/drivers/usb/gadget/udc/snps_udc_core.c
+@@ -1933,7 +1933,6 @@ static int amd5536_udc_start(struct usb_
+ 	struct udc *dev = to_amd5536_udc(g);
+ 	u32 tmp;
+ 
+-	driver->driver.bus = NULL;
+ 	dev->driver = driver;
+ 
+ 	/* Some gadget drivers use both ep0 directions.
 
 
