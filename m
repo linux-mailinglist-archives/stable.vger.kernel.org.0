@@ -2,214 +2,114 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D14C468D77A
-	for <lists+stable@lfdr.de>; Tue,  7 Feb 2023 14:00:21 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id ADCA168D7C0
+	for <lists+stable@lfdr.de>; Tue,  7 Feb 2023 14:03:08 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230503AbjBGNAS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Feb 2023 08:00:18 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45436 "EHLO
+        id S232045AbjBGNDG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Feb 2023 08:03:06 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49324 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231266AbjBGM77 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Feb 2023 07:59:59 -0500
-Received: from mga01.intel.com (mga01.intel.com [192.55.52.88])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4854A39B98
-        for <stable@vger.kernel.org>; Tue,  7 Feb 2023 04:59:52 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
-  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1675774792; x=1707310792;
-  h=date:from:to:cc:subject:message-id:reply-to:references:
-   mime-version:content-transfer-encoding:in-reply-to;
-  bh=b/zS2z+oU7uGIJxYGzQqzvOunkWectcBBOnmqw3m0Zk=;
-  b=QYHWa3G67LGVNdBvVqft2dklcEqLMqpZi2jYgreCykUeD8oEci5nbLtg
-   5v9DI9WvkF4LsEXruOkx+y9UpmRB7NuQd6BMbIxbN91z5socCx45d9NCn
-   7GdUoYl5/TMmzfEDh1r1Ws0wv1I7VyV0tKY/y8EQ2PTQMlQvpteB/pknK
-   5bZPYW0aCYcAW+R7kQqTdXsM0VkZlTIWmlljNCACVa7bGyszWTzjw6Bt0
-   UkRfnXDD1Kej3AiLIQFUBqjfOZhsp02W8zIKUL6ZVM/OfQAjABxNWTi9E
-   a19wiKTB0IG5Z9/5Vt7EVDZfCrvgthW7qfhIWkBhqPUQRwGhSAmq7kWYj
-   A==;
-X-IronPort-AV: E=McAfee;i="6500,9779,10613"; a="356867597"
-X-IronPort-AV: E=Sophos;i="5.97,278,1669104000"; 
-   d="scan'208";a="356867597"
-Received: from fmsmga008.fm.intel.com ([10.253.24.58])
-  by fmsmga101.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 07 Feb 2023 04:59:51 -0800
-X-IronPort-AV: E=McAfee;i="6500,9779,10613"; a="730424307"
-X-IronPort-AV: E=Sophos;i="5.97,278,1669104000"; 
-   d="scan'208";a="730424307"
-Received: from ideak-desk.fi.intel.com ([10.237.72.58])
-  by fmsmga008-auth.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 07 Feb 2023 04:59:48 -0800
-Date:   Tue, 7 Feb 2023 14:59:45 +0200
-From:   Imre Deak <imre.deak@intel.com>
-To:     Lyude Paul <lyude@redhat.com>,
-        Harry Wentland <harry.wentland@amd.com>,
-        Alex Deucher <alexander.deucher@amd.com>,
-        Jani Nikula <jani.nikula@intel.com>,
-        Daniel Vetter <daniel.vetter@ffwll.ch>
-Cc:     stable@vger.kernel.org, intel-gfx@lists.freedesktop.org,
-        dri-devel@lists.freedesktop.org,
-        Ville =?iso-8859-1?Q?Syrj=E4l=E4?= 
-        <ville.syrjala@linux.intel.com>, Ben Skeggs <bskeggs@redhat.com>,
-        Wayne Lin <Wayne.Lin@amd.com>,
-        Karol Herbst <kherbst@redhat.com>
-Subject: Re: [Intel-gfx] [CI 1/4] drm/i915/dp_mst: Add the MST topology state
- for modesetted CRTCs
-Message-ID: <Y+JLQfuSAS6xLPIS@ideak-desk.fi.intel.com>
-Reply-To: imre.deak@intel.com
-References: <20230206114856.2665066-1-imre.deak@intel.com>
+        with ESMTP id S232094AbjBGNC4 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Feb 2023 08:02:56 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BFF5293EA
+        for <stable@vger.kernel.org>; Tue,  7 Feb 2023 05:02:32 -0800 (PST)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id E35B361407
+        for <stable@vger.kernel.org>; Tue,  7 Feb 2023 13:02:30 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id EF959C4339B;
+        Tue,  7 Feb 2023 13:02:29 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
+        s=korg; t=1675774950;
+        bh=9551nfSjoAQUelc5g87KgOc0DOK8kmWO0QAwaI8l6ug=;
+        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+        b=eQrHnNZCqSQ8VTxGkbd18u6S4LUhb731w/MtTYgafPCy+9LyaDPEI9cp1aDSHM+hu
+         Gz6jo+1gEwwTl28qiPjQtfuBtRvBFAY3rFWOxh1Rca58uvnQlmmv+1X+t6wEWaBDIq
+         nc6gVgngt5plhDQ686AZKnb0RnkisFyOceXyfNLY=
+From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+To:     stable@vger.kernel.org
+Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        patches@lists.linux.dev, Yu Kuai <yukuai3@huawei.com>,
+        Jan Kara <jack@suse.cz>, Jens Axboe <axboe@kernel.dk>,
+        Sasha Levin <sashal@kernel.org>,
+        Shinichiro Kawasaki <shinichiro.kawasaki@wdc.com>
+Subject: [PATCH 6.1 050/208] block, bfq: fix uaf for bfqq in bic_set_bfqq()
+Date:   Tue,  7 Feb 2023 13:55:04 +0100
+Message-Id: <20230207125636.535523454@linuxfoundation.org>
+X-Mailer: git-send-email 2.39.1
+In-Reply-To: <20230207125634.292109991@linuxfoundation.org>
+References: <20230207125634.292109991@linuxfoundation.org>
+User-Agent: quilt/0.67
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-In-Reply-To: <20230206114856.2665066-1-imre.deak@intel.com>
 X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
         DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
-        RCVD_IN_MSPIKE_H3,RCVD_IN_MSPIKE_WL,SPF_HELO_NONE,SPF_NONE
-        autolearn=ham autolearn_force=no version=3.4.6
+        SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hi all,
+From: Yu Kuai <yukuai3@huawei.com>
 
-On Mon, Feb 06, 2023 at 01:48:53PM +0200, Imre Deak wrote:
-> Add the MST topology for a CRTC to the atomic state if the driver
-> needs to force a modeset on the CRTC after the encoder compute config
-> functions are called.
-> 
-> Later the MST encoder's disable hook also adds the state, but that isn't
-> guaranteed to work (since in that hook getting the state may fail, which
-> can't be handled there). This should fix that, while a later patch fixes
-> the use of the MST state in the disable hook.
-> 
-> v2: Add missing forward struct declartions, caught by hdrtest.
-> v3: Factor out intel_dp_mst_add_topology_state_for_connector() used
->     later in the patchset.
-> 
-> Cc: Lyude Paul <lyude@redhat.com>
-> Cc: Ville Syrjälä <ville.syrjala@linux.intel.com>
-> Cc: stable@vger.kernel.org # 6.1
-> Reviewed-by: Ville Syrjälä <ville.syrjala@linux.intel.com> # v2
-> Reviewed-by: Lyude Paul <lyude@redhat.com>
-> Signed-off-by: Imre Deak <imre.deak@intel.com>
+[ Upstream commit b600de2d7d3a16f9007fad1bdae82a3951a26af2 ]
 
-Is it ok to merge these 4 patches (also at [1]), via the i915 tree?
+After commit 64dc8c732f5c ("block, bfq: fix possible uaf for 'bfqq->bic'"),
+bic->bfqq will be accessed in bic_set_bfqq(), however, in some context
+bic->bfqq will be freed, and bic_set_bfqq() is called with the freed
+bic->bfqq.
 
-If so could it be also acked from the AMD and Nouveau side?
+Fix the problem by always freeing bfqq after bic_set_bfqq().
 
-[1] https://patchwork.freedesktop.org/series/113703/
+Fixes: 64dc8c732f5c ("block, bfq: fix possible uaf for 'bfqq->bic'")
+Reported-and-tested-by: Shinichiro Kawasaki <shinichiro.kawasaki@wdc.com>
+Signed-off-by: Yu Kuai <yukuai3@huawei.com>
+Reviewed-by: Jan Kara <jack@suse.cz>
+Link: https://lore.kernel.org/r/20230130014136.591038-1-yukuai1@huaweicloud.com
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
+---
+ block/bfq-cgroup.c  | 2 +-
+ block/bfq-iosched.c | 4 +++-
+ 2 files changed, 4 insertions(+), 2 deletions(-)
 
-> ---
->  drivers/gpu/drm/i915/display/intel_display.c |  4 ++
->  drivers/gpu/drm/i915/display/intel_dp_mst.c  | 61 ++++++++++++++++++++
->  drivers/gpu/drm/i915/display/intel_dp_mst.h  |  4 ++
->  3 files changed, 69 insertions(+)
-> 
-> diff --git a/drivers/gpu/drm/i915/display/intel_display.c b/drivers/gpu/drm/i915/display/intel_display.c
-> index 166662ade593c..38106cf63b3b9 100644
-> --- a/drivers/gpu/drm/i915/display/intel_display.c
-> +++ b/drivers/gpu/drm/i915/display/intel_display.c
-> @@ -5936,6 +5936,10 @@ int intel_modeset_all_pipes(struct intel_atomic_state *state,
->  		if (ret)
->  			return ret;
->  
-> +		ret = intel_dp_mst_add_topology_state_for_crtc(state, crtc);
-> +		if (ret)
-> +			return ret;
-> +
->  		ret = intel_atomic_add_affected_planes(state, crtc);
->  		if (ret)
->  			return ret;
-> diff --git a/drivers/gpu/drm/i915/display/intel_dp_mst.c b/drivers/gpu/drm/i915/display/intel_dp_mst.c
-> index 8b0e4defa3f10..f3cb12dcfe0a7 100644
-> --- a/drivers/gpu/drm/i915/display/intel_dp_mst.c
-> +++ b/drivers/gpu/drm/i915/display/intel_dp_mst.c
-> @@ -1223,3 +1223,64 @@ bool intel_dp_mst_is_slave_trans(const struct intel_crtc_state *crtc_state)
->  	return crtc_state->mst_master_transcoder != INVALID_TRANSCODER &&
->  	       crtc_state->mst_master_transcoder != crtc_state->cpu_transcoder;
->  }
-> +
-> +/**
-> + * intel_dp_mst_add_topology_state_for_connector - add MST topology state for a connector
-> + * @state: atomic state
-> + * @connector: connector to add the state for
-> + * @crtc: the CRTC @connector is attached to
-> + *
-> + * Add the MST topology state for @connector to @state.
-> + *
-> + * Returns 0 on success, negative error code on failure.
-> + */
-> +static int
-> +intel_dp_mst_add_topology_state_for_connector(struct intel_atomic_state *state,
-> +					      struct intel_connector *connector,
-> +					      struct intel_crtc *crtc)
-> +{
-> +	struct drm_dp_mst_topology_state *mst_state;
-> +
-> +	if (!connector->mst_port)
-> +		return 0;
-> +
-> +	mst_state = drm_atomic_get_mst_topology_state(&state->base,
-> +						      &connector->mst_port->mst_mgr);
-> +	if (IS_ERR(mst_state))
-> +		return PTR_ERR(mst_state);
-> +
-> +	mst_state->pending_crtc_mask |= drm_crtc_mask(&crtc->base);
-> +
-> +	return 0;
-> +}
-> +
-> +/**
-> + * intel_dp_mst_add_topology_state_for_crtc - add MST topology state for a CRTC
-> + * @state: atomic state
-> + * @crtc: CRTC to add the state for
-> + *
-> + * Add the MST topology state for @crtc to @state.
-> + *
-> + * Returns 0 on success, negative error code on failure.
-> + */
-> +int intel_dp_mst_add_topology_state_for_crtc(struct intel_atomic_state *state,
-> +					     struct intel_crtc *crtc)
-> +{
-> +	struct drm_connector *_connector;
-> +	struct drm_connector_state *conn_state;
-> +	int i;
-> +
-> +	for_each_new_connector_in_state(&state->base, _connector, conn_state, i) {
-> +		struct intel_connector *connector = to_intel_connector(_connector);
-> +		int ret;
-> +
-> +		if (conn_state->crtc != &crtc->base)
-> +			continue;
-> +
-> +		ret = intel_dp_mst_add_topology_state_for_connector(state, connector, crtc);
-> +		if (ret)
-> +			return ret;
-> +	}
-> +
-> +	return 0;
-> +}
-> diff --git a/drivers/gpu/drm/i915/display/intel_dp_mst.h b/drivers/gpu/drm/i915/display/intel_dp_mst.h
-> index f7301de6cdfb3..f1815bb722672 100644
-> --- a/drivers/gpu/drm/i915/display/intel_dp_mst.h
-> +++ b/drivers/gpu/drm/i915/display/intel_dp_mst.h
-> @@ -8,6 +8,8 @@
->  
->  #include <linux/types.h>
->  
-> +struct intel_atomic_state;
-> +struct intel_crtc;
->  struct intel_crtc_state;
->  struct intel_digital_port;
->  struct intel_dp;
-> @@ -18,5 +20,7 @@ int intel_dp_mst_encoder_active_links(struct intel_digital_port *dig_port);
->  bool intel_dp_mst_is_master_trans(const struct intel_crtc_state *crtc_state);
->  bool intel_dp_mst_is_slave_trans(const struct intel_crtc_state *crtc_state);
->  bool intel_dp_mst_source_support(struct intel_dp *intel_dp);
-> +int intel_dp_mst_add_topology_state_for_crtc(struct intel_atomic_state *state,
-> +					     struct intel_crtc *crtc);
->  
->  #endif /* __INTEL_DP_MST_H__ */
-> -- 
-> 2.37.1
-> 
+diff --git a/block/bfq-cgroup.c b/block/bfq-cgroup.c
+index dfb6d1d8bd46..60b4299bec8e 100644
+--- a/block/bfq-cgroup.c
++++ b/block/bfq-cgroup.c
+@@ -761,8 +761,8 @@ static void *__bfq_bic_change_cgroup(struct bfq_data *bfqd,
+ 				 * request from the old cgroup.
+ 				 */
+ 				bfq_put_cooperator(sync_bfqq);
+-				bfq_release_process_ref(bfqd, sync_bfqq);
+ 				bic_set_bfqq(bic, NULL, true);
++				bfq_release_process_ref(bfqd, sync_bfqq);
+ 			}
+ 		}
+ 	}
+diff --git a/block/bfq-iosched.c b/block/bfq-iosched.c
+index 917939b60ef8..ff9d23889415 100644
+--- a/block/bfq-iosched.c
++++ b/block/bfq-iosched.c
+@@ -5491,9 +5491,11 @@ static void bfq_check_ioprio_change(struct bfq_io_cq *bic, struct bio *bio)
+ 
+ 	bfqq = bic_to_bfqq(bic, false);
+ 	if (bfqq) {
+-		bfq_release_process_ref(bfqd, bfqq);
++		struct bfq_queue *old_bfqq = bfqq;
++
+ 		bfqq = bfq_get_queue(bfqd, bio, false, bic, true);
+ 		bic_set_bfqq(bic, bfqq, false);
++		bfq_release_process_ref(bfqd, old_bfqq);
+ 	}
+ 
+ 	bfqq = bic_to_bfqq(bic, true);
+-- 
+2.39.0
+
+
+
