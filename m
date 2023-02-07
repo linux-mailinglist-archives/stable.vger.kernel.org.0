@@ -2,41 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 7918468D7AC
-	for <lists+stable@lfdr.de>; Tue,  7 Feb 2023 14:02:27 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9D20D68D7AA
+	for <lists+stable@lfdr.de>; Tue,  7 Feb 2023 14:02:04 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230121AbjBGNC0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Feb 2023 08:02:26 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47778 "EHLO
+        id S232069AbjBGNCD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Feb 2023 08:02:03 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47190 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232010AbjBGNBz (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Feb 2023 08:01:55 -0500
+        with ESMTP id S232111AbjBGNBu (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Feb 2023 08:01:50 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 149183C13
-        for <stable@vger.kernel.org>; Tue,  7 Feb 2023 05:01:44 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A95823A5AD
+        for <stable@vger.kernel.org>; Tue,  7 Feb 2023 05:01:30 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 78DFF61411
-        for <stable@vger.kernel.org>; Tue,  7 Feb 2023 13:01:27 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7FBBFC433EF;
-        Tue,  7 Feb 2023 13:01:26 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 7FAFB613EA
+        for <stable@vger.kernel.org>; Tue,  7 Feb 2023 13:01:30 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 91A80C433EF;
+        Tue,  7 Feb 2023 13:01:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1675774886;
-        bh=ymx/lZ4UsqGIpVe3M21VYx1OQXiLM1kyDP0yZqoaghc=;
+        s=korg; t=1675774889;
+        bh=MSHOITU8D68Nq2L78xGa7sAUQ2ihBBmLmLcHM0EUtCQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=KzVg5TRWb0VBWExnjxAbq3WJ8qSIMXC6sVmFQurYMwT+clZxBs4BWTqiSQq5aO6Oe
-         jfEzOgr8mxdX/hbE2Qw2rxWYScnMxQT6XACBxXIWICIcvDmmBNhy2ObCEwrXO9kT5/
-         gtQd+INMNmGrh4q3KVExEQp6m82IFOktvrG9ngrQ=
+        b=p5HTQrhUNvK+GZH4hri34PFGhyODfF+N6kLP4OrcI8udaJjRp6CPlilp+dyUa7Fc3
+         RhOWI//jhzp7jNLnzlmnf5F5Uft0B8i71mdP2hMdNoaNM6YREzOmKyHkQP6WqkMmPE
+         09ac8UiWNpJ74G1cBC5BpV051IGA96rbnZq++nno=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Liu Xiaodong <xiaodong.liu@intel.com>,
-        Ming Lei <ming.lei@redhat.com>, Jens Axboe <axboe@kernel.dk>,
+        patches@lists.linux.dev,
+        Brendan Higgins <brendan.higgins@linux.dev>,
+        David Gow <davidgow@google.com>,
+        Martin Fernandez <martin.fernandez@eclypsium.com>,
+        Shuah Khan <skhan@linuxfoundation.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 067/208] block: ublk: extending queue_size to fix overflow
-Date:   Tue,  7 Feb 2023 13:55:21 +0100
-Message-Id: <20230207125637.356001431@linuxfoundation.org>
+Subject: [PATCH 6.1 068/208] kunit: fix kunit_test_init_section_suites(...)
+Date:   Tue,  7 Feb 2023 13:55:22 +0100
+Message-Id: <20230207125637.395267558@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.1
 In-Reply-To: <20230207125634.292109991@linuxfoundation.org>
 References: <20230207125634.292109991@linuxfoundation.org>
@@ -53,51 +56,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Liu Xiaodong <xiaodong.liu@intel.com>
+From: Brendan Higgins <brendan.higgins@linux.dev>
 
-[ Upstream commit 29baef789c838bd5c02f50c88adbbc6b955aaf61 ]
+[ Upstream commit 254c71374a70051a043676b67ba4f7ad392b5fe6 ]
 
-When validating drafted SPDK ublk target, in a case that
-assigning large queue depth to multiqueue ublk device,
-ublk target would run into a weird incorrect state. During
-rounds of review and debug, An overflow bug was found
-in ublk driver.
+Looks like kunit_test_init_section_suites(...) was messed up in a merge
+conflict. This fixes it.
 
-In ublk_cmd.h, UBLK_MAX_QUEUE_DEPTH is 4096 which means
-each ublk queue depth can be set as large as 4096. But
-when setting qd for a ublk device,
-sizeof(struct ublk_queue) + depth * sizeof(struct ublk_io)
-will be larger than 65535 if qd is larger than 2728.
-Then queue_size is overflowed, and ublk_get_queue()
-references a wrong pointer position. The wrong content of
-ublk_queue elements will lead to out-of-bounds memory
-access.
+kunit_test_init_section_suites(...) was not updated to avoid the extra
+level of indirection when .kunit_test_suites was flattened. Given no-one
+was actively using it, this went unnoticed for a long period of time.
 
-Extend queue_size in ublk_device as "unsigned int".
-
-Signed-off-by: Liu Xiaodong <xiaodong.liu@intel.com>
-Fixes: 71f28f3136af ("ublk_drv: add io_uring based userspace block driver")
-Reviewed-by: Ming Lei <ming.lei@redhat.com>
-Link: https://lore.kernel.org/r/20230131070552.115067-1-xiaodong.liu@intel.com
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
+Fixes: e5857d396f35 ("kunit: flatten kunit_suite*** to kunit_suite** in .kunit_test_suites")
+Signed-off-by: Brendan Higgins <brendan.higgins@linux.dev>
+Signed-off-by: David Gow <davidgow@google.com>
+Tested-by: Martin Fernandez <martin.fernandez@eclypsium.com>
+Signed-off-by: Shuah Khan <skhan@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/block/ublk_drv.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ include/kunit/test.h | 1 -
+ 1 file changed, 1 deletion(-)
 
-diff --git a/drivers/block/ublk_drv.c b/drivers/block/ublk_drv.c
-index e54693204630..6368b56eacf1 100644
---- a/drivers/block/ublk_drv.c
-+++ b/drivers/block/ublk_drv.c
-@@ -137,7 +137,7 @@ struct ublk_device {
+diff --git a/include/kunit/test.h b/include/kunit/test.h
+index b1ab6b32216d..ebcdbddf8344 100644
+--- a/include/kunit/test.h
++++ b/include/kunit/test.h
+@@ -299,7 +299,6 @@ static inline int kunit_run_all_tests(void)
+  */
+ #define kunit_test_init_section_suites(__suites...)			\
+ 	__kunit_test_suites(CONCATENATE(__UNIQUE_ID(array), _probe),	\
+-			    CONCATENATE(__UNIQUE_ID(suites), _probe),	\
+ 			    ##__suites)
  
- 	char	*__queues;
- 
--	unsigned short  queue_size;
-+	unsigned int	queue_size;
- 	struct ublksrv_ctrl_dev_info	dev_info;
- 
- 	struct blk_mq_tag_set	tag_set;
+ #define kunit_test_init_section_suite(suite)	\
 -- 
 2.39.0
 
