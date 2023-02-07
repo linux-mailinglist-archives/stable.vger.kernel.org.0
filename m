@@ -2,43 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id DC5B268D831
-	for <lists+stable@lfdr.de>; Tue,  7 Feb 2023 14:07:32 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 46E5468D8E1
+	for <lists+stable@lfdr.de>; Tue,  7 Feb 2023 14:13:59 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232154AbjBGNHb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Feb 2023 08:07:31 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55404 "EHLO
+        id S232624AbjBGNN6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Feb 2023 08:13:58 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59242 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232167AbjBGNHa (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Feb 2023 08:07:30 -0500
+        with ESMTP id S232342AbjBGNNl (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Feb 2023 08:13:41 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7B1E9C170
-        for <stable@vger.kernel.org>; Tue,  7 Feb 2023 05:06:52 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7A7D03B673
+        for <stable@vger.kernel.org>; Tue,  7 Feb 2023 05:13:08 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 1C27F61422
-        for <stable@vger.kernel.org>; Tue,  7 Feb 2023 13:06:10 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2D16CC433EF;
-        Tue,  7 Feb 2023 13:06:09 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 607F96138B
+        for <stable@vger.kernel.org>; Tue,  7 Feb 2023 13:12:09 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5CBEDC4339C;
+        Tue,  7 Feb 2023 13:12:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1675775169;
-        bh=EgTfjRlPyeWxVC28WpWmcHYUzRvZoc1zyJZ/O57LTqU=;
+        s=korg; t=1675775528;
+        bh=mL2Xv086YHKFQ132QvU+UqfkzeMBMdu3wLN6CGZo3vs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=SxiwRVxJTYDhzNA4mfuZgoynVD+xwkSIiYJplwTjh894vtNNbxpsKzJ2qWbPmfYTi
-         5doBcjgw/DazhzbxtleGE64tTBIWdN/KOR1F46RNt3H5Qn2RYwLOy8R6l5Pl7qRLav
-         WccWoYfzkwJrgfI4ssWW6h8OR+/ObaMrXxPxcNh0=
+        b=TfaHvKk3YuaLXpLYu7hdKMajJtyWLFlhFVGSKfUtl9x9WrflbYwc1VA3mht3xTUjz
+         rnB6vyayzLwU93YZFCeGvdvRIVM9OKxF4TTJ+esw/P6IYKQVZPDiJxPuMNS5g+BKAq
+         NUpFPWk2k8Q/Mcep8xsQxkUENQJf3+XwPk6bo2x4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Heikki Krogerus <heikki.krogerus@linux.intel.com>
-Subject: [PATCH 6.1 160/208] usb: typec: ucsi: Dont attempt to resume the ports before they exist
+        patches@lists.linux.dev, Marius Dinu <marius@psihoexpert.ro>,
+        Niklas Cassel <niklas.cassel@wdc.com>,
+        Damien Le Moal <damien.lemoal@opensource.wdc.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.15 043/120] ata: libata: Fix sata_down_spd_limit() when no link speed is reported
 Date:   Tue,  7 Feb 2023 13:56:54 +0100
-Message-Id: <20230207125641.680021040@linuxfoundation.org>
+Message-Id: <20230207125620.595951563@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.1
-In-Reply-To: <20230207125634.292109991@linuxfoundation.org>
-References: <20230207125634.292109991@linuxfoundation.org>
+In-Reply-To: <20230207125618.699726054@linuxfoundation.org>
+References: <20230207125618.699726054@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -52,55 +54,57 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Heikki Krogerus <heikki.krogerus@linux.intel.com>
+From: Damien Le Moal <damien.lemoal@opensource.wdc.com>
 
-commit f82060da749c611ed427523b6d1605d87338aac1 upstream.
+[ Upstream commit 69f2c9346313ba3d3dfa4091ff99df26c67c9021 ]
 
-This will fix null pointer dereference that was caused by
-the driver attempting to resume ports that were not yet
-registered.
+Commit 2dc0b46b5ea3 ("libata: sata_down_spd_limit should return if
+driver has not recorded sstatus speed") changed the behavior of
+sata_down_spd_limit() to return doing nothing if a drive does not report
+a current link speed, to avoid reducing the link speed to the lowest 1.5
+Gbps speed.
 
-Fixes: e0dced9c7d47 ("usb: typec: ucsi: Resume in separate work")
-Cc: <stable@vger.kernel.org>
-Link: https://bugzilla.kernel.org/show_bug.cgi?id=216697
-Signed-off-by: Heikki Krogerus <heikki.krogerus@linux.intel.com>
-Link: https://lore.kernel.org/r/20230131141518.78215-1-heikki.krogerus@linux.intel.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+However, the change assumed that a speed was recorded before probing
+(e.g. before a suspend/resume) and set in link->sata_spd. This causes
+problems with adapters/drives combination failing to establish a link
+speed during probe autonegotiation. One example reported of this problem
+is an mvebu adapter with a 3Gbps port-multiplier box: autonegotiation
+fails, leaving no recorded link speed and no reported current link
+speed. Probe retries also fail as no action is taken by sata_set_spd()
+after each retry.
+
+Fix this by returning early in sata_down_spd_limit() only if we do have
+a recorded link speed, that is, if link->sata_spd is not 0. With this
+fix, a failed probe not leading to a recorded link speed is retried at
+the lower 1.5 Gbps speed, with the link speed potentially increased
+later on the second revalidate of the device if the device reports
+that it supports higher link speeds.
+
+Reported-by: Marius Dinu <marius@psihoexpert.ro>
+Fixes: 2dc0b46b5ea3 ("libata: sata_down_spd_limit should return if driver has not recorded sstatus speed")
+Reviewed-by: Niklas Cassel <niklas.cassel@wdc.com>
+Tested-by: Marius Dinu <marius@psihoexpert.ro>
+Signed-off-by: Damien Le Moal <damien.lemoal@opensource.wdc.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/usb/typec/ucsi/ucsi.c |    9 ++++++++-
- 1 file changed, 8 insertions(+), 1 deletion(-)
+ drivers/ata/libata-core.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/usb/typec/ucsi/ucsi.c
-+++ b/drivers/usb/typec/ucsi/ucsi.c
-@@ -1269,6 +1269,9 @@ err_unregister:
- 		con->port = NULL;
- 	}
+diff --git a/drivers/ata/libata-core.c b/drivers/ata/libata-core.c
+index c430cd3cfa17..025260b80a94 100644
+--- a/drivers/ata/libata-core.c
++++ b/drivers/ata/libata-core.c
+@@ -3076,7 +3076,7 @@ int sata_down_spd_limit(struct ata_link *link, u32 spd_limit)
+ 	 */
+ 	if (spd > 1)
+ 		mask &= (1 << (spd - 1)) - 1;
+-	else
++	else if (link->sata_spd)
+ 		return -EINVAL;
  
-+	kfree(ucsi->connector);
-+	ucsi->connector = NULL;
-+
- err_reset:
- 	memset(&ucsi->cap, 0, sizeof(ucsi->cap));
- 	ucsi_reset_ppm(ucsi);
-@@ -1300,7 +1303,8 @@ static void ucsi_resume_work(struct work
- 
- int ucsi_resume(struct ucsi *ucsi)
- {
--	queue_work(system_long_wq, &ucsi->resume_work);
-+	if (ucsi->connector)
-+		queue_work(system_long_wq, &ucsi->resume_work);
- 	return 0;
- }
- EXPORT_SYMBOL_GPL(ucsi_resume);
-@@ -1420,6 +1424,9 @@ void ucsi_unregister(struct ucsi *ucsi)
- 	/* Disable notifications */
- 	ucsi->ops->async_write(ucsi, UCSI_CONTROL, &cmd, sizeof(cmd));
- 
-+	if (!ucsi->connector)
-+		return;
-+
- 	for (i = 0; i < ucsi->cap.num_connectors; i++) {
- 		cancel_work_sync(&ucsi->connector[i].work);
- 		ucsi_unregister_partner(&ucsi->connector[i]);
+ 	/* were we already at the bottom? */
+-- 
+2.39.0
+
 
 
