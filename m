@@ -2,141 +2,131 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id F062568DE74
-	for <lists+stable@lfdr.de>; Tue,  7 Feb 2023 18:05:35 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4E67768DE97
+	for <lists+stable@lfdr.de>; Tue,  7 Feb 2023 18:14:58 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231574AbjBGRFd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Feb 2023 12:05:33 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44868 "EHLO
+        id S231566AbjBGROz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Feb 2023 12:14:55 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50610 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229685AbjBGRFd (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Feb 2023 12:05:33 -0500
-Received: from mail-vs1-xe31.google.com (mail-vs1-xe31.google.com [IPv6:2607:f8b0:4864:20::e31])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 92B492703
-        for <stable@vger.kernel.org>; Tue,  7 Feb 2023 09:05:31 -0800 (PST)
-Received: by mail-vs1-xe31.google.com with SMTP id m1so15101708vst.7
-        for <stable@vger.kernel.org>; Tue, 07 Feb 2023 09:05:31 -0800 (PST)
+        with ESMTP id S232251AbjBGROu (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Feb 2023 12:14:50 -0500
+Received: from mail-pf1-x449.google.com (mail-pf1-x449.google.com [IPv6:2607:f8b0:4864:20::449])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3E9FA3E0BB
+        for <stable@vger.kernel.org>; Tue,  7 Feb 2023 09:14:00 -0800 (PST)
+Received: by mail-pf1-x449.google.com with SMTP id e9-20020a62ee09000000b0058db55a8d7aso4728212pfi.21
+        for <stable@vger.kernel.org>; Tue, 07 Feb 2023 09:14:00 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=Jy30Q5CoBNY/fYhc8eo/JNrKPpHvqjYzbsThzSZQ05U=;
-        b=Y31FS5ez5mYuEOMGf2wYCnFBEFEciLaVqR+RLWmFlbxCWqOcmkY14QtUZ7dkFhmC+O
-         PDMSq5yzcXI0T51xRc/2s/UUFykhNMSyTQzICJHHIJRU2izA1t4KSHk8yktXRxJNxVrT
-         ZiT8DXZJ5smC06drjvdCOyyl7mjXb42jQEBBKggsQI+/+KFu841IuGjrTVshxJ6Av/0+
-         QqaZKhEPbLglpIHV8DjD3RJiOR8xMrEwyxhEQXoO2NuEEafSRYCBlBMshBy1jA1qpsOp
-         MO2V3JVupMw82IwwE7ysHQm4YaNsvaLHusal1GRsGQQM4P5uH6J3KdukdTJeqkJVjalb
-         Xqiw==
+        d=google.com; s=20210112;
+        h=cc:to:from:subject:mime-version:message-id:date:from:to:cc:subject
+         :date:message-id:reply-to;
+        bh=gaqlkUHlROHo1Iu/mvu/VhOVerpPZOfXGd0nbt/7zs8=;
+        b=aFSF+mDkwXMPhNXoGe9Q/j26WS0JRqyy750UYsBMIHe2uxsn5RTNKfWiXtceSvhxa5
+         jtE+wKy5v7XDg0HNBzSH2kcs5k0RPiVdlmiHEigKt+L/Dx/GRZ95cfV/8haSHCcm6e/6
+         OybLUuEDpssvqVROntd3VOoMTRGRn3FgHA9N+aXExjoJwgShq1wHpm1S9S4NV9pWuTKE
+         i5zm3mZuh6Ca6I6q+iuYH0CnU3MAA2KomIjb8tuhX7oH1H7M0Apn3rrYCm++euStY1AV
+         PNE0SoqrGOrbbcoQEfj7ugB8nDtisZYJRPB0h5jKDccuxm6DHEpGAQlJRqPlDIfjEJLR
+         nlSA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=Jy30Q5CoBNY/fYhc8eo/JNrKPpHvqjYzbsThzSZQ05U=;
-        b=RUkToxiL1qimky3aEPVBBReccR9vCkfnLyQPX/NAwmYfMy3IZug0LHqzZAA+PZNX1E
-         dTh0624A/wCl1Otnk9FKG7X5rvzE4ZWd6fhEQaxdDBAGiXPlahR5OdGqrsgjqscn1yux
-         JGKeytAOXZ9cCk6abZKan6wucdy4NmWhS6+mxRYAe2VyqixGKbHWBWfcwBBqYdGrdumE
-         QloGypoH705Mr3g67qzHZrTyvcIxLp77hrXJQpIEqmur/Cp27H3PA56ha2ByYSSrAGpI
-         cJNpHOrAqN0ZmYXSCOIUSbUpNCjKZohLHxTSsJh7XKHEMKOREtoRqHk+uTC0e74ktNoo
-         Urug==
-X-Gm-Message-State: AO0yUKV+lDp7FMgfzh6AhQulIV4fYpx2Icz9oQMS8FsAhTjGK+6wX4Ze
-        K3NWNqBIrspP/j6OAUg0ylO1SoxiMb8PZ5oz/at0Sg==
-X-Google-Smtp-Source: AK7set9uk3OElOHb0yhkRGf2onss+eUAKY+U2mMVPjOU31IcxZDvidX54UErqpO3uYDm9FSXb5UH8kR/BztMfS422qM=
-X-Received: by 2002:a05:6102:3c4:b0:3ed:7a8f:d181 with SMTP id
- n4-20020a05610203c400b003ed7a8fd181mr794571vsq.3.1675789530500; Tue, 07 Feb
- 2023 09:05:30 -0800 (PST)
-MIME-Version: 1.0
-References: <20230207125634.292109991@linuxfoundation.org>
-In-Reply-To: <20230207125634.292109991@linuxfoundation.org>
-From:   Naresh Kamboju <naresh.kamboju@linaro.org>
-Date:   Tue, 7 Feb 2023 22:35:19 +0530
-Message-ID: <CA+G9fYtgJX507GJ3fG7-G+vGhG4BnU=kzu3fOH_a-_aMU0S_0w@mail.gmail.com>
-Subject: Re: [PATCH 6.1 000/208] 6.1.11-rc1 review
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     stable@vger.kernel.org, patches@lists.linux.dev,
-        linux-kernel@vger.kernel.org, torvalds@linux-foundation.org,
-        akpm@linux-foundation.org, linux@roeck-us.net, shuah@kernel.org,
-        patches@kernelci.org, lkft-triage@lists.linaro.org, pavel@denx.de,
-        jonathanh@nvidia.com, f.fainelli@gmail.com,
-        sudipm.mukherjee@gmail.com, srw@sladewatkins.net, rwarsow@gmx.de,
-        Peter Xu <peterx@redhat.com>,
-        Mike Kravetz <mike.kravetz@oracle.com>,
-        Jann Horn <jannh@google.com>,
-        Anders Roxell <anders.roxell@linaro.org>,
-        "open list:KERNEL SELFTEST FRAMEWORK" 
-        <linux-kselftest@vger.kernel.org>
+        h=cc:to:from:subject:mime-version:message-id:date:x-gm-message-state
+         :from:to:cc:subject:date:message-id:reply-to;
+        bh=gaqlkUHlROHo1Iu/mvu/VhOVerpPZOfXGd0nbt/7zs8=;
+        b=R1qJMgbFTto0CkgZtTP2gQUq5ad657yKhoiy4KsQLJawAl6yzyr92I0ro+38sXDVXY
+         bbjXmmGUBweCD4i4T8nqQMw0oWlfGd7uZpP1wN0i7Jx6JXXGq3ZAjwTToUa1/eaMT6wt
+         LAnyrpppSm19Ee+ZHLjstkyr6ykqImnEbhgj1rhMGoV6c4TGYtsF1I9ukEQaxuW0Gnbk
+         M4nQc/x+GNgZFyPjJAwIYBCbgsbZ6h034FXBtlFP02LnUre+gpxIrLpCpQf/ime09R10
+         vKAc1Vb4Wvdt8JfLubuSYR/aYjaK+s/RdOuQZRAkpnUUmK63NL1pOQlMTMeJCH0EE/k4
+         AdeQ==
+X-Gm-Message-State: AO0yUKVWv8F3JYe1G83PkMzabbH0KA59Bjqeo4ay5swDkbKerHPFttMB
+        stw8kHb2Pv2tWOH38Amjd2876vj7IG4=
+X-Google-Smtp-Source: AK7set+er4Uv/iKukfLeR1lCffkTft0lTR8HoB29ISgFrwHdoSYSqGHr9L2MtrFudzW2cCM4F0rt08AXC9k=
+X-Received: from pgonda1.kir.corp.google.com ([2620:0:1008:11:346e:6fd8:c3bf:b38f])
+ (user=pgonda job=sendgmr) by 2002:a17:902:a3ce:b0:196:3672:f24b with SMTP id
+ q14-20020a170902a3ce00b001963672f24bmr868930plb.32.1675790039532; Tue, 07 Feb
+ 2023 09:13:59 -0800 (PST)
+Date:   Tue,  7 Feb 2023 09:13:54 -0800
+Message-Id: <20230207171354.4012821-1-pgonda@google.com>
+Mime-Version: 1.0
+X-Mailer: git-send-email 2.39.1.519.gcb327c4b5f-goog
+Subject: [PATCH V2] KVM: sev: Fix potential overflow send|recieve_update_data
+From:   Peter Gonda <pgonda@google.com>
+To:     kvm@vger.kernel.org
+Cc:     Peter Gonda <pgonda@google.com>, Andy Nguyen <theflow@google.com>,
+        Thomas Lendacky <thomas.lendacky@amd.com>,
+        David Rientjes <rientjes@google.com>,
+        Paolo Bonzini <pbonzini@redhat.com>,
+        Sean Christopherson <seanjc@google.com>,
+        stable@vger.kernel.org, linux-kernel@vger.kernel.org
 Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
-X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_NONE,
-        SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
+X-Spam-Status: No, score=-9.6 required=5.0 tests=BAYES_00,DKIMWL_WL_MED,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_NONE,
+        SPF_HELO_NONE,SPF_PASS,USER_IN_DEF_DKIM_WL autolearn=ham
+        autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, 7 Feb 2023 at 18:29, Greg Kroah-Hartman
-<gregkh@linuxfoundation.org> wrote:
->
-> This is the start of the stable review cycle for the 6.1.11 release.
-> There are 208 patches in this series, all will be posted as a response
-> to this one.  If anyone has any issues with these being applied, please
-> let me know.
->
-> Responses should be made by Thu, 09 Feb 2023 12:55:54 +0000.
-> Anything received after that time might be too late.
->
-> The whole patch series can be found in one patch at:
->         https://www.kernel.org/pub/linux/kernel/v6.x/stable-review/patch-=
-6.1.11-rc1.gz
-> or in the git tree and branch at:
->         git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable=
--rc.git linux-6.1.y
-> and the diffstat can be found below.
->
-> thanks,
->
-> greg k-h
+KVM_SEV_SEND_UPDATE_DATA and KVM_SEV_RECEIVE_UPDATE_DATA have an integer
+overflow issue. Params.guest_len and offset are both 32bite wide, with a
+large params.guest_len the check to confirm a page boundary is not
+crossed can falsely pass:
 
-Results from Linaro=E2=80=99s test farm.
-Following build regressions noticed while building
-selftests/vm/hugetlb-madvise.c
-with kselftest-merge configs.
+    /* Check if we are crossing the page boundary *
+    offset = params.guest_uaddr & (PAGE_SIZE - 1);
+    if ((params.guest_len + offset > PAGE_SIZE))
 
-Reported-by: Linux Kernel Functional Testing <lkft@linaro.org>
+Add an additional check to this conditional to confirm that
+params.guest_len itself is not greater than PAGE_SIZE.
 
-Build errors:
-----------
-hugetlb-madvise.c:242:13: warning: implicit declaration of function
-'fallocate'; did you mean 'alloca'? [-Wimplicit-function-declaration]
-  242 |         if (fallocate(fd, 0, 0, NR_HUGE_PAGES * huge_page_size)) {
-      |             ^~~~~~~~~
-      |             alloca
-hugetlb-madvise.c:289:27: error: 'FALLOC_FL_PUNCH_HOLE' undeclared
-(first use in this function)
-  289 |         if (fallocate(fd, FALLOC_FL_PUNCH_HOLE | FALLOC_FL_KEEP_SIZ=
-E,
-      |                           ^~~~~~~~~~~~~~~~~~~~
-hugetlb-madvise.c:289:27: note: each undeclared identifier is reported
-only once for each function it appears in
-hugetlb-madvise.c:289:50: error: 'FALLOC_FL_KEEP_SIZE' undeclared
-(first use in this function)
-  289 |         if (fallocate(fd, FALLOC_FL_PUNCH_HOLE | FALLOC_FL_KEEP_SIZ=
-E,
-      |                                                  ^~~~~~~~~~~~~~~~~~=
-~
-make[3]: *** [../lib.mk:145:
-/home/tuxbuild/.cache/tuxmake/builds/1/build/kselftest/vm/hugetlb-madvise]
-Error 1
+The current code is can only overflow with a params.guest_len of greater
+than 0xfffff000. And the FW spec says these commands fail with lengths
+greater than 16KB. So this issue should not be a security concern
 
-Build log:
-https://gitlab.com/Linaro/lkft/mirrors/stable/linux-stable-rc/-/jobs/372819=
-8425#L1676
-https://storage.tuxsuite.com/public/linaro/lkft/builds/2LPeQeCIu0YEfltwqAFC=
-vDaj29A/
+Fixes: 15fb7de1a7f5 ("KVM: SVM: Add KVM_SEV_RECEIVE_UPDATE_DATA command")
+Fixes: d3d1af85e2c7 ("KVM: SVM: Add KVM_SEND_UPDATE_DATA command")
+Reported-by: Andy Nguyen <theflow@google.com>
+Suggested-by: Thomas Lendacky <thomas.lendacky@amd.com>
+Signed-off-by: Peter Gonda <pgonda@google.com>
+Cc: David Rientjes <rientjes@google.com>
+Cc: Paolo Bonzini <pbonzini@redhat.com>
+Cc: Sean Christopherson <seanjc@google.com>
+Cc: kvm@vger.kernel.org
+Cc: stable@vger.kernel.org
+Cc: linux-kernel@vger.kernel.org
+---
 
---
-Linaro LKFT
-https://lkft.linaro.org
+V2
+ * Updated conditional based on feedback from Tom.
+
+---
+ arch/x86/kvm/svm/sev.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/arch/x86/kvm/svm/sev.c b/arch/x86/kvm/svm/sev.c
+index 273cba809328..3d74facaead8 100644
+--- a/arch/x86/kvm/svm/sev.c
++++ b/arch/x86/kvm/svm/sev.c
+@@ -1294,7 +1294,7 @@ static int sev_send_update_data(struct kvm *kvm, struct kvm_sev_cmd *argp)
+ 
+ 	/* Check if we are crossing the page boundary */
+ 	offset = params.guest_uaddr & (PAGE_SIZE - 1);
+-	if ((params.guest_len + offset > PAGE_SIZE))
++	if (params.guest_len > PAGE_SIZE || (params.guest_len + offset) > PAGE_SIZE)
+ 		return -EINVAL;
+ 
+ 	/* Pin guest memory */
+@@ -1474,7 +1474,7 @@ static int sev_receive_update_data(struct kvm *kvm, struct kvm_sev_cmd *argp)
+ 
+ 	/* Check if we are crossing the page boundary */
+ 	offset = params.guest_uaddr & (PAGE_SIZE - 1);
+-	if ((params.guest_len + offset > PAGE_SIZE))
++	if (params.guest_len > PAGE_SIZE || (params.guest_len + offset) > PAGE_SIZE)
+ 		return -EINVAL;
+ 
+ 	hdr = psp_copy_user_blob(params.hdr_uaddr, params.hdr_len);
+-- 
+2.39.1.519.gcb327c4b5f-goog
+
