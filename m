@@ -2,41 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 2535668D8C3
-	for <lists+stable@lfdr.de>; Tue,  7 Feb 2023 14:12:55 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9EF8F68D8CA
+	for <lists+stable@lfdr.de>; Tue,  7 Feb 2023 14:13:09 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232354AbjBGNMy (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Feb 2023 08:12:54 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60004 "EHLO
+        id S232442AbjBGNNI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Feb 2023 08:13:08 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59838 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232386AbjBGNMj (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Feb 2023 08:12:39 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3FB5939CD4
-        for <stable@vger.kernel.org>; Tue,  7 Feb 2023 05:11:39 -0800 (PST)
+        with ESMTP id S232500AbjBGNMu (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Feb 2023 08:12:50 -0500
+Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 70A401E9D7
+        for <stable@vger.kernel.org>; Tue,  7 Feb 2023 05:11:54 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 209F861383
-        for <stable@vger.kernel.org>; Tue,  7 Feb 2023 13:11:39 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0EC4CC433EF;
-        Tue,  7 Feb 2023 13:11:37 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id E52D0CE1D84
+        for <stable@vger.kernel.org>; Tue,  7 Feb 2023 13:11:43 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 208B8C433D2;
+        Tue,  7 Feb 2023 13:11:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1675775498;
-        bh=31PGigVaWwsYxdx0F+/sk0jL4EAU83tF/tnCicsEiYQ=;
+        s=korg; t=1675775501;
+        bh=sbc51eWCfVAvYT4r4aykzlAu8vyQR8aAxQQxGtTtmuI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=fRZfaBOWNxVGF+9DdPpJrbmlivvvAw3U6XEZ7jCK2FZaJuP4wdMEhKKlglV2nHr3l
-         yFd+ClUpewY1JTTmeNdFCodGAFuh6fZbte6zzfLN5I+432zcYFCXsqD9CrNbGOiDQh
-         KB4SHSMS25xqrgueyvsT5RoaTHukdmc+8km7Iits=
+        b=QrG+izwtpsefRhcj1xsXWVdxi27CaAyP/VR7359q3rwDmWxAc7zN3nYUqXpkQqehM
+         UD7IwLr7c5ih3KThY16qQiinjZxeI0IYBL1paEbbkgu67PJ1DJRWU+V9QCQTycm5Ho
+         tiT4wp6K2ADLdpTvMOUlOdtHmnshIYNkGnh0s7LQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Hyunwoo Kim <v4bel@theori.io>,
-        "David S. Miller" <davem@davemloft.net>,
+        patches@lists.linux.dev,
+        Nicholas Kazlauskas <Nicholas.Kazlauskas@amd.com>,
+        Alan Liu <HaoPing.Liu@amd.com>,
+        Aurabindo Pillai <aurabindo.pillai@amd.com>,
+        Daniel Wheeler <daniel.wheeler@amd.com>,
+        Alex Deucher <alexander.deucher@amd.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 060/120] net/x25: Fix to not accept on connected socket
-Date:   Tue,  7 Feb 2023 13:57:11 +0100
-Message-Id: <20230207125621.315217538@linuxfoundation.org>
+Subject: [PATCH 5.15 061/120] drm/amd/display: Fix timing not changning when freesync video is enabled
+Date:   Tue,  7 Feb 2023 13:57:12 +0100
+Message-Id: <20230207125621.362367506@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.1
 In-Reply-To: <20230207125618.699726054@linuxfoundation.org>
 References: <20230207125618.699726054@linuxfoundation.org>
@@ -53,45 +57,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hyunwoo Kim <v4bel@theori.io>
+From: Aurabindo Pillai <aurabindo.pillai@amd.com>
 
-[ Upstream commit f2b0b5210f67c56a3bcdf92ff665fb285d6e0067 ]
+[ Upstream commit 4b069553246f993c4221e382d0d0ae34f5ba730e ]
 
-When listen() and accept() are called on an x25 socket
-that connect() succeeds, accept() succeeds immediately.
-This is because x25_connect() queues the skb to
-sk->sk_receive_queue, and x25_accept() dequeues it.
+[Why&How]
+Switching between certain modes that are freesync video modes and those
+are not freesync video modes result in timing not changing as seen by
+the monitor due to incorrect timing being driven.
 
-This creates a child socket with the sk of the parent
-x25 socket, which can cause confusion.
+The issue is fixed by ensuring that when a non freesync video mode is
+set, we reset the freesync status on the crtc.
 
-Fix x25_listen() to return -EINVAL if the socket has
-already been successfully connect()ed to avoid this issue.
-
-Signed-off-by: Hyunwoo Kim <v4bel@theori.io>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Reviewed-by: Nicholas Kazlauskas <Nicholas.Kazlauskas@amd.com>
+Acked-by: Alan Liu <HaoPing.Liu@amd.com>
+Signed-off-by: Aurabindo Pillai <aurabindo.pillai@amd.com>
+Tested-by: Daniel Wheeler <daniel.wheeler@amd.com>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/x25/af_x25.c | 6 ++++++
- 1 file changed, 6 insertions(+)
+ drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c | 7 +++++++
+ 1 file changed, 7 insertions(+)
 
-diff --git a/net/x25/af_x25.c b/net/x25/af_x25.c
-index 3a171828638b..07f6206e7cb4 100644
---- a/net/x25/af_x25.c
-+++ b/net/x25/af_x25.c
-@@ -482,6 +482,12 @@ static int x25_listen(struct socket *sock, int backlog)
- 	int rc = -EOPNOTSUPP;
+diff --git a/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c b/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c
+index a2d9e0af0654..e9797439bb0e 100644
+--- a/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c
++++ b/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c
+@@ -10136,6 +10136,13 @@ static int dm_update_crtc_state(struct amdgpu_display_manager *dm,
+ 		if (!dm_old_crtc_state->stream)
+ 			goto skip_modeset;
  
- 	lock_sock(sk);
-+	if (sock->state != SS_UNCONNECTED) {
-+		rc = -EINVAL;
-+		release_sock(sk);
-+		return rc;
-+	}
++		/* Unset freesync video if it was active before */
++		if (dm_old_crtc_state->freesync_config.state == VRR_STATE_ACTIVE_FIXED) {
++			dm_new_crtc_state->freesync_config.state = VRR_STATE_INACTIVE;
++			dm_new_crtc_state->freesync_config.fixed_refresh_in_uhz = 0;
++		}
 +
- 	if (sk->sk_state != TCP_LISTEN) {
- 		memset(&x25_sk(sk)->dest_addr, 0, X25_ADDR_LEN);
- 		sk->sk_max_ack_backlog = backlog;
++		/* Now check if we should set freesync video mode */
+ 		if (amdgpu_freesync_vid_mode && dm_new_crtc_state->stream &&
+ 		    is_timing_unchanged_for_freesync(new_crtc_state,
+ 						     old_crtc_state)) {
 -- 
 2.39.0
 
