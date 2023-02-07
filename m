@@ -2,47 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B42BD68D844
-	for <lists+stable@lfdr.de>; Tue,  7 Feb 2023 14:08:10 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A376D68D8D1
+	for <lists+stable@lfdr.de>; Tue,  7 Feb 2023 14:13:16 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232252AbjBGNII (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Feb 2023 08:08:08 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56360 "EHLO
+        id S232598AbjBGNNP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Feb 2023 08:13:15 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60972 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232259AbjBGNIG (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Feb 2023 08:08:06 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6BEF32CC6D
-        for <stable@vger.kernel.org>; Tue,  7 Feb 2023 05:07:48 -0800 (PST)
+        with ESMTP id S232469AbjBGNM4 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Feb 2023 08:12:56 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DCBD63431C
+        for <stable@vger.kernel.org>; Tue,  7 Feb 2023 05:12:05 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 2150661426
-        for <stable@vger.kernel.org>; Tue,  7 Feb 2023 13:06:54 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2DF0CC433EF;
-        Tue,  7 Feb 2023 13:06:52 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 214C3B818E8
+        for <stable@vger.kernel.org>; Tue,  7 Feb 2023 13:11:28 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 72285C4339B;
+        Tue,  7 Feb 2023 13:11:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1675775213;
-        bh=D2Ikux4Y400HQinbRqjZF48tY0MUT7o2Du+abzhyxmA=;
+        s=korg; t=1675775486;
+        bh=mKMtYGUi6EE7cBFlIcoLmALfj0P1c3k95YLF5gyXM3Q=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=dZLSB0U9/IAbsVx+FtADnGdUlqF8Avcpgdz8wec+xVv8iM8+u7iettoJwDznYET10
-         Vr14B1ZNvyceJjcLZQwv8ae6WDH1SVDak2fxNIX6R4LpUmq+g7AosRSwqqS8hOet9g
-         YNo+g2kmaiXzsAjbB1jcTF9kFL47iltj+LNAehew=
+        b=X/FX9RXlrQbh7N9nzKy3s4zYLLgQLu+z+DkAQJRoXWClNxPmICfWb0R3CC7TmBUzE
+         Z1a8J5Ga0cV8wbw5f7aXkzZvuQ0ucse46cp8a2rTrPqiUrt7ldpZmk7woqZVEfhJTC
+         B0rt7cnuq+gCDMMZBCIlr/pz1PsRi+hSqjM0qo4U=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, James Morse <james.morse@arm.com>,
-        Sergei Trofimovich <slyich@gmail.com>,
-        =?UTF-8?q?=C3=89meric=20Maschino?= <emeric.maschino@gmail.com>,
-        matoro <matoro_mailinglist_kernel@matoro.tk>,
-        John Paul Adrian Glaubitz <glaubitz@physik.fu-berlin.de>,
-        Andrew Morton <akpm@linux-foundation.org>
-Subject: [PATCH 6.1 173/208] ia64: fix build error due to switch case label appearing next to declaration
-Date:   Tue,  7 Feb 2023 13:57:07 +0100
-Message-Id: <20230207125642.267776392@linuxfoundation.org>
+        patches@lists.linux.dev, Randy Dunlap <rdunlap@infradead.org>,
+        Wolfram Sang <wsa@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.15 057/120] i2c: rk3x: fix a bunch of kernel-doc warnings
+Date:   Tue,  7 Feb 2023 13:57:08 +0100
+Message-Id: <20230207125621.178621186@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.1
-In-Reply-To: <20230207125634.292109991@linuxfoundation.org>
-References: <20230207125634.292109991@linuxfoundation.org>
+In-Reply-To: <20230207125618.699726054@linuxfoundation.org>
+References: <20230207125618.699726054@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,61 +52,180 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: James Morse <james.morse@arm.com>
+From: Randy Dunlap <rdunlap@infradead.org>
 
-commit 6f28a2613497fc587e347afa99fa2c52230678a7 upstream.
+[ Upstream commit 0582d984793d30442da88fe458674502bad1ad29 ]
 
-Since commit aa06a9bd8533 ("ia64: fix clock_getres(CLOCK_MONOTONIC) to
-report ITC frequency"), gcc 10.1.0 fails to build ia64 with the gnomic:
-| ../arch/ia64/kernel/sys_ia64.c: In function 'ia64_clock_getres':
-| ../arch/ia64/kernel/sys_ia64.c:189:3: error: a label can only be part of a statement and a declaration is not a statement
-|   189 |   s64 tick_ns = DIV_ROUND_UP(NSEC_PER_SEC, local_cpu_data->itc_freq);
+Fix multiple W=1 kernel-doc warnings in i2c-rk3x.c:
 
-This line appears immediately after a case label in a switch.
+drivers/i2c/busses/i2c-rk3x.c:83: warning: missing initial short description on line:
+ * struct i2c_spec_values:
+drivers/i2c/busses/i2c-rk3x.c:139: warning: missing initial short description on line:
+ * struct rk3x_i2c_calced_timings:
+drivers/i2c/busses/i2c-rk3x.c:162: warning: missing initial short description on line:
+ * struct rk3x_i2c_soc_data:
+drivers/i2c/busses/i2c-rk3x.c:242: warning: This comment starts with '/**', but isn't a kernel-doc comment. Refer Documentation/doc-guide/kernel-doc.rst
+ * Generate a START condition, which triggers a REG_INT_START interrupt.
+drivers/i2c/busses/i2c-rk3x.c:261: warning: This comment starts with '/**', but isn't a kernel-doc comment. Refer Documentation/doc-guide/kernel-doc.rst
+ * Generate a STOP condition, which triggers a REG_INT_STOP interrupt.
+drivers/i2c/busses/i2c-rk3x.c:304: warning: expecting prototype for Setup a read according to i2c(). Prototype was for rk3x_i2c_prepare_read() instead
+drivers/i2c/busses/i2c-rk3x.c:335: warning: expecting prototype for Fill the transmit buffer with data from i2c(). Prototype was for rk3x_i2c_fill_transmit_buf() instead
+drivers/i2c/busses/i2c-rk3x.c:535: warning: This comment starts with '/**', but isn't a kernel-doc comment. Refer Documentation/doc-guide/kernel-doc.rst
+ * Get timing values of I2C specification
+drivers/i2c/busses/i2c-rk3x.c:552: warning: This comment starts with '/**', but isn't a kernel-doc comment. Refer Documentation/doc-guide/kernel-doc.rst
+ * Calculate divider values for desired SCL frequency
+drivers/i2c/busses/i2c-rk3x.c:713: warning: This comment starts with '/**', but isn't a kernel-doc comment. Refer Documentation/doc-guide/kernel-doc.rst
+ * Calculate timing values for desired SCL frequency
+drivers/i2c/busses/i2c-rk3x.c:963: warning: This comment starts with '/**', but isn't a kernel-doc comment. Refer Documentation/doc-guide/kernel-doc.rst
+ * Setup I2C registers for an I2C operation specified by msgs, num.
 
-Move the declarations out of the case, to the top of the function.
-
-Link: https://lkml.kernel.org/r/20230117151632.393836-1-james.morse@arm.com
-Fixes: aa06a9bd8533 ("ia64: fix clock_getres(CLOCK_MONOTONIC) to report ITC frequency")
-Signed-off-by: James Morse <james.morse@arm.com>
-Reviewed-by: Sergei Trofimovich <slyich@gmail.com>
-Cc: Émeric Maschino <emeric.maschino@gmail.com>
-Cc: matoro <matoro_mailinglist_kernel@matoro.tk>
-Cc: John Paul Adrian Glaubitz <glaubitz@physik.fu-berlin.de>
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Randy Dunlap <rdunlap@infradead.org>
+Signed-off-by: Wolfram Sang <wsa@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/ia64/kernel/sys_ia64.c | 7 +++++--
- 1 file changed, 5 insertions(+), 2 deletions(-)
+ drivers/i2c/busses/i2c-rk3x.c | 44 +++++++++++++++++------------------
+ 1 file changed, 22 insertions(+), 22 deletions(-)
 
-diff --git a/arch/ia64/kernel/sys_ia64.c b/arch/ia64/kernel/sys_ia64.c
-index f6a502e8f02c..6e948d015332 100644
---- a/arch/ia64/kernel/sys_ia64.c
-+++ b/arch/ia64/kernel/sys_ia64.c
-@@ -170,6 +170,9 @@ ia64_mremap (unsigned long addr, unsigned long old_len, unsigned long new_len, u
- asmlinkage long
- ia64_clock_getres(const clockid_t which_clock, struct __kernel_timespec __user *tp)
- {
-+	struct timespec64 rtn_tp;
-+	s64 tick_ns;
-+
- 	/*
- 	 * ia64's clock_gettime() syscall is implemented as a vdso call
- 	 * fsys_clock_gettime(). Currently it handles only
-@@ -185,8 +188,8 @@ ia64_clock_getres(const clockid_t which_clock, struct __kernel_timespec __user *
- 	switch (which_clock) {
- 	case CLOCK_REALTIME:
- 	case CLOCK_MONOTONIC:
--		s64 tick_ns = DIV_ROUND_UP(NSEC_PER_SEC, local_cpu_data->itc_freq);
--		struct timespec64 rtn_tp = ns_to_timespec64(tick_ns);
-+		tick_ns = DIV_ROUND_UP(NSEC_PER_SEC, local_cpu_data->itc_freq);
-+		rtn_tp = ns_to_timespec64(tick_ns);
- 		return put_timespec64(&rtn_tp, tp);
- 	}
+diff --git a/drivers/i2c/busses/i2c-rk3x.c b/drivers/i2c/busses/i2c-rk3x.c
+index 02ddb237f69a..13c14eb175e9 100644
+--- a/drivers/i2c/busses/i2c-rk3x.c
++++ b/drivers/i2c/busses/i2c-rk3x.c
+@@ -80,7 +80,7 @@ enum {
+ #define DEFAULT_SCL_RATE  (100 * 1000) /* Hz */
  
+ /**
+- * struct i2c_spec_values:
++ * struct i2c_spec_values - I2C specification values for various modes
+  * @min_hold_start_ns: min hold time (repeated) START condition
+  * @min_low_ns: min LOW period of the SCL clock
+  * @min_high_ns: min HIGH period of the SCL cloc
+@@ -136,7 +136,7 @@ static const struct i2c_spec_values fast_mode_plus_spec = {
+ };
+ 
+ /**
+- * struct rk3x_i2c_calced_timings:
++ * struct rk3x_i2c_calced_timings - calculated V1 timings
+  * @div_low: Divider output for low
+  * @div_high: Divider output for high
+  * @tuning: Used to adjust setup/hold data time,
+@@ -159,7 +159,7 @@ enum rk3x_i2c_state {
+ };
+ 
+ /**
+- * struct rk3x_i2c_soc_data:
++ * struct rk3x_i2c_soc_data - SOC-specific data
+  * @grf_offset: offset inside the grf regmap for setting the i2c type
+  * @calc_timings: Callback function for i2c timing information calculated
+  */
+@@ -239,7 +239,8 @@ static inline void rk3x_i2c_clean_ipd(struct rk3x_i2c *i2c)
+ }
+ 
+ /**
+- * Generate a START condition, which triggers a REG_INT_START interrupt.
++ * rk3x_i2c_start - Generate a START condition, which triggers a REG_INT_START interrupt.
++ * @i2c: target controller data
+  */
+ static void rk3x_i2c_start(struct rk3x_i2c *i2c)
+ {
+@@ -258,8 +259,8 @@ static void rk3x_i2c_start(struct rk3x_i2c *i2c)
+ }
+ 
+ /**
+- * Generate a STOP condition, which triggers a REG_INT_STOP interrupt.
+- *
++ * rk3x_i2c_stop - Generate a STOP condition, which triggers a REG_INT_STOP interrupt.
++ * @i2c: target controller data
+  * @error: Error code to return in rk3x_i2c_xfer
+  */
+ static void rk3x_i2c_stop(struct rk3x_i2c *i2c, int error)
+@@ -298,7 +299,8 @@ static void rk3x_i2c_stop(struct rk3x_i2c *i2c, int error)
+ }
+ 
+ /**
+- * Setup a read according to i2c->msg
++ * rk3x_i2c_prepare_read - Setup a read according to i2c->msg
++ * @i2c: target controller data
+  */
+ static void rk3x_i2c_prepare_read(struct rk3x_i2c *i2c)
+ {
+@@ -329,7 +331,8 @@ static void rk3x_i2c_prepare_read(struct rk3x_i2c *i2c)
+ }
+ 
+ /**
+- * Fill the transmit buffer with data from i2c->msg
++ * rk3x_i2c_fill_transmit_buf - Fill the transmit buffer with data from i2c->msg
++ * @i2c: target controller data
+  */
+ static void rk3x_i2c_fill_transmit_buf(struct rk3x_i2c *i2c)
+ {
+@@ -532,11 +535,10 @@ static irqreturn_t rk3x_i2c_irq(int irqno, void *dev_id)
+ }
+ 
+ /**
+- * Get timing values of I2C specification
+- *
++ * rk3x_i2c_get_spec - Get timing values of I2C specification
+  * @speed: Desired SCL frequency
+  *
+- * Returns: Matched i2c spec values.
++ * Return: Matched i2c_spec_values.
+  */
+ static const struct i2c_spec_values *rk3x_i2c_get_spec(unsigned int speed)
+ {
+@@ -549,13 +551,12 @@ static const struct i2c_spec_values *rk3x_i2c_get_spec(unsigned int speed)
+ }
+ 
+ /**
+- * Calculate divider values for desired SCL frequency
+- *
++ * rk3x_i2c_v0_calc_timings - Calculate divider values for desired SCL frequency
+  * @clk_rate: I2C input clock rate
+  * @t: Known I2C timing information
+  * @t_calc: Caculated rk3x private timings that would be written into regs
+  *
+- * Returns: 0 on success, -EINVAL if the goal SCL rate is too slow. In that case
++ * Return: %0 on success, -%EINVAL if the goal SCL rate is too slow. In that case
+  * a best-effort divider value is returned in divs. If the target rate is
+  * too high, we silently use the highest possible rate.
+  */
+@@ -710,13 +711,12 @@ static int rk3x_i2c_v0_calc_timings(unsigned long clk_rate,
+ }
+ 
+ /**
+- * Calculate timing values for desired SCL frequency
+- *
++ * rk3x_i2c_v1_calc_timings - Calculate timing values for desired SCL frequency
+  * @clk_rate: I2C input clock rate
+  * @t: Known I2C timing information
+  * @t_calc: Caculated rk3x private timings that would be written into regs
+  *
+- * Returns: 0 on success, -EINVAL if the goal SCL rate is too slow. In that case
++ * Return: %0 on success, -%EINVAL if the goal SCL rate is too slow. In that case
+  * a best-effort divider value is returned in divs. If the target rate is
+  * too high, we silently use the highest possible rate.
+  * The following formulas are v1's method to calculate timings.
+@@ -960,14 +960,14 @@ static int rk3x_i2c_clk_notifier_cb(struct notifier_block *nb, unsigned long
+ }
+ 
+ /**
+- * Setup I2C registers for an I2C operation specified by msgs, num.
+- *
+- * Must be called with i2c->lock held.
+- *
++ * rk3x_i2c_setup - Setup I2C registers for an I2C operation specified by msgs, num.
++ * @i2c: target controller data
+  * @msgs: I2C msgs to process
+  * @num: Number of msgs
+  *
+- * returns: Number of I2C msgs processed or negative in case of error
++ * Must be called with i2c->lock held.
++ *
++ * Return: Number of I2C msgs processed or negative in case of error
+  */
+ static int rk3x_i2c_setup(struct rk3x_i2c *i2c, struct i2c_msg *msgs, int num)
+ {
 -- 
-2.39.1
+2.39.0
 
 
 
