@@ -2,43 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 6A19668D87A
-	for <lists+stable@lfdr.de>; Tue,  7 Feb 2023 14:10:06 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8DAF068D81C
+	for <lists+stable@lfdr.de>; Tue,  7 Feb 2023 14:06:02 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232322AbjBGNKF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Feb 2023 08:10:05 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59046 "EHLO
+        id S232221AbjBGNGB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Feb 2023 08:06:01 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53524 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232327AbjBGNKE (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Feb 2023 08:10:04 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B98FE3B0EB
-        for <stable@vger.kernel.org>; Tue,  7 Feb 2023 05:09:45 -0800 (PST)
+        with ESMTP id S232224AbjBGNFq (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Feb 2023 08:05:46 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B02513B3D9
+        for <stable@vger.kernel.org>; Tue,  7 Feb 2023 05:05:12 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id C38C861426
-        for <stable@vger.kernel.org>; Tue,  7 Feb 2023 13:09:39 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D4D40C433EF;
-        Tue,  7 Feb 2023 13:09:38 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 5D906B818E8
+        for <stable@vger.kernel.org>; Tue,  7 Feb 2023 13:05:11 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B5E76C433D2;
+        Tue,  7 Feb 2023 13:05:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1675775379;
-        bh=3RCrKyJy5WdVa4IYowNk45o88UE8n1a+5mKrjjOy9eo=;
+        s=korg; t=1675775110;
+        bh=Xt3IOYl9LSvImaehPZVqaYjoAJmamT99nIBsGcHE3nw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=aXI+Fak/mdACmD5yVuB10C9LEHzVUbM0O28RnhCaZYk1pHjVUlMvpjKJcJuLyOaBd
-         I8i9/33MThE9uMKslhcuhv6OczQuF1SQ895sUL2UC6HyRhaK4Z9gHbuf2gGhwO7o0N
-         AXdtIhaOnbiQJZd1WrFeu2NOGxxiTgttefOJV9Is=
+        b=DdxHIEQRqKdyyFo9KLIUFz4Dj3ERSDf2HF8iuUBg3MJEHK2b5ROCuXbMUpsdXjROe
+         LgAWiOKcN9uVxGVioWwAzznXQOEmaVmzbi6pG3fbwv/p3QArLo1C52u4DEL7jsDnjb
+         d+OQmmGKKOjk3Ci7vsckzETkZIhoGWhUdtDvTuaA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Al Viro <viro@zeniv.linux.org.uk>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 021/120] fix "direction" argument of iov_iter_kvec()
-Date:   Tue,  7 Feb 2023 13:56:32 +0100
-Message-Id: <20230207125619.677585068@linuxfoundation.org>
+        patches@lists.linux.dev, Carlos Song <carlos.song@nxp.com>,
+        Stable@vger.kernel.org,
+        Jonathan Cameron <Jonathan.Cameron@huawei.com>
+Subject: [PATCH 6.1 139/208] iio: imu: fxos8700: fix ACCEL measurement range selection
+Date:   Tue,  7 Feb 2023 13:56:33 +0100
+Message-Id: <20230207125640.725608065@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.1
-In-Reply-To: <20230207125618.699726054@linuxfoundation.org>
-References: <20230207125618.699726054@linuxfoundation.org>
+In-Reply-To: <20230207125634.292109991@linuxfoundation.org>
+References: <20230207125634.292109991@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -52,54 +53,102 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Al Viro <viro@zeniv.linux.org.uk>
+From: Carlos Song <carlos.song@nxp.com>
 
-[ Upstream commit fc02f33787d8dd227b54f263eba983d5b249c032 ]
+commit 9d61c1820598a5ea474576ed55318a6dadee37ed upstream.
 
-Signed-off-by: Al Viro <viro@zeniv.linux.org.uk>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+When device is in active mode, it fails to set an ACCEL full-scale
+range(2g/4g/8g) in FXOS8700_XYZ_DATA_CFG. This is not align with the
+datasheet, but it is a fxos8700 chip behavior.
+
+Keep the device in standby mode before setting ACCEL full-scale range
+into FXOS8700_XYZ_DATA_CFG in chip initialization phase and setting
+scale phase.
+
+Fixes: 84e5ddd5c46e ("iio: imu: Add support for the FXOS8700 IMU")
+Signed-off-by: Carlos Song <carlos.song@nxp.com>
+Link: https://lore.kernel.org/r/20221208071911.2405922-6-carlos.song@nxp.com
+Cc: <Stable@vger.kernel.org>
+Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/xen/pvcalls-back.c | 8 ++++----
- 1 file changed, 4 insertions(+), 4 deletions(-)
+ drivers/iio/imu/fxos8700_core.c |   41 +++++++++++++++++++++++++++++++++-------
+ 1 file changed, 34 insertions(+), 7 deletions(-)
 
-diff --git a/drivers/xen/pvcalls-back.c b/drivers/xen/pvcalls-back.c
-index b47fd8435061..e18df9aea531 100644
---- a/drivers/xen/pvcalls-back.c
-+++ b/drivers/xen/pvcalls-back.c
-@@ -129,13 +129,13 @@ static bool pvcalls_conn_back_read(void *opaque)
- 	if (masked_prod < masked_cons) {
- 		vec[0].iov_base = data->in + masked_prod;
- 		vec[0].iov_len = wanted;
--		iov_iter_kvec(&msg.msg_iter, WRITE, vec, 1, wanted);
-+		iov_iter_kvec(&msg.msg_iter, READ, vec, 1, wanted);
- 	} else {
- 		vec[0].iov_base = data->in + masked_prod;
- 		vec[0].iov_len = array_size - masked_prod;
- 		vec[1].iov_base = data->in;
- 		vec[1].iov_len = wanted - vec[0].iov_len;
--		iov_iter_kvec(&msg.msg_iter, WRITE, vec, 2, wanted);
-+		iov_iter_kvec(&msg.msg_iter, READ, vec, 2, wanted);
+--- a/drivers/iio/imu/fxos8700_core.c
++++ b/drivers/iio/imu/fxos8700_core.c
+@@ -345,7 +345,8 @@ static int fxos8700_set_active_mode(stru
+ static int fxos8700_set_scale(struct fxos8700_data *data,
+ 			      enum fxos8700_sensor t, int uscale)
+ {
+-	int i;
++	int i, ret, val;
++	bool active_mode;
+ 	static const int scale_num = ARRAY_SIZE(fxos8700_accel_scale);
+ 	struct device *dev = regmap_get_device(data->regmap);
+ 
+@@ -354,6 +355,25 @@ static int fxos8700_set_scale(struct fxo
+ 		return -EINVAL;
  	}
  
- 	atomic_set(&map->read, 0);
-@@ -188,13 +188,13 @@ static bool pvcalls_conn_back_write(struct sock_mapping *map)
- 	if (pvcalls_mask(prod, array_size) > pvcalls_mask(cons, array_size)) {
- 		vec[0].iov_base = data->out + pvcalls_mask(cons, array_size);
- 		vec[0].iov_len = size;
--		iov_iter_kvec(&msg.msg_iter, READ, vec, 1, size);
-+		iov_iter_kvec(&msg.msg_iter, WRITE, vec, 1, size);
- 	} else {
- 		vec[0].iov_base = data->out + pvcalls_mask(cons, array_size);
- 		vec[0].iov_len = array_size - pvcalls_mask(cons, array_size);
- 		vec[1].iov_base = data->out;
- 		vec[1].iov_len = size - vec[0].iov_len;
--		iov_iter_kvec(&msg.msg_iter, READ, vec, 2, size);
-+		iov_iter_kvec(&msg.msg_iter, WRITE, vec, 2, size);
- 	}
++	/*
++	 * When device is in active mode, it failed to set an ACCEL
++	 * full-scale range(2g/4g/8g) in FXOS8700_XYZ_DATA_CFG.
++	 * This is not align with the datasheet, but it is a fxos8700
++	 * chip behavier. Set the device in standby mode before setting
++	 * an ACCEL full-scale range.
++	 */
++	ret = regmap_read(data->regmap, FXOS8700_CTRL_REG1, &val);
++	if (ret)
++		return ret;
++
++	active_mode = val & FXOS8700_ACTIVE;
++	if (active_mode) {
++		ret = regmap_write(data->regmap, FXOS8700_CTRL_REG1,
++				   val & ~FXOS8700_ACTIVE);
++		if (ret)
++			return ret;
++	}
++
+ 	for (i = 0; i < scale_num; i++)
+ 		if (fxos8700_accel_scale[i].uscale == uscale)
+ 			break;
+@@ -361,8 +381,12 @@ static int fxos8700_set_scale(struct fxo
+ 	if (i == scale_num)
+ 		return -EINVAL;
  
- 	atomic_set(&map->write, 0);
--- 
-2.39.0
-
+-	return regmap_write(data->regmap, FXOS8700_XYZ_DATA_CFG,
++	ret = regmap_write(data->regmap, FXOS8700_XYZ_DATA_CFG,
+ 			    fxos8700_accel_scale[i].bits);
++	if (ret)
++		return ret;
++	return regmap_write(data->regmap, FXOS8700_CTRL_REG1,
++				  active_mode);
+ }
+ 
+ static int fxos8700_get_scale(struct fxos8700_data *data,
+@@ -592,14 +616,17 @@ static int fxos8700_chip_init(struct fxo
+ 	if (ret)
+ 		return ret;
+ 
+-	/* Max ODR (800Hz individual or 400Hz hybrid), active mode */
+-	ret = regmap_write(data->regmap, FXOS8700_CTRL_REG1,
+-			   FXOS8700_CTRL_ODR_MAX | FXOS8700_ACTIVE);
++	/*
++	 * Set max full-scale range (+/-8G) for ACCEL sensor in chip
++	 * initialization then activate the device.
++	 */
++	ret = regmap_write(data->regmap, FXOS8700_XYZ_DATA_CFG, MODE_8G);
+ 	if (ret)
+ 		return ret;
+ 
+-	/* Set for max full-scale range (+/-8G) */
+-	return regmap_write(data->regmap, FXOS8700_XYZ_DATA_CFG, MODE_8G);
++	/* Max ODR (800Hz individual or 400Hz hybrid), active mode */
++	return regmap_write(data->regmap, FXOS8700_CTRL_REG1,
++			   FXOS8700_CTRL_ODR_MAX | FXOS8700_ACTIVE);
+ }
+ 
+ static void fxos8700_chip_uninit(void *data)
 
 
