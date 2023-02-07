@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 944BF68D27D
-	for <lists+stable@lfdr.de>; Tue,  7 Feb 2023 10:18:20 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6EE2B68D27E
+	for <lists+stable@lfdr.de>; Tue,  7 Feb 2023 10:18:26 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231491AbjBGJST (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Feb 2023 04:18:19 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59558 "EHLO
+        id S231512AbjBGJSZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Feb 2023 04:18:25 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59962 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231493AbjBGJSF (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Feb 2023 04:18:05 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7722B2413F
-        for <stable@vger.kernel.org>; Tue,  7 Feb 2023 01:17:53 -0800 (PST)
+        with ESMTP id S231529AbjBGJSO (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Feb 2023 04:18:14 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1B99238008
+        for <stable@vger.kernel.org>; Tue,  7 Feb 2023 01:17:58 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 06CBA611FE
-        for <stable@vger.kernel.org>; Tue,  7 Feb 2023 09:17:53 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 04E39C4339E;
-        Tue,  7 Feb 2023 09:17:51 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id C0298B8184D
+        for <stable@vger.kernel.org>; Tue,  7 Feb 2023 09:17:56 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0C35AC433EF;
+        Tue,  7 Feb 2023 09:17:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1675761472;
-        bh=Ti0yQXjUrT42S7MdXsVqOTsog65OnKmt8MfGhuOtQ2Q=;
+        s=korg; t=1675761475;
+        bh=+2qLGsyHim/zQtDxzYEWaFIeIlbY84IwyzFDHdGzuG0=;
         h=Subject:To:Cc:From:Date:From;
-        b=NcEpF3sGNOI53KedzuwpXfslzPEqx0ylaQ644CS0+WvV5hFVa8uZ8K/e4qKDn49bL
-         En9zLJ+qKKdAKNPkiF2lRDSSYU2+WPctfirO8bzHkagIHh7vdtrUXhA85soNv0WsuH
-         uu+8gGWjQ58P7mGno+RW9au0Lv9JXriVXJeWMAVs=
-Subject: FAILED: patch "[PATCH] serial: 8250_dma: Fix DMA Rx completion race" failed to apply to 4.19-stable tree
+        b=AkWNX46yTohlYte2kaNAo7KE7ZN2HllC9837ys/yeFp81BiQBNxQA7Y9/f2tYgMcV
+         dcQOVn5khiD2JDcm4B7JCGl0ev2uLt4C7YkLisTcS4mBJMqG0w4UdSndTASN7Y6yo1
+         fjikmu0eQ1aEFnMupLi5XgdIzfiUSjtlS+NrzxyE=
+Subject: FAILED: patch "[PATCH] serial: 8250_dma: Fix DMA Rx completion race" failed to apply to 4.14-stable tree
 To:     ilpo.jarvinen@linux.intel.com, gilles.buloz@kontron.com,
         gregkh@linuxfoundation.org
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Tue, 07 Feb 2023 10:17:37 +0100
-Message-ID: <167576145793175@kroah.com>
+Date:   Tue, 07 Feb 2023 10:17:43 +0100
+Message-ID: <167576146323678@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -48,7 +48,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.19-stable tree.
+The patch below does not apply to the 4.14-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
