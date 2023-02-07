@@ -2,51 +2,50 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 589A368D8AF
-	for <lists+stable@lfdr.de>; Tue,  7 Feb 2023 14:11:49 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 103A468D82E
+	for <lists+stable@lfdr.de>; Tue,  7 Feb 2023 14:07:30 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232409AbjBGNLr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Feb 2023 08:11:47 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60974 "EHLO
+        id S232128AbjBGNH3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Feb 2023 08:07:29 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55362 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232408AbjBGNL2 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Feb 2023 08:11:28 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6E56C3C28F
-        for <stable@vger.kernel.org>; Tue,  7 Feb 2023 05:10:41 -0800 (PST)
+        with ESMTP id S232094AbjBGNH2 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Feb 2023 08:07:28 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 38A495FF7
+        for <stable@vger.kernel.org>; Tue,  7 Feb 2023 05:06:48 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 0DAA1B81991
-        for <stable@vger.kernel.org>; Tue,  7 Feb 2023 13:10:41 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4652DC4339C;
-        Tue,  7 Feb 2023 13:10:39 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 820406141D
+        for <stable@vger.kernel.org>; Tue,  7 Feb 2023 13:05:58 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8D309C433EF;
+        Tue,  7 Feb 2023 13:05:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1675775439;
-        bh=8CHkmZt8aIAFvrdwZKg6ZmkSa5OcvrJUifyJDZ7JoWM=;
+        s=korg; t=1675775157;
+        bh=49eVP3VvglhYDyZ+MybjCp1gHpBrluq4dXb3TC50YQg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=IZMzbxYpGmJqA5WoO9fx7f+fup7+SulbxzhNXSgTKkjFouSX5pwyTgx8Hs8eOKQIM
-         kMS7d4fIqaBLWFzI/7w8TZ5zazknDUII7BHa/0XfRUEAi8A2GTe5/2Oc/qqrZOVZtA
-         eCkwaHkzUXVCk9fuEKbejmaM+oeix/C5ycmLw2FU=
+        b=kUnqZYsLiBItl3Yg0d57KTdUdybS+AGOLe461aSoqAWEIMRkHYTj8VcRboRoLwzz4
+         jizKV0FeKcqUOWTPz6q7mPejfvIyqJwFlIs3e5/7Isv+hvvcZ5QO/Rd8kLjGfFvJ+B
+         0KedBIzvr5nM3RAeVzSgy5rTFwc5jPPOLEmtEp90=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Thomas Winter <Thomas.Winter@alliedtelesis.co.nz>,
-        Jakub Kicinski <kuba@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 039/120] ip/ip6_gre: Fix non-point-to-point tunnel not generating IPv6 link local address
+        patches@lists.linux.dev, Yu Zhao <yuzhao@google.com>,
+        msizanoen <msizanoen@qtmlabs.xyz>,
+        Andrew Morton <akpm@linux-foundation.org>
+Subject: [PATCH 6.1 156/208] mm: multi-gen LRU: fix crash during cgroup migration
 Date:   Tue,  7 Feb 2023 13:56:50 +0100
-Message-Id: <20230207125620.440970175@linuxfoundation.org>
+Message-Id: <20230207125641.519933289@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.1
-In-Reply-To: <20230207125618.699726054@linuxfoundation.org>
-References: <20230207125618.699726054@linuxfoundation.org>
+In-Reply-To: <20230207125634.292109991@linuxfoundation.org>
+References: <20230207125634.292109991@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
         SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -54,61 +53,61 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Thomas Winter <Thomas.Winter@alliedtelesis.co.nz>
+From: Yu Zhao <yuzhao@google.com>
 
-[ Upstream commit 30e2291f61f93f7132c060190f8360df52644ec1 ]
+commit de08eaa6156405f2e9369f06ba5afae0e4ab3b62 upstream.
 
-We recently found that our non-point-to-point tunnels were not
-generating any IPv6 link local address and instead generating an
-IPv6 compat address, breaking IPv6 communication on the tunnel.
+lru_gen_migrate_mm() assumes lru_gen_add_mm() runs prior to itself.  This
+isn't true for the following scenario:
 
-Previously, addrconf_gre_config always would call addrconf_addr_gen
-and generate a EUI64 link local address for the tunnel.
-Then commit e5dd729460ca changed the code path so that add_v4_addrs
-is called but this only generates a compat IPv6 address for
-non-point-to-point tunnels.
+    CPU 1                         CPU 2
 
-I assume the compat address is specifically for SIT tunnels so
-have kept that only for SIT - GRE tunnels now always generate link
-local addresses.
+  clone()
+    cgroup_can_fork()
+                                cgroup_procs_write()
+    cgroup_post_fork()
+                                  task_lock()
+                                  lru_gen_migrate_mm()
+                                  task_unlock()
+    task_lock()
+    lru_gen_add_mm()
+    task_unlock()
 
-Fixes: e5dd729460ca ("ip/ip6_gre: use the same logic as SIT interfaces when computing v6LL address")
-Signed-off-by: Thomas Winter <Thomas.Winter@alliedtelesis.co.nz>
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+And when the above happens, kernel crashes because of linked list
+corruption (mm_struct->lru_gen.list).
+
+Link: https://lore.kernel.org/r/20230115134651.30028-1-msizanoen@qtmlabs.xyz/
+Link: https://lkml.kernel.org/r/20230116034405.2960276-1-yuzhao@google.com
+Fixes: bd74fdaea146 ("mm: multi-gen LRU: support page table walks")
+Signed-off-by: Yu Zhao <yuzhao@google.com>
+Reported-by: msizanoen <msizanoen@qtmlabs.xyz>
+Tested-by: msizanoen <msizanoen@qtmlabs.xyz>
+Cc: <stable@vger.kernel.org>	[6.1+]
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/ipv6/addrconf.c | 10 +++++-----
- 1 file changed, 5 insertions(+), 5 deletions(-)
+ mm/vmscan.c |    5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
 
-diff --git a/net/ipv6/addrconf.c b/net/ipv6/addrconf.c
-index cc1c94bc5b0e..6ba34f51c411 100644
---- a/net/ipv6/addrconf.c
-+++ b/net/ipv6/addrconf.c
-@@ -3129,17 +3129,17 @@ static void add_v4_addrs(struct inet6_dev *idev)
- 		offset = sizeof(struct in6_addr) - 4;
- 	memcpy(&addr.s6_addr32[3], idev->dev->dev_addr + offset, 4);
+--- a/mm/vmscan.c
++++ b/mm/vmscan.c
+@@ -3290,13 +3290,16 @@ void lru_gen_migrate_mm(struct mm_struct
+ 	if (mem_cgroup_disabled())
+ 		return;
  
--	if (idev->dev->flags&IFF_POINTOPOINT) {
-+	if (!(idev->dev->flags & IFF_POINTOPOINT) && idev->dev->type == ARPHRD_SIT) {
-+		scope = IPV6_ADDR_COMPATv4;
-+		plen = 96;
-+		pflags |= RTF_NONEXTHOP;
-+	} else {
- 		if (idev->cnf.addr_gen_mode == IN6_ADDR_GEN_MODE_NONE)
- 			return;
++	/* migration can happen before addition */
++	if (!mm->lru_gen.memcg)
++		return;
++
+ 	rcu_read_lock();
+ 	memcg = mem_cgroup_from_task(task);
+ 	rcu_read_unlock();
+ 	if (memcg == mm->lru_gen.memcg)
+ 		return;
  
- 		addr.s6_addr32[0] = htonl(0xfe800000);
- 		scope = IFA_LINK;
- 		plen = 64;
--	} else {
--		scope = IPV6_ADDR_COMPATv4;
--		plen = 96;
--		pflags |= RTF_NONEXTHOP;
- 	}
+-	VM_WARN_ON_ONCE(!mm->lru_gen.memcg);
+ 	VM_WARN_ON_ONCE(list_empty(&mm->lru_gen.list));
  
- 	if (addr.s6_addr32[3]) {
--- 
-2.39.0
-
+ 	lru_gen_del_mm(mm);
 
 
