@@ -2,52 +2,95 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 1750E68D908
-	for <lists+stable@lfdr.de>; Tue,  7 Feb 2023 14:15:16 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0544F68D7FB
+	for <lists+stable@lfdr.de>; Tue,  7 Feb 2023 14:05:02 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232576AbjBGNPO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Feb 2023 08:15:14 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59868 "EHLO
+        id S232103AbjBGNE5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Feb 2023 08:04:57 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51838 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232773AbjBGNPA (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Feb 2023 08:15:00 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A74833BD91
-        for <stable@vger.kernel.org>; Tue,  7 Feb 2023 05:14:45 -0800 (PST)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id E90A56140D
-        for <stable@vger.kernel.org>; Tue,  7 Feb 2023 13:14:34 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id EE568C433EF;
-        Tue,  7 Feb 2023 13:14:33 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1675775674;
-        bh=jEIoTRgOzjgIaneIfD0c2qqBpwTDDmZO80CD6QZlwjY=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=EtY6tzOaqz9yCtO+IlMQ1SomFsteusDJpCfERKM9Bnrb7BLT5vcrrIjmMIoUh/n2U
-         N9wRjhSW90ejKYKXEUazY+LbkWa8pZxNzyarz2lC7xtw96mQqJDma/2AwB/cXyiECw
-         OfBw0iLhkOS46yTXAWp8uRHL6bJEuBcMVqv+P3ag=
-From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     stable@vger.kernel.org
-Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        syzbot+4da3ff23081bafe74fc2@syzkaller.appspotmail.com,
-        Hao Sun <sunhao.th@gmail.com>,
-        Daniel Borkmann <daniel@iogearbox.net>,
-        Yonghong Song <yhs@fb.com>
-Subject: [PATCH 5.15 120/120] bpf: Skip invalid kfunc call in backtrack_insn
-Date:   Tue,  7 Feb 2023 13:58:11 +0100
-Message-Id: <20230207125623.896876762@linuxfoundation.org>
-X-Mailer: git-send-email 2.39.1
-In-Reply-To: <20230207125618.699726054@linuxfoundation.org>
-References: <20230207125618.699726054@linuxfoundation.org>
-User-Agent: quilt/0.67
+        with ESMTP id S232144AbjBGNEu (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Feb 2023 08:04:50 -0500
+Received: from mail-wr1-x432.google.com (mail-wr1-x432.google.com [IPv6:2a00:1450:4864:20::432])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3EC8739BA0
+        for <stable@vger.kernel.org>; Tue,  7 Feb 2023 05:04:43 -0800 (PST)
+Received: by mail-wr1-x432.google.com with SMTP id d14so13468871wrr.9
+        for <stable@vger.kernel.org>; Tue, 07 Feb 2023 05:04:43 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=tessares.net; s=google;
+        h=cc:to:content-transfer-encoding:mime-version:message-id:date
+         :subject:from:from:to:cc:subject:date:message-id:reply-to;
+        bh=2LNCnTYQnKI2Qi+rIbkgnUL8Nmbo6Qz5VaHG00c9zYg=;
+        b=R6b16Anl58GF4Ndnmggam0JqBAZSqo0/T+bhnT/iYTRtuObc/dXZ6xloUhtLwWp9y+
+         UTJr92rFlrbCq+tzaHrs69ArfVTgoUR6PBj84O9mvc1/I1Exc0hMdlZGgTDvtwykl0Mt
+         IAX8Zic1dqgE42gMDp9jS6SSO/IL9ixdJoXYfBr4v5PBbsLwSy9yhHqt/9vY4ATmV22F
+         TPodadJqvEWI3SpF+/IqycXhFvTGxkOmBE5FiauyXH/rK6M+Lvo8f3W8t6OYeoKG60fV
+         dqB3sn4haHf/1mH9+XiRfXRDFqrw4o4xjICP9IXP2Yv0ka01Q52bcPpDKi+XDlW3l6rI
+         n2sA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=cc:to:content-transfer-encoding:mime-version:message-id:date
+         :subject:from:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=2LNCnTYQnKI2Qi+rIbkgnUL8Nmbo6Qz5VaHG00c9zYg=;
+        b=JMhtLCMkf+xJlIjL/IxpMJBFCzriO/TJc8YVpGTA0in/q77vekan52xMvulNbl8po6
+         GnHQziAzpY/46fJLfQ0tGcog0vGQ8M3uAQvXtvk4/XbmxuTgmyQLeQlowjt1sr0zyWXO
+         IkDqH+9jWa2xLYhnNsCp0OshX+ICTiLynPOFI7RkVvMDf0PsTzMQrGRdehGHs7yZ+JP9
+         wOY4nDLnccXirZjhiEa1nE0Y227GOThevQ6FODxiJKkNvvYPEy3dTaGtn/FU9EziyGCC
+         toJ7d1TuJxrTxGoc1fmqs3w54457FhylIF4LttK8tbEIEop3y/NqnDqqr3q6clRgVtfV
+         jklw==
+X-Gm-Message-State: AO0yUKWEXox+Oiv3VQRJMn+sepIU8ilCbxwA2VzjG/PX8lPMYDRaIPrE
+        w9aOulxxB+gNZro2GIsnVCdxlw==
+X-Google-Smtp-Source: AK7set9YTo6jBw+wu7vaeuAeClfkKfkEd/2ijcXBN2UJsc6YhpTX+cpVF2pNclhOp4qg7ZOFKK1Euw==
+X-Received: by 2002:a5d:4806:0:b0:2c3:ea6b:ef83 with SMTP id l6-20020a5d4806000000b002c3ea6bef83mr2957523wrq.12.1675775081619;
+        Tue, 07 Feb 2023 05:04:41 -0800 (PST)
+Received: from vdi08.nix.tessares.net (static.219.156.76.144.clients.your-server.de. [144.76.156.219])
+        by smtp.gmail.com with ESMTPSA id n9-20020a5d5989000000b002bc7fcf08ddsm11645394wri.103.2023.02.07.05.04.40
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 07 Feb 2023 05:04:41 -0800 (PST)
+From:   Matthieu Baerts <matthieu.baerts@tessares.net>
+Subject: [PATCH net 0/6] mptcp: fixes for v6.2
+Date:   Tue, 07 Feb 2023 14:04:12 +0100
+Message-Id: <20230207-upstream-net-20230207-various-fix-6-2-v1-0-2031b495c7cc@tessares.net>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 7bit
+X-B4-Tracking: v=1; b=H4sIAExM4mMC/z2OTQ6CQAyFr0K6tnEYFYhXMS46UKULBtLCxIRwd
+ 2dcuHx/X94OxipscK92UE5iMscs6lMF/UjxzShD1uCdvzjvWtwWW5Vpwsgr/t1EKvNm+JIPNui
+ x7q4dtbcQAjeQWYGMMSjFfiy0vB04FcR5IomlsSjn8e/Jo+TwPI4vG2YZcZ4AAAA=
+To:     mptcp@lists.linux.dev, "David S. Miller" <davem@davemloft.net>,
+        Eric Dumazet <edumazet@google.com>,
+        Jakub Kicinski <kuba@kernel.org>,
+        Paolo Abeni <pabeni@redhat.com>,
+        Davide Caratti <dcaratti@redhat.com>,
+        Mat Martineau <mathew.j.martineau@linux.intel.com>,
+        Benjamin Hesmans <benjamin.hesmans@tessares.net>,
+        Geliang Tang <geliangtang@gmail.com>,
+        Shuah Khan <shuah@kernel.org>
+Cc:     netdev@vger.kernel.org, linux-kernel@vger.kernel.org,
+        linux-kselftest@vger.kernel.org,
+        Matthieu Baerts <matthieu.baerts@tessares.net>,
+        stable@vger.kernel.org
+X-Mailer: b4 0.12.1
+X-Developer-Signature: v=1; a=openpgp-sha256; l=1639;
+ i=matthieu.baerts@tessares.net; h=from:subject:message-id;
+ bh=2gwf1t1oLdLLnLS96VoPdbQ5z+6BonFJUbLHcasVbGo=;
+ b=owEBbQKS/ZANAwAIAfa3gk9CaaBzAcsmYgBj4kxofU3dUJPYLTFtKKn31mjpfvMSn+lCifKCJ
+ xo/SKVohx6JAjMEAAEIAB0WIQToy4X3aHcFem4n93r2t4JPQmmgcwUCY+JMaAAKCRD2t4JPQmmg
+ c/UCD/9DpgQJ8kzrJ2KEQv1Xi/VGx2/EyabkZme7Vtis7wJFenjHLJAHALXsvAtTY/6mqc6YZ2+
+ 9KnFFKfL46SvYBIcrieYB1ryxDWGQlmOn+OculZ6VWyUgJZRLOzaFrLTi/LJ3iVgsfDXDMoyPWz
+ rtvyqO/nfdoeOQvPCjOuVAqHVkL7xK9lcZa27IyF1rPyLs3e80WmQ69DvcQuRkVXDTO9ZuxshV3
+ zm0LCL43YCYh8/Gjmup5/nOG0FjbuJNzzNNZyeer1y6JbrvkXv1fleuSMrYC2fJdpPpWXN8eEk3
+ 9PYliiKo2h7WT2p7jVe1L5dSZ5a46rNmuwXYiA3UKkkNJEGd5EGy09fhUBU3TuB9vHfZCiFaghk
+ kC4o+sS80nxzoJqab2g3YbcaL1Pudgzye5XvjiScEcP0CNO2dIjTWeL9zlA3968vYhE11imsGK4
+ yS8e8hDOb3meiFGAxQ4YcInNen9jFPsTIPU/1WjxZ6ciBBZL2rYZ7lwkIJlYVMYdeKjw7stSZar
+ TS07d6zvKETpCIc31rtuesf4OcCATbRBWueZx3aE6VDeavG04zAVWu7IeYEq3g3YTWZi8oDi5Yt
+ EilmNWGLySNbLcFgJhlcuTrsgZm1Y4Q1/wHOsdr4b0Qj8BT0g03A5QZDgODmLoZl1n6+knuogow
+ pe75W2YZdKn34vg==
+X-Developer-Key: i=matthieu.baerts@tessares.net; a=openpgp;
+ fpr=E8CB85F76877057A6E27F77AF6B7824F4269A073
+X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_NONE,
         SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -55,55 +98,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hao Sun <sunhao.th@gmail.com>
+Patch 1 clears resources earlier if there is no more reasons to keep
+MPTCP sockets alive.
 
-commit d3178e8a434b58678d99257c0387810a24042fb6 upstream.
+Patches 2 and 3 fix some locking issues visible in some rare corner
+cases: the linked issues should be quite hard to reproduce.
 
-The verifier skips invalid kfunc call in check_kfunc_call(), which
-would be captured in fixup_kfunc_call() if such insn is not eliminated
-by dead code elimination. However, this can lead to the following
-warning in backtrack_insn(), also see [1]:
+Patch 4 makes sure subflows are correctly cleaned after the end of a
+connection.
 
-  ------------[ cut here ]------------
-  verifier backtracking bug
-  WARNING: CPU: 6 PID: 8646 at kernel/bpf/verifier.c:2756 backtrack_insn
-  kernel/bpf/verifier.c:2756
-	__mark_chain_precision kernel/bpf/verifier.c:3065
-	mark_chain_precision kernel/bpf/verifier.c:3165
-	adjust_reg_min_max_vals kernel/bpf/verifier.c:10715
-	check_alu_op kernel/bpf/verifier.c:10928
-	do_check kernel/bpf/verifier.c:13821 [inline]
-	do_check_common kernel/bpf/verifier.c:16289
-  [...]
+Patch 5 and 6 improve the selftests stability when running in a slow
+environment by transfering data for a longer period on one hand and by
+stopping the tests when all expected events have been observed on the
+other hand.
 
-So make backtracking conservative with this by returning ENOTSUPP.
+All these patches fix issues introduced before v6.2.
 
-  [1] https://lore.kernel.org/bpf/CACkBjsaXNceR8ZjkLG=dT3P=4A8SBsg0Z5h5PWLryF5=ghKq=g@mail.gmail.com/
-
-Reported-by: syzbot+4da3ff23081bafe74fc2@syzkaller.appspotmail.com
-Signed-off-by: Hao Sun <sunhao.th@gmail.com>
-Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
-Acked-by: Yonghong Song <yhs@fb.com>
-Link: https://lore.kernel.org/bpf/20230104014709.9375-1-sunhao.th@gmail.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Matthieu Baerts <matthieu.baerts@tessares.net>
 ---
- kernel/bpf/verifier.c |    6 ++++++
- 1 file changed, 6 insertions(+)
+Matthieu Baerts (1):
+      selftests: mptcp: stop tests earlier
 
---- a/kernel/bpf/verifier.c
-+++ b/kernel/bpf/verifier.c
-@@ -2261,6 +2261,12 @@ static int backtrack_insn(struct bpf_ver
- 		if (opcode == BPF_CALL) {
- 			if (insn->src_reg == BPF_PSEUDO_CALL)
- 				return -ENOTSUPP;
-+			/* kfunc with imm==0 is invalid and fixup_kfunc_call will
-+			 * catch this error later. Make backtracking conservative
-+			 * with ENOTSUPP.
-+			 */
-+			if (insn->src_reg == BPF_PSEUDO_KFUNC_CALL && insn->imm == 0)
-+				return -ENOTSUPP;
- 			/* regular helper call sets R0 */
- 			*reg_mask &= ~1;
- 			if (*reg_mask & 0x3f) {
+Paolo Abeni (5):
+      mptcp: do not wait for bare sockets' timeout
+      mptcp: fix locking for setsockopt corner-case
+      mptcp: fix locking for in-kernel listener creation
+      mptcp: be careful on subflow status propagation on errors
+      selftests: mptcp: allow more slack for slow test-case
 
+ net/mptcp/pm_netlink.c                          | 10 ++++++----
+ net/mptcp/protocol.c                            |  9 +++++++++
+ net/mptcp/sockopt.c                             | 11 +++++++++--
+ net/mptcp/subflow.c                             | 12 ++++++++++--
+ tools/testing/selftests/net/mptcp/mptcp_join.sh | 22 +++++++++++++++++-----
+ 5 files changed, 51 insertions(+), 13 deletions(-)
+---
+base-commit: 811d581194f7412eda97acc03d17fc77824b561f
+change-id: 20230207-upstream-net-20230207-various-fix-6-2-1848a75bbbe6
+
+Best regards,
+-- 
+Matthieu Baerts <matthieu.baerts@tessares.net>
 
