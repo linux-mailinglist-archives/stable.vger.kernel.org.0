@@ -2,43 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id F0C1668D1B2
-	for <lists+stable@lfdr.de>; Tue,  7 Feb 2023 09:48:05 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E4A9D68D1B4
+	for <lists+stable@lfdr.de>; Tue,  7 Feb 2023 09:48:18 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229791AbjBGIsF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Feb 2023 03:48:05 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36410 "EHLO
+        id S229960AbjBGIsS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Feb 2023 03:48:18 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36434 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229847AbjBGIsE (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Feb 2023 03:48:04 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A524630FB
-        for <stable@vger.kernel.org>; Tue,  7 Feb 2023 00:48:03 -0800 (PST)
+        with ESMTP id S229847AbjBGIsR (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Feb 2023 03:48:17 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 230CF30FB
+        for <stable@vger.kernel.org>; Tue,  7 Feb 2023 00:48:16 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 3F8E26121B
-        for <stable@vger.kernel.org>; Tue,  7 Feb 2023 08:48:03 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3FB0EC433D2;
-        Tue,  7 Feb 2023 08:48:02 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id AF4096121B
+        for <stable@vger.kernel.org>; Tue,  7 Feb 2023 08:48:15 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C61DEC433D2;
+        Tue,  7 Feb 2023 08:48:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1675759682;
-        bh=dvocRrxw34W1WLL/bP2S1kJoSMddN/Ev4TCsX8S/ykw=;
+        s=korg; t=1675759695;
+        bh=t2+RnFXBsEbxLyBEld/BUEa52rzrRd3050rMWkjYec0=;
         h=Subject:To:Cc:From:Date:From;
-        b=lMbxfWeUi0weyOkAZ11uA4OFHkupX/Ebd/PAKdGc/sH7vEiPQf7A+MwZG9dQ25X1I
-         mR7H28ujOoFk2Xx5vpaT4B7/G684weLVi9nhNi1SsajtgPmuN6ZUZU0A4vlTm+KbbF
-         t+5xw9V1uwNsK4jBms36iobtFwYOd520kmWsaxc8=
-Subject: FAILED: patch "[PATCH] powerpc/kexec_file: Fix division by zero in extra size" failed to apply to 5.15-stable tree
+        b=LnG50ZoeN5I5GzbMbp82ZP+XlZRcIHDdmXNyKvLVFKNcUOO8cVbHj1XEX+NHDSRR0
+         2aBIu58YSu5SIqeR+hms0z2CoVjVYJhvbnw53tfkSYzus++EBcOLkvnWqFG+Q5xgPa
+         P64PBIascy7yxUOTrxII6DDueNqVXOyhBDAgeUwQ=
+Subject: FAILED: patch "[PATCH] powerpc/kexec_file: Fix division by zero in extra size" failed to apply to 5.10-stable tree
 To:     mpe@ellerman.id.au
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Tue, 07 Feb 2023 09:47:59 +0100
-Message-ID: <167575967970206@kroah.com>
+Date:   Tue, 07 Feb 2023 09:48:12 +0100
+Message-ID: <16757596922892@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
         SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -47,7 +47,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.15-stable tree.
+The patch below does not apply to the 5.10-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
@@ -56,6 +56,10 @@ Possible dependencies:
 
 7294194b47e9 ("powerpc/kexec_file: Fix division by zero in extra size estimation")
 340a4a9f8773 ("powerpc: Take in account addition CPU node when building kexec FDT")
+886db32398ab ("powerpc/kexec_file: Restore FDT size estimation for kdump kernel")
+3c985d31ad66 ("powerpc: Use common of_kexec_alloc_and_setup_fdt()")
+e6635bab530d ("powerpc: Use ELF fields defined in 'struct kimage'")
+2377c92e37fe ("powerpc/kexec_file: fix FDT size estimation for kdump kernel")
 
 thanks,
 
