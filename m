@@ -2,50 +2,52 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C3A3368D84B
-	for <lists+stable@lfdr.de>; Tue,  7 Feb 2023 14:08:19 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B8BD468D8DA
+	for <lists+stable@lfdr.de>; Tue,  7 Feb 2023 14:13:52 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232244AbjBGNIS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Feb 2023 08:08:18 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56742 "EHLO
+        id S232589AbjBGNNv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Feb 2023 08:13:51 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59878 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232259AbjBGNIR (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Feb 2023 08:08:17 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A29C23B0C3
-        for <stable@vger.kernel.org>; Tue,  7 Feb 2023 05:07:54 -0800 (PST)
+        with ESMTP id S232597AbjBGNNb (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Feb 2023 08:13:31 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5372839CCE
+        for <stable@vger.kernel.org>; Tue,  7 Feb 2023 05:12:59 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 3B26061405
-        for <stable@vger.kernel.org>; Tue,  7 Feb 2023 13:06:24 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4D6DDC433EF;
-        Tue,  7 Feb 2023 13:06:23 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 3831261383
+        for <stable@vger.kernel.org>; Tue,  7 Feb 2023 13:12:27 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2EA0EC4339E;
+        Tue,  7 Feb 2023 13:12:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1675775183;
-        bh=+4MgNm7jobg0Th/28M5WXMhfu5tTKoujsHCRE8soPbk=;
+        s=korg; t=1675775546;
+        bh=/f7RFs2R32cGxR682UOp1sUSiKRrUJF7+j378ngRZsE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=yN21ihhHr1RtHITI6vTclVGU/JjeXeubBcoeTdjVxMRp/JdGnxOI6hM0MKgl4PFGz
-         9QjqXHKmdji6GuqyjuwLc7WUEEs27iC8GueYsU+YMvMHtajdAnVS/iTrbwiEt8hd1v
-         +gzptpk66XY0W2ojHygwUJ51zTOP33YQKycQNPRk=
+        b=R1TJf7+KtKC13IFnkCximOCRbi4tDDXRtb2hZlJJ7IrSK9FAopCcPQUsGh0aukyDf
+         +E/hhkwlcjxcVvA1kdjNzUecnoZ8U4j7Ps/d/dxtmdpb9DbyU1Pin03W92GnG5qMOj
+         IvHYJbUngbzmOhBdFgbjLM+1mfyIaxz9s84McMnQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Alexey Kardashevskiy <aik@amd.com>,
-        Joerg Roedel <jroedel@suse.de>,
-        "Borislav Petkov (AMD)" <bp@alien8.de>
-Subject: [PATCH 6.1 164/208] x86/debug: Fix stack recursion caused by wrongly ordered DR7 accesses
+        patches@lists.linux.dev,
+        Andrei Gherzan <andrei.gherzan@canonical.com>,
+        Willem de Bruijn <willemb@google.com>,
+        Paolo Abeni <pabeni@redhat.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.15 047/120] selftests: net: udpgso_bench_tx: Cater for pending datagrams zerocopy benchmarking
 Date:   Tue,  7 Feb 2023 13:56:58 +0100
-Message-Id: <20230207125641.841052013@linuxfoundation.org>
+Message-Id: <20230207125620.776564966@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.1
-In-Reply-To: <20230207125634.292109991@linuxfoundation.org>
-References: <20230207125634.292109991@linuxfoundation.org>
+In-Reply-To: <20230207125618.699726054@linuxfoundation.org>
+References: <20230207125618.699726054@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
         SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -53,80 +55,134 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Joerg Roedel <jroedel@suse.de>
+From: Andrei Gherzan <andrei.gherzan@canonical.com>
 
-commit 9d2c7203ffdb846399b82b0660563c89e918c751 upstream.
+[ Upstream commit 329c9cd769c2e306957df031efff656c40922c76 ]
 
-In kernels compiled with CONFIG_PARAVIRT=n, the compiler re-orders the
-DR7 read in exc_nmi() to happen before the call to sev_es_ist_enter().
+The test tool can check that the zerocopy number of completions value is
+valid taking into consideration the number of datagram send calls. This can
+catch the system into a state where the datagrams are still in the system
+(for example in a qdisk, waiting for the network interface to return a
+completion notification, etc).
 
-This is problematic when running as an SEV-ES guest because in this
-environment the DR7 read might cause a #VC exception, and taking #VC
-exceptions is not safe in exc_nmi() before sev_es_ist_enter() has run.
+This change adds a retry logic of computing the number of completions up to
+a configurable (via CLI) timeout (default: 2 seconds).
 
-The result is stack recursion if the NMI was caused on the #VC IST
-stack, because a subsequent #VC exception in the NMI handler will
-overwrite the stack frame of the interrupted #VC handler.
-
-As there are no compiler barriers affecting the ordering of DR7
-reads/writes, make the accesses to this register volatile, forbidding
-the compiler to re-order them.
-
-  [ bp: Massage text, make them volatile too, to make sure some
-  aggressive compiler optimization pass doesn't discard them. ]
-
-Fixes: 315562c9af3d ("x86/sev-es: Adjust #VC IST Stack on entering NMI handler")
-Reported-by: Alexey Kardashevskiy <aik@amd.com>
-Signed-off-by: Joerg Roedel <jroedel@suse.de>
-Signed-off-by: Borislav Petkov (AMD) <bp@alien8.de>
-Cc: stable@vger.kernel.org
-Link: https://lore.kernel.org/r/20230127035616.508966-1-aik@amd.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: 79ebc3c26010 ("net/udpgso_bench_tx: options to exercise TX CMSG")
+Signed-off-by: Andrei Gherzan <andrei.gherzan@canonical.com>
+Cc: Willem de Bruijn <willemb@google.com>
+Cc: Paolo Abeni <pabeni@redhat.com>
+Reviewed-by: Willem de Bruijn <willemb@google.com>
+Link: https://lore.kernel.org/r/20230201001612.515730-4-andrei.gherzan@canonical.com
+Signed-off-by: Paolo Abeni <pabeni@redhat.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/x86/include/asm/debugreg.h |   26 ++++++++++++++++++++++++--
- 1 file changed, 24 insertions(+), 2 deletions(-)
+ tools/testing/selftests/net/udpgso_bench_tx.c | 34 +++++++++++++++----
+ 1 file changed, 27 insertions(+), 7 deletions(-)
 
---- a/arch/x86/include/asm/debugreg.h
-+++ b/arch/x86/include/asm/debugreg.h
-@@ -39,7 +39,20 @@ static __always_inline unsigned long nat
- 		asm("mov %%db6, %0" :"=r" (val));
- 		break;
- 	case 7:
--		asm("mov %%db7, %0" :"=r" (val));
-+		/*
-+		 * Apply __FORCE_ORDER to DR7 reads to forbid re-ordering them
-+		 * with other code.
-+		 *
-+		 * This is needed because a DR7 access can cause a #VC exception
-+		 * when running under SEV-ES. Taking a #VC exception is not a
-+		 * safe thing to do just anywhere in the entry code and
-+		 * re-ordering might place the access into an unsafe location.
-+		 *
-+		 * This happened in the NMI handler, where the DR7 read was
-+		 * re-ordered to happen before the call to sev_es_ist_enter(),
-+		 * causing stack recursion.
-+		 */
-+		asm volatile("mov %%db7, %0" : "=r" (val) : __FORCE_ORDER);
- 		break;
- 	default:
- 		BUG();
-@@ -66,7 +79,16 @@ static __always_inline void native_set_d
- 		asm("mov %0, %%db6"	::"r" (value));
- 		break;
- 	case 7:
--		asm("mov %0, %%db7"	::"r" (value));
-+		/*
-+		 * Apply __FORCE_ORDER to DR7 writes to forbid re-ordering them
-+		 * with other code.
-+		 *
-+		 * While is didn't happen with a DR7 write (see the DR7 read
-+		 * comment above which explains where it happened), add the
-+		 * __FORCE_ORDER here too to avoid similar problems in the
-+		 * future.
-+		 */
-+		asm volatile("mov %0, %%db7"	::"r" (value), __FORCE_ORDER);
- 		break;
- 	default:
- 		BUG();
+diff --git a/tools/testing/selftests/net/udpgso_bench_tx.c b/tools/testing/selftests/net/udpgso_bench_tx.c
+index b47b5c32039f..477392715a9a 100644
+--- a/tools/testing/selftests/net/udpgso_bench_tx.c
++++ b/tools/testing/selftests/net/udpgso_bench_tx.c
+@@ -62,6 +62,7 @@ static int	cfg_payload_len	= (1472 * 42);
+ static int	cfg_port	= 8000;
+ static int	cfg_runtime_ms	= -1;
+ static bool	cfg_poll;
++static int	cfg_poll_loop_timeout_ms = 2000;
+ static bool	cfg_segment;
+ static bool	cfg_sendmmsg;
+ static bool	cfg_tcp;
+@@ -235,16 +236,17 @@ static void flush_errqueue_recv(int fd)
+ 	}
+ }
+ 
+-static void flush_errqueue(int fd, const bool do_poll)
++static void flush_errqueue(int fd, const bool do_poll,
++			   unsigned long poll_timeout, const bool poll_err)
+ {
+ 	if (do_poll) {
+ 		struct pollfd fds = {0};
+ 		int ret;
+ 
+ 		fds.fd = fd;
+-		ret = poll(&fds, 1, 500);
++		ret = poll(&fds, 1, poll_timeout);
+ 		if (ret == 0) {
+-			if (cfg_verbose)
++			if ((cfg_verbose) && (poll_err))
+ 				fprintf(stderr, "poll timeout\n");
+ 		} else if (ret < 0) {
+ 			error(1, errno, "poll");
+@@ -254,6 +256,20 @@ static void flush_errqueue(int fd, const bool do_poll)
+ 	flush_errqueue_recv(fd);
+ }
+ 
++static void flush_errqueue_retry(int fd, unsigned long num_sends)
++{
++	unsigned long tnow, tstop;
++	bool first_try = true;
++
++	tnow = gettimeofday_ms();
++	tstop = tnow + cfg_poll_loop_timeout_ms;
++	do {
++		flush_errqueue(fd, true, tstop - tnow, first_try);
++		first_try = false;
++		tnow = gettimeofday_ms();
++	} while ((stat_zcopies != num_sends) && (tnow < tstop));
++}
++
+ static int send_tcp(int fd, char *data)
+ {
+ 	int ret, done = 0, count = 0;
+@@ -413,7 +429,8 @@ static int send_udp_segment(int fd, char *data)
+ 
+ static void usage(const char *filepath)
+ {
+-	error(1, 0, "Usage: %s [-46acmHPtTuvz] [-C cpu] [-D dst ip] [-l secs] [-M messagenr] [-p port] [-s sendsize] [-S gsosize]",
++	error(1, 0, "Usage: %s [-46acmHPtTuvz] [-C cpu] [-D dst ip] [-l secs] "
++		    "[-L secs] [-M messagenr] [-p port] [-s sendsize] [-S gsosize]",
+ 		    filepath);
+ }
+ 
+@@ -423,7 +440,7 @@ static void parse_opts(int argc, char **argv)
+ 	int max_len, hdrlen;
+ 	int c;
+ 
+-	while ((c = getopt(argc, argv, "46acC:D:Hl:mM:p:s:PS:tTuvz")) != -1) {
++	while ((c = getopt(argc, argv, "46acC:D:Hl:L:mM:p:s:PS:tTuvz")) != -1) {
+ 		switch (c) {
+ 		case '4':
+ 			if (cfg_family != PF_UNSPEC)
+@@ -452,6 +469,9 @@ static void parse_opts(int argc, char **argv)
+ 		case 'l':
+ 			cfg_runtime_ms = strtoul(optarg, NULL, 10) * 1000;
+ 			break;
++		case 'L':
++			cfg_poll_loop_timeout_ms = strtoul(optarg, NULL, 10) * 1000;
++			break;
+ 		case 'm':
+ 			cfg_sendmmsg = true;
+ 			break;
+@@ -679,7 +699,7 @@ int main(int argc, char **argv)
+ 			num_sends += send_udp(fd, buf[i]);
+ 		num_msgs++;
+ 		if ((cfg_zerocopy && ((num_msgs & 0xF) == 0)) || cfg_tx_tstamp)
+-			flush_errqueue(fd, cfg_poll);
++			flush_errqueue(fd, cfg_poll, 500, true);
+ 
+ 		if (cfg_msg_nr && num_msgs >= cfg_msg_nr)
+ 			break;
+@@ -698,7 +718,7 @@ int main(int argc, char **argv)
+ 	} while (!interrupted && (cfg_runtime_ms == -1 || tnow < tstop));
+ 
+ 	if (cfg_zerocopy || cfg_tx_tstamp)
+-		flush_errqueue(fd, true);
++		flush_errqueue_retry(fd, num_sends);
+ 
+ 	if (close(fd))
+ 		error(1, errno, "close");
+-- 
+2.39.0
+
 
 
