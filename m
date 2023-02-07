@@ -2,52 +2,58 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 1C2DF68D8EC
-	for <lists+stable@lfdr.de>; Tue,  7 Feb 2023 14:14:10 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 80BED68D82C
+	for <lists+stable@lfdr.de>; Tue,  7 Feb 2023 14:07:19 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232463AbjBGNOJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Feb 2023 08:14:09 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59910 "EHLO
+        id S231993AbjBGNHS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Feb 2023 08:07:18 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55104 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232291AbjBGNNy (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Feb 2023 08:13:54 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2389A15CAD
-        for <stable@vger.kernel.org>; Tue,  7 Feb 2023 05:13:27 -0800 (PST)
+        with ESMTP id S232154AbjBGNHQ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Feb 2023 08:07:16 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2423839CFC
+        for <stable@vger.kernel.org>; Tue,  7 Feb 2023 05:06:36 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 2887561426
-        for <stable@vger.kernel.org>; Tue,  7 Feb 2023 13:12:36 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 18E34C433D2;
-        Tue,  7 Feb 2023 13:12:34 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 035B1B81979
+        for <stable@vger.kernel.org>; Tue,  7 Feb 2023 13:06:02 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 34B33C433EF;
+        Tue,  7 Feb 2023 13:06:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1675775555;
-        bh=jF588OS06EZ7OVCKPKqSccccj8by1biw3niYMnBPBlg=;
+        s=korg; t=1675775160;
+        bh=PEBsTSBkPLmv8wodgH5UhR0D3En2xa1T+6j58LcBnu4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=K8GxE+YbxqZXRtUVHS0MdiH6sp6u5i8aAy+7+kD85AJn2eKBJllwj215CXvyc/DBa
-         oU0iFu90hixR5Y9IFufET7J/uFSoEoquKRWEh140XfA7J/UhnTNj88e9C2RLw1ocvG
-         LnO2IaFDqnhxlZhVw+LT+kC2RblUD3B3+rEaTVlI=
+        b=0gE/oLYubnOrFUXOl9qbgkhsAeZEn5P5ekrjnkQasASNAlwZSytatO2z7alemFrWM
+         77dQ9UoiKXqOGEbyZ1XcRRgJjMpkslYGCzjUlFTvFngV+D+3sHxQWPCL9LQZeRsxEy
+         oZ4Ed7LWxqnKkx4t+Aie5Ap5PZDb3ONGXDH4YlTI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Guo Ren <guoren@linux.alibaba.com>,
-        Guo Ren <guoren@kernel.org>,
-        =?UTF-8?q?Bj=C3=B6rn=20T=C3=B6pel?= <bjorn@kernel.org>,
-        Palmer Dabbelt <palmer@rivosinc.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 040/120] riscv: kprobe: Fixup kernel panic when probing an illegal position
+        patches@lists.linux.dev, Mike Kravetz <mike.kravetz@oracle.com>,
+        Peter Xu <peterx@redhat.com>,
+        David Hildenbrand <david@redhat.com>,
+        James Houghton <jthoughton@google.com>,
+        Matthew Wilcox <willy@infradead.org>,
+        Michal Hocko <mhocko@suse.com>,
+        Muchun Song <songmuchun@bytedance.com>,
+        Naoya Horiguchi <naoya.horiguchi@linux.dev>,
+        "Vishal Moola (Oracle)" <vishal.moola@gmail.com>,
+        Yang Shi <shy828301@gmail.com>,
+        Andrew Morton <akpm@linux-foundation.org>
+Subject: [PATCH 6.1 157/208] mm: hugetlb: proc: check for hugetlb shared PMD in /proc/PID/smaps
 Date:   Tue,  7 Feb 2023 13:56:51 +0100
-Message-Id: <20230207125620.481819449@linuxfoundation.org>
+Message-Id: <20230207125641.560340976@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.1
-In-Reply-To: <20230207125618.699726054@linuxfoundation.org>
-References: <20230207125618.699726054@linuxfoundation.org>
+In-Reply-To: <20230207125634.292109991@linuxfoundation.org>
+References: <20230207125634.292109991@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
         SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -55,92 +61,97 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Guo Ren <guoren@linux.alibaba.com>
+From: Mike Kravetz <mike.kravetz@oracle.com>
 
-[ Upstream commit 87f48c7ccc73afc78630530d9af51f458f58cab8 ]
+commit 3489dbb696d25602aea8c3e669a6d43b76bd5358 upstream.
 
-The kernel would panic when probed for an illegal position. eg:
+Patch series "Fixes for hugetlb mapcount at most 1 for shared PMDs".
 
-(CONFIG_RISCV_ISA_C=n)
+This issue of mapcount in hugetlb pages referenced by shared PMDs was
+discussed in [1].  The following two patches address user visible behavior
+caused by this issue.
 
-echo 'p:hello kernel_clone+0x16 a0=%a0' >> kprobe_events
-echo 1 > events/kprobes/hello/enable
-cat trace
+[1] https://lore.kernel.org/linux-mm/Y9BF+OCdWnCSilEu@monkey/
 
-Kernel panic - not syncing: stack-protector: Kernel stack
-is corrupted in: __do_sys_newfstatat+0xb8/0xb8
-CPU: 0 PID: 111 Comm: sh Not tainted
-6.2.0-rc1-00027-g2d398fe49a4d #490
-Hardware name: riscv-virtio,qemu (DT)
-Call Trace:
-[<ffffffff80007268>] dump_backtrace+0x38/0x48
-[<ffffffff80c5e83c>] show_stack+0x50/0x68
-[<ffffffff80c6da28>] dump_stack_lvl+0x60/0x84
-[<ffffffff80c6da6c>] dump_stack+0x20/0x30
-[<ffffffff80c5ecf4>] panic+0x160/0x374
-[<ffffffff80c6db94>] generic_handle_arch_irq+0x0/0xa8
-[<ffffffff802deeb0>] sys_newstat+0x0/0x30
-[<ffffffff800158c0>] sys_clone+0x20/0x30
-[<ffffffff800039e8>] ret_from_syscall+0x0/0x4
----[ end Kernel panic - not syncing: stack-protector:
-Kernel stack is corrupted in: __do_sys_newfstatat+0xb8/0xb8 ]---
 
-That is because the kprobe's ebreak instruction broke the kernel's
-original code. The user should guarantee the correction of the probe
-position, but it couldn't make the kernel panic.
+This patch (of 2):
 
-This patch adds arch_check_kprobe in arch_prepare_kprobe to prevent an
-illegal position (Such as the middle of an instruction).
+A hugetlb page will have a mapcount of 1 if mapped by multiple processes
+via a shared PMD.  This is because only the first process increases the
+map count, and subsequent processes just add the shared PMD page to their
+page table.
 
-Fixes: c22b0bcb1dd0 ("riscv: Add kprobes supported")
-Signed-off-by: Guo Ren <guoren@linux.alibaba.com>
-Signed-off-by: Guo Ren <guoren@kernel.org>
-Reviewed-by: Björn Töpel <bjorn@kernel.org>
-Link: https://lore.kernel.org/r/20230201040604.3390509-1-guoren@kernel.org
-Signed-off-by: Palmer Dabbelt <palmer@rivosinc.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+page_mapcount is being used to decide if a hugetlb page is shared or
+private in /proc/PID/smaps.  Pages referenced via a shared PMD were
+incorrectly being counted as private.
+
+To fix, check for a shared PMD if mapcount is 1.  If a shared PMD is found
+count the hugetlb page as shared.  A new helper to check for a shared PMD
+is added.
+
+[akpm@linux-foundation.org: simplification, per David]
+[akpm@linux-foundation.org: hugetlb.h: include page_ref.h for page_count()]
+Link: https://lkml.kernel.org/r/20230126222721.222195-2-mike.kravetz@oracle.com
+Fixes: 25ee01a2fca0 ("mm: hugetlb: proc: add hugetlb-related fields to /proc/PID/smaps")
+Signed-off-by: Mike Kravetz <mike.kravetz@oracle.com>
+Acked-by: Peter Xu <peterx@redhat.com>
+Cc: David Hildenbrand <david@redhat.com>
+Cc: James Houghton <jthoughton@google.com>
+Cc: Matthew Wilcox <willy@infradead.org>
+Cc: Michal Hocko <mhocko@suse.com>
+Cc: Muchun Song <songmuchun@bytedance.com>
+Cc: Naoya Horiguchi <naoya.horiguchi@linux.dev>
+Cc: Vishal Moola (Oracle) <vishal.moola@gmail.com>
+Cc: Yang Shi <shy828301@gmail.com>
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/riscv/kernel/probes/kprobes.c | 18 ++++++++++++++++++
- 1 file changed, 18 insertions(+)
+ fs/proc/task_mmu.c      |    4 +---
+ include/linux/hugetlb.h |   13 +++++++++++++
+ 2 files changed, 14 insertions(+), 3 deletions(-)
 
-diff --git a/arch/riscv/kernel/probes/kprobes.c b/arch/riscv/kernel/probes/kprobes.c
-index 00088dc6da4b..125241ce82d6 100644
---- a/arch/riscv/kernel/probes/kprobes.c
-+++ b/arch/riscv/kernel/probes/kprobes.c
-@@ -46,6 +46,21 @@ static void __kprobes arch_simulate_insn(struct kprobe *p, struct pt_regs *regs)
- 	post_kprobe_handler(p, kcb, regs);
+--- a/fs/proc/task_mmu.c
++++ b/fs/proc/task_mmu.c
+@@ -737,9 +737,7 @@ static int smaps_hugetlb_range(pte_t *pt
+ 			page = pfn_swap_entry_to_page(swpent);
+ 	}
+ 	if (page) {
+-		int mapcount = page_mapcount(page);
+-
+-		if (mapcount >= 2)
++		if (page_mapcount(page) >= 2 || hugetlb_pmd_shared(pte))
+ 			mss->shared_hugetlb += huge_page_size(hstate_vma(vma));
+ 		else
+ 			mss->private_hugetlb += huge_page_size(hstate_vma(vma));
+--- a/include/linux/hugetlb.h
++++ b/include/linux/hugetlb.h
+@@ -7,6 +7,7 @@
+ #include <linux/fs.h>
+ #include <linux/hugetlb_inline.h>
+ #include <linux/cgroup.h>
++#include <linux/page_ref.h>
+ #include <linux/list.h>
+ #include <linux/kref.h>
+ #include <linux/pgtable.h>
+@@ -1182,6 +1183,18 @@ static inline __init void hugetlb_cma_re
  }
+ #endif
  
-+static bool __kprobes arch_check_kprobe(struct kprobe *p)
++#ifdef CONFIG_ARCH_WANT_HUGE_PMD_SHARE
++static inline bool hugetlb_pmd_shared(pte_t *pte)
 +{
-+	unsigned long tmp  = (unsigned long)p->addr - p->offset;
-+	unsigned long addr = (unsigned long)p->addr;
-+
-+	while (tmp <= addr) {
-+		if (tmp == addr)
-+			return true;
-+
-+		tmp += GET_INSN_LENGTH(*(u16 *)tmp);
-+	}
-+
++	return page_count(virt_to_page(pte)) > 1;
++}
++#else
++static inline bool hugetlb_pmd_shared(pte_t *pte)
++{
 +	return false;
 +}
++#endif
 +
- int __kprobes arch_prepare_kprobe(struct kprobe *p)
- {
- 	unsigned long probe_addr = (unsigned long)p->addr;
-@@ -56,6 +71,9 @@ int __kprobes arch_prepare_kprobe(struct kprobe *p)
- 		return -EINVAL;
- 	}
+ bool want_pmd_share(struct vm_area_struct *vma, unsigned long addr);
  
-+	if (!arch_check_kprobe(p))
-+		return -EILSEQ;
-+
- 	/* copy instruction */
- 	p->opcode = *p->addr;
- 
--- 
-2.39.0
-
+ #ifndef __HAVE_ARCH_FLUSH_HUGETLB_TLB_RANGE
 
 
