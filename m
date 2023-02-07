@@ -2,46 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 469D968D87E
-	for <lists+stable@lfdr.de>; Tue,  7 Feb 2023 14:10:16 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C372268D846
+	for <lists+stable@lfdr.de>; Tue,  7 Feb 2023 14:08:11 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232333AbjBGNKP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Feb 2023 08:10:15 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59274 "EHLO
+        id S232254AbjBGNIL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Feb 2023 08:08:11 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56252 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232365AbjBGNKN (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Feb 2023 08:10:13 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 318243B3C9
-        for <stable@vger.kernel.org>; Tue,  7 Feb 2023 05:09:57 -0800 (PST)
+        with ESMTP id S232261AbjBGNIJ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Feb 2023 08:08:09 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 998DC3A582
+        for <stable@vger.kernel.org>; Tue,  7 Feb 2023 05:07:50 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 708F3B81991
-        for <stable@vger.kernel.org>; Tue,  7 Feb 2023 13:09:55 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id AE1C0C433EF;
-        Tue,  7 Feb 2023 13:09:53 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id D94E261383
+        for <stable@vger.kernel.org>; Tue,  7 Feb 2023 13:07:17 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E2194C433EF;
+        Tue,  7 Feb 2023 13:07:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1675775394;
-        bh=zIXkYUpqMbvT2UfERVaGm7HtwwdkAsjPXvYG01raM14=;
+        s=korg; t=1675775237;
+        bh=E/2uAleW193iYSoF3EWEG2aHf0e9jDEeAf7JcQHrP8c=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Utxm7dYdM7HRR4aiM66aa6eK1phLNq/nYid3U0cHMpxih6FtFsY6q6zS5V0VbjPFj
-         jEXkyueRCQjPLTypYVIQUjLL82bdXf8Q415Fa73vm0DqVAegyF5p0F0hD4xrBscSaD
-         jhuxFfMU5/f+ZTf1KzfWM9b6vD/oUi3WKkPVY0mw=
+        b=D9QkVThmuS92G2rk+VnvWlfChWVXl1xlj8oK86RycNVEaHjUqycb9kaiuiGXk7IOL
+         T7XpaLPm0ZiOINGxNcUxSXAwHHvhIf1l/VHL8xsknsanh4iplpsj2tPIs4BS9bVi6T
+         1cU5pnalrqjewOTx3JBYgL2GoVNKf+7O0fk8dCGk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Magnus Karlsson <magnus.karlsson@intel.com>,
-        =?UTF-8?q?Toke=20H=C3=B8iland-J=C3=B8rgensen?= <toke@redhat.com>,
-        Jakub Kicinski <kuba@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 026/120] dpaa2-eth: execute xdp_do_flush() before napi_complete_done()
+        patches@lists.linux.dev, Carlos Song <carlos.song@nxp.com>,
+        Stable@vger.kernel.org,
+        Jonathan Cameron <Jonathan.Cameron@huawei.com>
+Subject: [PATCH 6.1 143/208] iio: imu: fxos8700: fix swapped ACCEL and MAGN channels readback
 Date:   Tue,  7 Feb 2023 13:56:37 +0100
-Message-Id: <20230207125619.907908923@linuxfoundation.org>
+Message-Id: <20230207125640.904006692@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.1
-In-Reply-To: <20230207125618.699726054@linuxfoundation.org>
-References: <20230207125618.699726054@linuxfoundation.org>
+In-Reply-To: <20230207125634.292109991@linuxfoundation.org>
+References: <20230207125634.292109991@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,69 +53,50 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Magnus Karlsson <magnus.karlsson@intel.com>
+From: Carlos Song <carlos.song@nxp.com>
 
-[ Upstream commit a3191c4d86c5d3bd35b00dfde6910b88391436a0 ]
+commit c68b44bc7d9b1469774a1c985ee71d2cbc5ebef5 upstream.
 
-Make sure that xdp_do_flush() is always executed before
-napi_complete_done(). This is important for two reasons. First, a
-redirect to an XSKMAP assumes that a call to xdp_do_redirect() from
-napi context X on CPU Y will be followed by a xdp_do_flush() from the
-same napi context and CPU. This is not guaranteed if the
-napi_complete_done() is executed before xdp_do_flush(), as it tells
-the napi logic that it is fine to schedule napi context X on another
-CPU. Details from a production system triggering this bug using the
-veth driver can be found following the first link below.
+Because ACCEL and MAGN channels data register base address is
+swapped the accelerometer and magnetometer channels readback is
+swapped.
 
-The second reason is that the XDP_REDIRECT logic in itself relies on
-being inside a single NAPI instance through to the xdp_do_flush() call
-for RCU protection of all in-kernel data structures. Details can be
-found in the second link below.
-
-Fixes: d678be1dc1ec ("dpaa2-eth: add XDP_REDIRECT support")
-Signed-off-by: Magnus Karlsson <magnus.karlsson@intel.com>
-Acked-by: Toke Høiland-Jørgensen <toke@redhat.com>
-Link: https://lore.kernel.org/r/20221220185903.1105011-1-sbohrer@cloudflare.com
-Link: https://lore.kernel.org/all/20210624160609.292325-1-toke@redhat.com/
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes: 84e5ddd5c46e ("iio: imu: Add support for the FXOS8700 IMU")
+Signed-off-by: Carlos Song <carlos.song@nxp.com>
+Link: https://lore.kernel.org/r/20221208071911.2405922-3-carlos.song@nxp.com
+Cc: <Stable@vger.kernel.org>
+Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ethernet/freescale/dpaa2/dpaa2-eth.c | 9 ++++++---
- 1 file changed, 6 insertions(+), 3 deletions(-)
+ drivers/iio/imu/fxos8700_core.c |   17 +++++++++++++++--
+ 1 file changed, 15 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/net/ethernet/freescale/dpaa2/dpaa2-eth.c b/drivers/net/ethernet/freescale/dpaa2/dpaa2-eth.c
-index 5899139aec97..c48d41093651 100644
---- a/drivers/net/ethernet/freescale/dpaa2/dpaa2-eth.c
-+++ b/drivers/net/ethernet/freescale/dpaa2/dpaa2-eth.c
-@@ -1597,10 +1597,15 @@ static int dpaa2_eth_poll(struct napi_struct *napi, int budget)
- 		if (rx_cleaned >= budget ||
- 		    txconf_cleaned >= DPAA2_ETH_TXCONF_PER_NAPI) {
- 			work_done = budget;
-+			if (ch->xdp.res & XDP_REDIRECT)
-+				xdp_do_flush();
- 			goto out;
- 		}
- 	} while (store_cleaned);
+--- a/drivers/iio/imu/fxos8700_core.c
++++ b/drivers/iio/imu/fxos8700_core.c
+@@ -420,9 +420,22 @@ static int fxos8700_get_data(struct fxos
+ 	u8 base, reg;
+ 	s16 tmp;
+ 	int ret;
+-	enum fxos8700_sensor type = fxos8700_to_sensor(chan_type);
  
-+	if (ch->xdp.res & XDP_REDIRECT)
-+		xdp_do_flush();
-+
- 	/* We didn't consume the entire budget, so finish napi and
- 	 * re-enable data availability notifications
- 	 */
-@@ -1625,9 +1630,7 @@ static int dpaa2_eth_poll(struct napi_struct *napi, int budget)
- 		txc_fq->dq_bytes = 0;
- 	}
+-	base = type ? FXOS8700_OUT_X_MSB : FXOS8700_M_OUT_X_MSB;
++	/*
++	 * Different register base addresses varies with channel types.
++	 * This bug hasn't been noticed before because using an enum is
++	 * really hard to read. Use an a switch statement to take over that.
++	 */
++	switch (chan_type) {
++	case IIO_ACCEL:
++		base = FXOS8700_OUT_X_MSB;
++		break;
++	case IIO_MAGN:
++		base = FXOS8700_M_OUT_X_MSB;
++		break;
++	default:
++		return -EINVAL;
++	}
  
--	if (ch->xdp.res & XDP_REDIRECT)
--		xdp_do_flush_map();
--	else if (rx_cleaned && ch->xdp.res & XDP_TX)
-+	if (rx_cleaned && ch->xdp.res & XDP_TX)
- 		dpaa2_eth_xdp_tx_flush(priv, ch, &priv->fq[flowid]);
- 
- 	return work_done;
--- 
-2.39.0
-
+ 	/* Block read 6 bytes of device output registers to avoid data loss */
+ 	ret = regmap_bulk_read(data->regmap, base, data->buf,
 
 
