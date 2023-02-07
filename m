@@ -2,49 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 80BED68D82C
-	for <lists+stable@lfdr.de>; Tue,  7 Feb 2023 14:07:19 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C3E5968D82F
+	for <lists+stable@lfdr.de>; Tue,  7 Feb 2023 14:07:31 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231993AbjBGNHS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Feb 2023 08:07:18 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55104 "EHLO
+        id S232168AbjBGNHa (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Feb 2023 08:07:30 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55386 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232154AbjBGNHQ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Feb 2023 08:07:16 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2423839CFC
-        for <stable@vger.kernel.org>; Tue,  7 Feb 2023 05:06:36 -0800 (PST)
+        with ESMTP id S232178AbjBGNH3 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Feb 2023 08:07:29 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AFCE76A45
+        for <stable@vger.kernel.org>; Tue,  7 Feb 2023 05:06:48 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 035B1B81979
-        for <stable@vger.kernel.org>; Tue,  7 Feb 2023 13:06:02 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 34B33C433EF;
-        Tue,  7 Feb 2023 13:06:00 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 35E2A613E2
+        for <stable@vger.kernel.org>; Tue,  7 Feb 2023 13:06:04 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1A30AC433EF;
+        Tue,  7 Feb 2023 13:06:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1675775160;
-        bh=PEBsTSBkPLmv8wodgH5UhR0D3En2xa1T+6j58LcBnu4=;
+        s=korg; t=1675775163;
+        bh=LjL0IUvyKFfBRJVVBvhcjv3LNCu44CpAtCOpOOH9yCM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=0gE/oLYubnOrFUXOl9qbgkhsAeZEn5P5ekrjnkQasASNAlwZSytatO2z7alemFrWM
-         77dQ9UoiKXqOGEbyZ1XcRRgJjMpkslYGCzjUlFTvFngV+D+3sHxQWPCL9LQZeRsxEy
-         oZ4Ed7LWxqnKkx4t+Aie5Ap5PZDb3ONGXDH4YlTI=
+        b=JXx9id2WSWOmKPgzcFbC2QH422eTDbN3o1TdllmaqBt27odsZSb5dTj3Ti8TlIE0L
+         Dtb//e7HJfCSbnuegUbwiu3bYO2azuak+l3ZCcZ+Yb77S+QNI5qnIv839hYxhRNBdP
+         pAKX0OYQmT61mxo3+1W0bzW1Od2y/edjZMmx8OUk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Mike Kravetz <mike.kravetz@oracle.com>,
-        Peter Xu <peterx@redhat.com>,
-        David Hildenbrand <david@redhat.com>,
-        James Houghton <jthoughton@google.com>,
-        Matthew Wilcox <willy@infradead.org>,
-        Michal Hocko <mhocko@suse.com>,
-        Muchun Song <songmuchun@bytedance.com>,
-        Naoya Horiguchi <naoya.horiguchi@linux.dev>,
-        "Vishal Moola (Oracle)" <vishal.moola@gmail.com>,
-        Yang Shi <shy828301@gmail.com>,
+        patches@lists.linux.dev, Kefeng Wang <wangkefeng.wang@huawei.com>,
+        Ma Wupeng <mawupeng1@huawei.com>,
+        Miko Larsson <mikoxyzzz@gmail.com>,
+        Michal Hocko <mhocko@suse.com>, Jan Kara <jack@suse.cz>,
+        Jens Axboe <axboe@kernel.dk>,
+        Naoya Horiguchi <naoya.horiguchi@nec.com>,
+        Shakeel Butt <shakeelb@google.com>, Tejun Heo <tj@kernel.org>,
         Andrew Morton <akpm@linux-foundation.org>
-Subject: [PATCH 6.1 157/208] mm: hugetlb: proc: check for hugetlb shared PMD in /proc/PID/smaps
-Date:   Tue,  7 Feb 2023 13:56:51 +0100
-Message-Id: <20230207125641.560340976@linuxfoundation.org>
+Subject: [PATCH 6.1 158/208] mm: memcg: fix NULL pointer in mem_cgroup_track_foreign_dirty_slowpath()
+Date:   Tue,  7 Feb 2023 13:56:52 +0100
+Message-Id: <20230207125641.605762237@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.1
 In-Reply-To: <20230207125634.292109991@linuxfoundation.org>
 References: <20230207125634.292109991@linuxfoundation.org>
@@ -61,97 +58,53 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mike Kravetz <mike.kravetz@oracle.com>
+From: Kefeng Wang <wangkefeng.wang@huawei.com>
 
-commit 3489dbb696d25602aea8c3e669a6d43b76bd5358 upstream.
+commit ac86f547ca1002aec2ef66b9e64d03f45bbbfbb9 upstream.
 
-Patch series "Fixes for hugetlb mapcount at most 1 for shared PMDs".
+As commit 18365225f044 ("hwpoison, memcg: forcibly uncharge LRU pages"),
+hwpoison will forcibly uncharg a LRU hwpoisoned page, the folio_memcg
+could be NULl, then, mem_cgroup_track_foreign_dirty_slowpath() could
+occurs a NULL pointer dereference, let's do not record the foreign
+writebacks for folio memcg is null in mem_cgroup_track_foreign_dirty() to
+fix it.
 
-This issue of mapcount in hugetlb pages referenced by shared PMDs was
-discussed in [1].  The following two patches address user visible behavior
-caused by this issue.
-
-[1] https://lore.kernel.org/linux-mm/Y9BF+OCdWnCSilEu@monkey/
-
-
-This patch (of 2):
-
-A hugetlb page will have a mapcount of 1 if mapped by multiple processes
-via a shared PMD.  This is because only the first process increases the
-map count, and subsequent processes just add the shared PMD page to their
-page table.
-
-page_mapcount is being used to decide if a hugetlb page is shared or
-private in /proc/PID/smaps.  Pages referenced via a shared PMD were
-incorrectly being counted as private.
-
-To fix, check for a shared PMD if mapcount is 1.  If a shared PMD is found
-count the hugetlb page as shared.  A new helper to check for a shared PMD
-is added.
-
-[akpm@linux-foundation.org: simplification, per David]
-[akpm@linux-foundation.org: hugetlb.h: include page_ref.h for page_count()]
-Link: https://lkml.kernel.org/r/20230126222721.222195-2-mike.kravetz@oracle.com
-Fixes: 25ee01a2fca0 ("mm: hugetlb: proc: add hugetlb-related fields to /proc/PID/smaps")
-Signed-off-by: Mike Kravetz <mike.kravetz@oracle.com>
-Acked-by: Peter Xu <peterx@redhat.com>
-Cc: David Hildenbrand <david@redhat.com>
-Cc: James Houghton <jthoughton@google.com>
-Cc: Matthew Wilcox <willy@infradead.org>
-Cc: Michal Hocko <mhocko@suse.com>
-Cc: Muchun Song <songmuchun@bytedance.com>
-Cc: Naoya Horiguchi <naoya.horiguchi@linux.dev>
-Cc: Vishal Moola (Oracle) <vishal.moola@gmail.com>
-Cc: Yang Shi <shy828301@gmail.com>
+Link: https://lkml.kernel.org/r/20230129040945.180629-1-wangkefeng.wang@huawei.com
+Fixes: 97b27821b485 ("writeback, memcg: Implement foreign dirty flushing")
+Signed-off-by: Kefeng Wang <wangkefeng.wang@huawei.com>
+Reported-by: Ma Wupeng <mawupeng1@huawei.com>
+Tested-by: Miko Larsson <mikoxyzzz@gmail.com>
+Acked-by: Michal Hocko <mhocko@suse.com>
+Cc: Jan Kara <jack@suse.cz>
+Cc: Jens Axboe <axboe@kernel.dk>
+Cc: Kefeng Wang <wangkefeng.wang@huawei.com>
+Cc: Ma Wupeng <mawupeng1@huawei.com>
+Cc: Naoya Horiguchi <naoya.horiguchi@nec.com>
+Cc: Shakeel Butt <shakeelb@google.com>
+Cc: Tejun Heo <tj@kernel.org>
 Cc: <stable@vger.kernel.org>
 Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/proc/task_mmu.c      |    4 +---
- include/linux/hugetlb.h |   13 +++++++++++++
- 2 files changed, 14 insertions(+), 3 deletions(-)
+ include/linux/memcontrol.h |    5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
 
---- a/fs/proc/task_mmu.c
-+++ b/fs/proc/task_mmu.c
-@@ -737,9 +737,7 @@ static int smaps_hugetlb_range(pte_t *pt
- 			page = pfn_swap_entry_to_page(swpent);
- 	}
- 	if (page) {
--		int mapcount = page_mapcount(page);
--
--		if (mapcount >= 2)
-+		if (page_mapcount(page) >= 2 || hugetlb_pmd_shared(pte))
- 			mss->shared_hugetlb += huge_page_size(hstate_vma(vma));
- 		else
- 			mss->private_hugetlb += huge_page_size(hstate_vma(vma));
---- a/include/linux/hugetlb.h
-+++ b/include/linux/hugetlb.h
-@@ -7,6 +7,7 @@
- #include <linux/fs.h>
- #include <linux/hugetlb_inline.h>
- #include <linux/cgroup.h>
-+#include <linux/page_ref.h>
- #include <linux/list.h>
- #include <linux/kref.h>
- #include <linux/pgtable.h>
-@@ -1182,6 +1183,18 @@ static inline __init void hugetlb_cma_re
- }
- #endif
- 
-+#ifdef CONFIG_ARCH_WANT_HUGE_PMD_SHARE
-+static inline bool hugetlb_pmd_shared(pte_t *pte)
-+{
-+	return page_count(virt_to_page(pte)) > 1;
-+}
-+#else
-+static inline bool hugetlb_pmd_shared(pte_t *pte)
-+{
-+	return false;
-+}
-+#endif
+--- a/include/linux/memcontrol.h
++++ b/include/linux/memcontrol.h
+@@ -1655,10 +1655,13 @@ void mem_cgroup_track_foreign_dirty_slow
+ static inline void mem_cgroup_track_foreign_dirty(struct folio *folio,
+ 						  struct bdi_writeback *wb)
+ {
++	struct mem_cgroup *memcg;
 +
- bool want_pmd_share(struct vm_area_struct *vma, unsigned long addr);
+ 	if (mem_cgroup_disabled())
+ 		return;
  
- #ifndef __HAVE_ARCH_FLUSH_HUGETLB_TLB_RANGE
+-	if (unlikely(&folio_memcg(folio)->css != wb->memcg_css))
++	memcg = folio_memcg(folio);
++	if (unlikely(memcg && &memcg->css != wb->memcg_css))
+ 		mem_cgroup_track_foreign_dirty_slowpath(folio, wb);
+ }
+ 
 
 
