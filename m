@@ -2,41 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 78DA168D796
-	for <lists+stable@lfdr.de>; Tue,  7 Feb 2023 14:01:30 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E307A68D7A4
+	for <lists+stable@lfdr.de>; Tue,  7 Feb 2023 14:01:57 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232000AbjBGNB1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Feb 2023 08:01:27 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46852 "EHLO
+        id S232019AbjBGNB4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Feb 2023 08:01:56 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47396 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232026AbjBGNBS (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Feb 2023 08:01:18 -0500
+        with ESMTP id S232048AbjBGNBh (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Feb 2023 08:01:37 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3C40E39BB6
-        for <stable@vger.kernel.org>; Tue,  7 Feb 2023 05:00:48 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 94FFA39CED
+        for <stable@vger.kernel.org>; Tue,  7 Feb 2023 05:01:17 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 87BD561403
-        for <stable@vger.kernel.org>; Tue,  7 Feb 2023 13:00:39 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 79762C433D2;
-        Tue,  7 Feb 2023 13:00:38 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id B53936139D
+        for <stable@vger.kernel.org>; Tue,  7 Feb 2023 13:01:03 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A6B7FC433D2;
+        Tue,  7 Feb 2023 13:01:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1675774839;
-        bh=1fAa6k1mwQRSnOZe31Kzo8oKONdjGcfLHZhM9nThEpw=;
+        s=korg; t=1675774863;
+        bh=Jb7htaoxnxvMdK1w/sKXyDXhddGwBn5Vp7gSJl6AwT0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=eX4O693kYgkLIHoGar1da3IeGyJKqeXhD/ihfLU/WVAMeDHWANfXQ0ia4qFjN6Fg+
-         t+gwH2lMkEI7Bwt+8MdA3xquqA/SvuBZualt7KS8Rg1U7SFCmr47QqCaw3XtMnY6F4
-         6zj02/vDZyNfhCDI9alYar4dDhIPraKKytugaR30=
+        b=RnaXvoRPA+OQIKSEr0vD2PS5c857rvFOUIItdRLv9F9VQzCe6TQHzoH2YM2zGhcXn
+         Wiigdn7iHeksBbM3oKE2xjH6+Dk1WnumrN6sGXoGOjZ1s+X7ELW/84yZnsZlmc4z9L
+         k0dtp9xL50RdyQAfKuswHtmY6x+2O/GCtwiHEZRQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Yu Kuai <yukuai3@huawei.com>,
-        Jan Kara <jack@suse.cz>, Jens Axboe <axboe@kernel.dk>,
+        patches@lists.linux.dev,
+        syzbot+caa188bdfc1eeafeb418@syzkaller.appspotmail.com,
+        Hyunwoo Kim <v4bel@theori.io>,
+        Kuniyuki Iwashima <kuniyu@amazon.com>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 049/208] block, bfq: replace 0/1 with false/true in bic apis
-Date:   Tue,  7 Feb 2023 13:55:03 +0100
-Message-Id: <20230207125636.502515863@linuxfoundation.org>
+Subject: [PATCH 6.1 051/208] netrom: Fix use-after-free caused by accept on already connected socket
+Date:   Tue,  7 Feb 2023 13:55:05 +0100
+Message-Id: <20230207125636.586828052@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.1
 In-Reply-To: <20230207125634.292109991@linuxfoundation.org>
 References: <20230207125634.292109991@linuxfoundation.org>
@@ -53,77 +56,208 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yu Kuai <yukuai3@huawei.com>
+From: Hyunwoo Kim <v4bel@theori.io>
 
-[ Upstream commit 337366e02b370d2800110fbc99940f6ddddcbdfa ]
+[ Upstream commit 611792920925fb088ddccbe2783c7f92fdfb6b64 ]
 
-Just to make the code a litter cleaner, there are no functional changes.
+If you call listen() and accept() on an already connect()ed
+AF_NETROM socket, accept() can successfully connect.
+This is because when the peer socket sends data to sendmsg,
+the skb with its own sk stored in the connected socket's
+sk->sk_receive_queue is connected, and nr_accept() dequeues
+the skb waiting in the sk->sk_receive_queue.
 
-Signed-off-by: Yu Kuai <yukuai3@huawei.com>
-Reviewed-by: Jan Kara <jack@suse.cz>
-Link: https://lore.kernel.org/r/20221214033155.3455754-3-yukuai1@huaweicloud.com
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
-Stable-dep-of: b600de2d7d3a ("block, bfq: fix uaf for bfqq in bic_set_bfqq()")
+As a result, nr_accept() allocates and returns a sock with
+the sk of the parent AF_NETROM socket.
+
+And here use-after-free can happen through complex race conditions:
+```
+                  cpu0                                                     cpu1
+                                                               1. socket_2 = socket(AF_NETROM)
+                                                                        .
+                                                                        .
+                                                                  listen(socket_2)
+                                                                  accepted_socket = accept(socket_2)
+       2. socket_1 = socket(AF_NETROM)
+            nr_create()    // sk refcount : 1
+          connect(socket_1)
+                                                               3. write(accepted_socket)
+                                                                    nr_sendmsg()
+                                                                    nr_output()
+                                                                    nr_kick()
+                                                                    nr_send_iframe()
+                                                                    nr_transmit_buffer()
+                                                                    nr_route_frame()
+                                                                    nr_loopback_queue()
+                                                                    nr_loopback_timer()
+                                                                    nr_rx_frame()
+                                                                    nr_process_rx_frame(sk, skb);    // sk : socket_1's sk
+                                                                    nr_state3_machine()
+                                                                    nr_queue_rx_frame()
+                                                                    sock_queue_rcv_skb()
+                                                                    sock_queue_rcv_skb_reason()
+                                                                    __sock_queue_rcv_skb()
+                                                                    __skb_queue_tail(list, skb);    // list : socket_1's sk->sk_receive_queue
+       4. listen(socket_1)
+            nr_listen()
+          uaf_socket = accept(socket_1)
+            nr_accept()
+            skb_dequeue(&sk->sk_receive_queue);
+                                                               5. close(accepted_socket)
+                                                                    nr_release()
+                                                                    nr_write_internal(sk, NR_DISCREQ)
+                                                                    nr_transmit_buffer()    // NR_DISCREQ
+                                                                    nr_route_frame()
+                                                                    nr_loopback_queue()
+                                                                    nr_loopback_timer()
+                                                                    nr_rx_frame()    // sk : socket_1's sk
+                                                                    nr_process_rx_frame()  // NR_STATE_3
+                                                                    nr_state3_machine()    // NR_DISCREQ
+                                                                    nr_disconnect()
+                                                                    nr_sk(sk)->state = NR_STATE_0;
+       6. close(socket_1)    // sk refcount : 3
+            nr_release()    // NR_STATE_0
+            sock_put(sk);    // sk refcount : 0
+            sk_free(sk);
+          close(uaf_socket)
+            nr_release()
+            sock_hold(sk);    // UAF
+```
+
+KASAN report by syzbot:
+```
+BUG: KASAN: use-after-free in nr_release+0x66/0x460 net/netrom/af_netrom.c:520
+Write of size 4 at addr ffff8880235d8080 by task syz-executor564/5128
+
+Call Trace:
+ <TASK>
+ __dump_stack lib/dump_stack.c:88 [inline]
+ dump_stack_lvl+0xd1/0x138 lib/dump_stack.c:106
+ print_address_description mm/kasan/report.c:306 [inline]
+ print_report+0x15e/0x461 mm/kasan/report.c:417
+ kasan_report+0xbf/0x1f0 mm/kasan/report.c:517
+ check_region_inline mm/kasan/generic.c:183 [inline]
+ kasan_check_range+0x141/0x190 mm/kasan/generic.c:189
+ instrument_atomic_read_write include/linux/instrumented.h:102 [inline]
+ atomic_fetch_add_relaxed include/linux/atomic/atomic-instrumented.h:116 [inline]
+ __refcount_add include/linux/refcount.h:193 [inline]
+ __refcount_inc include/linux/refcount.h:250 [inline]
+ refcount_inc include/linux/refcount.h:267 [inline]
+ sock_hold include/net/sock.h:775 [inline]
+ nr_release+0x66/0x460 net/netrom/af_netrom.c:520
+ __sock_release+0xcd/0x280 net/socket.c:650
+ sock_close+0x1c/0x20 net/socket.c:1365
+ __fput+0x27c/0xa90 fs/file_table.c:320
+ task_work_run+0x16f/0x270 kernel/task_work.c:179
+ exit_task_work include/linux/task_work.h:38 [inline]
+ do_exit+0xaa8/0x2950 kernel/exit.c:867
+ do_group_exit+0xd4/0x2a0 kernel/exit.c:1012
+ get_signal+0x21c3/0x2450 kernel/signal.c:2859
+ arch_do_signal_or_restart+0x79/0x5c0 arch/x86/kernel/signal.c:306
+ exit_to_user_mode_loop kernel/entry/common.c:168 [inline]
+ exit_to_user_mode_prepare+0x15f/0x250 kernel/entry/common.c:203
+ __syscall_exit_to_user_mode_work kernel/entry/common.c:285 [inline]
+ syscall_exit_to_user_mode+0x1d/0x50 kernel/entry/common.c:296
+ do_syscall_64+0x46/0xb0 arch/x86/entry/common.c:86
+ entry_SYSCALL_64_after_hwframe+0x63/0xcd
+RIP: 0033:0x7f6c19e3c9b9
+Code: Unable to access opcode bytes at 0x7f6c19e3c98f.
+RSP: 002b:00007fffd4ba2ce8 EFLAGS: 00000246 ORIG_RAX: 0000000000000133
+RAX: 0000000000000116 RBX: 0000000000000003 RCX: 00007f6c19e3c9b9
+RDX: 0000000000000318 RSI: 00000000200bd000 RDI: 0000000000000006
+RBP: 0000000000000003 R08: 000000000000000d R09: 000000000000000d
+R10: 0000000000000000 R11: 0000000000000246 R12: 000055555566a2c0
+R13: 0000000000000011 R14: 0000000000000000 R15: 0000000000000000
+ </TASK>
+
+Allocated by task 5128:
+ kasan_save_stack+0x22/0x40 mm/kasan/common.c:45
+ kasan_set_track+0x25/0x30 mm/kasan/common.c:52
+ ____kasan_kmalloc mm/kasan/common.c:371 [inline]
+ ____kasan_kmalloc mm/kasan/common.c:330 [inline]
+ __kasan_kmalloc+0xa3/0xb0 mm/kasan/common.c:380
+ kasan_kmalloc include/linux/kasan.h:211 [inline]
+ __do_kmalloc_node mm/slab_common.c:968 [inline]
+ __kmalloc+0x5a/0xd0 mm/slab_common.c:981
+ kmalloc include/linux/slab.h:584 [inline]
+ sk_prot_alloc+0x140/0x290 net/core/sock.c:2038
+ sk_alloc+0x3a/0x7a0 net/core/sock.c:2091
+ nr_create+0xb6/0x5f0 net/netrom/af_netrom.c:433
+ __sock_create+0x359/0x790 net/socket.c:1515
+ sock_create net/socket.c:1566 [inline]
+ __sys_socket_create net/socket.c:1603 [inline]
+ __sys_socket_create net/socket.c:1588 [inline]
+ __sys_socket+0x133/0x250 net/socket.c:1636
+ __do_sys_socket net/socket.c:1649 [inline]
+ __se_sys_socket net/socket.c:1647 [inline]
+ __x64_sys_socket+0x73/0xb0 net/socket.c:1647
+ do_syscall_x64 arch/x86/entry/common.c:50 [inline]
+ do_syscall_64+0x39/0xb0 arch/x86/entry/common.c:80
+ entry_SYSCALL_64_after_hwframe+0x63/0xcd
+
+Freed by task 5128:
+ kasan_save_stack+0x22/0x40 mm/kasan/common.c:45
+ kasan_set_track+0x25/0x30 mm/kasan/common.c:52
+ kasan_save_free_info+0x2b/0x40 mm/kasan/generic.c:518
+ ____kasan_slab_free mm/kasan/common.c:236 [inline]
+ ____kasan_slab_free+0x13b/0x1a0 mm/kasan/common.c:200
+ kasan_slab_free include/linux/kasan.h:177 [inline]
+ __cache_free mm/slab.c:3394 [inline]
+ __do_kmem_cache_free mm/slab.c:3580 [inline]
+ __kmem_cache_free+0xcd/0x3b0 mm/slab.c:3587
+ sk_prot_free net/core/sock.c:2074 [inline]
+ __sk_destruct+0x5df/0x750 net/core/sock.c:2166
+ sk_destruct net/core/sock.c:2181 [inline]
+ __sk_free+0x175/0x460 net/core/sock.c:2192
+ sk_free+0x7c/0xa0 net/core/sock.c:2203
+ sock_put include/net/sock.h:1991 [inline]
+ nr_release+0x39e/0x460 net/netrom/af_netrom.c:554
+ __sock_release+0xcd/0x280 net/socket.c:650
+ sock_close+0x1c/0x20 net/socket.c:1365
+ __fput+0x27c/0xa90 fs/file_table.c:320
+ task_work_run+0x16f/0x270 kernel/task_work.c:179
+ exit_task_work include/linux/task_work.h:38 [inline]
+ do_exit+0xaa8/0x2950 kernel/exit.c:867
+ do_group_exit+0xd4/0x2a0 kernel/exit.c:1012
+ get_signal+0x21c3/0x2450 kernel/signal.c:2859
+ arch_do_signal_or_restart+0x79/0x5c0 arch/x86/kernel/signal.c:306
+ exit_to_user_mode_loop kernel/entry/common.c:168 [inline]
+ exit_to_user_mode_prepare+0x15f/0x250 kernel/entry/common.c:203
+ __syscall_exit_to_user_mode_work kernel/entry/common.c:285 [inline]
+ syscall_exit_to_user_mode+0x1d/0x50 kernel/entry/common.c:296
+ do_syscall_64+0x46/0xb0 arch/x86/entry/common.c:86
+ entry_SYSCALL_64_after_hwframe+0x63/0xcd
+```
+
+To fix this issue, nr_listen() returns -EINVAL for sockets that
+successfully nr_connect().
+
+Reported-by: syzbot+caa188bdfc1eeafeb418@syzkaller.appspotmail.com
+Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
+Signed-off-by: Hyunwoo Kim <v4bel@theori.io>
+Reviewed-by: Kuniyuki Iwashima <kuniyu@amazon.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- block/bfq-cgroup.c  | 8 ++++----
- block/bfq-iosched.c | 4 ++--
- 2 files changed, 6 insertions(+), 6 deletions(-)
+ net/netrom/af_netrom.c | 5 +++++
+ 1 file changed, 5 insertions(+)
 
-diff --git a/block/bfq-cgroup.c b/block/bfq-cgroup.c
-index 7d624a3a3f0f..dfb6d1d8bd46 100644
---- a/block/bfq-cgroup.c
-+++ b/block/bfq-cgroup.c
-@@ -718,15 +718,15 @@ static void *__bfq_bic_change_cgroup(struct bfq_data *bfqd,
- 				     struct bfq_io_cq *bic,
- 				     struct bfq_group *bfqg)
- {
--	struct bfq_queue *async_bfqq = bic_to_bfqq(bic, 0);
--	struct bfq_queue *sync_bfqq = bic_to_bfqq(bic, 1);
-+	struct bfq_queue *async_bfqq = bic_to_bfqq(bic, false);
-+	struct bfq_queue *sync_bfqq = bic_to_bfqq(bic, true);
- 	struct bfq_entity *entity;
+diff --git a/net/netrom/af_netrom.c b/net/netrom/af_netrom.c
+index 6f7f4392cffb..5a4cb796150f 100644
+--- a/net/netrom/af_netrom.c
++++ b/net/netrom/af_netrom.c
+@@ -400,6 +400,11 @@ static int nr_listen(struct socket *sock, int backlog)
+ 	struct sock *sk = sock->sk;
  
- 	if (async_bfqq) {
- 		entity = &async_bfqq->entity;
- 
- 		if (entity->sched_data != &bfqg->sched_data) {
--			bic_set_bfqq(bic, NULL, 0);
-+			bic_set_bfqq(bic, NULL, false);
- 			bfq_release_process_ref(bfqd, async_bfqq);
- 		}
- 	}
-@@ -762,7 +762,7 @@ static void *__bfq_bic_change_cgroup(struct bfq_data *bfqd,
- 				 */
- 				bfq_put_cooperator(sync_bfqq);
- 				bfq_release_process_ref(bfqd, sync_bfqq);
--				bic_set_bfqq(bic, NULL, 1);
-+				bic_set_bfqq(bic, NULL, true);
- 			}
- 		}
- 	}
-diff --git a/block/bfq-iosched.c b/block/bfq-iosched.c
-index 7b894df32e32..917939b60ef8 100644
---- a/block/bfq-iosched.c
-+++ b/block/bfq-iosched.c
-@@ -3180,7 +3180,7 @@ bfq_merge_bfqqs(struct bfq_data *bfqd, struct bfq_io_cq *bic,
- 	/*
- 	 * Merge queues (that is, let bic redirect its requests to new_bfqq)
- 	 */
--	bic_set_bfqq(bic, new_bfqq, 1);
-+	bic_set_bfqq(bic, new_bfqq, true);
- 	bfq_mark_bfqq_coop(new_bfqq);
- 	/*
- 	 * new_bfqq now belongs to at least two bics (it is a shared queue):
-@@ -6627,7 +6627,7 @@ bfq_split_bfqq(struct bfq_io_cq *bic, struct bfq_queue *bfqq)
- 		return bfqq;
- 	}
- 
--	bic_set_bfqq(bic, NULL, 1);
-+	bic_set_bfqq(bic, NULL, true);
- 
- 	bfq_put_cooperator(bfqq);
- 
+ 	lock_sock(sk);
++	if (sock->state != SS_UNCONNECTED) {
++		release_sock(sk);
++		return -EINVAL;
++	}
++
+ 	if (sk->sk_state != TCP_LISTEN) {
+ 		memset(&nr_sk(sk)->user_addr, 0, AX25_ADDR_LEN);
+ 		sk->sk_max_ack_backlog = backlog;
 -- 
 2.39.0
 
