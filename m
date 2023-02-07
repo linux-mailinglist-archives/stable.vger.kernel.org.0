@@ -2,41 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E684568D75D
-	for <lists+stable@lfdr.de>; Tue,  7 Feb 2023 13:59:07 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1AF9768D75F
+	for <lists+stable@lfdr.de>; Tue,  7 Feb 2023 13:59:13 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231918AbjBGM7H (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Feb 2023 07:59:07 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44450 "EHLO
+        id S231713AbjBGM7L (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Feb 2023 07:59:11 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44584 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231942AbjBGM7F (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Feb 2023 07:59:05 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 71A397EE4
-        for <stable@vger.kernel.org>; Tue,  7 Feb 2023 04:59:05 -0800 (PST)
+        with ESMTP id S230080AbjBGM7K (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Feb 2023 07:59:10 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E704F38E84
+        for <stable@vger.kernel.org>; Tue,  7 Feb 2023 04:59:09 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 0D470613EA
-        for <stable@vger.kernel.org>; Tue,  7 Feb 2023 12:59:05 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0F034C433D2;
-        Tue,  7 Feb 2023 12:59:03 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 832CFB8198D
+        for <stable@vger.kernel.org>; Tue,  7 Feb 2023 12:59:08 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D8473C4339B;
+        Tue,  7 Feb 2023 12:59:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1675774744;
-        bh=dCoBYjpxtCIQuvMBOX58QUxAXYRwvFahDHUMUiem8tw=;
+        s=korg; t=1675774747;
+        bh=L6uXrGtwcKxLYdhvGYu/qDEH+Xd3hB30L08VJJXpE1o=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Sv8CmS4jE4f1R2a/s0VWzlbklObjJNobtE9+AWFp/XnCqbmrVzYD5eISlRO/6roed
-         Fpdcqndg6DifM+U3pkQKMlIeYmkYvxNKm9XV8dDheego+xC8EG07OtOwOTX49eyX3D
-         A545mexj7tDul1suwU2JVzoKGeIHytYEtvm2AyoU=
+        b=bEcmtnijY736IPycnkPPjCqCGep2NJa/qJ3q0eRnYVntx8ynYGCFD5itx1hd10vVP
+         grIn5fIxkGpBrNcjyLJtz8OqGeuCpkUY3fYT923REJXXisYhitYxm3W1L2S7FwR8YY
+         0JsdzLX7P4v5o/HYz3449oyEyO9mouCEY3vaStGY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Frank Li <Frank.Li@nxp.com>,
-        Shawn Guo <shawnguo@kernel.org>,
+        patches@lists.linux.dev,
+        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
+        Vijendar Mukunda <Vijendar.Mukunda@amd.com>,
+        Mark Brown <broonie@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 004/208] arm64: dts: freescale: imx8dxl: fix sc_pwrkeys property name linux,keycode
-Date:   Tue,  7 Feb 2023 13:54:18 +0100
-Message-Id: <20230207125634.524261181@linuxfoundation.org>
+Subject: [PATCH 6.1 005/208] ASoC: amd: acp-es8336: Drop reference count of ACPI device after use
+Date:   Tue,  7 Feb 2023 13:54:19 +0100
+Message-Id: <20230207125634.572464802@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.1
 In-Reply-To: <20230207125634.292109991@linuxfoundation.org>
 References: <20230207125634.292109991@linuxfoundation.org>
@@ -44,8 +46,8 @@ User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
         SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -53,33 +55,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Frank Li <Frank.Li@nxp.com>
+From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
 
-[ Upstream commit cfb47bf5a470bdd80e8ac2f7b2f3a34563ecd4ea ]
+[ Upstream commit d784fc8be6814b31854f7b529919ca4506ff8066 ]
 
-linux,keycode should be "linux,keycodes" according binding-doc
-Documentation/devicetree/bindings/input/fsl,scu-key.yaml
+Theoretically the device might gone if its reference count drops to 0.
+This might be the case when we try to find the first physical node of
+the ACPI device. We need to keep reference to it until we get a result
+of the above mentioned call. Refactor the code to drop the reference
+count at the correct place.
 
-Fixes: f537ee7f1e76 ("arm64: dts: freescale: add i.MX8DXL SoC support")
-Signed-off-by: Frank Li <Frank.Li@nxp.com>
-Signed-off-by: Shawn Guo <shawnguo@kernel.org>
+While at it, move to acpi_dev_put() as symmetrical call to the
+acpi_dev_get_first_match_dev().
+
+Fixes: 02527c3f2300 ("ASoC: amd: add Machine driver for Jadeite platform")
+Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Acked-by: Vijendar Mukunda <Vijendar.Mukunda@amd.com>
+Link: https://lore.kernel.org/r/20230112112356.67643-1-andriy.shevchenko@linux.intel.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm64/boot/dts/freescale/imx8dxl.dtsi | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ sound/soc/amd/acp-es8336.c | 6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
 
-diff --git a/arch/arm64/boot/dts/freescale/imx8dxl.dtsi b/arch/arm64/boot/dts/freescale/imx8dxl.dtsi
-index 5ddbda0b4def..f2c4d13b2f3c 100644
---- a/arch/arm64/boot/dts/freescale/imx8dxl.dtsi
-+++ b/arch/arm64/boot/dts/freescale/imx8dxl.dtsi
-@@ -157,7 +157,7 @@
+diff --git a/sound/soc/amd/acp-es8336.c b/sound/soc/amd/acp-es8336.c
+index 2fe8df86053a..89499542c803 100644
+--- a/sound/soc/amd/acp-es8336.c
++++ b/sound/soc/amd/acp-es8336.c
+@@ -198,9 +198,11 @@ static int st_es8336_late_probe(struct snd_soc_card *card)
+ 	int ret;
  
- 		sc_pwrkey: keys {
- 			compatible = "fsl,imx8qxp-sc-key", "fsl,imx-sc-key";
--			linux,keycode = <KEY_POWER>;
-+			linux,keycodes = <KEY_POWER>;
- 			wakeup-source;
- 		};
+ 	adev = acpi_dev_get_first_match_dev("ESSX8336", NULL, -1);
+-	if (adev)
+-		put_device(&adev->dev);
++	if (!adev)
++		return -ENODEV;
++
+ 	codec_dev = acpi_get_first_physical_node(adev);
++	acpi_dev_put(adev);
+ 	if (!codec_dev)
+ 		dev_err(card->dev, "can not find codec dev\n");
  
 -- 
 2.39.0
