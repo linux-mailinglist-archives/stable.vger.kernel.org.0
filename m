@@ -2,42 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id AC5C468D7A1
-	for <lists+stable@lfdr.de>; Tue,  7 Feb 2023 14:01:55 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0066468D768
+	for <lists+stable@lfdr.de>; Tue,  7 Feb 2023 13:59:49 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231804AbjBGNBy (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Feb 2023 08:01:54 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47316 "EHLO
+        id S231963AbjBGM7r (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Feb 2023 07:59:47 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44948 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232043AbjBGNBg (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Feb 2023 08:01:36 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B78BA39B8D
-        for <stable@vger.kernel.org>; Tue,  7 Feb 2023 05:01:14 -0800 (PST)
+        with ESMTP id S230440AbjBGM7a (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Feb 2023 07:59:30 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 711107EE4
+        for <stable@vger.kernel.org>; Tue,  7 Feb 2023 04:59:27 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 6C6EAB8198D
-        for <stable@vger.kernel.org>; Tue,  7 Feb 2023 13:01:01 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id AE5C6C433EF;
-        Tue,  7 Feb 2023 13:00:59 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 0F014613F9
+        for <stable@vger.kernel.org>; Tue,  7 Feb 2023 12:59:27 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1C9C5C433EF;
+        Tue,  7 Feb 2023 12:59:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1675774860;
-        bh=EnmhB9oXT4JF82erTgjorlkxGaYjs/YL+ntIQBZylJw=;
+        s=korg; t=1675774766;
+        bh=65hwGgIvCMkExfJRsYVu7I5nLGI+k6SS/gP9hroCNis=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=H9sSLadJZGNDvO8UK8jTsmygVTSJsx2uY3N6HLz4zJCIA0O+zllM7M/InsygICcUS
-         OfyZkZz0r0YhqgzFuLagmndbeov1mdLGjAg+ClgcB5K6Zt9Fp6GzO1Q+I3/AVLG4xY
-         G3Cp1eAyUTIoQUezinutFlK836ompoiNRzicG6eI=
+        b=wW+eQmzh1XC7ZWAhRW2ugEbO5vFdE7vMCRqbm952AwTc64oUbLPkX7IEyjCfg21C4
+         KNuhBVRVRdJ/uEXZxYtvVXa8y0hKnazkxo3IlIEk4aQeeEq0a0tmxPxkURwKWlOT8L
+         mOkbkD+l1vQv58LdQudR38Hv1FHmh5yvdVWMxprw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Dan Carpenter <error27@gmail.com>,
-        Peter Ujfalusi <peter.ujfalusi@linux.intel.com>,
-        Mark Brown <broonie@kernel.org>,
+        patches@lists.linux.dev,
+        Kumar Kartikeya Dwivedi <memxor@gmail.com>,
+        Jiri Olsa <jolsa@kernel.org>,
+        Alexei Starovoitov <ast@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 018/208] ASoC: SOF: ipc4-mtrace: prevent underflow in sof_ipc4_priority_mask_dfs_write()
-Date:   Tue,  7 Feb 2023 13:54:32 +0100
-Message-Id: <20230207125635.149493163@linuxfoundation.org>
+Subject: [PATCH 6.1 019/208] bpf: Add missing btf_put to register_btf_id_dtor_kfuncs
+Date:   Tue,  7 Feb 2023 13:54:33 +0100
+Message-Id: <20230207125635.190907823@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.1
 In-Reply-To: <20230207125634.292109991@linuxfoundation.org>
 References: <20230207125634.292109991@linuxfoundation.org>
@@ -54,51 +55,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dan Carpenter <error27@gmail.com>
+From: Jiri Olsa <jolsa@kernel.org>
 
-[ Upstream commit ea57680af47587397f5005d7758022441ed66d54 ]
+[ Upstream commit 74bc3a5acc82f020d2e126f56c535d02d1e74e37 ]
 
-The "id" comes from the user.  Change the type to unsigned to prevent
-an array underflow.
+We take the BTF reference before we register dtors and we need
+to put it back when it's done.
 
-Fixes: f4ea22f7aa75 ("ASoC: SOF: ipc4: Add support for mtrace log extraction")
-Signed-off-by: Dan Carpenter <error27@gmail.com>
-Acked-by: Peter Ujfalusi <peter.ujfalusi@linux.intel.com>
-Link: https://lore.kernel.org/r/Y8laruWOEwOC/dx9@kili
-Signed-off-by: Mark Brown <broonie@kernel.org>
+We probably won't se a problem with kernel BTF, but module BTF
+would stay loaded (because of the extra ref) even when its module
+is removed.
+
+Cc: Kumar Kartikeya Dwivedi <memxor@gmail.com>
+Fixes: 5ce937d613a4 ("bpf: Populate pairs of btf_id and destructor kfunc in btf")
+Acked-by: Kumar Kartikeya Dwivedi <memxor@gmail.com>
+Signed-off-by: Jiri Olsa <jolsa@kernel.org>
+Link: https://lore.kernel.org/r/20230120122148.1522359-1-jolsa@kernel.org
+Signed-off-by: Alexei Starovoitov <ast@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/soc/sof/ipc4-mtrace.c | 7 ++++---
- 1 file changed, 4 insertions(+), 3 deletions(-)
+ kernel/bpf/btf.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/sound/soc/sof/ipc4-mtrace.c b/sound/soc/sof/ipc4-mtrace.c
-index 70dea8ae706e..0ec6ef681012 100644
---- a/sound/soc/sof/ipc4-mtrace.c
-+++ b/sound/soc/sof/ipc4-mtrace.c
-@@ -344,9 +344,10 @@ static ssize_t sof_ipc4_priority_mask_dfs_write(struct file *file,
- 						size_t count, loff_t *ppos)
- {
- 	struct sof_mtrace_priv *priv = file->private_data;
--	int id, ret;
-+	unsigned int id;
- 	char *buf;
- 	u32 mask;
-+	int ret;
+diff --git a/kernel/bpf/btf.c b/kernel/bpf/btf.c
+index efdbba2a0230..a7c2f0c3fc19 100644
+--- a/kernel/bpf/btf.c
++++ b/kernel/bpf/btf.c
+@@ -7607,9 +7607,9 @@ int register_btf_id_dtor_kfuncs(const struct btf_id_dtor_kfunc *dtors, u32 add_c
  
- 	/*
- 	 * To update Nth mask entry, write:
-@@ -357,9 +358,9 @@ static ssize_t sof_ipc4_priority_mask_dfs_write(struct file *file,
- 	if (IS_ERR(buf))
- 		return PTR_ERR(buf);
+ 	sort(tab->dtors, tab->cnt, sizeof(tab->dtors[0]), btf_id_cmp_func, NULL);
  
--	ret = sscanf(buf, "%d,0x%x", &id, &mask);
-+	ret = sscanf(buf, "%u,0x%x", &id, &mask);
- 	if (ret != 2) {
--		ret = sscanf(buf, "%d,%x", &id, &mask);
-+		ret = sscanf(buf, "%u,%x", &id, &mask);
- 		if (ret != 2) {
- 			ret = -EINVAL;
- 			goto out;
+-	return 0;
+ end:
+-	btf_free_dtor_kfunc_tab(btf);
++	if (ret)
++		btf_free_dtor_kfunc_tab(btf);
+ 	btf_put(btf);
+ 	return ret;
+ }
 -- 
 2.39.0
 
