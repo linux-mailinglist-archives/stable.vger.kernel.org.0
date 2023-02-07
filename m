@@ -2,45 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D4F6B68D8DB
-	for <lists+stable@lfdr.de>; Tue,  7 Feb 2023 14:13:53 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2520768D833
+	for <lists+stable@lfdr.de>; Tue,  7 Feb 2023 14:07:38 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232579AbjBGNNw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Feb 2023 08:13:52 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59464 "EHLO
+        id S232204AbjBGNHh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Feb 2023 08:07:37 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55538 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232515AbjBGNNc (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Feb 2023 08:13:32 -0500
-Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C4C1B3A866
-        for <stable@vger.kernel.org>; Tue,  7 Feb 2023 05:13:00 -0800 (PST)
+        with ESMTP id S232215AbjBGNHg (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Feb 2023 08:07:36 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4383A1116E
+        for <stable@vger.kernel.org>; Tue,  7 Feb 2023 05:06:56 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 696CECE1D9B
-        for <stable@vger.kernel.org>; Tue,  7 Feb 2023 13:12:31 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3CC34C4339B;
-        Tue,  7 Feb 2023 13:12:29 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id E1A02B81995
+        for <stable@vger.kernel.org>; Tue,  7 Feb 2023 13:06:27 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3D418C433D2;
+        Tue,  7 Feb 2023 13:06:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1675775549;
-        bh=2O8bRdRFJjXegXPTj+7X22HaWLcEATY6buwRzO4p430=;
+        s=korg; t=1675775186;
+        bh=fpUQUoq0adnD/CahJ68tUfvXHb4Q5EZwacrdUdOheeQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=l8HHGyYae/EqRuVJ0HXPO5XVh1bg+VRj7QBGjKZN9FGO0jINME6BWfb12CCHrqj7Y
-         YFEQWL0gd6Jl6MGl9Ic3CQT5sCnx1c93Ox4ow1K9vSH96RD++3VRwTQXUVqrvWSZvq
-         Fw6bpzhqfvYLoM6pnWe4AE8UlPDL/RpUVRmpvbr0=
+        b=O50+d6A09PbKE5ijyRCgyctsTwLDgju2NZ2NedekcO/WVf9HhqwgLGlefgAUDWm2W
+         N9p1wmgP350wOJlAEvGmYIB/vJ8bsasK4NHW+2AGt0r/bf0ej0lkSqCySdrBxl/i0j
+         uvu/m3RAYiHalQarujTxnij64H6Mn/wWk27Qfe1Q=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, "Michael S. Tsirkin" <mst@redhat.com>,
-        Jiri Pirko <jiri@nvidia.com>, Parav Pandit <parav@nvidia.com>,
-        Jakub Kicinski <kuba@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 048/120] virtio-net: Keep stop() to follow mirror sequence of open()
+        patches@lists.linux.dev,
+        Matthew Gerlach <matthew.gerlach@linux.intel.com>,
+        Russ Weight <russell.h.weight@intel.com>,
+        Marco Pagani <marpagan@redhat.com>,
+        =?UTF-8?q?Ilpo=20J=C3=A4rvinen?= <ilpo.jarvinen@linux.intel.com>,
+        Xu Yilun <yilun.xu@intel.com>
+Subject: [PATCH 6.1 165/208] fpga: m10bmc-sec: Fix probe rollback
 Date:   Tue,  7 Feb 2023 13:56:59 +0100
-Message-Id: <20230207125620.818168154@linuxfoundation.org>
+Message-Id: <20230207125641.889469962@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.1
-In-Reply-To: <20230207125618.699726054@linuxfoundation.org>
-References: <20230207125618.699726054@linuxfoundation.org>
+In-Reply-To: <20230207125634.292109991@linuxfoundation.org>
+References: <20230207125634.292109991@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,44 +56,65 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Parav Pandit <parav@nvidia.com>
+From: Ilpo Järvinen <ilpo.jarvinen@linux.intel.com>
 
-[ Upstream commit 63b114042d8a9c02d9939889177c36dbdb17a588 ]
+commit 60ce26d10e5850f33cc76fce52f5377045e75a15 upstream.
 
-Cited commit in fixes tag frees rxq xdp info while RQ NAPI is
-still enabled and packet processing may be ongoing.
+Handle probe error rollbacks properly to avoid leaks.
 
-Follow the mirror sequence of open() in the stop() callback.
-This ensures that when rxq info is unregistered, no rx
-packet processing is ongoing.
-
-Fixes: 754b8a21a96d ("virtio_net: setup xdp_rxq_info")
-Acked-by: Michael S. Tsirkin <mst@redhat.com>
-Reviewed-by: Jiri Pirko <jiri@nvidia.com>
-Signed-off-by: Parav Pandit <parav@nvidia.com>
-Link: https://lore.kernel.org/r/20230202163516.12559-1-parav@nvidia.com
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes: 5cd339b370e2 ("fpga: m10bmc-sec: add max10 secure update functions")
+Reviewed-by: Matthew Gerlach <matthew.gerlach@linux.intel.com>
+Reviewed-by: Russ Weight <russell.h.weight@intel.com>
+Reviewed-by: Marco Pagani <marpagan@redhat.com>
+Signed-off-by: Ilpo Järvinen <ilpo.jarvinen@linux.intel.com>
+Cc: stable@vger.kernel.org
+Acked-by: Xu Yilun <yilun.xu@intel.com>
+Link: https://lore.kernel.org/r/20221214144952.8392-1-ilpo.jarvinen@linux.intel.com
+Signed-off-by: Xu Yilun <yilun.xu@intel.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/virtio_net.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/fpga/intel-m10-bmc-sec-update.c | 17 ++++++++++++-----
+ 1 file changed, 12 insertions(+), 5 deletions(-)
 
-diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
-index a5ec81c76155..66ca2ea19ba6 100644
---- a/drivers/net/virtio_net.c
-+++ b/drivers/net/virtio_net.c
-@@ -1995,8 +1995,8 @@ static int virtnet_close(struct net_device *dev)
- 	cancel_delayed_work_sync(&vi->refill);
+diff --git a/drivers/fpga/intel-m10-bmc-sec-update.c b/drivers/fpga/intel-m10-bmc-sec-update.c
+index 79d48852825e..03f1bd81c434 100644
+--- a/drivers/fpga/intel-m10-bmc-sec-update.c
++++ b/drivers/fpga/intel-m10-bmc-sec-update.c
+@@ -574,20 +574,27 @@ static int m10bmc_sec_probe(struct platform_device *pdev)
+ 	len = scnprintf(buf, SEC_UPDATE_LEN_MAX, "secure-update%d",
+ 			sec->fw_name_id);
+ 	sec->fw_name = kmemdup_nul(buf, len, GFP_KERNEL);
+-	if (!sec->fw_name)
+-		return -ENOMEM;
++	if (!sec->fw_name) {
++		ret = -ENOMEM;
++		goto fw_name_fail;
++	}
  
- 	for (i = 0; i < vi->max_queue_pairs; i++) {
--		xdp_rxq_info_unreg(&vi->rq[i].xdp_rxq);
- 		napi_disable(&vi->rq[i].napi);
-+		xdp_rxq_info_unreg(&vi->rq[i].xdp_rxq);
- 		virtnet_napi_tx_disable(&vi->sq[i].napi);
+ 	fwl = firmware_upload_register(THIS_MODULE, sec->dev, sec->fw_name,
+ 				       &m10bmc_ops, sec);
+ 	if (IS_ERR(fwl)) {
+ 		dev_err(sec->dev, "Firmware Upload driver failed to start\n");
+-		kfree(sec->fw_name);
+-		xa_erase(&fw_upload_xa, sec->fw_name_id);
+-		return PTR_ERR(fwl);
++		ret = PTR_ERR(fwl);
++		goto fw_uploader_fail;
  	}
  
+ 	sec->fwl = fwl;
+ 	return 0;
++
++fw_uploader_fail:
++	kfree(sec->fw_name);
++fw_name_fail:
++	xa_erase(&fw_upload_xa, sec->fw_name_id);
++	return ret;
+ }
+ 
+ static int m10bmc_sec_remove(struct platform_device *pdev)
 -- 
-2.39.0
+2.39.1
 
 
 
