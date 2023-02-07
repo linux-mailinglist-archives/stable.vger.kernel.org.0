@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 34B3E68D2DD
-	for <lists+stable@lfdr.de>; Tue,  7 Feb 2023 10:33:21 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0651768D2DF
+	for <lists+stable@lfdr.de>; Tue,  7 Feb 2023 10:33:27 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231608AbjBGJdU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Feb 2023 04:33:20 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43820 "EHLO
+        id S229847AbjBGJdZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Feb 2023 04:33:25 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43848 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231342AbjBGJdT (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Feb 2023 04:33:19 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0686419F2E
-        for <stable@vger.kernel.org>; Tue,  7 Feb 2023 01:33:16 -0800 (PST)
+        with ESMTP id S231342AbjBGJdV (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Feb 2023 04:33:21 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1D03D1F900
+        for <stable@vger.kernel.org>; Tue,  7 Feb 2023 01:33:19 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 95A8E61259
-        for <stable@vger.kernel.org>; Tue,  7 Feb 2023 09:33:15 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 85DB8C433EF;
-        Tue,  7 Feb 2023 09:33:14 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id AD2B661268
+        for <stable@vger.kernel.org>; Tue,  7 Feb 2023 09:33:18 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 98A04C433D2;
+        Tue,  7 Feb 2023 09:33:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1675762395;
-        bh=BwHOoi1fXhcWa8hFu63lnqr+jYZ54adJ7OauIga+elY=;
+        s=korg; t=1675762398;
+        bh=OdT3nRGnHot2mPmdQT7AdRE1giJFdZCCF7xPEIGOJuU=;
         h=Subject:To:Cc:From:Date:From;
-        b=Bq9Swzg+ZAVz3QjAmoDmqESLYxN05OH22LKlqwwpLYMGYKwsYgGq+MIGoPnVmNaN1
-         QRSfi1itJDzYAZxyotn+JQqW0l5gZLIvi5TLFIyGjuxvR/JVIHj4I84m8v92zcOsLl
-         tUle877TqcKZzH3H/kyBEAw+NCLh5U5ML9BF7MnU=
-Subject: FAILED: patch "[PATCH] nvmem: core: fix registration vs use race" failed to apply to 5.10-stable tree
+        b=VT4qXu/NrL60rvBUpNhgWehY47QywUkA8epSSwu7bBBGJ9ShCxreg42FiKMI07Knh
+         gH5vlZO4zaiRxy7AMewD5nFmVE6/q8eZD1YjLDCyTynFZ1nKLfJYrV1Rc6vBd/ev8h
+         3ZERAW9aoZwYlwl89SX/zAJXY5hLgKfHdh/qGnbQ=
+Subject: FAILED: patch "[PATCH] nvmem: core: fix registration vs use race" failed to apply to 5.4-stable tree
 To:     rmk+kernel@armlinux.org.uk, gregkh@linuxfoundation.org,
         srinivas.kandagatla@linaro.org
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Tue, 07 Feb 2023 10:33:09 +0100
-Message-ID: <16757623891585@kroah.com>
+Date:   Tue, 07 Feb 2023 10:33:10 +0100
+Message-ID: <167576239023224@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
         SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -48,7 +48,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.10-stable tree.
+The patch below does not apply to the 5.4-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
@@ -65,6 +65,16 @@ f6c052afe6f8 ("nvmem: core: Fix a conflict between MTD and NVMEM on wp-gpios pro
 de0534df9347 ("nvmem: core: fix error handling while validating keepout regions")
 1333a6779501 ("nvmem: core: allow specifying of_node")
 fd3bb8f54a88 ("nvmem: core: Add support for keepout regions")
+1eb51d6a4fce ("nvmem: switch to simpler IDA interface")
+731aa3fae813 ("nvmem: core: add support to auto devid")
+b96fc5416b09 ("nvmem: ensure sysfs writes handle write-protect pin")
+844003052719 ("nvmem: core: remove nvmem_sysfs_get_groups()")
+664f0549380c ("nvmem: core: use is_bin_visible for permissions")
+f60442ddc40c ("nvmem: core: use device_register and device_unregister")
+e6de179d7a88 ("nvmem: core: add root_only member to nvmem device struct")
+3c91ef69a3e9 ("nvmem: check for NULL reg_read and reg_write before dereferencing")
+a9c3766cb19c ("nvmem: release the write-protect pin")
+f7d8d7dcd978 ("nvmem: fix memory leak in error path")
 
 thanks,
 
