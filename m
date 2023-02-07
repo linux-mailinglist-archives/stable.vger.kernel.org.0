@@ -2,46 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 8F3A068D8AD
-	for <lists+stable@lfdr.de>; Tue,  7 Feb 2023 14:11:39 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6692C68D82A
+	for <lists+stable@lfdr.de>; Tue,  7 Feb 2023 14:07:18 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232401AbjBGNLi (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Feb 2023 08:11:38 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59992 "EHLO
+        id S232184AbjBGNHQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Feb 2023 08:07:16 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55018 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232466AbjBGNLW (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Feb 2023 08:11:22 -0500
+        with ESMTP id S232216AbjBGNHM (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Feb 2023 08:07:12 -0500
 Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2F4073BDB1
-        for <stable@vger.kernel.org>; Tue,  7 Feb 2023 05:10:37 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 428EB3A870
+        for <stable@vger.kernel.org>; Tue,  7 Feb 2023 05:06:32 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 6C523CE1D84
-        for <stable@vger.kernel.org>; Tue,  7 Feb 2023 13:10:32 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2AD5DC433EF;
-        Tue,  7 Feb 2023 13:10:29 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id C0F5CCE1C97
+        for <stable@vger.kernel.org>; Tue,  7 Feb 2023 13:05:53 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 891F9C433D2;
+        Tue,  7 Feb 2023 13:05:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1675775430;
-        bh=5OmEdmXKc2bynHdwhJayPFBjwCx3cv+x7jQjk+0OBPU=;
+        s=korg; t=1675775152;
+        bh=+lJKLrzqvZjmTpzYuBgyqCdczHpHdPp07w2453Ql8xc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=cAS3tVM8d9BfK9ykUv8G5lB7/K09hbpmV334Upw1irGrxjaDv8ZaEaR4Chp93zhTj
-         WZEJNoTgZsqaTFKZYEJg6Dh6WhSo3dOz9svRUGJUwDNUG7Ehbo2SuV1sPpQkkZQc1Y
-         jWU3LKVgwOgGYejZPNkYrcl/vb0ZCIRQw8x/gQPU=
+        b=S7uIpo0qPpu+jkOA19muRtDklUjrAgh9g0HGMddAstrjb+oEjZq6YJLihtHTWma9U
+         SknNzYQdd9eOcNS/D5gLWSbZra4Hz7Zr+zhZ9el6eqrLXBdkNFGZVGaZupeczzwnQE
+         QvnwCJbtlyvCEYAuQdYGxdHvWLHVXGEz4ledQkk0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Heiner Kallweit <hkallweit1@gmail.com>,
-        Chris Healy <healych@amazon.com>,
-        Jerome Brunet <jbrunet@baylibre.com>,
-        Jakub Kicinski <kuba@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 037/120] net: phy: meson-gxl: Add generic dummy stubs for MMD register access
+        patches@lists.linux.dev, Andreas Schwab <schwab@suse.de>,
+        Palmer Dabbelt <palmer@rivosinc.com>
+Subject: [PATCH 6.1 154/208] riscv: disable generation of unwind tables
 Date:   Tue,  7 Feb 2023 13:56:48 +0100
-Message-Id: <20230207125620.361611919@linuxfoundation.org>
+Message-Id: <20230207125641.437162749@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.1
-In-Reply-To: <20230207125618.699726054@linuxfoundation.org>
-References: <20230207125618.699726054@linuxfoundation.org>
+In-Reply-To: <20230207125634.292109991@linuxfoundation.org>
+References: <20230207125634.292109991@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,42 +52,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Chris Healy <healych@amazon.com>
+From: Andreas Schwab <schwab@suse.de>
 
-[ Upstream commit afc2336f89dc0fc0ef25b92366814524b0fd90fb ]
+commit 2f394c0e7d1129a35156e492bc8f445fb20f43ac upstream.
 
-The Meson G12A Internal PHY does not support standard IEEE MMD extended
-register access, therefore add generic dummy stubs to fail the read and
-write MMD calls. This is necessary to prevent the core PHY code from
-erroneously believing that EEE is supported by this PHY even though this
-PHY does not support EEE, as MMD register access returns all FFFFs.
+GCC 13 will enable -fasynchronous-unwind-tables by default on riscv.  In
+the kernel, we don't have any use for unwind tables yet, so disable them.
+More importantly, the .eh_frame section brings relocations
+(R_RISC_32_PCREL, R_RISCV_SET{6,8,16}, R_RISCV_SUB{6,8,16}) into modules
+that we are not prepared to handle.
 
-Fixes: 5c3407abb338 ("net: phy: meson-gxl: add g12a support")
-Reviewed-by: Heiner Kallweit <hkallweit1@gmail.com>
-Signed-off-by: Chris Healy <healych@amazon.com>
-Reviewed-by: Jerome Brunet <jbrunet@baylibre.com>
-Link: https://lore.kernel.org/r/20230130231402.471493-1-cphealy@gmail.com
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Signed-off-by: Andreas Schwab <schwab@suse.de>
+Link: https://lore.kernel.org/r/mvmzg9xybqu.fsf@suse.de
+Cc: stable@vger.kernel.org
+Signed-off-by: Palmer Dabbelt <palmer@rivosinc.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/phy/meson-gxl.c | 2 ++
- 1 file changed, 2 insertions(+)
+ arch/riscv/Makefile |    3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/drivers/net/phy/meson-gxl.c b/drivers/net/phy/meson-gxl.c
-index c49062ad72c6..5e41658b1e2f 100644
---- a/drivers/net/phy/meson-gxl.c
-+++ b/drivers/net/phy/meson-gxl.c
-@@ -271,6 +271,8 @@ static struct phy_driver meson_gxl_phy[] = {
- 		.handle_interrupt = meson_gxl_handle_interrupt,
- 		.suspend        = genphy_suspend,
- 		.resume         = genphy_resume,
-+		.read_mmd	= genphy_read_mmd_unsupported,
-+		.write_mmd	= genphy_write_mmd_unsupported,
- 	},
- };
+--- a/arch/riscv/Makefile
++++ b/arch/riscv/Makefile
+@@ -80,6 +80,9 @@ ifeq ($(CONFIG_PERF_EVENTS),y)
+         KBUILD_CFLAGS += -fno-omit-frame-pointer
+ endif
  
--- 
-2.39.0
-
++# Avoid generating .eh_frame sections.
++KBUILD_CFLAGS += -fno-asynchronous-unwind-tables -fno-unwind-tables
++
+ KBUILD_CFLAGS_MODULE += $(call cc-option,-mno-relax)
+ KBUILD_AFLAGS_MODULE += $(call as-option,-Wa$(comma)-mno-relax)
+ 
 
 
