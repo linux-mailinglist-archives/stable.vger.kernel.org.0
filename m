@@ -2,45 +2,53 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 0684368D8EE
-	for <lists+stable@lfdr.de>; Tue,  7 Feb 2023 14:14:19 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4A6E668D8EF
+	for <lists+stable@lfdr.de>; Tue,  7 Feb 2023 14:14:20 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232545AbjBGNOS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S232434AbjBGNOS (ORCPT <rfc822;lists+stable@lfdr.de>);
         Tue, 7 Feb 2023 08:14:18 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59994 "EHLO
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60842 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232554AbjBGNOB (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Feb 2023 08:14:01 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7A30B3BD9B
-        for <stable@vger.kernel.org>; Tue,  7 Feb 2023 05:13:40 -0800 (PST)
+        with ESMTP id S232613AbjBGNOC (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Feb 2023 08:14:02 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 50083303E4
+        for <stable@vger.kernel.org>; Tue,  7 Feb 2023 05:13:43 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 7A5EEB8198B
-        for <stable@vger.kernel.org>; Tue,  7 Feb 2023 13:13:23 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C2EE9C4339B;
-        Tue,  7 Feb 2023 13:13:21 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id B01FF61449
+        for <stable@vger.kernel.org>; Tue,  7 Feb 2023 13:13:25 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8929FC433EF;
+        Tue,  7 Feb 2023 13:13:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1675775602;
-        bh=mgtypHcq0eLnoQiTMvHSUdB2B0vG1biaoP25CfWrRQo=;
+        s=korg; t=1675775605;
+        bh=GIt/NGRdB9Ze1hD+cI0d1rL9tfQedGhfG7ELb8u2HhU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=eSB5opz1ioNEz4mQauueTw9cX1HQ0sWfjhmnDWaMZeRdvPVXYljq9CL41ULYDC5uh
-         TUR5XWct7/CyHhhQEc1KJblHIyPVzDCoe7jWQbdHWF4MyLXWNBK3o4hCvJzNut7wdh
-         fe/viIJtdRlwK5t3RVhly/aQCDRYBhxY5eZgsIpc=
+        b=qZP/Ts7jZwsby7aNVcPpGmiZX4i/gdYvKlpW2Qtmxh6glGgkkXkMNWPOGw7QQegxo
+         l/YWmM2KV3KB0t/pIwKrZDnHP9Ygg83ofcs9mblDc1Ye8Zv/YAibfwxC3CRssKV9S8
+         YlnD0/p9jozoRoXgMayKiA/CZXsERSe7BNtngr9c=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Longlong Xia <xialonglong1@huawei.com>,
-        "Huang, Ying" <ying.huang@intel.com>,
-        Chen Wandun <chenwandun@huawei.com>,
-        Kefeng Wang <wangkefeng.wang@huawei.com>,
-        Nanyong Sun <sunnanyong@huawei.com>,
-        Hugh Dickins <hughd@google.com>,
+        patches@lists.linux.dev,
+        "Matthew Wilcox (Oracle)" <willy@infradead.org>,
+        Ira Weiny <ira.weiny@intel.com>,
+        "Fabio M. De Francesco" <fmdefrancesco@gmail.com>,
+        Al Viro <viro@zeniv.linux.org.uk>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Helge Deller <deller@gmx.de>,
+        Alexander Potapenko <glider@google.com>,
+        Andrey Konovalov <andreyknvl@gmail.com>,
+        Bagas Sanjaya <bagasdotme@gmail.com>,
+        David Sterba <dsterba@suse.com>,
+        Kees Cook <keescook@chromium.org>,
+        Sebastian Andrzej Siewior <bigeasy@linutronix.de>,
+        Tony Luck <tony.luck@intel.com>,
         Andrew Morton <akpm@linux-foundation.org>
-Subject: [PATCH 5.15 095/120] mm/swapfile: add cond_resched() in get_swap_pages()
-Date:   Tue,  7 Feb 2023 13:57:46 +0100
-Message-Id: <20230207125622.820550593@linuxfoundation.org>
+Subject: [PATCH 5.15 096/120] highmem: round down the address passed to kunmap_flush_on_unmap()
+Date:   Tue,  7 Feb 2023 13:57:47 +0100
+Message-Id: <20230207125622.861124760@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.1
 In-Reply-To: <20230207125618.699726054@linuxfoundation.org>
 References: <20230207125618.699726054@linuxfoundation.org>
@@ -57,45 +65,57 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Longlong Xia <xialonglong1@huawei.com>
+From: Matthew Wilcox (Oracle) <willy@infradead.org>
 
-commit 7717fc1a12f88701573f9ed897cc4f6699c661e3 upstream.
+commit 88d7b12068b95731c280af8ce88e8ee9561f96de upstream.
 
-The softlockup still occurs in get_swap_pages() under memory pressure.  64
-CPU cores, 64GB memory, and 28 zram devices, the disksize of each zram
-device is 50MB with same priority as si.  Use the stress-ng tool to
-increase memory pressure, causing the system to oom frequently.
+We already round down the address in kunmap_local_indexed() which is the
+other implementation of __kunmap_local().  The only implementation of
+kunmap_flush_on_unmap() is PA-RISC which is expecting a page-aligned
+address.  This may be causing PA-RISC to be flushing the wrong addresses
+currently.
 
-The plist_for_each_entry_safe() loops in get_swap_pages() could reach tens
-of thousands of times to find available space (extreme case:
-cond_resched() is not called in scan_swap_map_slots()).  Let's add
-cond_resched() into get_swap_pages() when failed to find available space
-to avoid softlockup.
-
-Link: https://lkml.kernel.org/r/20230128094757.1060525-1-xialonglong1@huawei.com
-Signed-off-by: Longlong Xia <xialonglong1@huawei.com>
-Reviewed-by: "Huang, Ying" <ying.huang@intel.com>
-Cc: Chen Wandun <chenwandun@huawei.com>
-Cc: Huang Ying <ying.huang@intel.com>
-Cc: Kefeng Wang <wangkefeng.wang@huawei.com>
-Cc: Nanyong Sun <sunnanyong@huawei.com>
-Cc: Hugh Dickins <hughd@google.com>
+Link: https://lkml.kernel.org/r/20230126200727.1680362-1-willy@infradead.org
+Signed-off-by: Matthew Wilcox (Oracle) <willy@infradead.org>
+Fixes: 298fa1ad5571 ("highmem: Provide generic variant of kmap_atomic*")
+Reviewed-by: Ira Weiny <ira.weiny@intel.com>
+Cc: "Fabio M. De Francesco" <fmdefrancesco@gmail.com>
+Cc: Al Viro <viro@zeniv.linux.org.uk>
+Cc: Thomas Gleixner <tglx@linutronix.de>
+Cc: Helge Deller <deller@gmx.de>
+Cc: Alexander Potapenko <glider@google.com>
+Cc: Andrey Konovalov <andreyknvl@gmail.com>
+Cc: Bagas Sanjaya <bagasdotme@gmail.com>
+Cc: David Sterba <dsterba@suse.com>
+Cc: Kees Cook <keescook@chromium.org>
+Cc: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
+Cc: Tony Luck <tony.luck@intel.com>
 Cc: <stable@vger.kernel.org>
 Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- mm/swapfile.c |    1 +
- 1 file changed, 1 insertion(+)
+ include/linux/highmem-internal.h |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
---- a/mm/swapfile.c
-+++ b/mm/swapfile.c
-@@ -1093,6 +1093,7 @@ start_over:
- 			goto check_out;
- 		pr_debug("scan_swap_map of si %d failed to find offset\n",
- 			si->type);
-+		cond_resched();
+--- a/include/linux/highmem-internal.h
++++ b/include/linux/highmem-internal.h
+@@ -184,7 +184,7 @@ static inline void *kmap_local_pfn(unsig
+ static inline void __kunmap_local(void *addr)
+ {
+ #ifdef ARCH_HAS_FLUSH_ON_KUNMAP
+-	kunmap_flush_on_unmap(addr);
++	kunmap_flush_on_unmap(PTR_ALIGN_DOWN(addr, PAGE_SIZE));
+ #endif
+ }
  
- 		spin_lock(&swap_avail_lock);
- nextsi:
+@@ -211,7 +211,7 @@ static inline void *kmap_atomic_pfn(unsi
+ static inline void __kunmap_atomic(void *addr)
+ {
+ #ifdef ARCH_HAS_FLUSH_ON_KUNMAP
+-	kunmap_flush_on_unmap(addr);
++	kunmap_flush_on_unmap(PTR_ALIGN_DOWN(addr, PAGE_SIZE));
+ #endif
+ 	pagefault_enable();
+ 	if (IS_ENABLED(CONFIG_PREEMPT_RT))
 
 
