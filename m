@@ -2,43 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 4766068D843
-	for <lists+stable@lfdr.de>; Tue,  7 Feb 2023 14:08:02 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3397468D871
+	for <lists+stable@lfdr.de>; Tue,  7 Feb 2023 14:09:44 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232248AbjBGNIB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Feb 2023 08:08:01 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56252 "EHLO
+        id S232302AbjBGNJn (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Feb 2023 08:09:43 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58400 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232251AbjBGNIA (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Feb 2023 08:08:00 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4EBFEAD07
-        for <stable@vger.kernel.org>; Tue,  7 Feb 2023 05:07:39 -0800 (PST)
+        with ESMTP id S232311AbjBGNJl (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Feb 2023 08:09:41 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 66C893B0CE
+        for <stable@vger.kernel.org>; Tue,  7 Feb 2023 05:09:11 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id D0F7DB8199E
-        for <stable@vger.kernel.org>; Tue,  7 Feb 2023 13:06:57 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 24E62C433D2;
-        Tue,  7 Feb 2023 13:06:55 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 298A861383
+        for <stable@vger.kernel.org>; Tue,  7 Feb 2023 13:08:52 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 24216C4339B;
+        Tue,  7 Feb 2023 13:08:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1675775216;
-        bh=v8xvOr5k4tvtgOHuiMD+La+xZmHaOyFzcEDxyzwf6Es=;
+        s=korg; t=1675775331;
+        bh=MqQvoHVGyF75wL7kXSATwWTqAmvCqSSDppWyvCcL9KE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=oKzJ+8HAzZ4mHSXOVN6rk7BPqeVUwzPlJv5R9SLD+gpWMJDNhCpX05SA1QcEgxIA6
-         Xm9NiTbX5GO87cmE1MvqeMqgbzhAp26bAhp0IEAsLRQaPGpV/OalA8Ldp8UjuSQIFn
-         wxMoA0U2uvnX52ZC1z7BlewuDh8+B+RmfhHKQg84=
+        b=KVEu12C9fq4HwcV9HkrdJzKljQ88NzdYob1Tv9hSUJU3pk/Nvj+IVKetV2IRlcbHn
+         x6s68XDWgyW0H7PLUXDlJGw7Jl3y/7NiQDl2W+xJPNRyVshBvBHpEJS4L6zSz6nMqb
+         HykafMM6cgw45UyRux0nzK8o3vr9Rxm7BdfHcRkA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Phillip Lougher <phillip@squashfs.org.uk>,
-        syzbot+082fa4af80a5bb1a9843@syzkaller.appspotmail.com,
-        Alexey Khoroshilov <khoroshilov@ispras.ru>,
-        Fedor Pchelkin <pchelkin@ispras.ru>,
+        patches@lists.linux.dev,
+        "Liam R. Howlett" <Liam.Howlett@oracle.com>, amanieu@gmail.com,
+        Holger Hoffsttte <holger@applied-asynchrony.com>,
         Andrew Morton <akpm@linux-foundation.org>
-Subject: [PATCH 6.1 174/208] Squashfs: fix handling and sanity checking of xattr_ids count
-Date:   Tue,  7 Feb 2023 13:57:08 +0100
-Message-Id: <20230207125642.317891969@linuxfoundation.org>
+Subject: [PATCH 6.1 175/208] maple_tree: fix mas_empty_area_rev() lower bound validation
+Date:   Tue,  7 Feb 2023 13:57:09 +0100
+Message-Id: <20230207125642.367523550@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.1
 In-Reply-To: <20230207125634.292109991@linuxfoundation.org>
 References: <20230207125634.292109991@linuxfoundation.org>
@@ -55,143 +54,186 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Phillip Lougher <phillip@squashfs.org.uk>
+From: Liam Howlett <liam.howlett@oracle.com>
 
-commit f65c4bbbd682b0877b669828b4e033b8d5d0a2dc upstream.
+commit 7327e8111adb315423035fb5233533016dfd3f2e upstream.
 
-A Sysbot [1] corrupted filesystem exposes two flaws in the handling and
-sanity checking of the xattr_ids count in the filesystem.  Both of these
-flaws cause computation overflow due to incorrect typing.
+mas_empty_area_rev() was not correctly validating the start of a gap
+against the lower limit.  This could lead to the range starting lower than
+the requested minimum.
 
-In the corrupted filesystem the xattr_ids value is 4294967071, which
-stored in a signed variable becomes the negative number -225.
+Fix the issue by better validating a gap once one is found.
 
-Flaw 1 (64-bit systems only):
+This commit also adds tests to the maple tree test suite for this issue
+and tests the mas_empty_area() function for similar bound checking.
 
-The signed integer xattr_ids variable causes sign extension.
-
-This causes variable overflow in the SQUASHFS_XATTR_*(A) macros.  The
-variable is first multiplied by sizeof(struct squashfs_xattr_id) where the
-type of the sizeof operator is "unsigned long".
-
-On a 64-bit system this is 64-bits in size, and causes the negative number
-to be sign extended and widened to 64-bits and then become unsigned.  This
-produces the very large number 18446744073709548016 or 2^64 - 3600.  This
-number when rounded up by SQUASHFS_METADATA_SIZE - 1 (8191 bytes) and
-divided by SQUASHFS_METADATA_SIZE overflows and produces a length of 0
-(stored in len).
-
-Flaw 2 (32-bit systems only):
-
-On a 32-bit system the integer variable is not widened by the unsigned
-long type of the sizeof operator (32-bits), and the signedness of the
-variable has no effect due it always being treated as unsigned.
-
-The above corrupted xattr_ids value of 4294967071, when multiplied
-overflows and produces the number 4294963696 or 2^32 - 3400.  This number
-when rounded up by SQUASHFS_METADATA_SIZE - 1 (8191 bytes) and divided by
-SQUASHFS_METADATA_SIZE overflows again and produces a length of 0.
-
-The effect of the 0 length computation:
-
-In conjunction with the corrupted xattr_ids field, the filesystem also has
-a corrupted xattr_table_start value, where it matches the end of
-filesystem value of 850.
-
-This causes the following sanity check code to fail because the
-incorrectly computed len of 0 matches the incorrect size of the table
-reported by the superblock (0 bytes).
-
-    len = SQUASHFS_XATTR_BLOCK_BYTES(*xattr_ids);
-    indexes = SQUASHFS_XATTR_BLOCKS(*xattr_ids);
-
-    /*
-     * The computed size of the index table (len bytes) should exactly
-     * match the table start and end points
-    */
-    start = table_start + sizeof(*id_table);
-    end = msblk->bytes_used;
-
-    if (len != (end - start))
-            return ERR_PTR(-EINVAL);
-
-Changing the xattr_ids variable to be "usigned int" fixes the flaw on a
-64-bit system.  This relies on the fact the computation is widened by the
-unsigned long type of the sizeof operator.
-
-Casting the variable to u64 in the above macro fixes this flaw on a 32-bit
-system.
-
-It also means 64-bit systems do not implicitly rely on the type of the
-sizeof operator to widen the computation.
-
-[1] https://lore.kernel.org/lkml/000000000000cd44f005f1a0f17f@google.com/
-
-Link: https://lkml.kernel.org/r/20230127061842.10965-1-phillip@squashfs.org.uk
-Fixes: 506220d2ba21 ("squashfs: add more sanity checks in xattr id lookup")
-Signed-off-by: Phillip Lougher <phillip@squashfs.org.uk>
-Reported-by: <syzbot+082fa4af80a5bb1a9843@syzkaller.appspotmail.com>
-Cc: Alexey Khoroshilov <khoroshilov@ispras.ru>
-Cc: Fedor Pchelkin <pchelkin@ispras.ru>
+Link: https://lkml.kernel.org/r/20230111200136.1851322-1-Liam.Howlett@oracle.com
+Link: https://bugzilla.kernel.org/show_bug.cgi?id=216911
+Fixes: 54a611b60590 ("Maple Tree: add new data structure")
+Signed-off-by: Liam R. Howlett <Liam.Howlett@oracle.com>
+Reported-by: <amanieu@gmail.com>
+  Link: https://lore.kernel.org/linux-mm/0b9f5425-08d4-8013-aa4c-e620c3b10bb2@leemhuis.info/
+Tested-by: Holger Hoffsttte <holger@applied-asynchrony.com>
 Cc: <stable@vger.kernel.org>
 Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/squashfs/squashfs_fs.h    |    2 +-
- fs/squashfs/squashfs_fs_sb.h |    2 +-
- fs/squashfs/xattr.h          |    4 ++--
- fs/squashfs/xattr_id.c       |    2 +-
- 4 files changed, 5 insertions(+), 5 deletions(-)
+ lib/maple_tree.c      |   17 ++++-----
+ lib/test_maple_tree.c |   89 ++++++++++++++++++++++++++++++++++++++++++++++++++
+ 2 files changed, 97 insertions(+), 9 deletions(-)
 
---- a/fs/squashfs/squashfs_fs.h
-+++ b/fs/squashfs/squashfs_fs.h
-@@ -183,7 +183,7 @@ static inline int squashfs_block_size(__
- #define SQUASHFS_ID_BLOCK_BYTES(A)	(SQUASHFS_ID_BLOCKS(A) *\
- 					sizeof(u64))
- /* xattr id lookup table defines */
--#define SQUASHFS_XATTR_BYTES(A)		((A) * sizeof(struct squashfs_xattr_id))
-+#define SQUASHFS_XATTR_BYTES(A)		(((u64) (A)) * sizeof(struct squashfs_xattr_id))
+--- a/lib/maple_tree.c
++++ b/lib/maple_tree.c
+@@ -4883,7 +4883,7 @@ static bool mas_rev_awalk(struct ma_stat
+ 	unsigned long *pivots, *gaps;
+ 	void __rcu **slots;
+ 	unsigned long gap = 0;
+-	unsigned long max, min, index;
++	unsigned long max, min;
+ 	unsigned char offset;
  
- #define SQUASHFS_XATTR_BLOCK(A)		(SQUASHFS_XATTR_BYTES(A) / \
- 					SQUASHFS_METADATA_SIZE)
---- a/fs/squashfs/squashfs_fs_sb.h
-+++ b/fs/squashfs/squashfs_fs_sb.h
-@@ -63,7 +63,7 @@ struct squashfs_sb_info {
- 	long long				bytes_used;
- 	unsigned int				inodes;
- 	unsigned int				fragments;
--	int					xattr_ids;
-+	unsigned int				xattr_ids;
- 	unsigned int				ids;
- 	bool					panic_on_errors;
- };
---- a/fs/squashfs/xattr.h
-+++ b/fs/squashfs/xattr.h
-@@ -10,12 +10,12 @@
+ 	if (unlikely(mas_is_err(mas)))
+@@ -4905,8 +4905,7 @@ static bool mas_rev_awalk(struct ma_stat
+ 		min = mas_safe_min(mas, pivots, --offset);
  
- #ifdef CONFIG_SQUASHFS_XATTR
- extern __le64 *squashfs_read_xattr_id_table(struct super_block *, u64,
--		u64 *, int *);
-+		u64 *, unsigned int *);
- extern int squashfs_xattr_lookup(struct super_block *, unsigned int, int *,
- 		unsigned int *, unsigned long long *);
- #else
- static inline __le64 *squashfs_read_xattr_id_table(struct super_block *sb,
--		u64 start, u64 *xattr_table_start, int *xattr_ids)
-+		u64 start, u64 *xattr_table_start, unsigned int *xattr_ids)
+ 	max = mas_safe_pivot(mas, pivots, offset, type);
+-	index = mas->index;
+-	while (index <= max) {
++	while (mas->index <= max) {
+ 		gap = 0;
+ 		if (gaps)
+ 			gap = gaps[offset];
+@@ -4937,10 +4936,8 @@ static bool mas_rev_awalk(struct ma_stat
+ 		min = mas_safe_min(mas, pivots, offset);
+ 	}
+ 
+-	if (unlikely(index > max)) {
+-		mas_set_err(mas, -EBUSY);
+-		return false;
+-	}
++	if (unlikely((mas->index > max) || (size - 1 > max - mas->index)))
++		goto no_space;
+ 
+ 	if (unlikely(ma_is_leaf(type))) {
+ 		mas->offset = offset;
+@@ -4957,9 +4954,11 @@ static bool mas_rev_awalk(struct ma_stat
+ 	return false;
+ 
+ ascend:
+-	if (mte_is_root(mas->node))
+-		mas_set_err(mas, -EBUSY);
++	if (!mte_is_root(mas->node))
++		return false;
+ 
++no_space:
++	mas_set_err(mas, -EBUSY);
+ 	return false;
+ }
+ 
+--- a/lib/test_maple_tree.c
++++ b/lib/test_maple_tree.c
+@@ -2517,6 +2517,91 @@ static noinline void check_bnode_min_spa
+ 	mt_set_non_kernel(0);
+ }
+ 
++static noinline void check_empty_area_window(struct maple_tree *mt)
++{
++	unsigned long i, nr_entries = 20;
++	MA_STATE(mas, mt, 0, 0);
++
++	for (i = 1; i <= nr_entries; i++)
++		mtree_store_range(mt, i*10, i*10 + 9,
++				  xa_mk_value(i), GFP_KERNEL);
++
++	/* Create another hole besides the one at 0 */
++	mtree_store_range(mt, 160, 169, NULL, GFP_KERNEL);
++
++	/* Check lower bounds that don't fit */
++	rcu_read_lock();
++	MT_BUG_ON(mt, mas_empty_area_rev(&mas, 5, 90, 10) != -EBUSY);
++
++	mas_reset(&mas);
++	MT_BUG_ON(mt, mas_empty_area_rev(&mas, 6, 90, 5) != -EBUSY);
++
++	/* Check lower bound that does fit */
++	mas_reset(&mas);
++	MT_BUG_ON(mt, mas_empty_area_rev(&mas, 5, 90, 5) != 0);
++	MT_BUG_ON(mt, mas.index != 5);
++	MT_BUG_ON(mt, mas.last != 9);
++	rcu_read_unlock();
++
++	/* Check one gap that doesn't fit and one that does */
++	rcu_read_lock();
++	mas_reset(&mas);
++	MT_BUG_ON(mt, mas_empty_area_rev(&mas, 5, 217, 9) != 0);
++	MT_BUG_ON(mt, mas.index != 161);
++	MT_BUG_ON(mt, mas.last != 169);
++
++	/* Check one gap that does fit above the min */
++	mas_reset(&mas);
++	MT_BUG_ON(mt, mas_empty_area_rev(&mas, 100, 218, 3) != 0);
++	MT_BUG_ON(mt, mas.index != 216);
++	MT_BUG_ON(mt, mas.last != 218);
++
++	/* Check size that doesn't fit any gap */
++	mas_reset(&mas);
++	MT_BUG_ON(mt, mas_empty_area_rev(&mas, 100, 218, 16) != -EBUSY);
++
++	/*
++	 * Check size that doesn't fit the lower end of the window but
++	 * does fit the gap
++	 */
++	mas_reset(&mas);
++	MT_BUG_ON(mt, mas_empty_area_rev(&mas, 167, 200, 4) != -EBUSY);
++
++	/*
++	 * Check size that doesn't fit the upper end of the window but
++	 * does fit the gap
++	 */
++	mas_reset(&mas);
++	MT_BUG_ON(mt, mas_empty_area_rev(&mas, 100, 162, 4) != -EBUSY);
++
++	/* Check mas_empty_area forward */
++	mas_reset(&mas);
++	MT_BUG_ON(mt, mas_empty_area(&mas, 0, 100, 9) != 0);
++	MT_BUG_ON(mt, mas.index != 0);
++	MT_BUG_ON(mt, mas.last != 8);
++
++	mas_reset(&mas);
++	MT_BUG_ON(mt, mas_empty_area(&mas, 0, 100, 4) != 0);
++	MT_BUG_ON(mt, mas.index != 0);
++	MT_BUG_ON(mt, mas.last != 3);
++
++	mas_reset(&mas);
++	MT_BUG_ON(mt, mas_empty_area(&mas, 0, 100, 11) != -EBUSY);
++
++	mas_reset(&mas);
++	MT_BUG_ON(mt, mas_empty_area(&mas, 5, 100, 6) != -EBUSY);
++
++	mas_reset(&mas);
++	MT_BUG_ON(mt, mas_empty_area(&mas, 0, 8, 10) != -EBUSY);
++
++	mas_reset(&mas);
++	mas_empty_area(&mas, 100, 165, 3);
++
++	mas_reset(&mas);
++	MT_BUG_ON(mt, mas_empty_area(&mas, 100, 163, 6) != -EBUSY);
++	rcu_read_unlock();
++}
++
+ static DEFINE_MTREE(tree);
+ static int maple_tree_seed(void)
  {
- 	struct squashfs_xattr_id_table *id_table;
+@@ -2765,6 +2850,10 @@ static int maple_tree_seed(void)
+ 	check_bnode_min_spanning(&tree);
+ 	mtree_destroy(&tree);
  
---- a/fs/squashfs/xattr_id.c
-+++ b/fs/squashfs/xattr_id.c
-@@ -56,7 +56,7 @@ int squashfs_xattr_lookup(struct super_b
-  * Read uncompressed xattr id lookup table indexes from disk into memory
-  */
- __le64 *squashfs_read_xattr_id_table(struct super_block *sb, u64 table_start,
--		u64 *xattr_table_start, int *xattr_ids)
-+		u64 *xattr_table_start, unsigned int *xattr_ids)
- {
- 	struct squashfs_sb_info *msblk = sb->s_fs_info;
- 	unsigned int len, indexes;
++	mt_init_flags(&tree, MT_FLAGS_ALLOC_RANGE);
++	check_empty_area_window(&tree);
++	mtree_destroy(&tree);
++
+ #if defined(BENCH)
+ skip:
+ #endif
 
 
