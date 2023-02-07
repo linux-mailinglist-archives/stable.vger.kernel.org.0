@@ -2,190 +2,302 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 9D0F668CB4F
-	for <lists+stable@lfdr.de>; Tue,  7 Feb 2023 01:41:28 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id BB59468CB5C
+	for <lists+stable@lfdr.de>; Tue,  7 Feb 2023 01:43:24 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229517AbjBGAl0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 6 Feb 2023 19:41:26 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39534 "EHLO
+        id S229910AbjBGAnX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 6 Feb 2023 19:43:23 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40376 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229483AbjBGAlZ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 6 Feb 2023 19:41:25 -0500
-Received: from mga01.intel.com (mga01.intel.com [192.55.52.88])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4BC7C24100;
-        Mon,  6 Feb 2023 16:41:24 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
-  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1675730484; x=1707266484;
-  h=from:to:cc:subject:date:message-id:references:
-   in-reply-to:content-transfer-encoding:mime-version;
-  bh=jaeME6ttix+E4q8PyW1dRtFiEK7OjvLhV+Jwn7ouBfk=;
-  b=RhOTTBkAjA1mQng4PqTN9sN8I6pX2OsCw6ZQzYROFFdWurZCc8x2Mg/T
-   9GfVwEPT8qm6YTPin2s3OxUg31juli7VgeldFlzTJliPDNDcFLVpRscPS
-   0Pq5fyvEc6mMX8CrQ+ACMkSmsseXmdAT7Wx7fk6bSoUNdsi8E6x/nwN5T
-   xe/j+6uE3i0Mb8d38NGLg3NM/8Qx3Gf2TKv9DbbEThgTINcxaD5tdxsr5
-   ej8BjBi7XHG68utg6FOZnl9nINy6ZpTlIoxqlUSMhtrwYYnyKjMjDvteb
-   MeIxPA8MCFZywvy+5uR9CwWHJV62sgmcS+8OvEjnDJ6UEtGpJp0K6t9cZ
-   A==;
-X-IronPort-AV: E=McAfee;i="6500,9779,10613"; a="356725212"
-X-IronPort-AV: E=Sophos;i="5.97,276,1669104000"; 
-   d="scan'208";a="356725212"
-Received: from fmsmga006.fm.intel.com ([10.253.24.20])
-  by fmsmga101.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 06 Feb 2023 16:41:23 -0800
-X-ExtLoop1: 1
-X-IronPort-AV: E=McAfee;i="6500,9779,10613"; a="912126454"
-X-IronPort-AV: E=Sophos;i="5.97,276,1669104000"; 
-   d="scan'208";a="912126454"
-Received: from orsmsx601.amr.corp.intel.com ([10.22.229.14])
-  by fmsmga006.fm.intel.com with ESMTP; 06 Feb 2023 16:41:23 -0800
-Received: from orsmsx610.amr.corp.intel.com (10.22.229.23) by
- ORSMSX601.amr.corp.intel.com (10.22.229.14) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
- 15.1.2507.16; Mon, 6 Feb 2023 16:41:23 -0800
-Received: from orsmsx610.amr.corp.intel.com (10.22.229.23) by
- ORSMSX610.amr.corp.intel.com (10.22.229.23) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
- 15.1.2507.16; Mon, 6 Feb 2023 16:41:23 -0800
-Received: from ORSEDG602.ED.cps.intel.com (10.7.248.7) by
- orsmsx610.amr.corp.intel.com (10.22.229.23) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
- 15.1.2507.16 via Frontend Transport; Mon, 6 Feb 2023 16:41:22 -0800
-Received: from NAM12-MW2-obe.outbound.protection.outlook.com (104.47.66.47) by
- edgegateway.intel.com (134.134.137.103) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- 15.1.2507.16; Mon, 6 Feb 2023 16:41:22 -0800
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=i9w7p5Hr2INSO6mBNhaXxpMBExHEK8QQSC+7U84ysITZvTMsElnQZRQO6FD/bz/708msPJjAwhSz57AxVxIurvfR9e3Cr57vos/JTn5/hsZpTtUug83u/lnKn63ynCNZPzi2kKSZu2LUVskFDTtZfoGT5LGiyJ2QiD8uyCPyd35X3HeFc+m+SdkPZ2Qly33v7FWXkjpNM4l1rX26BTeD/PJiiSYkHydmz/Sv/V7sJnGnnapAaCc/90xVgTF3ADn+70KHOmoKjC+xlUhWvEfWKh6LW4M/Q952UB/7rDxIrAzGDQKZW1KptXnF2uGNhk+UZ3uzpYGe/DR3agCQUIMdBA==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector9901;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=pI2hRgYUUMYiONAMVV/lbOiKibrvtJ7taiuUvQSXbiU=;
- b=XJkKvbUQ7ENzxXxbt9HGY56EYiDOp9/TvriP1sXe679/y4fLx6TPQGPX7CAtWDX5Oj7cMrzakjAz3HA1SSagFmis/7MTgzrIHn+/36kCQDLe84IPMuo/60aBQpZuX4p0Kcf7MRXfpTOM4uwS7cyc6ZnQP3f4/7Jb+zxFXfv+KwGcyNuE5PqFvhfG/c+R/ZurgKDplM3+IRraxmIkHyl0gENWuh1qL+/FgJ/sMCqqyE85kuB502BNm+53PnMy7QTpZDGsu91Uga5XQQTTUo+viglsKy6pJ9wt1rBHZ6epJQENMW1CMfZK0VrlRc/8U3uWhJ/AVb1id/j3/eeaS9IVkA==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
- smtp.mailfrom=intel.com; dmarc=pass action=none header.from=intel.com;
- dkim=pass header.d=intel.com; arc=none
-Received: from BN9PR11MB5276.namprd11.prod.outlook.com (2603:10b6:408:135::18)
- by BL1PR11MB6002.namprd11.prod.outlook.com (2603:10b6:208:386::12) with
- Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.6064.34; Tue, 7 Feb
- 2023 00:41:16 +0000
-Received: from BN9PR11MB5276.namprd11.prod.outlook.com
- ([fe80::6a8d:b95:e1b5:d79d]) by BN9PR11MB5276.namprd11.prod.outlook.com
- ([fe80::6a8d:b95:e1b5:d79d%8]) with mapi id 15.20.6064.034; Tue, 7 Feb 2023
- 00:41:16 +0000
-From:   "Tian, Kevin" <kevin.tian@intel.com>
-To:     Jacob Pan <jacob.jun.pan@linux.intel.com>,
-        Baolu Lu <baolu.lu@linux.intel.com>
-CC:     LKML <linux-kernel@vger.kernel.org>,
-        "iommu@lists.linux.dev" <iommu@lists.linux.dev>,
-        Joerg Roedel <joro@8bytes.org>,
-        David Woodhouse <dwmw2@infradead.org>,
-        "Raj, Ashok" <ashok.raj@intel.com>,
-        "Liu, Yi L" <yi.l.liu@intel.com>,
-        "stable@vger.kernel.org" <stable@vger.kernel.org>,
-        "Ghorai, Sukumar" <sukumar.ghorai@intel.com>
-Subject: RE: [PATCH] iommu/vt-d: Fix PASID directory pointer coherency
-Thread-Topic: [PATCH] iommu/vt-d: Fix PASID directory pointer coherency
-Thread-Index: AQHZOBtmLBuHwLKazUOSk0ZXb6TPPK6+JViAgAQKcoCAAHjjQA==
-Date:   Tue, 7 Feb 2023 00:41:16 +0000
-Message-ID: <BN9PR11MB52762264B58BA63D81F50F3E8CDB9@BN9PR11MB5276.namprd11.prod.outlook.com>
-References: <20230203220714.1283383-1-jacob.jun.pan@linux.intel.com>
-        <de4d0617-ceef-efca-69f1-a095ce91588e@linux.intel.com>
- <20230206092527.670f7ef7@jacob-builder>
-In-Reply-To: <20230206092527.670f7ef7@jacob-builder>
-Accept-Language: en-US
-Content-Language: en-US
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-authentication-results: dkim=none (message not signed)
- header.d=none;dmarc=none action=none header.from=intel.com;
-x-ms-publictraffictype: Email
-x-ms-traffictypediagnostic: BN9PR11MB5276:EE_|BL1PR11MB6002:EE_
-x-ms-office365-filtering-correlation-id: b221a450-b9e5-442a-9718-08db08a40565
-x-ms-exchange-senderadcheck: 1
-x-ms-exchange-antispam-relay: 0
-x-microsoft-antispam: BCL:0;
-x-microsoft-antispam-message-info: 0S/FRBw+f/yluE7/Bl/OHchyydaBXaCFtVxCUaKQna66Wz//ZHZ2DL6OO5kFOc4k2eA2BNQ13paynu5NFn6jEYOjONq9qcUY7OrkJk2rFaREKi+Mqcn3HDbxCT7x0i1mCgCGla47/s/2Ow89wF3ExUlu3kC201mvxH0xq1POuvUV07YiGSO3ey81CNeRAy8VLWL1E3SBk2f914ff55ejcsLIMcuFDnErYmibMX1B4uXjcr/vS2m+pvLmm9/OZ07Uy0Rj9X9mUgLTgyDysQ0AW9Fw1sB5mwJeg+XI5r+UuhDbCyKQRY7UcqUKPIVTrjmYh1lMUbvFgqLZY7R4V0GX4ohQ2LM/dRqSn5urRokIn9nKncx4gFrQYF3CuupcZ3nDc9dCA+i4LacI320wMTCW09FqHEhckU6bMPdQ0PK03ucnqcw1fL81z955dszZrBjEDjUkco7++m0E0icrI9fxsw17FXn0GmkLo7dc7iYMfY3y0hPYCoCm+wpsIUYBd5KEQrybl3/bnVU9VQRxPXd5bG2/9nRmELfCVYdg4KjN/OQ7xzfOzJmcvK4OpGRlJJ+ihY8OuCECkdzVbtyx9DiZdSsn7F8zhm7mY9JDubYU+y1noGNPo1/rE8T3RRMgSgM6Q3xmcOfQjQjbmwqAJIdAg7Wi9YO0yRFqnGutzKwn00+PgRDBhV6Mg0BeOmfCqgmKSEjB6tdhm9XBplRpVh03Hg==
-x-forefront-antispam-report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:BN9PR11MB5276.namprd11.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230025)(136003)(376002)(346002)(39860400002)(396003)(366004)(451199018)(33656002)(122000001)(86362001)(38100700002)(38070700005)(55016003)(82960400001)(66446008)(316002)(64756008)(8936002)(41300700001)(8676002)(4326008)(66946007)(5660300002)(52536014)(110136005)(54906003)(66476007)(66556008)(76116006)(2906002)(4744005)(83380400001)(478600001)(186003)(6506007)(71200400001)(9686003)(26005)(7696005);DIR:OUT;SFP:1102;
-x-ms-exchange-antispam-messagedata-chunkcount: 1
-x-ms-exchange-antispam-messagedata-0: =?us-ascii?Q?8IDHbo3C9BBTPtQfNCJvJBWy7ZkJPdlkjOh1DqI57ldmC+KJc/r8jHtggjYz?=
- =?us-ascii?Q?4REQExiKM1+NIOzIY11cKIofb/qjx4BCQjHRkYZtmXMHTKNY/a7n7OIEu4KW?=
- =?us-ascii?Q?vxJGVXmJNg4Xv3l+BiNahe1y2dNjcU8edzcKLmXqb/T25nxWPf/KuOnAHWkX?=
- =?us-ascii?Q?Bv5MLmP5RKbBSFliGa5/Lkd9B0LDgl+B6dVUS9mL4IvEpH3+aCp6pidKeySM?=
- =?us-ascii?Q?/GV7IQv10CGbUGrU1bSQ6PUD1pq2D9D8mCwWptylurjlKmqfRtAQuEGzdyTJ?=
- =?us-ascii?Q?dKYIkDHtpx33B6ljQXHe6UWz5mtqwHvITP3/PGcLTJ6CqNW/+SmKbpkDrN+n?=
- =?us-ascii?Q?JLwmm5gkwvJRAsr3bWYBGRzVCbLehqjldcgm9tky71tVWOVHIuwcYcS2hwQh?=
- =?us-ascii?Q?p46tj4ISSZKXZcxN0v1rsO6Heafad5jiqXFrzuYXGQIXMjFX2mHvZ+J9KkEF?=
- =?us-ascii?Q?YTlmNPdi/0BjDSXdZHctcXBNYojzTRgpsl0y3mvlWtus9lYfPFiMlOKb/gDM?=
- =?us-ascii?Q?pRTLqNLP8XhRXCOHAj5XTA4HivRCk1hiBoqKopkAZUkHBhHHxuje+ntDQwCu?=
- =?us-ascii?Q?6Dj2kfVwcWNjDw4j4P2tHz9istvHXYn2CHRd4k5P0TfP8PQ2mEkLNknfJZDG?=
- =?us-ascii?Q?cKL0vrysf8zO3fih6YmZBsJV+ccPzNGImH8hl00LLQ2mQcT6Aq5ymN4nIZU5?=
- =?us-ascii?Q?R+fAyMe1Q4R1e+IZj0Le+qq7FdrAzce5EH3Mf7ILP1WuxlXDzxEn90ZI40sh?=
- =?us-ascii?Q?vagMaDEJUtItuu+7pP75Zfmp0bILRGanZmpTR0K+sRSuAURjY3EHTSzIGojn?=
- =?us-ascii?Q?fbDpMb/kESdl6hrDO1emx11kD4bOvm2oTYBbLOiPU5wXN1tMlrQBMnCuRm42?=
- =?us-ascii?Q?KfVwScp9oDyzEZSZJt4bbDh6T2FSuipbC7B2WFB7t3wsjVpd5UWOgms0BLqn?=
- =?us-ascii?Q?mJO36ynUD7wIO+btExNopSxSUhMV279cAbqOHL/ICuQDhi2bebA1ph7+XomZ?=
- =?us-ascii?Q?n93lcIsTnHjMGuaHMU9c9nEzCYjZa/CRsx9v8ETZW4Ek1TGEGA2MkPzvIxZw?=
- =?us-ascii?Q?kTDKHbbn3hcAB6darwKLV/V1XKoT6wnQDEERby0L54rhvtlzroLonxWInNnJ?=
- =?us-ascii?Q?SssFe8X+KwrRbhb3qCF4JnRD5uabjD26VTXeH4VN6nO600O06WT/OlRyS+dQ?=
- =?us-ascii?Q?YTTpg7BjV7h7lcJ0gFRL25iC6JRSwBizdZt1jLgA1ODNzsNtGnMFrKstWc+C?=
- =?us-ascii?Q?lbeiOnJF+GCxIRxjCj2uFusBLcoLMXHI69x/8u6iLu4jn7c18nDVikDI7ZiA?=
- =?us-ascii?Q?yanGSyLKIThxsHCT5QjaaU0Y+vjVF2bpLaQQv82M0zpOoE/jpB13qGslrvC1?=
- =?us-ascii?Q?/SzG3fGLViI5uoBFcrbSycDcocLg3IXTdu3CAACAfBgmSoo0njHYQ3x79DHN?=
- =?us-ascii?Q?e6EealGNcfBSiyCM8daLNTPoqPlhAi3GtFcY6vhipNI3cqOfT8mqJmLx9ikd?=
- =?us-ascii?Q?JtW5rgzJCRpLsE/O2GQPepCqdJIKQ2ecT62nxbBk1vSPWoZMoEWnBZn1MNjx?=
- =?us-ascii?Q?6q/+wv76BrH4FJ30iM9P/oiQC2TxkDnwtFzizR4C?=
-Content-Type: text/plain; charset="us-ascii"
+        with ESMTP id S229663AbjBGAnW (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 6 Feb 2023 19:43:22 -0500
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3969016AF6
+        for <stable@vger.kernel.org>; Mon,  6 Feb 2023 16:42:37 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1675730556;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=9PL65Ot97HxurY2i6/J8tAA9u5Jl4yQNwsMewS8lKv8=;
+        b=f/mvusCz3dDwIyRK0iIoeY7b7Kell15IITxDKxyXAoM4K7TAMz71vU835i8jfVTuZNv6Y7
+        rl9xN+VCdUt2i4d6pjukB3/1cPj85lRZQEd3omeNwPQ0TygFGfm8IfCzR812B3X2yzIQFq
+        Qh0S0uH1AywYHOQQQ+e2qwH1u0OOkkU=
+Received: from mail-qt1-f197.google.com (mail-qt1-f197.google.com
+ [209.85.160.197]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_128_GCM_SHA256) id
+ us-mta-615-zj9G4uFSNVayS0BW5poo8Q-1; Mon, 06 Feb 2023 19:42:35 -0500
+X-MC-Unique: zj9G4uFSNVayS0BW5poo8Q-1
+Received: by mail-qt1-f197.google.com with SMTP id bz17-20020a05622a1e9100b003b9c1013018so7620612qtb.18
+        for <stable@vger.kernel.org>; Mon, 06 Feb 2023 16:42:35 -0800 (PST)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=mime-version:user-agent:content-transfer-encoding:organization
+         :references:in-reply-to:date:cc:to:from:subject:message-id
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
+        bh=9PL65Ot97HxurY2i6/J8tAA9u5Jl4yQNwsMewS8lKv8=;
+        b=t31GVD/E2pV+1i9wDgy6ovOHew8v4705Oy7x0um4UD8ADXOWTRNuYoosXWItgJfN7R
+         02x34vdP+dCLWo/GauM0sc4v6V0ob8l89h13e8siXSu+NGUUq3ExPdKwM9RAZE2hHQDu
+         5FTdJnxRQLjtT4U6IEQSgquokuDHo9p8XAlKcdoIOCoWbzuAj+55vZnh79euYxLuRk4E
+         e20ayuyg4MgC2asOlRghmoEYYkZQ9kUdyvE3zHvGqTVBf2SgNb9p8r49AH2GpaApXWNt
+         V9Loj8VVBqFal3/EUUkUrxtLi9exXxBWnBa3r5/zZsrPQu4RfPLPSkHK7XsGEtfhsoRE
+         d/tA==
+X-Gm-Message-State: AO0yUKUqWYcWx5yNurLDSOiI/H8YAUocsz+0rlEYE+7dyQxm1/kHVN8/
+        HfCEknFwqMPhfbaxpB/rXhPzuMnBSgbH8dypE92b/l/PMsqqwMhAjbI8Fjwm8tZGo20P9w50HtT
+        deqBiv2yeTK8odaMF
+X-Received: by 2002:a05:622a:513:b0:3b6:3512:eec9 with SMTP id l19-20020a05622a051300b003b63512eec9mr2084814qtx.51.1675730554717;
+        Mon, 06 Feb 2023 16:42:34 -0800 (PST)
+X-Google-Smtp-Source: AK7set/2/RXcu0+XdXBcKJ9IB+foxl8+YciCfBTMv070Rr3TzCgj4JtCo/9brBcBRFuZJc3bcnGgJw==
+X-Received: by 2002:a05:622a:513:b0:3b6:3512:eec9 with SMTP id l19-20020a05622a051300b003b63512eec9mr2084797qtx.51.1675730554423;
+        Mon, 06 Feb 2023 16:42:34 -0800 (PST)
+Received: from ?IPv6:2600:4040:5c68:6800::feb? ([2600:4040:5c68:6800::feb])
+        by smtp.gmail.com with ESMTPSA id y21-20020a05622a005500b003b9bb59543fsm8448841qtw.61.2023.02.06.16.42.33
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Mon, 06 Feb 2023 16:42:33 -0800 (PST)
+Message-ID: <c74b71b1d998ce6b062405508354dd1943aafa38.camel@redhat.com>
+Subject: Re: [PATCH v2 02/17] drm/display/dp_mst: Handle old/new payload
+ states in drm_dp_remove_payload()
+From:   Lyude Paul <lyude@redhat.com>
+To:     imre.deak@intel.com
+Cc:     intel-gfx@lists.freedesktop.org,
+        Ville =?ISO-8859-1?Q?Syrj=E4l=E4?= 
+        <ville.syrjala@linux.intel.com>, Ben Skeggs <bskeggs@redhat.com>,
+        Karol Herbst <kherbst@redhat.com>,
+        Harry Wentland <harry.wentland@amd.com>,
+        Alex Deucher <alexander.deucher@amd.com>,
+        Wayne Lin <Wayne.Lin@amd.com>, stable@vger.kernel.org,
+        dri-devel@lists.freedesktop.org
+Date:   Mon, 06 Feb 2023 19:42:32 -0500
+In-Reply-To: <Y9p/ZqVVpW/YMdUy@ideak-desk.fi.intel.com>
+References: <20230131150548.1614458-1-imre.deak@intel.com>
+         <20230131150548.1614458-3-imre.deak@intel.com>
+         <ed8b73096a576f317979c3dd65392371d5b77612.camel@redhat.com>
+         <Y9p/ZqVVpW/YMdUy@ideak-desk.fi.intel.com>
+Organization: Red Hat Inc.
+Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
+User-Agent: Evolution 3.44.4 (3.44.4-2.fc36) 
 MIME-Version: 1.0
-X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-AuthSource: BN9PR11MB5276.namprd11.prod.outlook.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: b221a450-b9e5-442a-9718-08db08a40565
-X-MS-Exchange-CrossTenant-originalarrivaltime: 07 Feb 2023 00:41:16.0947
- (UTC)
-X-MS-Exchange-CrossTenant-fromentityheader: Hosted
-X-MS-Exchange-CrossTenant-id: 46c98d88-e344-4ed4-8496-4ed7712e255d
-X-MS-Exchange-CrossTenant-mailboxtype: HOSTED
-X-MS-Exchange-CrossTenant-userprincipalname: syZxDXoR/x6VWQ/Fp44Qirq9GcHlEb64tib5cUgSZxKCEG571bpUDou+By/By4EzBiSnEk3JbzokrMwdxHIUvg==
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: BL1PR11MB6002
-X-OriginatorOrg: intel.com
-X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
-        RCVD_IN_MSPIKE_H3,RCVD_IN_MSPIKE_WL,SPF_HELO_NONE,SPF_NONE
-        autolearn=ham autolearn_force=no version=3.4.6
+X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_NONE,
+        RCVD_IN_MSPIKE_H2,SPF_HELO_NONE,SPF_NONE autolearn=ham
+        autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-> From: Jacob Pan <jacob.jun.pan@linux.intel.com>
-> Sent: Tuesday, February 7, 2023 1:25 AM
+On Wed, 2023-02-01 at 17:04 +0200, Imre Deak wrote:
 >=20
-> > > @@ -1976,6 +1976,12 @@ static int
-> domain_context_mapping_one(struct
-> > > dmar_domain *domain, pds =3D context_get_sm_pds(table);
-> > >   		context->lo =3D (u64)virt_to_phys(table->table) |
-> > >   				context_pdts(pds);
-> > > +		/*
-> > > +		 * Scalable-mode PASID directory pointer is not
-> > > snooped if the
-> > > +		 * coherent bit is not set.
-> > > +		 */
-> > > +		if (!ecap_coherent(iommu->ecap))
-> > > +			clflush_cache_range(table->table, sizeof(void
-> > > *));
-> >
-> > This isn't comprehensive. The clflush should be called whenever the
-> > pasid directory table is allocated or updated.
-> >
-> allocate a pasid table does not mean it gets used by iommu hw, not until =
+> Yes, this patch should have no functional change, so please check what
+> would apply to other drivers as well.
+>=20
+> Could you also check Ville's comment about storing start_slot elsewhere
+> than the atomic state (leaving only time_slots there). I wonder if that
+> would work, at least it would simplify things I think.
+
+Ideally it'd be nice if we could have all this info in the atomic commit, b=
+ut
+yeah - you're not the first person to find this a bit confusing. FWIW thoug=
+h,
+the way we store start_slot right now is intended to follow the same kind o=
+f
+behavior we have with atomic CRTC commit dependencies, I think I also made =
 it
-> is programmed into context entry.
+that way so all of the state would be in a single place but there's no hard
+requirement for it.
+
+So if you guys think it'd be better design-wise to store this something els=
+e,
+I've got no strong feelings either way
+>=20
+> > For 0-2:
+> >=20
+> > Reviewed-by: Lyude Paul <lyude@redhat.com>
+>=20
+> Thanks.
+>=20
+> >=20
+> > >=20
+> > > Cc: Lyude Paul <lyude@redhat.com>
+> > > Cc: Ville Syrj=C3=A4l=C3=A4 <ville.syrjala@linux.intel.com>
+> > > Cc: Ben Skeggs <bskeggs@redhat.com>
+> > > Cc: Karol Herbst <kherbst@redhat.com>
+> > > Cc: Harry Wentland <harry.wentland@amd.com>
+> > > Cc: Alex Deucher <alexander.deucher@amd.com>
+> > > Cc: Wayne Lin <Wayne.Lin@amd.com>
+> > > Cc: stable@vger.kernel.org # 6.1
+> > > Cc: dri-devel@lists.freedesktop.org
+> > > Reviewed-by: Ville Syrj=C3=A4l=C3=A4 <ville.syrjala@linux.intel.com>
+> > > Signed-off-by: Imre Deak <imre.deak@intel.com>
+> > > ---
+> > >  .../amd/display/amdgpu_dm/amdgpu_dm_helpers.c |  2 +-
+> > >  drivers/gpu/drm/display/drm_dp_mst_topology.c | 26 ++++++++++-------=
+--
+> > >  drivers/gpu/drm/i915/display/intel_dp_mst.c   |  4 ++-
+> > >  drivers/gpu/drm/nouveau/dispnv50/disp.c       |  2 +-
+> > >  include/drm/display/drm_dp_mst_helper.h       |  3 ++-
+> > >  5 files changed, 21 insertions(+), 16 deletions(-)
+> > >=20
+> > > diff --git a/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm_helpers.=
+c b/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm_helpers.c
+> > > index a50319fc42b11..180d3893b68da 100644
+> > > --- a/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm_helpers.c
+> > > +++ b/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm_helpers.c
+> > > @@ -208,7 +208,7 @@ bool dm_helpers_dp_mst_write_payload_allocation_t=
+able(
+> > >  	if (enable)
+> > >  		drm_dp_add_payload_part1(mst_mgr, mst_state, payload);
+> > >  	else
+> > > -		drm_dp_remove_payload(mst_mgr, mst_state, payload);
+> > > +		drm_dp_remove_payload(mst_mgr, mst_state, payload, payload);
+> > > =20
+> > >  	/* mst_mgr->->payloads are VC payload notify MST branch using DPCD =
+or
+> > >  	 * AUX message. The sequence is slot 1-63 allocated sequence for ea=
+ch
+> > > diff --git a/drivers/gpu/drm/display/drm_dp_mst_topology.c b/drivers/=
+gpu/drm/display/drm_dp_mst_topology.c
+> > > index 847c10aa2098c..1990ff5dc7ddd 100644
+> > > --- a/drivers/gpu/drm/display/drm_dp_mst_topology.c
+> > > +++ b/drivers/gpu/drm/display/drm_dp_mst_topology.c
+> > > @@ -3342,7 +3342,8 @@ EXPORT_SYMBOL(drm_dp_add_payload_part1);
+> > >   * drm_dp_remove_payload() - Remove an MST payload
+> > >   * @mgr: Manager to use.
+> > >   * @mst_state: The MST atomic state
+> > > - * @payload: The payload to write
+> > > + * @old_payload: The payload with its old state
+> > > + * @new_payload: The payload to write
+> > >   *
+> > >   * Removes a payload from an MST topology if it was successfully ass=
+igned a start slot. Also updates
+> > >   * the starting time slots of all other payloads which would have be=
+en shifted towards the start of
+> > > @@ -3350,36 +3351,37 @@ EXPORT_SYMBOL(drm_dp_add_payload_part1);
+> > >   */
+> > >  void drm_dp_remove_payload(struct drm_dp_mst_topology_mgr *mgr,
+> > >  			   struct drm_dp_mst_topology_state *mst_state,
+> > > -			   struct drm_dp_mst_atomic_payload *payload)
+> > > +			   const struct drm_dp_mst_atomic_payload *old_payload,
+> > > +			   struct drm_dp_mst_atomic_payload *new_payload)
+> > >  {
+> > >  	struct drm_dp_mst_atomic_payload *pos;
+> > >  	bool send_remove =3D false;
+> > > =20
+> > >  	/* We failed to make the payload, so nothing to do */
+> > > -	if (payload->vc_start_slot =3D=3D -1)
+> > > +	if (new_payload->vc_start_slot =3D=3D -1)
+> > >  		return;
+> > > =20
+> > >  	mutex_lock(&mgr->lock);
+> > > -	send_remove =3D drm_dp_mst_port_downstream_of_branch(payload->port,=
+ mgr->mst_primary);
+> > > +	send_remove =3D drm_dp_mst_port_downstream_of_branch(new_payload->p=
+ort, mgr->mst_primary);
+> > >  	mutex_unlock(&mgr->lock);
+> > > =20
+> > >  	if (send_remove)
+> > > -		drm_dp_destroy_payload_step1(mgr, mst_state, payload);
+> > > +		drm_dp_destroy_payload_step1(mgr, mst_state, new_payload);
+> > >  	else
+> > >  		drm_dbg_kms(mgr->dev, "Payload for VCPI %d not in topology, not se=
+nding remove\n",
+> > > -			    payload->vcpi);
+> > > +			    new_payload->vcpi);
+> > > =20
+> > >  	list_for_each_entry(pos, &mst_state->payloads, next) {
+> > > -		if (pos !=3D payload && pos->vc_start_slot > payload->vc_start_slo=
+t)
+> > > -			pos->vc_start_slot -=3D payload->time_slots;
+> > > +		if (pos !=3D new_payload && pos->vc_start_slot > new_payload->vc_s=
+tart_slot)
+> > > +			pos->vc_start_slot -=3D old_payload->time_slots;
+> > >  	}
+> > > -	payload->vc_start_slot =3D -1;
+> > > +	new_payload->vc_start_slot =3D -1;
+> > > =20
+> > >  	mgr->payload_count--;
+> > > -	mgr->next_start_slot -=3D payload->time_slots;
+> > > +	mgr->next_start_slot -=3D old_payload->time_slots;
+> > > =20
+> > > -	if (payload->delete)
+> > > -		drm_dp_mst_put_port_malloc(payload->port);
+> > > +	if (new_payload->delete)
+> > > +		drm_dp_mst_put_port_malloc(new_payload->port);
+> > >  }
+> > >  EXPORT_SYMBOL(drm_dp_remove_payload);
+> > > =20
+> > > diff --git a/drivers/gpu/drm/i915/display/intel_dp_mst.c b/drivers/gp=
+u/drm/i915/display/intel_dp_mst.c
+> > > index f3cb12dcfe0a7..dc4e5ff1dbb31 100644
+> > > --- a/drivers/gpu/drm/i915/display/intel_dp_mst.c
+> > > +++ b/drivers/gpu/drm/i915/display/intel_dp_mst.c
+> > > @@ -526,6 +526,8 @@ static void intel_mst_disable_dp(struct intel_ato=
+mic_state *state,
+> > >  		to_intel_connector(old_conn_state->connector);
+> > >  	struct drm_dp_mst_topology_state *mst_state =3D
+> > >  		drm_atomic_get_mst_topology_state(&state->base, &intel_dp->mst_mgr=
+);
+> > > +	struct drm_dp_mst_atomic_payload *payload =3D
+> > > +		drm_atomic_get_mst_payload_state(mst_state, connector->port);
+> > >  	struct drm_i915_private *i915 =3D to_i915(connector->base.dev);
+> > > =20
+> > >  	drm_dbg_kms(&i915->drm, "active links %d\n",
+> > > @@ -534,7 +536,7 @@ static void intel_mst_disable_dp(struct intel_ato=
+mic_state *state,
+> > >  	intel_hdcp_disable(intel_mst->connector);
+> > > =20
+> > >  	drm_dp_remove_payload(&intel_dp->mst_mgr, mst_state,
+> > > -			      drm_atomic_get_mst_payload_state(mst_state, connector->port=
+));
+> > > +			      payload, payload);
+> > > =20
+> > >  	intel_audio_codec_disable(encoder, old_crtc_state, old_conn_state);
+> > >  }
+> > > diff --git a/drivers/gpu/drm/nouveau/dispnv50/disp.c b/drivers/gpu/dr=
+m/nouveau/dispnv50/disp.c
+> > > index edcb2529b4025..ed9d374147b8d 100644
+> > > --- a/drivers/gpu/drm/nouveau/dispnv50/disp.c
+> > > +++ b/drivers/gpu/drm/nouveau/dispnv50/disp.c
+> > > @@ -885,7 +885,7 @@ nv50_msto_prepare(struct drm_atomic_state *state,
+> > > =20
+> > >  	// TODO: Figure out if we want to do a better job of handling VCPI =
+allocation failures here?
+> > >  	if (msto->disabled) {
+> > > -		drm_dp_remove_payload(mgr, mst_state, payload);
+> > > +		drm_dp_remove_payload(mgr, mst_state, payload, payload);
+> > > =20
+> > >  		nvif_outp_dp_mst_vcpi(&mstm->outp->outp, msto->head->base.index, 0=
+, 0, 0, 0);
+> > >  	} else {
+> > > diff --git a/include/drm/display/drm_dp_mst_helper.h b/include/drm/di=
+splay/drm_dp_mst_helper.h
+> > > index 41fd8352ab656..f5eb9aa152b14 100644
+> > > --- a/include/drm/display/drm_dp_mst_helper.h
+> > > +++ b/include/drm/display/drm_dp_mst_helper.h
+> > > @@ -841,7 +841,8 @@ int drm_dp_add_payload_part2(struct drm_dp_mst_to=
+pology_mgr *mgr,
+> > >  			     struct drm_dp_mst_atomic_payload *payload);
+> > >  void drm_dp_remove_payload(struct drm_dp_mst_topology_mgr *mgr,
+> > >  			   struct drm_dp_mst_topology_state *mst_state,
+> > > -			   struct drm_dp_mst_atomic_payload *payload);
+> > > +			   const struct drm_dp_mst_atomic_payload *old_payload,
+> > > +			   struct drm_dp_mst_atomic_payload *new_payload);
+> > > =20
+> > >  int drm_dp_check_act_status(struct drm_dp_mst_topology_mgr *mgr);
+> > > =20
+> >=20
+> > --=20
+> > Cheers,
+> >  Lyude Paul (she/her)
+> >  Software Engineer at Red Hat
+> >=20
 >=20
 
-this is insufficient.
-
-Even after this point the PASID directory entry could be changed when
-a new PASID table is allocated, e.g. in intel_pasid_get_entry().
+--=20
+Cheers,
+ Lyude Paul (she/her)
+ Software Engineer at Red Hat
 
