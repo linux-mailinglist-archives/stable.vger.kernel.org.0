@@ -2,41 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 92EE968D1A2
-	for <lists+stable@lfdr.de>; Tue,  7 Feb 2023 09:45:00 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E490D68D1AE
+	for <lists+stable@lfdr.de>; Tue,  7 Feb 2023 09:47:54 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231235AbjBGIo7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Feb 2023 03:44:59 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34744 "EHLO
+        id S229574AbjBGIrx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Feb 2023 03:47:53 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36374 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230504AbjBGIo6 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Feb 2023 03:44:58 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B14A91554B
-        for <stable@vger.kernel.org>; Tue,  7 Feb 2023 00:44:49 -0800 (PST)
+        with ESMTP id S229791AbjBGIrw (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Feb 2023 03:47:52 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 448D230FB
+        for <stable@vger.kernel.org>; Tue,  7 Feb 2023 00:47:51 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 6DCA6B816BF
-        for <stable@vger.kernel.org>; Tue,  7 Feb 2023 08:44:48 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A31C2C433EF;
-        Tue,  7 Feb 2023 08:44:46 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id DE9146121A
+        for <stable@vger.kernel.org>; Tue,  7 Feb 2023 08:47:50 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id DEE46C433D2;
+        Tue,  7 Feb 2023 08:47:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1675759487;
-        bh=jCd5hpkqI4Rq8QlknKNbCWY2JSiz6zda7v+i6wePicY=;
+        s=korg; t=1675759670;
+        bh=VRgmojzYJ52Sw4U8b926Xtg0HrQARgZrVwxAhfzGpaM=;
         h=Subject:To:Cc:From:Date:From;
-        b=G0/LtkasGoREC9Ft0kK6RFAgErR3L0ufPCv+4s8vGPSb3iUf70ctPD9/S4Cfk/K0/
-         Fwnb8HK8Ddgg6/bDrEaxdaGwTo0X9aSrZirdpOCxxxsNw7bZGzHKp0Tu6vwRsZa/ih
-         SAXzASXaBa7azQS4oPy6TQSY/W2TA2iBWLS4ViwA=
-Subject: FAILED: patch "[PATCH] mm: memcg: fix NULL pointer in" failed to apply to 5.4-stable tree
-To:     wangkefeng.wang@huawei.com, akpm@linux-foundation.org,
-        axboe@kernel.dk, jack@suse.cz, mawupeng1@huawei.com,
-        mhocko@suse.com, mikoxyzzz@gmail.com, naoya.horiguchi@nec.com,
-        shakeelb@google.com, stable@vger.kernel.org, tj@kernel.org
+        b=LrVRUQWODj2sCLGjbJ7X9AYBhofjDDfh4dJzH7rDqH/5Xhu71kkXaUz8A+ckZXea+
+         x1Fcbdksfn9EWKqIGIRAN8mYeb6wqvGopQu7ji0kSz7lQDkCcwvAZa9OAXgRAZ770s
+         3lI/IJR41IYLyBOYaxGo2PF2VbRoxLn3GG6Ytvow=
+Subject: FAILED: patch "[PATCH] powerpc/kexec_file: Fix division by zero in extra size" failed to apply to 6.1-stable tree
+To:     mpe@ellerman.id.au
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Tue, 07 Feb 2023 09:44:33 +0100
-Message-ID: <1675759473119245@kroah.com>
+Date:   Tue, 07 Feb 2023 09:47:46 +0100
+Message-ID: <1675759666133138@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -50,33 +47,15 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.4-stable tree.
+The patch below does not apply to the 6.1-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
 
 Possible dependencies:
 
-ac86f547ca10 ("mm: memcg: fix NULL pointer in mem_cgroup_track_foreign_dirty_slowpath()")
-203a31516616 ("mm/writeback: Add __folio_mark_dirty()")
-9d8053fc7a21 ("mm/memcg: Convert mem_cgroup_track_foreign_dirty_slowpath() to folio")
-a49d0c507759 ("mm/writeback: Add folio_wait_stable()")
-490e016f229a ("mm/writeback: Add folio_wait_writeback()")
-4268b48077e5 ("mm/filemap: Add folio_end_writeback()")
-575ced1c8b0d ("mm/swap: Add folio_rotate_reclaimable()")
-4e1364286d0a ("mm/filemap: Add folio_unlock()")
-2f52578f9c64 ("mm/util: Add folio_mapping() and folio_file_mapping()")
-3a6b2162005f ("mm: move page dirtying prototypes from mm.h")
-6e1cae881a06 ("mm/writeback: move __set_page_dirty() to core mm")
-34ebcce79324 ("fs: unexport __set_page_dirty")
-87e378974975 ("mm/page-writeback: use __this_cpu_inc() in account_page_dirtied()")
-9620ad86d0e3 ("afs: Re-enable freezing once a page fault is interrupted")
-d479960e44f2 ("mm: disable LRU pagevec during the migration temporarily")
-198fba4137a1 ("mm/mmzone.h: fix existing kernel-doc comments and link them to core-api")
-a87132a22991 ("mm/doc: add mm.h and mm_types.h to the mm-api document")
-842ca547f706 ("mm: move page_mapping_file to pagemap.h")
-5cbf03985c67 ("afs: Use new netfs lib read helper API")
-dc4191841d09 ("afs: Use the fs operation ops to handle FetchData completion")
+7294194b47e9 ("powerpc/kexec_file: Fix division by zero in extra size estimation")
+340a4a9f8773 ("powerpc: Take in account addition CPU node when building kexec FDT")
 
 thanks,
 
@@ -84,52 +63,71 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From ac86f547ca1002aec2ef66b9e64d03f45bbbfbb9 Mon Sep 17 00:00:00 2001
-From: Kefeng Wang <wangkefeng.wang@huawei.com>
-Date: Sun, 29 Jan 2023 12:09:45 +0800
-Subject: [PATCH] mm: memcg: fix NULL pointer in
- mem_cgroup_track_foreign_dirty_slowpath()
+From 7294194b47e994753a86eee8cf1c61f3f36458a3 Mon Sep 17 00:00:00 2001
+From: Michael Ellerman <mpe@ellerman.id.au>
+Date: Mon, 30 Jan 2023 12:47:07 +1100
+Subject: [PATCH] powerpc/kexec_file: Fix division by zero in extra size
+ estimation
 
-As commit 18365225f044 ("hwpoison, memcg: forcibly uncharge LRU pages"),
-hwpoison will forcibly uncharg a LRU hwpoisoned page, the folio_memcg
-could be NULl, then, mem_cgroup_track_foreign_dirty_slowpath() could
-occurs a NULL pointer dereference, let's do not record the foreign
-writebacks for folio memcg is null in mem_cgroup_track_foreign_dirty() to
-fix it.
+In kexec_extra_fdt_size_ppc64() there's logic to estimate how much
+extra space will be needed in the device tree for some memory related
+properties.
 
-Link: https://lkml.kernel.org/r/20230129040945.180629-1-wangkefeng.wang@huawei.com
-Fixes: 97b27821b485 ("writeback, memcg: Implement foreign dirty flushing")
-Signed-off-by: Kefeng Wang <wangkefeng.wang@huawei.com>
-Reported-by: Ma Wupeng <mawupeng1@huawei.com>
-Tested-by: Miko Larsson <mikoxyzzz@gmail.com>
-Acked-by: Michal Hocko <mhocko@suse.com>
-Cc: Jan Kara <jack@suse.cz>
-Cc: Jens Axboe <axboe@kernel.dk>
-Cc: Kefeng Wang <wangkefeng.wang@huawei.com>
-Cc: Ma Wupeng <mawupeng1@huawei.com>
-Cc: Naoya Horiguchi <naoya.horiguchi@nec.com>
-Cc: Shakeel Butt <shakeelb@google.com>
-Cc: Tejun Heo <tj@kernel.org>
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+That logic uses the size of RAM divided by drmem_lmb_size() to do the
+estimation. However drmem_lmb_size() can be zero if the machine has no
+hotpluggable memory configured, which is the case when booting with qemu
+and no maxmem=x parameter is passed (the default).
 
-diff --git a/include/linux/memcontrol.h b/include/linux/memcontrol.h
-index d3c8203cab6c..85dc9b88ea37 100644
---- a/include/linux/memcontrol.h
-+++ b/include/linux/memcontrol.h
-@@ -1666,10 +1666,13 @@ void mem_cgroup_track_foreign_dirty_slowpath(struct folio *folio,
- static inline void mem_cgroup_track_foreign_dirty(struct folio *folio,
- 						  struct bdi_writeback *wb)
- {
-+	struct mem_cgroup *memcg;
-+
- 	if (mem_cgroup_disabled())
- 		return;
+The division by zero is reported by UBSAN, and can also lead to an
+overflow and a warning from kvmalloc, and kdump kernel loading fails:
+
+  WARNING: CPU: 0 PID: 133 at mm/util.c:596 kvmalloc_node+0x15c/0x160
+  Modules linked in:
+  CPU: 0 PID: 133 Comm: kexec Not tainted 6.2.0-rc5-03455-g07358bd97810 #223
+  Hardware name: IBM pSeries (emulated by qemu) POWER9 (raw) 0x4e1200 0xf000005 of:SLOF,git-dd0dca pSeries
+  NIP:  c00000000041ff4c LR: c00000000041fe58 CTR: 0000000000000000
+  REGS: c0000000096ef750 TRAP: 0700   Not tainted  (6.2.0-rc5-03455-g07358bd97810)
+  MSR:  800000000282b033 <SF,VEC,VSX,EE,FP,ME,IR,DR,RI,LE>  CR: 24248242  XER: 2004011e
+  CFAR: c00000000041fed0 IRQMASK: 0
+  ...
+  NIP kvmalloc_node+0x15c/0x160
+  LR  kvmalloc_node+0x68/0x160
+  Call Trace:
+    kvmalloc_node+0x68/0x160 (unreliable)
+    of_kexec_alloc_and_setup_fdt+0xb8/0x7d0
+    elf64_load+0x25c/0x4a0
+    kexec_image_load_default+0x58/0x80
+    sys_kexec_file_load+0x5c0/0x920
+    system_call_exception+0x128/0x330
+    system_call_vectored_common+0x15c/0x2ec
+
+To fix it, skip the calculation if drmem_lmb_size() is zero.
+
+Fixes: 2377c92e37fe ("powerpc/kexec_file: fix FDT size estimation for kdump kernel")
+Cc: stable@vger.kernel.org # v5.12+
+Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
+Link: https://lore.kernel.org/r/20230130014707.541110-1-mpe@ellerman.id.au
+
+diff --git a/arch/powerpc/kexec/file_load_64.c b/arch/powerpc/kexec/file_load_64.c
+index af8854f9eae3..19d084682bc2 100644
+--- a/arch/powerpc/kexec/file_load_64.c
++++ b/arch/powerpc/kexec/file_load_64.c
+@@ -989,10 +989,13 @@ unsigned int kexec_extra_fdt_size_ppc64(struct kimage *image)
+ 	 * linux,drconf-usable-memory properties. Get an approximate on the
+ 	 * number of usable memory entries and use for FDT size estimation.
+ 	 */
+-	usm_entries = ((memblock_end_of_DRAM() / drmem_lmb_size()) +
+-		       (2 * (resource_size(&crashk_res) / drmem_lmb_size())));
+-
+-	extra_size = (unsigned int)(usm_entries * sizeof(u64));
++	if (drmem_lmb_size()) {
++		usm_entries = ((memblock_end_of_DRAM() / drmem_lmb_size()) +
++			       (2 * (resource_size(&crashk_res) / drmem_lmb_size())));
++		extra_size = (unsigned int)(usm_entries * sizeof(u64));
++	} else {
++		extra_size = 0;
++	}
  
--	if (unlikely(&folio_memcg(folio)->css != wb->memcg_css))
-+	memcg = folio_memcg(folio);
-+	if (unlikely(memcg && &memcg->css != wb->memcg_css))
- 		mem_cgroup_track_foreign_dirty_slowpath(folio, wb);
- }
- 
+ 	/*
+ 	 * Get the number of CPU nodes in the current DT. This allows to
 
