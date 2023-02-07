@@ -2,53 +2,50 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 9585168D8B4
-	for <lists+stable@lfdr.de>; Tue,  7 Feb 2023 14:12:05 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4F62268D7F9
+	for <lists+stable@lfdr.de>; Tue,  7 Feb 2023 14:05:01 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232474AbjBGNME (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Feb 2023 08:12:04 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60952 "EHLO
+        id S232118AbjBGNE5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Feb 2023 08:04:57 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51716 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232478AbjBGNLl (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Feb 2023 08:11:41 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 583643CE08
-        for <stable@vger.kernel.org>; Tue,  7 Feb 2023 05:10:49 -0800 (PST)
+        with ESMTP id S232127AbjBGNEs (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Feb 2023 08:04:48 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 095F565A4
+        for <stable@vger.kernel.org>; Tue,  7 Feb 2023 05:04:42 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id AF49DB818E8
-        for <stable@vger.kernel.org>; Tue,  7 Feb 2023 13:10:47 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0445CC433A0;
-        Tue,  7 Feb 2023 13:10:45 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id AE64DB8198D
+        for <stable@vger.kernel.org>; Tue,  7 Feb 2023 13:04:40 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 01DB2C433EF;
+        Tue,  7 Feb 2023 13:04:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1675775446;
-        bh=e5zjjYJKCUqZnzTWq5l/GUNm8H6ePnwsjgCCW+4q8FI=;
+        s=korg; t=1675775079;
+        bh=NlNbKI1aSnjFsFNw+bdIQ7e3MMKfeMKa4iDwodiGN2U=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=0QlLyySXqLCfF5+h7SlXqMgYYmGGpcPOuhPJmO++GSPc3+Cn018m4yVCg0jifcBON
-         5TgeHiyM/vJDMP4T72yQbQBf1LnYT84XyOu/FxYNAMDpknKIK/miC6Sk5eiUuVhPud
-         dKeZhBjJRFr49kR7UiW1UXOjQxoQQ3ocE5bLlnxw=
+        b=cP5mGfmdOUuqOWBQxgvXzpZPfvjw+04LYbQsxHkBSfBzQdZ/OpPXij22lDG30+OZR
+         WxWdg225BeLeOD4hq5G15uBsgEPiIuXjFdQfKV5k2Hrkfj0FzSdo+/bCHA7HmmVIrB
+         mUy0RlH+kuTtoM1XkutiI031ZIHK2beVoSp1ACrA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         patches@lists.linux.dev,
-        syzbot+04c21ed96d861dccc5cd@syzkaller.appspotmail.com,
-        Jakub Sitnicki <jakub@cloudflare.com>,
-        John Fastabend <john.fastabend@gmail.com>,
-        Alexei Starovoitov <ast@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 013/120] bpf, sockmap: Check for any of tcp_bpf_prots when cloning a listener
-Date:   Tue,  7 Feb 2023 13:56:24 +0100
-Message-Id: <20230207125619.315108252@linuxfoundation.org>
+        Shanker Donthineni <sdonthineni@nvidia.com>,
+        Alexandre Belloni <alexandre.belloni@bootlin.com>
+Subject: [PATCH 6.1 131/208] rtc: efi: Enable SET/GET WAKEUP services as optional
+Date:   Tue,  7 Feb 2023 13:56:25 +0100
+Message-Id: <20230207125640.350055475@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.1
-In-Reply-To: <20230207125618.699726054@linuxfoundation.org>
-References: <20230207125618.699726054@linuxfoundation.org>
+In-Reply-To: <20230207125634.292109991@linuxfoundation.org>
+References: <20230207125634.292109991@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
         SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -56,102 +53,115 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jakub Sitnicki <jakub@cloudflare.com>
+From: Shanker Donthineni <sdonthineni@nvidia.com>
 
-[ Upstream commit ddce1e091757d0259107c6c0c7262df201de2b66 ]
+commit 101ca8d05913b7d1e6e8b9dd792193d4082fff86 upstream.
 
-A listening socket linked to a sockmap has its sk_prot overridden. It
-points to one of the struct proto variants in tcp_bpf_prots. The variant
-depends on the socket's family and which sockmap programs are attached.
+The current implementation of rtc-efi is expecting all the 4
+time services GET{SET}_TIME{WAKEUP} must be supported by UEFI
+firmware. As per the EFI_RT_PROPERTIES_TABLE, the platform
+specific implementations can choose to enable selective time
+services based on the RTC device capabilities.
 
-A child socket cloned from a TCP listener initially inherits their sk_prot.
-But before cloning is finished, we restore the child's proto to the
-listener's original non-tcp_bpf_prots one. This happens in
-tcp_create_openreq_child -> tcp_bpf_clone.
+This patch does the following changes to provide GET/SET RTC
+services on platforms that do not support the WAKEUP feature.
 
-Today, in tcp_bpf_clone we detect if the child's proto should be restored
-by checking only for the TCP_BPF_BASE proto variant. This is not
-correct. The sk_prot of listening socket linked to a sockmap can point to
-to any variant in tcp_bpf_prots.
+1) Relax time services cap check when creating a platform device.
+2) Clear RTC_FEATURE_ALARM bit in the absence of WAKEUP services.
+3) Conditional alarm entries in '/proc/driver/rtc'.
 
-If the listeners sk_prot happens to be not the TCP_BPF_BASE variant, then
-the child socket unintentionally is left if the inherited sk_prot by
-tcp_bpf_clone.
-
-This leads to issues like infinite recursion on close [1], because the
-child state is otherwise not set up for use with tcp_bpf_prot operations.
-
-Adjust the check in tcp_bpf_clone to detect all of tcp_bpf_prots variants.
-
-Note that it wouldn't be sufficient to check the socket state when
-overriding the sk_prot in tcp_bpf_update_proto in order to always use the
-TCP_BPF_BASE variant for listening sockets. Since commit
-b8b8315e39ff ("bpf, sockmap: Remove unhash handler for BPF sockmap usage")
-it is possible for a socket to transition to TCP_LISTEN state while already
-linked to a sockmap, e.g. connect() -> insert into map ->
-connect(AF_UNSPEC) -> listen().
-
-[1]: https://lore.kernel.org/all/00000000000073b14905ef2e7401@google.com/
-
-Fixes: e80251555f0b ("tcp_bpf: Don't let child socket inherit parent protocol ops on copy")
-Reported-by: syzbot+04c21ed96d861dccc5cd@syzkaller.appspotmail.com
-Signed-off-by: Jakub Sitnicki <jakub@cloudflare.com>
-Acked-by: John Fastabend <john.fastabend@gmail.com>
-Link: https://lore.kernel.org/r/20230113-sockmap-fix-v2-2-1e0ee7ac2f90@cloudflare.com
-Signed-off-by: Alexei Starovoitov <ast@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Cc: <stable@vger.kernel.org> # v6.0+
+Signed-off-by: Shanker Donthineni <sdonthineni@nvidia.com>
+Link: https://lore.kernel.org/r/20230102230630.192911-1-sdonthineni@nvidia.com
+Signed-off-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- include/linux/util_macros.h | 12 ++++++++++++
- net/ipv4/tcp_bpf.c          |  4 ++--
- 2 files changed, 14 insertions(+), 2 deletions(-)
+ drivers/rtc/rtc-efi.c |   48 +++++++++++++++++++++++++++---------------------
+ include/linux/efi.h   |    3 ++-
+ 2 files changed, 29 insertions(+), 22 deletions(-)
 
-diff --git a/include/linux/util_macros.h b/include/linux/util_macros.h
-index 72299f261b25..43db6e47503c 100644
---- a/include/linux/util_macros.h
-+++ b/include/linux/util_macros.h
-@@ -38,4 +38,16 @@
-  */
- #define find_closest_descending(x, a, as) __find_closest(x, a, as, >=)
+--- a/drivers/rtc/rtc-efi.c
++++ b/drivers/rtc/rtc-efi.c
+@@ -188,9 +188,10 @@ static int efi_set_time(struct device *d
  
-+/**
-+ * is_insidevar - check if the @ptr points inside the @var memory range.
-+ * @ptr:	the pointer to a memory address.
-+ * @var:	the variable which address and size identify the memory range.
-+ *
-+ * Evaluates to true if the address in @ptr lies within the memory
-+ * range allocated to @var.
-+ */
-+#define is_insidevar(ptr, var)						\
-+	((uintptr_t)(ptr) >= (uintptr_t)(var) &&			\
-+	 (uintptr_t)(ptr) <  (uintptr_t)(var) + sizeof(var))
-+
- #endif
-diff --git a/net/ipv4/tcp_bpf.c b/net/ipv4/tcp_bpf.c
-index b4b642e3de78..7f34c455651d 100644
---- a/net/ipv4/tcp_bpf.c
-+++ b/net/ipv4/tcp_bpf.c
-@@ -6,6 +6,7 @@
- #include <linux/bpf.h>
- #include <linux/init.h>
- #include <linux/wait.h>
-+#include <linux/util_macros.h>
- 
- #include <net/inet_common.h>
- #include <net/tls.h>
-@@ -640,10 +641,9 @@ EXPORT_SYMBOL_GPL(tcp_bpf_update_proto);
-  */
- void tcp_bpf_clone(const struct sock *sk, struct sock *newsk)
+ static int efi_procfs(struct device *dev, struct seq_file *seq)
  {
--	int family = sk->sk_family == AF_INET6 ? TCP_BPF_IPV6 : TCP_BPF_IPV4;
- 	struct proto *prot = newsk->sk_prot;
+-	efi_time_t      eft, alm;
+-	efi_time_cap_t  cap;
+-	efi_bool_t      enabled, pending;
++	efi_time_t        eft, alm;
++	efi_time_cap_t    cap;
++	efi_bool_t        enabled, pending;
++	struct rtc_device *rtc = dev_get_drvdata(dev);
  
--	if (prot == &tcp_bpf_prots[family][TCP_BPF_BASE])
-+	if (is_insidevar(prot, tcp_bpf_prots))
- 		newsk->sk_prot = sk->sk_prot_creator;
+ 	memset(&eft, 0, sizeof(eft));
+ 	memset(&alm, 0, sizeof(alm));
+@@ -213,23 +214,25 @@ static int efi_procfs(struct device *dev
+ 		/* XXX fixme: convert to string? */
+ 		seq_printf(seq, "Timezone\t: %u\n", eft.timezone);
+ 
+-	seq_printf(seq,
+-		   "Alarm Time\t: %u:%u:%u.%09u\n"
+-		   "Alarm Date\t: %u-%u-%u\n"
+-		   "Alarm Daylight\t: %u\n"
+-		   "Enabled\t\t: %s\n"
+-		   "Pending\t\t: %s\n",
+-		   alm.hour, alm.minute, alm.second, alm.nanosecond,
+-		   alm.year, alm.month, alm.day,
+-		   alm.daylight,
+-		   enabled == 1 ? "yes" : "no",
+-		   pending == 1 ? "yes" : "no");
+-
+-	if (eft.timezone == EFI_UNSPECIFIED_TIMEZONE)
+-		seq_puts(seq, "Timezone\t: unspecified\n");
+-	else
+-		/* XXX fixme: convert to string? */
+-		seq_printf(seq, "Timezone\t: %u\n", alm.timezone);
++	if (test_bit(RTC_FEATURE_ALARM, rtc->features)) {
++		seq_printf(seq,
++			   "Alarm Time\t: %u:%u:%u.%09u\n"
++			   "Alarm Date\t: %u-%u-%u\n"
++			   "Alarm Daylight\t: %u\n"
++			   "Enabled\t\t: %s\n"
++			   "Pending\t\t: %s\n",
++			   alm.hour, alm.minute, alm.second, alm.nanosecond,
++			   alm.year, alm.month, alm.day,
++			   alm.daylight,
++			   enabled == 1 ? "yes" : "no",
++			   pending == 1 ? "yes" : "no");
++
++		if (eft.timezone == EFI_UNSPECIFIED_TIMEZONE)
++			seq_puts(seq, "Timezone\t: unspecified\n");
++		else
++			/* XXX fixme: convert to string? */
++			seq_printf(seq, "Timezone\t: %u\n", alm.timezone);
++	}
+ 
+ 	/*
+ 	 * now prints the capabilities
+@@ -269,7 +272,10 @@ static int __init efi_rtc_probe(struct p
+ 
+ 	rtc->ops = &efi_rtc_ops;
+ 	clear_bit(RTC_FEATURE_UPDATE_INTERRUPT, rtc->features);
+-	set_bit(RTC_FEATURE_ALARM_WAKEUP_ONLY, rtc->features);
++	if (efi_rt_services_supported(EFI_RT_SUPPORTED_WAKEUP_SERVICES))
++		set_bit(RTC_FEATURE_ALARM_WAKEUP_ONLY, rtc->features);
++	else
++		clear_bit(RTC_FEATURE_ALARM, rtc->features);
+ 
+ 	return devm_rtc_register_device(rtc);
  }
- #endif /* CONFIG_BPF_SYSCALL */
--- 
-2.39.0
-
+--- a/include/linux/efi.h
++++ b/include/linux/efi.h
+@@ -668,7 +668,8 @@ extern struct efi {
+ 
+ #define EFI_RT_SUPPORTED_ALL					0x3fff
+ 
+-#define EFI_RT_SUPPORTED_TIME_SERVICES				0x000f
++#define EFI_RT_SUPPORTED_TIME_SERVICES				0x0003
++#define EFI_RT_SUPPORTED_WAKEUP_SERVICES			0x000c
+ #define EFI_RT_SUPPORTED_VARIABLE_SERVICES			0x0070
+ 
+ extern struct mm_struct efi_mm;
 
 
