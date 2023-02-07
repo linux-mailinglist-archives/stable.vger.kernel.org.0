@@ -2,44 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 60B2E68D8CE
-	for <lists+stable@lfdr.de>; Tue,  7 Feb 2023 14:13:13 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 48F3D68D86A
+	for <lists+stable@lfdr.de>; Tue,  7 Feb 2023 14:09:30 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232516AbjBGNNL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Feb 2023 08:13:11 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60920 "EHLO
+        id S232294AbjBGNJ2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Feb 2023 08:09:28 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58168 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232387AbjBGNMy (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Feb 2023 08:12:54 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1D80A3A5AB
-        for <stable@vger.kernel.org>; Tue,  7 Feb 2023 05:12:01 -0800 (PST)
+        with ESMTP id S232297AbjBGNJ0 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Feb 2023 08:09:26 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0287739CE6
+        for <stable@vger.kernel.org>; Tue,  7 Feb 2023 05:08:49 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 43208B8198C
-        for <stable@vger.kernel.org>; Tue,  7 Feb 2023 13:11:52 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 25A2AC433EF;
-        Tue,  7 Feb 2023 13:11:49 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 4525C61358
+        for <stable@vger.kernel.org>; Tue,  7 Feb 2023 13:08:39 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3BE0FC433EF;
+        Tue,  7 Feb 2023 13:08:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1675775510;
-        bh=IpKskx7l58vHMhyYNb3eOTge3ScpB2wNf+nqYPud5O4=;
+        s=korg; t=1675775318;
+        bh=BEJTXGqRbs7yCdMe6OhyYguAqRZkCHXtvdFzmUGvx7I=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=IPbEwzb+nXdit+BPdRv9aZ+VsD2lcMjabTLa3QCUwO7pAu0CMgl7Wnp/YrxX1O2O1
-         +G62n+h2cPQ6kDsDZOt9JwlIFXfpX6rqLE3/MDk03FE227RFnNi+t5rA1W30RRU5yK
-         RJD3VURwEczgPCUenoSW+Adj2t82aQWWgrLQhtNY=
+        b=LcRVVc3j3U9VRGSj6mmx4pyjzokdUxgcp574h+Q6lptesE9RJYIR411VhLnO0ldgg
+         zEHhuHFUQ4QLvK5y2YiJJQVyLw21jCqEOtHk44iME/Wm/rnTRghlqLWDeZ9WjQEWup
+         QVLgdbDQsxNjcjj6Y3ft+QrFDB7gdjzkl0bTkicE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, John Keeping <john@metanate.com>,
-        Udipto Goswami <quic_ugoswami@quicinc.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 064/120] usb: gadget: f_fs: Fix unbalanced spinlock in __ffs_ep0_queue_wait
+        patches@lists.linux.dev,
+        Natikar Basavaraj <Basavaraj.Natikar@amd.com>,
+        Satyanarayana ReddyTVN <Satyanarayana.ReddyTVN@amd.com>,
+        Rutvij Gajjar <Rutvij.Gajjar@amd.com>,
+        Mario Limonciello <mario.limonciello@amd.com>,
+        Alex Deucher <alexander.deucher@amd.com>
+Subject: [PATCH 6.1 181/208] drm/amd: Fix initialization for nbio 4.3.0
 Date:   Tue,  7 Feb 2023 13:57:15 +0100
-Message-Id: <20230207125621.475078310@linuxfoundation.org>
+Message-Id: <20230207125642.663886072@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.1
-In-Reply-To: <20230207125618.699726054@linuxfoundation.org>
-References: <20230207125618.699726054@linuxfoundation.org>
+In-Reply-To: <20230207125634.292109991@linuxfoundation.org>
+References: <20230207125634.292109991@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,45 +56,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Udipto Goswami <quic_ugoswami@quicinc.com>
+From: Mario Limonciello <mario.limonciello@amd.com>
 
-[ Upstream commit 921deb9da15851425ccbb6ee409dc2fd8fbdfe6b ]
+commit 5048fa1ebf89d03cf0ceca13fab8f800399e9ee3 upstream.
 
-__ffs_ep0_queue_wait executes holding the spinlock of &ffs->ev.waitq.lock
-and unlocks it after the assignments to usb_request are done.
-However in the code if the request is already NULL we bail out returning
--EINVAL but never unlocked the spinlock.
+A mistake has been made on some boards with NBIO 4.3.0 where some
+NBIO registers aren't properly set by the hardware.
 
-Fix this by adding spin_unlock_irq &ffs->ev.waitq.lock before returning.
+Ensure that they're set during initialization.
 
-Fixes: 6a19da111057 ("usb: gadget: f_fs: Prevent race during ffs_ep0_queue_wait")
-Reviewed-by: John Keeping <john@metanate.com>
-Signed-off-by: Udipto Goswami <quic_ugoswami@quicinc.com>
-Link: https://lore.kernel.org/r/20230124091149.18647-1-quic_ugoswami@quicinc.com
+Cc: Natikar Basavaraj <Basavaraj.Natikar@amd.com>
+Tested-by: Satyanarayana ReddyTVN <Satyanarayana.ReddyTVN@amd.com>
+Tested-by: Rutvij Gajjar <Rutvij.Gajjar@amd.com>
+Signed-off-by: Mario Limonciello <mario.limonciello@amd.com>
+Reviewed-by: Alex Deucher <alexander.deucher@amd.com>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+Cc: stable@vger.kernel.org # 6.1.x
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/usb/gadget/function/f_fs.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ drivers/gpu/drm/amd/amdgpu/nbio_v4_3.c | 8 +++++++-
+ 1 file changed, 7 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/usb/gadget/function/f_fs.c b/drivers/usb/gadget/function/f_fs.c
-index c9145ee95956..f975111bd974 100644
---- a/drivers/usb/gadget/function/f_fs.c
-+++ b/drivers/usb/gadget/function/f_fs.c
-@@ -279,8 +279,10 @@ static int __ffs_ep0_queue_wait(struct ffs_data *ffs, char *data, size_t len)
- 	struct usb_request *req = ffs->ep0req;
- 	int ret;
+diff --git a/drivers/gpu/drm/amd/amdgpu/nbio_v4_3.c b/drivers/gpu/drm/amd/amdgpu/nbio_v4_3.c
+index 15eb3658d70e..09fdcd20cb91 100644
+--- a/drivers/gpu/drm/amd/amdgpu/nbio_v4_3.c
++++ b/drivers/gpu/drm/amd/amdgpu/nbio_v4_3.c
+@@ -337,7 +337,13 @@ const struct nbio_hdp_flush_reg nbio_v4_3_hdp_flush_reg = {
  
--	if (!req)
-+	if (!req) {
-+		spin_unlock_irq(&ffs->ev.waitq.lock);
- 		return -EINVAL;
+ static void nbio_v4_3_init_registers(struct amdgpu_device *adev)
+ {
+-	return;
++	if (adev->ip_versions[NBIO_HWIP][0] == IP_VERSION(4, 3, 0)) {
++		uint32_t data;
++
++		data = RREG32_SOC15(NBIO, 0, regRCC_DEV0_EPF2_STRAP2);
++		data &= ~RCC_DEV0_EPF2_STRAP2__STRAP_NO_SOFT_RESET_DEV0_F2_MASK;
++		WREG32_SOC15(NBIO, 0, regRCC_DEV0_EPF2_STRAP2, data);
 +	}
+ }
  
- 	req->zero     = len < le16_to_cpu(ffs->ev.setup.wLength);
- 
+ static u32 nbio_v4_3_get_rom_offset(struct amdgpu_device *adev)
 -- 
-2.39.0
+2.39.1
 
 
 
