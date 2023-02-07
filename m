@@ -2,41 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id DE4F868D7E9
-	for <lists+stable@lfdr.de>; Tue,  7 Feb 2023 14:04:18 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 50C5968D7C1
+	for <lists+stable@lfdr.de>; Tue,  7 Feb 2023 14:03:10 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232067AbjBGNES (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Feb 2023 08:04:18 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51186 "EHLO
+        id S231996AbjBGNDH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Feb 2023 08:03:07 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49358 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231683AbjBGNER (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Feb 2023 08:04:17 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 09C993A5BD
-        for <stable@vger.kernel.org>; Tue,  7 Feb 2023 05:04:06 -0800 (PST)
+        with ESMTP id S232100AbjBGNC5 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Feb 2023 08:02:57 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1D9372FCF2
+        for <stable@vger.kernel.org>; Tue,  7 Feb 2023 05:02:37 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id BE17DB81991
-        for <stable@vger.kernel.org>; Tue,  7 Feb 2023 13:04:04 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id F3774C433EF;
-        Tue,  7 Feb 2023 13:04:02 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id AAEA961411
+        for <stable@vger.kernel.org>; Tue,  7 Feb 2023 13:02:36 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B72A0C433EF;
+        Tue,  7 Feb 2023 13:02:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1675775043;
-        bh=oaqzQltnMQMT2ctjGsAuwsDRERHxGHPDrLhlldPZSO0=;
+        s=korg; t=1675774956;
+        bh=LGhrTu8dDwWqP1rkr28Vl8YPkH6lCuJpFE2ruP5mHYE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=LwLIvTLvvCIBbWoR5rq/sRhTQKVn8RBI9laR1/4Pe785Xac74938qnmpSwTWRjBuS
-         dO0GRy0kwg9yczkFQ7DqQ92VAXBdtIOZ4aQrB3+qd5AvZbSUHXQma5tzuLI8jhJpnW
-         5/g8UoysqPhX+ACRzw6WId+Nx6/5BRotw5Tdow9U=
+        b=N3Lgr3Nffoz56IeRj9lA5Ua4MrHweHfsLUFP8ogOAmqwNvfqMnP47CS/x2qTLiv9d
+         0L8AK+c9u/Omyt6yQts/hzGLIE/Aeoe/yA7thq/Nemy04MSoVWfcxYjFiE8pKIIQqV
+         eekxgtDU5CWFmoDEx9ZOVYl6aqGRUq18vQTB52TI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Anton Gusev <aagusev@ispras.ru>,
-        Ard Biesheuvel <ardb@kernel.org>,
+        patches@lists.linux.dev, Arnd Bergmann <arnd@arndb.de>,
+        Alexandre Belloni <alexandre.belloni@bootlin.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 089/208] efi: fix potential NULL deref in efi_mem_reserve_persistent
-Date:   Tue,  7 Feb 2023 13:55:43 +0100
-Message-Id: <20230207125638.387524091@linuxfoundation.org>
+Subject: [PATCH 6.1 090/208] rtc: sunplus: fix format string for printing resource
+Date:   Tue,  7 Feb 2023 13:55:44 +0100
+Message-Id: <20230207125638.434274692@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.1
 In-Reply-To: <20230207125634.292109991@linuxfoundation.org>
 References: <20230207125634.292109991@linuxfoundation.org>
@@ -44,8 +44,8 @@ User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
         SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -53,40 +53,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Anton Gusev <aagusev@ispras.ru>
+From: Arnd Bergmann <arnd@arndb.de>
 
-[ Upstream commit 966d47e1f27c45507c5df82b2a2157e5a4fd3909 ]
+[ Upstream commit 08279468a294d8c996a657ecc9e51bd5c084c75d ]
 
-When iterating on a linked list, a result of memremap is dereferenced
-without checking it for NULL.
+On 32-bit architectures with 64-bit resource_size_t, sp_rtc_probe()
+causes a compiler warning:
 
-This patch adds a check that falls back on allocating a new page in
-case memremap doesn't succeed.
+drivers/rtc/rtc-sunplus.c: In function 'sp_rtc_probe':
+drivers/rtc/rtc-sunplus.c:243:33: error: format '%x' expects argument of type 'unsigned int', but argument 4 has type 'resource_size_t' {aka 'long long unsigned int'} [-Werror=format=]
+  243 |         dev_dbg(&plat_dev->dev, "res = 0x%x, reg_base = 0x%lx\n",
+      |                                 ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Found by Linux Verification Center (linuxtesting.org) with SVACE.
+The best way to print a resource is the special %pR format string,
+and similarly to print a pointer we can use %p and avoid the cast.
 
-Fixes: 18df7577adae ("efi/memreserve: deal with memreserve entries in unmapped memory")
-Signed-off-by: Anton Gusev <aagusev@ispras.ru>
-[ardb: return -ENOMEM instead of breaking out of the loop]
-Signed-off-by: Ard Biesheuvel <ardb@kernel.org>
+Fixes: fad6cbe9b2b4 ("rtc: Add driver for RTC in Sunplus SP7021")
+Signed-off-by: Arnd Bergmann <arnd@arndb.de>
+Link: https://lore.kernel.org/r/20230117172450.2938962-1-arnd@kernel.org
+Signed-off-by: Alexandre Belloni <alexandre.belloni@bootlin.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/firmware/efi/efi.c | 2 ++
- 1 file changed, 2 insertions(+)
+ drivers/rtc/rtc-sunplus.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/firmware/efi/efi.c b/drivers/firmware/efi/efi.c
-index 033aac6be7da..b43e5e6ddaf6 100644
---- a/drivers/firmware/efi/efi.c
-+++ b/drivers/firmware/efi/efi.c
-@@ -984,6 +984,8 @@ int __ref efi_mem_reserve_persistent(phys_addr_t addr, u64 size)
- 	/* first try to find a slot in an existing linked list entry */
- 	for (prsv = efi_memreserve_root->next; prsv; ) {
- 		rsv = memremap(prsv, sizeof(*rsv), MEMREMAP_WB);
-+		if (!rsv)
-+			return -ENOMEM;
- 		index = atomic_fetch_add_unless(&rsv->count, 1, rsv->size);
- 		if (index < rsv->size) {
- 			rsv->entry[index].base = addr;
+diff --git a/drivers/rtc/rtc-sunplus.c b/drivers/rtc/rtc-sunplus.c
+index e8e2ab1103fc..4b578e4d44f6 100644
+--- a/drivers/rtc/rtc-sunplus.c
++++ b/drivers/rtc/rtc-sunplus.c
+@@ -240,8 +240,8 @@ static int sp_rtc_probe(struct platform_device *plat_dev)
+ 	if (IS_ERR(sp_rtc->reg_base))
+ 		return dev_err_probe(&plat_dev->dev, PTR_ERR(sp_rtc->reg_base),
+ 					    "%s devm_ioremap_resource fail\n", RTC_REG_NAME);
+-	dev_dbg(&plat_dev->dev, "res = 0x%x, reg_base = 0x%lx\n",
+-		sp_rtc->res->start, (unsigned long)sp_rtc->reg_base);
++	dev_dbg(&plat_dev->dev, "res = %pR, reg_base = %p\n",
++		sp_rtc->res, sp_rtc->reg_base);
+ 
+ 	sp_rtc->irq = platform_get_irq(plat_dev, 0);
+ 	if (sp_rtc->irq < 0)
 -- 
 2.39.0
 
