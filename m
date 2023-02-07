@@ -2,42 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 65CB568D8C1
-	for <lists+stable@lfdr.de>; Tue,  7 Feb 2023 14:12:42 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8F3A068D8AD
+	for <lists+stable@lfdr.de>; Tue,  7 Feb 2023 14:11:39 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232524AbjBGNMl (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Feb 2023 08:12:41 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60940 "EHLO
+        id S232401AbjBGNLi (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Feb 2023 08:11:38 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59992 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232468AbjBGNM0 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Feb 2023 08:12:26 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A569E3D913
-        for <stable@vger.kernel.org>; Tue,  7 Feb 2023 05:11:20 -0800 (PST)
+        with ESMTP id S232466AbjBGNLW (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Feb 2023 08:11:22 -0500
+Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2F4073BDB1
+        for <stable@vger.kernel.org>; Tue,  7 Feb 2023 05:10:37 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id AE10661407
-        for <stable@vger.kernel.org>; Tue,  7 Feb 2023 13:05:49 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id BC784C433D2;
-        Tue,  7 Feb 2023 13:05:48 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 6C523CE1D84
+        for <stable@vger.kernel.org>; Tue,  7 Feb 2023 13:10:32 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2AD5DC433EF;
+        Tue,  7 Feb 2023 13:10:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1675775149;
-        bh=YfAdvFglgr+/z/jUx7RWhiahpjEL47BF695t08TNpQc=;
+        s=korg; t=1675775430;
+        bh=5OmEdmXKc2bynHdwhJayPFBjwCx3cv+x7jQjk+0OBPU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=sencxIM/+auQyaTSRwtSQwKqbjT+vIHxGK4W97wsuh4nPZYStWP6kTLwAOZ+v/fcn
-         WCKwJm/7gULulv/Bvmj/H7DtBbQpt1m5hvoTdTONR96tpos3jMGG/gQKsljJQSVHNe
-         7cXmV5zZ9uySQDpmG+vpoI3y2IHr3D3TzD6hbLDk=
+        b=cAS3tVM8d9BfK9ykUv8G5lB7/K09hbpmV334Upw1irGrxjaDv8ZaEaR4Chp93zhTj
+         WZEJNoTgZsqaTFKZYEJg6Dh6WhSo3dOz9svRUGJUwDNUG7Ehbo2SuV1sPpQkkZQc1Y
+         jWU3LKVgwOgGYejZPNkYrcl/vb0ZCIRQw8x/gQPU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Helge Deller <deller@gmx.de>
-Subject: [PATCH 6.1 153/208] parisc: Wire up PTRACE_GETREGS/PTRACE_SETREGS for compat case
-Date:   Tue,  7 Feb 2023 13:56:47 +0100
-Message-Id: <20230207125641.387792857@linuxfoundation.org>
+        patches@lists.linux.dev, Heiner Kallweit <hkallweit1@gmail.com>,
+        Chris Healy <healych@amazon.com>,
+        Jerome Brunet <jbrunet@baylibre.com>,
+        Jakub Kicinski <kuba@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.15 037/120] net: phy: meson-gxl: Add generic dummy stubs for MMD register access
+Date:   Tue,  7 Feb 2023 13:56:48 +0100
+Message-Id: <20230207125620.361611919@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.1
-In-Reply-To: <20230207125634.292109991@linuxfoundation.org>
-References: <20230207125634.292109991@linuxfoundation.org>
+In-Reply-To: <20230207125618.699726054@linuxfoundation.org>
+References: <20230207125618.699726054@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -51,64 +55,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Helge Deller <deller@gmx.de>
+From: Chris Healy <healych@amazon.com>
 
-commit 316f1f42b5cc1d95124c1f0387c867c1ba7b6d0e upstream.
+[ Upstream commit afc2336f89dc0fc0ef25b92366814524b0fd90fb ]
 
-Wire up the missing ptrace requests PTRACE_GETREGS, PTRACE_SETREGS,
-PTRACE_GETFPREGS and PTRACE_SETFPREGS when running 32-bit applications
-on 64-bit kernels.
+The Meson G12A Internal PHY does not support standard IEEE MMD extended
+register access, therefore add generic dummy stubs to fail the read and
+write MMD calls. This is necessary to prevent the core PHY code from
+erroneously believing that EEE is supported by this PHY even though this
+PHY does not support EEE, as MMD register access returns all FFFFs.
 
-Signed-off-by: Helge Deller <deller@gmx.de>
-Cc: stable@vger.kernel.org # 4.7+
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: 5c3407abb338 ("net: phy: meson-gxl: add g12a support")
+Reviewed-by: Heiner Kallweit <hkallweit1@gmail.com>
+Signed-off-by: Chris Healy <healych@amazon.com>
+Reviewed-by: Jerome Brunet <jbrunet@baylibre.com>
+Link: https://lore.kernel.org/r/20230130231402.471493-1-cphealy@gmail.com
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/parisc/kernel/ptrace.c |   15 +++++++++++++--
- 1 file changed, 13 insertions(+), 2 deletions(-)
+ drivers/net/phy/meson-gxl.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
---- a/arch/parisc/kernel/ptrace.c
-+++ b/arch/parisc/kernel/ptrace.c
-@@ -126,6 +126,12 @@ long arch_ptrace(struct task_struct *chi
- 	unsigned long tmp;
- 	long ret = -EIO;
+diff --git a/drivers/net/phy/meson-gxl.c b/drivers/net/phy/meson-gxl.c
+index c49062ad72c6..5e41658b1e2f 100644
+--- a/drivers/net/phy/meson-gxl.c
++++ b/drivers/net/phy/meson-gxl.c
+@@ -271,6 +271,8 @@ static struct phy_driver meson_gxl_phy[] = {
+ 		.handle_interrupt = meson_gxl_handle_interrupt,
+ 		.suspend        = genphy_suspend,
+ 		.resume         = genphy_resume,
++		.read_mmd	= genphy_read_mmd_unsupported,
++		.write_mmd	= genphy_write_mmd_unsupported,
+ 	},
+ };
  
-+	unsigned long user_regs_struct_size = sizeof(struct user_regs_struct);
-+#ifdef CONFIG_64BIT
-+	if (is_compat_task())
-+		user_regs_struct_size /= 2;
-+#endif
-+
- 	switch (request) {
- 
- 	/* Read the word at location addr in the USER area.  For ptraced
-@@ -181,14 +187,14 @@ long arch_ptrace(struct task_struct *chi
- 		return copy_regset_to_user(child,
- 					   task_user_regset_view(current),
- 					   REGSET_GENERAL,
--					   0, sizeof(struct user_regs_struct),
-+					   0, user_regs_struct_size,
- 					   datap);
- 
- 	case PTRACE_SETREGS:	/* Set all gp regs in the child. */
- 		return copy_regset_from_user(child,
- 					     task_user_regset_view(current),
- 					     REGSET_GENERAL,
--					     0, sizeof(struct user_regs_struct),
-+					     0, user_regs_struct_size,
- 					     datap);
- 
- 	case PTRACE_GETFPREGS:	/* Get the child FPU state. */
-@@ -302,6 +308,11 @@ long compat_arch_ptrace(struct task_stru
- 			}
- 		}
- 		break;
-+	case PTRACE_GETREGS:
-+	case PTRACE_SETREGS:
-+	case PTRACE_GETFPREGS:
-+	case PTRACE_SETFPREGS:
-+		return arch_ptrace(child, request, addr, data);
- 
- 	default:
- 		ret = compat_ptrace_request(child, request, addr, data);
+-- 
+2.39.0
+
 
 
