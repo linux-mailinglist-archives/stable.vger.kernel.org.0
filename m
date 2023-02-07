@@ -2,49 +2,52 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B69CC68D822
-	for <lists+stable@lfdr.de>; Tue,  7 Feb 2023 14:06:20 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8FCF068D87D
+	for <lists+stable@lfdr.de>; Tue,  7 Feb 2023 14:10:15 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232105AbjBGNGT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Feb 2023 08:06:19 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53448 "EHLO
+        id S232338AbjBGNKO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Feb 2023 08:10:14 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59236 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232112AbjBGNGQ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Feb 2023 08:06:16 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4FEC13B653
-        for <stable@vger.kernel.org>; Tue,  7 Feb 2023 05:05:36 -0800 (PST)
+        with ESMTP id S232341AbjBGNKN (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Feb 2023 08:10:13 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A92DD3B3C5
+        for <stable@vger.kernel.org>; Tue,  7 Feb 2023 05:09:57 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 0531C61405
-        for <stable@vger.kernel.org>; Tue,  7 Feb 2023 13:05:32 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 18080C433D2;
-        Tue,  7 Feb 2023 13:05:30 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id EFCC861353
+        for <stable@vger.kernel.org>; Tue,  7 Feb 2023 13:09:03 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E1669C433D2;
+        Tue,  7 Feb 2023 13:09:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1675775131;
-        bh=CYFQnn3biJ0HCKTJBtsmSFwTgBIf/HXY+qDFM2MA6qc=;
+        s=korg; t=1675775343;
+        bh=Gra5ErS4X0GNbZsEVC8ttmGP+ep9iw21Wvq0/qZPMaY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ilCgwAQpjgv++hv6kDXRqgeNGVX2+aB+sdyPeUc/1oAe8qmmOt7gopwt/pLp6vB19
-         AcpjhuPGl+Zoe2UdVYH8ogdHOe/GdAEN6qRt7pU+ktIQuiYysHqV3Sjt/v9svHXJJC
-         LGbqMB3wtQAf2tBvwlMN7tWcEHg5BpCSl9adSLeY=
+        b=kUd8gn/h/w2P7LZy68wy5XYPtdpFzBHxUCujSqw8kkBF18M1kQ9gvDfIdLn9PAeQp
+         cifsBYW6hRo9DiuKSYZBP2TMHnECsszFtfnjlJ8eMrDh8IbCpgAXiYrDW14tOmiaC3
+         88RW1NbuK6PlbGu8m65mVCxBMNqEzZBLvZfqn7lo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Fabio Estevam <festevam@denx.de>,
-        Shawn Guo <shawnguo@kernel.org>
-Subject: [PATCH 6.1 118/208] ARM: dts: imx7d-smegw01: Fix USB host over-current polarity
+        patches@lists.linux.dev,
+        Takashi Sakamoto <o-takashi@sakamocchi.jp>,
+        Takashi Iwai <tiwai@suse.de>
+Subject: [PATCH 5.15 001/120] firewire: fix memory leak for payload of request subaction to IEC 61883-1 FCP region
 Date:   Tue,  7 Feb 2023 13:56:12 +0100
-Message-Id: <20230207125639.741905130@linuxfoundation.org>
+Message-Id: <20230207125618.779037731@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.1
-In-Reply-To: <20230207125634.292109991@linuxfoundation.org>
-References: <20230207125634.292109991@linuxfoundation.org>
+In-Reply-To: <20230207125618.699726054@linuxfoundation.org>
+References: <20230207125618.699726054@linuxfoundation.org>
 User-Agent: quilt/0.67
+X-stable: review
+X-Patchwork-Hint: ignore
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
         SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -52,52 +55,57 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Fabio Estevam <festevam@denx.de>
+From: Takashi Sakamoto <o-takashi@sakamocchi.jp>
 
-commit 1febf88ef907b142fdde34f7c64ed3535d9339e4 upstream.
+commit 531390a243ef47448f8bad01c186c2787666bf4d upstream.
 
-Currently, when resetting the USB modem via AT commands, the modem is
-no longer re-connected.
+This patch is fix for Linux kernel v2.6.33 or later.
 
-This problem is caused by the incorrect description of the USB_OTG2_OC
-pad. It should have pull-up enabled, hysteresis enabled and the
-property 'over-current-active-low' should be passed.
+For request subaction to IEC 61883-1 FCP region, Linux FireWire subsystem
+have had an issue of use-after-free. The subsystem allows multiple
+user space listeners to the region, while data of the payload was likely
+released before the listeners execute read(2) to access to it for copying
+to user space.
 
-With this change, the USB modem can be successfully re-connected
-after a reset.
+The issue was fixed by a commit 281e20323ab7 ("firewire: core: fix
+use-after-free regression in FCP handler"). The object of payload is
+duplicated in kernel space for each listener. When the listener executes
+ioctl(2) with FW_CDEV_IOC_SEND_RESPONSE request, the object is going to
+be released.
 
-Cc: stable@vger.kernel.org
-Fixes: 9ac0ae97e349 ("ARM: dts: imx7d-smegw01: Add support for i.MX7D SMEGW01 board")
-Signed-off-by: Fabio Estevam <festevam@denx.de>
-Signed-off-by: Shawn Guo <shawnguo@kernel.org>
+However, it causes memory leak since the commit relies on call of
+release_request() in drivers/firewire/core-cdev.c. Against the
+expectation, the function is never called due to the design of
+release_client_resource(). The function delegates release task
+to caller when called with non-NULL fourth argument. The implementation
+of ioctl_send_response() is the case. It should release the object
+explicitly.
+
+This commit fixes the bug.
+
+Cc: <stable@vger.kernel.org>
+Fixes: 281e20323ab7 ("firewire: core: fix use-after-free regression in FCP handler")
+Signed-off-by: Takashi Sakamoto <o-takashi@sakamocchi.jp>
+Link: https://lore.kernel.org/r/20230117090610.93792-2-o-takashi@sakamocchi.jp
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/arm/boot/dts/imx7d-smegw01.dts | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/firewire/core-cdev.c |    4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/arch/arm/boot/dts/imx7d-smegw01.dts b/arch/arm/boot/dts/imx7d-smegw01.dts
-index 546268b8d0b1..c0f00f5db11e 100644
---- a/arch/arm/boot/dts/imx7d-smegw01.dts
-+++ b/arch/arm/boot/dts/imx7d-smegw01.dts
-@@ -198,6 +198,7 @@
- &usbotg2 {
- 	pinctrl-names = "default";
- 	pinctrl-0 = <&pinctrl_usbotg2>;
-+	over-current-active-low;
- 	dr_mode = "host";
- 	status = "okay";
- };
-@@ -374,7 +375,7 @@
+--- a/drivers/firewire/core-cdev.c
++++ b/drivers/firewire/core-cdev.c
+@@ -818,8 +818,10 @@ static int ioctl_send_response(struct cl
  
- 	pinctrl_usbotg2: usbotg2grp {
- 		fsl,pins = <
--			MX7D_PAD_UART3_RTS_B__USB_OTG2_OC	0x04
-+			MX7D_PAD_UART3_RTS_B__USB_OTG2_OC	0x5c
- 		>;
- 	};
+ 	r = container_of(resource, struct inbound_transaction_resource,
+ 			 resource);
+-	if (is_fcp_request(r->request))
++	if (is_fcp_request(r->request)) {
++		kfree(r->data);
+ 		goto out;
++	}
  
--- 
-2.39.1
-
+ 	if (a->length != fw_get_response_length(r->request)) {
+ 		ret = -EINVAL;
 
 
