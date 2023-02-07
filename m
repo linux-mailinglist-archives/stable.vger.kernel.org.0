@@ -2,47 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 2520768D833
-	for <lists+stable@lfdr.de>; Tue,  7 Feb 2023 14:07:38 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0666168D8D5
+	for <lists+stable@lfdr.de>; Tue,  7 Feb 2023 14:13:33 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232204AbjBGNHh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Feb 2023 08:07:37 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55538 "EHLO
+        id S232605AbjBGNNb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Feb 2023 08:13:31 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60986 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232215AbjBGNHg (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Feb 2023 08:07:36 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4383A1116E
-        for <stable@vger.kernel.org>; Tue,  7 Feb 2023 05:06:56 -0800 (PST)
+        with ESMTP id S232515AbjBGNNP (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Feb 2023 08:13:15 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 61576F754
+        for <stable@vger.kernel.org>; Tue,  7 Feb 2023 05:12:33 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id E1A02B81995
-        for <stable@vger.kernel.org>; Tue,  7 Feb 2023 13:06:27 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3D418C433D2;
-        Tue,  7 Feb 2023 13:06:26 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 42866611AA
+        for <stable@vger.kernel.org>; Tue,  7 Feb 2023 13:12:33 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3AD9AC433D2;
+        Tue,  7 Feb 2023 13:12:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1675775186;
-        bh=fpUQUoq0adnD/CahJ68tUfvXHb4Q5EZwacrdUdOheeQ=;
+        s=korg; t=1675775552;
+        bh=K1JEmEZ3bqZ7DglTaOUdtmd7NK/nxiTB4xPIKygQm1o=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=O50+d6A09PbKE5ijyRCgyctsTwLDgju2NZ2NedekcO/WVf9HhqwgLGlefgAUDWm2W
-         N9p1wmgP350wOJlAEvGmYIB/vJ8bsasK4NHW+2AGt0r/bf0ej0lkSqCySdrBxl/i0j
-         uvu/m3RAYiHalQarujTxnij64H6Mn/wWk27Qfe1Q=
+        b=a8EhpWs65CmVMSeNcvBmUdT6AI8WiC3cf6sVKfcUPaV2sHFSuMrNQS55JD3UwFlGW
+         TQ77PWAACvyqECf5asRShedF/S3BDYvSlSuNJetKWqSIDAu5Ed6S7156a4FkdEYYoL
+         zqezE97Vz7CG5/MX66Euvx81RADYP55AOQe0OvfY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Matthew Gerlach <matthew.gerlach@linux.intel.com>,
-        Russ Weight <russell.h.weight@intel.com>,
-        Marco Pagani <marpagan@redhat.com>,
-        =?UTF-8?q?Ilpo=20J=C3=A4rvinen?= <ilpo.jarvinen@linux.intel.com>,
-        Xu Yilun <yilun.xu@intel.com>
-Subject: [PATCH 6.1 165/208] fpga: m10bmc-sec: Fix probe rollback
-Date:   Tue,  7 Feb 2023 13:56:59 +0100
-Message-Id: <20230207125641.889469962@linuxfoundation.org>
+        patches@lists.linux.dev, Fedor Pchelkin <pchelkin@ispras.ru>,
+        Alexey Khoroshilov <khoroshilov@ispras.ru>,
+        Eelco Chaudron <echaudro@redhat.com>,
+        Simon Horman <simon.horman@corigine.com>,
+        Jakub Kicinski <kuba@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.15 049/120] net: openvswitch: fix flow memory leak in ovs_flow_cmd_new
+Date:   Tue,  7 Feb 2023 13:57:00 +0100
+Message-Id: <20230207125620.868400232@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.1
-In-Reply-To: <20230207125634.292109991@linuxfoundation.org>
-References: <20230207125634.292109991@linuxfoundation.org>
+In-Reply-To: <20230207125618.699726054@linuxfoundation.org>
+References: <20230207125618.699726054@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,65 +56,110 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ilpo Järvinen <ilpo.jarvinen@linux.intel.com>
+From: Fedor Pchelkin <pchelkin@ispras.ru>
 
-commit 60ce26d10e5850f33cc76fce52f5377045e75a15 upstream.
+[ Upstream commit 0c598aed445eb45b0ee7ba405f7ece99ee349c30 ]
 
-Handle probe error rollbacks properly to avoid leaks.
+Syzkaller reports a memory leak of new_flow in ovs_flow_cmd_new() as it is
+not freed when an allocation of a key fails.
 
-Fixes: 5cd339b370e2 ("fpga: m10bmc-sec: add max10 secure update functions")
-Reviewed-by: Matthew Gerlach <matthew.gerlach@linux.intel.com>
-Reviewed-by: Russ Weight <russell.h.weight@intel.com>
-Reviewed-by: Marco Pagani <marpagan@redhat.com>
-Signed-off-by: Ilpo Järvinen <ilpo.jarvinen@linux.intel.com>
-Cc: stable@vger.kernel.org
-Acked-by: Xu Yilun <yilun.xu@intel.com>
-Link: https://lore.kernel.org/r/20221214144952.8392-1-ilpo.jarvinen@linux.intel.com
-Signed-off-by: Xu Yilun <yilun.xu@intel.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+BUG: memory leak
+unreferenced object 0xffff888116668000 (size 632):
+  comm "syz-executor231", pid 1090, jiffies 4294844701 (age 18.871s)
+  hex dump (first 32 bytes):
+    00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00  ................
+    00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00  ................
+  backtrace:
+    [<00000000defa3494>] kmem_cache_zalloc include/linux/slab.h:654 [inline]
+    [<00000000defa3494>] ovs_flow_alloc+0x19/0x180 net/openvswitch/flow_table.c:77
+    [<00000000c67d8873>] ovs_flow_cmd_new+0x1de/0xd40 net/openvswitch/datapath.c:957
+    [<0000000010a539a8>] genl_family_rcv_msg_doit+0x22d/0x330 net/netlink/genetlink.c:739
+    [<00000000dff3302d>] genl_family_rcv_msg net/netlink/genetlink.c:783 [inline]
+    [<00000000dff3302d>] genl_rcv_msg+0x328/0x590 net/netlink/genetlink.c:800
+    [<000000000286dd87>] netlink_rcv_skb+0x153/0x430 net/netlink/af_netlink.c:2515
+    [<0000000061fed410>] genl_rcv+0x24/0x40 net/netlink/genetlink.c:811
+    [<000000009dc0f111>] netlink_unicast_kernel net/netlink/af_netlink.c:1313 [inline]
+    [<000000009dc0f111>] netlink_unicast+0x545/0x7f0 net/netlink/af_netlink.c:1339
+    [<000000004a5ee816>] netlink_sendmsg+0x8e7/0xde0 net/netlink/af_netlink.c:1934
+    [<00000000482b476f>] sock_sendmsg_nosec net/socket.c:651 [inline]
+    [<00000000482b476f>] sock_sendmsg+0x152/0x190 net/socket.c:671
+    [<00000000698574ba>] ____sys_sendmsg+0x70a/0x870 net/socket.c:2356
+    [<00000000d28d9e11>] ___sys_sendmsg+0xf3/0x170 net/socket.c:2410
+    [<0000000083ba9120>] __sys_sendmsg+0xe5/0x1b0 net/socket.c:2439
+    [<00000000c00628f8>] do_syscall_64+0x30/0x40 arch/x86/entry/common.c:46
+    [<000000004abfdcf4>] entry_SYSCALL_64_after_hwframe+0x61/0xc6
+
+To fix this the patch rearranges the goto labels to reflect the order of
+object allocations and adds appropriate goto statements on the error
+paths.
+
+Found by Linux Verification Center (linuxtesting.org) with Syzkaller.
+
+Fixes: 68bb10101e6b ("openvswitch: Fix flow lookup to use unmasked key")
+Signed-off-by: Fedor Pchelkin <pchelkin@ispras.ru>
+Signed-off-by: Alexey Khoroshilov <khoroshilov@ispras.ru>
+Acked-by: Eelco Chaudron <echaudro@redhat.com>
+Reviewed-by: Simon Horman <simon.horman@corigine.com>
+Link: https://lore.kernel.org/r/20230201210218.361970-1-pchelkin@ispras.ru
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/fpga/intel-m10-bmc-sec-update.c | 17 ++++++++++++-----
- 1 file changed, 12 insertions(+), 5 deletions(-)
+ net/openvswitch/datapath.c | 12 ++++++------
+ 1 file changed, 6 insertions(+), 6 deletions(-)
 
-diff --git a/drivers/fpga/intel-m10-bmc-sec-update.c b/drivers/fpga/intel-m10-bmc-sec-update.c
-index 79d48852825e..03f1bd81c434 100644
---- a/drivers/fpga/intel-m10-bmc-sec-update.c
-+++ b/drivers/fpga/intel-m10-bmc-sec-update.c
-@@ -574,20 +574,27 @@ static int m10bmc_sec_probe(struct platform_device *pdev)
- 	len = scnprintf(buf, SEC_UPDATE_LEN_MAX, "secure-update%d",
- 			sec->fw_name_id);
- 	sec->fw_name = kmemdup_nul(buf, len, GFP_KERNEL);
--	if (!sec->fw_name)
--		return -ENOMEM;
-+	if (!sec->fw_name) {
-+		ret = -ENOMEM;
-+		goto fw_name_fail;
-+	}
- 
- 	fwl = firmware_upload_register(THIS_MODULE, sec->dev, sec->fw_name,
- 				       &m10bmc_ops, sec);
- 	if (IS_ERR(fwl)) {
- 		dev_err(sec->dev, "Firmware Upload driver failed to start\n");
--		kfree(sec->fw_name);
--		xa_erase(&fw_upload_xa, sec->fw_name_id);
--		return PTR_ERR(fwl);
-+		ret = PTR_ERR(fwl);
-+		goto fw_uploader_fail;
+diff --git a/net/openvswitch/datapath.c b/net/openvswitch/datapath.c
+index 795a25ecb893..0fc98e89a114 100644
+--- a/net/openvswitch/datapath.c
++++ b/net/openvswitch/datapath.c
+@@ -977,14 +977,14 @@ static int ovs_flow_cmd_new(struct sk_buff *skb, struct genl_info *info)
+ 	key = kzalloc(sizeof(*key), GFP_KERNEL);
+ 	if (!key) {
+ 		error = -ENOMEM;
+-		goto err_kfree_key;
++		goto err_kfree_flow;
  	}
  
- 	sec->fwl = fwl;
- 	return 0;
-+
-+fw_uploader_fail:
-+	kfree(sec->fw_name);
-+fw_name_fail:
-+	xa_erase(&fw_upload_xa, sec->fw_name_id);
-+	return ret;
- }
+ 	ovs_match_init(&match, key, false, &mask);
+ 	error = ovs_nla_get_match(net, &match, a[OVS_FLOW_ATTR_KEY],
+ 				  a[OVS_FLOW_ATTR_MASK], log);
+ 	if (error)
+-		goto err_kfree_flow;
++		goto err_kfree_key;
  
- static int m10bmc_sec_remove(struct platform_device *pdev)
+ 	ovs_flow_mask_key(&new_flow->key, key, true, &mask);
+ 
+@@ -992,14 +992,14 @@ static int ovs_flow_cmd_new(struct sk_buff *skb, struct genl_info *info)
+ 	error = ovs_nla_get_identifier(&new_flow->id, a[OVS_FLOW_ATTR_UFID],
+ 				       key, log);
+ 	if (error)
+-		goto err_kfree_flow;
++		goto err_kfree_key;
+ 
+ 	/* Validate actions. */
+ 	error = ovs_nla_copy_actions(net, a[OVS_FLOW_ATTR_ACTIONS],
+ 				     &new_flow->key, &acts, log);
+ 	if (error) {
+ 		OVS_NLERR(log, "Flow actions may not be safe on all matching packets.");
+-		goto err_kfree_flow;
++		goto err_kfree_key;
+ 	}
+ 
+ 	reply = ovs_flow_cmd_alloc_info(acts, &new_flow->id, info, false,
+@@ -1099,10 +1099,10 @@ static int ovs_flow_cmd_new(struct sk_buff *skb, struct genl_info *info)
+ 	kfree_skb(reply);
+ err_kfree_acts:
+ 	ovs_nla_free_flow_actions(acts);
+-err_kfree_flow:
+-	ovs_flow_free(new_flow, false);
+ err_kfree_key:
+ 	kfree(key);
++err_kfree_flow:
++	ovs_flow_free(new_flow, false);
+ error:
+ 	return error;
+ }
 -- 
-2.39.1
+2.39.0
 
 
 
