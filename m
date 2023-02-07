@@ -2,47 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 0845E68D866
-	for <lists+stable@lfdr.de>; Tue,  7 Feb 2023 14:09:16 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2316868D903
+	for <lists+stable@lfdr.de>; Tue,  7 Feb 2023 14:15:12 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232258AbjBGNJP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Feb 2023 08:09:15 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58018 "EHLO
+        id S232408AbjBGNPK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Feb 2023 08:15:10 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60842 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232229AbjBGNJO (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Feb 2023 08:09:14 -0500
+        with ESMTP id S232528AbjBGNOo (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Feb 2023 08:14:44 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0EE2E3B3C9
-        for <stable@vger.kernel.org>; Tue,  7 Feb 2023 05:08:35 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3878E2B2BE
+        for <stable@vger.kernel.org>; Tue,  7 Feb 2023 05:14:24 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id DA3EF6141D
-        for <stable@vger.kernel.org>; Tue,  7 Feb 2023 13:07:56 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E83B0C4339B;
-        Tue,  7 Feb 2023 13:07:55 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 856D661353
+        for <stable@vger.kernel.org>; Tue,  7 Feb 2023 13:14:01 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7BD12C433A4;
+        Tue,  7 Feb 2023 13:14:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1675775276;
-        bh=aeOOcVlDUq5dp+agrOXRkAlYcfRvAernryLhlWz8Hzo=;
+        s=korg; t=1675775641;
+        bh=amPiSJfm8e7IixX6HmpAH1wtZAE3/roE0VOFRzwiUEA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=I/FXOzZcEaMaor9izQiu6tKhR2BjPh0KuaFIgnQO594p06dm1FPn7rEXcweMYtMHM
-         8RVS+bma0Jg2GTTFY8y4vDZAX/ahR5aDtasbwqapMms/UTBiW0kibo1UVdnCs3jRHC
-         PxmhyuJdbE3Va9L4Adx7YunVdHaZP16aXvhGGjqU=
+        b=dByCdrYuJXEckGc7vAfL1+LOQHVDMygg4g/2EH4z7YWl70eDTlpkvRTFUudqSu3hN
+         OoOP+sH1+/w2uu2o6WdfJaSGJ0H1/56BBhMsv8uzpaUcfaQn6GZ7Kt5rDSBR1sLjfU
+         e4I765CcuCr2e3yC7TIPwrA2Kbj43EP3eyWnhk44=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, kernel test robot <lkp@intel.com>,
-        Dan Carpenter <error27@gmail.com>,
-        Peter Ujfalusi <peter.ujfalusi@linux.intel.com>,
-        AngeloGioacchino Del Regno 
-        <angelogioacchino.delregno@collabora.com>,
-        Mark Brown <broonie@kernel.org>
-Subject: [PATCH 6.1 195/208] ASoC: SOF: sof-audio: prepare_widgets: Check swidget for NULL on sink failure
+        patches@lists.linux.dev, Carlos Song <carlos.song@nxp.com>,
+        Stable@vger.kernel.org,
+        Jonathan Cameron <Jonathan.Cameron@huawei.com>
+Subject: [PATCH 5.15 078/120] iio: imu: fxos8700: fix incomplete ACCEL and MAGN channels readback
 Date:   Tue,  7 Feb 2023 13:57:29 +0100
-Message-Id: <20230207125643.321338758@linuxfoundation.org>
+Message-Id: <20230207125622.065399428@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.1
-In-Reply-To: <20230207125634.292109991@linuxfoundation.org>
-References: <20230207125634.292109991@linuxfoundation.org>
+In-Reply-To: <20230207125618.699726054@linuxfoundation.org>
+References: <20230207125618.699726054@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,41 +53,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Peter Ujfalusi <peter.ujfalusi@linux.intel.com>
+From: Carlos Song <carlos.song@nxp.com>
 
-commit fb4293600cc651cfe4d48ec489f1d175adf6e2f8 upstream.
+commit 37a94d86d7050665d6d01378b2c916c28e454f10 upstream.
 
-If the swidget is NULL we skip the preparing of the widget and jump to
-handle the sink path of the widget.
-If the prepare fails in this case we would undo the prepare but the swidget
-is NULL (we skipped the prepare for the widget).
+The length of ACCEL and MAGN 3-axis channels output data is 6 byte
+individually. However block only read 3 bytes data into buffer from
+ACCEL or MAGN output data registers every time. It causes an incomplete
+ACCEL and MAGN channels readback.
 
-To avoid NULL pointer dereference in this case we must check swidget
-against NULL pointer once again.
+Set correct value count for regmap_bulk_read to get 6 bytes ACCEL and
+MAGN channels readback.
 
-Fixes: 0ad84b11f2f8 ("ASoC: SOF: sof-audio: skip prepare/unprepare if swidget is NULL")
-Reported-by: kernel test robot <lkp@intel.com>
-Reported-by: Dan Carpenter <error27@gmail.com>
-Signed-off-by: Peter Ujfalusi <peter.ujfalusi@linux.intel.com>
-Reviewed-by: AngeloGioacchino Del Regno <angelogioacchino.delregno@collabora.com>
-Link: https://lore.kernel.org/r/20230120102125.30653-1-peter.ujfalusi@linux.intel.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
+Fixes: 84e5ddd5c46e ("iio: imu: Add support for the FXOS8700 IMU")
+Signed-off-by: Carlos Song <carlos.song@nxp.com>
+Link: https://lore.kernel.org/r/20221208071911.2405922-4-carlos.song@nxp.com
+Cc: <Stable@vger.kernel.org>
+Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- sound/soc/sof/sof-audio.c |    3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ drivers/iio/imu/fxos8700_core.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/sound/soc/sof/sof-audio.c
-+++ b/sound/soc/sof/sof-audio.c
-@@ -327,7 +327,8 @@ sink_prepare:
- 			p->walking = false;
- 			if (ret < 0) {
- 				/* unprepare the source widget */
--				if (widget_ops[widget->id].ipc_unprepare && swidget->prepared) {
-+				if (widget_ops[widget->id].ipc_unprepare &&
-+				    swidget && swidget->prepared) {
- 					widget_ops[widget->id].ipc_unprepare(swidget);
- 					swidget->prepared = false;
- 				}
+--- a/drivers/iio/imu/fxos8700_core.c
++++ b/drivers/iio/imu/fxos8700_core.c
+@@ -425,7 +425,7 @@ static int fxos8700_get_data(struct fxos
+ 
+ 	/* Block read 6 bytes of device output registers to avoid data loss */
+ 	ret = regmap_bulk_read(data->regmap, base, data->buf,
+-			       FXOS8700_DATA_BUF_SIZE);
++			       sizeof(data->buf));
+ 	if (ret)
+ 		return ret;
+ 
 
 
