@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E490D68D1AE
-	for <lists+stable@lfdr.de>; Tue,  7 Feb 2023 09:47:54 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id F0C1668D1B2
+	for <lists+stable@lfdr.de>; Tue,  7 Feb 2023 09:48:05 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229574AbjBGIrx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Feb 2023 03:47:53 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36374 "EHLO
+        id S229791AbjBGIsF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Feb 2023 03:48:05 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36410 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229791AbjBGIrw (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Feb 2023 03:47:52 -0500
+        with ESMTP id S229847AbjBGIsE (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Feb 2023 03:48:04 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 448D230FB
-        for <stable@vger.kernel.org>; Tue,  7 Feb 2023 00:47:51 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A524630FB
+        for <stable@vger.kernel.org>; Tue,  7 Feb 2023 00:48:03 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id DE9146121A
-        for <stable@vger.kernel.org>; Tue,  7 Feb 2023 08:47:50 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id DEE46C433D2;
-        Tue,  7 Feb 2023 08:47:49 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 3F8E26121B
+        for <stable@vger.kernel.org>; Tue,  7 Feb 2023 08:48:03 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3FB0EC433D2;
+        Tue,  7 Feb 2023 08:48:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1675759670;
-        bh=VRgmojzYJ52Sw4U8b926Xtg0HrQARgZrVwxAhfzGpaM=;
+        s=korg; t=1675759682;
+        bh=dvocRrxw34W1WLL/bP2S1kJoSMddN/Ev4TCsX8S/ykw=;
         h=Subject:To:Cc:From:Date:From;
-        b=LrVRUQWODj2sCLGjbJ7X9AYBhofjDDfh4dJzH7rDqH/5Xhu71kkXaUz8A+ckZXea+
-         x1Fcbdksfn9EWKqIGIRAN8mYeb6wqvGopQu7ji0kSz7lQDkCcwvAZa9OAXgRAZ770s
-         3lI/IJR41IYLyBOYaxGo2PF2VbRoxLn3GG6Ytvow=
-Subject: FAILED: patch "[PATCH] powerpc/kexec_file: Fix division by zero in extra size" failed to apply to 6.1-stable tree
+        b=lMbxfWeUi0weyOkAZ11uA4OFHkupX/Ebd/PAKdGc/sH7vEiPQf7A+MwZG9dQ25X1I
+         mR7H28ujOoFk2Xx5vpaT4B7/G684weLVi9nhNi1SsajtgPmuN6ZUZU0A4vlTm+KbbF
+         t+5xw9V1uwNsK4jBms36iobtFwYOd520kmWsaxc8=
+Subject: FAILED: patch "[PATCH] powerpc/kexec_file: Fix division by zero in extra size" failed to apply to 5.15-stable tree
 To:     mpe@ellerman.id.au
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Tue, 07 Feb 2023 09:47:46 +0100
-Message-ID: <1675759666133138@kroah.com>
+Date:   Tue, 07 Feb 2023 09:47:59 +0100
+Message-ID: <167575967970206@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -47,7 +47,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 6.1-stable tree.
+The patch below does not apply to the 5.15-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
