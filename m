@@ -2,153 +2,81 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 4CB5068CFAF
-	for <lists+stable@lfdr.de>; Tue,  7 Feb 2023 07:45:45 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0786C68CFD3
+	for <lists+stable@lfdr.de>; Tue,  7 Feb 2023 07:52:23 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229727AbjBGGpn (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Feb 2023 01:45:43 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55500 "EHLO
+        id S230234AbjBGGwV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Feb 2023 01:52:21 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58528 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229696AbjBGGpn (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Feb 2023 01:45:43 -0500
-Received: from mga14.intel.com (mga14.intel.com [192.55.52.115])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 533D11BE7;
-        Mon,  6 Feb 2023 22:45:42 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
-  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1675752342; x=1707288342;
-  h=message-id:date:mime-version:cc:subject:to:references:
-   from:in-reply-to:content-transfer-encoding;
-  bh=AaUf0zG3WU35FnYxi/A+oYi6a97oKHZ4rYfEtRF+/Vc=;
-  b=EjbtUhxgPCXJ6j/vBKEij8VCF26PoEBNGWRXK5ZgvUa1ZsUvERHqjrI5
-   aNCK+X58W4eMXIt19CG+uLXEGomACoQasiBf7v8amesPpKBg/V38TWJkx
-   ZnaoOdhVJ9uB3DeDI1roPb0CTb+So2vXgjgZi8wgxTYmmyJUEcEpHeFW0
-   LPdJjN5GmgnrlRKq+XQ5jMWCoUP49Hhrfsjqgi7ZWusyglSg84xwGPwR2
-   hNslj7cVO2jWSUfu0ZXHGOzv9oH48xZAcDtw0CrEq/rjhYNZlcCD8VKBY
-   mVXKNb+BWZpEzbYThcN8mdrToComhuAh5fcGf8gEJqkGJ70EW5FhA2YE4
-   Q==;
-X-IronPort-AV: E=McAfee;i="6500,9779,10613"; a="329441402"
-X-IronPort-AV: E=Sophos;i="5.97,278,1669104000"; 
-   d="scan'208";a="329441402"
-Received: from fmsmga007.fm.intel.com ([10.253.24.52])
-  by fmsmga103.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 06 Feb 2023 22:45:42 -0800
-X-IronPort-AV: E=McAfee;i="6500,9779,10613"; a="668680659"
-X-IronPort-AV: E=Sophos;i="5.97,278,1669104000"; 
-   d="scan'208";a="668680659"
-Received: from blu2-mobl.ccr.corp.intel.com (HELO [10.254.209.26]) ([10.254.209.26])
-  by fmsmga007-auth.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 06 Feb 2023 22:45:39 -0800
-Message-ID: <b190ddb3-eb1d-cd72-ce03-1127af228bf0@linux.intel.com>
-Date:   Tue, 7 Feb 2023 14:45:37 +0800
+        with ESMTP id S230337AbjBGGwR (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Feb 2023 01:52:17 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4CD1C12F06
+        for <stable@vger.kernel.org>; Mon,  6 Feb 2023 22:52:17 -0800 (PST)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id DF251611D7
+        for <stable@vger.kernel.org>; Tue,  7 Feb 2023 06:52:16 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C6B1BC433EF;
+        Tue,  7 Feb 2023 06:52:15 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
+        s=korg; t=1675752736;
+        bh=a/5voOp3y/aZIrK0C4R366R+m61mokM7kNZGeMuraVY=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=weOPeeWDkKfXDJt1KtfBmL3mO4DQD6tslc2bIPxHs/lIXMEf4do5dWKyjGZMNa3eB
+         JVCw3shO4uR/srrK0XwXB6NzHBIpBW2YRAzLtVGBpo1NxHEh92zKNxsQqanyfnFVui
+         jDbDGJSOwm06UqgAdWUImkrFvJNd8H3hTTsmBiXs=
+Date:   Tue, 7 Feb 2023 07:52:13 +0100
+From:   Greg KH <gregkh@linuxfoundation.org>
+To:     Xinghui Li <korantwork@gmail.com>
+Cc:     peterz@infradead.org, jpoimboe@redhat.com, tglx@linutronix.de,
+        stable@vger.kernel.org, x86@kernel.org, alexs@kernel.org
+Subject: Re: [bug report]warning about entry_64.S from objtool in v5.4 LTS
+Message-ID: <Y+H1HRqfnULl/B9f@kroah.com>
+References: <CAEm4hYXr28O8TOmZWEKfp-00Y9R7Ky7C6X3JTtfm-0AD42KbrA@mail.gmail.com>
+ <Y+CSwTDESQjTzS8S@kroah.com>
+ <CAEm4hYW-LzXbf-ZrsG59LrHB067NhuYkRSLzsd8RBfwzA8z1mg@mail.gmail.com>
+ <Y+DK4fP/u7iYi7Kt@kroah.com>
+ <CAEm4hYW+p3CdbPkKK8Aiv-ofisQbsBr3xv8Ne9D6QJXeOC9T9Q@mail.gmail.com>
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:102.0) Gecko/20100101
- Thunderbird/102.6.1
-Cc:     baolu.lu@linux.intel.com, David Woodhouse <dwmw2@infradead.org>,
-        "Raj, Ashok" <ashok.raj@intel.com>,
-        "Liu, Yi L" <yi.l.liu@intel.com>,
-        "stable@vger.kernel.org" <stable@vger.kernel.org>,
-        "Kumar, Sanjay K" <sanjay.k.kumar@intel.com>,
-        Robin Murphy <robin.murphy@arm.com>
-Subject: Re: [PATCH] iommu/vt-d: Avoid superfluous IOTLB tracking in lazy mode
-Content-Language: en-US
-To:     "Tian, Kevin" <kevin.tian@intel.com>,
-        Jacob Pan <jacob.jun.pan@linux.intel.com>,
-        LKML <linux-kernel@vger.kernel.org>,
-        "iommu@lists.linux.dev" <iommu@lists.linux.dev>,
-        Joerg Roedel <joro@8bytes.org>
-References: <20230203230417.1287325-1-jacob.jun.pan@linux.intel.com>
- <ef65f1cf-d04c-8c35-7144-d30504bf7a1c@linux.intel.com>
- <BN9PR11MB52764498929E4978B3A8740D8CDA9@BN9PR11MB5276.namprd11.prod.outlook.com>
-From:   Baolu Lu <baolu.lu@linux.intel.com>
-In-Reply-To: <BN9PR11MB52764498929E4978B3A8740D8CDA9@BN9PR11MB5276.namprd11.prod.outlook.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Spam-Status: No, score=-5.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_EF,NICE_REPLY_A,RCVD_IN_DNSWL_MED,
-        SPF_HELO_NONE,SPF_NONE autolearn=ham autolearn_force=no version=3.4.6
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <CAEm4hYW+p3CdbPkKK8Aiv-ofisQbsBr3xv8Ne9D6QJXeOC9T9Q@mail.gmail.com>
+X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
+        SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 2023/2/6 11:48, Tian, Kevin wrote:
->> From: Baolu Lu <baolu.lu@linux.intel.com>
->> Sent: Saturday, February 4, 2023 2:32 PM
->>
->> On 2023/2/4 7:04, Jacob Pan wrote:
->>> Intel IOMMU driver implements IOTLB flush queue with domain selective
->>> or PASID selective invalidations. In this case there's no need to track
->>> IOVA page range and sync IOTLBs, which may cause significant
->> performance
->>> hit.
->>
->> [Add cc Robin]
->>
->> If I understand this patch correctly, this might be caused by below
->> helper:
->>
->> /**
->>    * iommu_iotlb_gather_add_page - Gather for page-based TLB invalidation
->>    * @domain: IOMMU domain to be invalidated
->>    * @gather: TLB gather data
->>    * @iova: start of page to invalidate
->>    * @size: size of page to invalidate
->>    *
->>    * Helper for IOMMU drivers to build invalidation commands based on
->> individual
->>    * pages, or with page size/table level hints which cannot be gathered
->> if they
->>    * differ.
->>    */
->> static inline void iommu_iotlb_gather_add_page(struct iommu_domain
->> *domain,
->>                                                  struct
->> iommu_iotlb_gather *gather,
->>                                                  unsigned long iova,
->> size_t size)
->> {
->>           /*
->>            * If the new page is disjoint from the current range or is
->> mapped at
->>            * a different granularity, then sync the TLB so that the gather
->>            * structure can be rewritten.
->>            */
->>           if ((gather->pgsize && gather->pgsize != size) ||
->>               iommu_iotlb_gather_is_disjoint(gather, iova, size))
->>                   iommu_iotlb_sync(domain, gather);
->>
->>           gather->pgsize = size;
->>           iommu_iotlb_gather_add_range(gather, iova, size);
->> }
->>
->> As the comments for iommu_iotlb_gather_is_disjoint() says,
->>
->> "...For many IOMMUs, flushing the IOMMU in this case is better
->>    than merging the two, which might lead to unnecessary invalidations.
->>    ..."
->>
->> So, perhaps the right fix for this performance issue is to add
->>
->> 	if (!gather->queued)
->>
->> in iommu_iotlb_gather_add_page() or iommu_iotlb_gather_is_disjoint()?
->> It should benefit other arch's as well.
->>
-> 
-> There are only two callers of this helper: intel and arm-smmu-v3.
-> 
-> Looks other drivers just implements direct flush via io_pgtable_tlb_add_page().
-> 
-> and their unmap callback typically does:
-> 
-> if (!iommu_iotlb_gather_queued(gather))
-> 	io_pgtable_tlb_add_page();
-> 
-> from this angle it's same policy as Jacob's does, i.e. if it's already
-> queued then no need to further call optimization for direct flush.
+On Tue, Feb 07, 2023 at 02:43:17PM +0800, Xinghui Li wrote:
+> Greg KH <gregkh@linuxfoundation.org> 于2023年2月6日周一 17:39写道：
+> >
+> > Is this an actual real problem that you can detect with testing?  Or is
+> > it just a warning message in the build?
+> >
+> So far, I have not met the actual error in running time.
+> But according to Kuniyuki's report, it seems like this commit will
+> cause an actual running time error.
 
-Perhaps we can use iommu_iotlb_gather_queued() to replace direct
-gather->queued check in this patch as well?
+I do not understand the actual runtime error, sorry.  Stack traces don't
+matter at runtime, do they?
 
-Best regards,
-baolu
+> > That is very odd, why is it hard to update to a new kernel?  What
+> > happens if 5.4 stops being maintained tomorrow, what are your plans to
+> > move to a more modern kernel?  Being stuck with an old kernel version
+> > with no plans to move does not seem like a wise business decision:(
+> >
+> The product base on v5.4 is the LTS version just like the
+> stable-kernel in the upstream community.
+
+That was not the question I asked :(
+
+thanks,
+
+greg k-h
