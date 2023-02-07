@@ -2,43 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 92B7E68D78B
-	for <lists+stable@lfdr.de>; Tue,  7 Feb 2023 14:01:26 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A89BF68D787
+	for <lists+stable@lfdr.de>; Tue,  7 Feb 2023 14:01:03 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231972AbjBGNBX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Feb 2023 08:01:23 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46662 "EHLO
+        id S231247AbjBGNBC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Feb 2023 08:01:02 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46568 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231980AbjBGNBH (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Feb 2023 08:01:07 -0500
-Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DD1ED39CED
-        for <stable@vger.kernel.org>; Tue,  7 Feb 2023 05:00:28 -0800 (PST)
+        with ESMTP id S231961AbjBGNBB (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Feb 2023 08:01:01 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C555139B9E
+        for <stable@vger.kernel.org>; Tue,  7 Feb 2023 05:00:26 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id F1099CE1D97
-        for <stable@vger.kernel.org>; Tue,  7 Feb 2023 13:00:22 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D7EA6C433EF;
-        Tue,  7 Feb 2023 13:00:20 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 5DC89B8198C
+        for <stable@vger.kernel.org>; Tue,  7 Feb 2023 13:00:25 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B7802C433EF;
+        Tue,  7 Feb 2023 13:00:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1675774821;
-        bh=32eq295W0lUaJKHGfeSG9AGcYYtLXtHhwpT7Tl0SW5g=;
+        s=korg; t=1675774824;
+        bh=9Nnww4gVOtCn0x++Llj7t0hGkytjEwJegwNb4hHg1QA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=l/03foKSkwgpM2Xo1qo2T6BFmnArXV4cglQMtlT6zPMIOusfwz/NgzPLoaVFZxGLD
-         3Nbn5wC8oKovuPboD+8lht70XxnGOd5oduNhdF8nG+Vi5D2jhznhc0ZlLwfdQRhXa5
-         fwOAJMygHmsxrxhg/AfmLgbp7wDn0f0n0Get4U0Y=
+        b=Gs8w3MM9T8JCZbTrBSggH/7HrNK5SK3BZ6ZVE/jZW4Yhu7XrHKoH0msqI2ua9H5gZ
+         LuhHV5oTyzH9P145jVyYyNcdNqYT2Ge0UaH0wqEG5sTuXYrlVMTQcGXRZunJY0oCVT
+         1r2+4NIceVtkD4x0D6gS0+UblPBX4LLFaplBrIaM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Magnus Karlsson <magnus.karlsson@intel.com>,
-        =?UTF-8?q?Toke=20H=C3=B8iland-J=C3=B8rgensen?= <toke@redhat.com>,
+        patches@lists.linux.dev, Felix Fietkau <nbd@nbd.name>,
+        Alexander Duyck <alexanderduyck@fb.com>,
+        Ilias Apalodimas <ilias.apalodimas@linaro.org>,
+        Eric Dumazet <edumazet@google.com>,
         Jakub Kicinski <kuba@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 044/208] dpaa2-eth: execute xdp_do_flush() before napi_complete_done()
-Date:   Tue,  7 Feb 2023 13:54:58 +0100
-Message-Id: <20230207125636.288491094@linuxfoundation.org>
+Subject: [PATCH 6.1 045/208] skb: Do mix page pool and page referenced frags in GRO
+Date:   Tue,  7 Feb 2023 13:54:59 +0100
+Message-Id: <20230207125636.320473562@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.1
 In-Reply-To: <20230207125634.292109991@linuxfoundation.org>
 References: <20230207125634.292109991@linuxfoundation.org>
@@ -55,67 +56,50 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Magnus Karlsson <magnus.karlsson@intel.com>
+From: Alexander Duyck <alexanderduyck@fb.com>
 
-[ Upstream commit a3191c4d86c5d3bd35b00dfde6910b88391436a0 ]
+[ Upstream commit 7d2c89b325874a35564db5630a459966afab04cc ]
 
-Make sure that xdp_do_flush() is always executed before
-napi_complete_done(). This is important for two reasons. First, a
-redirect to an XSKMAP assumes that a call to xdp_do_redirect() from
-napi context X on CPU Y will be followed by a xdp_do_flush() from the
-same napi context and CPU. This is not guaranteed if the
-napi_complete_done() is executed before xdp_do_flush(), as it tells
-the napi logic that it is fine to schedule napi context X on another
-CPU. Details from a production system triggering this bug using the
-veth driver can be found following the first link below.
+GSO should not merge page pool recycled frames with standard reference
+counted frames. Traditionally this didn't occur, at least not often.
+However as we start looking at adding support for wireless adapters there
+becomes the potential to mix the two due to A-MSDU repartitioning frames in
+the receive path. There are possibly other places where this may have
+occurred however I suspect they must be few and far between as we have not
+seen this issue until now.
 
-The second reason is that the XDP_REDIRECT logic in itself relies on
-being inside a single NAPI instance through to the xdp_do_flush() call
-for RCU protection of all in-kernel data structures. Details can be
-found in the second link below.
-
-Fixes: d678be1dc1ec ("dpaa2-eth: add XDP_REDIRECT support")
-Signed-off-by: Magnus Karlsson <magnus.karlsson@intel.com>
-Acked-by: Toke Høiland-Jørgensen <toke@redhat.com>
-Link: https://lore.kernel.org/r/20221220185903.1105011-1-sbohrer@cloudflare.com
-Link: https://lore.kernel.org/all/20210624160609.292325-1-toke@redhat.com/
+Fixes: 53e0961da1c7 ("page_pool: add frag page recycling support in page pool")
+Reported-by: Felix Fietkau <nbd@nbd.name>
+Signed-off-by: Alexander Duyck <alexanderduyck@fb.com>
+Acked-by: Ilias Apalodimas <ilias.apalodimas@linaro.org>
+Reviewed-by: Eric Dumazet <edumazet@google.com>
+Link: https://lore.kernel.org/r/167475990764.1934330.11960904198087757911.stgit@localhost.localdomain
 Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/freescale/dpaa2/dpaa2-eth.c | 9 ++++++---
- 1 file changed, 6 insertions(+), 3 deletions(-)
+ net/core/gro.c | 9 +++++++++
+ 1 file changed, 9 insertions(+)
 
-diff --git a/drivers/net/ethernet/freescale/dpaa2/dpaa2-eth.c b/drivers/net/ethernet/freescale/dpaa2/dpaa2-eth.c
-index 8d029addddad..6383d9805dac 100644
---- a/drivers/net/ethernet/freescale/dpaa2/dpaa2-eth.c
-+++ b/drivers/net/ethernet/freescale/dpaa2/dpaa2-eth.c
-@@ -1868,10 +1868,15 @@ static int dpaa2_eth_poll(struct napi_struct *napi, int budget)
- 		if (rx_cleaned >= budget ||
- 		    txconf_cleaned >= DPAA2_ETH_TXCONF_PER_NAPI) {
- 			work_done = budget;
-+			if (ch->xdp.res & XDP_REDIRECT)
-+				xdp_do_flush();
- 			goto out;
- 		}
- 	} while (store_cleaned);
+diff --git a/net/core/gro.c b/net/core/gro.c
+index 1b4abfb9a7a1..352f966cb1da 100644
+--- a/net/core/gro.c
++++ b/net/core/gro.c
+@@ -162,6 +162,15 @@ int skb_gro_receive(struct sk_buff *p, struct sk_buff *skb)
+ 	struct sk_buff *lp;
+ 	int segs;
  
-+	if (ch->xdp.res & XDP_REDIRECT)
-+		xdp_do_flush();
++	/* Do not splice page pool based packets w/ non-page pool
++	 * packets. This can result in reference count issues as page
++	 * pool pages will not decrement the reference count and will
++	 * instead be immediately returned to the pool or have frag
++	 * count decremented.
++	 */
++	if (p->pp_recycle != skb->pp_recycle)
++		return -ETOOMANYREFS;
 +
- 	/* Update NET DIM with the values for this CDAN */
- 	dpaa2_io_update_net_dim(ch->dpio, ch->stats.frames_per_cdan,
- 				ch->stats.bytes_per_cdan);
-@@ -1902,9 +1907,7 @@ static int dpaa2_eth_poll(struct napi_struct *napi, int budget)
- 		txc_fq->dq_bytes = 0;
- 	}
+ 	/* pairs with WRITE_ONCE() in netif_set_gro_max_size() */
+ 	gro_max_size = READ_ONCE(p->dev->gro_max_size);
  
--	if (ch->xdp.res & XDP_REDIRECT)
--		xdp_do_flush_map();
--	else if (rx_cleaned && ch->xdp.res & XDP_TX)
-+	if (rx_cleaned && ch->xdp.res & XDP_TX)
- 		dpaa2_eth_xdp_tx_flush(priv, ch, &priv->fq[flowid]);
- 
- 	return work_done;
 -- 
 2.39.0
 
