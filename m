@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 9EDD268D8FB
-	for <lists+stable@lfdr.de>; Tue,  7 Feb 2023 14:14:43 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 78F3268D904
+	for <lists+stable@lfdr.de>; Tue,  7 Feb 2023 14:15:12 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232427AbjBGNOm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Feb 2023 08:14:42 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60526 "EHLO
+        id S232447AbjBGNPK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Feb 2023 08:15:10 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60146 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232347AbjBGNO3 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Feb 2023 08:14:29 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A064A279B1
-        for <stable@vger.kernel.org>; Tue,  7 Feb 2023 05:14:11 -0800 (PST)
+        with ESMTP id S232473AbjBGNOk (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Feb 2023 08:14:40 -0500
+Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 454FB3BD9B
+        for <stable@vger.kernel.org>; Tue,  7 Feb 2023 05:14:20 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 65D6A6138B
-        for <stable@vger.kernel.org>; Tue,  7 Feb 2023 13:13:40 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6EDD0C433D2;
-        Tue,  7 Feb 2023 13:13:39 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 8E358CE1D84
+        for <stable@vger.kernel.org>; Tue,  7 Feb 2023 13:13:47 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 70A09C4339B;
+        Tue,  7 Feb 2023 13:13:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1675775619;
-        bh=gBHX6vh5ernQohjPGghByzge3HefeFvbQgvyyrzYYEc=;
+        s=korg; t=1675775625;
+        bh=GTkeuEFq27HZfErGgzmTGbc5sAxaBKTy1kb7zlMOPpU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=zcPJtq4U17wxLYNeIl/0vvsxdd0WBfeezR9yP1tnJJg3f0ZtjQlDWI1AiNvkGXOhi
-         eimVrM4myn4tsKYX3/F2JLZd28Ylb1yXzZdzSYW3KvWaIO3G6vJiDxlia9pCTzzpBv
-         JmZsIfgUsr8VXAsvwa0E+kN6OUrDjd58/SIODLlY=
+        b=Xqd0kKFpIGOE/o4qZ10XLDSTybTrsbOvTGo+N9/mwTzkhTir+17JgO2I8vXLdBwKa
+         amvcM90IcQjAm0SJsUMMJ2h3kCfZKVCO9kcUXbQ3kT5oXmSHDduV5dyz5wuBYhOxNC
+         YNNsaY7YmJSkZcgycj/alDDRn6wrhcI4nWSKTk+M=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Michael Walle <michael@walle.cc>,
-        Srinivas Kandagatla <srinivas.kandagatla@linaro.org>
-Subject: [PATCH 5.15 101/120] nvmem: core: fix cell removal on error
-Date:   Tue,  7 Feb 2023 13:57:52 +0100
-Message-Id: <20230207125623.067700604@linuxfoundation.org>
+        patches@lists.linux.dev, Gilles BULOZ <gilles.buloz@kontron.com>,
+        =?UTF-8?q?Ilpo=20J=C3=A4rvinen?= <ilpo.jarvinen@linux.intel.com>
+Subject: [PATCH 5.15 102/120] serial: 8250_dma: Fix DMA Rx completion race
+Date:   Tue,  7 Feb 2023 13:57:53 +0100
+Message-Id: <20230207125623.099689722@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.1
 In-Reply-To: <20230207125618.699726054@linuxfoundation.org>
 References: <20230207125618.699726054@linuxfoundation.org>
@@ -52,42 +52,61 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Michael Walle <michael@walle.cc>
+From: Ilpo Järvinen <ilpo.jarvinen@linux.intel.com>
 
-commit db3546d58b5a0fa581d9c9f2bdc2856fa6c5e43e upstream.
+commit 31352811e13dc2313f101b890fd4b1ce760b5fe7 upstream.
 
-nvmem_add_cells() could return an error after some cells are already
-added to the provider. In this case, the added cells are not removed.
-Remove any registered cells if nvmem_add_cells() fails.
+__dma_rx_complete() is called from two places:
+  - Through the DMA completion callback dma_rx_complete()
+  - From serial8250_rx_dma_flush() after IIR_RLSI or IIR_RX_TIMEOUT
+The former does not hold port's lock during __dma_rx_complete() which
+allows these two to race and potentially insert the same data twice.
 
-Fixes: fa72d847d68d7 ("nvmem: check the return value of nvmem_add_cells()")
+Extend port's lock coverage in dma_rx_complete() to prevent the race
+and check if the DMA Rx is still pending completion before calling
+into __dma_rx_complete().
+
+Reported-by: Gilles BULOZ <gilles.buloz@kontron.com>
+Tested-by: Gilles BULOZ <gilles.buloz@kontron.com>
+Fixes: 9ee4b83e51f7 ("serial: 8250: Add support for dmaengine")
 Cc: stable@vger.kernel.org
-Signed-off-by: Michael Walle <michael@walle.cc>
-Signed-off-by: Srinivas Kandagatla <srinivas.kandagatla@linaro.org>
-Link: https://lore.kernel.org/r/20230127104015.23839-9-srinivas.kandagatla@linaro.org
+Signed-off-by: Ilpo Järvinen <ilpo.jarvinen@linux.intel.com>
+Link: https://lore.kernel.org/r/20230130114841.25749-2-ilpo.jarvinen@linux.intel.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/nvmem/core.c |    3 +--
- 1 file changed, 1 insertion(+), 2 deletions(-)
+ drivers/tty/serial/8250/8250_dma.c |   14 +++++++++++++-
+ 1 file changed, 13 insertions(+), 1 deletion(-)
 
---- a/drivers/nvmem/core.c
-+++ b/drivers/nvmem/core.c
-@@ -844,7 +844,7 @@ struct nvmem_device *nvmem_register(cons
- 	if (config->cells) {
- 		rval = nvmem_add_cells(nvmem, config->cells, config->ncells);
- 		if (rval)
--			goto err_teardown_compat;
-+			goto err_remove_cells;
- 	}
+--- a/drivers/tty/serial/8250/8250_dma.c
++++ b/drivers/tty/serial/8250/8250_dma.c
+@@ -59,6 +59,18 @@ static void __dma_rx_complete(void *para
+ 	tty_flip_buffer_push(tty_port);
+ }
  
- 	rval = nvmem_add_cells_from_table(nvmem);
-@@ -861,7 +861,6 @@ struct nvmem_device *nvmem_register(cons
++static void dma_rx_complete(void *param)
++{
++	struct uart_8250_port *p = param;
++	struct uart_8250_dma *dma = p->dma;
++	unsigned long flags;
++
++	spin_lock_irqsave(&p->port.lock, flags);
++	if (dma->rx_running)
++		__dma_rx_complete(p);
++	spin_unlock_irqrestore(&p->port.lock, flags);
++}
++
+ int serial8250_tx_dma(struct uart_8250_port *p)
+ {
+ 	struct uart_8250_dma		*dma = p->dma;
+@@ -134,7 +146,7 @@ int serial8250_rx_dma(struct uart_8250_p
+ 		return -EBUSY;
  
- err_remove_cells:
- 	nvmem_device_remove_all_cells(nvmem);
--err_teardown_compat:
- 	if (config->compat)
- 		nvmem_sysfs_remove_compat(nvmem, config);
- err_device_del:
+ 	dma->rx_running = 1;
+-	desc->callback = __dma_rx_complete;
++	desc->callback = dma_rx_complete;
+ 	desc->callback_param = p;
+ 
+ 	dma->rx_cookie = dmaengine_submit(desc);
 
 
