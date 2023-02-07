@@ -2,48 +2,49 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 92CE568D907
-	for <lists+stable@lfdr.de>; Tue,  7 Feb 2023 14:15:13 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id CF3FC68D852
+	for <lists+stable@lfdr.de>; Tue,  7 Feb 2023 14:08:34 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232536AbjBGNPM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Feb 2023 08:15:12 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60922 "EHLO
+        id S232268AbjBGNIe (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Feb 2023 08:08:34 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57074 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232755AbjBGNO7 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Feb 2023 08:14:59 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7C2573B3D9
-        for <stable@vger.kernel.org>; Tue,  7 Feb 2023 05:14:44 -0800 (PST)
+        with ESMTP id S232269AbjBGNId (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Feb 2023 08:08:33 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 723043B3D8
+        for <stable@vger.kernel.org>; Tue,  7 Feb 2023 05:08:08 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 3E64BB81979
-        for <stable@vger.kernel.org>; Tue,  7 Feb 2023 13:14:14 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 76951C433D2;
-        Tue,  7 Feb 2023 13:14:12 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 0374461422
+        for <stable@vger.kernel.org>; Tue,  7 Feb 2023 13:07:36 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D19FCC433D2;
+        Tue,  7 Feb 2023 13:07:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1675775652;
-        bh=N0Edf6x1f9TIiVhbmnpnJAYmENyxyBYo5ixaFPZ5WKg=;
+        s=korg; t=1675775255;
+        bh=LIQxXsmKIFeBPBSGKFlNx8nbt9Fi0eq8somYwayTVMY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=fmXcMzGlO1oML2W1rafcwt1koxFCx6+ZU4L9L/YCozlpwKtdN8v9sOS2FCf2orW6c
-         1Te6K9IJcCmWA3tNVRMI5LXY/O9QZLEb7lKMm13c/MpoMgL0A7n6FILdfMN7IR4IYa
-         i2JrYQMEWtG12sNXpqzSgjqlolzwK5RKRwiO7WSw=
+        b=sPQfqGGgpaavgIIkr2k0MWICuKqxcPEm8ie+Q639LMvOL8H5O7eLHI6RhYBFkPk1B
+         Dk3lpqxXY6ip+eEcEoeM68ksNH5JGGth+mGeNTzhVi7PaLO4aWHu/ymu4R1hQXVNbb
+         jDNBNpgdQBczdpC5XaMcIS/e++7WWPnb4KQntnfU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Ard Biesheuvel <ardb@kernel.org>
-Subject: [PATCH 5.15 072/120] efi: Accept version 2 of memory attributes table
+        patches@lists.linux.dev, Michael Walle <michael@walle.cc>,
+        Srinivas Kandagatla <srinivas.kandagatla@linaro.org>
+Subject: [PATCH 6.1 189/208] nvmem: core: fix cell removal on error
 Date:   Tue,  7 Feb 2023 13:57:23 +0100
-Message-Id: <20230207125621.822870823@linuxfoundation.org>
+Message-Id: <20230207125643.035233342@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.1
-In-Reply-To: <20230207125618.699726054@linuxfoundation.org>
-References: <20230207125618.699726054@linuxfoundation.org>
+In-Reply-To: <20230207125634.292109991@linuxfoundation.org>
+References: <20230207125634.292109991@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
         SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -51,32 +52,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ard Biesheuvel <ardb@kernel.org>
+From: Michael Walle <michael@walle.cc>
 
-commit 636ab417a7aec4ee993916e688eb5c5977570836 upstream.
+commit db3546d58b5a0fa581d9c9f2bdc2856fa6c5e43e upstream.
 
-UEFI v2.10 introduces version 2 of the memory attributes table, which
-turns the reserved field into a flags field, but is compatible with
-version 1 in all other respects. So let's not complain about version 2
-if we encounter it.
+nvmem_add_cells() could return an error after some cells are already
+added to the provider. In this case, the added cells are not removed.
+Remove any registered cells if nvmem_add_cells() fails.
 
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Ard Biesheuvel <ardb@kernel.org>
+Fixes: fa72d847d68d7 ("nvmem: check the return value of nvmem_add_cells()")
+Cc: stable@vger.kernel.org
+Signed-off-by: Michael Walle <michael@walle.cc>
+Signed-off-by: Srinivas Kandagatla <srinivas.kandagatla@linaro.org>
+Link: https://lore.kernel.org/r/20230127104015.23839-9-srinivas.kandagatla@linaro.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/firmware/efi/memattr.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/nvmem/core.c |    3 +--
+ 1 file changed, 1 insertion(+), 2 deletions(-)
 
---- a/drivers/firmware/efi/memattr.c
-+++ b/drivers/firmware/efi/memattr.c
-@@ -33,7 +33,7 @@ int __init efi_memattr_init(void)
- 		return -ENOMEM;
+--- a/drivers/nvmem/core.c
++++ b/drivers/nvmem/core.c
+@@ -847,7 +847,7 @@ struct nvmem_device *nvmem_register(cons
+ 	if (config->cells) {
+ 		rval = nvmem_add_cells(nvmem, config->cells, config->ncells);
+ 		if (rval)
+-			goto err_teardown_compat;
++			goto err_remove_cells;
  	}
  
--	if (tbl->version > 1) {
-+	if (tbl->version > 2) {
- 		pr_warn("Unexpected EFI Memory Attributes table version %d\n",
- 			tbl->version);
- 		goto unmap;
+ 	rval = nvmem_add_cells_from_table(nvmem);
+@@ -870,7 +870,6 @@ struct nvmem_device *nvmem_register(cons
+ 
+ err_remove_cells:
+ 	nvmem_device_remove_all_cells(nvmem);
+-err_teardown_compat:
+ 	if (config->compat)
+ 		nvmem_sysfs_remove_compat(nvmem, config);
+ err_put_device:
 
 
