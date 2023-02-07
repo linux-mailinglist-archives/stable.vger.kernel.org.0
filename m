@@ -2,65 +2,60 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 264F668CAD0
-	for <lists+stable@lfdr.de>; Tue,  7 Feb 2023 00:52:53 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 687D868CAE8
+	for <lists+stable@lfdr.de>; Tue,  7 Feb 2023 01:00:50 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229776AbjBFXwv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 6 Feb 2023 18:52:51 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43564 "EHLO
+        id S229573AbjBGAAs (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 6 Feb 2023 19:00:48 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47622 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229483AbjBFXwu (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 6 Feb 2023 18:52:50 -0500
-Received: from mail-yw1-x114a.google.com (mail-yw1-x114a.google.com [IPv6:2607:f8b0:4864:20::114a])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BAA942F7A1
-        for <stable@vger.kernel.org>; Mon,  6 Feb 2023 15:52:49 -0800 (PST)
-Received: by mail-yw1-x114a.google.com with SMTP id 00721157ae682-4fa63c84621so131525407b3.20
-        for <stable@vger.kernel.org>; Mon, 06 Feb 2023 15:52:49 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20210112;
-        h=cc:to:from:subject:message-id:mime-version:date:from:to:cc:subject
-         :date:message-id:reply-to;
-        bh=MUvPZxd7kzBQNUJRIDnP8L1InSjbM6ersdH/SiDuQl4=;
-        b=EVLeZ0A8IEAhMPFLFXdlVmPactMWdgTJcmTW2ixmAwNbPaMLwh1Wci+xloCt4S+HQ2
-         Jh0qDewyw5jS6ENOmw0RJnyLCUTUSTk2FKbldkESaA2pGzrRdr1neHMabAKXRdgFH8Yu
-         5YdEYyBmpvt4pKu0+WYkPCYArJLcpD3ARmzpRkaV1qnbRqOunY4oGu/T9CQYGZMdRJ6F
-         VQBnb6pCbVtb3y3Goj+0JvbpYgc9wZKyGkuwBmej0UTcLEI68npaXIm1XpRQA+ZM9Cc8
-         NQY3l6RikT7s/hKdce1KevtWDrQpiVIrF/AK3Jt1pXvJebrCNRwffiDAA+xoJxHGQ5dL
-         KNPw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=cc:to:from:subject:message-id:mime-version:date:x-gm-message-state
-         :from:to:cc:subject:date:message-id:reply-to;
-        bh=MUvPZxd7kzBQNUJRIDnP8L1InSjbM6ersdH/SiDuQl4=;
-        b=oBq3bNWqQTwT/mL9qEzAa+NwmpJuucqMGH8vZkLqKyh5KXO+6dNpem71zJQ6TjKDoh
-         y+hz79+E7LS8ssB5AhjiLU0IIUAA0Y0LSIinYxIBO88+FKDyxlrDTc93BYJgikIrVZQe
-         huQZHHKxLUsMcpUkpw2ZY2jVi6+GcLiK94EkUACkO4AMA5clLG4Yg6lE5abM8C5EgPum
-         0/e74LifjDO5BDxzzC1vdhgh3wrbhcPTzH/P8TLYp29Q4Vys8GwMoyNcaGkC/GQoM74l
-         ToJneOCSiCqKik7U8M6S1cUkmkTTet0hFz/gyj1udhClC5zffl9Fz0UIbS8CHocJ9+AF
-         /scA==
-X-Gm-Message-State: AO0yUKU1Xev9ATMFnvWgLC45GwrPaRf/8vmWgw+THAHX4gTKuHiZvpRJ
-        kBdzewL6wJpvhzDGZ8qIwwVpRTaWimssdZXBD5n17HgcFNeT8uGaChH7v2NcbyrANftC7coSsBY
-        yZ9Gn63V/GWlywBchU1H5d+zA0Cw3lbGa1RSCLzoWf7J678OpA8iXBOS6EUz6lmvTHxH5eF+k4Q
-        +BWw==
-X-Google-Smtp-Source: AK7set9YEoMpKvrJyur4QU/65vd5ej6n9GTynxCQ/VL6xW+9Qk81JuvfpGvoRppSbArLml8SWcJQ/0NFRw3/lEtIBvQ=
-X-Received: from nobelbarakat.c.googlers.com ([fda3:e722:ac3:cc00:2b:7d90:c0a8:62d])
- (user=nobelbarakat job=sendgmr) by 2002:a5b:5cb:0:b0:80b:9566:d574 with SMTP
- id w11-20020a5b05cb000000b0080b9566d574mr173287ybp.83.1675727568771; Mon, 06
- Feb 2023 15:52:48 -0800 (PST)
-Date:   Mon,  6 Feb 2023 23:52:44 +0000
-Mime-Version: 1.0
-X-Mailer: git-send-email 2.39.1.519.gcb327c4b5f-goog
-Message-ID: <20230206235244.3659905-1-nobelbarakat@google.com>
-Subject: [PATCH 5.10] udf: Avoid using stale lengthOfImpUse
-From:   Nobel Barakat <nobelbarakat@google.com>
-To:     stable@vger.kernel.org
-Cc:     Jan Kara <jack@suse.cz>,
-        butt3rflyh4ck <butterflyhuangxx@gmail.com>,
-        Nobel Barakat <nobelbarakat@google.com>
-Content-Type: text/plain; charset="UTF-8"
-X-Spam-Status: No, score=-9.6 required=5.0 tests=BAYES_00,DKIMWL_WL_MED,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_NONE,
-        SPF_HELO_NONE,SPF_PASS,USER_IN_DEF_DKIM_WL autolearn=ham
+        with ESMTP id S229478AbjBGAAr (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 6 Feb 2023 19:00:47 -0500
+Received: from mga04.intel.com (mga04.intel.com [192.55.52.120])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D659A144AB;
+        Mon,  6 Feb 2023 16:00:46 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
+  t=1675728047; x=1707264047;
+  h=message-id:date:mime-version:subject:to:cc:references:
+   from:in-reply-to:content-transfer-encoding;
+  bh=kkLcdkLbgrI5YKBaLZkFwa+BwQtczIIiGVCz48/U8EA=;
+  b=hw52/wMbyBsRN9EBtSPHEbprx72zopdV7KogkLK5n4EHwWszvCrRH0A9
+   M0Jg2vYUR129Rn5AyosOOGCF0LKKbQz+RcqqTPTLH/V7v+IC+Oazv5JIC
+   G6RUp+3mRo0V8H88FH1yl0rUMuIitRGwVUeeY6IGoQQDQI+fcazQeB6do
+   FOkKVusVkvOfJUt4vPalC2/c4ciYzgJVCowtiauGTW7RNUhPCo98BnOai
+   UNplIZRZ6BjKgma80JsRnrUXg57UIRoHicHdqjU0i3l05jBOtxB88EqBU
+   H+SQl2sACOdnl6Pod7vHRpsFjKazaHiViw1HbHm4o07A+8DPtLXxs2QEG
+   g==;
+X-IronPort-AV: E=McAfee;i="6500,9779,10613"; a="327986268"
+X-IronPort-AV: E=Sophos;i="5.97,276,1669104000"; 
+   d="scan'208";a="327986268"
+Received: from orsmga007.jf.intel.com ([10.7.209.58])
+  by fmsmga104.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 06 Feb 2023 16:00:16 -0800
+X-IronPort-AV: E=McAfee;i="6500,9779,10613"; a="660004882"
+X-IronPort-AV: E=Sophos;i="5.97,276,1669104000"; 
+   d="scan'208";a="660004882"
+Received: from djiang5-mobl3.amr.corp.intel.com (HELO [10.212.111.195]) ([10.212.111.195])
+  by orsmga007-auth.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 06 Feb 2023 16:00:14 -0800
+Message-ID: <4db0288f-09a7-5b60-899c-c6f555e1c55e@intel.com>
+Date:   Mon, 6 Feb 2023 17:00:14 -0700
+MIME-Version: 1.0
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
+ Firefox/102.0 Thunderbird/102.6.0
+Subject: Re: [PATCH 10/18] cxl/region: Fix passthrough-decoder detection
+Content-Language: en-US
+To:     Dan Williams <dan.j.williams@intel.com>, linux-cxl@vger.kernel.org
+Cc:     stable@vger.kernel.org, dave.hansen@linux.intel.com,
+        linux-mm@kvack.org, linux-acpi@vger.kernel.org
+References: <167564534874.847146.5222419648551436750.stgit@dwillia2-xfh.jf.intel.com>
+ <167564540422.847146.13816934143225777888.stgit@dwillia2-xfh.jf.intel.com>
+From:   Dave Jiang <dave.jiang@intel.com>
+In-Reply-To: <167564540422.847146.13816934143225777888.stgit@dwillia2-xfh.jf.intel.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Spam-Status: No, score=-5.5 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,NICE_REPLY_A,
+        RCVD_IN_DNSWL_MED,SPF_HELO_NONE,SPF_NONE autolearn=ham
         autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -68,63 +63,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jan Kara <jack@suse.cz>
-
-commit c1ad35dd0548ce947d97aaf92f7f2f9a202951cf upstream
-
-udf_write_fi() uses lengthOfImpUse of the entry it is writing to.
-However this field has not yet been initialized so it either contains
-completely bogus value or value from last directory entry at that place.
-In either case this is wrong and can lead to filesystem corruption or
-kernel crashes.
-
-This patch deviates from the original upstream patch because in the original
-upstream patch, udf_get_fi_ident(sfi) was being used instead of (uint8_t *)sfi->fileIdent + liu
-as the first arg to memcpy at line 77 and line 81. Those subsequent lines have been
-replaced with what the upstream patch passes in to memcpy.
 
 
-Reported-by: butt3rflyh4ck <butterflyhuangxx@gmail.com>
-CC: stable@vger.kernel.org
-Fixes: 979a6e28dd96 ("udf: Get rid of 0-length arrays in struct fileIdentDesc")
-Signed-off-by: Jan Kara <jack@suse.cz>
-Signed-off-by: Nobel Barakat <nobelbarakat@google.com>
----
- fs/udf/namei.c | 9 ++++-----
- 1 file changed, 4 insertions(+), 5 deletions(-)
+On 2/5/23 6:03 PM, Dan Williams wrote:
+> A passthrough decoder is a decoder that maps only 1 target. It is a
+> special case because it does not impose any constraints on the
+> interleave-math as compared to a decoder with multiple targets. Extend
+> the passthrough case to multi-target-capable decoders that only have one
+> target selected. I.e. the current code was only considering passthrough
+> *ports* which are only a subset of the potential passthrough decoder
+> scenarios.
+> 
+> Fixes: e4f6dfa9ef75 ("cxl/region: Fix 'distance' calculation with passthrough ports")
+> Cc: <stable@vger.kernel.org>
+> Signed-off-by: Dan Williams <dan.j.williams@intel.com>
 
-diff --git a/fs/udf/namei.c b/fs/udf/namei.c
-index 77b6d89b9bcd..cbd6ad54a23b 100644
---- a/fs/udf/namei.c
-+++ b/fs/udf/namei.c
-@@ -74,12 +74,11 @@ int udf_write_fi(struct inode *inode, struct fileIdentDesc *cfi,
+Reviewed-by: Dave Jiang <dave.jiang@intel.com>
 
- 	if (fileident) {
- 		if (adinicb || (offset + lfi < 0)) {
--			memcpy((uint8_t *)sfi->fileIdent + liu, fileident, lfi);
-+			memcpy(sfi->impUse + liu, fileident, lfi);
- 		} else if (offset >= 0) {
- 			memcpy(fibh->ebh->b_data + offset, fileident, lfi);
- 		} else {
--			memcpy((uint8_t *)sfi->fileIdent + liu, fileident,
--				-offset);
-+			memcpy(sfi->impUse + liu, fileident, -offset);
- 			memcpy(fibh->ebh->b_data, fileident - offset,
- 				lfi + offset);
- 		}
-@@ -88,11 +87,11 @@ int udf_write_fi(struct inode *inode, struct fileIdentDesc *cfi,
- 	offset += lfi;
-
- 	if (adinicb || (offset + padlen < 0)) {
--		memset((uint8_t *)sfi->padding + liu + lfi, 0x00, padlen);
-+		memset(sfi->impUse + liu + lfi, 0x00, padlen);
- 	} else if (offset >= 0) {
- 		memset(fibh->ebh->b_data + offset, 0x00, padlen);
- 	} else {
--		memset((uint8_t *)sfi->padding + liu + lfi, 0x00, -offset);
-+		memset(sfi->impUse + liu + lfi, 0x00, -offset);
- 		memset(fibh->ebh->b_data, 0x00, padlen + offset);
- 	}
-
---
-2.39.1.519.gcb327c4b5f-goog
+> ---
+>   drivers/cxl/core/region.c |    4 ++--
+>   1 file changed, 2 insertions(+), 2 deletions(-)
+> 
+> diff --git a/drivers/cxl/core/region.c b/drivers/cxl/core/region.c
+> index c82d3b6f3d1f..34cf95217901 100644
+> --- a/drivers/cxl/core/region.c
+> +++ b/drivers/cxl/core/region.c
+> @@ -1019,10 +1019,10 @@ static int cxl_port_setup_targets(struct cxl_port *port,
+>   		int i, distance;
+>   
+>   		/*
+> -		 * Passthrough ports impose no distance requirements between
+> +		 * Passthrough decoders impose no distance requirements between
+>   		 * peers
+>   		 */
+> -		if (port->nr_dports == 1)
+> +		if (cxl_rr->nr_targets == 1)
+>   			distance = 0;
+>   		else
+>   			distance = p->nr_targets / cxl_rr->nr_targets;
+> 
