@@ -2,104 +2,110 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id ABBD568E2ED
-	for <lists+stable@lfdr.de>; Tue,  7 Feb 2023 22:25:06 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 910F668E39E
+	for <lists+stable@lfdr.de>; Tue,  7 Feb 2023 23:52:04 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229934AbjBGVZE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Feb 2023 16:25:04 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36492 "EHLO
+        id S229505AbjBGWwC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Feb 2023 17:52:02 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42862 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229515AbjBGVZC (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Feb 2023 16:25:02 -0500
-Received: from mail-il1-x12f.google.com (mail-il1-x12f.google.com [IPv6:2607:f8b0:4864:20::12f])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 646F030189
-        for <stable@vger.kernel.org>; Tue,  7 Feb 2023 13:24:29 -0800 (PST)
-Received: by mail-il1-x12f.google.com with SMTP id b9so209177ilh.12
-        for <stable@vger.kernel.org>; Tue, 07 Feb 2023 13:24:29 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linuxfoundation.org; s=google;
-        h=content-transfer-encoding:in-reply-to:from:references:cc:to
-         :content-language:subject:user-agent:mime-version:date:message-id
-         :from:to:cc:subject:date:message-id:reply-to;
-        bh=CwNrp0wPjawkXQ4pgo3vF34Zz65SWl2SKe6RPVCwp40=;
-        b=JnfWNI9WF1Og9HwYdC10DMIJ/Ubmxm8HFyfL9slftQIAv4nGypDARzTTUqvwkXYu6w
-         W1DSBjnMSDr/ZIKXhvY1iLX50rH7rxP02a+Jq6vEfKJnlrguwmyjgTLPm7iqHpBJR2Gb
-         KjGIZfUzn5KUC2cWDU2DVP5/FNaa31RJIH2aM=
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=content-transfer-encoding:in-reply-to:from:references:cc:to
-         :content-language:subject:user-agent:mime-version:date:message-id
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=CwNrp0wPjawkXQ4pgo3vF34Zz65SWl2SKe6RPVCwp40=;
-        b=BSaFYNmWK2q5GPVzVrY298jtVvkIZGxl/bONIhaIC8Qdktet9VrayfkD1mjGHXuGQz
-         UhXpvl/kRLWDDVdGK04528uuD1UlQZXtPUsOMqP2TbQUbGu+pOkDrh/3MPwnSfe0FiEJ
-         PUxNEX954f8nE/gXnYLYlGro9J6AP3FDWp7DaDODFUklwSIFHz3mR5+d2DQvV/N+TNcI
-         A0HohabD6SAa2bZh8VR5bncHt1xIw5fPGCSvO+D03v7w7uUU55tJHPiQLQCXca8ypwGt
-         uUkedOc30M+HL2IBWRXi+1J5VVdXjfq3MDMblb4OWCkOANuni+2XcMacFfrIpwx5McR2
-         vobA==
-X-Gm-Message-State: AO0yUKVh5oJj6yjTwHb7eXpLNZLDPf0AQnDCX0ev4Sv7kH94C5XGSDlg
-        pSOmcNq/XuOoF+4/6wELWi7n8A==
-X-Google-Smtp-Source: AK7set+kLYg29Y8Ds31MGdldXvAFpoUCi1y5hm7b3AqFWhM1L9Q/UeH2A1i6HoKOTpUCJIEDG0lHWA==
-X-Received: by 2002:a05:6e02:216e:b0:310:cc70:a152 with SMTP id s14-20020a056e02216e00b00310cc70a152mr4700440ilv.2.1675805067511;
-        Tue, 07 Feb 2023 13:24:27 -0800 (PST)
-Received: from [192.168.1.128] ([38.15.45.1])
-        by smtp.gmail.com with ESMTPSA id n4-20020a92d9c4000000b00310a40e669esm1715750ilq.11.2023.02.07.13.24.25
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Tue, 07 Feb 2023 13:24:26 -0800 (PST)
-Message-ID: <1b7d164f-8e91-c178-9d83-98ef1987b3c9@linuxfoundation.org>
-Date:   Tue, 7 Feb 2023 14:24:25 -0700
-MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
- Thunderbird/102.7.1
-Subject: Re: [PATCH 5.15 000/120] 5.15.93-rc1 review
-Content-Language: en-US
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org
-Cc:     patches@lists.linux.dev, linux-kernel@vger.kernel.org,
-        torvalds@linux-foundation.org, akpm@linux-foundation.org,
-        linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
-        lkft-triage@lists.linaro.org, pavel@denx.de, jonathanh@nvidia.com,
-        f.fainelli@gmail.com, sudipm.mukherjee@gmail.com,
-        srw@sladewatkins.net, rwarsow@gmx.de,
-        Shuah Khan <skhan@linuxfoundation.org>
-References: <20230207125618.699726054@linuxfoundation.org>
-From:   Shuah Khan <skhan@linuxfoundation.org>
-In-Reply-To: <20230207125618.699726054@linuxfoundation.org>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Spam-Status: No, score=-3.2 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,NICE_REPLY_A,
-        RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS autolearn=ham
-        autolearn_force=no version=3.4.6
+        with ESMTP id S229617AbjBGWwB (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Feb 2023 17:52:01 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 669F1241E1;
+        Tue,  7 Feb 2023 14:52:00 -0800 (PST)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 8F1EBB81B30;
+        Tue,  7 Feb 2023 22:51:58 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 31FC3C433EF;
+        Tue,  7 Feb 2023 22:51:57 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linux-foundation.org;
+        s=korg; t=1675810317;
+        bh=MIUUayjhTsVA+d4z3lK4qasm2eSDWvYLiyJ//8OrSsY=;
+        h=Date:To:From:Subject:From;
+        b=UXPYpaD+s86fazYQ6qpCDIbuQAa4Uayl5PefSx+Vu/xwCjah3Ts+k96jtRcnbV76X
+         tiSoNKvGIvXs6kl8ZSNA5N+yvO4FhuXf9M1soXQX4F/wdesNuMFGr3+BT9hezaY5Bj
+         wg7zkCep86BXDwmnhJIufK9RPgC0en40N2+uGEeo=
+Date:   Tue, 07 Feb 2023 14:51:56 -0800
+To:     mm-commits@vger.kernel.org, stable@vger.kernel.org,
+        jan.kiszka@siemens.com, xiehuan09@gmail.com,
+        akpm@linux-foundation.org
+From:   Andrew Morton <akpm@linux-foundation.org>
+Subject: + scripts-gdb-fix-lx-current-for-x86.patch added to mm-hotfixes-unstable branch
+Message-Id: <20230207225157.31FC3C433EF@smtp.kernel.org>
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,SPF_HELO_NONE,
+        SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 2/7/23 05:56, Greg Kroah-Hartman wrote:
-> This is the start of the stable review cycle for the 5.15.93 release.
-> There are 120 patches in this series, all will be posted as a response
-> to this one.  If anyone has any issues with these being applied, please
-> let me know.
-> 
-> Responses should be made by Thu, 09 Feb 2023 12:55:54 +0000.
-> Anything received after that time might be too late.
-> 
-> The whole patch series can be found in one patch at:
-> 	https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.15.93-rc1.gz
-> or in the git tree and branch at:
-> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.15.y
-> and the diffstat can be found below.
-> 
-> thanks,
-> 
-> greg k-h
-> 
 
-Compiled and booted on my test system. No dmesg regressions.
+The patch titled
+     Subject: scripts/gdb: fix 'lx-current' for x86
+has been added to the -mm mm-hotfixes-unstable branch.  Its filename is
+     scripts-gdb-fix-lx-current-for-x86.patch
 
-Tested-by: Shuah Khan <skhan@linuxfoundation.org>
+This patch will shortly appear at
+     https://git.kernel.org/pub/scm/linux/kernel/git/akpm/25-new.git/tree/patches/scripts-gdb-fix-lx-current-for-x86.patch
 
-thanks,
--- Shuah
+This patch will later appear in the mm-hotfixes-unstable branch at
+    git://git.kernel.org/pub/scm/linux/kernel/git/akpm/mm
+
+Before you just go and hit "reply", please:
+   a) Consider who else should be cc'ed
+   b) Prefer to cc a suitable mailing list as well
+   c) Ideally: find the original patch on the mailing list and do a
+      reply-to-all to that, adding suitable additional cc's
+
+*** Remember to use Documentation/process/submit-checklist.rst when testing your code ***
+
+The -mm tree is included into linux-next via the mm-everything
+branch at git://git.kernel.org/pub/scm/linux/kernel/git/akpm/mm
+and is updated there every 2-3 working days
+
+------------------------------------------------------
+From: Jeff Xie <xiehuan09@gmail.com>
+Subject: scripts/gdb: fix 'lx-current' for x86
+Date: Sat, 4 Feb 2023 17:01:39 +0800
+
+When printing the name of the current process, it will report an error:
+(gdb) p $lx_current().comm Python Exception <class 'gdb.error'> No symbol
+"current_task" in current context.: Error occurred in Python: No symbol
+"current_task" in current context.
+
+Because e57ef2ed97c1 ("x86: Put hot per CPU variables into a struct")
+changed it.
+
+Link: https://lkml.kernel.org/r/20230204090139.1789264-1-xiehuan09@gmail.com
+Fixes: e57ef2ed97c1 ("x86: Put hot per CPU variables into a struct")
+Signed-off-by: Jeff Xie <xiehuan09@gmail.com>
+Cc: Jan Kiszka <jan.kiszka@siemens.com>
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+---
+
+ scripts/gdb/linux/cpus.py |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+--- a/scripts/gdb/linux/cpus.py~scripts-gdb-fix-lx-current-for-x86
++++ a/scripts/gdb/linux/cpus.py
+@@ -163,7 +163,7 @@ def get_current_task(cpu):
+     task_ptr_type = task_type.get_type().pointer()
+ 
+     if utils.is_target_arch("x86"):
+-         var_ptr = gdb.parse_and_eval("&current_task")
++         var_ptr = gdb.parse_and_eval("&pcpu_hot.current_task")
+          return per_cpu(var_ptr, cpu).dereference()
+     elif utils.is_target_arch("aarch64"):
+          current_task_addr = gdb.parse_and_eval("$SP_EL0")
+_
+
+Patches currently in -mm which might be from xiehuan09@gmail.com are
+
+scripts-gdb-fix-lx-current-for-x86.patch
+
