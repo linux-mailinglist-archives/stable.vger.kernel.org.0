@@ -2,43 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 845A168D7E4
-	for <lists+stable@lfdr.de>; Tue,  7 Feb 2023 14:04:05 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 64C9C68D7E6
+	for <lists+stable@lfdr.de>; Tue,  7 Feb 2023 14:04:09 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232096AbjBGNED (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Feb 2023 08:04:03 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50502 "EHLO
+        id S232046AbjBGNEI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Feb 2023 08:04:08 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50770 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232083AbjBGND5 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Feb 2023 08:03:57 -0500
+        with ESMTP id S232067AbjBGNEC (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Feb 2023 08:04:02 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 62EA739CD2
-        for <stable@vger.kernel.org>; Tue,  7 Feb 2023 05:03:55 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4C9BB3A58F
+        for <stable@vger.kernel.org>; Tue,  7 Feb 2023 05:03:58 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id E417A61358
-        for <stable@vger.kernel.org>; Tue,  7 Feb 2023 13:03:54 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D5D69C4339B;
-        Tue,  7 Feb 2023 13:03:53 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id DB9FA611AA
+        for <stable@vger.kernel.org>; Tue,  7 Feb 2023 13:03:57 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D01DBC433EF;
+        Tue,  7 Feb 2023 13:03:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1675775034;
-        bh=/f7RFs2R32cGxR682UOp1sUSiKRrUJF7+j378ngRZsE=;
+        s=korg; t=1675775037;
+        bh=p0TpKHj9GmunMb27XMpmuoTHeAu5Upta4h/KuloG4HI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=jMw1K6nVOdaJ+fGOCEiIuuDcelzscI/JvH7BMlSjqpmPq99gKjmUR+tUR4dHTDIH8
-         eeadlP8D0emA39z7b8CdtqPwKCFOTu4PcTLTkgZ7Lu8mpAMQGASbZ91dcJezkOgtdN
-         s3+JMsh6eHUDthrX+LZI06szsrd+Q1mPg56i6f/Y=
+        b=u8fbHNiEKnK4T6dWcnzluIIzgnOKM4bcXsYzEqV/4bXH9ZMZerXMaPOE20toOWm7f
+         J+FsvpOobCK65xhiwtqroUQ+CU0VK7hAKCPnVuVyfZU6gnwJqwMS/aueC+5IL5QkLR
+         ueshms4O4p1XXBQPzjjzhsCdoDSdHCWUGuctG00Q=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Andrei Gherzan <andrei.gherzan@canonical.com>,
-        Willem de Bruijn <willemb@google.com>,
-        Paolo Abeni <pabeni@redhat.com>,
+        patches@lists.linux.dev, "Michael S. Tsirkin" <mst@redhat.com>,
+        Jiri Pirko <jiri@nvidia.com>, Parav Pandit <parav@nvidia.com>,
+        Jakub Kicinski <kuba@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 086/208] selftests: net: udpgso_bench_tx: Cater for pending datagrams zerocopy benchmarking
-Date:   Tue,  7 Feb 2023 13:55:40 +0100
-Message-Id: <20230207125638.251265758@linuxfoundation.org>
+Subject: [PATCH 6.1 087/208] virtio-net: Keep stop() to follow mirror sequence of open()
+Date:   Tue,  7 Feb 2023 13:55:41 +0100
+Message-Id: <20230207125638.299736227@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.1
 In-Reply-To: <20230207125634.292109991@linuxfoundation.org>
 References: <20230207125634.292109991@linuxfoundation.org>
@@ -55,132 +54,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Andrei Gherzan <andrei.gherzan@canonical.com>
+From: Parav Pandit <parav@nvidia.com>
 
-[ Upstream commit 329c9cd769c2e306957df031efff656c40922c76 ]
+[ Upstream commit 63b114042d8a9c02d9939889177c36dbdb17a588 ]
 
-The test tool can check that the zerocopy number of completions value is
-valid taking into consideration the number of datagram send calls. This can
-catch the system into a state where the datagrams are still in the system
-(for example in a qdisk, waiting for the network interface to return a
-completion notification, etc).
+Cited commit in fixes tag frees rxq xdp info while RQ NAPI is
+still enabled and packet processing may be ongoing.
 
-This change adds a retry logic of computing the number of completions up to
-a configurable (via CLI) timeout (default: 2 seconds).
+Follow the mirror sequence of open() in the stop() callback.
+This ensures that when rxq info is unregistered, no rx
+packet processing is ongoing.
 
-Fixes: 79ebc3c26010 ("net/udpgso_bench_tx: options to exercise TX CMSG")
-Signed-off-by: Andrei Gherzan <andrei.gherzan@canonical.com>
-Cc: Willem de Bruijn <willemb@google.com>
-Cc: Paolo Abeni <pabeni@redhat.com>
-Reviewed-by: Willem de Bruijn <willemb@google.com>
-Link: https://lore.kernel.org/r/20230201001612.515730-4-andrei.gherzan@canonical.com
-Signed-off-by: Paolo Abeni <pabeni@redhat.com>
+Fixes: 754b8a21a96d ("virtio_net: setup xdp_rxq_info")
+Acked-by: Michael S. Tsirkin <mst@redhat.com>
+Reviewed-by: Jiri Pirko <jiri@nvidia.com>
+Signed-off-by: Parav Pandit <parav@nvidia.com>
+Link: https://lore.kernel.org/r/20230202163516.12559-1-parav@nvidia.com
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/testing/selftests/net/udpgso_bench_tx.c | 34 +++++++++++++++----
- 1 file changed, 27 insertions(+), 7 deletions(-)
+ drivers/net/virtio_net.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/tools/testing/selftests/net/udpgso_bench_tx.c b/tools/testing/selftests/net/udpgso_bench_tx.c
-index b47b5c32039f..477392715a9a 100644
---- a/tools/testing/selftests/net/udpgso_bench_tx.c
-+++ b/tools/testing/selftests/net/udpgso_bench_tx.c
-@@ -62,6 +62,7 @@ static int	cfg_payload_len	= (1472 * 42);
- static int	cfg_port	= 8000;
- static int	cfg_runtime_ms	= -1;
- static bool	cfg_poll;
-+static int	cfg_poll_loop_timeout_ms = 2000;
- static bool	cfg_segment;
- static bool	cfg_sendmmsg;
- static bool	cfg_tcp;
-@@ -235,16 +236,17 @@ static void flush_errqueue_recv(int fd)
+diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
+index ec388932aacf..20b1b34a092a 100644
+--- a/drivers/net/virtio_net.c
++++ b/drivers/net/virtio_net.c
+@@ -2154,8 +2154,8 @@ static int virtnet_close(struct net_device *dev)
+ 	cancel_delayed_work_sync(&vi->refill);
+ 
+ 	for (i = 0; i < vi->max_queue_pairs; i++) {
+-		xdp_rxq_info_unreg(&vi->rq[i].xdp_rxq);
+ 		napi_disable(&vi->rq[i].napi);
++		xdp_rxq_info_unreg(&vi->rq[i].xdp_rxq);
+ 		virtnet_napi_tx_disable(&vi->sq[i].napi);
  	}
- }
  
--static void flush_errqueue(int fd, const bool do_poll)
-+static void flush_errqueue(int fd, const bool do_poll,
-+			   unsigned long poll_timeout, const bool poll_err)
- {
- 	if (do_poll) {
- 		struct pollfd fds = {0};
- 		int ret;
- 
- 		fds.fd = fd;
--		ret = poll(&fds, 1, 500);
-+		ret = poll(&fds, 1, poll_timeout);
- 		if (ret == 0) {
--			if (cfg_verbose)
-+			if ((cfg_verbose) && (poll_err))
- 				fprintf(stderr, "poll timeout\n");
- 		} else if (ret < 0) {
- 			error(1, errno, "poll");
-@@ -254,6 +256,20 @@ static void flush_errqueue(int fd, const bool do_poll)
- 	flush_errqueue_recv(fd);
- }
- 
-+static void flush_errqueue_retry(int fd, unsigned long num_sends)
-+{
-+	unsigned long tnow, tstop;
-+	bool first_try = true;
-+
-+	tnow = gettimeofday_ms();
-+	tstop = tnow + cfg_poll_loop_timeout_ms;
-+	do {
-+		flush_errqueue(fd, true, tstop - tnow, first_try);
-+		first_try = false;
-+		tnow = gettimeofday_ms();
-+	} while ((stat_zcopies != num_sends) && (tnow < tstop));
-+}
-+
- static int send_tcp(int fd, char *data)
- {
- 	int ret, done = 0, count = 0;
-@@ -413,7 +429,8 @@ static int send_udp_segment(int fd, char *data)
- 
- static void usage(const char *filepath)
- {
--	error(1, 0, "Usage: %s [-46acmHPtTuvz] [-C cpu] [-D dst ip] [-l secs] [-M messagenr] [-p port] [-s sendsize] [-S gsosize]",
-+	error(1, 0, "Usage: %s [-46acmHPtTuvz] [-C cpu] [-D dst ip] [-l secs] "
-+		    "[-L secs] [-M messagenr] [-p port] [-s sendsize] [-S gsosize]",
- 		    filepath);
- }
- 
-@@ -423,7 +440,7 @@ static void parse_opts(int argc, char **argv)
- 	int max_len, hdrlen;
- 	int c;
- 
--	while ((c = getopt(argc, argv, "46acC:D:Hl:mM:p:s:PS:tTuvz")) != -1) {
-+	while ((c = getopt(argc, argv, "46acC:D:Hl:L:mM:p:s:PS:tTuvz")) != -1) {
- 		switch (c) {
- 		case '4':
- 			if (cfg_family != PF_UNSPEC)
-@@ -452,6 +469,9 @@ static void parse_opts(int argc, char **argv)
- 		case 'l':
- 			cfg_runtime_ms = strtoul(optarg, NULL, 10) * 1000;
- 			break;
-+		case 'L':
-+			cfg_poll_loop_timeout_ms = strtoul(optarg, NULL, 10) * 1000;
-+			break;
- 		case 'm':
- 			cfg_sendmmsg = true;
- 			break;
-@@ -679,7 +699,7 @@ int main(int argc, char **argv)
- 			num_sends += send_udp(fd, buf[i]);
- 		num_msgs++;
- 		if ((cfg_zerocopy && ((num_msgs & 0xF) == 0)) || cfg_tx_tstamp)
--			flush_errqueue(fd, cfg_poll);
-+			flush_errqueue(fd, cfg_poll, 500, true);
- 
- 		if (cfg_msg_nr && num_msgs >= cfg_msg_nr)
- 			break;
-@@ -698,7 +718,7 @@ int main(int argc, char **argv)
- 	} while (!interrupted && (cfg_runtime_ms == -1 || tnow < tstop));
- 
- 	if (cfg_zerocopy || cfg_tx_tstamp)
--		flush_errqueue(fd, true);
-+		flush_errqueue_retry(fd, num_sends);
- 
- 	if (close(fd))
- 		error(1, errno, "close");
 -- 
 2.39.0
 
