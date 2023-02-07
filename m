@@ -2,44 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A89BF68D787
-	for <lists+stable@lfdr.de>; Tue,  7 Feb 2023 14:01:03 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3F2A968D78D
+	for <lists+stable@lfdr.de>; Tue,  7 Feb 2023 14:01:27 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231247AbjBGNBC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Feb 2023 08:01:02 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46568 "EHLO
+        id S231909AbjBGNBW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Feb 2023 08:01:22 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46664 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231961AbjBGNBB (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Feb 2023 08:01:01 -0500
+        with ESMTP id S231981AbjBGNBH (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Feb 2023 08:01:07 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C555139B9E
-        for <stable@vger.kernel.org>; Tue,  7 Feb 2023 05:00:26 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9ABA53A586
+        for <stable@vger.kernel.org>; Tue,  7 Feb 2023 05:00:29 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 5DC89B8198C
-        for <stable@vger.kernel.org>; Tue,  7 Feb 2023 13:00:25 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B7802C433EF;
-        Tue,  7 Feb 2023 13:00:23 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 4B4A6B81990
+        for <stable@vger.kernel.org>; Tue,  7 Feb 2023 13:00:28 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8C931C4339C;
+        Tue,  7 Feb 2023 13:00:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1675774824;
-        bh=9Nnww4gVOtCn0x++Llj7t0hGkytjEwJegwNb4hHg1QA=;
+        s=korg; t=1675774827;
+        bh=AO6keJxQ25EzEZCwGUMcD5SqBlMgKccTIkbQzUo6eTU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Gs8w3MM9T8JCZbTrBSggH/7HrNK5SK3BZ6ZVE/jZW4Yhu7XrHKoH0msqI2ua9H5gZ
-         LuhHV5oTyzH9P145jVyYyNcdNqYT2Ge0UaH0wqEG5sTuXYrlVMTQcGXRZunJY0oCVT
-         1r2+4NIceVtkD4x0D6gS0+UblPBX4LLFaplBrIaM=
+        b=QkOJ4XxlQgx6DZ71qdyoFYQnbm18NjCFFzFMYg5DT7s2EUXTJp4seMPRb3beb7VkT
+         GqJ/ypDQVTBn4pHhd4lSOIs9VjaeG6MdRxK9LbWS31fE/oTrUTan3iRPnsiq+OO3DY
+         gPliJQLJ06psyZK/DEEic7xgnAxn37vFiBvKDWks=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Felix Fietkau <nbd@nbd.name>,
-        Alexander Duyck <alexanderduyck@fb.com>,
-        Ilias Apalodimas <ilias.apalodimas@linaro.org>,
-        Eric Dumazet <edumazet@google.com>,
+        patches@lists.linux.dev, Tianhao Zhao <tizhao@redhat.com>,
+        =?UTF-8?q?=C3=8D=C3=B1igo=20Huguet?= <ihuguet@redhat.com>,
+        Martin Habets <habetsm.xilinx@gmail.com>,
         Jakub Kicinski <kuba@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 045/208] skb: Do mix page pool and page referenced frags in GRO
-Date:   Tue,  7 Feb 2023 13:54:59 +0100
-Message-Id: <20230207125636.320473562@linuxfoundation.org>
+Subject: [PATCH 6.1 046/208] sfc: correctly advertise tunneled IPv6 segmentation
+Date:   Tue,  7 Feb 2023 13:55:00 +0100
+Message-Id: <20230207125636.363216712@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.1
 In-Reply-To: <20230207125634.292109991@linuxfoundation.org>
 References: <20230207125634.292109991@linuxfoundation.org>
@@ -56,50 +55,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alexander Duyck <alexanderduyck@fb.com>
+From: Íñigo Huguet <ihuguet@redhat.com>
 
-[ Upstream commit 7d2c89b325874a35564db5630a459966afab04cc ]
+[ Upstream commit ffffd2454a7a1bc9f7242b12c4cc0b05c12692b4 ]
 
-GSO should not merge page pool recycled frames with standard reference
-counted frames. Traditionally this didn't occur, at least not often.
-However as we start looking at adding support for wireless adapters there
-becomes the potential to mix the two due to A-MSDU repartitioning frames in
-the receive path. There are possibly other places where this may have
-occurred however I suspect they must be few and far between as we have not
-seen this issue until now.
+Recent sfc NICs are TSO capable for some tunnel protocols. However, it
+was not working properly because the feature was not advertised in
+hw_enc_features, but in hw_features only.
 
-Fixes: 53e0961da1c7 ("page_pool: add frag page recycling support in page pool")
-Reported-by: Felix Fietkau <nbd@nbd.name>
-Signed-off-by: Alexander Duyck <alexanderduyck@fb.com>
-Acked-by: Ilias Apalodimas <ilias.apalodimas@linaro.org>
-Reviewed-by: Eric Dumazet <edumazet@google.com>
-Link: https://lore.kernel.org/r/167475990764.1934330.11960904198087757911.stgit@localhost.localdomain
+Setting up a GENEVE tunnel and using iperf3 to send IPv4 and IPv6 traffic
+to the tunnel show, with tcpdump, that the IPv4 packets still had ~64k
+size but the IPv6 ones had only ~1500 bytes (they had been segmented by
+software, not offloaded). With this patch segmentation is offloaded as
+expected and the traffic is correctly received at the other end.
+
+Fixes: 24b2c3751aa3 ("sfc: advertise encapsulated offloads on EF10")
+Reported-by: Tianhao Zhao <tizhao@redhat.com>
+Signed-off-by: Íñigo Huguet <ihuguet@redhat.com>
+Acked-by: Martin Habets <habetsm.xilinx@gmail.com>
+Link: https://lore.kernel.org/r/20230125143513.25841-1-ihuguet@redhat.com
 Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/core/gro.c | 9 +++++++++
- 1 file changed, 9 insertions(+)
+ drivers/net/ethernet/sfc/efx.c | 5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
 
-diff --git a/net/core/gro.c b/net/core/gro.c
-index 1b4abfb9a7a1..352f966cb1da 100644
---- a/net/core/gro.c
-+++ b/net/core/gro.c
-@@ -162,6 +162,15 @@ int skb_gro_receive(struct sk_buff *p, struct sk_buff *skb)
- 	struct sk_buff *lp;
- 	int segs;
- 
-+	/* Do not splice page pool based packets w/ non-page pool
-+	 * packets. This can result in reference count issues as page
-+	 * pool pages will not decrement the reference count and will
-+	 * instead be immediately returned to the pool or have frag
-+	 * count decremented.
-+	 */
-+	if (p->pp_recycle != skb->pp_recycle)
-+		return -ETOOMANYREFS;
-+
- 	/* pairs with WRITE_ONCE() in netif_set_gro_max_size() */
- 	gro_max_size = READ_ONCE(p->dev->gro_max_size);
- 
+diff --git a/drivers/net/ethernet/sfc/efx.c b/drivers/net/ethernet/sfc/efx.c
+index 0556542d7a6b..3a86f1213a05 100644
+--- a/drivers/net/ethernet/sfc/efx.c
++++ b/drivers/net/ethernet/sfc/efx.c
+@@ -1003,8 +1003,11 @@ static int efx_pci_probe_post_io(struct efx_nic *efx)
+ 	/* Determine netdevice features */
+ 	net_dev->features |= (efx->type->offload_features | NETIF_F_SG |
+ 			      NETIF_F_TSO | NETIF_F_RXCSUM | NETIF_F_RXALL);
+-	if (efx->type->offload_features & (NETIF_F_IPV6_CSUM | NETIF_F_HW_CSUM))
++	if (efx->type->offload_features & (NETIF_F_IPV6_CSUM | NETIF_F_HW_CSUM)) {
+ 		net_dev->features |= NETIF_F_TSO6;
++		if (efx_has_cap(efx, TX_TSO_V2_ENCAP))
++			net_dev->hw_enc_features |= NETIF_F_TSO6;
++	}
+ 	/* Check whether device supports TSO */
+ 	if (!efx->type->tso_versions || !efx->type->tso_versions(efx))
+ 		net_dev->features &= ~NETIF_F_ALL_TSO;
 -- 
 2.39.0
 
