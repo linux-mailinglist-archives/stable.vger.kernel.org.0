@@ -2,42 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C2CEA68D7AE
-	for <lists+stable@lfdr.de>; Tue,  7 Feb 2023 14:02:28 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5036D68D7AF
+	for <lists+stable@lfdr.de>; Tue,  7 Feb 2023 14:02:29 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231994AbjBGNC1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Feb 2023 08:02:27 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47810 "EHLO
+        id S232007AbjBGNC2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Feb 2023 08:02:28 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47192 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232038AbjBGNB6 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Feb 2023 08:01:58 -0500
+        with ESMTP id S232062AbjBGNCC (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Feb 2023 08:02:02 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BCFD33C32
-        for <stable@vger.kernel.org>; Tue,  7 Feb 2023 05:01:46 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B33159EE7
+        for <stable@vger.kernel.org>; Tue,  7 Feb 2023 05:01:49 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 8FD7BB81992
-        for <stable@vger.kernel.org>; Tue,  7 Feb 2023 13:01:43 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D7A9DC433EF;
-        Tue,  7 Feb 2023 13:01:41 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id B9B79B81995
+        for <stable@vger.kernel.org>; Tue,  7 Feb 2023 13:01:46 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E9D0BC433EF;
+        Tue,  7 Feb 2023 13:01:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1675774902;
-        bh=M+bvylTRgJD6m5eeCIJKL5MrDTNk802Z2VMBD3sQHZE=;
+        s=korg; t=1675774905;
+        bh=5OmEdmXKc2bynHdwhJayPFBjwCx3cv+x7jQjk+0OBPU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=NDey3cvuBUmwipgkJcN036d1oWf19B0KLTdtlE60iHSChAiwfgE6qJFqC89Abqh2q
-         JXetnGlYlWCBH+ZVznCH7r/ex8iZg+4bqwfr92tHEDiyJWguEpE17AzUzAW3lGHTyq
-         nMxtRQNFLRE3ynH+26NRfLyRR3UeOnJfbiaITdI0=
+        b=UFcXE//7AsUceiEhEsqE7ic0dwusWcFPh+F0w4+SL7boArvc/tFMlNdIEbOZ1Y+Ga
+         pQxsqaZ5exoZxD1kB/r3Dn+6TP93uQbqrxwL0EAxmKse/E89K7Ua3POS8LWOJA1u2M
+         GvGQ8z/e2hgHOMA35cP2gaujNdTaQtZU6yGWpaIA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Xin Long <lucien.xin@gmail.com>,
-        Marcelo Ricardo Leitner <marcelo.leitner@gmail.com>,
+        patches@lists.linux.dev, Heiner Kallweit <hkallweit1@gmail.com>,
+        Chris Healy <healych@amazon.com>,
+        Jerome Brunet <jbrunet@baylibre.com>,
         Jakub Kicinski <kuba@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 071/208] sctp: do not check hb_timer.expires when resetting hb_timer
-Date:   Tue,  7 Feb 2023 13:55:25 +0100
-Message-Id: <20230207125637.545536408@linuxfoundation.org>
+Subject: [PATCH 6.1 072/208] net: phy: meson-gxl: Add generic dummy stubs for MMD register access
+Date:   Tue,  7 Feb 2023 13:55:26 +0100
+Message-Id: <20230207125637.586460483@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.1
 In-Reply-To: <20230207125634.292109991@linuxfoundation.org>
 References: <20230207125634.292109991@linuxfoundation.org>
@@ -54,51 +55,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Xin Long <lucien.xin@gmail.com>
+From: Chris Healy <healych@amazon.com>
 
-[ Upstream commit 8f35ae17ef565a605de5f409e04bcd49a55d7646 ]
+[ Upstream commit afc2336f89dc0fc0ef25b92366814524b0fd90fb ]
 
-It tries to avoid the frequently hb_timer refresh in commit ba6f5e33bdbb
-("sctp: avoid refreshing heartbeat timer too often"), and it only allows
-mod_timer when the new expires is after hb_timer.expires. It means even
-a much shorter interval for hb timer gets applied, it will have to wait
-until the current hb timer to time out.
+The Meson G12A Internal PHY does not support standard IEEE MMD extended
+register access, therefore add generic dummy stubs to fail the read and
+write MMD calls. This is necessary to prevent the core PHY code from
+erroneously believing that EEE is supported by this PHY even though this
+PHY does not support EEE, as MMD register access returns all FFFFs.
 
-In sctp_do_8_2_transport_strike(), when a transport enters PF state, it
-expects to update the hb timer to resend a heartbeat every rto after
-calling sctp_transport_reset_hb_timer(), which will not work as the
-change mentioned above.
-
-The frequently hb_timer refresh was caused by sctp_transport_reset_timers()
-called in sctp_outq_flush() and it was already removed in the commit above.
-So we don't have to check hb_timer.expires when resetting hb_timer as it is
-now not called very often.
-
-Fixes: ba6f5e33bdbb ("sctp: avoid refreshing heartbeat timer too often")
-Signed-off-by: Xin Long <lucien.xin@gmail.com>
-Acked-by: Marcelo Ricardo Leitner <marcelo.leitner@gmail.com>
-Link: https://lore.kernel.org/r/d958c06985713ec84049a2d5664879802710179a.1675095933.git.lucien.xin@gmail.com
+Fixes: 5c3407abb338 ("net: phy: meson-gxl: add g12a support")
+Reviewed-by: Heiner Kallweit <hkallweit1@gmail.com>
+Signed-off-by: Chris Healy <healych@amazon.com>
+Reviewed-by: Jerome Brunet <jbrunet@baylibre.com>
+Link: https://lore.kernel.org/r/20230130231402.471493-1-cphealy@gmail.com
 Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/sctp/transport.c | 4 +---
- 1 file changed, 1 insertion(+), 3 deletions(-)
+ drivers/net/phy/meson-gxl.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/net/sctp/transport.c b/net/sctp/transport.c
-index f8fd98784977..b3f1a91e9a07 100644
---- a/net/sctp/transport.c
-+++ b/net/sctp/transport.c
-@@ -196,9 +196,7 @@ void sctp_transport_reset_hb_timer(struct sctp_transport *transport)
+diff --git a/drivers/net/phy/meson-gxl.c b/drivers/net/phy/meson-gxl.c
+index c49062ad72c6..5e41658b1e2f 100644
+--- a/drivers/net/phy/meson-gxl.c
++++ b/drivers/net/phy/meson-gxl.c
+@@ -271,6 +271,8 @@ static struct phy_driver meson_gxl_phy[] = {
+ 		.handle_interrupt = meson_gxl_handle_interrupt,
+ 		.suspend        = genphy_suspend,
+ 		.resume         = genphy_resume,
++		.read_mmd	= genphy_read_mmd_unsupported,
++		.write_mmd	= genphy_write_mmd_unsupported,
+ 	},
+ };
  
- 	/* When a data chunk is sent, reset the heartbeat interval.  */
- 	expires = jiffies + sctp_transport_timeout(transport);
--	if ((time_before(transport->hb_timer.expires, expires) ||
--	     !timer_pending(&transport->hb_timer)) &&
--	    !mod_timer(&transport->hb_timer,
-+	if (!mod_timer(&transport->hb_timer,
- 		       expires + prandom_u32_max(transport->rto)))
- 		sctp_transport_hold(transport);
- }
 -- 
 2.39.0
 
