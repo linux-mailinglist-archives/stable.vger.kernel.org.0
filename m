@@ -2,46 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 5B01C68D1A0
-	for <lists+stable@lfdr.de>; Tue,  7 Feb 2023 09:44:40 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1AC4C68D1A1
+	for <lists+stable@lfdr.de>; Tue,  7 Feb 2023 09:44:57 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231237AbjBGIoj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Feb 2023 03:44:39 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34458 "EHLO
+        id S231238AbjBGIo4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Feb 2023 03:44:56 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34696 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231250AbjBGIoi (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Feb 2023 03:44:38 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 21EBD199C6
-        for <stable@vger.kernel.org>; Tue,  7 Feb 2023 00:44:35 -0800 (PST)
+        with ESMTP id S231167AbjBGIoz (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Feb 2023 03:44:55 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7476517CC4
+        for <stable@vger.kernel.org>; Tue,  7 Feb 2023 00:44:46 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 871836121B
-        for <stable@vger.kernel.org>; Tue,  7 Feb 2023 08:44:35 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7DA6DC433EF;
-        Tue,  7 Feb 2023 08:44:34 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 10B76B816D7
+        for <stable@vger.kernel.org>; Tue,  7 Feb 2023 08:44:45 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 15B3AC433D2;
+        Tue,  7 Feb 2023 08:44:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1675759474;
-        bh=4RJe0SAgVED2dNSeXs/iQoi2HPQQNsa2QtW5TvON1zk=;
+        s=korg; t=1675759483;
+        bh=SqpcVJIhPgM2RJ2uEw/cb5DSRLCQNFzCG3MNMOqCNQw=;
         h=Subject:To:Cc:From:Date:From;
-        b=rqYmEdNXS2RdmcxkgZJ1+PN4jFsbIP2DwTd6bxpzopk8HEPAg9/Ge8QzUNy79n5A5
-         MatRbi3Em7hPPC/J5YlYlDwqqc7JMHCZKnQvxS1JqiO3Qf9YBTgs7DPCaYAIlDjslc
-         P7L9lCd34oqUBwjEJ//USJBmlsmBVMd62W78U6WA=
-Subject: FAILED: patch "[PATCH] mm: memcg: fix NULL pointer in" failed to apply to 5.15-stable tree
+        b=c88kLDh+oWsVM8n9ryNYWksHDTvMGJ8vArDJkmS1WCfx8ZPzw+4V8rifquo8kOm+6
+         TzMYrKHoBeUekl3apRfW1V29DDNYepvBQddTAM0SUNmY2pCTRNGiOWlsPatrYr9dJ/
+         YKtrOw3k40Txfer+m0xvktTIN80s++VMF5zWAfgE=
+Subject: FAILED: patch "[PATCH] mm: memcg: fix NULL pointer in" failed to apply to 5.10-stable tree
 To:     wangkefeng.wang@huawei.com, akpm@linux-foundation.org,
         axboe@kernel.dk, jack@suse.cz, mawupeng1@huawei.com,
         mhocko@suse.com, mikoxyzzz@gmail.com, naoya.horiguchi@nec.com,
         shakeelb@google.com, stable@vger.kernel.org, tj@kernel.org
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Tue, 07 Feb 2023 09:44:31 +0100
-Message-ID: <16757594719035@kroah.com>
+Date:   Tue, 07 Feb 2023 09:44:32 +0100
+Message-ID: <167575947234162@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
         SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -50,7 +50,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.15-stable tree.
+The patch below does not apply to the 5.10-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
@@ -66,6 +66,17 @@ a49d0c507759 ("mm/writeback: Add folio_wait_stable()")
 575ced1c8b0d ("mm/swap: Add folio_rotate_reclaimable()")
 4e1364286d0a ("mm/filemap: Add folio_unlock()")
 2f52578f9c64 ("mm/util: Add folio_mapping() and folio_file_mapping()")
+3a6b2162005f ("mm: move page dirtying prototypes from mm.h")
+6e1cae881a06 ("mm/writeback: move __set_page_dirty() to core mm")
+34ebcce79324 ("fs: unexport __set_page_dirty")
+87e378974975 ("mm/page-writeback: use __this_cpu_inc() in account_page_dirtied()")
+9620ad86d0e3 ("afs: Re-enable freezing once a page fault is interrupted")
+d479960e44f2 ("mm: disable LRU pagevec during the migration temporarily")
+198fba4137a1 ("mm/mmzone.h: fix existing kernel-doc comments and link them to core-api")
+a87132a22991 ("mm/doc: add mm.h and mm_types.h to the mm-api document")
+842ca547f706 ("mm: move page_mapping_file to pagemap.h")
+5cbf03985c67 ("afs: Use new netfs lib read helper API")
+dc4191841d09 ("afs: Use the fs operation ops to handle FetchData completion")
 
 thanks,
 
