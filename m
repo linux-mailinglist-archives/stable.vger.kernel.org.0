@@ -2,103 +2,100 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 52B1768EF3F
-	for <lists+stable@lfdr.de>; Wed,  8 Feb 2023 13:43:24 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 64FE868EF46
+	for <lists+stable@lfdr.de>; Wed,  8 Feb 2023 13:44:17 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229648AbjBHMnX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 8 Feb 2023 07:43:23 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43126 "EHLO
+        id S229483AbjBHMoO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 8 Feb 2023 07:44:14 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44048 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230425AbjBHMnW (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 8 Feb 2023 07:43:22 -0500
-Received: from mail-pj1-x1031.google.com (mail-pj1-x1031.google.com [IPv6:2607:f8b0:4864:20::1031])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 836D849011
-        for <stable@vger.kernel.org>; Wed,  8 Feb 2023 04:43:19 -0800 (PST)
-Received: by mail-pj1-x1031.google.com with SMTP id mi9so18251129pjb.4
-        for <stable@vger.kernel.org>; Wed, 08 Feb 2023 04:43:19 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=heitbaum.com; s=google;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
-        bh=O+Wh65jPwZ2iDPb66Pml9WSpf/i3Bn1WviFQSAOELT4=;
-        b=Y4ur5YRYEXujDSJhVCJwpIz3CAjiott1io5LCS3/AwwJrwlLDCu1FoLhxV6bWlsOun
-         512JfBadYS/fMg0nXIHuc35yHLVGH3tDdeJJQ/IA+ExP2h5VK1RpsP9vS2vXpOH8jFvM
-         +7uhedfGNQJNWgFGWaVZW8C+fdCRUHa1sJsXM=
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=O+Wh65jPwZ2iDPb66Pml9WSpf/i3Bn1WviFQSAOELT4=;
-        b=bIswpXpcCnU17P8FnGUfmI3rAPoDRcXSQPS6s7D4SXNW0bSe2tcHIHhT2fjTal1W7F
-         iwXQ55R/klBchXLym34R22N/ughLBQkuUYJYUKBviEsH2U8naPclz2t1Lj1XfZaZQPok
-         LNZB0b74qoFZqFGeqLa9R9H+VsImQ0+T+tnM7L8zzyDFx8Zo0LPDn6YdkWjCm2T3DTWD
-         FVljrl+K5LXgqW4XoDRciCZDYkRx7QMB6DabuO0iTNHhR/Yd91RHNnpCEUIs9UBaCUwC
-         45TmtcSxpDU5uCeEYabDKPMvYqMvBr4EaT3jqF9j8MFb4a8I22oDKrtd2MSnSsKCy9Ms
-         CHIw==
-X-Gm-Message-State: AO0yUKUUz84UO6rdtZtAfna15YtqNH8UlpgDI5usK5xo3dbpKFG7anR2
-        V00RCGzP5ozA97qxcu6kOxw6cA==
-X-Google-Smtp-Source: AK7set+QT0GP0bBUPF4ShuI0zGxWoOq0+tBWzazN3oEPqceoWb4lucXU/DFyNSI8XvZmcpxMp+xpww==
-X-Received: by 2002:a17:902:e809:b0:198:e4bd:86b6 with SMTP id u9-20020a170902e80900b00198e4bd86b6mr8504271plg.67.1675860198807;
-        Wed, 08 Feb 2023 04:43:18 -0800 (PST)
-Received: from c5da58673b58 (124-148-239-102.tpgi.com.au. [124.148.239.102])
-        by smtp.gmail.com with ESMTPSA id c4-20020a170902c1c400b00186a2dd3ffdsm10873478plc.15.2023.02.08.04.43.13
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 08 Feb 2023 04:43:17 -0800 (PST)
-Date:   Wed, 8 Feb 2023 12:43:10 +0000
-From:   Rudi Heitbaum <rudi@heitbaum.com>
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     stable@vger.kernel.org, patches@lists.linux.dev,
-        linux-kernel@vger.kernel.org, torvalds@linux-foundation.org,
-        akpm@linux-foundation.org, linux@roeck-us.net, shuah@kernel.org,
-        patches@kernelci.org, lkft-triage@lists.linaro.org, pavel@denx.de,
-        jonathanh@nvidia.com, f.fainelli@gmail.com,
-        sudipm.mukherjee@gmail.com, srw@sladewatkins.net, rwarsow@gmx.de
-Subject: Re: [PATCH 6.1 000/208] 6.1.11-rc1 review
-Message-ID: <20230208124310.GA1940401@c5da58673b58>
-References: <20230207125634.292109991@linuxfoundation.org>
+        with ESMTP id S230414AbjBHMoO (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 8 Feb 2023 07:44:14 -0500
+Received: from frasgout.his.huawei.com (frasgout.his.huawei.com [185.176.79.56])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EF5C73C16;
+        Wed,  8 Feb 2023 04:44:12 -0800 (PST)
+Received: from lhrpeml500005.china.huawei.com (unknown [172.18.147.201])
+        by frasgout.his.huawei.com (SkyGuard) with ESMTP id 4PBfm73Ht9z6J9mD;
+        Wed,  8 Feb 2023 20:42:47 +0800 (CST)
+Received: from localhost (10.202.227.76) by lhrpeml500005.china.huawei.com
+ (7.191.163.240) with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id 15.1.2507.17; Wed, 8 Feb
+ 2023 12:44:10 +0000
+Date:   Wed, 8 Feb 2023 12:44:09 +0000
+From:   Jonathan Cameron <Jonathan.Cameron@Huawei.com>
+To:     Dan Williams <dan.j.williams@intel.com>
+CC:     <linux-cxl@vger.kernel.org>, <stable@vger.kernel.org>,
+        <dave.hansen@linux.intel.com>, <linux-mm@kvack.org>,
+        <linux-acpi@vger.kernel.org>
+Subject: Re: [PATCH 10/18] cxl/region: Fix passthrough-decoder detection
+Message-ID: <20230208124409.0000658e@Huawei.com>
+In-Reply-To: <167564540422.847146.13816934143225777888.stgit@dwillia2-xfh.jf.intel.com>
+References: <167564534874.847146.5222419648551436750.stgit@dwillia2-xfh.jf.intel.com>
+        <167564540422.847146.13816934143225777888.stgit@dwillia2-xfh.jf.intel.com>
+Organization: Huawei Technologies Research and Development (UK) Ltd.
+X-Mailer: Claws Mail 4.1.0 (GTK 3.24.33; x86_64-w64-mingw32)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20230207125634.292109991@linuxfoundation.org>
-X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_NONE,
-        SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
+Content-Type: text/plain; charset="US-ASCII"
+Content-Transfer-Encoding: 7bit
+X-Originating-IP: [10.202.227.76]
+X-ClientProxiedBy: lhrpeml500001.china.huawei.com (7.191.163.213) To
+ lhrpeml500005.china.huawei.com (7.191.163.240)
+X-CFilter-Loop: Reflected
+X-Spam-Status: No, score=-4.2 required=5.0 tests=BAYES_00,RCVD_IN_DNSWL_MED,
+        RCVD_IN_MSPIKE_H2,SPF_HELO_NONE,SPF_PASS autolearn=ham
+        autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, Feb 07, 2023 at 01:54:14PM +0100, Greg Kroah-Hartman wrote:
-> This is the start of the stable review cycle for the 6.1.11 release.
-> There are 208 patches in this series, all will be posted as a response
-> to this one.  If anyone has any issues with these being applied, please
-> let me know.
+On Sun, 05 Feb 2023 17:03:24 -0800
+Dan Williams <dan.j.williams@intel.com> wrote:
+
+> A passthrough decoder is a decoder that maps only 1 target. It is a
+> special case because it does not impose any constraints on the
+> interleave-math as compared to a decoder with multiple targets. Extend
+> the passthrough case to multi-target-capable decoders that only have one
+> target selected. I.e. the current code was only considering passthrough
+> *ports* which are only a subset of the potential passthrough decoder
+> scenarios.
 > 
-> Responses should be made by Thu, 09 Feb 2023 12:55:54 +0000.
-> Anything received after that time might be too late.
+> Fixes: e4f6dfa9ef75 ("cxl/region: Fix 'distance' calculation with passthrough ports")
+> Cc: <stable@vger.kernel.org>
+> Signed-off-by: Dan Williams <dan.j.williams@intel.com>
+> ---
+>  drivers/cxl/core/region.c |    4 ++--
+>  1 file changed, 2 insertions(+), 2 deletions(-)
+> 
+> diff --git a/drivers/cxl/core/region.c b/drivers/cxl/core/region.c
+> index c82d3b6f3d1f..34cf95217901 100644
+> --- a/drivers/cxl/core/region.c
+> +++ b/drivers/cxl/core/region.c
+> @@ -1019,10 +1019,10 @@ static int cxl_port_setup_targets(struct cxl_port *port,
+>  		int i, distance;
+>  
+>  		/*
+> -		 * Passthrough ports impose no distance requirements between
+> +		 * Passthrough decoders impose no distance requirements between
+>  		 * peers
 
-Hi Greg,
+I think we have a terminology inconsistency.  My understanding was we were using
+passthrough decoders for the special case where there is no programmable hardware.
+In this case I think we are also considering the case where that hardware must
+be programmed etc, it's just that we don't care about interleave.
+I'd just explain what it is rather than trying to assign a term. 
 
-6.1.11-rc1 tested.
+Decoders that have a single target configured impose...
 
-Run tested on:
-- Allwinner H6 (Tanix TX6)
-- Intel Alder Lake x86_64 (nuc12 i7-1260P)
 
-In addition - build tested for:
-- Allwinner A64
-- Allwinner H3
-- Allwinner H5
-- NXP iMX6
-- NXP iMX8
-- Qualcomm Dragonboard
-- Rockchip RK3288
-- Rockchip RK3328
-- Rockchip RK3399pro
-- Samsung Exynos
 
-Tested-by: Rudi Heitbaum <rudi@heitbaum.com>
---
-Rudi
+>  		 */
+> -		if (port->nr_dports == 1)
+> +		if (cxl_rr->nr_targets == 1)
+>  			distance = 0;
+>  		else
+>  			distance = p->nr_targets / cxl_rr->nr_targets;
+> 
+> 
+
