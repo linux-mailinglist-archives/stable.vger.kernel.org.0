@@ -2,116 +2,130 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 9A07E68FB05
-	for <lists+stable@lfdr.de>; Thu,  9 Feb 2023 00:17:08 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5013568FB0C
+	for <lists+stable@lfdr.de>; Thu,  9 Feb 2023 00:20:14 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229566AbjBHXRG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 8 Feb 2023 18:17:06 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42514 "EHLO
+        id S229629AbjBHXUM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 8 Feb 2023 18:20:12 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44610 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229629AbjBHXRG (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 8 Feb 2023 18:17:06 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CAD7E7ED6;
-        Wed,  8 Feb 2023 15:17:00 -0800 (PST)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 54C4D61807;
-        Wed,  8 Feb 2023 23:17:00 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B3C72C4339C;
-        Wed,  8 Feb 2023 23:16:59 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1675898219;
-        bh=lZTjuuQABIxMxNQZRg3voM5ATP3tc817vShiNCzwY5Q=;
-        h=References:In-Reply-To:From:Date:Subject:To:Cc:From;
-        b=aghsUWVeGeD8zl174xRgZOzbTJ8x8tYXswtvh9PmMEsXwkH62hWnv7UV5ODoS7N+I
-         cJQigGd24MHJV3bUxwWO91gbWiJmfeokOG3T85IVn3g2Zf88TW5Y04HswwuONAarEk
-         HejRrfWbM4TFXUq2LECkdQcHxzYjv4qjqAx4aHWn2Xdix5ssf5X9VSpvNB2/If2KPA
-         4igtsdhG7Zab3JdipKDVgFxJ0Woq+CDEfidptljQGbhRPY2MaXZJ7khFqFBDWEFN3n
-         FHVc7A+KsCOtLDbjezB8N3qg9WLub0piF3FVpe+yRJF2NsHw62y/HeomxEA448zFWV
-         CGeDuWuu4MI4A==
-Received: by mail-lf1-f43.google.com with SMTP id h24so761347lfv.6;
-        Wed, 08 Feb 2023 15:16:59 -0800 (PST)
-X-Gm-Message-State: AO0yUKUZtCODzuA56RHo2N6X9EYipUb9MVJDekcz4ySgX8livOYmxQW+
-        aus97+/h5FOb0zov6Sv32nmoeZ7EMc7sRgi91zE=
-X-Google-Smtp-Source: AK7set8KwuT63HyPuqX5+P3hAzXpgNLa/3LGCHtoW6bQKDkwBaYVJEjNL9TlHN0EiYGu+mZcAUrZFKpBeuU0qW//HTw=
-X-Received: by 2002:ac2:559b:0:b0:4b6:fae9:c9b9 with SMTP id
- v27-20020ac2559b000000b004b6fae9c9b9mr1582076lfg.207.1675898217727; Wed, 08
- Feb 2023 15:16:57 -0800 (PST)
-MIME-Version: 1.0
-References: <a968c446bde75bf019580366854349bf94e6c961.1675897882.git.darren@os.amperecomputing.com>
-In-Reply-To: <a968c446bde75bf019580366854349bf94e6c961.1675897882.git.darren@os.amperecomputing.com>
-From:   Ard Biesheuvel <ardb@kernel.org>
-Date:   Thu, 9 Feb 2023 00:16:46 +0100
-X-Gmail-Original-Message-ID: <CAMj1kXF2Bi_iyjzUK2zie_pt6Vnm4QwvarHicJoRzUiX7nU0Kw@mail.gmail.com>
-Message-ID: <CAMj1kXF2Bi_iyjzUK2zie_pt6Vnm4QwvarHicJoRzUiX7nU0Kw@mail.gmail.com>
-Subject: Re: [PATCH] arm64: efi: Force the use of SetVirtualAddressMap() on
- Altra Max machines
-To:     Darren Hart <darren@os.amperecomputing.com>
-Cc:     LKML <linux-kernel@vger.kernel.org>, stable@vger.kernel.org,
-        linux-efi@vger.kernel.org,
-        Alexandru Elisei <alexandru.elisei@gmail.com>
+        with ESMTP id S229649AbjBHXUL (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 8 Feb 2023 18:20:11 -0500
+Received: from mail-yw1-x1149.google.com (mail-yw1-x1149.google.com [IPv6:2607:f8b0:4864:20::1149])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E02ADEB50
+        for <stable@vger.kernel.org>; Wed,  8 Feb 2023 15:20:09 -0800 (PST)
+Received: by mail-yw1-x1149.google.com with SMTP id 00721157ae682-52cd1db23d3so2081737b3.12
+        for <stable@vger.kernel.org>; Wed, 08 Feb 2023 15:20:09 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=google.com; s=20210112;
+        h=cc:to:from:subject:message-id:references:mime-version:in-reply-to
+         :date:from:to:cc:subject:date:message-id:reply-to;
+        bh=SCoda6GVlJUCMEgaP5lPaK+3ESTiE3x/X85Mx974aXU=;
+        b=BOhMexM+VCdHXQh/QVZbzJHyumhrxhqyTt2CuvMH7lTp68/z+gaP3Wu9xOqUmMi+JB
+         mrrdzAIQS5IgMvvLESeevC/Ab3TlUwMbewpdRZ/zUx0Y82FQXKYzOeTxkST4GZDbMs54
+         bdNJm//D6to89ZuTxojonQAVWRuv9Z7ksH+y2Fkng+GggZovQ2CXp0Y+ob3G7vpvkpA+
+         DrNYqfDijWuCk8YdtgwZLUAXZiEqzXoPKXNelEj9fobF8XJ5dYblWPSyuKdeL0KI17O4
+         zb1jvbx9k1b9/14wdpulwjMcLCrsI5irymeM9A3/uL7UAA8qiFOsUvys67q2yh38HKl1
+         cHUg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=cc:to:from:subject:message-id:references:mime-version:in-reply-to
+         :date:x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
+        bh=SCoda6GVlJUCMEgaP5lPaK+3ESTiE3x/X85Mx974aXU=;
+        b=a+ap3gaa3B/TBU1N2ngZAjGyFmrtqW/gPHtLTON8TLiLXSARmVYAZrrJbDZaYj84y5
+         C83e0hs0JeOZQ9wTFzJeg2BZE/kYmSJ/IeBA2kHGtu2Yppx9xzTOc/At5w+KRNdAAgzw
+         gY2h4L5XZGb4dkLxYVrVy2fRk3OdxctqAfbLPqUYYM4pLYYNwcqsl0FkwTughyAYdpcH
+         I7qZd3hOXRVL6z4b54KHAh1bWrKbCxtFWptPgFe5ODs0ws/y95H3ucQBXt2NLjZKw6BP
+         lNc05jgqv3CbXNCH+5tOXajELo/QaXMTpY4oKTuGo6TCIj5lm6qeWfX4cJIOJOUhCmRP
+         IKjw==
+X-Gm-Message-State: AO0yUKXKjVrFYawkx9bpaFgJZ5L+Niis+lHk5eslOwjcp9r8Vvq3htzp
+        XDc7DHmK9zZjRCmv2ezu/dofz+bYGQty7xi8/qKKyw==
+X-Google-Smtp-Source: AK7set/42Lq6W0kYDD0CkT7h1nmhW62J2WaSTP+TeY8dH0u9K20cQW4TZ3bI5L0bGpIY9ILamFJb+DNqD2WEeUFn24UATA==
+X-Received: from isaacmanjarres.irv.corp.google.com ([2620:15c:2d:3:32e8:a89:521e:3f2e])
+ (user=isaacmanjarres job=sendgmr) by 2002:a05:6902:101:b0:893:5f24:71b0 with
+ SMTP id o1-20020a056902010100b008935f2471b0mr1029072ybh.163.1675898409119;
+ Wed, 08 Feb 2023 15:20:09 -0800 (PST)
+Date:   Wed,  8 Feb 2023 15:20:00 -0800
+In-Reply-To: <20230208232001.2052777-1-isaacmanjarres@google.com>
+Mime-Version: 1.0
+References: <20230208232001.2052777-1-isaacmanjarres@google.com>
+X-Mailer: git-send-email 2.39.1.581.gbfd45094c4-goog
+Message-ID: <20230208232001.2052777-2-isaacmanjarres@google.com>
+Subject: [PATCH v2 1/1] of: reserved_mem: Have kmemleak ignore dynamically
+ allocated reserved mem
+From:   "Isaac J. Manjarres" <isaacmanjarres@google.com>
+To:     Rob Herring <robh+dt@kernel.org>,
+        Frank Rowand <frowand.list@gmail.com>,
+        "Russell King (Oracle)" <rmk+kernel@armlinux.org.uk>,
+        Mike Rapoport <rppt@kernel.org>,
+        "Kirill A. Shutemov" <kirill.shtuemov@linux.intel.com>,
+        Nick Kossifidis <mick@ics.forth.gr>,
+        Catalin Marinas <catalin.marinas@arm.com>,
+        Andrew Morton <akpm@linux-foundation.org>
+Cc:     Saravana Kannan <saravanak@google.com>, linux-mm@kvack.org,
+        "Isaac J. Manjarres" <isaacmanjarres@google.com>,
+        kernel-team@android.com,
+        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
+        devicetree@vger.kernel.org, linux-kernel@vger.kernel.org,
+        stable@vger.kernel.org, Rob Herring <robh@kernel.org>
 Content-Type: text/plain; charset="UTF-8"
-X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
-        SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
+X-Spam-Status: No, score=-9.6 required=5.0 tests=BAYES_00,DKIMWL_WL_MED,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_NONE,
+        SPF_HELO_NONE,SPF_PASS,USER_IN_DEF_DKIM_WL autolearn=unavailable
+        autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hello Darren,
+Currently, kmemleak ignores dynamically allocated reserved memory
+regions that don't have a kernel mapping. However, regions that do
+retain a kernel mapping (e.g. CMA regions) do get scanned by kmemleak.
 
-On Thu, 9 Feb 2023 at 00:14, Darren Hart <darren@os.amperecomputing.com> wrote:
->
-> Commit 550b33cfd445 ("arm64: efi: Force the use of SetVirtualAddressMap()
-> on Altra machines") identifies the Altra family via the family field in
-> the type#1 SMBIOS record. Altra Max machines are similarly affected but
-> not detected with the strict strcmp test.
->
-> Rather than risk greedy matching with strncmp, add a second test for
-> Altra Max. Do not refactor to handle multiple tests as these should be
-> the only two needed.
->
+This is not ideal for two reasons:
 
-Famous last words ...
+1. kmemleak works by scanning memory regions for pointers to
+allocated objects to determine if those objects have been leaked
+or not. However, reserved memory regions can be used between drivers
+and peripherals for DMA transfers, and thus, would not contain pointers
+to allocated objects, making it unnecessary for kmemleak to scan
+these reserved memory regions.
 
-Unfortunately, I just had a report the other day that 'eMAG' and
-'Server' (!) are also being used.
+2. When CONFIG_DEBUG_PAGEALLOC is enabled, along with kmemleak, the
+CMA reserved memory regions are unmapped from the kernel's address
+space when they are freed to buddy at boot. These CMA reserved regions
+are still tracked by kmemleak, however, and when kmemleak attempts to
+scan them, a crash will happen, as accessing the CMA region will result
+in a page-fault, since the regions are unmapped.
 
-https://lore.kernel.org/all/20230131040355.3116-1-justin.he@arm.com/
+Thus, use kmemleak_ignore_phys() for all dynamically allocated reserved
+memory regions, instead of those that do not have a kernel mapping
+associated with them.
 
+Cc: <stable@vger.kernel.org>    # 5.15+
+Fixes: a7259df76702 ("memblock: make memblock_find_in_range method private")
+Signed-off-by: Isaac J. Manjarres <isaacmanjarres@google.com>
+---
+ drivers/of/of_reserved_mem.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-> Fixes: 550b33cfd445 ("arm64: efi: Force the use of SetVirtualAddressMap() on Altra machines")
-> Cc: <stable@vger.kernel.org> # 6.1.x
-> Cc: <linux-efi@vger.kernel.org>
-> Cc: Alexandru Elisei <alexandru.elisei@gmail.com>
-> Cc: Ard Biesheuvel <ardb@kernel.org>
-> Signed-off-by: Darren Hart <darren@os.amperecomputing.com>
-> ---
->  drivers/firmware/efi/libstub/arm64.c | 6 +++---
->  1 file changed, 3 insertions(+), 3 deletions(-)
->
-> diff --git a/drivers/firmware/efi/libstub/arm64.c b/drivers/firmware/efi/libstub/arm64.c
-> index ff2d18c42ee7..97f4423059c7 100644
-> --- a/drivers/firmware/efi/libstub/arm64.c
-> +++ b/drivers/firmware/efi/libstub/arm64.c
-> @@ -19,10 +19,10 @@ static bool system_needs_vamap(void)
->         const u8 *type1_family = efi_get_smbios_string(1, family);
->
->         /*
-> -        * Ampere Altra machines crash in SetTime() if SetVirtualAddressMap()
-> -        * has not been called prior.
-> +        * Ampere Altra and Altra Max machines crash in SetTime() if
-> +        * SetVirtualAddressMap() has not been called prior.
->          */
-> -       if (!type1_family || strcmp(type1_family, "Altra"))
-> +       if (!type1_family || (strcmp(type1_family, "Altra") && strcmp(type1_family, "Altra Max")))
->                 return false;
->
->         efi_warn("Working around broken SetVirtualAddressMap()\n");
-> --
-> 2.34.3
->
+diff --git a/drivers/of/of_reserved_mem.c b/drivers/of/of_reserved_mem.c
+index 65f3b02a0e4e..f90975e00446 100644
+--- a/drivers/of/of_reserved_mem.c
++++ b/drivers/of/of_reserved_mem.c
+@@ -48,9 +48,10 @@ static int __init early_init_dt_alloc_reserved_memory_arch(phys_addr_t size,
+ 		err = memblock_mark_nomap(base, size);
+ 		if (err)
+ 			memblock_phys_free(base, size);
+-		kmemleak_ignore_phys(base);
+ 	}
+ 
++	kmemleak_ignore_phys(base);
++
+ 	return err;
+ }
+ 
+-- 
+2.39.1.581.gbfd45094c4-goog
+
