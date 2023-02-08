@@ -2,112 +2,116 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 10FEE68E65E
-	for <lists+stable@lfdr.de>; Wed,  8 Feb 2023 04:02:14 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8BFCC68E673
+	for <lists+stable@lfdr.de>; Wed,  8 Feb 2023 04:08:37 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230205AbjBHDCM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 7 Feb 2023 22:02:12 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33710 "EHLO
+        id S229741AbjBHDIf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 7 Feb 2023 22:08:35 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37326 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230286AbjBHDCL (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 7 Feb 2023 22:02:11 -0500
-Received: from mail-pj1-x1029.google.com (mail-pj1-x1029.google.com [IPv6:2607:f8b0:4864:20::1029])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1EFDCEC51;
-        Tue,  7 Feb 2023 19:02:10 -0800 (PST)
-Received: by mail-pj1-x1029.google.com with SMTP id j1so11168956pjd.0;
-        Tue, 07 Feb 2023 19:02:10 -0800 (PST)
+        with ESMTP id S229615AbjBHDIe (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 7 Feb 2023 22:08:34 -0500
+Received: from mail-pg1-x529.google.com (mail-pg1-x529.google.com [IPv6:2607:f8b0:4864:20::529])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DDE2624C86
+        for <stable@vger.kernel.org>; Tue,  7 Feb 2023 19:08:33 -0800 (PST)
+Received: by mail-pg1-x529.google.com with SMTP id q9so11798124pgq.5
+        for <stable@vger.kernel.org>; Tue, 07 Feb 2023 19:08:33 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
-        bh=nlkpngfGvD/yiVPysVUCiWbRJJEon+jqBMZmtnq4MwM=;
-        b=ek5FXFElcRs9ejujZlv3HlBxR3Y9EKzX11DkCe1K52VMjYTlN37n2TAtu77PdPnBmt
-         6JvygYOx82MhMTJrF34aCl5udCf81cBRGzi6VJN4AwTt6WdusGJhudGxi7O0LD8Mvkrj
-         nleA9JZ02gQjfGOD6L3IYxjDaPBgCWmplFBFkV7vxEAzubLVuuYwkMtFKLB72NBT2JkR
-         vUQQXaZvtCJESU/sdO7tKDkAq5IhGP3kPnzSgiiVNJy3ywIC9c8z5BFGSFDk4CTdIWT6
-         heZxJgXL44VQREYGc67TMOcOOqwTjzu21o4tDyB7m47RXfoMeJjAQB6uYymjWl0Rre0D
-         F3MQ==
+        d=chromium.org; s=google;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date:message-id:reply-to;
+        bh=qVCaQKOLzAXaA2gXMDse/LMPSxT7SMwEZbw1H8JfjCQ=;
+        b=jL20HcKTsSRJ+UX89awBoUNQYJa+NYSWH334ThuFiznF4gjw4niBTuYadDjkES5Y90
+         WO8k3lm/FXEwHeDyXatz3RMxy2bdWHLlASWrlDE4tVBTr4WuZBNA5rzwR/tc56+EENcX
+         CYRgywNX0L8tpmCGmM0Dvgx3iOCkQRWdYGT8w=
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=nlkpngfGvD/yiVPysVUCiWbRJJEon+jqBMZmtnq4MwM=;
-        b=npG2rO7lFXn+ZWCx66O2se9Ml4bxZtGYoWkVyCpUrl5Z5IjZgKX8zFUKP188NZ7pIv
-         xKjEO0LK2AWux0IsEB/ESrLKL8p6LzvGnUN60vjZFqvhJttxeGWER1xSo1JujPIywB3O
-         XvxV8ctEH5wVayrNJGTlFHDDqt7GzeSqvw7BUGqUVoFDQg66rJZuNrzbToCDtlf1bTzn
-         Zn7Ix/cV2RCGD1IHqCfLvjvlPxetK8oXssDqk3cQi5KQJ8telxs7VjM0zZp18nNSnmn2
-         C3hwOZrA+dv4UGyvEnChXk9fECJkB5H8qOsWgTIDSkPvS8Y8pivWNk3Vk4AuVmu5e3mM
-         S8tA==
-X-Gm-Message-State: AO0yUKU+hf9WbgI/xM+Uv7Sxp8XgUZTeuwYljAS0QkuFzLGaaQhzwC4H
-        +I7opyRgxPZ5b/1LhPB3AhQ=
-X-Google-Smtp-Source: AK7set/Lu7/GmxZwF6rYKdq5yeGObj5e8OHmUfmGFlcldoL0DbWJJALT6tXH2snOJ16bT+/w0fn3Vg==
-X-Received: by 2002:a17:902:c40c:b0:199:41a5:1085 with SMTP id k12-20020a170902c40c00b0019941a51085mr1708108plk.33.1675825329410;
-        Tue, 07 Feb 2023 19:02:09 -0800 (PST)
-Received: from debian.me (subs28-116-206-12-49.three.co.id. [116.206.12.49])
-        by smtp.gmail.com with ESMTPSA id ju10-20020a170903428a00b001991594d783sm4982267plb.302.2023.02.07.19.02.08
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 07 Feb 2023 19:02:08 -0800 (PST)
-Received: by debian.me (Postfix, from userid 1000)
-        id 2CD6A10558B; Wed,  8 Feb 2023 10:02:04 +0700 (WIB)
-Date:   Wed, 8 Feb 2023 10:02:04 +0700
-From:   Bagas Sanjaya <bagasdotme@gmail.com>
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org
-Cc:     patches@lists.linux.dev, linux-kernel@vger.kernel.org,
-        torvalds@linux-foundation.org, akpm@linux-foundation.org,
-        linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
-        lkft-triage@lists.linaro.org, pavel@denx.de, jonathanh@nvidia.com,
-        f.fainelli@gmail.com, sudipm.mukherjee@gmail.com,
-        srw@sladewatkins.net, rwarsow@gmx.de
-Subject: Re: [PATCH 5.15 000/120] 5.15.93-rc1 review
-Message-ID: <Y+MQrB33TH8NxK+g@debian.me>
-References: <20230207125618.699726054@linuxfoundation.org>
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=qVCaQKOLzAXaA2gXMDse/LMPSxT7SMwEZbw1H8JfjCQ=;
+        b=MhO0SwAessAhwV1fp5OT1k+Gp23KJVKlKsUhGRa7NBomXF6/2vTLEYHK0X91Chq9DF
+         1O0n+Is/AT8rm117Sz38teJxuzAyvxRFzjYKmKCRxb87f8RaSCVBnj1C2+OGzDWwxL7U
+         iam0IertB3Wa/WQ1BhNb1TWS3JxTCnEWTPV+7pbAgeEsZ4tm0iCbHORenAAgpI6TBzVz
+         iGcuvXgibthLZsGBJN/bZkE4Ib5n3fEVjPJv6bQSiM3ozfkFMuem9rCEtlhGLVH68GQj
+         tAgAK0C3IAqKpAI2AYLd0bhs42SF9E5TyzNtWPa6ncRYD6BB26KY9Koc6d+vbe52Jw4V
+         3sdg==
+X-Gm-Message-State: AO0yUKX7+Heri7dNd8+5txvRZTB7N5emNJMCQkz+6EW3lVmtAEfy7c8T
+        8rA9l6lO0xBvuV7WUIosGTR4JhawGnydYGXd
+X-Google-Smtp-Source: AK7set+i/EmTRdJ7lp+jOV7Y43IhsmG8jWH+YkB3SwVc8Xmkz3dst7NTNoyOFCFw0/MEQS+JLdsp2Q==
+X-Received: by 2002:a62:1913:0:b0:592:3e51:d881 with SMTP id 19-20020a621913000000b005923e51d881mr4878146pfz.14.1675825713380;
+        Tue, 07 Feb 2023 19:08:33 -0800 (PST)
+Received: from localhost ([2620:15c:9d:2:2c60:caa1:67b7:15bb])
+        by smtp.gmail.com with UTF8SMTPSA id c2-20020aa78802000000b005907716bf8bsm9993637pfo.60.2023.02.07.19.08.31
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Tue, 07 Feb 2023 19:08:32 -0800 (PST)
+From:   Gwendal Grignou <gwendal@chromium.org>
+To:     andriy.shevchenko@linux.intel.com, gregkh@linuxfoundation.org
+Cc:     stable@vger.kernel.org, Keith Busch <kbusch@kernel.org>,
+        Sagi Grimberg <sagi@grimberg.me>,
+        Chaitanya Kulkarni <chaitanya.kulkarni@wdc.com>,
+        Christoph Hellwig <hch@lst.de>,
+        Gwendal Grignou <gwendal@chromium.org>
+Subject: [PATCH 5.4] nvme-pci: Move enumeration by class to be last in the table
+Date:   Tue,  7 Feb 2023 19:08:24 -0800
+Message-Id: <20230208030824.235941-1-gwendal@chromium.org>
+X-Mailer: git-send-email 2.39.1.519.gcb327c4b5f-goog
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha512;
-        protocol="application/pgp-signature"; boundary="5GvqER+TUurvWIAH"
-Content-Disposition: inline
-In-Reply-To: <20230207125618.699726054@linuxfoundation.org>
-X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_FROM,
-        RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS autolearn=ham
-        autolearn_force=no version=3.4.6
+Content-Transfer-Encoding: 8bit
+X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_NONE,
+        SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
 
---5GvqER+TUurvWIAH
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+It's unusual that we have enumeration by class in the middle of the table.
+It might potentially be problematic in the future if we add another entry
+after it.
 
-On Tue, Feb 07, 2023 at 01:56:11PM +0100, Greg Kroah-Hartman wrote:
-> This is the start of the stable review cycle for the 5.15.93 release.
-> There are 120 patches in this series, all will be posted as a response
-> to this one.  If anyone has any issues with these being applied, please
-> let me know.
->=20
+So, move class matching entry to be the last in the ID table.
 
-Successfully cross-compiled for arm64 (bcm2711_defconfig, GCC 10.2.0) and
-powerpc (ps3_defconfig, GCC 12.2.0).
+[ Upstream commit 0b85f59d30b91bd2b93ea7ef0816a4b7e7039e8c ]
 
-Tested-by: Bagas Sanjaya <bagasdotme@gmail.com>
+Without this change, quirks set in driver_data added after the catch-all
+are ignored.
 
---=20
-An old man doll... just what I always wanted! - Clara
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Reviewed-by: Keith Busch <kbusch@kernel.org>
+Reviewed-by: Sagi Grimberg <sagi@grimberg.me>
+Reviewed-by: Chaitanya Kulkarni <chaitanya.kulkarni@wdc.com>
+Signed-off-by: Christoph Hellwig <hch@lst.de>
+Signed-off-by: Gwendal Grignou <gwendal@chromium.org>
+---
+ drivers/nvme/host/pci.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
---5GvqER+TUurvWIAH
-Content-Type: application/pgp-signature; name="signature.asc"
+diff --git a/drivers/nvme/host/pci.c b/drivers/nvme/host/pci.c
+index 5d62d1042c0e6..a58711c488509 100644
+--- a/drivers/nvme/host/pci.c
++++ b/drivers/nvme/host/pci.c
+@@ -3199,7 +3199,6 @@ static const struct pci_device_id nvme_id_table[] = {
+ 				NVME_QUIRK_IGNORE_DEV_SUBNQN, },
+ 	{ PCI_DEVICE(0x1c5c, 0x1504),   /* SK Hynix PC400 */
+ 		.driver_data = NVME_QUIRK_DISABLE_WRITE_ZEROES, },
+-	{ PCI_DEVICE_CLASS(PCI_CLASS_STORAGE_EXPRESS, 0xffffff) },
+ 	{ PCI_DEVICE(0x2646, 0x2263),   /* KINGSTON A2000 NVMe SSD  */
+ 		.driver_data = NVME_QUIRK_NO_DEEPEST_PS, },
+ 	{ PCI_DEVICE(PCI_VENDOR_ID_APPLE, 0x2001),
+@@ -3209,6 +3208,8 @@ static const struct pci_device_id nvme_id_table[] = {
+ 		.driver_data = NVME_QUIRK_SINGLE_VECTOR |
+ 				NVME_QUIRK_128_BYTES_SQES |
+ 				NVME_QUIRK_SHARED_TAGS },
++
++	{ PCI_DEVICE_CLASS(PCI_CLASS_STORAGE_EXPRESS, 0xffffff) },
+ 	{ 0, }
+ };
+ MODULE_DEVICE_TABLE(pci, nvme_id_table);
+-- 
+2.39.1.519.gcb327c4b5f-goog
 
------BEGIN PGP SIGNATURE-----
-
-iHUEABYKAB0WIQSSYQ6Cy7oyFNCHrUH2uYlJVVFOowUCY+MQogAKCRD2uYlJVVFO
-o6ARAP9n61msPuqELh0EJq1OflA4UmYoG7WzN4E8R2ejNFECRgEAufEoTChhbKqn
-IKCAZYTNPeyuLUPJgB8QSD3U/hwIBwI=
-=srVn
------END PGP SIGNATURE-----
-
---5GvqER+TUurvWIAH--
