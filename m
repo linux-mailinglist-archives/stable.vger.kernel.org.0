@@ -2,108 +2,128 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 233FA68FB6A
-	for <lists+stable@lfdr.de>; Thu,  9 Feb 2023 00:45:19 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0D69268FBC4
+	for <lists+stable@lfdr.de>; Thu,  9 Feb 2023 00:59:10 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229836AbjBHXpR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 8 Feb 2023 18:45:17 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33372 "EHLO
+        id S230174AbjBHX7I (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 8 Feb 2023 18:59:08 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46442 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229853AbjBHXpQ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 8 Feb 2023 18:45:16 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CA6511C7CA;
-        Wed,  8 Feb 2023 15:44:51 -0800 (PST)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 75EC0B81F03;
-        Wed,  8 Feb 2023 23:44:50 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1E726C4339B;
-        Wed,  8 Feb 2023 23:44:49 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1675899889;
-        bh=wmdQGi6I1E4TE+uI0vAiKz1QSS8xLr9SPQkt5zLF8Hw=;
-        h=References:In-Reply-To:From:Date:Subject:To:Cc:From;
-        b=ux/jCOP/36fwAvLodxcYwMlbM9OhO0Bxt2pViZWmsKR7S6gV9Hz5MkVsPwhA6CWXM
-         OJIhrg1c5cv39DhnpJyx2/xI7RtYX5v2NILh7MVOlmy6OC3MKzIcGwu/lyopqXsIB+
-         89v8E6L57qV/VTB5+JMi6HP+vcd76XNEb6gL51aoNWQ+/nVP49dy7R7iiKoZrAKMBW
-         WAprmilomQMz2s/MyqW9k/o+TDJglIAHlROHc23lo0xLgPEC2mk0DUiG+Q+OxqB2ck
-         pY9MXAquxDpAg8doqJUXuLfK9bTu9x2xMAw8FtF+wRsJPFJKl99QYRb7xqjTY5J1mF
-         xqmQgm2ASj6Bw==
-Received: by mail-lj1-f175.google.com with SMTP id b13so210226ljf.8;
-        Wed, 08 Feb 2023 15:44:49 -0800 (PST)
-X-Gm-Message-State: AO0yUKW5LOEGZHdIHOuqnN21aBDf6krpvu9WvJ+jNjxh5JOSEqTrskOR
-        k5+9Ic4yRFNQJ1rOzTiAdz09/XHuz4tBVfjbkIg=
-X-Google-Smtp-Source: AK7set+u+WRz5oSbcI+fKd9Termy9/rjPDIxdxZ0DKHyxC3UxdZdfGKfkVey0eGhPYzA2LAkJH2tli3YRA/vNbs5Z+8=
-X-Received: by 2002:a2e:b4b2:0:b0:290:66b3:53e5 with SMTP id
- q18-20020a2eb4b2000000b0029066b353e5mr1689358ljm.57.1675899887149; Wed, 08
- Feb 2023 15:44:47 -0800 (PST)
+        with ESMTP id S229540AbjBHX7H (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 8 Feb 2023 18:59:07 -0500
+Received: from mail-pg1-x52a.google.com (mail-pg1-x52a.google.com [IPv6:2607:f8b0:4864:20::52a])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C20DA14E8C;
+        Wed,  8 Feb 2023 15:59:06 -0800 (PST)
+Received: by mail-pg1-x52a.google.com with SMTP id n2so511217pgb.2;
+        Wed, 08 Feb 2023 15:59:06 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20210112;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
+        bh=zOaD6/QasLalJlAxk3UhHGE71ipDW/Gd+AEfgT9qP3w=;
+        b=d2zSxyhc2mGLYfWsomKg99R8tb+7ADXPcZbvXDQvh+JYk2qF8tZB9GEaKglVNX2/6A
+         KNoKaVZYjuy3WtJMHWOG/HEClI8NeVHNmWUjnSu1kRXfQ8o6hmjda4PhXkIzBGIcI/uW
+         BjS4FwI0M5XnBGXBccshj/yfoF7YGfVT+1uNDGHdPgQEsfTC0U7CiWyzixaaPbiKcAeZ
+         5dsvUh1C5pyBXyFlELoNXa/uG8ASdkHcJtzL0cRbllbf/bB+I1dl7z9flbguVkBRhbGd
+         Hb7X9gi0H+dJBVw0reqgJPhtH41amssOgadycBSuuZgXsCfKlYux/L9a9NEmMXtkAjEK
+         UPTA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=zOaD6/QasLalJlAxk3UhHGE71ipDW/Gd+AEfgT9qP3w=;
+        b=DhBeePGZUN7rAzriW5OzPfBkeRACR6VZZlPU4MicLh1nY8MjLfRVGDejeL/kFev4MA
+         aF13c9FqQ+/DoyKRcD3tQFEhs/XBtYTQFAG5N5iCT6ofM3jDx4V4l+WBV2BrhTpevkWu
+         YKPUE0jBFQ/GH1/7YzgQB9RSK7pbRDRo1TcM/rBzz9c1aVigAglxoq3hrRWc9Yw8POWK
+         IyWX2nT9XBnERvl4dD6kHDIQ4xfIpwWHcMaFXFSoNMtPwY8qG6sds+bbuP7BgPQzVqLo
+         1ViQOrY4k3KJ8WhtblWS6Vl2ksbw+GiZzANf042/7vZdl0+CZEPdtkSNvTCRjWkpdu+8
+         D9bw==
+X-Gm-Message-State: AO0yUKWf6pRaT4FciznoIjFdaDRzwN5v0FeQH7p30TTasGC/neRa6Qt4
+        XISzFxhciZeww2Rnak1cUYI=
+X-Google-Smtp-Source: AK7set8NvT04IiBj+w/L08d91b+sJqc3Tz8O9aGwoqNLkV7mLgm2wZH7T9TVtunYDHwue58Kmy8FBQ==
+X-Received: by 2002:aa7:991a:0:b0:5a8:4de2:e95e with SMTP id z26-20020aa7991a000000b005a84de2e95emr1519591pff.18.1675900745991;
+        Wed, 08 Feb 2023 15:59:05 -0800 (PST)
+Received: from localhost ([2400:8902::f03c:93ff:fe27:642a])
+        by smtp.gmail.com with ESMTPSA id d8-20020aa78148000000b00593906a8843sm12151064pfn.176.2023.02.08.15.59.00
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 08 Feb 2023 15:59:05 -0800 (PST)
+Date:   Wed, 8 Feb 2023 23:58:54 +0000
+From:   Hyeonggon Yoo <42.hyeyoo@gmail.com>
+To:     Kees Cook <keescook@chromium.org>
+Cc:     Vlastimil Babka <vbabka@suse.cz>,
+        Stephen Boyd <swboyd@chromium.org>, concord@gentoo.org,
+        Pekka Enberg <penberg@kernel.org>,
+        David Rientjes <rientjes@google.com>,
+        Joonsoo Kim <iamjoonsoo.kim@lge.com>,
+        Petr Mladek <pmladek@suse.com>, linux-mm@kvack.org,
+        stable@vger.kernel.org, Steven Rostedt <rostedt@goodmis.org>,
+        Sergey Senozhatsky <senozhatsky@chromium.org>,
+        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
+        Rasmus Villemoes <linux@rasmusvillemoes.dk>,
+        Christoph Lameter <cl@linux.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Roman Gushchin <roman.gushchin@linux.dev>,
+        Keith Busch <kbusch@kernel.org>, Jens Axboe <axboe@kernel.dk>,
+        Bart Van Assche <bvanassche@acm.org>,
+        Mikulas Patocka <mpatocka@redhat.com>,
+        Ard Biesheuvel <ardb@kernel.org>,
+        Mark Rutland <mark.rutland@arm.com>,
+        linux-kernel@vger.kernel.org, linux-hardening@vger.kernel.org
+Subject: Re: [PATCH] Revert "slub: force on no_hash_pointers when slub_debug
+ is enabled"
+Message-ID: <Y+Q2xVKiN9UdZGwA@localhost>
+References: <20230208194712.never.999-kees@kernel.org>
 MIME-Version: 1.0
-References: <a968c446bde75bf019580366854349bf94e6c961.1675897882.git.darren@os.amperecomputing.com>
- <CAMj1kXF2Bi_iyjzUK2zie_pt6Vnm4QwvarHicJoRzUiX7nU0Kw@mail.gmail.com> <Y+QztBs1uHnTRyyu@fedora>
-In-Reply-To: <Y+QztBs1uHnTRyyu@fedora>
-From:   Ard Biesheuvel <ardb@kernel.org>
-Date:   Thu, 9 Feb 2023 00:44:35 +0100
-X-Gmail-Original-Message-ID: <CAMj1kXEZMGSMh7uEx5_7vQ=dWeq=4nERspkxKDGAkoBvYL4X0Q@mail.gmail.com>
-Message-ID: <CAMj1kXEZMGSMh7uEx5_7vQ=dWeq=4nERspkxKDGAkoBvYL4X0Q@mail.gmail.com>
-Subject: Re: [PATCH] arm64: efi: Force the use of SetVirtualAddressMap() on
- Altra Max machines
-To:     Darren Hart <darren@os.amperecomputing.com>
-Cc:     LKML <linux-kernel@vger.kernel.org>, stable@vger.kernel.org,
-        linux-efi@vger.kernel.org,
-        Alexandru Elisei <alexandru.elisei@gmail.com>
-Content-Type: text/plain; charset="UTF-8"
-X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
-        SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20230208194712.never.999-kees@kernel.org>
+X-Spam-Status: No, score=2.2 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_FROM,HK_RANDOM_ENVFROM,
+        HK_RANDOM_FROM,RCVD_IN_DNSWL_NONE,RCVD_IN_SBL_CSS,SPF_HELO_NONE,
+        SPF_PASS autolearn=no autolearn_force=no version=3.4.6
+X-Spam-Level: **
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Thu, 9 Feb 2023 at 00:43, Darren Hart <darren@os.amperecomputing.com> wrote:
->
-> On Thu, Feb 09, 2023 at 12:16:46AM +0100, Ard Biesheuvel wrote:
-> > Hello Darren,
-> >
-> > On Thu, 9 Feb 2023 at 00:14, Darren Hart <darren@os.amperecomputing.com> wrote:
-> > >
-> > > Commit 550b33cfd445 ("arm64: efi: Force the use of SetVirtualAddressMap()
-> > > on Altra machines") identifies the Altra family via the family field in
-> > > the type#1 SMBIOS record. Altra Max machines are similarly affected but
-> > > not detected with the strict strcmp test.
-> > >
-> > > Rather than risk greedy matching with strncmp, add a second test for
-> > > Altra Max. Do not refactor to handle multiple tests as these should be
-> > > the only two needed.
-> > >
-> >
-> > Famous last words ...
->
-> Indeed, I nearly included that myself...
->
-> >
-> > Unfortunately, I just had a report the other day that 'eMAG' and
-> > 'Server' (!) are also being used.
-> >
-> > https://lore.kernel.org/all/20230131040355.3116-1-justin.he@arm.com/
-> >
->
-> OK, so in order to workaround this in the kernel, we need a better way to match.
-> Unfortunately, this is specific to the oem platform, and the oem controls those
-> strings.
->
-> Thanks for the pointer, will go mull this over and see if I can come up with
-> something better.
->
-> In the meantime, would you consider matching on:
-> Altra
-> Altra Max
-> eMAG
->
-> to capture the bulk of the systems until we have a better solution?
->
+On Wed, Feb 08, 2023 at 11:47:17AM -0800, Kees Cook wrote:
+> This reverts commit 792702911f581f7793962fbeb99d5c3a1b28f4c3.
+> 
+> Linking no_hash_pointers() to slub_debug has had a chilling effect
+> on using slub_debug features for security hardening, since system
+> builders are forced to choose between redzoning and heap address location
+> exposures. Instead, just require that the "no_hash_pointers" boot param
+> needs to be used to expose pointers during slub_debug reports.
+> 
+> Cc: Vlastimil Babka <vbabka@suse.cz>
+> Cc: Stephen Boyd <swboyd@chromium.org>
+> Cc: concord@gentoo.org
+> Cc: Pekka Enberg <penberg@kernel.org>
+> Cc: David Rientjes <rientjes@google.com>
+> Cc: Joonsoo Kim <iamjoonsoo.kim@lge.com>
+> Cc: Petr Mladek <pmladek@suse.com>
+> Cc: linux-mm@kvack.org
+> Cc: stable@vger.kernel.org
+> Link: https://lore.kernel.org/lkml/202109200726.2EFEDC5@keescook/
+> Signed-off-by: Kees Cook <keescook@chromium.org>
 
-Yeah that's fine.
+in the commit message:
+
+> Obscuring the pointers that slub shows when debugging makes for some
+> confusing slub debug messages:
+>
+> Padding overwritten. 0x0000000079f0674a-0x000000000d4dce17
+>
+> Those addresses are hashed for kernel security reasons. If we're trying
+> to be secure with slub_debug on the commandline we have some big
+> problems given that we dump whole chunks of kernel memory to the kernel
+> logs.
+
+it dumps parts of kernel memory anyway and I'm not sure if slub_debug is
+supposed to be used for security hardening.
+
+what about introducing new boot parameter like, slub_hardening,
+which does not print anything?
