@@ -2,150 +2,165 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 6288368FA50
-	for <lists+stable@lfdr.de>; Wed,  8 Feb 2023 23:39:30 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 07BB368FA67
+	for <lists+stable@lfdr.de>; Wed,  8 Feb 2023 23:47:20 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232453AbjBHWj2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 8 Feb 2023 17:39:28 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50748 "EHLO
+        id S231696AbjBHWrS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 8 Feb 2023 17:47:18 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53746 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230331AbjBHWj1 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 8 Feb 2023 17:39:27 -0500
-Received: from EX-PRD-EDGE02.vmware.com (EX-PRD-EDGE02.vmware.com [208.91.3.34])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7E13E252B8;
-        Wed,  8 Feb 2023 14:39:22 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-    s=s1024; d=vmware.com;
-    h=from:to:cc:subject:date:message-id:mime-version:content-type;
-    bh=e1HmfK/JiHvjn+oDuK3z3WPembSenG3/BCuinhbUzt0=;
-    b=UOOAeYQsZrqgVbOEJ6/Pbc2BoaeyBkbMVTn2qpStp9RHheY5dZFhg778L7sTkG
-      Z0aooN3K8quz/AA0yOqeofWZXH4hrTsaZ7LzCl0WOwEvDvEJAGuGDKKmeT1vv0
-      7sucBssz5qKITxJjTxEgwZEbXQF7UvSfpYbcP4cLNk5yO40=
-Received: from sc9-mailhost1.vmware.com (10.113.161.71) by
- EX-PRD-EDGE02.vmware.com (10.188.245.7) with Microsoft SMTP Server id
- 15.1.2375.34; Wed, 8 Feb 2023 14:38:49 -0800
-Received: from htb-1n-eng-dhcp122.eng.vmware.com (unknown [10.20.114.216])
-        by sc9-mailhost1.vmware.com (Postfix) with ESMTP id C646B20135;
-        Wed,  8 Feb 2023 14:39:01 -0800 (PST)
-Received: by htb-1n-eng-dhcp122.eng.vmware.com (Postfix, from userid 0)
-        id BE4E7AE43E; Wed,  8 Feb 2023 14:39:01 -0800 (PST)
-From:   Ronak Doshi <doshir@vmware.com>
-To:     <netdev@vger.kernel.org>
-CC:     <stable@vger.kernel.org>, Ronak Doshi <doshir@vmware.com>,
-        VMware PV-Drivers Reviewers <pv-drivers@vmware.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        Eric Dumazet <edumazet@google.com>,
-        Jakub Kicinski <kuba@kernel.org>,
-        Paolo Abeni <pabeni@redhat.com>,
-        Guolin Yang <gyang@vmware.com>,
-        open list <linux-kernel@vger.kernel.org>
-Subject: [PATCH net v3] vmxnet3: move rss code block under eop descriptor
-Date:   Wed, 8 Feb 2023 14:38:59 -0800
-Message-ID: <20230208223900.5794-1-doshir@vmware.com>
-X-Mailer: git-send-email 2.11.0
+        with ESMTP id S232270AbjBHWrR (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 8 Feb 2023 17:47:17 -0500
+Received: from out2-smtp.messagingengine.com (out2-smtp.messagingengine.com [66.111.4.26])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2F7621F5FE
+        for <stable@vger.kernel.org>; Wed,  8 Feb 2023 14:47:16 -0800 (PST)
+Received: from compute1.internal (compute1.nyi.internal [10.202.2.41])
+        by mailout.nyi.internal (Postfix) with ESMTP id DDC6E5C01CF;
+        Wed,  8 Feb 2023 17:47:12 -0500 (EST)
+Received: from mailfrontend2 ([10.202.2.163])
+  by compute1.internal (MEProxy); Wed, 08 Feb 2023 17:47:12 -0500
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=fastmail.com; h=
+        cc:cc:content-transfer-encoding:content-type:date:date:from:from
+        :in-reply-to:in-reply-to:message-id:mime-version:references
+        :reply-to:sender:subject:subject:to:to; s=fm1; t=1675896432; x=
+        1675982832; bh=xhmwzdlAwubvYqvO3mY356QM4o3xt3TfxUknH0ELZiA=; b=C
+        TjTNxdiGgSUx0var2qLdDqX4KpUshWXjVDL2n3nM0KJ0oSokO0qibp+uX82TEh8+
+        /DU6Rxcwhk3AcJMl/oIcfgUoYD9EXcxTL2xSRJCVVYpqMxZ8pBRA10n/buOVN7oL
+        Avx+2FsprcCeE+qS8YS9isNBc6otrnb0sjY2+7SvKfRTETd9PQ5EyOO13x1GjZyP
+        84iAZuwqmNR6aFQv6c33WCbSS8lvGVqjwoZpBoisY77blsWMiPN9LjuiqWsJ/kwX
+        +1+Eh6H/x6dehq3ClxOr7szeHSdiyb0wn/KZJFQ1efR6bq3Xym8Si9DmjkrQuQSx
+        YsY4rm3XNuMjEkjYUvjDA==
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
+        messagingengine.com; h=cc:cc:content-transfer-encoding
+        :content-type:date:date:feedback-id:feedback-id:from:from
+        :in-reply-to:in-reply-to:message-id:mime-version:references
+        :reply-to:sender:subject:subject:to:to:x-me-proxy:x-me-proxy
+        :x-me-sender:x-me-sender:x-sasl-enc; s=fm1; t=1675896432; x=
+        1675982832; bh=xhmwzdlAwubvYqvO3mY356QM4o3xt3TfxUknH0ELZiA=; b=M
+        25+Ic9OCSdF6U3xffDERIufCJ4yBTvewK45OH4aJBdtshgQlX6bOZwmOWYwdWc7+
+        pMEdZ+5B9ZrvO6AzqHfyg80rFQHmcSHT1KqGdPQPfFdxOxqhCEJ6jWbbgTkbLk7A
+        dZBSl1dCJcbit5pEJ5w8qfmEh1CpXvUFzNqv8ySDtRldBlVKz9nixxgH3c1RUE0u
+        M/y3mtFD/poWh1sE/Oa9grZELuugYhO/ZIVKlz23xHv2ela/KV9xiA+Eu3/AkfWx
+        Ea2T7Y7HZRrW/+9sBK6cXIDGewluqrw0FLv3AGkV7Gslw85poJ4v/lL+DQ+mxpoR
+        NsPasX3qUAB2bZAuqUE+Q==
+X-ME-Sender: <xms:cCbkY8gu5LKMDtgeUnyk2j1mL9G8nDBZwO6cVBIyaU8dewSA10yspA>
+    <xme:cCbkY1C3hQUFGzmVLA38Ikp4AZskcKZfCzyBwhq8pARKd-tF49jFYZjMsCOxuE078
+    QWfh7mY42zk6MCpM2Q>
+X-ME-Received: <xmr:cCbkY0FFwdHblfz8fIwCQHdfmApzJUCEQvFR0CFAJImenkiGKtZTIpz8egZyJQ>
+X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedvhedrudehuddguddtvdcutefuodetggdotefrod
+    ftvfcurfhrohhfihhlvgemucfhrghsthforghilhdpqfgfvfdpuffrtefokffrpgfnqfgh
+    necuuegrihhlohhuthemuceftddtnecusecvtfgvtghiphhivghnthhsucdlqddutddtmd
+    enucfjughrpefkffggfgfuvfevfhfhjggtgfesthejredttdefjeenucfhrhhomhepfdgm
+    fdforggriicuofhomhgsrghsrgifrghlrgculdggofifrghrvgdmfdcuoehmrggriihmse
+    hfrghsthhmrghilhdrtghomheqnecuggftrfgrthhtvghrnhepteffhfegvddvgfeutdet
+    heffjeelhffgudefudeujedvveehveeuhfethfdtjeffnecuvehluhhsthgvrhfuihiivg
+    eptdenucfrrghrrghmpehmrghilhhfrhhomhepmhgrrgiimhesfhgrshhtmhgrihhlrdgt
+    ohhm
+X-ME-Proxy: <xmx:cCbkY9ROUm6wL9iAJ8l1jHlpV892LypQGmtllCUktuh_GTP2StEw-w>
+    <xmx:cCbkY5zMkau_an87LyQ9hYxkEiaCqSVV9VGkAJtvSTmfHk83LZ28rg>
+    <xmx:cCbkY77innNaQxd20N6PTClX7ukKyBvipDl2d8CXCNTwkHOO7he_GQ>
+    <xmx:cCbkY7uAfWQ9dmfypULrKU9E1YPDgenDeyNfytvo9BrDd4q2Ni6Q7w>
+Feedback-ID: i1b1946fb:Fastmail
+Received: by mail.messagingengine.com (Postfix) with ESMTPA; Wed,
+ 8 Feb 2023 17:47:12 -0500 (EST)
+Message-ID: <e0fa3947-be02-24d9-022c-f9820cd57901@fastmail.com>
+Date:   Wed, 8 Feb 2023 14:47:05 -0800
 MIME-Version: 1.0
-Content-Type: text/plain
-Received-SPF: None (EX-PRD-EDGE02.vmware.com: doshir@vmware.com does not
- designate permitted sender hosts)
-X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
-        RCVD_IN_MSPIKE_H2,SPF_HELO_NONE,SPF_NONE autolearn=ham
-        autolearn_force=no version=3.4.6
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
+ Thunderbird/102.6.1
+Subject: Re: [PATCH] drm/vmwgfx: Do not drop the reference to the handle too
+ soon
+Content-Language: en-US
+To:     Zack Rusin <zackr@vmware.com>, dri-devel@lists.freedesktop.org
+Cc:     krastevm@vmware.com, stable@vger.kernel.org, banackm@vmware.com,
+        mombasawalam@vmware.com
+References: <20230208215340.2103955-1-zack@kde.org>
+From:   "\"Maaz Mombasawala (VMware)" <maazm@fastmail.com>
+In-Reply-To: <20230208215340.2103955-1-zack@kde.org>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
+X-Spam-Status: No, score=-0.3 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_EF,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
+        FROM_ADDR_WS,HEADER_FROM_DIFFERENT_DOMAINS,NICE_REPLY_A,
+        RCVD_IN_DNSWL_LOW,RCVD_IN_MSPIKE_H3,RCVD_IN_MSPIKE_WL,SPF_HELO_PASS,
+        SPF_PASS autolearn=no autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Commit b3973bb40041 ("vmxnet3: set correct hash type based on
-rss information") added hashType information into skb. However,
-rssType field is populated for eop descriptor. This can lead
-to incorrectly reporting of hashType for packets which use
-multiple rx descriptors. Multiple rx descriptors are used
-for Jumbo frame or LRO packets, which can hit this issue.
+On 2/8/23 13:53, Zack Rusin wrote:
+> From: Zack Rusin <zackr@vmware.com>
+> 
+> It is possible for userspace to predict the next buffer handle and
+> to destroy the buffer while it's still used by the kernel. Delay
+> dropping the internal reference on the buffers until kernel is done
+> with them.
+> 
+> Signed-off-by: Zack Rusin <zackr@vmware.com>
+> Fixes: 8afa13a0583f ("drm/vmwgfx: Implement DRIVER_GEM")
+> Cc: <stable@vger.kernel.org> # v5.17+
+> ---
+>  drivers/gpu/drm/vmwgfx/vmwgfx_bo.c      | 3 ++-
+>  drivers/gpu/drm/vmwgfx/vmwgfx_gem.c     | 4 ++--
+>  drivers/gpu/drm/vmwgfx/vmwgfx_surface.c | 1 -
+>  3 files changed, 4 insertions(+), 4 deletions(-)
+> 
+> diff --git a/drivers/gpu/drm/vmwgfx/vmwgfx_bo.c b/drivers/gpu/drm/vmwgfx/vmwgfx_bo.c
+> index 43ffa5c7acbd..65bd88c8fef9 100644
+> --- a/drivers/gpu/drm/vmwgfx/vmwgfx_bo.c
+> +++ b/drivers/gpu/drm/vmwgfx/vmwgfx_bo.c
+> @@ -708,7 +708,8 @@ int vmw_dumb_create(struct drm_file *file_priv,
+>  	ret = vmw_gem_object_create_with_handle(dev_priv, file_priv,
+>  						args->size, &args->handle,
+>  						&vbo);
+> -
+> +	/* drop reference from allocate - handle holds it now */
+> +	drm_gem_object_put(&vbo->tbo.base);
+>  	return ret;
+>  }
+>  
+> diff --git a/drivers/gpu/drm/vmwgfx/vmwgfx_gem.c b/drivers/gpu/drm/vmwgfx/vmwgfx_gem.c
+> index 51bd1f8c5cc4..d6baf73a6458 100644
+> --- a/drivers/gpu/drm/vmwgfx/vmwgfx_gem.c
+> +++ b/drivers/gpu/drm/vmwgfx/vmwgfx_gem.c
+> @@ -133,8 +133,6 @@ int vmw_gem_object_create_with_handle(struct vmw_private *dev_priv,
+>  	(*p_vbo)->tbo.base.funcs = &vmw_gem_object_funcs;
+>  
+>  	ret = drm_gem_handle_create(filp, &(*p_vbo)->tbo.base, handle);
+> -	/* drop reference from allocate - handle holds it now */
+> -	drm_gem_object_put(&(*p_vbo)->tbo.base);
+>  out_no_bo:
+>  	return ret;
+>  }
+> @@ -161,6 +159,8 @@ int vmw_gem_object_create_ioctl(struct drm_device *dev, void *data,
+>  	rep->map_handle = drm_vma_node_offset_addr(&vbo->tbo.base.vma_node);
+>  	rep->cur_gmr_id = handle;
+>  	rep->cur_gmr_offset = 0;
+> +	/* drop reference from allocate - handle holds it now */
+> +	drm_gem_object_put(&vbo->tbo.base);
+>  out_no_bo:
+>  	return ret;
+>  }
+> diff --git a/drivers/gpu/drm/vmwgfx/vmwgfx_surface.c b/drivers/gpu/drm/vmwgfx/vmwgfx_surface.c
+> index 9d4ae9623a00..d18fec953fa7 100644
+> --- a/drivers/gpu/drm/vmwgfx/vmwgfx_surface.c
+> +++ b/drivers/gpu/drm/vmwgfx/vmwgfx_surface.c
+> @@ -867,7 +867,6 @@ int vmw_surface_define_ioctl(struct drm_device *dev, void *data,
+>  			goto out_unlock;
+>  		}
+>  		vmw_bo_reference(res->guest_memory_bo);
+> -		drm_gem_object_get(&res->guest_memory_bo->tbo.base);
+>  	}
+>  
+>  	tmp = vmw_resource_reference(&srf->res);
 
-This patch moves the RSS codeblock under eop descritor.
 
-Cc: stable@vger.kernel.org
-Fixes: b3973bb40041 ("vmxnet3: set correct hash type based on rss information")
-Signed-off-by: Ronak Doshi <doshir@vmware.com>
-Acked-by: Peng Li <lpeng@vmware.com>
-Acked-by: Guolin Yang <gyang@vmware.com>
----
-v1->v2: added Fixes tag and CC stable
-v2->v3: update commit msg
----
- drivers/net/vmxnet3/vmxnet3_drv.c | 50 +++++++++++++++++++--------------------
- 1 file changed, 25 insertions(+), 25 deletions(-)
+LGTM!
 
-diff --git a/drivers/net/vmxnet3/vmxnet3_drv.c b/drivers/net/vmxnet3/vmxnet3_drv.c
-index 56267c327f0b..682987040ea8 100644
---- a/drivers/net/vmxnet3/vmxnet3_drv.c
-+++ b/drivers/net/vmxnet3/vmxnet3_drv.c
-@@ -1546,31 +1546,6 @@ vmxnet3_rq_rx_complete(struct vmxnet3_rx_queue *rq,
- 				rxd->len = rbi->len;
- 			}
- 
--#ifdef VMXNET3_RSS
--			if (rcd->rssType != VMXNET3_RCD_RSS_TYPE_NONE &&
--			    (adapter->netdev->features & NETIF_F_RXHASH)) {
--				enum pkt_hash_types hash_type;
--
--				switch (rcd->rssType) {
--				case VMXNET3_RCD_RSS_TYPE_IPV4:
--				case VMXNET3_RCD_RSS_TYPE_IPV6:
--					hash_type = PKT_HASH_TYPE_L3;
--					break;
--				case VMXNET3_RCD_RSS_TYPE_TCPIPV4:
--				case VMXNET3_RCD_RSS_TYPE_TCPIPV6:
--				case VMXNET3_RCD_RSS_TYPE_UDPIPV4:
--				case VMXNET3_RCD_RSS_TYPE_UDPIPV6:
--					hash_type = PKT_HASH_TYPE_L4;
--					break;
--				default:
--					hash_type = PKT_HASH_TYPE_L3;
--					break;
--				}
--				skb_set_hash(ctx->skb,
--					     le32_to_cpu(rcd->rssHash),
--					     hash_type);
--			}
--#endif
- 			skb_record_rx_queue(ctx->skb, rq->qid);
- 			skb_put(ctx->skb, rcd->len);
- 
-@@ -1653,6 +1628,31 @@ vmxnet3_rq_rx_complete(struct vmxnet3_rx_queue *rq,
- 			u32 mtu = adapter->netdev->mtu;
- 			skb->len += skb->data_len;
- 
-+#ifdef VMXNET3_RSS
-+			if (rcd->rssType != VMXNET3_RCD_RSS_TYPE_NONE &&
-+			    (adapter->netdev->features & NETIF_F_RXHASH)) {
-+				enum pkt_hash_types hash_type;
-+
-+				switch (rcd->rssType) {
-+				case VMXNET3_RCD_RSS_TYPE_IPV4:
-+				case VMXNET3_RCD_RSS_TYPE_IPV6:
-+					hash_type = PKT_HASH_TYPE_L3;
-+					break;
-+				case VMXNET3_RCD_RSS_TYPE_TCPIPV4:
-+				case VMXNET3_RCD_RSS_TYPE_TCPIPV6:
-+				case VMXNET3_RCD_RSS_TYPE_UDPIPV4:
-+				case VMXNET3_RCD_RSS_TYPE_UDPIPV6:
-+					hash_type = PKT_HASH_TYPE_L4;
-+					break;
-+				default:
-+					hash_type = PKT_HASH_TYPE_L3;
-+					break;
-+				}
-+				skb_set_hash(skb,
-+					     le32_to_cpu(rcd->rssHash),
-+					     hash_type);
-+			}
-+#endif
- 			vmxnet3_rx_csum(adapter, skb,
- 					(union Vmxnet3_GenericDesc *)rcd);
- 			skb->protocol = eth_type_trans(skb, adapter->netdev);
+Reviewed-by: Maaz Mombasawala <mombasawalam@vmware.com>
+
 -- 
-2.11.0
+Maaz Mombasawala (VMware) <maazm@fastmail.com>
 
