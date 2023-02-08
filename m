@@ -2,124 +2,179 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B7C5E68F189
-	for <lists+stable@lfdr.de>; Wed,  8 Feb 2023 16:03:08 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 79D0868F32D
+	for <lists+stable@lfdr.de>; Wed,  8 Feb 2023 17:32:04 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230376AbjBHPDH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 8 Feb 2023 10:03:07 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37168 "EHLO
+        id S230134AbjBHQcC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 8 Feb 2023 11:32:02 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40820 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230203AbjBHPDH (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 8 Feb 2023 10:03:07 -0500
-Received: from wout2-smtp.messagingengine.com (wout2-smtp.messagingengine.com [64.147.123.25])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6529531E2F;
-        Wed,  8 Feb 2023 07:03:06 -0800 (PST)
-Received: from compute1.internal (compute1.nyi.internal [10.202.2.41])
-        by mailout.west.internal (Postfix) with ESMTP id 425323200645;
-        Wed,  8 Feb 2023 10:03:05 -0500 (EST)
-Received: from mailfrontend2 ([10.202.2.163])
-  by compute1.internal (MEProxy); Wed, 08 Feb 2023 10:03:06 -0500
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kroah.com; h=cc
-        :cc:content-type:date:date:from:from:in-reply-to:in-reply-to
-        :message-id:mime-version:references:reply-to:sender:subject
-        :subject:to:to; s=fm1; t=1675868584; x=1675954984; bh=Tp4WrLE6w4
-        CxHre1AULQK7ewiIbrA5XQqc0WYdu9Gfs=; b=nIY1/+FnvifwoKLHY0jMM8XETK
-        jDNsI+G8FylzoPlNFzLDoyOaYIi7+Gx9rEHmpaIhGRQxJuDCXCxV4PLMa+R6rM/H
-        KLiAA0t2HI5zlyKNso8SSTflCSXHQYF/EkdYS0H93UK+qGmhvYAiaIoydws1Bccj
-        QnILyqIeu7I7bSs8VcIcmWIOndB+pA4Ht5/M/8/pjHz/ENBiLCL/2NchrnmpfQ8N
-        ceVvPOufyE+7MKCp2mEPoZ4Nn4PvX5aB2XewHq6vJiY4FH81kN12ys1/wHVTwUcJ
-        uSHoo0hz3i3bvKfM5bh15lxmwQ+Gxi0BEXCeya07pxzOUX6l82D7OIJpodfQ==
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
-        messagingengine.com; h=cc:cc:content-type:date:date:feedback-id
-        :feedback-id:from:from:in-reply-to:in-reply-to:message-id
-        :mime-version:references:reply-to:sender:subject:subject:to:to
-        :x-me-proxy:x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=
-        fm1; t=1675868584; x=1675954984; bh=Tp4WrLE6w4CxHre1AULQK7ewiIbr
-        A5XQqc0WYdu9Gfs=; b=WBzUiBlFO08QKb3DU4+mujE1e0WUADxEiJCnwDfKA3ZW
-        9MreeJIXpFSiCfDVdAuw8JB/BnxCxPDoA/AsKJQGUtlmr6yg9pLwGQrZ0c1iZNcI
-        ESWF7APe8gGY9zo/CdjuB8cfkAiVG2KLCcYCQi6RNmfm/2C4FDshbWqj2T6jH2wf
-        IZyNiE9hp+7MaPTwgfCbR+UlQ6RxIaxjQAFrwYBiMkXn/8t37rS8YCfVzHto+peH
-        TEi2hi66I+3o0pIlwtmEgSyl/lZEvYe+B6skJBNhMBISHcU5YGqNfTQ5NRVOyaJR
-        SCPIgjjRCsnxuw9guGvzijW/KFrp0fIoMa2zLkCkww==
-X-ME-Sender: <xms:p7njYx5LUSTrkCaSTstnrapp5huACPHfCzG82-3ZBdkScAEN9p0DNw>
-    <xme:p7njY-4LuAsvkTYQa2ktixnXqEbl0alsLNB9D6d7Zj7Of7BUymBq8Y-wEy_gp8-wT
-    KU7wNR-ESvgXA>
-X-ME-Received: <xmr:p7njY4dA3bLB5h0QbQ2poGkk_D7uaZVMmhsdGCExyZIeqLErEgqaj8v0XlkobdfM8MrupxZ5bmUNsx5DT8UsemknMO6IpDWjj05__g>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedvhedrudehuddgtdelucetufdoteggodetrfdotf
-    fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
-    uceurghilhhouhhtmecufedttdenucesvcftvggtihhpihgvnhhtshculddquddttddmne
-    cujfgurhepfffhvfevuffkfhggtggujgesthdtredttddtvdenucfhrhhomhepifhrvghg
-    ucfmjfcuoehgrhgvgheskhhrohgrhhdrtghomheqnecuggftrfgrthhtvghrnhepheegvd
-    evvdeljeeugfdtudduhfekledtiefhveejkeejuefhtdeufefhgfehkeetnecuvehluhhs
-    thgvrhfuihiivgeptdenucfrrghrrghmpehmrghilhhfrhhomhepghhrvghgsehkrhhorg
-    hhrdgtohhm
-X-ME-Proxy: <xmx:qLnjY6IvhcNPsk0cNJnkuWIpByfr30hp2we6wM5hErv4Yg9yyDrbhA>
-    <xmx:qLnjY1KYHIrH6KqOviIA_yj39ka7DPR4Nrk16HK0bmXqLTdq-0R5NQ>
-    <xmx:qLnjYzwjhYe77B0TRAYec9mX5MFc_w0Yu7szbr6TvrzpjnjCZlUugQ>
-    <xmx:qLnjY89YiTlvoCsdHn_6_h8uC1ESyS5BC7sS_OXQvb17otHGD14ZJQ>
-Feedback-ID: i787e41f1:Fastmail
-Received: by mail.messagingengine.com (Postfix) with ESMTPA; Wed,
- 8 Feb 2023 10:03:03 -0500 (EST)
-Date:   Wed, 8 Feb 2023 16:03:00 +0100
-From:   Greg KH <greg@kroah.com>
-To:     Mark Pearson <mpearson-lenovo@squebb.ca>
-Cc:     linux-usb@vger.kernel.org, Miroslav Zatko <mzatko@mirexoft.com>,
-        Dennis Wassenberg <dennis.wassenberg@secunet.com>,
-        stable@vger.kernel.org
-Subject: Re: [PATCH] usb: core: add quirk for Alcor Link AK9563 smartcard
- reader
-Message-ID: <Y+O5pLXHW/0goHMy@kroah.com>
-References: <mpearson-lenovo@squebb.ca>
- <20230208144648.1079898-1-mpearson-lenovo@squebb.ca>
+        with ESMTP id S229874AbjBHQcB (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 8 Feb 2023 11:32:01 -0500
+Received: from mga14.intel.com (mga14.intel.com [192.55.52.115])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 002A92CFD9;
+        Wed,  8 Feb 2023 08:31:59 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
+  t=1675873919; x=1707409919;
+  h=date:from:to:cc:subject:message-id:in-reply-to:
+   references:mime-version:content-transfer-encoding;
+  bh=DrxyrS9fcF2Z7IFnOpdeLdaLWCYGNwXwVIJ5fncGZPM=;
+  b=iOOn9u8fC+iboDpmFbFHtLUjech+tjFG24ba9O1OdZ9mEL7A3K61vhao
+   pgFLgYHbcRkpIGZZTbBqVkYU8g8fW+F/YqeR8e76rQS7N7MGv6RbTfKcl
+   otKYGXx9nHQh3mcC40jJtlq2GMm4jaQPXnXmrDxHbSI0If5jZcRdJZMEo
+   8IidqUoH5yXKXazRJP9VDVN8Of546G9oxCPuMtP82jS64ie++DQoWK+wN
+   ytEaMH9yIBHYpP3qXceejpf8IaTPpbds1w6XnEObWHEK0OEQiwAwCC0S/
+   GIAumIp8APgUcETrjaVd5cNw+b+fV7eO6iaUA+QhfXaLuIA5yr7Cvennf
+   w==;
+X-IronPort-AV: E=McAfee;i="6500,9779,10615"; a="329873842"
+X-IronPort-AV: E=Sophos;i="5.97,281,1669104000"; 
+   d="scan'208";a="329873842"
+Received: from orsmga003.jf.intel.com ([10.7.209.27])
+  by fmsmga103.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 08 Feb 2023 08:31:59 -0800
+X-IronPort-AV: E=McAfee;i="6500,9779,10615"; a="617251555"
+X-IronPort-AV: E=Sophos;i="5.97,281,1669104000"; 
+   d="scan'208";a="617251555"
+Received: from jacob-builder.jf.intel.com (HELO jacob-builder) ([10.24.100.114])
+  by orsmga003-auth.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 08 Feb 2023 08:31:59 -0800
+Date:   Wed, 8 Feb 2023 08:35:36 -0800
+From:   Jacob Pan <jacob.jun.pan@linux.intel.com>
+To:     Baolu Lu <baolu.lu@linux.intel.com>
+Cc:     LKML <linux-kernel@vger.kernel.org>, iommu@lists.linux.dev,
+        Joerg Roedel <joro@8bytes.org>,
+        Robin Murphy <robin.murphy@arm.com>,
+        Will Deacon <will@kernel.org>,
+        David Woodhouse <dwmw2@infradead.org>,
+        Raj Ashok <ashok.raj@intel.com>,
+        "Tian, Kevin" <kevin.tian@intel.com>, Yi Liu <yi.l.liu@intel.com>,
+        stable@vger.kernel.org, Sukumar Ghorai <sukumar.ghorai@intel.com>,
+        jacob.jun.pan@linux.intel.com
+Subject: Re: [PATCH v2] iommu/vt-d: Fix PASID directory pointer coherency
+Message-ID: <20230208083536.3d8f5f7a@jacob-builder>
+In-Reply-To: <18bbd442-c892-1f17-bf6c-b6d797379deb@linux.intel.com>
+References: <20230208000938.1527079-1-jacob.jun.pan@linux.intel.com>
+        <18bbd442-c892-1f17-bf6c-b6d797379deb@linux.intel.com>
+Organization: OTC
+X-Mailer: Claws Mail 3.17.5 (GTK+ 2.24.32; x86_64-pc-linux-gnu)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20230208144648.1079898-1-mpearson-lenovo@squebb.ca>
-X-Spam-Status: No, score=-2.8 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_LOW,
-        RCVD_IN_MSPIKE_H2,SPF_HELO_PASS,SPF_PASS autolearn=ham
-        autolearn_force=no version=3.4.6
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+X-Spam-Status: No, score=-4.3 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,SPF_HELO_NONE,
+        SPF_NONE autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Wed, Feb 08, 2023 at 09:46:48AM -0500, Mark Pearson wrote:
-> The Alcor Link AK9563 smartcard reader used on some Lenovo platforms
-> doesn't work. If LPM is enabled the reader will provide an invalid
-> usb config descriptor. Added quirk to disable LPM.
-> 
-> Verified fix on Lenovo P16 G1 and T14 G3
-> 
-> Tested-by: Miroslav Zatko <mzatko@mirexoft.com>
-> Tested-by: Dennis Wassenberg <dennis.wassenberg@secunet.com>
-> 
-> Cc: stable@vger.kernel.org
-> 
-> Signed-off-by: Dennis Wassenberg <dennis.wassenberg@secunet.com>
-> Signed-off-by: Mark Pearson <mpearson-lenovo@squebb.ca>
+Hi Baolu,
 
-No blank lines needed between tested-by and cc: stable.
+On Wed, 8 Feb 2023 11:46:37 +0800, Baolu Lu <baolu.lu@linux.intel.com>
+wrote:
 
-> ---
->  drivers/usb/core/quirks.c | 3 +++
->  1 file changed, 3 insertions(+)
+> On 2023/2/8 8:09, Jacob Pan wrote:
+> > On platforms that do not support IOMMU Extended capability bit 0
+> > Page-walk Coherency, CPU caches are not snooped when IOMMU is accessing
+> > any translation structures. IOMMU access goes only directly to
+> > memory. Intel IOMMU code was missing a flush for the PASID table
+> > directory that resulted in the unrecoverable fault as shown below.
+> > 
+> > This patch adds clflush calls whenever activating and updating
+> > a PASID table directory to ensure cache coherency.
+> > 
+> > On the reverse direction, there's no need to clflush the PASID directory
+> > pointer when we deactivate a context entry in that IOMMU hardware will
+> > not see the old PASID directory pointer after we clear the context
+> > entry. PASID directory entries are also never freed once allocated.
+> > 
+> > [    0.555386] DMAR: DRHD: handling fault status reg 3
+> > [    0.555805] DMAR: [DMA Read NO_PASID] Request device [00:0d.2] fault
+> > addr 0x1026a4000 [fault reason 0x51] SM: Present bit in Directory Entry
+> > is clear [    0.556348] DMAR: Dump dmar1 table entries for IOVA
+> > 0x1026a4000 [    0.556348] DMAR: scalable mode root entry: hi
+> > 0x0000000102448001, low 0x0000000101b3e001 [    0.556348] DMAR: context
+> > entry: hi 0x0000000000000000, low 0x0000000101b4d401 [    0.556348]
+> > DMAR: pasid dir entry: 0x0000000101b4e001 [    0.556348] DMAR: pasid
+> > table entry[0]: 0x0000000000000109 [    0.556348] DMAR: pasid table
+> > entry[1]: 0x0000000000000001 [    0.556348] DMAR: pasid table entry[2]:
+> > 0x0000000000000000 [    0.556348] DMAR: pasid table entry[3]:
+> > 0x0000000000000000 [    0.556348] DMAR: pasid table entry[4]:
+> > 0x0000000000000000 [    0.556348] DMAR: pasid table entry[5]:
+> > 0x0000000000000000 [    0.556348] DMAR: pasid table entry[6]:
+> > 0x0000000000000000 [    0.556348] DMAR: pasid table entry[7]:
+> > 0x0000000000000000 [    0.556348] DMAR: PTE not present at level 4
+> > 
+> > Cc:<stable@vger.kernel.org>
+> > Fixes: 0bbeb01a4faf ("iommu/vt-d: Manage scalalble mode PASID tables")
+> > Reported-by: Sukumar Ghorai<sukumar.ghorai@intel.com>
+> > Signed-off-by: Ashok Raj<ashok.raj@intel.com>
+> > Signed-off-by: Jacob Pan<jacob.jun.pan@linux.intel.com>
+> > ---
+> > v2: Add clflush to PASID directory update case (Baolu, Kevin review)
+> > ---
+> >   drivers/iommu/intel/iommu.c | 2 ++
+> >   drivers/iommu/intel/pasid.c | 2 ++
+> >   2 files changed, 4 insertions(+)
+> > 
+> > diff --git a/drivers/iommu/intel/iommu.c b/drivers/iommu/intel/iommu.c
+> > index 59df7e42fd53..161342e7149d 100644
+> > --- a/drivers/iommu/intel/iommu.c
+> > +++ b/drivers/iommu/intel/iommu.c
+> > @@ -1976,6 +1976,8 @@ static int domain_context_mapping_one(struct
+> > dmar_domain *domain, pds = context_get_sm_pds(table);
+> >   		context->lo = (u64)virt_to_phys(table->table) |
+> >   				context_pdts(pds);
+> > +		if (!ecap_coherent(iommu->ecap))
+> > +			clflush_cache_range(table->table,
+> > sizeof(u64));  
 > 
-> diff --git a/drivers/usb/core/quirks.c b/drivers/usb/core/quirks.c
-> index 079e183cf3bf..9b1c56646ac5 100644
-> --- a/drivers/usb/core/quirks.c
-> +++ b/drivers/usb/core/quirks.c
-> @@ -535,6 +535,9 @@ static const struct usb_device_id usb_quirk_list[] = {
->  	/* INTEL VALUE SSD */
->  	{ USB_DEVICE(0x8086, 0xf1a5), .driver_info = USB_QUIRK_RESET_RESUME },
->  
-> +	/* Alcor Link AK9563 SC Reader used in 2022 Lenovo ThinkPads */
-> +	{ USB_DEVICE(0x2ce3, 0x9563), .driver_info = USB_QUIRK_NO_LPM },
+> This leaves other pasid dir entries not clflush'ed. It is possible that
+> IOMMU hardware sees different value from what CPU has set. This may
+> leave security holes for malicious devices. It's same to the pasid entry
+> table.
+agreed, we need to address security and functional aspects. good point.
 
-Please follow the instructions in the comment right above this structure
-definition for where to put the entry in the list.
+thanks
 
-thanks,
+Jacob
 
-greg k-h
+> How about below change? It does clflush whenever CPU changes the pasid
+> dir/entry tables.
+> 
+> diff --git a/drivers/iommu/intel/pasid.c b/drivers/iommu/intel/pasid.c
+> index fb3c7020028d..aeb0517826a2 100644
+> --- a/drivers/iommu/intel/pasid.c
+> +++ b/drivers/iommu/intel/pasid.c
+> @@ -128,6 +128,9 @@ int intel_pasid_alloc_table(struct device *dev)
+>          pasid_table->max_pasid = 1 << (order + PAGE_SHIFT + 3);
+>          info->pasid_table = pasid_table;
+> 
+> +       if (!ecap_coherent(info->iommu->ecap))
+> +               clflush_cache_range(pasid_table->table, size);
+> +
+>          return 0;
+>   }
+> 
+> @@ -215,6 +218,11 @@ static struct pasid_entry 
+> *intel_pasid_get_entry(struct device *dev, u32 pasid)
+>                          free_pgtable_page(entries);
+>                          goto retry;
+>                  }
+> +
+> +               if (!ecap_coherent(info->iommu->ecap)) {
+> +                       clflush_cache_range(entries, VTD_PAGE_SIZE);
+> +                       clflush_cache_range(&dir[dir_index].val, 
+> sizeof(*dir));
+> +               }
+>          }
+> 
+>          return &entries[index];
+> 
+> Best regards,
+> baolu
+
+
+Thanks,
+
+Jacob
