@@ -2,66 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 2469E68F90E
-	for <lists+stable@lfdr.de>; Wed,  8 Feb 2023 21:53:43 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id CA3DB68F9ED
+	for <lists+stable@lfdr.de>; Wed,  8 Feb 2023 22:53:50 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232279AbjBHUxm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 8 Feb 2023 15:53:42 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56064 "EHLO
+        id S232032AbjBHVxt (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 8 Feb 2023 16:53:49 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60640 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232272AbjBHUxl (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 8 Feb 2023 15:53:41 -0500
-Received: from mail-pg1-x52f.google.com (mail-pg1-x52f.google.com [IPv6:2607:f8b0:4864:20::52f])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8251113D68
-        for <stable@vger.kernel.org>; Wed,  8 Feb 2023 12:53:40 -0800 (PST)
-Received: by mail-pg1-x52f.google.com with SMTP id v3so147895pgh.4
-        for <stable@vger.kernel.org>; Wed, 08 Feb 2023 12:53:40 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=chromium.org; s=google;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:from:to:cc:subject:date:message-id:reply-to;
-        bh=dBqpwpFfFQBOadN4l8Gr/FOmdtaSdVNxoegPS3Fx9rE=;
-        b=LFX/iUS561LGIszFtMsAHc8Ydderc1HcuUYmgsxr8O6k3eZxp9hRxWy6nAEoaIRZQ/
-         On52OOekWV9Zx82LIrY+K7lTHDOR7YK6t1wwu7mQ3nKVaucPkyEHu3tUm8EAgR1S//XE
-         X9nm8rYerg2nkEGd2jB4L+P1tdS/uuy3WBg2U=
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:x-gm-message-state:from:to:cc:subject:date:message-id
-         :reply-to;
-        bh=dBqpwpFfFQBOadN4l8Gr/FOmdtaSdVNxoegPS3Fx9rE=;
-        b=yBD8+9L3Vy12LyZPQnrTtSRqqPFXYw3IHJdDbEgcI5Z4qxuZ4tL09F2Qz9n3hxbewP
-         ok7Us2RjP0Sxra4aJTO3dqO0tueJ4j/8Y2XYzN4/zllqauHaUxq91zAhPL6AvpXsP4rR
-         jzYYrcBn1QMWSKO2Tkp4tEcPM0FLe1k+b3f51sillgNqHutdznylmIMpNWnjSs/+9gt9
-         mewiAKyvu9cdorYX5GtK4ciwoLU16XLOGE25rrvpq/JFoi0gl/ezXPJTyp5jai71AAqP
-         qzZWah1U3YkMAoQ49B0FldrqF0QwDmKCKCdZbTL1zIMeWKoJLYUg2AQ3qRs6kFpspzTS
-         f7Lg==
-X-Gm-Message-State: AO0yUKXspfSCU58b3jqJDwH6njL9L170vfUnzYT7bepsEx8cYjuCGvfV
-        QvD+YA6o+KrEltR+FLRppxmjog==
-X-Google-Smtp-Source: AK7set9rK+FspJQKjYz2lT69SOJtB/4D1Y6PP/AkbpDVBmk+zHSMM8Xk8fEzJZWVj5wpI231op+66g==
-X-Received: by 2002:a05:6a00:1d0a:b0:5a8:473e:2fdc with SMTP id a10-20020a056a001d0a00b005a8473e2fdcmr1813364pfx.12.1675889619998;
-        Wed, 08 Feb 2023 12:53:39 -0800 (PST)
-Received: from pmalani.c.googlers.com.com (33.5.83.34.bc.googleusercontent.com. [34.83.5.33])
-        by smtp.gmail.com with ESMTPSA id z11-20020aa785cb000000b0058e264958b7sm11920618pfn.91.2023.02.08.12.53.39
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 08 Feb 2023 12:53:39 -0800 (PST)
-From:   Prashant Malani <pmalani@chromium.org>
-To:     linux-kernel@vger.kernel.org, linux-usb@vger.kernel.org
-Cc:     bleung@chromium.org, Prashant Malani <pmalani@chromium.org>,
-        stable@vger.kernel.org, Diana Zigterman <dzigterman@chromium.org>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Guillaume Ranquet <granquet@baylibre.com>,
-        Heikki Krogerus <heikki.krogerus@linux.intel.com>,
-        Macpaul Lin <macpaul.lin@mediatek.com>,
-        Pablo Sun <pablo.sun@mediatek.com>
-Subject: [PATCH] usb: typec: altmodes/displayport: Fix probe pin assign check
-Date:   Wed,  8 Feb 2023 20:53:19 +0000
-Message-Id: <20230208205318.131385-1-pmalani@chromium.org>
-X-Mailer: git-send-email 2.39.1.519.gcb327c4b5f-goog
+        with ESMTP id S231220AbjBHVxs (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 8 Feb 2023 16:53:48 -0500
+Received: from letterbox.kde.org (letterbox.kde.org [46.43.1.242])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3595B25959
+        for <stable@vger.kernel.org>; Wed,  8 Feb 2023 13:53:45 -0800 (PST)
+Received: from vertex.localdomain (pool-173-49-113-140.phlapa.fios.verizon.net [173.49.113.140])
+        (Authenticated sender: zack)
+        by letterbox.kde.org (Postfix) with ESMTPSA id F0FE8320ACF;
+        Wed,  8 Feb 2023 21:53:42 +0000 (GMT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kde.org; s=users;
+        t=1675893223; bh=70diEbLFOndJMAMdzahuRcmEjtNEzQSPzOJpjHTEx80=;
+        h=From:To:Cc:Subject:Date:From;
+        b=NoGvMDu52Zty7Vhz1QZMt/EGZr2d1nVjy1dA+BcKw7gSYufwfeyll4taH4MryEF1t
+         f173/jeCu50f0qHy3vZhouyHxVuc8iDjGdhBju8vBHqZMO6YDuVg3+RtjdHblZ29sS
+         dQhSGPu5hHsN9BSFY0301UdoEJ2dhbd5VcZkF38r9EUB/HXDlul8c0Rb/CVqclo3ym
+         TOJO5WcDyLjbLTcVRh+MO2m1CCsUxDghQntyolX0NXWB+1Tj9hDNh5GnaY1pOO5BUc
+         M08m2KIldmxQtvopOy6QfZKJZPagSqeYbkmlVg04j20XioNqUa041Ja6r9AqnYZ8A6
+         zO9s6mdKYdrbw==
+From:   Zack Rusin <zack@kde.org>
+To:     dri-devel@lists.freedesktop.org
+Cc:     krastevm@vmware.com, mombasawalam@vmware.com, banackm@vmware.com,
+        Zack Rusin <zackr@vmware.com>, stable@vger.kernel.org
+Subject: [PATCH] drm/vmwgfx: Do not drop the reference to the handle too soon
+Date:   Wed,  8 Feb 2023 16:53:40 -0500
+Message-Id: <20230208215340.2103955-1-zack@kde.org>
+X-Mailer: git-send-email 2.38.1
+Reply-To: Zack Rusin <zackr@vmware.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_NONE,
+X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
         SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -69,50 +47,70 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-While checking Pin Assignments of the port and partner during probe, we
-don't take into account whether the peripheral is a plug or receptacle.
+From: Zack Rusin <zackr@vmware.com>
 
-This manifests itself in a mode entry failure on certain docks and
-dongles with captive cables. For instance, the Startech.com Type-C to DP
-dongle (Model #CDP2DP) advertises its DP VDO as 0x405. This would fail
-the Pin Assignment compatibility check, despite it supporting
-Pin Assignment C as a UFP.
+It is possible for userspace to predict the next buffer handle and
+to destroy the buffer while it's still used by the kernel. Delay
+dropping the internal reference on the buffers until kernel is done
+with them.
 
-Update the check to use the correct DP Pin Assign macros that
-take the peripheral's receptacle bit into account.
-
-Fixes: c1e5c2f0cb8a ("usb: typec: altmodes/displayport: correct pin assignment for UFP receptacles")
-Cc: stable@vger.kernel.org
-Reported-by: Diana Zigterman <dzigterman@chromium.org>
-Signed-off-by: Prashant Malani <pmalani@chromium.org>
+Signed-off-by: Zack Rusin <zackr@vmware.com>
+Fixes: 8afa13a0583f ("drm/vmwgfx: Implement DRIVER_GEM")
+Cc: <stable@vger.kernel.org> # v5.17+
 ---
+ drivers/gpu/drm/vmwgfx/vmwgfx_bo.c      | 3 ++-
+ drivers/gpu/drm/vmwgfx/vmwgfx_gem.c     | 4 ++--
+ drivers/gpu/drm/vmwgfx/vmwgfx_surface.c | 1 -
+ 3 files changed, 4 insertions(+), 4 deletions(-)
 
-I realize this is a bit late in the release cycle, but figured since it
-is a fix it might still be considered. Please let me know if it's too
-late and I can re-send this after the 6.3-rc1 is released. Thanks!
-
- drivers/usb/typec/altmodes/displayport.c | 8 ++++----
- 1 file changed, 4 insertions(+), 4 deletions(-)
-
-diff --git a/drivers/usb/typec/altmodes/displayport.c b/drivers/usb/typec/altmodes/displayport.c
-index 20db51471c98..662cd043b50e 100644
---- a/drivers/usb/typec/altmodes/displayport.c
-+++ b/drivers/usb/typec/altmodes/displayport.c
-@@ -547,10 +547,10 @@ int dp_altmode_probe(struct typec_altmode *alt)
- 	/* FIXME: Port can only be DFP_U. */
+diff --git a/drivers/gpu/drm/vmwgfx/vmwgfx_bo.c b/drivers/gpu/drm/vmwgfx/vmwgfx_bo.c
+index 43ffa5c7acbd..65bd88c8fef9 100644
+--- a/drivers/gpu/drm/vmwgfx/vmwgfx_bo.c
++++ b/drivers/gpu/drm/vmwgfx/vmwgfx_bo.c
+@@ -708,7 +708,8 @@ int vmw_dumb_create(struct drm_file *file_priv,
+ 	ret = vmw_gem_object_create_with_handle(dev_priv, file_priv,
+ 						args->size, &args->handle,
+ 						&vbo);
+-
++	/* drop reference from allocate - handle holds it now */
++	drm_gem_object_put(&vbo->tbo.base);
+ 	return ret;
+ }
  
- 	/* Make sure we have compatiple pin configurations */
--	if (!(DP_CAP_DFP_D_PIN_ASSIGN(port->vdo) &
--	      DP_CAP_UFP_D_PIN_ASSIGN(alt->vdo)) &&
--	    !(DP_CAP_UFP_D_PIN_ASSIGN(port->vdo) &
--	      DP_CAP_DFP_D_PIN_ASSIGN(alt->vdo)))
-+	if (!(DP_CAP_PIN_ASSIGN_DFP_D(port->vdo) &
-+	      DP_CAP_PIN_ASSIGN_UFP_D(alt->vdo)) &&
-+	    !(DP_CAP_PIN_ASSIGN_UFP_D(port->vdo) &
-+	      DP_CAP_PIN_ASSIGN_DFP_D(alt->vdo)))
- 		return -ENODEV;
+diff --git a/drivers/gpu/drm/vmwgfx/vmwgfx_gem.c b/drivers/gpu/drm/vmwgfx/vmwgfx_gem.c
+index 51bd1f8c5cc4..d6baf73a6458 100644
+--- a/drivers/gpu/drm/vmwgfx/vmwgfx_gem.c
++++ b/drivers/gpu/drm/vmwgfx/vmwgfx_gem.c
+@@ -133,8 +133,6 @@ int vmw_gem_object_create_with_handle(struct vmw_private *dev_priv,
+ 	(*p_vbo)->tbo.base.funcs = &vmw_gem_object_funcs;
  
- 	ret = sysfs_create_group(&alt->dev.kobj, &dp_altmode_group);
+ 	ret = drm_gem_handle_create(filp, &(*p_vbo)->tbo.base, handle);
+-	/* drop reference from allocate - handle holds it now */
+-	drm_gem_object_put(&(*p_vbo)->tbo.base);
+ out_no_bo:
+ 	return ret;
+ }
+@@ -161,6 +159,8 @@ int vmw_gem_object_create_ioctl(struct drm_device *dev, void *data,
+ 	rep->map_handle = drm_vma_node_offset_addr(&vbo->tbo.base.vma_node);
+ 	rep->cur_gmr_id = handle;
+ 	rep->cur_gmr_offset = 0;
++	/* drop reference from allocate - handle holds it now */
++	drm_gem_object_put(&vbo->tbo.base);
+ out_no_bo:
+ 	return ret;
+ }
+diff --git a/drivers/gpu/drm/vmwgfx/vmwgfx_surface.c b/drivers/gpu/drm/vmwgfx/vmwgfx_surface.c
+index 9d4ae9623a00..d18fec953fa7 100644
+--- a/drivers/gpu/drm/vmwgfx/vmwgfx_surface.c
++++ b/drivers/gpu/drm/vmwgfx/vmwgfx_surface.c
+@@ -867,7 +867,6 @@ int vmw_surface_define_ioctl(struct drm_device *dev, void *data,
+ 			goto out_unlock;
+ 		}
+ 		vmw_bo_reference(res->guest_memory_bo);
+-		drm_gem_object_get(&res->guest_memory_bo->tbo.base);
+ 	}
+ 
+ 	tmp = vmw_resource_reference(&srf->res);
 -- 
-2.39.1.519.gcb327c4b5f-goog
+2.38.1
 
