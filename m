@@ -2,191 +2,210 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 273E6690CFB
-	for <lists+stable@lfdr.de>; Thu,  9 Feb 2023 16:31:16 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 11A33690DA8
+	for <lists+stable@lfdr.de>; Thu,  9 Feb 2023 16:55:03 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231218AbjBIPbO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 9 Feb 2023 10:31:14 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38070 "EHLO
+        id S231428AbjBIPzB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 9 Feb 2023 10:55:01 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42812 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231145AbjBIPbN (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 9 Feb 2023 10:31:13 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BDFF75BA5D;
-        Thu,  9 Feb 2023 07:31:12 -0800 (PST)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 2363761B05;
-        Thu,  9 Feb 2023 15:31:12 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 79205C4339B;
-        Thu,  9 Feb 2023 15:31:11 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1675956671;
-        bh=BlKYvnz7WNXl24gbX594yEpSvAcoGuqkkt+WsLo2+r8=;
-        h=References:In-Reply-To:From:Date:Subject:To:Cc:From;
-        b=ZkqDugMVdeJGituJmAuVVFVKfpU1yQDHxuK9EoLv8qPAJXLfIWX6OwKqoyn7QMe3v
-         XCSQbazMDJ+QW0jFw8Ff/+z7lo+LUA0FIjN8iRkiCiXYIiScfECGVSK129Bl8/QsIu
-         uilb2SaS+1HIdT20gq/sZTpUBhhm7cXdjsJyquf25wNm5JTn9IyhrLwSDPvc/NL44E
-         CJKEudKXMzz47JeChqn8pTruOF3huDljAFKTm7cdKgSvVWMV0XL1S3juDyqmagJsjP
-         Nw18bO5CQJH+TX0Fd+U71IJSCObzU5sb+lZLfcLDRhzGHTejAE/wyuZUH/6a8NiA+n
-         ZHMhhE11sb2SA==
-Received: by mail-lf1-f43.google.com with SMTP id cf42so3677463lfb.1;
-        Thu, 09 Feb 2023 07:31:11 -0800 (PST)
-X-Gm-Message-State: AO0yUKWMwG6Q7+APHTonruGHBwg+mVmVwXaoHY4jpLh6l/OLJja7pSJZ
-        55G1EDfvh3v8p8818kFo7jd2viJ6bAxJD+egwvM=
-X-Google-Smtp-Source: AK7set/y+U5Z0Ktk9pQgBwA8AKvQcpjCb37bBs8fDFcgJpM/Ys8SVs0RKypLaWQKAZjsIAEcUl1P5fxS3XqvppwkIMA=
-X-Received: by 2002:ac2:55ba:0:b0:4ca:f9e3:c324 with SMTP id
- y26-20020ac255ba000000b004caf9e3c324mr1794776lfg.190.1675956669475; Thu, 09
- Feb 2023 07:31:09 -0800 (PST)
+        with ESMTP id S230493AbjBIPy7 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 9 Feb 2023 10:54:59 -0500
+Received: from mail-pj1-x1030.google.com (mail-pj1-x1030.google.com [IPv6:2607:f8b0:4864:20::1030])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6FC165D3E8
+        for <stable@vger.kernel.org>; Thu,  9 Feb 2023 07:54:54 -0800 (PST)
+Received: by mail-pj1-x1030.google.com with SMTP id gj9-20020a17090b108900b0023114156d36so6226213pjb.4
+        for <stable@vger.kernel.org>; Thu, 09 Feb 2023 07:54:54 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=kernelci-org.20210112.gappssmtp.com; s=20210112;
+        h=from:to:subject:content-transfer-encoding:mime-version:date
+         :message-id:from:to:cc:subject:date:message-id:reply-to;
+        bh=2cPbhrbdnXrSPAlc07pTs3S/NuMs1VtMFWXrJfD6YVE=;
+        b=QUb+fN/WM8Q5FCO1zlDLij1d/WlF2ZSon0xW5QZI/fQyTx/AARme+wVGwEJN78G1VX
+         6CQqd513NohQD5/6SzNtseueOclwJAYKO32bI6XPKzgv8TpvArsmpiLBzqieoU2FzCMV
+         5DVb8JhuQapGQJLG4qKi5XQNNSEuKxTjVnWtr3DAebUyLhHUrU9CW66s7ZpZPVWthF5s
+         DWSpOqHM1EhUcoZRyvw0F9U+GzYAsYSEYsEvimoR8THUXNFl+eH5jbwBpHB+zC4s/yzZ
+         KwvmoCOU/knFx+xW4w+LyFWb3w9h02Oli0CBV1AwK2uMXIVcz1vUPa9YxapQtMWGL2mX
+         JqOw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=from:to:subject:content-transfer-encoding:mime-version:date
+         :message-id:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=2cPbhrbdnXrSPAlc07pTs3S/NuMs1VtMFWXrJfD6YVE=;
+        b=whpnFTVT77pYt4QHEQ5TvijIlg8orKfSaOhispGcoxqARZLPZMY/L6MODXAKb95NNM
+         mdzJVzfmvZRvsgSkd06mhGR+r2z1LDqQZqnvtzl1eVTi8Ybv19w2QD/bKsWAfmupP2Pq
+         5MArOOyIAJ+QWohBcBpaHm+U76OA9wrDQ+D+PG6rx/zWJpxLeN/RJwXKUDOgGUeYSvhT
+         1sj8OMO5VqBq45obP1hpSZHMll8B2tQVRpqDu/z7D4i7BHM0V/WuZiPG2LDuXLA7U63V
+         rSr+Qj7H5MaDlCiaX81HAC2pyrgUO3BcsDK8taPz+20an7I16PpSyAzRn9kCAh62YbhJ
+         ZnLw==
+X-Gm-Message-State: AO0yUKUS5arkOFIzkKRooHncDE3rU9fmQOrruT8PraIdaBlDmtZuZSeF
+        4uHpvQrVzhMnlnRidXKJxBM8zpAhiw8kxtbxMsXFNg==
+X-Google-Smtp-Source: AK7set870pzXdK5/t+kTBzkU25Bpiys9ZDZ+84l5ZZ1cvix+IMqELbzmyWm4qkX6FLx/ilA7CpdSGg==
+X-Received: by 2002:a17:90a:3f8b:b0:232:ce83:20a with SMTP id m11-20020a17090a3f8b00b00232ce83020amr2763858pjc.36.1675958094226;
+        Thu, 09 Feb 2023 07:54:54 -0800 (PST)
+Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
+        by smtp.gmail.com with ESMTPSA id s5-20020a17090a5d0500b0022bffc59164sm1547653pji.17.2023.02.09.07.54.53
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Thu, 09 Feb 2023 07:54:53 -0800 (PST)
+Message-ID: <63e5174d.170a0220.acd1c.2b9e@mx.google.com>
+Date:   Thu, 09 Feb 2023 07:54:53 -0800 (PST)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-References: <2ab9645789707f31fd37c49435e476d4b5c38a0a.1675901828.git.darren@os.amperecomputing.com>
- <DBBPR08MB4538C586B721C8209B03AEEEF7D99@DBBPR08MB4538.eurprd08.prod.outlook.com>
-In-Reply-To: <DBBPR08MB4538C586B721C8209B03AEEEF7D99@DBBPR08MB4538.eurprd08.prod.outlook.com>
-From:   Ard Biesheuvel <ardb@kernel.org>
-Date:   Thu, 9 Feb 2023 16:30:57 +0100
-X-Gmail-Original-Message-ID: <CAMj1kXG8TY9eKJxtSWYPCu_8qs7W3FWwDSZ+teuwhHb1BHUf7g@mail.gmail.com>
-Message-ID: <CAMj1kXG8TY9eKJxtSWYPCu_8qs7W3FWwDSZ+teuwhHb1BHUf7g@mail.gmail.com>
-Subject: Re: [PATCH v2] arm64: efi: Force the use of SetVirtualAddressMap() on
- eMAG and Altra Max machines
-To:     Justin He <Justin.He@arm.com>
-Cc:     Darren Hart <darren@os.amperecomputing.com>,
-        LKML <linux-kernel@vger.kernel.org>,
-        "stable@vger.kernel.org" <stable@vger.kernel.org>,
-        "linux-efi@vger.kernel.org" <linux-efi@vger.kernel.org>,
-        Alexandru Elisei <alexandru.elisei@gmail.com>, nd <nd@arm.com>,
-        Nathan Chancellor <nathan@kernel.org>
-Content-Type: text/plain; charset="UTF-8"
-X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
-        SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Branch: queue/5.10
+X-Kernelci-Tree: stable-rc
+X-Kernelci-Kernel: v5.10.167-88-g51abf75149f2
+X-Kernelci-Report-Type: test
+Subject: stable-rc/queue/5.10 baseline: 170 runs,
+ 2 regressions (v5.10.167-88-g51abf75149f2)
+To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
+        kernelci-results@groups.io
+From:   "kernelci.org bot" <bot@kernelci.org>
+X-Spam-Status: No, score=-1.9 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_NONE autolearn=ham
+        autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-(cc Nathan, another happy Ampere customer)
+stable-rc/queue/5.10 baseline: 170 runs, 2 regressions (v5.10.167-88-g51abf=
+75149f2)
 
-On Thu, 9 Feb 2023 at 05:26, Justin He <Justin.He@arm.com> wrote:
->
->
->
-> > -----Original Message-----
-> > From: Darren Hart <darren@os.amperecomputing.com>
-> > Sent: Thursday, February 9, 2023 8:28 AM
-> > To: LKML <linux-kernel@vger.kernel.org>
-> > Cc: stable@vger.kernel.org; linux-efi@vger.kernel.org; Alexandru Elisei
-> > <alexandru.elisei@gmail.com>; Justin He <Justin.He@arm.com>; Huacai Chen
-> > <chenhuacai@kernel.org>; Jason A. Donenfeld <Jason@zx2c4.com>; Ard
-> > Biesheuvel <ardb@kernel.org>
-> > Subject: [PATCH v2] arm64: efi: Force the use of SetVirtualAddressMap() on
-> > eMAG and Altra Max machines
-> >
-> > Commit 550b33cfd445 ("arm64: efi: Force the use of SetVirtualAddressMap()
-> > on Altra machines") identifies the Altra family via the family field in the type#1
-> > SMBIOS record. eMAG and Altra Max machines are similarly affected but not
-> > detected with the strict strcmp test.
-> >
-> > The type1_family smbios string is not an entirely reliable means of identifying
-> > systems with this issue as OEMs can, and do, use their own strings for these
-> > fields. However, until we have a better solution, capture the bulk of these
-> > systems by adding strcmp matching for "eMAG"
-> > and "Altra Max".
-> >
-> > Fixes: 550b33cfd445 ("arm64: efi: Force the use of SetVirtualAddressMap() on
-> > Altra machines")
-> > Cc: <stable@vger.kernel.org> # 6.1.x
-> > Cc: <linux-efi@vger.kernel.org>
-> > Cc: Alexandru Elisei <alexandru.elisei@gmail.com>
-> > Cc: Justin He <Justin.He@arm.com>
-> > Cc: Huacai Chen <chenhuacai@kernel.org>
-> > Cc: "Jason A. Donenfeld" <Jason@zx2c4.com>
-> > Cc: Ard Biesheuvel <ardb@kernel.org>
-> > Signed-off-by: Darren Hart <darren@os.amperecomputing.com>
-> Tested-by: justin.he@arm.com
-> > ---
-> > V1 -> V2: include eMAG
-> >
-> >  drivers/firmware/efi/libstub/arm64.c | 9 ++++++---
-> >  1 file changed, 6 insertions(+), 3 deletions(-)
-> >
-> > diff --git a/drivers/firmware/efi/libstub/arm64.c
-> > b/drivers/firmware/efi/libstub/arm64.c
-> > index ff2d18c42ee7..4501652e11ab 100644
-> > --- a/drivers/firmware/efi/libstub/arm64.c
-> > +++ b/drivers/firmware/efi/libstub/arm64.c
-> > @@ -19,10 +19,13 @@ static bool system_needs_vamap(void)
-> >       const u8 *type1_family = efi_get_smbios_string(1, family);
-> >
-> >       /*
-> > -      * Ampere Altra machines crash in SetTime() if SetVirtualAddressMap()
-> > -      * has not been called prior.
-> > +      * Ampere eMAG, Altra, and Altra Max machines crash in SetTime() if
-> > +      * SetVirtualAddressMap() has not been called prior.
-> >        */
-> > -     if (!type1_family || strcmp(type1_family, "Altra"))
-> > +     if (!type1_family || (
-> > +         strcmp(type1_family, "eMAG") &&
-> > +         strcmp(type1_family, "Altra") &&
-> > +         strcmp(type1_family, "Altra Max")))
-> In terms of resolving the boot hang issue, it looks good to me. And I've verified the
-> "eMAG" part check.
-> So please feel free to add:
-> Tested-by: Justin He <justin.he@arm.com>
->
+Regressions Summary
+-------------------
 
-Thanks. I've queued this up now.
+platform                     | arch | lab          | compiler | defconfig  =
+        | regressions
+-----------------------------+------+--------------+----------+------------=
+--------+------------
+cubietruck                   | arm  | lab-baylibre | gcc-10   | multi_v7_de=
+fconfig | 1          =
 
-> But I have some other concerns:
-> 1. On an Altra server, the type1_family returns "Server". I don't know whether it
-> is a smbios or server firmware bug.
+sun8i-h3-libretech-all-h3-cc | arm  | lab-baylibre | gcc-10   | multi_v7_de=
+fconfig | 1          =
 
-This is not really a bug. OEMs are free to put whatever they want into
-those fields, although that is a great example of a sloppy vendor that
-just puts random junk in there.
 
-We could plumb in the type 4 smbios record too, and check the version
-for *Altra* - however, it would be nice to get an idea of how many
-more we will end up needing to handle here.
+  Details:  https://kernelci.org/test/job/stable-rc/branch/queue%2F5.10/ker=
+nel/v5.10.167-88-g51abf75149f2/plan/baseline/
 
-Also, is anyone looking to get this fixed? There is Altra code in the
-public EDK2 repo, but it is very hard to get someone to care about
-these things, and fix their firmware.
+  Test:     baseline
+  Tree:     stable-rc
+  Branch:   queue/5.10
+  Describe: v5.10.167-88-g51abf75149f2
+  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
+able-rc.git
+  SHA:      51abf75149f20ced8c5bcd82acda595eb91be3a9 =
 
 
 
+Test Regressions
+---------------- =
 
-> 2. On an eMAG server, I once successfully run efibootmgr -t 10 to call the
-> Set_variable rts, but currently I always met the error, even with above patch:
-> # efibootmgr -t 9; efibootmgr -t 5;
-> Could not set Timeout: Input/output error
-> Could not set Timeout: Input/output error
->
 
-Did this work before? Can you bisect?
 
-> Meanwhile, on the Altra server, it works:
-> # efibootmgr -t 9; efibootmgr -t 5;
-> BootCurrent: 0007
-> Timeout: 9 seconds
-> BootOrder: 0007,0005,0006,0001
-> Boot0001* UEFI: Built-in EFI Shell
-> Boot0005* UEFI: PXE IPv4 Intel(R) I350 Gigabit Network Connection
-> Boot0006* UEFI: PXE IPv4 Intel(R) I350 Gigabit Network Connection
-> Boot0007* ubuntu
-> BootCurrent: 0007
-> Timeout: 5 seconds
-> BootOrder: 0007,0005,0006,0001
-> Boot0001* UEFI: Built-in EFI Shell
-> Boot0005* UEFI: PXE IPv4 Intel(R) I350 Gigabit Network Connection
-> Boot0006* UEFI: PXE IPv4 Intel(R) I350 Gigabit Network Connection
-> Boot0007* ubuntu
->
->
->
-> --
-> Cheers,
-> Justin (Jia He)
->
->
+platform                     | arch | lab          | compiler | defconfig  =
+        | regressions
+-----------------------------+------+--------------+----------+------------=
+--------+------------
+cubietruck                   | arm  | lab-baylibre | gcc-10   | multi_v7_de=
+fconfig | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/63e4e22ce57d96e3cc8c8665
+
+  Results:     5 PASS, 1 FAIL, 1 SKIP
+  Full config: multi_v7_defconfig
+  Compiler:    gcc-10 (arm-linux-gnueabihf-gcc (Debian 10.2.1-6) 10.2.1 202=
+10110)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.10/v5.10.167=
+-88-g51abf75149f2/arm/multi_v7_defconfig/gcc-10/lab-baylibre/baseline-cubie=
+truck.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.10/v5.10.167=
+-88-g51abf75149f2/arm/multi_v7_defconfig/gcc-10/lab-baylibre/baseline-cubie=
+truck.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
+t-baseline/20230203.0/armel/rootfs.cpio.gz =
+
+
+
+  * baseline.bootrr.deferred-probe-empty: https://kernelci.org/test/case/id=
+/63e4e22ce57d96e3cc8c866e
+        failing since 14 days (last pass: v5.10.165-76-g5c2e982fcf18, first=
+ fail: v5.10.165-77-g4600242c13ed)
+
+    2023-02-09T12:08:01.269356  + set +x<8>[   11.114878] <LAVA_SIGNAL_ENDR=
+UN 0_dmesg 3312362_1.5.2.4.1>
+    2023-02-09T12:08:01.269890  =
+
+    2023-02-09T12:08:01.379108  / # #
+    2023-02-09T12:08:01.482271  export SHELL=3D/bin/sh
+    2023-02-09T12:08:01.483299  #
+    2023-02-09T12:08:01.585413  / # export SHELL=3D/bin/sh. /lava-3312362/e=
+nvironment
+    2023-02-09T12:08:01.586340  =
+
+    2023-02-09T12:08:01.688373  / # . /lava-3312362/environment/lava-331236=
+2/bin/lava-test-runner /lava-3312362/1
+    2023-02-09T12:08:01.689973  =
+
+    2023-02-09T12:08:01.690577  / # <3>[   11.450643] Bluetooth: hci0: comm=
+and 0x0c03 tx timeout =
+
+    ... (13 line(s) more)  =
+
+ =
+
+
+
+platform                     | arch | lab          | compiler | defconfig  =
+        | regressions
+-----------------------------+------+--------------+----------+------------=
+--------+------------
+sun8i-h3-libretech-all-h3-cc | arm  | lab-baylibre | gcc-10   | multi_v7_de=
+fconfig | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/63e4e226e6ecf835718c8650
+
+  Results:     5 PASS, 1 FAIL, 1 SKIP
+  Full config: multi_v7_defconfig
+  Compiler:    gcc-10 (arm-linux-gnueabihf-gcc (Debian 10.2.1-6) 10.2.1 202=
+10110)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.10/v5.10.167=
+-88-g51abf75149f2/arm/multi_v7_defconfig/gcc-10/lab-baylibre/baseline-sun8i=
+-h3-libretech-all-h3-cc.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.10/v5.10.167=
+-88-g51abf75149f2/arm/multi_v7_defconfig/gcc-10/lab-baylibre/baseline-sun8i=
+-h3-libretech-all-h3-cc.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
+t-baseline/20230203.0/armel/rootfs.cpio.gz =
+
+
+
+  * baseline.bootrr.deferred-probe-empty: https://kernelci.org/test/case/id=
+/63e4e226e6ecf835718c8659
+        failing since 7 days (last pass: v5.10.165-139-gefb57ce0f880, first=
+ fail: v5.10.165-149-ge30e8271d674)
+
+    2023-02-09T12:07:25.789841  / # #
+    2023-02-09T12:07:25.891557  export SHELL=3D/bin/sh
+    2023-02-09T12:07:25.892058  #
+    2023-02-09T12:07:25.993433  / # export SHELL=3D/bin/sh. /lava-3312373/e=
+nvironment
+    2023-02-09T12:07:25.993973  =
+
+    2023-02-09T12:07:26.095568  / # . /lava-3312373/environment/lava-331237=
+3/bin/lava-test-runner /lava-3312373/1
+    2023-02-09T12:07:26.096355  =
+
+    2023-02-09T12:07:26.115335  / # /lava-3312373/bin/lava-test-runner /lav=
+a-3312373/1
+    2023-02-09T12:07:26.203182  + export 'TESTRUN_ID=3D1_bootrr'
+    2023-02-09T12:07:26.203518  + cd /lava-3312373/1/tests/1_bootrr =
+
+    ... (10 line(s) more)  =
+
+ =20
