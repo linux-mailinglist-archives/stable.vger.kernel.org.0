@@ -2,138 +2,112 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 0563F69129A
-	for <lists+stable@lfdr.de>; Thu,  9 Feb 2023 22:25:11 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D68A86912A3
+	for <lists+stable@lfdr.de>; Thu,  9 Feb 2023 22:29:45 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229642AbjBIVZJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 9 Feb 2023 16:25:09 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34022 "EHLO
+        id S230215AbjBIV3o (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 9 Feb 2023 16:29:44 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37830 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229468AbjBIVZI (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 9 Feb 2023 16:25:08 -0500
-Received: from mga11.intel.com (mga11.intel.com [192.55.52.93])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B227828D28;
-        Thu,  9 Feb 2023 13:25:07 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
-  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1675977907; x=1707513907;
-  h=from:to:cc:subject:date:message-id:mime-version:
-   content-transfer-encoding;
-  bh=N6Ck+USojABOxT9CFzTEfdxuALT4Xbd+KeJGB455nkw=;
-  b=GV1Vkces7Ea5HL+w4T7xpxMfsFWu5fYwpOjBqbS+dNZpb+RcLpvvqYfD
-   Z/8pFKznBgnUj674iMTD7S/21NdGQJ2gFsQUMUW5BzZA7qTo9Qj83br1q
-   xeu5woBw0ZZwABmPKNXg76FHqN0Cq5wOxOL6s4EPvj5pfDmMzwTBYUNjJ
-   YL8MXY4+NPCyj9DucKeoQIFJU/KVPXUXS69tPTlTiGt66yOmCNSKLnGCQ
-   ahsJskKcYWLIPQQuEMot01DiMzZMzTybOJ8sIFsA4mNxP17P+/Nf+AOeh
-   bWhZ9RQqZkSA73V3x700RwruiwGk/78Xz3AWNDchWdZUGaV8AQM7x2fd8
-   A==;
-X-IronPort-AV: E=McAfee;i="6500,9779,10616"; a="327943073"
-X-IronPort-AV: E=Sophos;i="5.97,284,1669104000"; 
-   d="scan'208";a="327943073"
-Received: from orsmga003.jf.intel.com ([10.7.209.27])
-  by fmsmga102.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 09 Feb 2023 13:25:07 -0800
-X-ExtLoop1: 1
-X-IronPort-AV: E=McAfee;i="6500,9779,10616"; a="617678462"
-X-IronPort-AV: E=Sophos;i="5.97,284,1669104000"; 
-   d="scan'208";a="617678462"
-Received: from srinivas-otcpl-7600.jf.intel.com (HELO jacob-builder.jf.intel.com) ([10.54.39.106])
-  by orsmga003.jf.intel.com with ESMTP; 09 Feb 2023 13:25:06 -0800
-From:   Jacob Pan <jacob.jun.pan@linux.intel.com>
-To:     LKML <linux-kernel@vger.kernel.org>, iommu@lists.linux.dev,
-        "Lu Baolu" <baolu.lu@linux.intel.com>,
-        Joerg Roedel <joro@8bytes.org>
-Cc:     "Robin Murphy" <robin.murphy@arm.com>,
-        "Will Deacon" <will@kernel.org>,
-        David Woodhouse <dwmw2@infradead.org>,
-        Raj Ashok <ashok.raj@intel.com>,
-        "Tian, Kevin" <kevin.tian@intel.com>, Yi Liu <yi.l.liu@intel.com>,
-        Jacob Pan <jacob.jun.pan@linux.intel.com>,
-        stable@vger.kernel.org, Sukumar Ghorai <sukumar.ghorai@intel.com>
-Subject: [PATCH v4] iommu/vt-d: Fix PASID directory pointer coherency
-Date:   Thu,  9 Feb 2023 13:28:43 -0800
-Message-Id: <20230209212843.1788125-1-jacob.jun.pan@linux.intel.com>
-X-Mailer: git-send-email 2.25.1
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-1.3 required=5.0 tests=AC_FROM_MANY_DOTS,BAYES_00,
-        DKIMWL_WL_HIGH,DKIM_SIGNED,DKIM_VALID,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
-        SPF_HELO_NONE,SPF_NONE autolearn=no autolearn_force=no version=3.4.6
+        with ESMTP id S230040AbjBIV3n (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 9 Feb 2023 16:29:43 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AA4ED5ACC1;
+        Thu,  9 Feb 2023 13:29:42 -0800 (PST)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 5A377B816DD;
+        Thu,  9 Feb 2023 21:29:41 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 08A11C4339C;
+        Thu,  9 Feb 2023 21:29:40 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linux-foundation.org;
+        s=korg; t=1675978180;
+        bh=HVBtsj0d+zxhqBt4QDtTRv3AilgydBUVKjFcLtKL5h0=;
+        h=Date:To:From:Subject:From;
+        b=tp7QNhGbWFSFFwvVQAlUv0gw+4vHT12sdlzoFyNXPo3d0CcfoG2OTayIDN5kJvBb3
+         AbVG1YHlvDJaoX+1i9vLROoUZELyAcJOj5Z96bVBS1bxCD3f2zFct8syxNIaIqWws2
+         lj+MB0/nOIYsdwtKnh1TY5y2OcLyrxOy3jXtdmhs=
+Date:   Thu, 09 Feb 2023 13:29:39 -0800
+To:     mm-commits@vger.kernel.org, stable@vger.kernel.org,
+        shy828301@gmail.com, hughd@google.com, zokeefe@google.com,
+        akpm@linux-foundation.org
+From:   Andrew Morton <akpm@linux-foundation.org>
+Subject: + mm-madv_collapse-set-eagain-on-unexpected-page-refcount.patch added to mm-hotfixes-unstable branch
+Message-Id: <20230209212940.08A11C4339C@smtp.kernel.org>
+X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,SPF_HELO_NONE,
+        SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On platforms that do not support IOMMU Extended capability bit 0
-Page-walk Coherency, CPU caches are not snooped when IOMMU is accessing
-any translation structures. IOMMU access goes only directly to
-memory. Intel IOMMU code was missing a flush for the PASID table
-directory that resulted in the unrecoverable fault as shown below.
 
-This patch adds clflush calls whenever allocating and updating
-a PASID table directory to ensure cache coherency.
+The patch titled
+     Subject: mm/MADV_COLLAPSE: set EAGAIN on unexpected page refcount
+has been added to the -mm mm-hotfixes-unstable branch.  Its filename is
+     mm-madv_collapse-set-eagain-on-unexpected-page-refcount.patch
 
-On the reverse direction, there's no need to clflush the PASID directory
-pointer when we deactivate a context entry in that IOMMU hardware will
-not see the old PASID directory pointer after we clear the context entry.
-PASID directory entries are also never freed once allocated.
+This patch will shortly appear at
+     https://git.kernel.org/pub/scm/linux/kernel/git/akpm/25-new.git/tree/patches/mm-madv_collapse-set-eagain-on-unexpected-page-refcount.patch
 
-[    0.555386] DMAR: DRHD: handling fault status reg 3
-[    0.555805] DMAR: [DMA Read NO_PASID] Request device [00:0d.2] fault addr 0x1026a4000 [fault reason 0x51] SM: Present bit in Directory Entry is clear
-[    0.556348] DMAR: Dump dmar1 table entries for IOVA 0x1026a4000
-[    0.556348] DMAR: scalable mode root entry: hi 0x0000000102448001, low 0x0000000101b3e001
-[    0.556348] DMAR: context entry: hi 0x0000000000000000, low 0x0000000101b4d401
-[    0.556348] DMAR: pasid dir entry: 0x0000000101b4e001
-[    0.556348] DMAR: pasid table entry[0]: 0x0000000000000109
-[    0.556348] DMAR: pasid table entry[1]: 0x0000000000000001
-[    0.556348] DMAR: pasid table entry[2]: 0x0000000000000000
-[    0.556348] DMAR: pasid table entry[3]: 0x0000000000000000
-[    0.556348] DMAR: pasid table entry[4]: 0x0000000000000000
-[    0.556348] DMAR: pasid table entry[5]: 0x0000000000000000
-[    0.556348] DMAR: pasid table entry[6]: 0x0000000000000000
-[    0.556348] DMAR: pasid table entry[7]: 0x0000000000000000
-[    0.556348] DMAR: PTE not present at level 4
+This patch will later appear in the mm-hotfixes-unstable branch at
+    git://git.kernel.org/pub/scm/linux/kernel/git/akpm/mm
 
+Before you just go and hit "reply", please:
+   a) Consider who else should be cc'ed
+   b) Prefer to cc a suitable mailing list as well
+   c) Ideally: find the original patch on the mailing list and do a
+      reply-to-all to that, adding suitable additional cc's
+
+*** Remember to use Documentation/process/submit-checklist.rst when testing your code ***
+
+The -mm tree is included into linux-next via the mm-everything
+branch at git://git.kernel.org/pub/scm/linux/kernel/git/akpm/mm
+and is updated there every 2-3 working days
+
+------------------------------------------------------
+From: "Zach O'Keefe" <zokeefe@google.com>
+Subject: mm/MADV_COLLAPSE: set EAGAIN on unexpected page refcount
+Date: Tue, 24 Jan 2023 17:57:37 -0800
+
+During collapse, in a few places we check to see if a given small page has
+any unaccounted references.  If the refcount on the page doesn't match our
+expectations, it must be there is an unknown user concurrently interested
+in the page, and so it's not safe to move the contents elsewhere. 
+However, the unaccounted pins are likely an ephemeral state.
+
+In such a situation, make MADV_COLLAPSE set EAGAIN errno, indicating that
+collapse may succeed on retry.
+
+Link: https://lkml.kernel.org/r/20230125015738.912924-1-zokeefe@google.com
+Fixes: 7d8faaf15545 ("mm/madvise: introduce MADV_COLLAPSE sync hugepage collapse")
+Signed-off-by: Zach O'Keefe <zokeefe@google.com>
+Reported-by: Hugh Dickins <hughd@google.com>
+Acked-by: Hugh Dickins <hughd@google.com>
+Reviewed-by: Yang Shi <shy828301@gmail.com>
 Cc: <stable@vger.kernel.org>
-Fixes: 0bbeb01a4faf ("iommu/vt-d: Manage scalalble mode PASID tables")
-Reported-by: Sukumar Ghorai <sukumar.ghorai@intel.com>
-Signed-off-by: Ashok Raj <ashok.raj@intel.com>
-Signed-off-by: Jacob Pan <jacob.jun.pan@linux.intel.com>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
 ---
-v4: Remove clflush PASID dir pointer when programming context entry
-v3: Add clflush after PASID directory allocation to prevent malicious
-device attack with unauthorized PASIDs. Also flush all the PASID entries
-after directory updates. (Baolu)
-v2: Add clflush to PASID directory update case (Baolu, Kevin review)
----
- drivers/iommu/intel/pasid.c | 7 +++++++
- 1 file changed, 7 insertions(+)
 
-diff --git a/drivers/iommu/intel/pasid.c b/drivers/iommu/intel/pasid.c
-index fb3c7020028d..979f796175b1 100644
---- a/drivers/iommu/intel/pasid.c
-+++ b/drivers/iommu/intel/pasid.c
-@@ -128,6 +128,9 @@ int intel_pasid_alloc_table(struct device *dev)
- 	pasid_table->max_pasid = 1 << (order + PAGE_SHIFT + 3);
- 	info->pasid_table = pasid_table;
- 
-+	if (!ecap_coherent(info->iommu->ecap))
-+		clflush_cache_range(pasid_table->table, size);
-+
- 	return 0;
- }
- 
-@@ -215,6 +218,10 @@ static struct pasid_entry *intel_pasid_get_entry(struct device *dev, u32 pasid)
- 			free_pgtable_page(entries);
- 			goto retry;
- 		}
-+		if (!ecap_coherent(info->iommu->ecap)) {
-+			clflush_cache_range(entries, VTD_PAGE_SIZE);
-+			clflush_cache_range(&dir[dir_index].val, sizeof(*dir));
-+		}
- 	}
- 
- 	return &entries[index];
--- 
-2.25.1
+ mm/khugepaged.c |    1 +
+ 1 file changed, 1 insertion(+)
+
+--- a/mm/khugepaged.c~mm-madv_collapse-set-eagain-on-unexpected-page-refcount
++++ a/mm/khugepaged.c
+@@ -2611,6 +2611,7 @@ static int madvise_collapse_errno(enum s
+ 	case SCAN_CGROUP_CHARGE_FAIL:
+ 		return -EBUSY;
+ 	/* Resource temporary unavailable - trying again might succeed */
++	case SCAN_PAGE_COUNT:
+ 	case SCAN_PAGE_LOCK:
+ 	case SCAN_PAGE_LRU:
+ 	case SCAN_DEL_PAGE_LRU:
+_
+
+Patches currently in -mm which might be from zokeefe@google.com are
+
+mm-madv_collapse-set-eagain-on-unexpected-page-refcount.patch
 
