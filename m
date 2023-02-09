@@ -2,248 +2,256 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 6C03868FF76
-	for <lists+stable@lfdr.de>; Thu,  9 Feb 2023 05:42:57 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2322168FF90
+	for <lists+stable@lfdr.de>; Thu,  9 Feb 2023 05:57:05 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230235AbjBIEmy (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 8 Feb 2023 23:42:54 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35192 "EHLO
+        id S229505AbjBIE5C (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 8 Feb 2023 23:57:02 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46726 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230288AbjBIEmh (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 8 Feb 2023 23:42:37 -0500
-Received: from EUR02-VI1-obe.outbound.protection.outlook.com (mail-vi1eur02on2062f.outbound.protection.outlook.com [IPv6:2a01:111:f400:fe16::62f])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4DD02530DA;
-        Wed,  8 Feb 2023 20:39:44 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=armh.onmicrosoft.com;
- s=selector2-armh-onmicrosoft-com;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=KBNhfpycmxPHkeTEBHZjaPedOW0kPo7H1xp13lo5QFI=;
- b=CDI9neIC0p+IYuC6iHsZIQ8Ex+19D+Dvxz+Wfpj4YGDk3JRyYEg/FmpHr5Y3e4YeRPHSp5p8JUEsXYUu5GzBu847WKwMS6ouJW5aJVbCWOMrsaVVwWhBvK6jiFH34N3crYqScQ62TKxTGJAMBj/cApQENjerDK6/t2F7Bx5RdZw=
-Received: from DUZPR01CA0085.eurprd01.prod.exchangelabs.com
- (2603:10a6:10:46a::17) by DBBPR08MB6282.eurprd08.prod.outlook.com
- (2603:10a6:10:20c::14) with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.6086.18; Thu, 9 Feb
- 2023 04:26:25 +0000
-Received: from DBAEUR03FT056.eop-EUR03.prod.protection.outlook.com
- (2603:10a6:10:46a:cafe::fc) by DUZPR01CA0085.outlook.office365.com
- (2603:10a6:10:46a::17) with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.6086.19 via Frontend
- Transport; Thu, 9 Feb 2023 04:26:25 +0000
-X-MS-Exchange-Authentication-Results: spf=pass (sender IP is 63.35.35.123)
- smtp.mailfrom=arm.com; dkim=pass (signature was verified)
- header.d=armh.onmicrosoft.com;dmarc=pass action=none header.from=arm.com;
-Received-SPF: Pass (protection.outlook.com: domain of arm.com designates
- 63.35.35.123 as permitted sender) receiver=protection.outlook.com;
- client-ip=63.35.35.123; helo=64aa7808-outbound-1.mta.getcheckrecipient.com;
- pr=C
-Received: from 64aa7808-outbound-1.mta.getcheckrecipient.com (63.35.35.123) by
- DBAEUR03FT056.mail.protection.outlook.com (100.127.142.88) with Microsoft
- SMTP Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- 15.20.6086.18 via Frontend Transport; Thu, 9 Feb 2023 04:26:25 +0000
-Received: ("Tessian outbound 8038f0863a52:v132"); Thu, 09 Feb 2023 04:26:25 +0000
-X-CheckRecipientChecked: true
-X-CR-MTA-CID: ed8a50f540f812fb
-X-CR-MTA-TID: 64aa7808
-Received: from 714a94582052.1
-        by 64aa7808-outbound-1.mta.getcheckrecipient.com id E987A2B2-E6B2-46A5-8832-09FE5A42E147.1;
-        Thu, 09 Feb 2023 04:26:19 +0000
-Received: from EUR02-DB5-obe.outbound.protection.outlook.com
-    by 64aa7808-outbound-1.mta.getcheckrecipient.com with ESMTPS id 714a94582052.1
-    (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384);
-    Thu, 09 Feb 2023 04:26:19 +0000
+        with ESMTP id S229623AbjBIE5B (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 8 Feb 2023 23:57:01 -0500
+Received: from mga12.intel.com (mga12.intel.com [192.55.52.136])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 71442144AB;
+        Wed,  8 Feb 2023 20:57:00 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
+  t=1675918620; x=1707454620;
+  h=date:from:to:cc:subject:message-id:references:
+   in-reply-to:mime-version;
+  bh=0Pj/TBQcxvKYD3MI5eAXfp0ftPnt4gJzCZQR9R2rPxU=;
+  b=SYbHZ9ev+cEkCS4qjrXV2yrbIDhzVTVsVQZlVVra5PkkZbeCemPs7nK+
+   QMnHaergyvUWPXyIW2dpHp1zg3iJs8TTv+VLfs3ugSKvTvRUJjYRb78JP
+   xeccVi2CjxQ3Rpr5egFR8xX6in9g3CWeGBeS5hZjy5U5s8FJiXXwAiSkj
+   ktlLxvzlanYTYUW1Gp8JM2ColeYai3H8ZzE8TLnDO1yxyGzvZSb/VqZ6s
+   oeLvUMRqys/0tlz83r1ovs9QsWxC+bxitFt/an2CRJS5baugYZqYvoT0I
+   rGLK7JBYFQtLrVsVNnCQoaS11RWpL+Xel1vBTRbCUnrEECg9CTj7f5sMO
+   g==;
+X-IronPort-AV: E=McAfee;i="6500,9779,10615"; a="309662636"
+X-IronPort-AV: E=Sophos;i="5.97,281,1669104000"; 
+   d="scan'208";a="309662636"
+Received: from orsmga008.jf.intel.com ([10.7.209.65])
+  by fmsmga106.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 08 Feb 2023 20:57:00 -0800
+X-ExtLoop1: 1
+X-IronPort-AV: E=McAfee;i="6500,9779,10615"; a="697899332"
+X-IronPort-AV: E=Sophos;i="5.97,281,1669104000"; 
+   d="scan'208";a="697899332"
+Received: from fmsmsx602.amr.corp.intel.com ([10.18.126.82])
+  by orsmga008.jf.intel.com with ESMTP; 08 Feb 2023 20:56:59 -0800
+Received: from fmsmsx610.amr.corp.intel.com (10.18.126.90) by
+ fmsmsx602.amr.corp.intel.com (10.18.126.82) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
+ 15.1.2507.16; Wed, 8 Feb 2023 20:56:58 -0800
+Received: from FMSEDG603.ED.cps.intel.com (10.1.192.133) by
+ fmsmsx610.amr.corp.intel.com (10.18.126.90) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
+ 15.1.2507.16 via Frontend Transport; Wed, 8 Feb 2023 20:56:58 -0800
+Received: from NAM10-MW2-obe.outbound.protection.outlook.com (104.47.55.107)
+ by edgegateway.intel.com (192.55.55.68) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ 15.1.2507.16; Wed, 8 Feb 2023 20:56:58 -0800
 ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=VthB1gN9cl2cR+rxrxB9k/EbNLJn/bVcQb5PajHXg0IXmKNQzN+KOyRHu23GidKYrUTRblT6fngDiSMISBn4my+bV8MtwEe5DAYwj1V21Gl4yk8x9ZBgrCyovU9x9DTB5CSRQvOkkXKaTyWDDU73S4EbS9JF+TIxYUjFORxoWrJWfyylyZFdIdYcQr37fu3CU+VZP3AbQCVLyhI2BcIqc3uOPhb7x60MAZXsOuAZvwVF8N3A0WNRt5KFzl6whvbTanCVSVo9GUPqCRfRNl83/5yKeWA3e0qoahybQo3mqpnA+Icne/PVyL4tmtZREfEQfGKKOh+o1/3THovg9++kEg==
+ b=DbwxTGAkN9aYfVkzjU3x4KpV+Q0nq5Jx3Zdd6LX9h/Gv24E+gUBNCu5ftcFSXv7s8zSSZVMYKL5WH4WoKW9ER68dXDL7B7wBmzSGjh+QhvpljKyQRR4bftbGmKzZczCkexbIfi1GfsBR5WWc7g3MnK0Bhu3xYk3b7cFB/u9zR0w+xp3uSyKAzwGgXyTZccnWHxOgVVe6tgttpHZU6T0l/1n4Mces8ZxmjwlwVdQcnNcCwotGkVjiGJNDhLG5RXAy1ORzu2FI5n8a5k99+XCWYg7BHPldf3wcwXoMr2kO/ygsZGQ0Upco6s35BhLOuoqrfc6eSp6tBZqEry3F79jfeA==
 ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
  s=arcselector9901;
  h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=KBNhfpycmxPHkeTEBHZjaPedOW0kPo7H1xp13lo5QFI=;
- b=J/wxJ7HbBF+zpdRxNQEPs+SeyMh9VoskZjTg+3ElJ4GT3uvv5VTx63v8V2Hn5ZVGSj4iV4i4Z+Xej12IQXDfaahcFmLyOQnoOAlAYp3odcZivJga+6jcZvvIvRBoo9dnNJKI5hlQ4pRW1f/hJCTZrYQbRHIljTH4f+wuvvEut5bNJCx7HAuki6kGtWgKV51qudfotk4kiUN3VUV4ID23ESeTPSCfCAT/nq2PpraRu6FDJiLknGeXoORCgUw9it7T4oj2YbPx6bqcHWpcfbIO4x3NIvMkLZauNVdMC3NSEpUBv0oNbLrd38RdRinnEExymhiITuG7XXqdRUAtALdL4A==
+ bh=pLt9ZQAI7bWNrVzXCwzeN+XZNK1oWemvOEylBq8feNY=;
+ b=YiIumb5ewNWkTOBh0aG/QvHyxSKZTnVeP6bsJNXZsjDVlbFCWyNw4UTL+GrE4J5abrxVMxaWF7ubHMp6Pen0cmEU0PVeAxAkZT9GRDtGiTdaZVRwdm6x76E5cFrjl6y/jOAR/yUp8WC3/OIsmvHA9AtuJU+Ybk74F5LCvImMW+6Ddy1BYcDiugkbinrl1TVAg43WulUi2wrLw0LDwLOHUV3z2Zd7uKVP5VvtVrEwQY8I6m9m8mgoD9kn8EjUdZRxp+Q18z8woqsvKdWh4vK4PuufgNMCLcrbjObPcfM1hxMQhWEaWb59yuJClnrq3gG4mDSGfsrYwGrG3Z3cO6OBmw==
 ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
- smtp.mailfrom=arm.com; dmarc=pass action=none header.from=arm.com; dkim=pass
- header.d=arm.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=armh.onmicrosoft.com;
- s=selector2-armh-onmicrosoft-com;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=KBNhfpycmxPHkeTEBHZjaPedOW0kPo7H1xp13lo5QFI=;
- b=CDI9neIC0p+IYuC6iHsZIQ8Ex+19D+Dvxz+Wfpj4YGDk3JRyYEg/FmpHr5Y3e4YeRPHSp5p8JUEsXYUu5GzBu847WKwMS6ouJW5aJVbCWOMrsaVVwWhBvK6jiFH34N3crYqScQ62TKxTGJAMBj/cApQENjerDK6/t2F7Bx5RdZw=
-Received: from DBBPR08MB4538.eurprd08.prod.outlook.com (2603:10a6:10:d2::15)
- by DBBPR08MB6297.eurprd08.prod.outlook.com (2603:10a6:10:20b::14) with
+ smtp.mailfrom=intel.com; dmarc=pass action=none header.from=intel.com;
+ dkim=pass header.d=intel.com; arc=none
+Authentication-Results: dkim=none (message not signed)
+ header.d=none;dmarc=none action=none header.from=intel.com;
+Received: from PH8PR11MB8107.namprd11.prod.outlook.com (2603:10b6:510:256::6)
+ by PH8PR11MB7991.namprd11.prod.outlook.com (2603:10b6:510:25a::10) with
  Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.6086.17; Thu, 9 Feb
- 2023 04:26:17 +0000
-Received: from DBBPR08MB4538.eurprd08.prod.outlook.com
- ([fe80::2d8:92a:3c7:2fcd]) by DBBPR08MB4538.eurprd08.prod.outlook.com
- ([fe80::2d8:92a:3c7:2fcd%4]) with mapi id 15.20.6086.017; Thu, 9 Feb 2023
- 04:26:17 +0000
-From:   Justin He <Justin.He@arm.com>
-To:     Darren Hart <darren@os.amperecomputing.com>,
-        LKML <linux-kernel@vger.kernel.org>
-CC:     "stable@vger.kernel.org" <stable@vger.kernel.org>,
-        "linux-efi@vger.kernel.org" <linux-efi@vger.kernel.org>,
-        Alexandru Elisei <alexandru.elisei@gmail.com>,
-        Huacai Chen <chenhuacai@kernel.org>,
-        "Jason A. Donenfeld" <Jason@zx2c4.com>,
-        Ard Biesheuvel <ardb@kernel.org>, nd <nd@arm.com>
-Subject: RE: [PATCH v2] arm64: efi: Force the use of SetVirtualAddressMap() on
- eMAG and Altra Max machines
-Thread-Topic: [PATCH v2] arm64: efi: Force the use of SetVirtualAddressMap()
- on eMAG and Altra Max machines
-Thread-Index: AQHZPB16WuoCttLgRE2E1vPXNQssV67F5ikg
-Date:   Thu, 9 Feb 2023 04:26:16 +0000
-Message-ID: <DBBPR08MB4538C586B721C8209B03AEEEF7D99@DBBPR08MB4538.eurprd08.prod.outlook.com>
-References: <2ab9645789707f31fd37c49435e476d4b5c38a0a.1675901828.git.darren@os.amperecomputing.com>
-In-Reply-To: <2ab9645789707f31fd37c49435e476d4b5c38a0a.1675901828.git.darren@os.amperecomputing.com>
-Accept-Language: en-US, zh-CN
-Content-Language: en-US
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Authentication-Results-Original: dkim=none (message not signed)
- header.d=none;dmarc=none action=none header.from=arm.com;
-x-ms-traffictypediagnostic: DBBPR08MB4538:EE_|DBBPR08MB6297:EE_|DBAEUR03FT056:EE_|DBBPR08MB6282:EE_
-X-MS-Office365-Filtering-Correlation-Id: ba551e31-1ac1-4d7f-4e17-08db0a55ce73
-x-checkrecipientrouted: true
-nodisclaimer: true
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.6002.33; Thu, 9 Feb
+ 2023 04:56:50 +0000
+Received: from PH8PR11MB8107.namprd11.prod.outlook.com
+ ([fe80::421b:865b:f356:7dfc]) by PH8PR11MB8107.namprd11.prod.outlook.com
+ ([fe80::421b:865b:f356:7dfc%6]) with mapi id 15.20.6064.036; Thu, 9 Feb 2023
+ 04:56:49 +0000
+Date:   Wed, 8 Feb 2023 20:56:45 -0800
+From:   Dan Williams <dan.j.williams@intel.com>
+To:     Fan Ni <fan.ni@samsung.com>,
+        Dan Williams <dan.j.williams@intel.com>
+CC:     "linux-cxl@vger.kernel.org" <linux-cxl@vger.kernel.org>,
+        "David Hildenbrand" <david@redhat.com>,
+        Kees Cook <keescook@chromium.org>,
+        "stable@vger.kernel.org" <stable@vger.kernel.org>,
+        Dave Hansen <dave.hansen@linux.intel.com>,
+        Michal Hocko <mhocko@suse.com>,
+        "linux-mm@kvack.org" <linux-mm@kvack.org>,
+        "linux-acpi@vger.kernel.org" <linux-acpi@vger.kernel.org>,
+        Adam Manzanares <a.manzanares@samsung.com>,
+        "dave@stgolabs.net" <dave@stgolabs.net>
+Subject: Re: [PATCH 00/18] CXL RAM and the 'Soft Reserved' => 'System RAM'
+ default
+Message-ID: <63e47d0dcbe55_36c729476@dwillia2-xfh.jf.intel.com.notmuch>
+References: <167564534874.847146.5222419648551436750.stgit@dwillia2-xfh.jf.intel.com>
+ <CGME20230208173730uscas1p2af3a9eeb8946dfa607b190c079a49653@uscas1p2.samsung.com>
+ <20230208173720.GA709329@bgt-140510-bm03>
+Content-Type: text/plain; charset="us-ascii"
+Content-Disposition: inline
+In-Reply-To: <20230208173720.GA709329@bgt-140510-bm03>
+X-ClientProxiedBy: SJ0PR03CA0299.namprd03.prod.outlook.com
+ (2603:10b6:a03:39e::34) To PH8PR11MB8107.namprd11.prod.outlook.com
+ (2603:10b6:510:256::6)
+MIME-Version: 1.0
+X-MS-PublicTrafficType: Email
+X-MS-TrafficTypeDiagnostic: PH8PR11MB8107:EE_|PH8PR11MB7991:EE_
+X-MS-Office365-Filtering-Correlation-Id: 7eed0023-e12c-4055-1812-08db0a5a0d82
+X-LD-Processed: 46c98d88-e344-4ed4-8496-4ed7712e255d,ExtAddr
 X-MS-Exchange-SenderADCheck: 1
 X-MS-Exchange-AntiSpam-Relay: 0
-X-Microsoft-Antispam-Untrusted: BCL:0;
-X-Microsoft-Antispam-Message-Info-Original: w3Q+kG9JiL3pAxCt7DlIEfFqGDyMw/kAjduYw67lh2Ci++YeZNzd1mEvwKD2ebNmqflj/NnPJuTrw8KkQpLtucEq+EkmgyZkm6KDYIMwiCALdUcy6BEd2yAyNGKKyHppp1kWrItcxq8bgitt9slPK1zQdOgj3iCU1lTmAcZo0ChB1vXIoO1afjgkIFlirDkIRlqk93alpq3OGSol5ZJBgHB4uy94QiJp4MuExPDwcYob+yeW+a7RKR56fXYIdt+MSYDwhqpteL3rxB9v99kO9h3XkqmDNmYWT8LGRI/PPq1D7Nfe0dK9RWxgf/J/RAGWqgQg54EgOK6uPkLpT84cMICfbq36bXuFB502hCxVO1pQ1rLs5/BK7JgqR7yRLaAt5tHPh9LBpJQc2jyLRm8P7gp0SaAcl2SftEIwx5zwoQIBmXUzjaYrQcPoe+XV198v7LDwgzug+5EpJrXQL/bT+EaYFPNYXyOu/GhEfpPYjAnXrVT9mjPzS+XJg5ioxVJgBiNfUKopxte/1pwuj0xi2HCH5amdnzKHoMmZtRuDejMXrFo7OZWHINXNLJu9TysLq875PGyCSUBIdEOI9SJMOkCHmrs57uwljHTcpSbmim4x9RBD1ZkidN8tn82tAu8+0lXwRJCta82AzmQUozuRUgJpgZ/1UjB4VZdggewlGM/Vvrs2sOuVNWjKys3UxcoVTy+92Hex6UDlLVQO7WhTsw==
-X-Forefront-Antispam-Report-Untrusted: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:DBBPR08MB4538.eurprd08.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230025)(4636009)(39860400002)(396003)(366004)(136003)(376002)(346002)(451199018)(66476007)(83380400001)(8936002)(76116006)(66946007)(316002)(54906003)(66446008)(64756008)(52536014)(5660300002)(478600001)(110136005)(8676002)(4326008)(41300700001)(186003)(6506007)(53546011)(26005)(7696005)(71200400001)(9686003)(33656002)(66556008)(38070700005)(55016003)(86362001)(2906002)(122000001)(38100700002);DIR:OUT;SFP:1101;
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: quoted-printable
-MIME-Version: 1.0
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: DBBPR08MB6297
-Original-Authentication-Results: dkim=none (message not signed)
- header.d=none;dmarc=none action=none header.from=arm.com;
-X-EOPAttributedMessage: 0
-X-MS-Exchange-Transport-CrossTenantHeadersStripped: DBAEUR03FT056.eop-EUR03.prod.protection.outlook.com
-X-MS-PublicTrafficType: Email
-X-MS-Office365-Filtering-Correlation-Id-Prvs: 54571038-1344-4ea8-6407-08db0a55c95e
 X-Microsoft-Antispam: BCL:0;
-X-Microsoft-Antispam-Message-Info: W0fqpg3UNoQbJ6CXWk+3oMsnuhy6ErfDYKmSn1cQGgep5A37sgy+Gr+ath/6z6W76K+GMV+tTJ5zYvYcjEkLijY7v/wOV4322UuZtPfEyOXstpAXL9EnJaNW5dNy6vwAXsuJBDyAa7GmzE40nkE0SqXcGvXMgLDCtJUsEtzdz8Xz+Y62uIE1RumB5ipUtwh5ONIUzT4OFnKDccNdFw9qZfqa7vJvy6HPZf3llCAl8/TQbrj6lMTyusRqHHzVsH9Z4wqS76ApCQ4UaghQ+YOJpEkIjwkR/0b9sCzLq0PBVSwfeLU1yXga6z4UcJuq4LL51L2jYNbsGFvY3CHgQNZU95An83bTO3pZAbCjiIxg1ptHFHe7U6bdyFH0nDaBCfBC5NyDNNMhWnTMOZf0x7JB2TKlQB+9n7t75F46OiESe4LlPD1sYP2Hah2XiTKzKYfTyHbIKvHw7Z1QedSZ5UhPwKi99AwydALK53GnNAPBb3t6TbuCKovLM8evpTBdtEGMtwVHYMOFCxf/ap7KVSqv+IIEtvaDBDQnyVx2VY2HXKWdJoUrky0bQN4R8DejgZ1lvW0Q+PumILpI/6HjoSdH306akGuJxEyf7jHc+Cvf8EZcn4ehlH7QC9ztfdr4feLsf5ukziIWX8Mlkkzp1AKUxRw5BPErcywofnL1IW2qFYyFvv/AviuOes6HUUfMTjDLgjv6w4/gSnRRJ0RcfIOxgA==
-X-Forefront-Antispam-Report: CIP:63.35.35.123;CTRY:IE;LANG:en;SCL:1;SRV:;IPV:CAL;SFV:NSPM;H:64aa7808-outbound-1.mta.getcheckrecipient.com;PTR:ec2-63-35-35-123.eu-west-1.compute.amazonaws.com;CAT:NONE;SFS:(13230025)(4636009)(376002)(136003)(39860400002)(396003)(346002)(451199018)(40470700004)(46966006)(36840700001)(82740400003)(81166007)(356005)(86362001)(33656002)(40460700003)(41300700001)(52536014)(8936002)(5660300002)(316002)(110136005)(70206006)(4326008)(8676002)(54906003)(7696005)(70586007)(450100002)(2906002)(82310400005)(55016003)(83380400001)(336012)(47076005)(36860700001)(40480700001)(478600001)(9686003)(53546011)(186003)(26005)(6506007);DIR:OUT;SFP:1101;
-X-OriginatorOrg: arm.com
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 09 Feb 2023 04:26:25.5061
+X-Microsoft-Antispam-Message-Info: j9ft6gOfv+cF7Oht/LaP5Rwqpjty/aV8yc4I+deIEvfc1T17eLM3VNVCjGJGq9cZSab95Dynbig8PrJdaC3Uc9NesfEarV8PRdqxv0qXPfRklOMgdD9S/rqPeub/xuGW51pY4kxxa+xnByD10yA7k1JG8huIyFSMG7J4+VqdecbNRH5B0/6gD8+pWEvRtRmtbvi32pJ9faULWve4o/+UEOk+4E5DrD7J/L9HTkjuNvTpyU+iOoMjvab2Bwtl+/TIXUEqeBj6dL+g7t80JKCBwoMm+0GHf/r6sHADSdnuGbu1OLPhiLw4UmqrACpFEhhMWqjvIpRjo44oWKmdxaPMoFHSB7oKnr7URiwB9cY6+phI/SiZlKABu+7B5Ve5tzgYJht3qU2KGhaEtUHd1Go+beB8D60Rs67F/CofoQBt08Z5OIb6fdtKSxN5kMvretb5zvpftDMB2pFowl1/kwjfjUuFuPPqVlRWtjXC1B/E9zzA1mZEUixFh9a8B0oF6TAGDUIaSpLiJmEZ6ZnHNBFvAtx02u5/by3huw1LQyW+iAvNaIkKRhAqrIV+U6c/RBMjYVpXv6pm4+J0weX7nEsldTXjS5AXMxhoyfYv2ZLIAfGOhVhl/MFCtlKYKJTCHa5RuFsGdQ8VlIQD4HUy5izfMrp3n3YJ6ss8JloRQBVg1tKtGITz43Ixz1NJBZzPGTO1
+X-Forefront-Antispam-Report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:PH8PR11MB8107.namprd11.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230025)(136003)(396003)(376002)(39860400002)(346002)(366004)(451199018)(6486002)(966005)(478600001)(82960400001)(2906002)(54906003)(38100700002)(110136005)(86362001)(316002)(41300700001)(66946007)(186003)(26005)(66476007)(6512007)(66556008)(9686003)(4326008)(6506007)(5660300002)(7416002)(83380400001)(8676002)(6666004)(8936002);DIR:OUT;SFP:1102;
+X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
+X-MS-Exchange-AntiSpam-MessageData-0: =?us-ascii?Q?Zy8iLf7QPd10KX3eNSpXLF0AGD6C5Zf+3wwcjDegavoUgGG7Fzo7gZXCszgo?=
+ =?us-ascii?Q?ByAbzaQHpPQ6Yv71wK0Zb+T7dqJrbEp80nhsLxnqflHq4EC+EHDqbZZq3Etg?=
+ =?us-ascii?Q?e6XrZ32divBegNPj+Fl94dDuQz9Z9GvIB413/Q5LkNp3MEkqgCHEwMJCUGsR?=
+ =?us-ascii?Q?skfjIKZjLs5w7IAdAHxmicbsGGkyqzng+Bsl+K4FYkJFRLVZJTe+HKG4gNYS?=
+ =?us-ascii?Q?lBUnb1uPNAGFUir3mOULj6u0q0f8fWV5NybtyB5OIRnuXIRZc30GkuoUKY7X?=
+ =?us-ascii?Q?khHkVfuGGZ7Wyc1Z8iwpbJMossDu4oq1nnTiONi6o3by+Hy8Dge0NUsjjY9R?=
+ =?us-ascii?Q?mIZBqhsk5w/O64cPxUeZUHwp0CLtFIFyWIAlxl8OuMdo31qTJC9XSWO1GXoQ?=
+ =?us-ascii?Q?gty48ePZN9NayVzKnTste5aPypzFy1vUZ1Z2OSx2IVlOWtPBQh0fNd5smvxJ?=
+ =?us-ascii?Q?a6US0c4hobO0+DLJhI8SLwSaODvTWAHfaYW+6W5zaI+I4uvoQegJegm6W/Da?=
+ =?us-ascii?Q?IS+34GlIGry/crYtqVTh6Tm3dMBin0z6lPmKUybx0EqVK003Me2q8k4UP/2+?=
+ =?us-ascii?Q?X81L6w1EDy5+Wad3x/KsvLLViuOmNGG7S4i7kkcvXI4a521m+8BYAd39PqFr?=
+ =?us-ascii?Q?ZRFd9tLCIo2un2+aMMqZx3XsxnWkpxm746yW02Q6FAeIXtr1R2W/dcJ5VV33?=
+ =?us-ascii?Q?tQCPNQcW0R3wyT8KAgfGeLvrUzrQcxcQjib4Zk9kwJfzJI2Z3WMlU7ym9HZJ?=
+ =?us-ascii?Q?JYu5MDTOOP6zdc9VJ2ZrA7bZSJRxlLo1NVwXbqigRoPaQC1+dLLvVAfN2ASp?=
+ =?us-ascii?Q?RcUWdwj1Uq0zlIiB6jB+JMyPuueULZM0tFYO4WnDIBehQzFjZvID9huaaqys?=
+ =?us-ascii?Q?G8wM9lFEvy3sldtbU782GyrwuInnDO1zY7kjtfO8M0QEvj0QX9/ZGrkpGtu8?=
+ =?us-ascii?Q?RSNX7EIVUf6aA1sFfMOz1ZKEnxIJRAeK8pKK5C8jkpVg7SWEujU/1u4k08iF?=
+ =?us-ascii?Q?yggXElEiBF0Ne/Pdr2rPrwIprv813LPrHLr9fmbJdysrVLNOo+I/MyltxsCn?=
+ =?us-ascii?Q?9/zg9UOQgqHyi5a8zTe32yovpisEOl/J9HadA3JOBSHGofiNiwciuFg0rYZm?=
+ =?us-ascii?Q?hNz0bri2Stqfgu4q1vFCADQ9TUIFoWQxJx99PwESdyZQpI/AjEva0pwraX2T?=
+ =?us-ascii?Q?GWtCngcxu7uRQ0xuJV4v7NPXubXduIV2hYPsZN98hhslDd543hm2AgP+JOth?=
+ =?us-ascii?Q?LxEH2gCAu22OCz2eoRtb28Cty28hAJB2TUVLoiDJE0LH/y0blBt10iGrGjkW?=
+ =?us-ascii?Q?ZfClGdHTs4lwGRBsBSCTGA69zSj9Z6Ip8E8uOCx61HqkqEqgMtsnNvMiRRHH?=
+ =?us-ascii?Q?Sdccv4/8AYiC6LYFaviAC+qBUcViEdO5IuvbowHqb5XzEeKX5LJiuXVrsA1E?=
+ =?us-ascii?Q?KtLS9lT8KtU/bzf3Iz1hXVRfLSMVqUxDSVBw8k08E3UUEHb5Mg1/hb1DyEWa?=
+ =?us-ascii?Q?evxUY18svdDrdGtsKWMirndTKOMq650OguWLroErzu/XD7ZkAh5dIDtTSnjl?=
+ =?us-ascii?Q?vA9JRa43EUNR8uI31LNPgEx2r5Ypin7x61DPI6LVpw8dgrh+/apzncptg06m?=
+ =?us-ascii?Q?fw=3D=3D?=
+X-MS-Exchange-CrossTenant-Network-Message-Id: 7eed0023-e12c-4055-1812-08db0a5a0d82
+X-MS-Exchange-CrossTenant-AuthSource: PH8PR11MB8107.namprd11.prod.outlook.com
+X-MS-Exchange-CrossTenant-AuthAs: Internal
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 09 Feb 2023 04:56:49.5208
  (UTC)
-X-MS-Exchange-CrossTenant-Network-Message-Id: ba551e31-1ac1-4d7f-4e17-08db0a55ce73
-X-MS-Exchange-CrossTenant-Id: f34e5979-57d9-4aaa-ad4d-b122a662184d
-X-MS-Exchange-CrossTenant-OriginalAttributedTenantConnectingIp: TenantId=f34e5979-57d9-4aaa-ad4d-b122a662184d;Ip=[63.35.35.123];Helo=[64aa7808-outbound-1.mta.getcheckrecipient.com]
-X-MS-Exchange-CrossTenant-AuthSource: DBAEUR03FT056.eop-EUR03.prod.protection.outlook.com
-X-MS-Exchange-CrossTenant-AuthAs: Anonymous
-X-MS-Exchange-CrossTenant-FromEntityHeader: HybridOnPrem
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: DBBPR08MB6282
-X-Spam-Status: No, score=-0.9 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,FORGED_SPF_HELO,SPF_HELO_PASS,SPF_NONE,UNPARSEABLE_RELAY
-        autolearn=no autolearn_force=no version=3.4.6
+X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
+X-MS-Exchange-CrossTenant-Id: 46c98d88-e344-4ed4-8496-4ed7712e255d
+X-MS-Exchange-CrossTenant-MailboxType: HOSTED
+X-MS-Exchange-CrossTenant-UserPrincipalName: cgVoV1YvFSfp4aF4Woeh5j8pQAzhLGKmwefvzJ5/wAJTSEr1gIP3preC55I+RLvIq0zK3QH6zfytWIppMTh/iknJbpRIRskHynj1xhERYEk=
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: PH8PR11MB7991
+X-OriginatorOrg: intel.com
+X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
+        SPF_HELO_PASS,SPF_NONE autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+Fan Ni wrote:
+> On Sun, Feb 05, 2023 at 05:02:29PM -0800, Dan Williams wrote:
+> 
+> 
+> > Summary:
+> > --------
+> > 
+> > CXL RAM support allows for the dynamic provisioning of new CXL RAM
+> > regions, and more routinely, assembling a region from an existing
+> > configuration established by platform-firmware. The latter is motivated
+> > by CXL memory RAS (Reliability, Availability and Serviceability)
+> > support, that requires associating device events with System Physical
+> > Address ranges and vice versa.
+> > 
+> > The 'Soft Reserved' policy rework arranges for performance
+> > differentiated memory like CXL attached DRAM, or high-bandwidth memory,
+> > to be designated for 'System RAM' by default, rather than the device-dax
+> > dedicated access mode. That current device-dax default is confusing and
+> > surprising for the Pareto of users that do not expect memory to be
+> > quarantined for dedicated access by default. Most users expect all
+> > 'System RAM'-capable memory to show up in FREE(1).
+> > 
+> > 
+> > Details:
+> > --------
+> > 
+> > Recall that the Linux 'Soft Reserved' designation for memory is a
+> > reaction to platform-firmware, like EFI EDK2, delineating memory with
+> > the EFI Specific Purpose Memory attribute (EFI_MEMORY_SP). An
+> > alternative way to think of that attribute is that it specifies the
+> > *not* general-purpose memory pool. It is memory that may be too precious
+> > for general usage or not performant enough for some hot data structures.
+> > However, in the absence of explicit policy it should just be 'System
+> > RAM' by default.
+> > 
+> > Rather than require every distribution to ship a udev policy to assign
+> > dax devices to dax_kmem (the device-memory hotplug driver) just make
+> > that the kernel default. This is similar to the rationale in:
+> > 
+> > commit 8604d9e534a3 ("memory_hotplug: introduce CONFIG_MEMORY_HOTPLUG_DEFAULT_ONLINE")
+> > 
+> > With this change the relatively niche use case of accessing this memory
+> > via mapping a device-dax instance can be achieved by building with
+> > CONFIG_MEMORY_HOTPLUG_DEFAULT_ONLINE=n, or specifying
+> > memhp_default_state=offline at boot, and then use:
+> > 
+> >     daxctl reconfigure-device $device -m devdax --force
+> > 
+> > ...to shift the corresponding address range to device-dax access.
+> > 
+> > The process of assembling a device-dax instance for a given CXL region
+> > device configuration is similar to the process of assembling a
+> > Device-Mapper or MDRAID storage-device array. Specifically, asynchronous
+> > probing by the PCI and driver core enumerates all CXL endpoints and
+> > their decoders. Then, once enough decoders have arrived to a describe a
+> > given region, that region is passed to the device-dax subsystem where it
+> > is subject to the above 'dax_kmem' policy. This assignment and policy
+> > choice is only possible if memory is set aside by the 'Soft Reserved'
+> > designation. Otherwise, CXL that is mapped as 'System RAM' becomes
+> > immutable by CXL driver mechanisms, but is still enumerated for RAS
+> > purposes.
+> > 
+> > This series is also available via:
+> > 
+> > https://git.kernel.org/pub/scm/linux/kernel/git/cxl/cxl.git/log/?h=for-6.3/cxl-ram-region
+> > 
+> > ...and has gone through some preview testing in various forms.
+> > 
+> > ---
+> 
+> Tested-by: Fan Ni <fan.ni@samsung.com>
+> 
+> 
+> Run the following tests with the patch (with the volatile support at qemu).
+> Note: cxl related code are compiled as modules and loaded before used.
+> 
+> For pmem setup, tried three topologies (1HB1RP1Mem, 1HB2RP2Mem, 1HB2RP4Mem with
+> a cxl switch). The memdev is either provided in the command line when launching
+> qemu or hot added to the guest with device_add command in qemu monitor.
+> 
+> The following operations are performed,
+> 1. create-region with cxl cmd
+> 2. create name-space with ndctl cmd
+> 3. convert cxl mem to ram with daxctl cmd
+> 4. online the memory with daxctl cmd
+> 5. Let app use the memory (numactl --membind=1 htop)
+> 
+> Results: No regression.
+> 
+> For volatile memory (hot add with device_add command), mainly tested 1HB1RP1Mem
+> case (passthrough).
+> 1. the device can be correctly discovered after hot add (cxl list, may need
+> cxl enable-memdev)
+> 2. creating ram region (cxl create-region) succeeded, after creating the
+> region, a dax device under /dev/ is shown.
+> 3. online the memory passes, and the memory is shown on another NUMA node.
+> 4. Let app use the memory (numactl --membind=1 htop) passed.
 
-
-> -----Original Message-----
-> From: Darren Hart <darren@os.amperecomputing.com>
-> Sent: Thursday, February 9, 2023 8:28 AM
-> To: LKML <linux-kernel@vger.kernel.org>
-> Cc: stable@vger.kernel.org; linux-efi@vger.kernel.org; Alexandru Elisei
-> <alexandru.elisei@gmail.com>; Justin He <Justin.He@arm.com>; Huacai Chen
-> <chenhuacai@kernel.org>; Jason A. Donenfeld <Jason@zx2c4.com>; Ard
-> Biesheuvel <ardb@kernel.org>
-> Subject: [PATCH v2] arm64: efi: Force the use of SetVirtualAddressMap() o=
-n
-> eMAG and Altra Max machines
->=20
-> Commit 550b33cfd445 ("arm64: efi: Force the use of SetVirtualAddressMap()
-> on Altra machines") identifies the Altra family via the family field in t=
-he type#1
-> SMBIOS record. eMAG and Altra Max machines are similarly affected but not
-> detected with the strict strcmp test.
->=20
-> The type1_family smbios string is not an entirely reliable means of ident=
-ifying
-> systems with this issue as OEMs can, and do, use their own strings for th=
-ese
-> fields. However, until we have a better solution, capture the bulk of the=
-se
-> systems by adding strcmp matching for "eMAG"
-> and "Altra Max".
->=20
-> Fixes: 550b33cfd445 ("arm64: efi: Force the use of SetVirtualAddressMap()=
- on
-> Altra machines")
-> Cc: <stable@vger.kernel.org> # 6.1.x
-> Cc: <linux-efi@vger.kernel.org>
-> Cc: Alexandru Elisei <alexandru.elisei@gmail.com>
-> Cc: Justin He <Justin.He@arm.com>
-> Cc: Huacai Chen <chenhuacai@kernel.org>
-> Cc: "Jason A. Donenfeld" <Jason@zx2c4.com>
-> Cc: Ard Biesheuvel <ardb@kernel.org>
-> Signed-off-by: Darren Hart <darren@os.amperecomputing.com>
-Tested-by: justin.he@arm.com
-> ---
-> V1 -> V2: include eMAG
->=20
->  drivers/firmware/efi/libstub/arm64.c | 9 ++++++---
->  1 file changed, 6 insertions(+), 3 deletions(-)
->=20
-> diff --git a/drivers/firmware/efi/libstub/arm64.c
-> b/drivers/firmware/efi/libstub/arm64.c
-> index ff2d18c42ee7..4501652e11ab 100644
-> --- a/drivers/firmware/efi/libstub/arm64.c
-> +++ b/drivers/firmware/efi/libstub/arm64.c
-> @@ -19,10 +19,13 @@ static bool system_needs_vamap(void)
->  	const u8 *type1_family =3D efi_get_smbios_string(1, family);
->=20
->  	/*
-> -	 * Ampere Altra machines crash in SetTime() if SetVirtualAddressMap()
-> -	 * has not been called prior.
-> +	 * Ampere eMAG, Altra, and Altra Max machines crash in SetTime() if
-> +	 * SetVirtualAddressMap() has not been called prior.
->  	 */
-> -	if (!type1_family || strcmp(type1_family, "Altra"))
-> +	if (!type1_family || (
-> +	    strcmp(type1_family, "eMAG") &&
-> +	    strcmp(type1_family, "Altra") &&
-> +	    strcmp(type1_family, "Altra Max")))
-In terms of resolving the boot hang issue, it looks good to me. And I've ve=
-rified the
-"eMAG" part check.
-So please feel free to add:
-Tested-by: Justin He <justin.he@arm.com>
-
-But I have some other concerns:
-1. On an Altra server, the type1_family returns "Server". I don't know whet=
-her it
-is a smbios or server firmware bug.
-2. On an eMAG server, I once successfully run efibootmgr -t 10 to call the
-Set_variable rts, but currently I always met the error, even with above pat=
-ch:
-# efibootmgr -t 9; efibootmgr -t 5;
-Could not set Timeout: Input/output error
-Could not set Timeout: Input/output error
-
-Meanwhile, on the Altra server, it works:
-# efibootmgr -t 9; efibootmgr -t 5;
-BootCurrent: 0007
-Timeout: 9 seconds
-BootOrder: 0007,0005,0006,0001
-Boot0001* UEFI: Built-in EFI Shell
-Boot0005* UEFI: PXE IPv4 Intel(R) I350 Gigabit Network Connection
-Boot0006* UEFI: PXE IPv4 Intel(R) I350 Gigabit Network Connection
-Boot0007* ubuntu
-BootCurrent: 0007
-Timeout: 5 seconds
-BootOrder: 0007,0005,0006,0001
-Boot0001* UEFI: Built-in EFI Shell
-Boot0005* UEFI: PXE IPv4 Intel(R) I350 Gigabit Network Connection
-Boot0006* UEFI: PXE IPv4 Intel(R) I350 Gigabit Network Connection
-Boot0007* ubuntu
-
-
-
---
-Cheers,
-Justin (Jia He)
-
-
+Thank you, Fan!
