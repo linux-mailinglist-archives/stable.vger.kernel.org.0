@@ -2,50 +2,54 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 778AE690641
+	by mail.lfdr.de (Postfix) with ESMTP id C3103690642
 	for <lists+stable@lfdr.de>; Thu,  9 Feb 2023 12:15:12 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229498AbjBILPJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 9 Feb 2023 06:15:09 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41186 "EHLO
+        id S229526AbjBILPK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 9 Feb 2023 06:15:10 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40690 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229629AbjBILPH (ORCPT
+        with ESMTP id S229647AbjBILPH (ORCPT
         <rfc822;stable@vger.kernel.org>); Thu, 9 Feb 2023 06:15:07 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3E7A644AD;
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3E9FA12F32;
         Thu,  9 Feb 2023 03:15:06 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id A1CB5B820F4;
-        Thu,  9 Feb 2023 11:15:04 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id BC649C433D2;
-        Thu,  9 Feb 2023 11:15:01 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id C5460619E8;
+        Thu,  9 Feb 2023 11:15:05 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id BB667C433EF;
+        Thu,  9 Feb 2023 11:15:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1675941303;
-        bh=KlVsMxAVvKvxUT+qHdljU0jf9knMEDwhqc7W5rc9BhA=;
-        h=From:To:Cc:Subject:Date:From;
-        b=NykB9+Ftot3PFH5BMcLuaTFPgyps4UR4OHZJ3ZPGMnNVxzcQLT9HfX4cH3NDWgaXc
-         yhwO0Kbhba9JpLPi+SxU/doIjqcFfXI/a2UZLyo6QBmfckf9913FNdiIvaovaSRtVt
-         ib2JMNnOtU7GXEJNfO9DM+R5jdzkJCIA1OVzWdYkpcJS4GBPKdlhDAhNbMvj1s0WVE
-         I42H4G4AnA1pXJ+j16LCqlbLZqMaYB878xlDKfpcXOG02xLWv9VjAGILKPx4bMgWM5
-         1iIGft56OgqYqVRfdRINZTe5Vs0KTHFwgiWjw53w1EnMh7w4FLFrNhhBUqwfZ2wIvt
-         RY3GLaRO2ctlA==
+        s=k20201202; t=1675941305;
+        bh=hdPfRMb20l+xwrfZASQljOQ8K9xia2XjTXdmlaqGXKY=;
+        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+        b=AXFgF7taFILymsaOPA1b0K/ezDdfPtjCm3+DOmeJHllC6FWqY5714Api6taT+SbQY
+         NA1W41fmX4vlAR/QqIEei0A8oqH/dsBHmhcGB/ldr8sokVbxuhVUyllJ/i1FUU1C2c
+         jkCtpuBAFkM6nJWMn+V8ulxSKirBOYX6QInqdyrJAyKBXr39AFMOgHFChvcfi46lX8
+         eCpqwyD7MnyMbeqtg5VxwWyOkgjFdInwjhgDgF2i0i/Rm6F4/LlNuL89iWnN+tGk5n
+         d/3/GR/unKfyoAYJw6Vt1k5TuByDnNAYEqVzJz552P5qANkBjnKzzE9T3TVS40FdJo
+         Ff5enGcwp/z9g==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Syed Saba Kareem <Syed.SabaKareem@amd.com>,
-        shanshengwang <shansheng.wang@amd.com>,
+Cc:     Bard Liao <yung-chuan.liao@linux.intel.com>,
+        Ranjani Sridharan <ranjani.sridharan@linux.intel.com>,
+        Kai Vehmanen <kai.vehmanen@linux.intel.com>,
+        =?UTF-8?q?P=C3=A9ter=20Ujfalusi?= <peter.ujfalusi@linux.intel.com>,
+        Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>,
         Mark Brown <broonie@kernel.org>,
         Sasha Levin <sashal@kernel.org>, lgirdwood@gmail.com,
-        perex@perex.cz, tiwai@suse.com, mario.limonciello@amd.com,
-        dukzcry@ya.ru, leohearts@leohearts.com, fengwk94@gmail.com,
-        xazrael@hotmail.com, lxy.lixiaoyan@gmail.com,
-        alsa-devel@alsa-project.org
-Subject: [PATCH AUTOSEL 6.1 01/38] ASoC: amd: yc: Add DMI support for new acer/emdoor platforms
-Date:   Thu,  9 Feb 2023 06:14:20 -0500
-Message-Id: <20230209111459.1891941-1-sashal@kernel.org>
+        daniel.baluta@nxp.com, perex@perex.cz, tiwai@suse.com,
+        sound-open-firmware@alsa-project.org, alsa-devel@alsa-project.org
+Subject: [PATCH AUTOSEL 6.1 02/38] ASoC: SOF: sof-audio: start with the right widget type
+Date:   Thu,  9 Feb 2023 06:14:21 -0500
+Message-Id: <20230209111459.1891941-2-sashal@kernel.org>
 X-Mailer: git-send-email 2.39.0
+In-Reply-To: <20230209111459.1891941-1-sashal@kernel.org>
+References: <20230209111459.1891941-1-sashal@kernel.org>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
 X-stable: review
 X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
@@ -58,46 +62,50 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Syed Saba Kareem <Syed.SabaKareem@amd.com>
+From: Bard Liao <yung-chuan.liao@linux.intel.com>
 
-[ Upstream commit 7fd26a27680aa9032920f798a5a8b38a2c61075f ]
+[ Upstream commit fcc4348adafe53928fda46d104c1798e5a4de4ff ]
 
-Adding DMI entries to support new acer/emdoor platforms.
+If there is a connection between a playback stream and a capture stream,
+all widgets that are connected to the playback stream and the capture
+stream will be in the list.
+So, we have to start with the exactly right widget type.
+snd_soc_dapm_aif_out is for capture stream and a playback stream should
+start with a snd_soc_dapm_aif_in widget.
+Contrarily, snd_soc_dapm_dai_in is for playback stream, and a capture
+stream should start with a snd_soc_dapm_dai_out widget.
 
-Suggested-by: shanshengwang <shansheng.wang@amd.com>
-Signed-off-by: Syed Saba Kareem <Syed.SabaKareem@amd.com>
-Link: https://lore.kernel.org/r/20230111102130.2276391-1-Syed.SabaKareem@amd.com
+Signed-off-by: Bard Liao <yung-chuan.liao@linux.intel.com>
+Reviewed-by: Ranjani Sridharan <ranjani.sridharan@linux.intel.com>
+Reviewed-by: Kai Vehmanen <kai.vehmanen@linux.intel.com>
+Reviewed-by: Péter Ujfalusi <peter.ujfalusi@linux.intel.com>
+Reviewed-by: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
+Signed-off-by: Peter Ujfalusi <peter.ujfalusi@linux.intel.com>
+Link: https://lore.kernel.org/r/20230117123534.2075-1-peter.ujfalusi@linux.intel.com
 Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/soc/amd/yc/acp6x-mach.c | 14 ++++++++++++++
- 1 file changed, 14 insertions(+)
+ sound/soc/sof/sof-audio.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/sound/soc/amd/yc/acp6x-mach.c b/sound/soc/amd/yc/acp6x-mach.c
-index 0d283e41f66dc..00fb976e0b81e 100644
---- a/sound/soc/amd/yc/acp6x-mach.c
-+++ b/sound/soc/amd/yc/acp6x-mach.c
-@@ -234,6 +234,20 @@ static const struct dmi_system_id yc_acp_quirk_table[] = {
- 			DMI_MATCH(DMI_PRODUCT_NAME, "Blade 14 (2022) - RZ09-0427"),
- 		}
- 	},
-+	{
-+		.driver_data = &acp6x_card,
-+		.matches = {
-+			DMI_MATCH(DMI_BOARD_VENDOR, "RB"),
-+			DMI_MATCH(DMI_PRODUCT_NAME, "Swift SFA16-41"),
-+		}
-+	},
-+	{
-+		.driver_data = &acp6x_card,
-+		.matches = {
-+			DMI_MATCH(DMI_BOARD_VENDOR, "IRBIS"),
-+			DMI_MATCH(DMI_PRODUCT_NAME, "15NBC1011"),
-+		}
-+	},
- 	{}
- };
+diff --git a/sound/soc/sof/sof-audio.c b/sound/soc/sof/sof-audio.c
+index 62092e2d609c7..bb92d8c8fbce6 100644
+--- a/sound/soc/sof/sof-audio.c
++++ b/sound/soc/sof/sof-audio.c
+@@ -429,11 +429,11 @@ sof_walk_widgets_in_order(struct snd_sof_dev *sdev, struct snd_soc_dapm_widget_l
  
+ 	for_each_dapm_widgets(list, i, widget) {
+ 		/* starting widget for playback is AIF type */
+-		if (dir == SNDRV_PCM_STREAM_PLAYBACK && !WIDGET_IS_AIF(widget->id))
++		if (dir == SNDRV_PCM_STREAM_PLAYBACK && widget->id != snd_soc_dapm_aif_in)
+ 			continue;
+ 
+ 		/* starting widget for capture is DAI type */
+-		if (dir == SNDRV_PCM_STREAM_CAPTURE && !WIDGET_IS_DAI(widget->id))
++		if (dir == SNDRV_PCM_STREAM_CAPTURE && widget->id != snd_soc_dapm_dai_out)
+ 			continue;
+ 
+ 		switch (op) {
 -- 
 2.39.0
 
