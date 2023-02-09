@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 488516906A0
-	for <lists+stable@lfdr.de>; Thu,  9 Feb 2023 12:18:57 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 515BF6906A7
+	for <lists+stable@lfdr.de>; Thu,  9 Feb 2023 12:19:13 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230258AbjBILSz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 9 Feb 2023 06:18:55 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42662 "EHLO
+        id S230402AbjBILTL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 9 Feb 2023 06:19:11 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42586 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230384AbjBILSD (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 9 Feb 2023 06:18:03 -0500
+        with ESMTP id S229963AbjBILSV (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 9 Feb 2023 06:18:21 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7E31C57746;
-        Thu,  9 Feb 2023 03:16:43 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1DEDC65B8;
+        Thu,  9 Feb 2023 03:16:49 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id CE9AD61A1E;
-        Thu,  9 Feb 2023 11:16:31 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 717D7C4339E;
-        Thu,  9 Feb 2023 11:16:30 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id DEB28619E8;
+        Thu,  9 Feb 2023 11:16:34 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 66BDAC433D2;
+        Thu,  9 Feb 2023 11:16:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1675941391;
-        bh=z9Aq4DGQwNjOpCfeADpvKc/mdeeR4LNe9GE6tUrlsuQ=;
+        s=k20201202; t=1675941394;
+        bh=fmwrvlSnzYMpOU6Bb/kbeD5NAHZC6hAf1LWtjxppyh8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=VFI9QajMR6Iou3nsGBx8B74eCsqe2kwyuucE8kJsse/9RH50Td+ElyeGAM20fjETd
-         cO07pMIp/a+AgnkvjXz7qNIUuo/U9Ac5yqjZxOHlHO+C5iCdmK4oyGOere/AZfimjm
-         9WUscI+T54EHscO4V1r0D3NhssK/UaV6vI05DJOKL5DEe4eKbhlUeOZ68H018Bv6Me
-         UT6D0GQjWvWAG3U7Mjf6XrseAlZo/u+k86EcR+ZYEWagsrSEXk2VCjecbyBbg8EGcl
-         x1VsbhfCZuOzFhYtbjZuBS363ItYx2S42XeR2I5RzeUGRSRdIKElQ6SRD6Ngq6zsCw
-         d+THayvFO3RUg==
+        b=fe7a0eF2Z/4f9pzwCIURmjMK00WA6oNYBctLOZ2rUVv8emKe66aOp34YibkHvI5sp
+         jsqZ6GQ/SSaeUPNv/TMIIKhVPt03ZxGNSGbk+wgbdS3nTxK5mohThnmdzPavPYog3r
+         PnQ32mRW3UAdJQrRwyp0RPPBQ9GPEgA2TIgK+ahG4CnNZmaTjXHU3xgjXkEv0RCmiM
+         BZ2a84SOY3MM/mLd5PC5aaay3x+SME3B6aE4sbtawjytIdyLFHGkNk7TDFuAjI7NPj
+         6FjOQG5KN6nNx8kHeLf5tPqyIdrPOIANzOm8lC7KGZmsuNSX37QLkHzOhFZErBSZc3
+         sjeeNOsVkVLkA==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Hou Tao <houtao1@huawei.com>,
-        Jingbo Xu <jefflexu@linux.alibaba.com>,
-        David Howells <dhowells@redhat.com>,
-        Jeff Layton <jlayton@kernel.org>,
-        Sasha Levin <sashal@kernel.org>, linux-cachefs@redhat.com
-Subject: [PATCH AUTOSEL 6.1 21/38] fscache: Use clear_and_wake_up_bit() in fscache_create_volume_work()
-Date:   Thu,  9 Feb 2023 06:14:40 -0500
-Message-Id: <20230209111459.1891941-21-sashal@kernel.org>
+Cc:     Ben Skeggs <bskeggs@redhat.com>, Lyude Paul <lyude@redhat.com>,
+        Sasha Levin <sashal@kernel.org>, kherbst@redhat.com,
+        airlied@gmail.com, daniel@ffwll.ch,
+        dri-devel@lists.freedesktop.org, nouveau@lists.freedesktop.org
+Subject: [PATCH AUTOSEL 6.1 22/38] drm/nouveau/devinit/tu102-: wait for GFW_BOOT_PROGRESS == COMPLETED
+Date:   Thu,  9 Feb 2023 06:14:41 -0500
+Message-Id: <20230209111459.1891941-22-sashal@kernel.org>
 X-Mailer: git-send-email 2.39.0
 In-Reply-To: <20230209111459.1891941-1-sashal@kernel.org>
 References: <20230209111459.1891941-1-sashal@kernel.org>
@@ -57,43 +56,67 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hou Tao <houtao1@huawei.com>
+From: Ben Skeggs <bskeggs@redhat.com>
 
-[ Upstream commit 3288666c72568fe1cc7f5c5ae33dfd3ab18004c8 ]
+[ Upstream commit d22915d22ded21fd5b24b60d174775789f173997 ]
 
-fscache_create_volume_work() uses wake_up_bit() to wake up the processes
-which are waiting for the completion of volume creation. According to
-comments in wake_up_bit() and waitqueue_active(), an extra smp_mb() is
-needed to guarantee the memory order between FSCACHE_VOLUME_CREATING
-flag and waitqueue_active() before invoking wake_up_bit().
+Starting from Turing, the driver is no longer responsible for initiating
+DEVINIT when required as the GPU started loading a FW image from ROM and
+executing DEVINIT itself after power-on.
 
-Fixing it by using clear_and_wake_up_bit() to add the missing memory
-barrier.
+However - we apparently still need to wait for it to complete.
 
-Reviewed-by: Jingbo Xu <jefflexu@linux.alibaba.com>
-Signed-off-by: Hou Tao <houtao1@huawei.com>
-Signed-off-by: David Howells <dhowells@redhat.com>
-Reviewed-by: Jeff Layton <jlayton@kernel.org>
-Link: https://lore.kernel.org/r/20230113115211.2895845-3-houtao@huaweicloud.com/ # v3
+This should correct some issues with runpm on some systems, where we get
+control of the HW before it's been fully reinitialised after resume from
+suspend.
+
+Signed-off-by: Ben Skeggs <bskeggs@redhat.com>
+Reviewed-by: Lyude Paul <lyude@redhat.com>
+Signed-off-by: Lyude Paul <lyude@redhat.com>
+Link: https://patchwork.freedesktop.org/patch/msgid/20230130223715.1831509-1-bskeggs@redhat.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/fscache/volume.c | 3 +--
- 1 file changed, 1 insertion(+), 2 deletions(-)
+ .../drm/nouveau/nvkm/subdev/devinit/tu102.c   | 23 +++++++++++++++++++
+ 1 file changed, 23 insertions(+)
 
-diff --git a/fs/fscache/volume.c b/fs/fscache/volume.c
-index ab8ceddf9efad..d9fdd90668b0f 100644
---- a/fs/fscache/volume.c
-+++ b/fs/fscache/volume.c
-@@ -279,8 +279,7 @@ static void fscache_create_volume_work(struct work_struct *work)
- 	fscache_end_cache_access(volume->cache,
- 				 fscache_access_acquire_volume_end);
- 
--	clear_bit_unlock(FSCACHE_VOLUME_CREATING, &volume->flags);
--	wake_up_bit(&volume->flags, FSCACHE_VOLUME_CREATING);
-+	clear_and_wake_up_bit(FSCACHE_VOLUME_CREATING, &volume->flags);
- 	fscache_put_volume(volume, fscache_volume_put_create_work);
+diff --git a/drivers/gpu/drm/nouveau/nvkm/subdev/devinit/tu102.c b/drivers/gpu/drm/nouveau/nvkm/subdev/devinit/tu102.c
+index 634f64f88fc8b..81a1ad2c88a7e 100644
+--- a/drivers/gpu/drm/nouveau/nvkm/subdev/devinit/tu102.c
++++ b/drivers/gpu/drm/nouveau/nvkm/subdev/devinit/tu102.c
+@@ -65,10 +65,33 @@ tu102_devinit_pll_set(struct nvkm_devinit *init, u32 type, u32 freq)
+ 	return ret;
  }
  
++static int
++tu102_devinit_wait(struct nvkm_device *device)
++{
++	unsigned timeout = 50 + 2000;
++
++	do {
++		if (nvkm_rd32(device, 0x118128) & 0x00000001) {
++			if ((nvkm_rd32(device, 0x118234) & 0x000000ff) == 0xff)
++				return 0;
++		}
++
++		usleep_range(1000, 2000);
++	} while (timeout--);
++
++	return -ETIMEDOUT;
++}
++
+ int
+ tu102_devinit_post(struct nvkm_devinit *base, bool post)
+ {
+ 	struct nv50_devinit *init = nv50_devinit(base);
++	int ret;
++
++	ret = tu102_devinit_wait(init->base.subdev.device);
++	if (ret)
++		return ret;
++
+ 	gm200_devinit_preos(init, post);
+ 	return 0;
+ }
 -- 
 2.39.0
 
