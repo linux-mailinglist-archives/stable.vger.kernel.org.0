@@ -2,45 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 209736906B9
-	for <lists+stable@lfdr.de>; Thu,  9 Feb 2023 12:20:07 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 50D006906BB
+	for <lists+stable@lfdr.de>; Thu,  9 Feb 2023 12:20:08 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230004AbjBILUE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 9 Feb 2023 06:20:04 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43052 "EHLO
+        id S230301AbjBILUG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 9 Feb 2023 06:20:06 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43054 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230390AbjBILTG (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 9 Feb 2023 06:19:06 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B414457771;
-        Thu,  9 Feb 2023 03:17:05 -0800 (PST)
+        with ESMTP id S230426AbjBILTI (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 9 Feb 2023 06:19:08 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D24815D1C8;
+        Thu,  9 Feb 2023 03:17:08 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 2A0A461A2B;
-        Thu,  9 Feb 2023 11:16:43 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8935CC433D2;
-        Thu,  9 Feb 2023 11:16:41 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 2505BB82100;
+        Thu,  9 Feb 2023 11:16:45 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E049AC4339B;
+        Thu,  9 Feb 2023 11:16:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1675941402;
-        bh=MpCiOHqhya3aRizMfpaodbu0HD3zzhJeJesP8MeQfOQ=;
+        s=k20201202; t=1675941403;
+        bh=PR/EohbDIxEQmBUHz8lHyT1xIeNdyOWaRKch9tCK5AM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=LgCgRLXIzgBjiSKvc5JZWXVox77DSaKsEoJMUUSNOGveYRGuD6IGSMTKiZuooWvWL
-         JcehB/nTPfraLGUtR034bgr3esmB4DegC5HUVhuH+t2oiBszVCCNnKpjqLAIt8wECz
-         kCA6qQVsdOAZY9PKUD6Pe+YfREBgWyIPnm7bg+zfCyAoKd2BE6l/r116s2x8ZQ6zmO
-         ZgZF85wO2QJuojCg6QoddOhSgRejcByox1ao0Cf0k5wtP43yEMrLV42lJa53ycNvyK
-         YyX8TvXRWwkGEFDzB3GdWJTNQgQIXFmV9jDYK1VTvMChOBQ2XqKVaoIy7i20BOY8sR
-         tJ3NE0bRAElkQ==
+        b=F/ES8GNTsuBhMXlj9rR9obBBdK7UO0PtZObdzytf+wTG5j82DwEjD9hamV9rAkXms
+         9zU5WVSLdNPj9GN3UmpAdKWdG0xvlf2SlxBrpxvv4KRidSzPSEOnI1AZxXP48ZIfVM
+         /7lhO2pm5BccuuCWAFmV2KxuQ3i13E7wxjKfTHDlZUCPkEl/INsYXFmb+Nnbcg2twF
+         FaW2xy+VGc9TjmOd0qXYFdvWgw+GGkGy9kOM96eHRbGkJ5c3uCqmpYkWrI9pPNVCAf
+         Uvrq57b4cOjB2HmDO7q9Xvd8A8cF88yX4XgMx+7bdEZqb2aFvmpxy7xzrbl3n0iLDU
+         aRvw9QjV/+9tw==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Amit Engel <Amit.Engel@dell.com>,
-        James Smart <jsmart2021@gmail.com>,
+Cc:     Maurizio Lombardi <mlombard@redhat.com>,
+        Keith Busch <kbusch@kernel.org>,
+        Chaitanya Kulkarni <kch@nvidia.com>,
         Christoph Hellwig <hch@lst.de>,
-        Sasha Levin <sashal@kernel.org>, james.smart@broadcom.com,
-        sagi@grimberg.me, kch@nvidia.com, linux-nvme@lists.infradead.org
-Subject: [PATCH AUTOSEL 6.1 26/38] nvme-fc: fix a missing queue put in nvmet_fc_ls_create_association
-Date:   Thu,  9 Feb 2023 06:14:45 -0500
-Message-Id: <20230209111459.1891941-26-sashal@kernel.org>
+        Sasha Levin <sashal@kernel.org>, axboe@fb.com,
+        sagi@grimberg.me, linux-nvme@lists.infradead.org
+Subject: [PATCH AUTOSEL 6.1 27/38] nvme: clear the request_queue pointers on failure in nvme_alloc_admin_tag_set
+Date:   Thu,  9 Feb 2023 06:14:46 -0500
+Message-Id: <20230209111459.1891941-27-sashal@kernel.org>
 X-Mailer: git-send-email 2.39.0
 In-Reply-To: <20230209111459.1891941-1-sashal@kernel.org>
 References: <20230209111459.1891941-1-sashal@kernel.org>
@@ -57,39 +58,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Amit Engel <Amit.Engel@dell.com>
+From: Maurizio Lombardi <mlombard@redhat.com>
 
-[ Upstream commit 0cab4404874f2de52617de8400c844891c6ea1ce ]
+[ Upstream commit fd62678ab55cb01e11a404d302cdade222bf4022 ]
 
-As part of nvmet_fc_ls_create_association there is a case where
-nvmet_fc_alloc_target_queue fails right after a new association with an
-admin queue is created. In this case, no one releases the get taken in
-nvmet_fc_alloc_target_assoc.  This fix is adding the missing put.
+If nvme_alloc_admin_tag_set() fails, the admin_q and fabrics_q pointers
+are left with an invalid, non-NULL value. Other functions may then check
+the pointers and dereference them, e.g. in
 
-Signed-off-by: Amit Engel <Amit.Engel@dell.com>
-Reviewed-by: James Smart <jsmart2021@gmail.com>
+  nvme_probe() -> out_disable: -> nvme_dev_remove_admin().
+
+Fix the bug by setting admin_q and fabrics_q to NULL in case of error.
+
+Also use the set variable to free the tag_set as ctrl->admin_tagset isn't
+initialized yet.
+
+Signed-off-by: Maurizio Lombardi <mlombard@redhat.com>
+Reviewed-by: Keith Busch <kbusch@kernel.org>
+Reviewed-by: Chaitanya Kulkarni <kch@nvidia.com>
 Signed-off-by: Christoph Hellwig <hch@lst.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/nvme/target/fc.c | 4 +++-
+ drivers/nvme/host/core.c | 4 +++-
  1 file changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/nvme/target/fc.c b/drivers/nvme/target/fc.c
-index ab2627e17bb97..1ab6601fdd5cf 100644
---- a/drivers/nvme/target/fc.c
-+++ b/drivers/nvme/target/fc.c
-@@ -1685,8 +1685,10 @@ nvmet_fc_ls_create_association(struct nvmet_fc_tgtport *tgtport,
- 		else {
- 			queue = nvmet_fc_alloc_target_queue(iod->assoc, 0,
- 					be16_to_cpu(rqst->assoc_cmd.sqsize));
--			if (!queue)
-+			if (!queue) {
- 				ret = VERR_QUEUE_ALLOC_FAIL;
-+				nvmet_fc_tgt_a_put(iod->assoc);
-+			}
- 		}
- 	}
- 
+diff --git a/drivers/nvme/host/core.c b/drivers/nvme/host/core.c
+index 25ade4ce8e0a7..e189ce17deb3e 100644
+--- a/drivers/nvme/host/core.c
++++ b/drivers/nvme/host/core.c
+@@ -4881,7 +4881,9 @@ int nvme_alloc_admin_tag_set(struct nvme_ctrl *ctrl, struct blk_mq_tag_set *set,
+ out_cleanup_admin_q:
+ 	blk_mq_destroy_queue(ctrl->admin_q);
+ out_free_tagset:
+-	blk_mq_free_tag_set(ctrl->admin_tagset);
++	blk_mq_free_tag_set(set);
++	ctrl->admin_q = NULL;
++	ctrl->fabrics_q = NULL;
+ 	return ret;
+ }
+ EXPORT_SYMBOL_GPL(nvme_alloc_admin_tag_set);
 -- 
 2.39.0
 
