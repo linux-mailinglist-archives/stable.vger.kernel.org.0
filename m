@@ -2,68 +2,85 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 4139669110E
-	for <lists+stable@lfdr.de>; Thu,  9 Feb 2023 20:13:18 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id BC27169113B
+	for <lists+stable@lfdr.de>; Thu,  9 Feb 2023 20:23:10 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229974AbjBITNQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 9 Feb 2023 14:13:16 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44726 "EHLO
+        id S229653AbjBITXJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 9 Feb 2023 14:23:09 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51528 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229965AbjBITNQ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 9 Feb 2023 14:13:16 -0500
-Received: from mail-yb1-xb2d.google.com (mail-yb1-xb2d.google.com [IPv6:2607:f8b0:4864:20::b2d])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EBA105C4B3
-        for <stable@vger.kernel.org>; Thu,  9 Feb 2023 11:13:14 -0800 (PST)
-Received: by mail-yb1-xb2d.google.com with SMTP id x4so3660258ybp.1
-        for <stable@vger.kernel.org>; Thu, 09 Feb 2023 11:13:14 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20210112;
-        h=cc:to:subject:message-id:date:from:in-reply-to:references
-         :mime-version:from:to:cc:subject:date:message-id:reply-to;
-        bh=0WFna3RnbyIN5xpLlcRG0QF1tzU7bO3nMdV/kLugpFI=;
-        b=cUJXptVKcev0jWNG0fpaHealHgyPAha/CVW/u3EfdI9Z4La30pZSwbtwXbI0fr9EAd
-         Wx6XDYq+Uat9LNVQqGVixbDNIdj0p8k7zciauDxshDBtuUMkIK6cklsAzKyQ49WwFR6N
-         SUr/o6KVjqez8JGDYRtr84g7HPedYdwZbpq/cct/A+jYgpCPSX0cFECW2Vtonjyulikj
-         I2rYTgLXVwaOwQAFs2cy2Ojn1lIbDM7DjMpP1IekpDtgffe+JKmWxQNWiMMfNRT0K/eT
-         OR1+beltKfbp9ZB/65Osl6n6XsBKvgPiUlSZ9cPFcxPAtFiqzzxs3AZKR86opgSZR1Vg
-         L87w==
+        with ESMTP id S229563AbjBITXI (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 9 Feb 2023 14:23:08 -0500
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 983266950E
+        for <stable@vger.kernel.org>; Thu,  9 Feb 2023 11:22:20 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1675970539;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=odjslzgfJQeZsYkFt34EcHS3ke09IOK/EQikeuKIQN0=;
+        b=i+x9EPH6csOSIHbOw42cb5mtcRM6aw0kAx3K1E46ysd4w84cZDVwkkeMKOrgNUPvkgcnWB
+        RjWCqL3lT93Uwq3nbLZGRK1EuO1zPSsTA+UjEgNUKJnPr2Niyc9pitEv5ZFHRVOH/6c69Q
+        gPbC3PiYflcgrwMFqt7okK7ziYQm5JQ=
+Received: from mail-yw1-f200.google.com (mail-yw1-f200.google.com
+ [209.85.128.200]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_128_GCM_SHA256) id
+ us-mta-561-PUlhfmDhOrC7UP9wUgweFg-1; Thu, 09 Feb 2023 14:22:18 -0500
+X-MC-Unique: PUlhfmDhOrC7UP9wUgweFg-1
+Received: by mail-yw1-f200.google.com with SMTP id 00721157ae682-4fa63c84621so28232537b3.20
+        for <stable@vger.kernel.org>; Thu, 09 Feb 2023 11:22:17 -0800 (PST)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=cc:to:subject:message-id:date:from:in-reply-to:references
-         :mime-version:x-gm-message-state:from:to:cc:subject:date:message-id
-         :reply-to;
-        bh=0WFna3RnbyIN5xpLlcRG0QF1tzU7bO3nMdV/kLugpFI=;
-        b=PAUz+DsUQiaM5cGLgbegTQG1rZdZ2U50iaERMylSmyE1NQZlTSmQHYxrYbMlfvgE8A
-         19PVYOtRW/jHV7dUWUjMeyAM6fLSAFG7Jh8t7HpLa5JEZTOM0XLJO0GAyQFKNMif6ary
-         F5pHDUcZOIiVBXbIwsa30cB3RvZwh2noq5TNJHTecUlKSqmj55YrcZGDLMnJXwNR00QY
-         Npn+VbSNNszZyggcLbPMCvT1V+CQ1hhPjFePDq/4KxUspwIhs2ffKw+Yb6tvK81yWGYy
-         R4/3jzhWWLEZlqIgf3AuEOnS09mM8cbiCfVg5j7pKwUUQ3epHjKrItC9oGiwaA9+fP+J
-         LTug==
-X-Gm-Message-State: AO0yUKUph5vbjCUlPXHMHwb3N1nGQxdKDdd6APHLyZp9hVNs4Hr7X6/a
-        F3OV1GU5CXAEFYbklgxda8nkPDbPVywdW50001qLEw==
-X-Google-Smtp-Source: AK7set/D/XHV8uJf1p3K2MyhQKXuCrrMpzLjcB2ACdTq1kWeMTM7NQl1s3QPQPiKOSlGvN1jVScuRJJcqmjPXjwTPRY=
-X-Received: by 2002:a05:6902:510:b0:8b2:bb9a:a9d6 with SMTP id
- x16-20020a056902051000b008b2bb9aa9d6mr897129ybs.431.1675969993962; Thu, 09
- Feb 2023 11:13:13 -0800 (PST)
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=odjslzgfJQeZsYkFt34EcHS3ke09IOK/EQikeuKIQN0=;
+        b=p+/whT9JGQdYSOm70ulColN8gawM5APQR0FYC3b1BmbRSXrKGnmzAOV/EBehPU4UMa
+         9n2NCdO+SrlA/UfbffXXtJ6WTZsCEy3WI8tje2G3t9zecCY7L0rFipmqFm3bczHCDIlz
+         lisZaAP28qiloPhEzADP8d58b5OO+X10+iupwd0KSUajojmuXwT+Ki2VYZuLanXhYY2o
+         pB2u6Vr9i1lefUzZetesUSBdLASloF+vxrMMWeHbCPweWJsBg+QObuCTMQTfM6xxIcf1
+         3+8b/be6QuOo7Xv3vHnMeYAW4W6gOcO76gyN8mUttmK0dRL++UFICyK5Z70aKqAWwjVB
+         ynwg==
+X-Gm-Message-State: AO0yUKWS7s9RaSrK6dYyr58HX/m+3VgyAJ+W1SwDUBhWDdmhstA/KzdM
+        Nzm0XMYUUpgWQZLAH9xq9XhKWrsl26gnc5aYdvaW1CjcBCH6Tyt+uLagtFR65xAY+IgkZD1ZLv/
+        U/ypUPUxg+UZGM8oon5CSNs5ysti8S3Ui
+X-Received: by 2002:a81:9e04:0:b0:509:bd6:4d4b with SMTP id m4-20020a819e04000000b005090bd64d4bmr1221878ywj.282.1675970536850;
+        Thu, 09 Feb 2023 11:22:16 -0800 (PST)
+X-Google-Smtp-Source: AK7set+1AIEPwZDLEkmtLCQ19uJLBZ0qJj44vOuvdsNAf61QTRcJrF1GxtYwVYeGvWhGHfxGlAO/LRfsvANEZkcrglY=
+X-Received: by 2002:a81:9e04:0:b0:509:bd6:4d4b with SMTP id
+ m4-20020a819e04000000b005090bd64d4bmr1221875ywj.282.1675970536521; Thu, 09
+ Feb 2023 11:22:16 -0800 (PST)
 MIME-Version: 1.0
-References: <CAJuCfpFZ3B4530TgsSHqp5F_gwfrDujwRYewKReJru==MdEHQg@mail.gmail.com>
- <20230202030023.1847084-1-kamatam@amazon.com> <Y9tCl4r/qjqsrVj9@sol.localdomain>
- <CAJuCfpFb0J5ZwO6kncjRG0_4jQLXUy-_dicpH5uGiWP8aKYEJQ@mail.gmail.com>
- <CAJuCfpH4aAAfEJeFzZSGsifhFNCpzZ17MEzXtxhZqoX04jrWbA@mail.gmail.com> <Y+U/k678tB5w5hJP@gmail.com>
-In-Reply-To: <Y+U/k678tB5w5hJP@gmail.com>
-From:   Suren Baghdasaryan <surenb@google.com>
-Date:   Thu, 9 Feb 2023 11:13:02 -0800
-Message-ID: <CAJuCfpECvLiEdp+VfDo=_ZmhakEbtL2JzcwDfFahUk4XBOYNpg@mail.gmail.com>
-Subject: Re: [PATCH] sched/psi: fix use-after-free in ep_remove_wait_queue()
-To:     Eric Biggers <ebiggers@kernel.org>
-Cc:     Munehisa Kamata <kamatam@amazon.com>, hannes@cmpxchg.org,
-        hdanton@sina.com, linux-kernel@vger.kernel.org, linux-mm@kvack.org,
-        mengcc@amazon.com, stable@vger.kernel.org
+References: <CAJD_bPJ1VYTSQvogui4S9xWn9jQzQq8JRXOzXmus+qoRyrybOA@mail.gmail.com>
+ <Y9Vg26wjGfkCicYv@kroah.com> <CAJD_bPLkkgbk+GO66Ec9RmiW6MfYrG32WP75oLzXsz2+rpREWg@mail.gmail.com>
+ <CAJD_bPK=m0mX8_Qq=6iwD8sL8AkR99PEzBbE3RcSaJmxuJmW6g@mail.gmail.com>
+ <02834fa9-4fb0-08fb-4b5f-e9646c1501d6@leemhuis.info> <288d7ff4-75aa-7ad1-c49c-579373cab3ed@intel.com>
+ <CALFERdw=GwNYafR3q=5=k=H_jrzTZMyDBQLouFGV0JGu8i9sCg@mail.gmail.com>
+ <04a9f939-8a98-9a46-e165-8e9fb8801a83@intel.com> <CAJD_bP+Te5a=OfjN9YrjGOG2PzudQ87=5FEKj6YLFxfKyFe5bw@mail.gmail.com>
+ <6262bd72-cc2b-9d2a-e8f0-55c2b2bb7861@linux.intel.com> <CAJD_bPKxbsDi10FGX2mrMeuxcphDOvO8Q87j+AvnnQpe5cvmSA@mail.gmail.com>
+ <CAJD_bP+RUemsss_YiAZ5v08ak8aTzXCB0gk7q623zyF455bh7g@mail.gmail.com>
+ <a423c627-d303-3b50-5f11-78c06ed3b985@linux.intel.com> <CAJD_bPKO+zCeRojkOr2uY+nXvhsjO3Um86Lh53ZCuCUm3Ci3PA@mail.gmail.com>
+ <CAJD_bPJfT5DA8EdN+timzXa3-itnPD5epq552S=NQ6Spr7iTUw@mail.gmail.com> <CAJD_bPLHPfLO=192Ohrxvg5OGtAfAgTim0O+fdmxo753VS83iQ@mail.gmail.com>
+In-Reply-To: <CAJD_bPLHPfLO=192Ohrxvg5OGtAfAgTim0O+fdmxo753VS83iQ@mail.gmail.com>
+From:   Jason Montleon <jmontleo@redhat.com>
+Date:   Thu, 9 Feb 2023 14:22:05 -0500
+Message-ID: <CAJD_bPJLd_hUhkU_XTOJFQ+dczBcLpFc=jf8PDuKzQgzWitkeQ@mail.gmail.com>
+Subject: Re: Google Pixelbook EVE, no sound in kernel 6.1.x
+To:     =?UTF-8?B?QW1hZGV1c3ogU8WCYXdpxYRza2k=?= 
+        <amadeuszx.slawinski@linux.intel.com>
+Cc:     Cezary Rojewski <cezary.rojewski@intel.com>,
+        Sasa Ostrouska <casaxa@gmail.com>,
+        Linux regressions mailing list <regressions@lists.linux.dev>,
+        Greg KH <gregkh@linuxfoundation.org>, lma@semihalf.com,
+        Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>,
+        stable@vger.kernel.org, Takashi Iwai <tiwai@suse.de>
 Content-Type: text/plain; charset="UTF-8"
-X-Spam-Status: No, score=-17.6 required=5.0 tests=BAYES_00,DKIMWL_WL_MED,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,
-        ENV_AND_HDR_SPF_MATCH,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS,
-        USER_IN_DEF_DKIM_WL,USER_IN_DEF_SPF_WL autolearn=ham
+Content-Transfer-Encoding: quoted-printable
+X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_NONE,
+        RCVD_IN_MSPIKE_H2,SPF_HELO_NONE,SPF_NONE autolearn=ham
         autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -71,77 +88,370 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Thu, Feb 9, 2023 at 10:46 AM Eric Biggers <ebiggers@kernel.org> wrote:
+I have a hung task call trace from a debug kernel in case it's helpful:
+https://gist.github.com/jmontleon/a6dff2ad949cc50bb8f162d7b306b320
+
+On Thu, Feb 9, 2023 at 11:13 AM Jason Montleon <jmontleo@redhat.com> wrote:
 >
-> On Thu, Feb 09, 2023 at 09:09:03AM -0800, Suren Baghdasaryan wrote:
-> > On Thu, Feb 2, 2023 at 1:11 PM Suren Baghdasaryan <surenb@google.com> wrote:
-> > >
-> > > On Wed, Feb 1, 2023 at 8:56 PM Eric Biggers <ebiggers@kernel.org> wrote:
-> > > >
-> > > > On Wed, Feb 01, 2023 at 07:00:23PM -0800, Munehisa Kamata wrote:
-> > > > > diff --git a/kernel/sched/psi.c b/kernel/sched/psi.c
-> > > > > index 8ac8b81bfee6..6e66c15f6450 100644
-> > > > > --- a/kernel/sched/psi.c
-> > > > > +++ b/kernel/sched/psi.c
-> > > > > @@ -1343,10 +1343,11 @@ void psi_trigger_destroy(struct psi_trigger *t)
-> > > > >
-> > > > >       group = t->group;
-> > > > >       /*
-> > > > > -      * Wakeup waiters to stop polling. Can happen if cgroup is deleted
-> > > > > -      * from under a polling process.
-> > > > > +      * Wakeup waiters to stop polling and clear the queue to prevent it from
-> > > > > +      * being accessed later. Can happen if cgroup is deleted from under a
-> > > > > +      * polling process otherwise.
-> > > > >        */
-> > > > > -     wake_up_interruptible(&t->event_wait);
-> > > > > +     wake_up_pollfree(&t->event_wait);
-> > > > >
-> > > > >       mutex_lock(&group->trigger_lock);
-> > > >
-> > > > wake_up_pollfree() should only be used in extremely rare cases.  Why can't the
-> > > > lifetime of the waitqueue be fixed instead?
-> > >
-> > > waitqueue lifetime in this case is linked to cgroup_file_release(),
-> > > which seems appropriate to me here. Unfortunately
-> > > cgroup_file_release() is not directly linked to the file's lifetime.
-> > > For more details see:
-> > > https://lore.kernel.org/all/CAJuCfpFZ3B4530TgsSHqp5F_gwfrDujwRYewKReJru==MdEHQg@mail.gmail.com/#t
-> > > .
-> > > So, if we want to fix the lifetime of the waitqueue, we would have to
-> > > tie cgroup_file_release() to the fput() somehow. IOW, the fix would
-> > > have to be done at the cgroups or higher (kernfs?) layer.
+> I've done some more digging. The only line that needs to be reverted
+> from f2bd1c5ae2cb0cf9525c9bffc0038c12dd7e1338, moving from
+> snd_hda_codec_device_init back to snd_hda_codec_device_new is:
+> codec->core.exec_verb =3D codec_exec_verb;
+> (https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git/tree/so=
+und/pci/hda/hda_codec.c?h=3Dv6.1.11#n931)
+>
+> I added a bunch of debug statements and all the code in
+> codec_exec_verb runs at boot with this in snd_hda_codec_device_init,
+> whereas it does not when in snd_hda_codec_device_new.
+>
+> From what I can tell we end up in snd_hda_power_up_pm and then get
+> hung up at snd_hdac_power_up.
+>
+> There are a bunch of pin port messages that show up from
+> hdac_hdmi_query_port_connlist when things are working, that never
+> appear when broken:
+> [   14.618805] HDMI HDA Codec ehdaudio0D2: No connections found for pin:p=
+ort 5:0
+> [   14.619242] HDMI HDA Codec ehdaudio0D2: No connections found for pin:p=
+ort 5:1
+> [   14.619703] HDMI HDA Codec ehdaudio0D2: No connections found for pin:p=
+ort 5:2
+> ...
+>
+> I do see hdac_hdmi_runtime_suspend run a moment before things go bad,
+> but I have no idea if it is related.
+>
+> Without patching anything and CONFIG_PM unset everything works.
+>
+> I don't know if that helps anyone see where the problem is. If not
+> I'll keep plugging away.
+>
+> Incidentally, commit 3fd63658caed9494cca1d4789a66d3d2def2a0ab, pointed
+> to by my second bisect, starts making using of skl_codec_device_init
+> where I believe snd_hda_codec_device_init is called and starts the
+> problem. I believe this is why reverting either of the two works
+> around the problem.
+>
+>
+>
+> On Mon, Feb 6, 2023 at 2:57 PM Jason Montleon <jmontleo@redhat.com> wrote=
+:
 > >
-> > Hi Eric,
-> > Do you still object to using wake_up_pollfree() for this case?
-> > Changing higher levels to make cgroup_file_release() be tied to fput()
-> > would be ideal but I think that would be a big change for this one
-> > case. If you agree I'll Ack this patch.
-> > Thanks,
-> > Suren.
+> > On Mon, Feb 6, 2023 at 8:51 AM Jason Montleon <jmontleo@redhat.com> wro=
+te:
+> > >
+> > > On Mon, Feb 6, 2023 at 4:04 AM Amadeusz S=C5=82awi=C5=84ski
+> > > <amadeuszx.slawinski@linux.intel.com> wrote:
+> > > >
+> > > > On 2/4/2023 4:16 PM, Jason Montleon wrote:
+> > > > > I have built kernels for 6.0.19 (I don't think anyone confirmed
+> > > > > whether or not it worked), plus every 6.1 tag from 6.1-rc1 up to
+> > > > > 6.1.7. 6.0.19 worked. No 6.1 kernels worked. For rc1 to rc5 I bui=
+lt
+> > > > > with and without the legacy dai renaming patch added in rc6 that =
+I
+> > > > > believe would be necessary, but it made no difference either way.
+> > > >
+> > > > Hi,
+> > > >
+> > > > thank you for trying to narrow it down, if I understand correctly -=
+rc1
+> > > > doesn't work, which means that problem was introduced somewhere bet=
+ween
+> > > > 6.0 and 6.1-rc1 (just for the sake of being sure, can you test 6.0
+> > > > instead of 6.0.19?) There is one commit which I'm bit suspicious ab=
+out:
+> > > > ef6f5494faf6a37c74990689a3bb3cee76d2544c it changes how HDMI are
+> > > > assigned and as a machine board present on EVE makes use of HDMI, i=
+t may
+> > > > potentially cause some problems. Can you try reverting it?
+> > > > (If reverting on top of v6.1.8 you need to revert both
+> > > > f9aafff5448b1d8d457052271cd9a11b24e4d0bd and
+> > > > ef6f5494faf6a37c74990689a3bb3cee76d2544c which has minor conflict,
+> > > > easily resolved with just adding both lines.
+> > > >
+> > >
+> > > Yes, happy to give that a shot and will report back.
+> > >
 > >
+> > Removing f9aafff5448b1d8d457052271cd9a11b24e4d0bd and
+> > ef6f5494faf6a37c74990689a3bb3cee76d2544c did not make things work.
+> >
+> > You may be onto something with pulseaudio and/or HDMI, however.
+> > When setting up Slackware I saw an interesting aplay hang.
+> > Normally aplay -l will list like this with working audio:
+> > $ aplay -l
+> > **** List of PLAYBACK Hardware Devices ****
+> > card 0: kblr55145663max [kbl-r5514-5663-max], device 0: Audio (*) []
+> >   Subdevices: 1/1
+> >   Subdevice #0: subdevice #0
+> > card 0: kblr55145663max [kbl-r5514-5663-max], device 2: Headset Audio (=
+*) []
+> >   Subdevices: 1/1
+> >   Subdevice #0: subdevice #0
+> > card 0: kblr55145663max [kbl-r5514-5663-max], device 6: Hdmi1 (*) []
+> >   Subdevices: 1/1
+> >   Subdevice #0: subdevice #0
+> > card 0: kblr55145663max [kbl-r5514-5663-max], device 7: Hdmi2 (*) []
+> >   Subdevices: 1/1
+> >   Subdevice #0: subdevice #0
+> >
+> > Both on Slackware and Fedora with broken audio it hangs like so
+> > (haven't tried on Arch):
+> > $ aplay -l
+> > **** List of PLAYBACK Hardware Devices ****
+> > card 0: kblr55145663max [kbl-r5514-5663-max], device 0: Audio (*) []
+> >   Subdevices: 1/1
+> >   Subdevice #0: subdevice #0
+> > card 0: kblr55145663max [kbl-r5514-5663-max], device 2: Headset Audio (=
+*) []
+> >   Subdevices: 1/1
+> >   Subdevice #0: subdevice #0
+> > card 0: kblr55145663max [kbl-r5514-5663-max], device 6: Hdmi1 (*) []
+> >   Subdevices: 1/1
+> >   Subdevice #0: subdevice #0
+> >
+> > If I remove or disable pulseaudio it lists without hanging, but it's
+> > difficult for me to tell whether it's working since aplay, etc. seem
+> > to want pulseaudio to play anything. Shutdown hangs persist
+> > regardless.
+> >
+> > Also, Slackware with 6.1.9 behaves as badly for me as everything else.
+> > If Sasa has working audio I do not know how he has managed to
+> > configure it. On each distro, as soon as I add topology and firmware
+> > files everything goes bad, regardless of whether I add ucm
+> > configuration or not, etc.
+> >
+> > > > I also still wonder, why problem reproduces only on some
+> > > > distributions... any chance you can try and boot with
+> > > > pipewire/pulseaudio disabled and see if it still happens, iirc thos=
+e
+> > > > tools try to check all FEs and this may be breaking something durin=
+g
+> > > > enumeration.
+> > >
+> > > I can definitely try disabling pulseaudio and switching to pipewire
+> > > and seeing if anything changes as well.
+> > >
+> > > FWIW, I installed Arch on a thumb drive this weekend and was able to
+> > > reproduce the issue and work around it by reverting the commit from m=
+y
+> > > first bisect. So, for me it behaves just like Fedora. The instruction=
+s
+> > > for Arch for building a custom kernel are great except they generaliz=
+e
+> > > the bootloader instructions, so you need to know what to do at the en=
+d
+> > > to add the grub boot entries, if using grub for example, and I suspec=
+t
+> > > that may be where the confusion came from, though I don't know. I'm
+> > > trying to get one of the two to reproduce my results to confirm and a=
+t
+> > > least get them a workaround.
+> > >
+> > > I have slackware on another thumb drive already, but I have yet to
+> > > even get it updated to 6.1.8.
+> > >
+> > > If any of them behave differently I was hoping to tease out whether
+> > > it's firmware, kernel config, or something else, but so far the first
+> > > has been more of the same.
+> > >
+> > > > Thanks,
+> > > > Amadeusz
+> > > >
+> > > > >
+> > > > > On Wed, Feb 1, 2023 at 9:33 AM Jason Montleon <jmontleo@redhat.co=
+m> wrote:
+> > > > >>
+> > > > >> On Wed, Feb 1, 2023 at 6:05 AM Amadeusz S=C5=82awi=C5=84ski
+> > > > >> <amadeuszx.slawinski@linux.intel.com> wrote:
+> > > > >>>
+> > > > >>> On 1/31/2023 4:16 PM, Jason Montleon wrote:
+> > > > >>>> On Tue, Jan 31, 2023 at 7:37 AM Cezary Rojewski
+> > > > >>>> <cezary.rojewski@intel.com> wrote:
+> > > > >>>>>
+> > > > >>>>> On 2023-01-30 1:22 PM, Sasa Ostrouska wrote:
+> > > > >>>>>
+> > > > >>>>>> Dear Czarek, many thanks for the answer and taking care of i=
+t. If
+> > > > >>>>>> needed something from my side please jest let me know
+> > > > >>>>>> and I will try to do it.
+> > > > >>>>>
+> > > > >>>>>
+> > > > >>>>> Hello Sasa,
+> > > > >>>>>
+> > > > >>>>> Could you provide us with the topology and firmware binary pr=
+esent on
+> > > > >>>>> your machine?
+> > > > >>>>>
+> > > > >>>>> Audio topology is located at /lib/firmware and named:
+> > > > >>>>>
+> > > > >>>>> 9d71-GOOGLE-EVEMAX-0-tplg.bin
+> > > > >>>>> -or-
+> > > > >>>>> dfw_sst.bin
+> > > > >>>>>
+> > > > >>>>> Firmware on the other hand is found in /lib/firmware/intel/.
+> > > > >>>>> 'dsp_fw_kbl.bin' will lie there, it shall be a symlink pointi=
+ng to an
+> > > > >>>>> actual AudioDSP firmware binary.
+> > > > >>>>>
+> > > > >>>> Maybe this is the problem.
+> > > > >>>>
+> > > > >>>> I think most of us are pulling the topology and firmware from =
+the
+> > > > >>>> chromeos recovery images for lack of any other known source, a=
+nd it
+> > > > >>>> looks a little different than this. Those can be downloaded li=
+ke so:
+> > > > >>>> https://gist.github.com/jmontleon/8899cb83138f2653f520fbbcc5b8=
+30a0
+> > > > >>>>
+> > > > >>>> After placing the topology file you'll see these errors and au=
+dio will
+> > > > >>>> not work until they're also copied in place.
+> > > > >>>> snd_soc_skl 0000:00:1f.3: Direct firmware load for
+> > > > >>>> dsp_lib_dsm_core_spt_release.bin failed with error -2
+> > > > >>>> snd_soc_skl 0000:00:1f.3: Direct firmware load for
+> > > > >>>> intel/dsp_fw_C75061F3-F2B2-4DCC-8F9F-82ABB4131E66.bin failed w=
+ith
+> > > > >>>> error -2
+> > > > >>>>
+> > > > >>>> Once those were in place, up to 6.0.18 audio worked.
+> > > > >>>>
+> > > > >>>> Is there a better source for the topology file?
+> > > > >>>>
+> > > > >>>>> The reasoning for these asks is fact that problem stopped rep=
+roducing on
+> > > > >>>>> our end once we started playing with kernel versions (moved a=
+way from
+> > > > >>>>> status quo with Fedora). Neither on Lukasz EVE nor on my SKL =
+RVP.
+> > > > >>>>> However, we might be using newer configuration files when com=
+pared to
+> > > > >>>>> equivalent of yours.
+> > > > >>>>>
+> > > > >>>>> Recent v6.2-rc5 broonie/sound/for-next - no repro
+> > > > >>>>> Our internal tree based on Mark's for-next - no repro
+> > > > >>>>> 6.1.7 stable [1] - no repro
+> > > > >>>>>
+> > > > >>>>> Of course we will continue with our attempts. Will notify abo=
+ut the
+> > > > >>>>> progress.
+> > > > >>>>>
+> > > > >>>>>
+> > > > >>>>> [1]:
+> > > > >>>>> https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.=
+git/commit/?h=3Dv6.1.7&id=3D21e996306a6afaae88295858de0ffb8955173a15
+> > > > >>>>>
+> > > > >>>>>
+> > > > >>>>> Kind regards,
+> > > > >>>>> Czarek
+> > > > >>>>>
+> > > > >>>>
+> > > > >>>>
+> > > > >>>
+> > > > >>> Hi Jason,
+> > > > >>>
+> > > > >>> as I understand you've tried to do bisect, can you instead try =
+building
+> > > > >>> kernels checking out following tags:
+> > > > >>> v6.1      v6.1.1    v6.1.2    v6.1.3    v6.1.4    v6.1.5    v6.=
+1.6
+> > > > >>> v6.1.7    v6.1.8
+> > > > >>> and report when it stops working, so it narrows scope of what w=
+e look
+> > > > >>> at? I assume that kernel builds are done using upstream stable =
+kernel
+> > > > >>> (from https://git.kernel.org/pub/scm/linux/kernel/git/stable/li=
+nux.git/).
+> > > > >>>
+> > > > >>> Thanks,
+> > > > >>> Amadeusz
+> > > > >>>
+> > > > >> Hi Amadeusz,
+> > > > >> Yes, I did the bisects using
+> > > > >> https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git=
+/
+> > > > >>
+> > > > >> The only thing I did to these was add
+> > > > >> 392cc13c5ec72ccd6bbfb1bc2339502cc59dd285, otherwise audio breaks=
+ with
+> > > > >> the dai not registered error message in dmesg from the rt5514 bu=
+g from
+> > > > >> 6.0 and up. It wasn't added to 6.1 until rc6, I believe. If ther=
+e's a
+> > > > >> better way to work around the multiple bugs I can try again, oth=
+erwise
+> > > > >> I will start working on builds from tags and see if I learn anyt=
+hing.
+> > > > >>
+> > > > >> FWIW, I've seen two people complain that Arch isn't working eith=
+er
+> > > > >> since it moved to 6.1. For the one who was trying, patching out =
+the
+> > > > >> commit I came to with the first bisect did not regain them sound=
+ like
+> > > > >> it did for me. And yet Sasa reports Slackware is mostly working =
+for
+> > > > >> him with 6.1.8 on Slackware. I don't know what to make of it, bu=
+t
+> > > > >> thought I'd share in case it helps point someone else to somethi=
+ng.
+> > > > >> https://github.com/jmontleon/pixelbook-fedora/issues/51#issuecom=
+ment-1410222840
+> > > > >> https://github.com/jmontleon/pixelbook-fedora/issues/51#issuecom=
+ment-1410673371
+> > > > >> https://github.com/jmontleon/pixelbook-fedora/issues/53#issuecom=
+ment-1408699252
+> > > > >>
+> > > > >> Probably less relevant since they aren't from upstream and I kno=
+w they
+> > > > >> don't mean as much, but I have tried 6.1.5-6.1.8 Fedora packages=
+ for
+> > > > >> certain, and went back trying several others from koji back into=
+ rc
+> > > > >> builds, although using prebuilt kernels, anything before 6.1-rc6=
+ won't
+> > > > >> work, as mentioned above. Nothing worked. But as I said I'll bui=
+ld
+> > > > >> from tags and see if I can learn anything.
+> > > > >>
+> > > > >> Thank you,
+> > > > >> Jason Montleon
+> > > > >>
+> > > > >> --
+> > > > >> Jason Montleon        | email: jmontleo@redhat.com
+> > > > >> Red Hat, Inc.         | gpg key: 0x069E3022
+> > > > >> Cell: 508-496-0663    | irc: jmontleo / jmontleon
+> > > > >
+> > > > >
+> > > > >
+> > > >
+> > >
+> > >
+> > > --
+> > > Jason Montleon        | email: jmontleo@redhat.com
+> > > Red Hat, Inc.         | gpg key: 0x069E3022
+> > > Cell: 508-496-0663    | irc: jmontleo / jmontleon
+> >
+> >
+> >
+> > --
+> > Jason Montleon        | email: jmontleo@redhat.com
+> > Red Hat, Inc.         | gpg key: 0x069E3022
+> > Cell: 508-496-0663    | irc: jmontleo / jmontleon
 >
-> I haven't read the code closely in this case.  I'm just letting you know that
-> wake_up_pollfree() is very much a last-resort option for when the waitqueue
-> lifetime can't be fixed.
-
-Got it. Thanks for the warning.
-I think it can be fixed but the right fix would require a sizable
-higher level refactoring which might be more justifiable if we have
-more such cases in the future.
-
->  So if you want to use wake_up_pollfree(), you need to
-> explain why no other fix is possible.  For example maybe the UAPI depends on the
-> waitqueue having a nonstandard lifetime.
-
-I think the changelog should explain that the waitqueue lifetime in
-cases of non-root cgroups is tied to cgroup_file_release() callback,
-which in turn is not tied to file's lifetime. That's the reason for
-waitqueue and the file having different lifecycles. Would that suffice
-as the justification?
-Again, I'm not saying that no other fix is possible, but that the
-right fix would be much more complex.
-Thanks,
-Suren.
-
 >
-> - Eric
+>
+> --
+> Jason Montleon        | email: jmontleo@redhat.com
+> Red Hat, Inc.         | gpg key: 0x069E3022
+> Cell: 508-496-0663    | irc: jmontleo / jmontleon
+
+
+
+--=20
+Jason Montleon        | email: jmontleo@redhat.com
+Red Hat, Inc.         | gpg key: 0x069E3022
+Cell: 508-496-0663    | irc: jmontleo / jmontleon
+
