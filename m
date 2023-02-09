@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 3619569077F
-	for <lists+stable@lfdr.de>; Thu,  9 Feb 2023 12:30:51 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5BC60690773
+	for <lists+stable@lfdr.de>; Thu,  9 Feb 2023 12:29:23 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230304AbjBILar (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 9 Feb 2023 06:30:47 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59228 "EHLO
+        id S231538AbjBIL3V (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 9 Feb 2023 06:29:21 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58194 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231462AbjBIL3B (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 9 Feb 2023 06:29:01 -0500
+        with ESMTP id S230300AbjBIL2V (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 9 Feb 2023 06:28:21 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C1B7A5A931;
-        Thu,  9 Feb 2023 03:21:21 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E60CC6BA82;
+        Thu,  9 Feb 2023 03:21:10 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 678CC61A25;
+        by dfw.source.kernel.org (Postfix) with ESMTPS id C743A619E8;
+        Thu,  9 Feb 2023 11:20:27 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 44891C4339C;
         Thu,  9 Feb 2023 11:20:26 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D5749C4339B;
-        Thu,  9 Feb 2023 11:20:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1675941625;
-        bh=YuDm4m8K5tva9CfkEqzuuWDJizZqOlzuQFW2rRMjKhs=;
+        s=k20201202; t=1675941627;
+        bh=VDUNcmFfGTzo56vOCStREerT2zCA20lHUHxST9xIdl0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=dFLhCZuvQ2WvAYiy+GIfq/aFkFe82QjIeW8jcALOHOyWlZf8IROl3K6/Xl0pw1PTi
-         Sh0ykW3K/ViAIb8XL2z9tJ1fRF6mq+W8F1ACobB8QqYvfZObhAwb2+twrCfynN04Ik
-         QtICyXrr2BTzI094mu7EIjlImL0ngafjdMR1XelMrdXoEWJP7rvXPpX0LoFZNlV+RJ
-         7MYLHD8U5O30zKEb+1oirZYBwYwo1Us0DdfSe9Ruxbi4lMlo3bEfsHl3B6FZEkuY1z
-         l1E62N0o45HRw2N3NvXKetrZzBEwyAZz5Pkaq8lfaSuaVZrQ2cL4/lh6UKwtE1UgIr
-         Kx1J98ghJClSg==
+        b=WceDjkFiP1v+gXqWwpwRXv4H4eRzdulFy2jAnVOsRrb10ILzhCHRFVRX5S1ZSK2hx
+         vu7DEOFOpkJidUm6nvbkApC8IVt/9Jfc0VzHDZWkTl/pyH054gJxZFlN2MlAdm1Sdp
+         96+C+mCIAiwXH+7QWyzmGwt5amViGTYCD8CMXQp2shwcNSBQfA6isYTuUippRvpfBY
+         AVmMZLKYTtILEQUlToNWeNYa4ckZhndzIlmPM9rGzph4NyjdCZW5m8iEsSlESuUu1Q
+         Urz1uVwx5pNPgYVVPggtkdCFPhpettEf8J0ZWRwohorzMlr8t5ZTGXabSlbac0nAk2
+         nY4kbxE/em9PA==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Sathvika Vasireddy <sv@linux.ibm.com>,
-        kernel test robot <lkp@intel.com>,
-        Michael Ellerman <mpe@ellerman.id.au>,
-        Sasha Levin <sashal@kernel.org>, pbonzini@redhat.com,
-        npiggin@gmail.com, seanjc@google.com, linuxppc-dev@lists.ozlabs.org
-Subject: [PATCH AUTOSEL 4.19 5/6] powerpc/kvm: Fix unannotated intra-function call warning
-Date:   Thu,  9 Feb 2023 06:19:58 -0500
-Message-Id: <20230209111959.1893269-5-sashal@kernel.org>
+Cc:     Amit Engel <Amit.Engel@dell.com>,
+        James Smart <jsmart2021@gmail.com>,
+        Christoph Hellwig <hch@lst.de>,
+        Sasha Levin <sashal@kernel.org>, james.smart@broadcom.com,
+        sagi@grimberg.me, kch@nvidia.com, linux-nvme@lists.infradead.org
+Subject: [PATCH AUTOSEL 4.19 6/6] nvme-fc: fix a missing queue put in nvmet_fc_ls_create_association
+Date:   Thu,  9 Feb 2023 06:19:59 -0500
+Message-Id: <20230209111959.1893269-6-sashal@kernel.org>
 X-Mailer: git-send-email 2.39.0
 In-Reply-To: <20230209111959.1893269-1-sashal@kernel.org>
 References: <20230209111959.1893269-1-sashal@kernel.org>
@@ -57,51 +57,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sathvika Vasireddy <sv@linux.ibm.com>
+From: Amit Engel <Amit.Engel@dell.com>
 
-[ Upstream commit fe6de81b610e5d0b9d2231acff2de74a35482e7d ]
+[ Upstream commit 0cab4404874f2de52617de8400c844891c6ea1ce ]
 
-objtool throws the following warning:
-  arch/powerpc/kvm/booke.o: warning: objtool: kvmppc_fill_pt_regs+0x30:
-  unannotated intra-function call
+As part of nvmet_fc_ls_create_association there is a case where
+nvmet_fc_alloc_target_queue fails right after a new association with an
+admin queue is created. In this case, no one releases the get taken in
+nvmet_fc_alloc_target_assoc.  This fix is adding the missing put.
 
-Fix the warning by setting the value of 'nip' using the _THIS_IP_ macro,
-without using an assembly bl/mflr sequence to save the instruction
-pointer.
-
-Reported-by: kernel test robot <lkp@intel.com>
-Suggested-by: Michael Ellerman <mpe@ellerman.id.au>
-Signed-off-by: Sathvika Vasireddy <sv@linux.ibm.com>
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://lore.kernel.org/r/20230128124158.1066251-1-sv@linux.ibm.com
+Signed-off-by: Amit Engel <Amit.Engel@dell.com>
+Reviewed-by: James Smart <jsmart2021@gmail.com>
+Signed-off-by: Christoph Hellwig <hch@lst.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/powerpc/kvm/booke.c | 5 ++---
- 1 file changed, 2 insertions(+), 3 deletions(-)
+ drivers/nvme/target/fc.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/arch/powerpc/kvm/booke.c b/arch/powerpc/kvm/booke.c
-index a9ca016da6702..5d8cc8a637e74 100644
---- a/arch/powerpc/kvm/booke.c
-+++ b/arch/powerpc/kvm/booke.c
-@@ -898,16 +898,15 @@ static int kvmppc_handle_debug(struct kvm_run *run, struct kvm_vcpu *vcpu)
+diff --git a/drivers/nvme/target/fc.c b/drivers/nvme/target/fc.c
+index 77e4d184bc995..68d128b895abd 100644
+--- a/drivers/nvme/target/fc.c
++++ b/drivers/nvme/target/fc.c
+@@ -1325,8 +1325,10 @@ nvmet_fc_ls_create_association(struct nvmet_fc_tgtport *tgtport,
+ 		else {
+ 			queue = nvmet_fc_alloc_target_queue(iod->assoc, 0,
+ 					be16_to_cpu(rqst->assoc_cmd.sqsize));
+-			if (!queue)
++			if (!queue) {
+ 				ret = VERR_QUEUE_ALLOC_FAIL;
++				nvmet_fc_tgt_a_put(iod->assoc);
++			}
+ 		}
+ 	}
  
- static void kvmppc_fill_pt_regs(struct pt_regs *regs)
- {
--	ulong r1, ip, msr, lr;
-+	ulong r1, msr, lr;
- 
- 	asm("mr %0, 1" : "=r"(r1));
- 	asm("mflr %0" : "=r"(lr));
- 	asm("mfmsr %0" : "=r"(msr));
--	asm("bl 1f; 1: mflr %0" : "=r"(ip));
- 
- 	memset(regs, 0, sizeof(*regs));
- 	regs->gpr[1] = r1;
--	regs->nip = ip;
-+	regs->nip = _THIS_IP_;
- 	regs->msr = msr;
- 	regs->link = lr;
- }
 -- 
 2.39.0
 
