@@ -2,45 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D34C669065E
-	for <lists+stable@lfdr.de>; Thu,  9 Feb 2023 12:16:42 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id EF59D690663
+	for <lists+stable@lfdr.de>; Thu,  9 Feb 2023 12:16:48 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230265AbjBILQl (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 9 Feb 2023 06:16:41 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42768 "EHLO
+        id S230325AbjBILQq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 9 Feb 2023 06:16:46 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42658 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230269AbjBILP6 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 9 Feb 2023 06:15:58 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D23B576A1;
-        Thu,  9 Feb 2023 03:15:40 -0800 (PST)
+        with ESMTP id S230004AbjBILQG (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 9 Feb 2023 06:16:06 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0153F55E74;
+        Thu,  9 Feb 2023 03:15:43 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id A461461A24;
+        by ams.source.kernel.org (Postfix) with ESMTPS id 1E64BB81FFE;
+        Thu,  9 Feb 2023 11:15:42 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 875CCC433D2;
         Thu,  9 Feb 2023 11:15:39 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id BC072C433EF;
-        Thu,  9 Feb 2023 11:15:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1675941339;
-        bh=sPsvOSqlhoWC/q+W+LIn1MJRKhl1TyhFwQxIEx9ez4I=;
+        s=k20201202; t=1675941340;
+        bh=icBDK9poSHMYJuqLBCfD/3moZ5k58dcCgjeRRPeU0YE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=MKmWVEah1UvMQ+KbxBAiB2IygwbRBSduInza0zQsQhwnFEfF2FQqBsl0KHiYzaRUC
-         PwyPd8QmARRK9FGCF6SWcN20I7K1oy2hVNyVe99qvt5o7WpeESKkFLsCNwGZ6QqjAO
-         sUspNGi0T4VazQ4msekFusVuRqOc0UgWvOHu0kZocMZUlxE4hUNVuwqDCIHohuFGFV
-         izGH1+/4yZK8Ly6j59Zt+Cq90wDZ9xJNHL0OVo+1+Q1ZCdCtzncS6WaCD9HIXd2Avj
-         UmpQ4nAlSf2WdVGnutwSFtFHiTZup5Fp9m3zHTvPPzAO9AA+59AF1yC9BCNxviKWNb
-         b6wKGTbeiBMtA==
+        b=M3PNt2Ryo87N05XP6ajFSOrxDu0ur8N1UHsoy8WlEt+L3ggAAzOAGv/oetu/o4CF9
+         K658NIztzo5N4BEzHPGjzjDOC5sh2aCY9Mk90Jc1q688Ra3bWel3SjClQGuc4adRFC
+         d4ExefujqX5SZTw6LPo/vxXiv0x9k4MeXYWoYhS6tl8zdYDO/yQXbH6kvTMo7M1gK4
+         0a4MGZGCx/hErlVjxFc1c4H8ivIuSi3BLUoYElnWSKiP83mRTtjO7GIurS/OSw6hfz
+         Xw9qZb/YEGKETc+bhbob3njOHwzW22Fcyi+If0JIE1PsG2xuDTA6vx2Sp+ILjwrJKz
+         004t2o/lxqSUw==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     fengwk <fengwk94@gmail.com>, Mark Brown <broonie@kernel.org>,
-        Sasha Levin <sashal@kernel.org>, lgirdwood@gmail.com,
-        perex@perex.cz, tiwai@suse.com, mario.limonciello@amd.com,
-        Syed.SabaKareem@amd.com, mendiebm@gmail.com, xazrael@hotmail.com,
-        dukzcry@ya.ru, alsa-devel@alsa-project.org
-Subject: [PATCH AUTOSEL 6.1 10/38] ASoC: amd: yc: Add Xiaomi Redmi Book Pro 15 2022 into DMI table
-Date:   Thu,  9 Feb 2023 06:14:29 -0500
-Message-Id: <20230209111459.1891941-10-sashal@kernel.org>
+Cc:     Jakub Sitnicki <jakub@cloudflare.com>,
+        Eric Dumazet <edumazet@google.com>,
+        John Fastabend <john.fastabend@gmail.com>,
+        Alexei Starovoitov <ast@kernel.org>,
+        Sasha Levin <sashal@kernel.org>, davem@davemloft.net,
+        kuba@kernel.org, pabeni@redhat.com, netdev@vger.kernel.org,
+        bpf@vger.kernel.org
+Subject: [PATCH AUTOSEL 6.1 11/38] bpf, sockmap: Don't let sock_map_{close,destroy,unhash} call itself
+Date:   Thu,  9 Feb 2023 06:14:30 -0500
+Message-Id: <20230209111459.1891941-11-sashal@kernel.org>
 X-Mailer: git-send-email 2.39.0
 In-Reply-To: <20230209111459.1891941-1-sashal@kernel.org>
 References: <20230209111459.1891941-1-sashal@kernel.org>
@@ -48,8 +50,8 @@ MIME-Version: 1.0
 X-stable: review
 X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
         SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -57,40 +59,115 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: fengwk <fengwk94@gmail.com>
+From: Jakub Sitnicki <jakub@cloudflare.com>
 
-[ Upstream commit dcff8b7ca92d724bdaf474a3fa37a7748377813a ]
+[ Upstream commit 5b4a79ba65a1ab479903fff2e604865d229b70a9 ]
 
-This model requires an additional detection quirk to enable the
-internal microphone - BIOS doesn't seem to support AcpDmicConnected
-(nothing in acpidump output).
+sock_map proto callbacks should never call themselves by design. Protect
+against bugs like [1] and break out of the recursive loop to avoid a stack
+overflow in favor of a resource leak.
 
-Signed-off-by: fengwk <fengwk94@gmail.com>
-Link: https://lore.kernel.org/r/Y8wmCutc74j/tyHP@arch
-Signed-off-by: Mark Brown <broonie@kernel.org>
+[1] https://lore.kernel.org/all/00000000000073b14905ef2e7401@google.com/
+
+Suggested-by: Eric Dumazet <edumazet@google.com>
+Signed-off-by: Jakub Sitnicki <jakub@cloudflare.com>
+Acked-by: John Fastabend <john.fastabend@gmail.com>
+Link: https://lore.kernel.org/r/20230113-sockmap-fix-v2-1-1e0ee7ac2f90@cloudflare.com
+Signed-off-by: Alexei Starovoitov <ast@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/soc/amd/yc/acp6x-mach.c | 7 +++++++
- 1 file changed, 7 insertions(+)
+ net/core/sock_map.c | 61 +++++++++++++++++++++++++--------------------
+ 1 file changed, 34 insertions(+), 27 deletions(-)
 
-diff --git a/sound/soc/amd/yc/acp6x-mach.c b/sound/soc/amd/yc/acp6x-mach.c
-index 00fb976e0b81e..36314753923b8 100644
---- a/sound/soc/amd/yc/acp6x-mach.c
-+++ b/sound/soc/amd/yc/acp6x-mach.c
-@@ -227,6 +227,13 @@ static const struct dmi_system_id yc_acp_quirk_table[] = {
- 			DMI_MATCH(DMI_PRODUCT_NAME, "Redmi Book Pro 14 2022"),
- 		}
- 	},
-+	{
-+		.driver_data = &acp6x_card,
-+		.matches = {
-+			DMI_MATCH(DMI_BOARD_VENDOR, "TIMI"),
-+			DMI_MATCH(DMI_PRODUCT_NAME, "Redmi Book Pro 15 2022"),
-+		}
-+	},
- 	{
- 		.driver_data = &acp6x_card,
- 		.matches = {
+diff --git a/net/core/sock_map.c b/net/core/sock_map.c
+index 22fa2c5bc6ec9..a68a7290a3b2b 100644
+--- a/net/core/sock_map.c
++++ b/net/core/sock_map.c
+@@ -1569,15 +1569,16 @@ void sock_map_unhash(struct sock *sk)
+ 	psock = sk_psock(sk);
+ 	if (unlikely(!psock)) {
+ 		rcu_read_unlock();
+-		if (sk->sk_prot->unhash)
+-			sk->sk_prot->unhash(sk);
+-		return;
++		saved_unhash = READ_ONCE(sk->sk_prot)->unhash;
++	} else {
++		saved_unhash = psock->saved_unhash;
++		sock_map_remove_links(sk, psock);
++		rcu_read_unlock();
+ 	}
+-
+-	saved_unhash = psock->saved_unhash;
+-	sock_map_remove_links(sk, psock);
+-	rcu_read_unlock();
+-	saved_unhash(sk);
++	if (WARN_ON_ONCE(saved_unhash == sock_map_unhash))
++		return;
++	if (saved_unhash)
++		saved_unhash(sk);
+ }
+ EXPORT_SYMBOL_GPL(sock_map_unhash);
+ 
+@@ -1590,17 +1591,18 @@ void sock_map_destroy(struct sock *sk)
+ 	psock = sk_psock_get(sk);
+ 	if (unlikely(!psock)) {
+ 		rcu_read_unlock();
+-		if (sk->sk_prot->destroy)
+-			sk->sk_prot->destroy(sk);
+-		return;
++		saved_destroy = READ_ONCE(sk->sk_prot)->destroy;
++	} else {
++		saved_destroy = psock->saved_destroy;
++		sock_map_remove_links(sk, psock);
++		rcu_read_unlock();
++		sk_psock_stop(psock);
++		sk_psock_put(sk, psock);
+ 	}
+-
+-	saved_destroy = psock->saved_destroy;
+-	sock_map_remove_links(sk, psock);
+-	rcu_read_unlock();
+-	sk_psock_stop(psock);
+-	sk_psock_put(sk, psock);
+-	saved_destroy(sk);
++	if (WARN_ON_ONCE(saved_destroy == sock_map_destroy))
++		return;
++	if (saved_destroy)
++		saved_destroy(sk);
+ }
+ EXPORT_SYMBOL_GPL(sock_map_destroy);
+ 
+@@ -1615,16 +1617,21 @@ void sock_map_close(struct sock *sk, long timeout)
+ 	if (unlikely(!psock)) {
+ 		rcu_read_unlock();
+ 		release_sock(sk);
+-		return sk->sk_prot->close(sk, timeout);
++		saved_close = READ_ONCE(sk->sk_prot)->close;
++	} else {
++		saved_close = psock->saved_close;
++		sock_map_remove_links(sk, psock);
++		rcu_read_unlock();
++		sk_psock_stop(psock);
++		release_sock(sk);
++		cancel_work_sync(&psock->work);
++		sk_psock_put(sk, psock);
+ 	}
+-
+-	saved_close = psock->saved_close;
+-	sock_map_remove_links(sk, psock);
+-	rcu_read_unlock();
+-	sk_psock_stop(psock);
+-	release_sock(sk);
+-	cancel_work_sync(&psock->work);
+-	sk_psock_put(sk, psock);
++	/* Make sure we do not recurse. This is a bug.
++	 * Leak the socket instead of crashing on a stack overflow.
++	 */
++	if (WARN_ON_ONCE(saved_close == sock_map_close))
++		return;
+ 	saved_close(sk, timeout);
+ }
+ EXPORT_SYMBOL_GPL(sock_map_close);
 -- 
 2.39.0
 
