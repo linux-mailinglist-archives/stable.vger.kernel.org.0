@@ -2,45 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 98C9769072D
-	for <lists+stable@lfdr.de>; Thu,  9 Feb 2023 12:25:30 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 44EAC69072F
+	for <lists+stable@lfdr.de>; Thu,  9 Feb 2023 12:25:31 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230158AbjBILZ1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 9 Feb 2023 06:25:27 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51836 "EHLO
+        id S230401AbjBILZ3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 9 Feb 2023 06:25:29 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50580 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229897AbjBILXz (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 9 Feb 2023 06:23:55 -0500
+        with ESMTP id S230471AbjBILX5 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 9 Feb 2023 06:23:57 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0A0A47683;
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8906D93F4;
         Thu,  9 Feb 2023 03:19:11 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id C2B80B82104;
-        Thu,  9 Feb 2023 11:19:06 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B0942C433EF;
-        Thu,  9 Feb 2023 11:19:04 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 8C32DB82105;
+        Thu,  9 Feb 2023 11:19:09 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 36348C433D2;
+        Thu,  9 Feb 2023 11:19:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1675941545;
-        bh=nwqLXU+aWd9ElT10Bp8VzjvqLJbXYNf+MZBprxRS75I=;
+        s=k20201202; t=1675941548;
+        bh=DOwUGNlzp8Gd/6kfRh5X/WQszY+secYF6onfeFTABBY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=WXLjNJC5h2t/j4Q9cIwmZLAmXUjI7CnIVFKm7TzYa8CGzQs4xl4DPXxv+HyUlarci
-         F2kekaZO43wwhjGEjqBqkwYLDWE83tk4XmOU3HdidCb9FH2T29JCH0DluK7tk2UVYn
-         MdbyO8NSs18NO5uB1i6RR8Y57hrzBuubBcToSkCKo3jF+IMmbO7eaIKT2rcWhHZCLW
-         2PP6dDiW9uwD3w8ypHEd9TrBkToYO3g1jNsuQ+czZ5VZfkCRE85Col2WR0dlDE1wmW
-         dA7NL4kZ9C95j3C1GvRrS/gaZj2Uv8eyv1WC/A90iJCpmMTvGREXG5nD4IDYS2YQt9
-         SUXjdA/mpPWNg==
+        b=W08a8JX5nFdTcdHY3+5OY0tcUXWZ3ycBC1Os5xzDv6CcKuxhNMFPtZag1A+Mggp9V
+         yyUMv30E0SPemHW2PHXF0WZyB7Nc9j77re9FQUshT8+HAcTxZ3/Or10zrtWN8NQNd3
+         PYR5w/948VRSORmMhIgBCXD+wtZCTHCkINyF3L4PBq6+RwM9Ea9XQ5uq3y3bmNndv2
+         LQObdr3UwZe3XX8A0nIt0TWli0HISR4wgjAwidjPniuLKcEWxDXIUAi4NQjolwSZw4
+         eQUkubjiERTsQdlRomvg4TXzmDvFq64lpKKsG1/efY4lzZY4gWGZNKoZTLt7xMsvZb
+         k9S3iebddMfng==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Sathvika Vasireddy <sv@linux.ibm.com>,
         kernel test robot <lkp@intel.com>,
         Michael Ellerman <mpe@ellerman.id.au>,
-        Sasha Levin <sashal@kernel.org>, christophe.leroy@csgroup.eu,
+        Sasha Levin <sashal@kernel.org>, pbonzini@redhat.com,
+        maz@kernel.org, seanjc@google.com, npiggin@gmail.com,
         linuxppc-dev@lists.ozlabs.org
-Subject: [PATCH AUTOSEL 5.10 07/13] powerpc/85xx: Fix unannotated intra-function call warning
-Date:   Thu,  9 Feb 2023 06:18:25 -0500
-Message-Id: <20230209111833.1892896-7-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.10 08/13] powerpc/kvm: Fix unannotated intra-function call warning
+Date:   Thu,  9 Feb 2023 06:18:26 -0500
+Message-Id: <20230209111833.1892896-8-sashal@kernel.org>
 X-Mailer: git-send-email 2.39.0
 In-Reply-To: <20230209111833.1892896-1-sashal@kernel.org>
 References: <20230209111833.1892896-1-sashal@kernel.org>
@@ -59,45 +60,49 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Sathvika Vasireddy <sv@linux.ibm.com>
 
-[ Upstream commit 8afffce6aa3bddc940ac1909627ff1e772b6cbf1 ]
+[ Upstream commit fe6de81b610e5d0b9d2231acff2de74a35482e7d ]
 
 objtool throws the following warning:
-  arch/powerpc/kernel/head_85xx.o: warning: objtool: .head.text+0x1a6c:
+  arch/powerpc/kvm/booke.o: warning: objtool: kvmppc_fill_pt_regs+0x30:
   unannotated intra-function call
 
-Fix the warning by annotating KernelSPE symbol with SYM_FUNC_START_LOCAL
-and SYM_FUNC_END macros.
+Fix the warning by setting the value of 'nip' using the _THIS_IP_ macro,
+without using an assembly bl/mflr sequence to save the instruction
+pointer.
 
 Reported-by: kernel test robot <lkp@intel.com>
+Suggested-by: Michael Ellerman <mpe@ellerman.id.au>
 Signed-off-by: Sathvika Vasireddy <sv@linux.ibm.com>
 Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://lore.kernel.org/r/20230128124138.1066176-1-sv@linux.ibm.com
+Link: https://lore.kernel.org/r/20230128124158.1066251-1-sv@linux.ibm.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/powerpc/kernel/head_fsl_booke.S | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ arch/powerpc/kvm/booke.c | 5 ++---
+ 1 file changed, 2 insertions(+), 3 deletions(-)
 
-diff --git a/arch/powerpc/kernel/head_fsl_booke.S b/arch/powerpc/kernel/head_fsl_booke.S
-index 586a6ac501e97..f8ad833506c9e 100644
---- a/arch/powerpc/kernel/head_fsl_booke.S
-+++ b/arch/powerpc/kernel/head_fsl_booke.S
-@@ -883,7 +883,7 @@ _GLOBAL(load_up_spe)
-  * SPE unavailable trap from kernel - print a message, but let
-  * the task use SPE in the kernel until it returns to user mode.
-  */
--KernelSPE:
-+SYM_FUNC_START_LOCAL(KernelSPE)
- 	lwz	r3,_MSR(r1)
- 	oris	r3,r3,MSR_SPE@h
- 	stw	r3,_MSR(r1)	/* enable use of SPE after return */
-@@ -900,6 +900,7 @@ KernelSPE:
- #endif
- 	.align	4,0
+diff --git a/arch/powerpc/kvm/booke.c b/arch/powerpc/kvm/booke.c
+index 75381beb7514a..c291021653ecc 100644
+--- a/arch/powerpc/kvm/booke.c
++++ b/arch/powerpc/kvm/booke.c
+@@ -887,16 +887,15 @@ static int kvmppc_handle_debug(struct kvm_vcpu *vcpu)
  
-+SYM_FUNC_END(KernelSPE)
- #endif /* CONFIG_SPE */
+ static void kvmppc_fill_pt_regs(struct pt_regs *regs)
+ {
+-	ulong r1, ip, msr, lr;
++	ulong r1, msr, lr;
  
- /*
+ 	asm("mr %0, 1" : "=r"(r1));
+ 	asm("mflr %0" : "=r"(lr));
+ 	asm("mfmsr %0" : "=r"(msr));
+-	asm("bl 1f; 1: mflr %0" : "=r"(ip));
+ 
+ 	memset(regs, 0, sizeof(*regs));
+ 	regs->gpr[1] = r1;
+-	regs->nip = ip;
++	regs->nip = _THIS_IP_;
+ 	regs->msr = msr;
+ 	regs->link = lr;
+ }
 -- 
 2.39.0
 
