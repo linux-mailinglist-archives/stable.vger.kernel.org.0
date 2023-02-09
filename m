@@ -2,185 +2,112 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id F3CB2691033
-	for <lists+stable@lfdr.de>; Thu,  9 Feb 2023 19:18:13 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 84B74691095
+	for <lists+stable@lfdr.de>; Thu,  9 Feb 2023 19:46:52 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229583AbjBISSM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 9 Feb 2023 13:18:12 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37246 "EHLO
+        id S229563AbjBISqu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 9 Feb 2023 13:46:50 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52940 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229839AbjBISSL (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 9 Feb 2023 13:18:11 -0500
-Received: from mail-pj1-x102f.google.com (mail-pj1-x102f.google.com [IPv6:2607:f8b0:4864:20::102f])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6A3841BCB
-        for <stable@vger.kernel.org>; Thu,  9 Feb 2023 10:18:10 -0800 (PST)
-Received: by mail-pj1-x102f.google.com with SMTP id f15-20020a17090ac28f00b00230a32f0c9eso3159515pjt.4
-        for <stable@vger.kernel.org>; Thu, 09 Feb 2023 10:18:10 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20210112.gappssmtp.com; s=20210112;
-        h=from:to:subject:content-transfer-encoding:mime-version:date
-         :message-id:from:to:cc:subject:date:message-id:reply-to;
-        bh=s+ojUlnOQMP5bHhPET77z3p9TsIOFplE4F+PKNo7ciY=;
-        b=REV6FJ5a4rt1z4UqWylazkrtF/ahrlMU51eDq4KUuHmzgxL/QAbCGILweGk6vUhFFh
-         rMIfBIif9fUInNLTqkQ7JHPCedI36ZwKohe8+SWDeLXlh11k3M0TcUL+WVaK/A+n+vPz
-         gFzECJXIX7wKX1yTt4f/dg6Em0SlrVRGNC3FI5nvrt4xNRITx5aiiwDUYQD+VYHVycjv
-         jOGnygelaL3BypJ0l0gYygOeIv+KD0u5YEgVCAvbhufoK5BD6BLlAlAF75azaB9PyazF
-         JxqoOPb6IQ5ZAUi2EJLpJ/oufjMF+R/+TY9uqAIBjw3xpURhWZpAn1aERdseoyXROxI+
-         444w==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=from:to:subject:content-transfer-encoding:mime-version:date
-         :message-id:x-gm-message-state:from:to:cc:subject:date:message-id
-         :reply-to;
-        bh=s+ojUlnOQMP5bHhPET77z3p9TsIOFplE4F+PKNo7ciY=;
-        b=xUMX3SSYVmiDEW2t89pp44kbRXI3cwSxfdVQxVuETfXpjhq2MouKGoq8WlIFMhj4L4
-         BTL59xDQ3IV2rVcrmMIMO05JhiOnBCW/gyq+8LPmgnyNJafBwqsFnS47zqivJ11Cfoia
-         K+l5jhHb8VsNND/sKjC2NS19MpY8GJv70+Ie+jlciexeyKVC1QUtqktERsO2ckhhj8o5
-         Vu7gIvZq8K34YlILv+yXX5s1hS1Yp2OrKSk/NWd8se9UGY6wkHZeYbrUq+VwdOhkqUSA
-         li2QKMvQlJ6ChtW5iyyD0HimWIgdH1LAv3BVXZNMehNz0RrZHlZXrE4+hpNgLsXszuFP
-         FswQ==
-X-Gm-Message-State: AO0yUKUDHhzOZjPd2vBIWBRWPIsg2EDZLDSJRfP1CKtgUqC0VgqGOVpw
-        jl1beCj9lydoiJnir6T8/YQx+xhv8bS2SMkEc9Tl6g==
-X-Google-Smtp-Source: AK7set+3bDDQdnHwihfzsujqtJVPO7en6SaJd9DGQhsrg1yCWe8NXVWJhZpL5gWfBhc+B0rjLP2rHA==
-X-Received: by 2002:a17:90b:384e:b0:230:f169:ebbc with SMTP id nl14-20020a17090b384e00b00230f169ebbcmr6321429pjb.47.1675966689743;
-        Thu, 09 Feb 2023 10:18:09 -0800 (PST)
-Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id gb7-20020a17090b060700b0021904307a53sm1704466pjb.19.2023.02.09.10.18.09
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 09 Feb 2023 10:18:09 -0800 (PST)
-Message-ID: <63e538e1.170a0220.19210.3236@mx.google.com>
-Date:   Thu, 09 Feb 2023 10:18:09 -0800 (PST)
-Content-Type: text/plain; charset="utf-8"
+        with ESMTP id S229501AbjBISqt (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 9 Feb 2023 13:46:49 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2F8024216;
+        Thu,  9 Feb 2023 10:46:48 -0800 (PST)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by ams.source.kernel.org (Postfix) with ESMTPS id D1A89B822BF;
+        Thu,  9 Feb 2023 18:46:46 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 531B1C433D2;
+        Thu,  9 Feb 2023 18:46:45 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1675968405;
+        bh=NA3iBMWRcwiWdDAwavupXMF3yWhQzTQj/BEcxQTPM/Q=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=gEBA8p5f1drrwalcpKiwz5P6rKDdKFoNX8y+rW0INdsnt8ucIy+YhSmp5RCVU9ZHV
+         452qi9hbX0cxpvblbJ7sg/ihkJkUNKZ3z2vez8Et2PUXeiCB9TPVO6cDBnoZ8nx4By
+         rJo3QmhTOXh6HPbtQglP6pTkfKjAPZX9k8xdWdGB7kmUbWmDVQDE12HGT2tzUPgJ8B
+         S1ISc1VTJHedYKKI1IBXcfHEjIL9tRa748yllU+ywDbebz737Rd8PNWkPj/nE38DaT
+         SBJXGE9F7crNYXg80bBD4yb9ABdb+vI1OJqyCCpPf/Nc5BvZUvA31pE3KZn8s9KO3x
+         fwDJJqM/SV4oA==
+Date:   Thu, 9 Feb 2023 18:46:43 +0000
+From:   Eric Biggers <ebiggers@kernel.org>
+To:     Suren Baghdasaryan <surenb@google.com>
+Cc:     Munehisa Kamata <kamatam@amazon.com>, hannes@cmpxchg.org,
+        hdanton@sina.com, linux-kernel@vger.kernel.org, linux-mm@kvack.org,
+        mengcc@amazon.com, stable@vger.kernel.org
+Subject: Re: [PATCH] sched/psi: fix use-after-free in ep_remove_wait_queue()
+Message-ID: <Y+U/k678tB5w5hJP@gmail.com>
+References: <CAJuCfpFZ3B4530TgsSHqp5F_gwfrDujwRYewKReJru==MdEHQg@mail.gmail.com>
+ <20230202030023.1847084-1-kamatam@amazon.com>
+ <Y9tCl4r/qjqsrVj9@sol.localdomain>
+ <CAJuCfpFb0J5ZwO6kncjRG0_4jQLXUy-_dicpH5uGiWP8aKYEJQ@mail.gmail.com>
+ <CAJuCfpH4aAAfEJeFzZSGsifhFNCpzZ17MEzXtxhZqoX04jrWbA@mail.gmail.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Branch: linux-5.10.y
-X-Kernelci-Tree: stable-rc
-X-Kernelci-Kernel: v5.10.167
-X-Kernelci-Report-Type: test
-Subject: stable-rc/linux-5.10.y baseline: 157 runs, 2 regressions (v5.10.167)
-To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
-        kernelci-results@groups.io
-From:   "kernelci.org bot" <bot@kernelci.org>
-X-Spam-Status: No, score=-1.9 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_NONE autolearn=ham
-        autolearn_force=no version=3.4.6
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <CAJuCfpH4aAAfEJeFzZSGsifhFNCpzZ17MEzXtxhZqoX04jrWbA@mail.gmail.com>
+X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
+        SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/linux-5.10.y baseline: 157 runs, 2 regressions (v5.10.167)
+On Thu, Feb 09, 2023 at 09:09:03AM -0800, Suren Baghdasaryan wrote:
+> On Thu, Feb 2, 2023 at 1:11 PM Suren Baghdasaryan <surenb@google.com> wrote:
+> >
+> > On Wed, Feb 1, 2023 at 8:56 PM Eric Biggers <ebiggers@kernel.org> wrote:
+> > >
+> > > On Wed, Feb 01, 2023 at 07:00:23PM -0800, Munehisa Kamata wrote:
+> > > > diff --git a/kernel/sched/psi.c b/kernel/sched/psi.c
+> > > > index 8ac8b81bfee6..6e66c15f6450 100644
+> > > > --- a/kernel/sched/psi.c
+> > > > +++ b/kernel/sched/psi.c
+> > > > @@ -1343,10 +1343,11 @@ void psi_trigger_destroy(struct psi_trigger *t)
+> > > >
+> > > >       group = t->group;
+> > > >       /*
+> > > > -      * Wakeup waiters to stop polling. Can happen if cgroup is deleted
+> > > > -      * from under a polling process.
+> > > > +      * Wakeup waiters to stop polling and clear the queue to prevent it from
+> > > > +      * being accessed later. Can happen if cgroup is deleted from under a
+> > > > +      * polling process otherwise.
+> > > >        */
+> > > > -     wake_up_interruptible(&t->event_wait);
+> > > > +     wake_up_pollfree(&t->event_wait);
+> > > >
+> > > >       mutex_lock(&group->trigger_lock);
+> > >
+> > > wake_up_pollfree() should only be used in extremely rare cases.  Why can't the
+> > > lifetime of the waitqueue be fixed instead?
+> >
+> > waitqueue lifetime in this case is linked to cgroup_file_release(),
+> > which seems appropriate to me here. Unfortunately
+> > cgroup_file_release() is not directly linked to the file's lifetime.
+> > For more details see:
+> > https://lore.kernel.org/all/CAJuCfpFZ3B4530TgsSHqp5F_gwfrDujwRYewKReJru==MdEHQg@mail.gmail.com/#t
+> > .
+> > So, if we want to fix the lifetime of the waitqueue, we would have to
+> > tie cgroup_file_release() to the fput() somehow. IOW, the fix would
+> > have to be done at the cgroups or higher (kernfs?) layer.
+> 
+> Hi Eric,
+> Do you still object to using wake_up_pollfree() for this case?
+> Changing higher levels to make cgroup_file_release() be tied to fput()
+> would be ideal but I think that would be a big change for this one
+> case. If you agree I'll Ack this patch.
+> Thanks,
+> Suren.
+> 
 
-Regressions Summary
--------------------
+I haven't read the code closely in this case.  I'm just letting you know that
+wake_up_pollfree() is very much a last-resort option for when the waitqueue
+lifetime can't be fixed.  So if you want to use wake_up_pollfree(), you need to
+explain why no other fix is possible.  For example maybe the UAPI depends on the
+waitqueue having a nonstandard lifetime.
 
-platform          | arch | lab          | compiler | defconfig          | r=
-egressions
-------------------+------+--------------+----------+--------------------+--=
-----------
-cubietruck        | arm  | lab-baylibre | gcc-10   | multi_v7_defconfig | 1=
-          =
-
-r8a7743-iwg20d-q7 | arm  | lab-cip      | gcc-10   | shmobile_defconfig | 1=
-          =
-
-
-  Details:  https://kernelci.org/test/job/stable-rc/branch/linux-5.10.y/ker=
-nel/v5.10.167/plan/baseline/
-
-  Test:     baseline
-  Tree:     stable-rc
-  Branch:   linux-5.10.y
-  Describe: v5.10.167
-  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
-able-rc.git
-  SHA:      a5acb54d4066f27e9707af9d93f047f542d5ad88 =
-
-
-
-Test Regressions
----------------- =
-
-
-
-platform          | arch | lab          | compiler | defconfig          | r=
-egressions
-------------------+------+--------------+----------+--------------------+--=
-----------
-cubietruck        | arm  | lab-baylibre | gcc-10   | multi_v7_defconfig | 1=
-          =
-
-
-  Details:     https://kernelci.org/test/plan/id/63e5065ac0fe7963b38c864d
-
-  Results:     5 PASS, 1 FAIL, 1 SKIP
-  Full config: multi_v7_defconfig
-  Compiler:    gcc-10 (arm-linux-gnueabihf-gcc (Debian 10.2.1-6) 10.2.1 202=
-10110)
-  Plain log:   https://storage.kernelci.org//stable-rc/linux-5.10.y/v5.10.1=
-67/arm/multi_v7_defconfig/gcc-10/lab-baylibre/baseline-cubietruck.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/linux-5.10.y/v5.10.1=
-67/arm/multi_v7_defconfig/gcc-10/lab-baylibre/baseline-cubietruck.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
-t-baseline/20230203.0/armel/rootfs.cpio.gz =
-
-
-
-  * baseline.bootrr.deferred-probe-empty: https://kernelci.org/test/case/id=
-/63e5065ac0fe7963b38c8656
-        failing since 22 days (last pass: v5.10.158-107-gd2432186ff47, firs=
-t fail: v5.10.162-852-geeaac3cf2eb3)
-
-    2023-02-09T14:42:04.981873  <8>[   11.020059] <LAVA_SIGNAL_ENDRUN 0_dme=
-sg 3313409_1.5.2.4.1>
-    2023-02-09T14:42:05.091595  / # #
-    2023-02-09T14:42:05.194529  export SHELL=3D/bin/sh
-    2023-02-09T14:42:05.195406  #
-    2023-02-09T14:42:05.297349  / # export SHELL=3D/bin/sh. /lava-3313409/e=
-nvironment
-    2023-02-09T14:42:05.298512  =
-
-    2023-02-09T14:42:05.400729  / # . /lava-3313409/environment/lava-331340=
-9/bin/lava-test-runner /lava-3313409/1
-    2023-02-09T14:42:05.402504  =
-
-    2023-02-09T14:42:05.402985  / # <3>[   11.371177] Bluetooth: hci0: comm=
-and 0x0c03 tx timeout
-    2023-02-09T14:42:05.406812  /lava-3313409/bin/lava-test-runner /lava-33=
-13409/1 =
-
-    ... (12 line(s) more)  =
-
- =
-
-
-
-platform          | arch | lab          | compiler | defconfig          | r=
-egressions
-------------------+------+--------------+----------+--------------------+--=
-----------
-r8a7743-iwg20d-q7 | arm  | lab-cip      | gcc-10   | shmobile_defconfig | 1=
-          =
-
-
-  Details:     https://kernelci.org/test/plan/id/63e506d1ce7bdffa998c8657
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: shmobile_defconfig
-  Compiler:    gcc-10 (arm-linux-gnueabihf-gcc (Debian 10.2.1-6) 10.2.1 202=
-10110)
-  Plain log:   https://storage.kernelci.org//stable-rc/linux-5.10.y/v5.10.1=
-67/arm/shmobile_defconfig/gcc-10/lab-cip/baseline-r8a7743-iwg20d-q7.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/linux-5.10.y/v5.10.1=
-67/arm/shmobile_defconfig/gcc-10/lab-cip/baseline-r8a7743-iwg20d-q7.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
-t-baseline/20230203.0/armel/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/63e506d1ce7bdffa998c8=
-658
-        new failure (last pass: v5.10.166-100-ge9ce3cb0864d) =
-
- =20
+- Eric
