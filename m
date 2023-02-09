@@ -2,50 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 07D4D690693
-	for <lists+stable@lfdr.de>; Thu,  9 Feb 2023 12:18:25 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A562569069B
+	for <lists+stable@lfdr.de>; Thu,  9 Feb 2023 12:18:39 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229991AbjBILSW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 9 Feb 2023 06:18:22 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42724 "EHLO
+        id S230136AbjBILSh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 9 Feb 2023 06:18:37 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43358 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230060AbjBILRc (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 9 Feb 2023 06:17:32 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0B0C05ACFF;
-        Thu,  9 Feb 2023 03:16:27 -0800 (PST)
+        with ESMTP id S230368AbjBILRo (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 9 Feb 2023 06:17:44 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4388AB6D66;
+        Thu,  9 Feb 2023 03:16:33 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 0A1BE619C2;
-        Thu,  9 Feb 2023 11:16:23 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8AED9C433EF;
-        Thu,  9 Feb 2023 11:16:20 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 544AFB81FFE;
+        Thu,  9 Feb 2023 11:16:31 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9C72CC433D2;
+        Thu,  9 Feb 2023 11:16:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1675941382;
-        bh=H6C+4vrhtGEElUVrGafR8vgBWxmAKGYPNQIs9NU39OU=;
+        s=k20201202; t=1675941390;
+        bh=Ez1pJuYH6aouhyUeIeXUPq98fLT3rQpgmFLQZJGJPGM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Lvyubgm/hv4KJs+xTv/tmBCpl1zyPU6BUDe+v2zuHD+Fl3ZpwuCHV2dIqtZ3luOCA
-         iO71YMwth7hc302Z90Mg8NrKHHwYyS9jZzijLItIQKxSWElZNCFczWxV95RnJKQQ9p
-         bXNK3IUdAsRi51gCw5GAG22cBQiQtV2wqitEk/KGI8JEOUNSpux2WNJdsSEZSwEzD0
-         oiBwTmFl4zq0ciiWm7VzwrMVTEPJnmTKwkvXVRYQlsTrEUnur5qhwQE5tC2ILO+HaX
-         Oup2joa4TFCuEsZrHCBDXiaJJFAbzEfIHT7d/QfvflHkEioa9kxP07iSNodc4vSRVL
-         ZbQ/TAYBAaPNg==
+        b=uGgQoplV7n43hC0lI2d0ek44aaZLBkTSd9gEqH2QIPfWsMHLSwgVU3Sk1AJOY1pPr
+         1/qLzfoQsCivijf5SC1gQCKFh4ec5Trd5kvg4AWNl/yIQkcAzVgv/eUY0jFpPUfHv5
+         OmO39htKjpKpaiAxvqKWOsnD7nyQK2Gim19X4ATfjignxp7OBTkGAboMmPu7cKYI66
+         klRzH6IVIZk3NPYgY1YRleK3xGYlsh5LLvFv+7Wtv301AmFr7onGFGMDJv0FRZ5oSv
+         Ypwr0NV0P78FiOdLvhTwH5cJ47CRGVwd9enZx9xeEYs7u1vWELsPoZ11CP4z4IpU0y
+         o8gq90MnolCwg==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Andrey Konovalov <andrey.konovalov@linaro.org>,
-        "David S . Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>, vkoul@kernel.org,
-        peppe.cavallaro@st.com, alexandre.torgue@foss.st.com,
-        joabreu@synopsys.com, edumazet@google.com, kuba@kernel.org,
-        pabeni@redhat.com, mcoquelin.stm32@gmail.com, veekhee@apple.com,
-        tee.min.tan@linux.intel.com, ruppala@nvidia.com,
-        jonathanh@nvidia.com, netdev@vger.kernel.org,
-        linux-stm32@st-md-mailman.stormreply.com,
-        linux-arm-kernel@lists.infradead.org
-Subject: [PATCH AUTOSEL 6.1 19/38] net: stmmac: do not stop RX_CLK in Rx LPI state for qcs404 SoC
-Date:   Thu,  9 Feb 2023 06:14:38 -0500
-Message-Id: <20230209111459.1891941-19-sashal@kernel.org>
+Cc:     Nicholas Piggin <npiggin@gmail.com>,
+        Michael Ellerman <mpe@ellerman.id.au>,
+        Sasha Levin <sashal@kernel.org>, christophe.leroy@csgroup.eu,
+        pmladek@suse.com, arnd@arndb.de, bigeasy@linutronix.de,
+        heying24@huawei.com, joel@jms.id.au, Julia.Lawall@inria.fr,
+        ganeshgr@linux.ibm.com, linuxppc-dev@lists.ozlabs.org
+Subject: [PATCH AUTOSEL 6.1 20/38] powerpc/64: Fix perf profiling asynchronous interrupt handlers
+Date:   Thu,  9 Feb 2023 06:14:39 -0500
+Message-Id: <20230209111459.1891941-20-sashal@kernel.org>
 X-Mailer: git-send-email 2.39.0
 In-Reply-To: <20230209111459.1891941-1-sashal@kernel.org>
 References: <20230209111459.1891941-1-sashal@kernel.org>
@@ -62,65 +58,156 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Andrey Konovalov <andrey.konovalov@linaro.org>
+From: Nicholas Piggin <npiggin@gmail.com>
 
-[ Upstream commit 54aa39a513dbf2164ca462a19f04519b2407a224 ]
+[ Upstream commit c28548012ee2bac55772ef7685138bd1124b80c3 ]
 
-Currently in phy_init_eee() the driver unconditionally configures the PHY
-to stop RX_CLK after entering Rx LPI state. This causes an LPI interrupt
-storm on my qcs404-base board.
+Interrupt entry sets the soft mask to IRQS_ALL_DISABLED to match the
+hard irq disabled state. So when should_hard_irq_enable() returns true
+because we want PMI interrupts in irq handlers, MSR[EE] is enabled but
+PMIs just get soft-masked. Fix this by clearing IRQS_PMI_DISABLED before
+enabling MSR[EE].
 
-Change the PHY initialization so that for "qcom,qcs404-ethqos" compatible
-device RX_CLK continues to run even in Rx LPI state.
+This also tidies some of the warnings, no need to duplicate them in
+both should_hard_irq_enable() and do_hard_irq_enable().
 
-Signed-off-by: Andrey Konovalov <andrey.konovalov@linaro.org>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Nicholas Piggin <npiggin@gmail.com>
+Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
+Link: https://lore.kernel.org/r/20230121100156.2824054-1-npiggin@gmail.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/stmicro/stmmac/dwmac-qcom-ethqos.c | 2 ++
- drivers/net/ethernet/stmicro/stmmac/stmmac_main.c       | 3 ++-
- include/linux/stmmac.h                                  | 1 +
- 3 files changed, 5 insertions(+), 1 deletion(-)
+ arch/powerpc/include/asm/hw_irq.h | 41 ++++++++++++++++++++++---------
+ arch/powerpc/kernel/dbell.c       |  2 +-
+ arch/powerpc/kernel/irq.c         |  2 +-
+ arch/powerpc/kernel/time.c        |  2 +-
+ 4 files changed, 32 insertions(+), 15 deletions(-)
 
-diff --git a/drivers/net/ethernet/stmicro/stmmac/dwmac-qcom-ethqos.c b/drivers/net/ethernet/stmicro/stmmac/dwmac-qcom-ethqos.c
-index 835caa15d55ff..732774645c1a6 100644
---- a/drivers/net/ethernet/stmicro/stmmac/dwmac-qcom-ethqos.c
-+++ b/drivers/net/ethernet/stmicro/stmmac/dwmac-qcom-ethqos.c
-@@ -560,6 +560,8 @@ static int qcom_ethqos_probe(struct platform_device *pdev)
- 	plat_dat->has_gmac4 = 1;
- 	plat_dat->pmt = 1;
- 	plat_dat->tso_en = of_property_read_bool(np, "snps,tso");
-+	if (of_device_is_compatible(np, "qcom,qcs404-ethqos"))
-+		plat_dat->rx_clk_runs_in_lpi = 1;
+diff --git a/arch/powerpc/include/asm/hw_irq.h b/arch/powerpc/include/asm/hw_irq.h
+index 77fa88c2aed0d..265d0eb7ed796 100644
+--- a/arch/powerpc/include/asm/hw_irq.h
++++ b/arch/powerpc/include/asm/hw_irq.h
+@@ -173,6 +173,15 @@ static inline notrace unsigned long irq_soft_mask_or_return(unsigned long mask)
+ 	return flags;
+ }
  
- 	ret = stmmac_dvr_probe(&pdev->dev, plat_dat, &stmmac_res);
- 	if (ret)
-diff --git a/drivers/net/ethernet/stmicro/stmmac/stmmac_main.c b/drivers/net/ethernet/stmicro/stmmac/stmmac_main.c
-index 4bba0444c764a..84e1740b12f1b 100644
---- a/drivers/net/ethernet/stmicro/stmmac/stmmac_main.c
-+++ b/drivers/net/ethernet/stmicro/stmmac/stmmac_main.c
-@@ -1077,7 +1077,8 @@ static void stmmac_mac_link_up(struct phylink_config *config,
++static inline notrace unsigned long irq_soft_mask_andc_return(unsigned long mask)
++{
++	unsigned long flags = irq_soft_mask_return();
++
++	irq_soft_mask_set(flags & ~mask);
++
++	return flags;
++}
++
+ static inline unsigned long arch_local_save_flags(void)
+ {
+ 	return irq_soft_mask_return();
+@@ -331,10 +340,11 @@ bool power_pmu_wants_prompt_pmi(void);
+  * is a different soft-masked interrupt pending that requires hard
+  * masking.
+  */
+-static inline bool should_hard_irq_enable(void)
++static inline bool should_hard_irq_enable(struct pt_regs *regs)
+ {
+ 	if (IS_ENABLED(CONFIG_PPC_IRQ_SOFT_MASK_DEBUG)) {
+-		WARN_ON(irq_soft_mask_return() == IRQS_ENABLED);
++		WARN_ON(irq_soft_mask_return() != IRQS_ALL_DISABLED);
++		WARN_ON(!(get_paca()->irq_happened & PACA_IRQ_HARD_DIS));
+ 		WARN_ON(mfmsr() & MSR_EE);
+ 	}
  
- 	stmmac_mac_set(priv, priv->ioaddr, true);
- 	if (phy && priv->dma_cap.eee) {
--		priv->eee_active = phy_init_eee(phy, 1) >= 0;
-+		priv->eee_active =
-+			phy_init_eee(phy, !priv->plat->rx_clk_runs_in_lpi) >= 0;
- 		priv->eee_enabled = stmmac_eee_init(priv);
- 		priv->tx_lpi_enabled = priv->eee_enabled;
- 		stmmac_set_eee_pls(priv, priv->hw, true);
-diff --git a/include/linux/stmmac.h b/include/linux/stmmac.h
-index fb2e88614f5d1..313edd19bf545 100644
---- a/include/linux/stmmac.h
-+++ b/include/linux/stmmac.h
-@@ -252,6 +252,7 @@ struct plat_stmmacenet_data {
- 	int rss_en;
- 	int mac_port_sel_speed;
- 	bool en_tx_lpi_clockgating;
-+	bool rx_clk_runs_in_lpi;
- 	int has_xgmac;
- 	bool vlan_fail_q_en;
- 	u8 vlan_fail_q;
+@@ -347,8 +357,17 @@ static inline bool should_hard_irq_enable(void)
+ 	 *
+ 	 * TODO: Add test for 64e
+ 	 */
+-	if (IS_ENABLED(CONFIG_PPC_BOOK3S_64) && !power_pmu_wants_prompt_pmi())
+-		return false;
++	if (IS_ENABLED(CONFIG_PPC_BOOK3S_64)) {
++		if (!power_pmu_wants_prompt_pmi())
++			return false;
++		/*
++		 * If PMIs are disabled then IRQs should be disabled as well,
++		 * so we shouldn't see this condition, check for it just in
++		 * case because we are about to enable PMIs.
++		 */
++		if (WARN_ON_ONCE(regs->softe & IRQS_PMI_DISABLED))
++			return false;
++	}
+ 
+ 	if (get_paca()->irq_happened & PACA_IRQ_MUST_HARD_MASK)
+ 		return false;
+@@ -358,18 +377,16 @@ static inline bool should_hard_irq_enable(void)
+ 
+ /*
+  * Do the hard enabling, only call this if should_hard_irq_enable is true.
++ * This allows PMI interrupts to profile irq handlers.
+  */
+ static inline void do_hard_irq_enable(void)
+ {
+-	if (IS_ENABLED(CONFIG_PPC_IRQ_SOFT_MASK_DEBUG)) {
+-		WARN_ON(irq_soft_mask_return() == IRQS_ENABLED);
+-		WARN_ON(get_paca()->irq_happened & PACA_IRQ_MUST_HARD_MASK);
+-		WARN_ON(mfmsr() & MSR_EE);
+-	}
+ 	/*
+-	 * This allows PMI interrupts (and watchdog soft-NMIs) through.
+-	 * There is no other reason to enable this way.
++	 * Asynch interrupts come in with IRQS_ALL_DISABLED,
++	 * PACA_IRQ_HARD_DIS, and MSR[EE]=0.
+ 	 */
++	if (IS_ENABLED(CONFIG_PPC_BOOK3S_64))
++		irq_soft_mask_andc_return(IRQS_PMI_DISABLED);
+ 	get_paca()->irq_happened &= ~PACA_IRQ_HARD_DIS;
+ 	__hard_irq_enable();
+ }
+@@ -452,7 +469,7 @@ static inline bool arch_irq_disabled_regs(struct pt_regs *regs)
+ 	return !(regs->msr & MSR_EE);
+ }
+ 
+-static __always_inline bool should_hard_irq_enable(void)
++static __always_inline bool should_hard_irq_enable(struct pt_regs *regs)
+ {
+ 	return false;
+ }
+diff --git a/arch/powerpc/kernel/dbell.c b/arch/powerpc/kernel/dbell.c
+index f55c6fb34a3a0..5712dd846263c 100644
+--- a/arch/powerpc/kernel/dbell.c
++++ b/arch/powerpc/kernel/dbell.c
+@@ -27,7 +27,7 @@ DEFINE_INTERRUPT_HANDLER_ASYNC(doorbell_exception)
+ 
+ 	ppc_msgsync();
+ 
+-	if (should_hard_irq_enable())
++	if (should_hard_irq_enable(regs))
+ 		do_hard_irq_enable();
+ 
+ 	kvmppc_clear_host_ipi(smp_processor_id());
+diff --git a/arch/powerpc/kernel/irq.c b/arch/powerpc/kernel/irq.c
+index 9ede61a5a469e..55142ff649f3f 100644
+--- a/arch/powerpc/kernel/irq.c
++++ b/arch/powerpc/kernel/irq.c
+@@ -238,7 +238,7 @@ static void __do_irq(struct pt_regs *regs, unsigned long oldsp)
+ 	irq = static_call(ppc_get_irq)();
+ 
+ 	/* We can hard enable interrupts now to allow perf interrupts */
+-	if (should_hard_irq_enable())
++	if (should_hard_irq_enable(regs))
+ 		do_hard_irq_enable();
+ 
+ 	/* And finally process it */
+diff --git a/arch/powerpc/kernel/time.c b/arch/powerpc/kernel/time.c
+index a2ab397065c66..f157552d79b38 100644
+--- a/arch/powerpc/kernel/time.c
++++ b/arch/powerpc/kernel/time.c
+@@ -533,7 +533,7 @@ DEFINE_INTERRUPT_HANDLER_ASYNC(timer_interrupt)
+ 	}
+ 
+ 	/* Conditionally hard-enable interrupts. */
+-	if (should_hard_irq_enable()) {
++	if (should_hard_irq_enable(regs)) {
+ 		/*
+ 		 * Ensure a positive value is written to the decrementer, or
+ 		 * else some CPUs will continue to take decrementer exceptions.
 -- 
 2.39.0
 
