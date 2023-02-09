@@ -2,67 +2,67 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D55F26909BE
-	for <lists+stable@lfdr.de>; Thu,  9 Feb 2023 14:20:07 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E74096909C3
+	for <lists+stable@lfdr.de>; Thu,  9 Feb 2023 14:22:54 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229501AbjBINUG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 9 Feb 2023 08:20:06 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49568 "EHLO
+        id S229687AbjBINWx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 9 Feb 2023 08:22:53 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50914 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229515AbjBINUD (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 9 Feb 2023 08:20:03 -0500
-Received: from mail-wm1-x32a.google.com (mail-wm1-x32a.google.com [IPv6:2a00:1450:4864:20::32a])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 973BA2D7B
-        for <stable@vger.kernel.org>; Thu,  9 Feb 2023 05:20:02 -0800 (PST)
-Received: by mail-wm1-x32a.google.com with SMTP id n13so1397272wmr.4
-        for <stable@vger.kernel.org>; Thu, 09 Feb 2023 05:20:02 -0800 (PST)
+        with ESMTP id S229515AbjBINWw (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 9 Feb 2023 08:22:52 -0500
+Received: from mail-wm1-x32b.google.com (mail-wm1-x32b.google.com [IPv6:2a00:1450:4864:20::32b])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 566E15357B
+        for <stable@vger.kernel.org>; Thu,  9 Feb 2023 05:22:51 -0800 (PST)
+Received: by mail-wm1-x32b.google.com with SMTP id bg26so1455074wmb.0
+        for <stable@vger.kernel.org>; Thu, 09 Feb 2023 05:22:51 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20210112;
         h=content-transfer-encoding:in-reply-to:from:references:cc:to
          :content-language:subject:user-agent:mime-version:date:message-id
          :from:to:cc:subject:date:message-id:reply-to;
-        bh=H9EkPoW6N8QFwKUo2RmpcLzlk05kBq+9kkcDaFAwwCo=;
-        b=Phnee0/OgMasNvGCEvW+j96zRClFoI3nkRVt+Vi8pZKfCmFBhBCtvE/Hu5Aifv0PUv
-         i6WmgAhowYXO+5FRPwb6yDASCj+3fWHx3RyRIF7omvGwhr9jYCIDM7ZhQD+QadzCVR7i
-         mQQHvDsj2qDawtYqbD7M0JpNC5mLwR0bKNTa4XLpSYAkZDAyb84ALN7P0v2lEQKRJiYh
-         YA2Ua8bqfTNnxIhJjvOKdvmiB5QiXP6PcrUwAluYYPFcTSwoMTbCt8sFBGxxZVZuAZHW
-         sFN9lEYwzyg00ej/HaCFqz/ZNN3BjiM4oxPRgZaMQLj/BGphn6VV/jEjMZyFIcEZjXBI
-         XZrA==
+        bh=Ya/Lza+YtJyLFI6B2w2Hs3lwrR09cwKynSHqyFXIapw=;
+        b=GDNt7RvafCrOAaamrLBzZGXXrAeE0L/MYmPsFvUJxgyKVbHOuDuc+4URTcd1lhphuX
+         m2Z2dvuY0dX6f5Tcctx0cSNMRKWGKO/emQXk1thTT1u43UndWKldRFC/EdT3jKKtAp2T
+         b3VqxqewxNs2j2YU/vMCoON5eGRtCBU5wSsuOlibR1KkfH6bhDslU4A57bBcWvPGfL5P
+         sNwYt0To2ZbOJupaTnFyQ71LfU9tOB/lmS1UpBRRqY22ySS+KPOPQylUclDRXoEe6oG+
+         SUadUy77euhw44RsoLPUDTIN2MJFYzqfmvKBN92dCAgKXHrh1SLtIEzn8iNBChKnmQij
+         FjlQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
         h=content-transfer-encoding:in-reply-to:from:references:cc:to
          :content-language:subject:user-agent:mime-version:date:message-id
          :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=H9EkPoW6N8QFwKUo2RmpcLzlk05kBq+9kkcDaFAwwCo=;
-        b=RwtAlYafvbg0zRUgvZTTbbu9lr4w8cOhRC4vcwslxRnB4wezee4DWtHO/XRIvTOONV
-         dec5+oX9F7Qnk1Dl4rwJDKaWN5BPM3i40oB/RAJkHWsQDwdgjRdCvUEI8DmVIsGqctth
-         XMwT6ZRAZE8xr/RIKijAJo5Jvnfuymu8EBUs46v4n4IrebPXXW0HOweBxS2D2TNIEYgk
-         p+w3MDX202cqmm7fI9TCVdO0Ul0+ASYDpgqW6LxI+oECpEypyQTdLcndN+2gAFsbvVvU
-         Vz0Ltigb5pzflVvSKUP50kyCd7ZqsVa9N+qGqotSi14/Ignfy2+eIbyTaTeQl5ooJ+zY
-         80kw==
-X-Gm-Message-State: AO0yUKXf20rANTAqm/L/EtRg/LvONZtJnCCHjJ06lcqxuiBiAAaR2dv7
-        Dgv+Oj3tmL3F+af/Q6Bd9YCptG9EsAI=
-X-Google-Smtp-Source: AK7set/6LHyGg/tZruXhN1SVEMxcysg/K7/RRT3FEb23bs5wE79LoB4MuTEB4bVP0HlwwIFnuQhndg==
-X-Received: by 2002:a05:600c:3093:b0:3df:fbd5:690 with SMTP id g19-20020a05600c309300b003dffbd50690mr9937838wmn.17.1675948801238;
-        Thu, 09 Feb 2023 05:20:01 -0800 (PST)
+        bh=Ya/Lza+YtJyLFI6B2w2Hs3lwrR09cwKynSHqyFXIapw=;
+        b=xru4nofBoY4vc9W48qyrPpE8Mvk/MrypT02bUQHmtAr3lZRXmQ2kxMC66MztdORWO0
+         rmaR6+pxptE86u99tUJPxLcJIjP49DfRo1BRznywsBwf7nVPBaIu0QjDXN9ktee11mQ/
+         /56BMzFgv5hph6m6tnKXN+0MaTp3KpAlAElUXfU+2sZsk1ett8FLS10KGiIrRcN4RMgb
+         wiw12fND79hU32lWEqzDqEZBS7LEhuQpt782ier/xZDLf4GHxghnX4kpOglPCzYt4asv
+         YsUVKfloLPl9ikoDwY0TTnS2qGo3q+XBnJ6FrDJumhGSTWOBCyDxBkLl064soT5fV7vl
+         7SHQ==
+X-Gm-Message-State: AO0yUKUZn48ZlVF24/uR8d1Sf0mhGrVo3Y9o+4I9JFFg0ByeQHJ0+uAA
+        q2VN2T/dFogie5yr19XRPFc=
+X-Google-Smtp-Source: AK7set+eC4yVnyuJBhgBQcG/quYSi/tXd7UNmU2fkDHNOF8wuDIO8brMQLLgYX4LEYZ60AlGm0ivtg==
+X-Received: by 2002:a05:600c:810:b0:3df:f7e7:5f01 with SMTP id k16-20020a05600c081000b003dff7e75f01mr9723026wmp.15.1675948969894;
+        Thu, 09 Feb 2023 05:22:49 -0800 (PST)
 Received: from [192.168.2.181] (46-10-148-90.ip.btc-net.bg. [46.10.148.90])
-        by smtp.gmail.com with ESMTPSA id g10-20020a05600c4eca00b003dec22de1b1sm2174950wmq.10.2023.02.09.05.20.00
+        by smtp.gmail.com with ESMTPSA id s21-20020a1cf215000000b003e001119927sm4815757wmc.24.2023.02.09.05.22.48
         (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Thu, 09 Feb 2023 05:20:00 -0800 (PST)
-Message-ID: <c706d756-d2ee-ff74-d7c8-9ede6669e4e8@gmail.com>
-Date:   Thu, 9 Feb 2023 15:19:59 +0200
+        Thu, 09 Feb 2023 05:22:49 -0800 (PST)
+Message-ID: <c6720432-102a-4d9d-f835-e919d35931c5@gmail.com>
+Date:   Thu, 9 Feb 2023 15:22:48 +0200
 MIME-Version: 1.0
 User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
  Thunderbird/102.2.2
-Subject: Re: [PATCH v2] drm/vmwgfx: Do not drop the reference to the handle
- too soon
+Subject: Re: [PATCH] drm/vmwgfx: Stop accessing buffer objects which failed
+ init
 Content-Language: en-US
 To:     Zack Rusin <zackr@vmware.com>, dri-devel@lists.freedesktop.org
 Cc:     krastevm@vmware.com, stable@vger.kernel.org, banackm@vmware.com,
         mombasawalam@vmware.com
-References: <20230209123731.2137787-1-zack@kde.org>
+References: <20230208180050.2093426-1-zack@kde.org>
 From:   "Martin Krastev (VMware)" <martinkrastev768@gmail.com>
-In-Reply-To: <20230209123731.2137787-1-zack@kde.org>
+In-Reply-To: <20230208180050.2093426-1-zack@kde.org>
 Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 8bit
 X-Spam-Status: No, score=-3.0 required=5.0 tests=BAYES_00,DKIM_SIGNED,
@@ -77,85 +77,72 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Martin Krastev <krastevm@vmware.com>
 
-
-LGTM
+Much nicer now.
 Reviewed-by: Martin Krastev <krastevm@vmware.com>
 
 
 Regards,
 Martin
 
-On 9.02.23 г. 14:37 ч., Zack Rusin wrote:
+On 8.02.23 г. 20:00 ч., Zack Rusin wrote:
 > From: Zack Rusin <zackr@vmware.com>
 >
-> v2: Update the commit message to include note describing why the second
-> usag of vmw_gem_object_create_with_handle in vmwgfx_surface.c wasn't
-> changed
+> ttm_bo_init_reserved on failure puts the buffer object back which
+> causes it to be deleted, but kfree was still being called on the same
+> buffer in vmw_bo_create leading to a double free.
 >
-> It is possible for userspace to predict the next buffer handle and
-> to destroy the buffer while it's still used by the kernel. Delay
-> dropping the internal reference on the buffers until kernel is done
-> with them.
+> After the double free the vmw_gem_object_create_with_handle was
+> setting the gem function objects before checking the return status
+> of vmw_bo_create leading to null pointer access.
 >
-> Also fixes the second usage of vmw_gem_object_create_with_handle in
-> vmwgfx_surface.c which wasn't grabbing an explicit reference
-> to the gem object which could have been destroyed by the userspace
-> on the owning surface at any point.
+> Fix the entire path by relaying on ttm_bo_init_reserved to delete the
+> buffer objects on failure and making sure the return status is checked
+> before setting the gem function objects on the buffer object.
 >
 > Signed-off-by: Zack Rusin <zackr@vmware.com>
 > Fixes: 8afa13a0583f ("drm/vmwgfx: Implement DRIVER_GEM")
 > Cc: <stable@vger.kernel.org> # v5.17+
 > ---
->   drivers/gpu/drm/vmwgfx/vmwgfx_bo.c      | 3 ++-
->   drivers/gpu/drm/vmwgfx/vmwgfx_gem.c     | 4 ++--
->   drivers/gpu/drm/vmwgfx/vmwgfx_surface.c | 1 -
->   3 files changed, 4 insertions(+), 4 deletions(-)
+>   drivers/gpu/drm/vmwgfx/vmwgfx_bo.c  | 4 +++-
+>   drivers/gpu/drm/vmwgfx/vmwgfx_gem.c | 4 ++--
+>   2 files changed, 5 insertions(+), 3 deletions(-)
 >
 > diff --git a/drivers/gpu/drm/vmwgfx/vmwgfx_bo.c b/drivers/gpu/drm/vmwgfx/vmwgfx_bo.c
-> index 43ffa5c7acbd..65bd88c8fef9 100644
+> index 63486802c8fd..43ffa5c7acbd 100644
 > --- a/drivers/gpu/drm/vmwgfx/vmwgfx_bo.c
 > +++ b/drivers/gpu/drm/vmwgfx/vmwgfx_bo.c
-> @@ -708,7 +708,8 @@ int vmw_dumb_create(struct drm_file *file_priv,
->   	ret = vmw_gem_object_create_with_handle(dev_priv, file_priv,
->   						args->size, &args->handle,
->   						&vbo);
-> -
-> +	/* drop reference from allocate - handle holds it now */
-> +	drm_gem_object_put(&vbo->tbo.base);
->   	return ret;
->   }
->   
-> diff --git a/drivers/gpu/drm/vmwgfx/vmwgfx_gem.c b/drivers/gpu/drm/vmwgfx/vmwgfx_gem.c
-> index 51bd1f8c5cc4..d6baf73a6458 100644
-> --- a/drivers/gpu/drm/vmwgfx/vmwgfx_gem.c
-> +++ b/drivers/gpu/drm/vmwgfx/vmwgfx_gem.c
-> @@ -133,8 +133,6 @@ int vmw_gem_object_create_with_handle(struct vmw_private *dev_priv,
->   	(*p_vbo)->tbo.base.funcs = &vmw_gem_object_funcs;
->   
->   	ret = drm_gem_handle_create(filp, &(*p_vbo)->tbo.base, handle);
-> -	/* drop reference from allocate - handle holds it now */
-> -	drm_gem_object_put(&(*p_vbo)->tbo.base);
->   out_no_bo:
->   	return ret;
->   }
-> @@ -161,6 +159,8 @@ int vmw_gem_object_create_ioctl(struct drm_device *dev, void *data,
->   	rep->map_handle = drm_vma_node_offset_addr(&vbo->tbo.base.vma_node);
->   	rep->cur_gmr_id = handle;
->   	rep->cur_gmr_offset = 0;
-> +	/* drop reference from allocate - handle holds it now */
-> +	drm_gem_object_put(&vbo->tbo.base);
->   out_no_bo:
->   	return ret;
->   }
-> diff --git a/drivers/gpu/drm/vmwgfx/vmwgfx_surface.c b/drivers/gpu/drm/vmwgfx/vmwgfx_surface.c
-> index 9d4ae9623a00..d18fec953fa7 100644
-> --- a/drivers/gpu/drm/vmwgfx/vmwgfx_surface.c
-> +++ b/drivers/gpu/drm/vmwgfx/vmwgfx_surface.c
-> @@ -867,7 +867,6 @@ int vmw_surface_define_ioctl(struct drm_device *dev, void *data,
->   			goto out_unlock;
->   		}
->   		vmw_bo_reference(res->guest_memory_bo);
-> -		drm_gem_object_get(&res->guest_memory_bo->tbo.base);
+> @@ -431,13 +431,15 @@ int vmw_bo_create(struct vmw_private *vmw,
+>   		return -ENOMEM;
 >   	}
 >   
->   	tmp = vmw_resource_reference(&srf->res);
+> +	/*
+> +	 * vmw_bo_init will delete the *p_bo object if it fails
+> +	 */
+>   	ret = vmw_bo_init(vmw, *p_bo, params, vmw_bo_free);
+>   	if (unlikely(ret != 0))
+>   		goto out_error;
+>   
+>   	return ret;
+>   out_error:
+> -	kfree(*p_bo);
+>   	*p_bo = NULL;
+>   	return ret;
+>   }
+> diff --git a/drivers/gpu/drm/vmwgfx/vmwgfx_gem.c b/drivers/gpu/drm/vmwgfx/vmwgfx_gem.c
+> index f042e22b8b59..51bd1f8c5cc4 100644
+> --- a/drivers/gpu/drm/vmwgfx/vmwgfx_gem.c
+> +++ b/drivers/gpu/drm/vmwgfx/vmwgfx_gem.c
+> @@ -127,11 +127,11 @@ int vmw_gem_object_create_with_handle(struct vmw_private *dev_priv,
+>   	};
+>   
+>   	ret = vmw_bo_create(dev_priv, &params, p_vbo);
+> -
+> -	(*p_vbo)->tbo.base.funcs = &vmw_gem_object_funcs;
+>   	if (ret != 0)
+>   		goto out_no_bo;
+>   
+> +	(*p_vbo)->tbo.base.funcs = &vmw_gem_object_funcs;
+> +
+>   	ret = drm_gem_handle_create(filp, &(*p_vbo)->tbo.base, handle);
+>   	/* drop reference from allocate - handle holds it now */
+>   	drm_gem_object_put(&(*p_vbo)->tbo.base);
