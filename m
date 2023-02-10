@@ -2,83 +2,267 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id AF6AE691BD2
-	for <lists+stable@lfdr.de>; Fri, 10 Feb 2023 10:46:37 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7EB1B691D2F
+	for <lists+stable@lfdr.de>; Fri, 10 Feb 2023 11:48:03 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231823AbjBJJqg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 10 Feb 2023 04:46:36 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41888 "EHLO
+        id S231665AbjBJKsB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 10 Feb 2023 05:48:01 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:32934 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231809AbjBJJqf (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 10 Feb 2023 04:46:35 -0500
-Received: from formenos.hmeau.com (167-179-156-38.a7b39c.syd.nbn.aussiebb.net [167.179.156.38])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2B8297167A;
-        Fri, 10 Feb 2023 01:46:34 -0800 (PST)
-Received: from loth.rohan.me.apana.org.au ([192.168.167.2])
-        by formenos.hmeau.com with smtp (Exim 4.94.2 #2 (Debian))
-        id 1pQPzB-009c22-29; Fri, 10 Feb 2023 17:46:30 +0800
-Received: by loth.rohan.me.apana.org.au (sSMTP sendmail emulation); Fri, 10 Feb 2023 17:46:29 +0800
-Date:   Fri, 10 Feb 2023 17:46:29 +0800
-From:   Herbert Xu <herbert@gondor.apana.org.au>
-To:     Giovanni Cabiddu <giovanni.cabiddu@intel.com>
-Cc:     linux-crypto@vger.kernel.org, qat-linux@intel.com,
-        stable@vger.kernel.org, Vladis Dronov <vdronov@redhat.com>,
-        Fiona Trahe <fiona.trahe@intel.com>
-Subject: Re: [PATCH] crypto: qat - fix out-of-bounds read
-Message-ID: <Y+YSdcuBAU/AfvgC@gondor.apana.org.au>
-References: <20230201155944.23379-1-giovanni.cabiddu@intel.com>
+        with ESMTP id S232196AbjBJKsA (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 10 Feb 2023 05:48:00 -0500
+Received: from mga14.intel.com (mga14.intel.com [192.55.52.115])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AF9536D63D
+        for <stable@vger.kernel.org>; Fri, 10 Feb 2023 02:47:58 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
+  t=1676026078; x=1707562078;
+  h=from:to:cc:subject:in-reply-to:references:date:
+   message-id:mime-version:content-transfer-encoding;
+  bh=pf056wxaf9+3pMVFuyOB0yeKHcsdpjtr3/dwXb+Uw3o=;
+  b=KL5Xp6YREn+oo1JNLJY3uzCP8qWuOkVFmTPkpHQIiZjAUJjyiv3gVJ2H
+   3ePs1lYL3hdeGziogLQGcZuR/LyyaxAxas+Vzc0ZBedxptYCLhVlVRcpZ
+   0X2kcimD1zLZQrRF1cVIXS8VjI0JX5YPcMvy3I6DJusBexbAK1tk6el7q
+   5N/layh8WNwkCG4vd8Ym6x0o4qsQwYZPi+o1c7XiyyA0tAB6A/uAWqn9g
+   HohQ5BHsYQXcNB8oDQW9dSnCt2PssUymYy7usp/9mksPjyYJQemyG5g5W
+   RtCIXoslZFHMdYVovA+HzfvHEfmQf3HdFhk/r1W0VU8THAdDqvQU2Xz0J
+   g==;
+X-IronPort-AV: E=McAfee;i="6500,9779,10616"; a="330397600"
+X-IronPort-AV: E=Sophos;i="5.97,286,1669104000"; 
+   d="scan'208";a="330397600"
+Received: from fmsmga001.fm.intel.com ([10.253.24.23])
+  by fmsmga103.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 10 Feb 2023 02:47:58 -0800
+X-IronPort-AV: E=McAfee;i="6500,9779,10616"; a="810776659"
+X-IronPort-AV: E=Sophos;i="5.97,286,1669104000"; 
+   d="scan'208";a="810776659"
+Received: from myegin-mobl1.ger.corp.intel.com (HELO localhost) ([10.252.38.74])
+  by fmsmga001-auth.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 10 Feb 2023 02:47:54 -0800
+From:   Jani Nikula <jani.nikula@intel.com>
+To:     Lyude Paul <lyude@redhat.com>, imre.deak@intel.com,
+        Harry Wentland <harry.wentland@amd.com>,
+        Alex Deucher <alexander.deucher@amd.com>,
+        Daniel Vetter <daniel.vetter@ffwll.ch>
+Cc:     stable@vger.kernel.org, intel-gfx@lists.freedesktop.org,
+        dri-devel@lists.freedesktop.org,
+        Ville =?utf-8?B?U3lyasOkbMOk?= <ville.syrjala@linux.intel.com>,
+        Ben Skeggs <bskeggs@redhat.com>, Wayne Lin <Wayne.Lin@amd.com>,
+        Karol Herbst <kherbst@redhat.com>,
+        Thomas Zimmermann <tzimmermann@suse.de>
+Subject: Re: [Cc: drm-misc folks] Re: [Intel-gfx] [CI 1/4] drm/i915/dp_mst:
+ Add the MST topology state for modesetted CRTCs
+In-Reply-To: <0b5a4e81dc98f9c28d77f0f53741712d1c7c3c09.camel@redhat.com>
+Organization: Intel Finland Oy - BIC 0357606-4 - Westendinkatu 7, 02160 Espoo
+References: <20230206114856.2665066-1-imre.deak@intel.com>
+ <Y+JLQfuSAS6xLPIS@ideak-desk.fi.intel.com>
+ <0b5a4e81dc98f9c28d77f0f53741712d1c7c3c09.camel@redhat.com>
+Date:   Fri, 10 Feb 2023 12:47:51 +0200
+Message-ID: <87bkm1x0dk.fsf@intel.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20230201155944.23379-1-giovanni.cabiddu@intel.com>
-X-Spam-Status: No, score=-0.9 required=5.0 tests=BAYES_00,PDS_RDNS_DYNAMIC_FP,
-        RDNS_DYNAMIC,SPF_HELO_NONE,SPF_PASS autolearn=no autolearn_force=no
-        version=3.4.6
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: quoted-printable
+X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
+        SPF_HELO_NONE,SPF_NONE autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Wed, Feb 01, 2023 at 03:59:44PM +0000, Giovanni Cabiddu wrote:
-> When preparing an AER-CTR request, the driver copies the key provided by
-> the user into a data structure that is accessible by the firmware.
-> If the target device is QAT GEN4, the key size is rounded up by 16 since
-> a rounded up size is expected by the device.
-> If the key size is rounded up before the copy, the size used for copying
-> the key might be bigger than the size of the region containing the key,
-> causing an out-of-bounds read.
-> 
-> Fix by doing the copy first and then update the keylen.
-> 
-> This is to fix the following warning reported by KASAN:
-> 
-> 	[  138.150574] BUG: KASAN: global-out-of-bounds in qat_alg_skcipher_init_com.isra.0+0x197/0x250 [intel_qat]
-> 	[  138.150641] Read of size 32 at addr ffffffff88c402c0 by task cryptomgr_test/2340
-> 
-> 	[  138.150651] CPU: 15 PID: 2340 Comm: cryptomgr_test Not tainted 6.2.0-rc1+ #45
-> 	[  138.150659] Hardware name: Intel Corporation ArcherCity/ArcherCity, BIOS EGSDCRB1.86B.0087.D13.2208261706 08/26/2022
-> 	[  138.150663] Call Trace:
-> 	[  138.150668]  <TASK>
-> 	[  138.150922]  kasan_check_range+0x13a/0x1c0
-> 	[  138.150931]  memcpy+0x1f/0x60
-> 	[  138.150940]  qat_alg_skcipher_init_com.isra.0+0x197/0x250 [intel_qat]
-> 	[  138.151006]  qat_alg_skcipher_init_sessions+0xc1/0x240 [intel_qat]
-> 	[  138.151073]  crypto_skcipher_setkey+0x82/0x160
-> 	[  138.151085]  ? prepare_keybuf+0xa2/0xd0
-> 	[  138.151095]  test_skcipher_vec_cfg+0x2b8/0x800
-> 
-> Fixes: 67916c951689 ("crypto: qat - add AES-CTR support for QAT GEN4 devices")
-> Cc: <stable@vger.kernel.org>
-> Reported-by: Vladis Dronov <vdronov@redhat.com>
-> Signed-off-by: Giovanni Cabiddu <giovanni.cabiddu@intel.com>
-> Reviewed-by: Fiona Trahe <fiona.trahe@intel.com>
-> ---
->  drivers/crypto/qat/qat_common/qat_algs.c | 2 +-
->  1 file changed, 1 insertion(+), 1 deletion(-)
+On Thu, 09 Feb 2023, Lyude Paul <lyude@redhat.com> wrote:
+> On Tue, 2023-02-07 at 14:59 +0200, Imre Deak wrote:
+>> Hi all,
+>>=20
+>> On Mon, Feb 06, 2023 at 01:48:53PM +0200, Imre Deak wrote:
+>> > Add the MST topology for a CRTC to the atomic state if the driver
+>> > needs to force a modeset on the CRTC after the encoder compute config
+>> > functions are called.
+>> >=20
+>> > Later the MST encoder's disable hook also adds the state, but that isn=
+'t
+>> > guaranteed to work (since in that hook getting the state may fail, whi=
+ch
+>> > can't be handled there). This should fix that, while a later patch fix=
+es
+>> > the use of the MST state in the disable hook.
+>> >=20
+>> > v2: Add missing forward struct declartions, caught by hdrtest.
+>> > v3: Factor out intel_dp_mst_add_topology_state_for_connector() used
+>> >     later in the patchset.
+>> >=20
+>> > Cc: Lyude Paul <lyude@redhat.com>
+>> > Cc: Ville Syrj=C3=A4l=C3=A4 <ville.syrjala@linux.intel.com>
+>> > Cc: stable@vger.kernel.org # 6.1
+>> > Reviewed-by: Ville Syrj=C3=A4l=C3=A4 <ville.syrjala@linux.intel.com> #=
+ v2
+>> > Reviewed-by: Lyude Paul <lyude@redhat.com>
+>> > Signed-off-by: Imre Deak <imre.deak@intel.com>
+>>=20
+>> Is it ok to merge these 4 patches (also at [1]), via the i915 tree?
+>>=20
+>> If so could it be also acked from the AMD and Nouveau side?
+>
+> Whichever branch works best for y'all is fine by me, if it's via i915's t=
+ree I
+> guess we might need to back-merge drm-misc at some point so I can write up
+> equivalent fixes for nouveau as well.
+>
+> (Added Thomas Zimmermann to Cc)
 
-Patch applied.  Thanks.
--- 
-Email: Herbert Xu <herbert@gondor.apana.org.au>
-Home Page: http://gondor.apana.org.au/~herbert/
-PGP Key: http://gondor.apana.org.au/~herbert/pubkey.txt
+I suggest merging the series via drm-misc-next-fixes branch, to get them
+to Linus' tree in the upcoming merge window. They all apply cleanly
+there. The drivers can backmerge them from drm-next in the mean time, or
+wait for v6.3-rc1.
+
+Daniel acked this (well, any -next-fixes branch) on IRC yesterday,
+obviously ack from me too.
+
+I take the above as Lyude's ack for nouveau.
+
+Harry, Wayne, do you agree with this, ack for merging the AMD part via
+drm-misc-next-fixes? (Alex suggested to get your input.)
+
+
+BR,
+Jani.
+
+
+>
+>>=20
+>> [1] https://patchwork.freedesktop.org/series/113703/
+>>=20
+>> > ---
+>> >  drivers/gpu/drm/i915/display/intel_display.c |  4 ++
+>> >  drivers/gpu/drm/i915/display/intel_dp_mst.c  | 61 ++++++++++++++++++++
+>> >  drivers/gpu/drm/i915/display/intel_dp_mst.h  |  4 ++
+>> >  3 files changed, 69 insertions(+)
+>> >=20
+>> > diff --git a/drivers/gpu/drm/i915/display/intel_display.c b/drivers/gp=
+u/drm/i915/display/intel_display.c
+>> > index 166662ade593c..38106cf63b3b9 100644
+>> > --- a/drivers/gpu/drm/i915/display/intel_display.c
+>> > +++ b/drivers/gpu/drm/i915/display/intel_display.c
+>> > @@ -5936,6 +5936,10 @@ int intel_modeset_all_pipes(struct intel_atomic=
+_state *state,
+>> >  		if (ret)
+>> >  			return ret;
+>> >=20=20
+>> > +		ret =3D intel_dp_mst_add_topology_state_for_crtc(state, crtc);
+>> > +		if (ret)
+>> > +			return ret;
+>> > +
+>> >  		ret =3D intel_atomic_add_affected_planes(state, crtc);
+>> >  		if (ret)
+>> >  			return ret;
+>> > diff --git a/drivers/gpu/drm/i915/display/intel_dp_mst.c b/drivers/gpu=
+/drm/i915/display/intel_dp_mst.c
+>> > index 8b0e4defa3f10..f3cb12dcfe0a7 100644
+>> > --- a/drivers/gpu/drm/i915/display/intel_dp_mst.c
+>> > +++ b/drivers/gpu/drm/i915/display/intel_dp_mst.c
+>> > @@ -1223,3 +1223,64 @@ bool intel_dp_mst_is_slave_trans(const struct i=
+ntel_crtc_state *crtc_state)
+>> >  	return crtc_state->mst_master_transcoder !=3D INVALID_TRANSCODER &&
+>> >  	       crtc_state->mst_master_transcoder !=3D crtc_state->cpu_transc=
+oder;
+>> >  }
+>> > +
+>> > +/**
+>> > + * intel_dp_mst_add_topology_state_for_connector - add MST topology s=
+tate for a connector
+>> > + * @state: atomic state
+>> > + * @connector: connector to add the state for
+>> > + * @crtc: the CRTC @connector is attached to
+>> > + *
+>> > + * Add the MST topology state for @connector to @state.
+>> > + *
+>> > + * Returns 0 on success, negative error code on failure.
+>> > + */
+>> > +static int
+>> > +intel_dp_mst_add_topology_state_for_connector(struct intel_atomic_sta=
+te *state,
+>> > +					      struct intel_connector *connector,
+>> > +					      struct intel_crtc *crtc)
+>> > +{
+>> > +	struct drm_dp_mst_topology_state *mst_state;
+>> > +
+>> > +	if (!connector->mst_port)
+>> > +		return 0;
+>> > +
+>> > +	mst_state =3D drm_atomic_get_mst_topology_state(&state->base,
+>> > +						      &connector->mst_port->mst_mgr);
+>> > +	if (IS_ERR(mst_state))
+>> > +		return PTR_ERR(mst_state);
+>> > +
+>> > +	mst_state->pending_crtc_mask |=3D drm_crtc_mask(&crtc->base);
+>> > +
+>> > +	return 0;
+>> > +}
+>> > +
+>> > +/**
+>> > + * intel_dp_mst_add_topology_state_for_crtc - add MST topology state =
+for a CRTC
+>> > + * @state: atomic state
+>> > + * @crtc: CRTC to add the state for
+>> > + *
+>> > + * Add the MST topology state for @crtc to @state.
+>> > + *
+>> > + * Returns 0 on success, negative error code on failure.
+>> > + */
+>> > +int intel_dp_mst_add_topology_state_for_crtc(struct intel_atomic_stat=
+e *state,
+>> > +					     struct intel_crtc *crtc)
+>> > +{
+>> > +	struct drm_connector *_connector;
+>> > +	struct drm_connector_state *conn_state;
+>> > +	int i;
+>> > +
+>> > +	for_each_new_connector_in_state(&state->base, _connector, conn_state=
+, i) {
+>> > +		struct intel_connector *connector =3D to_intel_connector(_connector=
+);
+>> > +		int ret;
+>> > +
+>> > +		if (conn_state->crtc !=3D &crtc->base)
+>> > +			continue;
+>> > +
+>> > +		ret =3D intel_dp_mst_add_topology_state_for_connector(state, connec=
+tor, crtc);
+>> > +		if (ret)
+>> > +			return ret;
+>> > +	}
+>> > +
+>> > +	return 0;
+>> > +}
+>> > diff --git a/drivers/gpu/drm/i915/display/intel_dp_mst.h b/drivers/gpu=
+/drm/i915/display/intel_dp_mst.h
+>> > index f7301de6cdfb3..f1815bb722672 100644
+>> > --- a/drivers/gpu/drm/i915/display/intel_dp_mst.h
+>> > +++ b/drivers/gpu/drm/i915/display/intel_dp_mst.h
+>> > @@ -8,6 +8,8 @@
+>> >=20=20
+>> >  #include <linux/types.h>
+>> >=20=20
+>> > +struct intel_atomic_state;
+>> > +struct intel_crtc;
+>> >  struct intel_crtc_state;
+>> >  struct intel_digital_port;
+>> >  struct intel_dp;
+>> > @@ -18,5 +20,7 @@ int intel_dp_mst_encoder_active_links(struct intel_d=
+igital_port *dig_port);
+>> >  bool intel_dp_mst_is_master_trans(const struct intel_crtc_state *crtc=
+_state);
+>> >  bool intel_dp_mst_is_slave_trans(const struct intel_crtc_state *crtc_=
+state);
+>> >  bool intel_dp_mst_source_support(struct intel_dp *intel_dp);
+>> > +int intel_dp_mst_add_topology_state_for_crtc(struct intel_atomic_stat=
+e *state,
+>> > +					     struct intel_crtc *crtc);
+>> >=20=20
+>> >  #endif /* __INTEL_DP_MST_H__ */
+>> > --=20
+>> > 2.37.1
+>> >=20
+>>=20
+
+--=20
+Jani Nikula, Intel Open Source Graphics Center
