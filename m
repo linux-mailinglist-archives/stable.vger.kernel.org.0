@@ -2,156 +2,141 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 36B27691E2B
-	for <lists+stable@lfdr.de>; Fri, 10 Feb 2023 12:26:55 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2F207691F0A
+	for <lists+stable@lfdr.de>; Fri, 10 Feb 2023 13:25:15 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231829AbjBJL0x (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 10 Feb 2023 06:26:53 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38794 "EHLO
+        id S231918AbjBJMZL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 10 Feb 2023 07:25:11 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45362 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231781AbjBJL0w (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 10 Feb 2023 06:26:52 -0500
-Received: from mx0a-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A1BC9E046;
-        Fri, 10 Feb 2023 03:26:50 -0800 (PST)
-Received: from pps.filterd (m0098420.ppops.net [127.0.0.1])
-        by mx0b-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 31ABG5Pi026504;
-        Fri, 10 Feb 2023 11:26:41 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : date :
- subject : to : cc : references : from : in-reply-to : content-type :
- content-transfer-encoding : mime-version; s=pp1;
- bh=PDlk0D7jtHg5XdCCmFXYh2WXyS9oePq9MJwop7nyH8E=;
- b=Dw+0IO2Wj3WebNM2P3EybMOhwgqEqxww5npD6gI9tWSt+2SY4vXuXr8FJ6/+LsTys6NY
- 6IoMOZ1g+wdzZnjP29hY4Agcr/8+Q1ADiUJuyNPrHq0Vg7R4g96ZcELlhU+CgaLNonbu
- IMawj03koPPHSL+4SCUkvpBtLzDnFd9H9k2jsITbflKOrMFj/rlmxWztt/w3poc10dVF
- Vdur3Z6UPDbbKY1gyOkt7rIW1mg9jaEJHqxPjy7zO68b2Okn9j8+lLFA0Bz47dEPIaS5
- BII4/Fc580tZU15egAl4qCadjpW0Fi1YZO+lr+uch72avaMQP/zrUbJ9m3p8CSqobGvN Bw== 
-Received: from pps.reinject (localhost [127.0.0.1])
-        by mx0b-001b2d01.pphosted.com (PPS) with ESMTPS id 3nnmw707vk-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Fri, 10 Feb 2023 11:26:40 +0000
-Received: from m0098420.ppops.net (m0098420.ppops.net [127.0.0.1])
-        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 31ABKe6b011502;
-        Fri, 10 Feb 2023 11:26:40 GMT
-Received: from ppma06ams.nl.ibm.com (66.31.33a9.ip4.static.sl-reverse.com [169.51.49.102])
-        by mx0b-001b2d01.pphosted.com (PPS) with ESMTPS id 3nnmw707us-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Fri, 10 Feb 2023 11:26:40 +0000
-Received: from pps.filterd (ppma06ams.nl.ibm.com [127.0.0.1])
-        by ppma06ams.nl.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 31A6KK1E021016;
-        Fri, 10 Feb 2023 11:26:38 GMT
-Received: from smtprelay07.fra02v.mail.ibm.com ([9.218.2.229])
-        by ppma06ams.nl.ibm.com (PPS) with ESMTPS id 3nhemfqe0p-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Fri, 10 Feb 2023 11:26:38 +0000
-Received: from smtpav06.fra02v.mail.ibm.com (smtpav06.fra02v.mail.ibm.com [10.20.54.105])
-        by smtprelay07.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 31ABQZZe46006614
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Fri, 10 Feb 2023 11:26:35 GMT
-Received: from smtpav06.fra02v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id CAC1720040;
-        Fri, 10 Feb 2023 11:26:35 +0000 (GMT)
-Received: from smtpav06.fra02v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 728752004B;
-        Fri, 10 Feb 2023 11:26:33 +0000 (GMT)
-Received: from [9.109.198.193] (unknown [9.109.198.193])
-        by smtpav06.fra02v.mail.ibm.com (Postfix) with ESMTP;
-        Fri, 10 Feb 2023 11:26:33 +0000 (GMT)
-Message-ID: <c6349040-17ad-6066-0f8a-8adeb9c7b48d@linux.ibm.com>
-Date:   Fri, 10 Feb 2023 16:56:31 +0530
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
- Thunderbird/91.12.0
-Subject: Re: [PATCH AUTOSEL 6.1 18/38] powerpc/kvm: Fix unannotated
- intra-function call warning
-Content-Language: en-US
-To:     Sasha Levin <sashal@kernel.org>, linux-kernel@vger.kernel.org,
-        stable@vger.kernel.org
-Cc:     kernel test robot <lkp@intel.com>,
-        Michael Ellerman <mpe@ellerman.id.au>, pbonzini@redhat.com,
-        seanjc@google.com, npiggin@gmail.com,
-        linuxppc-dev@lists.ozlabs.org,
-        Sathvika Vasireddy <sv@linux.ibm.com>
-References: <20230209111459.1891941-1-sashal@kernel.org>
- <20230209111459.1891941-18-sashal@kernel.org>
-From:   Sathvika Vasireddy <sv@linux.ibm.com>
-In-Reply-To: <20230209111459.1891941-18-sashal@kernel.org>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: e7Fi0IJtnkUsmDtiZRfCjIT8jVXwAPrS
-X-Proofpoint-GUID: Nf9ZfHZLoL5hRe2ZmwEMvkHZ4HvWhx8g
-Content-Transfer-Encoding: 7bit
-X-Proofpoint-UnRewURL: 0 URL was un-rewritten
+        with ESMTP id S231269AbjBJMZJ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 10 Feb 2023 07:25:09 -0500
+Received: from wp530.webpack.hosteurope.de (wp530.webpack.hosteurope.de [80.237.130.52])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 42C7E7359E;
+        Fri, 10 Feb 2023 04:24:57 -0800 (PST)
+Received: from [2a02:8108:8980:2478:8cde:aa2c:f324:937e]; authenticated
+        by wp530.webpack.hosteurope.de running ExIM with esmtpsa (TLS1.3:ECDHE_RSA_AES_128_GCM_SHA256:128)
+        id 1pQSSV-00082x-0K; Fri, 10 Feb 2023 13:24:55 +0100
+Message-ID: <10a47408-3019-403d-97b1-c9f36e52e130@leemhuis.info>
+Date:   Fri, 10 Feb 2023 13:24:54 +0100
 MIME-Version: 1.0
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.219,Aquarius:18.0.930,Hydra:6.0.562,FMLib:17.11.170.22
- definitions=2023-02-10_06,2023-02-09_03,2023-02-09_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 adultscore=0 malwarescore=0
- phishscore=0 mlxlogscore=999 suspectscore=0 priorityscore=1501 bulkscore=0
- spamscore=0 lowpriorityscore=0 clxscore=1031 impostorscore=0 mlxscore=0
- classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2212070000
- definitions=main-2302100093
-X-Spam-Status: No, score=-3.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_EF,NICE_REPLY_A,RCVD_IN_MSPIKE_H2,SPF_HELO_NONE,
-        SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
+ Thunderbird/102.7.1
+Subject: Re: Resume after suspend broken, reboots instead on kernel 6.1
+ onwards x86_64 RTW88
+Content-Language: en-US, de-DE
+To:     gary.chang@realtek.com, Yan-Hsuan Chuang <tony0620emma@gmail.com>
+Cc:     regressions@lists.linux.dev, linux-wireless@vger.kernel.org,
+        Linux kernel regressions list <regressions@lists.linux.dev>,
+        Kalle Valo <kvalo@kernel.org>,
+        Paul Gover <pmw.gover@yahoo.co.uk>, stable@vger.kernel.org
+References: <3739412.kQq0lBPeGt.ref@ryzen> <3739412.kQq0lBPeGt@ryzen>
+From:   "Linux kernel regression tracking (Thorsten Leemhuis)" 
+        <regressions@leemhuis.info>
+Reply-To: Linux regressions mailing list <regressions@lists.linux.dev>
+In-Reply-To: <3739412.kQq0lBPeGt@ryzen>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
+X-bounce-key: webpack.hosteurope.de;regressions@leemhuis.info;1676031897;76a6ebd0;
+X-HE-SMSGID: 1pQSSV-00082x-0K
+X-Spam-Status: No, score=-3.0 required=5.0 tests=BAYES_00,NICE_REPLY_A,
+        RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS autolearn=ham
+        autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hi Sasha,
+[adding Chih-Kang Chang (author), Kalle (committer) and LKML to the list
+of recipients]
 
-On 09/02/23 16:44, Sasha Levin wrote:
-> From: Sathvika Vasireddy <sv@linux.ibm.com>
->
-> [ Upstream commit fe6de81b610e5d0b9d2231acff2de74a35482e7d ]
->
-> objtool throws the following warning:
->    arch/powerpc/kvm/booke.o: warning: objtool: kvmppc_fill_pt_regs+0x30:
->    unannotated intra-function call
->
-> Fix the warning by setting the value of 'nip' using the _THIS_IP_ macro,
-> without using an assembly bl/mflr sequence to save the instruction
-> pointer.
->
-> Reported-by: kernel test robot <lkp@intel.com>
-> Suggested-by: Michael Ellerman <mpe@ellerman.id.au>
-> Signed-off-by: Sathvika Vasireddy <sv@linux.ibm.com>
-> Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-> Link: https://lore.kernel.org/r/20230128124158.1066251-1-sv@linux.ibm.com
-> Signed-off-by: Sasha Levin <sashal@kernel.org>
-> ---
->   arch/powerpc/kvm/booke.c | 5 ++---
->   1 file changed, 2 insertions(+), 3 deletions(-)
->
-> diff --git a/arch/powerpc/kvm/booke.c b/arch/powerpc/kvm/booke.c
-> index 7b4920e9fd263..3852209989f04 100644
-> --- a/arch/powerpc/kvm/booke.c
-> +++ b/arch/powerpc/kvm/booke.c
-> @@ -912,16 +912,15 @@ static int kvmppc_handle_debug(struct kvm_vcpu *vcpu)
->   
->   static void kvmppc_fill_pt_regs(struct pt_regs *regs)
->   {
-> -	ulong r1, ip, msr, lr;
-> +	ulong r1, msr, lr;
->   
->   	asm("mr %0, 1" : "=r"(r1));
->   	asm("mflr %0" : "=r"(lr));
->   	asm("mfmsr %0" : "=r"(msr));
-> -	asm("bl 1f; 1: mflr %0" : "=r"(ip));
->   
->   	memset(regs, 0, sizeof(*regs));
->   	regs->gpr[1] = r1;
-> -	regs->nip = ip;
-> +	regs->nip = _THIS_IP_;
->   	regs->msr = msr;
->   	regs->link = lr;
->   }
+[anyone who replies to this: feel free to remove stable@vger.kernel.org
+from the recipients, this is a mainline regression]
 
-Please drop this patch because objtool enablement patches for powerpc 
-are not a part of kernel v6.1
+[TLDR: I'm adding this report to the list of tracked Linux kernel
+regressions; the text you find below is based on a few templates
+paragraphs you might have encountered already in similar form.
+See link in footer if these mails annoy you.]
 
+On 09.02.23 20:59, Paul Gover wrote:
+> Suspend/Resume was working OK on kernel 6.0.13, broken since 6.1.1
+> (I've not tried kernels between those, except in the bisect below.)
+> All subsequent 6,1 kernels exhibit the same behaviour.
+> 
+> Suspend works OK, but on Resume, there's a flicker, and then it reboots.
+> Sometimes the screen gets restored to its contents at the time of suspend. but 
+> less than a second later, it starts rebooting.
+> To reproduce, simply boot, suspend, and resume.
+> 
+> Git bisect blames RTW88
+> commit 6bf3a083407b5d404d70efc3a5ac75b472e5efa9
 
-Thanks,
-Sathvika
+TWIMC, that's "wifi: rtw88: add flag check before enter or leave IPS"
 
+> I'll attach bisect log, dmesg and configs to the bug I've opened 
+> 	https://bugzilla.kernel.org/show_bug.cgi?id=217016
+> 
+> dmesg from the following boot show a hardware error.
+> It's not there when the system resumes or reboots with 6.0.13,
+> and if I don't suspend & resume, there are no reported errors.
+> 
+> The problem occurs under both Wayland and X11, and from the command line via 
+> echo mem>/sys/power.state
+> 
+> 
+> Vanilla kernels, untainted, compiled with GCC; my system is Gentoo FWIW, but I 
+> do my own kernels direct from a git clone of stable.
+> 
+> Couldn't find anything similar with Google or the mailing lists.
+> 
+> **Hardware:**
+> 
+> HP Laptop 15-bw0xx
+> AMD A9-9420 RADEON R5, 5 COMPUTE CORES
+> Stoney [Radeon R2/R3/R4/R5 Graphics]
+> 4 GB memory
+> RTL8723DE PCIe adapter
+> 
+> **Kernel**
+> 
+> Kernel command line:
+> psmouse.synaptics_intertouch=1 pcie_aspm=force rdrand=force rootfstype=f2fs 
+> root=LABEL=gentoo
+> 
+> CONFIG_RTW88=m
+> CONFIG_RTW88_CORE=m
+> CONFIG_RTW88_PCI=m
+> CONFIG_RTW88_8723D=m
+> # CONFIG_RTW88_8822BE is not set
+> # CONFIG_RTW88_8822CE is not set
+> CONFIG_RTW88_8723DE=m
+> # CONFIG_RTW88_8821CE is not set
+> # CONFIG_RTW88_DEBUG is not set
+> # CONFIG_RTW88_DEBUGFS is not set
+> # CONFIG_RTW89 is not set
+
+Thanks for the report. To be sure the issue doesn't fall through the
+cracks unnoticed, I'm adding it to regzbot, the Linux kernel regression
+tracking bot:
+
+#regzbot ^introduced 6bf3a083407b
+#regzbot title wifi: rtw88: resume broken (reboot)
+#regzbot ignore-activity
+
+This isn't a regression? This issue or a fix for it are already
+discussed somewhere else? It was fixed already? You want to clarify when
+the regression started to happen? Or point out I got the title or
+something else totally wrong? Then just reply and tell me -- ideally
+while also telling regzbot about it, as explained by the page listed in
+the footer of this mail.
+
+Developers: When fixing the issue, remember to add 'Link:' tags pointing
+to the report (the parent of this mail). See page linked in footer for
+details.
+
+Ciao, Thorsten (wearing his 'the Linux kernel's regression tracker' hat)
+--
+Everything you wanna know about Linux kernel regression tracking:
+https://linux-regtracking.leemhuis.info/about/#tldr
+If I did something stupid, please tell me, as explained on that page.
