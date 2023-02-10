@@ -2,137 +2,114 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id DF8A269247B
-	for <lists+stable@lfdr.de>; Fri, 10 Feb 2023 18:32:57 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0B18F6924AD
+	for <lists+stable@lfdr.de>; Fri, 10 Feb 2023 18:39:25 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232869AbjBJRcy (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 10 Feb 2023 12:32:54 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41954 "EHLO
+        id S232266AbjBJRjX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 10 Feb 2023 12:39:23 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46090 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232340AbjBJRcw (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 10 Feb 2023 12:32:52 -0500
-Received: from mail-pf1-x431.google.com (mail-pf1-x431.google.com [IPv6:2607:f8b0:4864:20::431])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 68A1277B84
-        for <stable@vger.kernel.org>; Fri, 10 Feb 2023 09:32:50 -0800 (PST)
-Received: by mail-pf1-x431.google.com with SMTP id n2so3938765pfo.3
-        for <stable@vger.kernel.org>; Fri, 10 Feb 2023 09:32:50 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=paul-moore.com; s=google; t=1676050370;
-        h=cc:to:subject:message-id:date:from:in-reply-to:references
-         :mime-version:from:to:cc:subject:date:message-id:reply-to;
-        bh=VGMTFKoCBVoIuyA3qlOD8xOm7koGj1xemOk912C4V+A=;
-        b=Vn7d2rD7KGb7soIfLuYz1nXiJpWVaDMVEjgXteyCUSzsxr9Ncgw5UXzFLSbVKN4S/A
-         0cNjJaodxEQj/fEADyE0WZIGlfJzE3cvA6yuJWvmOcY8Qn0ZRFbwDDaHDLXQOmXjKGKc
-         +6YnLJWmQb25ktasgn3xtGPPz8uMe2oJdmnz0VyDW+gRGgo9/ZpuRjeshqHyQhrqC9BJ
-         coRxqszDAsqrCbcMcC9a5OSEMQXOoHhTWVUeu6/bqCxv30bjtf20ysQVu/JwpLN9Oirv
-         XqIFUU9DzANMzAhpTEARzChmzDzUQDJ7HPGzBvtmHrwHJ2Wj+5jzViU7/t0T8CXtQG3O
-         UubQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112; t=1676050370;
-        h=cc:to:subject:message-id:date:from:in-reply-to:references
-         :mime-version:x-gm-message-state:from:to:cc:subject:date:message-id
-         :reply-to;
-        bh=VGMTFKoCBVoIuyA3qlOD8xOm7koGj1xemOk912C4V+A=;
-        b=c2C7I0ty568tOpICgVK/Z7sxFo/schFKZQBsi7xl7jZycrUG7UbjF8W3LyQic72OLv
-         cvAdPitUW3AYzVIgn6J66ITNpUJrgso+CPLqagHScB7u7bSxBhogVFllf4NAM0JnxaZ2
-         kftZn9mC0io4rmmtUPzo/lW83+XCTXNoKz/5MLgfjJQu4WMdqLHIBm71dHvh9n8tyn2X
-         ZEugr7fUa/qpsPoFnWFScqmRTXcoE8n/9LXBtz5GzI+7RsiG/fe6/tzjpDZ2LSFsrBn2
-         3tZPZCaUOGto/ZHirV5xN1qB6dPIqyXQVGrppIX9bM5bv0pqnaRQkC50SFbhwLo3RazK
-         cN8g==
-X-Gm-Message-State: AO0yUKVBnIEAP3O49+dvgK/q+zYp1u3xZOUA0D8BTkySTp/fCqPeVagx
-        5DSB/QCTUpCEb81HNClFIyN39g0u219DknRB2J7e
-X-Google-Smtp-Source: AK7set+OFwR+/j/4Th5qsCUEm60XL68IDyvuTHzlxIKdhE8fa2HwbFZ2wXzS/HuuMttpavQk/9qh74WXRb4WZw948c8=
-X-Received: by 2002:a62:5f02:0:b0:5a8:5247:2589 with SMTP id
- t2-20020a625f02000000b005a852472589mr1477860pfb.7.1676050369837; Fri, 10 Feb
- 2023 09:32:49 -0800 (PST)
+        with ESMTP id S232822AbjBJRjT (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 10 Feb 2023 12:39:19 -0500
+Received: from mga06.intel.com (mga06b.intel.com [134.134.136.31])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DBDFB7BFE1
+        for <stable@vger.kernel.org>; Fri, 10 Feb 2023 09:39:07 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
+  t=1676050747; x=1707586747;
+  h=message-id:date:mime-version:subject:to:cc:references:
+   from:in-reply-to:content-transfer-encoding;
+  bh=V9bM2vfFegX3OT8PEyJIVBZb6rdModzJONhPulPp81Y=;
+  b=K7MXbcf2kvE0xTqZMygD/9cQBsZSraz0YPXGPmmSqDI7RyjtMUJYqzyX
+   HeRVoDn9AMNG+FY0IQ+38KQ5Vn2lsENP+WZYBfSBuVKzx28bhDUKukxWq
+   vPay4a3udvVrdQT9slkRIL8vqwPDK23sgaXsrLRRVc/2IY55jpvQK9ma4
+   Udk4PJvluPAmC+5i26HEiT+zjQaHEMWnO8DUMY/6ccY6iVh1FPd7gs0+5
+   3SSaL7XCaaJ2mAOiDdZNFL2Ri6r4T0FIp56IvFqEiKIweAmwDrUaGtrkx
+   MqGXx6IpBhzIle93+0ZVWLGO/WOn4AdaVlcn9X56E08LXVnukunEIwqgR
+   w==;
+X-IronPort-AV: E=McAfee;i="6500,9779,10617"; a="392882816"
+X-IronPort-AV: E=Sophos;i="5.97,287,1669104000"; 
+   d="scan'208";a="392882816"
+Received: from orsmga003.jf.intel.com ([10.7.209.27])
+  by orsmga104.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 10 Feb 2023 09:38:18 -0800
+X-IronPort-AV: E=McAfee;i="6500,9779,10617"; a="617962986"
+X-IronPort-AV: E=Sophos;i="5.97,287,1669104000"; 
+   d="scan'208";a="617962986"
+Received: from pbfische-mobl1.amr.corp.intel.com (HELO [10.209.127.157]) ([10.209.127.157])
+  by orsmga003-auth.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 10 Feb 2023 09:38:18 -0800
+Message-ID: <cd7749f1-3b68-37d6-d90c-a090ac380322@intel.com>
+Date:   Fri, 10 Feb 2023 09:38:17 -0800
 MIME-Version: 1.0
-References: <20221227142740.2807136-1-roberto.sassu@huaweicloud.com>
- <20221227142740.2807136-3-roberto.sassu@huaweicloud.com> <Y64XB0yi24yjeBDw@sol.localdomain>
- <d2a54ddec403cad12c003132542070bf781d5e26.camel@huaweicloud.com>
- <857eedc5ad18eddae7686dca63cf8c613a051be4.camel@huaweicloud.com>
- <Y+VBMQEwPTPGBIpP@gmail.com> <CAHC9VhTYeqCB8roaNvWUYJeKPwT35ixJ8MMXBe0v0+a9o8CXWw@mail.gmail.com>
- <Y+XAbz6YmazGNFQr@kernel.org>
-In-Reply-To: <Y+XAbz6YmazGNFQr@kernel.org>
-From:   Paul Moore <paul@paul-moore.com>
-Date:   Fri, 10 Feb 2023 12:32:38 -0500
-Message-ID: <CAHC9VhQ8e96LbCSBMXoQwETJBmWvazjzSDE2X4cr3ezhaC_5uA@mail.gmail.com>
-Subject: Re: [PATCH v5 2/2] KEYS: asymmetric: Copy sig and digest in public_key_verify_signature()
-To:     Jarkko Sakkinen <jarkko@kernel.org>
-Cc:     David Howells <dhowells@redhat.com>,
-        Roberto Sassu <roberto.sassu@huaweicloud.com>,
-        Herbert Xu <herbert@gondor.apana.org.au>, davem@davemloft.net,
-        zohar@linux.ibm.com, dmitry.kasatkin@gmail.com, jmorris@namei.org,
-        serge@hallyn.com, linux-integrity@vger.kernel.org,
-        linux-security-module@vger.kernel.org, keyrings@vger.kernel.org,
-        linux-crypto@vger.kernel.org, linux-kernel@vger.kernel.org,
-        stable@vger.kernel.org, Roberto Sassu <roberto.sassu@huawei.com>,
-        Eric Biggers <ebiggers@kernel.org>
-Content-Type: text/plain; charset="UTF-8"
-X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_NONE,
-        SPF_HELO_NONE,SPF_PASS autolearn=unavailable autolearn_force=no
-        version=3.4.6
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
+ Thunderbird/102.6.1
+Subject: Re: [PATCH] x86/sev: Adjust the alignment of vaddr_end
+Content-Language: en-US
+To:     Pavan Kumar Paluri <papaluri@amd.com>, bp@alien8.de
+Cc:     tglx@linutronix.de, mingo@redhat.com, dave.hansen@linux.intel.com,
+        hpa@zytor.com, brijesh.singh@amd.com, michael.roth@amd.com,
+        thomas.lendacky@amd.com, venu.busireddy@oracle.com,
+        Jason@zx2c4.com, x86@kernel.org,
+        Nikunj Dadhania <nikunj.dadhania@amd.com>,
+        stable@vger.kernel.org
+References: <20230210165854.12146-1-papaluri@amd.com>
+From:   Dave Hansen <dave.hansen@intel.com>
+In-Reply-To: <20230210165854.12146-1-papaluri@amd.com>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
+X-Spam-Status: No, score=-5.5 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,NICE_REPLY_A,
+        RCVD_IN_DNSWL_MED,SPF_HELO_NONE,SPF_NONE autolearn=ham
+        autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Thu, Feb 9, 2023 at 10:56 PM Jarkko Sakkinen <jarkko@kernel.org> wrote:
-> On Thu, Feb 09, 2023 at 05:46:32PM -0500, Paul Moore wrote:
-> > On Thu, Feb 9, 2023 at 1:53 PM Eric Biggers <ebiggers@kernel.org> wrote:
-> > > On Thu, Feb 09, 2023 at 11:49:19AM +0100, Roberto Sassu wrote:
-> > > > On Fri, 2023-01-27 at 09:27 +0100, Roberto Sassu wrote:
-> > > > > On Thu, 2022-12-29 at 14:39 -0800, Eric Biggers wrote:
-> > > > > > On Tue, Dec 27, 2022 at 03:27:40PM +0100, Roberto Sassu wrote:
-> > > > > > > From: Roberto Sassu <roberto.sassu@huawei.com>
-> > > > > > >
-> > > > > > > Commit ac4e97abce9b8 ("scatterlist: sg_set_buf() argument must be in linear
-> > > > > > > mapping") checks that both the signature and the digest reside in the
-> > > > > > > linear mapping area.
-> > > > > > >
-> > > > > > > However, more recently commit ba14a194a434c ("fork: Add generic vmalloced
-> > > > > > > stack support") made it possible to move the stack in the vmalloc area,
-> > > > > > > which is not contiguous, and thus not suitable for sg_set_buf() which needs
-> > > > > > > adjacent pages.
-> > > > > > >
-> > > > > > > Always make a copy of the signature and digest in the same buffer used to
-> > > > > > > store the key and its parameters, and pass them to sg_init_one(). Prefer it
-> > > > > > > to conditionally doing the copy if necessary, to keep the code simple. The
-> > > > > > > buffer allocated with kmalloc() is in the linear mapping area.
-> > > > > > >
-> > > > > > > Cc: stable@vger.kernel.org # 4.9.x
-> > > > > > > Fixes: ba14a194a434 ("fork: Add generic vmalloced stack support")
-> > > > > > > Link: https://lore.kernel.org/linux-integrity/Y4pIpxbjBdajymBJ@sol.localdomain/
-> > > > > > > Suggested-by: Eric Biggers <ebiggers@kernel.org>
-> > > > > > > Signed-off-by: Roberto Sassu <roberto.sassu@huawei.com>
-> > > > > > > ---
-> > > > > > >  crypto/asymmetric_keys/public_key.c | 38 ++++++++++++++++-------------
-> > > > > > >  1 file changed, 21 insertions(+), 17 deletions(-)
-> > > > > >
-> > > > > > Reviewed-by: Eric Biggers <ebiggers@google.com>
-> > > > >
-> > > > > Hi David
-> > > > >
-> > > > > could you please take this patch in your repo, if it is ok?
-> > > >
-> > > > Kindly ask your support here. Has this patch been queued somewhere?
-> > > > Wasn't able to find it, also it is not in linux-next.
-> > > >
-> > >
-> > > The maintainer of asymmetric_keys (David Howells) is ignoring this patch, so
-> > > you'll need to find someone else to apply it.  Herbert Xu, the maintainer of the
-> > > crypto subsystem, might be willing to apply it.  Or maybe Jarkko Sakkinen, who
-> > > is a co-maintainer of the keyrings subsystem (but not asymmetric_keys, for some
-> > > reason; should that change?).
-> >
-> > It is problematic that David isn't replying to this.  I have no idea
-> > if it will work, but I just reached out to him to see if I can draw
-> > his attention back to this ...
->
-> See my response to Eric.
+On 2/10/23 08:58, Pavan Kumar Paluri wrote:
+> --- a/arch/x86/kernel/sev.c
+> +++ b/arch/x86/kernel/sev.c
+> @@ -648,8 +648,8 @@ static void pvalidate_pages(unsigned long vaddr, unsigned int npages, bool valid
+>  	unsigned long vaddr_end;
+>  	int rc;
+>  
+> -	vaddr = vaddr & PAGE_MASK;
+> -	vaddr_end = vaddr + (npages << PAGE_SHIFT);
+> +	vaddr_end = PAGE_ALIGN(vaddr + (npages << PAGE_SHIFT));
+> +	vaddr = PAGE_ALIGN_DOWN(vaddr);
 
-Thanks Jarkko.
+Could you folks please go take a look at all of the callers that call
+into pvalidate_pages() and set_pages_state()?
 
--- 
-paul-moore.com
+I think part of the problem here is that the API is quite inconsistent.
+There have been a few bugs in this area.  Ideally, if you have an
+interface that deals in 'pages', then the addresses should be aligned
+already before hitting that interface.
+
+But, there are messes like this:
+
+static inline void __init snp_memcpy(void *dst, void *src, size_t sz,
+                                     unsigned long paddr, bool decrypt)
+{
+        unsigned long npages = PAGE_ALIGN(sz) >> PAGE_SHIFT;
+	...
+	early_snp_set_memory_shared((unsigned long)__va(paddr), paddr,
+				    npages);
+
+That's taking a theoretically unaligned 'paddr', page-aligning the size,
+then passing the result into an 'npages' interface.  That makes zero
+sense if, for instance, it tried to do:
+
+	paddr = 0x0fff
+	sz = 2
+
+That would pass along:
+
+	paddr = 0x0fff
+	npages = 1
+
+npages (the effective end address) is aligned, but paddr is not.
+
+We can keep on hacking around these bugs as they present themselves
+one-by-one.  Could you look a bit more widely, please, and see if
+there's something more fundamental that should be done?
