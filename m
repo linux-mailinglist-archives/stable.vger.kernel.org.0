@@ -2,131 +2,150 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 98166691D52
-	for <lists+stable@lfdr.de>; Fri, 10 Feb 2023 11:54:21 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4C8AD691E29
+	for <lists+stable@lfdr.de>; Fri, 10 Feb 2023 12:26:25 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231531AbjBJKyU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 10 Feb 2023 05:54:20 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37962 "EHLO
+        id S231972AbjBJL0X (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 10 Feb 2023 06:26:23 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37764 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231786AbjBJKyR (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 10 Feb 2023 05:54:17 -0500
-Received: from mga07.intel.com (mga07.intel.com [134.134.136.100])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4928B212A1
-        for <stable@vger.kernel.org>; Fri, 10 Feb 2023 02:54:16 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
-  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1676026456; x=1707562456;
-  h=from:to:cc:subject:in-reply-to:references:date:
-   message-id:mime-version:content-transfer-encoding;
-  bh=AqOM13J9VRPclf+hYsuTaxcBQktb1KPvyl1aqw26wok=;
-  b=Siz8jNzpeYIJvAaGlB6IxdFeO+L1l9XtjsvfPjoHN34WMSke8fi15P1/
-   CdRzwdTnfE5u1EIc60IqYEN6nKykx5czNAvxJIxlYU0KwQxKP0Dh9fEKy
-   icE9k3HGerXXiW8l8H1QhyN4my4Uo7D4sCCdPV7trXD58kLs3N5M2w6zU
-   FOHza3Wdbg38lQ3vxL8KtPEjDNtGfjUz3xnNx4Dca53/LJ9OHnZNJTqN4
-   Ee1MMW/w7JTbKphY48sKVlyagvkQClFerNXJcOtuDd0vx3X8o0r7CgNqT
-   T2yv0cPR5outUHyBUSZU7sxSqj1WIaX2HXmdiZtXC9kZ2jUGlD+HBiS19
-   g==;
-X-IronPort-AV: E=McAfee;i="6500,9779,10616"; a="394996940"
-X-IronPort-AV: E=Sophos;i="5.97,286,1669104000"; 
-   d="scan'208";a="394996940"
-Received: from orsmga006.jf.intel.com ([10.7.209.51])
-  by orsmga105.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 10 Feb 2023 02:54:15 -0800
-X-IronPort-AV: E=McAfee;i="6500,9779,10616"; a="645594214"
-X-IronPort-AV: E=Sophos;i="5.97,286,1669104000"; 
-   d="scan'208";a="645594214"
-Received: from myegin-mobl1.ger.corp.intel.com (HELO localhost) ([10.252.38.74])
-  by orsmga006-auth.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 10 Feb 2023 02:54:12 -0800
-From:   Jani Nikula <jani.nikula@intel.com>
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     intel-gfx@lists.freedesktop.org, dri-devel@lists.freedesktop.org,
-        Ville =?utf-8?B?U3lyasOkbMOk?= <ville.syrjala@linux.intel.com>,
-        Jim Cromie <jim.cromie@gmail.com>,
-        Maarten Lankhorst <maarten.lankhorst@linux.intel.com>,
-        Maxime Ripard <mripard@kernel.org>,
-        Thomas Zimmermann <tzimmermann@suse.de>,
-        David Airlie <airlied@gmail.com>,
-        Daniel Vetter <daniel@ffwll.ch>, stable@vger.kernel.org
-Subject: Re: [PATCH] drm: Disable dynamic debug as broken
-In-Reply-To: <Y+KOszHLodcTx9Sr@kroah.com>
-Organization: Intel Finland Oy - BIC 0357606-4 - Westendinkatu 7, 02160 Espoo
-References: <20230207143337.2126678-1-jani.nikula@intel.com>
- <Y+KOszHLodcTx9Sr@kroah.com>
-Date:   Fri, 10 Feb 2023 12:54:09 +0200
-Message-ID: <878rh5x032.fsf@intel.com>
+        with ESMTP id S231829AbjBJL0X (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 10 Feb 2023 06:26:23 -0500
+Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 716EB6C7EF;
+        Fri, 10 Feb 2023 03:26:21 -0800 (PST)
+Received: from pps.filterd (m0098421.ppops.net [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 31ABFPcq013092;
+        Fri, 10 Feb 2023 11:26:04 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=message-id : date :
+ subject : to : cc : references : from : in-reply-to : content-type :
+ content-transfer-encoding : mime-version; s=pp1;
+ bh=cD/X9nIeMMmFjHYm4VPov7vFFV03gYaj32qdcgmLvJE=;
+ b=FdvYCAjyH0yNGCW0O6sA94ph/wPLjudsHzWwgK/J4m7mHi5KFSbIW1t8l0C7trg6V0jb
+ Ml8+/ruk5On2x38DBugRq69wh/Tzz2NZzO++E40PqcQ06pklQZJuqWtZjsQQv+llwEdg
+ C8hUISmJdaSxtnz923gAoQpep+1PedMqp94b0Bh8Eeo855gQLXuSOlqHChxG9fZKMcO2
+ 1p2wjfzAX41N4Y+x+2DN73KhkUNV6RD9/KPhsHPp4wuFKjMzFAc+NY5PyQADiWwgBTbF
+ R66r8fusXp/BCWR0spcJNhXV/Njl8704pYk2JWODP0d257Rq/xl7lOQ3dB4bFpn+jsdl yg== 
+Received: from pps.reinject (localhost [127.0.0.1])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3nnmw0g8jx-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Fri, 10 Feb 2023 11:26:04 +0000
+Received: from m0098421.ppops.net (m0098421.ppops.net [127.0.0.1])
+        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 31ABPDui022485;
+        Fri, 10 Feb 2023 11:26:03 GMT
+Received: from ppma05fra.de.ibm.com (6c.4a.5195.ip4.static.sl-reverse.com [149.81.74.108])
+        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3nnmw0g8jg-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Fri, 10 Feb 2023 11:26:03 +0000
+Received: from pps.filterd (ppma05fra.de.ibm.com [127.0.0.1])
+        by ppma05fra.de.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 319NbWJs026034;
+        Fri, 10 Feb 2023 11:26:01 GMT
+Received: from smtprelay06.fra02v.mail.ibm.com ([9.218.2.230])
+        by ppma05fra.de.ibm.com (PPS) with ESMTPS id 3nhf06wa04-1
+        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+        Fri, 10 Feb 2023 11:26:01 +0000
+Received: from smtpav06.fra02v.mail.ibm.com (smtpav06.fra02v.mail.ibm.com [10.20.54.105])
+        by smtprelay06.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 31ABPxlf25166532
+        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+        Fri, 10 Feb 2023 11:25:59 GMT
+Received: from smtpav06.fra02v.mail.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 424C920040;
+        Fri, 10 Feb 2023 11:25:59 +0000 (GMT)
+Received: from smtpav06.fra02v.mail.ibm.com (unknown [127.0.0.1])
+        by IMSVA (Postfix) with ESMTP id 039F620049;
+        Fri, 10 Feb 2023 11:25:57 +0000 (GMT)
+Received: from [9.109.198.193] (unknown [9.109.198.193])
+        by smtpav06.fra02v.mail.ibm.com (Postfix) with ESMTP;
+        Fri, 10 Feb 2023 11:25:56 +0000 (GMT)
+Message-ID: <288e133f-f740-6818-8125-8079217ab822@linux.ibm.com>
+Date:   Fri, 10 Feb 2023 16:55:54 +0530
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:91.0) Gecko/20100101
+ Thunderbird/91.12.0
+Subject: Re: [PATCH AUTOSEL 6.1 17/38] powerpc/85xx: Fix unannotated
+ intra-function call warning
+Content-Language: en-US
+To:     Sasha Levin <sashal@kernel.org>, linux-kernel@vger.kernel.org,
+        stable@vger.kernel.org
+Cc:     kernel test robot <lkp@intel.com>,
+        Michael Ellerman <mpe@ellerman.id.au>,
+        christophe.leroy@csgroup.eu, npiggin@gmail.com,
+        naveen.n.rao@linux.vnet.ibm.com, linuxppc-dev@lists.ozlabs.org,
+        Sathvika Vasireddy <sv@linux.ibm.com>
+References: <20230209111459.1891941-1-sashal@kernel.org>
+ <20230209111459.1891941-17-sashal@kernel.org>
+From:   Sathvika Vasireddy <sv@linux.ibm.com>
+In-Reply-To: <20230209111459.1891941-17-sashal@kernel.org>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+X-TM-AS-GCONF: 00
+X-Proofpoint-GUID: kp2fJvuJzSqkN5r85yXu86qrvSGQXP-s
+X-Proofpoint-ORIG-GUID: CYuRFdlv5KJPoQaw9Kri-fW_bNc2VOrc
+Content-Transfer-Encoding: 7bit
+X-Proofpoint-UnRewURL: 0 URL was un-rewritten
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
-X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
-        SPF_HELO_NONE,SPF_NONE autolearn=ham autolearn_force=no version=3.4.6
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.219,Aquarius:18.0.930,Hydra:6.0.562,FMLib:17.11.170.22
+ definitions=2023-02-10_06,2023-02-09_03,2023-02-09_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 impostorscore=0 mlxscore=0
+ phishscore=0 adultscore=0 spamscore=0 lowpriorityscore=0 mlxlogscore=970
+ bulkscore=0 malwarescore=0 priorityscore=1501 clxscore=1031 suspectscore=0
+ classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2212070000
+ definitions=main-2302100088
+X-Spam-Status: No, score=-3.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_EF,NICE_REPLY_A,RCVD_IN_MSPIKE_H2,SPF_HELO_NONE,
+        SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, 07 Feb 2023, Greg Kroah-Hartman <gregkh@linuxfoundation.org> wrote:
-> On Tue, Feb 07, 2023 at 04:33:37PM +0200, Jani Nikula wrote:
->> From: Ville Syrj=C3=A4l=C3=A4 <ville.syrjala@linux.intel.com>
->>=20
->> CONFIG_DRM_USE_DYNAMIC_DEBUG breaks debug prints for (at least modular)
->> drm drivers. The debug prints can be reinstated by manually frobbing
->> /sys/module/drm/parameters/debug after the fact, but at that point the
->> damage is done and all debugs from driver probe are lost. This makes
->> drivers totally undebuggable.
->>=20
->> There's a more complete fix in progress [1], with further details, but
->> we need this fixed in stable kernels. Mark the feature as broken and
->> disable it by default, with hopes distros follow suit and disable it as
->> well.
->>=20
->> [1] https://lore.kernel.org/r/20230125203743.564009-1-jim.cromie@gmail.c=
-om
->>=20
->> Fixes: 84ec67288c10 ("drm_print: wrap drm_*_dbg in dyndbg descriptor fac=
-tory macro")
->> Cc: Jim Cromie <jim.cromie@gmail.com>
->> Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
->> Cc: Maarten Lankhorst <maarten.lankhorst@linux.intel.com>
->> Cc: Maxime Ripard <mripard@kernel.org>
->> Cc: Thomas Zimmermann <tzimmermann@suse.de>
->> Cc: David Airlie <airlied@gmail.com>
->> Cc: Daniel Vetter <daniel@ffwll.ch>
->> Cc: dri-devel@lists.freedesktop.org
->> Cc: <stable@vger.kernel.org> # v6.1+
->> Signed-off-by: Ville Syrj=C3=A4l=C3=A4 <ville.syrjala@linux.intel.com>
->> Signed-off-by: Jani Nikula <jani.nikula@intel.com>
->> ---
->>  drivers/gpu/drm/Kconfig | 3 ++-
->>  1 file changed, 2 insertions(+), 1 deletion(-)
->>=20
->> diff --git a/drivers/gpu/drm/Kconfig b/drivers/gpu/drm/Kconfig
->> index f42d4c6a19f2..dc0f94f02a82 100644
->> --- a/drivers/gpu/drm/Kconfig
->> +++ b/drivers/gpu/drm/Kconfig
->> @@ -52,7 +52,8 @@ config DRM_DEBUG_MM
->>=20=20
->>  config DRM_USE_DYNAMIC_DEBUG
->>  	bool "use dynamic debug to implement drm.debug"
->> -	default y
->> +	default n
->> +	depends on BROKEN
->>  	depends on DRM
->>  	depends on DYNAMIC_DEBUG || DYNAMIC_DEBUG_CORE
->>  	depends on JUMP_LABEL
+Hi Sasha,
+
+On 09/02/23 16:44, Sasha Levin wrote:
+> From: Sathvika Vasireddy <sv@linux.ibm.com>
 >
-> Acked-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+> [ Upstream commit 8afffce6aa3bddc940ac1909627ff1e772b6cbf1 ]
+>
+> objtool throws the following warning:
+>    arch/powerpc/kernel/head_85xx.o: warning: objtool: .head.text+0x1a6c:
+>    unannotated intra-function call
+>
+> Fix the warning by annotating KernelSPE symbol with SYM_FUNC_START_LOCAL
+> and SYM_FUNC_END macros.
+>
+> Reported-by: kernel test robot <lkp@intel.com>
+> Signed-off-by: Sathvika Vasireddy <sv@linux.ibm.com>
+> Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
+> Link: https://lore.kernel.org/r/20230128124138.1066176-1-sv@linux.ibm.com
+> Signed-off-by: Sasha Levin <sashal@kernel.org>
+> ---
+>   arch/powerpc/kernel/head_85xx.S | 3 ++-
+>   1 file changed, 2 insertions(+), 1 deletion(-)
+>
+> diff --git a/arch/powerpc/kernel/head_85xx.S b/arch/powerpc/kernel/head_85xx.S
+> index 52c0ab416326a..d3939849f4550 100644
+> --- a/arch/powerpc/kernel/head_85xx.S
+> +++ b/arch/powerpc/kernel/head_85xx.S
+> @@ -862,7 +862,7 @@ _GLOBAL(load_up_spe)
+>    * SPE unavailable trap from kernel - print a message, but let
+>    * the task use SPE in the kernel until it returns to user mode.
+>    */
+> -KernelSPE:
+> +SYM_FUNC_START_LOCAL(KernelSPE)
+>   	lwz	r3,_MSR(r1)
+>   	oris	r3,r3,MSR_SPE@h
+>   	stw	r3,_MSR(r1)	/* enable use of SPE after return */
+> @@ -879,6 +879,7 @@ KernelSPE:
+>   #endif
+>   	.align	4,0
+>   
+> +SYM_FUNC_END(KernelSPE)
+>   #endif /* CONFIG_SPE */
+>   
+>   /*
 
-Thanks Greg, any more acks from anyone?
+Please drop this patch because objtool enablement patches for powerpc 
+are not a part of kernel v6.1.
 
-Maxime, since there's going to be an -rc8, I suggest taking this via
-drm-misc-fixes. Is that okay with you? (You're doing drm-misc-fixes this
-round, right?)
-
-BR,
-Jani.
-
-
---=20
-Jani Nikula, Intel Open Source Graphics Center
+Thanks,
+Sathvika
