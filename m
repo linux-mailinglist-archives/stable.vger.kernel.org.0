@@ -2,178 +2,250 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 08846692C6A
-	for <lists+stable@lfdr.de>; Sat, 11 Feb 2023 02:06:08 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C737C692E73
+	for <lists+stable@lfdr.de>; Sat, 11 Feb 2023 06:05:25 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229787AbjBKBGG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 10 Feb 2023 20:06:06 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42520 "EHLO
+        id S229487AbjBKFFX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 11 Feb 2023 00:05:23 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46408 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229746AbjBKBGF (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 10 Feb 2023 20:06:05 -0500
-Received: from mga18.intel.com (mga18.intel.com [134.134.136.126])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2A7D375F56;
-        Fri, 10 Feb 2023 17:06:04 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
-  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1676077564; x=1707613564;
-  h=from:to:cc:subject:date:message-id:references:
-   in-reply-to:content-transfer-encoding:mime-version;
-  bh=qx2R+mkFnEf/WFU6ygZXkgLosuNf1yMYOQBPxKddLK4=;
-  b=Ny7bXOxUDqv6u4TaGMoBWtNvMQOSJhoVaqUnGnFSxMhl1ZCJ0MB4a9HU
-   ptX8Uax7fo1ySIyMVB5mJPL+rJ9ScVOUJPTJy42hTVnI7azNqmLVlmngD
-   lmpWIz73UCp4LOxYpem4sYe+eouRyLWbeaGVGzmVHFyvOZuJjRrBofcSQ
-   Ofn7ErwkNAtoZc6A7RQqsUWkrcrvOPe8t+AP7ywc0n1m50k7PHXZ+0Y6J
-   5aEEIYhGx56+hz8gqIK7ezzOlTbOO4MYbH+tig8AJAktoOrFBLulPs2MB
-   NwU3HeGpWNwPT1Gdcz0wS+vbZMReTmTXPEHP5vJw/MF6LmyIb6XdbefW1
-   A==;
-X-IronPort-AV: E=McAfee;i="6500,9779,10617"; a="314209477"
-X-IronPort-AV: E=Sophos;i="5.97,287,1669104000"; 
-   d="scan'208";a="314209477"
-Received: from fmsmga005.fm.intel.com ([10.253.24.32])
-  by orsmga106.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 10 Feb 2023 17:06:03 -0800
-X-ExtLoop1: 1
-X-IronPort-AV: E=McAfee;i="6500,9779,10617"; a="997124870"
-X-IronPort-AV: E=Sophos;i="5.97,287,1669104000"; 
-   d="scan'208";a="997124870"
-Received: from fmsmsx603.amr.corp.intel.com ([10.18.126.83])
-  by fmsmga005.fm.intel.com with ESMTP; 10 Feb 2023 17:06:02 -0800
-Received: from fmsmsx610.amr.corp.intel.com (10.18.126.90) by
- fmsmsx603.amr.corp.intel.com (10.18.126.83) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
- 15.1.2507.16; Fri, 10 Feb 2023 17:06:02 -0800
-Received: from fmsmsx610.amr.corp.intel.com (10.18.126.90) by
- fmsmsx610.amr.corp.intel.com (10.18.126.90) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
- 15.1.2507.16; Fri, 10 Feb 2023 17:06:02 -0800
-Received: from fmsedg601.ED.cps.intel.com (10.1.192.135) by
- fmsmsx610.amr.corp.intel.com (10.18.126.90) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
- 15.1.2507.16 via Frontend Transport; Fri, 10 Feb 2023 17:06:02 -0800
-Received: from NAM10-MW2-obe.outbound.protection.outlook.com (104.47.55.105)
- by edgegateway.intel.com (192.55.55.70) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- 15.1.2507.16; Fri, 10 Feb 2023 17:06:01 -0800
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=j7m7UUZsh3IqYVXQURkFitfckOgIWBLKjbzdPqQSMFty/TFqMTxFJSLfcv5da0SWLl5gMgSmkH9bA3BreHp+IWpGpbFiPsJhu3QZ78k+bULAp/JfZSXzfFVpBGoM10DwOKZz9wZZg75uWWkmEvLz1YEJxUmCRa4djofGZhWyrm/X0GZYHxu/48jwR1K6VJ+Ft/9FBsc3srDooe0z6x01aR3fBXONfYkwi0XNATyAIrOHeAC33M3XvewucWf852FLlu96du5w0+12vRzmM+7uyg0fPf6Gcfv1h+eFhHBggo/LdIMxi9ZEE7ADrBOal+EY8eeHpNK16LVvIydN9yBQuQ==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector9901;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=qx2R+mkFnEf/WFU6ygZXkgLosuNf1yMYOQBPxKddLK4=;
- b=ZnxsuI19cvjY15g6dTJ8mpFePStEFE5uXnQTjwRCEiQNhKMLTIOa7zbzSX9A+YfwQHIPOScD6luHsTG+U9EgQDbX7vdv7MoxcCI4R7LSX0ZqPrGFQISKsW2HgB0muqaohhuNUBHMpRIL8ojUXkPbGnWHnd6mfbu5TVIqOr202IEx8wNhNwT/M9GcE2EZSirFZnEzcQZZd+4m+WXGwQssa50Jdjly6z0L4CLsaTayb95XQ3PMaSL59U2m5S6QqBW3DfQe+n0ThuKshU89Fyv90+U/rYZ/Eqq74kPlc8WshsjKBNCq0KYVay2FmDqLR1PpKpjnSKl/Xm/UVyhGS553Hw==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
- smtp.mailfrom=intel.com; dmarc=pass action=none header.from=intel.com;
- dkim=pass header.d=intel.com; arc=none
-Received: from IA1PR11MB6171.namprd11.prod.outlook.com (2603:10b6:208:3e9::13)
- by CO6PR11MB5585.namprd11.prod.outlook.com (2603:10b6:5:356::23) with
- Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.6086.17; Sat, 11 Feb
- 2023 01:06:00 +0000
-Received: from IA1PR11MB6171.namprd11.prod.outlook.com
- ([fe80::52f:ae62:7fbd:600e]) by IA1PR11MB6171.namprd11.prod.outlook.com
- ([fe80::52f:ae62:7fbd:600e%9]) with mapi id 15.20.6086.021; Sat, 11 Feb 2023
- 01:06:00 +0000
-From:   "Zhuo, Qiuxu" <qiuxu.zhuo@intel.com>
-To:     "Luck, Tony" <tony.luck@intel.com>
-CC:     Borislav Petkov <bp@alien8.de>, Aristeu Rozanski <aris@redhat.com>,
-        "Mauro Carvalho Chehab" <mchehab@kernel.org>,
-        "Xu, Feng F" <feng.f.xu@intel.com>,
-        "linux-edac@vger.kernel.org" <linux-edac@vger.kernel.org>,
-        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-        "stable@vger.kernel.org" <stable@vger.kernel.org>
-Subject: RE: [PATCH 1/1] EDAC/skx: Fix overflows on the DRAM row address
- mapping arrays
-Thread-Topic: [PATCH 1/1] EDAC/skx: Fix overflows on the DRAM row address
- mapping arrays
-Thread-Index: AQHZPIrEiNCcPcg1/UefCINIyHIFLa7G3zIAgADo76CAAKGyAIAAhlfg
-Date:   Sat, 11 Feb 2023 01:06:00 +0000
-Message-ID: <IA1PR11MB61710A47690BD5DA2826F29389DF9@IA1PR11MB6171.namprd11.prod.outlook.com>
-References: <20230209133023.39825-1-qiuxu.zhuo@intel.com>
- <SJ1PR11MB6083CC9171E90537D09CB9B4FCD99@SJ1PR11MB6083.namprd11.prod.outlook.com>
- <SJ1PR11MB617933E74BB2D538C0426A9589DE9@SJ1PR11MB6179.namprd11.prod.outlook.com>
- <SJ1PR11MB6083F2E23723D45E52614E51FCDE9@SJ1PR11MB6083.namprd11.prod.outlook.com>
-In-Reply-To: <SJ1PR11MB6083F2E23723D45E52614E51FCDE9@SJ1PR11MB6083.namprd11.prod.outlook.com>
-Accept-Language: en-US
-Content-Language: en-US
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-authentication-results: dkim=none (message not signed)
- header.d=none;dmarc=none action=none header.from=intel.com;
-x-ms-publictraffictype: Email
-x-ms-traffictypediagnostic: IA1PR11MB6171:EE_|CO6PR11MB5585:EE_
-x-ms-office365-filtering-correlation-id: 63eb2c1c-a035-486b-5a82-08db0bcc2395
-x-ms-exchange-senderadcheck: 1
-x-ms-exchange-antispam-relay: 0
-x-microsoft-antispam: BCL:0;
-x-microsoft-antispam-message-info: mWCv1ksIomQloooi4etrr9eAXmwZ1A/AE8sII3sZ0ZPd82lUn2wlZfABKwo5nZsPtjfONwCkNCBuREaZSCXk9pirOo0wi6OqQS792alUG6ooAGtn+xRqHcDKh8Th6xzSFdRTaA9LzSXcnZDLk2SdPsftBIFrUSk8kP+GwFff8PXGEOZLFRNCZ90NOSF6k6DFqvSvBQ6wvY8Nx2rhu4J2zi5hlOTO8wqmksbsAbDEfpfc6c25ZGQ9Rh8deU1UAPhuHTg1Y9pBCkNDu5Z1U4nosy37UrfKQL0l9zRG2H77aia2+jJNe2puGLL5J/N8vKIfORor0VlbEx7GfBVI12LdX44xOFSu/D8nQSUheQAQoQ2gBN8wiHRuP+C6pJ7Vq6aBUsgfFYm8VAO7gPDgAxkX/9FUfyFQwj03eI5v/g2uOcgMkE9wcCuOnXTMCO0QrcZ3ROVy0qc0t4F6mTChSYrkKQb5D+GDt9LPAvKelSmecYxXWlwSUpmiRdesnD+kzN4PyfBC9TM7Ojdp4c0MQykPbWDqtiI/dihNRYsdbGOmNOKB4qi5/faICWDL4ZExRoL98XlDER60V1BTFsvZ7WoI06TNgWiZImDkfl2rXS86nPlVvHG+XCp2AE5j/Vjhjn7D8cxYApyamMnRWeGAEeO80g1P9M+9JFc1VRn1Q94XuFQCiglBiiLPV/gwYaB28lrH
-x-forefront-antispam-report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:IA1PR11MB6171.namprd11.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230025)(376002)(396003)(346002)(366004)(39860400002)(136003)(451199018)(6636002)(86362001)(52536014)(26005)(316002)(5660300002)(54906003)(9686003)(186003)(7696005)(478600001)(55016003)(6506007)(4744005)(33656002)(71200400001)(6862004)(2906002)(38100700002)(38070700005)(82960400001)(122000001)(41300700001)(66446008)(66556008)(83380400001)(76116006)(64756008)(66476007)(66946007)(8676002)(8936002)(4326008);DIR:OUT;SFP:1102;
-x-ms-exchange-antispam-messagedata-chunkcount: 1
-x-ms-exchange-antispam-messagedata-0: =?utf-8?B?Y2NiNURQME1SZ2JRU0lGV2d2OEMrMnQ5QjNLSHlYdE8wUFZER2pvaHIyN2Vh?=
- =?utf-8?B?VHphVDZUTFFiSU5JaWtMd1IwcTFjNjBhUE1HVkVMN3oxT2ZhRm1sSTRiM1BV?=
- =?utf-8?B?MmF2YUxxYkI5eG9vY1ZIanM1aGFFMkE5eGl3SGRIdjZad0pFU0RZYWlDR3Br?=
- =?utf-8?B?SjhFaXNPWUhZeHZRK01XZno1cFJoSTA0MStQQXpqTy9WUHQwdVdKb2pWcEZs?=
- =?utf-8?B?dWVMcVFoOXJUOUJqWVVQSWU0QmhEZk1IeGRWWE1ULzlFL0RTak41SXdKTXZG?=
- =?utf-8?B?dUxJNXU3UWY2RkptbEFRZDZwa21XKzg2MGlVN1E0UDNZaWxsU3p1OGpUd2Q2?=
- =?utf-8?B?a1lzTVVVVjBITmo1SnpDdnZKZ2JUVnNiM3NmSEEyUVg0L0UwVWRwNzRmeGFh?=
- =?utf-8?B?NU9qZ1pWL2xqamlYamRyeHZQbVNGaDFxTWx5clpnN2VuY295SHRsckNVekwr?=
- =?utf-8?B?TzNoeFFhTStndDZPWFB3cHFaZTN5VERRMDZvallhaXpmMlVWYkliRDlxb3hO?=
- =?utf-8?B?YzlTRFRUc1FsZlZUaUJ0Q2RrQWpFZVpHaEovY0NsRkhxaEVIUUhzdnF2MVE4?=
- =?utf-8?B?MHpyUXVNbzI4ZTZVclgyWE9XNDhOSUV0ZSsybXkrWm5vQ25nYlZ0bVJiMm54?=
- =?utf-8?B?TVBQQ0JkY2MyVGRYcjUxOU5jS3NrbzRlV2tjTk9uMExjN2p3cDB3akxyUFdH?=
- =?utf-8?B?RlAzWEV5VHNndjdoYS91TWl1cmJDd3g2d1NFKzVqU1dhZ0Z1b1V3YlYyOStq?=
- =?utf-8?B?YUpiMlc0dzZuL1pwVmU3WkNEb0pzMkFkUDJCYmN5cXNlQVlZZXZMTUNtZlc2?=
- =?utf-8?B?dFZKQ3NLTzRJazhmWWIwUlNHTjR1Y0p4REJpQmJzSzFxaExUVVFBS1ZCL1Bm?=
- =?utf-8?B?Tzh5bGRFbVJ1WVVWUmd6V2ptRytVS096UVNUNUNwYWptYXVnVnlxN28vNjVq?=
- =?utf-8?B?ZjVKV08wZG5pT2RDaENZVFZRNUdqckdjcDcrRFc4a29GS0hsUk5lY3hPNkcw?=
- =?utf-8?B?eFJvQVJodEFEZkwxYnB6R2VxZEhiaVNuVTVZcHJ6a3JickR6QnlGRmxFOFFt?=
- =?utf-8?B?b2xwS0FDY0FvSGZWMmFDM3NqTjBrZy9HSzN1Q01FWjZMWmgwNThzcm5wUXN4?=
- =?utf-8?B?VTBZVzIwN0NoU3NTRzNqaG8zWkh1S1BrOWpBWld0L01OdmorUnpPbi9MU3RY?=
- =?utf-8?B?ZVUyMDRvZzlIME8yR2kwbUVHenNIZ2FDaXF0VU1USHRoamh5blliMGk1LzNs?=
- =?utf-8?B?N2RkNmVSTEJSbXR2RnRzM0VZb0VJMjJ5bWdSaVQ2SXYraTZ6UURlVjFvR1pO?=
- =?utf-8?B?SVhMQmlKWmtxME9CQ0VsdnAyYVpaVXIrbGNEdUxPTlpDT1ViSS9QbHFTTWhP?=
- =?utf-8?B?MUw0SFJKNGU1RHpUVzZLSWY2a0RJaTBpZTNHQjh5d0F1bXp0R3hLcmhwVktL?=
- =?utf-8?B?NisrWkhRTFpsSE4yVUM3WU51S00zY252MjVTVmZNRFZlMVpTZWo2aFcwRFY5?=
- =?utf-8?B?dUUzOEhJTTdsT1VHWnBPWWMxL1IvS0lZVE5VekZEazVubEczQ0NjemRMZ1Bu?=
- =?utf-8?B?elJxS3NCVHVvb2YwbEloa0JFSjRSVk1LQ29GYWdOTmNjU0hsR3VPNTM2U0JV?=
- =?utf-8?B?RXpaVDQvcUo2UmpnL3RiaWdEcytWeWptMURIRFNhbnIreWFjMVNIMDNBa0pM?=
- =?utf-8?B?NEJuK1dDUU44ZjhQeTBHVTZBZmFObjF6SW53RTF5Uk1KQkxQNU5EUDBkaHA1?=
- =?utf-8?B?d2RvaExWR2kxZHBBYUVTc1Rpcjk3ZW10VnpNRG9ybmFPbEFYVGhsWW02eGJK?=
- =?utf-8?B?NGZqb2VDQmtxSytZSUpFelNOaTVqMUZ1aU9GTlpZYytNaXNTczZOWStIZnNX?=
- =?utf-8?B?MEZvaHRDWXU2Q1RueDQ3VS9qRXJhTEdpQnMySE90R0p1MjRtb3pmQ1FraGt5?=
- =?utf-8?B?aGFKTnE1TTByV2YrWlZacld6S3NyT0hEcXpyTlA2WCtqWkdnSFpJb09KKyto?=
- =?utf-8?B?ZGl4bkNOQ2hLQ3A1YkVxUlBtNkFZK0hBL3h5dmpvR3NZcVMvWXZ0S2NqK0pr?=
- =?utf-8?B?K1B5YlU1R3hjVVU4NElUMk94b08wMnA4L0JvQktQamJSdjFEbERxSzIxdllz?=
- =?utf-8?Q?rnnthY5OI/syAaWprkMT50mhB?=
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: base64
+        with ESMTP id S229447AbjBKFFW (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 11 Feb 2023 00:05:22 -0500
+Received: from letterbox.kde.org (letterbox.kde.org [46.43.1.242])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3714E1BDF
+        for <stable@vger.kernel.org>; Fri, 10 Feb 2023 21:05:20 -0800 (PST)
+Received: from vertex.localdomain (pool-173-49-113-140.phlapa.fios.verizon.net [173.49.113.140])
+        (Authenticated sender: zack)
+        by letterbox.kde.org (Postfix) with ESMTPSA id 3ED7F320F40;
+        Sat, 11 Feb 2023 05:05:17 +0000 (GMT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kde.org; s=users;
+        t=1676091918; bh=VE9uW2xbrRGBt1AOLbeWHee+LoPKNNj4SOnCz92UtEM=;
+        h=From:To:Cc:Subject:Date:From;
+        b=C5FLVW+Ogl+rB5L2rfP1ltVP90UDc5cITtSHa72tt5o8KdsUahX6CA2glnvI2FjVd
+         9UnyCJLCz0rUmrRrlSejp5vA7/Zy4kBoWpHkJmyvGwvnBWTZW31YaaZF9+CvhTjogx
+         mJj577q+NIhzPV6bF328O+Hq0N7MrXWgFIfMAoaiJ6MVQq8glkuEuiYD3fOhgOHUcn
+         9pobWs1mhf/u2bxU+PurSae0lJMXIf0ylzvIokvq0OCsIlK3LK1neX2dh5OJCfM3Aq
+         7P/GoGFnqyDL5XaFbVgyEbJBbWnH213MREa0zBmclt4at9z30K/HEh+N4QIP60sgRs
+         Pkc/jPoJaeHfQ==
+From:   Zack Rusin <zack@kde.org>
+To:     dri-devel@lists.freedesktop.org
+Cc:     krastevm@vmware.com, mombasawalam@vmware.com, banackm@vmware.com,
+        Zack Rusin <zackr@vmware.com>, stable@vger.kernel.org
+Subject: [PATCH v3] drm/vmwgfx: Do not drop the reference to the handle too soon
+Date:   Sat, 11 Feb 2023 00:05:14 -0500
+Message-Id: <20230211050514.2431155-1-zack@kde.org>
+X-Mailer: git-send-email 2.38.1
+Reply-To: Zack Rusin <zackr@vmware.com>
 MIME-Version: 1.0
-X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-AuthSource: IA1PR11MB6171.namprd11.prod.outlook.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: 63eb2c1c-a035-486b-5a82-08db0bcc2395
-X-MS-Exchange-CrossTenant-originalarrivaltime: 11 Feb 2023 01:06:00.0813
- (UTC)
-X-MS-Exchange-CrossTenant-fromentityheader: Hosted
-X-MS-Exchange-CrossTenant-id: 46c98d88-e344-4ed4-8496-4ed7712e255d
-X-MS-Exchange-CrossTenant-mailboxtype: HOSTED
-X-MS-Exchange-CrossTenant-userprincipalname: vyeH+CUlpDbVpPUDkqx/XS9PU+lDx+OREK15Vu7BOMwMlm5PVqFCB0KN8AruRKEkn2Rh8n+iM7Vjg62Q/W4yLw==
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: CO6PR11MB5585
-X-OriginatorOrg: intel.com
-X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,SPF_HELO_NONE,
-        SPF_NONE autolearn=ham autolearn_force=no version=3.4.6
+Content-Transfer-Encoding: 8bit
+X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
+        SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-PiBGcm9tOiBMdWNrLCBUb255IDx0b255Lmx1Y2tAaW50ZWwuY29tPg0KPiBTZW50OiBTYXR1cmRh
-eSwgRmVicnVhcnkgMTEsIDIwMjMgMTowMiBBTQ0KPiAuLi4NCj4gPiBEbyB5b3UgdGhpbmsgdGhl
-IG9yaWdpbmFsIGNvbW1pdCAiNGVjNjU2YmRmNDNhIiBvZiB0aGUgZmlsZSBza3hfZWRhYy5jDQo+
-ID4gKHRob3VnaCBpdCB3YXMgcmVtb3ZlZCkgaXMgdGhlIHJpZ2h0IGNvbW1pdCB0byBiZSB1c2Vk
-IGFzIHRoZSBGaXhlcyB0YWcgZm9yIHRoaXMNCj4+IHBhdGNoPw0KPiA+DQo+ID4gICAgICBGaXhl
-czogNGVjNjU2YmRmNDNhICgiRURBQywgc2t4X2VkYWM6IEFkZCBFREFDIGRyaXZlciBmb3IgU2t5
-bGFrZSIpDQo+IA0KPiBUaGlzIGlzIHRoZSBjb3JyZWN0IHRhZyAodGhpcyBwcm9ibGVtIGdvZXMg
-YWxsIHRoZSB3YXkgYmFjayB0byB0aGUgdmVyeSBmaXJzdA0KPiB2ZXJzaW9uIG9mIHRoaXMgZHJp
-dmVyKS4NCg0KVGhhbmsgeW91IGZvciB0aGUgY29ycmVjdGlvbi4gV2lsbCB1cGRhdGUgaXQgaW4g
-djIuDQoNCi1RaXV4dQ0KDQo=
+From: Zack Rusin <zackr@vmware.com>
+
+v3: Fix vmw_user_bo_lookup which was also dropping the gem reference
+before the kernel was done with buffer depending on userspace doing
+the right thing. Same bug, different spot.
+
+It is possible for userspace to predict the next buffer handle and
+to destroy the buffer while it's still used by the kernel. Delay
+dropping the internal reference on the buffers until kernel is done
+with them.
+
+Instead of immediately dropping the gem reference in vmw_user_bo_lookup
+and vmw_gem_object_create_with_handle let the callers decide when they're
+ready give the control back to userspace.
+
+Also fixes the second usage of vmw_gem_object_create_with_handle in
+vmwgfx_surface.c which wasn't grabbing an explicit reference
+to the gem object which could have been destroyed by the userspace
+on the owning surface at any point.
+
+Signed-off-by: Zack Rusin <zackr@vmware.com>
+Fixes: 8afa13a0583f ("drm/vmwgfx: Implement DRIVER_GEM")
+Cc: <stable@vger.kernel.org> # v5.17+
+Reviewed-by: Martin Krastev <krastevm@vmware.com>
+Reviewed-by: Maaz Mombasawala <mombasawalam@vmware.com>
+---
+ drivers/gpu/drm/vmwgfx/vmwgfx_bo.c      |  8 +++++---
+ drivers/gpu/drm/vmwgfx/vmwgfx_execbuf.c |  2 ++
+ drivers/gpu/drm/vmwgfx/vmwgfx_gem.c     |  4 ++--
+ drivers/gpu/drm/vmwgfx/vmwgfx_kms.c     |  4 +++-
+ drivers/gpu/drm/vmwgfx/vmwgfx_overlay.c |  1 +
+ drivers/gpu/drm/vmwgfx/vmwgfx_shader.c  |  1 +
+ drivers/gpu/drm/vmwgfx/vmwgfx_surface.c | 10 ++++++----
+ 7 files changed, 20 insertions(+), 10 deletions(-)
+
+diff --git a/drivers/gpu/drm/vmwgfx/vmwgfx_bo.c b/drivers/gpu/drm/vmwgfx/vmwgfx_bo.c
+index 7a00314882a3..82094c137855 100644
+--- a/drivers/gpu/drm/vmwgfx/vmwgfx_bo.c
++++ b/drivers/gpu/drm/vmwgfx/vmwgfx_bo.c
+@@ -500,6 +500,7 @@ static int vmw_user_bo_synccpu_release(struct drm_file *filp,
+ 		ttm_bo_put(&vmw_bo->tbo);
+ 	}
+ 
++	drm_gem_object_put(&vmw_bo->tbo.base);
+ 	return ret;
+ }
+ 
+@@ -540,6 +541,7 @@ int vmw_user_bo_synccpu_ioctl(struct drm_device *dev, void *data,
+ 
+ 		ret = vmw_user_bo_synccpu_grab(vbo, arg->flags);
+ 		vmw_bo_unreference(&vbo);
++		drm_gem_object_put(&vbo->tbo.base);
+ 		if (unlikely(ret != 0)) {
+ 			if (ret == -ERESTARTSYS || ret == -EBUSY)
+ 				return -EBUSY;
+@@ -596,7 +598,7 @@ int vmw_bo_unref_ioctl(struct drm_device *dev, void *data,
+  * struct vmw_bo should be placed.
+  * Return: Zero on success, Negative error code on error.
+  *
+- * The vmw buffer object pointer will be refcounted.
++ * The vmw buffer object pointer will be refcounted (both ttm and gem)
+  */
+ int vmw_user_bo_lookup(struct drm_file *filp,
+ 		       u32 handle,
+@@ -613,7 +615,6 @@ int vmw_user_bo_lookup(struct drm_file *filp,
+ 
+ 	*out = to_vmw_bo(gobj);
+ 	ttm_bo_get(&(*out)->tbo);
+-	drm_gem_object_put(gobj);
+ 
+ 	return 0;
+ }
+@@ -693,7 +694,8 @@ int vmw_dumb_create(struct drm_file *file_priv,
+ 	ret = vmw_gem_object_create_with_handle(dev_priv, file_priv,
+ 						args->size, &args->handle,
+ 						&vbo);
+-
++	/* drop reference from allocate - handle holds it now */
++	drm_gem_object_put(&vbo->tbo.base);
+ 	return ret;
+ }
+ 
+diff --git a/drivers/gpu/drm/vmwgfx/vmwgfx_execbuf.c b/drivers/gpu/drm/vmwgfx/vmwgfx_execbuf.c
+index 6d1b46c23719..6b9aa2b4ef54 100644
+--- a/drivers/gpu/drm/vmwgfx/vmwgfx_execbuf.c
++++ b/drivers/gpu/drm/vmwgfx/vmwgfx_execbuf.c
+@@ -1165,6 +1165,7 @@ static int vmw_translate_mob_ptr(struct vmw_private *dev_priv,
+ 	vmw_bo_placement_set(vmw_bo, VMW_BO_DOMAIN_MOB, VMW_BO_DOMAIN_MOB);
+ 	ret = vmw_validation_add_bo(sw_context->ctx, vmw_bo);
+ 	ttm_bo_put(&vmw_bo->tbo);
++	drm_gem_object_put(&vmw_bo->tbo.base);
+ 	if (unlikely(ret != 0))
+ 		return ret;
+ 
+@@ -1221,6 +1222,7 @@ static int vmw_translate_guest_ptr(struct vmw_private *dev_priv,
+ 			     VMW_BO_DOMAIN_GMR | VMW_BO_DOMAIN_VRAM);
+ 	ret = vmw_validation_add_bo(sw_context->ctx, vmw_bo);
+ 	ttm_bo_put(&vmw_bo->tbo);
++	drm_gem_object_put(&vmw_bo->tbo.base);
+ 	if (unlikely(ret != 0))
+ 		return ret;
+ 
+diff --git a/drivers/gpu/drm/vmwgfx/vmwgfx_gem.c b/drivers/gpu/drm/vmwgfx/vmwgfx_gem.c
+index 51bd1f8c5cc4..d6baf73a6458 100644
+--- a/drivers/gpu/drm/vmwgfx/vmwgfx_gem.c
++++ b/drivers/gpu/drm/vmwgfx/vmwgfx_gem.c
+@@ -133,8 +133,6 @@ int vmw_gem_object_create_with_handle(struct vmw_private *dev_priv,
+ 	(*p_vbo)->tbo.base.funcs = &vmw_gem_object_funcs;
+ 
+ 	ret = drm_gem_handle_create(filp, &(*p_vbo)->tbo.base, handle);
+-	/* drop reference from allocate - handle holds it now */
+-	drm_gem_object_put(&(*p_vbo)->tbo.base);
+ out_no_bo:
+ 	return ret;
+ }
+@@ -161,6 +159,8 @@ int vmw_gem_object_create_ioctl(struct drm_device *dev, void *data,
+ 	rep->map_handle = drm_vma_node_offset_addr(&vbo->tbo.base.vma_node);
+ 	rep->cur_gmr_id = handle;
+ 	rep->cur_gmr_offset = 0;
++	/* drop reference from allocate - handle holds it now */
++	drm_gem_object_put(&vbo->tbo.base);
+ out_no_bo:
+ 	return ret;
+ }
+diff --git a/drivers/gpu/drm/vmwgfx/vmwgfx_kms.c b/drivers/gpu/drm/vmwgfx/vmwgfx_kms.c
+index 8659de9d23f3..84d6380b9895 100644
+--- a/drivers/gpu/drm/vmwgfx/vmwgfx_kms.c
++++ b/drivers/gpu/drm/vmwgfx/vmwgfx_kms.c
+@@ -1725,8 +1725,10 @@ static struct drm_framebuffer *vmw_kms_fb_create(struct drm_device *dev,
+ 
+ err_out:
+ 	/* vmw_user_lookup_handle takes one ref so does new_fb */
+-	if (bo)
++	if (bo) {
+ 		vmw_bo_unreference(&bo);
++		drm_gem_object_put(&bo->tbo.base);
++	}
+ 	if (surface)
+ 		vmw_surface_unreference(&surface);
+ 
+diff --git a/drivers/gpu/drm/vmwgfx/vmwgfx_overlay.c b/drivers/gpu/drm/vmwgfx/vmwgfx_overlay.c
+index 7bcda29a2897..8d171d71cb8a 100644
+--- a/drivers/gpu/drm/vmwgfx/vmwgfx_overlay.c
++++ b/drivers/gpu/drm/vmwgfx/vmwgfx_overlay.c
+@@ -458,6 +458,7 @@ int vmw_overlay_ioctl(struct drm_device *dev, void *data,
+ 	ret = vmw_overlay_update_stream(dev_priv, buf, arg, true);
+ 
+ 	vmw_bo_unreference(&buf);
++	drm_gem_object_put(&buf->tbo.base);
+ 
+ out_unlock:
+ 	mutex_unlock(&overlay->mutex);
+diff --git a/drivers/gpu/drm/vmwgfx/vmwgfx_shader.c b/drivers/gpu/drm/vmwgfx/vmwgfx_shader.c
+index 6b8e984695ed..e7226db8b242 100644
+--- a/drivers/gpu/drm/vmwgfx/vmwgfx_shader.c
++++ b/drivers/gpu/drm/vmwgfx/vmwgfx_shader.c
+@@ -810,6 +810,7 @@ static int vmw_shader_define(struct drm_device *dev, struct drm_file *file_priv,
+ 				    num_output_sig, tfile, shader_handle);
+ out_bad_arg:
+ 	vmw_bo_unreference(&buffer);
++	drm_gem_object_put(&buffer->tbo.base);
+ 	return ret;
+ }
+ 
+diff --git a/drivers/gpu/drm/vmwgfx/vmwgfx_surface.c b/drivers/gpu/drm/vmwgfx/vmwgfx_surface.c
+index 9d4ae9623a00..5db403ee8261 100644
+--- a/drivers/gpu/drm/vmwgfx/vmwgfx_surface.c
++++ b/drivers/gpu/drm/vmwgfx/vmwgfx_surface.c
+@@ -686,7 +686,7 @@ static void vmw_user_surface_base_release(struct ttm_base_object **p_base)
+ 	    container_of(base, struct vmw_user_surface, prime.base);
+ 	struct vmw_resource *res = &user_srf->srf.res;
+ 
+-	if (base->shareable && res && res->guest_memory_bo)
++	if (res->guest_memory_bo)
+ 		drm_gem_object_put(&res->guest_memory_bo->tbo.base);
+ 
+ 	*p_base = NULL;
+@@ -867,7 +867,11 @@ int vmw_surface_define_ioctl(struct drm_device *dev, void *data,
+ 			goto out_unlock;
+ 		}
+ 		vmw_bo_reference(res->guest_memory_bo);
+-		drm_gem_object_get(&res->guest_memory_bo->tbo.base);
++		/*
++		 * We don't expose the handle to the userspace and surface
++		 * already holds a gem reference
++		 */
++		drm_gem_handle_delete(file_priv, backup_handle);
+ 	}
+ 
+ 	tmp = vmw_resource_reference(&srf->res);
+@@ -1571,8 +1575,6 @@ vmw_gb_surface_define_internal(struct drm_device *dev,
+ 			drm_vma_node_offset_addr(&res->guest_memory_bo->tbo.base.vma_node);
+ 		rep->buffer_size = res->guest_memory_bo->tbo.base.size;
+ 		rep->buffer_handle = backup_handle;
+-		if (user_srf->prime.base.shareable)
+-			drm_gem_object_get(&res->guest_memory_bo->tbo.base);
+ 	} else {
+ 		rep->buffer_map_handle = 0;
+ 		rep->buffer_size = 0;
+-- 
+2.38.1
+
