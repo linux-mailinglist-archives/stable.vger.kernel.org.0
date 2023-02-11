@@ -2,154 +2,130 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id EBCA9693347
-	for <lists+stable@lfdr.de>; Sat, 11 Feb 2023 20:21:13 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7337E69334F
+	for <lists+stable@lfdr.de>; Sat, 11 Feb 2023 20:28:23 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229496AbjBKTVM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 11 Feb 2023 14:21:12 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52894 "EHLO
+        id S229524AbjBKT2W (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 11 Feb 2023 14:28:22 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55590 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229463AbjBKTVL (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 11 Feb 2023 14:21:11 -0500
-Received: from mail-pl1-x631.google.com (mail-pl1-x631.google.com [IPv6:2607:f8b0:4864:20::631])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 47A3C166CB
-        for <stable@vger.kernel.org>; Sat, 11 Feb 2023 11:21:10 -0800 (PST)
-Received: by mail-pl1-x631.google.com with SMTP id o8so7505657pls.11
-        for <stable@vger.kernel.org>; Sat, 11 Feb 2023 11:21:10 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20210112.gappssmtp.com; s=20210112;
-        h=from:to:subject:content-transfer-encoding:mime-version:date
-         :message-id:from:to:cc:subject:date:message-id:reply-to;
-        bh=qrFIaAPA9hjwnJphEPzxfke/3f+fmtLJTWe2LluE3N8=;
-        b=LSWBB+sV0lL24tB5/+MUhHRsXJUMIGM3Pa9hkFGIGoYCxRM8AJrNkPpcOyGNMYxhAd
-         zG06NZ0TCgaYfq2EDX/5DEV6ZCplmXVoRbY8mTvjOlfI6Dwd0T/qk/VEAgu/GljMiyBE
-         Ni4toGK7xSd7qrXcJ0/f4yRdDVgQigXk3GoAF64ARI/2BlNeAkR6qiCvfW8P2mvLVRoO
-         LEss8WrsiLARINXQL1dqa0abfx+SKkIBF0J3Vi2e8vkxW3+EiMLC9uHEHYHzHTAL+57j
-         wPteboc4xnDLdG78LWA49+04vw7FahLMJnEEY/uczE+lQcOmYrJMqIgHtmn1y1tOoA3m
-         tPdg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=from:to:subject:content-transfer-encoding:mime-version:date
-         :message-id:x-gm-message-state:from:to:cc:subject:date:message-id
-         :reply-to;
-        bh=qrFIaAPA9hjwnJphEPzxfke/3f+fmtLJTWe2LluE3N8=;
-        b=StR1WQIo7DNfO4At3Wkid1rFzdNANrSK6rYcmYDA6Vk6uoKyUSWR+MvkKq245//BMJ
-         LXBSmQm4h64yZzQCuigzA+8roikzjOXjmF0EnQJflGy52qy0aEoiu8g62HljeIaMOprt
-         hEUcnDJNeCjN0i6mW9PZlS4PqsE+ykl7HuGhyk8v+EajcB+yNW3EHH5c292k7Gdx0Tml
-         ZJyko0t3XDWwd0ycn11EDOo21TS4MYgc8ySKcTpCJHrWuaPC7x9ipO8Fys3gzaFqBldV
-         WZ/2taHT/mVmqvSQZS1CxQF8VAWNMOnoEinyOCQRakmEaO9qk5eK+84Qc8ezDOYzmeDt
-         n7JQ==
-X-Gm-Message-State: AO0yUKXk/ZGSAAPao4WCC7UEG/Y0g6C/kdABq1zfTROclNKU4RvRrAsC
-        d0SihixI4ti9riG/QE/Eqho7O+R5tP6RYynzZv9AMw==
-X-Google-Smtp-Source: AK7set+63pG6oEhwt1vzFj3DGnOr9tKEtrpxDdMnvF7wcR7RYcso5FrHN4A+1UIGaMZqlw/2Fjx7Pw==
-X-Received: by 2002:a17:902:e40d:b0:19a:6cd5:fcdc with SMTP id m13-20020a170902e40d00b0019a6cd5fcdcmr5635587ple.14.1676143269522;
-        Sat, 11 Feb 2023 11:21:09 -0800 (PST)
-Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id jc18-20020a17090325d200b00194bf875ed8sm5329708plb.139.2023.02.11.11.21.08
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sat, 11 Feb 2023 11:21:09 -0800 (PST)
-Message-ID: <63e7eaa5.170a0220.2e475.9e7a@mx.google.com>
-Date:   Sat, 11 Feb 2023 11:21:09 -0800 (PST)
-Content-Type: text/plain; charset="utf-8"
+        with ESMTP id S229480AbjBKT2W (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 11 Feb 2023 14:28:22 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EF8C915C8A;
+        Sat, 11 Feb 2023 11:28:19 -0800 (PST)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 9CF21B80AB1;
+        Sat, 11 Feb 2023 19:28:18 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 49F85C433D2;
+        Sat, 11 Feb 2023 19:28:16 +0000 (UTC)
+Date:   Sat, 11 Feb 2023 14:28:13 -0500
+From:   Steven Rostedt <rostedt@goodmis.org>
+To:     Alexei Starovoitov <alexei.starovoitov@gmail.com>
+Cc:     Kajetan Puchalski <kajetan.puchalski@arm.com>,
+        Yafang Shao <laoar.shao@gmail.com>,
+        Masami Hiramatsu <mhiramat@kernel.org>,
+        linux-trace-kernel@vger.kernel.org,
+        John Stultz <jstultz@google.com>,
+        Mathieu Desnoyers <mathieu.desnoyers@efficios.com>,
+        stable <stable@vger.kernel.org>
+Subject: Re: [PATCH -trace] trace: fix TASK_COMM_LEN in trace event format
+ file
+Message-ID: <20230211142813.103b1643@gandalf.local.home>
+In-Reply-To: <CAADnVQ+iAx8OL_KP3Ae2GhDGrhdQ1wujG-B0=5ZpfQJuEnRQTg@mail.gmail.com>
+References: <20230210155921.4610-1-laoar.shao@gmail.com>
+        <Y+aJIGig4r/Dqui5@e126311.manchester.arm.com>
+        <CAADnVQ+iAx8OL_KP3Ae2GhDGrhdQ1wujG-B0=5ZpfQJuEnRQTg@mail.gmail.com>
+X-Mailer: Claws Mail 3.17.8 (GTK+ 2.24.33; x86_64-pc-linux-gnu)
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Branch: queue/5.15
-X-Kernelci-Tree: stable-rc
-X-Kernelci-Kernel: v5.15.93-14-g45de3a37c445
-X-Kernelci-Report-Type: test
-Subject: stable-rc/queue/5.15 baseline: 149 runs,
- 1 regressions (v5.15.93-14-g45de3a37c445)
-To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
-        kernelci-results@groups.io
-From:   "kernelci.org bot" <bot@kernelci.org>
-X-Spam-Status: No, score=-1.9 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_NONE autolearn=ham
-        autolearn_force=no version=3.4.6
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+X-Spam-Status: No, score=-6.7 required=5.0 tests=BAYES_00,
+        HEADER_FROM_DIFFERENT_DOMAINS,RCVD_IN_DNSWL_HI,SPF_HELO_NONE,SPF_PASS
+        autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/queue/5.15 baseline: 149 runs, 1 regressions (v5.15.93-14-g45de3a=
-37c445)
+On Fri, 10 Feb 2023 14:32:13 -0800
+Alexei Starovoitov <alexei.starovoitov@gmail.com> wrote:
 
-Regressions Summary
--------------------
+> fwiw I don't mind reverting commit 3087c61ed2c4.
+> For the record it didn't go through the bpf tree.
+> It went through mm.
 
-platform   | arch | lab             | compiler | defconfig          | regre=
-ssions
------------+------+-----------------+----------+--------------------+------=
-------
-imx53-qsrb | arm  | lab-pengutronix | gcc-10   | multi_v7_defconfig | 1    =
-      =
+I think the solution being presented can work, but still needs some work.
 
+> 
+> But first we need to define which part of ftrace format is an abi.
+> I think it's a format of tracing/event/foo/format file
+> and not the contents of it.
+> The tracepoints come and go. Their arguments get changed too.
+> So the contents of ftrace format files change.
 
-  Details:  https://kernelci.org/test/job/stable-rc/branch/queue%2F5.15/ker=
-nel/v5.15.93-14-g45de3a37c445/plan/baseline/
+As Linus always says. The abi is what user space uses. ;-)
 
-  Test:     baseline
-  Tree:     stable-rc
-  Branch:   queue/5.15
-  Describe: v5.15.93-14-g45de3a37c445
-  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
-able-rc.git
-  SHA:      45de3a37c445838bb380e3eb1ee4ce8696295128 =
+> 
+> In this case Perfetto stumbled on parsing
+> field:char comm[TASK_COMM_LEN];    offset:8;
 
+Perfetto always expected that to be a number, so it must remain one.
 
+> 
+> We probably should define that 'field: value  offset: value'
+> is an abi, but value-s can change.
+> Say offset:8 becomes offset:+8, for whatever reason.
+> If Perfetto fails to parse it, it's a Perfetto bug.
+> 
+> In this case it failed to parse char comm[TASK_COMM_LEN];
+> But that's not the only such "field:".
+> These three were there for a long time.
+>     field:u32 rates[NUM_NL80211_BANDS];    offset:16;    size:24;
+>     field:int mcast_rate[NUM_NL80211_BANDS];    offset:60;    size:24;
+>     field:int mcast_rate[NUM_NL80211_BANDS];    offset:108;    size:24;
+> 
+> I suspect Perfetto didn't have a use case to parse them,
+> so the bug stayed dormant and a change in TASK_COMM_LEN triggered it.
 
-Test Regressions
----------------- =
+Correct. Perfetto picks and chooses what events it needs. It does not parse
+all events. So it wouldn't notice these. In fact, some tools require these
+fields to be numbers and have used the TRACE_EVENT_ENUM() to convert them.
 
-
-
-platform   | arch | lab             | compiler | defconfig          | regre=
-ssions
------------+------+-----------------+----------+--------------------+------=
-------
-imx53-qsrb | arm  | lab-pengutronix | gcc-10   | multi_v7_defconfig | 1    =
-      =
-
-
-  Details:     https://kernelci.org/test/plan/id/63e7b76322e88369e38c8653
-
-  Results:     5 PASS, 1 FAIL, 1 SKIP
-  Full config: multi_v7_defconfig
-  Compiler:    gcc-10 (arm-linux-gnueabihf-gcc (Debian 10.2.1-6) 10.2.1 202=
-10110)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.15/v5.15.93-=
-14-g45de3a37c445/arm/multi_v7_defconfig/gcc-10/lab-pengutronix/baseline-imx=
-53-qsrb.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.15/v5.15.93-=
-14-g45de3a37c445/arm/multi_v7_defconfig/gcc-10/lab-pengutronix/baseline-imx=
-53-qsrb.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
-t-baseline/20230203.0/armel/rootfs.cpio.gz =
+But with this change, we can likely also remove the parsing of the fields
+on boot up. Which is a good thing.
 
 
+> 
+> We can use Yafang's patch to do:
+> -field:%.*s %s%s;
+> +field:%.*s %s[%d];
+> but it will affect both TASK_COMM_LEN and NUM_NL80211_BANDS.
 
-  * baseline.bootrr.deferred-probe-empty: https://kernelci.org/test/case/id=
-/63e7b76322e88369e38c865c
-        failing since 15 days (last pass: v5.15.81-121-gcb14018a85f6, first=
- fail: v5.15.90-146-gbf7101723cc0)
+Nothing appears to care about the NUM_NL80211_BANDS being there. It's
+basically useless information. If nothing complains about it changing, then
+it isn't a breakage of user space.
 
-    2023-02-11T15:42:09.904055  + set +x
-    2023-02-11T15:42:09.904302  [    9.361532] <LAVA_SIGNAL_ENDRUN 0_dmesg =
-904180_1.5.2.3.1>
-    2023-02-11T15:42:10.011454  / # #
-    2023-02-11T15:42:10.113009  export SHELL=3D/bin/sh
-    2023-02-11T15:42:10.113429  #
-    2023-02-11T15:42:10.214786  / # export SHELL=3D/bin/sh. /lava-904180/en=
-vironment
-    2023-02-11T15:42:10.215172  =
+Remember, Linus's rule is not "do not modify user space interfaces", it is
+"don't break user space". If a user space interface changes and no user
+space tool notices, did it really break? The tree in a forest analogy.
 
-    2023-02-11T15:42:10.316368  / # . /lava-904180/environment/lava-904180/=
-bin/lava-test-runner /lava-904180/1
-    2023-02-11T15:42:10.316998  =
+> 
+> In summary the TASK_COMM_LEN change from #define to enum didn't
+> introduce anything new in the kind of "value"s being printed
+> in ftrace files. Hence I'm arguing there is no abi breakage.
+> 
+> There was a question why change from #define to enum is useful
+> to bpf. The reason is that #define-s are not seen in dwarf
+> whereas enums and their values are. bpf tooling has ways to extract
+> that data and auto-adjust bpf programs when enum-s disappear
+> or their values change.
 
-    2023-02-11T15:42:10.319784  / # /lava-904180/bin/lava-test-runner /lava=
--904180/1 =
+In most cases, having all the [xxx] turn into useful numbers is what we
+want. There's a few things broken with the current patch, but I can help
+fix those.
 
-    ... (12 line(s) more)  =
-
- =20
+-- Steve
