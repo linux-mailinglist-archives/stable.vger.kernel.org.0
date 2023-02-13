@@ -2,44 +2,48 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E3B016949A2
-	for <lists+stable@lfdr.de>; Mon, 13 Feb 2023 16:00:26 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B54456949C2
+	for <lists+stable@lfdr.de>; Mon, 13 Feb 2023 16:01:53 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230032AbjBMPAY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Feb 2023 10:00:24 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57954 "EHLO
+        id S231299AbjBMPBw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Feb 2023 10:01:52 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33012 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230463AbjBMPAR (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Feb 2023 10:00:17 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7961E1CAFA
-        for <stable@vger.kernel.org>; Mon, 13 Feb 2023 07:00:04 -0800 (PST)
+        with ESMTP id S231304AbjBMPBf (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Feb 2023 10:01:35 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2B5E01DB9F
+        for <stable@vger.kernel.org>; Mon, 13 Feb 2023 07:01:15 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 3BDCCB80DF1
-        for <stable@vger.kernel.org>; Mon, 13 Feb 2023 14:59:39 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id ACFCEC433D2;
-        Mon, 13 Feb 2023 14:59:37 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 0138A61159
+        for <stable@vger.kernel.org>; Mon, 13 Feb 2023 15:01:15 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 184F2C433D2;
+        Mon, 13 Feb 2023 15:01:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1676300378;
-        bh=euOhVgYGuI8oZbdL2rie3QqxtQf/rzPsyBUWRRycc2w=;
+        s=korg; t=1676300474;
+        bh=YEgG1VneZh2cBGZx1SBpRwTxscs2Bnk6RpjVhYmHlMk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=DWR5JqU2vgyfWAg93irEi5zwKvn33y0zoLvPVfYyiyfKbHuPEu9i+oewIFLsbzhHS
-         PbDEfVZEvprfO4j2Dq44rg7TOWHNxjJlSNpRp/khiyFBDhK9GzaLttJHHuIRLy8e2s
-         7qp/JwEFvM2vUNwtds8k0aZVFckiIf+tucY3obUg=
+        b=CYYPwkWaBU/O6kVqmq7P4gpP7xzJhvgGXQMwD0wpc0adVYD5piROAj3laR0T7Y9ay
+         d4tDFXExTtqpM4iiqUwcmRqueXmMnp0gxkTG+g7ME2kKzU5Kzu4x/9pAK4JtJ4prgt
+         vPzNbt4OhSFgAcQ+emH4HTv6aqdW6OlAUNMmxHhE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Paolo Abeni <pabeni@redhat.com>,
-        Matthieu Baerts <matthieu.baerts@tessares.net>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 5.15 51/67] mptcp: be careful on subflow status propagation on errors
+        patches@lists.linux.dev, Tom Rix <trix@redhat.com>,
+        Simon Horman <simon.horman@corigine.com>,
+        Sasha Neftin <sasha.neftin@intel.com>,
+        Naama Meir <naamax.meir@linux.intel.com>,
+        Tony Nguyen <anthony.l.nguyen@intel.com>,
+        Jakub Kicinski <kuba@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 027/139] igc: return an error if the mac type is unknown in igc_ptp_systim_to_hwtstamp()
 Date:   Mon, 13 Feb 2023 15:49:32 +0100
-Message-Id: <20230213144734.812602154@linuxfoundation.org>
+Message-Id: <20230213144747.073833325@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.1
-In-Reply-To: <20230213144732.336342050@linuxfoundation.org>
-References: <20230213144732.336342050@linuxfoundation.org>
+In-Reply-To: <20230213144745.696901179@linuxfoundation.org>
+References: <20230213144745.696901179@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,63 +57,75 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Paolo Abeni <pabeni@redhat.com>
+From: Tom Rix <trix@redhat.com>
 
-commit 1249db44a102d9d3541ed7798d4b01ffdcf03524 upstream.
+[ Upstream commit a2df8463e15c10a8a882090f3d7a760fdb7b189d ]
 
-Currently the subflow error report callback unconditionally
-propagates the fallback subflow status to the owning msk.
+clang static analysis reports
+drivers/net/ethernet/intel/igc/igc_ptp.c:673:3: warning: The left operand of
+  '+' is a garbage value [core.UndefinedBinaryOperatorResult]
+   ktime_add_ns(shhwtstamps.hwtstamp, adjust);
+   ^            ~~~~~~~~~~~~~~~~~~~~
 
-If the msk is already orphaned, the above prevents the code
-from correctly tracking the msk moving to the TCP_CLOSE state
-and doing the appropriate cleanup.
+igc_ptp_systim_to_hwtstamp() silently returns without setting the hwtstamp
+if the mac type is unknown.  This should be treated as an error.
 
-All the above causes increasing memory usage over time and
-sporadic self-tests failures.
-
-There is a great deal of infrastructure trying to propagate
-correctly the fallback subflow status to the owning mptcp socket,
-e.g. via mptcp_subflow_eof() and subflow_sched_work_if_closed():
-in the error propagation path we need only to cope with unorphaned
-sockets.
-
-Closes: https://github.com/multipath-tcp/mptcp_net-next/issues/339
-Fixes: 15cc10453398 ("mptcp: deliver ssk errors to msk")
-Cc: stable@vger.kernel.org
-Signed-off-by: Paolo Abeni <pabeni@redhat.com>
-Reviewed-by: Matthieu Baerts <matthieu.baerts@tessares.net>
-Signed-off-by: Matthieu Baerts <matthieu.baerts@tessares.net>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: 81b055205e8b ("igc: Add support for RX timestamping")
+Signed-off-by: Tom Rix <trix@redhat.com>
+Reviewed-by: Simon Horman <simon.horman@corigine.com>
+Acked-by: Sasha Neftin <sasha.neftin@intel.com>
+Tested-by: Naama Meir <naamax.meir@linux.intel.com>
+Signed-off-by: Tony Nguyen <anthony.l.nguyen@intel.com>
+Link: https://lore.kernel.org/r/20230131215437.1528994-1-anthony.l.nguyen@intel.com
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/mptcp/subflow.c |   10 +++++++++-
- 1 file changed, 9 insertions(+), 1 deletion(-)
+ drivers/net/ethernet/intel/igc/igc_ptp.c | 14 +++++++++-----
+ 1 file changed, 9 insertions(+), 5 deletions(-)
 
---- a/net/mptcp/subflow.c
-+++ b/net/mptcp/subflow.c
-@@ -1284,6 +1284,7 @@ void __mptcp_error_report(struct sock *s
- 	mptcp_for_each_subflow(msk, subflow) {
- 		struct sock *ssk = mptcp_subflow_tcp_sock(subflow);
- 		int err = sock_error(ssk);
-+		int ssk_state;
+diff --git a/drivers/net/ethernet/intel/igc/igc_ptp.c b/drivers/net/ethernet/intel/igc/igc_ptp.c
+index 4ab46eee3d93..ef53f7665b58 100644
+--- a/drivers/net/ethernet/intel/igc/igc_ptp.c
++++ b/drivers/net/ethernet/intel/igc/igc_ptp.c
+@@ -134,10 +134,12 @@ static int igc_ptp_feature_enable_i225(struct ptp_clock_info *ptp,
+  *
+  * We need to convert the system time value stored in the RX/TXSTMP registers
+  * into a hwtstamp which can be used by the upper level timestamping functions.
++ *
++ * Returns 0 on success.
+  **/
+-static void igc_ptp_systim_to_hwtstamp(struct igc_adapter *adapter,
+-				       struct skb_shared_hwtstamps *hwtstamps,
+-				       u64 systim)
++static int igc_ptp_systim_to_hwtstamp(struct igc_adapter *adapter,
++				      struct skb_shared_hwtstamps *hwtstamps,
++				      u64 systim)
+ {
+ 	switch (adapter->hw.mac.type) {
+ 	case igc_i225:
+@@ -147,8 +149,9 @@ static void igc_ptp_systim_to_hwtstamp(struct igc_adapter *adapter,
+ 						systim & 0xFFFFFFFF);
+ 		break;
+ 	default:
+-		break;
++		return -EINVAL;
+ 	}
++	return 0;
+ }
  
- 		if (!err)
- 			continue;
-@@ -1294,7 +1295,14 @@ void __mptcp_error_report(struct sock *s
- 		if (sk->sk_state != TCP_SYN_SENT && !__mptcp_check_fallback(msk))
- 			continue;
+ /**
+@@ -372,7 +375,8 @@ static void igc_ptp_tx_hwtstamp(struct igc_adapter *adapter)
  
--		inet_sk_state_store(sk, inet_sk_state_load(ssk));
-+		/* We need to propagate only transition to CLOSE state.
-+		 * Orphaned socket will see such state change via
-+		 * subflow_sched_work_if_closed() and that path will properly
-+		 * destroy the msk as needed.
-+		 */
-+		ssk_state = inet_sk_state_load(ssk);
-+		if (ssk_state == TCP_CLOSE && !sock_flag(sk, SOCK_DEAD))
-+			inet_sk_state_store(sk, ssk_state);
- 		sk->sk_err = -err;
+ 	regval = rd32(IGC_TXSTMPL);
+ 	regval |= (u64)rd32(IGC_TXSTMPH) << 32;
+-	igc_ptp_systim_to_hwtstamp(adapter, &shhwtstamps, regval);
++	if (igc_ptp_systim_to_hwtstamp(adapter, &shhwtstamps, regval))
++		return;
  
- 		/* This barrier is coupled with smp_rmb() in mptcp_poll() */
+ 	switch (adapter->link_speed) {
+ 	case SPEED_10:
+-- 
+2.39.0
+
 
 
