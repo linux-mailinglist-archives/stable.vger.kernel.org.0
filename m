@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 39AA76949CD
-	for <lists+stable@lfdr.de>; Mon, 13 Feb 2023 16:02:18 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6D005694979
+	for <lists+stable@lfdr.de>; Mon, 13 Feb 2023 15:59:19 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231356AbjBMPCQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Feb 2023 10:02:16 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33874 "EHLO
+        id S230466AbjBMO7S (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Feb 2023 09:59:18 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55650 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231372AbjBMPCE (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Feb 2023 10:02:04 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4445F17145
-        for <stable@vger.kernel.org>; Mon, 13 Feb 2023 07:01:46 -0800 (PST)
+        with ESMTP id S231282AbjBMO7E (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Feb 2023 09:59:04 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6F1201C7F4
+        for <stable@vger.kernel.org>; Mon, 13 Feb 2023 06:58:45 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id B63AF6116D
-        for <stable@vger.kernel.org>; Mon, 13 Feb 2023 15:01:43 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C9B53C433D2;
-        Mon, 13 Feb 2023 15:01:42 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 013F5B81253
+        for <stable@vger.kernel.org>; Mon, 13 Feb 2023 14:58:45 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 43C69C433EF;
+        Mon, 13 Feb 2023 14:58:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1676300503;
-        bh=ndtzExyfPYFx1pU09Nl/y9o8zwNlG/GGyllImuQz3Gs=;
+        s=korg; t=1676300323;
+        bh=FYdATPFYyXkXjKZUeAiVabpQqjD5VP+ULkSDxK8BU0Y=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ncScZYP0+bB05+QMswz/kwme0KXi5qYboFT5CNQGEg+5sDkLBpthjRIz89H0HxtXF
-         bArlXWHw5jtX21SviLn9xrwiX6PTzqF43qGMS//mDNCwscTvCqWimGzERX4GUQwhhp
-         MJWcNGxIrO5n7bKPkSJI/Oe3DfxWdS1FxNMwo2g0=
+        b=VaRZI6cZwkJxpaBFLjB5VNVHYcVuxHMsRWb4J9heUil6+axyg6E8EYU4SFDMO559S
+         rvnKiZfpGbsBuecgEYKd2ZRETofYQSQq5zf+c5QAb0KBwvJ4b1i1gbWjxIWQHNnRF1
+         eU2af7DM0/+9zfb89rmvnRuUnj/RN/ENkoncSpLI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Eduard Zingerman <eddyz87@gmail.com>,
-        Alexei Starovoitov <ast@kernel.org>,
+        patches@lists.linux.dev, Shay Drory <shayd@nvidia.com>,
+        Moshe Shemesh <moshe@nvidia.com>,
+        Saeed Mahameed <saeedm@nvidia.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 010/139] bpf: Fix to preserve reg parent/live fields when copying range info
-Date:   Mon, 13 Feb 2023 15:49:15 +0100
-Message-Id: <20230213144746.194205607@linuxfoundation.org>
+Subject: [PATCH 5.15 35/67] net/mlx5: fw_tracer, Clear load bit when freeing string DBs buffers
+Date:   Mon, 13 Feb 2023 15:49:16 +0100
+Message-Id: <20230213144734.060397081@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.1
-In-Reply-To: <20230213144745.696901179@linuxfoundation.org>
-References: <20230213144745.696901179@linuxfoundation.org>
+In-Reply-To: <20230213144732.336342050@linuxfoundation.org>
+References: <20230213144732.336342050@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,188 +54,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eduard Zingerman <eddyz87@gmail.com>
+From: Shay Drory <shayd@nvidia.com>
 
-[ Upstream commit 71f656a50176915d6813751188b5758daa8d012b ]
+[ Upstream commit db561fed6b8fa3878e74d5df6512a4a38152b63e ]
 
-Register range information is copied in several places. The intent is
-to transfer range/id information from one register/stack spill to
-another. Currently this is done using direct register assignment, e.g.:
+Whenever the driver is reading the string DBs into buffers, the driver
+is setting the load bit, but the driver never clears this bit.
+As a result, in case load bit is on and the driver query the device for
+new string DBs, the driver won't read again the string DBs.
+Fix it by clearing the load bit when query the device for new string
+DBs.
 
-static void find_equal_scalars(..., struct bpf_reg_state *known_reg)
-{
-	...
-	struct bpf_reg_state *reg;
-	...
-			*reg = *known_reg;
-	...
-}
-
-However, such assignments also copy the following bpf_reg_state fields:
-
-struct bpf_reg_state {
-	...
-	struct bpf_reg_state *parent;
-	...
-	enum bpf_reg_liveness live;
-	...
-};
-
-Copying of these fields is accidental and incorrect, as could be
-demonstrated by the following example:
-
-     0: call ktime_get_ns()
-     1: r6 = r0
-     2: call ktime_get_ns()
-     3: r7 = r0
-     4: if r0 > r6 goto +1             ; r0 & r6 are unbound thus generated
-                                       ; branch states are identical
-     5: *(u64 *)(r10 - 8) = 0xdeadbeef ; 64-bit write to fp[-8]
-    --- checkpoint ---
-     6: r1 = 42                        ; r1 marked as written
-     7: *(u8 *)(r10 - 8) = r1          ; 8-bit write, fp[-8] parent & live
-                                       ; overwritten
-     8: r2 = *(u64 *)(r10 - 8)
-     9: r0 = 0
-    10: exit
-
-This example is unsafe because 64-bit write to fp[-8] at (5) is
-conditional, thus not all bytes of fp[-8] are guaranteed to be set
-when it is read at (8). However, currently the example passes
-verification.
-
-First, the execution path 1-10 is examined by verifier.
-Suppose that a new checkpoint is created by is_state_visited() at (6).
-After checkpoint creation:
-- r1.parent points to checkpoint.r1,
-- fp[-8].parent points to checkpoint.fp[-8].
-At (6) the r1.live is set to REG_LIVE_WRITTEN.
-At (7) the fp[-8].parent is set to r1.parent and fp[-8].live is set to
-REG_LIVE_WRITTEN, because of the following code called in
-check_stack_write_fixed_off():
-
-static void save_register_state(struct bpf_func_state *state,
-				int spi, struct bpf_reg_state *reg,
-				int size)
-{
-	...
-	state->stack[spi].spilled_ptr = *reg;  // <--- parent & live copied
-	if (size == BPF_REG_SIZE)
-		state->stack[spi].spilled_ptr.live |= REG_LIVE_WRITTEN;
-	...
-}
-
-Note the intent to mark stack spill as written only if 8 bytes are
-spilled to a slot, however this intent is spoiled by a 'live' field copy.
-At (8) the checkpoint.fp[-8] should be marked as REG_LIVE_READ but
-this does not happen:
-- fp[-8] in a current state is already marked as REG_LIVE_WRITTEN;
-- fp[-8].parent points to checkpoint.r1, parentage chain is used by
-  mark_reg_read() to mark checkpoint states.
-At (10) the verification is finished for path 1-10 and jump 4-6 is
-examined. The checkpoint.fp[-8] never gets REG_LIVE_READ mark and this
-spill is pruned from the cached states by clean_live_states(). Hence
-verifier state obtained via path 1-4,6 is deemed identical to one
-obtained via path 1-6 and program marked as safe.
-
-Note: the example should be executed with BPF_F_TEST_STATE_FREQ flag
-set to force creation of intermediate verifier states.
-
-This commit revisits the locations where bpf_reg_state instances are
-copied and replaces the direct copies with a call to a function
-copy_register_state(dst, src) that preserves 'parent' and 'live'
-fields of the 'dst'.
-
-Fixes: 679c782de14b ("bpf/verifier: per-register parent pointers")
-Signed-off-by: Eduard Zingerman <eddyz87@gmail.com>
-Link: https://lore.kernel.org/r/20230106142214.1040390-2-eddyz87@gmail.com
-Signed-off-by: Alexei Starovoitov <ast@kernel.org>
+Fixes: 2d69356752ff ("net/mlx5: Add support for fw live patch event")
+Signed-off-by: Shay Drory <shayd@nvidia.com>
+Reviewed-by: Moshe Shemesh <moshe@nvidia.com>
+Signed-off-by: Saeed Mahameed <saeedm@nvidia.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/bpf/verifier.c |   25 ++++++++++++++++++-------
- 1 file changed, 18 insertions(+), 7 deletions(-)
+ drivers/net/ethernet/mellanox/mlx5/core/diag/fw_tracer.c | 1 +
+ 1 file changed, 1 insertion(+)
 
---- a/kernel/bpf/verifier.c
-+++ b/kernel/bpf/verifier.c
-@@ -2274,13 +2274,24 @@ static bool __is_pointer_value(bool allo
- 	return reg->type != SCALAR_VALUE;
- }
+diff --git a/drivers/net/ethernet/mellanox/mlx5/core/diag/fw_tracer.c b/drivers/net/ethernet/mellanox/mlx5/core/diag/fw_tracer.c
+index 326e0b170e363..265f4ae835ce5 100644
+--- a/drivers/net/ethernet/mellanox/mlx5/core/diag/fw_tracer.c
++++ b/drivers/net/ethernet/mellanox/mlx5/core/diag/fw_tracer.c
+@@ -64,6 +64,7 @@ static int mlx5_query_mtrc_caps(struct mlx5_fw_tracer *tracer)
+ 			MLX5_GET(mtrc_cap, out, num_string_trace);
+ 	tracer->str_db.num_string_db = MLX5_GET(mtrc_cap, out, num_string_db);
+ 	tracer->owner = !!MLX5_GET(mtrc_cap, out, trace_owner);
++	tracer->str_db.loaded = false;
  
-+/* Copy src state preserving dst->parent and dst->live fields */
-+static void copy_register_state(struct bpf_reg_state *dst, const struct bpf_reg_state *src)
-+{
-+	struct bpf_reg_state *parent = dst->parent;
-+	enum bpf_reg_liveness live = dst->live;
-+
-+	*dst = *src;
-+	dst->parent = parent;
-+	dst->live = live;
-+}
-+
- static void save_register_state(struct bpf_func_state *state,
- 				int spi, struct bpf_reg_state *reg,
- 				int size)
- {
- 	int i;
- 
--	state->stack[spi].spilled_ptr = *reg;
-+	copy_register_state(&state->stack[spi].spilled_ptr, reg);
- 	if (size == BPF_REG_SIZE)
- 		state->stack[spi].spilled_ptr.live |= REG_LIVE_WRITTEN;
- 
-@@ -2608,7 +2619,7 @@ static int check_stack_read_fixed_off(st
- 				 */
- 				s32 subreg_def = state->regs[dst_regno].subreg_def;
- 
--				state->regs[dst_regno] = *reg;
-+				copy_register_state(&state->regs[dst_regno], reg);
- 				state->regs[dst_regno].subreg_def = subreg_def;
- 			} else {
- 				for (i = 0; i < size; i++) {
-@@ -2635,7 +2646,7 @@ static int check_stack_read_fixed_off(st
- 
- 		if (dst_regno >= 0) {
- 			/* restore register state from stack */
--			state->regs[dst_regno] = *reg;
-+			copy_register_state(&state->regs[dst_regno], reg);
- 			/* mark reg as written since spilled pointer state likely
- 			 * has its liveness marks cleared by is_state_visited()
- 			 * which resets stack/reg liveness for state transitions
-@@ -5896,7 +5907,7 @@ do_sim:
- 	 */
- 	if (!ptr_is_dst_reg) {
- 		tmp = *dst_reg;
--		*dst_reg = *ptr_reg;
-+		copy_register_state(dst_reg, ptr_reg);
- 	}
- 	ret = sanitize_speculative_path(env, NULL, env->insn_idx + 1,
- 					env->insn_idx);
-@@ -7150,7 +7161,7 @@ static int check_alu_op(struct bpf_verif
- 					 * to propagate min/max range.
- 					 */
- 					src_reg->id = ++env->id_gen;
--				*dst_reg = *src_reg;
-+				copy_register_state(dst_reg, src_reg);
- 				dst_reg->live |= REG_LIVE_WRITTEN;
- 				dst_reg->subreg_def = DEF_NOT_SUBREG;
- 			} else {
-@@ -7161,7 +7172,7 @@ static int check_alu_op(struct bpf_verif
- 						insn->src_reg);
- 					return -EACCES;
- 				} else if (src_reg->type == SCALAR_VALUE) {
--					*dst_reg = *src_reg;
-+					copy_register_state(dst_reg, src_reg);
- 					/* Make sure ID is cleared otherwise
- 					 * dst_reg min/max could be incorrectly
- 					 * propagated into src_reg by find_equal_scalars()
-@@ -7981,7 +7992,7 @@ static void find_equal_scalars(struct bp
- 
- 	bpf_for_each_reg_in_vstate(vstate, state, reg, ({
- 		if (reg->type == SCALAR_VALUE && reg->id == known_reg->id)
--			*reg = *known_reg;
-+			copy_register_state(reg, known_reg);
- 	}));
- }
- 
+ 	for (i = 0; i < tracer->str_db.num_string_db; i++) {
+ 		mtrc_cap_sp = MLX5_ADDR_OF(mtrc_cap, out, string_db_param[i]);
+-- 
+2.39.0
+
 
 
