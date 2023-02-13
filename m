@@ -2,105 +2,110 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id DD1C8694E33
-	for <lists+stable@lfdr.de>; Mon, 13 Feb 2023 18:38:00 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id DF8D4694E5F
+	for <lists+stable@lfdr.de>; Mon, 13 Feb 2023 18:49:01 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230129AbjBMRh5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Feb 2023 12:37:57 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51144 "EHLO
+        id S230122AbjBMRs7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Feb 2023 12:48:59 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34080 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229741AbjBMRhy (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Feb 2023 12:37:54 -0500
-Received: from sipsolutions.net (s3.sipsolutions.net [IPv6:2a01:4f8:191:4433::2])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7AF1A5261;
-        Mon, 13 Feb 2023 09:37:52 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
-        d=sipsolutions.net; s=mail; h=MIME-Version:Content-Transfer-Encoding:
-        Content-Type:References:In-Reply-To:Date:Cc:To:From:Subject:Message-ID:Sender
-        :Reply-To:Content-ID:Content-Description:Resent-Date:Resent-From:Resent-To:
-        Resent-Cc:Resent-Message-ID; bh=/IAgSLRmjox+nBqGHLuYLGATEI2cruuib9C6Ju7wXgw=;
-        t=1676309872; x=1677519472; b=lrZ65kCta5KK2fdyh7xX6LsgsMlECPohEPZGfmTgWrNOSD0
-        2/H3fatOsg+pEHbFcQzm7YSftBhPE4+YIpqFdJFCmQ0m48LwpIdlzZcFXbaS+rCUz+ICrNXWxDL7m
-        Ck/5VJXPo06CFNtRx+tK7E/PBGEpOuWqoxpcSlKsYnpjHuF6pALaK/FP3/Rm/onebfIacZiVhajoN
-        Blar7J0i5R9qtk/41gkLdFOWW8Cz4MFCmU5WdcfouO2TPJ8aNP732aMO2lAmqB0OUdYXLsMS9YGXC
-        N3MfSMI/0ojkBvbHQsoxP6goqPRhq2norISaj24fHtsXGi2zsWd34KGcBVXbgotg==;
-Received: by sipsolutions.net with esmtpsa (TLS1.3:ECDHE_X25519__RSA_PSS_RSAE_SHA256__AES_256_GCM:256)
-        (Exim 4.96)
-        (envelope-from <johannes@sipsolutions.net>)
-        id 1pRcll-00BHbK-0n;
-        Mon, 13 Feb 2023 18:37:37 +0100
-Message-ID: <3a9e70f9fe5ac0724730cb445b593fdb7eeeaae9.camel@sipsolutions.net>
-Subject: Re: [PATCH v2] Set ssid when authenticating
-From:   Johannes Berg <johannes@sipsolutions.net>
-To:     Marc Bornand <dev.mbornand@systemb.ch>
-Cc:     linux-wireless@vger.kernel.org,
-        "David S . Miller" <davem@davemloft.net>,
-        Eric Dumazet <edumazet@google.com>,
-        Jakub Kicinski <kuba@kernel.org>,
-        Paolo Abeni <pabeni@redhat.com>, netdev@vger.kernel.org,
-        linux-kernel@vger.kernel.org, Kalle Valo <kvalo@kernel.org>,
-        Yohan Prod'homme <kernel@zoddo.fr>, stable@vger.kernel.org
-Date:   Mon, 13 Feb 2023 18:37:36 +0100
-In-Reply-To: <NTBtzDurDf0W90JuEPzaHfxCYkWzyZ5jjPwcy6LpqebS6S1NekVcfBU3sNWczfvhHEJGOSyzQrb40UfSIK8AFZpd71MExKldK7EFnMkkdUk=@systemb.ch>
-References: <20230213105436.595245-1-dev.mbornand@systemb.ch>
-         <5a1d1244c8d3e20408732858442f264d26cc2768.camel@sipsolutions.net>
-         <NTBtzDurDf0W90JuEPzaHfxCYkWzyZ5jjPwcy6LpqebS6S1NekVcfBU3sNWczfvhHEJGOSyzQrb40UfSIK8AFZpd71MExKldK7EFnMkkdUk=@systemb.ch>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
-User-Agent: Evolution 3.46.3 (3.46.3-1.fc37) 
+        with ESMTP id S230184AbjBMRsz (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Feb 2023 12:48:55 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 623C81F934;
+        Mon, 13 Feb 2023 09:48:53 -0800 (PST)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by ams.source.kernel.org (Postfix) with ESMTPS id EAABAB81624;
+        Mon, 13 Feb 2023 17:48:51 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5D99AC433D2;
+        Mon, 13 Feb 2023 17:48:50 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
+        s=korg; t=1676310530;
+        bh=KolfguvNkJgNxPeBch9TKh/NIl+yTt6QO4x4ItWFvek=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=14fDbUwYvFwmxrqzJ4T82nI1FyZKOM/oW1Kf+JhMGLjhj9RHEO5wUvlGbyaOy8v+A
+         wfS3JzrrqzGiZiBeAeRRP/u4LfnYEyA5Hj7IheOSckWSh/3o1VQ9r0gPZtPIZALmDy
+         RehMCKwN7+g1OEt4IOMXEZw6316VKrTzObl414jw=
+Date:   Mon, 13 Feb 2023 18:48:48 +0100
+From:   Greg KH <gregkh@linuxfoundation.org>
+To:     Kuniyuki Iwashima <kuniyu@amazon.com>
+Cc:     w@1wt.eu, netdev@vger.kernel.org, regressions@lists.linux.dev,
+        stable@vger.kernel.org, winter@winter.cafe
+Subject: Re: [REGRESSION] 5.15.88 and onwards no longer return EADDRINUSE
+ from bind
+Message-ID: <Y+p4AJHkP8JUf4KB@kroah.com>
+References: <Y+nsQlVzmTP0meTX@1wt.eu>
+ <20230213164455.36911-1-kuniyu@amazon.com>
 MIME-Version: 1.0
-X-malware-bazaar: not-scanned
-X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,SPF_HELO_PASS,SPF_PASS
-        autolearn=ham autolearn_force=no version=3.4.6
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20230213164455.36911-1-kuniyu@amazon.com>
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+        SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hi,
+On Mon, Feb 13, 2023 at 08:44:55AM -0800, Kuniyuki Iwashima wrote:
+> From:   Willy Tarreau <w@1wt.eu>
+> Date:   Mon, 13 Feb 2023 08:52:34 +0100
+> > Hi Greg,
+> > 
+> > On Mon, Feb 13, 2023 at 08:25:34AM +0100, Greg KH wrote:
+> > > On Mon, Feb 13, 2023 at 05:27:03AM +0100, Willy Tarreau wrote:
+> > > > Hi,
+> > > > 
+> > > > [CCed netdev]
+> > > > 
+> > > > On Sun, Feb 12, 2023 at 10:38:40PM -0500, Winter wrote:
+> > > > > Hi all,
+> > > > > 
+> > > > > I'm facing the same issue as
+> > > > > https://lore.kernel.org/stable/CAFsF8vL4CGFzWMb38_XviiEgxoKX0GYup=JiUFXUOmagdk9CRg@mail.gmail.com/,
+> > > > > but on 5.15. I've bisected it across releases to 5.15.88, and can reproduce
+> > > > > on 5.15.93.
+> > > > > 
+> > > > > However, I cannot seem to find the identified problematic commit in the 5.15
+> > > > > branch, so I'm unsure if this is a different issue or not.
+> > > > > 
+> > > > > There's a few ways to reproduce this issue, but the one I've been using is
+> > > > > running libuv's (https://github.com/libuv/libuv) tests, specifically tests
+> > > > > 271 and 277.
+> > > > 
+> > > > >From the linked patch:
+> > > > 
+> > > >   https://lore.kernel.org/stable/20221228144337.512799851@linuxfoundation.org/
+> > > 
+> > > But that commit only ended up in 6.0.y, not 5.15, so how is this an
+> > > issue in 5.15.y?
+> > 
+> > Hmmm I plead -ENOCOFFEE on my side, I hadn't notice the "can't find the
+> > problematic commit", you're right indeed.
+> > 
+> > However if the issue happened in 5.15.88, the only part touching the
+> > network listening area is this one which may introduce an EINVAL on
+> > one listening path, but that seems unrelated to me given that it's
+> > only for ULP that libuv doesn't seem to be using:
+> > 
+> >   dadd0dcaa67d ("net/ulp: prevent ULP without clone op from entering the LISTEN status")
+> 
+> This commit accidentally backports a part of 7a7160edf1bf ("net: Return
+> errno in sk->sk_prot->get_port().") and removed err = -EADDRINUSE in
+> inet_csk_listen_start().  Then, listen() will return 0 even if ->get_port()
+> actually fails and returns 1.
+> 
+> I can send a small revert or a whole backport, but which is preferable ?
+> The original patch is not for stable, but it will make future backports
+> easy.
 
-As an aside - there's little point in encrypting the mail sent to me
-when you send it also to a public list :) Just makes it more annoying to
-use.
+A whole revert is probably best, if it's not needed.  But if it is, a
+fix up would be fine to get as well.
 
-> > This is incorrect, doing an authentication doesn't require doing an
-> > association afterwards, and doesn't necessarily imply any state change
-> > in the kernel.
->=20
-> So is it intended behavior that the ssid in wireless_dev is not set
-> or is there a place were this state change should happen?
+thanks,
 
-It's incorrect in that this is the wrong place to set it.
-
-I don't have a strong feeling about whether it _should_ be set, but I
-clearly assumed that it is indeed set ...
-
-> > > alternatives:
-> > > 1. Do the same but during association and not authentication.
-> >=20
-> >=20
-> > Which should probably be done after successful authentication, even in
-> > the CONNECT command case, which currently does it in cfg80211_connect()
-> > but I guess that should move to __cfg80211_connect_result().
->=20
-> Is there an existing way to get the ssid in __cfg80211_connect_result()?
-
-There's the BSS, or multiple pointers for multi-link.
-
-> Just a side question do the BSSes all have the same SSID?
->=20
-
-In multi-link? Yes, I don't think we actively enforce that wpa_s does
-that, but we'd probably fail to connect to the AP if that weren't the
-case. So yeah. Maybe we should check it in assoc.
-
-Here I think you can safely just pick any of the BSSes and look at the
-SSID. Really we could even do the same in the nl80211 code, but it's
-probably easier to fill in the ssid when we already have it anyway.
-
-In the connect case it might be needed to fill it in earlier for use by
-the SME state machine, not sure.
-
-johannes
+greg k-h
