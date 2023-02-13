@@ -2,42 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id BBEEE6948E0
-	for <lists+stable@lfdr.de>; Mon, 13 Feb 2023 15:54:09 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 44CB76948E1
+	for <lists+stable@lfdr.de>; Mon, 13 Feb 2023 15:54:12 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229782AbjBMOyI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Feb 2023 09:54:08 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49656 "EHLO
+        id S229711AbjBMOyK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Feb 2023 09:54:10 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49724 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229711AbjBMOyG (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Feb 2023 09:54:06 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E89641C7F2
-        for <stable@vger.kernel.org>; Mon, 13 Feb 2023 06:53:57 -0800 (PST)
+        with ESMTP id S230334AbjBMOyI (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Feb 2023 09:54:08 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0BB703C19
+        for <stable@vger.kernel.org>; Mon, 13 Feb 2023 06:54:02 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 4BB866106F
-        for <stable@vger.kernel.org>; Mon, 13 Feb 2023 14:53:57 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 352E7C4339C;
-        Mon, 13 Feb 2023 14:53:56 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id A7A2CB81253
+        for <stable@vger.kernel.org>; Mon, 13 Feb 2023 14:54:00 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E72C6C433D2;
+        Mon, 13 Feb 2023 14:53:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1676300036;
-        bh=tp1Pij4XYd9ZGGiHTEn+7OUhJmyuHRBx1cRhKe6liT8=;
+        s=korg; t=1676300039;
+        bh=YCvuw+pXr4ef5gb+FobQg0K/sQBUL4P0Z4m3TQYHKfg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=q7zBsp9g1lQ0Kqgx8l1mQmdW3iWsxu+y/1vb0eBdj2s/4miqk/GCln6x22G8Ww9yj
-         KOenM4IrhbajJ4SLixsiQQCg9PLNhSAXeBMkd/2aGicBZuJyshpoawkD7JQxGz/Jb2
-         S5gcXTi35GXi++2r28kj2hsSBiA/C1I71wPXWRdM=
+        b=bN26oAv2YegYE38pJk6yL+4kwcWfVKR8fxJDJFbZB2ElXRdcuQU6wb+tsX8cCvovz
+         rLZ+jInWdNPkUzlCt4CyT28Ya13Ko+sRK/BMmGA8ayQjwQcoslNSArWeIMABGmmqJi
+         nlswsVuIsr9Sk63KDOlBf+uNbmS69PamDIYtf0Ug=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Zeno Davatz <zdavatz@gmail.com>,
-        Thomas Zimmermann <tzimmermann@suse.de>,
-        Dave Airlie <airlied@redhat.com>,
+        patches@lists.linux.dev,
+        Anirudh Venkataramanan <anirudh.venkataramanan@intel.com>,
+        Marcin Szycik <marcin.szycik@linux.intel.com>,
+        Jakub Andrysiak <jakub.andrysiak@intel.com>,
+        Tony Nguyen <anthony.l.nguyen@intel.com>,
+        Leon Romanovsky <leonro@nvidia.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 039/114] nvidiafb: detect the hardware support before removing console.
-Date:   Mon, 13 Feb 2023 15:47:54 +0100
-Message-Id: <20230213144744.157001447@linuxfoundation.org>
+Subject: [PATCH 6.1 040/114] ice: Do not use WQ_MEM_RECLAIM flag for workqueue
+Date:   Mon, 13 Feb 2023 15:47:55 +0100
+Message-Id: <20230213144744.210873811@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.1
 In-Reply-To: <20230213144742.219399167@linuxfoundation.org>
 References: <20230213144742.219399167@linuxfoundation.org>
@@ -54,192 +57,109 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dave Airlie <airlied@redhat.com>
+From: Anirudh Venkataramanan <anirudh.venkataramanan@intel.com>
 
-[ Upstream commit 04119ab1a49fc41cb70f0472be5455af268fa260 ]
+[ Upstream commit 4d159f7884f78b1aacb99b4fc37d1e3cb1194e39 ]
 
-This driver removed the console, but hasn't yet decided if it could
-take over the console yet. Instead of doing that, probe the hw for
-support and then remove the console afterwards.
+When both ice and the irdma driver are loaded, a warning in
+check_flush_dependency is being triggered. This is due to ice driver
+workqueue being allocated with the WQ_MEM_RECLAIM flag and the irdma one
+is not.
 
-Link: https://bugzilla.kernel.org/show_bug.cgi?id=216859
-Fixes: 145eed48de27 ("fbdev: Remove conflicting devices on PCI bus")
-Reported-by: Zeno Davatz <zdavatz@gmail.com>
-Tested-by: Zeno Davatz <zdavatz@gmail.com>
-Tested-by: Thomas Zimmermann <tzimmermann@suse.de>
-Reviewed-by: Thomas Zimmermann <tzimmermann@suse.de>
-Signed-off-by: Dave Airlie <airlied@redhat.com>
-Link: https://patchwork.freedesktop.org/patch/msgid/20230205210751.3842103-1-airlied@gmail.com
+According to kernel documentation, this flag should be set if the
+workqueue will be involved in the kernel's memory reclamation flow.
+Since it is not, there is no need for the ice driver's WQ to have this
+flag set so remove it.
+
+Example trace:
+
+[  +0.000004] workqueue: WQ_MEM_RECLAIM ice:ice_service_task [ice] is flushing !WQ_MEM_RECLAIM infiniband:0x0
+[  +0.000139] WARNING: CPU: 0 PID: 728 at kernel/workqueue.c:2632 check_flush_dependency+0x178/0x1a0
+[  +0.000011] Modules linked in: bonding tls xt_CHECKSUM xt_MASQUERADE xt_conntrack ipt_REJECT nf_reject_ipv4 nft_compat nft_cha
+in_nat nf_nat nf_conntrack nf_defrag_ipv6 nf_defrag_ipv4 nf_tables nfnetlink bridge stp llc rfkill vfat fat intel_rapl_msr intel
+_rapl_common isst_if_common skx_edac nfit libnvdimm x86_pkg_temp_thermal intel_powerclamp coretemp kvm_intel kvm irqbypass crct1
+0dif_pclmul crc32_pclmul ghash_clmulni_intel rapl intel_cstate rpcrdma sunrpc rdma_ucm ib_srpt ib_isert iscsi_target_mod target_
+core_mod ib_iser libiscsi scsi_transport_iscsi rdma_cm ib_cm iw_cm iTCO_wdt iTCO_vendor_support ipmi_ssif irdma mei_me ib_uverbs
+ib_core intel_uncore joydev pcspkr i2c_i801 acpi_ipmi mei lpc_ich i2c_smbus intel_pch_thermal ioatdma ipmi_si acpi_power_meter
+acpi_pad xfs libcrc32c sd_mod t10_pi crc64_rocksoft crc64 sg ahci ixgbe libahci ice i40e igb crc32c_intel mdio i2c_algo_bit liba
+ta dca wmi dm_mirror dm_region_hash dm_log dm_mod ipmi_devintf ipmi_msghandler fuse
+[  +0.000161]  [last unloaded: bonding]
+[  +0.000006] CPU: 0 PID: 728 Comm: kworker/0:2 Tainted: G S                 6.2.0-rc2_next-queue-13jan-00458-gc20aabd57164 #1
+[  +0.000006] Hardware name: Intel Corporation S2600WFT/S2600WFT, BIOS SE5C620.86B.02.01.0010.010620200716 01/06/2020
+[  +0.000003] Workqueue: ice ice_service_task [ice]
+[  +0.000127] RIP: 0010:check_flush_dependency+0x178/0x1a0
+[  +0.000005] Code: 89 8e 02 01 e8 49 3d 40 00 49 8b 55 18 48 8d 8d d0 00 00 00 48 8d b3 d0 00 00 00 4d 89 e0 48 c7 c7 e0 3b 08
+9f e8 bb d3 07 01 <0f> 0b e9 be fe ff ff 80 3d 24 89 8e 02 00 0f 85 6b ff ff ff e9 06
+[  +0.000004] RSP: 0018:ffff88810a39f990 EFLAGS: 00010282
+[  +0.000005] RAX: 0000000000000000 RBX: ffff888141bc2400 RCX: 0000000000000000
+[  +0.000004] RDX: 0000000000000001 RSI: dffffc0000000000 RDI: ffffffffa1213a80
+[  +0.000003] RBP: ffff888194bf3400 R08: ffffed117b306112 R09: ffffed117b306112
+[  +0.000003] R10: ffff888bd983088b R11: ffffed117b306111 R12: 0000000000000000
+[  +0.000003] R13: ffff888111f84d00 R14: ffff88810a3943ac R15: ffff888194bf3400
+[  +0.000004] FS:  0000000000000000(0000) GS:ffff888bd9800000(0000) knlGS:0000000000000000
+[  +0.000003] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+[  +0.000003] CR2: 000056035b208b60 CR3: 000000017795e005 CR4: 00000000007706f0
+[  +0.000003] DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
+[  +0.000003] DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
+[  +0.000002] PKRU: 55555554
+[  +0.000003] Call Trace:
+[  +0.000002]  <TASK>
+[  +0.000003]  __flush_workqueue+0x203/0x840
+[  +0.000006]  ? mutex_unlock+0x84/0xd0
+[  +0.000008]  ? __pfx_mutex_unlock+0x10/0x10
+[  +0.000004]  ? __pfx___flush_workqueue+0x10/0x10
+[  +0.000006]  ? mutex_lock+0xa3/0xf0
+[  +0.000005]  ib_cache_cleanup_one+0x39/0x190 [ib_core]
+[  +0.000174]  __ib_unregister_device+0x84/0xf0 [ib_core]
+[  +0.000094]  ib_unregister_device+0x25/0x30 [ib_core]
+[  +0.000093]  irdma_ib_unregister_device+0x97/0xc0 [irdma]
+[  +0.000064]  ? __pfx_irdma_ib_unregister_device+0x10/0x10 [irdma]
+[  +0.000059]  ? up_write+0x5c/0x90
+[  +0.000005]  irdma_remove+0x36/0x90 [irdma]
+[  +0.000062]  auxiliary_bus_remove+0x32/0x50
+[  +0.000007]  device_release_driver_internal+0xfa/0x1c0
+[  +0.000005]  bus_remove_device+0x18a/0x260
+[  +0.000007]  device_del+0x2e5/0x650
+[  +0.000005]  ? __pfx_device_del+0x10/0x10
+[  +0.000003]  ? mutex_unlock+0x84/0xd0
+[  +0.000004]  ? __pfx_mutex_unlock+0x10/0x10
+[  +0.000004]  ? _raw_spin_unlock+0x18/0x40
+[  +0.000005]  ice_unplug_aux_dev+0x52/0x70 [ice]
+[  +0.000160]  ice_service_task+0x1309/0x14f0 [ice]
+[  +0.000134]  ? __pfx___schedule+0x10/0x10
+[  +0.000006]  process_one_work+0x3b1/0x6c0
+[  +0.000008]  worker_thread+0x69/0x670
+[  +0.000005]  ? __kthread_parkme+0xec/0x110
+[  +0.000007]  ? __pfx_worker_thread+0x10/0x10
+[  +0.000005]  kthread+0x17f/0x1b0
+[  +0.000005]  ? __pfx_kthread+0x10/0x10
+[  +0.000004]  ret_from_fork+0x29/0x50
+[  +0.000009]  </TASK>
+
+Fixes: 940b61af02f4 ("ice: Initialize PF and setup miscellaneous interrupt")
+Signed-off-by: Anirudh Venkataramanan <anirudh.venkataramanan@intel.com>
+Signed-off-by: Marcin Szycik <marcin.szycik@linux.intel.com>
+Tested-by: Jakub Andrysiak <jakub.andrysiak@intel.com>
+Signed-off-by: Tony Nguyen <anthony.l.nguyen@intel.com>
+Reviewed-by: Leon Romanovsky <leonro@nvidia.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/video/fbdev/nvidia/nvidia.c | 81 +++++++++++++++--------------
- 1 file changed, 42 insertions(+), 39 deletions(-)
+ drivers/net/ethernet/intel/ice/ice_main.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/video/fbdev/nvidia/nvidia.c b/drivers/video/fbdev/nvidia/nvidia.c
-index 329e2e8133c69..a6c3bc2222463 100644
---- a/drivers/video/fbdev/nvidia/nvidia.c
-+++ b/drivers/video/fbdev/nvidia/nvidia.c
-@@ -1197,17 +1197,17 @@ static int nvidia_set_fbinfo(struct fb_info *info)
- 	return nvidiafb_check_var(&info->var, info);
- }
+diff --git a/drivers/net/ethernet/intel/ice/ice_main.c b/drivers/net/ethernet/intel/ice/ice_main.c
+index 1ac5f0018c7eb..333582dabba16 100644
+--- a/drivers/net/ethernet/intel/ice/ice_main.c
++++ b/drivers/net/ethernet/intel/ice/ice_main.c
+@@ -5518,7 +5518,7 @@ static int __init ice_module_init(void)
+ 	pr_info("%s\n", ice_driver_string);
+ 	pr_info("%s\n", ice_copyright);
  
--static u32 nvidia_get_chipset(struct fb_info *info)
-+static u32 nvidia_get_chipset(struct pci_dev *pci_dev,
-+			      volatile u32 __iomem *REGS)
- {
--	struct nvidia_par *par = info->par;
--	u32 id = (par->pci_dev->vendor << 16) | par->pci_dev->device;
-+	u32 id = (pci_dev->vendor << 16) | pci_dev->device;
- 
- 	printk(KERN_INFO PFX "Device ID: %x \n", id);
- 
- 	if ((id & 0xfff0) == 0x00f0 ||
- 	    (id & 0xfff0) == 0x02e0) {
- 		/* pci-e */
--		id = NV_RD32(par->REGS, 0x1800);
-+		id = NV_RD32(REGS, 0x1800);
- 
- 		if ((id & 0x0000ffff) == 0x000010DE)
- 			id = 0x10DE0000 | (id >> 16);
-@@ -1220,12 +1220,11 @@ static u32 nvidia_get_chipset(struct fb_info *info)
- 	return id;
- }
- 
--static u32 nvidia_get_arch(struct fb_info *info)
-+static u32 nvidia_get_arch(u32 Chipset)
- {
--	struct nvidia_par *par = info->par;
- 	u32 arch = 0;
- 
--	switch (par->Chipset & 0x0ff0) {
-+	switch (Chipset & 0x0ff0) {
- 	case 0x0100:		/* GeForce 256 */
- 	case 0x0110:		/* GeForce2 MX */
- 	case 0x0150:		/* GeForce2 */
-@@ -1278,16 +1277,44 @@ static int nvidiafb_probe(struct pci_dev *pd, const struct pci_device_id *ent)
- 	struct fb_info *info;
- 	unsigned short cmd;
- 	int ret;
-+	volatile u32 __iomem *REGS;
-+	int Chipset;
-+	u32 Architecture;
- 
- 	NVTRACE_ENTER();
- 	assert(pd != NULL);
- 
-+	if (pci_enable_device(pd)) {
-+		printk(KERN_ERR PFX "cannot enable PCI device\n");
-+		return -ENODEV;
-+	}
-+
-+	/* enable IO and mem if not already done */
-+	pci_read_config_word(pd, PCI_COMMAND, &cmd);
-+	cmd |= (PCI_COMMAND_IO | PCI_COMMAND_MEMORY);
-+	pci_write_config_word(pd, PCI_COMMAND, cmd);
-+
-+	nvidiafb_fix.mmio_start = pci_resource_start(pd, 0);
-+	nvidiafb_fix.mmio_len = pci_resource_len(pd, 0);
-+
-+	REGS = ioremap(nvidiafb_fix.mmio_start, nvidiafb_fix.mmio_len);
-+	if (!REGS) {
-+		printk(KERN_ERR PFX "cannot ioremap MMIO base\n");
-+		return -ENODEV;
-+	}
-+
-+	Chipset = nvidia_get_chipset(pd, REGS);
-+	Architecture = nvidia_get_arch(Chipset);
-+	if (Architecture == 0) {
-+		printk(KERN_ERR PFX "unknown NV_ARCH\n");
-+		goto err_out;
-+	}
-+
- 	ret = aperture_remove_conflicting_pci_devices(pd, "nvidiafb");
- 	if (ret)
--		return ret;
-+		goto err_out;
- 
- 	info = framebuffer_alloc(sizeof(struct nvidia_par), &pd->dev);
--
- 	if (!info)
- 		goto err_out;
- 
-@@ -1298,11 +1325,6 @@ static int nvidiafb_probe(struct pci_dev *pd, const struct pci_device_id *ent)
- 	if (info->pixmap.addr == NULL)
- 		goto err_out_kfree;
- 
--	if (pci_enable_device(pd)) {
--		printk(KERN_ERR PFX "cannot enable PCI device\n");
--		goto err_out_enable;
--	}
--
- 	if (pci_request_regions(pd, "nvidiafb")) {
- 		printk(KERN_ERR PFX "cannot request PCI regions\n");
- 		goto err_out_enable;
-@@ -1318,34 +1340,17 @@ static int nvidiafb_probe(struct pci_dev *pd, const struct pci_device_id *ent)
- 	par->paneltweak = paneltweak;
- 	par->reverse_i2c = reverse_i2c;
- 
--	/* enable IO and mem if not already done */
--	pci_read_config_word(pd, PCI_COMMAND, &cmd);
--	cmd |= (PCI_COMMAND_IO | PCI_COMMAND_MEMORY);
--	pci_write_config_word(pd, PCI_COMMAND, cmd);
--
--	nvidiafb_fix.mmio_start = pci_resource_start(pd, 0);
- 	nvidiafb_fix.smem_start = pci_resource_start(pd, 1);
--	nvidiafb_fix.mmio_len = pci_resource_len(pd, 0);
--
--	par->REGS = ioremap(nvidiafb_fix.mmio_start, nvidiafb_fix.mmio_len);
- 
--	if (!par->REGS) {
--		printk(KERN_ERR PFX "cannot ioremap MMIO base\n");
--		goto err_out_free_base0;
--	}
-+	par->REGS = REGS;
- 
--	par->Chipset = nvidia_get_chipset(info);
--	par->Architecture = nvidia_get_arch(info);
--
--	if (par->Architecture == 0) {
--		printk(KERN_ERR PFX "unknown NV_ARCH\n");
--		goto err_out_arch;
--	}
-+	par->Chipset = Chipset;
-+	par->Architecture = Architecture;
- 
- 	sprintf(nvidiafb_fix.id, "NV%x", (pd->device & 0x0ff0) >> 4);
- 
- 	if (NVCommonSetup(info))
--		goto err_out_arch;
-+		goto err_out_free_base0;
- 
- 	par->FbAddress = nvidiafb_fix.smem_start;
- 	par->FbMapSize = par->RamAmountKBytes * 1024;
-@@ -1401,7 +1406,6 @@ static int nvidiafb_probe(struct pci_dev *pd, const struct pci_device_id *ent)
- 		goto err_out_iounmap_fb;
- 	}
- 
--
- 	printk(KERN_INFO PFX
- 	       "PCI nVidia %s framebuffer (%dMB @ 0x%lX)\n",
- 	       info->fix.id,
-@@ -1415,15 +1419,14 @@ static int nvidiafb_probe(struct pci_dev *pd, const struct pci_device_id *ent)
- err_out_free_base1:
- 	fb_destroy_modedb(info->monspecs.modedb);
- 	nvidia_delete_i2c_busses(par);
--err_out_arch:
--	iounmap(par->REGS);
-- err_out_free_base0:
-+err_out_free_base0:
- 	pci_release_regions(pd);
- err_out_enable:
- 	kfree(info->pixmap.addr);
- err_out_kfree:
- 	framebuffer_release(info);
- err_out:
-+	iounmap(REGS);
- 	return -ENODEV;
- }
- 
+-	ice_wq = alloc_workqueue("%s", WQ_MEM_RECLAIM, 0, KBUILD_MODNAME);
++	ice_wq = alloc_workqueue("%s", 0, 0, KBUILD_MODNAME);
+ 	if (!ice_wq) {
+ 		pr_err("Failed to create workqueue\n");
+ 		return -ENOMEM;
 -- 
 2.39.0
 
