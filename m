@@ -2,43 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E7ED1694A4A
-	for <lists+stable@lfdr.de>; Mon, 13 Feb 2023 16:06:04 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4DA7C694A4B
+	for <lists+stable@lfdr.de>; Mon, 13 Feb 2023 16:06:08 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231414AbjBMPGE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Feb 2023 10:06:04 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40914 "EHLO
+        id S231449AbjBMPGH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Feb 2023 10:06:07 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41502 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231467AbjBMPGC (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Feb 2023 10:06:02 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 885401E1D3
-        for <stable@vger.kernel.org>; Mon, 13 Feb 2023 07:06:00 -0800 (PST)
+        with ESMTP id S231248AbjBMPGF (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Feb 2023 10:06:05 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EEEE91D937
+        for <stable@vger.kernel.org>; Mon, 13 Feb 2023 07:06:04 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 1E8B06114F
-        for <stable@vger.kernel.org>; Mon, 13 Feb 2023 15:06:00 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 329FFC433EF;
-        Mon, 13 Feb 2023 15:05:59 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 6231AB81253
+        for <stable@vger.kernel.org>; Mon, 13 Feb 2023 15:06:03 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id BA542C4339B;
+        Mon, 13 Feb 2023 15:06:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1676300759;
-        bh=2zNLX0ijebtAXd5hCYPMb3WozFN8jSX0cC42PPZCE/A=;
+        s=korg; t=1676300762;
+        bh=5MxSNYSDPC4S3znAuFkHEzobPbcX0NWsoJQ3a9jV6AI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=VNDgFlIg03gG6U6cFUg4ckHeyrPeJCmrOexJScnIqZ5KIzJe46p8yFilHk0ayhd7U
-         b4kYdrRl2w+1xPluicNGoo2yDZ4Rv3HB2O+n6OOKjM1hR3vcBZI3Rwo1mRZ3wPdNK/
-         EiJMhlyso/btWy1clyHKORB5Ayyu0mvHBrL6SSD8=
+        b=QTrv7ejKLPAqqFRPhLwaEec1jv8G3Yk3Mhq4EkhjHVWKEc8jPxrot1inh+kDgj4Kp
+         0xzvS8iD0IIM8/+2U8K7JIdqI1pGdhHKDHtRn54GQ4IMWC+6lMDrNND5mLmCIRAvNK
+         dQH2cKv7mTKZUA4+/11sJU9WOhOLp5ZGXbIsZwak=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Andrew Morton <akpm@linux-foundation.org>,
-        Chunwei Chen <david.chen@nutanix.com>,
-        Vlastimil Babka <vbabka@suse.cz>,
-        "Matthew Wilcox (Oracle)" <willy@infradead.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>
-Subject: [PATCH 5.10 138/139] Fix page corruption caused by racy check in __free_pages
-Date:   Mon, 13 Feb 2023 15:51:23 +0100
-Message-Id: <20230213144753.312051685@linuxfoundation.org>
+        patches@lists.linux.dev, kernel test robot <lkp@intel.com>,
+        Dan Carpenter <error27@gmail.com>,
+        "Russell King (Oracle)" <rmk+kernel@armlinux.org.uk>,
+        Srinivas Kandagatla <srinivas.kandagatla@linaro.org>
+Subject: [PATCH 5.10 139/139] nvmem: core: fix return value
+Date:   Mon, 13 Feb 2023 15:51:24 +0100
+Message-Id: <20230213144753.376308293@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.1
 In-Reply-To: <20230213144745.696901179@linuxfoundation.org>
 References: <20230213144745.696901179@linuxfoundation.org>
@@ -55,78 +54,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: David Chen <david.chen@nutanix.com>
+From: Russell King (Oracle) <rmk+kernel@armlinux.org.uk>
 
-commit 462a8e08e0e6287e5ce13187257edbf24213ed03 upstream.
+commit 0c4862b1c1465e473bc961a02765490578bf5c20 upstream.
 
-When we upgraded our kernel, we started seeing some page corruption like
-the following consistently:
+Dan Carpenter points out that the return code was not set in commit
+60c8b4aebd8e ("nvmem: core: fix cleanup after dev_set_name()"), but
+this is not the only issue - we also need to zero wp_gpio to prevent
+gpiod_put() being called on an error value.
 
-  BUG: Bad page state in process ganesha.nfsd  pfn:1304ca
-  page:0000000022261c55 refcount:0 mapcount:-128 mapping:0000000000000000 index:0x0 pfn:0x1304ca
-  flags: 0x17ffffc0000000()
-  raw: 0017ffffc0000000 ffff8a513ffd4c98 ffffeee24b35ec08 0000000000000000
-  raw: 0000000000000000 0000000000000001 00000000ffffff7f 0000000000000000
-  page dumped because: nonzero mapcount
-  CPU: 0 PID: 15567 Comm: ganesha.nfsd Kdump: loaded Tainted: P    B      O      5.10.158-1.nutanix.20221209.el7.x86_64 #1
-  Hardware name: VMware, Inc. VMware Virtual Platform/440BX Desktop Reference Platform, BIOS 6.00 04/05/2016
-  Call Trace:
-   dump_stack+0x74/0x96
-   bad_page.cold+0x63/0x94
-   check_new_page_bad+0x6d/0x80
-   rmqueue+0x46e/0x970
-   get_page_from_freelist+0xcb/0x3f0
-   ? _cond_resched+0x19/0x40
-   __alloc_pages_nodemask+0x164/0x300
-   alloc_pages_current+0x87/0xf0
-   skb_page_frag_refill+0x84/0x110
-   ...
-
-Sometimes, it would also show up as corruption in the free list pointer
-and cause crashes.
-
-After bisecting the issue, we found the issue started from commit
-e320d3012d25 ("mm/page_alloc.c: fix freeing non-compound pages"):
-
-	if (put_page_testzero(page))
-		free_the_page(page, order);
-	else if (!PageHead(page))
-		while (order-- > 0)
-			free_the_page(page + (1 << order), order);
-
-So the problem is the check PageHead is racy because at this point we
-already dropped our reference to the page.  So even if we came in with
-compound page, the page can already be freed and PageHead can return
-false and we will end up freeing all the tail pages causing double free.
-
-Fixes: e320d3012d25 ("mm/page_alloc.c: fix freeing non-compound pages")
-Link: https://lore.kernel.org/lkml/BYAPR02MB448855960A9656EEA81141FC94D99@BYAPR02MB4488.namprd02.prod.outlook.com/
-Cc: Andrew Morton <akpm@linux-foundation.org>
+Fixes: 560181d3ace6 ("nvmem: core: fix cleanup after dev_set_name()")
 Cc: stable@vger.kernel.org
-Signed-off-by: Chunwei Chen <david.chen@nutanix.com>
-Reviewed-by: Vlastimil Babka <vbabka@suse.cz>
-Reviewed-by: Matthew Wilcox (Oracle) <willy@infradead.org>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Reported-by: kernel test robot <lkp@intel.com>
+Reported-by: Dan Carpenter <error27@gmail.com>
+Signed-off-by: Russell King (Oracle) <rmk+kernel@armlinux.org.uk>
+Signed-off-by: Srinivas Kandagatla <srinivas.kandagatla@linaro.org>
+Link: https://lore.kernel.org/r/20230127104015.23839-10-srinivas.kandagatla@linaro.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- mm/page_alloc.c |    5 ++++-
- 1 file changed, 4 insertions(+), 1 deletion(-)
+ drivers/nvmem/core.c |    1 +
+ 1 file changed, 1 insertion(+)
 
---- a/mm/page_alloc.c
-+++ b/mm/page_alloc.c
-@@ -5054,9 +5054,12 @@ static inline void free_the_page(struct
+--- a/drivers/nvmem/core.c
++++ b/drivers/nvmem/core.c
+@@ -638,6 +638,7 @@ struct nvmem_device *nvmem_register(cons
+ 						    GPIOD_OUT_HIGH);
+ 	if (IS_ERR(nvmem->wp_gpio)) {
+ 		rval = PTR_ERR(nvmem->wp_gpio);
++		nvmem->wp_gpio = NULL;
+ 		goto err_put_device;
+ 	}
  
- void __free_pages(struct page *page, unsigned int order)
- {
-+	/* get PageHead before we drop reference */
-+	int head = PageHead(page);
-+
- 	if (put_page_testzero(page))
- 		free_the_page(page, order);
--	else if (!PageHead(page))
-+	else if (!head)
- 		while (order-- > 0)
- 			free_the_page(page + (1 << order), order);
- }
 
 
