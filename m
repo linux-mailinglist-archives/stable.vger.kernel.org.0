@@ -2,43 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 9436C69490C
-	for <lists+stable@lfdr.de>; Mon, 13 Feb 2023 15:55:40 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B202469491C
+	for <lists+stable@lfdr.de>; Mon, 13 Feb 2023 15:56:13 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229754AbjBMOzj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Feb 2023 09:55:39 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52014 "EHLO
+        id S230127AbjBMO4M (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Feb 2023 09:56:12 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52076 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230318AbjBMOzc (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Feb 2023 09:55:32 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EFDDF1CAD1
-        for <stable@vger.kernel.org>; Mon, 13 Feb 2023 06:55:26 -0800 (PST)
+        with ESMTP id S230072AbjBMOzw (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Feb 2023 09:55:52 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 27CF31C7EF
+        for <stable@vger.kernel.org>; Mon, 13 Feb 2023 06:55:41 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id AE8E5B81253
-        for <stable@vger.kernel.org>; Mon, 13 Feb 2023 14:55:25 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 238DBC433EF;
-        Mon, 13 Feb 2023 14:55:23 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id BA9676115E
+        for <stable@vger.kernel.org>; Mon, 13 Feb 2023 14:55:40 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D283EC433D2;
+        Mon, 13 Feb 2023 14:55:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1676300124;
-        bh=5UM8IfTfm6oIFtYJjQ4Oz83rLBCbBHR9Hwmt35KS0uA=;
+        s=korg; t=1676300140;
+        bh=sbhRK+0haLItP7fq4kT2sr5kiF6FilBWs1sVRUzpJwE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=IEPCf4mGxma/K+JdQHZBRklWFw2HwOkyZb/ZZEtOIZ5OpbcVpRe19iOINMvrj9UBY
-         57b5EKO/6tPGqWsZHyQjeNo8pjogQ+GYQIY/Cvbep0JnxnXbCbcRmg+sbMie0BhMFU
-         4jK9QBY1AnJ55VgTLug340xvbWGl4gvGzWSN2cJw=
+        b=Tdn7Fp0FD4RsjvEWv1iyqj6b2JpDCyBF29EGUE4YlB6CuyiV4wcPs6sIbUdXllbuE
+         VRgZFOTDHMcGssfQVW+yd45kwuAaECRyI+JnBGHjeNQqDuzYfKZRIdLPP3V4Pd30J7
+         m/6x3rQRwZ62f1oIkI47zfzRW4hBxZk2f+DEIkUE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         patches@lists.linux.dev,
-        Maxim Korotkov <korotkov.maxim.s@gmail.com>,
-        Tony Lindgren <tony@atomide.com>,
-        Linus Walleij <linus.walleij@linaro.org>,
+        Sergey Nazarov <Sergey.Nazarov@baikalelectronics.ru>,
+        Serge Semin <Sergey.Semin@baikalelectronics.ru>,
+        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
+        Mark Brown <broonie@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 073/114] pinctrl: single: fix potential NULL dereference
-Date:   Mon, 13 Feb 2023 15:48:28 +0100
-Message-Id: <20230213144745.981595265@linuxfoundation.org>
+Subject: [PATCH 6.1 074/114] spi: dw: Fix wrong FIFO level setting for long xfers
+Date:   Mon, 13 Feb 2023 15:48:29 +0100
+Message-Id: <20230213144746.022211055@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.1
 In-Reply-To: <20230213144742.219399167@linuxfoundation.org>
 References: <20230213144742.219399167@linuxfoundation.org>
@@ -55,39 +56,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Maxim Korotkov <korotkov.maxim.s@gmail.com>
+From: Serge Semin <Sergey.Semin@baikalelectronics.ru>
 
-[ Upstream commit d2d73e6d4822140445ad4a7b1c6091e0f5fe703b ]
+[ Upstream commit c63b8fd14a7db719f8252038a790638728c4eb66 ]
 
-Added checking of pointer "function" in pcs_set_mux().
-pinmux_generic_get_function() can return NULL and the pointer
-"function" was dereferenced without checking against NULL.
+Due to using the u16 type in the min_t() macros the SPI transfer length
+will be cast to word before participating in the conditional statement
+implied by the macro. Thus if the transfer length is greater than 64KB the
+Tx/Rx FIFO threshold level value will be determined by the leftover of the
+truncated after the type-case length. In the worst case it will cause the
+dramatical performance drop due to the "Tx FIFO Empty" or "Rx FIFO Full"
+interrupts triggered on each xfer word sent/received to/from the bus.
 
-Found by Linux Verification Center (linuxtesting.org) with SVACE.
+The problem can be easily fixed by specifying the unsigned int type in the
+min_t() macros thus preventing the possible data loss.
 
-Fixes: 571aec4df5b7 ("pinctrl: single: Use generic pinmux helpers for managing functions")
-Signed-off-by: Maxim Korotkov <korotkov.maxim.s@gmail.com>
-Reviewed-by: Tony Lindgren <tony@atomide.com>
-Link: https://lore.kernel.org/r/20221118104332.943-1-korotkov.maxim.s@gmail.com
-Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
+Fixes: ea11370fffdf ("spi: dw: get TX level without an additional variable")
+Reported-by: Sergey Nazarov <Sergey.Nazarov@baikalelectronics.ru>
+Signed-off-by: Serge Semin <Sergey.Semin@baikalelectronics.ru>
+Reviewed-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Link: https://lore.kernel.org/r/20230113185942.2516-1-Sergey.Semin@baikalelectronics.ru
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/pinctrl/pinctrl-single.c | 2 ++
- 1 file changed, 2 insertions(+)
+ drivers/spi/spi-dw-core.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/pinctrl/pinctrl-single.c b/drivers/pinctrl/pinctrl-single.c
-index 414ee6bb8ac98..9ad8f70206142 100644
---- a/drivers/pinctrl/pinctrl-single.c
-+++ b/drivers/pinctrl/pinctrl-single.c
-@@ -372,6 +372,8 @@ static int pcs_set_mux(struct pinctrl_dev *pctldev, unsigned fselector,
- 	if (!pcs->fmask)
- 		return 0;
- 	function = pinmux_generic_get_function(pctldev, fselector);
-+	if (!function)
-+		return -EINVAL;
- 	func = function->data;
- 	if (!func)
- 		return -EINVAL;
+diff --git a/drivers/spi/spi-dw-core.c b/drivers/spi/spi-dw-core.c
+index 99edddf9958b9..c3bfb6c84cab2 100644
+--- a/drivers/spi/spi-dw-core.c
++++ b/drivers/spi/spi-dw-core.c
+@@ -366,7 +366,7 @@ static void dw_spi_irq_setup(struct dw_spi *dws)
+ 	 * will be adjusted at the final stage of the IRQ-based SPI transfer
+ 	 * execution so not to lose the leftover of the incoming data.
+ 	 */
+-	level = min_t(u16, dws->fifo_len / 2, dws->tx_len);
++	level = min_t(unsigned int, dws->fifo_len / 2, dws->tx_len);
+ 	dw_writel(dws, DW_SPI_TXFTLR, level);
+ 	dw_writel(dws, DW_SPI_RXFTLR, level - 1);
+ 
 -- 
 2.39.0
 
