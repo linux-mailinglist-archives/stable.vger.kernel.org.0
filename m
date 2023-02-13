@@ -2,89 +2,113 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 34F3F6943B2
-	for <lists+stable@lfdr.de>; Mon, 13 Feb 2023 12:02:14 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E2A7E694405
+	for <lists+stable@lfdr.de>; Mon, 13 Feb 2023 12:12:08 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229941AbjBMLCM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Feb 2023 06:02:12 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39050 "EHLO
+        id S230157AbjBMLMG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Feb 2023 06:12:06 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48844 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229978AbjBMLCK (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Feb 2023 06:02:10 -0500
-Received: from sipsolutions.net (s3.sipsolutions.net [IPv6:2a01:4f8:191:4433::2])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7CD92DBD5;
-        Mon, 13 Feb 2023 03:02:07 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
-        d=sipsolutions.net; s=mail; h=MIME-Version:Content-Transfer-Encoding:
-        Content-Type:References:In-Reply-To:Date:Cc:To:From:Subject:Message-ID:Sender
-        :Reply-To:Content-ID:Content-Description:Resent-Date:Resent-From:Resent-To:
-        Resent-Cc:Resent-Message-ID; bh=TzexFku4QIp/gLO3pXU4JjS5NDKao+W0F8c5U7LUrxo=;
-        t=1676286127; x=1677495727; b=falFHV5tih6Vp+aWMFVa0uwFx+YVpemHdr6OItmkaBb/MJ+
-        TzXHsSk9D/LZ6bthEsGf/hikkygCgyrEM/FIkP7g3Ld2Y+UxVhncQmgCGf+hxhwHRRxg+Q3kq7Lqn
-        bXfn//7BInPh2/gzDel4R0sOEXE1aqCbtFDbi9W8VXkDjOYD5nzt9zVSfoZED3s0pxu3AFrS4bq4v
-        dzGfVT8upR0Uz6k7mE4Bsvi4uj3Ef7O7yKVOS8Sog3Wb8zlg+PCSBhDjv9U2FJWSbeGFsdP6o6XgT
-        tzM462v5XEWXtxboCRYPVttPTMJ3iBIhnW8FwecwOBT3UI9j5r05TCdlvFmJmnkQ==;
-Received: by sipsolutions.net with esmtpsa (TLS1.3:ECDHE_X25519__RSA_PSS_RSAE_SHA256__AES_256_GCM:256)
-        (Exim 4.96)
-        (envelope-from <johannes@sipsolutions.net>)
-        id 1pRWaf-00B8Cx-0v;
-        Mon, 13 Feb 2023 12:01:45 +0100
-Message-ID: <5a1d1244c8d3e20408732858442f264d26cc2768.camel@sipsolutions.net>
-Subject: Re: [PATCH v2] Set ssid when authenticating
-From:   Johannes Berg <johannes@sipsolutions.net>
-To:     Marc Bornand <dev.mbornand@systemb.ch>,
-        linux-wireless@vger.kernel.org
-Cc:     "David S . Miller" <davem@davemloft.net>,
-        Eric Dumazet <edumazet@google.com>,
-        Jakub Kicinski <kuba@kernel.org>,
-        Paolo Abeni <pabeni@redhat.com>, netdev@vger.kernel.org,
-        linux-kernel@vger.kernel.org, Kalle Valo <kvalo@kernel.org>,
-        Yohan Prod'homme <kernel@zoddo.fr>, stable@vger.kernel.org
-Date:   Mon, 13 Feb 2023 12:01:43 +0100
-In-Reply-To: <20230213105436.595245-1-dev.mbornand@systemb.ch>
-References: <20230213105436.595245-1-dev.mbornand@systemb.ch>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
-User-Agent: Evolution 3.46.3 (3.46.3-1.fc37) 
+        with ESMTP id S229648AbjBMLMC (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Feb 2023 06:12:02 -0500
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 497D91817A
+        for <stable@vger.kernel.org>; Mon, 13 Feb 2023 03:10:46 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1676286645;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:
+         content-transfer-encoding:content-transfer-encoding;
+        bh=91axYkgwIMCEz1WKAFTJX5qVVuOGqFHheqUFcZuc9sQ=;
+        b=hGoc/SpnfgNmUNGOhn0DyIEmiZ1hOj2J/9UpdfbnwMDgiGiu8OEpaDQNAE8XS+nPulmtZk
+        V6V1vIBTFb/Kp5CE9mtDBEfOLppZeHZ4dRY5f+NKSfM/MxV7cy4oBFQgeLnUQjxoIdqPCh
+        aq5DseSDFU2DmBzJ2V1MVNS67VLcTEk=
+Received: from mimecast-mx02.redhat.com (mimecast-mx02.redhat.com
+ [66.187.233.88]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ us-mta-132-RkD5y7wBOtutSrdxs-y-Qg-1; Mon, 13 Feb 2023 06:10:44 -0500
+X-MC-Unique: RkD5y7wBOtutSrdxs-y-Qg-1
+Received: from smtp.corp.redhat.com (int-mx10.intmail.prod.int.rdu2.redhat.com [10.11.54.10])
+        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+        (No client certificate requested)
+        by mimecast-mx02.redhat.com (Postfix) with ESMTPS id 0FE10857F41;
+        Mon, 13 Feb 2023 11:10:44 +0000 (UTC)
+Received: from lxbceph1.gsslab.pek2.redhat.com (unknown [10.72.47.117])
+        by smtp.corp.redhat.com (Postfix) with ESMTP id 7B458492B15;
+        Mon, 13 Feb 2023 11:10:41 +0000 (UTC)
+From:   xiubli@redhat.com
+To:     idryomov@gmail.com
+Cc:     jlayton@kernel.org, vshankar@redhat.com, mchangir@redhat.com,
+        Xiubo Li <xiubli@redhat.com>, stable@vger.kernel.org
+Subject: [PATCH] ceph: update the time stamps and try to drop the suid/sgid
+Date:   Mon, 13 Feb 2023 19:10:38 +0800
+Message-Id: <20230213111038.15021-1-xiubli@redhat.com>
 MIME-Version: 1.0
-X-malware-bazaar: not-scanned
-X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,SPF_HELO_PASS,SPF_PASS
-        autolearn=ham autolearn_force=no version=3.4.6
+Content-Transfer-Encoding: 8bit
+X-Scanned-By: MIMEDefang 3.1 on 10.11.54.10
+X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_NONE,
+        RCVD_IN_MSPIKE_H2,SPF_HELO_NONE,SPF_NONE autolearn=ham
+        autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, 2023-02-13 at 10:55 +0000, Marc Bornand wrote:
-> changes since v1:
-> - add some informations
-> - test it on wireless-2023-01-18 tag
-> - no real code change
->=20
-> When a connexion was established without going through
-> NL80211_CMD_CONNECT, the ssid was never set in the wireless_dev struct.
-> Now we set it during when an NL80211_CMD_AUTHENTICATE is issued.
+From: Xiubo Li <xiubli@redhat.com>
 
-This is incorrect, doing an authentication doesn't require doing an
-association afterwards, and doesn't necessarily imply any state change
-in the kernel.
+The fallocate will try to clear the suid/sgid if a unprevileged user
+changed the file.
 
-> alternatives:
-> 1. Do the same but during association and not authentication.
+There is no Posix item requires that we should clear the suid/sgid
+in fallocate code path but this is the default behaviour for most of
+the filesystems and the VFS layer. And also the same for the write
+code path, which have already support it.
 
-Which should probably be done _after_ successful authentication, even in
-the CONNECT command case, which currently does it in cfg80211_connect()
-but I guess that should move to __cfg80211_connect_result().
+And also we need to update the time stamps since the fallocate will
+change the file contents.
 
-> 2. use ieee80211_bss_get_elem in nl80211_send_iface, this would report
->    the right ssid to userspace, but this would not fix the root cause,
->    this alos wa the behavior prior to 7b0a0e3c3a882 when the bug was
->    introduced.
+Cc: stable@vger.kernel.org
+URL: https://tracker.ceph.com/issues/58054
+Signed-off-by: Xiubo Li <xiubli@redhat.com>
+---
+ fs/ceph/file.c | 8 ++++++++
+ 1 file changed, 8 insertions(+)
 
-That would be OK too but the reason I changed it there (missing the fact
-that it wasn't set) is that we have multiple BSSes with MLO. So it's
-hard to get one to do this with.
+diff --git a/fs/ceph/file.c b/fs/ceph/file.c
+index 903de296f0d3..dee3b445f415 100644
+--- a/fs/ceph/file.c
++++ b/fs/ceph/file.c
+@@ -2502,6 +2502,9 @@ static long ceph_fallocate(struct file *file, int mode,
+ 	loff_t endoff = 0;
+ 	loff_t size;
+ 
++	dout("%s %p %llx.%llx mode %x, offset %llu length %llu\n", __func__,
++	     inode, ceph_vinop(inode), mode, offset, length);
++
+ 	if (mode != (FALLOC_FL_KEEP_SIZE | FALLOC_FL_PUNCH_HOLE))
+ 		return -EOPNOTSUPP;
+ 
+@@ -2539,6 +2542,10 @@ static long ceph_fallocate(struct file *file, int mode,
+ 	if (ret < 0)
+ 		goto unlock;
+ 
++	ret = file_modified(file);
++	if (ret)
++		goto put_caps;
++
+ 	filemap_invalidate_lock(inode->i_mapping);
+ 	ceph_fscache_invalidate(inode, false);
+ 	ceph_zero_pagecache_range(inode, offset, length);
+@@ -2554,6 +2561,7 @@ static long ceph_fallocate(struct file *file, int mode,
+ 	}
+ 	filemap_invalidate_unlock(inode->i_mapping);
+ 
++put_caps:
+ 	ceph_put_cap_refs(ci, got);
+ unlock:
+ 	inode_unlock(inode);
+-- 
+2.31.1
 
-johannes
