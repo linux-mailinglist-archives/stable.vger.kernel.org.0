@@ -2,43 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A4A2B6944A2
-	for <lists+stable@lfdr.de>; Mon, 13 Feb 2023 12:36:00 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5B1776944D8
+	for <lists+stable@lfdr.de>; Mon, 13 Feb 2023 12:50:18 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230160AbjBMLf7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Feb 2023 06:35:59 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45730 "EHLO
+        id S229612AbjBMLuQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Feb 2023 06:50:16 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59180 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229736AbjBMLf6 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Feb 2023 06:35:58 -0500
-Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 71B5C2118
-        for <stable@vger.kernel.org>; Mon, 13 Feb 2023 03:35:57 -0800 (PST)
+        with ESMTP id S229713AbjBMLuQ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Feb 2023 06:50:16 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AB288B467
+        for <stable@vger.kernel.org>; Mon, 13 Feb 2023 03:50:14 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id A17CDCE167D
-        for <stable@vger.kernel.org>; Mon, 13 Feb 2023 11:35:55 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 75C3DC433EF;
-        Mon, 13 Feb 2023 11:35:53 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 466B060EB1
+        for <stable@vger.kernel.org>; Mon, 13 Feb 2023 11:50:14 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 58B2DC433D2;
+        Mon, 13 Feb 2023 11:50:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1676288153;
-        bh=DXP90kQcBDCCKVcRKCY3eMel6OQMSTc97CvQJpQS4qk=;
+        s=korg; t=1676289013;
+        bh=2rI3dDRmyaZDGut01SRGnRwnrB2yiNR4HPOMI/w1Upg=;
         h=Subject:To:Cc:From:Date:From;
-        b=HIkxMEn7KwiPACzCKm31HH5IYHm40tL9kQUf2Vo4D7qtqyUO5agqkWnDl+wXh9vlx
-         bn4gGlus9+EMG0z1CLczPi/vsHFp4LX0mV2glfLTrVu8BeVIw/G7B5Ar+BhbEstqcF
-         usiiHmVoSkCbvimrSfK01MhmwKKTRDik6HpkOCtQ=
-Subject: FAILED: patch "[PATCH] arm64: dts: meson-gx: Make mmc host controller interrupts" failed to apply to 4.14-stable tree
-To:     hkallweit1@gmail.com, neil.armstrong@linaro.org
+        b=unLpBRgSspqdg5Yovz9flF6anVA4Sny68QlBs2UYkX9ZhAbFbXVHYoTpQGOmHqIrW
+         OY8YI1whMZvYWcMDaUWqdPrIAWFYm3JpkmLv1AX0kUlX1J1kidIwQjjBM3V83HO9Fw
+         nuquRAq170lEt9qbCxrw5W26t43KxY29XLkq3gS4=
+Subject: FAILED: patch "[PATCH] btrfs: lock the inode in shared mode before starting fiemap" failed to apply to 6.1-stable tree
+To:     fdmanana@suse.com, dsterba@suse.com, josef@toxicpanda.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 13 Feb 2023 12:35:51 +0100
-Message-ID: <16762881511976@kroah.com>
+Date:   Mon, 13 Feb 2023 12:50:11 +0100
+Message-ID: <1676289011115@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
         SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -47,25 +47,14 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.14-stable tree.
+The patch below does not apply to the 6.1-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
 
 Possible dependencies:
 
-66e45351f7d6 ("arm64: dts: meson-gx: Make mmc host controller interrupts level-sensitive")
-e490520c902e ("ARM64: dts: meson: fix register ranges for SD/eMMC")
-221cf34bac54 ("ARM64: dts: meson-axg: enable the eMMC controller")
-777fa58db622 ("ARM64: dts: meson-axg: add RMII pins for ethernet controller")
-7d6d8a2053e6 ("ARM64: dts: meson-axg: enable I2C Master-1 for the audio speaker")
-29390d277d01 ("ARM64: dts: meson-axg: add ethernet mac controller")
-7bd46a79aad5 ("ARM64: dts: meson-axg: enable IR controller")
-06b7a631878a ("arm64: dts: meson-axg: switch uart_ao clock to CLK81")
-4a81e5ddfb43 ("ARM64: dts: meson-axg: add PWM DT info for Meson-Axg SoC")
-de05ded6a99f ("ARM64: dts: meson-axg: add pinctrl DT info for Meson-AXG SoC")
-0cb6c604232c ("ARM64: dts: amlogic: use generic bus node names")
-9d59b708500f ("arm64: dts: meson-axg: add initial A113D SoC DT support")
+519b7e13b5ae ("btrfs: lock the inode in shared mode before starting fiemap")
 
 thanks,
 
@@ -73,54 +62,171 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From 66e45351f7d6798751f98001d1fcd572024d87f0 Mon Sep 17 00:00:00 2001
-From: Heiner Kallweit <hkallweit1@gmail.com>
-Date: Thu, 9 Feb 2023 21:11:47 +0100
-Subject: [PATCH] arm64: dts: meson-gx: Make mmc host controller interrupts
- level-sensitive
+From 519b7e13b5ae8dd38da1e52275705343be6bb508 Mon Sep 17 00:00:00 2001
+From: Filipe Manana <fdmanana@suse.com>
+Date: Mon, 23 Jan 2023 16:54:46 +0000
+Subject: [PATCH] btrfs: lock the inode in shared mode before starting fiemap
 
-The usage of edge-triggered interrupts lead to lost interrupts under load,
-see [0]. This was confirmed to be fixed by using level-triggered
-interrupts.
-The report was about SDIO. However, as the host controller is the same
-for SD and MMC, apply the change to all mmc controller instances.
+Currently fiemap does not take the inode's lock (VFS lock), it only locks
+a file range in the inode's io tree. This however can lead to a deadlock
+if we have a concurrent fsync on the file and fiemap code triggers a fault
+when accessing the user space buffer with fiemap_fill_next_extent(). The
+deadlock happens on the inode's i_mmap_lock semaphore, which is taken both
+by fsync and btrfs_page_mkwrite(). This deadlock was recently reported by
+syzbot and triggers a trace like the following:
 
-[0] https://www.spinics.net/lists/linux-mmc/msg73991.html
+   task:syz-executor361 state:D stack:20264 pid:5668  ppid:5119   flags:0x00004004
+   Call Trace:
+    <TASK>
+    context_switch kernel/sched/core.c:5293 [inline]
+    __schedule+0x995/0xe20 kernel/sched/core.c:6606
+    schedule+0xcb/0x190 kernel/sched/core.c:6682
+    wait_on_state fs/btrfs/extent-io-tree.c:707 [inline]
+    wait_extent_bit+0x577/0x6f0 fs/btrfs/extent-io-tree.c:751
+    lock_extent+0x1c2/0x280 fs/btrfs/extent-io-tree.c:1742
+    find_lock_delalloc_range+0x4e6/0x9c0 fs/btrfs/extent_io.c:488
+    writepage_delalloc+0x1ef/0x540 fs/btrfs/extent_io.c:1863
+    __extent_writepage+0x736/0x14e0 fs/btrfs/extent_io.c:2174
+    extent_write_cache_pages+0x983/0x1220 fs/btrfs/extent_io.c:3091
+    extent_writepages+0x219/0x540 fs/btrfs/extent_io.c:3211
+    do_writepages+0x3c3/0x680 mm/page-writeback.c:2581
+    filemap_fdatawrite_wbc+0x11e/0x170 mm/filemap.c:388
+    __filemap_fdatawrite_range mm/filemap.c:421 [inline]
+    filemap_fdatawrite_range+0x175/0x200 mm/filemap.c:439
+    btrfs_fdatawrite_range fs/btrfs/file.c:3850 [inline]
+    start_ordered_ops fs/btrfs/file.c:1737 [inline]
+    btrfs_sync_file+0x4ff/0x1190 fs/btrfs/file.c:1839
+    generic_write_sync include/linux/fs.h:2885 [inline]
+    btrfs_do_write_iter+0xcd3/0x1280 fs/btrfs/file.c:1684
+    call_write_iter include/linux/fs.h:2189 [inline]
+    new_sync_write fs/read_write.c:491 [inline]
+    vfs_write+0x7dc/0xc50 fs/read_write.c:584
+    ksys_write+0x177/0x2a0 fs/read_write.c:637
+    do_syscall_x64 arch/x86/entry/common.c:50 [inline]
+    do_syscall_64+0x3d/0xb0 arch/x86/entry/common.c:80
+    entry_SYSCALL_64_after_hwframe+0x63/0xcd
+   RIP: 0033:0x7f7d4054e9b9
+   RSP: 002b:00007f7d404fa2f8 EFLAGS: 00000246 ORIG_RAX: 0000000000000001
+   RAX: ffffffffffffffda RBX: 00007f7d405d87a0 RCX: 00007f7d4054e9b9
+   RDX: 0000000000000090 RSI: 0000000020000000 RDI: 0000000000000006
+   RBP: 00007f7d405a51d0 R08: 0000000000000000 R09: 0000000000000000
+   R10: 0000000000000000 R11: 0000000000000246 R12: 61635f65646f6e69
+   R13: 65646f7475616f6e R14: 7261637369646f6e R15: 00007f7d405d87a8
+    </TASK>
+   INFO: task syz-executor361:5697 blocked for more than 145 seconds.
+         Not tainted 6.2.0-rc3-syzkaller-00376-g7c6984405241 #0
+   "echo 0 > /proc/sys/kernel/hung_task_timeout_secs" disables this message.
+   task:syz-executor361 state:D stack:21216 pid:5697  ppid:5119   flags:0x00004004
+   Call Trace:
+    <TASK>
+    context_switch kernel/sched/core.c:5293 [inline]
+    __schedule+0x995/0xe20 kernel/sched/core.c:6606
+    schedule+0xcb/0x190 kernel/sched/core.c:6682
+    rwsem_down_read_slowpath+0x5f9/0x930 kernel/locking/rwsem.c:1095
+    __down_read_common+0x54/0x2a0 kernel/locking/rwsem.c:1260
+    btrfs_page_mkwrite+0x417/0xc80 fs/btrfs/inode.c:8526
+    do_page_mkwrite+0x19e/0x5e0 mm/memory.c:2947
+    wp_page_shared+0x15e/0x380 mm/memory.c:3295
+    handle_pte_fault mm/memory.c:4949 [inline]
+    __handle_mm_fault mm/memory.c:5073 [inline]
+    handle_mm_fault+0x1b79/0x26b0 mm/memory.c:5219
+    do_user_addr_fault+0x69b/0xcb0 arch/x86/mm/fault.c:1428
+    handle_page_fault arch/x86/mm/fault.c:1519 [inline]
+    exc_page_fault+0x7a/0x110 arch/x86/mm/fault.c:1575
+    asm_exc_page_fault+0x22/0x30 arch/x86/include/asm/idtentry.h:570
+   RIP: 0010:copy_user_short_string+0xd/0x40 arch/x86/lib/copy_user_64.S:233
+   Code: 74 0a 89 (...)
+   RSP: 0018:ffffc9000570f330 EFLAGS: 00050202
+   RAX: ffffffff843e6601 RBX: 00007fffffffefc8 RCX: 0000000000000007
+   RDX: 0000000000000000 RSI: ffffc9000570f3e0 RDI: 0000000020000120
+   RBP: ffffc9000570f490 R08: 0000000000000000 R09: fffff52000ae1e83
+   R10: fffff52000ae1e83 R11: 1ffff92000ae1e7c R12: 0000000000000038
+   R13: ffffc9000570f3e0 R14: 0000000020000120 R15: ffffc9000570f3e0
+    copy_user_generic arch/x86/include/asm/uaccess_64.h:37 [inline]
+    raw_copy_to_user arch/x86/include/asm/uaccess_64.h:58 [inline]
+    _copy_to_user+0xe9/0x130 lib/usercopy.c:34
+    copy_to_user include/linux/uaccess.h:169 [inline]
+    fiemap_fill_next_extent+0x22e/0x410 fs/ioctl.c:144
+    emit_fiemap_extent+0x22d/0x3c0 fs/btrfs/extent_io.c:3458
+    fiemap_process_hole+0xa00/0xad0 fs/btrfs/extent_io.c:3716
+    extent_fiemap+0xe27/0x2100 fs/btrfs/extent_io.c:3922
+    btrfs_fiemap+0x172/0x1e0 fs/btrfs/inode.c:8209
+    ioctl_fiemap fs/ioctl.c:219 [inline]
+    do_vfs_ioctl+0x185b/0x2980 fs/ioctl.c:810
+    __do_sys_ioctl fs/ioctl.c:868 [inline]
+    __se_sys_ioctl+0x83/0x170 fs/ioctl.c:856
+    do_syscall_x64 arch/x86/entry/common.c:50 [inline]
+    do_syscall_64+0x3d/0xb0 arch/x86/entry/common.c:80
+    entry_SYSCALL_64_after_hwframe+0x63/0xcd
+   RIP: 0033:0x7f7d4054e9b9
+   RSP: 002b:00007f7d390d92f8 EFLAGS: 00000246 ORIG_RAX: 0000000000000010
+   RAX: ffffffffffffffda RBX: 00007f7d405d87b0 RCX: 00007f7d4054e9b9
+   RDX: 0000000020000100 RSI: 00000000c020660b RDI: 0000000000000005
+   RBP: 00007f7d405a51d0 R08: 00007f7d390d9700 R09: 0000000000000000
+   R10: 00007f7d390d9700 R11: 0000000000000246 R12: 61635f65646f6e69
+   R13: 65646f7475616f6e R14: 7261637369646f6e R15: 00007f7d405d87b8
+    </TASK>
 
-Fixes: ef8d2ffedf18 ("ARM64: dts: meson-gxbb: add MMC support")
-Cc: stable@vger.kernel.org
-Signed-off-by: Heiner Kallweit <hkallweit1@gmail.com>
-Acked-by: Neil Armstrong <neil.armstrong@linaro.org>
-Link: https://lore.kernel.org/r/76e042e0-a610-5ed5-209f-c4d7f879df44@gmail.com
-Signed-off-by: Neil Armstrong <neil.armstrong@linaro.org>
+What happens is the following:
 
-diff --git a/arch/arm64/boot/dts/amlogic/meson-gx.dtsi b/arch/arm64/boot/dts/amlogic/meson-gx.dtsi
-index e3c12e0be99d..5eed15035b67 100644
---- a/arch/arm64/boot/dts/amlogic/meson-gx.dtsi
-+++ b/arch/arm64/boot/dts/amlogic/meson-gx.dtsi
-@@ -603,21 +603,21 @@ apb: apb@d0000000 {
- 			sd_emmc_a: mmc@70000 {
- 				compatible = "amlogic,meson-gx-mmc", "amlogic,meson-gxbb-mmc";
- 				reg = <0x0 0x70000 0x0 0x800>;
--				interrupts = <GIC_SPI 216 IRQ_TYPE_EDGE_RISING>;
-+				interrupts = <GIC_SPI 216 IRQ_TYPE_LEVEL_HIGH>;
- 				status = "disabled";
- 			};
+1) Task A is doing an fsync, enters btrfs_sync_file() and flushes delalloc
+   before locking the inode and the i_mmap_lock semaphore, that is, before
+   calling btrfs_inode_lock();
+
+2) After task A flushes delalloc and before it calls btrfs_inode_lock(),
+   another task dirties a page;
+
+3) Task B starts a fiemap without FIEMAP_FLAG_SYNC, so the page dirtied
+   at step 2 remains dirty and unflushed. Then when it enters
+   extent_fiemap() and it locks a file range that includes the range of
+   the page dirtied in step 2;
+
+4) Task A calls btrfs_inode_lock() and locks the inode (VFS lock) and the
+   inode's i_mmap_lock semaphore in write mode. Then it tries to flush
+   delalloc by calling start_ordered_ops(), which will block, at
+   find_lock_delalloc_range(), when trying to lock the range of the page
+   dirtied at step 2, since this range was locked by the fiemap task (at
+   step 3);
+
+5) Task B generates a page fault when accessing the user space fiemap
+   buffer with a call to fiemap_fill_next_extent().
+
+   The fault handler needs to call btrfs_page_mkwrite() for some other
+   page of our inode, and there we deadlock when trying to lock the
+   inode's i_mmap_lock semaphore in read mode, since the fsync task locked
+   it in write mode (step 4) and the fsync task can not progress because
+   it's waiting to lock a file range that is currently locked by us (the
+   fiemap task, step 3).
+
+Fix this by taking the inode's lock (VFS lock) in shared mode when
+entering fiemap. This effectively serializes fiemap with fsync (except the
+most expensive part of fsync, the log sync), preventing this deadlock.
+
+Reported-by: syzbot+cc35f55c41e34c30dcb5@syzkaller.appspotmail.com
+Link: https://lore.kernel.org/linux-btrfs/00000000000032dc7305f2a66f46@google.com/
+CC: stable@vger.kernel.org # 6.1+
+Reviewed-by: Josef Bacik <josef@toxicpanda.com>
+Signed-off-by: Filipe Manana <fdmanana@suse.com>
+Signed-off-by: David Sterba <dsterba@suse.com>
+
+diff --git a/fs/btrfs/extent_io.c b/fs/btrfs/extent_io.c
+index 9bd32daa9b9a..3bbf8703db2a 100644
+--- a/fs/btrfs/extent_io.c
++++ b/fs/btrfs/extent_io.c
+@@ -3826,6 +3826,7 @@ int extent_fiemap(struct btrfs_inode *inode, struct fiemap_extent_info *fieinfo,
+ 	lockend = round_up(start + len, inode->root->fs_info->sectorsize);
+ 	prev_extent_end = lockstart;
  
- 			sd_emmc_b: mmc@72000 {
- 				compatible = "amlogic,meson-gx-mmc", "amlogic,meson-gxbb-mmc";
- 				reg = <0x0 0x72000 0x0 0x800>;
--				interrupts = <GIC_SPI 217 IRQ_TYPE_EDGE_RISING>;
-+				interrupts = <GIC_SPI 217 IRQ_TYPE_LEVEL_HIGH>;
- 				status = "disabled";
- 			};
++	btrfs_inode_lock(inode, BTRFS_ILOCK_SHARED);
+ 	lock_extent(&inode->io_tree, lockstart, lockend, &cached_state);
  
- 			sd_emmc_c: mmc@74000 {
- 				compatible = "amlogic,meson-gx-mmc", "amlogic,meson-gxbb-mmc";
- 				reg = <0x0 0x74000 0x0 0x800>;
--				interrupts = <GIC_SPI 218 IRQ_TYPE_EDGE_RISING>;
-+				interrupts = <GIC_SPI 218 IRQ_TYPE_LEVEL_HIGH>;
- 				status = "disabled";
- 			};
- 		};
+ 	ret = fiemap_find_last_extent_offset(inode, path, &last_extent_end);
+@@ -4019,6 +4020,7 @@ int extent_fiemap(struct btrfs_inode *inode, struct fiemap_extent_info *fieinfo,
+ 
+ out_unlock:
+ 	unlock_extent(&inode->io_tree, lockstart, lockend, &cached_state);
++	btrfs_inode_unlock(inode, BTRFS_ILOCK_SHARED);
+ out:
+ 	free_extent_state(delalloc_cached_state);
+ 	btrfs_free_backref_share_ctx(backref_ctx);
 
