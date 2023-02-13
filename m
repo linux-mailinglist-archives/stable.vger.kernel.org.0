@@ -2,52 +2,49 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 45F766949C7
-	for <lists+stable@lfdr.de>; Mon, 13 Feb 2023 16:02:03 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6D426694994
+	for <lists+stable@lfdr.de>; Mon, 13 Feb 2023 16:00:12 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231360AbjBMPCB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Feb 2023 10:02:01 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:32770 "EHLO
+        id S231249AbjBMPAK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Feb 2023 10:00:10 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56924 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230413AbjBMPBv (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Feb 2023 10:01:51 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F291F1E298
-        for <stable@vger.kernel.org>; Mon, 13 Feb 2023 07:01:27 -0800 (PST)
+        with ESMTP id S231324AbjBMO74 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Feb 2023 09:59:56 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B59351E1E9
+        for <stable@vger.kernel.org>; Mon, 13 Feb 2023 06:59:36 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 450766115A
-        for <stable@vger.kernel.org>; Mon, 13 Feb 2023 15:01:25 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5AC0CC433D2;
-        Mon, 13 Feb 2023 15:01:24 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 13C5D6114F
+        for <stable@vger.kernel.org>; Mon, 13 Feb 2023 14:59:36 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id F1A14C433D2;
+        Mon, 13 Feb 2023 14:59:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1676300484;
-        bh=MR/kAdflOEhns2wWlMYM/lsSbRZCkzPNXCRCtKITWiE=;
+        s=korg; t=1676300375;
+        bh=ymx/KVjlvPR1PgNJ2dutXtAwc/uINXNTi0oCV538hPM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=WWbRe+w+/U26obRt08D3R6DEEP14bI+XQ8Y79JYNa+q5hwG16v2mjIT50LZA/kzse
-         uCiFcPSeUcpgBASWK+mOyKo/T79AetGVBIUFdyz/2eciQsjvHZxleI0bRUN/sn7bSi
-         b4hmja3mOGjkGEg0ftn8JQ3IdlE8jS3JNupgVcCo=
+        b=dVcsLendBzwRiBKPTUxLq+/CbtjLYUonA/7YIrCTGhdCE3Nx1UWqMCDennJ1zLGhn
+         uaR72kInIev9lgNhENxQSeHi5pDL1TdTCIhZ8qe9oSLtpgjYetAFayKB/7FgfIzWX1
+         4IAlzrnHBh5hKcOc0OVPcibuQB+UAgsfJvimDCRo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Andrei Gherzan <andrei.gherzan@canonical.com>,
-        Willem de Bruijn <willemb@google.com>,
-        Paolo Abeni <pabeni@redhat.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 031/139] selftests: net: udpgso_bench_rx/tx: Stop when wrong CLI args are provided
+        patches@lists.linux.dev, Paul Cercueil <paul@crapouillou.net>,
+        Stephen Boyd <sboyd@kernel.org>
+Subject: [PATCH 5.15 55/67] clk: ingenic: jz4760: Update M/N/OD calculation algorithm
 Date:   Mon, 13 Feb 2023 15:49:36 +0100
-Message-Id: <20230213144747.288990922@linuxfoundation.org>
+Message-Id: <20230213144734.997035467@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.1
-In-Reply-To: <20230213144745.696901179@linuxfoundation.org>
-References: <20230213144745.696901179@linuxfoundation.org>
+In-Reply-To: <20230213144732.336342050@linuxfoundation.org>
+References: <20230213144732.336342050@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
         SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -55,54 +52,82 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Andrei Gherzan <andrei.gherzan@canonical.com>
+From: Paul Cercueil <paul@crapouillou.net>
 
-[ Upstream commit db9b47ee9f5f375ab0c5daeb20321c75b4fa657d ]
+commit ecfb9f404771dde909ce7743df954370933c3be2 upstream.
 
-Leaving unrecognized arguments buried in the output, can easily hide a
-CLI/script typo. Avoid this by exiting when wrong arguments are provided to
-the udpgso_bench test programs.
+The previous algorithm was pretty broken.
 
-Fixes: 3a687bef148d ("selftests: udp gso benchmark")
-Signed-off-by: Andrei Gherzan <andrei.gherzan@canonical.com>
-Cc: Willem de Bruijn <willemb@google.com>
-Reviewed-by: Willem de Bruijn <willemb@google.com>
-Link: https://lore.kernel.org/r/20230201001612.515730-2-andrei.gherzan@canonical.com
-Signed-off-by: Paolo Abeni <pabeni@redhat.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+- The inner loop had a '(m > m_max)' condition, and the value of 'm'
+  would increase in each iteration;
+
+- Each iteration would actually multiply 'm' by two, so it is not needed
+  to re-compute the whole equation at each iteration;
+
+- It would loop until (m & 1) == 0, which means it would loop at most
+  once.
+
+- The outer loop would divide the 'n' value by two at the end of each
+  iteration. This meant that for a 12 MHz parent clock and a 1.2 GHz
+  requested clock, it would first try n=12, then n=6, then n=3, then
+  n=1, none of which would work; the only valid value is n=2 in this
+  case.
+
+Simplify this algorithm with a single for loop, which decrements 'n'
+after each iteration, addressing all of the above problems.
+
+Fixes: bdbfc029374f ("clk: ingenic: Add support for the JZ4760")
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Paul Cercueil <paul@crapouillou.net>
+Link: https://lore.kernel.org/r/20221214123704.7305-1-paul@crapouillou.net
+Signed-off-by: Stephen Boyd <sboyd@kernel.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- tools/testing/selftests/net/udpgso_bench_rx.c | 2 ++
- tools/testing/selftests/net/udpgso_bench_tx.c | 2 ++
- 2 files changed, 4 insertions(+)
+ drivers/clk/ingenic/jz4760-cgu.c | 18 ++++++++----------
+ 1 file changed, 8 insertions(+), 10 deletions(-)
 
-diff --git a/tools/testing/selftests/net/udpgso_bench_rx.c b/tools/testing/selftests/net/udpgso_bench_rx.c
-index d0895bd1933f..4058c7451e70 100644
---- a/tools/testing/selftests/net/udpgso_bench_rx.c
-+++ b/tools/testing/selftests/net/udpgso_bench_rx.c
-@@ -336,6 +336,8 @@ static void parse_opts(int argc, char **argv)
- 			cfg_verify = true;
- 			cfg_read_all = true;
- 			break;
-+		default:
-+			exit(1);
- 		}
+diff --git a/drivers/clk/ingenic/jz4760-cgu.c b/drivers/clk/ingenic/jz4760-cgu.c
+index ecd395ac8a28..e407f00bd594 100644
+--- a/drivers/clk/ingenic/jz4760-cgu.c
++++ b/drivers/clk/ingenic/jz4760-cgu.c
+@@ -58,7 +58,7 @@ jz4760_cgu_calc_m_n_od(const struct ingenic_cgu_pll_info *pll_info,
+ 		       unsigned long rate, unsigned long parent_rate,
+ 		       unsigned int *pm, unsigned int *pn, unsigned int *pod)
+ {
+-	unsigned int m, n, od, m_max = (1 << pll_info->m_bits) - 2;
++	unsigned int m, n, od, m_max = (1 << pll_info->m_bits) - 1;
+ 
+ 	/* The frequency after the N divider must be between 1 and 50 MHz. */
+ 	n = parent_rate / (1 * MHZ);
+@@ -66,19 +66,17 @@ jz4760_cgu_calc_m_n_od(const struct ingenic_cgu_pll_info *pll_info,
+ 	/* The N divider must be >= 2. */
+ 	n = clamp_val(n, 2, 1 << pll_info->n_bits);
+ 
+-	for (;; n >>= 1) {
+-		od = (unsigned int)-1;
++	rate /= MHZ;
++	parent_rate /= MHZ;
+ 
+-		do {
+-			m = (rate / MHZ) * (1 << ++od) * n / (parent_rate / MHZ);
+-		} while ((m > m_max || m & 1) && (od < 4));
+-
+-		if (od < 4 && m >= 4 && m <= m_max)
+-			break;
++	for (m = m_max; m >= m_max && n >= 2; n--) {
++		m = rate * n / parent_rate;
++		od = m & 1;
++		m <<= od;
  	}
  
-diff --git a/tools/testing/selftests/net/udpgso_bench_tx.c b/tools/testing/selftests/net/udpgso_bench_tx.c
-index f1fdaa270291..b47b5c32039f 100644
---- a/tools/testing/selftests/net/udpgso_bench_tx.c
-+++ b/tools/testing/selftests/net/udpgso_bench_tx.c
-@@ -490,6 +490,8 @@ static void parse_opts(int argc, char **argv)
- 		case 'z':
- 			cfg_zerocopy = true;
- 			break;
-+		default:
-+			exit(1);
- 		}
- 	}
+ 	*pm = m;
+-	*pn = n;
++	*pn = n + 1;
+ 	*pod = 1 << od;
+ }
  
 -- 
-2.39.0
+2.39.1
 
 
 
