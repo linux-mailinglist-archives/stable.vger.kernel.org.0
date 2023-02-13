@@ -2,231 +2,248 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 5B1776944D8
-	for <lists+stable@lfdr.de>; Mon, 13 Feb 2023 12:50:18 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7701B6944E2
+	for <lists+stable@lfdr.de>; Mon, 13 Feb 2023 12:53:22 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229612AbjBMLuQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Feb 2023 06:50:16 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59180 "EHLO
+        id S230292AbjBMLxU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Feb 2023 06:53:20 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33606 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229713AbjBMLuQ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Feb 2023 06:50:16 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AB288B467
-        for <stable@vger.kernel.org>; Mon, 13 Feb 2023 03:50:14 -0800 (PST)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 466B060EB1
-        for <stable@vger.kernel.org>; Mon, 13 Feb 2023 11:50:14 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 58B2DC433D2;
-        Mon, 13 Feb 2023 11:50:13 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1676289013;
-        bh=2rI3dDRmyaZDGut01SRGnRwnrB2yiNR4HPOMI/w1Upg=;
-        h=Subject:To:Cc:From:Date:From;
-        b=unLpBRgSspqdg5Yovz9flF6anVA4Sny68QlBs2UYkX9ZhAbFbXVHYoTpQGOmHqIrW
-         OY8YI1whMZvYWcMDaUWqdPrIAWFYm3JpkmLv1AX0kUlX1J1kidIwQjjBM3V83HO9Fw
-         nuquRAq170lEt9qbCxrw5W26t43KxY29XLkq3gS4=
-Subject: FAILED: patch "[PATCH] btrfs: lock the inode in shared mode before starting fiemap" failed to apply to 6.1-stable tree
-To:     fdmanana@suse.com, dsterba@suse.com, josef@toxicpanda.com
-Cc:     <stable@vger.kernel.org>
-From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 13 Feb 2023 12:50:11 +0100
-Message-ID: <1676289011115@kroah.com>
+        with ESMTP id S229877AbjBMLxT (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Feb 2023 06:53:19 -0500
+Received: from mail-pl1-x636.google.com (mail-pl1-x636.google.com [IPv6:2607:f8b0:4864:20::636])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E928C12F19
+        for <stable@vger.kernel.org>; Mon, 13 Feb 2023 03:53:17 -0800 (PST)
+Received: by mail-pl1-x636.google.com with SMTP id r8so13264386pls.2
+        for <stable@vger.kernel.org>; Mon, 13 Feb 2023 03:53:17 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=kernelci-org.20210112.gappssmtp.com; s=20210112;
+        h=from:to:subject:content-transfer-encoding:mime-version:date
+         :message-id:from:to:cc:subject:date:message-id:reply-to;
+        bh=1a3Wybd5V+6DTBeuX8C1jGZveIp+KxHY25tI9oYnB6k=;
+        b=4r16N/18gqHuqVjNrU891oOhWo4PPYPzXMQmTjE/cAl11oCIYq5H9yJzAitli2DFiT
+         TtwyRVMDKvO/X/ZdXNXwhaDMYfqgIQIB7F+a1nX56EYzRhtyXDmfU1mrmTty/mX0mkBD
+         3RSLdg9XGs3+y+CDLbFqlA1lh/eQt16bJxCZQFVeaiNDnPTHej3a4rk7N+V+eEcRIspa
+         pML7XSM8TR/KQPutjo0S8GqFvYyBRNPs75SdYf8F/dtEMBArBs4xWd9/emZUsYZvIySA
+         Bru+HGMh0/Y+Sq5ZX0/FLnvC7JJQqBPjqvQ8yaMF3j9Hn4QhngL1lzcCaA9KgXqOurhX
+         k56A==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=from:to:subject:content-transfer-encoding:mime-version:date
+         :message-id:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=1a3Wybd5V+6DTBeuX8C1jGZveIp+KxHY25tI9oYnB6k=;
+        b=rVn9mxNCmVDxZ4IJIkROudcl66P8KmwKmEEWuMD0GpVDoS2tdyvS/ZpysR+oZcIN7x
+         R6F5CdAhDhhVyeumSjETBP64CIxhekt0z+zfjTGg+sUcUjUVYQsRHZR3VJ8Peg/s784X
+         AO6ncABC8vSF8JTRm3Pta3YkFzD/o/AyMoIcnV6VIWz8aiFRDLThqnDlsEVSAMCWMVN6
+         1RuEGO739YqNH6RsnirnXwqyDtXHfXX802fkibGU6iHuL1DhGgDaY+VMEDvjPEWZsLPk
+         mKq1YRn7+qeTdMJWVrtSc5Vz8bZiiElrjTjxmCPLtND3Ry+9jIdlPd8d3FLnHpzzJSYX
+         Wi3g==
+X-Gm-Message-State: AO0yUKWIdEk2O0D44x7DQE8SX1Gt2gPPr1zlfjOD8sfhTEK86SAsj2PN
+        q4hLnRHGhAtIxfdghtTozWRyG8eYKgby35IfWH4=
+X-Google-Smtp-Source: AK7set9IRxbqthnwuP+ss/eLaYCUmmmafLLVUTFX3r0dk4biOkXj+uZlIbq1pqEktAPj6bkh9veyBg==
+X-Received: by 2002:a17:902:e40d:b0:19a:a2f3:e41c with SMTP id m13-20020a170902e40d00b0019aa2f3e41cmr1975482ple.35.1676289197187;
+        Mon, 13 Feb 2023 03:53:17 -0800 (PST)
+Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
+        by smtp.gmail.com with ESMTPSA id o7-20020a1709026b0700b00196519d8647sm8055854plk.4.2023.02.13.03.53.16
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Mon, 13 Feb 2023 03:53:16 -0800 (PST)
+Message-ID: <63ea24ac.170a0220.39ae1.e02b@mx.google.com>
+Date:   Mon, 13 Feb 2023 03:53:16 -0800 (PST)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ANSI_X3.4-1968
-Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
-        SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Branch: queue/5.15
+X-Kernelci-Tree: stable-rc
+X-Kernelci-Kernel: v5.15.93-48-g91b0616b8246
+X-Kernelci-Report-Type: test
+Subject: stable-rc/queue/5.15 baseline: 172 runs,
+ 3 regressions (v5.15.93-48-g91b0616b8246)
+To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
+        kernelci-results@groups.io
+From:   "kernelci.org bot" <bot@kernelci.org>
+X-Spam-Status: No, score=-1.9 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_NONE autolearn=ham
+        autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+stable-rc/queue/5.15 baseline: 172 runs, 3 regressions (v5.15.93-48-g91b061=
+6b8246)
 
-The patch below does not apply to the 6.1-stable tree.
-If someone wants it applied there, or to any other stable or longterm
-tree, then please email the backport, including the original git commit
-id to <stable@vger.kernel.org>.
+Regressions Summary
+-------------------
 
-Possible dependencies:
+platform      | arch | lab             | compiler | defconfig          | re=
+gressions
+--------------+------+-----------------+----------+--------------------+---=
+---------
+at91sam9g20ek | arm  | lab-broonie     | gcc-10   | multi_v5_defconfig | 1 =
+         =
 
-519b7e13b5ae ("btrfs: lock the inode in shared mode before starting fiemap")
+cubietruck    | arm  | lab-baylibre    | gcc-10   | multi_v7_defconfig | 1 =
+         =
 
-thanks,
+imx53-qsrb    | arm  | lab-pengutronix | gcc-10   | multi_v7_defconfig | 1 =
+         =
 
-greg k-h
 
------------------- original commit in Linus's tree ------------------
+  Details:  https://kernelci.org/test/job/stable-rc/branch/queue%2F5.15/ker=
+nel/v5.15.93-48-g91b0616b8246/plan/baseline/
 
-From 519b7e13b5ae8dd38da1e52275705343be6bb508 Mon Sep 17 00:00:00 2001
-From: Filipe Manana <fdmanana@suse.com>
-Date: Mon, 23 Jan 2023 16:54:46 +0000
-Subject: [PATCH] btrfs: lock the inode in shared mode before starting fiemap
+  Test:     baseline
+  Tree:     stable-rc
+  Branch:   queue/5.15
+  Describe: v5.15.93-48-g91b0616b8246
+  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
+able-rc.git
+  SHA:      91b0616b824681196c285ea59ecb0426f6c31647 =
 
-Currently fiemap does not take the inode's lock (VFS lock), it only locks
-a file range in the inode's io tree. This however can lead to a deadlock
-if we have a concurrent fsync on the file and fiemap code triggers a fault
-when accessing the user space buffer with fiemap_fill_next_extent(). The
-deadlock happens on the inode's i_mmap_lock semaphore, which is taken both
-by fsync and btrfs_page_mkwrite(). This deadlock was recently reported by
-syzbot and triggers a trace like the following:
 
-   task:syz-executor361 state:D stack:20264 pid:5668  ppid:5119   flags:0x00004004
-   Call Trace:
-    <TASK>
-    context_switch kernel/sched/core.c:5293 [inline]
-    __schedule+0x995/0xe20 kernel/sched/core.c:6606
-    schedule+0xcb/0x190 kernel/sched/core.c:6682
-    wait_on_state fs/btrfs/extent-io-tree.c:707 [inline]
-    wait_extent_bit+0x577/0x6f0 fs/btrfs/extent-io-tree.c:751
-    lock_extent+0x1c2/0x280 fs/btrfs/extent-io-tree.c:1742
-    find_lock_delalloc_range+0x4e6/0x9c0 fs/btrfs/extent_io.c:488
-    writepage_delalloc+0x1ef/0x540 fs/btrfs/extent_io.c:1863
-    __extent_writepage+0x736/0x14e0 fs/btrfs/extent_io.c:2174
-    extent_write_cache_pages+0x983/0x1220 fs/btrfs/extent_io.c:3091
-    extent_writepages+0x219/0x540 fs/btrfs/extent_io.c:3211
-    do_writepages+0x3c3/0x680 mm/page-writeback.c:2581
-    filemap_fdatawrite_wbc+0x11e/0x170 mm/filemap.c:388
-    __filemap_fdatawrite_range mm/filemap.c:421 [inline]
-    filemap_fdatawrite_range+0x175/0x200 mm/filemap.c:439
-    btrfs_fdatawrite_range fs/btrfs/file.c:3850 [inline]
-    start_ordered_ops fs/btrfs/file.c:1737 [inline]
-    btrfs_sync_file+0x4ff/0x1190 fs/btrfs/file.c:1839
-    generic_write_sync include/linux/fs.h:2885 [inline]
-    btrfs_do_write_iter+0xcd3/0x1280 fs/btrfs/file.c:1684
-    call_write_iter include/linux/fs.h:2189 [inline]
-    new_sync_write fs/read_write.c:491 [inline]
-    vfs_write+0x7dc/0xc50 fs/read_write.c:584
-    ksys_write+0x177/0x2a0 fs/read_write.c:637
-    do_syscall_x64 arch/x86/entry/common.c:50 [inline]
-    do_syscall_64+0x3d/0xb0 arch/x86/entry/common.c:80
-    entry_SYSCALL_64_after_hwframe+0x63/0xcd
-   RIP: 0033:0x7f7d4054e9b9
-   RSP: 002b:00007f7d404fa2f8 EFLAGS: 00000246 ORIG_RAX: 0000000000000001
-   RAX: ffffffffffffffda RBX: 00007f7d405d87a0 RCX: 00007f7d4054e9b9
-   RDX: 0000000000000090 RSI: 0000000020000000 RDI: 0000000000000006
-   RBP: 00007f7d405a51d0 R08: 0000000000000000 R09: 0000000000000000
-   R10: 0000000000000000 R11: 0000000000000246 R12: 61635f65646f6e69
-   R13: 65646f7475616f6e R14: 7261637369646f6e R15: 00007f7d405d87a8
-    </TASK>
-   INFO: task syz-executor361:5697 blocked for more than 145 seconds.
-         Not tainted 6.2.0-rc3-syzkaller-00376-g7c6984405241 #0
-   "echo 0 > /proc/sys/kernel/hung_task_timeout_secs" disables this message.
-   task:syz-executor361 state:D stack:21216 pid:5697  ppid:5119   flags:0x00004004
-   Call Trace:
-    <TASK>
-    context_switch kernel/sched/core.c:5293 [inline]
-    __schedule+0x995/0xe20 kernel/sched/core.c:6606
-    schedule+0xcb/0x190 kernel/sched/core.c:6682
-    rwsem_down_read_slowpath+0x5f9/0x930 kernel/locking/rwsem.c:1095
-    __down_read_common+0x54/0x2a0 kernel/locking/rwsem.c:1260
-    btrfs_page_mkwrite+0x417/0xc80 fs/btrfs/inode.c:8526
-    do_page_mkwrite+0x19e/0x5e0 mm/memory.c:2947
-    wp_page_shared+0x15e/0x380 mm/memory.c:3295
-    handle_pte_fault mm/memory.c:4949 [inline]
-    __handle_mm_fault mm/memory.c:5073 [inline]
-    handle_mm_fault+0x1b79/0x26b0 mm/memory.c:5219
-    do_user_addr_fault+0x69b/0xcb0 arch/x86/mm/fault.c:1428
-    handle_page_fault arch/x86/mm/fault.c:1519 [inline]
-    exc_page_fault+0x7a/0x110 arch/x86/mm/fault.c:1575
-    asm_exc_page_fault+0x22/0x30 arch/x86/include/asm/idtentry.h:570
-   RIP: 0010:copy_user_short_string+0xd/0x40 arch/x86/lib/copy_user_64.S:233
-   Code: 74 0a 89 (...)
-   RSP: 0018:ffffc9000570f330 EFLAGS: 00050202
-   RAX: ffffffff843e6601 RBX: 00007fffffffefc8 RCX: 0000000000000007
-   RDX: 0000000000000000 RSI: ffffc9000570f3e0 RDI: 0000000020000120
-   RBP: ffffc9000570f490 R08: 0000000000000000 R09: fffff52000ae1e83
-   R10: fffff52000ae1e83 R11: 1ffff92000ae1e7c R12: 0000000000000038
-   R13: ffffc9000570f3e0 R14: 0000000020000120 R15: ffffc9000570f3e0
-    copy_user_generic arch/x86/include/asm/uaccess_64.h:37 [inline]
-    raw_copy_to_user arch/x86/include/asm/uaccess_64.h:58 [inline]
-    _copy_to_user+0xe9/0x130 lib/usercopy.c:34
-    copy_to_user include/linux/uaccess.h:169 [inline]
-    fiemap_fill_next_extent+0x22e/0x410 fs/ioctl.c:144
-    emit_fiemap_extent+0x22d/0x3c0 fs/btrfs/extent_io.c:3458
-    fiemap_process_hole+0xa00/0xad0 fs/btrfs/extent_io.c:3716
-    extent_fiemap+0xe27/0x2100 fs/btrfs/extent_io.c:3922
-    btrfs_fiemap+0x172/0x1e0 fs/btrfs/inode.c:8209
-    ioctl_fiemap fs/ioctl.c:219 [inline]
-    do_vfs_ioctl+0x185b/0x2980 fs/ioctl.c:810
-    __do_sys_ioctl fs/ioctl.c:868 [inline]
-    __se_sys_ioctl+0x83/0x170 fs/ioctl.c:856
-    do_syscall_x64 arch/x86/entry/common.c:50 [inline]
-    do_syscall_64+0x3d/0xb0 arch/x86/entry/common.c:80
-    entry_SYSCALL_64_after_hwframe+0x63/0xcd
-   RIP: 0033:0x7f7d4054e9b9
-   RSP: 002b:00007f7d390d92f8 EFLAGS: 00000246 ORIG_RAX: 0000000000000010
-   RAX: ffffffffffffffda RBX: 00007f7d405d87b0 RCX: 00007f7d4054e9b9
-   RDX: 0000000020000100 RSI: 00000000c020660b RDI: 0000000000000005
-   RBP: 00007f7d405a51d0 R08: 00007f7d390d9700 R09: 0000000000000000
-   R10: 00007f7d390d9700 R11: 0000000000000246 R12: 61635f65646f6e69
-   R13: 65646f7475616f6e R14: 7261637369646f6e R15: 00007f7d405d87b8
-    </TASK>
 
-What happens is the following:
+Test Regressions
+---------------- =
 
-1) Task A is doing an fsync, enters btrfs_sync_file() and flushes delalloc
-   before locking the inode and the i_mmap_lock semaphore, that is, before
-   calling btrfs_inode_lock();
 
-2) After task A flushes delalloc and before it calls btrfs_inode_lock(),
-   another task dirties a page;
 
-3) Task B starts a fiemap without FIEMAP_FLAG_SYNC, so the page dirtied
-   at step 2 remains dirty and unflushed. Then when it enters
-   extent_fiemap() and it locks a file range that includes the range of
-   the page dirtied in step 2;
+platform      | arch | lab             | compiler | defconfig          | re=
+gressions
+--------------+------+-----------------+----------+--------------------+---=
+---------
+at91sam9g20ek | arm  | lab-broonie     | gcc-10   | multi_v5_defconfig | 1 =
+         =
 
-4) Task A calls btrfs_inode_lock() and locks the inode (VFS lock) and the
-   inode's i_mmap_lock semaphore in write mode. Then it tries to flush
-   delalloc by calling start_ordered_ops(), which will block, at
-   find_lock_delalloc_range(), when trying to lock the range of the page
-   dirtied at step 2, since this range was locked by the fiemap task (at
-   step 3);
 
-5) Task B generates a page fault when accessing the user space fiemap
-   buffer with a call to fiemap_fill_next_extent().
+  Details:     https://kernelci.org/test/plan/id/63e9f1526982277d608c8659
 
-   The fault handler needs to call btrfs_page_mkwrite() for some other
-   page of our inode, and there we deadlock when trying to lock the
-   inode's i_mmap_lock semaphore in read mode, since the fsync task locked
-   it in write mode (step 4) and the fsync task can not progress because
-   it's waiting to lock a file range that is currently locked by us (the
-   fiemap task, step 3).
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: multi_v5_defconfig
+  Compiler:    gcc-10 (arm-linux-gnueabihf-gcc (Debian 10.2.1-6) 10.2.1 202=
+10110)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.15/v5.15.93-=
+48-g91b0616b8246/arm/multi_v5_defconfig/gcc-10/lab-broonie/baseline-at91sam=
+9g20ek.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.15/v5.15.93-=
+48-g91b0616b8246/arm/multi_v5_defconfig/gcc-10/lab-broonie/baseline-at91sam=
+9g20ek.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
+t-baseline/20230203.0/armel/rootfs.cpio.gz =
 
-Fix this by taking the inode's lock (VFS lock) in shared mode when
-entering fiemap. This effectively serializes fiemap with fsync (except the
-most expensive part of fsync, the log sync), preventing this deadlock.
 
-Reported-by: syzbot+cc35f55c41e34c30dcb5@syzkaller.appspotmail.com
-Link: https://lore.kernel.org/linux-btrfs/00000000000032dc7305f2a66f46@google.com/
-CC: stable@vger.kernel.org # 6.1+
-Reviewed-by: Josef Bacik <josef@toxicpanda.com>
-Signed-off-by: Filipe Manana <fdmanana@suse.com>
-Signed-off-by: David Sterba <dsterba@suse.com>
 
-diff --git a/fs/btrfs/extent_io.c b/fs/btrfs/extent_io.c
-index 9bd32daa9b9a..3bbf8703db2a 100644
---- a/fs/btrfs/extent_io.c
-+++ b/fs/btrfs/extent_io.c
-@@ -3826,6 +3826,7 @@ int extent_fiemap(struct btrfs_inode *inode, struct fiemap_extent_info *fieinfo,
- 	lockend = round_up(start + len, inode->root->fs_info->sectorsize);
- 	prev_extent_end = lockstart;
- 
-+	btrfs_inode_lock(inode, BTRFS_ILOCK_SHARED);
- 	lock_extent(&inode->io_tree, lockstart, lockend, &cached_state);
- 
- 	ret = fiemap_find_last_extent_offset(inode, path, &last_extent_end);
-@@ -4019,6 +4020,7 @@ int extent_fiemap(struct btrfs_inode *inode, struct fiemap_extent_info *fieinfo,
- 
- out_unlock:
- 	unlock_extent(&inode->io_tree, lockstart, lockend, &cached_state);
-+	btrfs_inode_unlock(inode, BTRFS_ILOCK_SHARED);
- out:
- 	free_extent_state(delalloc_cached_state);
- 	btrfs_free_backref_share_ctx(backref_ctx);
+  * baseline.login: https://kernelci.org/test/case/id/63e9f1526982277d608c8=
+65a
+        new failure (last pass: v5.15.93-43-g62691dabb900) =
 
+ =
+
+
+
+platform      | arch | lab             | compiler | defconfig          | re=
+gressions
+--------------+------+-----------------+----------+--------------------+---=
+---------
+cubietruck    | arm  | lab-baylibre    | gcc-10   | multi_v7_defconfig | 1 =
+         =
+
+
+  Details:     https://kernelci.org/test/plan/id/63e9f2e0ba406930fd8c864a
+
+  Results:     5 PASS, 1 FAIL, 1 SKIP
+  Full config: multi_v7_defconfig
+  Compiler:    gcc-10 (arm-linux-gnueabihf-gcc (Debian 10.2.1-6) 10.2.1 202=
+10110)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.15/v5.15.93-=
+48-g91b0616b8246/arm/multi_v7_defconfig/gcc-10/lab-baylibre/baseline-cubiet=
+ruck.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.15/v5.15.93-=
+48-g91b0616b8246/arm/multi_v7_defconfig/gcc-10/lab-baylibre/baseline-cubiet=
+ruck.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
+t-baseline/20230203.0/armel/rootfs.cpio.gz =
+
+
+
+  * baseline.bootrr.deferred-probe-empty: https://kernelci.org/test/case/id=
+/63e9f2e1ba406930fd8c8653
+        failing since 27 days (last pass: v5.15.82-123-gd03dbdba21ef, first=
+ fail: v5.15.87-100-ge215d5ead661)
+
+    2023-02-13T08:20:17.013046  <8>[   10.003964] <LAVA_SIGNAL_ENDRUN 0_dme=
+sg 3332406_1.5.2.4.1>
+    2023-02-13T08:20:17.119856  / # #
+    2023-02-13T08:20:17.221527  export SHELL=3D/bin/sh
+    2023-02-13T08:20:17.222024  #
+    2023-02-13T08:20:17.323313  / # export SHELL=3D/bin/sh. /lava-3332406/e=
+nvironment
+    2023-02-13T08:20:17.323739  =
+
+    2023-02-13T08:20:17.424977  / # . /lava-3332406/environment/lava-333240=
+6/bin/lava-test-runner /lava-3332406/1
+    2023-02-13T08:20:17.425696  =
+
+    2023-02-13T08:20:17.430563  / # /lava-3332406/bin/lava-test-runner /lav=
+a-3332406/1
+    2023-02-13T08:20:17.478287  <3>[   10.433870] Bluetooth: hci0: command =
+0xfc18 tx timeout =
+
+    ... (12 line(s) more)  =
+
+ =
+
+
+
+platform      | arch | lab             | compiler | defconfig          | re=
+gressions
+--------------+------+-----------------+----------+--------------------+---=
+---------
+imx53-qsrb    | arm  | lab-pengutronix | gcc-10   | multi_v7_defconfig | 1 =
+         =
+
+
+  Details:     https://kernelci.org/test/plan/id/63e9f2ae9ab73ceb1d8c86d0
+
+  Results:     5 PASS, 1 FAIL, 1 SKIP
+  Full config: multi_v7_defconfig
+  Compiler:    gcc-10 (arm-linux-gnueabihf-gcc (Debian 10.2.1-6) 10.2.1 202=
+10110)
+  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.15/v5.15.93-=
+48-g91b0616b8246/arm/multi_v7_defconfig/gcc-10/lab-pengutronix/baseline-imx=
+53-qsrb.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.15/v5.15.93-=
+48-g91b0616b8246/arm/multi_v7_defconfig/gcc-10/lab-pengutronix/baseline-imx=
+53-qsrb.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
+t-baseline/20230203.0/armel/rootfs.cpio.gz =
+
+
+
+  * baseline.bootrr.deferred-probe-empty: https://kernelci.org/test/case/id=
+/63e9f2af9ab73ceb1d8c86d9
+        failing since 16 days (last pass: v5.15.81-121-gcb14018a85f6, first=
+ fail: v5.15.90-146-gbf7101723cc0)
+
+    2023-02-13T08:19:35.009012  [    9.349816] <LAVA_SIGNAL_TESTCASE TEST_C=
+ASE_ID=3Demerg RESULT=3Dpass UNITS=3Dlines MEASUREMENT=3D0>
+    2023-02-13T08:19:35.016184  + set +x
+    2023-02-13T08:19:35.016509  [    9.360748] <LAVA_SIGNAL_ENDRUN 0_dmesg =
+904629_1.5.2.3.1>
+    2023-02-13T08:19:35.124452  =
+
+    2023-02-13T08:19:35.231919  / # #export SHELL=3D/bin/sh
+    2023-02-13T08:19:35.232699  =
+
+    2023-02-13T08:19:35.336750  / # export SHELL=3D/bin/sh. /lava-904629/en=
+vironment
+    2023-02-13T08:19:35.337247  =
+
+    2023-02-13T08:19:35.438595  / # . /lava-904629/environment/lava-904629/=
+bin/lava-test-runner /lava-904629/1
+    2023-02-13T08:19:35.439490   =
+
+    ... (12 line(s) more)  =
+
+ =20
