@@ -2,50 +2,52 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 46F46694996
-	for <lists+stable@lfdr.de>; Mon, 13 Feb 2023 16:00:13 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 856166949BA
+	for <lists+stable@lfdr.de>; Mon, 13 Feb 2023 16:01:25 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231256AbjBMPAL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Feb 2023 10:00:11 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58134 "EHLO
+        id S231149AbjBMPBX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Feb 2023 10:01:23 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59888 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231383AbjBMPAC (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Feb 2023 10:00:02 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 661A31E1D2
-        for <stable@vger.kernel.org>; Mon, 13 Feb 2023 06:59:44 -0800 (PST)
+        with ESMTP id S231336AbjBMPBO (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Feb 2023 10:01:14 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E39911E1DA
+        for <stable@vger.kernel.org>; Mon, 13 Feb 2023 07:00:54 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 36B6DB81253
-        for <stable@vger.kernel.org>; Mon, 13 Feb 2023 14:59:08 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9C845C4339C;
-        Mon, 13 Feb 2023 14:59:06 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id C47096112D
+        for <stable@vger.kernel.org>; Mon, 13 Feb 2023 15:00:54 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B2AA0C433D2;
+        Mon, 13 Feb 2023 15:00:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1676300347;
-        bh=wwXiMNt4MNn98P0OC1qTp4oDdPObb+ykjPi47y+Vhvs=;
+        s=korg; t=1676300454;
+        bh=vFGH+8NCVnnXTeqHbBOjKmZepuPN3zt68N+5jGyeDgk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=FOMGaBe1ocfKkNO0yQdaLNbtjOi7+uUhsVMrhSsHZfLzimJIHJxE9JG1sKZXi8dil
-         CCitv1drGWbf7jZL32OHXTjIV9zk0SiiD7GDcS5uaZxEDK3YqIECpS/+UvTiPpBkat
-         N84tf9IouNv9PvNAVx1W+ltYq3qBulxnJywgWYZI=
+        b=DxHolhPRE0P4WiXn29GIaZpUtL5w7/jFCJ+/s++SyDPmNt4LzDaa2UBx/ojW75gVt
+         /5pxwQjJsGOvH9m1nHi4Jn/saSkScorimGVEgXKoLYsx24DmdX5vj/1c8Qlo3wcYHs
+         WNNpbK8KyMWFduYTu7+VI6pXkMvxnRFx/aLlxRjQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Guodong Liu <Guodong.Liu@mediatek.com>,
-        Linus Walleij <linus.walleij@linaro.org>,
+        patches@lists.linux.dev, Tianhao Zhao <tizhao@redhat.com>,
+        =?UTF-8?q?=C3=8D=C3=B1igo=20Huguet?= <ihuguet@redhat.com>,
+        Martin Habets <habetsm.xilinx@gmail.com>,
+        Jakub Kicinski <kuba@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 44/67] pinctrl: mediatek: Fix the drive register definition of some Pins
-Date:   Mon, 13 Feb 2023 15:49:25 +0100
-Message-Id: <20230213144734.455914360@linuxfoundation.org>
+Subject: [PATCH 5.10 021/139] sfc: correctly advertise tunneled IPv6 segmentation
+Date:   Mon, 13 Feb 2023 15:49:26 +0100
+Message-Id: <20230213144746.764210155@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.1
-In-Reply-To: <20230213144732.336342050@linuxfoundation.org>
-References: <20230213144732.336342050@linuxfoundation.org>
+In-Reply-To: <20230213144745.696901179@linuxfoundation.org>
+References: <20230213144745.696901179@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
         SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -53,46 +55,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Guodong Liu <Guodong.Liu@mediatek.com>
+From: Íñigo Huguet <ihuguet@redhat.com>
 
-[ Upstream commit 5754a1c98b18009cb3030dc391aa37b77428a0bd ]
+[ Upstream commit ffffd2454a7a1bc9f7242b12c4cc0b05c12692b4 ]
 
-The drive adjustment register definition of gpio13 and gpio81 is wrong:
-"the start address for the range" of gpio18 is corrected to 0x000,
-"the start bit for the first register within the range" of gpio81 is
-corrected to 24.
+Recent sfc NICs are TSO capable for some tunnel protocols. However, it
+was not working properly because the feature was not advertised in
+hw_enc_features, but in hw_features only.
 
-Fixes: 6cf5e9ef362a ("pinctrl: add pinctrl driver on mt8195")
-Signed-off-by: Guodong Liu <Guodong.Liu@mediatek.com>
-Link: https://lore.kernel.org/r/20230118062116.26315-1-Guodong.Liu@mediatek.com
-Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
+Setting up a GENEVE tunnel and using iperf3 to send IPv4 and IPv6 traffic
+to the tunnel show, with tcpdump, that the IPv4 packets still had ~64k
+size but the IPv6 ones had only ~1500 bytes (they had been segmented by
+software, not offloaded). With this patch segmentation is offloaded as
+expected and the traffic is correctly received at the other end.
+
+Fixes: 24b2c3751aa3 ("sfc: advertise encapsulated offloads on EF10")
+Reported-by: Tianhao Zhao <tizhao@redhat.com>
+Signed-off-by: Íñigo Huguet <ihuguet@redhat.com>
+Acked-by: Martin Habets <habetsm.xilinx@gmail.com>
+Link: https://lore.kernel.org/r/20230125143513.25841-1-ihuguet@redhat.com
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/pinctrl/mediatek/pinctrl-mt8195.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/net/ethernet/sfc/efx.c | 5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/pinctrl/mediatek/pinctrl-mt8195.c b/drivers/pinctrl/mediatek/pinctrl-mt8195.c
-index a7500e18bb1de..c32884fc7de79 100644
---- a/drivers/pinctrl/mediatek/pinctrl-mt8195.c
-+++ b/drivers/pinctrl/mediatek/pinctrl-mt8195.c
-@@ -659,7 +659,7 @@ static const struct mtk_pin_field_calc mt8195_pin_drv_range[] = {
- 	PIN_FIELD_BASE(10, 10, 4, 0x010, 0x10, 9, 3),
- 	PIN_FIELD_BASE(11, 11, 4, 0x000, 0x10, 24, 3),
- 	PIN_FIELD_BASE(12, 12, 4, 0x010, 0x10, 12, 3),
--	PIN_FIELD_BASE(13, 13, 4, 0x010, 0x10, 27, 3),
-+	PIN_FIELD_BASE(13, 13, 4, 0x000, 0x10, 27, 3),
- 	PIN_FIELD_BASE(14, 14, 4, 0x010, 0x10, 15, 3),
- 	PIN_FIELD_BASE(15, 15, 4, 0x010, 0x10, 0, 3),
- 	PIN_FIELD_BASE(16, 16, 4, 0x010, 0x10, 18, 3),
-@@ -708,7 +708,7 @@ static const struct mtk_pin_field_calc mt8195_pin_drv_range[] = {
- 	PIN_FIELD_BASE(78, 78, 3, 0x000, 0x10, 15, 3),
- 	PIN_FIELD_BASE(79, 79, 3, 0x000, 0x10, 18, 3),
- 	PIN_FIELD_BASE(80, 80, 3, 0x000, 0x10, 21, 3),
--	PIN_FIELD_BASE(81, 81, 3, 0x000, 0x10, 28, 3),
-+	PIN_FIELD_BASE(81, 81, 3, 0x000, 0x10, 24, 3),
- 	PIN_FIELD_BASE(82, 82, 3, 0x000, 0x10, 27, 3),
- 	PIN_FIELD_BASE(83, 83, 3, 0x010, 0x10, 0, 3),
- 	PIN_FIELD_BASE(84, 84, 3, 0x010, 0x10, 3, 3),
+diff --git a/drivers/net/ethernet/sfc/efx.c b/drivers/net/ethernet/sfc/efx.c
+index 718308076341..29c8d2c99004 100644
+--- a/drivers/net/ethernet/sfc/efx.c
++++ b/drivers/net/ethernet/sfc/efx.c
+@@ -1047,8 +1047,11 @@ static int efx_pci_probe_post_io(struct efx_nic *efx)
+ 	/* Determine netdevice features */
+ 	net_dev->features |= (efx->type->offload_features | NETIF_F_SG |
+ 			      NETIF_F_TSO | NETIF_F_RXCSUM | NETIF_F_RXALL);
+-	if (efx->type->offload_features & (NETIF_F_IPV6_CSUM | NETIF_F_HW_CSUM))
++	if (efx->type->offload_features & (NETIF_F_IPV6_CSUM | NETIF_F_HW_CSUM)) {
+ 		net_dev->features |= NETIF_F_TSO6;
++		if (efx_has_cap(efx, TX_TSO_V2_ENCAP))
++			net_dev->hw_enc_features |= NETIF_F_TSO6;
++	}
+ 	/* Check whether device supports TSO */
+ 	if (!efx->type->tso_versions || !efx->type->tso_versions(efx))
+ 		net_dev->features &= ~NETIF_F_ALL_TSO;
 -- 
 2.39.0
 
