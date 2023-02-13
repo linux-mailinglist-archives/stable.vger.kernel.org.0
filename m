@@ -2,42 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E0D596948D3
-	for <lists+stable@lfdr.de>; Mon, 13 Feb 2023 15:53:49 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 40C356948D9
+	for <lists+stable@lfdr.de>; Mon, 13 Feb 2023 15:53:57 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229904AbjBMOxs (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Feb 2023 09:53:48 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48754 "EHLO
+        id S229479AbjBMOxz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Feb 2023 09:53:55 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48692 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229911AbjBMOxo (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Feb 2023 09:53:44 -0500
+        with ESMTP id S230491AbjBMOxv (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Feb 2023 09:53:51 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 67B05E3A1
-        for <stable@vger.kernel.org>; Mon, 13 Feb 2023 06:53:25 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2F6EA17145
+        for <stable@vger.kernel.org>; Mon, 13 Feb 2023 06:53:41 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 19EEDB8125C
-        for <stable@vger.kernel.org>; Mon, 13 Feb 2023 14:53:24 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 87228C433EF;
-        Mon, 13 Feb 2023 14:53:22 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id C4014B81261
+        for <stable@vger.kernel.org>; Mon, 13 Feb 2023 14:53:39 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2AC50C433EF;
+        Mon, 13 Feb 2023 14:53:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1676300002;
-        bh=L8AFb/G63IYPcaKXKpN9yFy2v5j/Jg10ZGAbnJISkkQ=;
+        s=korg; t=1676300018;
+        bh=843X6a0S1AGREtOdyWikWFETqQ88Wk6pBu5A/EAcnIQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=sOmyIC/MVZEe9CiCSAC3w4hGD8+PtBT2iYJ+Akw7vpQKbzJC+f0eIRjY8nJkOqEU+
-         BvQkIf44ELfuEDiHgz2CfURvvkqfHzJtcRQgZzfnotkz23HMvWd8NDA1zvXW502C8X
-         UKIgd0gxgWVzWE/kepHCfxyhyzvE5cfXO5IXIVVc=
+        b=GFUG7LI+/Y7SjDnj28rawg+PDJfvqDKMqSSpeAZ4+VxoKwnK5xbbgGiOXIER+OWl6
+         y100FBpCR9UkEpH1Zb4No8FtEVr6NdJYzejfhltvNH26IXANQ+2erquTUF0DkCUHGl
+         zMcHo/flaMX+w9BbUC3x+Ixq9Ey3oFC3w/X5/jPA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Qi Zheng <zhengqi.arch@bytedance.com>,
-        Jay Vosburgh <jay.vosburgh@canonical.com>,
+        patches@lists.linux.dev,
+        Radhey Shyam Pandey <radhey.shyam.pandey@amd.com>,
+        Jiri Pirko <jiri@nvidia.com>,
+        Michal Simek <michal.simek@amd.com>,
+        Claudiu Beznea <claudiu.beznea@microchip.com>,
         Jakub Kicinski <kuba@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 026/114] bonding: fix error checking in bond_debug_reregister()
-Date:   Mon, 13 Feb 2023 15:47:41 +0100
-Message-Id: <20230213144743.500906489@linuxfoundation.org>
+Subject: [PATCH 6.1 027/114] net: macb: Perform zynqmp dynamic configuration only for SGMII interface
+Date:   Mon, 13 Feb 2023 15:47:42 +0100
+Message-Id: <20230213144743.547561425@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.1
 In-Reply-To: <20230213144742.219399167@linuxfoundation.org>
 References: <20230213144742.219399167@linuxfoundation.org>
@@ -54,38 +57,76 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Qi Zheng <zhengqi.arch@bytedance.com>
+From: Radhey Shyam Pandey <radhey.shyam.pandey@amd.com>
 
-[ Upstream commit cbe83191d40d8925b7a99969d037d2a0caf69294 ]
+[ Upstream commit c9011b028e956c3b6baa6f131d9eec43e4e52020 ]
 
-Since commit ff9fb72bc077 ("debugfs: return error values,
-not NULL") changed return value of debugfs_rename() in
-error cases from %NULL to %ERR_PTR(-ERROR), we should
-also check error values instead of NULL.
+In zynqmp platforms where firmware supports dynamic SGMII configuration
+but has other non-SGMII ethernet devices, it fails them with no packets
+received at the RX interface.
 
-Fixes: ff9fb72bc077 ("debugfs: return error values, not NULL")
-Signed-off-by: Qi Zheng <zhengqi.arch@bytedance.com>
-Acked-by: Jay Vosburgh <jay.vosburgh@canonical.com>
-Link: https://lore.kernel.org/r/20230202093256.32458-1-zhengqi.arch@bytedance.com
+To fix this behaviour perform SGMII dynamic configuration only
+for the SGMII phy interface.
+
+Fixes: 32cee7818111 ("net: macb: Add zynqmp SGMII dynamic configuration support")
+Signed-off-by: Radhey Shyam Pandey <radhey.shyam.pandey@amd.com>
+Reviewed-by: Jiri Pirko <jiri@nvidia.com>
+Reported-by: Michal Simek <michal.simek@amd.com>
+Tested-by: Michal Simek <michal.simek@amd.com>
+Reviewed-by: Claudiu Beznea <claudiu.beznea@microchip.com>
+Link: https://lore.kernel.org/r/1675340779-27499-1-git-send-email-radhey.shyam.pandey@amd.com
 Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/bonding/bond_debugfs.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/net/ethernet/cadence/macb_main.c | 31 ++++++++++++------------
+ 1 file changed, 16 insertions(+), 15 deletions(-)
 
-diff --git a/drivers/net/bonding/bond_debugfs.c b/drivers/net/bonding/bond_debugfs.c
-index 4f9b4a18c74cd..5940945266489 100644
---- a/drivers/net/bonding/bond_debugfs.c
-+++ b/drivers/net/bonding/bond_debugfs.c
-@@ -76,7 +76,7 @@ void bond_debug_reregister(struct bonding *bond)
+diff --git a/drivers/net/ethernet/cadence/macb_main.c b/drivers/net/ethernet/cadence/macb_main.c
+index 300f47ca42e3e..e255780f3867c 100644
+--- a/drivers/net/ethernet/cadence/macb_main.c
++++ b/drivers/net/ethernet/cadence/macb_main.c
+@@ -4614,25 +4614,26 @@ static int init_reset_optional(struct platform_device *pdev)
+ 		if (ret)
+ 			return dev_err_probe(&pdev->dev, ret,
+ 					     "failed to init SGMII PHY\n");
+-	}
  
- 	d = debugfs_rename(bonding_debug_root, bond->debug_dir,
- 			   bonding_debug_root, bond->dev->name);
--	if (d) {
-+	if (!IS_ERR(d)) {
- 		bond->debug_dir = d;
- 	} else {
- 		netdev_warn(bond->dev, "failed to reregister, so just unregister old one\n");
+-	ret = zynqmp_pm_is_function_supported(PM_IOCTL, IOCTL_SET_GEM_CONFIG);
+-	if (!ret) {
+-		u32 pm_info[2];
++		ret = zynqmp_pm_is_function_supported(PM_IOCTL, IOCTL_SET_GEM_CONFIG);
++		if (!ret) {
++			u32 pm_info[2];
++
++			ret = of_property_read_u32_array(pdev->dev.of_node, "power-domains",
++							 pm_info, ARRAY_SIZE(pm_info));
++			if (ret) {
++				dev_err(&pdev->dev, "Failed to read power management information\n");
++				goto err_out_phy_exit;
++			}
++			ret = zynqmp_pm_set_gem_config(pm_info[1], GEM_CONFIG_FIXED, 0);
++			if (ret)
++				goto err_out_phy_exit;
+ 
+-		ret = of_property_read_u32_array(pdev->dev.of_node, "power-domains",
+-						 pm_info, ARRAY_SIZE(pm_info));
+-		if (ret) {
+-			dev_err(&pdev->dev, "Failed to read power management information\n");
+-			goto err_out_phy_exit;
++			ret = zynqmp_pm_set_gem_config(pm_info[1], GEM_CONFIG_SGMII_MODE, 1);
++			if (ret)
++				goto err_out_phy_exit;
+ 		}
+-		ret = zynqmp_pm_set_gem_config(pm_info[1], GEM_CONFIG_FIXED, 0);
+-		if (ret)
+-			goto err_out_phy_exit;
+ 
+-		ret = zynqmp_pm_set_gem_config(pm_info[1], GEM_CONFIG_SGMII_MODE, 1);
+-		if (ret)
+-			goto err_out_phy_exit;
+ 	}
+ 
+ 	/* Fully reset controller at hardware level if mapped in device tree */
 -- 
 2.39.0
 
