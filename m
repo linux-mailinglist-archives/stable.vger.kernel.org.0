@@ -2,45 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 5008A694A00
-	for <lists+stable@lfdr.de>; Mon, 13 Feb 2023 16:03:49 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 59033694A01
+	for <lists+stable@lfdr.de>; Mon, 13 Feb 2023 16:03:57 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231350AbjBMPDs (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Feb 2023 10:03:48 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36622 "EHLO
+        id S231378AbjBMPD4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Feb 2023 10:03:56 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37572 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231378AbjBMPDo (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Feb 2023 10:03:44 -0500
+        with ESMTP id S231308AbjBMPDt (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Feb 2023 10:03:49 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3E8E61E2B2
-        for <stable@vger.kernel.org>; Mon, 13 Feb 2023 07:03:28 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 16D5D1E295
+        for <stable@vger.kernel.org>; Mon, 13 Feb 2023 07:03:30 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 66D9561122
-        for <stable@vger.kernel.org>; Mon, 13 Feb 2023 15:03:27 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7B326C433D2;
-        Mon, 13 Feb 2023 15:03:26 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id EC1366116F
+        for <stable@vger.kernel.org>; Mon, 13 Feb 2023 15:03:29 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0C097C4339B;
+        Mon, 13 Feb 2023 15:03:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1676300606;
-        bh=DNzH7D/PL8xDaeix5yR2eBXdbo7lfTEvocYd93HBSgg=;
+        s=korg; t=1676300609;
+        bh=HhdooBA5Ohf1dNUBemrq4hCsre8hIW+cTNUnOvOVt/8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=XQr8RKKJeNcyEsH4HMSzEgNUPLwrkLGv53lZCm3VAIYCM1MvHCxxN0/YZQ/rGmuc4
-         Ys8KNHI8jT3cYZ11NoiZkJp34FGrGJPEKa04FS4ClHGw/4OtX1EDs/D9YYH+oee2t1
-         q1cHXtmXaP1npG2iPtKEgabXo8G1VyUYa5jbT1q4=
+        b=rTNUc8ega9BNBBlzaWE351iRziShzvHIolqYoXdi0PrHYgkHAkP09TxpnNg7WJx08
+         WS7bEFmL8Gg79aXxRuf7S2p96qYUs9uYvZMAZZ+3l4OoVG9VxoN9gEcQhayM67eL+h
+         iIurdrXcV2Q/0Sm3KqG8tuhdJepKbfZmGqhh4ca0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Longlong Xia <xialonglong1@huawei.com>,
-        "Huang, Ying" <ying.huang@intel.com>,
-        Chen Wandun <chenwandun@huawei.com>,
-        Kefeng Wang <wangkefeng.wang@huawei.com>,
-        Nanyong Sun <sunnanyong@huawei.com>,
-        Hugh Dickins <hughd@google.com>,
+        patches@lists.linux.dev, Phillip Lougher <phillip@squashfs.org.uk>,
+        syzbot+082fa4af80a5bb1a9843@syzkaller.appspotmail.com,
+        Alexey Khoroshilov <khoroshilov@ispras.ru>,
+        Fedor Pchelkin <pchelkin@ispras.ru>,
         Andrew Morton <akpm@linux-foundation.org>
-Subject: [PATCH 5.10 079/139] mm/swapfile: add cond_resched() in get_swap_pages()
-Date:   Mon, 13 Feb 2023 15:50:24 +0100
-Message-Id: <20230213144750.033352330@linuxfoundation.org>
+Subject: [PATCH 5.10 080/139] Squashfs: fix handling and sanity checking of xattr_ids count
+Date:   Mon, 13 Feb 2023 15:50:25 +0100
+Message-Id: <20230213144750.087280164@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.1
 In-Reply-To: <20230213144745.696901179@linuxfoundation.org>
 References: <20230213144745.696901179@linuxfoundation.org>
@@ -57,45 +55,143 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Longlong Xia <xialonglong1@huawei.com>
+From: Phillip Lougher <phillip@squashfs.org.uk>
 
-commit 7717fc1a12f88701573f9ed897cc4f6699c661e3 upstream.
+commit f65c4bbbd682b0877b669828b4e033b8d5d0a2dc upstream.
 
-The softlockup still occurs in get_swap_pages() under memory pressure.  64
-CPU cores, 64GB memory, and 28 zram devices, the disksize of each zram
-device is 50MB with same priority as si.  Use the stress-ng tool to
-increase memory pressure, causing the system to oom frequently.
+A Sysbot [1] corrupted filesystem exposes two flaws in the handling and
+sanity checking of the xattr_ids count in the filesystem.  Both of these
+flaws cause computation overflow due to incorrect typing.
 
-The plist_for_each_entry_safe() loops in get_swap_pages() could reach tens
-of thousands of times to find available space (extreme case:
-cond_resched() is not called in scan_swap_map_slots()).  Let's add
-cond_resched() into get_swap_pages() when failed to find available space
-to avoid softlockup.
+In the corrupted filesystem the xattr_ids value is 4294967071, which
+stored in a signed variable becomes the negative number -225.
 
-Link: https://lkml.kernel.org/r/20230128094757.1060525-1-xialonglong1@huawei.com
-Signed-off-by: Longlong Xia <xialonglong1@huawei.com>
-Reviewed-by: "Huang, Ying" <ying.huang@intel.com>
-Cc: Chen Wandun <chenwandun@huawei.com>
-Cc: Huang Ying <ying.huang@intel.com>
-Cc: Kefeng Wang <wangkefeng.wang@huawei.com>
-Cc: Nanyong Sun <sunnanyong@huawei.com>
-Cc: Hugh Dickins <hughd@google.com>
+Flaw 1 (64-bit systems only):
+
+The signed integer xattr_ids variable causes sign extension.
+
+This causes variable overflow in the SQUASHFS_XATTR_*(A) macros.  The
+variable is first multiplied by sizeof(struct squashfs_xattr_id) where the
+type of the sizeof operator is "unsigned long".
+
+On a 64-bit system this is 64-bits in size, and causes the negative number
+to be sign extended and widened to 64-bits and then become unsigned.  This
+produces the very large number 18446744073709548016 or 2^64 - 3600.  This
+number when rounded up by SQUASHFS_METADATA_SIZE - 1 (8191 bytes) and
+divided by SQUASHFS_METADATA_SIZE overflows and produces a length of 0
+(stored in len).
+
+Flaw 2 (32-bit systems only):
+
+On a 32-bit system the integer variable is not widened by the unsigned
+long type of the sizeof operator (32-bits), and the signedness of the
+variable has no effect due it always being treated as unsigned.
+
+The above corrupted xattr_ids value of 4294967071, when multiplied
+overflows and produces the number 4294963696 or 2^32 - 3400.  This number
+when rounded up by SQUASHFS_METADATA_SIZE - 1 (8191 bytes) and divided by
+SQUASHFS_METADATA_SIZE overflows again and produces a length of 0.
+
+The effect of the 0 length computation:
+
+In conjunction with the corrupted xattr_ids field, the filesystem also has
+a corrupted xattr_table_start value, where it matches the end of
+filesystem value of 850.
+
+This causes the following sanity check code to fail because the
+incorrectly computed len of 0 matches the incorrect size of the table
+reported by the superblock (0 bytes).
+
+    len = SQUASHFS_XATTR_BLOCK_BYTES(*xattr_ids);
+    indexes = SQUASHFS_XATTR_BLOCKS(*xattr_ids);
+
+    /*
+     * The computed size of the index table (len bytes) should exactly
+     * match the table start and end points
+    */
+    start = table_start + sizeof(*id_table);
+    end = msblk->bytes_used;
+
+    if (len != (end - start))
+            return ERR_PTR(-EINVAL);
+
+Changing the xattr_ids variable to be "usigned int" fixes the flaw on a
+64-bit system.  This relies on the fact the computation is widened by the
+unsigned long type of the sizeof operator.
+
+Casting the variable to u64 in the above macro fixes this flaw on a 32-bit
+system.
+
+It also means 64-bit systems do not implicitly rely on the type of the
+sizeof operator to widen the computation.
+
+[1] https://lore.kernel.org/lkml/000000000000cd44f005f1a0f17f@google.com/
+
+Link: https://lkml.kernel.org/r/20230127061842.10965-1-phillip@squashfs.org.uk
+Fixes: 506220d2ba21 ("squashfs: add more sanity checks in xattr id lookup")
+Signed-off-by: Phillip Lougher <phillip@squashfs.org.uk>
+Reported-by: <syzbot+082fa4af80a5bb1a9843@syzkaller.appspotmail.com>
+Cc: Alexey Khoroshilov <khoroshilov@ispras.ru>
+Cc: Fedor Pchelkin <pchelkin@ispras.ru>
 Cc: <stable@vger.kernel.org>
 Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- mm/swapfile.c |    1 +
- 1 file changed, 1 insertion(+)
+ fs/squashfs/squashfs_fs.h    |    2 +-
+ fs/squashfs/squashfs_fs_sb.h |    2 +-
+ fs/squashfs/xattr.h          |    4 ++--
+ fs/squashfs/xattr_id.c       |    2 +-
+ 4 files changed, 5 insertions(+), 5 deletions(-)
 
---- a/mm/swapfile.c
-+++ b/mm/swapfile.c
-@@ -1104,6 +1104,7 @@ start_over:
- 			goto check_out;
- 		pr_debug("scan_swap_map of si %d failed to find offset\n",
- 			si->type);
-+		cond_resched();
+--- a/fs/squashfs/squashfs_fs.h
++++ b/fs/squashfs/squashfs_fs.h
+@@ -183,7 +183,7 @@ static inline int squashfs_block_size(__
+ #define SQUASHFS_ID_BLOCK_BYTES(A)	(SQUASHFS_ID_BLOCKS(A) *\
+ 					sizeof(u64))
+ /* xattr id lookup table defines */
+-#define SQUASHFS_XATTR_BYTES(A)		((A) * sizeof(struct squashfs_xattr_id))
++#define SQUASHFS_XATTR_BYTES(A)		(((u64) (A)) * sizeof(struct squashfs_xattr_id))
  
- 		spin_lock(&swap_avail_lock);
- nextsi:
+ #define SQUASHFS_XATTR_BLOCK(A)		(SQUASHFS_XATTR_BYTES(A) / \
+ 					SQUASHFS_METADATA_SIZE)
+--- a/fs/squashfs/squashfs_fs_sb.h
++++ b/fs/squashfs/squashfs_fs_sb.h
+@@ -63,7 +63,7 @@ struct squashfs_sb_info {
+ 	long long				bytes_used;
+ 	unsigned int				inodes;
+ 	unsigned int				fragments;
+-	int					xattr_ids;
++	unsigned int				xattr_ids;
+ 	unsigned int				ids;
+ };
+ #endif
+--- a/fs/squashfs/xattr.h
++++ b/fs/squashfs/xattr.h
+@@ -10,12 +10,12 @@
+ 
+ #ifdef CONFIG_SQUASHFS_XATTR
+ extern __le64 *squashfs_read_xattr_id_table(struct super_block *, u64,
+-		u64 *, int *);
++		u64 *, unsigned int *);
+ extern int squashfs_xattr_lookup(struct super_block *, unsigned int, int *,
+ 		unsigned int *, unsigned long long *);
+ #else
+ static inline __le64 *squashfs_read_xattr_id_table(struct super_block *sb,
+-		u64 start, u64 *xattr_table_start, int *xattr_ids)
++		u64 start, u64 *xattr_table_start, unsigned int *xattr_ids)
+ {
+ 	struct squashfs_xattr_id_table *id_table;
+ 
+--- a/fs/squashfs/xattr_id.c
++++ b/fs/squashfs/xattr_id.c
+@@ -56,7 +56,7 @@ int squashfs_xattr_lookup(struct super_b
+  * Read uncompressed xattr id lookup table indexes from disk into memory
+  */
+ __le64 *squashfs_read_xattr_id_table(struct super_block *sb, u64 table_start,
+-		u64 *xattr_table_start, int *xattr_ids)
++		u64 *xattr_table_start, unsigned int *xattr_ids)
+ {
+ 	struct squashfs_sb_info *msblk = sb->s_fs_info;
+ 	unsigned int len, indexes;
 
 
