@@ -2,42 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id DA48A694A14
-	for <lists+stable@lfdr.de>; Mon, 13 Feb 2023 16:04:33 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 518B9694A15
+	for <lists+stable@lfdr.de>; Mon, 13 Feb 2023 16:04:34 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231405AbjBMPEc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Feb 2023 10:04:32 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38324 "EHLO
+        id S231450AbjBMPEd (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Feb 2023 10:04:33 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38474 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231402AbjBMPEY (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Feb 2023 10:04:24 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 72CD61CF64
-        for <stable@vger.kernel.org>; Mon, 13 Feb 2023 07:04:10 -0800 (PST)
+        with ESMTP id S231418AbjBMPEZ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Feb 2023 10:04:25 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 740A01E1CD
+        for <stable@vger.kernel.org>; Mon, 13 Feb 2023 07:04:11 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 2A389B8125B
-        for <stable@vger.kernel.org>; Mon, 13 Feb 2023 15:04:09 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8F8B8C4339E;
-        Mon, 13 Feb 2023 15:04:07 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 0F3A76116C
+        for <stable@vger.kernel.org>; Mon, 13 Feb 2023 15:04:11 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 22C43C433D2;
+        Mon, 13 Feb 2023 15:04:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1676300647;
-        bh=Xs9xtGDtHUdJzFyPeJIN4j0gNeTfufigHRFlRTCOqL4=;
+        s=korg; t=1676300650;
+        bh=OCRM3eaWV1LLB3JIqkIOhVdGfCAKdWFyth2YXYJSQ4s=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=azSxS2wDQ6FTUHy7tOfnuNTGZYAuO6leWDDJRfe8y2d8fC/YHumvYyJYsdzgN83DO
-         5JT+ylRwHDiHxXZ676WfuvsPNmaEExXeFQ4CNU+8E50rpiwVRmXOw6lM+Ep/kNrZMm
-         jRZSuNkHbQkaAGABqX7dhF7Xq4QLDxG6QwQgliTA=
+        b=NJak36hUhlc7UpIUl9i867PEno0B3SCQ4ebTOzesvvKOeM7JCgCfE9hbL2VbcxNWE
+         ARgFiS0BxNwwDfv3C//cRVANG3a6ZTQyyuAdkOui5fme+8KVLZ5HG74xyXGk+ODDLy
+         xr1PzbM/RPNR+yvq6/87UdyiwwXTZouWBkJu0rsg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Hengqi Chen <hengqi.chen@gmail.com>,
-        Yonghong Song <yhs@gmail.com>, Martin KaFai Lau <kafai@fb.com>,
-        Daniel Borkmann <daniel@iogearbox.net>,
-        Yonghong Song <yhs@fb.com>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 094/139] bpf: Do not reject when the stack read size is different from the tracked scalar size
-Date:   Mon, 13 Feb 2023 15:50:39 +0100
-Message-Id: <20230213144750.781198413@linuxfoundation.org>
+        patches@lists.linux.dev, kernel test robot <lkp@intel.com>,
+        Julia Lawall <julia.lawall@lip6.fr>,
+        Andreas Kemnade <andreas@kemnade.info>,
+        Jonathan Cameron <Jonathan.Cameron@huawei.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 095/139] iio:adc:twl6030: Enable measurement of VAC
+Date:   Mon, 13 Feb 2023 15:50:40 +0100
+Message-Id: <20230213144750.833159287@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.1
 In-Reply-To: <20230213144745.696901179@linuxfoundation.org>
 References: <20230213144745.696901179@linuxfoundation.org>
@@ -45,8 +46,8 @@ User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
         SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -54,91 +55,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Martin KaFai Lau <kafai@fb.com>
+From: Andreas Kemnade <andreas@kemnade.info>
 
-[ Upstream commit f30d4968e9aee737e174fc97942af46cfb49b484 ]
+[ Upstream commit bffb7d9d1a3dbd09e083b88aefd093b3b10abbfb ]
 
-Below is a simplified case from a report in bcc [0]:
+VAC needs to be wired up to produce proper measurements,
+without this change only near zero values are reported.
 
-  r4 = 20
-  *(u32 *)(r10 -4) = r4
-  *(u32 *)(r10 -8) = r4  /* r4 state is tracked */
-  r4 = *(u64 *)(r10 -8)  /* Read more than the tracked 32bit scalar.
-			  * verifier rejects as 'corrupted spill memory'.
-			  */
-
-After commit 354e8f1970f8 ("bpf: Support <8-byte scalar spill and refill"),
-the 8-byte aligned 32bit spill is also tracked by the verifier and the
-register state is stored.
-
-However, if 8 bytes are read from the stack instead of the tracked 4 byte
-scalar, then verifier currently rejects the program as "corrupted spill
-memory". This patch fixes this case by allowing it to read but marks the
-register as unknown.
-
-Also note that, if the prog is trying to corrupt/leak an earlier spilled
-pointer by spilling another <8 bytes register on top, this has already
-been rejected in the check_stack_write_fixed_off().
-
-  [0] https://github.com/iovisor/bcc/pull/3683
-
-Fixes: 354e8f1970f8 ("bpf: Support <8-byte scalar spill and refill")
-Reported-by: Hengqi Chen <hengqi.chen@gmail.com>
-Reported-by: Yonghong Song <yhs@gmail.com>
-Signed-off-by: Martin KaFai Lau <kafai@fb.com>
-Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
-Tested-by: Hengqi Chen <hengqi.chen@gmail.com>
-Acked-by: Yonghong Song <yhs@fb.com>
-Link: https://lore.kernel.org/bpf/20211102064535.316018-1-kafai@fb.com
+Reported-by: kernel test robot <lkp@intel.com>
+Reported-by: Julia Lawall <julia.lawall@lip6.fr>
+Fixes: 1696f36482e7 ("iio: twl6030-gpadc: TWL6030, TWL6032 GPADC driver")
+Signed-off-by: Andreas Kemnade <andreas@kemnade.info>
+Link: https://lore.kernel.org/r/20221217221305.671117-1-andreas@kemnade.info
+Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/bpf/verifier.c | 18 ++++++------------
- 1 file changed, 6 insertions(+), 12 deletions(-)
+ drivers/iio/adc/twl6030-gpadc.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/kernel/bpf/verifier.c b/kernel/bpf/verifier.c
-index 0d0d7b140f05a..9e5f1ebe67d7f 100644
---- a/kernel/bpf/verifier.c
-+++ b/kernel/bpf/verifier.c
-@@ -2597,9 +2597,12 @@ static int check_stack_read_fixed_off(struct bpf_verifier_env *env,
- 	reg = &reg_state->stack[spi].spilled_ptr;
+diff --git a/drivers/iio/adc/twl6030-gpadc.c b/drivers/iio/adc/twl6030-gpadc.c
+index 9ab23b29bee3f..024bdc1ef77e6 100644
+--- a/drivers/iio/adc/twl6030-gpadc.c
++++ b/drivers/iio/adc/twl6030-gpadc.c
+@@ -952,7 +952,7 @@ static int twl6030_gpadc_probe(struct platform_device *pdev)
+ 	}
  
- 	if (is_spilled_reg(&reg_state->stack[spi])) {
--		if (size != BPF_REG_SIZE) {
--			u8 scalar_size = 0;
-+		u8 spill_size = 1;
-+
-+		for (i = BPF_REG_SIZE - 1; i > 0 && stype[i - 1] == STACK_SPILL; i--)
-+			spill_size++;
- 
-+		if (size != BPF_REG_SIZE || spill_size != BPF_REG_SIZE) {
- 			if (reg->type != SCALAR_VALUE) {
- 				verbose_linfo(env, env->insn_idx, "; ");
- 				verbose(env, "invalid size of register fill\n");
-@@ -2610,10 +2613,7 @@ static int check_stack_read_fixed_off(struct bpf_verifier_env *env,
- 			if (dst_regno < 0)
- 				return 0;
- 
--			for (i = BPF_REG_SIZE; i > 0 && stype[i - 1] == STACK_SPILL; i--)
--				scalar_size++;
--
--			if (!(off % BPF_REG_SIZE) && size == scalar_size) {
-+			if (!(off % BPF_REG_SIZE) && size == spill_size) {
- 				/* The earlier check_reg_arg() has decided the
- 				 * subreg_def for this insn.  Save it first.
- 				 */
-@@ -2637,12 +2637,6 @@ static int check_stack_read_fixed_off(struct bpf_verifier_env *env,
- 			state->regs[dst_regno].live |= REG_LIVE_WRITTEN;
- 			return 0;
- 		}
--		for (i = 1; i < BPF_REG_SIZE; i++) {
--			if (stype[(slot - i) % BPF_REG_SIZE] != STACK_SPILL) {
--				verbose(env, "corrupted spill memory\n");
--				return -EACCES;
--			}
--		}
- 
- 		if (dst_regno >= 0) {
- 			/* restore register state from stack */
+ 	ret = twl_i2c_write_u8(TWL6030_MODULE_ID0,
+-				VBAT_MEAS | BB_MEAS | BB_MEAS,
++				VBAT_MEAS | BB_MEAS | VAC_MEAS,
+ 				TWL6030_MISC1);
+ 	if (ret < 0) {
+ 		dev_err(dev, "failed to wire up inputs\n");
 -- 
 2.39.0
 
