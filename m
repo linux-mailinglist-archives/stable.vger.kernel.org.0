@@ -2,52 +2,54 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 92CAE694997
-	for <lists+stable@lfdr.de>; Mon, 13 Feb 2023 16:00:13 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 382326949BF
+	for <lists+stable@lfdr.de>; Mon, 13 Feb 2023 16:01:38 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231260AbjBMPAL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Feb 2023 10:00:11 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56636 "EHLO
+        id S231245AbjBMPBg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Feb 2023 10:01:36 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33070 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231373AbjBMPAB (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Feb 2023 10:00:01 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 384551D909
-        for <stable@vger.kernel.org>; Mon, 13 Feb 2023 06:59:44 -0800 (PST)
+        with ESMTP id S231320AbjBMPB0 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Feb 2023 10:01:26 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 495A71E1CD
+        for <stable@vger.kernel.org>; Mon, 13 Feb 2023 07:01:10 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id B6E8F6106F
-        for <stable@vger.kernel.org>; Mon, 13 Feb 2023 14:59:17 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id CD6E1C433D2;
-        Mon, 13 Feb 2023 14:59:16 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id D86B86116D
+        for <stable@vger.kernel.org>; Mon, 13 Feb 2023 15:01:09 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id EED55C433D2;
+        Mon, 13 Feb 2023 15:01:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1676300357;
-        bh=zoOvH8GkaI+M4EuFOix3wBTmrQe7L6gVfd9vvx8CRac=;
+        s=korg; t=1676300469;
+        bh=m+TNEsz8dbJ0d15DKk4YxJBuspM3Jw4BWIo5z3wKX5E=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=el0LRxuwIgapa508Bx4VPw4obD3hcTfcyx2XjZw5NUEkQfUbnDmZKwDhe4QUcqwm4
-         XMiEF01RzUDyNwm/ASTkwYDuUi3UOvY9n047byZ9mneJF1/RRtZRPG7zT7l6e9NH++
-         rh5vz12+j+lvvFZ0LPppRIzGwrKpcrV1QkhAYjaw=
+        b=UDw653z6oOMlPxRvLoLmPUwHQZlRbzsqtO7N4CRPcLrHRSv4ViNktUHSF0NcUj1yE
+         uSaL3qiedQ/vSd/e7uTGcweBtfU+sGv+xtl55bXOPwbh3v7IB84fo4Dr/vG7QNMP20
+         kYbYBAuBob8EAZwQY0E2v4grhfl/EQ2AmKHNg6Rc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Jim Minter <jimminter@microsoft.com>,
-        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
-        Mika Westerberg <mika.westerberg@linux.intel.com>,
-        Linus Walleij <linus.walleij@linaro.org>,
+        patches@lists.linux.dev,
+        syzbot+082fa4af80a5bb1a9843@syzkaller.appspotmail.com,
+        Fedor Pchelkin <pchelkin@ispras.ru>,
+        Alexey Khoroshilov <khoroshilov@ispras.ru>,
+        Phillip Lougher <phillip@squashfs.org.uk>,
+        Andrew Morton <akpm@linux-foundation.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 48/67] pinctrl: intel: Restore the pins that used to be in Direct IRQ mode
-Date:   Mon, 13 Feb 2023 15:49:29 +0100
-Message-Id: <20230213144734.635357646@linuxfoundation.org>
+Subject: [PATCH 5.10 025/139] squashfs: harden sanity check in squashfs_read_xattr_id_table
+Date:   Mon, 13 Feb 2023 15:49:30 +0100
+Message-Id: <20230213144746.974747059@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.1
-In-Reply-To: <20230213144732.336342050@linuxfoundation.org>
-References: <20230213144732.336342050@linuxfoundation.org>
+In-Reply-To: <20230213144745.696901179@linuxfoundation.org>
+References: <20230213144745.696901179@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
         SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -55,67 +57,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+From: Fedor Pchelkin <pchelkin@ispras.ru>
 
-[ Upstream commit a8520be3ffef3d25b53bf171a7ebe17ee0154175 ]
+[ Upstream commit 72e544b1b28325fe78a4687b980871a7e4101f76 ]
 
-If the firmware mangled the register contents too much,
-check the saved value for the Direct IRQ mode. If it
-matches, we will restore the pin state.
+While mounting a corrupted filesystem, a signed integer '*xattr_ids' can
+become less than zero.  This leads to the incorrect computation of 'len'
+and 'indexes' values which can cause null-ptr-deref in copy_bio_to_actor()
+or out-of-bounds accesses in the next sanity checks inside
+squashfs_read_xattr_id_table().
 
-Reported-by: Jim Minter <jimminter@microsoft.com>
-Fixes: 6989ea4881c8 ("pinctrl: intel: Save and restore pins in "direct IRQ" mode")
-Tested-by: Jim Minter <jimminter@microsoft.com>
-Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Acked-by: Mika Westerberg <mika.westerberg@linux.intel.com>
-Link: https://lore.kernel.org/r/20230206141558.20916-1-andriy.shevchenko@linux.intel.com
-Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
+Found by Linux Verification Center (linuxtesting.org) with Syzkaller.
+
+Link: https://lkml.kernel.org/r/20230117105226.329303-2-pchelkin@ispras.ru
+Fixes: 506220d2ba21 ("squashfs: add more sanity checks in xattr id lookup")
+Reported-by: <syzbot+082fa4af80a5bb1a9843@syzkaller.appspotmail.com>
+Signed-off-by: Fedor Pchelkin <pchelkin@ispras.ru>
+Signed-off-by: Alexey Khoroshilov <khoroshilov@ispras.ru>
+Cc: Phillip Lougher <phillip@squashfs.org.uk>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/pinctrl/intel/pinctrl-intel.c | 16 +++++++++++++---
- 1 file changed, 13 insertions(+), 3 deletions(-)
+ fs/squashfs/xattr_id.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/pinctrl/intel/pinctrl-intel.c b/drivers/pinctrl/intel/pinctrl-intel.c
-index 32807aab9343f..cc64eda155f57 100644
---- a/drivers/pinctrl/intel/pinctrl-intel.c
-+++ b/drivers/pinctrl/intel/pinctrl-intel.c
-@@ -1661,6 +1661,12 @@ const struct intel_pinctrl_soc_data *intel_pinctrl_get_soc_data(struct platform_
- EXPORT_SYMBOL_GPL(intel_pinctrl_get_soc_data);
+diff --git a/fs/squashfs/xattr_id.c b/fs/squashfs/xattr_id.c
+index 087cab8c78f4..f6d78cbc3e74 100644
+--- a/fs/squashfs/xattr_id.c
++++ b/fs/squashfs/xattr_id.c
+@@ -76,7 +76,7 @@ __le64 *squashfs_read_xattr_id_table(struct super_block *sb, u64 table_start,
+ 	/* Sanity check values */
  
- #ifdef CONFIG_PM_SLEEP
-+static bool __intel_gpio_is_direct_irq(u32 value)
-+{
-+	return (value & PADCFG0_GPIROUTIOXAPIC) && (value & PADCFG0_GPIOTXDIS) &&
-+	       (__intel_gpio_get_gpio_mode(value) == PADCFG0_PMODE_GPIO);
-+}
-+
- static bool intel_pinctrl_should_save(struct intel_pinctrl *pctrl, unsigned int pin)
- {
- 	const struct pin_desc *pd = pin_desc_get(pctrl->pctldev, pin);
-@@ -1694,8 +1700,7 @@ static bool intel_pinctrl_should_save(struct intel_pinctrl *pctrl, unsigned int
- 	 * See https://bugzilla.kernel.org/show_bug.cgi?id=214749.
- 	 */
- 	value = readl(intel_get_padcfg(pctrl, pin, PADCFG0));
--	if ((value & PADCFG0_GPIROUTIOXAPIC) && (value & PADCFG0_GPIOTXDIS) &&
--	    (__intel_gpio_get_gpio_mode(value) == PADCFG0_PMODE_GPIO))
-+	if (__intel_gpio_is_direct_irq(value))
- 		return true;
+ 	/* there is always at least one xattr id */
+-	if (*xattr_ids == 0)
++	if (*xattr_ids <= 0)
+ 		return ERR_PTR(-EINVAL);
  
- 	return false;
-@@ -1825,7 +1830,12 @@ int intel_pinctrl_resume_noirq(struct device *dev)
- 	for (i = 0; i < pctrl->soc->npins; i++) {
- 		const struct pinctrl_pin_desc *desc = &pctrl->soc->pins[i];
- 
--		if (!intel_pinctrl_should_save(pctrl, desc->number))
-+		if (!(intel_pinctrl_should_save(pctrl, desc->number) ||
-+		      /*
-+		       * If the firmware mangled the register contents too much,
-+		       * check the saved value for the Direct IRQ mode.
-+		       */
-+		      __intel_gpio_is_direct_irq(pads[i].padcfg0)))
- 			continue;
- 
- 		intel_restore_padcfg(pctrl, desc->number, PADCFG0, pads[i].padcfg0);
+ 	len = SQUASHFS_XATTR_BLOCK_BYTES(*xattr_ids);
 -- 
 2.39.0
 
