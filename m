@@ -2,110 +2,90 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id DF8D4694E5F
-	for <lists+stable@lfdr.de>; Mon, 13 Feb 2023 18:49:01 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2D3D7694E97
+	for <lists+stable@lfdr.de>; Mon, 13 Feb 2023 19:01:45 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230122AbjBMRs7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Feb 2023 12:48:59 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34080 "EHLO
+        id S229648AbjBMSBn (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Feb 2023 13:01:43 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44742 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230184AbjBMRsz (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Feb 2023 12:48:55 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 623C81F934;
-        Mon, 13 Feb 2023 09:48:53 -0800 (PST)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        with ESMTP id S230179AbjBMSBb (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Feb 2023 13:01:31 -0500
+Received: from smtp-out2.suse.de (smtp-out2.suse.de [195.135.220.29])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1411E166C8;
+        Mon, 13 Feb 2023 10:01:30 -0800 (PST)
+Received: from imap2.suse-dmz.suse.de (imap2.suse-dmz.suse.de [192.168.254.74])
+        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+         key-exchange X25519 server-signature ECDSA (P-521) server-digest SHA512)
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id EAABAB81624;
-        Mon, 13 Feb 2023 17:48:51 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5D99AC433D2;
-        Mon, 13 Feb 2023 17:48:50 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1676310530;
-        bh=KolfguvNkJgNxPeBch9TKh/NIl+yTt6QO4x4ItWFvek=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=14fDbUwYvFwmxrqzJ4T82nI1FyZKOM/oW1Kf+JhMGLjhj9RHEO5wUvlGbyaOy8v+A
-         wfS3JzrrqzGiZiBeAeRRP/u4LfnYEyA5Hj7IheOSckWSh/3o1VQ9r0gPZtPIZALmDy
-         RehMCKwN7+g1OEt4IOMXEZw6316VKrTzObl414jw=
-Date:   Mon, 13 Feb 2023 18:48:48 +0100
-From:   Greg KH <gregkh@linuxfoundation.org>
-To:     Kuniyuki Iwashima <kuniyu@amazon.com>
-Cc:     w@1wt.eu, netdev@vger.kernel.org, regressions@lists.linux.dev,
-        stable@vger.kernel.org, winter@winter.cafe
-Subject: Re: [REGRESSION] 5.15.88 and onwards no longer return EADDRINUSE
- from bind
-Message-ID: <Y+p4AJHkP8JUf4KB@kroah.com>
-References: <Y+nsQlVzmTP0meTX@1wt.eu>
- <20230213164455.36911-1-kuniyu@amazon.com>
+        by smtp-out2.suse.de (Postfix) with ESMTPS id B91881FF43;
+        Mon, 13 Feb 2023 18:01:28 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.com; s=susede1;
+        t=1676311288; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+         mime-version:mime-version:content-type:content-type:
+         in-reply-to:in-reply-to:references:references;
+        bh=zjmWiLidv9s5VZwExclp2S1zJJLTj2i1cwRC3vTy34U=;
+        b=gBIrqG/bt3Nka1Yav+85md6pjlNt2iAp2IiC1h/jKet9euwQOLtfKlokNzNmJHWkH6rN/I
+        cbrMb2TtBfZdvd+Cn7I/4vX6J2Sc1ULVEmlvfeTUZkshkVS4I4eYCOC4UYwUsIb6uRTxaQ
+        6/JmoJCN/cMS3HjGgnSRPjSvwrjP15I=
+Received: from imap2.suse-dmz.suse.de (imap2.suse-dmz.suse.de [192.168.254.74])
+        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+         key-exchange X25519 server-signature ECDSA (P-521) server-digest SHA512)
+        (No client certificate requested)
+        by imap2.suse-dmz.suse.de (Postfix) with ESMTPS id 9765C1391B;
+        Mon, 13 Feb 2023 18:01:28 +0000 (UTC)
+Received: from dovecot-director2.suse.de ([192.168.254.65])
+        by imap2.suse-dmz.suse.de with ESMTPSA
+        id ZvI6Ivh66mNgcAAAMHmgww
+        (envelope-from <mhocko@suse.com>); Mon, 13 Feb 2023 18:01:28 +0000
+Date:   Mon, 13 Feb 2023 19:01:28 +0100
+From:   Michal Hocko <mhocko@suse.com>
+To:     Mike Kravetz <mike.kravetz@oracle.com>
+Cc:     Andrew Morton <akpm@linux-foundation.org>,
+        David Hildenbrand <david@redhat.com>, linux-mm@kvack.org,
+        linux-kernel@vger.kernel.org,
+        Naoya Horiguchi <naoya.horiguchi@linux.dev>,
+        James Houghton <jthoughton@google.com>,
+        Peter Xu <peterx@redhat.com>, Yang Shi <shy828301@gmail.com>,
+        Vishal Moola <vishal.moola@gmail.com>,
+        Matthew Wilcox <willy@infradead.org>,
+        Muchun Song <songmuchun@bytedance.com>, stable@vger.kernel.org
+Subject: Re: [PATCH 1/2] mm: hugetlb: proc: check for hugetlb shared PMD in
+ /proc/PID/smaps
+Message-ID: <Y+p6+AKN7jY2jzJN@dhcp22.suse.cz>
+References: <20230126222721.222195-2-mike.kravetz@oracle.com>
+ <4ad5163f-5368-0bd8-de9b-1400a7a653ed@redhat.com>
+ <20230127150411.7c3b7b99fa4884a6af0b9351@linux-foundation.org>
+ <Y9R2ZXMxeF6Lpw4g@monkey>
+ <Y9e56ofZ+E4buuam@dhcp22.suse.cz>
+ <Y9g/70m15SwxkLfc@monkey>
+ <Y9oY9850e/8LQ78i@dhcp22.suse.cz>
+ <Y9rUHw2kuSwg2ntI@monkey>
+ <Y90O5+UVYaaN1U3y@dhcp22.suse.cz>
+ <Y91rhP+gT6me67M8@monkey>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20230213164455.36911-1-kuniyu@amazon.com>
-X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
-        SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
+In-Reply-To: <Y91rhP+gT6me67M8@monkey>
+X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,SPF_HELO_NONE,
+        SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, Feb 13, 2023 at 08:44:55AM -0800, Kuniyuki Iwashima wrote:
-> From:   Willy Tarreau <w@1wt.eu>
-> Date:   Mon, 13 Feb 2023 08:52:34 +0100
-> > Hi Greg,
-> > 
-> > On Mon, Feb 13, 2023 at 08:25:34AM +0100, Greg KH wrote:
-> > > On Mon, Feb 13, 2023 at 05:27:03AM +0100, Willy Tarreau wrote:
-> > > > Hi,
-> > > > 
-> > > > [CCed netdev]
-> > > > 
-> > > > On Sun, Feb 12, 2023 at 10:38:40PM -0500, Winter wrote:
-> > > > > Hi all,
-> > > > > 
-> > > > > I'm facing the same issue as
-> > > > > https://lore.kernel.org/stable/CAFsF8vL4CGFzWMb38_XviiEgxoKX0GYup=JiUFXUOmagdk9CRg@mail.gmail.com/,
-> > > > > but on 5.15. I've bisected it across releases to 5.15.88, and can reproduce
-> > > > > on 5.15.93.
-> > > > > 
-> > > > > However, I cannot seem to find the identified problematic commit in the 5.15
-> > > > > branch, so I'm unsure if this is a different issue or not.
-> > > > > 
-> > > > > There's a few ways to reproduce this issue, but the one I've been using is
-> > > > > running libuv's (https://github.com/libuv/libuv) tests, specifically tests
-> > > > > 271 and 277.
-> > > > 
-> > > > >From the linked patch:
-> > > > 
-> > > >   https://lore.kernel.org/stable/20221228144337.512799851@linuxfoundation.org/
-> > > 
-> > > But that commit only ended up in 6.0.y, not 5.15, so how is this an
-> > > issue in 5.15.y?
-> > 
-> > Hmmm I plead -ENOCOFFEE on my side, I hadn't notice the "can't find the
-> > problematic commit", you're right indeed.
-> > 
-> > However if the issue happened in 5.15.88, the only part touching the
-> > network listening area is this one which may introduce an EINVAL on
-> > one listening path, but that seems unrelated to me given that it's
-> > only for ULP that libuv doesn't seem to be using:
-> > 
-> >   dadd0dcaa67d ("net/ulp: prevent ULP without clone op from entering the LISTEN status")
-> 
-> This commit accidentally backports a part of 7a7160edf1bf ("net: Return
-> errno in sk->sk_prot->get_port().") and removed err = -EADDRINUSE in
-> inet_csk_listen_start().  Then, listen() will return 0 even if ->get_port()
-> actually fails and returns 1.
-> 
-> I can send a small revert or a whole backport, but which is preferable ?
-> The original patch is not for stable, but it will make future backports
-> easy.
+On Fri 03-02-23 12:16:04, Mike Kravetz wrote:
+[...]
+> Unless someone thinks we should move forward, I will not push the code
+> for this approach now.  It will also be interesting to see if this is
+> impacted at all by the outcome of discussions to perhaps redesign
+> mapcount.
 
-A whole revert is probably best, if it's not needed.  But if it is, a
-fix up would be fine to get as well.
-
-thanks,
-
-greg k-h
+Yes, I do agree. We might want to extend page_mapcount documentation a
+bit though. The comment is explicit about the order-0 pages but a note
+about hugetlb and pmd sharing wouldn't hurt. WDYT?
+-- 
+Michal Hocko
+SUSE Labs
