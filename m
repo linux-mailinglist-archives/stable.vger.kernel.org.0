@@ -2,42 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 3FC4B6948E6
-	for <lists+stable@lfdr.de>; Mon, 13 Feb 2023 15:54:18 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5F2F46948E7
+	for <lists+stable@lfdr.de>; Mon, 13 Feb 2023 15:54:20 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230520AbjBMOyQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Feb 2023 09:54:16 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49710 "EHLO
+        id S230108AbjBMOyS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Feb 2023 09:54:18 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49656 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230334AbjBMOyN (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Feb 2023 09:54:13 -0500
+        with ESMTP id S230491AbjBMOyP (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Feb 2023 09:54:15 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8E1ADE06D
-        for <stable@vger.kernel.org>; Mon, 13 Feb 2023 06:54:10 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1BCBC5274
+        for <stable@vger.kernel.org>; Mon, 13 Feb 2023 06:54:13 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 261C76113E
-        for <stable@vger.kernel.org>; Mon, 13 Feb 2023 14:54:10 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3A32AC433EF;
-        Mon, 13 Feb 2023 14:54:09 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id AA2B76112D
+        for <stable@vger.kernel.org>; Mon, 13 Feb 2023 14:54:12 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id BE4F8C433EF;
+        Mon, 13 Feb 2023 14:54:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1676300049;
-        bh=eVlFVa+lIV0yNgDX2e9Sm6dY+GzNPoq45rLmRtkR0uc=;
+        s=korg; t=1676300052;
+        bh=eAji2CxCG2+/Ju2x9/gvG0BWgsAL/Wh0kTb3uVcNwYs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=2aBMXXxA/+jvzgtClAeu4/OaBnwW0L78kvR4egyX+JlusUCqWo4JUIw0LhHqPKv1k
-         LzxnnTHJ+fMirVgVgdDgolgam7benPCrxzY0Wa2P0BulpeioXR1Jr1x2KXhrIDJ3YW
-         BAEbioGCFgJfSbRIo2YBxQdU3jN91lLclBTYzP6Y=
+        b=n+fQgdEQDfSO+dKH8cNU4sLhzqVHqbo5gZA9F2hrnQ1cAZHzLS+BjSSEWqUTli1+J
+         7pVk0jZGWtJeCHmzJXh9FowARNBTZXuJv+jWuz7tCwqymC7A+0MD7vrC6xiKkvojUd
+         xWwWunb0lTmGCsSQNdMS02zUeSVbOf9ndAj3qawc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Vladimir Oltean <vladimir.oltean@nxp.com>,
-        Simon Horman <simon.horman@corigine.com>,
-        Paolo Abeni <pabeni@redhat.com>,
+        patches@lists.linux.dev, Adham Faris <afaris@nvidia.com>,
+        Tariq Toukan <tariqt@nvidia.com>,
+        Saeed Mahameed <saeedm@nvidia.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 044/114] net: mscc: ocelot: fix VCAP filters not matching on MAC with "protocol 802.1Q"
-Date:   Mon, 13 Feb 2023 15:47:59 +0100
-Message-Id: <20230213144744.430322970@linuxfoundation.org>
+Subject: [PATCH 6.1 045/114] net/mlx5e: Update rx ring hw mtu upon each rx-fcs flag change
+Date:   Mon, 13 Feb 2023 15:48:00 +0100
+Message-Id: <20230213144744.491447448@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.1
 In-Reply-To: <20230213144742.219399167@linuxfoundation.org>
 References: <20230213144742.219399167@linuxfoundation.org>
@@ -54,110 +54,163 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vladimir Oltean <vladimir.oltean@nxp.com>
+From: Adham Faris <afaris@nvidia.com>
 
-[ Upstream commit f964f8399df29d3e3ced77177cf35131cd2491bf ]
+[ Upstream commit 1e66220948df815d7b37e0ff8b4627ce10433738 ]
 
-Alternative short title: don't instruct the hardware to match on
-EtherType with "protocol 802.1Q" flower filters. It doesn't work for the
-reasons detailed below.
+rq->hw_mtu is used in function en_rx.c/mlx5e_skb_from_cqe_mpwrq_linear()
+to catch oversized packets. If FCS is concatenated to the end of the
+packet then the check should be updated accordingly.
 
-With a command such as the following:
+Rx rings initialization (mlx5e_init_rxq_rq()) invoked for every new set
+of channels, as part of mlx5e_safe_switch_params(), unknowingly if it
+runs with default configuration or not. Current rq->hw_mtu
+initialization assumes default configuration and ignores
+params->scatter_fcs_en flag state.
+Fix this, by accounting for params->scatter_fcs_en flag state during
+rq->hw_mtu initialization.
 
-tc filter add dev $swp1 ingress chain $(IS1 2) pref 3 \
-	protocol 802.1Q flower skip_sw vlan_id 200 src_mac $h1_mac \
-	action vlan modify id 300 \
-	action goto chain $(IS2 0 0)
+In addition, updating rq->hw_mtu value during ingress traffic might
+lead to packets drop and oversize_pkts_sw_drop counter increase with no
+good reason. Hence we remove this optimization and switch the set of
+channels with a new one, to make sure we don't get false positives on
+the oversize_pkts_sw_drop counter.
 
-the created filter is set by ocelot_flower_parse_key() to be of type
-OCELOT_VCAP_KEY_ETYPE, and etype is set to {value=0x8100, mask=0xffff}.
-This gets propagated all the way to is1_entry_set() which commits it to
-hardware (the VCAP_IS1_HK_ETYPE field of the key). Compare this to the
-case where src_mac isn't specified - the key type is OCELOT_VCAP_KEY_ANY,
-and is1_entry_set() doesn't populate VCAP_IS1_HK_ETYPE.
-
-The problem is that for VLAN-tagged frames, the hardware interprets the
-ETYPE field as holding the encapsulated VLAN protocol. So the above
-filter will only match those packets which have an encapsulated protocol
-of 0x8100, rather than all packets with VLAN ID 200 and the given src_mac.
-
-The reason why this is allowed to occur is because, although we have a
-block of code in ocelot_flower_parse_key() which sets "match_protocol"
-to false when VLAN keys are present, that code executes too late.
-There is another block of code, which executes for Ethernet addresses,
-and has a "goto finished_key_parsing" and skips the VLAN header parsing.
-By skipping it, "match_protocol" remains with the value it was
-initialized with, i.e. "true", and "proto" is set to f->common.protocol,
-or 0x8100.
-
-The concept of ignoring some keys rather than erroring out when they are
-present but can't be offloaded is dubious in itself, but is present
-since the initial commit fe3490e6107e ("net: mscc: ocelot: Hardware
-ofload for tc flower filter"), and it's outside of the scope of this
-patch to change that.
-
-The problem was introduced when the driver started to interpret the
-flower filter's protocol, and populate the VCAP filter's ETYPE field
-based on it.
-
-To fix this, it is sufficient to move the code that parses the VLAN keys
-earlier than the "goto finished_key_parsing" instruction. This will
-ensure that if we have a flower filter with both VLAN and Ethernet
-address keys, it won't match on ETYPE 0x8100, because the VLAN key
-parsing sets "match_protocol = false".
-
-Fixes: 86b956de119c ("net: mscc: ocelot: support matching on EtherType")
-Signed-off-by: Vladimir Oltean <vladimir.oltean@nxp.com>
-Reviewed-by: Simon Horman <simon.horman@corigine.com>
-Link: https://lore.kernel.org/r/20230205192409.1796428-1-vladimir.oltean@nxp.com
-Signed-off-by: Paolo Abeni <pabeni@redhat.com>
+Fixes: 102722fc6832 ("net/mlx5e: Add support for RXFCS feature flag")
+Signed-off-by: Adham Faris <afaris@nvidia.com>
+Reviewed-by: Tariq Toukan <tariqt@nvidia.com>
+Signed-off-by: Saeed Mahameed <saeedm@nvidia.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/mscc/ocelot_flower.c | 24 +++++++++++------------
- 1 file changed, 12 insertions(+), 12 deletions(-)
+ .../net/ethernet/mellanox/mlx5/core/en_main.c | 86 ++++---------------
+ 1 file changed, 15 insertions(+), 71 deletions(-)
 
-diff --git a/drivers/net/ethernet/mscc/ocelot_flower.c b/drivers/net/ethernet/mscc/ocelot_flower.c
-index 7c0897e779dc6..ee052404eb55a 100644
---- a/drivers/net/ethernet/mscc/ocelot_flower.c
-+++ b/drivers/net/ethernet/mscc/ocelot_flower.c
-@@ -605,6 +605,18 @@ ocelot_flower_parse_key(struct ocelot *ocelot, int port, bool ingress,
- 		flow_rule_match_control(rule, &match);
- 	}
+diff --git a/drivers/net/ethernet/mellanox/mlx5/core/en_main.c b/drivers/net/ethernet/mellanox/mlx5/core/en_main.c
+index 4dc149ef618c4..3e0d910b085d4 100644
+--- a/drivers/net/ethernet/mellanox/mlx5/core/en_main.c
++++ b/drivers/net/ethernet/mellanox/mlx5/core/en_main.c
+@@ -591,7 +591,8 @@ static int mlx5e_init_rxq_rq(struct mlx5e_channel *c, struct mlx5e_params *param
+ 	rq->ix           = c->ix;
+ 	rq->channel      = c;
+ 	rq->mdev         = mdev;
+-	rq->hw_mtu       = MLX5E_SW2HW_MTU(params, params->sw_mtu);
++	rq->hw_mtu =
++		MLX5E_SW2HW_MTU(params, params->sw_mtu) - ETH_FCS_LEN * !params->scatter_fcs_en;
+ 	rq->xdpsq        = &c->rq_xdpsq;
+ 	rq->stats        = &c->priv->channel_stats[c->ix]->rq;
+ 	rq->ptp_cyc2time = mlx5_rq_ts_translator(mdev);
+@@ -1014,35 +1015,6 @@ int mlx5e_flush_rq(struct mlx5e_rq *rq, int curr_state)
+ 	return mlx5e_rq_to_ready(rq, curr_state);
+ }
  
-+	if (flow_rule_match_key(rule, FLOW_DISSECTOR_KEY_VLAN)) {
-+		struct flow_match_vlan match;
-+
-+		flow_rule_match_vlan(rule, &match);
-+		filter->key_type = OCELOT_VCAP_KEY_ANY;
-+		filter->vlan.vid.value = match.key->vlan_id;
-+		filter->vlan.vid.mask = match.mask->vlan_id;
-+		filter->vlan.pcp.value[0] = match.key->vlan_priority;
-+		filter->vlan.pcp.mask[0] = match.mask->vlan_priority;
-+		match_protocol = false;
-+	}
-+
- 	if (flow_rule_match_key(rule, FLOW_DISSECTOR_KEY_ETH_ADDRS)) {
- 		struct flow_match_eth_addrs match;
- 
-@@ -737,18 +749,6 @@ ocelot_flower_parse_key(struct ocelot *ocelot, int port, bool ingress,
- 		match_protocol = false;
- 	}
- 
--	if (flow_rule_match_key(rule, FLOW_DISSECTOR_KEY_VLAN)) {
--		struct flow_match_vlan match;
+-static int mlx5e_modify_rq_scatter_fcs(struct mlx5e_rq *rq, bool enable)
+-{
+-	struct mlx5_core_dev *mdev = rq->mdev;
 -
--		flow_rule_match_vlan(rule, &match);
--		filter->key_type = OCELOT_VCAP_KEY_ANY;
--		filter->vlan.vid.value = match.key->vlan_id;
--		filter->vlan.vid.mask = match.mask->vlan_id;
--		filter->vlan.pcp.value[0] = match.key->vlan_priority;
--		filter->vlan.pcp.mask[0] = match.mask->vlan_priority;
--		match_protocol = false;
+-	void *in;
+-	void *rqc;
+-	int inlen;
+-	int err;
+-
+-	inlen = MLX5_ST_SZ_BYTES(modify_rq_in);
+-	in = kvzalloc(inlen, GFP_KERNEL);
+-	if (!in)
+-		return -ENOMEM;
+-
+-	rqc = MLX5_ADDR_OF(modify_rq_in, in, ctx);
+-
+-	MLX5_SET(modify_rq_in, in, rq_state, MLX5_RQC_STATE_RDY);
+-	MLX5_SET64(modify_rq_in, in, modify_bitmask,
+-		   MLX5_MODIFY_RQ_IN_MODIFY_BITMASK_SCATTER_FCS);
+-	MLX5_SET(rqc, rqc, scatter_fcs, enable);
+-	MLX5_SET(rqc, rqc, state, MLX5_RQC_STATE_RDY);
+-
+-	err = mlx5_core_modify_rq(mdev, rq->rqn, in);
+-
+-	kvfree(in);
+-
+-	return err;
+-}
+-
+ static int mlx5e_modify_rq_vsd(struct mlx5e_rq *rq, bool vsd)
+ {
+ 	struct mlx5_core_dev *mdev = rq->mdev;
+@@ -3301,20 +3273,6 @@ static void mlx5e_cleanup_nic_tx(struct mlx5e_priv *priv)
+ 	mlx5e_destroy_tises(priv);
+ }
+ 
+-static int mlx5e_modify_channels_scatter_fcs(struct mlx5e_channels *chs, bool enable)
+-{
+-	int err = 0;
+-	int i;
+-
+-	for (i = 0; i < chs->num; i++) {
+-		err = mlx5e_modify_rq_scatter_fcs(&chs->c[i]->rq, enable);
+-		if (err)
+-			return err;
 -	}
 -
- finished_key_parsing:
- 	if (match_protocol && proto != ETH_P_ALL) {
- 		if (filter->block_id == VCAP_ES0) {
+-	return 0;
+-}
+-
+ static int mlx5e_modify_channels_vsd(struct mlx5e_channels *chs, bool vsd)
+ {
+ 	int err;
+@@ -3890,41 +3848,27 @@ static int mlx5e_set_rx_port_ts(struct mlx5_core_dev *mdev, bool enable)
+ 	return mlx5_set_ports_check(mdev, in, sizeof(in));
+ }
+ 
++static int mlx5e_set_rx_port_ts_wrap(struct mlx5e_priv *priv, void *ctx)
++{
++	struct mlx5_core_dev *mdev = priv->mdev;
++	bool enable = *(bool *)ctx;
++
++	return mlx5e_set_rx_port_ts(mdev, enable);
++}
++
+ static int set_feature_rx_fcs(struct net_device *netdev, bool enable)
+ {
+ 	struct mlx5e_priv *priv = netdev_priv(netdev);
+ 	struct mlx5e_channels *chs = &priv->channels;
+-	struct mlx5_core_dev *mdev = priv->mdev;
++	struct mlx5e_params new_params;
+ 	int err;
+ 
+ 	mutex_lock(&priv->state_lock);
+ 
+-	if (enable) {
+-		err = mlx5e_set_rx_port_ts(mdev, false);
+-		if (err)
+-			goto out;
+-
+-		chs->params.scatter_fcs_en = true;
+-		err = mlx5e_modify_channels_scatter_fcs(chs, true);
+-		if (err) {
+-			chs->params.scatter_fcs_en = false;
+-			mlx5e_set_rx_port_ts(mdev, true);
+-		}
+-	} else {
+-		chs->params.scatter_fcs_en = false;
+-		err = mlx5e_modify_channels_scatter_fcs(chs, false);
+-		if (err) {
+-			chs->params.scatter_fcs_en = true;
+-			goto out;
+-		}
+-		err = mlx5e_set_rx_port_ts(mdev, true);
+-		if (err) {
+-			mlx5_core_warn(mdev, "Failed to set RX port timestamp %d\n", err);
+-			err = 0;
+-		}
+-	}
+-
+-out:
++	new_params = chs->params;
++	new_params.scatter_fcs_en = enable;
++	err = mlx5e_safe_switch_params(priv, &new_params, mlx5e_set_rx_port_ts_wrap,
++				       &new_params.scatter_fcs_en, true);
+ 	mutex_unlock(&priv->state_lock);
+ 	return err;
+ }
 -- 
 2.39.0
 
