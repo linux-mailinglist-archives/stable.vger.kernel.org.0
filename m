@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id CE49B694476
-	for <lists+stable@lfdr.de>; Mon, 13 Feb 2023 12:29:16 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B4222694478
+	for <lists+stable@lfdr.de>; Mon, 13 Feb 2023 12:29:20 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229822AbjBML3P (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Feb 2023 06:29:15 -0500
+        id S229738AbjBML3T (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Feb 2023 06:29:19 -0500
 Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40182 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229738AbjBML3O (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Feb 2023 06:29:14 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 546D283DE
-        for <stable@vger.kernel.org>; Mon, 13 Feb 2023 03:28:57 -0800 (PST)
+        with ESMTP id S229941AbjBML3S (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Feb 2023 06:29:18 -0500
+Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EA4574EF4
+        for <stable@vger.kernel.org>; Mon, 13 Feb 2023 03:29:07 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 0D025B80E8E
-        for <stable@vger.kernel.org>; Mon, 13 Feb 2023 11:28:56 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7AA80C433D2;
-        Mon, 13 Feb 2023 11:28:54 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 45E2ACE1720
+        for <stable@vger.kernel.org>; Mon, 13 Feb 2023 11:29:06 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A3D4FC433EF;
+        Mon, 13 Feb 2023 11:29:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1676287734;
-        bh=cV8ZV6OgR61zRsef9MBHQWqqMD8Nnsg5MPT6Jijpl/0=;
+        s=korg; t=1676287744;
+        bh=b1OFo/vdkUN1TZLtBR9BeeTYMRx7FP3mZF3unlC7dxs=;
         h=Subject:To:Cc:From:Date:From;
-        b=LiNbYgELms3rCH+0VR6359RQ2CLY3s1FEVbueZ2kZ41PrDs1/muUXAGlOd4RVuoTM
-         9juDO6qxbTWunqQ9VIrhhXXZ3lzoP84ZcKTLrNc8tMnfYe2/NkkJfSWfD08ZEKYOOT
-         SZ2kqkCO1mohxb4CbFdR3XS/Pw9GlsORKFNH3vNc=
-Subject: FAILED: patch "[PATCH] mptcp: fix locking for in-kernel listener creation" failed to apply to 6.1-stable tree
+        b=RXT1WXilKtg/f8SjYuTy93RBvTx0f+4QnX3UM91rCl63uQ3qyz5iuVBUcYs7FPG/r
+         ItTcWAdWOz7Q31vVilWusqCBaAB/cRUKQfhpylRi5PhRB+aShGC1PkUnaXINyziWSi
+         RKBLzLo7X5b9BrxWNPJ63kYTIdNQ9ASRGx2vN8Fg=
+Subject: FAILED: patch "[PATCH] mptcp: fix locking for in-kernel listener creation" failed to apply to 5.15-stable tree
 To:     pabeni@redhat.com, davem@davemloft.net,
         matthieu.baerts@tessares.net
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 13 Feb 2023 12:28:52 +0100
-Message-ID: <167628773212369@kroah.com>
+Date:   Mon, 13 Feb 2023 12:28:53 +0100
+Message-ID: <1676287733201145@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
         SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -48,7 +48,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 6.1-stable tree.
+The patch below does not apply to the 5.15-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
@@ -57,6 +57,12 @@ Possible dependencies:
 
 ad2171009d96 ("mptcp: fix locking for in-kernel listener creation")
 976d302fb616 ("mptcp: deduplicate error paths on endpoint creation")
+3eb9a6b6503c ("mptcp: account memory allocation in mptcp_nl_cmd_add_addr() to user")
+d045b9eb95a9 ("mptcp: introduce implicit endpoints")
+33397b83eee6 ("selftests: mptcp: add backup with port testcase")
+09f12c3ab7a5 ("mptcp: allow to use port and non-signal in set_flags")
+6a0653b96f5d ("selftests: mptcp: add fullmesh setting tests")
+327b9a94e2a8 ("selftests: mptcp: more stable join tests-cases")
 
 thanks,
 
