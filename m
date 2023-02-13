@@ -2,110 +2,113 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 90E0769446B
-	for <lists+stable@lfdr.de>; Mon, 13 Feb 2023 12:28:22 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id EA3B969447D
+	for <lists+stable@lfdr.de>; Mon, 13 Feb 2023 12:29:58 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231237AbjBML2V (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Feb 2023 06:28:21 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39424 "EHLO
+        id S231206AbjBML35 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Feb 2023 06:29:57 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40160 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231221AbjBML2U (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Feb 2023 06:28:20 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id ED131E048
-        for <stable@vger.kernel.org>; Mon, 13 Feb 2023 03:28:18 -0800 (PST)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        with ESMTP id S231277AbjBML3y (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Feb 2023 06:29:54 -0500
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2246EDBFD
+        for <stable@vger.kernel.org>; Mon, 13 Feb 2023 03:28:53 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1676287732;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:
+         content-transfer-encoding:content-transfer-encoding;
+        bh=91axYkgwIMCEz1WKAFTJX5qVVuOGqFHheqUFcZuc9sQ=;
+        b=JguSrXLJ53agJtnRY7xPM1qB08lSEAssFIscLiH+g83RK3W4PDgt92X+OrB4egyGCpEMAV
+        UIUEQsbeecE0TulCC3T5MXWbiS66J4xmrm4iY3I67ucuyWeXNJ60YeEgtU4E8y11XDfy9e
+        ljuYnvX6JWIGEiteUmrZ/vQNZWV7tDU=
+Received: from mimecast-mx02.redhat.com (mimecast-mx02.redhat.com
+ [66.187.233.88]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ us-mta-557-WOIPIWVZMvSFn63JcUHuBw-1; Mon, 13 Feb 2023 06:28:51 -0500
+X-MC-Unique: WOIPIWVZMvSFn63JcUHuBw-1
+Received: from smtp.corp.redhat.com (int-mx10.intmail.prod.int.rdu2.redhat.com [10.11.54.10])
+        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 9591DB81190
-        for <stable@vger.kernel.org>; Mon, 13 Feb 2023 11:28:17 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id DD42EC433D2;
-        Mon, 13 Feb 2023 11:28:15 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1676287696;
-        bh=901QjL4KT7/F/kPuLl6+CDnXOWUX6vPXrQPBVoIZJus=;
-        h=Subject:To:Cc:From:Date:From;
-        b=OA0xe5zYcNwFtg5rpoBWCLr5n+x1gx0+tdFH48KhuiuFCQCtlLFDqY1vA4bqYzUlN
-         t7cSGTBZU+/3pWsUt78Y+T2LfqCnWXVEf0UeDM/ecZ8aOTuDkKxR5Ndy9zOTfU0/f+
-         9XzJFEv5QfT1HJ8jYh8z5eKo6lWE+IUDxU3z01KQ=
-Subject: FAILED: patch "[PATCH] mptcp: fix locking for setsockopt corner-case" failed to apply to 6.1-stable tree
-To:     pabeni@redhat.com, davem@davemloft.net,
-        matthieu.baerts@tessares.net
-Cc:     <stable@vger.kernel.org>
-From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 13 Feb 2023 12:28:13 +0100
-Message-ID: <1676287693156237@kroah.com>
+        by mimecast-mx02.redhat.com (Postfix) with ESMTPS id D88E2101A55E;
+        Mon, 13 Feb 2023 11:28:50 +0000 (UTC)
+Received: from lxbceph1.gsslab.pek2.redhat.com (unknown [10.72.47.117])
+        by smtp.corp.redhat.com (Postfix) with ESMTP id 045D8492B15;
+        Mon, 13 Feb 2023 11:28:47 +0000 (UTC)
+From:   xiubli@redhat.com
+To:     idryomov@gmail.com, ceph-devel@vger.kernel.org
+Cc:     jlayton@kernel.org, vshankar@redhat.com, mchangir@redhat.com,
+        Xiubo Li <xiubli@redhat.com>, stable@vger.kernel.org
+Subject: [PATCH] ceph: update the time stamps and try to drop the suid/sgid
+Date:   Mon, 13 Feb 2023 19:28:34 +0800
+Message-Id: <20230213112834.15714-1-xiubli@redhat.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
-        SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
+X-Scanned-By: MIMEDefang 3.1 on 10.11.54.10
+X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_NONE,
+        RCVD_IN_MSPIKE_H2,SPF_HELO_NONE,SPF_NONE autolearn=ham
+        autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+From: Xiubo Li <xiubli@redhat.com>
 
-The patch below does not apply to the 6.1-stable tree.
-If someone wants it applied there, or to any other stable or longterm
-tree, then please email the backport, including the original git commit
-id to <stable@vger.kernel.org>.
+The fallocate will try to clear the suid/sgid if a unprevileged user
+changed the file.
 
-Possible dependencies:
+There is no Posix item requires that we should clear the suid/sgid
+in fallocate code path but this is the default behaviour for most of
+the filesystems and the VFS layer. And also the same for the write
+code path, which have already support it.
 
-21e43569685d ("mptcp: fix locking for setsockopt corner-case")
-d3d429047cc6 ("mptcp: sockopt: make 'tcp_fastopen_connect' generic")
+And also we need to update the time stamps since the fallocate will
+change the file contents.
 
-thanks,
-
-greg k-h
-
------------------- original commit in Linus's tree ------------------
-
-From 21e43569685de4ad773fb060c11a15f3fd5e7ac4 Mon Sep 17 00:00:00 2001
-From: Paolo Abeni <pabeni@redhat.com>
-Date: Tue, 7 Feb 2023 14:04:14 +0100
-Subject: [PATCH] mptcp: fix locking for setsockopt corner-case
-
-We need to call the __mptcp_nmpc_socket(), and later subflow socket
-access under the msk socket lock, or e.g. a racing connect() could
-change the socket status under the hood, with unexpected results.
-
-Fixes: 54635bd04701 ("mptcp: add TCP_FASTOPEN_CONNECT socket option")
 Cc: stable@vger.kernel.org
-Signed-off-by: Paolo Abeni <pabeni@redhat.com>
-Reviewed-by: Matthieu Baerts <matthieu.baerts@tessares.net>
-Signed-off-by: Matthieu Baerts <matthieu.baerts@tessares.net>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+URL: https://tracker.ceph.com/issues/58054
+Signed-off-by: Xiubo Li <xiubli@redhat.com>
+---
+ fs/ceph/file.c | 8 ++++++++
+ 1 file changed, 8 insertions(+)
 
-diff --git a/net/mptcp/sockopt.c b/net/mptcp/sockopt.c
-index d4b1e6ec1b36..7f2c3727ab23 100644
---- a/net/mptcp/sockopt.c
-+++ b/net/mptcp/sockopt.c
-@@ -760,14 +760,21 @@ static int mptcp_setsockopt_v4(struct mptcp_sock *msk, int optname,
- static int mptcp_setsockopt_first_sf_only(struct mptcp_sock *msk, int level, int optname,
- 					  sockptr_t optval, unsigned int optlen)
- {
-+	struct sock *sk = (struct sock *)msk;
- 	struct socket *sock;
-+	int ret = -EINVAL;
+diff --git a/fs/ceph/file.c b/fs/ceph/file.c
+index 903de296f0d3..dee3b445f415 100644
+--- a/fs/ceph/file.c
++++ b/fs/ceph/file.c
+@@ -2502,6 +2502,9 @@ static long ceph_fallocate(struct file *file, int mode,
+ 	loff_t endoff = 0;
+ 	loff_t size;
  
- 	/* Limit to first subflow, before the connection establishment */
-+	lock_sock(sk);
- 	sock = __mptcp_nmpc_socket(msk);
- 	if (!sock)
--		return -EINVAL;
-+		goto unlock;
- 
--	return tcp_setsockopt(sock->sk, level, optname, optval, optlen);
-+	ret = tcp_setsockopt(sock->sk, level, optname, optval, optlen);
++	dout("%s %p %llx.%llx mode %x, offset %llu length %llu\n", __func__,
++	     inode, ceph_vinop(inode), mode, offset, length);
 +
-+unlock:
-+	release_sock(sk);
-+	return ret;
- }
+ 	if (mode != (FALLOC_FL_KEEP_SIZE | FALLOC_FL_PUNCH_HOLE))
+ 		return -EOPNOTSUPP;
  
- static int mptcp_setsockopt_sol_tcp(struct mptcp_sock *msk, int optname,
+@@ -2539,6 +2542,10 @@ static long ceph_fallocate(struct file *file, int mode,
+ 	if (ret < 0)
+ 		goto unlock;
+ 
++	ret = file_modified(file);
++	if (ret)
++		goto put_caps;
++
+ 	filemap_invalidate_lock(inode->i_mapping);
+ 	ceph_fscache_invalidate(inode, false);
+ 	ceph_zero_pagecache_range(inode, offset, length);
+@@ -2554,6 +2561,7 @@ static long ceph_fallocate(struct file *file, int mode,
+ 	}
+ 	filemap_invalidate_unlock(inode->i_mapping);
+ 
++put_caps:
+ 	ceph_put_cap_refs(ci, got);
+ unlock:
+ 	inode_unlock(inode);
+-- 
+2.31.1
 
