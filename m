@@ -2,43 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 214AC694935
-	for <lists+stable@lfdr.de>; Mon, 13 Feb 2023 15:57:19 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id BDDC3694966
+	for <lists+stable@lfdr.de>; Mon, 13 Feb 2023 15:58:53 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229968AbjBMO5R (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Feb 2023 09:57:17 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53102 "EHLO
+        id S230241AbjBMO6u (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Feb 2023 09:58:50 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56218 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230288AbjBMO5C (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Feb 2023 09:57:02 -0500
+        with ESMTP id S231173AbjBMO6k (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Feb 2023 09:58:40 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2C1541DBA3
-        for <stable@vger.kernel.org>; Mon, 13 Feb 2023 06:56:35 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7D54D1DB97
+        for <stable@vger.kernel.org>; Mon, 13 Feb 2023 06:58:14 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 4FECCB81261
-        for <stable@vger.kernel.org>; Mon, 13 Feb 2023 14:56:20 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9E70DC433D2;
-        Mon, 13 Feb 2023 14:56:18 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 0F2C7B81253
+        for <stable@vger.kernel.org>; Mon, 13 Feb 2023 14:57:22 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7E033C433D2;
+        Mon, 13 Feb 2023 14:57:20 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1676300179;
-        bh=lyevsOS1FrjFBTNnMLuOxMuDX3zTzhdNJg2mHwOxnCQ=;
+        s=korg; t=1676300240;
+        bh=7aHALmnk5uz72Iz6GsbJOHKw0/VNMhGX48ucC7TgtRY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=qWIayWDGslondqBSFDCuVbjm3IqV51hgDFFfM8nmt5n4RxxVyuehnAr+0stW8MdRk
-         wLFomvuJOXHarE3snlSgT7PFkeSgpGw+Z3HgyDV2INdfUOIfsMuxP8xOhAlmByhFBd
-         kWuiJ/cMrzlo3KiQGMMcXHv95LTW1DdKfcpA4U1Y=
+        b=qSyVUhvvMajLCN4g4wDDzk3zmiDjgTI4ZesNbu8NDCjhBxht2UTKEA4lv8wkeIg9Q
+         Kl08Xi5EpFmwu1Eu0Ys+l5bhVE7cwLt/UXlwrwgul0CRjuz/3+PvRHb6LHdxe2NCoQ
+         G+mxhAD3Xxg+SAUgxv1j88sJNU8ujGMBkrX1tweo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Paul Cercueil <paul@crapouillou.net>,
-        Stephen Boyd <sboyd@kernel.org>
-Subject: [PATCH 6.1 089/114] clk: ingenic: jz4760: Update M/N/OD calculation algorithm
+        patches@lists.linux.dev,
+        "Russell King (Oracle)" <rmk+kernel@armlinux.org.uk>,
+        Srinivas Kandagatla <srinivas.kandagatla@linaro.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.15 03/67] nvmem: core: fix registration vs use race
 Date:   Mon, 13 Feb 2023 15:48:44 +0100
-Message-Id: <20230213144746.751740093@linuxfoundation.org>
+Message-Id: <20230213144732.492902921@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.1
-In-Reply-To: <20230213144742.219399167@linuxfoundation.org>
-References: <20230213144742.219399167@linuxfoundation.org>
+In-Reply-To: <20230213144732.336342050@linuxfoundation.org>
+References: <20230213144732.336342050@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -52,77 +54,87 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Paul Cercueil <paul@crapouillou.net>
+From: Russell King (Oracle) <rmk+kernel@armlinux.org.uk>
 
-commit ecfb9f404771dde909ce7743df954370933c3be2 upstream.
+[ Upstream commit ab3428cfd9aa2f3463ee4b2909b5bb2193bd0c4a ]
 
-The previous algorithm was pretty broken.
+The i.MX6 CPU frequency driver sometimes fails to register at boot time
+due to nvmem_cell_read_u32() sporadically returning -ENOENT.
 
-- The inner loop had a '(m > m_max)' condition, and the value of 'm'
-  would increase in each iteration;
+This happens because there is a window where __nvmem_device_get() in
+of_nvmem_cell_get() is able to return the nvmem device, but as cells
+have been setup, nvmem_find_cell_entry_by_node() returns NULL.
 
-- Each iteration would actually multiply 'm' by two, so it is not needed
-  to re-compute the whole equation at each iteration;
+The occurs because the nvmem core registration code violates one of the
+fundamental principles of kernel programming: do not publish data
+structures before their setup is complete.
 
-- It would loop until (m & 1) == 0, which means it would loop at most
-  once.
+Fix this by making nvmem core code conform with this principle.
 
-- The outer loop would divide the 'n' value by two at the end of each
-  iteration. This meant that for a 12 MHz parent clock and a 1.2 GHz
-  requested clock, it would first try n=12, then n=6, then n=3, then
-  n=1, none of which would work; the only valid value is n=2 in this
-  case.
-
-Simplify this algorithm with a single for loop, which decrements 'n'
-after each iteration, addressing all of the above problems.
-
-Fixes: bdbfc029374f ("clk: ingenic: Add support for the JZ4760")
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Paul Cercueil <paul@crapouillou.net>
-Link: https://lore.kernel.org/r/20221214123704.7305-1-paul@crapouillou.net
-Signed-off-by: Stephen Boyd <sboyd@kernel.org>
+Fixes: eace75cfdcf7 ("nvmem: Add a simple NVMEM framework for nvmem providers")
+Cc: stable@vger.kernel.org
+Signed-off-by: Russell King (Oracle) <rmk+kernel@armlinux.org.uk>
+Signed-off-by: Srinivas Kandagatla <srinivas.kandagatla@linaro.org>
+Link: https://lore.kernel.org/r/20230127104015.23839-7-srinivas.kandagatla@linaro.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/clk/ingenic/jz4760-cgu.c |   18 ++++++++----------
+ drivers/nvmem/core.c | 18 ++++++++----------
  1 file changed, 8 insertions(+), 10 deletions(-)
 
---- a/drivers/clk/ingenic/jz4760-cgu.c
-+++ b/drivers/clk/ingenic/jz4760-cgu.c
-@@ -58,7 +58,7 @@ jz4760_cgu_calc_m_n_od(const struct inge
- 		       unsigned long rate, unsigned long parent_rate,
- 		       unsigned int *pm, unsigned int *pn, unsigned int *pod)
- {
--	unsigned int m, n, od, m_max = (1 << pll_info->m_bits) - 2;
-+	unsigned int m, n, od, m_max = (1 << pll_info->m_bits) - 1;
+diff --git a/drivers/nvmem/core.c b/drivers/nvmem/core.c
+index f06b65f0d410b..6a74e38746057 100644
+--- a/drivers/nvmem/core.c
++++ b/drivers/nvmem/core.c
+@@ -827,22 +827,16 @@ struct nvmem_device *nvmem_register(const struct nvmem_config *config)
+ 	nvmem->dev.groups = nvmem_dev_groups;
+ #endif
  
- 	/* The frequency after the N divider must be between 1 and 50 MHz. */
- 	n = parent_rate / (1 * MHZ);
-@@ -66,19 +66,17 @@ jz4760_cgu_calc_m_n_od(const struct inge
- 	/* The N divider must be >= 2. */
- 	n = clamp_val(n, 2, 1 << pll_info->n_bits);
- 
--	for (;; n >>= 1) {
--		od = (unsigned int)-1;
-+	rate /= MHZ;
-+	parent_rate /= MHZ;
- 
--		do {
--			m = (rate / MHZ) * (1 << ++od) * n / (parent_rate / MHZ);
--		} while ((m > m_max || m & 1) && (od < 4));
+-	dev_dbg(&nvmem->dev, "Registering nvmem device %s\n", config->name);
 -
--		if (od < 4 && m >= 4 && m <= m_max)
--			break;
-+	for (m = m_max; m >= m_max && n >= 2; n--) {
-+		m = rate * n / parent_rate;
-+		od = m & 1;
-+		m <<= od;
+-	rval = device_add(&nvmem->dev);
+-	if (rval)
+-		goto err_put_device;
+-
+ 	if (nvmem->nkeepout) {
+ 		rval = nvmem_validate_keepouts(nvmem);
+ 		if (rval)
+-			goto err_device_del;
++			goto err_put_device;
  	}
  
- 	*pm = m;
--	*pn = n;
-+	*pn = n + 1;
- 	*pod = 1 << od;
- }
+ 	if (config->compat) {
+ 		rval = nvmem_sysfs_setup_compat(nvmem, config);
+ 		if (rval)
+-			goto err_device_del;
++			goto err_put_device;
+ 	}
  
+ 	if (config->cells) {
+@@ -859,6 +853,12 @@ struct nvmem_device *nvmem_register(const struct nvmem_config *config)
+ 	if (rval)
+ 		goto err_remove_cells;
+ 
++	dev_dbg(&nvmem->dev, "Registering nvmem device %s\n", config->name);
++
++	rval = device_add(&nvmem->dev);
++	if (rval)
++		goto err_remove_cells;
++
+ 	blocking_notifier_call_chain(&nvmem_notifier, NVMEM_ADD, nvmem);
+ 
+ 	return nvmem;
+@@ -867,8 +867,6 @@ struct nvmem_device *nvmem_register(const struct nvmem_config *config)
+ 	nvmem_device_remove_all_cells(nvmem);
+ 	if (config->compat)
+ 		nvmem_sysfs_remove_compat(nvmem, config);
+-err_device_del:
+-	device_del(&nvmem->dev);
+ err_put_device:
+ 	put_device(&nvmem->dev);
+ 
+-- 
+2.39.0
+
 
 
