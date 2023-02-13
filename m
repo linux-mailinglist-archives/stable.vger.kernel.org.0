@@ -2,169 +2,93 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E12EB693D6A
-	for <lists+stable@lfdr.de>; Mon, 13 Feb 2023 05:27:13 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6CB08693DC0
+	for <lists+stable@lfdr.de>; Mon, 13 Feb 2023 06:10:59 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229536AbjBME1M (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 12 Feb 2023 23:27:12 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39768 "EHLO
+        id S229543AbjBMFK6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Feb 2023 00:10:58 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35816 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229436AbjBME1M (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 12 Feb 2023 23:27:12 -0500
-Received: from 1wt.eu (wtarreau.pck.nerim.net [62.212.114.60])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTP id A6F33E398;
-        Sun, 12 Feb 2023 20:27:09 -0800 (PST)
-Received: (from willy@localhost)
-        by mail.home.local (8.17.1/8.17.1/Submit) id 31D4R361006971;
-        Mon, 13 Feb 2023 05:27:03 +0100
-Date:   Mon, 13 Feb 2023 05:27:03 +0100
-From:   Willy Tarreau <w@1wt.eu>
-To:     Winter <winter@winter.cafe>
-Cc:     stable@vger.kernel.org, regressions@lists.linux.dev,
-        netdev@vger.kernel.org
-Subject: Re: [REGRESSION] 5.15.88 and onwards no longer return EADDRINUSE
- from bind
-Message-ID: <Y+m8F7Q95al39ctV@1wt.eu>
-References: <EF8A45D0-768A-4CD5-9A8A-0FA6E610ABF7@winter.cafe>
+        with ESMTP id S229436AbjBMFK5 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Feb 2023 00:10:57 -0500
+Received: from esa2.hgst.iphmx.com (esa2.hgst.iphmx.com [68.232.143.124])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8450AD525;
+        Sun, 12 Feb 2023 21:10:56 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=simple/simple;
+  d=wdc.com; i=@wdc.com; q=dns/txt; s=dkim.wdc.com;
+  t=1676265056; x=1707801056;
+  h=from:to:cc:subject:date:message-id:mime-version:
+   content-transfer-encoding;
+  bh=sfMbRQgYhuaUUurCh5gYtFI6ckde5TQLtj2tdTJFaOM=;
+  b=pHGEMn7lhKURtzC3yx/KjgFZ/x09KgQrBS232KOlu6qWNlZEWfrWq5cN
+   zYVyFlAtg9ZgxZkheqN1UUoFAeOrqPw1cLURopprotkWhRe+wM9ZMuspJ
+   sy003871/2WrkgIfG9Z5/ozFT1ongSQSMo1Ux+XjnLUU/6iNtej/fDOIV
+   CrugWTSClSNfZdr33aTleYuEd0Oz18OAj6eyHh/v6RH6bl6jrEUZky+vN
+   KRpN8TgJB5QljCbaxrXjzvCYbvxEGo1v+p6eOeUiNZekPEu7BeC8DxJyU
+   /sJahZr/a/adsCyawhuaT9bQkPsMVhgQSNBtxwTYycLPMSn/Z3IJmp+aZ
+   A==;
+X-IronPort-AV: E=Sophos;i="5.97,293,1669046400"; 
+   d="scan'208";a="327447297"
+Received: from h199-255-45-15.hgst.com (HELO uls-op-cesaep02.wdc.com) ([199.255.45.15])
+  by ob1.hgst.iphmx.com with ESMTP; 13 Feb 2023 13:10:55 +0800
+IronPort-SDR: GHOSHN0cH1NeRlxiIz3imwKk3Ce/SZL5DZ5aSHeHqVslskf0wHvKXdrYMEyjB3Y1QO6gCEKl2K
+ ukVUYrLMumaOrIF1k56/XdsPZ537KMyDm4GHhYkBGAGyAa/v7k8AplpJdOz6+6S1/tVuUOTpD+
+ r9rv19K9uhXQSuGrm31sqGox8p9njWrhQBBPWMTQ/d4iBc+Zpu4ZumznyxE5L7WC0oB6q0FvDh
+ s94havVsOCye7Tk4EhV9ERAlc5O+iGJLwkiGBQpDHuwTxIaoNrhH5GwuOLjJyqF3sKOJ1iuUFi
+ z1A=
+Received: from uls-op-cesaip01.wdc.com ([10.248.3.36])
+  by uls-op-cesaep02.wdc.com with ESMTP/TLS/ECDHE-RSA-AES128-GCM-SHA256; 12 Feb 2023 20:22:20 -0800
+IronPort-SDR: s7+Rr0pjZJWW63cP0Txn+qM2yd/n3CzTVikXkzrLHsgZNGt2arxODfQcNqIAy1PdNz01uJbw8r
+ EpF2FRLqkczbLRMt/zRVJBHW6eS/tCZr59+/ZSKPgHo3/G4qvqJT/UDxKIi7R/G5DfAAzLHvQR
+ OraF/wQy33RCFrnf1xdte+oPYiOUIMdpQ9v6XJpeBYCaHniEsHMRHcf4V/KayXCNqFTSGT+ntl
+ Qdkn2fG15/3yLm3kk+L/cuwVmZk8UZ0el4e6DKLv2U4+8UIAXrHiQy47MabsLFeOon8/miuyDC
+ Jrg=
+WDCIronportException: Internal
+Received: from 5cg217420j.ad.shared (HELO naota-xeon.wdc.com) ([10.225.48.77])
+  by uls-op-cesaip01.wdc.com with ESMTP; 12 Feb 2023 21:10:55 -0800
+From:   Naohiro Aota <naohiro.aota@wdc.com>
+To:     linux-btrfs@vger.kernel.org
+Cc:     Naohiro Aota <naohiro.aota@wdc.com>, stable@vger.kernel.org
+Subject: [PATCH] btrfs: fix unnecessary increment of read error stat on write error
+Date:   Mon, 13 Feb 2023 14:10:38 +0900
+Message-Id: <29145a990313cb8759b8131b07f29694cc183ab3.1676265001.git.naohiro.aota@wdc.com>
+X-Mailer: git-send-email 2.39.1
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <EF8A45D0-768A-4CD5-9A8A-0FA6E610ABF7@winter.cafe>
-X-Spam-Status: No, score=-1.9 required=5.0 tests=BAYES_00,SPF_HELO_PASS,
-        SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
+Content-Transfer-Encoding: 8bit
+X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,SPF_HELO_PASS,
+        SPF_NONE autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hi,
+Current btrfs_log_dev_io_error() increases the read error count even if the
+erroneous IO is a WRITE request. This is because it forget to use "else
+if", and all the error WRITE requests counts as READ error as there is (of
+course) no REQ_RAHEAD bit set.
 
-[CCed netdev]
+Fixes: c3a62baf21ad ("btrfs: use chained bios when cloning")
+CC: stable@vger.kernel.org # 6.1
+Signed-off-by: Naohiro Aota <naohiro.aota@wdc.com>
+---
+ fs/btrfs/bio.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-On Sun, Feb 12, 2023 at 10:38:40PM -0500, Winter wrote:
-> Hi all,
-> 
-> I'm facing the same issue as
-> https://lore.kernel.org/stable/CAFsF8vL4CGFzWMb38_XviiEgxoKX0GYup=JiUFXUOmagdk9CRg@mail.gmail.com/,
-> but on 5.15. I've bisected it across releases to 5.15.88, and can reproduce
-> on 5.15.93.
-> 
-> However, I cannot seem to find the identified problematic commit in the 5.15
-> branch, so I'm unsure if this is a different issue or not.
-> 
-> There's a few ways to reproduce this issue, but the one I've been using is
-> running libuv's (https://github.com/libuv/libuv) tests, specifically tests
-> 271 and 277.
-
-From the linked patch:
-
-  https://lore.kernel.org/stable/20221228144337.512799851@linuxfoundation.org/
-
-I can see that:
-
-  We assume the correct errno is -EADDRINUSE when sk->sk_prot->get_port()
-  fails, so some ->get_port() functions return just 1 on failure and the
-  callers return -EADDRINUSE instead.
-
-  However, mptcp_get_port() can return -EINVAL.  Let's not ignore the error.
-
-  Note the only exception is inet_autobind(), all of whose callers return
-  -EAGAIN instead.
-
-But the patch doesn't do what is documented, it preserves all return
-values and will happily return 1 if ->get_port() returns 1:
-
-> --- a/net/ipv4/af_inet.c
-> +++ b/net/ipv4/af_inet.c
-> @@ -522,9 +522,9 @@ int __inet_bind(struct sock *sk, struct sockaddr *uaddr, int addr_len,
->  	/* Make sure we are allowed to bind here. */
->  	if (snum || !(inet->bind_address_no_port ||
->  		      (flags & BIND_FORCE_ADDRESS_NO_PORT))) {
-> -		if (sk->sk_prot->get_port(sk, snum)) {
-> +		err = sk->sk_prot->get_port(sk, snum);
-> +		if (err) {
->  			inet->inet_saddr = inet->inet_rcv_saddr = 0;
-> -			err = -EADDRINUSE;
->  			goto out_release_sock;
->  		}
->  		if (!(flags & BIND_FROM_BPF)) {
-> diff --git a/net/ipv4/inet_connection_sock.c b/net/ipv4/inet_connection_sock.c
-> index eb31c7158b39..971969cc7e17 100644
-> --- a/net/ipv4/inet_connection_sock.c
-> +++ b/net/ipv4/inet_connection_sock.c
-> @@ -1041,7 +1041,7 @@ int inet_csk_listen_start(struct sock *sk)
->  {
->  	struct inet_connection_sock *icsk = inet_csk(sk);
->  	struct inet_sock *inet = inet_sk(sk);
-> -	int err = -EADDRINUSE;
-> +	int err;
->  
->  	reqsk_queue_alloc(&icsk->icsk_accept_queue);
->  
-> @@ -1057,7 +1057,8 @@ int inet_csk_listen_start(struct sock *sk)
->  	 * after validation is complete.
->  	 */
->  	inet_sk_state_store(sk, TCP_LISTEN);
-> -	if (!sk->sk_prot->get_port(sk, inet->inet_num)) {
-> +	err = sk->sk_prot->get_port(sk, inet->inet_num);
-> +	if (!err) {
->  		inet->inet_sport = htons(inet->inet_num);
-
-IMHO in the "if (err)" block in all these places what is missing
-is:
-
-    if (err > 0)
-        err = -EADDRINUSE;
-
-so that all non-negative errors are properly mapped to -EADDRINUSE,
-like in the appended patch (if someone wants to give it a try, I've
-not even build-tested it). Note that I don't like it much and do not
-like the original patch either, I think a revert and a cleaner fix
-could be better :-/
-
-Willy
---
-
-diff --git a/net/ipv4/af_inet.c b/net/ipv4/af_inet.c
-index cf11f10927e1..ce9960d9448d 100644
---- a/net/ipv4/af_inet.c
-+++ b/net/ipv4/af_inet.c
-@@ -526,6 +526,9 @@ int __inet_bind(struct sock *sk, struct sockaddr *uaddr, int addr_len,
- 		err = sk->sk_prot->get_port(sk, snum);
- 		if (err) {
- 			inet->inet_saddr = inet->inet_rcv_saddr = 0;
-+			/* some ->get_port() return 1 on failure */
-+			if (err > 0)
-+				err = -EADDRINUSE;
- 			goto out_release_sock;
- 		}
- 		if (!(flags & BIND_FROM_BPF)) {
-diff --git a/net/ipv4/inet_connection_sock.c b/net/ipv4/inet_connection_sock.c
-index f2c43f67187d..7585c440fb8c 100644
---- a/net/ipv4/inet_connection_sock.c
-+++ b/net/ipv4/inet_connection_sock.c
-@@ -1241,6 +1241,9 @@ int inet_csk_listen_start(struct sock *sk)
- 		if (likely(!err))
- 			return 0;
- 	}
-+	/* some ->get_port() return 1 on failure */
-+	if (err > 0)
-+		err = -EADDRINUSE;
+diff --git a/fs/btrfs/bio.c b/fs/btrfs/bio.c
+index d8b90f95b157..726592868e9c 100644
+--- a/fs/btrfs/bio.c
++++ b/fs/btrfs/bio.c
+@@ -287,7 +287,7 @@ static void btrfs_log_dev_io_error(struct bio *bio, struct btrfs_device *dev)
  
- 	inet_sk_set_state(sk, TCP_CLOSE);
- 	return err;
-diff --git a/net/ipv6/af_inet6.c b/net/ipv6/af_inet6.c
-index 847934763868..941c8ee4a144 100644
---- a/net/ipv6/af_inet6.c
-+++ b/net/ipv6/af_inet6.c
-@@ -415,6 +415,9 @@ static int __inet6_bind(struct sock *sk, struct sockaddr *uaddr, int addr_len,
- 		if (err) {
- 			sk->sk_ipv6only = saved_ipv6only;
- 			inet_reset_saddr(sk);
-+			/* some ->get_port() return 1 on failure */
-+			if (err > 0)
-+				err = -EADDRINUSE;
- 			goto out;
- 		}
- 		if (!(flags & BIND_FROM_BPF)) {
+ 	if (btrfs_op(bio) == BTRFS_MAP_WRITE)
+ 		btrfs_dev_stat_inc_and_print(dev, BTRFS_DEV_STAT_WRITE_ERRS);
+-	if (!(bio->bi_opf & REQ_RAHEAD))
++	else if (!(bio->bi_opf & REQ_RAHEAD))
+ 		btrfs_dev_stat_inc_and_print(dev, BTRFS_DEV_STAT_READ_ERRS);
+ 	if (bio->bi_opf & REQ_PREFLUSH)
+ 		btrfs_dev_stat_inc_and_print(dev, BTRFS_DEV_STAT_FLUSH_ERRS);
+-- 
+2.39.1
+
