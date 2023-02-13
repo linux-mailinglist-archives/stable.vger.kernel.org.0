@@ -2,42 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 89F116948F4
-	for <lists+stable@lfdr.de>; Mon, 13 Feb 2023 15:55:03 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 011EC6948F1
+	for <lists+stable@lfdr.de>; Mon, 13 Feb 2023 15:54:39 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229557AbjBMOzC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Feb 2023 09:55:02 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50506 "EHLO
+        id S230099AbjBMOyh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Feb 2023 09:54:37 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50514 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231132AbjBMOyq (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Feb 2023 09:54:46 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E4F3E9EE2
-        for <stable@vger.kernel.org>; Mon, 13 Feb 2023 06:54:40 -0800 (PST)
+        with ESMTP id S229977AbjBMOye (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Feb 2023 09:54:34 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C0757B756
+        for <stable@vger.kernel.org>; Mon, 13 Feb 2023 06:54:32 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 76642B8125E
-        for <stable@vger.kernel.org>; Mon, 13 Feb 2023 14:54:39 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id BAB03C433EF;
-        Mon, 13 Feb 2023 14:54:37 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 646C1B81250
+        for <stable@vger.kernel.org>; Mon, 13 Feb 2023 14:54:31 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D21AEC433EF;
+        Mon, 13 Feb 2023 14:54:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1676300078;
-        bh=R0kwmgjr7k6VaSknFET5etDqGFQfopj1WRIbD6IDDsY=;
+        s=korg; t=1676300070;
+        bh=ln9DHkuLmhsCmgpE0v2NJmbIfn3LTMhnb1pD/k823+U=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=FWLOXiBzKCc3NJoBKX6gtEtFiYdCIICI+Da4IB+WO/62aE3zb6ui7QFrXK7M2PmcI
-         KR7lS/qNVYFGa/OCSZJF8tKhJIsqo+Lpm/LHgmLYT0glpYx8QIRqf4NejyYjE4tFfd
-         6iumwqL1dpRCCNC4dpAFfIGAwrXkhDrMInxZsiAk=
+        b=nxviegLhZ2KG0MIcnejCTQ4lI6JwubGvcvy664U0xQI8HfXWXrW1IedzLV6XHsaQY
+         3VSp/CpxRhJ8TDj+yLtHKZzROXR3Z6kOV5x+zJP2ypC1kk9EkXLqhY7wYaJdDnb3Fj
+         5rxkUeqB9xedwTcd+FqtXMBZouHVrAPBMTKcOPsI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         patches@lists.linux.dev, Shay Drory <shayd@nvidia.com>,
-        Moshe Shemesh <moshe@nvidia.com>,
         Saeed Mahameed <saeedm@nvidia.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 051/114] net/mlx5: fw_tracer, Clear load bit when freeing string DBs buffers
-Date:   Mon, 13 Feb 2023 15:48:06 +0100
-Message-Id: <20230213144744.836151031@linuxfoundation.org>
+Subject: [PATCH 6.1 052/114] net/mlx5: fw_tracer, Zero consumer index when reloading the tracer
+Date:   Mon, 13 Feb 2023 15:48:07 +0100
+Message-Id: <20230213144744.898175170@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.1
 In-Reply-To: <20230213144742.219399167@linuxfoundation.org>
 References: <20230213144742.219399167@linuxfoundation.org>
@@ -45,8 +44,8 @@ User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
         SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -56,36 +55,41 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Shay Drory <shayd@nvidia.com>
 
-[ Upstream commit db561fed6b8fa3878e74d5df6512a4a38152b63e ]
+[ Upstream commit 184e1e4474dbcfebc4dbd1fa823a329978f25506 ]
 
-Whenever the driver is reading the string DBs into buffers, the driver
-is setting the load bit, but the driver never clears this bit.
-As a result, in case load bit is on and the driver query the device for
-new string DBs, the driver won't read again the string DBs.
-Fix it by clearing the load bit when query the device for new string
-DBs.
+When tracer is reloaded, the device will log the traces at the
+beginning of the log buffer. Also, driver is reading the log buffer in
+chunks in accordance to the consumer index.
+Hence, zero consumer index when reloading the tracer.
 
-Fixes: 2d69356752ff ("net/mlx5: Add support for fw live patch event")
+Fixes: 4383cfcc65e7 ("net/mlx5: Add devlink reload")
 Signed-off-by: Shay Drory <shayd@nvidia.com>
-Reviewed-by: Moshe Shemesh <moshe@nvidia.com>
 Signed-off-by: Saeed Mahameed <saeedm@nvidia.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/mellanox/mlx5/core/diag/fw_tracer.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/net/ethernet/mellanox/mlx5/core/diag/fw_tracer.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
 diff --git a/drivers/net/ethernet/mellanox/mlx5/core/diag/fw_tracer.c b/drivers/net/ethernet/mellanox/mlx5/core/diag/fw_tracer.c
-index 21831386b26e8..d82e98a0cdfa7 100644
+index d82e98a0cdfa7..5b05b884b5fb3 100644
 --- a/drivers/net/ethernet/mellanox/mlx5/core/diag/fw_tracer.c
 +++ b/drivers/net/ethernet/mellanox/mlx5/core/diag/fw_tracer.c
-@@ -64,6 +64,7 @@ static int mlx5_query_mtrc_caps(struct mlx5_fw_tracer *tracer)
- 			MLX5_GET(mtrc_cap, out, num_string_trace);
- 	tracer->str_db.num_string_db = MLX5_GET(mtrc_cap, out, num_string_db);
- 	tracer->owner = !!MLX5_GET(mtrc_cap, out, trace_owner);
-+	tracer->str_db.loaded = false;
+@@ -757,6 +757,7 @@ static int mlx5_fw_tracer_set_mtrc_conf(struct mlx5_fw_tracer *tracer)
+ 	if (err)
+ 		mlx5_core_warn(dev, "FWTracer: Failed to set tracer configurations %d\n", err);
  
- 	for (i = 0; i < tracer->str_db.num_string_db; i++) {
- 		mtrc_cap_sp = MLX5_ADDR_OF(mtrc_cap, out, string_db_param[i]);
++	tracer->buff.consumer_index = 0;
+ 	return err;
+ }
+ 
+@@ -821,7 +822,6 @@ static void mlx5_fw_tracer_ownership_change(struct work_struct *work)
+ 	mlx5_core_dbg(tracer->dev, "FWTracer: ownership changed, current=(%d)\n", tracer->owner);
+ 	if (tracer->owner) {
+ 		tracer->owner = false;
+-		tracer->buff.consumer_index = 0;
+ 		return;
+ 	}
+ 
 -- 
 2.39.0
 
