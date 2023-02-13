@@ -2,182 +2,119 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 5213569431C
-	for <lists+stable@lfdr.de>; Mon, 13 Feb 2023 11:43:25 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id ACFA8694381
+	for <lists+stable@lfdr.de>; Mon, 13 Feb 2023 11:55:14 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229984AbjBMKnW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Feb 2023 05:43:22 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49142 "EHLO
+        id S229878AbjBMKzM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Feb 2023 05:55:12 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34786 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229713AbjBMKnU (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Feb 2023 05:43:20 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 348DA16339;
-        Mon, 13 Feb 2023 02:43:18 -0800 (PST)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id C12FA60F92;
-        Mon, 13 Feb 2023 10:43:17 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 794D5C4339E;
-        Mon, 13 Feb 2023 10:43:16 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1676284996;
-        bh=GfltTDdqGuUYaFLLjciBdbiewtzinXVmbE1XdpKL8Jk=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=V/NE5iKGT0M84Lw+kKdUl6P0kuso1oWdyDQ2YTyvP2puYDOWSZ1hPdNZXseMhJiCA
-         B0MSuzSmfpXBrjIZ4eya9l/RoFpoPRNqpkVX8U9GKZhQt0+uZ0ZlKA1vrysm6biY2g
-         5n2GtmLvkZsy9hVoLRv3Z24Hz2eM2roMvKqXC1vIT3i+lO9mssmzjTcxXrpQvEX/Dd
-         92DMRjrVMJLnUOCf8MuKK4Gn4jpHL8oinN+wAyuQ2rBJO/IdNr6xikxnWJx/hqCyN3
-         1vRjeFbo80hIZ3yQSpcRknzb/WqO7DpX5tLA859mytVQLU4O1DnhW9Dyx2RVM+TALm
-         waW9uVvNX5s+A==
-Received: from johan by xi.lan with local (Exim 4.94.2)
-        (envelope-from <johan+linaro@kernel.org>)
-        id 1pRWJb-0004WY-Gp; Mon, 13 Feb 2023 11:44:07 +0100
-From:   Johan Hovold <johan+linaro@kernel.org>
-To:     Marc Zyngier <maz@kernel.org>, Thomas Gleixner <tglx@linutronix.de>
-Cc:     x86@kernel.org, platform-driver-x86@vger.kernel.org,
-        linux-arm-kernel@lists.infradead.org, linux-mips@vger.kernel.org,
-        linux-kernel@vger.kernel.org, stable@vger.kernel.org,
-        Johan Hovold <johan+linaro@kernel.org>
-Subject: [PATCH v6 07/20] irqdomain: Fix domain registration race
-Date:   Mon, 13 Feb 2023 11:42:49 +0100
-Message-Id: <20230213104302.17307-8-johan+linaro@kernel.org>
-X-Mailer: git-send-email 2.39.1
-In-Reply-To: <20230213104302.17307-1-johan+linaro@kernel.org>
-References: <20230213104302.17307-1-johan+linaro@kernel.org>
+        with ESMTP id S229692AbjBMKzL (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Feb 2023 05:55:11 -0500
+Received: from mail-4022.proton.ch (mail-4022.proton.ch [185.70.40.22])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 96CE6CA20
+        for <stable@vger.kernel.org>; Mon, 13 Feb 2023 02:55:07 -0800 (PST)
+Date:   Mon, 13 Feb 2023 10:55:00 +0000
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=systemb.ch;
+        s=protonmail; t=1676285704; x=1676544904;
+        bh=hJGEW7a9Y+Lo90p9BgYos2s5IIPNHsJdRYhSO+fYzKA=;
+        h=Date:To:From:Cc:Subject:Message-ID:Feedback-ID:From:To:Cc:Date:
+         Subject:Reply-To:Feedback-ID:Message-ID:BIMI-Selector;
+        b=mgOqjeCezZNTRLN7QDR9cXFw7qoiAUXQkl7SgoDvYkhQgIMNgUsm+ynzLGnQffugl
+         Ck2eft9OoazYJxPF1q+7qwLG/qVidWKAqJ2Ptyt7J0+7xfr9GDoJc2fwhhKZAAMpUw
+         8MJnOlxKjbBWPiQl7/QBQM1/iY5U+faA1hbOB1abiwxIGr5OoR1FaerzmMCEor2rri
+         9bCuLffNKpeQsHN2f/4F1iI3C6ms/S+R+xe1KV6PvjNxFBn0F+882hE/X7TSxxLq+R
+         KMManUbhRhKgyc/qg2DWGGMeB0CfG7r6JuXulKv/13Fi68ucc/46cAaOqfwhaRqZRG
+         SgEKdCcILkxsA==
+To:     Johannes Berg <johannes@sipsolutions.net>,
+        linux-wireless@vger.kernel.org
+From:   Marc Bornand <dev.mbornand@systemb.ch>
+Cc:     "David S . Miller" <davem@davemloft.net>,
+        Eric Dumazet <edumazet@google.com>,
+        Jakub Kicinski <kuba@kernel.org>,
+        Paolo Abeni <pabeni@redhat.com>, netdev@vger.kernel.org,
+        linux-kernel@vger.kernel.org, Kalle Valo <kvalo@kernel.org>,
+        Marc Bornand <dev.mbornand@systemb.ch>,
+        Yohan Prod'homme <kernel@zoddo.fr>, stable@vger.kernel.org
+Subject: [PATCH v2] Set ssid when authenticating
+Message-ID: <20230213105436.595245-1-dev.mbornand@systemb.ch>
+Feedback-ID: 65519157:user:proton
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
-        SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: quoted-printable
+X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,SPF_HELO_PASS,SPF_PASS
+        autolearn=unavailable autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Marc Zyngier <maz@kernel.org>
+changes since v1:
+- add some informations
+- test it on wireless-2023-01-18 tag
+- no real code change
 
-Hierarchical domains created using irq_domain_create_hierarchy() are
-currently added to the domain list before having been fully initialised.
+When a connexion was established without going through
+NL80211_CMD_CONNECT, the ssid was never set in the wireless_dev struct.
+Now we set it during when an NL80211_CMD_AUTHENTICATE is issued.
 
-This specifically means that a racing allocation request might fail to
-allocate irq data for the inner domains of a hierarchy in case the
-parent domain pointer has not yet been set up.
+It may be needed to test this on some additional hardware (tested with
+iwlwifi and a AX201, and iwd on the userspace side), I could not test
+things like roaming and p2p.
 
-Note that this is not really any issue for irqchip drivers that are
-registered early (e.g. via IRQCHIP_DECLARE() or IRQCHIP_ACPI_DECLARE())
-but could potentially cause trouble with drivers that are registered
-later (e.g. modular drivers using IRQCHIP_PLATFORM_DRIVER_BEGIN(),
-gpiochip drivers, etc.).
+alternatives:
+1. Do the same but during association and not authentication.
+2. use ieee80211_bss_get_elem in nl80211_send_iface, this would report
+   the right ssid to userspace, but this would not fix the root cause,
+   this alos wa the behavior prior to 7b0a0e3c3a882 when the bug was
+   introduced.
 
-Fixes: afb7da83b9f4 ("irqdomain: Introduce helper function irq_domain_add_hierarchy()")
-Cc: stable@vger.kernel.org      # 3.19
-Signed-off-by: Marc Zyngier <maz@kernel.org>
-[ johan: add commit message ]
-Signed-off-by: Johan Hovold <johan+linaro@kernel.org>
+This applies to v6.2-rc8 or wireless-2023-01-18,
+
+The last linux version known to be unafected is 5.19 and the bug was
+backported to the 5.19.y releases
+
+Reported-by: Yohan Prod'homme <kernel@zoddo.fr>
+Fixes: 7b0a0e3c3a88260b6fcb017e49f198463aa62ed1
+Cc: stable@vger.kernel.org
+Link: https://bugzilla.kernel.org/show_bug.cgi?id=3D216711
+Signed-off-by: Marc Bornand <dev.mbornand@systemb.ch>
 ---
- kernel/irq/irqdomain.c | 62 +++++++++++++++++++++++++++++-------------
- 1 file changed, 43 insertions(+), 19 deletions(-)
+ net/wireless/nl80211.c | 9 +++++++++
+ 1 file changed, 9 insertions(+)
 
-diff --git a/kernel/irq/irqdomain.c b/kernel/irq/irqdomain.c
-index bfda4adc05c0..8e14805c5508 100644
---- a/kernel/irq/irqdomain.c
-+++ b/kernel/irq/irqdomain.c
-@@ -126,23 +126,12 @@ void irq_domain_free_fwnode(struct fwnode_handle *fwnode)
- }
- EXPORT_SYMBOL_GPL(irq_domain_free_fwnode);
- 
--/**
-- * __irq_domain_add() - Allocate a new irq_domain data structure
-- * @fwnode: firmware node for the interrupt controller
-- * @size: Size of linear map; 0 for radix mapping only
-- * @hwirq_max: Maximum number of interrupts supported by controller
-- * @direct_max: Maximum value of direct maps; Use ~0 for no limit; 0 for no
-- *              direct mapping
-- * @ops: domain callbacks
-- * @host_data: Controller private data pointer
-- *
-- * Allocates and initializes an irq_domain structure.
-- * Returns pointer to IRQ domain, or NULL on failure.
-- */
--struct irq_domain *__irq_domain_add(struct fwnode_handle *fwnode, unsigned int size,
--				    irq_hw_number_t hwirq_max, int direct_max,
--				    const struct irq_domain_ops *ops,
--				    void *host_data)
-+static struct irq_domain *__irq_domain_create(struct fwnode_handle *fwnode,
-+					      unsigned int size,
-+					      irq_hw_number_t hwirq_max,
-+					      int direct_max,
-+					      const struct irq_domain_ops *ops,
-+					      void *host_data)
- {
- 	struct irqchip_fwid *fwid;
- 	struct irq_domain *domain;
-@@ -230,12 +219,44 @@ struct irq_domain *__irq_domain_add(struct fwnode_handle *fwnode, unsigned int s
- 
- 	irq_domain_check_hierarchy(domain);
- 
-+	return domain;
-+}
+diff --git a/net/wireless/nl80211.c b/net/wireless/nl80211.c
+index 33a82ecab9d5..f1627ea542b9 100644
+--- a/net/wireless/nl80211.c
++++ b/net/wireless/nl80211.c
+@@ -10552,6 +10552,10 @@ static int nl80211_authenticate(struct sk_buff *sk=
+b, struct genl_info *info)
+ =09=09return -ENOENT;
+
+ =09wdev_lock(dev->ieee80211_ptr);
 +
-+static void __irq_domain_publish(struct irq_domain *domain)
-+{
- 	mutex_lock(&irq_domain_mutex);
- 	debugfs_add_domain_dir(domain);
- 	list_add(&domain->link, &irq_domain_list);
- 	mutex_unlock(&irq_domain_mutex);
- 
- 	pr_debug("Added domain %s\n", domain->name);
-+}
++=09memcpy(dev->ieee80211_ptr->u.client.ssid, ssid, ssid_len);
++=09dev->ieee80211_ptr->u.client.ssid_len =3D ssid_len;
 +
-+/**
-+ * __irq_domain_add() - Allocate a new irq_domain data structure
-+ * @fwnode: firmware node for the interrupt controller
-+ * @size: Size of linear map; 0 for radix mapping only
-+ * @hwirq_max: Maximum number of interrupts supported by controller
-+ * @direct_max: Maximum value of direct maps; Use ~0 for no limit; 0 for no
-+ *              direct mapping
-+ * @ops: domain callbacks
-+ * @host_data: Controller private data pointer
-+ *
-+ * Allocates and initializes an irq_domain structure.
-+ * Returns pointer to IRQ domain, or NULL on failure.
-+ */
-+struct irq_domain *__irq_domain_add(struct fwnode_handle *fwnode, unsigned int size,
-+				    irq_hw_number_t hwirq_max, int direct_max,
-+				    const struct irq_domain_ops *ops,
-+				    void *host_data)
-+{
-+	struct irq_domain *domain;
+ =09err =3D cfg80211_mlme_auth(rdev, dev, &req);
+ =09wdev_unlock(dev->ieee80211_ptr);
+
+@@ -11025,6 +11029,11 @@ static int nl80211_deauthenticate(struct sk_buff *=
+skb, struct genl_info *info)
+ =09local_state_change =3D !!info->attrs[NL80211_ATTR_LOCAL_STATE_CHANGE];
+
+ =09wdev_lock(dev->ieee80211_ptr);
 +
-+	domain = __irq_domain_create(fwnode, size, hwirq_max, direct_max,
-+				     ops, host_data);
-+	if (domain)
-+		__irq_domain_publish(domain);
++=09if (reason_code =3D=3D WLAN_REASON_DEAUTH_LEAVING) {
++=09=09dev->ieee80211_ptr->u.client.ssid_len =3D 0;
++=09}
 +
- 	return domain;
- }
- EXPORT_SYMBOL_GPL(__irq_domain_add);
-@@ -1138,12 +1159,15 @@ struct irq_domain *irq_domain_create_hierarchy(struct irq_domain *parent,
- 	struct irq_domain *domain;
- 
- 	if (size)
--		domain = irq_domain_create_linear(fwnode, size, ops, host_data);
-+		domain = __irq_domain_create(fwnode, size, size, 0, ops, host_data);
- 	else
--		domain = irq_domain_create_tree(fwnode, ops, host_data);
-+		domain = __irq_domain_create(fwnode, 0, ~0, 0, ops, host_data);
-+
- 	if (domain) {
- 		domain->parent = parent;
- 		domain->flags |= flags;
-+
-+		__irq_domain_publish(domain);
- 	}
- 
- 	return domain;
--- 
+ =09err =3D cfg80211_mlme_deauth(rdev, dev, bssid, ie, ie_len, reason_code,
+ =09=09=09=09   local_state_change);
+ =09wdev_unlock(dev->ieee80211_ptr);
+--
 2.39.1
+
 
