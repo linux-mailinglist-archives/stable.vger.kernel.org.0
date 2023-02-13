@@ -2,56 +2,56 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 298AA695396
-	for <lists+stable@lfdr.de>; Mon, 13 Feb 2023 23:07:00 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 548D2695399
+	for <lists+stable@lfdr.de>; Mon, 13 Feb 2023 23:08:44 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229789AbjBMWG7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Feb 2023 17:06:59 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50000 "EHLO
+        id S229772AbjBMWIm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Feb 2023 17:08:42 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51788 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229783AbjBMWG6 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Feb 2023 17:06:58 -0500
-Received: from mail-pl1-x630.google.com (mail-pl1-x630.google.com [IPv6:2607:f8b0:4864:20::630])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0119E1F901;
-        Mon, 13 Feb 2023 14:06:57 -0800 (PST)
-Received: by mail-pl1-x630.google.com with SMTP id h4so7213929pll.9;
-        Mon, 13 Feb 2023 14:06:57 -0800 (PST)
+        with ESMTP id S229570AbjBMWIm (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Feb 2023 17:08:42 -0500
+Received: from mail-pl1-x633.google.com (mail-pl1-x633.google.com [IPv6:2607:f8b0:4864:20::633])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6D644A273;
+        Mon, 13 Feb 2023 14:08:41 -0800 (PST)
+Received: by mail-pl1-x633.google.com with SMTP id o8so12682068pls.11;
+        Mon, 13 Feb 2023 14:08:41 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20210112;
         h=cc:to:subject:message-id:date:from:in-reply-to:references
          :mime-version:from:to:cc:subject:date:message-id:reply-to;
-        bh=kvpUXbdttADA6sdXNiBxDIAzea4kHoWcT4D+ic16X5M=;
-        b=d+RrvJ6R/yq+GgNUC3a+QDgCiO33flLciJVg8SGuJd1Suylg/hB9Z2A2U28awXyEeb
-         RQwlH1Gmepic6kUOy/mVPgh9cZacno9SjQjrFP4JrYRQjAkuTGVyNI+EBunbJO+HdSP+
-         eZnL7iPgM4/38igRTw3jK5B+NjPP1GUTXNa0SQ2wlq5qUR/e8y762/QcpCeoOcIuuS+Q
-         2ICKz/1o7mgD4WaGT0naGAqo50mck1VrvYW+71/8W7gGekFL84nLcxjP/VkctrZZhWuy
-         if6N2u0xjRTYhHiYTZ27+uQx/2LwPJPUbWs5yWy2q479BYDTs24S+IZOTfdgplD+Fwfv
-         8bBQ==
+        bh=W+gcSvHvU6UymGoZz45RAwy5Vsnkl1I3eLa4JIYkdC4=;
+        b=lEikct9bSEZRL11bxmcmWgyEywCcGKveo64ho6fIWJG8NSTP5wcH7GvgHp1wAEmMUy
+         vSrLKxvxE4kKk7FEs8gSeRag25/sE0MACEQV7j0ZPCRO0QiP2SDeKM1xtGHMqa025zNX
+         A++qjmrJyeCPNnrP4RXT/0oowwJSXKKkhqk+PVL+GNjCZ51iOWpvfpOLUGM/iHboHqbE
+         h8c+r14XS7eNR9LJZpTfJVREzt3XqEVA5kFw5/2d3oJxfFKD0N0e9ondMjCDBpag7bg6
+         oNOQZIEzDRTA1oeRoud8pc7mSs4VTCoU3mVBi6iYIbLc+BW1V0kOv6fZBjdQQuzLMIcq
+         MDPQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
         h=cc:to:subject:message-id:date:from:in-reply-to:references
          :mime-version:x-gm-message-state:from:to:cc:subject:date:message-id
          :reply-to;
-        bh=kvpUXbdttADA6sdXNiBxDIAzea4kHoWcT4D+ic16X5M=;
-        b=G8APwjC1fSD5+i5au2czc2Lqi49luuKPd3eQph9vujbL3BTj7pc6K8AV4xFOIO1RFE
-         hK+Gj1ZUBP5qmb6o+3xJ0s4VkgZZ5wEAw/PEBW8KVNuonszF5KIlo4uWMwgzcZY7RhdK
-         xJ6fPUh1AnhLkrV2bZBWBSLW793WV2/kTdrUw+Pl4f35cy4shitdUNx5puleost1F7nH
-         5Bwa+jp0dF8WLmmCNfynl4FBQqQywMtRSMM3uhzL5RkXJYpoa086bBgvcw818mRwG8pC
-         JMtqNSifSb4VHhDjtn6rAXzIIKfppIhOVIwIETzjAlW1UpIl0/YU0Esiin19Vh78QiaF
-         FABw==
-X-Gm-Message-State: AO0yUKWDAzzJRfLIpDxtSnHfvYfbi/LhaFMaOdwNgklCyZhM2vWvNmby
-        WViXOIfkQ3L51bPtleQGnp5iN0hwNfmicjxhRFe5y6Aq3bA=
-X-Google-Smtp-Source: AK7set8HL2L34StpQU+/q4nxQXJiYu0X2grhVoj/aXiQ020gBeNUnWEgOGYvGVt27l6N9y+X6998Gykfi3p5ajiJHag=
-X-Received: by 2002:a17:90a:a418:b0:233:f958:1e38 with SMTP id
- y24-20020a17090aa41800b00233f9581e38mr1156172pjp.44.1676326017553; Mon, 13
- Feb 2023 14:06:57 -0800 (PST)
+        bh=W+gcSvHvU6UymGoZz45RAwy5Vsnkl1I3eLa4JIYkdC4=;
+        b=2+XCCYFAnanYehG5ynjhYbqanOHyPxAWT6DhGLMCUO+2K+6hqgjxvDrjP34/jSk626
+         WhcmULk6i5tYnXLLmOnc3dKT4pH80NbhmwhDCYsUpZ1t4R1/EGbSsKQqbd57Qdnu2Eb2
+         qmXlhLGQgOSEHp5Qelq2sKLX1Vtw0/b0PDRA6vq0CXrC+apafW1/6mApun3tCAFWHD+P
+         nu7CILOQ29V6l2BNCCZE2jin32ymRitjnZNJO6PASuhCaabpLtlySd9X1K8f6X/dSkuA
+         Uwe6EqOqanqOU6y12c54k2E/ge75iNXnx2zolMnS85usyVpVYT8dSx4z2Fud1pOdiTcQ
+         kMxA==
+X-Gm-Message-State: AO0yUKUC290ayDYKUPMd+OxjuPJJfISXdCbPhaZzh77MLAHuwdd9KiLX
+        CUWd6tC2CzqIu5uPBkqHBM2fc8W2JF/T5jWpqxk=
+X-Google-Smtp-Source: AK7set9Z2gYHrqDUdqHRUENE74lt4pZiEBYUjRjGkGBfT6LexXDlA2xYO1tTf2N2OJbM4tRXoeN26UVw5Z3iwSWTaUo=
+X-Received: by 2002:a17:90a:656:b0:230:8c47:fbd7 with SMTP id
+ q22-20020a17090a065600b002308c47fbd7mr4487345pje.102.1676326121038; Mon, 13
+ Feb 2023 14:08:41 -0800 (PST)
 MIME-Version: 1.0
-References: <20230213144742.219399167@linuxfoundation.org>
-In-Reply-To: <20230213144742.219399167@linuxfoundation.org>
+References: <20230213144732.336342050@linuxfoundation.org>
+In-Reply-To: <20230213144732.336342050@linuxfoundation.org>
 From:   Allen Pais <stable.kernel.dev@gmail.com>
-Date:   Mon, 13 Feb 2023 14:06:46 -0800
-Message-ID: <CAJq+SaAnGWbUCJr8_eeOod+YS62v4QVfBmMCbMaWEHw27krtdQ@mail.gmail.com>
-Subject: Re: [PATCH 6.1 000/114] 6.1.12-rc1 review
+Date:   Mon, 13 Feb 2023 14:08:30 -0800
+Message-ID: <CAJq+SaCcXmFn-qRPgVUgLc_omG0EgZctOQ9e6DxkWAm4Uz7OkA@mail.gmail.com>
+Subject: Re: [PATCH 5.15 00/67] 5.15.94-rc1 review
 To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Cc:     stable@vger.kernel.org, patches@lists.linux.dev,
         linux-kernel@vger.kernel.org, torvalds@linux-foundation.org,
@@ -70,8 +70,8 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-> This is the start of the stable review cycle for the 6.1.12 release.
-> There are 114 patches in this series, all will be posted as a response
+> This is the start of the stable review cycle for the 5.15.94 release.
+> There are 67 patches in this series, all will be posted as a response
 > to this one.  If anyone has any issues with these being applied, please
 > let me know.
 >
@@ -79,9 +79,9 @@ X-Mailing-List: stable@vger.kernel.org
 > Anything received after that time might be too late.
 >
 > The whole patch series can be found in one patch at:
->         https://www.kernel.org/pub/linux/kernel/v6.x/stable-review/patch-6.1.12-rc1.gz
+>         https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.15.94-rc1.gz
 > or in the git tree and branch at:
->         git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-6.1.y
+>         git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.15.y
 > and the diffstat can be found below.
 >
 > thanks,
