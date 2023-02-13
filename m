@@ -2,43 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 2EC766948B9
+	by mail.lfdr.de (Postfix) with ESMTP id CF3CE6948BB
 	for <lists+stable@lfdr.de>; Mon, 13 Feb 2023 15:53:00 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230483AbjBMOw6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Feb 2023 09:52:58 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47590 "EHLO
+        id S230016AbjBMOw7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Feb 2023 09:52:59 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47398 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229593AbjBMOw4 (ORCPT
+        with ESMTP id S229679AbjBMOw4 (ORCPT
         <rfc822;stable@vger.kernel.org>); Mon, 13 Feb 2023 09:52:56 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B8F721C5A9
-        for <stable@vger.kernel.org>; Mon, 13 Feb 2023 06:52:41 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 47EC330E0
+        for <stable@vger.kernel.org>; Mon, 13 Feb 2023 06:52:44 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 5051B61134
-        for <stable@vger.kernel.org>; Mon, 13 Feb 2023 14:52:41 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6432EC4339B;
-        Mon, 13 Feb 2023 14:52:40 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id D81716113E
+        for <stable@vger.kernel.org>; Mon, 13 Feb 2023 14:52:43 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id EF806C4339C;
+        Mon, 13 Feb 2023 14:52:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1676299960;
-        bh=Yw2x4RvIKzQSRclV1sDxpZn61rbZ/jQVrZ2/2aWWzAg=;
+        s=korg; t=1676299963;
+        bh=PBg7dbbU/kcCI7GVs9RhQ0En8UkpKZGqodV3wZIDA6A=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ViwmRHpahICJqMHEM9TYWZ8/qLP0j5VvgnHOVEZ5g1vXhQAAx8m2z+boQSID9jVCd
-         aKPLJMLM6Q/tQcHcKShviyt/CzMTjpAgLGE4ErxAnatixsknIKRYG8LkuAFb+Ix9zF
-         d3m4LW/Zz/lpDAbxxrHFjznksueUVL4OrZCllz1M=
+        b=NN9m1n5GL8Q0PCjE6bJHI5AljC6uz3L8Ny65PA1QCa2uxLw076QfH0EbjHgc7tyoi
+         b9F+3TYNAQ4adJwfrqhIF7SkIIbQW5zMxPITENQuXYfDZ7jJanLj5bEA7h/mxBhvZX
+         K66gWEDVZV1uYY+sriYOVFCZ4lW7Loc6QmLvrB/s=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Tasev Nikola <tasev.stefanoska@skynet.be>,
-        Mark Enriquez <enriquezmark36@gmail.com>,
-        Thomas Witt <kernel@witt.link>,
+        patches@lists.linux.dev, Thomas Witt <kernel@witt.link>,
         Bjorn Helgaas <bhelgaas@google.com>,
         Vidya Sagar <vidyas@nvidia.com>
-Subject: [PATCH 6.1 010/114] Revert "PCI/ASPM: Save L1 PM Substates Capability for suspend/resume"
-Date:   Mon, 13 Feb 2023 15:47:25 +0100
-Message-Id: <20230213144742.726116979@linuxfoundation.org>
+Subject: [PATCH 6.1 011/114] Revert "PCI/ASPM: Refactor L1 PM Substates Control Register programming"
+Date:   Mon, 13 Feb 2023 15:47:26 +0100
+Message-Id: <20230213144742.780518015@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.1
 In-Reply-To: <20230213144742.219399167@linuxfoundation.org>
 References: <20230213144742.219399167@linuxfoundation.org>
@@ -57,153 +55,137 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Bjorn Helgaas <bhelgaas@google.com>
 
-commit a7152be79b627428c628da2a887ca4b2512a78fd upstream.
+commit ff209ecc376a2ea8dd106a1f594427a5d94b7dd3 upstream.
 
-This reverts commit 4ff116d0d5fd8a025604b0802d93a2d5f4e465d1.
+This reverts commit 5e85eba6f50dc288c22083a7e213152bcc4b8208.
 
-Tasev Nikola and Mark Enriquez reported that resume from suspend was broken
-in v6.1-rc1.  Tasev bisected to a47126ec29f5 ("PCI/PTM: Cache PTM
-Capability offset"), but we can't figure out how that could be related.
+Thomas Witt reported that 5e85eba6f50d ("PCI/ASPM: Refactor L1 PM Substates
+Control Register programming") broke suspend/resume on a Tuxedo
+Infinitybook S 14 v5, which seems to use a Clevo L140CU Mainboard.
 
-Mark saw the same symptoms and bisected to 4ff116d0d5fd ("PCI/ASPM: Save L1
-PM Substates Capability for suspend/resume"), which does have a connection:
-it restores L1 Substates configuration while ASPM L1 may be enabled:
+The main symptom is:
 
-  pci_restore_state
-    pci_restore_aspm_l1ss_state
-      aspm_program_l1ss
-        pci_write_config_dword(PCI_L1SS_CTL1, ctl1)         # L1SS restore
-    pci_restore_pcie_state
-      pcie_capability_write_word(PCI_EXP_LNKCTL, cap[i++])  # L1 restore
+  iwlwifi 0000:02:00.0: Unable to change power state from D3hot to D0, device inaccessible
+  nvme 0000:03:00.0: Unable to change power state from D3hot to D0, device inaccessible
 
-which is a problem because PCIe r6.0, sec 5.5.4, requires that:
+and the machine is only partially usable after resume.  It can't run dmesg
+and can't do a clean reboot.  This happens on every suspend/resume cycle.
 
-  If setting either or both of the enable bits for ASPM L1 PM
-  Substates, both ports must be configured as described in this
-  section while ASPM L1 is disabled.
+Revert 5e85eba6f50d until we can figure out the root cause.
 
-Separately, Thomas Witt reported that 5e85eba6f50d ("PCI/ASPM: Refactor L1
-PM Substates Control Register programming") broke suspend/resume, and it
-depends on 4ff116d0d5fd.
-
-Revert 4ff116d0d5fd ("PCI/ASPM: Save L1 PM Substates Capability for
-suspend/resume") to fix the resume issue and enable revert of 5e85eba6f50d
-to fix the issue Thomas reported.
-
-Note that reverting 4ff116d0d5fd means L1 Substates config may be lost on
-suspend/resume.  As far as we know the system will use more power but will
-still *work* correctly.
-
-Fixes: 4ff116d0d5fd ("PCI/ASPM: Save L1 PM Substates Capability for suspend/resume")
-Link: https://bugzilla.kernel.org/show_bug.cgi?id=216782
+Fixes: 5e85eba6f50d ("PCI/ASPM: Refactor L1 PM Substates Control Register programming")
 Link: https://bugzilla.kernel.org/show_bug.cgi?id=216877
-Reported-by: Tasev Nikola <tasev.stefanoska@skynet.be>
-Reported-by: Mark Enriquez <enriquezmark36@gmail.com>
 Reported-by: Thomas Witt <kernel@witt.link>
-Tested-by: Mark Enriquez <enriquezmark36@gmail.com>
 Tested-by: Thomas Witt <kernel@witt.link>
 Signed-off-by: Bjorn Helgaas <bhelgaas@google.com>
 Cc: stable@vger.kernel.org	# v6.1+
 Cc: Vidya Sagar <vidyas@nvidia.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/pci/pci.c       |    7 -------
- drivers/pci/pci.h       |    4 ----
- drivers/pci/pcie/aspm.c |   37 -------------------------------------
- 3 files changed, 48 deletions(-)
+ drivers/pci/pcie/aspm.c | 74 +++++++++++++++++++----------------------
+ 1 file changed, 34 insertions(+), 40 deletions(-)
 
---- a/drivers/pci/pci.c
-+++ b/drivers/pci/pci.c
-@@ -1665,7 +1665,6 @@ int pci_save_state(struct pci_dev *dev)
- 		return i;
- 
- 	pci_save_ltr_state(dev);
--	pci_save_aspm_l1ss_state(dev);
- 	pci_save_dpc_state(dev);
- 	pci_save_aer_state(dev);
- 	pci_save_ptm_state(dev);
-@@ -1772,7 +1771,6 @@ void pci_restore_state(struct pci_dev *d
- 	 * LTR itself (in the PCIe capability).
- 	 */
- 	pci_restore_ltr_state(dev);
--	pci_restore_aspm_l1ss_state(dev);
- 
- 	pci_restore_pcie_state(dev);
- 	pci_restore_pasid_state(dev);
-@@ -3465,11 +3463,6 @@ void pci_allocate_cap_save_buffers(struc
- 	if (error)
- 		pci_err(dev, "unable to allocate suspend buffer for LTR\n");
- 
--	error = pci_add_ext_cap_save_buffer(dev, PCI_EXT_CAP_ID_L1SS,
--					    2 * sizeof(u32));
--	if (error)
--		pci_err(dev, "unable to allocate suspend buffer for ASPM-L1SS\n");
--
- 	pci_allocate_vc_save_buffers(dev);
- }
- 
---- a/drivers/pci/pci.h
-+++ b/drivers/pci/pci.h
-@@ -565,14 +565,10 @@ bool pcie_wait_for_link(struct pci_dev *
- void pcie_aspm_init_link_state(struct pci_dev *pdev);
- void pcie_aspm_exit_link_state(struct pci_dev *pdev);
- void pcie_aspm_powersave_config_link(struct pci_dev *pdev);
--void pci_save_aspm_l1ss_state(struct pci_dev *dev);
--void pci_restore_aspm_l1ss_state(struct pci_dev *dev);
- #else
- static inline void pcie_aspm_init_link_state(struct pci_dev *pdev) { }
- static inline void pcie_aspm_exit_link_state(struct pci_dev *pdev) { }
- static inline void pcie_aspm_powersave_config_link(struct pci_dev *pdev) { }
--static inline void pci_save_aspm_l1ss_state(struct pci_dev *dev) { }
--static inline void pci_restore_aspm_l1ss_state(struct pci_dev *dev) { }
- #endif
- 
- #ifdef CONFIG_PCIE_ECRC
+diff --git a/drivers/pci/pcie/aspm.c b/drivers/pci/pcie/aspm.c
+index 915cbd939dd9..4b4184563a92 100644
 --- a/drivers/pci/pcie/aspm.c
 +++ b/drivers/pci/pcie/aspm.c
-@@ -757,43 +757,6 @@ static void pcie_config_aspm_l1ss(struct
- 				PCI_L1SS_CTL1_L1SS_MASK, val);
+@@ -470,31 +470,6 @@ static void pci_clear_and_set_dword(struct pci_dev *pdev, int pos,
+ 	pci_write_config_dword(pdev, pos, val);
  }
  
--void pci_save_aspm_l1ss_state(struct pci_dev *dev)
+-static void aspm_program_l1ss(struct pci_dev *dev, u32 ctl1, u32 ctl2)
 -{
--	struct pci_cap_saved_state *save_state;
 -	u16 l1ss = dev->l1ss;
--	u32 *cap;
+-	u32 l1_2_enable;
 -
--	if (!l1ss)
--		return;
+-	/*
+-	 * Per PCIe r6.0, sec 5.5.4, T_POWER_ON in PCI_L1SS_CTL2 must be
+-	 * programmed prior to setting the L1.2 enable bits in PCI_L1SS_CTL1.
+-	 */
+-	pci_write_config_dword(dev, l1ss + PCI_L1SS_CTL2, ctl2);
 -
--	save_state = pci_find_saved_ext_cap(dev, PCI_EXT_CAP_ID_L1SS);
--	if (!save_state)
--		return;
+-	/*
+-	 * In addition, Common_Mode_Restore_Time and LTR_L1.2_THRESHOLD in
+-	 * PCI_L1SS_CTL1 must be programmed *before* setting the L1.2
+-	 * enable bits, even though they're all in PCI_L1SS_CTL1.
+-	 */
+-	l1_2_enable = ctl1 & PCI_L1SS_CTL1_L1_2_MASK;
+-	ctl1 &= ~PCI_L1SS_CTL1_L1_2_MASK;
 -
--	cap = (u32 *)&save_state->cap.data[0];
--	pci_read_config_dword(dev, l1ss + PCI_L1SS_CTL2, cap++);
--	pci_read_config_dword(dev, l1ss + PCI_L1SS_CTL1, cap++);
+-	pci_write_config_dword(dev, l1ss + PCI_L1SS_CTL1, ctl1);
+-	if (l1_2_enable)
+-		pci_write_config_dword(dev, l1ss + PCI_L1SS_CTL1,
+-				       ctl1 | l1_2_enable);
 -}
 -
--void pci_restore_aspm_l1ss_state(struct pci_dev *dev)
--{
--	struct pci_cap_saved_state *save_state;
--	u32 *cap, ctl1, ctl2;
--	u16 l1ss = dev->l1ss;
+ /* Calculate L1.2 PM substate timing parameters */
+ static void aspm_calc_l1ss_info(struct pcie_link_state *link,
+ 				u32 parent_l1ss_cap, u32 child_l1ss_cap)
+@@ -504,6 +479,7 @@ static void aspm_calc_l1ss_info(struct pcie_link_state *link,
+ 	u32 t_common_mode, t_power_on, l1_2_threshold, scale, value;
+ 	u32 ctl1 = 0, ctl2 = 0;
+ 	u32 pctl1, pctl2, cctl1, cctl2;
++	u32 pl1_2_enables, cl1_2_enables;
+ 
+ 	if (!(link->aspm_support & ASPM_STATE_L1_2_MASK))
+ 		return;
+@@ -552,21 +528,39 @@ static void aspm_calc_l1ss_info(struct pcie_link_state *link,
+ 	    ctl2 == pctl2 && ctl2 == cctl2)
+ 		return;
+ 
+-	pctl1 &= ~(PCI_L1SS_CTL1_CM_RESTORE_TIME |
+-		   PCI_L1SS_CTL1_LTR_L12_TH_VALUE |
+-		   PCI_L1SS_CTL1_LTR_L12_TH_SCALE);
+-	pctl1 |= (ctl1 & (PCI_L1SS_CTL1_CM_RESTORE_TIME |
+-			  PCI_L1SS_CTL1_LTR_L12_TH_VALUE |
+-			  PCI_L1SS_CTL1_LTR_L12_TH_SCALE));
+-	aspm_program_l1ss(parent, pctl1, ctl2);
 -
--	if (!l1ss)
--		return;
--
--	save_state = pci_find_saved_ext_cap(dev, PCI_EXT_CAP_ID_L1SS);
--	if (!save_state)
--		return;
--
--	cap = (u32 *)&save_state->cap.data[0];
--	ctl2 = *cap++;
--	ctl1 = *cap;
--	aspm_program_l1ss(dev, ctl1, ctl2);
--}
--
- static void pcie_config_aspm_dev(struct pci_dev *pdev, u32 val)
- {
- 	pcie_capability_clear_and_set_word(pdev, PCI_EXP_LNKCTL,
+-	cctl1 &= ~(PCI_L1SS_CTL1_CM_RESTORE_TIME |
+-		   PCI_L1SS_CTL1_LTR_L12_TH_VALUE |
+-		   PCI_L1SS_CTL1_LTR_L12_TH_SCALE);
+-	cctl1 |= (ctl1 & (PCI_L1SS_CTL1_CM_RESTORE_TIME |
+-			  PCI_L1SS_CTL1_LTR_L12_TH_VALUE |
+-			  PCI_L1SS_CTL1_LTR_L12_TH_SCALE));
+-	aspm_program_l1ss(child, cctl1, ctl2);
++	/* Disable L1.2 while updating.  See PCIe r5.0, sec 5.5.4, 7.8.3.3 */
++	pl1_2_enables = pctl1 & PCI_L1SS_CTL1_L1_2_MASK;
++	cl1_2_enables = cctl1 & PCI_L1SS_CTL1_L1_2_MASK;
++
++	if (pl1_2_enables || cl1_2_enables) {
++		pci_clear_and_set_dword(child, child->l1ss + PCI_L1SS_CTL1,
++					PCI_L1SS_CTL1_L1_2_MASK, 0);
++		pci_clear_and_set_dword(parent, parent->l1ss + PCI_L1SS_CTL1,
++					PCI_L1SS_CTL1_L1_2_MASK, 0);
++	}
++
++	/* Program T_POWER_ON times in both ports */
++	pci_write_config_dword(parent, parent->l1ss + PCI_L1SS_CTL2, ctl2);
++	pci_write_config_dword(child, child->l1ss + PCI_L1SS_CTL2, ctl2);
++
++	/* Program Common_Mode_Restore_Time in upstream device */
++	pci_clear_and_set_dword(parent, parent->l1ss + PCI_L1SS_CTL1,
++				PCI_L1SS_CTL1_CM_RESTORE_TIME, ctl1);
++
++	/* Program LTR_L1.2_THRESHOLD time in both ports */
++	pci_clear_and_set_dword(parent,	parent->l1ss + PCI_L1SS_CTL1,
++				PCI_L1SS_CTL1_LTR_L12_TH_VALUE |
++				PCI_L1SS_CTL1_LTR_L12_TH_SCALE, ctl1);
++	pci_clear_and_set_dword(child, child->l1ss + PCI_L1SS_CTL1,
++				PCI_L1SS_CTL1_LTR_L12_TH_VALUE |
++				PCI_L1SS_CTL1_LTR_L12_TH_SCALE, ctl1);
++
++	if (pl1_2_enables || cl1_2_enables) {
++		pci_clear_and_set_dword(parent, parent->l1ss + PCI_L1SS_CTL1, 0,
++					pl1_2_enables);
++		pci_clear_and_set_dword(child, child->l1ss + PCI_L1SS_CTL1, 0,
++					cl1_2_enables);
++	}
+ }
+ 
+ static void aspm_l1ss_init(struct pcie_link_state *link)
+-- 
+2.39.1
+
 
 
