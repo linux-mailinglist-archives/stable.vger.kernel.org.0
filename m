@@ -2,42 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 4DE0E6948DE
-	for <lists+stable@lfdr.de>; Mon, 13 Feb 2023 15:54:03 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 58C326948DF
+	for <lists+stable@lfdr.de>; Mon, 13 Feb 2023 15:54:08 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229576AbjBMOyC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Feb 2023 09:54:02 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49352 "EHLO
+        id S229800AbjBMOyH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Feb 2023 09:54:07 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49692 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230383AbjBMOyB (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Feb 2023 09:54:01 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B44263C19
-        for <stable@vger.kernel.org>; Mon, 13 Feb 2023 06:53:52 -0800 (PST)
+        with ESMTP id S230099AbjBMOyG (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Feb 2023 09:54:06 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 88BB21C7E5
+        for <stable@vger.kernel.org>; Mon, 13 Feb 2023 06:53:56 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id ED7226115A
-        for <stable@vger.kernel.org>; Mon, 13 Feb 2023 14:53:51 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0D01DC433D2;
-        Mon, 13 Feb 2023 14:53:50 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 3E6EAB81258
+        for <stable@vger.kernel.org>; Mon, 13 Feb 2023 14:53:55 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9C681C433D2;
+        Mon, 13 Feb 2023 14:53:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1676300031;
-        bh=wTQfEyiRhG8w2HrFmdpNdGjnM88fpsxaOqfmnq1X89M=;
+        s=korg; t=1676300034;
+        bh=XmJTHJrOFMz+rBBev258Uxi8yZXJEb1aGZyH29/8ZqU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=mF0k8xsmYtJ8Dun9JEebCB8FILA5KaZtbz5jAUtI/YuM5aUlS3XxHbfm8EVCyGkdJ
-         rE8Yeoh01LazJ6iV/Dypo+0eNm9Ycr8c2n1GeW5jajj3F68EFzCF+7bIJn9jZOkInc
-         8fqrP+ku5I5v1GuAzd6Th/X8UAbpUvAWtuNZEyr0=
+        b=XH0NnCJJdGm3eDgqQVx0LNRHCBWHVe6VYBTUm2cqEVvVUyBokb01xDvA41yry6Wup
+         C4DlsUQS9ZwQZA8mvbAh91eXvWjNmcilLvrcOjGaamqJfhk3zD3y/5RD5w3tThJxmF
+         LZ4H4pdcotmJUWwUMG/zkci9kke15LlfWjRVj7m4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Ryan Neph <ryanneph@chromium.org>,
-        Rob Clark <robdclark@gmail.com>,
-        Dmitry Osipenko <dmitry.osipenko@collabora.com>,
+        patches@lists.linux.dev, Will Deacon <will@kernel.org>,
+        Waiman Long <longman@redhat.com>, Tejun Heo <tj@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 037/114] drm/virtio: exbuf->fence_fd unmodified on interrupted wait
-Date:   Mon, 13 Feb 2023 15:47:52 +0100
-Message-Id: <20230213144744.058712134@linuxfoundation.org>
+Subject: [PATCH 6.1 038/114] cpuset: Call set_cpus_allowed_ptr() with appropriate mask for task
+Date:   Mon, 13 Feb 2023 15:47:53 +0100
+Message-Id: <20230213144744.101360703@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.1
 In-Reply-To: <20230213144742.219399167@linuxfoundation.org>
 References: <20230213144742.219399167@linuxfoundation.org>
@@ -45,8 +44,8 @@ User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
         SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -54,70 +53,113 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ryan Neph <ryanneph@chromium.org>
+From: Will Deacon <will@kernel.org>
 
-[ Upstream commit 8f20660f053cefd4693e69cfff9cf58f4f7c4929 ]
+[ Upstream commit 7a2127e66a00e073db8d90f9aac308f4a8a64226 ]
 
-An interrupted dma_fence_wait() becomes an -ERESTARTSYS returned
-to userspace ioctl(DRM_IOCTL_VIRTGPU_EXECBUFFER) calls, prompting to
-retry the ioctl(), but the passed exbuf->fence_fd has been reset to -1,
-making the retry attempt fail at sync_file_get_fence().
+set_cpus_allowed_ptr() will fail with -EINVAL if the requested
+affinity mask is not a subset of the task_cpu_possible_mask() for the
+task being updated. Consequently, on a heterogeneous system with cpusets
+spanning the different CPU types, updates to the cgroup hierarchy can
+silently fail to update task affinities when the effective affinity
+mask for the cpuset is expanded.
 
-The uapi for DRM_IOCTL_VIRTGPU_EXECBUFFER is changed to retain the
-passed value for exbuf->fence_fd when returning anything besides a
-successful result from the ioctl.
+For example, consider an arm64 system with 4 CPUs, where CPUs 2-3 are
+the only cores capable of executing 32-bit tasks. Attaching a 32-bit
+task to a cpuset containing CPUs 0-2 will correctly affine the task to
+CPU 2. Extending the cpuset to CPUs 0-3, however, will fail to extend
+the affinity mask of the 32-bit task because update_tasks_cpumask() will
+pass the full 0-3 mask to set_cpus_allowed_ptr().
 
-Fixes: 2cd7b6f08bc4 ("drm/virtio: add in/out fence support for explicit synchronization")
-Signed-off-by: Ryan Neph <ryanneph@chromium.org>
-Reviewed-by: Rob Clark <robdclark@gmail.com>
-Reviewed-by: Dmitry Osipenko <dmitry.osipenko@collabora.com>
-Signed-off-by: Dmitry Osipenko <dmitry.osipenko@collabora.com>
-Link: https://patchwork.freedesktop.org/patch/msgid/20230203233345.2477767-1-ryanneph@chromium.org
+Extend update_tasks_cpumask() to take a temporary 'cpumask' paramater
+and use it to mask the 'effective_cpus' mask with the possible mask for
+each task being updated.
+
+Fixes: 431c69fac05b ("cpuset: Honour task_cpu_possible_mask() in guarantee_online_cpus()")
+Signed-off-by: Will Deacon <will@kernel.org>
+Acked-by: Waiman Long <longman@redhat.com>
+Signed-off-by: Tejun Heo <tj@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/virtio/virtgpu_ioctl.c | 5 +----
- include/uapi/drm/virtgpu_drm.h         | 1 +
- 2 files changed, 2 insertions(+), 4 deletions(-)
+ kernel/cgroup/cpuset.c | 18 +++++++++++-------
+ 1 file changed, 11 insertions(+), 7 deletions(-)
 
-diff --git a/drivers/gpu/drm/virtio/virtgpu_ioctl.c b/drivers/gpu/drm/virtio/virtgpu_ioctl.c
-index 9f4a90493aeac..da45215a933d0 100644
---- a/drivers/gpu/drm/virtio/virtgpu_ioctl.c
-+++ b/drivers/gpu/drm/virtio/virtgpu_ioctl.c
-@@ -126,7 +126,6 @@ static int virtio_gpu_execbuffer_ioctl(struct drm_device *dev, void *data,
- 	void __user *user_bo_handles = NULL;
- 	struct virtio_gpu_object_array *buflist = NULL;
- 	struct sync_file *sync_file;
--	int in_fence_fd = exbuf->fence_fd;
- 	int out_fence_fd = -1;
- 	void *buf;
- 	uint64_t fence_ctx;
-@@ -152,13 +151,11 @@ static int virtio_gpu_execbuffer_ioctl(struct drm_device *dev, void *data,
- 		ring_idx = exbuf->ring_idx;
+diff --git a/kernel/cgroup/cpuset.c b/kernel/cgroup/cpuset.c
+index a753adcbc7c70..fac4260366208 100644
+--- a/kernel/cgroup/cpuset.c
++++ b/kernel/cgroup/cpuset.c
+@@ -1201,12 +1201,13 @@ void rebuild_sched_domains(void)
+ /**
+  * update_tasks_cpumask - Update the cpumasks of tasks in the cpuset.
+  * @cs: the cpuset in which each task's cpus_allowed mask needs to be changed
++ * @new_cpus: the temp variable for the new effective_cpus mask
+  *
+  * Iterate through each task of @cs updating its cpus_allowed to the
+  * effective cpuset's.  As this function is called with cpuset_rwsem held,
+  * cpuset membership stays stable.
+  */
+-static void update_tasks_cpumask(struct cpuset *cs)
++static void update_tasks_cpumask(struct cpuset *cs, struct cpumask *new_cpus)
+ {
+ 	struct css_task_iter it;
+ 	struct task_struct *task;
+@@ -1220,7 +1221,10 @@ static void update_tasks_cpumask(struct cpuset *cs)
+ 		if (top_cs && (task->flags & PF_KTHREAD) &&
+ 		    kthread_is_per_cpu(task))
+ 			continue;
+-		set_cpus_allowed_ptr(task, cs->effective_cpus);
++
++		cpumask_and(new_cpus, cs->effective_cpus,
++			    task_cpu_possible_mask(task));
++		set_cpus_allowed_ptr(task, new_cpus);
+ 	}
+ 	css_task_iter_end(&it);
+ }
+@@ -1505,7 +1509,7 @@ static int update_parent_subparts_cpumask(struct cpuset *cs, int cmd,
+ 	spin_unlock_irq(&callback_lock);
+ 
+ 	if (adding || deleting)
+-		update_tasks_cpumask(parent);
++		update_tasks_cpumask(parent, tmp->new_cpus);
+ 
+ 	/*
+ 	 * Set or clear CS_SCHED_LOAD_BALANCE when partcmd_update, if necessary.
+@@ -1657,7 +1661,7 @@ static void update_cpumasks_hier(struct cpuset *cs, struct tmpmasks *tmp,
+ 		WARN_ON(!is_in_v2_mode() &&
+ 			!cpumask_equal(cp->cpus_allowed, cp->effective_cpus));
+ 
+-		update_tasks_cpumask(cp);
++		update_tasks_cpumask(cp, tmp->new_cpus);
+ 
+ 		/*
+ 		 * On legacy hierarchy, if the effective cpumask of any non-
+@@ -2305,7 +2309,7 @@ static int update_prstate(struct cpuset *cs, int new_prs)
+ 		}
  	}
  
--	exbuf->fence_fd = -1;
--
- 	virtio_gpu_create_context(dev, file);
- 	if (exbuf->flags & VIRTGPU_EXECBUF_FENCE_FD_IN) {
- 		struct dma_fence *in_fence;
+-	update_tasks_cpumask(parent);
++	update_tasks_cpumask(parent, tmpmask.new_cpus);
  
--		in_fence = sync_file_get_fence(in_fence_fd);
-+		in_fence = sync_file_get_fence(exbuf->fence_fd);
+ 	if (parent->child_ecpus_count)
+ 		update_sibling_cpumasks(parent, cs, &tmpmask);
+@@ -3318,7 +3322,7 @@ hotplug_update_tasks_legacy(struct cpuset *cs,
+ 	 * as the tasks will be migrated to an ancestor.
+ 	 */
+ 	if (cpus_updated && !cpumask_empty(cs->cpus_allowed))
+-		update_tasks_cpumask(cs);
++		update_tasks_cpumask(cs, new_cpus);
+ 	if (mems_updated && !nodes_empty(cs->mems_allowed))
+ 		update_tasks_nodemask(cs);
  
- 		if (!in_fence)
- 			return -EINVAL;
-diff --git a/include/uapi/drm/virtgpu_drm.h b/include/uapi/drm/virtgpu_drm.h
-index 0512fde5e6978..7b158fcb02b45 100644
---- a/include/uapi/drm/virtgpu_drm.h
-+++ b/include/uapi/drm/virtgpu_drm.h
-@@ -64,6 +64,7 @@ struct drm_virtgpu_map {
- 	__u32 pad;
- };
+@@ -3355,7 +3359,7 @@ hotplug_update_tasks(struct cpuset *cs,
+ 	spin_unlock_irq(&callback_lock);
  
-+/* fence_fd is modified on success if VIRTGPU_EXECBUF_FENCE_FD_OUT flag is set. */
- struct drm_virtgpu_execbuffer {
- 	__u32 flags;
- 	__u32 size;
+ 	if (cpus_updated)
+-		update_tasks_cpumask(cs);
++		update_tasks_cpumask(cs, new_cpus);
+ 	if (mems_updated)
+ 		update_tasks_nodemask(cs);
+ }
 -- 
 2.39.0
 
