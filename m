@@ -2,51 +2,50 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 191366949C4
-	for <lists+stable@lfdr.de>; Mon, 13 Feb 2023 16:02:00 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6A659694991
+	for <lists+stable@lfdr.de>; Mon, 13 Feb 2023 16:00:11 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231370AbjBMPB7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Feb 2023 10:01:59 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33454 "EHLO
+        id S231210AbjBMPAJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Feb 2023 10:00:09 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56090 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231349AbjBMPBq (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Feb 2023 10:01:46 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 59E841DB91
-        for <stable@vger.kernel.org>; Mon, 13 Feb 2023 07:01:23 -0800 (PST)
+        with ESMTP id S231189AbjBMO7u (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Feb 2023 09:59:50 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B9D1A1D931
+        for <stable@vger.kernel.org>; Mon, 13 Feb 2023 06:59:31 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 1EDE16112D
-        for <stable@vger.kernel.org>; Mon, 13 Feb 2023 15:01:20 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3775AC433D2;
-        Mon, 13 Feb 2023 15:01:19 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 6072EB80E62
+        for <stable@vger.kernel.org>; Mon, 13 Feb 2023 14:59:31 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id CCB26C4339C;
+        Mon, 13 Feb 2023 14:59:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1676300479;
-        bh=BjLFm/uQyv2iHTs22s33gqNvQ3rD7xmUi4zYBI7unnU=;
+        s=korg; t=1676300370;
+        bh=LiIm0lQc+biApIUJkgXh+WEW8599M/sPCS9/v94JcCM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=eTxOOtWnLJFg5krkn3D4+BC4HRlP/cndGrblBwpbf15YU1Hw4fV62jcFUHl+CUEIR
-         y5fID9u0ZM4tdMiXwZ/xhJPvg8Ia/7xKOV+uLTer3GGN/ltZP8rIGIHSE84S40goef
-         isAdotl0oNm7hKi3KRCZuUds2qRYfC+pYf9WfyAw=
+        b=DKWpcCRo0VRRLvXZ5vAZzKIbsNkPJvNvv5odIVEuaMpwWOthgl8M+OCnWuyr2wNj1
+         556hAE5TcIe41msrj+PhjSvMIcxG0gQr8EExU5awe95HM/pIFrqoF9WKZFB5UQTrYO
+         2YX2/tMq1+Z+6nQcU7Elnpc+kLphKNtXrucFmIjQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Marius Dinu <marius@psihoexpert.ro>,
-        Niklas Cassel <niklas.cassel@wdc.com>,
-        Damien Le Moal <damien.lemoal@opensource.wdc.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 029/139] ata: libata: Fix sata_down_spd_limit() when no link speed is reported
+        patches@lists.linux.dev, Miroslav Zatko <mzatko@mirexoft.com>,
+        Dennis Wassenberg <dennis.wassenberg@secunet.com>,
+        Mark Pearson <mpearson-lenovo@squebb.ca>
+Subject: [PATCH 5.15 53/67] usb: core: add quirk for Alcor Link AK9563 smartcard reader
 Date:   Mon, 13 Feb 2023 15:49:34 +0100
-Message-Id: <20230213144747.179880649@linuxfoundation.org>
+Message-Id: <20230213144734.904017974@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.1
-In-Reply-To: <20230213144745.696901179@linuxfoundation.org>
-References: <20230213144745.696901179@linuxfoundation.org>
+In-Reply-To: <20230213144732.336342050@linuxfoundation.org>
+References: <20230213144732.336342050@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
         SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -54,57 +53,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Damien Le Moal <damien.lemoal@opensource.wdc.com>
+From: Mark Pearson <mpearson-lenovo@squebb.ca>
 
-[ Upstream commit 69f2c9346313ba3d3dfa4091ff99df26c67c9021 ]
+commit 303e724d7b1e1a0a93daf0b1ab5f7c4f53543b34 upstream.
 
-Commit 2dc0b46b5ea3 ("libata: sata_down_spd_limit should return if
-driver has not recorded sstatus speed") changed the behavior of
-sata_down_spd_limit() to return doing nothing if a drive does not report
-a current link speed, to avoid reducing the link speed to the lowest 1.5
-Gbps speed.
+The Alcor Link AK9563 smartcard reader used on some Lenovo platforms
+doesn't work. If LPM is enabled the reader will provide an invalid
+usb config descriptor. Added quirk to disable LPM.
 
-However, the change assumed that a speed was recorded before probing
-(e.g. before a suspend/resume) and set in link->sata_spd. This causes
-problems with adapters/drives combination failing to establish a link
-speed during probe autonegotiation. One example reported of this problem
-is an mvebu adapter with a 3Gbps port-multiplier box: autonegotiation
-fails, leaving no recorded link speed and no reported current link
-speed. Probe retries also fail as no action is taken by sata_set_spd()
-after each retry.
+Verified fix on Lenovo P16 G1 and T14 G3
 
-Fix this by returning early in sata_down_spd_limit() only if we do have
-a recorded link speed, that is, if link->sata_spd is not 0. With this
-fix, a failed probe not leading to a recorded link speed is retried at
-the lower 1.5 Gbps speed, with the link speed potentially increased
-later on the second revalidate of the device if the device reports
-that it supports higher link speeds.
-
-Reported-by: Marius Dinu <marius@psihoexpert.ro>
-Fixes: 2dc0b46b5ea3 ("libata: sata_down_spd_limit should return if driver has not recorded sstatus speed")
-Reviewed-by: Niklas Cassel <niklas.cassel@wdc.com>
-Tested-by: Marius Dinu <marius@psihoexpert.ro>
-Signed-off-by: Damien Le Moal <damien.lemoal@opensource.wdc.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Tested-by: Miroslav Zatko <mzatko@mirexoft.com>
+Tested-by: Dennis Wassenberg <dennis.wassenberg@secunet.com>
+Cc: stable@vger.kernel.org
+Signed-off-by: Dennis Wassenberg <dennis.wassenberg@secunet.com>
+Signed-off-by: Mark Pearson <mpearson-lenovo@squebb.ca>
+Link: https://lore.kernel.org/r/20230208181223.1092654-1-mpearson-lenovo@squebb.ca
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/ata/libata-core.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/usb/core/quirks.c |    3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/drivers/ata/libata-core.c b/drivers/ata/libata-core.c
-index d13474c6d181..14150767be44 100644
---- a/drivers/ata/libata-core.c
-+++ b/drivers/ata/libata-core.c
-@@ -3051,7 +3051,7 @@ int sata_down_spd_limit(struct ata_link *link, u32 spd_limit)
- 	 */
- 	if (spd > 1)
- 		mask &= (1 << (spd - 1)) - 1;
--	else
-+	else if (link->sata_spd)
- 		return -EINVAL;
+--- a/drivers/usb/core/quirks.c
++++ b/drivers/usb/core/quirks.c
+@@ -526,6 +526,9 @@ static const struct usb_device_id usb_qu
+ 	/* DJI CineSSD */
+ 	{ USB_DEVICE(0x2ca3, 0x0031), .driver_info = USB_QUIRK_NO_LPM },
  
- 	/* were we already at the bottom? */
--- 
-2.39.0
-
++	/* Alcor Link AK9563 SC Reader used in 2022 Lenovo ThinkPads */
++	{ USB_DEVICE(0x2ce3, 0x9563), .driver_info = USB_QUIRK_NO_LPM },
++
+ 	/* DELL USB GEN2 */
+ 	{ USB_DEVICE(0x413c, 0xb062), .driver_info = USB_QUIRK_NO_LPM | USB_QUIRK_RESET_RESUME },
+ 
 
 
