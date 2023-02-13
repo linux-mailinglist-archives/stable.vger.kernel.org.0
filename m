@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 19D83694A06
-	for <lists+stable@lfdr.de>; Mon, 13 Feb 2023 16:04:08 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7A8CD694A08
+	for <lists+stable@lfdr.de>; Mon, 13 Feb 2023 16:04:10 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231277AbjBMPEG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Feb 2023 10:04:06 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37792 "EHLO
+        id S231129AbjBMPEJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Feb 2023 10:04:09 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37656 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231418AbjBMPED (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Feb 2023 10:04:03 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CA1401DBB5
-        for <stable@vger.kernel.org>; Mon, 13 Feb 2023 07:03:44 -0800 (PST)
+        with ESMTP id S230461AbjBMPEI (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Feb 2023 10:04:08 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 619E01E1E5
+        for <stable@vger.kernel.org>; Mon, 13 Feb 2023 07:03:48 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 7C0C2B8125B
-        for <stable@vger.kernel.org>; Mon, 13 Feb 2023 15:03:43 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id DCE12C433EF;
-        Mon, 13 Feb 2023 15:03:41 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id E693661122
+        for <stable@vger.kernel.org>; Mon, 13 Feb 2023 15:03:47 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0778AC433EF;
+        Mon, 13 Feb 2023 15:03:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1676300622;
-        bh=03QAcOCBgNp3AxJ7/han5iJA3UzFMJhITnmGtKM4sKM=;
+        s=korg; t=1676300627;
+        bh=xC04bUYkYkPLu9Ciq5SLazJsdAW35MmdtMKKCPwcEB4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=xlPY7onXag7PzgDrhVqen3QNsOXJCV3WkeGZF1MNyvKPqqqZUW2GW5/vhRSL6j5nt
-         dC1Ogp1mkb0a66sSqEZkfekw0FjEhG3H5/sIWkNytzoGEo4nkjiAOtnRelAiP7ba2S
-         Av+004LdTxYPmg03tFu0v3QGNnF8oialI4xVk328=
+        b=UsF8VahLp5PZekh7aU+tcdrcYat5o4BfzEaC1cCp3xr8GLe8/s8eQ92KRjOLXRIwl
+         8NnGREcbuf3h5bSN48X1+155aSEdK+AcvuL7I1xDYOsI9+QAnKO9j7wZvldyXcdpFc
+         qVlF5hDBliHnzAO5aXvrTb1YasMqqWn8vsfyQ0O0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Gilles BULOZ <gilles.buloz@kontron.com>,
-        =?UTF-8?q?Ilpo=20J=C3=A4rvinen?= <ilpo.jarvinen@linux.intel.com>
-Subject: [PATCH 5.10 085/139] serial: 8250_dma: Fix DMA Rx rearm race
-Date:   Mon, 13 Feb 2023 15:50:30 +0100
-Message-Id: <20230213144750.335711641@linuxfoundation.org>
+        patches@lists.linux.dev, syzkaller <syzkaller@googlegroups.com>,
+        Dongliang Mu <dzm91@hust.edu.cn>, Helge Deller <deller@gmx.de>
+Subject: [PATCH 5.10 086/139] fbdev: smscufx: fix error handling code in ufx_usb_probe
+Date:   Mon, 13 Feb 2023 15:50:31 +0100
+Message-Id: <20230213144750.386726854@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.1
 In-Reply-To: <20230213144745.696901179@linuxfoundation.org>
 References: <20230213144745.696901179@linuxfoundation.org>
@@ -52,85 +52,160 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ilpo Järvinen <ilpo.jarvinen@linux.intel.com>
+From: Dongliang Mu <dzm91@hust.edu.cn>
 
-commit 57e9af7831dcf211c5c689c2a6f209f4abdf0bce upstream.
+commit b76449ee75e21acfe9fa4c653d8598f191ed7d68 upstream.
 
-As DMA Rx can be completed from two places, it is possible that DMA Rx
-completes before DMA completion callback had a chance to complete it.
-Once the previous DMA Rx has been completed, a new one can be started
-on the next UART interrupt. The following race is possible
-(uart_unlock_and_check_sysrq_irqrestore() replaced with
-spin_unlock_irqrestore() for simplicity/clarity):
+The current error handling code in ufx_usb_probe have many unmatching
+issues, e.g., missing ufx_free_usb_list, destroy_modedb label should
+only include framebuffer_release, fb_dealloc_cmap only matches
+fb_alloc_cmap.
 
-CPU0					CPU1
-					dma_rx_complete()
-serial8250_handle_irq()
-  spin_lock_irqsave(&port->lock)
-  handle_rx_dma()
-    serial8250_rx_dma_flush()
-      __dma_rx_complete()
-        dma->rx_running = 0
-        // Complete DMA Rx
-  spin_unlock_irqrestore(&port->lock)
+My local syzkaller reports a memory leak bug:
 
-serial8250_handle_irq()
-  spin_lock_irqsave(&port->lock)
-  handle_rx_dma()
-    serial8250_rx_dma()
-      dma->rx_running = 1
-      // Setup a new DMA Rx
-  spin_unlock_irqrestore(&port->lock)
+memory leak in ufx_usb_probe
 
-					  spin_lock_irqsave(&port->lock)
-					  // sees dma->rx_running = 1
-					  __dma_rx_complete()
-					    dma->rx_running = 0
-					    // Incorrectly complete
-					    // running DMA Rx
+BUG: memory leak
+unreferenced object 0xffff88802f879580 (size 128):
+  comm "kworker/0:7", pid 17416, jiffies 4295067474 (age 46.710s)
+  hex dump (first 32 bytes):
+    80 21 7c 2e 80 88 ff ff 18 d0 d0 0c 80 88 ff ff  .!|.............
+    00 d0 d0 0c 80 88 ff ff e0 ff ff ff 0f 00 00 00  ................
+  backtrace:
+    [<ffffffff814c99a0>] kmalloc_trace+0x20/0x90 mm/slab_common.c:1045
+    [<ffffffff824d219c>] kmalloc include/linux/slab.h:553 [inline]
+    [<ffffffff824d219c>] kzalloc include/linux/slab.h:689 [inline]
+    [<ffffffff824d219c>] ufx_alloc_urb_list drivers/video/fbdev/smscufx.c:1873 [inline]
+    [<ffffffff824d219c>] ufx_usb_probe+0x11c/0x15a0 drivers/video/fbdev/smscufx.c:1655
+    [<ffffffff82d17927>] usb_probe_interface+0x177/0x370 drivers/usb/core/driver.c:396
+    [<ffffffff82712f0d>] call_driver_probe drivers/base/dd.c:560 [inline]
+    [<ffffffff82712f0d>] really_probe+0x12d/0x390 drivers/base/dd.c:639
+    [<ffffffff8271322f>] __driver_probe_device+0xbf/0x140 drivers/base/dd.c:778
+    [<ffffffff827132da>] driver_probe_device+0x2a/0x120 drivers/base/dd.c:808
+    [<ffffffff82713c27>] __device_attach_driver+0xf7/0x150 drivers/base/dd.c:936
+    [<ffffffff82710137>] bus_for_each_drv+0xb7/0x100 drivers/base/bus.c:427
+    [<ffffffff827136b5>] __device_attach+0x105/0x2d0 drivers/base/dd.c:1008
+    [<ffffffff82711d36>] bus_probe_device+0xc6/0xe0 drivers/base/bus.c:487
+    [<ffffffff8270e242>] device_add+0x642/0xdc0 drivers/base/core.c:3517
+    [<ffffffff82d14d5f>] usb_set_configuration+0x8ef/0xb80 drivers/usb/core/message.c:2170
+    [<ffffffff82d2576c>] usb_generic_driver_probe+0x8c/0xc0 drivers/usb/core/generic.c:238
+    [<ffffffff82d16ffc>] usb_probe_device+0x5c/0x140 drivers/usb/core/driver.c:293
+    [<ffffffff82712f0d>] call_driver_probe drivers/base/dd.c:560 [inline]
+    [<ffffffff82712f0d>] really_probe+0x12d/0x390 drivers/base/dd.c:639
+    [<ffffffff8271322f>] __driver_probe_device+0xbf/0x140 drivers/base/dd.c:778
 
-This race seems somewhat theoretical to occur for real but handle it
-correctly regardless. Check what is the DMA status before complething
-anything in __dma_rx_complete().
+Fix this bug by rewriting the error handling code in ufx_usb_probe.
 
-Reported-by: Gilles BULOZ <gilles.buloz@kontron.com>
-Tested-by: Gilles BULOZ <gilles.buloz@kontron.com>
-Fixes: 9ee4b83e51f7 ("serial: 8250: Add support for dmaengine")
-Cc: stable@vger.kernel.org
-Signed-off-by: Ilpo Järvinen <ilpo.jarvinen@linux.intel.com>
-Link: https://lore.kernel.org/r/20230130114841.25749-3-ilpo.jarvinen@linux.intel.com
+Reported-by: syzkaller <syzkaller@googlegroups.com>
+Tested-by: Dongliang Mu <dzm91@hust.edu.cn>
+Signed-off-by: Dongliang Mu <dzm91@hust.edu.cn>
+Signed-off-by: Helge Deller <deller@gmx.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/tty/serial/8250/8250_dma.c |   12 ++++++++++--
- 1 file changed, 10 insertions(+), 2 deletions(-)
+ drivers/video/fbdev/smscufx.c |   46 ++++++++++++++++++++++++++++--------------
+ 1 file changed, 31 insertions(+), 15 deletions(-)
 
---- a/drivers/tty/serial/8250/8250_dma.c
-+++ b/drivers/tty/serial/8250/8250_dma.c
-@@ -46,15 +46,23 @@ static void __dma_rx_complete(void *para
- 	struct uart_8250_dma	*dma = p->dma;
- 	struct tty_port		*tty_port = &p->port.state->port;
- 	struct dma_tx_state	state;
-+	enum dma_status		dma_status;
- 	int			count;
+--- a/drivers/video/fbdev/smscufx.c
++++ b/drivers/video/fbdev/smscufx.c
+@@ -1621,7 +1621,7 @@ static int ufx_usb_probe(struct usb_inte
+ 	struct usb_device *usbdev;
+ 	struct ufx_data *dev;
+ 	struct fb_info *info;
+-	int retval;
++	int retval = -ENOMEM;
+ 	u32 id_rev, fpga_rev;
  
--	dma->rx_running = 0;
--	dmaengine_tx_status(dma->rxchan, dma->rx_cookie, &state);
-+	/*
-+	 * New DMA Rx can be started during the completion handler before it
-+	 * could acquire port's lock and it might still be ongoing. Don't to
-+	 * anything in such case.
-+	 */
-+	dma_status = dmaengine_tx_status(dma->rxchan, dma->rx_cookie, &state);
-+	if (dma_status == DMA_IN_PROGRESS)
-+		return;
+ 	/* usb initialization */
+@@ -1653,15 +1653,17 @@ static int ufx_usb_probe(struct usb_inte
  
- 	count = dma->rx_size - state.residue;
+ 	if (!ufx_alloc_urb_list(dev, WRITES_IN_FLIGHT, MAX_TRANSFER)) {
+ 		dev_err(dev->gdev, "ufx_alloc_urb_list failed\n");
+-		goto e_nomem;
++		goto put_ref;
+ 	}
  
- 	tty_insert_flip_string(tty_port, dma->rx_buf, count);
- 	p->port.icount.rx += count;
-+	dma->rx_running = 0;
+ 	/* We don't register a new USB class. Our client interface is fbdev */
  
- 	tty_flip_buffer_push(tty_port);
+ 	/* allocates framebuffer driver structure, not framebuffer memory */
+ 	info = framebuffer_alloc(0, &usbdev->dev);
+-	if (!info)
+-		goto e_nomem;
++	if (!info) {
++		dev_err(dev->gdev, "framebuffer_alloc failed\n");
++		goto free_urb_list;
++	}
+ 
+ 	dev->info = info;
+ 	info->par = dev;
+@@ -1704,22 +1706,34 @@ static int ufx_usb_probe(struct usb_inte
+ 	check_warn_goto_error(retval, "unable to find common mode for display and adapter");
+ 
+ 	retval = ufx_reg_set_bits(dev, 0x4000, 0x00000001);
+-	check_warn_goto_error(retval, "error %d enabling graphics engine", retval);
++	if (retval < 0) {
++		dev_err(dev->gdev, "error %d enabling graphics engine", retval);
++		goto setup_modes;
++	}
+ 
+ 	/* ready to begin using device */
+ 	atomic_set(&dev->usb_active, 1);
+ 
+ 	dev_dbg(dev->gdev, "checking var");
+ 	retval = ufx_ops_check_var(&info->var, info);
+-	check_warn_goto_error(retval, "error %d ufx_ops_check_var", retval);
++	if (retval < 0) {
++		dev_err(dev->gdev, "error %d ufx_ops_check_var", retval);
++		goto reset_active;
++	}
+ 
+ 	dev_dbg(dev->gdev, "setting par");
+ 	retval = ufx_ops_set_par(info);
+-	check_warn_goto_error(retval, "error %d ufx_ops_set_par", retval);
++	if (retval < 0) {
++		dev_err(dev->gdev, "error %d ufx_ops_set_par", retval);
++		goto reset_active;
++	}
+ 
+ 	dev_dbg(dev->gdev, "registering framebuffer");
+ 	retval = register_framebuffer(info);
+-	check_warn_goto_error(retval, "error %d register_framebuffer", retval);
++	if (retval < 0) {
++		dev_err(dev->gdev, "error %d register_framebuffer", retval);
++		goto reset_active;
++	}
+ 
+ 	dev_info(dev->gdev, "SMSC UDX USB device /dev/fb%d attached. %dx%d resolution."
+ 		" Using %dK framebuffer memory\n", info->node,
+@@ -1727,21 +1741,23 @@ static int ufx_usb_probe(struct usb_inte
+ 
+ 	return 0;
+ 
+-error:
+-	fb_dealloc_cmap(&info->cmap);
+-destroy_modedb:
++reset_active:
++	atomic_set(&dev->usb_active, 0);
++setup_modes:
+ 	fb_destroy_modedb(info->monspecs.modedb);
+ 	vfree(info->screen_base);
+ 	fb_destroy_modelist(&info->modelist);
++error:
++	fb_dealloc_cmap(&info->cmap);
++destroy_modedb:
+ 	framebuffer_release(info);
++free_urb_list:
++	if (dev->urbs.count > 0)
++		ufx_free_urb_list(dev);
+ put_ref:
+ 	kref_put(&dev->kref, ufx_free); /* ref for framebuffer */
+ 	kref_put(&dev->kref, ufx_free); /* last ref from kref_init */
+ 	return retval;
+-
+-e_nomem:
+-	retval = -ENOMEM;
+-	goto put_ref;
  }
+ 
+ static void ufx_usb_disconnect(struct usb_interface *interface)
 
 
