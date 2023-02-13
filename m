@@ -2,113 +2,81 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E2A7E694405
-	for <lists+stable@lfdr.de>; Mon, 13 Feb 2023 12:12:08 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 308BF694447
+	for <lists+stable@lfdr.de>; Mon, 13 Feb 2023 12:18:29 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230157AbjBMLMG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Feb 2023 06:12:06 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48844 "EHLO
+        id S230395AbjBMLS1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Feb 2023 06:18:27 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60588 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229648AbjBMLMC (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Feb 2023 06:12:02 -0500
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 497D91817A
-        for <stable@vger.kernel.org>; Mon, 13 Feb 2023 03:10:46 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1676286645;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:
-         content-transfer-encoding:content-transfer-encoding;
-        bh=91axYkgwIMCEz1WKAFTJX5qVVuOGqFHheqUFcZuc9sQ=;
-        b=hGoc/SpnfgNmUNGOhn0DyIEmiZ1hOj2J/9UpdfbnwMDgiGiu8OEpaDQNAE8XS+nPulmtZk
-        V6V1vIBTFb/Kp5CE9mtDBEfOLppZeHZ4dRY5f+NKSfM/MxV7cy4oBFQgeLnUQjxoIdqPCh
-        aq5DseSDFU2DmBzJ2V1MVNS67VLcTEk=
-Received: from mimecast-mx02.redhat.com (mimecast-mx02.redhat.com
- [66.187.233.88]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- us-mta-132-RkD5y7wBOtutSrdxs-y-Qg-1; Mon, 13 Feb 2023 06:10:44 -0500
-X-MC-Unique: RkD5y7wBOtutSrdxs-y-Qg-1
-Received: from smtp.corp.redhat.com (int-mx10.intmail.prod.int.rdu2.redhat.com [10.11.54.10])
-        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
-        (No client certificate requested)
-        by mimecast-mx02.redhat.com (Postfix) with ESMTPS id 0FE10857F41;
-        Mon, 13 Feb 2023 11:10:44 +0000 (UTC)
-Received: from lxbceph1.gsslab.pek2.redhat.com (unknown [10.72.47.117])
-        by smtp.corp.redhat.com (Postfix) with ESMTP id 7B458492B15;
-        Mon, 13 Feb 2023 11:10:41 +0000 (UTC)
-From:   xiubli@redhat.com
-To:     idryomov@gmail.com
-Cc:     jlayton@kernel.org, vshankar@redhat.com, mchangir@redhat.com,
-        Xiubo Li <xiubli@redhat.com>, stable@vger.kernel.org
-Subject: [PATCH] ceph: update the time stamps and try to drop the suid/sgid
-Date:   Mon, 13 Feb 2023 19:10:38 +0800
-Message-Id: <20230213111038.15021-1-xiubli@redhat.com>
+        with ESMTP id S231167AbjBMLSZ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Feb 2023 06:18:25 -0500
+Received: from mail-pl1-x632.google.com (mail-pl1-x632.google.com [IPv6:2607:f8b0:4864:20::632])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 150ACDBD7
+        for <stable@vger.kernel.org>; Mon, 13 Feb 2023 03:18:23 -0800 (PST)
+Received: by mail-pl1-x632.google.com with SMTP id z1so13140936plg.6
+        for <stable@vger.kernel.org>; Mon, 13 Feb 2023 03:18:23 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20210112;
+        h=to:subject:message-id:date:from:reply-to:mime-version:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=w08RRSiGes/din6ZO5YkmaML7Zeo5YEC2K5kyi9SsfI=;
+        b=g6T7vx+nS23LFkkRM7tvzakx/XpX2nPZFaLMLPpWWI8M/EAF4jlhacMUzg3aygvGeZ
+         OyACiN/OIhAUrtdkUrBeURu/Fekmk77NRKpyRFcpPui6Z+mXoKbGNWxTW5jJRYGuMgCB
+         8QZIpJ2IeCtjM5u3YZucAJSa31NGkn5AWxayhyN90s4CIVeeZujDsTCaDgYd1FD5EXxf
+         KpJR0NmPhsVmxShtMC7tairPsleiWmq7aIcpbQdJxzGWYGF78cKUiAthvGge0lPt9SdR
+         kXhwoBxla/eB7EvstANoOqOEcAcAZF6xuUvXe7ihdzxzHLztM2vjOXlvSN65HWDWKVTe
+         FceQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=to:subject:message-id:date:from:reply-to:mime-version
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
+        bh=w08RRSiGes/din6ZO5YkmaML7Zeo5YEC2K5kyi9SsfI=;
+        b=AyiJSazekZ97IVEHtOZP0VeJpUoghTHPxofE+acJZqootj0b0TQnJRD6QTQNctPeea
+         tvm5UY2IgsC1yks+CpDIOkymIVwEGTHuU1kvvH9a11FYQmKaJuXv3qijQ+4jAsxUdcpX
+         7y/4uEykfzH7qDv8ZqlaECAna+KbUpx5IntIFiCj2el854jzRqPJF02e9rv2R9namBFG
+         QDWqjIZ8WRQxZFVNuM9x1sOx7oZ2si7BCy4fhgIXAS54QWAJSIfiCIyE/8xZWjpH76P4
+         d90+FDvvs9liwkgLti6oYtDmt5Iy0Lj1UdW6Y7HVJpmsb8uya/CzHCA3Kt8xYMMDpeSR
+         CmOw==
+X-Gm-Message-State: AO0yUKV0pE//YxerfSmZVfuRL7bJDE2oI7fKWchT+rr12pkpEBcZxmrr
+        8OYAVHMyaJJlzei5gpQm04sXNqsC5rv56x1z9xs=
+X-Google-Smtp-Source: AK7set/t7sj6er5361pO1tHdKrhgAVUo441QjxAeXQeWZSHRRU08s06Qrvwkg027cFiDUBkmNe8A11RfVjqwsEUlS/o=
+X-Received: by 2002:a17:90a:680b:b0:234:117c:970f with SMTP id
+ p11-20020a17090a680b00b00234117c970fmr231007pjj.28.1676287103422; Mon, 13 Feb
+ 2023 03:18:23 -0800 (PST)
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-Scanned-By: MIMEDefang 3.1 on 10.11.54.10
-X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_NONE,
-        RCVD_IN_MSPIKE_H2,SPF_HELO_NONE,SPF_NONE autolearn=ham
-        autolearn_force=no version=3.4.6
+Received: by 2002:a05:7301:3c9a:b0:9c:1817:9053 with HTTP; Mon, 13 Feb 2023
+ 03:18:22 -0800 (PST)
+Reply-To: ahesterann@gmail.com
+From:   Ann Hester <johnricher844@gmail.com>
+Date:   Mon, 13 Feb 2023 03:18:22 -0800
+Message-ID: <CAAAsin3+Ht=_xreWwcRohzpNN=X2Vg=7rS9=A2wwbZk538Uthg@mail.gmail.com>
+Subject: URGENT
+To:     undisclosed-recipients:;
+Content-Type: text/plain; charset="UTF-8"
+X-Spam-Status: No, score=4.8 required=5.0 tests=BAYES_50,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_ENVFROM_END_DIGIT,
+        FREEMAIL_FROM,FREEMAIL_REPLYTO,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,
+        SPF_PASS,UNDISC_FREEM autolearn=no autolearn_force=no version=3.4.6
+X-Spam-Level: ****
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Xiubo Li <xiubli@redhat.com>
-
-The fallocate will try to clear the suid/sgid if a unprevileged user
-changed the file.
-
-There is no Posix item requires that we should clear the suid/sgid
-in fallocate code path but this is the default behaviour for most of
-the filesystems and the VFS layer. And also the same for the write
-code path, which have already support it.
-
-And also we need to update the time stamps since the fallocate will
-change the file contents.
-
-Cc: stable@vger.kernel.org
-URL: https://tracker.ceph.com/issues/58054
-Signed-off-by: Xiubo Li <xiubli@redhat.com>
----
- fs/ceph/file.c | 8 ++++++++
- 1 file changed, 8 insertions(+)
-
-diff --git a/fs/ceph/file.c b/fs/ceph/file.c
-index 903de296f0d3..dee3b445f415 100644
---- a/fs/ceph/file.c
-+++ b/fs/ceph/file.c
-@@ -2502,6 +2502,9 @@ static long ceph_fallocate(struct file *file, int mode,
- 	loff_t endoff = 0;
- 	loff_t size;
- 
-+	dout("%s %p %llx.%llx mode %x, offset %llu length %llu\n", __func__,
-+	     inode, ceph_vinop(inode), mode, offset, length);
-+
- 	if (mode != (FALLOC_FL_KEEP_SIZE | FALLOC_FL_PUNCH_HOLE))
- 		return -EOPNOTSUPP;
- 
-@@ -2539,6 +2542,10 @@ static long ceph_fallocate(struct file *file, int mode,
- 	if (ret < 0)
- 		goto unlock;
- 
-+	ret = file_modified(file);
-+	if (ret)
-+		goto put_caps;
-+
- 	filemap_invalidate_lock(inode->i_mapping);
- 	ceph_fscache_invalidate(inode, false);
- 	ceph_zero_pagecache_range(inode, offset, length);
-@@ -2554,6 +2561,7 @@ static long ceph_fallocate(struct file *file, int mode,
- 	}
- 	filemap_invalidate_unlock(inode->i_mapping);
- 
-+put_caps:
- 	ceph_put_cap_refs(ci, got);
- unlock:
- 	inode_unlock(inode);
 -- 
-2.31.1
 
+Hello Dear Good Day,
+
+I hope you are doing great,
+
+I have something important to discuss with you
+
+if you give me a listening ear.so that I can
+
+write you in details thank you as i wait for
+
+your reply.
+
+Miss Ann Hester
