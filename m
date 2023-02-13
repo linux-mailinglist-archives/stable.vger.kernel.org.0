@@ -2,52 +2,49 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 8A2A0694943
-	for <lists+stable@lfdr.de>; Mon, 13 Feb 2023 15:58:06 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 214AC694935
+	for <lists+stable@lfdr.de>; Mon, 13 Feb 2023 15:57:19 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230236AbjBMO6E (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Feb 2023 09:58:04 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54706 "EHLO
+        id S229968AbjBMO5R (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Feb 2023 09:57:17 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53102 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230150AbjBMO56 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Feb 2023 09:57:58 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id ED0B71CAF0
-        for <stable@vger.kernel.org>; Mon, 13 Feb 2023 06:57:18 -0800 (PST)
+        with ESMTP id S230288AbjBMO5C (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Feb 2023 09:57:02 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2C1541DBA3
+        for <stable@vger.kernel.org>; Mon, 13 Feb 2023 06:56:35 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id CB3146111D
-        for <stable@vger.kernel.org>; Mon, 13 Feb 2023 14:57:18 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E128BC4339B;
-        Mon, 13 Feb 2023 14:57:17 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 4FECCB81261
+        for <stable@vger.kernel.org>; Mon, 13 Feb 2023 14:56:20 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9E70DC433D2;
+        Mon, 13 Feb 2023 14:56:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1676300238;
-        bh=3OpV0qJ/8dww7FlHopo6CyENW94HW2ZdZScYWzlrRxQ=;
+        s=korg; t=1676300179;
+        bh=lyevsOS1FrjFBTNnMLuOxMuDX3zTzhdNJg2mHwOxnCQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=yT+Yj0B1s+1BJWL79t8HmGx3MBODLMsRxGYFgp3xGZjogczBbBwm471ERwu+tNony
-         iZCZS3WlxXusCFuZti/eylIprgaHh95M3KM4LKb6YthRoZ/1SPESrqiXzmYyiA68j7
-         Ppmv8Hl8WOeO7uwd8ktk+aCx6ZBLTeQxgTUOnfeQ=
+        b=qWIayWDGslondqBSFDCuVbjm3IqV51hgDFFfM8nmt5n4RxxVyuehnAr+0stW8MdRk
+         wLFomvuJOXHarE3snlSgT7PFkeSgpGw+Z3HgyDV2INdfUOIfsMuxP8xOhAlmByhFBd
+         kWuiJ/cMrzlo3KiQGMMcXHv95LTW1DdKfcpA4U1Y=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, kernel test robot <lkp@intel.com>,
-        Dan Carpenter <error27@gmail.com>,
-        "Russell King (Oracle)" <rmk+kernel@armlinux.org.uk>,
-        Srinivas Kandagatla <srinivas.kandagatla@linaro.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 02/67] nvmem: core: fix cleanup after dev_set_name()
-Date:   Mon, 13 Feb 2023 15:48:43 +0100
-Message-Id: <20230213144732.453228453@linuxfoundation.org>
+        patches@lists.linux.dev, Paul Cercueil <paul@crapouillou.net>,
+        Stephen Boyd <sboyd@kernel.org>
+Subject: [PATCH 6.1 089/114] clk: ingenic: jz4760: Update M/N/OD calculation algorithm
+Date:   Mon, 13 Feb 2023 15:48:44 +0100
+Message-Id: <20230213144746.751740093@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.1
-In-Reply-To: <20230213144732.336342050@linuxfoundation.org>
-References: <20230213144732.336342050@linuxfoundation.org>
+In-Reply-To: <20230213144742.219399167@linuxfoundation.org>
+References: <20230213144742.219399167@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
         SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -55,97 +52,77 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Russell King (Oracle) <rmk+kernel@armlinux.org.uk>
+From: Paul Cercueil <paul@crapouillou.net>
 
-[ Upstream commit 560181d3ace61825f4ca9dd3481d6c0ee6709fa8 ]
+commit ecfb9f404771dde909ce7743df954370933c3be2 upstream.
 
-If dev_set_name() fails, we leak nvmem->wp_gpio as the cleanup does not
-put this. While a minimal fix for this would be to add the gpiod_put()
-call, we can do better if we split device_register(), and use the
-tested nvmem_release() cleanup code by initialising the device early,
-and putting the device.
+The previous algorithm was pretty broken.
 
-This results in a slightly larger fix, but results in clear code.
+- The inner loop had a '(m > m_max)' condition, and the value of 'm'
+  would increase in each iteration;
 
-Note: this patch depends on "nvmem: core: initialise nvmem->id early"
-and "nvmem: core: remove nvmem_config wp_gpio".
+- Each iteration would actually multiply 'm' by two, so it is not needed
+  to re-compute the whole equation at each iteration;
 
-Fixes: 5544e90c8126 ("nvmem: core: add error handling for dev_set_name")
-Cc: stable@vger.kernel.org
-Reported-by: kernel test robot <lkp@intel.com>
-Reported-by: Dan Carpenter <error27@gmail.com>
-Signed-off-by: Russell King (Oracle) <rmk+kernel@armlinux.org.uk>
-[Srini: Fixed subject line and error code handing with wp_gpio while applying.]
-Signed-off-by: Srinivas Kandagatla <srinivas.kandagatla@linaro.org>
-Link: https://lore.kernel.org/r/20230127104015.23839-6-srinivas.kandagatla@linaro.org
+- It would loop until (m & 1) == 0, which means it would loop at most
+  once.
+
+- The outer loop would divide the 'n' value by two at the end of each
+  iteration. This meant that for a 12 MHz parent clock and a 1.2 GHz
+  requested clock, it would first try n=12, then n=6, then n=3, then
+  n=1, none of which would work; the only valid value is n=2 in this
+  case.
+
+Simplify this algorithm with a single for loop, which decrements 'n'
+after each iteration, addressing all of the above problems.
+
+Fixes: bdbfc029374f ("clk: ingenic: Add support for the JZ4760")
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Paul Cercueil <paul@crapouillou.net>
+Link: https://lore.kernel.org/r/20221214123704.7305-1-paul@crapouillou.net
+Signed-off-by: Stephen Boyd <sboyd@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Stable-dep-of: ab3428cfd9aa ("nvmem: core: fix registration vs use race")
-Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/nvmem/core.c | 22 ++++++++++------------
- 1 file changed, 10 insertions(+), 12 deletions(-)
+ drivers/clk/ingenic/jz4760-cgu.c |   18 ++++++++----------
+ 1 file changed, 8 insertions(+), 10 deletions(-)
 
-diff --git a/drivers/nvmem/core.c b/drivers/nvmem/core.c
-index 51bec9f8a3bf9..f06b65f0d410b 100644
---- a/drivers/nvmem/core.c
-+++ b/drivers/nvmem/core.c
-@@ -768,14 +768,18 @@ struct nvmem_device *nvmem_register(const struct nvmem_config *config)
+--- a/drivers/clk/ingenic/jz4760-cgu.c
++++ b/drivers/clk/ingenic/jz4760-cgu.c
+@@ -58,7 +58,7 @@ jz4760_cgu_calc_m_n_od(const struct inge
+ 		       unsigned long rate, unsigned long parent_rate,
+ 		       unsigned int *pm, unsigned int *pn, unsigned int *pod)
+ {
+-	unsigned int m, n, od, m_max = (1 << pll_info->m_bits) - 2;
++	unsigned int m, n, od, m_max = (1 << pll_info->m_bits) - 1;
  
- 	nvmem->id = rval;
+ 	/* The frequency after the N divider must be between 1 and 50 MHz. */
+ 	n = parent_rate / (1 * MHZ);
+@@ -66,19 +66,17 @@ jz4760_cgu_calc_m_n_od(const struct inge
+ 	/* The N divider must be >= 2. */
+ 	n = clamp_val(n, 2, 1 << pll_info->n_bits);
  
-+	nvmem->dev.type = &nvmem_provider_type;
-+	nvmem->dev.bus = &nvmem_bus_type;
-+	nvmem->dev.parent = config->dev;
-+
-+	device_initialize(&nvmem->dev);
-+
- 	if (!config->ignore_wp)
- 		nvmem->wp_gpio = gpiod_get_optional(config->dev, "wp",
- 						    GPIOD_OUT_HIGH);
- 	if (IS_ERR(nvmem->wp_gpio)) {
--		ida_free(&nvmem_ida, nvmem->id);
- 		rval = PTR_ERR(nvmem->wp_gpio);
--		kfree(nvmem);
--		return ERR_PTR(rval);
-+		goto err_put_device;
+-	for (;; n >>= 1) {
+-		od = (unsigned int)-1;
++	rate /= MHZ;
++	parent_rate /= MHZ;
+ 
+-		do {
+-			m = (rate / MHZ) * (1 << ++od) * n / (parent_rate / MHZ);
+-		} while ((m > m_max || m & 1) && (od < 4));
+-
+-		if (od < 4 && m >= 4 && m <= m_max)
+-			break;
++	for (m = m_max; m >= m_max && n >= 2; n--) {
++		m = rate * n / parent_rate;
++		od = m & 1;
++		m <<= od;
  	}
  
- 	kref_init(&nvmem->refcnt);
-@@ -787,9 +791,6 @@ struct nvmem_device *nvmem_register(const struct nvmem_config *config)
- 	nvmem->stride = config->stride ?: 1;
- 	nvmem->word_size = config->word_size ?: 1;
- 	nvmem->size = config->size;
--	nvmem->dev.type = &nvmem_provider_type;
--	nvmem->dev.bus = &nvmem_bus_type;
--	nvmem->dev.parent = config->dev;
- 	nvmem->root_only = config->root_only;
- 	nvmem->priv = config->priv;
- 	nvmem->type = config->type;
-@@ -816,11 +817,8 @@ struct nvmem_device *nvmem_register(const struct nvmem_config *config)
- 		break;
- 	}
+ 	*pm = m;
+-	*pn = n;
++	*pn = n + 1;
+ 	*pod = 1 << od;
+ }
  
--	if (rval) {
--		ida_free(&nvmem_ida, nvmem->id);
--		kfree(nvmem);
--		return ERR_PTR(rval);
--	}
-+	if (rval)
-+		goto err_put_device;
- 
- 	nvmem->read_only = device_property_present(config->dev, "read-only") ||
- 			   config->read_only || !nvmem->reg_write;
-@@ -831,7 +829,7 @@ struct nvmem_device *nvmem_register(const struct nvmem_config *config)
- 
- 	dev_dbg(&nvmem->dev, "Registering nvmem device %s\n", config->name);
- 
--	rval = device_register(&nvmem->dev);
-+	rval = device_add(&nvmem->dev);
- 	if (rval)
- 		goto err_put_device;
- 
--- 
-2.39.0
-
 
 
