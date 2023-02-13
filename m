@@ -2,119 +2,111 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 51E24694D28
-	for <lists+stable@lfdr.de>; Mon, 13 Feb 2023 17:45:32 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C9FE1694E09
+	for <lists+stable@lfdr.de>; Mon, 13 Feb 2023 18:32:31 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231223AbjBMQp3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Feb 2023 11:45:29 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38212 "EHLO
+        id S230013AbjBMRca (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Feb 2023 12:32:30 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44990 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230476AbjBMQp0 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Feb 2023 11:45:26 -0500
-Received: from smtp-fw-80007.amazon.com (smtp-fw-80007.amazon.com [99.78.197.218])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7E1F31ADD2;
-        Mon, 13 Feb 2023 08:45:15 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-  d=amazon.com; i=@amazon.com; q=dns/txt; s=amazon201209;
-  t=1676306716; x=1707842716;
-  h=from:to:cc:subject:date:message-id:in-reply-to:
-   references:mime-version:content-transfer-encoding;
-  bh=ZDQJ3j66lvSghE+5Zg2rbIchPj9PWcZWgtulopzngrk=;
-  b=kdBquCPHSoGkZOZ2DHiDK+ob59X+3m2ANDGJ5KLf547NQragOaKeZs5n
-   x/DHS7aJKRu9GlS4/8KG58GiaUesAtCFHfqzgUsDCA1ImtAv+n/vdt5Ey
-   axCnXRQ8Y9GsL7tNJXBW4xnTbmO+XSTbDtQ0lUuG0kQXZ1MhXaHPiu0oU
-   U=;
-X-IronPort-AV: E=Sophos;i="5.97,294,1669075200"; 
-   d="scan'208";a="181364611"
-Received: from pdx4-co-svc-p1-lb2-vlan3.amazon.com (HELO email-inbound-relay-pdx-2c-m6i4x-e7094f15.us-west-2.amazon.com) ([10.25.36.214])
-  by smtp-border-fw-80007.pdx80.corp.amazon.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 13 Feb 2023 16:45:09 +0000
-Received: from EX13MTAUWB001.ant.amazon.com (pdx1-ws-svc-p6-lb9-vlan3.pdx.amazon.com [10.236.137.198])
-        by email-inbound-relay-pdx-2c-m6i4x-e7094f15.us-west-2.amazon.com (Postfix) with ESMTPS id 38B58417A3;
-        Mon, 13 Feb 2023 16:45:05 +0000 (UTC)
-Received: from EX19D004ANA001.ant.amazon.com (10.37.240.138) by
- EX13MTAUWB001.ant.amazon.com (10.43.161.207) with Microsoft SMTP Server (TLS)
- id 15.0.1497.45; Mon, 13 Feb 2023 16:45:05 +0000
-Received: from 88665a182662.ant.amazon.com (10.43.162.56) by
- EX19D004ANA001.ant.amazon.com (10.37.240.138) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA) id 15.2.1118.24;
- Mon, 13 Feb 2023 16:45:03 +0000
-From:   Kuniyuki Iwashima <kuniyu@amazon.com>
-To:     <w@1wt.eu>
-CC:     <gregkh@linuxfoundation.org>, <netdev@vger.kernel.org>,
-        <regressions@lists.linux.dev>, <stable@vger.kernel.org>,
-        <winter@winter.cafe>, <kuniyu@amazon.com>
-Subject: Re: [REGRESSION] 5.15.88 and onwards no longer return EADDRINUSE from bind
-Date:   Mon, 13 Feb 2023 08:44:55 -0800
-Message-ID: <20230213164455.36911-1-kuniyu@amazon.com>
-X-Mailer: git-send-email 2.30.2
-In-Reply-To: <Y+nsQlVzmTP0meTX@1wt.eu>
-References: <Y+nsQlVzmTP0meTX@1wt.eu>
+        with ESMTP id S229615AbjBMRcX (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Feb 2023 12:32:23 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C03B9193FB
+        for <stable@vger.kernel.org>; Mon, 13 Feb 2023 09:32:22 -0800 (PST)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 269EC61219
+        for <stable@vger.kernel.org>; Mon, 13 Feb 2023 17:32:22 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3EA90C433D2;
+        Mon, 13 Feb 2023 17:32:21 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
+        s=korg; t=1676309541;
+        bh=M3kOciXEED3P01s/DIimClElVOiXiryB7sJpct7LmUA=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=OkymwqciWOgiPVg3WJ1vmm1UoRslZ3g9MqdT1/eBKpvsKEOIBfLgMfPNLD9U+Iq1E
+         IN/z2tLgjq3iUzBp9VaPCMBiCUuJooTJ883jwdBPy3Gc5zqNNZvDIByBglgEA61Zfx
+         ntMgBMXSyqhVwrWxLG9jLhh38QnEjMyzyDjbrUVI=
+Date:   Mon, 13 Feb 2023 16:23:40 +0100
+From:   Greg KH <gregkh@linuxfoundation.org>
+To:     Mario Limonciello <mario.limonciello@amd.com>
+Cc:     stable@vger.kernel.org,
+        Kai-Heng Feng <kai.heng.feng@canonical.com>,
+        Xaver Hugl <xaver.hugl@gmail.com>,
+        Hans de Goede <hdegoede@redhat.com>
+Subject: Re: [5.15.y backport 1/1] platform/x86/amd: pmc: Disable IRQ1 wakeup
+ for RN/CZN
+Message-ID: <Y+pV/CuA/SMeqXen@kroah.com>
+References: <20230213151543.176-1-mario.limonciello@amd.com>
+ <20230213151543.176-2-mario.limonciello@amd.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-Content-Type: text/plain
-X-Originating-IP: [10.43.162.56]
-X-ClientProxiedBy: EX13D34UWA002.ant.amazon.com (10.43.160.245) To
- EX19D004ANA001.ant.amazon.com (10.37.240.138)
-X-Spam-Status: No, score=-4.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,
-        RCVD_IN_DNSWL_MED,RCVD_IN_MSPIKE_H2,SPF_HELO_NONE,SPF_PASS
-        autolearn=ham autolearn_force=no version=3.4.6
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20230213151543.176-2-mario.limonciello@amd.com>
+X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
+        SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From:   Willy Tarreau <w@1wt.eu>
-Date:   Mon, 13 Feb 2023 08:52:34 +0100
-> Hi Greg,
+On Mon, Feb 13, 2023 at 09:15:43AM -0600, Mario Limonciello wrote:
+> By default when the system is configured for low power idle in the FADT
+> the keyboard is set up as a wake source.  This matches the behavior that
+> Windows uses for Modern Standby as well.
 > 
-> On Mon, Feb 13, 2023 at 08:25:34AM +0100, Greg KH wrote:
-> > On Mon, Feb 13, 2023 at 05:27:03AM +0100, Willy Tarreau wrote:
-> > > Hi,
-> > > 
-> > > [CCed netdev]
-> > > 
-> > > On Sun, Feb 12, 2023 at 10:38:40PM -0500, Winter wrote:
-> > > > Hi all,
-> > > > 
-> > > > I'm facing the same issue as
-> > > > https://lore.kernel.org/stable/CAFsF8vL4CGFzWMb38_XviiEgxoKX0GYup=JiUFXUOmagdk9CRg@mail.gmail.com/,
-> > > > but on 5.15. I've bisected it across releases to 5.15.88, and can reproduce
-> > > > on 5.15.93.
-> > > > 
-> > > > However, I cannot seem to find the identified problematic commit in the 5.15
-> > > > branch, so I'm unsure if this is a different issue or not.
-> > > > 
-> > > > There's a few ways to reproduce this issue, but the one I've been using is
-> > > > running libuv's (https://github.com/libuv/libuv) tests, specifically tests
-> > > > 271 and 277.
-> > > 
-> > > >From the linked patch:
-> > > 
-> > >   https://lore.kernel.org/stable/20221228144337.512799851@linuxfoundation.org/
-> > 
-> > But that commit only ended up in 6.0.y, not 5.15, so how is this an
-> > issue in 5.15.y?
+> It has been reported that a variety of AMD based designs there are
+> spurious wakeups are happening where two IRQ sources are active.
 > 
-> Hmmm I plead -ENOCOFFEE on my side, I hadn't notice the "can't find the
-> problematic commit", you're right indeed.
+> For example:
+> ```
+> PM: Triggering wakeup from IRQ 9
+> PM: Triggering wakeup from IRQ 1
+> ```
 > 
-> However if the issue happened in 5.15.88, the only part touching the
-> network listening area is this one which may introduce an EINVAL on
-> one listening path, but that seems unrelated to me given that it's
-> only for ULP that libuv doesn't seem to be using:
+> In these designs IRQ 9 is the ACPI SCI and IRQ 1 is the keyboard.
+> One way to trigger this problem is to suspend the laptop and then unplug
+> the AC adapter.  The SOC will be in a hardware sleep state and plugging
+> in the AC adapter returns control to the kernel's s2idle loop.
 > 
->   dadd0dcaa67d ("net/ulp: prevent ULP without clone op from entering the LISTEN status")
+> Normally if just IRQ 9 was active the s2idle loop would advance any EC
+> transactions and no other IRQ being active would cause the s2idle loop
+> to put the SOC back into hardware sleep state.
+> 
+> When this bug occurred IRQ 1 is also active even if no keyboard activity
+> occurred. This causes the s2idle loop to break and the system to wake.
+> 
+> This is a platform firmware bug triggering IRQ1 without keyboard activity.
+> This occurs in Windows as well, but Windows will enter "SW DRIPS" and
+> then with no activity enters back into "HW DRIPS" (hardware sleep state).
+> 
+> This issue affects Renoir, Lucienne, Cezanne, and Barcelo platforms. It
+> does not happen on newer systems such as Mendocino or Rembrandt.
+> 
+> It's been fixed in newer platform firmware.  To avoid triggering the bug
+> on older systems check the SMU F/W version and adjust the policy at suspend
+> time for s2idle wakeup from keyboard on these systems. A lot of thought
+> and experimentation has been given around the timing of disabling IRQ1,
+> and to make it work the "suspend" PM callback is restored.
+> 
+> Reported-by: Kai-Heng Feng <kai.heng.feng@canonical.com>
+> Reported-by: Xaver Hugl <xaver.hugl@gmail.com>
+> Link: https://gitlab.freedesktop.org/drm/amd/-/issues/2115
+> Link: https://gitlab.freedesktop.org/drm/amd/-/issues/1951
+> Signed-off-by: Mario Limonciello <mario.limonciello@amd.com>
+> Link: https://lore.kernel.org/r/20230120191519.15926-1-mario.limonciello@amd.com
+> Reviewed-by: Hans de Goede <hdegoede@redhat.com>
+> Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+> (cherry picked from commit 8e60615e8932167057b363c11a7835da7f007106)
+> (cherry picked from commit f6045de1f53268131ea75a99b210b869dcc150b2)
+> These have been hand modified for missing dependency commits.
 
-This commit accidentally backports a part of 7a7160edf1bf ("net: Return
-errno in sk->sk_prot->get_port().") and removed err = -EADDRINUSE in
-inet_csk_listen_start().  Then, listen() will return 0 even if ->get_port()
-actually fails and returns 1.
+Can you split this up into the 2 different commits and submit this as a
+patch series so that we can track this over time easier?
 
-I can send a small revert or a whole backport, but which is preferable ?
-The original patch is not for stable, but it will make future backports
-easy.
+thanks,
 
-Thanks,
-Kuniyuki
+greg k-h
