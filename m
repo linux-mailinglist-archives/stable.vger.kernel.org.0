@@ -2,45 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 44CB76948E1
-	for <lists+stable@lfdr.de>; Mon, 13 Feb 2023 15:54:12 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 098136948EB
+	for <lists+stable@lfdr.de>; Mon, 13 Feb 2023 15:54:23 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229711AbjBMOyK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Feb 2023 09:54:10 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49724 "EHLO
+        id S230383AbjBMOyV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Feb 2023 09:54:21 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50086 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230334AbjBMOyI (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Feb 2023 09:54:08 -0500
+        with ESMTP id S230222AbjBMOyS (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Feb 2023 09:54:18 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0BB703C19
-        for <stable@vger.kernel.org>; Mon, 13 Feb 2023 06:54:02 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 55280975D
+        for <stable@vger.kernel.org>; Mon, 13 Feb 2023 06:54:17 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id A7A2CB81253
-        for <stable@vger.kernel.org>; Mon, 13 Feb 2023 14:54:00 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E72C6C433D2;
-        Mon, 13 Feb 2023 14:53:58 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 042C3B81256
+        for <stable@vger.kernel.org>; Mon, 13 Feb 2023 14:54:16 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4EFFDC433D2;
+        Mon, 13 Feb 2023 14:54:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1676300039;
-        bh=YCvuw+pXr4ef5gb+FobQg0K/sQBUL4P0Z4m3TQYHKfg=;
+        s=korg; t=1676300054;
+        bh=YMdjiCKXA7jQ+03kpyorUGNRsayhU0mtEzX6DYhxBlQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=bN26oAv2YegYE38pJk6yL+4kwcWfVKR8fxJDJFbZB2ElXRdcuQU6wb+tsX8cCvovz
-         rLZ+jInWdNPkUzlCt4CyT28Ya13Ko+sRK/BMmGA8ayQjwQcoslNSArWeIMABGmmqJi
-         nlswsVuIsr9Sk63KDOlBf+uNbmS69PamDIYtf0Ug=
+        b=tbaiZxEl8UlpWoBts2IiLCjt9N7UkmtW6OUBdumHS47n7jbkzrVDeTUHXD2qrSSf9
+         yZ1K60BBFO2Cy58Q3B3UkvDI78h8Mr56YLidIRGTyDgh6OvQ2hc0QSRoJaSDG//swH
+         c1dzl19olmmBRjspAkfW1ISVqQR4vkq2U85eaU1E=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Anirudh Venkataramanan <anirudh.venkataramanan@intel.com>,
-        Marcin Szycik <marcin.szycik@linux.intel.com>,
-        Jakub Andrysiak <jakub.andrysiak@intel.com>,
+        patches@lists.linux.dev, Brett Creeley <brett.creeley@intel.com>,
+        Karen Ostrowska <karen.ostrowska@intel.com>,
+        Marek Szlosek <marek.szlosek@intel.com>,
         Tony Nguyen <anthony.l.nguyen@intel.com>,
-        Leon Romanovsky <leonro@nvidia.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 040/114] ice: Do not use WQ_MEM_RECLAIM flag for workqueue
-Date:   Mon, 13 Feb 2023 15:47:55 +0100
-Message-Id: <20230213144744.210873811@linuxfoundation.org>
+Subject: [PATCH 6.1 041/114] ice: Fix disabling Rx VLAN filtering with port VLAN enabled
+Date:   Mon, 13 Feb 2023 15:47:56 +0100
+Message-Id: <20230213144744.265382447@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.1
 In-Reply-To: <20230213144742.219399167@linuxfoundation.org>
 References: <20230213144742.219399167@linuxfoundation.org>
@@ -57,109 +55,81 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Anirudh Venkataramanan <anirudh.venkataramanan@intel.com>
+From: Brett Creeley <brett.creeley@intel.com>
 
-[ Upstream commit 4d159f7884f78b1aacb99b4fc37d1e3cb1194e39 ]
+[ Upstream commit c793f8ea15e312789b5b6b4a5e7b0b92315be5cb ]
 
-When both ice and the irdma driver are loaded, a warning in
-check_flush_dependency is being triggered. This is due to ice driver
-workqueue being allocated with the WQ_MEM_RECLAIM flag and the irdma one
-is not.
+If the user turns on the vf-true-promiscuous-support flag, then Rx VLAN
+filtering will be disabled if the VF requests to enable promiscuous
+mode. When the VF is in a port VLAN, this is the incorrect behavior
+because it will allow the VF to receive traffic outside of its port VLAN
+domain. Fortunately this only resulted in the VF(s) receiving broadcast
+traffic outside of the VLAN domain because all of the VLAN promiscuous
+rules are based on the port VLAN ID. Fix this by setting the
+.disable_rx_filtering VLAN op to a no-op when a port VLAN is enabled on
+the VF.
 
-According to kernel documentation, this flag should be set if the
-workqueue will be involved in the kernel's memory reclamation flow.
-Since it is not, there is no need for the ice driver's WQ to have this
-flag set so remove it.
+Also, make sure to make this fix for both Single VLAN Mode and Double
+VLAN Mode enabled devices.
 
-Example trace:
-
-[  +0.000004] workqueue: WQ_MEM_RECLAIM ice:ice_service_task [ice] is flushing !WQ_MEM_RECLAIM infiniband:0x0
-[  +0.000139] WARNING: CPU: 0 PID: 728 at kernel/workqueue.c:2632 check_flush_dependency+0x178/0x1a0
-[  +0.000011] Modules linked in: bonding tls xt_CHECKSUM xt_MASQUERADE xt_conntrack ipt_REJECT nf_reject_ipv4 nft_compat nft_cha
-in_nat nf_nat nf_conntrack nf_defrag_ipv6 nf_defrag_ipv4 nf_tables nfnetlink bridge stp llc rfkill vfat fat intel_rapl_msr intel
-_rapl_common isst_if_common skx_edac nfit libnvdimm x86_pkg_temp_thermal intel_powerclamp coretemp kvm_intel kvm irqbypass crct1
-0dif_pclmul crc32_pclmul ghash_clmulni_intel rapl intel_cstate rpcrdma sunrpc rdma_ucm ib_srpt ib_isert iscsi_target_mod target_
-core_mod ib_iser libiscsi scsi_transport_iscsi rdma_cm ib_cm iw_cm iTCO_wdt iTCO_vendor_support ipmi_ssif irdma mei_me ib_uverbs
-ib_core intel_uncore joydev pcspkr i2c_i801 acpi_ipmi mei lpc_ich i2c_smbus intel_pch_thermal ioatdma ipmi_si acpi_power_meter
-acpi_pad xfs libcrc32c sd_mod t10_pi crc64_rocksoft crc64 sg ahci ixgbe libahci ice i40e igb crc32c_intel mdio i2c_algo_bit liba
-ta dca wmi dm_mirror dm_region_hash dm_log dm_mod ipmi_devintf ipmi_msghandler fuse
-[  +0.000161]  [last unloaded: bonding]
-[  +0.000006] CPU: 0 PID: 728 Comm: kworker/0:2 Tainted: G S                 6.2.0-rc2_next-queue-13jan-00458-gc20aabd57164 #1
-[  +0.000006] Hardware name: Intel Corporation S2600WFT/S2600WFT, BIOS SE5C620.86B.02.01.0010.010620200716 01/06/2020
-[  +0.000003] Workqueue: ice ice_service_task [ice]
-[  +0.000127] RIP: 0010:check_flush_dependency+0x178/0x1a0
-[  +0.000005] Code: 89 8e 02 01 e8 49 3d 40 00 49 8b 55 18 48 8d 8d d0 00 00 00 48 8d b3 d0 00 00 00 4d 89 e0 48 c7 c7 e0 3b 08
-9f e8 bb d3 07 01 <0f> 0b e9 be fe ff ff 80 3d 24 89 8e 02 00 0f 85 6b ff ff ff e9 06
-[  +0.000004] RSP: 0018:ffff88810a39f990 EFLAGS: 00010282
-[  +0.000005] RAX: 0000000000000000 RBX: ffff888141bc2400 RCX: 0000000000000000
-[  +0.000004] RDX: 0000000000000001 RSI: dffffc0000000000 RDI: ffffffffa1213a80
-[  +0.000003] RBP: ffff888194bf3400 R08: ffffed117b306112 R09: ffffed117b306112
-[  +0.000003] R10: ffff888bd983088b R11: ffffed117b306111 R12: 0000000000000000
-[  +0.000003] R13: ffff888111f84d00 R14: ffff88810a3943ac R15: ffff888194bf3400
-[  +0.000004] FS:  0000000000000000(0000) GS:ffff888bd9800000(0000) knlGS:0000000000000000
-[  +0.000003] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-[  +0.000003] CR2: 000056035b208b60 CR3: 000000017795e005 CR4: 00000000007706f0
-[  +0.000003] DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
-[  +0.000003] DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
-[  +0.000002] PKRU: 55555554
-[  +0.000003] Call Trace:
-[  +0.000002]  <TASK>
-[  +0.000003]  __flush_workqueue+0x203/0x840
-[  +0.000006]  ? mutex_unlock+0x84/0xd0
-[  +0.000008]  ? __pfx_mutex_unlock+0x10/0x10
-[  +0.000004]  ? __pfx___flush_workqueue+0x10/0x10
-[  +0.000006]  ? mutex_lock+0xa3/0xf0
-[  +0.000005]  ib_cache_cleanup_one+0x39/0x190 [ib_core]
-[  +0.000174]  __ib_unregister_device+0x84/0xf0 [ib_core]
-[  +0.000094]  ib_unregister_device+0x25/0x30 [ib_core]
-[  +0.000093]  irdma_ib_unregister_device+0x97/0xc0 [irdma]
-[  +0.000064]  ? __pfx_irdma_ib_unregister_device+0x10/0x10 [irdma]
-[  +0.000059]  ? up_write+0x5c/0x90
-[  +0.000005]  irdma_remove+0x36/0x90 [irdma]
-[  +0.000062]  auxiliary_bus_remove+0x32/0x50
-[  +0.000007]  device_release_driver_internal+0xfa/0x1c0
-[  +0.000005]  bus_remove_device+0x18a/0x260
-[  +0.000007]  device_del+0x2e5/0x650
-[  +0.000005]  ? __pfx_device_del+0x10/0x10
-[  +0.000003]  ? mutex_unlock+0x84/0xd0
-[  +0.000004]  ? __pfx_mutex_unlock+0x10/0x10
-[  +0.000004]  ? _raw_spin_unlock+0x18/0x40
-[  +0.000005]  ice_unplug_aux_dev+0x52/0x70 [ice]
-[  +0.000160]  ice_service_task+0x1309/0x14f0 [ice]
-[  +0.000134]  ? __pfx___schedule+0x10/0x10
-[  +0.000006]  process_one_work+0x3b1/0x6c0
-[  +0.000008]  worker_thread+0x69/0x670
-[  +0.000005]  ? __kthread_parkme+0xec/0x110
-[  +0.000007]  ? __pfx_worker_thread+0x10/0x10
-[  +0.000005]  kthread+0x17f/0x1b0
-[  +0.000005]  ? __pfx_kthread+0x10/0x10
-[  +0.000004]  ret_from_fork+0x29/0x50
-[  +0.000009]  </TASK>
-
-Fixes: 940b61af02f4 ("ice: Initialize PF and setup miscellaneous interrupt")
-Signed-off-by: Anirudh Venkataramanan <anirudh.venkataramanan@intel.com>
-Signed-off-by: Marcin Szycik <marcin.szycik@linux.intel.com>
-Tested-by: Jakub Andrysiak <jakub.andrysiak@intel.com>
+Fixes: c31af68a1b94 ("ice: Add outer_vlan_ops and VSI specific VLAN ops implementations")
+Signed-off-by: Brett Creeley <brett.creeley@intel.com>
+Signed-off-by: Karen Ostrowska <karen.ostrowska@intel.com>
+Tested-by: Marek Szlosek <marek.szlosek@intel.com>
 Signed-off-by: Tony Nguyen <anthony.l.nguyen@intel.com>
-Reviewed-by: Leon Romanovsky <leonro@nvidia.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/intel/ice/ice_main.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ .../net/ethernet/intel/ice/ice_vf_vsi_vlan_ops.c | 16 +++++++++++++++-
+ 1 file changed, 15 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/net/ethernet/intel/ice/ice_main.c b/drivers/net/ethernet/intel/ice/ice_main.c
-index 1ac5f0018c7eb..333582dabba16 100644
---- a/drivers/net/ethernet/intel/ice/ice_main.c
-+++ b/drivers/net/ethernet/intel/ice/ice_main.c
-@@ -5518,7 +5518,7 @@ static int __init ice_module_init(void)
- 	pr_info("%s\n", ice_driver_string);
- 	pr_info("%s\n", ice_copyright);
+diff --git a/drivers/net/ethernet/intel/ice/ice_vf_vsi_vlan_ops.c b/drivers/net/ethernet/intel/ice/ice_vf_vsi_vlan_ops.c
+index 5ecc0ee9a78e0..b1ffb81893d48 100644
+--- a/drivers/net/ethernet/intel/ice/ice_vf_vsi_vlan_ops.c
++++ b/drivers/net/ethernet/intel/ice/ice_vf_vsi_vlan_ops.c
+@@ -44,13 +44,17 @@ void ice_vf_vsi_init_vlan_ops(struct ice_vsi *vsi)
  
--	ice_wq = alloc_workqueue("%s", WQ_MEM_RECLAIM, 0, KBUILD_MODNAME);
-+	ice_wq = alloc_workqueue("%s", 0, 0, KBUILD_MODNAME);
- 	if (!ice_wq) {
- 		pr_err("Failed to create workqueue\n");
- 		return -ENOMEM;
+ 		/* outer VLAN ops regardless of port VLAN config */
+ 		vlan_ops->add_vlan = ice_vsi_add_vlan;
+-		vlan_ops->dis_rx_filtering = ice_vsi_dis_rx_vlan_filtering;
+ 		vlan_ops->ena_tx_filtering = ice_vsi_ena_tx_vlan_filtering;
+ 		vlan_ops->dis_tx_filtering = ice_vsi_dis_tx_vlan_filtering;
+ 
+ 		if (ice_vf_is_port_vlan_ena(vf)) {
+ 			/* setup outer VLAN ops */
+ 			vlan_ops->set_port_vlan = ice_vsi_set_outer_port_vlan;
++			/* all Rx traffic should be in the domain of the
++			 * assigned port VLAN, so prevent disabling Rx VLAN
++			 * filtering
++			 */
++			vlan_ops->dis_rx_filtering = noop_vlan;
+ 			vlan_ops->ena_rx_filtering =
+ 				ice_vsi_ena_rx_vlan_filtering;
+ 
+@@ -63,6 +67,9 @@ void ice_vf_vsi_init_vlan_ops(struct ice_vsi *vsi)
+ 			vlan_ops->ena_insertion = ice_vsi_ena_inner_insertion;
+ 			vlan_ops->dis_insertion = ice_vsi_dis_inner_insertion;
+ 		} else {
++			vlan_ops->dis_rx_filtering =
++				ice_vsi_dis_rx_vlan_filtering;
++
+ 			if (!test_bit(ICE_FLAG_VF_VLAN_PRUNING, pf->flags))
+ 				vlan_ops->ena_rx_filtering = noop_vlan;
+ 			else
+@@ -96,7 +103,14 @@ void ice_vf_vsi_init_vlan_ops(struct ice_vsi *vsi)
+ 			vlan_ops->set_port_vlan = ice_vsi_set_inner_port_vlan;
+ 			vlan_ops->ena_rx_filtering =
+ 				ice_vsi_ena_rx_vlan_filtering;
++			/* all Rx traffic should be in the domain of the
++			 * assigned port VLAN, so prevent disabling Rx VLAN
++			 * filtering
++			 */
++			vlan_ops->dis_rx_filtering = noop_vlan;
+ 		} else {
++			vlan_ops->dis_rx_filtering =
++				ice_vsi_dis_rx_vlan_filtering;
+ 			if (!test_bit(ICE_FLAG_VF_VLAN_PRUNING, pf->flags))
+ 				vlan_ops->ena_rx_filtering = noop_vlan;
+ 			else
 -- 
 2.39.0
 
