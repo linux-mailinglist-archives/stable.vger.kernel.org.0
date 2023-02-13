@@ -2,43 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 84A73694932
-	for <lists+stable@lfdr.de>; Mon, 13 Feb 2023 15:57:08 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 100B6694939
+	for <lists+stable@lfdr.de>; Mon, 13 Feb 2023 15:57:23 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229664AbjBMO5H (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Feb 2023 09:57:07 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53456 "EHLO
+        id S230148AbjBMO5V (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Feb 2023 09:57:21 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53388 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231189AbjBMO4t (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Feb 2023 09:56:49 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 99A6B1D914
-        for <stable@vger.kernel.org>; Mon, 13 Feb 2023 06:56:24 -0800 (PST)
+        with ESMTP id S231145AbjBMO5G (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Feb 2023 09:57:06 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C1B3E1DB97
+        for <stable@vger.kernel.org>; Mon, 13 Feb 2023 06:56:43 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 33A4261159
-        for <stable@vger.kernel.org>; Mon, 13 Feb 2023 14:56:22 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 39C85C4339B;
-        Mon, 13 Feb 2023 14:56:21 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 645F2B80E62
+        for <stable@vger.kernel.org>; Mon, 13 Feb 2023 14:56:25 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C9409C433D2;
+        Mon, 13 Feb 2023 14:56:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1676300181;
-        bh=ATwIOMAYVbROdI9bkipJLxDjjO9PLwqcxdRryjI3z0k=;
+        s=korg; t=1676300184;
+        bh=zfY/whVn6HYIuiXAw3hxr53jrQkSstb/81pyrNbv6wY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=DRuWUIKGvMhzhI80AmUEOOZCKdgDu6wdk9lmMbhySxpHx6/CvibyHKpIrwEkwIynP
-         SvZWAcDSPzbmGOVYLSxJwbOn+uEDly+HGosXEQt2bgr+sD+IAkhXeZhvqqAeQ+3qS6
-         DLJrOwBZy6l6TRkDG0aq/GtkLt9TplOeQ9ZKo79U=
+        b=hTNOmdmMJ54xBcMZBB0qbKyNaTihWoekWoVmCXHkHOGz1N3x1mZnJKyASwX2x22wY
+         xNS5p7ONrE5+CNNk4W26jeS6mH0Iwq5ojSQp2CE7tZaDbaDFRpT7ahyQX4ugBFXuSM
+         N1yxjuZ+zyKjimadVdKC4vnw3KjzUkU9DGm7aJP4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Guo Ren <guoren@linux.alibaba.com>,
-        Guo Ren <guoren@kernel.org>,
-        Bjorn Topel <bjorn.topel@gmail.com>,
-        =?UTF-8?q?Bj=C3=B6rn=20T=C3=B6pel?= <bjorn@kernel.org>,
-        Palmer Dabbelt <palmer@rivosinc.com>
-Subject: [PATCH 6.1 095/114] riscv: kprobe: Fixup misaligned load text
-Date:   Mon, 13 Feb 2023 15:48:50 +0100
-Message-Id: <20230213144747.083569434@linuxfoundation.org>
+        patches@lists.linux.dev, Sachin Sant <sachinp@linux.ibm.com>,
+        Nicholas Piggin <npiggin@gmail.com>,
+        Michael Ellerman <mpe@ellerman.id.au>
+Subject: [PATCH 6.1 096/114] powerpc/64s/interrupt: Fix interrupt exit race with security mitigation switch
+Date:   Mon, 13 Feb 2023 15:48:51 +0100
+Message-Id: <20230213144747.144563374@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.1
 In-Reply-To: <20230213144742.219399167@linuxfoundation.org>
 References: <20230213144742.219399167@linuxfoundation.org>
@@ -46,8 +44,8 @@ User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
         SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -55,50 +53,57 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Guo Ren <guoren@linux.alibaba.com>
+From: Nicholas Piggin <npiggin@gmail.com>
 
-commit eb7423273cc9922ee2d05bf660c034d7d515bb91 upstream.
+commit 2ea31e2e62bbc4d11c411eeb36f1b02841dbcab1 upstream.
 
-The current kprobe would cause a misaligned load for the probe point.
-This patch fixup it with two half-word loads instead.
+The RFI and STF security mitigation options can flip the
+interrupt_exit_not_reentrant static branch condition concurrently with
+the interrupt exit code which tests that branch.
 
-Fixes: c22b0bcb1dd0 ("riscv: Add kprobes supported")
-Signed-off-by: Guo Ren <guoren@linux.alibaba.com>
-Signed-off-by: Guo Ren <guoren@kernel.org>
-Link: https://lore.kernel.org/linux-riscv/878rhig9zj.fsf@all.your.base.are.belong.to.us/
-Reported-by: Bjorn Topel <bjorn.topel@gmail.com>
-Reviewed-by: Björn Töpel <bjorn@kernel.org>
-Link: https://lore.kernel.org/r/20230204063531.740220-1-guoren@kernel.org
-Cc: stable@vger.kernel.org
-Signed-off-by: Palmer Dabbelt <palmer@rivosinc.com>
+Interrupt exit tests this condition to set MSR[EE|RI] for exit, then
+again in the case a soft-masked interrupt is found pending, to recover
+the MSR so the interrupt can be replayed before attempting to exit
+again. If the condition changes between these two tests, the MSR and irq
+soft-mask state will become corrupted, leading to warnings and possible
+crashes. For example, if the branch is initially true then false,
+MSR[EE] will be 0 but PACA_IRQ_HARD_DIS clear and EE may not get
+enabled, leading to warnings in irq_64.c.
+
+Fixes: 13799748b957 ("powerpc/64: use interrupt restart table to speed up return from interrupt")
+Cc: stable@vger.kernel.org # v5.14+
+Reported-by: Sachin Sant <sachinp@linux.ibm.com>
+Tested-by: Sachin Sant <sachinp@linux.ibm.com>
+Signed-off-by: Nicholas Piggin <npiggin@gmail.com>
+Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
+Link: https://lore.kernel.org/r/20230206042240.92103-1-npiggin@gmail.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/riscv/kernel/probes/kprobes.c |    8 +++++---
- 1 file changed, 5 insertions(+), 3 deletions(-)
+ arch/powerpc/kernel/interrupt.c |    6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
 
---- a/arch/riscv/kernel/probes/kprobes.c
-+++ b/arch/riscv/kernel/probes/kprobes.c
-@@ -65,16 +65,18 @@ static bool __kprobes arch_check_kprobe(
- 
- int __kprobes arch_prepare_kprobe(struct kprobe *p)
+--- a/arch/powerpc/kernel/interrupt.c
++++ b/arch/powerpc/kernel/interrupt.c
+@@ -50,16 +50,18 @@ static inline bool exit_must_hard_disabl
+  */
+ static notrace __always_inline bool prep_irq_for_enabled_exit(bool restartable)
  {
--	unsigned long probe_addr = (unsigned long)p->addr;
-+	u16 *insn = (u16 *)p->addr;
++	bool must_hard_disable = (exit_must_hard_disable() || !restartable);
++
+ 	/* This must be done with RI=1 because tracing may touch vmaps */
+ 	trace_hardirqs_on();
  
--	if (probe_addr & 0x1)
-+	if ((unsigned long)insn & 0x1)
- 		return -EILSEQ;
+-	if (exit_must_hard_disable() || !restartable)
++	if (must_hard_disable)
+ 		__hard_EE_RI_disable();
  
- 	if (!arch_check_kprobe(p))
- 		return -EILSEQ;
- 
- 	/* copy instruction */
--	p->opcode = *p->addr;
-+	p->opcode = (kprobe_opcode_t)(*insn++);
-+	if (GET_INSN_LENGTH(p->opcode) == 4)
-+		p->opcode |= (kprobe_opcode_t)(*insn) << 16;
- 
- 	/* decode instruction */
- 	switch (riscv_probe_decode_insn(p->addr, &p->ainsn.api)) {
+ #ifdef CONFIG_PPC64
+ 	/* This pattern matches prep_irq_for_idle */
+ 	if (unlikely(lazy_irq_pending_nocheck())) {
+-		if (exit_must_hard_disable() || !restartable) {
++		if (must_hard_disable) {
+ 			local_paca->irq_happened |= PACA_IRQ_HARD_DIS;
+ 			__hard_RI_enable();
+ 		}
 
 
