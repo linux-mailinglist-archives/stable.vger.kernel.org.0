@@ -2,51 +2,50 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E8EC969497D
-	for <lists+stable@lfdr.de>; Mon, 13 Feb 2023 15:59:22 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id AA5696949D8
+	for <lists+stable@lfdr.de>; Mon, 13 Feb 2023 16:02:33 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231267AbjBMO7V (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Feb 2023 09:59:21 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56756 "EHLO
+        id S231263AbjBMPCc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Feb 2023 10:02:32 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60906 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231288AbjBMO7I (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Feb 2023 09:59:08 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7EB191CF51
-        for <stable@vger.kernel.org>; Mon, 13 Feb 2023 06:58:50 -0800 (PST)
+        with ESMTP id S231344AbjBMPC1 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Feb 2023 10:02:27 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C1B561E29B
+        for <stable@vger.kernel.org>; Mon, 13 Feb 2023 07:02:12 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 5738561158
-        for <stable@vger.kernel.org>; Mon, 13 Feb 2023 14:58:49 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6A652C433D2;
-        Mon, 13 Feb 2023 14:58:48 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 20BD2B8125D
+        for <stable@vger.kernel.org>; Mon, 13 Feb 2023 15:01:52 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 72BD3C433D2;
+        Mon, 13 Feb 2023 15:01:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1676300328;
-        bh=u60rqAm79HWBtWjkdXQlS7SlpsLayggWWHCsKDXbEOA=;
+        s=korg; t=1676300510;
+        bh=A0gi/RsoC9PxgWCAsO3OXpp1jWsMFviNHRiwrIXgKas=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=YMD9qa5Mds4ij/PJkNwUtNv/vrkRMOmJUNU1odumeOGnp6orxl6AboZE+DY3YQDAF
-         tPjjetR3rHARzghzJvYWj1AMEnzHIbFUDR3cjW2bxR3t1iimYQKGo0tmMIw7FhAATo
-         kkcXVeotimyOR9IspwRDLAt+AG5a8MZMx7i7cE6o=
+        b=VgNd9KVu6ROinVMzGuU5NlJveIgAZlmGcrpvVuEapieYoc58z7BeQlzt4ufIdzJOp
+         cAGmHtT4vPDv8bx9V73sA9Ixg/pgfnVl+K/WjzK1QIDMAx5epqv3yPayPurwKhnLej
+         rUp3NjIDu6DR0+b9uuWC0Fpn1jChTnAAcZ9RDSs8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Shay Drory <shayd@nvidia.com>,
-        Moshe Shemesh <moshe@nvidia.com>,
-        Saeed Mahameed <saeedm@nvidia.com>,
+        patches@lists.linux.dev, Hans Verkuil <hverkuil-cisco@xs4all.nl>,
+        Maxime Ripard <maxime@cerno.tech>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 37/67] net/mlx5: Serialize module cleanup with reload and remove
+Subject: [PATCH 5.10 013/139] drm/vc4: hdmi: make CEC adapter name unique
 Date:   Mon, 13 Feb 2023 15:49:18 +0100
-Message-Id: <20230213144734.142481788@linuxfoundation.org>
+Message-Id: <20230213144746.375370975@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.1
-In-Reply-To: <20230213144732.336342050@linuxfoundation.org>
-References: <20230213144732.336342050@linuxfoundation.org>
+In-Reply-To: <20230213144745.696901179@linuxfoundation.org>
+References: <20230213144745.696901179@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
         SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -54,81 +53,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Shay Drory <shayd@nvidia.com>
+From: Hans Verkuil <hverkuil-cisco@xs4all.nl>
 
-[ Upstream commit 8f0d1451ecf7b3bd5a06ffc866c753d0f3ab4683 ]
+[ Upstream commit 51128c3f2a7c98055ea1d27e34910dc10977f618 ]
 
-Currently, remove and reload flows can run in parallel to module cleanup.
-This design is error prone. For example: aux_drivers callbacks are called
-from both cleanup and remove flows with different lockings, which can
-cause a deadlock[1].
-Hence, serialize module cleanup with reload and remove.
+The bcm2711 has two HDMI outputs, each with their own CEC adapter.
+The CEC adapter name has to be unique, but it is currently
+hardcoded to "vc4" for both outputs. Change this to use the card_name
+from the variant information in order to make the adapter name unique.
 
-[1]
-       cleanup                        remove
-       -------                        ------
-   auxiliary_driver_unregister();
-                                     devl_lock()
-                                      auxiliary_device_delete(mlx5e_aux)
-    device_lock(mlx5e_aux)
-     devl_lock()
-                                       device_lock(mlx5e_aux)
-
-Fixes: 912cebf420c2 ("net/mlx5e: Connect ethernet part to auxiliary bus")
-Signed-off-by: Shay Drory <shayd@nvidia.com>
-Reviewed-by: Moshe Shemesh <moshe@nvidia.com>
-Signed-off-by: Saeed Mahameed <saeedm@nvidia.com>
+Signed-off-by: Hans Verkuil <hverkuil-cisco@xs4all.nl>
+Fixes: 15b4511a4af6 ("drm/vc4: add HDMI CEC support")
+Signed-off-by: Maxime Ripard <maxime@cerno.tech>
+Link: https://patchwork.freedesktop.org/patch/msgid/dcf1db75-d9cc-62cc-fa12-baf1b2b3bf31@xs4all.nl
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/mellanox/mlx5/core/main.c | 14 +++++++-------
- 1 file changed, 7 insertions(+), 7 deletions(-)
+ drivers/gpu/drm/vc4/vc4_hdmi.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/net/ethernet/mellanox/mlx5/core/main.c b/drivers/net/ethernet/mellanox/mlx5/core/main.c
-index 9e15eea9743fe..485a6a6220f6a 100644
---- a/drivers/net/ethernet/mellanox/mlx5/core/main.c
-+++ b/drivers/net/ethernet/mellanox/mlx5/core/main.c
-@@ -1862,7 +1862,7 @@ static int __init mlx5_init(void)
- 	mlx5_fpga_ipsec_build_fs_cmds();
- 	mlx5_register_debugfs();
+diff --git a/drivers/gpu/drm/vc4/vc4_hdmi.c b/drivers/gpu/drm/vc4/vc4_hdmi.c
+index 08175c3dd374..539ebf85fd7c 100644
+--- a/drivers/gpu/drm/vc4/vc4_hdmi.c
++++ b/drivers/gpu/drm/vc4/vc4_hdmi.c
+@@ -1491,7 +1491,8 @@ static int vc4_hdmi_cec_init(struct vc4_hdmi *vc4_hdmi)
+ 		return 0;
  
--	err = pci_register_driver(&mlx5_core_driver);
-+	err = mlx5e_init();
- 	if (err)
- 		goto err_debug;
- 
-@@ -1870,16 +1870,16 @@ static int __init mlx5_init(void)
- 	if (err)
- 		goto err_sf;
- 
--	err = mlx5e_init();
-+	err = pci_register_driver(&mlx5_core_driver);
- 	if (err)
--		goto err_en;
-+		goto err_pci;
- 
- 	return 0;
- 
--err_en:
-+err_pci:
- 	mlx5_sf_driver_unregister();
- err_sf:
--	pci_unregister_driver(&mlx5_core_driver);
-+	mlx5e_cleanup();
- err_debug:
- 	mlx5_unregister_debugfs();
- 	return err;
-@@ -1887,9 +1887,9 @@ static int __init mlx5_init(void)
- 
- static void __exit mlx5_cleanup(void)
- {
--	mlx5e_cleanup();
--	mlx5_sf_driver_unregister();
- 	pci_unregister_driver(&mlx5_core_driver);
-+	mlx5_sf_driver_unregister();
-+	mlx5e_cleanup();
- 	mlx5_unregister_debugfs();
- }
- 
+ 	vc4_hdmi->cec_adap = cec_allocate_adapter(&vc4_hdmi_cec_adap_ops,
+-						  vc4_hdmi, "vc4",
++						  vc4_hdmi,
++						  vc4_hdmi->variant->card_name,
+ 						  CEC_CAP_DEFAULTS |
+ 						  CEC_CAP_CONNECTOR_INFO, 1);
+ 	ret = PTR_ERR_OR_ZERO(vc4_hdmi->cec_adap);
 -- 
 2.39.0
 
