@@ -2,45 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id F32B16949BD
-	for <lists+stable@lfdr.de>; Mon, 13 Feb 2023 16:01:34 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 92CAE694997
+	for <lists+stable@lfdr.de>; Mon, 13 Feb 2023 16:00:13 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230006AbjBMPBd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Feb 2023 10:01:33 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60306 "EHLO
+        id S231260AbjBMPAL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Feb 2023 10:00:11 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56636 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231312AbjBMPBW (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Feb 2023 10:01:22 -0500
+        with ESMTP id S231373AbjBMPAB (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Feb 2023 10:00:01 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2B1A41C7ED
-        for <stable@vger.kernel.org>; Mon, 13 Feb 2023 07:01:05 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 384551D909
+        for <stable@vger.kernel.org>; Mon, 13 Feb 2023 06:59:44 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id B05B96115B
-        for <stable@vger.kernel.org>; Mon, 13 Feb 2023 15:01:04 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C1E10C433EF;
-        Mon, 13 Feb 2023 15:01:03 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id B6E8F6106F
+        for <stable@vger.kernel.org>; Mon, 13 Feb 2023 14:59:17 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id CD6E1C433D2;
+        Mon, 13 Feb 2023 14:59:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1676300464;
-        bh=E8nyAZd/nMaU+ViZgPVGnhjzCTTMn/SPXSrBNONPfYs=;
+        s=korg; t=1676300357;
+        bh=zoOvH8GkaI+M4EuFOix3wBTmrQe7L6gVfd9vvx8CRac=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=HcekhogbqigHMz8Qwr1akIZqCYkn0mxhBPi6dWKJU7m4Jqcy9kfvyUmG2S1baEYIY
-         I4xBeN9utZVRGe0qm14ixN/SppgyCFTgDkL9EPT9B6I0HRV0H9rjBZat5T6wdp+BBV
-         VR7lV93Pa7Rk1bqUAcKMWGLCR/EtrIvhdPuftDHM=
+        b=el0LRxuwIgapa508Bx4VPw4obD3hcTfcyx2XjZw5NUEkQfUbnDmZKwDhe4QUcqwm4
+         XMiEF01RzUDyNwm/ASTkwYDuUi3UOvY9n047byZ9mneJF1/RRtZRPG7zT7l6e9NH++
+         rh5vz12+j+lvvFZ0LPppRIzGwrKpcrV1QkhAYjaw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Florian Westphal <fw@strlen.de>,
-        Pablo Neira Ayuso <pablo@netfilter.org>,
-        Sasha Levin <sashal@kernel.org>,
-        Wolfgang Nothdurft <wolfgang@linogate.de>
-Subject: [PATCH 5.10 024/139] netfilter: br_netfilter: disable sabotage_in hook after first suppression
+        patches@lists.linux.dev, Jim Minter <jimminter@microsoft.com>,
+        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
+        Mika Westerberg <mika.westerberg@linux.intel.com>,
+        Linus Walleij <linus.walleij@linaro.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.15 48/67] pinctrl: intel: Restore the pins that used to be in Direct IRQ mode
 Date:   Mon, 13 Feb 2023 15:49:29 +0100
-Message-Id: <20230213144746.923383050@linuxfoundation.org>
+Message-Id: <20230213144734.635357646@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.1
-In-Reply-To: <20230213144745.696901179@linuxfoundation.org>
-References: <20230213144745.696901179@linuxfoundation.org>
+In-Reply-To: <20230213144732.336342050@linuxfoundation.org>
+References: <20230213144732.336342050@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,63 +55,67 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Florian Westphal <fw@strlen.de>
+From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
 
-[ Upstream commit 2b272bb558f1d3a5aa95ed8a82253786fd1a48ba ]
+[ Upstream commit a8520be3ffef3d25b53bf171a7ebe17ee0154175 ]
 
-When using a xfrm interface in a bridged setup (the outgoing device is
-bridged), the incoming packets in the xfrm interface are only tracked
-in the outgoing direction.
+If the firmware mangled the register contents too much,
+check the saved value for the Direct IRQ mode. If it
+matches, we will restore the pin state.
 
-$ brctl show
-bridge name     interfaces
-br_eth1         eth1
-
-$ conntrack -L
-tcp 115 SYN_SENT src=192... dst=192... [UNREPLIED] ...
-
-If br_netfilter is enabled, the first (encrypted) packet is received onR
-eth1, conntrack hooks are called from br_netfilter emulation which
-allocates nf_bridge info for this skb.
-
-If the packet is for local machine, skb gets passed up the ip stack.
-The skb passes through ip prerouting a second time. br_netfilter
-ip_sabotage_in supresses the re-invocation of the hooks.
-
-After this, skb gets decrypted in xfrm layer and appears in
-network stack a second time (after decryption).
-
-Then, ip_sabotage_in is called again and suppresses netfilter
-hook invocation, even though the bridge layer never called them
-for the plaintext incarnation of the packet.
-
-Free the bridge info after the first suppression to avoid this.
-
-I was unable to figure out where the regression comes from, as far as i
-can see br_netfilter always had this problem; i did not expect that skb
-is looped again with different headers.
-
-Fixes: c4b0e771f906 ("netfilter: avoid using skb->nf_bridge directly")
-Reported-and-tested-by: Wolfgang Nothdurft <wolfgang@linogate.de>
-Signed-off-by: Florian Westphal <fw@strlen.de>
-Signed-off-by: Pablo Neira Ayuso <pablo@netfilter.org>
+Reported-by: Jim Minter <jimminter@microsoft.com>
+Fixes: 6989ea4881c8 ("pinctrl: intel: Save and restore pins in "direct IRQ" mode")
+Tested-by: Jim Minter <jimminter@microsoft.com>
+Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Acked-by: Mika Westerberg <mika.westerberg@linux.intel.com>
+Link: https://lore.kernel.org/r/20230206141558.20916-1-andriy.shevchenko@linux.intel.com
+Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/bridge/br_netfilter_hooks.c | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/pinctrl/intel/pinctrl-intel.c | 16 +++++++++++++---
+ 1 file changed, 13 insertions(+), 3 deletions(-)
 
-diff --git a/net/bridge/br_netfilter_hooks.c b/net/bridge/br_netfilter_hooks.c
-index a718204c4bfd..f3c7cfba31e1 100644
---- a/net/bridge/br_netfilter_hooks.c
-+++ b/net/bridge/br_netfilter_hooks.c
-@@ -871,6 +871,7 @@ static unsigned int ip_sabotage_in(void *priv,
- 	if (nf_bridge && !nf_bridge->in_prerouting &&
- 	    !netif_is_l3_master(skb->dev) &&
- 	    !netif_is_l3_slave(skb->dev)) {
-+		nf_bridge_info_free(skb);
- 		state->okfn(state->net, state->sk, skb);
- 		return NF_STOLEN;
- 	}
+diff --git a/drivers/pinctrl/intel/pinctrl-intel.c b/drivers/pinctrl/intel/pinctrl-intel.c
+index 32807aab9343f..cc64eda155f57 100644
+--- a/drivers/pinctrl/intel/pinctrl-intel.c
++++ b/drivers/pinctrl/intel/pinctrl-intel.c
+@@ -1661,6 +1661,12 @@ const struct intel_pinctrl_soc_data *intel_pinctrl_get_soc_data(struct platform_
+ EXPORT_SYMBOL_GPL(intel_pinctrl_get_soc_data);
+ 
+ #ifdef CONFIG_PM_SLEEP
++static bool __intel_gpio_is_direct_irq(u32 value)
++{
++	return (value & PADCFG0_GPIROUTIOXAPIC) && (value & PADCFG0_GPIOTXDIS) &&
++	       (__intel_gpio_get_gpio_mode(value) == PADCFG0_PMODE_GPIO);
++}
++
+ static bool intel_pinctrl_should_save(struct intel_pinctrl *pctrl, unsigned int pin)
+ {
+ 	const struct pin_desc *pd = pin_desc_get(pctrl->pctldev, pin);
+@@ -1694,8 +1700,7 @@ static bool intel_pinctrl_should_save(struct intel_pinctrl *pctrl, unsigned int
+ 	 * See https://bugzilla.kernel.org/show_bug.cgi?id=214749.
+ 	 */
+ 	value = readl(intel_get_padcfg(pctrl, pin, PADCFG0));
+-	if ((value & PADCFG0_GPIROUTIOXAPIC) && (value & PADCFG0_GPIOTXDIS) &&
+-	    (__intel_gpio_get_gpio_mode(value) == PADCFG0_PMODE_GPIO))
++	if (__intel_gpio_is_direct_irq(value))
+ 		return true;
+ 
+ 	return false;
+@@ -1825,7 +1830,12 @@ int intel_pinctrl_resume_noirq(struct device *dev)
+ 	for (i = 0; i < pctrl->soc->npins; i++) {
+ 		const struct pinctrl_pin_desc *desc = &pctrl->soc->pins[i];
+ 
+-		if (!intel_pinctrl_should_save(pctrl, desc->number))
++		if (!(intel_pinctrl_should_save(pctrl, desc->number) ||
++		      /*
++		       * If the firmware mangled the register contents too much,
++		       * check the saved value for the Direct IRQ mode.
++		       */
++		      __intel_gpio_is_direct_irq(pads[i].padcfg0)))
+ 			continue;
+ 
+ 		intel_restore_padcfg(pctrl, desc->number, PADCFG0, pads[i].padcfg0);
 -- 
 2.39.0
 
