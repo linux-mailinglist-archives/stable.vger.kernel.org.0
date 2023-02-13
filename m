@@ -2,40 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 7A8CD694A08
-	for <lists+stable@lfdr.de>; Mon, 13 Feb 2023 16:04:10 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A3CC7694A09
+	for <lists+stable@lfdr.de>; Mon, 13 Feb 2023 16:04:16 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231129AbjBMPEJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Feb 2023 10:04:09 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37656 "EHLO
+        id S229982AbjBMPEP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Feb 2023 10:04:15 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38114 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230461AbjBMPEI (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Feb 2023 10:04:08 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 619E01E1E5
-        for <stable@vger.kernel.org>; Mon, 13 Feb 2023 07:03:48 -0800 (PST)
+        with ESMTP id S230461AbjBMPEP (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Feb 2023 10:04:15 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E9662166E6
+        for <stable@vger.kernel.org>; Mon, 13 Feb 2023 07:03:52 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id E693661122
-        for <stable@vger.kernel.org>; Mon, 13 Feb 2023 15:03:47 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0778AC433EF;
-        Mon, 13 Feb 2023 15:03:46 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 2CCE6B81260
+        for <stable@vger.kernel.org>; Mon, 13 Feb 2023 15:03:51 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 99CC8C4339C;
+        Mon, 13 Feb 2023 15:03:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1676300627;
-        bh=xC04bUYkYkPLu9Ciq5SLazJsdAW35MmdtMKKCPwcEB4=;
+        s=korg; t=1676300630;
+        bh=zJybN7EQvnPE9JudNckwcBCCCxJgbM5jPCvarl78MI0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=UsF8VahLp5PZekh7aU+tcdrcYat5o4BfzEaC1cCp3xr8GLe8/s8eQ92KRjOLXRIwl
-         8NnGREcbuf3h5bSN48X1+155aSEdK+AcvuL7I1xDYOsI9+QAnKO9j7wZvldyXcdpFc
-         qVlF5hDBliHnzAO5aXvrTb1YasMqqWn8vsfyQ0O0=
+        b=EQXUbHhVkJCmmge4wic/BjJkIICmQ6KbWYsjS5rtsh74hf2t1FrL8EiLqKvmHZn+b
+         VBr+TYzR8w5d0/O9+rVmtFkpsnlWMGTWQoPiwJQhRB0S5YUxvG6y1x4OY4qeXVEef3
+         xUqpGwOeTwEqEH4OW6H7i2qOhZMb7pUN8ZPSrB8g=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, syzkaller <syzkaller@googlegroups.com>,
-        Dongliang Mu <dzm91@hust.edu.cn>, Helge Deller <deller@gmx.de>
-Subject: [PATCH 5.10 086/139] fbdev: smscufx: fix error handling code in ufx_usb_probe
-Date:   Mon, 13 Feb 2023 15:50:31 +0100
-Message-Id: <20230213144750.386726854@linuxfoundation.org>
+        patches@lists.linux.dev,
+        syzbot+f8f3dfa4abc489e768a1@syzkaller.appspotmail.com,
+        Chao Yu <chao@kernel.org>, Jaegeuk Kim <jaegeuk@kernel.org>
+Subject: [PATCH 5.10 087/139] f2fs: fix to do sanity check on i_extra_isize in is_alive()
+Date:   Mon, 13 Feb 2023 15:50:32 +0100
+Message-Id: <20230213144750.428356563@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.1
 In-Reply-To: <20230213144745.696901179@linuxfoundation.org>
 References: <20230213144745.696901179@linuxfoundation.org>
@@ -52,160 +53,95 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dongliang Mu <dzm91@hust.edu.cn>
+From: Chao Yu <chao@kernel.org>
 
-commit b76449ee75e21acfe9fa4c653d8598f191ed7d68 upstream.
+commit d3b7b4afd6b2c344eabf9cc26b8bfa903c164c7c upstream.
 
-The current error handling code in ufx_usb_probe have many unmatching
-issues, e.g., missing ufx_free_usb_list, destroy_modedb label should
-only include framebuffer_release, fb_dealloc_cmap only matches
-fb_alloc_cmap.
+syzbot found a f2fs bug:
 
-My local syzkaller reports a memory leak bug:
+BUG: KASAN: slab-out-of-bounds in data_blkaddr fs/f2fs/f2fs.h:2891 [inline]
+BUG: KASAN: slab-out-of-bounds in is_alive fs/f2fs/gc.c:1117 [inline]
+BUG: KASAN: slab-out-of-bounds in gc_data_segment fs/f2fs/gc.c:1520 [inline]
+BUG: KASAN: slab-out-of-bounds in do_garbage_collect+0x386a/0x3df0 fs/f2fs/gc.c:1734
+Read of size 4 at addr ffff888076557568 by task kworker/u4:3/52
 
-memory leak in ufx_usb_probe
+CPU: 1 PID: 52 Comm: kworker/u4:3 Not tainted 6.1.0-rc4-syzkaller-00362-gfef7fd48922d #0
+Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS Google 10/26/2022
+Workqueue: writeback wb_workfn (flush-7:0)
+Call Trace:
+<TASK>
+__dump_stack lib/dump_stack.c:88 [inline]
+dump_stack_lvl+0xcd/0x134 lib/dump_stack.c:106
+print_address_description mm/kasan/report.c:284 [inline]
+print_report+0x15e/0x45d mm/kasan/report.c:395
+kasan_report+0xbb/0x1f0 mm/kasan/report.c:495
+data_blkaddr fs/f2fs/f2fs.h:2891 [inline]
+is_alive fs/f2fs/gc.c:1117 [inline]
+gc_data_segment fs/f2fs/gc.c:1520 [inline]
+do_garbage_collect+0x386a/0x3df0 fs/f2fs/gc.c:1734
+f2fs_gc+0x88c/0x20a0 fs/f2fs/gc.c:1831
+f2fs_balance_fs+0x544/0x6b0 fs/f2fs/segment.c:410
+f2fs_write_inode+0x57e/0xe20 fs/f2fs/inode.c:753
+write_inode fs/fs-writeback.c:1440 [inline]
+__writeback_single_inode+0xcfc/0x1440 fs/fs-writeback.c:1652
+writeback_sb_inodes+0x54d/0xf90 fs/fs-writeback.c:1870
+wb_writeback+0x2c5/0xd70 fs/fs-writeback.c:2044
+wb_do_writeback fs/fs-writeback.c:2187 [inline]
+wb_workfn+0x2dc/0x12f0 fs/fs-writeback.c:2227
+process_one_work+0x9bf/0x1710 kernel/workqueue.c:2289
+worker_thread+0x665/0x1080 kernel/workqueue.c:2436
+kthread+0x2e4/0x3a0 kernel/kthread.c:376
+ret_from_fork+0x1f/0x30 arch/x86/entry/entry_64.S:306
 
-BUG: memory leak
-unreferenced object 0xffff88802f879580 (size 128):
-  comm "kworker/0:7", pid 17416, jiffies 4295067474 (age 46.710s)
-  hex dump (first 32 bytes):
-    80 21 7c 2e 80 88 ff ff 18 d0 d0 0c 80 88 ff ff  .!|.............
-    00 d0 d0 0c 80 88 ff ff e0 ff ff ff 0f 00 00 00  ................
-  backtrace:
-    [<ffffffff814c99a0>] kmalloc_trace+0x20/0x90 mm/slab_common.c:1045
-    [<ffffffff824d219c>] kmalloc include/linux/slab.h:553 [inline]
-    [<ffffffff824d219c>] kzalloc include/linux/slab.h:689 [inline]
-    [<ffffffff824d219c>] ufx_alloc_urb_list drivers/video/fbdev/smscufx.c:1873 [inline]
-    [<ffffffff824d219c>] ufx_usb_probe+0x11c/0x15a0 drivers/video/fbdev/smscufx.c:1655
-    [<ffffffff82d17927>] usb_probe_interface+0x177/0x370 drivers/usb/core/driver.c:396
-    [<ffffffff82712f0d>] call_driver_probe drivers/base/dd.c:560 [inline]
-    [<ffffffff82712f0d>] really_probe+0x12d/0x390 drivers/base/dd.c:639
-    [<ffffffff8271322f>] __driver_probe_device+0xbf/0x140 drivers/base/dd.c:778
-    [<ffffffff827132da>] driver_probe_device+0x2a/0x120 drivers/base/dd.c:808
-    [<ffffffff82713c27>] __device_attach_driver+0xf7/0x150 drivers/base/dd.c:936
-    [<ffffffff82710137>] bus_for_each_drv+0xb7/0x100 drivers/base/bus.c:427
-    [<ffffffff827136b5>] __device_attach+0x105/0x2d0 drivers/base/dd.c:1008
-    [<ffffffff82711d36>] bus_probe_device+0xc6/0xe0 drivers/base/bus.c:487
-    [<ffffffff8270e242>] device_add+0x642/0xdc0 drivers/base/core.c:3517
-    [<ffffffff82d14d5f>] usb_set_configuration+0x8ef/0xb80 drivers/usb/core/message.c:2170
-    [<ffffffff82d2576c>] usb_generic_driver_probe+0x8c/0xc0 drivers/usb/core/generic.c:238
-    [<ffffffff82d16ffc>] usb_probe_device+0x5c/0x140 drivers/usb/core/driver.c:293
-    [<ffffffff82712f0d>] call_driver_probe drivers/base/dd.c:560 [inline]
-    [<ffffffff82712f0d>] really_probe+0x12d/0x390 drivers/base/dd.c:639
-    [<ffffffff8271322f>] __driver_probe_device+0xbf/0x140 drivers/base/dd.c:778
+The root cause is that we forgot to do sanity check on .i_extra_isize
+in below path, result in accessing invalid address later, fix it.
+- gc_data_segment
+ - is_alive
+  - data_blkaddr
+   - offset_in_addr
 
-Fix this bug by rewriting the error handling code in ufx_usb_probe.
-
-Reported-by: syzkaller <syzkaller@googlegroups.com>
-Tested-by: Dongliang Mu <dzm91@hust.edu.cn>
-Signed-off-by: Dongliang Mu <dzm91@hust.edu.cn>
-Signed-off-by: Helge Deller <deller@gmx.de>
+Reported-by: syzbot+f8f3dfa4abc489e768a1@syzkaller.appspotmail.com
+Link: https://lore.kernel.org/linux-f2fs-devel/0000000000003cb3c405ed5c17f9@google.com/T/#u
+Signed-off-by: Chao Yu <chao@kernel.org>
+Signed-off-by: Jaegeuk Kim <jaegeuk@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/video/fbdev/smscufx.c |   46 ++++++++++++++++++++++++++++--------------
- 1 file changed, 31 insertions(+), 15 deletions(-)
+ fs/f2fs/gc.c |   18 ++++++++++++------
+ 1 file changed, 12 insertions(+), 6 deletions(-)
 
---- a/drivers/video/fbdev/smscufx.c
-+++ b/drivers/video/fbdev/smscufx.c
-@@ -1621,7 +1621,7 @@ static int ufx_usb_probe(struct usb_inte
- 	struct usb_device *usbdev;
- 	struct ufx_data *dev;
- 	struct fb_info *info;
--	int retval;
-+	int retval = -ENOMEM;
- 	u32 id_rev, fpga_rev;
+--- a/fs/f2fs/gc.c
++++ b/fs/f2fs/gc.c
+@@ -977,7 +977,7 @@ static bool is_alive(struct f2fs_sb_info
+ {
+ 	struct page *node_page;
+ 	nid_t nid;
+-	unsigned int ofs_in_node, max_addrs;
++	unsigned int ofs_in_node, max_addrs, base;
+ 	block_t source_blkaddr;
  
- 	/* usb initialization */
-@@ -1653,15 +1653,17 @@ static int ufx_usb_probe(struct usb_inte
- 
- 	if (!ufx_alloc_urb_list(dev, WRITES_IN_FLIGHT, MAX_TRANSFER)) {
- 		dev_err(dev->gdev, "ufx_alloc_urb_list failed\n");
--		goto e_nomem;
-+		goto put_ref;
+ 	nid = le32_to_cpu(sum->nid);
+@@ -1003,11 +1003,17 @@ static bool is_alive(struct f2fs_sb_info
+ 		return false;
  	}
  
- 	/* We don't register a new USB class. Our client interface is fbdev */
- 
- 	/* allocates framebuffer driver structure, not framebuffer memory */
- 	info = framebuffer_alloc(0, &usbdev->dev);
--	if (!info)
--		goto e_nomem;
-+	if (!info) {
-+		dev_err(dev->gdev, "framebuffer_alloc failed\n");
-+		goto free_urb_list;
+-	max_addrs = IS_INODE(node_page) ? DEF_ADDRS_PER_INODE :
+-						DEF_ADDRS_PER_BLOCK;
+-	if (ofs_in_node >= max_addrs) {
+-		f2fs_err(sbi, "Inconsistent ofs_in_node:%u in summary, ino:%u, nid:%u, max:%u",
+-			ofs_in_node, dni->ino, dni->nid, max_addrs);
++	if (IS_INODE(node_page)) {
++		base = offset_in_addr(F2FS_INODE(node_page));
++		max_addrs = DEF_ADDRS_PER_INODE;
++	} else {
++		base = 0;
++		max_addrs = DEF_ADDRS_PER_BLOCK;
 +	}
- 
- 	dev->info = info;
- 	info->par = dev;
-@@ -1704,22 +1706,34 @@ static int ufx_usb_probe(struct usb_inte
- 	check_warn_goto_error(retval, "unable to find common mode for display and adapter");
- 
- 	retval = ufx_reg_set_bits(dev, 0x4000, 0x00000001);
--	check_warn_goto_error(retval, "error %d enabling graphics engine", retval);
-+	if (retval < 0) {
-+		dev_err(dev->gdev, "error %d enabling graphics engine", retval);
-+		goto setup_modes;
-+	}
- 
- 	/* ready to begin using device */
- 	atomic_set(&dev->usb_active, 1);
- 
- 	dev_dbg(dev->gdev, "checking var");
- 	retval = ufx_ops_check_var(&info->var, info);
--	check_warn_goto_error(retval, "error %d ufx_ops_check_var", retval);
-+	if (retval < 0) {
-+		dev_err(dev->gdev, "error %d ufx_ops_check_var", retval);
-+		goto reset_active;
-+	}
- 
- 	dev_dbg(dev->gdev, "setting par");
- 	retval = ufx_ops_set_par(info);
--	check_warn_goto_error(retval, "error %d ufx_ops_set_par", retval);
-+	if (retval < 0) {
-+		dev_err(dev->gdev, "error %d ufx_ops_set_par", retval);
-+		goto reset_active;
-+	}
- 
- 	dev_dbg(dev->gdev, "registering framebuffer");
- 	retval = register_framebuffer(info);
--	check_warn_goto_error(retval, "error %d register_framebuffer", retval);
-+	if (retval < 0) {
-+		dev_err(dev->gdev, "error %d register_framebuffer", retval);
-+		goto reset_active;
-+	}
- 
- 	dev_info(dev->gdev, "SMSC UDX USB device /dev/fb%d attached. %dx%d resolution."
- 		" Using %dK framebuffer memory\n", info->node,
-@@ -1727,21 +1741,23 @@ static int ufx_usb_probe(struct usb_inte
- 
- 	return 0;
- 
--error:
--	fb_dealloc_cmap(&info->cmap);
--destroy_modedb:
-+reset_active:
-+	atomic_set(&dev->usb_active, 0);
-+setup_modes:
- 	fb_destroy_modedb(info->monspecs.modedb);
- 	vfree(info->screen_base);
- 	fb_destroy_modelist(&info->modelist);
-+error:
-+	fb_dealloc_cmap(&info->cmap);
-+destroy_modedb:
- 	framebuffer_release(info);
-+free_urb_list:
-+	if (dev->urbs.count > 0)
-+		ufx_free_urb_list(dev);
- put_ref:
- 	kref_put(&dev->kref, ufx_free); /* ref for framebuffer */
- 	kref_put(&dev->kref, ufx_free); /* last ref from kref_init */
- 	return retval;
--
--e_nomem:
--	retval = -ENOMEM;
--	goto put_ref;
- }
- 
- static void ufx_usb_disconnect(struct usb_interface *interface)
++
++	if (base + ofs_in_node >= max_addrs) {
++		f2fs_err(sbi, "Inconsistent blkaddr offset: base:%u, ofs_in_node:%u, max:%u, ino:%u, nid:%u",
++			base, ofs_in_node, max_addrs, dni->ino, dni->nid);
+ 		f2fs_put_page(node_page, 1);
+ 		return false;
+ 	}
 
 
