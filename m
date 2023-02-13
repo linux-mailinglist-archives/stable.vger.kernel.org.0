@@ -2,46 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 642986949C5
-	for <lists+stable@lfdr.de>; Mon, 13 Feb 2023 16:02:00 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id BFEC5694992
+	for <lists+stable@lfdr.de>; Mon, 13 Feb 2023 16:00:11 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231288AbjBMPB7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Feb 2023 10:01:59 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60974 "EHLO
+        id S231189AbjBMPAJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Feb 2023 10:00:09 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56766 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231277AbjBMPBq (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Feb 2023 10:01:46 -0500
+        with ESMTP id S231259AbjBMO7x (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Feb 2023 09:59:53 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DA1DF1E1C9
-        for <stable@vger.kernel.org>; Mon, 13 Feb 2023 07:01:22 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7BE551DBB0
+        for <stable@vger.kernel.org>; Mon, 13 Feb 2023 06:59:33 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id ACA9E6111D
-        for <stable@vger.kernel.org>; Mon, 13 Feb 2023 15:01:22 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C1401C433EF;
-        Mon, 13 Feb 2023 15:01:21 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 524EA61161
+        for <stable@vger.kernel.org>; Mon, 13 Feb 2023 14:59:33 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 656FCC4339C;
+        Mon, 13 Feb 2023 14:59:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1676300482;
-        bh=HIknskYPa/Ba2/x4sv35oqZnRKagxd7936BqMdJ+D1I=;
+        s=korg; t=1676300372;
+        bh=cgN4FUtTnMBOtUTgQGZGPfC0mYZKLT4eTdGUnxc+xkg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=U7Nusaz5stExurCvVz19ooAg0ynZnBaMcoRkDW4FSP8xU6NjD6SVTe7c3iJotkqec
-         +IAqGVSz27oVYxXgeECUKpSVhPgDUAI+pHeBKZyQF7mFgJK1hE5ZeZf6wt+hlEhVtV
-         iQpzk2SwNzDG5x/vm+qL1TfQceEOcSCBGMCiRl8Y=
+        b=X78BkyZe9smGceasZlMGr4JgE4F9C+QjBPM9bugvPPJcfx+0ees7opAar5+Jrwy7o
+         Y3Hj6ZN4SVJXaKyJalR+f54BcSWMiM5rhXkpVMa3ewqQD2Ywg/0lnuyP1GBvTSidBO
+         OYjF7DbudMeCqISeQPN0jptzH3C9w2jOzztETPdw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Andrei Gherzan <andrei.gherzan@canonical.com>,
-        Willem de Bruijn <willemb@google.com>,
-        Paolo Abeni <pabeni@redhat.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 030/139] selftests: net: udpgso_bench_rx: Fix used uninitialized compiler warning
+        patches@lists.linux.dev, Diana Zigterman <dzigterman@chromium.org>,
+        Prashant Malani <pmalani@chromium.org>
+Subject: [PATCH 5.15 54/67] usb: typec: altmodes/displayport: Fix probe pin assign check
 Date:   Mon, 13 Feb 2023 15:49:35 +0100
-Message-Id: <20230213144747.233702433@linuxfoundation.org>
+Message-Id: <20230213144734.955734567@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.1
-In-Reply-To: <20230213144745.696901179@linuxfoundation.org>
-References: <20230213144745.696901179@linuxfoundation.org>
+In-Reply-To: <20230213144732.336342050@linuxfoundation.org>
+References: <20230213144732.336342050@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,47 +52,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Andrei Gherzan <andrei.gherzan@canonical.com>
+From: Prashant Malani <pmalani@chromium.org>
 
-[ Upstream commit c03c80e3a03ffb4f790901d60797e9810539d946 ]
+commit 54e5c00a4eb0a4c663445b245f641bbfab142430 upstream.
 
-This change fixes the following compiler warning:
+While checking Pin Assignments of the port and partner during probe, we
+don't take into account whether the peripheral is a plug or receptacle.
 
-/usr/include/x86_64-linux-gnu/bits/error.h:40:5: warning: ‘gso_size’ may
-be used uninitialized [-Wmaybe-uninitialized]
-   40 |     __error_noreturn (__status, __errnum, __format,
-   __va_arg_pack ());
-         |
-	 ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-	 udpgso_bench_rx.c: In function ‘main’:
-	 udpgso_bench_rx.c:253:23: note: ‘gso_size’ was declared here
-	   253 |         int ret, len, gso_size, budget = 256;
+This manifests itself in a mode entry failure on certain docks and
+dongles with captive cables. For instance, the Startech.com Type-C to DP
+dongle (Model #CDP2DP) advertises its DP VDO as 0x405. This would fail
+the Pin Assignment compatibility check, despite it supporting
+Pin Assignment C as a UFP.
 
-Fixes: 3327a9c46352 ("selftests: add functionals test for UDP GRO")
-Signed-off-by: Andrei Gherzan <andrei.gherzan@canonical.com>
-Reviewed-by: Willem de Bruijn <willemb@google.com>
-Link: https://lore.kernel.org/r/20230201001612.515730-1-andrei.gherzan@canonical.com
-Signed-off-by: Paolo Abeni <pabeni@redhat.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Update the check to use the correct DP Pin Assign macros that
+take the peripheral's receptacle bit into account.
+
+Fixes: c1e5c2f0cb8a ("usb: typec: altmodes/displayport: correct pin assignment for UFP receptacles")
+Cc: stable@vger.kernel.org
+Reported-by: Diana Zigterman <dzigterman@chromium.org>
+Signed-off-by: Prashant Malani <pmalani@chromium.org>
+Link: https://lore.kernel.org/r/20230208205318.131385-1-pmalani@chromium.org
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- tools/testing/selftests/net/udpgso_bench_rx.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/usb/typec/altmodes/displayport.c |    8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
 
-diff --git a/tools/testing/selftests/net/udpgso_bench_rx.c b/tools/testing/selftests/net/udpgso_bench_rx.c
-index 6a193425c367..d0895bd1933f 100644
---- a/tools/testing/selftests/net/udpgso_bench_rx.c
-+++ b/tools/testing/selftests/net/udpgso_bench_rx.c
-@@ -250,7 +250,7 @@ static int recv_msg(int fd, char *buf, int len, int *gso_size)
- static void do_flush_udp(int fd)
- {
- 	static char rbuf[ETH_MAX_MTU];
--	int ret, len, gso_size, budget = 256;
-+	int ret, len, gso_size = 0, budget = 256;
+--- a/drivers/usb/typec/altmodes/displayport.c
++++ b/drivers/usb/typec/altmodes/displayport.c
+@@ -533,10 +533,10 @@ int dp_altmode_probe(struct typec_altmod
+ 	/* FIXME: Port can only be DFP_U. */
  
- 	len = cfg_read_all ? sizeof(rbuf) : 0;
- 	while (budget--) {
--- 
-2.39.0
-
+ 	/* Make sure we have compatiple pin configurations */
+-	if (!(DP_CAP_DFP_D_PIN_ASSIGN(port->vdo) &
+-	      DP_CAP_UFP_D_PIN_ASSIGN(alt->vdo)) &&
+-	    !(DP_CAP_UFP_D_PIN_ASSIGN(port->vdo) &
+-	      DP_CAP_DFP_D_PIN_ASSIGN(alt->vdo)))
++	if (!(DP_CAP_PIN_ASSIGN_DFP_D(port->vdo) &
++	      DP_CAP_PIN_ASSIGN_UFP_D(alt->vdo)) &&
++	    !(DP_CAP_PIN_ASSIGN_UFP_D(port->vdo) &
++	      DP_CAP_PIN_ASSIGN_DFP_D(alt->vdo)))
+ 		return -ENODEV;
+ 
+ 	ret = sysfs_create_group(&alt->dev.kobj, &dp_altmode_group);
 
 
