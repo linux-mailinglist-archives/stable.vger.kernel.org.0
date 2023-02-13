@@ -2,52 +2,49 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D34C6694960
-	for <lists+stable@lfdr.de>; Mon, 13 Feb 2023 15:58:40 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 84C0E6949AE
+	for <lists+stable@lfdr.de>; Mon, 13 Feb 2023 16:00:56 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231163AbjBMO6j (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Feb 2023 09:58:39 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54724 "EHLO
+        id S230433AbjBMPAy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Feb 2023 10:00:54 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59730 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231211AbjBMO61 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Feb 2023 09:58:27 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AA1FE1CAE4
-        for <stable@vger.kernel.org>; Mon, 13 Feb 2023 06:58:06 -0800 (PST)
+        with ESMTP id S231217AbjBMPAr (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Feb 2023 10:00:47 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D86C11CAFA
+        for <stable@vger.kernel.org>; Mon, 13 Feb 2023 07:00:33 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id AE0EE61161
-        for <stable@vger.kernel.org>; Mon, 13 Feb 2023 14:57:13 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C2869C433EF;
-        Mon, 13 Feb 2023 14:57:12 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 30867B8125C
+        for <stable@vger.kernel.org>; Mon, 13 Feb 2023 15:00:32 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8D027C433EF;
+        Mon, 13 Feb 2023 15:00:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1676300233;
-        bh=OBxZm3ZDl2Q56oH8pQ3V/48q6acdgNfKIbrsZ3J5P2w=;
+        s=korg; t=1676300430;
+        bh=f45WUkwGNtqtUx+HVK9pbccNDaNswPloenrScoEI6B8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ClA8U6cL/loQO0QsU2rDn0ECZ6aP4/izDOMfMgjrz66enQzaG3leD+dRfAUvj+Sdi
-         Rlr/4ryteOfHosaj1hFNpkHsA4vWiBDgtWecranujf2fNa9xYLHBDtyGFFh6OkCnsT
-         oNYPfIYyCmrLBskEq/oDws8N+nB0SZcR7SnzH7HA=
+        b=lUoAFoHVGT2UssVLiZs44+30sSwYDb+/rMaAev7uKOl1YNUFneXZoYvWmr1/Hmos+
+         210uHXWG/gD+jK5Gz70S/tnOpJ/7Avyv9/0DWO18E517zDU8ZwVD4M+IZ1D5lfkz3/
+         l2+4u56AR+XzZs/B9NisqgtuS8IlxZen9Y7uszrA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        =?UTF-8?q?Ville=20Syrj=C3=A4l=C3=A4?= 
-        <ville.syrjala@linux.intel.com>,
-        Jani Nikula <jani.nikula@intel.com>,
-        Rodrigo Vivi <rodrigo.vivi@intel.com>
-Subject: [PATCH 6.1 114/114] drm/i915: Fix VBT DSI DVO port handling
+        patches@lists.linux.dev, Kajol Jain <kjain@linux.ibm.com>,
+        Michael Ellerman <mpe@ellerman.id.au>
+Subject: [PATCH 5.10 004/139] powerpc/imc-pmu: Revert nest_init_lock to being a mutex
 Date:   Mon, 13 Feb 2023 15:49:09 +0100
-Message-Id: <20230213144748.128769395@linuxfoundation.org>
+Message-Id: <20230213144745.932229845@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.1
-In-Reply-To: <20230213144742.219399167@linuxfoundation.org>
-References: <20230213144742.219399167@linuxfoundation.org>
+In-Reply-To: <20230213144745.696901179@linuxfoundation.org>
+References: <20230213144745.696901179@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
         SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -55,86 +52,121 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ville Syrjälä <ville.syrjala@linux.intel.com>
+From: Michael Ellerman <mpe@ellerman.id.au>
 
-commit 6a7ff131f17f44c593173c5ee30e2c03ef211685 upstream.
+commit ad53db4acb415976761d7302f5b02e97f2bd097e upstream.
 
-Turns out modern (icl+) VBTs still declare their DSI ports
-as MIPI-A and MIPI-C despite the PHYs now being A and B.
-Remap appropriately to allow the panels declared as MIPI-C
-to work.
+The recent commit 76d588dddc45 ("powerpc/imc-pmu: Fix use of mutex in
+IRQs disabled section") fixed warnings (and possible deadlocks) in the
+IMC PMU driver by converting the locking to use spinlocks.
 
-Cc: stable@vger.kernel.org
-Closes: https://gitlab.freedesktop.org/drm/intel/-/issues/8016
-Signed-off-by: Ville Syrjälä <ville.syrjala@linux.intel.com>
-Link: https://patchwork.freedesktop.org/patch/msgid/20230207064337.18697-2-ville.syrjala@linux.intel.com
-Reviewed-by: Jani Nikula <jani.nikula@intel.com>
-(cherry picked from commit 118b5c136c04da705b274b0d39982bb8b7430fc5)
-Signed-off-by: Rodrigo Vivi <rodrigo.vivi@intel.com>
+It also converted the init-time nest_init_lock to a spinlock, even
+though it's not used at runtime in IRQ disabled sections or while
+holding other spinlocks.
+
+This leads to warnings such as:
+
+  BUG: sleeping function called from invalid context at include/linux/percpu-rwsem.h:49
+  in_atomic(): 1, irqs_disabled(): 0, non_block: 0, pid: 1, name: swapper/0
+  preempt_count: 1, expected: 0
+  CPU: 7 PID: 1 Comm: swapper/0 Not tainted 6.2.0-rc2-14719-gf12cd06109f4-dirty #1
+  Hardware name: Mambo,Simulated-System POWER9 0x4e1203 opal:v6.6.6 PowerNV
+  Call Trace:
+    dump_stack_lvl+0x74/0xa8 (unreliable)
+    __might_resched+0x178/0x1a0
+    __cpuhp_setup_state+0x64/0x1e0
+    init_imc_pmu+0xe48/0x1250
+    opal_imc_counters_probe+0x30c/0x6a0
+    platform_probe+0x78/0x110
+    really_probe+0x104/0x420
+    __driver_probe_device+0xb0/0x170
+    driver_probe_device+0x58/0x180
+    __driver_attach+0xd8/0x250
+    bus_for_each_dev+0xb4/0x140
+    driver_attach+0x34/0x50
+    bus_add_driver+0x1e8/0x2d0
+    driver_register+0xb4/0x1c0
+    __platform_driver_register+0x38/0x50
+    opal_imc_driver_init+0x2c/0x40
+    do_one_initcall+0x80/0x360
+    kernel_init_freeable+0x310/0x3b8
+    kernel_init+0x30/0x1a0
+    ret_from_kernel_thread+0x5c/0x64
+
+Fix it by converting nest_init_lock back to a mutex, so that we can call
+sleeping functions while holding it. There is no interaction between
+nest_init_lock and the runtime spinlocks used by the actual PMU routines.
+
+Fixes: 76d588dddc45 ("powerpc/imc-pmu: Fix use of mutex in IRQs disabled section")
+Tested-by: Kajol Jain<kjain@linux.ibm.com>
+Reviewed-by: Kajol Jain<kjain@linux.ibm.com>
+Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
+Link: https://lore.kernel.org/r/20230130014401.540543-1-mpe@ellerman.id.au
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/gpu/drm/i915/display/intel_bios.c |   33 ++++++++++++++++++++----------
- 1 file changed, 23 insertions(+), 10 deletions(-)
+ arch/powerpc/perf/imc-pmu.c |   14 +++++++-------
+ 1 file changed, 7 insertions(+), 7 deletions(-)
 
---- a/drivers/gpu/drm/i915/display/intel_bios.c
-+++ b/drivers/gpu/drm/i915/display/intel_bios.c
-@@ -2466,6 +2466,22 @@ static enum port dvo_port_to_port(struct
- 					  dvo_port);
- }
- 
-+static enum port
-+dsi_dvo_port_to_port(struct drm_i915_private *i915, u8 dvo_port)
-+{
-+	switch (dvo_port) {
-+	case DVO_PORT_MIPIA:
-+		return PORT_A;
-+	case DVO_PORT_MIPIC:
-+		if (DISPLAY_VER(i915) >= 11)
-+			return PORT_B;
-+		else
-+			return PORT_C;
-+	default:
-+		return PORT_NONE;
-+	}
-+}
-+
- static int parse_bdb_230_dp_max_link_rate(const int vbt_max_link_rate)
+--- a/arch/powerpc/perf/imc-pmu.c
++++ b/arch/powerpc/perf/imc-pmu.c
+@@ -21,7 +21,7 @@
+  * Used to avoid races in counting the nest-pmu units during hotplug
+  * register and unregister
+  */
+-static DEFINE_SPINLOCK(nest_init_lock);
++static DEFINE_MUTEX(nest_init_lock);
+ static DEFINE_PER_CPU(struct imc_pmu_ref *, local_nest_imc_refc);
+ static struct imc_pmu **per_nest_pmu_arr;
+ static cpumask_t nest_imc_cpumask;
+@@ -1621,7 +1621,7 @@ static void imc_common_mem_free(struct i
+ static void imc_common_cpuhp_mem_free(struct imc_pmu *pmu_ptr)
  {
- 	switch (vbt_max_link_rate) {
-@@ -3406,19 +3422,16 @@ bool intel_bios_is_dsi_present(struct dr
+ 	if (pmu_ptr->domain == IMC_DOMAIN_NEST) {
+-		spin_lock(&nest_init_lock);
++		mutex_lock(&nest_init_lock);
+ 		if (nest_pmus == 1) {
+ 			cpuhp_remove_state(CPUHP_AP_PERF_POWERPC_NEST_IMC_ONLINE);
+ 			kfree(nest_imc_refc);
+@@ -1631,7 +1631,7 @@ static void imc_common_cpuhp_mem_free(st
  
- 		dvo_port = child->dvo_port;
- 
--		if (dvo_port == DVO_PORT_MIPIA ||
--		    (dvo_port == DVO_PORT_MIPIB && DISPLAY_VER(i915) >= 11) ||
--		    (dvo_port == DVO_PORT_MIPIC && DISPLAY_VER(i915) < 11)) {
--			if (port)
--				*port = dvo_port - DVO_PORT_MIPIA;
--			return true;
--		} else if (dvo_port == DVO_PORT_MIPIB ||
--			   dvo_port == DVO_PORT_MIPIC ||
--			   dvo_port == DVO_PORT_MIPID) {
-+		if (dsi_dvo_port_to_port(i915, dvo_port) == PORT_NONE) {
- 			drm_dbg_kms(&i915->drm,
- 				    "VBT has unsupported DSI port %c\n",
- 				    port_name(dvo_port - DVO_PORT_MIPIA));
-+			continue;
- 		}
-+
-+		if (port)
-+			*port = dsi_dvo_port_to_port(i915, dvo_port);
-+		return true;
+ 		if (nest_pmus > 0)
+ 			nest_pmus--;
+-		spin_unlock(&nest_init_lock);
++		mutex_unlock(&nest_init_lock);
  	}
  
- 	return false;
-@@ -3503,7 +3516,7 @@ bool intel_bios_get_dsc_params(struct in
- 		if (!(child->device_type & DEVICE_TYPE_MIPI_OUTPUT))
- 			continue;
- 
--		if (child->dvo_port - DVO_PORT_MIPIA == encoder->port) {
-+		if (dsi_dvo_port_to_port(i915, child->dvo_port) == encoder->port) {
- 			if (!devdata->dsc)
- 				return false;
- 
+ 	/* Free core_imc memory */
+@@ -1788,11 +1788,11 @@ int init_imc_pmu(struct device_node *par
+ 		* rest. To handle the cpuhotplug callback unregister, we track
+ 		* the number of nest pmus in "nest_pmus".
+ 		*/
+-		spin_lock(&nest_init_lock);
++		mutex_lock(&nest_init_lock);
+ 		if (nest_pmus == 0) {
+ 			ret = init_nest_pmu_ref();
+ 			if (ret) {
+-				spin_unlock(&nest_init_lock);
++				mutex_unlock(&nest_init_lock);
+ 				kfree(per_nest_pmu_arr);
+ 				per_nest_pmu_arr = NULL;
+ 				goto err_free_mem;
+@@ -1800,7 +1800,7 @@ int init_imc_pmu(struct device_node *par
+ 			/* Register for cpu hotplug notification. */
+ 			ret = nest_pmu_cpumask_init();
+ 			if (ret) {
+-				spin_unlock(&nest_init_lock);
++				mutex_unlock(&nest_init_lock);
+ 				kfree(nest_imc_refc);
+ 				kfree(per_nest_pmu_arr);
+ 				per_nest_pmu_arr = NULL;
+@@ -1808,7 +1808,7 @@ int init_imc_pmu(struct device_node *par
+ 			}
+ 		}
+ 		nest_pmus++;
+-		spin_unlock(&nest_init_lock);
++		mutex_unlock(&nest_init_lock);
+ 		break;
+ 	case IMC_DOMAIN_CORE:
+ 		ret = core_imc_pmu_cpumask_init();
 
 
