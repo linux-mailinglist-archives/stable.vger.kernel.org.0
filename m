@@ -2,68 +2,206 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 831766947F1
-	for <lists+stable@lfdr.de>; Mon, 13 Feb 2023 15:24:38 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A8A6D694840
+	for <lists+stable@lfdr.de>; Mon, 13 Feb 2023 15:39:50 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229687AbjBMOYg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Feb 2023 09:24:36 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46004 "EHLO
+        id S229711AbjBMOjs (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Feb 2023 09:39:48 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59878 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230175AbjBMOY3 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Feb 2023 09:24:29 -0500
-Received: from mail-pg1-x533.google.com (mail-pg1-x533.google.com [IPv6:2607:f8b0:4864:20::533])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 25E111A641
-        for <stable@vger.kernel.org>; Mon, 13 Feb 2023 06:24:20 -0800 (PST)
-Received: by mail-pg1-x533.google.com with SMTP id s8so8194710pgg.11
-        for <stable@vger.kernel.org>; Mon, 13 Feb 2023 06:24:20 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112;
-        h=to:subject:message-id:date:from:sender:reply-to:mime-version:from
-         :to:cc:subject:date:message-id:reply-to;
-        bh=Q1IKJhZd2cFwm3AwDsdva9q0/F7bF3scCaYJXkjQZhk=;
-        b=Jk6juhXFyXsVtntk5AJbto+fGBW+8R560LFWZhz9uNVyVWMSMZU+7FngYJAxaXFWdq
-         5okA2EaUR6Fe2+U/QOn9i/TDaiNHhxIlx7Qxpa6K3hoPIBrB/hnm7ZgOvcZFJBjgIeZY
-         eH4JcvHw/ip2hIMrFAZ2KIE7gB99VVKksa5JNg+Q1yH8bXsgRkES18mVocxrv+su62FX
-         u2lBcMkKr+J0qPXOlZ02kPJgC9JQaMIqdjOeT05JLEbsH4onvMSCCvULCdOTllIJEus8
-         OMXFjvQ32heDJnqTQ0tJ/ziFFMXNR28CUMavoYyRspmuS+8ktFr+eEmQ5VoNacqpVrSV
-         HTgQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=to:subject:message-id:date:from:sender:reply-to:mime-version
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=Q1IKJhZd2cFwm3AwDsdva9q0/F7bF3scCaYJXkjQZhk=;
-        b=xGhI83LuuR0LQcSdLN1XdVQExCmtsB9B0/QeE6zKp+WZrtQzJz+D09r1zWcty4NCs+
-         XDwsT3VFpGEQApUCPBRZkpU9iiPtdaR1if5YxfXZimd/5yilvpMbwx1NqwZwk0wjHJVC
-         /mPoJPNCcOIe/7QmTKuEqvPzVP5mlENq3FI7rSyb1LSRYZCtLosbM9ohE7/aZ9mOyh6r
-         g+WsPjVI7jDpZLosCZODealtC+KGelcmxtnqGMuDMu+ytcie/i13nKh5Y0NPVftSAUzK
-         5AzennroAcmQ41Zb5VljGq6vhvgtqnWRAv/E4lZ+4razdEEEKFzesD84+YfoKLmG9rwh
-         cHnQ==
-X-Gm-Message-State: AO0yUKVkA8IxhwWBx0mHiI3sUbphOq2cVDDAaKMp1te6XtMYQuvpFGoa
-        b+03gewkwmjBO/5rBdxFvXiegg+rmnUECZjNmToR1TYB13M=
-X-Google-Smtp-Source: AK7set9rzdua9IFBbdPPLXbCXYKFrJPOnN3BY4XJDvv5YYj/scQWAPJ0+moBtm/Y75hqTjw27vEGQ6d8Beyr1CCgnjE=
-X-Received: by 2002:a63:af59:0:b0:4fb:5429:1c36 with SMTP id
- s25-20020a63af59000000b004fb54291c36mr1294579pgo.91.1676298259595; Mon, 13
- Feb 2023 06:24:19 -0800 (PST)
+        with ESMTP id S229573AbjBMOjr (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Feb 2023 09:39:47 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E839993FC
+        for <stable@vger.kernel.org>; Mon, 13 Feb 2023 06:39:44 -0800 (PST)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 99D57B80E62
+        for <stable@vger.kernel.org>; Mon, 13 Feb 2023 14:39:43 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0C73CC433EF;
+        Mon, 13 Feb 2023 14:39:41 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
+        s=korg; t=1676299182;
+        bh=xHulneNqlIf+Vchakph9fjidf93CIyVrpbpb9jJupJM=;
+        h=Subject:To:Cc:From:Date:From;
+        b=sEkGgJr7O/oeNO66ZdMtzsS6BVA3lkp7l2BY3hyqT9qAdqmGyeC6oRg+Ym4UdioSM
+         XcYX9nBFkiNpvG6jdxoWtd/+7Q8GNE51JmuZy6bDo0aASQnRsQHrJFf64IhNlzbOwj
+         hqN9AjYx+d5DAkUC5sT0G5rguX1AfmdhTZHSeIBM=
+Subject: FAILED: patch "[PATCH] drm/client: fix circular reference counting issue" failed to apply to 6.1-stable tree
+To:     christian.koenig@amd.com, stable@vger.kernel.org,
+        tzimmermann@suse.de
+Cc:     <stable@vger.kernel.org>
+From:   <gregkh@linuxfoundation.org>
+Date:   Mon, 13 Feb 2023 15:39:39 +0100
+Message-ID: <167629917919623@kroah.com>
 MIME-Version: 1.0
-Reply-To: mantheykayla29@gmail.com
-Sender: awademathieu@gmail.com
-Received: by 2002:a05:7300:bb8f:b0:98:5d4:47d9 with HTTP; Mon, 13 Feb 2023
- 06:24:19 -0800 (PST)
-From:   mantheykayla <mantheykayla29@gmail.com>
-Date:   Mon, 13 Feb 2023 06:24:19 -0800
-X-Google-Sender-Auth: jdoaeL6SOsDg34cZjboA2VgTQA4
-Message-ID: <CANeh6uHhD03MTPXC+F1XqW537BPtiSPZGn9Eiva9YurEmH6q3w@mail.gmail.com>
-Subject: 
-To:     undisclosed-recipients:;
-Content-Type: text/plain; charset="UTF-8"
-X-Spam-Status: No, score=0.9 required=5.0 tests=BAYES_50,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_FROM,
-        FREEMAIL_REPLYTO_END_DIGIT,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS
-        autolearn=ham autolearn_force=no version=3.4.6
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
+        SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hallo, heb je mijn berichten ontvangen? controleer en antwoord mij
+
+The patch below does not apply to the 6.1-stable tree.
+If someone wants it applied there, or to any other stable or longterm
+tree, then please email the backport, including the original git commit
+id to <stable@vger.kernel.org>.
+
+Possible dependencies:
+
+85e26dd5100a ("drm/client: fix circular reference counting issue")
+444bbba708e8 ("drm/client: Prevent NULL dereference in drm_client_buffer_delete()")
+27b2ae654370 ("drm/client: Switch drm_client_buffer_delete() to unlocked drm_gem_vunmap")
+
+thanks,
+
+greg k-h
+
+------------------ original commit in Linus's tree ------------------
+
+From 85e26dd5100a182bf8448050427539c0a66ab793 Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Christian=20K=C3=B6nig?= <christian.koenig@amd.com>
+Date: Thu, 26 Jan 2023 10:24:26 +0100
+Subject: [PATCH] drm/client: fix circular reference counting issue
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+We reference dump buffers both by their handle as well as their
+object. The problem is now that when anybody iterates over the DRM
+framebuffers and exports the underlying GEM objects through DMA-buf
+we run into a circular reference count situation.
+
+The result is that the fbdev handling holds the GEM handle preventing
+the DMA-buf in the GEM object to be released. This DMA-buf in turn
+holds a reference to the driver module which on unload would release
+the fbdev.
+
+Break that loop by releasing the handle as soon as the DRM
+framebuffer object is created. The DRM framebuffer and the DRM client
+buffer structure still hold a reference to the underlying GEM object
+preventing its destruction.
+
+Signed-off-by: Christian König <christian.koenig@amd.com>
+Fixes: c76f0f7cb546 ("drm: Begin an API for in-kernel clients")
+Cc: <stable@vger.kernel.org>
+Reviewed-by: Thomas Zimmermann <tzimmermann@suse.de>
+Tested-by: Thomas Zimmermann <tzimmermann@suse.de>
+Link: https://patchwork.freedesktop.org/patch/msgid/20230126102814.8722-1-christian.koenig@amd.com
+
+diff --git a/drivers/gpu/drm/drm_client.c b/drivers/gpu/drm/drm_client.c
+index fd67efe37c63..056ab9d5f313 100644
+--- a/drivers/gpu/drm/drm_client.c
++++ b/drivers/gpu/drm/drm_client.c
+@@ -233,21 +233,17 @@ void drm_client_dev_restore(struct drm_device *dev)
+ 
+ static void drm_client_buffer_delete(struct drm_client_buffer *buffer)
+ {
+-	struct drm_device *dev = buffer->client->dev;
+-
+ 	if (buffer->gem) {
+ 		drm_gem_vunmap_unlocked(buffer->gem, &buffer->map);
+ 		drm_gem_object_put(buffer->gem);
+ 	}
+ 
+-	if (buffer->handle)
+-		drm_mode_destroy_dumb(dev, buffer->handle, buffer->client->file);
+-
+ 	kfree(buffer);
+ }
+ 
+ static struct drm_client_buffer *
+-drm_client_buffer_create(struct drm_client_dev *client, u32 width, u32 height, u32 format)
++drm_client_buffer_create(struct drm_client_dev *client, u32 width, u32 height,
++			 u32 format, u32 *handle)
+ {
+ 	const struct drm_format_info *info = drm_format_info(format);
+ 	struct drm_mode_create_dumb dumb_args = { };
+@@ -269,16 +265,15 @@ drm_client_buffer_create(struct drm_client_dev *client, u32 width, u32 height, u
+ 	if (ret)
+ 		goto err_delete;
+ 
+-	buffer->handle = dumb_args.handle;
+-	buffer->pitch = dumb_args.pitch;
+-
+ 	obj = drm_gem_object_lookup(client->file, dumb_args.handle);
+ 	if (!obj)  {
+ 		ret = -ENOENT;
+ 		goto err_delete;
+ 	}
+ 
++	buffer->pitch = dumb_args.pitch;
+ 	buffer->gem = obj;
++	*handle = dumb_args.handle;
+ 
+ 	return buffer;
+ 
+@@ -365,7 +360,8 @@ static void drm_client_buffer_rmfb(struct drm_client_buffer *buffer)
+ }
+ 
+ static int drm_client_buffer_addfb(struct drm_client_buffer *buffer,
+-				   u32 width, u32 height, u32 format)
++				   u32 width, u32 height, u32 format,
++				   u32 handle)
+ {
+ 	struct drm_client_dev *client = buffer->client;
+ 	struct drm_mode_fb_cmd fb_req = { };
+@@ -377,7 +373,7 @@ static int drm_client_buffer_addfb(struct drm_client_buffer *buffer,
+ 	fb_req.depth = info->depth;
+ 	fb_req.width = width;
+ 	fb_req.height = height;
+-	fb_req.handle = buffer->handle;
++	fb_req.handle = handle;
+ 	fb_req.pitch = buffer->pitch;
+ 
+ 	ret = drm_mode_addfb(client->dev, &fb_req, client->file);
+@@ -414,13 +410,24 @@ struct drm_client_buffer *
+ drm_client_framebuffer_create(struct drm_client_dev *client, u32 width, u32 height, u32 format)
+ {
+ 	struct drm_client_buffer *buffer;
++	u32 handle;
+ 	int ret;
+ 
+-	buffer = drm_client_buffer_create(client, width, height, format);
++	buffer = drm_client_buffer_create(client, width, height, format,
++					  &handle);
+ 	if (IS_ERR(buffer))
+ 		return buffer;
+ 
+-	ret = drm_client_buffer_addfb(buffer, width, height, format);
++	ret = drm_client_buffer_addfb(buffer, width, height, format, handle);
++
++	/*
++	 * The handle is only needed for creating the framebuffer, destroy it
++	 * again to solve a circular dependency should anybody export the GEM
++	 * object as DMA-buf. The framebuffer and our buffer structure are still
++	 * holding references to the GEM object to prevent its destruction.
++	 */
++	drm_mode_destroy_dumb(client->dev, handle, client->file);
++
+ 	if (ret) {
+ 		drm_client_buffer_delete(buffer);
+ 		return ERR_PTR(ret);
+diff --git a/include/drm/drm_client.h b/include/drm/drm_client.h
+index 4fc8018eddda..1220d185c776 100644
+--- a/include/drm/drm_client.h
++++ b/include/drm/drm_client.h
+@@ -126,11 +126,6 @@ struct drm_client_buffer {
+ 	 */
+ 	struct drm_client_dev *client;
+ 
+-	/**
+-	 * @handle: Buffer handle
+-	 */
+-	u32 handle;
+-
+ 	/**
+ 	 * @pitch: Buffer pitch
+ 	 */
+
