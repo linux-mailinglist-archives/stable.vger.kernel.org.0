@@ -2,45 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A050F69499D
-	for <lists+stable@lfdr.de>; Mon, 13 Feb 2023 16:00:20 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 222F26949C8
+	for <lists+stable@lfdr.de>; Mon, 13 Feb 2023 16:02:12 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231201AbjBMPAT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Feb 2023 10:00:19 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56636 "EHLO
+        id S231382AbjBMPCK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Feb 2023 10:02:10 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33672 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231245AbjBMPAJ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Feb 2023 10:00:09 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6B9166186
-        for <stable@vger.kernel.org>; Mon, 13 Feb 2023 06:59:56 -0800 (PST)
+        with ESMTP id S231368AbjBMPBz (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Feb 2023 10:01:55 -0500
+Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A47411D919
+        for <stable@vger.kernel.org>; Mon, 13 Feb 2023 07:01:32 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id E3376B80E62
-        for <stable@vger.kernel.org>; Mon, 13 Feb 2023 14:59:54 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 400C2C433EF;
-        Mon, 13 Feb 2023 14:59:53 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id F0D59CE1BA1
+        for <stable@vger.kernel.org>; Mon, 13 Feb 2023 15:01:28 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 00250C433EF;
+        Mon, 13 Feb 2023 15:01:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1676300393;
-        bh=HppmGfJzgngERve3L6+874tmPEcMILLc8mO4PUGWgpc=;
+        s=korg; t=1676300487;
+        bh=ryRjPv5+EV4SdbMn0PqZCEH2sX01BDvZSzs4Y9hggKk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=oyf81KUvvaU39UDQ9AGay50NbB/dX0vWVTfCidmXYVuP3820yOafF4mWqr5qUk62N
-         OjOalRk2NwnDiJcgV7DgYmi1XL/j6SfW/LlMf5uWRVGXb1ema7xyfvbaL9wcGAmrEq
-         yrb4JKiD5Jm9cwGTwIRp1EvzS1JqmIs1HwL5EejA=
+        b=LjF03wa0AlIP1Tzv/t7GChiHg3zpg6/vj+8WUxF0gjJLO6x20+7W4pspg993qdwG4
+         13lSiZorlB/XoLzkxxwJ7gy6c8BrQjosU5++cjr00I7rvedlSDeLbDuixeZ8wQwgEU
+         CesfDmlPkbNFiO6oVgzqWjln6jIaqrnKW5c2dbYM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Xiubo Li <xiubli@redhat.com>,
-        Venky Shankar <vshankar@redhat.com>,
-        Jeff Layton <jlayton@kernel.org>,
-        Ilya Dryomov <idryomov@gmail.com>
-Subject: [PATCH 5.15 56/67] ceph: flush cap releases when the session is flushed
+        patches@lists.linux.dev,
+        Andrei Gherzan <andrei.gherzan@canonical.com>,
+        Paolo Abeni <pabeni@redhat.com>,
+        Willem de Bruijn <willemb@google.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 032/139] selftests: net: udpgso_bench: Fix racing bug between the rx/tx programs
 Date:   Mon, 13 Feb 2023 15:49:37 +0100
-Message-Id: <20230213144735.047041537@linuxfoundation.org>
+Message-Id: <20230213144747.353352676@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.1
-In-Reply-To: <20230213144732.336342050@linuxfoundation.org>
-References: <20230213144732.336342050@linuxfoundation.org>
+In-Reply-To: <20230213144745.696901179@linuxfoundation.org>
+References: <20230213144745.696901179@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,38 +55,79 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Xiubo Li <xiubli@redhat.com>
+From: Andrei Gherzan <andrei.gherzan@canonical.com>
 
-commit e7d84c6a1296d059389f7342d9b4b7defb518d3a upstream.
+[ Upstream commit dafe93b9ee21028d625dce347118b82659652eff ]
 
-MDS expects the completed cap release prior to responding to the
-session flush for cache drop.
+"udpgro_bench.sh" invokes udpgso_bench_rx/udpgso_bench_tx programs
+subsequently and while doing so, there is a chance that the rx one is not
+ready to accept socket connections. This racing bug could fail the test
+with at least one of the following:
 
-Cc: stable@vger.kernel.org
-Link: http://tracker.ceph.com/issues/38009
-Signed-off-by: Xiubo Li <xiubli@redhat.com>
-Reviewed-by: Venky Shankar <vshankar@redhat.com>
-Reviewed-by: Jeff Layton <jlayton@kernel.org>
-Signed-off-by: Ilya Dryomov <idryomov@gmail.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+./udpgso_bench_tx: connect: Connection refused
+./udpgso_bench_tx: sendmsg: Connection refused
+./udpgso_bench_tx: write: Connection refused
+
+This change addresses this by making udpgro_bench.sh wait for the rx
+program to be ready before firing off the tx one - up to a 10s timeout.
+
+Fixes: 3a687bef148d ("selftests: udp gso benchmark")
+Signed-off-by: Andrei Gherzan <andrei.gherzan@canonical.com>
+Cc: Paolo Abeni <pabeni@redhat.com>
+Cc: Willem de Bruijn <willemb@google.com>
+Reviewed-by: Willem de Bruijn <willemb@google.com>
+Link: https://lore.kernel.org/r/20230201001612.515730-3-andrei.gherzan@canonical.com
+Signed-off-by: Paolo Abeni <pabeni@redhat.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/ceph/mds_client.c |    6 ++++++
- 1 file changed, 6 insertions(+)
+ tools/testing/selftests/net/udpgso_bench.sh | 24 +++++++++++++++++----
+ 1 file changed, 20 insertions(+), 4 deletions(-)
 
---- a/fs/ceph/mds_client.c
-+++ b/fs/ceph/mds_client.c
-@@ -3543,6 +3543,12 @@ static void handle_session(struct ceph_m
- 		break;
+diff --git a/tools/testing/selftests/net/udpgso_bench.sh b/tools/testing/selftests/net/udpgso_bench.sh
+index dc932fd65363..640bc43452fa 100755
+--- a/tools/testing/selftests/net/udpgso_bench.sh
++++ b/tools/testing/selftests/net/udpgso_bench.sh
+@@ -7,6 +7,7 @@ readonly GREEN='\033[0;92m'
+ readonly YELLOW='\033[0;33m'
+ readonly RED='\033[0;31m'
+ readonly NC='\033[0m' # No Color
++readonly TESTPORT=8000
  
- 	case CEPH_SESSION_FLUSHMSG:
-+		/* flush cap releases */
-+		spin_lock(&session->s_cap_lock);
-+		if (session->s_num_cap_releases)
-+			ceph_flush_cap_releases(mdsc, session);
-+		spin_unlock(&session->s_cap_lock);
+ readonly KSFT_PASS=0
+ readonly KSFT_FAIL=1
+@@ -56,11 +57,26 @@ trap wake_children EXIT
+ 
+ run_one() {
+ 	local -r args=$@
++	local nr_socks=0
++	local i=0
++	local -r timeout=10
 +
- 		send_flushmsg_ack(mdsc, session, seq);
- 		break;
++	./udpgso_bench_rx -p "$TESTPORT" &
++	./udpgso_bench_rx -p "$TESTPORT" -t &
++
++	# Wait for the above test program to get ready to receive connections.
++	while [ "$i" -lt "$timeout" ]; do
++		nr_socks="$(ss -lnHi | grep -c "\*:${TESTPORT}")"
++		[ "$nr_socks" -eq 2 ] && break
++		i=$((i + 1))
++		sleep 1
++	done
++	if [ "$nr_socks" -ne 2 ]; then
++		echo "timed out while waiting for udpgso_bench_rx"
++		exit 1
++	fi
  
+-	./udpgso_bench_rx &
+-	./udpgso_bench_rx -t &
+-
+-	./udpgso_bench_tx ${args}
++	./udpgso_bench_tx -p "$TESTPORT" ${args}
+ }
+ 
+ run_in_netns() {
+-- 
+2.39.0
+
 
 
