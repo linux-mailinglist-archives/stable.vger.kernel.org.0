@@ -2,50 +2,51 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id EB3616949CF
-	for <lists+stable@lfdr.de>; Mon, 13 Feb 2023 16:02:21 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2CF8169497F
+	for <lists+stable@lfdr.de>; Mon, 13 Feb 2023 15:59:27 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230231AbjBMPCV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Feb 2023 10:02:21 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33394 "EHLO
+        id S231177AbjBMO7Z (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Feb 2023 09:59:25 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56812 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231332AbjBMPCL (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Feb 2023 10:02:11 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E81161DBA3
-        for <stable@vger.kernel.org>; Mon, 13 Feb 2023 07:01:52 -0800 (PST)
+        with ESMTP id S231179AbjBMO7J (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Feb 2023 09:59:09 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 927AD1D917
+        for <stable@vger.kernel.org>; Mon, 13 Feb 2023 06:58:52 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 3147C6116F
-        for <stable@vger.kernel.org>; Mon, 13 Feb 2023 15:01:41 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1D7F2C433EF;
-        Mon, 13 Feb 2023 15:01:39 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 0315961166
+        for <stable@vger.kernel.org>; Mon, 13 Feb 2023 14:58:52 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0E342C433D2;
+        Mon, 13 Feb 2023 14:58:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1676300500;
-        bh=/VudQlAzgWCtDMR0lTL5qBFqSCWeMhUohVtTyvwBpLs=;
+        s=korg; t=1676300331;
+        bh=PdM+V68yQHdWToKcief3q038+CVjfW4U1Odeqg3IjSk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Wcy7Ahs32P1HpfbTtW3hNz09J0wTsfiqzf9Y4rdhGBpge8eBokJ3WUM0i2fNUEUzT
-         1Vt1GKedsof26lmvxtA/2nJqHtFK6qrJg0JGlfOKU19G7iKe45EO+qOeEketcVqR8B
-         +HnqCSCu2fclmevBOnBpYkmrCBuoN+5G7yrHnS2o=
+        b=MsDwP+sxnRyBgD565/NUIb0BGXd/IWO1KrTaacWEvksOZLqMsgiEp3eC2/S3A9WZg
+         8KqoY5q7+C9aw1878wOFeX4OtgQrWFUiB2bv39R3uQT2GfkIXMwtbgNjfdujFIyfX9
+         E/JaJNGyQpyflHR/Wlv1B0qBeGBbPHgiMgSmBZTo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Martin KaFai Lau <kafai@fb.com>,
-        Alexei Starovoitov <ast@kernel.org>,
+        patches@lists.linux.dev, Vlad Buslov <vladbu@nvidia.com>,
+        Maor Dickman <maord@nvidia.com>,
+        Saeed Mahameed <saeedm@nvidia.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 009/139] bpf: Support <8-byte scalar spill and refill
+Subject: [PATCH 5.15 33/67] net/mlx5: Bridge, fix ageing of peer FDB entries
 Date:   Mon, 13 Feb 2023 15:49:14 +0100
-Message-Id: <20230213144746.148641459@linuxfoundation.org>
+Message-Id: <20230213144733.943538696@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.1
-In-Reply-To: <20230213144745.696901179@linuxfoundation.org>
-References: <20230213144745.696901179@linuxfoundation.org>
+In-Reply-To: <20230213144732.336342050@linuxfoundation.org>
+References: <20230213144732.336342050@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
         SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -53,214 +54,58 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Martin KaFai Lau <kafai@fb.com>
+From: Vlad Buslov <vladbu@nvidia.com>
 
-[ Upstream commit 354e8f1970f821d4952458f77b1ab6c3eb24d530 ]
+[ Upstream commit da0c52426cd23f8728eff72c2b2d2a3eb6b451f5 ]
 
-The verifier currently does not save the reg state when
-spilling <8byte bounded scalar to the stack.  The bpf program
-will be incorrectly rejected when this scalar is refilled to
-the reg and then used to offset into a packet header.
-The later patch has a simplified bpf prog from a real use case
-to demonstrate this case.  The current work around is
-to reparse the packet again such that this offset scalar
-is close to where the packet data will be accessed to
-avoid the spill.  Thus, the header is parsed twice.
+SWITCHDEV_FDB_ADD_TO_BRIDGE event handler that updates FDB entry 'lastuse'
+field is only executed for eswitch that owns the entry. However, if peer
+entry processed packets at least once it will have hardware counter 'used'
+value greater than entry 'lastuse' from that point on, which will cause FDB
+entry not being aged out.
 
-The llvm patch [1] will align the <8bytes spill to
-the 8-byte stack address.  This can simplify the verifier
-support by avoiding to store multiple reg states for
-each 8 byte stack slot.
+Process the event on all eswitch instances.
 
-This patch changes the verifier to save the reg state when
-spilling <8bytes scalar to the stack.  This reg state saving
-is limited to spill aligned to the 8-byte stack address.
-The current refill logic has already called coerce_reg_to_size(),
-so coerce_reg_to_size() is not called on state->stack[spi].spilled_ptr
-during spill.
-
-When refilling in check_stack_read_fixed_off(),  it checks
-the refill size is the same as the number of bytes marked with
-STACK_SPILL before restoring the reg state.  When restoring
-the reg state to state->regs[dst_regno], it needs
-to avoid the state->regs[dst_regno].subreg_def being
-over written because it has been marked by the check_reg_arg()
-earlier [check_mem_access() is called after check_reg_arg() in
-do_check()].  Reordering check_mem_access() and check_reg_arg()
-will need a lot of changes in test_verifier's tests because
-of the difference in verifier's error message.  Thus, the
-patch here is to save the state->regs[dst_regno].subreg_def
-first in check_stack_read_fixed_off().
-
-There are cases that the verifier needs to scrub the spilled slot
-from STACK_SPILL to STACK_MISC.  After this patch the spill is not always
-in 8 bytes now, so it can no longer assume the other 7 bytes are always
-marked as STACK_SPILL.  In particular, the scrub needs to avoid marking
-an uninitialized byte from STACK_INVALID to STACK_MISC.  Otherwise, the
-verifier will incorrectly accept bpf program reading uninitialized bytes
-from the stack.  A new helper scrub_spilled_slot() is created for this
-purpose.
-
-[1]: https://reviews.llvm.org/D109073
-
-Signed-off-by: Martin KaFai Lau <kafai@fb.com>
-Signed-off-by: Alexei Starovoitov <ast@kernel.org>
-Link: https://lore.kernel.org/bpf/20210922004941.625398-1-kafai@fb.com
-Stable-dep-of: 71f656a50176 ("bpf: Fix to preserve reg parent/live fields when copying range info")
+Fixes: ff9b7521468b ("net/mlx5: Bridge, support LAG")
+Signed-off-by: Vlad Buslov <vladbu@nvidia.com>
+Reviewed-by: Maor Dickman <maord@nvidia.com>
+Signed-off-by: Saeed Mahameed <saeedm@nvidia.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/bpf/verifier.c |   67 ++++++++++++++++++++++++++++++++++++++------------
- 1 file changed, 52 insertions(+), 15 deletions(-)
+ drivers/net/ethernet/mellanox/mlx5/core/en/rep/bridge.c | 4 ----
+ drivers/net/ethernet/mellanox/mlx5/core/esw/bridge.c    | 2 +-
+ 2 files changed, 1 insertion(+), 5 deletions(-)
 
---- a/kernel/bpf/verifier.c
-+++ b/kernel/bpf/verifier.c
-@@ -570,6 +570,12 @@ static bool is_spilled_reg(const struct
- 	return stack->slot_type[BPF_REG_SIZE - 1] == STACK_SPILL;
- }
+diff --git a/drivers/net/ethernet/mellanox/mlx5/core/en/rep/bridge.c b/drivers/net/ethernet/mellanox/mlx5/core/en/rep/bridge.c
+index 8e7177d4539e3..291bd59639044 100644
+--- a/drivers/net/ethernet/mellanox/mlx5/core/en/rep/bridge.c
++++ b/drivers/net/ethernet/mellanox/mlx5/core/en/rep/bridge.c
+@@ -432,10 +432,6 @@ static int mlx5_esw_bridge_switchdev_event(struct notifier_block *nb,
  
-+static void scrub_spilled_slot(u8 *stype)
-+{
-+	if (*stype != STACK_INVALID)
-+		*stype = STACK_MISC;
-+}
-+
- static void print_verifier_state(struct bpf_verifier_env *env,
- 				 const struct bpf_func_state *state)
- {
-@@ -2269,15 +2275,21 @@ static bool __is_pointer_value(bool allo
- }
- 
- static void save_register_state(struct bpf_func_state *state,
--				int spi, struct bpf_reg_state *reg)
-+				int spi, struct bpf_reg_state *reg,
-+				int size)
- {
- 	int i;
- 
- 	state->stack[spi].spilled_ptr = *reg;
--	state->stack[spi].spilled_ptr.live |= REG_LIVE_WRITTEN;
-+	if (size == BPF_REG_SIZE)
-+		state->stack[spi].spilled_ptr.live |= REG_LIVE_WRITTEN;
- 
--	for (i = 0; i < BPF_REG_SIZE; i++)
--		state->stack[spi].slot_type[i] = STACK_SPILL;
-+	for (i = BPF_REG_SIZE; i > BPF_REG_SIZE - size; i--)
-+		state->stack[spi].slot_type[i - 1] = STACK_SPILL;
-+
-+	/* size < 8 bytes spill */
-+	for (; i; i--)
-+		scrub_spilled_slot(&state->stack[spi].slot_type[i - 1]);
- }
- 
- /* check_stack_{read,write}_fixed_off functions track spill/fill of registers,
-@@ -2327,7 +2339,7 @@ static int check_stack_write_fixed_off(s
- 			env->insn_aux_data[insn_idx].sanitize_stack_spill = true;
- 	}
- 
--	if (reg && size == BPF_REG_SIZE && register_is_bounded(reg) &&
-+	if (reg && !(off % BPF_REG_SIZE) && register_is_bounded(reg) &&
- 	    !register_is_null(reg) && env->bpf_capable) {
- 		if (dst_reg != BPF_REG_FP) {
- 			/* The backtracking logic can only recognize explicit
-@@ -2340,7 +2352,7 @@ static int check_stack_write_fixed_off(s
- 			if (err)
- 				return err;
- 		}
--		save_register_state(state, spi, reg);
-+		save_register_state(state, spi, reg, size);
- 	} else if (reg && is_spillable_regtype(reg->type)) {
- 		/* register containing pointer is being spilled into stack */
- 		if (size != BPF_REG_SIZE) {
-@@ -2352,7 +2364,7 @@ static int check_stack_write_fixed_off(s
- 			verbose(env, "cannot spill pointers to stack into stack frame of the caller\n");
- 			return -EINVAL;
- 		}
--		save_register_state(state, spi, reg);
-+		save_register_state(state, spi, reg, size);
- 	} else {
- 		u8 type = STACK_MISC;
- 
-@@ -2361,7 +2373,7 @@ static int check_stack_write_fixed_off(s
- 		/* Mark slots as STACK_MISC if they belonged to spilled ptr. */
- 		if (is_spilled_reg(&state->stack[spi]))
- 			for (i = 0; i < BPF_REG_SIZE; i++)
--				state->stack[spi].slot_type[i] = STACK_MISC;
-+				scrub_spilled_slot(&state->stack[spi].slot_type[i]);
- 
- 		/* only mark the slot as written if all 8 bytes were written
- 		 * otherwise read propagation may incorrectly stop too soon
-@@ -2568,23 +2580,50 @@ static int check_stack_read_fixed_off(st
- 	struct bpf_func_state *state = vstate->frame[vstate->curframe];
- 	int i, slot = -off - 1, spi = slot / BPF_REG_SIZE;
- 	struct bpf_reg_state *reg;
--	u8 *stype;
-+	u8 *stype, type;
- 
- 	stype = reg_state->stack[spi].slot_type;
- 	reg = &reg_state->stack[spi].spilled_ptr;
- 
- 	if (is_spilled_reg(&reg_state->stack[spi])) {
- 		if (size != BPF_REG_SIZE) {
-+			u8 scalar_size = 0;
-+
- 			if (reg->type != SCALAR_VALUE) {
- 				verbose_linfo(env, env->insn_idx, "; ");
- 				verbose(env, "invalid size of register fill\n");
- 				return -EACCES;
- 			}
--			if (dst_regno >= 0) {
-+
-+			mark_reg_read(env, reg, reg->parent, REG_LIVE_READ64);
-+			if (dst_regno < 0)
-+				return 0;
-+
-+			for (i = BPF_REG_SIZE; i > 0 && stype[i - 1] == STACK_SPILL; i--)
-+				scalar_size++;
-+
-+			if (!(off % BPF_REG_SIZE) && size == scalar_size) {
-+				/* The earlier check_reg_arg() has decided the
-+				 * subreg_def for this insn.  Save it first.
-+				 */
-+				s32 subreg_def = state->regs[dst_regno].subreg_def;
-+
-+				state->regs[dst_regno] = *reg;
-+				state->regs[dst_regno].subreg_def = subreg_def;
-+			} else {
-+				for (i = 0; i < size; i++) {
-+					type = stype[(slot - i) % BPF_REG_SIZE];
-+					if (type == STACK_SPILL)
-+						continue;
-+					if (type == STACK_MISC)
-+						continue;
-+					verbose(env, "invalid read from stack off %d+%d size %d\n",
-+						off, i, size);
-+					return -EACCES;
-+				}
- 				mark_reg_unknown(env, state->regs, dst_regno);
--				state->regs[dst_regno].live |= REG_LIVE_WRITTEN;
- 			}
--			mark_reg_read(env, reg, reg->parent, REG_LIVE_READ64);
-+			state->regs[dst_regno].live |= REG_LIVE_WRITTEN;
- 			return 0;
- 		}
- 		for (i = 1; i < BPF_REG_SIZE; i++) {
-@@ -2615,8 +2654,6 @@ static int check_stack_read_fixed_off(st
- 		}
- 		mark_reg_read(env, reg, reg->parent, REG_LIVE_READ64);
- 	} else {
--		u8 type;
+ 	switch (event) {
+ 	case SWITCHDEV_FDB_ADD_TO_BRIDGE:
+-		/* only handle the event on native eswtich of representor */
+-		if (!mlx5_esw_bridge_is_local(dev, rep, esw))
+-			break;
 -
- 		for (i = 0; i < size; i++) {
- 			type = stype[(slot - i) % BPF_REG_SIZE];
- 			if (type == STACK_MISC)
-@@ -4102,7 +4139,7 @@ static int check_stack_range_initialized
- 			if (clobber) {
- 				__mark_reg_unknown(env, &state->stack[spi].spilled_ptr);
- 				for (j = 0; j < BPF_REG_SIZE; j++)
--					state->stack[spi].slot_type[j] = STACK_MISC;
-+					scrub_spilled_slot(&state->stack[spi].slot_type[j]);
- 			}
- 			goto mark;
- 		}
+ 		fdb_info = container_of(info,
+ 					struct switchdev_notifier_fdb_info,
+ 					info);
+diff --git a/drivers/net/ethernet/mellanox/mlx5/core/esw/bridge.c b/drivers/net/ethernet/mellanox/mlx5/core/esw/bridge.c
+index 317d76b97c42a..aec0f67cef005 100644
+--- a/drivers/net/ethernet/mellanox/mlx5/core/esw/bridge.c
++++ b/drivers/net/ethernet/mellanox/mlx5/core/esw/bridge.c
+@@ -1270,7 +1270,7 @@ void mlx5_esw_bridge_fdb_update_used(struct net_device *dev, u16 vport_num, u16
+ 	struct mlx5_esw_bridge *bridge;
+ 
+ 	port = mlx5_esw_bridge_port_lookup(vport_num, esw_owner_vhca_id, br_offloads);
+-	if (!port || port->flags & MLX5_ESW_BRIDGE_PORT_FLAG_PEER)
++	if (!port)
+ 		return;
+ 
+ 	bridge = port->bridge;
+-- 
+2.39.0
+
 
 
