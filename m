@@ -2,52 +2,51 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id EA90D694982
-	for <lists+stable@lfdr.de>; Mon, 13 Feb 2023 15:59:43 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2DA0C6949BE
+	for <lists+stable@lfdr.de>; Mon, 13 Feb 2023 16:01:36 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231167AbjBMO7m (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Feb 2023 09:59:42 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56762 "EHLO
+        id S231301AbjBMPBe (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Feb 2023 10:01:34 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55916 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231148AbjBMO7W (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Feb 2023 09:59:22 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 93B8C1E1C3
-        for <stable@vger.kernel.org>; Mon, 13 Feb 2023 06:59:03 -0800 (PST)
+        with ESMTP id S231314AbjBMPBX (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Feb 2023 10:01:23 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BA7971D90F
+        for <stable@vger.kernel.org>; Mon, 13 Feb 2023 07:01:07 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 8BA30B8128D
-        for <stable@vger.kernel.org>; Mon, 13 Feb 2023 14:58:34 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A950FC433EF;
-        Mon, 13 Feb 2023 14:58:32 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 5374C6116A
+        for <stable@vger.kernel.org>; Mon, 13 Feb 2023 15:01:07 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5F3B2C433EF;
+        Mon, 13 Feb 2023 15:01:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1676300313;
-        bh=UZOGAcmGTBilaFJYTy3xPYlOlNLCDmANFpbGsrIFXIg=;
+        s=korg; t=1676300466;
+        bh=+hoUKtyQQs93+XIhEBfSYCitFULRI/YKwOtWvZUUf2I=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=CbA97ZvAQm9utkCo4IX1hvpdbVWo/lvMrkGn7CcR5UZ3qkQh9qYht1p/Ps7Y+JubM
-         V/40+wuKnusG8tClaPcbLAKRtl9QjO535qpcDza2Cq7skt3uIktf4vmTXh1woEa/Q7
-         Dp5gpIoYipbo/8//FSsqC/chcMuky2pdlIpo+ax0=
+        b=fYndZaIAdfm0rQuiN8LaEV6kYxHzUO3fdrIBBvd1Jb6+XQB1C18K5QGm8WJpL2BUb
+         8VyNaiSI4N7+AP3nTP2+Ei87YoX8exS43MS+FKB2AD93JcLVucAdDu/RiqnDVfKAQD
+         H7jcsUFbOBAHSHXP+qrseizXY2/vEkoKEGBmzPWo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Maxim Mikityanskiy <maximmi@nvidia.com>,
-        Tariq Toukan <tariqt@nvidia.com>,
-        Saeed Mahameed <saeedm@nvidia.com>,
-        Jakub Kicinski <kuba@kernel.org>,
+        patches@lists.linux.dev,
+        Christophe Leroy <christophe.leroy@csgroup.eu>,
+        Michael Ellerman <mpe@ellerman.id.au>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 31/67] net/mlx5e: Introduce the mlx5e_flush_rq function
+Subject: [PATCH 5.10 007/139] powerpc/bpf: Change register numbering for bpf_set/is_seen_register()
 Date:   Mon, 13 Feb 2023 15:49:12 +0100
-Message-Id: <20230213144733.859833406@linuxfoundation.org>
+Message-Id: <20230213144746.063364820@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.1
-In-Reply-To: <20230213144732.336342050@linuxfoundation.org>
-References: <20230213144732.336342050@linuxfoundation.org>
+In-Reply-To: <20230213144745.696901179@linuxfoundation.org>
+References: <20230213144745.696901179@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
         SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -55,126 +54,86 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Maxim Mikityanskiy <maximmi@nvidia.com>
+From: Christophe Leroy <christophe.leroy@csgroup.eu>
 
-[ Upstream commit d9ba64deb2f1ad58eb3067c7485518f3e96559ee ]
+[ Upstream commit ed573b57e77a7860fe4026e1700faa2f6938caf1 ]
 
-Add a function to flush an RQ: clean up descriptors, release pages and
-reset the RQ. This procedure is used by the recovery flow, and it will
-also be used in a following commit to free some memory when switching a
-channel to the XSK mode.
+Instead of using BPF register number as input in functions
+bpf_set_seen_register() and bpf_is_seen_register(), use
+CPU register number directly.
 
-Signed-off-by: Maxim Mikityanskiy <maximmi@nvidia.com>
-Reviewed-by: Tariq Toukan <tariqt@nvidia.com>
-Signed-off-by: Saeed Mahameed <saeedm@nvidia.com>
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
-Stable-dep-of: 1e66220948df ("net/mlx5e: Update rx ring hw mtu upon each rx-fcs flag change")
+Signed-off-by: Christophe Leroy <christophe.leroy@csgroup.eu>
+Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
+Link: https://lore.kernel.org/r/0cd2506f598e7095ea43e62dca1f472de5474a0d.1616430991.git.christophe.leroy@csgroup.eu
+Stable-dep-of: 71f656a50176 ("bpf: Fix to preserve reg parent/live fields when copying range info")
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/mellanox/mlx5/core/en.h  |  2 +-
- .../mellanox/mlx5/core/en/reporter_rx.c       | 23 +--------------
- .../net/ethernet/mellanox/mlx5/core/en_main.c | 28 ++++++++++++++++++-
- 3 files changed, 29 insertions(+), 24 deletions(-)
+ arch/powerpc/net/bpf_jit_comp64.c | 16 ++++++++--------
+ 1 file changed, 8 insertions(+), 8 deletions(-)
 
-diff --git a/drivers/net/ethernet/mellanox/mlx5/core/en.h b/drivers/net/ethernet/mellanox/mlx5/core/en.h
-index c22a38e5337b2..c822c3ac0544b 100644
---- a/drivers/net/ethernet/mellanox/mlx5/core/en.h
-+++ b/drivers/net/ethernet/mellanox/mlx5/core/en.h
-@@ -1002,7 +1002,7 @@ void mlx5e_activate_priv_channels(struct mlx5e_priv *priv);
- void mlx5e_deactivate_priv_channels(struct mlx5e_priv *priv);
- int mlx5e_ptp_rx_manage_fs_ctx(struct mlx5e_priv *priv, void *ctx);
+diff --git a/arch/powerpc/net/bpf_jit_comp64.c b/arch/powerpc/net/bpf_jit_comp64.c
+index 0d47514e8870..7da59ddc90dd 100644
+--- a/arch/powerpc/net/bpf_jit_comp64.c
++++ b/arch/powerpc/net/bpf_jit_comp64.c
+@@ -32,12 +32,12 @@ static inline void bpf_flush_icache(void *start, void *end)
  
--int mlx5e_modify_rq_state(struct mlx5e_rq *rq, int curr_state, int next_state);
-+int mlx5e_flush_rq(struct mlx5e_rq *rq, int curr_state);
- void mlx5e_activate_rq(struct mlx5e_rq *rq);
- void mlx5e_deactivate_rq(struct mlx5e_rq *rq);
- void mlx5e_activate_icosq(struct mlx5e_icosq *icosq);
-diff --git a/drivers/net/ethernet/mellanox/mlx5/core/en/reporter_rx.c b/drivers/net/ethernet/mellanox/mlx5/core/en/reporter_rx.c
-index 0f1dbad7c9f1a..899a9a73eef68 100644
---- a/drivers/net/ethernet/mellanox/mlx5/core/en/reporter_rx.c
-+++ b/drivers/net/ethernet/mellanox/mlx5/core/en/reporter_rx.c
-@@ -129,34 +129,13 @@ static int mlx5e_rx_reporter_err_icosq_cqe_recover(void *ctx)
- 	return err;
+ static inline bool bpf_is_seen_register(struct codegen_context *ctx, int i)
+ {
+-	return (ctx->seen & (1 << (31 - b2p[i])));
++	return ctx->seen & (1 << (31 - i));
  }
  
--static int mlx5e_rq_to_ready(struct mlx5e_rq *rq, int curr_state)
--{
--	struct net_device *dev = rq->netdev;
--	int err;
--
--	err = mlx5e_modify_rq_state(rq, curr_state, MLX5_RQC_STATE_RST);
--	if (err) {
--		netdev_err(dev, "Failed to move rq 0x%x to reset\n", rq->rqn);
--		return err;
--	}
--	err = mlx5e_modify_rq_state(rq, MLX5_RQC_STATE_RST, MLX5_RQC_STATE_RDY);
--	if (err) {
--		netdev_err(dev, "Failed to move rq 0x%x to ready\n", rq->rqn);
--		return err;
--	}
--
--	return 0;
--}
--
- static int mlx5e_rx_reporter_err_rq_cqe_recover(void *ctx)
+ static inline void bpf_set_seen_register(struct codegen_context *ctx, int i)
  {
- 	struct mlx5e_rq *rq = ctx;
- 	int err;
- 
- 	mlx5e_deactivate_rq(rq);
--	mlx5e_free_rx_descs(rq);
--
--	err = mlx5e_rq_to_ready(rq, MLX5_RQC_STATE_ERR);
-+	err = mlx5e_flush_rq(rq, MLX5_RQC_STATE_ERR);
- 	clear_bit(MLX5E_RQ_STATE_RECOVERING, &rq->state);
- 	if (err)
- 		return err;
-diff --git a/drivers/net/ethernet/mellanox/mlx5/core/en_main.c b/drivers/net/ethernet/mellanox/mlx5/core/en_main.c
-index be19f5cf9d150..866242ac72c29 100644
---- a/drivers/net/ethernet/mellanox/mlx5/core/en_main.c
-+++ b/drivers/net/ethernet/mellanox/mlx5/core/en_main.c
-@@ -672,7 +672,7 @@ int mlx5e_create_rq(struct mlx5e_rq *rq, struct mlx5e_rq_param *param)
- 	return err;
+-	ctx->seen |= (1 << (31 - b2p[i]));
++	ctx->seen |= 1 << (31 - i);
  }
  
--int mlx5e_modify_rq_state(struct mlx5e_rq *rq, int curr_state, int next_state)
-+static int mlx5e_modify_rq_state(struct mlx5e_rq *rq, int curr_state, int next_state)
- {
- 	struct mlx5_core_dev *mdev = rq->mdev;
- 
-@@ -701,6 +701,32 @@ int mlx5e_modify_rq_state(struct mlx5e_rq *rq, int curr_state, int next_state)
- 	return err;
+ static inline bool bpf_has_stack_frame(struct codegen_context *ctx)
+@@ -48,7 +48,7 @@ static inline bool bpf_has_stack_frame(struct codegen_context *ctx)
+ 	 * - the bpf program uses its stack area
+ 	 * The latter condition is deduced from the usage of BPF_REG_FP
+ 	 */
+-	return ctx->seen & SEEN_FUNC || bpf_is_seen_register(ctx, BPF_REG_FP);
++	return ctx->seen & SEEN_FUNC || bpf_is_seen_register(ctx, b2p[BPF_REG_FP]);
  }
  
-+static int mlx5e_rq_to_ready(struct mlx5e_rq *rq, int curr_state)
-+{
-+	struct net_device *dev = rq->netdev;
-+	int err;
-+
-+	err = mlx5e_modify_rq_state(rq, curr_state, MLX5_RQC_STATE_RST);
-+	if (err) {
-+		netdev_err(dev, "Failed to move rq 0x%x to reset\n", rq->rqn);
-+		return err;
-+	}
-+	err = mlx5e_modify_rq_state(rq, MLX5_RQC_STATE_RST, MLX5_RQC_STATE_RDY);
-+	if (err) {
-+		netdev_err(dev, "Failed to move rq 0x%x to ready\n", rq->rqn);
-+		return err;
-+	}
-+
-+	return 0;
-+}
-+
-+int mlx5e_flush_rq(struct mlx5e_rq *rq, int curr_state)
-+{
-+	mlx5e_free_rx_descs(rq);
-+
-+	return mlx5e_rq_to_ready(rq, curr_state);
-+}
-+
- static int mlx5e_modify_rq_scatter_fcs(struct mlx5e_rq *rq, bool enable)
- {
- 	struct mlx5_core_dev *mdev = rq->mdev;
+ /*
+@@ -125,11 +125,11 @@ static void bpf_jit_build_prologue(u32 *image, struct codegen_context *ctx)
+ 	 * in the protected zone below the previous stack frame
+ 	 */
+ 	for (i = BPF_REG_6; i <= BPF_REG_10; i++)
+-		if (bpf_is_seen_register(ctx, i))
++		if (bpf_is_seen_register(ctx, b2p[i]))
+ 			PPC_BPF_STL(b2p[i], 1, bpf_jit_stack_offsetof(ctx, b2p[i]));
+ 
+ 	/* Setup frame pointer to point to the bpf stack area */
+-	if (bpf_is_seen_register(ctx, BPF_REG_FP))
++	if (bpf_is_seen_register(ctx, b2p[BPF_REG_FP]))
+ 		EMIT(PPC_RAW_ADDI(b2p[BPF_REG_FP], 1,
+ 				STACK_FRAME_MIN_SIZE + ctx->stack_size));
+ }
+@@ -140,7 +140,7 @@ static void bpf_jit_emit_common_epilogue(u32 *image, struct codegen_context *ctx
+ 
+ 	/* Restore NVRs */
+ 	for (i = BPF_REG_6; i <= BPF_REG_10; i++)
+-		if (bpf_is_seen_register(ctx, i))
++		if (bpf_is_seen_register(ctx, b2p[i]))
+ 			PPC_BPF_LL(b2p[i], 1, bpf_jit_stack_offsetof(ctx, b2p[i]));
+ 
+ 	/* Tear down our stack frame */
+@@ -356,9 +356,9 @@ static int bpf_jit_build_body(struct bpf_prog *fp, u32 *image,
+ 		 * any issues.
+ 		 */
+ 		if (dst_reg >= BPF_PPC_NVR_MIN && dst_reg < 32)
+-			bpf_set_seen_register(ctx, insn[i].dst_reg);
++			bpf_set_seen_register(ctx, dst_reg);
+ 		if (src_reg >= BPF_PPC_NVR_MIN && src_reg < 32)
+-			bpf_set_seen_register(ctx, insn[i].src_reg);
++			bpf_set_seen_register(ctx, src_reg);
+ 
+ 		switch (code) {
+ 		/*
 -- 
 2.39.0
 
