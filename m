@@ -2,42 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 815F2694980
-	for <lists+stable@lfdr.de>; Mon, 13 Feb 2023 15:59:27 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 64CEF694989
+	for <lists+stable@lfdr.de>; Mon, 13 Feb 2023 15:59:50 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229704AbjBMO7Z (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Feb 2023 09:59:25 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56890 "EHLO
+        id S229906AbjBMO7t (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Feb 2023 09:59:49 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55706 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231241AbjBMO7L (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Feb 2023 09:59:11 -0500
+        with ESMTP id S231214AbjBMO7c (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Feb 2023 09:59:32 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D33BA1DBB9
-        for <stable@vger.kernel.org>; Mon, 13 Feb 2023 06:58:54 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0EF3A40D4
+        for <stable@vger.kernel.org>; Mon, 13 Feb 2023 06:59:14 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id B421F6113A
-        for <stable@vger.kernel.org>; Mon, 13 Feb 2023 14:58:54 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9E3A9C433EF;
-        Mon, 13 Feb 2023 14:58:53 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 468446116A
+        for <stable@vger.kernel.org>; Mon, 13 Feb 2023 14:58:57 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5ABE2C433EF;
+        Mon, 13 Feb 2023 14:58:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1676300334;
-        bh=W6c0zlTCwaL0Bm1yT9ofMMh4BTpC3Ohw2V+ilySlOvg=;
+        s=korg; t=1676300336;
+        bh=U2mPqpm8PkmbetrpqOdFezUKkwRe2gXj1r+zoYm/qqA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=PnJXQlU56qxGlwWqhi9yy8HrVJyLYi+z3DckPnhLeN9IO2Loe06GBPVoqJDiA07KN
-         oUaZFmNqOaGme+lwAtfJhXeub2kXK9yXwHDJIzfXcZN9tfylB8V0DABNJQPMelRZPJ
-         sRxtfQcw3QuXwtyGCmxydsDgPRZFsFln5E86rg6c=
+        b=B5pcRjd9vwdA6pXREkzIrfdDapGdlsF3TIijrLZgFazrZiVUUaDcfUZnAdnWS6riL
+         btrvF4ZMVcf04JF1XEVPDhMqxt3QmQSa/ci1ip0XOYB8mDYbm9Rlua1dS9i0YYbUQZ
+         klTZJPceja1co2rfgf2gBoN2qnHT1eB6WSwfyqv8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Willem de Bruijn <willemb@google.com>,
-        Pietro Borrello <borrello@diag.uniroma1.it>,
+        patches@lists.linux.dev, Hangbin Liu <liuhangbin@gmail.com>,
+        Petr Machata <petrm@nvidia.com>,
         Paolo Abeni <pabeni@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 39/67] rds: rds_rm_zerocopy_callback() use list_first_entry()
-Date:   Mon, 13 Feb 2023 15:49:20 +0100
-Message-Id: <20230213144734.230764871@linuxfoundation.org>
+Subject: [PATCH 5.15 40/67] selftests: forwarding: lib: quote the sysctl values
+Date:   Mon, 13 Feb 2023 15:49:21 +0100
+Message-Id: <20230213144734.275063021@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.1
 In-Reply-To: <20230213144732.336342050@linuxfoundation.org>
 References: <20230213144732.336342050@linuxfoundation.org>
@@ -54,42 +54,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pietro Borrello <borrello@diag.uniroma1.it>
+From: Hangbin Liu <liuhangbin@gmail.com>
 
-[ Upstream commit f753a68980cf4b59a80fe677619da2b1804f526d ]
+[ Upstream commit 3a082086aa200852545cf15159213582c0c80eba ]
 
-rds_rm_zerocopy_callback() uses list_entry() on the head of a list
-causing a type confusion.
-Use list_first_entry() to actually access the first element of the
-rs_zcookie_queue list.
+When set/restore sysctl value, we should quote the value as some keys
+may have multi values, e.g. net.ipv4.ping_group_range
 
-Fixes: 9426bbc6de99 ("rds: use list structure to track information for zerocopy completion notification")
-Reviewed-by: Willem de Bruijn <willemb@google.com>
-Signed-off-by: Pietro Borrello <borrello@diag.uniroma1.it>
-Link: https://lore.kernel.org/r/20230202-rds-zerocopy-v3-1-83b0df974f9a@diag.uniroma1.it
+Fixes: f5ae57784ba8 ("selftests: forwarding: lib: Add sysctl_set(), sysctl_restore()")
+Signed-off-by: Hangbin Liu <liuhangbin@gmail.com>
+Reviewed-by: Petr Machata <petrm@nvidia.com>
+Link: https://lore.kernel.org/r/20230208032110.879205-1-liuhangbin@gmail.com
 Signed-off-by: Paolo Abeni <pabeni@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/rds/message.c | 6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ tools/testing/selftests/net/forwarding/lib.sh | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/net/rds/message.c b/net/rds/message.c
-index 799034e0f513d..b363ef13c75ef 100644
---- a/net/rds/message.c
-+++ b/net/rds/message.c
-@@ -104,9 +104,9 @@ static void rds_rm_zerocopy_callback(struct rds_sock *rs,
- 	spin_lock_irqsave(&q->lock, flags);
- 	head = &q->zcookie_head;
- 	if (!list_empty(head)) {
--		info = list_entry(head, struct rds_msg_zcopy_info,
--				  rs_zcookie_next);
--		if (info && rds_zcookie_add(info, cookie)) {
-+		info = list_first_entry(head, struct rds_msg_zcopy_info,
-+					rs_zcookie_next);
-+		if (rds_zcookie_add(info, cookie)) {
- 			spin_unlock_irqrestore(&q->lock, flags);
- 			kfree(rds_info_from_znotifier(znotif));
- 			/* caller invokes rds_wake_sk_sleep() */
+diff --git a/tools/testing/selftests/net/forwarding/lib.sh b/tools/testing/selftests/net/forwarding/lib.sh
+index c9507df9c05bc..b7d946cf14eb5 100644
+--- a/tools/testing/selftests/net/forwarding/lib.sh
++++ b/tools/testing/selftests/net/forwarding/lib.sh
+@@ -817,14 +817,14 @@ sysctl_set()
+ 	local value=$1; shift
+ 
+ 	SYSCTL_ORIG[$key]=$(sysctl -n $key)
+-	sysctl -qw $key=$value
++	sysctl -qw $key="$value"
+ }
+ 
+ sysctl_restore()
+ {
+ 	local key=$1; shift
+ 
+-	sysctl -qw $key=${SYSCTL_ORIG["$key"]}
++	sysctl -qw $key="${SYSCTL_ORIG[$key]}"
+ }
+ 
+ forwarding_enable()
 -- 
 2.39.0
 
