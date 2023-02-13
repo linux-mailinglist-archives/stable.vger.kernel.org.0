@@ -2,42 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 8507A6948F0
-	for <lists+stable@lfdr.de>; Mon, 13 Feb 2023 15:54:36 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5B06B6948E9
+	for <lists+stable@lfdr.de>; Mon, 13 Feb 2023 15:54:22 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229630AbjBMOyf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Feb 2023 09:54:35 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50518 "EHLO
+        id S230334AbjBMOyU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Feb 2023 09:54:20 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50090 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230412AbjBMOyc (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Feb 2023 09:54:32 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 20F0E1C7D0
-        for <stable@vger.kernel.org>; Mon, 13 Feb 2023 06:54:30 -0800 (PST)
+        with ESMTP id S230412AbjBMOyT (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Feb 2023 09:54:19 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4577F5274
+        for <stable@vger.kernel.org>; Mon, 13 Feb 2023 06:54:18 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id CE19CB81257
-        for <stable@vger.kernel.org>; Mon, 13 Feb 2023 14:54:28 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 21772C433D2;
-        Mon, 13 Feb 2023 14:54:26 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id CBD936112D
+        for <stable@vger.kernel.org>; Mon, 13 Feb 2023 14:54:17 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E0299C433D2;
+        Mon, 13 Feb 2023 14:54:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1676300067;
-        bh=gs1RZapX6LB/MI0TbJJPUrtZL68KKchYImWdUAvNpUQ=;
+        s=korg; t=1676300057;
+        bh=3ab7IZgkQ2vWWUUfpEhgi0X8U8e4Rqj3KOjarsKZoBA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=vGsqaHI2jgrgGMtcnnd6c+aKNUCMHDfIxiz9ar+5gJMj/JapT+TZxHwWZfaZbbTLn
-         3ZgFlZOzrwYbY24D7fApxM+nU/o36b7Dfx9P97omyle8GZLeKGZlbY01OK+CHbkkRs
-         7W/J/jyigMHHim8vQIE2TD5quIgcVDZypaoLN/FU=
+        b=mgniuLY7cbCcFdrWoukSrWt6sukqQXkAPUU0MQJP8c38VTyph63vEAlb9MC69DIiI
+         gi2my6Om47c0ST4yCteiT+0W8yqoxi//bGety8SwM3VnGq0JbJCyI2z006NYUwZNu6
+         V4HqDyawW+5TD70YZl8qz218cZ32A1k1S0XHP1Z0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Vlad Buslov <vladbu@nvidia.com>,
+        patches@lists.linux.dev, Amir Tzin <amirtz@nvidia.com>,
         Maor Dickman <maord@nvidia.com>,
         Saeed Mahameed <saeedm@nvidia.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 046/114] net/mlx5: Bridge, fix ageing of peer FDB entries
-Date:   Mon, 13 Feb 2023 15:48:01 +0100
-Message-Id: <20230213144744.544206972@linuxfoundation.org>
+Subject: [PATCH 6.1 047/114] net/mlx5e: Fix crash unsetting rx-vlan-filter in switchdev mode
+Date:   Mon, 13 Feb 2023 15:48:02 +0100
+Message-Id: <20230213144744.598146504@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.1
 In-Reply-To: <20230213144742.219399167@linuxfoundation.org>
 References: <20230213144742.219399167@linuxfoundation.org>
@@ -54,56 +54,74 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vlad Buslov <vladbu@nvidia.com>
+From: Amir Tzin <amirtz@nvidia.com>
 
-[ Upstream commit da0c52426cd23f8728eff72c2b2d2a3eb6b451f5 ]
+[ Upstream commit 8974aa9638df557f4642acef707af15648a03555 ]
 
-SWITCHDEV_FDB_ADD_TO_BRIDGE event handler that updates FDB entry 'lastuse'
-field is only executed for eswitch that owns the entry. However, if peer
-entry processed packets at least once it will have hardware counter 'used'
-value greater than entry 'lastuse' from that point on, which will cause FDB
-entry not being aged out.
+Moving to switchdev mode with rx-vlan-filter on and then setting it off
+causes the kernel to crash since fs->vlan is freed during nic profile
+cleanup flow.
 
-Process the event on all eswitch instances.
+RX VLAN filtering is not supported in switchdev mode so unset it when
+changing to switchdev and restore its value when switching back to
+legacy.
 
-Fixes: ff9b7521468b ("net/mlx5: Bridge, support LAG")
-Signed-off-by: Vlad Buslov <vladbu@nvidia.com>
+trace:
+[] RIP: 0010:mlx5e_disable_cvlan_filter+0x43/0x70
+[] set_feature_cvlan_filter+0x37/0x40 [mlx5_core]
+[] mlx5e_handle_feature+0x3a/0x60 [mlx5_core]
+[] mlx5e_set_features+0x6d/0x160 [mlx5_core]
+[] __netdev_update_features+0x288/0xa70
+[] ethnl_set_features+0x309/0x380
+[] ? __nla_parse+0x21/0x30
+[] genl_family_rcv_msg_doit.isra.17+0x110/0x150
+[] genl_rcv_msg+0x112/0x260
+[] ? features_reply_size+0xe0/0xe0
+[] ? genl_family_rcv_msg_doit.isra.17+0x150/0x150
+[] netlink_rcv_skb+0x4e/0x100
+[] genl_rcv+0x24/0x40
+[] netlink_unicast+0x1ab/0x290
+[] netlink_sendmsg+0x257/0x4f0
+[] sock_sendmsg+0x5c/0x70
+
+Fixes: cb67b832921c ("net/mlx5e: Introduce SRIOV VF representors")
+Signed-off-by: Amir Tzin <amirtz@nvidia.com>
 Reviewed-by: Maor Dickman <maord@nvidia.com>
 Signed-off-by: Saeed Mahameed <saeedm@nvidia.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/mellanox/mlx5/core/en/rep/bridge.c | 4 ----
- drivers/net/ethernet/mellanox/mlx5/core/esw/bridge.c    | 2 +-
- 2 files changed, 1 insertion(+), 5 deletions(-)
+ drivers/net/ethernet/mellanox/mlx5/core/en_fs.c   | 2 +-
+ drivers/net/ethernet/mellanox/mlx5/core/en_main.c | 4 ++++
+ 2 files changed, 5 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/net/ethernet/mellanox/mlx5/core/en/rep/bridge.c b/drivers/net/ethernet/mellanox/mlx5/core/en/rep/bridge.c
-index 8099a21e674c9..ce85b48d327da 100644
---- a/drivers/net/ethernet/mellanox/mlx5/core/en/rep/bridge.c
-+++ b/drivers/net/ethernet/mellanox/mlx5/core/en/rep/bridge.c
-@@ -438,10 +438,6 @@ static int mlx5_esw_bridge_switchdev_event(struct notifier_block *nb,
+diff --git a/drivers/net/ethernet/mellanox/mlx5/core/en_fs.c b/drivers/net/ethernet/mellanox/mlx5/core/en_fs.c
+index 1892ccb889b3f..7cd36f4ac3efc 100644
+--- a/drivers/net/ethernet/mellanox/mlx5/core/en_fs.c
++++ b/drivers/net/ethernet/mellanox/mlx5/core/en_fs.c
+@@ -443,7 +443,7 @@ void mlx5e_enable_cvlan_filter(struct mlx5e_flow_steering *fs, bool promisc)
  
- 	switch (event) {
- 	case SWITCHDEV_FDB_ADD_TO_BRIDGE:
--		/* only handle the event on native eswtich of representor */
--		if (!mlx5_esw_bridge_is_local(dev, rep, esw))
--			break;
--
- 		fdb_info = container_of(info,
- 					struct switchdev_notifier_fdb_info,
- 					info);
-diff --git a/drivers/net/ethernet/mellanox/mlx5/core/esw/bridge.c b/drivers/net/ethernet/mellanox/mlx5/core/esw/bridge.c
-index 4fbff7bcc1556..d0b2676c32145 100644
---- a/drivers/net/ethernet/mellanox/mlx5/core/esw/bridge.c
-+++ b/drivers/net/ethernet/mellanox/mlx5/core/esw/bridge.c
-@@ -1715,7 +1715,7 @@ void mlx5_esw_bridge_fdb_update_used(struct net_device *dev, u16 vport_num, u16
- 	struct mlx5_esw_bridge *bridge;
- 
- 	port = mlx5_esw_bridge_port_lookup(vport_num, esw_owner_vhca_id, br_offloads);
--	if (!port || port->flags & MLX5_ESW_BRIDGE_PORT_FLAG_PEER)
-+	if (!port)
+ void mlx5e_disable_cvlan_filter(struct mlx5e_flow_steering *fs, bool promisc)
+ {
+-	if (fs->vlan->cvlan_filter_disabled)
++	if (!fs->vlan || fs->vlan->cvlan_filter_disabled)
  		return;
  
- 	bridge = port->bridge;
+ 	fs->vlan->cvlan_filter_disabled = true;
+diff --git a/drivers/net/ethernet/mellanox/mlx5/core/en_main.c b/drivers/net/ethernet/mellanox/mlx5/core/en_main.c
+index 3e0d910b085d4..142ed2d98cd5d 100644
+--- a/drivers/net/ethernet/mellanox/mlx5/core/en_main.c
++++ b/drivers/net/ethernet/mellanox/mlx5/core/en_main.c
+@@ -4005,6 +4005,10 @@ static netdev_features_t mlx5e_fix_uplink_rep_features(struct net_device *netdev
+ 	if (netdev->features & NETIF_F_GRO_HW)
+ 		netdev_warn(netdev, "Disabling HW_GRO, not supported in switchdev mode\n");
+ 
++	features &= ~NETIF_F_HW_VLAN_CTAG_FILTER;
++	if (netdev->features & NETIF_F_HW_VLAN_CTAG_FILTER)
++		netdev_warn(netdev, "Disabling HW_VLAN CTAG FILTERING, not supported in switchdev mode\n");
++
+ 	return features;
+ }
+ 
 -- 
 2.39.0
 
