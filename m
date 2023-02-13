@@ -2,43 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 050C969494F
-	for <lists+stable@lfdr.de>; Mon, 13 Feb 2023 15:58:22 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 84A73694932
+	for <lists+stable@lfdr.de>; Mon, 13 Feb 2023 15:57:08 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230519AbjBMO6U (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Feb 2023 09:58:20 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55640 "EHLO
+        id S229664AbjBMO5H (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Feb 2023 09:57:07 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53456 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231148AbjBMO6H (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Feb 2023 09:58:07 -0500
+        with ESMTP id S231189AbjBMO4t (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Feb 2023 09:56:49 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5B33E1CF7F
-        for <stable@vger.kernel.org>; Mon, 13 Feb 2023 06:57:38 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 99A6B1D914
+        for <stable@vger.kernel.org>; Mon, 13 Feb 2023 06:56:24 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 0177A6115B
-        for <stable@vger.kernel.org>; Mon, 13 Feb 2023 14:57:37 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1A982C433EF;
-        Mon, 13 Feb 2023 14:57:35 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 33A4261159
+        for <stable@vger.kernel.org>; Mon, 13 Feb 2023 14:56:22 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 39C85C4339B;
+        Mon, 13 Feb 2023 14:56:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1676300256;
-        bh=B13805gmhGPOmN6wVSEdk+PBO4qrsLdTpxK+F9q3AEs=;
+        s=korg; t=1676300181;
+        bh=ATwIOMAYVbROdI9bkipJLxDjjO9PLwqcxdRryjI3z0k=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=v0pVdkDdSZ+abcJmwG0kgS0z+nMtySEeQ9rW0MU/dvObG65HmgkYg+g0KAMlVwSzu
-         YAdwUeWCg7rpTDH/yPLs11aBuHjo/77sG1lo4xKSwLUt5eZFBaR25xbDEwGslj5A51
-         zRevzKeg/jDhKI85jBwU/j5EkLyIBRM7RHxLC77Q=
+        b=DRuWUIKGvMhzhI80AmUEOOZCKdgDu6wdk9lmMbhySxpHx6/CvibyHKpIrwEkwIynP
+         SvZWAcDSPzbmGOVYLSxJwbOn+uEDly+HGosXEQt2bgr+sD+IAkhXeZhvqqAeQ+3qS6
+         DLJrOwBZy6l6TRkDG0aq/GtkLt9TplOeQ9ZKo79U=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Artemii Karasev <karasev@ispras.ru>,
-        Takashi Iwai <tiwai@suse.de>
-Subject: [PATCH 5.15 09/67] ALSA: emux: Avoid potential array out-of-bound in snd_emux_xg_control()
+        patches@lists.linux.dev, Guo Ren <guoren@linux.alibaba.com>,
+        Guo Ren <guoren@kernel.org>,
+        Bjorn Topel <bjorn.topel@gmail.com>,
+        =?UTF-8?q?Bj=C3=B6rn=20T=C3=B6pel?= <bjorn@kernel.org>,
+        Palmer Dabbelt <palmer@rivosinc.com>
+Subject: [PATCH 6.1 095/114] riscv: kprobe: Fixup misaligned load text
 Date:   Mon, 13 Feb 2023 15:48:50 +0100
-Message-Id: <20230213144732.760980362@linuxfoundation.org>
+Message-Id: <20230213144747.083569434@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.1
-In-Reply-To: <20230213144732.336342050@linuxfoundation.org>
-References: <20230213144732.336342050@linuxfoundation.org>
+In-Reply-To: <20230213144742.219399167@linuxfoundation.org>
+References: <20230213144742.219399167@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -52,37 +55,50 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Artemii Karasev <karasev@ispras.ru>
+From: Guo Ren <guoren@linux.alibaba.com>
 
-commit 6a32425f953b955b4ff82f339d01df0b713caa5d upstream.
+commit eb7423273cc9922ee2d05bf660c034d7d515bb91 upstream.
 
-snd_emux_xg_control() can be called with an argument 'param' greater
-than size of 'control' array. It may lead to accessing 'control'
-array at a wrong index.
+The current kprobe would cause a misaligned load for the probe point.
+This patch fixup it with two half-word loads instead.
 
-Found by Linux Verification Center (linuxtesting.org) with SVACE.
-
-Signed-off-by: Artemii Karasev <karasev@ispras.ru>
-Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
-Cc: <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20230207132026.2870-1-karasev@ispras.ru
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Fixes: c22b0bcb1dd0 ("riscv: Add kprobes supported")
+Signed-off-by: Guo Ren <guoren@linux.alibaba.com>
+Signed-off-by: Guo Ren <guoren@kernel.org>
+Link: https://lore.kernel.org/linux-riscv/878rhig9zj.fsf@all.your.base.are.belong.to.us/
+Reported-by: Bjorn Topel <bjorn.topel@gmail.com>
+Reviewed-by: Björn Töpel <bjorn@kernel.org>
+Link: https://lore.kernel.org/r/20230204063531.740220-1-guoren@kernel.org
+Cc: stable@vger.kernel.org
+Signed-off-by: Palmer Dabbelt <palmer@rivosinc.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- sound/synth/emux/emux_nrpn.c |    3 +++
- 1 file changed, 3 insertions(+)
+ arch/riscv/kernel/probes/kprobes.c |    8 +++++---
+ 1 file changed, 5 insertions(+), 3 deletions(-)
 
---- a/sound/synth/emux/emux_nrpn.c
-+++ b/sound/synth/emux/emux_nrpn.c
-@@ -349,6 +349,9 @@ int
- snd_emux_xg_control(struct snd_emux_port *port, struct snd_midi_channel *chan,
- 		    int param)
+--- a/arch/riscv/kernel/probes/kprobes.c
++++ b/arch/riscv/kernel/probes/kprobes.c
+@@ -65,16 +65,18 @@ static bool __kprobes arch_check_kprobe(
+ 
+ int __kprobes arch_prepare_kprobe(struct kprobe *p)
  {
-+	if (param >= ARRAY_SIZE(chan->control))
-+		return -EINVAL;
-+
- 	return send_converted_effect(xg_effects, ARRAY_SIZE(xg_effects),
- 				     port, chan, param,
- 				     chan->control[param],
+-	unsigned long probe_addr = (unsigned long)p->addr;
++	u16 *insn = (u16 *)p->addr;
+ 
+-	if (probe_addr & 0x1)
++	if ((unsigned long)insn & 0x1)
+ 		return -EILSEQ;
+ 
+ 	if (!arch_check_kprobe(p))
+ 		return -EILSEQ;
+ 
+ 	/* copy instruction */
+-	p->opcode = *p->addr;
++	p->opcode = (kprobe_opcode_t)(*insn++);
++	if (GET_INSN_LENGTH(p->opcode) == 4)
++		p->opcode |= (kprobe_opcode_t)(*insn) << 16;
+ 
+ 	/* decode instruction */
+ 	switch (riscv_probe_decode_insn(p->addr, &p->ainsn.api)) {
 
 
