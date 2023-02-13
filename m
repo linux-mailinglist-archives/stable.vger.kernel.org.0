@@ -2,45 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 2F8F6694A2D
-	for <lists+stable@lfdr.de>; Mon, 13 Feb 2023 16:05:15 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E6A13694A30
+	for <lists+stable@lfdr.de>; Mon, 13 Feb 2023 16:05:17 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231434AbjBMPFN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Feb 2023 10:05:13 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39690 "EHLO
+        id S231363AbjBMPFQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Feb 2023 10:05:16 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39910 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231320AbjBMPFE (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Feb 2023 10:05:04 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7DA061710
-        for <stable@vger.kernel.org>; Mon, 13 Feb 2023 07:05:03 -0800 (PST)
+        with ESMTP id S231466AbjBMPFK (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Feb 2023 10:05:10 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 99B851E5CA
+        for <stable@vger.kernel.org>; Mon, 13 Feb 2023 07:05:08 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 19BA261134
-        for <stable@vger.kernel.org>; Mon, 13 Feb 2023 15:05:03 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 07DA7C433EF;
-        Mon, 13 Feb 2023 15:05:01 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 37B3A610A4
+        for <stable@vger.kernel.org>; Mon, 13 Feb 2023 15:05:08 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4F62FC433A7;
+        Mon, 13 Feb 2023 15:05:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1676300702;
-        bh=/GZwlMWDu7vL90lYtHJlNIG7+QnSS2geoLBhBL4r2Og=;
+        s=korg; t=1676300707;
+        bh=J37RCpD5IjPq0st9oYAT6iUuCaNZ0LRowah5KIEw0TI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=uSEvUCTQtQsqnQ3f+YbPUJVogPVjpF/0q82rncPHJB6cwyn10QZ1kovnqbKaBmVAN
-         oHmHn/jNpyVeguGmn/2m05z57wQGu4RReM9LyhH0G0r0+xGt8ZwiINadvUHqTJ0LJC
-         VfG+YGIxWpJ6maAAu9bMsax7o/mE8TPaEQO2ZPRA=
+        b=rM2yvMerHvyOjl24fDaUVkFRd78PZcLhEfY/z+A5N6VGzlU1u8mFY1GaSvJHBX2Yr
+         P2GRMQJNIRSbaQ6zFrCl4i8AND0+fEPgYW0t1aJq8QcsjivsvcGGXPA5+1X927Msal
+         5OE23c4n1T3QsDz1WMnob/bLmN94x+6l0fl4cDFI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Anirudh Venkataramanan <anirudh.venkataramanan@intel.com>,
-        Marcin Szycik <marcin.szycik@linux.intel.com>,
-        Jakub Andrysiak <jakub.andrysiak@intel.com>,
-        Tony Nguyen <anthony.l.nguyen@intel.com>,
-        Leon Romanovsky <leonro@nvidia.com>,
+        patches@lists.linux.dev, Vladimir Oltean <vladimir.oltean@nxp.com>,
+        Simon Horman <simon.horman@corigine.com>,
+        Paolo Abeni <pabeni@redhat.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 116/139] ice: Do not use WQ_MEM_RECLAIM flag for workqueue
-Date:   Mon, 13 Feb 2023 15:51:01 +0100
-Message-Id: <20230213144752.037246917@linuxfoundation.org>
+Subject: [PATCH 5.10 117/139] net: mscc: ocelot: fix VCAP filters not matching on MAC with "protocol 802.1Q"
+Date:   Mon, 13 Feb 2023 15:51:02 +0100
+Message-Id: <20230213144752.087215093@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.1
 In-Reply-To: <20230213144745.696901179@linuxfoundation.org>
 References: <20230213144745.696901179@linuxfoundation.org>
@@ -48,8 +45,8 @@ User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
         SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -57,109 +54,110 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Anirudh Venkataramanan <anirudh.venkataramanan@intel.com>
+From: Vladimir Oltean <vladimir.oltean@nxp.com>
 
-[ Upstream commit 4d159f7884f78b1aacb99b4fc37d1e3cb1194e39 ]
+[ Upstream commit f964f8399df29d3e3ced77177cf35131cd2491bf ]
 
-When both ice and the irdma driver are loaded, a warning in
-check_flush_dependency is being triggered. This is due to ice driver
-workqueue being allocated with the WQ_MEM_RECLAIM flag and the irdma one
-is not.
+Alternative short title: don't instruct the hardware to match on
+EtherType with "protocol 802.1Q" flower filters. It doesn't work for the
+reasons detailed below.
 
-According to kernel documentation, this flag should be set if the
-workqueue will be involved in the kernel's memory reclamation flow.
-Since it is not, there is no need for the ice driver's WQ to have this
-flag set so remove it.
+With a command such as the following:
 
-Example trace:
+tc filter add dev $swp1 ingress chain $(IS1 2) pref 3 \
+	protocol 802.1Q flower skip_sw vlan_id 200 src_mac $h1_mac \
+	action vlan modify id 300 \
+	action goto chain $(IS2 0 0)
 
-[  +0.000004] workqueue: WQ_MEM_RECLAIM ice:ice_service_task [ice] is flushing !WQ_MEM_RECLAIM infiniband:0x0
-[  +0.000139] WARNING: CPU: 0 PID: 728 at kernel/workqueue.c:2632 check_flush_dependency+0x178/0x1a0
-[  +0.000011] Modules linked in: bonding tls xt_CHECKSUM xt_MASQUERADE xt_conntrack ipt_REJECT nf_reject_ipv4 nft_compat nft_cha
-in_nat nf_nat nf_conntrack nf_defrag_ipv6 nf_defrag_ipv4 nf_tables nfnetlink bridge stp llc rfkill vfat fat intel_rapl_msr intel
-_rapl_common isst_if_common skx_edac nfit libnvdimm x86_pkg_temp_thermal intel_powerclamp coretemp kvm_intel kvm irqbypass crct1
-0dif_pclmul crc32_pclmul ghash_clmulni_intel rapl intel_cstate rpcrdma sunrpc rdma_ucm ib_srpt ib_isert iscsi_target_mod target_
-core_mod ib_iser libiscsi scsi_transport_iscsi rdma_cm ib_cm iw_cm iTCO_wdt iTCO_vendor_support ipmi_ssif irdma mei_me ib_uverbs
-ib_core intel_uncore joydev pcspkr i2c_i801 acpi_ipmi mei lpc_ich i2c_smbus intel_pch_thermal ioatdma ipmi_si acpi_power_meter
-acpi_pad xfs libcrc32c sd_mod t10_pi crc64_rocksoft crc64 sg ahci ixgbe libahci ice i40e igb crc32c_intel mdio i2c_algo_bit liba
-ta dca wmi dm_mirror dm_region_hash dm_log dm_mod ipmi_devintf ipmi_msghandler fuse
-[  +0.000161]  [last unloaded: bonding]
-[  +0.000006] CPU: 0 PID: 728 Comm: kworker/0:2 Tainted: G S                 6.2.0-rc2_next-queue-13jan-00458-gc20aabd57164 #1
-[  +0.000006] Hardware name: Intel Corporation S2600WFT/S2600WFT, BIOS SE5C620.86B.02.01.0010.010620200716 01/06/2020
-[  +0.000003] Workqueue: ice ice_service_task [ice]
-[  +0.000127] RIP: 0010:check_flush_dependency+0x178/0x1a0
-[  +0.000005] Code: 89 8e 02 01 e8 49 3d 40 00 49 8b 55 18 48 8d 8d d0 00 00 00 48 8d b3 d0 00 00 00 4d 89 e0 48 c7 c7 e0 3b 08
-9f e8 bb d3 07 01 <0f> 0b e9 be fe ff ff 80 3d 24 89 8e 02 00 0f 85 6b ff ff ff e9 06
-[  +0.000004] RSP: 0018:ffff88810a39f990 EFLAGS: 00010282
-[  +0.000005] RAX: 0000000000000000 RBX: ffff888141bc2400 RCX: 0000000000000000
-[  +0.000004] RDX: 0000000000000001 RSI: dffffc0000000000 RDI: ffffffffa1213a80
-[  +0.000003] RBP: ffff888194bf3400 R08: ffffed117b306112 R09: ffffed117b306112
-[  +0.000003] R10: ffff888bd983088b R11: ffffed117b306111 R12: 0000000000000000
-[  +0.000003] R13: ffff888111f84d00 R14: ffff88810a3943ac R15: ffff888194bf3400
-[  +0.000004] FS:  0000000000000000(0000) GS:ffff888bd9800000(0000) knlGS:0000000000000000
-[  +0.000003] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-[  +0.000003] CR2: 000056035b208b60 CR3: 000000017795e005 CR4: 00000000007706f0
-[  +0.000003] DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
-[  +0.000003] DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
-[  +0.000002] PKRU: 55555554
-[  +0.000003] Call Trace:
-[  +0.000002]  <TASK>
-[  +0.000003]  __flush_workqueue+0x203/0x840
-[  +0.000006]  ? mutex_unlock+0x84/0xd0
-[  +0.000008]  ? __pfx_mutex_unlock+0x10/0x10
-[  +0.000004]  ? __pfx___flush_workqueue+0x10/0x10
-[  +0.000006]  ? mutex_lock+0xa3/0xf0
-[  +0.000005]  ib_cache_cleanup_one+0x39/0x190 [ib_core]
-[  +0.000174]  __ib_unregister_device+0x84/0xf0 [ib_core]
-[  +0.000094]  ib_unregister_device+0x25/0x30 [ib_core]
-[  +0.000093]  irdma_ib_unregister_device+0x97/0xc0 [irdma]
-[  +0.000064]  ? __pfx_irdma_ib_unregister_device+0x10/0x10 [irdma]
-[  +0.000059]  ? up_write+0x5c/0x90
-[  +0.000005]  irdma_remove+0x36/0x90 [irdma]
-[  +0.000062]  auxiliary_bus_remove+0x32/0x50
-[  +0.000007]  device_release_driver_internal+0xfa/0x1c0
-[  +0.000005]  bus_remove_device+0x18a/0x260
-[  +0.000007]  device_del+0x2e5/0x650
-[  +0.000005]  ? __pfx_device_del+0x10/0x10
-[  +0.000003]  ? mutex_unlock+0x84/0xd0
-[  +0.000004]  ? __pfx_mutex_unlock+0x10/0x10
-[  +0.000004]  ? _raw_spin_unlock+0x18/0x40
-[  +0.000005]  ice_unplug_aux_dev+0x52/0x70 [ice]
-[  +0.000160]  ice_service_task+0x1309/0x14f0 [ice]
-[  +0.000134]  ? __pfx___schedule+0x10/0x10
-[  +0.000006]  process_one_work+0x3b1/0x6c0
-[  +0.000008]  worker_thread+0x69/0x670
-[  +0.000005]  ? __kthread_parkme+0xec/0x110
-[  +0.000007]  ? __pfx_worker_thread+0x10/0x10
-[  +0.000005]  kthread+0x17f/0x1b0
-[  +0.000005]  ? __pfx_kthread+0x10/0x10
-[  +0.000004]  ret_from_fork+0x29/0x50
-[  +0.000009]  </TASK>
+the created filter is set by ocelot_flower_parse_key() to be of type
+OCELOT_VCAP_KEY_ETYPE, and etype is set to {value=0x8100, mask=0xffff}.
+This gets propagated all the way to is1_entry_set() which commits it to
+hardware (the VCAP_IS1_HK_ETYPE field of the key). Compare this to the
+case where src_mac isn't specified - the key type is OCELOT_VCAP_KEY_ANY,
+and is1_entry_set() doesn't populate VCAP_IS1_HK_ETYPE.
 
-Fixes: 940b61af02f4 ("ice: Initialize PF and setup miscellaneous interrupt")
-Signed-off-by: Anirudh Venkataramanan <anirudh.venkataramanan@intel.com>
-Signed-off-by: Marcin Szycik <marcin.szycik@linux.intel.com>
-Tested-by: Jakub Andrysiak <jakub.andrysiak@intel.com>
-Signed-off-by: Tony Nguyen <anthony.l.nguyen@intel.com>
-Reviewed-by: Leon Romanovsky <leonro@nvidia.com>
+The problem is that for VLAN-tagged frames, the hardware interprets the
+ETYPE field as holding the encapsulated VLAN protocol. So the above
+filter will only match those packets which have an encapsulated protocol
+of 0x8100, rather than all packets with VLAN ID 200 and the given src_mac.
+
+The reason why this is allowed to occur is because, although we have a
+block of code in ocelot_flower_parse_key() which sets "match_protocol"
+to false when VLAN keys are present, that code executes too late.
+There is another block of code, which executes for Ethernet addresses,
+and has a "goto finished_key_parsing" and skips the VLAN header parsing.
+By skipping it, "match_protocol" remains with the value it was
+initialized with, i.e. "true", and "proto" is set to f->common.protocol,
+or 0x8100.
+
+The concept of ignoring some keys rather than erroring out when they are
+present but can't be offloaded is dubious in itself, but is present
+since the initial commit fe3490e6107e ("net: mscc: ocelot: Hardware
+ofload for tc flower filter"), and it's outside of the scope of this
+patch to change that.
+
+The problem was introduced when the driver started to interpret the
+flower filter's protocol, and populate the VCAP filter's ETYPE field
+based on it.
+
+To fix this, it is sufficient to move the code that parses the VLAN keys
+earlier than the "goto finished_key_parsing" instruction. This will
+ensure that if we have a flower filter with both VLAN and Ethernet
+address keys, it won't match on ETYPE 0x8100, because the VLAN key
+parsing sets "match_protocol = false".
+
+Fixes: 86b956de119c ("net: mscc: ocelot: support matching on EtherType")
+Signed-off-by: Vladimir Oltean <vladimir.oltean@nxp.com>
+Reviewed-by: Simon Horman <simon.horman@corigine.com>
+Link: https://lore.kernel.org/r/20230205192409.1796428-1-vladimir.oltean@nxp.com
+Signed-off-by: Paolo Abeni <pabeni@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/intel/ice/ice_main.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/net/ethernet/mscc/ocelot_flower.c | 24 +++++++++++------------
+ 1 file changed, 12 insertions(+), 12 deletions(-)
 
-diff --git a/drivers/net/ethernet/intel/ice/ice_main.c b/drivers/net/ethernet/intel/ice/ice_main.c
-index f193709c8efc6..c1465096239b6 100644
---- a/drivers/net/ethernet/intel/ice/ice_main.c
-+++ b/drivers/net/ethernet/intel/ice/ice_main.c
-@@ -4853,7 +4853,7 @@ static int __init ice_module_init(void)
- 	pr_info("%s\n", ice_driver_string);
- 	pr_info("%s\n", ice_copyright);
+diff --git a/drivers/net/ethernet/mscc/ocelot_flower.c b/drivers/net/ethernet/mscc/ocelot_flower.c
+index b221b83ec5a6f..e56e540ce05c3 100644
+--- a/drivers/net/ethernet/mscc/ocelot_flower.c
++++ b/drivers/net/ethernet/mscc/ocelot_flower.c
+@@ -468,6 +468,18 @@ ocelot_flower_parse_key(struct ocelot *ocelot, int port, bool ingress,
+ 		flow_rule_match_control(rule, &match);
+ 	}
  
--	ice_wq = alloc_workqueue("%s", WQ_MEM_RECLAIM, 0, KBUILD_MODNAME);
-+	ice_wq = alloc_workqueue("%s", 0, 0, KBUILD_MODNAME);
- 	if (!ice_wq) {
- 		pr_err("Failed to create workqueue\n");
- 		return -ENOMEM;
++	if (flow_rule_match_key(rule, FLOW_DISSECTOR_KEY_VLAN)) {
++		struct flow_match_vlan match;
++
++		flow_rule_match_vlan(rule, &match);
++		filter->key_type = OCELOT_VCAP_KEY_ANY;
++		filter->vlan.vid.value = match.key->vlan_id;
++		filter->vlan.vid.mask = match.mask->vlan_id;
++		filter->vlan.pcp.value[0] = match.key->vlan_priority;
++		filter->vlan.pcp.mask[0] = match.mask->vlan_priority;
++		match_protocol = false;
++	}
++
+ 	if (flow_rule_match_key(rule, FLOW_DISSECTOR_KEY_ETH_ADDRS)) {
+ 		struct flow_match_eth_addrs match;
+ 
+@@ -600,18 +612,6 @@ ocelot_flower_parse_key(struct ocelot *ocelot, int port, bool ingress,
+ 		match_protocol = false;
+ 	}
+ 
+-	if (flow_rule_match_key(rule, FLOW_DISSECTOR_KEY_VLAN)) {
+-		struct flow_match_vlan match;
+-
+-		flow_rule_match_vlan(rule, &match);
+-		filter->key_type = OCELOT_VCAP_KEY_ANY;
+-		filter->vlan.vid.value = match.key->vlan_id;
+-		filter->vlan.vid.mask = match.mask->vlan_id;
+-		filter->vlan.pcp.value[0] = match.key->vlan_priority;
+-		filter->vlan.pcp.mask[0] = match.mask->vlan_priority;
+-		match_protocol = false;
+-	}
+-
+ finished_key_parsing:
+ 	if (match_protocol && proto != ETH_P_ALL) {
+ 		if (filter->block_id == VCAP_ES0) {
 -- 
 2.39.0
 
