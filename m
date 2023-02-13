@@ -2,42 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 7C16F6949CA
-	for <lists+stable@lfdr.de>; Mon, 13 Feb 2023 16:02:13 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id EB3616949CF
+	for <lists+stable@lfdr.de>; Mon, 13 Feb 2023 16:02:21 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231269AbjBMPCM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Feb 2023 10:02:12 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33430 "EHLO
+        id S230231AbjBMPCV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Feb 2023 10:02:21 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33394 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231342AbjBMPB6 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Feb 2023 10:01:58 -0500
+        with ESMTP id S231332AbjBMPCL (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Feb 2023 10:02:11 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0EAA41DB90
-        for <stable@vger.kernel.org>; Mon, 13 Feb 2023 07:01:35 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E81161DBA3
+        for <stable@vger.kernel.org>; Mon, 13 Feb 2023 07:01:52 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id BE47761159
-        for <stable@vger.kernel.org>; Mon, 13 Feb 2023 15:01:35 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D1EF2C433EF;
-        Mon, 13 Feb 2023 15:01:34 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 3147C6116F
+        for <stable@vger.kernel.org>; Mon, 13 Feb 2023 15:01:41 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1D7F2C433EF;
+        Mon, 13 Feb 2023 15:01:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1676300495;
-        bh=U7Sjug3vMx8zOxVwzQpi9Va8D+ubftR8GxKHcVM0/B8=;
+        s=korg; t=1676300500;
+        bh=/VudQlAzgWCtDMR0lTL5qBFqSCWeMhUohVtTyvwBpLs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=RAYHeFHNM2R8gUJLsHrl8rYI5MIKuxYP71io5Tp0aHPbf4BXAOtwFKsENgm4DsRT/
-         uCBFIIiWgnQWFaku5gJDy7AJIB9h0HfZlBbcVsJ6Befe8wh8wzkWh2fXqaTSN1uYLl
-         vgbRbj7OpsoN1Kc3AoOibkRBv6RZj095B6bmU+CU=
+        b=Wcy7Ahs32P1HpfbTtW3hNz09J0wTsfiqzf9Y4rdhGBpge8eBokJ3WUM0i2fNUEUzT
+         1Vt1GKedsof26lmvxtA/2nJqHtFK6qrJg0JGlfOKU19G7iKe45EO+qOeEketcVqR8B
+         +HnqCSCu2fclmevBOnBpYkmrCBuoN+5G7yrHnS2o=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Christophe Leroy <christophe.leroy@csgroup.eu>,
-        Michael Ellerman <mpe@ellerman.id.au>,
+        patches@lists.linux.dev, Martin KaFai Lau <kafai@fb.com>,
+        Alexei Starovoitov <ast@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 008/139] powerpc/bpf: Move common helpers into bpf_jit.h
-Date:   Mon, 13 Feb 2023 15:49:13 +0100
-Message-Id: <20230213144746.106444205@linuxfoundation.org>
+Subject: [PATCH 5.10 009/139] bpf: Support <8-byte scalar spill and refill
+Date:   Mon, 13 Feb 2023 15:49:14 +0100
+Message-Id: <20230213144746.148641459@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.1
 In-Reply-To: <20230213144745.696901179@linuxfoundation.org>
 References: <20230213144745.696901179@linuxfoundation.org>
@@ -54,130 +53,214 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Christophe Leroy <christophe.leroy@csgroup.eu>
+From: Martin KaFai Lau <kafai@fb.com>
 
-[ Upstream commit f1b1583d5faa86cb3dcb7b740594868debad7c30 ]
+[ Upstream commit 354e8f1970f821d4952458f77b1ab6c3eb24d530 ]
 
-Move functions bpf_flush_icache(), bpf_is_seen_register() and
-bpf_set_seen_register() in order to reuse them in future
-bpf_jit_comp32.c
+The verifier currently does not save the reg state when
+spilling <8byte bounded scalar to the stack.  The bpf program
+will be incorrectly rejected when this scalar is refilled to
+the reg and then used to offset into a packet header.
+The later patch has a simplified bpf prog from a real use case
+to demonstrate this case.  The current work around is
+to reparse the packet again such that this offset scalar
+is close to where the packet data will be accessed to
+avoid the spill.  Thus, the header is parsed twice.
 
-Signed-off-by: Christophe Leroy <christophe.leroy@csgroup.eu>
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://lore.kernel.org/r/28e8d5a75e64807d7e9d39a4b52658755e259f8c.1616430991.git.christophe.leroy@csgroup.eu
+The llvm patch [1] will align the <8bytes spill to
+the 8-byte stack address.  This can simplify the verifier
+support by avoiding to store multiple reg states for
+each 8 byte stack slot.
+
+This patch changes the verifier to save the reg state when
+spilling <8bytes scalar to the stack.  This reg state saving
+is limited to spill aligned to the 8-byte stack address.
+The current refill logic has already called coerce_reg_to_size(),
+so coerce_reg_to_size() is not called on state->stack[spi].spilled_ptr
+during spill.
+
+When refilling in check_stack_read_fixed_off(),  it checks
+the refill size is the same as the number of bytes marked with
+STACK_SPILL before restoring the reg state.  When restoring
+the reg state to state->regs[dst_regno], it needs
+to avoid the state->regs[dst_regno].subreg_def being
+over written because it has been marked by the check_reg_arg()
+earlier [check_mem_access() is called after check_reg_arg() in
+do_check()].  Reordering check_mem_access() and check_reg_arg()
+will need a lot of changes in test_verifier's tests because
+of the difference in verifier's error message.  Thus, the
+patch here is to save the state->regs[dst_regno].subreg_def
+first in check_stack_read_fixed_off().
+
+There are cases that the verifier needs to scrub the spilled slot
+from STACK_SPILL to STACK_MISC.  After this patch the spill is not always
+in 8 bytes now, so it can no longer assume the other 7 bytes are always
+marked as STACK_SPILL.  In particular, the scrub needs to avoid marking
+an uninitialized byte from STACK_INVALID to STACK_MISC.  Otherwise, the
+verifier will incorrectly accept bpf program reading uninitialized bytes
+from the stack.  A new helper scrub_spilled_slot() is created for this
+purpose.
+
+[1]: https://reviews.llvm.org/D109073
+
+Signed-off-by: Martin KaFai Lau <kafai@fb.com>
+Signed-off-by: Alexei Starovoitov <ast@kernel.org>
+Link: https://lore.kernel.org/bpf/20210922004941.625398-1-kafai@fb.com
 Stable-dep-of: 71f656a50176 ("bpf: Fix to preserve reg parent/live fields when copying range info")
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/powerpc/net/bpf_jit.h        | 35 +++++++++++++++++++++++++++++++
- arch/powerpc/net/bpf_jit64.h      | 19 -----------------
- arch/powerpc/net/bpf_jit_comp64.c | 16 --------------
- 3 files changed, 35 insertions(+), 35 deletions(-)
+ kernel/bpf/verifier.c |   67 ++++++++++++++++++++++++++++++++++++++------------
+ 1 file changed, 52 insertions(+), 15 deletions(-)
 
-diff --git a/arch/powerpc/net/bpf_jit.h b/arch/powerpc/net/bpf_jit.h
-index 1a5b4da8a235..cd9aab6ec2c5 100644
---- a/arch/powerpc/net/bpf_jit.h
-+++ b/arch/powerpc/net/bpf_jit.h
-@@ -117,6 +117,41 @@
- #define COND_LT		(CR0_LT | COND_CMP_TRUE)
- #define COND_LE		(CR0_GT | COND_CMP_FALSE)
- 
-+#define SEEN_FUNC	0x1000 /* might call external helpers */
-+#define SEEN_STACK	0x2000 /* uses BPF stack */
-+#define SEEN_TAILCALL	0x4000 /* uses tail calls */
-+
-+struct codegen_context {
-+	/*
-+	 * This is used to track register usage as well
-+	 * as calls to external helpers.
-+	 * - register usage is tracked with corresponding
-+	 *   bits (r3-r10 and r27-r31)
-+	 * - rest of the bits can be used to track other
-+	 *   things -- for now, we use bits 16 to 23
-+	 *   encoded in SEEN_* macros above
-+	 */
-+	unsigned int seen;
-+	unsigned int idx;
-+	unsigned int stack_size;
-+};
-+
-+static inline void bpf_flush_icache(void *start, void *end)
-+{
-+	smp_wmb();	/* smp write barrier */
-+	flush_icache_range((unsigned long)start, (unsigned long)end);
-+}
-+
-+static inline bool bpf_is_seen_register(struct codegen_context *ctx, int i)
-+{
-+	return ctx->seen & (1 << (31 - i));
-+}
-+
-+static inline void bpf_set_seen_register(struct codegen_context *ctx, int i)
-+{
-+	ctx->seen |= 1 << (31 - i);
-+}
-+
- #endif
- 
- #endif
-diff --git a/arch/powerpc/net/bpf_jit64.h b/arch/powerpc/net/bpf_jit64.h
-index 4d164e865b39..201b83bfa869 100644
---- a/arch/powerpc/net/bpf_jit64.h
-+++ b/arch/powerpc/net/bpf_jit64.h
-@@ -86,25 +86,6 @@ static const int b2p[] = {
- 				} while(0)
- #define PPC_BPF_STLU(r, base, i) do { EMIT(PPC_RAW_STDU(r, base, i)); } while(0)
- 
--#define SEEN_FUNC	0x1000 /* might call external helpers */
--#define SEEN_STACK	0x2000 /* uses BPF stack */
--#define SEEN_TAILCALL	0x4000 /* uses tail calls */
--
--struct codegen_context {
--	/*
--	 * This is used to track register usage as well
--	 * as calls to external helpers.
--	 * - register usage is tracked with corresponding
--	 *   bits (r3-r10 and r27-r31)
--	 * - rest of the bits can be used to track other
--	 *   things -- for now, we use bits 16 to 23
--	 *   encoded in SEEN_* macros above
--	 */
--	unsigned int seen;
--	unsigned int idx;
--	unsigned int stack_size;
--};
--
- #endif /* !__ASSEMBLY__ */
- 
- #endif
-diff --git a/arch/powerpc/net/bpf_jit_comp64.c b/arch/powerpc/net/bpf_jit_comp64.c
-index 7da59ddc90dd..ebad2c79cd6f 100644
---- a/arch/powerpc/net/bpf_jit_comp64.c
-+++ b/arch/powerpc/net/bpf_jit_comp64.c
-@@ -24,22 +24,6 @@ static void bpf_jit_fill_ill_insns(void *area, unsigned int size)
- 	memset32(area, BREAKPOINT_INSTRUCTION, size/4);
+--- a/kernel/bpf/verifier.c
++++ b/kernel/bpf/verifier.c
+@@ -570,6 +570,12 @@ static bool is_spilled_reg(const struct
+ 	return stack->slot_type[BPF_REG_SIZE - 1] == STACK_SPILL;
  }
  
--static inline void bpf_flush_icache(void *start, void *end)
--{
--	smp_wmb();
--	flush_icache_range((unsigned long)start, (unsigned long)end);
--}
--
--static inline bool bpf_is_seen_register(struct codegen_context *ctx, int i)
--{
--	return ctx->seen & (1 << (31 - i));
--}
--
--static inline void bpf_set_seen_register(struct codegen_context *ctx, int i)
--{
--	ctx->seen |= 1 << (31 - i);
--}
--
- static inline bool bpf_has_stack_frame(struct codegen_context *ctx)
++static void scrub_spilled_slot(u8 *stype)
++{
++	if (*stype != STACK_INVALID)
++		*stype = STACK_MISC;
++}
++
+ static void print_verifier_state(struct bpf_verifier_env *env,
+ 				 const struct bpf_func_state *state)
  {
- 	/*
--- 
-2.39.0
-
+@@ -2269,15 +2275,21 @@ static bool __is_pointer_value(bool allo
+ }
+ 
+ static void save_register_state(struct bpf_func_state *state,
+-				int spi, struct bpf_reg_state *reg)
++				int spi, struct bpf_reg_state *reg,
++				int size)
+ {
+ 	int i;
+ 
+ 	state->stack[spi].spilled_ptr = *reg;
+-	state->stack[spi].spilled_ptr.live |= REG_LIVE_WRITTEN;
++	if (size == BPF_REG_SIZE)
++		state->stack[spi].spilled_ptr.live |= REG_LIVE_WRITTEN;
+ 
+-	for (i = 0; i < BPF_REG_SIZE; i++)
+-		state->stack[spi].slot_type[i] = STACK_SPILL;
++	for (i = BPF_REG_SIZE; i > BPF_REG_SIZE - size; i--)
++		state->stack[spi].slot_type[i - 1] = STACK_SPILL;
++
++	/* size < 8 bytes spill */
++	for (; i; i--)
++		scrub_spilled_slot(&state->stack[spi].slot_type[i - 1]);
+ }
+ 
+ /* check_stack_{read,write}_fixed_off functions track spill/fill of registers,
+@@ -2327,7 +2339,7 @@ static int check_stack_write_fixed_off(s
+ 			env->insn_aux_data[insn_idx].sanitize_stack_spill = true;
+ 	}
+ 
+-	if (reg && size == BPF_REG_SIZE && register_is_bounded(reg) &&
++	if (reg && !(off % BPF_REG_SIZE) && register_is_bounded(reg) &&
+ 	    !register_is_null(reg) && env->bpf_capable) {
+ 		if (dst_reg != BPF_REG_FP) {
+ 			/* The backtracking logic can only recognize explicit
+@@ -2340,7 +2352,7 @@ static int check_stack_write_fixed_off(s
+ 			if (err)
+ 				return err;
+ 		}
+-		save_register_state(state, spi, reg);
++		save_register_state(state, spi, reg, size);
+ 	} else if (reg && is_spillable_regtype(reg->type)) {
+ 		/* register containing pointer is being spilled into stack */
+ 		if (size != BPF_REG_SIZE) {
+@@ -2352,7 +2364,7 @@ static int check_stack_write_fixed_off(s
+ 			verbose(env, "cannot spill pointers to stack into stack frame of the caller\n");
+ 			return -EINVAL;
+ 		}
+-		save_register_state(state, spi, reg);
++		save_register_state(state, spi, reg, size);
+ 	} else {
+ 		u8 type = STACK_MISC;
+ 
+@@ -2361,7 +2373,7 @@ static int check_stack_write_fixed_off(s
+ 		/* Mark slots as STACK_MISC if they belonged to spilled ptr. */
+ 		if (is_spilled_reg(&state->stack[spi]))
+ 			for (i = 0; i < BPF_REG_SIZE; i++)
+-				state->stack[spi].slot_type[i] = STACK_MISC;
++				scrub_spilled_slot(&state->stack[spi].slot_type[i]);
+ 
+ 		/* only mark the slot as written if all 8 bytes were written
+ 		 * otherwise read propagation may incorrectly stop too soon
+@@ -2568,23 +2580,50 @@ static int check_stack_read_fixed_off(st
+ 	struct bpf_func_state *state = vstate->frame[vstate->curframe];
+ 	int i, slot = -off - 1, spi = slot / BPF_REG_SIZE;
+ 	struct bpf_reg_state *reg;
+-	u8 *stype;
++	u8 *stype, type;
+ 
+ 	stype = reg_state->stack[spi].slot_type;
+ 	reg = &reg_state->stack[spi].spilled_ptr;
+ 
+ 	if (is_spilled_reg(&reg_state->stack[spi])) {
+ 		if (size != BPF_REG_SIZE) {
++			u8 scalar_size = 0;
++
+ 			if (reg->type != SCALAR_VALUE) {
+ 				verbose_linfo(env, env->insn_idx, "; ");
+ 				verbose(env, "invalid size of register fill\n");
+ 				return -EACCES;
+ 			}
+-			if (dst_regno >= 0) {
++
++			mark_reg_read(env, reg, reg->parent, REG_LIVE_READ64);
++			if (dst_regno < 0)
++				return 0;
++
++			for (i = BPF_REG_SIZE; i > 0 && stype[i - 1] == STACK_SPILL; i--)
++				scalar_size++;
++
++			if (!(off % BPF_REG_SIZE) && size == scalar_size) {
++				/* The earlier check_reg_arg() has decided the
++				 * subreg_def for this insn.  Save it first.
++				 */
++				s32 subreg_def = state->regs[dst_regno].subreg_def;
++
++				state->regs[dst_regno] = *reg;
++				state->regs[dst_regno].subreg_def = subreg_def;
++			} else {
++				for (i = 0; i < size; i++) {
++					type = stype[(slot - i) % BPF_REG_SIZE];
++					if (type == STACK_SPILL)
++						continue;
++					if (type == STACK_MISC)
++						continue;
++					verbose(env, "invalid read from stack off %d+%d size %d\n",
++						off, i, size);
++					return -EACCES;
++				}
+ 				mark_reg_unknown(env, state->regs, dst_regno);
+-				state->regs[dst_regno].live |= REG_LIVE_WRITTEN;
+ 			}
+-			mark_reg_read(env, reg, reg->parent, REG_LIVE_READ64);
++			state->regs[dst_regno].live |= REG_LIVE_WRITTEN;
+ 			return 0;
+ 		}
+ 		for (i = 1; i < BPF_REG_SIZE; i++) {
+@@ -2615,8 +2654,6 @@ static int check_stack_read_fixed_off(st
+ 		}
+ 		mark_reg_read(env, reg, reg->parent, REG_LIVE_READ64);
+ 	} else {
+-		u8 type;
+-
+ 		for (i = 0; i < size; i++) {
+ 			type = stype[(slot - i) % BPF_REG_SIZE];
+ 			if (type == STACK_MISC)
+@@ -4102,7 +4139,7 @@ static int check_stack_range_initialized
+ 			if (clobber) {
+ 				__mark_reg_unknown(env, &state->stack[spi].spilled_ptr);
+ 				for (j = 0; j < BPF_REG_SIZE; j++)
+-					state->stack[spi].slot_type[j] = STACK_MISC;
++					scrub_spilled_slot(&state->stack[spi].slot_type[j]);
+ 			}
+ 			goto mark;
+ 		}
 
 
