@@ -2,93 +2,54 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 406616957ED
-	for <lists+stable@lfdr.de>; Tue, 14 Feb 2023 05:35:18 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2E84369590D
+	for <lists+stable@lfdr.de>; Tue, 14 Feb 2023 07:18:48 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230141AbjBNEfJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Feb 2023 23:35:09 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56398 "EHLO
+        id S229520AbjBNGSp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 14 Feb 2023 01:18:45 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46704 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229740AbjBNEfI (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Feb 2023 23:35:08 -0500
-Received: from qproxy2-pub.mail.unifiedlayer.com (qproxy2-pub.mail.unifiedlayer.com [69.89.16.161])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B9DAA193E9
-        for <stable@vger.kernel.org>; Mon, 13 Feb 2023 20:35:06 -0800 (PST)
-Received: from outbound-ss-820.bluehost.com (outbound-ss-820.bluehost.com [69.89.24.241])
-        by qproxy2.mail.unifiedlayer.com (Postfix) with ESMTP id B9EEC802EB00
-        for <stable@vger.kernel.org>; Tue, 14 Feb 2023 04:35:05 +0000 (UTC)
-Received: from cmgw11.mail.unifiedlayer.com (unknown [10.0.90.126])
-        by progateway2.mail.pro1.eigbox.com (Postfix) with ESMTP id 5C3A0100478A6
-        for <stable@vger.kernel.org>; Tue, 14 Feb 2023 04:35:04 +0000 (UTC)
-Received: from box5620.bluehost.com ([162.241.219.59])
-        by cmsmtp with ESMTP
-        id Rn20pZGo1jkdRRn20pT1Pe; Tue, 14 Feb 2023 04:35:04 +0000
-X-Authority-Reason: nr=8
-X-Authority-Analysis: v=2.4 cv=LPqj/La9 c=1 sm=1 tr=0 ts=63eb0f78
- a=30941lsx5skRcbJ0JMGu9A==:117 a=30941lsx5skRcbJ0JMGu9A==:17
- a=dLZJa+xiwSxG16/P+YVxDGlgEgI=:19 a=IkcTkHD0fZMA:10:nop_charset_1
- a=m04uMKEZRckA:10:nop_rcvd_month_year
- a=-Ou01B_BuAIA:10:endurance_base64_authed_username_1 a=VwQbUJbxAAAA:8
- a=HaFmDPmJAAAA:8 a=49j0FZ7RFL9ueZfULrUA:9 a=QEXdDO2ut3YA:10:nop_charset_2
- a=AjGcO6oz07-iQ99wixmX:22 a=nmWuMzfKamIsx3l42hEX:22
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=w6rz.net;
-        s=default; h=Content-Transfer-Encoding:Content-Type:MIME-Version:Date:
-        Message-ID:From:In-Reply-To:References:Cc:To:Subject:Sender:Reply-To:
-        Content-ID:Content-Description:Resent-Date:Resent-From:Resent-Sender:
-        Resent-To:Resent-Cc:Resent-Message-ID:List-Id:List-Help:List-Unsubscribe:
-        List-Subscribe:List-Post:List-Owner:List-Archive;
-        bh=Ycx7yKhb6BHF5jh1v4RxAby3S01VdNj1GD911429xQ4=; b=NBGY7KVJE4UyBnWheIM1/Ih+hy
-        prqGo3Dd0rVnTNB5m/iijxPfINOEnl6GHlPIAAVqM3zTsbCSFHUAmtwDpdCIx8pcKRR3fWhzJLLw9
-        2acHX24ugLHTJO+NfI5llbpYX+T/D/4Km8yVIssTEj0d4YYwmRzGWiegga72jClD5h068P/bf6naW
-        Mwv4MjqcZNmyWk76jYjONDI34oLnNn+xG4XBrO7nsNEnzJX9WP2y1NjIwqSvyL5YJZ2AjlvnwXwtG
-        lTpqesJc19ZX3WkMe2wcMBrjD5XtXPNHdjefITd+CTK0K//D/V6auRhZANjGhfQQNqPKs7t5/6qJi
-        s/m56vyA==;
-Received: from c-73-162-232-9.hsd1.ca.comcast.net ([73.162.232.9]:54266 helo=[10.0.1.47])
-        by box5620.bluehost.com with esmtpsa  (TLS1.2) tls TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256
-        (Exim 4.95)
-        (envelope-from <re@w6rz.net>)
-        id 1pRn1z-004ORN-CE;
-        Mon, 13 Feb 2023 21:35:03 -0700
-Subject: Re: [PATCH 6.1 000/114] 6.1.12-rc1 review
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org
-Cc:     patches@lists.linux.dev, linux-kernel@vger.kernel.org,
-        torvalds@linux-foundation.org, akpm@linux-foundation.org,
-        linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
-        lkft-triage@lists.linaro.org, pavel@denx.de, jonathanh@nvidia.com,
-        f.fainelli@gmail.com, sudipm.mukherjee@gmail.com,
-        srw@sladewatkins.net, rwarsow@gmx.de
-References: <20230213144742.219399167@linuxfoundation.org>
-In-Reply-To: <20230213144742.219399167@linuxfoundation.org>
-From:   Ron Economos <re@w6rz.net>
-Message-ID: <3269b73f-7198-4da5-3cc5-5c33cf7ed0d2@w6rz.net>
-Date:   Mon, 13 Feb 2023 20:34:58 -0800
-User-Agent: Mozilla/5.0 (X11; Linux armv7l; rv:78.0) Gecko/20100101
- Thunderbird/78.14.0
+        with ESMTP id S229539AbjBNGSo (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 14 Feb 2023 01:18:44 -0500
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2794561B8
+        for <stable@vger.kernel.org>; Mon, 13 Feb 2023 22:17:53 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1676355472;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:
+         content-transfer-encoding:content-transfer-encoding;
+        bh=agHAISNY180mMR8dfn3HF3isjVi+bCxiYajK21O93H0=;
+        b=Rb9ExvwAtA2MdjY5FOct7xQyzuKtsfXzGyVPA8AB7cx73J5GqhMQwkUehSFXVqsJJydRtb
+        Ey8ytYLWfG584zhFSr/kq5fOJAC9luHIuSZgQpWpekjEwz3Jvz8Pqp1Rzoo9w6kfFD3lbD
+        JwX1b4FfCWm7PO1saHzbCiRQZBIFVaY=
+Received: from mimecast-mx02.redhat.com (mimecast-mx02.redhat.com
+ [66.187.233.88]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ us-mta-33-6VZvspRCO9qO8yXf9REPOw-1; Tue, 14 Feb 2023 01:17:50 -0500
+X-MC-Unique: 6VZvspRCO9qO8yXf9REPOw-1
+Received: from smtp.corp.redhat.com (int-mx08.intmail.prod.int.rdu2.redhat.com [10.11.54.8])
+        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
+        (No client certificate requested)
+        by mimecast-mx02.redhat.com (Postfix) with ESMTPS id 66CC185A5A3;
+        Tue, 14 Feb 2023 06:17:50 +0000 (UTC)
+Received: from server.redhat.com (ovpn-13-103.pek2.redhat.com [10.72.13.103])
+        by smtp.corp.redhat.com (Postfix) with ESMTP id 142DFC15BA0;
+        Tue, 14 Feb 2023 06:17:46 +0000 (UTC)
+From:   Cindy Lu <lulu@redhat.com>
+To:     lulu@redhat.com, jasowang@redhat.com, mst@redhat.com,
+        kvm@vger.kernel.org, linux-kernel@vger.kernel.org,
+        virtualization@lists.linux-foundation.org, netdev@vger.kernel.org
+Cc:     stable@vger.kernel.org
+Subject: [PATCH] vp_vdpa: fix the crash in hot unplug with vp_vdpa
+Date:   Tue, 14 Feb 2023 14:17:43 +0800
+Message-Id: <20230214061743.114257-1-lulu@redhat.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Transfer-Encoding: 7bit
-Content-Language: en-US
-X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
-X-AntiAbuse: Primary Hostname - box5620.bluehost.com
-X-AntiAbuse: Original Domain - vger.kernel.org
-X-AntiAbuse: Originator/Caller UID/GID - [47 12] / [47 12]
-X-AntiAbuse: Sender Address Domain - w6rz.net
-X-BWhitelist: no
-X-Source-IP: 73.162.232.9
-X-Source-L: No
-X-Exim-ID: 1pRn1z-004ORN-CE
-X-Source: 
-X-Source-Args: 
-X-Source-Dir: 
-X-Source-Sender: c-73-162-232-9.hsd1.ca.comcast.net ([10.0.1.47]) [73.162.232.9]:54266
-X-Source-Auth: re@w6rz.net
-X-Email-Count: 2
-X-Source-Cap: d3NpeHJ6bmU7d3NpeHJ6bmU7Ym94NTYyMC5ibHVlaG9zdC5jb20=
-X-Local-Domain: yes
-X-Spam-Status: No, score=-2.4 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,NICE_REPLY_A,RCVD_IN_DNSWL_NONE,
-        RCVD_IN_MSPIKE_H2,SPF_HELO_NONE,SPF_PASS autolearn=unavailable
+Content-Transfer-Encoding: 8bit
+X-Scanned-By: MIMEDefang 3.1 on 10.11.54.8
+X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_NONE,
+        RCVD_IN_MSPIKE_H2,SPF_HELO_NONE,SPF_NONE autolearn=ham
         autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -96,26 +57,76 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 2/13/23 6:47 AM, Greg Kroah-Hartman wrote:
-> This is the start of the stable review cycle for the 6.1.12 release.
-> There are 114 patches in this series, all will be posted as a response
-> to this one.  If anyone has any issues with these being applied, please
-> let me know.
->
-> Responses should be made by Wed, 15 Feb 2023 14:46:51 +0000.
-> Anything received after that time might be too late.
->
-> The whole patch series can be found in one patch at:
-> 	https://www.kernel.org/pub/linux/kernel/v6.x/stable-review/patch-6.1.12-rc1.gz
-> or in the git tree and branch at:
-> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-6.1.y
-> and the diffstat can be found below.
->
-> thanks,
->
-> greg k-h
+While unplugging the vp_vdpa device, the kernel will crash
+The root cause is the function vp_modern_get_status() called following the
+vp_modern_remove(). So need to change the sequence in vp_vdpa_remove
 
-Built and booted successfully on RISC-V RV64 (HiFive Unmatched).
+[  195.016001] Call Trace:
+[  195.016233]  <TASK>
+[  195.016434]  vp_modern_get_status+0x12/0x20
+[  195.016823]  vp_vdpa_reset+0x1b/0x50 [vp_vdpa]
+[  195.017238]  virtio_vdpa_reset+0x3c/0x48 [virtio_vdpa]
+[  195.017709]  remove_vq_common+0x1f/0x3a0 [virtio_net]
+[  195.018178]  virtnet_remove+0x5d/0x70 [virtio_net]
+[  195.018618]  virtio_dev_remove+0x3d/0x90
+[  195.018986]  device_release_driver_internal+0x1aa/0x230
+[  195.019466]  bus_remove_device+0xd8/0x150
+[  195.019841]  device_del+0x18b/0x3f0
+[  195.020167]  ? kernfs_find_ns+0x35/0xd0
+[  195.020526]  device_unregister+0x13/0x60
+[  195.020894]  unregister_virtio_device+0x11/0x20
+[  195.021311]  device_release_driver_internal+0x1aa/0x230
+[  195.021790]  bus_remove_device+0xd8/0x150
+[  195.022162]  device_del+0x18b/0x3f0
+[  195.022487]  device_unregister+0x13/0x60
+[  195.022852]  ? vdpa_dev_remove+0x30/0x30 [vdpa]
+[  195.023270]  vp_vdpa_dev_del+0x12/0x20 [vp_vdpa]
+[  195.023694]  vdpa_match_remove+0x2b/0x40 [vdpa]
+[  195.024115]  bus_for_each_dev+0x78/0xc0
+[  195.024471]  vdpa_mgmtdev_unregister+0x65/0x80 [vdpa]
+[  195.024937]  vp_vdpa_remove+0x23/0x40 [vp_vdpa]
+[  195.025353]  pci_device_remove+0x36/0xa0
+[  195.025719]  device_release_driver_internal+0x1aa/0x230
+[  195.026201]  pci_stop_bus_device+0x6c/0x90
+[  195.026580]  pci_stop_and_remove_bus_device+0xe/0x20
+[  195.027039]  disable_slot+0x49/0x90
+[  195.027366]  acpiphp_disable_and_eject_slot+0x15/0x90
+[  195.027832]  hotplug_event+0xea/0x210
+[  195.028171]  ? hotplug_event+0x210/0x210
+[  195.028535]  acpiphp_hotplug_notify+0x22/0x80
+[  195.028942]  ? hotplug_event+0x210/0x210
+[  195.029303]  acpi_device_hotplug+0x8a/0x1d0
+[  195.029690]  acpi_hotplug_work_fn+0x1a/0x30
+[  195.030077]  process_one_work+0x1e8/0x3c0
+[  195.030451]  worker_thread+0x50/0x3b0
+[  195.030791]  ? rescuer_thread+0x3a0/0x3a0
+[  195.031165]  kthread+0xd9/0x100
+[  195.031459]  ? kthread_complete_and_exit+0x20/0x20
+[  195.031899]  ret_from_fork+0x22/0x30
+[  195.032233]  </TASK>
 
-Tested-by: Ron Economos <re@w6rz.net>
+Fixes: ffbda8e9df10 ("vdpa/vp_vdpa : add vdpa tool support in vp_vdpa")
+Tested-by: Lei Yang <leiyang@redhat.com>
+Cc: stable@vger.kernel.org
+Signed-off-by: Cindy Lu <lulu@redhat.com>
+---
+ drivers/vdpa/virtio_pci/vp_vdpa.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/drivers/vdpa/virtio_pci/vp_vdpa.c b/drivers/vdpa/virtio_pci/vp_vdpa.c
+index 8fe267ca3e76..281287fae89f 100644
+--- a/drivers/vdpa/virtio_pci/vp_vdpa.c
++++ b/drivers/vdpa/virtio_pci/vp_vdpa.c
+@@ -645,8 +645,8 @@ static void vp_vdpa_remove(struct pci_dev *pdev)
+ 	struct virtio_pci_modern_device *mdev = NULL;
+ 
+ 	mdev = vp_vdpa_mgtdev->mdev;
+-	vp_modern_remove(mdev);
+ 	vdpa_mgmtdev_unregister(&vp_vdpa_mgtdev->mgtdev);
++	vp_modern_remove(mdev);
+ 	kfree(vp_vdpa_mgtdev->mgtdev.id_table);
+ 	kfree(mdev);
+ 	kfree(vp_vdpa_mgtdev);
+-- 
+2.34.3
 
