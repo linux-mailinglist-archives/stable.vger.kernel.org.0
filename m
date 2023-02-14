@@ -2,56 +2,66 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 39030696AF2
-	for <lists+stable@lfdr.de>; Tue, 14 Feb 2023 18:12:11 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2A123696AF0
+	for <lists+stable@lfdr.de>; Tue, 14 Feb 2023 18:11:47 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232991AbjBNRMJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 14 Feb 2023 12:12:09 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36460 "EHLO
+        id S232557AbjBNRLp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 14 Feb 2023 12:11:45 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37014 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232978AbjBNRLh (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 14 Feb 2023 12:11:37 -0500
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D82E6C144
-        for <stable@vger.kernel.org>; Tue, 14 Feb 2023 09:10:04 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1676394604;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=4xhjIgOLD34GhGSF0bJgUI1/ZkWKw+rh+EHdWU9oeAM=;
-        b=fPfPsamWbYwaiXT4ZxLQo9pgPfBpenfs2jMmwr7XKNQQJdVBI1Q2J6+2LWJgm0/n8Q3yT5
-        1bhhGwW3Asl2PmWh8eXmuAy3v3pkfDT+hlXu1fwR0J6GZD9u5eXTSja61FAVM5E84YepdR
-        oTFNrXCcDQpa3Ka/z+4E8TYGOrvbumM=
-Received: from mimecast-mx02.redhat.com (mimecast-mx02.redhat.com
- [66.187.233.88]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- us-mta-641-uqKBVgoXNqKpnA3laN9TUQ-1; Tue, 14 Feb 2023 12:10:00 -0500
-X-MC-Unique: uqKBVgoXNqKpnA3laN9TUQ-1
-Received: from smtp.corp.redhat.com (int-mx03.intmail.prod.int.rdu2.redhat.com [10.11.54.3])
-        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
-        (No client certificate requested)
-        by mimecast-mx02.redhat.com (Postfix) with ESMTPS id B8839802C16;
-        Tue, 14 Feb 2023 17:09:57 +0000 (UTC)
-Received: from virtlab701.virt.lab.eng.bos.redhat.com (virtlab701.virt.lab.eng.bos.redhat.com [10.19.152.228])
-        by smtp.corp.redhat.com (Postfix) with ESMTP id 971C51121318;
-        Tue, 14 Feb 2023 17:09:57 +0000 (UTC)
-From:   Paolo Bonzini <pbonzini@redhat.com>
-To:     linux-kernel@vger.kernel.org, kvm@vger.kernel.org
-Cc:     stable@vger.kernel.org, thomas.lendacky@amd.com
-Subject: [PATCH for-5.15 3/3] Documentation/hw-vuln: Add documentation for Cross-Thread Return Predictions
-Date:   Tue, 14 Feb 2023 12:09:56 -0500
-Message-Id: <20230214170956.1297309-4-pbonzini@redhat.com>
-In-Reply-To: <20230214170956.1297309-1-pbonzini@redhat.com>
-References: <20230214170956.1297309-1-pbonzini@redhat.com>
+        with ESMTP id S232940AbjBNRLb (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 14 Feb 2023 12:11:31 -0500
+Received: from mail-yw1-x1129.google.com (mail-yw1-x1129.google.com [IPv6:2607:f8b0:4864:20::1129])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4B4C22FCDF
+        for <stable@vger.kernel.org>; Tue, 14 Feb 2023 09:11:11 -0800 (PST)
+Received: by mail-yw1-x1129.google.com with SMTP id 00721157ae682-4c24993965eso215198537b3.12
+        for <stable@vger.kernel.org>; Tue, 14 Feb 2023 09:11:11 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=google.com; s=20210112;
+        h=cc:to:subject:message-id:date:from:in-reply-to:references
+         :mime-version:from:to:cc:subject:date:message-id:reply-to;
+        bh=r4pky0IDsnlu/cqFPhqYvFTqN8LlUn92zh6XIpOqBhY=;
+        b=tJYGr5212BC/zy/n6YiZ7I5C/JLAWDXGWcWsgIogmNqeseFgoMNI73KimK3bD9DQ2R
+         OaAdDEHfXTPAOwRPo577cYx45n182mjVNhtWOe1hF5u1YtwKBteiCStPAQ+RKqIWD+0A
+         qcfaYbTWgAPssQ+sNf2QMOnEG+Zzb/c+gsDGiLEBSBQbNpmZmqO/f6kdZiQZc5wWXABu
+         mTPnIVZ9ahESnu68ZIgqmVNoUnZUwM//Hpqp1ESWNvbAsJOW9NmY+pY2rTS/Jo13opj4
+         LVq7Nr1yz6QRXYsjTs+kyxkgNhrdlNhQ6Ny0erdwJA8jEr3Ipms4rGEJps4R2NUEpyIt
+         jBeA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=cc:to:subject:message-id:date:from:in-reply-to:references
+         :mime-version:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=r4pky0IDsnlu/cqFPhqYvFTqN8LlUn92zh6XIpOqBhY=;
+        b=yeovZA4XusNMVh+Dn7gYHcLcSGmWOB4e9lxf+pvIOFweH5fIdh0cnanWC15PBAL2B6
+         w/QQEHN7PgBWUDj1UOTQWRoe3lKSIYl9PMWu/Q/Rd/BW7Gr+J28dP5GP9tyEjdUqNYFO
+         D1I973o+YtWA6LbQayclV+9nU+IpWy2RrxQQm+CRV8FNXnHXZfK2PnUngcI9UWuL1E7w
+         FCoIK80VnMD6wvzHPdwcu7EhRtdHCf5f9Qu6pxj4hWUDxGjkOupnQRwW7O+it+1h6TY/
+         raVvKnQk8/6P4DiQl0JfOnogehhehzw84gGXqG3R9mbqKEcIPa8MJD0xhNBvbtdB6cgH
+         W9Ww==
+X-Gm-Message-State: AO0yUKX6oJ1Qwf1eGw7TjaDfto4RK46urqicfRxc7qx1EfHZ+eoBSSRJ
+        U3nfDxbGfWQNwY0qk8aBU6Q1jENAj28qh5CyaviFCA==
+X-Google-Smtp-Source: AK7set+ovpxzz//8A139EdXwefeTv+mGh3Kjc7myJY3emAZXMZbejrZMUZTSCki77CFv8cRh2W35et11xRQdQtRmbKo=
+X-Received: by 2002:a81:bf53:0:b0:506:6364:fda3 with SMTP id
+ s19-20020a81bf53000000b005066364fda3mr346950ywk.72.1676394669813; Tue, 14 Feb
+ 2023 09:11:09 -0800 (PST)
 MIME-Version: 1.0
-Content-Type: text/plain
-Content-Transfer-Encoding: 8bit
-X-Scanned-By: MIMEDefang 3.1 on 10.11.54.3
-X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_NONE,
-        RCVD_IN_MSPIKE_H2,SPF_HELO_NONE,SPF_NONE autolearn=unavailable
+References: <CAJuCfpHa+RhNk_-C=c=E8opF7mR2tnpd-KyhaXCQ8XnKvwVXoQ@mail.gmail.com>
+ <20230214070429.3613260-1-kamatam@amazon.com>
+In-Reply-To: <20230214070429.3613260-1-kamatam@amazon.com>
+From:   Suren Baghdasaryan <surenb@google.com>
+Date:   Tue, 14 Feb 2023 09:10:58 -0800
+Message-ID: <CAJuCfpGiktjjPZYPp8LNtbmvYhkxh_icEWXOVgsq9qeq+w6s+g@mail.gmail.com>
+Subject: Re: [PATCH v2] sched/psi: fix use-after-free in ep_remove_wait_queue()
+To:     Munehisa Kamata <kamatam@amazon.com>
+Cc:     ebiggers@kernel.org, hannes@cmpxchg.org, hdanton@sina.com,
+        linux-kernel@vger.kernel.org, linux-mm@kvack.org,
+        mengcc@amazon.com, stable@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
+X-Spam-Status: No, score=-17.6 required=5.0 tests=BAYES_00,DKIMWL_WL_MED,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,
+        ENV_AND_HDR_SPF_MATCH,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS,
+        USER_IN_DEF_DKIM_WL,USER_IN_DEF_SPF_WL autolearn=unavailable
         autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -59,126 +69,174 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tom Lendacky <thomas.lendacky@amd.com>
+Thanks!
+Overall LGTM, just a couple of nits (simplifications):
 
-Add the admin guide for the Cross-Thread Return Predictions vulnerability.
+On Mon, Feb 13, 2023 at 11:04 PM Munehisa Kamata <kamatam@amazon.com> wrote:
+>
+> If a non-root cgroup gets removed when there is a thread that registered
+> trigger and is polling on a pressure file within the cgroup, the polling
+> waitqueue gets freed without clearing the queue and reference in the
+> following path.
 
-Signed-off-by: Tom Lendacky <thomas.lendacky@amd.com>
-Message-Id: <60f9c0b4396956ce70499ae180cb548720b25c7e.1675956146.git.thomas.lendacky@amd.com>
-Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
----
- .../admin-guide/hw-vuln/cross-thread-rsb.rst  | 92 +++++++++++++++++++
- Documentation/admin-guide/hw-vuln/index.rst   |  1 +
- 2 files changed, 93 insertions(+)
- create mode 100644 Documentation/admin-guide/hw-vuln/cross-thread-rsb.rst
+Let's remove "without clearing the queue and reference" in the above
+sentence. The next section explains why this is problematic, therefore
+mentioning that here is unnecessary IMHO.
 
-diff --git a/Documentation/admin-guide/hw-vuln/cross-thread-rsb.rst b/Documentation/admin-guide/hw-vuln/cross-thread-rsb.rst
-new file mode 100644
-index 000000000000..ec6e9f5bcf9e
---- /dev/null
-+++ b/Documentation/admin-guide/hw-vuln/cross-thread-rsb.rst
-@@ -0,0 +1,92 @@
-+
-+.. SPDX-License-Identifier: GPL-2.0
-+
-+Cross-Thread Return Address Predictions
-+=======================================
-+
-+Certain AMD and Hygon processors are subject to a cross-thread return address
-+predictions vulnerability. When running in SMT mode and one sibling thread
-+transitions out of C0 state, the other sibling thread could use return target
-+predictions from the sibling thread that transitioned out of C0.
-+
-+The Spectre v2 mitigations protect the Linux kernel, as it fills the return
-+address prediction entries with safe targets when context switching to the idle
-+thread. However, KVM does allow a VMM to prevent exiting guest mode when
-+transitioning out of C0. This could result in a guest-controlled return target
-+being consumed by the sibling thread.
-+
-+Affected processors
-+-------------------
-+
-+The following CPUs are vulnerable:
-+
-+    - AMD Family 17h processors
-+    - Hygon Family 18h processors
-+
-+Related CVEs
-+------------
-+
-+The following CVE entry is related to this issue:
-+
-+   ==============  =======================================
-+   CVE-2022-27672  Cross-Thread Return Address Predictions
-+   ==============  =======================================
-+
-+Problem
-+-------
-+
-+Affected SMT-capable processors support 1T and 2T modes of execution when SMT
-+is enabled. In 2T mode, both threads in a core are executing code. For the
-+processor core to enter 1T mode, it is required that one of the threads
-+requests to transition out of the C0 state. This can be communicated with the
-+HLT instruction or with an MWAIT instruction that requests non-C0.
-+When the thread re-enters the C0 state, the processor transitions back
-+to 2T mode, assuming the other thread is also still in C0 state.
-+
-+In affected processors, the return address predictor (RAP) is partitioned
-+depending on the SMT mode. For instance, in 2T mode each thread uses a private
-+16-entry RAP, but in 1T mode, the active thread uses a 32-entry RAP. Upon
-+transition between 1T/2T mode, the RAP contents are not modified but the RAP
-+pointers (which control the next return target to use for predictions) may
-+change. This behavior may result in return targets from one SMT thread being
-+used by RET predictions in the sibling thread following a 1T/2T switch. In
-+particular, a RET instruction executed immediately after a transition to 1T may
-+use a return target from the thread that just became idle. In theory, this
-+could lead to information disclosure if the return targets used do not come
-+from trustworthy code.
-+
-+Attack scenarios
-+----------------
-+
-+An attack can be mounted on affected processors by performing a series of CALL
-+instructions with targeted return locations and then transitioning out of C0
-+state.
-+
-+Mitigation mechanism
-+--------------------
-+
-+Before entering idle state, the kernel context switches to the idle thread. The
-+context switch fills the RAP entries (referred to as the RSB in Linux) with safe
-+targets by performing a sequence of CALL instructions.
-+
-+Prevent a guest VM from directly putting the processor into an idle state by
-+intercepting HLT and MWAIT instructions.
-+
-+Both mitigations are required to fully address this issue.
-+
-+Mitigation control on the kernel command line
-+---------------------------------------------
-+
-+Use existing Spectre v2 mitigations that will fill the RSB on context switch.
-+
-+Mitigation control for KVM - module parameter
-+---------------------------------------------
-+
-+By default, the KVM hypervisor mitigates this issue by intercepting guest
-+attempts to transition out of C0. A VMM can use the KVM_CAP_X86_DISABLE_EXITS
-+capability to override those interceptions, but since this is not common, the
-+mitigation that covers this path is not enabled by default.
-+
-+The mitigation for the KVM_CAP_X86_DISABLE_EXITS capability can be turned on
-+using the boolean module parameter mitigate_smt_rsb, e.g.:
-+        kvm.mitigate_smt_rsb=1
-diff --git a/Documentation/admin-guide/hw-vuln/index.rst b/Documentation/admin-guide/hw-vuln/index.rst
-index 4df436e7c417..e0614760a99e 100644
---- a/Documentation/admin-guide/hw-vuln/index.rst
-+++ b/Documentation/admin-guide/hw-vuln/index.rst
-@@ -18,3 +18,4 @@ are configurable at compile, boot or run time.
-    core-scheduling.rst
-    l1d_flush.rst
-    processor_mmio_stale_data.rst
-+   cross-thread-rsb.rst
--- 
-2.39.1
+>
+>  do_rmdir
+>    cgroup_rmdir
+>      kernfs_drain_open_files
+>        cgroup_file_release
+>          cgroup_pressure_release
+>            psi_trigger_destroy
+>
+> However, the polling thread can keep having the last reference to the
+> pressure file that is tied to the freed waitqueue until explicit close or
+> exit later.
 
+Suggest replacing: However, the polling thread still has a reference
+to the pressure file it is polling and will access the freed waitqueue
+when file is closed or upon exit:
+
+>
+>  fput
+>    ep_eventpoll_release
+>      ep_free
+>        ep_remove_wait_queue
+>          remove_wait_queue
+>
+> Then, the thread accesses to the already-freed waitqueue when dropping the
+> reference and results in use-after-free as pasted below.
+
+Suggest replacing: This results is use-after-free as pasted below.
+
+>
+> The fundamental problem here is that the lifetime of the waitqueue is not
+> tied to the file's real lifetime as shown above.
+
+The fundamental problem here is that cgroup_file_release() (and
+consequently waitqueue's lifetime) is not tied to the file's real
+lifetime.
+
+> Using wake_up_pollfree()
+> here might be less than ideal, but it also is not fully contradicting the
+> comment at commit 42288cb44c4b ("wait: add wake_up_pollfree()") since the
+> waitqueue's lifetime is not tied to file's one and can be considered as
+> another special case. While this would be fixable by somehow making
+> cgroup_file_release() be tied to the fput(), it would require sizable
+> refactoring at cgroups or higher layer which might be more justifiable if
+> we identify more cases like this.
+>
+>  BUG: KASAN: use-after-free in _raw_spin_lock_irqsave+0x60/0xc0
+>  Write of size 4 at addr ffff88810e625328 by task a.out/4404
+>
+>  CPU: 19 PID: 4404 Comm: a.out Not tainted 6.2.0-rc6 #38
+>  Hardware name: Amazon EC2 c5a.8xlarge/, BIOS 1.0 10/16/2017
+>  Call Trace:
+>  <TASK>
+>  dump_stack_lvl+0x73/0xa0
+>  print_report+0x16c/0x4e0
+>  ? _printk+0x59/0x80
+>  ? __virt_addr_valid+0xb8/0x130
+>  ? _raw_spin_lock_irqsave+0x60/0xc0
+>  kasan_report+0xc3/0xf0
+>  ? _raw_spin_lock_irqsave+0x60/0xc0
+>  kasan_check_range+0x2d2/0x310
+>  _raw_spin_lock_irqsave+0x60/0xc0
+>  remove_wait_queue+0x1a/0xa0
+>  ep_free+0x12c/0x170
+>  ep_eventpoll_release+0x26/0x30
+>  __fput+0x202/0x400
+>  task_work_run+0x11d/0x170
+>  do_exit+0x495/0x1130
+>  ? update_cfs_rq_load_avg+0x2c2/0x2e0
+>  do_group_exit+0x100/0x100
+>  get_signal+0xd67/0xde0
+>  ? finish_task_switch+0x15f/0x3a0
+>  arch_do_signal_or_restart+0x2a/0x2b0
+>  exit_to_user_mode_prepare+0x94/0x100
+>  syscall_exit_to_user_mode+0x20/0x40
+>  do_syscall_64+0x52/0x90
+>  entry_SYSCALL_64_after_hwframe+0x63/0xcd
+>  RIP: 0033:0x7f8e392bfb91
+>  Code: Unable to access opcode bytes at 0x7f8e392bfb67.
+>  RSP: 002b:00007fff261e08d8 EFLAGS: 00000246 ORIG_RAX: 0000000000000022
+>  RAX: fffffffffffffdfe RBX: 0000000000000000 RCX: 00007f8e392bfb91
+>  RDX: 0000000000000001 RSI: 00007fff261e08e8 RDI: 0000000000000004
+>  RBP: 00007fff261e0920 R08: 0000000000400780 R09: 00007f8e3960f240
+>  R10: 00000000000003df R11: 0000000000000246 R12: 00000000004005a0
+>  R13: 00007fff261e0a00 R14: 0000000000000000 R15: 0000000000000000
+>  </TASK>
+>
+>  Allocated by task 4404:
+>  kasan_set_track+0x3d/0x60
+>  __kasan_kmalloc+0x85/0x90
+>  psi_trigger_create+0x113/0x3e0
+>  pressure_write+0x146/0x2e0
+>  cgroup_file_write+0x11c/0x250
+>  kernfs_fop_write_iter+0x186/0x220
+>  vfs_write+0x3d8/0x5c0
+>  ksys_write+0x90/0x110
+>  do_syscall_64+0x43/0x90
+>  entry_SYSCALL_64_after_hwframe+0x63/0xcd
+>
+>  Freed by task 4407:
+>  kasan_set_track+0x3d/0x60
+>  kasan_save_free_info+0x27/0x40
+>  ____kasan_slab_free+0x11d/0x170
+>  slab_free_freelist_hook+0x87/0x150
+>  __kmem_cache_free+0xcb/0x180
+>  psi_trigger_destroy+0x2e8/0x310
+>  cgroup_file_release+0x4f/0xb0
+>  kernfs_drain_open_files+0x165/0x1f0
+>  kernfs_drain+0x162/0x1a0
+>  __kernfs_remove+0x1fb/0x310
+>  kernfs_remove_by_name_ns+0x95/0xe0
+>  cgroup_addrm_files+0x67f/0x700
+>  cgroup_destroy_locked+0x283/0x3c0
+>  cgroup_rmdir+0x29/0x100
+>  kernfs_iop_rmdir+0xd1/0x140
+>  vfs_rmdir+0xfe/0x240
+>  do_rmdir+0x13d/0x280
+>  __x64_sys_rmdir+0x2c/0x30
+>  do_syscall_64+0x43/0x90
+>  entry_SYSCALL_64_after_hwframe+0x63/0xcd
+>
+> v2: updated commit message
+>
+> Link: https://lore.kernel.org/lkml/20230106224859.4123476-1-kamatam@amazon.com/
+> Fixes: 0e94682b73bf ("psi: introduce psi monitor")
+> Cc: stable@vger.kernel.org
+> Signed-off-by: Munehisa Kamata <kamatam@amazon.com>
+> Signed-off-by: Mengchi Cheng <mengcc@amazon.com>
+> ---
+>  kernel/sched/psi.c | 7 ++++---
+>  1 file changed, 4 insertions(+), 3 deletions(-)
+>
+> diff --git a/kernel/sched/psi.c b/kernel/sched/psi.c
+> index 8ac8b81bfee6..6e66c15f6450 100644
+> --- a/kernel/sched/psi.c
+> +++ b/kernel/sched/psi.c
+> @@ -1343,10 +1343,11 @@ void psi_trigger_destroy(struct psi_trigger *t)
+>
+>         group = t->group;
+>         /*
+> -        * Wakeup waiters to stop polling. Can happen if cgroup is deleted
+> -        * from under a polling process.
+> +        * Wakeup waiters to stop polling and clear the queue to prevent it from
+> +        * being accessed later. Can happen if cgroup is deleted from under a
+> +        * polling process otherwise.
+
+This "otherwise" at the end seems extra. Was there a continuation of
+this comment which was removed without removing this "otherwise" ?
+
+>          */
+> -       wake_up_interruptible(&t->event_wait);
+> +       wake_up_pollfree(&t->event_wait);
+>
+>         mutex_lock(&group->trigger_lock);
+>
+> --
+> 2.38.1
+>
