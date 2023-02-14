@@ -2,112 +2,118 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id EC8D3695712
-	for <lists+stable@lfdr.de>; Tue, 14 Feb 2023 04:05:42 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 565DA69576F
+	for <lists+stable@lfdr.de>; Tue, 14 Feb 2023 04:27:19 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231563AbjBNDFl (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 13 Feb 2023 22:05:41 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38870 "EHLO
+        id S231458AbjBND1S (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 13 Feb 2023 22:27:18 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58258 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231433AbjBNDFd (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 13 Feb 2023 22:05:33 -0500
-Received: from mail-pj1-x102b.google.com (mail-pj1-x102b.google.com [IPv6:2607:f8b0:4864:20::102b])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EB1681C5BB;
-        Mon, 13 Feb 2023 19:04:55 -0800 (PST)
-Received: by mail-pj1-x102b.google.com with SMTP id r9-20020a17090a2e8900b00233ba727724so390863pjd.1;
-        Mon, 13 Feb 2023 19:04:55 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
-        bh=BLeZPtMHf3JMYrRnDoKN8Adh6wZfHafqCrlDoQdGyUg=;
-        b=AHgdOKQ4VAwC5odmRl1gZwqDYGasucGiufWH935kf9/Q+eBeVwJ4sqVpCipGSo/Fuq
-         w5g2YPBJp9KFDF3KsZO/iCXO+QahQU1tVynBHRHtTAvvrNlA88BVNeFpYJ5YORN4EB23
-         mKa6f4JXtuiGQfalom9qOJmZBv0hSCu6cX/YtTnur+sHbCFc7TULHFVA7QshDkL+z2dd
-         z5byYZdT6Xi69clqlAFSEY9vEMBIURlh4GberERPNVmFmf4L1M59HXluoYtuOUt6cJij
-         sC97myVEA5g4LVWZp3t0ZguvavkIzuAe6uci4Yujbq54LFPZnWMI+mxF0Y42vzx6+clZ
-         jx5w==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=BLeZPtMHf3JMYrRnDoKN8Adh6wZfHafqCrlDoQdGyUg=;
-        b=MsDVJXoCf6xjQEmRPLc3Fk4bVh4CHKgkTCWu92edzvINiahSSHMDKizGN4Cs/luyYY
-         snxxX6XPekN9e0L/s7jmjhblsnWl2JeOlKyFWgN0tgj+57LXBMVooie5/tiEMH3S4ZO9
-         kllS+7iJJkbeCl6NGL6FExTN6RkeUD8KBaiC3qv/r0Gr2K45gersxg2uHIJjFjMVl9oc
-         CMeyVEI1JruSi1qdpbOSaLsmS8akrOvujpooa5jo3FQ24HhQpxl603RxJuE5ovs39nSq
-         ig+jVDQWu86LajqhFLoAMnngJTia4P++yvrgjLTsV5j0r44UvpF9lmtQAyTVjzFtOHUf
-         /c/Q==
-X-Gm-Message-State: AO0yUKUp0W0r/Dw+pkiuhcDuRA2TVIx7LSeB7q2RsKLlIAL1A3Db6cPc
-        ucLS6uaAXRyB2PP0E3fpR1A=
-X-Google-Smtp-Source: AK7set+b1nJIxt9rzoS4iHh75uptaPxw7B+uKvt3OMzH38KdM2xcgQGzJYg+CuiCflWEp6QENuoJiw==
-X-Received: by 2002:a17:90b:1808:b0:22c:932:2870 with SMTP id lw8-20020a17090b180800b0022c09322870mr753025pjb.33.1676343894358;
-        Mon, 13 Feb 2023 19:04:54 -0800 (PST)
-Received: from debian.me (subs28-116-206-12-37.three.co.id. [116.206.12.37])
-        by smtp.gmail.com with ESMTPSA id l21-20020a17090aec1500b00230a3b016fcsm5658069pjy.10.2023.02.13.19.04.53
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 13 Feb 2023 19:04:53 -0800 (PST)
-Received: by debian.me (Postfix, from userid 1000)
-        id 8F2FC105423; Tue, 14 Feb 2023 10:04:51 +0700 (WIB)
-Date:   Tue, 14 Feb 2023 10:04:51 +0700
-From:   Bagas Sanjaya <bagasdotme@gmail.com>
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org
-Cc:     patches@lists.linux.dev, linux-kernel@vger.kernel.org,
-        torvalds@linux-foundation.org, akpm@linux-foundation.org,
-        linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
-        lkft-triage@lists.linaro.org, pavel@denx.de, jonathanh@nvidia.com,
-        f.fainelli@gmail.com, sudipm.mukherjee@gmail.com,
-        srw@sladewatkins.net, rwarsow@gmx.de
-Subject: Re: [PATCH 5.15 00/67] 5.15.94-rc1 review
-Message-ID: <Y+r6U0WGARzIIwVN@debian.me>
-References: <20230213144732.336342050@linuxfoundation.org>
+        with ESMTP id S231480AbjBND1Q (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 13 Feb 2023 22:27:16 -0500
+Received: from esa4.hgst.iphmx.com (esa4.hgst.iphmx.com [216.71.154.42])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B8A221C333
+        for <stable@vger.kernel.org>; Mon, 13 Feb 2023 19:27:14 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=simple/simple;
+  d=wdc.com; i=@wdc.com; q=dns/txt; s=dkim.wdc.com;
+  t=1676345234; x=1707881234;
+  h=message-id:date:mime-version:subject:to:cc:references:
+   from:in-reply-to:content-transfer-encoding;
+  bh=C2DX287fihxIx3zZ1XYsGz3AZwndKdwrpwX0k0QUAWQ=;
+  b=npW4Gpll8weHnzDKqIWEY6yMYNMbFeMD5f8d/wDYT3UcTWZ97ZevvIbQ
+   MDt6wn8qhN3u/ucp8vMnXYhvXAOvtmeMfXKDZwk3Q8L5OfQhsnZKkYlFD
+   OU8VsQ40llP3ZT7KkTYDthJJ0SVYhzIsJZ35tgUSWF7cgNGaHlxe45Q5J
+   8LKu2UfPaX6jnwourEVnX8AxJhSjS+qlA7gfgQl+CVkww9qP8AJf9NMUf
+   e6izvXv8KL/AoJXyjkIzb29t6e6vYbmW7qyOxbWRgt/I9vl6fwOmdqNmI
+   63a4X3dLW2nz9ToPmFQRwoT+JGNath0078KzH6e0i3EPnNuyehKvq1o1i
+   Q==;
+X-IronPort-AV: E=Sophos;i="5.97,294,1669046400"; 
+   d="scan'208";a="221534004"
+Received: from uls-op-cesaip01.wdc.com (HELO uls-op-cesaep01.wdc.com) ([199.255.45.14])
+  by ob1.hgst.iphmx.com with ESMTP; 14 Feb 2023 11:27:12 +0800
+IronPort-SDR: OmCvh3sA3gQ7id6Nc0z3GRdyJktd8TX0F/PixgyHFBKeJeVR72gKjAB7laEnExojsHdamft+iz
+ O5mQhmx8PP94vR9MTCvvtvmSFDr8Ld0s93Yd6NafCwZZR23N51bUA1iecB/69yTx7WyZ8EPiGb
+ kh+HcE35GmN1fJoBGlPhV2xDWv+qeBWuZVCLNJs9VRc3a5z3Fzbjv9lRgAmOnITBpM74U3v2Xq
+ 96D5ZQXi2LicwQ/c5O8oiNGmaHLm5NJjCP+xgEdbkyr4WbmegXxRXXIJIU1uKYh9tNSylyOhmc
+ 0dY=
+Received: from uls-op-cesaip01.wdc.com ([10.248.3.36])
+  by uls-op-cesaep01.wdc.com with ESMTP/TLS/ECDHE-RSA-AES128-GCM-SHA256; 13 Feb 2023 18:44:20 -0800
+IronPort-SDR: YVJmNfFDToBb92IRrmXZdg+7AbdZXUgiKeeox8V9cfGicADrEfRmWo0vxm5AqsZUK+HvqSHcaL
+ XNYaLdOLwDRAVLrT0XYhjvh4r8bwYwNxOriyaIcbFgXzVVtc/ksbZXJ0syiB56f81/UoTJkzoP
+ NEQjgI5fRYXmHO8dQog8ZShVL2LDzsX976VAgY4HT0wmdPiaANUaW5s1JdTdAxEvuAHQ6uZ3r1
+ UcguNOwP/8erQ5FMmRL6l/PbC5IoLScgV8lX6PvJJr0pTtwqANFPjsMoPNjlQh3YZwktQZEi4m
+ S/c=
+WDCIronportException: Internal
+Received: from usg-ed-osssrv.wdc.com ([10.3.10.180])
+  by uls-op-cesaip01.wdc.com with ESMTP/TLS/ECDHE-RSA-AES128-GCM-SHA256; 13 Feb 2023 19:27:13 -0800
+Received: from usg-ed-osssrv.wdc.com (usg-ed-osssrv.wdc.com [127.0.0.1])
+        by usg-ed-osssrv.wdc.com (Postfix) with ESMTP id 4PG68J2lc9z1RwqL
+        for <stable@vger.kernel.org>; Mon, 13 Feb 2023 19:27:12 -0800 (PST)
+Authentication-Results: usg-ed-osssrv.wdc.com (amavisd-new); dkim=pass
+        reason="pass (just generated, assumed good)"
+        header.d=opensource.wdc.com
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=
+        opensource.wdc.com; h=content-transfer-encoding:content-type
+        :in-reply-to:organization:from:references:to:content-language
+        :subject:user-agent:mime-version:date:message-id; s=dkim; t=
+        1676345231; x=1678937232; bh=C2DX287fihxIx3zZ1XYsGz3AZwndKdwrpwX
+        0k0QUAWQ=; b=njZNJbQ5di5LnVdvp1bpA7hocbJUDtSzeOAyiShtGuoRSppSJ5L
+        OH8eXe//apqqv8YlltI89f4HIg2p//HQpsCtaz/88vA3zxaY6Y6i/sqtd1121C5B
+        Tf6PVZ9BrGzKNJxVDyG7fZQrHNkPjunDhHT7fom3nWduwMxB4/jB7tDhgpI30341
+        YR0kOifWPV4AGcyqxxP8LmKwZZW1zvdx86U58e+30aIFv4kiiXT3E+BYaNc79TLE
+        diDUONFdl0Tn1FcdzsOteakeMIyLMhvSgTfXuhztjB8FY0d5dFjZSpXHc8/+rAFx
+        XRZQc2bFXqpJRlevmjqV3OxLIjIRJ4fjeew==
+X-Virus-Scanned: amavisd-new at usg-ed-osssrv.wdc.com
+Received: from usg-ed-osssrv.wdc.com ([127.0.0.1])
+        by usg-ed-osssrv.wdc.com (usg-ed-osssrv.wdc.com [127.0.0.1]) (amavisd-new, port 10026)
+        with ESMTP id sTWDGTZv7F_o for <stable@vger.kernel.org>;
+        Mon, 13 Feb 2023 19:27:11 -0800 (PST)
+Received: from [10.149.53.254] (washi.fujisawa.hgst.com [10.149.53.254])
+        by usg-ed-osssrv.wdc.com (Postfix) with ESMTPSA id 4PG68G4SGXz1RvLy;
+        Mon, 13 Feb 2023 19:27:10 -0800 (PST)
+Message-ID: <f67adf9f-2fa1-efed-afa8-04c5149a23ca@opensource.wdc.com>
+Date:   Tue, 14 Feb 2023 12:27:09 +0900
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha512;
-        protocol="application/pgp-signature"; boundary="YueW8T+Y9YHwfDOD"
-Content-Disposition: inline
-In-Reply-To: <20230213144732.336342050@linuxfoundation.org>
-X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_FROM,
-        RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS autolearn=ham
-        autolearn_force=no version=3.4.6
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
+ Thunderbird/102.7.1
+Subject: Re: [PATCH] ata: ahci: Add Tiger Lake UP{3,4} AHCI controller
+Content-Language: en-US
+To:     Simon Gaiser <simon@invisiblethingslab.com>
+Cc:     linux-ide@vger.kernel.org, linux-kernel@vger.kernel.org,
+        stable@vger.kernel.org
+References: <20230213102450.1604-1-simon@invisiblethingslab.com>
+From:   Damien Le Moal <damien.lemoal@opensource.wdc.com>
+Organization: Western Digital Research
+In-Reply-To: <20230213102450.1604-1-simon@invisiblethingslab.com>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
+X-Spam-Status: No, score=-4.7 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,NICE_REPLY_A,RCVD_IN_DNSWL_MED,
+        SPF_HELO_PASS,SPF_PASS autolearn=unavailable autolearn_force=no
+        version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+On 2/13/23 19:24, Simon Gaiser wrote:
+> Mark the Tiger Lake UP{3,4} AHCI controller as "low_power". This enables
+> S0ix to work out of the box. Otherwise this isn't working unless the
+> user manually sets /sys/class/scsi_host/*/link_power_management_policy.
+> 
+> Intel lists a total of 4 SATA controller IDs in [1] for those mobile
+> PCHs. This commit just adds the "AHCI" variant since I only tested
+> those.
+> 
+> [1]: https://cdrdv2.intel.com/v1/dl/getContent/631119
+> 
+> Signed-off-by: Simon Gaiser <simon@invisiblethingslab.com>
+> CC: stable@vger.kernel.org
 
---YueW8T+Y9YHwfDOD
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Applied to for-6.2-fixes. Thanks !
 
-On Mon, Feb 13, 2023 at 03:48:41PM +0100, Greg Kroah-Hartman wrote:
-> This is the start of the stable review cycle for the 5.15.94 release.
-> There are 67 patches in this series, all will be posted as a response
-> to this one.  If anyone has any issues with these being applied, please
-> let me know.
->=20
+-- 
+Damien Le Moal
+Western Digital Research
 
-Successfully cross-compiled for arm64 (bcm2711_defconfig, GCC 10.2.0) and
-powerpc (ps3_defconfig, GCC 12.2.0).
-
-Tested-by: Bagas Sanjaya <bagasdotme@gmail.com>
-
---=20
-An old man doll... just what I always wanted! - Clara
-
---YueW8T+Y9YHwfDOD
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iHUEABYKAB0WIQSSYQ6Cy7oyFNCHrUH2uYlJVVFOowUCY+r6UwAKCRD2uYlJVVFO
-oyUeAQDQpI8CxBKqL+KdTOc/2eQWJ06RdkHSVJWDLUhOCP3W6gEAwZ74cmNdzzIF
-7a7RvQe4u5gYQgUebltx9XtTBSA2hAQ=
-=i7tR
------END PGP SIGNATURE-----
-
---YueW8T+Y9YHwfDOD--
