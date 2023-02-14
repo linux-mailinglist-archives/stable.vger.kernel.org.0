@@ -2,173 +2,209 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id F327569599B
-	for <lists+stable@lfdr.de>; Tue, 14 Feb 2023 08:06:09 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id CB431695991
+	for <lists+stable@lfdr.de>; Tue, 14 Feb 2023 08:04:53 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231778AbjBNHGI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 14 Feb 2023 02:06:08 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48024 "EHLO
+        id S231745AbjBNHEw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 14 Feb 2023 02:04:52 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47702 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231789AbjBNHF5 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 14 Feb 2023 02:05:57 -0500
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 429361E1C3
-        for <stable@vger.kernel.org>; Mon, 13 Feb 2023 23:05:04 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1676358303;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         in-reply-to:in-reply-to:references:references;
-        bh=K4q3ZOUtLgcz08YCMzP/3RHQNhlZSfQVVlPbPjliwbo=;
-        b=HlY+CFKOTx7wS9sOVXr4LNqI1cugqo3RPjMRss8xhTguSJFjmEiO8DAsUjR+BrS1zAsS++
-        +IRv189Xewe7B14cBbNs95GgjT6HetKEdCn4nXuzm0EbWg09gF6HR0jb9arCUY/O40jZne
-        YQVaaPvlIM1uQA3LSe0qq+IA6CfuwVM=
-Received: from mail-wm1-f69.google.com (mail-wm1-f69.google.com
- [209.85.128.69]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_128_GCM_SHA256) id
- us-mta-616-rRytmmj8M5K-jkaGWP5GQQ-1; Tue, 14 Feb 2023 02:05:01 -0500
-X-MC-Unique: rRytmmj8M5K-jkaGWP5GQQ-1
-Received: by mail-wm1-f69.google.com with SMTP id a20-20020a05600c349400b003dfecb98d38so10488793wmq.0
-        for <stable@vger.kernel.org>; Mon, 13 Feb 2023 23:05:01 -0800 (PST)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=cc:to:subject:message-id:date:from:in-reply-to:references
-         :mime-version:x-gm-message-state:from:to:cc:subject:date:message-id
-         :reply-to;
-        bh=K4q3ZOUtLgcz08YCMzP/3RHQNhlZSfQVVlPbPjliwbo=;
-        b=xiX+VPqpXRnXfhM2u10/EvHibKkGSuJ8/8U3RSAb2Re1jFFxiEF0+FLRfni2a0v4wW
-         MABtV2WkgM42Z7nKK7rluVyxgrvN5IqyLx7x5IqPwgTUqEfHNldAjw295vCyvkpaYwUt
-         7BC7FjPXylDejNll7c+V2moJu7cL0vujh0nuK80MYfRPs/JP9AaUkkArneklwvb24xTr
-         W6at+DVPzmRp6gwLU/X44z32lYUBsmw4rYlRDatMt6QUn9y8If9FmqOFATrn+V23Sxci
-         r3u9HDReQcGUBQvCvtm7W5mZ2jm2Izg7ivIQZEmIorbMrfG9H+eM7GgmnAdbT5O1bYBC
-         ACuQ==
-X-Gm-Message-State: AO0yUKVkl4V3PFcI2HB3tQXGyetY47ZqFQ2A6CscvWp6o3eD5YDgaMXr
-        zBz0vA4UPaByNIPjCXmehAU8ueC5qjofmFV8t0h/NSTe1uH98v1R1hKTW5rdhyNB0RuiI+Fv6LM
-        xOERQcusDtAGV83MXLEXLMQT4WjjhKUy6
-X-Received: by 2002:a5d:6687:0:b0:2c5:4c7d:b32e with SMTP id l7-20020a5d6687000000b002c54c7db32emr28271wru.111.1676358300811;
-        Mon, 13 Feb 2023 23:05:00 -0800 (PST)
-X-Google-Smtp-Source: AK7set9NwwUZJZcSgMe5GePtOrKP0+CEYzCYjvgzm6gRH8DV0a5JQH/LCJZ/vHtMrACTUdKsHqwFs3ysk8rsxU98qBo=
-X-Received: by 2002:a5d:6687:0:b0:2c5:4c7d:b32e with SMTP id
- l7-20020a5d6687000000b002c54c7db32emr28268wru.111.1676358300510; Mon, 13 Feb
- 2023 23:05:00 -0800 (PST)
+        with ESMTP id S231758AbjBNHEu (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 14 Feb 2023 02:04:50 -0500
+Received: from smtp-fw-80007.amazon.com (smtp-fw-80007.amazon.com [99.78.197.218])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 19C2915540;
+        Mon, 13 Feb 2023 23:04:49 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+  d=amazon.com; i=@amazon.com; q=dns/txt; s=amazon201209;
+  t=1676358289; x=1707894289;
+  h=from:to:cc:subject:date:message-id:in-reply-to:
+   references:mime-version:content-transfer-encoding;
+  bh=5wmH/X+5oMB6tbZAEPbXCiBvhr91wPP7JNYYz5K8YkU=;
+  b=OpcxD7lHiuupbIjxlMfd8Ixw/8kCigVXvtdTd2XUnfpuk8MWY7BrslZv
+   mWMDUnGA3z8l1iU8iAiLg36/Drfa/T58+AUgyH6Vrjk2HZG4Yt1AMmcrM
+   LKKDDFMlmRcExlIwarACKi5FtNn2cmCrKYstDL3IsY5f3mH+5cwUg335x
+   k=;
+X-IronPort-AV: E=Sophos;i="5.97,296,1669075200"; 
+   d="scan'208";a="181587568"
+Received: from pdx4-co-svc-p1-lb2-vlan3.amazon.com (HELO email-inbound-relay-pdx-2b-m6i4x-a893d89c.us-west-2.amazon.com) ([10.25.36.214])
+  by smtp-border-fw-80007.pdx80.corp.amazon.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 14 Feb 2023 07:04:49 +0000
+Received: from EX13MTAUWB001.ant.amazon.com (pdx1-ws-svc-p6-lb9-vlan2.pdx.amazon.com [10.236.137.194])
+        by email-inbound-relay-pdx-2b-m6i4x-a893d89c.us-west-2.amazon.com (Postfix) with ESMTPS id 58F3041410;
+        Tue, 14 Feb 2023 07:04:48 +0000 (UTC)
+Received: from EX19D010UWA004.ant.amazon.com (10.13.138.204) by
+ EX13MTAUWB001.ant.amazon.com (10.43.161.249) with Microsoft SMTP Server (TLS)
+ id 15.0.1497.45; Tue, 14 Feb 2023 07:04:47 +0000
+Received: from u9aa42af9e4c55a.ant.amazon.com (10.43.162.56) by
+ EX19D010UWA004.ant.amazon.com (10.13.138.204) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA384) id
+ 15.2.1118.24; Tue, 14 Feb 2023 07:04:47 +0000
+From:   Munehisa Kamata <kamatam@amazon.com>
+To:     <surenb@google.com>
+CC:     <ebiggers@kernel.org>, <hannes@cmpxchg.org>, <hdanton@sina.com>,
+        <kamatam@amazon.com>, <linux-kernel@vger.kernel.org>,
+        <linux-mm@kvack.org>, <mengcc@amazon.com>, <stable@vger.kernel.org>
+Subject: [PATCH v2] sched/psi: fix use-after-free in ep_remove_wait_queue()
+Date:   Mon, 13 Feb 2023 23:04:29 -0800
+Message-ID: <20230214070429.3613260-1-kamatam@amazon.com>
+X-Mailer: git-send-email 2.25.1
+In-Reply-To: <CAJuCfpHa+RhNk_-C=c=E8opF7mR2tnpd-KyhaXCQ8XnKvwVXoQ@mail.gmail.com>
+References: <CAJuCfpHa+RhNk_-C=c=E8opF7mR2tnpd-KyhaXCQ8XnKvwVXoQ@mail.gmail.com>
 MIME-Version: 1.0
-References: <20230214061743.114257-1-lulu@redhat.com> <CACGkMEtFbxRqJZiho+kxZqziTXLFm5ySfubdAKJf-+eE-wprvw@mail.gmail.com>
-In-Reply-To: <CACGkMEtFbxRqJZiho+kxZqziTXLFm5ySfubdAKJf-+eE-wprvw@mail.gmail.com>
-From:   Cindy Lu <lulu@redhat.com>
-Date:   Tue, 14 Feb 2023 15:04:21 +0800
-Message-ID: <CACLfguWLhO3r91CSfORN3ZStezdfEOBHxCRNp_qxcuyo7JyFYQ@mail.gmail.com>
-Subject: Re: [PATCH] vp_vdpa: fix the crash in hot unplug with vp_vdpa
-To:     Jason Wang <jasowang@redhat.com>
-Cc:     mst@redhat.com, kvm@vger.kernel.org, linux-kernel@vger.kernel.org,
-        virtualization@lists.linux-foundation.org, netdev@vger.kernel.org,
-        stable@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
-X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_NONE,
-        RCVD_IN_MSPIKE_H2,SPF_HELO_NONE,SPF_NONE autolearn=unavailable
-        autolearn_force=no version=3.4.6
+Content-Transfer-Encoding: 8bit
+Content-Type: text/plain
+X-Originating-IP: [10.43.162.56]
+X-ClientProxiedBy: EX13D36UWB001.ant.amazon.com (10.43.161.84) To
+ EX19D010UWA004.ant.amazon.com (10.13.138.204)
+X-Spam-Status: No, score=-11.9 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
+        RCVD_IN_MSPIKE_H2,SPF_HELO_NONE,SPF_PASS,USER_IN_DEF_SPF_WL
+        autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, 14 Feb 2023 at 14:24, Jason Wang <jasowang@redhat.com> wrote:
->
-> On Tue, Feb 14, 2023 at 2:17 PM Cindy Lu <lulu@redhat.com> wrote:
-> >
-> > While unplugging the vp_vdpa device, the kernel will crash
-> > The root cause is the function vp_modern_get_status() called following the
-> > vp_modern_remove().
->
-> This needs some tweaking, maybe it's better to say
-> vdpa_mgmtdev_unregister() will access modern devices which will cause
-> a use after free.
->
-> >So need to change the sequence in vp_vdpa_remove
-> >
-> > [  195.016001] Call Trace:
->
-> Let's paste the full log with the reason for the calltrace (e.g
-> general protection fault or whatever else).
->
-sure, will post a new version
-Thanks
-Cindy
-> > [  195.016233]  <TASK>
-> > [  195.016434]  vp_modern_get_status+0x12/0x20
-> > [  195.016823]  vp_vdpa_reset+0x1b/0x50 [vp_vdpa]
-> > [  195.017238]  virtio_vdpa_reset+0x3c/0x48 [virtio_vdpa]
-> > [  195.017709]  remove_vq_common+0x1f/0x3a0 [virtio_net]
-> > [  195.018178]  virtnet_remove+0x5d/0x70 [virtio_net]
-> > [  195.018618]  virtio_dev_remove+0x3d/0x90
-> > [  195.018986]  device_release_driver_internal+0x1aa/0x230
-> > [  195.019466]  bus_remove_device+0xd8/0x150
-> > [  195.019841]  device_del+0x18b/0x3f0
-> > [  195.020167]  ? kernfs_find_ns+0x35/0xd0
-> > [  195.020526]  device_unregister+0x13/0x60
-> > [  195.020894]  unregister_virtio_device+0x11/0x20
-> > [  195.021311]  device_release_driver_internal+0x1aa/0x230
-> > [  195.021790]  bus_remove_device+0xd8/0x150
-> > [  195.022162]  device_del+0x18b/0x3f0
-> > [  195.022487]  device_unregister+0x13/0x60
-> > [  195.022852]  ? vdpa_dev_remove+0x30/0x30 [vdpa]
-> > [  195.023270]  vp_vdpa_dev_del+0x12/0x20 [vp_vdpa]
-> > [  195.023694]  vdpa_match_remove+0x2b/0x40 [vdpa]
-> > [  195.024115]  bus_for_each_dev+0x78/0xc0
-> > [  195.024471]  vdpa_mgmtdev_unregister+0x65/0x80 [vdpa]
-> > [  195.024937]  vp_vdpa_remove+0x23/0x40 [vp_vdpa]
-> > [  195.025353]  pci_device_remove+0x36/0xa0
-> > [  195.025719]  device_release_driver_internal+0x1aa/0x230
-> > [  195.026201]  pci_stop_bus_device+0x6c/0x90
-> > [  195.026580]  pci_stop_and_remove_bus_device+0xe/0x20
-> > [  195.027039]  disable_slot+0x49/0x90
-> > [  195.027366]  acpiphp_disable_and_eject_slot+0x15/0x90
-> > [  195.027832]  hotplug_event+0xea/0x210
-> > [  195.028171]  ? hotplug_event+0x210/0x210
-> > [  195.028535]  acpiphp_hotplug_notify+0x22/0x80
-> > [  195.028942]  ? hotplug_event+0x210/0x210
-> > [  195.029303]  acpi_device_hotplug+0x8a/0x1d0
-> > [  195.029690]  acpi_hotplug_work_fn+0x1a/0x30
-> > [  195.030077]  process_one_work+0x1e8/0x3c0
-> > [  195.030451]  worker_thread+0x50/0x3b0
-> > [  195.030791]  ? rescuer_thread+0x3a0/0x3a0
-> > [  195.031165]  kthread+0xd9/0x100
-> > [  195.031459]  ? kthread_complete_and_exit+0x20/0x20
-> > [  195.031899]  ret_from_fork+0x22/0x30
-> > [  195.032233]  </TASK>
-> >
-> > Fixes: ffbda8e9df10 ("vdpa/vp_vdpa : add vdpa tool support in vp_vdpa")
-> > Tested-by: Lei Yang <leiyang@redhat.com>
-> > Cc: stable@vger.kernel.org
-> > Signed-off-by: Cindy Lu <lulu@redhat.com>
->
-> Other than above,
->
-> Acked-by: Jason Wang <jasowang@redhat.com>
->
-> Thanks
->
-> > ---
-> >  drivers/vdpa/virtio_pci/vp_vdpa.c | 2 +-
-> >  1 file changed, 1 insertion(+), 1 deletion(-)
-> >
-> > diff --git a/drivers/vdpa/virtio_pci/vp_vdpa.c b/drivers/vdpa/virtio_pci/vp_vdpa.c
-> > index 8fe267ca3e76..281287fae89f 100644
-> > --- a/drivers/vdpa/virtio_pci/vp_vdpa.c
-> > +++ b/drivers/vdpa/virtio_pci/vp_vdpa.c
-> > @@ -645,8 +645,8 @@ static void vp_vdpa_remove(struct pci_dev *pdev)
-> >         struct virtio_pci_modern_device *mdev = NULL;
-> >
-> >         mdev = vp_vdpa_mgtdev->mdev;
-> > -       vp_modern_remove(mdev);
-> >         vdpa_mgmtdev_unregister(&vp_vdpa_mgtdev->mgtdev);
-> > +       vp_modern_remove(mdev);
-> >         kfree(vp_vdpa_mgtdev->mgtdev.id_table);
-> >         kfree(mdev);
-> >         kfree(vp_vdpa_mgtdev);
-> > --
-> > 2.34.3
-> >
->
+If a non-root cgroup gets removed when there is a thread that registered
+trigger and is polling on a pressure file within the cgroup, the polling
+waitqueue gets freed without clearing the queue and reference in the
+following path.
+
+ do_rmdir
+   cgroup_rmdir
+     kernfs_drain_open_files
+       cgroup_file_release
+         cgroup_pressure_release
+           psi_trigger_destroy
+
+However, the polling thread can keep having the last reference to the
+pressure file that is tied to the freed waitqueue until explicit close or
+exit later.
+
+ fput
+   ep_eventpoll_release
+     ep_free
+       ep_remove_wait_queue
+         remove_wait_queue
+
+Then, the thread accesses to the already-freed waitqueue when dropping the
+reference and results in use-after-free as pasted below.
+
+The fundamental problem here is that the lifetime of the waitqueue is not
+tied to the file's real lifetime as shown above. Using wake_up_pollfree()
+here might be less than ideal, but it also is not fully contradicting the
+comment at commit 42288cb44c4b ("wait: add wake_up_pollfree()") since the
+waitqueue's lifetime is not tied to file's one and can be considered as
+another special case. While this would be fixable by somehow making
+cgroup_file_release() be tied to the fput(), it would require sizable
+refactoring at cgroups or higher layer which might be more justifiable if
+we identify more cases like this.
+
+ BUG: KASAN: use-after-free in _raw_spin_lock_irqsave+0x60/0xc0
+ Write of size 4 at addr ffff88810e625328 by task a.out/4404
+
+ CPU: 19 PID: 4404 Comm: a.out Not tainted 6.2.0-rc6 #38
+ Hardware name: Amazon EC2 c5a.8xlarge/, BIOS 1.0 10/16/2017
+ Call Trace:
+ <TASK>
+ dump_stack_lvl+0x73/0xa0
+ print_report+0x16c/0x4e0
+ ? _printk+0x59/0x80
+ ? __virt_addr_valid+0xb8/0x130
+ ? _raw_spin_lock_irqsave+0x60/0xc0
+ kasan_report+0xc3/0xf0
+ ? _raw_spin_lock_irqsave+0x60/0xc0
+ kasan_check_range+0x2d2/0x310
+ _raw_spin_lock_irqsave+0x60/0xc0
+ remove_wait_queue+0x1a/0xa0
+ ep_free+0x12c/0x170
+ ep_eventpoll_release+0x26/0x30
+ __fput+0x202/0x400
+ task_work_run+0x11d/0x170
+ do_exit+0x495/0x1130
+ ? update_cfs_rq_load_avg+0x2c2/0x2e0
+ do_group_exit+0x100/0x100
+ get_signal+0xd67/0xde0
+ ? finish_task_switch+0x15f/0x3a0
+ arch_do_signal_or_restart+0x2a/0x2b0
+ exit_to_user_mode_prepare+0x94/0x100
+ syscall_exit_to_user_mode+0x20/0x40
+ do_syscall_64+0x52/0x90
+ entry_SYSCALL_64_after_hwframe+0x63/0xcd
+ RIP: 0033:0x7f8e392bfb91
+ Code: Unable to access opcode bytes at 0x7f8e392bfb67.
+ RSP: 002b:00007fff261e08d8 EFLAGS: 00000246 ORIG_RAX: 0000000000000022
+ RAX: fffffffffffffdfe RBX: 0000000000000000 RCX: 00007f8e392bfb91
+ RDX: 0000000000000001 RSI: 00007fff261e08e8 RDI: 0000000000000004
+ RBP: 00007fff261e0920 R08: 0000000000400780 R09: 00007f8e3960f240
+ R10: 00000000000003df R11: 0000000000000246 R12: 00000000004005a0
+ R13: 00007fff261e0a00 R14: 0000000000000000 R15: 0000000000000000
+ </TASK>
+
+ Allocated by task 4404:
+ kasan_set_track+0x3d/0x60
+ __kasan_kmalloc+0x85/0x90
+ psi_trigger_create+0x113/0x3e0
+ pressure_write+0x146/0x2e0
+ cgroup_file_write+0x11c/0x250
+ kernfs_fop_write_iter+0x186/0x220
+ vfs_write+0x3d8/0x5c0
+ ksys_write+0x90/0x110
+ do_syscall_64+0x43/0x90
+ entry_SYSCALL_64_after_hwframe+0x63/0xcd
+
+ Freed by task 4407:
+ kasan_set_track+0x3d/0x60
+ kasan_save_free_info+0x27/0x40
+ ____kasan_slab_free+0x11d/0x170
+ slab_free_freelist_hook+0x87/0x150
+ __kmem_cache_free+0xcb/0x180
+ psi_trigger_destroy+0x2e8/0x310
+ cgroup_file_release+0x4f/0xb0
+ kernfs_drain_open_files+0x165/0x1f0
+ kernfs_drain+0x162/0x1a0
+ __kernfs_remove+0x1fb/0x310
+ kernfs_remove_by_name_ns+0x95/0xe0
+ cgroup_addrm_files+0x67f/0x700
+ cgroup_destroy_locked+0x283/0x3c0
+ cgroup_rmdir+0x29/0x100
+ kernfs_iop_rmdir+0xd1/0x140
+ vfs_rmdir+0xfe/0x240
+ do_rmdir+0x13d/0x280
+ __x64_sys_rmdir+0x2c/0x30
+ do_syscall_64+0x43/0x90
+ entry_SYSCALL_64_after_hwframe+0x63/0xcd
+
+v2: updated commit message
+
+Link: https://lore.kernel.org/lkml/20230106224859.4123476-1-kamatam@amazon.com/
+Fixes: 0e94682b73bf ("psi: introduce psi monitor")
+Cc: stable@vger.kernel.org
+Signed-off-by: Munehisa Kamata <kamatam@amazon.com>
+Signed-off-by: Mengchi Cheng <mengcc@amazon.com>
+---
+ kernel/sched/psi.c | 7 ++++---
+ 1 file changed, 4 insertions(+), 3 deletions(-)
+
+diff --git a/kernel/sched/psi.c b/kernel/sched/psi.c
+index 8ac8b81bfee6..6e66c15f6450 100644
+--- a/kernel/sched/psi.c
++++ b/kernel/sched/psi.c
+@@ -1343,10 +1343,11 @@ void psi_trigger_destroy(struct psi_trigger *t)
+ 
+ 	group = t->group;
+ 	/*
+-	 * Wakeup waiters to stop polling. Can happen if cgroup is deleted
+-	 * from under a polling process.
++	 * Wakeup waiters to stop polling and clear the queue to prevent it from
++	 * being accessed later. Can happen if cgroup is deleted from under a
++	 * polling process otherwise.
+ 	 */
+-	wake_up_interruptible(&t->event_wait);
++	wake_up_pollfree(&t->event_wait);
+ 
+ 	mutex_lock(&group->trigger_lock);
+ 
+-- 
+2.38.1
 
