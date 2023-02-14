@@ -2,53 +2,53 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id AD6B6696F7C
+	by mail.lfdr.de (Postfix) with ESMTP id 0EC96696F7A
 	for <lists+stable@lfdr.de>; Tue, 14 Feb 2023 22:27:10 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229581AbjBNV1J (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 14 Feb 2023 16:27:09 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50688 "EHLO
+        id S232838AbjBNV1I (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 14 Feb 2023 16:27:08 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50718 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232831AbjBNV1F (ORCPT
+        with ESMTP id S232833AbjBNV1F (ORCPT
         <rfc822;stable@vger.kernel.org>); Tue, 14 Feb 2023 16:27:05 -0500
-Received: from mail-pj1-x1030.google.com (mail-pj1-x1030.google.com [IPv6:2607:f8b0:4864:20::1030])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6E0C5303DD;
-        Tue, 14 Feb 2023 13:26:26 -0800 (PST)
-Received: by mail-pj1-x1030.google.com with SMTP id bg2so7043535pjb.4;
-        Tue, 14 Feb 2023 13:26:26 -0800 (PST)
+Received: from mail-pl1-x62b.google.com (mail-pl1-x62b.google.com [IPv6:2607:f8b0:4864:20::62b])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D4593303F8;
+        Tue, 14 Feb 2023 13:26:27 -0800 (PST)
+Received: by mail-pl1-x62b.google.com with SMTP id k13so18421793plg.0;
+        Tue, 14 Feb 2023 13:26:27 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20210112;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=AvsSfQdiGaa1AyDvXxOboWMtTwpMwQiRc7D7tG1w9Ro=;
-        b=iVcmPbW1yesxM8IwO+CU1yc4byy9FpRevMUSsDRzrYNQzGRJ/GLQTTQsYq1pStzEWQ
-         EJLn10vdbCD5IVkbAMYskORrDtDrVKvgUHQJSO+LfrnFQHaw+jQqFzZT8X4L+0DWcmrO
-         Z7DcQH+8RJA9c3GBNKST/vXwesqB/mjSHOZ/80ub79roq906ysnXxCPM64kWgbH2oq8O
-         DrNr4Hwe2wRZyKuOEaUlTUz42oXUH0nc/2eMb3aFOxlA6YuptVS9O2cheDneds5B7mMa
-         h2X21ckBiofoXXhNnOkYcjZCsmLzGEzegfPcs3phSu/EFYh+uhlzRR2GPkzEHBfwnrJw
-         ngoA==
+        bh=D4ycGkk3qcn7VrJ4nBZli7Tj+n2Cr5liEIeaqSLavKY=;
+        b=M7ufR78AaMh+GneDxEPh59VSWgdo18rjoEqopHpm9f2pZz/+tIKNCwDZReGQS74k4o
+         pzaLlgrdtrllt4RMtN026JrTAXm5goJQ9W+YuywaRAIbCwmPEgBpFBu52Jvgqjc9yitZ
+         ydTPERRSOkEhwWdX6RZuyK0t3eszt4ywwQg/wuSpV68D5uBkUAacd440LWen1KGDW5Ug
+         GA+fem/GgKOg02fmmhPDhUx8ukyWllFP5tj64OYLE/Y5T2i5H2hdFJl4zX/61JjhyMlO
+         AXLZeSI1bSSgKxujSmFTKS6cH6PZ9QYPPYu41gC5RwSEy333kXXqIReLZgfj8/pEvxxt
+         FF6w==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=AvsSfQdiGaa1AyDvXxOboWMtTwpMwQiRc7D7tG1w9Ro=;
-        b=3zzPdlDgDtuY+zVOPxPrgWN6UP10kxAJMhm/j3hbL0rJsZR/Yojpf8KZkfu7Qapl7G
-         7oACFo+1j+BHt227jeHWlVo6fwBDE++xR8t0hujWsAbGnKd894eanGZE3GtVWlapDrhr
-         pVMZJXZzDGmLOA3bvI4akwL3ho4POq7n4K8rXYwkxZf4DkW3Ib5IqB0r5RhsKxjaeecR
-         6WD77z6Cyg4W9vC6MHryYULSYYaZUtXNQObfFfeYPpnU0wjLqD2tGxXeDIVIR5Wq+MTp
-         QSD+q6kLqXP0l3hMC9oIOFyKf/I8GRpvWJoWAPAnDo630awLQkk8lqN2iiYtFaVUWQ0h
-         uLpQ==
-X-Gm-Message-State: AO0yUKWwvOLa9fA6zAIBfH9s9q0JlAG807HG9Nh/VlWadMWAjY3pwah9
-        cZ7I+BGvRt+KJUsH/VqlIyDucwxVZun7vQ==
-X-Google-Smtp-Source: AK7set+Fy1QlswK6VigLtt7GdUUadz2KELuXnhPdbVYsZc2dHkGMc5a4orWFPUlJRiMH0TCXgpOdng==
-X-Received: by 2002:a17:902:da90:b0:192:5ec4:6656 with SMTP id j16-20020a170902da9000b001925ec46656mr165064plx.3.1676409965810;
-        Tue, 14 Feb 2023 13:26:05 -0800 (PST)
+        bh=D4ycGkk3qcn7VrJ4nBZli7Tj+n2Cr5liEIeaqSLavKY=;
+        b=LBf+4zaCaJ5iG1wRBMBHB5hoRNAH8RLe0Ub1+bs+wB1y5Ksh3C90wPjz4Ei7VhVHn/
+         iZvJiyDToow0bYrrLVMCBvn2U8D1qpxmsOeaekiBl1DWdJCJGnuhqmCuZWnGIzM7hcaD
+         IFSuvwmuyoJzxj5xgRdlvNIEg2u5eJT4eqV+LZ92gJ/myvTmbZPSPHXJCp/m3Ynutr2e
+         3TNhf9x6dITd5XMyAitM5S4pISFTnGtn/VQpmv2icD8c/HlukKrhKtDtz0NGtSQDkPyI
+         7IRmXOhlQMZA4XUXu/LYNWBn+dkale173Uw9dsJmnXZ8iyFJqBPgCfjXIJgcY+yBvIaG
+         VU4w==
+X-Gm-Message-State: AO0yUKUWuujpevPUQZUz157iLP840qOZOjWjo0dhxYH5OUW2stHCcUXu
+        fGEKDYpXKEOtVioDhnoPO4LXx3S4ljTxzA==
+X-Google-Smtp-Source: AK7set8pIcYPBs8qchSHsSHcUMOngpGDsRkci5AGbFq+FJavVyLVXj6T9R9Cvm+zdw6FDbDlCAYwGA==
+X-Received: by 2002:a17:902:fad0:b0:199:201d:12f1 with SMTP id ld16-20020a170902fad000b00199201d12f1mr63756plb.47.1676409967146;
+        Tue, 14 Feb 2023 13:26:07 -0800 (PST)
 Received: from lrumancik.svl.corp.google.com ([2620:15c:2d4:203:cf14:3756:2b5e:fb87])
-        by smtp.gmail.com with ESMTPSA id d14-20020a170902654e00b00195f0fb0c18sm6692569pln.31.2023.02.14.13.26.04
+        by smtp.gmail.com with ESMTPSA id d14-20020a170902654e00b00195f0fb0c18sm6692569pln.31.2023.02.14.13.26.05
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 14 Feb 2023 13:26:05 -0800 (PST)
+        Tue, 14 Feb 2023 13:26:06 -0800 (PST)
 From:   Leah Rumancik <leah.rumancik@gmail.com>
 To:     stable@vger.kernel.org
 Cc:     linux-xfs@vger.kernel.org, amir73il@gmail.com,
@@ -57,9 +57,9 @@ Cc:     linux-xfs@vger.kernel.org, amir73il@gmail.com,
         Allison Henderson <allison.henderson@oracle.com>,
         Dave Chinner <david@fromorbit.com>,
         Leah Rumancik <leah.rumancik@gmail.com>
-Subject: [PATCH 5.15 01/10] xfs: zero inode fork buffer at allocation
-Date:   Tue, 14 Feb 2023 13:25:25 -0800
-Message-Id: <20230214212534.1420323-2-leah.rumancik@gmail.com>
+Subject: [PATCH 5.15 02/10] xfs: fix potential log item leak
+Date:   Tue, 14 Feb 2023 13:25:26 -0800
+Message-Id: <20230214212534.1420323-3-leah.rumancik@gmail.com>
 X-Mailer: git-send-email 2.39.1.581.gbfd45094c4-goog
 In-Reply-To: <20230214212534.1420323-1-leah.rumancik@gmail.com>
 References: <20230214212534.1420323-1-leah.rumancik@gmail.com>
@@ -77,13 +77,28 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Dave Chinner <dchinner@redhat.com>
 
-[ Upstream commit cb512c921639613ce03f87e62c5e93ed9fe8c84d ]
+[ Upstream commit c230a4a85bcdbfc1a7415deec6caf04e8fca1301 ]
 
-When we first allocate or resize an inline inode fork, we round up
-the allocation to 4 byte alingment to make journal alignment
-constraints. We don't clear the unused bytes, so we can copy up to
-three uninitialised bytes into the journal. Zero those bytes so we
-only ever copy zeros into the journal.
+Ever since we added shadown format buffers to the log items, log
+items need to handle the item being released with shadow buffers
+attached. Due to the fact this requirement was added at the same
+time we added new rmap/reflink intents, we missed the cleanup of
+those items.
+
+In theory, this means shadow buffers can be leaked in a very small
+window when a shutdown is initiated. Testing with KASAN shows this
+leak does not happen in practice - we haven't identified a single
+leak in several years of shutdown testing since ~v4.8 kernels.
+
+However, the intent whiteout cleanup mechanism results in every
+cancelled intent in exactly the same state as this tiny race window
+creates and so if intents down clean up shadow buffers on final
+release we will leak the shadow buffer for just about every intent
+we create.
+
+Hence we start with this patch to close this condition off and
+ensure that when whiteouts start to be used we don't leak lots of
+memory.
 
 Signed-off-by: Dave Chinner <dchinner@redhat.com>
 Reviewed-by: Darrick J. Wong <djwong@kernel.org>
@@ -92,40 +107,82 @@ Signed-off-by: Dave Chinner <david@fromorbit.com>
 Signed-off-by: Leah Rumancik <leah.rumancik@gmail.com>
 Acked-by: Darrick J. Wong <djwong@kernel.org>
 ---
- fs/xfs/libxfs/xfs_inode_fork.c | 12 +++++++++---
- 1 file changed, 9 insertions(+), 3 deletions(-)
+ fs/xfs/xfs_bmap_item.c     | 2 ++
+ fs/xfs/xfs_icreate_item.c  | 1 +
+ fs/xfs/xfs_refcount_item.c | 2 ++
+ fs/xfs/xfs_rmap_item.c     | 2 ++
+ 4 files changed, 7 insertions(+)
 
-diff --git a/fs/xfs/libxfs/xfs_inode_fork.c b/fs/xfs/libxfs/xfs_inode_fork.c
-index 1d174909f9bd..20095233d7bc 100644
---- a/fs/xfs/libxfs/xfs_inode_fork.c
-+++ b/fs/xfs/libxfs/xfs_inode_fork.c
-@@ -50,8 +50,13 @@ xfs_init_local_fork(
- 		mem_size++;
+diff --git a/fs/xfs/xfs_bmap_item.c b/fs/xfs/xfs_bmap_item.c
+index 03159970133f..51ffdec5e4fa 100644
+--- a/fs/xfs/xfs_bmap_item.c
++++ b/fs/xfs/xfs_bmap_item.c
+@@ -39,6 +39,7 @@ STATIC void
+ xfs_bui_item_free(
+ 	struct xfs_bui_log_item	*buip)
+ {
++	kmem_free(buip->bui_item.li_lv_shadow);
+ 	kmem_cache_free(xfs_bui_zone, buip);
+ }
  
- 	if (size) {
-+		/*
-+		 * As we round up the allocation here, we need to ensure the
-+		 * bytes we don't copy data into are zeroed because the log
-+		 * vectors still copy them into the journal.
-+		 */
- 		real_size = roundup(mem_size, 4);
--		ifp->if_u1.if_data = kmem_alloc(real_size, KM_NOFS);
-+		ifp->if_u1.if_data = kmem_zalloc(real_size, KM_NOFS);
- 		memcpy(ifp->if_u1.if_data, data, size);
- 		if (zero_terminate)
- 			ifp->if_u1.if_data[size] = '\0';
-@@ -500,10 +505,11 @@ xfs_idata_realloc(
- 	/*
- 	 * For inline data, the underlying buffer must be a multiple of 4 bytes
- 	 * in size so that it can be logged and stay on word boundaries.
--	 * We enforce that here.
-+	 * We enforce that here, and use __GFP_ZERO to ensure that size
-+	 * extensions always zero the unused roundup area.
- 	 */
- 	ifp->if_u1.if_data = krealloc(ifp->if_u1.if_data, roundup(new_size, 4),
--				      GFP_NOFS | __GFP_NOFAIL);
-+				      GFP_NOFS | __GFP_NOFAIL | __GFP_ZERO);
- 	ifp->if_bytes = new_size;
+@@ -198,6 +199,7 @@ xfs_bud_item_release(
+ 	struct xfs_bud_log_item	*budp = BUD_ITEM(lip);
+ 
+ 	xfs_bui_release(budp->bud_buip);
++	kmem_free(budp->bud_item.li_lv_shadow);
+ 	kmem_cache_free(xfs_bud_zone, budp);
+ }
+ 
+diff --git a/fs/xfs/xfs_icreate_item.c b/fs/xfs/xfs_icreate_item.c
+index 017904a34c02..c265ae20946d 100644
+--- a/fs/xfs/xfs_icreate_item.c
++++ b/fs/xfs/xfs_icreate_item.c
+@@ -63,6 +63,7 @@ STATIC void
+ xfs_icreate_item_release(
+ 	struct xfs_log_item	*lip)
+ {
++	kmem_free(ICR_ITEM(lip)->ic_item.li_lv_shadow);
+ 	kmem_cache_free(xfs_icreate_zone, ICR_ITEM(lip));
+ }
+ 
+diff --git a/fs/xfs/xfs_refcount_item.c b/fs/xfs/xfs_refcount_item.c
+index 46904b793bd4..8ef842d17916 100644
+--- a/fs/xfs/xfs_refcount_item.c
++++ b/fs/xfs/xfs_refcount_item.c
+@@ -35,6 +35,7 @@ STATIC void
+ xfs_cui_item_free(
+ 	struct xfs_cui_log_item	*cuip)
+ {
++	kmem_free(cuip->cui_item.li_lv_shadow);
+ 	if (cuip->cui_format.cui_nextents > XFS_CUI_MAX_FAST_EXTENTS)
+ 		kmem_free(cuip);
+ 	else
+@@ -204,6 +205,7 @@ xfs_cud_item_release(
+ 	struct xfs_cud_log_item	*cudp = CUD_ITEM(lip);
+ 
+ 	xfs_cui_release(cudp->cud_cuip);
++	kmem_free(cudp->cud_item.li_lv_shadow);
+ 	kmem_cache_free(xfs_cud_zone, cudp);
+ }
+ 
+diff --git a/fs/xfs/xfs_rmap_item.c b/fs/xfs/xfs_rmap_item.c
+index 5f0695980467..15e7b01740a7 100644
+--- a/fs/xfs/xfs_rmap_item.c
++++ b/fs/xfs/xfs_rmap_item.c
+@@ -35,6 +35,7 @@ STATIC void
+ xfs_rui_item_free(
+ 	struct xfs_rui_log_item	*ruip)
+ {
++	kmem_free(ruip->rui_item.li_lv_shadow);
+ 	if (ruip->rui_format.rui_nextents > XFS_RUI_MAX_FAST_EXTENTS)
+ 		kmem_free(ruip);
+ 	else
+@@ -227,6 +228,7 @@ xfs_rud_item_release(
+ 	struct xfs_rud_log_item	*rudp = RUD_ITEM(lip);
+ 
+ 	xfs_rui_release(rudp->rud_ruip);
++	kmem_free(rudp->rud_item.li_lv_shadow);
+ 	kmem_cache_free(xfs_rud_zone, rudp);
  }
  
 -- 
