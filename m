@@ -2,203 +2,119 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A6EC0696749
-	for <lists+stable@lfdr.de>; Tue, 14 Feb 2023 15:47:21 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D6967696766
+	for <lists+stable@lfdr.de>; Tue, 14 Feb 2023 15:53:23 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233273AbjBNOrT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 14 Feb 2023 09:47:19 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43304 "EHLO
+        id S232613AbjBNOxW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 14 Feb 2023 09:53:22 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49866 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233481AbjBNOrQ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 14 Feb 2023 09:47:16 -0500
-Received: from smtp-out1.suse.de (smtp-out1.suse.de [IPv6:2001:67c:2178:6::1c])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3B2D2252B7;
-        Tue, 14 Feb 2023 06:47:02 -0800 (PST)
-Received: from relay2.suse.de (relay2.suse.de [149.44.160.134])
-        by smtp-out1.suse.de (Postfix) with ESMTP id D9AFF22307;
-        Tue, 14 Feb 2023 14:47:00 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.com; s=susede1;
-        t=1676386020; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-         mime-version:mime-version:content-type:content-type:
-         in-reply-to:in-reply-to:references:references;
-        bh=EK9CiP6A9TI1KmO+gBKuo7Y6VjfBhIiJDZ2Z+Ukkaws=;
-        b=NrIWWvTt0AsCqPqzqyXPhbWtDHVu3yg7/B7gRjZo4/ZIqJcTmIk0ZmY7igSVXpVblGLw2K
-        Krs05g+nLykoGD41GvOwYwaBr/Xm34illEaLt7DrkQNk2v2Mp6TA9HgcWB4EKsSShXuTph
-        bwHDb1ySHIcOn6zUtOGTTTC2nEybqdE=
-Received: from suse.cz (pmladek.udp.ovpn2.prg.suse.de [10.100.201.202])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by relay2.suse.de (Postfix) with ESMTPS id 36FFF2C141;
-        Tue, 14 Feb 2023 14:47:00 +0000 (UTC)
-Date:   Tue, 14 Feb 2023 15:46:56 +0100
-From:   Petr Mladek <pmladek@suse.com>
-To:     "Guilherme G. Piccoli" <gpiccoli@igalia.com>
-Cc:     akpm@linux-foundation.org, bhe@redhat.com,
-        linux-kernel@vger.kernel.org, kexec@lists.infradead.org,
-        dyoung@redhat.com, d.hatayama@jp.fujitsu.com, feng.tang@intel.com,
-        hidehiro.kawai.ez@hitachi.com, keescook@chromium.org,
-        mikelley@microsoft.com, vgoyal@redhat.com, kernel-dev@igalia.com,
-        kernel@gpiccoli.net, stable@vger.kernel.org
-Subject: Re: [PATCH v4] panic: Fixes the panic_print NMI backtrace setting
-Message-ID: <Y+ue4OsyrGSx5ujB@alley>
-References: <20230210203510.1734835-1-gpiccoli@igalia.com>
+        with ESMTP id S232437AbjBNOxW (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 14 Feb 2023 09:53:22 -0500
+Received: from pandora.armlinux.org.uk (pandora.armlinux.org.uk [IPv6:2001:4d48:ad52:32c8:5054:ff:fe00:142])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6C36135A7;
+        Tue, 14 Feb 2023 06:53:20 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
+        d=armlinux.org.uk; s=pandora-2019; h=Sender:In-Reply-To:Content-Type:
+        MIME-Version:References:Message-ID:Subject:Cc:To:From:Date:Reply-To:
+        Content-Transfer-Encoding:Content-ID:Content-Description:Resent-Date:
+        Resent-From:Resent-Sender:Resent-To:Resent-Cc:Resent-Message-ID:List-Id:
+        List-Help:List-Unsubscribe:List-Subscribe:List-Post:List-Owner:List-Archive;
+        bh=8nirUzhxnwPz0ltUeGC4XuwloH3sTsVtJi6Zvkm0JSo=; b=OoWMEM0HhgAxM/PYrsAKNwPjz0
+        srnxi167O6k+YJzLwYlkM0oqjPgyua1qqOuOMnSbRLAOCfBnfnusy5fT5Yaf0Tencoo7VULvFNzpV
+        lKxb48JukR2TJ9H4EjjkRQzOr91TwM5XkFMnkGhSAMUi1ZTBzOc6N098CSCidjFhb97rnMIImRYL8
+        MRGu06MHT+rRWGOz93DzkeLOS3i+vxBZEEPxDVRqfClm/n1u99sWF/f09JkSMAFg2ftLxSa+sRwwB
+        o/bqYWG7Ka+dBD6+it1c622mryIK5RN3gN2MiK7ib6ey3ArNL4hY7W4nzi+2wZuR91a8HrKVK8ci8
+        q6cT5t8w==;
+Received: from shell.armlinux.org.uk ([fd8f:7570:feb6:1:5054:ff:fe00:4ec]:55690)
+        by pandora.armlinux.org.uk with esmtpsa  (TLS1.3) tls TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384
+        (Exim 4.94.2)
+        (envelope-from <linux@armlinux.org.uk>)
+        id 1pRwgG-0005c3-DE; Tue, 14 Feb 2023 14:53:16 +0000
+Received: from linux by shell.armlinux.org.uk with local (Exim 4.94.2)
+        (envelope-from <linux@shell.armlinux.org.uk>)
+        id 1pRwgD-000401-Ge; Tue, 14 Feb 2023 14:53:13 +0000
+Date:   Tue, 14 Feb 2023 14:53:13 +0000
+From:   "Russell King (Oracle)" <linux@armlinux.org.uk>
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc:     Florian Fainelli <f.fainelli@gmail.com>, stable@vger.kernel.org,
+        Srinivas Kandagatla <srinivas.kandagatla@linaro.org>,
+        patches@lists.linux.dev, linux-kernel@vger.kernel.org,
+        torvalds@linux-foundation.org, akpm@linux-foundation.org,
+        linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
+        lkft-triage@lists.linaro.org, pavel@denx.de, jonathanh@nvidia.com,
+        sudipm.mukherjee@gmail.com, srw@sladewatkins.net, rwarsow@gmx.de
+Subject: Re: [PATCH 5.10 000/139] 5.10.168-rc1 review
+Message-ID: <Y+ugWb4vsEyvd9W0@shell.armlinux.org.uk>
+References: <20230213144745.696901179@linuxfoundation.org>
+ <cc3f4cfb-adbc-c3b7-1c21-bb28e98499d8@gmail.com>
+ <Y+soPsujgwChdgr7@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20230210203510.1734835-1-gpiccoli@igalia.com>
-X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,SPF_HELO_NONE,
-        SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
+In-Reply-To: <Y+soPsujgwChdgr7@kroah.com>
+Sender: Russell King (Oracle) <linux@armlinux.org.uk>
+X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,SPF_HELO_NONE,SPF_NONE
+        autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Fri 2023-02-10 17:35:10, Guilherme G. Piccoli wrote:
-> Commit 8d470a45d1a6 ("panic: add option to dump all CPUs backtraces in panic_print")
-> introduced a setting for the "panic_print" kernel parameter to allow
-> users to request a NMI backtrace on panic. Problem is that the panic_print
-> handling happens after the secondary CPUs are already disabled, hence
-> this option ended-up being kind of a no-op - kernel skips the NMI trace
-> in idling CPUs, which is the case of offline CPUs.
-
-Great catch!
-
-> Hi folks, thanks in advance for reviews/comments.
+On Tue, Feb 14, 2023 at 07:20:46AM +0100, Greg Kroah-Hartman wrote:
+> On Mon, Feb 13, 2023 at 11:50:24AM -0800, Florian Fainelli wrote:
+> > On 2/13/23 06:49, Greg Kroah-Hartman wrote:
+> > > This is the start of the stable review cycle for the 5.10.168 release.
+> > > There are 139 patches in this series, all will be posted as a response
+> > > to this one.  If anyone has any issues with these being applied, please
+> > > let me know.
+> > > 
+> > > Responses should be made by Wed, 15 Feb 2023 14:46:51 +0000.
+> > > Anything received after that time might be too late.
+> > > 
+> > > The whole patch series can be found in one patch at:
+> > > 	https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.10.168-rc1.gz
+> > > or in the git tree and branch at:
+> > > 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.10.y
+> > > and the diffstat can be found below.
+> > > 
+> > > thanks,
+> > > 
+> > > greg k-h
+> > 
+> > There is a regression coming from:
+> > 
+> > nvmem: core: fix registration vs use race
+> > 
+> > which causes the following to happen for MTD devices:
+> > 
+> > [    6.031640] kobject_add_internal failed for mtd0 with -EEXIST, don't try
+> > to register things with the same name in the same directory.
+> > [    7.846965] spi-nor: probe of spi0.0 failed with error -17
+> > 
+> > attached is a full log with the call trace. This does not happen with
+> > v6.2-rc8 where the MTD partitions are successfully registered.
 > 
-> Notice that while at it, I got rid of the "crash_kexec_post_notifiers"
-> local copy in panic(). This was introduced by commit b26e27ddfd2a
-> ("kexec: use core_param for crash_kexec_post_notifiers boot option"),
-> but it is not clear from comments or commit message why this local copy
-> is required.
-> 
-> My understanding is that it's a mechanism to prevent some concurrency,
-> in case some other CPU modify this variable while panic() is running.
-> I find it very unlikely, hence I removed it - but if people consider
-> this copy needed, I can respin this patch and keep it, even providing a
-> comment about that, in order to be explict about its need.
+> Can you use `git bisect` to find the offending commit?
 
-Yes, I think that it makes the behavior consistent even when the
-global variable manipulated in parallel.
+The reason for this is because, due to how my patch series was
+backported, you have ended up with nvmem_register() initialising
+its embedded device, and then calling device_add() on it _twice_.
 
-I would personally prefer to keep the local copy. Better safe
-than sorry.
+Basically, the backport of:
 
-> Let me know your thoughts!
-> Cheers,
-> 
-> Guilherme
-> 
-> 
->  kernel/panic.c | 47 +++++++++++++++++++++++++++--------------------
->  1 file changed, 27 insertions(+), 20 deletions(-)
-> 
-> diff --git a/kernel/panic.c b/kernel/panic.c
-> index 463c9295bc28..f45ee88be8a2 100644
-> --- a/kernel/panic.c
-> +++ b/kernel/panic.c
-> @@ -211,9 +211,6 @@ static void panic_print_sys_info(bool console_flush)
->  		return;
->  	}
->  
-> -	if (panic_print & PANIC_PRINT_ALL_CPU_BT)
-> -		trigger_all_cpu_backtrace();
-> -
+	"nvmem: core: fix registration vs use race"
 
-Sigh, this is yet another PANIC_PRINT_ action that need special
-timing. We should handle both the same way.
+is broken, because the original patch _moved_ the device_add() and
+that has not been carried forward to whatever got applied to stable
+trees.
 
-What about the following? The parameter @mask says what
-actions are allowed at the given time.
+It looks like the 5.15-stable version of this patch was correct.
 
---- a/kernel/panic.c
-+++ b/kernel/panic.c
-@@ -72,6 +72,9 @@ EXPORT_SYMBOL_GPL(panic_timeout);
- #define PANIC_PRINT_FTRACE_INFO		0x00000010
- #define PANIC_PRINT_ALL_PRINTK_MSG	0x00000020
- #define PANIC_PRINT_ALL_CPU_BT		0x00000040
-+/* Filter out actions that need special timing. */
-+#define PANIC_PRINT_COMMON_INFO_MASK	~(PANIC_PRINT_ALL_PRINTK_MSG |	 \
-+					  PANIC_PRINT_ALL_CPU_BT)
- unsigned long panic_print;
- 
- ATOMIC_NOTIFIER_HEAD(panic_notifier_list);
-@@ -203,30 +206,29 @@ void nmi_panic(struct pt_regs *regs, const char *msg)
- }
- EXPORT_SYMBOL(nmi_panic);
- 
--static void panic_print_sys_info(bool console_flush)
-+static void panic_print_sys_info(unsigned long mask)
- {
--	if (console_flush) {
--		if (panic_print & PANIC_PRINT_ALL_PRINTK_MSG)
--			console_flush_on_panic(CONSOLE_REPLAY_ALL);
--		return;
--	}
-+	unsigned long panic_print_now = panic_print & mask;
-+
-+	if (panic_print_now & PANIC_PRINT_ALL_PRINTK_MSG)
-+		console_flush_on_panic(CONSOLE_REPLAY_ALL);
- 
--	if (panic_print & PANIC_PRINT_ALL_CPU_BT)
-+	if (panic_print_now & PANIC_PRINT_ALL_CPU_BT)
- 		trigger_all_cpu_backtrace();
- 
--	if (panic_print & PANIC_PRINT_TASK_INFO)
-+	if (panic_print_now & PANIC_PRINT_TASK_INFO)
- 		show_state();
- 
--	if (panic_print & PANIC_PRINT_MEM_INFO)
-+	if (panic_print_now & PANIC_PRINT_MEM_INFO)
- 		show_mem(0, NULL);
- 
--	if (panic_print & PANIC_PRINT_TIMER_INFO)
-+	if (panic_print_now & PANIC_PRINT_TIMER_INFO)
- 		sysrq_timer_list_show();
- 
--	if (panic_print & PANIC_PRINT_LOCK_INFO)
-+	if (panic_print_now & PANIC_PRINT_LOCK_INFO)
- 		debug_show_all_locks();
- 
--	if (panic_print & PANIC_PRINT_FTRACE_INFO)
-+	if (panic_print_now & PANIC_PRINT_FTRACE_INFO)
- 		ftrace_dump(DUMP_ALL);
- }
- 
-@@ -333,9 +335,12 @@ void panic(const char *fmt, ...)
- 	 *
- 	 * Bypass the panic_cpu check and call __crash_kexec directly.
- 	 */
--	if (!_crash_kexec_post_notifiers) {
-+	if (!_crash_kexec_post_notifiers)
- 		__crash_kexec(NULL);
- 
-+	panic_print_sys_info(PANIC_PRINT_ALL_CPU_BT);
-+
-+	if (!_crash_kexec_post_notifiers) {
- 		/*
- 		 * Note smp_send_stop is the usual smp shutdown function, which
- 		 * unfortunately means it may not be hardened to work in a
-@@ -357,7 +362,7 @@ void panic(const char *fmt, ...)
- 	 */
- 	atomic_notifier_call_chain(&panic_notifier_list, 0, buf);
- 
--	panic_print_sys_info(false);
-+	panic_print_sys_info(PANIC_PRINT_COMMON_INFO_MASK);
- 
- 	kmsg_dump(KMSG_DUMP_PANIC);
- 
-@@ -386,7 +391,7 @@ void panic(const char *fmt, ...)
- 	debug_locks_off();
- 	console_flush_on_panic(CONSOLE_FLUSH_PENDING);
- 
--	panic_print_sys_info(true);
-+	panic_print_sys_info(PANIC_PRINT_ALL_PRINTK_MSG);
- 
- 	if (!panic_blink)
- 		panic_blink = no_blink;
+Maybe whoever tried to fixup the failure needs to try again?
 
-
-Best Regards,
-Petr
+-- 
+RMK's Patch system: https://www.armlinux.org.uk/developer/patches/
+FTTP is here! 40Mbps down 10Mbps up. Decent connectivity at last!
