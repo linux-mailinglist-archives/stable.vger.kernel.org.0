@@ -2,122 +2,111 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 21350696C4F
-	for <lists+stable@lfdr.de>; Tue, 14 Feb 2023 19:06:05 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 28902696C59
+	for <lists+stable@lfdr.de>; Tue, 14 Feb 2023 19:07:10 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231818AbjBNSGC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 14 Feb 2023 13:06:02 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36214 "EHLO
+        id S233257AbjBNSHH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 14 Feb 2023 13:07:07 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37572 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229508AbjBNSGB (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 14 Feb 2023 13:06:01 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4588CA8;
-        Tue, 14 Feb 2023 10:06:00 -0800 (PST)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id CA095B81EAA;
-        Tue, 14 Feb 2023 18:05:58 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1B98EC433D2;
-        Tue, 14 Feb 2023 18:05:57 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1676397957;
-        bh=ajGubc1kY8DFkYzYD33Z4hJeWOf1B5NLSFL083RoSWA=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=ABTWzuzPj76+c4v5DNoWfG8JTh2aT21Vvq04CHrXk1SyL+toT5gHqjCvYVcj64qq8
-         yxuBIJSw8JLKEogTOrGgnTMsQCtHQlAFFcCoArw/hUynkYybfOlMrx6Zy1lXHJ5wYH
-         i6+jrjWA298l/L2iyVCuUwrn4zEZFissqnFoZi8M=
-Date:   Tue, 14 Feb 2023 19:05:55 +0100
-From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     Guenter Roeck <linux@roeck-us.net>
-Cc:     stable@vger.kernel.org, patches@lists.linux.dev,
-        linux-kernel@vger.kernel.org, torvalds@linux-foundation.org,
-        akpm@linux-foundation.org, shuah@kernel.org, patches@kernelci.org,
-        lkft-triage@lists.linaro.org, pavel@denx.de, jonathanh@nvidia.com,
-        f.fainelli@gmail.com, sudipm.mukherjee@gmail.com,
-        srw@sladewatkins.net, rwarsow@gmx.de
-Subject: Re: [PATCH 5.10 000/139] 5.10.168-rc1 review
-Message-ID: <Y+vNg6Dy3zUJ7pjp@kroah.com>
-References: <20230213144745.696901179@linuxfoundation.org>
- <05984672-d897-6050-3e8b-3e7984c81bd9@roeck-us.net>
- <1cd10087-87fe-048e-c9ed-0a5d32c50764@roeck-us.net>
+        with ESMTP id S233274AbjBNSHF (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 14 Feb 2023 13:07:05 -0500
+Received: from out4-smtp.messagingengine.com (out4-smtp.messagingengine.com [66.111.4.28])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DF1822ED7A;
+        Tue, 14 Feb 2023 10:07:02 -0800 (PST)
+Received: from compute5.internal (compute5.nyi.internal [10.202.2.45])
+        by mailout.nyi.internal (Postfix) with ESMTP id 79EA05C0154;
+        Tue, 14 Feb 2023 13:07:00 -0500 (EST)
+Received: from mailfrontend2 ([10.202.2.163])
+  by compute5.internal (MEProxy); Tue, 14 Feb 2023 13:07:00 -0500
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kroah.com; h=cc
+        :cc:content-type:date:date:from:from:in-reply-to:in-reply-to
+        :message-id:mime-version:references:reply-to:sender:subject
+        :subject:to:to; s=fm1; t=1676398020; x=1676484420; bh=2vEumOitJz
+        p7mZeo1LyjVeDNF3glQyrVaaSOFva2+jo=; b=bFVpBUrR4iEbsG5houHxYRNTCu
+        jmCOo7eZjnUgh8m0vrHwfxjK33uxIeie8FWg8pWmd8iMhrtU3czvG6rVxCJrQA3N
+        +LZC9PeqjlGbTC0uF0yyD+jdxOWpC5gZKL10JJ5GzTAxT6xd3uo9qFem89/vK5aR
+        hcf+v8BtfInn+DMtlHbTwfPilPF0/pkpLX7/2+HOyV9mM3rbfZct95jx2f+hPHWo
+        SYe+mcDa3fm8MYLeDkpXtZx91iK6bdgV7PpCGJkLPJwTmWJ+bh10IxPZsBm8Uhob
+        f/j6rDm3W59kkFXu2GckxPNnA3mzWNRHAKoAB+1mQ92KTW5+SA2e5D124/AQ==
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
+        messagingengine.com; h=cc:cc:content-type:date:date:feedback-id
+        :feedback-id:from:from:in-reply-to:in-reply-to:message-id
+        :mime-version:references:reply-to:sender:subject:subject:to:to
+        :x-me-proxy:x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=
+        fm1; t=1676398020; x=1676484420; bh=2vEumOitJzp7mZeo1LyjVeDNF3gl
+        QyrVaaSOFva2+jo=; b=iac1zJ7mZan6Y03ZbbcPHZh0C15vYgllxFOYxRFGKPvN
+        6lLcAl1uOxsJLBjcM4AcqGkG0m/0ERFve11tyS8tbUMXQZazUt9SYPZaUFlaUDZ9
+        1y1PMUtQ7sjNpI9n/RBEyT0yLM24w00aRwmsSqQC2UWtAKQB0m/neuD3ZAxBoyI3
+        v4kwQiF8f/Yf2JtAJtzH2nBtG+anV2OAGjGEI4ayhWghhcDCBNWXZ+kPVTzEInO5
+        dk8xJQB6NYlAkxqXPzIc41RM5nDHfzVBnuw7tLBc0gw+/UwCBYgGKt4Lv5FY1bHI
+        RKtWxjvIWk8mcflPpVesDmL6SmgKsY9z9t1ndWKI8g==
+X-ME-Sender: <xms:xM3rY4tQhTZs5gbxt56m7DBJb-zJi35Uev-MtpoktAsh6vLTGumkkA>
+    <xme:xM3rY1dJOg85g7VjSgPQqTSd_coZCcMwasHSp24fe8Q2yulZ-vldG2mW7hvkXX184
+    t6fAOaMGKoVTw>
+X-ME-Received: <xmr:xM3rYzy8Sd_lO1mlEfJ07L0vYpG80MQSFWcUD_ECVu0b9cS_xrLV-kCL1Za1Hl-YY3qkNFbNuf4uMPQ0KhDi56XovHL8UrSYSgTdfA>
+X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedvhedrudeifedguddttdcutefuodetggdotefrod
+    ftvfcurfhrohhfihhlvgemucfhrghsthforghilhdpqfgfvfdpuffrtefokffrpgfnqfgh
+    necuuegrihhlohhuthemuceftddtnecusecvtfgvtghiphhivghnthhsucdlqddutddtmd
+    enucfjughrpeffhffvvefukfhfgggtuggjsehttdertddttddvnecuhfhrohhmpefirhgv
+    ghcumffjuceoghhrvghgsehkrhhorghhrdgtohhmqeenucggtffrrghtthgvrhhnpeehge
+    dvvedvleejuefgtdduudfhkeeltdeihfevjeekjeeuhfdtueefhffgheekteenucevlhhu
+    shhtvghrufhiiigvpedtnecurfgrrhgrmhepmhgrihhlfhhrohhmpehgrhgvgheskhhroh
+    grhhdrtghomh
+X-ME-Proxy: <xmx:xM3rY7N5tiVbS4pdhfOTudq-jnlRa5UiCWh5YzeSaham3bpxDLhDiQ>
+    <xmx:xM3rY49nUKeu5uT6_tBpUUccHZ8Lm_2UHKvf2lDPDjdKv7E--VHDsg>
+    <xmx:xM3rYzUuAXV-7nZA62dnGpNWZ5uk4qEpNAy_apzSQZNm2fqP3wOVtg>
+    <xmx:xM3rY8QrEEjqEC9r_4_3puj3emhNA-zgfx0YROy7hgmgR-wW5sAI7w>
+Feedback-ID: i787e41f1:Fastmail
+Received: by mail.messagingengine.com (Postfix) with ESMTPA; Tue,
+ 14 Feb 2023 13:06:59 -0500 (EST)
+Date:   Tue, 14 Feb 2023 19:06:51 +0100
+From:   Greg KH <greg@kroah.com>
+To:     Paolo Bonzini <pbonzini@redhat.com>
+Cc:     linux-kernel@vger.kernel.org, kvm@vger.kernel.org,
+        stable@vger.kernel.org, thomas.lendacky@amd.com
+Subject: Re: [PATCH for-5.15 0/3] Cross-Thread Return Address Predictions
+ vulnerability
+Message-ID: <Y+vNu+vaxPFN8Sy7@kroah.com>
+References: <20230214170956.1297309-1-pbonzini@redhat.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <1cd10087-87fe-048e-c9ed-0a5d32c50764@roeck-us.net>
-X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
-        SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
+In-Reply-To: <20230214170956.1297309-1-pbonzini@redhat.com>
+X-Spam-Status: No, score=-2.8 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_LOW,
+        RCVD_IN_MSPIKE_H3,RCVD_IN_MSPIKE_WL,SPF_HELO_PASS,SPF_PASS
+        autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, Feb 14, 2023 at 09:51:39AM -0800, Guenter Roeck wrote:
-> On 2/14/23 09:15, Guenter Roeck wrote:
-> > On 2/13/23 06:49, Greg Kroah-Hartman wrote:
-> > > This is the start of the stable review cycle for the 5.10.168 release.
-> > > There are 139 patches in this series, all will be posted as a response
-> > > to this one.  If anyone has any issues with these being applied, please
-> > > let me know.
-> > > 
-> > > Responses should be made by Wed, 15 Feb 2023 14:46:51 +0000.
-> > > Anything received after that time might be too late.
-> > > 
-> > 
-> > Seen with several x86_64 boot tests during reboot:
-> > 
-> > [   13.465146] ------------[ cut here ]------------
-> > [   13.465644] list_del corruption. prev->next should be ffff9836448a5008, but was ffff9836448a2010
-> > ILLOPC: ffffffffae597813: 0f 0b
-> > [   13.466452] WARNING: CPU: 0 PID: 302 at lib/list_debug.c:59 __list_del_entry_valid+0xb3/0xe0
-> > [   13.466710] Modules linked in:
-> > [   13.467103] CPU: 0 PID: 302 Comm: init Not tainted 5.10.168-rc1+ #1
-> > [   13.467281] Hardware name: QEMU Standard PC (Q35 + ICH9, 2009), BIOS 0.0.0 02/06/2015
-> > [   13.467545] RIP: 0010:__list_del_entry_valid+0xb3/0xe0
-> > [   13.468234] Code: cc cc cc 4c 89 c2 48 c7 c7 f8 c6 82 af e8 ad c9 8e 00 0f 0b 31 c0 c3 cc cc cc cc 4c 89 c2 48 c7 c7 30 c7 82 af e8 95 c9 8e 00 <0f> 0b 31 c0 c3 cc cc cc cc 4c 89 c6 48 c7 c7 70 c7 82 af e8 7d c9
-> > [   13.468694] RSP: 0018:ffff9f160017bde0 EFLAGS: 00000282
-> > [   13.469076] RAX: 0000000000000000 RBX: ffff9836448a5008 RCX: 0000000000000006
-> > [   13.469297] RDX: 0000000000000000 RSI: 0000000000000000 RDI: ffffffffae0e03dd
-> > [   13.469494] RBP: ffff98364482c2f0 R08: 0000000000000001 R09: 0000000000000001
-> > [   13.469699] R10: 0000000000000001 R11: ffffffffafa6f3e0 R12: ffff9836448a5000
-> > [   13.469974] R13: ffff9836448a3910 R14: 00000000fee1dead R15: 0000000000000000
-> > [   13.470122] FS:  00007ff4118d7b28(0000) GS:ffff98365f600000(0000) knlGS:0000000000000000
-> > [   13.470230] CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-> > [   13.470311] CR2: 00007fd877982830 CR3: 0000000005218000 CR4: 00000000001506f0
-> > [   13.470438] Call Trace:
-> > [   13.470532]  device_shutdown+0xae/0x1c0
-> > [   13.470610]  __do_sys_reboot.cold+0x2f/0x5b
-> > [   13.470675]  ? __lock_acquire+0x5bd/0x2640
-> > [   13.470777]  ? lock_acquire+0xc6/0x2b0
-> > [   13.470934]  ? lockdep_hardirqs_on_prepare+0xdc/0x1a0
-> > [   13.471015]  ? syscall_enter_from_user_mode+0x1d/0x50
-> > [   13.471101]  do_syscall_64+0x33/0x40
-> > [   13.471162]  entry_SYSCALL_64_after_hwframe+0x61/0xc6
-> > [   13.471313] RIP: 0033:0x7ff411860aa6
-> > [   13.471437] Code: ff 5a c3 48 63 ff b8 bb 00 00 00 0f 05 48 89 c7 e9 95 e9 ff ff 48 63 d7 bf ad de e1 fe 50 be 69 19 12 28 b8 a9 00 00 00 0f 05 <48> 89 c7 e8 78 e9 ff ff 5a c3 49 89 ca 50 48 63 d2 4d 63 c0 b8 d8
-> > [   13.471627] RSP: 002b:00007ffd01d415e0 EFLAGS: 00000246 ORIG_RAX: 00000000000000a9
-> > [   13.471741] RAX: ffffffffffffffda RBX: 000000000000000f RCX: 00007ff411860aa6
-> > [   13.471899] RDX: 0000000001234567 RSI: 0000000028121969 RDI: 00000000fee1dead
-> > [   13.472008] RBP: 0000000001234567 R08: 0000000000000000 R09: 0000000000000000
-> > [   13.472099] R10: 0000000000000000 R11: 0000000000000246 R12: 0000000000000000
-> > [   13.472185] R13: 00007ffd01d417a8 R14: 00007ff4118d7b28 R15: 0000000000000000
-> > [   13.472384] irq event stamp: 479
-> > [   13.472453] hardirqs last  enabled at (487): [<ffffffffae0e03dd>] console_unlock+0x4dd/0x5e0
-> > [   13.472560] hardirqs last disabled at (494): [<ffffffffae0e0334>] console_unlock+0x434/0x5e0
-> > [   13.472666] softirqs last  enabled at (242): [<ffffffffaf000fe2>] asm_call_irq_on_stack+0x12/0x20
-> > [   13.472775] softirqs last disabled at (237): [<ffffffffaf000fe2>] asm_call_irq_on_stack+0x12/0x20
-> > [   13.472964] ---[ end trace 34290884cd36b277 ]---
-> > 
-> > Currently bisecting.
-> > 
-> Reverting the nvmem patches fixed this problem.
+On Tue, Feb 14, 2023 at 12:09:53PM -0500, Paolo Bonzini wrote:
+> Certain AMD processors are vulnerable to a cross-thread return address
+> predictions bug. When running in SMT mode and one of the sibling threads
+> transitions out of C0 state, the other thread gets access to twice as many
+> entries in the RSB, but unfortunately the predictions of the now-halted
+> logical processor are not purged.  Therefore, the executing processor
+> could speculatively execute from locations that the now-halted processor
+> had trained the RSB on.
+> 
+> The Spectre v2 mitigations cover the Linux kernel, as it fills the RSB
+> when context switching to the idle thread. However, KVM allows a VMM to
+> prevent exiting guest mode when transitioning out of C0 using the
+> KVM_CAP_X86_DISABLE_EXITS capability can be used by a VMM to change this
+> behavior. To mitigate the cross-thread return address predictions bug,
+> a VMM must not be allowed to override the default behavior to intercept
+> C0 transitions.
+> 
+> These patches introduce a KVM module parameter that, if set, will prevent
+> the user from disabling the HLT, MWAIT and CSTATE exits.
+> 
+> The patches apply to the 5.15 stable tree, and Greg has already received
+> them through a git bundle.  The difference is only in context, but it is
+> too much for "git cherry-pick" so here they are.
 
-nvmem patches are now dropped and a -rc2 is pushed out.
-
-thanks,
+Thanks for these, all now queued up.
 
 greg k-h
