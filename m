@@ -2,297 +2,158 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 4F54869619D
-	for <lists+stable@lfdr.de>; Tue, 14 Feb 2023 12:01:18 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2FFDE6961E7
+	for <lists+stable@lfdr.de>; Tue, 14 Feb 2023 12:06:31 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232394AbjBNLBR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 14 Feb 2023 06:01:17 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39980 "EHLO
+        id S232560AbjBNLG2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 14 Feb 2023 06:06:28 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44936 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231492AbjBNLBP (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 14 Feb 2023 06:01:15 -0500
-Received: from mga11.intel.com (mga11.intel.com [192.55.52.93])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8AD0220D1A
-        for <stable@vger.kernel.org>; Tue, 14 Feb 2023 03:01:13 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
-  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1676372473; x=1707908473;
-  h=date:from:to:cc:subject:message-id:reply-to:references:
-   mime-version:content-transfer-encoding:in-reply-to;
-  bh=QFZ6gIYKdFwXXjwICtVN3RKyd1hBaRSh3g4HBLsNyz0=;
-  b=lU2A51asdU/TAQEhYBSDEkakD/Zj2lfO7Qm9CU0lA2vz1t9oaXwwjlQo
-   5B4Pbj4k0Eo0Gj0PbmRaPmc4O/OOwRS622YCDSx8M56dgcDMqwVydEjyc
-   L1vBnMdvoWFOWe+WMxmDfXVTxBW0rccnjd/O4/HGLC2+L1+tu2WT5X0Gg
-   XtXHd2g6zNh2bkitoag6rmOX3/TNXM3LyUrj0V6DnnaOVNCCczC07p4c3
-   VLPhuy1EzRYkgNQUq7U2NDBzStRjrSwZGEKG8dkHh1ncpDNcKGh4oojZC
-   IyQeDm9HdX3/Y/ONcvarj69ALTci4gn5VZhFzqnn+mbzlJpQYWTHnV99j
-   A==;
-X-IronPort-AV: E=McAfee;i="6500,9779,10620"; a="328843896"
-X-IronPort-AV: E=Sophos;i="5.97,296,1669104000"; 
-   d="scan'208";a="328843896"
-Received: from orsmga005.jf.intel.com ([10.7.209.41])
-  by fmsmga102.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 14 Feb 2023 03:00:29 -0800
-X-IronPort-AV: E=McAfee;i="6500,9779,10620"; a="843123531"
-X-IronPort-AV: E=Sophos;i="5.97,296,1669104000"; 
-   d="scan'208";a="843123531"
-Received: from ideak-desk.fi.intel.com ([10.237.72.58])
-  by orsmga005-auth.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 14 Feb 2023 03:00:25 -0800
-Date:   Tue, 14 Feb 2023 13:00:22 +0200
-From:   Imre Deak <imre.deak@intel.com>
-To:     Wayne Lin <Wayne.Lin@amd.com>, Lyude Paul <lyude@redhat.com>,
-        Jani Nikula <jani.nikula@intel.com>,
-        Daniel Vetter <daniel.vetter@ffwll.ch>,
-        Ville =?iso-8859-1?Q?Syrj=E4l=E4?= 
-        <ville.syrjala@linux.intel.com>,
-        Thomas Zimmermann <tzimmermann@suse.de>
-Cc:     Harry Wentland <Harry.Wentland@amd.com>,
-        Alexander Deucher <Alexander.Deucher@amd.com>,
-        "stable@vger.kernel.org" <stable@vger.kernel.org>,
-        "intel-gfx@lists.freedesktop.org" <intel-gfx@lists.freedesktop.org>,
-        "dri-devel@lists.freedesktop.org" <dri-devel@lists.freedesktop.org>,
-        Ben Skeggs <bskeggs@redhat.com>,
-        Karol Herbst <kherbst@redhat.com>,
-        Mario Limonciello <Mario.Limonciello@amd.com>
-Subject: Re: [Cc: drm-misc folks] Re: [Intel-gfx] [CI 1/4] drm/i915/dp_mst:
- Add the MST topology state for modesetted CRTCs
-Message-ID: <Y+tpxqEoyaAYehPQ@ideak-desk.fi.intel.com>
-Reply-To: imre.deak@intel.com
-References: <20230206114856.2665066-1-imre.deak@intel.com>
- <Y+JLQfuSAS6xLPIS@ideak-desk.fi.intel.com>
- <0b5a4e81dc98f9c28d77f0f53741712d1c7c3c09.camel@redhat.com>
- <87bkm1x0dk.fsf@intel.com>
- <CO6PR12MB548949E961F9FE5627BA5064FCDD9@CO6PR12MB5489.namprd12.prod.outlook.com>
+        with ESMTP id S232829AbjBNLGM (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 14 Feb 2023 06:06:12 -0500
+Received: from mail-wm1-x32e.google.com (mail-wm1-x32e.google.com [IPv6:2a00:1450:4864:20::32e])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4877B26CFA;
+        Tue, 14 Feb 2023 03:05:25 -0800 (PST)
+Received: by mail-wm1-x32e.google.com with SMTP id k8-20020a05600c1c8800b003dc57ea0dfeso13398481wms.0;
+        Tue, 14 Feb 2023 03:05:25 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20210112;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
+        bh=HZ1Dxex5CkP4G/ke8ut7swdMeOh8578X1cc+Ky0yYAM=;
+        b=Ypx4a4NJU5j5qTjZcAB23f11k9y3Gp8MiF6FIXy6aWbRSHbDplqJ41wBX0jG8fDbpP
+         mw5aFNjpeUgS8zYrlVvXYValwl5HD+Id9xKsJpoWJsrs9+eztSAnukJFg6Mzk6ymhU2Y
+         tWhfFPLQJZuprb/xkXHNfDYizaqcQKf8Yatq2XRJ4taMmajh1tXTWDr1+BF7rNctTHF1
+         mP0DuQaMDL3zA2tn2317kW2MlnNrRIQLD5MG4Tcx8bQ5gJEBMkm3z320OOS/pK9DAf40
+         YZObitRf/CvUEpjCvIoYCtYmH+OHROZNyY1zpuFCeAOnXcTVV/dEVOeoCjbpYr+EvY1b
+         qe3A==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=HZ1Dxex5CkP4G/ke8ut7swdMeOh8578X1cc+Ky0yYAM=;
+        b=LgXYSokUKTYI0FpasBQWo55/AC6VEJkg9vkVWyF0vD9cJIrJZ+LyUKmo4EULi7O8aa
+         rWjvkAyKpnvTiKrl+ZkImlTbxRZsmJM4VqdyO2TjOxZlPrgKi/B5/t1gFjDsUwiBH9Il
+         mpfwlbNB+fgHfKrydEyyNRJxGb6wx8j/8k7Uc2AKJGnfG6S+Q5wsfFcbJGqrHs0Spgnv
+         Rh+AMPzOa1lefVKOQ/fzfwB+UQAF5IVQCRE22YCFiSvcLb5bMp+PIlnjy1Eq56IupY1Y
+         LzSyFDUVNeWyGx6fFRaHrDR+Le3ZRGxAB8QaAYqRwq6iWjvTmbwfQi/PGBXPvchFhRhK
+         IxGQ==
+X-Gm-Message-State: AO0yUKVagEr/rNYzDTohC7C1438ax4IREW38awn4f2xmsa28M7/WHBek
+        ewCKFlbsDWLCddBhy2Az0P4=
+X-Google-Smtp-Source: AK7set/eHMDEwWkJX9cRcLFxgAgoWTJ9cpjUkpmCxj34MwX4f4aW25Tz4kYm0bqcTxqmkmWvMH2Z6w==
+X-Received: by 2002:a05:600c:818:b0:3db:9e3:3bf1 with SMTP id k24-20020a05600c081800b003db09e33bf1mr1510716wmp.31.1676372721989;
+        Tue, 14 Feb 2023 03:05:21 -0800 (PST)
+Received: from debian ([2a10:d582:3bb:0:63f8:f640:f53e:dd47])
+        by smtp.gmail.com with ESMTPSA id k21-20020a05600c1c9500b003dd1c45a7b0sm17669618wms.23.2023.02.14.03.05.21
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 14 Feb 2023 03:05:21 -0800 (PST)
+Date:   Tue, 14 Feb 2023 11:05:20 +0000
+From:   "Sudip Mukherjee (Codethink)" <sudipm.mukherjee@gmail.com>
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc:     stable@vger.kernel.org, patches@lists.linux.dev,
+        linux-kernel@vger.kernel.org, torvalds@linux-foundation.org,
+        akpm@linux-foundation.org, linux@roeck-us.net, shuah@kernel.org,
+        patches@kernelci.org, lkft-triage@lists.linaro.org, pavel@denx.de,
+        jonathanh@nvidia.com, f.fainelli@gmail.com, srw@sladewatkins.net,
+        rwarsow@gmx.de
+Subject: Re: [PATCH 5.10 000/139] 5.10.168-rc1 review
+Message-ID: <Y+tq8HvE2TjffLk9@debian>
+References: <20230213144745.696901179@linuxfoundation.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <CO6PR12MB548949E961F9FE5627BA5064FCDD9@CO6PR12MB5489.namprd12.prod.outlook.com>
-X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
-        SPF_HELO_NONE,SPF_NONE autolearn=ham autolearn_force=no version=3.4.6
+In-Reply-To: <20230213144745.696901179@linuxfoundation.org>
+X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_FROM,
+        RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS autolearn=ham
+        autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, Feb 13, 2023 at 10:41:32AM +0000, Lin, Wayne wrote:
-> [Public]
-> 
-> Add Mario for awareness.
-> 
-> > -----Original Message-----
-> > From: Jani Nikula <jani.nikula@intel.com>
-> > Sent: Friday, February 10, 2023 6:48 PM
-> > To: Lyude Paul <lyude@redhat.com>; imre.deak@intel.com; Wentland,
-> > Harry <Harry.Wentland@amd.com>; Deucher, Alexander
-> > <Alexander.Deucher@amd.com>; Daniel Vetter <daniel.vetter@ffwll.ch>
-> > Cc: stable@vger.kernel.org; intel-gfx@lists.freedesktop.org; dri-
-> > devel@lists.freedesktop.org; Ville Syrjälä <ville.syrjala@linux.intel.com>; Ben
-> > Skeggs <bskeggs@redhat.com>; Lin, Wayne <Wayne.Lin@amd.com>; Karol
-> > Herbst <kherbst@redhat.com>; Thomas Zimmermann
-> > <tzimmermann@suse.de>
-> > Subject: Re: [Cc: drm-misc folks] Re: [Intel-gfx] [CI 1/4] drm/i915/dp_mst:
-> > Add the MST topology state for modesetted CRTCs
-> > 
-> > On Thu, 09 Feb 2023, Lyude Paul <lyude@redhat.com> wrote:
-> > > On Tue, 2023-02-07 at 14:59 +0200, Imre Deak wrote:
-> > >> Hi all,
-> > >>
-> > >> On Mon, Feb 06, 2023 at 01:48:53PM +0200, Imre Deak wrote:
-> > >> > Add the MST topology for a CRTC to the atomic state if the driver
-> > >> > needs to force a modeset on the CRTC after the encoder compute
-> > >> > config functions are called.
-> > >> >
-> > >> > Later the MST encoder's disable hook also adds the state, but that
-> > >> > isn't guaranteed to work (since in that hook getting the state may
-> > >> > fail, which can't be handled there). This should fix that, while a
-> > >> > later patch fixes the use of the MST state in the disable hook.
-> > >> >
-> > >> > v2: Add missing forward struct declartions, caught by hdrtest.
-> > >> > v3: Factor out intel_dp_mst_add_topology_state_for_connector() used
-> > >> >     later in the patchset.
-> > >> >
-> > >> > Cc: Lyude Paul <lyude@redhat.com>
-> > >> > Cc: Ville Syrjälä <ville.syrjala@linux.intel.com>
-> > >> > Cc: stable@vger.kernel.org # 6.1
-> > >> > Reviewed-by: Ville Syrjälä <ville.syrjala@linux.intel.com> # v2
-> > >> > Reviewed-by: Lyude Paul <lyude@redhat.com>
-> > >> > Signed-off-by: Imre Deak <imre.deak@intel.com>
-> > >>
-> > >> Is it ok to merge these 4 patches (also at [1]), via the i915 tree?
-> > >>
-> > >> If so could it be also acked from the AMD and Nouveau side?
-> > >
-> > > Whichever branch works best for y'all is fine by me, if it's via
-> > > i915's tree I guess we might need to back-merge drm-misc at some point
-> > > so I can write up equivalent fixes for nouveau as well.
-> > >
-> > > (Added Thomas Zimmermann to Cc)
-> > 
-> > I suggest merging the series via drm-misc-next-fixes branch, to get them to
-> > Linus' tree in the upcoming merge window. They all apply cleanly there. The
-> > drivers can backmerge them from drm-next in the mean time, or wait for
-> > v6.3-rc1.
-> > 
-> > Daniel acked this (well, any -next-fixes branch) on IRC yesterday, obviously
-> > ack from me too.
-> > 
-> > I take the above as Lyude's ack for nouveau.
-> > 
-> > Harry, Wayne, do you agree with this, ack for merging the AMD part via drm-
-> > misc-next-fixes? (Alex suggested to get your input.)
-> 
-> Thank you Imre, Lyude and Jani.
-> That looks good to me and I agree with that.
+Hi Greg,
 
-Ok, thanks all, pushed the patchset to drm-misc-next-fixes.
-
-> Thanks!
+On Mon, Feb 13, 2023 at 03:49:05PM +0100, Greg Kroah-Hartman wrote:
+> This is the start of the stable review cycle for the 5.10.168 release.
+> There are 139 patches in this series, all will be posted as a response
+> to this one.  If anyone has any issues with these being applied, please
+> let me know.
 > 
-> Regards,
-> Wayne
-> > 
-> > BR,
-> > Jani.
-> > 
-> > 
-> > >
-> > >>
-> > >> [1] https://patchwork.freedesktop.org/series/113703/
-> > >>
-> > >> > ---
-> > >> >  drivers/gpu/drm/i915/display/intel_display.c |  4 ++
-> > >> > drivers/gpu/drm/i915/display/intel_dp_mst.c  | 61
-> > >> > ++++++++++++++++++++
-> > drivers/gpu/drm/i915/display/intel_dp_mst.h
-> > >> > |  4 ++
-> > >> >  3 files changed, 69 insertions(+)
-> > >> >
-> > >> > diff --git a/drivers/gpu/drm/i915/display/intel_display.c
-> > >> > b/drivers/gpu/drm/i915/display/intel_display.c
-> > >> > index 166662ade593c..38106cf63b3b9 100644
-> > >> > --- a/drivers/gpu/drm/i915/display/intel_display.c
-> > >> > +++ b/drivers/gpu/drm/i915/display/intel_display.c
-> > >> > @@ -5936,6 +5936,10 @@ int intel_modeset_all_pipes(struct
-> > intel_atomic_state *state,
-> > >> >  		if (ret)
-> > >> >  			return ret;
-> > >> >
-> > >> > +		ret = intel_dp_mst_add_topology_state_for_crtc(state, crtc);
-> > >> > +		if (ret)
-> > >> > +			return ret;
-> > >> > +
-> > >> >  		ret = intel_atomic_add_affected_planes(state, crtc);
-> > >> >  		if (ret)
-> > >> >  			return ret;
-> > >> > diff --git a/drivers/gpu/drm/i915/display/intel_dp_mst.c
-> > >> > b/drivers/gpu/drm/i915/display/intel_dp_mst.c
-> > >> > index 8b0e4defa3f10..f3cb12dcfe0a7 100644
-> > >> > --- a/drivers/gpu/drm/i915/display/intel_dp_mst.c
-> > >> > +++ b/drivers/gpu/drm/i915/display/intel_dp_mst.c
-> > >> > @@ -1223,3 +1223,64 @@ bool intel_dp_mst_is_slave_trans(const
-> > struct intel_crtc_state *crtc_state)
-> > >> >  	return crtc_state->mst_master_transcoder !=
-> > INVALID_TRANSCODER &&
-> > >> >  	       crtc_state->mst_master_transcoder !=
-> > >> > crtc_state->cpu_transcoder;  }
-> > >> > +
-> > >> > +/**
-> > >> > + * intel_dp_mst_add_topology_state_for_connector - add MST
-> > >> > +topology state for a connector
-> > >> > + * @state: atomic state
-> > >> > + * @connector: connector to add the state for
-> > >> > + * @crtc: the CRTC @connector is attached to
-> > >> > + *
-> > >> > + * Add the MST topology state for @connector to @state.
-> > >> > + *
-> > >> > + * Returns 0 on success, negative error code on failure.
-> > >> > + */
-> > >> > +static int
-> > >> > +intel_dp_mst_add_topology_state_for_connector(struct
-> > intel_atomic_state *state,
-> > >> > +					      struct intel_connector *connector,
-> > >> > +					      struct intel_crtc *crtc) {
-> > >> > +	struct drm_dp_mst_topology_state *mst_state;
-> > >> > +
-> > >> > +	if (!connector->mst_port)
-> > >> > +		return 0;
-> > >> > +
-> > >> > +	mst_state = drm_atomic_get_mst_topology_state(&state->base,
-> > >> > +						      &connector->mst_port-
-> > >mst_mgr);
-> > >> > +	if (IS_ERR(mst_state))
-> > >> > +		return PTR_ERR(mst_state);
-> > >> > +
-> > >> > +	mst_state->pending_crtc_mask |= drm_crtc_mask(&crtc->base);
-> > >> > +
-> > >> > +	return 0;
-> > >> > +}
-> > >> > +
-> > >> > +/**
-> > >> > + * intel_dp_mst_add_topology_state_for_crtc - add MST topology
-> > >> > +state for a CRTC
-> > >> > + * @state: atomic state
-> > >> > + * @crtc: CRTC to add the state for
-> > >> > + *
-> > >> > + * Add the MST topology state for @crtc to @state.
-> > >> > + *
-> > >> > + * Returns 0 on success, negative error code on failure.
-> > >> > + */
-> > >> > +int intel_dp_mst_add_topology_state_for_crtc(struct
-> > intel_atomic_state *state,
-> > >> > +					     struct intel_crtc *crtc) {
-> > >> > +	struct drm_connector *_connector;
-> > >> > +	struct drm_connector_state *conn_state;
-> > >> > +	int i;
-> > >> > +
-> > >> > +	for_each_new_connector_in_state(&state->base, _connector,
-> > conn_state, i) {
-> > >> > +		struct intel_connector *connector =
-> > to_intel_connector(_connector);
-> > >> > +		int ret;
-> > >> > +
-> > >> > +		if (conn_state->crtc != &crtc->base)
-> > >> > +			continue;
-> > >> > +
-> > >> > +		ret =
-> > intel_dp_mst_add_topology_state_for_connector(state, connector, crtc);
-> > >> > +		if (ret)
-> > >> > +			return ret;
-> > >> > +	}
-> > >> > +
-> > >> > +	return 0;
-> > >> > +}
-> > >> > diff --git a/drivers/gpu/drm/i915/display/intel_dp_mst.h
-> > >> > b/drivers/gpu/drm/i915/display/intel_dp_mst.h
-> > >> > index f7301de6cdfb3..f1815bb722672 100644
-> > >> > --- a/drivers/gpu/drm/i915/display/intel_dp_mst.h
-> > >> > +++ b/drivers/gpu/drm/i915/display/intel_dp_mst.h
-> > >> > @@ -8,6 +8,8 @@
-> > >> >
-> > >> >  #include <linux/types.h>
-> > >> >
-> > >> > +struct intel_atomic_state;
-> > >> > +struct intel_crtc;
-> > >> >  struct intel_crtc_state;
-> > >> >  struct intel_digital_port;
-> > >> >  struct intel_dp;
-> > >> > @@ -18,5 +20,7 @@ int intel_dp_mst_encoder_active_links(struct
-> > >> > intel_digital_port *dig_port);  bool
-> > >> > intel_dp_mst_is_master_trans(const struct intel_crtc_state
-> > >> > *crtc_state);  bool intel_dp_mst_is_slave_trans(const struct
-> > >> > intel_crtc_state *crtc_state);  bool
-> > >> > intel_dp_mst_source_support(struct intel_dp *intel_dp);
-> > >> > +int intel_dp_mst_add_topology_state_for_crtc(struct
-> > intel_atomic_state *state,
-> > >> > +					     struct intel_crtc *crtc);
-> > >> >
-> > >> >  #endif /* __INTEL_DP_MST_H__ */
-> > >> > --
-> > >> > 2.37.1
-> > >> >
-> > >>
-> > 
-> > --
-> > Jani Nikula, Intel Open Source Graphics Center
+> Responses should be made by Wed, 15 Feb 2023 14:46:51 +0000.
+> Anything received after that time might be too late.
+
+Build test (gcc version 11.3.1 20230210):
+mips: 63 configs -> no failure
+arm: 104 configs -> no failure
+arm64: 3 configs -> no failure
+x86_64: 4 configs -> no failure
+alpha allmodconfig -> no failure
+powerpc allmodconfig -> no failure
+riscv allmodconfig -> no failure
+s390 allmodconfig -> no failure
+xtensa allmodconfig -> no failure
+
+Boot test:
+x86_64: Booted on qemu. New warning. [1]
+
+[    0.768162] sysfs: cannot create duplicate filename '/devices/pnp0/00:05/cmos_nvram0'
+[    0.768167] CPU: 0 PID: 1 Comm: swapper/0 Not tainted 5.10.168-rc1 #1
+[    0.768168] Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS rel-1.14.0-0-g155821a-rebuilt.opensuse.org 04/01/2014
+[    0.768170] Call Trace:
+[    0.768184]  dump_stack+0x72/0x92
+[    0.768187]  sysfs_warn_dup.cold+0x17/0x2a
+[    0.768191]  sysfs_create_dir_ns+0xbc/0xd0
+[    0.768194]  kobject_add_internal+0xb4/0x300
+[    0.768195]  kobject_add+0x81/0xb0
+[    0.768198]  ? klist_children_get+0x1a/0x30
+[    0.768200]  device_add+0xdc/0x820
+[    0.768203]  ? acpi_fwnode_property_present+0x5a/0x70
+[    0.768206]  nvmem_register+0x4d6/0x7e0
+[    0.768208]  devm_nvmem_register+0x3f/0x80
+[    0.768211]  rtc_nvmem_register+0x38/0xe0
+[    0.768213]  cmos_do_probe+0x56b/0x610
+[    0.768215]  ? cmos_set_alarm_callback+0xd0/0xd0
+[    0.768216]  ? rtc_handler+0xe0/0xe0
+[    0.768218]  cmos_pnp_probe+0x74/0xa0
+[    0.768220]  pnp_device_probe+0xc2/0x170
+[    0.768222]  ? cmos_do_probe+0x610/0x610
+[    0.768223]  really_probe+0x28a/0x470
+[    0.768225]  driver_probe_device+0xec/0x160
+[    0.768227]  device_driver_attach+0xb3/0xc0
+[    0.768229]  ? device_driver_attach+0xc0/0xc0
+[    0.768230]  __driver_attach+0xae/0x160
+[    0.768232]  ? device_driver_attach+0xc0/0xc0
+[    0.768234]  bus_for_each_dev+0x7c/0xc0
+[    0.768235]  driver_attach+0x1e/0x30
+[    0.768237]  bus_add_driver+0x148/0x210
+[    0.768239]  driver_register+0x8f/0xf0
+[    0.768241]  ? rtc_dev_init+0x39/0x39
+[    0.768243]  pnp_register_driver+0x20/0x30
+[    0.768244]  cmos_init+0x16/0x7d
+[    0.768245]  ? rtc_dev_init+0x39/0x39
+[    0.768249]  do_one_initcall+0x4a/0x1e0
+[    0.768251]  kernel_init_freeable+0x22a/0x281
+[    0.768254]  ? rest_init+0xbe/0xbe
+[    0.768255]  kernel_init+0xe/0x112
+[    0.768257]  ret_from_fork+0x22/0x30
+[    0.768259] kobject_add_internal failed for cmos_nvram0 with -EEXIST, don't try to register things with the same name in the same directory.
+
+
+arm64: Booted on rpi4b (4GB model). No regression. [2]
+
+Regression:
+x86_64: Boot failed on my test laptop with a panic. Will try a bisect later today.
+
+
+[1]. https://openqa.qa.codethink.co.uk/tests/2856
+[2]. https://openqa.qa.codethink.co.uk/tests/2857
+
+
+Tested-by: Sudip Mukherjee <sudip.mukherjee@codethink.co.uk>
+
+-- 
+Regards
+Sudip
