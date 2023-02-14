@@ -2,241 +2,81 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 2A123696AF0
-	for <lists+stable@lfdr.de>; Tue, 14 Feb 2023 18:11:47 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D861C696AF8
+	for <lists+stable@lfdr.de>; Tue, 14 Feb 2023 18:13:53 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232557AbjBNRLp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 14 Feb 2023 12:11:45 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37014 "EHLO
+        id S229487AbjBNRNv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 14 Feb 2023 12:13:51 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41144 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232940AbjBNRLb (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 14 Feb 2023 12:11:31 -0500
-Received: from mail-yw1-x1129.google.com (mail-yw1-x1129.google.com [IPv6:2607:f8b0:4864:20::1129])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4B4C22FCDF
-        for <stable@vger.kernel.org>; Tue, 14 Feb 2023 09:11:11 -0800 (PST)
-Received: by mail-yw1-x1129.google.com with SMTP id 00721157ae682-4c24993965eso215198537b3.12
-        for <stable@vger.kernel.org>; Tue, 14 Feb 2023 09:11:11 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20210112;
-        h=cc:to:subject:message-id:date:from:in-reply-to:references
-         :mime-version:from:to:cc:subject:date:message-id:reply-to;
-        bh=r4pky0IDsnlu/cqFPhqYvFTqN8LlUn92zh6XIpOqBhY=;
-        b=tJYGr5212BC/zy/n6YiZ7I5C/JLAWDXGWcWsgIogmNqeseFgoMNI73KimK3bD9DQ2R
-         OaAdDEHfXTPAOwRPo577cYx45n182mjVNhtWOe1hF5u1YtwKBteiCStPAQ+RKqIWD+0A
-         qcfaYbTWgAPssQ+sNf2QMOnEG+Zzb/c+gsDGiLEBSBQbNpmZmqO/f6kdZiQZc5wWXABu
-         mTPnIVZ9ahESnu68ZIgqmVNoUnZUwM//Hpqp1ESWNvbAsJOW9NmY+pY2rTS/Jo13opj4
-         LVq7Nr1yz6QRXYsjTs+kyxkgNhrdlNhQ6Ny0erdwJA8jEr3Ipms4rGEJps4R2NUEpyIt
-         jBeA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=cc:to:subject:message-id:date:from:in-reply-to:references
-         :mime-version:x-gm-message-state:from:to:cc:subject:date:message-id
-         :reply-to;
-        bh=r4pky0IDsnlu/cqFPhqYvFTqN8LlUn92zh6XIpOqBhY=;
-        b=yeovZA4XusNMVh+Dn7gYHcLcSGmWOB4e9lxf+pvIOFweH5fIdh0cnanWC15PBAL2B6
-         w/QQEHN7PgBWUDj1UOTQWRoe3lKSIYl9PMWu/Q/Rd/BW7Gr+J28dP5GP9tyEjdUqNYFO
-         D1I973o+YtWA6LbQayclV+9nU+IpWy2RrxQQm+CRV8FNXnHXZfK2PnUngcI9UWuL1E7w
-         FCoIK80VnMD6wvzHPdwcu7EhRtdHCf5f9Qu6pxj4hWUDxGjkOupnQRwW7O+it+1h6TY/
-         raVvKnQk8/6P4DiQl0JfOnogehhehzw84gGXqG3R9mbqKEcIPa8MJD0xhNBvbtdB6cgH
-         W9Ww==
-X-Gm-Message-State: AO0yUKX6oJ1Qwf1eGw7TjaDfto4RK46urqicfRxc7qx1EfHZ+eoBSSRJ
-        U3nfDxbGfWQNwY0qk8aBU6Q1jENAj28qh5CyaviFCA==
-X-Google-Smtp-Source: AK7set+ovpxzz//8A139EdXwefeTv+mGh3Kjc7myJY3emAZXMZbejrZMUZTSCki77CFv8cRh2W35et11xRQdQtRmbKo=
-X-Received: by 2002:a81:bf53:0:b0:506:6364:fda3 with SMTP id
- s19-20020a81bf53000000b005066364fda3mr346950ywk.72.1676394669813; Tue, 14 Feb
- 2023 09:11:09 -0800 (PST)
+        with ESMTP id S229845AbjBNRNt (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 14 Feb 2023 12:13:49 -0500
+Received: from mga07.intel.com (mga07.intel.com [134.134.136.100])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E24D7222EC
+        for <stable@vger.kernel.org>; Tue, 14 Feb 2023 09:13:46 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
+  t=1676394826; x=1707930826;
+  h=date:from:to:cc:subject:message-id:mime-version:
+   in-reply-to;
+  bh=3Z0VR5hYhY9LUYikBks77e38UdhiUwdO2XqkLuXPZRo=;
+  b=mZWYAiQz9mYatYJrPGDwJe/Xo4oJo/fhANEI0DO7EhFyGuAQiKSBwRrv
+   hdEBPETc6oDBjBiOvaECx1N/TzlKfMfbpGbMXed3NSb/sH1XpwmUo5+xb
+   Og0F1EEu/qQYA83YulTmKFeMiEdgAT31HT6Tk/XkS09pJWpRyLQV+YH4C
+   Lv5thJ6D80JizAwVTCjU0buFUZxEi9IGSIJhlu2SYpHf7L8YEa39Qd1Je
+   Xp1vbPeU41KfdNz7ROdzlnPgmdvcnHHOGcBiMf/nKi9CABWhBXUhlMjzX
+   /Kwn14JOvqBJiHO8rJdw/D+yQLEDJq3sAVSUbvH8El/kSuz+uXHpucUZJ
+   w==;
+X-IronPort-AV: E=McAfee;i="6500,9779,10621"; a="395824756"
+X-IronPort-AV: E=Sophos;i="5.97,297,1669104000"; 
+   d="scan'208";a="395824756"
+Received: from fmsmga005.fm.intel.com ([10.253.24.32])
+  by orsmga105.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 14 Feb 2023 09:12:18 -0800
+X-ExtLoop1: 1
+X-IronPort-AV: E=McAfee;i="6500,9779,10621"; a="998148088"
+X-IronPort-AV: E=Sophos;i="5.97,297,1669104000"; 
+   d="scan'208";a="998148088"
+Received: from lkp-server01.sh.intel.com (HELO 4455601a8d94) ([10.239.97.150])
+  by fmsmga005.fm.intel.com with ESMTP; 14 Feb 2023 09:12:17 -0800
+Received: from kbuild by 4455601a8d94 with local (Exim 4.96)
+        (envelope-from <lkp@intel.com>)
+        id 1pRyqn-0008ff-0K;
+        Tue, 14 Feb 2023 17:12:17 +0000
+Date:   Wed, 15 Feb 2023 01:11:20 +0800
+From:   kernel test robot <lkp@intel.com>
+To:     Paolo Bonzini <pbonzini@redhat.com>
+Cc:     stable@vger.kernel.org, oe-kbuild-all@lists.linux.dev
+Subject: Re: [PATCH for-5.15 3/3] Documentation/hw-vuln: Add documentation
+ for Cross-Thread Return Predictions
+Message-ID: <Y+vAuPVnSH1Z34m/@a5b9dd7d9a79>
 MIME-Version: 1.0
-References: <CAJuCfpHa+RhNk_-C=c=E8opF7mR2tnpd-KyhaXCQ8XnKvwVXoQ@mail.gmail.com>
- <20230214070429.3613260-1-kamatam@amazon.com>
-In-Reply-To: <20230214070429.3613260-1-kamatam@amazon.com>
-From:   Suren Baghdasaryan <surenb@google.com>
-Date:   Tue, 14 Feb 2023 09:10:58 -0800
-Message-ID: <CAJuCfpGiktjjPZYPp8LNtbmvYhkxh_icEWXOVgsq9qeq+w6s+g@mail.gmail.com>
-Subject: Re: [PATCH v2] sched/psi: fix use-after-free in ep_remove_wait_queue()
-To:     Munehisa Kamata <kamatam@amazon.com>
-Cc:     ebiggers@kernel.org, hannes@cmpxchg.org, hdanton@sina.com,
-        linux-kernel@vger.kernel.org, linux-mm@kvack.org,
-        mengcc@amazon.com, stable@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
-X-Spam-Status: No, score=-17.6 required=5.0 tests=BAYES_00,DKIMWL_WL_MED,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,
-        ENV_AND_HDR_SPF_MATCH,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS,
-        USER_IN_DEF_DKIM_WL,USER_IN_DEF_SPF_WL autolearn=unavailable
-        autolearn_force=no version=3.4.6
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20230214170956.1297309-4-pbonzini@redhat.com>
+X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
+        SPF_HELO_NONE,SPF_NONE autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Thanks!
-Overall LGTM, just a couple of nits (simplifications):
+Hi,
 
-On Mon, Feb 13, 2023 at 11:04 PM Munehisa Kamata <kamatam@amazon.com> wrote:
->
-> If a non-root cgroup gets removed when there is a thread that registered
-> trigger and is polling on a pressure file within the cgroup, the polling
-> waitqueue gets freed without clearing the queue and reference in the
-> following path.
+Thanks for your patch.
 
-Let's remove "without clearing the queue and reference" in the above
-sentence. The next section explains why this is problematic, therefore
-mentioning that here is unnecessary IMHO.
+FYI: kernel test robot notices the stable kernel rule is not satisfied.
 
->
->  do_rmdir
->    cgroup_rmdir
->      kernfs_drain_open_files
->        cgroup_file_release
->          cgroup_pressure_release
->            psi_trigger_destroy
->
-> However, the polling thread can keep having the last reference to the
-> pressure file that is tied to the freed waitqueue until explicit close or
-> exit later.
+Rule: 'Cc: stable@vger.kernel.org' or 'commit <sha1> upstream.'
+Subject: [PATCH for-5.15 3/3] Documentation/hw-vuln: Add documentation for Cross-Thread Return Predictions
+Link: https://lore.kernel.org/stable/20230214170956.1297309-4-pbonzini%40redhat.com
 
-Suggest replacing: However, the polling thread still has a reference
-to the pressure file it is polling and will access the freed waitqueue
-when file is closed or upon exit:
+The check is based on https://www.kernel.org/doc/html/latest/process/stable-kernel-rules.html
 
->
->  fput
->    ep_eventpoll_release
->      ep_free
->        ep_remove_wait_queue
->          remove_wait_queue
->
-> Then, the thread accesses to the already-freed waitqueue when dropping the
-> reference and results in use-after-free as pasted below.
+-- 
+0-DAY CI Kernel Test Service
+https://github.com/intel/lkp-tests
 
-Suggest replacing: This results is use-after-free as pasted below.
 
->
-> The fundamental problem here is that the lifetime of the waitqueue is not
-> tied to the file's real lifetime as shown above.
 
-The fundamental problem here is that cgroup_file_release() (and
-consequently waitqueue's lifetime) is not tied to the file's real
-lifetime.
-
-> Using wake_up_pollfree()
-> here might be less than ideal, but it also is not fully contradicting the
-> comment at commit 42288cb44c4b ("wait: add wake_up_pollfree()") since the
-> waitqueue's lifetime is not tied to file's one and can be considered as
-> another special case. While this would be fixable by somehow making
-> cgroup_file_release() be tied to the fput(), it would require sizable
-> refactoring at cgroups or higher layer which might be more justifiable if
-> we identify more cases like this.
->
->  BUG: KASAN: use-after-free in _raw_spin_lock_irqsave+0x60/0xc0
->  Write of size 4 at addr ffff88810e625328 by task a.out/4404
->
->  CPU: 19 PID: 4404 Comm: a.out Not tainted 6.2.0-rc6 #38
->  Hardware name: Amazon EC2 c5a.8xlarge/, BIOS 1.0 10/16/2017
->  Call Trace:
->  <TASK>
->  dump_stack_lvl+0x73/0xa0
->  print_report+0x16c/0x4e0
->  ? _printk+0x59/0x80
->  ? __virt_addr_valid+0xb8/0x130
->  ? _raw_spin_lock_irqsave+0x60/0xc0
->  kasan_report+0xc3/0xf0
->  ? _raw_spin_lock_irqsave+0x60/0xc0
->  kasan_check_range+0x2d2/0x310
->  _raw_spin_lock_irqsave+0x60/0xc0
->  remove_wait_queue+0x1a/0xa0
->  ep_free+0x12c/0x170
->  ep_eventpoll_release+0x26/0x30
->  __fput+0x202/0x400
->  task_work_run+0x11d/0x170
->  do_exit+0x495/0x1130
->  ? update_cfs_rq_load_avg+0x2c2/0x2e0
->  do_group_exit+0x100/0x100
->  get_signal+0xd67/0xde0
->  ? finish_task_switch+0x15f/0x3a0
->  arch_do_signal_or_restart+0x2a/0x2b0
->  exit_to_user_mode_prepare+0x94/0x100
->  syscall_exit_to_user_mode+0x20/0x40
->  do_syscall_64+0x52/0x90
->  entry_SYSCALL_64_after_hwframe+0x63/0xcd
->  RIP: 0033:0x7f8e392bfb91
->  Code: Unable to access opcode bytes at 0x7f8e392bfb67.
->  RSP: 002b:00007fff261e08d8 EFLAGS: 00000246 ORIG_RAX: 0000000000000022
->  RAX: fffffffffffffdfe RBX: 0000000000000000 RCX: 00007f8e392bfb91
->  RDX: 0000000000000001 RSI: 00007fff261e08e8 RDI: 0000000000000004
->  RBP: 00007fff261e0920 R08: 0000000000400780 R09: 00007f8e3960f240
->  R10: 00000000000003df R11: 0000000000000246 R12: 00000000004005a0
->  R13: 00007fff261e0a00 R14: 0000000000000000 R15: 0000000000000000
->  </TASK>
->
->  Allocated by task 4404:
->  kasan_set_track+0x3d/0x60
->  __kasan_kmalloc+0x85/0x90
->  psi_trigger_create+0x113/0x3e0
->  pressure_write+0x146/0x2e0
->  cgroup_file_write+0x11c/0x250
->  kernfs_fop_write_iter+0x186/0x220
->  vfs_write+0x3d8/0x5c0
->  ksys_write+0x90/0x110
->  do_syscall_64+0x43/0x90
->  entry_SYSCALL_64_after_hwframe+0x63/0xcd
->
->  Freed by task 4407:
->  kasan_set_track+0x3d/0x60
->  kasan_save_free_info+0x27/0x40
->  ____kasan_slab_free+0x11d/0x170
->  slab_free_freelist_hook+0x87/0x150
->  __kmem_cache_free+0xcb/0x180
->  psi_trigger_destroy+0x2e8/0x310
->  cgroup_file_release+0x4f/0xb0
->  kernfs_drain_open_files+0x165/0x1f0
->  kernfs_drain+0x162/0x1a0
->  __kernfs_remove+0x1fb/0x310
->  kernfs_remove_by_name_ns+0x95/0xe0
->  cgroup_addrm_files+0x67f/0x700
->  cgroup_destroy_locked+0x283/0x3c0
->  cgroup_rmdir+0x29/0x100
->  kernfs_iop_rmdir+0xd1/0x140
->  vfs_rmdir+0xfe/0x240
->  do_rmdir+0x13d/0x280
->  __x64_sys_rmdir+0x2c/0x30
->  do_syscall_64+0x43/0x90
->  entry_SYSCALL_64_after_hwframe+0x63/0xcd
->
-> v2: updated commit message
->
-> Link: https://lore.kernel.org/lkml/20230106224859.4123476-1-kamatam@amazon.com/
-> Fixes: 0e94682b73bf ("psi: introduce psi monitor")
-> Cc: stable@vger.kernel.org
-> Signed-off-by: Munehisa Kamata <kamatam@amazon.com>
-> Signed-off-by: Mengchi Cheng <mengcc@amazon.com>
-> ---
->  kernel/sched/psi.c | 7 ++++---
->  1 file changed, 4 insertions(+), 3 deletions(-)
->
-> diff --git a/kernel/sched/psi.c b/kernel/sched/psi.c
-> index 8ac8b81bfee6..6e66c15f6450 100644
-> --- a/kernel/sched/psi.c
-> +++ b/kernel/sched/psi.c
-> @@ -1343,10 +1343,11 @@ void psi_trigger_destroy(struct psi_trigger *t)
->
->         group = t->group;
->         /*
-> -        * Wakeup waiters to stop polling. Can happen if cgroup is deleted
-> -        * from under a polling process.
-> +        * Wakeup waiters to stop polling and clear the queue to prevent it from
-> +        * being accessed later. Can happen if cgroup is deleted from under a
-> +        * polling process otherwise.
-
-This "otherwise" at the end seems extra. Was there a continuation of
-this comment which was removed without removing this "otherwise" ?
-
->          */
-> -       wake_up_interruptible(&t->event_wait);
-> +       wake_up_pollfree(&t->event_wait);
->
->         mutex_lock(&group->trigger_lock);
->
-> --
-> 2.38.1
->
