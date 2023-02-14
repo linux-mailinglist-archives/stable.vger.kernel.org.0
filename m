@@ -2,166 +2,208 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 48D1C696F92
-	for <lists+stable@lfdr.de>; Tue, 14 Feb 2023 22:27:21 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 542E0696FB4
+	for <lists+stable@lfdr.de>; Tue, 14 Feb 2023 22:28:52 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232952AbjBNV1T (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 14 Feb 2023 16:27:19 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51008 "EHLO
+        id S229725AbjBNV2u (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 14 Feb 2023 16:28:50 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51850 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232890AbjBNV1Q (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 14 Feb 2023 16:27:16 -0500
-Received: from mail-pl1-x62f.google.com (mail-pl1-x62f.google.com [IPv6:2607:f8b0:4864:20::62f])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1EAB32107;
-        Tue, 14 Feb 2023 13:26:40 -0800 (PST)
-Received: by mail-pl1-x62f.google.com with SMTP id ja21so10764590plb.13;
-        Tue, 14 Feb 2023 13:26:40 -0800 (PST)
+        with ESMTP id S232890AbjBNV2t (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 14 Feb 2023 16:28:49 -0500
+Received: from smtp-fw-80007.amazon.com (smtp-fw-80007.amazon.com [99.78.197.218])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0F072170F;
+        Tue, 14 Feb 2023 13:28:20 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=jZIp7USMvmmqB5f9NmVrSQj28kTFZM5zKd61/LPwcFk=;
-        b=gbkb0p23ODyB/KVw7h8ZXEn0zBgKG2kCYMXtaLIMU/Ca9pcmAjnqwl7mopVImnZvYb
-         boDeqH0aUaLAXIm8Gg3XPRdQWNIrHVm/oOVNAc9eWCkkMB0r8+QMCvJcH+UXddI0mPkg
-         dBuELBIZPxeKdJBQ1tzR61UJan5bgqdbdHnTTIP9U6AO2ulKZ7O+k6y2UmWLXZYegNES
-         S13UgDogThNTzvvOoGBj1AQLmjr3RjUujSuQ9VJlWlZRkGcUpQPS9ozVI7GYPQ1X1pMB
-         fXVgTgWMhwQ9/bYaXm7N+qPKlxvwtjm3xXIQnkEJ5NvtHK/zz/z9xDQ4NeML+WJ0PRgc
-         3zvg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=jZIp7USMvmmqB5f9NmVrSQj28kTFZM5zKd61/LPwcFk=;
-        b=VXhkbHLT72l9T1B8UiIrAulbCBchHUQS4CUc1Y3aRdbWC+seweJKKMzp3q+S3BkmlM
-         EZJ4ZQS2A/L8dojpN1ALl5NllJDsYG6+pMgKfRGmuOO+xDbLqNOWSiOnfa9+sRe+nS8p
-         58R8+mpDNL3YRvCloY3HQ+yU3U/slvgC9SdgU2ezXtgioVKId9jRGgTwL3NOQ0pnLbw1
-         P032DfH35QNibNe5yoPGXby+DGci5OI/p7vAuZntv6MJJBmNl1Z0GMQWNjwZ7BMyhS/3
-         /PFLR0z4/wKr1Feqgqv7SJ097TvFGAe1/xy084vC2T/R9tr72TjQwIujpKXgS99uj4m5
-         Nemw==
-X-Gm-Message-State: AO0yUKWlCGgOOq/vhbArHPLwfKKkFKY44aXMslEJ5sckF+LNcw/mwTzG
-        xHEQEY8oc6cwUbiWZNm04eHxNhUdCUWX5g==
-X-Google-Smtp-Source: AK7set9yb2lRi9+zjzzTmKpjlOphnWF/mIGOpSPyGj5vmWKmg9BXPJItMJsUDsuOWP2xRsMjhud57g==
-X-Received: by 2002:a17:902:f68f:b0:198:def1:62cc with SMTP id l15-20020a170902f68f00b00198def162ccmr145537plg.2.1676409976797;
-        Tue, 14 Feb 2023 13:26:16 -0800 (PST)
-Received: from lrumancik.svl.corp.google.com ([2620:15c:2d4:203:cf14:3756:2b5e:fb87])
-        by smtp.gmail.com with ESMTPSA id d14-20020a170902654e00b00195f0fb0c18sm6692569pln.31.2023.02.14.13.26.15
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 14 Feb 2023 13:26:16 -0800 (PST)
-From:   Leah Rumancik <leah.rumancik@gmail.com>
-To:     stable@vger.kernel.org
-Cc:     linux-xfs@vger.kernel.org, amir73il@gmail.com,
-        chandan.babu@oracle.com, "Darrick J. Wong" <djwong@kernel.org>,
-        Christoph Hellwig <hch@lst.de>,
-        Dave Chinner <dchinner@redhat.com>,
-        Dave Chinner <david@fromorbit.com>,
-        Leah Rumancik <leah.rumancik@gmail.com>
-Subject: [PATCH 5.15 10/10] xfs: don't leak btree cursor when insrec fails after a split
-Date:   Tue, 14 Feb 2023 13:25:34 -0800
-Message-Id: <20230214212534.1420323-11-leah.rumancik@gmail.com>
-X-Mailer: git-send-email 2.39.1.581.gbfd45094c4-goog
-In-Reply-To: <20230214212534.1420323-1-leah.rumancik@gmail.com>
-References: <20230214212534.1420323-1-leah.rumancik@gmail.com>
+  d=amazon.com; i=@amazon.com; q=dns/txt; s=amazon201209;
+  t=1676410100; x=1707946100;
+  h=from:to:cc:subject:date:message-id:mime-version:
+   content-transfer-encoding;
+  bh=4I2V3gdJkdElaJmerC9fANC2cqgGxvR49nBswatWMb4=;
+  b=CzvcUrgV3ZnJQzD+us4O+hw4akS5Lxd7w91SF/1wo9+AVwgJzSVq3G8A
+   cZY29EdQPxeduCN4Pstu3PrT4MLf1Y18FIMr/IKHpMBVT6oK1ppCQup2L
+   +53B6pFlcnirlNi+omkVyhr3i6CMwBXU5jB9BPCHaeYyQsis3doT3uwOn
+   c=;
+X-IronPort-AV: E=Sophos;i="5.97,297,1669075200"; 
+   d="scan'208";a="181892903"
+Received: from pdx4-co-svc-p1-lb2-vlan3.amazon.com (HELO email-inbound-relay-pdx-2b-m6i4x-cadc3fbd.us-west-2.amazon.com) ([10.25.36.214])
+  by smtp-border-fw-80007.pdx80.corp.amazon.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 14 Feb 2023 21:27:32 +0000
+Received: from EX13MTAUWB002.ant.amazon.com (pdx1-ws-svc-p6-lb9-vlan2.pdx.amazon.com [10.236.137.194])
+        by email-inbound-relay-pdx-2b-m6i4x-cadc3fbd.us-west-2.amazon.com (Postfix) with ESMTPS id BF4F9A0F1A;
+        Tue, 14 Feb 2023 21:27:31 +0000 (UTC)
+Received: from EX19D010UWA004.ant.amazon.com (10.13.138.204) by
+ EX13MTAUWB002.ant.amazon.com (10.43.161.202) with Microsoft SMTP Server (TLS)
+ id 15.0.1497.45; Tue, 14 Feb 2023 21:27:31 +0000
+Received: from u9aa42af9e4c55a.ant.amazon.com (10.187.170.8) by
+ EX19D010UWA004.ant.amazon.com (10.13.138.204) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ 15.2.1118.24; Tue, 14 Feb 2023 21:27:30 +0000
+From:   Munehisa Kamata <kamatam@amazon.com>
+To:     <peterz@infradead.org>
+CC:     <surenb@google.com>, <ebiggers@kernel.org>, <hannes@cmpxchg.org>,
+        <hdanton@sina.com>, <kamatam@amazon.com>,
+        <linux-kernel@vger.kernel.org>, <linux-mm@kvack.org>,
+        <mengcc@amazon.com>, <stable@vger.kernel.org>
+Subject: [PATCH v4] sched/psi: fix use-after-free in ep_remove_wait_queue()
+Date:   Tue, 14 Feb 2023 13:27:05 -0800
+Message-ID: <20230214212705.4058045-1-kamatam@amazon.com>
+X-Mailer: git-send-email 2.25.1
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_FROM,
-        RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS autolearn=ham
-        autolearn_force=no version=3.4.6
+Content-Type: text/plain
+X-Originating-IP: [10.187.170.8]
+X-ClientProxiedBy: EX19D040UWA001.ant.amazon.com (10.13.139.22) To
+ EX19D010UWA004.ant.amazon.com (10.13.138.204)
+X-Spam-Status: No, score=-11.9 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
+        RCVD_IN_MSPIKE_H2,SPF_HELO_NONE,SPF_PASS,USER_IN_DEF_SPF_WL
+        autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: "Darrick J. Wong" <djwong@kernel.org>
+If a non-root cgroup gets removed when there is a thread that registered
+trigger and is polling on a pressure file within the cgroup, the polling
+waitqueue gets freed in the following path.
 
-[ Upstream commit a54f78def73d847cb060b18c4e4a3d1d26c9ca6d ]
+ do_rmdir
+   cgroup_rmdir
+     kernfs_drain_open_files
+       cgroup_file_release
+         cgroup_pressure_release
+           psi_trigger_destroy
 
-The recent patch to improve btree cycle checking caused a regression
-when I rebased the in-memory btree branch atop the 5.19 for-next branch,
-because in-memory short-pointer btrees do not have AG numbers.  This
-produced the following complaint from kmemleak:
+However, the polling thread still has a reference to the pressure file and
+will access the freed waitqueue when the file is closed or upon exit.
 
-unreferenced object 0xffff88803d47dde8 (size 264):
-  comm "xfs_io", pid 4889, jiffies 4294906764 (age 24.072s)
-  hex dump (first 32 bytes):
-    90 4d 0b 0f 80 88 ff ff 00 a0 bd 05 80 88 ff ff  .M..............
-    e0 44 3a a0 ff ff ff ff 00 df 08 06 80 88 ff ff  .D:.............
-  backtrace:
-    [<ffffffffa0388059>] xfbtree_dup_cursor+0x49/0xc0 [xfs]
-    [<ffffffffa029887b>] xfs_btree_dup_cursor+0x3b/0x200 [xfs]
-    [<ffffffffa029af5d>] __xfs_btree_split+0x6ad/0x820 [xfs]
-    [<ffffffffa029b130>] xfs_btree_split+0x60/0x110 [xfs]
-    [<ffffffffa029f6da>] xfs_btree_make_block_unfull+0x19a/0x1f0 [xfs]
-    [<ffffffffa029fada>] xfs_btree_insrec+0x3aa/0x810 [xfs]
-    [<ffffffffa029fff3>] xfs_btree_insert+0xb3/0x240 [xfs]
-    [<ffffffffa02cb729>] xfs_rmap_insert+0x99/0x200 [xfs]
-    [<ffffffffa02cf142>] xfs_rmap_map_shared+0x192/0x5f0 [xfs]
-    [<ffffffffa02cf60b>] xfs_rmap_map_raw+0x6b/0x90 [xfs]
-    [<ffffffffa0384a85>] xrep_rmap_stash+0xd5/0x1d0 [xfs]
-    [<ffffffffa0384dc0>] xrep_rmap_visit_bmbt+0xa0/0xf0 [xfs]
-    [<ffffffffa0384fb6>] xrep_rmap_scan_iext+0x56/0xa0 [xfs]
-    [<ffffffffa03850d8>] xrep_rmap_scan_ifork+0xd8/0x160 [xfs]
-    [<ffffffffa0385195>] xrep_rmap_scan_inode+0x35/0x80 [xfs]
-    [<ffffffffa03852ee>] xrep_rmap_find_rmaps+0x10e/0x270 [xfs]
+ fput
+   ep_eventpoll_release
+     ep_free
+       ep_remove_wait_queue
+         remove_wait_queue
 
-I noticed that xfs_btree_insrec has a bunch of debug code that return
-out of the function immediately, without freeing the "new" btree cursor
-that can be returned when _make_block_unfull calls xfs_btree_split.  Fix
-the error return in this function to free the btree cursor.
+This results in use-after-free as pasted below.
 
-Signed-off-by: Darrick J. Wong <djwong@kernel.org>
-Reviewed-by: Christoph Hellwig <hch@lst.de>
-Reviewed-by: Dave Chinner <dchinner@redhat.com>
-Signed-off-by: Dave Chinner <david@fromorbit.com>
-Signed-off-by: Leah Rumancik <leah.rumancik@gmail.com>
-Acked-by: Darrick J. Wong <djwong@kernel.org>
+The fundamental problem here is that cgroup_file_release() (and
+consequently waitqueue's lifetime) is not tied to the file's real lifetime.
+Using wake_up_pollfree() here might be less than ideal, but it is in line
+with the comment at commit 42288cb44c4b ("wait: add wake_up_pollfree()")
+since the waitqueue's lifetime is not tied to file's one and can be
+considered as another special case. While this would be fixable by somehow
+making cgroup_file_release() be tied to the fput(), it would require
+sizable refactoring at cgroups or higher layer which might be more
+justifiable if we identify more cases like this.
+
+ BUG: KASAN: use-after-free in _raw_spin_lock_irqsave+0x60/0xc0
+ Write of size 4 at addr ffff88810e625328 by task a.out/4404
+
+ CPU: 19 PID: 4404 Comm: a.out Not tainted 6.2.0-rc6 #38
+ Hardware name: Amazon EC2 c5a.8xlarge/, BIOS 1.0 10/16/2017
+ Call Trace:
+ <TASK>
+ dump_stack_lvl+0x73/0xa0
+ print_report+0x16c/0x4e0
+ ? _printk+0x59/0x80
+ ? __virt_addr_valid+0xb8/0x130
+ ? _raw_spin_lock_irqsave+0x60/0xc0
+ kasan_report+0xc3/0xf0
+ ? _raw_spin_lock_irqsave+0x60/0xc0
+ kasan_check_range+0x2d2/0x310
+ _raw_spin_lock_irqsave+0x60/0xc0
+ remove_wait_queue+0x1a/0xa0
+ ep_free+0x12c/0x170
+ ep_eventpoll_release+0x26/0x30
+ __fput+0x202/0x400
+ task_work_run+0x11d/0x170
+ do_exit+0x495/0x1130
+ ? update_cfs_rq_load_avg+0x2c2/0x2e0
+ do_group_exit+0x100/0x100
+ get_signal+0xd67/0xde0
+ ? finish_task_switch+0x15f/0x3a0
+ arch_do_signal_or_restart+0x2a/0x2b0
+ exit_to_user_mode_prepare+0x94/0x100
+ syscall_exit_to_user_mode+0x20/0x40
+ do_syscall_64+0x52/0x90
+ entry_SYSCALL_64_after_hwframe+0x63/0xcd
+ RIP: 0033:0x7f8e392bfb91
+ Code: Unable to access opcode bytes at 0x7f8e392bfb67.
+ RSP: 002b:00007fff261e08d8 EFLAGS: 00000246 ORIG_RAX: 0000000000000022
+ RAX: fffffffffffffdfe RBX: 0000000000000000 RCX: 00007f8e392bfb91
+ RDX: 0000000000000001 RSI: 00007fff261e08e8 RDI: 0000000000000004
+ RBP: 00007fff261e0920 R08: 0000000000400780 R09: 00007f8e3960f240
+ R10: 00000000000003df R11: 0000000000000246 R12: 00000000004005a0
+ R13: 00007fff261e0a00 R14: 0000000000000000 R15: 0000000000000000
+ </TASK>
+
+ Allocated by task 4404:
+ kasan_set_track+0x3d/0x60
+ __kasan_kmalloc+0x85/0x90
+ psi_trigger_create+0x113/0x3e0
+ pressure_write+0x146/0x2e0
+ cgroup_file_write+0x11c/0x250
+ kernfs_fop_write_iter+0x186/0x220
+ vfs_write+0x3d8/0x5c0
+ ksys_write+0x90/0x110
+ do_syscall_64+0x43/0x90
+ entry_SYSCALL_64_after_hwframe+0x63/0xcd
+
+ Freed by task 4407:
+ kasan_set_track+0x3d/0x60
+ kasan_save_free_info+0x27/0x40
+ ____kasan_slab_free+0x11d/0x170
+ slab_free_freelist_hook+0x87/0x150
+ __kmem_cache_free+0xcb/0x180
+ psi_trigger_destroy+0x2e8/0x310
+ cgroup_file_release+0x4f/0xb0
+ kernfs_drain_open_files+0x165/0x1f0
+ kernfs_drain+0x162/0x1a0
+ __kernfs_remove+0x1fb/0x310
+ kernfs_remove_by_name_ns+0x95/0xe0
+ cgroup_addrm_files+0x67f/0x700
+ cgroup_destroy_locked+0x283/0x3c0
+ cgroup_rmdir+0x29/0x100
+ kernfs_iop_rmdir+0xd1/0x140
+ vfs_rmdir+0xfe/0x240
+ do_rmdir+0x13d/0x280
+ __x64_sys_rmdir+0x2c/0x30
+ do_syscall_64+0x43/0x90
+ entry_SYSCALL_64_after_hwframe+0x63/0xcd
+
+v4: updated commit message
+v3: updated commit message and the comment in the code
+v2: updated commit message
+
+Link: https://lore.kernel.org/lkml/20230106224859.4123476-1-kamatam@amazon.com/
+Fixes: 0e94682b73bf ("psi: introduce psi monitor")
+Cc: stable@vger.kernel.org
+Signed-off-by: Munehisa Kamata <kamatam@amazon.com>
+Signed-off-by: Mengchi Cheng <mengcc@amazon.com>
+Acked-by: Suren Baghdasaryan <surenb@google.com>
 ---
- fs/xfs/libxfs/xfs_btree.c | 8 +++++---
- 1 file changed, 5 insertions(+), 3 deletions(-)
+ kernel/sched/psi.c | 7 ++++---
+ 1 file changed, 4 insertions(+), 3 deletions(-)
 
-diff --git a/fs/xfs/libxfs/xfs_btree.c b/fs/xfs/libxfs/xfs_btree.c
-index 482a4ccc6568..dffe4ca58493 100644
---- a/fs/xfs/libxfs/xfs_btree.c
-+++ b/fs/xfs/libxfs/xfs_btree.c
-@@ -3266,7 +3266,7 @@ xfs_btree_insrec(
- 	struct xfs_btree_block	*block;	/* btree block */
- 	struct xfs_buf		*bp;	/* buffer for block */
- 	union xfs_btree_ptr	nptr;	/* new block ptr */
--	struct xfs_btree_cur	*ncur;	/* new btree cursor */
-+	struct xfs_btree_cur	*ncur = NULL;	/* new btree cursor */
- 	union xfs_btree_key	nkey;	/* new block key */
- 	union xfs_btree_key	*lkey;
- 	int			optr;	/* old key/record index */
-@@ -3346,7 +3346,7 @@ xfs_btree_insrec(
- #ifdef DEBUG
- 	error = xfs_btree_check_block(cur, block, level, bp);
- 	if (error)
--		return error;
-+		goto error0;
- #endif
+diff --git a/kernel/sched/psi.c b/kernel/sched/psi.c
+index 8ac8b81bfee6..02e011cabe91 100644
+--- a/kernel/sched/psi.c
++++ b/kernel/sched/psi.c
+@@ -1343,10 +1343,11 @@ void psi_trigger_destroy(struct psi_trigger *t)
  
+ 	group = t->group;
  	/*
-@@ -3366,7 +3366,7 @@ xfs_btree_insrec(
- 		for (i = numrecs - ptr; i >= 0; i--) {
- 			error = xfs_btree_debug_check_ptr(cur, pp, i, level);
- 			if (error)
--				return error;
-+				goto error0;
- 		}
+-	 * Wakeup waiters to stop polling. Can happen if cgroup is deleted
+-	 * from under a polling process.
++	 * Wakeup waiters to stop polling and clear the queue to prevent it from
++	 * being accessed later. Can happen if cgroup is deleted from under a
++	 * polling process.
+ 	 */
+-	wake_up_interruptible(&t->event_wait);
++	wake_up_pollfree(&t->event_wait);
  
- 		xfs_btree_shift_keys(cur, kp, 1, numrecs - ptr + 1);
-@@ -3451,6 +3451,8 @@ xfs_btree_insrec(
- 	return 0;
- 
- error0:
-+	if (ncur)
-+		xfs_btree_del_cursor(ncur, error);
- 	return error;
- }
+ 	mutex_lock(&group->trigger_lock);
  
 -- 
-2.39.1.581.gbfd45094c4-goog
+2.38.1
 
