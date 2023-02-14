@@ -2,64 +2,65 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C2CF3696F85
-	for <lists+stable@lfdr.de>; Tue, 14 Feb 2023 22:27:13 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id BA271696F89
+	for <lists+stable@lfdr.de>; Tue, 14 Feb 2023 22:27:14 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232746AbjBNV1L (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 14 Feb 2023 16:27:11 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50698 "EHLO
+        id S232889AbjBNV1M (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 14 Feb 2023 16:27:12 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50918 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232828AbjBNV1K (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 14 Feb 2023 16:27:10 -0500
-Received: from mail-pj1-x102d.google.com (mail-pj1-x102d.google.com [IPv6:2607:f8b0:4864:20::102d])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C2D57305C4;
-        Tue, 14 Feb 2023 13:26:33 -0800 (PST)
-Received: by mail-pj1-x102d.google.com with SMTP id n20-20020a17090aab9400b00229ca6a4636so103068pjq.0;
-        Tue, 14 Feb 2023 13:26:33 -0800 (PST)
+        with ESMTP id S229510AbjBNV1L (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 14 Feb 2023 16:27:11 -0500
+Received: from mail-pl1-x632.google.com (mail-pl1-x632.google.com [IPv6:2607:f8b0:4864:20::632])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 50DCF298C1;
+        Tue, 14 Feb 2023 13:26:35 -0800 (PST)
+Received: by mail-pl1-x632.google.com with SMTP id e17so9504252plg.12;
+        Tue, 14 Feb 2023 13:26:35 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20210112;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=ydJINgiUXERcprOBsrfHGHvS8ULlgWZrSeh+RZ3+t00=;
-        b=LK1+2Ivzq+WSDw+yIgo/16wGfl5rqUyC6ROPI601hK0UURkqXlc6fBgl6O7jPj0lOp
-         qmgwdlWQIVTZRwWmsM/AMiLolCB31WFwtJbGyxqBnK5Y9NZCtGPwGY4OK5lCGa5+/A4m
-         gq5c+mTFF4qmdyMogqn3ymL9eGNBWTLP5+BzFagUvmHJOnA4oAMeStAy08Rdt6oBDheY
-         DP4XsNG0yu8PPLI8hgUIi+psf9a3/lq96+iM85o0lGEyWQW9Bqin9cFCG/W0VY6K6O26
-         V4e7mYeLJmYocSayW0YXM4Ld68j7w9cQExLo5nZDxBVMXUQKD4UOBbbWAKxavWkoYocQ
-         ry4Q==
+        bh=F67ZEsFHmg5bEOyWUasxb3V34Kww6nIyBNz8EfnDjrE=;
+        b=k5zvv+Eut2USYNdayngc61hRQ3iE11uh/SrzxXyxrzYHfxPWUYLdT4zoNR3C+HhNhG
+         +NGXc7FrzeN+2U0Ar/GpMbRPeuPlau86HXJ56gkb8IvfwEJe2ETypaEILeXGowmwtT7u
+         eafketX7vi41CxVr5Yieaa2CDh4YkaIDbZe0UzeYbpJTIDfagNjGeQGqd0DBDmpXSPVb
+         nyehNIXRflIBgSUCGIfgGR3ESjvJgY4juld4ELGSTnaIk53wzBtr3HQhu4cNWgo+qe7c
+         2kDoqIOTHvrfucJL4oiLqGKs4rCl5I+0nxzokwERNY86Yr9mUBJNorayTJHfJxI8KN5h
+         FuUw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=ydJINgiUXERcprOBsrfHGHvS8ULlgWZrSeh+RZ3+t00=;
-        b=UXcyPeLB+crPUDwpaPhDYES7IYZn6liRdBXvN00FiujhaLvhBdX3tt/u+6Rboab16o
-         1rQT/hfw93Rx4sI7KXG8IURZJ8r7ByAacpvBs53bA2eIvtOJPGHLMn0LbGC8CE1mIPhI
-         MkVBzBYG91cLawwCEoUwweDYvx30Q+KgcG4Y/kJmZOPAiBsCwEFvxaZs6N0pA727pxxu
-         2iXT00JRD55Y8PDTLdlGC1vzv4sYEQz/AHKw6ecTgm4MZ5qmkQKt30lNLzyZFkFSmrYR
-         ErSWdP6jUFZTa3Cq59rYGZ9NA9kz4h5xgbQ69se71P1Jx2K/1cL4rrn0608BNFBZokG3
-         g69A==
-X-Gm-Message-State: AO0yUKXKcALTjVWUhoJrgZkgK4mRrMJ8vOgoRtLQkNwBZCuikueiCdGY
-        TBwXhjeJif94jlOgxSQq0VqesqgpwA/5hQ==
-X-Google-Smtp-Source: AK7set/qa5S/bcbJH4e0MhNvMUM+1qfZoDm2V33bcRfoDlM9nsMNLBNiuaCpiqV4YMnOWut2nvSj5w==
-X-Received: by 2002:a17:903:18d:b0:199:1996:71ec with SMTP id z13-20020a170903018d00b00199199671ecmr103090plg.16.1676409970766;
-        Tue, 14 Feb 2023 13:26:10 -0800 (PST)
+        bh=F67ZEsFHmg5bEOyWUasxb3V34Kww6nIyBNz8EfnDjrE=;
+        b=YuAE7Phk5QzqivZdMPQtcQNtuYyDx6JgflPwCL8kaewRVLT5fWaitnI30LPY6/RHfQ
+         ExaX9TbQRVo4n/HFf3J8zIwEVvyZWn0005pO2VTU8Zmrim9iV2KGyIvEfa1q2rvEbkUx
+         WOqCIkhamPTPa/6PWej9+ETTXyjd7gnpLoFHTQqjtXcngvzj8f459dXNB3PNtGungu7J
+         DJUps7ZuutVfP94hWFOXE9sC/cxxCaHhrNQqkyGUtJrc4StzmuUlxZRxA8JvOcQTzTWN
+         74ceQE4Rs1zQ0jqRZ/CA3QTCwe8QMSEBy1kwvRS5+4eeswIzjqvWI7AQC3PcBJCXX0Bc
+         4egw==
+X-Gm-Message-State: AO0yUKV8i8PunbnrfQmU/EfibZmCwvp6paChHzubnCCO8t4mph/DC8pn
+        l0dMzZ2zvQMPnrp/RG8yFIjeKbxhe08q2Q==
+X-Google-Smtp-Source: AK7set/qhfpBSI+8S1A+jumK7jo5nwZ7WhaFoVboEUauEcIqPnOxfbS7kaSKt3zinIHCxHeOnS9a8w==
+X-Received: by 2002:a17:902:dacb:b0:196:22d5:6583 with SMTP id q11-20020a170902dacb00b0019622d56583mr89503plx.32.1676409972070;
+        Tue, 14 Feb 2023 13:26:12 -0800 (PST)
 Received: from lrumancik.svl.corp.google.com ([2620:15c:2d4:203:cf14:3756:2b5e:fb87])
-        by smtp.gmail.com with ESMTPSA id d14-20020a170902654e00b00195f0fb0c18sm6692569pln.31.2023.02.14.13.26.09
+        by smtp.gmail.com with ESMTPSA id d14-20020a170902654e00b00195f0fb0c18sm6692569pln.31.2023.02.14.13.26.10
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 14 Feb 2023 13:26:10 -0800 (PST)
+        Tue, 14 Feb 2023 13:26:11 -0800 (PST)
 From:   Leah Rumancik <leah.rumancik@gmail.com>
 To:     stable@vger.kernel.org
 Cc:     linux-xfs@vger.kernel.org, amir73il@gmail.com,
         chandan.babu@oracle.com, Dave Chinner <dchinner@redhat.com>,
-        Christoph Hellwig <hch@lst.de>,
+        kernel test robot <oliver.sang@intel.com>,
         "Darrick J . Wong" <djwong@kernel.org>,
+        Christoph Hellwig <hch@lst.de>,
         Dave Chinner <david@fromorbit.com>,
         Leah Rumancik <leah.rumancik@gmail.com>
-Subject: [PATCH 5.15 05/10] xfs: validate v5 feature fields
-Date:   Tue, 14 Feb 2023 13:25:29 -0800
-Message-Id: <20230214212534.1420323-6-leah.rumancik@gmail.com>
+Subject: [PATCH 5.15 06/10] xfs: avoid unnecessary runtime sibling pointer endian conversions
+Date:   Tue, 14 Feb 2023 13:25:30 -0800
+Message-Id: <20230214212534.1420323-7-leah.rumancik@gmail.com>
 X-Mailer: git-send-email 2.39.1.581.gbfd45094c4-goog
 In-Reply-To: <20230214212534.1420323-1-leah.rumancik@gmail.com>
 References: <20230214212534.1420323-1-leah.rumancik@gmail.com>
@@ -77,126 +78,159 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Dave Chinner <dchinner@redhat.com>
 
-[ Upstream commit f0f5f658065a5af09126ec892e4c383540a1c77f ]
+[ Upstream commit 5672225e8f2a872a22b0cecedba7a6644af1fb84 ]
 
-We don't check that the v4 feature flags taht v5 requires to be set
-are actually set anywhere. Do this check when we see that the
-filesystem is a v5 filesystem.
+Commit dc04db2aa7c9 has caused a small aim7 regression, showing a
+small increase in CPU usage in __xfs_btree_check_sblock() as a
+result of the extra checking.
 
+This is likely due to the endian conversion of the sibling poitners
+being unconditional instead of relying on the compiler to endian
+convert the NULL pointer at compile time and avoiding the runtime
+conversion for this common case.
+
+Rework the checks so that endian conversion of the sibling pointers
+is only done if they are not null as the original code did.
+
+.... and these need to be "inline" because the compiler completely
+fails to inline them automatically like it should be doing.
+
+$ size fs/xfs/libxfs/xfs_btree.o*
+   text	   data	    bss	    dec	    hex	filename
+  51874	    240	      0	  52114	   cb92 fs/xfs/libxfs/xfs_btree.o.orig
+  51562	    240	      0	  51802	   ca5a fs/xfs/libxfs/xfs_btree.o.inline
+
+Just when you think the tools have advanced sufficiently we don't
+have to care about stuff like this anymore, along comes a reminder
+that *our tools still suck*.
+
+Fixes: dc04db2aa7c9 ("xfs: detect self referencing btree sibling pointers")
+Reported-by: kernel test robot <oliver.sang@intel.com>
 Signed-off-by: Dave Chinner <dchinner@redhat.com>
-Reviewed-by: Christoph Hellwig <hch@lst.de>
 Reviewed-by: Darrick J. Wong <djwong@kernel.org>
+Reviewed-by: Christoph Hellwig <hch@lst.de>
 Signed-off-by: Dave Chinner <david@fromorbit.com>
 Signed-off-by: Leah Rumancik <leah.rumancik@gmail.com>
 Acked-by: Darrick J. Wong <djwong@kernel.org>
 ---
- fs/xfs/libxfs/xfs_sb.c | 68 +++++++++++++++++++++++++++++++++++-------
- 1 file changed, 58 insertions(+), 10 deletions(-)
+ fs/xfs/libxfs/xfs_btree.c | 47 +++++++++++++++++++++++++++------------
+ 1 file changed, 33 insertions(+), 14 deletions(-)
 
-diff --git a/fs/xfs/libxfs/xfs_sb.c b/fs/xfs/libxfs/xfs_sb.c
-index 72c05485c870..04e2a57313fa 100644
---- a/fs/xfs/libxfs/xfs_sb.c
-+++ b/fs/xfs/libxfs/xfs_sb.c
-@@ -30,6 +30,47 @@
-  * Physical superblock buffer manipulations. Shared with libxfs in userspace.
-  */
- 
-+/*
-+ * Check that all the V4 feature bits that the V5 filesystem format requires are
-+ * correctly set.
-+ */
-+static bool
-+xfs_sb_validate_v5_features(
-+	struct xfs_sb	*sbp)
-+{
-+	/* We must not have any unknown V4 feature bits set */
-+	if (sbp->sb_versionnum & ~XFS_SB_VERSION_OKBITS)
-+		return false;
-+
-+	/*
-+	 * The CRC bit is considered an invalid V4 flag, so we have to add it
-+	 * manually to the OKBITS mask.
-+	 */
-+	if (sbp->sb_features2 & ~(XFS_SB_VERSION2_OKBITS |
-+				  XFS_SB_VERSION2_CRCBIT))
-+		return false;
-+
-+	/* Now check all the required V4 feature flags are set. */
-+
-+#define V5_VERS_FLAGS	(XFS_SB_VERSION_NLINKBIT	| \
-+			XFS_SB_VERSION_ALIGNBIT		| \
-+			XFS_SB_VERSION_LOGV2BIT		| \
-+			XFS_SB_VERSION_EXTFLGBIT	| \
-+			XFS_SB_VERSION_DIRV2BIT		| \
-+			XFS_SB_VERSION_MOREBITSBIT)
-+
-+#define V5_FEAT_FLAGS	(XFS_SB_VERSION2_LAZYSBCOUNTBIT	| \
-+			XFS_SB_VERSION2_ATTR2BIT	| \
-+			XFS_SB_VERSION2_PROJID32BIT	| \
-+			XFS_SB_VERSION2_CRCBIT)
-+
-+	if ((sbp->sb_versionnum & V5_VERS_FLAGS) != V5_VERS_FLAGS)
-+		return false;
-+	if ((sbp->sb_features2 & V5_FEAT_FLAGS) != V5_FEAT_FLAGS)
-+		return false;
-+	return true;
-+}
-+
- /*
-  * We support all XFS versions newer than a v4 superblock with V2 directories.
-  */
-@@ -37,9 +78,19 @@ bool
- xfs_sb_good_version(
- 	struct xfs_sb	*sbp)
- {
--	/* all v5 filesystems are supported */
-+	/*
-+	 * All v5 filesystems are supported, but we must check that all the
-+	 * required v4 feature flags are enabled correctly as the code checks
-+	 * those flags and not for v5 support.
-+	 */
- 	if (xfs_sb_is_v5(sbp))
--		return true;
-+		return xfs_sb_validate_v5_features(sbp);
-+
-+	/* We must not have any unknown v4 feature bits set */
-+	if ((sbp->sb_versionnum & ~XFS_SB_VERSION_OKBITS) ||
-+	    ((sbp->sb_versionnum & XFS_SB_VERSION_MOREBITSBIT) &&
-+	     (sbp->sb_features2 & ~XFS_SB_VERSION2_OKBITS)))
-+		return false;
- 
- 	/* versions prior to v4 are not supported */
- 	if (XFS_SB_VERSION_NUM(sbp) < XFS_SB_VERSION_4)
-@@ -51,12 +102,6 @@ xfs_sb_good_version(
- 	if (!(sbp->sb_versionnum & XFS_SB_VERSION_EXTFLGBIT))
- 		return false;
- 
--	/* And must not have any unknown v4 feature bits set */
--	if ((sbp->sb_versionnum & ~XFS_SB_VERSION_OKBITS) ||
--	    ((sbp->sb_versionnum & XFS_SB_VERSION_MOREBITSBIT) &&
--	     (sbp->sb_features2 & ~XFS_SB_VERSION2_OKBITS)))
--		return false;
--
- 	/* It's a supported v4 filesystem */
- 	return true;
+diff --git a/fs/xfs/libxfs/xfs_btree.c b/fs/xfs/libxfs/xfs_btree.c
+index 5bec048343b0..b4b5bf4bfed7 100644
+--- a/fs/xfs/libxfs/xfs_btree.c
++++ b/fs/xfs/libxfs/xfs_btree.c
+@@ -51,16 +51,31 @@ xfs_btree_magic(
+ 	return magic;
  }
-@@ -264,12 +309,15 @@ xfs_validate_sb_common(
- 	bool			has_dalign;
  
- 	if (!xfs_verify_magic(bp, dsb->sb_magicnum)) {
--		xfs_warn(mp, "bad magic number");
-+		xfs_warn(mp,
-+"Superblock has bad magic number 0x%x. Not an XFS filesystem?",
-+			be32_to_cpu(dsb->sb_magicnum));
- 		return -EWRONGFS;
+-static xfs_failaddr_t
++/*
++ * These sibling pointer checks are optimised for null sibling pointers. This
++ * happens a lot, and we don't need to byte swap at runtime if the sibling
++ * pointer is NULL.
++ *
++ * These are explicitly marked at inline because the cost of calling them as
++ * functions instead of inlining them is about 36 bytes extra code per call site
++ * on x86-64. Yes, gcc-11 fails to inline them, and explicit inlining of these
++ * two sibling check functions reduces the compiled code size by over 300
++ * bytes.
++ */
++static inline xfs_failaddr_t
+ xfs_btree_check_lblock_siblings(
+ 	struct xfs_mount	*mp,
+ 	struct xfs_btree_cur	*cur,
+ 	int			level,
+ 	xfs_fsblock_t		fsb,
+-	xfs_fsblock_t		sibling)
++	__be64			dsibling)
+ {
+-	if (sibling == NULLFSBLOCK)
++	xfs_fsblock_t		sibling;
++
++	if (dsibling == cpu_to_be64(NULLFSBLOCK))
+ 		return NULL;
++
++	sibling = be64_to_cpu(dsibling);
+ 	if (sibling == fsb)
+ 		return __this_address;
+ 	if (level >= 0) {
+@@ -74,17 +89,21 @@ xfs_btree_check_lblock_siblings(
+ 	return NULL;
+ }
+ 
+-static xfs_failaddr_t
++static inline xfs_failaddr_t
+ xfs_btree_check_sblock_siblings(
+ 	struct xfs_mount	*mp,
+ 	struct xfs_btree_cur	*cur,
+ 	int			level,
+ 	xfs_agnumber_t		agno,
+ 	xfs_agblock_t		agbno,
+-	xfs_agblock_t		sibling)
++	__be32			dsibling)
+ {
+-	if (sibling == NULLAGBLOCK)
++	xfs_agblock_t		sibling;
++
++	if (dsibling == cpu_to_be32(NULLAGBLOCK))
+ 		return NULL;
++
++	sibling = be32_to_cpu(dsibling);
+ 	if (sibling == agbno)
+ 		return __this_address;
+ 	if (level >= 0) {
+@@ -136,10 +155,10 @@ __xfs_btree_check_lblock(
+ 		fsb = XFS_DADDR_TO_FSB(mp, xfs_buf_daddr(bp));
+ 
+ 	fa = xfs_btree_check_lblock_siblings(mp, cur, level, fsb,
+-			be64_to_cpu(block->bb_u.l.bb_leftsib));
++			block->bb_u.l.bb_leftsib);
+ 	if (!fa)
+ 		fa = xfs_btree_check_lblock_siblings(mp, cur, level, fsb,
+-				be64_to_cpu(block->bb_u.l.bb_rightsib));
++				block->bb_u.l.bb_rightsib);
+ 	return fa;
+ }
+ 
+@@ -204,10 +223,10 @@ __xfs_btree_check_sblock(
  	}
  
- 	if (!xfs_sb_good_version(sbp)) {
--		xfs_warn(mp, "bad version");
-+		xfs_warn(mp,
-+"Superblock has unknown features enabled or corrupted feature masks.");
- 		return -EWRONGFS;
- 	}
+ 	fa = xfs_btree_check_sblock_siblings(mp, cur, level, agno, agbno,
+-			be32_to_cpu(block->bb_u.s.bb_leftsib));
++			block->bb_u.s.bb_leftsib);
+ 	if (!fa)
+ 		fa = xfs_btree_check_sblock_siblings(mp, cur, level, agno,
+-				 agbno, be32_to_cpu(block->bb_u.s.bb_rightsib));
++				 agbno, block->bb_u.s.bb_rightsib);
+ 	return fa;
+ }
+ 
+@@ -4517,10 +4536,10 @@ xfs_btree_lblock_verify(
+ 	/* sibling pointer verification */
+ 	fsb = XFS_DADDR_TO_FSB(mp, xfs_buf_daddr(bp));
+ 	fa = xfs_btree_check_lblock_siblings(mp, NULL, -1, fsb,
+-			be64_to_cpu(block->bb_u.l.bb_leftsib));
++			block->bb_u.l.bb_leftsib);
+ 	if (!fa)
+ 		fa = xfs_btree_check_lblock_siblings(mp, NULL, -1, fsb,
+-				be64_to_cpu(block->bb_u.l.bb_rightsib));
++				block->bb_u.l.bb_rightsib);
+ 	return fa;
+ }
+ 
+@@ -4574,10 +4593,10 @@ xfs_btree_sblock_verify(
+ 	agno = xfs_daddr_to_agno(mp, xfs_buf_daddr(bp));
+ 	agbno = xfs_daddr_to_agbno(mp, xfs_buf_daddr(bp));
+ 	fa = xfs_btree_check_sblock_siblings(mp, NULL, -1, agno, agbno,
+-			be32_to_cpu(block->bb_u.s.bb_leftsib));
++			block->bb_u.s.bb_leftsib);
+ 	if (!fa)
+ 		fa = xfs_btree_check_sblock_siblings(mp, NULL, -1, agno, agbno,
+-				be32_to_cpu(block->bb_u.s.bb_rightsib));
++				block->bb_u.s.bb_rightsib);
+ 	return fa;
+ }
  
 -- 
 2.39.1.581.gbfd45094c4-goog
