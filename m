@@ -2,202 +2,593 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 84605696FF4
-	for <lists+stable@lfdr.de>; Tue, 14 Feb 2023 22:41:54 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id BB9AB697002
+	for <lists+stable@lfdr.de>; Tue, 14 Feb 2023 22:47:18 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231687AbjBNVlx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 14 Feb 2023 16:41:53 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38072 "EHLO
+        id S229563AbjBNVrR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 14 Feb 2023 16:47:17 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40034 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232531AbjBNVlu (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 14 Feb 2023 16:41:50 -0500
-Received: from mga02.intel.com (mga02.intel.com [134.134.136.20])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E65602E0D5;
-        Tue, 14 Feb 2023 13:41:47 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
-  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1676410907; x=1707946907;
-  h=subject:from:to:cc:date:message-id:mime-version:
-   content-transfer-encoding;
-  bh=VmvWynx/DS4JgHhcma2OQyB9hsnf2YHZTnsJ/MsAltI=;
-  b=CcOurmyobYUcNXqUgHF5IlqVk2I7Vc67gvt9vS32q1a95d9rvv19rQm6
-   Dxv0xoXXmpLgbNjR/KyGgkThB7UsR0geA5AbXPafyKbaFFOwwxN5zhpEL
-   rt5TqOMzQBFGJb55SVAjQX48/yGu9JfUhcpxANJpCpmaKE6JK7VcDoEgA
-   0EYqh3Ud0Y2zY/RXSaaJdU26D48zoEMLFOIHzSmnotbkG718RoaAfMHdQ
-   dfj8TBc2iMAkd+ykkqyhAGHmVw6SE/gr8tt5mpckyOHx/oGHLntkL+/cd
-   wMBsm5WR7HC9msQ0sj3BbspTMI7LmDAbkt0kDeefyvbftCMF+SkWJ3MpL
-   w==;
-X-IronPort-AV: E=McAfee;i="6500,9779,10621"; a="319309706"
-X-IronPort-AV: E=Sophos;i="5.97,297,1669104000"; 
-   d="scan'208";a="319309706"
-Received: from fmsmga007.fm.intel.com ([10.253.24.52])
-  by orsmga101.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 14 Feb 2023 13:41:45 -0800
-X-IronPort-AV: E=McAfee;i="6500,9779,10621"; a="671377270"
-X-IronPort-AV: E=Sophos;i="5.97,297,1669104000"; 
-   d="scan'208";a="671377270"
-Received: from mofarooq-mobl1.amr.corp.intel.com (HELO dwillia2-xfh.jf.intel.com) ([10.209.68.16])
-  by fmsmga007-auth.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 14 Feb 2023 13:41:45 -0800
-Subject: [PATCH] cxl/pmem: Fix nvdimm registration races
-From:   Dan Williams <dan.j.williams@intel.com>
-To:     linux-cxl@vger.kernel.org
-Cc:     stable@vger.kernel.org, Dave Jiang <dave.jiang@intel.com>,
-        Dave Jiang <dave.jiang@intel.com>, nvdimm@lists.linux.dev
-Date:   Tue, 14 Feb 2023 13:41:44 -0800
-Message-ID: <167641090468.954904.2931923185712477447.stgit@dwillia2-xfh.jf.intel.com>
-User-Agent: StGit/0.18-3-g996c
-MIME-Version: 1.0
+        with ESMTP id S230379AbjBNVrQ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 14 Feb 2023 16:47:16 -0500
+Received: from mail-pg1-x536.google.com (mail-pg1-x536.google.com [IPv6:2607:f8b0:4864:20::536])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7719B2942D
+        for <stable@vger.kernel.org>; Tue, 14 Feb 2023 13:47:14 -0800 (PST)
+Received: by mail-pg1-x536.google.com with SMTP id c29so7094348pgm.5
+        for <stable@vger.kernel.org>; Tue, 14 Feb 2023 13:47:14 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=kernelci-org.20210112.gappssmtp.com; s=20210112;
+        h=from:to:subject:content-transfer-encoding:mime-version:date
+         :message-id:from:to:cc:subject:date:message-id:reply-to;
+        bh=qxBWcqXgiPHyO8wn1sKZP9C3o+/1wbzv7VkHNUsUfq0=;
+        b=1FBmR1PC4l8O5lthONQj4MF1hNr2LsChFIjHPghJPurXDwfBsANJYZUAH510pCjni4
+         HkHfrZhZSJ3BCn6uvwZSqkb5o9bwi5xLBrNlXmtiDPSiARlPOgCYWLm1rZocYMOOGuCd
+         Cv7j5TLIECzqgvy3OqucgFcf+IskdcCyKuWS6qpd23Z+g2os5ME3fFAV2vxNO1N8q4wm
+         VSw6kP1uyhPF6M3sXr8n3S420/sx75nE2vm9F2uaabGDXKf1hlW0d3nWfhsg0d9Fjglz
+         Som5krE9/yPYtm/rrvb7k9tYylRNC19+QgR88TjG21y/hjk7p5y6I0XJAookjIXSN0o+
+         H91A==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=from:to:subject:content-transfer-encoding:mime-version:date
+         :message-id:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=qxBWcqXgiPHyO8wn1sKZP9C3o+/1wbzv7VkHNUsUfq0=;
+        b=tEDZbgI9LN+42/9bYM5n4G8wzg/o0BKZr40rhoDREPkgOs/eKwoVvidU251iytVmWz
+         ipWTSCl8bnyg7PGIODJJf/scpGM2Eail7rnhj9Y75ObKHF6R0Oc7wb2XNp9966hCTQNQ
+         +pW1O8lkEIKOtHL5D4puvCDyky5FfUqFQD1vLrUPqKpURiNXbg9f/7WFBuZXuuxH7UCk
+         tCKsAAzwfo3548x7u6i9Y0omVt67f2etsJf+JdYjPDQos92Js2ACDuSQY8eipJEILoEh
+         2QaSjxVhnUPqjXSP/C51f/fCNtWdzTd/lz3r2b7L5OYK8emwHYdI5Z/qeWQNb3hhV84A
+         6Rdg==
+X-Gm-Message-State: AO0yUKWSnpW11i9WDWMfSuO3Bn7mmx0Lw5OIuUIu+br4EJ2nb372XPSN
+        QQcbQdVcVtYfHBivmLY+d6wC8bIJI9cRfTy9qhs=
+X-Google-Smtp-Source: AK7set8Wup8MazkQwb8cd7IZf34gw1+Y8rytmEuJWYaa875whCKQk6/JzRdjJTeF3H+9UQmGpLEc8Q==
+X-Received: by 2002:a05:6a00:1ca6:b0:594:1f1c:3d3a with SMTP id y38-20020a056a001ca600b005941f1c3d3amr951987pfw.15.1676411233674;
+        Tue, 14 Feb 2023 13:47:13 -0800 (PST)
+Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
+        by smtp.gmail.com with ESMTPSA id j14-20020aa783ce000000b0058baf8694e1sm10222074pfn.71.2023.02.14.13.47.11
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 14 Feb 2023 13:47:12 -0800 (PST)
+Message-ID: <63ec0160.a70a0220.d754b.279b@mx.google.com>
+Date:   Tue, 14 Feb 2023 13:47:12 -0800 (PST)
 Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 7bit
-X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
-        RCVD_IN_MSPIKE_H3,RCVD_IN_MSPIKE_WL,SPF_HELO_NONE,SPF_NONE
-        autolearn=ham autolearn_force=no version=3.4.6
+MIME-Version: 1.0
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Branch: linux-5.10.y
+X-Kernelci-Tree: stable-rc
+X-Kernelci-Kernel: v5.10.167-135-gd76a8be7803e
+X-Kernelci-Report-Type: test
+Subject: stable-rc/linux-5.10.y baseline: 171 runs,
+ 14 regressions (v5.10.167-135-gd76a8be7803e)
+To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
+        kernelci-results@groups.io
+From:   "kernelci.org bot" <bot@kernelci.org>
+X-Spam-Status: No, score=-1.9 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_NONE autolearn=ham
+        autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-A loop of the form:
+stable-rc/linux-5.10.y baseline: 171 runs, 14 regressions (v5.10.167-135-gd=
+76a8be7803e)
 
-    while true; do modprobe cxl_pci; modprobe -r cxl_pci; done
+Regressions Summary
+-------------------
 
-...fails with the following crash signature:
+platform               | arch   | lab           | compiler | defconfig     =
+               | regressions
+-----------------------+--------+---------------+----------+---------------=
+---------------+------------
+qemu_i386-uefi         | i386   | lab-baylibre  | gcc-10   | i386_defconfig=
+               | 1          =
 
-    BUG: kernel NULL pointer dereference, address: 0000000000000040
-    [..]
-    RIP: 0010:cxl_internal_send_cmd+0x5/0xb0 [cxl_core]
-    [..]
-    Call Trace:
-     <TASK>
-     cxl_pmem_ctl+0x121/0x240 [cxl_pmem]
-     nvdimm_get_config_data+0xd6/0x1a0 [libnvdimm]
-     nd_label_data_init+0x135/0x7e0 [libnvdimm]
-     nvdimm_probe+0xd6/0x1c0 [libnvdimm]
-     nvdimm_bus_probe+0x7a/0x1e0 [libnvdimm]
-     really_probe+0xde/0x380
-     __driver_probe_device+0x78/0x170
-     driver_probe_device+0x1f/0x90
-     __device_attach_driver+0x85/0x110
-     bus_for_each_drv+0x7d/0xc0
-     __device_attach+0xb4/0x1e0
-     bus_probe_device+0x9f/0xc0
-     device_add+0x445/0x9c0
-     nd_async_device_register+0xe/0x40 [libnvdimm]
-     async_run_entry_fn+0x30/0x130
+qemu_i386-uefi         | i386   | lab-broonie   | gcc-10   | i386_defconfig=
+               | 1          =
 
-...namely that the bottom half of async nvdimm device registration runs
-after cxlmd_release_nvdimm() has already torn down the context that
-cxl_pmem_ctl() needs. Unlike the ACPI NFIT case that benefits from
-launching multiple nvdimm device registrations in parallel from those
-listed in the table, CXL is already marked PROBE_PREFER_ASYNCHRONOUS. So
-provide for a synchronous registration path to preclude this scenario.
+qemu_x86_64-uefi       | x86_64 | lab-baylibre  | gcc-10   | x86_64_defcon.=
+..6-chromebook | 1          =
 
-Fixes: 21083f51521f ("cxl/pmem: Register 'pmem' / cxl_nvdimm devices")
-Cc: <stable@vger.kernel.org>
-Reported-by: Dave Jiang <dave.jiang@intel.com>
-Tested-by: Dave Jiang <dave.jiang@intel.com>
-Signed-off-by: Dan Williams <dan.j.williams@intel.com>
----
- drivers/cxl/pmem.c         |    1 +
- drivers/nvdimm/bus.c       |   19 ++++++++++++++++---
- drivers/nvdimm/dimm_devs.c |    5 ++++-
- drivers/nvdimm/nd-core.h   |    1 +
- include/linux/libnvdimm.h  |    3 +++
- 5 files changed, 25 insertions(+), 4 deletions(-)
+qemu_x86_64-uefi       | x86_64 | lab-baylibre  | gcc-10   | x86_64_defconf=
+ig             | 1          =
 
-diff --git a/drivers/cxl/pmem.c b/drivers/cxl/pmem.c
-index 08bbbac9a6d0..71cfa1fdf902 100644
---- a/drivers/cxl/pmem.c
-+++ b/drivers/cxl/pmem.c
-@@ -76,6 +76,7 @@ static int cxl_nvdimm_probe(struct device *dev)
- 		return rc;
- 
- 	set_bit(NDD_LABELING, &flags);
-+	set_bit(NDD_REGISTER_SYNC, &flags);
- 	set_bit(ND_CMD_GET_CONFIG_SIZE, &cmd_mask);
- 	set_bit(ND_CMD_GET_CONFIG_DATA, &cmd_mask);
- 	set_bit(ND_CMD_SET_CONFIG_DATA, &cmd_mask);
-diff --git a/drivers/nvdimm/bus.c b/drivers/nvdimm/bus.c
-index b38d0355b0ac..5ad49056921b 100644
---- a/drivers/nvdimm/bus.c
-+++ b/drivers/nvdimm/bus.c
-@@ -508,7 +508,7 @@ static void nd_async_device_unregister(void *d, async_cookie_t cookie)
- 	put_device(dev);
- }
- 
--void nd_device_register(struct device *dev)
-+static void __nd_device_register(struct device *dev, bool sync)
- {
- 	if (!dev)
- 		return;
-@@ -531,11 +531,24 @@ void nd_device_register(struct device *dev)
- 	}
- 	get_device(dev);
- 
--	async_schedule_dev_domain(nd_async_device_register, dev,
--				  &nd_async_domain);
-+	if (sync)
-+		nd_async_device_register(dev, 0);
-+	else
-+		async_schedule_dev_domain(nd_async_device_register, dev,
-+					  &nd_async_domain);
-+}
-+
-+void nd_device_register(struct device *dev)
-+{
-+	__nd_device_register(dev, false);
- }
- EXPORT_SYMBOL(nd_device_register);
- 
-+void nd_device_register_sync(struct device *dev)
-+{
-+	__nd_device_register(dev, true);
-+}
-+
- void nd_device_unregister(struct device *dev, enum nd_async_mode mode)
- {
- 	bool killed;
-diff --git a/drivers/nvdimm/dimm_devs.c b/drivers/nvdimm/dimm_devs.c
-index 1fc081dcf631..6d3b03a9fa02 100644
---- a/drivers/nvdimm/dimm_devs.c
-+++ b/drivers/nvdimm/dimm_devs.c
-@@ -624,7 +624,10 @@ struct nvdimm *__nvdimm_create(struct nvdimm_bus *nvdimm_bus,
- 	nvdimm->sec.ext_flags = nvdimm_security_flags(nvdimm, NVDIMM_MASTER);
- 	device_initialize(dev);
- 	lockdep_set_class(&dev->mutex, &nvdimm_key);
--	nd_device_register(dev);
-+	if (test_bit(NDD_REGISTER_SYNC, &flags))
-+		nd_device_register_sync(dev);
-+	else
-+		nd_device_register(dev);
- 
- 	return nvdimm;
- }
-diff --git a/drivers/nvdimm/nd-core.h b/drivers/nvdimm/nd-core.h
-index cc86ee09d7c0..845408f10655 100644
---- a/drivers/nvdimm/nd-core.h
-+++ b/drivers/nvdimm/nd-core.h
-@@ -107,6 +107,7 @@ int nvdimm_bus_create_ndctl(struct nvdimm_bus *nvdimm_bus);
- void nvdimm_bus_destroy_ndctl(struct nvdimm_bus *nvdimm_bus);
- void nd_synchronize(void);
- void nd_device_register(struct device *dev);
-+void nd_device_register_sync(struct device *dev);
- struct nd_label_id;
- char *nd_label_gen_id(struct nd_label_id *label_id, const uuid_t *uuid,
- 		      u32 flags);
-diff --git a/include/linux/libnvdimm.h b/include/linux/libnvdimm.h
-index af38252ad704..e772aae71843 100644
---- a/include/linux/libnvdimm.h
-+++ b/include/linux/libnvdimm.h
-@@ -41,6 +41,9 @@ enum {
- 	 */
- 	NDD_INCOHERENT = 7,
- 
-+	/* dimm provider wants synchronous registration by __nvdimm_create() */
-+	NDD_REGISTER_SYNC = 8,
-+
- 	/* need to set a limit somewhere, but yes, this is likely overkill */
- 	ND_IOCTL_MAX_BUFLEN = SZ_4M,
- 	ND_CMD_MAX_ELEM = 5,
+qemu_x86_64-uefi       | x86_64 | lab-broonie   | gcc-10   | x86_64_defcon.=
+..6-chromebook | 1          =
 
+qemu_x86_64-uefi       | x86_64 | lab-broonie   | gcc-10   | x86_64_defconf=
+ig             | 1          =
+
+qemu_x86_64-uefi       | x86_64 | lab-collabora | gcc-10   | x86_64_defconf=
+ig             | 1          =
+
+qemu_x86_64-uefi-mixed | x86_64 | lab-baylibre  | gcc-10   | x86_64_defcon.=
+..6-chromebook | 1          =
+
+qemu_x86_64-uefi-mixed | x86_64 | lab-baylibre  | gcc-10   | x86_64_defconf=
+ig             | 1          =
+
+qemu_x86_64-uefi-mixed | x86_64 | lab-broonie   | gcc-10   | x86_64_defcon.=
+..6-chromebook | 1          =
+
+qemu_x86_64-uefi-mixed | x86_64 | lab-broonie   | gcc-10   | x86_64_defconf=
+ig             | 1          =
+
+qemu_x86_64-uefi-mixed | x86_64 | lab-collabora | gcc-10   | x86_64_defcon.=
+..6-chromebook | 1          =
+
+qemu_x86_64-uefi-mixed | x86_64 | lab-collabora | gcc-10   | x86_64_defconf=
+ig             | 1          =
+
+r8a7743-iwg20d-q7      | arm    | lab-cip       | gcc-10   | shmobile_defco=
+nfig           | 1          =
+
+
+  Details:  https://kernelci.org/test/job/stable-rc/branch/linux-5.10.y/ker=
+nel/v5.10.167-135-gd76a8be7803e/plan/baseline/
+
+  Test:     baseline
+  Tree:     stable-rc
+  Branch:   linux-5.10.y
+  Describe: v5.10.167-135-gd76a8be7803e
+  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
+able-rc.git
+  SHA:      d76a8be7803efeeb6195d71aea25a0596e297e43 =
+
+
+
+Test Regressions
+---------------- =
+
+
+
+platform               | arch   | lab           | compiler | defconfig     =
+               | regressions
+-----------------------+--------+---------------+----------+---------------=
+---------------+------------
+qemu_i386-uefi         | i386   | lab-baylibre  | gcc-10   | i386_defconfig=
+               | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/63ebce147cde38691d8c8661
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: i386_defconfig
+  Compiler:    gcc-10 (gcc (Debian 10.2.1-6) 10.2.1 20210110)
+  Plain log:   https://storage.kernelci.org//stable-rc/linux-5.10.y/v5.10.1=
+67-135-gd76a8be7803e/i386/i386_defconfig/gcc-10/lab-baylibre/baseline-qemu_=
+i386-uefi.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/linux-5.10.y/v5.10.1=
+67-135-gd76a8be7803e/i386/i386_defconfig/gcc-10/lab-baylibre/baseline-qemu_=
+i386-uefi.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
+t-baseline/20230211.0/x86/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/63ebce147cde38691d8c8=
+662
+        failing since 0 day (last pass: v5.10.167, first fail: v5.10.167-14=
+0-g65fa84413c15) =
+
+ =
+
+
+
+platform               | arch   | lab           | compiler | defconfig     =
+               | regressions
+-----------------------+--------+---------------+----------+---------------=
+---------------+------------
+qemu_i386-uefi         | i386   | lab-broonie   | gcc-10   | i386_defconfig=
+               | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/63ebce5087d891dde88c8688
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: i386_defconfig
+  Compiler:    gcc-10 (gcc (Debian 10.2.1-6) 10.2.1 20210110)
+  Plain log:   https://storage.kernelci.org//stable-rc/linux-5.10.y/v5.10.1=
+67-135-gd76a8be7803e/i386/i386_defconfig/gcc-10/lab-broonie/baseline-qemu_i=
+386-uefi.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/linux-5.10.y/v5.10.1=
+67-135-gd76a8be7803e/i386/i386_defconfig/gcc-10/lab-broonie/baseline-qemu_i=
+386-uefi.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
+t-baseline/20230211.0/x86/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/63ebce5087d891dde88c8=
+689
+        failing since 0 day (last pass: v5.10.167, first fail: v5.10.167-14=
+0-g65fa84413c15) =
+
+ =
+
+
+
+platform               | arch   | lab           | compiler | defconfig     =
+               | regressions
+-----------------------+--------+---------------+----------+---------------=
+---------------+------------
+qemu_x86_64-uefi       | x86_64 | lab-baylibre  | gcc-10   | x86_64_defcon.=
+..6-chromebook | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/63ebcd9d477e55082f8c8636
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: x86_64_defconfig+x86-chromebook
+  Compiler:    gcc-10 (gcc (Debian 10.2.1-6) 10.2.1 20210110)
+  Plain log:   https://storage.kernelci.org//stable-rc/linux-5.10.y/v5.10.1=
+67-135-gd76a8be7803e/x86_64/x86_64_defconfig+x86-chromebook/gcc-10/lab-bayl=
+ibre/baseline-qemu_x86_64-uefi.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/linux-5.10.y/v5.10.1=
+67-135-gd76a8be7803e/x86_64/x86_64_defconfig+x86-chromebook/gcc-10/lab-bayl=
+ibre/baseline-qemu_x86_64-uefi.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
+t-baseline/20230211.0/x86/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/63ebcd9d477e55082f8c8=
+637
+        failing since 0 day (last pass: v5.10.167, first fail: v5.10.167-14=
+0-g65fa84413c15) =
+
+ =
+
+
+
+platform               | arch   | lab           | compiler | defconfig     =
+               | regressions
+-----------------------+--------+---------------+----------+---------------=
+---------------+------------
+qemu_x86_64-uefi       | x86_64 | lab-baylibre  | gcc-10   | x86_64_defconf=
+ig             | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/63ebcdc32e5b9d6b228c8630
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: x86_64_defconfig
+  Compiler:    gcc-10 (gcc (Debian 10.2.1-6) 10.2.1 20210110)
+  Plain log:   https://storage.kernelci.org//stable-rc/linux-5.10.y/v5.10.1=
+67-135-gd76a8be7803e/x86_64/x86_64_defconfig/gcc-10/lab-baylibre/baseline-q=
+emu_x86_64-uefi.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/linux-5.10.y/v5.10.1=
+67-135-gd76a8be7803e/x86_64/x86_64_defconfig/gcc-10/lab-baylibre/baseline-q=
+emu_x86_64-uefi.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
+t-baseline/20230211.0/x86/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/63ebcdc32e5b9d6b228c8=
+631
+        new failure (last pass: v5.10.167) =
+
+ =
+
+
+
+platform               | arch   | lab           | compiler | defconfig     =
+               | regressions
+-----------------------+--------+---------------+----------+---------------=
+---------------+------------
+qemu_x86_64-uefi       | x86_64 | lab-broonie   | gcc-10   | x86_64_defcon.=
+..6-chromebook | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/63ebcdb0ada1b182978c863c
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: x86_64_defconfig+x86-chromebook
+  Compiler:    gcc-10 (gcc (Debian 10.2.1-6) 10.2.1 20210110)
+  Plain log:   https://storage.kernelci.org//stable-rc/linux-5.10.y/v5.10.1=
+67-135-gd76a8be7803e/x86_64/x86_64_defconfig+x86-chromebook/gcc-10/lab-broo=
+nie/baseline-qemu_x86_64-uefi.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/linux-5.10.y/v5.10.1=
+67-135-gd76a8be7803e/x86_64/x86_64_defconfig+x86-chromebook/gcc-10/lab-broo=
+nie/baseline-qemu_x86_64-uefi.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
+t-baseline/20230211.0/x86/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/63ebcdb0ada1b182978c8=
+63d
+        failing since 0 day (last pass: v5.10.167, first fail: v5.10.167-14=
+0-g65fa84413c15) =
+
+ =
+
+
+
+platform               | arch   | lab           | compiler | defconfig     =
+               | regressions
+-----------------------+--------+---------------+----------+---------------=
+---------------+------------
+qemu_x86_64-uefi       | x86_64 | lab-broonie   | gcc-10   | x86_64_defconf=
+ig             | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/63ebcdc4ada1b182978c8658
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: x86_64_defconfig
+  Compiler:    gcc-10 (gcc (Debian 10.2.1-6) 10.2.1 20210110)
+  Plain log:   https://storage.kernelci.org//stable-rc/linux-5.10.y/v5.10.1=
+67-135-gd76a8be7803e/x86_64/x86_64_defconfig/gcc-10/lab-broonie/baseline-qe=
+mu_x86_64-uefi.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/linux-5.10.y/v5.10.1=
+67-135-gd76a8be7803e/x86_64/x86_64_defconfig/gcc-10/lab-broonie/baseline-qe=
+mu_x86_64-uefi.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
+t-baseline/20230211.0/x86/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/63ebcdc4ada1b182978c8=
+659
+        new failure (last pass: v5.10.167) =
+
+ =
+
+
+
+platform               | arch   | lab           | compiler | defconfig     =
+               | regressions
+-----------------------+--------+---------------+----------+---------------=
+---------------+------------
+qemu_x86_64-uefi       | x86_64 | lab-collabora | gcc-10   | x86_64_defconf=
+ig             | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/63ebcd86a58d9afa928c863e
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: x86_64_defconfig
+  Compiler:    gcc-10 (gcc (Debian 10.2.1-6) 10.2.1 20210110)
+  Plain log:   https://storage.kernelci.org//stable-rc/linux-5.10.y/v5.10.1=
+67-135-gd76a8be7803e/x86_64/x86_64_defconfig/gcc-10/lab-collabora/baseline-=
+qemu_x86_64-uefi.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/linux-5.10.y/v5.10.1=
+67-135-gd76a8be7803e/x86_64/x86_64_defconfig/gcc-10/lab-collabora/baseline-=
+qemu_x86_64-uefi.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
+t-baseline/20230211.0/x86/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/63ebcd86a58d9afa928c8=
+63f
+        new failure (last pass: v5.10.167) =
+
+ =
+
+
+
+platform               | arch   | lab           | compiler | defconfig     =
+               | regressions
+-----------------------+--------+---------------+----------+---------------=
+---------------+------------
+qemu_x86_64-uefi-mixed | x86_64 | lab-baylibre  | gcc-10   | x86_64_defcon.=
+..6-chromebook | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/63ebcd9b477e55082f8c8630
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: x86_64_defconfig+x86-chromebook
+  Compiler:    gcc-10 (gcc (Debian 10.2.1-6) 10.2.1 20210110)
+  Plain log:   https://storage.kernelci.org//stable-rc/linux-5.10.y/v5.10.1=
+67-135-gd76a8be7803e/x86_64/x86_64_defconfig+x86-chromebook/gcc-10/lab-bayl=
+ibre/baseline-qemu_x86_64-uefi-mixed.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/linux-5.10.y/v5.10.1=
+67-135-gd76a8be7803e/x86_64/x86_64_defconfig+x86-chromebook/gcc-10/lab-bayl=
+ibre/baseline-qemu_x86_64-uefi-mixed.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
+t-baseline/20230211.0/x86/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/63ebcd9b477e55082f8c8=
+631
+        new failure (last pass: v5.10.167) =
+
+ =
+
+
+
+platform               | arch   | lab           | compiler | defconfig     =
+               | regressions
+-----------------------+--------+---------------+----------+---------------=
+---------------+------------
+qemu_x86_64-uefi-mixed | x86_64 | lab-baylibre  | gcc-10   | x86_64_defconf=
+ig             | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/63ebcdc42e5b9d6b228c8636
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: x86_64_defconfig
+  Compiler:    gcc-10 (gcc (Debian 10.2.1-6) 10.2.1 20210110)
+  Plain log:   https://storage.kernelci.org//stable-rc/linux-5.10.y/v5.10.1=
+67-135-gd76a8be7803e/x86_64/x86_64_defconfig/gcc-10/lab-baylibre/baseline-q=
+emu_x86_64-uefi-mixed.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/linux-5.10.y/v5.10.1=
+67-135-gd76a8be7803e/x86_64/x86_64_defconfig/gcc-10/lab-baylibre/baseline-q=
+emu_x86_64-uefi-mixed.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
+t-baseline/20230211.0/x86/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/63ebcdc42e5b9d6b228c8=
+637
+        new failure (last pass: v5.10.166-100-ge9ce3cb0864d) =
+
+ =
+
+
+
+platform               | arch   | lab           | compiler | defconfig     =
+               | regressions
+-----------------------+--------+---------------+----------+---------------=
+---------------+------------
+qemu_x86_64-uefi-mixed | x86_64 | lab-broonie   | gcc-10   | x86_64_defcon.=
+..6-chromebook | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/63ebcd9d477e55082f8c863a
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: x86_64_defconfig+x86-chromebook
+  Compiler:    gcc-10 (gcc (Debian 10.2.1-6) 10.2.1 20210110)
+  Plain log:   https://storage.kernelci.org//stable-rc/linux-5.10.y/v5.10.1=
+67-135-gd76a8be7803e/x86_64/x86_64_defconfig+x86-chromebook/gcc-10/lab-broo=
+nie/baseline-qemu_x86_64-uefi-mixed.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/linux-5.10.y/v5.10.1=
+67-135-gd76a8be7803e/x86_64/x86_64_defconfig+x86-chromebook/gcc-10/lab-broo=
+nie/baseline-qemu_x86_64-uefi-mixed.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
+t-baseline/20230211.0/x86/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/63ebcd9d477e55082f8c8=
+63b
+        new failure (last pass: v5.10.167) =
+
+ =
+
+
+
+platform               | arch   | lab           | compiler | defconfig     =
+               | regressions
+-----------------------+--------+---------------+----------+---------------=
+---------------+------------
+qemu_x86_64-uefi-mixed | x86_64 | lab-broonie   | gcc-10   | x86_64_defconf=
+ig             | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/63ebce007eaf33c9678c865e
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: x86_64_defconfig
+  Compiler:    gcc-10 (gcc (Debian 10.2.1-6) 10.2.1 20210110)
+  Plain log:   https://storage.kernelci.org//stable-rc/linux-5.10.y/v5.10.1=
+67-135-gd76a8be7803e/x86_64/x86_64_defconfig/gcc-10/lab-broonie/baseline-qe=
+mu_x86_64-uefi-mixed.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/linux-5.10.y/v5.10.1=
+67-135-gd76a8be7803e/x86_64/x86_64_defconfig/gcc-10/lab-broonie/baseline-qe=
+mu_x86_64-uefi-mixed.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
+t-baseline/20230211.0/x86/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/63ebce007eaf33c9678c8=
+65f
+        new failure (last pass: v5.10.166-100-ge9ce3cb0864d) =
+
+ =
+
+
+
+platform               | arch   | lab           | compiler | defconfig     =
+               | regressions
+-----------------------+--------+---------------+----------+---------------=
+---------------+------------
+qemu_x86_64-uefi-mixed | x86_64 | lab-collabora | gcc-10   | x86_64_defcon.=
+..6-chromebook | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/63ebcd85765b7b5f718c862f
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: x86_64_defconfig+x86-chromebook
+  Compiler:    gcc-10 (gcc (Debian 10.2.1-6) 10.2.1 20210110)
+  Plain log:   https://storage.kernelci.org//stable-rc/linux-5.10.y/v5.10.1=
+67-135-gd76a8be7803e/x86_64/x86_64_defconfig+x86-chromebook/gcc-10/lab-coll=
+abora/baseline-qemu_x86_64-uefi-mixed.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/linux-5.10.y/v5.10.1=
+67-135-gd76a8be7803e/x86_64/x86_64_defconfig+x86-chromebook/gcc-10/lab-coll=
+abora/baseline-qemu_x86_64-uefi-mixed.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
+t-baseline/20230211.0/x86/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/63ebcd85765b7b5f718c8=
+630
+        new failure (last pass: v5.10.167) =
+
+ =
+
+
+
+platform               | arch   | lab           | compiler | defconfig     =
+               | regressions
+-----------------------+--------+---------------+----------+---------------=
+---------------+------------
+qemu_x86_64-uefi-mixed | x86_64 | lab-collabora | gcc-10   | x86_64_defconf=
+ig             | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/63ebcd87765b7b5f718c8635
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: x86_64_defconfig
+  Compiler:    gcc-10 (gcc (Debian 10.2.1-6) 10.2.1 20210110)
+  Plain log:   https://storage.kernelci.org//stable-rc/linux-5.10.y/v5.10.1=
+67-135-gd76a8be7803e/x86_64/x86_64_defconfig/gcc-10/lab-collabora/baseline-=
+qemu_x86_64-uefi-mixed.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/linux-5.10.y/v5.10.1=
+67-135-gd76a8be7803e/x86_64/x86_64_defconfig/gcc-10/lab-collabora/baseline-=
+qemu_x86_64-uefi-mixed.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
+t-baseline/20230211.0/x86/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/63ebcd87765b7b5f718c8=
+636
+        new failure (last pass: v5.10.166-100-ge9ce3cb0864d) =
+
+ =
+
+
+
+platform               | arch   | lab           | compiler | defconfig     =
+               | regressions
+-----------------------+--------+---------------+----------+---------------=
+---------------+------------
+r8a7743-iwg20d-q7      | arm    | lab-cip       | gcc-10   | shmobile_defco=
+nfig           | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/63ebcd91765b7b5f718c8643
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: shmobile_defconfig
+  Compiler:    gcc-10 (arm-linux-gnueabihf-gcc (Debian 10.2.1-6) 10.2.1 202=
+10110)
+  Plain log:   https://storage.kernelci.org//stable-rc/linux-5.10.y/v5.10.1=
+67-135-gd76a8be7803e/arm/shmobile_defconfig/gcc-10/lab-cip/baseline-r8a7743=
+-iwg20d-q7.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/linux-5.10.y/v5.10.1=
+67-135-gd76a8be7803e/arm/shmobile_defconfig/gcc-10/lab-cip/baseline-r8a7743=
+-iwg20d-q7.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
+t-baseline/20230211.0/armel/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/63ebcd91765b7b5f718c8=
+644
+        new failure (last pass: v5.10.167-140-g65fa84413c15) =
+
+ =20
