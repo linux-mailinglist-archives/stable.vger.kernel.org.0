@@ -2,54 +2,57 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 82F506963F4
-	for <lists+stable@lfdr.de>; Tue, 14 Feb 2023 13:55:08 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0A45F6963FB
+	for <lists+stable@lfdr.de>; Tue, 14 Feb 2023 13:57:06 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232241AbjBNMzH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 14 Feb 2023 07:55:07 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39924 "EHLO
+        id S230162AbjBNM5E (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 14 Feb 2023 07:57:04 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41176 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230162AbjBNMzG (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 14 Feb 2023 07:55:06 -0500
-Received: from sipsolutions.net (s3.sipsolutions.net [IPv6:2a01:4f8:191:4433::2])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 57BF516AEE;
-        Tue, 14 Feb 2023 04:55:05 -0800 (PST)
+        with ESMTP id S229880AbjBNM5D (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 14 Feb 2023 07:57:03 -0500
+Received: from pandora.armlinux.org.uk (pandora.armlinux.org.uk [IPv6:2001:4d48:ad52:32c8:5054:ff:fe00:142])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1C1731E5F2
+        for <stable@vger.kernel.org>; Tue, 14 Feb 2023 04:56:59 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
-        d=sipsolutions.net; s=mail; h=MIME-Version:Content-Transfer-Encoding:
-        Content-Type:References:In-Reply-To:Date:Cc:To:From:Subject:Message-ID:Sender
-        :Reply-To:Content-ID:Content-Description:Resent-Date:Resent-From:Resent-To:
-        Resent-Cc:Resent-Message-ID; bh=kd8Tkpw2geIhdESAwykD0ZVGRSJYIx/HqjzlFVd0yxI=;
-        t=1676379305; x=1677588905; b=AvZLEPFS1HaXLki/BsL9rF9Bz0YqwL+nEpxGjXtF10kXiAb
-        P6l/D203CuK1wazu06supRkAEtGAJGIAIHjVLEhZcBf57gA2lf3Vpd5uGO8d6UFp6hrftdX1VRmxm
-        bih2FB+6D2NWKe4JW1r+Y2i061jukE5IXEzbzYdPCRhqujQacLqJ81YGB/LXi28pdrz1JBbHSIqxA
-        0GmDfQ3+Y2pzMjSeNchBdlGzIbOCOpq+YwTXtEq6O7RLEyhLa+6wa1rGGwEZooJAqgU/AMcHbl0+1
-        ASBCzDOpQhND7NWt1XOXIX7sJqpSNzk6ZsJpCOJjGWYDo54L4har86AhyXlJaFeA==;
-Received: by sipsolutions.net with esmtpsa (TLS1.3:ECDHE_X25519__RSA_PSS_RSAE_SHA256__AES_256_GCM:256)
-        (Exim 4.96)
-        (envelope-from <johannes@sipsolutions.net>)
-        id 1pRupY-00C91H-3B;
-        Tue, 14 Feb 2023 13:54:45 +0100
-Message-ID: <aef83367258771b3e71c6043f4cc0661473fd58b.camel@sipsolutions.net>
-Subject: Re: [PATCH v3] Set ssid when authenticating
-From:   Johannes Berg <johannes@sipsolutions.net>
-To:     Marc Bornand <dev.mbornand@systemb.ch>,
-        linux-wireless@vger.kernel.org
-Cc:     "David S . Miller" <davem@davemloft.net>,
-        Eric Dumazet <edumazet@google.com>,
-        Jakub Kicinski <kuba@kernel.org>,
-        Paolo Abeni <pabeni@redhat.com>, netdev@vger.kernel.org,
-        linux-kernel@vger.kernel.org, Kalle Valo <kvalo@kernel.org>,
-        Yohan Prod'homme <kernel@zoddo.fr>, stable@vger.kernel.org
-Date:   Tue, 14 Feb 2023 13:54:43 +0100
-In-Reply-To: <20230213210521.1672392-1-dev.mbornand@systemb.ch>
-References: <20230213210521.1672392-1-dev.mbornand@systemb.ch>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
-User-Agent: Evolution 3.46.3 (3.46.3-1.fc37) 
+        d=armlinux.org.uk; s=pandora-2019; h=Sender:In-Reply-To:Content-Type:
+        MIME-Version:References:Message-ID:Subject:Cc:To:From:Date:Reply-To:
+        Content-Transfer-Encoding:Content-ID:Content-Description:Resent-Date:
+        Resent-From:Resent-Sender:Resent-To:Resent-Cc:Resent-Message-ID:List-Id:
+        List-Help:List-Unsubscribe:List-Subscribe:List-Post:List-Owner:List-Archive;
+        bh=PtfppDuhmItMbeRFKmWWvY7+fa5G0s4vx2Kkf6nxpmY=; b=yKdpKUYfPQlrROj6L4K4a67X37
+        F66BMtigFk6a8nF8FnBv2w4AulKIJ5/Xx2792amfeb+lglzOvNCdgzIyd18Q6rULuny/URlVQXGog
+        PLyboSdRAT4P9Zz/NIS2Cu1OH8Q8lvAE9nKFLBBvdyX/MQjFoyt1JmpKIQK80YqLYuFJ35zaUewl1
+        VGS/+/Rl1Xr8L6jrrAzIZ3xy0aQmtOFRmnkN//IkvfWAbhLf6yGB36pqI5F7nVhSYrG8J5P3K+TBV
+        RoM9agDmcD62YaoVd/TvJ4JXb2Ks3uepLFfKdt56tBmq8To5SjwqHVqNIVpYKvVxXjoMPDkW5uMyx
+        Jqh6P5Pg==;
+Received: from shell.armlinux.org.uk ([fd8f:7570:feb6:1:5054:ff:fe00:4ec]:35252)
+        by pandora.armlinux.org.uk with esmtpsa  (TLS1.3) tls TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384
+        (Exim 4.94.2)
+        (envelope-from <linux@armlinux.org.uk>)
+        id 1pRure-0005Q4-JE; Tue, 14 Feb 2023 12:56:54 +0000
+Received: from linux by shell.armlinux.org.uk with local (Exim 4.94.2)
+        (envelope-from <linux@shell.armlinux.org.uk>)
+        id 1pRurb-0003vG-LV; Tue, 14 Feb 2023 12:56:51 +0000
+Date:   Tue, 14 Feb 2023 12:56:51 +0000
+From:   "Russell King (Oracle)" <linux@armlinux.org.uk>
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc:     stable@vger.kernel.org, patches@lists.linux.dev,
+        kernel test robot <lkp@intel.com>,
+        Dan Carpenter <error27@gmail.com>,
+        Srinivas Kandagatla <srinivas.kandagatla@linaro.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: Re: [PATCH 5.15 02/67] nvmem: core: fix cleanup after dev_set_name()
+Message-ID: <Y+uFE/Q6bb6IhfDf@shell.armlinux.org.uk>
+References: <20230213144732.336342050@linuxfoundation.org>
+ <20230213144732.453228453@linuxfoundation.org>
 MIME-Version: 1.0
-X-malware-bazaar: not-scanned
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20230213144732.453228453@linuxfoundation.org>
+Sender: Russell King (Oracle) <linux@armlinux.org.uk>
 X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,SPF_HELO_PASS,SPF_PASS
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,SPF_HELO_NONE,SPF_NONE
         autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -57,75 +60,27 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hi,
+On Mon, Feb 13, 2023 at 03:48:43PM +0100, Greg Kroah-Hartman wrote:
 
-Please provide a proper subject/commit message for this. The
-"authenticating" is no longer true anyway.
+> -	if (rval) {
+> -		ida_free(&nvmem_ida, nvmem->id);
+> -		kfree(nvmem);
+> -		return ERR_PTR(rval);
+> -	}
+> +	if (rval)
+> +		goto err_put_device;
 
-See
-https://wireless.wiki.kernel.org/en/developers/documentation/submittingpatc=
-hes#commit_messages
+I can't work out what you've done here - the hunk seems to suggest
+that you've cherry picked 5544e90c8126 ("nvmem: core: add error handling
+for dev_set_name") but I can see no evidence of that in my mailbox.
+This makes it hard to recreate your 5.15 tree to be able to provide
+you an updated patch for the one that failed.
 
-On Mon, 2023-02-13 at 21:05 +0000, Marc Bornand wrote:
-> changes since v2:
-> - The code was tottaly rewritten based on the disscution of the
->   v2 patch.
-> - the ssid is set in __cfg80211_connect_result() and only if the ssid is
->   not already set.
-> - Do not add an other ssid reset path since it is already done in
->   __cfg80211_disconnected()
->=20
-> When a connexion was established without going through
+Please provide a list of patches that you have queued for nvmem
+from your linux-5.15.y branch.
 
-connection
+Thanks.
 
-> NL80211_CMD_CONNECT, the ssid was never set in the wireless_dev struct.
-> Now we set it in __cfg80211_connect_result() when it is not already set.
->=20
-> Reported-by: Yohan Prod'homme <kernel@zoddo.fr>
-> Fixes: 7b0a0e3c3a88260b6fcb017e49f198463aa62ed1
-> Cc: linux-wireless@vger.kernel.org
-> Cc: stable@vger.kernel.org
-> Link: https://bugzilla.kernel.org/show_bug.cgi?id=3D216711
-> Signed-off-by: Marc Bornand <dev.mbornand@systemb.ch>
-> ---
->  net/wireless/sme.c | 16 ++++++++++++++++
->  1 file changed, 16 insertions(+)
->=20
-> diff --git a/net/wireless/sme.c b/net/wireless/sme.c
-> index 4b5b6ee0fe01..629d7b5f65c1 100644
-> --- a/net/wireless/sme.c
-> +++ b/net/wireless/sme.c
->=20
-> @@ -723,6 +723,7 @@ void __cfg80211_connect_result(struct net_device *dev=
-,
->  			       bool wextev)
->  {
->  	struct wireless_dev *wdev =3D dev->ieee80211_ptr;
-> +	const struct element *ssid;
->  	const struct element *country_elem =3D NULL;
->  	const u8 *country_data;
->  	u8 country_datalen;
-> @@ -883,6 +884,21 @@ void __cfg80211_connect_result(struct net_device *de=
-v,
->  				   country_data, country_datalen);
->  	kfree(country_data);
->=20
-> +	if (wdev->u.client.ssid_len =3D=3D 0) {
-> +		rcu_read_lock();
-> +		for_each_valid_link(cr, link) {
-> +			ssid =3D ieee80211_bss_get_elem(cr->links[link].bss,
-> +						      WLAN_EID_SSID);
-> +
-> +			if (ssid->datalen =3D=3D 0)
-
-need to check also that it exists
-
-> +				continue;
-> +
-> +			memcpy(wdev->u.client.ssid, ssid->data, ssid->datalen);
-> +			wdev->u.client.ssid_len =3D ssid->datalen;
-
-you can break here.
-
-johannes
+-- 
+RMK's Patch system: https://www.armlinux.org.uk/developer/patches/
+FTTP is here! 40Mbps down 10Mbps up. Decent connectivity at last!
