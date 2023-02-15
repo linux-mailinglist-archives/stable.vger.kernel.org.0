@@ -2,46 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id F1DB5698628
-	for <lists+stable@lfdr.de>; Wed, 15 Feb 2023 21:48:19 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6EDCC69860E
+	for <lists+stable@lfdr.de>; Wed, 15 Feb 2023 21:47:29 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230029AbjBOUsS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 15 Feb 2023 15:48:18 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33168 "EHLO
+        id S229504AbjBOUr1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 15 Feb 2023 15:47:27 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33708 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229864AbjBOUri (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 15 Feb 2023 15:47:38 -0500
-Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7D69E4393E;
-        Wed, 15 Feb 2023 12:46:54 -0800 (PST)
+        with ESMTP id S229696AbjBOUrA (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 15 Feb 2023 15:47:00 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AD15842DCC;
+        Wed, 15 Feb 2023 12:46:32 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id B8652CE2702;
+        by ams.source.kernel.org (Postfix) with ESMTPS id D8CF2B823BB;
         Wed, 15 Feb 2023 20:46:30 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A68F8C4339B;
-        Wed, 15 Feb 2023 20:46:28 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6B781C433D2;
+        Wed, 15 Feb 2023 20:46:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
         s=k20201202; t=1676493989;
-        bh=yopj1Ok402VLqO03d/DGnckaXgp6bdvXmnEXhDwCoZk=;
+        bh=pTSRAXw7DYGKWZHU3UYXOHJQxgUkpC+l+eg/xofmgYo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=YTYIjoIrgsRA7KMccYgbB0asWKaRTdSszOuNEUFEvriXlkHb+lVywPDMMn78PwEgd
-         WGXm8md8p6sLtNkAZ+miTojwtLnrdtlE5a35hc7S9/dTZWqh04MPcKOYETo75ncviH
-         ELvL2P4X9GXPctiO+1R85SOXUo/fuzTTTVt6w48JSg+Q7Ik4LJ0OAFVP2FFCLNAv2o
-         N3y2iphHAiqXKl1OjQY1DF1TgiuKk/OaB7ov5ao5Dlg0Ts50jO/gXSm80aIjsL1HpC
-         tYAWX6qSplzkleSpg1UGJeb1v5mbD3zt8XIQNyzcqt3tSFW55M/w7t7PFWi9QmhN26
-         VUez340LvpAJQ==
+        b=EBN5vt/1jEftW1K1+cGaz1z8NtRDr8gFNjfxjD7f2nU/r/Ip81IzaJ0O8ZShM9EhA
+         To6Ys4uWKqhr5eIkRnMYxRlZQQHEsSQLqIeVd/3pua5v7KRaUffrJzRMMBijAVAOI7
+         6Pd20xifQ2IHnt3MQknbv83TyfyTfObonqQ3RsYIwGOqvE/4ylxgR3zuLquOeMuS9T
+         JkZfLsXxleaZ3pK1TpRm9OWgk6T331pqmAIxwfrDewcEiwfWRsE7SkU1byx7COokJZ
+         gCKz4ieDprJ6LEc6R7bfQp8OR8ZY9sfx+QsRmYYD9dqE/x3fQM3pR0jcAT4/+WqIKy
+         0TD9gtWCAynFA==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Alexey Firago <a.firago@yadro.com>,
-        Mark Brown <broonie@kernel.org>,
-        Sasha Levin <sashal@kernel.org>, lgirdwood@gmail.com,
-        perex@perex.cz, tiwai@suse.com, yangyingliang@huawei.com,
-        yangxiaohua@everest-semi.com, zhuning0077@gmail.com,
-        u.kleine-koenig@pengutronix.de, alsa-devel@alsa-project.org
-Subject: [PATCH AUTOSEL 6.1 20/24] ASoC: codecs: es8326: Fix DTS properties reading
-Date:   Wed, 15 Feb 2023 15:45:43 -0500
-Message-Id: <20230215204547.2760761-20-sashal@kernel.org>
+Cc:     Luka Guzenko <l.guzenko@web.de>,
+        Benjamin Tissoires <benjamin.tissoires@redhat.com>,
+        Sasha Levin <sashal@kernel.org>, jikos@kernel.org,
+        linux-input@vger.kernel.org
+Subject: [PATCH AUTOSEL 6.1 21/24] HID: Ignore battery for ELAN touchscreen 29DF on HP
+Date:   Wed, 15 Feb 2023 15:45:44 -0500
+Message-Id: <20230215204547.2760761-21-sashal@kernel.org>
 X-Mailer: git-send-email 2.39.0
 In-Reply-To: <20230215204547.2760761-1-sashal@kernel.org>
 References: <20230215204547.2760761-1-sashal@kernel.org>
@@ -49,8 +47,8 @@ MIME-Version: 1.0
 X-stable: review
 X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
         SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -58,49 +56,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alexey Firago <a.firago@yadro.com>
+From: Luka Guzenko <l.guzenko@web.de>
 
-[ Upstream commit fe1e7e8ce2c47bd8fd9885eab63fca0a522e94c9 ]
+[ Upstream commit ebebf05a4b06a1be49788ca0edf990de01c4b0d0 ]
 
-Seems like properties parsing and reading was copy-pasted,
-so "everest,interrupt-src" and "everest,interrupt-clk" are saved into
-the es8326->jack_pol variable. This might lead to wrong settings
-being saved into the reg 57 (ES8326_HP_DET).
+The touchscreen reports a battery status of 0% and jumps to 1% when a
+stylus is used. The device ID was added and the battery ignore quirk was
+enabled for it.
 
-Fix this by using proper variables while reading properties.
-
-Signed-off-by: Alexey Firago <a.firago@yadro.com>
-Reviewed-by: Yang Yingliang <yangyingliang@huawei.com
-Link: https://lore.kernel.org/r/20230204195106.46539-1-a.firago@yadro.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
+Signed-off-by: Luka Guzenko <l.guzenko@web.de>
+Link: https://lore.kernel.org/r/20230120223741.3007-1-l.guzenko@web.de
+Signed-off-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/soc/codecs/es8326.c | 6 ++++--
- 1 file changed, 4 insertions(+), 2 deletions(-)
+ drivers/hid/hid-ids.h   | 1 +
+ drivers/hid/hid-input.c | 2 ++
+ 2 files changed, 3 insertions(+)
 
-diff --git a/sound/soc/codecs/es8326.c b/sound/soc/codecs/es8326.c
-index 87c1cc16592bb..555125efd9ad3 100644
---- a/sound/soc/codecs/es8326.c
-+++ b/sound/soc/codecs/es8326.c
-@@ -729,14 +729,16 @@ static int es8326_probe(struct snd_soc_component *component)
- 	}
- 	dev_dbg(component->dev, "jack-pol %x", es8326->jack_pol);
- 
--	ret = device_property_read_u8(component->dev, "everest,interrupt-src", &es8326->jack_pol);
-+	ret = device_property_read_u8(component->dev, "everest,interrupt-src",
-+				      &es8326->interrupt_src);
- 	if (ret != 0) {
- 		dev_dbg(component->dev, "interrupt-src return %d", ret);
- 		es8326->interrupt_src = ES8326_HP_DET_SRC_PIN9;
- 	}
- 	dev_dbg(component->dev, "interrupt-src %x", es8326->interrupt_src);
- 
--	ret = device_property_read_u8(component->dev, "everest,interrupt-clk", &es8326->jack_pol);
-+	ret = device_property_read_u8(component->dev, "everest,interrupt-clk",
-+				      &es8326->interrupt_clk);
- 	if (ret != 0) {
- 		dev_dbg(component->dev, "interrupt-clk return %d", ret);
- 		es8326->interrupt_clk = 0x45;
+diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
+index 46c0ce4203c08..9e36b4cd905ee 100644
+--- a/drivers/hid/hid-ids.h
++++ b/drivers/hid/hid-ids.h
+@@ -413,6 +413,7 @@
+ #define I2C_DEVICE_ID_HP_ENVY_X360_15T_DR100	0x29CF
+ #define I2C_DEVICE_ID_HP_ENVY_X360_EU0009NV	0x2CF9
+ #define I2C_DEVICE_ID_HP_SPECTRE_X360_15	0x2817
++#define I2C_DEVICE_ID_HP_SPECTRE_X360_13_AW0020NG  0x29DF
+ #define I2C_DEVICE_ID_ASUS_TP420IA_TOUCHSCREEN 0x2BC8
+ #define USB_DEVICE_ID_ASUS_UX550VE_TOUCHSCREEN	0x2544
+ #define USB_DEVICE_ID_ASUS_UX550_TOUCHSCREEN	0x2706
+diff --git a/drivers/hid/hid-input.c b/drivers/hid/hid-input.c
+index 3736b0afbff73..7e94ca1822afb 100644
+--- a/drivers/hid/hid-input.c
++++ b/drivers/hid/hid-input.c
+@@ -386,6 +386,8 @@ static const struct hid_device_id hid_battery_quirks[] = {
+ 	  HID_BATTERY_QUIRK_IGNORE },
+ 	{ HID_I2C_DEVICE(USB_VENDOR_ID_ELAN, I2C_DEVICE_ID_HP_SPECTRE_X360_15),
+ 	  HID_BATTERY_QUIRK_IGNORE },
++	{ HID_I2C_DEVICE(USB_VENDOR_ID_ELAN, I2C_DEVICE_ID_HP_SPECTRE_X360_13_AW0020NG),
++	  HID_BATTERY_QUIRK_IGNORE },
+ 	{ HID_I2C_DEVICE(USB_VENDOR_ID_ELAN, I2C_DEVICE_ID_SURFACE_GO_TOUCHSCREEN),
+ 	  HID_BATTERY_QUIRK_IGNORE },
+ 	{ HID_I2C_DEVICE(USB_VENDOR_ID_ELAN, I2C_DEVICE_ID_SURFACE_GO2_TOUCHSCREEN),
 -- 
 2.39.0
 
