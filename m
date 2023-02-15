@@ -2,71 +2,56 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 6C0B5697977
-	for <lists+stable@lfdr.de>; Wed, 15 Feb 2023 11:03:28 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3964969797E
+	for <lists+stable@lfdr.de>; Wed, 15 Feb 2023 11:03:55 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229941AbjBOKDZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 15 Feb 2023 05:03:25 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34184 "EHLO
+        id S233420AbjBOKDv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 15 Feb 2023 05:03:51 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35726 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234163AbjBOKCq (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 15 Feb 2023 05:02:46 -0500
-Received: from mail-wr1-x434.google.com (mail-wr1-x434.google.com [IPv6:2a00:1450:4864:20::434])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DE56936FFA;
-        Wed, 15 Feb 2023 02:01:37 -0800 (PST)
-Received: by mail-wr1-x434.google.com with SMTP id r2so18466830wrv.7;
-        Wed, 15 Feb 2023 02:01:37 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
-        bh=0O5OE1pYPf4Bdxg8Thv2IJmSFslR0r4iXq6hhQFPsQo=;
-        b=KzdJLQ9yPDlXF96+31EwfJ15d7GWeppPU2bcWbiye8OU1ANGa/s5JxHn+oYTd3j/Yd
-         9gmPURkg0vkYa83IjBoBKQBZnPWguVscDRUj1vOpqktIzY78UPqTTi+pZnPCR85uxjoK
-         Bh9rlMg/lzyMCy41s/85kS3a37kFDH6eaE5xvOCwMH+CO0gA/fy0ZptoeUi7LyjIaldZ
-         fMERgJYu/7xMUCVwQo0cwDD6qK9atVSdWvruNj7rlW2w99oPt8KGZjbyng5Hpkq2fkpO
-         BX3Ldx71gk1axXGm36btQcFoDQGuWhcx6yu0OA7xNUZbJ9XzS7y8ysZSAWgXAaD0P2zg
-         94lQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=0O5OE1pYPf4Bdxg8Thv2IJmSFslR0r4iXq6hhQFPsQo=;
-        b=TEx56V6P2eBs3tYHzvUSEYOFBVRgehplZdKhGu/vBRLOw/pDoushXSzfezxh08RolY
-         Ji8l183U3BkJRF0vStX/kQY9bJlTCVwYtCiLIt6RJzP1gPUGts0z3ct6Rz4XCG7LG++O
-         RvEJkrEGXaXKpNdyW0VeElSd1bTcPg3mo4QZ4mP3goeMWSCBro9u9O8vc/sO0xb/nUnh
-         Ja4287d4eyLvNBVn+IuOlT1yV+b3mXz7bppccNx+oNFtVzLGbe8aN6OfB9AMpufnC13p
-         +HhvYEWIHJntRLToCWistx75DaQ/RWAdT+LiwugOWEHOoR4GxD6VZK2m7ArfY9BupFfZ
-         eRjQ==
-X-Gm-Message-State: AO0yUKVjnA9yhTfhU2VtCcW5LHVKjxYQ36LNILvBD0Yux2kEIiUa878H
-        s2f1KVH8mhybFvseGCjuR2x5b6rJsCs=
-X-Google-Smtp-Source: AK7set/syKP1KgtfZs0bsclPc0Y/kqWZICD77fWgN6l+GOibI6M9i43aofOjR0wF6puzx4glJuFFUw==
-X-Received: by 2002:adf:fc10:0:b0:2c5:465d:c1ab with SMTP id i16-20020adffc10000000b002c5465dc1abmr971373wrr.51.1676455292352;
-        Wed, 15 Feb 2023 02:01:32 -0800 (PST)
-Received: from debian ([167.98.27.226])
-        by smtp.gmail.com with ESMTPSA id h12-20020adff4cc000000b002be505ab59asm15344981wrp.97.2023.02.15.02.01.31
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 15 Feb 2023 02:01:32 -0800 (PST)
-Date:   Wed, 15 Feb 2023 10:01:30 +0000
-From:   "Sudip Mukherjee (Codethink)" <sudipm.mukherjee@gmail.com>
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     stable@vger.kernel.org, patches@lists.linux.dev,
-        linux-kernel@vger.kernel.org, torvalds@linux-foundation.org,
-        akpm@linux-foundation.org, linux@roeck-us.net, shuah@kernel.org,
-        patches@kernelci.org, lkft-triage@lists.linaro.org, pavel@denx.de,
-        jonathanh@nvidia.com, f.fainelli@gmail.com, srw@sladewatkins.net,
-        rwarsow@gmx.de
-Subject: Re: [PATCH 5.10 000/134] 5.10.168-rc2 review
-Message-ID: <Y+ytehE6Kv5moEou@debian>
-References: <20230214172549.450713187@linuxfoundation.org>
+        with ESMTP id S233108AbjBOKDp (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 15 Feb 2023 05:03:45 -0500
+Received: from frasgout.his.huawei.com (frasgout.his.huawei.com [185.176.79.56])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D79BD3757B;
+        Wed, 15 Feb 2023 02:03:31 -0800 (PST)
+Received: from lhrpeml500005.china.huawei.com (unknown [172.18.147.200])
+        by frasgout.his.huawei.com (SkyGuard) with ESMTP id 4PGtp0322Dz6J67P;
+        Wed, 15 Feb 2023 17:59:04 +0800 (CST)
+Received: from localhost (10.202.227.76) by lhrpeml500005.china.huawei.com
+ (7.191.163.240) with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id 15.1.2507.17; Wed, 15 Feb
+ 2023 10:03:28 +0000
+Date:   Wed, 15 Feb 2023 10:03:27 +0000
+From:   Jonathan Cameron <Jonathan.Cameron@Huawei.com>
+To:     Gregory Price <gregory.price@memverge.com>
+CC:     Dan Williams <dan.j.williams@intel.com>,
+        <linux-cxl@vger.kernel.org>, David Hildenbrand <david@redhat.com>,
+        Kees Cook <keescook@chromium.org>, <stable@vger.kernel.org>,
+        Dave Hansen <dave.hansen@linux.intel.com>,
+        Michal Hocko <mhocko@suse.com>, <linux-mm@kvack.org>,
+        <linux-acpi@vger.kernel.org>, <qemu-devel@nongnu.org>
+Subject: Re: [PATCH 00/18] CXL RAM and the 'Soft Reserved' => 'System RAM'
+ default
+Message-ID: <20230215100327.0000728f@Huawei.com>
+In-Reply-To: <Y+wC+rPRbAc9rudx@memverge.com>
+References: <167564534874.847146.5222419648551436750.stgit@dwillia2-xfh.jf.intel.com>
+        <Y+vSj8FD6ZaHhfoN@memverge.com>
+        <63ebd56e639e9_32d61294f4@dwillia2-xfh.jf.intel.com.notmuch>
+        <Y+vag3hg3VRNRUti@memverge.com>
+        <20230214211824.00007f91@Huawei.com>
+        <Y+wCeSig++c3ACkj@memverge.com>
+        <Y+wC+rPRbAc9rudx@memverge.com>
+Organization: Huawei Technologies Research and Development (UK) Ltd.
+X-Mailer: Claws Mail 4.1.0 (GTK 3.24.33; x86_64-w64-mingw32)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20230214172549.450713187@linuxfoundation.org>
-X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_FROM,
-        RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS autolearn=ham
+Content-Type: text/plain; charset="US-ASCII"
+Content-Transfer-Encoding: 7bit
+X-Originating-IP: [10.202.227.76]
+X-ClientProxiedBy: lhrpeml500005.china.huawei.com (7.191.163.240) To
+ lhrpeml500005.china.huawei.com (7.191.163.240)
+X-CFilter-Loop: Reflected
+X-Spam-Status: No, score=-4.2 required=5.0 tests=BAYES_00,RCVD_IN_DNSWL_MED,
+        RCVD_IN_MSPIKE_H2,SPF_HELO_NONE,SPF_PASS autolearn=ham
         autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -74,44 +59,63 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hi Greg,
+On Tue, 14 Feb 2023 16:54:02 -0500
+Gregory Price <gregory.price@memverge.com> wrote:
 
-On Tue, Feb 14, 2023 at 06:41:06PM +0100, Greg Kroah-Hartman wrote:
-> This is the start of the stable review cycle for the 5.10.168 release.
-> There are 134 patches in this series, all will be posted as a response
-> to this one.  If anyone has any issues with these being applied, please
-> let me know.
+> On Tue, Feb 14, 2023 at 04:51:53PM -0500, Gregory Price wrote:
+> > On Tue, Feb 14, 2023 at 09:18:24PM +0000, Jonathan Cameron wrote:  
+> > > On Tue, 14 Feb 2023 14:01:23 -0500
+> > > Gregory Price <gregory.price@memverge.com> wrote:
+> > > 
+> > > Could you test it with TCG (just drop --enable-kvm)?  We have a known
+> > > limitation with x86 instructions running out of CXL emulated memory
+> > > (side effect of emulating the interleave).  You'll need a fix even on TCG
+> > > for the corner case of an instruction bridging from normal ram to cxl memory.
+> > > https://lore.kernel.org/qemu-devel/20230206193809.1153124-1-richard.henderson@linaro.org/
+> > > 
+> > > Performance will be bad, but so far this is only way we can do it correctly.
+> > > 
+> > > Jonathan
+> > >   
+> > 
+> > Siiiggghh... i had this patch and dropped --enable-kvm, but forgot to
+> > drop "accel=kvm" from the -machine line
+> > 
+> > This was the issue.
+> > 
+> > And let me tell you, if you numactl --membind=1 python, it is
+> > IMPRESSIVELY slow.  I wonder if it's even hitting a few 100k
+> > instructions a second.
+> > 
+> > 
+> > This appears to be the issue.  When I get a bit more time, try to dive
+> > into the deep dark depths of qemu memory regions to see how difficult
+> > a non-mmio fork might be, unless someone else is already looking at it.
+> > 
+> > ~Gregory  
 > 
-> Responses should be made by Thu, 16 Feb 2023 17:25:19 +0000.
-> Anything received after that time might be too late.
+> Just clarifying one thing:  Even with the patch, KVM blows up.
+> Disabling KVM fixes this entirely.  I haven't tested without KVM but
+> with the patch, i will do that now.
 
-My builds have tested f90240a238a9 v5.10.168-rc3 but I am not seeing
-any mail for that, bit confused now.
+yup.  The patch only fixes TCG so that's expected behavior.
 
-The result is for v5.10.168-rc3.
+Fingers crossed on this 'working'.
 
-Build test (gcc version 11.3.1 20230210):
-mips: 63 configs -> no failure
-arm: 104 configs -> no failure
-arm64: 3 configs -> no failure
-x86_64: 4 configs -> no failure
-alpha allmodconfig -> no failure
-powerpc allmodconfig -> no failure
-riscv allmodconfig -> no failure
-s390 allmodconfig -> no failure
-xtensa allmodconfig -> no failure
+I'm open to suggestions on how to work around the problem with KVM
+or indeed allow TCG to cache the instructions (right not it has
+to fetch and emulate each instruction on it's own).
 
-Boot test:
-x86_64: Booted on my test laptop. No regression.
-x86_64: Booted on qemu. No regression. [1]
-arm64: Booted on rpi4b (4GB model). No regression. [2]
+I can envision how we might do it for KVM with userspace page fault handling
+used to get a fault up to QEMU which can then stitch in a cache
+of the underlying memory as a stage 2 translation to the page (a little
+bit like how post migration copy works) though I've not prototyped
+anything...
 
-[1]. https://openqa.qa.codethink.co.uk/tests/2868
-[2]. https://openqa.qa.codethink.co.uk/tests/2869
+I think it would be complex code that would be little used
+so we may just have to cope with the emulation being slow.
 
+Intent is very much to be able to test the kernel code etc, not
+test it quickly :)
 
-Tested-by: Sudip Mukherjee <sudip.mukherjee@codethink.co.uk>
-
--- 
-Regards
-Sudip
+Jonathan
