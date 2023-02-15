@@ -2,74 +2,75 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id CAE5A697549
-	for <lists+stable@lfdr.de>; Wed, 15 Feb 2023 05:19:39 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D3AA569757F
+	for <lists+stable@lfdr.de>; Wed, 15 Feb 2023 05:44:57 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233113AbjBOETf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 14 Feb 2023 23:19:35 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43242 "EHLO
+        id S232948AbjBOEo4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 14 Feb 2023 23:44:56 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60784 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233265AbjBOETV (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 14 Feb 2023 23:19:21 -0500
-Received: from mail-oa1-x36.google.com (mail-oa1-x36.google.com [IPv6:2001:4860:4864:20::36])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 717D134330;
-        Tue, 14 Feb 2023 20:17:30 -0800 (PST)
-Received: by mail-oa1-x36.google.com with SMTP id 586e51a60fabf-16a7f5b6882so21586654fac.10;
-        Tue, 14 Feb 2023 20:17:30 -0800 (PST)
+        with ESMTP id S232911AbjBOEoz (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 14 Feb 2023 23:44:55 -0500
+Received: from mail-il1-x12f.google.com (mail-il1-x12f.google.com [IPv6:2607:f8b0:4864:20::12f])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 23A5623D85
+        for <stable@vger.kernel.org>; Tue, 14 Feb 2023 20:44:49 -0800 (PST)
+Received: by mail-il1-x12f.google.com with SMTP id v6so2155826ilc.10
+        for <stable@vger.kernel.org>; Tue, 14 Feb 2023 20:44:49 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:sender:from:to:cc:subject:date:message-id
-         :reply-to;
-        bh=xmVeJ55I3Amn4MeSLLrEqjAfEnFaFqqmJFVHznJhXDg=;
-        b=f0JQ8yzg+FPR5y3CaNNne8QhAd3lAC+Iilmkc/1qKFQTVBnRvohkiTN/g+NPgq0Xz1
-         9D/AruKAIVYyH6eQMAt3KOsjYJDlzJKisFMpwfFA3ZkKBrySd1D6r50TnpU+1DYDQMhU
-         HTY/kh7NQ2N99B2VXolM/BaAF5uCePH0rJi5DR4vF3ANxwwnMU0MsrkyeLbZJ9shFQkD
-         p+a3x4w9MUXBQdKGtJ+fBOhybW5arybnxQL5cC6MZL4StEjiLu2s4bkg8jB9OteGxdPg
-         ANdpvz12ub8F7pCYPMzncSWFQUQe/2u6J+lT534u39ulfGTjd3B5CPSi2rXD1mEzF7IG
-         ICFA==
+        d=google.com; s=20210112;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=aNl+bTrdiuBtPF/dZkoqbIPBqUd172UM9PQytiAg0FU=;
+        b=D2G98lGOMTBRIJ1x4dBdUgWK3SxCQ6sbqqGxh2DD6N68ZaAWWSIt9/4mLjXsykZ6Ob
+         Ii2D0xnzmp90+mjiQV+iNeRXVGivW94q58EhZhrLXYYECTm36G+oSQhPfmkesgRN9YFS
+         0RKOiLDbSZYKz2uPpIsuUzPCrPOb96rmSG0bz4/37H1byEBDQ6EoY46cVwkDrRIvtgfe
+         142s7zCy5eW2fILmcrSsiWxsHOKRx1kOibGKDhKXi8+MKpx2EKE1Si/vP3G/IYzwwsUR
+         8Bm4imKesxjpouqksDJnhHn1y3R6HICkXHEhYOFkiJg1dz5/HIlOZBL281VnI2yA63he
+         1leA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:sender:x-gm-message-state:from:to:cc
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=xmVeJ55I3Amn4MeSLLrEqjAfEnFaFqqmJFVHznJhXDg=;
-        b=Z8PSIe1yjBx/OgRApJPiJVJUnh7Gpb2i9ETa5C5UGHxMmVkJMAgOEM2CI7trASUPZV
-         px4/HzYdFtzzoLcUp0OtQGXfA0npq/60d35HQukQMt3CfMMZuoh9/rcwWWDgDodC+B31
-         lh0bSfVcVSpQ9Fib/IsqAAFIUy2iSK6BRHmfa5iSOzu8+KlCcQi5npcAeyGmf3Utz2cd
-         07SMw4Mx8+9elGXBa2oXbn8Xw225umOSu5yU28Eauqfnev+Qz6ZXguzRhQM2L81uK5Zr
-         wj7tiVPG/NSSFo5Zj/dalU63paw2+lv+WhqAINOl9H+d5ajpcGAW1PBRUQqIv5XL4Zi6
-         dEWA==
-X-Gm-Message-State: AO0yUKV0/0s8RRRHan8QAoRB/614BWL5EOAWdH/2lWqd2NCAS/ekaC9w
-        2YvapW1mkKKltU+tMbyAGS0cfk0GNK0=
-X-Google-Smtp-Source: AK7set9YxmE76VEtlEwSGDhLhrdacS37IAlGfOJedC4/nE6qBvViit+FXiWz6r49rMj3U8quEpIkWw==
-X-Received: by 2002:a05:6870:20c:b0:16d:d985:3363 with SMTP id j12-20020a056870020c00b0016dd9853363mr401941oad.36.1676434639838;
-        Tue, 14 Feb 2023 20:17:19 -0800 (PST)
-Received: from server.roeck-us.net ([2600:1700:e321:62f0:329c:23ff:fee3:9d7c])
-        by smtp.gmail.com with ESMTPSA id ds41-20020a0568705b2900b0016db8833b2dsm5181674oab.52.2023.02.14.20.17.18
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 14 Feb 2023 20:17:19 -0800 (PST)
-Sender: Guenter Roeck <groeck7@gmail.com>
-Date:   Tue, 14 Feb 2023 20:17:17 -0800
-From:   Guenter Roeck <linux@roeck-us.net>
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     stable@vger.kernel.org, patches@lists.linux.dev,
-        linux-kernel@vger.kernel.org, torvalds@linux-foundation.org,
-        akpm@linux-foundation.org, shuah@kernel.org, patches@kernelci.org,
-        lkft-triage@lists.linaro.org, pavel@denx.de, jonathanh@nvidia.com,
-        f.fainelli@gmail.com, sudipm.mukherjee@gmail.com,
-        srw@sladewatkins.net, rwarsow@gmx.de
-Subject: Re: [PATCH 5.10 000/134] 5.10.168-rc2 review
-Message-ID: <20230215041717.GA1237270@roeck-us.net>
-References: <20230214172549.450713187@linuxfoundation.org>
+        bh=aNl+bTrdiuBtPF/dZkoqbIPBqUd172UM9PQytiAg0FU=;
+        b=1Qx6XWBGS5EzeQYxOksLoo9lrhYL+Px0zmKa6liymnzYDTLxLFK3C7rrLRCQcfVStF
+         zutAxNdBHQFpRDby4rIThEnnz7adbiuQxGaq40uPLlMbZPQ8WsfENzUnlqq2/717exI+
+         Hr+/ljeP1BNZjUoBMlNnHmDDdfVcbv07aF5Ldk7PJ1s1+WpLzJPz4uhhxNi2989oVLrs
+         edP4yM8C8O0Mdos4pSPozhvkVHNRk9V9SD4AvUDAyc20h7xAHTAPldtDARnz8O4MYD34
+         C+R/WAJStLv08xt4itTBz8hnjdHHhmqkOIrQUqky/rVMEJj6BK6f+tB5bTOb6MSHo1ZM
+         vqfw==
+X-Gm-Message-State: AO0yUKVEcRvwENeTjbhD0V1/k4l/n9eFav+hEXKylvAbFkwMMxeQc6pV
+        pHovhjWPmUE2kciW9mavkNsLNRqxdBLOtmwCSTJi7w==
+X-Google-Smtp-Source: AK7set+p76YrnWaluJsyhx7p7Xy30z77TI6rE4c6cpC9xEItMkP2M5yNYdFMFp9zT1lFbOQP62+MsZyqfG85hQMkcTI=
+X-Received: by 2002:a92:8e04:0:b0:310:9d77:6063 with SMTP id
+ c4-20020a928e04000000b003109d776063mr318042ild.5.1676436288254; Tue, 14 Feb
+ 2023 20:44:48 -0800 (PST)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20230214172549.450713187@linuxfoundation.org>
-X-Spam-Status: No, score=-1.2 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_EF,FREEMAIL_ENVFROM_END_DIGIT,
-        FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,HEADER_FROM_DIFFERENT_DOMAINS,
-        RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS autolearn=no
+References: <20230214015214.747873-1-pcc@google.com> <Y+vKyZQVeofdcX4V@arm.com>
+In-Reply-To: <Y+vKyZQVeofdcX4V@arm.com>
+From:   Peter Collingbourne <pcc@google.com>
+Date:   Tue, 14 Feb 2023 20:44:36 -0800
+Message-ID: <CAMn1gO4mKL4od8_4+RH9T2C+6+-7=rsdLrSNpghsbMyoVExCjA@mail.gmail.com>
+Subject: Re: [PATCH] arm64: Reset KASAN tag in copy_highpage with HW tags only
+To:     Catalin Marinas <catalin.marinas@arm.com>
+Cc:     andreyknvl@gmail.com,
+        =?UTF-8?B?UXVuLXdlaSBMaW4gKOael+e+pOW0tCk=?= 
+        <Qun-wei.Lin@mediatek.com>,
+        =?UTF-8?B?R3Vhbmd5ZSBZYW5nICjmnajlhYnkuJop?= 
+        <guangye.yang@mediatek.com>, linux-mm@kvack.org,
+        =?UTF-8?B?Q2hpbndlbiBDaGFuZyAo5by16Yym5paHKQ==?= 
+        <chinwen.chang@mediatek.com>, kasan-dev@googlegroups.com,
+        ryabinin.a.a@gmail.com, linux-arm-kernel@lists.infradead.org,
+        vincenzo.frascino@arm.com, will@kernel.org, eugenis@google.com,
+        =?UTF-8?B?S3Vhbi1ZaW5nIExlZSAo5p2O5Yag56mOKQ==?= 
+        <Kuan-Ying.Lee@mediatek.com>, stable@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
+X-Spam-Status: No, score=-17.6 required=5.0 tests=BAYES_00,DKIMWL_WL_MED,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,
+        ENV_AND_HDR_SPF_MATCH,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS,
+        USER_IN_DEF_DKIM_WL,USER_IN_DEF_SPF_WL autolearn=ham
         autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -77,23 +78,70 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, Feb 14, 2023 at 06:41:06PM +0100, Greg Kroah-Hartman wrote:
-> This is the start of the stable review cycle for the 5.10.168 release.
-> There are 134 patches in this series, all will be posted as a response
-> to this one.  If anyone has any issues with these being applied, please
-> let me know.
-> 
-> Responses should be made by Thu, 16 Feb 2023 17:25:19 +0000.
-> Anything received after that time might be too late.
-> 
+On Tue, Feb 14, 2023 at 9:54 AM Catalin Marinas <catalin.marinas@arm.com> w=
+rote:
+>
+> On Mon, Feb 13, 2023 at 05:52:14PM -0800, Peter Collingbourne wrote:
+> > During page migration, the copy_highpage function is used to copy the
+> > page data to the target page. If the source page is a userspace page
+> > with MTE tags, the KASAN tag of the target page must have the match-all
+> > tag in order to avoid tag check faults during subsequent accesses to th=
+e
+> > page by the kernel. However, the target page may have been allocated in
+> > a number of ways, some of which will use the KASAN allocator and will
+> > therefore end up setting the KASAN tag to a non-match-all tag. Therefor=
+e,
+> > update the target page's KASAN tag to match the source page.
+> >
+> > We ended up unintentionally fixing this issue as a result of a bad
+> > merge conflict resolution between commit e059853d14ca ("arm64: mte:
+> > Fix/clarify the PG_mte_tagged semantics") and commit 20794545c146 ("arm=
+64:
+> > kasan: Revert "arm64: mte: reset the page tag in page->flags""), which
+> > preserved a tag reset for PG_mte_tagged pages which was considered to b=
+e
+> > unnecessary at the time. Because SW tags KASAN uses separate tag storag=
+e,
+> > update the code to only reset the tags when HW tags KASAN is enabled.
+>
+> Does KASAN_SW_TAGS work together with MTE?
 
-For v5.10.167-133-gf90240a:
+Yes, it works fine. One of my usual kernel patch tests runs an
+MTE-utilizing userspace program under a kernel with KASAN_SW_TAGS.
 
-Build results:
-	total: 162 pass: 162 fail: 0
-Qemu test results:
-	total: 478 pass: 478 fail: 0
+> In theory they should but I
+> wonder whether we have other places calling page_kasan_tag_reset()
+> without the kasan_hw_tags_enabled() check.
 
-Tested-by: Guenter Roeck <linux@roeck-us.net>
+It's unclear to me whether any of the other references are
+specifically related to KASAN_HW_TAGS or not. Because KASAN_SW_TAGS
+also uses all-ones as a match-all tag, I wouldn't expect calling
+page_kasan_tag_reset() to cause any problems aside from false
+negatives.
 
-Guenter
+> > Signed-off-by: Peter Collingbourne <pcc@google.com>
+> > Link: https://linux-review.googlesource.com/id/If303d8a709438d3ff5af5fd=
+85706505830f52e0c
+> > Reported-by: "Kuan-Ying Lee (=E6=9D=8E=E5=86=A0=E7=A9=8E)" <Kuan-Ying.L=
+ee@mediatek.com>
+> > Cc: <stable@vger.kernel.org> # 6.1
+>
+> What are we trying to fix? The removal of page_kasan_tag_reset() in
+> copy_highpage()?
+
+Yes.
+
+> If yes, I think we should use:
+>
+> Fixes: 20794545c146 ("arm64: kasan: Revert "arm64: mte: reset the page ta=
+g in page->flags"")
+> Cc: <stable@vger.kernel.org> # 6.0.x
+
+I agree with the Fixes tag, but are you sure that 6.0.y is still
+supported as a stable kernel release? kernel.org only lists 6.1, and I
+don't see any updates to Greg's linux-6.0.y branch since January 12.
+
+I'm having some email trouble at the moment so I can't send a v2, so
+please feel free to add the Fixes tag yourself.
+
+Peter
