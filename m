@@ -2,136 +2,96 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 793AE6975B2
-	for <lists+stable@lfdr.de>; Wed, 15 Feb 2023 06:09:25 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9FEA66975DD
+	for <lists+stable@lfdr.de>; Wed, 15 Feb 2023 06:35:23 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233068AbjBOFJY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 15 Feb 2023 00:09:24 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42588 "EHLO
+        id S231549AbjBOFfV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 15 Feb 2023 00:35:21 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48684 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231966AbjBOFJX (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 15 Feb 2023 00:09:23 -0500
-Received: from mail-yw1-x114a.google.com (mail-yw1-x114a.google.com [IPv6:2607:f8b0:4864:20::114a])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 362981D905
-        for <stable@vger.kernel.org>; Tue, 14 Feb 2023 21:09:19 -0800 (PST)
-Received: by mail-yw1-x114a.google.com with SMTP id 00721157ae682-517f8be4b00so189347557b3.3
-        for <stable@vger.kernel.org>; Tue, 14 Feb 2023 21:09:19 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20210112;
-        h=content-transfer-encoding:cc:to:from:subject:mime-version
-         :message-id:date:from:to:cc:subject:date:message-id:reply-to;
-        bh=oz1c94+PpSpdOwRxmJhtyfwix/rF7URLVnLJpJ4OuRQ=;
-        b=PAVs9wTHuHqSwdcXMccaVRi59RVMu0fidE3NSoZW9Pmt84r9A7VI97aWIZJzb8OYfV
-         XB9svOI3UGKkfvMLPWWpv5fCkxC3Ez+vBsJRjEYxoLotr34BEi+4cCL+f8c6akzvKJgY
-         HO7rMm0aUhukTkjHLUbwDKw3cdz7BMWzOpLwMtGuPYRDHRU2ShL3LnmPac+F5HFZRzpF
-         02J7y2OeS0bSMab5TdzI4cLbo0T3SegMO0IGmQK3hUOW/2hkexLAXB3Shg/bUbwQ2FEm
-         qg739zx4pTnFrmjYMgixcf28HbVJS75iGYe4pNgbFfRyTG1wFmoAk7aSs+DITRWMkY5g
-         rdOg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=content-transfer-encoding:cc:to:from:subject:mime-version
-         :message-id:date:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=oz1c94+PpSpdOwRxmJhtyfwix/rF7URLVnLJpJ4OuRQ=;
-        b=i6TU4CP509BOUHtEtA+GyJ6+GD/fvVE+kVCpiVJ/szdK2GbpZA3bHowcJikQrhxfpz
-         HlDs3n7qGETUdFBg0WQv+HK5pC3UB7lAwBb4gYnGVCh643Xp3Xe68jXV30TZGQL247ax
-         0qW4SHxnxRcsOOGZq8QdiEyInQgoMOOlJZuP9V0+TS2P4v9V5ETp6eyj6s0GftKnCTa+
-         ouDdy6LX7cJHioLWiCxK8Sr1Q2NH3TR5vzB7oOuQIdOQo6wWAYq+0Db1zDN4D8zOq1Qc
-         5pKmBu1BlUe/gtpad+2y1de67GVLJIOmjeNGzroI4/GYQwfmw2B8ry9fqraoYDIhMbR1
-         mxtw==
-X-Gm-Message-State: AO0yUKUd/RrXQNRpEbvKweyBqmRsaOtOhu9N7VQpw8CWn4UrwMG6Hr+d
-        x6+0qMm97sQ6MvtTNUh1bACau3E=
-X-Google-Smtp-Source: AK7set8Jv69dLvHNhXRcipzuj+FaMPD6itu9fekdMrlFGOW8fqWQ+CBzIrkh2Nr4ezQ+OweciUym0ms=
-X-Received: from pcc-desktop.svl.corp.google.com ([2620:15c:2d3:205:d5d8:eed0:c0c1:29d7])
- (user=pcc job=sendgmr) by 2002:a05:6902:341:b0:8bb:3a1:e811 with SMTP id
- e1-20020a056902034100b008bb03a1e811mr129660ybs.348.1676437758447; Tue, 14 Feb
- 2023 21:09:18 -0800 (PST)
-Date:   Tue, 14 Feb 2023 21:09:11 -0800
-Message-Id: <20230215050911.1433132-1-pcc@google.com>
-Mime-Version: 1.0
-X-Mailer: git-send-email 2.39.1.581.gbfd45094c4-goog
-Subject: [PATCH v2] arm64: Reset KASAN tag in copy_highpage with HW tags only
-From:   Peter Collingbourne <pcc@google.com>
-To:     catalin.marinas@arm.com, andreyknvl@gmail.com
-Cc:     Peter Collingbourne <pcc@google.com>,
-        "=?UTF-8?q?Qun-wei=20Lin=20=28=E6=9E=97=E7=BE=A4=E5=B4=B4=29?=" 
-        <Qun-wei.Lin@mediatek.com>,
-        "=?UTF-8?q?Guangye=20Yang=20=28=E6=9D=A8=E5=85=89=E4=B8=9A=29?=" 
-        <guangye.yang@mediatek.com>, linux-mm@kvack.org,
-        "=?UTF-8?q?Chinwen=20Chang=20=28=E5=BC=B5=E9=8C=A6=E6=96=87=29?=" 
-        <chinwen.chang@mediatek.com>, kasan-dev@googlegroups.com,
-        ryabinin.a.a@gmail.com, linux-arm-kernel@lists.infradead.org,
-        vincenzo.frascino@arm.com, will@kernel.org, eugenis@google.com,
-        "=?UTF-8?q?Kuan-Ying=20Lee=20=28=E6=9D=8E=E5=86=A0=E7=A9=8E=29?=" 
-        <Kuan-Ying.Lee@mediatek.com>, stable@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
-X-Spam-Status: No, score=-9.6 required=5.0 tests=BAYES_00,DKIMWL_WL_MED,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_NONE,
-        SPF_HELO_NONE,SPF_PASS,USER_IN_DEF_DKIM_WL autolearn=ham
-        autolearn_force=no version=3.4.6
+        with ESMTP id S229686AbjBOFfV (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 15 Feb 2023 00:35:21 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3C5CD2A9A5;
+        Tue, 14 Feb 2023 21:35:20 -0800 (PST)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by ams.source.kernel.org (Postfix) with ESMTPS id EA4ACB82046;
+        Wed, 15 Feb 2023 05:35:18 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 93631C433D2;
+        Wed, 15 Feb 2023 05:35:15 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1676439317;
+        bh=LANnG+PtQLcN/12XLL7GZBXeaLs0zbH80bLxomIclLs=;
+        h=From:To:Cc:Subject:References:Date:In-Reply-To:From;
+        b=lR7QtoVO/ZyJ+Fj8sNHOAqdSggan9Qw8vQ8dKctyFX80q7Qxs/hT6Or1B25oELbeN
+         AcMufULJhQ2z6CS1pZeb1dvzqquwBfr/Hrhq8ZiSxY0jSFYRHxhe6QXQMuoAonftHT
+         eCfxLFlA4HO2KNu89u1gVj2zdScsJPO0qZ74KE5FPeVDdgJc+gnrN9FdlGQSBhyfyr
+         1HRgl5eAhNKVa45mM9HtoGmaeIoD9Rf/g0tVDLKws780QmMmWvGyppv4te5nMKtlxb
+         HMMUl0xR7O2HhKCDQl/RmkjK7n/lRNQjHrN4fFijzfG3thKbSsYipy8JEf0Db9syn0
+         tSrrhQ43HM0Fw==
+From:   Kalle Valo <kvalo@kernel.org>
+To:     Marc Bornand <dev.mbornand@systemb.ch>
+Cc:     Johannes Berg <johannes@sipsolutions.net>,
+        linux-wireless@vger.kernel.org,
+        "David S . Miller" <davem@davemloft.net>,
+        Eric Dumazet <edumazet@google.com>,
+        Jakub Kicinski <kuba@kernel.org>,
+        Paolo Abeni <pabeni@redhat.com>, netdev@vger.kernel.org,
+        linux-kernel@vger.kernel.org, Yohan Prod'homme <kernel@zoddo.fr>,
+        stable@vger.kernel.org
+Subject: Re: [PATCH v4] Set ssid when authenticating
+References: <20230214132009.1011452-1-dev.mbornand@systemb.ch>
+Date:   Wed, 15 Feb 2023 07:35:09 +0200
+In-Reply-To: <20230214132009.1011452-1-dev.mbornand@systemb.ch> (Marc
+        Bornand's message of "Tue, 14 Feb 2023 13:20:25 +0000")
+Message-ID: <87ttzn4hki.fsf@kernel.org>
+User-Agent: Gnus/5.13 (Gnus v5.13) Emacs/26.1 (gnu/linux)
+MIME-Version: 1.0
+Content-Type: text/plain
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+        SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-During page migration, the copy_highpage function is used to copy the
-page data to the target page. If the source page is a userspace page
-with MTE tags, the KASAN tag of the target page must have the match-all
-tag in order to avoid tag check faults during subsequent accesses to the
-page by the kernel. However, the target page may have been allocated in
-a number of ways, some of which will use the KASAN allocator and will
-therefore end up setting the KASAN tag to a non-match-all tag. Therefore,
-update the target page's KASAN tag to match the source page.
+Marc Bornand <dev.mbornand@systemb.ch> writes:
 
-We ended up unintentionally fixing this issue as a result of a bad
-merge conflict resolution between commit e059853d14ca ("arm64: mte:
-Fix/clarify the PG_mte_tagged semantics") and commit 20794545c146 ("arm64:
-kasan: Revert "arm64: mte: reset the page tag in page->flags""), which
-preserved a tag reset for PG_mte_tagged pages which was considered to be
-unnecessary at the time. Because SW tags KASAN uses separate tag storage,
-update the code to only reset the tags when HW tags KASAN is enabled.
+> changes since v3:
+> - add missing NULL check
+> - add missing break
+>
+> changes since v2:
+> - The code was tottaly rewritten based on the disscution of the
+>   v2 patch.
+> - the ssid is set in __cfg80211_connect_result() and only if the ssid is
+>   not already set.
+> - Do not add an other ssid reset path since it is already done in
+>   __cfg80211_disconnected()
+>
+> When a connexion was established without going through
+> NL80211_CMD_CONNECT, the ssid was never set in the wireless_dev struct.
+> Now we set it in __cfg80211_connect_result() when it is not already set.
+>
+> Reported-by: Yohan Prod'homme <kernel@zoddo.fr>
+> Fixes: 7b0a0e3c3a88260b6fcb017e49f198463aa62ed1
+> Cc: linux-wireless@vger.kernel.org
+> Cc: stable@vger.kernel.org
+> Link: https://bugzilla.kernel.org/show_bug.cgi?id=216711
+> Signed-off-by: Marc Bornand <dev.mbornand@systemb.ch>
+> ---
+>  net/wireless/sme.c | 17 +++++++++++++++++
+>  1 file changed, 17 insertions(+)
 
-Signed-off-by: Peter Collingbourne <pcc@google.com>
-Link: https://linux-review.googlesource.com/id/If303d8a709438d3ff5af5fd8570=
-6505830f52e0c
-Reported-by: "Kuan-Ying Lee (=E6=9D=8E=E5=86=A0=E7=A9=8E)" <Kuan-Ying.Lee@m=
-ediatek.com>
-Cc: <stable@vger.kernel.org> # 6.1
-Fixes: 20794545c146 ("arm64: kasan: Revert "arm64: mte: reset the page tag =
-in page->flags"")
----
-v2:
-- added Fixes tag
+The change log ("changes since v3" etc) should be after "---" line and
+the title should start with "wifi: cfg80211:". Please read the wiki link
+below.
 
-For the stable branch, e059853d14ca needs to be cherry-picked and the follo=
-wing
-merge conflict resolution is needed:
+-- 
+https://patchwork.kernel.org/project/linux-wireless/list/
 
--               page_kasan_tag_reset(to);
-+               if (kasan_hw_tags_enabled())
-+                       page_kasan_tag_reset(to);
- -              /* It's a new page, shouldn't have been tagged yet */
- -              WARN_ON_ONCE(!try_page_mte_tagging(to));
-
- arch/arm64/mm/copypage.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
-
-diff --git a/arch/arm64/mm/copypage.c b/arch/arm64/mm/copypage.c
-index 8dd5a8fe64b4..4aadcfb01754 100644
---- a/arch/arm64/mm/copypage.c
-+++ b/arch/arm64/mm/copypage.c
-@@ -22,7 +22,8 @@ void copy_highpage(struct page *to, struct page *from)
- 	copy_page(kto, kfrom);
-=20
- 	if (system_supports_mte() && page_mte_tagged(from)) {
--		page_kasan_tag_reset(to);
-+		if (kasan_hw_tags_enabled())
-+			page_kasan_tag_reset(to);
- 		/* It's a new page, shouldn't have been tagged yet */
- 		WARN_ON_ONCE(!try_page_mte_tagging(to));
- 		mte_copy_page_tags(kto, kfrom);
---=20
-2.39.1.581.gbfd45094c4-goog
-
+https://wireless.wiki.kernel.org/en/developers/documentation/submittingpatches
