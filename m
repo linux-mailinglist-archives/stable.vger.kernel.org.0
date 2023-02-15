@@ -2,157 +2,98 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 6742769746B
-	for <lists+stable@lfdr.de>; Wed, 15 Feb 2023 03:39:01 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id CAE5A697549
+	for <lists+stable@lfdr.de>; Wed, 15 Feb 2023 05:19:39 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232959AbjBOCjA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 14 Feb 2023 21:39:00 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59760 "EHLO
+        id S233113AbjBOETf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 14 Feb 2023 23:19:35 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43242 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232942AbjBOCi7 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 14 Feb 2023 21:38:59 -0500
-Received: from esa1.hgst.iphmx.com (esa1.hgst.iphmx.com [68.232.141.245])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 469A5234D0
-        for <stable@vger.kernel.org>; Tue, 14 Feb 2023 18:38:58 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=simple/simple;
-  d=wdc.com; i=@wdc.com; q=dns/txt; s=dkim.wdc.com;
-  t=1676428738; x=1707964738;
-  h=message-id:date:mime-version:subject:to:cc:references:
-   from:in-reply-to:content-transfer-encoding;
-  bh=LRGknKhxil6Qohqe+Jm3wtRMBjwrnnr85uMuaDhF6bI=;
-  b=Rv3n1LfLTvCQQGsBSYm+X6dGbf9q+AKiQh3+4uPdXEo+QhchrY5iC4Ht
-   P15XY5+mNiZ3jFa4+aqabrASI65YgTb97yxKQKQlcwYZzKw1+4ziZaegC
-   1OpT6QGr08maOTYMVRpYeswAtxBZ2oGKVuSguAdcStvUDKBc9f1RTlBcw
-   khrzeumzn66Nj9Q9IeUzwR5KbY0Q+bArPlG7esBQGNaTTYUPe6NWnfVBe
-   iAHaueZY4wn2NBIpC2DMKGXwb1D+TxkE9CC3iGxofZLHOmd5DlhUihLz3
-   2vHsw+4z5GpG42x84K1//oeUaMGUOek+97aUhVX4mEuW+dEjzpFJY3DKR
-   A==;
-X-IronPort-AV: E=Sophos;i="5.97,298,1669046400"; 
-   d="scan'208";a="335295976"
-Received: from uls-op-cesaip02.wdc.com (HELO uls-op-cesaep02.wdc.com) ([199.255.45.15])
-  by ob1.hgst.iphmx.com with ESMTP; 15 Feb 2023 10:38:55 +0800
-IronPort-SDR: rs/3d6HGP37wJRgucmai3pwxjvLUoEqGONdHAS7m6wuUy7COJDZldQyYSwOcc785sM+jGNlSER
- UlntpvapgUe/Qsj+GkiMVnM5p1aEFW7/7KQEy87tqj8mPkYI9+aNaU1yaPr/EgBrryIujkhCJS
- li3gFU8AHQyqnwG6tFqc6HrN5XiizUTRtz1MUZ+yMzMwzRsMSgDcer43KBCDpps27oxFwKzQdq
- 5hWEZDQCLdfOTDfIqGpP9wx92ejLbOiVzi/Vm3u/a7ZgiUdfHJvENIuPtcXYvnOy99KPOjGssP
- VR8=
-Received: from uls-op-cesaip02.wdc.com ([10.248.3.37])
-  by uls-op-cesaep02.wdc.com with ESMTP/TLS/ECDHE-RSA-AES128-GCM-SHA256; 14 Feb 2023 17:50:17 -0800
-IronPort-SDR: 2SKR67OM3d0/akR0n77+cx/qS4tZN7iZC6hixKYGIdoxeN/QGcksIzFRtZYOvEB4U5Rtajr7yv
- NHnCZDjDi/l7xy+kKJ1EYH3XfMrZU/XpG/Yr+MVghDSyg95wJRsZJv6ols8onJhfsMgix8Iiq1
- zI4jcamAMSUP6VTXDWmaFfZjKAs1VoXBv5IWkWsYzS1mX+/2GimTu4aiweNerFAjafGXjWuljs
- yCApKQQclSmzNNNudkD526xhf68tcNlvAie3JTwq9kchFhNtxOdOXWPdraGXL7W+4S+h1UV1kg
- FpQ=
-WDCIronportException: Internal
-Received: from usg-ed-osssrv.wdc.com ([10.3.10.180])
-  by uls-op-cesaip02.wdc.com with ESMTP/TLS/ECDHE-RSA-AES128-GCM-SHA256; 14 Feb 2023 18:38:54 -0800
-Received: from usg-ed-osssrv.wdc.com (usg-ed-osssrv.wdc.com [127.0.0.1])
-        by usg-ed-osssrv.wdc.com (Postfix) with ESMTP id 4PGj271Jrwz1RvTr
-        for <stable@vger.kernel.org>; Tue, 14 Feb 2023 18:38:55 -0800 (PST)
-Authentication-Results: usg-ed-osssrv.wdc.com (amavisd-new); dkim=pass
-        reason="pass (just generated, assumed good)"
-        header.d=opensource.wdc.com
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=
-        opensource.wdc.com; h=content-transfer-encoding:content-type
-        :in-reply-to:organization:from:references:to:content-language
-        :subject:user-agent:mime-version:date:message-id; s=dkim; t=
-        1676428734; x=1679020735; bh=LRGknKhxil6Qohqe+Jm3wtRMBjwrnnr85uM
-        uaDhF6bI=; b=NaFHXxFVUDvZdGrBSQzFh+0UuvGAUNfw1wBP6OQ22ZKrRSIZ5Qz
-        dfMvWq54C/3ZioDhkGR98sJ2WrW2Zj49/2Gwm0U6jGba7T8BO7nB3QliMKj6m8vl
-        5x+s69cRFvQtWn1RWOoXL7I8Z+YGDJrxwXyXRyoncZvfeyWNe1v4F2LWyCWZP+CK
-        3q9lEhrb0QvrQVjCvlnLp0QEx38RuD/eupcbfAhe57hfufw5cYApp7lWxTTuD8nx
-        6n0QSY4I3zRempZ12PgU6vK+7VDO+muDkyD40qv0iSAQ1YY/q0v0A2ml0sGKxd5p
-        cNhtFCy5JSqFfj1rNWU5DnGUO0/T9xx88Fg==
-X-Virus-Scanned: amavisd-new at usg-ed-osssrv.wdc.com
-Received: from usg-ed-osssrv.wdc.com ([127.0.0.1])
-        by usg-ed-osssrv.wdc.com (usg-ed-osssrv.wdc.com [127.0.0.1]) (amavisd-new, port 10026)
-        with ESMTP id OXjXX1sOSb3N for <stable@vger.kernel.org>;
-        Tue, 14 Feb 2023 18:38:54 -0800 (PST)
-Received: from [10.225.163.116] (unknown [10.225.163.116])
-        by usg-ed-osssrv.wdc.com (Postfix) with ESMTPSA id 4PGj222VYbz1RvLy;
-        Tue, 14 Feb 2023 18:38:50 -0800 (PST)
-Message-ID: <ccdc6924-c35f-4a29-fabb-587271fc929c@opensource.wdc.com>
-Date:   Wed, 15 Feb 2023 11:38:48 +0900
+        with ESMTP id S233265AbjBOETV (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 14 Feb 2023 23:19:21 -0500
+Received: from mail-oa1-x36.google.com (mail-oa1-x36.google.com [IPv6:2001:4860:4864:20::36])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 717D134330;
+        Tue, 14 Feb 2023 20:17:30 -0800 (PST)
+Received: by mail-oa1-x36.google.com with SMTP id 586e51a60fabf-16a7f5b6882so21586654fac.10;
+        Tue, 14 Feb 2023 20:17:30 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20210112;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:sender:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=xmVeJ55I3Amn4MeSLLrEqjAfEnFaFqqmJFVHznJhXDg=;
+        b=f0JQ8yzg+FPR5y3CaNNne8QhAd3lAC+Iilmkc/1qKFQTVBnRvohkiTN/g+NPgq0Xz1
+         9D/AruKAIVYyH6eQMAt3KOsjYJDlzJKisFMpwfFA3ZkKBrySd1D6r50TnpU+1DYDQMhU
+         HTY/kh7NQ2N99B2VXolM/BaAF5uCePH0rJi5DR4vF3ANxwwnMU0MsrkyeLbZJ9shFQkD
+         p+a3x4w9MUXBQdKGtJ+fBOhybW5arybnxQL5cC6MZL4StEjiLu2s4bkg8jB9OteGxdPg
+         ANdpvz12ub8F7pCYPMzncSWFQUQe/2u6J+lT534u39ulfGTjd3B5CPSi2rXD1mEzF7IG
+         ICFA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:sender:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=xmVeJ55I3Amn4MeSLLrEqjAfEnFaFqqmJFVHznJhXDg=;
+        b=Z8PSIe1yjBx/OgRApJPiJVJUnh7Gpb2i9ETa5C5UGHxMmVkJMAgOEM2CI7trASUPZV
+         px4/HzYdFtzzoLcUp0OtQGXfA0npq/60d35HQukQMt3CfMMZuoh9/rcwWWDgDodC+B31
+         lh0bSfVcVSpQ9Fib/IsqAAFIUy2iSK6BRHmfa5iSOzu8+KlCcQi5npcAeyGmf3Utz2cd
+         07SMw4Mx8+9elGXBa2oXbn8Xw225umOSu5yU28Eauqfnev+Qz6ZXguzRhQM2L81uK5Zr
+         wj7tiVPG/NSSFo5Zj/dalU63paw2+lv+WhqAINOl9H+d5ajpcGAW1PBRUQqIv5XL4Zi6
+         dEWA==
+X-Gm-Message-State: AO0yUKV0/0s8RRRHan8QAoRB/614BWL5EOAWdH/2lWqd2NCAS/ekaC9w
+        2YvapW1mkKKltU+tMbyAGS0cfk0GNK0=
+X-Google-Smtp-Source: AK7set9YxmE76VEtlEwSGDhLhrdacS37IAlGfOJedC4/nE6qBvViit+FXiWz6r49rMj3U8quEpIkWw==
+X-Received: by 2002:a05:6870:20c:b0:16d:d985:3363 with SMTP id j12-20020a056870020c00b0016dd9853363mr401941oad.36.1676434639838;
+        Tue, 14 Feb 2023 20:17:19 -0800 (PST)
+Received: from server.roeck-us.net ([2600:1700:e321:62f0:329c:23ff:fee3:9d7c])
+        by smtp.gmail.com with ESMTPSA id ds41-20020a0568705b2900b0016db8833b2dsm5181674oab.52.2023.02.14.20.17.18
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 14 Feb 2023 20:17:19 -0800 (PST)
+Sender: Guenter Roeck <groeck7@gmail.com>
+Date:   Tue, 14 Feb 2023 20:17:17 -0800
+From:   Guenter Roeck <linux@roeck-us.net>
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc:     stable@vger.kernel.org, patches@lists.linux.dev,
+        linux-kernel@vger.kernel.org, torvalds@linux-foundation.org,
+        akpm@linux-foundation.org, shuah@kernel.org, patches@kernelci.org,
+        lkft-triage@lists.linaro.org, pavel@denx.de, jonathanh@nvidia.com,
+        f.fainelli@gmail.com, sudipm.mukherjee@gmail.com,
+        srw@sladewatkins.net, rwarsow@gmx.de
+Subject: Re: [PATCH 5.10 000/134] 5.10.168-rc2 review
+Message-ID: <20230215041717.GA1237270@roeck-us.net>
+References: <20230214172549.450713187@linuxfoundation.org>
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
- Thunderbird/102.7.1
-Subject: Re: [PATCH v2 7/9] PCI: rockchip: Fix legacy IRQ generation for
- RK3399 PCIe endpoint core
-Content-Language: en-US
-To:     Rick Wertenbroek <rick.wertenbroek@gmail.com>,
-        alberto.dassatti@heig-vd.ch
-Cc:     xxm@rock-chips.com, rick.wertenbroek@heig-vd.ch,
-        stable@vger.kernel.org, Rob Herring <robh+dt@kernel.org>,
-        Krzysztof Kozlowski <krzysztof.kozlowski+dt@linaro.org>,
-        Heiko Stuebner <heiko@sntech.de>,
-        Shawn Lin <shawn.lin@rock-chips.com>,
-        Lorenzo Pieralisi <lpieralisi@kernel.org>,
-        =?UTF-8?Q?Krzysztof_Wilczy=c5=84ski?= <kw@linux.com>,
-        Bjorn Helgaas <bhelgaas@google.com>,
-        Jani Nikula <jani.nikula@intel.com>,
-        Mikko Kovanen <mikko.kovanen@aavamobile.com>,
-        Rodrigo Vivi <rodrigo.vivi@intel.com>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        devicetree@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
-        linux-rockchip@lists.infradead.org, linux-kernel@vger.kernel.org,
-        linux-pci@vger.kernel.org
-References: <20230214140858.1133292-1-rick.wertenbroek@gmail.com>
- <20230214140858.1133292-8-rick.wertenbroek@gmail.com>
-From:   Damien Le Moal <damien.lemoal@opensource.wdc.com>
-Organization: Western Digital Research
-In-Reply-To: <20230214140858.1133292-8-rick.wertenbroek@gmail.com>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
-X-Spam-Status: No, score=-4.8 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,NICE_REPLY_A,RCVD_IN_DNSWL_MED,
-        SPF_HELO_PASS,SPF_PASS autolearn=unavailable autolearn_force=no
-        version=3.4.6
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20230214172549.450713187@linuxfoundation.org>
+X-Spam-Status: No, score=-1.2 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_EF,FREEMAIL_ENVFROM_END_DIGIT,
+        FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,HEADER_FROM_DIFFERENT_DOMAINS,
+        RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS autolearn=no
+        autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 2/14/23 23:08, Rick Wertenbroek wrote:
-> Fix legacy IRQ generation for RK3399 PCIe endpoint core according to
-> the technical reference manual (TRM). Assert and deassert legacy
-> interrupt (INTx) through the legacy interrupt control register
-> ("PCIE_CLIENT_LEGACY_INT_CTRL") instead of manually generating a PCIe
-> message. The generation of the legacy interrupt was tested and validated
-> with the PCIe endpoint test driver.
+On Tue, Feb 14, 2023 at 06:41:06PM +0100, Greg Kroah-Hartman wrote:
+> This is the start of the stable review cycle for the 5.10.168 release.
+> There are 134 patches in this series, all will be posted as a response
+> to this one.  If anyone has any issues with these being applied, please
+> let me know.
 > 
-> Fixes: cf590b078391 ("PCI: rockchip: Add EP driver for Rockchip PCIe controller")
-> Cc: stable@vger.kernel.org
-> Signed-off-by: Rick Wertenbroek <rick.wertenbroek@gmail.com>
-> ---
->  drivers/pci/controller/pcie-rockchip-ep.c | 38 +++++------------------
->  drivers/pci/controller/pcie-rockchip.h    |  6 ++++
->  2 files changed, 14 insertions(+), 30 deletions(-)
+> Responses should be made by Thu, 16 Feb 2023 17:25:19 +0000.
+> Anything received after that time might be too late.
 > 
-> diff --git a/drivers/pci/controller/pcie-rockchip-ep.c b/drivers/pci/controller/pcie-rockchip-ep.c
-> index cbc281a6a..ca5b363ba 100644
-> --- a/drivers/pci/controller/pcie-rockchip-ep.c
-> +++ b/drivers/pci/controller/pcie-rockchip-ep.c
-> @@ -328,45 +328,23 @@ static void rockchip_pcie_ep_assert_intx(struct rockchip_pcie_ep *ep, u8 fn,
->  					 u8 intx, bool is_asserted)
->  {
->  	struct rockchip_pcie *rockchip = &ep->rockchip;
-> -	u32 r = ep->max_regions - 1;
-> -	u32 offset;
-> -	u32 status;
-> -	u8 msg_code;
-> -
-> -	if (unlikely(ep->irq_pci_addr != ROCKCHIP_PCIE_EP_PCI_LEGACY_IRQ_ADDR ||
-> -		     ep->irq_pci_fn != fn)) {
-> -		rockchip_pcie_prog_ep_ob_atu(rockchip, fn, r,
-> -					     AXI_WRAPPER_NOR_MSG,
-> -					     ep->irq_phys_addr, 0, 0);
-> -		ep->irq_pci_addr = ROCKCHIP_PCIE_EP_PCI_LEGACY_IRQ_ADDR;
 
-By the way, ROCKCHIP_PCIE_EP_PCI_LEGACY_IRQ_ADDR is now unused. Remove it
-too please.
+For v5.10.167-133-gf90240a:
 
--- 
-Damien Le Moal
-Western Digital Research
+Build results:
+	total: 162 pass: 162 fail: 0
+Qemu test results:
+	total: 478 pass: 478 fail: 0
 
+Tested-by: Guenter Roeck <linux@roeck-us.net>
+
+Guenter
