@@ -2,45 +2,49 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 2CD0F69860B
-	for <lists+stable@lfdr.de>; Wed, 15 Feb 2023 21:47:27 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 71BDF698606
+	for <lists+stable@lfdr.de>; Wed, 15 Feb 2023 21:47:25 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229991AbjBOUrZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 15 Feb 2023 15:47:25 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34418 "EHLO
+        id S229971AbjBOUrX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 15 Feb 2023 15:47:23 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33668 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229847AbjBOUq6 (ORCPT
+        with ESMTP id S229504AbjBOUq6 (ORCPT
         <rfc822;stable@vger.kernel.org>); Wed, 15 Feb 2023 15:46:58 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0FD3543444;
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 094AD42DFA;
         Wed, 15 Feb 2023 12:46:31 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 97891B823B4;
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 21AE961D94;
+        Wed, 15 Feb 2023 20:46:21 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id F0B82C4339B;
         Wed, 15 Feb 2023 20:46:19 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E5040C4339E;
-        Wed, 15 Feb 2023 20:46:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1676493978;
-        bh=OtF8ZiBBwfOgsqCNX3FwBB8ECvvndlNZDuoqjQndGxo=;
+        s=k20201202; t=1676493980;
+        bh=9lr9VmEQ1tDYtQIDjR6WwT25qs6IRWtWx8Qj9yDEzKg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=hLiPYoHTRW27MGTglej+WLNHLJu/3mGsgCdlgiO+arzN1ppv7q6hiVN+SCGLBMFaD
-         U+sDsYFh17BxYZGg3wVQ5bIlycfWqxtp5XT8fo7KCbTXwWj7Jn3PkaHZkx1tb1eaQn
-         meBUhWeoiT+pYZTRlMA6iIaVta0nR5H0A8hTr25/q+o7MZz9eByUffur4JRfVYQKY8
-         oId6qb3RTxbc3WAQMWJrUKYf4JgVr7zXCIgHVfI14t5Zw1hIOyxnXbiPLBNkOniSxr
-         R4HDoEdWtY6HJWUW37bxt1gVdah/ktHlWEQz15HDlqXkJfqHsSwpYmh2i+csuLykjn
-         uHPtNW7edk3LQ==
+        b=d7gMInoSSiGeyxteqXP+9aXADBsEM94cJ6O40u/Arve1jHcMSTt6OiPTxEJKUDgcS
+         i24IJZsmK1rpNErXxb49IlMPF0qupwCJ0eVa2PrZoe+eqpbthEPY4GQkbiT3X7PcY+
+         rjZYH/U6S1VldQ+8GVVJO9qG7heCM7wece8rif6UAdwMdYOxGyV7Vk833uqkSPqPit
+         dIq+AvfuA9MtIbXJvXhYDMMwFGY5ArLTj7gvOdJrCfKcGdhN1b0JRiaMkAM99v70eG
+         3jaoX0ZSPiwYmkN0UYo7Tb/4GvrTfjQH0qpM/pmgcw0yndevtW3qc59rCo8ONyCtmm
+         4VwnZd9UgmvFg==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Dmitry Torokhov <dmitry.torokhov@gmail.com>,
-        Patrice Chotard <patrice.chotard@foss.st.com>,
-        Sasha Levin <sashal@kernel.org>, robh+dt@kernel.org,
-        krzysztof.kozlowski+dt@linaro.org,
-        linux-arm-kernel@lists.infradead.org, devicetree@vger.kernel.org
-Subject: [PATCH AUTOSEL 6.1 17/24] ARM: dts: stihxxx-b2120: fix polarity of reset line of tsin0 port
-Date:   Wed, 15 Feb 2023 15:45:40 -0500
-Message-Id: <20230215204547.2760761-17-sashal@kernel.org>
+Cc:     Julian Anastasov <ja@ssi.bg>,
+        Zhang Changzhong <zhangchangzhong@huawei.com>,
+        "David S . Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>, edumazet@google.com,
+        kuba@kernel.org, pabeni@redhat.com, den@openvz.org,
+        razor@blackwall.org, Jason@zx2c4.com, yangyingliang@huawei.com,
+        daniel@iogearbox.net, thomas.zeitlhofer+lkml@ze-it.at,
+        wangyuweihx@gmail.com, alexander@mihalicyn.com,
+        netdev@vger.kernel.org
+Subject: [PATCH AUTOSEL 6.1 18/24] neigh: make sure used and confirmed times are valid
+Date:   Wed, 15 Feb 2023 15:45:41 -0500
+Message-Id: <20230215204547.2760761-18-sashal@kernel.org>
 X-Mailer: git-send-email 2.39.0
 In-Reply-To: <20230215204547.2760761-1-sashal@kernel.org>
 References: <20230215204547.2760761-1-sashal@kernel.org>
@@ -57,36 +61,94 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+From: Julian Anastasov <ja@ssi.bg>
 
-[ Upstream commit 4722dd4029c63f10414ffd8d3ffdd6c748391cd7 ]
+[ Upstream commit c1d2ecdf5e38e3489ce8328238b558b3b2866fe1 ]
 
-According to c8sectpfe driver code we first drive reset line low and
-then high to reset the port, therefore the reset line is supposed to
-be annotated as "active low". This will be important when we convert
-the driver to gpiod API.
+Entries can linger in cache without timer for days, thanks to
+the gc_thresh1 limit. As result, without traffic, the confirmed
+time can be outdated and to appear to be in the future. Later,
+on traffic, NUD_STALE entries can switch to NUD_DELAY and start
+the timer which can see the invalid confirmed time and wrongly
+switch to NUD_REACHABLE state instead of NUD_PROBE. As result,
+timer is set many days in the future. This is more visible on
+32-bit platforms, with higher HZ value.
 
-Reviewed-by: Patrice Chotard <patrice.chotard@foss.st.com>
-Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Signed-off-by: Patrice Chotard <patrice.chotard@foss.st.com>
+Why this is a problem? While we expect unused entries to expire,
+such entries stay in REACHABLE state for too long, locked in
+cache. They are not expired normally, only when cache is full.
+
+Problem and the wrong state change reported by Zhang Changzhong:
+
+172.16.1.18 dev bond0 lladdr 0a:0e:0f:01:12:01 ref 1 used 350521/15994171/350520 probes 4 REACHABLE
+
+350520 seconds have elapsed since this entry was last updated, but it is
+still in the REACHABLE state (base_reachable_time_ms is 30000),
+preventing lladdr from being updated through probe.
+
+Fix it by ensuring timer is started with valid used/confirmed
+times. Considering the valid time range is LONG_MAX jiffies,
+we try not to go too much in the past while we are in
+DELAY/PROBE state. There are also places that need
+used/updated times to be validated while timer is not running.
+
+Reported-by: Zhang Changzhong <zhangchangzhong@huawei.com>
+Signed-off-by: Julian Anastasov <ja@ssi.bg>
+Tested-by: Zhang Changzhong <zhangchangzhong@huawei.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm/boot/dts/stihxxx-b2120.dtsi | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ net/core/neighbour.c | 18 +++++++++++++++---
+ 1 file changed, 15 insertions(+), 3 deletions(-)
 
-diff --git a/arch/arm/boot/dts/stihxxx-b2120.dtsi b/arch/arm/boot/dts/stihxxx-b2120.dtsi
-index 2aa94605d3d47..d52a7aaa10743 100644
---- a/arch/arm/boot/dts/stihxxx-b2120.dtsi
-+++ b/arch/arm/boot/dts/stihxxx-b2120.dtsi
-@@ -178,7 +178,7 @@ tsin0: port {
- 				tsin-num = <0>;
- 				serial-not-parallel;
- 				i2c-bus = <&ssc2>;
--				reset-gpios = <&pio15 4 GPIO_ACTIVE_HIGH>;
-+				reset-gpios = <&pio15 4 GPIO_ACTIVE_LOW>;
- 				dvb-card = <STV0367_TDA18212_NIMA_1>;
- 			};
- 		};
+diff --git a/net/core/neighbour.c b/net/core/neighbour.c
+index 952a54763358e..bf081f62ae58b 100644
+--- a/net/core/neighbour.c
++++ b/net/core/neighbour.c
+@@ -269,7 +269,7 @@ static int neigh_forced_gc(struct neigh_table *tbl)
+ 			    (n->nud_state == NUD_NOARP) ||
+ 			    (tbl->is_multicast &&
+ 			     tbl->is_multicast(n->primary_key)) ||
+-			    time_after(tref, n->updated))
++			    !time_in_range(n->updated, tref, jiffies))
+ 				remove = true;
+ 			write_unlock(&n->lock);
+ 
+@@ -289,7 +289,17 @@ static int neigh_forced_gc(struct neigh_table *tbl)
+ 
+ static void neigh_add_timer(struct neighbour *n, unsigned long when)
+ {
++	/* Use safe distance from the jiffies - LONG_MAX point while timer
++	 * is running in DELAY/PROBE state but still show to user space
++	 * large times in the past.
++	 */
++	unsigned long mint = jiffies - (LONG_MAX - 86400 * HZ);
++
+ 	neigh_hold(n);
++	if (!time_in_range(n->confirmed, mint, jiffies))
++		n->confirmed = mint;
++	if (time_before(n->used, n->confirmed))
++		n->used = n->confirmed;
+ 	if (unlikely(mod_timer(&n->timer, when))) {
+ 		printk("NEIGH: BUG, double timer add, state is %x\n",
+ 		       n->nud_state);
+@@ -1001,12 +1011,14 @@ static void neigh_periodic_work(struct work_struct *work)
+ 				goto next_elt;
+ 			}
+ 
+-			if (time_before(n->used, n->confirmed))
++			if (time_before(n->used, n->confirmed) &&
++			    time_is_before_eq_jiffies(n->confirmed))
+ 				n->used = n->confirmed;
+ 
+ 			if (refcount_read(&n->refcnt) == 1 &&
+ 			    (state == NUD_FAILED ||
+-			     time_after(jiffies, n->used + NEIGH_VAR(n->parms, GC_STALETIME)))) {
++			     !time_in_range_open(jiffies, n->used,
++						 n->used + NEIGH_VAR(n->parms, GC_STALETIME)))) {
+ 				*np = n->next;
+ 				neigh_mark_dead(n);
+ 				write_unlock(&n->lock);
 -- 
 2.39.0
 
