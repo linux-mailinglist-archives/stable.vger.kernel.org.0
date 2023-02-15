@@ -2,56 +2,54 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 56843698645
-	for <lists+stable@lfdr.de>; Wed, 15 Feb 2023 21:49:06 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9A23769861B
+	for <lists+stable@lfdr.de>; Wed, 15 Feb 2023 21:47:59 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230137AbjBOUtE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 15 Feb 2023 15:49:04 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33394 "EHLO
+        id S229963AbjBOUr5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 15 Feb 2023 15:47:57 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34260 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229717AbjBOUr4 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 15 Feb 2023 15:47:56 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 03DDF43447;
-        Wed, 15 Feb 2023 12:47:05 -0800 (PST)
+        with ESMTP id S229907AbjBOUrU (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 15 Feb 2023 15:47:20 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 79FC54347A;
+        Wed, 15 Feb 2023 12:46:42 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id CBAF8B823B6;
-        Wed, 15 Feb 2023 20:46:35 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id DC43DC433EF;
-        Wed, 15 Feb 2023 20:46:33 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id EC675B823BF;
+        Wed, 15 Feb 2023 20:46:39 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 453F5C433EF;
+        Wed, 15 Feb 2023 20:46:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1676493994;
-        bh=/dHB7S/tKDWgQrM6FbPgvEFxvU3XqnY7GE0MJ4coEJA=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=rOkzV6OJMp/MCffkAIr2cDNivoZsKhgyAkd+UCmV2Am9WV5pgskQdR5if5Az3QUxj
-         mcD0JaUrpau3t280ZS1OgEngRF0QFUVDAujstaao16wsupCiui3vUmvZ8gVg4BoRcP
-         ExDIkMPiJLKeWvYCjlenMsJfdr7LPxJGuZTTNVyVm6usEmaFZt1o/MLjg4v8oV/ljX
-         C43yBwoYRRj5cvKONhqw+1JVSHplX/b++A2sTWAR2XI8PRdFOmOk7kjFgKzsUQJvVr
-         BX54vsBkjGXyjAGEPn7g0cs33RfzEE3wuyrjzIpPuEw4AjF6cNG9S9yT1syTgpy+5i
-         PK/GtRD7ghbow==
+        s=k20201202; t=1676493998;
+        bh=poIkIYgz/XPHmp8iv8kF/HMBQWJucD1pFg/cdPeqn9k=;
+        h=From:To:Cc:Subject:Date:From;
+        b=jkTMGbdUphuMFNXwE8c3VycnbN3T8tDIa1ksfJH4Em3BclxmCfR8I+B4mJBQuTas9
+         vibaUig4KcPPZ6oMk3QkZDLdHdWTAhBGnR+dK3D0jZfP5WAbjKEjICv3SAu0svPaME
+         0ieGiluc8bizTUOeQIkGhAeBujs0iZcqXQJUBw6JLH3JjQSSDXvjG2IwT3AMFlpMht
+         yMv+G6GnCG1SbpnJrJZS7+ULNLlBsCsD5bs5pP1BCVwEjKKCdJ81k1uyaAkna34mH6
+         uN3ki/pXGjJ49sAWKXDP0l3LY1T0fAALbSp1waoMFffADDGgYFayI16bgO/4+kSH9S
+         PQa8wRTbu+m6A==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Alex Deucher <alexander.deucher@amd.com>, roman.li@amd.com,
-        yifan1.zhang@amd.com, Sasha Levin <sashal@kernel.org>,
-        harry.wentland@amd.com, sunpeng.li@amd.com,
-        Rodrigo.Siqueira@amd.com, christian.koenig@amd.com,
-        Xinhui.Pan@amd.com, airlied@gmail.com, daniel@ffwll.ch,
-        aurabindo.pillai@amd.com, stylon.wang@amd.com, Jerry.Zuo@amd.com,
-        amd-gfx@lists.freedesktop.org, dri-devel@lists.freedesktop.org
-Subject: [PATCH AUTOSEL 6.1 24/24] drm/amd/display: disable S/G display on DCN 3.1.2/3
-Date:   Wed, 15 Feb 2023 15:45:47 -0500
-Message-Id: <20230215204547.2760761-24-sashal@kernel.org>
+Cc:     Neel Patel <neel@pensando.io>,
+        Shannon Nelson <snelson@pensando.io>,
+        Jakub Kicinski <kuba@kernel.org>,
+        Sasha Levin <sashal@kernel.org>, shannon.nelson@amd.com,
+        brett.creeley@amd.com, drivers@pensando.io, davem@davemloft.net,
+        edumazet@google.com, pabeni@redhat.com, allen.hubbe@amd.com,
+        netdev@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.15 01/12] ionic: refactor use of ionic_rx_fill()
+Date:   Wed, 15 Feb 2023 15:46:23 -0500
+Message-Id: <20230215204637.2761073-1-sashal@kernel.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20230215204547.2760761-1-sashal@kernel.org>
-References: <20230215204547.2760761-1-sashal@kernel.org>
 MIME-Version: 1.0
 X-stable: review
 X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
         SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -59,36 +57,93 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alex Deucher <alexander.deucher@amd.com>
+From: Neel Patel <neel@pensando.io>
 
-[ Upstream commit 077e9659581acab70f2dcc04b5bc799aca3a056b ]
+[ Upstream commit e55f0f5befc26e2ba6bb8c1f945ea8e37ee0e334 ]
 
-Causes flickering or white screens in some configurations.
-Disable it for now until we can fix the issue.
+The same pre-work code is used before each call to
+ionic_rx_fill(), so bring it in and make it a part of
+the routine.
 
-Bug: https://gitlab.freedesktop.org/drm/amd/-/issues/2352
-Cc: roman.li@amd.com
-Cc: yifan1.zhang@amd.com
-Reviewed-by: Yifan Zhang <yifan1.zhang@amd.com>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+Signed-off-by: Neel Patel <neel@pensando.io>
+Signed-off-by: Shannon Nelson <snelson@pensando.io>
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c | 2 --
- 1 file changed, 2 deletions(-)
+ .../net/ethernet/pensando/ionic/ionic_txrx.c  | 23 ++++++++++---------
+ 1 file changed, 12 insertions(+), 11 deletions(-)
 
-diff --git a/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c b/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c
-index 988b1c947aefc..c026ba532b733 100644
---- a/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c
-+++ b/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c
-@@ -1524,8 +1524,6 @@ static int amdgpu_dm_init(struct amdgpu_device *adev)
- 			break;
- 		case IP_VERSION(2, 1, 0):
- 		case IP_VERSION(3, 0, 1):
--		case IP_VERSION(3, 1, 2):
--		case IP_VERSION(3, 1, 3):
- 		case IP_VERSION(3, 1, 6):
- 			init_data.flags.gpu_vm_support = true;
- 			break;
+diff --git a/drivers/net/ethernet/pensando/ionic/ionic_txrx.c b/drivers/net/ethernet/pensando/ionic/ionic_txrx.c
+index 37c39581b6599..376f97b4008bb 100644
+--- a/drivers/net/ethernet/pensando/ionic/ionic_txrx.c
++++ b/drivers/net/ethernet/pensando/ionic/ionic_txrx.c
+@@ -353,16 +353,25 @@ void ionic_rx_fill(struct ionic_queue *q)
+ 	struct ionic_rxq_sg_desc *sg_desc;
+ 	struct ionic_rxq_sg_elem *sg_elem;
+ 	struct ionic_buf_info *buf_info;
++	unsigned int fill_threshold;
+ 	struct ionic_rxq_desc *desc;
+ 	unsigned int remain_len;
+ 	unsigned int frag_len;
+ 	unsigned int nfrags;
++	unsigned int n_fill;
+ 	unsigned int i, j;
+ 	unsigned int len;
+ 
++	n_fill = ionic_q_space_avail(q);
++
++	fill_threshold = min_t(unsigned int, IONIC_RX_FILL_THRESHOLD,
++			       q->num_descs / IONIC_RX_FILL_DIV);
++	if (n_fill < fill_threshold)
++		return;
++
+ 	len = netdev->mtu + ETH_HLEN + VLAN_HLEN;
+ 
+-	for (i = ionic_q_space_avail(q); i; i--) {
++	for (i = n_fill; i; i--) {
+ 		nfrags = 0;
+ 		remain_len = len;
+ 		desc_info = &q->info[q->head_idx];
+@@ -518,7 +527,6 @@ int ionic_rx_napi(struct napi_struct *napi, int budget)
+ 	struct ionic_cq *cq = napi_to_cq(napi);
+ 	struct ionic_dev *idev;
+ 	struct ionic_lif *lif;
+-	u16 rx_fill_threshold;
+ 	u32 work_done = 0;
+ 	u32 flags = 0;
+ 
+@@ -528,10 +536,7 @@ int ionic_rx_napi(struct napi_struct *napi, int budget)
+ 	work_done = ionic_cq_service(cq, budget,
+ 				     ionic_rx_service, NULL, NULL);
+ 
+-	rx_fill_threshold = min_t(u16, IONIC_RX_FILL_THRESHOLD,
+-				  cq->num_descs / IONIC_RX_FILL_DIV);
+-	if (work_done && ionic_q_space_avail(cq->bound_q) >= rx_fill_threshold)
+-		ionic_rx_fill(cq->bound_q);
++	ionic_rx_fill(cq->bound_q);
+ 
+ 	if (work_done < budget && napi_complete_done(napi, work_done)) {
+ 		ionic_dim_update(qcq, IONIC_LIF_F_RX_DIM_INTR);
+@@ -559,7 +564,6 @@ int ionic_txrx_napi(struct napi_struct *napi, int budget)
+ 	struct ionic_dev *idev;
+ 	struct ionic_lif *lif;
+ 	struct ionic_cq *txcq;
+-	u16 rx_fill_threshold;
+ 	u32 rx_work_done = 0;
+ 	u32 tx_work_done = 0;
+ 	u32 flags = 0;
+@@ -574,10 +578,7 @@ int ionic_txrx_napi(struct napi_struct *napi, int budget)
+ 	rx_work_done = ionic_cq_service(rxcq, budget,
+ 					ionic_rx_service, NULL, NULL);
+ 
+-	rx_fill_threshold = min_t(u16, IONIC_RX_FILL_THRESHOLD,
+-				  rxcq->num_descs / IONIC_RX_FILL_DIV);
+-	if (rx_work_done && ionic_q_space_avail(rxcq->bound_q) >= rx_fill_threshold)
+-		ionic_rx_fill(rxcq->bound_q);
++	ionic_rx_fill(rxcq->bound_q);
+ 
+ 	if (rx_work_done < budget && napi_complete_done(napi, rx_work_done)) {
+ 		ionic_dim_update(qcq, 0);
 -- 
 2.39.0
 
