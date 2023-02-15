@@ -2,105 +2,112 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 63223697761
-	for <lists+stable@lfdr.de>; Wed, 15 Feb 2023 08:30:16 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9E4DF6977CB
+	for <lists+stable@lfdr.de>; Wed, 15 Feb 2023 09:12:34 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233329AbjBOHaO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 15 Feb 2023 02:30:14 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55256 "EHLO
+        id S233831AbjBOIMd (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 15 Feb 2023 03:12:33 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48040 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230212AbjBOHaO (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 15 Feb 2023 02:30:14 -0500
-Received: from szxga02-in.huawei.com (szxga02-in.huawei.com [45.249.212.188])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D01212914A;
-        Tue, 14 Feb 2023 23:30:12 -0800 (PST)
-Received: from kwepemm600020.china.huawei.com (unknown [172.30.72.56])
-        by szxga02-in.huawei.com (SkyGuard) with ESMTP id 4PGqS71hk1zJsV6;
-        Wed, 15 Feb 2023 15:28:23 +0800 (CST)
-Received: from [127.0.0.1] (10.174.178.94) by kwepemm600020.china.huawei.com
- (7.193.23.147) with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id 15.1.2507.17; Wed, 15 Feb
- 2023 15:30:09 +0800
-Message-ID: <6342c97b-2e6d-7ac7-fd8f-559be14fe8ec@huawei.com>
-Date:   Wed, 15 Feb 2023 15:30:07 +0800
+        with ESMTP id S233677AbjBOIMd (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 15 Feb 2023 03:12:33 -0500
+Received: from mail-4022.proton.ch (mail-4022.proton.ch [185.70.40.22])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A33F3449F
+        for <stable@vger.kernel.org>; Wed, 15 Feb 2023 00:12:31 -0800 (PST)
+Date:   Wed, 15 Feb 2023 08:12:17 +0000
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=systemb.ch;
+        s=protonmail; t=1676448748; x=1676707948;
+        bh=s9JzE6b6DEfckH/ZqQDZxssRt/o9LAwbB3i41yJi7+4=;
+        h=Date:To:From:Cc:Subject:Message-ID:In-Reply-To:References:
+         Feedback-ID:From:To:Cc:Date:Subject:Reply-To:Feedback-ID:
+         Message-ID:BIMI-Selector;
+        b=fva+HL8dsv3tACxLbMbg9jlu6/1+Zx2YrA6/vdm7SZEtuYYigjN0yxwB5HMeLH0EE
+         a+dNE8DU6teGbczfDlI1u5t+nHRU4611angKVhKSn1ZsbOxnn+wCGR6bE2DVAHJoxR
+         GFwJHVnCovTqmb5tQrQbLJ09M11k56qN3x+Y2AvMa3JL3b6QpvhwTp155aUucarhmv
+         NbuLt++S+UEQLO7sWVTNT7I2ecxB0igDRYfTgNcbc2IOYCzgAoYjFx280cKLnujCg/
+         FDR7fdlcwadje1Joqh1cMVDckXnlB4d59KzgSfT6YJ2qD/JJ7FxAtEogFExHIVaIDj
+         J+hiZbVgKV5Hw==
+To:     Kalle Valo <kvalo@kernel.org>
+From:   Marc Bornand <dev.mbornand@systemb.ch>
+Cc:     Johannes Berg <johannes@sipsolutions.net>,
+        linux-wireless@vger.kernel.org,
+        "David S . Miller" <davem@davemloft.net>,
+        Eric Dumazet <edumazet@google.com>,
+        Jakub Kicinski <kuba@kernel.org>,
+        Paolo Abeni <pabeni@redhat.com>, netdev@vger.kernel.org,
+        linux-kernel@vger.kernel.org, Yohan Prod'homme <kernel@zoddo.fr>,
+        stable@vger.kernel.org
+Subject: Re: [PATCH v4] Set ssid when authenticating
+Message-ID: <Y+yT2YUORRHY4bei@opmb2>
+In-Reply-To: <87ttzn4hki.fsf@kernel.org>
+References: <20230214132009.1011452-1-dev.mbornand@systemb.ch> <87ttzn4hki.fsf@kernel.org>
+Feedback-ID: 65519157:user:proton
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:102.0) Gecko/20100101
- Thunderbird/102.2.0
-Subject: Re: [PATCH 5.10 000/139] 5.10.168-rc1 review
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        <stable@vger.kernel.org>
-CC:     <patches@lists.linux.dev>, <linux-kernel@vger.kernel.org>,
-        <torvalds@linux-foundation.org>, <akpm@linux-foundation.org>,
-        <linux@roeck-us.net>, <shuah@kernel.org>, <patches@kernelci.org>,
-        <lkft-triage@lists.linaro.org>, <pavel@denx.de>,
-        <jonathanh@nvidia.com>, <f.fainelli@gmail.com>,
-        <sudipm.mukherjee@gmail.com>, <srw@sladewatkins.net>,
-        <rwarsow@gmx.de>
-References: <20230213144745.696901179@linuxfoundation.org>
-Content-Language: en-US
-From:   zhouzhixiu <zhouzhixiu@huawei.com>
-In-Reply-To: <20230213144745.696901179@linuxfoundation.org>
-Content-Type: text/plain; charset="UTF-8"; format=flowed
-Content-Transfer-Encoding: 8bit
-X-Originating-IP: [10.174.178.94]
-X-ClientProxiedBy: dggems704-chm.china.huawei.com (10.3.19.181) To
- kwepemm600020.china.huawei.com (7.193.23.147)
-X-CFilter-Loop: Reflected
-X-Spam-Status: No, score=-4.5 required=5.0 tests=BAYES_00,NICE_REPLY_A,
-        RCVD_IN_DNSWL_MED,SPF_HELO_NONE,SPF_PASS autolearn=ham
-        autolearn_force=no version=3.4.6
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: quoted-printable
+X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,SPF_HELO_PASS,SPF_PASS
+        autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+On Wed, Feb 15, 2023 at 07:35:09AM +0200, Kalle Valo wrote:
+> Marc Bornand <dev.mbornand@systemb.ch> writes:
+>
+> > changes since v3:
+> > - add missing NULL check
+> > - add missing break
+> >
+> > changes since v2:
+> > - The code was tottaly rewritten based on the disscution of the
+> >   v2 patch.
+> > - the ssid is set in __cfg80211_connect_result() and only if the ssid i=
+s
+> >   not already set.
+> > - Do not add an other ssid reset path since it is already done in
+> >   __cfg80211_disconnected()
+> >
+> > When a connexion was established without going through
+> > NL80211_CMD_CONNECT, the ssid was never set in the wireless_dev struct.
+> > Now we set it in __cfg80211_connect_result() when it is not already set=
+.
+> >
+> > Reported-by: Yohan Prod'homme <kernel@zoddo.fr>
+> > Fixes: 7b0a0e3c3a88260b6fcb017e49f198463aa62ed1
+> > Cc: linux-wireless@vger.kernel.org
+> > Cc: stable@vger.kernel.org
+> > Link: https://bugzilla.kernel.org/show_bug.cgi?id=3D216711
+> > Signed-off-by: Marc Bornand <dev.mbornand@systemb.ch>
+> > ---
+> >  net/wireless/sme.c | 17 +++++++++++++++++
+> >  1 file changed, 17 insertions(+)
+>
+> The change log ("changes since v3" etc) should be after "---" line and
 
-On 2023/2/13 22:49, Greg Kroah-Hartman wrote:
-> This is the start of the stable review cycle for the 5.10.168 release.
-> There are 139 patches in this series, all will be posted as a response
-> to this one.  If anyone has any issues with these being applied, please
-> let me know.
->
-> Responses should be made by Wed, 15 Feb 2023 14:46:51 +0000.
-> Anything received after that time might be too late.
->
-> The whole patch series can be found in one patch at:
-> 	https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.10.168-rc1.gz
-> or in the git tree and branch at:
-> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.10.y
-> and the diffstat can be found below.
->
-> thanks,
->
-> greg k-h
->
-> -------------
-Tested on arm64 and x86 for  5.10.168-rc1,
+Does it need another "---" after the change log?
+something like:
 
-Kernel 
-repo:https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git
-Branch: linux-5.10.y
-Version:  5.10.168-rc1
-Commit: 65fa84413c15ee131ad4b76077c48f0603d1d8ec
-Compiler: gcc version 7.3.0 (GCC)
+"---"
+"changes since v3:"
+"(CHANGES)"
+"---"
 
-arm64:
---------------------------------------------------------------------
-Testcase Result Summary:
-total: 9023
-passed: 9023
-failed: 0
-timeout: 0
---------------------------------------------------------------------
+> the title should start with "wifi: cfg80211:". Please read the wiki link
+> below.
 
-x86:
---------------------------------------------------------------------
-Testcase Result Summary:
-total: 9023
-passed: 9023
-failed: 0
-timeout: 0
---------------------------------------------------------------------
-Tested-by: Hulk Robot <hulkrobot@huawei.com>
+Should i start with the version 1 with the new title?
+and since i am already changing the title, the following might better
+discribe the patch, or should i keep the old title after the ":" ?
+
+[PATCH wireless] wifi: cfg80211: Set SSID if it is not already set
+
+>
+> --
+> https://patchwork.kernel.org/project/linux-wireless/list/
+>
+> https://wireless.wiki.kernel.org/en/developers/documentation/submittingpa=
+tches
 
