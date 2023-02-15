@@ -2,49 +2,48 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 6F7766985DE
-	for <lists+stable@lfdr.de>; Wed, 15 Feb 2023 21:46:18 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id AD7EC6985E8
+	for <lists+stable@lfdr.de>; Wed, 15 Feb 2023 21:46:34 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229815AbjBOUqQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 15 Feb 2023 15:46:16 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33038 "EHLO
+        id S229810AbjBOUqc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 15 Feb 2023 15:46:32 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33362 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229728AbjBOUqO (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 15 Feb 2023 15:46:14 -0500
+        with ESMTP id S229805AbjBOUqX (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 15 Feb 2023 15:46:23 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 605E63E60E;
-        Wed, 15 Feb 2023 12:46:04 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9589C3C7B5;
+        Wed, 15 Feb 2023 12:46:10 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 0BB3BB823B4;
-        Wed, 15 Feb 2023 20:46:03 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1F752C433EF;
-        Wed, 15 Feb 2023 20:46:01 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 35433B823B6;
+        Wed, 15 Feb 2023 20:46:09 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 87A10C433EF;
+        Wed, 15 Feb 2023 20:46:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1676493961;
-        bh=lhAXS7hXbodllx8n7UqUkj4H6xj4JSId1r6/xza38kE=;
+        s=k20201202; t=1676493968;
+        bh=pJ9qyWBsr9mPd+z6Cn2KF2wKt9ulc41prE/bP5SrksQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=QmOMZj4Z8ML7Uywrx6YkRPp+3zO3GVCOffEeOJcXeGJNrbHcX2DWPWHvXxLdp0e73
-         bLh3d5Anmv58vxEssPamPjWPR427EYUNbGKIDnFeh0QHBcUyaLSrPUlas/e9zGVr7R
-         qPGOGsjtpJoS0FscAqXrqJx4/rOdMXyEPg/XbDQvU4drrjZPz1RrgHv5FbJenYRvHR
-         0IzUt4wOomZXJidFQqizGmaR1qKGaN9UWxyBORro6TS0B3fC6b3oP5d6r8FGqkR4kr
-         oGGkh+Xasy0Wmm7/pP7IwCcJjREW7OGTsEuGi1rpW/2K4pjzPPenzkcJ1UGbEmdZrD
-         DlDQCjRUaQ9Sg==
+        b=RgMToS6ccMA0FE4E/0CP528cLPQqMVUj1pzo7lP1AXyHeSoD4CDgi7spKT1YbPMz7
+         wmKRNivhUzgdbS1vmmfaGdqxrLR4sDfFJBovsCOlLhaA7oQ4lc+AI6osszqItOEg4F
+         kk4ret2U2JyjNHo++x0OY96E/h42LbsA7A/QkyRmqAlCM67D/D445EVYPTwuAKWpqM
+         Bh84+2MakV9SWs8/qc7HFd9RtkqQlhwtCnVyPSmHpxTQ2OCm2KIBg1Oa//d+zPMrrY
+         dLXWXknkMAjnGPb+ccP0WjzZHTSupaGt8cGmWISkAxrHxqaFJcmv8lKgsSrNpNJWx/
+         d/syj2kJBfQHQ==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Jensen Huang <jensenhuang@friendlyarm.com>,
+Cc:     Jonas Karlman <jonas@kwiboo.se>,
+        Michael Riesch <michael.riesch@wolfvision.net>,
         Heiko Stuebner <heiko@sntech.de>,
         Sasha Levin <sashal@kernel.org>, robh+dt@kernel.org,
-        krzysztof.kozlowski+dt@linaro.org, pgwipeout@gmail.com,
-        michael.riesch@wolfvision.net, s.hauer@pengutronix.de,
-        frattaroli.nicolas@gmail.com, macromorgan@hotmail.com,
-        yifeng.zhao@rock-chips.com, devicetree@vger.kernel.org,
-        linux-arm-kernel@lists.infradead.org,
+        krzysztof.kozlowski+dt@linaro.org, amadeus@jmu.edu.cn,
+        wiagn233@outlook.com, linux.amoon@gmail.com,
+        devicetree@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
         linux-rockchip@lists.infradead.org
-Subject: [PATCH AUTOSEL 6.1 05/24] arm64: dts: rockchip: add missing #interrupt-cells to rk356x pcie2x1
-Date:   Wed, 15 Feb 2023 15:45:28 -0500
-Message-Id: <20230215204547.2760761-5-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 6.1 06/24] arm64: dts: rockchip: fix probe of analog sound card on rock-3a
+Date:   Wed, 15 Feb 2023 15:45:29 -0500
+Message-Id: <20230215204547.2760761-6-sashal@kernel.org>
 X-Mailer: git-send-email 2.39.0
 In-Reply-To: <20230215204547.2760761-1-sashal@kernel.org>
 References: <20230215204547.2760761-1-sashal@kernel.org>
@@ -61,33 +60,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jensen Huang <jensenhuang@friendlyarm.com>
+From: Jonas Karlman <jonas@kwiboo.se>
 
-[ Upstream commit a323e6b5737bb6e3d3946369b97099abb7dde695 ]
+[ Upstream commit 1104693cdfcd337e73ab585a225f05445ff7a864 ]
 
-This fixes the following issue:
-  pcieport 0000:00:00.0: of_irq_parse_pci: failed with rc=-22
+The following was observed on my Radxa ROCK 3 Model A board:
 
-Signed-off-by: Jensen Huang <jensenhuang@friendlyarm.com>
-Link: https://lore.kernel.org/r/20230113064457.7105-1-jensenhuang@friendlyarm.com
+  rockchip-pinctrl pinctrl: pin gpio1-9 already requested by vcc-cam-regulator; cannot claim for fe410000.i2s
+  ...
+  platform rk809-sound: deferred probe pending
+
+Fix this by supplying a board specific pinctrl with the i2s1 pins used
+by pmic codec according to the schematic [1].
+
+[1] https://dl.radxa.com/rock3/docs/hw/3a/ROCK-3A-V1.3-SCH.pdf
+
+Signed-off-by: Jonas Karlman <jonas@kwiboo.se>
+Acked-by: Michael Riesch <michael.riesch@wolfvision.net>
+Link: https://lore.kernel.org/r/20230115211553.445007-1-jonas@kwiboo.se
 Signed-off-by: Heiko Stuebner <heiko@sntech.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm64/boot/dts/rockchip/rk356x.dtsi | 1 +
- 1 file changed, 1 insertion(+)
+ arch/arm64/boot/dts/rockchip/rk3568-rock-3a.dts | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/arch/arm64/boot/dts/rockchip/rk356x.dtsi b/arch/arm64/boot/dts/rockchip/rk356x.dtsi
-index 164708f1eb674..1d423daae971b 100644
---- a/arch/arm64/boot/dts/rockchip/rk356x.dtsi
-+++ b/arch/arm64/boot/dts/rockchip/rk356x.dtsi
-@@ -966,6 +966,7 @@ pcie2x1: pcie@fe260000 {
- 		clock-names = "aclk_mst", "aclk_slv",
- 			      "aclk_dbi", "pclk", "aux";
- 		device_type = "pci";
-+		#interrupt-cells = <1>;
- 		interrupt-map-mask = <0 0 0 7>;
- 		interrupt-map = <0 0 0 1 &pcie_intc 0>,
- 				<0 0 0 2 &pcie_intc 1>,
+diff --git a/arch/arm64/boot/dts/rockchip/rk3568-rock-3a.dts b/arch/arm64/boot/dts/rockchip/rk3568-rock-3a.dts
+index 44313a18e484e..bab46db2b18cd 100644
+--- a/arch/arm64/boot/dts/rockchip/rk3568-rock-3a.dts
++++ b/arch/arm64/boot/dts/rockchip/rk3568-rock-3a.dts
+@@ -521,6 +521,8 @@ &i2s0_8ch {
+ };
+ 
+ &i2s1_8ch {
++	pinctrl-names = "default";
++	pinctrl-0 = <&i2s1m0_sclktx &i2s1m0_lrcktx &i2s1m0_sdi0 &i2s1m0_sdo0>;
+ 	rockchip,trcm-sync-tx-only;
+ 	status = "okay";
+ };
 -- 
 2.39.0
 
