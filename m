@@ -2,120 +2,117 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 3964969797E
-	for <lists+stable@lfdr.de>; Wed, 15 Feb 2023 11:03:55 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4CE3D697A26
+	for <lists+stable@lfdr.de>; Wed, 15 Feb 2023 11:46:26 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233420AbjBOKDv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 15 Feb 2023 05:03:51 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35726 "EHLO
+        id S234180AbjBOKqY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 15 Feb 2023 05:46:24 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36322 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233108AbjBOKDp (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 15 Feb 2023 05:03:45 -0500
-Received: from frasgout.his.huawei.com (frasgout.his.huawei.com [185.176.79.56])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D79BD3757B;
-        Wed, 15 Feb 2023 02:03:31 -0800 (PST)
-Received: from lhrpeml500005.china.huawei.com (unknown [172.18.147.200])
-        by frasgout.his.huawei.com (SkyGuard) with ESMTP id 4PGtp0322Dz6J67P;
-        Wed, 15 Feb 2023 17:59:04 +0800 (CST)
-Received: from localhost (10.202.227.76) by lhrpeml500005.china.huawei.com
- (7.191.163.240) with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id 15.1.2507.17; Wed, 15 Feb
- 2023 10:03:28 +0000
-Date:   Wed, 15 Feb 2023 10:03:27 +0000
-From:   Jonathan Cameron <Jonathan.Cameron@Huawei.com>
-To:     Gregory Price <gregory.price@memverge.com>
-CC:     Dan Williams <dan.j.williams@intel.com>,
-        <linux-cxl@vger.kernel.org>, David Hildenbrand <david@redhat.com>,
-        Kees Cook <keescook@chromium.org>, <stable@vger.kernel.org>,
-        Dave Hansen <dave.hansen@linux.intel.com>,
-        Michal Hocko <mhocko@suse.com>, <linux-mm@kvack.org>,
-        <linux-acpi@vger.kernel.org>, <qemu-devel@nongnu.org>
-Subject: Re: [PATCH 00/18] CXL RAM and the 'Soft Reserved' => 'System RAM'
- default
-Message-ID: <20230215100327.0000728f@Huawei.com>
-In-Reply-To: <Y+wC+rPRbAc9rudx@memverge.com>
-References: <167564534874.847146.5222419648551436750.stgit@dwillia2-xfh.jf.intel.com>
-        <Y+vSj8FD6ZaHhfoN@memverge.com>
-        <63ebd56e639e9_32d61294f4@dwillia2-xfh.jf.intel.com.notmuch>
-        <Y+vag3hg3VRNRUti@memverge.com>
-        <20230214211824.00007f91@Huawei.com>
-        <Y+wCeSig++c3ACkj@memverge.com>
-        <Y+wC+rPRbAc9rudx@memverge.com>
-Organization: Huawei Technologies Research and Development (UK) Ltd.
-X-Mailer: Claws Mail 4.1.0 (GTK 3.24.33; x86_64-w64-mingw32)
+        with ESMTP id S234176AbjBOKqX (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 15 Feb 2023 05:46:23 -0500
+Received: from eu-smtp-delivery-151.mimecast.com (eu-smtp-delivery-151.mimecast.com [185.58.85.151])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6ADD537726
+        for <stable@vger.kernel.org>; Wed, 15 Feb 2023 02:46:21 -0800 (PST)
+Received: from AcuMS.aculab.com (156.67.243.121 [156.67.243.121]) by
+ relay.mimecast.com with ESMTP with both STARTTLS and AUTH (version=TLSv1.2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA384) id
+ uk-mta-34-i_adRa_mOdaDGX2RAwwiCA-1; Wed, 15 Feb 2023 10:46:18 +0000
+X-MC-Unique: i_adRa_mOdaDGX2RAwwiCA-1
+Received: from AcuMS.Aculab.com (10.202.163.6) by AcuMS.aculab.com
+ (10.202.163.6) with Microsoft SMTP Server (TLS) id 15.0.1497.45; Wed, 15 Feb
+ 2023 10:46:16 +0000
+Received: from AcuMS.Aculab.com ([::1]) by AcuMS.aculab.com ([::1]) with mapi
+ id 15.00.1497.045; Wed, 15 Feb 2023 10:46:16 +0000
+From:   David Laight <David.Laight@ACULAB.COM>
+To:     'Damien Le Moal' <damien.lemoal@opensource.wdc.com>,
+        Rick Wertenbroek <rick.wertenbroek@gmail.com>,
+        "alberto.dassatti@heig-vd.ch" <alberto.dassatti@heig-vd.ch>
+CC:     "xxm@rock-chips.com" <xxm@rock-chips.com>,
+        "rick.wertenbroek@heig-vd.ch" <rick.wertenbroek@heig-vd.ch>,
+        "stable@vger.kernel.org" <stable@vger.kernel.org>,
+        Rob Herring <robh+dt@kernel.org>,
+        "Krzysztof Kozlowski" <krzysztof.kozlowski+dt@linaro.org>,
+        Heiko Stuebner <heiko@sntech.de>,
+        Shawn Lin <shawn.lin@rock-chips.com>,
+        Lorenzo Pieralisi <lpieralisi@kernel.org>,
+        =?utf-8?B?S3J6eXN6dG9mIFdpbGN6ecWEc2tp?= <kw@linux.com>,
+        Bjorn Helgaas <bhelgaas@google.com>,
+        Jani Nikula <jani.nikula@intel.com>,
+        Rodrigo Vivi <rodrigo.vivi@intel.com>,
+        Mikko Kovanen <mikko.kovanen@aavamobile.com>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        "devicetree@vger.kernel.org" <devicetree@vger.kernel.org>,
+        "linux-arm-kernel@lists.infradead.org" 
+        <linux-arm-kernel@lists.infradead.org>,
+        "linux-rockchip@lists.infradead.org" 
+        <linux-rockchip@lists.infradead.org>,
+        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+        "linux-pci@vger.kernel.org" <linux-pci@vger.kernel.org>
+Subject: RE: [PATCH v2 8/9] PCI: rockchip: Use u32 variable to access 32-bit
+ registers
+Thread-Topic: [PATCH v2 8/9] PCI: rockchip: Use u32 variable to access 32-bit
+ registers
+Thread-Index: AQHZQN2t4tTaT5pAPkCiUYx37/Wq/67P0uRw
+Date:   Wed, 15 Feb 2023 10:46:16 +0000
+Message-ID: <2a80c4e1f1ad42c6849521d1e644b003@AcuMS.aculab.com>
+References: <20230214140858.1133292-1-rick.wertenbroek@gmail.com>
+ <20230214140858.1133292-9-rick.wertenbroek@gmail.com>
+ <0fa5cef4-7096-7f59-422a-98011d01437c@opensource.wdc.com>
+In-Reply-To: <0fa5cef4-7096-7f59-422a-98011d01437c@opensource.wdc.com>
+Accept-Language: en-GB, en-US
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+x-ms-exchange-transport-fromentityheader: Hosted
+x-originating-ip: [10.202.205.107]
 MIME-Version: 1.0
-Content-Type: text/plain; charset="US-ASCII"
-Content-Transfer-Encoding: 7bit
-X-Originating-IP: [10.202.227.76]
-X-ClientProxiedBy: lhrpeml500005.china.huawei.com (7.191.163.240) To
- lhrpeml500005.china.huawei.com (7.191.163.240)
-X-CFilter-Loop: Reflected
-X-Spam-Status: No, score=-4.2 required=5.0 tests=BAYES_00,RCVD_IN_DNSWL_MED,
-        RCVD_IN_MSPIKE_H2,SPF_HELO_NONE,SPF_PASS autolearn=ham
-        autolearn_force=no version=3.4.6
+X-Mimecast-Spam-Score: 0
+X-Mimecast-Originator: aculab.com
+Content-Language: en-US
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: base64
+X-Spam-Status: No, score=-1.9 required=5.0 tests=BAYES_00,RCVD_IN_DNSWL_NONE,
+        SPF_HELO_NONE,SPF_PASS autolearn=unavailable autolearn_force=no
+        version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, 14 Feb 2023 16:54:02 -0500
-Gregory Price <gregory.price@memverge.com> wrote:
+RnJvbTogRGFtaWVuIExlIE1vYWwNCj4gU2VudDogMTUgRmVicnVhcnkgMjAyMyAwMTozNA0KPiAN
+Cj4gT24gMi8xNC8yMyAyMzowOCwgUmljayBXZXJ0ZW5icm9layB3cm90ZToNCj4gPiBQcmV2aW91
+c2x5IHUxNiB2YXJpYWJsZXMgd2VyZSB1c2VkIHRvIGFjY2VzcyAzMi1iaXQgcmVnaXN0ZXJzLCB0
+aGlzDQo+ID4gcmVzdWx0ZWQgaW4gbm90IGFsbCBvZiB0aGUgZGF0YSBiZWluZyByZWFkIGZyb20g
+dGhlIHJlZ2lzdGVycy4gQWxzbw0KPiA+IHRoZSBsZWZ0IHNoaWZ0IG9mIG1vcmUgdGhhbiAxNi1i
+aXRzIHdvdWxkIHJlc3VsdCBpbiBtb3ZpbmcgZGF0YSBvdXQNCj4gPiBvZiB0aGUgdmFyaWFibGUu
+IFVzZSB1MzIgdmFyaWFibGVzIHRvIGFjY2VzcyAzMi1iaXQgcmVnaXN0ZXJzDQo+ID4NCj4gPiBG
+aXhlczogY2Y1OTBiMDc4MzkxICgiUENJOiByb2NrY2hpcDogQWRkIEVQIGRyaXZlciBmb3IgUm9j
+a2NoaXAgUENJZSBjb250cm9sbGVyIikNCj4gPiBDYzogc3RhYmxlQHZnZXIua2VybmVsLm9yZw0K
+PiA+IFNpZ25lZC1vZmYtYnk6IFJpY2sgV2VydGVuYnJvZWsgPHJpY2sud2VydGVuYnJvZWtAZ21h
+aWwuY29tPg0KPiA+IC0tLQ0KPiA+ICBkcml2ZXJzL3BjaS9jb250cm9sbGVyL3BjaWUtcm9ja2No
+aXAtZXAuYyB8IDEwICsrKysrLS0tLS0NCj4gPiAgZHJpdmVycy9wY2kvY29udHJvbGxlci9wY2ll
+LXJvY2tjaGlwLmggICAgfCAgMSArDQo+ID4gIDIgZmlsZXMgY2hhbmdlZCwgNiBpbnNlcnRpb25z
+KCspLCA1IGRlbGV0aW9ucygtKQ0KPiA+DQo+ID4gZGlmZiAtLWdpdCBhL2RyaXZlcnMvcGNpL2Nv
+bnRyb2xsZXIvcGNpZS1yb2NrY2hpcC1lcC5jIGIvZHJpdmVycy9wY2kvY29udHJvbGxlci9wY2ll
+LXJvY2tjaGlwLWVwLmMNCj4gPiBpbmRleCBjYTViMzYzYmEuLmI3ODY1YTk0ZSAxMDA2NDQNCj4g
+PiAtLS0gYS9kcml2ZXJzL3BjaS9jb250cm9sbGVyL3BjaWUtcm9ja2NoaXAtZXAuYw0KPiA+ICsr
+KyBiL2RyaXZlcnMvcGNpL2NvbnRyb2xsZXIvcGNpZS1yb2NrY2hpcC1lcC5jDQo+ID4gQEAgLTI5
+MiwxNSArMjkyLDE1IEBAIHN0YXRpYyBpbnQgcm9ja2NoaXBfcGNpZV9lcF9zZXRfbXNpKHN0cnVj
+dCBwY2lfZXBjICplcGMsIHU4IGZuLCB1OCB2Zm4sDQo+ID4gIHsNCj4gPiAgCXN0cnVjdCByb2Nr
+Y2hpcF9wY2llX2VwICplcCA9IGVwY19nZXRfZHJ2ZGF0YShlcGMpOw0KPiA+ICAJc3RydWN0IHJv
+Y2tjaGlwX3BjaWUgKnJvY2tjaGlwID0gJmVwLT5yb2NrY2hpcDsNCj4gPiAtCXUxNiBmbGFnczsN
+Cj4gPiArCXUzMiBmbGFnczsNCj4gPg0KPiA+ICAJZmxhZ3MgPSByb2NrY2hpcF9wY2llX3JlYWQo
+cm9ja2NoaXAsDQo+ID4gIAkJCQkgICBST0NLQ0hJUF9QQ0lFX0VQX0ZVTkNfQkFTRShmbikgKw0K
+PiA+ICAJCQkJICAgUk9DS0NISVBfUENJRV9FUF9NU0lfQ1RSTF9SRUcpOw0KPiA+ICAJZmxhZ3Mg
+Jj0gflJPQ0tDSElQX1BDSUVfRVBfTVNJX0NUUkxfTU1DX01BU0s7DQo+ID4gIAlmbGFncyB8PQ0K
+PiA+IC0JICAgKChtdWx0aV9tc2dfY2FwIDw8IDEpIDw8ICBST0NLQ0hJUF9QQ0lFX0VQX01TSV9D
+VFJMX01NQ19PRkZTRVQpIHwNCj4gPiAtCSAgIFBDSV9NU0lfRkxBR1NfNjRCSVQ7DQo+ID4gKwkg
+ICAobXVsdGlfbXNnX2NhcCA8PCBST0NLQ0hJUF9QQ0lFX0VQX01TSV9DVFJMX01NQ19PRkZTRVQp
+IHwNCj4gDQo+IFJPQ0tDSElQX1BDSUVfRVBfTVNJX0NUUkxfTU1DX09GRlNFVCBpcyAxNyBhbmQg
+bXVsdGlfbXNnX2NhcCBpcyBhIHU4Li4uDQo+IE5vdCBuaWNlLg0KDQpJdCByZWFsbHkgZG9lc24n
+dCBtYXR0ZXIuDQpBcyBzb29uIGFzIHlvdSBkbyBhbnkgYXJpdGhtZXRpYyBjaGFyIGFuZCBzaG9y
+dCBhcmUgcHJvbW90ZWQgdG8gaW50Lg0KDQoJRGF2aWQNCg0KLQ0KUmVnaXN0ZXJlZCBBZGRyZXNz
+IExha2VzaWRlLCBCcmFtbGV5IFJvYWQsIE1vdW50IEZhcm0sIE1pbHRvbiBLZXluZXMsIE1LMSAx
+UFQsIFVLDQpSZWdpc3RyYXRpb24gTm86IDEzOTczODYgKFdhbGVzKQ0K
 
-> On Tue, Feb 14, 2023 at 04:51:53PM -0500, Gregory Price wrote:
-> > On Tue, Feb 14, 2023 at 09:18:24PM +0000, Jonathan Cameron wrote:  
-> > > On Tue, 14 Feb 2023 14:01:23 -0500
-> > > Gregory Price <gregory.price@memverge.com> wrote:
-> > > 
-> > > Could you test it with TCG (just drop --enable-kvm)?  We have a known
-> > > limitation with x86 instructions running out of CXL emulated memory
-> > > (side effect of emulating the interleave).  You'll need a fix even on TCG
-> > > for the corner case of an instruction bridging from normal ram to cxl memory.
-> > > https://lore.kernel.org/qemu-devel/20230206193809.1153124-1-richard.henderson@linaro.org/
-> > > 
-> > > Performance will be bad, but so far this is only way we can do it correctly.
-> > > 
-> > > Jonathan
-> > >   
-> > 
-> > Siiiggghh... i had this patch and dropped --enable-kvm, but forgot to
-> > drop "accel=kvm" from the -machine line
-> > 
-> > This was the issue.
-> > 
-> > And let me tell you, if you numactl --membind=1 python, it is
-> > IMPRESSIVELY slow.  I wonder if it's even hitting a few 100k
-> > instructions a second.
-> > 
-> > 
-> > This appears to be the issue.  When I get a bit more time, try to dive
-> > into the deep dark depths of qemu memory regions to see how difficult
-> > a non-mmio fork might be, unless someone else is already looking at it.
-> > 
-> > ~Gregory  
-> 
-> Just clarifying one thing:  Even with the patch, KVM blows up.
-> Disabling KVM fixes this entirely.  I haven't tested without KVM but
-> with the patch, i will do that now.
-
-yup.  The patch only fixes TCG so that's expected behavior.
-
-Fingers crossed on this 'working'.
-
-I'm open to suggestions on how to work around the problem with KVM
-or indeed allow TCG to cache the instructions (right not it has
-to fetch and emulate each instruction on it's own).
-
-I can envision how we might do it for KVM with userspace page fault handling
-used to get a fault up to QEMU which can then stitch in a cache
-of the underlying memory as a stage 2 translation to the page (a little
-bit like how post migration copy works) though I've not prototyped
-anything...
-
-I think it would be complex code that would be little used
-so we may just have to cope with the emulation being slow.
-
-Intent is very much to be able to test the kernel code etc, not
-test it quickly :)
-
-Jonathan
