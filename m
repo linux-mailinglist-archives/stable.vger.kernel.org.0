@@ -2,45 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 6D6B2698660
-	for <lists+stable@lfdr.de>; Wed, 15 Feb 2023 21:49:59 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 06E7C69866F
+	for <lists+stable@lfdr.de>; Wed, 15 Feb 2023 21:50:17 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230126AbjBOUt6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 15 Feb 2023 15:49:58 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33622 "EHLO
+        id S230161AbjBOUuO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 15 Feb 2023 15:50:14 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33082 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230045AbjBOUtL (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 15 Feb 2023 15:49:11 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E0DF1457C2;
-        Wed, 15 Feb 2023 12:47:21 -0800 (PST)
+        with ESMTP id S229929AbjBOUt1 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 15 Feb 2023 15:49:27 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2AE7A4390A;
+        Wed, 15 Feb 2023 12:47:28 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id B8E1EB823C1;
-        Wed, 15 Feb 2023 20:46:40 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 25AD9C433A0;
-        Wed, 15 Feb 2023 20:46:39 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 26E2161D97;
+        Wed, 15 Feb 2023 20:46:42 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 44993C433D2;
+        Wed, 15 Feb 2023 20:46:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1676493999;
-        bh=Opj6eH/PliGR/czkKYVyeh+3acJCOj17iG8oS3E6I+A=;
+        s=k20201202; t=1676494001;
+        bh=t8U8QoDWUAMqTQvuZn2SdMB6UARQXCHE/bK/scimVwU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=P6kt12aQjprUX3sybEr8ahI41lIEczB8MZQtUUn/A4aiZdu/9EF21vc3sAIEv9q2f
-         gM9qJ95y2VKd4mbHedu2Y6wNDnRN6bP+BQV3IpcmpMKkVM8jV1kol/xpfWALJj6XsN
-         6lu/Z+iAQqo9fpSTZ7xTfxjzymA1yeaxMl2d5IvXQ86e/LpZA7/l1N4HgHJepuLFWc
-         76Ny4mHS5o3VfNdCZhQjR3nif/dWoJS0l2KYW4ieT1CIeky0yfQ4ZMwumqsHV6Aa2o
-         FK+6ABGsASJlA+Z2SauSbLStAratvg7u4qIoQa8E+GxnOEcHyWkwyf+XmzWi/cogpw
-         a/QRNwUf52Btw==
+        b=CaJ18mBiW11ALJASSX0sOeIpvomm/N6l0/oq/mVrWKqN/P9Zn8SgN6yRfN4MCuM2X
+         F29Z5bouJuESfhdUdhf8o+SNF1f03qfow1PSWe9pLThWtzmK/U23m1gAaBo5IdGH5L
+         n5tXqeszuvbAMKb5Vg63GZOXKAJ4PCZnCRIhHTuKZaUuXCshaC8sqYIfQQywkQq/tF
+         aEageWLzxZn/kteu7Fwz012ua8vY4r8BK593Q0R6fVKDcY1+ljzy3YfeqtZq5O5q90
+         L0xCs1fqqna0yePPFFYnylix+2Zm0WcLAzna58awqc4yudcbocH89/ia4s+Y2SgmLH
+         N6/0if97Drbmw==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Benedict Wong <benedictwong@google.com>,
-        Steffen Klassert <steffen.klassert@secunet.com>,
-        Sasha Levin <sashal@kernel.org>, davem@davemloft.net,
-        edumazet@google.com, kuba@kernel.org, pabeni@redhat.com,
-        netdev@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.15 02/12] Fix XFRM-I support for nested ESP tunnels
-Date:   Wed, 15 Feb 2023 15:46:24 -0500
-Message-Id: <20230215204637.2761073-2-sashal@kernel.org>
+Cc:     Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>,
+        Heiko Stuebner <heiko@sntech.de>,
+        Sasha Levin <sashal@kernel.org>, robh+dt@kernel.org,
+        krzysztof.kozlowski+dt@linaro.org, devicetree@vger.kernel.org,
+        linux-arm-kernel@lists.infradead.org,
+        linux-rockchip@lists.infradead.org
+Subject: [PATCH AUTOSEL 5.15 03/12] arm64: dts: rockchip: drop unused LED mode property from rk3328-roc-cc
+Date:   Wed, 15 Feb 2023 15:46:25 -0500
+Message-Id: <20230215204637.2761073-3-sashal@kernel.org>
 X-Mailer: git-send-email 2.39.0
 In-Reply-To: <20230215204637.2761073-1-sashal@kernel.org>
 References: <20230215204637.2761073-1-sashal@kernel.org>
@@ -57,129 +58,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Benedict Wong <benedictwong@google.com>
+From: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
 
-[ Upstream commit b0355dbbf13c0052931dd14c38c789efed64d3de ]
+[ Upstream commit 1692bffec674551163a7a4be32f59fdde04ecd27 ]
 
-This change adds support for nested IPsec tunnels by ensuring that
-XFRM-I verifies existing policies before decapsulating a subsequent
-policies. Addtionally, this clears the secpath entries after policies
-are verified, ensuring that previous tunnels with no-longer-valid
-do not pollute subsequent policy checks.
+GPIO LEDs do not have a 'mode' property:
 
-This is necessary especially for nested tunnels, as the IP addresses,
-protocol and ports may all change, thus not matching the previous
-policies. In order to ensure that packets match the relevant inbound
-templates, the xfrm_policy_check should be done before handing off to
-the inner XFRM protocol to decrypt and decapsulate.
+  rockchip/rk3328-roc-pc.dtb: leds: led-0: Unevaluated properties are not allowed ('mode' was unexpected)
 
-Notably, raw ESP/AH packets did not perform policy checks inherently,
-whereas all other encapsulated packets (UDP, TCP encapsulated) do policy
-checks after calling xfrm_input handling in the respective encapsulation
-layer.
-
-Test: Verified with additional Android Kernel Unit tests
-Signed-off-by: Benedict Wong <benedictwong@google.com>
-Signed-off-by: Steffen Klassert <steffen.klassert@secunet.com>
+Signed-off-by: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
+Link: https://lore.kernel.org/r/20221125144135.477144-1-krzysztof.kozlowski@linaro.org
+Signed-off-by: Heiko Stuebner <heiko@sntech.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/xfrm/xfrm_interface.c | 54 ++++++++++++++++++++++++++++++++++++---
- net/xfrm/xfrm_policy.c    |  3 +++
- 2 files changed, 53 insertions(+), 4 deletions(-)
+ arch/arm64/boot/dts/rockchip/rk3328-roc-cc.dts | 2 --
+ 1 file changed, 2 deletions(-)
 
-diff --git a/net/xfrm/xfrm_interface.c b/net/xfrm/xfrm_interface.c
-index 1e8b26eecb3f8..694eec6ca147e 100644
---- a/net/xfrm/xfrm_interface.c
-+++ b/net/xfrm/xfrm_interface.c
-@@ -207,6 +207,52 @@ static void xfrmi_scrub_packet(struct sk_buff *skb, bool xnet)
- 	skb->mark = 0;
- }
+diff --git a/arch/arm64/boot/dts/rockchip/rk3328-roc-cc.dts b/arch/arm64/boot/dts/rockchip/rk3328-roc-cc.dts
+index aa22a0c222655..5d5d9574088ca 100644
+--- a/arch/arm64/boot/dts/rockchip/rk3328-roc-cc.dts
++++ b/arch/arm64/boot/dts/rockchip/rk3328-roc-cc.dts
+@@ -96,7 +96,6 @@ power_led: led-0 {
+ 			linux,default-trigger = "heartbeat";
+ 			gpios = <&rk805 1 GPIO_ACTIVE_LOW>;
+ 			default-state = "on";
+-			mode = <0x23>;
+ 		};
  
-+static int xfrmi_input(struct sk_buff *skb, int nexthdr, __be32 spi,
-+		       int encap_type, unsigned short family)
-+{
-+	struct sec_path *sp;
-+
-+	sp = skb_sec_path(skb);
-+	if (sp && (sp->len || sp->olen) &&
-+	    !xfrm_policy_check(NULL, XFRM_POLICY_IN, skb, family))
-+		goto discard;
-+
-+	XFRM_SPI_SKB_CB(skb)->family = family;
-+	if (family == AF_INET) {
-+		XFRM_SPI_SKB_CB(skb)->daddroff = offsetof(struct iphdr, daddr);
-+		XFRM_TUNNEL_SKB_CB(skb)->tunnel.ip4 = NULL;
-+	} else {
-+		XFRM_SPI_SKB_CB(skb)->daddroff = offsetof(struct ipv6hdr, daddr);
-+		XFRM_TUNNEL_SKB_CB(skb)->tunnel.ip6 = NULL;
-+	}
-+
-+	return xfrm_input(skb, nexthdr, spi, encap_type);
-+discard:
-+	kfree_skb(skb);
-+	return 0;
-+}
-+
-+static int xfrmi4_rcv(struct sk_buff *skb)
-+{
-+	return xfrmi_input(skb, ip_hdr(skb)->protocol, 0, 0, AF_INET);
-+}
-+
-+static int xfrmi6_rcv(struct sk_buff *skb)
-+{
-+	return xfrmi_input(skb, skb_network_header(skb)[IP6CB(skb)->nhoff],
-+			   0, 0, AF_INET6);
-+}
-+
-+static int xfrmi4_input(struct sk_buff *skb, int nexthdr, __be32 spi, int encap_type)
-+{
-+	return xfrmi_input(skb, nexthdr, spi, encap_type, AF_INET);
-+}
-+
-+static int xfrmi6_input(struct sk_buff *skb, int nexthdr, __be32 spi, int encap_type)
-+{
-+	return xfrmi_input(skb, nexthdr, spi, encap_type, AF_INET6);
-+}
-+
- static int xfrmi_rcv_cb(struct sk_buff *skb, int err)
- {
- 	const struct xfrm_mode *inner_mode;
-@@ -774,8 +820,8 @@ static struct pernet_operations xfrmi_net_ops = {
+ 		user_led: led-1 {
+@@ -104,7 +103,6 @@ user_led: led-1 {
+ 			linux,default-trigger = "mmc1";
+ 			gpios = <&rk805 0 GPIO_ACTIVE_LOW>;
+ 			default-state = "off";
+-			mode = <0x05>;
+ 		};
+ 	};
  };
- 
- static struct xfrm6_protocol xfrmi_esp6_protocol __read_mostly = {
--	.handler	=	xfrm6_rcv,
--	.input_handler	=	xfrm_input,
-+	.handler	=	xfrmi6_rcv,
-+	.input_handler	=	xfrmi6_input,
- 	.cb_handler	=	xfrmi_rcv_cb,
- 	.err_handler	=	xfrmi6_err,
- 	.priority	=	10,
-@@ -825,8 +871,8 @@ static struct xfrm6_tunnel xfrmi_ip6ip_handler __read_mostly = {
- #endif
- 
- static struct xfrm4_protocol xfrmi_esp4_protocol __read_mostly = {
--	.handler	=	xfrm4_rcv,
--	.input_handler	=	xfrm_input,
-+	.handler	=	xfrmi4_rcv,
-+	.input_handler	=	xfrmi4_input,
- 	.cb_handler	=	xfrmi_rcv_cb,
- 	.err_handler	=	xfrmi4_err,
- 	.priority	=	10,
-diff --git a/net/xfrm/xfrm_policy.c b/net/xfrm/xfrm_policy.c
-index ba58b963f4827..0540e9f72b2fe 100644
---- a/net/xfrm/xfrm_policy.c
-+++ b/net/xfrm/xfrm_policy.c
-@@ -3669,6 +3669,9 @@ int __xfrm_policy_check(struct sock *sk, int dir, struct sk_buff *skb,
- 			goto reject;
- 		}
- 
-+		if (if_id)
-+			secpath_reset(skb);
-+
- 		xfrm_pols_put(pols, npols);
- 		return 1;
- 	}
 -- 
 2.39.0
 
