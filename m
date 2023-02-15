@@ -2,49 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D2C9D69863E
-	for <lists+stable@lfdr.de>; Wed, 15 Feb 2023 21:48:55 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id BC9D0698641
+	for <lists+stable@lfdr.de>; Wed, 15 Feb 2023 21:49:02 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229942AbjBOUsy (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 15 Feb 2023 15:48:54 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33052 "EHLO
+        id S230128AbjBOUtA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 15 Feb 2023 15:49:00 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34218 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230037AbjBOUry (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 15 Feb 2023 15:47:54 -0500
+        with ESMTP id S229704AbjBOUrz (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 15 Feb 2023 15:47:55 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9C13B3E0B9;
-        Wed, 15 Feb 2023 12:47:04 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 97F3C4393D;
+        Wed, 15 Feb 2023 12:47:05 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id BF8EAB823BE;
-        Wed, 15 Feb 2023 20:46:59 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B2B95C4339B;
-        Wed, 15 Feb 2023 20:46:57 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 2ACA1B823AF;
+        Wed, 15 Feb 2023 20:47:00 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id AEBA9C433A1;
+        Wed, 15 Feb 2023 20:46:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1676494018;
-        bh=NJ78B2NbJU6Bl2N24WBg8IKyUxGxfFV2X68ynotAkng=;
+        s=k20201202; t=1676494019;
+        bh=xWiBm3pBG5NVnAAakp26jQxQYisVm+/bppgU9pWx1QY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Ich+Qm1ZlxHVAJq4wCVLigTXSyqd2+vzG3oVWgAfAaAK+6IXY/ZaKoDNhLqw+M2ew
-         6MV3eS/EoKeh8NF8mm+6So4uN+9Gil3ZGpAZEBFm6q9aG0SZYDTKMoKPDUVi1e/9uv
-         Qfr/CTN5qhQofFCZIc73YqQwCHCE6uBd3FBcUlERBtTuNtL35q+R91b67r5uM15cWe
-         hKV/MYacDtEzxY3fLwGMoT4VtCxezyvjDgxUy18hPIilEb7vCOlJDbcVo05pmE5+vI
-         BPo19ylI20U+me0FHis8VQs938te4Qr55rV8hB2Snn2kOVrdZf+bGQMl909pfeL7Kw
-         a9uMG/RvfKfag==
+        b=TcqardLG3mV1DrTTM/OQB+IiGAYl0hja5Fg0wnbRLItLzo3fR94IQGKRVEecR/sBp
+         wCTS9sJx9a4uFpeZ5qIcWyv+TfUI3pDf9bAdX3HFLUSJI70cwZNl/KQT2S/aTWxQsx
+         gYHwPC70ayBblfpAAZMDTcp+yqae8cFbFjTlIh+WGYYRgS2rn0m/Jhkw3ZtxSx8AUb
+         36PCsJBcTIGFqvows0jMwv7h1WTvX8W94ukkyCnCcOOMfd69qKMY0BVxAqlWJEuCik
+         /bUzqV050Eq/vNaePo1S05bzeI9YKovrFg5U2E+EOjRGRsnDMSAduGGuR8843jLjb3
+         fFeZGPbkoRjEA==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Julian Anastasov <ja@ssi.bg>,
-        Zhang Changzhong <zhangchangzhong@huawei.com>,
-        "David S . Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>, edumazet@google.com,
-        kuba@kernel.org, pabeni@redhat.com, den@openvz.org,
-        razor@blackwall.org, keescook@chromium.org, Jason@zx2c4.com,
-        daniel@iogearbox.net, imagedong@tencent.com,
-        thomas.zeitlhofer+lkml@ze-it.at, wangyuweihx@gmail.com,
-        alexander@mihalicyn.com, netdev@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.10 7/8] neigh: make sure used and confirmed times are valid
-Date:   Wed, 15 Feb 2023 15:46:48 -0500
-Message-Id: <20230215204649.2761225-7-sashal@kernel.org>
+Cc:     Xin Zhao <xnzhao@google.com>,
+        Benjamin Tissoires <benjamin.tissoires@redhat.com>,
+        Sasha Levin <sashal@kernel.org>, jikos@kernel.org,
+        linux-input@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.10 8/8] HID: core: Fix deadloop in hid_apply_multiplier.
+Date:   Wed, 15 Feb 2023 15:46:49 -0500
+Message-Id: <20230215204649.2761225-8-sashal@kernel.org>
 X-Mailer: git-send-email 2.39.0
 In-Reply-To: <20230215204649.2761225-1-sashal@kernel.org>
 References: <20230215204649.2761225-1-sashal@kernel.org>
@@ -61,94 +56,61 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Julian Anastasov <ja@ssi.bg>
+From: Xin Zhao <xnzhao@google.com>
 
-[ Upstream commit c1d2ecdf5e38e3489ce8328238b558b3b2866fe1 ]
+[ Upstream commit ea427a222d8bdf2bc1a8a6da3ebe247f7dced70c ]
 
-Entries can linger in cache without timer for days, thanks to
-the gc_thresh1 limit. As result, without traffic, the confirmed
-time can be outdated and to appear to be in the future. Later,
-on traffic, NUD_STALE entries can switch to NUD_DELAY and start
-the timer which can see the invalid confirmed time and wrongly
-switch to NUD_REACHABLE state instead of NUD_PROBE. As result,
-timer is set many days in the future. This is more visible on
-32-bit platforms, with higher HZ value.
+The initial value of hid->collection[].parent_idx if 0. When
+Report descriptor doesn't contain "HID Collection", the value
+remains as 0.
 
-Why this is a problem? While we expect unused entries to expire,
-such entries stay in REACHABLE state for too long, locked in
-cache. They are not expired normally, only when cache is full.
+In the meanwhile, when the Report descriptor fullfill
+all following conditions, it will trigger hid_apply_multiplier
+function call.
+1. Usage page is Generic Desktop Ctrls (0x01)
+2. Usage is RESOLUTION_MULTIPLIER (0x48)
+3. Contain any FEATURE items
 
-Problem and the wrong state change reported by Zhang Changzhong:
+The while loop in hid_apply_multiplier will search the top-most
+collection by searching parent_idx == -1. Because all parent_idx
+is 0. The loop will run forever.
 
-172.16.1.18 dev bond0 lladdr 0a:0e:0f:01:12:01 ref 1 used 350521/15994171/350520 probes 4 REACHABLE
+There is a Report Descriptor triggerring the deadloop
+0x05, 0x01,        // Usage Page (Generic Desktop Ctrls)
+0x09, 0x48,        // Usage (0x48)
+0x95, 0x01,        // Report Count (1)
+0x75, 0x08,        // Report Size (8)
+0xB1, 0x01,        // Feature
 
-350520 seconds have elapsed since this entry was last updated, but it is
-still in the REACHABLE state (base_reachable_time_ms is 30000),
-preventing lladdr from being updated through probe.
-
-Fix it by ensuring timer is started with valid used/confirmed
-times. Considering the valid time range is LONG_MAX jiffies,
-we try not to go too much in the past while we are in
-DELAY/PROBE state. There are also places that need
-used/updated times to be validated while timer is not running.
-
-Reported-by: Zhang Changzhong <zhangchangzhong@huawei.com>
-Signed-off-by: Julian Anastasov <ja@ssi.bg>
-Tested-by: Zhang Changzhong <zhangchangzhong@huawei.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Xin Zhao <xnzhao@google.com>
+Link: https://lore.kernel.org/r/20230130212947.1315941-1-xnzhao@google.com
+Signed-off-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/core/neighbour.c | 18 +++++++++++++++---
- 1 file changed, 15 insertions(+), 3 deletions(-)
+ drivers/hid/hid-core.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/net/core/neighbour.c b/net/core/neighbour.c
-index f6f580e9d2820..82ccc3eebe71d 100644
---- a/net/core/neighbour.c
-+++ b/net/core/neighbour.c
-@@ -242,7 +242,7 @@ static int neigh_forced_gc(struct neigh_table *tbl)
- 			    (n->nud_state == NUD_NOARP) ||
- 			    (tbl->is_multicast &&
- 			     tbl->is_multicast(n->primary_key)) ||
--			    time_after(tref, n->updated))
-+			    !time_in_range(n->updated, tref, jiffies))
- 				remove = true;
- 			write_unlock(&n->lock);
+diff --git a/drivers/hid/hid-core.c b/drivers/hid/hid-core.c
+index baadead947c8b..5f9ec1d1464a2 100644
+--- a/drivers/hid/hid-core.c
++++ b/drivers/hid/hid-core.c
+@@ -1197,6 +1197,7 @@ int hid_open_report(struct hid_device *device)
+ 	__u8 *end;
+ 	__u8 *next;
+ 	int ret;
++	int i;
+ 	static int (*dispatch_type[])(struct hid_parser *parser,
+ 				      struct hid_item *item) = {
+ 		hid_parser_main,
+@@ -1247,6 +1248,8 @@ int hid_open_report(struct hid_device *device)
+ 		goto err;
+ 	}
+ 	device->collection_size = HID_DEFAULT_NUM_COLLECTIONS;
++	for (i = 0; i < HID_DEFAULT_NUM_COLLECTIONS; i++)
++		device->collection[i].parent_idx = -1;
  
-@@ -262,7 +262,17 @@ static int neigh_forced_gc(struct neigh_table *tbl)
- 
- static void neigh_add_timer(struct neighbour *n, unsigned long when)
- {
-+	/* Use safe distance from the jiffies - LONG_MAX point while timer
-+	 * is running in DELAY/PROBE state but still show to user space
-+	 * large times in the past.
-+	 */
-+	unsigned long mint = jiffies - (LONG_MAX - 86400 * HZ);
-+
- 	neigh_hold(n);
-+	if (!time_in_range(n->confirmed, mint, jiffies))
-+		n->confirmed = mint;
-+	if (time_before(n->used, n->confirmed))
-+		n->used = n->confirmed;
- 	if (unlikely(mod_timer(&n->timer, when))) {
- 		printk("NEIGH: BUG, double timer add, state is %x\n",
- 		       n->nud_state);
-@@ -948,12 +958,14 @@ static void neigh_periodic_work(struct work_struct *work)
- 				goto next_elt;
- 			}
- 
--			if (time_before(n->used, n->confirmed))
-+			if (time_before(n->used, n->confirmed) &&
-+			    time_is_before_eq_jiffies(n->confirmed))
- 				n->used = n->confirmed;
- 
- 			if (refcount_read(&n->refcnt) == 1 &&
- 			    (state == NUD_FAILED ||
--			     time_after(jiffies, n->used + NEIGH_VAR(n->parms, GC_STALETIME)))) {
-+			     !time_in_range_open(jiffies, n->used,
-+						 n->used + NEIGH_VAR(n->parms, GC_STALETIME)))) {
- 				*np = n->next;
- 				neigh_mark_dead(n);
- 				write_unlock(&n->lock);
+ 	ret = -EINVAL;
+ 	while ((next = fetch_item(start, end, &item)) != NULL) {
 -- 
 2.39.0
 
