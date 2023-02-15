@@ -2,48 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 32DD0698655
-	for <lists+stable@lfdr.de>; Wed, 15 Feb 2023 21:49:34 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 58B0E698674
+	for <lists+stable@lfdr.de>; Wed, 15 Feb 2023 21:50:21 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230183AbjBOUtc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 15 Feb 2023 15:49:32 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33876 "EHLO
+        id S230283AbjBOUuT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 15 Feb 2023 15:50:19 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33204 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230070AbjBOUsR (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 15 Feb 2023 15:48:17 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BBA7B442DD;
-        Wed, 15 Feb 2023 12:47:13 -0800 (PST)
+        with ESMTP id S230052AbjBOUtg (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 15 Feb 2023 15:49:36 -0500
+Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4EDC2457E5;
+        Wed, 15 Feb 2023 12:47:31 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 523F0B823B9;
+        by sin.source.kernel.org (Postfix) with ESMTPS id 30651CE2705;
+        Wed, 15 Feb 2023 20:47:16 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7FF2CC433A1;
         Wed, 15 Feb 2023 20:47:13 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B9E61C433A8;
-        Wed, 15 Feb 2023 20:47:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1676494032;
-        bh=nRpIeyEMuN4BvGGQ2eoLRNuI/3S2JMDIP23IaNMwRHM=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=DJlsoGENndQ5Oz4P+KD82HnEL1mNsER8cZoQwjiW/zNCKnn0cKVJTPAHwpIza0QZM
-         WB52zbPVytqdb4/ihm5CHgxbpVmYCmRG967Hj83gbWzrM9ww9lZ6PDJkfXmTuyVFUl
-         7Rcr81UjKmhHmDMaBSSGFhYUl17+buX43GQ7ammQggQqYXyCz7kjhPqYi8fgtoOEQz
-         l50ui0ngVNL2WUOARd/kCV4188458aIHA8IPt+mUqIBKSBcUYnxPS/lVdf9ysIm+iM
-         kwY3slDeErvHIdfVPJORioD24bGka34ym4fouvbCc/U1AomhVkiXIJWnXuGxTHYABw
-         hrjNZpFooNzLQ==
+        s=k20201202; t=1676494033;
+        bh=TGryrwuA6HKr9VvU/8RU+K/sgCT6aPGkXxCYLy38lwc=;
+        h=From:To:Cc:Subject:Date:From;
+        b=k3Y4IX+h/mT3CkHHctXlWb9qhpmlnySZfHW0sADCt9jx5V5fCfvGY7YjF+O434W2g
+         R766Qkm1pK5MC1oDW2uGBMtKvSzXSB5gHb4E2TW+lya/TN5EfBHHBQq81AtMWYcZfA
+         WObgtzgx57Ww8aby7NzN8b69llygzpGxjjMmUvpoT0ttGs5MOEzP3Tf/n9yd2fFctv
+         gILz7qIQRZ+DH6JZY3DjpuOorM4mVdmEsqTXPd8qB/wjXR1TzrGOURxHa8Q0IY0B57
+         iFRqxzVZZ/fibdZk4vkcrFRAJZVQSkp5Ulsm83YFAK7STh/7+WeSGCZg/MXvzV3YAF
+         z2CWbxrjOYG0Q==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Dean Luick <dean.luick@cornelisnetworks.com>,
-        Dennis Dalessandro <dennis.dalessandro@cornelisnetworks.com>,
-        Leon Romanovsky <leon@kernel.org>,
-        Jason Gunthorpe <jgg@nvidia.com>,
-        Sasha Levin <sashal@kernel.org>, linux-rdma@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.19 4/4] IB/hfi1: Assign npages earlier
-Date:   Wed, 15 Feb 2023 15:47:08 -0500
-Message-Id: <20230215204708.2761432-4-sashal@kernel.org>
+Cc:     Johan Jonker <jbx6244@gmail.com>, Heiko Stuebner <heiko@sntech.de>,
+        Sasha Levin <sashal@kernel.org>, robh+dt@kernel.org,
+        krzysztof.kozlowski+dt@linaro.org,
+        linux-arm-kernel@lists.infradead.org,
+        linux-rockchip@lists.infradead.org, devicetree@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.14 1/3] ARM: dts: rockchip: add power-domains property to dp node on rk3288
+Date:   Wed, 15 Feb 2023 15:47:10 -0500
+Message-Id: <20230215204712.2761492-1-sashal@kernel.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20230215204708.2761432-1-sashal@kernel.org>
-References: <20230215204708.2761432-1-sashal@kernel.org>
 MIME-Version: 1.0
 X-stable: review
 X-Patchwork-Hint: Ignore
@@ -57,62 +55,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dean Luick <dean.luick@cornelisnetworks.com>
+From: Johan Jonker <jbx6244@gmail.com>
 
-[ Upstream commit f9c47b2caa7ffc903ec950b454b59c209afe3182 ]
+[ Upstream commit 80422339a75088322b4d3884bd12fa0fe5d11050 ]
 
-Improve code clarity and enable earlier use of
-tidbuf->npages by moving its assignment to
-structure creation time.
+The clocks in the Rockchip rk3288 DisplayPort node are
+included in the power-domain@RK3288_PD_VIO logic, but the
+power-domains property in the dp node is missing, so fix it.
 
-Signed-off-by: Dean Luick <dean.luick@cornelisnetworks.com>
-Signed-off-by: Dennis Dalessandro <dennis.dalessandro@cornelisnetworks.com>
-Link: https://lore.kernel.org/r/167329104884.1472990.4639750192433251493.stgit@awfm-02.cornelisnetworks.com
-Signed-off-by: Leon Romanovsky <leon@kernel.org>
-Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
+Signed-off-by: Johan Jonker <jbx6244@gmail.com>
+Link: https://lore.kernel.org/r/dab85bfb-9f55-86a1-5cd5-7388c43e0ec5@gmail.com
+Signed-off-by: Heiko Stuebner <heiko@sntech.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/infiniband/hw/hfi1/user_exp_rcv.c | 9 ++-------
- 1 file changed, 2 insertions(+), 7 deletions(-)
+ arch/arm/boot/dts/rk3288.dtsi | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/infiniband/hw/hfi1/user_exp_rcv.c b/drivers/infiniband/hw/hfi1/user_exp_rcv.c
-index dab823aac95e1..2619a7a9f27cf 100644
---- a/drivers/infiniband/hw/hfi1/user_exp_rcv.c
-+++ b/drivers/infiniband/hw/hfi1/user_exp_rcv.c
-@@ -215,16 +215,11 @@ static void unpin_rcv_pages(struct hfi1_filedata *fd,
- static int pin_rcv_pages(struct hfi1_filedata *fd, struct tid_user_buf *tidbuf)
- {
- 	int pinned;
--	unsigned int npages;
-+	unsigned int npages = tidbuf->npages;
- 	unsigned long vaddr = tidbuf->vaddr;
- 	struct page **pages = NULL;
- 	struct hfi1_devdata *dd = fd->uctxt->dd;
- 
--	/* Get the number of pages the user buffer spans */
--	npages = num_user_pages(vaddr, tidbuf->length);
--	if (!npages)
--		return -EINVAL;
--
- 	if (npages > fd->uctxt->expected_count) {
- 		dd_dev_err(dd, "Expected buffer too big\n");
- 		return -EINVAL;
-@@ -258,7 +253,6 @@ static int pin_rcv_pages(struct hfi1_filedata *fd, struct tid_user_buf *tidbuf)
- 		return pinned;
- 	}
- 	tidbuf->pages = pages;
--	tidbuf->npages = npages;
- 	fd->tid_n_pinned += pinned;
- 	return pinned;
- }
-@@ -334,6 +328,7 @@ int hfi1_user_exp_rcv_setup(struct hfi1_filedata *fd,
- 
- 	tidbuf->vaddr = tinfo->vaddr;
- 	tidbuf->length = tinfo->length;
-+	tidbuf->npages = num_user_pages(tidbuf->vaddr, tidbuf->length);
- 	tidbuf->psets = kcalloc(uctxt->expected_count, sizeof(*tidbuf->psets),
- 				GFP_KERNEL);
- 	if (!tidbuf->psets) {
+diff --git a/arch/arm/boot/dts/rk3288.dtsi b/arch/arm/boot/dts/rk3288.dtsi
+index 872e4e690beb4..c3440adc763ce 100644
+--- a/arch/arm/boot/dts/rk3288.dtsi
++++ b/arch/arm/boot/dts/rk3288.dtsi
+@@ -1096,6 +1096,7 @@ edp: dp@ff970000 {
+ 		clock-names = "dp", "pclk";
+ 		phys = <&edp_phy>;
+ 		phy-names = "dp";
++		power-domains = <&power RK3288_PD_VIO>;
+ 		resets = <&cru SRST_EDP>;
+ 		reset-names = "dp";
+ 		rockchip,grf = <&grf>;
 -- 
 2.39.0
 
