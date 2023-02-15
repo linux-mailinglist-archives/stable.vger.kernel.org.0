@@ -2,44 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B84E16985EB
-	for <lists+stable@lfdr.de>; Wed, 15 Feb 2023 21:46:35 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0E9A96985FB
+	for <lists+stable@lfdr.de>; Wed, 15 Feb 2023 21:47:08 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229821AbjBOUqe (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 15 Feb 2023 15:46:34 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33018 "EHLO
+        id S229945AbjBOUrG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 15 Feb 2023 15:47:06 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33104 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229749AbjBOUqZ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 15 Feb 2023 15:46:25 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3B0414347D;
-        Wed, 15 Feb 2023 12:46:12 -0800 (PST)
+        with ESMTP id S229496AbjBOUqp (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 15 Feb 2023 15:46:45 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 07EC94345A;
+        Wed, 15 Feb 2023 12:46:20 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id CA6EC61D90;
-        Wed, 15 Feb 2023 20:46:11 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id EAA0AC4339E;
-        Wed, 15 Feb 2023 20:46:10 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id A7EA3B823B5;
+        Wed, 15 Feb 2023 20:46:14 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E932BC433D2;
+        Wed, 15 Feb 2023 20:46:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1676493971;
-        bh=ui8NBwoBDB3st8tPy0olN7azK/ErkoSxJbl22aIS3Jg=;
+        s=k20201202; t=1676493973;
+        bh=VtfQylg4Sji3mmCW+kI8RMSb3CPJyWuTWEmqD+l2E6o=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=cvUK6Dn4gy/X2pCfmhmJQkd+ShHGyuvEibq9VmPIdwcaOP7Em9h+Zwr4JIsbQ7b95
-         /vRgglnj/lDOOh4ZAa/FdYcs12mnL7DvXsv9ouN4+E+6rRo4dfBcwnyKGy7U+DIOC5
-         KrCLnUeIVfZDx5BOae2JKqIC7mIGZ0dU1JI8AmnA5GjuKUfsdHqNOmN6Z6H9bZtdk2
-         IO6ORLebAXbsuh/+kk/D7PHSAN/vLycbmlPXufOA2HHxSAuu12E1GiSdzeISZETuWS
-         Qq6MmdHSTEJjFjBxgESKzNauUifbWIi9DCa3OFniRw9ILZb4v2vvAoTUnAqJMyuaKo
-         VD9UyzKG6YF5g==
+        b=YNUliMIqgJgbZQaPGCwJMs5Pg1E11b9vTpU4hNCK8Ib8YJMXJK8jyKY8/Lyea0oVs
+         V5tC5HtZcJ/AGwSAW5IG8nb98Ry3ZHq0PAVmIgmmiLc628MWk0cE7Soh0ft/Nt3H5C
+         Z1ZPRgOhuOMSFogKTGDBWeVMxi+rol8AFR9jWr8sjoNAShnXM47jvhfOzci7EF3uQw
+         NPu01ALLatlPISYktV4+kzUr6084DHKuncVdLevLIU56aAVdfxF+983Cv8V/JRqtCd
+         DQuYpFRYM2J8QhBRimAocVSZFMAgvJCyEkjhZNldnFlasn5CNfLrgShwew2VoCe9Zo
+         z6Fg5l/OqvwoQ==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     David Sterba <dsterba@suse.com>,
-        syzbot+4376a9a073770c173269@syzkaller.appspotmail.com,
-        Sasha Levin <sashal@kernel.org>, clm@fb.com,
-        josef@toxicpanda.com, linux-btrfs@vger.kernel.org
-Subject: [PATCH AUTOSEL 6.1 11/24] btrfs: send: limit number of clones and allocated memory size
-Date:   Wed, 15 Feb 2023 15:45:34 -0500
-Message-Id: <20230215204547.2760761-11-sashal@kernel.org>
+Cc:     Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>,
+        Heiko Stuebner <heiko@sntech.de>,
+        Sasha Levin <sashal@kernel.org>, robh+dt@kernel.org,
+        krzysztof.kozlowski+dt@linaro.org, enric.balletbo@collabora.com,
+        hl@rock-chips.com, gael.portay@collabora.com,
+        devicetree@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
+        linux-rockchip@lists.infradead.org
+Subject: [PATCH AUTOSEL 6.1 12/24] arm64: dts: rockchip: align rk3399 DMC OPP table with bindings
+Date:   Wed, 15 Feb 2023 15:45:35 -0500
+Message-Id: <20230215204547.2760761-12-sashal@kernel.org>
 X-Mailer: git-send-email 2.39.0
 In-Reply-To: <20230215204547.2760761-1-sashal@kernel.org>
 References: <20230215204547.2760761-1-sashal@kernel.org>
@@ -47,8 +50,8 @@ MIME-Version: 1.0
 X-stable: review
 X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
         SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -56,42 +59,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: David Sterba <dsterba@suse.com>
+From: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
 
-[ Upstream commit 33e17b3f5ab74af12aca58c515bc8424ff69a343 ]
+[ Upstream commit b67b09733d8a41eec33d5d37be2f8cff8af82a5e ]
 
-The arg->clone_sources_count is u64 and can trigger a warning when a
-huge value is passed from user space and a huge array is allocated.
-Limit the allocated memory to 8MiB (can be increased if needed), which
-in turn limits the number of clone sources to 8M / sizeof(struct
-clone_root) = 8M / 40 = 209715.  Real world number of clones is from
-tens to hundreds, so this is future proof.
+Bindings expect certain pattern for OPP table node name and underscores
+are not allowed:
 
-Reported-by: syzbot+4376a9a073770c173269@syzkaller.appspotmail.com
-Signed-off-by: David Sterba <dsterba@suse.com>
+  rk3399-rock-pi-4a-plus.dtb: dmc_opp_table: $nodename:0: 'dmc_opp_table' does not match '^opp-table(-[a-z0-9]+)?$'
+
+Signed-off-by: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
+Link: https://lore.kernel.org/r/20230119124631.91080-1-krzysztof.kozlowski@linaro.org
+Signed-off-by: Heiko Stuebner <heiko@sntech.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/btrfs/send.c | 6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ arch/arm64/boot/dts/rockchip/rk3399-op1-opp.dtsi | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/fs/btrfs/send.c b/fs/btrfs/send.c
-index 1c4b693ee4a3a..937b60ae576e0 100644
---- a/fs/btrfs/send.c
-+++ b/fs/btrfs/send.c
-@@ -7839,10 +7839,10 @@ long btrfs_ioctl_send(struct inode *inode, struct btrfs_ioctl_send_args *arg)
- 	/*
- 	 * Check that we don't overflow at later allocations, we request
- 	 * clone_sources_count + 1 items, and compare to unsigned long inside
--	 * access_ok.
-+	 * access_ok. Also set an upper limit for allocation size so this can't
-+	 * easily exhaust memory. Max number of clone sources is about 200K.
- 	 */
--	if (arg->clone_sources_count >
--	    ULONG_MAX / sizeof(struct clone_root) - 1) {
-+	if (arg->clone_sources_count > SZ_8M / sizeof(struct clone_root)) {
- 		ret = -EINVAL;
- 		goto out;
- 	}
+diff --git a/arch/arm64/boot/dts/rockchip/rk3399-op1-opp.dtsi b/arch/arm64/boot/dts/rockchip/rk3399-op1-opp.dtsi
+index 6e29e74f6fc68..783120e9cebeb 100644
+--- a/arch/arm64/boot/dts/rockchip/rk3399-op1-opp.dtsi
++++ b/arch/arm64/boot/dts/rockchip/rk3399-op1-opp.dtsi
+@@ -111,7 +111,7 @@ opp05 {
+ 		};
+ 	};
+ 
+-	dmc_opp_table: dmc_opp_table {
++	dmc_opp_table: opp-table-3 {
+ 		compatible = "operating-points-v2";
+ 
+ 		opp00 {
 -- 
 2.39.0
 
