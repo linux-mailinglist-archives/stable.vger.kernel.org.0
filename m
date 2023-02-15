@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id DAC5A698623
-	for <lists+stable@lfdr.de>; Wed, 15 Feb 2023 21:48:16 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id CF52C69866B
+	for <lists+stable@lfdr.de>; Wed, 15 Feb 2023 21:50:13 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229968AbjBOUsP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 15 Feb 2023 15:48:15 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34540 "EHLO
+        id S230160AbjBOUuM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 15 Feb 2023 15:50:12 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33726 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230012AbjBOUrb (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 15 Feb 2023 15:47:31 -0500
-Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BC08643915;
-        Wed, 15 Feb 2023 12:46:50 -0800 (PST)
+        with ESMTP id S230158AbjBOUt0 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 15 Feb 2023 15:49:26 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 180773C7B5;
+        Wed, 15 Feb 2023 12:47:26 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 540F2CE2707;
-        Wed, 15 Feb 2023 20:46:45 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 37F44C4339C;
+        by dfw.source.kernel.org (Postfix) with ESMTPS id A25B961D9B;
+        Wed, 15 Feb 2023 20:46:44 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id CE681C433D2;
         Wed, 15 Feb 2023 20:46:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1676494003;
-        bh=B+lJ34fJtr6JYae+SXPoMmqz5fHA87kogxqn90Yo0fw=;
+        s=k20201202; t=1676494004;
+        bh=glXiqwWnZkPLHB/TNwJlCB/NEci9DyiBJ9dY7bJxoZo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=IMGUBj7FA9L9ZLNs2azY8tohFt79fLrLnnwHVfQc22WEFw2Ax5I3nA5UEIn6c7aSx
-         Ak93skjiIJ+GczIlAnTzHMsD4zSA1wyes4/WlMLrJ40N2rsU8fGsQnTzGkiGY4tyHA
-         /oFzRbmlKKGP30+SH9laHhcomakvThwZoomtEecQug3fq/TvlaU2tgLBTi5Yr6/WIW
-         /bYiyfp5j/rRqBLpZ/1icC22RPAuYPcLj7hPEFkyD2RPd8Qk+ZsunNPTCQFvPR5f6p
-         xq3wY5geDPAZh8VOCU0RqO19nnj6TZX2wMU8v2cdNaKhCA+BOiWm9kLXwG3ELkygru
-         jHHwutGhCOL3A==
+        b=EJz59Bi2vNHIcQEV4ck9L1DslW/T5S5vLwEzyuXdDBUzB1KcMwoEkirdeT2dFY6Vr
+         OpbgD78W5DFz+aYIRcbYX+rbL+0Nt+2ct6MbBZK2NxZnm0/6HSuVv8qRUi+0x+RG8R
+         XrcJG1A69KqYeuELQTaeKIOG1Gl4rbTTPHzL1ARiTSirnEOp7JWxhNnSr2qh6igfyh
+         4KT0Bj+7wOjtLsQSVELRFVd0QGKnOqmTCKewLaqFJ8AoOtWr+C0DIk76NIvbX+8aWG
+         Rxon4nbAcb4/eKhzYA6mYwUkDHvN1E5ZPBQPVYa+RW5tSq5xS/0fW9JAINMREC9mPL
+         reNXppo8W3TUg==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Vishal Verma <vishal.l.verma@intel.com>,
-        Dan Williams <dan.j.williams@intel.com>,
-        Sasha Levin <sashal@kernel.org>, dave.jiang@intel.com,
-        ira.weiny@intel.com, rafael@kernel.org, nvdimm@lists.linux.dev,
-        linux-acpi@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.15 06/12] ACPI: NFIT: fix a potential deadlock during NFIT teardown
-Date:   Wed, 15 Feb 2023 15:46:28 -0500
-Message-Id: <20230215204637.2761073-6-sashal@kernel.org>
+Cc:     David Sterba <dsterba@suse.com>,
+        syzbot+4376a9a073770c173269@syzkaller.appspotmail.com,
+        Sasha Levin <sashal@kernel.org>, clm@fb.com,
+        josef@toxicpanda.com, linux-btrfs@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.15 07/12] btrfs: send: limit number of clones and allocated memory size
+Date:   Wed, 15 Feb 2023 15:46:29 -0500
+Message-Id: <20230215204637.2761073-7-sashal@kernel.org>
 X-Mailer: git-send-email 2.39.0
 In-Reply-To: <20230215204637.2761073-1-sashal@kernel.org>
 References: <20230215204637.2761073-1-sashal@kernel.org>
@@ -57,73 +56,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vishal Verma <vishal.l.verma@intel.com>
+From: David Sterba <dsterba@suse.com>
 
-[ Upstream commit fb6df4366f86dd252bfa3049edffa52d17e7b895 ]
+[ Upstream commit 33e17b3f5ab74af12aca58c515bc8424ff69a343 ]
 
-Lockdep reports that acpi_nfit_shutdown() may deadlock against an
-opportune acpi_nfit_scrub(). acpi_nfit_scrub () is run from inside a
-'work' and therefore has already acquired workqueue-internal locks. It
-also acquiires acpi_desc->init_mutex. acpi_nfit_shutdown() first
-acquires init_mutex, and was subsequently attempting to cancel any
-pending workqueue items. This reversed locking order causes a potential
-deadlock:
+The arg->clone_sources_count is u64 and can trigger a warning when a
+huge value is passed from user space and a huge array is allocated.
+Limit the allocated memory to 8MiB (can be increased if needed), which
+in turn limits the number of clone sources to 8M / sizeof(struct
+clone_root) = 8M / 40 = 209715.  Real world number of clones is from
+tens to hundreds, so this is future proof.
 
-    ======================================================
-    WARNING: possible circular locking dependency detected
-    6.2.0-rc3 #116 Tainted: G           O     N
-    ------------------------------------------------------
-    libndctl/1958 is trying to acquire lock:
-    ffff888129b461c0 ((work_completion)(&(&acpi_desc->dwork)->work)){+.+.}-{0:0}, at: __flush_work+0x43/0x450
-
-    but task is already holding lock:
-    ffff888129b460e8 (&acpi_desc->init_mutex){+.+.}-{3:3}, at: acpi_nfit_shutdown+0x87/0xd0 [nfit]
-
-    which lock already depends on the new lock.
-
-    ...
-
-    Possible unsafe locking scenario:
-
-          CPU0                    CPU1
-          ----                    ----
-     lock(&acpi_desc->init_mutex);
-                                  lock((work_completion)(&(&acpi_desc->dwork)->work));
-                                  lock(&acpi_desc->init_mutex);
-     lock((work_completion)(&(&acpi_desc->dwork)->work));
-
-    *** DEADLOCK ***
-
-Since the workqueue manipulation is protected by its own internal locking,
-the cancellation of pending work doesn't need to be done under
-acpi_desc->init_mutex. Move cancel_delayed_work_sync() outside the
-init_mutex to fix the deadlock. Any work that starts after
-acpi_nfit_shutdown() drops the lock will see ARS_CANCEL, and the
-cancel_delayed_work_sync() will safely flush it out.
-
-Reported-by: Dan Williams <dan.j.williams@intel.com>
-Signed-off-by: Vishal Verma <vishal.l.verma@intel.com>
-Link: https://lore.kernel.org/r/20230112-acpi_nfit_lockdep-v1-1-660be4dd10be@intel.com
-Signed-off-by: Dan Williams <dan.j.williams@intel.com>
+Reported-by: syzbot+4376a9a073770c173269@syzkaller.appspotmail.com
+Signed-off-by: David Sterba <dsterba@suse.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/acpi/nfit/core.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ fs/btrfs/send.c | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/acpi/nfit/core.c b/drivers/acpi/nfit/core.c
-index 7dd80acf92c78..2575d6c51f898 100644
---- a/drivers/acpi/nfit/core.c
-+++ b/drivers/acpi/nfit/core.c
-@@ -3676,8 +3676,8 @@ void acpi_nfit_shutdown(void *data)
- 
- 	mutex_lock(&acpi_desc->init_mutex);
- 	set_bit(ARS_CANCEL, &acpi_desc->scrub_flags);
--	cancel_delayed_work_sync(&acpi_desc->dwork);
- 	mutex_unlock(&acpi_desc->init_mutex);
-+	cancel_delayed_work_sync(&acpi_desc->dwork);
- 
+diff --git a/fs/btrfs/send.c b/fs/btrfs/send.c
+index 9250a17731bdb..692ae2e2f8cc5 100644
+--- a/fs/btrfs/send.c
++++ b/fs/btrfs/send.c
+@@ -7549,10 +7549,10 @@ long btrfs_ioctl_send(struct file *mnt_file, struct btrfs_ioctl_send_args *arg)
  	/*
- 	 * Bounce the nvdimm bus lock to make sure any in-flight
+ 	 * Check that we don't overflow at later allocations, we request
+ 	 * clone_sources_count + 1 items, and compare to unsigned long inside
+-	 * access_ok.
++	 * access_ok. Also set an upper limit for allocation size so this can't
++	 * easily exhaust memory. Max number of clone sources is about 200K.
+ 	 */
+-	if (arg->clone_sources_count >
+-	    ULONG_MAX / sizeof(struct clone_root) - 1) {
++	if (arg->clone_sources_count > SZ_8M / sizeof(struct clone_root)) {
+ 		ret = -EINVAL;
+ 		goto out;
+ 	}
 -- 
 2.39.0
 
