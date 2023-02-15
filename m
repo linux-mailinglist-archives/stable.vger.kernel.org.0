@@ -2,50 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 56899698604
-	for <lists+stable@lfdr.de>; Wed, 15 Feb 2023 21:47:23 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2CD0F69860B
+	for <lists+stable@lfdr.de>; Wed, 15 Feb 2023 21:47:27 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229839AbjBOUrV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 15 Feb 2023 15:47:21 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34302 "EHLO
+        id S229991AbjBOUrZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 15 Feb 2023 15:47:25 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34418 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229834AbjBOUq5 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 15 Feb 2023 15:46:57 -0500
-Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 34EE642BEF;
-        Wed, 15 Feb 2023 12:46:26 -0800 (PST)
+        with ESMTP id S229847AbjBOUq6 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 15 Feb 2023 15:46:58 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0FD3543444;
+        Wed, 15 Feb 2023 12:46:31 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 2AF02CE2704;
+        by ams.source.kernel.org (Postfix) with ESMTPS id 97891B823B4;
         Wed, 15 Feb 2023 20:46:19 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 02526C4339B;
-        Wed, 15 Feb 2023 20:46:16 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E5040C4339E;
+        Wed, 15 Feb 2023 20:46:17 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1676493977;
-        bh=U9PmzKr2eX4knF7rwI3V5e5EUP5F/De1180ePJyKP9c=;
+        s=k20201202; t=1676493978;
+        bh=OtF8ZiBBwfOgsqCNX3FwBB8ECvvndlNZDuoqjQndGxo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=jF7V656lZbwVXTsIFYFbPdilkqbipzJxVihXYWwXP4gD7TtKLv5S1TdSX8FjG28sa
-         ac47V5cyV+qfuPz+t2nKwL9/9HsVT0gSfExaYspNtEsTa2SLsVLKyFl7LANeOskl6l
-         8T+fYRvKtyJoSi3bIPt4wVAeAL8BZXdS5EfLIExdbssTaGkfMbi/LdZRLWFLQfqWEX
-         yFzem0Qf3LGJA2hFeeyXKFRIn9RQwdoD/Wu7voPwKbGpYoYoxQx1XLWXdgPLs7tcT1
-         ndxeiW65mh8qp61rO8J7A7x5v63+xouR/p5IC+BnicVUpABWz/q31Vpadq9+7glb6a
-         oKCH/pHJB0SFw==
+        b=hLiPYoHTRW27MGTglej+WLNHLJu/3mGsgCdlgiO+arzN1ppv7q6hiVN+SCGLBMFaD
+         U+sDsYFh17BxYZGg3wVQ5bIlycfWqxtp5XT8fo7KCbTXwWj7Jn3PkaHZkx1tb1eaQn
+         meBUhWeoiT+pYZTRlMA6iIaVta0nR5H0A8hTr25/q+o7MZz9eByUffur4JRfVYQKY8
+         oId6qb3RTxbc3WAQMWJrUKYf4JgVr7zXCIgHVfI14t5Zw1hIOyxnXbiPLBNkOniSxr
+         R4HDoEdWtY6HJWUW37bxt1gVdah/ktHlWEQz15HDlqXkJfqHsSwpYmh2i+csuLykjn
+         uHPtNW7edk3LQ==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     V sujith kumar Reddy <Vsujithkumar.Reddy@amd.com>,
-        Mark Brown <broonie@kernel.org>,
-        Sasha Levin <sashal@kernel.org>,
-        pierre-louis.bossart@linux.intel.com, lgirdwood@gmail.com,
-        peter.ujfalusi@linux.intel.com, yung-chuan.liao@linux.intel.com,
-        ranjani.sridharan@linux.intel.com, daniel.baluta@nxp.com,
-        perex@perex.cz, tiwai@suse.com, AjitKumar.Pandey@amd.com,
-        ajye_huang@compal.corp-partner.google.com,
-        jiapeng.chong@linux.alibaba.com,
-        sound-open-firmware@alsa-project.org, alsa-devel@alsa-project.org
-Subject: [PATCH AUTOSEL 6.1 16/24] ASoC: SOF: amd: Fix for handling spurious interrupts from DSP
-Date:   Wed, 15 Feb 2023 15:45:39 -0500
-Message-Id: <20230215204547.2760761-16-sashal@kernel.org>
+Cc:     Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+        Patrice Chotard <patrice.chotard@foss.st.com>,
+        Sasha Levin <sashal@kernel.org>, robh+dt@kernel.org,
+        krzysztof.kozlowski+dt@linaro.org,
+        linux-arm-kernel@lists.infradead.org, devicetree@vger.kernel.org
+Subject: [PATCH AUTOSEL 6.1 17/24] ARM: dts: stihxxx-b2120: fix polarity of reset line of tsin0 port
+Date:   Wed, 15 Feb 2023 15:45:40 -0500
+Message-Id: <20230215204547.2760761-17-sashal@kernel.org>
 X-Mailer: git-send-email 2.39.0
 In-Reply-To: <20230215204547.2760761-1-sashal@kernel.org>
 References: <20230215204547.2760761-1-sashal@kernel.org>
@@ -53,8 +48,8 @@ MIME-Version: 1.0
 X-stable: review
 X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
         SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -62,109 +57,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: V sujith kumar Reddy <Vsujithkumar.Reddy@amd.com>
+From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
 
-[ Upstream commit 2e7c6652f9b86c01cbd4e988057a746a3a461969 ]
+[ Upstream commit 4722dd4029c63f10414ffd8d3ffdd6c748391cd7 ]
 
-As interrupts are Level-triggered,unless and until we deassert the register
-the interrupts are generated which causes spurious interrupts unhandled.
+According to c8sectpfe driver code we first drive reset line low and
+then high to reset the port, therefore the reset line is supposed to
+be annotated as "active low". This will be important when we convert
+the driver to gpiod API.
 
-Now we deasserted the interrupt at top half which solved the below
-"nobody cared" warning.
-
-warning reported in dmesg:
-	irq 80: nobody cared (try booting with the "irqpoll" option)
-	CPU: 5 PID: 2735 Comm: irq/80-AudioDSP
-		Not tainted 5.15.86-15817-g4c19f3e06d49 #1 1bd3fd932cf58caacc95b0504d6ea1e3eab22289
-	Hardware name: Google Skyrim/Skyrim, BIOS Google_Skyrim.15303.0.0 01/03/2023
-	Call Trace:
-	<IRQ>
-	dump_stack_lvl+0x69/0x97
-	 __report_bad_irq+0x3a/0xae
-	note_interrupt+0x1a9/0x1e3
-	handle_irq_event_percpu+0x4b/0x6e
-	handle_irq_event+0x36/0x5b
-	handle_fasteoi_irq+0xae/0x171
-	 __common_interrupt+0x48/0xc4
-	</IRQ>
-
-	handlers:
-	acp_irq_handler [snd_sof_amd_acp] threaded [<000000007e089f34>] acp_irq_thread [snd_sof_amd_acp]
-	Disabling IRQ #80
-
-Signed-off-by: V sujith kumar Reddy <Vsujithkumar.Reddy@amd.com>
-Link: https://lore.kernel.org/r/20230203123254.1898794-1-Vsujithkumar.Reddy@amd.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
+Reviewed-by: Patrice Chotard <patrice.chotard@foss.st.com>
+Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Signed-off-by: Patrice Chotard <patrice.chotard@foss.st.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/soc/sof/amd/acp.c | 36 +++++++++++++++---------------------
- 1 file changed, 15 insertions(+), 21 deletions(-)
+ arch/arm/boot/dts/stihxxx-b2120.dtsi | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/sound/soc/sof/amd/acp.c b/sound/soc/sof/amd/acp.c
-index 36966643e36ab..8afd67ba1e5a3 100644
---- a/sound/soc/sof/amd/acp.c
-+++ b/sound/soc/sof/amd/acp.c
-@@ -316,7 +316,6 @@ static irqreturn_t acp_irq_thread(int irq, void *context)
- {
- 	struct snd_sof_dev *sdev = context;
- 	const struct sof_amd_acp_desc *desc = get_chip_info(sdev->pdata);
--	unsigned int base = desc->dsp_intr_base;
- 	unsigned int val, count = ACP_HW_SEM_RETRY_COUNT;
- 
- 	val = snd_sof_dsp_read(sdev, ACP_DSP_BAR, desc->ext_intr_stat);
-@@ -326,28 +325,20 @@ static irqreturn_t acp_irq_thread(int irq, void *context)
- 		return IRQ_HANDLED;
- 	}
- 
--	val = snd_sof_dsp_read(sdev, ACP_DSP_BAR, base + DSP_SW_INTR_STAT_OFFSET);
--	if (val & ACP_DSP_TO_HOST_IRQ) {
--		while (snd_sof_dsp_read(sdev, ACP_DSP_BAR, desc->hw_semaphore_offset)) {
--			/* Wait until acquired HW Semaphore lock or timeout */
--			count--;
--			if (!count) {
--				dev_err(sdev->dev, "%s: Failed to acquire HW lock\n", __func__);
--				return IRQ_NONE;
--			}
-+	while (snd_sof_dsp_read(sdev, ACP_DSP_BAR, desc->hw_semaphore_offset)) {
-+		/* Wait until acquired HW Semaphore lock or timeout */
-+		count--;
-+		if (!count) {
-+			dev_err(sdev->dev, "%s: Failed to acquire HW lock\n", __func__);
-+			return IRQ_NONE;
- 		}
--
--		sof_ops(sdev)->irq_thread(irq, sdev);
--		val |= ACP_DSP_TO_HOST_IRQ;
--		snd_sof_dsp_write(sdev, ACP_DSP_BAR, base + DSP_SW_INTR_STAT_OFFSET, val);
--
--		/* Unlock or Release HW Semaphore */
--		snd_sof_dsp_write(sdev, ACP_DSP_BAR, desc->hw_semaphore_offset, 0x0);
--
--		return IRQ_HANDLED;
- 	}
- 
--	return IRQ_NONE;
-+	sof_ops(sdev)->irq_thread(irq, sdev);
-+	/* Unlock or Release HW Semaphore */
-+	snd_sof_dsp_write(sdev, ACP_DSP_BAR, desc->hw_semaphore_offset, 0x0);
-+
-+	return IRQ_HANDLED;
- };
- 
- static irqreturn_t acp_irq_handler(int irq, void *dev_id)
-@@ -358,8 +349,11 @@ static irqreturn_t acp_irq_handler(int irq, void *dev_id)
- 	unsigned int val;
- 
- 	val = snd_sof_dsp_read(sdev, ACP_DSP_BAR, base + DSP_SW_INTR_STAT_OFFSET);
--	if (val)
-+	if (val) {
-+		val |= ACP_DSP_TO_HOST_IRQ;
-+		snd_sof_dsp_write(sdev, ACP_DSP_BAR, base + DSP_SW_INTR_STAT_OFFSET, val);
- 		return IRQ_WAKE_THREAD;
-+	}
- 
- 	return IRQ_NONE;
- }
+diff --git a/arch/arm/boot/dts/stihxxx-b2120.dtsi b/arch/arm/boot/dts/stihxxx-b2120.dtsi
+index 2aa94605d3d47..d52a7aaa10743 100644
+--- a/arch/arm/boot/dts/stihxxx-b2120.dtsi
++++ b/arch/arm/boot/dts/stihxxx-b2120.dtsi
+@@ -178,7 +178,7 @@ tsin0: port {
+ 				tsin-num = <0>;
+ 				serial-not-parallel;
+ 				i2c-bus = <&ssc2>;
+-				reset-gpios = <&pio15 4 GPIO_ACTIVE_HIGH>;
++				reset-gpios = <&pio15 4 GPIO_ACTIVE_LOW>;
+ 				dvb-card = <STV0367_TDA18212_NIMA_1>;
+ 			};
+ 		};
 -- 
 2.39.0
 
