@@ -2,128 +2,130 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 34FDE697F33
-	for <lists+stable@lfdr.de>; Wed, 15 Feb 2023 16:14:16 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D0F22697FA3
+	for <lists+stable@lfdr.de>; Wed, 15 Feb 2023 16:39:54 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230073AbjBOPOO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 15 Feb 2023 10:14:14 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41078 "EHLO
+        id S229878AbjBOPjx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 15 Feb 2023 10:39:53 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58066 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230071AbjBOPON (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 15 Feb 2023 10:14:13 -0500
-Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A4987301A3
-        for <stable@vger.kernel.org>; Wed, 15 Feb 2023 07:14:09 -0800 (PST)
-Received: from pps.filterd (m0098417.ppops.net [127.0.0.1])
-        by mx0a-001b2d01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 31FDhuHw005300;
-        Wed, 15 Feb 2023 15:14:04 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=from : to : cc : subject
- : date : message-id : mime-version : content-transfer-encoding; s=pp1;
- bh=XxRocGEIxjcg1DHebJnvWeYvpdT9wGPFE+gzHbUCtMg=;
- b=I5jzuxoU8oRR5VxJ8Fjq99gue5ikZOYZDZLsdCzZ/y1jAfzROdl8RdgK3TwEblLksK65
- Nn/unjzcqwQ8vLmJm5yR3RxSNxhBdibg0wlMZXBNXPKYcu0v9YjKocYWwwsIqMQ2BsKB
- auRMoiuMQQh32D1ycYVr42wVq3vjipdgs3KmieryxXe7F4HMWpjg9OmzjDG8eHtArQiv
- JLEkHzOfus56yjMBUzqzuu9ne/vHEniquQnhWVbrM9Rs1IFGt8Cs3w6Y3Z5JIV7eNFIH
- cLdXvUbo7rjfgoe9rjZWx77bglyPRXJKx0IB+bdKIND8WJF0WpytlFaPnKOj3ihaezxp Yw== 
-Received: from ppma03ams.nl.ibm.com (62.31.33a9.ip4.static.sl-reverse.com [169.51.49.98])
-        by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 3nrxb1qhbg-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Wed, 15 Feb 2023 15:14:04 +0000
-Received: from pps.filterd (ppma03ams.nl.ibm.com [127.0.0.1])
-        by ppma03ams.nl.ibm.com (8.17.1.19/8.17.1.19) with ESMTP id 31FBplVF017758;
-        Wed, 15 Feb 2023 15:14:02 GMT
-Received: from smtprelay01.fra02v.mail.ibm.com ([9.218.2.227])
-        by ppma03ams.nl.ibm.com (PPS) with ESMTPS id 3np2n6nguw-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Wed, 15 Feb 2023 15:14:02 +0000
-Received: from smtpav05.fra02v.mail.ibm.com (smtpav05.fra02v.mail.ibm.com [10.20.54.104])
-        by smtprelay01.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 31FFDv0N49086726
-        (version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Wed, 15 Feb 2023 15:13:57 GMT
-Received: from smtpav05.fra02v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 6FD8920040;
-        Wed, 15 Feb 2023 15:13:57 +0000 (GMT)
-Received: from smtpav05.fra02v.mail.ibm.com (unknown [127.0.0.1])
-        by IMSVA (Postfix) with ESMTP id 2E3BB20049;
-        Wed, 15 Feb 2023 15:13:57 +0000 (GMT)
-Received: from tuxmaker.boeblingen.de.ibm.com (unknown [9.152.85.9])
-        by smtpav05.fra02v.mail.ibm.com (Postfix) with ESMTP;
-        Wed, 15 Feb 2023 15:13:57 +0000 (GMT)
-From:   Sumanth Korikkar <sumanthk@linux.ibm.com>
-To:     stable@vger.kernel.org, gregkh@linuxfoundation.org,
-        debian-s390@lists.debian.org, debian-kernel@lists.debian.org
-Cc:     svens@linux.ibm.com, hca@linux.ibm.com, gor@linux.ibm.com,
-        sumanthk@linux.ibm.com, Ulrich.Weigand@de.ibm.com,
-        dipak.zope1@ibm.com
-Subject: [PATCH v3] s390/signal: fix endless loop in do_signal
-Date:   Wed, 15 Feb 2023 16:13:35 +0100
-Message-Id: <20230215151335.1448645-1-sumanthk@linux.ibm.com>
-X-Mailer: git-send-email 2.37.2
+        with ESMTP id S229779AbjBOPjx (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 15 Feb 2023 10:39:53 -0500
+Received: from fanzine2.igalia.com (fanzine2.igalia.com [213.97.179.56])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0AE25524E;
+        Wed, 15 Feb 2023 07:39:41 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=igalia.com;
+        s=20170329; h=Content-Transfer-Encoding:Content-Type:In-Reply-To:From:
+        References:Cc:To:Subject:MIME-Version:Date:Message-ID:Sender:Reply-To:
+        Content-ID:Content-Description:Resent-Date:Resent-From:Resent-Sender:
+        Resent-To:Resent-Cc:Resent-Message-ID:List-Id:List-Help:List-Unsubscribe:
+        List-Subscribe:List-Post:List-Owner:List-Archive;
+        bh=i7LKngPzc/hrmVl4gzBZXU9fkDYg01lrfToW/TF07cs=; b=PYgxf7xd2iJA2O9fL3Ig5ZUpPY
+        fanBc6tEOZsGwe4k5hiiZnOqQG0z7GIX6jVRBbYCc3GnFncqzPVsYMWO/dAoqXVDFWTmsCtoLjwww
+        69PRVjORixfmCakpyMiRlZUdgYg9BYrmDMYcEiTQGUWaK8C+IUfHVuGtk+Y+nRaXPmvZDjhMz0/vX
+        IXF7XeVgQyJGVANG++EQmailfaE5FPUa36BymSLRhzPDguJlcZxmWMYl4FqYqpyEDHQQKuchvOmDz
+        6YJyNy0g9bCnH3WyCCV8b9L+0b9LVSEI5FhE/54LwGlkVMN0dBvIAjBbrHKXf2svDQ/7PGTynbBQT
+        nHJjhKqA==;
+Received: from [187.10.60.16] (helo=[192.168.1.60])
+        by fanzine2.igalia.com with esmtpsa 
+        (Cipher TLS1.3:ECDHE_X25519__RSA_PSS_RSAE_SHA256__AES_128_GCM:128) (Exim)
+        id 1pSJsZ-00372S-HW; Wed, 15 Feb 2023 16:39:31 +0100
+Message-ID: <b04fc583-c3d1-8c3d-3831-9c765a74a705@igalia.com>
+Date:   Wed, 15 Feb 2023 12:39:22 -0300
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: NOu8O55uEo5cjL9XPO1Nw5d1SflqWZtk
-X-Proofpoint-GUID: NOu8O55uEo5cjL9XPO1Nw5d1SflqWZtk
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.219,Aquarius:18.0.930,Hydra:6.0.562,FMLib:17.11.170.22
- definitions=2023-02-15_06,2023-02-15_01,2023-02-09_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 malwarescore=0 phishscore=0
- bulkscore=0 impostorscore=0 adultscore=0 mlxlogscore=651 spamscore=0
- mlxscore=0 suspectscore=0 priorityscore=1501 clxscore=1015
- lowpriorityscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2212070000 definitions=main-2302150135
-X-Spam-Status: No, score=-2.0 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_EF,RCVD_IN_MSPIKE_H2,SPF_HELO_NONE,SPF_PASS
-        autolearn=ham autolearn_force=no version=3.4.6
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
+ Thunderbird/102.7.1
+Subject: Re: [PATCH v4] panic: Fixes the panic_print NMI backtrace setting
+Content-Language: en-US
+To:     Petr Mladek <pmladek@suse.com>
+Cc:     akpm@linux-foundation.org, bhe@redhat.com,
+        linux-kernel@vger.kernel.org, kexec@lists.infradead.org,
+        dyoung@redhat.com, d.hatayama@jp.fujitsu.com, feng.tang@intel.com,
+        hidehiro.kawai.ez@hitachi.com, keescook@chromium.org,
+        mikelley@microsoft.com, vgoyal@redhat.com, kernel-dev@igalia.com,
+        kernel@gpiccoli.net, stable@vger.kernel.org
+References: <20230210203510.1734835-1-gpiccoli@igalia.com>
+ <Y+ue4OsyrGSx5ujB@alley>
+From:   "Guilherme G. Piccoli" <gpiccoli@igalia.com>
+In-Reply-To: <Y+ue4OsyrGSx5ujB@alley>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
+X-Spam-Status: No, score=-2.4 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,NICE_REPLY_A,SPF_HELO_NONE,
+        SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-No upstream commit exists: the problem addressed here is that 
-'commit 75309018a24d ("s390: add support for TIF_NOTIFY_SIGNAL")' 
-was backported to 5.10. This commit is broken, but nobody noticed
-upstream, since shortly after s390 converted to generic entry with
-'commit 56e62a737028 ("s390: convert to generic entry")', which
-implicitly fixed the problem outlined below.
+On 14/02/2023 11:46, Petr Mladek wrote:
+> [...]
+>> My understanding is that it's a mechanism to prevent some concurrency,
+>> in case some other CPU modify this variable while panic() is running.
+>> I find it very unlikely, hence I removed it - but if people consider
+>> this copy needed, I can respin this patch and keep it, even providing a
+>> comment about that, in order to be explict about its need.
+> 
+> Yes, I think that it makes the behavior consistent even when the
+> global variable manipulated in parallel.
+> 
+> I would personally prefer to keep the local copy. Better safe
+> than sorry.
+> 
 
-Thread flag is set to TIF_NOTIFY_SIGNAL for io_uring work.  The io work
-user or syscall calls do_signal when either one of the TIF_SIGPENDING or
-TIF_NOTIFY_SIGNAL flag is set.  However, do_signal does consider only
-TIF_SIGPENDING signal and ignores TIF_NOTIFY_SIGNAL condition.  This
-means get_signal is never invoked  for TIF_NOTIFY_SIGNAL and hence the
-flag is not cleared, which results in an endless do_signal loop.
+Hi Petr, thanks for your review!
+OK, we could keep this local copy, makes sense...even adding a comment,
+to make its purpose really clear.
 
-Reference: 'commit 788d0824269b ("io_uring: import 5.15-stable io_uring")'
-Fixes: 75309018a24d ("s390: add support for TIF_NOTIFY_SIGNAL")
-Cc: stable@vger.kernel.org  # 5.10.162
-Acked-by: Heiko Carstens <hca@linux.ibm.com>
-Acked-by: Sven Schnelle <svens@linux.ibm.com>
-Signed-off-by: Sumanth Korikkar <sumanthk@linux.ibm.com>
----
-v2->v3:
-Correct changelog.
 
-v1->v2:
-Add the changelog.
+>> [...]
+>> @@ -211,9 +211,6 @@ static void panic_print_sys_info(bool console_flush)
+>>  		return;
+>>  	}
+>>  
+>> -	if (panic_print & PANIC_PRINT_ALL_CPU_BT)
+>> -		trigger_all_cpu_backtrace();
+>> -
+> 
+> Sigh, this is yet another PANIC_PRINT_ action that need special
+> timing. We should handle both the same way.
+> 
+> What about the following? The parameter @mask says what
+> actions are allowed at the given time.
+> < ..code..> 
 
- arch/s390/kernel/signal.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+I think your approach is interesting, it's very "organized".
 
-diff --git a/arch/s390/kernel/signal.c b/arch/s390/kernel/signal.c
-index b27b6c1f058d..9e900a8977bd 100644
---- a/arch/s390/kernel/signal.c
-+++ b/arch/s390/kernel/signal.c
-@@ -472,7 +472,7 @@ void do_signal(struct pt_regs *regs)
- 	current->thread.system_call =
- 		test_pt_regs_flag(regs, PIF_SYSCALL) ? regs->int_code : 0;
- 
--	if (test_thread_flag(TIF_SIGPENDING) && get_signal(&ksig)) {
-+	if (get_signal(&ksig)) {
- 		/* Whee!  Actually deliver the signal.  */
- 		if (current->thread.system_call) {
- 			regs->int_code = current->thread.system_call;
--- 
-2.37.2
+But I think it's a bit conflicting with that purpose we had on notifiers
+refactor, to deprecate "bogus" usages of panic_print, as in
+https://lore.kernel.org/lkml/20220427224924.592546-26-gpiccoli@igalia.com/ .
 
+So, the idea of my approach is to allow:
+
+(a) Easy removal of panic_print_sys_info() of panic(), once we move it
+to a panic notifier;
+
+(b) Better separate and identify the "bogus" cases. The CPU backtrace
+one is less a bogus case in my opinion, more a "complicated" one, since
+it's related with the CPUs stop routines. But the console flush, as we
+discussed, it's clearly something that calls for a new parameter (and
+such param was added in the refactor patch).
+
+
+In the end, I think your approach is interesting but it's kinda like
+we're adding the fix to later, on refactor, entirely remove/rework it.
+With my approach we wouldn't be calling panic_print_sys_info() again
+(3rd time!) on panic(), and also would be more natural to move it later
+to a new panic notifier.
+
+What you / others think? If your approach is in the end preferred, it's
+fine by me - I'd just ask you to submit as a full patch so we can get it
+merged as a fix in 6.3, if possible (and backport it to the 6.1/6.2
+stable). Now, if my approach is fine, I can resubmit as a V5 keeping the
+local variable - lemme know.
+
+Cheers,
+
+
+Guilherme
