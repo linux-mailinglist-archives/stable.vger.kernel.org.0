@@ -2,141 +2,141 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 2C459698BD1
-	for <lists+stable@lfdr.de>; Thu, 16 Feb 2023 06:24:11 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E159D698CC3
+	for <lists+stable@lfdr.de>; Thu, 16 Feb 2023 07:23:22 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229888AbjBPFYJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Feb 2023 00:24:09 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46626 "EHLO
+        id S229520AbjBPGXV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Feb 2023 01:23:21 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34890 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229889AbjBPFXw (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 16 Feb 2023 00:23:52 -0500
-Received: from mx0b-00069f02.pphosted.com (mx0b-00069f02.pphosted.com [205.220.177.32])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BA22B4C6C7;
-        Wed, 15 Feb 2023 21:22:36 -0800 (PST)
-Received: from pps.filterd (m0246632.ppops.net [127.0.0.1])
-        by mx0b-00069f02.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 31G2InVE031808;
-        Thu, 16 Feb 2023 05:21:19 GMT
+        with ESMTP id S229599AbjBPGXU (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 16 Feb 2023 01:23:20 -0500
+Received: from mx0a-00069f02.pphosted.com (mx0a-00069f02.pphosted.com [205.220.165.32])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 90C543A0BC;
+        Wed, 15 Feb 2023 22:23:19 -0800 (PST)
+Received: from pps.filterd (m0246617.ppops.net [127.0.0.1])
+        by mx0b-00069f02.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 31G2Jcl1000725;
+        Thu, 16 Feb 2023 05:21:26 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=oracle.com; h=from : to : cc :
  subject : date : message-id : in-reply-to : references :
  content-transfer-encoding : content-type : mime-version; s=corp-2022-7-12;
- bh=CDzIi6h3WbmYGSyUYBH5xk7tSJ1ttrBJg1EKOIlZsf8=;
- b=L2Fqoi2mgxttQpzJc06mis8otZ4Qk/PI4H38lfwxJkFoq3cLE55zDiCrdwgmLYKoIcqy
- zubfhZct6z6tFLTa48bO3t/qxjXhbnPKCuiQp/H9xS9s+49Qj6VUBcPZtheps4+CUAfw
- xNYmj01lRO3cSpd87eiuvMVtzQf8HbumZllKY1x1l2BMKFio1kWRkiKYbSviQNZMRA7Q
- IT3VmmaHIU0LvtTjFF4jGErsnp7L5ZUmmsFPiXR20dAi8/m8OW/CvM5IVGBSRIFvMhYf
- uABV3uZhP9z4dBeYeqTiy4Vz1q9AQmvfdjalc5t1Hq665QiRyshJgjt5Ub+94pygKIBm CA== 
-Received: from phxpaimrmta02.imrmtpd1.prodappphxaev1.oraclevcn.com (phxpaimrmta02.appoci.oracle.com [147.154.114.232])
-        by mx0b-00069f02.pphosted.com (PPS) with ESMTPS id 3np2mtj6kf-1
+ bh=KwZ02qIToTCXTa8CLongtSjCYx5Ca1nrdNUSkiKtB7Y=;
+ b=e8tgUI5Mvlji2M2qinOtm0DV6YdVBi2LKWidFqouWBwUxirW/+tOQiT6juiwFmEO4Vz0
+ UdkziAjBQuENlzLFkyjrmJOgwZUP9yeWAwO2r+/gYEsZfnSC6f2/QMSn/u3QQ2FRCAmI
+ F4AGU8pQCNmGOg5Od9B4Q61pCxcm7DhH8j25oj/yI1vd96mIpJo2dgKfnNlBtob1+wO+
+ wByRrO2VO7zk7VFSXP3j+n06fHMFdBptxWQXlCPH1zWR8qUARxD6nrS3BRDXv6+NNUTJ
+ XWI06bJ+iqoNuDYRGvf8H4KJep8SRc9hC/TrM6adt7ibMxVrdwV/CikJ9ttXLe78pqkn og== 
+Received: from iadpaimrmta02.imrmtpd1.prodappiadaev1.oraclevcn.com (iadpaimrmta02.appoci.oracle.com [147.154.18.20])
+        by mx0b-00069f02.pphosted.com (PPS) with ESMTPS id 3np3ju26rv-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Thu, 16 Feb 2023 05:21:19 +0000
-Received: from pps.filterd (phxpaimrmta02.imrmtpd1.prodappphxaev1.oraclevcn.com [127.0.0.1])
-        by phxpaimrmta02.imrmtpd1.prodappphxaev1.oraclevcn.com (8.17.1.5/8.17.1.5) with ESMTP id 31G3DxIU015121;
-        Thu, 16 Feb 2023 05:21:18 GMT
-Received: from nam12-bn8-obe.outbound.protection.outlook.com (mail-bn8nam12lp2170.outbound.protection.outlook.com [104.47.55.170])
-        by phxpaimrmta02.imrmtpd1.prodappphxaev1.oraclevcn.com (PPS) with ESMTPS id 3np1f84abh-1
+        Thu, 16 Feb 2023 05:21:26 +0000
+Received: from pps.filterd (iadpaimrmta02.imrmtpd1.prodappiadaev1.oraclevcn.com [127.0.0.1])
+        by iadpaimrmta02.imrmtpd1.prodappiadaev1.oraclevcn.com (8.17.1.5/8.17.1.5) with ESMTP id 31G2Xr4D024622;
+        Thu, 16 Feb 2023 05:21:25 GMT
+Received: from nam02-dm3-obe.outbound.protection.outlook.com (mail-dm3nam02lp2040.outbound.protection.outlook.com [104.47.56.40])
+        by iadpaimrmta02.imrmtpd1.prodappiadaev1.oraclevcn.com (PPS) with ESMTPS id 3np1f8mxfb-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-        Thu, 16 Feb 2023 05:21:18 +0000
+        Thu, 16 Feb 2023 05:21:24 +0000
 ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=ZsuGBXzN7PnXibhqVI/0GjXVLTfwmIQdF+AVGM/UPctnNphIVc5gaXO90kmd6ZVl4CihKDt0pcvjPqt0ghs5XL/ab5q7Od9FYlPrAdIaUtFfaQoRI/C7pB9dqVx+Atro63MtfNSeTgHvsWmkUhQG/LNAoFSfbtaxtBjkeKESFQloia8jeib2qMG9qefjvuU/dzhlumAn/eytRbMPp1rbWedeaLjhgE/AXFJAZNv7E6zPJ6BZaN61xdcgcB3sFn1tBPlQuy2hdRVK/2K+4ddY+gKI8RWC8EECKzx/RqnZRjhFSmtD+AicJ7xZSIRe8FJJyGPKatl1teFUUwtDXLRQmw==
+ b=YuK1BJwS4UfcpEVn4pwwkI+I/wDkSl7Qa1FRVs7AqN3TE3G0ZAvXcVH4v5uWkRCTGg1ODrFDZr0cwhq6vBHK2ibrZlzCjxjuq2AElYbH3FrDozUWRR4DDSYiS6u6NZR/+uVA1YeZ4rkK7QYUMpyEPJP8zkbIIey2kT81hWj1XWnjsdAw/glRjdXSJts/LaEeilwZ9MYjmLQGtfJfZkyLFEvojDng0Vupi0wc5+MBJOkNY8/I9bXPZC+EZIDIjCvs/4QAuCG0LdEn8P4S7QPOglgt3IOva4Rixkq6sjzGc9lsPUxLszL0kXu7g2HhbMRQKCupZ8UL/QEz1ypzHlU3Cg==
 ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
  s=arcselector9901;
  h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=CDzIi6h3WbmYGSyUYBH5xk7tSJ1ttrBJg1EKOIlZsf8=;
- b=DdyexUkSToGUQovuTt/4G9e8w94rOgv8SeStfdUiQao1nGKd6GShm/VO+HrMgSvI+fUHetIg7TkcJURq7YTdGyPq+ag3Mzu5HEdOBZoqx6Vs8QNFy2+rKlqNTzmE89PljVt2e3ibXUD4A/DMVmSdC9vg19uQ0G7uYKqmKqnot3THC6IbDyKtsVR/9DsfAw5EutrUkLxw8t5X+urkxlrEiHAzZoh12PEgRwcbMiNHTgm3Hzy+BxNQaEQZ0DW3cziEcQg+7+FDxZjziOwlJyo5p71wIJSXP1D+Thufkt8ICB16wESonCCK744xB2l4UZwI05TlBmCiUf/5AXpB61sBEg==
+ bh=KwZ02qIToTCXTa8CLongtSjCYx5Ca1nrdNUSkiKtB7Y=;
+ b=LPX/i6NnUayIU9NmW+qJW9JiwI1zU86sqKBXcXdwQZzvMcGPhX/MbQQAUriUUZ45CEjqo3tgRuXmiwBhrfhJjh8kjOyR27XoJl2r+x6pkXvA5sPvJiE5xCHAa0Pa3WQPNhTTKreP87LyTLcLwCHvoFYx6EHZmkJoc88mJJ1rz7hJEr+G2988SJcreF+y5S96d31EP9LoPwglcG8Ig2iBPNfWPFsv/Vw9Vh7slfvmnUpe6isSJE8MnNRQUplvy4zY5JQ9Utk7Vr7zW3hCzarb1A1nKpnMn6BtyCTzxyAW+8rd7m0dgaCb5lHYCmRuTuqkUjSiS9GXUm5Dcnlz54quHQ==
 ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
  smtp.mailfrom=oracle.com; dmarc=pass action=none header.from=oracle.com;
  dkim=pass header.d=oracle.com; arc=none
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
  d=oracle.onmicrosoft.com; s=selector2-oracle-onmicrosoft-com;
  h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=CDzIi6h3WbmYGSyUYBH5xk7tSJ1ttrBJg1EKOIlZsf8=;
- b=gEkiMBm70ZJo8ciBr66TyKNiB8nCXTE6W8N5Ou42s9hIA8hgaWigL34WFl9/MiJpacuRoF++1/dosGjlOZC+Nppsr5G4Q1i2cuKpuc/l4FU0jm/RQVxNLg+Nu8ljV+VmQGPLthNTizuk2sFXC0frj+xb8OlWG7c48s3oWBiR2eo=
+ bh=KwZ02qIToTCXTa8CLongtSjCYx5Ca1nrdNUSkiKtB7Y=;
+ b=H2/CfPYWfupuedi81r7riK6mYM9N83rLHy61kXHNGgE1uwWdWWzLaGQjaY+QEzBENLfmSg95zHRGY+Cx+kDpGDF+FcqtPytF9nKYlpl0ItheXkyi4hXrrz96wjLG0anXmguMzqspKjWn+jk25f4bYW9J/Qq7jaHHItB1Q8v0SDc=
 Received: from SA1PR10MB5867.namprd10.prod.outlook.com (2603:10b6:806:22b::9)
  by DM4PR10MB6789.namprd10.prod.outlook.com (2603:10b6:8:10b::15) with
  Microsoft SMTP Server (version=TLS1_2,
  cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.6111.12; Thu, 16 Feb
- 2023 05:21:16 +0000
+ 2023 05:21:23 +0000
 Received: from SA1PR10MB5867.namprd10.prod.outlook.com
  ([fe80::6d82:720d:3596:839c]) by SA1PR10MB5867.namprd10.prod.outlook.com
  ([fe80::6d82:720d:3596:839c%3]) with mapi id 15.20.6111.012; Thu, 16 Feb 2023
- 05:21:16 +0000
+ 05:21:23 +0000
 From:   Chandan Babu R <chandan.babu@oracle.com>
 To:     gregkh@linuxfoundation.org
 Cc:     sashal@kernel.org, mcgrof@kernel.org, linux-xfs@vger.kernel.org,
         stable@vger.kernel.org, djwong@kernel.org, chandan.babu@oracle.com,
         amir73il@gmail.com, leah.rumancik@gmail.com
-Subject: [PATCH 5.4 07/25] xfs: turn dfp_intent into a xfs_log_item
-Date:   Thu, 16 Feb 2023 10:50:01 +0530
-Message-Id: <20230216052019.368896-8-chandan.babu@oracle.com>
+Subject: [PATCH 5.4 08/25] xfs: refactor xfs_defer_finish_noroll
+Date:   Thu, 16 Feb 2023 10:50:02 +0530
+Message-Id: <20230216052019.368896-9-chandan.babu@oracle.com>
 X-Mailer: git-send-email 2.35.1
 In-Reply-To: <20230216052019.368896-1-chandan.babu@oracle.com>
 References: <20230216052019.368896-1-chandan.babu@oracle.com>
 Content-Transfer-Encoding: 8bit
 Content-Type: text/plain
-X-ClientProxiedBy: TYCPR01CA0128.jpnprd01.prod.outlook.com
- (2603:1096:400:26d::20) To SA1PR10MB5867.namprd10.prod.outlook.com
+X-ClientProxiedBy: TYCPR01CA0134.jpnprd01.prod.outlook.com
+ (2603:1096:400:26d::13) To SA1PR10MB5867.namprd10.prod.outlook.com
  (2603:10b6:806:22b::9)
 MIME-Version: 1.0
 X-MS-PublicTrafficType: Email
 X-MS-TrafficTypeDiagnostic: SA1PR10MB5867:EE_|DM4PR10MB6789:EE_
-X-MS-Office365-Filtering-Correlation-Id: f4fe2fa7-753f-4d0b-6088-08db0fdda08f
+X-MS-Office365-Filtering-Correlation-Id: e63c2be1-799f-4172-74b8-08db0fdda4b4
 X-MS-Exchange-SenderADCheck: 1
 X-MS-Exchange-AntiSpam-Relay: 0
 X-Microsoft-Antispam: BCL:0;
-X-Microsoft-Antispam-Message-Info: aQRML/Y34GWxWj65VJlTZ4v27NoLE+ZFLdY2fPcncNtbB8g809sk4Vv/2CTBkvs8p5hb9D9CFCF0vBKapy9tk2y0vvCv99IYY5K2pcoxhngGUMU7lQv6k4lLfGxGcHoUH8wTE3TGywkg7eGVAPDaCunIeRuZF6kFQHcda7TlTtB+rWtlgegGR+1Mnz/xBVVai/rGGY34Zk0v8BzCZRPrUfGXp/ly3FWfZpFtU6sINegqKaZW4G9oW0EGQ9uVO6/FMazZQAZFnR/W+J0R5ZonQ18Vb1omY7ECMT5Vuv2fH7D3EAX1cfjRvkI2VMb3XEnGidh1fl4CC3PxxDsly8Zw345LGVxBbpGvMgL5uOl7Ekm1axqMB+KjOgqBM3qGe+QgwSve86zac3c0ZtT7hob3LMIIYfo9cBy1Q0URVtnt58+hU1i0KP+nKliHH90N1Fheag1fPAEl7tQVY3M5FjGmM6YQhBu78uQXB1pk36imzKRlKScb4I54iCPb2EpQag6u0r5CBKJJr5ybZml/QynPa/vINWWrMSWNsBJuE5FdpezDDNmkufcBjQLr/3OHtFmzmtYHzTPaIG/n1yzVI2BcyiuRl2hIUF0Lh0Gh4vPC9VqJoNdQA3CVLUCsoO8LsyPGWMskCdp+PoTFxjiQQzw9Eg==
+X-Microsoft-Antispam-Message-Info: 5pfgGUBL3oDGOxFEOD178zfGIo2FLoAznfYrUEUotvrCAhhlkQGUIKmP2xYlRlxCvvKxo/NUBmUuf0T5nVoN5TGEScfvC0BuK4LnQgQTdvYgbzuzN/3GPff79P103Y8sUw/+HgnCDFqEXkXPVFd9K2TBivc5XVnY+oawIeRm1MiI1gR0fqDmyrq8jEk6uJGXMBaOonw/9r2NZChbTZQWYTrdyGvizmYgNNEaZA9SIZjlWFfaNw3LgKmvb8kBXmYd0Je1OnLL5l1Cekibzw5oh2Q13KXNth78OV2ZqqvoonRV+duJEkO5j8ACRRXA0w4hYOJX93J96+XAZv/GmN6xplQNak0Qg45jy6ELLi+EbCvpLOasARpGH0EV7E3PrWF987OcuXgIMp+bZR376FAZxLaa1TOkM8+ICLOUe38ZwKfvzQt/jv1Fm7V7I631uORFCyq4cNbWrnnogNTTZGhBjrDpOm15vcn+Ks/kBWuoTjEOLbpYq73ovWGISOb67zna/N14UHHmNQvS1u1DAzuSnDR0QtjIEhIqvbVNzD+JgbvBFQbU9iEpK5e0Z8Kzqb6KHU7QcLosj8s32haDJakHTTsI/LqLh1TRO44JK/Y4/oMUahbH4LTaO33Uh+AZoG6TeazoEBsSEpkv2HOccmm2Vg==
 X-Forefront-Antispam-Report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:SA1PR10MB5867.namprd10.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230025)(346002)(39860400002)(366004)(396003)(376002)(136003)(451199018)(2616005)(5660300002)(38100700002)(316002)(6512007)(6486002)(2906002)(1076003)(6506007)(36756003)(26005)(478600001)(4326008)(66556008)(66476007)(8936002)(66946007)(86362001)(41300700001)(8676002)(83380400001)(6666004)(186003)(6916009);DIR:OUT;SFP:1101;
 X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
-X-MS-Exchange-AntiSpam-MessageData-0: =?us-ascii?Q?Cp/OpUaQov7avCARlBCDCCiRJS225pzqyV3Vebd1e88gMyCdewJWij0gNk1H?=
- =?us-ascii?Q?QHJPbl7WXw8/ZituNitJFxL2xtuXdihMH22iUJM1j2uULyoHtaLZqXI9Mhc5?=
- =?us-ascii?Q?rw2JOGbI80DWnism7J2fuIvFfa2ULRofnry4SYMIhyoirs9BGcnnncgvwR0C?=
- =?us-ascii?Q?AI4Uv+Di/iC/HQtjIrALvPmrLScT6WxEATNezTUGR9DlhTyN3wZlL9Ic9b/w?=
- =?us-ascii?Q?idDgtflJTVosupBpKu5YzPfEiyvbc39HzQw90s8FMD88imCYBCoWwF4rjUQi?=
- =?us-ascii?Q?kGVtLSROV1xPmgSPEJ9thKXqPEJFfE6S3h4J6enJtV+qXUN4p2itNBxovuwe?=
- =?us-ascii?Q?xw8ubHDWnthw5eo3JCVVF4o9DKSgijNo52BNCHU6o18wcoNqZys67z3zrEux?=
- =?us-ascii?Q?cuFs/0hRHmRKINmqt/Hu7QRoHrLU1J9BQwiAnyy3tLKvVoAXjhG/NfhZNxt6?=
- =?us-ascii?Q?1bUg3Qhbipux7uenq1u00pfDKBDL+Opj37jzoUZ97fsUSeLrVJYc1QLTxWVo?=
- =?us-ascii?Q?wlD+AFvIUMLaf1dkm+UXVRNzxEuwMRuqNyxi5EVnCjOv3paE7b4cb7NdwkTW?=
- =?us-ascii?Q?QYf5F07kPxIg+DRy5kVIMfEu7mGj40zNd5Jq6isXccwyMEBFRLyOAMyEEWzz?=
- =?us-ascii?Q?aShs/0Jarcu+FngxlwuhyrCraqED7r9hL+hgT7dgjWNplE1U6/+vfMED+iRE?=
- =?us-ascii?Q?O4RXwpM6MA5dbIMizLDeQdtRLT4VPvCMj1a+LCKBVbYHiwXci47DU3dkj5ml?=
- =?us-ascii?Q?2dIx9qZnEYy0eBicwhhvp4oKzeiH5+963T5FDnnGy2nJZ8pkDJi5uANgSU9f?=
- =?us-ascii?Q?HlxuKcRqhYgbJCEDqXv28uMjUYJVvE6+ZCoZJxt5GY5g/jCSOnFf+Z//ycNv?=
- =?us-ascii?Q?5s+3O2lQOolknqN7pLsgcFOhUm/bnlq0JovYrdfkuibIU3zu4LDz29WEOnOc?=
- =?us-ascii?Q?aTFBFuZGQKB7SVPo3qP6JCwefhZ7pOkALcf0D7QOk8srskXa62xVxhgIdjQx?=
- =?us-ascii?Q?/cRhfoBXfMW3yeJqQmG4eqtmC6F6JSEY7csz6XSui5evHS83BZe1KOCL60QZ?=
- =?us-ascii?Q?lBIFqPVqoYIlIqBlg4pjJSHUjB8z9eSrlr6E84l7RJtXkv5sgpaZ2HuJ7jvv?=
- =?us-ascii?Q?KtZm24ZUknVWaIpmN1MGMsdRZqxWn3L0GLU9+rjglgsFA3W/agxmaKVbEzXH?=
- =?us-ascii?Q?+jDf5WQl/5yIvepskK+rinhdaqAq1PLkuOfIVYvm83XW9YXGg/xlV+Fs25KE?=
- =?us-ascii?Q?P6pY0oDyPwPQGw0ILPPQCjDYhlOX3Ux1/9iIfrtRNbsoajgsYTYxepgYch7Q?=
- =?us-ascii?Q?kuGL1SMc10k4GYoEx0/xQbmQ9ODN5c1hxjbQtR522kjcaaggNyOo+ynJZsgn?=
- =?us-ascii?Q?z77HfjKmltbgMcbxWB5Xo1nl1g+8z+tahow70EvcRQpX83Z/bXm0UCbcThTw?=
- =?us-ascii?Q?FL02xl0b2Vz5NxHrb1keGhj0v59G/AYfyS2T1lgVQQFDttZuRmP4ximW6x0a?=
- =?us-ascii?Q?HF/+QeQA17hFbKNQRVMW9qSt5GAln6JW9fnfyPoY/LMFiv+UwJNVGE/Ivs1i?=
- =?us-ascii?Q?af6msgwFBSeDolliK5miggw04kQMKBSMtvUk0n6vvqGYQISBIPhx7IzFeO9i?=
- =?us-ascii?Q?2Q=3D=3D?=
+X-MS-Exchange-AntiSpam-MessageData-0: =?us-ascii?Q?mMyGmiHhN6NQJs2r2k1tZRQCSoBypHGcEM7Glg4yLHBeJ54wq1HORhVrS8oH?=
+ =?us-ascii?Q?XDp4GJenU4JKK5ldbRtYA1Sf0O5O6qMNX0lboKJek7ekqwJ1xqikYGT9xt5o?=
+ =?us-ascii?Q?TL4elVilYb1Lmkb5EbNh+sKSeAvPp8Ub5RExJKjxCwdGai/1j0jo38VGGUB6?=
+ =?us-ascii?Q?YZHN1KJA6YJsL055XQFMBUOqiSq0lNcf0SNFGX4b4uyDoX3teUrurvKiWX64?=
+ =?us-ascii?Q?lHvtmGbdyI1U7vedfPYIdwg1F0UGU/GQWtfUMXbs51qNC1IinTLhoi4P5m4T?=
+ =?us-ascii?Q?7iBhSeRgBYlTCWrK6AkqZhDoLnneKx1m21aq+0rj5blNib14CbTI9ZyO1KuO?=
+ =?us-ascii?Q?rUOv2Nr6O4GRMUOHtGOtBq5YGfOsydaZAsxwklmINXwWG56udtUiBOEVkDjp?=
+ =?us-ascii?Q?KsdUNUW4bQaPpgLDsYSm6Au7L1aXRZ9UJP5n1Mn0fRTHDQOtCOFflyJuSDI7?=
+ =?us-ascii?Q?whUKiICy6YL37Bx7emHEC1kvMJ2PIXMQNCu0rH0gYFoMXwdXGQQ08cFJaY8Q?=
+ =?us-ascii?Q?7h6EslHdxP++fGMOipqDDwy2512KAhaRpZdQFbBDmjsvMoAwF+X31N8nikRC?=
+ =?us-ascii?Q?RYpKYQzPRKx3xz8RnQLFyaLFJDJrg7pkBbTX7cjQy0tLtJJaK0Z3GzskDcvz?=
+ =?us-ascii?Q?wKc7Q2YFzFuqavp4Cd4mzWYx43LbSApl9DoLydFVfIeok3OyJthBR7Uojaps?=
+ =?us-ascii?Q?1q3K7Xnto+OTT1xSYrZQF6tq0SkhutXFUhEfufCrgzk2RJeYG/H4AEgQOJZF?=
+ =?us-ascii?Q?jPL7n7R3n0HSGyEhGvQxFY3dCgmkpzBHlSmqqImX+WNT1p7U9q4aRHbGEeub?=
+ =?us-ascii?Q?O3UeNsMxESLbfpWTb3+M1cftFf1nGJ/aR1YwAfz0wxefqMfcY3r8OfDDzmWY?=
+ =?us-ascii?Q?Bi9/8HxQHptM1pS1xFqYRkRduQneKg6EICx31++pCcMa2PfhdXCutGQoeN9I?=
+ =?us-ascii?Q?IgZKsBN+7rCmKnInMN0uEk/Za1jMB2y1p5NOfv366RTzQi4H//132B/pvUGl?=
+ =?us-ascii?Q?lYOa7TCNhkV6+zipCBwlM5UoDXiuusJ4UcLhOL6OinXyIS0vdXPs4WDypPhj?=
+ =?us-ascii?Q?wUvh+a2tkd+Z+VgbjPX8GNg5uyVC0GxuRiiXeRZRTI0JOXKacpZ5VkHI1gh8?=
+ =?us-ascii?Q?hnQbUCJR++LP58R8167QnIcVlkemL9C2ZVeGAxZ43zreFjuFY05jsurn2Azu?=
+ =?us-ascii?Q?MNh9lz+bZedyxL5xDAZ0hnNzcLyVzGQMwbIj9CCDf3X/VxtP5+4Kgj+Pohlp?=
+ =?us-ascii?Q?9N0rZOmKq2eIjeyBiCgKQLKhItawBPHKgNcSuyOk0GD245vFzgpeK/AAXHID?=
+ =?us-ascii?Q?sd4IzVxiFuMVjJN7jNHU2ki3QgdiDCvtW4jaz6sVaMJpyTLWgrvV1gT4Uklh?=
+ =?us-ascii?Q?W9op1jI9TAjCeF0dbezlKCktVnZK77jVEZaRdfPDcmK3BqeWqzjkg8X1raBh?=
+ =?us-ascii?Q?b9DFH3CZGFIlLarzLkxmohTk8GP97iKyXFq94rX/jbqLcnK/ddeA+KbIcTFw?=
+ =?us-ascii?Q?x0R/q+THJJi5l2kSMbJHgqnyTwSoWPoNjnTi1UuGDiVe50+LbQNxYErJp+5Q?=
+ =?us-ascii?Q?NLiFfFk9zOyPnxXB7gGXhAT4gWSvPcK2U5/14i71SASpRulN9nQJWrdSoiST?=
+ =?us-ascii?Q?kQ=3D=3D?=
 X-MS-Exchange-AntiSpam-ExternalHop-MessageData-ChunkCount: 1
-X-MS-Exchange-AntiSpam-ExternalHop-MessageData-0: gFswVU3nTmh5viE2G+hRPT0nj4UiF2EpjwczArTqba+AZnzDcadmmGAXdGEZcrZ97ljz36O9edFsyLTG8vlrTuAcig/QXWlgXF3bo1hz2N+pLMp+dZxP3Ki50OjkcHi8DTbTS7taa/fH9TU+gZrXUuvz0IYm4Z5FI9vosJUTKSqL0qToNuZUmUhS2Oeu93Z+6Y0q1OqWQYP0wFQSyGCqkeNvVbNehSu40DGeRBGHkjrOefE46cZHF8NSc4e9Ria1t9TWWoIBUuJb6Ky+Opkv36TTm6h3x+UB+mnmLaPD8uAV0oGTKc84UcAF1xVyjmg9IzVJR4SwwjD0gV++igR0Y6itCQKl8Vmo0BlqrN0fYsvnDjNLVeK+4geNOh/wZtt2MZ5NcNFoLtWXvZHyZnMyV8ZBXVvKsFThdLHe+cnlFpt+dfUuol0MunxY6WJFwAbbk/spVP7HfXniFCB/y/vY8sVNERCpRHs1Oe1V6cKYBxNeqICS1cWTPWTQZHs109ZSMKWti0fEv2r6yNQlRg6CCAdvnLsFv0FAjT6kQzo6EUtLgj7ySXjwzPFQcySk0V4OTiMejAeGh4Lw5p7cSkGLCYAmThwFVMkfL30o/vfagjVUsSrIpKypmUZmZyu0GDOOnYgHKsKwEiYqdJ02Hjr0uBkYrnZlCcbNhhQFMuuDdOLDQiBQpVju1XvC+5wVigPhejdQp1O2Ut5m63IL26/sb+7ftqhi5qmN20Jgvesqdn9nGqd26XAZ9KOIJX1nsXNxPIv4KQDClQABB59EYe0NgJill8UkCb69d/WfYoAbrkpNXcO5FaNaihfOMerRbkWRlPAJ4SfCcv8hKwkkfSN/JOJWWIhPGG8T2qAxyy1T50frYzdnd+6pgs9YFx1km2Mr
+X-MS-Exchange-AntiSpam-ExternalHop-MessageData-0: 0EwplfwSBS0dfQra9b70KxV1zCr4PXLxvIupL8XPxtzN5zy4w6N3VHLkUxtjZlyedFdJ//x6Ba7DaxYXXAUoPlqfzoUqG78LiZflrVW9GoHv29xgqLT0x+F4dLzUy+fuQKUsEUnqStGCzwN92m5Zowvg8wfe50luNClkNoK6gPVQqjQ7sA4Ix5WD4IRrc/6udL+QoyV1SzNTFuHrJHOUFec+qW8/WY5RZNvXOis4rGuV6BVW3RGOtkZQLSeJ9NcSWeYvhrMDRg8QpmzNDMTx8V2BNLCVuBpyJrRJLNe/tG/UFy2naIA6Lc/Qe4zXiH0rBqfqNoHrcm3UMxNA13WGoo0/R9RzvVdlE2ztEM0QxS5Hh3IKjWDegpb39+Hb4EdfC61vRMyVltkfdVDoRs/XFrEq/ftHRLQigXXm/ofP3Rg3etEUR9O93dQWMDmXWtLhDqRlZQpH/MC4WiAjRLoUcyJovsSw+9GuJVDSwbfhdSVu+ujTYIpnPteaiHxFCQyNelg9lzW7yu3h3kH4wBvAUG10oRvISjzwBAbHE0gyIg1dmwCuOOAeWtaU+8SLLg2TwD6txYQ/UHvSVXSKZuxREE3cfKNYneplLDwu/bGQtCtLjLSii8SHy/Aftg+WiTD+c7524lkvMBkY2mWwa+zCjkChbhQ4uqcaNIzXyeg8EdiOTkHO5erzlt5NYE6z+QkOVk/LzOR2UjH3YksPNdbnlKVhchcqhL1JfCiLm7N0yfoS9H/aCDR8ahkzw/U8l5Hv/T01MG5J58SYjXhDVzfmPhX+ix+4NRT74rQrLHVQHhKKeB/QAEWg5Hezpd29lfTK26ygMG+KRcZhuf76jRkVEnGAFCpLg7PE282dTNCcYwQS9+bm7UtmhLMaC8YT6tso
 X-OriginatorOrg: oracle.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: f4fe2fa7-753f-4d0b-6088-08db0fdda08f
+X-MS-Exchange-CrossTenant-Network-Message-Id: e63c2be1-799f-4172-74b8-08db0fdda4b4
 X-MS-Exchange-CrossTenant-AuthSource: SA1PR10MB5867.namprd10.prod.outlook.com
 X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 16 Feb 2023 05:21:15.9934
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 16 Feb 2023 05:21:23.0723
  (UTC)
 X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
 X-MS-Exchange-CrossTenant-Id: 4e2c6054-71cb-48f1-bd6c-3a9705aca71b
 X-MS-Exchange-CrossTenant-MailboxType: HOSTED
-X-MS-Exchange-CrossTenant-UserPrincipalName: dDGQamT9jhNr2lIdiq6ugX03qJF2B4PoERYplF/6ZOhGhyLg1r9MvbVDfe5Dy4N8snsnIDlbzAwxaU0X49nrkw==
+X-MS-Exchange-CrossTenant-UserPrincipalName: 72mgkvGlT2Ti0NCz1Wm58faGEqwA+8sOkj/donba9qyt4ga7v3Z/uLIIwnrqHqlQwpyxtSZOdeUzI/7K7KZ2Gw==
 X-MS-Exchange-Transport-CrossTenantHeadersStamped: DM4PR10MB6789
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.219,Aquarius:18.0.930,Hydra:6.0.562,FMLib:17.11.170.22
  definitions=2023-02-16_03,2023-02-15_01,2023-02-09_01
-X-Proofpoint-Spam-Details: rule=notspam policy=default score=0 phishscore=0 spamscore=0 malwarescore=0
- mlxlogscore=999 bulkscore=0 mlxscore=0 adultscore=0 suspectscore=0
+X-Proofpoint-Spam-Details: rule=notspam policy=default score=0 mlxlogscore=999 mlxscore=0 adultscore=0
+ malwarescore=0 phishscore=0 bulkscore=0 spamscore=0 suspectscore=0
  classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2212070000
  definitions=main-2302160043
-X-Proofpoint-GUID: 1mOlTHlQAXvQ9Zjngl1ZSI1rHtqtxX4V
-X-Proofpoint-ORIG-GUID: 1mOlTHlQAXvQ9Zjngl1ZSI1rHtqtxX4V
+X-Proofpoint-ORIG-GUID: YpPBx4iRRbAavyhaqyRpv7r-NhCY6B9G
+X-Proofpoint-GUID: YpPBx4iRRbAavyhaqyRpv7r-NhCY6B9G
 X-Spam-Status: No, score=-2.8 required=5.0 tests=BAYES_00,DKIM_SIGNED,
         DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_LOW,
         RCVD_IN_MSPIKE_H2,SPF_HELO_NONE,SPF_NONE autolearn=ham
@@ -149,11 +149,10 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Christoph Hellwig <hch@lst.de>
 
-commit 13a8333339072b8654c1d2c75550ee9f41ee15de upstream.
+commit bb47d79750f1a68a75d4c7defc2da934ba31de14 upstream.
 
-All defer op instance place their own extension of the log item into
-the dfp_intent field.  Replace that with a xfs_log_item to improve type
-safety and make the code easier to follow.
+Split out a helper that operates on a single xfs_defer_pending structure
+to untangle the code.
 
 Signed-off-by: Christoph Hellwig <hch@lst.de>
 Reviewed-by: Brian Foster <bfoster@redhat.com>
@@ -162,230 +161,175 @@ Signed-off-by: Darrick J. Wong <darrick.wong@oracle.com>
 Signed-off-by: Chandan Babu R <chandan.babu@oracle.com>
 Acked-by: Darrick J. Wong <djwong@kernel.org>
 ---
- fs/xfs/libxfs/xfs_defer.h  | 11 ++++++-----
- fs/xfs/xfs_bmap_item.c     | 12 ++++++------
- fs/xfs/xfs_extfree_item.c  | 12 ++++++------
- fs/xfs/xfs_refcount_item.c | 12 ++++++------
- fs/xfs/xfs_rmap_item.c     | 12 ++++++------
- 5 files changed, 30 insertions(+), 29 deletions(-)
+ fs/xfs/libxfs/xfs_defer.c | 128 ++++++++++++++++++--------------------
+ 1 file changed, 59 insertions(+), 69 deletions(-)
 
-diff --git a/fs/xfs/libxfs/xfs_defer.h b/fs/xfs/libxfs/xfs_defer.h
-index 660f5c3821d6..7b6cc3808a91 100644
---- a/fs/xfs/libxfs/xfs_defer.h
-+++ b/fs/xfs/libxfs/xfs_defer.h
-@@ -28,7 +28,7 @@ enum xfs_defer_ops_type {
- struct xfs_defer_pending {
- 	struct list_head		dfp_list;	/* pending items */
- 	struct list_head		dfp_work;	/* work items */
--	void				*dfp_intent;	/* log intent item */
-+	struct xfs_log_item		*dfp_intent;	/* log intent item */
- 	void				*dfp_done;	/* log done item */
- 	unsigned int			dfp_count;	/* # extent items */
- 	enum xfs_defer_ops_type		dfp_type;
-@@ -43,14 +43,15 @@ void xfs_defer_move(struct xfs_trans *dtp, struct xfs_trans *stp);
- 
- /* Description of a deferred type. */
- struct xfs_defer_op_type {
--	void (*abort_intent)(void *);
--	void *(*create_done)(struct xfs_trans *, void *, unsigned int);
-+	struct xfs_log_item *(*create_intent)(struct xfs_trans *tp,
-+			struct list_head *items, unsigned int count, bool sort);
-+	void (*abort_intent)(struct xfs_log_item *intent);
-+	void *(*create_done)(struct xfs_trans *tp, struct xfs_log_item *intent,
-+			unsigned int count);
- 	int (*finish_item)(struct xfs_trans *, struct list_head *, void *,
- 			void **);
- 	void (*finish_cleanup)(struct xfs_trans *, void *, int);
- 	void (*cancel_item)(struct list_head *);
--	void *(*create_intent)(struct xfs_trans *tp, struct list_head *items,
--			unsigned int count, bool sort);
- 	unsigned int		max_items;
- };
- 
-diff --git a/fs/xfs/xfs_bmap_item.c b/fs/xfs/xfs_bmap_item.c
-index f1d1fee01198..f4d5c5d661ea 100644
---- a/fs/xfs/xfs_bmap_item.c
-+++ b/fs/xfs/xfs_bmap_item.c
-@@ -330,7 +330,7 @@ xfs_bmap_update_log_item(
- 			bmap->bi_bmap.br_state);
+diff --git a/fs/xfs/libxfs/xfs_defer.c b/fs/xfs/libxfs/xfs_defer.c
+index f5a3c5262933..ad7ed5f39d04 100644
+--- a/fs/xfs/libxfs/xfs_defer.c
++++ b/fs/xfs/libxfs/xfs_defer.c
+@@ -359,6 +359,53 @@ xfs_defer_cancel_list(
+ 	}
  }
  
--STATIC void *
-+static struct xfs_log_item *
- xfs_bmap_update_create_intent(
- 	struct xfs_trans		*tp,
- 	struct list_head		*items,
-@@ -348,17 +348,17 @@ xfs_bmap_update_create_intent(
- 		list_sort(mp, items, xfs_bmap_update_diff_items);
- 	list_for_each_entry(bmap, items, bi_list)
- 		xfs_bmap_update_log_item(tp, buip, bmap);
--	return buip;
-+	return &buip->bui_item;
- }
- 
- /* Get an BUD so we can process all the deferred rmap updates. */
- STATIC void *
- xfs_bmap_update_create_done(
- 	struct xfs_trans		*tp,
--	void				*intent,
-+	struct xfs_log_item		*intent,
- 	unsigned int			count)
++/*
++ * Log an intent-done item for the first pending intent, and finish the work
++ * items.
++ */
++static int
++xfs_defer_finish_one(
++	struct xfs_trans		*tp,
++	struct xfs_defer_pending	*dfp)
++{
++	const struct xfs_defer_op_type	*ops = defer_op_types[dfp->dfp_type];
++	void				*state = NULL;
++	struct list_head		*li, *n;
++	int				error;
++
++	trace_xfs_defer_pending_finish(tp->t_mountp, dfp);
++
++	dfp->dfp_done = ops->create_done(tp, dfp->dfp_intent, dfp->dfp_count);
++	list_for_each_safe(li, n, &dfp->dfp_work) {
++		list_del(li);
++		dfp->dfp_count--;
++		error = ops->finish_item(tp, li, dfp->dfp_done, &state);
++		if (error == -EAGAIN) {
++			/*
++			 * Caller wants a fresh transaction; put the work item
++			 * back on the list and log a new log intent item to
++			 * replace the old one.  See "Requesting a Fresh
++			 * Transaction while Finishing Deferred Work" above.
++			 */
++			list_add(li, &dfp->dfp_work);
++			dfp->dfp_count++;
++			dfp->dfp_done = NULL;
++			xfs_defer_create_intent(tp, dfp, false);
++		}
++
++		if (error)
++			goto out;
++	}
++
++	/* Done with the dfp, free it. */
++	list_del(&dfp->dfp_list);
++	kmem_free(dfp);
++out:
++	if (ops->finish_cleanup)
++		ops->finish_cleanup(tp, state, error);
++	return error;
++}
++
+ /*
+  * Finish all the pending work.  This involves logging intent items for
+  * any work items that wandered in since the last transaction roll (if
+@@ -372,11 +419,7 @@ xfs_defer_finish_noroll(
+ 	struct xfs_trans		**tp)
  {
--	return xfs_trans_get_bud(tp, intent);
-+	return xfs_trans_get_bud(tp, BUI_ITEM(intent));
+ 	struct xfs_defer_pending	*dfp;
+-	struct list_head		*li;
+-	struct list_head		*n;
+-	void				*state;
+ 	int				error = 0;
+-	const struct xfs_defer_op_type	*ops;
+ 	LIST_HEAD(dop_pending);
+ 
+ 	ASSERT((*tp)->t_flags & XFS_TRANS_PERM_LOG_RES);
+@@ -385,83 +428,30 @@ xfs_defer_finish_noroll(
+ 
+ 	/* Until we run out of pending work to finish... */
+ 	while (!list_empty(&dop_pending) || !list_empty(&(*tp)->t_dfops)) {
+-		/* log intents and pull in intake items */
+ 		xfs_defer_create_intents(*tp);
+ 		list_splice_tail_init(&(*tp)->t_dfops, &dop_pending);
+ 
+-		/*
+-		 * Roll the transaction.
+-		 */
+ 		error = xfs_defer_trans_roll(tp);
+ 		if (error)
+-			goto out;
++			goto out_shutdown;
+ 
+-		/* Log an intent-done item for the first pending item. */
+ 		dfp = list_first_entry(&dop_pending, struct xfs_defer_pending,
+ 				       dfp_list);
+-		ops = defer_op_types[dfp->dfp_type];
+-		trace_xfs_defer_pending_finish((*tp)->t_mountp, dfp);
+-		dfp->dfp_done = ops->create_done(*tp, dfp->dfp_intent,
+-				dfp->dfp_count);
+-
+-		/* Finish the work items. */
+-		state = NULL;
+-		list_for_each_safe(li, n, &dfp->dfp_work) {
+-			list_del(li);
+-			dfp->dfp_count--;
+-			error = ops->finish_item(*tp, li, dfp->dfp_done,
+-					&state);
+-			if (error == -EAGAIN) {
+-				/*
+-				 * Caller wants a fresh transaction;
+-				 * put the work item back on the list
+-				 * and jump out.
+-				 */
+-				list_add(li, &dfp->dfp_work);
+-				dfp->dfp_count++;
+-				break;
+-			} else if (error) {
+-				/*
+-				 * Clean up after ourselves and jump out.
+-				 * xfs_defer_cancel will take care of freeing
+-				 * all these lists and stuff.
+-				 */
+-				if (ops->finish_cleanup)
+-					ops->finish_cleanup(*tp, state, error);
+-				goto out;
+-			}
+-		}
+-		if (error == -EAGAIN) {
+-			/*
+-			 * Caller wants a fresh transaction, so log a new log
+-			 * intent item to replace the old one and roll the
+-			 * transaction.  See "Requesting a Fresh Transaction
+-			 * while Finishing Deferred Work" above.
+-			 */
+-			dfp->dfp_done = NULL;
+-			xfs_defer_create_intent(*tp, dfp, false);
+-		} else {
+-			/* Done with the dfp, free it. */
+-			list_del(&dfp->dfp_list);
+-			kmem_free(dfp);
+-		}
+-
+-		if (ops->finish_cleanup)
+-			ops->finish_cleanup(*tp, state, error);
+-	}
+-
+-out:
+-	if (error) {
+-		xfs_defer_trans_abort(*tp, &dop_pending);
+-		xfs_force_shutdown((*tp)->t_mountp, SHUTDOWN_CORRUPT_INCORE);
+-		trace_xfs_defer_finish_error(*tp, error);
+-		xfs_defer_cancel_list((*tp)->t_mountp, &dop_pending);
+-		xfs_defer_cancel(*tp);
+-		return error;
++		error = xfs_defer_finish_one(*tp, dfp);
++		if (error && error != -EAGAIN)
++			goto out_shutdown;
+ 	}
+ 
+ 	trace_xfs_defer_finish_done(*tp, _RET_IP_);
+ 	return 0;
++
++out_shutdown:
++	xfs_defer_trans_abort(*tp, &dop_pending);
++	xfs_force_shutdown((*tp)->t_mountp, SHUTDOWN_CORRUPT_INCORE);
++	trace_xfs_defer_finish_error(*tp, error);
++	xfs_defer_cancel_list((*tp)->t_mountp, &dop_pending);
++	xfs_defer_cancel(*tp);
++	return error;
  }
  
- /* Process a deferred rmap update. */
-@@ -394,9 +394,9 @@ xfs_bmap_update_finish_item(
- /* Abort all pending BUIs. */
- STATIC void
- xfs_bmap_update_abort_intent(
--	void				*intent)
-+	struct xfs_log_item		*intent)
- {
--	xfs_bui_release(intent);
-+	xfs_bui_release(BUI_ITEM(intent));
- }
- 
- /* Cancel a deferred rmap update. */
-diff --git a/fs/xfs/xfs_extfree_item.c b/fs/xfs/xfs_extfree_item.c
-index 6667344eda9d..a9316fdb3bb4 100644
---- a/fs/xfs/xfs_extfree_item.c
-+++ b/fs/xfs/xfs_extfree_item.c
-@@ -437,7 +437,7 @@ xfs_extent_free_log_item(
- 	extp->ext_len = free->xefi_blockcount;
- }
- 
--STATIC void *
-+static struct xfs_log_item *
- xfs_extent_free_create_intent(
- 	struct xfs_trans		*tp,
- 	struct list_head		*items,
-@@ -455,17 +455,17 @@ xfs_extent_free_create_intent(
- 		list_sort(mp, items, xfs_extent_free_diff_items);
- 	list_for_each_entry(free, items, xefi_list)
- 		xfs_extent_free_log_item(tp, efip, free);
--	return efip;
-+	return &efip->efi_item;
- }
- 
- /* Get an EFD so we can process all the free extents. */
- STATIC void *
- xfs_extent_free_create_done(
- 	struct xfs_trans		*tp,
--	void				*intent,
-+	struct xfs_log_item		*intent,
- 	unsigned int			count)
- {
--	return xfs_trans_get_efd(tp, intent, count);
-+	return xfs_trans_get_efd(tp, EFI_ITEM(intent), count);
- }
- 
- /* Process a free extent. */
-@@ -491,9 +491,9 @@ xfs_extent_free_finish_item(
- /* Abort all pending EFIs. */
- STATIC void
- xfs_extent_free_abort_intent(
--	void				*intent)
-+	struct xfs_log_item		*intent)
- {
--	xfs_efi_release(intent);
-+	xfs_efi_release(EFI_ITEM(intent));
- }
- 
- /* Cancel a free extent. */
-diff --git a/fs/xfs/xfs_refcount_item.c b/fs/xfs/xfs_refcount_item.c
-index 2941b9379843..a8d6864d58e6 100644
---- a/fs/xfs/xfs_refcount_item.c
-+++ b/fs/xfs/xfs_refcount_item.c
-@@ -329,7 +329,7 @@ xfs_refcount_update_log_item(
- 	xfs_trans_set_refcount_flags(ext, refc->ri_type);
- }
- 
--STATIC void *
-+static struct xfs_log_item *
- xfs_refcount_update_create_intent(
- 	struct xfs_trans		*tp,
- 	struct list_head		*items,
-@@ -347,17 +347,17 @@ xfs_refcount_update_create_intent(
- 		list_sort(mp, items, xfs_refcount_update_diff_items);
- 	list_for_each_entry(refc, items, ri_list)
- 		xfs_refcount_update_log_item(tp, cuip, refc);
--	return cuip;
-+	return &cuip->cui_item;
- }
- 
- /* Get an CUD so we can process all the deferred refcount updates. */
- STATIC void *
- xfs_refcount_update_create_done(
- 	struct xfs_trans		*tp,
--	void				*intent,
-+	struct xfs_log_item		*intent,
- 	unsigned int			count)
- {
--	return xfs_trans_get_cud(tp, intent);
-+	return xfs_trans_get_cud(tp, CUI_ITEM(intent));
- }
- 
- /* Process a deferred refcount update. */
-@@ -407,9 +407,9 @@ xfs_refcount_update_finish_cleanup(
- /* Abort all pending CUIs. */
- STATIC void
- xfs_refcount_update_abort_intent(
--	void				*intent)
-+	struct xfs_log_item		*intent)
- {
--	xfs_cui_release(intent);
-+	xfs_cui_release(CUI_ITEM(intent));
- }
- 
- /* Cancel a deferred refcount update. */
-diff --git a/fs/xfs/xfs_rmap_item.c b/fs/xfs/xfs_rmap_item.c
-index 2867bb6d17be..70d58557d779 100644
---- a/fs/xfs/xfs_rmap_item.c
-+++ b/fs/xfs/xfs_rmap_item.c
-@@ -381,7 +381,7 @@ xfs_rmap_update_log_item(
- 			rmap->ri_bmap.br_state);
- }
- 
--STATIC void *
-+static struct xfs_log_item *
- xfs_rmap_update_create_intent(
- 	struct xfs_trans		*tp,
- 	struct list_head		*items,
-@@ -399,17 +399,17 @@ xfs_rmap_update_create_intent(
- 		list_sort(mp, items, xfs_rmap_update_diff_items);
- 	list_for_each_entry(rmap, items, ri_list)
- 		xfs_rmap_update_log_item(tp, ruip, rmap);
--	return ruip;
-+	return &ruip->rui_item;
- }
- 
- /* Get an RUD so we can process all the deferred rmap updates. */
- STATIC void *
- xfs_rmap_update_create_done(
- 	struct xfs_trans		*tp,
--	void				*intent,
-+	struct xfs_log_item		*intent,
- 	unsigned int			count)
- {
--	return xfs_trans_get_rud(tp, intent);
-+	return xfs_trans_get_rud(tp, RUI_ITEM(intent));
- }
- 
- /* Process a deferred rmap update. */
-@@ -451,9 +451,9 @@ xfs_rmap_update_finish_cleanup(
- /* Abort all pending RUIs. */
- STATIC void
- xfs_rmap_update_abort_intent(
--	void				*intent)
-+	struct xfs_log_item	*intent)
- {
--	xfs_rui_release(intent);
-+	xfs_rui_release(RUI_ITEM(intent));
- }
- 
- /* Cancel a deferred rmap update. */
+ int
 -- 
 2.35.1
 
