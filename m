@@ -2,188 +2,123 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D58B86998A1
-	for <lists+stable@lfdr.de>; Thu, 16 Feb 2023 16:19:29 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 93D5E6998A3
+	for <lists+stable@lfdr.de>; Thu, 16 Feb 2023 16:19:34 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230045AbjBPPT2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Feb 2023 10:19:28 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52762 "EHLO
+        id S230102AbjBPPTc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Feb 2023 10:19:32 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52714 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229960AbjBPPT0 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 16 Feb 2023 10:19:26 -0500
-Received: from mail-io1-xd36.google.com (mail-io1-xd36.google.com [IPv6:2607:f8b0:4864:20::d36])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 615B648E1A
-        for <stable@vger.kernel.org>; Thu, 16 Feb 2023 07:19:25 -0800 (PST)
-Received: by mail-io1-xd36.google.com with SMTP id z14so562454iob.10
+        with ESMTP id S229813AbjBPPT1 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 16 Feb 2023 10:19:27 -0500
+Received: from mail-io1-xd32.google.com (mail-io1-xd32.google.com [IPv6:2607:f8b0:4864:20::d32])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 060C52E0CD
+        for <stable@vger.kernel.org>; Thu, 16 Feb 2023 07:19:26 -0800 (PST)
+Received: by mail-io1-xd32.google.com with SMTP id bl9so756362iob.7
         for <stable@vger.kernel.org>; Thu, 16 Feb 2023 07:19:25 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernel-dk.20210112.gappssmtp.com; s=20210112;
+        d=kernel-dk.20210112.gappssmtp.com; s=20210112; t=1676560765;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=yjez0L/LxXn3HnvptBOuF6EryK2CIHbWYpMFu4wG7eM=;
-        b=N5uYZFPyPxmNEk32kZ/oC5b31XMpTEOipncdIs4QhjqlmHXWGnZVMiQ4HCxY8tPwdX
-         ax2rexF/04te8O5vaGAdNXflw3oUSYJAy0QkFgQpxim1JwAba6rbmDkr8mM+SfsQRL5I
-         xGpiEsbxG/eZOEu8hxUQPdLXcbMb6ujkYKS72vVO9gwiFCAwHkHFFVDKnKspE9irqhVE
-         pKex2uBDJgwf6fUKoRvSpcKG1XzWXEoryXDqk3LjVlXp5ESMAm7wU9lDuNFWVm3hoJ2z
-         PJOdFIXcUOr0AsYOoHbfrJj+Ws3OEu/ZOG34Fh6tr9CxvqbnjkxAQbga8OOU5m9c02mU
-         1kiQ==
+        bh=CulG6zK2nW/HgGbhd9JkZzAHs0nEf73drPFn60pMvSQ=;
+        b=JZiE+1WytL5c1cjaZbScE5/h8NtfsKgMUNvCJP/lTXNoLt4FGC189+3uPudVOIAlHy
+         33qmKz8ODkFLVf0KsQ1yjGqN0SjzmS8bI088jlZRr4mL4HAja0oWz+Ap58ZxYbnjHSri
+         5+f+UxVgu8ShJtlSoEkoWktBL1JKDqlYRaUumK0Wpf1IFTial0CwFn9W2ik3m+PVfBKO
+         RcNykP57vmNQbd++6Je+KCeWFwWOOxf15xmudmCEwuRt4pFTCvBGOMKng6Q9pwWe+IAM
+         tRTG2lrI3A+QDr0Ag37IhkXiV7oqLHLUvRSXF1B14j1RS1MpwjUHcL7HRAq7NADZXlfY
+         GjWA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
+        d=1e100.net; s=20210112; t=1676560765;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=yjez0L/LxXn3HnvptBOuF6EryK2CIHbWYpMFu4wG7eM=;
-        b=H7JwnlSEU+20YkMjf90UF+inUZHC50PoWjCJTJJFZRE0/tYfJnu9JiPmJRNS7nBR5g
-         2bbH5+plnVH2gO/aghjQo/aYAqusIgzfbRO74ammRYVeT6wDFvh2UqPU2FtByypI3RGv
-         EJuH6JBKANWmbU2KieEcM3JgZTTrQaPoMNblvVIxrdYW+BnDzUVq2O0pbLpjjQRkVOkK
-         43YJ7av9C7bh1HGUWctXLGdauYg95ouwUC9+e4t+9qHU3WPmUpLCXqfhj2F4opxQifq1
-         ClHDWXT6NaEemlSV4N4ccdUT8aN5pXvXDxLFmhvIKiZw5JkfaoDhrZvNUJWw4CUqfthm
-         nuTQ==
-X-Gm-Message-State: AO0yUKXvqBSOMsKc1aZofoWd7GQ9YV37evWqMg/Zzb0lloAmJ8TpwlAZ
-        AHADnt8QY/v/yz2mVucYJ4C0CA==
-X-Google-Smtp-Source: AK7set8ogXJq2FZihrnyVHUVJVLr/QSbrgdSCf+Lvbix/Imrf3Q8zkt/0s4ShIsSgyj1F1GULrCWqQ==
-X-Received: by 2002:a6b:b2d1:0:b0:744:5aff:2ea9 with SMTP id b200-20020a6bb2d1000000b007445aff2ea9mr1461325iof.2.1676560764606;
-        Thu, 16 Feb 2023 07:19:24 -0800 (PST)
+        bh=CulG6zK2nW/HgGbhd9JkZzAHs0nEf73drPFn60pMvSQ=;
+        b=DPCAwfdlN9e/otJvwoUPAj3rruUkK7xOWRop06ERupbv+og+g5Ccs9CNGgaDMsFNdu
+         WqGR4PF0/MoFIVZFMLtLk1CByM4oSqdgbdp8tq6t+FdeJFah14ZaECzlmSTYl9/7SJ0i
+         y4EAWvs+oZ/yTDwtDMyz9HCiMTPQ8BdefX2RwV3VBp9fhDQ9qeXOz2Qdr6WIyyYU5zU0
+         bcsgJiwyvblXD6cW14BJfv//1Ls+VGvi55MHrmukYd/kavHMDKagNUXGm4KKxPrXVuhP
+         GRLGZKEJzK7kg18Ni0xIk33lw2ChrFNJW9x6Gz9SfceDLXdLivMR3xuDV01uWzDTHiJk
+         cTOQ==
+X-Gm-Message-State: AO0yUKVnqn1tCyuakUTKnWBa+Iebdszp2HZJi5/QVH7jOCRRM+jH/m58
+        HhyJpGOTn0FuMe1vfoy12sZPmg==
+X-Google-Smtp-Source: AK7set9ajQ9uDKbPcAl17QNiFke5xKDK+BOgSt8RK+k4lTC+8vd0IFOxq2KqydCY9etadKicXQYSMA==
+X-Received: by 2002:a05:6602:154b:b0:715:f031:a7f5 with SMTP id h11-20020a056602154b00b00715f031a7f5mr4894275iow.1.1676560765660;
+        Thu, 16 Feb 2023 07:19:25 -0800 (PST)
 Received: from localhost.localdomain ([96.43.243.2])
-        by smtp.gmail.com with ESMTPSA id p10-20020a0566022b0a00b006e2f2369d3csm561600iov.50.2023.02.16.07.19.23
+        by smtp.gmail.com with ESMTPSA id p10-20020a0566022b0a00b006e2f2369d3csm561600iov.50.2023.02.16.07.19.24
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 16 Feb 2023 07:19:24 -0800 (PST)
+        Thu, 16 Feb 2023 07:19:25 -0800 (PST)
 From:   Jens Axboe <axboe@kernel.dk>
 To:     linux-block@vger.kernel.org
 Cc:     hch@infradead.org, Jens Axboe <axboe@kernel.dk>,
         stable@vger.kernel.org
-Subject: [PATCH 2/4] brd: check for REQ_NOWAIT and set correct page allocation mask
-Date:   Thu, 16 Feb 2023 08:19:16 -0700
-Message-Id: <20230216151918.319585-3-axboe@kernel.dk>
+Subject: [PATCH 3/4] brd: only preload radix tree if we're using a blocking gfp mask
+Date:   Thu, 16 Feb 2023 08:19:17 -0700
+Message-Id: <20230216151918.319585-4-axboe@kernel.dk>
 X-Mailer: git-send-email 2.39.1
 In-Reply-To: <20230216151918.319585-1-axboe@kernel.dk>
 References: <20230216151918.319585-1-axboe@kernel.dk>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 X-Spam-Status: No, score=-1.9 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS
-        autolearn=unavailable autolearn_force=no version=3.4.6
+        DKIM_VALID,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS autolearn=ham
+        autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-If REQ_NOWAIT is set, then do a non-blocking allocation if the operation
-is a write and we need to insert a new page. Currently REQ_NOWAIT cannot
-be set as the queue isn't marked as supporting nowait, this change is in
-preparation for allowing that.
+radix_tree_preload() warns on attempting to call it with an allocation
+mask that doesn't allow blocking. While that warning could arguably
+be removed, we need to handle radix insertion failures anyway as they
+are more likely if we cannot block to get memory.
+
+Remove legacy BUG_ON()'s and turn them into proper errors instead, one
+for the allocation failure and one for finding a page that doesn't
+match the correct index.
 
 Cc: stable@vger.kernel.org # 5.10+
 Signed-off-by: Jens Axboe <axboe@kernel.dk>
 ---
- drivers/block/brd.c | 39 ++++++++++++++++++++++-----------------
- 1 file changed, 22 insertions(+), 17 deletions(-)
+ drivers/block/brd.c | 9 ++++++---
+ 1 file changed, 6 insertions(+), 3 deletions(-)
 
 diff --git a/drivers/block/brd.c b/drivers/block/brd.c
-index 15a148d5aad9..1ddada0cdaca 100644
+index 1ddada0cdaca..6019ef23344f 100644
 --- a/drivers/block/brd.c
 +++ b/drivers/block/brd.c
-@@ -80,26 +80,20 @@ static struct page *brd_lookup_page(struct brd_device *brd, sector_t sector)
- /*
-  * Insert a new page for a given sector, if one does not already exist.
-  */
--static int brd_insert_page(struct brd_device *brd, sector_t sector)
-+static int brd_insert_page(struct brd_device *brd, sector_t sector, gfp_t gfp)
+@@ -84,6 +84,7 @@ static int brd_insert_page(struct brd_device *brd, sector_t sector, gfp_t gfp)
  {
  	pgoff_t idx;
  	struct page *page;
--	gfp_t gfp_flags;
++	int ret = 0;
  
  	page = brd_lookup_page(brd, sector);
  	if (page)
- 		return 0;
- 
--	/*
--	 * Must use NOIO because we don't want to recurse back into the
--	 * block or filesystem layers from page reclaim.
--	 */
--	gfp_flags = GFP_NOIO | __GFP_ZERO | __GFP_HIGHMEM;
--	page = alloc_page(gfp_flags);
-+	page = alloc_page(gfp | __GFP_ZERO | __GFP_HIGHMEM);
+@@ -93,7 +94,7 @@ static int brd_insert_page(struct brd_device *brd, sector_t sector, gfp_t gfp)
  	if (!page)
  		return -ENOMEM;
  
--	if (radix_tree_preload(GFP_NOIO)) {
-+	if (radix_tree_preload(gfp)) {
+-	if (radix_tree_preload(gfp)) {
++	if (gfpflags_allow_blocking(gfp) && radix_tree_preload(gfp)) {
  		__free_page(page);
  		return -ENOMEM;
  	}
-@@ -167,19 +161,20 @@ static void brd_free_pages(struct brd_device *brd)
- /*
-  * copy_to_brd_setup must be called before copy_to_brd. It may sleep.
-  */
--static int copy_to_brd_setup(struct brd_device *brd, sector_t sector, size_t n)
-+static int copy_to_brd_setup(struct brd_device *brd, sector_t sector, size_t n,
-+			     gfp_t gfp)
- {
- 	unsigned int offset = (sector & (PAGE_SECTORS-1)) << SECTOR_SHIFT;
- 	size_t copy;
- 	int ret;
- 
- 	copy = min_t(size_t, n, PAGE_SIZE - offset);
--	ret = brd_insert_page(brd, sector);
-+	ret = brd_insert_page(brd, sector, gfp);
- 	if (ret)
- 		return ret;
- 	if (copy < n) {
- 		sector += copy >> SECTOR_SHIFT;
--		ret = brd_insert_page(brd, sector);
-+		ret = brd_insert_page(brd, sector, gfp);
- 	}
- 	return ret;
- }
-@@ -254,20 +249,26 @@ static void copy_from_brd(void *dst, struct brd_device *brd,
-  * Process a single bvec of a bio.
-  */
- static int brd_do_bvec(struct brd_device *brd, struct page *page,
--			unsigned int len, unsigned int off, enum req_op op,
-+			unsigned int len, unsigned int off, blk_opf_t opf,
- 			sector_t sector)
- {
- 	void *mem;
- 	int err = 0;
- 
--	if (op_is_write(op)) {
--		err = copy_to_brd_setup(brd, sector, len);
-+	if (op_is_write(opf)) {
-+		/*
-+		 * Must use NOIO because we don't want to recurse back into the
-+		 * block or filesystem layers from page reclaim.
-+		 */
-+		gfp_t gfp = opf & REQ_NOWAIT ? GFP_NOWAIT : GFP_NOIO;
-+
-+		err = copy_to_brd_setup(brd, sector, len, gfp);
- 		if (err)
- 			goto out;
- 	}
- 
- 	mem = kmap_atomic(page);
--	if (!op_is_write(op)) {
-+	if (!op_is_write(opf)) {
- 		copy_from_brd(mem + off, brd, sector, len);
- 		flush_dcache_page(page);
+@@ -104,8 +105,10 @@ static int brd_insert_page(struct brd_device *brd, sector_t sector, gfp_t gfp)
+ 	if (radix_tree_insert(&brd->brd_pages, idx, page)) {
+ 		__free_page(page);
+ 		page = radix_tree_lookup(&brd->brd_pages, idx);
+-		BUG_ON(!page);
+-		BUG_ON(page->index != idx);
++		if (!page)
++			ret = -ENOMEM;
++		else if (page->index != idx)
++			ret = -EIO;
  	} else {
-@@ -296,8 +297,12 @@ static void brd_submit_bio(struct bio *bio)
- 				(len & (SECTOR_SIZE - 1)));
- 
- 		err = brd_do_bvec(brd, bvec.bv_page, len, bvec.bv_offset,
--				  bio_op(bio), sector);
-+				  bio->bi_opf, sector);
- 		if (err) {
-+			if (err == -ENOMEM && bio->bi_opf & REQ_NOWAIT) {
-+				bio_wouldblock_error(bio);
-+				return;
-+			}
- 			bio_io_error(bio);
- 			return;
- 		}
+ 		brd->brd_nr_pages++;
+ 	}
 -- 
 2.39.1
 
