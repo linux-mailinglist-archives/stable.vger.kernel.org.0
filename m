@@ -2,53 +2,64 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 9A2A5699D11
-	for <lists+stable@lfdr.de>; Thu, 16 Feb 2023 20:40:28 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B7591699F20
+	for <lists+stable@lfdr.de>; Thu, 16 Feb 2023 22:47:02 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229759AbjBPTk0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Feb 2023 14:40:26 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47516 "EHLO
+        id S229493AbjBPVrB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Feb 2023 16:47:01 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34182 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229436AbjBPTkZ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 16 Feb 2023 14:40:25 -0500
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 350E1528B0
-        for <stable@vger.kernel.org>; Thu, 16 Feb 2023 11:39:37 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1676576377;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:
-         content-transfer-encoding:content-transfer-encoding;
-        bh=30n5QNLnEMojF3+SruAUoKcBh2OcSQLbIo/xki8lNz8=;
-        b=HSySO+SSujSt6vGI4aRkxtDSuK0ldPFX2ojNk2r+gdfte4lCjaKPGx2MKFMWLD+fT5IvUR
-        h0rCa4Fp8Ud+l7ZkXZ3GX/9lVJEvB+iuwSJ2X3S4LGXYJGEvKDY+b1/sCIt94ZrPlOlJcT
-        eRFKg7+Iei+vBkruqieSzIzKRHHIyWU=
-Received: from mimecast-mx02.redhat.com (mx3-rdu2.redhat.com
- [66.187.233.73]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- us-mta-153-wgEKaTZWPlyFb9G73VC6xA-1; Thu, 16 Feb 2023 14:39:35 -0500
-X-MC-Unique: wgEKaTZWPlyFb9G73VC6xA-1
-Received: from smtp.corp.redhat.com (int-mx05.intmail.prod.int.rdu2.redhat.com [10.11.54.5])
-        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
-        (No client certificate requested)
-        by mimecast-mx02.redhat.com (Postfix) with ESMTPS id 2AD68385F364
-        for <stable@vger.kernel.org>; Thu, 16 Feb 2023 19:39:35 +0000 (UTC)
-Received: from fs-i40c-03.fs.lab.eng.bos.redhat.com (fs-i40c-03.fs.lab.eng.bos.redhat.com [10.16.224.23])
-        by smtp.corp.redhat.com (Postfix) with ESMTP id F2AC535453;
-        Thu, 16 Feb 2023 19:39:34 +0000 (UTC)
-From:   Alexander Aring <aahringo@redhat.com>
-To:     teigland@redhat.com
-Cc:     cluster-devel@redhat.com, aahringo@redhat.com,
+        with ESMTP id S229741AbjBPVq5 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 16 Feb 2023 16:46:57 -0500
+Received: from mail-yb1-xb49.google.com (mail-yb1-xb49.google.com [IPv6:2607:f8b0:4864:20::b49])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DA1CD3B3E0
+        for <stable@vger.kernel.org>; Thu, 16 Feb 2023 13:46:55 -0800 (PST)
+Received: by mail-yb1-xb49.google.com with SMTP id a9-20020a25af09000000b0083fa6f15c2fso3348759ybh.16
+        for <stable@vger.kernel.org>; Thu, 16 Feb 2023 13:46:55 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=google.com; s=20210112;
+        h=cc:to:from:subject:message-id:references:mime-version:in-reply-to
+         :date:from:to:cc:subject:date:message-id:reply-to;
+        bh=bAVGkn1V34UfXYCduywOhSCUf/aOV+M7/FaubotBnKo=;
+        b=JZAUr2Tg5NuD448WHvjh+8YkRdoIacbUZPBD3nVNUVvSbitNVpesxnEV3FneQVL4u0
+         +/hzv8QubrW6Hrxc4RBOd2e2k0+J8W8SXc9vMH2v2W4y/FuH+7TG3P9n08NUOFoubJR2
+         /v6DSmmAQgl7dEA7IPz0hafu/rk7H7agMvCqxGa7limWbLJ1h3wl0tlOrGcjgOsl0qUI
+         R6HZV/Hc46HTkG5A3uBRf6crZKCmrj8KbJMLGHbskVZ0GLsirSGfUP/euIiv0F1GUR8b
+         7AKyDX/mp4A5SMT1pB0DSkK8vdgudro77O7VOPj6eMC4Akq1jKytnC17StBzri8QorxF
+         k9WA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=cc:to:from:subject:message-id:references:mime-version:in-reply-to
+         :date:x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
+        bh=bAVGkn1V34UfXYCduywOhSCUf/aOV+M7/FaubotBnKo=;
+        b=2XSj5L+tZUIzbk1wqwqLdhQ+USlTyNij+8Wt/wliXNfZhVyfxQmpbvepquqxzyLwG8
+         FbN44hPzb595oW1ZaNlB++c40Hx6PVf0C2qI8ErfkkkaG3lYrgYsbOGAVUgFMXJkyp6X
+         n+JYmTHIjay52S0/JlvIM7TeNQmpxc1mEMe5fmBOvVEFjhaa5SNmDdyoOODvKCMJ+Itb
+         AIYVzECzqIgi49YKEZD8NNxveqA75n1weoXv9QwtI88swC6VfWyoriXT2iWKMyPWtMMp
+         4TGRXPkHqKF0Ur8NwwzLXm/vBx936aIA5S343hDGOVQLmUiQB/wV1Z6CE3aEsWJmExS5
+         OMwA==
+X-Gm-Message-State: AO0yUKVsNUkHaIg+qhHDuvqSDforlRgwvwxvWbRMaeL564pudnp1/mWe
+        yU5+4y5xSwbot/T3PaJQO1gite/MYqMqlQ==
+X-Google-Smtp-Source: AK7set+QV/wWuwbl6qV/GeSY5iFq0uelWYs66FJfk18i4lZzoABSqGvHLj83tbXBq2ewq0nMZjZxXwGJh+CP4w==
+X-Received: from aaltinayspec.c.googlers.com ([fda3:e722:ac3:cc00:7f:e700:c0a8:7fcc])
+ (user=aaltinay job=sendgmr) by 2002:a05:690c:b83:b0:52e:b74b:1b93 with SMTP
+ id ck3-20020a05690c0b8300b0052eb74b1b93mr8ywb.0.1676584014672; Thu, 16 Feb
+ 2023 13:46:54 -0800 (PST)
+Date:   Thu, 16 Feb 2023 21:46:51 +0000
+In-Reply-To: <20230216214651.3514675-1-aaltinay@google.com>
+Mime-Version: 1.0
+References: <20230216214651.3514675-1-aaltinay@google.com>
+X-Mailer: git-send-email 2.39.2.637.g21b0678d19-goog
+Message-ID: <20230216214651.3514675-2-aaltinay@google.com>
+Subject: [PATCH 1/1] apparmor: cache buffers on percpu list if there is lock contention
+From:   Anil Altinay <aaltinay@google.com>
+To:     john.johansen@canonical.com, linux-security-module@vger.kernel.org
+Cc:     aaltinay@google.com, Sergey Senozhatsky <senozhatsky@chromium.org>,
         stable@vger.kernel.org
-Subject: [PATCH dlm/next] fs: dlm: fix DLM_IFL_CB_PENDING gets overwritten
-Date:   Thu, 16 Feb 2023 14:39:25 -0500
-Message-Id: <20230216193925.2264858-1-aahringo@redhat.com>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-Scanned-By: MIMEDefang 3.1 on 10.11.54.5
-X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+Content-Type: text/plain; charset="UTF-8"
+X-Spam-Status: No, score=-9.6 required=5.0 tests=BAYES_00,DKIMWL_WL_MED,
         DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_NONE,
-        RCVD_IN_MSPIKE_H2,SPF_HELO_NONE,SPF_NONE autolearn=ham
+        SPF_HELO_NONE,SPF_PASS,USER_IN_DEF_DKIM_WL autolearn=ham
         autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -56,111 +67,159 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-This patch introduce a new internal flag per lkb value to handle
-internal flags which are handled not on wire. The current lkb internal
-flags stored as lkb->lkb_flags are split in upper and lower bits, the
-lower bits are used to share internal flags over wire for other cluster
-wide lkb copies on other nodes.
+On a heavily loaded machine there can be lock contention on the
+global buffers lock. Add a percpu list to cache buffers on when
+lock contention is encountered.
 
-In commit 61bed0baa4db ("fs: dlm: use a non-static queue for callbacks")
-we introduced a new internal flag for pending callbacks for the dlm
-callback queue. This flag is protected by the lkb->lkb_cb_lock lock.
-This patch overlooked that on dlm receive path and the mentioned upper
-and lower bits, that dlm will read the flags, mask it and write it
-back. As example receive_flags() in fs/dlm/lock.c. This flag
-manipulation is not done atomically and is not protected by
-lkb->lkb_cb_lock. This has unknown side effects of the current callback
-handling.
+When allocating buffers attempt to use cached buffers first,
+before taking the global buffers lock. When freeing buffers
+try to put them back to the global list but if contention is
+encountered, put the buffer on the percpu list.
 
-In future we should move to set/clear/test bit functionality and avoid
-read, mask and writing back flag values. In later patches we will move
-the upper parts to the new introduced internal lkb flags which are not
-shared between other cluster nodes to the new non shared internal flag
-field to avoid similar issues.
+The length of time a buffer is held on the percpu list is dynamically
+adjusted based on lock contention.  The amount of hold time is rapidly
+increased and slow ramped down.
 
+Fixes: df323337e507 ("apparmor: Use a memory pool instead per-CPU caches")
+Link: https://lore.kernel.org/lkml/cfd5cc6f-5943-2e06-1dbe-f4b4ad5c1fa1@canonical.com/
+Signed-off-by: John Johansen <john.johansen@canonical.com>
+Reported-by: Sergey Senozhatsky <senozhatsky@chromium.org>
+Signed-off-by: Anil Altinay <aaltinay@google.com>
 Cc: stable@vger.kernel.org
-Fixes: 61bed0baa4db ("fs: dlm: use a non-static queue for callbacks")
-Reported-by: Bob Peterson <rpeterso@redhat.com>
-Signed-off-by: Alexander Aring <aahringo@redhat.com>
 ---
- fs/dlm/ast.c          | 9 ++++-----
- fs/dlm/dlm_internal.h | 7 ++++++-
- fs/dlm/user.c         | 2 +-
- 3 files changed, 11 insertions(+), 7 deletions(-)
+ security/apparmor/lsm.c | 73 ++++++++++++++++++++++++++++++++++++++---
+ 1 file changed, 68 insertions(+), 5 deletions(-)
 
-diff --git a/fs/dlm/ast.c b/fs/dlm/ast.c
-index 26fef9945cc9..7daffdd99f99 100644
---- a/fs/dlm/ast.c
-+++ b/fs/dlm/ast.c
-@@ -45,7 +45,7 @@ void dlm_purge_lkb_callbacks(struct dlm_lkb *lkb)
- 		kref_put(&cb->ref, dlm_release_callback);
- 	}
+diff --git a/security/apparmor/lsm.c b/security/apparmor/lsm.c
+index c6728a629437..56b22e2def4c 100644
+--- a/security/apparmor/lsm.c
++++ b/security/apparmor/lsm.c
+@@ -49,12 +49,19 @@ union aa_buffer {
+ 	char buffer[1];
+ };
  
--	lkb->lkb_flags &= ~DLM_IFL_CB_PENDING;
-+	clear_bit(DLM_IFLNS_CB_PENDING, &lkb->lkb_insflags);
- 
- 	/* invalidate */
- 	dlm_callback_set_last_ptr(&lkb->lkb_last_cast, NULL);
-@@ -103,10 +103,9 @@ int dlm_enqueue_lkb_callback(struct dlm_lkb *lkb, uint32_t flags, int mode,
- 	cb->sb_status = status;
- 	cb->sb_flags = (sbflags & 0x000000FF);
- 	kref_init(&cb->ref);
--	if (!(lkb->lkb_flags & DLM_IFL_CB_PENDING)) {
--		lkb->lkb_flags |= DLM_IFL_CB_PENDING;
-+	if (!test_and_set_bit(DLM_IFLNS_CB_PENDING, &lkb->lkb_insflags))
- 		rv = DLM_ENQUEUE_CALLBACK_NEED_SCHED;
--	}
++struct aa_local_cache {
++	unsigned int contention;
++	unsigned int hold;
++	struct list_head head;
++};
 +
- 	list_add_tail(&cb->list, &lkb->lkb_callbacks);
+ #define RESERVE_COUNT 2
+ static int reserve_count = RESERVE_COUNT;
+ static int buffer_count;
  
- 	if (flags & DLM_CB_CAST)
-@@ -209,7 +208,7 @@ void dlm_callback_work(struct work_struct *work)
- 		spin_lock(&lkb->lkb_cb_lock);
- 		rv = dlm_dequeue_lkb_callback(lkb, &cb);
- 		if (rv == DLM_DEQUEUE_CALLBACK_EMPTY) {
--			lkb->lkb_flags &= ~DLM_IFL_CB_PENDING;
-+			clear_bit(DLM_IFLNS_CB_PENDING, &lkb->lkb_insflags);
- 			spin_unlock(&lkb->lkb_cb_lock);
- 			break;
+ static LIST_HEAD(aa_global_buffers);
+ static DEFINE_SPINLOCK(aa_buffers_lock);
++static DEFINE_PER_CPU(struct aa_local_cache, aa_local_buffers);
+ 
+ /*
+  * LSM hook functions
+@@ -1634,14 +1641,43 @@ static int param_set_mode(const char *val, const struct kernel_param *kp)
+ 	return 0;
+ }
+ 
++static void update_contention(struct aa_local_cache *cache)
++{
++	cache->contention += 3;
++	if (cache->contention > 9)
++		cache->contention = 9;
++	cache->hold += 1 << cache->contention;		/* 8, 64, 512 */
++}
++
+ char *aa_get_buffer(bool in_atomic)
+ {
+ 	union aa_buffer *aa_buf;
++	struct aa_local_cache *cache;
+ 	bool try_again = true;
+ 	gfp_t flags = (GFP_KERNEL | __GFP_RETRY_MAYFAIL | __GFP_NOWARN);
++	/* use per cpu cached buffers first */
++	cache = get_cpu_ptr(&aa_local_buffers);
++	if (!list_empty(&cache->head)) {
++		aa_buf = list_first_entry(&cache->head, union aa_buffer, list);
++		list_del(&aa_buf->list);
++		cache->hold--;
++		put_cpu_ptr(&aa_local_buffers);
++		return &aa_buf->buffer[0];
++	}
++	put_cpu_ptr(&aa_local_buffers);
+ 
++	if (!spin_trylock(&aa_buffers_lock)) {
++		cache = get_cpu_ptr(&aa_local_buffers);
++		update_contention(cache);
++		put_cpu_ptr(&aa_local_buffers);
++		spin_lock(&aa_buffers_lock);
++	} else {
++		cache = get_cpu_ptr(&aa_local_buffers);
++		if (cache->contention)
++			cache->contention--;
++		put_cpu_ptr(&aa_local_buffers);
++	}
+ retry:
+-	spin_lock(&aa_buffers_lock);
+ 	if (buffer_count > reserve_count ||
+ 	    (in_atomic && !list_empty(&aa_global_buffers))) {
+ 		aa_buf = list_first_entry(&aa_global_buffers, union aa_buffer,
+@@ -1667,6 +1703,7 @@ char *aa_get_buffer(bool in_atomic)
+ 	if (!aa_buf) {
+ 		if (try_again) {
+ 			try_again = false;
++			spin_lock(&aa_buffers_lock);
+ 			goto retry;
  		}
-diff --git a/fs/dlm/dlm_internal.h b/fs/dlm/dlm_internal.h
-index ab1a55337a6e..b967b4d7d55d 100644
---- a/fs/dlm/dlm_internal.h
-+++ b/fs/dlm/dlm_internal.h
-@@ -211,7 +211,11 @@ struct dlm_args {
- #endif
- #define DLM_IFL_DEADLOCK_CANCEL	0x01000000
- #define DLM_IFL_STUB_MS		0x02000000 /* magic number for m_flags */
--#define DLM_IFL_CB_PENDING	0x04000000
-+
-+/* lkb_insflags */
-+
-+#define DLM_IFLNS_CB_PENDING	0
-+
- /* least significant 2 bytes are message changed, they are full transmitted
-  * but at receive side only the 2 bytes LSB will be set.
-  *
-@@ -246,6 +250,7 @@ struct dlm_lkb {
- 	uint32_t		lkb_exflags;	/* external flags from caller */
- 	uint32_t		lkb_sbflags;	/* lksb flags */
- 	uint32_t		lkb_flags;	/* internal flags */
-+	unsigned long		lkb_insflags;	/* internal non shared flags */
- 	uint32_t		lkb_lvbseq;	/* lvb sequence number */
+ 		pr_warn_once("AppArmor: Failed to allocate a memory buffer.\n");
+@@ -1678,15 +1715,32 @@ char *aa_get_buffer(bool in_atomic)
+ void aa_put_buffer(char *buf)
+ {
+ 	union aa_buffer *aa_buf;
++	struct aa_local_cache *cache;
  
- 	int8_t			lkb_status;     /* granted, waiting, convert */
-diff --git a/fs/dlm/user.c b/fs/dlm/user.c
-index 35129505ddda..98488a1b702d 100644
---- a/fs/dlm/user.c
-+++ b/fs/dlm/user.c
-@@ -884,7 +884,7 @@ static ssize_t device_read(struct file *file, char __user *buf, size_t count,
- 		goto try_another;
- 	case DLM_DEQUEUE_CALLBACK_LAST:
- 		list_del_init(&lkb->lkb_cb_list);
--		lkb->lkb_flags &= ~DLM_IFL_CB_PENDING;
-+		clear_bit(DLM_IFLNS_CB_PENDING, &lkb->lkb_insflags);
- 		break;
- 	case DLM_DEQUEUE_CALLBACK_SUCCESS:
- 		break;
+ 	if (!buf)
+ 		return;
+ 	aa_buf = container_of(buf, union aa_buffer, buffer[0]);
+ 
+-	spin_lock(&aa_buffers_lock);
+-	list_add(&aa_buf->list, &aa_global_buffers);
+-	buffer_count++;
+-	spin_unlock(&aa_buffers_lock);
++	cache = get_cpu_ptr(&aa_local_buffers);
++	if (!cache->hold) {
++		put_cpu_ptr(&aa_local_buffers);
++		if (spin_trylock(&aa_buffers_lock)) {
++			list_add(&aa_buf->list, &aa_global_buffers);
++			buffer_count++;
++			spin_unlock(&aa_buffers_lock);
++			cache = get_cpu_ptr(&aa_local_buffers);
++			if (cache->contention)
++				cache->contention--;
++			put_cpu_ptr(&aa_local_buffers);
++			return;
++		}
++		cache = get_cpu_ptr(&aa_local_buffers);
++		update_contention(cache);
++	}
++
++	/* cache in percpu list */
++	list_add(&aa_buf->list, &cache->head);
++	put_cpu_ptr(&aa_local_buffers);
+ }
+ 
+ /*
+@@ -1728,6 +1782,15 @@ static int __init alloc_buffers(void)
+ 	union aa_buffer *aa_buf;
+ 	int i, num;
+ 
++	/*
++	 * per cpu set of cached allocated buffers used to help reduce
++	 * lock contention
++	 */
++	for_each_possible_cpu(i) {
++		per_cpu(aa_local_buffers, i).contention = 0;
++		per_cpu(aa_local_buffers, i).hold = 0;
++		INIT_LIST_HEAD(&per_cpu(aa_local_buffers, i).head);
++	}
+ 	/*
+ 	 * A function may require two buffers at once. Usually the buffers are
+ 	 * used for a short period of time and are shared. On UP kernel buffers
 -- 
-2.31.1
+2.39.2.637.g21b0678d19-goog
 
