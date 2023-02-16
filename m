@@ -2,81 +2,100 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 47D1D698CA9
-	for <lists+stable@lfdr.de>; Thu, 16 Feb 2023 07:11:11 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4BD53698D79
+	for <lists+stable@lfdr.de>; Thu, 16 Feb 2023 07:58:48 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229478AbjBPGLK (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Feb 2023 01:11:10 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58088 "EHLO
+        id S229780AbjBPG6r (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Feb 2023 01:58:47 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57096 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229695AbjBPGLJ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 16 Feb 2023 01:11:09 -0500
-Received: from mail-yw1-x1143.google.com (mail-yw1-x1143.google.com [IPv6:2607:f8b0:4864:20::1143])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4C3821A48A
-        for <stable@vger.kernel.org>; Wed, 15 Feb 2023 22:11:07 -0800 (PST)
-Received: by mail-yw1-x1143.google.com with SMTP id 00721157ae682-501c3a414acso11219477b3.7
-        for <stable@vger.kernel.org>; Wed, 15 Feb 2023 22:11:07 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112;
-        h=content-transfer-encoding:to:subject:message-id:date:from:sender
-         :mime-version:from:to:cc:subject:date:message-id:reply-to;
-        bh=3GzLoKe2RbYpjca6vWcbTj2qTGQrrVF6Wq34+VFvzcw=;
-        b=gLR8ILZ5T4GIGWzbNtPsy9Hds0pa8A5KKsoJzaXZurUtZK3TUl7eT+g4ivW6BKA4TJ
-         sQqJqdIw4cqCdZf26POccndG32txj6jWbuOSXSYj5hJjdOlPOoRQ/LbdvjlnHGm4o45p
-         2gYMofgNm7ZiyjRTPURkMRNyc8aYjh/fvK89cRag8ICvKhmHEZl/Y4/74edcijKcI8Rw
-         1eCAkP6FzDS2d0C9xHZV4wjBqRShr1U22aAmkRAF0x/p4lkgGHWcl87EvO4eOl2YBS9n
-         9/gvwAslcQAib9rieGaMpswMpYsSiISWcDI8wX0U8Sl12d/GPist60J3lx5utBs/9kLJ
-         sMcg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=content-transfer-encoding:to:subject:message-id:date:from:sender
-         :mime-version:x-gm-message-state:from:to:cc:subject:date:message-id
-         :reply-to;
-        bh=3GzLoKe2RbYpjca6vWcbTj2qTGQrrVF6Wq34+VFvzcw=;
-        b=MkyMIiVBbQHoq1a1rvQNuiNgeIPz00OBSpelSckxVoQtPCi6hAv9/RNPOYDEhINLF6
-         e8AfKvvtcrlYkq/AAfFAxxV5IqiuBaiw455JJjPHtVYRer3xTjumaiYkIafFzthttiZl
-         Tbo1sLPfLIDU/ttmVct3YC4pJ4me4Dv1WoU92maZqrTCxMQlkWNfyBLZUlqnk8pamnO6
-         vTNMd2Ix7fr+G9+oB+GnF5oo0JmHspXXzqjYsplWDny4deJ0Vloiq1bNhBqTwbYONhHx
-         Zyu/fYT79tFhbIQcBH6jHOReTKGIxexGAVnyqTCVH5130QmUGBm12l6HM0bk+E3Q59Of
-         3IcQ==
-X-Gm-Message-State: AO0yUKUdxqEPNuGC82jRSQurQN2jkRAq9btXG6PF2X4YapV1uyJnW6iz
-        moN3th3aordzpvqvxL36iXBHFblMrI+9mNnqFDo=
-X-Google-Smtp-Source: AK7set+jmSTlVTeyYgfsQCwf/N2nng8m5quvj37xPRqblcTn9nkxAHY07Q+vb/+0s9Jcbdv62yH5AIdpHkjUoODWzNk=
-X-Received: by 2002:a81:9e03:0:b0:52e:e396:3ad with SMTP id
- m3-20020a819e03000000b0052ee39603admr702614ywj.171.1676527866568; Wed, 15 Feb
- 2023 22:11:06 -0800 (PST)
+        with ESMTP id S229782AbjBPG6m (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 16 Feb 2023 01:58:42 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4342911165;
+        Wed, 15 Feb 2023 22:58:41 -0800 (PST)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by ams.source.kernel.org (Postfix) with ESMTPS id D390DB825BC;
+        Thu, 16 Feb 2023 06:58:39 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1E06AC433D2;
+        Thu, 16 Feb 2023 06:58:37 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
+        s=korg; t=1676530718;
+        bh=2FqkwkZjiBPavFp1l2RKoVJVfxS4Y70fRW3GIwt8mFQ=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=N+7mz4VFp532ugW2m0Vzn0nQcLmlcW8gUWBN/P9xeIvLzkoI+ysmtlfu7GlKRYwFb
+         tNCJzL28MOHGAkSaQULBmpxdq9uizMkZsM6u797NC4DQt8kKwD/XlWL6B+J/WdTNVf
+         cubS79kYC5swxO7uZ2YihEDpvHi7XydZZOP4+Y1U=
+Date:   Thu, 16 Feb 2023 07:58:35 +0100
+From:   Greg KH <gregkh@linuxfoundation.org>
+To:     Saeed Mirzamohammadi <saeed.mirzamohammadi@oracle.com>
+Cc:     "# v4 . 16+" <stable@vger.kernel.org>,
+        Xiu Jianfeng <xiujianfeng@huawei.com>,
+        Herbert Xu <herbert@gondor.apana.org.au>,
+        Dan Williams <dan.j.williams@intel.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        "linux-crypto@vger.kernel.org" <linux-crypto@vger.kernel.org>,
+        "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH stable v5.15.y 1/1] crypto: add __init/__exit annotations
+ to init/exit funcs
+Message-ID: <Y+3UGwHNMbTQq7bF@kroah.com>
+References: <20230214195300.2432989-1-saeed.mirzamohammadi@oracle.com>
+ <20230214195300.2432989-2-saeed.mirzamohammadi@oracle.com>
+ <Y+yBxXNjBLuonPKP@kroah.com>
+ <281CF1A3-C16D-4598-B741-B1128DA97B5B@oracle.com>
 MIME-Version: 1.0
-Sender: sessouaicha9@gmail.com
-Received: by 2002:a05:7000:2701:b0:46b:c128:722f with HTTP; Wed, 15 Feb 2023
- 22:11:06 -0800 (PST)
-From:   Miss Reacheal <Reacheal4u@gmail.com>
-Date:   Thu, 16 Feb 2023 06:11:06 +0000
-X-Google-Sender-Auth: QY2S5L7ro60q-hNuUpnxZO2LMzE
-Message-ID: <CAOcv6REZuG6+EmWitiS4AnX6Yj7tqGwcaMzcC25=K=S6u4bdwg@mail.gmail.com>
-Subject: RE: Hello Dear
-To:     undisclosed-recipients:;
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
-X-Spam-Status: No, score=-1.8 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_ENVFROM_END_DIGIT,
-        FREEMAIL_FROM,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS,
-        T_HK_NAME_FM_MR_MRS autolearn=ham autolearn_force=no version=3.4.6
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <281CF1A3-C16D-4598-B741-B1128DA97B5B@oracle.com>
+X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
+        SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Cze=C5=9B=C4=87,
+On Wed, Feb 15, 2023 at 11:10:14PM +0000, Saeed Mirzamohammadi wrote:
+> Hi,
+> 
+> > On Feb 14, 2023, at 10:55 PM, Greg KH <gregkh@linuxfoundation.org> wrote:
+> > 
+> > On Tue, Feb 14, 2023 at 11:53:00AM -0800, Saeed Mirzamohammadi wrote:
+> >> From: Xiu Jianfeng <xiujianfeng@huawei.com>
+> >> 
+> >> Add missing __init/__exit annotations to init/exit funcs.
+> >> 
+> >> Signed-off-by: Xiu Jianfeng <xiujianfeng@huawei.com>
+> >> Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
+> >> (cherry picked from commit 33837be33367172d66d1f2bd6964cc41448e6e7c)
+> >> Cc: stable@vger.kernel.org # 5.15+
+> >> Signed-off-by: Saeed Mirzamohammadi <saeed.mirzamohammadi@oracle.com>
+> >> ---
+> >> crypto/async_tx/raid6test.c | 4 ++--
+> >> crypto/curve25519-generic.c | 4 ++--
+> >> crypto/dh.c                 | 4 ++--
+> >> crypto/ecdh.c               | 4 ++--
+> >> crypto/ecdsa.c              | 4 ++--
+> >> crypto/rsa.c                | 4 ++--
+> >> crypto/sm2.c                | 4 ++--
+> >> 7 files changed, 14 insertions(+), 14 deletions(-)
+> > 
+> > What bug/problem does this resolve?  Why is this needed in stable
+> > kernels?
+> 
+> I don’t have any specific bug to discuss for this fix. It would help freeing up some memory after initialization for these crypto modules since the init function is only called once but not addressing any major issue. Feel free to disregard if this is trivial for stable.
 
-Otrzyma=C5=82e=C5=9B moj=C4=85 poprzedni=C4=85 wiadomo=C5=9B=C4=87? Skontak=
-towa=C5=82em si=C4=99 z tob=C4=85
-wcze=C5=9Bniej, ale wiadomo=C5=9B=C4=87 nie wr=C3=B3ci=C5=82a, wi=C4=99c po=
-stanowi=C5=82em napisa=C4=87
-ponownie. Potwierd=C5=BA, czy to otrzymasz, abym m=C3=B3g=C5=82 kontynuowa=
-=C4=87,
+Exactly how much memory is actually freed here and why is that required
+for a stable kernel?
 
-czekam na Twoj=C4=85 odpowied=C5=BA.
+Please read the kernel documentation for what is considered a valid
+stable kernel change:
+    https://www.kernel.org/doc/html/latest/process/stable-kernel-rules.html
 
-Pozdrowienia,
-Pani Reacheal
+thanks,
+
+greg k-h
