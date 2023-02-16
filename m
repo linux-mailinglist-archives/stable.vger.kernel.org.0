@@ -2,158 +2,188 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 5209A69989F
-	for <lists+stable@lfdr.de>; Thu, 16 Feb 2023 16:19:28 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D58B86998A1
+	for <lists+stable@lfdr.de>; Thu, 16 Feb 2023 16:19:29 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229554AbjBPPT0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Feb 2023 10:19:26 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52686 "EHLO
+        id S230045AbjBPPT2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Feb 2023 10:19:28 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52762 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229813AbjBPPTY (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 16 Feb 2023 10:19:24 -0500
-Received: from mail-io1-xd32.google.com (mail-io1-xd32.google.com [IPv6:2607:f8b0:4864:20::d32])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1314A2B2A6
-        for <stable@vger.kernel.org>; Thu, 16 Feb 2023 07:19:23 -0800 (PST)
-Received: by mail-io1-xd32.google.com with SMTP id bl9so756317iob.7
-        for <stable@vger.kernel.org>; Thu, 16 Feb 2023 07:19:23 -0800 (PST)
+        with ESMTP id S229960AbjBPPT0 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 16 Feb 2023 10:19:26 -0500
+Received: from mail-io1-xd36.google.com (mail-io1-xd36.google.com [IPv6:2607:f8b0:4864:20::d36])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 615B648E1A
+        for <stable@vger.kernel.org>; Thu, 16 Feb 2023 07:19:25 -0800 (PST)
+Received: by mail-io1-xd36.google.com with SMTP id z14so562454iob.10
+        for <stable@vger.kernel.org>; Thu, 16 Feb 2023 07:19:25 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=kernel-dk.20210112.gappssmtp.com; s=20210112;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=/F3fWfMedxCdmHWDLO4jWxLDIXa+8W9/VD2h3x3YdLE=;
-        b=n7NMQgUwwQ2lV3+N2KcdRGMX7e7mSpP5B+MqazTTWnq/qyDn7uAr5jVX1N91P2oV1a
-         aIzr56pwYXFNBbz3xNrroizN63sx+BAovpMsQf2E8+VbgTNcIY9O3h0qQsIgg+qTL/kq
-         CM/3S/ePYMOUBfdfZy0CVo+WlZZAlE6MilxcE3dYVQfDvgOtSo59LbSvh439ztwBfwMc
-         mIN1Z+UB5S314OynuIlbE710Ym89tznIOp3M+3YuTcOPWkjagv2KZcB1np7Ez6WXS6KV
-         dr2cJkRbe0mu+zi54KEp6kVkoRMDVzCzW3PmZiEIBvl+YouT9JiF7/lQahoBiXyfIUt6
-         0PtA==
+        bh=yjez0L/LxXn3HnvptBOuF6EryK2CIHbWYpMFu4wG7eM=;
+        b=N5uYZFPyPxmNEk32kZ/oC5b31XMpTEOipncdIs4QhjqlmHXWGnZVMiQ4HCxY8tPwdX
+         ax2rexF/04te8O5vaGAdNXflw3oUSYJAy0QkFgQpxim1JwAba6rbmDkr8mM+SfsQRL5I
+         xGpiEsbxG/eZOEu8hxUQPdLXcbMb6ujkYKS72vVO9gwiFCAwHkHFFVDKnKspE9irqhVE
+         pKex2uBDJgwf6fUKoRvSpcKG1XzWXEoryXDqk3LjVlXp5ESMAm7wU9lDuNFWVm3hoJ2z
+         PJOdFIXcUOr0AsYOoHbfrJj+Ws3OEu/ZOG34Fh6tr9CxvqbnjkxAQbga8OOU5m9c02mU
+         1kiQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=/F3fWfMedxCdmHWDLO4jWxLDIXa+8W9/VD2h3x3YdLE=;
-        b=GF7RKGznywWW8U6/gk15KnRsGuFoOwW+8a3fwUcTTTJSy+SaKJAXqrbrMg6Ty3rC5x
-         TykrStCjodj0apkHuJ6A5ejKeTaGA1/4cmkCi1WmAw8QLzsj9+sBN7dNPUJniJWmKp0p
-         +l0woV6Iroc4XviPYBVUwCX/DH85Cp1GLV1gLB77aLq0m0WRVeNgYCGZxkRmv8Fef04Y
-         RuSQiCDzQTt9myuqRIZg/P0z0y7cc/SSZPbYw3BrjLsnZ6XVtiaIFprofdvRrNsoYGfu
-         mipUzNG+imJNwqDDaekrOfQJX/aN/VtE+Ghy1hK/4ZDTjWEeGyDSqqo46CSfguckcRij
-         zrEQ==
-X-Gm-Message-State: AO0yUKX53Sefp40kKynp49jxpKlJYsrmSg9WNK/JI8RZ6lgEHG8X0WX5
-        i+Vozhgo3IqbAh19XufOZB3mzQ==
-X-Google-Smtp-Source: AK7set9LWTTzjD5GXy/p4+RQKI/uf/IChRvuK1DjWxxfbFY+Fi743xVLaKmgmrmeLMb5DAgnWuzd7A==
-X-Received: by 2002:a05:6602:2ac8:b0:740:7d21:d96f with SMTP id m8-20020a0566022ac800b007407d21d96fmr4855169iov.1.1676560763243;
-        Thu, 16 Feb 2023 07:19:23 -0800 (PST)
+        bh=yjez0L/LxXn3HnvptBOuF6EryK2CIHbWYpMFu4wG7eM=;
+        b=H7JwnlSEU+20YkMjf90UF+inUZHC50PoWjCJTJJFZRE0/tYfJnu9JiPmJRNS7nBR5g
+         2bbH5+plnVH2gO/aghjQo/aYAqusIgzfbRO74ammRYVeT6wDFvh2UqPU2FtByypI3RGv
+         EJuH6JBKANWmbU2KieEcM3JgZTTrQaPoMNblvVIxrdYW+BnDzUVq2O0pbLpjjQRkVOkK
+         43YJ7av9C7bh1HGUWctXLGdauYg95ouwUC9+e4t+9qHU3WPmUpLCXqfhj2F4opxQifq1
+         ClHDWXT6NaEemlSV4N4ccdUT8aN5pXvXDxLFmhvIKiZw5JkfaoDhrZvNUJWw4CUqfthm
+         nuTQ==
+X-Gm-Message-State: AO0yUKXvqBSOMsKc1aZofoWd7GQ9YV37evWqMg/Zzb0lloAmJ8TpwlAZ
+        AHADnt8QY/v/yz2mVucYJ4C0CA==
+X-Google-Smtp-Source: AK7set8ogXJq2FZihrnyVHUVJVLr/QSbrgdSCf+Lvbix/Imrf3Q8zkt/0s4ShIsSgyj1F1GULrCWqQ==
+X-Received: by 2002:a6b:b2d1:0:b0:744:5aff:2ea9 with SMTP id b200-20020a6bb2d1000000b007445aff2ea9mr1461325iof.2.1676560764606;
+        Thu, 16 Feb 2023 07:19:24 -0800 (PST)
 Received: from localhost.localdomain ([96.43.243.2])
-        by smtp.gmail.com with ESMTPSA id p10-20020a0566022b0a00b006e2f2369d3csm561600iov.50.2023.02.16.07.19.21
+        by smtp.gmail.com with ESMTPSA id p10-20020a0566022b0a00b006e2f2369d3csm561600iov.50.2023.02.16.07.19.23
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 16 Feb 2023 07:19:21 -0800 (PST)
+        Thu, 16 Feb 2023 07:19:24 -0800 (PST)
 From:   Jens Axboe <axboe@kernel.dk>
 To:     linux-block@vger.kernel.org
 Cc:     hch@infradead.org, Jens Axboe <axboe@kernel.dk>,
         stable@vger.kernel.org
-Subject: [PATCH 1/4] brd: return 0/-error from brd_insert_page()
-Date:   Thu, 16 Feb 2023 08:19:15 -0700
-Message-Id: <20230216151918.319585-2-axboe@kernel.dk>
+Subject: [PATCH 2/4] brd: check for REQ_NOWAIT and set correct page allocation mask
+Date:   Thu, 16 Feb 2023 08:19:16 -0700
+Message-Id: <20230216151918.319585-3-axboe@kernel.dk>
 X-Mailer: git-send-email 2.39.1
 In-Reply-To: <20230216151918.319585-1-axboe@kernel.dk>
 References: <20230216151918.319585-1-axboe@kernel.dk>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 X-Spam-Status: No, score=-1.9 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS autolearn=ham
-        autolearn_force=no version=3.4.6
+        DKIM_VALID,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS
+        autolearn=unavailable autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-It currently returns a page, but callers just check for NULL/page to
-gauge success. Clean this up and return the appropriate error directly
-instead.
+If REQ_NOWAIT is set, then do a non-blocking allocation if the operation
+is a write and we need to insert a new page. Currently REQ_NOWAIT cannot
+be set as the queue isn't marked as supporting nowait, this change is in
+preparation for allowing that.
 
 Cc: stable@vger.kernel.org # 5.10+
 Signed-off-by: Jens Axboe <axboe@kernel.dk>
 ---
- drivers/block/brd.c | 26 ++++++++++++--------------
- 1 file changed, 12 insertions(+), 14 deletions(-)
+ drivers/block/brd.c | 39 ++++++++++++++++++++++-----------------
+ 1 file changed, 22 insertions(+), 17 deletions(-)
 
 diff --git a/drivers/block/brd.c b/drivers/block/brd.c
-index 20acc4a1fd6d..15a148d5aad9 100644
+index 15a148d5aad9..1ddada0cdaca 100644
 --- a/drivers/block/brd.c
 +++ b/drivers/block/brd.c
-@@ -78,11 +78,9 @@ static struct page *brd_lookup_page(struct brd_device *brd, sector_t sector)
- }
- 
+@@ -80,26 +80,20 @@ static struct page *brd_lookup_page(struct brd_device *brd, sector_t sector)
  /*
-- * Look up and return a brd's page for a given sector.
-- * If one does not exist, allocate an empty page, and insert that. Then
-- * return it.
-+ * Insert a new page for a given sector, if one does not already exist.
+  * Insert a new page for a given sector, if one does not already exist.
   */
--static struct page *brd_insert_page(struct brd_device *brd, sector_t sector)
-+static int brd_insert_page(struct brd_device *brd, sector_t sector)
+-static int brd_insert_page(struct brd_device *brd, sector_t sector)
++static int brd_insert_page(struct brd_device *brd, sector_t sector, gfp_t gfp)
  {
  	pgoff_t idx;
  	struct page *page;
-@@ -90,7 +88,7 @@ static struct page *brd_insert_page(struct brd_device *brd, sector_t sector)
+-	gfp_t gfp_flags;
  
  	page = brd_lookup_page(brd, sector);
  	if (page)
--		return page;
-+		return 0;
+ 		return 0;
  
- 	/*
- 	 * Must use NOIO because we don't want to recurse back into the
-@@ -99,11 +97,11 @@ static struct page *brd_insert_page(struct brd_device *brd, sector_t sector)
- 	gfp_flags = GFP_NOIO | __GFP_ZERO | __GFP_HIGHMEM;
- 	page = alloc_page(gfp_flags);
+-	/*
+-	 * Must use NOIO because we don't want to recurse back into the
+-	 * block or filesystem layers from page reclaim.
+-	 */
+-	gfp_flags = GFP_NOIO | __GFP_ZERO | __GFP_HIGHMEM;
+-	page = alloc_page(gfp_flags);
++	page = alloc_page(gfp | __GFP_ZERO | __GFP_HIGHMEM);
  	if (!page)
--		return NULL;
-+		return -ENOMEM;
+ 		return -ENOMEM;
  
- 	if (radix_tree_preload(GFP_NOIO)) {
+-	if (radix_tree_preload(GFP_NOIO)) {
++	if (radix_tree_preload(gfp)) {
  		__free_page(page);
--		return NULL;
-+		return -ENOMEM;
+ 		return -ENOMEM;
  	}
- 
- 	spin_lock(&brd->brd_lock);
-@@ -120,8 +118,7 @@ static struct page *brd_insert_page(struct brd_device *brd, sector_t sector)
- 	spin_unlock(&brd->brd_lock);
- 
- 	radix_tree_preload_end();
--
--	return page;
-+	return 0;
- }
- 
+@@ -167,19 +161,20 @@ static void brd_free_pages(struct brd_device *brd)
  /*
-@@ -174,16 +171,17 @@ static int copy_to_brd_setup(struct brd_device *brd, sector_t sector, size_t n)
+  * copy_to_brd_setup must be called before copy_to_brd. It may sleep.
+  */
+-static int copy_to_brd_setup(struct brd_device *brd, sector_t sector, size_t n)
++static int copy_to_brd_setup(struct brd_device *brd, sector_t sector, size_t n,
++			     gfp_t gfp)
  {
  	unsigned int offset = (sector & (PAGE_SECTORS-1)) << SECTOR_SHIFT;
  	size_t copy;
-+	int ret;
+ 	int ret;
  
  	copy = min_t(size_t, n, PAGE_SIZE - offset);
--	if (!brd_insert_page(brd, sector))
--		return -ENOSPC;
-+	ret = brd_insert_page(brd, sector);
-+	if (ret)
-+		return ret;
+-	ret = brd_insert_page(brd, sector);
++	ret = brd_insert_page(brd, sector, gfp);
+ 	if (ret)
+ 		return ret;
  	if (copy < n) {
  		sector += copy >> SECTOR_SHIFT;
--		if (!brd_insert_page(brd, sector))
--			return -ENOSPC;
-+		ret = brd_insert_page(brd, sector);
+-		ret = brd_insert_page(brd, sector);
++		ret = brd_insert_page(brd, sector, gfp);
  	}
--	return 0;
-+	return ret;
+ 	return ret;
  }
+@@ -254,20 +249,26 @@ static void copy_from_brd(void *dst, struct brd_device *brd,
+  * Process a single bvec of a bio.
+  */
+ static int brd_do_bvec(struct brd_device *brd, struct page *page,
+-			unsigned int len, unsigned int off, enum req_op op,
++			unsigned int len, unsigned int off, blk_opf_t opf,
+ 			sector_t sector)
+ {
+ 	void *mem;
+ 	int err = 0;
  
- /*
+-	if (op_is_write(op)) {
+-		err = copy_to_brd_setup(brd, sector, len);
++	if (op_is_write(opf)) {
++		/*
++		 * Must use NOIO because we don't want to recurse back into the
++		 * block or filesystem layers from page reclaim.
++		 */
++		gfp_t gfp = opf & REQ_NOWAIT ? GFP_NOWAIT : GFP_NOIO;
++
++		err = copy_to_brd_setup(brd, sector, len, gfp);
+ 		if (err)
+ 			goto out;
+ 	}
+ 
+ 	mem = kmap_atomic(page);
+-	if (!op_is_write(op)) {
++	if (!op_is_write(opf)) {
+ 		copy_from_brd(mem + off, brd, sector, len);
+ 		flush_dcache_page(page);
+ 	} else {
+@@ -296,8 +297,12 @@ static void brd_submit_bio(struct bio *bio)
+ 				(len & (SECTOR_SIZE - 1)));
+ 
+ 		err = brd_do_bvec(brd, bvec.bv_page, len, bvec.bv_offset,
+-				  bio_op(bio), sector);
++				  bio->bi_opf, sector);
+ 		if (err) {
++			if (err == -ENOMEM && bio->bi_opf & REQ_NOWAIT) {
++				bio_wouldblock_error(bio);
++				return;
++			}
+ 			bio_io_error(bio);
+ 			return;
+ 		}
 -- 
 2.39.1
 
