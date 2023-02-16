@@ -2,203 +2,225 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 29E7C699FE4
-	for <lists+stable@lfdr.de>; Thu, 16 Feb 2023 23:54:31 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2241869A280
+	for <lists+stable@lfdr.de>; Fri, 17 Feb 2023 00:42:23 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229475AbjBPWya (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 16 Feb 2023 17:54:30 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49288 "EHLO
+        id S229653AbjBPXmV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 16 Feb 2023 18:42:21 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47926 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229448AbjBPWy3 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 16 Feb 2023 17:54:29 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3701D38E96;
-        Thu, 16 Feb 2023 14:54:28 -0800 (PST)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        with ESMTP id S229482AbjBPXmV (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 16 Feb 2023 18:42:21 -0500
+Received: from smtp-relay-canonical-0.canonical.com (smtp-relay-canonical-0.canonical.com [185.125.188.120])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7556B4D61D;
+        Thu, 16 Feb 2023 15:42:19 -0800 (PST)
+Received: from [192.168.192.83] (unknown [50.47.134.245])
+        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+         key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id C252F6101A;
-        Thu, 16 Feb 2023 22:54:27 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1451DC433EF;
-        Thu, 16 Feb 2023 22:54:27 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linux-foundation.org;
-        s=korg; t=1676588067;
-        bh=03aSbGRVPlazSxPzRXyCLQlBd82XoK1Rp9jXUc7zvws=;
-        h=Date:To:From:Subject:From;
-        b=PnLguch7cfSabDxGcYFCBmEvSqe9WKGzokUzwqYuapWNsIlXavy8Z8x3ZDrvKi+OL
-         +lNLU1IPM26GqiJJz2x8PxYz6WAkWWZm1zCrNLlxEE0oVVM88hY/YpecZowW65YpSy
-         NX4Mh1AduesVVgz0P8BZFf3S8TQEh07Ijk8Xn/So=
-Date:   Thu, 16 Feb 2023 14:54:26 -0800
-To:     mm-commits@vger.kernel.org,
-        syzbot+f0c4082ce5ebebdac63b@syzkaller.appspotmail.com,
-        stable@vger.kernel.org, konishi.ryusuke@gmail.com,
-        akpm@linux-foundation.org
-From:   Andrew Morton <akpm@linux-foundation.org>
-Subject: + nilfs2-fix-underflow-in-second-superblock-position-calculations.patch added to mm-hotfixes-unstable branch
-Message-Id: <20230216225427.1451DC433EF@smtp.kernel.org>
-X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,SPF_HELO_NONE,
-        SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
+        by smtp-relay-canonical-0.canonical.com (Postfix) with ESMTPSA id 784ED3F34A;
+        Thu, 16 Feb 2023 23:42:15 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=canonical.com;
+        s=20210705; t=1676590936;
+        bh=XhSn8XMnKTe4tskDZD8rvgpWInRsukK5YFNIKX9b1NU=;
+        h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+         In-Reply-To:Content-Type;
+        b=rrQWk23i2Cg7CegpOtOoSMPw2pWDDCstMgDVi9Tx2w6MOUhbU6+6RliUgBtpon5uh
+         FYxlzA/Uwd0gQzN+uptHxDvttoA/sNIgWa4Lxx9ikDXssFSVQ2MSgTZrYTMZiRW599
+         SE8d1JtxzdkLv2qxVfjEji10TI3rl6jJceu/74Y73uTciPBMng4spLICktxWkb7Ja2
+         Z+egb8Ms1IXjaMP3MRsTAqRQUYAt/i+W8J23edHgCkpyakFgzk832uxzKk0yHkPL5Y
+         JMQ4YYuoGVfEcQbC2aua6rbGBJBuEfyjac7XlGrM4Ek9JHB6Nqs1wA2/lIM1LEiMmW
+         ovz1NP07qi7Aw==
+Message-ID: <a1f3a093-f86a-0200-8fbf-9cd17956669a@canonical.com>
+Date:   Thu, 16 Feb 2023 15:42:12 -0800
+MIME-Version: 1.0
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
+ Thunderbird/102.7.1
+Subject: Re: [PATCH 1/1] apparmor: cache buffers on percpu list if there is
+ lock contention
+Content-Language: en-US
+To:     Anil Altinay <aaltinay@google.com>,
+        linux-security-module@vger.kernel.org
+Cc:     Sergey Senozhatsky <senozhatsky@chromium.org>,
+        stable@vger.kernel.org
+References: <20230216214651.3514675-1-aaltinay@google.com>
+ <20230216214651.3514675-2-aaltinay@google.com>
+From:   John Johansen <john.johansen@canonical.com>
+Organization: Canonical
+In-Reply-To: <20230216214651.3514675-2-aaltinay@google.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Spam-Status: No, score=-4.8 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,NICE_REPLY_A,
+        RCVD_IN_DNSWL_MED,SPF_HELO_NONE,SPF_PASS autolearn=ham
+        autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+On 2/16/23 13:46, Anil Altinay wrote:
+> On a heavily loaded machine there can be lock contention on the
+> global buffers lock. Add a percpu list to cache buffers on when
+> lock contention is encountered.
+> 
+> When allocating buffers attempt to use cached buffers first,
+> before taking the global buffers lock. When freeing buffers
+> try to put them back to the global list but if contention is
+> encountered, put the buffer on the percpu list.
+> 
+> The length of time a buffer is held on the percpu list is dynamically
+> adjusted based on lock contention.  The amount of hold time is rapidly
+> increased and slow ramped down.
+> 
+> Fixes: df323337e507 ("apparmor: Use a memory pool instead per-CPU caches")
+> Link: https://lore.kernel.org/lkml/cfd5cc6f-5943-2e06-1dbe-f4b4ad5c1fa1@canonical.com/
+> Signed-off-by: John Johansen <john.johansen@canonical.com>
+> Reported-by: Sergey Senozhatsky <senozhatsky@chromium.org>
+> Signed-off-by: Anil Altinay <aaltinay@google.com>
+> Cc: stable@vger.kernel.org
 
-The patch titled
-     Subject: nilfs2: fix underflow in second superblock position calculations
-has been added to the -mm mm-hotfixes-unstable branch.  Its filename is
-     nilfs2-fix-underflow-in-second-superblock-position-calculations.patch
+NAK, this version of the patch has an issue that prevented it from
+being pushed upstream.
 
-This patch will shortly appear at
-     https://git.kernel.org/pub/scm/linux/kernel/git/akpm/25-new.git/tree/patches/nilfs2-fix-underflow-in-second-superblock-position-calculations.patch
-
-This patch will later appear in the mm-hotfixes-unstable branch at
-    git://git.kernel.org/pub/scm/linux/kernel/git/akpm/mm
-
-Before you just go and hit "reply", please:
-   a) Consider who else should be cc'ed
-   b) Prefer to cc a suitable mailing list as well
-   c) Ideally: find the original patch on the mailing list and do a
-      reply-to-all to that, adding suitable additional cc's
-
-*** Remember to use Documentation/process/submit-checklist.rst when testing your code ***
-
-The -mm tree is included into linux-next via the mm-everything
-branch at git://git.kernel.org/pub/scm/linux/kernel/git/akpm/mm
-and is updated there every 2-3 working days
-
-------------------------------------------------------
-From: Ryusuke Konishi <konishi.ryusuke@gmail.com>
-Subject: nilfs2: fix underflow in second superblock position calculations
-Date: Wed, 15 Feb 2023 07:40:43 +0900
-
-Macro NILFS_SB2_OFFSET_BYTES, which computes the position of the second
-superblock, underflows when the argument device size is less than 4096
-bytes.  Therefore, when using this macro, it is necessary to check in
-advance that the device size is not less than a lower limit, or at least
-that underflow does not occur.
-
-The current nilfs2 implementation lacks this check, causing out-of-bound
-block access when mounting devices smaller than 4096 bytes:
-
- I/O error, dev loop0, sector 36028797018963960 op 0x0:(READ) flags 0x0
- phys_seg 1 prio class 2
- NILFS (loop0): unable to read secondary superblock (blocksize = 1024)
-
-In addition, when trying to resize the filesystem to a size below 4096
-bytes, this underflow occurs in nilfs_resize_fs(), passing a huge number
-of segments to nilfs_sufile_resize(), corrupting parameters such as the
-number of segments in superblocks.  This causes excessive loop iterations
-in nilfs_sufile_resize() during a subsequent resize ioctl, causing
-semaphore ns_segctor_sem to block for a long time and hang the writer
-thread:
-
- INFO: task segctord:5067 blocked for more than 143 seconds.
-      Not tainted 6.2.0-rc8-syzkaller-00015-gf6feea56f66d #0
- "echo 0 > /proc/sys/kernel/hung_task_timeout_secs" disables this message.
- task:segctord        state:D stack:23456 pid:5067  ppid:2
- flags:0x00004000
- Call Trace:
-  <TASK>
-  context_switch kernel/sched/core.c:5293 [inline]
-  __schedule+0x1409/0x43f0 kernel/sched/core.c:6606
-  schedule+0xc3/0x190 kernel/sched/core.c:6682
-  rwsem_down_write_slowpath+0xfcf/0x14a0 kernel/locking/rwsem.c:1190
-  nilfs_transaction_lock+0x25c/0x4f0 fs/nilfs2/segment.c:357
-  nilfs_segctor_thread_construct fs/nilfs2/segment.c:2486 [inline]
-  nilfs_segctor_thread+0x52f/0x1140 fs/nilfs2/segment.c:2570
-  kthread+0x270/0x300 kernel/kthread.c:376
-  ret_from_fork+0x1f/0x30 arch/x86/entry/entry_64.S:308
-  </TASK>
- ...
- Call Trace:
-  <TASK>
-  folio_mark_accessed+0x51c/0xf00 mm/swap.c:515
-  __nilfs_get_page_block fs/nilfs2/page.c:42 [inline]
-  nilfs_grab_buffer+0x3d3/0x540 fs/nilfs2/page.c:61
-  nilfs_mdt_submit_block+0xd7/0x8f0 fs/nilfs2/mdt.c:121
-  nilfs_mdt_read_block+0xeb/0x430 fs/nilfs2/mdt.c:176
-  nilfs_mdt_get_block+0x12d/0xbb0 fs/nilfs2/mdt.c:251
-  nilfs_sufile_get_segment_usage_block fs/nilfs2/sufile.c:92 [inline]
-  nilfs_sufile_truncate_range fs/nilfs2/sufile.c:679 [inline]
-  nilfs_sufile_resize+0x7a3/0x12b0 fs/nilfs2/sufile.c:777
-  nilfs_resize_fs+0x20c/0xed0 fs/nilfs2/super.c:422
-  nilfs_ioctl_resize fs/nilfs2/ioctl.c:1033 [inline]
-  nilfs_ioctl+0x137c/0x2440 fs/nilfs2/ioctl.c:1301
-  ...
-
-This fixes these issues by inserting appropriate minimum device size
-checks or anti-underflow checks, depending on where the macro is used.
-
-Link: https://lkml.kernel.org/r/0000000000004e1dfa05f4a48e6b@google.com
-Link: https://lkml.kernel.org/r/20230214224043.24141-1-konishi.ryusuke@gmail.com
-Signed-off-by: Ryusuke Konishi <konishi.ryusuke@gmail.com>
-Reported-by: <syzbot+f0c4082ce5ebebdac63b@syzkaller.appspotmail.com>
-Tested-by: Ryusuke Konishi <konishi.ryusuke@gmail.com>
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
----
+I can send out the revised version for people to look at but I
+haven't been able to get proper testing on it yet, hence why
+I haven't pushed it yet either.
 
 
---- a/fs/nilfs2/ioctl.c~nilfs2-fix-underflow-in-second-superblock-position-calculations
-+++ a/fs/nilfs2/ioctl.c
-@@ -1114,7 +1114,14 @@ static int nilfs_ioctl_set_alloc_range(s
- 
- 	minseg = range[0] + segbytes - 1;
- 	do_div(minseg, segbytes);
-+
-+	if (range[1] < 4096)
-+		goto out;
-+
- 	maxseg = NILFS_SB2_OFFSET_BYTES(range[1]);
-+	if (maxseg < segbytes)
-+		goto out;
-+
- 	do_div(maxseg, segbytes);
- 	maxseg--;
- 
---- a/fs/nilfs2/super.c~nilfs2-fix-underflow-in-second-superblock-position-calculations
-+++ a/fs/nilfs2/super.c
-@@ -409,6 +409,15 @@ int nilfs_resize_fs(struct super_block *
- 		goto out;
- 
- 	/*
-+	 * Prevent underflow in second superblock position calculation.
-+	 * The exact minimum size check is done in nilfs_sufile_resize().
-+	 */
-+	if (newsize < 4096) {
-+		ret = -ENOSPC;
-+		goto out;
-+	}
-+
-+	/*
- 	 * Write lock is required to protect some functions depending
- 	 * on the number of segments, the number of reserved segments,
- 	 * and so forth.
---- a/fs/nilfs2/the_nilfs.c~nilfs2-fix-underflow-in-second-superblock-position-calculations
-+++ a/fs/nilfs2/the_nilfs.c
-@@ -544,9 +544,15 @@ static int nilfs_load_super_block(struct
- {
- 	struct nilfs_super_block **sbp = nilfs->ns_sbp;
- 	struct buffer_head **sbh = nilfs->ns_sbh;
--	u64 sb2off = NILFS_SB2_OFFSET_BYTES(bdev_nr_bytes(nilfs->ns_bdev));
-+	u64 sb2off, devsize = bdev_nr_bytes(nilfs->ns_bdev);
- 	int valid[2], swp = 0;
- 
-+	if (devsize < NILFS_SEG_MIN_BLOCKS * NILFS_MIN_BLOCK_SIZE + 4096) {
-+		nilfs_err(sb, "device size too small");
-+		return -EINVAL;
-+	}
-+	sb2off = NILFS_SB2_OFFSET_BYTES(devsize);
-+
- 	sbp[0] = nilfs_read_super_block(sb, NILFS_SB_OFFSET_BYTES, blocksize,
- 					&sbh[0]);
- 	sbp[1] = nilfs_read_super_block(sb, sb2off, blocksize, &sbh[1]);
-_
-
-Patches currently in -mm which might be from konishi.ryusuke@gmail.com are
-
-nilfs2-fix-underflow-in-second-superblock-position-calculations.patch
+> ---
+>   security/apparmor/lsm.c | 73 ++++++++++++++++++++++++++++++++++++++---
+>   1 file changed, 68 insertions(+), 5 deletions(-)
+> 
+> diff --git a/security/apparmor/lsm.c b/security/apparmor/lsm.c
+> index c6728a629437..56b22e2def4c 100644
+> --- a/security/apparmor/lsm.c
+> +++ b/security/apparmor/lsm.c
+> @@ -49,12 +49,19 @@ union aa_buffer {
+>   	char buffer[1];
+>   };
+>   
+> +struct aa_local_cache {
+> +	unsigned int contention;
+> +	unsigned int hold;
+> +	struct list_head head;
+> +};
+> +
+>   #define RESERVE_COUNT 2
+>   static int reserve_count = RESERVE_COUNT;
+>   static int buffer_count;
+>   
+>   static LIST_HEAD(aa_global_buffers);
+>   static DEFINE_SPINLOCK(aa_buffers_lock);
+> +static DEFINE_PER_CPU(struct aa_local_cache, aa_local_buffers);
+>   
+>   /*
+>    * LSM hook functions
+> @@ -1634,14 +1641,43 @@ static int param_set_mode(const char *val, const struct kernel_param *kp)
+>   	return 0;
+>   }
+>   
+> +static void update_contention(struct aa_local_cache *cache)
+> +{
+> +	cache->contention += 3;
+> +	if (cache->contention > 9)
+> +		cache->contention = 9;
+> +	cache->hold += 1 << cache->contention;		/* 8, 64, 512 */
+> +}
+> +
+>   char *aa_get_buffer(bool in_atomic)
+>   {
+>   	union aa_buffer *aa_buf;
+> +	struct aa_local_cache *cache;
+>   	bool try_again = true;
+>   	gfp_t flags = (GFP_KERNEL | __GFP_RETRY_MAYFAIL | __GFP_NOWARN);
+> +	/* use per cpu cached buffers first */
+> +	cache = get_cpu_ptr(&aa_local_buffers);
+> +	if (!list_empty(&cache->head)) {
+> +		aa_buf = list_first_entry(&cache->head, union aa_buffer, list);
+> +		list_del(&aa_buf->list);
+> +		cache->hold--;
+> +		put_cpu_ptr(&aa_local_buffers);
+> +		return &aa_buf->buffer[0];
+> +	}
+> +	put_cpu_ptr(&aa_local_buffers);
+>   
+> +	if (!spin_trylock(&aa_buffers_lock)) {
+> +		cache = get_cpu_ptr(&aa_local_buffers);
+> +		update_contention(cache);
+> +		put_cpu_ptr(&aa_local_buffers);
+> +		spin_lock(&aa_buffers_lock);
+> +	} else {
+> +		cache = get_cpu_ptr(&aa_local_buffers);
+> +		if (cache->contention)
+> +			cache->contention--;
+> +		put_cpu_ptr(&aa_local_buffers);
+> +	}
+>   retry:
+> -	spin_lock(&aa_buffers_lock);
+>   	if (buffer_count > reserve_count ||
+>   	    (in_atomic && !list_empty(&aa_global_buffers))) {
+>   		aa_buf = list_first_entry(&aa_global_buffers, union aa_buffer,
+> @@ -1667,6 +1703,7 @@ char *aa_get_buffer(bool in_atomic)
+>   	if (!aa_buf) {
+>   		if (try_again) {
+>   			try_again = false;
+> +			spin_lock(&aa_buffers_lock);
+>   			goto retry;
+>   		}
+>   		pr_warn_once("AppArmor: Failed to allocate a memory buffer.\n");
+> @@ -1678,15 +1715,32 @@ char *aa_get_buffer(bool in_atomic)
+>   void aa_put_buffer(char *buf)
+>   {
+>   	union aa_buffer *aa_buf;
+> +	struct aa_local_cache *cache;
+>   
+>   	if (!buf)
+>   		return;
+>   	aa_buf = container_of(buf, union aa_buffer, buffer[0]);
+>   
+> -	spin_lock(&aa_buffers_lock);
+> -	list_add(&aa_buf->list, &aa_global_buffers);
+> -	buffer_count++;
+> -	spin_unlock(&aa_buffers_lock);
+> +	cache = get_cpu_ptr(&aa_local_buffers);
+> +	if (!cache->hold) {
+> +		put_cpu_ptr(&aa_local_buffers);
+> +		if (spin_trylock(&aa_buffers_lock)) {
+> +			list_add(&aa_buf->list, &aa_global_buffers);
+> +			buffer_count++;
+> +			spin_unlock(&aa_buffers_lock);
+> +			cache = get_cpu_ptr(&aa_local_buffers);
+> +			if (cache->contention)
+> +				cache->contention--;
+> +			put_cpu_ptr(&aa_local_buffers);
+> +			return;
+> +		}
+> +		cache = get_cpu_ptr(&aa_local_buffers);
+> +		update_contention(cache);
+> +	}
+> +
+> +	/* cache in percpu list */
+> +	list_add(&aa_buf->list, &cache->head);
+> +	put_cpu_ptr(&aa_local_buffers);
+>   }
+>   
+>   /*
+> @@ -1728,6 +1782,15 @@ static int __init alloc_buffers(void)
+>   	union aa_buffer *aa_buf;
+>   	int i, num;
+>   
+> +	/*
+> +	 * per cpu set of cached allocated buffers used to help reduce
+> +	 * lock contention
+> +	 */
+> +	for_each_possible_cpu(i) {
+> +		per_cpu(aa_local_buffers, i).contention = 0;
+> +		per_cpu(aa_local_buffers, i).hold = 0;
+> +		INIT_LIST_HEAD(&per_cpu(aa_local_buffers, i).head);
+> +	}
+>   	/*
+>   	 * A function may require two buffers at once. Usually the buffers are
+>   	 * used for a short period of time and are shared. On UP kernel buffers
 
