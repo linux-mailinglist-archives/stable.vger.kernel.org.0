@@ -2,60 +2,60 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C7B8E69A8D1
-	for <lists+stable@lfdr.de>; Fri, 17 Feb 2023 11:05:18 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6E2AC69A8D6
+	for <lists+stable@lfdr.de>; Fri, 17 Feb 2023 11:05:48 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229804AbjBQKFR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 17 Feb 2023 05:05:17 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58726 "EHLO
+        id S229793AbjBQKFr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 17 Feb 2023 05:05:47 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58952 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229826AbjBQKFP (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 17 Feb 2023 05:05:15 -0500
-Received: from mail-pg1-x529.google.com (mail-pg1-x529.google.com [IPv6:2607:f8b0:4864:20::529])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CB821604CF
-        for <stable@vger.kernel.org>; Fri, 17 Feb 2023 02:05:12 -0800 (PST)
-Received: by mail-pg1-x529.google.com with SMTP id l16so404770pgt.5
-        for <stable@vger.kernel.org>; Fri, 17 Feb 2023 02:05:12 -0800 (PST)
+        with ESMTP id S229784AbjBQKFq (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 17 Feb 2023 05:05:46 -0500
+Received: from mail-pj1-x102b.google.com (mail-pj1-x102b.google.com [IPv6:2607:f8b0:4864:20::102b])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2F4765DE0D
+        for <stable@vger.kernel.org>; Fri, 17 Feb 2023 02:05:45 -0800 (PST)
+Received: by mail-pj1-x102b.google.com with SMTP id pt13-20020a17090b3d0d00b00233ba727724so603212pjb.1
+        for <stable@vger.kernel.org>; Fri, 17 Feb 2023 02:05:45 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20210112;
-        h=cc:to:subject:message-id:date:from:in-reply-to:references
-         :mime-version:from:to:cc:subject:date:message-id:reply-to;
-        bh=xgo06j9ahnzor5Mr6mVoN2N31xaczjU8L11cr2e3IBE=;
-        b=i7htHyT0x/ZVkHVFb7jVG7XxuWs0FA9xl+1C1AipGHVQ3ak+FpFRGJp/CeoDZaWj8Q
-         G4rs+DEZIQZe0xXmgSz3fOx6Y1BK0tecqpI/9D3xtiNxk7fvST2VboeM6hyBRn4QhLUO
-         LVE4dGTvgCBjF/tl9wourWjp84dvb2RHT8m9jhxMLn9mZIQpjw4h0MldRKnKURuKr0Jo
-         UlJtuc8neVHymBEYzUJEPYEyQngNZH6iwQ5eflG1rPFzVhNI4AJSIU+A4yav6BEhjtyp
-         WkS5HYEqjhE+DuqF2s5h0Hfvz3QFiV6WoHgfvny2YUvKp9Y/Y4Q8My6bEuDI932nlGux
-         epOA==
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=o0uHfzgv2qkWN2QON21082yWHlyLvuVbZRGsDEiQa/4=;
+        b=PG5Binl+dYtv2Cjcd7RqW/ODxroR2V/J6A0O08t3kCKUF8DqL8yLPUONQMUKQscNc3
+         EQOKnQ1LZO+QtC2oIbLMYVKiKQ5ZZPxm6e7cVdvAoEdL0JmOjt2RbXSk8iN5tm8PVtjk
+         drb9pAjO+9YmLFMNRCnS15J1CNjRPLu0CgLshdZQAhTbf22BJAq5Wyay1Ttu1b39GgDB
+         cQIF+Na6tM2sQdzbEByGhcSp+ALgk/Bwujx0nQsjsC6pxexRv8fmTgEWTLNuqKhiYI1/
+         p6vtD2eluVvz+onwnkvOmMEHCXBIvBlaB5Q03/j3l74tHt7lwP4hcj356MYV7Eme+5hh
+         84og==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=cc:to:subject:message-id:date:from:in-reply-to:references
-         :mime-version:x-gm-message-state:from:to:cc:subject:date:message-id
-         :reply-to;
-        bh=xgo06j9ahnzor5Mr6mVoN2N31xaczjU8L11cr2e3IBE=;
-        b=77fiUE2hhA1GkREB6eWSNyemk0jrFWCM3JwEDiNxCACXiqg6D3nOfTgBc+ghyHDG0u
-         AqtKC3+5YJR5qsgp3v11JLTyloUGXKzwC+DB1O3OrRgdLBq12VBIWboMkITKYowxV0Ww
-         j1Asq1nBC+OyBTtIjl9HWdZq2xH3gOEbLsHLS2ADj0164yPMscTIhAeitwpa/Puo2U+S
-         CLTPJOrPKLCAi/f9Pr1W/aUWgxcqkdR9k/9BzEPSC64RAaTWDMJ7+WJP9qsgPTdt0212
-         IzuYYU+/Nzn5rjq+OthkZmzH1mrjF5nazPYnQzFYUFabGs4xdnqUKqpOFd0Vqf//M1XR
-         5MIA==
-X-Gm-Message-State: AO0yUKXnAYQJZuv8KKSTe3oFkHbCR+E0qhtVfC9SFyMhqFH7x3vxjvMH
-        QlySXDDMGHadxAEmlTmGm2Ju7ger+NToJOCYEzc=
-X-Google-Smtp-Source: AK7set+RWZOPMzd39MoBeQ74y8NdaYRMTr1w1yYrhc2pNVe/5/Nxb18l5XRIKUqk3HkhJK85HyHSrVeDTQt/adskIaU=
-X-Received: by 2002:a65:6050:0:b0:4f1:1bbc:be70 with SMTP id
- a16-20020a656050000000b004f11bbcbe70mr687528pgp.6.1676628312200; Fri, 17 Feb
- 2023 02:05:12 -0800 (PST)
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=o0uHfzgv2qkWN2QON21082yWHlyLvuVbZRGsDEiQa/4=;
+        b=goFi4Kxkbuhy8vl5hkDUbnNDNb0H0MxeQzW7izlRi48PLElFS1bTWJDDtZoGArKXvU
+         kB+TIqBHB4vdvOqbVIFMZhUfmDwy/7r+U8y2fW+17K4aK1FHi10+KuH8NZGYCAMY8D4p
+         kaBKjnhsxwXeL+vpm8Yp8ZVPYwcjskuUgXfm9+hJKaWIFx+Tf4r5BOaPe7bZktUWrVnJ
+         SiCJSP8raZxbq6YnsVEpQVomn+w6GWYgFPjIRmbP9AVyPnzDKbAktDFgil/04EEXC4CZ
+         XB2JqvzognO5z7uVM6Z2dtu33ZYcXCxVatHDhq5FP7PTJChyF6/36DVRfnwY+hfQACPG
+         Dhpw==
+X-Gm-Message-State: AO0yUKWFEAB8JgodsGjTPqG8nic3ol3g/KNLdFq2wJTdxGvzgNTsdyxA
+        IIuoelmL+nr36tjP++X1WmgMR5g85BihYW/bbMw=
+X-Google-Smtp-Source: AK7set+MJkoGKxQePTCKdXB2FoV2zsPtsTEyn2qp0w/jyI1frR8HQRwLH0Wl+vDAcweSTFzCmgnjz4WLhYSvR7RlX8E=
+X-Received: by 2002:a17:90b:1f8f:b0:233:3c5a:b41b with SMTP id
+ so15-20020a17090b1f8f00b002333c5ab41bmr1384023pjb.133.1676628344552; Fri, 17
+ Feb 2023 02:05:44 -0800 (PST)
 MIME-Version: 1.0
-References: <20230214015214.747873-1-pcc@google.com> <Y+vKyZQVeofdcX4V@arm.com>
- <CAMn1gO4mKL4od8_4+RH9T2C+6+-7=rsdLrSNpghsbMyoVExCjA@mail.gmail.com>
-In-Reply-To: <CAMn1gO4mKL4od8_4+RH9T2C+6+-7=rsdLrSNpghsbMyoVExCjA@mail.gmail.com>
+References: <20230215050911.1433132-1-pcc@google.com>
+In-Reply-To: <20230215050911.1433132-1-pcc@google.com>
 From:   Andrey Konovalov <andreyknvl@gmail.com>
-Date:   Fri, 17 Feb 2023 11:05:01 +0100
-Message-ID: <CA+fCnZeK4d7CvaHxCR0oUfZMXbh5-x9H3cL_8Rk9ZqnRryOqBw@mail.gmail.com>
-Subject: Re: [PATCH] arm64: Reset KASAN tag in copy_highpage with HW tags only
-To:     Peter Collingbourne <pcc@google.com>,
-        Catalin Marinas <catalin.marinas@arm.com>
-Cc:     =?UTF-8?B?UXVuLXdlaSBMaW4gKOael+e+pOW0tCk=?= 
+Date:   Fri, 17 Feb 2023 11:05:33 +0100
+Message-ID: <CA+fCnZdvDY_15bL4zZ442snuq20K+HeAb+OFxGA7t--3e9Y0UQ@mail.gmail.com>
+Subject: Re: [PATCH v2] arm64: Reset KASAN tag in copy_highpage with HW tags only
+To:     Peter Collingbourne <pcc@google.com>
+Cc:     catalin.marinas@arm.com,
+        =?UTF-8?B?UXVuLXdlaSBMaW4gKOael+e+pOW0tCk=?= 
         <Qun-wei.Lin@mediatek.com>,
         =?UTF-8?B?R3Vhbmd5ZSBZYW5nICjmnajlhYnkuJop?= 
         <guangye.yang@mediatek.com>, linux-mm@kvack.org,
@@ -66,6 +66,7 @@ Cc:     =?UTF-8?B?UXVuLXdlaSBMaW4gKOael+e+pOW0tCk=?=
         =?UTF-8?B?S3Vhbi1ZaW5nIExlZSAo5p2O5Yag56mOKQ==?= 
         <Kuan-Ying.Lee@mediatek.com>, stable@vger.kernel.org
 Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
         DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_FROM,
         RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS autolearn=ham
@@ -76,41 +77,69 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Wed, Feb 15, 2023 at 5:44 AM Peter Collingbourne <pcc@google.com> wrote:
+On Wed, Feb 15, 2023 at 6:09 AM Peter Collingbourne <pcc@google.com> wrote:
 >
-> On Tue, Feb 14, 2023 at 9:54 AM Catalin Marinas <catalin.marinas@arm.com> wrote:
-> >
-> > On Mon, Feb 13, 2023 at 05:52:14PM -0800, Peter Collingbourne wrote:
-> > > During page migration, the copy_highpage function is used to copy the
-> > > page data to the target page. If the source page is a userspace page
-> > > with MTE tags, the KASAN tag of the target page must have the match-all
-> > > tag in order to avoid tag check faults during subsequent accesses to the
-> > > page by the kernel. However, the target page may have been allocated in
-> > > a number of ways, some of which will use the KASAN allocator and will
-> > > therefore end up setting the KASAN tag to a non-match-all tag. Therefore,
-> > > update the target page's KASAN tag to match the source page.
-> > >
-> > > We ended up unintentionally fixing this issue as a result of a bad
-> > > merge conflict resolution between commit e059853d14ca ("arm64: mte:
-> > > Fix/clarify the PG_mte_tagged semantics") and commit 20794545c146 ("arm64:
-> > > kasan: Revert "arm64: mte: reset the page tag in page->flags""), which
-> > > preserved a tag reset for PG_mte_tagged pages which was considered to be
-> > > unnecessary at the time. Because SW tags KASAN uses separate tag storage,
-> > > update the code to only reset the tags when HW tags KASAN is enabled.
-> >
-> > Does KASAN_SW_TAGS work together with MTE?
+> During page migration, the copy_highpage function is used to copy the
+> page data to the target page. If the source page is a userspace page
+> with MTE tags, the KASAN tag of the target page must have the match-all
+> tag in order to avoid tag check faults during subsequent accesses to the
+> page by the kernel. However, the target page may have been allocated in
+> a number of ways, some of which will use the KASAN allocator and will
+> therefore end up setting the KASAN tag to a non-match-all tag. Therefore,
+> update the target page's KASAN tag to match the source page.
 >
-> Yes, it works fine. One of my usual kernel patch tests runs an
-> MTE-utilizing userspace program under a kernel with KASAN_SW_TAGS.
+> We ended up unintentionally fixing this issue as a result of a bad
+> merge conflict resolution between commit e059853d14ca ("arm64: mte:
+> Fix/clarify the PG_mte_tagged semantics") and commit 20794545c146 ("arm64=
+:
+> kasan: Revert "arm64: mte: reset the page tag in page->flags""), which
+> preserved a tag reset for PG_mte_tagged pages which was considered to be
+> unnecessary at the time. Because SW tags KASAN uses separate tag storage,
+> update the code to only reset the tags when HW tags KASAN is enabled.
 >
-> > In theory they should but I
-> > wonder whether we have other places calling page_kasan_tag_reset()
-> > without the kasan_hw_tags_enabled() check.
+> Signed-off-by: Peter Collingbourne <pcc@google.com>
+> Link: https://linux-review.googlesource.com/id/If303d8a709438d3ff5af5fd85=
+706505830f52e0c
+> Reported-by: "Kuan-Ying Lee (=E6=9D=8E=E5=86=A0=E7=A9=8E)" <Kuan-Ying.Lee=
+@mediatek.com>
+> Cc: <stable@vger.kernel.org> # 6.1
+> Fixes: 20794545c146 ("arm64: kasan: Revert "arm64: mte: reset the page ta=
+g in page->flags"")
+> ---
+> v2:
+> - added Fixes tag
 >
-> It's unclear to me whether any of the other references are
-> specifically related to KASAN_HW_TAGS or not. Because KASAN_SW_TAGS
-> also uses all-ones as a match-all tag, I wouldn't expect calling
-> page_kasan_tag_reset() to cause any problems aside from false
-> negatives.
+> For the stable branch, e059853d14ca needs to be cherry-picked and the fol=
+lowing
+> merge conflict resolution is needed:
+>
+> -               page_kasan_tag_reset(to);
+> +               if (kasan_hw_tags_enabled())
+> +                       page_kasan_tag_reset(to);
+>  -              /* It's a new page, shouldn't have been tagged yet */
+>  -              WARN_ON_ONCE(!try_page_mte_tagging(to));
+>
+>  arch/arm64/mm/copypage.c | 3 ++-
+>  1 file changed, 2 insertions(+), 1 deletion(-)
+>
+> diff --git a/arch/arm64/mm/copypage.c b/arch/arm64/mm/copypage.c
+> index 8dd5a8fe64b4..4aadcfb01754 100644
+> --- a/arch/arm64/mm/copypage.c
+> +++ b/arch/arm64/mm/copypage.c
+> @@ -22,7 +22,8 @@ void copy_highpage(struct page *to, struct page *from)
+>         copy_page(kto, kfrom);
+>
+>         if (system_supports_mte() && page_mte_tagged(from)) {
+> -               page_kasan_tag_reset(to);
+> +               if (kasan_hw_tags_enabled())
+> +                       page_kasan_tag_reset(to);
+>                 /* It's a new page, shouldn't have been tagged yet */
+>                 WARN_ON_ONCE(!try_page_mte_tagging(to));
+>                 mte_copy_page_tags(kto, kfrom);
+> --
+> 2.39.1.581.gbfd45094c4-goog
+>
 
-All the other page_kasan_tag_reset() are related to both SW and HW_TAGS.
+Reviewed-by: Andrey Konovalov <andreyknvl@gmail.com>
+
+Thank you, Peter!
