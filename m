@@ -2,253 +2,194 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 1BDA169AF52
-	for <lists+stable@lfdr.de>; Fri, 17 Feb 2023 16:18:51 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A606F69AF95
+	for <lists+stable@lfdr.de>; Fri, 17 Feb 2023 16:33:39 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229736AbjBQPSq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 17 Feb 2023 10:18:46 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51042 "EHLO
+        id S229575AbjBQPdi (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 17 Feb 2023 10:33:38 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33508 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229491AbjBQPSq (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 17 Feb 2023 10:18:46 -0500
-Received: from wp530.webpack.hosteurope.de (wp530.webpack.hosteurope.de [80.237.130.52])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 567F066045;
-        Fri, 17 Feb 2023 07:18:42 -0800 (PST)
-Received: from [2a02:8108:8980:2478:8cde:aa2c:f324:937e]; authenticated
-        by wp530.webpack.hosteurope.de running ExIM with esmtpsa (TLS1.3:ECDHE_RSA_AES_128_GCM_SHA256:128)
-        id 1pT2VU-0002ZX-CL; Fri, 17 Feb 2023 16:18:40 +0100
-Message-ID: <50b5498c-38fb-e2e8-63f0-3d5bbc047737@leemhuis.info>
-Date:   Fri, 17 Feb 2023 16:18:39 +0100
+        with ESMTP id S229461AbjBQPdf (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 17 Feb 2023 10:33:35 -0500
+Received: from NAM02-DM3-obe.outbound.protection.outlook.com (mail-dm3nam02on2079.outbound.protection.outlook.com [40.107.95.79])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6DD726D26E
+        for <stable@vger.kernel.org>; Fri, 17 Feb 2023 07:33:32 -0800 (PST)
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
+ b=J1Q9I+37tTvlcfmCYK3TSmdA4CuRqyESgbxBM0I1DDAfPDZnBokd9/qTB96MVNqBDviNPO7UP/AhoBMerJJDfr9sfWawT70egfJo55SHyXSsK/5px9l9nvWNnhWvyBedBfXGt4zHXHn/lsKsncgr7p7XxSmLuP9vHjZiEM1aoQ6jy735Gyqwvp0lue1EGwsd2tpvSbFFjUzJ+cF/8ySYzsjPP8jbYGrIIcM2xQgjSEMUxRpwxPIgdzubDu1rMoyV8+o4EGGrqVlOk1VmNvoLxa3Fl7to7cGQfNvbUvclZc+myFkxT+t+3DneBCEMNOTVEcckjTE1V6f/6rviuDX71w==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector9901;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
+ bh=LFuBML7bv1bkRKDtFEdrXymvjN01OYKYmGECyAcKiRc=;
+ b=beviWuZqqhyGc6OU97TtIDGbhQ8rvb+CnduU9/PIYa7CVW/IXpmPlleZCgR5BA04EY2Sjs1W/3dGuNkcZqbknBsxXTIRSL45UmcUTrfLXvhpJ1En/3MiQ2FmPxvkBHreh42P6VbTiATTGXjEdH8DzkJ5L5pmSbY0xYDCXwWkZfkti7elG/OYkEn8ixjkXcgHDP19yTBvhaMjTlKUegAOrqPuUlQ5gs3n5fD6WDN+YTcjDprRNnRAWgAjqj7uTohce5cnL835RSLQOcXSqfeExMkpHPGZitTnXqdHYQWFu7XrohR1iRau4WCMsL9Xb/gpXa/dj4fJifujk4zRAEH16A==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
+ smtp.mailfrom=nvidia.com; dmarc=pass action=none header.from=nvidia.com;
+ dkim=pass header.d=nvidia.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
+ s=selector2;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=LFuBML7bv1bkRKDtFEdrXymvjN01OYKYmGECyAcKiRc=;
+ b=cciVgxIQfN1CSeqXDBK6+lGVMbksdKetyedSFOE6ipyCdqbkZhMWhbJ26Oy9JtIAxfbIwN0rdgYtlYFlsEjKH9GdPe5KkDY8YB1sTao7HcRV5Ku7toZVTq38xCwwfwKeCtUdxfVwjXw92LmAwVguzby7DiNkEtsGv3DglPuUq8Wblz5f/uJyfaJw2p5vV6qhHb8BKDXvfAD78Hu9g8u6NdW1jKqmnNOXo1EY+oGxZpciH5q6Zf+RbXsSmglki96SeqOD3Ku5I7y9U6iljNPFPfxE+MzR91GIhCklQ1ZJDFumsC+VJ5GVd17Y4isgnX2VYVj5shKINTO45B3VoLzKAA==
+Received: from CH2PR12MB3895.namprd12.prod.outlook.com (2603:10b6:610:2a::13)
+ by DM4PR12MB8498.namprd12.prod.outlook.com (2603:10b6:8:183::11) with
+ Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.6111.15; Fri, 17 Feb
+ 2023 15:33:28 +0000
+Received: from CH2PR12MB3895.namprd12.prod.outlook.com
+ ([fe80::5f35:2f2d:94a4:f7c3]) by CH2PR12MB3895.namprd12.prod.outlook.com
+ ([fe80::5f35:2f2d:94a4:f7c3%4]) with mapi id 15.20.6086.026; Fri, 17 Feb 2023
+ 15:33:28 +0000
+From:   Asmaa Mnebhi <asmaa@nvidia.com>
+To:     Greg KH <gregkh@linuxfoundation.org>
+CC:     "kernel-team@lists.ubuntu.com" <kernel-team@lists.ubuntu.com>,
+        Khoa Vo <khoav@nvidia.com>, Meriton Tuli <meriton@nvidia.com>,
+        Vladimir Sokolovsky <vlad@nvidia.com>,
+        Shreeya Patel <shreeya.patel@collabora.com>,
+        "stable@vger.kernel.org" <stable@vger.kernel.org>,
+        Andy Shevchenko <andy.shevchenko@gmail.com>,
+        Linus Walleij <linus.walleij@linaro.org>,
+        Bartosz Golaszewski <brgl@bgdev.pl>
+Subject: RE: [SRU][F:linux-bluefield][PATCH v2 1/2] gpio: Restrict usage of
+ GPIO chip irq members before initialization
+Thread-Topic: [SRU][F:linux-bluefield][PATCH v2 1/2] gpio: Restrict usage of
+ GPIO chip irq members before initialization
+Thread-Index: AQHZQtk+Nb1tuhsuTEueNJD39NNgCq7TMfQAgAARpvA=
+Date:   Fri, 17 Feb 2023 15:33:28 +0000
+Message-ID: <CH2PR12MB3895AFD55DBF315028F72CF0D7A19@CH2PR12MB3895.namprd12.prod.outlook.com>
+References: <20230217140744.20600-1-asmaa@nvidia.com>
+ <20230217140744.20600-2-asmaa@nvidia.com> <Y++OlqihvPis7NK4@kroah.com>
+In-Reply-To: <Y++OlqihvPis7NK4@kroah.com>
+Accept-Language: en-US
+Content-Language: en-US
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+authentication-results: dkim=none (message not signed)
+ header.d=none;dmarc=none action=none header.from=nvidia.com;
+x-ms-publictraffictype: Email
+x-ms-traffictypediagnostic: CH2PR12MB3895:EE_|DM4PR12MB8498:EE_
+x-ms-office365-filtering-correlation-id: 02afac71-a078-4f03-cca8-08db10fc512f
+x-ms-exchange-senderadcheck: 1
+x-ms-exchange-antispam-relay: 0
+x-microsoft-antispam: BCL:0;
+x-microsoft-antispam-message-info: iRsNSHzM8wxpqOIhHOx05EQ8UUK9fL6uSRZhkmaZdPK+rPlHyKoKcCW2ePKWMi94LAVslpNfOD+L6zQUnuGoDFsdbeXzAQiujU0XUQyoE1DQkKeJMzGSH6muLdlYRxwlRgt3VdYdtCtVz0cwlbtNjyorwXsKmL4G4495OvcFZZGhHRzx7KkSlWYi1ZdPLsj+PJ8o1yAUTV5QCUDdY2pGbIPDzG9okJ+HLtiT1Hg/i2e45OUtWO7MsXuozAY/SCIz2JEa7tzI/igsVOH3cLBkPrIm4c7xyrhgYN0SXlDJGACT0RuV2y1qnj2N68CPqZgkPTx8vMLAD1xsS8bhWIYaTAPjLvPafDZlkg5jW8AJUGZDfiiFhXSqcqBbWo3kDCf1/DJUICmq4DlzY5zZ34I/+JMBxtjpVhsIEUmQf0BzZ22kfDPJQwZRAtZPImoQwXH/mFbxPJyySsRYRgVCd3q/9JGPRJQrIcpL52MFZ3ZKIS4NEELVwtRnewhbq9dPPDlH9URd2LkS0LXlhWMQ6CpDpfRSTouJCMSnWQaVriu76S7uTxPnVV4JiU1VQh9idruWV5zZBK/whsD4QmVSn2jt7UAcphCHpTlI/cFULOyYUzF9VsHU8nbXt5JQZy58Jo9N13BggrdFZ+TBtdURDfsEyRJPV1YknDMyBscZ1Op7alTr04wbobL7dNYvLY6+dMUfrFVs/s4axMRFx7EK8fA9qsxS7DMkf6RYKVnWPPj7mLatgTJ49DremvshlEOycU5u1rBaYsaASWkfQxCYhaOpGA==
+x-forefront-antispam-report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:CH2PR12MB3895.namprd12.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230025)(4636009)(366004)(376002)(136003)(39860400002)(346002)(396003)(451199018)(6916009)(64756008)(66556008)(66946007)(66446008)(66476007)(76116006)(8676002)(83380400001)(316002)(8936002)(4326008)(52536014)(5660300002)(41300700001)(6506007)(53546011)(186003)(9686003)(478600001)(26005)(54906003)(966005)(71200400001)(7696005)(33656002)(55016003)(38070700005)(86362001)(2906002)(122000001)(38100700002);DIR:OUT;SFP:1101;
+x-ms-exchange-antispam-messagedata-chunkcount: 1
+x-ms-exchange-antispam-messagedata-0: =?us-ascii?Q?4JObB2+0UAJ1PeQWsByZivC9dytHrz8gGhPlqmq/Cfs9umJH2WDSWoYkGN/6?=
+ =?us-ascii?Q?/S46owjkakBGFOHR2/XhjvP3i9wfW6M66YdUGUefpz5Eoc2Fca2l3Da/1BYD?=
+ =?us-ascii?Q?IuAd5SZRsx3pvppBUSt3iXQZh1YDpJftNR6JxEnlzW7JVKUj16u2pIJM0tdK?=
+ =?us-ascii?Q?PKdtrSfuNzYMK/M8/qeSZ8eQWtagsrU/k1rJd+nJayQYyJL/WNOda6iHZeKH?=
+ =?us-ascii?Q?zn8tn/RDAA3Z0w4Pc908OsyZsvhS1cw7C+dgt/lDkeaciDhyo8OHcyOUUxq5?=
+ =?us-ascii?Q?W6enym/j7MEQ8LUPFSLxzVvYqFye+rK/OQeu6i7RQ6ZS44lwxBgHMS9rkbfw?=
+ =?us-ascii?Q?B03KxGJAlKkQO7jUzZos+Q9Ug2AbvyIE6oPH+Md+9FC5qpmEzYYw32An5twF?=
+ =?us-ascii?Q?8qE2dkaGyCSs0OZugxFtC+uqkMeSppCQAz7QyolRczPFuB28fIV9xn8o4MBe?=
+ =?us-ascii?Q?rLOWFcwOgTBETxkaOQW79G1HgWtB+wxYi9CU/ineZnmSOmXtsHvNA/cR+K9W?=
+ =?us-ascii?Q?SI/3p3i/5IbiRqNHPxcdvmX3LiyZ/CroBVZGWMc7O6DWxGhLVXnEaGZUldwM?=
+ =?us-ascii?Q?Cjz0qGLMhw1p88Mg797VswcKR4hPIi+XSkG6px/HiC2u5vlvb8JZNp7iWzzo?=
+ =?us-ascii?Q?XA6Y86xu5eSRloO4czHpDZtkJ6+egmIe9+CBUIZMfMdLIT3oxQFKwHFjPp6J?=
+ =?us-ascii?Q?BnINb3djLxeY/WIFO0yF397V6J/EkVmci+J0b7+rdHUKHeCTZNNnkyIYK0RR?=
+ =?us-ascii?Q?3SXIS88yomnKiBLc4s2q+2ZYInhPY9vetMmMcryjQDklx0xbbJp9xNpJkAiv?=
+ =?us-ascii?Q?WEE5q+8K3a2feM3IQJkICbfIr5QymMNvM574XHN1ffz8Q7FIKB8FdYuR2HfH?=
+ =?us-ascii?Q?s+o4ViydVsvDXGnndRjfbYcAoSRm5z4yQwD8ZEy3YKlWS0p5wn1Z7e4EtUI1?=
+ =?us-ascii?Q?Vd/RUxp/8GZUzWIxn6e9KHjAkCtei66/d7/gpb+UTKIEra9JL7GSUm2gwya3?=
+ =?us-ascii?Q?Z+gseaPxMrwYFNYM1yOIOdTCPG/Pbu0FU/yMaaAYxragWELtpMs+PXPMTEoX?=
+ =?us-ascii?Q?M0b6WifVA1Xkb2AK1jL2N3rk7YPcE5PXNcS/OfhTPRzRxSOUTZXzxYotg/i0?=
+ =?us-ascii?Q?QUtrs7kKlHcOl9mVPK7949GkWTKCerbDAnwz56V8nf3PurXp9OkcLcXXh2wv?=
+ =?us-ascii?Q?6KBA2A2MwmsU9j0q1HGaTRirSTu/cUniRVGgu1Y0qb+iAu66qX7KUhagFSmX?=
+ =?us-ascii?Q?qheeA5/Hdc7Dg21jFByw3LY2MZh2ugj3PjWeeBq0UPw6+e4Oeiap2QOD9YMs?=
+ =?us-ascii?Q?G3P2E1A1Lh/sbkbiwFXf2u2aAxuVBB6aVgy24FPMqJYXhd4Hxkod8GXFJ8ZX?=
+ =?us-ascii?Q?Gt6Ry8SbZSJs+MoZcULO7Vt2DtEiVWKwQTCUIKs5FiUdd5NU+/OFXtGd/k7e?=
+ =?us-ascii?Q?+Le/yvXd6PrRfRton06YyGgtdhCUWLM5kL2zF68rPbduic6RAvP5qp5ZcxS3?=
+ =?us-ascii?Q?zdJ0Xdqu8bcleoZnzNuWpVlwrUq1JHGmci1Ds1yg8k36wPUDfpaObuHWde3B?=
+ =?us-ascii?Q?A0YNiXGiTiHBqM42QBQ=3D?=
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: quoted-printable
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
- Thunderbird/102.7.2
-Subject: Re: [PATCH 1/1] tpm: disable hwrng for fTPM on some AMD designs
-Content-Language: en-US, de-DE
-To:     Jarkko Sakkinen <jarkko@kernel.org>
-Cc:     James Bottomley <James.Bottomley@hansenpartnership.com>,
-        Jason@zx2c4.com, linux-integrity@vger.kernel.org,
-        linux-kernel@vger.kernel.org, stable@vger.kernel.org,
-        Mario Limonciello <mario.limonciello@amd.com>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
-        Linux kernel regressions list <regressions@lists.linux.dev>
-References: <20230214201955.7461-1-mario.limonciello@amd.com>
- <20230214201955.7461-2-mario.limonciello@amd.com>
-From:   Thorsten Leemhuis <regressions@leemhuis.info>
-In-Reply-To: <20230214201955.7461-2-mario.limonciello@amd.com>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
-X-bounce-key: webpack.hosteurope.de;regressions@leemhuis.info;1676647122;bfeec9e3;
-X-HE-SMSGID: 1pT2VU-0002ZX-CL
-X-Spam-Status: No, score=-2.2 required=5.0 tests=BAYES_00,NICE_REPLY_A,
-        RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS autolearn=ham
-        autolearn_force=no version=3.4.6
+X-OriginatorOrg: Nvidia.com
+X-MS-Exchange-CrossTenant-AuthAs: Internal
+X-MS-Exchange-CrossTenant-AuthSource: CH2PR12MB3895.namprd12.prod.outlook.com
+X-MS-Exchange-CrossTenant-Network-Message-Id: 02afac71-a078-4f03-cca8-08db10fc512f
+X-MS-Exchange-CrossTenant-originalarrivaltime: 17 Feb 2023 15:33:28.2478
+ (UTC)
+X-MS-Exchange-CrossTenant-fromentityheader: Hosted
+X-MS-Exchange-CrossTenant-id: 43083d15-7273-40c1-b7db-39efd9ccc17a
+X-MS-Exchange-CrossTenant-mailboxtype: HOSTED
+X-MS-Exchange-CrossTenant-userprincipalname: 678+BZvqteFgI5Q5odiaBmvvOnfTfYKJqlezYYFqlSic+AyPFrqPjzXwRWCbMKco0kXn3fHTrXJzW9iTk2JTlg==
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: DM4PR12MB8498
+X-Spam-Status: No, score=-1.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FORGED_SPF_HELO,
+        RCVD_IN_DNSWL_NONE,RCVD_IN_MSPIKE_H2,SPF_HELO_PASS,SPF_NONE
+        autolearn=no autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 14.02.23 21:19, Mario Limonciello wrote:
-> AMD has issued an advisory indicating that having fTPM enabled in
-> BIOS can cause "stuttering" in the OS.  This issue has been fixed
-> in newer versions of the fTPM firmware, but it's up to system
-> designers to decide whether to distribute it.
-> 
-> This issue has existed for a while, but is more prevalent starting
-> with kernel 6.1 because commit b006c439d58db ("hwrng: core - start
-> hwrng kthread also for untrusted sources") started to use the fTPM
-> for hwrng by default. However, all uses of /dev/hwrng result in
-> unacceptable stuttering.
-> 
-> So, simply disable registration of the defective hwrng when detecting
-> these faulty fTPM versions.
+Hi Greg,=20
 
-Hmm, no reply since Mario posted this.
-
-Jarkko, James, what's your stance on this? Does the patch look fine from
-your point of view? And does the situation justify merging this on the
-last minute for 6.2? Or should we merge it early for 6.3 and then
-backport to stable?
-
-Ciao, Thorsten
-
-> Link: https://www.amd.com/en/support/kb/faq/pa-410
-> Link: https://bugzilla.kernel.org/show_bug.cgi?id=216989
-> Link: https://lore.kernel.org/all/20230209153120.261904-1-Jason@zx2c4.com/
-> Fixes: b006c439d58d ("hwrng: core - start hwrng kthread also for untrusted sources")
+Apologies, This is not meant for the Linux kernel. You got spammed because =
+when I cherry-picked this change for canonical only (kernel-team@lists.ubun=
+tu.com), this got added to the patches:
+> Signed-off-by: Shreeya Patel <shreeya.patel@collabora.com>
 > Cc: stable@vger.kernel.org
-> Cc: Jarkko Sakkinen <jarkko@kernel.org>
-> Cc: Thorsten Leemhuis <regressions@leemhuis.info>
-> Cc: James Bottomley <James.Bottomley@hansenpartnership.com>
-> Co-developed-by: Jason A. Donenfeld <Jason@zx2c4.com>
-> Signed-off-by: Jason A. Donenfeld <Jason@zx2c4.com>
-> Signed-off-by: Mario Limonciello <mario.limonciello@amd.com>
-> ---
->  drivers/char/tpm/tpm-chip.c | 62 ++++++++++++++++++++++++++++++-
->  drivers/char/tpm/tpm.h      | 73 +++++++++++++++++++++++++++++++++++++
->  2 files changed, 134 insertions(+), 1 deletion(-)
-> 
-> diff --git a/drivers/char/tpm/tpm-chip.c b/drivers/char/tpm/tpm-chip.c
-> index 741d8f3e8fb3a..348dd5705fbb6 100644
-> --- a/drivers/char/tpm/tpm-chip.c
-> +++ b/drivers/char/tpm/tpm-chip.c
-> @@ -512,6 +512,65 @@ static int tpm_add_legacy_sysfs(struct tpm_chip *chip)
->  	return 0;
->  }
->  
-> +static bool tpm_is_rng_defective(struct tpm_chip *chip)
-> +{
-> +	int ret;
-> +	u64 version;
-> +	u32 val1, val2;
-> +
-> +	/* No known-broken TPM1 chips. */
-> +	if (!(chip->flags & TPM_CHIP_FLAG_TPM2))
-> +		return false;
-> +
-> +	ret = tpm_request_locality(chip);
-> +	if (ret)
-> +		return false;
-> +
-> +	/* Some AMD fTPM versions may cause stutter */
-> +	ret = tpm2_get_tpm_pt(chip, TPM2_PT_MANUFACTURER, &val1, NULL);
-> +	if (ret)
-> +		goto release;
-> +	if (val1 != 0x414D4400U /* AMD */) {
-> +		ret = -ENODEV;
-> +		goto release;
-> +	}
-> +	ret = tpm2_get_tpm_pt(chip, TPM2_PT_FIRMWARE_VERSION_1, &val1, NULL);
-> +	if (ret)
-> +		goto release;
-> +	ret = tpm2_get_tpm_pt(chip, TPM2_PT_FIRMWARE_VERSION_2, &val2, NULL);
-> +	if (ret)
-> +		goto release;
-> +
-> +release:
-> +	tpm_relinquish_locality(chip);
-> +
-> +	if (ret)
-> +		return false;
-> +
-> +	version = ((u64)val1 << 32) | val2;
-> +	/*
-> +	 * Fixes for stutter as described in
-> +	 * https://www.amd.com/en/support/kb/faq/pa-410
-> +	 * are available in two series of fTPM firmware:
-> +	 *   6.x.y.z series: 6.0.18.6 +
-> +	 *   3.x.y.z series: 3.57.x.5 +
-> +	 */
-> +	if ((version >> 48) == 6) {
-> +		if (version >= 0x0006000000180006ULL)
-> +			return false;
-> +	} else if ((version >> 48) == 3) {
-> +		if (version >= 0x0003005700000005ULL)
-> +			return false;
-> +	} else {
-> +		return false;
-> +	}
-> +	dev_warn(&chip->dev,
-> +		 "AMD fTPM version 0x%llx causes system stutter; hwrng disabled\n",
-> +		 version);
-> +
-> +	return true;
-> +}
-> +
->  static int tpm_hwrng_read(struct hwrng *rng, void *data, size_t max, bool wait)
->  {
->  	struct tpm_chip *chip = container_of(rng, struct tpm_chip, hwrng);
-> @@ -521,7 +580,8 @@ static int tpm_hwrng_read(struct hwrng *rng, void *data, size_t max, bool wait)
->  
->  static int tpm_add_hwrng(struct tpm_chip *chip)
->  {
-> -	if (!IS_ENABLED(CONFIG_HW_RANDOM_TPM) || tpm_is_firmware_upgrade(chip))
-> +	if (!IS_ENABLED(CONFIG_HW_RANDOM_TPM) || tpm_is_firmware_upgrade(chip) ||
-> +	    tpm_is_rng_defective(chip))
->  		return 0;
->  
->  	snprintf(chip->hwrng_name, sizeof(chip->hwrng_name),
-> diff --git a/drivers/char/tpm/tpm.h b/drivers/char/tpm/tpm.h
-> index 24ee4e1cc452a..830014a266090 100644
-> --- a/drivers/char/tpm/tpm.h
-> +++ b/drivers/char/tpm/tpm.h
-> @@ -150,6 +150,79 @@ enum tpm_sub_capabilities {
->  	TPM_CAP_PROP_TIS_DURATION = 0x120,
->  };
->  
-> +enum tpm2_pt_props {
-> +	TPM2_PT_NONE = 0x00000000,
-> +	TPM2_PT_GROUP = 0x00000100,
-> +	TPM2_PT_FIXED = TPM2_PT_GROUP * 1,
-> +	TPM2_PT_FAMILY_INDICATOR = TPM2_PT_FIXED + 0,
-> +	TPM2_PT_LEVEL = TPM2_PT_FIXED + 1,
-> +	TPM2_PT_REVISION = TPM2_PT_FIXED + 2,
-> +	TPM2_PT_DAY_OF_YEAR = TPM2_PT_FIXED + 3,
-> +	TPM2_PT_YEAR = TPM2_PT_FIXED + 4,
-> +	TPM2_PT_MANUFACTURER = TPM2_PT_FIXED + 5,
-> +	TPM2_PT_VENDOR_STRING_1 = TPM2_PT_FIXED + 6,
-> +	TPM2_PT_VENDOR_STRING_2 = TPM2_PT_FIXED + 7,
-> +	TPM2_PT_VENDOR_STRING_3 = TPM2_PT_FIXED + 8,
-> +	TPM2_PT_VENDOR_STRING_4 = TPM2_PT_FIXED + 9,
-> +	TPM2_PT_VENDOR_TPM_TYPE = TPM2_PT_FIXED + 10,
-> +	TPM2_PT_FIRMWARE_VERSION_1 = TPM2_PT_FIXED + 11,
-> +	TPM2_PT_FIRMWARE_VERSION_2 = TPM2_PT_FIXED + 12,
-> +	TPM2_PT_INPUT_BUFFER = TPM2_PT_FIXED + 13,
-> +	TPM2_PT_HR_TRANSIENT_MIN = TPM2_PT_FIXED + 14,
-> +	TPM2_PT_HR_PERSISTENT_MIN = TPM2_PT_FIXED + 15,
-> +	TPM2_PT_HR_LOADED_MIN = TPM2_PT_FIXED + 16,
-> +	TPM2_PT_ACTIVE_SESSIONS_MAX = TPM2_PT_FIXED + 17,
-> +	TPM2_PT_PCR_COUNT = TPM2_PT_FIXED + 18,
-> +	TPM2_PT_PCR_SELECT_MIN = TPM2_PT_FIXED + 19,
-> +	TPM2_PT_CONTEXT_GAP_MAX = TPM2_PT_FIXED + 20,
-> +	TPM2_PT_NV_COUNTERS_MAX = TPM2_PT_FIXED + 22,
-> +	TPM2_PT_NV_INDEX_MAX = TPM2_PT_FIXED + 23,
-> +	TPM2_PT_MEMORY = TPM2_PT_FIXED + 24,
-> +	TPM2_PT_CLOCK_UPDATE = TPM2_PT_FIXED + 25,
-> +	TPM2_PT_CONTEXT_HASH = TPM2_PT_FIXED + 26,
-> +	TPM2_PT_CONTEXT_SYM = TPM2_PT_FIXED + 27,
-> +	TPM2_PT_CONTEXT_SYM_SIZE = TPM2_PT_FIXED + 28,
-> +	TPM2_PT_ORDERLY_COUNT = TPM2_PT_FIXED + 29,
-> +	TPM2_PT_MAX_COMMAND_SIZE = TPM2_PT_FIXED + 30,
-> +	TPM2_PT_MAX_RESPONSE_SIZE = TPM2_PT_FIXED + 31,
-> +	TPM2_PT_MAX_DIGEST = TPM2_PT_FIXED + 32,
-> +	TPM2_PT_MAX_OBJECT_CONTEXT = TPM2_PT_FIXED + 33,
-> +	TPM2_PT_MAX_SESSION_CONTEXT = TPM2_PT_FIXED + 34,
-> +	TPM2_PT_PS_FAMILY_INDICATOR = TPM2_PT_FIXED + 35,
-> +	TPM2_PT_PS_LEVEL = TPM2_PT_FIXED + 36,
-> +	TPM2_PT_PS_REVISION = TPM2_PT_FIXED + 37,
-> +	TPM2_PT_PS_DAY_OF_YEAR = TPM2_PT_FIXED + 38,
-> +	TPM2_PT_PS_YEAR = TPM2_PT_FIXED + 39,
-> +	TPM2_PT_SPLIT_MAX = TPM2_PT_FIXED + 40,
-> +	TPM2_PT_TOTAL_COMMANDS = TPM2_PT_FIXED + 41,
-> +	TPM2_PT_LIBRARY_COMMANDS = TPM2_PT_FIXED + 42,
-> +	TPM2_PT_VENDOR_COMMANDS = TPM2_PT_FIXED + 43,
-> +	TPM2_PT_NV_BUFFER_MAX = TPM2_PT_FIXED + 44,
-> +	TPM2_PT_MODES = TPM2_PT_FIXED + 45,
-> +	TPM2_PT_MAX_CAP_BUFFER = TPM2_PT_FIXED + 46,
-> +	TPM2_PT_VAR = TPM2_PT_GROUP * 2,
-> +	TPM2_PT_PERMANENT = TPM2_PT_VAR + 0,
-> +	TPM2_PT_STARTUP_CLEAR = TPM2_PT_VAR + 1,
-> +	TPM2_PT_HR_NV_INDEX = TPM2_PT_VAR + 2,
-> +	TPM2_PT_HR_LOADED = TPM2_PT_VAR + 3,
-> +	TPM2_PT_HR_LOADED_AVAIL = TPM2_PT_VAR + 4,
-> +	TPM2_PT_HR_ACTIVE = TPM2_PT_VAR + 5,
-> +	TPM2_PT_HR_ACTIVE_AVAIL = TPM2_PT_VAR + 6,
-> +	TPM2_PT_HR_TRANSIENT_AVAIL = TPM2_PT_VAR + 7,
-> +	TPM2_PT_HR_PERSISTENT = TPM2_PT_VAR + 8,
-> +	TPM2_PT_HR_PERSISTENT_AVAIL = TPM2_PT_VAR + 9,
-> +	TPM2_PT_NV_COUNTERS = TPM2_PT_VAR + 10,
-> +	TPM2_PT_NV_COUNTERS_AVAIL = TPM2_PT_VAR + 11,
-> +	TPM2_PT_ALGORITHM_SET = TPM2_PT_VAR + 12,
-> +	TPM2_PT_LOADED_CURVES = TPM2_PT_VAR + 13,
-> +	TPM2_PT_LOCKOUT_COUNTER = TPM2_PT_VAR + 14,
-> +	TPM2_PT_MAX_AUTH_FAIL = TPM2_PT_VAR + 15,
-> +	TPM2_PT_LOCKOUT_INTERVAL = TPM2_PT_VAR + 16,
-> +	TPM2_PT_LOCKOUT_RECOVERY = TPM2_PT_VAR + 17,
-> +	TPM2_PT_NV_WRITE_RECOVERY = TPM2_PT_VAR + 18,
-> +	TPM2_PT_AUDIT_COUNTER_0 = TPM2_PT_VAR + 19,
-> +	TPM2_PT_AUDIT_COUNTER_1 = TPM2_PT_VAR + 20,
-> +};
->  
->  /* 128 bytes is an arbitrary cap. This could be as large as TPM_BUFSIZE - 18
->   * bytes, but 128 is still a relatively large number of random bytes and
+> Reviewed-by: Andy Shevchenko <andy.shevchenko@gmail.com>
+> Reviewed-by: Linus Walleij <linus.walleij@linaro.org>
+> Signed-off-by: Bartosz Golaszewski <brgl@bgdev.pl> (backported from=20
+> commit 5467801f1fcbdc46bc7298a84dbf3ca1ff2a7320)
+> Signed-off-by: Asmaa Mnebhi <asmaa@nvidia.com>
+
+Which caused it to be sent to everyone. =20
+Will talk to canonical on how to avoid this in the future.
+
+-----Original Message-----
+From: Greg KH <gregkh@linuxfoundation.org>=20
+Sent: Friday, February 17, 2023 9:27 AM
+To: Asmaa Mnebhi <asmaa@nvidia.com>
+Cc: kernel-team@lists.ubuntu.com; Khoa Vo <khoav@nvidia.com>; Meriton Tuli =
+<meriton@nvidia.com>; Vladimir Sokolovsky <vlad@nvidia.com>; Shreeya Patel =
+<shreeya.patel@collabora.com>; stable@vger.kernel.org; Andy Shevchenko <and=
+y.shevchenko@gmail.com>; Linus Walleij <linus.walleij@linaro.org>; Bartosz =
+Golaszewski <brgl@bgdev.pl>
+Subject: Re: [SRU][F:linux-bluefield][PATCH v2 1/2] gpio: Restrict usage of=
+ GPIO chip irq members before initialization
+
+On Fri, Feb 17, 2023 at 09:07:43AM -0500, Asmaa Mnebhi wrote:
+> BugLink: https://bugs.launchpad.net/bugs/2007581
+>=20
+> GPIO chip irq members are exposed before they could be completely=20
+> initialized and this leads to race conditions.
+>=20
+> One such issue was observed for the gc->irq.domain variable which was=20
+> accessed through the I2C interface in gpiochip_to_irq() before it=20
+> could be initialized by gpiochip_add_irqchip(). This resulted in=20
+> Kernel NULL pointer dereference.
+>=20
+> Following are the logs for reference :-
+>=20
+> kernel: Call Trace:
+> kernel:  gpiod_to_irq+0x53/0x70
+> kernel:  acpi_dev_gpio_irq_get_by+0x113/0x1f0
+> kernel:  i2c_acpi_get_irq+0xc0/0xd0
+> kernel:  i2c_device_probe+0x28a/0x2a0
+> kernel:  really_probe+0xf2/0x460
+> kernel: RIP: 0010:gpiochip_to_irq+0x47/0xc0
+>=20
+> To avoid such scenarios, restrict usage of GPIO chip irq members=20
+> before they are completely initialized.
+>=20
+> Signed-off-by: Shreeya Patel <shreeya.patel@collabora.com>
+> Cc: stable@vger.kernel.org
+> Reviewed-by: Andy Shevchenko <andy.shevchenko@gmail.com>
+> Reviewed-by: Linus Walleij <linus.walleij@linaro.org>
+> Signed-off-by: Bartosz Golaszewski <brgl@bgdev.pl> (backported from=20
+> commit 5467801f1fcbdc46bc7298a84dbf3ca1ff2a7320)
+> Signed-off-by: Asmaa Mnebhi <asmaa@nvidia.com>
+
+
+<formletter>
+
+This is not the correct way to submit patches for inclusion in the stable k=
+ernel tree.  Please read:
+    https://www.kernel.org/doc/html/latest/process/stable-kernel-rules.html
+for how to do this properly.
+
+</formletter>
