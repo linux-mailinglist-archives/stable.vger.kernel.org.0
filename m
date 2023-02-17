@@ -2,39 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 3D86069B629
-	for <lists+stable@lfdr.de>; Sat, 18 Feb 2023 00:07:55 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D90A869B628
+	for <lists+stable@lfdr.de>; Sat, 18 Feb 2023 00:07:54 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229506AbjBQXHx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 17 Feb 2023 18:07:53 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54222 "EHLO
+        id S229577AbjBQXHw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 17 Feb 2023 18:07:52 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54224 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229475AbjBQXHv (ORCPT
+        with ESMTP id S229506AbjBQXHv (ORCPT
         <rfc822;stable@vger.kernel.org>); Fri, 17 Feb 2023 18:07:51 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BD82119A;
-        Fri, 17 Feb 2023 15:07:48 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2914935A2;
+        Fri, 17 Feb 2023 15:07:50 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 6E5EAB82EA6;
+        by ams.source.kernel.org (Postfix) with ESMTPS id B26BEB82EA8;
+        Fri, 17 Feb 2023 23:07:48 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5E46BC433EF;
         Fri, 17 Feb 2023 23:07:47 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1EDB2C433D2;
-        Fri, 17 Feb 2023 23:07:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linux-foundation.org;
-        s=korg; t=1676675266;
-        bh=fExcyML4LkR07+JWBsVgHvUX9J5y7OPoncWOiwO5AAo=;
+        s=korg; t=1676675267;
+        bh=5rGwQ3tckpOjFR4YPo2nCylgN54ytSjPUWh0jo6H/kQ=;
         h=Date:To:From:Subject:From;
-        b=gJ0pmv6sP5iY4gt3Ceho7c2EtAmAaleTMVei922mbgEP6m1oh2OabR7jqPyaIrt+k
-         YIFUNLy5vlpI4Ad8da1Wwi24QBhvZlZ7H0I9vlcMpTjTTAT+wlsZlfKiPBSV8sz8gf
-         zsFhhRgY8Z8HuqqPJSckghgm9ybth0I1CINatbYU=
-Date:   Fri, 17 Feb 2023 15:07:45 -0800
+        b=SKglvq8kpHtbVbfzi6Un2LMvMoR19Bnqa8JVUI+rIlcgAqW8RJZBO7dWlkHAG1Idx
+         A0VnDXvB2YoNC5ht5pVJAdndBZdb9safIx/zr9yedupigr5B4AnyM2buGCmf3qoLZJ
+         yZBgVoJIFSVsiW06ivmy3z7LTknoWecvTqmf5cA8=
+Date:   Fri, 17 Feb 2023 15:07:46 -0800
 To:     mm-commits@vger.kernel.org, stable@vger.kernel.org,
-        regressions@lists.linux.dev, nbowler@draconx.ca, david@redhat.com,
-        peterx@redhat.com, akpm@linux-foundation.org
+        songmuchun@bytedance.com, sashal@kernel.org,
+        naresh.kamboju@linaro.org, lkft@linaro.org, jesperjuhl76@gmail.com,
+        anders.roxell@linaro.org, ak@linux.intel.com,
+        mike.kravetz@oracle.com, akpm@linux-foundation.org
 From:   Andrew Morton <akpm@linux-foundation.org>
-Subject: [merged mm-hotfixes-stable] mm-migrate-fix-wrongly-apply-write-bit-after-mkdirty-on-sparc64.patch removed from -mm tree
-Message-Id: <20230217230746.1EDB2C433D2@smtp.kernel.org>
+Subject: [merged mm-hotfixes-stable] hugetlb-check-for-undefined-shift-on-32-bit-architectures.patch removed from -mm tree
+Message-Id: <20230217230747.5E46BC433EF@smtp.kernel.org>
 X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
         DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,SPF_HELO_NONE,
         SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
@@ -46,89 +48,72 @@ X-Mailing-List: stable@vger.kernel.org
 
 
 The quilt patch titled
-     Subject: mm/migrate: fix wrongly apply write bit after mkdirty on sparc64
+     Subject: hugetlb: check for undefined shift on 32 bit architectures
 has been removed from the -mm tree.  Its filename was
-     mm-migrate-fix-wrongly-apply-write-bit-after-mkdirty-on-sparc64.patch
+     hugetlb-check-for-undefined-shift-on-32-bit-architectures.patch
 
 This patch was dropped because it was merged into the mm-hotfixes-stable branch
 of git://git.kernel.org/pub/scm/linux/kernel/git/akpm/mm
 
 ------------------------------------------------------
-From: Peter Xu <peterx@redhat.com>
-Subject: mm/migrate: fix wrongly apply write bit after mkdirty on sparc64
-Date: Thu, 16 Feb 2023 10:30:59 -0500
+From: Mike Kravetz <mike.kravetz@oracle.com>
+Subject: hugetlb: check for undefined shift on 32 bit architectures
+Date: Wed, 15 Feb 2023 17:35:42 -0800
 
-Nick Bowler reported another sparc64 breakage after the young/dirty
-persistent work for page migration (per "Link:" below).  That's after a
-similar report [2].
+Users can specify the hugetlb page size in the mmap, shmget and
+memfd_create system calls.  This is done by using 6 bits within the flags
+argument to encode the base-2 logarithm of the desired page size.  The
+routine hstate_sizelog() uses the log2 value to find the corresponding
+hugetlb hstate structure.  Converting the log2 value (page_size_log) to
+potential hugetlb page size is the simple statement:
 
-It turns out page migration was overlooked, and it wasn't failing before
-because page migration was not enabled in the initial report test
-environment.
+	1UL << page_size_log
 
-David proposed another way [2] to fix this from sparc64 side, but that
-patch didn't land somehow.  Neither did I check whether there's any other
-arch that has similar issues.
+Because only 6 bits are used for page_size_log, the left shift can not be
+greater than 63.  This is fine on 64 bit architectures where a long is 64
+bits.  However, if a value greater than 31 is passed on a 32 bit
+architecture (where long is 32 bits) the shift will result in undefined
+behavior.  This was generally not an issue as the result of the undefined
+shift had to exactly match hugetlb page size to proceed.
 
-Let's fix it for now as simple as moving the write bit handling to be
-after dirty, like what we did before.
+Recent improvements in runtime checking have resulted in this undefined
+behavior throwing errors such as reported below.
 
-Note: this is based on mm-unstable, because the breakage was since 6.1 and
-we're at a very late stage of 6.2 (-rc8), so I assume for this specific
-case we should target this at 6.3.
+Fix by comparing page_size_log to BITS_PER_LONG before doing shift.
 
-[1] https://lore.kernel.org/all/20221021160603.GA23307@u164.east.ru/
-[2] https://lore.kernel.org/all/20221212130213.136267-1-david@redhat.com/
-
-Link: https://lkml.kernel.org/r/20230216153059.256739-1-peterx@redhat.com
-Fixes: 2e3468778dbe ("mm: remember young/dirty bit for page migrations")
-Link: https://lore.kernel.org/all/CADyTPExpEqaJiMGoV+Z6xVgL50ZoMJg49B10LcZ=8eg19u34BA@mail.gmail.com/
-Signed-off-by: Peter Xu <peterx@redhat.com>
-Reported-by: Nick Bowler <nbowler@draconx.ca>
-Acked-by: David Hildenbrand <david@redhat.com>
-Tested-by: Nick Bowler <nbowler@draconx.ca>
-Cc: <regressions@lists.linux.dev>
+Link: https://lkml.kernel.org/r/20230216013542.138708-1-mike.kravetz@oracle.com
+Link: https://lore.kernel.org/lkml/CA+G9fYuei_Tr-vN9GS7SfFyU1y9hNysnf=PB7kT0=yv4MiPgVg@mail.gmail.com/
+Fixes: 42d7395feb56 ("mm: support more pagesizes for MAP_HUGETLB/SHM_HUGETLB")
+Signed-off-by: Mike Kravetz <mike.kravetz@oracle.com>
+Reported-by: Naresh Kamboju <naresh.kamboju@linaro.org>
+Reviewed-by: Jesper Juhl <jesperjuhl76@gmail.com>
+Acked-by: Muchun Song <songmuchun@bytedance.com>
+Tested-by: Linux Kernel Functional Testing <lkft@linaro.org>
+Tested-by: Naresh Kamboju <naresh.kamboju@linaro.org>
+Cc: Anders Roxell <anders.roxell@linaro.org>
+Cc: Andi Kleen <ak@linux.intel.com>
+Cc: Sasha Levin <sashal@kernel.org>
 Cc: <stable@vger.kernel.org>
 Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
 ---
 
 
---- a/mm/huge_memory.c~mm-migrate-fix-wrongly-apply-write-bit-after-mkdirty-on-sparc64
-+++ a/mm/huge_memory.c
-@@ -3272,8 +3272,6 @@ void remove_migration_pmd(struct page_vm
- 	pmde = mk_huge_pmd(new, READ_ONCE(vma->vm_page_prot));
- 	if (pmd_swp_soft_dirty(*pvmw->pmd))
- 		pmde = pmd_mksoft_dirty(pmde);
--	if (is_writable_migration_entry(entry))
--		pmde = maybe_pmd_mkwrite(pmde, vma);
- 	if (pmd_swp_uffd_wp(*pvmw->pmd))
- 		pmde = pmd_wrprotect(pmd_mkuffd_wp(pmde));
- 	if (!is_migration_entry_young(entry))
-@@ -3281,6 +3279,10 @@ void remove_migration_pmd(struct page_vm
- 	/* NOTE: this may contain setting soft-dirty on some archs */
- 	if (PageDirty(new) && is_migration_entry_dirty(entry))
- 		pmde = pmd_mkdirty(pmde);
-+	if (is_writable_migration_entry(entry))
-+		pmde = maybe_pmd_mkwrite(pmde, vma);
-+	else
-+		pmde = pmd_wrprotect(pmde);
+--- a/include/linux/hugetlb.h~hugetlb-check-for-undefined-shift-on-32-bit-architectures
++++ a/include/linux/hugetlb.h
+@@ -743,7 +743,10 @@ static inline struct hstate *hstate_size
+ 	if (!page_size_log)
+ 		return &default_hstate;
  
- 	if (PageAnon(new)) {
- 		rmap_t rmap_flags = RMAP_COMPOUND;
---- a/mm/migrate.c~mm-migrate-fix-wrongly-apply-write-bit-after-mkdirty-on-sparc64
-+++ a/mm/migrate.c
-@@ -224,6 +224,8 @@ static bool remove_migration_pte(struct
- 			pte = maybe_mkwrite(pte, vma);
- 		else if (pte_swp_uffd_wp(*pvmw.pte))
- 			pte = pte_mkuffd_wp(pte);
-+		else
-+			pte = pte_wrprotect(pte);
+-	return size_to_hstate(1UL << page_size_log);
++	if (page_size_log < BITS_PER_LONG)
++		return size_to_hstate(1UL << page_size_log);
++
++	return NULL;
+ }
  
- 		if (folio_test_anon(folio) && !is_readable_migration_entry(entry))
- 			rmap_flags |= RMAP_EXCLUSIVE;
+ static inline struct hstate *hstate_vma(struct vm_area_struct *vma)
 _
 
-Patches currently in -mm which might be from peterx@redhat.com are
+Patches currently in -mm which might be from mike.kravetz@oracle.com are
 
-mm-uffd-fix-comment-in-handling-pte-markers.patch
 
