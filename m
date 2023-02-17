@@ -2,64 +2,113 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B7E3569AE2F
-	for <lists+stable@lfdr.de>; Fri, 17 Feb 2023 15:39:33 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7554869AEFC
+	for <lists+stable@lfdr.de>; Fri, 17 Feb 2023 16:07:06 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229786AbjBQOjc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 17 Feb 2023 09:39:32 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37090 "EHLO
+        id S230136AbjBQPHE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 17 Feb 2023 10:07:04 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38992 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229813AbjBQOjb (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 17 Feb 2023 09:39:31 -0500
-Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2AF2C6D7BB
-        for <stable@vger.kernel.org>; Fri, 17 Feb 2023 06:39:27 -0800 (PST)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 764A5CE264C
-        for <stable@vger.kernel.org>; Fri, 17 Feb 2023 14:39:25 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6A0C7C433D2;
-        Fri, 17 Feb 2023 14:39:23 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1676644763;
-        bh=8IEERcQuPU/nTuZx4ymEQOcvNsXp2Ue5LL1gQXxygP4=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=fWh1HATPambORBiHp7j2wcteV4aUwOedWsRF4wjdyf5MBmQhHnpqq8WmCwn2S5bKZ
-         oDzgaX+JksvpndKd/80vx827n7AN+qqKhpMOgljz0OhEWb/HnaA8LcrLLIaYTVkZ8B
-         dFSmSjEXI71qZZYih6eHxQkMpyu9smt9YdpgSnFY=
-Date:   Fri, 17 Feb 2023 15:39:21 +0100
-From:   'Greg KH' <gregkh@linuxfoundation.org>
-To:     Michael Nies <michael.nies@netclusive.com>
-Cc:     "'stable@vger.kernel.org'" <stable@vger.kernel.org>
-Subject: Re: AW: Kernel Bug 217013
-Message-ID: <Y++RmSBlvzB7rgqs@kroah.com>
-References: <HE1PR0902MB188277E37DED663AE440510BE1D99@HE1PR0902MB1882.eurprd09.prod.outlook.com>
- <Y+ScSE/M54LxkzZu@kroah.com>
- <HE1PR0902MB1882314643322D58AD3A71F8E1D99@HE1PR0902MB1882.eurprd09.prod.outlook.com>
- <HE1PR0902MB1882AE00D357F1794A25EA15E1D99@HE1PR0902MB1882.eurprd09.prod.outlook.com>
+        with ESMTP id S230139AbjBQPHD (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 17 Feb 2023 10:07:03 -0500
+Received: from mail-ed1-x52f.google.com (mail-ed1-x52f.google.com [IPv6:2a00:1450:4864:20::52f])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D80CC6FF1C
+        for <stable@vger.kernel.org>; Fri, 17 Feb 2023 07:06:42 -0800 (PST)
+Received: by mail-ed1-x52f.google.com with SMTP id eg30so5156790edb.7
+        for <stable@vger.kernel.org>; Fri, 17 Feb 2023 07:06:42 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=linaro.org; s=google;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=3z185FWU7ZfyyzhLKoYedsNlicLGBx1kFdr349Ea550=;
+        b=cPgqSYp5x0RbNey1QoYnp5yYjtPNnxIKHuV0yCV/tGu9ze+BWyKaZrgRC23xqf+aK1
+         Aa75MQoEmRnU49ts0JOKIdAsizKdLGtGQ6i3gbPmR/8+6/QlLJNRQKcZLCdwp6qESKLk
+         TNeODqdrNmmvu8AAMSwD/f+X9yYhNXjoTESvao7GPYh3/RJyInpDc8tOf328q9nSJfVK
+         uNyJqYQAaYyhcRqfLEb141/RcX5WHo476bWoSoAdMBR7U9u64E3NB8EDcq+GHSRjJp5a
+         b6Qh4FYtOa1Yw38WNUVZGEnLEWXE6z5y7xchSIgWc6sWTAckOKpnHBoSW1kh3ufDXVwb
+         krkQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:date:subject:cc:to:from:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=3z185FWU7ZfyyzhLKoYedsNlicLGBx1kFdr349Ea550=;
+        b=JvsxNXF3opPXnr48QbMqPrjox8oITekIsUpgLG9pveyQHBVfqss+VXhE+lrunylcRs
+         tbP/fMPI9AblBx+6kPDmFLzKdetiBkxRfjrSW9y2P1Fxl4IRlugmid0Fm7jSIb7ZVgPk
+         tt7Kgz6x6nJn9cf10Nb/K6wOShevQnkRWfaAFt/jrBgnHRWD+mYZC1KkfzXhVhlLe9AM
+         a1DwKQE0cvJx0zZ4IzB6hfIZwH1vf8Y0in0bqTcEKkR5N+T5oRUtdHxPIEJgaEQLzTL/
+         ghtWFThcf8yMKhDdJW9TVAtUP0zqk9luIKi6MtT7QcYpbffp+ln8PK1a8ARfpq5Y7/QC
+         fguA==
+X-Gm-Message-State: AO0yUKVsH1VrugYDmJToFbJ1uzVpxRRURV/SXiXA6j+fHIQt10zfKTlH
+        RIG0iJki3JYpihGCEvR4FVICYg==
+X-Google-Smtp-Source: AK7set/pn10vry4YigYRKtWssAPTbvwcClDP3kZTdAu0MAicSLuTBDXhSHoRKivXU0qwmTastoh1hQ==
+X-Received: by 2002:a17:906:4708:b0:8ae:e82a:3230 with SMTP id y8-20020a170906470800b008aee82a3230mr10211274ejq.70.1676646399162;
+        Fri, 17 Feb 2023 07:06:39 -0800 (PST)
+Received: from krzk-bin.. ([178.197.216.144])
+        by smtp.gmail.com with ESMTPSA id fx15-20020a170906b74f00b008b14ba6c954sm2221303ejb.194.2023.02.17.07.06.35
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Fri, 17 Feb 2023 07:06:38 -0800 (PST)
+From:   Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
+To:     Liam Girdwood <lgirdwood@gmail.com>,
+        Mark Brown <broonie@kernel.org>,
+        Rob Herring <robh+dt@kernel.org>,
+        Krzysztof Kozlowski <krzysztof.kozlowski+dt@linaro.org>,
+        Alim Akhtar <alim.akhtar@samsung.com>,
+        Shawn Guo <shawnguo@kernel.org>,
+        Sascha Hauer <s.hauer@pengutronix.de>,
+        Pengutronix Kernel Team <kernel@pengutronix.de>,
+        Fabio Estevam <festevam@gmail.com>,
+        NXP Linux Team <linux-imx@nxp.com>,
+        - <patches@opensource.cirrus.com>,
+        Adrien Grassein <adrien.grassein@gmail.com>,
+        Randy Li <ayaka@soulik.info>, alsa-devel@alsa-project.org,
+        devicetree@vger.kernel.org, linux-kernel@vger.kernel.org,
+        linux-arm-kernel@lists.infradead.org,
+        linux-samsung-soc@vger.kernel.org
+Cc:     Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>,
+        stable@vger.kernel.org
+Subject: [PATCH 2/3] arm64: dts: imx8mm-nitrogen-r2: fix WM8960 clock name
+Date:   Fri, 17 Feb 2023 16:06:26 +0100
+Message-Id: <20230217150627.779764-2-krzysztof.kozlowski@linaro.org>
+X-Mailer: git-send-email 2.34.1
+In-Reply-To: <20230217150627.779764-1-krzysztof.kozlowski@linaro.org>
+References: <20230217150627.779764-1-krzysztof.kozlowski@linaro.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <HE1PR0902MB1882AE00D357F1794A25EA15E1D99@HE1PR0902MB1882.eurprd09.prod.outlook.com>
-X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
-        SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
+Content-Transfer-Encoding: 8bit
+X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_NONE,
+        SPF_HELO_NONE,SPF_PASS autolearn=unavailable autolearn_force=no
+        version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Thu, Feb 09, 2023 at 08:04:52AM +0000, Michael Nies wrote:
-> Hi Greg,
-> 
-> I noticed that gcc 4.6 is also the requirement for kernel 5.4:
-> https://www.kernel.org/doc/html/v5.4/process/changes.html
-> 
-> So anyone who compiles 5.4 with gcc4.6 should also run into the problem.
+The WM8960 Linux driver expects the clock to be named "mclk".  Otherwise
+the clock will be ignored and not prepared/enabled by the driver.
 
-Thanks for the info, I've queued up a fix for this in the 4.14.y and
-4.19.y kernel trees, and it will be in the next release of them.
+Fixes: 40ba2eda0a7b ("arm64: dts: imx8mm-nitrogen-r2: add audio")
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
+---
+ arch/arm64/boot/dts/freescale/imx8mm-nitrogen-r2.dts | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-greg k-h
+diff --git a/arch/arm64/boot/dts/freescale/imx8mm-nitrogen-r2.dts b/arch/arm64/boot/dts/freescale/imx8mm-nitrogen-r2.dts
+index 6357078185ed..0e8f0d7161ad 100644
+--- a/arch/arm64/boot/dts/freescale/imx8mm-nitrogen-r2.dts
++++ b/arch/arm64/boot/dts/freescale/imx8mm-nitrogen-r2.dts
+@@ -247,7 +247,7 @@ wm8960: codec@1a {
+ 		compatible = "wlf,wm8960";
+ 		reg = <0x1a>;
+ 		clocks = <&clk IMX8MM_CLK_SAI1_ROOT>;
+-		clock-names = "mclk1";
++		clock-names = "mclk";
+ 		wlf,shared-lrclk;
+ 		#sound-dai-cells = <0>;
+ 	};
+-- 
+2.34.1
+
