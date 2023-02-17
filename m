@@ -2,45 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 4BD5969ADBB
-	for <lists+stable@lfdr.de>; Fri, 17 Feb 2023 15:15:41 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1947369ADD1
+	for <lists+stable@lfdr.de>; Fri, 17 Feb 2023 15:20:53 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229887AbjBQOPj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 17 Feb 2023 09:15:39 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42050 "EHLO
+        id S229663AbjBQOUv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 17 Feb 2023 09:20:51 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48374 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229496AbjBQOPi (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 17 Feb 2023 09:15:38 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9B3846C00F
-        for <stable@vger.kernel.org>; Fri, 17 Feb 2023 06:15:21 -0800 (PST)
+        with ESMTP id S229539AbjBQOUv (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 17 Feb 2023 09:20:51 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 55B9572B5;
+        Fri, 17 Feb 2023 06:20:50 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 9854AB82C06
-        for <stable@vger.kernel.org>; Fri, 17 Feb 2023 14:14:28 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0963FC4339B;
-        Fri, 17 Feb 2023 14:14:26 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id AB6F361C21;
+        Fri, 17 Feb 2023 14:20:49 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8DCD6C433EF;
+        Fri, 17 Feb 2023 14:20:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1676643267;
-        bh=83Da/xcz+aAIbqnU3rPf5qEH62XdhyC4xQohCmPtOHk=;
+        s=korg; t=1676643649;
+        bh=PxG8WjVWQrbJIDjndkkPVdR8kR3DHaqtLSKBANf2ASU=;
         h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=fdEgXn6UoJzXDH9rxXMSff6PNaSj+K2IDb1jsY2bIsyznRlNP/OlT3v/mA+4Fv3iF
-         WUR9kfCj0Lm23E/DbwJEy8MyjuduaN61u8OWaCvlroy3EPPN6jD2aBoPSxWI6bAudF
-         0RR+5ZOSkruBZsIjxQDsJKDb/kDb7LXFC6M3JkN8=
-Date:   Fri, 17 Feb 2023 15:14:24 +0100
+        b=rsgV8psU6vBtnazummH9PFOC//0QrTnqXjpchOMD7m7o0cL+SmEYCXIkCRPmRQ6Fk
+         JTaPu2qXRnrosZBuFpcM+TFBhP73QorD2ljLjOEphhptSlxNN+55FoqGzKg1TS0EP0
+         XdZNl55XkzOGm0ZhALHLCXtnCBGLH8ZZP/JiQnzU=
+Date:   Fri, 17 Feb 2023 15:20:46 +0100
 From:   Greg KH <gregkh@linuxfoundation.org>
-To:     Qingfang DENG <dqfext@gmail.com>
-Cc:     stable@vger.kernel.org, Florian Westphal <fw@strlen.de>,
-        Shell Chen <xierch@gmail.com>
-Subject: Re: [PATCH 5.15,5.10,5.4,4.19] netfilter: nft_tproxy: restrict to
- prerouting hook
-Message-ID: <Y++LwO5sw8amUIFV@kroah.com>
-References: <20230216124755.51762-1-dqfext@gmail.com>
+To:     Chandan Babu R <chandan.babu@oracle.com>
+Cc:     sashal@kernel.org, mcgrof@kernel.org, linux-xfs@vger.kernel.org,
+        stable@vger.kernel.org, djwong@kernel.org, amir73il@gmail.com,
+        leah.rumancik@gmail.com
+Subject: Re: [PATCH 5.4 00/25] xfs stable candidate patches for 5.4.y (from
+ v5.10)
+Message-ID: <Y++NPiL78wdT6Y46@kroah.com>
+References: <20230216052019.368896-1-chandan.babu@oracle.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20230216124755.51762-1-dqfext@gmail.com>
+In-Reply-To: <20230216052019.368896-1-chandan.babu@oracle.com>
 X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
         DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
         SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
@@ -50,22 +51,12 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Thu, Feb 16, 2023 at 08:47:55PM +0800, Qingfang DENG wrote:
-> From: Florian Westphal <fw@strlen.de>
+On Thu, Feb 16, 2023 at 10:49:54AM +0530, Chandan Babu R wrote:
+> Hi Greg,
 > 
-> commit 18bbc3213383a82b05383827f4b1b882e3f0a5a5 upstream.
-> 
-> TPROXY is only allowed from prerouting, but nft_tproxy doesn't check this.
-> This fixes a crash (null dereference) when using tproxy from e.g. output.
-> 
-> Fixes: 4ed8eb6570a4 ("netfilter: nf_tables: Add native tproxy support")
-> Reported-by: Shell Chen <xierch@gmail.com>
-> Signed-off-by: Florian Westphal <fw@strlen.de>
-> Signed-off-by: Qingfang DENG <dqfext@gmail.com>
-> ---
->  net/netfilter/nft_tproxy.c | 8 ++++++++
->  1 file changed, 8 insertions(+)
+> This 5.4.y backport series contains XFS fixes from v5.10. The patchset
+> has been acked by Darrick.
 
-Now queued up, thanks.
+All now queued up, thanks.
 
 greg k-h
