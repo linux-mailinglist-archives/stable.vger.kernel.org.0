@@ -2,138 +2,103 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B4D0D69B1CE
-	for <lists+stable@lfdr.de>; Fri, 17 Feb 2023 18:31:52 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C09D969B1DD
+	for <lists+stable@lfdr.de>; Fri, 17 Feb 2023 18:36:23 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229918AbjBQRbu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 17 Feb 2023 12:31:50 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35404 "EHLO
+        id S229971AbjBQRgM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 17 Feb 2023 12:36:12 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38512 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229460AbjBQRbu (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 17 Feb 2023 12:31:50 -0500
-Received: from mail-yb1-xb2b.google.com (mail-yb1-xb2b.google.com [IPv6:2607:f8b0:4864:20::b2b])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 847FC6F7D0
-        for <stable@vger.kernel.org>; Fri, 17 Feb 2023 09:31:48 -0800 (PST)
-Received: by mail-yb1-xb2b.google.com with SMTP id o196so1871317ybg.2
-        for <stable@vger.kernel.org>; Fri, 17 Feb 2023 09:31:48 -0800 (PST)
+        with ESMTP id S229942AbjBQRgL (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 17 Feb 2023 12:36:11 -0500
+Received: from mail-yb1-xb42.google.com (mail-yb1-xb42.google.com [IPv6:2607:f8b0:4864:20::b42])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 888B57293C
+        for <stable@vger.kernel.org>; Fri, 17 Feb 2023 09:36:08 -0800 (PST)
+Received: by mail-yb1-xb42.google.com with SMTP id g8so1495025ybe.13
+        for <stable@vger.kernel.org>; Fri, 17 Feb 2023 09:36:08 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=chromium.org; s=google;
-        h=cc:to:subject:message-id:date:from:in-reply-to:references
-         :mime-version:from:to:cc:subject:date:message-id:reply-to;
-        bh=liSt0sRaUA8nvJvDXS4dEE1Ac3wmg+RmpsYvQkMfiQ0=;
-        b=TeM0wGNH9k+EZTL5gQ/FJK/3wse5JbI7uTKfl6apOBaocU20q9/3SMJyQCFYzpC7to
-         1nIxdf60f0qKafad55uQMOez30aW6MfSXaa7zMd/uj4bEr0kSlPYnExtHou6YLDWIszu
-         rzX4L6vj8EvlbGcF3dg9ypkwAnb1Ii5Ia2BV0=
+        d=gmail.com; s=20210112;
+        h=to:subject:message-id:date:from:reply-to:mime-version:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=ku6/IvgVl/mpN7kpsosgj0Y3GnwtptLKAhd4JFHSZ8g=;
+        b=gA3Vo47kBgMkp63vwjyGjDSfUXvyC7jMfqwFXRuWmDS5RhLk6ozwn++tCLjV9NAHa4
+         oIegtdT7w/VODljeNLfZRPl0ICQgdau9r9xblUo3C3H0D7S039lMu31PWXbN68iqCkrI
+         cMHDQe2vSFpjiykV9dy/HiXMv1NxrvV7PXrbLXNJCsy0OLxPgA2M/iBLR63fHELEms2C
+         r9oiDTBK7pDOJNGQXuKC69gyHhQLalorwCqD8GCSotapjknBzxTCi4BIbWwKw+bNVHkc
+         VVo8LFNAsYKHH7ZWsgrg/GIXCNaCMLJJaggl9aIh0vaogpLsSsl8osF7K6tzt6OOPZx5
+         0OzQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=cc:to:subject:message-id:date:from:in-reply-to:references
-         :mime-version:x-gm-message-state:from:to:cc:subject:date:message-id
-         :reply-to;
-        bh=liSt0sRaUA8nvJvDXS4dEE1Ac3wmg+RmpsYvQkMfiQ0=;
-        b=CcB2OHAuNsIP2bSRNgceDeZxm79ahrKNbLdbBqA396SALfdzjn7UykKsM7b0dhdO/k
-         yJQie3+a8SoYKS4Y3TWJXryIg9DLt6B9uGHqo2+W4jeGLidE6DDqsSY7k6FPGiOyVPYc
-         RkR43jf4Hs3DXL7OPkX4VjMR6Kbc2dN0VcWTdVE5Id6TDI7y9xeLzoMfXTLp1TNobgwL
-         sGXBbY20m6oGyXUkDkpEeY3ENkhDPQSrOfHJ661SrERTFNJ+nxJ7yIgDqc9U669pzz1C
-         ijxXupMxb+FmEFFlShI48ODorQibgqYSzV0aeEChpRP6qoPOe5cybY/ukd3+KZ5NI5zd
-         zhOw==
-X-Gm-Message-State: AO0yUKU9f5Ga6bpeqC1GoofbWOheK5BsMJoE0yf0Wh0WS4qLmhPGTlsP
-        VH+7jws9rCpc0UUNtyZ/V7LzkGPXZ9qXJg2+O5rHUQ==
-X-Google-Smtp-Source: AK7set/gaYxcX3wkjw7Be1ABmN4tHM9A4f5jRE9cqkf2axJYn4uEHkrpJph5DSJNcMu5cEoMTtdkZqwimJMEUa3TwfE=
-X-Received: by 2002:a05:6902:726:b0:855:fdcb:4464 with SMTP id
- l6-20020a056902072600b00855fdcb4464mr465357ybt.5.1676655107709; Fri, 17 Feb
- 2023 09:31:47 -0800 (PST)
+        h=to:subject:message-id:date:from:reply-to:mime-version
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
+        bh=ku6/IvgVl/mpN7kpsosgj0Y3GnwtptLKAhd4JFHSZ8g=;
+        b=wciNKVrHeU+7URSzFMGkOYZzCc8IDPS9u+Eoeecf6/P6hGXT0rqpfQq5nM9tPvWpQw
+         q2HkDB3k5ftmO0WsoC9omrLJ2CCdd48s/wR7++WBTnpUfk9p+MGrjpvDNqbfomiCrEhk
+         uLdfxq9A5FJzC85iJmy4Eo2yjA60VhVsi0LuaB6x2BLPq+O1ftMm1lenJGXpEkgIF9jU
+         o7ArJTCrT1MAn6jq29c9CTXElFZn/fyxnxxscKFReR+NyyvIIvp+Xv1TJrdoE6/praIN
+         EEs9nk8X7yVpjUlqq9LXg5lpVTPtwm539gb9RnxMDqKj+jMh/Jn0bP2oijjzaoc5Q+LV
+         E4Qg==
+X-Gm-Message-State: AO0yUKXhWdNRqaWrXzYWetDC/gtLyHhN2a0GWzD5AFWM1sGd6hJI6iGY
+        2NMIerjDtH4J4hXU11ND6iFMuZa6OS/Dl8soPos=
+X-Google-Smtp-Source: AK7set9N8jTjbboiSGFBQGA0fOm74Slyi8gImBzHJ5lbI2wjXuaI2oJb3pk200AIIvLsuYZJ0vnWLfovUwTUyzauueM=
+X-Received: by 2002:a5b:f88:0:b0:965:3b30:f442 with SMTP id
+ q8-20020a5b0f88000000b009653b30f442mr659437ybh.326.1676655367727; Fri, 17 Feb
+ 2023 09:36:07 -0800 (PST)
 MIME-Version: 1.0
-References: <20230208205318.131385-1-pmalani@chromium.org> <44487e67c4101db4b57090a1ece66974aeab28b9.camel@puri.sm>
-In-Reply-To: <44487e67c4101db4b57090a1ece66974aeab28b9.camel@puri.sm>
-From:   Prashant Malani <pmalani@chromium.org>
-Date:   Fri, 17 Feb 2023 09:31:36 -0800
-Message-ID: <CACeCKacT2eMC_JzObCji9ZToq4oPqVcdc2CeDiS=DJdj3QdR5w@mail.gmail.com>
-Subject: Re: [PATCH] usb: typec: altmodes/displayport: Fix probe pin assign check
-To:     Martin Kepplinger <martin.kepplinger@puri.sm>
-Cc:     linux-kernel@vger.kernel.org, linux-usb@vger.kernel.org,
-        bleung@chromium.org, stable@vger.kernel.org,
-        Diana Zigterman <dzigterman@chromium.org>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Guillaume Ranquet <granquet@baylibre.com>,
-        Heikki Krogerus <heikki.krogerus@linux.intel.com>,
-        Macpaul Lin <macpaul.lin@mediatek.com>,
-        Pablo Sun <pablo.sun@mediatek.com>
+Received: by 2002:a05:7110:548b:b0:1a2:d75a:aa76 with HTTP; Fri, 17 Feb 2023
+ 09:36:07 -0800 (PST)
+Reply-To: wijh555@gmail.com
+From:   "Dr. Young Sook" <ysook9039@gmail.com>
+Date:   Fri, 17 Feb 2023 09:36:07 -0800
+Message-ID: <CAJSoACPU6R5A1e9xoto8muwBpwOG=7pR0fjeOK7LW_eOpJNfug@mail.gmail.com>
+Subject: Very Urgent,
+To:     undisclosed-recipients:;
 Content-Type: text/plain; charset="UTF-8"
-X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_NONE,
-        SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
+X-Spam-Status: Yes, score=5.0 required=5.0 tests=BAYES_50,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_ENVFROM_END_DIGIT,
+        FREEMAIL_FROM,FREEMAIL_REPLYTO,FREEMAIL_REPLYTO_END_DIGIT,
+        RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS,UNDISC_FREEM autolearn=no
+        autolearn_force=no version=3.4.6
+X-Spam-Report: * -0.0 RCVD_IN_DNSWL_NONE RBL: Sender listed at
+        *      https://www.dnswl.org/, no trust
+        *      [2607:f8b0:4864:20:0:0:0:b42 listed in]
+        [list.dnswl.org]
+        *  0.8 BAYES_50 BODY: Bayes spam probability is 40 to 60%
+        *      [score: 0.5015]
+        *  0.2 FREEMAIL_REPLYTO_END_DIGIT Reply-To freemail username ends in
+        *      digit
+        *      [wijh555[at]gmail.com]
+        *  0.0 FREEMAIL_FROM Sender email is commonly abused enduser mail
+        *      provider
+        *      [ysook9039[at]gmail.com]
+        *  0.0 SPF_HELO_NONE SPF: HELO does not publish an SPF Record
+        *  0.2 FREEMAIL_ENVFROM_END_DIGIT Envelope-from freemail username ends
+        *       in digit
+        *      [ysook9039[at]gmail.com]
+        * -0.0 SPF_PASS SPF: sender matches SPF record
+        * -0.1 DKIM_VALID Message has at least one valid DKIM or DK signature
+        *  0.1 DKIM_SIGNED Message has a DKIM or DK signature, not necessarily
+        *       valid
+        * -0.1 DKIM_VALID_AU Message has a valid DKIM or DK signature from
+        *      author's domain
+        * -0.1 DKIM_VALID_EF Message has a valid DKIM or DK signature from
+        *      envelope-from domain
+        *  2.9 UNDISC_FREEM Undisclosed recipients + freemail reply-to
+        *  1.0 FREEMAIL_REPLYTO Reply-To/From or Reply-To/body contain
+        *      different freemails
+X-Spam-Level: *****
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Fri, Feb 17, 2023 at 3:39 AM Martin Kepplinger
-<martin.kepplinger@puri.sm> wrote:
->
-> Am Mittwoch, dem 08.02.2023 um 20:53 +0000 schrieb Prashant Malani:
-> > While checking Pin Assignments of the port and partner during probe,
-> > we
-> > don't take into account whether the peripheral is a plug or
-> > receptacle.
-> >
-> > This manifests itself in a mode entry failure on certain docks and
-> > dongles with captive cables. For instance, the Startech.com Type-C to
-> > DP
-> > dongle (Model #CDP2DP) advertises its DP VDO as 0x405. This would
-> > fail
-> > the Pin Assignment compatibility check, despite it supporting
-> > Pin Assignment C as a UFP.
-> >
-> > Update the check to use the correct DP Pin Assign macros that
-> > take the peripheral's receptacle bit into account.
-> >
-> > Fixes: c1e5c2f0cb8a ("usb: typec: altmodes/displayport: correct pin
-> > assignment for UFP receptacles")
-> > Cc: stable@vger.kernel.org
-> > Reported-by: Diana Zigterman <dzigterman@chromium.org>
-> > Signed-off-by: Prashant Malani <pmalani@chromium.org>
-> > ---
-> >
-> > I realize this is a bit late in the release cycle, but figured since
-> > it
-> > is a fix it might still be considered. Please let me know if it's too
-> > late and I can re-send this after the 6.3-rc1 is released. Thanks!
->
->
-> on the imx8mq-librem5r4.dts board, when using a typec-hub with HDMI,
-> this patch breaks image output in one case for me: For a monitor where
-> negotiation of resolution fails, a lower resolution works though, I now
-> get an oops and hence an unusable system, see the
-> dmesg_typec_hub_hdmi_new.txt logs I append. this should definitely not
-> happen.
+-- 
+Hello,
+I tried e-mailing you more than twice but my email bounced back
+failure, Note this, soonest you receive this email revert to me before
+I deliver the message it's importunate, pressing, crucial. Await your
+response.
 
-I'll let others comment here too, but more information is required here:
-- What's the DP VDO being exported by the Hub?
-- What DPConfigure VDM is being sent now (and what was being sent earlier) ?
-- Which version of the kernel are you using?
-- Can you point to where in the upstream kernel this board file is present?
-
->
-> with your patch reverted, I get no oops and a perfectly usable system
-> like before, which is the file dmesg_typec_hub_hdmi_old_ok.txt
->
-> could this patch be wrong or at least no universally good for everyone?
-> it looks like a regression to me.
-
-I don't think this patch is the cause of the regression you are seeing.
-
-I don't know about the 2nd part, but for the first part, it was
-definitely not right
-earlier; Pin compatibility checks need to take into account whether the
-UFP is a receptacle or not. The stack trace you have shared does not
-seem related to PD/Type-C or DRM.
-
-Perhaps this change is uncovering a previously hidden bug on this board.
-I'm not sure how this patch causes the failure you see; the patch alters
-the conditions for a probe to succeed: either the HUB you are using will
-pass this check (in which case you will get DP working) or it won't (in which
-case DP should not work at all). Whatever happens after that depends
-on the display driver.
-
-BR,
+Thanks,
+Dr. Young Sook
