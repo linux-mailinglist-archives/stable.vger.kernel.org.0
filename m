@@ -2,211 +2,138 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 2C15669B164
-	for <lists+stable@lfdr.de>; Fri, 17 Feb 2023 17:51:30 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B4D0D69B1CE
+	for <lists+stable@lfdr.de>; Fri, 17 Feb 2023 18:31:52 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229582AbjBQQv3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 17 Feb 2023 11:51:29 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36294 "EHLO
+        id S229918AbjBQRbu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 17 Feb 2023 12:31:50 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35404 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229943AbjBQQv2 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 17 Feb 2023 11:51:28 -0500
-Received: from mga09.intel.com (mga09.intel.com [134.134.136.24])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B3C6A72E13;
-        Fri, 17 Feb 2023 08:50:51 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
-  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1676652651; x=1708188651;
-  h=message-id:date:mime-version:subject:to:cc:references:
-   from:in-reply-to:content-transfer-encoding;
-  bh=ORiZEj/iq8gQ9lcsDH2bLAOwWhIkUjpxs0KW9we0RcE=;
-  b=J2NIVE60xL3uPQ5/oDEaWHTRkt/KO78hboAXAIvJ1FjEGNXPc8Qjwhmk
-   ynvFdmcnjcL+Dd5GyffgB+gPV2BBDxeFOZBe4U5GTpqfC1AZ8XBY0b3x+
-   wrXptnjunmKYMjV+5FJ0YXeSwS9wyXFLrpOVeeh7LUtk939hSgqAZAdvI
-   LVT2YKafQYuoDYA978bBIAgJ2NtQznzfa25ymCfNvDjNfQEdiJzsP+Z1I
-   gqQpkVt0omVft3KsM//vdnZbC/ndSbJCBEvYAATzM+X7tpK0fq5m23J1h
-   JWGDKuTg4jpeHjLuVv/jybMI6nAupntrviQniUUnAjH8vh1dOH0DBZTgP
-   Q==;
-X-IronPort-AV: E=McAfee;i="6500,9779,10624"; a="333386130"
-X-IronPort-AV: E=Sophos;i="5.97,306,1669104000"; 
-   d="scan'208";a="333386130"
-Received: from fmsmga001.fm.intel.com ([10.253.24.23])
-  by orsmga102.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 17 Feb 2023 08:50:33 -0800
-X-IronPort-AV: E=McAfee;i="6500,9779,10624"; a="813436833"
-X-IronPort-AV: E=Sophos;i="5.97,306,1669104000"; 
-   d="scan'208";a="813436833"
-Received: from djiang5-mobl3.amr.corp.intel.com (HELO [10.213.187.252]) ([10.213.187.252])
-  by fmsmga001-auth.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 17 Feb 2023 08:50:32 -0800
-Message-ID: <897e58f2-b7db-9aa2-26dd-db90bd73e315@intel.com>
-Date:   Fri, 17 Feb 2023 09:50:32 -0700
+        with ESMTP id S229460AbjBQRbu (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 17 Feb 2023 12:31:50 -0500
+Received: from mail-yb1-xb2b.google.com (mail-yb1-xb2b.google.com [IPv6:2607:f8b0:4864:20::b2b])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 847FC6F7D0
+        for <stable@vger.kernel.org>; Fri, 17 Feb 2023 09:31:48 -0800 (PST)
+Received: by mail-yb1-xb2b.google.com with SMTP id o196so1871317ybg.2
+        for <stable@vger.kernel.org>; Fri, 17 Feb 2023 09:31:48 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=chromium.org; s=google;
+        h=cc:to:subject:message-id:date:from:in-reply-to:references
+         :mime-version:from:to:cc:subject:date:message-id:reply-to;
+        bh=liSt0sRaUA8nvJvDXS4dEE1Ac3wmg+RmpsYvQkMfiQ0=;
+        b=TeM0wGNH9k+EZTL5gQ/FJK/3wse5JbI7uTKfl6apOBaocU20q9/3SMJyQCFYzpC7to
+         1nIxdf60f0qKafad55uQMOez30aW6MfSXaa7zMd/uj4bEr0kSlPYnExtHou6YLDWIszu
+         rzX4L6vj8EvlbGcF3dg9ypkwAnb1Ii5Ia2BV0=
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=cc:to:subject:message-id:date:from:in-reply-to:references
+         :mime-version:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=liSt0sRaUA8nvJvDXS4dEE1Ac3wmg+RmpsYvQkMfiQ0=;
+        b=CcB2OHAuNsIP2bSRNgceDeZxm79ahrKNbLdbBqA396SALfdzjn7UykKsM7b0dhdO/k
+         yJQie3+a8SoYKS4Y3TWJXryIg9DLt6B9uGHqo2+W4jeGLidE6DDqsSY7k6FPGiOyVPYc
+         RkR43jf4Hs3DXL7OPkX4VjMR6Kbc2dN0VcWTdVE5Id6TDI7y9xeLzoMfXTLp1TNobgwL
+         sGXBbY20m6oGyXUkDkpEeY3ENkhDPQSrOfHJ661SrERTFNJ+nxJ7yIgDqc9U669pzz1C
+         ijxXupMxb+FmEFFlShI48ODorQibgqYSzV0aeEChpRP6qoPOe5cybY/ukd3+KZ5NI5zd
+         zhOw==
+X-Gm-Message-State: AO0yUKU9f5Ga6bpeqC1GoofbWOheK5BsMJoE0yf0Wh0WS4qLmhPGTlsP
+        VH+7jws9rCpc0UUNtyZ/V7LzkGPXZ9qXJg2+O5rHUQ==
+X-Google-Smtp-Source: AK7set/gaYxcX3wkjw7Be1ABmN4tHM9A4f5jRE9cqkf2axJYn4uEHkrpJph5DSJNcMu5cEoMTtdkZqwimJMEUa3TwfE=
+X-Received: by 2002:a05:6902:726:b0:855:fdcb:4464 with SMTP id
+ l6-20020a056902072600b00855fdcb4464mr465357ybt.5.1676655107709; Fri, 17 Feb
+ 2023 09:31:47 -0800 (PST)
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
- Firefox/102.0 Thunderbird/102.6.0
-Subject: Re: [PATCH] cxl/pmem: Fix nvdimm registration races
-Content-Language: en-US
-To:     Dan Williams <dan.j.williams@intel.com>, linux-cxl@vger.kernel.org
-Cc:     stable@vger.kernel.org, nvdimm@lists.linux.dev
-References: <167641090468.954904.2931923185712477447.stgit@dwillia2-xfh.jf.intel.com>
-From:   Dave Jiang <dave.jiang@intel.com>
-In-Reply-To: <167641090468.954904.2931923185712477447.stgit@dwillia2-xfh.jf.intel.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Spam-Status: No, score=-4.7 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,NICE_REPLY_A,
-        RCVD_IN_DNSWL_MED,RCVD_IN_MSPIKE_H3,RCVD_IN_MSPIKE_WL,SPF_HELO_NONE,
-        SPF_NONE autolearn=ham autolearn_force=no version=3.4.6
+References: <20230208205318.131385-1-pmalani@chromium.org> <44487e67c4101db4b57090a1ece66974aeab28b9.camel@puri.sm>
+In-Reply-To: <44487e67c4101db4b57090a1ece66974aeab28b9.camel@puri.sm>
+From:   Prashant Malani <pmalani@chromium.org>
+Date:   Fri, 17 Feb 2023 09:31:36 -0800
+Message-ID: <CACeCKacT2eMC_JzObCji9ZToq4oPqVcdc2CeDiS=DJdj3QdR5w@mail.gmail.com>
+Subject: Re: [PATCH] usb: typec: altmodes/displayport: Fix probe pin assign check
+To:     Martin Kepplinger <martin.kepplinger@puri.sm>
+Cc:     linux-kernel@vger.kernel.org, linux-usb@vger.kernel.org,
+        bleung@chromium.org, stable@vger.kernel.org,
+        Diana Zigterman <dzigterman@chromium.org>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Guillaume Ranquet <granquet@baylibre.com>,
+        Heikki Krogerus <heikki.krogerus@linux.intel.com>,
+        Macpaul Lin <macpaul.lin@mediatek.com>,
+        Pablo Sun <pablo.sun@mediatek.com>
+Content-Type: text/plain; charset="UTF-8"
+X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_NONE,
+        SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+On Fri, Feb 17, 2023 at 3:39 AM Martin Kepplinger
+<martin.kepplinger@puri.sm> wrote:
+>
+> Am Mittwoch, dem 08.02.2023 um 20:53 +0000 schrieb Prashant Malani:
+> > While checking Pin Assignments of the port and partner during probe,
+> > we
+> > don't take into account whether the peripheral is a plug or
+> > receptacle.
+> >
+> > This manifests itself in a mode entry failure on certain docks and
+> > dongles with captive cables. For instance, the Startech.com Type-C to
+> > DP
+> > dongle (Model #CDP2DP) advertises its DP VDO as 0x405. This would
+> > fail
+> > the Pin Assignment compatibility check, despite it supporting
+> > Pin Assignment C as a UFP.
+> >
+> > Update the check to use the correct DP Pin Assign macros that
+> > take the peripheral's receptacle bit into account.
+> >
+> > Fixes: c1e5c2f0cb8a ("usb: typec: altmodes/displayport: correct pin
+> > assignment for UFP receptacles")
+> > Cc: stable@vger.kernel.org
+> > Reported-by: Diana Zigterman <dzigterman@chromium.org>
+> > Signed-off-by: Prashant Malani <pmalani@chromium.org>
+> > ---
+> >
+> > I realize this is a bit late in the release cycle, but figured since
+> > it
+> > is a fix it might still be considered. Please let me know if it's too
+> > late and I can re-send this after the 6.3-rc1 is released. Thanks!
+>
+>
+> on the imx8mq-librem5r4.dts board, when using a typec-hub with HDMI,
+> this patch breaks image output in one case for me: For a monitor where
+> negotiation of resolution fails, a lower resolution works though, I now
+> get an oops and hence an unusable system, see the
+> dmesg_typec_hub_hdmi_new.txt logs I append. this should definitely not
+> happen.
 
+I'll let others comment here too, but more information is required here:
+- What's the DP VDO being exported by the Hub?
+- What DPConfigure VDM is being sent now (and what was being sent earlier) ?
+- Which version of the kernel are you using?
+- Can you point to where in the upstream kernel this board file is present?
 
-On 2/14/23 2:41 PM, Dan Williams wrote:
-> A loop of the form:
-> 
->      while true; do modprobe cxl_pci; modprobe -r cxl_pci; done
-> 
-> ...fails with the following crash signature:
-> 
->      BUG: kernel NULL pointer dereference, address: 0000000000000040
->      [..]
->      RIP: 0010:cxl_internal_send_cmd+0x5/0xb0 [cxl_core]
->      [..]
->      Call Trace:
->       <TASK>
->       cxl_pmem_ctl+0x121/0x240 [cxl_pmem]
->       nvdimm_get_config_data+0xd6/0x1a0 [libnvdimm]
->       nd_label_data_init+0x135/0x7e0 [libnvdimm]
->       nvdimm_probe+0xd6/0x1c0 [libnvdimm]
->       nvdimm_bus_probe+0x7a/0x1e0 [libnvdimm]
->       really_probe+0xde/0x380
->       __driver_probe_device+0x78/0x170
->       driver_probe_device+0x1f/0x90
->       __device_attach_driver+0x85/0x110
->       bus_for_each_drv+0x7d/0xc0
->       __device_attach+0xb4/0x1e0
->       bus_probe_device+0x9f/0xc0
->       device_add+0x445/0x9c0
->       nd_async_device_register+0xe/0x40 [libnvdimm]
->       async_run_entry_fn+0x30/0x130
-> 
-> ...namely that the bottom half of async nvdimm device registration runs
-> after cxlmd_release_nvdimm() has already torn down the context that
-> cxl_pmem_ctl() needs. Unlike the ACPI NFIT case that benefits from
-> launching multiple nvdimm device registrations in parallel from those
-> listed in the table, CXL is already marked PROBE_PREFER_ASYNCHRONOUS. So
-> provide for a synchronous registration path to preclude this scenario.
-> 
-> Fixes: 21083f51521f ("cxl/pmem: Register 'pmem' / cxl_nvdimm devices")
-> Cc: <stable@vger.kernel.org>
-> Reported-by: Dave Jiang <dave.jiang@intel.com>
-> Tested-by: Dave Jiang <dave.jiang@intel.com>
-> Signed-off-by: Dan Williams <dan.j.williams@intel.com>
+>
+> with your patch reverted, I get no oops and a perfectly usable system
+> like before, which is the file dmesg_typec_hub_hdmi_old_ok.txt
+>
+> could this patch be wrong or at least no universally good for everyone?
+> it looks like a regression to me.
 
-Reviewed-by: Dave Jiang <dave.jiang@intel.com>
+I don't think this patch is the cause of the regression you are seeing.
 
-> ---
->   drivers/cxl/pmem.c         |    1 +
->   drivers/nvdimm/bus.c       |   19 ++++++++++++++++---
->   drivers/nvdimm/dimm_devs.c |    5 ++++-
->   drivers/nvdimm/nd-core.h   |    1 +
->   include/linux/libnvdimm.h  |    3 +++
->   5 files changed, 25 insertions(+), 4 deletions(-)
-> 
-> diff --git a/drivers/cxl/pmem.c b/drivers/cxl/pmem.c
-> index 08bbbac9a6d0..71cfa1fdf902 100644
-> --- a/drivers/cxl/pmem.c
-> +++ b/drivers/cxl/pmem.c
-> @@ -76,6 +76,7 @@ static int cxl_nvdimm_probe(struct device *dev)
->   		return rc;
->   
->   	set_bit(NDD_LABELING, &flags);
-> +	set_bit(NDD_REGISTER_SYNC, &flags);
->   	set_bit(ND_CMD_GET_CONFIG_SIZE, &cmd_mask);
->   	set_bit(ND_CMD_GET_CONFIG_DATA, &cmd_mask);
->   	set_bit(ND_CMD_SET_CONFIG_DATA, &cmd_mask);
-> diff --git a/drivers/nvdimm/bus.c b/drivers/nvdimm/bus.c
-> index b38d0355b0ac..5ad49056921b 100644
-> --- a/drivers/nvdimm/bus.c
-> +++ b/drivers/nvdimm/bus.c
-> @@ -508,7 +508,7 @@ static void nd_async_device_unregister(void *d, async_cookie_t cookie)
->   	put_device(dev);
->   }
->   
-> -void nd_device_register(struct device *dev)
-> +static void __nd_device_register(struct device *dev, bool sync)
->   {
->   	if (!dev)
->   		return;
-> @@ -531,11 +531,24 @@ void nd_device_register(struct device *dev)
->   	}
->   	get_device(dev);
->   
-> -	async_schedule_dev_domain(nd_async_device_register, dev,
-> -				  &nd_async_domain);
-> +	if (sync)
-> +		nd_async_device_register(dev, 0);
-> +	else
-> +		async_schedule_dev_domain(nd_async_device_register, dev,
-> +					  &nd_async_domain);
-> +}
-> +
-> +void nd_device_register(struct device *dev)
-> +{
-> +	__nd_device_register(dev, false);
->   }
->   EXPORT_SYMBOL(nd_device_register);
->   
-> +void nd_device_register_sync(struct device *dev)
-> +{
-> +	__nd_device_register(dev, true);
-> +}
-> +
->   void nd_device_unregister(struct device *dev, enum nd_async_mode mode)
->   {
->   	bool killed;
-> diff --git a/drivers/nvdimm/dimm_devs.c b/drivers/nvdimm/dimm_devs.c
-> index 1fc081dcf631..6d3b03a9fa02 100644
-> --- a/drivers/nvdimm/dimm_devs.c
-> +++ b/drivers/nvdimm/dimm_devs.c
-> @@ -624,7 +624,10 @@ struct nvdimm *__nvdimm_create(struct nvdimm_bus *nvdimm_bus,
->   	nvdimm->sec.ext_flags = nvdimm_security_flags(nvdimm, NVDIMM_MASTER);
->   	device_initialize(dev);
->   	lockdep_set_class(&dev->mutex, &nvdimm_key);
-> -	nd_device_register(dev);
-> +	if (test_bit(NDD_REGISTER_SYNC, &flags))
-> +		nd_device_register_sync(dev);
-> +	else
-> +		nd_device_register(dev);
->   
->   	return nvdimm;
->   }
-> diff --git a/drivers/nvdimm/nd-core.h b/drivers/nvdimm/nd-core.h
-> index cc86ee09d7c0..845408f10655 100644
-> --- a/drivers/nvdimm/nd-core.h
-> +++ b/drivers/nvdimm/nd-core.h
-> @@ -107,6 +107,7 @@ int nvdimm_bus_create_ndctl(struct nvdimm_bus *nvdimm_bus);
->   void nvdimm_bus_destroy_ndctl(struct nvdimm_bus *nvdimm_bus);
->   void nd_synchronize(void);
->   void nd_device_register(struct device *dev);
-> +void nd_device_register_sync(struct device *dev);
->   struct nd_label_id;
->   char *nd_label_gen_id(struct nd_label_id *label_id, const uuid_t *uuid,
->   		      u32 flags);
-> diff --git a/include/linux/libnvdimm.h b/include/linux/libnvdimm.h
-> index af38252ad704..e772aae71843 100644
-> --- a/include/linux/libnvdimm.h
-> +++ b/include/linux/libnvdimm.h
-> @@ -41,6 +41,9 @@ enum {
->   	 */
->   	NDD_INCOHERENT = 7,
->   
-> +	/* dimm provider wants synchronous registration by __nvdimm_create() */
-> +	NDD_REGISTER_SYNC = 8,
-> +
->   	/* need to set a limit somewhere, but yes, this is likely overkill */
->   	ND_IOCTL_MAX_BUFLEN = SZ_4M,
->   	ND_CMD_MAX_ELEM = 5,
-> 
+I don't know about the 2nd part, but for the first part, it was
+definitely not right
+earlier; Pin compatibility checks need to take into account whether the
+UFP is a receptacle or not. The stack trace you have shared does not
+seem related to PD/Type-C or DRM.
+
+Perhaps this change is uncovering a previously hidden bug on this board.
+I'm not sure how this patch causes the failure you see; the patch alters
+the conditions for a probe to succeed: either the HUB you are using will
+pass this check (in which case you will get DP working) or it won't (in which
+case DP should not work at all). Whatever happens after that depends
+on the display driver.
+
+BR,
