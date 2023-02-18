@@ -2,38 +2,38 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D61D669B9B3
-	for <lists+stable@lfdr.de>; Sat, 18 Feb 2023 12:19:33 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8FE1769B9B4
+	for <lists+stable@lfdr.de>; Sat, 18 Feb 2023 12:19:38 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229596AbjBRLTc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 18 Feb 2023 06:19:32 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56916 "EHLO
+        id S229508AbjBRLTh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 18 Feb 2023 06:19:37 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56976 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229541AbjBRLTc (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 18 Feb 2023 06:19:32 -0500
+        with ESMTP id S229541AbjBRLTg (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 18 Feb 2023 06:19:36 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C176D11E93
-        for <stable@vger.kernel.org>; Sat, 18 Feb 2023 03:19:01 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C7815166D6
+        for <stable@vger.kernel.org>; Sat, 18 Feb 2023 03:19:05 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 32DE660B68
-        for <stable@vger.kernel.org>; Sat, 18 Feb 2023 11:18:45 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4303DC433D2;
-        Sat, 18 Feb 2023 11:18:44 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 1F28860B56
+        for <stable@vger.kernel.org>; Sat, 18 Feb 2023 11:18:54 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 06C56C433EF;
+        Sat, 18 Feb 2023 11:18:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1676719124;
-        bh=M7BnO85jyya/3ChJyccjaOgXwaesBZpjXZqCPJMB7CY=;
+        s=korg; t=1676719133;
+        bh=NutqTv6gmzP+9e/Oz067g+H1CIVgUFjHkHRWsFO1uoM=;
         h=Subject:To:Cc:From:Date:From;
-        b=VpC5UclkeEx2rZD/2xRqV3IUfNeaKzUqM9G8QetaeAxblgWkKqStXGm2ytcIHWLQn
-         lWKkx0+5CqZKo/OK9s7MowwMEPOPRwNuUVltWLEHeV/MXWFafuh9jIxPZuAKZUgLsG
-         dc9erLcOO77T9qtIHXpVmw14DU0nxbycMHG8Jvb0=
-Subject: FAILED: patch "[PATCH] sctp: sctp_sock_filter(): avoid list_entry() on possibly" failed to apply to 4.19-stable tree
+        b=tfWmuJhh0gW3S9de2tNA0dkKrsjy7YLdBBw+E1qNBphbNlBnZcXvPx+oIsX0Vpn5R
+         7yrZjLwvM2z8dBTlwcE6sph/1xO/KlYAbeK8rSIULhxBLj2tp9Kg1Knb8HjMXl6fEF
+         0WCIatN8F1EiOVVT3BycI1hDADytkdnCY+pyE1qU=
+Subject: FAILED: patch "[PATCH] sctp: sctp_sock_filter(): avoid list_entry() on possibly" failed to apply to 4.14-stable tree
 To:     borrello@diag.uniroma1.it, kuba@kernel.org, lucien.xin@gmail.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Sat, 18 Feb 2023 12:18:41 +0100
-Message-ID: <167671912117941@kroah.com>
+Date:   Sat, 18 Feb 2023 12:18:42 +0100
+Message-ID: <1676719122167181@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -47,7 +47,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.19-stable tree.
+The patch below does not apply to the 4.14-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
