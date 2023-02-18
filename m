@@ -2,44 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 1DC5169B99C
-	for <lists+stable@lfdr.de>; Sat, 18 Feb 2023 12:13:09 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D61D669B9B3
+	for <lists+stable@lfdr.de>; Sat, 18 Feb 2023 12:19:33 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229521AbjBRLNI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 18 Feb 2023 06:13:08 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52144 "EHLO
+        id S229596AbjBRLTc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 18 Feb 2023 06:19:32 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56916 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229628AbjBRLNH (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 18 Feb 2023 06:13:07 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AA3FF1A958
-        for <stable@vger.kernel.org>; Sat, 18 Feb 2023 03:13:06 -0800 (PST)
+        with ESMTP id S229541AbjBRLTc (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 18 Feb 2023 06:19:32 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C176D11E93
+        for <stable@vger.kernel.org>; Sat, 18 Feb 2023 03:19:01 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 466D460A05
-        for <stable@vger.kernel.org>; Sat, 18 Feb 2023 11:13:06 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5E338C433EF;
-        Sat, 18 Feb 2023 11:13:05 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 32DE660B68
+        for <stable@vger.kernel.org>; Sat, 18 Feb 2023 11:18:45 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4303DC433D2;
+        Sat, 18 Feb 2023 11:18:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1676718785;
-        bh=Rg7aju2pPws5hO70XKDsuk0apFqw3ngfpAfrqk+PvpY=;
+        s=korg; t=1676719124;
+        bh=M7BnO85jyya/3ChJyccjaOgXwaesBZpjXZqCPJMB7CY=;
         h=Subject:To:Cc:From:Date:From;
-        b=sYc32h2U5aPvW9MtSL0U6Cz7iJPLb8aj4CS9ecmBugFgQgff2qZuy/7SOgvUu1G2u
-         n1u5xXqVwBEjKdXulPwCq0yL/nNaI1HZLaPgE/I3vo8Mn9EKcNtka49eLv2Zr4Itpg
-         lsbER81cTt8nTRXupugEE5q2E/bfsOIfIDRyitdc=
-Subject: FAILED: patch "[PATCH] net/sched: tcindex: update imperfect hash filters respecting" failed to apply to 4.19-stable tree
-To:     pctammela@mojatatu.com, jhs@mojatatu.com, kuba@kernel.org,
-        sec@valis.email
+        b=VpC5UclkeEx2rZD/2xRqV3IUfNeaKzUqM9G8QetaeAxblgWkKqStXGm2ytcIHWLQn
+         lWKkx0+5CqZKo/OK9s7MowwMEPOPRwNuUVltWLEHeV/MXWFafuh9jIxPZuAKZUgLsG
+         dc9erLcOO77T9qtIHXpVmw14DU0nxbycMHG8Jvb0=
+Subject: FAILED: patch "[PATCH] sctp: sctp_sock_filter(): avoid list_entry() on possibly" failed to apply to 4.19-stable tree
+To:     borrello@diag.uniroma1.it, kuba@kernel.org, lucien.xin@gmail.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Sat, 18 Feb 2023 12:12:52 +0100
-Message-ID: <1676718772139185@kroah.com>
+Date:   Sat, 18 Feb 2023 12:18:41 +0100
+Message-ID: <167671912117941@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
         SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -55,26 +54,7 @@ id to <stable@vger.kernel.org>.
 
 Possible dependencies:
 
-ee059170b1f7 ("net/sched: tcindex: update imperfect hash filters respecting rcu")
-304e024216a8 ("net_sched: add a temporary refcnt for struct tcindex_data")
-599be01ee567 ("net_sched: fix an OOB access in cls_tcindex")
-14215108a1fd ("net_sched: initialize net pointer inside tcf_exts_init()")
-51dcb69de67a ("net_sched: fix a memory leak in cls_tcindex")
-3d210534cc93 ("net_sched: fix a race condition in tcindex_destroy()")
-12db03b65c2b ("net: sched: extend proto ops to support unlocked classifiers")
-7d5509fa0d3d ("net: sched: extend proto ops with 'put' callback")
-726d061286ce ("net: sched: prevent insertion of new classifiers during chain flush")
-8b64678e0af8 ("net: sched: refactor tp insert/delete for concurrent execution")
-fe2923afc124 ("net: sched: traverse classifiers in chain with tcf_get_next_proto()")
-4dbfa766440c ("net: sched: introduce reference counting for tcf_proto")
-ed76f5edccc9 ("net: sched: protect filter_chain list with filter_chain_lock mutex")
-a5654820bb4b ("net: sched: protect chain template accesses with block lock")
-bbf73830cd48 ("net: sched: traverse chains in block with tcf_get_next_chain()")
-165f01354c52 ("net: sched: protect block->chain0 with block->lock")
-c266f64dbfa2 ("net: sched: protect block state with mutex")
-a030598690c6 ("net: sched: cls_u32: simplify the hell out u32_delete() emptiness check")
-787ce6d02d95 ("net: sched: use reference counting for tcf blocks on rules update")
-0607e439943b ("net: sched: implement tcf_block_refcnt_{get|put}()")
+a1221703a0f7 ("sctp: sctp_sock_filter(): avoid list_entry() on possibly empty list")
 
 thanks,
 
@@ -82,100 +62,36 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From ee059170b1f7e94e55fa6cadee544e176a6e59c2 Mon Sep 17 00:00:00 2001
-From: Pedro Tammela <pctammela@mojatatu.com>
-Date: Thu, 9 Feb 2023 11:37:39 -0300
-Subject: [PATCH] net/sched: tcindex: update imperfect hash filters respecting
- rcu
+From a1221703a0f75a9d81748c516457e0fc76951496 Mon Sep 17 00:00:00 2001
+From: Pietro Borrello <borrello@diag.uniroma1.it>
+Date: Thu, 9 Feb 2023 12:13:05 +0000
+Subject: [PATCH] sctp: sctp_sock_filter(): avoid list_entry() on possibly
+ empty list
 
-The imperfect hash area can be updated while packets are traversing,
-which will cause a use-after-free when 'tcf_exts_exec()' is called
-with the destroyed tcf_ext.
+Use list_is_first() to check whether tsp->asoc matches the first
+element of ep->asocs, as the list is not guaranteed to have an entry.
 
-CPU 0:               CPU 1:
-tcindex_set_parms    tcindex_classify
-tcindex_lookup
-                     tcindex_lookup
-tcf_exts_change
-                     tcf_exts_exec [UAF]
-
-Stop operating on the shared area directly, by using a local copy,
-and update the filter with 'rcu_replace_pointer()'. Delete the old
-filter version only after a rcu grace period elapsed.
-
-Fixes: 9b0d4446b569 ("net: sched: avoid atomic swap in tcf_exts_change")
-Reported-by: valis <sec@valis.email>
-Suggested-by: valis <sec@valis.email>
-Signed-off-by: Jamal Hadi Salim <jhs@mojatatu.com>
-Signed-off-by: Pedro Tammela <pctammela@mojatatu.com>
-Link: https://lore.kernel.org/r/20230209143739.279867-1-pctammela@mojatatu.com
+Fixes: 8f840e47f190 ("sctp: add the sctp_diag.c file")
+Signed-off-by: Pietro Borrello <borrello@diag.uniroma1.it>
+Acked-by: Xin Long <lucien.xin@gmail.com>
+Link: https://lore.kernel.org/r/20230208-sctp-filter-v2-1-6e1f4017f326@diag.uniroma1.it
 Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 
-diff --git a/net/sched/cls_tcindex.c b/net/sched/cls_tcindex.c
-index ee2a050c887b..ba7f22a49397 100644
---- a/net/sched/cls_tcindex.c
-+++ b/net/sched/cls_tcindex.c
-@@ -12,6 +12,7 @@
- #include <linux/errno.h>
- #include <linux/slab.h>
- #include <linux/refcount.h>
-+#include <linux/rcupdate.h>
- #include <net/act_api.h>
- #include <net/netlink.h>
- #include <net/pkt_cls.h>
-@@ -339,6 +340,7 @@ tcindex_set_parms(struct net *net, struct tcf_proto *tp, unsigned long base,
- 	struct tcf_result cr = {};
- 	int err, balloc = 0;
- 	struct tcf_exts e;
-+	bool update_h = false;
+diff --git a/net/sctp/diag.c b/net/sctp/diag.c
+index a557009e9832..c3d6b92dd386 100644
+--- a/net/sctp/diag.c
++++ b/net/sctp/diag.c
+@@ -343,11 +343,9 @@ static int sctp_sock_filter(struct sctp_endpoint *ep, struct sctp_transport *tsp
+ 	struct sctp_comm_param *commp = p;
+ 	struct sock *sk = ep->base.sk;
+ 	const struct inet_diag_req_v2 *r = commp->r;
+-	struct sctp_association *assoc =
+-		list_entry(ep->asocs.next, struct sctp_association, asocs);
  
- 	err = tcf_exts_init(&e, net, TCA_TCINDEX_ACT, TCA_TCINDEX_POLICE);
- 	if (err < 0)
-@@ -456,10 +458,13 @@ tcindex_set_parms(struct net *net, struct tcf_proto *tp, unsigned long base,
- 		}
- 	}
+ 	/* find the ep only once through the transports by this condition */
+-	if (tsp->asoc != assoc)
++	if (!list_is_first(&tsp->asoc->asocs, &ep->asocs))
+ 		return 0;
  
--	if (cp->perfect)
-+	if (cp->perfect) {
- 		r = cp->perfect + handle;
--	else
--		r = tcindex_lookup(cp, handle) ? : &new_filter_result;
-+	} else {
-+		/* imperfect area is updated in-place using rcu */
-+		update_h = !!tcindex_lookup(cp, handle);
-+		r = &new_filter_result;
-+	}
- 
- 	if (r == &new_filter_result) {
- 		f = kzalloc(sizeof(*f), GFP_KERNEL);
-@@ -485,7 +490,28 @@ tcindex_set_parms(struct net *net, struct tcf_proto *tp, unsigned long base,
- 
- 	rcu_assign_pointer(tp->root, cp);
- 
--	if (r == &new_filter_result) {
-+	if (update_h) {
-+		struct tcindex_filter __rcu **fp;
-+		struct tcindex_filter *cf;
-+
-+		f->result.res = r->res;
-+		tcf_exts_change(&f->result.exts, &r->exts);
-+
-+		/* imperfect area bucket */
-+		fp = cp->h + (handle % cp->hash);
-+
-+		/* lookup the filter, guaranteed to exist */
-+		for (cf = rcu_dereference_bh_rtnl(*fp); cf;
-+		     fp = &cf->next, cf = rcu_dereference_bh_rtnl(*fp))
-+			if (cf->key == handle)
-+				break;
-+
-+		f->next = cf->next;
-+
-+		cf = rcu_replace_pointer(*fp, f, 1);
-+		tcf_exts_get_net(&cf->result.exts);
-+		tcf_queue_work(&cf->rwork, tcindex_destroy_fexts_work);
-+	} else if (r == &new_filter_result) {
- 		struct tcindex_filter *nfp;
- 		struct tcindex_filter __rcu **fp;
- 
+ 	if (r->sdiag_family != AF_UNSPEC && sk->sk_family != r->sdiag_family)
 
