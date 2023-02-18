@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 19B9069B99B
-	for <lists+stable@lfdr.de>; Sat, 18 Feb 2023 12:13:08 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1DC5169B99C
+	for <lists+stable@lfdr.de>; Sat, 18 Feb 2023 12:13:09 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229613AbjBRLNG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 18 Feb 2023 06:13:06 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52114 "EHLO
+        id S229521AbjBRLNI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 18 Feb 2023 06:13:08 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52144 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229616AbjBRLNF (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 18 Feb 2023 06:13:05 -0500
+        with ESMTP id S229628AbjBRLNH (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 18 Feb 2023 06:13:07 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 243A916323
-        for <stable@vger.kernel.org>; Sat, 18 Feb 2023 03:13:04 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AA3FF1A958
+        for <stable@vger.kernel.org>; Sat, 18 Feb 2023 03:13:06 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id B307260B5C
-        for <stable@vger.kernel.org>; Sat, 18 Feb 2023 11:13:03 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C7629C433EF;
-        Sat, 18 Feb 2023 11:13:02 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 466D460A05
+        for <stable@vger.kernel.org>; Sat, 18 Feb 2023 11:13:06 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5E338C433EF;
+        Sat, 18 Feb 2023 11:13:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1676718783;
-        bh=vREHHjwWEeFRgnGbyfYX6Tm5eFVk6UAr6VIBJfX/Olo=;
+        s=korg; t=1676718785;
+        bh=Rg7aju2pPws5hO70XKDsuk0apFqw3ngfpAfrqk+PvpY=;
         h=Subject:To:Cc:From:Date:From;
-        b=yJhNxn8Oi353N7p03Zc+kL5UWE0LRKpRYn38Josuui5G0L1y6zxtKQ7YmO7yOmjLK
-         OFF7Unzg4X0QITw0PJUBShv1RIUdUrurCHnhnyghuCSghLteKVs4I8DnTtRmr10wSJ
-         CI13hdTuwECAuKRIckOyOhgwv77A0EzmosFoO2bA=
-Subject: FAILED: patch "[PATCH] net/sched: tcindex: update imperfect hash filters respecting" failed to apply to 4.14-stable tree
+        b=sYc32h2U5aPvW9MtSL0U6Cz7iJPLb8aj4CS9ecmBugFgQgff2qZuy/7SOgvUu1G2u
+         n1u5xXqVwBEjKdXulPwCq0yL/nNaI1HZLaPgE/I3vo8Mn9EKcNtka49eLv2Zr4Itpg
+         lsbER81cTt8nTRXupugEE5q2E/bfsOIfIDRyitdc=
+Subject: FAILED: patch "[PATCH] net/sched: tcindex: update imperfect hash filters respecting" failed to apply to 4.19-stable tree
 To:     pctammela@mojatatu.com, jhs@mojatatu.com, kuba@kernel.org,
         sec@valis.email
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Sat, 18 Feb 2023 12:12:51 +0100
-Message-ID: <1676718771113122@kroah.com>
+Date:   Sat, 18 Feb 2023 12:12:52 +0100
+Message-ID: <1676718772139185@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -48,7 +48,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.14-stable tree.
+The patch below does not apply to the 4.19-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
