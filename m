@@ -2,64 +2,65 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 362F069BA65
-	for <lists+stable@lfdr.de>; Sat, 18 Feb 2023 15:24:20 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5729269BA66
+	for <lists+stable@lfdr.de>; Sat, 18 Feb 2023 15:24:22 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229670AbjBROYT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 18 Feb 2023 09:24:19 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34996 "EHLO
+        id S229672AbjBROYV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 18 Feb 2023 09:24:21 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35012 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229551AbjBROYS (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 18 Feb 2023 09:24:18 -0500
-Received: from mail-pl1-x633.google.com (mail-pl1-x633.google.com [IPv6:2607:f8b0:4864:20::633])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4CF0D17CC3
-        for <stable@vger.kernel.org>; Sat, 18 Feb 2023 06:24:17 -0800 (PST)
-Received: by mail-pl1-x633.google.com with SMTP id 19so847143plo.7
-        for <stable@vger.kernel.org>; Sat, 18 Feb 2023 06:24:17 -0800 (PST)
+        with ESMTP id S229551AbjBROYU (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 18 Feb 2023 09:24:20 -0500
+Received: from mail-pj1-x102c.google.com (mail-pj1-x102c.google.com [IPv6:2607:f8b0:4864:20::102c])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6511B17CC3
+        for <stable@vger.kernel.org>; Sat, 18 Feb 2023 06:24:19 -0800 (PST)
+Received: by mail-pj1-x102c.google.com with SMTP id h10-20020a17090aa88a00b002349a303ca5so706109pjq.4
+        for <stable@vger.kernel.org>; Sat, 18 Feb 2023 06:24:19 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20210112;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:from:to:cc:subject:date
          :message-id:reply-to;
         bh=DssyoUE9bofDz+38OOssTs8uLU6fnH3aGJYNSo2UCao=;
-        b=oQw5srBsrGxGKlBkp54wa2yJMYn8PC8YSj2dNSf7jFRCFfHYlT11Nli9Rht4tiuf54
-         BJOZhHkgI2XWeajF7i51p95WYx9ePaSmsnJ71uezUnaXKTh6l7iPrEyQwxGMQq34jRjw
-         a8cteAJ/edJxd6ZXQfOWwE8GoSD7YQSzF16Yy64O/lTtK1UDcfOLXqWllxOdnTyffw7r
-         TXlxdKV4huhBpSgxwc1akhYW8ArW3QI/oaL4BRg3dMCa4s352licBdr/i2d5uoiCWYZg
-         PXd5MfpqXkN9fT709Q5EXKYyYOSxPMA85SaEoODPCuCXZHCVhmVyF2dSygW/+SnAM04x
-         hTzg==
+        b=HcGFApiCIbm6Tu62yjG/5EiRp37h1/qPuygIVKkvusEyVIdvWTtJGGKq3Wpd/l5Csf
+         0BWtmisy8JdX+iUSmYEFx3ILpy47Zd+gRQ3rQhmWSkkR1atkISVySyhDW3kF2js2OOOi
+         bGs2sE75Agz6vmAHEuyyXqQaHcD/TP2JD0bC35jzxFbLlEH73ximMrid6Wep/4nUNQA0
+         TUSszuU+h2JVTo8O7ZvdkgB4P4n+DpvJwx0vVEXIO5mm8jurQc8b5tsZ9RiL4wCBbqpY
+         1j6vDFnBTT53POr0w12+awJAAJxVVu4VeLkaYERWkZqqeHdPkpSD+9LyxlsaFYvHfGAo
+         PRQQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
         bh=DssyoUE9bofDz+38OOssTs8uLU6fnH3aGJYNSo2UCao=;
-        b=co7h7JL/K/ry59DXE6Ld0L1YrHHrK+gmr1sRtC3cH9Utk8nlR1MPFAReHodi8EfotB
-         0HTDaFcW+WXMzTeDK3bRkbJiMe6EiUEcFwGcN7oudajEFFkuWmuWOelHbFFTfUSCypEb
-         qoFZAGg/f2jK0QalBqHIAS0ozEwHIFkPpEn7LZG5LyAbBB7GqXKVYHW3SoB9Lops8Ik5
-         EkfR0MaL1yaXpFJUfBUfN6jmTCHsD5oexsMHmJ5O1WMr3KOkQUUcnDGnThZF6DsQ00nL
-         z1KY4+puVpp+jBAx+7TheXn4kLWJ/3NfZ8WPmv8MISLghHgfd3UcbZkaCDoR7VgmXQCn
-         E2dA==
-X-Gm-Message-State: AO0yUKVkNkP4ahWBXQgTlZGFPGdKfZQ4fhykbbNtSrPOmoiNgB2TLpsb
-        DSn8S9I36eERnWJCI+s6NoSkfjvMOIg=
-X-Google-Smtp-Source: AK7set8klZtjARWWuFvlzt3nAlovhwJ2UaaUx0hjmMLamPQtuPMGySOtispngfcCHzGjsTaDB4rJNw==
-X-Received: by 2002:a17:903:1ce:b0:199:41a5:1085 with SMTP id e14-20020a17090301ce00b0019941a51085mr4732672plh.33.1676730256267;
-        Sat, 18 Feb 2023 06:24:16 -0800 (PST)
+        b=XmTUbo3a15WLxy0//5OkEDmgqviu11nN6cv/VA27FRsSJv+8Fp4FhAqbYhRDN5xZCB
+         H4T7IKXPmQe2Ljmb1acCtwxiSS/HCu1qXETSwhP/b5XqglYH2X0W+o0p93eYb3I7hpOT
+         AIAdg+StjomHrF/xuEtLEzgMzwudN8CuyCmzb1b4QGxoa4dIkmr+2FslOPlXpHuBCOjl
+         G9SlBYl9ISOZrnNqoIJ4iHWv31e/QJDWgxX/8mjSRX9JWL/QISjpzUuDBt2ciKUvAOAT
+         Hmgs7XTt50dghYlum4baIwzinvDCBx5OjN9PZPnxbiXNa2UUZLKygxzXpBv4O96M4XD6
+         yqiA==
+X-Gm-Message-State: AO0yUKWLlmaHhIElJk/2DFVk46t5BRmUlNKLprppCrfIvMvG7gKnk3VL
+        Vitm7Q7InEg4FT44w+krhB4=
+X-Google-Smtp-Source: AK7set9P0I0b/RWAvLvy7M5VjU0hIxjmq42Ak+yFMDG82HuTYry1tCyvEJnGoUZxJ7yZiGgYTehLIQ==
+X-Received: by 2002:a17:902:f688:b0:19a:c4a0:5b1b with SMTP id l8-20020a170902f68800b0019ac4a05b1bmr536116plg.1.1676730258593;
+        Sat, 18 Feb 2023 06:24:18 -0800 (PST)
 Received: from carrot.. (i121-118-78-205.s42.a014.ap.plala.or.jp. [121.118.78.205])
-        by smtp.gmail.com with ESMTPSA id 13-20020a170902ee4d00b001965f761e6dsm4764668plo.182.2023.02.18.06.24.13
+        by smtp.gmail.com with ESMTPSA id 13-20020a170902ee4d00b001965f761e6dsm4764668plo.182.2023.02.18.06.24.16
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sat, 18 Feb 2023 06:24:14 -0800 (PST)
+        Sat, 18 Feb 2023 06:24:17 -0800 (PST)
 From:   Ryusuke Konishi <konishi.ryusuke@gmail.com>
 To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         stable@vger.kernel.org
 Cc:     Andrew Morton <akpm@linux-foundation.org>,
         syzbot+f0c4082ce5ebebdac63b@syzkaller.appspotmail.com
 Subject: [PATCH 5.10 5.15] nilfs2: fix underflow in second superblock position calculations
-Date:   Sat, 18 Feb 2023 23:23:49 +0900
-Message-Id: <20230218142350.2548-1-konishi.ryusuke@gmail.com>
+Date:   Sat, 18 Feb 2023 23:23:50 +0900
+Message-Id: <20230218142350.2548-2-konishi.ryusuke@gmail.com>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <16767073279675@kroah.com>
+In-Reply-To: <20230218142350.2548-1-konishi.ryusuke@gmail.com>
 References: <16767073279675@kroah.com>
+ <20230218142350.2548-1-konishi.ryusuke@gmail.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
