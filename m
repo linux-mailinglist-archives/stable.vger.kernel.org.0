@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D5F3B69B9B6
-	for <lists+stable@lfdr.de>; Sat, 18 Feb 2023 12:22:25 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1702869B9BD
+	for <lists+stable@lfdr.de>; Sat, 18 Feb 2023 12:25:08 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229580AbjBRLWZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 18 Feb 2023 06:22:25 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57718 "EHLO
+        id S229674AbjBRLZG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 18 Feb 2023 06:25:06 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59360 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229541AbjBRLWY (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 18 Feb 2023 06:22:24 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B58FDE2
-        for <stable@vger.kernel.org>; Sat, 18 Feb 2023 03:22:23 -0800 (PST)
+        with ESMTP id S229622AbjBRLZG (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 18 Feb 2023 06:25:06 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6E9E11420D
+        for <stable@vger.kernel.org>; Sat, 18 Feb 2023 03:25:05 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 70AD4B822A8
-        for <stable@vger.kernel.org>; Sat, 18 Feb 2023 11:22:22 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D6165C433D2;
-        Sat, 18 Feb 2023 11:22:20 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 08F1960AEF
+        for <stable@vger.kernel.org>; Sat, 18 Feb 2023 11:25:05 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 16A37C433D2;
+        Sat, 18 Feb 2023 11:25:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1676719341;
-        bh=EMYi/azpZTU816a640SygLHOXMzM3LR4xaA2MBy4bRc=;
+        s=korg; t=1676719504;
+        bh=/CNVWg1MSLDdzQ7Czw/B5eMJxoI4U6tlQPCKgXXzmYQ=;
         h=Subject:To:Cc:From:Date:From;
-        b=urq1iYATDEoweSXbepj0S7PYSyeMCvG/VAhJvgwrtRh0MSm0ZuIe82jKzZniOSMSz
-         BcdSzoOG+qZYa/wMcawA9DD+qg+3OdZ9rDneLPro2RswQ+1inkIL0mPoxwbum6ODGx
-         MyHrzvgd4HNj097SpTrO+mR9nrtEIhcpYTQHtZOw=
-Subject: FAILED: patch "[PATCH] net/sched: act_ctinfo: use percpu stats" failed to apply to 5.10-stable tree
-To:     pctammela@mojatatu.com, jhs@mojatatu.com, kuba@kernel.org,
-        larysa.zaremba@intel.com
+        b=MWYP7BwfweQa1Ct1Wt2HeIhYCRgTEgmAnZX96ZCpxqlm6F8LQLJQUoc62LNjDxpdL
+         hSZHmXke2ZmDUsnSbjTGIBoc3sJNHe8v+FZ6jZgdQThXECzDTRWSnTv1kzaGqFzN5b
+         CJCw0Er8JPK9tXUBzuzMQzX7JWdYEaI9Q/jhNAfw=
+Subject: FAILED: patch "[PATCH] ixgbe: add double of VLAN header when computing the max MTU" failed to apply to 4.19-stable tree
+To:     kernelxing@tencent.com, alexanderduyck@fb.com,
+        anthony.l.nguyen@intel.com, chandanx.rout@intel.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Sat, 18 Feb 2023 12:22:10 +0100
-Message-ID: <1676719330217236@kroah.com>
+Date:   Sat, 18 Feb 2023 12:25:01 +0100
+Message-ID: <1676719501194167@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
@@ -48,15 +48,15 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.10-stable tree.
+The patch below does not apply to the 4.19-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
 
 Possible dependencies:
 
-21c167aa0ba9 ("net/sched: act_ctinfo: use percpu stats")
-40bd094d65fc ("flow_offload: fill flags to action structure")
+0967bf837784 ("ixgbe: add double of VLAN header when computing the max MTU")
+f9cd6a4418ba ("ixgbe: allow to increase MTU to 3K with XDP enabled")
 
 thanks,
 
@@ -64,58 +64,45 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From 21c167aa0ba943a7cac2f6969814f83bb701666b Mon Sep 17 00:00:00 2001
-From: Pedro Tammela <pctammela@mojatatu.com>
-Date: Fri, 10 Feb 2023 17:08:25 -0300
-Subject: [PATCH] net/sched: act_ctinfo: use percpu stats
+From 0967bf837784a11c65d66060623a74e65211af0b Mon Sep 17 00:00:00 2001
+From: Jason Xing <kernelxing@tencent.com>
+Date: Thu, 9 Feb 2023 10:41:28 +0800
+Subject: [PATCH] ixgbe: add double of VLAN header when computing the max MTU
 
-The tc action act_ctinfo was using shared stats, fix it to use percpu stats
-since bstats_update() must be called with locks or with a percpu pointer argument.
+Include the second VLAN HLEN into account when computing the maximum
+MTU size as other drivers do.
 
-tdc results:
-1..12
-ok 1 c826 - Add ctinfo action with default setting
-ok 2 0286 - Add ctinfo action with dscp
-ok 3 4938 - Add ctinfo action with valid cpmark and zone
-ok 4 7593 - Add ctinfo action with drop control
-ok 5 2961 - Replace ctinfo action zone and action control
-ok 6 e567 - Delete ctinfo action with valid index
-ok 7 6a91 - Delete ctinfo action with invalid index
-ok 8 5232 - List ctinfo actions
-ok 9 7702 - Flush ctinfo actions
-ok 10 3201 - Add ctinfo action with duplicate index
-ok 11 8295 - Add ctinfo action with invalid index
-ok 12 3964 - Replace ctinfo action with invalid goto_chain control
+Fixes: fabf1bce103a ("ixgbe: Prevent unsupported configurations with XDP")
+Signed-off-by: Jason Xing <kernelxing@tencent.com>
+Reviewed-by: Alexander Duyck <alexanderduyck@fb.com>
+Tested-by: Chandan Kumar Rout <chandanx.rout@intel.com> (A Contingent Worker at Intel)
+Signed-off-by: Tony Nguyen <anthony.l.nguyen@intel.com>
 
-Fixes: 24ec483cec98 ("net: sched: Introduce act_ctinfo action")
-Reviewed-by: Jamal Hadi Salim <jhs@mojatatu.com>
-Signed-off-by: Pedro Tammela <pctammela@mojatatu.com>
-Reviewed-by: Larysa Zaremba <larysa.zaremba@intel.com>
-Link: https://lore.kernel.org/r/20230210200824.444856-1-pctammela@mojatatu.com
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
-
-diff --git a/net/sched/act_ctinfo.c b/net/sched/act_ctinfo.c
-index 4b1b59da5c0b..4d15b6a6169c 100644
---- a/net/sched/act_ctinfo.c
-+++ b/net/sched/act_ctinfo.c
-@@ -93,7 +93,7 @@ TC_INDIRECT_SCOPE int tcf_ctinfo_act(struct sk_buff *skb,
- 	cp = rcu_dereference_bh(ca->params);
+diff --git a/drivers/net/ethernet/intel/ixgbe/ixgbe.h b/drivers/net/ethernet/intel/ixgbe/ixgbe.h
+index bc68b8f2176d..8736ca4b2628 100644
+--- a/drivers/net/ethernet/intel/ixgbe/ixgbe.h
++++ b/drivers/net/ethernet/intel/ixgbe/ixgbe.h
+@@ -73,6 +73,8 @@
+ #define IXGBE_RXBUFFER_4K    4096
+ #define IXGBE_MAX_RXBUFFER  16384  /* largest size for a single descriptor */
  
- 	tcf_lastuse_update(&ca->tcf_tm);
--	bstats_update(&ca->tcf_bstats, skb);
-+	tcf_action_update_bstats(&ca->common, skb);
- 	action = READ_ONCE(ca->tcf_action);
++#define IXGBE_PKT_HDR_PAD   (ETH_HLEN + ETH_FCS_LEN + (VLAN_HLEN * 2))
++
+ /* Attempt to maximize the headroom available for incoming frames.  We
+  * use a 2K buffer for receives and need 1536/1534 to store the data for
+  * the frame.  This leaves us with 512 bytes of room.  From that we need
+diff --git a/drivers/net/ethernet/intel/ixgbe/ixgbe_main.c b/drivers/net/ethernet/intel/ixgbe/ixgbe_main.c
+index 25ca329f7d3c..4507fba8747a 100644
+--- a/drivers/net/ethernet/intel/ixgbe/ixgbe_main.c
++++ b/drivers/net/ethernet/intel/ixgbe/ixgbe_main.c
+@@ -6801,8 +6801,7 @@ static int ixgbe_change_mtu(struct net_device *netdev, int new_mtu)
+ 	struct ixgbe_adapter *adapter = netdev_priv(netdev);
  
- 	wlen = skb_network_offset(skb);
-@@ -212,8 +212,8 @@ static int tcf_ctinfo_init(struct net *net, struct nlattr *nla,
- 	index = actparm->index;
- 	err = tcf_idr_check_alloc(tn, &index, a, bind);
- 	if (!err) {
--		ret = tcf_idr_create(tn, index, est, a,
--				     &act_ctinfo_ops, bind, false, flags);
-+		ret = tcf_idr_create_from_flags(tn, index, est, a,
-+						&act_ctinfo_ops, bind, flags);
- 		if (ret) {
- 			tcf_idr_cleanup(tn, index);
- 			return ret;
+ 	if (ixgbe_enabled_xdp_adapter(adapter)) {
+-		int new_frame_size = new_mtu + ETH_HLEN + ETH_FCS_LEN +
+-				     VLAN_HLEN;
++		int new_frame_size = new_mtu + IXGBE_PKT_HDR_PAD;
+ 
+ 		if (new_frame_size > ixgbe_max_xdp_frame_size(adapter)) {
+ 			e_warn(probe, "Requested MTU size is not supported with XDP\n");
 
