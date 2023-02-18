@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 7109D69B89D
-	for <lists+stable@lfdr.de>; Sat, 18 Feb 2023 09:02:26 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7BA4469B89E
+	for <lists+stable@lfdr.de>; Sat, 18 Feb 2023 09:02:34 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229506AbjBRICZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 18 Feb 2023 03:02:25 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48614 "EHLO
+        id S229475AbjBRICd (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 18 Feb 2023 03:02:33 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48776 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229836AbjBRICY (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 18 Feb 2023 03:02:24 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CF38F56EC2
-        for <stable@vger.kernel.org>; Sat, 18 Feb 2023 00:02:22 -0800 (PST)
+        with ESMTP id S229731AbjBRICc (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 18 Feb 2023 03:02:32 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3D5B859580
+        for <stable@vger.kernel.org>; Sat, 18 Feb 2023 00:02:29 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 5E0AB60765
-        for <stable@vger.kernel.org>; Sat, 18 Feb 2023 08:02:22 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 70E31C433EF;
-        Sat, 18 Feb 2023 08:02:21 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id CC100606A0
+        for <stable@vger.kernel.org>; Sat, 18 Feb 2023 08:02:28 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E07DCC433D2;
+        Sat, 18 Feb 2023 08:02:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1676707341;
-        bh=lPB3gcy3Ns0qkeSeCJVdisD6AC/KzZfj2wM686pzxLE=;
+        s=korg; t=1676707348;
+        bh=q28LcHUYVhsDGQmphpb11Xp7liAapad8YiIvGlVnxD0=;
         h=Subject:To:Cc:From:Date:From;
-        b=uvDi3fvNCxKhW3vIqJkDQ8uOZBNOV7NLvcB5RyG2CtOVLbd8EEDlz0vbbz7Hq7Qqi
-         3TeowIHX2LJhGgs+hHByX5vPpMHRy87vCjm60jrSbu6i/GZJa5/sLqGJjj9JGw2jeQ
-         3hsfnojYY3OpzBvlmA0d2Oyy6g7kXhtZTLDH0tE8=
-Subject: FAILED: patch "[PATCH] nilfs2: fix underflow in second superblock position" failed to apply to 5.4-stable tree
+        b=jRes1bHZVPQR0ifEHBXLBhim4dECOZZAyYzwx6jmFwbBVVrCtzzt2OPZfR9N5FFWx
+         EF7T1NkHWxQHbcTzKNbDx+xkSBOCk/6IQeGJvM+4GZBIy7CTuE9F9MBdDgDdyyLVaw
+         dbyxJufdl1DvMTMHhILNKIlo5XxPfihsjmP10PQo=
+Subject: FAILED: patch "[PATCH] nilfs2: fix underflow in second superblock position" failed to apply to 4.19-stable tree
 To:     konishi.ryusuke@gmail.com, akpm@linux-foundation.org,
         stable@vger.kernel.org,
         syzbot+f0c4082ce5ebebdac63b@syzkaller.appspotmail.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Sat, 18 Feb 2023 09:02:11 +0100
-Message-ID: <167670733166142@kroah.com>
+Date:   Sat, 18 Feb 2023 09:02:18 +0100
+Message-ID: <167670733899168@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
         SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -49,7 +49,7 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 5.4-stable tree.
+The patch below does not apply to the 4.19-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
