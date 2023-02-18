@@ -2,113 +2,119 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 4D3A469B966
-	for <lists+stable@lfdr.de>; Sat, 18 Feb 2023 11:29:33 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A9B4269B98E
+	for <lists+stable@lfdr.de>; Sat, 18 Feb 2023 12:06:15 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229889AbjBRK3c (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 18 Feb 2023 05:29:32 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36542 "EHLO
+        id S229558AbjBRLGN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 18 Feb 2023 06:06:13 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48980 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229476AbjBRK3b (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 18 Feb 2023 05:29:31 -0500
-Received: from out1-smtp.messagingengine.com (out1-smtp.messagingengine.com [66.111.4.25])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A12491ADFA;
-        Sat, 18 Feb 2023 02:29:30 -0800 (PST)
-Received: from compute2.internal (compute2.nyi.internal [10.202.2.46])
-        by mailout.nyi.internal (Postfix) with ESMTP id 9955F5C00DE;
-        Sat, 18 Feb 2023 05:29:27 -0500 (EST)
-Received: from mailfrontend1 ([10.202.2.162])
-  by compute2.internal (MEProxy); Sat, 18 Feb 2023 05:29:27 -0500
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kroah.com; h=cc
-        :cc:content-type:date:date:from:from:in-reply-to:in-reply-to
-        :message-id:mime-version:references:reply-to:sender:subject
-        :subject:to:to; s=fm1; t=1676716167; x=1676802567; bh=z7pNc7FSy/
-        sM7V64UiBjw0RNRZzP3TFT4yJbRpLVQck=; b=ao4LI3p2TocAOyfJ+ZzxJbHYkM
-        ldqO3P9ax0qEUturXm+56E5YhpddYVN0EP6amx0ZbTJeRJsg2DK+EE7YY1hpXxyf
-        4UQdB+RPW8+Xpw8KJuQbqWKm2NAHJtmLarm4V0sZVXtZudY7omz+tjumusV8bC3C
-        Qfu6aEo8Q/Tzl2b8QjsfljkrpiIXn3oYSh2E5D6Kk8qxBmajSWu+g//ZWgdnPi9K
-        o82uarqfFFnJvQiaBFnBpNI1BWw6tzM5B5Df1BMperySMK49F0cfs44ab3tg80VO
-        AprBWCo88VC4IfU8ltGAoWenc8pM1rIiplMFP3xO9a66Xt+81FADCHK7UWuQ==
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
-        messagingengine.com; h=cc:cc:content-type:date:date:feedback-id
-        :feedback-id:from:from:in-reply-to:in-reply-to:message-id
-        :mime-version:references:reply-to:sender:subject:subject:to:to
-        :x-me-proxy:x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=
-        fm1; t=1676716167; x=1676802567; bh=z7pNc7FSy/sM7V64UiBjw0RNRZzP
-        3TFT4yJbRpLVQck=; b=cXuL0PJ5MID+F9HeeTemXNzUdzOIEIfJbB7hCGAOH0XP
-        tKiqpHlU+3lpb7ZvzhS/9CVlNEKsAk0w1WmwbBm5h1sdSLUd8USBaw1BimnJ+2Ip
-        hjqndKWPlRUr3DypLt6zgRlXSrvQYaUWuDqZ5NkgXMowTC1rO+Q/dRCifpGgGOQH
-        UI0Q6MnIelED/7hj06uVk5bYN0rmKl51sZYFEx4PRwsiGkkKrFpWlavvfAx7yQGz
-        lde27GUVXdPlEJYgqVEvVvq6VWWDzgcTaIWhHJ9iHXIE/waCelwzcX0wHcEb+PC5
-        e6ansvlaPgly7VfIhogOjsEl8v21GWezlLnsR0Opmw==
-X-ME-Sender: <xms:h6jwY2LR2APb2A-9U6wmfw5-16s1TQI80iXFjFiDTY-P4GzhQ_hKUA>
-    <xme:h6jwY-JOvbmDRPtOyWCCeRZ7hCW-uHUIr_N-nQUR_Xae9zLosSjWIdYSywcEj6n0W
-    ZO3LFzK9uoqNg>
-X-ME-Received: <xmr:h6jwY2v6Mdb1j5kKMeKqGE5vqTQIPlT5O-jYmHmTX8dSF3-mN5QToJIu-IAWk3TgkhOaVmL4dklmOP50Pr57CxXfdCDKs8Lnhzci-w>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgedvhedrudejuddgudehucetufdoteggodetrfdotf
-    fvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfqfgfvpdfurfetoffkrfgpnffqhgen
-    uceurghilhhouhhtmecufedttdenucenucfjughrpeffhffvvefukfhfgggtuggjsehttd
-    ertddttddvnecuhfhrohhmpefirhgvghcumffjuceoghhrvghgsehkrhhorghhrdgtohhm
-    qeenucggtffrrghtthgvrhhnpeegheeuhefgtdeluddtleekfeegjeetgeeikeehfeduie
-    ffvddufeefleevtddtvdenucffohhmrghinhepkhgvrhhnvghlrdhorhhgnecuvehluhhs
-    thgvrhfuihiivgeptdenucfrrghrrghmpehmrghilhhfrhhomhepghhrvghgsehkrhhorg
-    hhrdgtohhm
-X-ME-Proxy: <xmx:h6jwY7YtywMIk9wIII4a3QS8l499Dwrwfj0WUOk9AsC7pCSGG7aOHA>
-    <xmx:h6jwY9a-n1yxCweiBxs8tasIwThIU9_rvoqT31u0iUmqfR0xuYQNUg>
-    <xmx:h6jwY3Ahp_eyBxmw0cKjMkU5RklBvyozwpG1Jk90eOSu5F6-JLFK5A>
-    <xmx:h6jwYxRobf6pQx3gx4e7KouGuwRfT7EOmh04-QvgI0LhdB77IrhL5g>
-Feedback-ID: i787e41f1:Fastmail
-Received: by mail.messagingengine.com (Postfix) with ESMTPA; Sat,
- 18 Feb 2023 05:29:26 -0500 (EST)
-Date:   Sat, 18 Feb 2023 11:29:24 +0100
-From:   Greg KH <greg@kroah.com>
-To:     Andrew Paniakin <apanyaki@amazon.com>
-Cc:     stable@vger.kernel.org, luizcap@amazon.com, keescook@chromium.org,
-        shuah@kernel.org, linux-kselftest@vger.kernel.org,
-        linux-kernel@vger.kernel.org
-Subject: Re: [5.15] Please apply 'selftest/lkdtm: Skip stack-entropy test if
- lkdtm is not available'
-Message-ID: <Y/CohO02rXPY4hzD@kroah.com>
-References: <20230217221705.2525177-1-apanyaki@amazon.com>
+        with ESMTP id S229540AbjBRLGN (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 18 Feb 2023 06:06:13 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 900FF1A4B1
+        for <stable@vger.kernel.org>; Sat, 18 Feb 2023 03:06:11 -0800 (PST)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 404D4B82299
+        for <stable@vger.kernel.org>; Sat, 18 Feb 2023 11:06:10 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9732EC433D2;
+        Sat, 18 Feb 2023 11:06:08 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
+        s=korg; t=1676718368;
+        bh=iztvyt7JMsiCcDD1oBeE5etx3iTE+9Rr49eraCOjOO4=;
+        h=Subject:To:Cc:From:Date:From;
+        b=wJ+tPwFdA+BsLKEqiL5E5vQketTCaAguUMExByqO/RczNNOijnXHCRiwHaI7oLdP5
+         A0zmpuwNh4sju/fww8R8fMsryOvuVqK//QKbgbtv5YZGY/yt0Vh5YxHIwYF1+Erg40
+         R+FksWp4073NoTEzMfAFB4OU7GaVPTSnBh3nGTUA=
+Subject: FAILED: patch "[PATCH] drm/vc4: Fix YUV plane handling when planes are in different" failed to apply to 5.15-stable tree
+To:     dave.stevenson@raspberrypi.com, maxime@cerno.tech
+Cc:     <stable@vger.kernel.org>
+From:   <gregkh@linuxfoundation.org>
+Date:   Sat, 18 Feb 2023 12:06:06 +0100
+Message-ID: <1676718366225251@kroah.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20230217221705.2525177-1-apanyaki@amazon.com>
-X-Spam-Status: No, score=-2.8 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_LOW,
-        RCVD_IN_MSPIKE_H3,RCVD_IN_MSPIKE_WL,SPF_HELO_PASS,SPF_PASS
-        autolearn=ham autolearn_force=no version=3.4.6
+Content-Type: text/plain; charset=ANSI_X3.4-1968
+Content-Transfer-Encoding: 8bit
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+        SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Fri, Feb 17, 2023 at 02:17:05PM -0800, Andrew Paniakin wrote:
-> commit 90091c367e74d5b58d9ebe979cc363f7468f58d3 upstream.
-> 
-> This patch fixes the stack-entropy.sh test to exit gracefully when the LKDTM is
-> not available. Test will hang otherwise as reported in [1].
-> 
-> Applicability of this fix to other LTS kernels:
-> - 4.14: No lkdtm selftest
-> - 4.19: No lkdtm selftest
-> - 5.4:  No lkdtm selftests
-> - 5.10: Inital selftest version introduced in 46d1a0f03d661 ("selftests/lkdtm:
->   Add tests for LKDTM targets") is a single script which has the LKDTM
->   availability check
-> - 6.1: Fix applied
-> 
-> This patch applies cleanly to stable-5.15 tree. Updated test was executed in
-> Qemu VM with different kernels:
-> - CONFIG_LKDTM not enabled. Test finished with status SKIP.
-> - CONFIG_LKDTM enabled. Test failed (but not hanged) with error 'Stack entropy
->   is low'.
-> - CONFIG_LKDTM enabled and randomize_kstack_offset=on boot argument provided.
->   Test succeed.
-> 
-> [1] https://lore.kernel.org/lkml/2836f48a-d4e2-7f00-f06c-9f556fbd6332@linuxfoundation.org
 
-Now queued up, thanks.
+The patch below does not apply to the 5.15-stable tree.
+If someone wants it applied there, or to any other stable or longterm
+tree, then please email the backport, including the original git commit
+id to <stable@vger.kernel.org>.
+
+Possible dependencies:
+
+6b77b16de75a ("drm/vc4: Fix YUV plane handling when planes are in different buffers")
+8c30eecc6769 ("drm/gem: rename struct drm_gem_dma_object.{paddr => dma_addr}")
+4a83c26a1d87 ("drm/gem: rename GEM CMA helpers to GEM DMA helpers")
+6bcfe8eaeef0 ("drm/fb: rename FB CMA helpers to FB DMA helpers")
+5e8bf00ea915 ("drm/fb: remove unused includes of drm_fb_cma_helper.h")
+a4d847df8b44 ("drm/fsl-dcu: Use drm_plane_helper_destroy()")
+254e5e8829a9 ("drm: Remove unnecessary include statements of drm_plane_helper.h")
+382fc1f68132 ("drm/atomic-helper: Move DRM_PLANE_HELPER_NO_SCALING to atomic helpers")
+b7345c9799da ("drm/vc4: txp: Protect device resources")
+e23a5e14aa27 ("Backmerge tag 'v5.19-rc6' of git://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux into drm-next")
+
+thanks,
 
 greg k-h
+
+------------------ original commit in Linus's tree ------------------
+
+From 6b77b16de75a6efc0870b1fa467209387cbee8f3 Mon Sep 17 00:00:00 2001
+From: Dave Stevenson <dave.stevenson@raspberrypi.com>
+Date: Fri, 27 Jan 2023 16:57:08 +0100
+Subject: [PATCH] drm/vc4: Fix YUV plane handling when planes are in different
+ buffers
+
+YUV images can either be presented as one allocation with offsets
+for the different planes, or multiple allocations with 0 offsets.
+
+The driver only ever calls drm_fb_[dma|cma]_get_gem_obj with plane
+index 0, therefore any application using the second approach was
+incorrectly rendered.
+
+Correctly determine the address for each plane, removing the
+assumption that the base address is the same for each.
+
+Fixes: fc04023fafec ("drm/vc4: Add support for YUV planes.")
+Signed-off-by: Dave Stevenson <dave.stevenson@raspberrypi.com>
+Signed-off-by: Maxime Ripard <maxime@cerno.tech>
+Link: https://patchwork.freedesktop.org/patch/msgid/20230127155708.454704-1-maxime@cerno.tech
+
+diff --git a/drivers/gpu/drm/vc4/vc4_plane.c b/drivers/gpu/drm/vc4/vc4_plane.c
+index 8b92a45a3c89..bd5acc4a8687 100644
+--- a/drivers/gpu/drm/vc4/vc4_plane.c
++++ b/drivers/gpu/drm/vc4/vc4_plane.c
+@@ -340,7 +340,7 @@ static int vc4_plane_setup_clipping_and_scaling(struct drm_plane_state *state)
+ {
+ 	struct vc4_plane_state *vc4_state = to_vc4_plane_state(state);
+ 	struct drm_framebuffer *fb = state->fb;
+-	struct drm_gem_dma_object *bo = drm_fb_dma_get_gem_obj(fb, 0);
++	struct drm_gem_dma_object *bo;
+ 	int num_planes = fb->format->num_planes;
+ 	struct drm_crtc_state *crtc_state;
+ 	u32 h_subsample = fb->format->hsub;
+@@ -359,8 +359,10 @@ static int vc4_plane_setup_clipping_and_scaling(struct drm_plane_state *state)
+ 	if (ret)
+ 		return ret;
+ 
+-	for (i = 0; i < num_planes; i++)
++	for (i = 0; i < num_planes; i++) {
++		bo = drm_fb_dma_get_gem_obj(fb, i);
+ 		vc4_state->offsets[i] = bo->dma_addr + fb->offsets[i];
++	}
+ 
+ 	/*
+ 	 * We don't support subpixel source positioning for scaling,
+
