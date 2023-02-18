@@ -2,43 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 8FE1769B9B4
-	for <lists+stable@lfdr.de>; Sat, 18 Feb 2023 12:19:38 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id DBE8369B9B5
+	for <lists+stable@lfdr.de>; Sat, 18 Feb 2023 12:22:15 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229508AbjBRLTh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 18 Feb 2023 06:19:37 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56976 "EHLO
+        id S229551AbjBRLWO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 18 Feb 2023 06:22:14 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57688 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229541AbjBRLTg (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 18 Feb 2023 06:19:36 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C7815166D6
-        for <stable@vger.kernel.org>; Sat, 18 Feb 2023 03:19:05 -0800 (PST)
+        with ESMTP id S229541AbjBRLWO (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 18 Feb 2023 06:22:14 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4E1BF1B4
+        for <stable@vger.kernel.org>; Sat, 18 Feb 2023 03:22:13 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 1F28860B56
-        for <stable@vger.kernel.org>; Sat, 18 Feb 2023 11:18:54 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 06C56C433EF;
-        Sat, 18 Feb 2023 11:18:52 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id D505560AEF
+        for <stable@vger.kernel.org>; Sat, 18 Feb 2023 11:22:12 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id BA0E1C433EF;
+        Sat, 18 Feb 2023 11:22:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1676719133;
-        bh=NutqTv6gmzP+9e/Oz067g+H1CIVgUFjHkHRWsFO1uoM=;
+        s=korg; t=1676719332;
+        bh=6Suo9c7vRUpn718z9yBWbxqb5PNjlq58O9Xmswjt3Nc=;
         h=Subject:To:Cc:From:Date:From;
-        b=tfWmuJhh0gW3S9de2tNA0dkKrsjy7YLdBBw+E1qNBphbNlBnZcXvPx+oIsX0Vpn5R
-         7yrZjLwvM2z8dBTlwcE6sph/1xO/KlYAbeK8rSIULhxBLj2tp9Kg1Knb8HjMXl6fEF
-         0WCIatN8F1EiOVVT3BycI1hDADytkdnCY+pyE1qU=
-Subject: FAILED: patch "[PATCH] sctp: sctp_sock_filter(): avoid list_entry() on possibly" failed to apply to 4.14-stable tree
-To:     borrello@diag.uniroma1.it, kuba@kernel.org, lucien.xin@gmail.com
+        b=kz1AkXLM2xpy2eZCirIe8h7bFvg7mAbFgmGTx9M+KCcjV8HghW2Jjdf01cu3ckKgo
+         THYMTKOFQeBusqAEsRwkvIFr2ZXVZmTFY3Pf9hVBfP5U8k5EsV306YqRhEoCyvbeAN
+         NfNWer/SCPwD7y/tClLQ8RPUiyYMYn737ApbOIUo=
+Subject: FAILED: patch "[PATCH] net/sched: act_ctinfo: use percpu stats" failed to apply to 5.15-stable tree
+To:     pctammela@mojatatu.com, jhs@mojatatu.com, kuba@kernel.org,
+        larysa.zaremba@intel.com
 Cc:     <stable@vger.kernel.org>
 From:   <gregkh@linuxfoundation.org>
-Date:   Sat, 18 Feb 2023 12:18:42 +0100
-Message-ID: <1676719122167181@kroah.com>
+Date:   Sat, 18 Feb 2023 12:22:09 +0100
+Message-ID: <167671932914420@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ANSI_X3.4-1968
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
         SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -47,14 +48,15 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
-The patch below does not apply to the 4.14-stable tree.
+The patch below does not apply to the 5.15-stable tree.
 If someone wants it applied there, or to any other stable or longterm
 tree, then please email the backport, including the original git commit
 id to <stable@vger.kernel.org>.
 
 Possible dependencies:
 
-a1221703a0f7 ("sctp: sctp_sock_filter(): avoid list_entry() on possibly empty list")
+21c167aa0ba9 ("net/sched: act_ctinfo: use percpu stats")
+40bd094d65fc ("flow_offload: fill flags to action structure")
 
 thanks,
 
@@ -62,36 +64,58 @@ greg k-h
 
 ------------------ original commit in Linus's tree ------------------
 
-From a1221703a0f75a9d81748c516457e0fc76951496 Mon Sep 17 00:00:00 2001
-From: Pietro Borrello <borrello@diag.uniroma1.it>
-Date: Thu, 9 Feb 2023 12:13:05 +0000
-Subject: [PATCH] sctp: sctp_sock_filter(): avoid list_entry() on possibly
- empty list
+From 21c167aa0ba943a7cac2f6969814f83bb701666b Mon Sep 17 00:00:00 2001
+From: Pedro Tammela <pctammela@mojatatu.com>
+Date: Fri, 10 Feb 2023 17:08:25 -0300
+Subject: [PATCH] net/sched: act_ctinfo: use percpu stats
 
-Use list_is_first() to check whether tsp->asoc matches the first
-element of ep->asocs, as the list is not guaranteed to have an entry.
+The tc action act_ctinfo was using shared stats, fix it to use percpu stats
+since bstats_update() must be called with locks or with a percpu pointer argument.
 
-Fixes: 8f840e47f190 ("sctp: add the sctp_diag.c file")
-Signed-off-by: Pietro Borrello <borrello@diag.uniroma1.it>
-Acked-by: Xin Long <lucien.xin@gmail.com>
-Link: https://lore.kernel.org/r/20230208-sctp-filter-v2-1-6e1f4017f326@diag.uniroma1.it
+tdc results:
+1..12
+ok 1 c826 - Add ctinfo action with default setting
+ok 2 0286 - Add ctinfo action with dscp
+ok 3 4938 - Add ctinfo action with valid cpmark and zone
+ok 4 7593 - Add ctinfo action with drop control
+ok 5 2961 - Replace ctinfo action zone and action control
+ok 6 e567 - Delete ctinfo action with valid index
+ok 7 6a91 - Delete ctinfo action with invalid index
+ok 8 5232 - List ctinfo actions
+ok 9 7702 - Flush ctinfo actions
+ok 10 3201 - Add ctinfo action with duplicate index
+ok 11 8295 - Add ctinfo action with invalid index
+ok 12 3964 - Replace ctinfo action with invalid goto_chain control
+
+Fixes: 24ec483cec98 ("net: sched: Introduce act_ctinfo action")
+Reviewed-by: Jamal Hadi Salim <jhs@mojatatu.com>
+Signed-off-by: Pedro Tammela <pctammela@mojatatu.com>
+Reviewed-by: Larysa Zaremba <larysa.zaremba@intel.com>
+Link: https://lore.kernel.org/r/20230210200824.444856-1-pctammela@mojatatu.com
 Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 
-diff --git a/net/sctp/diag.c b/net/sctp/diag.c
-index a557009e9832..c3d6b92dd386 100644
---- a/net/sctp/diag.c
-+++ b/net/sctp/diag.c
-@@ -343,11 +343,9 @@ static int sctp_sock_filter(struct sctp_endpoint *ep, struct sctp_transport *tsp
- 	struct sctp_comm_param *commp = p;
- 	struct sock *sk = ep->base.sk;
- 	const struct inet_diag_req_v2 *r = commp->r;
--	struct sctp_association *assoc =
--		list_entry(ep->asocs.next, struct sctp_association, asocs);
+diff --git a/net/sched/act_ctinfo.c b/net/sched/act_ctinfo.c
+index 4b1b59da5c0b..4d15b6a6169c 100644
+--- a/net/sched/act_ctinfo.c
++++ b/net/sched/act_ctinfo.c
+@@ -93,7 +93,7 @@ TC_INDIRECT_SCOPE int tcf_ctinfo_act(struct sk_buff *skb,
+ 	cp = rcu_dereference_bh(ca->params);
  
- 	/* find the ep only once through the transports by this condition */
--	if (tsp->asoc != assoc)
-+	if (!list_is_first(&tsp->asoc->asocs, &ep->asocs))
- 		return 0;
+ 	tcf_lastuse_update(&ca->tcf_tm);
+-	bstats_update(&ca->tcf_bstats, skb);
++	tcf_action_update_bstats(&ca->common, skb);
+ 	action = READ_ONCE(ca->tcf_action);
  
- 	if (r->sdiag_family != AF_UNSPEC && sk->sk_family != r->sdiag_family)
+ 	wlen = skb_network_offset(skb);
+@@ -212,8 +212,8 @@ static int tcf_ctinfo_init(struct net *net, struct nlattr *nla,
+ 	index = actparm->index;
+ 	err = tcf_idr_check_alloc(tn, &index, a, bind);
+ 	if (!err) {
+-		ret = tcf_idr_create(tn, index, est, a,
+-				     &act_ctinfo_ops, bind, false, flags);
++		ret = tcf_idr_create_from_flags(tn, index, est, a,
++						&act_ctinfo_ops, bind, flags);
+ 		if (ret) {
+ 			tcf_idr_cleanup(tn, index);
+ 			return ret;
 
