@@ -2,46 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E22C869CDDE
-	for <lists+stable@lfdr.de>; Mon, 20 Feb 2023 14:53:44 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9FC7069CEC7
+	for <lists+stable@lfdr.de>; Mon, 20 Feb 2023 15:02:22 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232498AbjBTNxo (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Feb 2023 08:53:44 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41676 "EHLO
+        id S232835AbjBTOCV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Feb 2023 09:02:21 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55840 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232499AbjBTNxn (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 20 Feb 2023 08:53:43 -0500
+        with ESMTP id S232837AbjBTOCR (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 20 Feb 2023 09:02:17 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1A18C1CAE3
-        for <stable@vger.kernel.org>; Mon, 20 Feb 2023 05:53:42 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 509279EFC
+        for <stable@vger.kernel.org>; Mon, 20 Feb 2023 06:02:03 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id A929160E8A
-        for <stable@vger.kernel.org>; Mon, 20 Feb 2023 13:53:41 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id BFBCCC433EF;
-        Mon, 20 Feb 2023 13:53:40 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 340EF60EAD
+        for <stable@vger.kernel.org>; Mon, 20 Feb 2023 14:02:03 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 44C5BC433D2;
+        Mon, 20 Feb 2023 14:02:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1676901221;
-        bh=cIkvjKeT4PtZ4G0y/YYsOSAmMmk+jGVL3klohv1Cjg4=;
+        s=korg; t=1676901722;
+        bh=a/UiooHYDOpNciVZOA7OSu8FGgn+oFJk1uIh2EFUeyc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=OemdiIn4jv5fh1XARS8D35u3TncLeqoz5wQfjrvTY9gr7XuxCMCNEdLLAIkJ5gSGk
-         LMQ+R2M6sSUFM1ZyG3+pFYvGbc2GpLMDdhHEYjpOeRPe4U0thKeGP9iEfgA/jp4tjN
-         yX2DEFwe0BclHJLJIWGah4Yc7SLTXUTd4HphI56U=
+        b=Y6/GRvM/Em6Eh99OJNEsv/Ex4M2igrHIieQl7Go5swNnhNI66KQUWsiZ1iSIlhiFN
+         pJU7nlNXHhESxec0a4HjsntVl/1inbc2XZJiPwKfJFeiOFumCHFzU5G14+A5hguDQS
+         JBPMzRxRSjViPpAynCQu9qiu0EklLK5GMIVShGBo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Jamal Hadi Salim <jhs@mojatatu.com>,
-        Pedro Tammela <pctammela@mojatatu.com>,
-        Larysa Zaremba <larysa.zaremba@intel.com>,
-        Jakub Kicinski <kuba@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 76/83] net/sched: act_ctinfo: use percpu stats
-Date:   Mon, 20 Feb 2023 14:36:49 +0100
-Message-Id: <20230220133556.351328467@linuxfoundation.org>
+        patches@lists.linux.dev,
+        Hongguang Gao <hongguang.gao@broadcom.com>,
+        Michael Chan <michael.chan@broadcom.com>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 6.1 094/118] bnxt_en: Fix mqprio and XDP ring checking logic
+Date:   Mon, 20 Feb 2023 14:36:50 +0100
+Message-Id: <20230220133604.150116718@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230220133553.669025851@linuxfoundation.org>
-References: <20230220133553.669025851@linuxfoundation.org>
+In-Reply-To: <20230220133600.368809650@linuxfoundation.org>
+References: <20230220133600.368809650@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,65 +54,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pedro Tammela <pctammela@mojatatu.com>
+From: Michael Chan <michael.chan@broadcom.com>
 
-[ Upstream commit 21c167aa0ba943a7cac2f6969814f83bb701666b ]
+commit 2038cc592811209de20c4e094ca08bfb1e6fbc6c upstream.
 
-The tc action act_ctinfo was using shared stats, fix it to use percpu stats
-since bstats_update() must be called with locks or with a percpu pointer argument.
+In bnxt_reserve_rings(), there is logic to check that the number of TX
+rings reserved is enough to cover all the mqprio TCs, but it fails to
+account for the TX XDP rings.  So the check will always fail if there
+are mqprio TCs and TX XDP rings.  As a result, the driver always fails
+to initialize after the XDP program is attached and the device will be
+brought down.  A subsequent ifconfig up will also fail because the
+number of TX rings is set to an inconsistent number.  Fix the check to
+properly account for TX XDP rings.  If the check fails, set the number
+of TX rings back to a consistent number after calling netdev_reset_tc().
 
-tdc results:
-1..12
-ok 1 c826 - Add ctinfo action with default setting
-ok 2 0286 - Add ctinfo action with dscp
-ok 3 4938 - Add ctinfo action with valid cpmark and zone
-ok 4 7593 - Add ctinfo action with drop control
-ok 5 2961 - Replace ctinfo action zone and action control
-ok 6 e567 - Delete ctinfo action with valid index
-ok 7 6a91 - Delete ctinfo action with invalid index
-ok 8 5232 - List ctinfo actions
-ok 9 7702 - Flush ctinfo actions
-ok 10 3201 - Add ctinfo action with duplicate index
-ok 11 8295 - Add ctinfo action with invalid index
-ok 12 3964 - Replace ctinfo action with invalid goto_chain control
-
-Fixes: 24ec483cec98 ("net: sched: Introduce act_ctinfo action")
-Reviewed-by: Jamal Hadi Salim <jhs@mojatatu.com>
-Signed-off-by: Pedro Tammela <pctammela@mojatatu.com>
-Reviewed-by: Larysa Zaremba <larysa.zaremba@intel.com>
-Link: https://lore.kernel.org/r/20230210200824.444856-1-pctammela@mojatatu.com
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes: 674f50a5b026 ("bnxt_en: Implement new method to reserve rings.")
+Reviewed-by: Hongguang Gao <hongguang.gao@broadcom.com>
+Signed-off-by: Michael Chan <michael.chan@broadcom.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/sched/act_ctinfo.c | 6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ drivers/net/ethernet/broadcom/bnxt/bnxt.c |    8 ++++++--
+ 1 file changed, 6 insertions(+), 2 deletions(-)
 
-diff --git a/net/sched/act_ctinfo.c b/net/sched/act_ctinfo.c
-index 65a20f3c9514e..56e0a5eb64942 100644
---- a/net/sched/act_ctinfo.c
-+++ b/net/sched/act_ctinfo.c
-@@ -92,7 +92,7 @@ static int tcf_ctinfo_act(struct sk_buff *skb, const struct tc_action *a,
- 	cp = rcu_dereference_bh(ca->params);
- 
- 	tcf_lastuse_update(&ca->tcf_tm);
--	bstats_update(&ca->tcf_bstats, skb);
-+	tcf_action_update_bstats(&ca->common, skb);
- 	action = READ_ONCE(ca->tcf_action);
- 
- 	wlen = skb_network_offset(skb);
-@@ -211,8 +211,8 @@ static int tcf_ctinfo_init(struct net *net, struct nlattr *nla,
- 	index = actparm->index;
- 	err = tcf_idr_check_alloc(tn, &index, a, bind);
- 	if (!err) {
--		ret = tcf_idr_create(tn, index, est, a,
--				     &act_ctinfo_ops, bind, false, flags);
-+		ret = tcf_idr_create_from_flags(tn, index, est, a,
-+						&act_ctinfo_ops, bind, flags);
- 		if (ret) {
- 			tcf_idr_cleanup(tn, index);
- 			return ret;
--- 
-2.39.0
-
+--- a/drivers/net/ethernet/broadcom/bnxt/bnxt.c
++++ b/drivers/net/ethernet/broadcom/bnxt/bnxt.c
+@@ -9239,10 +9239,14 @@ int bnxt_reserve_rings(struct bnxt *bp,
+ 		netdev_err(bp->dev, "ring reservation/IRQ init failure rc: %d\n", rc);
+ 		return rc;
+ 	}
+-	if (tcs && (bp->tx_nr_rings_per_tc * tcs != bp->tx_nr_rings)) {
++	if (tcs && (bp->tx_nr_rings_per_tc * tcs !=
++		    bp->tx_nr_rings - bp->tx_nr_rings_xdp)) {
+ 		netdev_err(bp->dev, "tx ring reservation failure\n");
+ 		netdev_reset_tc(bp->dev);
+-		bp->tx_nr_rings_per_tc = bp->tx_nr_rings;
++		if (bp->tx_nr_rings_xdp)
++			bp->tx_nr_rings_per_tc = bp->tx_nr_rings_xdp;
++		else
++			bp->tx_nr_rings_per_tc = bp->tx_nr_rings;
+ 		return -ENOMEM;
+ 	}
+ 	return 0;
 
 
