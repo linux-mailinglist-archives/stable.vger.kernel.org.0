@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 3C56569CD84
-	for <lists+stable@lfdr.de>; Mon, 20 Feb 2023 14:50:18 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1DDFC69CDF1
+	for <lists+stable@lfdr.de>; Mon, 20 Feb 2023 14:54:27 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232409AbjBTNuR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Feb 2023 08:50:17 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37470 "EHLO
+        id S232508AbjBTNy0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Feb 2023 08:54:26 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42790 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232401AbjBTNuQ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 20 Feb 2023 08:50:16 -0500
+        with ESMTP id S232524AbjBTNyZ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 20 Feb 2023 08:54:25 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A01DC1E2B9
-        for <stable@vger.kernel.org>; Mon, 20 Feb 2023 05:49:57 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C4A821E1E2
+        for <stable@vger.kernel.org>; Mon, 20 Feb 2023 05:54:23 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 395DE60EA9
-        for <stable@vger.kernel.org>; Mon, 20 Feb 2023 13:49:57 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4CB5EC433A1;
-        Mon, 20 Feb 2023 13:49:56 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 62AA860CBA
+        for <stable@vger.kernel.org>; Mon, 20 Feb 2023 13:54:23 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 734A7C433EF;
+        Mon, 20 Feb 2023 13:54:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1676900996;
-        bh=xLf0J+MCYRq9h+spwn2axntoR/uSx5GImkZpmuYlXgA=;
+        s=korg; t=1676901262;
+        bh=rtM/YGm7KDZpXx2PWPrGhPYxlwWzddRfNVwcSPA+Z+4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=EzLkP/Ztob6bY0WGUb+P8IZkf4eePffw55ZCUuOmKmaRtdOvsXfVjc4aEIACLvKUD
-         duewKNsX3OBGhBiZ0P+Nsc8wYg4BC6+4lIux9TcRKXACsW5FbBictzdk1K99mItgrW
-         /ch6CZivGgYoW5ZBRevpU2qtSBpwQ54hKuJX6GF0=
+        b=xb0bnaMXIUlDhf6Mg5XLVESU/mT7L0myYcH8AvVfS3D4YG1KVk+WUpoWOCiOlEbU2
+         fqhVQq5iFsK/G8pUddyGwjLLp/v7mFDUTQ3Y9fX0tXqVSNDmqQwdWo/ZNoSTZNrxtT
+         H4ikg0ltLixJ3QtQT7zGlYxQl+Kdv4We7XztXsTo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, lianhui tang <bluetlh@gmail.com>,
-        Jakub Kicinski <kuba@kernel.org>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 5.4 147/156] net: mpls: fix stale pointer if allocation fails during device rename
+        patches@lists.linux.dev, Vignesh Raghavendra <vigneshr@ti.com>,
+        Siddharth Vadapalli <s-vadapalli@ti.com>,
+        Roger Quadros <rogerq@kernel.org>,
+        Jakub Kicinski <kuba@kernel.org>
+Subject: [PATCH 5.15 58/83] net: ethernet: ti: am65-cpsw: Add RX DMA Channel Teardown Quirk
 Date:   Mon, 20 Feb 2023 14:36:31 +0100
-Message-Id: <20230220133608.777664546@linuxfoundation.org>
+Message-Id: <20230220133555.686369903@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230220133602.515342638@linuxfoundation.org>
-References: <20230220133602.515342638@linuxfoundation.org>
+In-Reply-To: <20230220133553.669025851@linuxfoundation.org>
+References: <20230220133553.669025851@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,54 +54,82 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jakub Kicinski <kuba@kernel.org>
+From: Siddharth Vadapalli <s-vadapalli@ti.com>
 
-commit fda6c89fe3d9aca073495a664e1d5aea28cd4377 upstream.
+commit 0ed577e7e8e508c24e22ba07713ecc4903e147c3 upstream.
 
-lianhui reports that when MPLS fails to register the sysctl table
-under new location (during device rename) the old pointers won't
-get overwritten and may be freed again (double free).
+In TI's AM62x/AM64x SoCs, successful teardown of RX DMA Channel raises an
+interrupt. The process of servicing this interrupt involves flushing all
+pending RX DMA descriptors and clearing the teardown completion marker
+(TDCM). The am65_cpsw_nuss_rx_packets() function invoked from the RX
+NAPI callback services the interrupt. Thus, it is necessary to wait for
+this handler to run, drain all packets and clear TDCM, before calling
+napi_disable() in am65_cpsw_nuss_common_stop() function post channel
+teardown. If napi_disable() executes before ensuring that TDCM is
+cleared, the TDCM remains set when the interfaces are down, resulting in
+an interrupt storm when the interfaces are brought up again.
 
-Handle this gracefully. The best option would be unregistering
-the MPLS from the device completely on failure, but unfortunately
-mpls_ifdown() can fail. So failing fully is also unreliable.
+Since the interrupt raised to indicate the RX DMA Channel teardown is
+specific to the AM62x and AM64x SoCs, add a quirk for it.
 
-Another option is to register the new table first then only
-remove old one if the new one succeeds. That requires more
-code, changes order of notifications and two tables may be
-visible at the same time.
-
-sysctl point is not used in the rest of the code - set to NULL
-on failures and skip unregister if already NULL.
-
-Reported-by: lianhui tang <bluetlh@gmail.com>
-Fixes: 0fae3bf018d9 ("mpls: handle device renames for per-device sysctls")
+Fixes: 4f7cce272403 ("net: ethernet: ti: am65-cpsw: add support for am64x cpsw3g")
+Co-developed-by: Vignesh Raghavendra <vigneshr@ti.com>
+Signed-off-by: Vignesh Raghavendra <vigneshr@ti.com>
+Signed-off-by: Siddharth Vadapalli <s-vadapalli@ti.com>
+Reviewed-by: Roger Quadros <rogerq@kernel.org>
+Link: https://lore.kernel.org/r/20230209084432.189222-1-s-vadapalli@ti.com
 Signed-off-by: Jakub Kicinski <kuba@kernel.org>
-Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/mpls/af_mpls.c |    4 ++++
- 1 file changed, 4 insertions(+)
+ drivers/net/ethernet/ti/am65-cpsw-nuss.c |   12 +++++++++++-
+ drivers/net/ethernet/ti/am65-cpsw-nuss.h |    1 +
+ 2 files changed, 12 insertions(+), 1 deletion(-)
 
---- a/net/mpls/af_mpls.c
-+++ b/net/mpls/af_mpls.c
-@@ -1428,6 +1428,7 @@ static int mpls_dev_sysctl_register(stru
- free:
- 	kfree(table);
- out:
-+	mdev->sysctl = NULL;
- 	return -ENOBUFS;
- }
+--- a/drivers/net/ethernet/ti/am65-cpsw-nuss.c
++++ b/drivers/net/ethernet/ti/am65-cpsw-nuss.c
+@@ -564,7 +564,15 @@ static int am65_cpsw_nuss_common_stop(st
+ 		k3_udma_glue_disable_tx_chn(common->tx_chns[i].tx_chn);
+ 	}
  
-@@ -1437,6 +1438,9 @@ static void mpls_dev_sysctl_unregister(s
- 	struct net *net = dev_net(dev);
- 	struct ctl_table *table;
- 
-+	if (!mdev->sysctl)
-+		return;
++	reinit_completion(&common->tdown_complete);
+ 	k3_udma_glue_tdown_rx_chn(common->rx_chns.rx_chn, true);
 +
- 	table = mdev->sysctl->ctl_table_arg;
- 	unregister_net_sysctl_table(mdev->sysctl);
- 	kfree(table);
++	if (common->pdata.quirks & AM64_CPSW_QUIRK_DMA_RX_TDOWN_IRQ) {
++		i = wait_for_completion_timeout(&common->tdown_complete, msecs_to_jiffies(1000));
++		if (!i)
++			dev_err(common->dev, "rx teardown timeout\n");
++	}
++
+ 	napi_disable(&common->napi_rx);
+ 
+ 	for (i = 0; i < AM65_CPSW_MAX_RX_FLOWS; i++)
+@@ -786,6 +794,8 @@ static int am65_cpsw_nuss_rx_packets(str
+ 
+ 	if (cppi5_desc_is_tdcm(desc_dma)) {
+ 		dev_dbg(dev, "%s RX tdown flow: %u\n", __func__, flow_idx);
++		if (common->pdata.quirks & AM64_CPSW_QUIRK_DMA_RX_TDOWN_IRQ)
++			complete(&common->tdown_complete);
+ 		return 0;
+ 	}
+ 
+@@ -2609,7 +2619,7 @@ static const struct am65_cpsw_pdata j721
+ };
+ 
+ static const struct am65_cpsw_pdata am64x_cpswxg_pdata = {
+-	.quirks = 0,
++	.quirks = AM64_CPSW_QUIRK_DMA_RX_TDOWN_IRQ,
+ 	.ale_dev_id = "am64-cpswxg",
+ 	.fdqring_mode = K3_RINGACC_RING_MODE_RING,
+ };
+--- a/drivers/net/ethernet/ti/am65-cpsw-nuss.h
++++ b/drivers/net/ethernet/ti/am65-cpsw-nuss.h
+@@ -84,6 +84,7 @@ struct am65_cpsw_rx_chn {
+ };
+ 
+ #define AM65_CPSW_QUIRK_I2027_NO_TX_CSUM BIT(0)
++#define AM64_CPSW_QUIRK_DMA_RX_TDOWN_IRQ BIT(1)
+ 
+ struct am65_cpsw_pdata {
+ 	u32	quirks;
 
 
