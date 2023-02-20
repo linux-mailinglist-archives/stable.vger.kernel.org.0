@@ -2,43 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id CA70D69CD05
-	for <lists+stable@lfdr.de>; Mon, 20 Feb 2023 14:45:32 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8C20269CD06
+	for <lists+stable@lfdr.de>; Mon, 20 Feb 2023 14:45:39 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232200AbjBTNpb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Feb 2023 08:45:31 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57670 "EHLO
+        id S232260AbjBTNpi (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Feb 2023 08:45:38 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57766 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232157AbjBTNpa (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 20 Feb 2023 08:45:30 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6C3B31DBB9
-        for <stable@vger.kernel.org>; Mon, 20 Feb 2023 05:45:10 -0800 (PST)
+        with ESMTP id S232261AbjBTNph (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 20 Feb 2023 08:45:37 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 646591E1C4
+        for <stable@vger.kernel.org>; Mon, 20 Feb 2023 05:45:11 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 0E04EB80D44
-        for <stable@vger.kernel.org>; Mon, 20 Feb 2023 13:45:09 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 74E9EC433D2;
-        Mon, 20 Feb 2023 13:45:07 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id E94F260EA8
+        for <stable@vger.kernel.org>; Mon, 20 Feb 2023 13:45:10 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0B8E7C433EF;
+        Mon, 20 Feb 2023 13:45:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1676900707;
-        bh=n4PE0z9z72VznYfALnTqyAG7Gb7cx7fJnL51LaMUDN8=;
+        s=korg; t=1676900710;
+        bh=91+QGElK0eJrpYuG/o1o3ARtXkithUdOwIse86U7+NA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Ly7BiL5h9swkxyzaQFLHwJKyJ9UeunzBmDcsTOWxoejQXn4F4Z2VVdpBqQWyldaK+
-         iDggO6J2do0ZFvYc6CUw7TCY3FmBk22d6yWyf5b695HpB6OowATUbUrE9qaIr08Gdv
-         3ahABagZ5ayOAjOrmTV1Y1q38gBvkxhA/4WQGegE=
+        b=s8fpmMhEQtefbnEe2xR/n9899hWKp1HKdFVPvy1kxgi55vXPdhqUEryMJcWrjhaCq
+         BxjEwW4h9xzj9zO+RjcZ4076bN//Cl75Y4okYeBEIUW8ERNQZmbLX1t2VqcAjtxTZJ
+         UFuHwsXy0bIVGx88Z9vnkZNr43YncGW4HMEErO2I=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         patches@lists.linux.dev,
-        Sanan Hasanov <sanan.hasanov@Knights.ucf.edu>,
-        Samuel Thibault <samuel.thibault@ens-lyon.org>,
-        Miko Larsson <mikoxyzzz@gmail.com>,
-        Helge Deller <deller@gmx.de>
-Subject: [PATCH 5.4 036/156] fbcon: Check font dimension limits
-Date:   Mon, 20 Feb 2023 14:34:40 +0100
-Message-Id: <20230220133603.913092361@linuxfoundation.org>
+        Alexander Egorenkov <egorenar@linux.ibm.com>,
+        Heiko Carstens <hca@linux.ibm.com>
+Subject: [PATCH 5.4 037/156] watchdog: diag288_wdt: do not use stack buffers for hardware data
+Date:   Mon, 20 Feb 2023 14:34:41 +0100
+Message-Id: <20230220133603.943766769@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
 In-Reply-To: <20230220133602.515342638@linuxfoundation.org>
 References: <20230220133602.515342638@linuxfoundation.org>
@@ -55,50 +53,50 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Samuel Thibault <samuel.thibault@ens-lyon.org>
+From: Alexander Egorenkov <egorenar@linux.ibm.com>
 
-commit 2b09d5d364986f724f17001ccfe4126b9b43a0be upstream.
+commit fe8973a3ad0905cb9ba2d42db42ed51de14737df upstream.
 
-blit_x and blit_y are u32, so fbcon currently cannot support fonts
-larger than 32x32.
+With CONFIG_VMAP_STACK=y the stack is allocated from the vmalloc space.
+Data passed to a hardware or a hypervisor interface that
+requires V=R can no longer be allocated on the stack.
 
-The 32x32 case also needs shifting an unsigned int, to properly set bit
-31, otherwise we get "UBSAN: shift-out-of-bounds in fbcon_set_font",
-as reported on:
+Use kmalloc() to get memory for a diag288 command.
 
-http://lore.kernel.org/all/IA1PR07MB98308653E259A6F2CE94A4AFABCE9@IA1PR07MB9830.namprd07.prod.outlook.com
-Kernel Branch: 6.2.0-rc5-next-20230124
-Kernel config: https://drive.google.com/file/d/1F-LszDAizEEH0ZX0HcSR06v5q8FPl2Uv/view?usp=sharing
-Reproducer: https://drive.google.com/file/d/1mP1jcLBY7vWCNM60OMf-ogw-urQRjNrm/view?usp=sharing
-
-Reported-by: Sanan Hasanov <sanan.hasanov@Knights.ucf.edu>
-Signed-off-by: Samuel Thibault <samuel.thibault@ens-lyon.org>
-Fixes: 2d2699d98492 ("fbcon: font setting should check limitation of driver")
-Cc: stable@vger.kernel.org
-Tested-by: Miko Larsson <mikoxyzzz@gmail.com>
-Reviewed-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Signed-off-by: Helge Deller <deller@gmx.de>
+Signed-off-by: Alexander Egorenkov <egorenar@linux.ibm.com>
+Reviewed-by: Heiko Carstens <hca@linux.ibm.com>
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Heiko Carstens <hca@linux.ibm.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/video/fbdev/core/fbcon.c |    7 +++++--
- 1 file changed, 5 insertions(+), 2 deletions(-)
+ drivers/watchdog/diag288_wdt.c |   13 +++++++++++--
+ 1 file changed, 11 insertions(+), 2 deletions(-)
 
---- a/drivers/video/fbdev/core/fbcon.c
-+++ b/drivers/video/fbdev/core/fbcon.c
-@@ -2497,9 +2497,12 @@ static int fbcon_set_font(struct vc_data
- 	    h > FBCON_SWAP(info->var.rotate, info->var.yres, info->var.xres))
- 		return -EINVAL;
+--- a/drivers/watchdog/diag288_wdt.c
++++ b/drivers/watchdog/diag288_wdt.c
+@@ -272,12 +272,21 @@ static int __init diag288_init(void)
+ 	char ebc_begin[] = {
+ 		194, 197, 199, 201, 213
+ 	};
++	char *ebc_cmd;
  
-+	if (font->width > 32 || font->height > 32)
-+		return -EINVAL;
-+
- 	/* Make sure drawing engine can handle the font */
--	if (!(info->pixmap.blit_x & (1 << (font->width - 1))) ||
--	    !(info->pixmap.blit_y & (1 << (font->height - 1))))
-+	if (!(info->pixmap.blit_x & BIT(font->width - 1)) ||
-+	    !(info->pixmap.blit_y & BIT(font->height - 1)))
- 		return -EINVAL;
+ 	watchdog_set_nowayout(&wdt_dev, nowayout_info);
  
- 	/* Make sure driver can handle the font length */
+ 	if (MACHINE_IS_VM) {
+-		if (__diag288_vm(WDT_FUNC_INIT, 15,
+-				 ebc_begin, sizeof(ebc_begin)) != 0) {
++		ebc_cmd = kmalloc(sizeof(ebc_begin), GFP_KERNEL);
++		if (!ebc_cmd) {
++			pr_err("The watchdog cannot be initialized\n");
++			return -ENOMEM;
++		}
++		memcpy(ebc_cmd, ebc_begin, sizeof(ebc_begin));
++		ret = __diag288_vm(WDT_FUNC_INIT, 15,
++				   ebc_cmd, sizeof(ebc_begin));
++		kfree(ebc_cmd);
++		if (ret != 0) {
+ 			pr_err("The watchdog cannot be initialized\n");
+ 			return -EINVAL;
+ 		}
 
 
