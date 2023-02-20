@@ -2,49 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D963969CECD
-	for <lists+stable@lfdr.de>; Mon, 20 Feb 2023 15:02:26 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id F08A269CC81
+	for <lists+stable@lfdr.de>; Mon, 20 Feb 2023 14:41:08 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232654AbjBTOC0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Feb 2023 09:02:26 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55806 "EHLO
+        id S231514AbjBTNlG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Feb 2023 08:41:06 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50270 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232825AbjBTOCX (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 20 Feb 2023 09:02:23 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D4F5D1F4B6
-        for <stable@vger.kernel.org>; Mon, 20 Feb 2023 06:02:09 -0800 (PST)
+        with ESMTP id S231787AbjBTNk4 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 20 Feb 2023 08:40:56 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0D7C01D901
+        for <stable@vger.kernel.org>; Mon, 20 Feb 2023 05:40:52 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id B7627B80D4C
-        for <stable@vger.kernel.org>; Mon, 20 Feb 2023 13:57:07 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 12D5EC4339B;
-        Mon, 20 Feb 2023 13:57:05 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 9569D60C03
+        for <stable@vger.kernel.org>; Mon, 20 Feb 2023 13:40:51 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A52E8C433EF;
+        Mon, 20 Feb 2023 13:40:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1676901426;
-        bh=Wwlb/I8iWbAt/dqNVJVL9xlCcsw0/STdjDDLmn7ZQwk=;
+        s=korg; t=1676900451;
+        bh=Fr0GxRRzMv25PPtAVcNBllDMv6eHjTTs70gy4sncUvw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=inMq+888EXJIaTDS19NbG2BqAwVhKm4T3sBoW9+ljkF5uNSVtcW7PjJ3opI3BZedw
-         JPqeTfOWMZrVjW/N3jUQGtMpgjftf/m1X5VVU3pvWGcvh6qMpFBJYnAsRJy9DmO+C2
-         B5os2FIzX0S5BV46IPRL0BFvKeL8Ok+H1NvWiG+s=
+        b=ePIn4ZFZoq0QUaL2IMkzARvDB+Ykq+cORR/VgSPQ56parVrelHK73RE17306G/s/Y
+         7+JJG72nom+h2ZIXAuRNtpVaeeWrSI7mZCHPFSjCyj/s0ar02w3TznHtLWd6FFbWaR
+         IooGqJktI+vbK6NEza7bklzdcTt7z7QjFKgi+hzQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         patches@lists.linux.dev,
-        Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>,
-        Ranjani Sridharan <ranjani.sridharan@linux.intel.com>,
-        =?UTF-8?q?P=C3=A9ter=20Ujfalusi?= <peter.ujfalusi@linux.intel.com>,
-        Bard Liao <yung-chuan.liao@linux.intel.com>,
-        Kai Vehmanen <kai.vehmanen@linux.intel.com>,
-        Mark Brown <broonie@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 013/118] ASoC: Intel: sof_ssp_amp: always set dpcm_capture for amplifiers
+        Dmitry Perchanov <dmitry.perchanov@intel.com>,
+        Stable@vger.kernel.org,
+        Jonathan Cameron <Jonathan.Cameron@huawei.com>
+Subject: [PATCH 4.19 30/89] iio: hid: fix the retval in accel_3d_capture_sample
 Date:   Mon, 20 Feb 2023 14:35:29 +0100
-Message-Id: <20230220133600.936120517@linuxfoundation.org>
+Message-Id: <20230220133554.224115302@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230220133600.368809650@linuxfoundation.org>
-References: <20230220133600.368809650@linuxfoundation.org>
+In-Reply-To: <20230220133553.066768704@linuxfoundation.org>
+References: <20230220133553.066768704@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -58,52 +54,32 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
+From: Dmitry Perchanov <dmitry.perchanov@intel.com>
 
-[ Upstream commit b3c00316a2f847791bae395ea6dd91aa7a221471 ]
+commit f7b23d1c35d8b8de1425bdfccaefd01f3b7c9d1c upstream.
 
-The amplifier may provide hardware support for I/V feedback, or
-alternatively the firmware may generate an echo reference attached to
-the SSP and dailink used for the amplifier.
+Return value should be zero for success. This was forgotten for timestamp
+feature. Verified on RealSense cameras.
 
-To avoid any issues with invalid/NULL substreams in the latter case,
-always unconditionally set dpcm_capture.
-
-Link: https://github.com/thesofproject/linux/issues/4083
-Signed-off-by: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
-Reviewed-by: Ranjani Sridharan <ranjani.sridharan@linux.intel.com>
-Reviewed-by: Péter Ujfalusi <peter.ujfalusi@linux.intel.com>
-Reviewed-by: Bard Liao <yung-chuan.liao@linux.intel.com>
-Signed-off-by: Kai Vehmanen <kai.vehmanen@linux.intel.com>
-Link: https://lore.kernel.org/r/20230119163459.2235843-5-kai.vehmanen@linux.intel.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes: a96cd0f901ee ("iio: accel: hid-sensor-accel-3d: Add timestamp")
+Signed-off-by: Dmitry Perchanov <dmitry.perchanov@intel.com>
+Link: https://lore.kernel.org/r/a6dc426498221c81fa71045b41adf782ebd42136.camel@intel.com
+Cc: <Stable@vger.kernel.org>
+Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- sound/soc/intel/boards/sof_ssp_amp.c | 5 ++---
- 1 file changed, 2 insertions(+), 3 deletions(-)
+ drivers/iio/accel/hid-sensor-accel-3d.c |    1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/sound/soc/intel/boards/sof_ssp_amp.c b/sound/soc/intel/boards/sof_ssp_amp.c
-index 94d25aeb6e7ce..7b74f122e3400 100644
---- a/sound/soc/intel/boards/sof_ssp_amp.c
-+++ b/sound/soc/intel/boards/sof_ssp_amp.c
-@@ -258,13 +258,12 @@ static struct snd_soc_dai_link *sof_card_dai_links_create(struct device *dev,
- 		sof_rt1308_dai_link(&links[id]);
- 	} else if (sof_ssp_amp_quirk & SOF_CS35L41_SPEAKER_AMP_PRESENT) {
- 		cs35l41_set_dai_link(&links[id]);
--
--		/* feedback from amplifier */
--		links[id].dpcm_capture = 1;
- 	}
- 	links[id].platforms = platform_component;
- 	links[id].num_platforms = ARRAY_SIZE(platform_component);
- 	links[id].dpcm_playback = 1;
-+	/* feedback from amplifier or firmware-generated echo reference */
-+	links[id].dpcm_capture = 1;
- 	links[id].no_pcm = 1;
- 	links[id].cpus = &cpus[id];
- 	links[id].num_cpus = 1;
--- 
-2.39.0
-
+--- a/drivers/iio/accel/hid-sensor-accel-3d.c
++++ b/drivers/iio/accel/hid-sensor-accel-3d.c
+@@ -292,6 +292,7 @@ static int accel_3d_capture_sample(struc
+ 			hid_sensor_convert_timestamp(
+ 					&accel_state->common_attributes,
+ 					*(int64_t *)raw_data);
++		ret = 0;
+ 	break;
+ 	default:
+ 		break;
 
 
