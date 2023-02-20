@@ -2,50 +2,51 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 3A75569CD2E
-	for <lists+stable@lfdr.de>; Mon, 20 Feb 2023 14:47:22 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9B17B69CC9C
+	for <lists+stable@lfdr.de>; Mon, 20 Feb 2023 14:42:16 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232289AbjBTNrV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Feb 2023 08:47:21 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60114 "EHLO
+        id S232049AbjBTNmP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Feb 2023 08:42:15 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51942 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232276AbjBTNrU (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 20 Feb 2023 08:47:20 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C0E4D1D923
-        for <stable@vger.kernel.org>; Mon, 20 Feb 2023 05:47:00 -0800 (PST)
+        with ESMTP id S232064AbjBTNmO (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 20 Feb 2023 08:42:14 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7A1331D90B
+        for <stable@vger.kernel.org>; Mon, 20 Feb 2023 05:41:54 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 3FFCB60E9D
-        for <stable@vger.kernel.org>; Mon, 20 Feb 2023 13:47:00 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 503D1C433EF;
-        Mon, 20 Feb 2023 13:46:59 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 18BFE60EA5
+        for <stable@vger.kernel.org>; Mon, 20 Feb 2023 13:41:54 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 28C35C433EF;
+        Mon, 20 Feb 2023 13:41:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1676900819;
-        bh=UTiNo5Antlr8IhouoiYLDPulwfrEup9AcyMwlVRyLgk=;
+        s=korg; t=1676900513;
+        bh=D57bgoOsk0RB7x5cJOrYZuqGu7jrLOW9ZDrWiP3l5dc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=er6F8XZNo5VYaFZT/Ozxw6MqFQZDXiR+UFFoSvy6SnZIDjleSrFfcDZST3KMb+F1k
-         L5V1khP8I+G4tCHIygyMmZz4kFZBgvvn3JmzVfcRV4ii+Vh5gMQWgiBHmoBGEb0V5/
-         XY1kIFTkY5H195RvTcdS5e1mwCfsLkrQDiWZOmzU=
+        b=DY8C/Fe009xwJNzjJ9EMA91knxmxuCBYO/i9qoVL0ZCK9LjiEIrRSwM9uyHITcGKn
+         0qowSss+sYiWH+TPyAdia6YosEGswcrsj4g9319pp1cgZX52UnnxfXasHTOmXGTZSi
+         HN0IuK93nvbOMN4phb/QNFAQ28I++5KMWCmqLHHI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Alan Stern <stern@rowland.harvard.edu>,
-        "David S. Miller" <davem@davemloft.net>,
-        syzbot+2a0e7abd24f1eb90ce25@syzkaller.appspotmail.com
-Subject: [PATCH 5.4 080/156] net: USB: Fix wrong-direction WARNING in plusb.c
+        patches@lists.linux.dev,
+        Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>,
+        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 25/89] thermal: intel: int340x: Protect trip temperature from concurrent updates
 Date:   Mon, 20 Feb 2023 14:35:24 +0100
-Message-Id: <20230220133605.757563591@linuxfoundation.org>
+Message-Id: <20230220133554.047294527@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230220133602.515342638@linuxfoundation.org>
-References: <20230220133602.515342638@linuxfoundation.org>
+In-Reply-To: <20230220133553.066768704@linuxfoundation.org>
+References: <20230220133553.066768704@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
         SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -53,76 +54,124 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alan Stern <stern@rowland.harvard.edu>
+From: Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>
 
-commit 811d581194f7412eda97acc03d17fc77824b561f upstream.
+[ Upstream commit 6757a7abe47bcb12cb2d45661067e182424b0ee3 ]
 
-The syzbot fuzzer detected a bug in the plusb network driver: A
-zero-length control-OUT transfer was treated as a read instead of a
-write.  In modern kernels this error provokes a WARNING:
+Trip temperatures are read using ACPI methods and stored in the memory
+during zone initializtion and when the firmware sends a notification for
+change. This trip temperature is returned when the thermal core calls via
+callback get_trip_temp().
 
-usb 1-1: BOGUS control dir, pipe 80000280 doesn't match bRequestType c0
-WARNING: CPU: 0 PID: 4645 at drivers/usb/core/urb.c:411
-usb_submit_urb+0x14a7/0x1880 drivers/usb/core/urb.c:411
-Modules linked in:
-CPU: 1 PID: 4645 Comm: dhcpcd Not tainted
-6.2.0-rc6-syzkaller-00050-g9f266ccaa2f5 #0
-Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS Google
-01/12/2023
-RIP: 0010:usb_submit_urb+0x14a7/0x1880 drivers/usb/core/urb.c:411
-...
-Call Trace:
- <TASK>
- usb_start_wait_urb+0x101/0x4b0 drivers/usb/core/message.c:58
- usb_internal_control_msg drivers/usb/core/message.c:102 [inline]
- usb_control_msg+0x320/0x4a0 drivers/usb/core/message.c:153
- __usbnet_read_cmd+0xb9/0x390 drivers/net/usb/usbnet.c:2010
- usbnet_read_cmd+0x96/0xf0 drivers/net/usb/usbnet.c:2068
- pl_vendor_req drivers/net/usb/plusb.c:60 [inline]
- pl_set_QuickLink_features drivers/net/usb/plusb.c:75 [inline]
- pl_reset+0x2f/0xf0 drivers/net/usb/plusb.c:85
- usbnet_open+0xcc/0x5d0 drivers/net/usb/usbnet.c:889
- __dev_open+0x297/0x4d0 net/core/dev.c:1417
- __dev_change_flags+0x587/0x750 net/core/dev.c:8530
- dev_change_flags+0x97/0x170 net/core/dev.c:8602
- devinet_ioctl+0x15a2/0x1d70 net/ipv4/devinet.c:1147
- inet_ioctl+0x33f/0x380 net/ipv4/af_inet.c:979
- sock_do_ioctl+0xcc/0x230 net/socket.c:1169
- sock_ioctl+0x1f8/0x680 net/socket.c:1286
- vfs_ioctl fs/ioctl.c:51 [inline]
- __do_sys_ioctl fs/ioctl.c:870 [inline]
- __se_sys_ioctl fs/ioctl.c:856 [inline]
- __x64_sys_ioctl+0x197/0x210 fs/ioctl.c:856
- do_syscall_x64 arch/x86/entry/common.c:50 [inline]
- do_syscall_64+0x39/0xb0 arch/x86/entry/common.c:80
- entry_SYSCALL_64_after_hwframe+0x63/0xcd
+But it is possible that while updating the memory copy of the trips when
+the firmware sends a notification for change, thermal core is reading the
+trip temperature via the callback get_trip_temp(). This may return invalid
+trip temperature.
 
-The fix is to call usbnet_write_cmd() instead of usbnet_read_cmd() and
-remove the USB_DIR_IN flag.
+To address this add a mutex to protect the invalid temperature reads in
+the callback get_trip_temp() and int340x_thermal_read_trips().
 
-Reported-and-tested-by: syzbot+2a0e7abd24f1eb90ce25@syzkaller.appspotmail.com
-Signed-off-by: Alan Stern <stern@rowland.harvard.edu>
-Fixes: 090ffa9d0e90 ("[PATCH] USB: usbnet (9/9) module for pl2301/2302 cables")
-CC: stable@vger.kernel.org
-Link: https://lore.kernel.org/r/00000000000052099f05f3b3e298@google.com/
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: 5fbf7f27fa3d ("Thermal/int340x: Add common thermal zone handler")
+Signed-off-by: Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>
+Cc: 5.0+ <stable@vger.kernel.org> # 5.0+
+Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/usb/plusb.c |    4 +---
- 1 file changed, 1 insertion(+), 3 deletions(-)
+ .../int340x_thermal/int340x_thermal_zone.c     | 18 +++++++++++++++---
+ .../int340x_thermal/int340x_thermal_zone.h     |  1 +
+ 2 files changed, 16 insertions(+), 3 deletions(-)
 
---- a/drivers/net/usb/plusb.c
-+++ b/drivers/net/usb/plusb.c
-@@ -57,9 +57,7 @@
- static inline int
- pl_vendor_req(struct usbnet *dev, u8 req, u8 val, u8 index)
+diff --git a/drivers/thermal/int340x_thermal/int340x_thermal_zone.c b/drivers/thermal/int340x_thermal/int340x_thermal_zone.c
+index 9ec27ac1856b..d3829308560c 100644
+--- a/drivers/thermal/int340x_thermal/int340x_thermal_zone.c
++++ b/drivers/thermal/int340x_thermal/int340x_thermal_zone.c
+@@ -52,11 +52,13 @@ static int int340x_thermal_get_trip_temp(struct thermal_zone_device *zone,
+ 					 int trip, int *temp)
  {
--	return usbnet_read_cmd(dev, req,
--				USB_DIR_IN | USB_TYPE_VENDOR |
--				USB_RECIP_DEVICE,
-+	return usbnet_write_cmd(dev, req, USB_TYPE_VENDOR | USB_RECIP_DEVICE,
- 				val, index, NULL, 0);
+ 	struct int34x_thermal_zone *d = zone->devdata;
+-	int i;
++	int i, ret = 0;
+ 
+ 	if (d->override_ops && d->override_ops->get_trip_temp)
+ 		return d->override_ops->get_trip_temp(zone, trip, temp);
+ 
++	mutex_lock(&d->trip_mutex);
++
+ 	if (trip < d->aux_trip_nr)
+ 		*temp = d->aux_trips[trip];
+ 	else if (trip == d->crt_trip_id)
+@@ -74,10 +76,12 @@ static int int340x_thermal_get_trip_temp(struct thermal_zone_device *zone,
+ 			}
+ 		}
+ 		if (i == INT340X_THERMAL_MAX_ACT_TRIP_COUNT)
+-			return -EINVAL;
++			ret = -EINVAL;
+ 	}
+ 
+-	return 0;
++	mutex_unlock(&d->trip_mutex);
++
++	return ret;
  }
  
+ static int int340x_thermal_get_trip_type(struct thermal_zone_device *zone,
+@@ -182,6 +186,8 @@ int int340x_thermal_read_trips(struct int34x_thermal_zone *int34x_zone)
+ 	int trip_cnt = int34x_zone->aux_trip_nr;
+ 	int i;
+ 
++	mutex_lock(&int34x_zone->trip_mutex);
++
+ 	int34x_zone->crt_trip_id = -1;
+ 	if (!int340x_thermal_get_trip_config(int34x_zone->adev->handle, "_CRT",
+ 					     &int34x_zone->crt_temp))
+@@ -209,6 +215,8 @@ int int340x_thermal_read_trips(struct int34x_thermal_zone *int34x_zone)
+ 		int34x_zone->act_trips[i].valid = true;
+ 	}
+ 
++	mutex_unlock(&int34x_zone->trip_mutex);
++
+ 	return trip_cnt;
+ }
+ EXPORT_SYMBOL_GPL(int340x_thermal_read_trips);
+@@ -232,6 +240,8 @@ struct int34x_thermal_zone *int340x_thermal_zone_add(struct acpi_device *adev,
+ 	if (!int34x_thermal_zone)
+ 		return ERR_PTR(-ENOMEM);
+ 
++	mutex_init(&int34x_thermal_zone->trip_mutex);
++
+ 	int34x_thermal_zone->adev = adev;
+ 	int34x_thermal_zone->override_ops = override_ops;
+ 
+@@ -274,6 +284,7 @@ struct int34x_thermal_zone *int340x_thermal_zone_add(struct acpi_device *adev,
+ 	acpi_lpat_free_conversion_table(int34x_thermal_zone->lpat_table);
+ 	kfree(int34x_thermal_zone->aux_trips);
+ err_trip_alloc:
++	mutex_destroy(&int34x_thermal_zone->trip_mutex);
+ 	kfree(int34x_thermal_zone);
+ 	return ERR_PTR(ret);
+ }
+@@ -285,6 +296,7 @@ void int340x_thermal_zone_remove(struct int34x_thermal_zone
+ 	thermal_zone_device_unregister(int34x_thermal_zone->zone);
+ 	acpi_lpat_free_conversion_table(int34x_thermal_zone->lpat_table);
+ 	kfree(int34x_thermal_zone->aux_trips);
++	mutex_destroy(&int34x_thermal_zone->trip_mutex);
+ 	kfree(int34x_thermal_zone);
+ }
+ EXPORT_SYMBOL_GPL(int340x_thermal_zone_remove);
+diff --git a/drivers/thermal/int340x_thermal/int340x_thermal_zone.h b/drivers/thermal/int340x_thermal/int340x_thermal_zone.h
+index 5f3ba4775c5c..e74648e330c7 100644
+--- a/drivers/thermal/int340x_thermal/int340x_thermal_zone.h
++++ b/drivers/thermal/int340x_thermal/int340x_thermal_zone.h
+@@ -41,6 +41,7 @@ struct int34x_thermal_zone {
+ 	struct thermal_zone_device_ops *override_ops;
+ 	void *priv_data;
+ 	struct acpi_lpat_conversion_table *lpat_table;
++	struct mutex trip_mutex;
+ };
+ 
+ struct int34x_thermal_zone *int340x_thermal_zone_add(struct acpi_device *,
+-- 
+2.39.0
+
 
 
