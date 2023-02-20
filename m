@@ -2,48 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id EA97769CE45
-	for <lists+stable@lfdr.de>; Mon, 20 Feb 2023 14:58:03 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D441669CEBF
+	for <lists+stable@lfdr.de>; Mon, 20 Feb 2023 15:02:05 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232589AbjBTN6C (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Feb 2023 08:58:02 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48614 "EHLO
+        id S232798AbjBTOCE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Feb 2023 09:02:04 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55430 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232634AbjBTN6A (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 20 Feb 2023 08:58:00 -0500
+        with ESMTP id S232724AbjBTOCD (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 20 Feb 2023 09:02:03 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 75FF71DBBF
-        for <stable@vger.kernel.org>; Mon, 20 Feb 2023 05:57:38 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8E9F11F5E0
+        for <stable@vger.kernel.org>; Mon, 20 Feb 2023 06:01:41 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 5493BB80D55
-        for <stable@vger.kernel.org>; Mon, 20 Feb 2023 13:56:52 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 965A7C4339B;
-        Mon, 20 Feb 2023 13:56:50 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 5CF7CB80D49
+        for <stable@vger.kernel.org>; Mon, 20 Feb 2023 14:01:12 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C3EAAC433D2;
+        Mon, 20 Feb 2023 14:01:10 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1676901411;
-        bh=no4cdOodLPhePDBbb8ecaOeVYSnr/IvRvC8q+0Gr2Nc=;
+        s=korg; t=1676901671;
+        bh=bfP4VC/7EuNNAdVwA6QfMmr6tNLOilblu+VI8gP5cN4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=vFzIIXRaaiGGwypJlKZ1FZK202P7tcHn7MxhjjPOFZMgcG6mG7lGfQNkAJ5yB4Q7G
-         Iqb6+xs0DUR4y73U7CuyvZz4TxlaFuXgwqIENgicXOPmDqAhkkTqrt0Nmcy1giZWgz
-         ixSzZ2VWMbneMBycZNlow0On9wstg/XIYlL6hHbk=
+        b=JDLLvCStrAOmZqjjR9kAA0f6jrK7a3u2PyaY+iM6utwAoKftG/ZqRrvVkZ0hA5Qr4
+         sCALLWn94Jx9MuAYTJw6ecWRBHn6DaHbyRauK1hDn3FWoQmHgMBSU6ICqaa5XI3fns
+         Gykfl2CWQmOD8zJFPV1k+V/13GW2JG5tZ5hs5ZAU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>,
-        Ranjani Sridharan <ranjani.sridharan@linux.intel.com>,
-        Rander Wang <rander.wang@intel.com>,
-        Bard Liao <yung-chuan.liao@linux.intel.com>,
-        Peter Ujfalusi <peter.ujfalusi@linux.intel.com>,
-        Mark Brown <broonie@kernel.org>
-Subject: [PATCH 5.10 55/57] ASoC: SOF: Intel: hda-dai: fix possible stream_tag leak
+        patches@lists.linux.dev, Natalia Petrova <n.petrova@fintech.ru>,
+        Jesse Brandeburg <jesse.brandeburg@intel.com>,
+        Tony Nguyen <anthony.l.nguyen@intel.com>,
+        Jakub Kicinski <kuba@kernel.org>,
+        Sasha Levin <sashal@kernel.org>,
+        Gurucharan G <gurucharanx.g@intel.com>
+Subject: [PATCH 6.1 107/118] i40e: Add checking for null for nlmsg_find_attr()
 Date:   Mon, 20 Feb 2023 14:37:03 +0100
-Message-Id: <20230220133551.293477057@linuxfoundation.org>
+Message-Id: <20230220133604.679154353@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230220133549.360169435@linuxfoundation.org>
-References: <20230220133549.360169435@linuxfoundation.org>
+In-Reply-To: <20230220133600.368809650@linuxfoundation.org>
+References: <20230220133600.368809650@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -57,59 +56,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
+From: Natalia Petrova <n.petrova@fintech.ru>
 
-commit 1f810d2b6b2fbdc5279644d8b2c140b1f7c9d43d upstream.
+[ Upstream commit 7fa0b526f865cb42aa33917fd02a92cb03746f4d ]
 
-The HDaudio stream allocation is done first, and in a second step the
-LOSIDV parameter is programmed for the multi-link used by a codec.
+The result of nlmsg_find_attr() 'br_spec' is dereferenced in
+nla_for_each_nested(), but it can take NULL value in nla_find() function,
+which will result in an error.
 
-This leads to a possible stream_tag leak, e.g. if a DisplayAudio link
-is not used. This would happen when a non-Intel graphics card is used
-and userspace unconditionally uses the Intel Display Audio PCMs without
-checking if they are connected to a receiver with jack controls.
+Found by Linux Verification Center (linuxtesting.org) with SVACE.
 
-We should first check that there is a valid multi-link entry to
-configure before allocating a stream_tag. This change aligns the
-dma_assign and dma_cleanup phases.
-
-Complements: b0cd60f3e9f5 ("ALSA/ASoC: hda: clarify bus_get_link() and bus_link_get() helpers")
-Link: https://github.com/thesofproject/linux/issues/4151
-Signed-off-by: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
-Reviewed-by: Ranjani Sridharan <ranjani.sridharan@linux.intel.com>
-Reviewed-by: Rander Wang <rander.wang@intel.com>
-Reviewed-by: Bard Liao <yung-chuan.liao@linux.intel.com>
-Signed-off-by: Peter Ujfalusi <peter.ujfalusi@linux.intel.com>
-Link: https://lore.kernel.org/r/20230216162340.19480-1-peter.ujfalusi@linux.intel.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: 51616018dd1b ("i40e: Add support for getlink, setlink ndo ops")
+Signed-off-by: Natalia Petrova <n.petrova@fintech.ru>
+Reviewed-by: Jesse Brandeburg <jesse.brandeburg@intel.com>
+Tested-by: Gurucharan G <gurucharanx.g@intel.com> (A Contingent worker at Intel)
+Signed-off-by: Tony Nguyen <anthony.l.nguyen@intel.com>
+Link: https://lore.kernel.org/r/20230209172833.3596034-1-anthony.l.nguyen@intel.com
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/soc/sof/intel/hda-dai.c |    8 ++++----
- 1 file changed, 4 insertions(+), 4 deletions(-)
+ drivers/net/ethernet/intel/i40e/i40e_main.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
---- a/sound/soc/sof/intel/hda-dai.c
-+++ b/sound/soc/sof/intel/hda-dai.c
-@@ -212,6 +212,10 @@ static int hda_link_hw_params(struct snd
- 	int stream_tag;
- 	int ret;
+diff --git a/drivers/net/ethernet/intel/i40e/i40e_main.c b/drivers/net/ethernet/intel/i40e/i40e_main.c
+index 18044c2a36faa..d30bc38725e97 100644
+--- a/drivers/net/ethernet/intel/i40e/i40e_main.c
++++ b/drivers/net/ethernet/intel/i40e/i40e_main.c
+@@ -13140,6 +13140,8 @@ static int i40e_ndo_bridge_setlink(struct net_device *dev,
+ 	}
  
-+	link = snd_hdac_ext_bus_get_link(bus, codec_dai->component->name);
-+	if (!link)
+ 	br_spec = nlmsg_find_attr(nlh, sizeof(struct ifinfomsg), IFLA_AF_SPEC);
++	if (!br_spec)
 +		return -EINVAL;
-+
- 	/* get stored dma data if resuming from system suspend */
- 	link_dev = snd_soc_dai_get_dma_data(dai, substream);
- 	if (!link_dev) {
-@@ -232,10 +236,6 @@ static int hda_link_hw_params(struct snd
- 	if (ret < 0)
- 		return ret;
  
--	link = snd_hdac_ext_bus_get_link(bus, codec_dai->component->name);
--	if (!link)
--		return -EINVAL;
--
- 	/* set the hdac_stream in the codec dai */
- 	snd_soc_dai_set_stream(codec_dai, hdac_stream(link_dev), substream->stream);
- 
+ 	nla_for_each_nested(attr, br_spec, rem) {
+ 		__u16 mode;
+-- 
+2.39.0
+
 
 
