@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 33A0069CC42
-	for <lists+stable@lfdr.de>; Mon, 20 Feb 2023 14:38:45 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D3E2069CE3E
+	for <lists+stable@lfdr.de>; Mon, 20 Feb 2023 14:57:47 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229986AbjBTNio (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Feb 2023 08:38:44 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46778 "EHLO
+        id S232590AbjBTN5p (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Feb 2023 08:57:45 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47904 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231663AbjBTNin (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 20 Feb 2023 08:38:43 -0500
+        with ESMTP id S232614AbjBTN5o (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 20 Feb 2023 08:57:44 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 872A61B567
-        for <stable@vger.kernel.org>; Mon, 20 Feb 2023 05:38:42 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3DE131EBE2
+        for <stable@vger.kernel.org>; Mon, 20 Feb 2023 05:57:25 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 3D53AB80D44
-        for <stable@vger.kernel.org>; Mon, 20 Feb 2023 13:38:41 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 97BF0C433D2;
-        Mon, 20 Feb 2023 13:38:39 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 6AF8CB80D52
+        for <stable@vger.kernel.org>; Mon, 20 Feb 2023 13:57:15 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D0334C4339B;
+        Mon, 20 Feb 2023 13:57:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1676900320;
-        bh=XpOmjL4rZAZF3gpGNKAk3Yqsv8PYa6+k6gWhY78I28g=;
+        s=korg; t=1676901434;
+        bh=sPsvOSqlhoWC/q+W+LIn1MJRKhl1TyhFwQxIEx9ez4I=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=daXGOzx2M8b0TvW+Ef/e5bkr934uKn1gscalnTLGPu1PQldv8a4/m7ygv30s42kmY
-         PEVUfwMWsL9fFKZRjl38gvqIWevr33zYlDWOezb7MAHVzOjyQ7i8Dj5Fo3k+HgPk1m
-         cq6MZy8IIId/Rkonq07CrL6eHGD1ZWYGiv9uAUu8=
+        b=GfMgFVWRyDwxgSH5Vx5rwLJlZeyX+2jgZt87bZhoOJ+AKquhbBDOudxHgT05p1xZi
+         9s2wjQsuLkmJX9syPwTQ91G31qFh+VX/6EukEpfGBPQ2w+ClWChiFVIs+kSDgMrnSx
+         bkqK+EGXONAYRR6YM3EPnb6L0RfCEBR35dwKP1rE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Xin Long <lucien.xin@gmail.com>,
-        Marcelo Ricardo Leitner <marcelo.leitner@gmail.com>,
-        Jakub Kicinski <kuba@kernel.org>,
+        patches@lists.linux.dev, fengwk <fengwk94@gmail.com>,
+        Mark Brown <broonie@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 06/53] sctp: do not check hb_timer.expires when resetting hb_timer
+Subject: [PATCH 6.1 016/118] ASoC: amd: yc: Add Xiaomi Redmi Book Pro 15 2022 into DMI table
 Date:   Mon, 20 Feb 2023 14:35:32 +0100
-Message-Id: <20230220133548.393857156@linuxfoundation.org>
+Message-Id: <20230220133601.057896480@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230220133548.158615609@linuxfoundation.org>
-References: <20230220133548.158615609@linuxfoundation.org>
+In-Reply-To: <20230220133600.368809650@linuxfoundation.org>
+References: <20230220133600.368809650@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,51 +53,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Xin Long <lucien.xin@gmail.com>
+From: fengwk <fengwk94@gmail.com>
 
-[ Upstream commit 8f35ae17ef565a605de5f409e04bcd49a55d7646 ]
+[ Upstream commit dcff8b7ca92d724bdaf474a3fa37a7748377813a ]
 
-It tries to avoid the frequently hb_timer refresh in commit ba6f5e33bdbb
-("sctp: avoid refreshing heartbeat timer too often"), and it only allows
-mod_timer when the new expires is after hb_timer.expires. It means even
-a much shorter interval for hb timer gets applied, it will have to wait
-until the current hb timer to time out.
+This model requires an additional detection quirk to enable the
+internal microphone - BIOS doesn't seem to support AcpDmicConnected
+(nothing in acpidump output).
 
-In sctp_do_8_2_transport_strike(), when a transport enters PF state, it
-expects to update the hb timer to resend a heartbeat every rto after
-calling sctp_transport_reset_hb_timer(), which will not work as the
-change mentioned above.
-
-The frequently hb_timer refresh was caused by sctp_transport_reset_timers()
-called in sctp_outq_flush() and it was already removed in the commit above.
-So we don't have to check hb_timer.expires when resetting hb_timer as it is
-now not called very often.
-
-Fixes: ba6f5e33bdbb ("sctp: avoid refreshing heartbeat timer too often")
-Signed-off-by: Xin Long <lucien.xin@gmail.com>
-Acked-by: Marcelo Ricardo Leitner <marcelo.leitner@gmail.com>
-Link: https://lore.kernel.org/r/d958c06985713ec84049a2d5664879802710179a.1675095933.git.lucien.xin@gmail.com
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Signed-off-by: fengwk <fengwk94@gmail.com>
+Link: https://lore.kernel.org/r/Y8wmCutc74j/tyHP@arch
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/sctp/transport.c | 4 +---
- 1 file changed, 1 insertion(+), 3 deletions(-)
+ sound/soc/amd/yc/acp6x-mach.c | 7 +++++++
+ 1 file changed, 7 insertions(+)
 
-diff --git a/net/sctp/transport.c b/net/sctp/transport.c
-index af56651169b2..79d2aa44c6e5 100644
---- a/net/sctp/transport.c
-+++ b/net/sctp/transport.c
-@@ -210,9 +210,7 @@ void sctp_transport_reset_hb_timer(struct sctp_transport *transport)
- 
- 	/* When a data chunk is sent, reset the heartbeat interval.  */
- 	expires = jiffies + sctp_transport_timeout(transport);
--	if ((time_before(transport->hb_timer.expires, expires) ||
--	     !timer_pending(&transport->hb_timer)) &&
--	    !mod_timer(&transport->hb_timer,
-+	if (!mod_timer(&transport->hb_timer,
- 		       expires + prandom_u32_max(transport->rto)))
- 		sctp_transport_hold(transport);
- }
+diff --git a/sound/soc/amd/yc/acp6x-mach.c b/sound/soc/amd/yc/acp6x-mach.c
+index 00fb976e0b81e..36314753923b8 100644
+--- a/sound/soc/amd/yc/acp6x-mach.c
++++ b/sound/soc/amd/yc/acp6x-mach.c
+@@ -227,6 +227,13 @@ static const struct dmi_system_id yc_acp_quirk_table[] = {
+ 			DMI_MATCH(DMI_PRODUCT_NAME, "Redmi Book Pro 14 2022"),
+ 		}
+ 	},
++	{
++		.driver_data = &acp6x_card,
++		.matches = {
++			DMI_MATCH(DMI_BOARD_VENDOR, "TIMI"),
++			DMI_MATCH(DMI_PRODUCT_NAME, "Redmi Book Pro 15 2022"),
++		}
++	},
+ 	{
+ 		.driver_data = &acp6x_card,
+ 		.matches = {
 -- 
 2.39.0
 
