@@ -2,47 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 3556C69CC9B
-	for <lists+stable@lfdr.de>; Mon, 20 Feb 2023 14:42:16 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3B5BB69CD55
+	for <lists+stable@lfdr.de>; Mon, 20 Feb 2023 14:48:29 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231873AbjBTNmP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Feb 2023 08:42:15 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51920 "EHLO
+        id S232334AbjBTNs0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Feb 2023 08:48:26 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33644 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232049AbjBTNmN (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 20 Feb 2023 08:42:13 -0500
+        with ESMTP id S232355AbjBTNsV (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 20 Feb 2023 08:48:21 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D87691CF71
-        for <stable@vger.kernel.org>; Mon, 20 Feb 2023 05:41:51 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D6A941E1CA
+        for <stable@vger.kernel.org>; Mon, 20 Feb 2023 05:48:16 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 771F560E03
-        for <stable@vger.kernel.org>; Mon, 20 Feb 2023 13:41:51 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 839A9C433EF;
-        Mon, 20 Feb 2023 13:41:50 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 5D85860E8A
+        for <stable@vger.kernel.org>; Mon, 20 Feb 2023 13:48:16 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6F517C433D2;
+        Mon, 20 Feb 2023 13:48:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1676900510;
-        bh=goGnLmRxLB7q/czn7RZTMv7Z9BN6AQMdMoIZPzL+GRY=;
+        s=korg; t=1676900895;
+        bh=c+yS2TBHXU5XUhMB+YoItG+6sz8IGvLxU5mx7Rgrc9E=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=OxsSyjOSM/YA6hqk8t/wlRzsh5UmJwZhwEpio2eZ7VsyGCS5BIisRFMs+BHLV2aOH
-         qGuT2PxYZkAHzY9MRaJNEUJdqnh6B4mruk9RHhpy5UyUGituC5zfL0hpV7+CEmatem
-         zfOSoRWst+K184bBhO08oGpDdaWPh0GT883BUId4=
+        b=aT1aYK2SwEtooXZd392x1fjmP3ioJzSccadqES310U1B21itFf1gNdJwnbApWrpVN
+         +MazWT6oIPEaj2eSO0bW5Bdz3wcgusqObcw0gOoLWZNb2yausYbwKdDV/D2nJ90qyk
+         3Og8XxHi2WxQO24ZE1ZfFKC8JNOBWG1Qg1OiRsgU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Alexander Graf <graf@amazon.de>,
-        Hendrik Borghorst <hborghor@amazon.de>,
-        Jim Mattson <jmattson@google.com>,
-        Alexander Graf <graf@amazon.com>,
-        Paolo Bonzini <pbonzini@redhat.com>,
+        patches@lists.linux.dev, Jim Minter <jimminter@microsoft.com>,
+        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
+        Mika Westerberg <mika.westerberg@linux.intel.com>,
+        Linus Walleij <linus.walleij@linaro.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 24/89] KVM: x86/vmx: Do not skip segment attributes if unusable bit is set
+Subject: [PATCH 5.4 079/156] pinctrl: intel: Restore the pins that used to be in Direct IRQ mode
 Date:   Mon, 20 Feb 2023 14:35:23 +0100
-Message-Id: <20230220133554.017365065@linuxfoundation.org>
+Message-Id: <20230220133605.706367895@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230220133553.066768704@linuxfoundation.org>
-References: <20230220133553.066768704@linuxfoundation.org>
+In-Reply-To: <20230220133602.515342638@linuxfoundation.org>
+References: <20230220133602.515342638@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,89 +55,67 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hendrik Borghorst <hborghor@amazon.de>
+From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
 
-[ Upstream commit a44b331614e6f7e63902ed7dff7adc8c85edd8bc ]
+[ Upstream commit a8520be3ffef3d25b53bf171a7ebe17ee0154175 ]
 
-When serializing and deserializing kvm_sregs, attributes of the segment
-descriptors are stored by user space. For unusable segments,
-vmx_segment_access_rights skips all attributes and sets them to 0.
+If the firmware mangled the register contents too much,
+check the saved value for the Direct IRQ mode. If it
+matches, we will restore the pin state.
 
-This means we zero out the DPL (Descriptor Privilege Level) for unusable
-entries.
-
-Unusable segments are - contrary to their name - usable in 64bit mode and
-are used by guests to for example create a linear map through the
-NULL selector.
-
-VMENTER checks if SS.DPL is correct depending on the CS segment type.
-For types 9 (Execute Only) and 11 (Execute Read), CS.DPL must be equal to
-SS.DPL [1].
-
-We have seen real world guests setting CS to a usable segment with DPL=3
-and SS to an unusable segment with DPL=3. Once we go through an sregs
-get/set cycle, SS.DPL turns to 0. This causes the virtual machine to crash
-reproducibly.
-
-This commit changes the attribute logic to always preserve attributes for
-unusable segments. According to [2] SS.DPL is always saved on VM exits,
-regardless of the unusable bit so user space applications should have saved
-the information on serialization correctly.
-
-[3] specifies that besides SS.DPL the rest of the attributes of the
-descriptors are undefined after VM entry if unusable bit is set. So, there
-should be no harm in setting them all to the previous state.
-
-[1] Intel SDM Vol 3C 26.3.1.2 Checks on Guest Segment Registers
-[2] Intel SDM Vol 3C 27.3.2 Saving Segment Registers and Descriptor-Table
-Registers
-[3] Intel SDM Vol 3C 26.3.2.2 Loading Guest Segment Registers and
-Descriptor-Table Registers
-
-Cc: Alexander Graf <graf@amazon.de>
-Cc: stable@vger.kernel.org
-Signed-off-by: Hendrik Borghorst <hborghor@amazon.de>
-Reviewed-by: Jim Mattson <jmattson@google.com>
-Reviewed-by: Alexander Graf <graf@amazon.com>
-Message-Id: <20221114164823.69555-1-hborghor@amazon.de>
-Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
+Reported-by: Jim Minter <jimminter@microsoft.com>
+Fixes: 6989ea4881c8 ("pinctrl: intel: Save and restore pins in "direct IRQ" mode")
+Tested-by: Jim Minter <jimminter@microsoft.com>
+Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Acked-by: Mika Westerberg <mika.westerberg@linux.intel.com>
+Link: https://lore.kernel.org/r/20230206141558.20916-1-andriy.shevchenko@linux.intel.com
+Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/x86/kvm/vmx/vmx.c | 21 +++++++++------------
- 1 file changed, 9 insertions(+), 12 deletions(-)
+ drivers/pinctrl/intel/pinctrl-intel.c | 16 +++++++++++++---
+ 1 file changed, 13 insertions(+), 3 deletions(-)
 
-diff --git a/arch/x86/kvm/vmx/vmx.c b/arch/x86/kvm/vmx/vmx.c
-index 5c4d2758b1d9..ec821a5d131a 100644
---- a/arch/x86/kvm/vmx/vmx.c
-+++ b/arch/x86/kvm/vmx/vmx.c
-@@ -5521,18 +5521,15 @@ static u32 vmx_segment_access_rights(struct kvm_segment *var)
+diff --git a/drivers/pinctrl/intel/pinctrl-intel.c b/drivers/pinctrl/intel/pinctrl-intel.c
+index e0cb76f7e5407..32c6326337f73 100644
+--- a/drivers/pinctrl/intel/pinctrl-intel.c
++++ b/drivers/pinctrl/intel/pinctrl-intel.c
+@@ -1510,6 +1510,12 @@ int intel_pinctrl_probe_by_uid(struct platform_device *pdev)
+ EXPORT_SYMBOL_GPL(intel_pinctrl_probe_by_uid);
+ 
+ #ifdef CONFIG_PM_SLEEP
++static bool __intel_gpio_is_direct_irq(u32 value)
++{
++	return (value & PADCFG0_GPIROUTIOXAPIC) && (value & PADCFG0_GPIOTXDIS) &&
++	       (__intel_gpio_get_gpio_mode(value) == PADCFG0_PMODE_GPIO);
++}
++
+ static bool intel_pinctrl_should_save(struct intel_pinctrl *pctrl, unsigned int pin)
  {
- 	u32 ar;
+ 	const struct pin_desc *pd = pin_desc_get(pctrl->pctldev, pin);
+@@ -1543,8 +1549,7 @@ static bool intel_pinctrl_should_save(struct intel_pinctrl *pctrl, unsigned int
+ 	 * See https://bugzilla.kernel.org/show_bug.cgi?id=214749.
+ 	 */
+ 	value = readl(intel_get_padcfg(pctrl, pin, PADCFG0));
+-	if ((value & PADCFG0_GPIROUTIOXAPIC) && (value & PADCFG0_GPIOTXDIS) &&
+-	    (__intel_gpio_get_gpio_mode(value) == PADCFG0_PMODE_GPIO))
++	if (__intel_gpio_is_direct_irq(value))
+ 		return true;
  
--	if (var->unusable || !var->present)
--		ar = 1 << 16;
--	else {
--		ar = var->type & 15;
--		ar |= (var->s & 1) << 4;
--		ar |= (var->dpl & 3) << 5;
--		ar |= (var->present & 1) << 7;
--		ar |= (var->avl & 1) << 12;
--		ar |= (var->l & 1) << 13;
--		ar |= (var->db & 1) << 14;
--		ar |= (var->g & 1) << 15;
--	}
-+	ar = var->type & 15;
-+	ar |= (var->s & 1) << 4;
-+	ar |= (var->dpl & 3) << 5;
-+	ar |= (var->present & 1) << 7;
-+	ar |= (var->avl & 1) << 12;
-+	ar |= (var->l & 1) << 13;
-+	ar |= (var->db & 1) << 14;
-+	ar |= (var->g & 1) << 15;
-+	ar |= (var->unusable || !var->present) << 16;
+ 	return false;
+@@ -1656,7 +1661,12 @@ int intel_pinctrl_resume_noirq(struct device *dev)
+ 		void __iomem *padcfg;
+ 		u32 val;
  
- 	return ar;
- }
+-		if (!intel_pinctrl_should_save(pctrl, desc->number))
++		if (!(intel_pinctrl_should_save(pctrl, desc->number) ||
++		      /*
++		       * If the firmware mangled the register contents too much,
++		       * check the saved value for the Direct IRQ mode.
++		       */
++		      __intel_gpio_is_direct_irq(pads[i].padcfg0)))
+ 			continue;
+ 
+ 		padcfg = intel_get_padcfg(pctrl, desc->number, PADCFG0);
 -- 
 2.39.0
 
