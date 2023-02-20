@@ -2,57 +2,52 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 7D94D69CDF2
-	for <lists+stable@lfdr.de>; Mon, 20 Feb 2023 14:54:28 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4316169CCB2
+	for <lists+stable@lfdr.de>; Mon, 20 Feb 2023 14:42:50 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232524AbjBTNy1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Feb 2023 08:54:27 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42820 "EHLO
+        id S232116AbjBTNmm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Feb 2023 08:42:42 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52670 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232528AbjBTNy1 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 20 Feb 2023 08:54:27 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5E9041DB89
-        for <stable@vger.kernel.org>; Mon, 20 Feb 2023 05:54:26 -0800 (PST)
+        with ESMTP id S232114AbjBTNmm (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 20 Feb 2023 08:42:42 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1E9961CF58
+        for <stable@vger.kernel.org>; Mon, 20 Feb 2023 05:42:41 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id EF42960D41
-        for <stable@vger.kernel.org>; Mon, 20 Feb 2023 13:54:25 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 112A6C433EF;
-        Mon, 20 Feb 2023 13:54:24 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id B7A67B80D4B
+        for <stable@vger.kernel.org>; Mon, 20 Feb 2023 13:42:39 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2C1F9C433D2;
+        Mon, 20 Feb 2023 13:42:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1676901265;
-        bh=J08X2vmLDjJwWn1JAxUk9hEAOF6ohBaK+5k8gOt95zc=;
+        s=korg; t=1676900558;
+        bh=GeOdsghwt0sP1aMTsUVwep3X6R0jlPuPxsCNWBTH28I=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=XpQywIFBgEiiJXzqyh9eDjZnB0He8SRTW3XCFhBMnnF4BuzIjGuL9CXW3+6IOPmDu
-         gB4RZ4rgwpM/Fp2ZtpjcpHtqLimt6GOssDS8zaGjzAKhqsZOZh7YBk32QMnRJD75co
-         Qe1Elnh6gkFqAwThx7iD+8/V33PtDkHhzNsQ2FB4=
+        b=AM4Mzs9TP+tFpuhszPCtYK70AopM5X4kfED6crof2A6q5lQbmIdVRJD0UkExRNd8X
+         6mh/xZ9dmDnjxftUyRR+X7cGlyPNt3bamgnp7+T3K53wP5NhbU5oZLbWkF+7r2nVyL
+         DPvdZWX8yrFn+etfybm28gbBLcGpg1BsLnpn7iDo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         patches@lists.linux.dev,
-        Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>,
-        Ranjani Sridharan <ranjani.sridharan@linux.intel.com>,
-        =?UTF-8?q?P=C3=A9ter=20Ujfalusi?= <peter.ujfalusi@linux.intel.com>,
-        Bard Liao <yung-chuan.liao@linux.intel.com>,
-        Kai Vehmanen <kai.vehmanen@linux.intel.com>,
-        Mark Brown <broonie@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 01/57] ASoC: Intel: sof_rt5682: always set dpcm_capture for amplifiers
+        Michael Nies <michael.nies@netclusive.com>,
+        YingChi Long <me@inclyc.cn>, Borislav Petkov <bp@suse.de>,
+        Nick Desaulniers <ndesaulniers@google.com>,
+        Nathan Chancellor <nathan@kernel.org>
+Subject: [PATCH 4.19 70/89] Revert "x86/fpu: Use _Alignof to avoid undefined behavior in TYPE_ALIGN"
 Date:   Mon, 20 Feb 2023 14:36:09 +0100
-Message-Id: <20230220133549.413563806@linuxfoundation.org>
+Message-Id: <20230220133555.594592089@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230220133549.360169435@linuxfoundation.org>
-References: <20230220133549.360169435@linuxfoundation.org>
+In-Reply-To: <20230220133553.066768704@linuxfoundation.org>
+References: <20230220133553.066768704@linuxfoundation.org>
 User-Agent: quilt/0.67
-X-stable: review
-X-Patchwork-Hint: ignore
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
         SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -60,46 +55,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
+From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-[ Upstream commit 324f065cdbaba1b879a63bf07e61ca156b789537 ]
+This reverts commit a00d020f18dbe0666e221d929846f1b591b27c20 which is
+commit 55228db2697c09abddcb9487c3d9fa5854a932cd upstream.
 
-The amplifier may provide hardware support for I/V feedback, or
-alternatively the firmware may generate an echo reference attached to
-the SSP and dailink used for the amplifier.
+_Alignof is not in the gcc version that the 4.19.y kernel still
+supports (4.6), so this change needs to be reverted as it breaks the
+build on those older compiler versions.
 
-To avoid any issues with invalid/NULL substreams in the latter case,
-always unconditionally set dpcm_capture.
-
-Link: https://github.com/thesofproject/linux/issues/4083
-Signed-off-by: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
-Reviewed-by: Ranjani Sridharan <ranjani.sridharan@linux.intel.com>
-Reviewed-by: Péter Ujfalusi <peter.ujfalusi@linux.intel.com>
-Reviewed-by: Bard Liao <yung-chuan.liao@linux.intel.com>
-Signed-off-by: Kai Vehmanen <kai.vehmanen@linux.intel.com>
-Link: https://lore.kernel.org/r/20230119163459.2235843-2-kai.vehmanen@linux.intel.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Reported-by: Michael Nies <michael.nies@netclusive.com>
+Link: https://lore.kernel.org/r/HE1PR0902MB188277E37DED663AE440510BE1D99@HE1PR0902MB1882.eurprd09.prod.outlook.com
+Link: https://bugzilla.kernel.org/show_bug.cgi?id=217013
+Cc: YingChi Long <me@inclyc.cn>
+Cc: Borislav Petkov <bp@suse.de>
+Cc: Nick Desaulniers <ndesaulniers@google.com>
+Cc: Nathan Chancellor <nathan@kernel.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- sound/soc/intel/boards/sof_rt5682.c | 3 +++
- 1 file changed, 3 insertions(+)
+ arch/x86/kernel/fpu/init.c |    7 +++++--
+ 1 file changed, 5 insertions(+), 2 deletions(-)
 
-diff --git a/sound/soc/intel/boards/sof_rt5682.c b/sound/soc/intel/boards/sof_rt5682.c
-index 1f94fa5a15db6..5883d1fa3b7ed 100644
---- a/sound/soc/intel/boards/sof_rt5682.c
-+++ b/sound/soc/intel/boards/sof_rt5682.c
-@@ -704,6 +704,9 @@ static struct snd_soc_dai_link *sof_card_dai_links_create(struct device *dev,
- 		links[id].num_platforms = ARRAY_SIZE(platform_component);
- 		links[id].nonatomic = true;
- 		links[id].dpcm_playback = 1;
-+		/* feedback stream or firmware-generated echo reference */
-+		links[id].dpcm_capture = 1;
+--- a/arch/x86/kernel/fpu/init.c
++++ b/arch/x86/kernel/fpu/init.c
+@@ -138,6 +138,9 @@ static void __init fpu__init_system_gene
+ unsigned int fpu_kernel_xstate_size;
+ EXPORT_SYMBOL_GPL(fpu_kernel_xstate_size);
+ 
++/* Get alignment of the TYPE. */
++#define TYPE_ALIGN(TYPE) offsetof(struct { char x; TYPE test; }, test)
 +
- 		links[id].no_pcm = 1;
- 		links[id].cpus = &cpus[id];
- 		links[id].num_cpus = 1;
--- 
-2.39.0
-
+ /*
+  * Enforce that 'MEMBER' is the last field of 'TYPE'.
+  *
+@@ -145,8 +148,8 @@ EXPORT_SYMBOL_GPL(fpu_kernel_xstate_size
+  * because that's how C aligns structs.
+  */
+ #define CHECK_MEMBER_AT_END_OF(TYPE, MEMBER) \
+-	BUILD_BUG_ON(sizeof(TYPE) !=         \
+-		     ALIGN(offsetofend(TYPE, MEMBER), _Alignof(TYPE)))
++	BUILD_BUG_ON(sizeof(TYPE) != ALIGN(offsetofend(TYPE, MEMBER), \
++					   TYPE_ALIGN(TYPE)))
+ 
+ /*
+  * We append the 'struct fpu' to the task_struct:
 
 
