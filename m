@@ -2,51 +2,51 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 8A50369CD8C
-	for <lists+stable@lfdr.de>; Mon, 20 Feb 2023 14:50:29 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6529A69CE97
+	for <lists+stable@lfdr.de>; Mon, 20 Feb 2023 15:00:42 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232413AbjBTNu2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Feb 2023 08:50:28 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37664 "EHLO
+        id S232759AbjBTOAl (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Feb 2023 09:00:41 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53184 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232412AbjBTNu0 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 20 Feb 2023 08:50:26 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8800F1A6
-        for <stable@vger.kernel.org>; Mon, 20 Feb 2023 05:50:15 -0800 (PST)
+        with ESMTP id S232755AbjBTOAk (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 20 Feb 2023 09:00:40 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8D73B1EFE4
+        for <stable@vger.kernel.org>; Mon, 20 Feb 2023 06:00:14 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 6AD5B60B74
-        for <stable@vger.kernel.org>; Mon, 20 Feb 2023 13:50:15 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 76DAEC4339B;
-        Mon, 20 Feb 2023 13:50:14 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id D03AC60EA1
+        for <stable@vger.kernel.org>; Mon, 20 Feb 2023 14:00:08 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E1FABC433A0;
+        Mon, 20 Feb 2023 14:00:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1676901014;
-        bh=fXbY8XDlBtZijxc6UQv/6YGzuFh/fJJuU0NpZZ3T8FQ=;
+        s=korg; t=1676901608;
+        bh=i55OZUVORmFuumFjV7MZdYbTAg1yw9HhJyz9DbeehO8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=QPd4ucH6Y0VfW2NIb/ZL0fh2P73iAsGiUJ0Eo6TqZeQfCO7NUNwnQEutWCj/Mpj2F
-         mdWyi46oWKsfM8ud4hea/4MR4N6D+Zz4aUuIDFtNGDKlox2aHUVkT/nk8jln4IjuMs
-         cDcP9GOLhF0oqYvHHva7FfA9H8ei+H4N8S2i4tw4=
+        b=EguLVoNFzGzTuk9GOsI28+OcHTjPvjzXLPea36vnTtdEwiYMPUiqKKX936d7UiHo8
+         qvyFNI17GEgnSHrpqHt6hfDkRyKKA8Bj2dzQHVjEYpq749z+sIrxzT0vlnMSqOjx3+
+         SS4vmNvoCycZJIKo31rtigTzy4vpr3ngRHBU3kAQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Ryusuke Konishi <konishi.ryusuke@gmail.com>,
-        syzbot+f0c4082ce5ebebdac63b@syzkaller.appspotmail.com,
-        Andrew Morton <akpm@linux-foundation.org>
-Subject: [PATCH 5.4 153/156] nilfs2: fix underflow in second superblock position calculations
-Date:   Mon, 20 Feb 2023 14:36:37 +0100
-Message-Id: <20230220133609.051992440@linuxfoundation.org>
+        patches@lists.linux.dev, Jason Xing <kernelxing@tencent.com>,
+        Alexander Duyck <alexanderduyck@fb.com>,
+        Tony Nguyen <anthony.l.nguyen@intel.com>,
+        Chandan Kumar Rout <chandanx.rout@intel.com>
+Subject: [PATCH 6.1 082/118] ixgbe: allow to increase MTU to 3K with XDP enabled
+Date:   Mon, 20 Feb 2023 14:36:38 +0100
+Message-Id: <20230220133603.685011722@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230220133602.515342638@linuxfoundation.org>
-References: <20230220133602.515342638@linuxfoundation.org>
+In-Reply-To: <20230220133600.368809650@linuxfoundation.org>
+References: <20230220133600.368809650@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
         SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -54,135 +54,74 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ryusuke Konishi <konishi.ryusuke@gmail.com>
+From: Jason Xing <kernelxing@tencent.com>
 
-commit 99b9402a36f0799f25feee4465bfa4b8dfa74b4d upstream.
+commit f9cd6a4418bac6a046ee78382423b1ae7565fb24 upstream.
 
-Macro NILFS_SB2_OFFSET_BYTES, which computes the position of the second
-superblock, underflows when the argument device size is less than 4096
-bytes.  Therefore, when using this macro, it is necessary to check in
-advance that the device size is not less than a lower limit, or at least
-that underflow does not occur.
+Recently I encountered one case where I cannot increase the MTU size
+directly from 1500 to a much bigger value with XDP enabled if the
+server is equipped with IXGBE card, which happened on thousands of
+servers in production environment. After applying the current patch,
+we can set the maximum MTU size to 3K.
 
-The current nilfs2 implementation lacks this check, causing out-of-bound
-block access when mounting devices smaller than 4096 bytes:
+This patch follows the behavior of changing MTU as i40e/ice does.
 
- I/O error, dev loop0, sector 36028797018963960 op 0x0:(READ) flags 0x0
- phys_seg 1 prio class 2
- NILFS (loop0): unable to read secondary superblock (blocksize = 1024)
+[1] commit 23b44513c3e6 ("ice: allow 3k MTU for XDP")
+[2] commit 0c8493d90b6b ("i40e: add XDP support for pass and drop actions")
 
-In addition, when trying to resize the filesystem to a size below 4096
-bytes, this underflow occurs in nilfs_resize_fs(), passing a huge number
-of segments to nilfs_sufile_resize(), corrupting parameters such as the
-number of segments in superblocks.  This causes excessive loop iterations
-in nilfs_sufile_resize() during a subsequent resize ioctl, causing
-semaphore ns_segctor_sem to block for a long time and hang the writer
-thread:
-
- INFO: task segctord:5067 blocked for more than 143 seconds.
-      Not tainted 6.2.0-rc8-syzkaller-00015-gf6feea56f66d #0
- "echo 0 > /proc/sys/kernel/hung_task_timeout_secs" disables this message.
- task:segctord        state:D stack:23456 pid:5067  ppid:2
- flags:0x00004000
- Call Trace:
-  <TASK>
-  context_switch kernel/sched/core.c:5293 [inline]
-  __schedule+0x1409/0x43f0 kernel/sched/core.c:6606
-  schedule+0xc3/0x190 kernel/sched/core.c:6682
-  rwsem_down_write_slowpath+0xfcf/0x14a0 kernel/locking/rwsem.c:1190
-  nilfs_transaction_lock+0x25c/0x4f0 fs/nilfs2/segment.c:357
-  nilfs_segctor_thread_construct fs/nilfs2/segment.c:2486 [inline]
-  nilfs_segctor_thread+0x52f/0x1140 fs/nilfs2/segment.c:2570
-  kthread+0x270/0x300 kernel/kthread.c:376
-  ret_from_fork+0x1f/0x30 arch/x86/entry/entry_64.S:308
-  </TASK>
- ...
- Call Trace:
-  <TASK>
-  folio_mark_accessed+0x51c/0xf00 mm/swap.c:515
-  __nilfs_get_page_block fs/nilfs2/page.c:42 [inline]
-  nilfs_grab_buffer+0x3d3/0x540 fs/nilfs2/page.c:61
-  nilfs_mdt_submit_block+0xd7/0x8f0 fs/nilfs2/mdt.c:121
-  nilfs_mdt_read_block+0xeb/0x430 fs/nilfs2/mdt.c:176
-  nilfs_mdt_get_block+0x12d/0xbb0 fs/nilfs2/mdt.c:251
-  nilfs_sufile_get_segment_usage_block fs/nilfs2/sufile.c:92 [inline]
-  nilfs_sufile_truncate_range fs/nilfs2/sufile.c:679 [inline]
-  nilfs_sufile_resize+0x7a3/0x12b0 fs/nilfs2/sufile.c:777
-  nilfs_resize_fs+0x20c/0xed0 fs/nilfs2/super.c:422
-  nilfs_ioctl_resize fs/nilfs2/ioctl.c:1033 [inline]
-  nilfs_ioctl+0x137c/0x2440 fs/nilfs2/ioctl.c:1301
-  ...
-
-This fixes these issues by inserting appropriate minimum device size
-checks or anti-underflow checks, depending on where the macro is used.
-
-Link: https://lkml.kernel.org/r/0000000000004e1dfa05f4a48e6b@google.com
-Link: https://lkml.kernel.org/r/20230214224043.24141-1-konishi.ryusuke@gmail.com
-Signed-off-by: Ryusuke Konishi <konishi.ryusuke@gmail.com>
-Reported-by: <syzbot+f0c4082ce5ebebdac63b@syzkaller.appspotmail.com>
-Tested-by: Ryusuke Konishi <konishi.ryusuke@gmail.com>
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Fixes: fabf1bce103a ("ixgbe: Prevent unsupported configurations with XDP")
+Signed-off-by: Jason Xing <kernelxing@tencent.com>
+Reviewed-by: Alexander Duyck <alexanderduyck@fb.com>
+Tested-by: Chandan Kumar Rout <chandanx.rout@intel.com> (A Contingent Worker at Intel)
+Signed-off-by: Tony Nguyen <anthony.l.nguyen@intel.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/nilfs2/ioctl.c     |    7 +++++++
- fs/nilfs2/super.c     |    9 +++++++++
- fs/nilfs2/the_nilfs.c |    8 +++++++-
- 3 files changed, 23 insertions(+), 1 deletion(-)
+ drivers/net/ethernet/intel/ixgbe/ixgbe_main.c |   25 ++++++++++++++++---------
+ 1 file changed, 16 insertions(+), 9 deletions(-)
 
---- a/fs/nilfs2/ioctl.c
-+++ b/fs/nilfs2/ioctl.c
-@@ -1130,7 +1130,14 @@ static int nilfs_ioctl_set_alloc_range(s
+--- a/drivers/net/ethernet/intel/ixgbe/ixgbe_main.c
++++ b/drivers/net/ethernet/intel/ixgbe/ixgbe_main.c
+@@ -6778,6 +6778,18 @@ static void ixgbe_free_all_rx_resources(
+ }
  
- 	minseg = range[0] + segbytes - 1;
- 	do_div(minseg, segbytes);
+ /**
++ * ixgbe_max_xdp_frame_size - returns the maximum allowed frame size for XDP
++ * @adapter: device handle, pointer to adapter
++ */
++static int ixgbe_max_xdp_frame_size(struct ixgbe_adapter *adapter)
++{
++	if (PAGE_SIZE >= 8192 || adapter->flags2 & IXGBE_FLAG2_RX_LEGACY)
++		return IXGBE_RXBUFFER_2K;
++	else
++		return IXGBE_RXBUFFER_3K;
++}
 +
-+	if (range[1] < 4096)
-+		goto out;
-+
- 	maxseg = NILFS_SB2_OFFSET_BYTES(range[1]);
-+	if (maxseg < segbytes)
-+		goto out;
-+
- 	do_div(maxseg, segbytes);
- 	maxseg--;
- 
---- a/fs/nilfs2/super.c
-+++ b/fs/nilfs2/super.c
-@@ -404,6 +404,15 @@ int nilfs_resize_fs(struct super_block *
- 		goto out;
- 
- 	/*
-+	 * Prevent underflow in second superblock position calculation.
-+	 * The exact minimum size check is done in nilfs_sufile_resize().
-+	 */
-+	if (newsize < 4096) {
-+		ret = -ENOSPC;
-+		goto out;
-+	}
-+
-+	/*
- 	 * Write lock is required to protect some functions depending
- 	 * on the number of segments, the number of reserved segments,
- 	 * and so forth.
---- a/fs/nilfs2/the_nilfs.c
-+++ b/fs/nilfs2/the_nilfs.c
-@@ -517,9 +517,15 @@ static int nilfs_load_super_block(struct
++/**
+  * ixgbe_change_mtu - Change the Maximum Transfer Unit
+  * @netdev: network interface device structure
+  * @new_mtu: new value for maximum frame size
+@@ -6788,18 +6800,13 @@ static int ixgbe_change_mtu(struct net_d
  {
- 	struct nilfs_super_block **sbp = nilfs->ns_sbp;
- 	struct buffer_head **sbh = nilfs->ns_sbh;
--	u64 sb2off = NILFS_SB2_OFFSET_BYTES(nilfs->ns_bdev->bd_inode->i_size);
-+	u64 sb2off, devsize = nilfs->ns_bdev->bd_inode->i_size;
- 	int valid[2], swp = 0;
+ 	struct ixgbe_adapter *adapter = netdev_priv(netdev);
  
-+	if (devsize < NILFS_SEG_MIN_BLOCKS * NILFS_MIN_BLOCK_SIZE + 4096) {
-+		nilfs_msg(sb, KERN_ERR, "device size too small");
-+		return -EINVAL;
-+	}
-+	sb2off = NILFS_SB2_OFFSET_BYTES(devsize);
-+
- 	sbp[0] = nilfs_read_super_block(sb, NILFS_SB_OFFSET_BYTES, blocksize,
- 					&sbh[0]);
- 	sbp[1] = nilfs_read_super_block(sb, sb2off, blocksize, &sbh[1]);
+-	if (adapter->xdp_prog) {
++	if (ixgbe_enabled_xdp_adapter(adapter)) {
+ 		int new_frame_size = new_mtu + ETH_HLEN + ETH_FCS_LEN +
+ 				     VLAN_HLEN;
+-		int i;
+-
+-		for (i = 0; i < adapter->num_rx_queues; i++) {
+-			struct ixgbe_ring *ring = adapter->rx_ring[i];
+ 
+-			if (new_frame_size > ixgbe_rx_bufsz(ring)) {
+-				e_warn(probe, "Requested MTU size is not supported with XDP\n");
+-				return -EINVAL;
+-			}
++		if (new_frame_size > ixgbe_max_xdp_frame_size(adapter)) {
++			e_warn(probe, "Requested MTU size is not supported with XDP\n");
++			return -EINVAL;
+ 		}
+ 	}
+ 
 
 
