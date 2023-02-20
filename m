@@ -2,46 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E03D869CD91
-	for <lists+stable@lfdr.de>; Mon, 20 Feb 2023 14:50:32 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id EAA9F69CDF6
+	for <lists+stable@lfdr.de>; Mon, 20 Feb 2023 14:54:39 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232412AbjBTNuc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Feb 2023 08:50:32 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37884 "EHLO
+        id S232505AbjBTNyj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Feb 2023 08:54:39 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42976 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232404AbjBTNub (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 20 Feb 2023 08:50:31 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7949E1D900
-        for <stable@vger.kernel.org>; Mon, 20 Feb 2023 05:50:30 -0800 (PST)
+        with ESMTP id S232530AbjBTNyi (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 20 Feb 2023 08:54:38 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EA92818B39
+        for <stable@vger.kernel.org>; Mon, 20 Feb 2023 05:54:36 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 2C611B80D1F
-        for <stable@vger.kernel.org>; Mon, 20 Feb 2023 13:50:29 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 76D36C433D2;
-        Mon, 20 Feb 2023 13:50:27 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 8610060EA5
+        for <stable@vger.kernel.org>; Mon, 20 Feb 2023 13:54:36 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 935F5C433EF;
+        Mon, 20 Feb 2023 13:54:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1676901027;
-        bh=RiEeSUvFkY3kOEeY2GLpWPlwhdvURfzsd7JvUKii6BE=;
+        s=korg; t=1676901275;
+        bh=E4J1SfPrQ9PzXUqPoKTxAnSnXCn/cEr1/Lq0M7vCXek=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=c6QPUPSOyw1X/kaLDKysJdTr9cWZKU8zJGVdM+3hRXjmyY0VfauN89+PLiP56Av7e
-         2T+fVXQPzHG++dLPYprjJqPknnoeClbKF5ZpcA7/9p5eN/6Q2acaAzmSfToqADMXrn
-         E7WWlbCRHlw+MF759hTrbQfdSA7TzXXEMpVIhq14=
+        b=PtiUMNq+SUYpgIVpchss+9mu6jgQrK+TiV635/4dOE70CO/Sf7WbGFv8Li6QlTsMm
+         EEJX8zNOBdGaVh5mkz0B2B0GrxrHRoU4bEmxnPtCFYvQYscHW+nW5J26iFyTBsPXkT
+         UIGtnNGqiXFKssFXQ+vMOLrDLatntqmfz9OvW6yU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         patches@lists.linux.dev,
-        Alexey Khoroshilov <khoroshilov@ispras.ru>,
-        Fedor Pchelkin <pchelkin@ispras.ru>,
-        Phillip Lougher <phillip@squashfs.org.uk>,
-        Andrew Morton <akpm@linux-foundation.org>
-Subject: [PATCH 5.4 137/156] revert "squashfs: harden sanity check in squashfs_read_xattr_id_table"
+        "Russell King (Oracle)" <rmk+kernel@armlinux.org.uk>,
+        Srinivas Kandagatla <srinivas.kandagatla@linaro.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 13/57] nvmem: core: remove nvmem_config wp_gpio
 Date:   Mon, 20 Feb 2023 14:36:21 +0100
-Message-Id: <20230220133608.338567616@linuxfoundation.org>
+Message-Id: <20230220133549.833227674@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230220133602.515342638@linuxfoundation.org>
-References: <20230220133602.515342638@linuxfoundation.org>
+In-Reply-To: <20230220133549.360169435@linuxfoundation.org>
+References: <20230220133549.360169435@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,34 +54,62 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Andrew Morton <akpm@linux-foundation.org>
+From: Russell King (Oracle) <rmk+kernel@armlinux.org.uk>
 
-commit a5b21d8d791cd4db609d0bbcaa9e0c7e019888d1 upstream.
+[ Upstream commit 569653f022a29a1a44ea9de5308b657228303fa5 ]
 
-This fix was nacked by Philip, for reasons identified in the email linked
-below.
+No one provides wp_gpio, so let's remove it to avoid issues with
+the nvmem core putting this gpio.
 
-Link: https://lkml.kernel.org/r/68f15d67-8945-2728-1f17-5b53a80ec52d@squashfs.org.uk
-Fixes: 72e544b1b28325 ("squashfs: harden sanity check in squashfs_read_xattr_id_table")
-Cc: Alexey Khoroshilov <khoroshilov@ispras.ru>
-Cc: Fedor Pchelkin <pchelkin@ispras.ru>
-Cc: Phillip Lougher <phillip@squashfs.org.uk>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Cc: stable@vger.kernel.org
+Signed-off-by: Russell King (Oracle) <rmk+kernel@armlinux.org.uk>
+Signed-off-by: Srinivas Kandagatla <srinivas.kandagatla@linaro.org>
+Link: https://lore.kernel.org/r/20230127104015.23839-5-srinivas.kandagatla@linaro.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Stable-dep-of: ab3428cfd9aa ("nvmem: core: fix registration vs use race")
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/squashfs/xattr_id.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/nvmem/core.c           | 4 +---
+ include/linux/nvmem-provider.h | 2 --
+ 2 files changed, 1 insertion(+), 5 deletions(-)
 
---- a/fs/squashfs/xattr_id.c
-+++ b/fs/squashfs/xattr_id.c
-@@ -76,7 +76,7 @@ __le64 *squashfs_read_xattr_id_table(str
- 	/* Sanity check values */
+diff --git a/drivers/nvmem/core.c b/drivers/nvmem/core.c
+index 9da4edbabfe75..38c05fce7d740 100644
+--- a/drivers/nvmem/core.c
++++ b/drivers/nvmem/core.c
+@@ -627,9 +627,7 @@ struct nvmem_device *nvmem_register(const struct nvmem_config *config)
  
- 	/* there is always at least one xattr id */
--	if (*xattr_ids <= 0)
-+	if (*xattr_ids == 0)
- 		return ERR_PTR(-EINVAL);
+ 	nvmem->id = rval;
  
- 	len = SQUASHFS_XATTR_BLOCK_BYTES(*xattr_ids);
+-	if (config->wp_gpio)
+-		nvmem->wp_gpio = config->wp_gpio;
+-	else if (!config->ignore_wp)
++	if (!config->ignore_wp)
+ 		nvmem->wp_gpio = gpiod_get_optional(config->dev, "wp",
+ 						    GPIOD_OUT_HIGH);
+ 	if (IS_ERR(nvmem->wp_gpio)) {
+diff --git a/include/linux/nvmem-provider.h b/include/linux/nvmem-provider.h
+index 39ec67689898b..5e07f3cfad301 100644
+--- a/include/linux/nvmem-provider.h
++++ b/include/linux/nvmem-provider.h
+@@ -49,7 +49,6 @@ enum nvmem_type {
+  * @word_size:	Minimum read/write access granularity.
+  * @stride:	Minimum read/write access stride.
+  * @priv:	User context passed to read/write callbacks.
+- * @wp-gpio:	Write protect pin
+  * @ignore_wp:  Write Protect pin is managed by the provider.
+  *
+  * Note: A default "nvmem<id>" name will be assigned to the device if
+@@ -64,7 +63,6 @@ struct nvmem_config {
+ 	const char		*name;
+ 	int			id;
+ 	struct module		*owner;
+-	struct gpio_desc	*wp_gpio;
+ 	const struct nvmem_cell_info	*cells;
+ 	int			ncells;
+ 	enum nvmem_type		type;
+-- 
+2.39.0
+
 
 
