@@ -2,45 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 54A1069CCAD
-	for <lists+stable@lfdr.de>; Mon, 20 Feb 2023 14:42:41 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id AA8AE69CCB1
+	for <lists+stable@lfdr.de>; Mon, 20 Feb 2023 14:42:42 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231992AbjBTNmj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Feb 2023 08:42:39 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52164 "EHLO
+        id S232064AbjBTNml (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Feb 2023 08:42:41 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52130 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232138AbjBTNme (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 20 Feb 2023 08:42:34 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 613441C58D
-        for <stable@vger.kernel.org>; Mon, 20 Feb 2023 05:42:31 -0800 (PST)
+        with ESMTP id S232116AbjBTNmk (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 20 Feb 2023 08:42:40 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9194A1CF64
+        for <stable@vger.kernel.org>; Mon, 20 Feb 2023 05:42:38 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 4363660E03
-        for <stable@vger.kernel.org>; Mon, 20 Feb 2023 13:42:31 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 50C47C433EF;
-        Mon, 20 Feb 2023 13:42:30 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 39EB0B80D1F
+        for <stable@vger.kernel.org>; Mon, 20 Feb 2023 13:42:37 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 87072C4339E;
+        Mon, 20 Feb 2023 13:42:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1676900550;
-        bh=LZhflGMOuJgy9rjWxTgrjYRXw5fmaqxWWBBxN0ZL9/o=;
+        s=korg; t=1676900555;
+        bh=mgdY70ZZpTjAYXJ9RpOyDE9YTF1lswzIECogCx/sFo8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=uubz/Ub5IzkoupKNYrK2ZcmWh1l5ZpW6xBUF6030QJEsws+zx+1gqJAAnV/1I27ZW
-         To7C7bJQP0ggq+dI8DrIvUEPNaKsL0UAPLjC/yDPkpzwbCOJgk5P8CQim1uebb6pY8
-         BPcEIVvdviytb4jHTQK0luR3qfcS3hUuwW7jYhtE=
+        b=rzluP4z+TVRBOu3fZ183R91ddPr4ex9SLwNuvHdtbyZXDeyPzfxIXvgV+Lvj1dSXO
+         FS/I4kEiM7FiA+aQKeV9UIuXkIqokjb0iDnX6F/eKrJ83zyCSMgQ+oQlpcEqcABHBN
+         jNDXknOs8vBPfDSWKpb6zsDbZOTB8ZGYH9Hs9wV8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Seth Jenkins <sethjenkins@google.com>,
-        Jeff Moyer <jmoyer@redhat.com>,
-        Alexander Viro <viro@zeniv.linux.org.uk>,
-        Benjamin LaHaise <bcrl@kvack.org>,
-        Jann Horn <jannh@google.com>,
-        Pavel Emelyanov <xemul@parallels.com>,
-        Andrew Morton <akpm@linux-foundation.org>
-Subject: [PATCH 4.19 68/89] aio: fix mremap after fork null-deref
-Date:   Mon, 20 Feb 2023 14:36:07 +0100
-Message-Id: <20230220133555.525490722@linuxfoundation.org>
+        patches@lists.linux.dev, Shell Chen <xierch@gmail.com>,
+        Florian Westphal <fw@strlen.de>,
+        Qingfang DENG <dqfext@gmail.com>
+Subject: [PATCH 4.19 69/89] netfilter: nft_tproxy: restrict to prerouting hook
+Date:   Mon, 20 Feb 2023 14:36:08 +0100
+Message-Id: <20230220133555.564125191@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
 In-Reply-To: <20230220133553.066768704@linuxfoundation.org>
 References: <20230220133553.066768704@linuxfoundation.org>
@@ -57,49 +53,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Seth Jenkins <sethjenkins@google.com>
+From: Florian Westphal <fw@strlen.de>
 
-commit 81e9d6f8647650a7bead74c5f926e29970e834d1 upstream.
+commit 18bbc3213383a82b05383827f4b1b882e3f0a5a5 upstream.
 
-Commit e4a0d3e720e7 ("aio: Make it possible to remap aio ring") introduced
-a null-deref if mremap is called on an old aio mapping after fork as
-mm->ioctx_table will be set to NULL.
+TPROXY is only allowed from prerouting, but nft_tproxy doesn't check this.
+This fixes a crash (null dereference) when using tproxy from e.g. output.
 
-[jmoyer@redhat.com: fix 80 column issue]
-Link: https://lkml.kernel.org/r/x49sffq4nvg.fsf@segfault.boston.devel.redhat.com
-Fixes: e4a0d3e720e7 ("aio: Make it possible to remap aio ring")
-Signed-off-by: Seth Jenkins <sethjenkins@google.com>
-Signed-off-by: Jeff Moyer <jmoyer@redhat.com>
-Cc: Alexander Viro <viro@zeniv.linux.org.uk>
-Cc: Benjamin LaHaise <bcrl@kvack.org>
-Cc: Jann Horn <jannh@google.com>
-Cc: Pavel Emelyanov <xemul@parallels.com>
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Fixes: 4ed8eb6570a4 ("netfilter: nf_tables: Add native tproxy support")
+Reported-by: Shell Chen <xierch@gmail.com>
+Signed-off-by: Florian Westphal <fw@strlen.de>
+Signed-off-by: Qingfang DENG <dqfext@gmail.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/aio.c |    4 ++++
- 1 file changed, 4 insertions(+)
+ net/netfilter/nft_tproxy.c |    8 ++++++++
+ 1 file changed, 8 insertions(+)
 
---- a/fs/aio.c
-+++ b/fs/aio.c
-@@ -332,6 +332,9 @@ static int aio_ring_mremap(struct vm_are
- 	spin_lock(&mm->ioctx_lock);
- 	rcu_read_lock();
- 	table = rcu_dereference(mm->ioctx_table);
-+	if (!table)
-+		goto out_unlock;
+--- a/net/netfilter/nft_tproxy.c
++++ b/net/netfilter/nft_tproxy.c
+@@ -289,6 +289,13 @@ static int nft_tproxy_dump(struct sk_buf
+ 	return 0;
+ }
+ 
++static int nft_tproxy_validate(const struct nft_ctx *ctx,
++			       const struct nft_expr *expr,
++			       const struct nft_data **data)
++{
++	return nft_chain_validate_hooks(ctx->chain, 1 << NF_INET_PRE_ROUTING);
++}
 +
- 	for (i = 0; i < table->nr; i++) {
- 		struct kioctx *ctx;
+ static struct nft_expr_type nft_tproxy_type;
+ static const struct nft_expr_ops nft_tproxy_ops = {
+ 	.type		= &nft_tproxy_type,
+@@ -296,6 +303,7 @@ static const struct nft_expr_ops nft_tpr
+ 	.eval		= nft_tproxy_eval,
+ 	.init		= nft_tproxy_init,
+ 	.dump		= nft_tproxy_dump,
++	.validate	= nft_tproxy_validate,
+ };
  
-@@ -345,6 +348,7 @@ static int aio_ring_mremap(struct vm_are
- 		}
- 	}
- 
-+out_unlock:
- 	rcu_read_unlock();
- 	spin_unlock(&mm->ioctx_lock);
- 	return res;
+ static struct nft_expr_type nft_tproxy_type __read_mostly = {
 
 
