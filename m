@@ -2,43 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 1994769CE58
-	for <lists+stable@lfdr.de>; Mon, 20 Feb 2023 14:58:55 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0C9F569CC9D
+	for <lists+stable@lfdr.de>; Mon, 20 Feb 2023 14:42:17 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232672AbjBTN6u (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Feb 2023 08:58:50 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49914 "EHLO
+        id S232056AbjBTNmQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Feb 2023 08:42:16 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51952 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232679AbjBTN6s (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 20 Feb 2023 08:58:48 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D5C101E9FB
-        for <stable@vger.kernel.org>; Mon, 20 Feb 2023 05:58:14 -0800 (PST)
+        with ESMTP id S231998AbjBTNmO (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 20 Feb 2023 08:42:14 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1ABDA1D904
+        for <stable@vger.kernel.org>; Mon, 20 Feb 2023 05:41:57 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 749B7B80D55
-        for <stable@vger.kernel.org>; Mon, 20 Feb 2023 13:58:10 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id BF926C433EF;
-        Mon, 20 Feb 2023 13:58:08 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id A272F60EA9
+        for <stable@vger.kernel.org>; Mon, 20 Feb 2023 13:41:56 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B4CE1C433D2;
+        Mon, 20 Feb 2023 13:41:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1676901489;
-        bh=5d+9PlcVs72/SwBwickPbffpbNEh+EgpSD5hr+nLxRI=;
+        s=korg; t=1676900516;
+        bh=uw2kv/TJLqQdszicMbTO6n++fbIHXqz0vYBo6U642Tc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=2pnXeeSYWOgF6K2zSbQ/DAMr+5+ZdrDI2cV4hSq4invyfdxGLPOmlwYgRR/XiTfbk
-         F1qSEWoA0ScNDN8duPhX723jfND3fKuVePWzPlxWnJGvUnpJ8daDH3Cwvf0ha0U8i3
-         w3ImgiUQsu/5kf77tyAihakrS8J2lHEbA27MO2DY=
+        b=iITQH6y3X7jlPnY9xbw+mSy97RmInfTwBRYBLqHQNHQgDC6M9WH8dRuzCmp2doEo+
+         bwFfM8rHWT8VVuhhjGLFEd8CoLXTyAqMFRXSwQ4WZrYtDNz/PN21+qyormaVcdVyXr
+         dtV41J6UnAn+7Xt4HHfEMRKE1Owk6eF9QV0aeU1A=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Takashi Iwai <tiwai@suse.de>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 009/118] ALSA: usb-audio: Add FIXED_RATE quirk for JBL Quantum610 Wireless
+        patches@lists.linux.dev,
+        Sanan Hasanov <sanan.hasanov@Knights.ucf.edu>,
+        Samuel Thibault <samuel.thibault@ens-lyon.org>,
+        Miko Larsson <mikoxyzzz@gmail.com>,
+        Helge Deller <deller@gmx.de>
+Subject: [PATCH 4.19 26/89] fbcon: Check font dimension limits
 Date:   Mon, 20 Feb 2023 14:35:25 +0100
-Message-Id: <20230220133600.768725045@linuxfoundation.org>
+Message-Id: <20230220133554.082248518@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230220133600.368809650@linuxfoundation.org>
-References: <20230220133600.368809650@linuxfoundation.org>
+In-Reply-To: <20230220133553.066768704@linuxfoundation.org>
+References: <20230220133553.066768704@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -52,36 +55,50 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Takashi Iwai <tiwai@suse.de>
+From: Samuel Thibault <samuel.thibault@ens-lyon.org>
 
-[ Upstream commit dfd5fe19db7dc7006642f8109ee8965e5d031897 ]
+commit 2b09d5d364986f724f17001ccfe4126b9b43a0be upstream.
 
-JBL Quantum610 Wireless (0ecb:205c) requires the same workaround that
-was used for JBL Quantum810 for limiting the sample rate.
+blit_x and blit_y are u32, so fbcon currently cannot support fonts
+larger than 32x32.
 
-Link: https://bugzilla.kernel.org/show_bug.cgi?id=216798
-Link: https://lore.kernel.org/r/20230118165947.22317-1-tiwai@suse.de
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+The 32x32 case also needs shifting an unsigned int, to properly set bit
+31, otherwise we get "UBSAN: shift-out-of-bounds in fbcon_set_font",
+as reported on:
+
+http://lore.kernel.org/all/IA1PR07MB98308653E259A6F2CE94A4AFABCE9@IA1PR07MB9830.namprd07.prod.outlook.com
+Kernel Branch: 6.2.0-rc5-next-20230124
+Kernel config: https://drive.google.com/file/d/1F-LszDAizEEH0ZX0HcSR06v5q8FPl2Uv/view?usp=sharing
+Reproducer: https://drive.google.com/file/d/1mP1jcLBY7vWCNM60OMf-ogw-urQRjNrm/view?usp=sharing
+
+Reported-by: Sanan Hasanov <sanan.hasanov@Knights.ucf.edu>
+Signed-off-by: Samuel Thibault <samuel.thibault@ens-lyon.org>
+Fixes: 2d2699d98492 ("fbcon: font setting should check limitation of driver")
+Cc: stable@vger.kernel.org
+Tested-by: Miko Larsson <mikoxyzzz@gmail.com>
+Reviewed-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Helge Deller <deller@gmx.de>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- sound/usb/quirks.c | 2 ++
- 1 file changed, 2 insertions(+)
+ drivers/video/fbdev/core/fbcon.c |    7 +++++--
+ 1 file changed, 5 insertions(+), 2 deletions(-)
 
-diff --git a/sound/usb/quirks.c b/sound/usb/quirks.c
-index 3d13fdf7590cd..3ecd1ba7fd4b1 100644
---- a/sound/usb/quirks.c
-+++ b/sound/usb/quirks.c
-@@ -2152,6 +2152,8 @@ static const struct usb_audio_quirk_flags_table quirk_flags_table[] = {
- 		   QUIRK_FLAG_GENERIC_IMPLICIT_FB),
- 	DEVICE_FLG(0x0525, 0xa4ad, /* Hamedal C20 usb camero */
- 		   QUIRK_FLAG_IFACE_SKIP_CLOSE),
-+	DEVICE_FLG(0x0ecb, 0x205c, /* JBL Quantum610 Wireless */
-+		   QUIRK_FLAG_FIXED_RATE),
- 	DEVICE_FLG(0x0ecb, 0x2069, /* JBL Quantum810 Wireless */
- 		   QUIRK_FLAG_FIXED_RATE),
+--- a/drivers/video/fbdev/core/fbcon.c
++++ b/drivers/video/fbdev/core/fbcon.c
+@@ -2475,9 +2475,12 @@ static int fbcon_set_font(struct vc_data
+ 	    h > FBCON_SWAP(info->var.rotate, info->var.yres, info->var.xres))
+ 		return -EINVAL;
  
--- 
-2.39.0
-
++	if (font->width > 32 || font->height > 32)
++		return -EINVAL;
++
+ 	/* Make sure drawing engine can handle the font */
+-	if (!(info->pixmap.blit_x & (1 << (font->width - 1))) ||
+-	    !(info->pixmap.blit_y & (1 << (font->height - 1))))
++	if (!(info->pixmap.blit_x & BIT(font->width - 1)) ||
++	    !(info->pixmap.blit_y & BIT(font->height - 1)))
+ 		return -EINVAL;
+ 
+ 	/* Make sure driver can handle the font length */
 
 
