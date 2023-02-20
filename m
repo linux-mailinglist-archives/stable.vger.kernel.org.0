@@ -2,46 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 7586069CE06
-	for <lists+stable@lfdr.de>; Mon, 20 Feb 2023 14:55:25 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3C9FD69CDEA
+	for <lists+stable@lfdr.de>; Mon, 20 Feb 2023 14:54:13 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232559AbjBTNzY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Feb 2023 08:55:24 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44004 "EHLO
+        id S232516AbjBTNyM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Feb 2023 08:54:12 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42522 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232583AbjBTNzU (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 20 Feb 2023 08:55:20 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 55C991EBC9
-        for <stable@vger.kernel.org>; Mon, 20 Feb 2023 05:55:12 -0800 (PST)
+        with ESMTP id S232515AbjBTNyL (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 20 Feb 2023 08:54:11 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DE24A1DB8A
+        for <stable@vger.kernel.org>; Mon, 20 Feb 2023 05:54:05 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 0F60BB80D49
-        for <stable@vger.kernel.org>; Mon, 20 Feb 2023 13:55:11 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3B237C433D2;
-        Mon, 20 Feb 2023 13:55:09 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 6B2F060EA5
+        for <stable@vger.kernel.org>; Mon, 20 Feb 2023 13:54:05 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 553CCC433D2;
+        Mon, 20 Feb 2023 13:54:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1676901309;
-        bh=zIRqUaZinTi/Vg6bmOh/KKAnubas8lKwcYObjBqu55g=;
+        s=korg; t=1676901244;
+        bh=ieOt7ms19XhO0Vg+VRLL4c+qI6OOJIHZi6OESk7/lhk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=udOKzJmhYq0Hc4J9HwMNxbxxjDMNd/uTWV3PLIU8wGrvDnY1qNYMLkaz9qeOUJC2Z
-         Rb1Q6duiGXTIZW7ZbSmHDd5CAkhm0/IxltwONvjzFgy4FRW64VfEHFnaXU/MkG50uh
-         x5HH5ScvtH/6SjhJ/cX+Rn4iI1E9DKWnIvgLmyMo=
+        b=GHoA/oMEjOabT7GxucBFYSb7+wzDXfQuk8y+HbM+LhXhPL2ZodwnpE3otJ06RBr/G
+         ORwJHCiNR5TBNLEI3p/eTc+HZwCAWsSx/s0ww9TMsAPxtOwxxTlEUG6dGL+qJ9JL5V
+         7NdroN+seftSp1Uhvpv0hDfo+/tYZ81DqIKgye+Q=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Munehisa Kamata <kamatam@amazon.com>,
-        Mengchi Cheng <mengcc@amazon.com>,
-        Ingo Molnar <mingo@kernel.org>,
-        Suren Baghdasaryan <surenb@google.com>,
-        Peter Zijlstra <peterz@infradead.org>
-Subject: [PATCH 5.10 26/57] sched/psi: Fix use-after-free in ep_remove_wait_queue()
+        patches@lists.linux.dev, Kuniyuki Iwashima <kuniyu@amazon.com>,
+        Eric Dumazet <edumazet@google.com>,
+        Jakub Kicinski <kuba@kernel.org>
+Subject: [PATCH 5.15 61/83] dccp/tcp: Avoid negative sk_forward_alloc by ipv6_pinfo.pktoptions.
 Date:   Mon, 20 Feb 2023 14:36:34 +0100
-Message-Id: <20230220133550.261592399@linuxfoundation.org>
+Message-Id: <20230220133555.798291835@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230220133549.360169435@linuxfoundation.org>
-References: <20230220133549.360169435@linuxfoundation.org>
+In-Reply-To: <20230220133553.669025851@linuxfoundation.org>
+References: <20230220133553.669025851@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,135 +53,125 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Munehisa Kamata <kamatam@amazon.com>
+From: Kuniyuki Iwashima <kuniyu@amazon.com>
 
-commit c2dbe32d5db5c4ead121cf86dabd5ab691fb47fe upstream.
+commit ca43ccf41224b023fc290073d5603a755fd12eed upstream.
 
-If a non-root cgroup gets removed when there is a thread that registered
-trigger and is polling on a pressure file within the cgroup, the polling
-waitqueue gets freed in the following path:
+Eric Dumazet pointed out [0] that when we call skb_set_owner_r()
+for ipv6_pinfo.pktoptions, sk_rmem_schedule() has not been called,
+resulting in a negative sk_forward_alloc.
 
- do_rmdir
-   cgroup_rmdir
-     kernfs_drain_open_files
-       cgroup_file_release
-         cgroup_pressure_release
-           psi_trigger_destroy
+We add a new helper which clones a skb and sets its owner only
+when sk_rmem_schedule() succeeds.
 
-However, the polling thread still has a reference to the pressure file and
-will access the freed waitqueue when the file is closed or upon exit:
+Note that we move skb_set_owner_r() forward in (dccp|tcp)_v6_do_rcv()
+because tcp_send_synack() can make sk_forward_alloc negative before
+ipv6_opt_accepted() in the crossed SYN-ACK or self-connect() cases.
 
- fput
-   ep_eventpoll_release
-     ep_free
-       ep_remove_wait_queue
-         remove_wait_queue
+[0]: https://lore.kernel.org/netdev/CANn89iK9oc20Jdi_41jb9URdF210r7d1Y-+uypbMSbOfY6jqrg@mail.gmail.com/
 
-This results in use-after-free as pasted below.
-
-The fundamental problem here is that cgroup_file_release() (and
-consequently waitqueue's lifetime) is not tied to the file's real lifetime.
-Using wake_up_pollfree() here might be less than ideal, but it is in line
-with the comment at commit 42288cb44c4b ("wait: add wake_up_pollfree()")
-since the waitqueue's lifetime is not tied to file's one and can be
-considered as another special case. While this would be fixable by somehow
-making cgroup_file_release() be tied to the fput(), it would require
-sizable refactoring at cgroups or higher layer which might be more
-justifiable if we identify more cases like this.
-
-  BUG: KASAN: use-after-free in _raw_spin_lock_irqsave+0x60/0xc0
-  Write of size 4 at addr ffff88810e625328 by task a.out/4404
-
-	CPU: 19 PID: 4404 Comm: a.out Not tainted 6.2.0-rc6 #38
-	Hardware name: Amazon EC2 c5a.8xlarge/, BIOS 1.0 10/16/2017
-	Call Trace:
-	<TASK>
-	dump_stack_lvl+0x73/0xa0
-	print_report+0x16c/0x4e0
-	kasan_report+0xc3/0xf0
-	kasan_check_range+0x2d2/0x310
-	_raw_spin_lock_irqsave+0x60/0xc0
-	remove_wait_queue+0x1a/0xa0
-	ep_free+0x12c/0x170
-	ep_eventpoll_release+0x26/0x30
-	__fput+0x202/0x400
-	task_work_run+0x11d/0x170
-	do_exit+0x495/0x1130
-	do_group_exit+0x100/0x100
-	get_signal+0xd67/0xde0
-	arch_do_signal_or_restart+0x2a/0x2b0
-	exit_to_user_mode_prepare+0x94/0x100
-	syscall_exit_to_user_mode+0x20/0x40
-	do_syscall_64+0x52/0x90
-	entry_SYSCALL_64_after_hwframe+0x63/0xcd
-	</TASK>
-
- Allocated by task 4404:
-
-	kasan_set_track+0x3d/0x60
-	__kasan_kmalloc+0x85/0x90
-	psi_trigger_create+0x113/0x3e0
-	pressure_write+0x146/0x2e0
-	cgroup_file_write+0x11c/0x250
-	kernfs_fop_write_iter+0x186/0x220
-	vfs_write+0x3d8/0x5c0
-	ksys_write+0x90/0x110
-	do_syscall_64+0x43/0x90
-	entry_SYSCALL_64_after_hwframe+0x63/0xcd
-
- Freed by task 4407:
-
-	kasan_set_track+0x3d/0x60
-	kasan_save_free_info+0x27/0x40
-	____kasan_slab_free+0x11d/0x170
-	slab_free_freelist_hook+0x87/0x150
-	__kmem_cache_free+0xcb/0x180
-	psi_trigger_destroy+0x2e8/0x310
-	cgroup_file_release+0x4f/0xb0
-	kernfs_drain_open_files+0x165/0x1f0
-	kernfs_drain+0x162/0x1a0
-	__kernfs_remove+0x1fb/0x310
-	kernfs_remove_by_name_ns+0x95/0xe0
-	cgroup_addrm_files+0x67f/0x700
-	cgroup_destroy_locked+0x283/0x3c0
-	cgroup_rmdir+0x29/0x100
-	kernfs_iop_rmdir+0xd1/0x140
-	vfs_rmdir+0xfe/0x240
-	do_rmdir+0x13d/0x280
-	__x64_sys_rmdir+0x2c/0x30
-	do_syscall_64+0x43/0x90
-	entry_SYSCALL_64_after_hwframe+0x63/0xcd
-
-Fixes: 0e94682b73bf ("psi: introduce psi monitor")
-Signed-off-by: Munehisa Kamata <kamatam@amazon.com>
-Signed-off-by: Mengchi Cheng <mengcc@amazon.com>
-Signed-off-by: Ingo Molnar <mingo@kernel.org>
-Acked-by: Suren Baghdasaryan <surenb@google.com>
-Acked-by: Peter Zijlstra <peterz@infradead.org>
-Cc: stable@vger.kernel.org
-Link: https://lore.kernel.org/lkml/20230106224859.4123476-1-kamatam@amazon.com/
-Link: https://lore.kernel.org/r/20230214212705.4058045-1-kamatam@amazon.com
+Fixes: 323fbd0edf3f ("net: dccp: Add handling of IPV6_PKTOPTIONS to dccp_v6_do_rcv()")
+Fixes: 3df80d9320bc ("[DCCP]: Introduce DCCPv6")
+Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
+Signed-off-by: Kuniyuki Iwashima <kuniyu@amazon.com>
+Reviewed-by: Eric Dumazet <edumazet@google.com>
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- kernel/sched/psi.c |    7 ++++---
- 1 file changed, 4 insertions(+), 3 deletions(-)
+ include/net/sock.h  |   13 +++++++++++++
+ net/dccp/ipv6.c     |    7 ++-----
+ net/ipv6/tcp_ipv6.c |   10 +++-------
+ 3 files changed, 18 insertions(+), 12 deletions(-)
 
---- a/kernel/sched/psi.c
-+++ b/kernel/sched/psi.c
-@@ -1158,10 +1158,11 @@ void psi_trigger_destroy(struct psi_trig
+--- a/include/net/sock.h
++++ b/include/net/sock.h
+@@ -2315,6 +2315,19 @@ static inline __must_check bool skb_set_
+ 	return false;
+ }
  
- 	group = t->group;
- 	/*
--	 * Wakeup waiters to stop polling. Can happen if cgroup is deleted
--	 * from under a polling process.
-+	 * Wakeup waiters to stop polling and clear the queue to prevent it from
-+	 * being accessed later. Can happen if cgroup is deleted from under a
-+	 * polling process.
++static inline struct sk_buff *skb_clone_and_charge_r(struct sk_buff *skb, struct sock *sk)
++{
++	skb = skb_clone(skb, sk_gfp_mask(sk, GFP_ATOMIC));
++	if (skb) {
++		if (sk_rmem_schedule(sk, skb, skb->truesize)) {
++			skb_set_owner_r(skb, sk);
++			return skb;
++		}
++		__kfree_skb(skb);
++	}
++	return NULL;
++}
++
+ static inline void skb_prepare_for_gro(struct sk_buff *skb)
+ {
+ 	if (skb->destructor != sock_wfree) {
+--- a/net/dccp/ipv6.c
++++ b/net/dccp/ipv6.c
+@@ -551,11 +551,9 @@ static struct sock *dccp_v6_request_recv
+ 	*own_req = inet_ehash_nolisten(newsk, req_to_sk(req_unhash), NULL);
+ 	/* Clone pktoptions received with SYN, if we own the req */
+ 	if (*own_req && ireq->pktopts) {
+-		newnp->pktoptions = skb_clone(ireq->pktopts, GFP_ATOMIC);
++		newnp->pktoptions = skb_clone_and_charge_r(ireq->pktopts, newsk);
+ 		consume_skb(ireq->pktopts);
+ 		ireq->pktopts = NULL;
+-		if (newnp->pktoptions)
+-			skb_set_owner_r(newnp->pktoptions, newsk);
+ 	}
+ 
+ 	return newsk;
+@@ -615,7 +613,7 @@ static int dccp_v6_do_rcv(struct sock *s
+ 					       --ANK (980728)
  	 */
--	wake_up_interruptible(&t->event_wait);
-+	wake_up_pollfree(&t->event_wait);
+ 	if (np->rxopt.all)
+-		opt_skb = skb_clone(skb, GFP_ATOMIC);
++		opt_skb = skb_clone_and_charge_r(skb, sk);
  
- 	mutex_lock(&group->trigger_lock);
+ 	if (sk->sk_state == DCCP_OPEN) { /* Fast path */
+ 		if (dccp_rcv_established(sk, skb, dccp_hdr(skb), skb->len))
+@@ -679,7 +677,6 @@ ipv6_pktoptions:
+ 			np->flow_label = ip6_flowlabel(ipv6_hdr(opt_skb));
+ 		if (ipv6_opt_accepted(sk, opt_skb,
+ 				      &DCCP_SKB_CB(opt_skb)->header.h6)) {
+-			skb_set_owner_r(opt_skb, sk);
+ 			memmove(IP6CB(opt_skb),
+ 				&DCCP_SKB_CB(opt_skb)->header.h6,
+ 				sizeof(struct inet6_skb_parm));
+--- a/net/ipv6/tcp_ipv6.c
++++ b/net/ipv6/tcp_ipv6.c
+@@ -1429,14 +1429,11 @@ static struct sock *tcp_v6_syn_recv_sock
  
+ 		/* Clone pktoptions received with SYN, if we own the req */
+ 		if (ireq->pktopts) {
+-			newnp->pktoptions = skb_clone(ireq->pktopts,
+-						      sk_gfp_mask(sk, GFP_ATOMIC));
++			newnp->pktoptions = skb_clone_and_charge_r(ireq->pktopts, newsk);
+ 			consume_skb(ireq->pktopts);
+ 			ireq->pktopts = NULL;
+-			if (newnp->pktoptions) {
++			if (newnp->pktoptions)
+ 				tcp_v6_restore_cb(newnp->pktoptions);
+-				skb_set_owner_r(newnp->pktoptions, newsk);
+-			}
+ 		}
+ 	} else {
+ 		if (!req_unhash && found_dup_sk) {
+@@ -1506,7 +1503,7 @@ static int tcp_v6_do_rcv(struct sock *sk
+ 					       --ANK (980728)
+ 	 */
+ 	if (np->rxopt.all)
+-		opt_skb = skb_clone(skb, sk_gfp_mask(sk, GFP_ATOMIC));
++		opt_skb = skb_clone_and_charge_r(skb, sk);
+ 
+ 	if (sk->sk_state == TCP_ESTABLISHED) { /* Fast path */
+ 		struct dst_entry *dst;
+@@ -1590,7 +1587,6 @@ ipv6_pktoptions:
+ 		if (np->repflow)
+ 			np->flow_label = ip6_flowlabel(ipv6_hdr(opt_skb));
+ 		if (ipv6_opt_accepted(sk, opt_skb, &TCP_SKB_CB(opt_skb)->header.h6)) {
+-			skb_set_owner_r(opt_skb, sk);
+ 			tcp_v6_restore_cb(opt_skb);
+ 			opt_skb = xchg(&np->pktoptions, opt_skb);
+ 		} else {
 
 
