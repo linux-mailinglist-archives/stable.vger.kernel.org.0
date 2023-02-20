@@ -2,90 +2,98 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 1B27F69CE9B
-	for <lists+stable@lfdr.de>; Mon, 20 Feb 2023 15:00:52 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A934069CDD8
+	for <lists+stable@lfdr.de>; Mon, 20 Feb 2023 14:53:30 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232773AbjBTOAv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Feb 2023 09:00:51 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53384 "EHLO
+        id S232501AbjBTNx3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Feb 2023 08:53:29 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41338 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232781AbjBTOAt (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 20 Feb 2023 09:00:49 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3A5871EBCE
-        for <stable@vger.kernel.org>; Mon, 20 Feb 2023 06:00:22 -0800 (PST)
+        with ESMTP id S232498AbjBTNx3 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 20 Feb 2023 08:53:29 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 401331D930
+        for <stable@vger.kernel.org>; Mon, 20 Feb 2023 05:53:28 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id B758DB80D07
-        for <stable@vger.kernel.org>; Mon, 20 Feb 2023 14:00:19 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 31040C4339C;
-        Mon, 20 Feb 2023 14:00:18 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id D6F14B80D1F
+        for <stable@vger.kernel.org>; Mon, 20 Feb 2023 13:53:26 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 35DADC433D2;
+        Mon, 20 Feb 2023 13:53:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1676901618;
-        bh=CBExR8AHEmCoIjSQLDPHYCrxhewByaO9AoeOQU4oNjg=;
+        s=korg; t=1676901205;
+        bh=a8T17YZDZox7Hl0cIziXNlaZdKfl+f7vwlStP7W31J8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=U/Eayth+OCK6MREGkV4uOCuSKsCbB8/LChHY/2r//QK7SJCqITqbStfIJGmsKHTqw
-         2keuRgZQ/PpsDLbza15WvrhAKYq/yLf32fOfNAbote3LmfcmwFFkBuwSnwdDeuLvF0
-         R3Ml2nfx1wWChp+u2ehR1xUAPOnJfnnAdS08XRIA=
+        b=P+xDy7hf9GKnT+eX5zwEhB/H0CqtaKm4kI+HR9SSUerAR4zZPc043D3dw9ntG9h4y
+         IKXDBkbeh8nipUs9ECmnGBoygRjtN1t8VvTI0m/oVAfNMc8baPgJaJwvKb/qbH1fmj
+         l9uicAU8yEwoOq3vRJKQPH3uP2x8+GD3IJov4p/Y=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Pietro Borrello <borrello@diag.uniroma1.it>,
-        Xin Long <lucien.xin@gmail.com>,
+        patches@lists.linux.dev, Guillaume Nault <gnault@redhat.com>,
+        Eric Dumazet <edumazet@google.com>,
+        David Ahern <dsahern@kernel.org>,
         Jakub Kicinski <kuba@kernel.org>
-Subject: [PATCH 6.1 086/118] sctp: sctp_sock_filter(): avoid list_entry() on possibly empty list
-Date:   Mon, 20 Feb 2023 14:36:42 +0100
-Message-Id: <20230220133603.851587128@linuxfoundation.org>
+Subject: [PATCH 5.15 70/83] ipv6: Fix tcp socket connection with DSCP.
+Date:   Mon, 20 Feb 2023 14:36:43 +0100
+Message-Id: <20230220133556.107847609@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230220133600.368809650@linuxfoundation.org>
-References: <20230220133600.368809650@linuxfoundation.org>
+In-Reply-To: <20230220133553.669025851@linuxfoundation.org>
+References: <20230220133553.669025851@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
-        SPF_HELO_NONE,SPF_PASS autolearn=unavailable autolearn_force=no
-        version=3.4.6
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+        SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pietro Borrello <borrello@diag.uniroma1.it>
+From: Guillaume Nault <gnault@redhat.com>
 
-commit a1221703a0f75a9d81748c516457e0fc76951496 upstream.
+commit 8230680f36fd1525303d1117768c8852314c488c upstream.
 
-Use list_is_first() to check whether tsp->asoc matches the first
-element of ep->asocs, as the list is not guaranteed to have an entry.
+Take into account the IPV6_TCLASS socket option (DSCP) in
+tcp_v6_connect(). Otherwise fib6_rule_match() can't properly
+match the DSCP value, resulting in invalid route lookup.
 
-Fixes: 8f840e47f190 ("sctp: add the sctp_diag.c file")
-Signed-off-by: Pietro Borrello <borrello@diag.uniroma1.it>
-Acked-by: Xin Long <lucien.xin@gmail.com>
-Link: https://lore.kernel.org/r/20230208-sctp-filter-v2-1-6e1f4017f326@diag.uniroma1.it
+For example:
+
+  ip route add unreachable table main 2001:db8::10/124
+
+  ip route add table 100 2001:db8::10/124 dev eth0
+  ip -6 rule add dsfield 0x04 table 100
+
+  echo test | socat - TCP6:[2001:db8::11]:54321,ipv6-tclass=0x04
+
+Without this patch, socat fails at connect() time ("No route to host")
+because the fib-rule doesn't jump to table 100 and the lookup ends up
+being done in the main table.
+
+Fixes: 2cc67cc731d9 ("[IPV6] ROUTE: Routing by Traffic Class.")
+Signed-off-by: Guillaume Nault <gnault@redhat.com>
+Reviewed-by: Eric Dumazet <edumazet@google.com>
+Reviewed-by: David Ahern <dsahern@kernel.org>
 Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/sctp/diag.c |    4 +---
- 1 file changed, 1 insertion(+), 3 deletions(-)
+ net/ipv6/tcp_ipv6.c |    1 +
+ 1 file changed, 1 insertion(+)
 
---- a/net/sctp/diag.c
-+++ b/net/sctp/diag.c
-@@ -343,11 +343,9 @@ static int sctp_sock_filter(struct sctp_
- 	struct sctp_comm_param *commp = p;
- 	struct sock *sk = ep->base.sk;
- 	const struct inet_diag_req_v2 *r = commp->r;
--	struct sctp_association *assoc =
--		list_entry(ep->asocs.next, struct sctp_association, asocs);
- 
- 	/* find the ep only once through the transports by this condition */
--	if (tsp->asoc != assoc)
-+	if (!list_is_first(&tsp->asoc->asocs, &ep->asocs))
- 		return 0;
- 
- 	if (r->sdiag_family != AF_UNSPEC && sk->sk_family != r->sdiag_family)
+--- a/net/ipv6/tcp_ipv6.c
++++ b/net/ipv6/tcp_ipv6.c
+@@ -269,6 +269,7 @@ static int tcp_v6_connect(struct sock *s
+ 	fl6.flowi6_proto = IPPROTO_TCP;
+ 	fl6.daddr = sk->sk_v6_daddr;
+ 	fl6.saddr = saddr ? *saddr : np->saddr;
++	fl6.flowlabel = ip6_make_flowinfo(np->tclass, np->flow_label);
+ 	fl6.flowi6_oif = sk->sk_bound_dev_if;
+ 	fl6.flowi6_mark = sk->sk_mark;
+ 	fl6.fl6_dport = usin->sin6_port;
 
 
