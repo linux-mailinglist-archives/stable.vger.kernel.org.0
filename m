@@ -2,51 +2,50 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 1DDFC69CDF1
-	for <lists+stable@lfdr.de>; Mon, 20 Feb 2023 14:54:27 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B095D69CE9D
+	for <lists+stable@lfdr.de>; Mon, 20 Feb 2023 15:00:53 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232508AbjBTNy0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Feb 2023 08:54:26 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42790 "EHLO
+        id S232761AbjBTOAw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Feb 2023 09:00:52 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53458 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232524AbjBTNyZ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 20 Feb 2023 08:54:25 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C4A821E1E2
-        for <stable@vger.kernel.org>; Mon, 20 Feb 2023 05:54:23 -0800 (PST)
+        with ESMTP id S232788AbjBTOAt (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 20 Feb 2023 09:00:49 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 139A51F49B
+        for <stable@vger.kernel.org>; Mon, 20 Feb 2023 06:00:22 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 62AA860CBA
-        for <stable@vger.kernel.org>; Mon, 20 Feb 2023 13:54:23 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 734A7C433EF;
-        Mon, 20 Feb 2023 13:54:22 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 7B0C8B80D4E
+        for <stable@vger.kernel.org>; Mon, 20 Feb 2023 13:59:51 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E733BC433EF;
+        Mon, 20 Feb 2023 13:59:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1676901262;
-        bh=rtM/YGm7KDZpXx2PWPrGhPYxlwWzddRfNVwcSPA+Z+4=;
+        s=korg; t=1676901590;
+        bh=x6hnhaPR7ioJYdKBVfvihnjZzekB0F8wDYU6GtzGhuQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=xb0bnaMXIUlDhf6Mg5XLVESU/mT7L0myYcH8AvVfS3D4YG1KVk+WUpoWOCiOlEbU2
-         fqhVQq5iFsK/G8pUddyGwjLLp/v7mFDUTQ3Y9fX0tXqVSNDmqQwdWo/ZNoSTZNrxtT
-         H4ikg0ltLixJ3QtQT7zGlYxQl+Kdv4We7XztXsTo=
+        b=Qlh5T87f5CZItzkqOto227qixwqhv/4dZidz4MfLpD4LsbOHVtXVkEH5YavaTwU1y
+         ew8G3Bao0nlO/PbMBT8tS4FuDvBCoW4IJmaiPxaXN07IjZGafUvtUemTil3ZR9Pdu5
+         PAGNURoHO4XydQv1te9Fi3dMLzqpfxNFhYGEKtVA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Vignesh Raghavendra <vigneshr@ti.com>,
-        Siddharth Vadapalli <s-vadapalli@ti.com>,
-        Roger Quadros <rogerq@kernel.org>,
-        Jakub Kicinski <kuba@kernel.org>
-Subject: [PATCH 5.15 58/83] net: ethernet: ti: am65-cpsw: Add RX DMA Channel Teardown Quirk
-Date:   Mon, 20 Feb 2023 14:36:31 +0100
-Message-Id: <20230220133555.686369903@linuxfoundation.org>
+        patches@lists.linux.dev, Felix Riemann <felix.riemann@sma.de>,
+        Eric Dumazet <edumazet@google.com>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 6.1 076/118] net: Fix unwanted sign extension in netdev_stats_to_stats64()
+Date:   Mon, 20 Feb 2023 14:36:32 +0100
+Message-Id: <20230220133603.459545457@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230220133553.669025851@linuxfoundation.org>
-References: <20230220133553.669025851@linuxfoundation.org>
+In-Reply-To: <20230220133600.368809650@linuxfoundation.org>
+References: <20230220133600.368809650@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
         SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -54,82 +53,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Siddharth Vadapalli <s-vadapalli@ti.com>
+From: Felix Riemann <felix.riemann@sma.de>
 
-commit 0ed577e7e8e508c24e22ba07713ecc4903e147c3 upstream.
+commit 9b55d3f0a69af649c62cbc2633e6d695bb3cc583 upstream.
 
-In TI's AM62x/AM64x SoCs, successful teardown of RX DMA Channel raises an
-interrupt. The process of servicing this interrupt involves flushing all
-pending RX DMA descriptors and clearing the teardown completion marker
-(TDCM). The am65_cpsw_nuss_rx_packets() function invoked from the RX
-NAPI callback services the interrupt. Thus, it is necessary to wait for
-this handler to run, drain all packets and clear TDCM, before calling
-napi_disable() in am65_cpsw_nuss_common_stop() function post channel
-teardown. If napi_disable() executes before ensuring that TDCM is
-cleared, the TDCM remains set when the interfaces are down, resulting in
-an interrupt storm when the interfaces are brought up again.
+When converting net_device_stats to rtnl_link_stats64 sign extension
+is triggered on ILP32 machines as 6c1c509778 changed the previous
+"ulong -> u64" conversion to "long -> u64" by accessing the
+net_device_stats fields through a (signed) atomic_long_t.
 
-Since the interrupt raised to indicate the RX DMA Channel teardown is
-specific to the AM62x and AM64x SoCs, add a quirk for it.
+This causes for example the received bytes counter to jump to 16EiB after
+having received 2^31 bytes. Casting the atomic value to "unsigned long"
+beforehand converting it into u64 avoids this.
 
-Fixes: 4f7cce272403 ("net: ethernet: ti: am65-cpsw: add support for am64x cpsw3g")
-Co-developed-by: Vignesh Raghavendra <vigneshr@ti.com>
-Signed-off-by: Vignesh Raghavendra <vigneshr@ti.com>
-Signed-off-by: Siddharth Vadapalli <s-vadapalli@ti.com>
-Reviewed-by: Roger Quadros <rogerq@kernel.org>
-Link: https://lore.kernel.org/r/20230209084432.189222-1-s-vadapalli@ti.com
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Fixes: 6c1c5097781f ("net: add atomic_long_t to net_device_stats fields")
+Signed-off-by: Felix Riemann <felix.riemann@sma.de>
+Reviewed-by: Eric Dumazet <edumazet@google.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ethernet/ti/am65-cpsw-nuss.c |   12 +++++++++++-
- drivers/net/ethernet/ti/am65-cpsw-nuss.h |    1 +
- 2 files changed, 12 insertions(+), 1 deletion(-)
+ net/core/dev.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/net/ethernet/ti/am65-cpsw-nuss.c
-+++ b/drivers/net/ethernet/ti/am65-cpsw-nuss.c
-@@ -564,7 +564,15 @@ static int am65_cpsw_nuss_common_stop(st
- 		k3_udma_glue_disable_tx_chn(common->tx_chns[i].tx_chn);
- 	}
+--- a/net/core/dev.c
++++ b/net/core/dev.c
+@@ -10385,7 +10385,7 @@ void netdev_stats_to_stats64(struct rtnl
  
-+	reinit_completion(&common->tdown_complete);
- 	k3_udma_glue_tdown_rx_chn(common->rx_chns.rx_chn, true);
-+
-+	if (common->pdata.quirks & AM64_CPSW_QUIRK_DMA_RX_TDOWN_IRQ) {
-+		i = wait_for_completion_timeout(&common->tdown_complete, msecs_to_jiffies(1000));
-+		if (!i)
-+			dev_err(common->dev, "rx teardown timeout\n");
-+	}
-+
- 	napi_disable(&common->napi_rx);
- 
- 	for (i = 0; i < AM65_CPSW_MAX_RX_FLOWS; i++)
-@@ -786,6 +794,8 @@ static int am65_cpsw_nuss_rx_packets(str
- 
- 	if (cppi5_desc_is_tdcm(desc_dma)) {
- 		dev_dbg(dev, "%s RX tdown flow: %u\n", __func__, flow_idx);
-+		if (common->pdata.quirks & AM64_CPSW_QUIRK_DMA_RX_TDOWN_IRQ)
-+			complete(&common->tdown_complete);
- 		return 0;
- 	}
- 
-@@ -2609,7 +2619,7 @@ static const struct am65_cpsw_pdata j721
- };
- 
- static const struct am65_cpsw_pdata am64x_cpswxg_pdata = {
--	.quirks = 0,
-+	.quirks = AM64_CPSW_QUIRK_DMA_RX_TDOWN_IRQ,
- 	.ale_dev_id = "am64-cpswxg",
- 	.fdqring_mode = K3_RINGACC_RING_MODE_RING,
- };
---- a/drivers/net/ethernet/ti/am65-cpsw-nuss.h
-+++ b/drivers/net/ethernet/ti/am65-cpsw-nuss.h
-@@ -84,6 +84,7 @@ struct am65_cpsw_rx_chn {
- };
- 
- #define AM65_CPSW_QUIRK_I2027_NO_TX_CSUM BIT(0)
-+#define AM64_CPSW_QUIRK_DMA_RX_TDOWN_IRQ BIT(1)
- 
- struct am65_cpsw_pdata {
- 	u32	quirks;
+ 	BUILD_BUG_ON(n > sizeof(*stats64) / sizeof(u64));
+ 	for (i = 0; i < n; i++)
+-		dst[i] = atomic_long_read(&src[i]);
++		dst[i] = (unsigned long)atomic_long_read(&src[i]);
+ 	/* zero out counters that only exist in rtnl_link_stats64 */
+ 	memset((char *)stats64 + n * sizeof(u64), 0,
+ 	       sizeof(*stats64) - n * sizeof(u64));
 
 
