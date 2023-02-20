@@ -2,46 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 0C9F569CC9D
-	for <lists+stable@lfdr.de>; Mon, 20 Feb 2023 14:42:17 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3EC3D69CD31
+	for <lists+stable@lfdr.de>; Mon, 20 Feb 2023 14:47:26 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232056AbjBTNmQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Feb 2023 08:42:16 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51952 "EHLO
+        id S232288AbjBTNrY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Feb 2023 08:47:24 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60180 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231998AbjBTNmO (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 20 Feb 2023 08:42:14 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1ABDA1D904
-        for <stable@vger.kernel.org>; Mon, 20 Feb 2023 05:41:57 -0800 (PST)
+        with ESMTP id S232276AbjBTNrX (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 20 Feb 2023 08:47:23 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 50E0B1E1EC
+        for <stable@vger.kernel.org>; Mon, 20 Feb 2023 05:47:05 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id A272F60EA9
-        for <stable@vger.kernel.org>; Mon, 20 Feb 2023 13:41:56 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B4CE1C433D2;
-        Mon, 20 Feb 2023 13:41:55 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 9FB64B80D1F
+        for <stable@vger.kernel.org>; Mon, 20 Feb 2023 13:47:03 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id F2964C433D2;
+        Mon, 20 Feb 2023 13:47:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1676900516;
-        bh=uw2kv/TJLqQdszicMbTO6n++fbIHXqz0vYBo6U642Tc=;
+        s=korg; t=1676900822;
+        bh=ep643o6owxTcqb5col+8TTJuDH0Kmi1U8qOUMaF+nCQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=iITQH6y3X7jlPnY9xbw+mSy97RmInfTwBRYBLqHQNHQgDC6M9WH8dRuzCmp2doEo+
-         bwFfM8rHWT8VVuhhjGLFEd8CoLXTyAqMFRXSwQ4WZrYtDNz/PN21+qyormaVcdVyXr
-         dtV41J6UnAn+7Xt4HHfEMRKE1Owk6eF9QV0aeU1A=
+        b=QcUtsNO6sJ0xUdJ10UVSZb2hBcmu+8JaomorGWcxWjhYkTnX8LMExAZ5PEQFs7PQY
+         6npM1H5WeFhHIcltcNvJBzucOdaLhp+qalqa7c1d+FdQ3aAISeaykDgfJFh/GR+Z4z
+         9PYrPRh5bHr6lMJQaJkm0qqvl0hKrNAjOztG1qek=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Sanan Hasanov <sanan.hasanov@Knights.ucf.edu>,
-        Samuel Thibault <samuel.thibault@ens-lyon.org>,
-        Miko Larsson <mikoxyzzz@gmail.com>,
-        Helge Deller <deller@gmx.de>
-Subject: [PATCH 4.19 26/89] fbcon: Check font dimension limits
+        patches@lists.linux.dev, Miroslav Zatko <mzatko@mirexoft.com>,
+        Dennis Wassenberg <dennis.wassenberg@secunet.com>,
+        Mark Pearson <mpearson-lenovo@squebb.ca>
+Subject: [PATCH 5.4 081/156] usb: core: add quirk for Alcor Link AK9563 smartcard reader
 Date:   Mon, 20 Feb 2023 14:35:25 +0100
-Message-Id: <20230220133554.082248518@linuxfoundation.org>
+Message-Id: <20230220133605.797468693@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230220133553.066768704@linuxfoundation.org>
-References: <20230220133553.066768704@linuxfoundation.org>
+In-Reply-To: <20230220133602.515342638@linuxfoundation.org>
+References: <20230220133602.515342638@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,50 +53,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Samuel Thibault <samuel.thibault@ens-lyon.org>
+From: Mark Pearson <mpearson-lenovo@squebb.ca>
 
-commit 2b09d5d364986f724f17001ccfe4126b9b43a0be upstream.
+commit 303e724d7b1e1a0a93daf0b1ab5f7c4f53543b34 upstream.
 
-blit_x and blit_y are u32, so fbcon currently cannot support fonts
-larger than 32x32.
+The Alcor Link AK9563 smartcard reader used on some Lenovo platforms
+doesn't work. If LPM is enabled the reader will provide an invalid
+usb config descriptor. Added quirk to disable LPM.
 
-The 32x32 case also needs shifting an unsigned int, to properly set bit
-31, otherwise we get "UBSAN: shift-out-of-bounds in fbcon_set_font",
-as reported on:
+Verified fix on Lenovo P16 G1 and T14 G3
 
-http://lore.kernel.org/all/IA1PR07MB98308653E259A6F2CE94A4AFABCE9@IA1PR07MB9830.namprd07.prod.outlook.com
-Kernel Branch: 6.2.0-rc5-next-20230124
-Kernel config: https://drive.google.com/file/d/1F-LszDAizEEH0ZX0HcSR06v5q8FPl2Uv/view?usp=sharing
-Reproducer: https://drive.google.com/file/d/1mP1jcLBY7vWCNM60OMf-ogw-urQRjNrm/view?usp=sharing
-
-Reported-by: Sanan Hasanov <sanan.hasanov@Knights.ucf.edu>
-Signed-off-by: Samuel Thibault <samuel.thibault@ens-lyon.org>
-Fixes: 2d2699d98492 ("fbcon: font setting should check limitation of driver")
+Tested-by: Miroslav Zatko <mzatko@mirexoft.com>
+Tested-by: Dennis Wassenberg <dennis.wassenberg@secunet.com>
 Cc: stable@vger.kernel.org
-Tested-by: Miko Larsson <mikoxyzzz@gmail.com>
-Reviewed-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Signed-off-by: Helge Deller <deller@gmx.de>
+Signed-off-by: Dennis Wassenberg <dennis.wassenberg@secunet.com>
+Signed-off-by: Mark Pearson <mpearson-lenovo@squebb.ca>
+Link: https://lore.kernel.org/r/20230208181223.1092654-1-mpearson-lenovo@squebb.ca
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/video/fbdev/core/fbcon.c |    7 +++++--
- 1 file changed, 5 insertions(+), 2 deletions(-)
+ drivers/usb/core/quirks.c |    3 +++
+ 1 file changed, 3 insertions(+)
 
---- a/drivers/video/fbdev/core/fbcon.c
-+++ b/drivers/video/fbdev/core/fbcon.c
-@@ -2475,9 +2475,12 @@ static int fbcon_set_font(struct vc_data
- 	    h > FBCON_SWAP(info->var.rotate, info->var.yres, info->var.xres))
- 		return -EINVAL;
+--- a/drivers/usb/core/quirks.c
++++ b/drivers/usb/core/quirks.c
+@@ -527,6 +527,9 @@ static const struct usb_device_id usb_qu
+ 	/* DJI CineSSD */
+ 	{ USB_DEVICE(0x2ca3, 0x0031), .driver_info = USB_QUIRK_NO_LPM },
  
-+	if (font->width > 32 || font->height > 32)
-+		return -EINVAL;
++	/* Alcor Link AK9563 SC Reader used in 2022 Lenovo ThinkPads */
++	{ USB_DEVICE(0x2ce3, 0x9563), .driver_info = USB_QUIRK_NO_LPM },
 +
- 	/* Make sure drawing engine can handle the font */
--	if (!(info->pixmap.blit_x & (1 << (font->width - 1))) ||
--	    !(info->pixmap.blit_y & (1 << (font->height - 1))))
-+	if (!(info->pixmap.blit_x & BIT(font->width - 1)) ||
-+	    !(info->pixmap.blit_y & BIT(font->height - 1)))
- 		return -EINVAL;
+ 	/* DELL USB GEN2 */
+ 	{ USB_DEVICE(0x413c, 0xb062), .driver_info = USB_QUIRK_NO_LPM | USB_QUIRK_RESET_RESUME },
  
- 	/* Make sure driver can handle the font length */
 
 
