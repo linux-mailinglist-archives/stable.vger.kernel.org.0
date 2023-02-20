@@ -2,43 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 145CB69CCA2
-	for <lists+stable@lfdr.de>; Mon, 20 Feb 2023 14:42:33 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7A50C69CE65
+	for <lists+stable@lfdr.de>; Mon, 20 Feb 2023 14:59:16 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232091AbjBTNmb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Feb 2023 08:42:31 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52272 "EHLO
+        id S232692AbjBTN7D (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Feb 2023 08:59:03 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50012 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232149AbjBTNm2 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 20 Feb 2023 08:42:28 -0500
+        with ESMTP id S232706AbjBTN7A (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 20 Feb 2023 08:59:00 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DCC491C58D
-        for <stable@vger.kernel.org>; Mon, 20 Feb 2023 05:42:11 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1968C1EBD6
+        for <stable@vger.kernel.org>; Mon, 20 Feb 2023 05:58:28 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 83E93B80D4D
-        for <stable@vger.kernel.org>; Mon, 20 Feb 2023 13:42:10 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id F2130C433D2;
-        Mon, 20 Feb 2023 13:42:08 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 24EE1B80D57
+        for <stable@vger.kernel.org>; Mon, 20 Feb 2023 13:58:26 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8E493C433D2;
+        Mon, 20 Feb 2023 13:58:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1676900529;
-        bh=iVLaPrrAtLncA5DCrBy6aOY4qfYEJ52v4Rh803WZSQk=;
+        s=korg; t=1676901504;
+        bh=d6CZ0p2XaEvVvvGGWfez04ihZMUA05AWaNwyxxw+U9c=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=fUeM0oCctUHrNNUpIMt9zFwWc1bnE3jH8ESvywCN/kC7sYJk91KaQO3Nj4qBMyGP+
-         qdqrYi0voJB92U8Hcm0XlY1KWQ3WANlCm/M3lOTq0VlMTYT2TThaEAcCHYTwx/5kJN
-         vysn/u3K3BrYBSGmP/hGcJqTK4SYGc+ts/1o9Zow=
+        b=Z2wjACq6rOWHrcufhyUr90GeKtb1NKGOkYxPQjcxRygUslueOd7sjWE3dvFgIPuDn
+         V6mGmBa/ewPxPypMRVnDfUrTYUwlbeMCODPI9hjQb6VxgCz05Js+a9GSbxX+B3hYuD
+         +ttILj9BBpiaDPkH/hrdYhLHMzozqnFPxP9BP45s=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Heiner Kallweit <hkallweit1@gmail.com>,
-        Neil Armstrong <neil.armstrong@linaro.org>
-Subject: [PATCH 4.19 60/89] arm64: dts: meson-gx: Make mmc host controller interrupts level-sensitive
+        patches@lists.linux.dev,
+        Matthieu Baerts <matthieu.baerts@tessares.net>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 6.1 043/118] selftests: mptcp: userspace: fix v4-v6 test in v6.1
 Date:   Mon, 20 Feb 2023 14:35:59 +0100
-Message-Id: <20230220133555.250248093@linuxfoundation.org>
+Message-Id: <20230220133602.161204340@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230220133553.066768704@linuxfoundation.org>
-References: <20230220133553.066768704@linuxfoundation.org>
+In-Reply-To: <20230220133600.368809650@linuxfoundation.org>
+References: <20230220133600.368809650@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -52,55 +53,67 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Heiner Kallweit <hkallweit1@gmail.com>
+From: Matthieu Baerts <matthieu.baerts@tessares.net>
 
-commit 66e45351f7d6798751f98001d1fcd572024d87f0 upstream.
+The commit 4656d72c1efa ("selftests: mptcp: userspace: validate v4-v6 subflows mix")
+has been backported to v6.1.8 without any conflicts. But it looks like
+it was depending on a previous one:
 
-The usage of edge-triggered interrupts lead to lost interrupts under load,
-see [0]. This was confirmed to be fixed by using level-triggered
-interrupts.
-The report was about SDIO. However, as the host controller is the same
-for SD and MMC, apply the change to all mmc controller instances.
+  commit 1cc94ac1af4b ("selftests: mptcp: make evts global in userspace_pm")
 
-[0] https://www.spinics.net/lists/linux-mmc/msg73991.html
+Without it, the test fails with:
 
-Fixes: ef8d2ffedf18 ("ARM64: dts: meson-gxbb: add MMC support")
-Cc: stable@vger.kernel.org
-Signed-off-by: Heiner Kallweit <hkallweit1@gmail.com>
-Acked-by: Neil Armstrong <neil.armstrong@linaro.org>
-Link: https://lore.kernel.org/r/76e042e0-a610-5ed5-209f-c4d7f879df44@gmail.com
-Signed-off-by: Neil Armstrong <neil.armstrong@linaro.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+  ./userspace_pm.sh: line 788: : No such file or directory
+  # ADD_ADDR4 id:14 10.0.2.1 (ns1) => ns2, reuse port        [FAIL]
+  sed: can't read : No such file or directory
+
+This dependence refactors the way the monitoring files are being
+created: only once for all the different sub-tests instead of per
+sub-test.
+
+It is probably better to avoid backporting the refactoring. That is why
+the new sub-test has been adapted to work using the previous way that is
+still in place here in v6.1: the monitoring is started at the beginning
+of each sub-test and the created file is removed at the end.
+
+Fixes: f59549814a64 ("selftests: mptcp: userspace: validate v4-v6 subflows mix")
+Signed-off-by: Matthieu Baerts <matthieu.baerts@tessares.net>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm64/boot/dts/amlogic/meson-gx.dtsi |    6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ tools/testing/selftests/net/mptcp/userspace_pm.sh | 11 +++++++++++
+ 1 file changed, 11 insertions(+)
 
---- a/arch/arm64/boot/dts/amlogic/meson-gx.dtsi
-+++ b/arch/arm64/boot/dts/amlogic/meson-gx.dtsi
-@@ -470,21 +470,21 @@
- 			sd_emmc_a: mmc@70000 {
- 				compatible = "amlogic,meson-gx-mmc", "amlogic,meson-gxbb-mmc";
- 				reg = <0x0 0x70000 0x0 0x800>;
--				interrupts = <GIC_SPI 216 IRQ_TYPE_EDGE_RISING>;
-+				interrupts = <GIC_SPI 216 IRQ_TYPE_LEVEL_HIGH>;
- 				status = "disabled";
- 			};
+diff --git a/tools/testing/selftests/net/mptcp/userspace_pm.sh b/tools/testing/selftests/net/mptcp/userspace_pm.sh
+index 0040e3bc7b16e..ad6547c79b831 100755
+--- a/tools/testing/selftests/net/mptcp/userspace_pm.sh
++++ b/tools/testing/selftests/net/mptcp/userspace_pm.sh
+@@ -778,6 +778,14 @@ test_subflows()
  
- 			sd_emmc_b: mmc@72000 {
- 				compatible = "amlogic,meson-gx-mmc", "amlogic,meson-gxbb-mmc";
- 				reg = <0x0 0x72000 0x0 0x800>;
--				interrupts = <GIC_SPI 217 IRQ_TYPE_EDGE_RISING>;
-+				interrupts = <GIC_SPI 217 IRQ_TYPE_LEVEL_HIGH>;
- 				status = "disabled";
- 			};
+ test_subflows_v4_v6_mix()
+ {
++	local client_evts
++	client_evts=$(mktemp)
++	# Capture events on the network namespace running the client
++	:>"$client_evts"
++	ip netns exec "$ns2" ./pm_nl_ctl events >> "$client_evts" 2>&1 &
++	evts_pid=$!
++	sleep 0.5
++
+ 	# Attempt to add a listener at 10.0.2.1:<subflow-port>
+ 	ip netns exec "$ns1" ./pm_nl_ctl listen 10.0.2.1\
+ 	   $app6_port > /dev/null 2>&1 &
+@@ -820,6 +828,9 @@ test_subflows_v4_v6_mix()
+ 	ip netns exec "$ns1" ./pm_nl_ctl rem id $server_addr_id token\
+ 	   "$server6_token" > /dev/null 2>&1
+ 	sleep 0.5
++
++	kill_wait $evts_pid
++	rm -f "$client_evts"
+ }
  
- 			sd_emmc_c: mmc@74000 {
- 				compatible = "amlogic,meson-gx-mmc", "amlogic,meson-gxbb-mmc";
- 				reg = <0x0 0x74000 0x0 0x800>;
--				interrupts = <GIC_SPI 218 IRQ_TYPE_EDGE_RISING>;
-+				interrupts = <GIC_SPI 218 IRQ_TYPE_LEVEL_HIGH>;
- 				status = "disabled";
- 			};
- 		};
+ test_prio()
+-- 
+2.39.0
+
 
 
