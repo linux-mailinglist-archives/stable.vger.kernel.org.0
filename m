@@ -2,51 +2,56 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C771769CD92
-	for <lists+stable@lfdr.de>; Mon, 20 Feb 2023 14:50:33 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7580E69CDC4
+	for <lists+stable@lfdr.de>; Mon, 20 Feb 2023 14:52:37 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232374AbjBTNud (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Feb 2023 08:50:33 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37932 "EHLO
+        id S232475AbjBTNwg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Feb 2023 08:52:36 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40126 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232418AbjBTNuc (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 20 Feb 2023 08:50:32 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 604A81CF61
-        for <stable@vger.kernel.org>; Mon, 20 Feb 2023 05:50:31 -0800 (PST)
+        with ESMTP id S232473AbjBTNwf (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 20 Feb 2023 08:52:35 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B2F911E9C3
+        for <stable@vger.kernel.org>; Mon, 20 Feb 2023 05:52:33 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id ED15360E9E
-        for <stable@vger.kernel.org>; Mon, 20 Feb 2023 13:50:30 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0B493C433EF;
-        Mon, 20 Feb 2023 13:50:29 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 5479560E8A
+        for <stable@vger.kernel.org>; Mon, 20 Feb 2023 13:52:33 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3E174C433EF;
+        Mon, 20 Feb 2023 13:52:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1676901030;
-        bh=Hwd4Kdhr447c4CYLzHm93c/n/0Kd5UM+aWfm8zj5SUA=;
+        s=korg; t=1676901152;
+        bh=CP6eFkIzIFjza+tNufoCAtEueSTNLaRmSndmwBn93FU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=FhaBAB7cCwtTQqc+LXofXOMhG7FkSJkRlSdXFfxW7BdkvtjDg1ePQIIbSqRxYZcsn
-         rRjXqf6ZxJH6Hh3SWIfTDPijcuQfbxstZrmEdEkJzkNCTuvwvdUEJzwif9LsJte6Gn
-         +3MD2OnMQXZnDQfnptwOINV/bjhqoYyhCxTYEywk=
+        b=WGjcujICCI0aO4UQqdS2zEJ95YiPCdyHtr/iHtdiWHgXsKmI2gPt+SeaH9Dr4aqFR
+         CkyQqWRgKjQruchDebQn/jIOg9HOp06kGvteeVMLJehzGJJZuVLiR5Q5YIFbnlEXKq
+         3bgF+y/dRkGfKioLIviC4kQXL5xg1b7By/tmeAyY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Jason Xing <kernelxing@tencent.com>,
-        Alexander Duyck <alexanderduyck@fb.com>,
-        Tony Nguyen <anthony.l.nguyen@intel.com>,
-        Chandan Kumar Rout <chandanx.rout@intel.com>
-Subject: [PATCH 5.4 138/156] ixgbe: allow to increase MTU to 3K with XDP enabled
+        patches@lists.linux.dev, Mike Kravetz <mike.kravetz@oracle.com>,
+        Naresh Kamboju <naresh.kamboju@linaro.org>,
+        Jesper Juhl <jesperjuhl76@gmail.com>,
+        Muchun Song <songmuchun@bytedance.com>,
+        Linux Kernel Functional Testing <lkft@linaro.org>,
+        Anders Roxell <anders.roxell@linaro.org>,
+        Andi Kleen <ak@linux.intel.com>,
+        Sasha Levin <sashal@kernel.org>,
+        Andrew Morton <akpm@linux-foundation.org>
+Subject: [PATCH 5.15 49/83] hugetlb: check for undefined shift on 32 bit architectures
 Date:   Mon, 20 Feb 2023 14:36:22 +0100
-Message-Id: <20230220133608.389185063@linuxfoundation.org>
+Message-Id: <20230220133555.378372869@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230220133602.515342638@linuxfoundation.org>
-References: <20230220133602.515342638@linuxfoundation.org>
+In-Reply-To: <20230220133553.669025851@linuxfoundation.org>
+References: <20230220133553.669025851@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
         SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -54,74 +59,63 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jason Xing <kernelxing@tencent.com>
+From: Mike Kravetz <mike.kravetz@oracle.com>
 
-commit f9cd6a4418bac6a046ee78382423b1ae7565fb24 upstream.
+commit ec4288fe63966b26d53907212ecd05dfa81dd2cc upstream.
 
-Recently I encountered one case where I cannot increase the MTU size
-directly from 1500 to a much bigger value with XDP enabled if the
-server is equipped with IXGBE card, which happened on thousands of
-servers in production environment. After applying the current patch,
-we can set the maximum MTU size to 3K.
+Users can specify the hugetlb page size in the mmap, shmget and
+memfd_create system calls.  This is done by using 6 bits within the flags
+argument to encode the base-2 logarithm of the desired page size.  The
+routine hstate_sizelog() uses the log2 value to find the corresponding
+hugetlb hstate structure.  Converting the log2 value (page_size_log) to
+potential hugetlb page size is the simple statement:
 
-This patch follows the behavior of changing MTU as i40e/ice does.
+	1UL << page_size_log
 
-[1] commit 23b44513c3e6 ("ice: allow 3k MTU for XDP")
-[2] commit 0c8493d90b6b ("i40e: add XDP support for pass and drop actions")
+Because only 6 bits are used for page_size_log, the left shift can not be
+greater than 63.  This is fine on 64 bit architectures where a long is 64
+bits.  However, if a value greater than 31 is passed on a 32 bit
+architecture (where long is 32 bits) the shift will result in undefined
+behavior.  This was generally not an issue as the result of the undefined
+shift had to exactly match hugetlb page size to proceed.
 
-Fixes: fabf1bce103a ("ixgbe: Prevent unsupported configurations with XDP")
-Signed-off-by: Jason Xing <kernelxing@tencent.com>
-Reviewed-by: Alexander Duyck <alexanderduyck@fb.com>
-Tested-by: Chandan Kumar Rout <chandanx.rout@intel.com> (A Contingent Worker at Intel)
-Signed-off-by: Tony Nguyen <anthony.l.nguyen@intel.com>
+Recent improvements in runtime checking have resulted in this undefined
+behavior throwing errors such as reported below.
+
+Fix by comparing page_size_log to BITS_PER_LONG before doing shift.
+
+Link: https://lkml.kernel.org/r/20230216013542.138708-1-mike.kravetz@oracle.com
+Link: https://lore.kernel.org/lkml/CA+G9fYuei_Tr-vN9GS7SfFyU1y9hNysnf=PB7kT0=yv4MiPgVg@mail.gmail.com/
+Fixes: 42d7395feb56 ("mm: support more pagesizes for MAP_HUGETLB/SHM_HUGETLB")
+Signed-off-by: Mike Kravetz <mike.kravetz@oracle.com>
+Reported-by: Naresh Kamboju <naresh.kamboju@linaro.org>
+Reviewed-by: Jesper Juhl <jesperjuhl76@gmail.com>
+Acked-by: Muchun Song <songmuchun@bytedance.com>
+Tested-by: Linux Kernel Functional Testing <lkft@linaro.org>
+Tested-by: Naresh Kamboju <naresh.kamboju@linaro.org>
+Cc: Anders Roxell <anders.roxell@linaro.org>
+Cc: Andi Kleen <ak@linux.intel.com>
+Cc: Sasha Levin <sashal@kernel.org>
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ethernet/intel/ixgbe/ixgbe_main.c |   25 ++++++++++++++++---------
- 1 file changed, 16 insertions(+), 9 deletions(-)
+ include/linux/hugetlb.h |    5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
 
---- a/drivers/net/ethernet/intel/ixgbe/ixgbe_main.c
-+++ b/drivers/net/ethernet/intel/ixgbe/ixgbe_main.c
-@@ -6722,6 +6722,18 @@ static void ixgbe_free_all_rx_resources(
+--- a/include/linux/hugetlb.h
++++ b/include/linux/hugetlb.h
+@@ -684,7 +684,10 @@ static inline struct hstate *hstate_size
+ 	if (!page_size_log)
+ 		return &default_hstate;
+ 
+-	return size_to_hstate(1UL << page_size_log);
++	if (page_size_log < BITS_PER_LONG)
++		return size_to_hstate(1UL << page_size_log);
++
++	return NULL;
  }
  
- /**
-+ * ixgbe_max_xdp_frame_size - returns the maximum allowed frame size for XDP
-+ * @adapter: device handle, pointer to adapter
-+ */
-+static int ixgbe_max_xdp_frame_size(struct ixgbe_adapter *adapter)
-+{
-+	if (PAGE_SIZE >= 8192 || adapter->flags2 & IXGBE_FLAG2_RX_LEGACY)
-+		return IXGBE_RXBUFFER_2K;
-+	else
-+		return IXGBE_RXBUFFER_3K;
-+}
-+
-+/**
-  * ixgbe_change_mtu - Change the Maximum Transfer Unit
-  * @netdev: network interface device structure
-  * @new_mtu: new value for maximum frame size
-@@ -6732,18 +6744,13 @@ static int ixgbe_change_mtu(struct net_d
- {
- 	struct ixgbe_adapter *adapter = netdev_priv(netdev);
- 
--	if (adapter->xdp_prog) {
-+	if (ixgbe_enabled_xdp_adapter(adapter)) {
- 		int new_frame_size = new_mtu + ETH_HLEN + ETH_FCS_LEN +
- 				     VLAN_HLEN;
--		int i;
--
--		for (i = 0; i < adapter->num_rx_queues; i++) {
--			struct ixgbe_ring *ring = adapter->rx_ring[i];
- 
--			if (new_frame_size > ixgbe_rx_bufsz(ring)) {
--				e_warn(probe, "Requested MTU size is not supported with XDP\n");
--				return -EINVAL;
--			}
-+		if (new_frame_size > ixgbe_max_xdp_frame_size(adapter)) {
-+			e_warn(probe, "Requested MTU size is not supported with XDP\n");
-+			return -EINVAL;
- 		}
- 	}
- 
+ static inline struct hstate *hstate_vma(struct vm_area_struct *vma)
 
 
