@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 7B84E69CDA8
-	for <lists+stable@lfdr.de>; Mon, 20 Feb 2023 14:51:26 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7707769CE8C
+	for <lists+stable@lfdr.de>; Mon, 20 Feb 2023 15:00:09 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232440AbjBTNvZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Feb 2023 08:51:25 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38900 "EHLO
+        id S232714AbjBTOAG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Feb 2023 09:00:06 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52342 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232437AbjBTNvY (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 20 Feb 2023 08:51:24 -0500
+        with ESMTP id S232701AbjBTOAF (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 20 Feb 2023 09:00:05 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A9BD81E1CA
-        for <stable@vger.kernel.org>; Mon, 20 Feb 2023 05:51:23 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 364491E9E2
+        for <stable@vger.kernel.org>; Mon, 20 Feb 2023 05:59:37 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 33E2560E8A
-        for <stable@vger.kernel.org>; Mon, 20 Feb 2023 13:51:23 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 48971C433EF;
-        Mon, 20 Feb 2023 13:51:22 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 348E860EA1
+        for <stable@vger.kernel.org>; Mon, 20 Feb 2023 13:59:30 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 42969C433EF;
+        Mon, 20 Feb 2023 13:59:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1676901082;
-        bh=7aHALmnk5uz72Iz6GsbJOHKw0/VNMhGX48ucC7TgtRY=;
+        s=korg; t=1676901569;
+        bh=WuTQ3dRGa09uV0LbWjWXcCPchN0ZShwvKGzhH9IdU2k=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=DF8AQDrGkt9OWKIYBk6it4oHYPvET8zY2pLu6+DDhRJCExlbjefh1Cn2s7pOGJDrU
-         Pluv6LHWoXQOWP/uriqIcacOcp2XpdnjGGgbMl7SMSR61QTqngHftu6o6Dc4SapoED
-         cqdVZa8onT1vuLWEMXwMqrrNTzCT3K38pN52SVbo=
+        b=T7jHzkg1RVf7N6+j41t2xMO4EuncqSu3o4wtEMueAzt/1bZN3hLujOQXLb2TeFzCE
+         QCOyMEyHPvOijg4HYmPQJhEW/5yOj/cMAz7qSI29UTG9PUyKoyW9YhSHVzYiLBEJIn
+         m5Sxk1H6HVWQ5S7jDygtN9rdvXIbzmI3L7PTPphs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         patches@lists.linux.dev,
-        "Russell King (Oracle)" <rmk+kernel@armlinux.org.uk>,
-        Srinivas Kandagatla <srinivas.kandagatla@linaro.org>,
+        Aurabindo Pillai <aurabindo.pillai@amd.com>,
+        Alex Deucher <alexander.deucher@amd.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 22/83] nvmem: core: fix registration vs use race
+Subject: [PATCH 6.1 039/118] drm/amd/display: Properly handle additional cases where DCN is not supported
 Date:   Mon, 20 Feb 2023 14:35:55 +0100
-Message-Id: <20230220133554.475199455@linuxfoundation.org>
+Message-Id: <20230220133602.009787564@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230220133553.669025851@linuxfoundation.org>
-References: <20230220133553.669025851@linuxfoundation.org>
+In-Reply-To: <20230220133600.368809650@linuxfoundation.org>
+References: <20230220133600.368809650@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,85 +54,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Russell King (Oracle) <rmk+kernel@armlinux.org.uk>
+From: Alex Deucher <alexander.deucher@amd.com>
 
-[ Upstream commit ab3428cfd9aa2f3463ee4b2909b5bb2193bd0c4a ]
+[ Upstream commit 6fc547a5a2ef5ce05b16924106663ab92f8f87a7 ]
 
-The i.MX6 CPU frequency driver sometimes fails to register at boot time
-due to nvmem_cell_read_u32() sporadically returning -ENOENT.
+There could be boards with DCN listed in IP discovery, but no
+display hardware actually wired up.  In this case the vbios
+display table will not be populated.  Detect this case and
+skip loading DM when we detect it.
 
-This happens because there is a window where __nvmem_device_get() in
-of_nvmem_cell_get() is able to return the nvmem device, but as cells
-have been setup, nvmem_find_cell_entry_by_node() returns NULL.
+v2: Mark DCN as harvested as well so other display checks
+elsewhere in the driver are handled properly.
 
-The occurs because the nvmem core registration code violates one of the
-fundamental principles of kernel programming: do not publish data
-structures before their setup is complete.
-
-Fix this by making nvmem core code conform with this principle.
-
-Fixes: eace75cfdcf7 ("nvmem: Add a simple NVMEM framework for nvmem providers")
-Cc: stable@vger.kernel.org
-Signed-off-by: Russell King (Oracle) <rmk+kernel@armlinux.org.uk>
-Signed-off-by: Srinivas Kandagatla <srinivas.kandagatla@linaro.org>
-Link: https://lore.kernel.org/r/20230127104015.23839-7-srinivas.kandagatla@linaro.org
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc: Aurabindo Pillai <aurabindo.pillai@amd.com>
+Reviewed-by: Aurabindo Pillai <aurabindo.pillai@amd.com>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/nvmem/core.c | 18 ++++++++----------
- 1 file changed, 8 insertions(+), 10 deletions(-)
+ drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c | 11 +++++++++++
+ 1 file changed, 11 insertions(+)
 
-diff --git a/drivers/nvmem/core.c b/drivers/nvmem/core.c
-index f06b65f0d410b..6a74e38746057 100644
---- a/drivers/nvmem/core.c
-+++ b/drivers/nvmem/core.c
-@@ -827,22 +827,16 @@ struct nvmem_device *nvmem_register(const struct nvmem_config *config)
- 	nvmem->dev.groups = nvmem_dev_groups;
- #endif
- 
--	dev_dbg(&nvmem->dev, "Registering nvmem device %s\n", config->name);
--
--	rval = device_add(&nvmem->dev);
--	if (rval)
--		goto err_put_device;
--
- 	if (nvmem->nkeepout) {
- 		rval = nvmem_validate_keepouts(nvmem);
- 		if (rval)
--			goto err_device_del;
-+			goto err_put_device;
- 	}
- 
- 	if (config->compat) {
- 		rval = nvmem_sysfs_setup_compat(nvmem, config);
- 		if (rval)
--			goto err_device_del;
-+			goto err_put_device;
- 	}
- 
- 	if (config->cells) {
-@@ -859,6 +853,12 @@ struct nvmem_device *nvmem_register(const struct nvmem_config *config)
- 	if (rval)
- 		goto err_remove_cells;
- 
-+	dev_dbg(&nvmem->dev, "Registering nvmem device %s\n", config->name);
+diff --git a/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c b/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c
+index 988b1c947aefc..2d63248d09bbb 100644
+--- a/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c
++++ b/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c
+@@ -4526,6 +4526,17 @@ DEVICE_ATTR_WO(s3_debug);
+ static int dm_early_init(void *handle)
+ {
+ 	struct amdgpu_device *adev = (struct amdgpu_device *)handle;
++	struct amdgpu_mode_info *mode_info = &adev->mode_info;
++	struct atom_context *ctx = mode_info->atom_context;
++	int index = GetIndexIntoMasterTable(DATA, Object_Header);
++	u16 data_offset;
 +
-+	rval = device_add(&nvmem->dev);
-+	if (rval)
-+		goto err_remove_cells;
-+
- 	blocking_notifier_call_chain(&nvmem_notifier, NVMEM_ADD, nvmem);
++	/* if there is no object header, skip DM */
++	if (!amdgpu_atom_parse_data_header(ctx, index, NULL, NULL, NULL, &data_offset)) {
++		adev->harvest_ip_mask |= AMD_HARVEST_IP_DMU_MASK;
++		dev_info(adev->dev, "No object header, skipping DM\n");
++		return -ENOENT;
++	}
  
- 	return nvmem;
-@@ -867,8 +867,6 @@ struct nvmem_device *nvmem_register(const struct nvmem_config *config)
- 	nvmem_device_remove_all_cells(nvmem);
- 	if (config->compat)
- 		nvmem_sysfs_remove_compat(nvmem, config);
--err_device_del:
--	device_del(&nvmem->dev);
- err_put_device:
- 	put_device(&nvmem->dev);
- 
+ 	switch (adev->asic_type) {
+ #if defined(CONFIG_DRM_AMD_DC_SI)
 -- 
 2.39.0
 
