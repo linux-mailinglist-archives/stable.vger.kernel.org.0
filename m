@@ -2,48 +2,53 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D21AC69CC88
-	for <lists+stable@lfdr.de>; Mon, 20 Feb 2023 14:41:30 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 26D6E69CC43
+	for <lists+stable@lfdr.de>; Mon, 20 Feb 2023 14:38:49 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231566AbjBTNl3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Feb 2023 08:41:29 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50636 "EHLO
+        id S231840AbjBTNis (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Feb 2023 08:38:48 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46846 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231530AbjBTNlT (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 20 Feb 2023 08:41:19 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D60541D912
-        for <stable@vger.kernel.org>; Mon, 20 Feb 2023 05:41:03 -0800 (PST)
+        with ESMTP id S231663AbjBTNir (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 20 Feb 2023 08:38:47 -0500
+Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AC7AE1B552
+        for <stable@vger.kernel.org>; Mon, 20 Feb 2023 05:38:45 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 74276B80D49
-        for <stable@vger.kernel.org>; Mon, 20 Feb 2023 13:41:02 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E56FDC433D2;
-        Mon, 20 Feb 2023 13:41:00 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 0CBA8CE0F6D
+        for <stable@vger.kernel.org>; Mon, 20 Feb 2023 13:38:44 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2CE38C433EF;
+        Mon, 20 Feb 2023 13:38:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1676900461;
-        bh=KjnvU8TV+16xhI/CzbkkNmq7hVZIVDs1eAO4WcqRjK4=;
+        s=korg; t=1676900322;
+        bh=lL62LyL89KofKHD6pgwXyWL1AU8/tTDue89uBhJQSZY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=IMHjHHwPE136leH6e2Cp39GyPEaFLGMzg+k7Im3AkZbw9o+n5J7oUyIR+LuzmGpjw
-         7uyHlx7ekl8j24u3ByKsGGAZNeuIJECKDDwK+uRnkx0mE7Z719aHFYYfwXYafxfW27
-         H74b7064qZlvpkk37fh57pPVcGu4iKwnG3iRWo0w=
+        b=MIMz/+3yNULbre3d1oDj2bOsw1oFXrBqePkene5LkeN4gSrN2JAQu4Dqk82E3jsiw
+         Tw6YQZ0Cpom1gI0Jh36UWvdIexyaS9YyvvmrXqWBBGR6XC/sCKwVQpXXe4ZYjBuXN9
+         YgbH+CfBNL4PVGU33GVd37cx4XbhVxhYS6DQn8Xc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Helge Deller <deller@gmx.de>
-Subject: [PATCH 4.19 34/89] parisc: Wire up PTRACE_GETREGS/PTRACE_SETREGS for compat case
+        patches@lists.linux.dev, Fedor Pchelkin <pchelkin@ispras.ru>,
+        Alexey Khoroshilov <khoroshilov@ispras.ru>,
+        Eelco Chaudron <echaudro@redhat.com>,
+        Simon Horman <simon.horman@corigine.com>,
+        Jakub Kicinski <kuba@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.14 07/53] net: openvswitch: fix flow memory leak in ovs_flow_cmd_new
 Date:   Mon, 20 Feb 2023 14:35:33 +0100
-Message-Id: <20230220133554.349444544@linuxfoundation.org>
+Message-Id: <20230220133548.440527348@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230220133553.066768704@linuxfoundation.org>
-References: <20230220133553.066768704@linuxfoundation.org>
+In-Reply-To: <20230220133548.158615609@linuxfoundation.org>
+References: <20230220133548.158615609@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
         SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -51,64 +56,110 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Helge Deller <deller@gmx.de>
+From: Fedor Pchelkin <pchelkin@ispras.ru>
 
-commit 316f1f42b5cc1d95124c1f0387c867c1ba7b6d0e upstream.
+[ Upstream commit 0c598aed445eb45b0ee7ba405f7ece99ee349c30 ]
 
-Wire up the missing ptrace requests PTRACE_GETREGS, PTRACE_SETREGS,
-PTRACE_GETFPREGS and PTRACE_SETFPREGS when running 32-bit applications
-on 64-bit kernels.
+Syzkaller reports a memory leak of new_flow in ovs_flow_cmd_new() as it is
+not freed when an allocation of a key fails.
 
-Signed-off-by: Helge Deller <deller@gmx.de>
-Cc: stable@vger.kernel.org # 4.7+
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+BUG: memory leak
+unreferenced object 0xffff888116668000 (size 632):
+  comm "syz-executor231", pid 1090, jiffies 4294844701 (age 18.871s)
+  hex dump (first 32 bytes):
+    00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00  ................
+    00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00  ................
+  backtrace:
+    [<00000000defa3494>] kmem_cache_zalloc include/linux/slab.h:654 [inline]
+    [<00000000defa3494>] ovs_flow_alloc+0x19/0x180 net/openvswitch/flow_table.c:77
+    [<00000000c67d8873>] ovs_flow_cmd_new+0x1de/0xd40 net/openvswitch/datapath.c:957
+    [<0000000010a539a8>] genl_family_rcv_msg_doit+0x22d/0x330 net/netlink/genetlink.c:739
+    [<00000000dff3302d>] genl_family_rcv_msg net/netlink/genetlink.c:783 [inline]
+    [<00000000dff3302d>] genl_rcv_msg+0x328/0x590 net/netlink/genetlink.c:800
+    [<000000000286dd87>] netlink_rcv_skb+0x153/0x430 net/netlink/af_netlink.c:2515
+    [<0000000061fed410>] genl_rcv+0x24/0x40 net/netlink/genetlink.c:811
+    [<000000009dc0f111>] netlink_unicast_kernel net/netlink/af_netlink.c:1313 [inline]
+    [<000000009dc0f111>] netlink_unicast+0x545/0x7f0 net/netlink/af_netlink.c:1339
+    [<000000004a5ee816>] netlink_sendmsg+0x8e7/0xde0 net/netlink/af_netlink.c:1934
+    [<00000000482b476f>] sock_sendmsg_nosec net/socket.c:651 [inline]
+    [<00000000482b476f>] sock_sendmsg+0x152/0x190 net/socket.c:671
+    [<00000000698574ba>] ____sys_sendmsg+0x70a/0x870 net/socket.c:2356
+    [<00000000d28d9e11>] ___sys_sendmsg+0xf3/0x170 net/socket.c:2410
+    [<0000000083ba9120>] __sys_sendmsg+0xe5/0x1b0 net/socket.c:2439
+    [<00000000c00628f8>] do_syscall_64+0x30/0x40 arch/x86/entry/common.c:46
+    [<000000004abfdcf4>] entry_SYSCALL_64_after_hwframe+0x61/0xc6
+
+To fix this the patch rearranges the goto labels to reflect the order of
+object allocations and adds appropriate goto statements on the error
+paths.
+
+Found by Linux Verification Center (linuxtesting.org) with Syzkaller.
+
+Fixes: 68bb10101e6b ("openvswitch: Fix flow lookup to use unmasked key")
+Signed-off-by: Fedor Pchelkin <pchelkin@ispras.ru>
+Signed-off-by: Alexey Khoroshilov <khoroshilov@ispras.ru>
+Acked-by: Eelco Chaudron <echaudro@redhat.com>
+Reviewed-by: Simon Horman <simon.horman@corigine.com>
+Link: https://lore.kernel.org/r/20230201210218.361970-1-pchelkin@ispras.ru
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/parisc/kernel/ptrace.c |   15 +++++++++++++--
- 1 file changed, 13 insertions(+), 2 deletions(-)
+ net/openvswitch/datapath.c | 12 ++++++------
+ 1 file changed, 6 insertions(+), 6 deletions(-)
 
---- a/arch/parisc/kernel/ptrace.c
-+++ b/arch/parisc/kernel/ptrace.c
-@@ -128,6 +128,12 @@ long arch_ptrace(struct task_struct *chi
- 	unsigned long tmp;
- 	long ret = -EIO;
+diff --git a/net/openvswitch/datapath.c b/net/openvswitch/datapath.c
+index 8598bc101244..3ae4ccb9895d 100644
+--- a/net/openvswitch/datapath.c
++++ b/net/openvswitch/datapath.c
+@@ -961,14 +961,14 @@ static int ovs_flow_cmd_new(struct sk_buff *skb, struct genl_info *info)
+ 	key = kzalloc(sizeof(*key), GFP_KERNEL);
+ 	if (!key) {
+ 		error = -ENOMEM;
+-		goto err_kfree_key;
++		goto err_kfree_flow;
+ 	}
  
-+	unsigned long user_regs_struct_size = sizeof(struct user_regs_struct);
-+#ifdef CONFIG_64BIT
-+	if (is_compat_task())
-+		user_regs_struct_size /= 2;
-+#endif
-+
- 	switch (request) {
+ 	ovs_match_init(&match, key, false, &mask);
+ 	error = ovs_nla_get_match(net, &match, a[OVS_FLOW_ATTR_KEY],
+ 				  a[OVS_FLOW_ATTR_MASK], log);
+ 	if (error)
+-		goto err_kfree_flow;
++		goto err_kfree_key;
  
- 	/* Read the word at location addr in the USER area.  For ptraced
-@@ -183,14 +189,14 @@ long arch_ptrace(struct task_struct *chi
- 		return copy_regset_to_user(child,
- 					   task_user_regset_view(current),
- 					   REGSET_GENERAL,
--					   0, sizeof(struct user_regs_struct),
-+					   0, user_regs_struct_size,
- 					   datap);
+ 	ovs_flow_mask_key(&new_flow->key, key, true, &mask);
  
- 	case PTRACE_SETREGS:	/* Set all gp regs in the child. */
- 		return copy_regset_from_user(child,
- 					     task_user_regset_view(current),
- 					     REGSET_GENERAL,
--					     0, sizeof(struct user_regs_struct),
-+					     0, user_regs_struct_size,
- 					     datap);
+@@ -976,14 +976,14 @@ static int ovs_flow_cmd_new(struct sk_buff *skb, struct genl_info *info)
+ 	error = ovs_nla_get_identifier(&new_flow->id, a[OVS_FLOW_ATTR_UFID],
+ 				       key, log);
+ 	if (error)
+-		goto err_kfree_flow;
++		goto err_kfree_key;
  
- 	case PTRACE_GETFPREGS:	/* Get the child FPU state. */
-@@ -304,6 +310,11 @@ long compat_arch_ptrace(struct task_stru
- 			}
- 		}
- 		break;
-+	case PTRACE_GETREGS:
-+	case PTRACE_SETREGS:
-+	case PTRACE_GETFPREGS:
-+	case PTRACE_SETFPREGS:
-+		return arch_ptrace(child, request, addr, data);
+ 	/* Validate actions. */
+ 	error = ovs_nla_copy_actions(net, a[OVS_FLOW_ATTR_ACTIONS],
+ 				     &new_flow->key, &acts, log);
+ 	if (error) {
+ 		OVS_NLERR(log, "Flow actions may not be safe on all matching packets.");
+-		goto err_kfree_flow;
++		goto err_kfree_key;
+ 	}
  
- 	default:
- 		ret = compat_ptrace_request(child, request, addr, data);
+ 	reply = ovs_flow_cmd_alloc_info(acts, &new_flow->id, info, false,
+@@ -1083,10 +1083,10 @@ static int ovs_flow_cmd_new(struct sk_buff *skb, struct genl_info *info)
+ 	kfree_skb(reply);
+ err_kfree_acts:
+ 	ovs_nla_free_flow_actions(acts);
+-err_kfree_flow:
+-	ovs_flow_free(new_flow, false);
+ err_kfree_key:
+ 	kfree(key);
++err_kfree_flow:
++	ovs_flow_free(new_flow, false);
+ error:
+ 	return error;
+ }
+-- 
+2.39.0
+
 
 
