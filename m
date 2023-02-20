@@ -2,43 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 9E91569CD73
-	for <lists+stable@lfdr.de>; Mon, 20 Feb 2023 14:49:35 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5280B69CE86
+	for <lists+stable@lfdr.de>; Mon, 20 Feb 2023 15:00:04 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232386AbjBTNte (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Feb 2023 08:49:34 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36384 "EHLO
+        id S232739AbjBTN77 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Feb 2023 08:59:59 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50340 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232382AbjBTNtd (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 20 Feb 2023 08:49:33 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 222121C33A
-        for <stable@vger.kernel.org>; Mon, 20 Feb 2023 05:49:15 -0800 (PST)
+        with ESMTP id S232775AbjBTN7v (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 20 Feb 2023 08:59:51 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 30D161EFE3
+        for <stable@vger.kernel.org>; Mon, 20 Feb 2023 05:59:30 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 0563460E9E
-        for <stable@vger.kernel.org>; Mon, 20 Feb 2023 13:49:15 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1614DC433D2;
-        Mon, 20 Feb 2023 13:49:13 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id C52EDB80D4D
+        for <stable@vger.kernel.org>; Mon, 20 Feb 2023 13:59:07 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 20DE0C4339B;
+        Mon, 20 Feb 2023 13:59:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1676900954;
-        bh=fBdbItXesamawB7FaHpxM6X9MEhryq0ALpylqO/1AgM=;
+        s=korg; t=1676901546;
+        bh=rEmNlg9Pb5gEY0lFuUhUUM+5ORgqsXHqwJoigvhaVvA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=v5tpSaQQYnlC1X2E4OkPaK5KpxRvMZKe43bGHgZs/tNQta4lzODslmHXt9x5O0rZ9
-         gVTpo5ph1ff9ymj4iCEY3E7y01BBRuYJ39b8q7o+n6E8ug8B8luuCViVFMmGtOWyi2
-         6EAyvFqryj7og63cFA+j/00DkNHm7JkN+mAtJSbs=
+        b=ct9zSd+YjwYVIZS8h1VBfk6KoiQZXBSdtwEYqR69qfzveKr90X+ABPLVDyQs2a3TK
+         PVmkD4p0FOTvnFVVjJow83KSRVTpGYCg1bl74SRbjTQoggncHAorR8zf1roVfezY6x
+         QKb2XrvJI4ibFnZqkJEM1IqhOrIRhJSnJqsxPJMQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         patches@lists.linux.dev, Yang Yingliang <yangyingliang@huawei.com>,
         Ulf Hansson <ulf.hansson@linaro.org>
-Subject: [PATCH 5.4 130/156] mmc: mmc_spi: fix error handling in mmc_spi_probe()
+Subject: [PATCH 6.1 058/118] mmc: mmc_spi: fix error handling in mmc_spi_probe()
 Date:   Mon, 20 Feb 2023 14:36:14 +0100
-Message-Id: <20230220133608.016440636@linuxfoundation.org>
+Message-Id: <20230220133602.767385745@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230220133602.515342638@linuxfoundation.org>
-References: <20230220133602.515342638@linuxfoundation.org>
+In-Reply-To: <20230220133600.368809650@linuxfoundation.org>
+References: <20230220133600.368809650@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -75,7 +75,7 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 --- a/drivers/mmc/host/mmc_spi.c
 +++ b/drivers/mmc/host/mmc_spi.c
-@@ -1420,7 +1420,7 @@ static int mmc_spi_probe(struct spi_devi
+@@ -1437,7 +1437,7 @@ static int mmc_spi_probe(struct spi_devi
  
  	status = mmc_add_host(mmc);
  	if (status != 0)
@@ -84,25 +84,25 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
  
  	/*
  	 * Index 0 is card detect
-@@ -1428,7 +1428,7 @@ static int mmc_spi_probe(struct spi_devi
+@@ -1445,7 +1445,7 @@ static int mmc_spi_probe(struct spi_devi
  	 */
- 	status = mmc_gpiod_request_cd(mmc, NULL, 0, false, 1, NULL);
+ 	status = mmc_gpiod_request_cd(mmc, NULL, 0, false, 1000);
  	if (status == -EPROBE_DEFER)
 -		goto fail_add_host;
 +		goto fail_gpiod_request;
  	if (!status) {
  		/*
  		 * The platform has a CD GPIO signal that may support
-@@ -1443,7 +1443,7 @@ static int mmc_spi_probe(struct spi_devi
+@@ -1460,7 +1460,7 @@ static int mmc_spi_probe(struct spi_devi
  	/* Index 1 is write protect/read only */
- 	status = mmc_gpiod_request_ro(mmc, NULL, 1, 0, NULL);
+ 	status = mmc_gpiod_request_ro(mmc, NULL, 1, 0);
  	if (status == -EPROBE_DEFER)
 -		goto fail_add_host;
 +		goto fail_gpiod_request;
  	if (!status)
  		has_ro = true;
  
-@@ -1457,7 +1457,7 @@ static int mmc_spi_probe(struct spi_devi
+@@ -1474,7 +1474,7 @@ static int mmc_spi_probe(struct spi_devi
  				? ", cd polling" : "");
  	return 0;
  
@@ -110,6 +110,6 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 +fail_gpiod_request:
  	mmc_remove_host(mmc);
  fail_glue_init:
- 	if (host->dma_dev)
+ 	mmc_spi_dma_free(host);
 
 
