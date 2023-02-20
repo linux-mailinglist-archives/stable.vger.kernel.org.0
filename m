@@ -2,44 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id AD4CE69CCEF
-	for <lists+stable@lfdr.de>; Mon, 20 Feb 2023 14:44:53 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C512869CCF0
+	for <lists+stable@lfdr.de>; Mon, 20 Feb 2023 14:44:54 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232231AbjBTNow (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Feb 2023 08:44:52 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56524 "EHLO
+        id S232037AbjBTNox (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Feb 2023 08:44:53 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56634 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232269AbjBTNom (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 20 Feb 2023 08:44:42 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1E22B1D930
-        for <stable@vger.kernel.org>; Mon, 20 Feb 2023 05:44:24 -0800 (PST)
+        with ESMTP id S232257AbjBTNoq (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 20 Feb 2023 08:44:46 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7178A1E1C8
+        for <stable@vger.kernel.org>; Mon, 20 Feb 2023 05:44:28 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id AE0E360C03
-        for <stable@vger.kernel.org>; Mon, 20 Feb 2023 13:44:23 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C0270C433EF;
-        Mon, 20 Feb 2023 13:44:22 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 0A25BB80D4D
+        for <stable@vger.kernel.org>; Mon, 20 Feb 2023 13:44:27 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 56525C433EF;
+        Mon, 20 Feb 2023 13:44:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1676900663;
-        bh=9yurvs+9rf5u2q9B9DhRJ6RMIma2DXpLFsa16DzSU8Q=;
+        s=korg; t=1676900665;
+        bh=ITNjiqF+dN5QS2x0vyF0QWRBbjVDSlE/VfQnx4l1+WI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=H6o0ypzavzPG8O2bF5SVI5RAfRCQ2/JMNagYHqGssMtiKE6OIFwU8Iods/xEJqKR/
-         Efow4SXS5AyD/FoimbhY1WKatQNCuXisnvqWdykNbxsghGm2O+S0OJAU3eBh7aGHRi
-         fky+yNkQS+jH1BZ8EzCa2Ew30quqRl+agvuSRzS0=
+        b=T1h2Hmz65ZiNRDh0+bb7W3PLNdYOW2S52VXUWqyis1Ty11K7QEN9GDr6S8QRcsgJk
+         J8B+5R+/QMbR9DbhIPhhEHrrVoCkzzqEJ92Qg0aC9iHy+DNw9RAVdLNzJUjk9NGVUM
+         4B2Dxy9gdWvlSoFMNA4SL3NLsK8PLixWhR1yX8QM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Fedor Pchelkin <pchelkin@ispras.ru>,
-        Alexey Khoroshilov <khoroshilov@ispras.ru>,
-        Eelco Chaudron <echaudro@redhat.com>,
-        Simon Horman <simon.horman@corigine.com>,
-        Jakub Kicinski <kuba@kernel.org>,
+        patches@lists.linux.dev, Anton Gusev <aagusev@ispras.ru>,
+        Ard Biesheuvel <ardb@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 021/156] net: openvswitch: fix flow memory leak in ovs_flow_cmd_new
-Date:   Mon, 20 Feb 2023 14:34:25 +0100
-Message-Id: <20230220133603.332031737@linuxfoundation.org>
+Subject: [PATCH 5.4 022/156] efi: fix potential NULL deref in efi_mem_reserve_persistent
+Date:   Mon, 20 Feb 2023 14:34:26 +0100
+Message-Id: <20230220133603.372029889@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
 In-Reply-To: <20230220133602.515342638@linuxfoundation.org>
 References: <20230220133602.515342638@linuxfoundation.org>
@@ -47,8 +44,8 @@ User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
         SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -56,108 +53,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Fedor Pchelkin <pchelkin@ispras.ru>
+From: Anton Gusev <aagusev@ispras.ru>
 
-[ Upstream commit 0c598aed445eb45b0ee7ba405f7ece99ee349c30 ]
+[ Upstream commit 966d47e1f27c45507c5df82b2a2157e5a4fd3909 ]
 
-Syzkaller reports a memory leak of new_flow in ovs_flow_cmd_new() as it is
-not freed when an allocation of a key fails.
+When iterating on a linked list, a result of memremap is dereferenced
+without checking it for NULL.
 
-BUG: memory leak
-unreferenced object 0xffff888116668000 (size 632):
-  comm "syz-executor231", pid 1090, jiffies 4294844701 (age 18.871s)
-  hex dump (first 32 bytes):
-    00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00  ................
-    00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00  ................
-  backtrace:
-    [<00000000defa3494>] kmem_cache_zalloc include/linux/slab.h:654 [inline]
-    [<00000000defa3494>] ovs_flow_alloc+0x19/0x180 net/openvswitch/flow_table.c:77
-    [<00000000c67d8873>] ovs_flow_cmd_new+0x1de/0xd40 net/openvswitch/datapath.c:957
-    [<0000000010a539a8>] genl_family_rcv_msg_doit+0x22d/0x330 net/netlink/genetlink.c:739
-    [<00000000dff3302d>] genl_family_rcv_msg net/netlink/genetlink.c:783 [inline]
-    [<00000000dff3302d>] genl_rcv_msg+0x328/0x590 net/netlink/genetlink.c:800
-    [<000000000286dd87>] netlink_rcv_skb+0x153/0x430 net/netlink/af_netlink.c:2515
-    [<0000000061fed410>] genl_rcv+0x24/0x40 net/netlink/genetlink.c:811
-    [<000000009dc0f111>] netlink_unicast_kernel net/netlink/af_netlink.c:1313 [inline]
-    [<000000009dc0f111>] netlink_unicast+0x545/0x7f0 net/netlink/af_netlink.c:1339
-    [<000000004a5ee816>] netlink_sendmsg+0x8e7/0xde0 net/netlink/af_netlink.c:1934
-    [<00000000482b476f>] sock_sendmsg_nosec net/socket.c:651 [inline]
-    [<00000000482b476f>] sock_sendmsg+0x152/0x190 net/socket.c:671
-    [<00000000698574ba>] ____sys_sendmsg+0x70a/0x870 net/socket.c:2356
-    [<00000000d28d9e11>] ___sys_sendmsg+0xf3/0x170 net/socket.c:2410
-    [<0000000083ba9120>] __sys_sendmsg+0xe5/0x1b0 net/socket.c:2439
-    [<00000000c00628f8>] do_syscall_64+0x30/0x40 arch/x86/entry/common.c:46
-    [<000000004abfdcf4>] entry_SYSCALL_64_after_hwframe+0x61/0xc6
+This patch adds a check that falls back on allocating a new page in
+case memremap doesn't succeed.
 
-To fix this the patch rearranges the goto labels to reflect the order of
-object allocations and adds appropriate goto statements on the error
-paths.
+Found by Linux Verification Center (linuxtesting.org) with SVACE.
 
-Found by Linux Verification Center (linuxtesting.org) with Syzkaller.
-
-Fixes: 68bb10101e6b ("openvswitch: Fix flow lookup to use unmasked key")
-Signed-off-by: Fedor Pchelkin <pchelkin@ispras.ru>
-Signed-off-by: Alexey Khoroshilov <khoroshilov@ispras.ru>
-Acked-by: Eelco Chaudron <echaudro@redhat.com>
-Reviewed-by: Simon Horman <simon.horman@corigine.com>
-Link: https://lore.kernel.org/r/20230201210218.361970-1-pchelkin@ispras.ru
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Fixes: 18df7577adae ("efi/memreserve: deal with memreserve entries in unmapped memory")
+Signed-off-by: Anton Gusev <aagusev@ispras.ru>
+[ardb: return -ENOMEM instead of breaking out of the loop]
+Signed-off-by: Ard Biesheuvel <ardb@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/openvswitch/datapath.c | 12 ++++++------
- 1 file changed, 6 insertions(+), 6 deletions(-)
+ drivers/firmware/efi/efi.c | 2 ++
+ 1 file changed, 2 insertions(+)
 
-diff --git a/net/openvswitch/datapath.c b/net/openvswitch/datapath.c
-index a8a8396dd983..4c537e74b18c 100644
---- a/net/openvswitch/datapath.c
-+++ b/net/openvswitch/datapath.c
-@@ -941,14 +941,14 @@ static int ovs_flow_cmd_new(struct sk_buff *skb, struct genl_info *info)
- 	key = kzalloc(sizeof(*key), GFP_KERNEL);
- 	if (!key) {
- 		error = -ENOMEM;
--		goto err_kfree_key;
-+		goto err_kfree_flow;
- 	}
- 
- 	ovs_match_init(&match, key, false, &mask);
- 	error = ovs_nla_get_match(net, &match, a[OVS_FLOW_ATTR_KEY],
- 				  a[OVS_FLOW_ATTR_MASK], log);
- 	if (error)
--		goto err_kfree_flow;
-+		goto err_kfree_key;
- 
- 	ovs_flow_mask_key(&new_flow->key, key, true, &mask);
- 
-@@ -956,14 +956,14 @@ static int ovs_flow_cmd_new(struct sk_buff *skb, struct genl_info *info)
- 	error = ovs_nla_get_identifier(&new_flow->id, a[OVS_FLOW_ATTR_UFID],
- 				       key, log);
- 	if (error)
--		goto err_kfree_flow;
-+		goto err_kfree_key;
- 
- 	/* Validate actions. */
- 	error = ovs_nla_copy_actions(net, a[OVS_FLOW_ATTR_ACTIONS],
- 				     &new_flow->key, &acts, log);
- 	if (error) {
- 		OVS_NLERR(log, "Flow actions may not be safe on all matching packets.");
--		goto err_kfree_flow;
-+		goto err_kfree_key;
- 	}
- 
- 	reply = ovs_flow_cmd_alloc_info(acts, &new_flow->id, info, false,
-@@ -1063,10 +1063,10 @@ static int ovs_flow_cmd_new(struct sk_buff *skb, struct genl_info *info)
- 	kfree_skb(reply);
- err_kfree_acts:
- 	ovs_nla_free_flow_actions(acts);
--err_kfree_flow:
--	ovs_flow_free(new_flow, false);
- err_kfree_key:
- 	kfree(key);
-+err_kfree_flow:
-+	ovs_flow_free(new_flow, false);
- error:
- 	return error;
- }
+diff --git a/drivers/firmware/efi/efi.c b/drivers/firmware/efi/efi.c
+index eb98018ab420..ed31b08855f9 100644
+--- a/drivers/firmware/efi/efi.c
++++ b/drivers/firmware/efi/efi.c
+@@ -1022,6 +1022,8 @@ int __ref efi_mem_reserve_persistent(phys_addr_t addr, u64 size)
+ 	/* first try to find a slot in an existing linked list entry */
+ 	for (prsv = efi_memreserve_root->next; prsv; ) {
+ 		rsv = memremap(prsv, sizeof(*rsv), MEMREMAP_WB);
++		if (!rsv)
++			return -ENOMEM;
+ 		index = atomic_fetch_add_unless(&rsv->count, 1, rsv->size);
+ 		if (index < rsv->size) {
+ 			rsv->entry[index].base = addr;
 -- 
 2.39.0
 
