@@ -2,41 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 0276569CDDB
-	for <lists+stable@lfdr.de>; Mon, 20 Feb 2023 14:53:38 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9968269CDDC
+	for <lists+stable@lfdr.de>; Mon, 20 Feb 2023 14:53:40 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232384AbjBTNxh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Feb 2023 08:53:37 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41514 "EHLO
+        id S232495AbjBTNxj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Feb 2023 08:53:39 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41600 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232500AbjBTNxf (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 20 Feb 2023 08:53:35 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8FBD91DB92
-        for <stable@vger.kernel.org>; Mon, 20 Feb 2023 05:53:34 -0800 (PST)
+        with ESMTP id S232491AbjBTNxj (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 20 Feb 2023 08:53:39 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8E7E81CAE3
+        for <stable@vger.kernel.org>; Mon, 20 Feb 2023 05:53:38 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id E838660E8A
-        for <stable@vger.kernel.org>; Mon, 20 Feb 2023 13:53:33 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 01CFFC433EF;
-        Mon, 20 Feb 2023 13:53:32 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 3E59BB80B96
+        for <stable@vger.kernel.org>; Mon, 20 Feb 2023 13:53:37 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8DF75C433D2;
+        Mon, 20 Feb 2023 13:53:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1676901213;
-        bh=vjubX3ox9Al8peVNpy84zqtDLCSPmFHwCsqY/zAaXAU=;
+        s=korg; t=1676901215;
+        bh=BhaweQ49vOQZnSjvZkeRts6GVuae7qNdmFUj6voPtdA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=mN7WWHHLdbMuwTCTY86d3dLSePQ9rf4UGSsJfUEiZhRLR3G+9W8IJ0DUvDpraBonU
-         OAjcRpf3Gy3teVD8NfHRtxqJuCZ7c0hDBH8EWzzs5U075ewfVkR+WCK5K2gdMmpUHd
-         tTBY5EgFproGDL0hFo6JW9qbiuhGzYbkNPI0z0w8=
+        b=EOHgzzQKnVZGZp8TOBdZ3LIcueJFEYDmhswY/zHC1g84kpQJ+PHwTadFceGAYtNF5
+         SBihhApoa/EIKGYYXyJBjeYbWPSQmOgnGejw5pdNJfwSdkcfZH8//DBOOPrQ0sj+Cw
+         4IpQoU+DPGKbB5+cEjJBmGDttFYQBVOk8eI+eHBY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, John Harrison <John.C.Harrison@Intel.com>,
-        Raviteja Goud Talla <ravitejax.goud.talla@intel.com>,
+        patches@lists.linux.dev, Matt Roper <matthew.d.roper@intel.com>,
+        Gustavo Sousa <gustavo.sousa@intel.com>,
+        Rodrigo Vivi <rodrigo.vivi@intel.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 73/83] drm/i915/gen11: Moving WAs to icl_gt_workarounds_init()
-Date:   Mon, 20 Feb 2023 14:36:46 +0100
-Message-Id: <20230220133556.227603934@linuxfoundation.org>
+Subject: [PATCH 5.15 74/83] drm/i915/gen11: Wa_1408615072/Wa_1407596294 should be on GT list
+Date:   Mon, 20 Feb 2023 14:36:47 +0100
+Message-Id: <20230220133556.266763661@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
 In-Reply-To: <20230220133553.669025851@linuxfoundation.org>
 References: <20230220133553.669025851@linuxfoundation.org>
@@ -44,8 +45,8 @@ User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
         SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -53,60 +54,57 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Raviteja Goud Talla <ravitejax.goud.talla@intel.com>
+From: Matt Roper <matthew.d.roper@intel.com>
 
-[ Upstream commit 67b858dd89932086ae0ee2d0ce4dd070a2c88bb3 ]
+[ Upstream commit d5a1224aa68c8b124a4c5c390186e571815ed390 ]
 
-Bspec page says "Reset: BUS", Accordingly moving w/a's:
-Wa_1407352427,Wa_1406680159 to proper function icl_gt_workarounds_init()
-Which will resolve guc enabling error
+The UNSLICE_UNIT_LEVEL_CLKGATE register programmed by this workaround
+has 'BUS' style reset, indicating that it does not lose its value on
+engine resets.  Furthermore, this register is part of the GT forcewake
+domain rather than the RENDER domain, so it should not be impacted by
+RCS engine resets.  As such, we should implement this on the GT
+workaround list rather than an engine list.
 
-v2:
-  - Previous patch rev2 was created by email client which caused the
-    Build failure, This v2 is to resolve the previous broken series
-
-Reviewed-by: John Harrison <John.C.Harrison@Intel.com>
-Signed-off-by: Raviteja Goud Talla <ravitejax.goud.talla@intel.com>
-Signed-off-by: John Harrison <John.C.Harrison@Intel.com>
-Link: https://patchwork.freedesktop.org/patch/msgid/20211203145603.4006937-1-ravitejax.goud.talla@intel.com
-Stable-dep-of: d5a1224aa68c ("drm/i915/gen11: Wa_1408615072/Wa_1407596294 should be on GT list")
+Bspec: 19219
+Fixes: 3551ff928744 ("drm/i915/gen11: Moving WAs to rcs_engine_wa_init()")
+Signed-off-by: Matt Roper <matthew.d.roper@intel.com>
+Reviewed-by: Gustavo Sousa <gustavo.sousa@intel.com>
+Link: https://patchwork.freedesktop.org/patch/msgid/20230201222831.608281-2-matthew.d.roper@intel.com
+(cherry picked from commit 5f21dc07b52eb54a908e66f5d6e05a87bcb5b049)
+Signed-off-by: Rodrigo Vivi <rodrigo.vivi@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/i915/gt/intel_workarounds.c | 18 +++++++++---------
- 1 file changed, 9 insertions(+), 9 deletions(-)
+ drivers/gpu/drm/i915/gt/intel_workarounds.c | 14 +++++++-------
+ 1 file changed, 7 insertions(+), 7 deletions(-)
 
 diff --git a/drivers/gpu/drm/i915/gt/intel_workarounds.c b/drivers/gpu/drm/i915/gt/intel_workarounds.c
-index 6b5ab19a2ada9..0dda8f6da4230 100644
+index 0dda8f6da4230..de93a1e988f29 100644
 --- a/drivers/gpu/drm/i915/gt/intel_workarounds.c
 +++ b/drivers/gpu/drm/i915/gt/intel_workarounds.c
-@@ -1049,6 +1049,15 @@ icl_gt_workarounds_init(struct drm_i915_private *i915, struct i915_wa_list *wal)
+@@ -1049,6 +1049,13 @@ icl_gt_workarounds_init(struct drm_i915_private *i915, struct i915_wa_list *wal)
  		    GAMT_CHKN_BIT_REG,
  		    GAMT_CHKN_DISABLE_L3_COH_PIPE);
  
-+	/* Wa_1407352427:icl,ehl */
-+	wa_write_or(wal, UNSLICE_UNIT_LEVEL_CLKGATE2,
-+		    PSDUNIT_CLKGATE_DIS);
++	/*
++	 * Wa_1408615072:icl,ehl  (vsunit)
++	 * Wa_1407596294:icl,ehl  (hsunit)
++	 */
++	wa_write_or(wal, UNSLICE_UNIT_LEVEL_CLKGATE,
++		    VSUNIT_CLKGATE_DIS | HSUNIT_CLKGATE_DIS);
 +
-+	/* Wa_1406680159:icl,ehl */
-+	wa_write_or(wal,
-+		    SUBSLICE_UNIT_LEVEL_CLKGATE,
-+		    GWUNIT_CLKGATE_DIS);
-+
- 	/* Wa_1607087056:icl,ehl,jsl */
- 	if (IS_ICELAKE(i915) ||
- 	    IS_JSL_EHL_GT_STEP(i915, STEP_A0, STEP_B0))
-@@ -1745,15 +1754,6 @@ rcs_engine_wa_init(struct intel_engine_cs *engine, struct i915_wa_list *wal)
- 		wa_write_or(wal, UNSLICE_UNIT_LEVEL_CLKGATE,
- 			    VSUNIT_CLKGATE_DIS | HSUNIT_CLKGATE_DIS);
+ 	/* Wa_1407352427:icl,ehl */
+ 	wa_write_or(wal, UNSLICE_UNIT_LEVEL_CLKGATE2,
+ 		    PSDUNIT_CLKGATE_DIS);
+@@ -1747,13 +1754,6 @@ rcs_engine_wa_init(struct intel_engine_cs *engine, struct i915_wa_list *wal)
+ 		wa_masked_en(wal, GEN9_CSFE_CHICKEN1_RCS,
+ 			     GEN11_ENABLE_32_PLANE_MODE);
  
--		/* Wa_1407352427:icl,ehl */
--		wa_write_or(wal, UNSLICE_UNIT_LEVEL_CLKGATE2,
--			    PSDUNIT_CLKGATE_DIS);
--
--		/* Wa_1406680159:icl,ehl */
--		wa_write_or(wal,
--			    SUBSLICE_UNIT_LEVEL_CLKGATE,
--			    GWUNIT_CLKGATE_DIS);
+-		/*
+-		 * Wa_1408615072:icl,ehl  (vsunit)
+-		 * Wa_1407596294:icl,ehl  (hsunit)
+-		 */
+-		wa_write_or(wal, UNSLICE_UNIT_LEVEL_CLKGATE,
+-			    VSUNIT_CLKGATE_DIS | HSUNIT_CLKGATE_DIS);
 -
  		/*
  		 * Wa_1408767742:icl[a2..forever],ehl[all]
