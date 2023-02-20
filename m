@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 3397869CE3C
+	by mail.lfdr.de (Postfix) with ESMTP id 7EFCE69CE3D
 	for <lists+stable@lfdr.de>; Mon, 20 Feb 2023 14:57:47 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232640AbjBTN5i (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Feb 2023 08:57:38 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47656 "EHLO
+        id S232585AbjBTN5p (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Feb 2023 08:57:45 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47892 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232672AbjBTN5f (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 20 Feb 2023 08:57:35 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5FAA21F4BA
-        for <stable@vger.kernel.org>; Mon, 20 Feb 2023 05:57:14 -0800 (PST)
+        with ESMTP id S232608AbjBTN5o (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 20 Feb 2023 08:57:44 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0A9D91E9E4
+        for <stable@vger.kernel.org>; Mon, 20 Feb 2023 05:57:22 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 37A0760E9D
-        for <stable@vger.kernel.org>; Mon, 20 Feb 2023 13:56:41 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2206BC4339B;
-        Mon, 20 Feb 2023 13:56:39 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 79C5CB80D3A
+        for <stable@vger.kernel.org>; Mon, 20 Feb 2023 13:56:44 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D174DC433D2;
+        Mon, 20 Feb 2023 13:56:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1676901400;
-        bh=ePFXKyT73U+MMwSrh7qDrkuk9buT/VE6ugRlTOMa1g8=;
+        s=korg; t=1676901403;
+        bh=NyPR2j9KjHxor9GhhnDOlneYgDFzmrUfPThYZ82JXK0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ZgsOP288+tyaWt2GHoKpZ80q3xyfDmx+qJ102qr8x8ujof2/dKS6Oka+UmKWi1AKP
-         +1xeWg11iEZxLq5cVxkYI5OvAYnazelpRfP9akRA70DLmFddOXpAnhFPAZUgjz46fg
-         T8tq85S7D7/oIR7JUmROXnG26jCcqP8hhW/3PIso=
+        b=ddqD4LV8B8AeOpAl/7NGdXOEpNf3eLveAv1+5oZEr8MPnOu3PAFv8LX5gEqRS+IbQ
+         sDDDggQkZKa0nHd4+ElXX6LWYgoX2JoWU4QoIEWu0F+rFPI2Vr+tlmaIbxH1c2k4+l
+         ELfyjPLV+5utSl5eFN+pTOvsJ68mgRv7OcOrx0rs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Natalia Petrova <n.petrova@fintech.ru>,
-        Jesse Brandeburg <jesse.brandeburg@intel.com>,
-        Tony Nguyen <anthony.l.nguyen@intel.com>,
-        Jakub Kicinski <kuba@kernel.org>,
-        Sasha Levin <sashal@kernel.org>,
-        Gurucharan G <gurucharanx.g@intel.com>
-Subject: [PATCH 5.10 51/57] i40e: Add checking for null for nlmsg_find_attr()
-Date:   Mon, 20 Feb 2023 14:36:59 +0100
-Message-Id: <20230220133551.140720738@linuxfoundation.org>
+        patches@lists.linux.dev, Jamal Hadi Salim <jhs@mojatatu.com>,
+        Pedro Tammela <pctammela@mojatatu.com>,
+        syzbot <syzkaller@googlegroups.com>,
+        Eric Dumazet <edumazet@google.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 52/57] net/sched: tcindex: search key must be 16 bits
+Date:   Mon, 20 Feb 2023 14:37:00 +0100
+Message-Id: <20230220133551.182086931@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
 In-Reply-To: <20230220133549.360169435@linuxfoundation.org>
 References: <20230220133549.360169435@linuxfoundation.org>
@@ -56,41 +56,79 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Natalia Petrova <n.petrova@fintech.ru>
+From: Pedro Tammela <pctammela@mojatatu.com>
 
-[ Upstream commit 7fa0b526f865cb42aa33917fd02a92cb03746f4d ]
+[ Upstream commit 42018a322bd453e38b3ffee294982243e50a484f ]
 
-The result of nlmsg_find_attr() 'br_spec' is dereferenced in
-nla_for_each_nested(), but it can take NULL value in nla_find() function,
-which will result in an error.
+Syzkaller found an issue where a handle greater than 16 bits would trigger
+a null-ptr-deref in the imperfect hash area update.
 
-Found by Linux Verification Center (linuxtesting.org) with SVACE.
+general protection fault, probably for non-canonical address
+0xdffffc0000000015: 0000 [#1] PREEMPT SMP KASAN
+KASAN: null-ptr-deref in range [0x00000000000000a8-0x00000000000000af]
+CPU: 0 PID: 5070 Comm: syz-executor456 Not tainted
+6.2.0-rc7-syzkaller-00112-gc68f345b7c42 #0
+Hardware name: Google Google Compute Engine/Google Compute Engine,
+BIOS Google 01/21/2023
+RIP: 0010:tcindex_set_parms+0x1a6a/0x2990 net/sched/cls_tcindex.c:509
+Code: 01 e9 e9 fe ff ff 4c 8b bd 28 fe ff ff e8 0e 57 7d f9 48 8d bb
+a8 00 00 00 48 b8 00 00 00 00 00 fc ff df 48 89 fa 48 c1 ea 03 <80> 3c
+02 00 0f 85 94 0c 00 00 48 8b 85 f8 fd ff ff 48 8b 9b a8 00
+RSP: 0018:ffffc90003d3ef88 EFLAGS: 00010202
+RAX: dffffc0000000000 RBX: 0000000000000000 RCX: 0000000000000000
+RDX: 0000000000000015 RSI: ffffffff8803a102 RDI: 00000000000000a8
+RBP: ffffc90003d3f1d8 R08: 0000000000000001 R09: 0000000000000000
+R10: 0000000000000001 R11: 0000000000000000 R12: ffff88801e2b10a8
+R13: dffffc0000000000 R14: 0000000000030000 R15: ffff888017b3be00
+FS: 00005555569af300(0000) GS:ffff8880b9800000(0000) knlGS:0000000000000000
+CS: 0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+CR2: 000056041c6d2000 CR3: 000000002bfca000 CR4: 00000000003506f0
+DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
+DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
+Call Trace:
+<TASK>
+tcindex_change+0x1ea/0x320 net/sched/cls_tcindex.c:572
+tc_new_tfilter+0x96e/0x2220 net/sched/cls_api.c:2155
+rtnetlink_rcv_msg+0x959/0xca0 net/core/rtnetlink.c:6132
+netlink_rcv_skb+0x165/0x440 net/netlink/af_netlink.c:2574
+netlink_unicast_kernel net/netlink/af_netlink.c:1339 [inline]
+netlink_unicast+0x547/0x7f0 net/netlink/af_netlink.c:1365
+netlink_sendmsg+0x91b/0xe10 net/netlink/af_netlink.c:1942
+sock_sendmsg_nosec net/socket.c:714 [inline]
+sock_sendmsg+0xd3/0x120 net/socket.c:734
+____sys_sendmsg+0x334/0x8c0 net/socket.c:2476
+___sys_sendmsg+0x110/0x1b0 net/socket.c:2530
+__sys_sendmmsg+0x18f/0x460 net/socket.c:2616
+__do_sys_sendmmsg net/socket.c:2645 [inline]
+__se_sys_sendmmsg net/socket.c:2642 [inline]
+__x64_sys_sendmmsg+0x9d/0x100 net/socket.c:2642
+do_syscall_x64 arch/x86/entry/common.c:50 [inline]
+do_syscall_64+0x39/0xb0 arch/x86/entry/common.c:80
 
-Fixes: 51616018dd1b ("i40e: Add support for getlink, setlink ndo ops")
-Signed-off-by: Natalia Petrova <n.petrova@fintech.ru>
-Reviewed-by: Jesse Brandeburg <jesse.brandeburg@intel.com>
-Tested-by: Gurucharan G <gurucharanx.g@intel.com> (A Contingent worker at Intel)
-Signed-off-by: Tony Nguyen <anthony.l.nguyen@intel.com>
-Link: https://lore.kernel.org/r/20230209172833.3596034-1-anthony.l.nguyen@intel.com
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Fixes: ee059170b1f7 ("net/sched: tcindex: update imperfect hash filters respecting rcu")
+Signed-off-by: Jamal Hadi Salim <jhs@mojatatu.com>
+Signed-off-by: Pedro Tammela <pctammela@mojatatu.com>
+Reported-by: syzbot <syzkaller@googlegroups.com>
+Reviewed-by: Eric Dumazet <edumazet@google.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/intel/i40e/i40e_main.c | 2 ++
- 1 file changed, 2 insertions(+)
+ net/sched/cls_tcindex.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/net/ethernet/intel/i40e/i40e_main.c b/drivers/net/ethernet/intel/i40e/i40e_main.c
-index c4f4ee34d58a0..9e8a20a94862f 100644
---- a/drivers/net/ethernet/intel/i40e/i40e_main.c
-+++ b/drivers/net/ethernet/intel/i40e/i40e_main.c
-@@ -12520,6 +12520,8 @@ static int i40e_ndo_bridge_setlink(struct net_device *dev,
- 	}
+diff --git a/net/sched/cls_tcindex.c b/net/sched/cls_tcindex.c
+index 50bf7ec4b5b25..2c0c95204cb5a 100644
+--- a/net/sched/cls_tcindex.c
++++ b/net/sched/cls_tcindex.c
+@@ -502,7 +502,7 @@ tcindex_set_parms(struct net *net, struct tcf_proto *tp, unsigned long base,
+ 		/* lookup the filter, guaranteed to exist */
+ 		for (cf = rcu_dereference_bh_rtnl(*fp); cf;
+ 		     fp = &cf->next, cf = rcu_dereference_bh_rtnl(*fp))
+-			if (cf->key == handle)
++			if (cf->key == (u16)handle)
+ 				break;
  
- 	br_spec = nlmsg_find_attr(nlh, sizeof(struct ifinfomsg), IFLA_AF_SPEC);
-+	if (!br_spec)
-+		return -EINVAL;
- 
- 	nla_for_each_nested(attr, br_spec, rem) {
- 		__u16 mode;
+ 		f->next = cf->next;
 -- 
 2.39.0
 
