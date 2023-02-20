@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 2A31F69CD81
-	for <lists+stable@lfdr.de>; Mon, 20 Feb 2023 14:50:16 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A8C5A69CEA3
+	for <lists+stable@lfdr.de>; Mon, 20 Feb 2023 15:01:04 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232410AbjBTNuP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Feb 2023 08:50:15 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37416 "EHLO
+        id S232767AbjBTOBD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Feb 2023 09:01:03 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53670 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232401AbjBTNuO (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 20 Feb 2023 08:50:14 -0500
+        with ESMTP id S232763AbjBTOBC (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 20 Feb 2023 09:01:02 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 21413CDF1
-        for <stable@vger.kernel.org>; Mon, 20 Feb 2023 05:49:52 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CC72D1723
+        for <stable@vger.kernel.org>; Mon, 20 Feb 2023 06:00:37 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 01B9360E9E
-        for <stable@vger.kernel.org>; Mon, 20 Feb 2023 13:49:52 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 16ABCC433EF;
-        Mon, 20 Feb 2023 13:49:50 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 1FA5160E9E
+        for <stable@vger.kernel.org>; Mon, 20 Feb 2023 13:59:43 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2B062C43442;
+        Mon, 20 Feb 2023 13:59:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1676900991;
-        bh=tcAq0bjUedtBqsVWrXmYURWkPEyh7aU/H/BiuugyaEc=;
+        s=korg; t=1676901582;
+        bh=CnNDBsju5D2uzWzFIKuWM8hecqUDq8p+RDPq//03iQc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Vd/SqClW8WmLU+cPzDUsFHZendcLw4+M9RNDub9O8kbEX0uJ+jFBbeO+CMLGy6EH4
-         PX8S0fMaOAyE7OdPyQs5Oirx1C0WJv5iwYcV7ON1UqjS6IA+1epbffRfCosKqz8X9n
-         cbfEMysG2sTwENp0ZLuZOYOz9qYDo1OMMqLInNA4=
+        b=1pIyobQNw5KyGi36o+jrq0UpnqFHRkpp3fVNU7633FpVZ+Ig2tWkQwm5yZASDPc+b
+         tV+9UYk4DShAUjCTvzgS3mSdn8uIKXe9WPWHTdRwb6cIwv4XPrgxGywCJ0hqOxIIhk
+         FBOfdCNuOgw8YWDB+HGapjqC36IfyghHpHvqWNQQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         patches@lists.linux.dev,
-        Hongguang Gao <hongguang.gao@broadcom.com>,
-        Michael Chan <michael.chan@broadcom.com>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 5.4 145/156] bnxt_en: Fix mqprio and XDP ring checking logic
+        syzbot+6cd18e123583550cf469@syzkaller.appspotmail.com,
+        Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>,
+        "Peter Zijlstra (Intel)" <peterz@infradead.org>
+Subject: [PATCH 6.1 073/118] freezer,umh: Fix call_usermode_helper_exec() vs SIGKILL
 Date:   Mon, 20 Feb 2023 14:36:29 +0100
-Message-Id: <20230220133608.689640932@linuxfoundation.org>
+Message-Id: <20230220133603.349883651@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230220133602.515342638@linuxfoundation.org>
-References: <20230220133602.515342638@linuxfoundation.org>
+In-Reply-To: <20230220133600.368809650@linuxfoundation.org>
+References: <20230220133600.368809650@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,47 +54,70 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Michael Chan <michael.chan@broadcom.com>
+From: Peter Zijlstra <peterz@infradead.org>
 
-commit 2038cc592811209de20c4e094ca08bfb1e6fbc6c upstream.
+commit eedeb787ebb53de5c5dcf7b7b39d01bf1b0f037d upstream.
 
-In bnxt_reserve_rings(), there is logic to check that the number of TX
-rings reserved is enough to cover all the mqprio TCs, but it fails to
-account for the TX XDP rings.  So the check will always fail if there
-are mqprio TCs and TX XDP rings.  As a result, the driver always fails
-to initialize after the XDP program is attached and the device will be
-brought down.  A subsequent ifconfig up will also fail because the
-number of TX rings is set to an inconsistent number.  Fix the check to
-properly account for TX XDP rings.  If the check fails, set the number
-of TX rings back to a consistent number after calling netdev_reset_tc().
+Tetsuo-San noted that commit f5d39b020809 ("freezer,sched: Rewrite
+core freezer logic") broke call_usermodehelper_exec() for the KILLABLE
+case.
 
-Fixes: 674f50a5b026 ("bnxt_en: Implement new method to reserve rings.")
-Reviewed-by: Hongguang Gao <hongguang.gao@broadcom.com>
-Signed-off-by: Michael Chan <michael.chan@broadcom.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Specifically it was missed that the second, unconditional,
+wait_for_completion() was not optional and ensures the on-stack
+completion is unused before going out-of-scope.
+
+Fixes: f5d39b020809 ("freezer,sched: Rewrite core freezer logic")
+Reported-by: syzbot+6cd18e123583550cf469@syzkaller.appspotmail.com
+Reported-by: Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>
+Debugged-by: Tetsuo Handa <penguin-kernel@I-love.SAKURA.ne.jp>
+Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+Link: https://lkml.kernel.org/r/Y90ar35uKQoUrLEK@hirez.programming.kicks-ass.net
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ethernet/broadcom/bnxt/bnxt.c |    8 ++++++--
- 1 file changed, 6 insertions(+), 2 deletions(-)
+ kernel/umh.c | 20 +++++++++++++-------
+ 1 file changed, 13 insertions(+), 7 deletions(-)
 
---- a/drivers/net/ethernet/broadcom/bnxt/bnxt.c
-+++ b/drivers/net/ethernet/broadcom/bnxt/bnxt.c
-@@ -8205,10 +8205,14 @@ int bnxt_reserve_rings(struct bnxt *bp,
- 		netdev_err(bp->dev, "ring reservation/IRQ init failure rc: %d\n", rc);
- 		return rc;
+diff --git a/kernel/umh.c b/kernel/umh.c
+index 850631518665..fbf872c624cb 100644
+--- a/kernel/umh.c
++++ b/kernel/umh.c
+@@ -438,21 +438,27 @@ int call_usermodehelper_exec(struct subprocess_info *sub_info, int wait)
+ 	if (wait == UMH_NO_WAIT)	/* task has freed sub_info */
+ 		goto unlock;
+ 
+-	if (wait & UMH_KILLABLE)
+-		state |= TASK_KILLABLE;
+-
+ 	if (wait & UMH_FREEZABLE)
+ 		state |= TASK_FREEZABLE;
+ 
+-	retval = wait_for_completion_state(&done, state);
+-	if (!retval)
+-		goto wait_done;
+-
+ 	if (wait & UMH_KILLABLE) {
++		retval = wait_for_completion_state(&done, state | TASK_KILLABLE);
++		if (!retval)
++			goto wait_done;
++
+ 		/* umh_complete() will see NULL and free sub_info */
+ 		if (xchg(&sub_info->complete, NULL))
+ 			goto unlock;
++
++		/*
++		 * fallthrough; in case of -ERESTARTSYS now do uninterruptible
++		 * wait_for_completion_state(). Since umh_complete() shall call
++		 * complete() in a moment if xchg() above returned NULL, this
++		 * uninterruptible wait_for_completion_state() will not block
++		 * SIGKILL'ed processes for long.
++		 */
  	}
--	if (tcs && (bp->tx_nr_rings_per_tc * tcs != bp->tx_nr_rings)) {
-+	if (tcs && (bp->tx_nr_rings_per_tc * tcs !=
-+		    bp->tx_nr_rings - bp->tx_nr_rings_xdp)) {
- 		netdev_err(bp->dev, "tx ring reservation failure\n");
- 		netdev_reset_tc(bp->dev);
--		bp->tx_nr_rings_per_tc = bp->tx_nr_rings;
-+		if (bp->tx_nr_rings_xdp)
-+			bp->tx_nr_rings_per_tc = bp->tx_nr_rings_xdp;
-+		else
-+			bp->tx_nr_rings_per_tc = bp->tx_nr_rings;
- 		return -ENOMEM;
- 	}
- 	return 0;
++	wait_for_completion_state(&done, state);
+ 
+ wait_done:
+ 	retval = sub_info->retval;
+-- 
+2.39.1
+
 
 
