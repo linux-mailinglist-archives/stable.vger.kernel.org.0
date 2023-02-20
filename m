@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 2A21F69CC30
-	for <lists+stable@lfdr.de>; Mon, 20 Feb 2023 14:38:02 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9AAAD69CD9A
+	for <lists+stable@lfdr.de>; Mon, 20 Feb 2023 14:50:55 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231395AbjBTNiB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Feb 2023 08:38:01 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45736 "EHLO
+        id S232425AbjBTNuy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Feb 2023 08:50:54 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38254 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230395AbjBTNiA (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 20 Feb 2023 08:38:00 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 434419765
-        for <stable@vger.kernel.org>; Mon, 20 Feb 2023 05:37:59 -0800 (PST)
+        with ESMTP id S232422AbjBTNux (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 20 Feb 2023 08:50:53 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 75798CA33
+        for <stable@vger.kernel.org>; Mon, 20 Feb 2023 05:50:52 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id F20E7B80D4A
-        for <stable@vger.kernel.org>; Mon, 20 Feb 2023 13:37:57 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 62F9BC4339B;
-        Mon, 20 Feb 2023 13:37:56 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 130F660B74
+        for <stable@vger.kernel.org>; Mon, 20 Feb 2023 13:50:52 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 22FCBC433EF;
+        Mon, 20 Feb 2023 13:50:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1676900276;
-        bh=CCTUfMzG7mhS8tCKJ0v7RdtVumVn6FgmPm+lpGXi61A=;
+        s=korg; t=1676901051;
+        bh=r64yiBzGaKtlU8G8fUZFgAEgg9lGCT6yggEySf6vAzY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=XeH72dWHcr2888ejF9G8suhMawKvzMuusdutOed9w3HLs3XoVjDJ45QT5lz52i1YJ
-         g0ClgFHnFxwn0qKNcaMrvYdAJGNUnLQ+5VmiVh719Mp8eeL6oQpYXnz+5wMPVIEb14
-         RVsFcmLbakhHWEAqKmscZif1EPYeEkNdzF1eIuJc=
+        b=S4pf7jLgwv5fxmoMjZ4rCxCmEspyeO2aWuOz5pR4TaU4i/Yoz7tlPh6tOKnCNYRs0
+         wKt58UQm17IdH/flwRNo12Ev/rpHz+8nwOzhlLHakqloJh6sM4m7HQ5eK6lYtAs4NV
+         bY+pS5/kPh+OeejpuR52G13UO9ZU9Vt48TYStfK8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Andreas Kemnade <andreas@kemnade.info>,
-        Stable@vger.kernel.org,
-        Jonathan Cameron <Jonathan.Cameron@huawei.com>
-Subject: [PATCH 4.14 18/53] iio:adc:twl6030: Enable measurements of VUSB, VBAT and others
+        patches@lists.linux.dev, Shunsuke Mie <mie@igel.co.jp>,
+        "Michael S. Tsirkin" <mst@redhat.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.15 11/83] tools/virtio: fix the vringh test for virtio ring changes
 Date:   Mon, 20 Feb 2023 14:35:44 +0100
-Message-Id: <20230220133548.818151677@linuxfoundation.org>
+Message-Id: <20230220133554.095147411@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230220133548.158615609@linuxfoundation.org>
-References: <20230220133548.158615609@linuxfoundation.org>
+In-Reply-To: <20230220133553.669025851@linuxfoundation.org>
+References: <20230220133553.669025851@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,70 +53,150 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Andreas Kemnade <andreas@kemnade.info>
+From: Shunsuke Mie <mie@igel.co.jp>
 
-commit f804bd0dc28683a93a60f271aaefb2fc5b0853dd upstream.
+[ Upstream commit 3f7b75abf41cc4143aa295f62acbb060a012868d ]
 
-Some inputs need to be wired up to produce proper measurements,
-without this change only near zero values are reported.
+Fix the build caused by missing kmsan_handle_dma() and is_power_of_2() that
+are used in drivers/virtio/virtio_ring.c.
 
-Signed-off-by: Andreas Kemnade <andreas@kemnade.info>
-Fixes: 1696f36482e70 ("iio: twl6030-gpadc: TWL6030, TWL6032 GPADC driver")
-Link: https://lore.kernel.org/r/20221201181635.3522962-1-andreas@kemnade.info
-Cc: <Stable@vger.kernel.org>
-Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Shunsuke Mie <mie@igel.co.jp>
+Message-Id: <20230110034310.779744-1-mie@igel.co.jp>
+Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/iio/adc/twl6030-gpadc.c |   32 ++++++++++++++++++++++++++++++++
- 1 file changed, 32 insertions(+)
+ tools/virtio/linux/bug.h         |  8 +++-----
+ tools/virtio/linux/build_bug.h   |  7 +++++++
+ tools/virtio/linux/cpumask.h     |  7 +++++++
+ tools/virtio/linux/gfp.h         |  7 +++++++
+ tools/virtio/linux/kernel.h      |  1 +
+ tools/virtio/linux/kmsan.h       | 12 ++++++++++++
+ tools/virtio/linux/scatterlist.h |  1 +
+ tools/virtio/linux/topology.h    |  7 +++++++
+ 8 files changed, 45 insertions(+), 5 deletions(-)
+ create mode 100644 tools/virtio/linux/build_bug.h
+ create mode 100644 tools/virtio/linux/cpumask.h
+ create mode 100644 tools/virtio/linux/gfp.h
+ create mode 100644 tools/virtio/linux/kmsan.h
+ create mode 100644 tools/virtio/linux/topology.h
 
---- a/drivers/iio/adc/twl6030-gpadc.c
-+++ b/drivers/iio/adc/twl6030-gpadc.c
-@@ -71,6 +71,18 @@
- #define TWL6030_GPADCS				BIT(1)
- #define TWL6030_GPADCR				BIT(0)
+diff --git a/tools/virtio/linux/bug.h b/tools/virtio/linux/bug.h
+index 813baf13f62a2..51a919083d9b8 100644
+--- a/tools/virtio/linux/bug.h
++++ b/tools/virtio/linux/bug.h
+@@ -1,13 +1,11 @@
+ /* SPDX-License-Identifier: GPL-2.0 */
+-#ifndef BUG_H
+-#define BUG_H
++#ifndef _LINUX_BUG_H
++#define _LINUX_BUG_H
  
-+#define USB_VBUS_CTRL_SET			0x04
-+#define USB_ID_CTRL_SET				0x06
-+
-+#define TWL6030_MISC1				0xE4
-+#define VBUS_MEAS				0x01
-+#define ID_MEAS					0x01
-+
-+#define VAC_MEAS                0x04
-+#define VBAT_MEAS               0x02
-+#define BB_MEAS                 0x01
-+
-+
- /**
-  * struct twl6030_chnl_calib - channel calibration
-  * @gain:		slope coefficient for ideal curve
-@@ -943,6 +955,26 @@ static int twl6030_gpadc_probe(struct pl
- 		return ret;
- 	}
+ #include <asm/bug.h>
  
-+	ret = twl_i2c_write_u8(TWL_MODULE_USB, VBUS_MEAS, USB_VBUS_CTRL_SET);
-+	if (ret < 0) {
-+		dev_err(dev, "failed to wire up inputs\n");
-+		return ret;
-+	}
+ #define BUG_ON(__BUG_ON_cond) assert(!(__BUG_ON_cond))
+ 
+-#define BUILD_BUG_ON(x)
+-
+ #define BUG() abort()
+ 
+-#endif /* BUG_H */
++#endif /* _LINUX_BUG_H */
+diff --git a/tools/virtio/linux/build_bug.h b/tools/virtio/linux/build_bug.h
+new file mode 100644
+index 0000000000000..cdbb75e28a604
+--- /dev/null
++++ b/tools/virtio/linux/build_bug.h
+@@ -0,0 +1,7 @@
++/* SPDX-License-Identifier: GPL-2.0 */
++#ifndef _LINUX_BUILD_BUG_H
++#define _LINUX_BUILD_BUG_H
 +
-+	ret = twl_i2c_write_u8(TWL_MODULE_USB, ID_MEAS, USB_ID_CTRL_SET);
-+	if (ret < 0) {
-+		dev_err(dev, "failed to wire up inputs\n");
-+		return ret;
-+	}
++#define BUILD_BUG_ON(x)
 +
-+	ret = twl_i2c_write_u8(TWL6030_MODULE_ID0,
-+				VBAT_MEAS | BB_MEAS | BB_MEAS,
-+				TWL6030_MISC1);
-+	if (ret < 0) {
-+		dev_err(dev, "failed to wire up inputs\n");
-+		return ret;
-+	}
++#endif	/* _LINUX_BUILD_BUG_H */
+diff --git a/tools/virtio/linux/cpumask.h b/tools/virtio/linux/cpumask.h
+new file mode 100644
+index 0000000000000..307da69d6b26c
+--- /dev/null
++++ b/tools/virtio/linux/cpumask.h
+@@ -0,0 +1,7 @@
++/* SPDX-License-Identifier: GPL-2.0 */
++#ifndef _LINUX_CPUMASK_H
++#define _LINUX_CPUMASK_H
 +
- 	indio_dev->name = DRIVER_NAME;
- 	indio_dev->dev.parent = dev;
- 	indio_dev->info = &twl6030_gpadc_iio_info;
++#include <linux/kernel.h>
++
++#endif /* _LINUX_CPUMASK_H */
+diff --git a/tools/virtio/linux/gfp.h b/tools/virtio/linux/gfp.h
+new file mode 100644
+index 0000000000000..43d146f236f14
+--- /dev/null
++++ b/tools/virtio/linux/gfp.h
+@@ -0,0 +1,7 @@
++/* SPDX-License-Identifier: GPL-2.0 */
++#ifndef __LINUX_GFP_H
++#define __LINUX_GFP_H
++
++#include <linux/topology.h>
++
++#endif
+diff --git a/tools/virtio/linux/kernel.h b/tools/virtio/linux/kernel.h
+index 0b493542e61a6..a4beb719d2174 100644
+--- a/tools/virtio/linux/kernel.h
++++ b/tools/virtio/linux/kernel.h
+@@ -10,6 +10,7 @@
+ #include <stdarg.h>
+ 
+ #include <linux/compiler.h>
++#include <linux/log2.h>
+ #include <linux/types.h>
+ #include <linux/overflow.h>
+ #include <linux/list.h>
+diff --git a/tools/virtio/linux/kmsan.h b/tools/virtio/linux/kmsan.h
+new file mode 100644
+index 0000000000000..272b5aa285d5a
+--- /dev/null
++++ b/tools/virtio/linux/kmsan.h
+@@ -0,0 +1,12 @@
++/* SPDX-License-Identifier: GPL-2.0 */
++#ifndef _LINUX_KMSAN_H
++#define _LINUX_KMSAN_H
++
++#include <linux/gfp.h>
++
++inline void kmsan_handle_dma(struct page *page, size_t offset, size_t size,
++			     enum dma_data_direction dir)
++{
++}
++
++#endif /* _LINUX_KMSAN_H */
+diff --git a/tools/virtio/linux/scatterlist.h b/tools/virtio/linux/scatterlist.h
+index 369ee308b6686..74d9e1825748e 100644
+--- a/tools/virtio/linux/scatterlist.h
++++ b/tools/virtio/linux/scatterlist.h
+@@ -2,6 +2,7 @@
+ #ifndef SCATTERLIST_H
+ #define SCATTERLIST_H
+ #include <linux/kernel.h>
++#include <linux/bug.h>
+ 
+ struct scatterlist {
+ 	unsigned long	page_link;
+diff --git a/tools/virtio/linux/topology.h b/tools/virtio/linux/topology.h
+new file mode 100644
+index 0000000000000..910794afb993a
+--- /dev/null
++++ b/tools/virtio/linux/topology.h
+@@ -0,0 +1,7 @@
++/* SPDX-License-Identifier: GPL-2.0 */
++#ifndef _LINUX_TOPOLOGY_H
++#define _LINUX_TOPOLOGY_H
++
++#include <linux/cpumask.h>
++
++#endif /* _LINUX_TOPOLOGY_H */
+-- 
+2.39.0
+
 
 
