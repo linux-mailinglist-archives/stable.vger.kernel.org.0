@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 3E2BA69CDF3
-	for <lists+stable@lfdr.de>; Mon, 20 Feb 2023 14:54:33 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3C47C69CCBC
+	for <lists+stable@lfdr.de>; Mon, 20 Feb 2023 14:43:14 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232527AbjBTNyc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Feb 2023 08:54:32 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42882 "EHLO
+        id S232131AbjBTNnN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Feb 2023 08:43:13 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53786 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232528AbjBTNyb (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 20 Feb 2023 08:54:31 -0500
+        with ESMTP id S231208AbjBTNnM (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 20 Feb 2023 08:43:12 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 83B061CF46
-        for <stable@vger.kernel.org>; Mon, 20 Feb 2023 05:54:30 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 13BA31C7D4
+        for <stable@vger.kernel.org>; Mon, 20 Feb 2023 05:43:07 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 31B10B80D07
-        for <stable@vger.kernel.org>; Mon, 20 Feb 2023 13:54:29 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9E940C433EF;
-        Mon, 20 Feb 2023 13:54:27 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id B964DB80D43
+        for <stable@vger.kernel.org>; Mon, 20 Feb 2023 13:43:05 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2E50CC433EF;
+        Mon, 20 Feb 2023 13:43:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1676901268;
-        bh=Q4fIJrB9ze0H6fdtNt/wHdDiReKz63ks7CkDFg4tGNs=;
+        s=korg; t=1676900584;
+        bh=x/C2/aEnXLov8gi5+SSH/+uIM06q0NoA3tH4t1jt48w=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=M4j8ZpBxguHky8LEgLnvVXhff2KxYJKZSsvuFXB7aMf/1lTV7yU6N1yEU6vaAlOte
-         yynUU4/GfEmoO7yo0wd4N9BURK7e3nw8ft+qR7N+JWybPczL2Syua01xMtMYfRe6iJ
-         cRbLgvgG1cfdQp+nhY37grwxTIg4oIMAdkj75YV8=
+        b=iKm8f8ChAB1eV3o2lJPhA4xlVLuespSLxy1BzptXrlN6quER3FixI7ADLJXVoK7OM
+         ssqIPjZA3+TH5jhBTXs6oAil2vbz+Fkm6ZAKrmKYqDcrcFBSaZKQcm6OM1Imnz14Lu
+         TKlOPnR0W8bpWr7lEqHQv2RXRx5JZZHBXoiOrbfg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Amit Engel <Amit.Engel@dell.com>,
-        James Smart <jsmart2021@gmail.com>,
-        Christoph Hellwig <hch@lst.de>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 10/57] nvme-fc: fix a missing queue put in nvmet_fc_ls_create_association
+        patches@lists.linux.dev, Miko Larsson <mikoxyzzz@gmail.com>,
+        Alexander Duyck <alexanderduyck@fb.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        syzbot+cd80c5ef5121bfe85b55@syzkaller.appspotmail.com
+Subject: [PATCH 4.19 79/89] net/usb: kalmia: Dont pass act_len in usb_bulk_msg error path
 Date:   Mon, 20 Feb 2023 14:36:18 +0100
-Message-Id: <20230220133549.721644720@linuxfoundation.org>
+Message-Id: <20230220133555.948814017@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230220133549.360169435@linuxfoundation.org>
-References: <20230220133549.360169435@linuxfoundation.org>
+In-Reply-To: <20230220133553.066768704@linuxfoundation.org>
+References: <20230220133553.066768704@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,41 +54,54 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Amit Engel <Amit.Engel@dell.com>
+From: Miko Larsson <mikoxyzzz@gmail.com>
 
-[ Upstream commit 0cab4404874f2de52617de8400c844891c6ea1ce ]
+commit c68f345b7c425b38656e1791a0486769a8797016 upstream.
 
-As part of nvmet_fc_ls_create_association there is a case where
-nvmet_fc_alloc_target_queue fails right after a new association with an
-admin queue is created. In this case, no one releases the get taken in
-nvmet_fc_alloc_target_assoc.  This fix is adding the missing put.
+syzbot reported that act_len in kalmia_send_init_packet() is
+uninitialized when passing it to the first usb_bulk_msg error path. Jiri
+Pirko noted that it's pointless to pass it in the error path, and that
+the value that would be printed in the second error path would be the
+value of act_len from the first call to usb_bulk_msg.[1]
 
-Signed-off-by: Amit Engel <Amit.Engel@dell.com>
-Reviewed-by: James Smart <jsmart2021@gmail.com>
-Signed-off-by: Christoph Hellwig <hch@lst.de>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+With this in mind, let's just not pass act_len to the usb_bulk_msg error
+paths.
+
+1: https://lore.kernel.org/lkml/Y9pY61y1nwTuzMOa@nanopsycho/
+
+Fixes: d40261236e8e ("net/usb: Add Samsung Kalmia driver for Samsung GT-B3730")
+Reported-and-tested-by: syzbot+cd80c5ef5121bfe85b55@syzkaller.appspotmail.com
+Signed-off-by: Miko Larsson <mikoxyzzz@gmail.com>
+Reviewed-by: Alexander Duyck <alexanderduyck@fb.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/nvme/target/fc.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ drivers/net/usb/kalmia.c |    8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/nvme/target/fc.c b/drivers/nvme/target/fc.c
-index 640031cbda7cc..46fc44ce86712 100644
---- a/drivers/nvme/target/fc.c
-+++ b/drivers/nvme/target/fc.c
-@@ -1675,8 +1675,10 @@ nvmet_fc_ls_create_association(struct nvmet_fc_tgtport *tgtport,
- 		else {
- 			queue = nvmet_fc_alloc_target_queue(iod->assoc, 0,
- 					be16_to_cpu(rqst->assoc_cmd.sqsize));
--			if (!queue)
-+			if (!queue) {
- 				ret = VERR_QUEUE_ALLOC_FAIL;
-+				nvmet_fc_tgt_a_put(iod->assoc);
-+			}
- 		}
+--- a/drivers/net/usb/kalmia.c
++++ b/drivers/net/usb/kalmia.c
+@@ -69,8 +69,8 @@ kalmia_send_init_packet(struct usbnet *d
+ 		init_msg, init_msg_len, &act_len, KALMIA_USB_TIMEOUT);
+ 	if (status != 0) {
+ 		netdev_err(dev->net,
+-			"Error sending init packet. Status %i, length %i\n",
+-			status, act_len);
++			"Error sending init packet. Status %i\n",
++			status);
+ 		return status;
  	}
+ 	else if (act_len != init_msg_len) {
+@@ -87,8 +87,8 @@ kalmia_send_init_packet(struct usbnet *d
  
--- 
-2.39.0
-
+ 	if (status != 0)
+ 		netdev_err(dev->net,
+-			"Error receiving init result. Status %i, length %i\n",
+-			status, act_len);
++			"Error receiving init result. Status %i\n",
++			status);
+ 	else if (act_len != expected_len)
+ 		netdev_err(dev->net, "Unexpected init result length: %i\n",
+ 			act_len);
 
 
