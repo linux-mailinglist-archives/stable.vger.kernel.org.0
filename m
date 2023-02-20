@@ -2,45 +2,50 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 678F069CE04
-	for <lists+stable@lfdr.de>; Mon, 20 Feb 2023 14:55:23 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D2BF069CEB8
+	for <lists+stable@lfdr.de>; Mon, 20 Feb 2023 15:01:48 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232578AbjBTNzU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Feb 2023 08:55:20 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43870 "EHLO
+        id S232818AbjBTOBq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Feb 2023 09:01:46 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54794 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232562AbjBTNzO (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 20 Feb 2023 08:55:14 -0500
+        with ESMTP id S232830AbjBTOBk (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 20 Feb 2023 09:01:40 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 80B7F1EBCC
-        for <stable@vger.kernel.org>; Mon, 20 Feb 2023 05:55:04 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A1BF91E5EB
+        for <stable@vger.kernel.org>; Mon, 20 Feb 2023 06:01:25 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 26DF8B80D1F
-        for <stable@vger.kernel.org>; Mon, 20 Feb 2023 13:55:03 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 74410C433EF;
-        Mon, 20 Feb 2023 13:55:01 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id F1F43B80D3A
+        for <stable@vger.kernel.org>; Mon, 20 Feb 2023 14:00:48 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 202C4C433EF;
+        Mon, 20 Feb 2023 14:00:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1676901301;
-        bh=TgrcLEEAM0LNBd3HLA83vIVo4F5wBCN0KIqBHlgVPcs=;
+        s=korg; t=1676901647;
+        bh=CyA6CwzRLi+DUIhpkw7WO91KVuXYq7Lx4JCa/25qgrw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=s8wzHpZJUjRQwlWMlrVKtpn56Smv9rq6JTMsIsYm1EJDlM8WT0pPwjvGAab+U8ADh
-         DeZF9vqTHB84lvcR+RU32pK5QEtRqNwTG0oSsj1nSuoPL9iYDoXlb+sORC+dvzEO74
-         p+zmvr9/g5Ou9ISpqQBWRN3zFecSHVOV75od/XjQ=
+        b=FbgJTDnKUXNp7F/lK6PGajKzelFFqdtymK4VaTJEHEPi1qSiU1SM5uPfuZQQy88Y9
+         XYe44GlZsrx+YajN7W5/9ud4WTubxDBxztec0LtGe9mPlDamV9jE6Mp+9ZmeauDCa5
+         RsnJk1l4JxK6x5+yhRc9jQM276d8mKe7MGL0Qgzw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        "Russell King (Oracle)" <rmk+kernel@armlinux.org.uk>,
-        Srinivas Kandagatla <srinivas.kandagatla@linaro.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 15/57] nvmem: core: fix registration vs use race
+        patches@lists.linux.dev, Mike Kravetz <mike.kravetz@oracle.com>,
+        Naresh Kamboju <naresh.kamboju@linaro.org>,
+        Jesper Juhl <jesperjuhl76@gmail.com>,
+        Muchun Song <songmuchun@bytedance.com>,
+        Linux Kernel Functional Testing <lkft@linaro.org>,
+        Anders Roxell <anders.roxell@linaro.org>,
+        Andi Kleen <ak@linux.intel.com>,
+        Sasha Levin <sashal@kernel.org>,
+        Andrew Morton <akpm@linux-foundation.org>
+Subject: [PATCH 6.1 067/118] hugetlb: check for undefined shift on 32 bit architectures
 Date:   Mon, 20 Feb 2023 14:36:23 +0100
-Message-Id: <20230220133549.911775396@linuxfoundation.org>
+Message-Id: <20230220133603.113440131@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230220133549.360169435@linuxfoundation.org>
-References: <20230220133549.360169435@linuxfoundation.org>
+In-Reply-To: <20230220133600.368809650@linuxfoundation.org>
+References: <20230220133600.368809650@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,80 +59,63 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Russell King (Oracle) <rmk+kernel@armlinux.org.uk>
+From: Mike Kravetz <mike.kravetz@oracle.com>
 
-[ Upstream commit ab3428cfd9aa2f3463ee4b2909b5bb2193bd0c4a ]
+commit ec4288fe63966b26d53907212ecd05dfa81dd2cc upstream.
 
-The i.MX6 CPU frequency driver sometimes fails to register at boot time
-due to nvmem_cell_read_u32() sporadically returning -ENOENT.
+Users can specify the hugetlb page size in the mmap, shmget and
+memfd_create system calls.  This is done by using 6 bits within the flags
+argument to encode the base-2 logarithm of the desired page size.  The
+routine hstate_sizelog() uses the log2 value to find the corresponding
+hugetlb hstate structure.  Converting the log2 value (page_size_log) to
+potential hugetlb page size is the simple statement:
 
-This happens because there is a window where __nvmem_device_get() in
-of_nvmem_cell_get() is able to return the nvmem device, but as cells
-have been setup, nvmem_find_cell_entry_by_node() returns NULL.
+	1UL << page_size_log
 
-The occurs because the nvmem core registration code violates one of the
-fundamental principles of kernel programming: do not publish data
-structures before their setup is complete.
+Because only 6 bits are used for page_size_log, the left shift can not be
+greater than 63.  This is fine on 64 bit architectures where a long is 64
+bits.  However, if a value greater than 31 is passed on a 32 bit
+architecture (where long is 32 bits) the shift will result in undefined
+behavior.  This was generally not an issue as the result of the undefined
+shift had to exactly match hugetlb page size to proceed.
 
-Fix this by making nvmem core code conform with this principle.
+Recent improvements in runtime checking have resulted in this undefined
+behavior throwing errors such as reported below.
 
-Fixes: eace75cfdcf7 ("nvmem: Add a simple NVMEM framework for nvmem providers")
-Cc: stable@vger.kernel.org
-Signed-off-by: Russell King (Oracle) <rmk+kernel@armlinux.org.uk>
-Signed-off-by: Srinivas Kandagatla <srinivas.kandagatla@linaro.org>
-Link: https://lore.kernel.org/r/20230127104015.23839-7-srinivas.kandagatla@linaro.org
+Fix by comparing page_size_log to BITS_PER_LONG before doing shift.
+
+Link: https://lkml.kernel.org/r/20230216013542.138708-1-mike.kravetz@oracle.com
+Link: https://lore.kernel.org/lkml/CA+G9fYuei_Tr-vN9GS7SfFyU1y9hNysnf=PB7kT0=yv4MiPgVg@mail.gmail.com/
+Fixes: 42d7395feb56 ("mm: support more pagesizes for MAP_HUGETLB/SHM_HUGETLB")
+Signed-off-by: Mike Kravetz <mike.kravetz@oracle.com>
+Reported-by: Naresh Kamboju <naresh.kamboju@linaro.org>
+Reviewed-by: Jesper Juhl <jesperjuhl76@gmail.com>
+Acked-by: Muchun Song <songmuchun@bytedance.com>
+Tested-by: Linux Kernel Functional Testing <lkft@linaro.org>
+Tested-by: Naresh Kamboju <naresh.kamboju@linaro.org>
+Cc: Anders Roxell <anders.roxell@linaro.org>
+Cc: Andi Kleen <ak@linux.intel.com>
+Cc: Sasha Levin <sashal@kernel.org>
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/nvmem/core.c | 16 +++++++---------
- 1 file changed, 7 insertions(+), 9 deletions(-)
+ include/linux/hugetlb.h |    5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/nvmem/core.c b/drivers/nvmem/core.c
-index de356cdde4ce8..0ef7b95348b1b 100644
---- a/drivers/nvmem/core.c
-+++ b/drivers/nvmem/core.c
-@@ -682,16 +682,10 @@ struct nvmem_device *nvmem_register(const struct nvmem_config *config)
- 	nvmem->dev.groups = nvmem_dev_groups;
- #endif
+--- a/include/linux/hugetlb.h
++++ b/include/linux/hugetlb.h
+@@ -753,7 +753,10 @@ static inline struct hstate *hstate_size
+ 	if (!page_size_log)
+ 		return &default_hstate;
  
--	dev_dbg(&nvmem->dev, "Registering nvmem device %s\n", config->name);
--
--	rval = device_add(&nvmem->dev);
--	if (rval)
--		goto err_put_device;
--
- 	if (config->compat) {
- 		rval = nvmem_sysfs_setup_compat(nvmem, config);
- 		if (rval)
--			goto err_device_del;
-+			goto err_put_device;
- 	}
- 
- 	if (config->cells) {
-@@ -708,6 +702,12 @@ struct nvmem_device *nvmem_register(const struct nvmem_config *config)
- 	if (rval)
- 		goto err_remove_cells;
- 
-+	dev_dbg(&nvmem->dev, "Registering nvmem device %s\n", config->name);
+-	return size_to_hstate(1UL << page_size_log);
++	if (page_size_log < BITS_PER_LONG)
++		return size_to_hstate(1UL << page_size_log);
 +
-+	rval = device_add(&nvmem->dev);
-+	if (rval)
-+		goto err_remove_cells;
-+
- 	blocking_notifier_call_chain(&nvmem_notifier, NVMEM_ADD, nvmem);
++	return NULL;
+ }
  
- 	return nvmem;
-@@ -716,8 +716,6 @@ struct nvmem_device *nvmem_register(const struct nvmem_config *config)
- 	nvmem_device_remove_all_cells(nvmem);
- 	if (config->compat)
- 		nvmem_sysfs_remove_compat(nvmem, config);
--err_device_del:
--	device_del(&nvmem->dev);
- err_put_device:
- 	put_device(&nvmem->dev);
- 
--- 
-2.39.0
-
+ static inline struct hstate *hstate_vma(struct vm_area_struct *vma)
 
 
