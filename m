@@ -2,46 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 6CAB869CC52
-	for <lists+stable@lfdr.de>; Mon, 20 Feb 2023 14:39:06 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5ABF069CE7D
+	for <lists+stable@lfdr.de>; Mon, 20 Feb 2023 14:59:54 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230366AbjBTNjF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Feb 2023 08:39:05 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47256 "EHLO
+        id S232766AbjBTN7p (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Feb 2023 08:59:45 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51536 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231446AbjBTNjE (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 20 Feb 2023 08:39:04 -0500
+        with ESMTP id S232786AbjBTN70 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 20 Feb 2023 08:59:26 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 79E461C315
-        for <stable@vger.kernel.org>; Mon, 20 Feb 2023 05:39:03 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A428E1E9F7
+        for <stable@vger.kernel.org>; Mon, 20 Feb 2023 05:59:14 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 26FFFB80D1F
-        for <stable@vger.kernel.org>; Mon, 20 Feb 2023 13:39:02 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8C908C433D2;
-        Mon, 20 Feb 2023 13:39:00 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 4A180B80D52
+        for <stable@vger.kernel.org>; Mon, 20 Feb 2023 13:58:52 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9FA51C433D2;
+        Mon, 20 Feb 2023 13:58:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1676900340;
-        bh=O92mdS/dd4saYeVoM0uFRXseMznl0TqQ6hJW8yiQFgA=;
+        s=korg; t=1676901531;
+        bh=wGkW8T3g7BgS6r/3kEN8kmhQTQ84eeVyAd1XCaMk0V8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=2clU1ZdhJNFjT4SkrNX9xRSNCYDSYDwjcFHTQKlHJ1773o4tisUTW7cO/bzdOEfBu
-         s/floqkgffN2+TkOuJiUShubXc/7CXB1qJX8gelfa4U0JmIpltZyNzEimKlyR3utZU
-         nrlDBY9JF//g52S9Ghc062rOL888Bjgjg7o6iSws=
+        b=cFEcgkRzP48IBg4A/WM2DYCiL8ZAasMzQIt7GgrLlHg4081hoI2eQGbEEEuytSY71
+         VwUxl0jZse2UDvjV8tW/6QjdM9C5z4A8YbnWO+ypVb074lfECiFLAEqnIe2puF6bPL
+         +Eu+mT3EPh/T5/+THKfo5A0LNTDQ5QFVZru08Gz4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Alexey Khoroshilov <khoroshilov@ispras.ru>,
-        Fedor Pchelkin <pchelkin@ispras.ru>,
-        Phillip Lougher <phillip@squashfs.org.uk>,
-        Andrew Morton <akpm@linux-foundation.org>
-Subject: [PATCH 4.14 42/53] revert "squashfs: harden sanity check in squashfs_read_xattr_id_table"
+        patches@lists.linux.dev, Leo Li <sunpeng.li@amd.com>,
+        Mikhail Gavrilov <mikhail.v.gavrilov@gmail.com>,
+        Hamza Mahfooz <hamza.mahfooz@amd.com>,
+        Alex Deucher <alexander.deucher@amd.com>
+Subject: [PATCH 6.1 052/118] drm/amd/display: Fail atomic_check early on normalize_zpos error
 Date:   Mon, 20 Feb 2023 14:36:08 +0100
-Message-Id: <20230220133549.665403274@linuxfoundation.org>
+Message-Id: <20230220133602.532609305@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230220133548.158615609@linuxfoundation.org>
-References: <20230220133548.158615609@linuxfoundation.org>
+In-Reply-To: <20230220133600.368809650@linuxfoundation.org>
+References: <20230220133600.368809650@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,34 +54,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Andrew Morton <akpm@linux-foundation.org>
+From: Leo Li <sunpeng.li@amd.com>
 
-commit a5b21d8d791cd4db609d0bbcaa9e0c7e019888d1 upstream.
+commit 2a00299e7447395d0898e7c6214817c06a61a8e8 upstream.
 
-This fix was nacked by Philip, for reasons identified in the email linked
-below.
+[Why]
 
-Link: https://lkml.kernel.org/r/68f15d67-8945-2728-1f17-5b53a80ec52d@squashfs.org.uk
-Fixes: 72e544b1b28325 ("squashfs: harden sanity check in squashfs_read_xattr_id_table")
-Cc: Alexey Khoroshilov <khoroshilov@ispras.ru>
-Cc: Fedor Pchelkin <pchelkin@ispras.ru>
-Cc: Phillip Lougher <phillip@squashfs.org.uk>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+drm_atomic_normalize_zpos() can return an error code when there's
+modeset lock contention. This was being ignored.
+
+[How]
+
+Bail out of atomic check if normalize_zpos() returns an error.
+
+Fixes: b261509952bc ("drm/amd/display: Fix double cursor on non-video RGB MPO")
+Signed-off-by: Leo Li <sunpeng.li@amd.com>
+Tested-by: Mikhail Gavrilov <mikhail.v.gavrilov@gmail.com>
+Reviewed-by: Hamza Mahfooz <hamza.mahfooz@amd.com>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+Cc: stable@vger.kernel.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/squashfs/xattr_id.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c |    6 +++++-
+ 1 file changed, 5 insertions(+), 1 deletion(-)
 
---- a/fs/squashfs/xattr_id.c
-+++ b/fs/squashfs/xattr_id.c
-@@ -89,7 +89,7 @@ __le64 *squashfs_read_xattr_id_table(str
- 	/* Sanity check values */
+--- a/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c
++++ b/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c
+@@ -9556,7 +9556,11 @@ static int amdgpu_dm_atomic_check(struct
+ 	 * `dcn10_can_pipe_disable_cursor`). By now, all modified planes are in
+ 	 * atomic state, so call drm helper to normalize zpos.
+ 	 */
+-	drm_atomic_normalize_zpos(dev, state);
++	ret = drm_atomic_normalize_zpos(dev, state);
++	if (ret) {
++		drm_dbg(dev, "drm_atomic_normalize_zpos() failed\n");
++		goto fail;
++	}
  
- 	/* there is always at least one xattr id */
--	if (*xattr_ids <= 0)
-+	if (*xattr_ids == 0)
- 		return ERR_PTR(-EINVAL);
- 
- 	len = SQUASHFS_XATTR_BLOCK_BYTES(*xattr_ids);
+ 	/* Remove exiting planes if they are modified */
+ 	for_each_oldnew_plane_in_state_reverse(state, plane, old_plane_state, new_plane_state, i) {
 
 
