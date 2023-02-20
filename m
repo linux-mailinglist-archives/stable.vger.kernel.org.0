@@ -2,41 +2,67 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B834E69CA07
-	for <lists+stable@lfdr.de>; Mon, 20 Feb 2023 12:40:44 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id DA54D69CA31
+	for <lists+stable@lfdr.de>; Mon, 20 Feb 2023 12:49:24 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231875AbjBTLkl (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Feb 2023 06:40:41 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34146 "EHLO
+        id S231923AbjBTLtX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Feb 2023 06:49:23 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42486 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231878AbjBTLkh (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 20 Feb 2023 06:40:37 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 166011B555
-        for <stable@vger.kernel.org>; Mon, 20 Feb 2023 03:40:28 -0800 (PST)
+        with ESMTP id S231898AbjBTLtU (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 20 Feb 2023 06:49:20 -0500
+Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 90A431BF5
+        for <stable@vger.kernel.org>; Mon, 20 Feb 2023 03:49:09 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 8FCFC60DF2
-        for <stable@vger.kernel.org>; Mon, 20 Feb 2023 11:40:28 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A2A83C433D2;
-        Mon, 20 Feb 2023 11:40:27 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1676893228;
-        bh=s5nJdUNNKtUgr7Nk6DMmPwGr5IRZNWFX4Ll4jQV2vgA=;
-        h=Subject:To:Cc:From:Date:From;
-        b=q/fcCMsNE7l1RcMzRLGzXm+nfnwwRjkgxVlLEgaV01/yXaQ3eYLnfFNccCFoqPQKj
-         nwtTf5KM87kqdeRumwOau87gjEcMjnkfQQTXDawIpbdHYCfSFEVstEEGvEyQFopA/H
-         IUvqmGAWcjKcLaU/Mz2vTdSertXBK/YCBFQngyDw=
-Subject: FAILED: patch "[PATCH] nvme-apple: reset controller during shutdown" failed to apply to 6.1-stable tree
-To:     j@jannau.net, hch@lst.de
-Cc:     <stable@vger.kernel.org>
-From:   <gregkh@linuxfoundation.org>
-Date:   Mon, 20 Feb 2023 12:40:25 +0100
-Message-ID: <1676893225104207@kroah.com>
+        by sin.source.kernel.org (Postfix) with ESMTPS id 0A042CE0F5A
+        for <stable@vger.kernel.org>; Mon, 20 Feb 2023 11:49:08 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 65C78C433EF
+        for <stable@vger.kernel.org>; Mon, 20 Feb 2023 11:49:06 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1676893746;
+        bh=hKhFtO7iAn4ynoKUU51Bc3o3echp7/7sxMFS0ry2TgI=;
+        h=References:In-Reply-To:From:Date:Subject:To:Cc:From;
+        b=WfWWe1fbq/JmKV+WaIJPaduhN0o9z3wQZ9sp2PZt4e/+msb8eC7WlR/5G8e3B0A0r
+         Kv4Ug4PpLpXElqm+Od1owX4duh1LXTH06kK7jk1qjhOouk2qBGB+yrDCkq95K1rwEK
+         nt6nReMeVtNC5koxtMlzkGLIVmNC+tKjW9QB36UAXcyfP6OzqM6twv4zaISwTE6yji
+         cO1dqUgu7rfobSYqw7lEKM48cpSLMquerKFOzydjOfUgZnuVxEX8Zj0nMAQi9vEyL4
+         mz4HhyKdhdlc3PxPuIjwseJFaYNXAiwNcNFpA6OB/a8B3aMyk0g8J4XwoGthv3K06z
+         4mfi2fIbE18sA==
+Received: by mail-lj1-f176.google.com with SMTP id j17so1051825ljq.11
+        for <stable@vger.kernel.org>; Mon, 20 Feb 2023 03:49:06 -0800 (PST)
+X-Gm-Message-State: AO0yUKUJdxHZhV9yKsQIx4uB4ikM583jJiDNw59SydUsSuMuScmBsafQ
+        1DKM66YJCgzARHqHA2Gk4MAMAaj7N61fCMS6h2NtnQ==
+X-Google-Smtp-Source: AK7set9lPybWNLlNOmnOEh8t3Sd1rbUyjMUMnc9L7wCbbz87QMjllNyNrgFSZwo2qj9y+Ak9J3s9qgQJwkJefoE18x8=
+X-Received: by 2002:a17:906:4a93:b0:88a:b103:212d with SMTP id
+ x19-20020a1709064a9300b0088ab103212dmr4267853eju.15.1676893724254; Mon, 20
+ Feb 2023 03:48:44 -0800 (PST)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ANSI_X3.4-1968
-Content-Transfer-Encoding: 8bit
+References: <20230220103930.1963742-1-kpsingh@kernel.org> <Y/NQ6w4UlEuBSTql@kroah.com>
+ <CACYkzJ7Umq_XQEAHZyPE60zhbWsSF_i-vNa7u_qCeqBgGVfC4g@mail.gmail.com>
+ <Y/NXbz9V840KnVYh@kroah.com> <CACYkzJ44dwK8HZFnLNOvGSS_Uo3U0NUP_a41+t6oc8d=UAqRwA@mail.gmail.com>
+ <Y/Nbu2p9CGG/nwcW@kroah.com>
+In-Reply-To: <Y/Nbu2p9CGG/nwcW@kroah.com>
+From:   KP Singh <kpsingh@kernel.org>
+Date:   Mon, 20 Feb 2023 03:48:33 -0800
+X-Gmail-Original-Message-ID: <CACYkzJ73cV-DHkXnKVLTL9-+ToB=y08VWXxvqxTNpLrVbs_wTw@mail.gmail.com>
+Message-ID: <CACYkzJ73cV-DHkXnKVLTL9-+ToB=y08VWXxvqxTNpLrVbs_wTw@mail.gmail.com>
+Subject: Re: [PATCH] x86/speculation: Fix user-mode spectre-v2 protection with KERNEL_IBRS
+To:     Greg KH <gregkh@linuxfoundation.org>
+Cc:     security@kernel.org, pjt@google.com, evn@google.com,
+        jpoimboe@kernel.org, tglx@linutronix.de, mingo@redhat.com,
+        bp@alien8.de, dave.hansen@linux.intel.com, x86@kernel.org,
+        hpa@zytor.com, peterz@infradead.org,
+        pawan.kumar.gupta@linux.intel.com, kim.phillips@amd.com,
+        alexandre.chartre@oracle.com, daniel.sneddon@linux.intel.com,
+        =?UTF-8?Q?Jos=C3=A9_Oliveira?= <joseloliveira11@gmail.com>,
+        Rodrigo Branco <rodrigo@kernelhacking.com>,
+        Alexandra Sandulescu <aesa@google.com>,
+        Jim Mattson <jmattson@google.com>, stable@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
         DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
         SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
@@ -46,90 +72,120 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+On Mon, Feb 20, 2023 at 3:38 AM Greg KH <gregkh@linuxfoundation.org> wrote:
+>
+> On Mon, Feb 20, 2023 at 03:25:08AM -0800, KP Singh wrote:
+> > On Mon, Feb 20, 2023 at 3:20 AM Greg KH <gregkh@linuxfoundation.org> wr=
+ote:
+> > >
+> > > On Mon, Feb 20, 2023 at 03:11:24AM -0800, KP Singh wrote:
+> > > > On Mon, Feb 20, 2023 at 2:52 AM Greg KH <gregkh@linuxfoundation.org=
+> wrote:
+> > > > >
+> > > > > On Mon, Feb 20, 2023 at 11:39:30AM +0100, KP Singh wrote:
+> > > > > > With the introduction of KERNEL_IBRS, STIBP is no longer needed
+> > > > > > to prevent cross thread training in the kernel space. When KERN=
+EL_IBRS
+> > > > > > was added, it also disabled the user-mode protections for spect=
+re_v2.
+> > > > > > KERNEL_IBRS does not mitigate cross thread training in the user=
+space.
+> > > > > >
+> > > > > > In order to demonstrate the issue, one needs to avoid syscalls =
+in the
+> > > > > > victim as syscalls can shorten the window size due to
+> > > > > > a user -> kernel -> user transition which sets the
+> > > > > > IBRS bit when entering kernel space and clearing any training t=
+he
+> > > > > > attacker may have done.
+> > > > > >
+> > > > > > Allow users to select a spectre_v2_user mitigation (STIBP alway=
+s on,
+> > > > > > opt-in via prctl) when KERNEL_IBRS is enabled.
+> > > > > >
+> > > > > > Reported-by: Jos=C3=A9 Oliveira <joseloliveira11@gmail.com>
+> > > > > > Reported-by: Rodrigo Branco <rodrigo@kernelhacking.com>
+> > > > > > Reviewed-by: Alexandra Sandulescu <aesa@google.com>
+> > > > > > Reviewed-by: Jim Mattson <jmattson@google.com>
+> > > > > > Fixes: 7c693f54c873 ("x86/speculation: Add spectre_v2=3Dibrs op=
+tion to support Kernel IBRS")
+> > > > > > Cc: stable@vger.kernel.org
+> > > > > > Signed-off-by: KP Singh <kpsingh@kernel.org>
+> > > > > > ---
+> > > > > >  arch/x86/kernel/cpu/bugs.c | 25 +++++++++++++++++--------
+> > > > > >  1 file changed, 17 insertions(+), 8 deletions(-)
+> > > > >
+> > > > > As this is posted publicly, there's no need to send it to
+> > > > > security@kernel.org, it doesn't need to be involved.
+> > > >
+> > > > Sure, it's okay. Please do note in my first patch, I did follow
+> > > > https://www.kernel.org/doc/Documentation/admin-guide/security-bugs.=
+rst,
+> > > > if you want folks to explicitly Cc maintainers with their fix or
+> > > > report, I think it's worth mentioning in the guidelines there as th=
+e
+> > > > current language seems to imply that the maintainers will be pulled=
+ in
+> > > > by the security team:
+> > > >
+> > > > "It is possible that the security team will bring in extra help fro=
+m
+> > > > area maintainers to understand and fix the security vulnerability."
+> > >
+> > > Yes, but you already have a patch here, what "help" do you need?  You
+> > > didn't specify any help, you just sent us a patch with no context.  T=
+his
+> > > wasn't any sort of a "report" or "hey, I think we found a problem ove=
+r
+> > > here, does this change look correct", right?
+> > >
+> > > So please be specific as to what you are asking for, otherwise we hav=
+e
+> > > to guess (i.e. you cc:ed a seemingly random set of people but not the
+> >
+> > I don't see how it matters who I cc on the list.
+>
+> It gives us a hint as to who you are leaving out, right?
+>
+> > Anyways, I am still
+> > not clear on what one is supposed to do in the case when one has a
+> > patch for an issue already. Should this not be send it to security@?
+>
+> security@ is to take reports of potential security problems, triage
+> them, and drag in the respective people to fix the problem as soon as
+> possible by creating a patch and getting it merged.
+>
+> You already had a patch, so you did all of the work that security@ would
+> normally do, so what did you need us to do here?
+>
+> You also did not ask or request anything, you just sent a patch with no
+> context other than the changelog text.
+>
+> So if you have a fix for a potential problem already, you either just
+> send it to get it merged as soon as possible, in which case security@ is
+> not needed.  Or if you want to ask questions "is this really an issue
+> and is this the fix", then send the patch and ask that question.
+>
+> Again, as it is, this looks like any other normal patch sent to
+> subsystems for review, and there was no request for help or context at
+> all.  Then you sent the patch to a public mailing list, so security@ is
+> not needed at al, the normal development process applies as you
+> determined it's not a secret by doing so.
+>
+> If you have questions, ask them, we can't read minds.
 
-The patch below does not apply to the 6.1-stable tree.
-If someone wants it applied there, or to any other stable or longterm
-tree, then please email the backport, including the original git commit
-id to <stable@vger.kernel.org>.
+When one sends a report with the fix to security@kernel.org, the ask /
+request is they are asking for a review and having it merged. Now, I
+thought this is implied with the patch, but maybe something else is
+expected and I should have added a cover letter specifically asking
+what was expected.
 
-Possible dependencies:
+In this case, I did not intend to make it public initially and would
+have preferred to not make it public until it was merged, until I was
+nudged to read https://people.kernel.org/tglx/notes-about-netiquette.
+Anyways, what's done is done, let's focus on fixing the bug.
 
-c06ba7b892a5 ("nvme-apple: reset controller during shutdown")
-285b6e9b5717 ("nvme: merge nvme_shutdown_ctrl into nvme_disable_ctrl")
-e6d275de2e4a ("nvme: use nvme_wait_ready in nvme_shutdown_ctrl")
-c76b8308e4c9 ("nvme-apple: fix controller shutdown in apple_nvme_disable")
-9f27bd701d18 ("nvme: rename the queue quiescing helpers")
-91c11d5f3254 ("nvme-rdma: stop auth work after tearing down queues in error recovery")
-1f1a4f89562d ("nvme-tcp: stop auth work after tearing down queues in error recovery")
-eac3ef262941 ("nvme-pci: split the initial probe from the rest path")
-a6ee7f19ebfd ("nvme-pci: call nvme_pci_configure_admin_queue from nvme_pci_enable")
-3f30a79c2e2c ("nvme-pci: set constant paramters in nvme_pci_alloc_ctrl")
-2e87570be9d2 ("nvme-pci: factor out a nvme_pci_alloc_dev helper")
-081a7d958ce4 ("nvme-pci: factor the iod mempool creation into a helper")
-94cc781f69f4 ("nvme: move OPAL setup from PCIe to core")
-cd50f9b24726 ("nvme: split nvme_kill_queues")
-6bcd5089ee13 ("nvme: don't unquiesce the admin queue in nvme_kill_queues")
-0ffc7e98bfaa ("nvme-pci: refactor the tagset handling in nvme_reset_work")
-71b26083d59c ("block: set the disk capacity to 0 in blk_mark_disk_dead")
-
-thanks,
-
-greg k-h
-
------------------- original commit in Linus's tree ------------------
-
-From c06ba7b892a50b48522ad441a40053f483dfee9e Mon Sep 17 00:00:00 2001
-From: Janne Grunau <j@jannau.net>
-Date: Tue, 17 Jan 2023 19:25:00 +0100
-Subject: [PATCH] nvme-apple: reset controller during shutdown
-
-This is a functional revert of c76b8308e4c9 ("nvme-apple: fix controller
-shutdown in apple_nvme_disable").
-
-The commit broke suspend/resume since apple_nvme_reset_work() tries to
-disable the controller on resume. This does not work for the apple NVMe
-controller since register access only works while the co-processor
-firmware is running.
-
-Disabling the NVMe controller in the shutdown path is also required
-for shutting the co-processor down. The original code was appropriate
-for this hardware. Add a comment to prevent a similar breaking changes
-in the future.
-
-Fixes: c76b8308e4c9 ("nvme-apple: fix controller shutdown in apple_nvme_disable")
-Reported-by: Janne Grunau <j@jannau.net>
-Link: https://lore.kernel.org/all/20230110174745.GA3576@jannau.net/
-Signed-off-by: Janne Grunau <j@jannau.net>
-[hch: updated with a more descriptive comment from Hector Martin]
-Signed-off-by: Christoph Hellwig <hch@lst.de>
-
-diff --git a/drivers/nvme/host/apple.c b/drivers/nvme/host/apple.c
-index bf1c60edb7f9..146c9e63ce77 100644
---- a/drivers/nvme/host/apple.c
-+++ b/drivers/nvme/host/apple.c
-@@ -829,7 +829,23 @@ static void apple_nvme_disable(struct apple_nvme *anv, bool shutdown)
- 			apple_nvme_remove_cq(anv);
- 		}
- 
--		nvme_disable_ctrl(&anv->ctrl, shutdown);
-+		/*
-+		 * Always disable the NVMe controller after shutdown.
-+		 * We need to do this to bring it back up later anyway, and we
-+		 * can't do it while the firmware is not running (e.g. in the
-+		 * resume reset path before RTKit is initialized), so for Apple
-+		 * controllers it makes sense to unconditionally do it here.
-+		 * Additionally, this sequence of events is reliable, while
-+		 * others (like disabling after bringing back the firmware on
-+		 * resume) seem to run into trouble under some circumstances.
-+		 *
-+		 * Both U-Boot and m1n1 also use this convention (i.e. an ANS
-+		 * NVMe controller is handed off with firmware shut down, in an
-+		 * NVMe disabled state, after a clean shutdown).
-+		 */
-+		if (shutdown)
-+			nvme_disable_ctrl(&anv->ctrl, shutdown);
-+		nvme_disable_ctrl(&anv->ctrl, false);
- 	}
- 
- 	WRITE_ONCE(anv->ioq.enabled, false);
-
+>
+> thanks,
+>
+> greg k-h
