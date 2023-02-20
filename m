@@ -2,43 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 62E7E69CE47
-	for <lists+stable@lfdr.de>; Mon, 20 Feb 2023 14:58:13 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0666F69CDB2
+	for <lists+stable@lfdr.de>; Mon, 20 Feb 2023 14:51:53 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232634AbjBTN6M (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Feb 2023 08:58:12 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48856 "EHLO
+        id S232453AbjBTNvw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Feb 2023 08:51:52 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39162 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232642AbjBTN6L (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 20 Feb 2023 08:58:11 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 15E931EBE2
-        for <stable@vger.kernel.org>; Mon, 20 Feb 2023 05:57:45 -0800 (PST)
+        with ESMTP id S232448AbjBTNvv (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 20 Feb 2023 08:51:51 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C656D1E5E4
+        for <stable@vger.kernel.org>; Mon, 20 Feb 2023 05:51:49 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 90B25B80D4F
-        for <stable@vger.kernel.org>; Mon, 20 Feb 2023 13:57:44 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E2301C433EF;
-        Mon, 20 Feb 2023 13:57:42 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 64A6160E9D
+        for <stable@vger.kernel.org>; Mon, 20 Feb 2023 13:51:49 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4AAEDC433EF;
+        Mon, 20 Feb 2023 13:51:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1676901463;
-        bh=fmwrvlSnzYMpOU6Bb/kbeD5NAHZC6hAf1LWtjxppyh8=;
+        s=korg; t=1676901108;
+        bh=i+O2QE7ECDHdDy0YYxQm3+SVGfxD/NJ028txP+HoMKM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=JE64hPm2QuZW7y5s3DMkzWgkV0K5LO6nbRiPFLFZq9ApCj2FUYhpysPXrEd0rH5ak
-         vsGMkjb9a8uBZDuqgCx8WrbWEcCL0m7U7eht9zFw0MfYjGP7ffvtr5eWP3d74Du/UA
-         64Mb277FT2CIdjyH+cb/KR1CzLTV6AmJDvmCak84=
+        b=uZCMMq3aa9yWWLemGi+/kfHOmY87ow/HdrSwePpK+GPgD7wf7WKRtECKGSfALOtsr
+         2+ltxxMCCC55TgzH36g7kApDoDEAhtv6SQqZ0fgjnX5Kkbhcp/Zw6OxLWQMqQdvqv/
+         vw2IyOX05xEPRXSOF+TAgWELHIZgjtUINbCmnqg0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Ben Skeggs <bskeggs@redhat.com>,
-        Lyude Paul <lyude@redhat.com>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 026/118] drm/nouveau/devinit/tu102-: wait for GFW_BOOT_PROGRESS == COMPLETED
+        patches@lists.linux.dev, Eric Dumazet <edumazet@google.com>,
+        Jakub Sitnicki <jakub@cloudflare.com>,
+        John Fastabend <john.fastabend@gmail.com>,
+        Alexei Starovoitov <ast@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.15 09/83] bpf, sockmap: Dont let sock_map_{close,destroy,unhash} call itself
 Date:   Mon, 20 Feb 2023 14:35:42 +0100
-Message-Id: <20230220133601.471618553@linuxfoundation.org>
+Message-Id: <20230220133554.018002701@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230220133600.368809650@linuxfoundation.org>
-References: <20230220133600.368809650@linuxfoundation.org>
+In-Reply-To: <20230220133553.669025851@linuxfoundation.org>
+References: <20230220133553.669025851@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -52,67 +55,115 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ben Skeggs <bskeggs@redhat.com>
+From: Jakub Sitnicki <jakub@cloudflare.com>
 
-[ Upstream commit d22915d22ded21fd5b24b60d174775789f173997 ]
+[ Upstream commit 5b4a79ba65a1ab479903fff2e604865d229b70a9 ]
 
-Starting from Turing, the driver is no longer responsible for initiating
-DEVINIT when required as the GPU started loading a FW image from ROM and
-executing DEVINIT itself after power-on.
+sock_map proto callbacks should never call themselves by design. Protect
+against bugs like [1] and break out of the recursive loop to avoid a stack
+overflow in favor of a resource leak.
 
-However - we apparently still need to wait for it to complete.
+[1] https://lore.kernel.org/all/00000000000073b14905ef2e7401@google.com/
 
-This should correct some issues with runpm on some systems, where we get
-control of the HW before it's been fully reinitialised after resume from
-suspend.
-
-Signed-off-by: Ben Skeggs <bskeggs@redhat.com>
-Reviewed-by: Lyude Paul <lyude@redhat.com>
-Signed-off-by: Lyude Paul <lyude@redhat.com>
-Link: https://patchwork.freedesktop.org/patch/msgid/20230130223715.1831509-1-bskeggs@redhat.com
+Suggested-by: Eric Dumazet <edumazet@google.com>
+Signed-off-by: Jakub Sitnicki <jakub@cloudflare.com>
+Acked-by: John Fastabend <john.fastabend@gmail.com>
+Link: https://lore.kernel.org/r/20230113-sockmap-fix-v2-1-1e0ee7ac2f90@cloudflare.com
+Signed-off-by: Alexei Starovoitov <ast@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- .../drm/nouveau/nvkm/subdev/devinit/tu102.c   | 23 +++++++++++++++++++
- 1 file changed, 23 insertions(+)
+ net/core/sock_map.c | 61 +++++++++++++++++++++++++--------------------
+ 1 file changed, 34 insertions(+), 27 deletions(-)
 
-diff --git a/drivers/gpu/drm/nouveau/nvkm/subdev/devinit/tu102.c b/drivers/gpu/drm/nouveau/nvkm/subdev/devinit/tu102.c
-index 634f64f88fc8b..81a1ad2c88a7e 100644
---- a/drivers/gpu/drm/nouveau/nvkm/subdev/devinit/tu102.c
-+++ b/drivers/gpu/drm/nouveau/nvkm/subdev/devinit/tu102.c
-@@ -65,10 +65,33 @@ tu102_devinit_pll_set(struct nvkm_devinit *init, u32 type, u32 freq)
- 	return ret;
+diff --git a/net/core/sock_map.c b/net/core/sock_map.c
+index ae6013a8bce53..86b4e8909ad1e 100644
+--- a/net/core/sock_map.c
++++ b/net/core/sock_map.c
+@@ -1514,15 +1514,16 @@ void sock_map_unhash(struct sock *sk)
+ 	psock = sk_psock(sk);
+ 	if (unlikely(!psock)) {
+ 		rcu_read_unlock();
+-		if (sk->sk_prot->unhash)
+-			sk->sk_prot->unhash(sk);
+-		return;
++		saved_unhash = READ_ONCE(sk->sk_prot)->unhash;
++	} else {
++		saved_unhash = psock->saved_unhash;
++		sock_map_remove_links(sk, psock);
++		rcu_read_unlock();
+ 	}
+-
+-	saved_unhash = psock->saved_unhash;
+-	sock_map_remove_links(sk, psock);
+-	rcu_read_unlock();
+-	saved_unhash(sk);
++	if (WARN_ON_ONCE(saved_unhash == sock_map_unhash))
++		return;
++	if (saved_unhash)
++		saved_unhash(sk);
  }
+ EXPORT_SYMBOL_GPL(sock_map_unhash);
  
-+static int
-+tu102_devinit_wait(struct nvkm_device *device)
-+{
-+	unsigned timeout = 50 + 2000;
-+
-+	do {
-+		if (nvkm_rd32(device, 0x118128) & 0x00000001) {
-+			if ((nvkm_rd32(device, 0x118234) & 0x000000ff) == 0xff)
-+				return 0;
-+		}
-+
-+		usleep_range(1000, 2000);
-+	} while (timeout--);
-+
-+	return -ETIMEDOUT;
-+}
-+
- int
- tu102_devinit_post(struct nvkm_devinit *base, bool post)
- {
- 	struct nv50_devinit *init = nv50_devinit(base);
-+	int ret;
-+
-+	ret = tu102_devinit_wait(init->base.subdev.device);
-+	if (ret)
-+		return ret;
-+
- 	gm200_devinit_preos(init, post);
- 	return 0;
+@@ -1535,17 +1536,18 @@ void sock_map_destroy(struct sock *sk)
+ 	psock = sk_psock_get(sk);
+ 	if (unlikely(!psock)) {
+ 		rcu_read_unlock();
+-		if (sk->sk_prot->destroy)
+-			sk->sk_prot->destroy(sk);
+-		return;
++		saved_destroy = READ_ONCE(sk->sk_prot)->destroy;
++	} else {
++		saved_destroy = psock->saved_destroy;
++		sock_map_remove_links(sk, psock);
++		rcu_read_unlock();
++		sk_psock_stop(psock);
++		sk_psock_put(sk, psock);
+ 	}
+-
+-	saved_destroy = psock->saved_destroy;
+-	sock_map_remove_links(sk, psock);
+-	rcu_read_unlock();
+-	sk_psock_stop(psock);
+-	sk_psock_put(sk, psock);
+-	saved_destroy(sk);
++	if (WARN_ON_ONCE(saved_destroy == sock_map_destroy))
++		return;
++	if (saved_destroy)
++		saved_destroy(sk);
  }
+ EXPORT_SYMBOL_GPL(sock_map_destroy);
+ 
+@@ -1560,16 +1562,21 @@ void sock_map_close(struct sock *sk, long timeout)
+ 	if (unlikely(!psock)) {
+ 		rcu_read_unlock();
+ 		release_sock(sk);
+-		return sk->sk_prot->close(sk, timeout);
++		saved_close = READ_ONCE(sk->sk_prot)->close;
++	} else {
++		saved_close = psock->saved_close;
++		sock_map_remove_links(sk, psock);
++		rcu_read_unlock();
++		sk_psock_stop(psock);
++		release_sock(sk);
++		cancel_work_sync(&psock->work);
++		sk_psock_put(sk, psock);
+ 	}
+-
+-	saved_close = psock->saved_close;
+-	sock_map_remove_links(sk, psock);
+-	rcu_read_unlock();
+-	sk_psock_stop(psock);
+-	release_sock(sk);
+-	cancel_work_sync(&psock->work);
+-	sk_psock_put(sk, psock);
++	/* Make sure we do not recurse. This is a bug.
++	 * Leak the socket instead of crashing on a stack overflow.
++	 */
++	if (WARN_ON_ONCE(saved_close == sock_map_close))
++		return;
+ 	saved_close(sk, timeout);
+ }
+ EXPORT_SYMBOL_GPL(sock_map_close);
 -- 
 2.39.0
 
