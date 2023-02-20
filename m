@@ -2,46 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 553BF69CD68
-	for <lists+stable@lfdr.de>; Mon, 20 Feb 2023 14:49:13 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7148869CDD1
+	for <lists+stable@lfdr.de>; Mon, 20 Feb 2023 14:53:13 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232396AbjBTNtH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Feb 2023 08:49:07 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35572 "EHLO
+        id S232486AbjBTNxM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Feb 2023 08:53:12 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40964 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232387AbjBTNtE (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 20 Feb 2023 08:49:04 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 706761E1FF
-        for <stable@vger.kernel.org>; Mon, 20 Feb 2023 05:48:53 -0800 (PST)
+        with ESMTP id S232489AbjBTNxL (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 20 Feb 2023 08:53:11 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C2A971CAC0
+        for <stable@vger.kernel.org>; Mon, 20 Feb 2023 05:53:09 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 0890360EAB
-        for <stable@vger.kernel.org>; Mon, 20 Feb 2023 13:48:53 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1585DC433EF;
-        Mon, 20 Feb 2023 13:48:51 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 845ECB80D44
+        for <stable@vger.kernel.org>; Mon, 20 Feb 2023 13:53:08 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id DD405C433D2;
+        Mon, 20 Feb 2023 13:53:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1676900932;
-        bh=y6BrrmqMxEtX/nV7V9XLxSRpo7BPPYHK1/LEjIpeV1A=;
+        s=korg; t=1676901187;
+        bh=NXVTRYFMDHQcZuEjpnGmbq4UB6wgycTk9jV1D9WkAac=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=bNkjWoNuVyNCpTKCx9GcUhJ2EDY7CbA0M2OsZ0yD4ttcCn8cAkxx8w66qQlU1jY7q
-         4aTAETO9x40JleK7Dt0AmdQsUfPaBFx5VEqPlaP7MvDBzWiNQK/3fMZslwtjuY7O62
-         4Qem/8bgAnr9EsjNG1HYX0TluvUggS8Q9lF0/zwI=
+        b=gxNuDf+zwrXdwoop9zY7LnTNrCHRcmrD18+YKZbUnz0waoBfMd7wVhZFiW9jk43N+
+         IBIRUwLxSXwxb+vlMtUxdt/gu1mgras5ei7gNd5rVYjoH2OBa+fM9+NnTIQUGx7KXI
+         FdzvBF3GOuNYG1nPjJRSU9V2SgonY0070VWiBBBI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        "Darrick J. Wong" <darrick.wong@oracle.com>,
+        patches@lists.linux.dev, "Darrick J. Wong" <djwong@kernel.org>,
         Christoph Hellwig <hch@lst.de>,
-        Chandan Babu R <chandan.babu@oracle.com>,
-        "Darrick J. Wong" <djwong@kernel.org>
-Subject: [PATCH 5.4 122/156] xfs: fix missing CoW blocks writeback conversion retry
+        Dave Chinner <dchinner@redhat.com>,
+        Dave Chinner <david@fromorbit.com>,
+        Leah Rumancik <leah.rumancik@gmail.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.15 33/83] xfs: dont leak btree cursor when insrec fails after a split
 Date:   Mon, 20 Feb 2023 14:36:06 +0100
-Message-Id: <20230220133607.664815635@linuxfoundation.org>
+Message-Id: <20230220133554.814652941@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230220133602.515342638@linuxfoundation.org>
-References: <20230220133602.515342638@linuxfoundation.org>
+In-Reply-To: <20230220133553.669025851@linuxfoundation.org>
+References: <20230220133553.669025851@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,69 +56,96 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: "Darrick J. Wong" <darrick.wong@oracle.com>
+From: Darrick J. Wong <djwong@kernel.org>
 
-commit c2f09217a4305478c55adc9a98692488dd19cd32 upstream.
+[ Upstream commit a54f78def73d847cb060b18c4e4a3d1d26c9ca6d ]
 
-[ Set xfs_writepage_ctx->fork to XFS_DATA_FORK since 5.4.y tracks current
-  extent's fork in this variable ]
+The recent patch to improve btree cycle checking caused a regression
+when I rebased the in-memory btree branch atop the 5.19 for-next branch,
+because in-memory short-pointer btrees do not have AG numbers.  This
+produced the following complaint from kmemleak:
 
-In commit 7588cbeec6df, we tried to fix a race stemming from the lack of
-coordination between higher level code that wants to allocate and remap
-CoW fork extents into the data fork.  Christoph cites as examples the
-always_cow mode, and a directio write completion racing with writeback.
+unreferenced object 0xffff88803d47dde8 (size 264):
+  comm "xfs_io", pid 4889, jiffies 4294906764 (age 24.072s)
+  hex dump (first 32 bytes):
+    90 4d 0b 0f 80 88 ff ff 00 a0 bd 05 80 88 ff ff  .M..............
+    e0 44 3a a0 ff ff ff ff 00 df 08 06 80 88 ff ff  .D:.............
+  backtrace:
+    [<ffffffffa0388059>] xfbtree_dup_cursor+0x49/0xc0 [xfs]
+    [<ffffffffa029887b>] xfs_btree_dup_cursor+0x3b/0x200 [xfs]
+    [<ffffffffa029af5d>] __xfs_btree_split+0x6ad/0x820 [xfs]
+    [<ffffffffa029b130>] xfs_btree_split+0x60/0x110 [xfs]
+    [<ffffffffa029f6da>] xfs_btree_make_block_unfull+0x19a/0x1f0 [xfs]
+    [<ffffffffa029fada>] xfs_btree_insrec+0x3aa/0x810 [xfs]
+    [<ffffffffa029fff3>] xfs_btree_insert+0xb3/0x240 [xfs]
+    [<ffffffffa02cb729>] xfs_rmap_insert+0x99/0x200 [xfs]
+    [<ffffffffa02cf142>] xfs_rmap_map_shared+0x192/0x5f0 [xfs]
+    [<ffffffffa02cf60b>] xfs_rmap_map_raw+0x6b/0x90 [xfs]
+    [<ffffffffa0384a85>] xrep_rmap_stash+0xd5/0x1d0 [xfs]
+    [<ffffffffa0384dc0>] xrep_rmap_visit_bmbt+0xa0/0xf0 [xfs]
+    [<ffffffffa0384fb6>] xrep_rmap_scan_iext+0x56/0xa0 [xfs]
+    [<ffffffffa03850d8>] xrep_rmap_scan_ifork+0xd8/0x160 [xfs]
+    [<ffffffffa0385195>] xrep_rmap_scan_inode+0x35/0x80 [xfs]
+    [<ffffffffa03852ee>] xrep_rmap_find_rmaps+0x10e/0x270 [xfs]
 
-According to the comments before the goto retry, we want to restart the
-lookup to catch the extent in the data fork, but we don't actually reset
-whichfork or cow_fsb, which means the second try executes using stale
-information.  Up until now I think we've gotten lucky that either
-there's something left in the CoW fork to cause cow_fsb to be reset, or
-either data/cow fork sequence numbers have advanced enough to force a
-fresh lookup from the data fork.  However, if we reach the retry with an
-empty stable CoW fork and a stable data fork, neither of those things
-happens.  The retry foolishly re-calls xfs_convert_blocks on the CoW
-fork which fails again.  This time, we toss the write.
+I noticed that xfs_btree_insrec has a bunch of debug code that return
+out of the function immediately, without freeing the "new" btree cursor
+that can be returned when _make_block_unfull calls xfs_btree_split.  Fix
+the error return in this function to free the btree cursor.
 
-I've recently been working on extending reflink to the realtime device.
-When the realtime extent size is larger than a single block, we have to
-force the page cache to CoW the entire rt extent if a write (or
-fallocate) are not aligned with the rt extent size.  The strategy I've
-chosen to deal with this is derived from Dave's blocksize > pagesize
-series: dirtying around the write range, and ensuring that writeback
-always starts mapping on an rt extent boundary.  This has brought this
-race front and center, since generic/522 blows up immediately.
-
-However, I'm pretty sure this is a bug outright, independent of that.
-
-Fixes: 7588cbeec6df ("xfs: retry COW fork delalloc conversion when no extent was found")
-Signed-off-by: Darrick J. Wong <darrick.wong@oracle.com>
+Signed-off-by: Darrick J. Wong <djwong@kernel.org>
 Reviewed-by: Christoph Hellwig <hch@lst.de>
-Signed-off-by: Chandan Babu R <chandan.babu@oracle.com>
+Reviewed-by: Dave Chinner <dchinner@redhat.com>
+Signed-off-by: Dave Chinner <david@fromorbit.com>
+Signed-off-by: Leah Rumancik <leah.rumancik@gmail.com>
 Acked-by: Darrick J. Wong <djwong@kernel.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/xfs/xfs_aops.c |    4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ fs/xfs/libxfs/xfs_btree.c | 8 +++++---
+ 1 file changed, 5 insertions(+), 3 deletions(-)
 
---- a/fs/xfs/xfs_aops.c
-+++ b/fs/xfs/xfs_aops.c
-@@ -495,7 +495,7 @@ xfs_map_blocks(
- 	ssize_t			count = i_blocksize(inode);
- 	xfs_fileoff_t		offset_fsb = XFS_B_TO_FSBT(mp, offset);
- 	xfs_fileoff_t		end_fsb = XFS_B_TO_FSB(mp, offset + count);
--	xfs_fileoff_t		cow_fsb = NULLFILEOFF;
-+	xfs_fileoff_t		cow_fsb;
- 	struct xfs_bmbt_irec	imap;
- 	struct xfs_iext_cursor	icur;
- 	int			retries = 0;
-@@ -529,6 +529,8 @@ xfs_map_blocks(
- 	 * landed in a hole and we skip the block.
- 	 */
- retry:
-+	cow_fsb = NULLFILEOFF;
-+	wpc->fork = XFS_DATA_FORK;
- 	xfs_ilock(ip, XFS_ILOCK_SHARED);
- 	ASSERT(ip->i_d.di_format != XFS_DINODE_FMT_BTREE ||
- 	       (ip->i_df.if_flags & XFS_IFEXTENTS));
+diff --git a/fs/xfs/libxfs/xfs_btree.c b/fs/xfs/libxfs/xfs_btree.c
+index 482a4ccc65682..dffe4ca584935 100644
+--- a/fs/xfs/libxfs/xfs_btree.c
++++ b/fs/xfs/libxfs/xfs_btree.c
+@@ -3266,7 +3266,7 @@ xfs_btree_insrec(
+ 	struct xfs_btree_block	*block;	/* btree block */
+ 	struct xfs_buf		*bp;	/* buffer for block */
+ 	union xfs_btree_ptr	nptr;	/* new block ptr */
+-	struct xfs_btree_cur	*ncur;	/* new btree cursor */
++	struct xfs_btree_cur	*ncur = NULL;	/* new btree cursor */
+ 	union xfs_btree_key	nkey;	/* new block key */
+ 	union xfs_btree_key	*lkey;
+ 	int			optr;	/* old key/record index */
+@@ -3346,7 +3346,7 @@ xfs_btree_insrec(
+ #ifdef DEBUG
+ 	error = xfs_btree_check_block(cur, block, level, bp);
+ 	if (error)
+-		return error;
++		goto error0;
+ #endif
+ 
+ 	/*
+@@ -3366,7 +3366,7 @@ xfs_btree_insrec(
+ 		for (i = numrecs - ptr; i >= 0; i--) {
+ 			error = xfs_btree_debug_check_ptr(cur, pp, i, level);
+ 			if (error)
+-				return error;
++				goto error0;
+ 		}
+ 
+ 		xfs_btree_shift_keys(cur, kp, 1, numrecs - ptr + 1);
+@@ -3451,6 +3451,8 @@ xfs_btree_insrec(
+ 	return 0;
+ 
+ error0:
++	if (ncur)
++		xfs_btree_del_cursor(ncur, error);
+ 	return error;
+ }
+ 
+-- 
+2.39.0
+
 
 
