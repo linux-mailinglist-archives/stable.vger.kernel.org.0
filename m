@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 0B4D669CEA2
-	for <lists+stable@lfdr.de>; Mon, 20 Feb 2023 15:01:03 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 737EA69CE26
+	for <lists+stable@lfdr.de>; Mon, 20 Feb 2023 14:56:50 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232787AbjBTOBC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Feb 2023 09:01:02 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53716 "EHLO
+        id S232579AbjBTN4t (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Feb 2023 08:56:49 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46322 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232763AbjBTOBA (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 20 Feb 2023 09:01:00 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 763691EBCC
-        for <stable@vger.kernel.org>; Mon, 20 Feb 2023 06:00:35 -0800 (PST)
+        with ESMTP id S232589AbjBTN4s (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 20 Feb 2023 08:56:48 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 524801EBDC
+        for <stable@vger.kernel.org>; Mon, 20 Feb 2023 05:56:23 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 36238B80D1F
-        for <stable@vger.kernel.org>; Mon, 20 Feb 2023 13:59:41 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 91504C433EF;
-        Mon, 20 Feb 2023 13:59:39 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 6525260EA5
+        for <stable@vger.kernel.org>; Mon, 20 Feb 2023 13:56:12 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 76108C433EF;
+        Mon, 20 Feb 2023 13:56:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1676901579;
-        bh=VggQe6XIzkvZUU0GcnuQDlaxkGBO8ax39sAdfkODASs=;
+        s=korg; t=1676901371;
+        bh=mgdY70ZZpTjAYXJ9RpOyDE9YTF1lswzIECogCx/sFo8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=qPuHuNYJWgH1oi3VFG9S5ZYI6Uxnso5OOYKMMTGKeFEPlV1dXNfQ+ePzEtW/lcsTy
-         Hn1/W8dae2yEAyCUDNeQM+lP8Vnzvd2rM73Hth2yEG1MMhn0bLpPnMLx6qLFZxAwOH
-         nVNJ5xGAKt6Ecd2Dz1pB9Ka++Ake5Si/irFuKdH0=
+        b=djp1eflfQ4UE858vlMw6FHHU+zIa6m4a9e5CKZhGNloeAsrdllRaEOSPIfgs/NpAu
+         nhbnxqCdZT66AC4TxZsXOynIZmrCHKG8uJ4QP69B6tJIkkccLJTPl9J0WTmDSKFzJh
+         vfr5zjTJPrt0zF/HgpWNOIgpswyZOJ5DDz4UQtOw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Mirsad Goran Todorovac <mirsad.todorovac@alu.unizg.hr>,
-        Bartosz Golaszewski <bartosz.golaszewski@linaro.org>,
-        Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Subject: [PATCH 6.1 072/118] gpio: sim: fix a memory leak
+        patches@lists.linux.dev, Shell Chen <xierch@gmail.com>,
+        Florian Westphal <fw@strlen.de>,
+        Qingfang DENG <dqfext@gmail.com>
+Subject: [PATCH 5.10 20/57] netfilter: nft_tproxy: restrict to prerouting hook
 Date:   Mon, 20 Feb 2023 14:36:28 +0100
-Message-Id: <20230220133603.312930951@linuxfoundation.org>
+Message-Id: <20230220133550.065357589@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230220133600.368809650@linuxfoundation.org>
-References: <20230220133600.368809650@linuxfoundation.org>
+In-Reply-To: <20230220133549.360169435@linuxfoundation.org>
+References: <20230220133549.360169435@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,32 +53,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Bartosz Golaszewski <bartosz.golaszewski@linaro.org>
+From: Florian Westphal <fw@strlen.de>
 
-commit 79eeab1d85e0fee4c0bc36f3b6ddf3920f39f74b upstream.
+commit 18bbc3213383a82b05383827f4b1b882e3f0a5a5 upstream.
 
-Fix an inverted logic bug in gpio_sim_remove_hogs() that leads to GPIO
-hog structures never being freed.
+TPROXY is only allowed from prerouting, but nft_tproxy doesn't check this.
+This fixes a crash (null dereference) when using tproxy from e.g. output.
 
-Fixes: cb8c474e79be ("gpio: sim: new testing module")
-Reported-by: Mirsad Goran Todorovac <mirsad.todorovac@alu.unizg.hr>
-Signed-off-by: Bartosz Golaszewski <bartosz.golaszewski@linaro.org>
-Reviewed-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+Fixes: 4ed8eb6570a4 ("netfilter: nf_tables: Add native tproxy support")
+Reported-by: Shell Chen <xierch@gmail.com>
+Signed-off-by: Florian Westphal <fw@strlen.de>
+Signed-off-by: Qingfang DENG <dqfext@gmail.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/gpio/gpio-sim.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ net/netfilter/nft_tproxy.c |    8 ++++++++
+ 1 file changed, 8 insertions(+)
 
---- a/drivers/gpio/gpio-sim.c
-+++ b/drivers/gpio/gpio-sim.c
-@@ -732,7 +732,7 @@ static void gpio_sim_remove_hogs(struct
+--- a/net/netfilter/nft_tproxy.c
++++ b/net/netfilter/nft_tproxy.c
+@@ -289,6 +289,13 @@ static int nft_tproxy_dump(struct sk_buf
+ 	return 0;
+ }
  
- 	gpiod_remove_hogs(dev->hogs);
++static int nft_tproxy_validate(const struct nft_ctx *ctx,
++			       const struct nft_expr *expr,
++			       const struct nft_data **data)
++{
++	return nft_chain_validate_hooks(ctx->chain, 1 << NF_INET_PRE_ROUTING);
++}
++
+ static struct nft_expr_type nft_tproxy_type;
+ static const struct nft_expr_ops nft_tproxy_ops = {
+ 	.type		= &nft_tproxy_type,
+@@ -296,6 +303,7 @@ static const struct nft_expr_ops nft_tpr
+ 	.eval		= nft_tproxy_eval,
+ 	.init		= nft_tproxy_init,
+ 	.dump		= nft_tproxy_dump,
++	.validate	= nft_tproxy_validate,
+ };
  
--	for (hog = dev->hogs; !hog->chip_label; hog++) {
-+	for (hog = dev->hogs; hog->chip_label; hog++) {
- 		kfree(hog->chip_label);
- 		kfree(hog->line_name);
- 	}
+ static struct nft_expr_type nft_tproxy_type __read_mostly = {
 
 
