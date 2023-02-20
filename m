@@ -2,45 +2,48 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 792D469CE00
-	for <lists+stable@lfdr.de>; Mon, 20 Feb 2023 14:55:09 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1A16269CC5D
+	for <lists+stable@lfdr.de>; Mon, 20 Feb 2023 14:39:35 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232538AbjBTNzI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Feb 2023 08:55:08 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43712 "EHLO
+        id S229479AbjBTNje (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Feb 2023 08:39:34 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48010 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232547AbjBTNzH (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 20 Feb 2023 08:55:07 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C1A451E9E7
-        for <stable@vger.kernel.org>; Mon, 20 Feb 2023 05:54:57 -0800 (PST)
+        with ESMTP id S230217AbjBTNjd (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 20 Feb 2023 08:39:33 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0524A1C307
+        for <stable@vger.kernel.org>; Mon, 20 Feb 2023 05:39:32 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 48F5C60E9E
-        for <stable@vger.kernel.org>; Mon, 20 Feb 2023 13:54:57 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 31C3FC433EF;
-        Mon, 20 Feb 2023 13:54:56 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id A9B72B80D44
+        for <stable@vger.kernel.org>; Mon, 20 Feb 2023 13:39:30 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D8C87C433D2;
+        Mon, 20 Feb 2023 13:39:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1676901296;
-        bh=0ZhHcDlgcocBheep5X0PxegUrdqJnTELyJRkH/kLBu8=;
+        s=korg; t=1676900369;
+        bh=4dibTPoNrfBO62JdrMS09h4uxoPpveEGNo4QwMa82yc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=bNg7Qj6iEhfM4kZY60e2DSTJDn5EFJHG5SacZnqlsd6qi0yS4g4+ZYY8phuIa+5yg
-         EjTbDk9x/VAAyFhngvjq2vQquRSkKYUuTAzYrJq+rr+QDDkurKmEH4nvcs0gvDXkX/
-         rLq20RCXFlJ6Pyr4oyr4qqiNGmYy2sXMXvZ6KC4E=
+        b=c8yEGAsR+3XpRkFb5r35dSIB90RibHEDUXKP4CSCltoCJGjkq0G2M1jLsNM/gzka3
+         cp+2kV2qTMNoruoauNSa3KYzK35C4xMJD1e1e2sORDmvZDmZh28Dw819A9ojWRc0Rf
+         wXz/t0Thmz5ktuZzD4w7f1ExNIoAnDb5VRgb3tzo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Vasily Gorbik <gor@linux.ibm.com>,
-        Alexander Egorenkov <egorenar@linux.ibm.com>,
-        Heiko Carstens <hca@linux.ibm.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 09/57] s390/decompressor: specify __decompress() buf len to avoid overflow
-Date:   Mon, 20 Feb 2023 14:36:17 +0100
-Message-Id: <20230220133549.682082686@linuxfoundation.org>
+        patches@lists.linux.dev, Sean Christopherson <seanjc@google.com>,
+        Paolo Bonzini <pbonzini@redhat.com>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>,
+        Dave Hansen <dave.hansen@linux.intel.com>, x86@kernel.org,
+        "H. Peter Anvin" <hpa@zytor.com>, stable <stable@kernel.org>,
+        Xingyuan Mo <hdthky0@gmail.com>
+Subject: [PATCH 4.14 52/53] kvm: initialize all of the kvm_debugregs structure before sending it to userspace
+Date:   Mon, 20 Feb 2023 14:36:18 +0100
+Message-Id: <20230220133550.018235571@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230220133549.360169435@linuxfoundation.org>
-References: <20230220133549.360169435@linuxfoundation.org>
+In-Reply-To: <20230220133548.158615609@linuxfoundation.org>
+References: <20230220133548.158615609@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,47 +57,53 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vasily Gorbik <gor@linux.ibm.com>
+From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-[ Upstream commit 7ab41c2c08a32132ba8c14624910e2fe8ce4ba4b ]
+commit 2c10b61421a28e95a46ab489fd56c0f442ff6952 upstream.
 
-Historically calls to __decompress() didn't specify "out_len" parameter
-on many architectures including s390, expecting that no writes beyond
-uncompressed kernel image are performed. This has changed since commit
-2aa14b1ab2c4 ("zstd: import usptream v1.5.2") which includes zstd library
-commit 6a7ede3dfccb ("Reduce size of dctx by reutilizing dst buffer
-(#2751)"). Now zstd decompression code might store literal buffer in
-the unwritten portion of the destination buffer. Since "out_len" is
-not set, it is considered to be unlimited and hence free to use for
-optimization needs. On s390 this might corrupt initrd or ipl report
-which are often placed right after the decompressor buffer. Luckily the
-size of uncompressed kernel image is already known to the decompressor,
-so to avoid the problem simply specify it in the "out_len" parameter.
+When calling the KVM_GET_DEBUGREGS ioctl, on some configurations, there
+might be some unitialized portions of the kvm_debugregs structure that
+could be copied to userspace.  Prevent this as is done in the other kvm
+ioctls, by setting the whole structure to 0 before copying anything into
+it.
 
-Link: https://github.com/facebook/zstd/commit/6a7ede3dfccb
-Signed-off-by: Vasily Gorbik <gor@linux.ibm.com>
-Tested-by: Alexander Egorenkov <egorenar@linux.ibm.com>
-Link: https://lore.kernel.org/r/patch-1.thread-41c676.git-41c676c2d153.your-ad-here.call-01675030179-ext-9637@work.hours
-Signed-off-by: Heiko Carstens <hca@linux.ibm.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Bonus is that this reduces the lines of code as the explicit flag
+setting and reserved space zeroing out can be removed.
+
+Cc: Sean Christopherson <seanjc@google.com>
+Cc: Paolo Bonzini <pbonzini@redhat.com>
+Cc: Thomas Gleixner <tglx@linutronix.de>
+Cc: Ingo Molnar <mingo@redhat.com>
+Cc: Borislav Petkov <bp@alien8.de>
+Cc: Dave Hansen <dave.hansen@linux.intel.com>
+Cc: <x86@kernel.org>
+Cc: "H. Peter Anvin" <hpa@zytor.com>
+Cc: stable <stable@kernel.org>
+Reported-by: Xingyuan Mo <hdthky0@gmail.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Message-Id: <20230214103304.3689213-1-gregkh@linuxfoundation.org>
+Tested-by: Xingyuan Mo <hdthky0@gmail.com>
+Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/s390/boot/compressed/decompressor.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ arch/x86/kvm/x86.c |    3 +--
+ 1 file changed, 1 insertion(+), 2 deletions(-)
 
-diff --git a/arch/s390/boot/compressed/decompressor.c b/arch/s390/boot/compressed/decompressor.c
-index 3061b11c4d27f..8eaa1712a1c8d 100644
---- a/arch/s390/boot/compressed/decompressor.c
-+++ b/arch/s390/boot/compressed/decompressor.c
-@@ -79,6 +79,6 @@ void *decompress_kernel(void)
- 	void *output = (void *)decompress_offset;
+--- a/arch/x86/kvm/x86.c
++++ b/arch/x86/kvm/x86.c
+@@ -3419,12 +3419,11 @@ static void kvm_vcpu_ioctl_x86_get_debug
+ {
+ 	unsigned long val;
  
- 	__decompress(_compressed_start, _compressed_end - _compressed_start,
--		     NULL, NULL, output, 0, NULL, error);
-+		     NULL, NULL, output, vmlinux.image_size, NULL, error);
- 	return output;
++	memset(dbgregs, 0, sizeof(*dbgregs));
+ 	memcpy(dbgregs->db, vcpu->arch.db, sizeof(vcpu->arch.db));
+ 	kvm_get_dr(vcpu, 6, &val);
+ 	dbgregs->dr6 = val;
+ 	dbgregs->dr7 = vcpu->arch.dr7;
+-	dbgregs->flags = 0;
+-	memset(&dbgregs->reserved, 0, sizeof(dbgregs->reserved));
  }
--- 
-2.39.0
-
+ 
+ static int kvm_vcpu_ioctl_x86_set_debugregs(struct kvm_vcpu *vcpu,
 
 
