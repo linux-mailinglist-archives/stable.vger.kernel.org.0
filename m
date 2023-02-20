@@ -2,53 +2,51 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 5E8FA69CE83
-	for <lists+stable@lfdr.de>; Mon, 20 Feb 2023 14:59:56 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 04FDC69CCBB
+	for <lists+stable@lfdr.de>; Mon, 20 Feb 2023 14:43:12 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232693AbjBTN7w (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Feb 2023 08:59:52 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50356 "EHLO
+        id S232180AbjBTNnL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Feb 2023 08:43:11 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53638 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232698AbjBTN7i (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 20 Feb 2023 08:59:38 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8FF1C1EFDC
-        for <stable@vger.kernel.org>; Mon, 20 Feb 2023 05:59:20 -0800 (PST)
+        with ESMTP id S232131AbjBTNnK (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 20 Feb 2023 08:43:10 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E2A6F8692
+        for <stable@vger.kernel.org>; Mon, 20 Feb 2023 05:43:02 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id E16D860E9E
-        for <stable@vger.kernel.org>; Mon, 20 Feb 2023 13:59:19 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 010E4C433EF;
-        Mon, 20 Feb 2023 13:59:18 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 75AE160D41
+        for <stable@vger.kernel.org>; Mon, 20 Feb 2023 13:43:02 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 85C57C433EF;
+        Mon, 20 Feb 2023 13:43:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1676901559;
-        bh=4KLMRmXFwHw9jfP/NyiuIHUrBIS0EUbyrDRrdI25NpA=;
+        s=korg; t=1676900581;
+        bh=LWUxjaIczzGXGkXwUrZecSLxJ9jOhjSSGOaQZ/Oajw4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=YxtfzegcaJ94SomR16GLTvqLr6/jCddHv6Umi2tk8mblw0Vq+0KiwBNKOccrJxDA7
-         wmGfh0SaQM4i4a+z/3S2lrKp9efGNiNPpqx7tvFC32aPV00xF+GIQcNCSydYQhE0aK
-         BFuAmn8cm5MlanQpE+sgaG62p1IfznQ5p+7CyEP4=
+        b=tvRM4OvKuryF221CpXAUP9+nE2qub5/QLY7AtHCAQvdf5R+/oK7dzKLLvuLIbXFz5
+         y690vCmjhN/ug9Al86TLCVR6v08FbVw7RaMAQ4P/cCgUOyHRGtYm3/pu0Zrv61ltK2
+         xakoIl0mucZEHqkJupa4ZhqDaOfojo720sgorY8Y=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Alvin Lee <Alvin.Lee2@amd.com>,
-        Alex Hung <alex.hung@amd.com>,
-        George Shen <george.shen@amd.com>,
-        Daniel Wheeler <daniel.wheeler@amd.com>,
-        Alex Deucher <alexander.deucher@amd.com>,
+        patches@lists.linux.dev, Joel Stanley <joel@jms.id.au>,
+        Andrew Jeffery <andrew@aj.id.au>,
+        Linus Walleij <linus.walleij@linaro.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 035/118] drm/amd/display: Unassign does_plane_fit_in_mall function from dcn3.2
+Subject: [PATCH 4.19 52/89] pinctrl: aspeed: Fix confusing types in return value
 Date:   Mon, 20 Feb 2023 14:35:51 +0100
-Message-Id: <20230220133601.831941764@linuxfoundation.org>
+Message-Id: <20230220133554.972711498@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230220133600.368809650@linuxfoundation.org>
-References: <20230220133600.368809650@linuxfoundation.org>
+In-Reply-To: <20230220133553.066768704@linuxfoundation.org>
+References: <20230220133553.066768704@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
         SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -56,40 +54,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: George Shen <george.shen@amd.com>
+From: Joel Stanley <joel@jms.id.au>
 
-[ Upstream commit 275d8a1db261a1272a818d40ebc61b3b865b60e5 ]
+[ Upstream commit 287a344a11f1ebd31055cf9b22c88d7005f108d7 ]
 
-[Why]
-The hwss function does_plane_fit_in_mall not applicable to dcn3.2 asics.
-Using it with dcn3.2 can result in undefined behaviour.
+The function signature is int, but we return a bool. Instead return a
+negative errno as the kerneldoc suggests.
 
-[How]
-Assign the function pointer to NULL.
-
-Reviewed-by: Alvin Lee <Alvin.Lee2@amd.com>
-Acked-by: Alex Hung <alex.hung@amd.com>
-Signed-off-by: George Shen <george.shen@amd.com>
-Tested-by: Daniel Wheeler <daniel.wheeler@amd.com>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+Fixes: 4d3d0e4272d8 ("pinctrl: Add core support for Aspeed SoCs")
+Signed-off-by: Joel Stanley <joel@jms.id.au>
+Reviewed-by: Andrew Jeffery <andrew@aj.id.au>
+Link: https://lore.kernel.org/r/20230119231856.52014-1-joel@jms.id.au
+Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/amd/display/dc/dcn32/dcn32_init.c | 2 +-
+ drivers/pinctrl/aspeed/pinctrl-aspeed.c | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/gpu/drm/amd/display/dc/dcn32/dcn32_init.c b/drivers/gpu/drm/amd/display/dc/dcn32/dcn32_init.c
-index 45a949ba6f3f3..7b7f0e6b2a2ff 100644
---- a/drivers/gpu/drm/amd/display/dc/dcn32/dcn32_init.c
-+++ b/drivers/gpu/drm/amd/display/dc/dcn32/dcn32_init.c
-@@ -94,7 +94,7 @@ static const struct hw_sequencer_funcs dcn32_funcs = {
- 	.get_vupdate_offset_from_vsync = dcn10_get_vupdate_offset_from_vsync,
- 	.calc_vupdate_position = dcn10_calc_vupdate_position,
- 	.apply_idle_power_optimizations = dcn32_apply_idle_power_optimizations,
--	.does_plane_fit_in_mall = dcn30_does_plane_fit_in_mall,
-+	.does_plane_fit_in_mall = NULL,
- 	.set_backlight_level = dcn21_set_backlight_level,
- 	.set_abm_immediate_disable = dcn21_set_abm_immediate_disable,
- 	.hardware_release = dcn30_hardware_release,
+diff --git a/drivers/pinctrl/aspeed/pinctrl-aspeed.c b/drivers/pinctrl/aspeed/pinctrl-aspeed.c
+index 8dec302dc067a..a95289b5e6bf2 100644
+--- a/drivers/pinctrl/aspeed/pinctrl-aspeed.c
++++ b/drivers/pinctrl/aspeed/pinctrl-aspeed.c
+@@ -295,7 +295,7 @@ static int aspeed_disable_sig(const struct aspeed_sig_expr **exprs,
+ 	int ret = 0;
+ 
+ 	if (!exprs)
+-		return true;
++		return -EINVAL;
+ 
+ 	while (*exprs && !ret) {
+ 		ret = aspeed_sig_expr_disable(*exprs, maps);
 -- 
 2.39.0
 
