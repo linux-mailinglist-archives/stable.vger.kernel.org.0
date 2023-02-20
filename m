@@ -2,47 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id AB88569CD7D
-	for <lists+stable@lfdr.de>; Mon, 20 Feb 2023 14:50:08 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7B84E69CDA8
+	for <lists+stable@lfdr.de>; Mon, 20 Feb 2023 14:51:26 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232356AbjBTNuH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Feb 2023 08:50:07 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37206 "EHLO
+        id S232440AbjBTNvZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Feb 2023 08:51:25 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38900 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232395AbjBTNuG (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 20 Feb 2023 08:50:06 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D9F971E1EF
-        for <stable@vger.kernel.org>; Mon, 20 Feb 2023 05:49:41 -0800 (PST)
+        with ESMTP id S232437AbjBTNvY (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 20 Feb 2023 08:51:24 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A9BD81E1CA
+        for <stable@vger.kernel.org>; Mon, 20 Feb 2023 05:51:23 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 97707B80D52
-        for <stable@vger.kernel.org>; Mon, 20 Feb 2023 13:49:39 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1265BC433D2;
-        Mon, 20 Feb 2023 13:49:37 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 33E2560E8A
+        for <stable@vger.kernel.org>; Mon, 20 Feb 2023 13:51:23 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 48971C433EF;
+        Mon, 20 Feb 2023 13:51:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1676900978;
-        bh=Wkq2vTW9ymiTqNYKWd/cIQkA2F9lQe7FdlDLjReXCmM=;
+        s=korg; t=1676901082;
+        bh=7aHALmnk5uz72Iz6GsbJOHKw0/VNMhGX48ucC7TgtRY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=HGgF3L+iUCH/npqK+lL/Fnsl5YBK4uFjB4s3wPLj/IQTl3Oh/U1rxGVgo6COUHcJt
-         8qgJB/45ypFJwWkZW03Owha08wSjxE5cuy6w//A+CjQLyR13izhB+NF9HZLkNrcqc3
-         ZdWqGVNMGIzwQACX2S4r5zFwN4P3Y5XYlvgNn5+8=
+        b=DF8AQDrGkt9OWKIYBk6it4oHYPvET8zY2pLu6+DDhRJCExlbjefh1Cn2s7pOGJDrU
+         Pluv6LHWoXQOWP/uriqIcacOcp2XpdnjGGgbMl7SMSR61QTqngHftu6o6Dc4SapoED
+         cqdVZa8onT1vuLWEMXwMqrrNTzCT3K38pN52SVbo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Nathan Scott <nathans@redhat.com>,
-        Dave Chinner <dchinner@redhat.com>,
-        "Darrick J. Wong" <darrick.wong@oracle.com>,
-        Brian Foster <bfoster@redhat.com>,
-        Chandan Babu R <chandan.babu@oracle.com>,
-        "Darrick J. Wong" <djwong@kernel.org>
-Subject: [PATCH 5.4 111/156] xfs: fix finobt btree block recovery ordering
+        patches@lists.linux.dev,
+        "Russell King (Oracle)" <rmk+kernel@armlinux.org.uk>,
+        Srinivas Kandagatla <srinivas.kandagatla@linaro.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.15 22/83] nvmem: core: fix registration vs use race
 Date:   Mon, 20 Feb 2023 14:35:55 +0100
-Message-Id: <20230220133607.166313288@linuxfoundation.org>
+Message-Id: <20230220133554.475199455@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230220133602.515342638@linuxfoundation.org>
-References: <20230220133602.515342638@linuxfoundation.org>
+In-Reply-To: <20230220133553.669025851@linuxfoundation.org>
+References: <20230220133553.669025851@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,49 +54,87 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dave Chinner <dchinner@redhat.com>
+From: Russell King (Oracle) <rmk+kernel@armlinux.org.uk>
 
-commit 671459676ab0e1d371c8d6b184ad1faa05b6941e upstream.
+[ Upstream commit ab3428cfd9aa2f3463ee4b2909b5bb2193bd0c4a ]
 
-[ In 5.4.y, xlog_recover_get_buf_lsn() is defined inside
-  fs/xfs/xfs_log_recover.c ]
+The i.MX6 CPU frequency driver sometimes fails to register at boot time
+due to nvmem_cell_read_u32() sporadically returning -ENOENT.
 
-Nathan popped up on #xfs and pointed out that we fail to handle
-finobt btree blocks in xlog_recover_get_buf_lsn(). This means they
-always fall through the entire magic number matching code to "recover
-immediately". Whilst most of the time this is the correct behaviour,
-occasionally it will be incorrect and could potentially overwrite
-more recent metadata because we don't check the LSN in the on disk
-metadata at all.
+This happens because there is a window where __nvmem_device_get() in
+of_nvmem_cell_get() is able to return the nvmem device, but as cells
+have been setup, nvmem_find_cell_entry_by_node() returns NULL.
 
-This bug has been present since the finobt was first introduced, and
-is a potential cause of the occasional xfs_iget_check_free_state()
-failures we see that indicate that the inode btree state does not
-match the on disk inode state.
+The occurs because the nvmem core registration code violates one of the
+fundamental principles of kernel programming: do not publish data
+structures before their setup is complete.
 
-Fixes: aafc3c246529 ("xfs: support the XFS_BTNUM_FINOBT free inode btree type")
-Reported-by: Nathan Scott <nathans@redhat.com>
-Signed-off-by: Dave Chinner <dchinner@redhat.com>
-Reviewed-by: Darrick J. Wong <darrick.wong@oracle.com>
-Signed-off-by: Darrick J. Wong <darrick.wong@oracle.com>
-Reviewed-by: Brian Foster <bfoster@redhat.com>
-Signed-off-by: Chandan Babu R <chandan.babu@oracle.com>
-Acked-by: Darrick J. Wong <djwong@kernel.org>
+Fix this by making nvmem core code conform with this principle.
+
+Fixes: eace75cfdcf7 ("nvmem: Add a simple NVMEM framework for nvmem providers")
+Cc: stable@vger.kernel.org
+Signed-off-by: Russell King (Oracle) <rmk+kernel@armlinux.org.uk>
+Signed-off-by: Srinivas Kandagatla <srinivas.kandagatla@linaro.org>
+Link: https://lore.kernel.org/r/20230127104015.23839-7-srinivas.kandagatla@linaro.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/xfs/xfs_log_recover.c |    2 ++
- 1 file changed, 2 insertions(+)
+ drivers/nvmem/core.c | 18 ++++++++----------
+ 1 file changed, 8 insertions(+), 10 deletions(-)
 
---- a/fs/xfs/xfs_log_recover.c
-+++ b/fs/xfs/xfs_log_recover.c
-@@ -2206,6 +2206,8 @@ xlog_recover_get_buf_lsn(
- 	case XFS_ABTC_MAGIC:
- 	case XFS_RMAP_CRC_MAGIC:
- 	case XFS_REFC_CRC_MAGIC:
-+	case XFS_FIBT_CRC_MAGIC:
-+	case XFS_FIBT_MAGIC:
- 	case XFS_IBT_CRC_MAGIC:
- 	case XFS_IBT_MAGIC: {
- 		struct xfs_btree_block *btb = blk;
+diff --git a/drivers/nvmem/core.c b/drivers/nvmem/core.c
+index f06b65f0d410b..6a74e38746057 100644
+--- a/drivers/nvmem/core.c
++++ b/drivers/nvmem/core.c
+@@ -827,22 +827,16 @@ struct nvmem_device *nvmem_register(const struct nvmem_config *config)
+ 	nvmem->dev.groups = nvmem_dev_groups;
+ #endif
+ 
+-	dev_dbg(&nvmem->dev, "Registering nvmem device %s\n", config->name);
+-
+-	rval = device_add(&nvmem->dev);
+-	if (rval)
+-		goto err_put_device;
+-
+ 	if (nvmem->nkeepout) {
+ 		rval = nvmem_validate_keepouts(nvmem);
+ 		if (rval)
+-			goto err_device_del;
++			goto err_put_device;
+ 	}
+ 
+ 	if (config->compat) {
+ 		rval = nvmem_sysfs_setup_compat(nvmem, config);
+ 		if (rval)
+-			goto err_device_del;
++			goto err_put_device;
+ 	}
+ 
+ 	if (config->cells) {
+@@ -859,6 +853,12 @@ struct nvmem_device *nvmem_register(const struct nvmem_config *config)
+ 	if (rval)
+ 		goto err_remove_cells;
+ 
++	dev_dbg(&nvmem->dev, "Registering nvmem device %s\n", config->name);
++
++	rval = device_add(&nvmem->dev);
++	if (rval)
++		goto err_remove_cells;
++
+ 	blocking_notifier_call_chain(&nvmem_notifier, NVMEM_ADD, nvmem);
+ 
+ 	return nvmem;
+@@ -867,8 +867,6 @@ struct nvmem_device *nvmem_register(const struct nvmem_config *config)
+ 	nvmem_device_remove_all_cells(nvmem);
+ 	if (config->compat)
+ 		nvmem_sysfs_remove_compat(nvmem, config);
+-err_device_del:
+-	device_del(&nvmem->dev);
+ err_put_device:
+ 	put_device(&nvmem->dev);
+ 
+-- 
+2.39.0
+
 
 
