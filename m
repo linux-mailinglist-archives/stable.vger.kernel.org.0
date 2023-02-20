@@ -2,46 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E850869CC37
-	for <lists+stable@lfdr.de>; Mon, 20 Feb 2023 14:38:17 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7056769CDA0
+	for <lists+stable@lfdr.de>; Mon, 20 Feb 2023 14:51:12 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229671AbjBTNiR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Feb 2023 08:38:17 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45964 "EHLO
+        id S232433AbjBTNvI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Feb 2023 08:51:08 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38524 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232052AbjBTNiQ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 20 Feb 2023 08:38:16 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AF3463C15
-        for <stable@vger.kernel.org>; Mon, 20 Feb 2023 05:38:14 -0800 (PST)
+        with ESMTP id S232427AbjBTNvH (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 20 Feb 2023 08:51:07 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A54731E2A2
+        for <stable@vger.kernel.org>; Mon, 20 Feb 2023 05:51:06 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 3A83960C03
-        for <stable@vger.kernel.org>; Mon, 20 Feb 2023 13:38:14 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4F2DBC433EF;
-        Mon, 20 Feb 2023 13:38:13 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 5701EB80D43
+        for <stable@vger.kernel.org>; Mon, 20 Feb 2023 13:51:05 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C5881C433D2;
+        Mon, 20 Feb 2023 13:51:03 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1676900293;
-        bh=lIOIFA4RlelFtkAg8LTm4Hg6ZEK6qEPzbDtU4fswp58=;
+        s=korg; t=1676901064;
+        bh=UjbjQ8Yer2dYefk720z6z+rFveRSZQ0hi4knrXkKSYY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=LGHU1JqIBmoDz6l+8nVpTw2QQc1/WNq1PJD1LEQUVx1ByIU5yeH4WV2itgOGJlZz4
-         uTf0sFtV/3iP6gR3SmU2EEow1c3B8RDC4/aqXuk5Tb3vX6t0S/3iKlfa6WRiccyIfv
-         WHZAHyrlwgjEZq+uGP6otTNfDoH+WC7VTxV5GJuI=
+        b=Grwr+IHKUNgQyaeMZJHE6KY1y1wkbJ6IVP5k8h57kOdDQyZRXbS3aX9TjiOF44Nnt
+         DpbnvRsUHpIPdJeydIeohlZgmrc1QTDKcUwNLJP5A++uojrwnHAqUMMsaZc0Q0tQS8
+         sRy4HSMlv+6TIxvdjv42UdkLnGeSC6umuQW5/Nuk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Phillip Lougher <phillip@squashfs.org.uk>,
-        syzbot+082fa4af80a5bb1a9843@syzkaller.appspotmail.com,
-        Alexey Khoroshilov <khoroshilov@ispras.ru>,
-        Fedor Pchelkin <pchelkin@ispras.ru>,
-        Andrew Morton <akpm@linux-foundation.org>
-Subject: [PATCH 4.14 23/53] Squashfs: fix handling and sanity checking of xattr_ids count
+        patches@lists.linux.dev, Vasily Gorbik <gor@linux.ibm.com>,
+        Alexander Egorenkov <egorenar@linux.ibm.com>,
+        Heiko Carstens <hca@linux.ibm.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.15 16/83] s390/decompressor: specify __decompress() buf len to avoid overflow
 Date:   Mon, 20 Feb 2023 14:35:49 +0100
-Message-Id: <20230220133548.994133797@linuxfoundation.org>
+Message-Id: <20230220133554.274344932@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230220133548.158615609@linuxfoundation.org>
-References: <20230220133548.158615609@linuxfoundation.org>
+In-Reply-To: <20230220133553.669025851@linuxfoundation.org>
+References: <20230220133553.669025851@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,143 +54,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Phillip Lougher <phillip@squashfs.org.uk>
+From: Vasily Gorbik <gor@linux.ibm.com>
 
-commit f65c4bbbd682b0877b669828b4e033b8d5d0a2dc upstream.
+[ Upstream commit 7ab41c2c08a32132ba8c14624910e2fe8ce4ba4b ]
 
-A Sysbot [1] corrupted filesystem exposes two flaws in the handling and
-sanity checking of the xattr_ids count in the filesystem.  Both of these
-flaws cause computation overflow due to incorrect typing.
+Historically calls to __decompress() didn't specify "out_len" parameter
+on many architectures including s390, expecting that no writes beyond
+uncompressed kernel image are performed. This has changed since commit
+2aa14b1ab2c4 ("zstd: import usptream v1.5.2") which includes zstd library
+commit 6a7ede3dfccb ("Reduce size of dctx by reutilizing dst buffer
+(#2751)"). Now zstd decompression code might store literal buffer in
+the unwritten portion of the destination buffer. Since "out_len" is
+not set, it is considered to be unlimited and hence free to use for
+optimization needs. On s390 this might corrupt initrd or ipl report
+which are often placed right after the decompressor buffer. Luckily the
+size of uncompressed kernel image is already known to the decompressor,
+so to avoid the problem simply specify it in the "out_len" parameter.
 
-In the corrupted filesystem the xattr_ids value is 4294967071, which
-stored in a signed variable becomes the negative number -225.
-
-Flaw 1 (64-bit systems only):
-
-The signed integer xattr_ids variable causes sign extension.
-
-This causes variable overflow in the SQUASHFS_XATTR_*(A) macros.  The
-variable is first multiplied by sizeof(struct squashfs_xattr_id) where the
-type of the sizeof operator is "unsigned long".
-
-On a 64-bit system this is 64-bits in size, and causes the negative number
-to be sign extended and widened to 64-bits and then become unsigned.  This
-produces the very large number 18446744073709548016 or 2^64 - 3600.  This
-number when rounded up by SQUASHFS_METADATA_SIZE - 1 (8191 bytes) and
-divided by SQUASHFS_METADATA_SIZE overflows and produces a length of 0
-(stored in len).
-
-Flaw 2 (32-bit systems only):
-
-On a 32-bit system the integer variable is not widened by the unsigned
-long type of the sizeof operator (32-bits), and the signedness of the
-variable has no effect due it always being treated as unsigned.
-
-The above corrupted xattr_ids value of 4294967071, when multiplied
-overflows and produces the number 4294963696 or 2^32 - 3400.  This number
-when rounded up by SQUASHFS_METADATA_SIZE - 1 (8191 bytes) and divided by
-SQUASHFS_METADATA_SIZE overflows again and produces a length of 0.
-
-The effect of the 0 length computation:
-
-In conjunction with the corrupted xattr_ids field, the filesystem also has
-a corrupted xattr_table_start value, where it matches the end of
-filesystem value of 850.
-
-This causes the following sanity check code to fail because the
-incorrectly computed len of 0 matches the incorrect size of the table
-reported by the superblock (0 bytes).
-
-    len = SQUASHFS_XATTR_BLOCK_BYTES(*xattr_ids);
-    indexes = SQUASHFS_XATTR_BLOCKS(*xattr_ids);
-
-    /*
-     * The computed size of the index table (len bytes) should exactly
-     * match the table start and end points
-    */
-    start = table_start + sizeof(*id_table);
-    end = msblk->bytes_used;
-
-    if (len != (end - start))
-            return ERR_PTR(-EINVAL);
-
-Changing the xattr_ids variable to be "usigned int" fixes the flaw on a
-64-bit system.  This relies on the fact the computation is widened by the
-unsigned long type of the sizeof operator.
-
-Casting the variable to u64 in the above macro fixes this flaw on a 32-bit
-system.
-
-It also means 64-bit systems do not implicitly rely on the type of the
-sizeof operator to widen the computation.
-
-[1] https://lore.kernel.org/lkml/000000000000cd44f005f1a0f17f@google.com/
-
-Link: https://lkml.kernel.org/r/20230127061842.10965-1-phillip@squashfs.org.uk
-Fixes: 506220d2ba21 ("squashfs: add more sanity checks in xattr id lookup")
-Signed-off-by: Phillip Lougher <phillip@squashfs.org.uk>
-Reported-by: <syzbot+082fa4af80a5bb1a9843@syzkaller.appspotmail.com>
-Cc: Alexey Khoroshilov <khoroshilov@ispras.ru>
-Cc: Fedor Pchelkin <pchelkin@ispras.ru>
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Link: https://github.com/facebook/zstd/commit/6a7ede3dfccb
+Signed-off-by: Vasily Gorbik <gor@linux.ibm.com>
+Tested-by: Alexander Egorenkov <egorenar@linux.ibm.com>
+Link: https://lore.kernel.org/r/patch-1.thread-41c676.git-41c676c2d153.your-ad-here.call-01675030179-ext-9637@work.hours
+Signed-off-by: Heiko Carstens <hca@linux.ibm.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/squashfs/squashfs_fs.h    |    2 +-
- fs/squashfs/squashfs_fs_sb.h |    2 +-
- fs/squashfs/xattr.h          |    4 ++--
- fs/squashfs/xattr_id.c       |    2 +-
- 4 files changed, 5 insertions(+), 5 deletions(-)
+ arch/s390/boot/compressed/decompressor.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/fs/squashfs/squashfs_fs.h
-+++ b/fs/squashfs/squashfs_fs.h
-@@ -196,7 +196,7 @@ static inline int squashfs_block_size(__
- #define SQUASHFS_ID_BLOCK_BYTES(A)	(SQUASHFS_ID_BLOCKS(A) *\
- 					sizeof(u64))
- /* xattr id lookup table defines */
--#define SQUASHFS_XATTR_BYTES(A)		((A) * sizeof(struct squashfs_xattr_id))
-+#define SQUASHFS_XATTR_BYTES(A)		(((u64) (A)) * sizeof(struct squashfs_xattr_id))
+diff --git a/arch/s390/boot/compressed/decompressor.c b/arch/s390/boot/compressed/decompressor.c
+index e27c2140d6206..623f6775d01d7 100644
+--- a/arch/s390/boot/compressed/decompressor.c
++++ b/arch/s390/boot/compressed/decompressor.c
+@@ -80,6 +80,6 @@ void *decompress_kernel(void)
+ 	void *output = (void *)decompress_offset;
  
- #define SQUASHFS_XATTR_BLOCK(A)		(SQUASHFS_XATTR_BYTES(A) / \
- 					SQUASHFS_METADATA_SIZE)
---- a/fs/squashfs/squashfs_fs_sb.h
-+++ b/fs/squashfs/squashfs_fs_sb.h
-@@ -76,7 +76,7 @@ struct squashfs_sb_info {
- 	long long				bytes_used;
- 	unsigned int				inodes;
- 	unsigned int				fragments;
--	int					xattr_ids;
-+	unsigned int				xattr_ids;
- 	unsigned int				ids;
- };
- #endif
---- a/fs/squashfs/xattr.h
-+++ b/fs/squashfs/xattr.h
-@@ -23,12 +23,12 @@
- 
- #ifdef CONFIG_SQUASHFS_XATTR
- extern __le64 *squashfs_read_xattr_id_table(struct super_block *, u64,
--		u64 *, int *);
-+		u64 *, unsigned int *);
- extern int squashfs_xattr_lookup(struct super_block *, unsigned int, int *,
- 		unsigned int *, unsigned long long *);
- #else
- static inline __le64 *squashfs_read_xattr_id_table(struct super_block *sb,
--		u64 start, u64 *xattr_table_start, int *xattr_ids)
-+		u64 start, u64 *xattr_table_start, unsigned int *xattr_ids)
- {
- 	struct squashfs_xattr_id_table *id_table;
- 
---- a/fs/squashfs/xattr_id.c
-+++ b/fs/squashfs/xattr_id.c
-@@ -69,7 +69,7 @@ int squashfs_xattr_lookup(struct super_b
-  * Read uncompressed xattr id lookup table indexes from disk into memory
-  */
- __le64 *squashfs_read_xattr_id_table(struct super_block *sb, u64 table_start,
--		u64 *xattr_table_start, int *xattr_ids)
-+		u64 *xattr_table_start, unsigned int *xattr_ids)
- {
- 	struct squashfs_sb_info *msblk = sb->s_fs_info;
- 	unsigned int len, indexes;
+ 	__decompress(_compressed_start, _compressed_end - _compressed_start,
+-		     NULL, NULL, output, 0, NULL, error);
++		     NULL, NULL, output, vmlinux.image_size, NULL, error);
+ 	return output;
+ }
+-- 
+2.39.0
+
 
 
