@@ -2,101 +2,94 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D2BC369D409
-	for <lists+stable@lfdr.de>; Mon, 20 Feb 2023 20:23:42 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1C13969D3C3
+	for <lists+stable@lfdr.de>; Mon, 20 Feb 2023 20:05:21 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232312AbjBTTXk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Feb 2023 14:23:40 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53208 "EHLO
+        id S233034AbjBTTFT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Feb 2023 14:05:19 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55290 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231773AbjBTTXj (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 20 Feb 2023 14:23:39 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 71372B74C;
-        Mon, 20 Feb 2023 11:23:38 -0800 (PST)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        with ESMTP id S233113AbjBTTEy (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 20 Feb 2023 14:04:54 -0500
+Received: from mail.skyhub.de (mail.skyhub.de [IPv6:2a01:4f8:190:11c2::b:1457])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 43A0015567;
+        Mon, 20 Feb 2023 11:04:28 -0800 (PST)
+Received: from zn.tnic (p5de8e9fe.dip0.t-ipconnect.de [93.232.233.254])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 7A67CB80DC9;
-        Mon, 20 Feb 2023 19:01:30 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3EDDEC433D2;
-        Mon, 20 Feb 2023 19:01:29 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1676919689;
-        bh=cd8CHI/SUrIQ9onJ/rf4zf7DqTdfWJzsNS6odyxJ9jg=;
-        h=From:To:Cc:Subject:Date:From;
-        b=Z0l21h8/S8idNZrbheBhfJe6Ea8RuRna/+tHVfOgl61/G4Jw7G5LBOhMJoLMUT1DQ
-         pWSoTJY+xmQBfIhG5EPzWZcZ5r1V5HPumH+LwfMvgDCXJYA92hIc2x2K0vPRKJ28BY
-         eu/ukW3BYCz40JYT+UYAmFd+nhbLjOjJYk2vftOdk8O3a7HO1XnjalZMrkJiN+MPv7
-         gBJlq9iaEWgk15U+cU2yWjfvsj8ztmtnTCYmIaOTWdmfUqQYX7rj6XPvCnrEOSbB22
-         yMEx/62+wDPqoKWPJ3W9ExFKfSH2mBAdp96OBJRtPD/rCOv91PpbrXMpSRIsGBo4e5
-         xbReRnm4mxYCA==
-Received: from sofa.misterjones.org ([185.219.108.64] helo=valley-girl.lan)
-        by disco-boy.misterjones.org with esmtpsa  (TLS1.3) tls TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384
-        (Exim 4.95)
-        (envelope-from <maz@kernel.org>)
-        id 1pUBPi-00BsZD-U5;
-        Mon, 20 Feb 2023 19:01:27 +0000
-From:   Marc Zyngier <maz@kernel.org>
-To:     linux-kernel@vger.kernel.org
-Cc:     Thomas Gleixner <tglx@linutronix.de>,
-        "Russell King (Oracle)" <linux@armlinux.org.uk>,
-        stable@vger.kernel.org
-Subject: [PATCH] genirq/msi: Take the per-device MSI lock before validating the control structure
-Date:   Mon, 20 Feb 2023 19:01:01 +0000
-Message-Id: <20230220190101.314446-1-maz@kernel.org>
-X-Mailer: git-send-email 2.34.1
+        by mail.skyhub.de (SuperMail on ZX Spectrum 128k) with ESMTPSA id 6EDCD1EC04DA;
+        Mon, 20 Feb 2023 20:02:06 +0100 (CET)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=alien8.de; s=dkim;
+        t=1676919726;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:in-reply-to:in-reply-to:  references:references;
+        bh=4GcXMqJBjY+WMfE0MjhGLsF19J5f3aOlyr/A9l1PdQs=;
+        b=pLVJXnzgggDD5pUELetDR+zSK/KLH76EO+FR/r6wm7qQUoKcCYkCitknE4LiC5WOiKBesP
+        lZg6Zbun7whxlaus/3GTrp+zwCwbiIDxDhIk5dLd7NbnVAaQ+E6F1oEN4B0mMbYneDtDeL
+        QgEzxenjZj50CyqIdDRXgJ5L3LVQz1g=
+Date:   Mon, 20 Feb 2023 20:02:02 +0100
+From:   Borislav Petkov <bp@alien8.de>
+To:     KP Singh <kpsingh@kernel.org>
+Cc:     Josh Poimboeuf <jpoimboe@kernel.org>, linux-kernel@vger.kernel.org,
+        pjt@google.com, evn@google.com, tglx@linutronix.de,
+        mingo@redhat.com, dave.hansen@linux.intel.com, x86@kernel.org,
+        hpa@zytor.com, peterz@infradead.org,
+        pawan.kumar.gupta@linux.intel.com, kim.phillips@amd.com,
+        alexandre.chartre@oracle.com, daniel.sneddon@linux.intel.com,
+        =?utf-8?B?Sm9zw6k=?= Oliveira <joseloliveira11@gmail.com>,
+        Rodrigo Branco <rodrigo@kernelhacking.com>,
+        Alexandra Sandulescu <aesa@google.com>,
+        Jim Mattson <jmattson@google.com>, stable@vger.kernel.org
+Subject: Re: [PATCH RESEND] x86/speculation: Fix user-mode spectre-v2
+ protection with KERNEL_IBRS
+Message-ID: <Y/PDqpwY3sF29PuM@zn.tnic>
+References: <CACYkzJ5L9MLuE5Jz+z5-NJCCrUqTbgKQkXSqnQnCfTD_WNA7_Q@mail.gmail.com>
+ <CACYkzJ6n=-tobhX0ONQhjHSgmnNjWnNe_dZnEOGtD8Y6S3RHbA@mail.gmail.com>
+ <20230220163442.7fmaeef3oqci4ee3@treble>
+ <Y/Ox3MJZF1Yb7b6y@zn.tnic>
+ <20230220175929.2laflfb2met6y3kc@treble>
+ <CACYkzJ71xqzY6-wL+YShcL+d6ugzcdFHr6tbYWWE_ep52+RBZQ@mail.gmail.com>
+ <Y/O6Wr4BbtfhXrNt@zn.tnic>
+ <CACYkzJ4jvOGGhuQ1HDzfpGS5vffg9X6hEcLC93QJBFqX+LxLVw@mail.gmail.com>
+ <Y/PBSncEMTiO5scL@zn.tnic>
+ <CACYkzJ5w_ey7aHxhGr-1gpQLPPtRAQLApHiJp_Kh0cOW4PTQkA@mail.gmail.com>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-SA-Exim-Connect-IP: 185.219.108.64
-X-SA-Exim-Rcpt-To: linux-kernel@vger.kernel.org, tglx@linutronix.de, linux@armlinux.org.uk, stable@vger.kernel.org
-X-SA-Exim-Mail-From: maz@kernel.org
-X-SA-Exim-Scanned: No (on disco-boy.misterjones.org); SAEximRunCond expanded to false
-X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
-        SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+In-Reply-To: <CACYkzJ5w_ey7aHxhGr-1gpQLPPtRAQLApHiJp_Kh0cOW4PTQkA@mail.gmail.com>
+X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,SPF_HELO_NONE,SPF_PASS
+        autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Calling msi_ctrl_valid() ultimately results in calling
-msi_get_device_domain(), which requires holding the device MSI lock.
+On Mon, Feb 20, 2023 at 10:56:38AM -0800, KP Singh wrote:
+> Sure, it looks like an omission to me, we wrote a POC on Skylake that
+> was able to do cross-thread training with the current set of
+> mitigations.
 
-However, we take that lock right after having called msi_ctrl_valid(),
-which is just a tad too late. Taking the lock earlier solves the issue.
+Right.
 
-Fixes: 40742716f294 ("genirq/msi: Make msi_add_simple_msi_descs() device domain aware")
-Reported-by: "Russell King (Oracle)" <linux@armlinux.org.uk>
-Signed-off-by: Marc Zyngier <maz@kernel.org>
-Cc: stable@vger.kernel.org
-Link: https://lore.kernel.org/r/Y/Opu6ETe3ZzZ/8E@shell.armlinux.org.uk
----
- kernel/irq/msi.c | 9 ++++++---
- 1 file changed, 6 insertions(+), 3 deletions(-)
+> STIBP with IBRS is still correct if spectre_v2=ibrs had really meant
+> IBRS everywhere,
 
-diff --git a/kernel/irq/msi.c b/kernel/irq/msi.c
-index 783a3e6a0b10..13d96495e6d0 100644
---- a/kernel/irq/msi.c
-+++ b/kernel/irq/msi.c
-@@ -1084,10 +1084,13 @@ int msi_domain_populate_irqs(struct irq_domain *domain, struct device *dev,
- 	struct xarray *xa;
- 	int ret, virq;
- 
--	if (!msi_ctrl_valid(dev, &ctrl))
--		return -EINVAL;
--
- 	msi_lock_descs(dev);
-+
-+	if (!msi_ctrl_valid(dev, &ctrl)) {
-+		ret = -EINVAL;
-+		goto unlock;
-+	}
-+
- 	ret = msi_domain_add_simple_msi_descs(dev, &ctrl);
- 	if (ret)
- 		goto unlock;
+Yeah, IBRS everywhere got shot down as a no-no very early in the game,
+for apparent reasons.
+
+> but just means KERNEL_IBRS, which means only kernel is protected,
+> userspace is still unprotected.
+
+Yes, that was always the intent with IBRS: enable on kernel entry and
+disable on exit.
+
+Thx.
+
 -- 
-2.34.1
+Regards/Gruss,
+    Boris.
 
+https://people.kernel.org/tglx/notes-about-netiquette
