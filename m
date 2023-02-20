@@ -2,47 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 0CB4B69CECC
-	for <lists+stable@lfdr.de>; Mon, 20 Feb 2023 15:02:26 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8208A69CDE9
+	for <lists+stable@lfdr.de>; Mon, 20 Feb 2023 14:54:10 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232837AbjBTOCZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Feb 2023 09:02:25 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55704 "EHLO
+        id S232514AbjBTNyJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Feb 2023 08:54:09 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42442 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232819AbjBTOCW (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 20 Feb 2023 09:02:22 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 545071EFFC
-        for <stable@vger.kernel.org>; Mon, 20 Feb 2023 06:02:07 -0800 (PST)
+        with ESMTP id S232516AbjBTNyI (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 20 Feb 2023 08:54:08 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1EA8F1E9D2
+        for <stable@vger.kernel.org>; Mon, 20 Feb 2023 05:54:03 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 8E0DEB80D4D
-        for <stable@vger.kernel.org>; Mon, 20 Feb 2023 14:01:53 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 072D9C433D2;
-        Mon, 20 Feb 2023 14:01:51 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 8C29660E9E
+        for <stable@vger.kernel.org>; Mon, 20 Feb 2023 13:54:02 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A429DC433D2;
+        Mon, 20 Feb 2023 13:54:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1676901712;
-        bh=g/f6NHbYkEwX10UaZMVsEuFIrY5AM9iwEsKQfm98TBM=;
+        s=korg; t=1676901242;
+        bh=85VMH/1lZVswfIyXaXbLNR+c6CWzvM7lOPM8oTT+CeI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=jLBKduQxTONNApoaEbuQs3vg0QEkoDxkbYmqJsR2bnhqfQoSHr28n12KhKPWwfCgv
-         cVDTHzt9oLf2AXMTH0ax7b7AuKVgPF8H+3oVB46dm963XkCsphZjpV7cJEBLtMwqPx
-         n5+P0lknsuazmZteTOR0SB/ObDdcXCTG+4nwqebE=
+        b=pPXOrcwxH4MZHYd8TlLtlOHHObWMz571sfWl0C44CIYTIuEZ4PuyttUh7bBmR/BdK
+         0BU4ikrYejeg/k0QEYVzKbCKGyZ/K2C+uaZa1xa3+dETlDaAaxXHJD5xroqALVTuc7
+         FnEXBU7Ri5jNYycLfud0z2MqtNaxmvKlBlgVJHEA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Mateusz Palczewski <mateusz.palczewski@intel.com>,
-        Jamie Bainbridge <jbainbri@redhat.com>,
-        Corinna Vinschen <vinschen@redhat.com>,
-        Tony Nguyen <anthony.l.nguyen@intel.com>,
-        Jakub Kicinski <kuba@kernel.org>
-Subject: [PATCH 6.1 100/118] igb: conditionalize I2C bit banging on external thermal sensor support
+        patches@lists.linux.dev, Arnd Bergmann <arnd@arndb.de>,
+        Hans de Goede <hdegoede@redhat.com>
+Subject: [PATCH 5.15 83/83] platform/x86/amd: pmc: add CONFIG_SERIO dependency
 Date:   Mon, 20 Feb 2023 14:36:56 +0100
-Message-Id: <20230220133604.404557420@linuxfoundation.org>
+Message-Id: <20230220133556.648532475@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230220133600.368809650@linuxfoundation.org>
-References: <20230220133600.368809650@linuxfoundation.org>
+In-Reply-To: <20230220133553.669025851@linuxfoundation.org>
+References: <20230220133553.669025851@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,147 +52,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Corinna Vinschen <vinschen@redhat.com>
+From: Arnd Bergmann <arnd@arndb.de>
 
-commit 5d54cb1767e06025819daa6769e0f18dcbc60936 upstream.
+commit abce209d18fd26e865b2406cc68819289db973f9 upstream.
 
-Commit a97f8783a937 ("igb: unbreak I2C bit-banging on i350") introduced
-code to change I2C settings to bit banging unconditionally.
+Using the serio subsystem now requires the code to be reachable:
 
-However, this patch introduced a regression:  On an Intel S2600CWR
-Server Board with three NICs:
+x86_64-linux-ld: drivers/platform/x86/amd/pmc.o: in function `amd_pmc_suspend_handler':
+pmc.c:(.text+0x86c): undefined reference to `serio_bus'
 
-- 1x dual-port copper
-  Intel I350 Gigabit Network Connection [8086:1521] (rev 01)
-  fw 1.63, 0x80000dda
+Add the usual dependency: as other users of serio use 'select'
+rather than 'depends on', use the same here.
 
-- 2x quad-port SFP+ with copper SFP Avago ABCU-5700RZ
-  Intel I350 Gigabit Fiber Network Connection [8086:1522] (rev 01)
-  fw 1.52.0
-
-the SFP NICs no longer get link at all.  Reverting commit a97f8783a937
-or switching to the Intel out-of-tree driver both fix the problem.
-
-Per the igb out-of-tree driver, I2C bit banging on i350 depends on
-support for an external thermal sensor (ETS).  However, commit
-a97f8783a937 added bit banging unconditionally.  Additionally, the
-out-of-tree driver always calls init_thermal_sensor_thresh on probe,
-while our driver only calls init_thermal_sensor_thresh only in
-igb_reset(), and only if an ETS is present, ignoring the internal
-thermal sensor.  The affected SFPs don't provide an ETS.  Per Intel,
-the behaviour is a result of i350 firmware requirements.
-
-This patch fixes the problem by aligning the behaviour to the
-out-of-tree driver:
-
-- split igb_init_i2c() into two functions:
-  - igb_init_i2c() only performs the basic I2C initialization.
-  - igb_set_i2c_bb() makes sure that E1000_CTRL_I2C_ENA is set
-    and enables bit-banging.
-
-- igb_probe() only calls igb_set_i2c_bb() if an ETS is present.
-
-- igb_probe() calls init_thermal_sensor_thresh() unconditionally.
-
-- igb_reset() aligns its behaviour to igb_probe(), i. e., call
-  igb_set_i2c_bb() if an ETS is present and call
-  init_thermal_sensor_thresh() unconditionally.
-
-Fixes: a97f8783a937 ("igb: unbreak I2C bit-banging on i350")
-Tested-by: Mateusz Palczewski <mateusz.palczewski@intel.com>
-Co-developed-by: Jamie Bainbridge <jbainbri@redhat.com>
-Signed-off-by: Jamie Bainbridge <jbainbri@redhat.com>
-Signed-off-by: Corinna Vinschen <vinschen@redhat.com>
-Signed-off-by: Tony Nguyen <anthony.l.nguyen@intel.com>
-Link: https://lore.kernel.org/r/20230214185549.1306522-1-anthony.l.nguyen@intel.com
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Fixes: 8e60615e8932 ("platform/x86/amd: pmc: Disable IRQ1 wakeup for RN/CZN")
+Signed-off-by: Arnd Bergmann <arnd@arndb.de>
+Link: https://lore.kernel.org/r/20230127093950.2368575-1-arnd@kernel.org
+Reviewed-by: Hans de Goede <hdegoede@redhat.com>
+Signed-off-by: Hans de Goede <hdegoede@redhat.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ethernet/intel/igb/igb_main.c | 42 +++++++++++++++++------
- 1 file changed, 32 insertions(+), 10 deletions(-)
+ drivers/platform/x86/Kconfig |    1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/net/ethernet/intel/igb/igb_main.c b/drivers/net/ethernet/intel/igb/igb_main.c
-index d8e3048b93dd..b5b443883da9 100644
---- a/drivers/net/ethernet/intel/igb/igb_main.c
-+++ b/drivers/net/ethernet/intel/igb/igb_main.c
-@@ -2256,6 +2256,30 @@ static void igb_enable_mas(struct igb_adapter *adapter)
- 	}
- }
- 
-+#ifdef CONFIG_IGB_HWMON
-+/**
-+ *  igb_set_i2c_bb - Init I2C interface
-+ *  @hw: pointer to hardware structure
-+ **/
-+static void igb_set_i2c_bb(struct e1000_hw *hw)
-+{
-+	u32 ctrl_ext;
-+	s32 i2cctl;
-+
-+	ctrl_ext = rd32(E1000_CTRL_EXT);
-+	ctrl_ext |= E1000_CTRL_I2C_ENA;
-+	wr32(E1000_CTRL_EXT, ctrl_ext);
-+	wrfl();
-+
-+	i2cctl = rd32(E1000_I2CPARAMS);
-+	i2cctl |= E1000_I2CBB_EN
-+		| E1000_I2C_CLK_OE_N
-+		| E1000_I2C_DATA_OE_N;
-+	wr32(E1000_I2CPARAMS, i2cctl);
-+	wrfl();
-+}
-+#endif
-+
- void igb_reset(struct igb_adapter *adapter)
- {
- 	struct pci_dev *pdev = adapter->pdev;
-@@ -2400,7 +2424,8 @@ void igb_reset(struct igb_adapter *adapter)
- 			 * interface.
- 			 */
- 			if (adapter->ets)
--				mac->ops.init_thermal_sensor_thresh(hw);
-+				igb_set_i2c_bb(hw);
-+			mac->ops.init_thermal_sensor_thresh(hw);
- 		}
- 	}
- #endif
-@@ -3117,21 +3142,12 @@ static void igb_init_mas(struct igb_adapter *adapter)
-  **/
- static s32 igb_init_i2c(struct igb_adapter *adapter)
- {
--	struct e1000_hw *hw = &adapter->hw;
- 	s32 status = 0;
--	s32 i2cctl;
- 
- 	/* I2C interface supported on i350 devices */
- 	if (adapter->hw.mac.type != e1000_i350)
- 		return 0;
- 
--	i2cctl = rd32(E1000_I2CPARAMS);
--	i2cctl |= E1000_I2CBB_EN
--		| E1000_I2C_CLK_OUT | E1000_I2C_CLK_OE_N
--		| E1000_I2C_DATA_OUT | E1000_I2C_DATA_OE_N;
--	wr32(E1000_I2CPARAMS, i2cctl);
--	wrfl();
--
- 	/* Initialize the i2c bus which is controlled by the registers.
- 	 * This bus will use the i2c_algo_bit structure that implements
- 	 * the protocol through toggling of the 4 bits in the register.
-@@ -3521,6 +3537,12 @@ static int igb_probe(struct pci_dev *pdev, const struct pci_device_id *ent)
- 			adapter->ets = true;
- 		else
- 			adapter->ets = false;
-+		/* Only enable I2C bit banging if an external thermal
-+		 * sensor is supported.
-+		 */
-+		if (adapter->ets)
-+			igb_set_i2c_bb(hw);
-+		hw->mac.ops.init_thermal_sensor_thresh(hw);
- 		if (igb_sysfs_init(adapter))
- 			dev_err(&pdev->dev,
- 				"failed to allocate sysfs resources\n");
--- 
-2.39.1
-
+--- a/drivers/platform/x86/Kconfig
++++ b/drivers/platform/x86/Kconfig
+@@ -171,6 +171,7 @@ config ACER_WMI
+ config AMD_PMC
+ 	tristate "AMD SoC PMC driver"
+ 	depends on ACPI && PCI
++	select SERIO
+ 	help
+ 	  The driver provides support for AMD Power Management Controller
+ 	  primarily responsible for S2Idle transactions that are driven from
 
 
