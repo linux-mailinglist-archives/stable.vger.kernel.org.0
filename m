@@ -2,48 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C543369CD5D
-	for <lists+stable@lfdr.de>; Mon, 20 Feb 2023 14:48:57 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2C75269CC60
+	for <lists+stable@lfdr.de>; Mon, 20 Feb 2023 14:39:41 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232361AbjBTNs4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Feb 2023 08:48:56 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34996 "EHLO
+        id S230076AbjBTNjk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Feb 2023 08:39:40 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48152 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232351AbjBTNsw (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 20 Feb 2023 08:48:52 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E1CFC1C315
-        for <stable@vger.kernel.org>; Mon, 20 Feb 2023 05:48:36 -0800 (PST)
+        with ESMTP id S231736AbjBTNjj (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 20 Feb 2023 08:39:39 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 43A341C594
+        for <stable@vger.kernel.org>; Mon, 20 Feb 2023 05:39:38 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 9B05CB80D4D
-        for <stable@vger.kernel.org>; Mon, 20 Feb 2023 13:48:35 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id EC958C433EF;
-        Mon, 20 Feb 2023 13:48:33 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id D4F1560EA7
+        for <stable@vger.kernel.org>; Mon, 20 Feb 2023 13:39:37 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E7646C433EF;
+        Mon, 20 Feb 2023 13:39:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1676900914;
-        bh=Jppj5QP2ywOl0V0YLDbBQHJOfMK+dyKMYVkjO2SHzYY=;
+        s=korg; t=1676900377;
+        bh=+i8h0uXwDjbALup0iYRRDEeMyobsQLNSiLreJcMMNWo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=XCfdfjtS4AbXGX/rEpg/joej8RfrbOjwHfdEvYzAGuvQejqVZtKhrNX8gg1Qna1hH
-         1nwzyepmr+dCb+Mjqqr9ZGZ6CBqGVgHwoeD4RJRxxV53Vu2yXcfBSJ7G3G1eyL173d
-         rmniqhacqw+ZGWl6a6ihu15VmW/+h/K0yDze1DEE=
+        b=uphFVTiGfNNpfi7xJV5yhPzx465EZpkFZGZ8Js0TzW3gUAEKnVPV4QUee9SmLh2RF
+         Bzk9YJ93V6mGwKRHYex2rV4h8S06xQ26g+xzK3PIMkAkw7G7lUBW+08zmimHVUmurN
+         rFPvc9hDkciSPLz5Zu7/P0VfDNYjpuz8T/om/aGc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        "Darrick J. Wong" <darrick.wong@oracle.com>,
-        Dave Chinner <dchinner@redhat.com>,
-        Christoph Hellwig <hch@lst.de>,
-        Brian Foster <bfoster@redhat.com>,
-        Chandan Babu R <chandan.babu@oracle.com>,
-        "Darrick J. Wong" <djwong@kernel.org>
-Subject: [PATCH 5.4 116/156] xfs: clean up xfs_bui_item_recover iget/trans_alloc/ilock ordering
+        patches@lists.linux.dev, Shunsuke Mie <mie@igel.co.jp>,
+        "Michael S. Tsirkin" <mst@redhat.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.14 34/53] tools/virtio: fix the vringh test for virtio ring changes
 Date:   Mon, 20 Feb 2023 14:36:00 +0100
-Message-Id: <20230220133607.399106289@linuxfoundation.org>
+Message-Id: <20230220133549.397011575@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230220133602.515342638@linuxfoundation.org>
-References: <20230220133602.515342638@linuxfoundation.org>
+In-Reply-To: <20230220133548.158615609@linuxfoundation.org>
+References: <20230220133548.158615609@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -57,105 +53,148 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: "Darrick J. Wong" <darrick.wong@oracle.com>
+From: Shunsuke Mie <mie@igel.co.jp>
 
-commit 64a3f3315bc60f710a0a25c1798ac0ea58c6fa1f upstream.
+[ Upstream commit 3f7b75abf41cc4143aa295f62acbb060a012868d ]
 
-In most places in XFS, we have a specific order in which we gather
-resources: grab the inode, allocate a transaction, then lock the inode.
-xfs_bui_item_recover doesn't do it in that order, so fix it to be more
-consistent.  This also makes the error bailout code a bit less weird.
+Fix the build caused by missing kmsan_handle_dma() and is_power_of_2() that
+are used in drivers/virtio/virtio_ring.c.
 
-Signed-off-by: Darrick J. Wong <darrick.wong@oracle.com>
-Reviewed-by: Dave Chinner <dchinner@redhat.com>
-Reviewed-by: Christoph Hellwig <hch@lst.de>
-Reviewed-by: Brian Foster <bfoster@redhat.com>
-Signed-off-by: Chandan Babu R <chandan.babu@oracle.com>
-Acked-by: Darrick J. Wong <djwong@kernel.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Shunsuke Mie <mie@igel.co.jp>
+Message-Id: <20230110034310.779744-1-mie@igel.co.jp>
+Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/xfs/xfs_bmap_item.c |   38 ++++++++++++++++++++++++--------------
- 1 file changed, 24 insertions(+), 14 deletions(-)
+ tools/virtio/linux/bug.h         |  8 +++-----
+ tools/virtio/linux/build_bug.h   |  7 +++++++
+ tools/virtio/linux/cpumask.h     |  7 +++++++
+ tools/virtio/linux/gfp.h         |  7 +++++++
+ tools/virtio/linux/kernel.h      |  1 +
+ tools/virtio/linux/kmsan.h       | 12 ++++++++++++
+ tools/virtio/linux/scatterlist.h |  1 +
+ tools/virtio/linux/topology.h    |  7 +++++++
+ 8 files changed, 45 insertions(+), 5 deletions(-)
+ create mode 100644 tools/virtio/linux/build_bug.h
+ create mode 100644 tools/virtio/linux/cpumask.h
+ create mode 100644 tools/virtio/linux/gfp.h
+ create mode 100644 tools/virtio/linux/kmsan.h
+ create mode 100644 tools/virtio/linux/topology.h
 
---- a/fs/xfs/xfs_bmap_item.c
-+++ b/fs/xfs/xfs_bmap_item.c
-@@ -22,6 +22,7 @@
- #include "xfs_bmap_btree.h"
- #include "xfs_trans_space.h"
- #include "xfs_error.h"
-+#include "xfs_quota.h"
+diff --git a/tools/virtio/linux/bug.h b/tools/virtio/linux/bug.h
+index b14c2c3b6b857..74aef964f5099 100644
+--- a/tools/virtio/linux/bug.h
++++ b/tools/virtio/linux/bug.h
+@@ -1,11 +1,9 @@
+ /* SPDX-License-Identifier: GPL-2.0 */
+-#ifndef BUG_H
+-#define BUG_H
++#ifndef _LINUX_BUG_H
++#define _LINUX_BUG_H
  
- kmem_zone_t	*xfs_bui_zone;
- kmem_zone_t	*xfs_bud_zone;
-@@ -488,21 +489,26 @@ xfs_bui_recover(
- 		return -EFSCORRUPTED;
- 	}
+ #define BUG_ON(__BUG_ON_cond) assert(!(__BUG_ON_cond))
  
--	error = xfs_trans_alloc(mp, &M_RES(mp)->tr_itruncate,
--			XFS_EXTENTADD_SPACE_RES(mp, XFS_DATA_FORK), 0, 0, &tp);
-+	/* Grab the inode. */
-+	error = xfs_iget(mp, NULL, bmap->me_owner, 0, 0, &ip);
- 	if (error)
- 		return error;
- 
--	budp = xfs_trans_get_bud(tp, buip);
+-#define BUILD_BUG_ON(x)
 -
--	/* Grab the inode. */
--	error = xfs_iget(mp, tp, bmap->me_owner, 0, XFS_ILOCK_EXCL, &ip);
-+	error = xfs_qm_dqattach(ip);
- 	if (error)
--		goto err_inode;
-+		goto err_rele;
+ #define BUG() abort()
  
- 	if (VFS_I(ip)->i_nlink == 0)
- 		xfs_iflags_set(ip, XFS_IRECOVERY);
- 
-+	/* Allocate transaction and do the work. */
-+	error = xfs_trans_alloc(mp, &M_RES(mp)->tr_itruncate,
-+			XFS_EXTENTADD_SPACE_RES(mp, XFS_DATA_FORK), 0, 0, &tp);
-+	if (error)
-+		goto err_rele;
+-#endif /* BUG_H */
++#endif /* _LINUX_BUG_H */
+diff --git a/tools/virtio/linux/build_bug.h b/tools/virtio/linux/build_bug.h
+new file mode 100644
+index 0000000000000..cdbb75e28a604
+--- /dev/null
++++ b/tools/virtio/linux/build_bug.h
+@@ -0,0 +1,7 @@
++/* SPDX-License-Identifier: GPL-2.0 */
++#ifndef _LINUX_BUILD_BUG_H
++#define _LINUX_BUILD_BUG_H
 +
-+	budp = xfs_trans_get_bud(tp, buip);
-+	xfs_ilock(ip, XFS_ILOCK_EXCL);
- 	xfs_trans_ijoin(tp, ip, 0);
- 
- 	count = bmap->me_len;
-@@ -510,7 +516,7 @@ xfs_bui_recover(
- 			whichfork, bmap->me_startoff, bmap->me_startblock,
- 			&count, state);
- 	if (error)
--		goto err_inode;
-+		goto err_cancel;
- 
- 	if (count > 0) {
- 		ASSERT(bui_type == XFS_BMAP_UNMAP);
-@@ -522,16 +528,20 @@ xfs_bui_recover(
- 	}
- 
- 	set_bit(XFS_BUI_RECOVERED, &buip->bui_flags);
-+	/* Commit transaction, which frees the transaction. */
- 	error = xfs_defer_ops_capture_and_commit(tp, capture_list);
-+	if (error)
-+		goto err_unlock;
++#define BUILD_BUG_ON(x)
 +
- 	xfs_iunlock(ip, XFS_ILOCK_EXCL);
- 	xfs_irele(ip);
--	return error;
-+	return 0;
++#endif	/* _LINUX_BUILD_BUG_H */
+diff --git a/tools/virtio/linux/cpumask.h b/tools/virtio/linux/cpumask.h
+new file mode 100644
+index 0000000000000..307da69d6b26c
+--- /dev/null
++++ b/tools/virtio/linux/cpumask.h
+@@ -0,0 +1,7 @@
++/* SPDX-License-Identifier: GPL-2.0 */
++#ifndef _LINUX_CPUMASK_H
++#define _LINUX_CPUMASK_H
++
++#include <linux/kernel.h>
++
++#endif /* _LINUX_CPUMASK_H */
+diff --git a/tools/virtio/linux/gfp.h b/tools/virtio/linux/gfp.h
+new file mode 100644
+index 0000000000000..43d146f236f14
+--- /dev/null
++++ b/tools/virtio/linux/gfp.h
+@@ -0,0 +1,7 @@
++/* SPDX-License-Identifier: GPL-2.0 */
++#ifndef __LINUX_GFP_H
++#define __LINUX_GFP_H
++
++#include <linux/topology.h>
++
++#endif
+diff --git a/tools/virtio/linux/kernel.h b/tools/virtio/linux/kernel.h
+index 268ce239de650..e4e35e66ea14a 100644
+--- a/tools/virtio/linux/kernel.h
++++ b/tools/virtio/linux/kernel.h
+@@ -10,6 +10,7 @@
+ #include <stdarg.h>
  
--err_inode:
-+err_cancel:
- 	xfs_trans_cancel(tp);
--	if (ip) {
--		xfs_iunlock(ip, XFS_ILOCK_EXCL);
--		xfs_irele(ip);
--	}
-+err_unlock:
-+	xfs_iunlock(ip, XFS_ILOCK_EXCL);
-+err_rele:
-+	xfs_irele(ip);
- 	return error;
- }
+ #include <linux/compiler.h>
++#include <linux/log2.h>
+ #include <linux/types.h>
+ #include <linux/printk.h>
+ #include <linux/bug.h>
+diff --git a/tools/virtio/linux/kmsan.h b/tools/virtio/linux/kmsan.h
+new file mode 100644
+index 0000000000000..272b5aa285d5a
+--- /dev/null
++++ b/tools/virtio/linux/kmsan.h
+@@ -0,0 +1,12 @@
++/* SPDX-License-Identifier: GPL-2.0 */
++#ifndef _LINUX_KMSAN_H
++#define _LINUX_KMSAN_H
++
++#include <linux/gfp.h>
++
++inline void kmsan_handle_dma(struct page *page, size_t offset, size_t size,
++			     enum dma_data_direction dir)
++{
++}
++
++#endif /* _LINUX_KMSAN_H */
+diff --git a/tools/virtio/linux/scatterlist.h b/tools/virtio/linux/scatterlist.h
+index 9a45f90e2d089..97448e1ceebc1 100644
+--- a/tools/virtio/linux/scatterlist.h
++++ b/tools/virtio/linux/scatterlist.h
+@@ -2,6 +2,7 @@
+ #ifndef SCATTERLIST_H
+ #define SCATTERLIST_H
+ #include <linux/kernel.h>
++#include <linux/bug.h>
+ 
+ struct scatterlist {
+ 	unsigned long	page_link;
+diff --git a/tools/virtio/linux/topology.h b/tools/virtio/linux/topology.h
+new file mode 100644
+index 0000000000000..910794afb993a
+--- /dev/null
++++ b/tools/virtio/linux/topology.h
+@@ -0,0 +1,7 @@
++/* SPDX-License-Identifier: GPL-2.0 */
++#ifndef _LINUX_TOPOLOGY_H
++#define _LINUX_TOPOLOGY_H
++
++#include <linux/cpumask.h>
++
++#endif /* _LINUX_TOPOLOGY_H */
+-- 
+2.39.0
+
 
 
