@@ -2,43 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id CF94A69CCC7
-	for <lists+stable@lfdr.de>; Mon, 20 Feb 2023 14:43:28 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4718869CC49
+	for <lists+stable@lfdr.de>; Mon, 20 Feb 2023 14:38:59 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232194AbjBTNn2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Feb 2023 08:43:28 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54044 "EHLO
+        id S232055AbjBTNi4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Feb 2023 08:38:56 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47024 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232035AbjBTNn1 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 20 Feb 2023 08:43:27 -0500
-Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1B6081C58D
-        for <stable@vger.kernel.org>; Mon, 20 Feb 2023 05:43:26 -0800 (PST)
+        with ESMTP id S232107AbjBTNiz (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 20 Feb 2023 08:38:55 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0B6371C32F
+        for <stable@vger.kernel.org>; Mon, 20 Feb 2023 05:38:54 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 857EFCE0FCF
-        for <stable@vger.kernel.org>; Mon, 20 Feb 2023 13:43:24 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A61AFC433EF;
-        Mon, 20 Feb 2023 13:43:22 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 9D2B160CBA
+        for <stable@vger.kernel.org>; Mon, 20 Feb 2023 13:38:53 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B3429C4339C;
+        Mon, 20 Feb 2023 13:38:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1676900603;
-        bh=vBfjCfwD5QJdaB4qc1I+JgrFCUdQDbDeZlwXuZA4dZg=;
+        s=korg; t=1676900333;
+        bh=HgpoZ5h70eDNZPNYBIuEjekilY4rvuSw4OUtj5h9VvI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=VgWYfu/dXVMuObviOFLPx1LLVqazCNPZqoYJ6tIfg0ft43Klpc3h0sFz0xBEoIGw6
-         Kya7vEKCBZiFcutcui1QN7FMAMu05T5FskMQKRtt0n0GCdrmZWCZ94MBbj2DWvaF8N
-         EnrfJi96FuzxFaOmI17kinhkblUzlAvIn1rOSyqA=
+        b=ck6npnNWhkKVO9++MYWRBZoTcmXwANvD7o6vweSxwYdLE/Kut5dvzlysrcrqL5Urb
+         1/09EVPzezx3c3LweZuFAFdHQGoylXqPmIjbRO8dXb75Mp1g21ftmi/K5cU/pCgod+
+         6WflYGL0faF1A5K26jmLOk1ulPF3CtiTBDBfYS5s=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Diana Zigterman <dzigterman@chromium.org>,
-        Prashant Malani <pmalani@chromium.org>
-Subject: [PATCH 4.19 58/89] usb: typec: altmodes/displayport: Fix probe pin assign check
+        patches@lists.linux.dev, Alan Stern <stern@rowland.harvard.edu>,
+        "David S. Miller" <davem@davemloft.net>,
+        syzbot+2a0e7abd24f1eb90ce25@syzkaller.appspotmail.com
+Subject: [PATCH 4.14 31/53] net: USB: Fix wrong-direction WARNING in plusb.c
 Date:   Mon, 20 Feb 2023 14:35:57 +0100
-Message-Id: <20230220133555.185791137@linuxfoundation.org>
+Message-Id: <20230220133549.290884068@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230220133553.066768704@linuxfoundation.org>
-References: <20230220133553.066768704@linuxfoundation.org>
+In-Reply-To: <20230220133548.158615609@linuxfoundation.org>
+References: <20230220133548.158615609@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -52,48 +53,76 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Prashant Malani <pmalani@chromium.org>
+From: Alan Stern <stern@rowland.harvard.edu>
 
-commit 54e5c00a4eb0a4c663445b245f641bbfab142430 upstream.
+commit 811d581194f7412eda97acc03d17fc77824b561f upstream.
 
-While checking Pin Assignments of the port and partner during probe, we
-don't take into account whether the peripheral is a plug or receptacle.
+The syzbot fuzzer detected a bug in the plusb network driver: A
+zero-length control-OUT transfer was treated as a read instead of a
+write.  In modern kernels this error provokes a WARNING:
 
-This manifests itself in a mode entry failure on certain docks and
-dongles with captive cables. For instance, the Startech.com Type-C to DP
-dongle (Model #CDP2DP) advertises its DP VDO as 0x405. This would fail
-the Pin Assignment compatibility check, despite it supporting
-Pin Assignment C as a UFP.
+usb 1-1: BOGUS control dir, pipe 80000280 doesn't match bRequestType c0
+WARNING: CPU: 0 PID: 4645 at drivers/usb/core/urb.c:411
+usb_submit_urb+0x14a7/0x1880 drivers/usb/core/urb.c:411
+Modules linked in:
+CPU: 1 PID: 4645 Comm: dhcpcd Not tainted
+6.2.0-rc6-syzkaller-00050-g9f266ccaa2f5 #0
+Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS Google
+01/12/2023
+RIP: 0010:usb_submit_urb+0x14a7/0x1880 drivers/usb/core/urb.c:411
+...
+Call Trace:
+ <TASK>
+ usb_start_wait_urb+0x101/0x4b0 drivers/usb/core/message.c:58
+ usb_internal_control_msg drivers/usb/core/message.c:102 [inline]
+ usb_control_msg+0x320/0x4a0 drivers/usb/core/message.c:153
+ __usbnet_read_cmd+0xb9/0x390 drivers/net/usb/usbnet.c:2010
+ usbnet_read_cmd+0x96/0xf0 drivers/net/usb/usbnet.c:2068
+ pl_vendor_req drivers/net/usb/plusb.c:60 [inline]
+ pl_set_QuickLink_features drivers/net/usb/plusb.c:75 [inline]
+ pl_reset+0x2f/0xf0 drivers/net/usb/plusb.c:85
+ usbnet_open+0xcc/0x5d0 drivers/net/usb/usbnet.c:889
+ __dev_open+0x297/0x4d0 net/core/dev.c:1417
+ __dev_change_flags+0x587/0x750 net/core/dev.c:8530
+ dev_change_flags+0x97/0x170 net/core/dev.c:8602
+ devinet_ioctl+0x15a2/0x1d70 net/ipv4/devinet.c:1147
+ inet_ioctl+0x33f/0x380 net/ipv4/af_inet.c:979
+ sock_do_ioctl+0xcc/0x230 net/socket.c:1169
+ sock_ioctl+0x1f8/0x680 net/socket.c:1286
+ vfs_ioctl fs/ioctl.c:51 [inline]
+ __do_sys_ioctl fs/ioctl.c:870 [inline]
+ __se_sys_ioctl fs/ioctl.c:856 [inline]
+ __x64_sys_ioctl+0x197/0x210 fs/ioctl.c:856
+ do_syscall_x64 arch/x86/entry/common.c:50 [inline]
+ do_syscall_64+0x39/0xb0 arch/x86/entry/common.c:80
+ entry_SYSCALL_64_after_hwframe+0x63/0xcd
 
-Update the check to use the correct DP Pin Assign macros that
-take the peripheral's receptacle bit into account.
+The fix is to call usbnet_write_cmd() instead of usbnet_read_cmd() and
+remove the USB_DIR_IN flag.
 
-Fixes: c1e5c2f0cb8a ("usb: typec: altmodes/displayport: correct pin assignment for UFP receptacles")
-Cc: stable@vger.kernel.org
-Reported-by: Diana Zigterman <dzigterman@chromium.org>
-Signed-off-by: Prashant Malani <pmalani@chromium.org>
-Link: https://lore.kernel.org/r/20230208205318.131385-1-pmalani@chromium.org
+Reported-and-tested-by: syzbot+2a0e7abd24f1eb90ce25@syzkaller.appspotmail.com
+Signed-off-by: Alan Stern <stern@rowland.harvard.edu>
+Fixes: 090ffa9d0e90 ("[PATCH] USB: usbnet (9/9) module for pl2301/2302 cables")
+CC: stable@vger.kernel.org
+Link: https://lore.kernel.org/r/00000000000052099f05f3b3e298@google.com/
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/usb/typec/altmodes/displayport.c |    8 ++++----
- 1 file changed, 4 insertions(+), 4 deletions(-)
+ drivers/net/usb/plusb.c |    4 +---
+ 1 file changed, 1 insertion(+), 3 deletions(-)
 
---- a/drivers/usb/typec/altmodes/displayport.c
-+++ b/drivers/usb/typec/altmodes/displayport.c
-@@ -526,10 +526,10 @@ static int dp_altmode_probe(struct typec
- 	/* FIXME: Port can only be DFP_U. */
+--- a/drivers/net/usb/plusb.c
++++ b/drivers/net/usb/plusb.c
+@@ -69,9 +69,7 @@
+ static inline int
+ pl_vendor_req(struct usbnet *dev, u8 req, u8 val, u8 index)
+ {
+-	return usbnet_read_cmd(dev, req,
+-				USB_DIR_IN | USB_TYPE_VENDOR |
+-				USB_RECIP_DEVICE,
++	return usbnet_write_cmd(dev, req, USB_TYPE_VENDOR | USB_RECIP_DEVICE,
+ 				val, index, NULL, 0);
+ }
  
- 	/* Make sure we have compatiple pin configurations */
--	if (!(DP_CAP_DFP_D_PIN_ASSIGN(port->vdo) &
--	      DP_CAP_UFP_D_PIN_ASSIGN(alt->vdo)) &&
--	    !(DP_CAP_UFP_D_PIN_ASSIGN(port->vdo) &
--	      DP_CAP_DFP_D_PIN_ASSIGN(alt->vdo)))
-+	if (!(DP_CAP_PIN_ASSIGN_DFP_D(port->vdo) &
-+	      DP_CAP_PIN_ASSIGN_UFP_D(alt->vdo)) &&
-+	    !(DP_CAP_PIN_ASSIGN_UFP_D(port->vdo) &
-+	      DP_CAP_PIN_ASSIGN_DFP_D(alt->vdo)))
- 		return -ENODEV;
- 
- 	ret = sysfs_create_group(&alt->dev.kobj, &dp_altmode_group);
 
 
