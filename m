@@ -2,52 +2,53 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 4CD8969CCA1
-	for <lists+stable@lfdr.de>; Mon, 20 Feb 2023 14:42:31 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 44FFD69CD5C
+	for <lists+stable@lfdr.de>; Mon, 20 Feb 2023 14:48:55 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232176AbjBTNma (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Feb 2023 08:42:30 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52142 "EHLO
+        id S232353AbjBTNsw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Feb 2023 08:48:52 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34880 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232138AbjBTNm1 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 20 Feb 2023 08:42:27 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6BBEE1D91E
-        for <stable@vger.kernel.org>; Mon, 20 Feb 2023 05:42:08 -0800 (PST)
+        with ESMTP id S232346AbjBTNsr (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 20 Feb 2023 08:48:47 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A73191DB9B
+        for <stable@vger.kernel.org>; Mon, 20 Feb 2023 05:48:32 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id F12AEB80D1F
-        for <stable@vger.kernel.org>; Mon, 20 Feb 2023 13:42:07 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6C95DC433D2;
-        Mon, 20 Feb 2023 13:42:06 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 3E77960EA5
+        for <stable@vger.kernel.org>; Mon, 20 Feb 2023 13:48:32 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 51E82C433EF;
+        Mon, 20 Feb 2023 13:48:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1676900526;
-        bh=Lnw04X8KfxGb+Llj1Db3J9ENDXRKfJmVbkPW+rSoTY8=;
+        s=korg; t=1676900911;
+        bh=w4b+MsLaJtVCanV2PokX/sI2wZvFFsRc3kdRc9MHhx0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=tYrnIdRGiPa9dnPEhLT1sDtp1yXRJYr33I+44ypFj8uwEfiRXhfTSQbpYOffUFh8g
-         I1MGGVRnOSUA6BhJCr2UYzrgmmjPEcUSJ3ToRS00s/nt221yyPaVxrYaXeOr9JkVA6
-         iqy9zkWB2y16TkJW2ekuTV7FLtgRBrG9eQTg2qUA=
+        b=AqKR3kJ4P1K2xf/meMAdwP46WWNuHRJ6dFlJ1zURLX1GgV8tH7ioqgHZSQYpjsfW6
+         AyMIODDbxcpfxKwXFaAHcStBo/wNo4z4FSwu1vvXOz6ei9jV1h1VDDRrJbLqBrBhBU
+         nwGXAWjRilbajy7tvERc9I4cB1O1JJ0ebU05UqV4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Guo Ren <guoren@linux.alibaba.com>,
-        Guo Ren <guoren@kernel.org>,
-        Andrew Jones <ajones@ventanamicro.com>,
-        Conor Dooley <conor.dooley@microchip.com>,
-        Palmer Dabbelt <palmer@rivosinc.com>
-Subject: [PATCH 4.19 59/89] riscv: Fixup race condition on PG_dcache_clean in flush_icache_pte
-Date:   Mon, 20 Feb 2023 14:35:58 +0100
-Message-Id: <20230220133555.220264041@linuxfoundation.org>
+        patches@lists.linux.dev,
+        "Darrick J. Wong" <darrick.wong@oracle.com>,
+        Dave Chinner <dchinner@redhat.com>,
+        Christoph Hellwig <hch@lst.de>,
+        Chandan Babu R <chandan.babu@oracle.com>,
+        "Darrick J. Wong" <djwong@kernel.org>
+Subject: [PATCH 5.4 115/156] xfs: clean up bmap intent item recovery checking
+Date:   Mon, 20 Feb 2023 14:35:59 +0100
+Message-Id: <20230220133607.358484751@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230220133553.066768704@linuxfoundation.org>
-References: <20230220133553.066768704@linuxfoundation.org>
+In-Reply-To: <20230220133602.515342638@linuxfoundation.org>
+References: <20230220133602.515342638@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
         SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -55,41 +56,97 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Guo Ren <guoren@linux.alibaba.com>
+From: "Darrick J. Wong" <darrick.wong@oracle.com>
 
-commit 950b879b7f0251317d26bae0687e72592d607532 upstream.
+commit 919522e89f8e71fc6a8f8abe17be4011573c6ea0 upstream.
 
-In commit 588a513d3425 ("arm64: Fix race condition on PG_dcache_clean
-in __sync_icache_dcache()"), we found RISC-V has the same issue as the
-previous arm64. The previous implementation didn't guarantee the correct
-sequence of operations, which means flush_icache_all() hasn't been
-called when the PG_dcache_clean was set. That would cause a risk of page
-synchronization.
+The bmap intent item checking code in xfs_bui_item_recover is spread all
+over the function.  We should check the recovered log item at the top
+before we allocate any resources or do anything else, so do that.
 
-Fixes: 08f051eda33b ("RISC-V: Flush I$ when making a dirty page executable")
-Signed-off-by: Guo Ren <guoren@linux.alibaba.com>
-Signed-off-by: Guo Ren <guoren@kernel.org>
-Reviewed-by: Andrew Jones <ajones@ventanamicro.com>
-Reviewed-by: Conor Dooley <conor.dooley@microchip.com>
-Link: https://lore.kernel.org/r/20230127035306.1819561-1-guoren@kernel.org
-Cc: stable@vger.kernel.org
-Signed-off-by: Palmer Dabbelt <palmer@rivosinc.com>
+Signed-off-by: Darrick J. Wong <darrick.wong@oracle.com>
+Reviewed-by: Dave Chinner <dchinner@redhat.com>
+Reviewed-by: Christoph Hellwig <hch@lst.de>
+Signed-off-by: Chandan Babu R <chandan.babu@oracle.com>
+Acked-by: Darrick J. Wong <djwong@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/riscv/mm/cacheflush.c |    4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ fs/xfs/xfs_bmap_item.c |   38 ++++++++++++--------------------------
+ 1 file changed, 12 insertions(+), 26 deletions(-)
 
---- a/arch/riscv/mm/cacheflush.c
-+++ b/arch/riscv/mm/cacheflush.c
-@@ -18,6 +18,8 @@ void flush_icache_pte(pte_t pte)
- {
- 	struct page *page = pte_page(pte);
+--- a/fs/xfs/xfs_bmap_item.c
++++ b/fs/xfs/xfs_bmap_item.c
+@@ -434,9 +434,7 @@ xfs_bui_recover(
+ 	xfs_fsblock_t			startblock_fsb;
+ 	xfs_fsblock_t			inode_fsb;
+ 	xfs_filblks_t			count;
+-	bool				op_ok;
+ 	struct xfs_bud_log_item		*budp;
+-	enum xfs_bmap_intent_type	type;
+ 	int				whichfork;
+ 	xfs_exntst_t			state;
+ 	struct xfs_trans		*tp;
+@@ -462,16 +460,19 @@ xfs_bui_recover(
+ 			   XFS_FSB_TO_DADDR(mp, bmap->me_startblock));
+ 	inode_fsb = XFS_BB_TO_FSB(mp, XFS_FSB_TO_DADDR(mp,
+ 			XFS_INO_TO_FSB(mp, bmap->me_owner)));
+-	switch (bmap->me_flags & XFS_BMAP_EXTENT_TYPE_MASK) {
++	state = (bmap->me_flags & XFS_BMAP_EXTENT_UNWRITTEN) ?
++			XFS_EXT_UNWRITTEN : XFS_EXT_NORM;
++	whichfork = (bmap->me_flags & XFS_BMAP_EXTENT_ATTR_FORK) ?
++			XFS_ATTR_FORK : XFS_DATA_FORK;
++	bui_type = bmap->me_flags & XFS_BMAP_EXTENT_TYPE_MASK;
++	switch (bui_type) {
+ 	case XFS_BMAP_MAP:
+ 	case XFS_BMAP_UNMAP:
+-		op_ok = true;
+ 		break;
+ 	default:
+-		op_ok = false;
+-		break;
++		return -EFSCORRUPTED;
+ 	}
+-	if (!op_ok || startblock_fsb == 0 ||
++	if (startblock_fsb == 0 ||
+ 	    bmap->me_len == 0 ||
+ 	    inode_fsb == 0 ||
+ 	    startblock_fsb >= mp->m_sb.sb_dblocks ||
+@@ -502,32 +503,17 @@ xfs_bui_recover(
+ 	if (VFS_I(ip)->i_nlink == 0)
+ 		xfs_iflags_set(ip, XFS_IRECOVERY);
  
--	if (!test_and_set_bit(PG_dcache_clean, &page->flags))
-+	if (!test_bit(PG_dcache_clean, &page->flags)) {
- 		flush_icache_all();
-+		set_bit(PG_dcache_clean, &page->flags);
-+	}
- }
+-	/* Process deferred bmap item. */
+-	state = (bmap->me_flags & XFS_BMAP_EXTENT_UNWRITTEN) ?
+-			XFS_EXT_UNWRITTEN : XFS_EXT_NORM;
+-	whichfork = (bmap->me_flags & XFS_BMAP_EXTENT_ATTR_FORK) ?
+-			XFS_ATTR_FORK : XFS_DATA_FORK;
+-	bui_type = bmap->me_flags & XFS_BMAP_EXTENT_TYPE_MASK;
+-	switch (bui_type) {
+-	case XFS_BMAP_MAP:
+-	case XFS_BMAP_UNMAP:
+-		type = bui_type;
+-		break;
+-	default:
+-		XFS_ERROR_REPORT(__func__, XFS_ERRLEVEL_LOW, mp);
+-		error = -EFSCORRUPTED;
+-		goto err_inode;
+-	}
+ 	xfs_trans_ijoin(tp, ip, 0);
+ 
+ 	count = bmap->me_len;
+-	error = xfs_trans_log_finish_bmap_update(tp, budp, type, ip, whichfork,
+-			bmap->me_startoff, bmap->me_startblock, &count, state);
++	error = xfs_trans_log_finish_bmap_update(tp, budp, bui_type, ip,
++			whichfork, bmap->me_startoff, bmap->me_startblock,
++			&count, state);
+ 	if (error)
+ 		goto err_inode;
+ 
+ 	if (count > 0) {
+-		ASSERT(type == XFS_BMAP_UNMAP);
++		ASSERT(bui_type == XFS_BMAP_UNMAP);
+ 		irec.br_startblock = bmap->me_startblock;
+ 		irec.br_blockcount = count;
+ 		irec.br_startoff = bmap->me_startoff;
 
 
