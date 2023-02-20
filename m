@@ -2,51 +2,50 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 73D2369CC53
-	for <lists+stable@lfdr.de>; Mon, 20 Feb 2023 14:39:09 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6014069CE74
+	for <lists+stable@lfdr.de>; Mon, 20 Feb 2023 14:59:33 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231403AbjBTNjI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Feb 2023 08:39:08 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47466 "EHLO
+        id S232748AbjBTN7V (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Feb 2023 08:59:21 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50958 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231355AbjBTNjI (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 20 Feb 2023 08:39:08 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 059691C5A4
-        for <stable@vger.kernel.org>; Mon, 20 Feb 2023 05:39:06 -0800 (PST)
+        with ESMTP id S232720AbjBTN7O (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 20 Feb 2023 08:59:14 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D0CA61EFDE
+        for <stable@vger.kernel.org>; Mon, 20 Feb 2023 05:58:54 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id B3596B80D44
-        for <stable@vger.kernel.org>; Mon, 20 Feb 2023 13:39:04 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2CDE1C4339E;
-        Mon, 20 Feb 2023 13:39:03 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 38C9460E8A
+        for <stable@vger.kernel.org>; Mon, 20 Feb 2023 13:58:54 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 49062C4339B;
+        Mon, 20 Feb 2023 13:58:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1676900343;
-        bh=ytcWzV0IyrUFqsS1ZJVaQl1PGe3nMZlwsSJMQdstmhc=;
+        s=korg; t=1676901533;
+        bh=H55/Ryaf3b36bZ0CSG+pxFpvsm0Iwt2EmiPiN1occ/w=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=uI/1Lfk4EMK8+xFnMkK5if+Ro2dZDGUUyUTu1gMhqWINvjYYneGKoEdY5MyaNIDpT
-         wHPhgNmF88tw1kse3JF3l1fPafCtIYzWVW78GZUl29CifchnOKYEv0bROyr5yLu206
-         JL9RdPZSYK8hJl85jszTza88V2gm4WZ68TAntTn0=
+        b=qDbQMSI5BYYCUSW1y2nXZ75Rabi3qgMm2gLNnxNQUpbzCPgXFqnzNqmbKCIYGuFeQ
+         WB5Oegf1mUJEugsma8zzXyJg+bFrXSym9bx3Fedmd0egaBwZwQ7BaGc3m6kARDLlv1
+         eXs1689flat7l4v6pVrwyx0gjh3z7nXz+Kv0E/MI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Jason Xing <kernelxing@tencent.com>,
-        Alexander Duyck <alexanderduyck@fb.com>,
-        Tony Nguyen <anthony.l.nguyen@intel.com>,
-        Chandan Kumar Rout <chandanx.rout@intel.com>
-Subject: [PATCH 4.14 43/53] i40e: add double of VLAN header when computing the max MTU
+        patches@lists.linux.dev, Zack Rusin <zackr@vmware.com>,
+        Maaz Mombasawala <mombasawalam@vmware.com>,
+        Martin Krastev <krastevm@vmware.com>
+Subject: [PATCH 6.1 053/118] drm/vmwgfx: Stop accessing buffer objects which failed init
 Date:   Mon, 20 Feb 2023 14:36:09 +0100
-Message-Id: <20230220133549.693886465@linuxfoundation.org>
+Message-Id: <20230220133602.581304005@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230220133548.158615609@linuxfoundation.org>
-References: <20230220133548.158615609@linuxfoundation.org>
+In-Reply-To: <20230220133600.368809650@linuxfoundation.org>
+References: <20230220133600.368809650@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
         SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -54,33 +53,77 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jason Xing <kernelxing@tencent.com>
+From: Zack Rusin <zackr@vmware.com>
 
-commit ce45ffb815e8e238f05de1630be3969b6bb15e4e upstream.
+commit 1a6897921f52ceb2c8665ef826e405bd96385159 upstream.
 
-Include the second VLAN HLEN into account when computing the maximum
-MTU size as other drivers do.
+ttm_bo_init_reserved on failure puts the buffer object back which
+causes it to be deleted, but kfree was still being called on the same
+buffer in vmw_bo_create leading to a double free.
 
-Fixes: 0c8493d90b6b ("i40e: add XDP support for pass and drop actions")
-Signed-off-by: Jason Xing <kernelxing@tencent.com>
-Reviewed-by: Alexander Duyck <alexanderduyck@fb.com>
-Tested-by: Chandan Kumar Rout <chandanx.rout@intel.com> (A Contingent Worker at Intel)
-Signed-off-by: Tony Nguyen <anthony.l.nguyen@intel.com>
+After the double free the vmw_gem_object_create_with_handle was
+setting the gem function objects before checking the return status
+of vmw_bo_create leading to null pointer access.
+
+Fix the entire path by relaying on ttm_bo_init_reserved to delete the
+buffer objects on failure and making sure the return status is checked
+before setting the gem function objects on the buffer object.
+
+Signed-off-by: Zack Rusin <zackr@vmware.com>
+Fixes: 8afa13a0583f ("drm/vmwgfx: Implement DRIVER_GEM")
+Reviewed-by: Maaz Mombasawala <mombasawalam@vmware.com>
+Reviewed-by: Martin Krastev <krastevm@vmware.com>
+Link: https://patchwork.freedesktop.org/patch/msgid/20230208180050.2093426-1-zack@kde.org
+(cherry picked from commit 36d421e632e9a0e8375eaed0143551a34d81a7e3)
+Cc: <stable@vger.kernel.org> # v5.17+
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ethernet/intel/i40e/i40e_main.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/gpu/drm/vmwgfx/vmwgfx_bo.c  | 4 +++-
+ drivers/gpu/drm/vmwgfx/vmwgfx_gem.c | 4 ++--
+ 2 files changed, 5 insertions(+), 3 deletions(-)
 
---- a/drivers/net/ethernet/intel/i40e/i40e_main.c
-+++ b/drivers/net/ethernet/intel/i40e/i40e_main.c
-@@ -2480,7 +2480,7 @@ static int i40e_change_mtu(struct net_de
- 	struct i40e_pf *pf = vsi->back;
+diff --git a/drivers/gpu/drm/vmwgfx/vmwgfx_bo.c b/drivers/gpu/drm/vmwgfx/vmwgfx_bo.c
+index aa1cd5126a32..53da183e2bfe 100644
+--- a/drivers/gpu/drm/vmwgfx/vmwgfx_bo.c
++++ b/drivers/gpu/drm/vmwgfx/vmwgfx_bo.c
+@@ -462,6 +462,9 @@ int vmw_bo_create(struct vmw_private *vmw,
+ 		return -ENOMEM;
+ 	}
  
- 	if (i40e_enabled_xdp_vsi(vsi)) {
--		int frame_size = new_mtu + ETH_HLEN + ETH_FCS_LEN + VLAN_HLEN;
-+		int frame_size = new_mtu + I40E_PACKET_HDR_PAD;
++	/*
++	 * vmw_bo_init will delete the *p_bo object if it fails
++	 */
+ 	ret = vmw_bo_init(vmw, *p_bo, size,
+ 			  placement, interruptible, pin,
+ 			  bo_free);
+@@ -470,7 +473,6 @@ int vmw_bo_create(struct vmw_private *vmw,
  
- 		if (frame_size > i40e_max_xdp_frame_size(vsi))
- 			return -EINVAL;
+ 	return ret;
+ out_error:
+-	kfree(*p_bo);
+ 	*p_bo = NULL;
+ 	return ret;
+ }
+diff --git a/drivers/gpu/drm/vmwgfx/vmwgfx_gem.c b/drivers/gpu/drm/vmwgfx/vmwgfx_gem.c
+index ce609e7d758f..83d8f18cc16f 100644
+--- a/drivers/gpu/drm/vmwgfx/vmwgfx_gem.c
++++ b/drivers/gpu/drm/vmwgfx/vmwgfx_gem.c
+@@ -146,11 +146,11 @@ int vmw_gem_object_create_with_handle(struct vmw_private *dev_priv,
+ 				    &vmw_sys_placement :
+ 				    &vmw_vram_sys_placement,
+ 			    true, false, &vmw_gem_destroy, p_vbo);
+-
+-	(*p_vbo)->base.base.funcs = &vmw_gem_object_funcs;
+ 	if (ret != 0)
+ 		goto out_no_bo;
+ 
++	(*p_vbo)->base.base.funcs = &vmw_gem_object_funcs;
++
+ 	ret = drm_gem_handle_create(filp, &(*p_vbo)->base.base, handle);
+ 	/* drop reference from allocate - handle holds it now */
+ 	drm_gem_object_put(&(*p_vbo)->base.base);
+-- 
+2.39.1
+
 
 
