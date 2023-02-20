@@ -2,44 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 3533C69CC55
-	for <lists+stable@lfdr.de>; Mon, 20 Feb 2023 14:39:16 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B5F1269CDB8
+	for <lists+stable@lfdr.de>; Mon, 20 Feb 2023 14:52:07 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231775AbjBTNjP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Feb 2023 08:39:15 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47602 "EHLO
+        id S232461AbjBTNwG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Feb 2023 08:52:06 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39326 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231355AbjBTNjO (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 20 Feb 2023 08:39:14 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A2E8F1C5A9
-        for <stable@vger.kernel.org>; Mon, 20 Feb 2023 05:39:09 -0800 (PST)
+        with ESMTP id S232464AbjBTNwG (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 20 Feb 2023 08:52:06 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 46BFE1E5FF
+        for <stable@vger.kernel.org>; Mon, 20 Feb 2023 05:52:04 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 423CC60EA7
-        for <stable@vger.kernel.org>; Mon, 20 Feb 2023 13:39:09 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5471DC433EF;
-        Mon, 20 Feb 2023 13:39:08 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id E0F13B80D44
+        for <stable@vger.kernel.org>; Mon, 20 Feb 2023 13:52:02 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5D878C433D2;
+        Mon, 20 Feb 2023 13:52:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1676900348;
-        bh=YKCBvW2+De0M88ujx1D6kNHX1coGlX2wrQ3gKyFDd+Q=;
+        s=korg; t=1676901121;
+        bh=gqYkmnDNnQnevRTuXG+xfYb13EEBZYs7FTvB7P3+pDU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=k3u+yj6NTtbHIvFRgsjV3bIgw/NfJJ9ijObSCYJFYHHWZ5fdCntonq7Y/o0YFg2iB
-         X8ig5guSIsySk6ntOaZ+p1M34zJpJ9iGzK5cItB4l0I/nYrz29p+XGGIX9T4mdnT0a
-         5TQUe/owB50pHi70buvCuHcZvcoGqSAP1dEoAEpk=
+        b=1Gx+qWq1GAOaugTQ4mIsIBEoN7lshuWUwqeQnnoQ3/Cy4Wxxej99vxuoCLYevR/XZ
+         6+Df1/d+BBABvMUOxh/ht7zx5XJhPU9GSY+zz6P+j5RHXidY2bpNxS865WKBOiULDZ
+         6moqPadUGocR3u9wCxvgZ5f1e7NDlEE12i8ZTIeo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Kuniyuki Iwashima <kuniyu@amazon.com>,
-        Eric Dumazet <edumazet@google.com>,
-        Jakub Kicinski <kuba@kernel.org>
-Subject: [PATCH 4.14 45/53] dccp/tcp: Avoid negative sk_forward_alloc by ipv6_pinfo.pktoptions.
+        patches@lists.linux.dev,
+        Shyam Sundar S K <Shyam-sundar.S-k@amd.com>,
+        Sanket Goswami <Sanket.Goswami@amd.com>,
+        Nathan Chancellor <nathan@kernel.org>,
+        Hans de Goede <hdegoede@redhat.com>,
+        Mario Limonciello <mario.limonciello@amd.com>
+Subject: [PATCH 5.15 38/83] platform/x86: amd-pmc: Fix compilation when CONFIG_DEBUGFS is disabled
 Date:   Mon, 20 Feb 2023 14:36:11 +0100
-Message-Id: <20230220133549.776182474@linuxfoundation.org>
+Message-Id: <20230220133554.985627111@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230220133548.158615609@linuxfoundation.org>
-References: <20230220133548.158615609@linuxfoundation.org>
+In-Reply-To: <20230220133553.669025851@linuxfoundation.org>
+References: <20230220133553.669025851@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,125 +56,130 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kuniyuki Iwashima <kuniyu@amazon.com>
+From: Hans de Goede <hdegoede@redhat.com>
 
-commit ca43ccf41224b023fc290073d5603a755fd12eed upstream.
+commit 40635cd32f0d83573a558dc30e9ba3469e769249 upstream.
 
-Eric Dumazet pointed out [0] that when we call skb_set_owner_r()
-for ipv6_pinfo.pktoptions, sk_rmem_schedule() has not been called,
-resulting in a negative sk_forward_alloc.
+The amd_pmc_get_smu_version() and amd_pmc_idlemask_read() functions are
+used in the probe / suspend/resume code, so they are also used when
+CONFIG_DEBUGFS is disabled, move them outside of the #ifdef CONFIG_DEBUGFS
+block.
 
-We add a new helper which clones a skb and sets its owner only
-when sk_rmem_schedule() succeeds.
+Note this purely moves the code to above the #ifdef CONFIG_DEBUGFS,
+the code is completely unchanged.
 
-Note that we move skb_set_owner_r() forward in (dccp|tcp)_v6_do_rcv()
-because tcp_send_synack() can make sk_forward_alloc negative before
-ipv6_opt_accepted() in the crossed SYN-ACK or self-connect() cases.
-
-[0]: https://lore.kernel.org/netdev/CANn89iK9oc20Jdi_41jb9URdF210r7d1Y-+uypbMSbOfY6jqrg@mail.gmail.com/
-
-Fixes: 323fbd0edf3f ("net: dccp: Add handling of IPV6_PKTOPTIONS to dccp_v6_do_rcv()")
-Fixes: 3df80d9320bc ("[DCCP]: Introduce DCCPv6")
-Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
-Signed-off-by: Kuniyuki Iwashima <kuniyu@amazon.com>
-Reviewed-by: Eric Dumazet <edumazet@google.com>
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Fixes: f6045de1f532 ("platform/x86: amd-pmc: Export Idlemask values based on the APU")
+Cc: Shyam Sundar S K <Shyam-sundar.S-k@amd.com>
+Cc: Sanket Goswami <Sanket.Goswami@amd.com>
+Reported-by: Nathan Chancellor <nathan@kernel.org>
+Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+Signed-off-by: Mario Limonciello <mario.limonciello@amd.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- include/net/sock.h  |   13 +++++++++++++
- net/dccp/ipv6.c     |    7 ++-----
- net/ipv6/tcp_ipv6.c |   10 +++-------
- 3 files changed, 18 insertions(+), 12 deletions(-)
+ drivers/platform/x86/amd-pmc.c |   86 ++++++++++++++++++++---------------------
+ 1 file changed, 43 insertions(+), 43 deletions(-)
 
---- a/include/net/sock.h
-+++ b/include/net/sock.h
-@@ -2049,6 +2049,19 @@ static inline void skb_set_owner_r(struc
- 	sk_mem_charge(sk, skb->truesize);
- }
+--- a/drivers/platform/x86/amd-pmc.c
++++ b/drivers/platform/x86/amd-pmc.c
+@@ -155,6 +155,49 @@ struct smu_metrics {
+ 	u64 timecondition_notmet_totaltime[SOC_SUBSYSTEM_IP_MAX];
+ } __packed;
  
-+static inline struct sk_buff *skb_clone_and_charge_r(struct sk_buff *skb, struct sock *sk)
++static int amd_pmc_get_smu_version(struct amd_pmc_dev *dev)
 +{
-+	skb = skb_clone(skb, sk_gfp_mask(sk, GFP_ATOMIC));
-+	if (skb) {
-+		if (sk_rmem_schedule(sk, skb, skb->truesize)) {
-+			skb_set_owner_r(skb, sk);
-+			return skb;
-+		}
-+		__kfree_skb(skb);
-+	}
-+	return NULL;
++	int rc;
++	u32 val;
++
++	rc = amd_pmc_send_cmd(dev, 0, &val, SMU_MSG_GETSMUVERSION, 1);
++	if (rc)
++		return rc;
++
++	dev->major = (val >> 16) & GENMASK(15, 0);
++	dev->minor = (val >> 8) & GENMASK(7, 0);
++	dev->rev = (val >> 0) & GENMASK(7, 0);
++
++	dev_dbg(dev->dev, "SMU version is %u.%u.%u\n", dev->major, dev->minor, dev->rev);
++
++	return 0;
 +}
 +
- void sk_reset_timer(struct sock *sk, struct timer_list *timer,
- 		    unsigned long expires);
++static int amd_pmc_idlemask_read(struct amd_pmc_dev *pdev, struct device *dev,
++				 struct seq_file *s)
++{
++	u32 val;
++
++	switch (pdev->cpu_id) {
++	case AMD_CPU_ID_CZN:
++		val = amd_pmc_reg_read(pdev, AMD_PMC_SCRATCH_REG_CZN);
++		break;
++	case AMD_CPU_ID_YC:
++		val = amd_pmc_reg_read(pdev, AMD_PMC_SCRATCH_REG_YC);
++		break;
++	default:
++		return -EINVAL;
++	}
++
++	if (dev)
++		dev_dbg(pdev->dev, "SMU idlemask s0i3: 0x%x\n", val);
++
++	if (s)
++		seq_printf(s, "SMU idlemask : 0x%x\n", val);
++
++	return 0;
++}
++
+ #ifdef CONFIG_DEBUG_FS
+ static int smu_fw_info_show(struct seq_file *s, void *unused)
+ {
+@@ -209,49 +252,6 @@ static int s0ix_stats_show(struct seq_fi
+ }
+ DEFINE_SHOW_ATTRIBUTE(s0ix_stats);
  
---- a/net/dccp/ipv6.c
-+++ b/net/dccp/ipv6.c
-@@ -541,11 +541,9 @@ static struct sock *dccp_v6_request_recv
- 	*own_req = inet_ehash_nolisten(newsk, req_to_sk(req_unhash), NULL);
- 	/* Clone pktoptions received with SYN, if we own the req */
- 	if (*own_req && ireq->pktopts) {
--		newnp->pktoptions = skb_clone(ireq->pktopts, GFP_ATOMIC);
-+		newnp->pktoptions = skb_clone_and_charge_r(ireq->pktopts, newsk);
- 		consume_skb(ireq->pktopts);
- 		ireq->pktopts = NULL;
--		if (newnp->pktoptions)
--			skb_set_owner_r(newnp->pktoptions, newsk);
- 	}
- 
- 	return newsk;
-@@ -605,7 +603,7 @@ static int dccp_v6_do_rcv(struct sock *s
- 					       --ANK (980728)
- 	 */
- 	if (np->rxopt.all)
--		opt_skb = skb_clone(skb, GFP_ATOMIC);
-+		opt_skb = skb_clone_and_charge_r(skb, sk);
- 
- 	if (sk->sk_state == DCCP_OPEN) { /* Fast path */
- 		if (dccp_rcv_established(sk, skb, dccp_hdr(skb), skb->len))
-@@ -669,7 +667,6 @@ ipv6_pktoptions:
- 			np->flow_label = ip6_flowlabel(ipv6_hdr(opt_skb));
- 		if (ipv6_opt_accepted(sk, opt_skb,
- 				      &DCCP_SKB_CB(opt_skb)->header.h6)) {
--			skb_set_owner_r(opt_skb, sk);
- 			memmove(IP6CB(opt_skb),
- 				&DCCP_SKB_CB(opt_skb)->header.h6,
- 				sizeof(struct inet6_skb_parm));
---- a/net/ipv6/tcp_ipv6.c
-+++ b/net/ipv6/tcp_ipv6.c
-@@ -1242,14 +1242,11 @@ static struct sock *tcp_v6_syn_recv_sock
- 
- 		/* Clone pktoptions received with SYN, if we own the req */
- 		if (ireq->pktopts) {
--			newnp->pktoptions = skb_clone(ireq->pktopts,
--						      sk_gfp_mask(sk, GFP_ATOMIC));
-+			newnp->pktoptions = skb_clone_and_charge_r(ireq->pktopts, newsk);
- 			consume_skb(ireq->pktopts);
- 			ireq->pktopts = NULL;
--			if (newnp->pktoptions) {
-+			if (newnp->pktoptions)
- 				tcp_v6_restore_cb(newnp->pktoptions);
--				skb_set_owner_r(newnp->pktoptions, newsk);
--			}
- 		}
- 	} else {
- 		if (!req_unhash && found_dup_sk) {
-@@ -1317,7 +1314,7 @@ static int tcp_v6_do_rcv(struct sock *sk
- 					       --ANK (980728)
- 	 */
- 	if (np->rxopt.all)
--		opt_skb = skb_clone(skb, sk_gfp_mask(sk, GFP_ATOMIC));
-+		opt_skb = skb_clone_and_charge_r(skb, sk);
- 
- 	if (sk->sk_state == TCP_ESTABLISHED) { /* Fast path */
- 		struct dst_entry *dst;
-@@ -1399,7 +1396,6 @@ ipv6_pktoptions:
- 		if (np->repflow)
- 			np->flow_label = ip6_flowlabel(ipv6_hdr(opt_skb));
- 		if (ipv6_opt_accepted(sk, opt_skb, &TCP_SKB_CB(opt_skb)->header.h6)) {
--			skb_set_owner_r(opt_skb, sk);
- 			tcp_v6_restore_cb(opt_skb);
- 			opt_skb = xchg(&np->pktoptions, opt_skb);
- 		} else {
+-static int amd_pmc_get_smu_version(struct amd_pmc_dev *dev)
+-{
+-	int rc;
+-	u32 val;
+-
+-	rc = amd_pmc_send_cmd(dev, 0, &val, SMU_MSG_GETSMUVERSION, 1);
+-	if (rc)
+-		return rc;
+-
+-	dev->major = (val >> 16) & GENMASK(15, 0);
+-	dev->minor = (val >> 8) & GENMASK(7, 0);
+-	dev->rev = (val >> 0) & GENMASK(7, 0);
+-
+-	dev_dbg(dev->dev, "SMU version is %u.%u.%u\n", dev->major, dev->minor, dev->rev);
+-
+-	return 0;
+-}
+-
+-static int amd_pmc_idlemask_read(struct amd_pmc_dev *pdev, struct device *dev,
+-				 struct seq_file *s)
+-{
+-	u32 val;
+-
+-	switch (pdev->cpu_id) {
+-	case AMD_CPU_ID_CZN:
+-		val = amd_pmc_reg_read(pdev, AMD_PMC_SCRATCH_REG_CZN);
+-		break;
+-	case AMD_CPU_ID_YC:
+-		val = amd_pmc_reg_read(pdev, AMD_PMC_SCRATCH_REG_YC);
+-		break;
+-	default:
+-		return -EINVAL;
+-	}
+-
+-	if (dev)
+-		dev_dbg(pdev->dev, "SMU idlemask s0i3: 0x%x\n", val);
+-
+-	if (s)
+-		seq_printf(s, "SMU idlemask : 0x%x\n", val);
+-
+-	return 0;
+-}
+-
+ static int amd_pmc_idlemask_show(struct seq_file *s, void *unused)
+ {
+ 	struct amd_pmc_dev *dev = s->private;
 
 
