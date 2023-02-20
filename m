@@ -2,47 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 2BA2369CDAC
-	for <lists+stable@lfdr.de>; Mon, 20 Feb 2023 14:51:38 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id DA5CF69CD3F
+	for <lists+stable@lfdr.de>; Mon, 20 Feb 2023 14:47:46 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232444AbjBTNvh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Feb 2023 08:51:37 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39010 "EHLO
+        id S232302AbjBTNrp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Feb 2023 08:47:45 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60602 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232438AbjBTNvg (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 20 Feb 2023 08:51:36 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C37CE1E2AE
-        for <stable@vger.kernel.org>; Mon, 20 Feb 2023 05:51:35 -0800 (PST)
+        with ESMTP id S232323AbjBTNrj (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 20 Feb 2023 08:47:39 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C99101E1D3
+        for <stable@vger.kernel.org>; Mon, 20 Feb 2023 05:47:34 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 708C2B80D1F
-        for <stable@vger.kernel.org>; Mon, 20 Feb 2023 13:51:34 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C157EC433D2;
-        Mon, 20 Feb 2023 13:51:32 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 48AC360EA8
+        for <stable@vger.kernel.org>; Mon, 20 Feb 2023 13:47:34 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5E014C433D2;
+        Mon, 20 Feb 2023 13:47:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1676901093;
-        bh=NA8eaa3N6WiAed1UFZNfCwa2C1XGd/4k4g+Ho2x+GBM=;
+        s=korg; t=1676900853;
+        bh=mh7J86w+v1MchqBoAyvDfaq2ERmrfcmmke6W2ZVt6nI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Rtz7r1H+fPKtXjfRe9oKY9x8WITe9jS6LUG3eAHaM1FLZ8+PNpeNrN9fYa4ruf1RX
-         fDsITBQV5XhIBITLW0n/uQOJoIolkCt8LO78RY8dBKDfsEeRBJQ2hL8D9K8B5Z6QEB
-         JEdZf40ytx2f8GoXiRkniSYMMh/dDeYEAFVe3ub4=
+        b=bIzNquQJiE8QwOs0t2HQy0EY66/kFKjMYFN+S0ZPpG08wYe8Tfll9XSXyOHCEXOxX
+         gweQQqxQ4ZNBmQTCXq55HmwIZA3qcFkx0Lxqc6SaAh3dM23n8S/4Z+siVQCqdj9q26
+         hqxX7MgMCtFoIExSHN/9wzdCfKhdGOCX6c+KQXz0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Guo Ren <guoren@linux.alibaba.com>,
-        Guo Ren <guoren@kernel.org>,
-        Bjorn Topel <bjorn.topel@gmail.com>,
-        =?UTF-8?q?Bj=C3=B6rn=20T=C3=B6pel?= <bjorn@kernel.org>,
-        Palmer Dabbelt <palmer@rivosinc.com>,
+        patches@lists.linux.dev, Arnd Bergmann <arnd@arndb.de>,
+        Charles Keepax <ckeepax@opensource.cirrus.com>,
+        Mark Brown <broonie@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 03/83] riscv: kprobe: Fixup misaligned load text
+Subject: [PATCH 5.4 092/156] ASoC: cs42l56: fix DT probe
 Date:   Mon, 20 Feb 2023 14:35:36 +0100
-Message-Id: <20230220133553.792226107@linuxfoundation.org>
+Message-Id: <20230220133606.276159747@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230220133553.669025851@linuxfoundation.org>
-References: <20230220133553.669025851@linuxfoundation.org>
+In-Reply-To: <20230220133602.515342638@linuxfoundation.org>
+References: <20230220133602.515342638@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,53 +54,54 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Guo Ren <guoren@linux.alibaba.com>
+From: Arnd Bergmann <arnd@arndb.de>
 
-[ Upstream commit eb7423273cc9922ee2d05bf660c034d7d515bb91 ]
+[ Upstream commit e18c6da62edc780e4f4f3c9ce07bdacd69505182 ]
 
-The current kprobe would cause a misaligned load for the probe point.
-This patch fixup it with two half-word loads instead.
+While looking through legacy platform data users, I noticed that
+the DT probing never uses data from the DT properties, as the
+platform_data structure gets overwritten directly after it
+is initialized.
 
-Fixes: c22b0bcb1dd0 ("riscv: Add kprobes supported")
-Signed-off-by: Guo Ren <guoren@linux.alibaba.com>
-Signed-off-by: Guo Ren <guoren@kernel.org>
-Link: https://lore.kernel.org/linux-riscv/878rhig9zj.fsf@all.your.base.are.belong.to.us/
-Reported-by: Bjorn Topel <bjorn.topel@gmail.com>
-Reviewed-by: Björn Töpel <bjorn@kernel.org>
-Link: https://lore.kernel.org/r/20230204063531.740220-1-guoren@kernel.org
-Cc: stable@vger.kernel.org
-Signed-off-by: Palmer Dabbelt <palmer@rivosinc.com>
+There have never been any boards defining the platform_data in
+the mainline kernel either, so this driver so far only worked
+with patched kernels or with the default values.
+
+For the benefit of possible downstream users, fix the DT probe
+by no longer overwriting the data.
+
+Signed-off-by: Arnd Bergmann <arnd@arndb.de>
+Acked-by: Charles Keepax <ckeepax@opensource.cirrus.com>
+Link: https://lore.kernel.org/r/20230126162203.2986339-1-arnd@kernel.org
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/riscv/kernel/probes/kprobes.c | 8 +++++---
- 1 file changed, 5 insertions(+), 3 deletions(-)
+ sound/soc/codecs/cs42l56.c | 6 ------
+ 1 file changed, 6 deletions(-)
 
-diff --git a/arch/riscv/kernel/probes/kprobes.c b/arch/riscv/kernel/probes/kprobes.c
-index b53aa0209e079..7548b1d62509c 100644
---- a/arch/riscv/kernel/probes/kprobes.c
-+++ b/arch/riscv/kernel/probes/kprobes.c
-@@ -65,16 +65,18 @@ static bool __kprobes arch_check_kprobe(struct kprobe *p)
+diff --git a/sound/soc/codecs/cs42l56.c b/sound/soc/codecs/cs42l56.c
+index 8be7d83f0ce9a..732405587c5a4 100644
+--- a/sound/soc/codecs/cs42l56.c
++++ b/sound/soc/codecs/cs42l56.c
+@@ -1192,18 +1192,12 @@ static int cs42l56_i2c_probe(struct i2c_client *i2c_client,
+ 	if (pdata) {
+ 		cs42l56->pdata = *pdata;
+ 	} else {
+-		pdata = devm_kzalloc(&i2c_client->dev, sizeof(*pdata),
+-				     GFP_KERNEL);
+-		if (!pdata)
+-			return -ENOMEM;
+-
+ 		if (i2c_client->dev.of_node) {
+ 			ret = cs42l56_handle_of_data(i2c_client,
+ 						     &cs42l56->pdata);
+ 			if (ret != 0)
+ 				return ret;
+ 		}
+-		cs42l56->pdata = *pdata;
+ 	}
  
- int __kprobes arch_prepare_kprobe(struct kprobe *p)
- {
--	unsigned long probe_addr = (unsigned long)p->addr;
-+	u16 *insn = (u16 *)p->addr;
- 
--	if (probe_addr & 0x1)
-+	if ((unsigned long)insn & 0x1)
- 		return -EILSEQ;
- 
- 	if (!arch_check_kprobe(p))
- 		return -EILSEQ;
- 
- 	/* copy instruction */
--	p->opcode = *p->addr;
-+	p->opcode = (kprobe_opcode_t)(*insn++);
-+	if (GET_INSN_LENGTH(p->opcode) == 4)
-+		p->opcode |= (kprobe_opcode_t)(*insn) << 16;
- 
- 	/* decode instruction */
- 	switch (riscv_probe_decode_insn(p->addr, &p->ainsn.api)) {
+ 	if (cs42l56->pdata.gpio_nreset) {
 -- 
 2.39.0
 
