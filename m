@@ -2,53 +2,52 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id EA75169CDAB
-	for <lists+stable@lfdr.de>; Mon, 20 Feb 2023 14:51:35 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4CD8969CCA1
+	for <lists+stable@lfdr.de>; Mon, 20 Feb 2023 14:42:31 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232443AbjBTNvf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Feb 2023 08:51:35 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38992 "EHLO
+        id S232176AbjBTNma (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Feb 2023 08:42:30 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52142 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232438AbjBTNve (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 20 Feb 2023 08:51:34 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3A8B11E2BC
-        for <stable@vger.kernel.org>; Mon, 20 Feb 2023 05:51:33 -0800 (PST)
+        with ESMTP id S232138AbjBTNm1 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 20 Feb 2023 08:42:27 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6BBEE1D91E
+        for <stable@vger.kernel.org>; Mon, 20 Feb 2023 05:42:08 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id B629DB80B96
-        for <stable@vger.kernel.org>; Mon, 20 Feb 2023 13:51:31 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 33AF4C433EF;
-        Mon, 20 Feb 2023 13:51:30 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id F12AEB80D1F
+        for <stable@vger.kernel.org>; Mon, 20 Feb 2023 13:42:07 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6C95DC433D2;
+        Mon, 20 Feb 2023 13:42:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1676901090;
-        bh=mTMw2/JR+uBsDK/x5+T4kQ8CxEQgO2/uPV8SNawSnb8=;
+        s=korg; t=1676900526;
+        bh=Lnw04X8KfxGb+Llj1Db3J9ENDXRKfJmVbkPW+rSoTY8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=yvAknBDbvP4FS+clH8g+mOneiaWpwzcFFcLljt8dJIbHGktgRofH1j5HDmvQbnfDC
-         zasyY3ihs+grnJAIRu89xWg0M9F3oeyzZGNNVy96CoX24q9Ut2Y3xq2+boBXcVaYJ/
-         vXT4E4DTRVcunjbO3UvXO/C1rQmwmMYCtPN6Fwy0=
+        b=tYrnIdRGiPa9dnPEhLT1sDtp1yXRJYr33I+44ypFj8uwEfiRXhfTSQbpYOffUFh8g
+         I1MGGVRnOSUA6BhJCr2UYzrgmmjPEcUSJ3ToRS00s/nt221yyPaVxrYaXeOr9JkVA6
+         iqy9zkWB2y16TkJW2ekuTV7FLtgRBrG9eQTg2qUA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Dave Chinner <dchinner@redhat.com>,
-        "Darrick J. Wong" <djwong@kernel.org>,
-        Allison Henderson <allison.henderson@oracle.com>,
-        Dave Chinner <david@fromorbit.com>,
-        Leah Rumancik <leah.rumancik@gmail.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 25/83] xfs: fix potential log item leak
+        patches@lists.linux.dev, Guo Ren <guoren@linux.alibaba.com>,
+        Guo Ren <guoren@kernel.org>,
+        Andrew Jones <ajones@ventanamicro.com>,
+        Conor Dooley <conor.dooley@microchip.com>,
+        Palmer Dabbelt <palmer@rivosinc.com>
+Subject: [PATCH 4.19 59/89] riscv: Fixup race condition on PG_dcache_clean in flush_icache_pte
 Date:   Mon, 20 Feb 2023 14:35:58 +0100
-Message-Id: <20230220133554.571228412@linuxfoundation.org>
+Message-Id: <20230220133555.220264041@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230220133553.669025851@linuxfoundation.org>
-References: <20230220133553.669025851@linuxfoundation.org>
+In-Reply-To: <20230220133553.066768704@linuxfoundation.org>
+References: <20230220133553.066768704@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
         SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -56,119 +55,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dave Chinner <dchinner@redhat.com>
+From: Guo Ren <guoren@linux.alibaba.com>
 
-[ Upstream commit c230a4a85bcdbfc1a7415deec6caf04e8fca1301 ]
+commit 950b879b7f0251317d26bae0687e72592d607532 upstream.
 
-Ever since we added shadown format buffers to the log items, log
-items need to handle the item being released with shadow buffers
-attached. Due to the fact this requirement was added at the same
-time we added new rmap/reflink intents, we missed the cleanup of
-those items.
+In commit 588a513d3425 ("arm64: Fix race condition on PG_dcache_clean
+in __sync_icache_dcache()"), we found RISC-V has the same issue as the
+previous arm64. The previous implementation didn't guarantee the correct
+sequence of operations, which means flush_icache_all() hasn't been
+called when the PG_dcache_clean was set. That would cause a risk of page
+synchronization.
 
-In theory, this means shadow buffers can be leaked in a very small
-window when a shutdown is initiated. Testing with KASAN shows this
-leak does not happen in practice - we haven't identified a single
-leak in several years of shutdown testing since ~v4.8 kernels.
-
-However, the intent whiteout cleanup mechanism results in every
-cancelled intent in exactly the same state as this tiny race window
-creates and so if intents down clean up shadow buffers on final
-release we will leak the shadow buffer for just about every intent
-we create.
-
-Hence we start with this patch to close this condition off and
-ensure that when whiteouts start to be used we don't leak lots of
-memory.
-
-Signed-off-by: Dave Chinner <dchinner@redhat.com>
-Reviewed-by: Darrick J. Wong <djwong@kernel.org>
-Reviewed-by: Allison Henderson <allison.henderson@oracle.com>
-Signed-off-by: Dave Chinner <david@fromorbit.com>
-Signed-off-by: Leah Rumancik <leah.rumancik@gmail.com>
-Acked-by: Darrick J. Wong <djwong@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes: 08f051eda33b ("RISC-V: Flush I$ when making a dirty page executable")
+Signed-off-by: Guo Ren <guoren@linux.alibaba.com>
+Signed-off-by: Guo Ren <guoren@kernel.org>
+Reviewed-by: Andrew Jones <ajones@ventanamicro.com>
+Reviewed-by: Conor Dooley <conor.dooley@microchip.com>
+Link: https://lore.kernel.org/r/20230127035306.1819561-1-guoren@kernel.org
+Cc: stable@vger.kernel.org
+Signed-off-by: Palmer Dabbelt <palmer@rivosinc.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/xfs/xfs_bmap_item.c     | 2 ++
- fs/xfs/xfs_icreate_item.c  | 1 +
- fs/xfs/xfs_refcount_item.c | 2 ++
- fs/xfs/xfs_rmap_item.c     | 2 ++
- 4 files changed, 7 insertions(+)
+ arch/riscv/mm/cacheflush.c |    4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/fs/xfs/xfs_bmap_item.c b/fs/xfs/xfs_bmap_item.c
-index 03159970133ff..51ffdec5e4faa 100644
---- a/fs/xfs/xfs_bmap_item.c
-+++ b/fs/xfs/xfs_bmap_item.c
-@@ -39,6 +39,7 @@ STATIC void
- xfs_bui_item_free(
- 	struct xfs_bui_log_item	*buip)
+--- a/arch/riscv/mm/cacheflush.c
++++ b/arch/riscv/mm/cacheflush.c
+@@ -18,6 +18,8 @@ void flush_icache_pte(pte_t pte)
  {
-+	kmem_free(buip->bui_item.li_lv_shadow);
- 	kmem_cache_free(xfs_bui_zone, buip);
+ 	struct page *page = pte_page(pte);
+ 
+-	if (!test_and_set_bit(PG_dcache_clean, &page->flags))
++	if (!test_bit(PG_dcache_clean, &page->flags)) {
+ 		flush_icache_all();
++		set_bit(PG_dcache_clean, &page->flags);
++	}
  }
- 
-@@ -198,6 +199,7 @@ xfs_bud_item_release(
- 	struct xfs_bud_log_item	*budp = BUD_ITEM(lip);
- 
- 	xfs_bui_release(budp->bud_buip);
-+	kmem_free(budp->bud_item.li_lv_shadow);
- 	kmem_cache_free(xfs_bud_zone, budp);
- }
- 
-diff --git a/fs/xfs/xfs_icreate_item.c b/fs/xfs/xfs_icreate_item.c
-index 017904a34c023..c265ae20946d5 100644
---- a/fs/xfs/xfs_icreate_item.c
-+++ b/fs/xfs/xfs_icreate_item.c
-@@ -63,6 +63,7 @@ STATIC void
- xfs_icreate_item_release(
- 	struct xfs_log_item	*lip)
- {
-+	kmem_free(ICR_ITEM(lip)->ic_item.li_lv_shadow);
- 	kmem_cache_free(xfs_icreate_zone, ICR_ITEM(lip));
- }
- 
-diff --git a/fs/xfs/xfs_refcount_item.c b/fs/xfs/xfs_refcount_item.c
-index 46904b793bd48..8ef842d17916a 100644
---- a/fs/xfs/xfs_refcount_item.c
-+++ b/fs/xfs/xfs_refcount_item.c
-@@ -35,6 +35,7 @@ STATIC void
- xfs_cui_item_free(
- 	struct xfs_cui_log_item	*cuip)
- {
-+	kmem_free(cuip->cui_item.li_lv_shadow);
- 	if (cuip->cui_format.cui_nextents > XFS_CUI_MAX_FAST_EXTENTS)
- 		kmem_free(cuip);
- 	else
-@@ -204,6 +205,7 @@ xfs_cud_item_release(
- 	struct xfs_cud_log_item	*cudp = CUD_ITEM(lip);
- 
- 	xfs_cui_release(cudp->cud_cuip);
-+	kmem_free(cudp->cud_item.li_lv_shadow);
- 	kmem_cache_free(xfs_cud_zone, cudp);
- }
- 
-diff --git a/fs/xfs/xfs_rmap_item.c b/fs/xfs/xfs_rmap_item.c
-index 5f06959804678..15e7b01740a77 100644
---- a/fs/xfs/xfs_rmap_item.c
-+++ b/fs/xfs/xfs_rmap_item.c
-@@ -35,6 +35,7 @@ STATIC void
- xfs_rui_item_free(
- 	struct xfs_rui_log_item	*ruip)
- {
-+	kmem_free(ruip->rui_item.li_lv_shadow);
- 	if (ruip->rui_format.rui_nextents > XFS_RUI_MAX_FAST_EXTENTS)
- 		kmem_free(ruip);
- 	else
-@@ -227,6 +228,7 @@ xfs_rud_item_release(
- 	struct xfs_rud_log_item	*rudp = RUD_ITEM(lip);
- 
- 	xfs_rui_release(rudp->rud_ruip);
-+	kmem_free(rudp->rud_item.li_lv_shadow);
- 	kmem_cache_free(xfs_rud_zone, rudp);
- }
- 
--- 
-2.39.0
-
 
 
