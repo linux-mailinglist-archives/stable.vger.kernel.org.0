@@ -2,49 +2,49 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 3E55E69CE9A
-	for <lists+stable@lfdr.de>; Mon, 20 Feb 2023 15:00:51 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 678AA69CE2F
+	for <lists+stable@lfdr.de>; Mon, 20 Feb 2023 14:57:29 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232768AbjBTOAt (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Feb 2023 09:00:49 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53368 "EHLO
+        id S232647AbjBTN5T (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Feb 2023 08:57:19 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47084 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232773AbjBTOAr (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 20 Feb 2023 09:00:47 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9A3D8A249
-        for <stable@vger.kernel.org>; Mon, 20 Feb 2023 06:00:18 -0800 (PST)
+        with ESMTP id S232682AbjBTN5N (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 20 Feb 2023 08:57:13 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2973F1E9F9
+        for <stable@vger.kernel.org>; Mon, 20 Feb 2023 05:56:44 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 5AD3FB80D3A
-        for <stable@vger.kernel.org>; Mon, 20 Feb 2023 13:59:46 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id BFC9CC4339B;
-        Mon, 20 Feb 2023 13:59:44 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 7564FB80D1F
+        for <stable@vger.kernel.org>; Mon, 20 Feb 2023 13:56:18 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id DA85CC433EF;
+        Mon, 20 Feb 2023 13:56:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1676901585;
-        bh=hpX5RhqmE8LsUZC3W8HZj54TpXjhg0t0DD4ui0J6Ebc=;
+        s=korg; t=1676901377;
+        bh=Yqiww24vyslxWBV24mbfxdsoWun78E6/17Pg1Q0eWoY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=yOybwMIXlL9djtAfuz5j7NRqYi51DbnDauhKVmRlcIFYZjI5Uw0ynqFqmHglLhpY1
-         9Hlx5fJ3HcLH0sUyF6N8k9NJ4E9EOFcK+mcCA7zANO9k2lfsasIgHYHpnpSooilIS6
-         BkCfYmtU6zvcIaXi8Cdp/S+9eGgn+nCrKIn5avQo=
+        b=jQF6sigMhawL/bG78mwrvTtouOssec86U5yycoF4iBM9AvkEMOF6KFBItcBVhzKJS
+         dv5DnCtl7pDXIoEcJiLHi+SPotFA5tyMpMd/4p7q87qI8SAv5ONcacX5PWPxGhsz4q
+         qjfquPL4rhxp+Pifx01X0idF6YOJUN+xcpjR5GMs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Geert Uytterhoeven <geert@linux-m68k.org>,
-        Al Viro <viro@zeniv.linux.org.uk>
-Subject: [PATCH 6.1 074/118] coredump: Move dump_emit_page() to kill unused warning
+        patches@lists.linux.dev, Yang Yingliang <yangyingliang@huawei.com>,
+        Ulf Hansson <ulf.hansson@linaro.org>
+Subject: [PATCH 5.10 22/57] mmc: sdio: fix possible resource leaks in some error paths
 Date:   Mon, 20 Feb 2023 14:36:30 +0100
-Message-Id: <20230220133603.381642402@linuxfoundation.org>
+Message-Id: <20230220133550.130422822@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230220133600.368809650@linuxfoundation.org>
-References: <20230220133600.368809650@linuxfoundation.org>
+In-Reply-To: <20230220133549.360169435@linuxfoundation.org>
+References: <20230220133549.360169435@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
         SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -52,90 +52,127 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Geert Uytterhoeven <geert@linux-m68k.org>
+From: Yang Yingliang <yangyingliang@huawei.com>
 
-commit 9c7417b5ec440242bb5b64521acd53d4e19130c1 upstream.
+commit 605d9fb9556f8f5fb4566f4df1480f280f308ded upstream.
 
-If CONFIG_ELF_CORE is not set:
+If sdio_add_func() or sdio_init_func() fails, sdio_remove_func() can
+not release the resources, because the sdio function is not presented
+in these two cases, it won't call of_node_put() or put_device().
 
-    fs/coredump.c:835:12: error: ‘dump_emit_page’ defined but not used [-Werror=unused-function]
-      835 | static int dump_emit_page(struct coredump_params *cprm, struct page *page)
-          |            ^~~~~~~~~~~~~~
+To fix these leaks, make sdio_func_present() only control whether
+device_del() needs to be called or not, then always call of_node_put()
+and put_device().
 
-Fix this by moving dump_emit_page() inside the existing section
-protected by #ifdef CONFIG_ELF_CORE.
+In error case in sdio_init_func(), the reference of 'card->dev' is
+not get, to avoid redundant put in sdio_free_func_cis(), move the
+get_device() to sdio_alloc_func() and put_device() to sdio_release_func(),
+it can keep the get/put function be balanced.
 
-Fixes: 06bbaa6dc53cb720 ("[coredump] don't use __kernel_write() on kmap_local_page()")
-Signed-off-by: Geert Uytterhoeven <geert@linux-m68k.org>
-Signed-off-by: Al Viro <viro@zeniv.linux.org.uk>
+Without this patch, while doing fault inject test, it can get the
+following leak reports, after this fix, the leak is gone.
+
+unreferenced object 0xffff888112514000 (size 2048):
+  comm "kworker/3:2", pid 65, jiffies 4294741614 (age 124.774s)
+  hex dump (first 32 bytes):
+    00 e0 6f 12 81 88 ff ff 60 58 8d 06 81 88 ff ff  ..o.....`X......
+    10 40 51 12 81 88 ff ff 10 40 51 12 81 88 ff ff  .@Q......@Q.....
+  backtrace:
+    [<000000009e5931da>] kmalloc_trace+0x21/0x110
+    [<000000002f839ccb>] mmc_alloc_card+0x38/0xb0 [mmc_core]
+    [<0000000004adcbf6>] mmc_sdio_init_card+0xde/0x170 [mmc_core]
+    [<000000007538fea0>] mmc_attach_sdio+0xcb/0x1b0 [mmc_core]
+    [<00000000d4fdeba7>] mmc_rescan+0x54a/0x640 [mmc_core]
+
+unreferenced object 0xffff888112511000 (size 2048):
+  comm "kworker/3:2", pid 65, jiffies 4294741623 (age 124.766s)
+  hex dump (first 32 bytes):
+    00 40 51 12 81 88 ff ff e0 58 8d 06 81 88 ff ff  .@Q......X......
+    10 10 51 12 81 88 ff ff 10 10 51 12 81 88 ff ff  ..Q.......Q.....
+  backtrace:
+    [<000000009e5931da>] kmalloc_trace+0x21/0x110
+    [<00000000fcbe706c>] sdio_alloc_func+0x35/0x100 [mmc_core]
+    [<00000000c68f4b50>] mmc_attach_sdio.cold.18+0xb1/0x395 [mmc_core]
+    [<00000000d4fdeba7>] mmc_rescan+0x54a/0x640 [mmc_core]
+
+Fixes: 3d10a1ba0d37 ("sdio: fix reference counting in sdio_remove_func()")
+Signed-off-by: Yang Yingliang <yangyingliang@huawei.com>
+Cc: stable@vger.kernel.org
+Link: https://lore.kernel.org/r/20230130125808.3471254-1-yangyingliang@huawei.com
+Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/coredump.c |   48 ++++++++++++++++++++++++------------------------
- 1 file changed, 24 insertions(+), 24 deletions(-)
+ drivers/mmc/core/sdio_bus.c |   17 ++++++++++++++---
+ drivers/mmc/core/sdio_cis.c |   12 ------------
+ 2 files changed, 14 insertions(+), 15 deletions(-)
 
---- a/fs/coredump.c
-+++ b/fs/coredump.c
-@@ -831,6 +831,30 @@ static int __dump_skip(struct coredump_p
+--- a/drivers/mmc/core/sdio_bus.c
++++ b/drivers/mmc/core/sdio_bus.c
+@@ -295,6 +295,12 @@ static void sdio_release_func(struct dev
+ 	if (!(func->card->quirks & MMC_QUIRK_NONSTD_SDIO))
+ 		sdio_free_func_cis(func);
+ 
++	/*
++	 * We have now removed the link to the tuples in the
++	 * card structure, so remove the reference.
++	 */
++	put_device(&func->card->dev);
++
+ 	kfree(func->info);
+ 	kfree(func->tmpbuf);
+ 	kfree(func);
+@@ -325,6 +331,12 @@ struct sdio_func *sdio_alloc_func(struct
+ 
+ 	device_initialize(&func->dev);
+ 
++	/*
++	 * We may link to tuples in the card structure,
++	 * we need make sure we have a reference to it.
++	 */
++	get_device(&func->card->dev);
++
+ 	func->dev.parent = &card->dev;
+ 	func->dev.bus = &sdio_bus_type;
+ 	func->dev.release = sdio_release_func;
+@@ -378,10 +390,9 @@ int sdio_add_func(struct sdio_func *func
+  */
+ void sdio_remove_func(struct sdio_func *func)
+ {
+-	if (!sdio_func_present(func))
+-		return;
++	if (sdio_func_present(func))
++		device_del(&func->dev);
+ 
+-	device_del(&func->dev);
+ 	of_node_put(func->dev.of_node);
+ 	put_device(&func->dev);
+ }
+--- a/drivers/mmc/core/sdio_cis.c
++++ b/drivers/mmc/core/sdio_cis.c
+@@ -392,12 +392,6 @@ int sdio_read_func_cis(struct sdio_func
+ 		return ret;
+ 
+ 	/*
+-	 * Since we've linked to tuples in the card structure,
+-	 * we must make sure we have a reference to it.
+-	 */
+-	get_device(&func->card->dev);
+-
+-	/*
+ 	 * Vendor/device id is optional for function CIS, so
+ 	 * copy it from the card structure as needed.
+ 	 */
+@@ -422,11 +416,5 @@ void sdio_free_func_cis(struct sdio_func
  	}
+ 
+ 	func->tuples = NULL;
+-
+-	/*
+-	 * We have now removed the link to the tuples in the
+-	 * card structure, so remove the reference.
+-	 */
+-	put_device(&func->card->dev);
  }
  
-+int dump_emit(struct coredump_params *cprm, const void *addr, int nr)
-+{
-+	if (cprm->to_skip) {
-+		if (!__dump_skip(cprm, cprm->to_skip))
-+			return 0;
-+		cprm->to_skip = 0;
-+	}
-+	return __dump_emit(cprm, addr, nr);
-+}
-+EXPORT_SYMBOL(dump_emit);
-+
-+void dump_skip_to(struct coredump_params *cprm, unsigned long pos)
-+{
-+	cprm->to_skip = pos - cprm->pos;
-+}
-+EXPORT_SYMBOL(dump_skip_to);
-+
-+void dump_skip(struct coredump_params *cprm, size_t nr)
-+{
-+	cprm->to_skip += nr;
-+}
-+EXPORT_SYMBOL(dump_skip);
-+
-+#ifdef CONFIG_ELF_CORE
- static int dump_emit_page(struct coredump_params *cprm, struct page *page)
- {
- 	struct bio_vec bvec = {
-@@ -864,30 +888,6 @@ static int dump_emit_page(struct coredum
- 	return 1;
- }
- 
--int dump_emit(struct coredump_params *cprm, const void *addr, int nr)
--{
--	if (cprm->to_skip) {
--		if (!__dump_skip(cprm, cprm->to_skip))
--			return 0;
--		cprm->to_skip = 0;
--	}
--	return __dump_emit(cprm, addr, nr);
--}
--EXPORT_SYMBOL(dump_emit);
--
--void dump_skip_to(struct coredump_params *cprm, unsigned long pos)
--{
--	cprm->to_skip = pos - cprm->pos;
--}
--EXPORT_SYMBOL(dump_skip_to);
--
--void dump_skip(struct coredump_params *cprm, size_t nr)
--{
--	cprm->to_skip += nr;
--}
--EXPORT_SYMBOL(dump_skip);
--
--#ifdef CONFIG_ELF_CORE
- int dump_user_range(struct coredump_params *cprm, unsigned long start,
- 		    unsigned long len)
- {
 
 
