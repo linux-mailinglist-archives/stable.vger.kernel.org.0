@@ -2,50 +2,49 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 38DEE69CD83
-	for <lists+stable@lfdr.de>; Mon, 20 Feb 2023 14:50:17 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6D36469CE2C
+	for <lists+stable@lfdr.de>; Mon, 20 Feb 2023 14:57:28 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232403AbjBTNuQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Feb 2023 08:50:16 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37390 "EHLO
+        id S232658AbjBTN5B (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Feb 2023 08:57:01 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46410 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232406AbjBTNuP (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 20 Feb 2023 08:50:15 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B85C3CA33
-        for <stable@vger.kernel.org>; Mon, 20 Feb 2023 05:49:54 -0800 (PST)
+        with ESMTP id S232632AbjBTN47 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 20 Feb 2023 08:56:59 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8DFD11E9DE
+        for <stable@vger.kernel.org>; Mon, 20 Feb 2023 05:56:31 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 982D560B74
-        for <stable@vger.kernel.org>; Mon, 20 Feb 2023 13:49:54 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id AAAF3C4339B;
-        Mon, 20 Feb 2023 13:49:53 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 6522A60E9E
+        for <stable@vger.kernel.org>; Mon, 20 Feb 2023 13:56:20 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7334EC4339B;
+        Mon, 20 Feb 2023 13:56:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1676900994;
-        bh=d9YQDmMH1mhEkW+FI7wVTKIxirVL0zkLorN9WYh2SdU=;
+        s=korg; t=1676901379;
+        bh=5m6ay+M1RVz5QPQeKK4I0nWxBdUbvV9XsOBb8xw5HBs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=2NmYddxReIvsZB+WdGurncfEwK9dn3PY0QRcjPrnnNb9zyX10FncgrvDjsE7y+EGG
-         o5AtO8CU++2Hj0p4DrV06Ws6htrfDhtleEctFx8ze4d3XX+29Ctf63d4ClxJ0krGAR
-         qjjjLbINZ6vo/l+xeO0vRtt3lQJ6fKU9m6VkyRgw=
+        b=LLc/GYd8ZCcaxtauHP63d3mUiLPw2k1f5DqZT1lQSxql9yrMDGjMEl3aLu9J0yekm
+         w0zEDwG8+aPuJLIA1ZhTaoukSD3B59hcuqBnuqKulv52LXu7sxRi5BTJqDlKljSpVd
+         i8Wij0fxuQcl1R++ETvlx0Krq/7WR/Pqdekjum7s=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Cristian Ciocaltea <cristian.ciocaltea@collabora.com>,
-        Paolo Abeni <pabeni@redhat.com>
-Subject: [PATCH 5.4 146/156] net: stmmac: Restrict warning on disabling DMA store and fwd mode
-Date:   Mon, 20 Feb 2023 14:36:30 +0100
-Message-Id: <20230220133608.737730844@linuxfoundation.org>
+        patches@lists.linux.dev, Yang Yingliang <yangyingliang@huawei.com>,
+        Ulf Hansson <ulf.hansson@linaro.org>
+Subject: [PATCH 5.10 23/57] mmc: mmc_spi: fix error handling in mmc_spi_probe()
+Date:   Mon, 20 Feb 2023 14:36:31 +0100
+Message-Id: <20230220133550.160547462@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230220133602.515342638@linuxfoundation.org>
-References: <20230220133602.515342638@linuxfoundation.org>
+In-Reply-To: <20230220133549.360169435@linuxfoundation.org>
+References: <20230220133549.360169435@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
         SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -53,37 +52,64 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Cristian Ciocaltea <cristian.ciocaltea@collabora.com>
+From: Yang Yingliang <yangyingliang@huawei.com>
 
-commit 05d7623a892a9da62da0e714428e38f09e4a64d8 upstream.
+commit cf4c9d2ac1e42c7d18b921bec39486896645b714 upstream.
 
-When setting 'snps,force_thresh_dma_mode' DT property, the following
-warning is always emitted, regardless the status of force_sf_dma_mode:
+If mmc_add_host() fails, it doesn't need to call mmc_remove_host(),
+or it will cause null-ptr-deref, because of deleting a not added
+device in mmc_remove_host().
 
-dwmac-starfive 10020000.ethernet: force_sf_dma_mode is ignored if force_thresh_dma_mode is set.
+To fix this, goto label 'fail_glue_init', if mmc_add_host() fails,
+and change the label 'fail_add_host' to 'fail_gpiod_request'.
 
-Do not print the rather misleading message when DMA store and forward
-mode is already disabled.
-
-Fixes: e2a240c7d3bc ("driver:net:stmmac: Disable DMA store and forward mode if platform data force_thresh_dma_mode is set.")
-Signed-off-by: Cristian Ciocaltea <cristian.ciocaltea@collabora.com>
-Link: https://lore.kernel.org/r/20230210202126.877548-1-cristian.ciocaltea@collabora.com
-Signed-off-by: Paolo Abeni <pabeni@redhat.com>
+Fixes: 15a0580ced08 ("mmc_spi host driver")
+Signed-off-by: Yang Yingliang <yangyingliang@huawei.com>
+Cc:stable@vger.kernel.org
+Link: https://lore.kernel.org/r/20230131013835.3564011-1-yangyingliang@huawei.com
+Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ethernet/stmicro/stmmac/stmmac_platform.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/mmc/host/mmc_spi.c |    8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
 
---- a/drivers/net/ethernet/stmicro/stmmac/stmmac_platform.c
-+++ b/drivers/net/ethernet/stmicro/stmmac/stmmac_platform.c
-@@ -554,7 +554,7 @@ stmmac_probe_config_dt(struct platform_d
- 	dma_cfg->mixed_burst = of_property_read_bool(np, "snps,mixed-burst");
+--- a/drivers/mmc/host/mmc_spi.c
++++ b/drivers/mmc/host/mmc_spi.c
+@@ -1450,7 +1450,7 @@ static int mmc_spi_probe(struct spi_devi
  
- 	plat->force_thresh_dma_mode = of_property_read_bool(np, "snps,force_thresh_dma_mode");
--	if (plat->force_thresh_dma_mode) {
-+	if (plat->force_thresh_dma_mode && plat->force_sf_dma_mode) {
- 		plat->force_sf_dma_mode = 0;
- 		dev_warn(&pdev->dev,
- 			 "force_sf_dma_mode is ignored if force_thresh_dma_mode is set.\n");
+ 	status = mmc_add_host(mmc);
+ 	if (status != 0)
+-		goto fail_add_host;
++		goto fail_glue_init;
+ 
+ 	/*
+ 	 * Index 0 is card detect
+@@ -1458,7 +1458,7 @@ static int mmc_spi_probe(struct spi_devi
+ 	 */
+ 	status = mmc_gpiod_request_cd(mmc, NULL, 0, false, 1000);
+ 	if (status == -EPROBE_DEFER)
+-		goto fail_add_host;
++		goto fail_gpiod_request;
+ 	if (!status) {
+ 		/*
+ 		 * The platform has a CD GPIO signal that may support
+@@ -1473,7 +1473,7 @@ static int mmc_spi_probe(struct spi_devi
+ 	/* Index 1 is write protect/read only */
+ 	status = mmc_gpiod_request_ro(mmc, NULL, 1, 0);
+ 	if (status == -EPROBE_DEFER)
+-		goto fail_add_host;
++		goto fail_gpiod_request;
+ 	if (!status)
+ 		has_ro = true;
+ 
+@@ -1487,7 +1487,7 @@ static int mmc_spi_probe(struct spi_devi
+ 				? ", cd polling" : "");
+ 	return 0;
+ 
+-fail_add_host:
++fail_gpiod_request:
+ 	mmc_remove_host(mmc);
+ fail_glue_init:
+ 	mmc_spi_dma_free(host);
 
 
