@@ -2,46 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 8A8CA69CE90
-	for <lists+stable@lfdr.de>; Mon, 20 Feb 2023 15:00:29 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7839D69CD80
+	for <lists+stable@lfdr.de>; Mon, 20 Feb 2023 14:50:14 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232752AbjBTOAU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Feb 2023 09:00:20 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52562 "EHLO
+        id S232400AbjBTNuN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Feb 2023 08:50:13 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37346 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232773AbjBTOAQ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 20 Feb 2023 09:00:16 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 47CCC1F4BA
-        for <stable@vger.kernel.org>; Mon, 20 Feb 2023 05:59:47 -0800 (PST)
+        with ESMTP id S232392AbjBTNuM (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 20 Feb 2023 08:50:12 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1C16E1E2B0
+        for <stable@vger.kernel.org>; Mon, 20 Feb 2023 05:49:48 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id E762160E8A
-        for <stable@vger.kernel.org>; Mon, 20 Feb 2023 13:59:37 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 08609C433D2;
-        Mon, 20 Feb 2023 13:59:36 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 81935B80D55
+        for <stable@vger.kernel.org>; Mon, 20 Feb 2023 13:49:47 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D30C7C433EF;
+        Mon, 20 Feb 2023 13:49:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1676901577;
-        bh=JpbgTkXum74TX30au09WBwW3qPMFbAxfuvW5DG4RRtM=;
+        s=korg; t=1676900986;
+        bh=QYOMXxW6MI0jTvO1e9bAtG5DCvXWueu5rx02ZljLFUo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=mmxcdtN4TXBy+a69g6ITtIfSsOY5R2509PhfE/Z+gqSXMNyb75k5DI5I0JqCQ931O
-         zKZVKfCoaN3Vejkbk8HU75czkbF3d3src39e75mdTxzIMHosNjvzJGDDnF37ZdPGtu
-         RxcoQLx19ky/nzmD4hTZZfJhf4db1LmeEdNE9Dvc=
+        b=n7XmIaIXY/cQC+JlAboOdcE6NIhCH3j0Ode2NHfXKkK6zq0erTSDW1ms0bGkkN1Sy
+         WXHUHO47O9+/sH/lidGcPm9LNwynMb1LGfF92aNPrSC/KlJkB2LwoGaqw91J1y4yGo
+         OqjQMQ0S35FGgeqizMxCVEdnvwp9hMoAY34wcZ3A=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Peter Xu <peterx@redhat.com>,
-        Nick Bowler <nbowler@draconx.ca>,
-        David Hildenbrand <david@redhat.com>,
-        regressions@lists.linux.dev,
-        Andrew Morton <akpm@linux-foundation.org>
-Subject: [PATCH 6.1 071/118] mm/migrate: fix wrongly apply write bit after mkdirty on sparc64
+        patches@lists.linux.dev, Miko Larsson <mikoxyzzz@gmail.com>,
+        Alexander Duyck <alexanderduyck@fb.com>,
+        "David S. Miller" <davem@davemloft.net>,
+        syzbot+cd80c5ef5121bfe85b55@syzkaller.appspotmail.com
+Subject: [PATCH 5.4 143/156] net/usb: kalmia: Dont pass act_len in usb_bulk_msg error path
 Date:   Mon, 20 Feb 2023 14:36:27 +0100
-Message-Id: <20230220133603.268017039@linuxfoundation.org>
+Message-Id: <20230220133608.601746136@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230220133600.368809650@linuxfoundation.org>
-References: <20230220133600.368809650@linuxfoundation.org>
+In-Reply-To: <20230220133602.515342638@linuxfoundation.org>
+References: <20230220133602.515342638@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,80 +54,54 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Peter Xu <peterx@redhat.com>
+From: Miko Larsson <mikoxyzzz@gmail.com>
 
-commit 96a9c287e25d690fd9623b5133703b8e310fbed1 upstream.
+commit c68f345b7c425b38656e1791a0486769a8797016 upstream.
 
-Nick Bowler reported another sparc64 breakage after the young/dirty
-persistent work for page migration (per "Link:" below).  That's after a
-similar report [2].
+syzbot reported that act_len in kalmia_send_init_packet() is
+uninitialized when passing it to the first usb_bulk_msg error path. Jiri
+Pirko noted that it's pointless to pass it in the error path, and that
+the value that would be printed in the second error path would be the
+value of act_len from the first call to usb_bulk_msg.[1]
 
-It turns out page migration was overlooked, and it wasn't failing before
-because page migration was not enabled in the initial report test
-environment.
+With this in mind, let's just not pass act_len to the usb_bulk_msg error
+paths.
 
-David proposed another way [2] to fix this from sparc64 side, but that
-patch didn't land somehow.  Neither did I check whether there's any other
-arch that has similar issues.
+1: https://lore.kernel.org/lkml/Y9pY61y1nwTuzMOa@nanopsycho/
 
-Let's fix it for now as simple as moving the write bit handling to be
-after dirty, like what we did before.
-
-Note: this is based on mm-unstable, because the breakage was since 6.1 and
-we're at a very late stage of 6.2 (-rc8), so I assume for this specific
-case we should target this at 6.3.
-
-[1] https://lore.kernel.org/all/20221021160603.GA23307@u164.east.ru/
-[2] https://lore.kernel.org/all/20221212130213.136267-1-david@redhat.com/
-
-Link: https://lkml.kernel.org/r/20230216153059.256739-1-peterx@redhat.com
-Fixes: 2e3468778dbe ("mm: remember young/dirty bit for page migrations")
-Link: https://lore.kernel.org/all/CADyTPExpEqaJiMGoV+Z6xVgL50ZoMJg49B10LcZ=8eg19u34BA@mail.gmail.com/
-Signed-off-by: Peter Xu <peterx@redhat.com>
-Reported-by: Nick Bowler <nbowler@draconx.ca>
-Acked-by: David Hildenbrand <david@redhat.com>
-Tested-by: Nick Bowler <nbowler@draconx.ca>
-Cc: <regressions@lists.linux.dev>
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Fixes: d40261236e8e ("net/usb: Add Samsung Kalmia driver for Samsung GT-B3730")
+Reported-and-tested-by: syzbot+cd80c5ef5121bfe85b55@syzkaller.appspotmail.com
+Signed-off-by: Miko Larsson <mikoxyzzz@gmail.com>
+Reviewed-by: Alexander Duyck <alexanderduyck@fb.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- mm/huge_memory.c |    6 ++++--
- mm/migrate.c     |    2 ++
- 2 files changed, 6 insertions(+), 2 deletions(-)
+ drivers/net/usb/kalmia.c |    8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
 
---- a/mm/huge_memory.c
-+++ b/mm/huge_memory.c
-@@ -3253,8 +3253,6 @@ void remove_migration_pmd(struct page_vm
- 	pmde = mk_huge_pmd(new, READ_ONCE(vma->vm_page_prot));
- 	if (pmd_swp_soft_dirty(*pvmw->pmd))
- 		pmde = pmd_mksoft_dirty(pmde);
--	if (is_writable_migration_entry(entry))
--		pmde = maybe_pmd_mkwrite(pmde, vma);
- 	if (pmd_swp_uffd_wp(*pvmw->pmd))
- 		pmde = pmd_wrprotect(pmd_mkuffd_wp(pmde));
- 	if (!is_migration_entry_young(entry))
-@@ -3262,6 +3260,10 @@ void remove_migration_pmd(struct page_vm
- 	/* NOTE: this may contain setting soft-dirty on some archs */
- 	if (PageDirty(new) && is_migration_entry_dirty(entry))
- 		pmde = pmd_mkdirty(pmde);
-+	if (is_writable_migration_entry(entry))
-+		pmde = maybe_pmd_mkwrite(pmde, vma);
-+	else
-+		pmde = pmd_wrprotect(pmde);
+--- a/drivers/net/usb/kalmia.c
++++ b/drivers/net/usb/kalmia.c
+@@ -65,8 +65,8 @@ kalmia_send_init_packet(struct usbnet *d
+ 		init_msg, init_msg_len, &act_len, KALMIA_USB_TIMEOUT);
+ 	if (status != 0) {
+ 		netdev_err(dev->net,
+-			"Error sending init packet. Status %i, length %i\n",
+-			status, act_len);
++			"Error sending init packet. Status %i\n",
++			status);
+ 		return status;
+ 	}
+ 	else if (act_len != init_msg_len) {
+@@ -83,8 +83,8 @@ kalmia_send_init_packet(struct usbnet *d
  
- 	if (PageAnon(new)) {
- 		rmap_t rmap_flags = RMAP_COMPOUND;
---- a/mm/migrate.c
-+++ b/mm/migrate.c
-@@ -215,6 +215,8 @@ static bool remove_migration_pte(struct
- 			pte = maybe_mkwrite(pte, vma);
- 		else if (pte_swp_uffd_wp(*pvmw.pte))
- 			pte = pte_mkuffd_wp(pte);
-+		else
-+			pte = pte_wrprotect(pte);
- 
- 		if (folio_test_anon(folio) && !is_readable_migration_entry(entry))
- 			rmap_flags |= RMAP_EXCLUSIVE;
+ 	if (status != 0)
+ 		netdev_err(dev->net,
+-			"Error receiving init result. Status %i, length %i\n",
+-			status, act_len);
++			"Error receiving init result. Status %i\n",
++			status);
+ 	else if (act_len != expected_len)
+ 		netdev_err(dev->net, "Unexpected init result length: %i\n",
+ 			act_len);
 
 
