@@ -2,51 +2,51 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 7C4E269CD93
-	for <lists+stable@lfdr.de>; Mon, 20 Feb 2023 14:50:38 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 678F069CE04
+	for <lists+stable@lfdr.de>; Mon, 20 Feb 2023 14:55:23 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232344AbjBTNuh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Feb 2023 08:50:37 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38008 "EHLO
+        id S232578AbjBTNzU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Feb 2023 08:55:20 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43870 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232404AbjBTNug (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 20 Feb 2023 08:50:36 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6A8A31A6
-        for <stable@vger.kernel.org>; Mon, 20 Feb 2023 05:50:35 -0800 (PST)
+        with ESMTP id S232562AbjBTNzO (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 20 Feb 2023 08:55:14 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 80B7F1EBCC
+        for <stable@vger.kernel.org>; Mon, 20 Feb 2023 05:55:04 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 2546BB80B96
-        for <stable@vger.kernel.org>; Mon, 20 Feb 2023 13:50:34 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 961BEC433D2;
-        Mon, 20 Feb 2023 13:50:32 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 26DF8B80D1F
+        for <stable@vger.kernel.org>; Mon, 20 Feb 2023 13:55:03 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 74410C433EF;
+        Mon, 20 Feb 2023 13:55:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1676901032;
-        bh=9UbrwpKXZlR+8JDKfzG5Nt3iXh1quS0sWl4rbZlify0=;
+        s=korg; t=1676901301;
+        bh=TgrcLEEAM0LNBd3HLA83vIVo4F5wBCN0KIqBHlgVPcs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=L2QabQNMM1x1+4ZqOdfAEg0ydQbEGoaPedSBZ/PMHGam9bB2XrV5f+kBtmjvzLdL0
-         XnoVAJ/GQLyempKrOdxM+UA5UikiWA/E9Pl5SAskYp61+Lw+1nUn52GMtk7DVVZNSs
-         Dzgq5+P27TLVfeLOqCstGaMHBsbZe89LnRq5labk=
+        b=s8wzHpZJUjRQwlWMlrVKtpn56Smv9rq6JTMsIsYm1EJDlM8WT0pPwjvGAab+U8ADh
+         DeZF9vqTHB84lvcR+RU32pK5QEtRqNwTG0oSsj1nSuoPL9iYDoXlb+sORC+dvzEO74
+         p+zmvr9/g5Ou9ISpqQBWRN3zFecSHVOV75od/XjQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Jason Xing <kernelxing@tencent.com>,
-        Alexander Duyck <alexanderduyck@fb.com>,
-        Tony Nguyen <anthony.l.nguyen@intel.com>,
-        Chandan Kumar Rout <chandanx.rout@intel.com>
-Subject: [PATCH 5.4 139/156] i40e: add double of VLAN header when computing the max MTU
+        patches@lists.linux.dev,
+        "Russell King (Oracle)" <rmk+kernel@armlinux.org.uk>,
+        Srinivas Kandagatla <srinivas.kandagatla@linaro.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 15/57] nvmem: core: fix registration vs use race
 Date:   Mon, 20 Feb 2023 14:36:23 +0100
-Message-Id: <20230220133608.437396177@linuxfoundation.org>
+Message-Id: <20230220133549.911775396@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230220133602.515342638@linuxfoundation.org>
-References: <20230220133602.515342638@linuxfoundation.org>
+In-Reply-To: <20230220133549.360169435@linuxfoundation.org>
+References: <20230220133549.360169435@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
         SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -54,33 +54,80 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jason Xing <kernelxing@tencent.com>
+From: Russell King (Oracle) <rmk+kernel@armlinux.org.uk>
 
-commit ce45ffb815e8e238f05de1630be3969b6bb15e4e upstream.
+[ Upstream commit ab3428cfd9aa2f3463ee4b2909b5bb2193bd0c4a ]
 
-Include the second VLAN HLEN into account when computing the maximum
-MTU size as other drivers do.
+The i.MX6 CPU frequency driver sometimes fails to register at boot time
+due to nvmem_cell_read_u32() sporadically returning -ENOENT.
 
-Fixes: 0c8493d90b6b ("i40e: add XDP support for pass and drop actions")
-Signed-off-by: Jason Xing <kernelxing@tencent.com>
-Reviewed-by: Alexander Duyck <alexanderduyck@fb.com>
-Tested-by: Chandan Kumar Rout <chandanx.rout@intel.com> (A Contingent Worker at Intel)
-Signed-off-by: Tony Nguyen <anthony.l.nguyen@intel.com>
+This happens because there is a window where __nvmem_device_get() in
+of_nvmem_cell_get() is able to return the nvmem device, but as cells
+have been setup, nvmem_find_cell_entry_by_node() returns NULL.
+
+The occurs because the nvmem core registration code violates one of the
+fundamental principles of kernel programming: do not publish data
+structures before their setup is complete.
+
+Fix this by making nvmem core code conform with this principle.
+
+Fixes: eace75cfdcf7 ("nvmem: Add a simple NVMEM framework for nvmem providers")
+Cc: stable@vger.kernel.org
+Signed-off-by: Russell King (Oracle) <rmk+kernel@armlinux.org.uk>
+Signed-off-by: Srinivas Kandagatla <srinivas.kandagatla@linaro.org>
+Link: https://lore.kernel.org/r/20230127104015.23839-7-srinivas.kandagatla@linaro.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/intel/i40e/i40e_main.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/nvmem/core.c | 16 +++++++---------
+ 1 file changed, 7 insertions(+), 9 deletions(-)
 
---- a/drivers/net/ethernet/intel/i40e/i40e_main.c
-+++ b/drivers/net/ethernet/intel/i40e/i40e_main.c
-@@ -2702,7 +2702,7 @@ static int i40e_change_mtu(struct net_de
- 	struct i40e_pf *pf = vsi->back;
+diff --git a/drivers/nvmem/core.c b/drivers/nvmem/core.c
+index de356cdde4ce8..0ef7b95348b1b 100644
+--- a/drivers/nvmem/core.c
++++ b/drivers/nvmem/core.c
+@@ -682,16 +682,10 @@ struct nvmem_device *nvmem_register(const struct nvmem_config *config)
+ 	nvmem->dev.groups = nvmem_dev_groups;
+ #endif
  
- 	if (i40e_enabled_xdp_vsi(vsi)) {
--		int frame_size = new_mtu + ETH_HLEN + ETH_FCS_LEN + VLAN_HLEN;
-+		int frame_size = new_mtu + I40E_PACKET_HDR_PAD;
+-	dev_dbg(&nvmem->dev, "Registering nvmem device %s\n", config->name);
+-
+-	rval = device_add(&nvmem->dev);
+-	if (rval)
+-		goto err_put_device;
+-
+ 	if (config->compat) {
+ 		rval = nvmem_sysfs_setup_compat(nvmem, config);
+ 		if (rval)
+-			goto err_device_del;
++			goto err_put_device;
+ 	}
  
- 		if (frame_size > i40e_max_xdp_frame_size(vsi))
- 			return -EINVAL;
+ 	if (config->cells) {
+@@ -708,6 +702,12 @@ struct nvmem_device *nvmem_register(const struct nvmem_config *config)
+ 	if (rval)
+ 		goto err_remove_cells;
+ 
++	dev_dbg(&nvmem->dev, "Registering nvmem device %s\n", config->name);
++
++	rval = device_add(&nvmem->dev);
++	if (rval)
++		goto err_remove_cells;
++
+ 	blocking_notifier_call_chain(&nvmem_notifier, NVMEM_ADD, nvmem);
+ 
+ 	return nvmem;
+@@ -716,8 +716,6 @@ struct nvmem_device *nvmem_register(const struct nvmem_config *config)
+ 	nvmem_device_remove_all_cells(nvmem);
+ 	if (config->compat)
+ 		nvmem_sysfs_remove_compat(nvmem, config);
+-err_device_del:
+-	device_del(&nvmem->dev);
+ err_put_device:
+ 	put_device(&nvmem->dev);
+ 
+-- 
+2.39.0
+
 
 
