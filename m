@@ -2,43 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 7F40E69CD8B
-	for <lists+stable@lfdr.de>; Mon, 20 Feb 2023 14:50:28 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E7CA669CC5E
+	for <lists+stable@lfdr.de>; Mon, 20 Feb 2023 14:39:36 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232416AbjBTNu0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Feb 2023 08:50:26 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37536 "EHLO
+        id S231446AbjBTNjg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Feb 2023 08:39:36 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48058 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232419AbjBTNuZ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 20 Feb 2023 08:50:25 -0500
+        with ESMTP id S230076AbjBTNjf (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 20 Feb 2023 08:39:35 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D1D231CF6E
-        for <stable@vger.kernel.org>; Mon, 20 Feb 2023 05:50:13 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9933F1C30D
+        for <stable@vger.kernel.org>; Mon, 20 Feb 2023 05:39:34 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 613C0B80B96
-        for <stable@vger.kernel.org>; Mon, 20 Feb 2023 13:50:13 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D467BC433EF;
-        Mon, 20 Feb 2023 13:50:11 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 4318EB80D1F
+        for <stable@vger.kernel.org>; Mon, 20 Feb 2023 13:39:33 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A94C4C433D2;
+        Mon, 20 Feb 2023 13:39:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1676901012;
-        bh=yg3+SjJt2gvNjSYWiRmZEDVHuicaqA6D4QZosUCxDds=;
+        s=korg; t=1676900372;
+        bh=PbSeR52XQQKUNO2gFpbi9bJaeOUDw9v8q2xKkMBEx3g=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=oxk4M4pf3GtD6XAvehGYIBJXrIKoRVMekWHSdL4IejEtFeHhijRw1pXs2bnq3h5jk
-         lVT2t7POIpY9skQf9sszckzije3A7+3O6USXzEj2UhJEtlW6dslnD6lg5TvgIuXT2O
-         +Z9wSZrBB3aCYSL8QAAaDjx4+9ZFahgAbsaE/RWQ=
+        b=VB21bJraXCBM88Hv6Po5OiVVdA1zmoQaotjt3hqwTWF2HNrYL6chXTn8vBAR9KGM5
+         2mVJ75sl7ai5bBRXSJqvBaY6GMo08CMDBcDGnkiOdqN1CWG0kw9JI5ru5cOOWFHG3x
+         mX44sIqe3vu6Dx9ZOU5moyuQDsEA3n2icKF/3+8k=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Aaron Thompson <dev@aaront.org>,
-        "Mike Rapoport (IBM)" <rppt@kernel.org>
-Subject: [PATCH 5.4 135/156] Revert "mm: Always release pages to the buddy allocator in memblock_free_late()."
+        patches@lists.linux.dev,
+        Ryusuke Konishi <konishi.ryusuke@gmail.com>,
+        syzbot+f0c4082ce5ebebdac63b@syzkaller.appspotmail.com,
+        Andrew Morton <akpm@linux-foundation.org>
+Subject: [PATCH 4.14 53/53] nilfs2: fix underflow in second superblock position calculations
 Date:   Mon, 20 Feb 2023 14:36:19 +0100
-Message-Id: <20230220133608.249658545@linuxfoundation.org>
+Message-Id: <20230220133550.061458424@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230220133602.515342638@linuxfoundation.org>
-References: <20230220133602.515342638@linuxfoundation.org>
+In-Reply-To: <20230220133548.158615609@linuxfoundation.org>
+References: <20230220133548.158615609@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -52,57 +54,135 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Aaron Thompson <dev@aaront.org>
+From: Ryusuke Konishi <konishi.ryusuke@gmail.com>
 
-commit 647037adcad00f2bab8828d3d41cd0553d41f3bd upstream.
+commit 99b9402a36f0799f25feee4465bfa4b8dfa74b4d upstream.
 
-This reverts commit 115d9d77bb0f9152c60b6e8646369fa7f6167593.
+Macro NILFS_SB2_OFFSET_BYTES, which computes the position of the second
+superblock, underflows when the argument device size is less than 4096
+bytes.  Therefore, when using this macro, it is necessary to check in
+advance that the device size is not less than a lower limit, or at least
+that underflow does not occur.
 
-The pages being freed by memblock_free_late() have already been
-initialized, but if they are in the deferred init range,
-__free_one_page() might access nearby uninitialized pages when trying to
-coalesce buddies. This can, for example, trigger this BUG:
+The current nilfs2 implementation lacks this check, causing out-of-bound
+block access when mounting devices smaller than 4096 bytes:
 
-  BUG: unable to handle page fault for address: ffffe964c02580c8
-  RIP: 0010:__list_del_entry_valid+0x3f/0x70
-   <TASK>
-   __free_one_page+0x139/0x410
-   __free_pages_ok+0x21d/0x450
-   memblock_free_late+0x8c/0xb9
-   efi_free_boot_services+0x16b/0x25c
-   efi_enter_virtual_mode+0x403/0x446
-   start_kernel+0x678/0x714
-   secondary_startup_64_no_verify+0xd2/0xdb
-   </TASK>
+ I/O error, dev loop0, sector 36028797018963960 op 0x0:(READ) flags 0x0
+ phys_seg 1 prio class 2
+ NILFS (loop0): unable to read secondary superblock (blocksize = 1024)
 
-A proper fix will be more involved so revert this change for the time
-being.
+In addition, when trying to resize the filesystem to a size below 4096
+bytes, this underflow occurs in nilfs_resize_fs(), passing a huge number
+of segments to nilfs_sufile_resize(), corrupting parameters such as the
+number of segments in superblocks.  This causes excessive loop iterations
+in nilfs_sufile_resize() during a subsequent resize ioctl, causing
+semaphore ns_segctor_sem to block for a long time and hang the writer
+thread:
 
-Fixes: 115d9d77bb0f ("mm: Always release pages to the buddy allocator in memblock_free_late().")
-Signed-off-by: Aaron Thompson <dev@aaront.org>
-Link: https://lore.kernel.org/r/20230207082151.1303-1-dev@aaront.org
-Signed-off-by: Mike Rapoport (IBM) <rppt@kernel.org>
+ INFO: task segctord:5067 blocked for more than 143 seconds.
+      Not tainted 6.2.0-rc8-syzkaller-00015-gf6feea56f66d #0
+ "echo 0 > /proc/sys/kernel/hung_task_timeout_secs" disables this message.
+ task:segctord        state:D stack:23456 pid:5067  ppid:2
+ flags:0x00004000
+ Call Trace:
+  <TASK>
+  context_switch kernel/sched/core.c:5293 [inline]
+  __schedule+0x1409/0x43f0 kernel/sched/core.c:6606
+  schedule+0xc3/0x190 kernel/sched/core.c:6682
+  rwsem_down_write_slowpath+0xfcf/0x14a0 kernel/locking/rwsem.c:1190
+  nilfs_transaction_lock+0x25c/0x4f0 fs/nilfs2/segment.c:357
+  nilfs_segctor_thread_construct fs/nilfs2/segment.c:2486 [inline]
+  nilfs_segctor_thread+0x52f/0x1140 fs/nilfs2/segment.c:2570
+  kthread+0x270/0x300 kernel/kthread.c:376
+  ret_from_fork+0x1f/0x30 arch/x86/entry/entry_64.S:308
+  </TASK>
+ ...
+ Call Trace:
+  <TASK>
+  folio_mark_accessed+0x51c/0xf00 mm/swap.c:515
+  __nilfs_get_page_block fs/nilfs2/page.c:42 [inline]
+  nilfs_grab_buffer+0x3d3/0x540 fs/nilfs2/page.c:61
+  nilfs_mdt_submit_block+0xd7/0x8f0 fs/nilfs2/mdt.c:121
+  nilfs_mdt_read_block+0xeb/0x430 fs/nilfs2/mdt.c:176
+  nilfs_mdt_get_block+0x12d/0xbb0 fs/nilfs2/mdt.c:251
+  nilfs_sufile_get_segment_usage_block fs/nilfs2/sufile.c:92 [inline]
+  nilfs_sufile_truncate_range fs/nilfs2/sufile.c:679 [inline]
+  nilfs_sufile_resize+0x7a3/0x12b0 fs/nilfs2/sufile.c:777
+  nilfs_resize_fs+0x20c/0xed0 fs/nilfs2/super.c:422
+  nilfs_ioctl_resize fs/nilfs2/ioctl.c:1033 [inline]
+  nilfs_ioctl+0x137c/0x2440 fs/nilfs2/ioctl.c:1301
+  ...
+
+This fixes these issues by inserting appropriate minimum device size
+checks or anti-underflow checks, depending on where the macro is used.
+
+Link: https://lkml.kernel.org/r/0000000000004e1dfa05f4a48e6b@google.com
+Link: https://lkml.kernel.org/r/20230214224043.24141-1-konishi.ryusuke@gmail.com
+Signed-off-by: Ryusuke Konishi <konishi.ryusuke@gmail.com>
+Reported-by: <syzbot+f0c4082ce5ebebdac63b@syzkaller.appspotmail.com>
+Tested-by: Ryusuke Konishi <konishi.ryusuke@gmail.com>
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- mm/memblock.c |    8 +-------
- 1 file changed, 1 insertion(+), 7 deletions(-)
+ fs/nilfs2/ioctl.c     |    7 +++++++
+ fs/nilfs2/super.c     |    9 +++++++++
+ fs/nilfs2/the_nilfs.c |    8 +++++++-
+ 3 files changed, 23 insertions(+), 1 deletion(-)
 
---- a/mm/memblock.c
-+++ b/mm/memblock.c
-@@ -1546,13 +1546,7 @@ void __init __memblock_free_late(phys_ad
- 	end = PFN_DOWN(base + size);
+--- a/fs/nilfs2/ioctl.c
++++ b/fs/nilfs2/ioctl.c
+@@ -1144,7 +1144,14 @@ static int nilfs_ioctl_set_alloc_range(s
  
- 	for (; cursor < end; cursor++) {
--		/*
--		 * Reserved pages are always initialized by the end of
--		 * memblock_free_all() (by memmap_init() and, if deferred
--		 * initialization is enabled, memmap_init_reserved_pages()), so
--		 * these pages can be released directly to the buddy allocator.
--		 */
--		__free_pages_core(pfn_to_page(cursor), 0);
-+		memblock_free_pages(pfn_to_page(cursor), cursor, 0);
- 		totalram_pages_inc();
- 	}
- }
+ 	minseg = range[0] + segbytes - 1;
+ 	do_div(minseg, segbytes);
++
++	if (range[1] < 4096)
++		goto out;
++
+ 	maxseg = NILFS_SB2_OFFSET_BYTES(range[1]);
++	if (maxseg < segbytes)
++		goto out;
++
+ 	do_div(maxseg, segbytes);
+ 	maxseg--;
+ 
+--- a/fs/nilfs2/super.c
++++ b/fs/nilfs2/super.c
+@@ -421,6 +421,15 @@ int nilfs_resize_fs(struct super_block *
+ 		goto out;
+ 
+ 	/*
++	 * Prevent underflow in second superblock position calculation.
++	 * The exact minimum size check is done in nilfs_sufile_resize().
++	 */
++	if (newsize < 4096) {
++		ret = -ENOSPC;
++		goto out;
++	}
++
++	/*
+ 	 * Write lock is required to protect some functions depending
+ 	 * on the number of segments, the number of reserved segments,
+ 	 * and so forth.
+--- a/fs/nilfs2/the_nilfs.c
++++ b/fs/nilfs2/the_nilfs.c
+@@ -526,9 +526,15 @@ static int nilfs_load_super_block(struct
+ {
+ 	struct nilfs_super_block **sbp = nilfs->ns_sbp;
+ 	struct buffer_head **sbh = nilfs->ns_sbh;
+-	u64 sb2off = NILFS_SB2_OFFSET_BYTES(nilfs->ns_bdev->bd_inode->i_size);
++	u64 sb2off, devsize = nilfs->ns_bdev->bd_inode->i_size;
+ 	int valid[2], swp = 0;
+ 
++	if (devsize < NILFS_SEG_MIN_BLOCKS * NILFS_MIN_BLOCK_SIZE + 4096) {
++		nilfs_msg(sb, KERN_ERR, "device size too small");
++		return -EINVAL;
++	}
++	sb2off = NILFS_SB2_OFFSET_BYTES(devsize);
++
+ 	sbp[0] = nilfs_read_super_block(sb, NILFS_SB_OFFSET_BYTES, blocksize,
+ 					&sbh[0]);
+ 	sbp[1] = nilfs_read_super_block(sb, sb2off, blocksize, &sbh[1]);
 
 
