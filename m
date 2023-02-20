@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E1F4269CEA6
-	for <lists+stable@lfdr.de>; Mon, 20 Feb 2023 15:01:21 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 044AE69CD94
+	for <lists+stable@lfdr.de>; Mon, 20 Feb 2023 14:50:41 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232763AbjBTOBV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Feb 2023 09:01:21 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54186 "EHLO
+        id S232415AbjBTNuk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Feb 2023 08:50:40 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38048 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232790AbjBTOBU (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 20 Feb 2023 09:01:20 -0500
+        with ESMTP id S232419AbjBTNuj (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 20 Feb 2023 08:50:39 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BF3A11EBEE
-        for <stable@vger.kernel.org>; Mon, 20 Feb 2023 06:00:54 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2B1B21C7E5
+        for <stable@vger.kernel.org>; Mon, 20 Feb 2023 05:50:38 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 8C346B80D4E
-        for <stable@vger.kernel.org>; Mon, 20 Feb 2023 14:00:51 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D3A42C433EF;
-        Mon, 20 Feb 2023 14:00:49 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id CEC11B80D4B
+        for <stable@vger.kernel.org>; Mon, 20 Feb 2023 13:50:36 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2877DC433EF;
+        Mon, 20 Feb 2023 13:50:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1676901650;
-        bh=h4iUspdhKC+C7daK/gVJO2mqmy7HaU5PfOoLsU3GZxE=;
+        s=korg; t=1676901035;
+        bh=0BtGHP8qzGehECo05LflpqYz0qT/laFPyp8/43S/GMA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Bjd2UnVPjgJSC31JHEVOSEKcl4uAhqJRLDOVqOM/cWacZWVD7PNsVfq3T/O5RDdOy
-         pIBjkZGXDpuJCV4Zn+xJp9mseyn2+UzOYJVsKGE2lqq/6k7Y9agiJuRPE6d4maChhB
-         ZrLgQXWbJ/Lr/9rzwayy4XawmoCUgJVUomGC2gFA=
+        b=SlR/Ct+tMXaSA/W6KyBIpoh6U5gYYQQqFc2UpQeoyfa1MTNMZbfdbJRN4prz/HY7M
+         oLM+q+5eJhD9NQuhKp3LrEQR2s0whJxpV7274qbcGcw7m4ijiDh0uE/AZByhWArKx7
+         mnU+tuc4xRufdD0gn4cVep8B+cmu1t3J0ZWuWf5k=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Ryusuke Konishi <konishi.ryusuke@gmail.com>,
-        syzbot+f0c4082ce5ebebdac63b@syzkaller.appspotmail.com,
-        Andrew Morton <akpm@linux-foundation.org>
-Subject: [PATCH 6.1 068/118] nilfs2: fix underflow in second superblock position calculations
+        patches@lists.linux.dev, Jon Mason <jdmason@kudzu.us>,
+        =?UTF-8?q?Rafa=C5=82=20Mi=C5=82ecki?= <rafal@milecki.pl>,
+        Florian Fainelli <f.fainelli@gmail.com>,
+        Jakub Kicinski <kuba@kernel.org>
+Subject: [PATCH 5.4 140/156] net: bgmac: fix BCM5358 support by setting correct flags
 Date:   Mon, 20 Feb 2023 14:36:24 +0100
-Message-Id: <20230220133603.146345315@linuxfoundation.org>
+Message-Id: <20230220133608.478287043@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230220133600.368809650@linuxfoundation.org>
-References: <20230220133600.368809650@linuxfoundation.org>
+In-Reply-To: <20230220133602.515342638@linuxfoundation.org>
+References: <20230220133602.515342638@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,135 +54,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ryusuke Konishi <konishi.ryusuke@gmail.com>
+From: Rafał Miłecki <rafal@milecki.pl>
 
-commit 99b9402a36f0799f25feee4465bfa4b8dfa74b4d upstream.
+commit d61615c366a489646a1bfe5b33455f916762d5f4 upstream.
 
-Macro NILFS_SB2_OFFSET_BYTES, which computes the position of the second
-superblock, underflows when the argument device size is less than 4096
-bytes.  Therefore, when using this macro, it is necessary to check in
-advance that the device size is not less than a lower limit, or at least
-that underflow does not occur.
+Code blocks handling BCMA_CHIP_ID_BCM5357 and BCMA_CHIP_ID_BCM53572 were
+incorrectly unified. Chip package values are not unique and cannot be
+checked independently. They are meaningful only in a context of a given
+chip.
 
-The current nilfs2 implementation lacks this check, causing out-of-bound
-block access when mounting devices smaller than 4096 bytes:
+Packages BCM5358 and BCM47188 share the same value but then belong to
+different chips. Code unification resulted in treating BCM5358 as
+BCM47188 and broke its initialization.
 
- I/O error, dev loop0, sector 36028797018963960 op 0x0:(READ) flags 0x0
- phys_seg 1 prio class 2
- NILFS (loop0): unable to read secondary superblock (blocksize = 1024)
-
-In addition, when trying to resize the filesystem to a size below 4096
-bytes, this underflow occurs in nilfs_resize_fs(), passing a huge number
-of segments to nilfs_sufile_resize(), corrupting parameters such as the
-number of segments in superblocks.  This causes excessive loop iterations
-in nilfs_sufile_resize() during a subsequent resize ioctl, causing
-semaphore ns_segctor_sem to block for a long time and hang the writer
-thread:
-
- INFO: task segctord:5067 blocked for more than 143 seconds.
-      Not tainted 6.2.0-rc8-syzkaller-00015-gf6feea56f66d #0
- "echo 0 > /proc/sys/kernel/hung_task_timeout_secs" disables this message.
- task:segctord        state:D stack:23456 pid:5067  ppid:2
- flags:0x00004000
- Call Trace:
-  <TASK>
-  context_switch kernel/sched/core.c:5293 [inline]
-  __schedule+0x1409/0x43f0 kernel/sched/core.c:6606
-  schedule+0xc3/0x190 kernel/sched/core.c:6682
-  rwsem_down_write_slowpath+0xfcf/0x14a0 kernel/locking/rwsem.c:1190
-  nilfs_transaction_lock+0x25c/0x4f0 fs/nilfs2/segment.c:357
-  nilfs_segctor_thread_construct fs/nilfs2/segment.c:2486 [inline]
-  nilfs_segctor_thread+0x52f/0x1140 fs/nilfs2/segment.c:2570
-  kthread+0x270/0x300 kernel/kthread.c:376
-  ret_from_fork+0x1f/0x30 arch/x86/entry/entry_64.S:308
-  </TASK>
- ...
- Call Trace:
-  <TASK>
-  folio_mark_accessed+0x51c/0xf00 mm/swap.c:515
-  __nilfs_get_page_block fs/nilfs2/page.c:42 [inline]
-  nilfs_grab_buffer+0x3d3/0x540 fs/nilfs2/page.c:61
-  nilfs_mdt_submit_block+0xd7/0x8f0 fs/nilfs2/mdt.c:121
-  nilfs_mdt_read_block+0xeb/0x430 fs/nilfs2/mdt.c:176
-  nilfs_mdt_get_block+0x12d/0xbb0 fs/nilfs2/mdt.c:251
-  nilfs_sufile_get_segment_usage_block fs/nilfs2/sufile.c:92 [inline]
-  nilfs_sufile_truncate_range fs/nilfs2/sufile.c:679 [inline]
-  nilfs_sufile_resize+0x7a3/0x12b0 fs/nilfs2/sufile.c:777
-  nilfs_resize_fs+0x20c/0xed0 fs/nilfs2/super.c:422
-  nilfs_ioctl_resize fs/nilfs2/ioctl.c:1033 [inline]
-  nilfs_ioctl+0x137c/0x2440 fs/nilfs2/ioctl.c:1301
-  ...
-
-This fixes these issues by inserting appropriate minimum device size
-checks or anti-underflow checks, depending on where the macro is used.
-
-Link: https://lkml.kernel.org/r/0000000000004e1dfa05f4a48e6b@google.com
-Link: https://lkml.kernel.org/r/20230214224043.24141-1-konishi.ryusuke@gmail.com
-Signed-off-by: Ryusuke Konishi <konishi.ryusuke@gmail.com>
-Reported-by: <syzbot+f0c4082ce5ebebdac63b@syzkaller.appspotmail.com>
-Tested-by: Ryusuke Konishi <konishi.ryusuke@gmail.com>
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Link: https://github.com/openwrt/openwrt/issues/8278
+Fixes: cb1b0f90acfe ("net: ethernet: bgmac: unify code of the same family")
+Cc: Jon Mason <jdmason@kudzu.us>
+Signed-off-by: Rafał Miłecki <rafal@milecki.pl>
+Reviewed-by: Florian Fainelli <f.fainelli@gmail.com>
+Link: https://lore.kernel.org/r/20230208091637.16291-1-zajec5@gmail.com
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/nilfs2/ioctl.c     |    7 +++++++
- fs/nilfs2/super.c     |    9 +++++++++
- fs/nilfs2/the_nilfs.c |    8 +++++++-
- 3 files changed, 23 insertions(+), 1 deletion(-)
+ drivers/net/ethernet/broadcom/bgmac-bcma.c |    6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
---- a/fs/nilfs2/ioctl.c
-+++ b/fs/nilfs2/ioctl.c
-@@ -1114,7 +1114,14 @@ static int nilfs_ioctl_set_alloc_range(s
- 
- 	minseg = range[0] + segbytes - 1;
- 	do_div(minseg, segbytes);
-+
-+	if (range[1] < 4096)
-+		goto out;
-+
- 	maxseg = NILFS_SB2_OFFSET_BYTES(range[1]);
-+	if (maxseg < segbytes)
-+		goto out;
-+
- 	do_div(maxseg, segbytes);
- 	maxseg--;
- 
---- a/fs/nilfs2/super.c
-+++ b/fs/nilfs2/super.c
-@@ -409,6 +409,15 @@ int nilfs_resize_fs(struct super_block *
- 		goto out;
- 
- 	/*
-+	 * Prevent underflow in second superblock position calculation.
-+	 * The exact minimum size check is done in nilfs_sufile_resize().
-+	 */
-+	if (newsize < 4096) {
-+		ret = -ENOSPC;
-+		goto out;
-+	}
-+
-+	/*
- 	 * Write lock is required to protect some functions depending
- 	 * on the number of segments, the number of reserved segments,
- 	 * and so forth.
---- a/fs/nilfs2/the_nilfs.c
-+++ b/fs/nilfs2/the_nilfs.c
-@@ -544,9 +544,15 @@ static int nilfs_load_super_block(struct
- {
- 	struct nilfs_super_block **sbp = nilfs->ns_sbp;
- 	struct buffer_head **sbh = nilfs->ns_sbh;
--	u64 sb2off = NILFS_SB2_OFFSET_BYTES(bdev_nr_bytes(nilfs->ns_bdev));
-+	u64 sb2off, devsize = bdev_nr_bytes(nilfs->ns_bdev);
- 	int valid[2], swp = 0;
- 
-+	if (devsize < NILFS_SEG_MIN_BLOCKS * NILFS_MIN_BLOCK_SIZE + 4096) {
-+		nilfs_err(sb, "device size too small");
-+		return -EINVAL;
-+	}
-+	sb2off = NILFS_SB2_OFFSET_BYTES(devsize);
-+
- 	sbp[0] = nilfs_read_super_block(sb, NILFS_SB_OFFSET_BYTES, blocksize,
- 					&sbh[0]);
- 	sbp[1] = nilfs_read_super_block(sb, sb2off, blocksize, &sbh[1]);
+--- a/drivers/net/ethernet/broadcom/bgmac-bcma.c
++++ b/drivers/net/ethernet/broadcom/bgmac-bcma.c
+@@ -228,12 +228,12 @@ static int bgmac_probe(struct bcma_devic
+ 		bgmac->feature_flags |= BGMAC_FEAT_CLKCTLST;
+ 		bgmac->feature_flags |= BGMAC_FEAT_FLW_CTRL1;
+ 		bgmac->feature_flags |= BGMAC_FEAT_SW_TYPE_PHY;
+-		if (ci->pkg == BCMA_PKG_ID_BCM47188 ||
+-		    ci->pkg == BCMA_PKG_ID_BCM47186) {
++		if ((ci->id == BCMA_CHIP_ID_BCM5357 && ci->pkg == BCMA_PKG_ID_BCM47186) ||
++		    (ci->id == BCMA_CHIP_ID_BCM53572 && ci->pkg == BCMA_PKG_ID_BCM47188)) {
+ 			bgmac->feature_flags |= BGMAC_FEAT_SW_TYPE_RGMII;
+ 			bgmac->feature_flags |= BGMAC_FEAT_IOST_ATTACHED;
+ 		}
+-		if (ci->pkg == BCMA_PKG_ID_BCM5358)
++		if (ci->id == BCMA_CHIP_ID_BCM5357 && ci->pkg == BCMA_PKG_ID_BCM5358)
+ 			bgmac->feature_flags |= BGMAC_FEAT_SW_TYPE_EPHYRMII;
+ 		break;
+ 	case BCMA_CHIP_ID_BCM53573:
 
 
