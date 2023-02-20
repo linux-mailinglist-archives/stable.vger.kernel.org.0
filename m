@@ -2,51 +2,49 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 78AA269CE40
-	for <lists+stable@lfdr.de>; Mon, 20 Feb 2023 14:57:57 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 85FDE69CC8F
+	for <lists+stable@lfdr.de>; Mon, 20 Feb 2023 14:41:46 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232615AbjBTN54 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Feb 2023 08:57:56 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48430 "EHLO
+        id S231393AbjBTNlp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Feb 2023 08:41:45 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51410 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232589AbjBTN5z (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 20 Feb 2023 08:57:55 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 768901EBDE
-        for <stable@vger.kernel.org>; Mon, 20 Feb 2023 05:57:33 -0800 (PST)
+        with ESMTP id S231844AbjBTNlp (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 20 Feb 2023 08:41:45 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 306621D905
+        for <stable@vger.kernel.org>; Mon, 20 Feb 2023 05:41:22 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 5381B60EA5
-        for <stable@vger.kernel.org>; Mon, 20 Feb 2023 13:57:33 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 63EF9C433EF;
-        Mon, 20 Feb 2023 13:57:32 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id C667FB80D1F
+        for <stable@vger.kernel.org>; Mon, 20 Feb 2023 13:41:20 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1F8B8C433D2;
+        Mon, 20 Feb 2023 13:41:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1676901452;
-        bh=Un6JpB0UHci0qIBH1D+no3jpcc+8i6GyZ7154XvIZjU=;
+        s=korg; t=1676900479;
+        bh=PBoBEufJuI6OMTUtBJCuSuB5teAbeuZWM19mjwXNq/8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=O57ESA0vHX5+JjrR4IF2wwduK2GQ7vlVRkijri+qEgSQyPYK3gJBXkGpSsKdq1khb
-         LiZBNAfHPw+aI9Tn7y33IH8hlx54pG6OoUuv/ub8ccjeEOlyWaPQbTkSQvWw1bJdZ8
-         XDmsMrvQ/mnOq2JezLmkByNJcx7bVvdLDTdVsLuY=
+        b=MGH5yLIKN1M4QZOTGmRRM7Iur1rMN6yeLynYwHEBiHUsevJrygQtX+iqj2UOPcaOz
+         ntzQbhq7DJSkyWSer+043nvjbcPipJ1xPA3g2MCPjaqxmsOdDISZ5+BgTVhhTaGQ/+
+         zDXk11vrVHcnQO0UCkM3H91WLqFueB4hIg0NjSHQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Andrei Gherzan <andrei.gherzan@canonical.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 022/118] selftest: net: Improve IPV6_TCLASS/IPV6_HOPLIMIT tests apparmor compatibility
-Date:   Mon, 20 Feb 2023 14:35:38 +0100
-Message-Id: <20230220133601.313432606@linuxfoundation.org>
+        patches@lists.linux.dev, Gilles BULOZ <gilles.buloz@kontron.com>,
+        =?UTF-8?q?Ilpo=20J=C3=A4rvinen?= <ilpo.jarvinen@linux.intel.com>
+Subject: [PATCH 4.19 40/89] serial: 8250_dma: Fix DMA Rx rearm race
+Date:   Mon, 20 Feb 2023 14:35:39 +0100
+Message-Id: <20230220133554.548298319@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230220133600.368809650@linuxfoundation.org>
-References: <20230220133600.368809650@linuxfoundation.org>
+In-Reply-To: <20230220133553.066768704@linuxfoundation.org>
+References: <20230220133553.066768704@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
         SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -54,45 +52,85 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Andrei Gherzan <andrei.gherzan@canonical.com>
+From: Ilpo Järvinen <ilpo.jarvinen@linux.intel.com>
 
-[ Upstream commit a6efc42a86c0c87cfe2f1c3d1f09a4c9b13ba890 ]
+commit 57e9af7831dcf211c5c689c2a6f209f4abdf0bce upstream.
 
-"tcpdump" is used to capture traffic in these tests while using a random,
-temporary and not suffixed file for it. This can interfere with apparmor
-configuration where the tool is only allowed to read from files with
-'known' extensions.
+As DMA Rx can be completed from two places, it is possible that DMA Rx
+completes before DMA completion callback had a chance to complete it.
+Once the previous DMA Rx has been completed, a new one can be started
+on the next UART interrupt. The following race is possible
+(uart_unlock_and_check_sysrq_irqrestore() replaced with
+spin_unlock_irqrestore() for simplicity/clarity):
 
-The MINE type application/vnd.tcpdump.pcap was registered with IANA for
-pcap files and .pcap is the extension that is both most common but also
-aligned with standard apparmor configurations. See TCPDUMP(8) for more
-details.
+CPU0					CPU1
+					dma_rx_complete()
+serial8250_handle_irq()
+  spin_lock_irqsave(&port->lock)
+  handle_rx_dma()
+    serial8250_rx_dma_flush()
+      __dma_rx_complete()
+        dma->rx_running = 0
+        // Complete DMA Rx
+  spin_unlock_irqrestore(&port->lock)
 
-This improves compatibility with standard apparmor configurations by
-using ".pcap" as the file extension for the tests' temporary files.
+serial8250_handle_irq()
+  spin_lock_irqsave(&port->lock)
+  handle_rx_dma()
+    serial8250_rx_dma()
+      dma->rx_running = 1
+      // Setup a new DMA Rx
+  spin_unlock_irqrestore(&port->lock)
 
-Signed-off-by: Andrei Gherzan <andrei.gherzan@canonical.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+					  spin_lock_irqsave(&port->lock)
+					  // sees dma->rx_running = 1
+					  __dma_rx_complete()
+					    dma->rx_running = 0
+					    // Incorrectly complete
+					    // running DMA Rx
+
+This race seems somewhat theoretical to occur for real but handle it
+correctly regardless. Check what is the DMA status before complething
+anything in __dma_rx_complete().
+
+Reported-by: Gilles BULOZ <gilles.buloz@kontron.com>
+Tested-by: Gilles BULOZ <gilles.buloz@kontron.com>
+Fixes: 9ee4b83e51f7 ("serial: 8250: Add support for dmaengine")
+Cc: stable@vger.kernel.org
+Signed-off-by: Ilpo Järvinen <ilpo.jarvinen@linux.intel.com>
+Link: https://lore.kernel.org/r/20230130114841.25749-3-ilpo.jarvinen@linux.intel.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- tools/testing/selftests/net/cmsg_ipv6.sh | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/tty/serial/8250/8250_dma.c |   12 ++++++++++--
+ 1 file changed, 10 insertions(+), 2 deletions(-)
 
-diff --git a/tools/testing/selftests/net/cmsg_ipv6.sh b/tools/testing/selftests/net/cmsg_ipv6.sh
-index 2d89cb0ad2889..330d0b1ceced3 100755
---- a/tools/testing/selftests/net/cmsg_ipv6.sh
-+++ b/tools/testing/selftests/net/cmsg_ipv6.sh
-@@ -6,7 +6,7 @@ ksft_skip=4
- NS=ns
- IP6=2001:db8:1::1/64
- TGT6=2001:db8:1::2
--TMPF=`mktemp`
-+TMPF=$(mktemp --suffix ".pcap")
+--- a/drivers/tty/serial/8250/8250_dma.c
++++ b/drivers/tty/serial/8250/8250_dma.c
+@@ -48,15 +48,23 @@ static void __dma_rx_complete(void *para
+ 	struct uart_8250_dma	*dma = p->dma;
+ 	struct tty_port		*tty_port = &p->port.state->port;
+ 	struct dma_tx_state	state;
++	enum dma_status		dma_status;
+ 	int			count;
  
- cleanup()
- {
--- 
-2.39.0
-
+-	dma->rx_running = 0;
+-	dmaengine_tx_status(dma->rxchan, dma->rx_cookie, &state);
++	/*
++	 * New DMA Rx can be started during the completion handler before it
++	 * could acquire port's lock and it might still be ongoing. Don't to
++	 * anything in such case.
++	 */
++	dma_status = dmaengine_tx_status(dma->rxchan, dma->rx_cookie, &state);
++	if (dma_status == DMA_IN_PROGRESS)
++		return;
+ 
+ 	count = dma->rx_size - state.residue;
+ 
+ 	tty_insert_flip_string(tty_port, dma->rx_buf, count);
+ 	p->port.icount.rx += count;
++	dma->rx_running = 0;
+ 
+ 	tty_flip_buffer_push(tty_port);
+ }
 
 
