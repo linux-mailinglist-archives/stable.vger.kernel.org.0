@@ -2,47 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 7EFCE69CE3D
-	for <lists+stable@lfdr.de>; Mon, 20 Feb 2023 14:57:47 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 706C969CEAD
+	for <lists+stable@lfdr.de>; Mon, 20 Feb 2023 15:01:33 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232585AbjBTN5p (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Feb 2023 08:57:45 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47892 "EHLO
+        id S232809AbjBTOBc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Feb 2023 09:01:32 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54320 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232608AbjBTN5o (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 20 Feb 2023 08:57:44 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0A9D91E9E4
-        for <stable@vger.kernel.org>; Mon, 20 Feb 2023 05:57:22 -0800 (PST)
+        with ESMTP id S232789AbjBTOB0 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 20 Feb 2023 09:01:26 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 18EBC1DB8D
+        for <stable@vger.kernel.org>; Mon, 20 Feb 2023 06:01:04 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 79C5CB80D3A
-        for <stable@vger.kernel.org>; Mon, 20 Feb 2023 13:56:44 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D174DC433D2;
-        Mon, 20 Feb 2023 13:56:42 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id EB26C60EBB
+        for <stable@vger.kernel.org>; Mon, 20 Feb 2023 14:01:03 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 02B10C433A1;
+        Mon, 20 Feb 2023 14:01:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1676901403;
-        bh=NyPR2j9KjHxor9GhhnDOlneYgDFzmrUfPThYZ82JXK0=;
+        s=korg; t=1676901663;
+        bh=gBRwj7OJGN/5B/alUuZaAzZAMaFLdvVi+6GXEGMvlgo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ddqD4LV8B8AeOpAl/7NGdXOEpNf3eLveAv1+5oZEr8MPnOu3PAFv8LX5gEqRS+IbQ
-         sDDDggQkZKa0nHd4+ElXX6LWYgoX2JoWU4QoIEWu0F+rFPI2Vr+tlmaIbxH1c2k4+l
-         ELfyjPLV+5utSl5eFN+pTOvsJ68mgRv7OcOrx0rs=
+        b=0bHxH0D5YSKZSOiqPc7LT7LK9OSnQzF7rMYm4VYD3PnURhtVvDRQo+kVQCvmZunUU
+         Tz/U2EcgpXNYG/+n00oldmoV9b34We5Wp/gwD/gE5J7loIrwxodEN7Q21hy4DsBNPr
+         kU4MP0QdXfw7BlNvPcDTSdElaHjuG+MYcU19yjeQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Jamal Hadi Salim <jhs@mojatatu.com>,
-        Pedro Tammela <pctammela@mojatatu.com>,
-        syzbot <syzkaller@googlegroups.com>,
+        patches@lists.linux.dev, Guillaume Nault <gnault@redhat.com>,
         Eric Dumazet <edumazet@google.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 52/57] net/sched: tcindex: search key must be 16 bits
+        David Ahern <dsahern@kernel.org>,
+        Jakub Kicinski <kuba@kernel.org>
+Subject: [PATCH 6.1 104/118] ipv6: Fix tcp socket connection with DSCP.
 Date:   Mon, 20 Feb 2023 14:37:00 +0100
-Message-Id: <20230220133551.182086931@linuxfoundation.org>
+Message-Id: <20230220133604.557963005@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230220133549.360169435@linuxfoundation.org>
-References: <20230220133549.360169435@linuxfoundation.org>
+In-Reply-To: <20230220133600.368809650@linuxfoundation.org>
+References: <20230220133600.368809650@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,81 +54,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pedro Tammela <pctammela@mojatatu.com>
+From: Guillaume Nault <gnault@redhat.com>
 
-[ Upstream commit 42018a322bd453e38b3ffee294982243e50a484f ]
+commit 8230680f36fd1525303d1117768c8852314c488c upstream.
 
-Syzkaller found an issue where a handle greater than 16 bits would trigger
-a null-ptr-deref in the imperfect hash area update.
+Take into account the IPV6_TCLASS socket option (DSCP) in
+tcp_v6_connect(). Otherwise fib6_rule_match() can't properly
+match the DSCP value, resulting in invalid route lookup.
 
-general protection fault, probably for non-canonical address
-0xdffffc0000000015: 0000 [#1] PREEMPT SMP KASAN
-KASAN: null-ptr-deref in range [0x00000000000000a8-0x00000000000000af]
-CPU: 0 PID: 5070 Comm: syz-executor456 Not tainted
-6.2.0-rc7-syzkaller-00112-gc68f345b7c42 #0
-Hardware name: Google Google Compute Engine/Google Compute Engine,
-BIOS Google 01/21/2023
-RIP: 0010:tcindex_set_parms+0x1a6a/0x2990 net/sched/cls_tcindex.c:509
-Code: 01 e9 e9 fe ff ff 4c 8b bd 28 fe ff ff e8 0e 57 7d f9 48 8d bb
-a8 00 00 00 48 b8 00 00 00 00 00 fc ff df 48 89 fa 48 c1 ea 03 <80> 3c
-02 00 0f 85 94 0c 00 00 48 8b 85 f8 fd ff ff 48 8b 9b a8 00
-RSP: 0018:ffffc90003d3ef88 EFLAGS: 00010202
-RAX: dffffc0000000000 RBX: 0000000000000000 RCX: 0000000000000000
-RDX: 0000000000000015 RSI: ffffffff8803a102 RDI: 00000000000000a8
-RBP: ffffc90003d3f1d8 R08: 0000000000000001 R09: 0000000000000000
-R10: 0000000000000001 R11: 0000000000000000 R12: ffff88801e2b10a8
-R13: dffffc0000000000 R14: 0000000000030000 R15: ffff888017b3be00
-FS: 00005555569af300(0000) GS:ffff8880b9800000(0000) knlGS:0000000000000000
-CS: 0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-CR2: 000056041c6d2000 CR3: 000000002bfca000 CR4: 00000000003506f0
-DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
-DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
-Call Trace:
-<TASK>
-tcindex_change+0x1ea/0x320 net/sched/cls_tcindex.c:572
-tc_new_tfilter+0x96e/0x2220 net/sched/cls_api.c:2155
-rtnetlink_rcv_msg+0x959/0xca0 net/core/rtnetlink.c:6132
-netlink_rcv_skb+0x165/0x440 net/netlink/af_netlink.c:2574
-netlink_unicast_kernel net/netlink/af_netlink.c:1339 [inline]
-netlink_unicast+0x547/0x7f0 net/netlink/af_netlink.c:1365
-netlink_sendmsg+0x91b/0xe10 net/netlink/af_netlink.c:1942
-sock_sendmsg_nosec net/socket.c:714 [inline]
-sock_sendmsg+0xd3/0x120 net/socket.c:734
-____sys_sendmsg+0x334/0x8c0 net/socket.c:2476
-___sys_sendmsg+0x110/0x1b0 net/socket.c:2530
-__sys_sendmmsg+0x18f/0x460 net/socket.c:2616
-__do_sys_sendmmsg net/socket.c:2645 [inline]
-__se_sys_sendmmsg net/socket.c:2642 [inline]
-__x64_sys_sendmmsg+0x9d/0x100 net/socket.c:2642
-do_syscall_x64 arch/x86/entry/common.c:50 [inline]
-do_syscall_64+0x39/0xb0 arch/x86/entry/common.c:80
+For example:
 
-Fixes: ee059170b1f7 ("net/sched: tcindex: update imperfect hash filters respecting rcu")
-Signed-off-by: Jamal Hadi Salim <jhs@mojatatu.com>
-Signed-off-by: Pedro Tammela <pctammela@mojatatu.com>
-Reported-by: syzbot <syzkaller@googlegroups.com>
+  ip route add unreachable table main 2001:db8::10/124
+
+  ip route add table 100 2001:db8::10/124 dev eth0
+  ip -6 rule add dsfield 0x04 table 100
+
+  echo test | socat - TCP6:[2001:db8::11]:54321,ipv6-tclass=0x04
+
+Without this patch, socat fails at connect() time ("No route to host")
+because the fib-rule doesn't jump to table 100 and the lookup ends up
+being done in the main table.
+
+Fixes: 2cc67cc731d9 ("[IPV6] ROUTE: Routing by Traffic Class.")
+Signed-off-by: Guillaume Nault <gnault@redhat.com>
 Reviewed-by: Eric Dumazet <edumazet@google.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Reviewed-by: David Ahern <dsahern@kernel.org>
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/sched/cls_tcindex.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ net/ipv6/tcp_ipv6.c |    1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/net/sched/cls_tcindex.c b/net/sched/cls_tcindex.c
-index 50bf7ec4b5b25..2c0c95204cb5a 100644
---- a/net/sched/cls_tcindex.c
-+++ b/net/sched/cls_tcindex.c
-@@ -502,7 +502,7 @@ tcindex_set_parms(struct net *net, struct tcf_proto *tp, unsigned long base,
- 		/* lookup the filter, guaranteed to exist */
- 		for (cf = rcu_dereference_bh_rtnl(*fp); cf;
- 		     fp = &cf->next, cf = rcu_dereference_bh_rtnl(*fp))
--			if (cf->key == handle)
-+			if (cf->key == (u16)handle)
- 				break;
- 
- 		f->next = cf->next;
--- 
-2.39.0
-
+--- a/net/ipv6/tcp_ipv6.c
++++ b/net/ipv6/tcp_ipv6.c
+@@ -272,6 +272,7 @@ static int tcp_v6_connect(struct sock *s
+ 	fl6.flowi6_proto = IPPROTO_TCP;
+ 	fl6.daddr = sk->sk_v6_daddr;
+ 	fl6.saddr = saddr ? *saddr : np->saddr;
++	fl6.flowlabel = ip6_make_flowinfo(np->tclass, np->flow_label);
+ 	fl6.flowi6_oif = sk->sk_bound_dev_if;
+ 	fl6.flowi6_mark = sk->sk_mark;
+ 	fl6.fl6_dport = usin->sin6_port;
 
 
