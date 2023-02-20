@@ -2,51 +2,50 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 79B3169CE52
-	for <lists+stable@lfdr.de>; Mon, 20 Feb 2023 14:58:41 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id BB62369CC94
+	for <lists+stable@lfdr.de>; Mon, 20 Feb 2023 14:42:11 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232662AbjBTN6k (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Feb 2023 08:58:40 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49674 "EHLO
+        id S231995AbjBTNmK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Feb 2023 08:42:10 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51768 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232672AbjBTN6j (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 20 Feb 2023 08:58:39 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 535081E5ED
-        for <stable@vger.kernel.org>; Mon, 20 Feb 2023 05:58:06 -0800 (PST)
+        with ESMTP id S231504AbjBTNmK (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 20 Feb 2023 08:42:10 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 159D91CF66
+        for <stable@vger.kernel.org>; Mon, 20 Feb 2023 05:41:39 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 99AC160EAE
-        for <stable@vger.kernel.org>; Mon, 20 Feb 2023 13:57:51 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A77A9C433EF;
-        Mon, 20 Feb 2023 13:57:50 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id B8C1160EAD
+        for <stable@vger.kernel.org>; Mon, 20 Feb 2023 13:41:35 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A3603C433EF;
+        Mon, 20 Feb 2023 13:41:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1676901471;
-        bh=jD0r6D3ptcJMgMOSGbo3BBIdZWxVXUrTY/Hn+enSM/U=;
+        s=korg; t=1676900495;
+        bh=ajj83f9+ELHNoozrWSpbI6Bbm11cWGoPv67RrFru4SM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=kSYRooi0zTMFiAM0N+sGc7QJPpHpGa18yYfIEY0btzJwK413xieR34rB0f6KnLGkn
-         QLjMplpA9dDI4AL8d4v7VT89kOVJUaegyXvvZPKxXsUNpdbNjxnQXlD3pDJzR9+Q17
-         t777+euIluvuvmUPE8BP3EaHVlK2U4PALW4WFGCY=
+        b=LB22A6B+4FPer7jRVXohHoK+ROtI44IPpbG6k1NWgWHyTaChvTBa1/3iRzgYWD3XT
+         OTp2EhEQRvoc9rzEf3ECdnX3iDj7nFxPLGLgcfnW0qXRST3BRlo4D4Ez+ajBoHNMb3
+         YKJKEIaFd5YHw/rQ72u5WdSf6GMqkF/JOaWCDmC4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Vasily Gorbik <gor@linux.ibm.com>,
-        Alexander Egorenkov <egorenar@linux.ibm.com>,
-        Heiko Carstens <hca@linux.ibm.com>,
+        patches@lists.linux.dev, Heiner Kallweit <hkallweit1@gmail.com>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 029/118] s390/decompressor: specify __decompress() buf len to avoid overflow
+Subject: [PATCH 4.19 46/89] net: phy: add macros for PHYID matching
 Date:   Mon, 20 Feb 2023 14:35:45 +0100
-Message-Id: <20230220133601.599609480@linuxfoundation.org>
+Message-Id: <20230220133554.758402527@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230220133600.368809650@linuxfoundation.org>
-References: <20230220133600.368809650@linuxfoundation.org>
+In-Reply-To: <20230220133553.066768704@linuxfoundation.org>
+References: <20230220133553.066768704@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
         SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -54,45 +53,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vasily Gorbik <gor@linux.ibm.com>
+From: Heiner Kallweit <hkallweit1@gmail.com>
 
-[ Upstream commit 7ab41c2c08a32132ba8c14624910e2fe8ce4ba4b ]
+[ Upstream commit aa2af2eb447c9a21c8c9e8d2336672bb620cf900 ]
 
-Historically calls to __decompress() didn't specify "out_len" parameter
-on many architectures including s390, expecting that no writes beyond
-uncompressed kernel image are performed. This has changed since commit
-2aa14b1ab2c4 ("zstd: import usptream v1.5.2") which includes zstd library
-commit 6a7ede3dfccb ("Reduce size of dctx by reutilizing dst buffer
-(#2751)"). Now zstd decompression code might store literal buffer in
-the unwritten portion of the destination buffer. Since "out_len" is
-not set, it is considered to be unlimited and hence free to use for
-optimization needs. On s390 this might corrupt initrd or ipl report
-which are often placed right after the decompressor buffer. Luckily the
-size of uncompressed kernel image is already known to the decompressor,
-so to avoid the problem simply specify it in the "out_len" parameter.
+Add macros for PHYID matching to be used in PHY driver configs.
+By using these macros some boilerplate code can be avoided.
 
-Link: https://github.com/facebook/zstd/commit/6a7ede3dfccb
-Signed-off-by: Vasily Gorbik <gor@linux.ibm.com>
-Tested-by: Alexander Egorenkov <egorenar@linux.ibm.com>
-Link: https://lore.kernel.org/r/patch-1.thread-41c676.git-41c676c2d153.your-ad-here.call-01675030179-ext-9637@work.hours
-Signed-off-by: Heiko Carstens <hca@linux.ibm.com>
+Signed-off-by: Heiner Kallweit <hkallweit1@gmail.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Stable-dep-of: 69ff53e4a4c9 ("net: phy: meson-gxl: use MMD access dummy stubs for GXL, internal PHY")
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/s390/boot/decompressor.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ include/linux/phy.h | 4 ++++
+ 1 file changed, 4 insertions(+)
 
-diff --git a/arch/s390/boot/decompressor.c b/arch/s390/boot/decompressor.c
-index e27c2140d6206..623f6775d01d7 100644
---- a/arch/s390/boot/decompressor.c
-+++ b/arch/s390/boot/decompressor.c
-@@ -80,6 +80,6 @@ void *decompress_kernel(void)
- 	void *output = (void *)decompress_offset;
+diff --git a/include/linux/phy.h b/include/linux/phy.h
+index 42766e7179d38..86a3792c568c2 100644
+--- a/include/linux/phy.h
++++ b/include/linux/phy.h
+@@ -667,6 +667,10 @@ struct phy_driver {
+ #define PHY_ANY_ID "MATCH ANY PHY"
+ #define PHY_ANY_UID 0xffffffff
  
- 	__decompress(_compressed_start, _compressed_end - _compressed_start,
--		     NULL, NULL, output, 0, NULL, error);
-+		     NULL, NULL, output, vmlinux.image_size, NULL, error);
- 	return output;
- }
++#define PHY_ID_MATCH_EXACT(id) .phy_id = (id), .phy_id_mask = GENMASK(31, 0)
++#define PHY_ID_MATCH_MODEL(id) .phy_id = (id), .phy_id_mask = GENMASK(31, 4)
++#define PHY_ID_MATCH_VENDOR(id) .phy_id = (id), .phy_id_mask = GENMASK(31, 10)
++
+ /* A Structure for boards to register fixups with the PHY Lib */
+ struct phy_fixup {
+ 	struct list_head list;
 -- 
 2.39.0
 
