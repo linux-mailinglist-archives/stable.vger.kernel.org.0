@@ -2,43 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 2DDAE69CC3B
-	for <lists+stable@lfdr.de>; Mon, 20 Feb 2023 14:38:28 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id CA0C869CDA3
+	for <lists+stable@lfdr.de>; Mon, 20 Feb 2023 14:51:17 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232111AbjBTNiZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Feb 2023 08:38:25 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46190 "EHLO
+        id S232435AbjBTNvQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Feb 2023 08:51:16 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38708 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232107AbjBTNiX (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 20 Feb 2023 08:38:23 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 711981C311
-        for <stable@vger.kernel.org>; Mon, 20 Feb 2023 05:38:22 -0800 (PST)
+        with ESMTP id S232431AbjBTNvP (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 20 Feb 2023 08:51:15 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 988581E2AC
+        for <stable@vger.kernel.org>; Mon, 20 Feb 2023 05:51:14 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 0A08F60E9E
-        for <stable@vger.kernel.org>; Mon, 20 Feb 2023 13:38:22 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1ADD8C433EF;
-        Mon, 20 Feb 2023 13:38:20 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 53054B80D44
+        for <stable@vger.kernel.org>; Mon, 20 Feb 2023 13:51:13 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A213CC433D2;
+        Mon, 20 Feb 2023 13:51:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1676900301;
-        bh=fRdjYOQIsq/naUQkRlYLfe2DyB7bbnLqVgAvLHCRASs=;
+        s=korg; t=1676901072;
+        bh=naImJaZsiojPbuOfCQcRFmzenQ6rb8bPJhVkAssPUXw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=N+LkCHOuo8Cw2CuSj67uHYtlNec9VimST9PtsOXeRHRYut1K2qS+auYl0SjZO90g9
-         CToZSgiphYjERSugzQnsGaiOoTG+WmKQX0J2zhx7d8Ly4E9gftYSei5lTkmuuZAf2T
-         hXZ0zxjGgVZ9mUR3Xh9Ao+JknaZJBECiHdbimJbU=
+        b=XY4xeOgA1TC+gSUdmInrMV7vIt4KxAer56EtB2OnuroYUlRTcW9+gvQPRLmDp4hR0
+         5x+9fZXRrDcdwaGxwxs/UW7Ht5KevRg0uTUPYiPVrg3MEu5fa+0BCUQukgNefkNvRa
+         NqzgKHZka8lWGsYokoyjGORXxC8rg5VurNiG0epg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Josef Bacik <josef@toxicpanda.com>,
-        David Sterba <dsterba@suse.com>
-Subject: [PATCH 4.14 26/53] btrfs: limit device extents to the device size
+        patches@lists.linux.dev, Hans de Goede <hdegoede@redhat.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.15 19/83] platform/x86: touchscreen_dmi: Add Chuwi Vi8 (CWI501) DMI match
 Date:   Mon, 20 Feb 2023 14:35:52 +0100
-Message-Id: <20230220133549.110342664@linuxfoundation.org>
+Message-Id: <20230220133554.370648588@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230220133548.158615609@linuxfoundation.org>
-References: <20230220133548.158615609@linuxfoundation.org>
+In-Reply-To: <20230220133553.669025851@linuxfoundation.org>
+References: <20230220133553.669025851@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -52,66 +52,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Josef Bacik <josef@toxicpanda.com>
+From: Hans de Goede <hdegoede@redhat.com>
 
-commit 3c538de0f2a74d50aff7278c092f88ae59cee688 upstream.
+[ Upstream commit eecf2acd4a580e9364e5087daf0effca60a240b7 ]
 
-There was a recent regression in btrfs/177 that started happening with
-the size class patches ("btrfs: introduce size class to block group
-allocator").  This however isn't a regression introduced by those
-patches, but rather the bug was uncovered by a change in behavior in
-these patches.  The patches triggered more chunk allocations in the
-^free-space-tree case, which uncovered a race with device shrink.
+Add a DMI match for the CWI501 version of the Chuwi Vi8 tablet,
+pointing to the same chuwi_vi8_data as the existing CWI506 version
+DMI match.
 
-The problem is we will set the device total size to the new size, and
-use this to find a hole for a device extent.  However during shrink we
-may have device extents allocated past this range, so we could
-potentially find a hole in a range past our new shrink size.  We don't
-actually limit our found extent to the device size anywhere, we assume
-that we will not find a hole past our device size.  This isn't true with
-shrink as we're relocating block groups and thus creating holes past the
-device size.
-
-Fix this by making sure we do not search past the new device size, and
-if we wander into any device extents that start after our device size
-simply break from the loop and use whatever hole we've already found.
-
-CC: stable@vger.kernel.org # 4.14+
-Signed-off-by: Josef Bacik <josef@toxicpanda.com>
-Signed-off-by: David Sterba <dsterba@suse.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+Link: https://lore.kernel.org/r/20230202103413.331459-1-hdegoede@redhat.com
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/btrfs/volumes.c |    6 +++++-
- 1 file changed, 5 insertions(+), 1 deletion(-)
+ drivers/platform/x86/touchscreen_dmi.c | 9 +++++++++
+ 1 file changed, 9 insertions(+)
 
---- a/fs/btrfs/volumes.c
-+++ b/fs/btrfs/volumes.c
-@@ -1397,7 +1397,7 @@ again:
- 			goto out;
- 	}
- 
--	while (1) {
-+	while (search_start < search_end) {
- 		l = path->nodes[0];
- 		slot = path->slots[0];
- 		if (slot >= btrfs_header_nritems(l)) {
-@@ -1420,6 +1420,9 @@ again:
- 		if (key.type != BTRFS_DEV_EXTENT_KEY)
- 			goto next;
- 
-+		if (key.offset > search_end)
-+			break;
-+
- 		if (key.offset > search_start) {
- 			hole_size = key.offset - search_start;
- 
-@@ -1494,6 +1497,7 @@ next:
- 	else
- 		ret = 0;
- 
-+	ASSERT(max_hole_start + max_hole_size <= search_end);
- out:
- 	btrfs_free_path(path);
- 	*start = max_hole_start;
+diff --git a/drivers/platform/x86/touchscreen_dmi.c b/drivers/platform/x86/touchscreen_dmi.c
+index 93671037fd598..69ba2c5182610 100644
+--- a/drivers/platform/x86/touchscreen_dmi.c
++++ b/drivers/platform/x86/touchscreen_dmi.c
+@@ -1073,6 +1073,15 @@ const struct dmi_system_id touchscreen_dmi_table[] = {
+ 			DMI_MATCH(DMI_BIOS_DATE, "05/07/2016"),
+ 		},
+ 	},
++	{
++		/* Chuwi Vi8 (CWI501) */
++		.driver_data = (void *)&chuwi_vi8_data,
++		.matches = {
++			DMI_MATCH(DMI_SYS_VENDOR, "Insyde"),
++			DMI_MATCH(DMI_PRODUCT_NAME, "i86"),
++			DMI_MATCH(DMI_BIOS_VERSION, "CHUWI.W86JLBNR01"),
++		},
++	},
+ 	{
+ 		/* Chuwi Vi8 (CWI506) */
+ 		.driver_data = (void *)&chuwi_vi8_data,
+-- 
+2.39.0
+
 
 
