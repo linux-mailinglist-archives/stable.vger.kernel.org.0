@@ -2,57 +2,56 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 88AFB69C8CA
-	for <lists+stable@lfdr.de>; Mon, 20 Feb 2023 11:40:28 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B952C69C91F
+	for <lists+stable@lfdr.de>; Mon, 20 Feb 2023 11:57:58 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231207AbjBTKk0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Feb 2023 05:40:26 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60098 "EHLO
+        id S231740AbjBTK54 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Feb 2023 05:57:56 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52922 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229596AbjBTKkU (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 20 Feb 2023 05:40:20 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 633EB3C09
-        for <stable@vger.kernel.org>; Mon, 20 Feb 2023 02:40:04 -0800 (PST)
+        with ESMTP id S231744AbjBTK5w (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 20 Feb 2023 05:57:52 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E708A13DD5
+        for <stable@vger.kernel.org>; Mon, 20 Feb 2023 02:57:32 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id BA96160DC1
-        for <stable@vger.kernel.org>; Mon, 20 Feb 2023 10:40:03 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 59A1DC433D2;
-        Mon, 20 Feb 2023 10:39:59 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1676889603;
-        bh=HwyHQ7NQBcqaXNyFW9VwpWmiK2D8pynDQ1Zmxgolbyo=;
-        h=From:To:Cc:Subject:Date:From;
-        b=tporFypvg7HdTXmz5tbx625zPUOeguCyHxw0MRpmI4HFQePJFhc62GmOM3XzFMQpD
-         VUXEZQfljmqX0N/LZZm6W8JoHhKM3I9dWPMzqXyUVZXxKQyiF13BtMScvD3hVrvgqS
-         UuomuMZF97qsfS8l4ELxzoiOjDA+St1lC+/ukPspA/G2aHiEPKPPE7MTJW++dFYlZD
-         awdxZDplS+pMarKKzGxPe2Ia6D/7gKBbaSARAgrtSE0zCDJviIknhD4JLlU5a+u54W
-         kwB6gxn1oamvJHk7NHU2Y+nIRgU3XSnnprxJ/cl4N6JwDSYQgy4mPzUHy6Ep9JIPgI
-         vdFCKuFu65+9A==
-From:   KP Singh <kpsingh@kernel.org>
-To:     security@kernel.org
-Cc:     pjt@google.com, evn@google.com, jpoimboe@kernel.org,
-        tglx@linutronix.de, mingo@redhat.com, bp@alien8.de,
-        dave.hansen@linux.intel.com, x86@kernel.org, hpa@zytor.com,
-        peterz@infradead.org, pawan.kumar.gupta@linux.intel.com,
-        kim.phillips@amd.com, alexandre.chartre@oracle.com,
-        daniel.sneddon@linux.intel.com,
-        =?UTF-8?q?Jos=C3=A9=20Oliveira?= <joseloliveira11@gmail.com>,
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 3C63660DD0
+        for <stable@vger.kernel.org>; Mon, 20 Feb 2023 10:52:31 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 22E10C433EF;
+        Mon, 20 Feb 2023 10:52:30 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
+        s=korg; t=1676890350;
+        bh=WzZOQpbbHbYM0sXu2hhsAkV3nCxY0LBAS6QwJbXF9Bc=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=Up9sk61+6ozjTwwjc1q1wgaxWktQpnIhZ/0gfvKHVEfL8sAO3TK0iHid2lVdOOFJq
+         KZiyeGQcU1Hg0dLvmt1gFh0F5q/g+IAt7ltVNozZPtdK4RK5g4x30G0ZVxIKf1Q2ZM
+         rl7S3D4f8PZxri9h4D480Uvv5tPJ6pWcdSlhqmW0=
+Date:   Mon, 20 Feb 2023 11:52:27 +0100
+From:   Greg KH <gregkh@linuxfoundation.org>
+To:     KP Singh <kpsingh@kernel.org>
+Cc:     security@kernel.org, pjt@google.com, evn@google.com,
+        jpoimboe@kernel.org, tglx@linutronix.de, mingo@redhat.com,
+        bp@alien8.de, dave.hansen@linux.intel.com, x86@kernel.org,
+        hpa@zytor.com, peterz@infradead.org,
+        pawan.kumar.gupta@linux.intel.com, kim.phillips@amd.com,
+        alexandre.chartre@oracle.com, daniel.sneddon@linux.intel.com,
+        =?iso-8859-1?Q?Jos=E9?= Oliveira <joseloliveira11@gmail.com>,
         Rodrigo Branco <rodrigo@kernelhacking.com>,
         Alexandra Sandulescu <aesa@google.com>,
-        Jim Mattson <jmattson@google.com>, stable@vger.kernel.org,
-        KP Singh <kpsingh@kernel.org>
-Subject: [PATCH] x86/speculation: Fix user-mode spectre-v2 protection with KERNEL_IBRS
-Date:   Mon, 20 Feb 2023 11:39:30 +0100
-Message-Id: <20230220103930.1963742-1-kpsingh@kernel.org>
-X-Mailer: git-send-email 2.39.2.637.g21b0678d19-goog
+        Jim Mattson <jmattson@google.com>, stable@vger.kernel.org
+Subject: Re: [PATCH] x86/speculation: Fix user-mode spectre-v2 protection
+ with KERNEL_IBRS
+Message-ID: <Y/NQ6w4UlEuBSTql@kroah.com>
+References: <20230220103930.1963742-1-kpsingh@kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+In-Reply-To: <20230220103930.1963742-1-kpsingh@kernel.org>
+X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
         SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -60,88 +59,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-With the introduction of KERNEL_IBRS, STIBP is no longer needed
-to prevent cross thread training in the kernel space. When KERNEL_IBRS
-was added, it also disabled the user-mode protections for spectre_v2.
-KERNEL_IBRS does not mitigate cross thread training in the userspace.
+On Mon, Feb 20, 2023 at 11:39:30AM +0100, KP Singh wrote:
+> With the introduction of KERNEL_IBRS, STIBP is no longer needed
+> to prevent cross thread training in the kernel space. When KERNEL_IBRS
+> was added, it also disabled the user-mode protections for spectre_v2.
+> KERNEL_IBRS does not mitigate cross thread training in the userspace.
+> 
+> In order to demonstrate the issue, one needs to avoid syscalls in the
+> victim as syscalls can shorten the window size due to
+> a user -> kernel -> user transition which sets the
+> IBRS bit when entering kernel space and clearing any training the
+> attacker may have done.
+> 
+> Allow users to select a spectre_v2_user mitigation (STIBP always on,
+> opt-in via prctl) when KERNEL_IBRS is enabled.
+> 
+> Reported-by: José Oliveira <joseloliveira11@gmail.com>
+> Reported-by: Rodrigo Branco <rodrigo@kernelhacking.com>
+> Reviewed-by: Alexandra Sandulescu <aesa@google.com>
+> Reviewed-by: Jim Mattson <jmattson@google.com>
+> Fixes: 7c693f54c873 ("x86/speculation: Add spectre_v2=ibrs option to support Kernel IBRS")
+> Cc: stable@vger.kernel.org
+> Signed-off-by: KP Singh <kpsingh@kernel.org>
+> ---
+>  arch/x86/kernel/cpu/bugs.c | 25 +++++++++++++++++--------
+>  1 file changed, 17 insertions(+), 8 deletions(-)
 
-In order to demonstrate the issue, one needs to avoid syscalls in the
-victim as syscalls can shorten the window size due to
-a user -> kernel -> user transition which sets the
-IBRS bit when entering kernel space and clearing any training the
-attacker may have done.
+As this is posted publicly, there's no need to send it to
+security@kernel.org, it doesn't need to be involved.
 
-Allow users to select a spectre_v2_user mitigation (STIBP always on,
-opt-in via prctl) when KERNEL_IBRS is enabled.
+thanks,
 
-Reported-by: JosÃ© Oliveira <joseloliveira11@gmail.com>
-Reported-by: Rodrigo Branco <rodrigo@kernelhacking.com>
-Reviewed-by: Alexandra Sandulescu <aesa@google.com>
-Reviewed-by: Jim Mattson <jmattson@google.com>
-Fixes: 7c693f54c873 ("x86/speculation: Add spectre_v2=ibrs option to support Kernel IBRS")
-Cc: stable@vger.kernel.org
-Signed-off-by: KP Singh <kpsingh@kernel.org>
----
- arch/x86/kernel/cpu/bugs.c | 25 +++++++++++++++++--------
- 1 file changed, 17 insertions(+), 8 deletions(-)
-
-diff --git a/arch/x86/kernel/cpu/bugs.c b/arch/x86/kernel/cpu/bugs.c
-index bca0bd8f4846..b05ca1575d81 100644
---- a/arch/x86/kernel/cpu/bugs.c
-+++ b/arch/x86/kernel/cpu/bugs.c
-@@ -1132,6 +1132,19 @@ static inline bool spectre_v2_in_ibrs_mode(enum spectre_v2_mitigation mode)
- 	       mode == SPECTRE_V2_EIBRS_LFENCE;
- }
- 
-+static inline bool spectre_v2_user_no_stibp(enum spectre_v2_mitigation mode)
-+{
-+	/* When IBRS or enhanced IBRS is enabled, STIBP is not needed.
-+	 *
-+	 * However, With KERNEL_IBRS, the IBRS bit is cleared on return
-+	 * to user and the user-mode code needs to be able to enable protection
-+	 * from cross-thread training, either by always enabling STIBP or
-+	 * by enabling it via prctl.
-+	 */
-+	return (spectre_v2_in_ibrs_mode(mode) &&
-+		!cpu_feature_enabled(X86_FEATURE_KERNEL_IBRS));
-+}
-+
- static void __init
- spectre_v2_user_select_mitigation(void)
- {
-@@ -1193,13 +1206,8 @@ spectre_v2_user_select_mitigation(void)
- 			"always-on" : "conditional");
- 	}
- 
--	/*
--	 * If no STIBP, IBRS or enhanced IBRS is enabled, or SMT impossible,
--	 * STIBP is not required.
--	 */
--	if (!boot_cpu_has(X86_FEATURE_STIBP) ||
--	    !smt_possible ||
--	    spectre_v2_in_ibrs_mode(spectre_v2_enabled))
-+	if (!boot_cpu_has(X86_FEATURE_STIBP) || !smt_possible ||
-+	    spectre_v2_user_no_stibp(spectre_v2_enabled))
- 		return;
- 
- 	/*
-@@ -1496,6 +1504,7 @@ static void __init spectre_v2_select_mitigation(void)
- 		break;
- 
- 	case SPECTRE_V2_IBRS:
-+		pr_err("enabling KERNEL_IBRS");
- 		setup_force_cpu_cap(X86_FEATURE_KERNEL_IBRS);
- 		if (boot_cpu_has(X86_FEATURE_IBRS_ENHANCED))
- 			pr_warn(SPECTRE_V2_IBRS_PERF_MSG);
-@@ -2327,7 +2336,7 @@ static ssize_t mmio_stale_data_show_state(char *buf)
- 
- static char *stibp_state(void)
- {
--	if (spectre_v2_in_ibrs_mode(spectre_v2_enabled))
-+	if (spectre_v2_user_no_stibp(spectre_v2_enabled))
- 		return "";
- 
- 	switch (spectre_v2_user_stibp) {
--- 
-2.39.2.637.g21b0678d19-goog
-
+greg k-h
