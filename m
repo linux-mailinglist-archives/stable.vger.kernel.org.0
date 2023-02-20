@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B062F69CE7E
-	for <lists+stable@lfdr.de>; Mon, 20 Feb 2023 14:59:54 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8389369CCA8
+	for <lists+stable@lfdr.de>; Mon, 20 Feb 2023 14:42:38 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232741AbjBTN7g (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Feb 2023 08:59:36 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50270 "EHLO
+        id S231998AbjBTNmh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Feb 2023 08:42:37 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52114 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232779AbjBTN7S (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 20 Feb 2023 08:59:18 -0500
+        with ESMTP id S232064AbjBTNmd (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 20 Feb 2023 08:42:33 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E5E1293D7
-        for <stable@vger.kernel.org>; Mon, 20 Feb 2023 05:59:04 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id ED4FE1D908
+        for <stable@vger.kernel.org>; Mon, 20 Feb 2023 05:42:26 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 1DBECB80D5A
-        for <stable@vger.kernel.org>; Mon, 20 Feb 2023 13:58:39 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8AE8EC433D2;
-        Mon, 20 Feb 2023 13:58:37 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 897F9B80D44
+        for <stable@vger.kernel.org>; Mon, 20 Feb 2023 13:42:26 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E0AFBC433EF;
+        Mon, 20 Feb 2023 13:42:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1676901517;
-        bh=I5xRH2qrYlHm87/6xUB5Y8i+Y4zJ2WUuZn9ylKcm5VA=;
+        s=korg; t=1676900545;
+        bh=4+DCYv2zGhoaxL5+EHAVjF5eJMGU1CVZfGmZ1VDD5G8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=wdkYEXtajconnpP4DHhrVZa63/j1ZrpNYwY7v1t8Ze0g0ZJKr/JavGxL8kg5ZD4U+
-         fVoF7k6NPLd2uT/Gi7rlETUN8gvmLni/m6uKkfMltFwV0NNCqLTf95FG5Eee1vVxs1
-         gCVoWgWr/qrKsJqi+u7QNfyLY/tAstmlQIqjnzOM=
+        b=BhjdXwpG0MUnQRLJLvGETAEk2GyUws0HW3XxUNI3N4m/FXhpkBdVh59T914BhxFc0
+         3mOwbhj51t+3PEl/5D7IrUsPKnWOBRRJtra0GAEMAc79Wzj9t4JR/eK2hcvZadJrun
+         y3zsHTcmxrk1zBPWNhGCqh/F/yp9qCxElFOjVV+Y=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Ronak Doshi <doshir@vmware.com>,
-        Peng Li <lpeng@vmware.com>, Guolin Yang <gyang@vmware.com>,
-        Jakub Kicinski <kuba@kernel.org>
-Subject: [PATCH 6.1 048/118] vmxnet3: move rss code block under eop descriptor
-Date:   Mon, 20 Feb 2023 14:36:04 +0100
-Message-Id: <20230220133602.351145047@linuxfoundation.org>
+        patches@lists.linux.dev, Hyunwoo Kim <v4bel@theori.io>,
+        Kuniyuki Iwashima <kuniyu@amazon.com>,
+        Jakub Kicinski <kuba@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 66/89] net/rose: Fix to not accept on connected socket
+Date:   Mon, 20 Feb 2023 14:36:05 +0100
+Message-Id: <20230220133555.458545301@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230220133600.368809650@linuxfoundation.org>
-References: <20230220133600.368809650@linuxfoundation.org>
+In-Reply-To: <20230220133553.066768704@linuxfoundation.org>
+References: <20230220133553.066768704@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,96 +54,63 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ronak Doshi <doshir@vmware.com>
+From: Hyunwoo Kim <v4bel@theori.io>
 
-commit ec76d0c2da5c6dfb6a33f1545cc15997013923da upstream.
+[ Upstream commit 14caefcf9837a2be765a566005ad82cd0d2a429f ]
 
-Commit b3973bb40041 ("vmxnet3: set correct hash type based on
-rss information") added hashType information into skb. However,
-rssType field is populated for eop descriptor. This can lead
-to incorrectly reporting of hashType for packets which use
-multiple rx descriptors. Multiple rx descriptors are used
-for Jumbo frame or LRO packets, which can hit this issue.
+If you call listen() and accept() on an already connect()ed
+rose socket, accept() can successfully connect.
+This is because when the peer socket sends data to sendmsg,
+the skb with its own sk stored in the connected socket's
+sk->sk_receive_queue is connected, and rose_accept() dequeues
+the skb waiting in the sk->sk_receive_queue.
 
-This patch moves the RSS codeblock under eop descritor.
+This creates a child socket with the sk of the parent
+rose socket, which can cause confusion.
 
-Cc: stable@vger.kernel.org
-Fixes: b3973bb40041 ("vmxnet3: set correct hash type based on rss information")
-Signed-off-by: Ronak Doshi <doshir@vmware.com>
-Acked-by: Peng Li <lpeng@vmware.com>
-Acked-by: Guolin Yang <gyang@vmware.com>
-Link: https://lore.kernel.org/r/20230208223900.5794-1-doshir@vmware.com
+Fix rose_listen() to return -EINVAL if the socket has
+already been successfully connected, and add lock_sock
+to prevent this issue.
+
+Signed-off-by: Hyunwoo Kim <v4bel@theori.io>
+Reviewed-by: Kuniyuki Iwashima <kuniyu@amazon.com>
+Link: https://lore.kernel.org/r/20230125105944.GA133314@ubuntu
 Signed-off-by: Jakub Kicinski <kuba@kernel.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/vmxnet3/vmxnet3_drv.c |   50 +++++++++++++++++++-------------------
- 1 file changed, 25 insertions(+), 25 deletions(-)
+ net/rose/af_rose.c | 8 ++++++++
+ 1 file changed, 8 insertions(+)
 
---- a/drivers/net/vmxnet3/vmxnet3_drv.c
-+++ b/drivers/net/vmxnet3/vmxnet3_drv.c
-@@ -1546,31 +1546,6 @@ vmxnet3_rq_rx_complete(struct vmxnet3_rx
- 				rxd->len = rbi->len;
- 			}
+diff --git a/net/rose/af_rose.c b/net/rose/af_rose.c
+index 03a1ee221112e..4edd127bb8928 100644
+--- a/net/rose/af_rose.c
++++ b/net/rose/af_rose.c
+@@ -490,6 +490,12 @@ static int rose_listen(struct socket *sock, int backlog)
+ {
+ 	struct sock *sk = sock->sk;
  
--#ifdef VMXNET3_RSS
--			if (rcd->rssType != VMXNET3_RCD_RSS_TYPE_NONE &&
--			    (adapter->netdev->features & NETIF_F_RXHASH)) {
--				enum pkt_hash_types hash_type;
--
--				switch (rcd->rssType) {
--				case VMXNET3_RCD_RSS_TYPE_IPV4:
--				case VMXNET3_RCD_RSS_TYPE_IPV6:
--					hash_type = PKT_HASH_TYPE_L3;
--					break;
--				case VMXNET3_RCD_RSS_TYPE_TCPIPV4:
--				case VMXNET3_RCD_RSS_TYPE_TCPIPV6:
--				case VMXNET3_RCD_RSS_TYPE_UDPIPV4:
--				case VMXNET3_RCD_RSS_TYPE_UDPIPV6:
--					hash_type = PKT_HASH_TYPE_L4;
--					break;
--				default:
--					hash_type = PKT_HASH_TYPE_L3;
--					break;
--				}
--				skb_set_hash(ctx->skb,
--					     le32_to_cpu(rcd->rssHash),
--					     hash_type);
--			}
--#endif
- 			skb_record_rx_queue(ctx->skb, rq->qid);
- 			skb_put(ctx->skb, rcd->len);
- 
-@@ -1653,6 +1628,31 @@ vmxnet3_rq_rx_complete(struct vmxnet3_rx
- 			u32 mtu = adapter->netdev->mtu;
- 			skb->len += skb->data_len;
- 
-+#ifdef VMXNET3_RSS
-+			if (rcd->rssType != VMXNET3_RCD_RSS_TYPE_NONE &&
-+			    (adapter->netdev->features & NETIF_F_RXHASH)) {
-+				enum pkt_hash_types hash_type;
++	lock_sock(sk);
++	if (sock->state != SS_UNCONNECTED) {
++		release_sock(sk);
++		return -EINVAL;
++	}
 +
-+				switch (rcd->rssType) {
-+				case VMXNET3_RCD_RSS_TYPE_IPV4:
-+				case VMXNET3_RCD_RSS_TYPE_IPV6:
-+					hash_type = PKT_HASH_TYPE_L3;
-+					break;
-+				case VMXNET3_RCD_RSS_TYPE_TCPIPV4:
-+				case VMXNET3_RCD_RSS_TYPE_TCPIPV6:
-+				case VMXNET3_RCD_RSS_TYPE_UDPIPV4:
-+				case VMXNET3_RCD_RSS_TYPE_UDPIPV6:
-+					hash_type = PKT_HASH_TYPE_L4;
-+					break;
-+				default:
-+					hash_type = PKT_HASH_TYPE_L3;
-+					break;
-+				}
-+				skb_set_hash(skb,
-+					     le32_to_cpu(rcd->rssHash),
-+					     hash_type);
-+			}
-+#endif
- 			vmxnet3_rx_csum(adapter, skb,
- 					(union Vmxnet3_GenericDesc *)rcd);
- 			skb->protocol = eth_type_trans(skb, adapter->netdev);
+ 	if (sk->sk_state != TCP_LISTEN) {
+ 		struct rose_sock *rose = rose_sk(sk);
+ 
+@@ -499,8 +505,10 @@ static int rose_listen(struct socket *sock, int backlog)
+ 		memset(rose->dest_digis, 0, AX25_ADDR_LEN * ROSE_MAX_DIGIS);
+ 		sk->sk_max_ack_backlog = backlog;
+ 		sk->sk_state           = TCP_LISTEN;
++		release_sock(sk);
+ 		return 0;
+ 	}
++	release_sock(sk);
+ 
+ 	return -EOPNOTSUPP;
+ }
+-- 
+2.39.0
+
 
 
