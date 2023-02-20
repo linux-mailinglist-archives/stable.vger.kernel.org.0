@@ -2,49 +2,50 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 8D08569CC66
-	for <lists+stable@lfdr.de>; Mon, 20 Feb 2023 14:39:58 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A0CDE69CCAE
+	for <lists+stable@lfdr.de>; Mon, 20 Feb 2023 14:42:41 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231779AbjBTNj4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Feb 2023 08:39:56 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48612 "EHLO
+        id S232169AbjBTNmk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Feb 2023 08:42:40 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52150 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231873AbjBTNjz (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 20 Feb 2023 08:39:55 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3B06D1CF5C
-        for <stable@vger.kernel.org>; Mon, 20 Feb 2023 05:39:53 -0800 (PST)
+        with ESMTP id S232137AbjBTNme (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 20 Feb 2023 08:42:34 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 918351C7D4
+        for <stable@vger.kernel.org>; Mon, 20 Feb 2023 05:42:30 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id C4C9AB80D49
-        for <stable@vger.kernel.org>; Mon, 20 Feb 2023 13:39:51 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3BC06C433D2;
-        Mon, 20 Feb 2023 13:39:50 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 3D3CFB80D1F
+        for <stable@vger.kernel.org>; Mon, 20 Feb 2023 13:42:29 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7E3B3C433D2;
+        Mon, 20 Feb 2023 13:42:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1676900390;
-        bh=o89MQ539qaRtUW5e6Zl+k0S42hxnzKn/axAT9OsPOyg=;
+        s=korg; t=1676900548;
+        bh=VDUNcmFfGTzo56vOCStREerT2zCA20lHUHxST9xIdl0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ru4lJr1tdy0U3YRxHc2Sr6s5zsH/78IYid0Ap9Ic0MfhaCImU73/S1ecU/JXnVDZZ
-         Q+uYnyv/NKN4g+lGl9pj+ij5LVd5MCCNOXJt6fCvHG1Oa1riLEr00h3CgIel1cDrQO
-         WIaUJuFbh7c3vmnkf4Y67xkg0KWuVacyQfOj+cc8=
+        b=AAEZCBhlWj9cQwD/Hc9rOdM2AHbqLYW456Gnc7DBGMjdQobJVkVKz32YWaej46NgN
+         EobJ1lEAH683tyMwyrSjRpL2ksEtPAbJpJlQF+7q0ocRjaJM1UcFpTKBaYv4YVqYGM
+         tdUKdyCpXi18XOllMks9RjkGLiYMsPQZnAlZKNOE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Yang Yingliang <yangyingliang@huawei.com>,
-        Ulf Hansson <ulf.hansson@linaro.org>
-Subject: [PATCH 4.14 39/53] mmc: sdio: fix possible resource leaks in some error paths
-Date:   Mon, 20 Feb 2023 14:36:05 +0100
-Message-Id: <20230220133549.563145145@linuxfoundation.org>
+        patches@lists.linux.dev, Amit Engel <Amit.Engel@dell.com>,
+        James Smart <jsmart2021@gmail.com>,
+        Christoph Hellwig <hch@lst.de>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 67/89] nvme-fc: fix a missing queue put in nvmet_fc_ls_create_association
+Date:   Mon, 20 Feb 2023 14:36:06 +0100
+Message-Id: <20230220133555.490213093@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230220133548.158615609@linuxfoundation.org>
-References: <20230220133548.158615609@linuxfoundation.org>
+In-Reply-To: <20230220133553.066768704@linuxfoundation.org>
+References: <20230220133553.066768704@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
         SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -52,127 +53,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yang Yingliang <yangyingliang@huawei.com>
+From: Amit Engel <Amit.Engel@dell.com>
 
-commit 605d9fb9556f8f5fb4566f4df1480f280f308ded upstream.
+[ Upstream commit 0cab4404874f2de52617de8400c844891c6ea1ce ]
 
-If sdio_add_func() or sdio_init_func() fails, sdio_remove_func() can
-not release the resources, because the sdio function is not presented
-in these two cases, it won't call of_node_put() or put_device().
+As part of nvmet_fc_ls_create_association there is a case where
+nvmet_fc_alloc_target_queue fails right after a new association with an
+admin queue is created. In this case, no one releases the get taken in
+nvmet_fc_alloc_target_assoc.  This fix is adding the missing put.
 
-To fix these leaks, make sdio_func_present() only control whether
-device_del() needs to be called or not, then always call of_node_put()
-and put_device().
-
-In error case in sdio_init_func(), the reference of 'card->dev' is
-not get, to avoid redundant put in sdio_free_func_cis(), move the
-get_device() to sdio_alloc_func() and put_device() to sdio_release_func(),
-it can keep the get/put function be balanced.
-
-Without this patch, while doing fault inject test, it can get the
-following leak reports, after this fix, the leak is gone.
-
-unreferenced object 0xffff888112514000 (size 2048):
-  comm "kworker/3:2", pid 65, jiffies 4294741614 (age 124.774s)
-  hex dump (first 32 bytes):
-    00 e0 6f 12 81 88 ff ff 60 58 8d 06 81 88 ff ff  ..o.....`X......
-    10 40 51 12 81 88 ff ff 10 40 51 12 81 88 ff ff  .@Q......@Q.....
-  backtrace:
-    [<000000009e5931da>] kmalloc_trace+0x21/0x110
-    [<000000002f839ccb>] mmc_alloc_card+0x38/0xb0 [mmc_core]
-    [<0000000004adcbf6>] mmc_sdio_init_card+0xde/0x170 [mmc_core]
-    [<000000007538fea0>] mmc_attach_sdio+0xcb/0x1b0 [mmc_core]
-    [<00000000d4fdeba7>] mmc_rescan+0x54a/0x640 [mmc_core]
-
-unreferenced object 0xffff888112511000 (size 2048):
-  comm "kworker/3:2", pid 65, jiffies 4294741623 (age 124.766s)
-  hex dump (first 32 bytes):
-    00 40 51 12 81 88 ff ff e0 58 8d 06 81 88 ff ff  .@Q......X......
-    10 10 51 12 81 88 ff ff 10 10 51 12 81 88 ff ff  ..Q.......Q.....
-  backtrace:
-    [<000000009e5931da>] kmalloc_trace+0x21/0x110
-    [<00000000fcbe706c>] sdio_alloc_func+0x35/0x100 [mmc_core]
-    [<00000000c68f4b50>] mmc_attach_sdio.cold.18+0xb1/0x395 [mmc_core]
-    [<00000000d4fdeba7>] mmc_rescan+0x54a/0x640 [mmc_core]
-
-Fixes: 3d10a1ba0d37 ("sdio: fix reference counting in sdio_remove_func()")
-Signed-off-by: Yang Yingliang <yangyingliang@huawei.com>
-Cc: stable@vger.kernel.org
-Link: https://lore.kernel.org/r/20230130125808.3471254-1-yangyingliang@huawei.com
-Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Amit Engel <Amit.Engel@dell.com>
+Reviewed-by: James Smart <jsmart2021@gmail.com>
+Signed-off-by: Christoph Hellwig <hch@lst.de>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/mmc/core/sdio_bus.c |   17 ++++++++++++++---
- drivers/mmc/core/sdio_cis.c |   12 ------------
- 2 files changed, 14 insertions(+), 15 deletions(-)
+ drivers/nvme/target/fc.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
---- a/drivers/mmc/core/sdio_bus.c
-+++ b/drivers/mmc/core/sdio_bus.c
-@@ -267,6 +267,12 @@ static void sdio_release_func(struct dev
- 	if (!(func->card->quirks & MMC_QUIRK_NONSTD_SDIO))
- 		sdio_free_func_cis(func);
- 
-+	/*
-+	 * We have now removed the link to the tuples in the
-+	 * card structure, so remove the reference.
-+	 */
-+	put_device(&func->card->dev);
-+
- 	kfree(func->info);
- 	kfree(func->tmpbuf);
- 	kfree(func);
-@@ -297,6 +303,12 @@ struct sdio_func *sdio_alloc_func(struct
- 
- 	device_initialize(&func->dev);
- 
-+	/*
-+	 * We may link to tuples in the card structure,
-+	 * we need make sure we have a reference to it.
-+	 */
-+	get_device(&func->card->dev);
-+
- 	func->dev.parent = &card->dev;
- 	func->dev.bus = &sdio_bus_type;
- 	func->dev.release = sdio_release_func;
-@@ -350,10 +362,9 @@ int sdio_add_func(struct sdio_func *func
-  */
- void sdio_remove_func(struct sdio_func *func)
- {
--	if (!sdio_func_present(func))
--		return;
-+	if (sdio_func_present(func))
-+		device_del(&func->dev);
- 
--	device_del(&func->dev);
- 	of_node_put(func->dev.of_node);
- 	put_device(&func->dev);
- }
---- a/drivers/mmc/core/sdio_cis.c
-+++ b/drivers/mmc/core/sdio_cis.c
-@@ -388,12 +388,6 @@ int sdio_read_func_cis(struct sdio_func
- 		return ret;
- 
- 	/*
--	 * Since we've linked to tuples in the card structure,
--	 * we must make sure we have a reference to it.
--	 */
--	get_device(&func->card->dev);
--
--	/*
- 	 * Vendor/device id is optional for function CIS, so
- 	 * copy it from the card structure as needed.
- 	 */
-@@ -418,11 +412,5 @@ void sdio_free_func_cis(struct sdio_func
+diff --git a/drivers/nvme/target/fc.c b/drivers/nvme/target/fc.c
+index 77e4d184bc995..68d128b895abd 100644
+--- a/drivers/nvme/target/fc.c
++++ b/drivers/nvme/target/fc.c
+@@ -1325,8 +1325,10 @@ nvmet_fc_ls_create_association(struct nvmet_fc_tgtport *tgtport,
+ 		else {
+ 			queue = nvmet_fc_alloc_target_queue(iod->assoc, 0,
+ 					be16_to_cpu(rqst->assoc_cmd.sqsize));
+-			if (!queue)
++			if (!queue) {
+ 				ret = VERR_QUEUE_ALLOC_FAIL;
++				nvmet_fc_tgt_a_put(iod->assoc);
++			}
+ 		}
  	}
  
- 	func->tuples = NULL;
--
--	/*
--	 * We have now removed the link to the tuples in the
--	 * card structure, so remove the reference.
--	 */
--	put_device(&func->card->dev);
- }
- 
+-- 
+2.39.0
+
 
 
