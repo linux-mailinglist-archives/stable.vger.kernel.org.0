@@ -2,49 +2,51 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A889F69CDBE
-	for <lists+stable@lfdr.de>; Mon, 20 Feb 2023 14:52:24 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 792D469CE00
+	for <lists+stable@lfdr.de>; Mon, 20 Feb 2023 14:55:09 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232465AbjBTNwX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Feb 2023 08:52:23 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39854 "EHLO
+        id S232538AbjBTNzI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Feb 2023 08:55:08 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43712 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232464AbjBTNwX (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 20 Feb 2023 08:52:23 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 330511E5CA
-        for <stable@vger.kernel.org>; Mon, 20 Feb 2023 05:52:18 -0800 (PST)
+        with ESMTP id S232547AbjBTNzH (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 20 Feb 2023 08:55:07 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C1A451E9E7
+        for <stable@vger.kernel.org>; Mon, 20 Feb 2023 05:54:57 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id C8A4860E8A
-        for <stable@vger.kernel.org>; Mon, 20 Feb 2023 13:52:17 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id DA3A5C433EF;
-        Mon, 20 Feb 2023 13:52:16 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 48F5C60E9E
+        for <stable@vger.kernel.org>; Mon, 20 Feb 2023 13:54:57 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 31C3FC433EF;
+        Mon, 20 Feb 2023 13:54:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1676901137;
-        bh=MNo8EzFY4HTOwe/Da758EsAMlfkLjyuy+TgyibRW1Xc=;
+        s=korg; t=1676901296;
+        bh=0ZhHcDlgcocBheep5X0PxegUrdqJnTELyJRkH/kLBu8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Lmsbp9pfpq9fXBBECrUgzDhy6I2KWXm1rAuZ0sRHOU2qw6rAf78MqGnfGBy64xzDT
-         /iekI/H/j5Vl4a3seyV5LONup0oLt8GCo3+STU4B8p5kvqpnZ7XprINUSFlSHFCfsC
-         vX4IWCXJG4CLS2v8KIsI8wKrKqz5mLPz+DHnxLIs=
+        b=bNg7Qj6iEhfM4kZY60e2DSTJDn5EFJHG5SacZnqlsd6qi0yS4g4+ZYY8phuIa+5yg
+         EjTbDk9x/VAAyFhngvjq2vQquRSkKYUuTAzYrJq+rr+QDDkurKmEH4nvcs0gvDXkX/
+         rLq20RCXFlJ6Pyr4oyr4qqiNGmYy2sXMXvZ6KC4E=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Yang Yingliang <yangyingliang@huawei.com>,
-        Ulf Hansson <ulf.hansson@linaro.org>
-Subject: [PATCH 5.15 44/83] mmc: sdio: fix possible resource leaks in some error paths
+        patches@lists.linux.dev, Vasily Gorbik <gor@linux.ibm.com>,
+        Alexander Egorenkov <egorenar@linux.ibm.com>,
+        Heiko Carstens <hca@linux.ibm.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 09/57] s390/decompressor: specify __decompress() buf len to avoid overflow
 Date:   Mon, 20 Feb 2023 14:36:17 +0100
-Message-Id: <20230220133555.212775847@linuxfoundation.org>
+Message-Id: <20230220133549.682082686@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230220133553.669025851@linuxfoundation.org>
-References: <20230220133553.669025851@linuxfoundation.org>
+In-Reply-To: <20230220133549.360169435@linuxfoundation.org>
+References: <20230220133549.360169435@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
         SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -52,127 +54,47 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yang Yingliang <yangyingliang@huawei.com>
+From: Vasily Gorbik <gor@linux.ibm.com>
 
-commit 605d9fb9556f8f5fb4566f4df1480f280f308ded upstream.
+[ Upstream commit 7ab41c2c08a32132ba8c14624910e2fe8ce4ba4b ]
 
-If sdio_add_func() or sdio_init_func() fails, sdio_remove_func() can
-not release the resources, because the sdio function is not presented
-in these two cases, it won't call of_node_put() or put_device().
+Historically calls to __decompress() didn't specify "out_len" parameter
+on many architectures including s390, expecting that no writes beyond
+uncompressed kernel image are performed. This has changed since commit
+2aa14b1ab2c4 ("zstd: import usptream v1.5.2") which includes zstd library
+commit 6a7ede3dfccb ("Reduce size of dctx by reutilizing dst buffer
+(#2751)"). Now zstd decompression code might store literal buffer in
+the unwritten portion of the destination buffer. Since "out_len" is
+not set, it is considered to be unlimited and hence free to use for
+optimization needs. On s390 this might corrupt initrd or ipl report
+which are often placed right after the decompressor buffer. Luckily the
+size of uncompressed kernel image is already known to the decompressor,
+so to avoid the problem simply specify it in the "out_len" parameter.
 
-To fix these leaks, make sdio_func_present() only control whether
-device_del() needs to be called or not, then always call of_node_put()
-and put_device().
-
-In error case in sdio_init_func(), the reference of 'card->dev' is
-not get, to avoid redundant put in sdio_free_func_cis(), move the
-get_device() to sdio_alloc_func() and put_device() to sdio_release_func(),
-it can keep the get/put function be balanced.
-
-Without this patch, while doing fault inject test, it can get the
-following leak reports, after this fix, the leak is gone.
-
-unreferenced object 0xffff888112514000 (size 2048):
-  comm "kworker/3:2", pid 65, jiffies 4294741614 (age 124.774s)
-  hex dump (first 32 bytes):
-    00 e0 6f 12 81 88 ff ff 60 58 8d 06 81 88 ff ff  ..o.....`X......
-    10 40 51 12 81 88 ff ff 10 40 51 12 81 88 ff ff  .@Q......@Q.....
-  backtrace:
-    [<000000009e5931da>] kmalloc_trace+0x21/0x110
-    [<000000002f839ccb>] mmc_alloc_card+0x38/0xb0 [mmc_core]
-    [<0000000004adcbf6>] mmc_sdio_init_card+0xde/0x170 [mmc_core]
-    [<000000007538fea0>] mmc_attach_sdio+0xcb/0x1b0 [mmc_core]
-    [<00000000d4fdeba7>] mmc_rescan+0x54a/0x640 [mmc_core]
-
-unreferenced object 0xffff888112511000 (size 2048):
-  comm "kworker/3:2", pid 65, jiffies 4294741623 (age 124.766s)
-  hex dump (first 32 bytes):
-    00 40 51 12 81 88 ff ff e0 58 8d 06 81 88 ff ff  .@Q......X......
-    10 10 51 12 81 88 ff ff 10 10 51 12 81 88 ff ff  ..Q.......Q.....
-  backtrace:
-    [<000000009e5931da>] kmalloc_trace+0x21/0x110
-    [<00000000fcbe706c>] sdio_alloc_func+0x35/0x100 [mmc_core]
-    [<00000000c68f4b50>] mmc_attach_sdio.cold.18+0xb1/0x395 [mmc_core]
-    [<00000000d4fdeba7>] mmc_rescan+0x54a/0x640 [mmc_core]
-
-Fixes: 3d10a1ba0d37 ("sdio: fix reference counting in sdio_remove_func()")
-Signed-off-by: Yang Yingliang <yangyingliang@huawei.com>
-Cc: stable@vger.kernel.org
-Link: https://lore.kernel.org/r/20230130125808.3471254-1-yangyingliang@huawei.com
-Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Link: https://github.com/facebook/zstd/commit/6a7ede3dfccb
+Signed-off-by: Vasily Gorbik <gor@linux.ibm.com>
+Tested-by: Alexander Egorenkov <egorenar@linux.ibm.com>
+Link: https://lore.kernel.org/r/patch-1.thread-41c676.git-41c676c2d153.your-ad-here.call-01675030179-ext-9637@work.hours
+Signed-off-by: Heiko Carstens <hca@linux.ibm.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/mmc/core/sdio_bus.c |   17 ++++++++++++++---
- drivers/mmc/core/sdio_cis.c |   12 ------------
- 2 files changed, 14 insertions(+), 15 deletions(-)
+ arch/s390/boot/compressed/decompressor.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/mmc/core/sdio_bus.c
-+++ b/drivers/mmc/core/sdio_bus.c
-@@ -293,6 +293,12 @@ static void sdio_release_func(struct dev
- 	if (!(func->card->quirks & MMC_QUIRK_NONSTD_SDIO))
- 		sdio_free_func_cis(func);
+diff --git a/arch/s390/boot/compressed/decompressor.c b/arch/s390/boot/compressed/decompressor.c
+index 3061b11c4d27f..8eaa1712a1c8d 100644
+--- a/arch/s390/boot/compressed/decompressor.c
++++ b/arch/s390/boot/compressed/decompressor.c
+@@ -79,6 +79,6 @@ void *decompress_kernel(void)
+ 	void *output = (void *)decompress_offset;
  
-+	/*
-+	 * We have now removed the link to the tuples in the
-+	 * card structure, so remove the reference.
-+	 */
-+	put_device(&func->card->dev);
-+
- 	kfree(func->info);
- 	kfree(func->tmpbuf);
- 	kfree(func);
-@@ -323,6 +329,12 @@ struct sdio_func *sdio_alloc_func(struct
- 
- 	device_initialize(&func->dev);
- 
-+	/*
-+	 * We may link to tuples in the card structure,
-+	 * we need make sure we have a reference to it.
-+	 */
-+	get_device(&func->card->dev);
-+
- 	func->dev.parent = &card->dev;
- 	func->dev.bus = &sdio_bus_type;
- 	func->dev.release = sdio_release_func;
-@@ -376,10 +388,9 @@ int sdio_add_func(struct sdio_func *func
-  */
- void sdio_remove_func(struct sdio_func *func)
- {
--	if (!sdio_func_present(func))
--		return;
-+	if (sdio_func_present(func))
-+		device_del(&func->dev);
- 
--	device_del(&func->dev);
- 	of_node_put(func->dev.of_node);
- 	put_device(&func->dev);
+ 	__decompress(_compressed_start, _compressed_end - _compressed_start,
+-		     NULL, NULL, output, 0, NULL, error);
++		     NULL, NULL, output, vmlinux.image_size, NULL, error);
+ 	return output;
  }
---- a/drivers/mmc/core/sdio_cis.c
-+++ b/drivers/mmc/core/sdio_cis.c
-@@ -404,12 +404,6 @@ int sdio_read_func_cis(struct sdio_func
- 		return ret;
- 
- 	/*
--	 * Since we've linked to tuples in the card structure,
--	 * we must make sure we have a reference to it.
--	 */
--	get_device(&func->card->dev);
--
--	/*
- 	 * Vendor/device id is optional for function CIS, so
- 	 * copy it from the card structure as needed.
- 	 */
-@@ -434,11 +428,5 @@ void sdio_free_func_cis(struct sdio_func
- 	}
- 
- 	func->tuples = NULL;
--
--	/*
--	 * We have now removed the link to the tuples in the
--	 * card structure, so remove the reference.
--	 */
--	put_device(&func->card->dev);
- }
- 
+-- 
+2.39.0
+
 
 
