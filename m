@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 651E369CE12
-	for <lists+stable@lfdr.de>; Mon, 20 Feb 2023 14:55:48 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C74E969CEA8
+	for <lists+stable@lfdr.de>; Mon, 20 Feb 2023 15:01:31 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232557AbjBTNzr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Feb 2023 08:55:47 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44698 "EHLO
+        id S232792AbjBTOBZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Feb 2023 09:01:25 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54290 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232565AbjBTNzq (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 20 Feb 2023 08:55:46 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 163C71CAE3
-        for <stable@vger.kernel.org>; Mon, 20 Feb 2023 05:55:41 -0800 (PST)
+        with ESMTP id S232789AbjBTOBZ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 20 Feb 2023 09:01:25 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1BB1E1EBE7
+        for <stable@vger.kernel.org>; Mon, 20 Feb 2023 06:01:02 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 8A4C1B80D3A
-        for <stable@vger.kernel.org>; Mon, 20 Feb 2023 13:55:39 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id F101EC433EF;
-        Mon, 20 Feb 2023 13:55:37 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 5834D60EAE
+        for <stable@vger.kernel.org>; Mon, 20 Feb 2023 14:00:27 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6B59BC433D2;
+        Mon, 20 Feb 2023 14:00:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1676901338;
-        bh=o3pnVhfKfzU+4Kbw4i2qXhEWM1kYCZA8HFMNQuPgKSE=;
+        s=korg; t=1676901626;
+        bh=XcxreMCkMGO+mp/iE3q1I/BxLtlzNPMF3MP8F3LO/sI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=wz5Oaf7s1DlttxsT8Xii3F65MmlPbRKkVU5/aJXRyhU/97vvxl/nrp4BXQZzo5Enf
-         JVkJrDxXdkaqvnu/31opfnyNrPHQYBQfi6FOsU0eWWoLXX9Va1Bhv35PwvQVho+zr6
-         gLfbNFA402b8q1IULm6ah+aP74dDY1yLDNSdoWpA=
+        b=uiXbJ4+coiMvNOnzRPO3SiCMNJyAaTg1ddFtPYQK8y7xay+90Fk1ZRfQPpqIrAAKm
+         rvIEKM9XjnUmDOHb3IK9iYAk87tGowUMywen+XUVO7ji8wnlFzASrn8tDUf4bfoPjj
+         TXElWPHpInebuEgQ57CoHAjSzPKfcEakl02ZBDHw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         patches@lists.linux.dev, Kuniyuki Iwashima <kuniyu@amazon.com>,
         Eric Dumazet <edumazet@google.com>,
         Jakub Kicinski <kuba@kernel.org>
-Subject: [PATCH 5.10 36/57] dccp/tcp: Avoid negative sk_forward_alloc by ipv6_pinfo.pktoptions.
-Date:   Mon, 20 Feb 2023 14:36:44 +0100
-Message-Id: <20230220133550.603742539@linuxfoundation.org>
+Subject: [PATCH 6.1 089/118] dccp/tcp: Avoid negative sk_forward_alloc by ipv6_pinfo.pktoptions.
+Date:   Mon, 20 Feb 2023 14:36:45 +0100
+Message-Id: <20230220133603.960426590@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230220133549.360169435@linuxfoundation.org>
-References: <20230220133549.360169435@linuxfoundation.org>
+In-Reply-To: <20230220133600.368809650@linuxfoundation.org>
+References: <20230220133600.368809650@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -85,7 +85,7 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 --- a/include/net/sock.h
 +++ b/include/net/sock.h
-@@ -2243,6 +2243,19 @@ static inline __must_check bool skb_set_
+@@ -2430,6 +2430,19 @@ static inline __must_check bool skb_set_
  	return false;
  }
  
@@ -102,12 +102,12 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 +	return NULL;
 +}
 +
- void sk_reset_timer(struct sock *sk, struct timer_list *timer,
- 		    unsigned long expires);
- 
+ static inline void skb_prepare_for_gro(struct sk_buff *skb)
+ {
+ 	if (skb->destructor != sock_wfree) {
 --- a/net/dccp/ipv6.c
 +++ b/net/dccp/ipv6.c
-@@ -541,11 +541,9 @@ static struct sock *dccp_v6_request_recv
+@@ -551,11 +551,9 @@ static struct sock *dccp_v6_request_recv
  	*own_req = inet_ehash_nolisten(newsk, req_to_sk(req_unhash), NULL);
  	/* Clone pktoptions received with SYN, if we own the req */
  	if (*own_req && ireq->pktopts) {
@@ -120,7 +120,7 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
  	}
  
  	return newsk;
-@@ -605,7 +603,7 @@ static int dccp_v6_do_rcv(struct sock *s
+@@ -615,7 +613,7 @@ static int dccp_v6_do_rcv(struct sock *s
  					       --ANK (980728)
  	 */
  	if (np->rxopt.all)
@@ -129,7 +129,7 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
  
  	if (sk->sk_state == DCCP_OPEN) { /* Fast path */
  		if (dccp_rcv_established(sk, skb, dccp_hdr(skb), skb->len))
-@@ -669,7 +667,6 @@ ipv6_pktoptions:
+@@ -679,7 +677,6 @@ ipv6_pktoptions:
  			np->flow_label = ip6_flowlabel(ipv6_hdr(opt_skb));
  		if (ipv6_opt_accepted(sk, opt_skb,
  				      &DCCP_SKB_CB(opt_skb)->header.h6)) {
@@ -139,7 +139,7 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
  				sizeof(struct inet6_skb_parm));
 --- a/net/ipv6/tcp_ipv6.c
 +++ b/net/ipv6/tcp_ipv6.c
-@@ -1406,14 +1406,11 @@ static struct sock *tcp_v6_syn_recv_sock
+@@ -1388,14 +1388,11 @@ static struct sock *tcp_v6_syn_recv_sock
  
  		/* Clone pktoptions received with SYN, if we own the req */
  		if (ireq->pktopts) {
@@ -156,16 +156,16 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
  		}
  	} else {
  		if (!req_unhash && found_dup_sk) {
-@@ -1481,7 +1478,7 @@ static int tcp_v6_do_rcv(struct sock *sk
+@@ -1467,7 +1464,7 @@ int tcp_v6_do_rcv(struct sock *sk, struc
  					       --ANK (980728)
  	 */
  	if (np->rxopt.all)
 -		opt_skb = skb_clone(skb, sk_gfp_mask(sk, GFP_ATOMIC));
 +		opt_skb = skb_clone_and_charge_r(skb, sk);
  
+ 	reason = SKB_DROP_REASON_NOT_SPECIFIED;
  	if (sk->sk_state == TCP_ESTABLISHED) { /* Fast path */
- 		struct dst_entry *dst;
-@@ -1563,7 +1560,6 @@ ipv6_pktoptions:
+@@ -1553,7 +1550,6 @@ ipv6_pktoptions:
  		if (np->repflow)
  			np->flow_label = ip6_flowlabel(ipv6_hdr(opt_skb));
  		if (ipv6_opt_accepted(sk, opt_skb, &TCP_SKB_CB(opt_skb)->header.h6)) {
