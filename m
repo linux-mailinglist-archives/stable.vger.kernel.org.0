@@ -2,46 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id DA05E69CD37
-	for <lists+stable@lfdr.de>; Mon, 20 Feb 2023 14:47:39 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 981A169CC83
+	for <lists+stable@lfdr.de>; Mon, 20 Feb 2023 14:41:15 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232326AbjBTNrg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Feb 2023 08:47:36 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60578 "EHLO
+        id S232020AbjBTNlN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Feb 2023 08:41:13 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50288 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232308AbjBTNre (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 20 Feb 2023 08:47:34 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4779B1CF68
-        for <stable@vger.kernel.org>; Mon, 20 Feb 2023 05:47:16 -0800 (PST)
+        with ESMTP id S231849AbjBTNlI (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 20 Feb 2023 08:41:08 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5B6691D923
+        for <stable@vger.kernel.org>; Mon, 20 Feb 2023 05:40:56 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id D9CA560EA8
-        for <stable@vger.kernel.org>; Mon, 20 Feb 2023 13:47:15 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id ECA8BC433EF;
-        Mon, 20 Feb 2023 13:47:14 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id DDD48B80D1F
+        for <stable@vger.kernel.org>; Mon, 20 Feb 2023 13:40:54 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3D54EC433D2;
+        Mon, 20 Feb 2023 13:40:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1676900835;
-        bh=UlUo/Ize98mqXVOg7Ga3AGnbbLgMb/sxT9gnvA7RWnA=;
+        s=korg; t=1676900453;
+        bh=WFgLCuryaOcR9O+fGLnRQ083XnmusI91EmrDq6UbRgc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=UB30DEU0Nt6Pb8Vy6mxVCrS8WGN565eXpWfWjg7SxD3dUfk7njNEj2DMopOQHQJLB
-         mIsC3pmrPnYsahf0iN5e5Po7fPuMtGexEQy3jjTLk/U7nGddjGrWhh9iqG07qCk6xo
-         JqNzF6zwUeziP1SJmTkUoMPvP3MaXPXSt9yZpRCA=
+        b=ALOMW7Fzf26eougAZA3JVmzw8yEtoBUDX+ujYHX3ErI5jqBcXktS9qOaaMVnHlTOD
+         fQMMKwjzkt5cyXaXTAl+tF8HHkEj59eAIoLCn3ikpMOOQXjnrnBQK/OjNY/CV3aR3r
+         dGCM8vLUs9BYLPFfEyk1m1DYRv2/wpM/h/DQPXls=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, FUKAUMI Naoki <naoki@radxa.com>,
-        Martin Blumenstingl <martin.blumenstingl@googlemail.com>,
-        Jerome Brunet <jbrunet@baylibre.com>,
-        Heiner Kallweit <hkallweit1@gmail.com>,
-        Neil Armstrong <neil.armstrong@linaro.org>
-Subject: [PATCH 5.4 086/156] arm64: dts: meson-g12-common: Make mmc host controller interrupts level-sensitive
+        patches@lists.linux.dev,
+        Xiongfeng Wang <wangxiongfeng2@huawei.com>,
+        Stable@vger.kernel.org,
+        Jonathan Cameron <Jonathan.Cameron@huawei.com>
+Subject: [PATCH 4.19 31/89] iio: adc: berlin2-adc: Add missing of_node_put() in error path
 Date:   Mon, 20 Feb 2023 14:35:30 +0100
-Message-Id: <20230220133606.016813704@linuxfoundation.org>
+Message-Id: <20230220133554.255012068@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230220133602.515342638@linuxfoundation.org>
-References: <20230220133602.515342638@linuxfoundation.org>
+In-Reply-To: <20230220133553.066768704@linuxfoundation.org>
+References: <20230220133553.066768704@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,60 +54,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Heiner Kallweit <hkallweit1@gmail.com>
+From: Xiongfeng Wang <wangxiongfeng2@huawei.com>
 
-commit ac8db4cceed218cca21c84f9d75ce88182d8b04f upstream.
+commit cbd3a0153cd18a2cbef6bf3cf31bb406c3fc9f55 upstream.
 
-The usage of edge-triggered interrupts lead to lost interrupts under load,
-see [0]. This was confirmed to be fixed by using level-triggered
-interrupts.
-The report was about SDIO. However, as the host controller is the same
-for SD and MMC, apply the change to all mmc controller instances.
+of_get_parent() will return a device_node pointer with refcount
+incremented. We need to use of_node_put() on it when done. Add the
+missing of_node_put() in the error path of berlin2_adc_probe();
 
-[0] https://www.spinics.net/lists/linux-mmc/msg73991.html
-
-Fixes: 4759fd87b928 ("arm64: dts: meson: g12a: add mmc nodes")
-Tested-by: FUKAUMI Naoki <naoki@radxa.com>
-Tested-by: Martin Blumenstingl <martin.blumenstingl@googlemail.com>
-Tested-by: Jerome Brunet <jbrunet@baylibre.com>
-Cc: stable@vger.kernel.org
-Signed-off-by: Heiner Kallweit <hkallweit1@gmail.com>
-Acked-by: Neil Armstrong <neil.armstrong@linaro.org>
-Link: https://lore.kernel.org/r/27d89baa-b8fa-baca-541b-ef17a97cde3c@gmail.com
-Signed-off-by: Neil Armstrong <neil.armstrong@linaro.org>
+Fixes: 70f1937911ca ("iio: adc: add support for Berlin")
+Signed-off-by: Xiongfeng Wang <wangxiongfeng2@huawei.com>
+Link: https://lore.kernel.org/r/20221129020316.191731-1-wangxiongfeng2@huawei.com
+Cc: <Stable@vger.kernel.org>
+Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/arm64/boot/dts/amlogic/meson-g12-common.dtsi |    6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ drivers/iio/adc/berlin2-adc.c |    4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
---- a/arch/arm64/boot/dts/amlogic/meson-g12-common.dtsi
-+++ b/arch/arm64/boot/dts/amlogic/meson-g12-common.dtsi
-@@ -2317,7 +2317,7 @@
- 		sd_emmc_a: sd@ffe03000 {
- 			compatible = "amlogic,meson-axg-mmc";
- 			reg = <0x0 0xffe03000 0x0 0x800>;
--			interrupts = <GIC_SPI 189 IRQ_TYPE_EDGE_RISING>;
-+			interrupts = <GIC_SPI 189 IRQ_TYPE_LEVEL_HIGH>;
- 			status = "disabled";
- 			clocks = <&clkc CLKID_SD_EMMC_A>,
- 				 <&clkc CLKID_SD_EMMC_A_CLK0>,
-@@ -2329,7 +2329,7 @@
- 		sd_emmc_b: sd@ffe05000 {
- 			compatible = "amlogic,meson-axg-mmc";
- 			reg = <0x0 0xffe05000 0x0 0x800>;
--			interrupts = <GIC_SPI 190 IRQ_TYPE_EDGE_RISING>;
-+			interrupts = <GIC_SPI 190 IRQ_TYPE_LEVEL_HIGH>;
- 			status = "disabled";
- 			clocks = <&clkc CLKID_SD_EMMC_B>,
- 				 <&clkc CLKID_SD_EMMC_B_CLK0>,
-@@ -2341,7 +2341,7 @@
- 		sd_emmc_c: mmc@ffe07000 {
- 			compatible = "amlogic,meson-axg-mmc";
- 			reg = <0x0 0xffe07000 0x0 0x800>;
--			interrupts = <GIC_SPI 191 IRQ_TYPE_EDGE_RISING>;
-+			interrupts = <GIC_SPI 191 IRQ_TYPE_LEVEL_HIGH>;
- 			status = "disabled";
- 			clocks = <&clkc CLKID_SD_EMMC_C>,
- 				 <&clkc CLKID_SD_EMMC_C_CLK0>,
+--- a/drivers/iio/adc/berlin2-adc.c
++++ b/drivers/iio/adc/berlin2-adc.c
+@@ -289,8 +289,10 @@ static int berlin2_adc_probe(struct plat
+ 	int ret;
+ 
+ 	indio_dev = devm_iio_device_alloc(&pdev->dev, sizeof(*priv));
+-	if (!indio_dev)
++	if (!indio_dev) {
++		of_node_put(parent_np);
+ 		return -ENOMEM;
++	}
+ 
+ 	priv = iio_priv(indio_dev);
+ 	platform_set_drvdata(pdev, indio_dev);
 
 
