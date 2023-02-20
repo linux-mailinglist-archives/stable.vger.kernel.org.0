@@ -2,178 +2,88 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B73B169CE7B
-	for <lists+stable@lfdr.de>; Mon, 20 Feb 2023 14:59:53 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D588B69CC57
+	for <lists+stable@lfdr.de>; Mon, 20 Feb 2023 14:39:19 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232695AbjBTN7h (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Feb 2023 08:59:37 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50638 "EHLO
+        id S231946AbjBTNjS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Feb 2023 08:39:18 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47682 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232778AbjBTN7S (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 20 Feb 2023 08:59:18 -0500
+        with ESMTP id S230217AbjBTNjR (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 20 Feb 2023 08:39:17 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BBAC01E9E9
-        for <stable@vger.kernel.org>; Mon, 20 Feb 2023 05:59:05 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 81E971C58D
+        for <stable@vger.kernel.org>; Mon, 20 Feb 2023 05:39:16 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 3F4DCB80D44
-        for <stable@vger.kernel.org>; Mon, 20 Feb 2023 13:59:05 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8E13CC4339B;
-        Mon, 20 Feb 2023 13:59:03 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 3E4B6B80D43
+        for <stable@vger.kernel.org>; Mon, 20 Feb 2023 13:39:15 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8A0FDC433EF;
+        Mon, 20 Feb 2023 13:39:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1676901543;
-        bh=iUfkVhYoh91qGHvjz7u1H9iZZFdULvqBTYODq/zFPBg=;
+        s=korg; t=1676900353;
+        bh=oAGJePHO/fBfg/QG7Bnu4cunVAZopBMGnv6XkuroDmU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=16XaGRSYRo4rD6Tsgp9OTzZgtnyvIHz2B6vkMpayNRWdyg+F4s7TmnXy1UJRmbnIu
-         i0q/mDmNEWFiVARQaZPOZoO5Oe5mKMfHOhHcu3iBNfutb8H/DyizRJ2i/n/oljKcr9
-         5YnA5M9V/5Jyo/idxBiea3MkOMDd5ASaKZBLH0FI=
+        b=s+LErPHoNJ/p1wPqoUN2BMOF/PMweZaZx/KqZk1Rw8/HGU+7y1nZbf9KjpSdJTZuo
+         LiwKeOWuzLDJiXwZ37A+syXQibl8BIfzNuituw0cNirk+32/2iRXfKc+HmsBK0DRTf
+         UzwEPFZVXReP5c5Mpv1KNx4g1WP56vRU7PNCyZqw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Yang Yingliang <yangyingliang@huawei.com>,
-        Ulf Hansson <ulf.hansson@linaro.org>
-Subject: [PATCH 6.1 057/118] mmc: sdio: fix possible resource leaks in some error paths
+        patches@lists.linux.dev,
+        Cristian Ciocaltea <cristian.ciocaltea@collabora.com>,
+        Paolo Abeni <pabeni@redhat.com>
+Subject: [PATCH 4.14 47/53] net: stmmac: Restrict warning on disabling DMA store and fwd mode
 Date:   Mon, 20 Feb 2023 14:36:13 +0100
-Message-Id: <20230220133602.726753857@linuxfoundation.org>
+Message-Id: <20230220133549.845543810@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230220133600.368809650@linuxfoundation.org>
-References: <20230220133600.368809650@linuxfoundation.org>
+In-Reply-To: <20230220133548.158615609@linuxfoundation.org>
+References: <20230220133548.158615609@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
         DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
-        SPF_HELO_NONE,SPF_PASS autolearn=unavailable autolearn_force=no
-        version=3.4.6
+        SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yang Yingliang <yangyingliang@huawei.com>
+From: Cristian Ciocaltea <cristian.ciocaltea@collabora.com>
 
-commit 605d9fb9556f8f5fb4566f4df1480f280f308ded upstream.
+commit 05d7623a892a9da62da0e714428e38f09e4a64d8 upstream.
 
-If sdio_add_func() or sdio_init_func() fails, sdio_remove_func() can
-not release the resources, because the sdio function is not presented
-in these two cases, it won't call of_node_put() or put_device().
+When setting 'snps,force_thresh_dma_mode' DT property, the following
+warning is always emitted, regardless the status of force_sf_dma_mode:
 
-To fix these leaks, make sdio_func_present() only control whether
-device_del() needs to be called or not, then always call of_node_put()
-and put_device().
+dwmac-starfive 10020000.ethernet: force_sf_dma_mode is ignored if force_thresh_dma_mode is set.
 
-In error case in sdio_init_func(), the reference of 'card->dev' is
-not get, to avoid redundant put in sdio_free_func_cis(), move the
-get_device() to sdio_alloc_func() and put_device() to sdio_release_func(),
-it can keep the get/put function be balanced.
+Do not print the rather misleading message when DMA store and forward
+mode is already disabled.
 
-Without this patch, while doing fault inject test, it can get the
-following leak reports, after this fix, the leak is gone.
-
-unreferenced object 0xffff888112514000 (size 2048):
-  comm "kworker/3:2", pid 65, jiffies 4294741614 (age 124.774s)
-  hex dump (first 32 bytes):
-    00 e0 6f 12 81 88 ff ff 60 58 8d 06 81 88 ff ff  ..o.....`X......
-    10 40 51 12 81 88 ff ff 10 40 51 12 81 88 ff ff  .@Q......@Q.....
-  backtrace:
-    [<000000009e5931da>] kmalloc_trace+0x21/0x110
-    [<000000002f839ccb>] mmc_alloc_card+0x38/0xb0 [mmc_core]
-    [<0000000004adcbf6>] mmc_sdio_init_card+0xde/0x170 [mmc_core]
-    [<000000007538fea0>] mmc_attach_sdio+0xcb/0x1b0 [mmc_core]
-    [<00000000d4fdeba7>] mmc_rescan+0x54a/0x640 [mmc_core]
-
-unreferenced object 0xffff888112511000 (size 2048):
-  comm "kworker/3:2", pid 65, jiffies 4294741623 (age 124.766s)
-  hex dump (first 32 bytes):
-    00 40 51 12 81 88 ff ff e0 58 8d 06 81 88 ff ff  .@Q......X......
-    10 10 51 12 81 88 ff ff 10 10 51 12 81 88 ff ff  ..Q.......Q.....
-  backtrace:
-    [<000000009e5931da>] kmalloc_trace+0x21/0x110
-    [<00000000fcbe706c>] sdio_alloc_func+0x35/0x100 [mmc_core]
-    [<00000000c68f4b50>] mmc_attach_sdio.cold.18+0xb1/0x395 [mmc_core]
-    [<00000000d4fdeba7>] mmc_rescan+0x54a/0x640 [mmc_core]
-
-Fixes: 3d10a1ba0d37 ("sdio: fix reference counting in sdio_remove_func()")
-Signed-off-by: Yang Yingliang <yangyingliang@huawei.com>
-Cc: stable@vger.kernel.org
-Link: https://lore.kernel.org/r/20230130125808.3471254-1-yangyingliang@huawei.com
-Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
+Fixes: e2a240c7d3bc ("driver:net:stmmac: Disable DMA store and forward mode if platform data force_thresh_dma_mode is set.")
+Signed-off-by: Cristian Ciocaltea <cristian.ciocaltea@collabora.com>
+Link: https://lore.kernel.org/r/20230210202126.877548-1-cristian.ciocaltea@collabora.com
+Signed-off-by: Paolo Abeni <pabeni@redhat.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/mmc/core/sdio_bus.c |   17 ++++++++++++++---
- drivers/mmc/core/sdio_cis.c |   12 ------------
- 2 files changed, 14 insertions(+), 15 deletions(-)
+ drivers/net/ethernet/stmicro/stmmac/stmmac_platform.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/mmc/core/sdio_bus.c
-+++ b/drivers/mmc/core/sdio_bus.c
-@@ -294,6 +294,12 @@ static void sdio_release_func(struct dev
- 	if (!(func->card->quirks & MMC_QUIRK_NONSTD_SDIO))
- 		sdio_free_func_cis(func);
+--- a/drivers/net/ethernet/stmicro/stmmac/stmmac_platform.c
++++ b/drivers/net/ethernet/stmicro/stmmac/stmmac_platform.c
+@@ -500,7 +500,7 @@ stmmac_probe_config_dt(struct platform_d
+ 	dma_cfg->mixed_burst = of_property_read_bool(np, "snps,mixed-burst");
  
-+	/*
-+	 * We have now removed the link to the tuples in the
-+	 * card structure, so remove the reference.
-+	 */
-+	put_device(&func->card->dev);
-+
- 	kfree(func->info);
- 	kfree(func->tmpbuf);
- 	kfree(func);
-@@ -324,6 +330,12 @@ struct sdio_func *sdio_alloc_func(struct
- 
- 	device_initialize(&func->dev);
- 
-+	/*
-+	 * We may link to tuples in the card structure,
-+	 * we need make sure we have a reference to it.
-+	 */
-+	get_device(&func->card->dev);
-+
- 	func->dev.parent = &card->dev;
- 	func->dev.bus = &sdio_bus_type;
- 	func->dev.release = sdio_release_func;
-@@ -377,10 +389,9 @@ int sdio_add_func(struct sdio_func *func
-  */
- void sdio_remove_func(struct sdio_func *func)
- {
--	if (!sdio_func_present(func))
--		return;
-+	if (sdio_func_present(func))
-+		device_del(&func->dev);
- 
--	device_del(&func->dev);
- 	of_node_put(func->dev.of_node);
- 	put_device(&func->dev);
- }
---- a/drivers/mmc/core/sdio_cis.c
-+++ b/drivers/mmc/core/sdio_cis.c
-@@ -404,12 +404,6 @@ int sdio_read_func_cis(struct sdio_func
- 		return ret;
- 
- 	/*
--	 * Since we've linked to tuples in the card structure,
--	 * we must make sure we have a reference to it.
--	 */
--	get_device(&func->card->dev);
--
--	/*
- 	 * Vendor/device id is optional for function CIS, so
- 	 * copy it from the card structure as needed.
- 	 */
-@@ -434,11 +428,5 @@ void sdio_free_func_cis(struct sdio_func
+ 	plat->force_thresh_dma_mode = of_property_read_bool(np, "snps,force_thresh_dma_mode");
+-	if (plat->force_thresh_dma_mode) {
++	if (plat->force_thresh_dma_mode && plat->force_sf_dma_mode) {
+ 		plat->force_sf_dma_mode = 0;
+ 		pr_warn("force_sf_dma_mode is ignored if force_thresh_dma_mode is set.");
  	}
- 
- 	func->tuples = NULL;
--
--	/*
--	 * We have now removed the link to the tuples in the
--	 * card structure, so remove the reference.
--	 */
--	put_device(&func->card->dev);
- }
- 
 
 
