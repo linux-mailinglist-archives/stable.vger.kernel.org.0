@@ -2,51 +2,49 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D1E5269CD85
-	for <lists+stable@lfdr.de>; Mon, 20 Feb 2023 14:50:19 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4079669CE03
+	for <lists+stable@lfdr.de>; Mon, 20 Feb 2023 14:55:23 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232414AbjBTNuS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Feb 2023 08:50:18 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37534 "EHLO
+        id S232584AbjBTNzV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Feb 2023 08:55:21 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44016 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232413AbjBTNuR (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 20 Feb 2023 08:50:17 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5B9101E1EE
-        for <stable@vger.kernel.org>; Mon, 20 Feb 2023 05:50:00 -0800 (PST)
+        with ESMTP id S232565AbjBTNzP (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 20 Feb 2023 08:55:15 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E69BF1E9E1
+        for <stable@vger.kernel.org>; Mon, 20 Feb 2023 05:55:07 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id D9D2A60EAE
-        for <stable@vger.kernel.org>; Mon, 20 Feb 2023 13:49:59 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id ED63DC433D2;
-        Mon, 20 Feb 2023 13:49:58 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 8809B60CEB
+        for <stable@vger.kernel.org>; Mon, 20 Feb 2023 13:55:07 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9B4E9C433D2;
+        Mon, 20 Feb 2023 13:55:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1676900999;
-        bh=3VR9G32EugzdgQqxlUIwqnavxjwcqyyPHK1wTtMYGFI=;
+        s=korg; t=1676901307;
+        bh=wA2zi/bTstxOd1k4hToa8X/bVQN088ya/FlEjtV3bOs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=aTip9pqH3P0fsb+lZuA/6zLdBbeJzWNOAp64iae3urdK97EFFQZH9HBeJsrOL0DMX
-         5EMSebNmI4d5JMC/uMGt/thq13K1erXNk/996s1xz+b8MfdQohlFgIsseQgMww/0Nk
-         2xZiDzDVuuKoUH/GV/+Pu57mmOM1VIfw5j5ImypQ=
+        b=B5vNfX84RTkbsCAy5b6YKNoXQw10pPuUhffZcOfVnSNCbuL26e1rFrSiAoKuMjIpb
+         BAMnDePZY2P0myLtc75NsMMvs5s7vcXeKWf+heMVkDwsxxUQhjLVh3HFfhbiMnybMt
+         r5Bk7Gl2IZpmX4AvqTB51Qf3wNVNkyiPs9CnA73s=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Jason Xing <kernelxing@tencent.com>,
-        Alexander Duyck <alexanderduyck@fb.com>,
-        Tony Nguyen <anthony.l.nguyen@intel.com>,
-        Chandan Kumar Rout <chandanx.rout@intel.com>
-Subject: [PATCH 5.4 148/156] ixgbe: add double of VLAN header when computing the max MTU
-Date:   Mon, 20 Feb 2023 14:36:32 +0100
-Message-Id: <20230220133608.818638952@linuxfoundation.org>
+        patches@lists.linux.dev, Kailang Yang <kailang@realtek.com>,
+        Takashi Iwai <tiwai@suse.de>
+Subject: [PATCH 5.10 25/57] ALSA: hda/realtek - fixed wrong gpio assigned
+Date:   Mon, 20 Feb 2023 14:36:33 +0100
+Message-Id: <20230220133550.230421066@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230220133602.515342638@linuxfoundation.org>
-References: <20230220133602.515342638@linuxfoundation.org>
+In-Reply-To: <20230220133549.360169435@linuxfoundation.org>
+References: <20230220133549.360169435@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
         SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -54,46 +52,32 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jason Xing <kernelxing@tencent.com>
+From: Kailang Yang <kailang@realtek.com>
 
-commit 0967bf837784a11c65d66060623a74e65211af0b upstream.
+commit 2bdccfd290d421b50df4ec6a68d832dad1310748 upstream.
 
-Include the second VLAN HLEN into account when computing the maximum
-MTU size as other drivers do.
+GPIO2 PIN use for output. Mask Dir and Data need to assign for 0x4. Not 0x3.
+This fixed was for Lenovo Desktop(0x17aa1056). GPIO2 use for AMP enable.
 
-Fixes: fabf1bce103a ("ixgbe: Prevent unsupported configurations with XDP")
-Signed-off-by: Jason Xing <kernelxing@tencent.com>
-Reviewed-by: Alexander Duyck <alexanderduyck@fb.com>
-Tested-by: Chandan Kumar Rout <chandanx.rout@intel.com> (A Contingent Worker at Intel)
-Signed-off-by: Tony Nguyen <anthony.l.nguyen@intel.com>
+Signed-off-by: Kailang Yang <kailang@realtek.com>
+Cc: <stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/8d02bb9ac8134f878cd08607fdf088fd@realtek.com
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ethernet/intel/ixgbe/ixgbe.h      |    2 ++
- drivers/net/ethernet/intel/ixgbe/ixgbe_main.c |    3 +--
- 2 files changed, 3 insertions(+), 2 deletions(-)
+ sound/pci/hda/patch_realtek.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/net/ethernet/intel/ixgbe/ixgbe.h
-+++ b/drivers/net/ethernet/intel/ixgbe/ixgbe.h
-@@ -67,6 +67,8 @@
- #define IXGBE_RXBUFFER_4K    4096
- #define IXGBE_MAX_RXBUFFER  16384  /* largest size for a single descriptor */
- 
-+#define IXGBE_PKT_HDR_PAD   (ETH_HLEN + ETH_FCS_LEN + (VLAN_HLEN * 2))
-+
- /* Attempt to maximize the headroom available for incoming frames.  We
-  * use a 2K buffer for receives and need 1536/1534 to store the data for
-  * the frame.  This leaves us with 512 bytes of room.  From that we need
---- a/drivers/net/ethernet/intel/ixgbe/ixgbe_main.c
-+++ b/drivers/net/ethernet/intel/ixgbe/ixgbe_main.c
-@@ -6745,8 +6745,7 @@ static int ixgbe_change_mtu(struct net_d
- 	struct ixgbe_adapter *adapter = netdev_priv(netdev);
- 
- 	if (ixgbe_enabled_xdp_adapter(adapter)) {
--		int new_frame_size = new_mtu + ETH_HLEN + ETH_FCS_LEN +
--				     VLAN_HLEN;
-+		int new_frame_size = new_mtu + IXGBE_PKT_HDR_PAD;
- 
- 		if (new_frame_size > ixgbe_max_xdp_frame_size(adapter)) {
- 			e_warn(probe, "Requested MTU size is not supported with XDP\n");
+--- a/sound/pci/hda/patch_realtek.c
++++ b/sound/pci/hda/patch_realtek.c
+@@ -827,7 +827,7 @@ do_sku:
+ 			alc_setup_gpio(codec, 0x02);
+ 			break;
+ 		case 7:
+-			alc_setup_gpio(codec, 0x03);
++			alc_setup_gpio(codec, 0x04);
+ 			break;
+ 		case 5:
+ 		default:
 
 
