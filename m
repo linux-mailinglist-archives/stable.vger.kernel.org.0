@@ -2,56 +2,50 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 2FF2769CCB6
-	for <lists+stable@lfdr.de>; Mon, 20 Feb 2023 14:42:55 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 272D469CDFB
+	for <lists+stable@lfdr.de>; Mon, 20 Feb 2023 14:54:56 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232145AbjBTNmy (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Feb 2023 08:42:54 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53192 "EHLO
+        id S232542AbjBTNyy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Feb 2023 08:54:54 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43248 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232164AbjBTNmx (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 20 Feb 2023 08:42:53 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E07EC91
-        for <stable@vger.kernel.org>; Mon, 20 Feb 2023 05:42:49 -0800 (PST)
+        with ESMTP id S232549AbjBTNys (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 20 Feb 2023 08:54:48 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5479C1E9E4
+        for <stable@vger.kernel.org>; Mon, 20 Feb 2023 05:54:47 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 6789460EA6
-        for <stable@vger.kernel.org>; Mon, 20 Feb 2023 13:42:49 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 581B5C433EF;
-        Mon, 20 Feb 2023 13:42:48 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id DDF1060B74
+        for <stable@vger.kernel.org>; Mon, 20 Feb 2023 13:54:46 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C8CA3C433D2;
+        Mon, 20 Feb 2023 13:54:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1676900568;
-        bh=q1IkwEVyaqYuBzNDBRfXwOHmEGl9t6W3gAeojaTzBsQ=;
+        s=korg; t=1676901286;
+        bh=aGTHVwG5WOI0XWmBimMtF/W2QcEeaPD86BivW3NjgR8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=aq/g98mTFnaSUendAnqD+sG69LlisPEGm0E9EOYxM7xWVKOlJLzcA7kiOM0Ep36xK
-         ovtISSxFCq4nSj1aqB84fD3lXZ6jMaOipAbUeHDvXFtGNT1JDUByjeu/BdUMnhfFE9
-         JlN0xENsTdiTeIr1GILWSdeIgrRK2JmfaGSSCDnA=
+        b=ExSC5SpzeCgY07s2oenslE2P6Cic6txR6BWICjfQx0Sja/j/R9oqFkLwyk/K8d6On
+         6atlKNo1WkAOItyRCUZZz+9Oo4F8n4n14oGQU2nyfpDxUiMRrzqxUag07mRBfStOMs
+         zokwPPyzZdXLU1DJYRgVgtQ9DRWS3R9hImYF8m0M=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Mike Kravetz <mike.kravetz@oracle.com>,
-        Naresh Kamboju <naresh.kamboju@linaro.org>,
-        Jesper Juhl <jesperjuhl76@gmail.com>,
-        Muchun Song <songmuchun@bytedance.com>,
-        Linux Kernel Functional Testing <lkft@linaro.org>,
-        Anders Roxell <anders.roxell@linaro.org>,
-        Andi Kleen <ak@linux.intel.com>,
-        Sasha Levin <sashal@kernel.org>,
-        Andrew Morton <akpm@linux-foundation.org>
-Subject: [PATCH 4.19 74/89] hugetlb: check for undefined shift on 32 bit architectures
+        patches@lists.linux.dev, Shunsuke Mie <mie@igel.co.jp>,
+        "Michael S. Tsirkin" <mst@redhat.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 05/57] tools/virtio: fix the vringh test for virtio ring changes
 Date:   Mon, 20 Feb 2023 14:36:13 +0100
-Message-Id: <20230220133555.752250109@linuxfoundation.org>
+Message-Id: <20230220133549.546279354@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230220133553.066768704@linuxfoundation.org>
-References: <20230220133553.066768704@linuxfoundation.org>
+In-Reply-To: <20230220133549.360169435@linuxfoundation.org>
+References: <20230220133549.360169435@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
         SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -59,63 +53,148 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mike Kravetz <mike.kravetz@oracle.com>
+From: Shunsuke Mie <mie@igel.co.jp>
 
-commit ec4288fe63966b26d53907212ecd05dfa81dd2cc upstream.
+[ Upstream commit 3f7b75abf41cc4143aa295f62acbb060a012868d ]
 
-Users can specify the hugetlb page size in the mmap, shmget and
-memfd_create system calls.  This is done by using 6 bits within the flags
-argument to encode the base-2 logarithm of the desired page size.  The
-routine hstate_sizelog() uses the log2 value to find the corresponding
-hugetlb hstate structure.  Converting the log2 value (page_size_log) to
-potential hugetlb page size is the simple statement:
+Fix the build caused by missing kmsan_handle_dma() and is_power_of_2() that
+are used in drivers/virtio/virtio_ring.c.
 
-	1UL << page_size_log
-
-Because only 6 bits are used for page_size_log, the left shift can not be
-greater than 63.  This is fine on 64 bit architectures where a long is 64
-bits.  However, if a value greater than 31 is passed on a 32 bit
-architecture (where long is 32 bits) the shift will result in undefined
-behavior.  This was generally not an issue as the result of the undefined
-shift had to exactly match hugetlb page size to proceed.
-
-Recent improvements in runtime checking have resulted in this undefined
-behavior throwing errors such as reported below.
-
-Fix by comparing page_size_log to BITS_PER_LONG before doing shift.
-
-Link: https://lkml.kernel.org/r/20230216013542.138708-1-mike.kravetz@oracle.com
-Link: https://lore.kernel.org/lkml/CA+G9fYuei_Tr-vN9GS7SfFyU1y9hNysnf=PB7kT0=yv4MiPgVg@mail.gmail.com/
-Fixes: 42d7395feb56 ("mm: support more pagesizes for MAP_HUGETLB/SHM_HUGETLB")
-Signed-off-by: Mike Kravetz <mike.kravetz@oracle.com>
-Reported-by: Naresh Kamboju <naresh.kamboju@linaro.org>
-Reviewed-by: Jesper Juhl <jesperjuhl76@gmail.com>
-Acked-by: Muchun Song <songmuchun@bytedance.com>
-Tested-by: Linux Kernel Functional Testing <lkft@linaro.org>
-Tested-by: Naresh Kamboju <naresh.kamboju@linaro.org>
-Cc: Anders Roxell <anders.roxell@linaro.org>
-Cc: Andi Kleen <ak@linux.intel.com>
-Cc: Sasha Levin <sashal@kernel.org>
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Shunsuke Mie <mie@igel.co.jp>
+Message-Id: <20230110034310.779744-1-mie@igel.co.jp>
+Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- include/linux/hugetlb.h |    5 ++++-
- 1 file changed, 4 insertions(+), 1 deletion(-)
+ tools/virtio/linux/bug.h         |  8 +++-----
+ tools/virtio/linux/build_bug.h   |  7 +++++++
+ tools/virtio/linux/cpumask.h     |  7 +++++++
+ tools/virtio/linux/gfp.h         |  7 +++++++
+ tools/virtio/linux/kernel.h      |  1 +
+ tools/virtio/linux/kmsan.h       | 12 ++++++++++++
+ tools/virtio/linux/scatterlist.h |  1 +
+ tools/virtio/linux/topology.h    |  7 +++++++
+ 8 files changed, 45 insertions(+), 5 deletions(-)
+ create mode 100644 tools/virtio/linux/build_bug.h
+ create mode 100644 tools/virtio/linux/cpumask.h
+ create mode 100644 tools/virtio/linux/gfp.h
+ create mode 100644 tools/virtio/linux/kmsan.h
+ create mode 100644 tools/virtio/linux/topology.h
 
---- a/include/linux/hugetlb.h
-+++ b/include/linux/hugetlb.h
-@@ -405,7 +405,10 @@ static inline struct hstate *hstate_size
- 	if (!page_size_log)
- 		return &default_hstate;
+diff --git a/tools/virtio/linux/bug.h b/tools/virtio/linux/bug.h
+index b14c2c3b6b857..74aef964f5099 100644
+--- a/tools/virtio/linux/bug.h
++++ b/tools/virtio/linux/bug.h
+@@ -1,11 +1,9 @@
+ /* SPDX-License-Identifier: GPL-2.0 */
+-#ifndef BUG_H
+-#define BUG_H
++#ifndef _LINUX_BUG_H
++#define _LINUX_BUG_H
  
--	return size_to_hstate(1UL << page_size_log);
-+	if (page_size_log < BITS_PER_LONG)
-+		return size_to_hstate(1UL << page_size_log);
+ #define BUG_ON(__BUG_ON_cond) assert(!(__BUG_ON_cond))
+ 
+-#define BUILD_BUG_ON(x)
+-
+ #define BUG() abort()
+ 
+-#endif /* BUG_H */
++#endif /* _LINUX_BUG_H */
+diff --git a/tools/virtio/linux/build_bug.h b/tools/virtio/linux/build_bug.h
+new file mode 100644
+index 0000000000000..cdbb75e28a604
+--- /dev/null
++++ b/tools/virtio/linux/build_bug.h
+@@ -0,0 +1,7 @@
++/* SPDX-License-Identifier: GPL-2.0 */
++#ifndef _LINUX_BUILD_BUG_H
++#define _LINUX_BUILD_BUG_H
 +
-+	return NULL;
- }
++#define BUILD_BUG_ON(x)
++
++#endif	/* _LINUX_BUILD_BUG_H */
+diff --git a/tools/virtio/linux/cpumask.h b/tools/virtio/linux/cpumask.h
+new file mode 100644
+index 0000000000000..307da69d6b26c
+--- /dev/null
++++ b/tools/virtio/linux/cpumask.h
+@@ -0,0 +1,7 @@
++/* SPDX-License-Identifier: GPL-2.0 */
++#ifndef _LINUX_CPUMASK_H
++#define _LINUX_CPUMASK_H
++
++#include <linux/kernel.h>
++
++#endif /* _LINUX_CPUMASK_H */
+diff --git a/tools/virtio/linux/gfp.h b/tools/virtio/linux/gfp.h
+new file mode 100644
+index 0000000000000..43d146f236f14
+--- /dev/null
++++ b/tools/virtio/linux/gfp.h
+@@ -0,0 +1,7 @@
++/* SPDX-License-Identifier: GPL-2.0 */
++#ifndef __LINUX_GFP_H
++#define __LINUX_GFP_H
++
++#include <linux/topology.h>
++
++#endif
+diff --git a/tools/virtio/linux/kernel.h b/tools/virtio/linux/kernel.h
+index 315e85cabedab..063ccc8975647 100644
+--- a/tools/virtio/linux/kernel.h
++++ b/tools/virtio/linux/kernel.h
+@@ -10,6 +10,7 @@
+ #include <stdarg.h>
  
- static inline struct hstate *hstate_vma(struct vm_area_struct *vma)
+ #include <linux/compiler.h>
++#include <linux/log2.h>
+ #include <linux/types.h>
+ #include <linux/list.h>
+ #include <linux/printk.h>
+diff --git a/tools/virtio/linux/kmsan.h b/tools/virtio/linux/kmsan.h
+new file mode 100644
+index 0000000000000..272b5aa285d5a
+--- /dev/null
++++ b/tools/virtio/linux/kmsan.h
+@@ -0,0 +1,12 @@
++/* SPDX-License-Identifier: GPL-2.0 */
++#ifndef _LINUX_KMSAN_H
++#define _LINUX_KMSAN_H
++
++#include <linux/gfp.h>
++
++inline void kmsan_handle_dma(struct page *page, size_t offset, size_t size,
++			     enum dma_data_direction dir)
++{
++}
++
++#endif /* _LINUX_KMSAN_H */
+diff --git a/tools/virtio/linux/scatterlist.h b/tools/virtio/linux/scatterlist.h
+index 369ee308b6686..74d9e1825748e 100644
+--- a/tools/virtio/linux/scatterlist.h
++++ b/tools/virtio/linux/scatterlist.h
+@@ -2,6 +2,7 @@
+ #ifndef SCATTERLIST_H
+ #define SCATTERLIST_H
+ #include <linux/kernel.h>
++#include <linux/bug.h>
+ 
+ struct scatterlist {
+ 	unsigned long	page_link;
+diff --git a/tools/virtio/linux/topology.h b/tools/virtio/linux/topology.h
+new file mode 100644
+index 0000000000000..910794afb993a
+--- /dev/null
++++ b/tools/virtio/linux/topology.h
+@@ -0,0 +1,7 @@
++/* SPDX-License-Identifier: GPL-2.0 */
++#ifndef _LINUX_TOPOLOGY_H
++#define _LINUX_TOPOLOGY_H
++
++#include <linux/cpumask.h>
++
++#endif /* _LINUX_TOPOLOGY_H */
+-- 
+2.39.0
+
 
 
