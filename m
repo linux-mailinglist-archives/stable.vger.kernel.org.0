@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E7CA669CC5E
-	for <lists+stable@lfdr.de>; Mon, 20 Feb 2023 14:39:36 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 08EB669CD90
+	for <lists+stable@lfdr.de>; Mon, 20 Feb 2023 14:50:32 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231446AbjBTNjg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Feb 2023 08:39:36 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48058 "EHLO
+        id S232401AbjBTNub (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Feb 2023 08:50:31 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37836 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230076AbjBTNjf (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 20 Feb 2023 08:39:35 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9933F1C30D
-        for <stable@vger.kernel.org>; Mon, 20 Feb 2023 05:39:34 -0800 (PST)
+        with ESMTP id S232425AbjBTNu3 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 20 Feb 2023 08:50:29 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 34CA91E1EE
+        for <stable@vger.kernel.org>; Mon, 20 Feb 2023 05:50:26 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 4318EB80D1F
-        for <stable@vger.kernel.org>; Mon, 20 Feb 2023 13:39:33 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A94C4C433D2;
-        Mon, 20 Feb 2023 13:39:31 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id C876560EA5
+        for <stable@vger.kernel.org>; Mon, 20 Feb 2023 13:50:25 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id DD244C4339B;
+        Mon, 20 Feb 2023 13:50:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1676900372;
-        bh=PbSeR52XQQKUNO2gFpbi9bJaeOUDw9v8q2xKkMBEx3g=;
+        s=korg; t=1676901025;
+        bh=QHxUkiFZJVVlK/8ceOzkd2zhME6SGmkPGRYz4skPD3I=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=VB21bJraXCBM88Hv6Po5OiVVdA1zmoQaotjt3hqwTWF2HNrYL6chXTn8vBAR9KGM5
-         2mVJ75sl7ai5bBRXSJqvBaY6GMo08CMDBcDGnkiOdqN1CWG0kw9JI5ru5cOOWFHG3x
-         mX44sIqe3vu6Dx9ZOU5moyuQDsEA3n2icKF/3+8k=
+        b=sTf8fai0i9T1QNwvjNDjBPkUxHTxPKvWW6b4Wp/do4TDZMMCEpxwg64DfzxOMLC7v
+         SkGkXCvphEFTWvUbyeUM69S4oNU4mY8CUHpHAajsASzIl6wEi0XIP93NNXljPhOTWX
+         s/5i7b+sHclAbK5ta+SmcTOdtMRSzwMcF8Ch6iZU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Ryusuke Konishi <konishi.ryusuke@gmail.com>,
-        syzbot+f0c4082ce5ebebdac63b@syzkaller.appspotmail.com,
-        Andrew Morton <akpm@linux-foundation.org>
-Subject: [PATCH 4.14 53/53] nilfs2: fix underflow in second superblock position calculations
-Date:   Mon, 20 Feb 2023 14:36:19 +0100
-Message-Id: <20230220133550.061458424@linuxfoundation.org>
+        patches@lists.linux.dev, Felix Riemann <felix.riemann@sma.de>,
+        Eric Dumazet <edumazet@google.com>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 5.4 136/156] net: Fix unwanted sign extension in netdev_stats_to_stats64()
+Date:   Mon, 20 Feb 2023 14:36:20 +0100
+Message-Id: <20230220133608.291694955@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230220133548.158615609@linuxfoundation.org>
-References: <20230220133548.158615609@linuxfoundation.org>
+In-Reply-To: <20230220133602.515342638@linuxfoundation.org>
+References: <20230220133602.515342638@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,135 +53,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ryusuke Konishi <konishi.ryusuke@gmail.com>
+From: Felix Riemann <felix.riemann@sma.de>
 
-commit 99b9402a36f0799f25feee4465bfa4b8dfa74b4d upstream.
+commit 9b55d3f0a69af649c62cbc2633e6d695bb3cc583 upstream.
 
-Macro NILFS_SB2_OFFSET_BYTES, which computes the position of the second
-superblock, underflows when the argument device size is less than 4096
-bytes.  Therefore, when using this macro, it is necessary to check in
-advance that the device size is not less than a lower limit, or at least
-that underflow does not occur.
+When converting net_device_stats to rtnl_link_stats64 sign extension
+is triggered on ILP32 machines as 6c1c509778 changed the previous
+"ulong -> u64" conversion to "long -> u64" by accessing the
+net_device_stats fields through a (signed) atomic_long_t.
 
-The current nilfs2 implementation lacks this check, causing out-of-bound
-block access when mounting devices smaller than 4096 bytes:
+This causes for example the received bytes counter to jump to 16EiB after
+having received 2^31 bytes. Casting the atomic value to "unsigned long"
+beforehand converting it into u64 avoids this.
 
- I/O error, dev loop0, sector 36028797018963960 op 0x0:(READ) flags 0x0
- phys_seg 1 prio class 2
- NILFS (loop0): unable to read secondary superblock (blocksize = 1024)
-
-In addition, when trying to resize the filesystem to a size below 4096
-bytes, this underflow occurs in nilfs_resize_fs(), passing a huge number
-of segments to nilfs_sufile_resize(), corrupting parameters such as the
-number of segments in superblocks.  This causes excessive loop iterations
-in nilfs_sufile_resize() during a subsequent resize ioctl, causing
-semaphore ns_segctor_sem to block for a long time and hang the writer
-thread:
-
- INFO: task segctord:5067 blocked for more than 143 seconds.
-      Not tainted 6.2.0-rc8-syzkaller-00015-gf6feea56f66d #0
- "echo 0 > /proc/sys/kernel/hung_task_timeout_secs" disables this message.
- task:segctord        state:D stack:23456 pid:5067  ppid:2
- flags:0x00004000
- Call Trace:
-  <TASK>
-  context_switch kernel/sched/core.c:5293 [inline]
-  __schedule+0x1409/0x43f0 kernel/sched/core.c:6606
-  schedule+0xc3/0x190 kernel/sched/core.c:6682
-  rwsem_down_write_slowpath+0xfcf/0x14a0 kernel/locking/rwsem.c:1190
-  nilfs_transaction_lock+0x25c/0x4f0 fs/nilfs2/segment.c:357
-  nilfs_segctor_thread_construct fs/nilfs2/segment.c:2486 [inline]
-  nilfs_segctor_thread+0x52f/0x1140 fs/nilfs2/segment.c:2570
-  kthread+0x270/0x300 kernel/kthread.c:376
-  ret_from_fork+0x1f/0x30 arch/x86/entry/entry_64.S:308
-  </TASK>
- ...
- Call Trace:
-  <TASK>
-  folio_mark_accessed+0x51c/0xf00 mm/swap.c:515
-  __nilfs_get_page_block fs/nilfs2/page.c:42 [inline]
-  nilfs_grab_buffer+0x3d3/0x540 fs/nilfs2/page.c:61
-  nilfs_mdt_submit_block+0xd7/0x8f0 fs/nilfs2/mdt.c:121
-  nilfs_mdt_read_block+0xeb/0x430 fs/nilfs2/mdt.c:176
-  nilfs_mdt_get_block+0x12d/0xbb0 fs/nilfs2/mdt.c:251
-  nilfs_sufile_get_segment_usage_block fs/nilfs2/sufile.c:92 [inline]
-  nilfs_sufile_truncate_range fs/nilfs2/sufile.c:679 [inline]
-  nilfs_sufile_resize+0x7a3/0x12b0 fs/nilfs2/sufile.c:777
-  nilfs_resize_fs+0x20c/0xed0 fs/nilfs2/super.c:422
-  nilfs_ioctl_resize fs/nilfs2/ioctl.c:1033 [inline]
-  nilfs_ioctl+0x137c/0x2440 fs/nilfs2/ioctl.c:1301
-  ...
-
-This fixes these issues by inserting appropriate minimum device size
-checks or anti-underflow checks, depending on where the macro is used.
-
-Link: https://lkml.kernel.org/r/0000000000004e1dfa05f4a48e6b@google.com
-Link: https://lkml.kernel.org/r/20230214224043.24141-1-konishi.ryusuke@gmail.com
-Signed-off-by: Ryusuke Konishi <konishi.ryusuke@gmail.com>
-Reported-by: <syzbot+f0c4082ce5ebebdac63b@syzkaller.appspotmail.com>
-Tested-by: Ryusuke Konishi <konishi.ryusuke@gmail.com>
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Fixes: 6c1c5097781f ("net: add atomic_long_t to net_device_stats fields")
+Signed-off-by: Felix Riemann <felix.riemann@sma.de>
+Reviewed-by: Eric Dumazet <edumazet@google.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/nilfs2/ioctl.c     |    7 +++++++
- fs/nilfs2/super.c     |    9 +++++++++
- fs/nilfs2/the_nilfs.c |    8 +++++++-
- 3 files changed, 23 insertions(+), 1 deletion(-)
+ net/core/dev.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/fs/nilfs2/ioctl.c
-+++ b/fs/nilfs2/ioctl.c
-@@ -1144,7 +1144,14 @@ static int nilfs_ioctl_set_alloc_range(s
+--- a/net/core/dev.c
++++ b/net/core/dev.c
+@@ -9467,7 +9467,7 @@ void netdev_stats_to_stats64(struct rtnl
  
- 	minseg = range[0] + segbytes - 1;
- 	do_div(minseg, segbytes);
-+
-+	if (range[1] < 4096)
-+		goto out;
-+
- 	maxseg = NILFS_SB2_OFFSET_BYTES(range[1]);
-+	if (maxseg < segbytes)
-+		goto out;
-+
- 	do_div(maxseg, segbytes);
- 	maxseg--;
- 
---- a/fs/nilfs2/super.c
-+++ b/fs/nilfs2/super.c
-@@ -421,6 +421,15 @@ int nilfs_resize_fs(struct super_block *
- 		goto out;
- 
- 	/*
-+	 * Prevent underflow in second superblock position calculation.
-+	 * The exact minimum size check is done in nilfs_sufile_resize().
-+	 */
-+	if (newsize < 4096) {
-+		ret = -ENOSPC;
-+		goto out;
-+	}
-+
-+	/*
- 	 * Write lock is required to protect some functions depending
- 	 * on the number of segments, the number of reserved segments,
- 	 * and so forth.
---- a/fs/nilfs2/the_nilfs.c
-+++ b/fs/nilfs2/the_nilfs.c
-@@ -526,9 +526,15 @@ static int nilfs_load_super_block(struct
- {
- 	struct nilfs_super_block **sbp = nilfs->ns_sbp;
- 	struct buffer_head **sbh = nilfs->ns_sbh;
--	u64 sb2off = NILFS_SB2_OFFSET_BYTES(nilfs->ns_bdev->bd_inode->i_size);
-+	u64 sb2off, devsize = nilfs->ns_bdev->bd_inode->i_size;
- 	int valid[2], swp = 0;
- 
-+	if (devsize < NILFS_SEG_MIN_BLOCKS * NILFS_MIN_BLOCK_SIZE + 4096) {
-+		nilfs_msg(sb, KERN_ERR, "device size too small");
-+		return -EINVAL;
-+	}
-+	sb2off = NILFS_SB2_OFFSET_BYTES(devsize);
-+
- 	sbp[0] = nilfs_read_super_block(sb, NILFS_SB_OFFSET_BYTES, blocksize,
- 					&sbh[0]);
- 	sbp[1] = nilfs_read_super_block(sb, sb2off, blocksize, &sbh[1]);
+ 	BUILD_BUG_ON(n > sizeof(*stats64) / sizeof(u64));
+ 	for (i = 0; i < n; i++)
+-		dst[i] = atomic_long_read(&src[i]);
++		dst[i] = (unsigned long)atomic_long_read(&src[i]);
+ 	/* zero out counters that only exist in rtnl_link_stats64 */
+ 	memset((char *)stats64 + n * sizeof(u64), 0,
+ 	       sizeof(*stats64) - n * sizeof(u64));
 
 
