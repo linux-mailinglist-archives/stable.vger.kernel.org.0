@@ -2,32 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id BC1FF69CEB0
-	for <lists+stable@lfdr.de>; Mon, 20 Feb 2023 15:01:40 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 733A269CE0B
+	for <lists+stable@lfdr.de>; Mon, 20 Feb 2023 14:55:35 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232788AbjBTOBh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Feb 2023 09:01:37 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54608 "EHLO
+        id S232547AbjBTNze (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Feb 2023 08:55:34 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44428 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232834AbjBTOBd (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 20 Feb 2023 09:01:33 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B08AD1F5D7
-        for <stable@vger.kernel.org>; Mon, 20 Feb 2023 06:01:16 -0800 (PST)
+        with ESMTP id S232549AbjBTNzd (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 20 Feb 2023 08:55:33 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 963A81EBD2
+        for <stable@vger.kernel.org>; Mon, 20 Feb 2023 05:55:23 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 6FE9F60EB8
-        for <stable@vger.kernel.org>; Mon, 20 Feb 2023 14:00:11 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7EBE4C433D2;
-        Mon, 20 Feb 2023 14:00:10 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 3485060EA0
+        for <stable@vger.kernel.org>; Mon, 20 Feb 2023 13:55:23 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4259DC4339B;
+        Mon, 20 Feb 2023 13:55:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1676901610;
-        bh=r3hpZ1xKV30LJ2MVDhK1qop7yqK2+DMw5Ey7PMENKXE=;
+        s=korg; t=1676901322;
+        bh=z7CVH4gpagHqH1tipKfy2zj+P7bI1FWVqU3HebUaByI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=PZcvnDHkAD4qKn4HrmdViE+6ljxh63TdvKsf2jHjIHV5htuvJ9WBEgm+OSqGrbnvY
-         PsyX3F85UVYuBqv7qjty4q6/idR2lYdXuHucrGhWm6fk3JtVga/rZGYdie9oJVrEHa
-         F4/Q2+sSYucRqYTccCUocBejOS55eewc7B/tJ1dk=
+        b=SVShTsCj/PuIBCnhFue2D/ym7dX1L2eg/Z1gLHYzvNbYSp2J0DsKWxbVFq70U/6mP
+         trPY4/SuEW38gN7MXL+FzUANqOB07hLExVX6Wb1DGkrNeu5Z+QW2O4QJaJv9xZXG7P
+         037qKVw+kHUYZ1RsJk+p+iPkv6KD6nEeKEC1Wlzk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
@@ -35,18 +35,18 @@ Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         Alexander Duyck <alexanderduyck@fb.com>,
         Tony Nguyen <anthony.l.nguyen@intel.com>,
         Chandan Kumar Rout <chandanx.rout@intel.com>
-Subject: [PATCH 6.1 083/118] i40e: add double of VLAN header when computing the max MTU
+Subject: [PATCH 5.10 31/57] ixgbe: allow to increase MTU to 3K with XDP enabled
 Date:   Mon, 20 Feb 2023 14:36:39 +0100
-Message-Id: <20230220133603.724975714@linuxfoundation.org>
+Message-Id: <20230220133550.441586416@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230220133600.368809650@linuxfoundation.org>
-References: <20230220133600.368809650@linuxfoundation.org>
+In-Reply-To: <20230220133549.360169435@linuxfoundation.org>
+References: <20230220133549.360169435@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
         SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -56,31 +56,72 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Jason Xing <kernelxing@tencent.com>
 
-commit ce45ffb815e8e238f05de1630be3969b6bb15e4e upstream.
+commit f9cd6a4418bac6a046ee78382423b1ae7565fb24 upstream.
 
-Include the second VLAN HLEN into account when computing the maximum
-MTU size as other drivers do.
+Recently I encountered one case where I cannot increase the MTU size
+directly from 1500 to a much bigger value with XDP enabled if the
+server is equipped with IXGBE card, which happened on thousands of
+servers in production environment. After applying the current patch,
+we can set the maximum MTU size to 3K.
 
-Fixes: 0c8493d90b6b ("i40e: add XDP support for pass and drop actions")
+This patch follows the behavior of changing MTU as i40e/ice does.
+
+[1] commit 23b44513c3e6 ("ice: allow 3k MTU for XDP")
+[2] commit 0c8493d90b6b ("i40e: add XDP support for pass and drop actions")
+
+Fixes: fabf1bce103a ("ixgbe: Prevent unsupported configurations with XDP")
 Signed-off-by: Jason Xing <kernelxing@tencent.com>
 Reviewed-by: Alexander Duyck <alexanderduyck@fb.com>
 Tested-by: Chandan Kumar Rout <chandanx.rout@intel.com> (A Contingent Worker at Intel)
 Signed-off-by: Tony Nguyen <anthony.l.nguyen@intel.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ethernet/intel/i40e/i40e_main.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/net/ethernet/intel/ixgbe/ixgbe_main.c |   25 ++++++++++++++++---------
+ 1 file changed, 16 insertions(+), 9 deletions(-)
 
---- a/drivers/net/ethernet/intel/i40e/i40e_main.c
-+++ b/drivers/net/ethernet/intel/i40e/i40e_main.c
-@@ -2921,7 +2921,7 @@ static int i40e_change_mtu(struct net_de
- 	struct i40e_pf *pf = vsi->back;
+--- a/drivers/net/ethernet/intel/ixgbe/ixgbe_main.c
++++ b/drivers/net/ethernet/intel/ixgbe/ixgbe_main.c
+@@ -6729,6 +6729,18 @@ static void ixgbe_free_all_rx_resources(
+ }
  
- 	if (i40e_enabled_xdp_vsi(vsi)) {
--		int frame_size = new_mtu + ETH_HLEN + ETH_FCS_LEN + VLAN_HLEN;
-+		int frame_size = new_mtu + I40E_PACKET_HDR_PAD;
+ /**
++ * ixgbe_max_xdp_frame_size - returns the maximum allowed frame size for XDP
++ * @adapter: device handle, pointer to adapter
++ */
++static int ixgbe_max_xdp_frame_size(struct ixgbe_adapter *adapter)
++{
++	if (PAGE_SIZE >= 8192 || adapter->flags2 & IXGBE_FLAG2_RX_LEGACY)
++		return IXGBE_RXBUFFER_2K;
++	else
++		return IXGBE_RXBUFFER_3K;
++}
++
++/**
+  * ixgbe_change_mtu - Change the Maximum Transfer Unit
+  * @netdev: network interface device structure
+  * @new_mtu: new value for maximum frame size
+@@ -6739,18 +6751,13 @@ static int ixgbe_change_mtu(struct net_d
+ {
+ 	struct ixgbe_adapter *adapter = netdev_priv(netdev);
  
- 		if (frame_size > i40e_max_xdp_frame_size(vsi))
- 			return -EINVAL;
+-	if (adapter->xdp_prog) {
++	if (ixgbe_enabled_xdp_adapter(adapter)) {
+ 		int new_frame_size = new_mtu + ETH_HLEN + ETH_FCS_LEN +
+ 				     VLAN_HLEN;
+-		int i;
+-
+-		for (i = 0; i < adapter->num_rx_queues; i++) {
+-			struct ixgbe_ring *ring = adapter->rx_ring[i];
+ 
+-			if (new_frame_size > ixgbe_rx_bufsz(ring)) {
+-				e_warn(probe, "Requested MTU size is not supported with XDP\n");
+-				return -EINVAL;
+-			}
++		if (new_frame_size > ixgbe_max_xdp_frame_size(adapter)) {
++			e_warn(probe, "Requested MTU size is not supported with XDP\n");
++			return -EINVAL;
+ 		}
+ 	}
+ 
 
 
