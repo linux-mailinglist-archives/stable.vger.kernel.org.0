@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 0CAC669CD16
-	for <lists+stable@lfdr.de>; Mon, 20 Feb 2023 14:46:19 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 578A069CD18
+	for <lists+stable@lfdr.de>; Mon, 20 Feb 2023 14:46:24 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232240AbjBTNqS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Feb 2023 08:46:18 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58522 "EHLO
+        id S232279AbjBTNqX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Feb 2023 08:46:23 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58630 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232278AbjBTNqR (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 20 Feb 2023 08:46:17 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0D0431E1C9
-        for <stable@vger.kernel.org>; Mon, 20 Feb 2023 05:45:53 -0800 (PST)
+        with ESMTP id S232273AbjBTNqV (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 20 Feb 2023 08:46:21 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 17A001D92E
+        for <stable@vger.kernel.org>; Mon, 20 Feb 2023 05:45:57 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 9673960E8A
-        for <stable@vger.kernel.org>; Mon, 20 Feb 2023 13:45:52 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A8113C433D2;
-        Mon, 20 Feb 2023 13:45:51 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id C1588B80D4B
+        for <stable@vger.kernel.org>; Mon, 20 Feb 2023 13:45:55 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3FA8AC433D2;
+        Mon, 20 Feb 2023 13:45:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1676900752;
-        bh=sqx9z1rEq095s/gqVNiH8K2wev99MeDWzq+IkIdiJb8=;
+        s=korg; t=1676900754;
+        bh=GacGt4LrBnDZ0fISnnm4LWMrRa+epkdT/8IH2h0XM+Y=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=vOENnBwBXxLgD3CGitXJZ/pBsxa8mRmodM1TntgjjbGIt6vRkxPvbJ/e48K8JXLNx
-         dnLc2JT4dBrqApwFW+24K3xqQxOIidoHkiNKwVTKirfK5obCHCKuR8ZpUWUuA9twdm
-         yiPZpPkMMrdOo+qpiCZ/N6iSt5HYx6qrxOOaywKA=
+        b=g/Wf89hVfrfY2aFUlYK2zuBrPAW7aWfm2YciVBijcRCEQ5bSJKbqZGLPYmM+8jVx5
+         3HyTFMesxM0cbtOuSboa9IsH2MUqBCISgyfMkBHh4IQM72mjXi5XmCpOSlEPiVpZ6E
+         I8isTNg7xsQ231G6/WjiqxRYwoVwWkGVJ+DFDToY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Kajol Jain <kjain@linux.ibm.com>,
-        Michael Ellerman <mpe@ellerman.id.au>
-Subject: [PATCH 5.4 055/156] powerpc/imc-pmu: Revert nest_init_lock to being a mutex
-Date:   Mon, 20 Feb 2023 14:34:59 +0100
-Message-Id: <20230220133604.649355821@linuxfoundation.org>
+        patches@lists.linux.dev, syzkaller <syzkaller@googlegroups.com>,
+        Dongliang Mu <dzm91@hust.edu.cn>, Helge Deller <deller@gmx.de>
+Subject: [PATCH 5.4 056/156] fbdev: smscufx: fix error handling code in ufx_usb_probe
+Date:   Mon, 20 Feb 2023 14:35:00 +0100
+Message-Id: <20230220133604.690997862@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
 In-Reply-To: <20230220133602.515342638@linuxfoundation.org>
 References: <20230220133602.515342638@linuxfoundation.org>
@@ -43,8 +43,8 @@ User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
         SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -52,121 +52,160 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Michael Ellerman <mpe@ellerman.id.au>
+From: Dongliang Mu <dzm91@hust.edu.cn>
 
-commit ad53db4acb415976761d7302f5b02e97f2bd097e upstream.
+commit b76449ee75e21acfe9fa4c653d8598f191ed7d68 upstream.
 
-The recent commit 76d588dddc45 ("powerpc/imc-pmu: Fix use of mutex in
-IRQs disabled section") fixed warnings (and possible deadlocks) in the
-IMC PMU driver by converting the locking to use spinlocks.
+The current error handling code in ufx_usb_probe have many unmatching
+issues, e.g., missing ufx_free_usb_list, destroy_modedb label should
+only include framebuffer_release, fb_dealloc_cmap only matches
+fb_alloc_cmap.
 
-It also converted the init-time nest_init_lock to a spinlock, even
-though it's not used at runtime in IRQ disabled sections or while
-holding other spinlocks.
+My local syzkaller reports a memory leak bug:
 
-This leads to warnings such as:
+memory leak in ufx_usb_probe
 
-  BUG: sleeping function called from invalid context at include/linux/percpu-rwsem.h:49
-  in_atomic(): 1, irqs_disabled(): 0, non_block: 0, pid: 1, name: swapper/0
-  preempt_count: 1, expected: 0
-  CPU: 7 PID: 1 Comm: swapper/0 Not tainted 6.2.0-rc2-14719-gf12cd06109f4-dirty #1
-  Hardware name: Mambo,Simulated-System POWER9 0x4e1203 opal:v6.6.6 PowerNV
-  Call Trace:
-    dump_stack_lvl+0x74/0xa8 (unreliable)
-    __might_resched+0x178/0x1a0
-    __cpuhp_setup_state+0x64/0x1e0
-    init_imc_pmu+0xe48/0x1250
-    opal_imc_counters_probe+0x30c/0x6a0
-    platform_probe+0x78/0x110
-    really_probe+0x104/0x420
-    __driver_probe_device+0xb0/0x170
-    driver_probe_device+0x58/0x180
-    __driver_attach+0xd8/0x250
-    bus_for_each_dev+0xb4/0x140
-    driver_attach+0x34/0x50
-    bus_add_driver+0x1e8/0x2d0
-    driver_register+0xb4/0x1c0
-    __platform_driver_register+0x38/0x50
-    opal_imc_driver_init+0x2c/0x40
-    do_one_initcall+0x80/0x360
-    kernel_init_freeable+0x310/0x3b8
-    kernel_init+0x30/0x1a0
-    ret_from_kernel_thread+0x5c/0x64
+BUG: memory leak
+unreferenced object 0xffff88802f879580 (size 128):
+  comm "kworker/0:7", pid 17416, jiffies 4295067474 (age 46.710s)
+  hex dump (first 32 bytes):
+    80 21 7c 2e 80 88 ff ff 18 d0 d0 0c 80 88 ff ff  .!|.............
+    00 d0 d0 0c 80 88 ff ff e0 ff ff ff 0f 00 00 00  ................
+  backtrace:
+    [<ffffffff814c99a0>] kmalloc_trace+0x20/0x90 mm/slab_common.c:1045
+    [<ffffffff824d219c>] kmalloc include/linux/slab.h:553 [inline]
+    [<ffffffff824d219c>] kzalloc include/linux/slab.h:689 [inline]
+    [<ffffffff824d219c>] ufx_alloc_urb_list drivers/video/fbdev/smscufx.c:1873 [inline]
+    [<ffffffff824d219c>] ufx_usb_probe+0x11c/0x15a0 drivers/video/fbdev/smscufx.c:1655
+    [<ffffffff82d17927>] usb_probe_interface+0x177/0x370 drivers/usb/core/driver.c:396
+    [<ffffffff82712f0d>] call_driver_probe drivers/base/dd.c:560 [inline]
+    [<ffffffff82712f0d>] really_probe+0x12d/0x390 drivers/base/dd.c:639
+    [<ffffffff8271322f>] __driver_probe_device+0xbf/0x140 drivers/base/dd.c:778
+    [<ffffffff827132da>] driver_probe_device+0x2a/0x120 drivers/base/dd.c:808
+    [<ffffffff82713c27>] __device_attach_driver+0xf7/0x150 drivers/base/dd.c:936
+    [<ffffffff82710137>] bus_for_each_drv+0xb7/0x100 drivers/base/bus.c:427
+    [<ffffffff827136b5>] __device_attach+0x105/0x2d0 drivers/base/dd.c:1008
+    [<ffffffff82711d36>] bus_probe_device+0xc6/0xe0 drivers/base/bus.c:487
+    [<ffffffff8270e242>] device_add+0x642/0xdc0 drivers/base/core.c:3517
+    [<ffffffff82d14d5f>] usb_set_configuration+0x8ef/0xb80 drivers/usb/core/message.c:2170
+    [<ffffffff82d2576c>] usb_generic_driver_probe+0x8c/0xc0 drivers/usb/core/generic.c:238
+    [<ffffffff82d16ffc>] usb_probe_device+0x5c/0x140 drivers/usb/core/driver.c:293
+    [<ffffffff82712f0d>] call_driver_probe drivers/base/dd.c:560 [inline]
+    [<ffffffff82712f0d>] really_probe+0x12d/0x390 drivers/base/dd.c:639
+    [<ffffffff8271322f>] __driver_probe_device+0xbf/0x140 drivers/base/dd.c:778
 
-Fix it by converting nest_init_lock back to a mutex, so that we can call
-sleeping functions while holding it. There is no interaction between
-nest_init_lock and the runtime spinlocks used by the actual PMU routines.
+Fix this bug by rewriting the error handling code in ufx_usb_probe.
 
-Fixes: 76d588dddc45 ("powerpc/imc-pmu: Fix use of mutex in IRQs disabled section")
-Tested-by: Kajol Jain<kjain@linux.ibm.com>
-Reviewed-by: Kajol Jain<kjain@linux.ibm.com>
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://lore.kernel.org/r/20230130014401.540543-1-mpe@ellerman.id.au
+Reported-by: syzkaller <syzkaller@googlegroups.com>
+Tested-by: Dongliang Mu <dzm91@hust.edu.cn>
+Signed-off-by: Dongliang Mu <dzm91@hust.edu.cn>
+Signed-off-by: Helge Deller <deller@gmx.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/powerpc/perf/imc-pmu.c |   14 +++++++-------
- 1 file changed, 7 insertions(+), 7 deletions(-)
+ drivers/video/fbdev/smscufx.c |   46 ++++++++++++++++++++++++++++--------------
+ 1 file changed, 31 insertions(+), 15 deletions(-)
 
---- a/arch/powerpc/perf/imc-pmu.c
-+++ b/arch/powerpc/perf/imc-pmu.c
-@@ -21,7 +21,7 @@
-  * Used to avoid races in counting the nest-pmu units during hotplug
-  * register and unregister
-  */
--static DEFINE_SPINLOCK(nest_init_lock);
-+static DEFINE_MUTEX(nest_init_lock);
- static DEFINE_PER_CPU(struct imc_pmu_ref *, local_nest_imc_refc);
- static struct imc_pmu **per_nest_pmu_arr;
- static cpumask_t nest_imc_cpumask;
-@@ -1605,7 +1605,7 @@ static void imc_common_mem_free(struct i
- static void imc_common_cpuhp_mem_free(struct imc_pmu *pmu_ptr)
- {
- 	if (pmu_ptr->domain == IMC_DOMAIN_NEST) {
--		spin_lock(&nest_init_lock);
-+		mutex_lock(&nest_init_lock);
- 		if (nest_pmus == 1) {
- 			cpuhp_remove_state(CPUHP_AP_PERF_POWERPC_NEST_IMC_ONLINE);
- 			kfree(nest_imc_refc);
-@@ -1615,7 +1615,7 @@ static void imc_common_cpuhp_mem_free(st
+--- a/drivers/video/fbdev/smscufx.c
++++ b/drivers/video/fbdev/smscufx.c
+@@ -1622,7 +1622,7 @@ static int ufx_usb_probe(struct usb_inte
+ 	struct usb_device *usbdev;
+ 	struct ufx_data *dev;
+ 	struct fb_info *info;
+-	int retval;
++	int retval = -ENOMEM;
+ 	u32 id_rev, fpga_rev;
  
- 		if (nest_pmus > 0)
- 			nest_pmus--;
--		spin_unlock(&nest_init_lock);
-+		mutex_unlock(&nest_init_lock);
+ 	/* usb initialization */
+@@ -1654,15 +1654,17 @@ static int ufx_usb_probe(struct usb_inte
+ 
+ 	if (!ufx_alloc_urb_list(dev, WRITES_IN_FLIGHT, MAX_TRANSFER)) {
+ 		dev_err(dev->gdev, "ufx_alloc_urb_list failed\n");
+-		goto e_nomem;
++		goto put_ref;
  	}
  
- 	/* Free core_imc memory */
-@@ -1772,11 +1772,11 @@ int init_imc_pmu(struct device_node *par
- 		* rest. To handle the cpuhotplug callback unregister, we track
- 		* the number of nest pmus in "nest_pmus".
- 		*/
--		spin_lock(&nest_init_lock);
-+		mutex_lock(&nest_init_lock);
- 		if (nest_pmus == 0) {
- 			ret = init_nest_pmu_ref();
- 			if (ret) {
--				spin_unlock(&nest_init_lock);
-+				mutex_unlock(&nest_init_lock);
- 				kfree(per_nest_pmu_arr);
- 				per_nest_pmu_arr = NULL;
- 				goto err_free_mem;
-@@ -1784,7 +1784,7 @@ int init_imc_pmu(struct device_node *par
- 			/* Register for cpu hotplug notification. */
- 			ret = nest_pmu_cpumask_init();
- 			if (ret) {
--				spin_unlock(&nest_init_lock);
-+				mutex_unlock(&nest_init_lock);
- 				kfree(nest_imc_refc);
- 				kfree(per_nest_pmu_arr);
- 				per_nest_pmu_arr = NULL;
-@@ -1792,7 +1792,7 @@ int init_imc_pmu(struct device_node *par
- 			}
- 		}
- 		nest_pmus++;
--		spin_unlock(&nest_init_lock);
-+		mutex_unlock(&nest_init_lock);
- 		break;
- 	case IMC_DOMAIN_CORE:
- 		ret = core_imc_pmu_cpumask_init();
+ 	/* We don't register a new USB class. Our client interface is fbdev */
+ 
+ 	/* allocates framebuffer driver structure, not framebuffer memory */
+ 	info = framebuffer_alloc(0, &usbdev->dev);
+-	if (!info)
+-		goto e_nomem;
++	if (!info) {
++		dev_err(dev->gdev, "framebuffer_alloc failed\n");
++		goto free_urb_list;
++	}
+ 
+ 	dev->info = info;
+ 	info->par = dev;
+@@ -1705,22 +1707,34 @@ static int ufx_usb_probe(struct usb_inte
+ 	check_warn_goto_error(retval, "unable to find common mode for display and adapter");
+ 
+ 	retval = ufx_reg_set_bits(dev, 0x4000, 0x00000001);
+-	check_warn_goto_error(retval, "error %d enabling graphics engine", retval);
++	if (retval < 0) {
++		dev_err(dev->gdev, "error %d enabling graphics engine", retval);
++		goto setup_modes;
++	}
+ 
+ 	/* ready to begin using device */
+ 	atomic_set(&dev->usb_active, 1);
+ 
+ 	dev_dbg(dev->gdev, "checking var");
+ 	retval = ufx_ops_check_var(&info->var, info);
+-	check_warn_goto_error(retval, "error %d ufx_ops_check_var", retval);
++	if (retval < 0) {
++		dev_err(dev->gdev, "error %d ufx_ops_check_var", retval);
++		goto reset_active;
++	}
+ 
+ 	dev_dbg(dev->gdev, "setting par");
+ 	retval = ufx_ops_set_par(info);
+-	check_warn_goto_error(retval, "error %d ufx_ops_set_par", retval);
++	if (retval < 0) {
++		dev_err(dev->gdev, "error %d ufx_ops_set_par", retval);
++		goto reset_active;
++	}
+ 
+ 	dev_dbg(dev->gdev, "registering framebuffer");
+ 	retval = register_framebuffer(info);
+-	check_warn_goto_error(retval, "error %d register_framebuffer", retval);
++	if (retval < 0) {
++		dev_err(dev->gdev, "error %d register_framebuffer", retval);
++		goto reset_active;
++	}
+ 
+ 	dev_info(dev->gdev, "SMSC UDX USB device /dev/fb%d attached. %dx%d resolution."
+ 		" Using %dK framebuffer memory\n", info->node,
+@@ -1728,21 +1742,23 @@ static int ufx_usb_probe(struct usb_inte
+ 
+ 	return 0;
+ 
+-error:
+-	fb_dealloc_cmap(&info->cmap);
+-destroy_modedb:
++reset_active:
++	atomic_set(&dev->usb_active, 0);
++setup_modes:
+ 	fb_destroy_modedb(info->monspecs.modedb);
+ 	vfree(info->screen_base);
+ 	fb_destroy_modelist(&info->modelist);
++error:
++	fb_dealloc_cmap(&info->cmap);
++destroy_modedb:
+ 	framebuffer_release(info);
++free_urb_list:
++	if (dev->urbs.count > 0)
++		ufx_free_urb_list(dev);
+ put_ref:
+ 	kref_put(&dev->kref, ufx_free); /* ref for framebuffer */
+ 	kref_put(&dev->kref, ufx_free); /* last ref from kref_init */
+ 	return retval;
+-
+-e_nomem:
+-	retval = -ENOMEM;
+-	goto put_ref;
+ }
+ 
+ static void ufx_usb_disconnect(struct usb_interface *interface)
 
 
