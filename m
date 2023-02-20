@@ -2,51 +2,51 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 9C29A69CE17
-	for <lists+stable@lfdr.de>; Mon, 20 Feb 2023 14:55:54 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 12D0069CEB1
+	for <lists+stable@lfdr.de>; Mon, 20 Feb 2023 15:01:41 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232565AbjBTNzx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Feb 2023 08:55:53 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44856 "EHLO
+        id S232810AbjBTOBg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Feb 2023 09:01:36 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54602 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232571AbjBTNzw (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 20 Feb 2023 08:55:52 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3B9EE1E9DF
-        for <stable@vger.kernel.org>; Mon, 20 Feb 2023 05:55:51 -0800 (PST)
+        with ESMTP id S232788AbjBTOBd (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 20 Feb 2023 09:01:33 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 654BE1F5D1
+        for <stable@vger.kernel.org>; Mon, 20 Feb 2023 06:01:15 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id D8A1EB80B96
-        for <stable@vger.kernel.org>; Mon, 20 Feb 2023 13:55:49 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4E663C433EF;
-        Mon, 20 Feb 2023 13:55:48 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 852ECB80D52
+        for <stable@vger.kernel.org>; Mon, 20 Feb 2023 14:00:38 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D0CDFC433D2;
+        Mon, 20 Feb 2023 14:00:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1676901348;
-        bh=8kPC+5Xju7YGr9lJOh8ZEGuc/68w2VKpwHBCtCfm9Yk=;
+        s=korg; t=1676901637;
+        bh=oLcRIn3TJsyjkUWLg52UIrePt94uabO3gFWCjh3Ut4w=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=TVNjzJ6K225S0gr7Cu25X5/BaqJ29+0kSTR6K7ov3zueK5L3VQOAUauDVLW7QV+kt
-         MfOSKfAjvGsEYW9ch4hAuWP20gTuxG4G2XeTTwB78KVgFdThp/r5w0UbSdVnWZ5Qpc
-         TbeNkTVpjmRSJ/RPSKlAMrHeEOemwsuUpH/RfGAU=
+        b=gjTGcfnAz1DKHbVD5RzVDPmi348aB6n2FGqD5A9crht8MurRy5C3/C+6E9S5DTls7
+         I88tMw9b6eP+ihR3nbGQDzYvzNdFcKMI/fj5DCx30WvkrJlab6I80lGYyJvoSyFX9t
+         8Y8WgU5lFffF63/IqeJrw3O0hxGNvg/KyRpD3yOs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Hongguang Gao <hongguang.gao@broadcom.com>,
-        Michael Chan <michael.chan@broadcom.com>,
+        patches@lists.linux.dev, Hangyu Hua <hbh25y@gmail.com>,
+        Eelco Chaudron <echaudro@redhat.com>,
+        Simon Horman <simon.horman@corigine.com>,
         "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 5.10 40/57] bnxt_en: Fix mqprio and XDP ring checking logic
+Subject: [PATCH 6.1 092/118] net: openvswitch: fix possible memory leak in ovs_meter_cmd_set()
 Date:   Mon, 20 Feb 2023 14:36:48 +0100
-Message-Id: <20230220133550.762846380@linuxfoundation.org>
+Message-Id: <20230220133604.080343375@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230220133549.360169435@linuxfoundation.org>
-References: <20230220133549.360169435@linuxfoundation.org>
+In-Reply-To: <20230220133600.368809650@linuxfoundation.org>
+References: <20230220133600.368809650@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
         SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -54,47 +54,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Michael Chan <michael.chan@broadcom.com>
+From: Hangyu Hua <hbh25y@gmail.com>
 
-commit 2038cc592811209de20c4e094ca08bfb1e6fbc6c upstream.
+commit 2fa28f5c6fcbfc794340684f36d2581b4f2d20b5 upstream.
 
-In bnxt_reserve_rings(), there is logic to check that the number of TX
-rings reserved is enough to cover all the mqprio TCs, but it fails to
-account for the TX XDP rings.  So the check will always fail if there
-are mqprio TCs and TX XDP rings.  As a result, the driver always fails
-to initialize after the XDP program is attached and the device will be
-brought down.  A subsequent ifconfig up will also fail because the
-number of TX rings is set to an inconsistent number.  Fix the check to
-properly account for TX XDP rings.  If the check fails, set the number
-of TX rings back to a consistent number after calling netdev_reset_tc().
+old_meter needs to be free after it is detached regardless of whether
+the new meter is successfully attached.
 
-Fixes: 674f50a5b026 ("bnxt_en: Implement new method to reserve rings.")
-Reviewed-by: Hongguang Gao <hongguang.gao@broadcom.com>
-Signed-off-by: Michael Chan <michael.chan@broadcom.com>
+Fixes: c7c4c44c9a95 ("net: openvswitch: expand the meters supported number")
+Signed-off-by: Hangyu Hua <hbh25y@gmail.com>
+Acked-by: Eelco Chaudron <echaudro@redhat.com>
+Reviewed-by: Simon Horman <simon.horman@corigine.com>
 Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ethernet/broadcom/bnxt/bnxt.c |    8 ++++++--
- 1 file changed, 6 insertions(+), 2 deletions(-)
+ net/openvswitch/meter.c |    4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
---- a/drivers/net/ethernet/broadcom/bnxt/bnxt.c
-+++ b/drivers/net/ethernet/broadcom/bnxt/bnxt.c
-@@ -8761,10 +8761,14 @@ int bnxt_reserve_rings(struct bnxt *bp,
- 		netdev_err(bp->dev, "ring reservation/IRQ init failure rc: %d\n", rc);
- 		return rc;
- 	}
--	if (tcs && (bp->tx_nr_rings_per_tc * tcs != bp->tx_nr_rings)) {
-+	if (tcs && (bp->tx_nr_rings_per_tc * tcs !=
-+		    bp->tx_nr_rings - bp->tx_nr_rings_xdp)) {
- 		netdev_err(bp->dev, "tx ring reservation failure\n");
- 		netdev_reset_tc(bp->dev);
--		bp->tx_nr_rings_per_tc = bp->tx_nr_rings;
-+		if (bp->tx_nr_rings_xdp)
-+			bp->tx_nr_rings_per_tc = bp->tx_nr_rings_xdp;
-+		else
-+			bp->tx_nr_rings_per_tc = bp->tx_nr_rings;
- 		return -ENOMEM;
- 	}
- 	return 0;
+--- a/net/openvswitch/meter.c
++++ b/net/openvswitch/meter.c
+@@ -449,7 +449,7 @@ static int ovs_meter_cmd_set(struct sk_b
+ 
+ 	err = attach_meter(meter_tbl, meter);
+ 	if (err)
+-		goto exit_unlock;
++		goto exit_free_old_meter;
+ 
+ 	ovs_unlock();
+ 
+@@ -472,6 +472,8 @@ static int ovs_meter_cmd_set(struct sk_b
+ 	genlmsg_end(reply, ovs_reply_header);
+ 	return genlmsg_reply(reply, info);
+ 
++exit_free_old_meter:
++	ovs_meter_free(old_meter);
+ exit_unlock:
+ 	ovs_unlock();
+ 	nlmsg_free(reply);
 
 
