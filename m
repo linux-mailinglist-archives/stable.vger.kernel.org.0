@@ -2,50 +2,50 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 247A569CDF5
-	for <lists+stable@lfdr.de>; Mon, 20 Feb 2023 14:54:39 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8C53F69CEA0
+	for <lists+stable@lfdr.de>; Mon, 20 Feb 2023 15:01:00 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232529AbjBTNyi (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Feb 2023 08:54:38 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42964 "EHLO
+        id S232786AbjBTOA7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Feb 2023 09:00:59 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53634 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232531AbjBTNyh (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 20 Feb 2023 08:54:37 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id ED1E91D934
-        for <stable@vger.kernel.org>; Mon, 20 Feb 2023 05:54:35 -0800 (PST)
+        with ESMTP id S232783AbjBTOA6 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 20 Feb 2023 09:00:58 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A73AE1E5C4
+        for <stable@vger.kernel.org>; Mon, 20 Feb 2023 06:00:32 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 9BEF9B80D1F
-        for <stable@vger.kernel.org>; Mon, 20 Feb 2023 13:54:34 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id EDDCDC433D2;
-        Mon, 20 Feb 2023 13:54:32 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 8B34360E9D
+        for <stable@vger.kernel.org>; Mon, 20 Feb 2023 14:00:32 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9E5DEC433D2;
+        Mon, 20 Feb 2023 14:00:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1676901273;
-        bh=CMZfIyw3TnPoFT4KtOz91YCqECrmo7vGeSulbne+whI=;
+        s=korg; t=1676901632;
+        bh=BeQzhAygK/0+taI2usxd4/6EDpkOrj3G1OySmVwa3qs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=g7Q7z25oz1pFL3I6lRgsAydx7ZDjWv8vjbqlNLehq/LcEKBhOPPAbuEVUELUMwhk5
-         xqermQox7epqTTU1H0JvTnGejIadM94hUPr3MpFHu4jIbPRmWUXAnrtOt+NyAZlzXs
-         HodHRDmjxG4mbFaK+1m6zfo9fzMxKHfDBoeMzu9E=
+        b=Puy7yCpeQxA9prqo7eZpxk2oU2DkHPUhF/6dGrReKbUHSWVbHTUsTQbNxtO4ddZPJ
+         FUNjOWkUvFrek0jiOZs/OZqV57CzDfJ+2lMlmcAglD+JlVFPR3WmiOUEVrzth7n4U9
+         3D88TYp1ytDVTvBO5xvGkUE4IAv73Y1rr25zvKGY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Gaosheng Cui <cuigaosheng1@huawei.com>,
-        Srinivas Kandagatla <srinivas.kandagatla@linaro.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 12/57] nvmem: core: add error handling for dev_set_name
+        patches@lists.linux.dev,
+        Simon Gaiser <simon@invisiblethingslab.com>,
+        Damien Le Moal <damien.lemoal@opensource.wdc.com>
+Subject: [PATCH 6.1 064/118] ata: ahci: Add Tiger Lake UP{3,4} AHCI controller
 Date:   Mon, 20 Feb 2023 14:36:20 +0100
-Message-Id: <20230220133549.799129848@linuxfoundation.org>
+Message-Id: <20230220133602.990902082@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230220133549.360169435@linuxfoundation.org>
-References: <20230220133549.360169435@linuxfoundation.org>
+In-Reply-To: <20230220133600.368809650@linuxfoundation.org>
+References: <20230220133600.368809650@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
         SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -53,58 +53,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Gaosheng Cui <cuigaosheng1@huawei.com>
+From: Simon Gaiser <simon@invisiblethingslab.com>
 
-[ Upstream commit 5544e90c81261e82e02bbf7c6015a4b9c8c825ef ]
+commit 104ff59af73aba524e57ae0fef70121643ff270e upstream.
 
-The type of return value of dev_set_name is int, which may return
-wrong result, so we add error handling for it to reclaim memory
-of nvmem resource, and return early when an error occurs.
+Mark the Tiger Lake UP{3,4} AHCI controller as "low_power". This enables
+S0ix to work out of the box. Otherwise this isn't working unless the
+user manually sets /sys/class/scsi_host/*/link_power_management_policy.
 
-Signed-off-by: Gaosheng Cui <cuigaosheng1@huawei.com>
-Signed-off-by: Srinivas Kandagatla <srinivas.kandagatla@linaro.org>
-Link: https://lore.kernel.org/r/20220916122100.170016-4-srinivas.kandagatla@linaro.org
+Intel lists a total of 4 SATA controller IDs in [1] for those mobile
+PCHs. This commit just adds the "AHCI" variant since I only tested
+those.
+
+[1]: https://cdrdv2.intel.com/v1/dl/getContent/631119
+
+Signed-off-by: Simon Gaiser <simon@invisiblethingslab.com>
+CC: stable@vger.kernel.org
+Signed-off-by: Damien Le Moal <damien.lemoal@opensource.wdc.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Stable-dep-of: ab3428cfd9aa ("nvmem: core: fix registration vs use race")
-Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/nvmem/core.c | 12 +++++++++---
- 1 file changed, 9 insertions(+), 3 deletions(-)
+ drivers/ata/ahci.c |    1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/drivers/nvmem/core.c b/drivers/nvmem/core.c
-index 48fbe49e3772b..9da4edbabfe75 100644
---- a/drivers/nvmem/core.c
-+++ b/drivers/nvmem/core.c
-@@ -661,18 +661,24 @@ struct nvmem_device *nvmem_register(const struct nvmem_config *config)
+--- a/drivers/ata/ahci.c
++++ b/drivers/ata/ahci.c
+@@ -422,6 +422,7 @@ static const struct pci_device_id ahci_p
+ 	{ PCI_VDEVICE(INTEL, 0x34d3), board_ahci_low_power }, /* Ice Lake LP AHCI */
+ 	{ PCI_VDEVICE(INTEL, 0x02d3), board_ahci_low_power }, /* Comet Lake PCH-U AHCI */
+ 	{ PCI_VDEVICE(INTEL, 0x02d7), board_ahci_low_power }, /* Comet Lake PCH RAID */
++	{ PCI_VDEVICE(INTEL, 0xa0d3), board_ahci_low_power }, /* Tiger Lake UP{3,4} AHCI */
  
- 	switch (config->id) {
- 	case NVMEM_DEVID_NONE:
--		dev_set_name(&nvmem->dev, "%s", config->name);
-+		rval = dev_set_name(&nvmem->dev, "%s", config->name);
- 		break;
- 	case NVMEM_DEVID_AUTO:
--		dev_set_name(&nvmem->dev, "%s%d", config->name, nvmem->id);
-+		rval = dev_set_name(&nvmem->dev, "%s%d", config->name, nvmem->id);
- 		break;
- 	default:
--		dev_set_name(&nvmem->dev, "%s%d",
-+		rval = dev_set_name(&nvmem->dev, "%s%d",
- 			     config->name ? : "nvmem",
- 			     config->name ? config->id : nvmem->id);
- 		break;
- 	}
- 
-+	if (rval) {
-+		ida_free(&nvmem_ida, nvmem->id);
-+		kfree(nvmem);
-+		return ERR_PTR(rval);
-+	}
-+
- 	nvmem->read_only = device_property_present(config->dev, "read-only") ||
- 			   config->read_only || !nvmem->reg_write;
- 
--- 
-2.39.0
-
+ 	/* JMicron 360/1/3/5/6, match class to avoid IDE function */
+ 	{ PCI_VENDOR_ID_JMICRON, PCI_ANY_ID, PCI_ANY_ID, PCI_ANY_ID,
 
 
