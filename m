@@ -2,51 +2,51 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C811169CE22
-	for <lists+stable@lfdr.de>; Mon, 20 Feb 2023 14:56:23 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id EC24369CDE6
+	for <lists+stable@lfdr.de>; Mon, 20 Feb 2023 14:54:01 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232588AbjBTN4W (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Feb 2023 08:56:22 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45496 "EHLO
+        id S232518AbjBTNyA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Feb 2023 08:54:00 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42178 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232598AbjBTN4U (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 20 Feb 2023 08:56:20 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8E68A1EBF4
-        for <stable@vger.kernel.org>; Mon, 20 Feb 2023 05:56:05 -0800 (PST)
+        with ESMTP id S232499AbjBTNx6 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 20 Feb 2023 08:53:58 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B5D0A1DB86
+        for <stable@vger.kernel.org>; Mon, 20 Feb 2023 05:53:56 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 9FC0160EA0
-        for <stable@vger.kernel.org>; Mon, 20 Feb 2023 13:56:04 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B46C7C433D2;
-        Mon, 20 Feb 2023 13:56:03 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 4802EB80D1F
+        for <stable@vger.kernel.org>; Mon, 20 Feb 2023 13:53:55 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id AF069C433D2;
+        Mon, 20 Feb 2023 13:53:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1676901364;
-        bh=a8T17YZDZox7Hl0cIziXNlaZdKfl+f7vwlStP7W31J8=;
+        s=korg; t=1676901234;
+        bh=GUFCabjE13msbhhlJ/kYFlZ1whj7obBd58o/cH7LcBI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=XsLE2DzrRD9NUlZHzFnGIihbbrpM3CZ373/oHn07IQtA7tkYoY7TkJkcWZNFKzJPV
-         4PjyJURG68/f9B0tyGAeuJY4wB56o1hv+cwPb68KF/zSryouSvE4liNQ56biTFsEyL
-         jQVyDPCvfLbt5WN1TK857XS6ESWZf9LK9aqY/alY=
+        b=KI7Rt/6zryRKgN/XlFOIUwHpPIq3RopOFaXe+vA4dNMnwoQ5EUFFCVB8coMAQioHb
+         VacMhPHOBPGWhcl89V2d1/pTI3z3Sm5o3nDxweuezES3qbkrGeRra9rwdyHRLlC9Hv
+         H7ujbaiLZJNv5QU/ai0n5EnS5wVLnfAMdAACkwk8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Guillaume Nault <gnault@redhat.com>,
-        Eric Dumazet <edumazet@google.com>,
-        David Ahern <dsahern@kernel.org>,
-        Jakub Kicinski <kuba@kernel.org>
-Subject: [PATCH 5.10 45/57] ipv6: Fix tcp socket connection with DSCP.
+        patches@lists.linux.dev,
+        syzbot+b9564ba6e8e00694511b@syzkaller.appspotmail.com,
+        Thomas Gleixner <tglx@linutronix.de>,
+        John Stultz <jstultz@google.com>
+Subject: [PATCH 5.15 80/83] alarmtimer: Prevent starvation by small intervals and SIG_IGN
 Date:   Mon, 20 Feb 2023 14:36:53 +0100
-Message-Id: <20230220133550.932970457@linuxfoundation.org>
+Message-Id: <20230220133556.519848412@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230220133549.360169435@linuxfoundation.org>
-References: <20230220133549.360169435@linuxfoundation.org>
+In-Reply-To: <20230220133553.669025851@linuxfoundation.org>
+References: <20230220133553.669025851@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
         SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -54,46 +54,132 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Guillaume Nault <gnault@redhat.com>
+From: Thomas Gleixner <tglx@linutronix.de>
 
-commit 8230680f36fd1525303d1117768c8852314c488c upstream.
+commit d125d1349abeb46945dc5e98f7824bf688266f13 upstream.
 
-Take into account the IPV6_TCLASS socket option (DSCP) in
-tcp_v6_connect(). Otherwise fib6_rule_match() can't properly
-match the DSCP value, resulting in invalid route lookup.
+syzbot reported a RCU stall which is caused by setting up an alarmtimer
+with a very small interval and ignoring the signal. The reproducer arms the
+alarm timer with a relative expiry of 8ns and an interval of 9ns. Not a
+problem per se, but that's an issue when the signal is ignored because then
+the timer is immediately rearmed because there is no way to delay that
+rearming to the signal delivery path.  See posix_timer_fn() and commit
+58229a189942 ("posix-timers: Prevent softirq starvation by small intervals
+and SIG_IGN") for details.
 
-For example:
+The reproducer does not set SIG_IGN explicitely, but it sets up the timers
+signal with SIGCONT. That has the same effect as explicitely setting
+SIG_IGN for a signal as SIGCONT is ignored if there is no handler set and
+the task is not ptraced.
 
-  ip route add unreachable table main 2001:db8::10/124
+The log clearly shows that:
 
-  ip route add table 100 2001:db8::10/124 dev eth0
-  ip -6 rule add dsfield 0x04 table 100
+   [pid  5102] --- SIGCONT {si_signo=SIGCONT, si_code=SI_TIMER, si_timerid=0, si_overrun=316014, si_int=0, si_ptr=NULL} ---
 
-  echo test | socat - TCP6:[2001:db8::11]:54321,ipv6-tclass=0x04
+It works because the tasks are traced and therefore the signal is queued so
+the tracer can see it, which delays the restart of the timer to the signal
+delivery path. But then the tracer is killed:
 
-Without this patch, socat fails at connect() time ("No route to host")
-because the fib-rule doesn't jump to table 100 and the lookup ends up
-being done in the main table.
+   [pid  5087] kill(-5102, SIGKILL <unfinished ...>
+   ...
+   ./strace-static-x86_64: Process 5107 detached
 
-Fixes: 2cc67cc731d9 ("[IPV6] ROUTE: Routing by Traffic Class.")
-Signed-off-by: Guillaume Nault <gnault@redhat.com>
-Reviewed-by: Eric Dumazet <edumazet@google.com>
-Reviewed-by: David Ahern <dsahern@kernel.org>
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+and after it's gone the stall can be observed:
+
+   syzkaller login: [   79.439102][    C0] hrtimer: interrupt took 68471 ns
+   [  184.460538][    C1] rcu: INFO: rcu_preempt detected stalls on CPUs/tasks:
+   ...
+   [  184.658237][    C1] rcu: Stack dump where RCU GP kthread last ran:
+   [  184.664574][    C1] Sending NMI from CPU 1 to CPUs 0:
+   [  184.669821][    C0] NMI backtrace for cpu 0
+   [  184.669831][    C0] CPU: 0 PID: 5108 Comm: syz-executor192 Not tainted 6.2.0-rc6-next-20230203-syzkaller #0
+   ...
+   [  184.670036][    C0] Call Trace:
+   [  184.670041][    C0]  <IRQ>
+   [  184.670045][    C0]  alarmtimer_fired+0x327/0x670
+
+posix_timer_fn() prevents that by checking whether the interval for
+timers which have the signal ignored is smaller than a jiffie and
+artifically delay it by shifting the next expiry out by a jiffie. That's
+accurate vs. the overrun accounting, but slightly inaccurate
+vs. timer_gettimer(2).
+
+The comment in that function says what needs to be done and there was a fix
+available for the regular userspace induced SIG_IGN mechanism, but that did
+not work due to the implicit ignore for SIGCONT and similar signals. This
+needs to be worked on, but for now the only available workaround is to do
+exactly what posix_timer_fn() does:
+
+Increase the interval of self-rearming timers, which have their signal
+ignored, to at least a jiffie.
+
+Interestingly this has been fixed before via commit ff86bf0c65f1
+("alarmtimer: Rate limit periodic intervals") already, but that fix got
+lost in a later rework.
+
+Reported-by: syzbot+b9564ba6e8e00694511b@syzkaller.appspotmail.com
+Fixes: f2c45807d399 ("alarmtimer: Switch over to generic set/get/rearm routine")
+Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
+Acked-by: John Stultz <jstultz@google.com>
+Cc: stable@vger.kernel.org
+Link: https://lore.kernel.org/r/87k00q1no2.ffs@tglx
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/ipv6/tcp_ipv6.c |    1 +
- 1 file changed, 1 insertion(+)
+ kernel/time/alarmtimer.c |   33 +++++++++++++++++++++++++++++----
+ 1 file changed, 29 insertions(+), 4 deletions(-)
 
---- a/net/ipv6/tcp_ipv6.c
-+++ b/net/ipv6/tcp_ipv6.c
-@@ -269,6 +269,7 @@ static int tcp_v6_connect(struct sock *s
- 	fl6.flowi6_proto = IPPROTO_TCP;
- 	fl6.daddr = sk->sk_v6_daddr;
- 	fl6.saddr = saddr ? *saddr : np->saddr;
-+	fl6.flowlabel = ip6_make_flowinfo(np->tclass, np->flow_label);
- 	fl6.flowi6_oif = sk->sk_bound_dev_if;
- 	fl6.flowi6_mark = sk->sk_mark;
- 	fl6.fl6_dport = usin->sin6_port;
+--- a/kernel/time/alarmtimer.c
++++ b/kernel/time/alarmtimer.c
+@@ -470,11 +470,35 @@ u64 alarm_forward(struct alarm *alarm, k
+ }
+ EXPORT_SYMBOL_GPL(alarm_forward);
+ 
+-u64 alarm_forward_now(struct alarm *alarm, ktime_t interval)
++static u64 __alarm_forward_now(struct alarm *alarm, ktime_t interval, bool throttle)
+ {
+ 	struct alarm_base *base = &alarm_bases[alarm->type];
++	ktime_t now = base->get_ktime();
++
++	if (IS_ENABLED(CONFIG_HIGH_RES_TIMERS) && throttle) {
++		/*
++		 * Same issue as with posix_timer_fn(). Timers which are
++		 * periodic but the signal is ignored can starve the system
++		 * with a very small interval. The real fix which was
++		 * promised in the context of posix_timer_fn() never
++		 * materialized, but someone should really work on it.
++		 *
++		 * To prevent DOS fake @now to be 1 jiffie out which keeps
++		 * the overrun accounting correct but creates an
++		 * inconsistency vs. timer_gettime(2).
++		 */
++		ktime_t kj = NSEC_PER_SEC / HZ;
++
++		if (interval < kj)
++			now = ktime_add(now, kj);
++	}
++
++	return alarm_forward(alarm, now, interval);
++}
+ 
+-	return alarm_forward(alarm, base->get_ktime(), interval);
++u64 alarm_forward_now(struct alarm *alarm, ktime_t interval)
++{
++	return __alarm_forward_now(alarm, interval, false);
+ }
+ EXPORT_SYMBOL_GPL(alarm_forward_now);
+ 
+@@ -551,9 +575,10 @@ static enum alarmtimer_restart alarm_han
+ 	if (posix_timer_event(ptr, si_private) && ptr->it_interval) {
+ 		/*
+ 		 * Handle ignored signals and rearm the timer. This will go
+-		 * away once we handle ignored signals proper.
++		 * away once we handle ignored signals proper. Ensure that
++		 * small intervals cannot starve the system.
+ 		 */
+-		ptr->it_overrun += alarm_forward_now(alarm, ptr->it_interval);
++		ptr->it_overrun += __alarm_forward_now(alarm, ptr->it_interval, true);
+ 		++ptr->it_requeue_pending;
+ 		ptr->it_active = 1;
+ 		result = ALARMTIMER_RESTART;
 
 
