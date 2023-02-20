@@ -2,43 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id EE5A969CE08
-	for <lists+stable@lfdr.de>; Mon, 20 Feb 2023 14:55:28 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A863169CDEC
+	for <lists+stable@lfdr.de>; Mon, 20 Feb 2023 14:54:15 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232548AbjBTNz2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Feb 2023 08:55:28 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43982 "EHLO
+        id S232459AbjBTNyO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Feb 2023 08:54:14 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42574 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232577AbjBTNzX (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 20 Feb 2023 08:55:23 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A0FDF1E9FF
-        for <stable@vger.kernel.org>; Mon, 20 Feb 2023 05:55:17 -0800 (PST)
+        with ESMTP id S232508AbjBTNyO (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 20 Feb 2023 08:54:14 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id ECF851E2A1
+        for <stable@vger.kernel.org>; Mon, 20 Feb 2023 05:54:10 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 24733B80D4F
-        for <stable@vger.kernel.org>; Mon, 20 Feb 2023 13:55:16 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8A2CAC433D2;
-        Mon, 20 Feb 2023 13:55:14 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 8135560D41
+        for <stable@vger.kernel.org>; Mon, 20 Feb 2023 13:54:10 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 93514C433D2;
+        Mon, 20 Feb 2023 13:54:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1676901314;
-        bh=vTUKhEEHVMpH/ZYKguUhOO9oU1UI1MXvM4PySREKRvI=;
+        s=korg; t=1676901249;
+        bh=HGXOPkJV5VI+3Fy/YNsHIQd8deUfwoH/F63MFBoZN8A=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=pN8Xkkq4AxHc4TgxdE/RzEijQgw1TV0YY2QwYWdBcslz+nODkslptxJMnX/EdzREH
-         w4YE4XZFbMW6rIdkX8efYAY3u2xRGFsp7ooLstXDjlPnb/jjSeBZ+I7caXzdACH7UW
-         wsmTs+oZ1X+2E8v1A2+89cQ48VqiAXDoLcyp+nAo=
+        b=vVlBP6pvl6h1S0J3ZMTAVf9KYJl0Nm1spqC/YjF0Qdc3OUBx+t3xsF8DxhpIb7Slc
+         jm8Rn4r2rtGQUaBVGFfY4jivCva07K0mZ6NpuoiyKIytphQhIK6QBeY/20Dgc3GNmB
+         w0av5hfXL+jjpEYtEeGC7Jlby85wG8gN5bTu0kS4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Aaron Thompson <dev@aaront.org>,
-        "Mike Rapoport (IBM)" <rppt@kernel.org>
-Subject: [PATCH 5.10 28/57] Revert "mm: Always release pages to the buddy allocator in memblock_free_late()."
+        patches@lists.linux.dev, Hangyu Hua <hbh25y@gmail.com>,
+        Eelco Chaudron <echaudro@redhat.com>,
+        Simon Horman <simon.horman@corigine.com>,
+        "David S. Miller" <davem@davemloft.net>
+Subject: [PATCH 5.15 63/83] net: openvswitch: fix possible memory leak in ovs_meter_cmd_set()
 Date:   Mon, 20 Feb 2023 14:36:36 +0100
-Message-Id: <20230220133550.342473777@linuxfoundation.org>
+Message-Id: <20230220133555.874789848@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230220133549.360169435@linuxfoundation.org>
-References: <20230220133549.360169435@linuxfoundation.org>
+In-Reply-To: <20230220133553.669025851@linuxfoundation.org>
+References: <20230220133553.669025851@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -52,57 +54,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Aaron Thompson <dev@aaront.org>
+From: Hangyu Hua <hbh25y@gmail.com>
 
-commit 647037adcad00f2bab8828d3d41cd0553d41f3bd upstream.
+commit 2fa28f5c6fcbfc794340684f36d2581b4f2d20b5 upstream.
 
-This reverts commit 115d9d77bb0f9152c60b6e8646369fa7f6167593.
+old_meter needs to be free after it is detached regardless of whether
+the new meter is successfully attached.
 
-The pages being freed by memblock_free_late() have already been
-initialized, but if they are in the deferred init range,
-__free_one_page() might access nearby uninitialized pages when trying to
-coalesce buddies. This can, for example, trigger this BUG:
-
-  BUG: unable to handle page fault for address: ffffe964c02580c8
-  RIP: 0010:__list_del_entry_valid+0x3f/0x70
-   <TASK>
-   __free_one_page+0x139/0x410
-   __free_pages_ok+0x21d/0x450
-   memblock_free_late+0x8c/0xb9
-   efi_free_boot_services+0x16b/0x25c
-   efi_enter_virtual_mode+0x403/0x446
-   start_kernel+0x678/0x714
-   secondary_startup_64_no_verify+0xd2/0xdb
-   </TASK>
-
-A proper fix will be more involved so revert this change for the time
-being.
-
-Fixes: 115d9d77bb0f ("mm: Always release pages to the buddy allocator in memblock_free_late().")
-Signed-off-by: Aaron Thompson <dev@aaront.org>
-Link: https://lore.kernel.org/r/20230207082151.1303-1-dev@aaront.org
-Signed-off-by: Mike Rapoport (IBM) <rppt@kernel.org>
+Fixes: c7c4c44c9a95 ("net: openvswitch: expand the meters supported number")
+Signed-off-by: Hangyu Hua <hbh25y@gmail.com>
+Acked-by: Eelco Chaudron <echaudro@redhat.com>
+Reviewed-by: Simon Horman <simon.horman@corigine.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- mm/memblock.c |    8 +-------
- 1 file changed, 1 insertion(+), 7 deletions(-)
+ net/openvswitch/meter.c |    4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
---- a/mm/memblock.c
-+++ b/mm/memblock.c
-@@ -1597,13 +1597,7 @@ void __init __memblock_free_late(phys_ad
- 	end = PFN_DOWN(base + size);
+--- a/net/openvswitch/meter.c
++++ b/net/openvswitch/meter.c
+@@ -450,7 +450,7 @@ static int ovs_meter_cmd_set(struct sk_b
  
- 	for (; cursor < end; cursor++) {
--		/*
--		 * Reserved pages are always initialized by the end of
--		 * memblock_free_all() (by memmap_init() and, if deferred
--		 * initialization is enabled, memmap_init_reserved_pages()), so
--		 * these pages can be released directly to the buddy allocator.
--		 */
--		__free_pages_core(pfn_to_page(cursor), 0);
-+		memblock_free_pages(pfn_to_page(cursor), cursor, 0);
- 		totalram_pages_inc();
- 	}
- }
+ 	err = attach_meter(meter_tbl, meter);
+ 	if (err)
+-		goto exit_unlock;
++		goto exit_free_old_meter;
+ 
+ 	ovs_unlock();
+ 
+@@ -473,6 +473,8 @@ static int ovs_meter_cmd_set(struct sk_b
+ 	genlmsg_end(reply, ovs_reply_header);
+ 	return genlmsg_reply(reply, info);
+ 
++exit_free_old_meter:
++	ovs_meter_free(old_meter);
+ exit_unlock:
+ 	ovs_unlock();
+ 	nlmsg_free(reply);
 
 
