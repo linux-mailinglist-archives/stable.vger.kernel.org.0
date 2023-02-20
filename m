@@ -2,44 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id AA8AE69CCB1
-	for <lists+stable@lfdr.de>; Mon, 20 Feb 2023 14:42:42 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6CAB869CC52
+	for <lists+stable@lfdr.de>; Mon, 20 Feb 2023 14:39:06 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232064AbjBTNml (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Feb 2023 08:42:41 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52130 "EHLO
+        id S230366AbjBTNjF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Feb 2023 08:39:05 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47256 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232116AbjBTNmk (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 20 Feb 2023 08:42:40 -0500
+        with ESMTP id S231446AbjBTNjE (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 20 Feb 2023 08:39:04 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9194A1CF64
-        for <stable@vger.kernel.org>; Mon, 20 Feb 2023 05:42:38 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 79E461C315
+        for <stable@vger.kernel.org>; Mon, 20 Feb 2023 05:39:03 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 39EB0B80D1F
-        for <stable@vger.kernel.org>; Mon, 20 Feb 2023 13:42:37 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 87072C4339E;
-        Mon, 20 Feb 2023 13:42:35 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 26FFFB80D1F
+        for <stable@vger.kernel.org>; Mon, 20 Feb 2023 13:39:02 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8C908C433D2;
+        Mon, 20 Feb 2023 13:39:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1676900555;
-        bh=mgdY70ZZpTjAYXJ9RpOyDE9YTF1lswzIECogCx/sFo8=;
+        s=korg; t=1676900340;
+        bh=O92mdS/dd4saYeVoM0uFRXseMznl0TqQ6hJW8yiQFgA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=rzluP4z+TVRBOu3fZ183R91ddPr4ex9SLwNuvHdtbyZXDeyPzfxIXvgV+Lvj1dSXO
-         FS/I4kEiM7FiA+aQKeV9UIuXkIqokjb0iDnX6F/eKrJ83zyCSMgQ+oQlpcEqcABHBN
-         jNDXknOs8vBPfDSWKpb6zsDbZOTB8ZGYH9Hs9wV8=
+        b=2clU1ZdhJNFjT4SkrNX9xRSNCYDSYDwjcFHTQKlHJ1773o4tisUTW7cO/bzdOEfBu
+         s/floqkgffN2+TkOuJiUShubXc/7CXB1qJX8gelfa4U0JmIpltZyNzEimKlyR3utZU
+         nrlDBY9JF//g52S9Ghc062rOL888Bjgjg7o6iSws=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Shell Chen <xierch@gmail.com>,
-        Florian Westphal <fw@strlen.de>,
-        Qingfang DENG <dqfext@gmail.com>
-Subject: [PATCH 4.19 69/89] netfilter: nft_tproxy: restrict to prerouting hook
+        patches@lists.linux.dev,
+        Alexey Khoroshilov <khoroshilov@ispras.ru>,
+        Fedor Pchelkin <pchelkin@ispras.ru>,
+        Phillip Lougher <phillip@squashfs.org.uk>,
+        Andrew Morton <akpm@linux-foundation.org>
+Subject: [PATCH 4.14 42/53] revert "squashfs: harden sanity check in squashfs_read_xattr_id_table"
 Date:   Mon, 20 Feb 2023 14:36:08 +0100
-Message-Id: <20230220133555.564125191@linuxfoundation.org>
+Message-Id: <20230220133549.665403274@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230220133553.066768704@linuxfoundation.org>
-References: <20230220133553.066768704@linuxfoundation.org>
+In-Reply-To: <20230220133548.158615609@linuxfoundation.org>
+References: <20230220133548.158615609@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,45 +55,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Florian Westphal <fw@strlen.de>
+From: Andrew Morton <akpm@linux-foundation.org>
 
-commit 18bbc3213383a82b05383827f4b1b882e3f0a5a5 upstream.
+commit a5b21d8d791cd4db609d0bbcaa9e0c7e019888d1 upstream.
 
-TPROXY is only allowed from prerouting, but nft_tproxy doesn't check this.
-This fixes a crash (null dereference) when using tproxy from e.g. output.
+This fix was nacked by Philip, for reasons identified in the email linked
+below.
 
-Fixes: 4ed8eb6570a4 ("netfilter: nf_tables: Add native tproxy support")
-Reported-by: Shell Chen <xierch@gmail.com>
-Signed-off-by: Florian Westphal <fw@strlen.de>
-Signed-off-by: Qingfang DENG <dqfext@gmail.com>
+Link: https://lkml.kernel.org/r/68f15d67-8945-2728-1f17-5b53a80ec52d@squashfs.org.uk
+Fixes: 72e544b1b28325 ("squashfs: harden sanity check in squashfs_read_xattr_id_table")
+Cc: Alexey Khoroshilov <khoroshilov@ispras.ru>
+Cc: Fedor Pchelkin <pchelkin@ispras.ru>
+Cc: Phillip Lougher <phillip@squashfs.org.uk>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/netfilter/nft_tproxy.c |    8 ++++++++
- 1 file changed, 8 insertions(+)
+ fs/squashfs/xattr_id.c |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/net/netfilter/nft_tproxy.c
-+++ b/net/netfilter/nft_tproxy.c
-@@ -289,6 +289,13 @@ static int nft_tproxy_dump(struct sk_buf
- 	return 0;
- }
+--- a/fs/squashfs/xattr_id.c
++++ b/fs/squashfs/xattr_id.c
+@@ -89,7 +89,7 @@ __le64 *squashfs_read_xattr_id_table(str
+ 	/* Sanity check values */
  
-+static int nft_tproxy_validate(const struct nft_ctx *ctx,
-+			       const struct nft_expr *expr,
-+			       const struct nft_data **data)
-+{
-+	return nft_chain_validate_hooks(ctx->chain, 1 << NF_INET_PRE_ROUTING);
-+}
-+
- static struct nft_expr_type nft_tproxy_type;
- static const struct nft_expr_ops nft_tproxy_ops = {
- 	.type		= &nft_tproxy_type,
-@@ -296,6 +303,7 @@ static const struct nft_expr_ops nft_tpr
- 	.eval		= nft_tproxy_eval,
- 	.init		= nft_tproxy_init,
- 	.dump		= nft_tproxy_dump,
-+	.validate	= nft_tproxy_validate,
- };
+ 	/* there is always at least one xattr id */
+-	if (*xattr_ids <= 0)
++	if (*xattr_ids == 0)
+ 		return ERR_PTR(-EINVAL);
  
- static struct nft_expr_type nft_tproxy_type __read_mostly = {
+ 	len = SQUASHFS_XATTR_BLOCK_BYTES(*xattr_ids);
 
 
