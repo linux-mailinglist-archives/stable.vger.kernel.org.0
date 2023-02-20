@@ -2,49 +2,50 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id BCB1069CDBF
-	for <lists+stable@lfdr.de>; Mon, 20 Feb 2023 14:52:27 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3E2BA69CDF3
+	for <lists+stable@lfdr.de>; Mon, 20 Feb 2023 14:54:33 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232470AbjBTNw0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Feb 2023 08:52:26 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39922 "EHLO
+        id S232527AbjBTNyc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Feb 2023 08:54:32 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42882 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232464AbjBTNwZ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 20 Feb 2023 08:52:25 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F05EC1E5CB
-        for <stable@vger.kernel.org>; Mon, 20 Feb 2023 05:52:20 -0800 (PST)
+        with ESMTP id S232528AbjBTNyb (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 20 Feb 2023 08:54:31 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 83B061CF46
+        for <stable@vger.kernel.org>; Mon, 20 Feb 2023 05:54:30 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 5F0AB60EA5
-        for <stable@vger.kernel.org>; Mon, 20 Feb 2023 13:52:20 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 75BF1C433D2;
-        Mon, 20 Feb 2023 13:52:19 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 31B10B80D07
+        for <stable@vger.kernel.org>; Mon, 20 Feb 2023 13:54:29 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9E940C433EF;
+        Mon, 20 Feb 2023 13:54:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1676901139;
-        bh=LhmMxgoDG4he/OloqWxjM0Hb4ndlwzDQvr1pPmCtPNg=;
+        s=korg; t=1676901268;
+        bh=Q4fIJrB9ze0H6fdtNt/wHdDiReKz63ks7CkDFg4tGNs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=aPk13qgGZz4q5Bfv2UfLCxJgcsIx0EjrR9jna9+6eCIyIEyYQXqBLzCKnSkQ7Qwxy
-         5JfSPA2p+FT7pAI8gp7wp2khW7OwSTQmCVozF9qdqklUpdWZttGV4oAN14CAmVIYfC
-         KWpfV+mcfkWHwqtgTfYnMCOEzibjgAJpscsGJhv8=
+        b=M4j8ZpBxguHky8LEgLnvVXhff2KxYJKZSsvuFXB7aMf/1lTV7yU6N1yEU6vaAlOte
+         yynUU4/GfEmoO7yo0wd4N9BURK7e3nw8ft+qR7N+JWybPczL2Syua01xMtMYfRe6iJ
+         cRbLgvgG1cfdQp+nhY37grwxTIg4oIMAdkj75YV8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Yang Yingliang <yangyingliang@huawei.com>,
-        Ulf Hansson <ulf.hansson@linaro.org>
-Subject: [PATCH 5.15 45/83] mmc: mmc_spi: fix error handling in mmc_spi_probe()
+        patches@lists.linux.dev, Amit Engel <Amit.Engel@dell.com>,
+        James Smart <jsmart2021@gmail.com>,
+        Christoph Hellwig <hch@lst.de>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 10/57] nvme-fc: fix a missing queue put in nvmet_fc_ls_create_association
 Date:   Mon, 20 Feb 2023 14:36:18 +0100
-Message-Id: <20230220133555.251833874@linuxfoundation.org>
+Message-Id: <20230220133549.721644720@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230220133553.669025851@linuxfoundation.org>
-References: <20230220133553.669025851@linuxfoundation.org>
+In-Reply-To: <20230220133549.360169435@linuxfoundation.org>
+References: <20230220133549.360169435@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
         SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -52,64 +53,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yang Yingliang <yangyingliang@huawei.com>
+From: Amit Engel <Amit.Engel@dell.com>
 
-commit cf4c9d2ac1e42c7d18b921bec39486896645b714 upstream.
+[ Upstream commit 0cab4404874f2de52617de8400c844891c6ea1ce ]
 
-If mmc_add_host() fails, it doesn't need to call mmc_remove_host(),
-or it will cause null-ptr-deref, because of deleting a not added
-device in mmc_remove_host().
+As part of nvmet_fc_ls_create_association there is a case where
+nvmet_fc_alloc_target_queue fails right after a new association with an
+admin queue is created. In this case, no one releases the get taken in
+nvmet_fc_alloc_target_assoc.  This fix is adding the missing put.
 
-To fix this, goto label 'fail_glue_init', if mmc_add_host() fails,
-and change the label 'fail_add_host' to 'fail_gpiod_request'.
-
-Fixes: 15a0580ced08 ("mmc_spi host driver")
-Signed-off-by: Yang Yingliang <yangyingliang@huawei.com>
-Cc:stable@vger.kernel.org
-Link: https://lore.kernel.org/r/20230131013835.3564011-1-yangyingliang@huawei.com
-Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Amit Engel <Amit.Engel@dell.com>
+Reviewed-by: James Smart <jsmart2021@gmail.com>
+Signed-off-by: Christoph Hellwig <hch@lst.de>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/mmc/host/mmc_spi.c |    8 ++++----
- 1 file changed, 4 insertions(+), 4 deletions(-)
+ drivers/nvme/target/fc.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
---- a/drivers/mmc/host/mmc_spi.c
-+++ b/drivers/mmc/host/mmc_spi.c
-@@ -1441,7 +1441,7 @@ static int mmc_spi_probe(struct spi_devi
+diff --git a/drivers/nvme/target/fc.c b/drivers/nvme/target/fc.c
+index 640031cbda7cc..46fc44ce86712 100644
+--- a/drivers/nvme/target/fc.c
++++ b/drivers/nvme/target/fc.c
+@@ -1675,8 +1675,10 @@ nvmet_fc_ls_create_association(struct nvmet_fc_tgtport *tgtport,
+ 		else {
+ 			queue = nvmet_fc_alloc_target_queue(iod->assoc, 0,
+ 					be16_to_cpu(rqst->assoc_cmd.sqsize));
+-			if (!queue)
++			if (!queue) {
+ 				ret = VERR_QUEUE_ALLOC_FAIL;
++				nvmet_fc_tgt_a_put(iod->assoc);
++			}
+ 		}
+ 	}
  
- 	status = mmc_add_host(mmc);
- 	if (status != 0)
--		goto fail_add_host;
-+		goto fail_glue_init;
- 
- 	/*
- 	 * Index 0 is card detect
-@@ -1449,7 +1449,7 @@ static int mmc_spi_probe(struct spi_devi
- 	 */
- 	status = mmc_gpiod_request_cd(mmc, NULL, 0, false, 1000);
- 	if (status == -EPROBE_DEFER)
--		goto fail_add_host;
-+		goto fail_gpiod_request;
- 	if (!status) {
- 		/*
- 		 * The platform has a CD GPIO signal that may support
-@@ -1464,7 +1464,7 @@ static int mmc_spi_probe(struct spi_devi
- 	/* Index 1 is write protect/read only */
- 	status = mmc_gpiod_request_ro(mmc, NULL, 1, 0);
- 	if (status == -EPROBE_DEFER)
--		goto fail_add_host;
-+		goto fail_gpiod_request;
- 	if (!status)
- 		has_ro = true;
- 
-@@ -1478,7 +1478,7 @@ static int mmc_spi_probe(struct spi_devi
- 				? ", cd polling" : "");
- 	return 0;
- 
--fail_add_host:
-+fail_gpiod_request:
- 	mmc_remove_host(mmc);
- fail_glue_init:
- 	mmc_spi_dma_free(host);
+-- 
+2.39.0
+
 
 
