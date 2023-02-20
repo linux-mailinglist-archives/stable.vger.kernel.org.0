@@ -2,54 +2,50 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B8DE269CD8A
-	for <lists+stable@lfdr.de>; Mon, 20 Feb 2023 14:50:26 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1A10D69CEA4
+	for <lists+stable@lfdr.de>; Mon, 20 Feb 2023 15:01:08 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232398AbjBTNuY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Feb 2023 08:50:24 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37536 "EHLO
+        id S232719AbjBTOBH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Feb 2023 09:01:07 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53846 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232320AbjBTNuX (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 20 Feb 2023 08:50:23 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 96A191E5CC
-        for <stable@vger.kernel.org>; Mon, 20 Feb 2023 05:50:10 -0800 (PST)
+        with ESMTP id S232763AbjBTOBF (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 20 Feb 2023 09:01:05 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DA0501E5FF
+        for <stable@vger.kernel.org>; Mon, 20 Feb 2023 06:00:41 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 3128060D41
-        for <stable@vger.kernel.org>; Mon, 20 Feb 2023 13:50:10 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1D958C433EF;
-        Mon, 20 Feb 2023 13:50:09 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id BB241B80B4D
+        for <stable@vger.kernel.org>; Mon, 20 Feb 2023 14:00:01 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2ADEBC4339C;
+        Mon, 20 Feb 2023 14:00:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1676901009;
-        bh=+iqTeL3cDJaa3hEzcRuZuEksB8evryCKe+Mu9Fp7Xdw=;
+        s=korg; t=1676901600;
+        bh=3bPGYyvttL/rWtNsh9tUXp6e/7uCaol6vXcxGvSCnsw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=0fbNyegFgam+BHrbR+tYrgDekR0A8GqLy1C1rPYn9RHe00BMdMjT/iAnqkP+b2DmH
-         QdW34t21oTn2RDCsNWpoYiKVIIY0zHI6bqAxZqCGPDyV0lkpJXYr76p3NcS0S3fcFZ
-         qsM4aW3jdxHPPZyR2X0d2sOreZPBOVJ3XA89XKCU=
+        b=BzYn+qKtS4gv7hFe6IOxbRdtxn7ZVP4Ez7ifpOYhpntR5oGQXXSTLqN6+VoLSUVxa
+         4Rhv6Yn1rZqXIx05y5JDEHZVEYH45apMYuG1Rk6sGHa24zRcs0aQIKW2l9483r8KgZ
+         NR/AlAkDRnL/YTsVXNcXxReRuB02d77uE8cmKS8I=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Sean Christopherson <seanjc@google.com>,
-        Paolo Bonzini <pbonzini@redhat.com>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>,
-        Dave Hansen <dave.hansen@linux.intel.com>, x86@kernel.org,
-        "H. Peter Anvin" <hpa@zytor.com>, stable <stable@kernel.org>,
-        Xingyuan Mo <hdthky0@gmail.com>
-Subject: [PATCH 5.4 152/156] kvm: initialize all of the kvm_debugregs structure before sending it to userspace
+        patches@lists.linux.dev, Matt Roper <matthew.d.roper@intel.com>,
+        Gustavo Sousa <gustavo.sousa@intel.com>,
+        Rodrigo Vivi <rodrigo.vivi@intel.com>
+Subject: [PATCH 6.1 080/118] drm/i915/gen11: Wa_1408615072/Wa_1407596294 should be on GT list
 Date:   Mon, 20 Feb 2023 14:36:36 +0100
-Message-Id: <20230220133609.003326741@linuxfoundation.org>
+Message-Id: <20230220133603.606943038@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230220133602.515342638@linuxfoundation.org>
-References: <20230220133602.515342638@linuxfoundation.org>
+In-Reply-To: <20230220133600.368809650@linuxfoundation.org>
+References: <20230220133600.368809650@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
         SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -57,53 +53,58 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+From: Matt Roper <matthew.d.roper@intel.com>
 
-commit 2c10b61421a28e95a46ab489fd56c0f442ff6952 upstream.
+commit d5a1224aa68c8b124a4c5c390186e571815ed390 upstream.
 
-When calling the KVM_GET_DEBUGREGS ioctl, on some configurations, there
-might be some unitialized portions of the kvm_debugregs structure that
-could be copied to userspace.  Prevent this as is done in the other kvm
-ioctls, by setting the whole structure to 0 before copying anything into
-it.
+The UNSLICE_UNIT_LEVEL_CLKGATE register programmed by this workaround
+has 'BUS' style reset, indicating that it does not lose its value on
+engine resets.  Furthermore, this register is part of the GT forcewake
+domain rather than the RENDER domain, so it should not be impacted by
+RCS engine resets.  As such, we should implement this on the GT
+workaround list rather than an engine list.
 
-Bonus is that this reduces the lines of code as the explicit flag
-setting and reserved space zeroing out can be removed.
-
-Cc: Sean Christopherson <seanjc@google.com>
-Cc: Paolo Bonzini <pbonzini@redhat.com>
-Cc: Thomas Gleixner <tglx@linutronix.de>
-Cc: Ingo Molnar <mingo@redhat.com>
-Cc: Borislav Petkov <bp@alien8.de>
-Cc: Dave Hansen <dave.hansen@linux.intel.com>
-Cc: <x86@kernel.org>
-Cc: "H. Peter Anvin" <hpa@zytor.com>
-Cc: stable <stable@kernel.org>
-Reported-by: Xingyuan Mo <hdthky0@gmail.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Message-Id: <20230214103304.3689213-1-gregkh@linuxfoundation.org>
-Tested-by: Xingyuan Mo <hdthky0@gmail.com>
-Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
+Bspec: 19219
+Fixes: 3551ff928744 ("drm/i915/gen11: Moving WAs to rcs_engine_wa_init()")
+Signed-off-by: Matt Roper <matthew.d.roper@intel.com>
+Reviewed-by: Gustavo Sousa <gustavo.sousa@intel.com>
+Link: https://patchwork.freedesktop.org/patch/msgid/20230201222831.608281-2-matthew.d.roper@intel.com
+(cherry picked from commit 5f21dc07b52eb54a908e66f5d6e05a87bcb5b049)
+Signed-off-by: Rodrigo Vivi <rodrigo.vivi@intel.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/x86/kvm/x86.c |    3 +--
- 1 file changed, 1 insertion(+), 2 deletions(-)
+ drivers/gpu/drm/i915/gt/intel_workarounds.c |   14 +++++++-------
+ 1 file changed, 7 insertions(+), 7 deletions(-)
 
---- a/arch/x86/kvm/x86.c
-+++ b/arch/x86/kvm/x86.c
-@@ -3948,12 +3948,11 @@ static void kvm_vcpu_ioctl_x86_get_debug
- {
- 	unsigned long val;
+--- a/drivers/gpu/drm/i915/gt/intel_workarounds.c
++++ b/drivers/gpu/drm/i915/gt/intel_workarounds.c
+@@ -1249,6 +1249,13 @@ icl_gt_workarounds_init(struct intel_gt
+ 		    GAMT_CHKN_BIT_REG,
+ 		    GAMT_CHKN_DISABLE_L3_COH_PIPE);
  
-+	memset(dbgregs, 0, sizeof(*dbgregs));
- 	memcpy(dbgregs->db, vcpu->arch.db, sizeof(vcpu->arch.db));
- 	kvm_get_dr(vcpu, 6, &val);
- 	dbgregs->dr6 = val;
- 	dbgregs->dr7 = vcpu->arch.dr7;
--	dbgregs->flags = 0;
--	memset(&dbgregs->reserved, 0, sizeof(dbgregs->reserved));
- }
++	/*
++	 * Wa_1408615072:icl,ehl  (vsunit)
++	 * Wa_1407596294:icl,ehl  (hsunit)
++	 */
++	wa_write_or(wal, UNSLICE_UNIT_LEVEL_CLKGATE,
++		    VSUNIT_CLKGATE_DIS | HSUNIT_CLKGATE_DIS);
++
+ 	/* Wa_1407352427:icl,ehl */
+ 	wa_write_or(wal, UNSLICE_UNIT_LEVEL_CLKGATE2,
+ 		    PSDUNIT_CLKGATE_DIS);
+@@ -2369,13 +2376,6 @@ rcs_engine_wa_init(struct intel_engine_c
+ 			     GEN11_ENABLE_32_PLANE_MODE);
  
- static int kvm_vcpu_ioctl_x86_set_debugregs(struct kvm_vcpu *vcpu,
+ 		/*
+-		 * Wa_1408615072:icl,ehl  (vsunit)
+-		 * Wa_1407596294:icl,ehl  (hsunit)
+-		 */
+-		wa_write_or(wal, UNSLICE_UNIT_LEVEL_CLKGATE,
+-			    VSUNIT_CLKGATE_DIS | HSUNIT_CLKGATE_DIS);
+-
+-		/*
+ 		 * Wa_1408767742:icl[a2..forever],ehl[all]
+ 		 * Wa_1605460711:icl[a0..c0]
+ 		 */
 
 
