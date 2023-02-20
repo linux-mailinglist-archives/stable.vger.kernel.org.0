@@ -2,119 +2,118 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 1423569C99A
-	for <lists+stable@lfdr.de>; Mon, 20 Feb 2023 12:18:20 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 72CBD69C9AB
+	for <lists+stable@lfdr.de>; Mon, 20 Feb 2023 12:20:43 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231446AbjBTLSS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Feb 2023 06:18:18 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44498 "EHLO
+        id S230329AbjBTLUl (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Feb 2023 06:20:41 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46488 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231605AbjBTLSR (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 20 Feb 2023 06:18:17 -0500
-Received: from mga09.intel.com (mga09.intel.com [134.134.136.24])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EAAE13C1A
-        for <stable@vger.kernel.org>; Mon, 20 Feb 2023 03:18:01 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
-  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1676891881; x=1708427881;
-  h=from:to:cc:subject:date:message-id:mime-version:
-   content-transfer-encoding;
-  bh=Z054cRXfzoEcExIDbRnFtnWypSCE8y6qJzowPV9d01E=;
-  b=P81QMKBXS/Jdl5b0+DE8S4ROWMuTvNVeZDkVbVjMF/Cp4ExavPtNdJae
-   tTfSQQSftsnC93kwqvIgeFxsWXg4gFftAGK7clKKv96M55lBNnGxZEHm2
-   bkpuI1hfHFLUOw3pFFcPpXnELRV/jBxC2LC3Je6zIhcZu62HtLH7jSdUb
-   WBfiLfGL05w4VPcHtTryn+cZxofPz64s6gXxJZys/sscqDx4PPeBQl/Oq
-   qWp2/g0ZVgoZBE6oHLzGU4HOyv8VKlqHw9gXvkM3N4+nyQSe/XheRk+25
-   zziktL8USTAer8DFFkfHZhTmPcX9i1pLaifX87kkuQlZXPPrLk2KLAEl8
-   Q==;
-X-IronPort-AV: E=McAfee;i="6500,9779,10626"; a="333739508"
-X-IronPort-AV: E=Sophos;i="5.97,312,1669104000"; 
-   d="scan'208";a="333739508"
-Received: from orsmga004.jf.intel.com ([10.7.209.38])
-  by orsmga102.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 20 Feb 2023 03:17:09 -0800
-X-IronPort-AV: E=McAfee;i="6500,9779,10626"; a="795150973"
-X-IronPort-AV: E=Sophos;i="5.97,312,1669104000"; 
-   d="scan'208";a="795150973"
-Received: from mmocanu-mobl1.ger.corp.intel.com (HELO pujfalus-desk.ger.corp.intel.com) ([10.251.214.33])
-  by orsmga004-auth.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 20 Feb 2023 03:17:07 -0800
-From:   Peter Ujfalusi <peter.ujfalusi@linux.intel.com>
-To:     stable@vger.kernel.org
-Cc:     sashal@kernel.org, broonie@kernel.org, alsa-devel@alsa-project.org,
-        pierre-louis.bossart@linux.intel.com,
-        ranjani.sridharan@linux.intel.com, gregkh@linuxfoundation.org
-Subject: [PATCH BACKPORT 5.4] ASoC: SOF: Intel: hda-dai: fix possible stream_tag leak
-Date:   Mon, 20 Feb 2023 13:17:21 +0200
-Message-Id: <20230220111721.32502-1-peter.ujfalusi@linux.intel.com>
-X-Mailer: git-send-email 2.39.2
+        with ESMTP id S231803AbjBTLUg (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 20 Feb 2023 06:20:36 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D5C591A95B
+        for <stable@vger.kernel.org>; Mon, 20 Feb 2023 03:20:18 -0800 (PST)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 79D8060DCB
+        for <stable@vger.kernel.org>; Mon, 20 Feb 2023 11:20:18 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 68F94C433EF;
+        Mon, 20 Feb 2023 11:20:17 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
+        s=korg; t=1676892017;
+        bh=DbCK5UsZSsf5dFnw25OA4hDsSejFJ5sfPF1HGV47G4I=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=CXkYvNX2Eola7ChyhtQYdlZr/MMFlivqxSRuBXlJ5ezzRoCR0TKClSU9GYaaJtdZN
+         O3U+SvzvssiNSKvHKgWmkea7tgK9rV43IjjaigQVLpKitAseOPpf53sw+fXJincZOd
+         AZT+Vw+GVAEAZbHpcmQ3CDK/fH25ynYnKO7tXWJk=
+Date:   Mon, 20 Feb 2023 12:20:15 +0100
+From:   Greg KH <gregkh@linuxfoundation.org>
+To:     KP Singh <kpsingh@kernel.org>
+Cc:     security@kernel.org, pjt@google.com, evn@google.com,
+        jpoimboe@kernel.org, tglx@linutronix.de, mingo@redhat.com,
+        bp@alien8.de, dave.hansen@linux.intel.com, x86@kernel.org,
+        hpa@zytor.com, peterz@infradead.org,
+        pawan.kumar.gupta@linux.intel.com, kim.phillips@amd.com,
+        alexandre.chartre@oracle.com, daniel.sneddon@linux.intel.com,
+        =?iso-8859-1?Q?Jos=E9?= Oliveira <joseloliveira11@gmail.com>,
+        Rodrigo Branco <rodrigo@kernelhacking.com>,
+        Alexandra Sandulescu <aesa@google.com>,
+        Jim Mattson <jmattson@google.com>, stable@vger.kernel.org
+Subject: Re: [PATCH] x86/speculation: Fix user-mode spectre-v2 protection
+ with KERNEL_IBRS
+Message-ID: <Y/NXbz9V840KnVYh@kroah.com>
+References: <20230220103930.1963742-1-kpsingh@kernel.org>
+ <Y/NQ6w4UlEuBSTql@kroah.com>
+ <CACYkzJ7Umq_XQEAHZyPE60zhbWsSF_i-vNa7u_qCeqBgGVfC4g@mail.gmail.com>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-4.3 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
-        RCVD_IN_MSPIKE_H3,RCVD_IN_MSPIKE_WL,SPF_HELO_NONE,SPF_NONE
-        autolearn=ham autolearn_force=no version=3.4.6
+In-Reply-To: <CACYkzJ7Umq_XQEAHZyPE60zhbWsSF_i-vNa7u_qCeqBgGVfC4g@mail.gmail.com>
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+        SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-[ Upstream commit 1f810d2b6b2fbdc5279644d8b2c140b1f7c9d43d ]
+On Mon, Feb 20, 2023 at 03:11:24AM -0800, KP Singh wrote:
+> On Mon, Feb 20, 2023 at 2:52 AM Greg KH <gregkh@linuxfoundation.org> wrote:
+> >
+> > On Mon, Feb 20, 2023 at 11:39:30AM +0100, KP Singh wrote:
+> > > With the introduction of KERNEL_IBRS, STIBP is no longer needed
+> > > to prevent cross thread training in the kernel space. When KERNEL_IBRS
+> > > was added, it also disabled the user-mode protections for spectre_v2.
+> > > KERNEL_IBRS does not mitigate cross thread training in the userspace.
+> > >
+> > > In order to demonstrate the issue, one needs to avoid syscalls in the
+> > > victim as syscalls can shorten the window size due to
+> > > a user -> kernel -> user transition which sets the
+> > > IBRS bit when entering kernel space and clearing any training the
+> > > attacker may have done.
+> > >
+> > > Allow users to select a spectre_v2_user mitigation (STIBP always on,
+> > > opt-in via prctl) when KERNEL_IBRS is enabled.
+> > >
+> > > Reported-by: José Oliveira <joseloliveira11@gmail.com>
+> > > Reported-by: Rodrigo Branco <rodrigo@kernelhacking.com>
+> > > Reviewed-by: Alexandra Sandulescu <aesa@google.com>
+> > > Reviewed-by: Jim Mattson <jmattson@google.com>
+> > > Fixes: 7c693f54c873 ("x86/speculation: Add spectre_v2=ibrs option to support Kernel IBRS")
+> > > Cc: stable@vger.kernel.org
+> > > Signed-off-by: KP Singh <kpsingh@kernel.org>
+> > > ---
+> > >  arch/x86/kernel/cpu/bugs.c | 25 +++++++++++++++++--------
+> > >  1 file changed, 17 insertions(+), 8 deletions(-)
+> >
+> > As this is posted publicly, there's no need to send it to
+> > security@kernel.org, it doesn't need to be involved.
+> 
+> Sure, it's okay. Please do note in my first patch, I did follow
+> https://www.kernel.org/doc/Documentation/admin-guide/security-bugs.rst,
+> if you want folks to explicitly Cc maintainers with their fix or
+> report, I think it's worth mentioning in the guidelines there as the
+> current language seems to imply that the maintainers will be pulled in
+> by the security team:
+> 
+> "It is possible that the security team will bring in extra help from
+> area maintainers to understand and fix the security vulnerability."
 
-There were just too many code changes since 5.4 stable to prevent clean
-picking the fix from mainline.
+Yes, but you already have a patch here, what "help" do you need?  You
+didn't specify any help, you just sent us a patch with no context.  This
+wasn't any sort of a "report" or "hey, I think we found a problem over
+here, does this change look correct", right?
 
-The HDaudio stream allocation is done first, and in a second step the
-LOSIDV parameter is programmed for the multi-link used by a codec.
+So please be specific as to what you are asking for, otherwise we have
+to guess (i.e. you cc:ed a seemingly random set of people but not the
+x86 maintainers).  And then you resent it to a public list, so there's
+no need for security@k.o to get involved in at all as it's a public
+issue now.
 
-This leads to a possible stream_tag leak, e.g. if a DisplayAudio link
-is not used. This would happen when a non-Intel graphics card is used
-and userspace unconditionally uses the Intel Display Audio PCMs without
-checking if they are connected to a receiver with jack controls.
+thanks,
 
-We should first check that there is a valid multi-link entry to
-configure before allocating a stream_tag. This change aligns the
-dma_assign and dma_cleanup phases.
-
-Cc: stable@vger.kernel.org # 5.4.x
-Complements: b0cd60f3e9f5 ("ALSA/ASoC: hda: clarify bus_get_link() and bus_link_get() helpers")
-Link: https://github.com/thesofproject/linux/issues/4151
-Signed-off-by: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
-Reviewed-by: Ranjani Sridharan <ranjani.sridharan@linux.intel.com>
-Reviewed-by: Rander Wang <rander.wang@intel.com>
-Reviewed-by: Bard Liao <yung-chuan.liao@linux.intel.com>
-Signed-off-by: Peter Ujfalusi <peter.ujfalusi@linux.intel.com>
-Link: https://lore.kernel.org/r/20230216162340.19480-1-peter.ujfalusi@linux.intel.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
----
- sound/soc/sof/intel/hda-dai.c | 8 ++++----
- 1 file changed, 4 insertions(+), 4 deletions(-)
-
-diff --git a/sound/soc/sof/intel/hda-dai.c b/sound/soc/sof/intel/hda-dai.c
-index b3cdd10c83ae..c30e450fa970 100644
---- a/sound/soc/sof/intel/hda-dai.c
-+++ b/sound/soc/sof/intel/hda-dai.c
-@@ -211,6 +211,10 @@ static int hda_link_hw_params(struct snd_pcm_substream *substream,
- 	int stream_tag;
- 	int ret;
- 
-+	link = snd_hdac_ext_bus_get_link(bus, codec_dai->component->name);
-+	if (!link)
-+		return -EINVAL;
-+
- 	/* get stored dma data if resuming from system suspend */
- 	link_dev = snd_soc_dai_get_dma_data(dai, substream);
- 	if (!link_dev) {
-@@ -231,10 +235,6 @@ static int hda_link_hw_params(struct snd_pcm_substream *substream,
- 	if (ret < 0)
- 		return ret;
- 
--	link = snd_hdac_ext_bus_get_link(bus, codec_dai->component->name);
--	if (!link)
--		return -EINVAL;
--
- 	/* set the stream tag in the codec dai dma params */
- 	if (substream->stream == SNDRV_PCM_STREAM_PLAYBACK)
- 		snd_soc_dai_set_tdm_slot(codec_dai, stream_tag, 0, 0, 0);
--- 
-2.39.2
-
+greg k-h
