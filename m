@@ -2,50 +2,52 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 1775E69CC33
-	for <lists+stable@lfdr.de>; Mon, 20 Feb 2023 14:38:08 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1648069CD33
+	for <lists+stable@lfdr.de>; Mon, 20 Feb 2023 14:47:30 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232073AbjBTNiH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Feb 2023 08:38:07 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45814 "EHLO
+        id S232304AbjBTNr2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Feb 2023 08:47:28 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60336 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231708AbjBTNiG (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 20 Feb 2023 08:38:06 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C13783C15
-        for <stable@vger.kernel.org>; Mon, 20 Feb 2023 05:38:05 -0800 (PST)
+        with ESMTP id S232276AbjBTNr1 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 20 Feb 2023 08:47:27 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1D15D1E1FB
+        for <stable@vger.kernel.org>; Mon, 20 Feb 2023 05:47:12 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 6B76CB80D43
-        for <stable@vger.kernel.org>; Mon, 20 Feb 2023 13:38:04 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D9971C433D2;
-        Mon, 20 Feb 2023 13:38:02 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id A2CA760EA5
+        for <stable@vger.kernel.org>; Mon, 20 Feb 2023 13:47:10 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B2EC4C433EF;
+        Mon, 20 Feb 2023 13:47:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1676900283;
-        bh=W48JW8SGQpmmpjj3KFiSG+ufrG0SIWY/T3msLhP+P3I=;
+        s=korg; t=1676900830;
+        bh=z/LfnfalvJZZVIZjHwRBM9FrPGcz/XYgGiKIAckwsEw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=kbrnfyqd6AntfeRSDqdlUN6yqCy4Gg/AAMcbEpmGKrrkqJOU84n+GPWhaqkJUXKGe
-         Bq4CKCkmJ3w9nypZ8XgThD27sGBCWtM6bsyhQTAmdFPdJ/DeIPO4B+V0Oof/0lmW1o
-         0zrHiQ9dt+ZMOCA6GB+kf9qPW81Bi3Rk/Gm/Kj9k=
+        b=gRe4fvKNiYl+/ZdFmrM0mS2GoApEKxW+pqUocTv1jQjpygsb8yS0+vjtkeaQK2Srg
+         nbRPFKcLZfm8lUHvyu9+MdPraALizKnBjtTBHXPQUMkQwpUqDvUpqn0cXWPNc49BaK
+         Mpy3Rz0q3yYEA71+BPUOUOAQWBTKXov3wSCLNgyo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Yuan Can <yuancan@huawei.com>,
-        Jernej Skrabec <jernej.skrabec@gmail.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 02/53] bus: sunxi-rsb: Fix error handling in sunxi_rsb_init()
+        patches@lists.linux.dev, Guo Ren <guoren@linux.alibaba.com>,
+        Guo Ren <guoren@kernel.org>,
+        Andrew Jones <ajones@ventanamicro.com>,
+        Conor Dooley <conor.dooley@microchip.com>,
+        Palmer Dabbelt <palmer@rivosinc.com>
+Subject: [PATCH 5.4 084/156] riscv: Fixup race condition on PG_dcache_clean in flush_icache_pte
 Date:   Mon, 20 Feb 2023 14:35:28 +0100
-Message-Id: <20230220133548.258767532@linuxfoundation.org>
+Message-Id: <20230220133605.925193801@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230220133548.158615609@linuxfoundation.org>
-References: <20230220133548.158615609@linuxfoundation.org>
+In-Reply-To: <20230220133602.515342638@linuxfoundation.org>
+References: <20230220133602.515342638@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
         SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -53,46 +55,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yuan Can <yuancan@huawei.com>
+From: Guo Ren <guoren@linux.alibaba.com>
 
-[ Upstream commit f71eaf2708be7831428eacae7db25d8ec6b8b4c5 ]
+commit 950b879b7f0251317d26bae0687e72592d607532 upstream.
 
-The sunxi_rsb_init() returns the platform_driver_register() directly
-without checking its return value, if platform_driver_register() failed,
-the sunxi_rsb_bus is not unregistered.
-Fix by unregister sunxi_rsb_bus when platform_driver_register() failed.
+In commit 588a513d3425 ("arm64: Fix race condition on PG_dcache_clean
+in __sync_icache_dcache()"), we found RISC-V has the same issue as the
+previous arm64. The previous implementation didn't guarantee the correct
+sequence of operations, which means flush_icache_all() hasn't been
+called when the PG_dcache_clean was set. That would cause a risk of page
+synchronization.
 
-Fixes: d787dcdb9c8f ("bus: sunxi-rsb: Add driver for Allwinner Reduced Serial Bus")
-Signed-off-by: Yuan Can <yuancan@huawei.com>
-Reviewed-by: Jernej Skrabec <jernej.skrabec@gmail.com>
-Link: https://lore.kernel.org/r/20221123094200.12036-1-yuancan@huawei.com
-Signed-off-by: Jernej Skrabec <jernej.skrabec@gmail.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes: 08f051eda33b ("RISC-V: Flush I$ when making a dirty page executable")
+Signed-off-by: Guo Ren <guoren@linux.alibaba.com>
+Signed-off-by: Guo Ren <guoren@kernel.org>
+Reviewed-by: Andrew Jones <ajones@ventanamicro.com>
+Reviewed-by: Conor Dooley <conor.dooley@microchip.com>
+Link: https://lore.kernel.org/r/20230127035306.1819561-1-guoren@kernel.org
+Cc: stable@vger.kernel.org
+Signed-off-by: Palmer Dabbelt <palmer@rivosinc.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/bus/sunxi-rsb.c | 8 +++++++-
- 1 file changed, 7 insertions(+), 1 deletion(-)
+ arch/riscv/mm/cacheflush.c |    4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/bus/sunxi-rsb.c b/drivers/bus/sunxi-rsb.c
-index d3fb350dc9ee..bf4db708f0bd 100644
---- a/drivers/bus/sunxi-rsb.c
-+++ b/drivers/bus/sunxi-rsb.c
-@@ -783,7 +783,13 @@ static int __init sunxi_rsb_init(void)
- 		return ret;
- 	}
+--- a/arch/riscv/mm/cacheflush.c
++++ b/arch/riscv/mm/cacheflush.c
+@@ -71,6 +71,8 @@ void flush_icache_pte(pte_t pte)
+ {
+ 	struct page *page = pte_page(pte);
  
--	return platform_driver_register(&sunxi_rsb_driver);
-+	ret = platform_driver_register(&sunxi_rsb_driver);
-+	if (ret) {
-+		bus_unregister(&sunxi_rsb_bus);
-+		return ret;
+-	if (!test_and_set_bit(PG_dcache_clean, &page->flags))
++	if (!test_bit(PG_dcache_clean, &page->flags)) {
+ 		flush_icache_all();
++		set_bit(PG_dcache_clean, &page->flags);
 +	}
-+
-+	return 0;
  }
- module_init(sunxi_rsb_init);
- 
--- 
-2.39.0
-
 
 
