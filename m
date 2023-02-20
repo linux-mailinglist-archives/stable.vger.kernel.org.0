@@ -2,49 +2,49 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C43DB69CE88
-	for <lists+stable@lfdr.de>; Mon, 20 Feb 2023 15:00:04 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 974D769CDBD
+	for <lists+stable@lfdr.de>; Mon, 20 Feb 2023 14:52:23 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232758AbjBTN77 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Feb 2023 08:59:59 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50896 "EHLO
+        id S232466AbjBTNwW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Feb 2023 08:52:22 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39824 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232698AbjBTN7x (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 20 Feb 2023 08:59:53 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E057B8A6E
-        for <stable@vger.kernel.org>; Mon, 20 Feb 2023 05:59:30 -0800 (PST)
+        with ESMTP id S232469AbjBTNwW (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 20 Feb 2023 08:52:22 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8E0521E9D5
+        for <stable@vger.kernel.org>; Mon, 20 Feb 2023 05:52:15 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 49B85B80D07
-        for <stable@vger.kernel.org>; Mon, 20 Feb 2023 13:59:15 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id BC142C433D2;
-        Mon, 20 Feb 2023 13:59:13 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 2FA6060B74
+        for <stable@vger.kernel.org>; Mon, 20 Feb 2023 13:52:15 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 471CEC433D2;
+        Mon, 20 Feb 2023 13:52:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1676901554;
-        bh=FdThlU9NoGo6S45gPt5wEUNTnQFMwl45Pt6Bb9Vg/tE=;
+        s=korg; t=1676901134;
+        bh=3Y8qy98gXGKY7SO4Q9Rxz7d639z5USHwunjSng+lVHo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=plSp41lHCUATKECsJH3WEfvQn7H8twwgVXTtBZaPhWdmATSof+AMXmucPH/tLZfPS
-         nBRImSzu6B7AR+aKqmEppofoXBGzSIyQu4U7XBnSFLEDRb1H82TYf5pVc6/c150fzX
-         MVQJvhbrK/CfJ51sdl9WaeWp/Fzd5rfKxV5tHRkM=
+        b=bkbKn42UxbKPA+roC0VUYllZpaLuWMVo+VEu8l1GMSzL7+qET3QnIElfkPPZ3Km/5
+         vi4hznsCHUJMgY6cfB0oqhR/gD5pIQsNJ+pGmoeYkS4UdNSgXfspwK/iSb38YPdue3
+         sVuzlfTgiQ/nXZhORHElmtKIiwRMXjHgefVQO16E=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Bo Liu <bo.liu@senarytech.com>,
-        Takashi Iwai <tiwai@suse.de>
-Subject: [PATCH 6.1 060/118] ALSA: hda/conexant: add a new hda codec SN6180
+        patches@lists.linux.dev, Paul Cercueil <paul@crapouillou.net>,
+        Ulf Hansson <ulf.hansson@linaro.org>
+Subject: [PATCH 5.15 43/83] mmc: jz4740: Work around bug on JZ4760(B)
 Date:   Mon, 20 Feb 2023 14:36:16 +0100
-Message-Id: <20230220133602.833658710@linuxfoundation.org>
+Message-Id: <20230220133555.181986090@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230220133600.368809650@linuxfoundation.org>
-References: <20230220133600.368809650@linuxfoundation.org>
+In-Reply-To: <20230220133553.669025851@linuxfoundation.org>
+References: <20230220133553.669025851@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
         SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -52,31 +52,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Bo Liu <bo.liu@senarytech.com>
+From: Paul Cercueil <paul@crapouillou.net>
 
-commit 18d7e16c917a08f08778ecf2b780d63648d5d923 upstream.
+commit 3f18c5046e633cc4bbad396b74c05d46d353033d upstream.
 
-The current kernel does not support the SN6180 codec chip.
-Add the SN6180 codec configuration item to kernel.
+On JZ4760 and JZ4760B, SD cards fail to run if the maximum clock
+rate is set to 50 MHz, even though the controller officially does
+support it.
 
-Signed-off-by: Bo Liu <bo.liu@senarytech.com>
-Cc: <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/1675908828-1012-1-git-send-email-bo.liu@senarytech.com
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Until the actual bug is found and fixed, limit the maximum clock rate to
+24 MHz.
+
+Signed-off-by: Paul Cercueil <paul@crapouillou.net>
+Cc: stable@vger.kernel.org
+Link: https://lore.kernel.org/r/20230131210229.68129-1-paul@crapouillou.net
+Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- sound/pci/hda/patch_conexant.c |    1 +
- 1 file changed, 1 insertion(+)
+ drivers/mmc/host/jz4740_mmc.c |   10 ++++++++++
+ 1 file changed, 10 insertions(+)
 
---- a/sound/pci/hda/patch_conexant.c
-+++ b/sound/pci/hda/patch_conexant.c
-@@ -1125,6 +1125,7 @@ static const struct hda_device_id snd_hd
- 	HDA_CODEC_ENTRY(0x14f11f87, "SN6140", patch_conexant_auto),
- 	HDA_CODEC_ENTRY(0x14f12008, "CX8200", patch_conexant_auto),
- 	HDA_CODEC_ENTRY(0x14f120d0, "CX11970", patch_conexant_auto),
-+	HDA_CODEC_ENTRY(0x14f120d1, "SN6180", patch_conexant_auto),
- 	HDA_CODEC_ENTRY(0x14f15045, "CX20549 (Venice)", patch_conexant_auto),
- 	HDA_CODEC_ENTRY(0x14f15047, "CX20551 (Waikiki)", patch_conexant_auto),
- 	HDA_CODEC_ENTRY(0x14f15051, "CX20561 (Hermosa)", patch_conexant_auto),
+--- a/drivers/mmc/host/jz4740_mmc.c
++++ b/drivers/mmc/host/jz4740_mmc.c
+@@ -1038,6 +1038,16 @@ static int jz4740_mmc_probe(struct platf
+ 	mmc->ops = &jz4740_mmc_ops;
+ 	if (!mmc->f_max)
+ 		mmc->f_max = JZ_MMC_CLK_RATE;
++
++	/*
++	 * There seems to be a problem with this driver on the JZ4760 and
++	 * JZ4760B SoCs. There, when using the maximum rate supported (50 MHz),
++	 * the communication fails with many SD cards.
++	 * Until this bug is sorted out, limit the maximum rate to 24 MHz.
++	 */
++	if (host->version == JZ_MMC_JZ4760 && mmc->f_max > JZ_MMC_CLK_RATE)
++		mmc->f_max = JZ_MMC_CLK_RATE;
++
+ 	mmc->f_min = mmc->f_max / 128;
+ 	mmc->ocr_avail = MMC_VDD_32_33 | MMC_VDD_33_34;
+ 
 
 
