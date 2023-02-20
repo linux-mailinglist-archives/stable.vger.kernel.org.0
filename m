@@ -2,55 +2,56 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id F40AD69C996
-	for <lists+stable@lfdr.de>; Mon, 20 Feb 2023 12:17:39 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5EE7169C999
+	for <lists+stable@lfdr.de>; Mon, 20 Feb 2023 12:18:17 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231775AbjBTLRh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Feb 2023 06:17:37 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42944 "EHLO
+        id S231255AbjBTLSP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Feb 2023 06:18:15 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44498 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231745AbjBTLRf (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 20 Feb 2023 06:17:35 -0500
-Received: from mga03.intel.com (mga03.intel.com [134.134.136.65])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6D66D1ADD2
-        for <stable@vger.kernel.org>; Mon, 20 Feb 2023 03:17:15 -0800 (PST)
+        with ESMTP id S231744AbjBTLSM (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 20 Feb 2023 06:18:12 -0500
+Received: from mga09.intel.com (mga09.intel.com [134.134.136.24])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6545C6A7A
+        for <stable@vger.kernel.org>; Mon, 20 Feb 2023 03:17:55 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
   d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1676891835; x=1708427835;
+  t=1676891875; x=1708427875;
   h=from:to:cc:subject:date:message-id:mime-version:
    content-transfer-encoding;
-  bh=rOMCxEo459LVKFnJiE2YpRPZKTpzgalBc7uTVfzETJE=;
-  b=KC9TPcSzaRa+oDZJyETExFBNbl0STjAcU/ZAt07TP8LG178YCzCHv1aE
-   xY2TkInAYF41Maha4qzU0bofMLuLFfwrXOCS3qXqBZ4AUoOzWql2bAKFk
-   2jTTvvsHtcNSPY3ltuyGYrReWILJ0JfFpVfan6vixHqAPJRbdQa07c1bx
-   OKa+nMlcpNdEzd78reWiu0CmWyih+IHmdUq1+spWOFDFowxyDnXC+WsaU
-   JEicxBupPZr+OrZs3MQZKaB17fkuT4U2dq+AiVX/dtXrxxMwo1vU4Jc6i
-   pKgQOw5EFXCJlUBl6vLUJfCTWOzZ4EmlltigfBlZCWbuIdRVEm0dFZZ6/
-   g==;
-X-IronPort-AV: E=McAfee;i="6500,9779,10626"; a="334578770"
+  bh=VsJRm2lzSODecEFJUfZ3q0dGV7Yw8mvC8iNuWfHwosk=;
+  b=jl3D6F8Vpoy1mwh/xVWuB3gGNlAUV96hiuyXjEquoXS+NTb2u82dYNsO
+   qThr3pB4In0z908rj3SRu+r+vRgpnr4HEIWUUZVBQdcmNU5q2uHC7z1fZ
+   IoFyqiaLOYBVmls9pTOebmh5ZoLm1TF4OcEIMx3LS26uRzQ9tvIEoYJSA
+   8NWy9Dxg7ME0Ja4iLtYpoHXYOviiL9y/TetAm9G+RVC4dLk7vaDvAJZTN
+   o5UAk2q6jwJS/PZYi/9Ix+tlyckhbuUD0fxInB+yBwpqLqMo/JzLoCXAm
+   h7rpboBUuqsAlGu2OtjpF7DRXV8PD3fJ6zU3Hy8dx3MGWjO8UBnnjtjwi
+   A==;
+X-IronPort-AV: E=McAfee;i="6500,9779,10626"; a="333739471"
 X-IronPort-AV: E=Sophos;i="5.97,312,1669104000"; 
-   d="scan'208";a="334578770"
-Received: from fmsmga001.fm.intel.com ([10.253.24.23])
-  by orsmga103.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 20 Feb 2023 03:16:46 -0800
-X-IronPort-AV: E=McAfee;i="6500,9779,10626"; a="814109139"
+   d="scan'208";a="333739471"
+Received: from orsmga004.jf.intel.com ([10.7.209.38])
+  by orsmga102.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 20 Feb 2023 03:16:58 -0800
+X-IronPort-AV: E=McAfee;i="6500,9779,10626"; a="795150943"
 X-IronPort-AV: E=Sophos;i="5.97,312,1669104000"; 
-   d="scan'208";a="814109139"
+   d="scan'208";a="795150943"
 Received: from mmocanu-mobl1.ger.corp.intel.com (HELO pujfalus-desk.ger.corp.intel.com) ([10.251.214.33])
-  by fmsmga001-auth.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 20 Feb 2023 03:16:43 -0800
+  by orsmga004-auth.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 20 Feb 2023 03:16:55 -0800
 From:   Peter Ujfalusi <peter.ujfalusi@linux.intel.com>
 To:     stable@vger.kernel.org
 Cc:     sashal@kernel.org, broonie@kernel.org, alsa-devel@alsa-project.org,
         pierre-louis.bossart@linux.intel.com,
         ranjani.sridharan@linux.intel.com, gregkh@linuxfoundation.org
-Subject: [PATCH BACKPORT 6.0, 6.1] ASoC: SOF: Intel: hda-dai: fix possible stream_tag leak
-Date:   Mon, 20 Feb 2023 13:16:58 +0200
-Message-Id: <20230220111658.32256-1-peter.ujfalusi@linux.intel.com>
+Subject: [PATCH BACKPORT 5.10, 5.15] ASoC: SOF: Intel: hda-dai: fix possible stream_tag leak
+Date:   Mon, 20 Feb 2023 13:17:10 +0200
+Message-Id: <20230220111710.32438-1-peter.ujfalusi@linux.intel.com>
 X-Mailer: git-send-email 2.39.2
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 X-Spam-Status: No, score=-4.3 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,SPF_HELO_NONE,
-        SPF_NONE autolearn=ham autolearn_force=no version=3.4.6
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
+        RCVD_IN_MSPIKE_H3,RCVD_IN_MSPIKE_WL,SPF_HELO_NONE,SPF_NONE
+        autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
@@ -59,9 +60,8 @@ X-Mailing-List: stable@vger.kernel.org
 
 [ Upstream commit 1f810d2b6b2fbdc5279644d8b2c140b1f7c9d43d ]
 
-The reason for manual backport is that in 6.2 there were a naming cleanup
-around hdac, link, hlink, for example snd_hdac_ext_bus_get_link is renamed
-to snd_hdac_ext_bus_get_hlink_by_name in 6.2.
+There were just too many code changes since 5.10/5.15 stable to prevent
+clean picking the fix from mainline.
 
 The HDaudio stream allocation is done first, and in a second step the
 LOSIDV parameter is programmed for the multi-link used by a codec.
@@ -75,7 +75,7 @@ We should first check that there is a valid multi-link entry to
 configure before allocating a stream_tag. This change aligns the
 dma_assign and dma_cleanup phases.
 
-Cc: stable@vger.kernel.org # 6.1.x 6.0.x
+Cc: stable@vger.kernel.org # 5.15.x 5.10.x
 Complements: b0cd60f3e9f5 ("ALSA/ASoC: hda: clarify bus_get_link() and bus_link_get() helpers")
 Link: https://github.com/thesofproject/linux/issues/4151
 Signed-off-by: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
@@ -90,30 +90,30 @@ Signed-off-by: Mark Brown <broonie@kernel.org>
  1 file changed, 4 insertions(+), 4 deletions(-)
 
 diff --git a/sound/soc/sof/intel/hda-dai.c b/sound/soc/sof/intel/hda-dai.c
-index 556e883a32ed..5f03ee390d54 100644
+index de80f1b3d7f2..a6275cc92a40 100644
 --- a/sound/soc/sof/intel/hda-dai.c
 +++ b/sound/soc/sof/intel/hda-dai.c
-@@ -216,6 +216,10 @@ static int hda_link_dma_hw_params(struct snd_pcm_substream *substream,
- 	struct hdac_bus *bus = hstream->bus;
- 	struct hdac_ext_link *link;
+@@ -212,6 +212,10 @@ static int hda_link_hw_params(struct snd_pcm_substream *substream,
+ 	int stream_tag;
+ 	int ret;
  
 +	link = snd_hdac_ext_bus_get_link(bus, codec_dai->component->name);
 +	if (!link)
 +		return -EINVAL;
 +
- 	hext_stream = snd_soc_dai_get_dma_data(cpu_dai, substream);
- 	if (!hext_stream) {
- 		hext_stream = hda_link_stream_assign(bus, substream);
-@@ -225,10 +229,6 @@ static int hda_link_dma_hw_params(struct snd_pcm_substream *substream,
- 		snd_soc_dai_set_dma_data(cpu_dai, substream, (void *)hext_stream);
- 	}
+ 	/* get stored dma data if resuming from system suspend */
+ 	link_dev = snd_soc_dai_get_dma_data(dai, substream);
+ 	if (!link_dev) {
+@@ -232,10 +236,6 @@ static int hda_link_hw_params(struct snd_pcm_substream *substream,
+ 	if (ret < 0)
+ 		return ret;
  
 -	link = snd_hdac_ext_bus_get_link(bus, codec_dai->component->name);
 -	if (!link)
 -		return -EINVAL;
 -
  	/* set the hdac_stream in the codec dai */
- 	snd_soc_dai_set_stream(codec_dai, hdac_stream(hext_stream), substream->stream);
+ 	snd_soc_dai_set_stream(codec_dai, hdac_stream(link_dev), substream->stream);
  
 -- 
 2.39.2
