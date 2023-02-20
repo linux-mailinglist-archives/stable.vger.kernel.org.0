@@ -2,48 +2,48 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 26D6E69CC43
-	for <lists+stable@lfdr.de>; Mon, 20 Feb 2023 14:38:49 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6E70C69CD98
+	for <lists+stable@lfdr.de>; Mon, 20 Feb 2023 14:50:50 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231840AbjBTNis (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Feb 2023 08:38:48 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46846 "EHLO
+        id S232420AbjBTNut (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Feb 2023 08:50:49 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38170 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231663AbjBTNir (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 20 Feb 2023 08:38:47 -0500
-Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AC7AE1B552
-        for <stable@vger.kernel.org>; Mon, 20 Feb 2023 05:38:45 -0800 (PST)
+        with ESMTP id S232421AbjBTNus (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 20 Feb 2023 08:50:48 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1D5AD1E1F0
+        for <stable@vger.kernel.org>; Mon, 20 Feb 2023 05:50:47 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 0CBA8CE0F6D
-        for <stable@vger.kernel.org>; Mon, 20 Feb 2023 13:38:44 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2CE38C433EF;
-        Mon, 20 Feb 2023 13:38:42 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id AF4F760E9D
+        for <stable@vger.kernel.org>; Mon, 20 Feb 2023 13:50:46 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9539BC433D2;
+        Mon, 20 Feb 2023 13:50:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1676900322;
-        bh=lL62LyL89KofKHD6pgwXyWL1AU8/tTDue89uBhJQSZY=;
+        s=korg; t=1676901046;
+        bh=g848u4o9ncfEAR5peV39K3nG38LS/yOUM1fz5v5wUVU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=MIMz/+3yNULbre3d1oDj2bOsw1oFXrBqePkene5LkeN4gSrN2JAQu4Dqk82E3jsiw
-         Tw6YQZ0Cpom1gI0Jh36UWvdIexyaS9YyvvmrXqWBBGR6XC/sCKwVQpXXe4ZYjBuXN9
-         YgbH+CfBNL4PVGU33GVd37cx4XbhVxhYS6DQn8Xc=
+        b=ZnuXKG3z8gtlEPi8/3COnqGuvMx5Mo16wB5F7V5H68rS22kCbL+sAzPhUieIGBLl5
+         VQFXlOcB2rO9DuKKcoX5qiHPEjCfnQm4oAXOml82GHDrgjI936GfGptPpYDWmChtpP
+         +emZ7mHOBm/TRtw9plfi7bgXDulsJreze0PaOL+g=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Fedor Pchelkin <pchelkin@ispras.ru>,
-        Alexey Khoroshilov <khoroshilov@ispras.ru>,
-        Eelco Chaudron <echaudro@redhat.com>,
-        Simon Horman <simon.horman@corigine.com>,
-        Jakub Kicinski <kuba@kernel.org>,
+        patches@lists.linux.dev, Paolo Abeni <pabeni@redhat.com>,
+        Matthieu Baerts <matthieu.baerts@tessares.net>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 07/53] net: openvswitch: fix flow memory leak in ovs_flow_cmd_new
-Date:   Mon, 20 Feb 2023 14:35:33 +0100
-Message-Id: <20230220133548.440527348@linuxfoundation.org>
+Subject: [PATCH 5.15 01/83] mptcp: fix locking for in-kernel listener creation
+Date:   Mon, 20 Feb 2023 14:35:34 +0100
+Message-Id: <20230220133553.718260408@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230220133548.158615609@linuxfoundation.org>
-References: <20230220133548.158615609@linuxfoundation.org>
+In-Reply-To: <20230220133553.669025851@linuxfoundation.org>
+References: <20230220133553.669025851@linuxfoundation.org>
 User-Agent: quilt/0.67
+X-stable: review
+X-Patchwork-Hint: ignore
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -56,108 +56,79 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Fedor Pchelkin <pchelkin@ispras.ru>
+From: Paolo Abeni <pabeni@redhat.com>
 
-[ Upstream commit 0c598aed445eb45b0ee7ba405f7ece99ee349c30 ]
+[ Upstream commit ad2171009d968104ccda9dc517f5a3ba891515db ]
 
-Syzkaller reports a memory leak of new_flow in ovs_flow_cmd_new() as it is
-not freed when an allocation of a key fails.
+For consistency, in mptcp_pm_nl_create_listen_socket(), we need to
+call the __mptcp_nmpc_socket() under the msk socket lock.
 
-BUG: memory leak
-unreferenced object 0xffff888116668000 (size 632):
-  comm "syz-executor231", pid 1090, jiffies 4294844701 (age 18.871s)
-  hex dump (first 32 bytes):
-    00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00  ................
-    00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00  ................
-  backtrace:
-    [<00000000defa3494>] kmem_cache_zalloc include/linux/slab.h:654 [inline]
-    [<00000000defa3494>] ovs_flow_alloc+0x19/0x180 net/openvswitch/flow_table.c:77
-    [<00000000c67d8873>] ovs_flow_cmd_new+0x1de/0xd40 net/openvswitch/datapath.c:957
-    [<0000000010a539a8>] genl_family_rcv_msg_doit+0x22d/0x330 net/netlink/genetlink.c:739
-    [<00000000dff3302d>] genl_family_rcv_msg net/netlink/genetlink.c:783 [inline]
-    [<00000000dff3302d>] genl_rcv_msg+0x328/0x590 net/netlink/genetlink.c:800
-    [<000000000286dd87>] netlink_rcv_skb+0x153/0x430 net/netlink/af_netlink.c:2515
-    [<0000000061fed410>] genl_rcv+0x24/0x40 net/netlink/genetlink.c:811
-    [<000000009dc0f111>] netlink_unicast_kernel net/netlink/af_netlink.c:1313 [inline]
-    [<000000009dc0f111>] netlink_unicast+0x545/0x7f0 net/netlink/af_netlink.c:1339
-    [<000000004a5ee816>] netlink_sendmsg+0x8e7/0xde0 net/netlink/af_netlink.c:1934
-    [<00000000482b476f>] sock_sendmsg_nosec net/socket.c:651 [inline]
-    [<00000000482b476f>] sock_sendmsg+0x152/0x190 net/socket.c:671
-    [<00000000698574ba>] ____sys_sendmsg+0x70a/0x870 net/socket.c:2356
-    [<00000000d28d9e11>] ___sys_sendmsg+0xf3/0x170 net/socket.c:2410
-    [<0000000083ba9120>] __sys_sendmsg+0xe5/0x1b0 net/socket.c:2439
-    [<00000000c00628f8>] do_syscall_64+0x30/0x40 arch/x86/entry/common.c:46
-    [<000000004abfdcf4>] entry_SYSCALL_64_after_hwframe+0x61/0xc6
+Note that as a side effect, mptcp_subflow_create_socket() needs a
+'nested' lockdep annotation, as it will acquire the subflow (kernel)
+socket lock under the in-kernel listener msk socket lock.
 
-To fix this the patch rearranges the goto labels to reflect the order of
-object allocations and adds appropriate goto statements on the error
-paths.
+The current lack of locking is almost harmless, because the relevant
+socket is not exposed to the user space, but in future we will add
+more complexity to the mentioned helper, let's play safe.
 
-Found by Linux Verification Center (linuxtesting.org) with Syzkaller.
-
-Fixes: 68bb10101e6b ("openvswitch: Fix flow lookup to use unmasked key")
-Signed-off-by: Fedor Pchelkin <pchelkin@ispras.ru>
-Signed-off-by: Alexey Khoroshilov <khoroshilov@ispras.ru>
-Acked-by: Eelco Chaudron <echaudro@redhat.com>
-Reviewed-by: Simon Horman <simon.horman@corigine.com>
-Link: https://lore.kernel.org/r/20230201210218.361970-1-pchelkin@ispras.ru
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Fixes: 1729cf186d8a ("mptcp: create the listening socket for new port")
+Cc: stable@vger.kernel.org
+Signed-off-by: Paolo Abeni <pabeni@redhat.com>
+Reviewed-by: Matthieu Baerts <matthieu.baerts@tessares.net>
+Signed-off-by: Matthieu Baerts <matthieu.baerts@tessares.net>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/openvswitch/datapath.c | 12 ++++++------
- 1 file changed, 6 insertions(+), 6 deletions(-)
+ net/mptcp/pm_netlink.c | 10 ++++++----
+ net/mptcp/subflow.c    |  2 +-
+ 2 files changed, 7 insertions(+), 5 deletions(-)
 
-diff --git a/net/openvswitch/datapath.c b/net/openvswitch/datapath.c
-index 8598bc101244..3ae4ccb9895d 100644
---- a/net/openvswitch/datapath.c
-+++ b/net/openvswitch/datapath.c
-@@ -961,14 +961,14 @@ static int ovs_flow_cmd_new(struct sk_buff *skb, struct genl_info *info)
- 	key = kzalloc(sizeof(*key), GFP_KERNEL);
- 	if (!key) {
- 		error = -ENOMEM;
--		goto err_kfree_key;
-+		goto err_kfree_flow;
+diff --git a/net/mptcp/pm_netlink.c b/net/mptcp/pm_netlink.c
+index 2b1b40199c617..3a1e8f2388665 100644
+--- a/net/mptcp/pm_netlink.c
++++ b/net/mptcp/pm_netlink.c
+@@ -891,8 +891,8 @@ static int mptcp_pm_nl_create_listen_socket(struct sock *sk,
+ {
+ 	int addrlen = sizeof(struct sockaddr_in);
+ 	struct sockaddr_storage addr;
+-	struct mptcp_sock *msk;
+ 	struct socket *ssock;
++	struct sock *newsk;
+ 	int backlog = 1024;
+ 	int err;
+ 
+@@ -901,13 +901,15 @@ static int mptcp_pm_nl_create_listen_socket(struct sock *sk,
+ 	if (err)
+ 		return err;
+ 
+-	msk = mptcp_sk(entry->lsk->sk);
+-	if (!msk) {
++	newsk = entry->lsk->sk;
++	if (!newsk) {
+ 		err = -EINVAL;
+ 		goto out;
  	}
  
- 	ovs_match_init(&match, key, false, &mask);
- 	error = ovs_nla_get_match(net, &match, a[OVS_FLOW_ATTR_KEY],
- 				  a[OVS_FLOW_ATTR_MASK], log);
- 	if (error)
--		goto err_kfree_flow;
-+		goto err_kfree_key;
+-	ssock = __mptcp_nmpc_socket(msk);
++	lock_sock(newsk);
++	ssock = __mptcp_nmpc_socket(mptcp_sk(newsk));
++	release_sock(newsk);
+ 	if (!ssock) {
+ 		err = -EINVAL;
+ 		goto out;
+diff --git a/net/mptcp/subflow.c b/net/mptcp/subflow.c
+index 15dbaa202c7cf..b0e9548f00bf1 100644
+--- a/net/mptcp/subflow.c
++++ b/net/mptcp/subflow.c
+@@ -1570,7 +1570,7 @@ int mptcp_subflow_create_socket(struct sock *sk, struct socket **new_sock)
+ 	if (err)
+ 		return err;
  
- 	ovs_flow_mask_key(&new_flow->key, key, true, &mask);
+-	lock_sock(sf->sk);
++	lock_sock_nested(sf->sk, SINGLE_DEPTH_NESTING);
  
-@@ -976,14 +976,14 @@ static int ovs_flow_cmd_new(struct sk_buff *skb, struct genl_info *info)
- 	error = ovs_nla_get_identifier(&new_flow->id, a[OVS_FLOW_ATTR_UFID],
- 				       key, log);
- 	if (error)
--		goto err_kfree_flow;
-+		goto err_kfree_key;
- 
- 	/* Validate actions. */
- 	error = ovs_nla_copy_actions(net, a[OVS_FLOW_ATTR_ACTIONS],
- 				     &new_flow->key, &acts, log);
- 	if (error) {
- 		OVS_NLERR(log, "Flow actions may not be safe on all matching packets.");
--		goto err_kfree_flow;
-+		goto err_kfree_key;
- 	}
- 
- 	reply = ovs_flow_cmd_alloc_info(acts, &new_flow->id, info, false,
-@@ -1083,10 +1083,10 @@ static int ovs_flow_cmd_new(struct sk_buff *skb, struct genl_info *info)
- 	kfree_skb(reply);
- err_kfree_acts:
- 	ovs_nla_free_flow_actions(acts);
--err_kfree_flow:
--	ovs_flow_free(new_flow, false);
- err_kfree_key:
- 	kfree(key);
-+err_kfree_flow:
-+	ovs_flow_free(new_flow, false);
- error:
- 	return error;
- }
+ 	/* the newly created socket has to be in the same cgroup as its parent */
+ 	mptcp_attach_cgroup(sk, sf->sk);
 -- 
 2.39.0
 
