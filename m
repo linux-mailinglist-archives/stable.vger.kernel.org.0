@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 08EB669CD90
-	for <lists+stable@lfdr.de>; Mon, 20 Feb 2023 14:50:32 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 247A569CDF5
+	for <lists+stable@lfdr.de>; Mon, 20 Feb 2023 14:54:39 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232401AbjBTNub (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Feb 2023 08:50:31 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37836 "EHLO
+        id S232529AbjBTNyi (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Feb 2023 08:54:38 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42964 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232425AbjBTNu3 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 20 Feb 2023 08:50:29 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 34CA91E1EE
-        for <stable@vger.kernel.org>; Mon, 20 Feb 2023 05:50:26 -0800 (PST)
+        with ESMTP id S232531AbjBTNyh (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 20 Feb 2023 08:54:37 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id ED1E91D934
+        for <stable@vger.kernel.org>; Mon, 20 Feb 2023 05:54:35 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id C876560EA5
-        for <stable@vger.kernel.org>; Mon, 20 Feb 2023 13:50:25 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id DD244C4339B;
-        Mon, 20 Feb 2023 13:50:24 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 9BEF9B80D1F
+        for <stable@vger.kernel.org>; Mon, 20 Feb 2023 13:54:34 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id EDDCDC433D2;
+        Mon, 20 Feb 2023 13:54:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1676901025;
-        bh=QHxUkiFZJVVlK/8ceOzkd2zhME6SGmkPGRYz4skPD3I=;
+        s=korg; t=1676901273;
+        bh=CMZfIyw3TnPoFT4KtOz91YCqECrmo7vGeSulbne+whI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=sTf8fai0i9T1QNwvjNDjBPkUxHTxPKvWW6b4Wp/do4TDZMMCEpxwg64DfzxOMLC7v
-         SkGkXCvphEFTWvUbyeUM69S4oNU4mY8CUHpHAajsASzIl6wEi0XIP93NNXljPhOTWX
-         s/5i7b+sHclAbK5ta+SmcTOdtMRSzwMcF8Ch6iZU=
+        b=g7Q7z25oz1pFL3I6lRgsAydx7ZDjWv8vjbqlNLehq/LcEKBhOPPAbuEVUELUMwhk5
+         xqermQox7epqTTU1H0JvTnGejIadM94hUPr3MpFHu4jIbPRmWUXAnrtOt+NyAZlzXs
+         HodHRDmjxG4mbFaK+1m6zfo9fzMxKHfDBoeMzu9E=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Felix Riemann <felix.riemann@sma.de>,
-        Eric Dumazet <edumazet@google.com>,
-        "David S. Miller" <davem@davemloft.net>
-Subject: [PATCH 5.4 136/156] net: Fix unwanted sign extension in netdev_stats_to_stats64()
+        patches@lists.linux.dev, Gaosheng Cui <cuigaosheng1@huawei.com>,
+        Srinivas Kandagatla <srinivas.kandagatla@linaro.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 12/57] nvmem: core: add error handling for dev_set_name
 Date:   Mon, 20 Feb 2023 14:36:20 +0100
-Message-Id: <20230220133608.291694955@linuxfoundation.org>
+Message-Id: <20230220133549.799129848@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230220133602.515342638@linuxfoundation.org>
-References: <20230220133602.515342638@linuxfoundation.org>
+In-Reply-To: <20230220133549.360169435@linuxfoundation.org>
+References: <20230220133549.360169435@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,38 +53,58 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Felix Riemann <felix.riemann@sma.de>
+From: Gaosheng Cui <cuigaosheng1@huawei.com>
 
-commit 9b55d3f0a69af649c62cbc2633e6d695bb3cc583 upstream.
+[ Upstream commit 5544e90c81261e82e02bbf7c6015a4b9c8c825ef ]
 
-When converting net_device_stats to rtnl_link_stats64 sign extension
-is triggered on ILP32 machines as 6c1c509778 changed the previous
-"ulong -> u64" conversion to "long -> u64" by accessing the
-net_device_stats fields through a (signed) atomic_long_t.
+The type of return value of dev_set_name is int, which may return
+wrong result, so we add error handling for it to reclaim memory
+of nvmem resource, and return early when an error occurs.
 
-This causes for example the received bytes counter to jump to 16EiB after
-having received 2^31 bytes. Casting the atomic value to "unsigned long"
-beforehand converting it into u64 avoids this.
-
-Fixes: 6c1c5097781f ("net: add atomic_long_t to net_device_stats fields")
-Signed-off-by: Felix Riemann <felix.riemann@sma.de>
-Reviewed-by: Eric Dumazet <edumazet@google.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Gaosheng Cui <cuigaosheng1@huawei.com>
+Signed-off-by: Srinivas Kandagatla <srinivas.kandagatla@linaro.org>
+Link: https://lore.kernel.org/r/20220916122100.170016-4-srinivas.kandagatla@linaro.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Stable-dep-of: ab3428cfd9aa ("nvmem: core: fix registration vs use race")
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/core/dev.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/nvmem/core.c | 12 +++++++++---
+ 1 file changed, 9 insertions(+), 3 deletions(-)
 
---- a/net/core/dev.c
-+++ b/net/core/dev.c
-@@ -9467,7 +9467,7 @@ void netdev_stats_to_stats64(struct rtnl
+diff --git a/drivers/nvmem/core.c b/drivers/nvmem/core.c
+index 48fbe49e3772b..9da4edbabfe75 100644
+--- a/drivers/nvmem/core.c
++++ b/drivers/nvmem/core.c
+@@ -661,18 +661,24 @@ struct nvmem_device *nvmem_register(const struct nvmem_config *config)
  
- 	BUILD_BUG_ON(n > sizeof(*stats64) / sizeof(u64));
- 	for (i = 0; i < n; i++)
--		dst[i] = atomic_long_read(&src[i]);
-+		dst[i] = (unsigned long)atomic_long_read(&src[i]);
- 	/* zero out counters that only exist in rtnl_link_stats64 */
- 	memset((char *)stats64 + n * sizeof(u64), 0,
- 	       sizeof(*stats64) - n * sizeof(u64));
+ 	switch (config->id) {
+ 	case NVMEM_DEVID_NONE:
+-		dev_set_name(&nvmem->dev, "%s", config->name);
++		rval = dev_set_name(&nvmem->dev, "%s", config->name);
+ 		break;
+ 	case NVMEM_DEVID_AUTO:
+-		dev_set_name(&nvmem->dev, "%s%d", config->name, nvmem->id);
++		rval = dev_set_name(&nvmem->dev, "%s%d", config->name, nvmem->id);
+ 		break;
+ 	default:
+-		dev_set_name(&nvmem->dev, "%s%d",
++		rval = dev_set_name(&nvmem->dev, "%s%d",
+ 			     config->name ? : "nvmem",
+ 			     config->name ? config->id : nvmem->id);
+ 		break;
+ 	}
+ 
++	if (rval) {
++		ida_free(&nvmem_ida, nvmem->id);
++		kfree(nvmem);
++		return ERR_PTR(rval);
++	}
++
+ 	nvmem->read_only = device_property_present(config->dev, "read-only") ||
+ 			   config->read_only || !nvmem->reg_write;
+ 
+-- 
+2.39.0
+
 
 
