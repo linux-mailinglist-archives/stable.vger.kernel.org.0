@@ -2,50 +2,50 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 6014069CE74
-	for <lists+stable@lfdr.de>; Mon, 20 Feb 2023 14:59:33 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A19BA69CD6E
+	for <lists+stable@lfdr.de>; Mon, 20 Feb 2023 14:49:21 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232748AbjBTN7V (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Feb 2023 08:59:21 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50958 "EHLO
+        id S231549AbjBTNtP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Feb 2023 08:49:15 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35950 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232720AbjBTN7O (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 20 Feb 2023 08:59:14 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D0CA61EFDE
-        for <stable@vger.kernel.org>; Mon, 20 Feb 2023 05:58:54 -0800 (PST)
+        with ESMTP id S232387AbjBTNtO (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 20 Feb 2023 08:49:14 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B26C51E5C2
+        for <stable@vger.kernel.org>; Mon, 20 Feb 2023 05:49:01 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 38C9460E8A
-        for <stable@vger.kernel.org>; Mon, 20 Feb 2023 13:58:54 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 49062C4339B;
-        Mon, 20 Feb 2023 13:58:53 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 4984860EB0
+        for <stable@vger.kernel.org>; Mon, 20 Feb 2023 13:49:01 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 58305C433EF;
+        Mon, 20 Feb 2023 13:49:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1676901533;
-        bh=H55/Ryaf3b36bZ0CSG+pxFpvsm0Iwt2EmiPiN1occ/w=;
+        s=korg; t=1676900940;
+        bh=oZbuw7XOVCV8hqAFawFuMbPxoMSD2pS1WA+DqCiMQpc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=qDbQMSI5BYYCUSW1y2nXZ75Rabi3qgMm2gLNnxNQUpbzCPgXFqnzNqmbKCIYGuFeQ
-         WB5Oegf1mUJEugsma8zzXyJg+bFrXSym9bx3Fedmd0egaBwZwQ7BaGc3m6kARDLlv1
-         eXs1689flat7l4v6pVrwyx0gjh3z7nXz+Kv0E/MI=
+        b=DuQgPI2CIoqLu2+Eqqz6ZB4Aaf9sZlqJoKQuMLev/XHmemZwdvBUO1FqUo8X+cwXY
+         3NSmWeQ1CgatWoL7PU/6Tv3rZKBgAPsztHekTM8+excmSVs7jSjLnRTe/Mm7PDyYT/
+         5VZ05i0P0f/KySeyzvqf1vBqZh/I1lyqzg+BUqnc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Zack Rusin <zackr@vmware.com>,
-        Maaz Mombasawala <mombasawalam@vmware.com>,
-        Martin Krastev <krastevm@vmware.com>
-Subject: [PATCH 6.1 053/118] drm/vmwgfx: Stop accessing buffer objects which failed init
+        patches@lists.linux.dev, "Darrick J. Wong" <djwong@kernel.org>,
+        Dave Chinner <dchinner@redhat.com>,
+        Chandan Babu R <chandan.babu@oracle.com>
+Subject: [PATCH 5.4 125/156] xfs: prevent UAF in xfs_log_item_in_current_chkpt
 Date:   Mon, 20 Feb 2023 14:36:09 +0100
-Message-Id: <20230220133602.581304005@linuxfoundation.org>
+Message-Id: <20230220133607.790401025@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230220133600.368809650@linuxfoundation.org>
-References: <20230220133600.368809650@linuxfoundation.org>
+In-Reply-To: <20230220133602.515342638@linuxfoundation.org>
+References: <20230220133602.515342638@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
         SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -53,77 +53,159 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zack Rusin <zackr@vmware.com>
+From: "Darrick J. Wong" <djwong@kernel.org>
 
-commit 1a6897921f52ceb2c8665ef826e405bd96385159 upstream.
+commit f8d92a66e810acbef6ddbc0bd0cbd9b117ce8acd upstream.
 
-ttm_bo_init_reserved on failure puts the buffer object back which
-causes it to be deleted, but kfree was still being called on the same
-buffer in vmw_bo_create leading to a double free.
+[ Continue to interpret xfs_log_item->li_seq as an LSN rather than a CIL sequence
+  number. ]
 
-After the double free the vmw_gem_object_create_with_handle was
-setting the gem function objects before checking the return status
-of vmw_bo_create leading to null pointer access.
+While I was running with KASAN and lockdep enabled, I stumbled upon an
+KASAN report about a UAF to a freed CIL checkpoint.  Looking at the
+comment for xfs_log_item_in_current_chkpt, it seems pretty obvious to me
+that the original patch to xfs_defer_finish_noroll should have done
+something to lock the CIL to prevent it from switching the CIL contexts
+while the predicate runs.
 
-Fix the entire path by relaying on ttm_bo_init_reserved to delete the
-buffer objects on failure and making sure the return status is checked
-before setting the gem function objects on the buffer object.
+For upper level code that needs to know if a given log item is new
+enough not to need relogging, add a new wrapper that takes the CIL
+context lock long enough to sample the current CIL context.  This is
+kind of racy in that the CIL can switch the contexts immediately after
+sampling, but that's ok because the consequence is that the defer ops
+code is a little slow to relog items.
 
-Signed-off-by: Zack Rusin <zackr@vmware.com>
-Fixes: 8afa13a0583f ("drm/vmwgfx: Implement DRIVER_GEM")
-Reviewed-by: Maaz Mombasawala <mombasawalam@vmware.com>
-Reviewed-by: Martin Krastev <krastevm@vmware.com>
-Link: https://patchwork.freedesktop.org/patch/msgid/20230208180050.2093426-1-zack@kde.org
-(cherry picked from commit 36d421e632e9a0e8375eaed0143551a34d81a7e3)
-Cc: <stable@vger.kernel.org> # v5.17+
+ ==================================================================
+ BUG: KASAN: use-after-free in xfs_log_item_in_current_chkpt+0x139/0x160 [xfs]
+ Read of size 8 at addr ffff88804ea5f608 by task fsstress/527999
+
+ CPU: 1 PID: 527999 Comm: fsstress Tainted: G      D      5.16.0-rc4-xfsx #rc4
+ Call Trace:
+  <TASK>
+  dump_stack_lvl+0x45/0x59
+  print_address_description.constprop.0+0x1f/0x140
+  kasan_report.cold+0x83/0xdf
+  xfs_log_item_in_current_chkpt+0x139/0x160
+  xfs_defer_finish_noroll+0x3bb/0x1e30
+  __xfs_trans_commit+0x6c8/0xcf0
+  xfs_reflink_remap_extent+0x66f/0x10e0
+  xfs_reflink_remap_blocks+0x2dd/0xa90
+  xfs_file_remap_range+0x27b/0xc30
+  vfs_dedupe_file_range_one+0x368/0x420
+  vfs_dedupe_file_range+0x37c/0x5d0
+  do_vfs_ioctl+0x308/0x1260
+  __x64_sys_ioctl+0xa1/0x170
+  do_syscall_64+0x35/0x80
+  entry_SYSCALL_64_after_hwframe+0x44/0xae
+ RIP: 0033:0x7f2c71a2950b
+ Code: 0f 1e fa 48 8b 05 85 39 0d 00 64 c7 00 26 00 00 00 48 c7 c0 ff ff
+ff ff c3 66 0f 1f 44 00 00 f3 0f 1e fa b8 10 00 00 00 0f 05 <48> 3d 01
+f0 ff ff 73 01 c3 48 8b 0d 55 39 0d 00 f7 d8 64 89 01 48
+ RSP: 002b:00007ffe8c0e03c8 EFLAGS: 00000246 ORIG_RAX: 0000000000000010
+ RAX: ffffffffffffffda RBX: 00005600862a8740 RCX: 00007f2c71a2950b
+ RDX: 00005600862a7be0 RSI: 00000000c0189436 RDI: 0000000000000004
+ RBP: 000000000000000b R08: 0000000000000027 R09: 0000000000000003
+ R10: 0000000000000000 R11: 0000000000000246 R12: 000000000000005a
+ R13: 00005600862804a8 R14: 0000000000016000 R15: 00005600862a8a20
+  </TASK>
+
+ Allocated by task 464064:
+  kasan_save_stack+0x1e/0x50
+  __kasan_kmalloc+0x81/0xa0
+  kmem_alloc+0xcd/0x2c0 [xfs]
+  xlog_cil_ctx_alloc+0x17/0x1e0 [xfs]
+  xlog_cil_push_work+0x141/0x13d0 [xfs]
+  process_one_work+0x7f6/0x1380
+  worker_thread+0x59d/0x1040
+  kthread+0x3b0/0x490
+  ret_from_fork+0x1f/0x30
+
+ Freed by task 51:
+  kasan_save_stack+0x1e/0x50
+  kasan_set_track+0x21/0x30
+  kasan_set_free_info+0x20/0x30
+  __kasan_slab_free+0xed/0x130
+  slab_free_freelist_hook+0x7f/0x160
+  kfree+0xde/0x340
+  xlog_cil_committed+0xbfd/0xfe0 [xfs]
+  xlog_cil_process_committed+0x103/0x1c0 [xfs]
+  xlog_state_do_callback+0x45d/0xbd0 [xfs]
+  xlog_ioend_work+0x116/0x1c0 [xfs]
+  process_one_work+0x7f6/0x1380
+  worker_thread+0x59d/0x1040
+  kthread+0x3b0/0x490
+  ret_from_fork+0x1f/0x30
+
+ Last potentially related work creation:
+  kasan_save_stack+0x1e/0x50
+  __kasan_record_aux_stack+0xb7/0xc0
+  insert_work+0x48/0x2e0
+  __queue_work+0x4e7/0xda0
+  queue_work_on+0x69/0x80
+  xlog_cil_push_now.isra.0+0x16b/0x210 [xfs]
+  xlog_cil_force_seq+0x1b7/0x850 [xfs]
+  xfs_log_force_seq+0x1c7/0x670 [xfs]
+  xfs_file_fsync+0x7c1/0xa60 [xfs]
+  __x64_sys_fsync+0x52/0x80
+  do_syscall_64+0x35/0x80
+  entry_SYSCALL_64_after_hwframe+0x44/0xae
+
+ The buggy address belongs to the object at ffff88804ea5f600
+  which belongs to the cache kmalloc-256 of size 256
+ The buggy address is located 8 bytes inside of
+  256-byte region [ffff88804ea5f600, ffff88804ea5f700)
+ The buggy address belongs to the page:
+ page:ffffea00013a9780 refcount:1 mapcount:0 mapping:0000000000000000 index:0xffff88804ea5ea00 pfn:0x4ea5e
+ head:ffffea00013a9780 order:1 compound_mapcount:0
+ flags: 0x4fff80000010200(slab|head|node=1|zone=1|lastcpupid=0xfff)
+ raw: 04fff80000010200 ffffea0001245908 ffffea00011bd388 ffff888004c42b40
+ raw: ffff88804ea5ea00 0000000000100009 00000001ffffffff 0000000000000000
+ page dumped because: kasan: bad access detected
+
+ Memory state around the buggy address:
+  ffff88804ea5f500: fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc
+  ffff88804ea5f580: fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc
+ >ffff88804ea5f600: fa fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb
+                       ^
+  ffff88804ea5f680: fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb fb
+  ffff88804ea5f700: fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc fc
+ ==================================================================
+
+Fixes: 4e919af7827a ("xfs: periodically relog deferred intent items")
+Signed-off-by: Darrick J. Wong <djwong@kernel.org>
+Reviewed-by: Dave Chinner <dchinner@redhat.com>
+Signed-off-by: Chandan Babu R <chandan.babu@oracle.com>
+Acked-by: Darrick J. Wong <djwong@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/gpu/drm/vmwgfx/vmwgfx_bo.c  | 4 +++-
- drivers/gpu/drm/vmwgfx/vmwgfx_gem.c | 4 ++--
- 2 files changed, 5 insertions(+), 3 deletions(-)
+ fs/xfs/xfs_log_cil.c |    8 +++-----
+ 1 file changed, 3 insertions(+), 5 deletions(-)
 
-diff --git a/drivers/gpu/drm/vmwgfx/vmwgfx_bo.c b/drivers/gpu/drm/vmwgfx/vmwgfx_bo.c
-index aa1cd5126a32..53da183e2bfe 100644
---- a/drivers/gpu/drm/vmwgfx/vmwgfx_bo.c
-+++ b/drivers/gpu/drm/vmwgfx/vmwgfx_bo.c
-@@ -462,6 +462,9 @@ int vmw_bo_create(struct vmw_private *vmw,
- 		return -ENOMEM;
- 	}
+--- a/fs/xfs/xfs_log_cil.c
++++ b/fs/xfs/xfs_log_cil.c
+@@ -1178,21 +1178,19 @@ out_shutdown:
+  */
+ bool
+ xfs_log_item_in_current_chkpt(
+-	struct xfs_log_item *lip)
++	struct xfs_log_item	*lip)
+ {
+-	struct xfs_cil_ctx *ctx;
++	struct xfs_cil		*cil = lip->li_mountp->m_log->l_cilp;
  
-+	/*
-+	 * vmw_bo_init will delete the *p_bo object if it fails
-+	 */
- 	ret = vmw_bo_init(vmw, *p_bo, size,
- 			  placement, interruptible, pin,
- 			  bo_free);
-@@ -470,7 +473,6 @@ int vmw_bo_create(struct vmw_private *vmw,
+ 	if (list_empty(&lip->li_cil))
+ 		return false;
  
- 	return ret;
- out_error:
--	kfree(*p_bo);
- 	*p_bo = NULL;
- 	return ret;
- }
-diff --git a/drivers/gpu/drm/vmwgfx/vmwgfx_gem.c b/drivers/gpu/drm/vmwgfx/vmwgfx_gem.c
-index ce609e7d758f..83d8f18cc16f 100644
---- a/drivers/gpu/drm/vmwgfx/vmwgfx_gem.c
-+++ b/drivers/gpu/drm/vmwgfx/vmwgfx_gem.c
-@@ -146,11 +146,11 @@ int vmw_gem_object_create_with_handle(struct vmw_private *dev_priv,
- 				    &vmw_sys_placement :
- 				    &vmw_vram_sys_placement,
- 			    true, false, &vmw_gem_destroy, p_vbo);
+-	ctx = lip->li_mountp->m_log->l_cilp->xc_ctx;
 -
--	(*p_vbo)->base.base.funcs = &vmw_gem_object_funcs;
- 	if (ret != 0)
- 		goto out_no_bo;
- 
-+	(*p_vbo)->base.base.funcs = &vmw_gem_object_funcs;
-+
- 	ret = drm_gem_handle_create(filp, &(*p_vbo)->base.base, handle);
- 	/* drop reference from allocate - handle holds it now */
- 	drm_gem_object_put(&(*p_vbo)->base.base);
--- 
-2.39.1
-
+ 	/*
+ 	 * li_seq is written on the first commit of a log item to record the
+ 	 * first checkpoint it is written to. Hence if it is different to the
+ 	 * current sequence, we're in a new checkpoint.
+ 	 */
+-	if (XFS_LSN_CMP(lip->li_seq, ctx->sequence) != 0)
++	if (XFS_LSN_CMP(lip->li_seq, READ_ONCE(cil->xc_current_sequence)) != 0)
+ 		return false;
+ 	return true;
+ }
 
 
