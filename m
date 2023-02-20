@@ -2,48 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id EA7A769CD3A
-	for <lists+stable@lfdr.de>; Mon, 20 Feb 2023 14:47:40 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 33A0069CC42
+	for <lists+stable@lfdr.de>; Mon, 20 Feb 2023 14:38:45 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232315AbjBTNri (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Feb 2023 08:47:38 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60638 "EHLO
+        id S229986AbjBTNio (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Feb 2023 08:38:44 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46778 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232319AbjBTNrf (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 20 Feb 2023 08:47:35 -0500
+        with ESMTP id S231663AbjBTNin (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 20 Feb 2023 08:38:43 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3947B1CF5F
-        for <stable@vger.kernel.org>; Mon, 20 Feb 2023 05:47:23 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 872A61B567
+        for <stable@vger.kernel.org>; Mon, 20 Feb 2023 05:38:42 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id D4F14B80D4B
-        for <stable@vger.kernel.org>; Mon, 20 Feb 2023 13:47:21 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 26155C4339B;
-        Mon, 20 Feb 2023 13:47:19 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 3D53AB80D44
+        for <stable@vger.kernel.org>; Mon, 20 Feb 2023 13:38:41 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 97BF0C433D2;
+        Mon, 20 Feb 2023 13:38:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1676900840;
-        bh=TXbY8fDjGP/B03F/arkzREE5WK0zH8dzFLt0hzG0tD8=;
+        s=korg; t=1676900320;
+        bh=XpOmjL4rZAZF3gpGNKAk3Yqsv8PYa6+k6gWhY78I28g=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=NNFxPqnyorez8s/EkRCqa+GGpy7cm6Q4U+oi8XUMmJIZngIAk8Aht69/cWjjXS4/l
-         rqYiM7m7XXQu8ONa3icBi0acYLvST/x/tVZgMsqP0Fra0nyigwSBJjAoLUNQcevWkd
-         DPF5+8iFOmWyXSGh+tn2v2unbWIbivhtfDoSed3M=
+        b=daXGOzx2M8b0TvW+Ef/e5bkr934uKn1gscalnTLGPu1PQldv8a4/m7ygv30s42kmY
+         PEVUfwMWsL9fFKZRjl38gvqIWevr33zYlDWOezb7MAHVzOjyQ7i8Dj5Fo3k+HgPk1m
+         cq6MZy8IIId/Rkonq07CrL6eHGD1ZWYGiv9uAUu8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
-        Keith Busch <kbusch@kernel.org>,
-        Sagi Grimberg <sagi@grimberg.me>,
-        Chaitanya Kulkarni <chaitanya.kulkarni@wdc.com>,
-        Christoph Hellwig <hch@lst.de>,
-        Gwendal Grignou <gwendal@chromium.org>
-Subject: [PATCH 5.4 088/156] nvme-pci: Move enumeration by class to be last in the table
+        patches@lists.linux.dev, Xin Long <lucien.xin@gmail.com>,
+        Marcelo Ricardo Leitner <marcelo.leitner@gmail.com>,
+        Jakub Kicinski <kuba@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.14 06/53] sctp: do not check hb_timer.expires when resetting hb_timer
 Date:   Mon, 20 Feb 2023 14:35:32 +0100
-Message-Id: <20230220133606.091480110@linuxfoundation.org>
+Message-Id: <20230220133548.393857156@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230220133602.515342638@linuxfoundation.org>
-References: <20230220133602.515342638@linuxfoundation.org>
+In-Reply-To: <20230220133548.158615609@linuxfoundation.org>
+References: <20230220133548.158615609@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -57,45 +54,53 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+From: Xin Long <lucien.xin@gmail.com>
 
-commit 0b85f59d30b91bd2b93ea7ef0816a4b7e7039e8c upstream.
+[ Upstream commit 8f35ae17ef565a605de5f409e04bcd49a55d7646 ]
 
-It's unusual that we have enumeration by class in the middle of the table.
-It might potentially be problematic in the future if we add another entry
-after it.
+It tries to avoid the frequently hb_timer refresh in commit ba6f5e33bdbb
+("sctp: avoid refreshing heartbeat timer too often"), and it only allows
+mod_timer when the new expires is after hb_timer.expires. It means even
+a much shorter interval for hb timer gets applied, it will have to wait
+until the current hb timer to time out.
 
-So, move class matching entry to be the last in the ID table.
+In sctp_do_8_2_transport_strike(), when a transport enters PF state, it
+expects to update the hb timer to resend a heartbeat every rto after
+calling sctp_transport_reset_hb_timer(), which will not work as the
+change mentioned above.
 
-Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Reviewed-by: Keith Busch <kbusch@kernel.org>
-Reviewed-by: Sagi Grimberg <sagi@grimberg.me>
-Reviewed-by: Chaitanya Kulkarni <chaitanya.kulkarni@wdc.com>
-Signed-off-by: Christoph Hellwig <hch@lst.de>
-Signed-off-by: Gwendal Grignou <gwendal@chromium.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+The frequently hb_timer refresh was caused by sctp_transport_reset_timers()
+called in sctp_outq_flush() and it was already removed in the commit above.
+So we don't have to check hb_timer.expires when resetting hb_timer as it is
+now not called very often.
+
+Fixes: ba6f5e33bdbb ("sctp: avoid refreshing heartbeat timer too often")
+Signed-off-by: Xin Long <lucien.xin@gmail.com>
+Acked-by: Marcelo Ricardo Leitner <marcelo.leitner@gmail.com>
+Link: https://lore.kernel.org/r/d958c06985713ec84049a2d5664879802710179a.1675095933.git.lucien.xin@gmail.com
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/nvme/host/pci.c |    3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+ net/sctp/transport.c | 4 +---
+ 1 file changed, 1 insertion(+), 3 deletions(-)
 
---- a/drivers/nvme/host/pci.c
-+++ b/drivers/nvme/host/pci.c
-@@ -3199,7 +3199,6 @@ static const struct pci_device_id nvme_i
- 				NVME_QUIRK_IGNORE_DEV_SUBNQN, },
- 	{ PCI_DEVICE(0x1c5c, 0x1504),   /* SK Hynix PC400 */
- 		.driver_data = NVME_QUIRK_DISABLE_WRITE_ZEROES, },
--	{ PCI_DEVICE_CLASS(PCI_CLASS_STORAGE_EXPRESS, 0xffffff) },
- 	{ PCI_DEVICE(0x2646, 0x2263),   /* KINGSTON A2000 NVMe SSD  */
- 		.driver_data = NVME_QUIRK_NO_DEEPEST_PS, },
- 	{ PCI_DEVICE(PCI_VENDOR_ID_APPLE, 0x2001),
-@@ -3209,6 +3208,8 @@ static const struct pci_device_id nvme_i
- 		.driver_data = NVME_QUIRK_SINGLE_VECTOR |
- 				NVME_QUIRK_128_BYTES_SQES |
- 				NVME_QUIRK_SHARED_TAGS },
-+
-+	{ PCI_DEVICE_CLASS(PCI_CLASS_STORAGE_EXPRESS, 0xffffff) },
- 	{ 0, }
- };
- MODULE_DEVICE_TABLE(pci, nvme_id_table);
+diff --git a/net/sctp/transport.c b/net/sctp/transport.c
+index af56651169b2..79d2aa44c6e5 100644
+--- a/net/sctp/transport.c
++++ b/net/sctp/transport.c
+@@ -210,9 +210,7 @@ void sctp_transport_reset_hb_timer(struct sctp_transport *transport)
+ 
+ 	/* When a data chunk is sent, reset the heartbeat interval.  */
+ 	expires = jiffies + sctp_transport_timeout(transport);
+-	if ((time_before(transport->hb_timer.expires, expires) ||
+-	     !timer_pending(&transport->hb_timer)) &&
+-	    !mod_timer(&transport->hb_timer,
++	if (!mod_timer(&transport->hb_timer,
+ 		       expires + prandom_u32_max(transport->rto)))
+ 		sctp_transport_hold(transport);
+ }
+-- 
+2.39.0
+
 
 
