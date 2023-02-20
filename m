@@ -2,50 +2,52 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id BF34569CE72
-	for <lists+stable@lfdr.de>; Mon, 20 Feb 2023 14:59:32 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6907369CDB7
+	for <lists+stable@lfdr.de>; Mon, 20 Feb 2023 14:52:06 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232785AbjBTN7X (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Feb 2023 08:59:23 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51098 "EHLO
+        id S232462AbjBTNwF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Feb 2023 08:52:05 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39234 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232729AbjBTN7Q (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 20 Feb 2023 08:59:16 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7A8B91EFCD
-        for <stable@vger.kernel.org>; Mon, 20 Feb 2023 05:58:57 -0800 (PST)
+        with ESMTP id S232464AbjBTNwE (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 20 Feb 2023 08:52:04 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D15EC1E5EA
+        for <stable@vger.kernel.org>; Mon, 20 Feb 2023 05:52:01 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id C18F460CEB
-        for <stable@vger.kernel.org>; Mon, 20 Feb 2023 13:58:56 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D7BBDC433D2;
-        Mon, 20 Feb 2023 13:58:55 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 61079B80D1F
+        for <stable@vger.kernel.org>; Mon, 20 Feb 2023 13:52:00 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C572CC4339B;
+        Mon, 20 Feb 2023 13:51:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1676901536;
-        bh=6oDZu+NJZP7NTVee/M/XLF+prhMsOP+I9UO50H9burM=;
+        s=korg; t=1676901119;
+        bh=DyfMsKxO7PzLaLXkYzrXcYrQ21wzF822oqmwtjjaNI4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=DFvagQcdxe3Vx2NKIWvkn68ptFrprpFGnCV9muxndTKncxhuzMeamTUxdJi/dLxw1
-         yoy6guAkFOJ2cWHkdKdfSU8JMWMCO0OiAsZQ6oHhMsSdVe+YsLRkNyybDUy4T0qnM9
-         GvjcxhXkiIMybQbKesTIXdXbcgQYlQ9q0fm1Z3iA=
+        b=Ts9FzucwG7d3Un9qbeUkFzzgLGe2htPdlSeZXllztsW7EM8TR3nD2bJbAbXm+m+L0
+         q5G6AOOQEEvf9yazQAjwb+phpGiqUEaWQvsVhIcHpKJpAIyJeLayEhp62Hx10qrF8C
+         UqvsBFNnlHteMLxm8jFf8vDouuprWzQmtBINoGQU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Zack Rusin <zackr@vmware.com>,
-        Martin Krastev <krastevm@vmware.com>,
-        Maaz Mombasawala <mombasawalam@vmware.com>
-Subject: [PATCH 6.1 054/118] drm/vmwgfx: Do not drop the reference to the handle too soon
+        patches@lists.linux.dev,
+        Shyam Sundar S K <Shyam-sundar.S-k@amd.com>,
+        Sanket Goswami <Sanket.Goswami@amd.com>,
+        Mario Limonciello <mario.limonciello@amd.com>,
+        Hans de Goede <hdegoede@redhat.com>
+Subject: [PATCH 5.15 37/83] platform/x86: amd-pmc: Export Idlemask values based on the APU
 Date:   Mon, 20 Feb 2023 14:36:10 +0100
-Message-Id: <20230220133602.622924506@linuxfoundation.org>
+Message-Id: <20230220133554.953960850@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230220133600.368809650@linuxfoundation.org>
-References: <20230220133600.368809650@linuxfoundation.org>
+In-Reply-To: <20230220133553.669025851@linuxfoundation.org>
+References: <20230220133553.669025851@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
         SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -53,195 +55,156 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zack Rusin <zackr@vmware.com>
+From: Sanket Goswami <Sanket.Goswami@amd.com>
 
-commit a950b989ea29ab3b38ea7f6e3d2540700a3c54e8 upstream.
+commit f6045de1f53268131ea75a99b210b869dcc150b2 upstream.
 
-v3: Fix vmw_user_bo_lookup which was also dropping the gem reference
-before the kernel was done with buffer depending on userspace doing
-the right thing. Same bug, different spot.
+IdleMask is the metric used by the PM firmware to know the status of each
+of the Hardware IP blocks monitored by the PM firmware.
 
-It is possible for userspace to predict the next buffer handle and
-to destroy the buffer while it's still used by the kernel. Delay
-dropping the internal reference on the buffers until kernel is done
-with them.
+Knowing this value is key to get the information of s2idle suspend/resume
+status. This value is mapped to PMC scratch registers, retrieve them
+accordingly based on the CPU family and the underlying firmware support.
 
-Instead of immediately dropping the gem reference in vmw_user_bo_lookup
-and vmw_gem_object_create_with_handle let the callers decide when they're
-ready give the control back to userspace.
-
-Also fixes the second usage of vmw_gem_object_create_with_handle in
-vmwgfx_surface.c which wasn't grabbing an explicit reference
-to the gem object which could have been destroyed by the userspace
-on the owning surface at any point.
-
-Signed-off-by: Zack Rusin <zackr@vmware.com>
-Fixes: 8afa13a0583f ("drm/vmwgfx: Implement DRIVER_GEM")
-Reviewed-by: Martin Krastev <krastevm@vmware.com>
-Reviewed-by: Maaz Mombasawala <mombasawalam@vmware.com>
-Link: https://patchwork.freedesktop.org/patch/msgid/20230211050514.2431155-1-zack@kde.org
-(cherry picked from commit 9ef8d83e8e25d5f1811b3a38eb1484f85f64296c)
-Cc: <stable@vger.kernel.org> # v5.17+
+Co-developed-by: Shyam Sundar S K <Shyam-sundar.S-k@amd.com>
+Signed-off-by: Shyam Sundar S K <Shyam-sundar.S-k@amd.com>
+Signed-off-by: Sanket Goswami <Sanket.Goswami@amd.com>
+Reviewed-by: Mario Limonciello <mario.limonciello@amd.com>
+Link: https://lore.kernel.org/r/20210916124002.2529-1-Sanket.Goswami@amd.com
+Reviewed-by: Hans de Goede <hdegoede@redhat.com>
+Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+Signed-off-by: Mario Limonciello <mario.limonciello@amd.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/gpu/drm/vmwgfx/vmwgfx_bo.c      |    8 +++++---
- drivers/gpu/drm/vmwgfx/vmwgfx_execbuf.c |    2 ++
- drivers/gpu/drm/vmwgfx/vmwgfx_gem.c     |    4 ++--
- drivers/gpu/drm/vmwgfx/vmwgfx_kms.c     |    4 +++-
- drivers/gpu/drm/vmwgfx/vmwgfx_overlay.c |    1 +
- drivers/gpu/drm/vmwgfx/vmwgfx_shader.c  |    1 +
- drivers/gpu/drm/vmwgfx/vmwgfx_surface.c |   10 ++++++----
- 7 files changed, 20 insertions(+), 10 deletions(-)
+ drivers/platform/x86/amd-pmc.c |   76 +++++++++++++++++++++++++++++++++++++++++
+ 1 file changed, 76 insertions(+)
 
---- a/drivers/gpu/drm/vmwgfx/vmwgfx_bo.c
-+++ b/drivers/gpu/drm/vmwgfx/vmwgfx_bo.c
-@@ -598,6 +598,7 @@ static int vmw_user_bo_synccpu_release(s
- 		ttm_bo_put(&vmw_bo->base);
- 	}
+--- a/drivers/platform/x86/amd-pmc.c
++++ b/drivers/platform/x86/amd-pmc.c
+@@ -29,6 +29,10 @@
+ #define AMD_PMC_REGISTER_RESPONSE	0x980
+ #define AMD_PMC_REGISTER_ARGUMENT	0x9BC
  
-+	drm_gem_object_put(&vmw_bo->base.base);
- 	return ret;
++/* PMC Scratch Registers */
++#define AMD_PMC_SCRATCH_REG_CZN		0x94
++#define AMD_PMC_SCRATCH_REG_YC		0xD14
++
+ /* Base address of SMU for mapping physical address to virtual address */
+ #define AMD_PMC_SMU_INDEX_ADDRESS	0xB8
+ #define AMD_PMC_SMU_INDEX_DATA		0xBC
+@@ -110,6 +114,10 @@ struct amd_pmc_dev {
+ 	u32 base_addr;
+ 	u32 cpu_id;
+ 	u32 active_ips;
++/* SMU version information */
++	u16 major;
++	u16 minor;
++	u16 rev;
+ 	struct device *dev;
+ 	struct mutex lock; /* generic mutex lock */
+ #if IS_ENABLED(CONFIG_DEBUG_FS)
+@@ -201,6 +209,66 @@ static int s0ix_stats_show(struct seq_fi
  }
+ DEFINE_SHOW_ATTRIBUTE(s0ix_stats);
  
-@@ -638,6 +639,7 @@ int vmw_user_bo_synccpu_ioctl(struct drm
++static int amd_pmc_get_smu_version(struct amd_pmc_dev *dev)
++{
++	int rc;
++	u32 val;
++
++	rc = amd_pmc_send_cmd(dev, 0, &val, SMU_MSG_GETSMUVERSION, 1);
++	if (rc)
++		return rc;
++
++	dev->major = (val >> 16) & GENMASK(15, 0);
++	dev->minor = (val >> 8) & GENMASK(7, 0);
++	dev->rev = (val >> 0) & GENMASK(7, 0);
++
++	dev_dbg(dev->dev, "SMU version is %u.%u.%u\n", dev->major, dev->minor, dev->rev);
++
++	return 0;
++}
++
++static int amd_pmc_idlemask_read(struct amd_pmc_dev *pdev, struct device *dev,
++				 struct seq_file *s)
++{
++	u32 val;
++
++	switch (pdev->cpu_id) {
++	case AMD_CPU_ID_CZN:
++		val = amd_pmc_reg_read(pdev, AMD_PMC_SCRATCH_REG_CZN);
++		break;
++	case AMD_CPU_ID_YC:
++		val = amd_pmc_reg_read(pdev, AMD_PMC_SCRATCH_REG_YC);
++		break;
++	default:
++		return -EINVAL;
++	}
++
++	if (dev)
++		dev_dbg(pdev->dev, "SMU idlemask s0i3: 0x%x\n", val);
++
++	if (s)
++		seq_printf(s, "SMU idlemask : 0x%x\n", val);
++
++	return 0;
++}
++
++static int amd_pmc_idlemask_show(struct seq_file *s, void *unused)
++{
++	struct amd_pmc_dev *dev = s->private;
++	int rc;
++
++	if (dev->major > 56 || (dev->major >= 55 && dev->minor >= 37)) {
++		rc = amd_pmc_idlemask_read(dev, NULL, s);
++		if (rc)
++			return rc;
++	} else {
++		seq_puts(s, "Unsupported SMU version for Idlemask\n");
++	}
++
++	return 0;
++}
++DEFINE_SHOW_ATTRIBUTE(amd_pmc_idlemask);
++
+ static void amd_pmc_dbgfs_unregister(struct amd_pmc_dev *dev)
+ {
+ 	debugfs_remove_recursive(dev->dbgfs_dir);
+@@ -213,6 +281,8 @@ static void amd_pmc_dbgfs_register(struc
+ 			    &smu_fw_info_fops);
+ 	debugfs_create_file("s0ix_stats", 0644, dev->dbgfs_dir, dev,
+ 			    &s0ix_stats_fops);
++	debugfs_create_file("amd_pmc_idlemask", 0644, dev->dbgfs_dir, dev,
++			    &amd_pmc_idlemask_fops);
+ }
+ #else
+ static inline void amd_pmc_dbgfs_register(struct amd_pmc_dev *dev)
+@@ -349,6 +419,8 @@ static int __maybe_unused amd_pmc_suspen
+ 	amd_pmc_send_cmd(pdev, 0, NULL, SMU_MSG_LOG_RESET, 0);
+ 	amd_pmc_send_cmd(pdev, 0, NULL, SMU_MSG_LOG_START, 0);
  
- 		ret = vmw_user_bo_synccpu_grab(vbo, arg->flags);
- 		vmw_bo_unreference(&vbo);
-+		drm_gem_object_put(&vbo->base.base);
- 		if (unlikely(ret != 0)) {
- 			if (ret == -ERESTARTSYS || ret == -EBUSY)
- 				return -EBUSY;
-@@ -695,7 +697,7 @@ int vmw_bo_unref_ioctl(struct drm_device
-  * struct vmw_buffer_object should be placed.
-  * Return: Zero on success, Negative error code on error.
-  *
-- * The vmw buffer object pointer will be refcounted.
-+ * The vmw buffer object pointer will be refcounted (both ttm and gem)
-  */
- int vmw_user_bo_lookup(struct drm_file *filp,
- 		       uint32_t handle,
-@@ -712,7 +714,6 @@ int vmw_user_bo_lookup(struct drm_file *
++	/* Dump the IdleMask before we send hint to SMU */
++	amd_pmc_idlemask_read(pdev, dev, NULL);
+ 	msg = amd_pmc_get_os_hint(pdev);
+ 	rc = amd_pmc_send_cmd(pdev, 1, NULL, msg, 0);
+ 	if (rc)
+@@ -371,6 +443,9 @@ static int __maybe_unused amd_pmc_resume
+ 	if (rc)
+ 		dev_err(pdev->dev, "resume failed\n");
  
- 	*out = gem_to_vmw_bo(gobj);
- 	ttm_bo_get(&(*out)->base);
--	drm_gem_object_put(gobj);
- 
++	/* Dump the IdleMask to see the blockers */
++	amd_pmc_idlemask_read(pdev, dev, NULL);
++
  	return 0;
  }
-@@ -779,7 +780,8 @@ int vmw_dumb_create(struct drm_file *fil
- 	ret = vmw_gem_object_create_with_handle(dev_priv, file_priv,
- 						args->size, &args->handle,
- 						&vbo);
--
-+	/* drop reference from allocate - handle holds it now */
-+	drm_gem_object_put(&vbo->base.base);
- 	return ret;
- }
  
---- a/drivers/gpu/drm/vmwgfx/vmwgfx_execbuf.c
-+++ b/drivers/gpu/drm/vmwgfx/vmwgfx_execbuf.c
-@@ -1160,6 +1160,7 @@ static int vmw_translate_mob_ptr(struct
- 	}
- 	ret = vmw_validation_add_bo(sw_context->ctx, vmw_bo, true, false);
- 	ttm_bo_put(&vmw_bo->base);
-+	drm_gem_object_put(&vmw_bo->base.base);
- 	if (unlikely(ret != 0))
- 		return ret;
+@@ -458,6 +533,7 @@ static int amd_pmc_probe(struct platform
+ 	if (err)
+ 		dev_err(dev->dev, "SMU debugging info not supported on this platform\n");
  
-@@ -1214,6 +1215,7 @@ static int vmw_translate_guest_ptr(struc
- 	}
- 	ret = vmw_validation_add_bo(sw_context->ctx, vmw_bo, false, false);
- 	ttm_bo_put(&vmw_bo->base);
-+	drm_gem_object_put(&vmw_bo->base.base);
- 	if (unlikely(ret != 0))
- 		return ret;
- 
---- a/drivers/gpu/drm/vmwgfx/vmwgfx_gem.c
-+++ b/drivers/gpu/drm/vmwgfx/vmwgfx_gem.c
-@@ -152,8 +152,6 @@ int vmw_gem_object_create_with_handle(st
- 	(*p_vbo)->base.base.funcs = &vmw_gem_object_funcs;
- 
- 	ret = drm_gem_handle_create(filp, &(*p_vbo)->base.base, handle);
--	/* drop reference from allocate - handle holds it now */
--	drm_gem_object_put(&(*p_vbo)->base.base);
- out_no_bo:
- 	return ret;
- }
-@@ -180,6 +178,8 @@ int vmw_gem_object_create_ioctl(struct d
- 	rep->map_handle = drm_vma_node_offset_addr(&vbo->base.base.vma_node);
- 	rep->cur_gmr_id = handle;
- 	rep->cur_gmr_offset = 0;
-+	/* drop reference from allocate - handle holds it now */
-+	drm_gem_object_put(&vbo->base.base);
- out_no_bo:
- 	return ret;
- }
---- a/drivers/gpu/drm/vmwgfx/vmwgfx_kms.c
-+++ b/drivers/gpu/drm/vmwgfx/vmwgfx_kms.c
-@@ -1669,8 +1669,10 @@ static struct drm_framebuffer *vmw_kms_f
- 
- err_out:
- 	/* vmw_user_lookup_handle takes one ref so does new_fb */
--	if (bo)
-+	if (bo) {
- 		vmw_bo_unreference(&bo);
-+		drm_gem_object_put(&bo->base.base);
-+	}
- 	if (surface)
- 		vmw_surface_unreference(&surface);
- 
---- a/drivers/gpu/drm/vmwgfx/vmwgfx_overlay.c
-+++ b/drivers/gpu/drm/vmwgfx/vmwgfx_overlay.c
-@@ -458,6 +458,7 @@ int vmw_overlay_ioctl(struct drm_device
- 	ret = vmw_overlay_update_stream(dev_priv, buf, arg, true);
- 
- 	vmw_bo_unreference(&buf);
-+	drm_gem_object_put(&buf->base.base);
- 
- out_unlock:
- 	mutex_unlock(&overlay->mutex);
---- a/drivers/gpu/drm/vmwgfx/vmwgfx_shader.c
-+++ b/drivers/gpu/drm/vmwgfx/vmwgfx_shader.c
-@@ -807,6 +807,7 @@ static int vmw_shader_define(struct drm_
- 				    num_output_sig, tfile, shader_handle);
- out_bad_arg:
- 	vmw_bo_unreference(&buffer);
-+	drm_gem_object_put(&buffer->base.base);
- 	return ret;
- }
- 
---- a/drivers/gpu/drm/vmwgfx/vmwgfx_surface.c
-+++ b/drivers/gpu/drm/vmwgfx/vmwgfx_surface.c
-@@ -683,7 +683,7 @@ static void vmw_user_surface_base_releas
- 	    container_of(base, struct vmw_user_surface, prime.base);
- 	struct vmw_resource *res = &user_srf->srf.res;
- 
--	if (base->shareable && res && res->backup)
-+	if (res && res->backup)
- 		drm_gem_object_put(&res->backup->base.base);
- 
- 	*p_base = NULL;
-@@ -860,7 +860,11 @@ int vmw_surface_define_ioctl(struct drm_
- 			goto out_unlock;
- 		}
- 		vmw_bo_reference(res->backup);
--		drm_gem_object_get(&res->backup->base.base);
-+		/*
-+		 * We don't expose the handle to the userspace and surface
-+		 * already holds a gem reference
-+		 */
-+		drm_gem_handle_delete(file_priv, backup_handle);
- 	}
- 
- 	tmp = vmw_resource_reference(&srf->res);
-@@ -1564,8 +1568,6 @@ vmw_gb_surface_define_internal(struct dr
- 			drm_vma_node_offset_addr(&res->backup->base.base.vma_node);
- 		rep->buffer_size = res->backup->base.base.size;
- 		rep->buffer_handle = backup_handle;
--		if (user_srf->prime.base.shareable)
--			drm_gem_object_get(&res->backup->base.base);
- 	} else {
- 		rep->buffer_map_handle = 0;
- 		rep->buffer_size = 0;
++	amd_pmc_get_smu_version(dev);
+ 	platform_set_drvdata(pdev, dev);
+ 	amd_pmc_dbgfs_register(dev);
+ 	return 0;
 
 
