@@ -2,46 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 1702869CCC0
-	for <lists+stable@lfdr.de>; Mon, 20 Feb 2023 14:43:24 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D740769CDA7
+	for <lists+stable@lfdr.de>; Mon, 20 Feb 2023 14:51:23 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232206AbjBTNnX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Feb 2023 08:43:23 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54044 "EHLO
+        id S232439AbjBTNvX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Feb 2023 08:51:23 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38738 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232128AbjBTNnV (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 20 Feb 2023 08:43:21 -0500
+        with ESMTP id S232438AbjBTNvW (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 20 Feb 2023 08:51:22 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2AF791C7F0
-        for <stable@vger.kernel.org>; Mon, 20 Feb 2023 05:43:16 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 092861E284
+        for <stable@vger.kernel.org>; Mon, 20 Feb 2023 05:51:21 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id BCE8560E8A
-        for <stable@vger.kernel.org>; Mon, 20 Feb 2023 13:43:15 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D35A9C433D2;
-        Mon, 20 Feb 2023 13:43:14 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 9C7E360EAB
+        for <stable@vger.kernel.org>; Mon, 20 Feb 2023 13:51:20 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A9EFDC433D2;
+        Mon, 20 Feb 2023 13:51:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1676900595;
-        bh=55pvcCvWvUieAFlIV5D+mq7qbwla3bDfxNmApJKYhSE=;
+        s=korg; t=1676901080;
+        bh=3OpV0qJ/8dww7FlHopo6CyENW94HW2ZdZScYWzlrRxQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=09KnocWyNt3v1HWNwBX4sXQAJV2ywdDCJYnu3Tv+R9q1O4zRkEynRin78WQEGo5EI
-         MzYmiKjaZ5w3VW2FuJuZvYWuDvRvjJ9Iem9Y0MCeozidC3944JbWjLY9h3+hgYB1sp
-         q/dzZJBSdIr4YZT6ZlePHJRQFMgJ+NI0gWruKN+s=
+        b=vOTwdUV5Q1MkTnMioB9SezMMPPwNZ94aXydQiiO7HW4k7hIiNQafRExTox4f2L95U
+         TFwSi5j7/140nIxurp0koIsqVhZX4EeMOT1BKnOjhORd87WfErT4USIVuOrxb2PQiH
+         8AoTXxsjmGpaS5xJnH9Gxa8UGOSY9H8A8jOzTaX0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Jim Minter <jimminter@microsoft.com>,
-        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
-        Mika Westerberg <mika.westerberg@linux.intel.com>,
-        Linus Walleij <linus.walleij@linaro.org>,
+        patches@lists.linux.dev, kernel test robot <lkp@intel.com>,
+        Dan Carpenter <error27@gmail.com>,
+        "Russell King (Oracle)" <rmk+kernel@armlinux.org.uk>,
+        Srinivas Kandagatla <srinivas.kandagatla@linaro.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 55/89] pinctrl: intel: Restore the pins that used to be in Direct IRQ mode
+Subject: [PATCH 5.15 21/83] nvmem: core: fix cleanup after dev_set_name()
 Date:   Mon, 20 Feb 2023 14:35:54 +0100
-Message-Id: <20230220133555.074474472@linuxfoundation.org>
+Message-Id: <20230220133554.436315607@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230220133553.066768704@linuxfoundation.org>
-References: <20230220133553.066768704@linuxfoundation.org>
+In-Reply-To: <20230220133553.669025851@linuxfoundation.org>
+References: <20230220133553.669025851@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,67 +55,95 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
+From: Russell King (Oracle) <rmk+kernel@armlinux.org.uk>
 
-[ Upstream commit a8520be3ffef3d25b53bf171a7ebe17ee0154175 ]
+[ Upstream commit 560181d3ace61825f4ca9dd3481d6c0ee6709fa8 ]
 
-If the firmware mangled the register contents too much,
-check the saved value for the Direct IRQ mode. If it
-matches, we will restore the pin state.
+If dev_set_name() fails, we leak nvmem->wp_gpio as the cleanup does not
+put this. While a minimal fix for this would be to add the gpiod_put()
+call, we can do better if we split device_register(), and use the
+tested nvmem_release() cleanup code by initialising the device early,
+and putting the device.
 
-Reported-by: Jim Minter <jimminter@microsoft.com>
-Fixes: 6989ea4881c8 ("pinctrl: intel: Save and restore pins in "direct IRQ" mode")
-Tested-by: Jim Minter <jimminter@microsoft.com>
-Signed-off-by: Andy Shevchenko <andriy.shevchenko@linux.intel.com>
-Acked-by: Mika Westerberg <mika.westerberg@linux.intel.com>
-Link: https://lore.kernel.org/r/20230206141558.20916-1-andriy.shevchenko@linux.intel.com
-Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
+This results in a slightly larger fix, but results in clear code.
+
+Note: this patch depends on "nvmem: core: initialise nvmem->id early"
+and "nvmem: core: remove nvmem_config wp_gpio".
+
+Fixes: 5544e90c8126 ("nvmem: core: add error handling for dev_set_name")
+Cc: stable@vger.kernel.org
+Reported-by: kernel test robot <lkp@intel.com>
+Reported-by: Dan Carpenter <error27@gmail.com>
+Signed-off-by: Russell King (Oracle) <rmk+kernel@armlinux.org.uk>
+[Srini: Fixed subject line and error code handing with wp_gpio while applying.]
+Signed-off-by: Srinivas Kandagatla <srinivas.kandagatla@linaro.org>
+Link: https://lore.kernel.org/r/20230127104015.23839-6-srinivas.kandagatla@linaro.org
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Stable-dep-of: ab3428cfd9aa ("nvmem: core: fix registration vs use race")
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/pinctrl/intel/pinctrl-intel.c | 16 +++++++++++++---
- 1 file changed, 13 insertions(+), 3 deletions(-)
+ drivers/nvmem/core.c | 22 ++++++++++------------
+ 1 file changed, 10 insertions(+), 12 deletions(-)
 
-diff --git a/drivers/pinctrl/intel/pinctrl-intel.c b/drivers/pinctrl/intel/pinctrl-intel.c
-index 198121bd89bbf..b786d9797f404 100644
---- a/drivers/pinctrl/intel/pinctrl-intel.c
-+++ b/drivers/pinctrl/intel/pinctrl-intel.c
-@@ -1432,6 +1432,12 @@ int intel_pinctrl_probe(struct platform_device *pdev,
- EXPORT_SYMBOL_GPL(intel_pinctrl_probe);
+diff --git a/drivers/nvmem/core.c b/drivers/nvmem/core.c
+index 51bec9f8a3bf9..f06b65f0d410b 100644
+--- a/drivers/nvmem/core.c
++++ b/drivers/nvmem/core.c
+@@ -768,14 +768,18 @@ struct nvmem_device *nvmem_register(const struct nvmem_config *config)
  
- #ifdef CONFIG_PM_SLEEP
-+static bool __intel_gpio_is_direct_irq(u32 value)
-+{
-+	return (value & PADCFG0_GPIROUTIOXAPIC) && (value & PADCFG0_GPIOTXDIS) &&
-+	       (__intel_gpio_get_gpio_mode(value) == PADCFG0_PMODE_GPIO);
-+}
+ 	nvmem->id = rval;
+ 
++	nvmem->dev.type = &nvmem_provider_type;
++	nvmem->dev.bus = &nvmem_bus_type;
++	nvmem->dev.parent = config->dev;
 +
- static bool intel_pinctrl_should_save(struct intel_pinctrl *pctrl, unsigned int pin)
- {
- 	const struct pin_desc *pd = pin_desc_get(pctrl->pctldev, pin);
-@@ -1465,8 +1471,7 @@ static bool intel_pinctrl_should_save(struct intel_pinctrl *pctrl, unsigned int
- 	 * See https://bugzilla.kernel.org/show_bug.cgi?id=214749.
- 	 */
- 	value = readl(intel_get_padcfg(pctrl, pin, PADCFG0));
--	if ((value & PADCFG0_GPIROUTIOXAPIC) && (value & PADCFG0_GPIOTXDIS) &&
--	    (__intel_gpio_get_gpio_mode(value) == PADCFG0_PMODE_GPIO))
-+	if (__intel_gpio_is_direct_irq(value))
- 		return true;
++	device_initialize(&nvmem->dev);
++
+ 	if (!config->ignore_wp)
+ 		nvmem->wp_gpio = gpiod_get_optional(config->dev, "wp",
+ 						    GPIOD_OUT_HIGH);
+ 	if (IS_ERR(nvmem->wp_gpio)) {
+-		ida_free(&nvmem_ida, nvmem->id);
+ 		rval = PTR_ERR(nvmem->wp_gpio);
+-		kfree(nvmem);
+-		return ERR_PTR(rval);
++		goto err_put_device;
+ 	}
  
- 	return false;
-@@ -1551,7 +1556,12 @@ int intel_pinctrl_resume(struct device *dev)
- 		void __iomem *padcfg;
- 		u32 val;
+ 	kref_init(&nvmem->refcnt);
+@@ -787,9 +791,6 @@ struct nvmem_device *nvmem_register(const struct nvmem_config *config)
+ 	nvmem->stride = config->stride ?: 1;
+ 	nvmem->word_size = config->word_size ?: 1;
+ 	nvmem->size = config->size;
+-	nvmem->dev.type = &nvmem_provider_type;
+-	nvmem->dev.bus = &nvmem_bus_type;
+-	nvmem->dev.parent = config->dev;
+ 	nvmem->root_only = config->root_only;
+ 	nvmem->priv = config->priv;
+ 	nvmem->type = config->type;
+@@ -816,11 +817,8 @@ struct nvmem_device *nvmem_register(const struct nvmem_config *config)
+ 		break;
+ 	}
  
--		if (!intel_pinctrl_should_save(pctrl, desc->number))
-+		if (!(intel_pinctrl_should_save(pctrl, desc->number) ||
-+		      /*
-+		       * If the firmware mangled the register contents too much,
-+		       * check the saved value for the Direct IRQ mode.
-+		       */
-+		      __intel_gpio_is_direct_irq(pads[i].padcfg0)))
- 			continue;
+-	if (rval) {
+-		ida_free(&nvmem_ida, nvmem->id);
+-		kfree(nvmem);
+-		return ERR_PTR(rval);
+-	}
++	if (rval)
++		goto err_put_device;
  
- 		padcfg = intel_get_padcfg(pctrl, desc->number, PADCFG0);
+ 	nvmem->read_only = device_property_present(config->dev, "read-only") ||
+ 			   config->read_only || !nvmem->reg_write;
+@@ -831,7 +829,7 @@ struct nvmem_device *nvmem_register(const struct nvmem_config *config)
+ 
+ 	dev_dbg(&nvmem->dev, "Registering nvmem device %s\n", config->name);
+ 
+-	rval = device_register(&nvmem->dev);
++	rval = device_add(&nvmem->dev);
+ 	if (rval)
+ 		goto err_put_device;
+ 
 -- 
 2.39.0
 
