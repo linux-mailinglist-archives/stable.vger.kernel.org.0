@@ -2,46 +2,48 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 2DE4069CECA
-	for <lists+stable@lfdr.de>; Mon, 20 Feb 2023 15:02:24 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 96C7E69CDE7
+	for <lists+stable@lfdr.de>; Mon, 20 Feb 2023 14:54:02 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232580AbjBTOCX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Feb 2023 09:02:23 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55792 "EHLO
+        id S232499AbjBTNyB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Feb 2023 08:54:01 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42052 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232825AbjBTOCT (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 20 Feb 2023 09:02:19 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3D17A1F4BD
-        for <stable@vger.kernel.org>; Mon, 20 Feb 2023 06:02:06 -0800 (PST)
+        with ESMTP id S232514AbjBTNx7 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 20 Feb 2023 08:53:59 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AC7F11DB92
+        for <stable@vger.kernel.org>; Mon, 20 Feb 2023 05:53:57 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id D39D8B80D3A
-        for <stable@vger.kernel.org>; Mon, 20 Feb 2023 14:01:45 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 465E7C433EF;
-        Mon, 20 Feb 2023 14:01:44 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 3BCDE60E9D
+        for <stable@vger.kernel.org>; Mon, 20 Feb 2023 13:53:57 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4F3F6C433D2;
+        Mon, 20 Feb 2023 13:53:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1676901704;
-        bh=OrqMO5f59f298dIkvzPlOFncHG/doW3AZg1/fBYg3OI=;
+        s=korg; t=1676901236;
+        bh=no4cdOodLPhePDBbb8ecaOeVYSnr/IvRvC8q+0Gr2Nc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=fQXEEfBrMT/+QKmp2vroX0+DYt2EUAfw00SB5vAoZHYY48gBsHrkAjZ9UCiCYNuv2
-         g+7tDBT5B3nHSk1jctQn/WFrlshkRcuTlHHrw82TVVRvwmTgMGCMkfGGT1r76TqCDr
-         Eh+SZPB1uXjw2JQjsTeBRlnzroFqSUo84orBpO7A=
+        b=roViAkVgUjCUw9SCghzXD1pfHqeyEyehz3R02QN1zzsUegUzw5eSmEQLKjhoNri5J
+         /ekPB7/maPwoIUDPAllQCyCKT6afeyaEOfFQ+bfmKCjdEVpDCtY2KKEd+3KqgQ6Yck
+         LT8Cpl4ASB2cSDzctKYS5wBGv3y93v4OvtUGBjYQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, syzbot <syzkaller@googlegroups.com>,
-        Eric Dumazet <edumazet@google.com>,
-        Erin MacNeil <lnx.erin@gmail.com>,
-        Alexander Lobakin <alexandr.lobakin@intel.com>,
-        Jakub Kicinski <kuba@kernel.org>
-Subject: [PATCH 6.1 097/118] net: use a bounce buffer for copying skb->mark
-Date:   Mon, 20 Feb 2023 14:36:53 +0100
-Message-Id: <20230220133604.269565695@linuxfoundation.org>
+        patches@lists.linux.dev,
+        Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>,
+        Ranjani Sridharan <ranjani.sridharan@linux.intel.com>,
+        Rander Wang <rander.wang@intel.com>,
+        Bard Liao <yung-chuan.liao@linux.intel.com>,
+        Peter Ujfalusi <peter.ujfalusi@linux.intel.com>,
+        Mark Brown <broonie@kernel.org>
+Subject: [PATCH 5.15 81/83] ASoC: SOF: Intel: hda-dai: fix possible stream_tag leak
+Date:   Mon, 20 Feb 2023 14:36:54 +0100
+Message-Id: <20230220133556.564379786@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230220133600.368809650@linuxfoundation.org>
-References: <20230220133600.368809650@linuxfoundation.org>
+In-Reply-To: <20230220133553.669025851@linuxfoundation.org>
+References: <20230220133553.669025851@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,100 +57,59 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eric Dumazet <edumazet@google.com>
+From: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
 
-commit 2558b8039d059342197610498c8749ad294adee5 upstream.
+commit 1f810d2b6b2fbdc5279644d8b2c140b1f7c9d43d upstream.
 
-syzbot found arm64 builds would crash in sock_recv_mark()
-when CONFIG_HARDENED_USERCOPY=y
+The HDaudio stream allocation is done first, and in a second step the
+LOSIDV parameter is programmed for the multi-link used by a codec.
 
-x86 and powerpc are not detecting the issue because
-they define user_access_begin.
-This will be handled in a different patch,
-because a check_object_size() is missing.
+This leads to a possible stream_tag leak, e.g. if a DisplayAudio link
+is not used. This would happen when a non-Intel graphics card is used
+and userspace unconditionally uses the Intel Display Audio PCMs without
+checking if they are connected to a receiver with jack controls.
 
-Only data from skb->cb[] can be copied directly to/from user space,
-as explained in commit 79a8a642bf05 ("net: Whitelist
-the skbuff_head_cache "cb" field")
+We should first check that there is a valid multi-link entry to
+configure before allocating a stream_tag. This change aligns the
+dma_assign and dma_cleanup phases.
 
-syzbot report was:
-usercopy: Kernel memory exposure attempt detected from SLUB object 'skbuff_head_cache' (offset 168, size 4)!
-------------[ cut here ]------------
-kernel BUG at mm/usercopy.c:102 !
-Internal error: Oops - BUG: 00000000f2000800 [#1] PREEMPT SMP
-Modules linked in:
-CPU: 0 PID: 4410 Comm: syz-executor533 Not tainted 6.2.0-rc7-syzkaller-17907-g2d3827b3f393 #0
-Hardware name: Google Google Compute Engine/Google Compute Engine, BIOS Google 01/21/2023
-pstate: 60400005 (nZCv daif +PAN -UAO -TCO -DIT -SSBS BTYPE=--)
-pc : usercopy_abort+0x90/0x94 mm/usercopy.c:90
-lr : usercopy_abort+0x90/0x94 mm/usercopy.c:90
-sp : ffff80000fb9b9a0
-x29: ffff80000fb9b9b0 x28: ffff0000c6073400 x27: 0000000020001a00
-x26: 0000000000000014 x25: ffff80000cf52000 x24: fffffc0000000000
-x23: 05ffc00000000200 x22: fffffc000324bf80 x21: ffff0000c92fe1a8
-x20: 0000000000000001 x19: 0000000000000004 x18: 0000000000000000
-x17: 656a626f2042554c x16: ffff0000c6073dd0 x15: ffff80000dbd2118
-x14: ffff0000c6073400 x13: 00000000ffffffff x12: ffff0000c6073400
-x11: ff808000081bbb4c x10: 0000000000000000 x9 : 7b0572d7cc0ccf00
-x8 : 7b0572d7cc0ccf00 x7 : ffff80000bf650d4 x6 : 0000000000000000
-x5 : 0000000000000001 x4 : 0000000000000001 x3 : 0000000000000000
-x2 : ffff0001fefbff08 x1 : 0000000100000000 x0 : 000000000000006c
-Call trace:
-usercopy_abort+0x90/0x94 mm/usercopy.c:90
-__check_heap_object+0xa8/0x100 mm/slub.c:4761
-check_heap_object mm/usercopy.c:196 [inline]
-__check_object_size+0x208/0x6b8 mm/usercopy.c:251
-check_object_size include/linux/thread_info.h:199 [inline]
-__copy_to_user include/linux/uaccess.h:115 [inline]
-put_cmsg+0x408/0x464 net/core/scm.c:238
-sock_recv_mark net/socket.c:975 [inline]
-__sock_recv_cmsgs+0x1fc/0x248 net/socket.c:984
-sock_recv_cmsgs include/net/sock.h:2728 [inline]
-packet_recvmsg+0x2d8/0x678 net/packet/af_packet.c:3482
-____sys_recvmsg+0x110/0x3a0
-___sys_recvmsg net/socket.c:2737 [inline]
-__sys_recvmsg+0x194/0x210 net/socket.c:2767
-__do_sys_recvmsg net/socket.c:2777 [inline]
-__se_sys_recvmsg net/socket.c:2774 [inline]
-__arm64_sys_recvmsg+0x2c/0x3c net/socket.c:2774
-__invoke_syscall arch/arm64/kernel/syscall.c:38 [inline]
-invoke_syscall+0x64/0x178 arch/arm64/kernel/syscall.c:52
-el0_svc_common+0xbc/0x180 arch/arm64/kernel/syscall.c:142
-do_el0_svc+0x48/0x110 arch/arm64/kernel/syscall.c:193
-el0_svc+0x58/0x14c arch/arm64/kernel/entry-common.c:637
-el0t_64_sync_handler+0x84/0xf0 arch/arm64/kernel/entry-common.c:655
-el0t_64_sync+0x190/0x194 arch/arm64/kernel/entry.S:591
-Code: 91388800 aa0903e1 f90003e8 94e6d752 (d4210000)
-
-Fixes: 6fd1d51cfa25 ("net: SO_RCVMARK socket option for SO_MARK with recvmsg()")
-Reported-by: syzbot <syzkaller@googlegroups.com>
-Signed-off-by: Eric Dumazet <edumazet@google.com>
-Cc: Erin MacNeil <lnx.erin@gmail.com>
-Reviewed-by: Alexander Lobakin <alexandr.lobakin@intel.com>
-Link: https://lore.kernel.org/r/20230213160059.3829741-1-edumazet@google.com
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Complements: b0cd60f3e9f5 ("ALSA/ASoC: hda: clarify bus_get_link() and bus_link_get() helpers")
+Link: https://github.com/thesofproject/linux/issues/4151
+Signed-off-by: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
+Reviewed-by: Ranjani Sridharan <ranjani.sridharan@linux.intel.com>
+Reviewed-by: Rander Wang <rander.wang@intel.com>
+Reviewed-by: Bard Liao <yung-chuan.liao@linux.intel.com>
+Signed-off-by: Peter Ujfalusi <peter.ujfalusi@linux.intel.com>
+Link: https://lore.kernel.org/r/20230216162340.19480-1-peter.ujfalusi@linux.intel.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/socket.c |    9 ++++++---
- 1 file changed, 6 insertions(+), 3 deletions(-)
+ sound/soc/sof/intel/hda-dai.c |    8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
 
---- a/net/socket.c
-+++ b/net/socket.c
-@@ -971,9 +971,12 @@ static inline void sock_recv_drops(struc
- static void sock_recv_mark(struct msghdr *msg, struct sock *sk,
- 			   struct sk_buff *skb)
- {
--	if (sock_flag(sk, SOCK_RCVMARK) && skb)
--		put_cmsg(msg, SOL_SOCKET, SO_MARK, sizeof(__u32),
--			 &skb->mark);
-+	if (sock_flag(sk, SOCK_RCVMARK) && skb) {
-+		/* We must use a bounce buffer for CONFIG_HARDENED_USERCOPY=y */
-+		__u32 mark = skb->mark;
-+
-+		put_cmsg(msg, SOL_SOCKET, SO_MARK, sizeof(__u32), &mark);
-+	}
- }
+--- a/sound/soc/sof/intel/hda-dai.c
++++ b/sound/soc/sof/intel/hda-dai.c
+@@ -212,6 +212,10 @@ static int hda_link_hw_params(struct snd
+ 	int stream_tag;
+ 	int ret;
  
- void __sock_recv_cmsgs(struct msghdr *msg, struct sock *sk,
++	link = snd_hdac_ext_bus_get_link(bus, codec_dai->component->name);
++	if (!link)
++		return -EINVAL;
++
+ 	/* get stored dma data if resuming from system suspend */
+ 	link_dev = snd_soc_dai_get_dma_data(dai, substream);
+ 	if (!link_dev) {
+@@ -232,10 +236,6 @@ static int hda_link_hw_params(struct snd
+ 	if (ret < 0)
+ 		return ret;
+ 
+-	link = snd_hdac_ext_bus_get_link(bus, codec_dai->component->name);
+-	if (!link)
+-		return -EINVAL;
+-
+ 	/* set the hdac_stream in the codec dai */
+ 	snd_soc_dai_set_stream(codec_dai, hdac_stream(link_dev), substream->stream);
+ 
 
 
