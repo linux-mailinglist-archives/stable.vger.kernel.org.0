@@ -2,51 +2,58 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D564269CC5B
-	for <lists+stable@lfdr.de>; Mon, 20 Feb 2023 14:39:30 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7084169CDFE
+	for <lists+stable@lfdr.de>; Mon, 20 Feb 2023 14:55:03 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229709AbjBTNja (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Feb 2023 08:39:30 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47878 "EHLO
+        id S232540AbjBTNzC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Feb 2023 08:55:02 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43542 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231446AbjBTNj0 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 20 Feb 2023 08:39:26 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3E59D1C58D
-        for <stable@vger.kernel.org>; Mon, 20 Feb 2023 05:39:25 -0800 (PST)
+        with ESMTP id S232538AbjBTNzB (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 20 Feb 2023 08:55:01 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 02FF21E9ED;
+        Mon, 20 Feb 2023 05:54:54 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id CBF8B60C03
-        for <stable@vger.kernel.org>; Mon, 20 Feb 2023 13:39:24 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id DE748C433EF;
-        Mon, 20 Feb 2023 13:39:23 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 87D7E60D41;
+        Mon, 20 Feb 2023 13:54:54 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 76533C433D2;
+        Mon, 20 Feb 2023 13:54:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1676900364;
-        bh=gnfPGIBf8HQY1BWsNQx0oxx+OH7pE9hPsNRjYz8x/po=;
+        s=korg; t=1676901294;
+        bh=A+gJ2nzORJdxjwNeq+kRRbloxVVHgTfd5THuI4ZiEpM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=038GXCJWLdbY6M338/UTJmOeEVIDvS7HixjlIG0vrpll5DTT0Ft2acLYo1bzCY+Rr
-         w/EQDUVVxgvYGXjnBRvTSKBATVq6lroIp2jQ7S7qZaoobTOfZ0Ed8XOGowudvPXvV1
-         JRoQc668N06WIxqOC/W+x1CA8lia9p9hwfA2e/lY=
+        b=cCz+pR6IqzZqOu9y3AsO6D4yGwiDsdEDORJOeNS80vyLPrU1WRzkp98IoRioMO3cg
+         N9YuRF+FCepguBrjcY0vqsHLAszD5oUFwVCtL0rO+92wDKiP7GmC+s8TAwHOYv4hb5
+         vktqb822RkVNUOeNr0l6vaQT6MOn4gZAnLjrXmpQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Guillaume Nault <gnault@redhat.com>,
+        patches@lists.linux.dev, Jamal Hadi Salim <jhs@mojatatu.com>,
+        Cong Wang <xiyou.wangcong@gmail.com>,
+        Jiri Pirko <jiri@resnulli.us>,
+        "David S. Miller" <davem@davemloft.net>,
         Eric Dumazet <edumazet@google.com>,
-        David Ahern <dsahern@kernel.org>,
-        Jakub Kicinski <kuba@kernel.org>
-Subject: [PATCH 4.14 50/53] ipv6: Fix tcp socket connection with DSCP.
+        Jakub Kicinski <kuba@kernel.org>,
+        Paolo Abeni <pabeni@redhat.com>, netdev@vger.kernel.org,
+        Kees Cook <keescook@chromium.org>,
+        Simon Horman <simon.horman@corigine.com>,
+        Cong Wang <cong.wang@bytedance.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 08/57] net: sched: sch: Bounds check priority
 Date:   Mon, 20 Feb 2023 14:36:16 +0100
-Message-Id: <20230220133549.950894862@linuxfoundation.org>
+Message-Id: <20230220133549.651641467@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230220133548.158615609@linuxfoundation.org>
-References: <20230220133548.158615609@linuxfoundation.org>
+In-Reply-To: <20230220133549.360169435@linuxfoundation.org>
+References: <20230220133549.360169435@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
         SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -54,46 +61,57 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Guillaume Nault <gnault@redhat.com>
+From: Kees Cook <keescook@chromium.org>
 
-commit 8230680f36fd1525303d1117768c8852314c488c upstream.
+[ Upstream commit de5ca4c3852f896cacac2bf259597aab5e17d9e3 ]
 
-Take into account the IPV6_TCLASS socket option (DSCP) in
-tcp_v6_connect(). Otherwise fib6_rule_match() can't properly
-match the DSCP value, resulting in invalid route lookup.
+Nothing was explicitly bounds checking the priority index used to access
+clpriop[]. WARN and bail out early if it's pathological. Seen with GCC 13:
 
-For example:
+../net/sched/sch_htb.c: In function 'htb_activate_prios':
+../net/sched/sch_htb.c:437:44: warning: array subscript [0, 31] is outside array bounds of 'struct htb_prio[8]' [-Warray-bounds=]
+  437 |                         if (p->inner.clprio[prio].feed.rb_node)
+      |                             ~~~~~~~~~~~~~~~^~~~~~
+../net/sched/sch_htb.c:131:41: note: while referencing 'clprio'
+  131 |                         struct htb_prio clprio[TC_HTB_NUMPRIO];
+      |                                         ^~~~~~
 
-  ip route add unreachable table main 2001:db8::10/124
-
-  ip route add table 100 2001:db8::10/124 dev eth0
-  ip -6 rule add dsfield 0x04 table 100
-
-  echo test | socat - TCP6:[2001:db8::11]:54321,ipv6-tclass=0x04
-
-Without this patch, socat fails at connect() time ("No route to host")
-because the fib-rule doesn't jump to table 100 and the lookup ends up
-being done in the main table.
-
-Fixes: 2cc67cc731d9 ("[IPV6] ROUTE: Routing by Traffic Class.")
-Signed-off-by: Guillaume Nault <gnault@redhat.com>
-Reviewed-by: Eric Dumazet <edumazet@google.com>
-Reviewed-by: David Ahern <dsahern@kernel.org>
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc: Jamal Hadi Salim <jhs@mojatatu.com>
+Cc: Cong Wang <xiyou.wangcong@gmail.com>
+Cc: Jiri Pirko <jiri@resnulli.us>
+Cc: "David S. Miller" <davem@davemloft.net>
+Cc: Eric Dumazet <edumazet@google.com>
+Cc: Jakub Kicinski <kuba@kernel.org>
+Cc: Paolo Abeni <pabeni@redhat.com>
+Cc: netdev@vger.kernel.org
+Signed-off-by: Kees Cook <keescook@chromium.org>
+Reviewed-by: Simon Horman <simon.horman@corigine.com>
+Reviewed-by: Cong Wang <cong.wang@bytedance.com>
+Link: https://lore.kernel.org/r/20230127224036.never.561-kees@kernel.org
+Signed-off-by: Paolo Abeni <pabeni@redhat.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/ipv6/tcp_ipv6.c |    1 +
- 1 file changed, 1 insertion(+)
+ net/sched/sch_htb.c | 5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
 
---- a/net/ipv6/tcp_ipv6.c
-+++ b/net/ipv6/tcp_ipv6.c
-@@ -241,6 +241,7 @@ static int tcp_v6_connect(struct sock *s
- 	fl6.flowi6_proto = IPPROTO_TCP;
- 	fl6.daddr = sk->sk_v6_daddr;
- 	fl6.saddr = saddr ? *saddr : np->saddr;
-+	fl6.flowlabel = ip6_make_flowinfo(np->tclass, np->flow_label);
- 	fl6.flowi6_oif = sk->sk_bound_dev_if;
- 	fl6.flowi6_mark = sk->sk_mark;
- 	fl6.fl6_dport = usin->sin6_port;
+diff --git a/net/sched/sch_htb.c b/net/sched/sch_htb.c
+index c3ba018fd083e..c3e773d2ca419 100644
+--- a/net/sched/sch_htb.c
++++ b/net/sched/sch_htb.c
+@@ -405,7 +405,10 @@ static void htb_activate_prios(struct htb_sched *q, struct htb_class *cl)
+ 	while (cl->cmode == HTB_MAY_BORROW && p && mask) {
+ 		m = mask;
+ 		while (m) {
+-			int prio = ffz(~m);
++			unsigned int prio = ffz(~m);
++
++			if (WARN_ON_ONCE(prio > ARRAY_SIZE(p->inner.clprio)))
++				break;
+ 			m &= ~(1 << prio);
+ 
+ 			if (p->inner.clprio[prio].feed.rb_node)
+-- 
+2.39.0
+
 
 
