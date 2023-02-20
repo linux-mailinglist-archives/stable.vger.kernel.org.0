@@ -2,46 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 3E2C069CCB7
-	for <lists+stable@lfdr.de>; Mon, 20 Feb 2023 14:42:57 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0128B69CDBC
+	for <lists+stable@lfdr.de>; Mon, 20 Feb 2023 14:52:23 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232170AbjBTNm4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Feb 2023 08:42:56 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53210 "EHLO
+        id S232376AbjBTNwV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Feb 2023 08:52:21 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39770 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232143AbjBTNmz (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 20 Feb 2023 08:42:55 -0500
+        with ESMTP id S232464AbjBTNwV (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 20 Feb 2023 08:52:21 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 78A414C1E
-        for <stable@vger.kernel.org>; Mon, 20 Feb 2023 05:42:52 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 05CDC1E5FB
+        for <stable@vger.kernel.org>; Mon, 20 Feb 2023 05:52:13 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 0F71360EAB
-        for <stable@vger.kernel.org>; Mon, 20 Feb 2023 13:42:52 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 225A0C433EF;
-        Mon, 20 Feb 2023 13:42:50 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 992D160CBA
+        for <stable@vger.kernel.org>; Mon, 20 Feb 2023 13:52:12 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id AECE5C433D2;
+        Mon, 20 Feb 2023 13:52:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1676900571;
-        bh=O92mdS/dd4saYeVoM0uFRXseMznl0TqQ6hJW8yiQFgA=;
+        s=korg; t=1676901132;
+        bh=qsSyVfGk9HdlGff1u6FAHqgarxKPt7MtAhc7w8HxzUY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=pZbBbwD58X/j7MUyhzkEY7g9K0UmQNrVFmNxsM1J3m+R05pEguiClOqcW1TkBaNnk
-         8dBBcT4Xxx1AWtLgKopY4LJW/Kr1RC4QdtG/6c0356foxrVVGBS6rwvePmWc6nmJRb
-         DqXDlqAqN3lJh/2rMDyIwuGTEfWfPgzhqABDQX6c=
+        b=geE/2l0r6zwrZpAfAQxU1Y0pjHgP7JY0HKFhlkzmgxPFElYmaSsFSkjOn5p/CTUc+
+         rqsNEn627KJGHaOOBGC7JCxEY27TBT2rqR4qZzVKcZT/6et1iY5kqSrwK0+CkbTBm5
+         /9WWHJ/LFgNoOByf/8ZsWSAUsOcAREYqvH9w7KIA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Alexey Khoroshilov <khoroshilov@ispras.ru>,
-        Fedor Pchelkin <pchelkin@ispras.ru>,
-        Phillip Lougher <phillip@squashfs.org.uk>,
-        Andrew Morton <akpm@linux-foundation.org>
-Subject: [PATCH 4.19 75/89] revert "squashfs: harden sanity check in squashfs_read_xattr_id_table"
-Date:   Mon, 20 Feb 2023 14:36:14 +0100
-Message-Id: <20230220133555.789749306@linuxfoundation.org>
+        patches@lists.linux.dev, Winter <winter@winter.cafe>,
+        Kuniyuki Iwashima <kuniyu@amazon.com>
+Subject: [PATCH 5.15 42/83] tcp: Fix listen() regression in 5.15.88.
+Date:   Mon, 20 Feb 2023 14:36:15 +0100
+Message-Id: <20230220133555.140865685@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230220133553.066768704@linuxfoundation.org>
-References: <20230220133553.066768704@linuxfoundation.org>
+In-Reply-To: <20230220133553.669025851@linuxfoundation.org>
+References: <20230220133553.669025851@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,34 +52,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Andrew Morton <akpm@linux-foundation.org>
+From: Kuniyuki Iwashima <kuniyu@amazon.com>
 
-commit a5b21d8d791cd4db609d0bbcaa9e0c7e019888d1 upstream.
+When we backport dadd0dcaa67d ("net/ulp: prevent ULP without clone op from
+entering the LISTEN status"), we have accidentally backported a part of
+7a7160edf1bf ("net: Return errno in sk->sk_prot->get_port().") and removed
+err = -EADDRINUSE in inet_csk_listen_start().
 
-This fix was nacked by Philip, for reasons identified in the email linked
-below.
+Thus, listen() no longer returns -EADDRINUSE even if ->get_port() failed
+as reported in [0].
 
-Link: https://lkml.kernel.org/r/68f15d67-8945-2728-1f17-5b53a80ec52d@squashfs.org.uk
-Fixes: 72e544b1b28325 ("squashfs: harden sanity check in squashfs_read_xattr_id_table")
-Cc: Alexey Khoroshilov <khoroshilov@ispras.ru>
-Cc: Fedor Pchelkin <pchelkin@ispras.ru>
-Cc: Phillip Lougher <phillip@squashfs.org.uk>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+We set -EADDRINUSE to err just before ->get_port() to fix the regression.
+
+[0]: https://lore.kernel.org/stable/EF8A45D0-768A-4CD5-9A8A-0FA6E610ABF7@winter.cafe/
+
+Reported-by: Winter <winter@winter.cafe>
+Signed-off-by: Kuniyuki Iwashima <kuniyu@amazon.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/squashfs/xattr_id.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ net/ipv4/inet_connection_sock.c |    1 +
+ 1 file changed, 1 insertion(+)
 
---- a/fs/squashfs/xattr_id.c
-+++ b/fs/squashfs/xattr_id.c
-@@ -89,7 +89,7 @@ __le64 *squashfs_read_xattr_id_table(str
- 	/* Sanity check values */
- 
- 	/* there is always at least one xattr id */
--	if (*xattr_ids <= 0)
-+	if (*xattr_ids == 0)
- 		return ERR_PTR(-EINVAL);
- 
- 	len = SQUASHFS_XATTR_BLOCK_BYTES(*xattr_ids);
+--- a/net/ipv4/inet_connection_sock.c
++++ b/net/ipv4/inet_connection_sock.c
+@@ -1070,6 +1070,7 @@ int inet_csk_listen_start(struct sock *s
+ 	 * It is OK, because this socket enters to hash table only
+ 	 * after validation is complete.
+ 	 */
++	err = -EADDRINUSE;
+ 	inet_sk_state_store(sk, TCP_LISTEN);
+ 	if (!sk->sk_prot->get_port(sk, inet->inet_num)) {
+ 		inet->inet_sport = htons(inet->inet_num);
 
 
