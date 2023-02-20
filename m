@@ -2,51 +2,49 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 11E2F69CC2F
-	for <lists+stable@lfdr.de>; Mon, 20 Feb 2023 14:37:58 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id AA4FB69CC92
+	for <lists+stable@lfdr.de>; Mon, 20 Feb 2023 14:42:09 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232059AbjBTNh4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Feb 2023 08:37:56 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45650 "EHLO
+        id S231969AbjBTNmI (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Feb 2023 08:42:08 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51706 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231708AbjBTNh4 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 20 Feb 2023 08:37:56 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0FBB99EF6
-        for <stable@vger.kernel.org>; Mon, 20 Feb 2023 05:37:55 -0800 (PST)
+        with ESMTP id S231879AbjBTNmH (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 20 Feb 2023 08:42:07 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8D3D31C7DD
+        for <stable@vger.kernel.org>; Mon, 20 Feb 2023 05:41:32 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id A147460EA1
-        for <stable@vger.kernel.org>; Mon, 20 Feb 2023 13:37:54 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B6E91C433D2;
-        Mon, 20 Feb 2023 13:37:53 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 29286B80D4D
+        for <stable@vger.kernel.org>; Mon, 20 Feb 2023 13:41:31 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 77CE6C433D2;
+        Mon, 20 Feb 2023 13:41:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1676900274;
-        bh=A+BK5RSVkMt4OEA+EwhPYY01A71NSbCHvXgh0vAZOBM=;
+        s=korg; t=1676900489;
+        bh=z/96+ovYQqvzl3gQWrPZ70bGG7adaQMdM7McEvC9CCU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=NZJ5oR7ern2q3JpDlszaXtnpz6/1Gt0iDy2m31xFQ+U3fCEWDY55siCl+ApiALP2j
-         u+prTTMmXrrazQJEJGI/zlShacBmT4FE3kKau2tKuQXKdNqjt12m9rG5sVLAuYfX8O
-         bMZb5Ha/uFd42gPSlBSvb1D0NmwClNgLXxxjIps4=
+        b=w9lJXLSNV5o5Rv0hlFf6kp/nTNUp4pwxGISyHHucYGe+TOmT+VKmjQgCjoe0z5NVy
+         x6RKLoApTtBp+XsQ82DlWw5BOWZLXE8ArbwJVQNDuKBucVtayN9vsM0Fs5RzcHfz/U
+         y+QkYAfADcMEmjCds5Mic/ghsQCblncH7iZrSVCk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Xiongfeng Wang <wangxiongfeng2@huawei.com>,
-        Stable@vger.kernel.org,
-        Jonathan Cameron <Jonathan.Cameron@huawei.com>
-Subject: [PATCH 4.14 17/53] iio: adc: berlin2-adc: Add missing of_node_put() in error path
+        patches@lists.linux.dev, Artemii Karasev <karasev@ispras.ru>,
+        Takashi Iwai <tiwai@suse.de>
+Subject: [PATCH 4.19 44/89] ALSA: emux: Avoid potential array out-of-bound in snd_emux_xg_control()
 Date:   Mon, 20 Feb 2023 14:35:43 +0100
-Message-Id: <20230220133548.787963976@linuxfoundation.org>
+Message-Id: <20230220133554.686689973@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230220133548.158615609@linuxfoundation.org>
-References: <20230220133548.158615609@linuxfoundation.org>
+In-Reply-To: <20230220133553.066768704@linuxfoundation.org>
+References: <20230220133553.066768704@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
         SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -54,37 +52,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Xiongfeng Wang <wangxiongfeng2@huawei.com>
+From: Artemii Karasev <karasev@ispras.ru>
 
-commit cbd3a0153cd18a2cbef6bf3cf31bb406c3fc9f55 upstream.
+commit 6a32425f953b955b4ff82f339d01df0b713caa5d upstream.
 
-of_get_parent() will return a device_node pointer with refcount
-incremented. We need to use of_node_put() on it when done. Add the
-missing of_node_put() in the error path of berlin2_adc_probe();
+snd_emux_xg_control() can be called with an argument 'param' greater
+than size of 'control' array. It may lead to accessing 'control'
+array at a wrong index.
 
-Fixes: 70f1937911ca ("iio: adc: add support for Berlin")
-Signed-off-by: Xiongfeng Wang <wangxiongfeng2@huawei.com>
-Link: https://lore.kernel.org/r/20221129020316.191731-1-wangxiongfeng2@huawei.com
-Cc: <Stable@vger.kernel.org>
-Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
+Found by Linux Verification Center (linuxtesting.org) with SVACE.
+
+Signed-off-by: Artemii Karasev <karasev@ispras.ru>
+Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
+Cc: <stable@vger.kernel.org>
+Link: https://lore.kernel.org/r/20230207132026.2870-1-karasev@ispras.ru
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/iio/adc/berlin2-adc.c |    4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ sound/synth/emux/emux_nrpn.c |    3 +++
+ 1 file changed, 3 insertions(+)
 
---- a/drivers/iio/adc/berlin2-adc.c
-+++ b/drivers/iio/adc/berlin2-adc.c
-@@ -290,8 +290,10 @@ static int berlin2_adc_probe(struct plat
- 	int ret;
- 
- 	indio_dev = devm_iio_device_alloc(&pdev->dev, sizeof(*priv));
--	if (!indio_dev)
-+	if (!indio_dev) {
-+		of_node_put(parent_np);
- 		return -ENOMEM;
-+	}
- 
- 	priv = iio_priv(indio_dev);
- 	platform_set_drvdata(pdev, indio_dev);
+--- a/sound/synth/emux/emux_nrpn.c
++++ b/sound/synth/emux/emux_nrpn.c
+@@ -363,6 +363,9 @@ int
+ snd_emux_xg_control(struct snd_emux_port *port, struct snd_midi_channel *chan,
+ 		    int param)
+ {
++	if (param >= ARRAY_SIZE(chan->control))
++		return -EINVAL;
++
+ 	return send_converted_effect(xg_effects, ARRAY_SIZE(xg_effects),
+ 				     port, chan, param,
+ 				     chan->control[param],
 
 
