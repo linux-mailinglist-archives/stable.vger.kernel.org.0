@@ -2,39 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E8D9B69CD2D
-	for <lists+stable@lfdr.de>; Mon, 20 Feb 2023 14:47:21 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9314269CD28
+	for <lists+stable@lfdr.de>; Mon, 20 Feb 2023 14:47:11 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232122AbjBTNrU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Feb 2023 08:47:20 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60112 "EHLO
+        id S232295AbjBTNrK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Feb 2023 08:47:10 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59762 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232294AbjBTNrT (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 20 Feb 2023 08:47:19 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E4C5D1E2A5
-        for <stable@vger.kernel.org>; Mon, 20 Feb 2023 05:46:59 -0800 (PST)
+        with ESMTP id S232305AbjBTNrI (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 20 Feb 2023 08:47:08 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4A2901E1CA
+        for <stable@vger.kernel.org>; Mon, 20 Feb 2023 05:46:47 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 6697AB80D44
-        for <stable@vger.kernel.org>; Mon, 20 Feb 2023 13:46:41 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id BE6EDC433D2;
-        Mon, 20 Feb 2023 13:46:39 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 5782D60EA7
+        for <stable@vger.kernel.org>; Mon, 20 Feb 2023 13:46:43 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 62D64C433D2;
+        Mon, 20 Feb 2023 13:46:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1676900800;
-        bh=EwLqg/TyuKvCi4HZiDTcfTDFIRW0x4frfExgmz2Ih+I=;
+        s=korg; t=1676900802;
+        bh=KjnvU8TV+16xhI/CzbkkNmq7hVZIVDs1eAO4WcqRjK4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=M9Rs9+HlnhBg774jQqGdQn+146iDaU7iiHgOEuiS70gWtI4TDOXurpcIXxmpJl3H7
-         cjAv9EgRY0rc77+3l6o6ZeG5umuoqymqFJyiImBjlSkFWWn2nHqh6a7r3jHsNdGgGI
-         XhGkEo02x77++Uzw3TxSYyHqiDI43Xh1DJ7dmQto=
+        b=HODOkOMdjUkRMOjSsyyf8HLFNkTvzzrv/h6OgLnLFjWxK36dBvyVPHQTNkoBUbe0h
+         GHQWgguFd3Q1P9pE6lMavAsw6sR86bRSbaimtLlYNO5UZt6PeHszg4mqkgcw8+qoCP
+         +j1pdCNJBkg1wdDGWv7BA78NvyugA8xtCEBwAMXo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         patches@lists.linux.dev, Helge Deller <deller@gmx.de>
-Subject: [PATCH 5.4 043/156] parisc: Fix return code of pdc_iodc_print()
-Date:   Mon, 20 Feb 2023 14:34:47 +0100
-Message-Id: <20230220133604.167800592@linuxfoundation.org>
+Subject: [PATCH 5.4 044/156] parisc: Wire up PTRACE_GETREGS/PTRACE_SETREGS for compat case
+Date:   Mon, 20 Feb 2023 14:34:48 +0100
+Message-Id: <20230220133604.206918719@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
 In-Reply-To: <20230220133602.515342638@linuxfoundation.org>
 References: <20230220133602.515342638@linuxfoundation.org>
@@ -42,8 +42,8 @@ User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
         SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -53,45 +53,62 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Helge Deller <deller@gmx.de>
 
-commit 5d1335dabb3c493a3d6d5b233953b6ac7b6c1ff2 upstream.
+commit 316f1f42b5cc1d95124c1f0387c867c1ba7b6d0e upstream.
 
-There is an off-by-one if the printed string includes a new-line
-char.
+Wire up the missing ptrace requests PTRACE_GETREGS, PTRACE_SETREGS,
+PTRACE_GETFPREGS and PTRACE_SETFPREGS when running 32-bit applications
+on 64-bit kernels.
 
-Cc: stable@vger.kernel.org
 Signed-off-by: Helge Deller <deller@gmx.de>
+Cc: stable@vger.kernel.org # 4.7+
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/parisc/kernel/firmware.c |    5 +++--
- 1 file changed, 3 insertions(+), 2 deletions(-)
+ arch/parisc/kernel/ptrace.c |   15 +++++++++++++--
+ 1 file changed, 13 insertions(+), 2 deletions(-)
 
---- a/arch/parisc/kernel/firmware.c
-+++ b/arch/parisc/kernel/firmware.c
-@@ -1229,7 +1229,7 @@ static char __attribute__((aligned(64)))
-  */
- int pdc_iodc_print(const unsigned char *str, unsigned count)
- {
--	unsigned int i;
-+	unsigned int i, found = 0;
- 	unsigned long flags;
+--- a/arch/parisc/kernel/ptrace.c
++++ b/arch/parisc/kernel/ptrace.c
+@@ -128,6 +128,12 @@ long arch_ptrace(struct task_struct *chi
+ 	unsigned long tmp;
+ 	long ret = -EIO;
  
- 	for (i = 0; i < count;) {
-@@ -1238,6 +1238,7 @@ int pdc_iodc_print(const unsigned char *
- 			iodc_dbuf[i+0] = '\r';
- 			iodc_dbuf[i+1] = '\n';
- 			i += 2;
-+			found = 1;
- 			goto print;
- 		default:
- 			iodc_dbuf[i] = str[i];
-@@ -1254,7 +1255,7 @@ print:
-                     __pa(iodc_retbuf), 0, __pa(iodc_dbuf), i, 0);
-         spin_unlock_irqrestore(&pdc_lock, flags);
++	unsigned long user_regs_struct_size = sizeof(struct user_regs_struct);
++#ifdef CONFIG_64BIT
++	if (is_compat_task())
++		user_regs_struct_size /= 2;
++#endif
++
+ 	switch (request) {
  
--	return i;
-+	return i - found;
- }
+ 	/* Read the word at location addr in the USER area.  For ptraced
+@@ -183,14 +189,14 @@ long arch_ptrace(struct task_struct *chi
+ 		return copy_regset_to_user(child,
+ 					   task_user_regset_view(current),
+ 					   REGSET_GENERAL,
+-					   0, sizeof(struct user_regs_struct),
++					   0, user_regs_struct_size,
+ 					   datap);
  
- #if !defined(BOOTLOADER)
+ 	case PTRACE_SETREGS:	/* Set all gp regs in the child. */
+ 		return copy_regset_from_user(child,
+ 					     task_user_regset_view(current),
+ 					     REGSET_GENERAL,
+-					     0, sizeof(struct user_regs_struct),
++					     0, user_regs_struct_size,
+ 					     datap);
+ 
+ 	case PTRACE_GETFPREGS:	/* Get the child FPU state. */
+@@ -304,6 +310,11 @@ long compat_arch_ptrace(struct task_stru
+ 			}
+ 		}
+ 		break;
++	case PTRACE_GETREGS:
++	case PTRACE_SETREGS:
++	case PTRACE_GETFPREGS:
++	case PTRACE_SETFPREGS:
++		return arch_ptrace(child, request, addr, data);
+ 
+ 	default:
+ 		ret = compat_ptrace_request(child, request, addr, data);
 
 
