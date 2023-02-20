@@ -2,42 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 0D51469CD02
-	for <lists+stable@lfdr.de>; Mon, 20 Feb 2023 14:45:28 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B6CE569CD01
+	for <lists+stable@lfdr.de>; Mon, 20 Feb 2023 14:45:27 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232263AbjBTNpS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Feb 2023 08:45:18 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57310 "EHLO
+        id S232233AbjBTNpY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Feb 2023 08:45:24 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57506 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232244AbjBTNpR (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 20 Feb 2023 08:45:17 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 091F91DB89
-        for <stable@vger.kernel.org>; Mon, 20 Feb 2023 05:45:00 -0800 (PST)
+        with ESMTP id S232244AbjBTNpW (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 20 Feb 2023 08:45:22 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2DD871CF5F
+        for <stable@vger.kernel.org>; Mon, 20 Feb 2023 05:45:05 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 7756B60E8A
-        for <stable@vger.kernel.org>; Mon, 20 Feb 2023 13:45:00 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 86A0EC433EF;
-        Mon, 20 Feb 2023 13:44:59 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id D46FAB80D43
+        for <stable@vger.kernel.org>; Mon, 20 Feb 2023 13:45:03 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 22F03C433EF;
+        Mon, 20 Feb 2023 13:45:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1676900699;
-        bh=8K32ywbxSaaoKol5ci4dwfHAbtHQNWEF57i+HuOah8c=;
+        s=korg; t=1676900702;
+        bh=1G43zxPgg7kNVCjPoEELYOoTW3ccn8QnF7EsA6cfGN8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=pbJMoGVtWKzG7zTErmYIlZRzBGF2sxKKs3MujESEIvqpATmdReRTdEATbHI76ngOt
-         2IfCiT7Tqw/XV+X7fluBFE7bi4f2k3FJMFnbACNJlMB2zT/haFBXlODvRXSC2zk83Y
-         YHtvxESaQ54HdXS99GiNQ47S43PL8vdPEWEnslIA=
+        b=nSVotdvxCI4h9wJIc8uLOsWVpU9kIxBMCJUVbppmJVEaZ329Yq9dkh0q6hjXD5bVA
+         tocoU5H9jo6CyhMHTsk9KFEJod5xOI77EemtefKenRNsRqJYvM/B/re7YvguuxTNuF
+         YndOUzGHmJiHxIceBepM0H8eIKi4Z45cbIYNW4ok=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         patches@lists.linux.dev, Werner Sembach <wse@tuxedocomputers.com>,
         Hans de Goede <hdegoede@redhat.com>,
+        Mattijs Korpershoek <mkorpershoek@baylibre.com>,
         Dmitry Torokhov <dmitry.torokhov@gmail.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 034/156] Input: i8042 - add TUXEDO devices to i8042 quirk tables
-Date:   Mon, 20 Feb 2023 14:34:38 +0100
-Message-Id: <20230220133603.838421087@linuxfoundation.org>
+Subject: [PATCH 5.4 035/156] Input: i8042 - add Clevo PCX0DX to i8042 quirk table
+Date:   Mon, 20 Feb 2023 14:34:39 +0100
+Message-Id: <20230220133603.882706443@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
 In-Reply-To: <20230220133602.515342638@linuxfoundation.org>
 References: <20230220133602.515342638@linuxfoundation.org>
@@ -56,183 +57,40 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Werner Sembach <wse@tuxedocomputers.com>
 
-[ Upstream commit a6a87c36165e6791eeaed88025cde270536c3198 ]
+[ Upstream commit 9c445d2637c938a800fcc8b5f0b10e60c94460c7 ]
 
-A lot of modern Clevo barebones have touchpad and/or keyboard issues after
-suspend fixable with nomux + reset + noloop + nopnp. Luckily, none of them
-have an external PS/2 port so this can safely be set for all of them.
-
-I'm not entirely sure if every device listed really needs all four quirks,
-but after testing and production use. No negative effects could be
-observed when setting all four.
-
-The list is quite massive as neither the TUXEDO nor the Clevo dmi strings
-have been very consistent historically. I tried to keep the list as short
-as possible without risking on missing an affected device.
-
-This is revision 3. The Clevo N150CU barebone is still removed as it might
-have problems with the fix and needs further investigations. The
-SchenkerTechnologiesGmbH System-/Board-Vendor string variations are
-added. This is now based in the quirk table refactor. This now also
-includes the additional noaux flag for the NS7xMU.
+The Clevo PCX0DX/TUXEDO XP1511, need quirks for the keyboard to not be
+occasionally unresponsive after resume.
 
 Signed-off-by: Werner Sembach <wse@tuxedocomputers.com>
+Cc: stable@vger.kernel.org
 Reviewed-by: Hans de Goede <hdegoede@redhat.com>
-Link: https://lore.kernel.org/r/20220629112725.12922-5-wse@tuxedocomputers.com
+Reviewed-by: Mattijs Korpershoek <mkorpershoek@baylibre.com>
+Link: https://lore.kernel.org/r/20230110134524.553620-1-wse@tuxedocomputers.com
 Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Stable-dep-of: 9c445d2637c9 ("Input: i8042 - add Clevo PCX0DX to i8042 quirk table")
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/input/serio/i8042-x86ia64io.h | 129 ++++++++++++++++++++++++++
- 1 file changed, 129 insertions(+)
+ drivers/input/serio/i8042-x86ia64io.h | 7 +++++++
+ 1 file changed, 7 insertions(+)
 
 diff --git a/drivers/input/serio/i8042-x86ia64io.h b/drivers/input/serio/i8042-x86ia64io.h
-index 73374c15eb27..ea9996debb88 100644
+index ea9996debb88..6b2e88da3076 100644
 --- a/drivers/input/serio/i8042-x86ia64io.h
 +++ b/drivers/input/serio/i8042-x86ia64io.h
-@@ -1025,6 +1025,29 @@ static const struct dmi_system_id i8042_dmi_quirk_table[] __initconst = {
- 		},
- 		.driver_data = (void *)(SERIO_QUIRK_NOMUX)
+@@ -1169,6 +1169,13 @@ static const struct dmi_system_id i8042_dmi_quirk_table[] __initconst = {
+ 		.driver_data = (void *)(SERIO_QUIRK_NOMUX | SERIO_QUIRK_RESET_ALWAYS |
+ 					SERIO_QUIRK_NOLOOP | SERIO_QUIRK_NOPNP)
  	},
-+	/*
-+	 * A lot of modern Clevo barebones have touchpad and/or keyboard issues
-+	 * after suspend fixable with nomux + reset + noloop + nopnp. Luckily,
-+	 * none of them have an external PS/2 port so this can safely be set for
-+	 * all of them. These two are based on a Clevo design, but have the
-+	 * board_name changed.
-+	 */
 +	{
 +		.matches = {
-+			DMI_MATCH(DMI_BOARD_VENDOR, "TUXEDO"),
-+			DMI_MATCH(DMI_BOARD_NAME, "AURA1501"),
-+		},
-+		.driver_data = (void *)(SERIO_QUIRK_NOMUX | SERIO_QUIRK_RESET_ALWAYS |
-+					SERIO_QUIRK_NOLOOP | SERIO_QUIRK_NOPNP)
-+	},
-+	{
-+		.matches = {
-+			DMI_MATCH(DMI_BOARD_VENDOR, "TUXEDO"),
-+			DMI_MATCH(DMI_BOARD_NAME, "EDUBOOK1502"),
++			DMI_MATCH(DMI_BOARD_NAME, "PCX0DX"),
 +		},
 +		.driver_data = (void *)(SERIO_QUIRK_NOMUX | SERIO_QUIRK_RESET_ALWAYS |
 +					SERIO_QUIRK_NOLOOP | SERIO_QUIRK_NOPNP)
 +	},
  	{
- 		/* Mivvy M310 */
  		.matches = {
-@@ -1054,6 +1077,112 @@ static const struct dmi_system_id i8042_dmi_quirk_table[] __initconst = {
- 		},
- 		.driver_data = (void *)(SERIO_QUIRK_NOLOOP)
- 	},
-+	/*
-+	 * A lot of modern Clevo barebones have touchpad and/or keyboard issues
-+	 * after suspend fixable with nomux + reset + noloop + nopnp. Luckily,
-+	 * none of them have an external PS/2 port so this can safely be set for
-+	 * all of them.
-+	 * Clevo barebones come with board_vendor and/or system_vendor set to
-+	 * either the very generic string "Notebook" and/or a different value
-+	 * for each individual reseller. The only somewhat universal way to
-+	 * identify them is by board_name.
-+	 */
-+	{
-+		.matches = {
-+			DMI_MATCH(DMI_BOARD_NAME, "LAPQC71A"),
-+		},
-+		.driver_data = (void *)(SERIO_QUIRK_NOMUX | SERIO_QUIRK_RESET_ALWAYS |
-+					SERIO_QUIRK_NOLOOP | SERIO_QUIRK_NOPNP)
-+	},
-+	{
-+		.matches = {
-+			DMI_MATCH(DMI_BOARD_NAME, "LAPQC71B"),
-+		},
-+		.driver_data = (void *)(SERIO_QUIRK_NOMUX | SERIO_QUIRK_RESET_ALWAYS |
-+					SERIO_QUIRK_NOLOOP | SERIO_QUIRK_NOPNP)
-+	},
-+	{
-+		.matches = {
-+			DMI_MATCH(DMI_BOARD_NAME, "N140CU"),
-+		},
-+		.driver_data = (void *)(SERIO_QUIRK_NOMUX | SERIO_QUIRK_RESET_ALWAYS |
-+					SERIO_QUIRK_NOLOOP | SERIO_QUIRK_NOPNP)
-+	},
-+	{
-+		.matches = {
-+			DMI_MATCH(DMI_BOARD_NAME, "N141CU"),
-+		},
-+		.driver_data = (void *)(SERIO_QUIRK_NOMUX | SERIO_QUIRK_RESET_ALWAYS |
-+					SERIO_QUIRK_NOLOOP | SERIO_QUIRK_NOPNP)
-+	},
-+	{
-+		.matches = {
-+			DMI_MATCH(DMI_BOARD_NAME, "NH5xAx"),
-+		},
-+		.driver_data = (void *)(SERIO_QUIRK_NOMUX | SERIO_QUIRK_RESET_ALWAYS |
-+					SERIO_QUIRK_NOLOOP | SERIO_QUIRK_NOPNP)
-+	},
-+	{
-+		.matches = {
-+			DMI_MATCH(DMI_BOARD_NAME, "NL5xRU"),
-+		},
-+		.driver_data = (void *)(SERIO_QUIRK_NOMUX | SERIO_QUIRK_RESET_ALWAYS |
-+					SERIO_QUIRK_NOLOOP | SERIO_QUIRK_NOPNP)
-+	},
-+	/*
-+	 * At least one modern Clevo barebone has the touchpad connected both
-+	 * via PS/2 and i2c interface. This causes a race condition between the
-+	 * psmouse and i2c-hid driver. Since the full capability of the touchpad
-+	 * is available via the i2c interface and the device has no external
-+	 * PS/2 port, it is safe to just ignore all ps2 mouses here to avoid
-+	 * this issue. The known affected device is the
-+	 * TUXEDO InfinityBook S17 Gen6 / Clevo NS70MU which comes with one of
-+	 * the two different dmi strings below. NS50MU is not a typo!
-+	 */
-+	{
-+		.matches = {
-+			DMI_MATCH(DMI_BOARD_NAME, "NS50MU"),
-+		},
-+		.driver_data = (void *)(SERIO_QUIRK_NOAUX | SERIO_QUIRK_NOMUX |
-+					SERIO_QUIRK_RESET_ALWAYS | SERIO_QUIRK_NOLOOP |
-+					SERIO_QUIRK_NOPNP)
-+	},
-+	{
-+		.matches = {
-+			DMI_MATCH(DMI_BOARD_NAME, "NS50_70MU"),
-+		},
-+		.driver_data = (void *)(SERIO_QUIRK_NOAUX | SERIO_QUIRK_NOMUX |
-+					SERIO_QUIRK_RESET_ALWAYS | SERIO_QUIRK_NOLOOP |
-+					SERIO_QUIRK_NOPNP)
-+	},
-+	{
-+		.matches = {
-+			DMI_MATCH(DMI_BOARD_NAME, "NJ50_70CU"),
-+		},
-+		.driver_data = (void *)(SERIO_QUIRK_NOMUX | SERIO_QUIRK_RESET_ALWAYS |
-+					SERIO_QUIRK_NOLOOP | SERIO_QUIRK_NOPNP)
-+	},
-+	{
-+		.matches = {
-+			DMI_MATCH(DMI_BOARD_NAME, "PB50_70DFx,DDx"),
-+		},
-+		.driver_data = (void *)(SERIO_QUIRK_NOMUX | SERIO_QUIRK_RESET_ALWAYS |
-+					SERIO_QUIRK_NOLOOP | SERIO_QUIRK_NOPNP)
-+	},
-+	{
-+		.matches = {
-+			DMI_MATCH(DMI_BOARD_NAME, "X170SM"),
-+		},
-+		.driver_data = (void *)(SERIO_QUIRK_NOMUX | SERIO_QUIRK_RESET_ALWAYS |
-+					SERIO_QUIRK_NOLOOP | SERIO_QUIRK_NOPNP)
-+	},
-+	{
-+		.matches = {
-+			DMI_MATCH(DMI_BOARD_NAME, "X170KM-G"),
-+		},
-+		.driver_data = (void *)(SERIO_QUIRK_NOMUX | SERIO_QUIRK_RESET_ALWAYS |
-+					SERIO_QUIRK_NOLOOP | SERIO_QUIRK_NOPNP)
-+	},
- 	{ }
- };
- 
+ 			DMI_MATCH(DMI_BOARD_NAME, "X170SM"),
 -- 
 2.39.0
 
