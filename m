@@ -2,44 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 51F4C69CEC4
-	for <lists+stable@lfdr.de>; Mon, 20 Feb 2023 15:02:20 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id AEF5569CEBC
+	for <lists+stable@lfdr.de>; Mon, 20 Feb 2023 15:01:59 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232844AbjBTOCT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Feb 2023 09:02:19 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55780 "EHLO
+        id S232808AbjBTOB7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Feb 2023 09:01:59 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54640 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232827AbjBTOCO (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 20 Feb 2023 09:02:14 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D86CA1EFD6
-        for <stable@vger.kernel.org>; Mon, 20 Feb 2023 06:02:00 -0800 (PST)
+        with ESMTP id S232817AbjBTOB4 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 20 Feb 2023 09:01:56 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1D54E1EFE1
+        for <stable@vger.kernel.org>; Mon, 20 Feb 2023 06:01:35 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id EA41BB80B4D
-        for <stable@vger.kernel.org>; Mon, 20 Feb 2023 14:01:32 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 664E0C433EF;
-        Mon, 20 Feb 2023 14:01:31 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 00FDF60E9D
+        for <stable@vger.kernel.org>; Mon, 20 Feb 2023 14:01:35 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1151CC433EF;
+        Mon, 20 Feb 2023 14:01:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1676901691;
-        bh=UZwVvQzzk1Lsv+I8rDaZ08SOLtjXWhwXp2bsePiIR7c=;
+        s=korg; t=1676901694;
+        bh=GUFCabjE13msbhhlJ/kYFlZ1whj7obBd58o/cH7LcBI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=lzFsE54z+irc8PT6aO6J3oRmAxv9lF80efoEe8x0X6jQheio81It1aZ46hIbgzK5F
-         1B5ywMnmpX0/Ahfdk2mt9t+a+FSdQE4PmQgBqlC5U/9c8lP3AXJIWRmdrcwNUK4yhY
-         NquMvVvHquwksJ2cXH+IRfbMne5t+abpNEJOsP6U=
+        b=UUvgq/nYdSLpRUy4xdcbDb+e/vj3E2bCiKkGpU5TpTb77XNIF3amXfPy6fOUNiJDC
+         nmyy6QGiNWwX+bmO1Nc7HGE5wM+dVb3knfZe6nhCciW+Q3uNDwxmmsgoTRAmVIlU7r
+         cxmeFyY46iDL4cNqa1uWEo1RN9WJylvEmWfEMryc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Andrew Cooper <Andrew.Cooper3@citrix.com>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Kan Liang <kan.liang@linux.intel.com>,
-        Andi Kleen <ak@linux.intel.com>,
-        Sean Christopherson <seanjc@google.com>,
-        Paolo Bonzini <pbonzini@redhat.com>
-Subject: [PATCH 6.1 114/118] perf/x86: Refuse to export capabilities for hybrid PMUs
-Date:   Mon, 20 Feb 2023 14:37:10 +0100
-Message-Id: <20230220133604.954264352@linuxfoundation.org>
+        patches@lists.linux.dev,
+        syzbot+b9564ba6e8e00694511b@syzkaller.appspotmail.com,
+        Thomas Gleixner <tglx@linutronix.de>,
+        John Stultz <jstultz@google.com>
+Subject: [PATCH 6.1 115/118] alarmtimer: Prevent starvation by small intervals and SIG_IGN
+Date:   Mon, 20 Feb 2023 14:37:11 +0100
+Message-Id: <20230220133604.991940587@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
 In-Reply-To: <20230220133600.368809650@linuxfoundation.org>
 References: <20230220133600.368809650@linuxfoundation.org>
@@ -47,8 +45,8 @@ User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
         SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -56,56 +54,132 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sean Christopherson <seanjc@google.com>
+From: Thomas Gleixner <tglx@linutronix.de>
 
-commit 4b4191b8ae1278bde3642acaaef8f92810ed111a upstream.
+commit d125d1349abeb46945dc5e98f7824bf688266f13 upstream.
 
-Now that KVM disables vPMU support on hybrid CPUs, WARN and return zeros
-if perf_get_x86_pmu_capability() is invoked on a hybrid CPU.  The helper
-doesn't provide an accurate accounting of the PMU capabilities for hybrid
-CPUs and needs to be enhanced if KVM, or anything else outside of perf,
-wants to act on the PMU capabilities.
+syzbot reported a RCU stall which is caused by setting up an alarmtimer
+with a very small interval and ignoring the signal. The reproducer arms the
+alarm timer with a relative expiry of 8ns and an interval of 9ns. Not a
+problem per se, but that's an issue when the signal is ignored because then
+the timer is immediately rearmed because there is no way to delay that
+rearming to the signal delivery path.  See posix_timer_fn() and commit
+58229a189942 ("posix-timers: Prevent softirq starvation by small intervals
+and SIG_IGN") for details.
 
+The reproducer does not set SIG_IGN explicitely, but it sets up the timers
+signal with SIGCONT. That has the same effect as explicitely setting
+SIG_IGN for a signal as SIGCONT is ignored if there is no handler set and
+the task is not ptraced.
+
+The log clearly shows that:
+
+   [pid  5102] --- SIGCONT {si_signo=SIGCONT, si_code=SI_TIMER, si_timerid=0, si_overrun=316014, si_int=0, si_ptr=NULL} ---
+
+It works because the tasks are traced and therefore the signal is queued so
+the tracer can see it, which delays the restart of the timer to the signal
+delivery path. But then the tracer is killed:
+
+   [pid  5087] kill(-5102, SIGKILL <unfinished ...>
+   ...
+   ./strace-static-x86_64: Process 5107 detached
+
+and after it's gone the stall can be observed:
+
+   syzkaller login: [   79.439102][    C0] hrtimer: interrupt took 68471 ns
+   [  184.460538][    C1] rcu: INFO: rcu_preempt detected stalls on CPUs/tasks:
+   ...
+   [  184.658237][    C1] rcu: Stack dump where RCU GP kthread last ran:
+   [  184.664574][    C1] Sending NMI from CPU 1 to CPUs 0:
+   [  184.669821][    C0] NMI backtrace for cpu 0
+   [  184.669831][    C0] CPU: 0 PID: 5108 Comm: syz-executor192 Not tainted 6.2.0-rc6-next-20230203-syzkaller #0
+   ...
+   [  184.670036][    C0] Call Trace:
+   [  184.670041][    C0]  <IRQ>
+   [  184.670045][    C0]  alarmtimer_fired+0x327/0x670
+
+posix_timer_fn() prevents that by checking whether the interval for
+timers which have the signal ignored is smaller than a jiffie and
+artifically delay it by shifting the next expiry out by a jiffie. That's
+accurate vs. the overrun accounting, but slightly inaccurate
+vs. timer_gettimer(2).
+
+The comment in that function says what needs to be done and there was a fix
+available for the regular userspace induced SIG_IGN mechanism, but that did
+not work due to the implicit ignore for SIGCONT and similar signals. This
+needs to be worked on, but for now the only available workaround is to do
+exactly what posix_timer_fn() does:
+
+Increase the interval of self-rearming timers, which have their signal
+ignored, to at least a jiffie.
+
+Interestingly this has been fixed before via commit ff86bf0c65f1
+("alarmtimer: Rate limit periodic intervals") already, but that fix got
+lost in a later rework.
+
+Reported-by: syzbot+b9564ba6e8e00694511b@syzkaller.appspotmail.com
+Fixes: f2c45807d399 ("alarmtimer: Switch over to generic set/get/rearm routine")
+Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
+Acked-by: John Stultz <jstultz@google.com>
 Cc: stable@vger.kernel.org
-Cc: Andrew Cooper <Andrew.Cooper3@citrix.com>
-Cc: Peter Zijlstra <peterz@infradead.org>
-Cc: Kan Liang <kan.liang@linux.intel.com>
-Cc: Andi Kleen <ak@linux.intel.com>
-Link: https://lore.kernel.org/all/20220818181530.2355034-1-kan.liang@linux.intel.com
-Signed-off-by: Sean Christopherson <seanjc@google.com>
-Message-Id: <20230208204230.1360502-3-seanjc@google.com>
-Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
+Link: https://lore.kernel.org/r/87k00q1no2.ffs@tglx
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/x86/events/core.c |   12 +++++++-----
- 1 file changed, 7 insertions(+), 5 deletions(-)
+ kernel/time/alarmtimer.c |   33 +++++++++++++++++++++++++++++----
+ 1 file changed, 29 insertions(+), 4 deletions(-)
 
---- a/arch/x86/events/core.c
-+++ b/arch/x86/events/core.c
-@@ -2994,17 +2994,19 @@ unsigned long perf_misc_flags(struct pt_
+--- a/kernel/time/alarmtimer.c
++++ b/kernel/time/alarmtimer.c
+@@ -470,11 +470,35 @@ u64 alarm_forward(struct alarm *alarm, k
+ }
+ EXPORT_SYMBOL_GPL(alarm_forward);
  
- void perf_get_x86_pmu_capability(struct x86_pmu_capability *cap)
+-u64 alarm_forward_now(struct alarm *alarm, ktime_t interval)
++static u64 __alarm_forward_now(struct alarm *alarm, ktime_t interval, bool throttle)
  {
--	if (!x86_pmu_initialized()) {
-+	/* This API doesn't currently support enumerating hybrid PMUs. */
-+	if (WARN_ON_ONCE(cpu_feature_enabled(X86_FEATURE_HYBRID_CPU)) ||
-+	    !x86_pmu_initialized()) {
- 		memset(cap, 0, sizeof(*cap));
- 		return;
- 	}
+ 	struct alarm_base *base = &alarm_bases[alarm->type];
++	ktime_t now = base->get_ktime();
++
++	if (IS_ENABLED(CONFIG_HIGH_RES_TIMERS) && throttle) {
++		/*
++		 * Same issue as with posix_timer_fn(). Timers which are
++		 * periodic but the signal is ignored can starve the system
++		 * with a very small interval. The real fix which was
++		 * promised in the context of posix_timer_fn() never
++		 * materialized, but someone should really work on it.
++		 *
++		 * To prevent DOS fake @now to be 1 jiffie out which keeps
++		 * the overrun accounting correct but creates an
++		 * inconsistency vs. timer_gettime(2).
++		 */
++		ktime_t kj = NSEC_PER_SEC / HZ;
++
++		if (interval < kj)
++			now = ktime_add(now, kj);
++	}
++
++	return alarm_forward(alarm, now, interval);
++}
  
--	cap->version		= x86_pmu.version;
- 	/*
--	 * KVM doesn't support the hybrid PMU yet.
--	 * Return the common value in global x86_pmu,
--	 * which available for all cores.
-+	 * Note, hybrid CPU models get tracked as having hybrid PMUs even when
-+	 * all E-cores are disabled via BIOS.  When E-cores are disabled, the
-+	 * base PMU holds the correct number of counters for P-cores.
- 	 */
-+	cap->version		= x86_pmu.version;
- 	cap->num_counters_gp	= x86_pmu.num_counters;
- 	cap->num_counters_fixed	= x86_pmu.num_counters_fixed;
- 	cap->bit_width_gp	= x86_pmu.cntval_bits;
+-	return alarm_forward(alarm, base->get_ktime(), interval);
++u64 alarm_forward_now(struct alarm *alarm, ktime_t interval)
++{
++	return __alarm_forward_now(alarm, interval, false);
+ }
+ EXPORT_SYMBOL_GPL(alarm_forward_now);
+ 
+@@ -551,9 +575,10 @@ static enum alarmtimer_restart alarm_han
+ 	if (posix_timer_event(ptr, si_private) && ptr->it_interval) {
+ 		/*
+ 		 * Handle ignored signals and rearm the timer. This will go
+-		 * away once we handle ignored signals proper.
++		 * away once we handle ignored signals proper. Ensure that
++		 * small intervals cannot starve the system.
+ 		 */
+-		ptr->it_overrun += alarm_forward_now(alarm, ptr->it_interval);
++		ptr->it_overrun += __alarm_forward_now(alarm, ptr->it_interval, true);
+ 		++ptr->it_requeue_pending;
+ 		ptr->it_active = 1;
+ 		result = ALARMTIMER_RESTART;
 
 
