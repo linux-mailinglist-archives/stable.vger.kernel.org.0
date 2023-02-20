@@ -2,43 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 85FDE69CC8F
-	for <lists+stable@lfdr.de>; Mon, 20 Feb 2023 14:41:46 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B85C269CE57
+	for <lists+stable@lfdr.de>; Mon, 20 Feb 2023 14:58:54 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231393AbjBTNlp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Feb 2023 08:41:45 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51410 "EHLO
+        id S232691AbjBTN6v (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Feb 2023 08:58:51 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49970 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231844AbjBTNlp (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 20 Feb 2023 08:41:45 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 306621D905
-        for <stable@vger.kernel.org>; Mon, 20 Feb 2023 05:41:22 -0800 (PST)
+        with ESMTP id S232686AbjBTN6u (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 20 Feb 2023 08:58:50 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BF49B1DB8D
+        for <stable@vger.kernel.org>; Mon, 20 Feb 2023 05:58:19 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id C667FB80D1F
-        for <stable@vger.kernel.org>; Mon, 20 Feb 2023 13:41:20 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1F8B8C433D2;
-        Mon, 20 Feb 2023 13:41:18 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id E4D1660CEB
+        for <stable@vger.kernel.org>; Mon, 20 Feb 2023 13:57:35 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 02AC7C433EF;
+        Mon, 20 Feb 2023 13:57:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1676900479;
-        bh=PBoBEufJuI6OMTUtBJCuSuB5teAbeuZWM19mjwXNq/8=;
+        s=korg; t=1676901455;
+        bh=H6C+4vrhtGEElUVrGafR8vgBWxmAKGYPNQIs9NU39OU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=MGH5yLIKN1M4QZOTGmRRM7Iur1rMN6yeLynYwHEBiHUsevJrygQtX+iqj2UOPcaOz
-         ntzQbhq7DJSkyWSer+043nvjbcPipJ1xPA3g2MCPjaqxmsOdDISZ5+BgTVhhTaGQ/+
-         zDXk11vrVHcnQO0UCkM3H91WLqFueB4hIg0NjSHQ=
+        b=etMrx4+KuJUkl8cjnNQWy6GEOKpuq1XebeTA/t0L3X/2YLELWvtKzmtGbNhswoySF
+         +1AYu8b3kW55teXB/NPRTE60k9eIC16+ZHOgrmw/R1Xa3e/+PgPaOwFtvEcCKzL3XG
+         jle+XIRg6woNR6fS72VCeJbJ6KJQQJrgwNnxvj7Q=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Gilles BULOZ <gilles.buloz@kontron.com>,
-        =?UTF-8?q?Ilpo=20J=C3=A4rvinen?= <ilpo.jarvinen@linux.intel.com>
-Subject: [PATCH 4.19 40/89] serial: 8250_dma: Fix DMA Rx rearm race
+        patches@lists.linux.dev,
+        Andrey Konovalov <andrey.konovalov@linaro.org>,
+        "David S. Miller" <davem@davemloft.net>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 6.1 023/118] net: stmmac: do not stop RX_CLK in Rx LPI state for qcs404 SoC
 Date:   Mon, 20 Feb 2023 14:35:39 +0100
-Message-Id: <20230220133554.548298319@linuxfoundation.org>
+Message-Id: <20230220133601.354318482@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230220133553.066768704@linuxfoundation.org>
-References: <20230220133553.066768704@linuxfoundation.org>
+In-Reply-To: <20230220133600.368809650@linuxfoundation.org>
+References: <20230220133600.368809650@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -52,85 +54,67 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ilpo Järvinen <ilpo.jarvinen@linux.intel.com>
+From: Andrey Konovalov <andrey.konovalov@linaro.org>
 
-commit 57e9af7831dcf211c5c689c2a6f209f4abdf0bce upstream.
+[ Upstream commit 54aa39a513dbf2164ca462a19f04519b2407a224 ]
 
-As DMA Rx can be completed from two places, it is possible that DMA Rx
-completes before DMA completion callback had a chance to complete it.
-Once the previous DMA Rx has been completed, a new one can be started
-on the next UART interrupt. The following race is possible
-(uart_unlock_and_check_sysrq_irqrestore() replaced with
-spin_unlock_irqrestore() for simplicity/clarity):
+Currently in phy_init_eee() the driver unconditionally configures the PHY
+to stop RX_CLK after entering Rx LPI state. This causes an LPI interrupt
+storm on my qcs404-base board.
 
-CPU0					CPU1
-					dma_rx_complete()
-serial8250_handle_irq()
-  spin_lock_irqsave(&port->lock)
-  handle_rx_dma()
-    serial8250_rx_dma_flush()
-      __dma_rx_complete()
-        dma->rx_running = 0
-        // Complete DMA Rx
-  spin_unlock_irqrestore(&port->lock)
+Change the PHY initialization so that for "qcom,qcs404-ethqos" compatible
+device RX_CLK continues to run even in Rx LPI state.
 
-serial8250_handle_irq()
-  spin_lock_irqsave(&port->lock)
-  handle_rx_dma()
-    serial8250_rx_dma()
-      dma->rx_running = 1
-      // Setup a new DMA Rx
-  spin_unlock_irqrestore(&port->lock)
-
-					  spin_lock_irqsave(&port->lock)
-					  // sees dma->rx_running = 1
-					  __dma_rx_complete()
-					    dma->rx_running = 0
-					    // Incorrectly complete
-					    // running DMA Rx
-
-This race seems somewhat theoretical to occur for real but handle it
-correctly regardless. Check what is the DMA status before complething
-anything in __dma_rx_complete().
-
-Reported-by: Gilles BULOZ <gilles.buloz@kontron.com>
-Tested-by: Gilles BULOZ <gilles.buloz@kontron.com>
-Fixes: 9ee4b83e51f7 ("serial: 8250: Add support for dmaengine")
-Cc: stable@vger.kernel.org
-Signed-off-by: Ilpo Järvinen <ilpo.jarvinen@linux.intel.com>
-Link: https://lore.kernel.org/r/20230130114841.25749-3-ilpo.jarvinen@linux.intel.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Andrey Konovalov <andrey.konovalov@linaro.org>
+Signed-off-by: David S. Miller <davem@davemloft.net>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/tty/serial/8250/8250_dma.c |   12 ++++++++++--
- 1 file changed, 10 insertions(+), 2 deletions(-)
+ drivers/net/ethernet/stmicro/stmmac/dwmac-qcom-ethqos.c | 2 ++
+ drivers/net/ethernet/stmicro/stmmac/stmmac_main.c       | 3 ++-
+ include/linux/stmmac.h                                  | 1 +
+ 3 files changed, 5 insertions(+), 1 deletion(-)
 
---- a/drivers/tty/serial/8250/8250_dma.c
-+++ b/drivers/tty/serial/8250/8250_dma.c
-@@ -48,15 +48,23 @@ static void __dma_rx_complete(void *para
- 	struct uart_8250_dma	*dma = p->dma;
- 	struct tty_port		*tty_port = &p->port.state->port;
- 	struct dma_tx_state	state;
-+	enum dma_status		dma_status;
- 	int			count;
+diff --git a/drivers/net/ethernet/stmicro/stmmac/dwmac-qcom-ethqos.c b/drivers/net/ethernet/stmicro/stmmac/dwmac-qcom-ethqos.c
+index 835caa15d55ff..732774645c1a6 100644
+--- a/drivers/net/ethernet/stmicro/stmmac/dwmac-qcom-ethqos.c
++++ b/drivers/net/ethernet/stmicro/stmmac/dwmac-qcom-ethqos.c
+@@ -560,6 +560,8 @@ static int qcom_ethqos_probe(struct platform_device *pdev)
+ 	plat_dat->has_gmac4 = 1;
+ 	plat_dat->pmt = 1;
+ 	plat_dat->tso_en = of_property_read_bool(np, "snps,tso");
++	if (of_device_is_compatible(np, "qcom,qcs404-ethqos"))
++		plat_dat->rx_clk_runs_in_lpi = 1;
  
--	dma->rx_running = 0;
--	dmaengine_tx_status(dma->rxchan, dma->rx_cookie, &state);
-+	/*
-+	 * New DMA Rx can be started during the completion handler before it
-+	 * could acquire port's lock and it might still be ongoing. Don't to
-+	 * anything in such case.
-+	 */
-+	dma_status = dmaengine_tx_status(dma->rxchan, dma->rx_cookie, &state);
-+	if (dma_status == DMA_IN_PROGRESS)
-+		return;
+ 	ret = stmmac_dvr_probe(&pdev->dev, plat_dat, &stmmac_res);
+ 	if (ret)
+diff --git a/drivers/net/ethernet/stmicro/stmmac/stmmac_main.c b/drivers/net/ethernet/stmicro/stmmac/stmmac_main.c
+index 4bba0444c764a..84e1740b12f1b 100644
+--- a/drivers/net/ethernet/stmicro/stmmac/stmmac_main.c
++++ b/drivers/net/ethernet/stmicro/stmmac/stmmac_main.c
+@@ -1077,7 +1077,8 @@ static void stmmac_mac_link_up(struct phylink_config *config,
  
- 	count = dma->rx_size - state.residue;
- 
- 	tty_insert_flip_string(tty_port, dma->rx_buf, count);
- 	p->port.icount.rx += count;
-+	dma->rx_running = 0;
- 
- 	tty_flip_buffer_push(tty_port);
- }
+ 	stmmac_mac_set(priv, priv->ioaddr, true);
+ 	if (phy && priv->dma_cap.eee) {
+-		priv->eee_active = phy_init_eee(phy, 1) >= 0;
++		priv->eee_active =
++			phy_init_eee(phy, !priv->plat->rx_clk_runs_in_lpi) >= 0;
+ 		priv->eee_enabled = stmmac_eee_init(priv);
+ 		priv->tx_lpi_enabled = priv->eee_enabled;
+ 		stmmac_set_eee_pls(priv, priv->hw, true);
+diff --git a/include/linux/stmmac.h b/include/linux/stmmac.h
+index fb2e88614f5d1..313edd19bf545 100644
+--- a/include/linux/stmmac.h
++++ b/include/linux/stmmac.h
+@@ -252,6 +252,7 @@ struct plat_stmmacenet_data {
+ 	int rss_en;
+ 	int mac_port_sel_speed;
+ 	bool en_tx_lpi_clockgating;
++	bool rx_clk_runs_in_lpi;
+ 	int has_xgmac;
+ 	bool vlan_fail_q_en;
+ 	u8 vlan_fail_q;
+-- 
+2.39.0
+
 
 
