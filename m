@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 5E31F69CDB5
-	for <lists+stable@lfdr.de>; Mon, 20 Feb 2023 14:52:05 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id BF34569CE72
+	for <lists+stable@lfdr.de>; Mon, 20 Feb 2023 14:59:32 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232467AbjBTNwD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Feb 2023 08:52:03 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39326 "EHLO
+        id S232785AbjBTN7X (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Feb 2023 08:59:23 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51098 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232464AbjBTNwA (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 20 Feb 2023 08:52:00 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1C7731E5E7
-        for <stable@vger.kernel.org>; Mon, 20 Feb 2023 05:51:59 -0800 (PST)
+        with ESMTP id S232729AbjBTN7Q (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 20 Feb 2023 08:59:16 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7A8B91EFCD
+        for <stable@vger.kernel.org>; Mon, 20 Feb 2023 05:58:57 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id BEEB6B80D4E
-        for <stable@vger.kernel.org>; Mon, 20 Feb 2023 13:51:57 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 383E9C433EF;
-        Mon, 20 Feb 2023 13:51:56 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id C18F460CEB
+        for <stable@vger.kernel.org>; Mon, 20 Feb 2023 13:58:56 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D7BBDC433D2;
+        Mon, 20 Feb 2023 13:58:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1676901116;
-        bh=ux566SMcxf5tinG2b7keNJbkGbj86VcKuIV+OtvWxq8=;
+        s=korg; t=1676901536;
+        bh=6oDZu+NJZP7NTVee/M/XLF+prhMsOP+I9UO50H9burM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=umxf/Z3elHeeW8IUg0PjL66+RFu754q/0dsreRlTTU8mtzZoOxcgdFmDdK1BD9br/
-         P3Un5YC/Zki7NOPt8B2CR/IAotwpZC6Y7NwTrjoP1nULbUNxnfVahLfqj4+WpDzWk9
-         SQriE1ChW/0iS1Qp33Q3S5UN6UGtcX2HuqvddFi4=
+        b=DFvagQcdxe3Vx2NKIWvkn68ptFrprpFGnCV9muxndTKncxhuzMeamTUxdJi/dLxw1
+         yoy6guAkFOJ2cWHkdKdfSU8JMWMCO0OiAsZQ6oHhMsSdVe+YsLRkNyybDUy4T0qnM9
+         GvjcxhXkiIMybQbKesTIXdXbcgQYlQ9q0fm1Z3iA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Leo Li <sunpeng.li@amd.com>,
-        Mikhail Gavrilov <mikhail.v.gavrilov@gmail.com>,
-        Hamza Mahfooz <hamza.mahfooz@amd.com>,
-        Alex Deucher <alexander.deucher@amd.com>
-Subject: [PATCH 5.15 36/83] drm/amd/display: Fail atomic_check early on normalize_zpos error
-Date:   Mon, 20 Feb 2023 14:36:09 +0100
-Message-Id: <20230220133554.922991644@linuxfoundation.org>
+        patches@lists.linux.dev, Zack Rusin <zackr@vmware.com>,
+        Martin Krastev <krastevm@vmware.com>,
+        Maaz Mombasawala <mombasawalam@vmware.com>
+Subject: [PATCH 6.1 054/118] drm/vmwgfx: Do not drop the reference to the handle too soon
+Date:   Mon, 20 Feb 2023 14:36:10 +0100
+Message-Id: <20230220133602.622924506@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230220133553.669025851@linuxfoundation.org>
-References: <20230220133553.669025851@linuxfoundation.org>
+In-Reply-To: <20230220133600.368809650@linuxfoundation.org>
+References: <20230220133600.368809650@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -54,44 +53,195 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Leo Li <sunpeng.li@amd.com>
+From: Zack Rusin <zackr@vmware.com>
 
-commit 2a00299e7447395d0898e7c6214817c06a61a8e8 upstream.
+commit a950b989ea29ab3b38ea7f6e3d2540700a3c54e8 upstream.
 
-[Why]
+v3: Fix vmw_user_bo_lookup which was also dropping the gem reference
+before the kernel was done with buffer depending on userspace doing
+the right thing. Same bug, different spot.
 
-drm_atomic_normalize_zpos() can return an error code when there's
-modeset lock contention. This was being ignored.
+It is possible for userspace to predict the next buffer handle and
+to destroy the buffer while it's still used by the kernel. Delay
+dropping the internal reference on the buffers until kernel is done
+with them.
 
-[How]
+Instead of immediately dropping the gem reference in vmw_user_bo_lookup
+and vmw_gem_object_create_with_handle let the callers decide when they're
+ready give the control back to userspace.
 
-Bail out of atomic check if normalize_zpos() returns an error.
+Also fixes the second usage of vmw_gem_object_create_with_handle in
+vmwgfx_surface.c which wasn't grabbing an explicit reference
+to the gem object which could have been destroyed by the userspace
+on the owning surface at any point.
 
-Fixes: b261509952bc ("drm/amd/display: Fix double cursor on non-video RGB MPO")
-Signed-off-by: Leo Li <sunpeng.li@amd.com>
-Tested-by: Mikhail Gavrilov <mikhail.v.gavrilov@gmail.com>
-Reviewed-by: Hamza Mahfooz <hamza.mahfooz@amd.com>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
-Cc: stable@vger.kernel.org
+Signed-off-by: Zack Rusin <zackr@vmware.com>
+Fixes: 8afa13a0583f ("drm/vmwgfx: Implement DRIVER_GEM")
+Reviewed-by: Martin Krastev <krastevm@vmware.com>
+Reviewed-by: Maaz Mombasawala <mombasawalam@vmware.com>
+Link: https://patchwork.freedesktop.org/patch/msgid/20230211050514.2431155-1-zack@kde.org
+(cherry picked from commit 9ef8d83e8e25d5f1811b3a38eb1484f85f64296c)
+Cc: <stable@vger.kernel.org> # v5.17+
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c |    6 +++++-
- 1 file changed, 5 insertions(+), 1 deletion(-)
+ drivers/gpu/drm/vmwgfx/vmwgfx_bo.c      |    8 +++++---
+ drivers/gpu/drm/vmwgfx/vmwgfx_execbuf.c |    2 ++
+ drivers/gpu/drm/vmwgfx/vmwgfx_gem.c     |    4 ++--
+ drivers/gpu/drm/vmwgfx/vmwgfx_kms.c     |    4 +++-
+ drivers/gpu/drm/vmwgfx/vmwgfx_overlay.c |    1 +
+ drivers/gpu/drm/vmwgfx/vmwgfx_shader.c  |    1 +
+ drivers/gpu/drm/vmwgfx/vmwgfx_surface.c |   10 ++++++----
+ 7 files changed, 20 insertions(+), 10 deletions(-)
 
---- a/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c
-+++ b/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c
-@@ -10889,7 +10889,11 @@ static int amdgpu_dm_atomic_check(struct
- 	 * `dcn10_can_pipe_disable_cursor`). By now, all modified planes are in
- 	 * atomic state, so call drm helper to normalize zpos.
- 	 */
--	drm_atomic_normalize_zpos(dev, state);
-+	ret = drm_atomic_normalize_zpos(dev, state);
-+	if (ret) {
-+		drm_dbg(dev, "drm_atomic_normalize_zpos() failed\n");
-+		goto fail;
-+	}
+--- a/drivers/gpu/drm/vmwgfx/vmwgfx_bo.c
++++ b/drivers/gpu/drm/vmwgfx/vmwgfx_bo.c
+@@ -598,6 +598,7 @@ static int vmw_user_bo_synccpu_release(s
+ 		ttm_bo_put(&vmw_bo->base);
+ 	}
  
- 	/* Remove exiting planes if they are modified */
- 	for_each_oldnew_plane_in_state_reverse(state, plane, old_plane_state, new_plane_state, i) {
++	drm_gem_object_put(&vmw_bo->base.base);
+ 	return ret;
+ }
+ 
+@@ -638,6 +639,7 @@ int vmw_user_bo_synccpu_ioctl(struct drm
+ 
+ 		ret = vmw_user_bo_synccpu_grab(vbo, arg->flags);
+ 		vmw_bo_unreference(&vbo);
++		drm_gem_object_put(&vbo->base.base);
+ 		if (unlikely(ret != 0)) {
+ 			if (ret == -ERESTARTSYS || ret == -EBUSY)
+ 				return -EBUSY;
+@@ -695,7 +697,7 @@ int vmw_bo_unref_ioctl(struct drm_device
+  * struct vmw_buffer_object should be placed.
+  * Return: Zero on success, Negative error code on error.
+  *
+- * The vmw buffer object pointer will be refcounted.
++ * The vmw buffer object pointer will be refcounted (both ttm and gem)
+  */
+ int vmw_user_bo_lookup(struct drm_file *filp,
+ 		       uint32_t handle,
+@@ -712,7 +714,6 @@ int vmw_user_bo_lookup(struct drm_file *
+ 
+ 	*out = gem_to_vmw_bo(gobj);
+ 	ttm_bo_get(&(*out)->base);
+-	drm_gem_object_put(gobj);
+ 
+ 	return 0;
+ }
+@@ -779,7 +780,8 @@ int vmw_dumb_create(struct drm_file *fil
+ 	ret = vmw_gem_object_create_with_handle(dev_priv, file_priv,
+ 						args->size, &args->handle,
+ 						&vbo);
+-
++	/* drop reference from allocate - handle holds it now */
++	drm_gem_object_put(&vbo->base.base);
+ 	return ret;
+ }
+ 
+--- a/drivers/gpu/drm/vmwgfx/vmwgfx_execbuf.c
++++ b/drivers/gpu/drm/vmwgfx/vmwgfx_execbuf.c
+@@ -1160,6 +1160,7 @@ static int vmw_translate_mob_ptr(struct
+ 	}
+ 	ret = vmw_validation_add_bo(sw_context->ctx, vmw_bo, true, false);
+ 	ttm_bo_put(&vmw_bo->base);
++	drm_gem_object_put(&vmw_bo->base.base);
+ 	if (unlikely(ret != 0))
+ 		return ret;
+ 
+@@ -1214,6 +1215,7 @@ static int vmw_translate_guest_ptr(struc
+ 	}
+ 	ret = vmw_validation_add_bo(sw_context->ctx, vmw_bo, false, false);
+ 	ttm_bo_put(&vmw_bo->base);
++	drm_gem_object_put(&vmw_bo->base.base);
+ 	if (unlikely(ret != 0))
+ 		return ret;
+ 
+--- a/drivers/gpu/drm/vmwgfx/vmwgfx_gem.c
++++ b/drivers/gpu/drm/vmwgfx/vmwgfx_gem.c
+@@ -152,8 +152,6 @@ int vmw_gem_object_create_with_handle(st
+ 	(*p_vbo)->base.base.funcs = &vmw_gem_object_funcs;
+ 
+ 	ret = drm_gem_handle_create(filp, &(*p_vbo)->base.base, handle);
+-	/* drop reference from allocate - handle holds it now */
+-	drm_gem_object_put(&(*p_vbo)->base.base);
+ out_no_bo:
+ 	return ret;
+ }
+@@ -180,6 +178,8 @@ int vmw_gem_object_create_ioctl(struct d
+ 	rep->map_handle = drm_vma_node_offset_addr(&vbo->base.base.vma_node);
+ 	rep->cur_gmr_id = handle;
+ 	rep->cur_gmr_offset = 0;
++	/* drop reference from allocate - handle holds it now */
++	drm_gem_object_put(&vbo->base.base);
+ out_no_bo:
+ 	return ret;
+ }
+--- a/drivers/gpu/drm/vmwgfx/vmwgfx_kms.c
++++ b/drivers/gpu/drm/vmwgfx/vmwgfx_kms.c
+@@ -1669,8 +1669,10 @@ static struct drm_framebuffer *vmw_kms_f
+ 
+ err_out:
+ 	/* vmw_user_lookup_handle takes one ref so does new_fb */
+-	if (bo)
++	if (bo) {
+ 		vmw_bo_unreference(&bo);
++		drm_gem_object_put(&bo->base.base);
++	}
+ 	if (surface)
+ 		vmw_surface_unreference(&surface);
+ 
+--- a/drivers/gpu/drm/vmwgfx/vmwgfx_overlay.c
++++ b/drivers/gpu/drm/vmwgfx/vmwgfx_overlay.c
+@@ -458,6 +458,7 @@ int vmw_overlay_ioctl(struct drm_device
+ 	ret = vmw_overlay_update_stream(dev_priv, buf, arg, true);
+ 
+ 	vmw_bo_unreference(&buf);
++	drm_gem_object_put(&buf->base.base);
+ 
+ out_unlock:
+ 	mutex_unlock(&overlay->mutex);
+--- a/drivers/gpu/drm/vmwgfx/vmwgfx_shader.c
++++ b/drivers/gpu/drm/vmwgfx/vmwgfx_shader.c
+@@ -807,6 +807,7 @@ static int vmw_shader_define(struct drm_
+ 				    num_output_sig, tfile, shader_handle);
+ out_bad_arg:
+ 	vmw_bo_unreference(&buffer);
++	drm_gem_object_put(&buffer->base.base);
+ 	return ret;
+ }
+ 
+--- a/drivers/gpu/drm/vmwgfx/vmwgfx_surface.c
++++ b/drivers/gpu/drm/vmwgfx/vmwgfx_surface.c
+@@ -683,7 +683,7 @@ static void vmw_user_surface_base_releas
+ 	    container_of(base, struct vmw_user_surface, prime.base);
+ 	struct vmw_resource *res = &user_srf->srf.res;
+ 
+-	if (base->shareable && res && res->backup)
++	if (res && res->backup)
+ 		drm_gem_object_put(&res->backup->base.base);
+ 
+ 	*p_base = NULL;
+@@ -860,7 +860,11 @@ int vmw_surface_define_ioctl(struct drm_
+ 			goto out_unlock;
+ 		}
+ 		vmw_bo_reference(res->backup);
+-		drm_gem_object_get(&res->backup->base.base);
++		/*
++		 * We don't expose the handle to the userspace and surface
++		 * already holds a gem reference
++		 */
++		drm_gem_handle_delete(file_priv, backup_handle);
+ 	}
+ 
+ 	tmp = vmw_resource_reference(&srf->res);
+@@ -1564,8 +1568,6 @@ vmw_gb_surface_define_internal(struct dr
+ 			drm_vma_node_offset_addr(&res->backup->base.base.vma_node);
+ 		rep->buffer_size = res->backup->base.base.size;
+ 		rep->buffer_handle = backup_handle;
+-		if (user_srf->prime.base.shareable)
+-			drm_gem_object_get(&res->backup->base.base);
+ 	} else {
+ 		rep->buffer_map_handle = 0;
+ 		rep->buffer_size = 0;
 
 
