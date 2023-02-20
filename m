@@ -2,56 +2,49 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 82DFD69CD7E
-	for <lists+stable@lfdr.de>; Mon, 20 Feb 2023 14:50:13 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id BCB1069CDBF
+	for <lists+stable@lfdr.de>; Mon, 20 Feb 2023 14:52:27 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232394AbjBTNuM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Feb 2023 08:50:12 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37334 "EHLO
+        id S232470AbjBTNw0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Feb 2023 08:52:26 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39922 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232398AbjBTNuL (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 20 Feb 2023 08:50:11 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9B71A1E5D4
-        for <stable@vger.kernel.org>; Mon, 20 Feb 2023 05:49:46 -0800 (PST)
+        with ESMTP id S232464AbjBTNwZ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 20 Feb 2023 08:52:25 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F05EC1E5CB
+        for <stable@vger.kernel.org>; Mon, 20 Feb 2023 05:52:20 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 2AF9060E9D
-        for <stable@vger.kernel.org>; Mon, 20 Feb 2023 13:49:44 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1669CC433D2;
-        Mon, 20 Feb 2023 13:49:43 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 5F0AB60EA5
+        for <stable@vger.kernel.org>; Mon, 20 Feb 2023 13:52:20 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 75BF1C433D2;
+        Mon, 20 Feb 2023 13:52:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1676900983;
-        bh=wGwVzkJwFalgr9Z1sts/r+o5YSLXxZMIYjMk+Y4lXg0=;
+        s=korg; t=1676901139;
+        bh=LhmMxgoDG4he/OloqWxjM0Hb4ndlwzDQvr1pPmCtPNg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=KBojZkpBtuW6sWeTibcV7IqTFLtXkR4N+LFdwiPQS8GLn8OuCm3G4w3ABX5ch4lKg
-         y0PGj6wRTuFUvr5fQi7mPc9Tzy4Krx7vssZMNLjaotfX6oJ+XGUGu5baVsyAke5iM6
-         9Qn1WACrBpGaVSX+CHjKF16gf8DeqQV9nwOW7Bvo=
+        b=aPk13qgGZz4q5Bfv2UfLCxJgcsIx0EjrR9jna9+6eCIyIEyYQXqBLzCKnSkQ7Qwxy
+         5JfSPA2p+FT7pAI8gp7wp2khW7OwSTQmCVozF9qdqklUpdWZttGV4oAN14CAmVIYfC
+         KWpfV+mcfkWHwqtgTfYnMCOEzibjgAJpscsGJhv8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Mike Kravetz <mike.kravetz@oracle.com>,
-        Naresh Kamboju <naresh.kamboju@linaro.org>,
-        Jesper Juhl <jesperjuhl76@gmail.com>,
-        Muchun Song <songmuchun@bytedance.com>,
-        Linux Kernel Functional Testing <lkft@linaro.org>,
-        Anders Roxell <anders.roxell@linaro.org>,
-        Andi Kleen <ak@linux.intel.com>,
-        Sasha Levin <sashal@kernel.org>,
-        Andrew Morton <akpm@linux-foundation.org>
-Subject: [PATCH 5.4 134/156] hugetlb: check for undefined shift on 32 bit architectures
+        patches@lists.linux.dev, Yang Yingliang <yangyingliang@huawei.com>,
+        Ulf Hansson <ulf.hansson@linaro.org>
+Subject: [PATCH 5.15 45/83] mmc: mmc_spi: fix error handling in mmc_spi_probe()
 Date:   Mon, 20 Feb 2023 14:36:18 +0100
-Message-Id: <20230220133608.199970772@linuxfoundation.org>
+Message-Id: <20230220133555.251833874@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230220133602.515342638@linuxfoundation.org>
-References: <20230220133602.515342638@linuxfoundation.org>
+In-Reply-To: <20230220133553.669025851@linuxfoundation.org>
+References: <20230220133553.669025851@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
         SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -59,63 +52,64 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mike Kravetz <mike.kravetz@oracle.com>
+From: Yang Yingliang <yangyingliang@huawei.com>
 
-commit ec4288fe63966b26d53907212ecd05dfa81dd2cc upstream.
+commit cf4c9d2ac1e42c7d18b921bec39486896645b714 upstream.
 
-Users can specify the hugetlb page size in the mmap, shmget and
-memfd_create system calls.  This is done by using 6 bits within the flags
-argument to encode the base-2 logarithm of the desired page size.  The
-routine hstate_sizelog() uses the log2 value to find the corresponding
-hugetlb hstate structure.  Converting the log2 value (page_size_log) to
-potential hugetlb page size is the simple statement:
+If mmc_add_host() fails, it doesn't need to call mmc_remove_host(),
+or it will cause null-ptr-deref, because of deleting a not added
+device in mmc_remove_host().
 
-	1UL << page_size_log
+To fix this, goto label 'fail_glue_init', if mmc_add_host() fails,
+and change the label 'fail_add_host' to 'fail_gpiod_request'.
 
-Because only 6 bits are used for page_size_log, the left shift can not be
-greater than 63.  This is fine on 64 bit architectures where a long is 64
-bits.  However, if a value greater than 31 is passed on a 32 bit
-architecture (where long is 32 bits) the shift will result in undefined
-behavior.  This was generally not an issue as the result of the undefined
-shift had to exactly match hugetlb page size to proceed.
-
-Recent improvements in runtime checking have resulted in this undefined
-behavior throwing errors such as reported below.
-
-Fix by comparing page_size_log to BITS_PER_LONG before doing shift.
-
-Link: https://lkml.kernel.org/r/20230216013542.138708-1-mike.kravetz@oracle.com
-Link: https://lore.kernel.org/lkml/CA+G9fYuei_Tr-vN9GS7SfFyU1y9hNysnf=PB7kT0=yv4MiPgVg@mail.gmail.com/
-Fixes: 42d7395feb56 ("mm: support more pagesizes for MAP_HUGETLB/SHM_HUGETLB")
-Signed-off-by: Mike Kravetz <mike.kravetz@oracle.com>
-Reported-by: Naresh Kamboju <naresh.kamboju@linaro.org>
-Reviewed-by: Jesper Juhl <jesperjuhl76@gmail.com>
-Acked-by: Muchun Song <songmuchun@bytedance.com>
-Tested-by: Linux Kernel Functional Testing <lkft@linaro.org>
-Tested-by: Naresh Kamboju <naresh.kamboju@linaro.org>
-Cc: Anders Roxell <anders.roxell@linaro.org>
-Cc: Andi Kleen <ak@linux.intel.com>
-Cc: Sasha Levin <sashal@kernel.org>
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Fixes: 15a0580ced08 ("mmc_spi host driver")
+Signed-off-by: Yang Yingliang <yangyingliang@huawei.com>
+Cc:stable@vger.kernel.org
+Link: https://lore.kernel.org/r/20230131013835.3564011-1-yangyingliang@huawei.com
+Signed-off-by: Ulf Hansson <ulf.hansson@linaro.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- include/linux/hugetlb.h |    5 ++++-
- 1 file changed, 4 insertions(+), 1 deletion(-)
+ drivers/mmc/host/mmc_spi.c |    8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
 
---- a/include/linux/hugetlb.h
-+++ b/include/linux/hugetlb.h
-@@ -397,7 +397,10 @@ static inline struct hstate *hstate_size
- 	if (!page_size_log)
- 		return &default_hstate;
+--- a/drivers/mmc/host/mmc_spi.c
++++ b/drivers/mmc/host/mmc_spi.c
+@@ -1441,7 +1441,7 @@ static int mmc_spi_probe(struct spi_devi
  
--	return size_to_hstate(1UL << page_size_log);
-+	if (page_size_log < BITS_PER_LONG)
-+		return size_to_hstate(1UL << page_size_log);
-+
-+	return NULL;
- }
+ 	status = mmc_add_host(mmc);
+ 	if (status != 0)
+-		goto fail_add_host;
++		goto fail_glue_init;
  
- static inline struct hstate *hstate_vma(struct vm_area_struct *vma)
+ 	/*
+ 	 * Index 0 is card detect
+@@ -1449,7 +1449,7 @@ static int mmc_spi_probe(struct spi_devi
+ 	 */
+ 	status = mmc_gpiod_request_cd(mmc, NULL, 0, false, 1000);
+ 	if (status == -EPROBE_DEFER)
+-		goto fail_add_host;
++		goto fail_gpiod_request;
+ 	if (!status) {
+ 		/*
+ 		 * The platform has a CD GPIO signal that may support
+@@ -1464,7 +1464,7 @@ static int mmc_spi_probe(struct spi_devi
+ 	/* Index 1 is write protect/read only */
+ 	status = mmc_gpiod_request_ro(mmc, NULL, 1, 0);
+ 	if (status == -EPROBE_DEFER)
+-		goto fail_add_host;
++		goto fail_gpiod_request;
+ 	if (!status)
+ 		has_ro = true;
+ 
+@@ -1478,7 +1478,7 @@ static int mmc_spi_probe(struct spi_devi
+ 				? ", cd polling" : "");
+ 	return 0;
+ 
+-fail_add_host:
++fail_gpiod_request:
+ 	mmc_remove_host(mmc);
+ fail_glue_init:
+ 	mmc_spi_dma_free(host);
 
 
