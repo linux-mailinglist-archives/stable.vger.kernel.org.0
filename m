@@ -2,51 +2,52 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 8389369CCA8
-	for <lists+stable@lfdr.de>; Mon, 20 Feb 2023 14:42:38 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1705B69CE6A
+	for <lists+stable@lfdr.de>; Mon, 20 Feb 2023 14:59:18 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231998AbjBTNmh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Feb 2023 08:42:37 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52114 "EHLO
+        id S232750AbjBTN7O (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Feb 2023 08:59:14 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49970 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232064AbjBTNmd (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 20 Feb 2023 08:42:33 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id ED4FE1D908
-        for <stable@vger.kernel.org>; Mon, 20 Feb 2023 05:42:26 -0800 (PST)
+        with ESMTP id S232720AbjBTN7F (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 20 Feb 2023 08:59:05 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 60FDC1DB8F
+        for <stable@vger.kernel.org>; Mon, 20 Feb 2023 05:58:41 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 897F9B80D44
-        for <stable@vger.kernel.org>; Mon, 20 Feb 2023 13:42:26 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E0AFBC433EF;
-        Mon, 20 Feb 2023 13:42:24 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 0F0C660EA1
+        for <stable@vger.kernel.org>; Mon, 20 Feb 2023 13:58:41 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 24A05C433D2;
+        Mon, 20 Feb 2023 13:58:39 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1676900545;
-        bh=4+DCYv2zGhoaxL5+EHAVjF5eJMGU1CVZfGmZ1VDD5G8=;
+        s=korg; t=1676901520;
+        bh=A1rHhgCDYcjlK0P9Bd2sogSfqi1pJSAYtQMcdBDLSTU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=BhjdXwpG0MUnQRLJLvGETAEk2GyUws0HW3XxUNI3N4m/FXhpkBdVh59T914BhxFc0
-         3mOwbhj51t+3PEl/5D7IrUsPKnWOBRRJtra0GAEMAc79Wzj9t4JR/eK2hcvZadJrun
-         y3zsHTcmxrk1zBPWNhGCqh/F/yp9qCxElFOjVV+Y=
+        b=Gznxuo4nD+r+Ph/s8W7IbvktDQkbenf3WPUQloHnVvJmIfe/gN0D0FWNE7hG4vEKO
+         UDS238A6T4KVRQ7WBFDcwf83QzJQKwtwKUgEKAwYZSf6ETZHOvwjkeWzj5MGf+XAOj
+         P3FldeSaSOQ0RLBi4jI5owGm5UaXy81dMplRTmIU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Hyunwoo Kim <v4bel@theori.io>,
-        Kuniyuki Iwashima <kuniyu@amazon.com>,
-        Jakub Kicinski <kuba@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 66/89] net/rose: Fix to not accept on connected socket
+        patches@lists.linux.dev,
+        Patrik Jakobsson <patrik.r.jakobsson@gmail.com>,
+        Takashi Iwai <tiwai@suse.de>,
+        Miko Larsson <mikoxyzzz@gmail.com>,
+        Thomas Zimmermann <tzimmermann@suse.de>
+Subject: [PATCH 6.1 049/118] fbdev: Fix invalid page access after closing deferred I/O devices
 Date:   Mon, 20 Feb 2023 14:36:05 +0100
-Message-Id: <20230220133555.458545301@linuxfoundation.org>
+Message-Id: <20230220133602.401057630@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230220133553.066768704@linuxfoundation.org>
-References: <20230220133553.066768704@linuxfoundation.org>
+In-Reply-To: <20230220133600.368809650@linuxfoundation.org>
+References: <20230220133600.368809650@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
         SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -54,63 +55,83 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hyunwoo Kim <v4bel@theori.io>
+From: Takashi Iwai <tiwai@suse.de>
 
-[ Upstream commit 14caefcf9837a2be765a566005ad82cd0d2a429f ]
+commit 3efc61d95259956db25347e2a9562c3e54546e20 upstream.
 
-If you call listen() and accept() on an already connect()ed
-rose socket, accept() can successfully connect.
-This is because when the peer socket sends data to sendmsg,
-the skb with its own sk stored in the connected socket's
-sk->sk_receive_queue is connected, and rose_accept() dequeues
-the skb waiting in the sk->sk_receive_queue.
+When a fbdev with deferred I/O is once opened and closed, the dirty
+pages still remain queued in the pageref list, and eventually later
+those may be processed in the delayed work.  This may lead to a
+corruption of pages, hitting an Oops.
 
-This creates a child socket with the sk of the parent
-rose socket, which can cause confusion.
+This patch makes sure to cancel the delayed work and clean up the
+pageref list at closing the device for addressing the bug.  A part of
+the cleanup code is factored out as a new helper function that is
+called from the common fb_release().
 
-Fix rose_listen() to return -EINVAL if the socket has
-already been successfully connected, and add lock_sock
-to prevent this issue.
-
-Signed-off-by: Hyunwoo Kim <v4bel@theori.io>
-Reviewed-by: Kuniyuki Iwashima <kuniyu@amazon.com>
-Link: https://lore.kernel.org/r/20230125105944.GA133314@ubuntu
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Reviewed-by: Patrik Jakobsson <patrik.r.jakobsson@gmail.com>
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
+Tested-by: Miko Larsson <mikoxyzzz@gmail.com>
+Fixes: 56c134f7f1b5 ("fbdev: Track deferred-I/O pages in pageref struct")
+Reviewed-by: Thomas Zimmermann <tzimmermann@suse.de>
+Signed-off-by: Thomas Zimmermann <tzimmermann@suse.de>
+Link: https://patchwork.freedesktop.org/patch/msgid/20230129082856.22113-1-tiwai@suse.de
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/rose/af_rose.c | 8 ++++++++
- 1 file changed, 8 insertions(+)
+ drivers/video/fbdev/core/fb_defio.c |   10 +++++++++-
+ drivers/video/fbdev/core/fbmem.c    |    4 ++++
+ include/linux/fb.h                  |    1 +
+ 3 files changed, 14 insertions(+), 1 deletion(-)
 
-diff --git a/net/rose/af_rose.c b/net/rose/af_rose.c
-index 03a1ee221112e..4edd127bb8928 100644
---- a/net/rose/af_rose.c
-+++ b/net/rose/af_rose.c
-@@ -490,6 +490,12 @@ static int rose_listen(struct socket *sock, int backlog)
- {
- 	struct sock *sk = sock->sk;
- 
-+	lock_sock(sk);
-+	if (sock->state != SS_UNCONNECTED) {
-+		release_sock(sk);
-+		return -EINVAL;
-+	}
-+
- 	if (sk->sk_state != TCP_LISTEN) {
- 		struct rose_sock *rose = rose_sk(sk);
- 
-@@ -499,8 +505,10 @@ static int rose_listen(struct socket *sock, int backlog)
- 		memset(rose->dest_digis, 0, AX25_ADDR_LEN * ROSE_MAX_DIGIS);
- 		sk->sk_max_ack_backlog = backlog;
- 		sk->sk_state           = TCP_LISTEN;
-+		release_sock(sk);
- 		return 0;
- 	}
-+	release_sock(sk);
- 
- 	return -EOPNOTSUPP;
+--- a/drivers/video/fbdev/core/fb_defio.c
++++ b/drivers/video/fbdev/core/fb_defio.c
+@@ -313,7 +313,7 @@ void fb_deferred_io_open(struct fb_info
  }
--- 
-2.39.0
-
+ EXPORT_SYMBOL_GPL(fb_deferred_io_open);
+ 
+-void fb_deferred_io_cleanup(struct fb_info *info)
++void fb_deferred_io_release(struct fb_info *info)
+ {
+ 	struct fb_deferred_io *fbdefio = info->fbdefio;
+ 	struct page *page;
+@@ -327,6 +327,14 @@ void fb_deferred_io_cleanup(struct fb_in
+ 		page = fb_deferred_io_page(info, i);
+ 		page->mapping = NULL;
+ 	}
++}
++EXPORT_SYMBOL_GPL(fb_deferred_io_release);
++
++void fb_deferred_io_cleanup(struct fb_info *info)
++{
++	struct fb_deferred_io *fbdefio = info->fbdefio;
++
++	fb_deferred_io_release(info);
+ 
+ 	kvfree(info->pagerefs);
+ 	mutex_destroy(&fbdefio->lock);
+--- a/drivers/video/fbdev/core/fbmem.c
++++ b/drivers/video/fbdev/core/fbmem.c
+@@ -1453,6 +1453,10 @@ __releases(&info->lock)
+ 	struct fb_info * const info = file->private_data;
+ 
+ 	lock_fb_info(info);
++#if IS_ENABLED(CONFIG_FB_DEFERRED_IO)
++	if (info->fbdefio)
++		fb_deferred_io_release(info);
++#endif
+ 	if (info->fbops->fb_release)
+ 		info->fbops->fb_release(info,1);
+ 	module_put(info->fbops->owner);
+--- a/include/linux/fb.h
++++ b/include/linux/fb.h
+@@ -662,6 +662,7 @@ extern int  fb_deferred_io_init(struct f
+ extern void fb_deferred_io_open(struct fb_info *info,
+ 				struct inode *inode,
+ 				struct file *file);
++extern void fb_deferred_io_release(struct fb_info *info);
+ extern void fb_deferred_io_cleanup(struct fb_info *info);
+ extern int fb_deferred_io_fsync(struct file *file, loff_t start,
+ 				loff_t end, int datasync);
 
 
