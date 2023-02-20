@@ -2,46 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 81C7B69CC8D
-	for <lists+stable@lfdr.de>; Mon, 20 Feb 2023 14:41:42 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4E38869CDAD
+	for <lists+stable@lfdr.de>; Mon, 20 Feb 2023 14:51:39 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231643AbjBTNll (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Feb 2023 08:41:41 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51304 "EHLO
+        id S232445AbjBTNvi (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Feb 2023 08:51:38 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39026 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231787AbjBTNlk (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 20 Feb 2023 08:41:40 -0500
+        with ESMTP id S232438AbjBTNvh (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 20 Feb 2023 08:51:37 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4729E1DB97
-        for <stable@vger.kernel.org>; Mon, 20 Feb 2023 05:41:15 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id ABE4F1E5C1
+        for <stable@vger.kernel.org>; Mon, 20 Feb 2023 05:51:36 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id D33C060EA7
-        for <stable@vger.kernel.org>; Mon, 20 Feb 2023 13:41:14 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E2CFDC433D2;
-        Mon, 20 Feb 2023 13:41:13 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 4A0B160D41
+        for <stable@vger.kernel.org>; Mon, 20 Feb 2023 13:51:36 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5C0C6C433D2;
+        Mon, 20 Feb 2023 13:51:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1676900474;
-        bh=lIOIFA4RlelFtkAg8LTm4Hg6ZEK6qEPzbDtU4fswp58=;
+        s=korg; t=1676901095;
+        bh=YZBQsxnwoPa/p8Zp/+6TVx/q1nqcMmpnG85ZFtgp79k=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=arPr4T5Wb004rQdbOaFenY5W0NhqG1G2/CvR8sSo7s2d9aKx40h0glUKwiI+nH4cM
-         0UFoPZmr/+km+GXVTTSAVR0qPVXH/TnYnh3fucxEOnc5RFxDRU3w7FRL6ewWjukTyr
-         DK30GYK1viOeg70/H25UwxG18fkYoqpxuHdJD6S4=
+        b=fKsIgDGMxtVzD0uAlXcRSKEnUcacxQMSvCWXJ9crt/JeNdvxklZ3dRgneGs/MdBm1
+         tLc92D1jTcJF8oYvppt4skh6cQEpfmGvh6tVPctNg90socAgKckUJ7JJMfimqoi4Yx
+         XCehB5pUuuvNGhFRtLt+VkpJ+xZNHoV7O/vfI+eM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Phillip Lougher <phillip@squashfs.org.uk>,
-        syzbot+082fa4af80a5bb1a9843@syzkaller.appspotmail.com,
-        Alexey Khoroshilov <khoroshilov@ispras.ru>,
-        Fedor Pchelkin <pchelkin@ispras.ru>,
-        Andrew Morton <akpm@linux-foundation.org>
-Subject: [PATCH 4.19 38/89] Squashfs: fix handling and sanity checking of xattr_ids count
+        patches@lists.linux.dev,
+        Mario Limonciello <mario.limonciello@amd.com>,
+        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
+        Hans de Goede <hdegoede@redhat.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.15 04/83] ACPI / x86: Add support for LPS0 callback handler
 Date:   Mon, 20 Feb 2023 14:35:37 +0100
-Message-Id: <20230220133554.481121439@linuxfoundation.org>
+Message-Id: <20230220133553.822998004@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230220133553.066768704@linuxfoundation.org>
-References: <20230220133553.066768704@linuxfoundation.org>
+In-Reply-To: <20230220133553.669025851@linuxfoundation.org>
+References: <20230220133553.669025851@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,143 +55,131 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Phillip Lougher <phillip@squashfs.org.uk>
+From: Mario Limonciello <mario.limonciello@amd.com>
 
-commit f65c4bbbd682b0877b669828b4e033b8d5d0a2dc upstream.
+[ Upstream commit 20e1d6402a71dba7ad2b81f332a3c14c7d3b939b ]
 
-A Sysbot [1] corrupted filesystem exposes two flaws in the handling and
-sanity checking of the xattr_ids count in the filesystem.  Both of these
-flaws cause computation overflow due to incorrect typing.
+Currenty the latest thing run during a suspend to idle attempt is
+the LPS0 `prepare_late` callback and the earliest thing is the
+`resume_early` callback.
 
-In the corrupted filesystem the xattr_ids value is 4294967071, which
-stored in a signed variable becomes the negative number -225.
+There is a desire for the `amd-pmc` driver to suspend later in the
+suspend process (ideally the very last thing), so create a callback
+that it or any other driver can hook into to do this.
 
-Flaw 1 (64-bit systems only):
-
-The signed integer xattr_ids variable causes sign extension.
-
-This causes variable overflow in the SQUASHFS_XATTR_*(A) macros.  The
-variable is first multiplied by sizeof(struct squashfs_xattr_id) where the
-type of the sizeof operator is "unsigned long".
-
-On a 64-bit system this is 64-bits in size, and causes the negative number
-to be sign extended and widened to 64-bits and then become unsigned.  This
-produces the very large number 18446744073709548016 or 2^64 - 3600.  This
-number when rounded up by SQUASHFS_METADATA_SIZE - 1 (8191 bytes) and
-divided by SQUASHFS_METADATA_SIZE overflows and produces a length of 0
-(stored in len).
-
-Flaw 2 (32-bit systems only):
-
-On a 32-bit system the integer variable is not widened by the unsigned
-long type of the sizeof operator (32-bits), and the signedness of the
-variable has no effect due it always being treated as unsigned.
-
-The above corrupted xattr_ids value of 4294967071, when multiplied
-overflows and produces the number 4294963696 or 2^32 - 3400.  This number
-when rounded up by SQUASHFS_METADATA_SIZE - 1 (8191 bytes) and divided by
-SQUASHFS_METADATA_SIZE overflows again and produces a length of 0.
-
-The effect of the 0 length computation:
-
-In conjunction with the corrupted xattr_ids field, the filesystem also has
-a corrupted xattr_table_start value, where it matches the end of
-filesystem value of 850.
-
-This causes the following sanity check code to fail because the
-incorrectly computed len of 0 matches the incorrect size of the table
-reported by the superblock (0 bytes).
-
-    len = SQUASHFS_XATTR_BLOCK_BYTES(*xattr_ids);
-    indexes = SQUASHFS_XATTR_BLOCKS(*xattr_ids);
-
-    /*
-     * The computed size of the index table (len bytes) should exactly
-     * match the table start and end points
-    */
-    start = table_start + sizeof(*id_table);
-    end = msblk->bytes_used;
-
-    if (len != (end - start))
-            return ERR_PTR(-EINVAL);
-
-Changing the xattr_ids variable to be "usigned int" fixes the flaw on a
-64-bit system.  This relies on the fact the computation is widened by the
-unsigned long type of the sizeof operator.
-
-Casting the variable to u64 in the above macro fixes this flaw on a 32-bit
-system.
-
-It also means 64-bit systems do not implicitly rely on the type of the
-sizeof operator to widen the computation.
-
-[1] https://lore.kernel.org/lkml/000000000000cd44f005f1a0f17f@google.com/
-
-Link: https://lkml.kernel.org/r/20230127061842.10965-1-phillip@squashfs.org.uk
-Fixes: 506220d2ba21 ("squashfs: add more sanity checks in xattr id lookup")
-Signed-off-by: Phillip Lougher <phillip@squashfs.org.uk>
-Reported-by: <syzbot+082fa4af80a5bb1a9843@syzkaller.appspotmail.com>
-Cc: Alexey Khoroshilov <khoroshilov@ispras.ru>
-Cc: Fedor Pchelkin <pchelkin@ispras.ru>
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Mario Limonciello <mario.limonciello@amd.com>
+Acked-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+Link: https://lore.kernel.org/r/20220317141445.6498-1-mario.limonciello@amd.com
+Reviewed-by: Hans de Goede <hdegoede@redhat.com>
+Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+Stable-dep-of: 8e60615e8932 ("platform/x86/amd: pmc: Disable IRQ1 wakeup for RN/CZN")
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/squashfs/squashfs_fs.h    |    2 +-
- fs/squashfs/squashfs_fs_sb.h |    2 +-
- fs/squashfs/xattr.h          |    4 ++--
- fs/squashfs/xattr_id.c       |    2 +-
- 4 files changed, 5 insertions(+), 5 deletions(-)
+ drivers/acpi/x86/s2idle.c | 40 +++++++++++++++++++++++++++++++++++++++
+ include/linux/acpi.h      | 10 +++++++++-
+ 2 files changed, 49 insertions(+), 1 deletion(-)
 
---- a/fs/squashfs/squashfs_fs.h
-+++ b/fs/squashfs/squashfs_fs.h
-@@ -196,7 +196,7 @@ static inline int squashfs_block_size(__
- #define SQUASHFS_ID_BLOCK_BYTES(A)	(SQUASHFS_ID_BLOCKS(A) *\
- 					sizeof(u64))
- /* xattr id lookup table defines */
--#define SQUASHFS_XATTR_BYTES(A)		((A) * sizeof(struct squashfs_xattr_id))
-+#define SQUASHFS_XATTR_BYTES(A)		(((u64) (A)) * sizeof(struct squashfs_xattr_id))
- 
- #define SQUASHFS_XATTR_BLOCK(A)		(SQUASHFS_XATTR_BYTES(A) / \
- 					SQUASHFS_METADATA_SIZE)
---- a/fs/squashfs/squashfs_fs_sb.h
-+++ b/fs/squashfs/squashfs_fs_sb.h
-@@ -76,7 +76,7 @@ struct squashfs_sb_info {
- 	long long				bytes_used;
- 	unsigned int				inodes;
- 	unsigned int				fragments;
--	int					xattr_ids;
-+	unsigned int				xattr_ids;
- 	unsigned int				ids;
+diff --git a/drivers/acpi/x86/s2idle.c b/drivers/acpi/x86/s2idle.c
+index 2af1ae1721021..4a11a38764321 100644
+--- a/drivers/acpi/x86/s2idle.c
++++ b/drivers/acpi/x86/s2idle.c
+@@ -86,6 +86,8 @@ struct lpi_device_constraint_amd {
+ 	int min_dstate;
  };
- #endif
---- a/fs/squashfs/xattr.h
-+++ b/fs/squashfs/xattr.h
-@@ -23,12 +23,12 @@
  
- #ifdef CONFIG_SQUASHFS_XATTR
- extern __le64 *squashfs_read_xattr_id_table(struct super_block *, u64,
--		u64 *, int *);
-+		u64 *, unsigned int *);
- extern int squashfs_xattr_lookup(struct super_block *, unsigned int, int *,
- 		unsigned int *, unsigned long long *);
++static LIST_HEAD(lps0_s2idle_devops_head);
++
+ static struct lpi_constraints *lpi_constraints_table;
+ static int lpi_constraints_table_size;
+ static int rev_id;
+@@ -434,6 +436,8 @@ static struct acpi_scan_handler lps0_handler = {
+ 
+ int acpi_s2idle_prepare_late(void)
+ {
++	struct acpi_s2idle_dev_ops *handler;
++
+ 	if (!lps0_device_handle || sleep_no_lps0)
+ 		return 0;
+ 
+@@ -464,14 +468,26 @@ int acpi_s2idle_prepare_late(void)
+ 		acpi_sleep_run_lps0_dsm(ACPI_LPS0_MS_ENTRY,
+ 				lps0_dsm_func_mask_microsoft, lps0_dsm_guid_microsoft);
+ 	}
++
++	list_for_each_entry(handler, &lps0_s2idle_devops_head, list_node) {
++		if (handler->prepare)
++			handler->prepare();
++	}
++
+ 	return 0;
+ }
+ 
+ void acpi_s2idle_restore_early(void)
+ {
++	struct acpi_s2idle_dev_ops *handler;
++
+ 	if (!lps0_device_handle || sleep_no_lps0)
+ 		return;
+ 
++	list_for_each_entry(handler, &lps0_s2idle_devops_head, list_node)
++		if (handler->restore)
++			handler->restore();
++
+ 	/* Modern standby exit */
+ 	if (lps0_dsm_func_mask_microsoft > 0)
+ 		acpi_sleep_run_lps0_dsm(ACPI_LPS0_MS_EXIT,
+@@ -514,4 +530,28 @@ void acpi_s2idle_setup(void)
+ 	s2idle_set_ops(&acpi_s2idle_ops_lps0);
+ }
+ 
++int acpi_register_lps0_dev(struct acpi_s2idle_dev_ops *arg)
++{
++	if (!lps0_device_handle || sleep_no_lps0)
++		return -ENODEV;
++
++	lock_system_sleep();
++	list_add(&arg->list_node, &lps0_s2idle_devops_head);
++	unlock_system_sleep();
++
++	return 0;
++}
++EXPORT_SYMBOL_GPL(acpi_register_lps0_dev);
++
++void acpi_unregister_lps0_dev(struct acpi_s2idle_dev_ops *arg)
++{
++	if (!lps0_device_handle || sleep_no_lps0)
++		return;
++
++	lock_system_sleep();
++	list_del(&arg->list_node);
++	unlock_system_sleep();
++}
++EXPORT_SYMBOL_GPL(acpi_unregister_lps0_dev);
++
+ #endif /* CONFIG_SUSPEND */
+diff --git a/include/linux/acpi.h b/include/linux/acpi.h
+index 6224b1e32681c..2d7df5cea2494 100644
+--- a/include/linux/acpi.h
++++ b/include/linux/acpi.h
+@@ -1005,7 +1005,15 @@ void acpi_os_set_prepare_extended_sleep(int (*func)(u8 sleep_state,
+ 
+ acpi_status acpi_os_prepare_extended_sleep(u8 sleep_state,
+ 					   u32 val_a, u32 val_b);
+-
++#ifdef CONFIG_X86
++struct acpi_s2idle_dev_ops {
++	struct list_head list_node;
++	void (*prepare)(void);
++	void (*restore)(void);
++};
++int acpi_register_lps0_dev(struct acpi_s2idle_dev_ops *arg);
++void acpi_unregister_lps0_dev(struct acpi_s2idle_dev_ops *arg);
++#endif /* CONFIG_X86 */
+ #ifndef CONFIG_IA64
+ void arch_reserve_mem_area(acpi_physical_address addr, size_t size);
  #else
- static inline __le64 *squashfs_read_xattr_id_table(struct super_block *sb,
--		u64 start, u64 *xattr_table_start, int *xattr_ids)
-+		u64 start, u64 *xattr_table_start, unsigned int *xattr_ids)
- {
- 	struct squashfs_xattr_id_table *id_table;
- 
---- a/fs/squashfs/xattr_id.c
-+++ b/fs/squashfs/xattr_id.c
-@@ -69,7 +69,7 @@ int squashfs_xattr_lookup(struct super_b
-  * Read uncompressed xattr id lookup table indexes from disk into memory
-  */
- __le64 *squashfs_read_xattr_id_table(struct super_block *sb, u64 table_start,
--		u64 *xattr_table_start, int *xattr_ids)
-+		u64 *xattr_table_start, unsigned int *xattr_ids)
- {
- 	struct squashfs_sb_info *msblk = sb->s_fs_info;
- 	unsigned int len, indexes;
+-- 
+2.39.0
+
 
 
