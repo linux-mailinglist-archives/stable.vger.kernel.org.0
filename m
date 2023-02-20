@@ -2,599 +2,234 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 49F9069D2C4
-	for <lists+stable@lfdr.de>; Mon, 20 Feb 2023 19:32:45 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 951BA69D2C6
+	for <lists+stable@lfdr.de>; Mon, 20 Feb 2023 19:34:13 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229885AbjBTScn (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Feb 2023 13:32:43 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44250 "EHLO
+        id S231898AbjBTSeM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Feb 2023 13:34:12 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45046 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229468AbjBTScm (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 20 Feb 2023 13:32:42 -0500
-Received: from mail-pl1-x62b.google.com (mail-pl1-x62b.google.com [IPv6:2607:f8b0:4864:20::62b])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 46888A5F6
-        for <stable@vger.kernel.org>; Mon, 20 Feb 2023 10:32:40 -0800 (PST)
-Received: by mail-pl1-x62b.google.com with SMTP id q5so2477064plh.9
-        for <stable@vger.kernel.org>; Mon, 20 Feb 2023 10:32:40 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20210112.gappssmtp.com; s=20210112;
-        h=from:to:subject:content-transfer-encoding:mime-version:date
-         :message-id:from:to:cc:subject:date:message-id:reply-to;
-        bh=WGOTZ9JY6XZZrGyleSfBWB04lKoJWjhc8/VFaKeYVM0=;
-        b=5hg8tWbZwreZkAG9KvLVs06/nl638jiDzmEUeW6jogJLCXiIptVoxx7c+mKLaBCZZD
-         l3fvicehrshLS6sQ78vVlEkXb2HksFinfXgkPo86cJH3tS+Bwobx6y7TjzquielHcKXZ
-         qpvGazdVNcRWGyV5RmXufVP+VfqcwiQFtMs9mZRfEn8JwIOeOxjdOJqrdxmJpp0yedZW
-         VJcxdZ/5M626P/4a5eFlabT5tZbsN3P4bAocyIrAIzc3E89Yn6BB5oK3gzHE/HAR6nkL
-         +uGNVeIpR9YxcOwPaVIpREf+Jk2imn9iF4TbreHsyvjijGGlIuAGTgygYTkZ9OGX1qdA
-         tyNw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=from:to:subject:content-transfer-encoding:mime-version:date
-         :message-id:x-gm-message-state:from:to:cc:subject:date:message-id
-         :reply-to;
-        bh=WGOTZ9JY6XZZrGyleSfBWB04lKoJWjhc8/VFaKeYVM0=;
-        b=5KmQQkNs2pFaGVEUZ2EuyZfTlPSu+ixtIWp9wrUatafiFmvZ1gS0OWqdfBVnV8Qhau
-         IC0cRAuxi/NWuiocri8LNbB1d95MDWLg+EpXs6yWvV3yOevH/x8zCA1aXdCCRDhmumjf
-         Fku0ml03yIKnbjwZs2n7LCFA1KrLWzHbUi0cV4pKGwJEBrCUmIr+ezHPyf4FMusAyqrA
-         RDKHPEDt9F9Uv7jBkU8pV02gy4Ji3tkbXhuOGkYQyEzV70NnWloiuTRHfcwpnOk1q/Ur
-         UIFJUqBfs+GAML8+zoJjXe9SRWIXc9RPwbeeBYmuPAS2W8dXJR444eLtR4zEBfU4cXBt
-         X+ZA==
-X-Gm-Message-State: AO0yUKW9f+Fg/SZNzAhMfZwLL6Cr0O3sUkU0GeQ4WgVf+D2HSsrxejW9
-        krECSEN6rnbg+y6jbaIn3v26VEhXkS0/Dl/2YJ0=
-X-Google-Smtp-Source: AK7set+c28Yh8XZjmZ3KJwwXUPVBB/SXpljvD2t+T5WuFRkhR/i+4dIzo75DialTG6k0qJCooZuLoA==
-X-Received: by 2002:a05:6a20:12c4:b0:c2:f930:45e8 with SMTP id v4-20020a056a2012c400b000c2f93045e8mr2343780pzg.46.1676917959443;
-        Mon, 20 Feb 2023 10:32:39 -0800 (PST)
-Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id a11-20020a637f0b000000b00478c48cf73csm331624pgd.82.2023.02.20.10.32.38
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 20 Feb 2023 10:32:39 -0800 (PST)
-Message-ID: <63f3bcc7.630a0220.893a9.0d61@mx.google.com>
-Date:   Mon, 20 Feb 2023 10:32:39 -0800 (PST)
-Content-Type: text/plain; charset="utf-8"
+        with ESMTP id S229468AbjBTSeL (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 20 Feb 2023 13:34:11 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 362461ADD0
+        for <stable@vger.kernel.org>; Mon, 20 Feb 2023 10:34:10 -0800 (PST)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id C205360EF6
+        for <stable@vger.kernel.org>; Mon, 20 Feb 2023 18:34:09 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 29188C433A4
+        for <stable@vger.kernel.org>; Mon, 20 Feb 2023 18:34:09 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1676918049;
+        bh=ML0XSezZThmCiOdnlVOEMpzsr/qbxHQAgJCHOaHbrCw=;
+        h=References:In-Reply-To:From:Date:Subject:To:Cc:From;
+        b=F5RZc/Ig7XAtHu59VGUTeogGyySOvBm8vxP78Ii3shAprAl3fIUkGSbeP6Dkrc275
+         T11OWj2l9Ep+BjJV8Z4TF8JwPoa3uecc4AbVowRpkAFH6frw4rOOBhxAESHRbrnckC
+         bFTFdR6vmheoh0nrOqGqfiy7FUSr4lc0AdYNSRd92oEzeH/uKdPFSA/PXBN4em+7AO
+         jCujhCH06Jkj3VoO2cfVElFxjScfUyXp3wWz302V+OWHiUnsfylV+pi0btw9nC8Qq6
+         SCasAIIpkM1+FATOykJKRfBcp/T304au4LWloKSIgm5emXx6U4kdCQljrHcu+0xibt
+         Yg843dDjHKPXQ==
+Received: by mail-ed1-f49.google.com with SMTP id h32so8344449eda.2
+        for <stable@vger.kernel.org>; Mon, 20 Feb 2023 10:34:09 -0800 (PST)
+X-Gm-Message-State: AO0yUKUmtAOcydJQYa2ebr1D/05uR15N9pz+2rQnkZh74mKpPXplwWRW
+        DSxfbeI024oFlFixcJ8eggsKBUYbg+52OluoR52fxw==
+X-Google-Smtp-Source: AK7set++l6WhW3jqunTFWtDZBiAztOICYs2Y5cD99FEKVPnkbf9ufoRp0MvyVe9VX0ZW0D/duAge/Kxm3j7mjJrw7RU=
+X-Received: by 2002:a50:baa4:0:b0:4aa:a4f1:3edc with SMTP id
+ x33-20020a50baa4000000b004aaa4f13edcmr494488ede.7.1676918047317; Mon, 20 Feb
+ 2023 10:34:07 -0800 (PST)
 MIME-Version: 1.0
+References: <20230220120127.1975241-1-kpsingh@kernel.org> <20230220121350.aidsipw3kd4rsyss@treble>
+ <CACYkzJ5L9MLuE5Jz+z5-NJCCrUqTbgKQkXSqnQnCfTD_WNA7_Q@mail.gmail.com>
+ <CACYkzJ6n=-tobhX0ONQhjHSgmnNjWnNe_dZnEOGtD8Y6S3RHbA@mail.gmail.com>
+ <20230220163442.7fmaeef3oqci4ee3@treble> <Y/Ox3MJZF1Yb7b6y@zn.tnic>
+ <20230220175929.2laflfb2met6y3kc@treble> <CACYkzJ71xqzY6-wL+YShcL+d6ugzcdFHr6tbYWWE_ep52+RBZQ@mail.gmail.com>
+ <20230220182717.uzrym2gtavlbjbxo@treble>
+In-Reply-To: <20230220182717.uzrym2gtavlbjbxo@treble>
+From:   KP Singh <kpsingh@kernel.org>
+Date:   Mon, 20 Feb 2023 10:33:56 -0800
+X-Gmail-Original-Message-ID: <CACYkzJ5z3qLhkWqKLvP55HcjLACzAJbFjc4XjRzcft9ww40MaQ@mail.gmail.com>
+Message-ID: <CACYkzJ5z3qLhkWqKLvP55HcjLACzAJbFjc4XjRzcft9ww40MaQ@mail.gmail.com>
+Subject: Re: [PATCH] x86/bugs: Allow STIBP with IBRS
+To:     Josh Poimboeuf <jpoimboe@kernel.org>
+Cc:     Borislav Petkov <bp@alien8.de>, linux-kernel@vger.kernel.org,
+        pjt@google.com, evn@google.com, tglx@linutronix.de,
+        mingo@redhat.com, dave.hansen@linux.intel.com, x86@kernel.org,
+        hpa@zytor.com, peterz@infradead.org,
+        pawan.kumar.gupta@linux.intel.com, kim.phillips@amd.com,
+        alexandre.chartre@oracle.com, daniel.sneddon@linux.intel.com,
+        =?UTF-8?Q?Jos=C3=A9_Oliveira?= <joseloliveira11@gmail.com>,
+        Rodrigo Branco <rodrigo@kernelhacking.com>,
+        Alexandra Sandulescu <aesa@google.com>,
+        Jim Mattson <jmattson@google.com>, stable@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Branch: queue/4.19
-X-Kernelci-Tree: stable-rc
-X-Kernelci-Kernel: v4.19.272-89-gffd5d7f695f9
-X-Kernelci-Report-Type: test
-Subject: stable-rc/queue/4.19 baseline: 131 runs,
- 12 regressions (v4.19.272-89-gffd5d7f695f9)
-To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
-        kernelci-results@groups.io
-From:   "kernelci.org bot" <bot@kernelci.org>
-X-Spam-Status: No, score=-1.9 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_NONE autolearn=ham
-        autolearn_force=no version=3.4.6
+X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
+        SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/queue/4.19 baseline: 131 runs, 12 regressions (v4.19.272-89-gffd5=
-d7f695f9)
-
-Regressions Summary
--------------------
-
-platform                   | arch  | lab           | compiler | defconfig  =
-        | regressions
----------------------------+-------+---------------+----------+------------=
---------+------------
-at91sam9g20ek              | arm   | lab-broonie   | gcc-10   | multi_v5_de=
-fconfig | 1          =
-
-cubietruck                 | arm   | lab-baylibre  | gcc-10   | multi_v7_de=
-fconfig | 1          =
-
-meson-gxm-q200             | arm64 | lab-baylibre  | gcc-10   | defconfig  =
-        | 1          =
-
-qemu_arm64-virt-gicv2      | arm64 | lab-baylibre  | gcc-10   | defconfig  =
-        | 1          =
-
-qemu_arm64-virt-gicv2      | arm64 | lab-broonie   | gcc-10   | defconfig  =
-        | 1          =
-
-qemu_arm64-virt-gicv2-uefi | arm64 | lab-baylibre  | gcc-10   | defconfig  =
-        | 1          =
-
-qemu_arm64-virt-gicv2-uefi | arm64 | lab-broonie   | gcc-10   | defconfig  =
-        | 1          =
-
-qemu_arm64-virt-gicv2-uefi | arm64 | lab-collabora | gcc-10   | defconfig  =
-        | 1          =
-
-qemu_arm64-virt-gicv3      | arm64 | lab-baylibre  | gcc-10   | defconfig  =
-        | 1          =
-
-qemu_arm64-virt-gicv3      | arm64 | lab-broonie   | gcc-10   | defconfig  =
-        | 1          =
-
-qemu_arm64-virt-gicv3-uefi | arm64 | lab-baylibre  | gcc-10   | defconfig  =
-        | 1          =
-
-qemu_arm64-virt-gicv3-uefi | arm64 | lab-broonie   | gcc-10   | defconfig  =
-        | 1          =
-
-
-  Details:  https://kernelci.org/test/job/stable-rc/branch/queue%2F4.19/ker=
-nel/v4.19.272-89-gffd5d7f695f9/plan/baseline/
-
-  Test:     baseline
-  Tree:     stable-rc
-  Branch:   queue/4.19
-  Describe: v4.19.272-89-gffd5d7f695f9
-  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
-able-rc.git
-  SHA:      ffd5d7f695f9c3460bdbf40ca10e18d5c82ec660 =
-
-
-
-Test Regressions
----------------- =
-
-
-
-platform                   | arch  | lab           | compiler | defconfig  =
-        | regressions
----------------------------+-------+---------------+----------+------------=
---------+------------
-at91sam9g20ek              | arm   | lab-broonie   | gcc-10   | multi_v5_de=
-fconfig | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/63f383a80144625a9a8c8647
-
-  Results:     5 PASS, 1 FAIL, 1 SKIP
-  Full config: multi_v5_defconfig
-  Compiler:    gcc-10 (arm-linux-gnueabihf-gcc (Debian 10.2.1-6) 10.2.1 202=
-10110)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.19/v4.19.272=
--89-gffd5d7f695f9/arm/multi_v5_defconfig/gcc-10/lab-broonie/baseline-at91sa=
-m9g20ek.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.19/v4.19.272=
--89-gffd5d7f695f9/arm/multi_v5_defconfig/gcc-10/lab-broonie/baseline-at91sa=
-m9g20ek.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
-t-baseline/20230211.0/armel/rootfs.cpio.gz =
-
-
-
-  * baseline.bootrr.deferred-probe-empty: https://kernelci.org/test/case/id=
-/63f383a80144625a9a8c864f
-        failing since 1 day (last pass: v4.19.272-85-gb57f1727fdd4, first f=
-ail: v4.19.272-86-ge165724ac828)
-
-    2023-02-20T14:28:36.746351  + set +x
-    2023-02-20T14:28:36.751488  <8><LAVA_SIGNAL_ENDRUN 0_dmesg 41729_1.5.2.=
-4.1>
-    2023-02-20T14:28:36.864533  / # #
-    2023-02-20T14:28:36.967441  export SHELL=3D/bin/sh
-    2023-02-20T14:28:36.968808  #
-    2023-02-20T14:28:37.071534  / # export SHELL=3D/bin/sh. /lava-41729/env=
-ironment
-    2023-02-20T14:28:37.072361  =
-
-    2023-02-20T14:28:37.174343  / # . /lava-41729/environment/lava-41729/bi=
-n/lava-test-runner /lava-41729/1
-    2023-02-20T14:28:37.175628  =
-
-    2023-02-20T14:28:37.182005  / # /lava-41729/bin/lava-test-runner /lava-=
-41729/1 =
-
-    ... (12 line(s) more)  =
-
- =
-
-
-
-platform                   | arch  | lab           | compiler | defconfig  =
-        | regressions
----------------------------+-------+---------------+----------+------------=
---------+------------
-cubietruck                 | arm   | lab-baylibre  | gcc-10   | multi_v7_de=
-fconfig | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/63f3851c9725da3eb38c864e
-
-  Results:     5 PASS, 1 FAIL, 1 SKIP
-  Full config: multi_v7_defconfig
-  Compiler:    gcc-10 (arm-linux-gnueabihf-gcc (Debian 10.2.1-6) 10.2.1 202=
-10110)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.19/v4.19.272=
--89-gffd5d7f695f9/arm/multi_v7_defconfig/gcc-10/lab-baylibre/baseline-cubie=
-truck.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.19/v4.19.272=
--89-gffd5d7f695f9/arm/multi_v7_defconfig/gcc-10/lab-baylibre/baseline-cubie=
-truck.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
-t-baseline/20230211.0/armel/rootfs.cpio.gz =
-
-
-
-  * baseline.bootrr.deferred-probe-empty: https://kernelci.org/test/case/id=
-/63f3851c9725da3eb38c8657
-        failing since 34 days (last pass: v4.19.269-9-gce7b59ec9d48, first =
-fail: v4.19.269-521-g305d312d039a)
-
-    2023-02-20T14:34:47.184507  <8>[    7.319863] <LAVA_SIGNAL_ENDRUN 0_dme=
-sg 3358098_1.5.2.4.1>
-    2023-02-20T14:34:47.291468  / # #
-    2023-02-20T14:34:47.393109  export SHELL=3D/bin/sh
-    2023-02-20T14:34:47.393538  #
-    2023-02-20T14:34:47.494793  / # export SHELL=3D/bin/sh. /lava-3358098/e=
-nvironment
-    2023-02-20T14:34:47.495132  =
-
-    2023-02-20T14:34:47.596178  / # . /lava-3358098/environment/lava-335809=
-8/bin/lava-test-runner /lava-3358098/1
-    2023-02-20T14:34:47.597042  =
-
-    2023-02-20T14:34:47.601641  / # /lava-3358098/bin/lava-test-runner /lav=
-a-3358098/1
-    2023-02-20T14:34:47.677075  + export 'TESTRUN_ID=3D1_bootrr' =
-
-    ... (11 line(s) more)  =
-
- =
-
-
-
-platform                   | arch  | lab           | compiler | defconfig  =
-        | regressions
----------------------------+-------+---------------+----------+------------=
---------+------------
-meson-gxm-q200             | arm64 | lab-baylibre  | gcc-10   | defconfig  =
-        | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/63f384d64648baa0cf8c8678
-
-  Results:     5 PASS, 1 FAIL, 1 SKIP
-  Full config: defconfig
-  Compiler:    gcc-10 (aarch64-linux-gnu-gcc (Debian 10.2.1-6) 10.2.1 20210=
-110)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.19/v4.19.272=
--89-gffd5d7f695f9/arm64/defconfig/gcc-10/lab-baylibre/baseline-meson-gxm-q2=
-00.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.19/v4.19.272=
--89-gffd5d7f695f9/arm64/defconfig/gcc-10/lab-baylibre/baseline-meson-gxm-q2=
-00.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
-t-baseline/20230211.0/arm64/rootfs.cpio.gz =
-
-
-
-  * baseline.bootrr.deferred-probe-empty: https://kernelci.org/test/case/id=
-/63f384d64648baa0cf8c8681
-        failing since 1 day (last pass: v4.19.272-85-gb57f1727fdd4, first f=
-ail: v4.19.272-86-ge165724ac828)
-
-    2023-02-20T14:33:31.267330  <8>[   16.414283] <LAVA_SIGNAL_ENDRUN 0_dme=
-sg 3358047_1.5.2.4.1>
-    2023-02-20T14:33:31.387669  / # #
-    2023-02-20T14:33:31.493482  export SHELL=3D/bin/sh
-    2023-02-20T14:33:31.495431  #
-    2023-02-20T14:33:31.598905  / # export SHELL=3D/bin/sh. /lava-3358047/e=
-nvironment
-    2023-02-20T14:33:31.600896  =
-
-    2023-02-20T14:33:31.704466  / # . /lava-3358047/environment/lava-335804=
-7/bin/lava-test-runner /lava-3358047/1
-    2023-02-20T14:33:31.707406  =
-
-    2023-02-20T14:33:31.712835  / # /lava-3358047/bin/lava-test-runner /lav=
-a-3358047/1
-    2023-02-20T14:33:31.781540  + export 'TESTRUN_ID=3D1_bootrr' =
-
-    ... (12 line(s) more)  =
-
- =
-
-
-
-platform                   | arch  | lab           | compiler | defconfig  =
-        | regressions
----------------------------+-------+---------------+----------+------------=
---------+------------
-qemu_arm64-virt-gicv2      | arm64 | lab-baylibre  | gcc-10   | defconfig  =
-        | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/63f3829863ab044f9d8c863e
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: defconfig
-  Compiler:    gcc-10 (aarch64-linux-gnu-gcc (Debian 10.2.1-6) 10.2.1 20210=
-110)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.19/v4.19.272=
--89-gffd5d7f695f9/arm64/defconfig/gcc-10/lab-baylibre/baseline-qemu_arm64-v=
-irt-gicv2.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.19/v4.19.272=
--89-gffd5d7f695f9/arm64/defconfig/gcc-10/lab-baylibre/baseline-qemu_arm64-v=
-irt-gicv2.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
-t-baseline/20230211.0/arm64/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/63f3829863ab044f9d8c8=
-63f
-        failing since 286 days (last pass: v4.19.241-58-g5e77acf6dbb6, firs=
-t fail: v4.19.241-83-g0ec5709aa1da) =
-
- =
-
-
-
-platform                   | arch  | lab           | compiler | defconfig  =
-        | regressions
----------------------------+-------+---------------+----------+------------=
---------+------------
-qemu_arm64-virt-gicv2      | arm64 | lab-broonie   | gcc-10   | defconfig  =
-        | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/63f390b591fcb1db4b8c8670
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: defconfig
-  Compiler:    gcc-10 (aarch64-linux-gnu-gcc (Debian 10.2.1-6) 10.2.1 20210=
-110)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.19/v4.19.272=
--89-gffd5d7f695f9/arm64/defconfig/gcc-10/lab-broonie/baseline-qemu_arm64-vi=
-rt-gicv2.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.19/v4.19.272=
--89-gffd5d7f695f9/arm64/defconfig/gcc-10/lab-broonie/baseline-qemu_arm64-vi=
-rt-gicv2.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
-t-baseline/20230211.0/arm64/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/63f390b591fcb1db4b8c8=
-671
-        failing since 286 days (last pass: v4.19.241-58-g5e77acf6dbb6, firs=
-t fail: v4.19.241-83-g0ec5709aa1da) =
-
- =
-
-
-
-platform                   | arch  | lab           | compiler | defconfig  =
-        | regressions
----------------------------+-------+---------------+----------+------------=
---------+------------
-qemu_arm64-virt-gicv2-uefi | arm64 | lab-baylibre  | gcc-10   | defconfig  =
-        | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/63f3829963ab044f9d8c8645
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: defconfig
-  Compiler:    gcc-10 (aarch64-linux-gnu-gcc (Debian 10.2.1-6) 10.2.1 20210=
-110)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.19/v4.19.272=
--89-gffd5d7f695f9/arm64/defconfig/gcc-10/lab-baylibre/baseline-qemu_arm64-v=
-irt-gicv2-uefi.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.19/v4.19.272=
--89-gffd5d7f695f9/arm64/defconfig/gcc-10/lab-baylibre/baseline-qemu_arm64-v=
-irt-gicv2-uefi.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
-t-baseline/20230211.0/arm64/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/63f3829963ab044f9d8c8=
-646
-        failing since 209 days (last pass: v4.19.230-58-gbd840138c177, firs=
-t fail: v4.19.253-43-g91137b502cfbd) =
-
- =
-
-
-
-platform                   | arch  | lab           | compiler | defconfig  =
-        | regressions
----------------------------+-------+---------------+----------+------------=
---------+------------
-qemu_arm64-virt-gicv2-uefi | arm64 | lab-broonie   | gcc-10   | defconfig  =
-        | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/63f390b62d315f1e7f8c862f
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: defconfig
-  Compiler:    gcc-10 (aarch64-linux-gnu-gcc (Debian 10.2.1-6) 10.2.1 20210=
-110)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.19/v4.19.272=
--89-gffd5d7f695f9/arm64/defconfig/gcc-10/lab-broonie/baseline-qemu_arm64-vi=
-rt-gicv2-uefi.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.19/v4.19.272=
--89-gffd5d7f695f9/arm64/defconfig/gcc-10/lab-broonie/baseline-qemu_arm64-vi=
-rt-gicv2-uefi.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
-t-baseline/20230211.0/arm64/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/63f390b62d315f1e7f8c8=
-630
-        failing since 209 days (last pass: v4.19.230-58-gbd840138c177, firs=
-t fail: v4.19.253-43-g91137b502cfbd) =
-
- =
-
-
-
-platform                   | arch  | lab           | compiler | defconfig  =
-        | regressions
----------------------------+-------+---------------+----------+------------=
---------+------------
-qemu_arm64-virt-gicv2-uefi | arm64 | lab-collabora | gcc-10   | defconfig  =
-        | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/63f382525d4ec78b908c862f
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: defconfig
-  Compiler:    gcc-10 (aarch64-linux-gnu-gcc (Debian 10.2.1-6) 10.2.1 20210=
-110)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.19/v4.19.272=
--89-gffd5d7f695f9/arm64/defconfig/gcc-10/lab-collabora/baseline-qemu_arm64-=
-virt-gicv2-uefi.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.19/v4.19.272=
--89-gffd5d7f695f9/arm64/defconfig/gcc-10/lab-collabora/baseline-qemu_arm64-=
-virt-gicv2-uefi.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
-t-baseline/20230211.0/arm64/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/63f382525d4ec78b908c8=
-630
-        failing since 209 days (last pass: v4.19.230-58-gbd840138c177, firs=
-t fail: v4.19.253-43-g91137b502cfbd) =
-
- =
-
-
-
-platform                   | arch  | lab           | compiler | defconfig  =
-        | regressions
----------------------------+-------+---------------+----------+------------=
---------+------------
-qemu_arm64-virt-gicv3      | arm64 | lab-baylibre  | gcc-10   | defconfig  =
-        | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/63f38297c913edc4228c8667
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: defconfig
-  Compiler:    gcc-10 (aarch64-linux-gnu-gcc (Debian 10.2.1-6) 10.2.1 20210=
-110)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.19/v4.19.272=
--89-gffd5d7f695f9/arm64/defconfig/gcc-10/lab-baylibre/baseline-qemu_arm64-v=
-irt-gicv3.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.19/v4.19.272=
--89-gffd5d7f695f9/arm64/defconfig/gcc-10/lab-baylibre/baseline-qemu_arm64-v=
-irt-gicv3.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
-t-baseline/20230211.0/arm64/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/63f38297c913edc4228c8=
-668
-        failing since 286 days (last pass: v4.19.241-58-g5e77acf6dbb6, firs=
-t fail: v4.19.241-83-g0ec5709aa1da) =
-
- =
-
-
-
-platform                   | arch  | lab           | compiler | defconfig  =
-        | regressions
----------------------------+-------+---------------+----------+------------=
---------+------------
-qemu_arm64-virt-gicv3      | arm64 | lab-broonie   | gcc-10   | defconfig  =
-        | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/63f38fc5bb2c3a7c558c8652
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: defconfig
-  Compiler:    gcc-10 (aarch64-linux-gnu-gcc (Debian 10.2.1-6) 10.2.1 20210=
-110)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.19/v4.19.272=
--89-gffd5d7f695f9/arm64/defconfig/gcc-10/lab-broonie/baseline-qemu_arm64-vi=
-rt-gicv3.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.19/v4.19.272=
--89-gffd5d7f695f9/arm64/defconfig/gcc-10/lab-broonie/baseline-qemu_arm64-vi=
-rt-gicv3.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
-t-baseline/20230211.0/arm64/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/63f38fc5bb2c3a7c558c8=
-653
-        failing since 286 days (last pass: v4.19.241-58-g5e77acf6dbb6, firs=
-t fail: v4.19.241-83-g0ec5709aa1da) =
-
- =
-
-
-
-platform                   | arch  | lab           | compiler | defconfig  =
-        | regressions
----------------------------+-------+---------------+----------+------------=
---------+------------
-qemu_arm64-virt-gicv3-uefi | arm64 | lab-baylibre  | gcc-10   | defconfig  =
-        | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/63f3829b63ab044f9d8c864a
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: defconfig
-  Compiler:    gcc-10 (aarch64-linux-gnu-gcc (Debian 10.2.1-6) 10.2.1 20210=
-110)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.19/v4.19.272=
--89-gffd5d7f695f9/arm64/defconfig/gcc-10/lab-baylibre/baseline-qemu_arm64-v=
-irt-gicv3-uefi.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.19/v4.19.272=
--89-gffd5d7f695f9/arm64/defconfig/gcc-10/lab-baylibre/baseline-qemu_arm64-v=
-irt-gicv3-uefi.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
-t-baseline/20230211.0/arm64/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/63f3829b63ab044f9d8c8=
-64b
-        failing since 286 days (last pass: v4.19.241-58-g5e77acf6dbb6, firs=
-t fail: v4.19.241-83-g0ec5709aa1da) =
-
- =
-
-
-
-platform                   | arch  | lab           | compiler | defconfig  =
-        | regressions
----------------------------+-------+---------------+----------+------------=
---------+------------
-qemu_arm64-virt-gicv3-uefi | arm64 | lab-broonie   | gcc-10   | defconfig  =
-        | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/63f390c90647e42e798c864a
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: defconfig
-  Compiler:    gcc-10 (aarch64-linux-gnu-gcc (Debian 10.2.1-6) 10.2.1 20210=
-110)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-4.19/v4.19.272=
--89-gffd5d7f695f9/arm64/defconfig/gcc-10/lab-broonie/baseline-qemu_arm64-vi=
-rt-gicv3-uefi.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-4.19/v4.19.272=
--89-gffd5d7f695f9/arm64/defconfig/gcc-10/lab-broonie/baseline-qemu_arm64-vi=
-rt-gicv3-uefi.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
-t-baseline/20230211.0/arm64/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/63f390c90647e42e798c8=
-64b
-        failing since 286 days (last pass: v4.19.241-58-g5e77acf6dbb6, firs=
-t fail: v4.19.241-83-g0ec5709aa1da) =
-
- =20
+On Mon, Feb 20, 2023 at 10:27 AM Josh Poimboeuf <jpoimboe@kernel.org> wrote=
+:
+>
+> IBRS is only enabled in kernel space.  Since it's not enabled in user
+> space, user space isn't protected from indirect branch prediction
+> attacks from a sibling CPU thread.
+>
+> Allow STIBP to be enabled to protect against such attacks.
+>
+> Fixes: 7c693f54c873 ("x86/speculation: Add spectre_v2=3Dibrs option to su=
+pport Kernel IBRS")
+> Reported-by: Jos=C3=A9 Oliveira <joseloliveira11@gmail.com>
+> Reported-by: Rodrigo Branco <rodrigo@kernelhacking.com>
+> Signed-off-by: Josh Poimboeuf <jpoimboe@kernel.org>
+> ---
+>  arch/x86/kernel/cpu/bugs.c | 18 ++++++++++--------
+>  1 file changed, 10 insertions(+), 8 deletions(-)
+>
+> diff --git a/arch/x86/kernel/cpu/bugs.c b/arch/x86/kernel/cpu/bugs.c
+> index 85168740f76a..b97c0d28e573 100644
+> --- a/arch/x86/kernel/cpu/bugs.c
+> +++ b/arch/x86/kernel/cpu/bugs.c
+> @@ -1124,14 +1124,19 @@ spectre_v2_parse_user_cmdline(void)
+>         return SPECTRE_V2_USER_CMD_AUTO;
+>  }
+>
+> -static inline bool spectre_v2_in_ibrs_mode(enum spectre_v2_mitigation mo=
+de)
+> +static inline bool spectre_v2_in_eibrs_mode(enum spectre_v2_mitigation m=
+ode)
+>  {
+> -       return mode =3D=3D SPECTRE_V2_IBRS ||
+> -              mode =3D=3D SPECTRE_V2_EIBRS ||
+> +       return mode =3D=3D SPECTRE_V2_EIBRS ||
+>                mode =3D=3D SPECTRE_V2_EIBRS_RETPOLINE ||
+>                mode =3D=3D SPECTRE_V2_EIBRS_LFENCE;
+>  }
+
+There are no comments here, this code is in dire need for some
+comments and explanation, I was trying something like:
+
+diff --git a/arch/x86/kernel/cpu/bugs.c b/arch/x86/kernel/cpu/bugs.c
+index bca0bd8f4846..3e04f9fa68a8 100644
+--- a/arch/x86/kernel/cpu/bugs.c
++++ b/arch/x86/kernel/cpu/bugs.c
+@@ -1124,14 +1124,31 @@ spectre_v2_parse_user_cmdline(void)
+        return SPECTRE_V2_USER_CMD_AUTO;
+ }
+
+-static inline bool spectre_v2_in_ibrs_mode(enum spectre_v2_mitigation mode=
+)
++static inline bool spectre_v2_in_eibrs_mode(enum spectre_v2_mitigation mod=
+e)
+ {
+-       return mode =3D=3D SPECTRE_V2_IBRS ||
+-              mode =3D=3D SPECTRE_V2_EIBRS ||
++       return mode =3D=3D SPECTRE_V2_EIBRS ||
+               mode =3D=3D SPECTRE_V2_EIBRS_RETPOLINE ||
+               mode =3D=3D SPECTRE_V2_EIBRS_LFENCE;
+ }
+
++/*
++ * In IBRS mode, the spectre_v2 mitigation is enabled only in kernel space=
+ with
++ * the IBRS bit being cleared on return to userspace due to performance
++ * overhead.
++ */
++static inline bool spectre_v2_in_ibrs_mode(enum spectre_v2_mitigation mode=
+)
++{
++       return spectre_v2_in_eibrs_mode(mode) || mode =3D=3D SPECTRE_V2_IBR=
+S;
++}
++
++/*
++ * User mode protections are only available in eIBRS mode.
++ */
++static inline bool spectre_v2_user_needs_stibp(enum spectre_v2_mitigation =
+mode)
++{
++       return !spectre_v2_in_eibrs_mode(mode);
++}
++
+ static void __init
+ spectre_v2_user_select_mitigation(void)
+ {
+@@ -1193,13 +1210,8 @@ spectre_v2_user_select_mitigation(void)
+                        "always-on" : "conditional");
+        }
+
+-       /*
+-        * If no STIBP, IBRS or enhanced IBRS is enabled, or SMT impossible=
+,
+-        * STIBP is not required.
+-        */
+-       if (!boot_cpu_has(X86_FEATURE_STIBP) ||
+-           !smt_possible ||
+-           spectre_v2_in_ibrs_mode(spectre_v2_enabled))
++       if (!boot_cpu_has(X86_FEATURE_STIBP) || !smt_possible ||
++           !spectre_v2_user_needs_stibp(spectre_v2_enabled))
+                return;
+
+        /*
+@@ -2327,7 +2339,7 @@ static ssize_t mmio_stale_data_show_state(char *buf)
+
+ static char *stibp_state(void)
+ {
+-       if (spectre_v2_in_ibrs_mode(spectre_v2_enabled))
++       if (!spectre_v2_user_needs_stibp(spectre_v2_enabled))
+                return "";
+
+        switch (spectre_v2_user_stibp) {
+
+Also Josh, is it okay for us to have a discussion and have me write
+the patch as a v2? Your current patch does not even credit me at all.
+Seems a bit unfair, but I don't really care. I was going to rev up the
+patch with your suggestions.
+
+>
+> +static inline bool spectre_v2_in_ibrs_mode(enum spectre_v2_mitigation mo=
+de)
+> +{
+> +       return spectre_v2_in_eibrs_mode(mode) ||
+> +              mode =3D=3D SPECTRE_V2_IBRS;
+> +}
+> +
+>  static void __init
+>  spectre_v2_user_select_mitigation(void)
+>  {
+> @@ -1194,12 +1199,12 @@ spectre_v2_user_select_mitigation(void)
+>         }
+>
+>         /*
+> -        * If no STIBP, IBRS or enhanced IBRS is enabled, or SMT impossib=
+le,
+> +        * If no STIBP, enhanced IBRS is enabled, or SMT impossible,
+>          * STIBP is not required.
+>          */
+>         if (!boot_cpu_has(X86_FEATURE_STIBP) ||
+>             !smt_possible ||
+> -           spectre_v2_in_ibrs_mode(spectre_v2_enabled))
+> +           spectre_v2_in_eibrs_mode(spectre_v2_enabled))
+>                 return;
+>
+>         /*
+> @@ -2327,9 +2332,6 @@ static ssize_t mmio_stale_data_show_state(char *buf=
+)
+>
+>  static char *stibp_state(void)
+>  {
+> -       if (spectre_v2_in_ibrs_mode(spectre_v2_enabled))
+> -               return "";
+> -
+>         switch (spectre_v2_user_stibp) {
+>         case SPECTRE_V2_USER_NONE:
+>                 return ", STIBP: disabled";
+> --
+> 2.39.1
+>
