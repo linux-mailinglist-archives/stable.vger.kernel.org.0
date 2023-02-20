@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 9AAAD69CD9A
-	for <lists+stable@lfdr.de>; Mon, 20 Feb 2023 14:50:55 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 79B3169CE52
+	for <lists+stable@lfdr.de>; Mon, 20 Feb 2023 14:58:41 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232425AbjBTNuy (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Feb 2023 08:50:54 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38254 "EHLO
+        id S232662AbjBTN6k (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Feb 2023 08:58:40 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49674 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232422AbjBTNux (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 20 Feb 2023 08:50:53 -0500
+        with ESMTP id S232672AbjBTN6j (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 20 Feb 2023 08:58:39 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 75798CA33
-        for <stable@vger.kernel.org>; Mon, 20 Feb 2023 05:50:52 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 535081E5ED
+        for <stable@vger.kernel.org>; Mon, 20 Feb 2023 05:58:06 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 130F660B74
-        for <stable@vger.kernel.org>; Mon, 20 Feb 2023 13:50:52 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 22FCBC433EF;
-        Mon, 20 Feb 2023 13:50:50 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 99AC160EAE
+        for <stable@vger.kernel.org>; Mon, 20 Feb 2023 13:57:51 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A77A9C433EF;
+        Mon, 20 Feb 2023 13:57:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1676901051;
-        bh=r64yiBzGaKtlU8G8fUZFgAEgg9lGCT6yggEySf6vAzY=;
+        s=korg; t=1676901471;
+        bh=jD0r6D3ptcJMgMOSGbo3BBIdZWxVXUrTY/Hn+enSM/U=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=S4pf7jLgwv5fxmoMjZ4rCxCmEspyeO2aWuOz5pR4TaU4i/Yoz7tlPh6tOKnCNYRs0
-         wKt58UQm17IdH/flwRNo12Ev/rpHz+8nwOzhlLHakqloJh6sM4m7HQ5eK6lYtAs4NV
-         bY+pS5/kPh+OeejpuR52G13UO9ZU9Vt48TYStfK8=
+        b=kSYRooi0zTMFiAM0N+sGc7QJPpHpGa18yYfIEY0btzJwK413xieR34rB0f6KnLGkn
+         QLjMplpA9dDI4AL8d4v7VT89kOVJUaegyXvvZPKxXsUNpdbNjxnQXlD3pDJzR9+Q17
+         t777+euIluvuvmUPE8BP3EaHVlK2U4PALW4WFGCY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Shunsuke Mie <mie@igel.co.jp>,
-        "Michael S. Tsirkin" <mst@redhat.com>,
+        patches@lists.linux.dev, Vasily Gorbik <gor@linux.ibm.com>,
+        Alexander Egorenkov <egorenar@linux.ibm.com>,
+        Heiko Carstens <hca@linux.ibm.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 11/83] tools/virtio: fix the vringh test for virtio ring changes
-Date:   Mon, 20 Feb 2023 14:35:44 +0100
-Message-Id: <20230220133554.095147411@linuxfoundation.org>
+Subject: [PATCH 6.1 029/118] s390/decompressor: specify __decompress() buf len to avoid overflow
+Date:   Mon, 20 Feb 2023 14:35:45 +0100
+Message-Id: <20230220133601.599609480@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230220133553.669025851@linuxfoundation.org>
-References: <20230220133553.669025851@linuxfoundation.org>
+In-Reply-To: <20230220133600.368809650@linuxfoundation.org>
+References: <20230220133600.368809650@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,148 +54,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Shunsuke Mie <mie@igel.co.jp>
+From: Vasily Gorbik <gor@linux.ibm.com>
 
-[ Upstream commit 3f7b75abf41cc4143aa295f62acbb060a012868d ]
+[ Upstream commit 7ab41c2c08a32132ba8c14624910e2fe8ce4ba4b ]
 
-Fix the build caused by missing kmsan_handle_dma() and is_power_of_2() that
-are used in drivers/virtio/virtio_ring.c.
+Historically calls to __decompress() didn't specify "out_len" parameter
+on many architectures including s390, expecting that no writes beyond
+uncompressed kernel image are performed. This has changed since commit
+2aa14b1ab2c4 ("zstd: import usptream v1.5.2") which includes zstd library
+commit 6a7ede3dfccb ("Reduce size of dctx by reutilizing dst buffer
+(#2751)"). Now zstd decompression code might store literal buffer in
+the unwritten portion of the destination buffer. Since "out_len" is
+not set, it is considered to be unlimited and hence free to use for
+optimization needs. On s390 this might corrupt initrd or ipl report
+which are often placed right after the decompressor buffer. Luckily the
+size of uncompressed kernel image is already known to the decompressor,
+so to avoid the problem simply specify it in the "out_len" parameter.
 
-Signed-off-by: Shunsuke Mie <mie@igel.co.jp>
-Message-Id: <20230110034310.779744-1-mie@igel.co.jp>
-Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
+Link: https://github.com/facebook/zstd/commit/6a7ede3dfccb
+Signed-off-by: Vasily Gorbik <gor@linux.ibm.com>
+Tested-by: Alexander Egorenkov <egorenar@linux.ibm.com>
+Link: https://lore.kernel.org/r/patch-1.thread-41c676.git-41c676c2d153.your-ad-here.call-01675030179-ext-9637@work.hours
+Signed-off-by: Heiko Carstens <hca@linux.ibm.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/virtio/linux/bug.h         |  8 +++-----
- tools/virtio/linux/build_bug.h   |  7 +++++++
- tools/virtio/linux/cpumask.h     |  7 +++++++
- tools/virtio/linux/gfp.h         |  7 +++++++
- tools/virtio/linux/kernel.h      |  1 +
- tools/virtio/linux/kmsan.h       | 12 ++++++++++++
- tools/virtio/linux/scatterlist.h |  1 +
- tools/virtio/linux/topology.h    |  7 +++++++
- 8 files changed, 45 insertions(+), 5 deletions(-)
- create mode 100644 tools/virtio/linux/build_bug.h
- create mode 100644 tools/virtio/linux/cpumask.h
- create mode 100644 tools/virtio/linux/gfp.h
- create mode 100644 tools/virtio/linux/kmsan.h
- create mode 100644 tools/virtio/linux/topology.h
+ arch/s390/boot/decompressor.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/tools/virtio/linux/bug.h b/tools/virtio/linux/bug.h
-index 813baf13f62a2..51a919083d9b8 100644
---- a/tools/virtio/linux/bug.h
-+++ b/tools/virtio/linux/bug.h
-@@ -1,13 +1,11 @@
- /* SPDX-License-Identifier: GPL-2.0 */
--#ifndef BUG_H
--#define BUG_H
-+#ifndef _LINUX_BUG_H
-+#define _LINUX_BUG_H
+diff --git a/arch/s390/boot/decompressor.c b/arch/s390/boot/decompressor.c
+index e27c2140d6206..623f6775d01d7 100644
+--- a/arch/s390/boot/decompressor.c
++++ b/arch/s390/boot/decompressor.c
+@@ -80,6 +80,6 @@ void *decompress_kernel(void)
+ 	void *output = (void *)decompress_offset;
  
- #include <asm/bug.h>
- 
- #define BUG_ON(__BUG_ON_cond) assert(!(__BUG_ON_cond))
- 
--#define BUILD_BUG_ON(x)
--
- #define BUG() abort()
- 
--#endif /* BUG_H */
-+#endif /* _LINUX_BUG_H */
-diff --git a/tools/virtio/linux/build_bug.h b/tools/virtio/linux/build_bug.h
-new file mode 100644
-index 0000000000000..cdbb75e28a604
---- /dev/null
-+++ b/tools/virtio/linux/build_bug.h
-@@ -0,0 +1,7 @@
-+/* SPDX-License-Identifier: GPL-2.0 */
-+#ifndef _LINUX_BUILD_BUG_H
-+#define _LINUX_BUILD_BUG_H
-+
-+#define BUILD_BUG_ON(x)
-+
-+#endif	/* _LINUX_BUILD_BUG_H */
-diff --git a/tools/virtio/linux/cpumask.h b/tools/virtio/linux/cpumask.h
-new file mode 100644
-index 0000000000000..307da69d6b26c
---- /dev/null
-+++ b/tools/virtio/linux/cpumask.h
-@@ -0,0 +1,7 @@
-+/* SPDX-License-Identifier: GPL-2.0 */
-+#ifndef _LINUX_CPUMASK_H
-+#define _LINUX_CPUMASK_H
-+
-+#include <linux/kernel.h>
-+
-+#endif /* _LINUX_CPUMASK_H */
-diff --git a/tools/virtio/linux/gfp.h b/tools/virtio/linux/gfp.h
-new file mode 100644
-index 0000000000000..43d146f236f14
---- /dev/null
-+++ b/tools/virtio/linux/gfp.h
-@@ -0,0 +1,7 @@
-+/* SPDX-License-Identifier: GPL-2.0 */
-+#ifndef __LINUX_GFP_H
-+#define __LINUX_GFP_H
-+
-+#include <linux/topology.h>
-+
-+#endif
-diff --git a/tools/virtio/linux/kernel.h b/tools/virtio/linux/kernel.h
-index 0b493542e61a6..a4beb719d2174 100644
---- a/tools/virtio/linux/kernel.h
-+++ b/tools/virtio/linux/kernel.h
-@@ -10,6 +10,7 @@
- #include <stdarg.h>
- 
- #include <linux/compiler.h>
-+#include <linux/log2.h>
- #include <linux/types.h>
- #include <linux/overflow.h>
- #include <linux/list.h>
-diff --git a/tools/virtio/linux/kmsan.h b/tools/virtio/linux/kmsan.h
-new file mode 100644
-index 0000000000000..272b5aa285d5a
---- /dev/null
-+++ b/tools/virtio/linux/kmsan.h
-@@ -0,0 +1,12 @@
-+/* SPDX-License-Identifier: GPL-2.0 */
-+#ifndef _LINUX_KMSAN_H
-+#define _LINUX_KMSAN_H
-+
-+#include <linux/gfp.h>
-+
-+inline void kmsan_handle_dma(struct page *page, size_t offset, size_t size,
-+			     enum dma_data_direction dir)
-+{
-+}
-+
-+#endif /* _LINUX_KMSAN_H */
-diff --git a/tools/virtio/linux/scatterlist.h b/tools/virtio/linux/scatterlist.h
-index 369ee308b6686..74d9e1825748e 100644
---- a/tools/virtio/linux/scatterlist.h
-+++ b/tools/virtio/linux/scatterlist.h
-@@ -2,6 +2,7 @@
- #ifndef SCATTERLIST_H
- #define SCATTERLIST_H
- #include <linux/kernel.h>
-+#include <linux/bug.h>
- 
- struct scatterlist {
- 	unsigned long	page_link;
-diff --git a/tools/virtio/linux/topology.h b/tools/virtio/linux/topology.h
-new file mode 100644
-index 0000000000000..910794afb993a
---- /dev/null
-+++ b/tools/virtio/linux/topology.h
-@@ -0,0 +1,7 @@
-+/* SPDX-License-Identifier: GPL-2.0 */
-+#ifndef _LINUX_TOPOLOGY_H
-+#define _LINUX_TOPOLOGY_H
-+
-+#include <linux/cpumask.h>
-+
-+#endif /* _LINUX_TOPOLOGY_H */
+ 	__decompress(_compressed_start, _compressed_end - _compressed_start,
+-		     NULL, NULL, output, 0, NULL, error);
++		     NULL, NULL, output, vmlinux.image_size, NULL, error);
+ 	return output;
+ }
 -- 
 2.39.0
 
