@@ -2,42 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 88BA569CEA5
-	for <lists+stable@lfdr.de>; Mon, 20 Feb 2023 15:01:10 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 79AF669CE98
+	for <lists+stable@lfdr.de>; Mon, 20 Feb 2023 15:00:46 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232781AbjBTOBJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Feb 2023 09:01:09 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53910 "EHLO
+        id S232762AbjBTOAp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Feb 2023 09:00:45 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53270 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232755AbjBTOBI (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 20 Feb 2023 09:01:08 -0500
+        with ESMTP id S232755AbjBTOAo (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 20 Feb 2023 09:00:44 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D287B1F49C
-        for <stable@vger.kernel.org>; Mon, 20 Feb 2023 06:00:44 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A365F1EBFE
+        for <stable@vger.kernel.org>; Mon, 20 Feb 2023 06:00:16 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id F1C2760EA5
-        for <stable@vger.kernel.org>; Mon, 20 Feb 2023 14:00:13 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0E56CC4339B;
-        Mon, 20 Feb 2023 14:00:12 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 84EBB60EA9
+        for <stable@vger.kernel.org>; Mon, 20 Feb 2023 14:00:16 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 959C8C433EF;
+        Mon, 20 Feb 2023 14:00:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1676901613;
-        bh=7w9XLrlz3wMSC3RFSK2tqznHrqisjpZCibmRfvVPavA=;
+        s=korg; t=1676901615;
+        bh=npg+BFZju7fovTkF5Hj3mPtZhpkF8qKdQYJImuQ7JXw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=1iozTfes0BgDm/eQqZE0ZqnntF13uiSOH7RaEW3pc6FfMGqNYO0mgqfxyWmqcxH0W
-         o3bV3nQu3KLZyxT2cYXe5EbTfygbKU/xSjDFU29IeJiJGVqR8iwfm6edsWNelWLaMI
-         v/7xtdNzGjCzlRM4xbB3S8Lo0W5dr1ia/meqVfRk=
+        b=BTQhuote2OPyxHCrXCYa7BebpGEj1e8kkAfwhkYlpbfbzkNquMJJmnBRgTo2T5hjE
+         EB9DzNVSRXgltukCCWnzME9YrTEgR+sTF0GXalLSJmO1Lj5CaHjbwnrM3aPWVmArGZ
+         SQwweYmkR/IRngMJexOI2ivz6eMoGmZemgsNKqlU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Jon Mason <jdmason@kudzu.us>,
-        =?UTF-8?q?Rafa=C5=82=20Mi=C5=82ecki?= <rafal@milecki.pl>,
-        Florian Fainelli <f.fainelli@gmail.com>,
+        patches@lists.linux.dev, Vignesh Raghavendra <vigneshr@ti.com>,
+        Siddharth Vadapalli <s-vadapalli@ti.com>,
+        Roger Quadros <rogerq@kernel.org>,
         Jakub Kicinski <kuba@kernel.org>
-Subject: [PATCH 6.1 084/118] net: bgmac: fix BCM5358 support by setting correct flags
-Date:   Mon, 20 Feb 2023 14:36:40 +0100
-Message-Id: <20230220133603.767528070@linuxfoundation.org>
+Subject: [PATCH 6.1 085/118] net: ethernet: ti: am65-cpsw: Add RX DMA Channel Teardown Quirk
+Date:   Mon, 20 Feb 2023 14:36:41 +0100
+Message-Id: <20230220133603.807852300@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
 In-Reply-To: <20230220133600.368809650@linuxfoundation.org>
 References: <20230220133600.368809650@linuxfoundation.org>
@@ -54,48 +54,82 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Rafał Miłecki <rafal@milecki.pl>
+From: Siddharth Vadapalli <s-vadapalli@ti.com>
 
-commit d61615c366a489646a1bfe5b33455f916762d5f4 upstream.
+commit 0ed577e7e8e508c24e22ba07713ecc4903e147c3 upstream.
 
-Code blocks handling BCMA_CHIP_ID_BCM5357 and BCMA_CHIP_ID_BCM53572 were
-incorrectly unified. Chip package values are not unique and cannot be
-checked independently. They are meaningful only in a context of a given
-chip.
+In TI's AM62x/AM64x SoCs, successful teardown of RX DMA Channel raises an
+interrupt. The process of servicing this interrupt involves flushing all
+pending RX DMA descriptors and clearing the teardown completion marker
+(TDCM). The am65_cpsw_nuss_rx_packets() function invoked from the RX
+NAPI callback services the interrupt. Thus, it is necessary to wait for
+this handler to run, drain all packets and clear TDCM, before calling
+napi_disable() in am65_cpsw_nuss_common_stop() function post channel
+teardown. If napi_disable() executes before ensuring that TDCM is
+cleared, the TDCM remains set when the interfaces are down, resulting in
+an interrupt storm when the interfaces are brought up again.
 
-Packages BCM5358 and BCM47188 share the same value but then belong to
-different chips. Code unification resulted in treating BCM5358 as
-BCM47188 and broke its initialization.
+Since the interrupt raised to indicate the RX DMA Channel teardown is
+specific to the AM62x and AM64x SoCs, add a quirk for it.
 
-Link: https://github.com/openwrt/openwrt/issues/8278
-Fixes: cb1b0f90acfe ("net: ethernet: bgmac: unify code of the same family")
-Cc: Jon Mason <jdmason@kudzu.us>
-Signed-off-by: Rafał Miłecki <rafal@milecki.pl>
-Reviewed-by: Florian Fainelli <f.fainelli@gmail.com>
-Link: https://lore.kernel.org/r/20230208091637.16291-1-zajec5@gmail.com
+Fixes: 4f7cce272403 ("net: ethernet: ti: am65-cpsw: add support for am64x cpsw3g")
+Co-developed-by: Vignesh Raghavendra <vigneshr@ti.com>
+Signed-off-by: Vignesh Raghavendra <vigneshr@ti.com>
+Signed-off-by: Siddharth Vadapalli <s-vadapalli@ti.com>
+Reviewed-by: Roger Quadros <rogerq@kernel.org>
+Link: https://lore.kernel.org/r/20230209084432.189222-1-s-vadapalli@ti.com
 Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/ethernet/broadcom/bgmac-bcma.c |    6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ drivers/net/ethernet/ti/am65-cpsw-nuss.c |   12 +++++++++++-
+ drivers/net/ethernet/ti/am65-cpsw-nuss.h |    1 +
+ 2 files changed, 12 insertions(+), 1 deletion(-)
 
---- a/drivers/net/ethernet/broadcom/bgmac-bcma.c
-+++ b/drivers/net/ethernet/broadcom/bgmac-bcma.c
-@@ -240,12 +240,12 @@ static int bgmac_probe(struct bcma_devic
- 		bgmac->feature_flags |= BGMAC_FEAT_CLKCTLST;
- 		bgmac->feature_flags |= BGMAC_FEAT_FLW_CTRL1;
- 		bgmac->feature_flags |= BGMAC_FEAT_SW_TYPE_PHY;
--		if (ci->pkg == BCMA_PKG_ID_BCM47188 ||
--		    ci->pkg == BCMA_PKG_ID_BCM47186) {
-+		if ((ci->id == BCMA_CHIP_ID_BCM5357 && ci->pkg == BCMA_PKG_ID_BCM47186) ||
-+		    (ci->id == BCMA_CHIP_ID_BCM53572 && ci->pkg == BCMA_PKG_ID_BCM47188)) {
- 			bgmac->feature_flags |= BGMAC_FEAT_SW_TYPE_RGMII;
- 			bgmac->feature_flags |= BGMAC_FEAT_IOST_ATTACHED;
- 		}
--		if (ci->pkg == BCMA_PKG_ID_BCM5358)
-+		if (ci->id == BCMA_CHIP_ID_BCM5357 && ci->pkg == BCMA_PKG_ID_BCM5358)
- 			bgmac->feature_flags |= BGMAC_FEAT_SW_TYPE_EPHYRMII;
- 		break;
- 	case BCMA_CHIP_ID_BCM53573:
+--- a/drivers/net/ethernet/ti/am65-cpsw-nuss.c
++++ b/drivers/net/ethernet/ti/am65-cpsw-nuss.c
+@@ -500,7 +500,15 @@ static int am65_cpsw_nuss_common_stop(st
+ 		k3_udma_glue_disable_tx_chn(common->tx_chns[i].tx_chn);
+ 	}
+ 
++	reinit_completion(&common->tdown_complete);
+ 	k3_udma_glue_tdown_rx_chn(common->rx_chns.rx_chn, true);
++
++	if (common->pdata.quirks & AM64_CPSW_QUIRK_DMA_RX_TDOWN_IRQ) {
++		i = wait_for_completion_timeout(&common->tdown_complete, msecs_to_jiffies(1000));
++		if (!i)
++			dev_err(common->dev, "rx teardown timeout\n");
++	}
++
+ 	napi_disable(&common->napi_rx);
+ 
+ 	for (i = 0; i < AM65_CPSW_MAX_RX_FLOWS; i++)
+@@ -704,6 +712,8 @@ static int am65_cpsw_nuss_rx_packets(str
+ 
+ 	if (cppi5_desc_is_tdcm(desc_dma)) {
+ 		dev_dbg(dev, "%s RX tdown flow: %u\n", __func__, flow_idx);
++		if (common->pdata.quirks & AM64_CPSW_QUIRK_DMA_RX_TDOWN_IRQ)
++			complete(&common->tdown_complete);
+ 		return 0;
+ 	}
+ 
+@@ -2634,7 +2644,7 @@ static const struct am65_cpsw_pdata j721
+ };
+ 
+ static const struct am65_cpsw_pdata am64x_cpswxg_pdata = {
+-	.quirks = 0,
++	.quirks = AM64_CPSW_QUIRK_DMA_RX_TDOWN_IRQ,
+ 	.ale_dev_id = "am64-cpswxg",
+ 	.fdqring_mode = K3_RINGACC_RING_MODE_RING,
+ };
+--- a/drivers/net/ethernet/ti/am65-cpsw-nuss.h
++++ b/drivers/net/ethernet/ti/am65-cpsw-nuss.h
+@@ -86,6 +86,7 @@ struct am65_cpsw_rx_chn {
+ };
+ 
+ #define AM65_CPSW_QUIRK_I2027_NO_TX_CSUM BIT(0)
++#define AM64_CPSW_QUIRK_DMA_RX_TDOWN_IRQ BIT(1)
+ 
+ struct am65_cpsw_pdata {
+ 	u32	quirks;
 
 
