@@ -2,44 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 578A069CD18
-	for <lists+stable@lfdr.de>; Mon, 20 Feb 2023 14:46:24 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id BE9DB69CC68
+	for <lists+stable@lfdr.de>; Mon, 20 Feb 2023 14:40:01 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232279AbjBTNqX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Feb 2023 08:46:23 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58630 "EHLO
+        id S231506AbjBTNkA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Feb 2023 08:40:00 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48634 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232273AbjBTNqV (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 20 Feb 2023 08:46:21 -0500
+        with ESMTP id S231953AbjBTNj7 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 20 Feb 2023 08:39:59 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 17A001D92E
-        for <stable@vger.kernel.org>; Mon, 20 Feb 2023 05:45:57 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3EFB31C5BF
+        for <stable@vger.kernel.org>; Mon, 20 Feb 2023 05:39:58 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id C1588B80D4B
-        for <stable@vger.kernel.org>; Mon, 20 Feb 2023 13:45:55 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3FA8AC433D2;
-        Mon, 20 Feb 2023 13:45:54 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id D76DAB80D49
+        for <stable@vger.kernel.org>; Mon, 20 Feb 2023 13:39:56 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 546C6C433EF;
+        Mon, 20 Feb 2023 13:39:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1676900754;
-        bh=GacGt4LrBnDZ0fISnnm4LWMrRa+epkdT/8IH2h0XM+Y=;
+        s=korg; t=1676900395;
+        bh=IOcoKcqYYvMeIQ7nWC+9Cm7lHhuFrtsr6IJcTloQWoU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=g/Wf89hVfrfY2aFUlYK2zuBrPAW7aWfm2YciVBijcRCEQ5bSJKbqZGLPYmM+8jVx5
-         3HyTFMesxM0cbtOuSboa9IsH2MUqBCISgyfMkBHh4IQM72mjXi5XmCpOSlEPiVpZ6E
-         I8isTNg7xsQ231G6/WjiqxRYwoVwWkGVJ+DFDToY=
+        b=ClCSMQVqtrJRkQok0DJ0DZnyql4x5qKposzxEY4drSw8im+YUXVSOqxFrfiq/srVA
+         apwFN7LBhys08VW4218+W9cGxXf493HTa0jsCTYeuD6EsbB9MWlISMGuHxS68sNWkG
+         w7GSPM7tqLJjMtkqbmYlwU/u1JElLUl4rn7aghrc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, syzkaller <syzkaller@googlegroups.com>,
-        Dongliang Mu <dzm91@hust.edu.cn>, Helge Deller <deller@gmx.de>
-Subject: [PATCH 5.4 056/156] fbdev: smscufx: fix error handling code in ufx_usb_probe
+        patches@lists.linux.dev,
+        Takashi Sakamoto <o-takashi@sakamocchi.jp>,
+        Takashi Iwai <tiwai@suse.de>
+Subject: [PATCH 4.19 01/89] firewire: fix memory leak for payload of request subaction to IEC 61883-1 FCP region
 Date:   Mon, 20 Feb 2023 14:35:00 +0100
-Message-Id: <20230220133604.690997862@linuxfoundation.org>
+Message-Id: <20230220133553.119596508@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230220133602.515342638@linuxfoundation.org>
-References: <20230220133602.515342638@linuxfoundation.org>
+In-Reply-To: <20230220133553.066768704@linuxfoundation.org>
+References: <20230220133553.066768704@linuxfoundation.org>
 User-Agent: quilt/0.67
+X-stable: review
+X-Patchwork-Hint: ignore
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -52,160 +55,57 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dongliang Mu <dzm91@hust.edu.cn>
+From: Takashi Sakamoto <o-takashi@sakamocchi.jp>
 
-commit b76449ee75e21acfe9fa4c653d8598f191ed7d68 upstream.
+commit 531390a243ef47448f8bad01c186c2787666bf4d upstream.
 
-The current error handling code in ufx_usb_probe have many unmatching
-issues, e.g., missing ufx_free_usb_list, destroy_modedb label should
-only include framebuffer_release, fb_dealloc_cmap only matches
-fb_alloc_cmap.
+This patch is fix for Linux kernel v2.6.33 or later.
 
-My local syzkaller reports a memory leak bug:
+For request subaction to IEC 61883-1 FCP region, Linux FireWire subsystem
+have had an issue of use-after-free. The subsystem allows multiple
+user space listeners to the region, while data of the payload was likely
+released before the listeners execute read(2) to access to it for copying
+to user space.
 
-memory leak in ufx_usb_probe
+The issue was fixed by a commit 281e20323ab7 ("firewire: core: fix
+use-after-free regression in FCP handler"). The object of payload is
+duplicated in kernel space for each listener. When the listener executes
+ioctl(2) with FW_CDEV_IOC_SEND_RESPONSE request, the object is going to
+be released.
 
-BUG: memory leak
-unreferenced object 0xffff88802f879580 (size 128):
-  comm "kworker/0:7", pid 17416, jiffies 4295067474 (age 46.710s)
-  hex dump (first 32 bytes):
-    80 21 7c 2e 80 88 ff ff 18 d0 d0 0c 80 88 ff ff  .!|.............
-    00 d0 d0 0c 80 88 ff ff e0 ff ff ff 0f 00 00 00  ................
-  backtrace:
-    [<ffffffff814c99a0>] kmalloc_trace+0x20/0x90 mm/slab_common.c:1045
-    [<ffffffff824d219c>] kmalloc include/linux/slab.h:553 [inline]
-    [<ffffffff824d219c>] kzalloc include/linux/slab.h:689 [inline]
-    [<ffffffff824d219c>] ufx_alloc_urb_list drivers/video/fbdev/smscufx.c:1873 [inline]
-    [<ffffffff824d219c>] ufx_usb_probe+0x11c/0x15a0 drivers/video/fbdev/smscufx.c:1655
-    [<ffffffff82d17927>] usb_probe_interface+0x177/0x370 drivers/usb/core/driver.c:396
-    [<ffffffff82712f0d>] call_driver_probe drivers/base/dd.c:560 [inline]
-    [<ffffffff82712f0d>] really_probe+0x12d/0x390 drivers/base/dd.c:639
-    [<ffffffff8271322f>] __driver_probe_device+0xbf/0x140 drivers/base/dd.c:778
-    [<ffffffff827132da>] driver_probe_device+0x2a/0x120 drivers/base/dd.c:808
-    [<ffffffff82713c27>] __device_attach_driver+0xf7/0x150 drivers/base/dd.c:936
-    [<ffffffff82710137>] bus_for_each_drv+0xb7/0x100 drivers/base/bus.c:427
-    [<ffffffff827136b5>] __device_attach+0x105/0x2d0 drivers/base/dd.c:1008
-    [<ffffffff82711d36>] bus_probe_device+0xc6/0xe0 drivers/base/bus.c:487
-    [<ffffffff8270e242>] device_add+0x642/0xdc0 drivers/base/core.c:3517
-    [<ffffffff82d14d5f>] usb_set_configuration+0x8ef/0xb80 drivers/usb/core/message.c:2170
-    [<ffffffff82d2576c>] usb_generic_driver_probe+0x8c/0xc0 drivers/usb/core/generic.c:238
-    [<ffffffff82d16ffc>] usb_probe_device+0x5c/0x140 drivers/usb/core/driver.c:293
-    [<ffffffff82712f0d>] call_driver_probe drivers/base/dd.c:560 [inline]
-    [<ffffffff82712f0d>] really_probe+0x12d/0x390 drivers/base/dd.c:639
-    [<ffffffff8271322f>] __driver_probe_device+0xbf/0x140 drivers/base/dd.c:778
+However, it causes memory leak since the commit relies on call of
+release_request() in drivers/firewire/core-cdev.c. Against the
+expectation, the function is never called due to the design of
+release_client_resource(). The function delegates release task
+to caller when called with non-NULL fourth argument. The implementation
+of ioctl_send_response() is the case. It should release the object
+explicitly.
 
-Fix this bug by rewriting the error handling code in ufx_usb_probe.
+This commit fixes the bug.
 
-Reported-by: syzkaller <syzkaller@googlegroups.com>
-Tested-by: Dongliang Mu <dzm91@hust.edu.cn>
-Signed-off-by: Dongliang Mu <dzm91@hust.edu.cn>
-Signed-off-by: Helge Deller <deller@gmx.de>
+Cc: <stable@vger.kernel.org>
+Fixes: 281e20323ab7 ("firewire: core: fix use-after-free regression in FCP handler")
+Signed-off-by: Takashi Sakamoto <o-takashi@sakamocchi.jp>
+Link: https://lore.kernel.org/r/20230117090610.93792-2-o-takashi@sakamocchi.jp
+Signed-off-by: Takashi Iwai <tiwai@suse.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/video/fbdev/smscufx.c |   46 ++++++++++++++++++++++++++++--------------
- 1 file changed, 31 insertions(+), 15 deletions(-)
+ drivers/firewire/core-cdev.c |    4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
---- a/drivers/video/fbdev/smscufx.c
-+++ b/drivers/video/fbdev/smscufx.c
-@@ -1622,7 +1622,7 @@ static int ufx_usb_probe(struct usb_inte
- 	struct usb_device *usbdev;
- 	struct ufx_data *dev;
- 	struct fb_info *info;
--	int retval;
-+	int retval = -ENOMEM;
- 	u32 id_rev, fpga_rev;
+--- a/drivers/firewire/core-cdev.c
++++ b/drivers/firewire/core-cdev.c
+@@ -831,8 +831,10 @@ static int ioctl_send_response(struct cl
  
- 	/* usb initialization */
-@@ -1654,15 +1654,17 @@ static int ufx_usb_probe(struct usb_inte
- 
- 	if (!ufx_alloc_urb_list(dev, WRITES_IN_FLIGHT, MAX_TRANSFER)) {
- 		dev_err(dev->gdev, "ufx_alloc_urb_list failed\n");
--		goto e_nomem;
-+		goto put_ref;
- 	}
- 
- 	/* We don't register a new USB class. Our client interface is fbdev */
- 
- 	/* allocates framebuffer driver structure, not framebuffer memory */
- 	info = framebuffer_alloc(0, &usbdev->dev);
--	if (!info)
--		goto e_nomem;
-+	if (!info) {
-+		dev_err(dev->gdev, "framebuffer_alloc failed\n");
-+		goto free_urb_list;
+ 	r = container_of(resource, struct inbound_transaction_resource,
+ 			 resource);
+-	if (is_fcp_request(r->request))
++	if (is_fcp_request(r->request)) {
++		kfree(r->data);
+ 		goto out;
 +	}
  
- 	dev->info = info;
- 	info->par = dev;
-@@ -1705,22 +1707,34 @@ static int ufx_usb_probe(struct usb_inte
- 	check_warn_goto_error(retval, "unable to find common mode for display and adapter");
- 
- 	retval = ufx_reg_set_bits(dev, 0x4000, 0x00000001);
--	check_warn_goto_error(retval, "error %d enabling graphics engine", retval);
-+	if (retval < 0) {
-+		dev_err(dev->gdev, "error %d enabling graphics engine", retval);
-+		goto setup_modes;
-+	}
- 
- 	/* ready to begin using device */
- 	atomic_set(&dev->usb_active, 1);
- 
- 	dev_dbg(dev->gdev, "checking var");
- 	retval = ufx_ops_check_var(&info->var, info);
--	check_warn_goto_error(retval, "error %d ufx_ops_check_var", retval);
-+	if (retval < 0) {
-+		dev_err(dev->gdev, "error %d ufx_ops_check_var", retval);
-+		goto reset_active;
-+	}
- 
- 	dev_dbg(dev->gdev, "setting par");
- 	retval = ufx_ops_set_par(info);
--	check_warn_goto_error(retval, "error %d ufx_ops_set_par", retval);
-+	if (retval < 0) {
-+		dev_err(dev->gdev, "error %d ufx_ops_set_par", retval);
-+		goto reset_active;
-+	}
- 
- 	dev_dbg(dev->gdev, "registering framebuffer");
- 	retval = register_framebuffer(info);
--	check_warn_goto_error(retval, "error %d register_framebuffer", retval);
-+	if (retval < 0) {
-+		dev_err(dev->gdev, "error %d register_framebuffer", retval);
-+		goto reset_active;
-+	}
- 
- 	dev_info(dev->gdev, "SMSC UDX USB device /dev/fb%d attached. %dx%d resolution."
- 		" Using %dK framebuffer memory\n", info->node,
-@@ -1728,21 +1742,23 @@ static int ufx_usb_probe(struct usb_inte
- 
- 	return 0;
- 
--error:
--	fb_dealloc_cmap(&info->cmap);
--destroy_modedb:
-+reset_active:
-+	atomic_set(&dev->usb_active, 0);
-+setup_modes:
- 	fb_destroy_modedb(info->monspecs.modedb);
- 	vfree(info->screen_base);
- 	fb_destroy_modelist(&info->modelist);
-+error:
-+	fb_dealloc_cmap(&info->cmap);
-+destroy_modedb:
- 	framebuffer_release(info);
-+free_urb_list:
-+	if (dev->urbs.count > 0)
-+		ufx_free_urb_list(dev);
- put_ref:
- 	kref_put(&dev->kref, ufx_free); /* ref for framebuffer */
- 	kref_put(&dev->kref, ufx_free); /* last ref from kref_init */
- 	return retval;
--
--e_nomem:
--	retval = -ENOMEM;
--	goto put_ref;
- }
- 
- static void ufx_usb_disconnect(struct usb_interface *interface)
+ 	if (a->length != fw_get_response_length(r->request)) {
+ 		ret = -EINVAL;
 
 
