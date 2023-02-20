@@ -2,50 +2,48 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D2BF069CEB8
-	for <lists+stable@lfdr.de>; Mon, 20 Feb 2023 15:01:48 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 562C669CE0E
+	for <lists+stable@lfdr.de>; Mon, 20 Feb 2023 14:55:42 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232818AbjBTOBq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Feb 2023 09:01:46 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54794 "EHLO
+        id S232561AbjBTNzl (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Feb 2023 08:55:41 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44576 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232830AbjBTOBk (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 20 Feb 2023 09:01:40 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A1BF91E5EB
-        for <stable@vger.kernel.org>; Mon, 20 Feb 2023 06:01:25 -0800 (PST)
+        with ESMTP id S232566AbjBTNzk (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 20 Feb 2023 08:55:40 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 69DDE1E9D0
+        for <stable@vger.kernel.org>; Mon, 20 Feb 2023 05:55:31 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id F1F43B80D3A
-        for <stable@vger.kernel.org>; Mon, 20 Feb 2023 14:00:48 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 202C4C433EF;
-        Mon, 20 Feb 2023 14:00:47 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id E2D0A60E9E
+        for <stable@vger.kernel.org>; Mon, 20 Feb 2023 13:55:30 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id F2448C433D2;
+        Mon, 20 Feb 2023 13:55:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1676901647;
-        bh=CyA6CwzRLi+DUIhpkw7WO91KVuXYq7Lx4JCa/25qgrw=;
+        s=korg; t=1676901330;
+        bh=4HuyXhxITt/AAtNq3OFduDmq8003PaZHslla+WPOwqo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=FbgJTDnKUXNp7F/lK6PGajKzelFFqdtymK4VaTJEHEPi1qSiU1SM5uPfuZQQy88Y9
-         XYe44GlZsrx+YajN7W5/9ud4WTubxDBxztec0LtGe9mPlDamV9jE6Mp+9ZmeauDCa5
-         RsnJk1l4JxK6x5+yhRc9jQM276d8mKe7MGL0Qgzw=
+        b=G/i414U8kLLPxdcGMelTWd2K1d+Dp0Bk/dxx22E7XKxwmCglK3g1yiOJIm5j/+sEd
+         5gP/XLjnm4CygbtgjqUh+d+3IMQb4H/Dt4/9kI4FOI2xAqOuSvwAGCP5qM8bR+c6tx
+         p9UiMdkiZDxQHyyMsf2mCh3OQnsWQzqF2v/UdVTk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Mike Kravetz <mike.kravetz@oracle.com>,
-        Naresh Kamboju <naresh.kamboju@linaro.org>,
-        Jesper Juhl <jesperjuhl76@gmail.com>,
-        Muchun Song <songmuchun@bytedance.com>,
-        Linux Kernel Functional Testing <lkft@linaro.org>,
-        Anders Roxell <anders.roxell@linaro.org>,
-        Andi Kleen <ak@linux.intel.com>,
-        Sasha Levin <sashal@kernel.org>,
+        patches@lists.linux.dev, Seth Jenkins <sethjenkins@google.com>,
+        Jeff Moyer <jmoyer@redhat.com>,
+        Alexander Viro <viro@zeniv.linux.org.uk>,
+        Benjamin LaHaise <bcrl@kvack.org>,
+        Jann Horn <jannh@google.com>,
+        Pavel Emelyanov <xemul@parallels.com>,
         Andrew Morton <akpm@linux-foundation.org>
-Subject: [PATCH 6.1 067/118] hugetlb: check for undefined shift on 32 bit architectures
-Date:   Mon, 20 Feb 2023 14:36:23 +0100
-Message-Id: <20230220133603.113440131@linuxfoundation.org>
+Subject: [PATCH 5.10 16/57] aio: fix mremap after fork null-deref
+Date:   Mon, 20 Feb 2023 14:36:24 +0100
+Message-Id: <20230220133549.942246955@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230220133600.368809650@linuxfoundation.org>
-References: <20230220133600.368809650@linuxfoundation.org>
+In-Reply-To: <20230220133549.360169435@linuxfoundation.org>
+References: <20230220133549.360169435@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -59,63 +57,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mike Kravetz <mike.kravetz@oracle.com>
+From: Seth Jenkins <sethjenkins@google.com>
 
-commit ec4288fe63966b26d53907212ecd05dfa81dd2cc upstream.
+commit 81e9d6f8647650a7bead74c5f926e29970e834d1 upstream.
 
-Users can specify the hugetlb page size in the mmap, shmget and
-memfd_create system calls.  This is done by using 6 bits within the flags
-argument to encode the base-2 logarithm of the desired page size.  The
-routine hstate_sizelog() uses the log2 value to find the corresponding
-hugetlb hstate structure.  Converting the log2 value (page_size_log) to
-potential hugetlb page size is the simple statement:
+Commit e4a0d3e720e7 ("aio: Make it possible to remap aio ring") introduced
+a null-deref if mremap is called on an old aio mapping after fork as
+mm->ioctx_table will be set to NULL.
 
-	1UL << page_size_log
-
-Because only 6 bits are used for page_size_log, the left shift can not be
-greater than 63.  This is fine on 64 bit architectures where a long is 64
-bits.  However, if a value greater than 31 is passed on a 32 bit
-architecture (where long is 32 bits) the shift will result in undefined
-behavior.  This was generally not an issue as the result of the undefined
-shift had to exactly match hugetlb page size to proceed.
-
-Recent improvements in runtime checking have resulted in this undefined
-behavior throwing errors such as reported below.
-
-Fix by comparing page_size_log to BITS_PER_LONG before doing shift.
-
-Link: https://lkml.kernel.org/r/20230216013542.138708-1-mike.kravetz@oracle.com
-Link: https://lore.kernel.org/lkml/CA+G9fYuei_Tr-vN9GS7SfFyU1y9hNysnf=PB7kT0=yv4MiPgVg@mail.gmail.com/
-Fixes: 42d7395feb56 ("mm: support more pagesizes for MAP_HUGETLB/SHM_HUGETLB")
-Signed-off-by: Mike Kravetz <mike.kravetz@oracle.com>
-Reported-by: Naresh Kamboju <naresh.kamboju@linaro.org>
-Reviewed-by: Jesper Juhl <jesperjuhl76@gmail.com>
-Acked-by: Muchun Song <songmuchun@bytedance.com>
-Tested-by: Linux Kernel Functional Testing <lkft@linaro.org>
-Tested-by: Naresh Kamboju <naresh.kamboju@linaro.org>
-Cc: Anders Roxell <anders.roxell@linaro.org>
-Cc: Andi Kleen <ak@linux.intel.com>
-Cc: Sasha Levin <sashal@kernel.org>
+[jmoyer@redhat.com: fix 80 column issue]
+Link: https://lkml.kernel.org/r/x49sffq4nvg.fsf@segfault.boston.devel.redhat.com
+Fixes: e4a0d3e720e7 ("aio: Make it possible to remap aio ring")
+Signed-off-by: Seth Jenkins <sethjenkins@google.com>
+Signed-off-by: Jeff Moyer <jmoyer@redhat.com>
+Cc: Alexander Viro <viro@zeniv.linux.org.uk>
+Cc: Benjamin LaHaise <bcrl@kvack.org>
+Cc: Jann Horn <jannh@google.com>
+Cc: Pavel Emelyanov <xemul@parallels.com>
 Cc: <stable@vger.kernel.org>
 Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- include/linux/hugetlb.h |    5 ++++-
- 1 file changed, 4 insertions(+), 1 deletion(-)
+ fs/aio.c |    4 ++++
+ 1 file changed, 4 insertions(+)
 
---- a/include/linux/hugetlb.h
-+++ b/include/linux/hugetlb.h
-@@ -753,7 +753,10 @@ static inline struct hstate *hstate_size
- 	if (!page_size_log)
- 		return &default_hstate;
- 
--	return size_to_hstate(1UL << page_size_log);
-+	if (page_size_log < BITS_PER_LONG)
-+		return size_to_hstate(1UL << page_size_log);
+--- a/fs/aio.c
++++ b/fs/aio.c
+@@ -335,6 +335,9 @@ static int aio_ring_mremap(struct vm_are
+ 	spin_lock(&mm->ioctx_lock);
+ 	rcu_read_lock();
+ 	table = rcu_dereference(mm->ioctx_table);
++	if (!table)
++		goto out_unlock;
 +
-+	return NULL;
- }
+ 	for (i = 0; i < table->nr; i++) {
+ 		struct kioctx *ctx;
  
- static inline struct hstate *hstate_vma(struct vm_area_struct *vma)
+@@ -348,6 +351,7 @@ static int aio_ring_mremap(struct vm_are
+ 		}
+ 	}
+ 
++out_unlock:
+ 	rcu_read_unlock();
+ 	spin_unlock(&mm->ioctx_lock);
+ 	return res;
 
 
