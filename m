@@ -2,112 +2,100 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 7EEC069D375
-	for <lists+stable@lfdr.de>; Mon, 20 Feb 2023 19:56:28 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C63D769D391
+	for <lists+stable@lfdr.de>; Mon, 20 Feb 2023 19:59:09 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232781AbjBTS4X (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Feb 2023 13:56:23 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41358 "EHLO
+        id S232972AbjBTS7I (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Feb 2023 13:59:08 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45464 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232771AbjBTS4C (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 20 Feb 2023 13:56:02 -0500
+        with ESMTP id S232895AbjBTS6q (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 20 Feb 2023 13:58:46 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1177321A15;
-        Mon, 20 Feb 2023 10:55:37 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7037C7A90
+        for <stable@vger.kernel.org>; Mon, 20 Feb 2023 10:58:27 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 418E260EFD;
-        Mon, 20 Feb 2023 18:54:46 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4ED4AC4339E;
-        Mon, 20 Feb 2023 18:54:45 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1676919285;
-        bh=6XmyMRcrfPbQTQhluv+1iDNaqe3Yg3/MNk7J7+Obc3A=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=uAv1sbNVY+WUqAyXDMQz6JsdIMPKuxmowp+cGy3fpXobRyAwLT23KphDk4Q3J1vaT
-         p/6yIJ92D7tXn7J0LOKXHSWxcoz5LWkOg9A5VO9Q2maDbETP1eI/c61cnLmEMwxcjO
-         jyDqguBityZ5VFzae2bS4087FSIVOrHeQnpWZ6ng=
-Date:   Mon, 20 Feb 2023 19:54:43 +0100
-From:   Greg KH <gregkh@linuxfoundation.org>
-To:     Christian Bach <christian.bach@scs.ch>
-Cc:     "stable@vger.kernel.org" <stable@vger.kernel.org>,
-        "regressions@lists.linux.dev" <regressions@lists.linux.dev>,
-        "linux@roeck-us.net" <linux@roeck-us.net>,
-        "linux-usb@vger.kernel.org" <linux-usb@vger.kernel.org>,
-        =?utf-8?B?Y3lfaHVhbmco6buD5ZWf5Y6fKQ==?= <cy_huang@richtek.com>
-Subject: Re: AW: tcpci module in Kernel 5.15.74 with PTN5110 not working
- correctly
-Message-ID: <Y/PB87qws1ko77xg@kroah.com>
-References: <ZR0P278MB0773545F02B32FAF648F968AEB319@ZR0P278MB0773.CHEP278.PROD.OUTLOOK.COM>
- <ZR0P278MB0773072DD153BA902AFE635AEB319@ZR0P278MB0773.CHEP278.PROD.OUTLOOK.COM>
- <Y1fYjmtQZa53dPfR@kroah.com>
- <ZR0P278MB07731B49E8938F98DB2098ABEBA49@ZR0P278MB0773.CHEP278.PROD.OUTLOOK.COM>
+        by dfw.source.kernel.org (Postfix) with ESMTPS id DD37960F0E
+        for <stable@vger.kernel.org>; Mon, 20 Feb 2023 18:56:51 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4CE2FC43442
+        for <stable@vger.kernel.org>; Mon, 20 Feb 2023 18:56:51 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1676919411;
+        bh=lTCizTZ15FWQrA5Ntik4wWqUB7fl2m6pIZg61NnKBWU=;
+        h=References:In-Reply-To:From:Date:Subject:To:Cc:From;
+        b=eXNrcNGusE42CZBxmMKGib4ORY4WaiEv+B+huZtmOWFTqKs1QsAoZ7IWUFnAiqOYS
+         gPAb1RCL2H6XUF0SgkSIQ9IfZJtEkFF+dgE3Vrd8ciUETOHGO889x14xTVLy3TmUoD
+         LAOCgKT9I56Mls5jzHMbiBBtNItHpeSp4Wu5LjLi5uN99jv/fRdG6cLf79YLPWKmsF
+         ZMSdZr4DpIpPBa2ezR/R+id1Bcq5ZtNCFzjXZEuujQ+fp0htpQV9F5IVd0msfqy21c
+         cYSu906o1DRqrQ9CGPk7M1OcS+DCg2j4kt+f7Tjr3OoCnTZZRBvEYmEk7m1hokdkgW
+         6X+0rPtkgN84w==
+Received: by mail-ed1-f50.google.com with SMTP id o12so8763372edb.9
+        for <stable@vger.kernel.org>; Mon, 20 Feb 2023 10:56:51 -0800 (PST)
+X-Gm-Message-State: AO0yUKUZ1WaBVxGgTJYXQKKpXYpXnbpSq8YpuyWn2IInrDe0X9Q15w7c
+        R7a1CWfcUoZNP87xSW+2B1wemTghI/3ArbfbwpKKhA==
+X-Google-Smtp-Source: AK7set/2MSjXgU5EyveFZmm43dXQ9oyira8niteytdCUh+u3gB7C6T2JhVkPd5WmLDariERW0yxyk6MzcoNSokB2yTs=
+X-Received: by 2002:a17:906:4a93:b0:88a:b103:212d with SMTP id
+ x19-20020a1709064a9300b0088ab103212dmr4872440eju.15.1676919409403; Mon, 20
+ Feb 2023 10:56:49 -0800 (PST)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <ZR0P278MB07731B49E8938F98DB2098ABEBA49@ZR0P278MB0773.CHEP278.PROD.OUTLOOK.COM>
+References: <20230220120127.1975241-1-kpsingh@kernel.org> <20230220121350.aidsipw3kd4rsyss@treble>
+ <CACYkzJ5L9MLuE5Jz+z5-NJCCrUqTbgKQkXSqnQnCfTD_WNA7_Q@mail.gmail.com>
+ <CACYkzJ6n=-tobhX0ONQhjHSgmnNjWnNe_dZnEOGtD8Y6S3RHbA@mail.gmail.com>
+ <20230220163442.7fmaeef3oqci4ee3@treble> <Y/Ox3MJZF1Yb7b6y@zn.tnic>
+ <20230220175929.2laflfb2met6y3kc@treble> <CACYkzJ71xqzY6-wL+YShcL+d6ugzcdFHr6tbYWWE_ep52+RBZQ@mail.gmail.com>
+ <Y/O6Wr4BbtfhXrNt@zn.tnic> <CACYkzJ4jvOGGhuQ1HDzfpGS5vffg9X6hEcLC93QJBFqX+LxLVw@mail.gmail.com>
+ <Y/PBSncEMTiO5scL@zn.tnic>
+In-Reply-To: <Y/PBSncEMTiO5scL@zn.tnic>
+From:   KP Singh <kpsingh@kernel.org>
+Date:   Mon, 20 Feb 2023 10:56:38 -0800
+X-Gmail-Original-Message-ID: <CACYkzJ5w_ey7aHxhGr-1gpQLPPtRAQLApHiJp_Kh0cOW4PTQkA@mail.gmail.com>
+Message-ID: <CACYkzJ5w_ey7aHxhGr-1gpQLPPtRAQLApHiJp_Kh0cOW4PTQkA@mail.gmail.com>
+Subject: Re: [PATCH RESEND] x86/speculation: Fix user-mode spectre-v2
+ protection with KERNEL_IBRS
+To:     Borislav Petkov <bp@alien8.de>
+Cc:     Josh Poimboeuf <jpoimboe@kernel.org>, linux-kernel@vger.kernel.org,
+        pjt@google.com, evn@google.com, tglx@linutronix.de,
+        mingo@redhat.com, dave.hansen@linux.intel.com, x86@kernel.org,
+        hpa@zytor.com, peterz@infradead.org,
+        pawan.kumar.gupta@linux.intel.com, kim.phillips@amd.com,
+        alexandre.chartre@oracle.com, daniel.sneddon@linux.intel.com,
+        =?UTF-8?Q?Jos=C3=A9_Oliveira?= <joseloliveira11@gmail.com>,
+        Rodrigo Branco <rodrigo@kernelhacking.com>,
+        Alexandra Sandulescu <aesa@google.com>,
+        Jim Mattson <jmattson@google.com>, stable@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
 X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
         DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
-        SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
+        SPF_HELO_NONE,SPF_PASS autolearn=unavailable autolearn_force=no
+        version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, Feb 20, 2023 at 04:45:32PM +0000, Christian Bach wrote:
-> Hello everyone
-> 
-> We finally found a solution to the problem we had with the PTN5110 Chip and the Kernel Module tcpci that manages this chip in 5.15.xx Kernel. NXP Patched their Kernel a while ago (https://source.codeaurora.org/external/imx/linux-imx/commit/drivers/usb/typec/tcpm/tcpci.c?h=lf-5.15.y&id=2a263f918b25725e0434afa9ff3b83b1bc18ef74) and we reimplemented the NXP patch for the Kernel 5.15.91. I attached my reworked patch below:
-> 
-> diff --git a/drivers/usb/typec/tcpm/tcpci.c b/drivers/usb/typec/tcpm/tcpci.c
-> index 5340a3a3a81b..0d715e091b78 100644
-> --- a/drivers/usb/typec/tcpm/tcpci.c
-> +++ b/drivers/usb/typec/tcpm/tcpci.c
-> @@ -628,6 +628,9 @@ static int tcpci_init(struct tcpc_dev *tcpc)
->         if (ret < 0)
->                 return ret;
-> 
-> +       /* Clear fault condition */
-> +       regmap_write(tcpci->regmap, TCPC_FAULT_STATUS, 0x80);
-> +
->         if (tcpci->controls_vbus)
->                 reg = TCPC_POWER_STATUS_VBUS_PRES;
->         else
-> @@ -644,7 +647,8 @@ static int tcpci_init(struct tcpc_dev *tcpc)
-> 
->         reg = TCPC_ALERT_TX_SUCCESS | TCPC_ALERT_TX_FAILED |
->                 TCPC_ALERT_TX_DISCARDED | TCPC_ALERT_RX_STATUS |
-> -               TCPC_ALERT_RX_HARD_RST | TCPC_ALERT_CC_STATUS;
-> +               TCPC_ALERT_RX_HARD_RST | TCPC_ALERT_CC_STATUS |
-> +               TCPC_ALERT_V_ALARM_LO | TCPC_ALERT_FAULT;
->         if (tcpci->controls_vbus)
->                 reg |= TCPC_ALERT_POWER_STATUS;
->         /* Enable VSAFE0V status interrupt when detecting VSAFE0V is supported */
-> @@ -728,6 +732,13 @@ irqreturn_t tcpci_irq(struct tcpci *tcpci)
->                         tcpm_vbus_change(tcpci->port);
->         }
-> 
-> +       /* Clear the fault status anyway */
-> +       if (status & TCPC_ALERT_FAULT) {
-> +               regmap_read(tcpci->regmap, TCPC_FAULT_STATUS, &raw);
-> +               regmap_write(tcpci->regmap, TCPC_FAULT_STATUS,
-> +                               raw | TCPC_FAULT_STATUS_MASK);
-> +       }
-> +
->         if (status & TCPC_ALERT_RX_HARD_RST)
->                 tcpm_pd_hard_reset(tcpci->port);
-> 
-> 
-> 
-> 
-> 
-> 
-> 
+On Mon, Feb 20, 2023 at 10:52 AM Borislav Petkov <bp@alien8.de> wrote:
+>
+> On Mon, Feb 20, 2023 at 10:44:21AM -0800, KP Singh wrote:
+> > No it cannot with IBRS which is really just KERNEL_IBRS enabled, we
+>
+> See my other reply. The intent is there to be able to do it. What needs
+> to be figured out now is *why* we said no STIBP with IBRS? Was it an
+> omission or was there some intent behind it.
+>
 
-Can you submit this as a real fix so that we can apply it properly?
+Sure, it looks like an omission to me, we wrote a POC on Skylake that
+was able to do cross-thread training with the current set of
+mitigations.
 
-thanks,
+STIBP with IBRS is still correct if spectre_v2=ibrs had really meant
+IBRS everywhere, but just means KERNEL_IBRS, which means only kernel
+is protected, userspace is still unprotected.
 
-greg k-h
+> --
+> Regards/Gruss,
+>     Boris.
+>
+> https://people.kernel.org/tglx/notes-about-netiquette
