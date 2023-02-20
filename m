@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 4768669CC73
-	for <lists+stable@lfdr.de>; Mon, 20 Feb 2023 14:40:29 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 465F669CC74
+	for <lists+stable@lfdr.de>; Mon, 20 Feb 2023 14:40:32 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231605AbjBTNk2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Feb 2023 08:40:28 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49488 "EHLO
+        id S231350AbjBTNkb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Feb 2023 08:40:31 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49534 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231350AbjBTNk1 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 20 Feb 2023 08:40:27 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C7D191C321
-        for <stable@vger.kernel.org>; Mon, 20 Feb 2023 05:40:25 -0800 (PST)
+        with ESMTP id S230377AbjBTNka (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 20 Feb 2023 08:40:30 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C32CA1C58D
+        for <stable@vger.kernel.org>; Mon, 20 Feb 2023 05:40:29 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 4F65460EA0
-        for <stable@vger.kernel.org>; Mon, 20 Feb 2023 13:40:25 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5EE56C433D2;
-        Mon, 20 Feb 2023 13:40:24 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 83234B80D4A
+        for <stable@vger.kernel.org>; Mon, 20 Feb 2023 13:40:28 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id DB604C433EF;
+        Mon, 20 Feb 2023 13:40:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1676900424;
-        bh=jPwoEJx5sbxaXNzRZ+j74OWcPBOliaTQ85EguUm2cHA=;
+        s=korg; t=1676900427;
+        bh=0kcqojmEZ309t71xizM8PrsJiaoyHNud+3yHVa+U/+Y=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Gxh3XImd8mgVh8rgPFfiUo1wrgeKovGoKLT2hXcYWOxX8M+8274wy6o7+pgnEHgbj
-         zYaNwKmM9dntmlQOxOEsv+nABXQig0jOkYlwa6lrjw9rTm4ds6o6pNuklJ2QdvNkIa
-         COvhnehDD/ecytRoqEmbQ6q8f/UOe76E4RUuwQwQ=
+        b=1QO2oxvbuoWDQDwuXnukkH2kEKU0oMH3yGzqWfNLsWhC/Hf/sMs7ytDKRYa6Mr7uN
+         ymYZALpCazmypm60Foboldlm+AA8uMC8wE3eT2+Bws/73JGfl5lmKURr/N9NX39TGM
+         Qh6sknKut5bEVCnPo0tfDp/oyAHt4+X1TY7NCRs8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         patches@lists.linux.dev,
-        syzbot+caa188bdfc1eeafeb418@syzkaller.appspotmail.com,
-        Hyunwoo Kim <v4bel@theori.io>,
-        Kuniyuki Iwashima <kuniyu@amazon.com>,
-        "David S. Miller" <davem@davemloft.net>,
+        syzbot+082fa4af80a5bb1a9843@syzkaller.appspotmail.com,
+        Fedor Pchelkin <pchelkin@ispras.ru>,
+        Alexey Khoroshilov <khoroshilov@ispras.ru>,
+        Phillip Lougher <phillip@squashfs.org.uk>,
+        Andrew Morton <akpm@linux-foundation.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 04/89] netrom: Fix use-after-free caused by accept on already connected socket
-Date:   Mon, 20 Feb 2023 14:35:03 +0100
-Message-Id: <20230220133553.241010384@linuxfoundation.org>
+Subject: [PATCH 4.19 05/89] squashfs: harden sanity check in squashfs_read_xattr_id_table
+Date:   Mon, 20 Feb 2023 14:35:04 +0100
+Message-Id: <20230220133553.273986847@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
 In-Reply-To: <20230220133553.066768704@linuxfoundation.org>
 References: <20230220133553.066768704@linuxfoundation.org>
@@ -47,8 +48,8 @@ User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
         SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -56,208 +57,43 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hyunwoo Kim <v4bel@theori.io>
+From: Fedor Pchelkin <pchelkin@ispras.ru>
 
-[ Upstream commit 611792920925fb088ddccbe2783c7f92fdfb6b64 ]
+[ Upstream commit 72e544b1b28325fe78a4687b980871a7e4101f76 ]
 
-If you call listen() and accept() on an already connect()ed
-AF_NETROM socket, accept() can successfully connect.
-This is because when the peer socket sends data to sendmsg,
-the skb with its own sk stored in the connected socket's
-sk->sk_receive_queue is connected, and nr_accept() dequeues
-the skb waiting in the sk->sk_receive_queue.
+While mounting a corrupted filesystem, a signed integer '*xattr_ids' can
+become less than zero.  This leads to the incorrect computation of 'len'
+and 'indexes' values which can cause null-ptr-deref in copy_bio_to_actor()
+or out-of-bounds accesses in the next sanity checks inside
+squashfs_read_xattr_id_table().
 
-As a result, nr_accept() allocates and returns a sock with
-the sk of the parent AF_NETROM socket.
+Found by Linux Verification Center (linuxtesting.org) with Syzkaller.
 
-And here use-after-free can happen through complex race conditions:
-```
-                  cpu0                                                     cpu1
-                                                               1. socket_2 = socket(AF_NETROM)
-                                                                        .
-                                                                        .
-                                                                  listen(socket_2)
-                                                                  accepted_socket = accept(socket_2)
-       2. socket_1 = socket(AF_NETROM)
-            nr_create()    // sk refcount : 1
-          connect(socket_1)
-                                                               3. write(accepted_socket)
-                                                                    nr_sendmsg()
-                                                                    nr_output()
-                                                                    nr_kick()
-                                                                    nr_send_iframe()
-                                                                    nr_transmit_buffer()
-                                                                    nr_route_frame()
-                                                                    nr_loopback_queue()
-                                                                    nr_loopback_timer()
-                                                                    nr_rx_frame()
-                                                                    nr_process_rx_frame(sk, skb);    // sk : socket_1's sk
-                                                                    nr_state3_machine()
-                                                                    nr_queue_rx_frame()
-                                                                    sock_queue_rcv_skb()
-                                                                    sock_queue_rcv_skb_reason()
-                                                                    __sock_queue_rcv_skb()
-                                                                    __skb_queue_tail(list, skb);    // list : socket_1's sk->sk_receive_queue
-       4. listen(socket_1)
-            nr_listen()
-          uaf_socket = accept(socket_1)
-            nr_accept()
-            skb_dequeue(&sk->sk_receive_queue);
-                                                               5. close(accepted_socket)
-                                                                    nr_release()
-                                                                    nr_write_internal(sk, NR_DISCREQ)
-                                                                    nr_transmit_buffer()    // NR_DISCREQ
-                                                                    nr_route_frame()
-                                                                    nr_loopback_queue()
-                                                                    nr_loopback_timer()
-                                                                    nr_rx_frame()    // sk : socket_1's sk
-                                                                    nr_process_rx_frame()  // NR_STATE_3
-                                                                    nr_state3_machine()    // NR_DISCREQ
-                                                                    nr_disconnect()
-                                                                    nr_sk(sk)->state = NR_STATE_0;
-       6. close(socket_1)    // sk refcount : 3
-            nr_release()    // NR_STATE_0
-            sock_put(sk);    // sk refcount : 0
-            sk_free(sk);
-          close(uaf_socket)
-            nr_release()
-            sock_hold(sk);    // UAF
-```
-
-KASAN report by syzbot:
-```
-BUG: KASAN: use-after-free in nr_release+0x66/0x460 net/netrom/af_netrom.c:520
-Write of size 4 at addr ffff8880235d8080 by task syz-executor564/5128
-
-Call Trace:
- <TASK>
- __dump_stack lib/dump_stack.c:88 [inline]
- dump_stack_lvl+0xd1/0x138 lib/dump_stack.c:106
- print_address_description mm/kasan/report.c:306 [inline]
- print_report+0x15e/0x461 mm/kasan/report.c:417
- kasan_report+0xbf/0x1f0 mm/kasan/report.c:517
- check_region_inline mm/kasan/generic.c:183 [inline]
- kasan_check_range+0x141/0x190 mm/kasan/generic.c:189
- instrument_atomic_read_write include/linux/instrumented.h:102 [inline]
- atomic_fetch_add_relaxed include/linux/atomic/atomic-instrumented.h:116 [inline]
- __refcount_add include/linux/refcount.h:193 [inline]
- __refcount_inc include/linux/refcount.h:250 [inline]
- refcount_inc include/linux/refcount.h:267 [inline]
- sock_hold include/net/sock.h:775 [inline]
- nr_release+0x66/0x460 net/netrom/af_netrom.c:520
- __sock_release+0xcd/0x280 net/socket.c:650
- sock_close+0x1c/0x20 net/socket.c:1365
- __fput+0x27c/0xa90 fs/file_table.c:320
- task_work_run+0x16f/0x270 kernel/task_work.c:179
- exit_task_work include/linux/task_work.h:38 [inline]
- do_exit+0xaa8/0x2950 kernel/exit.c:867
- do_group_exit+0xd4/0x2a0 kernel/exit.c:1012
- get_signal+0x21c3/0x2450 kernel/signal.c:2859
- arch_do_signal_or_restart+0x79/0x5c0 arch/x86/kernel/signal.c:306
- exit_to_user_mode_loop kernel/entry/common.c:168 [inline]
- exit_to_user_mode_prepare+0x15f/0x250 kernel/entry/common.c:203
- __syscall_exit_to_user_mode_work kernel/entry/common.c:285 [inline]
- syscall_exit_to_user_mode+0x1d/0x50 kernel/entry/common.c:296
- do_syscall_64+0x46/0xb0 arch/x86/entry/common.c:86
- entry_SYSCALL_64_after_hwframe+0x63/0xcd
-RIP: 0033:0x7f6c19e3c9b9
-Code: Unable to access opcode bytes at 0x7f6c19e3c98f.
-RSP: 002b:00007fffd4ba2ce8 EFLAGS: 00000246 ORIG_RAX: 0000000000000133
-RAX: 0000000000000116 RBX: 0000000000000003 RCX: 00007f6c19e3c9b9
-RDX: 0000000000000318 RSI: 00000000200bd000 RDI: 0000000000000006
-RBP: 0000000000000003 R08: 000000000000000d R09: 000000000000000d
-R10: 0000000000000000 R11: 0000000000000246 R12: 000055555566a2c0
-R13: 0000000000000011 R14: 0000000000000000 R15: 0000000000000000
- </TASK>
-
-Allocated by task 5128:
- kasan_save_stack+0x22/0x40 mm/kasan/common.c:45
- kasan_set_track+0x25/0x30 mm/kasan/common.c:52
- ____kasan_kmalloc mm/kasan/common.c:371 [inline]
- ____kasan_kmalloc mm/kasan/common.c:330 [inline]
- __kasan_kmalloc+0xa3/0xb0 mm/kasan/common.c:380
- kasan_kmalloc include/linux/kasan.h:211 [inline]
- __do_kmalloc_node mm/slab_common.c:968 [inline]
- __kmalloc+0x5a/0xd0 mm/slab_common.c:981
- kmalloc include/linux/slab.h:584 [inline]
- sk_prot_alloc+0x140/0x290 net/core/sock.c:2038
- sk_alloc+0x3a/0x7a0 net/core/sock.c:2091
- nr_create+0xb6/0x5f0 net/netrom/af_netrom.c:433
- __sock_create+0x359/0x790 net/socket.c:1515
- sock_create net/socket.c:1566 [inline]
- __sys_socket_create net/socket.c:1603 [inline]
- __sys_socket_create net/socket.c:1588 [inline]
- __sys_socket+0x133/0x250 net/socket.c:1636
- __do_sys_socket net/socket.c:1649 [inline]
- __se_sys_socket net/socket.c:1647 [inline]
- __x64_sys_socket+0x73/0xb0 net/socket.c:1647
- do_syscall_x64 arch/x86/entry/common.c:50 [inline]
- do_syscall_64+0x39/0xb0 arch/x86/entry/common.c:80
- entry_SYSCALL_64_after_hwframe+0x63/0xcd
-
-Freed by task 5128:
- kasan_save_stack+0x22/0x40 mm/kasan/common.c:45
- kasan_set_track+0x25/0x30 mm/kasan/common.c:52
- kasan_save_free_info+0x2b/0x40 mm/kasan/generic.c:518
- ____kasan_slab_free mm/kasan/common.c:236 [inline]
- ____kasan_slab_free+0x13b/0x1a0 mm/kasan/common.c:200
- kasan_slab_free include/linux/kasan.h:177 [inline]
- __cache_free mm/slab.c:3394 [inline]
- __do_kmem_cache_free mm/slab.c:3580 [inline]
- __kmem_cache_free+0xcd/0x3b0 mm/slab.c:3587
- sk_prot_free net/core/sock.c:2074 [inline]
- __sk_destruct+0x5df/0x750 net/core/sock.c:2166
- sk_destruct net/core/sock.c:2181 [inline]
- __sk_free+0x175/0x460 net/core/sock.c:2192
- sk_free+0x7c/0xa0 net/core/sock.c:2203
- sock_put include/net/sock.h:1991 [inline]
- nr_release+0x39e/0x460 net/netrom/af_netrom.c:554
- __sock_release+0xcd/0x280 net/socket.c:650
- sock_close+0x1c/0x20 net/socket.c:1365
- __fput+0x27c/0xa90 fs/file_table.c:320
- task_work_run+0x16f/0x270 kernel/task_work.c:179
- exit_task_work include/linux/task_work.h:38 [inline]
- do_exit+0xaa8/0x2950 kernel/exit.c:867
- do_group_exit+0xd4/0x2a0 kernel/exit.c:1012
- get_signal+0x21c3/0x2450 kernel/signal.c:2859
- arch_do_signal_or_restart+0x79/0x5c0 arch/x86/kernel/signal.c:306
- exit_to_user_mode_loop kernel/entry/common.c:168 [inline]
- exit_to_user_mode_prepare+0x15f/0x250 kernel/entry/common.c:203
- __syscall_exit_to_user_mode_work kernel/entry/common.c:285 [inline]
- syscall_exit_to_user_mode+0x1d/0x50 kernel/entry/common.c:296
- do_syscall_64+0x46/0xb0 arch/x86/entry/common.c:86
- entry_SYSCALL_64_after_hwframe+0x63/0xcd
-```
-
-To fix this issue, nr_listen() returns -EINVAL for sockets that
-successfully nr_connect().
-
-Reported-by: syzbot+caa188bdfc1eeafeb418@syzkaller.appspotmail.com
-Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2")
-Signed-off-by: Hyunwoo Kim <v4bel@theori.io>
-Reviewed-by: Kuniyuki Iwashima <kuniyu@amazon.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+Link: https://lkml.kernel.org/r/20230117105226.329303-2-pchelkin@ispras.ru
+Fixes: 506220d2ba21 ("squashfs: add more sanity checks in xattr id lookup")
+Reported-by: <syzbot+082fa4af80a5bb1a9843@syzkaller.appspotmail.com>
+Signed-off-by: Fedor Pchelkin <pchelkin@ispras.ru>
+Signed-off-by: Alexey Khoroshilov <khoroshilov@ispras.ru>
+Cc: Phillip Lougher <phillip@squashfs.org.uk>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/netrom/af_netrom.c | 5 +++++
- 1 file changed, 5 insertions(+)
+ fs/squashfs/xattr_id.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/net/netrom/af_netrom.c b/net/netrom/af_netrom.c
-index 43910e50752c..a5d819fa7c89 100644
---- a/net/netrom/af_netrom.c
-+++ b/net/netrom/af_netrom.c
-@@ -403,6 +403,11 @@ static int nr_listen(struct socket *sock, int backlog)
- 	struct sock *sk = sock->sk;
+diff --git a/fs/squashfs/xattr_id.c b/fs/squashfs/xattr_id.c
+index 7f718d2bf357..0c0d7882bcca 100644
+--- a/fs/squashfs/xattr_id.c
++++ b/fs/squashfs/xattr_id.c
+@@ -89,7 +89,7 @@ __le64 *squashfs_read_xattr_id_table(struct super_block *sb, u64 table_start,
+ 	/* Sanity check values */
  
- 	lock_sock(sk);
-+	if (sock->state != SS_UNCONNECTED) {
-+		release_sock(sk);
-+		return -EINVAL;
-+	}
-+
- 	if (sk->sk_state != TCP_LISTEN) {
- 		memset(&nr_sk(sk)->user_addr, 0, AX25_ADDR_LEN);
- 		sk->sk_max_ack_backlog = backlog;
+ 	/* there is always at least one xattr id */
+-	if (*xattr_ids == 0)
++	if (*xattr_ids <= 0)
+ 		return ERR_PTR(-EINVAL);
+ 
+ 	len = SQUASHFS_XATTR_BLOCK_BYTES(*xattr_ids);
 -- 
 2.39.0
 
