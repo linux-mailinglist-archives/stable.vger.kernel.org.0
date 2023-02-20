@@ -2,50 +2,58 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id F180269CDB0
-	for <lists+stable@lfdr.de>; Mon, 20 Feb 2023 14:51:48 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 20A5969CD43
+	for <lists+stable@lfdr.de>; Mon, 20 Feb 2023 14:48:00 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232438AbjBTNvr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Feb 2023 08:51:47 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39134 "EHLO
+        id S232323AbjBTNr7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Feb 2023 08:47:59 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33192 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232450AbjBTNvq (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 20 Feb 2023 08:51:46 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1C6531E2BC
-        for <stable@vger.kernel.org>; Mon, 20 Feb 2023 05:51:46 -0800 (PST)
+        with ESMTP id S232312AbjBTNr6 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 20 Feb 2023 08:47:58 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 891E81E1EC;
+        Mon, 20 Feb 2023 05:47:45 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id B54ADB80D43
-        for <stable@vger.kernel.org>; Mon, 20 Feb 2023 13:51:44 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 101D5C433EF;
-        Mon, 20 Feb 2023 13:51:42 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 0F79260B74;
+        Mon, 20 Feb 2023 13:47:45 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E79E2C433D2;
+        Mon, 20 Feb 2023 13:47:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1676901103;
-        bh=z6P+nbavqPCCSnqZJNVDs0VWHj0jFLX6EBinl3xYbdc=;
+        s=korg; t=1676900864;
+        bh=iRRaVW8waMS3swKNOM/fpWoKvde37F2jbZWpvCGZsz8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=brHiB6WQ6Eb3TUTr9/+vUKR0s3KqGNxJvPqu821ddc8J9DaDzTZMYFy19siqyW1Gw
-         YvdKwCPITeFBR+vDaU/a2xGiGcUJRTztmc1m9hP0fV+kJJXIbSiaCt2LJYYuiLStX2
-         JEuwFGMtf30uapxRB7yEyXb7JUiWCMwan+Mwps4U=
+        b=iSoNdRkfYS1+Q2sd5CCjrnBpV1jUAXnhfjlg+4gTkqdwBaaZFOXrb/nDxwNMxpcW4
+         52P7nhYidX9MCc0Ln3ddSMeZ9+BTJloIthDkJciBQT4CTsCSqMu3bvj6XvwKW0hNAo
+         5yScoWXvhggnbYqXWFDkb9ETeftYxvkKHZvKzsJE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Eduard Zingerman <eddyz87@gmail.com>,
-        Alexei Starovoitov <ast@kernel.org>,
+        patches@lists.linux.dev, Jamal Hadi Salim <jhs@mojatatu.com>,
+        Cong Wang <xiyou.wangcong@gmail.com>,
+        Jiri Pirko <jiri@resnulli.us>,
+        "David S. Miller" <davem@davemloft.net>,
+        Eric Dumazet <edumazet@google.com>,
+        Jakub Kicinski <kuba@kernel.org>,
+        Paolo Abeni <pabeni@redhat.com>, netdev@vger.kernel.org,
+        Kees Cook <keescook@chromium.org>,
+        Simon Horman <simon.horman@corigine.com>,
+        Cong Wang <cong.wang@bytedance.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 07/83] selftests/bpf: Verify copy_register_state() preserves parent/live fields
+Subject: [PATCH 5.4 096/156] net: sched: sch: Bounds check priority
 Date:   Mon, 20 Feb 2023 14:35:40 +0100
-Message-Id: <20230220133553.945877402@linuxfoundation.org>
+Message-Id: <20230220133606.471631231@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230220133553.669025851@linuxfoundation.org>
-References: <20230220133553.669025851@linuxfoundation.org>
+In-Reply-To: <20230220133602.515342638@linuxfoundation.org>
+References: <20230220133602.515342638@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
         SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -53,65 +61,55 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eduard Zingerman <eddyz87@gmail.com>
+From: Kees Cook <keescook@chromium.org>
 
-[ Upstream commit b9fa9bc839291020b362ab5392e5f18ba79657ac ]
+[ Upstream commit de5ca4c3852f896cacac2bf259597aab5e17d9e3 ]
 
-A testcase to check that verifier.c:copy_register_state() preserves
-register parentage chain and livness information.
+Nothing was explicitly bounds checking the priority index used to access
+clpriop[]. WARN and bail out early if it's pathological. Seen with GCC 13:
 
-Signed-off-by: Eduard Zingerman <eddyz87@gmail.com>
-Link: https://lore.kernel.org/r/20230106142214.1040390-3-eddyz87@gmail.com
-Signed-off-by: Alexei Starovoitov <ast@kernel.org>
+../net/sched/sch_htb.c: In function 'htb_activate_prios':
+../net/sched/sch_htb.c:437:44: warning: array subscript [0, 31] is outside array bounds of 'struct htb_prio[8]' [-Warray-bounds=]
+  437 |                         if (p->inner.clprio[prio].feed.rb_node)
+      |                             ~~~~~~~~~~~~~~~^~~~~~
+../net/sched/sch_htb.c:131:41: note: while referencing 'clprio'
+  131 |                         struct htb_prio clprio[TC_HTB_NUMPRIO];
+      |                                         ^~~~~~
+
+Cc: Jamal Hadi Salim <jhs@mojatatu.com>
+Cc: Cong Wang <xiyou.wangcong@gmail.com>
+Cc: Jiri Pirko <jiri@resnulli.us>
+Cc: "David S. Miller" <davem@davemloft.net>
+Cc: Eric Dumazet <edumazet@google.com>
+Cc: Jakub Kicinski <kuba@kernel.org>
+Cc: Paolo Abeni <pabeni@redhat.com>
+Cc: netdev@vger.kernel.org
+Signed-off-by: Kees Cook <keescook@chromium.org>
+Reviewed-by: Simon Horman <simon.horman@corigine.com>
+Reviewed-by: Cong Wang <cong.wang@bytedance.com>
+Link: https://lore.kernel.org/r/20230127224036.never.561-kees@kernel.org
+Signed-off-by: Paolo Abeni <pabeni@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- .../selftests/bpf/verifier/search_pruning.c   | 36 +++++++++++++++++++
- 1 file changed, 36 insertions(+)
+ net/sched/sch_htb.c | 5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
 
-diff --git a/tools/testing/selftests/bpf/verifier/search_pruning.c b/tools/testing/selftests/bpf/verifier/search_pruning.c
-index 7e50cb80873a5..7e36078f8f482 100644
---- a/tools/testing/selftests/bpf/verifier/search_pruning.c
-+++ b/tools/testing/selftests/bpf/verifier/search_pruning.c
-@@ -154,3 +154,39 @@
- 	.result_unpriv = ACCEPT,
- 	.insn_processed = 15,
- },
-+/* The test performs a conditional 64-bit write to a stack location
-+ * fp[-8], this is followed by an unconditional 8-bit write to fp[-8],
-+ * then data is read from fp[-8]. This sequence is unsafe.
-+ *
-+ * The test would be mistakenly marked as safe w/o dst register parent
-+ * preservation in verifier.c:copy_register_state() function.
-+ *
-+ * Note the usage of BPF_F_TEST_STATE_FREQ to force creation of the
-+ * checkpoint state after conditional 64-bit assignment.
-+ */
-+{
-+	"write tracking and register parent chain bug",
-+	.insns = {
-+	/* r6 = ktime_get_ns() */
-+	BPF_EMIT_CALL(BPF_FUNC_ktime_get_ns),
-+	BPF_MOV64_REG(BPF_REG_6, BPF_REG_0),
-+	/* r0 = ktime_get_ns() */
-+	BPF_EMIT_CALL(BPF_FUNC_ktime_get_ns),
-+	/* if r0 > r6 goto +1 */
-+	BPF_JMP_REG(BPF_JGT, BPF_REG_0, BPF_REG_6, 1),
-+	/* *(u64 *)(r10 - 8) = 0xdeadbeef */
-+	BPF_ST_MEM(BPF_DW, BPF_REG_FP, -8, 0xdeadbeef),
-+	/* r1 = 42 */
-+	BPF_MOV64_IMM(BPF_REG_1, 42),
-+	/* *(u8 *)(r10 - 8) = r1 */
-+	BPF_STX_MEM(BPF_B, BPF_REG_FP, BPF_REG_1, -8),
-+	/* r2 = *(u64 *)(r10 - 8) */
-+	BPF_LDX_MEM(BPF_DW, BPF_REG_2, BPF_REG_FP, -8),
-+	/* exit(0) */
-+	BPF_MOV64_IMM(BPF_REG_0, 0),
-+	BPF_EXIT_INSN(),
-+	},
-+	.flags = BPF_F_TEST_STATE_FREQ,
-+	.errstr = "invalid read from stack off -8+1 size 8",
-+	.result = REJECT,
-+},
+diff --git a/net/sched/sch_htb.c b/net/sched/sch_htb.c
+index 8184c87da8bec..e635713cb41dd 100644
+--- a/net/sched/sch_htb.c
++++ b/net/sched/sch_htb.c
+@@ -405,7 +405,10 @@ static void htb_activate_prios(struct htb_sched *q, struct htb_class *cl)
+ 	while (cl->cmode == HTB_MAY_BORROW && p && mask) {
+ 		m = mask;
+ 		while (m) {
+-			int prio = ffz(~m);
++			unsigned int prio = ffz(~m);
++
++			if (WARN_ON_ONCE(prio > ARRAY_SIZE(p->inner.clprio)))
++				break;
+ 			m &= ~(1 << prio);
+ 
+ 			if (p->inner.clprio[prio].feed.rb_node)
 -- 
 2.39.0
 
