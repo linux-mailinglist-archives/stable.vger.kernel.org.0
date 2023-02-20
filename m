@@ -2,32 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 80E3A69CC63
-	for <lists+stable@lfdr.de>; Mon, 20 Feb 2023 14:39:51 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id DE4DC69CE5F
+	for <lists+stable@lfdr.de>; Mon, 20 Feb 2023 14:59:14 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231255AbjBTNjs (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Feb 2023 08:39:48 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48358 "EHLO
+        id S232707AbjBTN7H (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Feb 2023 08:59:07 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50310 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231779AbjBTNjr (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 20 Feb 2023 08:39:47 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 323081C58E
-        for <stable@vger.kernel.org>; Mon, 20 Feb 2023 05:39:46 -0800 (PST)
+        with ESMTP id S232709AbjBTN7D (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 20 Feb 2023 08:59:03 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4527A1EBFA
+        for <stable@vger.kernel.org>; Mon, 20 Feb 2023 05:58:38 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id C542860CBA
-        for <stable@vger.kernel.org>; Mon, 20 Feb 2023 13:39:45 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D4000C433EF;
-        Mon, 20 Feb 2023 13:39:44 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 7BE86B80D4D
+        for <stable@vger.kernel.org>; Mon, 20 Feb 2023 13:58:36 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E22DFC433EF;
+        Mon, 20 Feb 2023 13:58:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1676900385;
-        bh=Tc2eBLjq4GbZ0hezjYUmysnEKwUod06dHLQ6yDdiHAE=;
+        s=korg; t=1676901515;
+        bh=LjnptQC/m9gst/345v1qhBUFZbG3h7rSVOpc8+YXL8Q=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=dNaMRZz/EZtNrfnEnDZ/+kaLZg8P8E4miLE5ADNoWSh+5xhP1PrZJjR8yhgAzafc7
-         PwuE2r9ElwTtpqPm8ygC6ZZepqOeCI+0F4ft7CZE8FVbxQzZ1tRepCOCtI8fxQjSGS
-         LjiauugKdjzagP2IevQJ33J9KvN+Lb7uza0L+Qes=
+        b=1lW+j4ZtjTReX7x+qdt6LnLrd+/uoxmPSLAbn4Gtd1FgzyUcfpq7N5Q69FoNrt3QV
+         pjQ801kmVtEtMolZlMOWFuZSy9EGUipI6x5Jb+rzz8vKG26PpIl+UwYAdgJdiniS8P
+         uEBrZ0ZhOrqOj3VV8fdYBYkF3/2iZiL/6p6sC4Vg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
@@ -38,19 +38,20 @@ Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         Jann Horn <jannh@google.com>,
         Pavel Emelyanov <xemul@parallels.com>,
         Andrew Morton <akpm@linux-foundation.org>
-Subject: [PATCH 4.14 37/53] aio: fix mremap after fork null-deref
+Subject: [PATCH 6.1 047/118] aio: fix mremap after fork null-deref
 Date:   Mon, 20 Feb 2023 14:36:03 +0100
-Message-Id: <20230220133549.497592906@linuxfoundation.org>
+Message-Id: <20230220133602.319103879@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230220133548.158615609@linuxfoundation.org>
-References: <20230220133548.158615609@linuxfoundation.org>
+In-Reply-To: <20230220133600.368809650@linuxfoundation.org>
+References: <20230220133600.368809650@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
-        SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
+X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
+        SPF_HELO_NONE,SPF_PASS autolearn=unavailable autolearn_force=no
+        version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
@@ -83,7 +84,7 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 --- a/fs/aio.c
 +++ b/fs/aio.c
-@@ -328,6 +328,9 @@ static int aio_ring_mremap(struct vm_are
+@@ -361,6 +361,9 @@ static int aio_ring_mremap(struct vm_are
  	spin_lock(&mm->ioctx_lock);
  	rcu_read_lock();
  	table = rcu_dereference(mm->ioctx_table);
@@ -93,7 +94,7 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
  	for (i = 0; i < table->nr; i++) {
  		struct kioctx *ctx;
  
-@@ -341,6 +344,7 @@ static int aio_ring_mremap(struct vm_are
+@@ -374,6 +377,7 @@ static int aio_ring_mremap(struct vm_are
  		}
  	}
  
