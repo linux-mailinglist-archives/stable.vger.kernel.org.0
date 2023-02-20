@@ -2,43 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E0AD669CE95
-	for <lists+stable@lfdr.de>; Mon, 20 Feb 2023 15:00:33 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 773BE69CCBD
+	for <lists+stable@lfdr.de>; Mon, 20 Feb 2023 14:43:18 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232721AbjBTOAc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Feb 2023 09:00:32 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52988 "EHLO
+        id S232190AbjBTNnQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Feb 2023 08:43:16 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53844 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232755AbjBTOAb (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 20 Feb 2023 09:00:31 -0500
+        with ESMTP id S231208AbjBTNnP (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 20 Feb 2023 08:43:15 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C68721EFE1
-        for <stable@vger.kernel.org>; Mon, 20 Feb 2023 06:00:03 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 29CB74220
+        for <stable@vger.kernel.org>; Mon, 20 Feb 2023 05:43:08 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id A8D8D60EA0
-        for <stable@vger.kernel.org>; Mon, 20 Feb 2023 14:00:03 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B6C97C4339E;
-        Mon, 20 Feb 2023 14:00:02 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id AC36D60EA5
+        for <stable@vger.kernel.org>; Mon, 20 Feb 2023 13:43:07 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id BA1A6C433EF;
+        Mon, 20 Feb 2023 13:43:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1676901603;
-        bh=XXlbk3WDPGB58e5sC4aR1PCh1B2pxHCCrRIj7oECMJ8=;
+        s=korg; t=1676900587;
+        bh=NZiF6uuU/REmkP9MqhQkEhocj4JvOaNOBWSK4F77vlo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=xC5Fb2ZOcRSDlJP4hCdIi2BXEoRNCuWQ/Gvg4gCtc6emOCYPlhBR0G5LJHhJMFie6
-         qnTlPMNSfikNctN++6+8BEuP78c74E4nKkq7zdwL3cbwDCzA30bR/g97bAWSjmPjzr
-         csqGtqIMr1ROjYMOuWIMcW5D4WRGiCiapsp8u0BI=
+        b=aJ8euRrcNR2pX9FjCSXR4BJ+BQe8IlZevI7y4gdzP9kvFejNTOx3QT54OLFQfq5yF
+         5o4sJZlgMZ++IRkEzWQwzn5OZ/OrEGL9rFdZtVDRxKKndD8RbkwaYGLkB5gvN1jHOe
+         pLUisryT8ZTOrfkVI367fksPdyacIsKTt9MjN/KI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Andy Chi <andy.chi@canonical.com>,
-        Takashi Iwai <tiwai@suse.de>
-Subject: [PATCH 6.1 063/118] ALSA: hda/realtek: Enable mute/micmute LEDs and speaker support for HP Laptops
+        patches@lists.linux.dev, Johannes Zink <j.zink@pengutronix.de>,
+        Jakub Kicinski <kuba@kernel.org>
+Subject: [PATCH 4.19 80/89] net: stmmac: fix order of dwmac5 FlexPPS parametrization sequence
 Date:   Mon, 20 Feb 2023 14:36:19 +0100
-Message-Id: <20230220133602.959329240@linuxfoundation.org>
+Message-Id: <20230220133555.988475170@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230220133600.368809650@linuxfoundation.org>
-References: <20230220133600.368809650@linuxfoundation.org>
+In-Reply-To: <20230220133553.066768704@linuxfoundation.org>
+References: <20230220133553.066768704@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -52,36 +52,61 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Andy Chi <andy.chi@canonical.com>
+From: Johannes Zink <j.zink@pengutronix.de>
 
-commit 9251584af09285133bec0595e5c7218fe2e595c9 upstream.
+commit 4562c65ec852067c6196abdcf2d925f08841dcbc upstream.
 
-On HP Laptops, requires the ALC245_FIXUP_CS35L41_SPI_2_HP_GPIO_LED quirk to
-make its audio LEDs and speaker work.
+So far changing the period by just setting new period values while
+running did not work.
 
-Signed-off-by: Andy Chi <andy.chi@canonical.com>
-Cc: <stable@vger.kernel.org>
-Link: https://lore.kernel.org/r/20230214140432.39654-1-andy.chi@canonical.com
-Signed-off-by: Takashi Iwai <tiwai@suse.de>
+The order as indicated by the publicly available reference manual of the i.MX8MP [1]
+indicates a sequence:
+
+ * initiate the programming sequence
+ * set the values for PPS period and start time
+ * start the pulse train generation.
+
+This is currently not used in dwmac5_flex_pps_config(), which instead does:
+
+ * initiate the programming sequence and immediately start the pulse train generation
+ * set the values for PPS period and start time
+
+This caused the period values written not to take effect until the FlexPPS output was
+disabled and re-enabled again.
+
+This patch fix the order and allows the period to be set immediately.
+
+[1] https://www.nxp.com/webapp/Download?colCode=IMX8MPRM
+
+Fixes: 9a8a02c9d46d ("net: stmmac: Add Flexible PPS support")
+Signed-off-by: Johannes Zink <j.zink@pengutronix.de>
+Link: https://lore.kernel.org/r/20230210143937.3427483-1-j.zink@pengutronix.de
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- sound/pci/hda/patch_realtek.c |    6 ++++++
- 1 file changed, 6 insertions(+)
+ drivers/net/ethernet/stmicro/stmmac/dwmac5.c |    3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
---- a/sound/pci/hda/patch_realtek.c
-+++ b/sound/pci/hda/patch_realtek.c
-@@ -9432,6 +9432,12 @@ static const struct snd_pci_quirk alc269
- 	 SND_PCI_QUIRK(0x103c, 0x8abb, "HP ZBook Firefly 14 G9", ALC245_FIXUP_CS35L41_SPI_2_HP_GPIO_LED),
- 	SND_PCI_QUIRK(0x103c, 0x8ad1, "HP EliteBook 840 14 inch G9 Notebook PC", ALC245_FIXUP_CS35L41_SPI_2_HP_GPIO_LED),
- 	SND_PCI_QUIRK(0x103c, 0x8ad2, "HP EliteBook 860 16 inch G9 Notebook PC", ALC245_FIXUP_CS35L41_SPI_2_HP_GPIO_LED),
-+	SND_PCI_QUIRK(0x103c, 0x8b42, "HP", ALC245_FIXUP_CS35L41_SPI_2_HP_GPIO_LED),
-+	SND_PCI_QUIRK(0x103c, 0x8b43, "HP", ALC245_FIXUP_CS35L41_SPI_2_HP_GPIO_LED),
-+	SND_PCI_QUIRK(0x103c, 0x8b44, "HP", ALC245_FIXUP_CS35L41_SPI_2_HP_GPIO_LED),
-+	SND_PCI_QUIRK(0x103c, 0x8b45, "HP", ALC245_FIXUP_CS35L41_SPI_2_HP_GPIO_LED),
-+	SND_PCI_QUIRK(0x103c, 0x8b46, "HP", ALC245_FIXUP_CS35L41_SPI_2_HP_GPIO_LED),
-+	SND_PCI_QUIRK(0x103c, 0x8b47, "HP", ALC245_FIXUP_CS35L41_SPI_2_HP_GPIO_LED),
- 	SND_PCI_QUIRK(0x103c, 0x8b5d, "HP", ALC236_FIXUP_HP_MUTE_LED_MICMUTE_VREF),
- 	SND_PCI_QUIRK(0x103c, 0x8b5e, "HP", ALC236_FIXUP_HP_MUTE_LED_MICMUTE_VREF),
- 	SND_PCI_QUIRK(0x103c, 0x8b7a, "HP", ALC236_FIXUP_HP_GPIO_LED),
+--- a/drivers/net/ethernet/stmicro/stmmac/dwmac5.c
++++ b/drivers/net/ethernet/stmicro/stmmac/dwmac5.c
+@@ -520,9 +520,9 @@ int dwmac5_flex_pps_config(void __iomem
+ 		return 0;
+ 	}
+ 
+-	val |= PPSCMDx(index, 0x2);
+ 	val |= TRGTMODSELx(index, 0x2);
+ 	val |= PPSEN0;
++	writel(val, ioaddr + MAC_PPS_CONTROL);
+ 
+ 	writel(cfg->start.tv_sec, ioaddr + MAC_PPSx_TARGET_TIME_SEC(index));
+ 
+@@ -547,6 +547,7 @@ int dwmac5_flex_pps_config(void __iomem
+ 	writel(period - 1, ioaddr + MAC_PPSx_WIDTH(index));
+ 
+ 	/* Finally, activate it */
++	val |= PPSCMDx(index, 0x2);
+ 	writel(val, ioaddr + MAC_PPS_CONTROL);
+ 	return 0;
+ }
 
 
