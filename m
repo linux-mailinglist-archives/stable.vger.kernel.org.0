@@ -2,59 +2,57 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id DA54D69CA31
-	for <lists+stable@lfdr.de>; Mon, 20 Feb 2023 12:49:24 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0683369CA33
+	for <lists+stable@lfdr.de>; Mon, 20 Feb 2023 12:49:58 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231923AbjBTLtX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Feb 2023 06:49:23 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42486 "EHLO
+        id S229596AbjBTLt4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Feb 2023 06:49:56 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42942 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231898AbjBTLtU (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 20 Feb 2023 06:49:20 -0500
-Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 90A431BF5
-        for <stable@vger.kernel.org>; Mon, 20 Feb 2023 03:49:09 -0800 (PST)
+        with ESMTP id S231908AbjBTLtw (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 20 Feb 2023 06:49:52 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 372E410C1
+        for <stable@vger.kernel.org>; Mon, 20 Feb 2023 03:49:50 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 0A042CE0F5A
-        for <stable@vger.kernel.org>; Mon, 20 Feb 2023 11:49:08 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 65C78C433EF
-        for <stable@vger.kernel.org>; Mon, 20 Feb 2023 11:49:06 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id F15F3B80CA1
+        for <stable@vger.kernel.org>; Mon, 20 Feb 2023 11:49:48 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id BC78DC433D2
+        for <stable@vger.kernel.org>; Mon, 20 Feb 2023 11:49:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1676893746;
-        bh=hKhFtO7iAn4ynoKUU51Bc3o3echp7/7sxMFS0ry2TgI=;
+        s=k20201202; t=1676893787;
+        bh=ayuVUotvjNep0klt/eT1EtD5lIjplbSW0FkKHA1zgT0=;
         h=References:In-Reply-To:From:Date:Subject:To:Cc:From;
-        b=WfWWe1fbq/JmKV+WaIJPaduhN0o9z3wQZ9sp2PZt4e/+msb8eC7WlR/5G8e3B0A0r
-         Kv4Ug4PpLpXElqm+Od1owX4duh1LXTH06kK7jk1qjhOouk2qBGB+yrDCkq95K1rwEK
-         nt6nReMeVtNC5koxtMlzkGLIVmNC+tKjW9QB36UAXcyfP6OzqM6twv4zaISwTE6yji
-         cO1dqUgu7rfobSYqw7lEKM48cpSLMquerKFOzydjOfUgZnuVxEX8Zj0nMAQi9vEyL4
-         mz4HhyKdhdlc3PxPuIjwseJFaYNXAiwNcNFpA6OB/a8B3aMyk0g8J4XwoGthv3K06z
-         4mfi2fIbE18sA==
-Received: by mail-lj1-f176.google.com with SMTP id j17so1051825ljq.11
-        for <stable@vger.kernel.org>; Mon, 20 Feb 2023 03:49:06 -0800 (PST)
-X-Gm-Message-State: AO0yUKUJdxHZhV9yKsQIx4uB4ikM583jJiDNw59SydUsSuMuScmBsafQ
-        1DKM66YJCgzARHqHA2Gk4MAMAaj7N61fCMS6h2NtnQ==
-X-Google-Smtp-Source: AK7set9lPybWNLlNOmnOEh8t3Sd1rbUyjMUMnc9L7wCbbz87QMjllNyNrgFSZwo2qj9y+Ak9J3s9qgQJwkJefoE18x8=
-X-Received: by 2002:a17:906:4a93:b0:88a:b103:212d with SMTP id
- x19-20020a1709064a9300b0088ab103212dmr4267853eju.15.1676893724254; Mon, 20
- Feb 2023 03:48:44 -0800 (PST)
+        b=l/pyl7cVpN+f7QN/21kCPtyrXRq9FgNe8BH3Z/I2aQ9SujB9mbm58Luc+wU2GdVd8
+         joMkQKa5A9AA8/RrV/V6F6b6bO9b+GLGS+/he7ECjL7c+8UQJadWTrsBv0GV+3upJ9
+         HDYm3gVq8Qix9yYrLznJt1b/XODOn7wvDfAMBgQBuVvvHX/amHPkW9qhgcsicUPbYc
+         lMbKlgcd1vXVEwbfvPOFaE3m26YgD6EackHRR2OQfL5dae4C7RC5UaOSMqiCvg/lpp
+         U7lS2vY+5ZjtrOehRN2htTVHEcQbupL5895Va6HL+u4xEMRJrZCctJKKQW78BVG44H
+         kNEH0XH3FPRBQ==
+Received: by mail-ed1-f41.google.com with SMTP id b12so3556438edd.4
+        for <stable@vger.kernel.org>; Mon, 20 Feb 2023 03:49:47 -0800 (PST)
+X-Gm-Message-State: AO0yUKUloxpqnMgmNQvAsAMfYVytD8cS3w2XspvLxHXygSSBn+gEePEU
+        NgS8HpNelBDBvGaEgZgpDMfLtRpTjtnXkyLCWmeJOQ==
+X-Google-Smtp-Source: AK7set+2jhtMyfGdWhZIPqmCD6i5d/XcG7cfGYfkcQ7d6WwBzg1bIOjkA0WOD5BMOpCWJAL9apoNMEhCAtWlOHPXJ8U=
+X-Received: by 2002:a17:906:f88f:b0:8b0:7e1d:f6fa with SMTP id
+ lg15-20020a170906f88f00b008b07e1df6famr3853325ejb.15.1676893765439; Mon, 20
+ Feb 2023 03:49:25 -0800 (PST)
 MIME-Version: 1.0
 References: <20230220103930.1963742-1-kpsingh@kernel.org> <Y/NQ6w4UlEuBSTql@kroah.com>
- <CACYkzJ7Umq_XQEAHZyPE60zhbWsSF_i-vNa7u_qCeqBgGVfC4g@mail.gmail.com>
- <Y/NXbz9V840KnVYh@kroah.com> <CACYkzJ44dwK8HZFnLNOvGSS_Uo3U0NUP_a41+t6oc8d=UAqRwA@mail.gmail.com>
- <Y/Nbu2p9CGG/nwcW@kroah.com>
-In-Reply-To: <Y/Nbu2p9CGG/nwcW@kroah.com>
+ <20230220113859.j2tidqnifzjgyros@treble>
+In-Reply-To: <20230220113859.j2tidqnifzjgyros@treble>
 From:   KP Singh <kpsingh@kernel.org>
-Date:   Mon, 20 Feb 2023 03:48:33 -0800
-X-Gmail-Original-Message-ID: <CACYkzJ73cV-DHkXnKVLTL9-+ToB=y08VWXxvqxTNpLrVbs_wTw@mail.gmail.com>
-Message-ID: <CACYkzJ73cV-DHkXnKVLTL9-+ToB=y08VWXxvqxTNpLrVbs_wTw@mail.gmail.com>
+Date:   Mon, 20 Feb 2023 03:49:14 -0800
+X-Gmail-Original-Message-ID: <CACYkzJ4TGTvsa0bk_k=u-MHUZfHqp-G8CM=wSV_dP8+Bfmfznw@mail.gmail.com>
+Message-ID: <CACYkzJ4TGTvsa0bk_k=u-MHUZfHqp-G8CM=wSV_dP8+Bfmfznw@mail.gmail.com>
 Subject: Re: [PATCH] x86/speculation: Fix user-mode spectre-v2 protection with KERNEL_IBRS
-To:     Greg KH <gregkh@linuxfoundation.org>
-Cc:     security@kernel.org, pjt@google.com, evn@google.com,
-        jpoimboe@kernel.org, tglx@linutronix.de, mingo@redhat.com,
-        bp@alien8.de, dave.hansen@linux.intel.com, x86@kernel.org,
-        hpa@zytor.com, peterz@infradead.org,
+To:     Josh Poimboeuf <jpoimboe@kernel.org>
+Cc:     Greg KH <gregkh@linuxfoundation.org>, security@kernel.org,
+        pjt@google.com, evn@google.com, tglx@linutronix.de,
+        mingo@redhat.com, bp@alien8.de, dave.hansen@linux.intel.com,
+        x86@kernel.org, hpa@zytor.com, peterz@infradead.org,
         pawan.kumar.gupta@linux.intel.com, kim.phillips@amd.com,
         alexandre.chartre@oracle.com, daniel.sneddon@linux.intel.com,
         =?UTF-8?Q?Jos=C3=A9_Oliveira?= <joseloliveira11@gmail.com>,
@@ -63,8 +61,8 @@ Cc:     security@kernel.org, pjt@google.com, evn@google.com,
         Jim Mattson <jmattson@google.com>, stable@vger.kernel.org
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
-X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
         SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -72,120 +70,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, Feb 20, 2023 at 3:38 AM Greg KH <gregkh@linuxfoundation.org> wrote:
+On Mon, Feb 20, 2023 at 3:39 AM Josh Poimboeuf <jpoimboe@kernel.org> wrote:
 >
-> On Mon, Feb 20, 2023 at 03:25:08AM -0800, KP Singh wrote:
-> > On Mon, Feb 20, 2023 at 3:20 AM Greg KH <gregkh@linuxfoundation.org> wr=
-ote:
+> On Mon, Feb 20, 2023 at 11:52:27AM +0100, Greg KH wrote:
+> > On Mon, Feb 20, 2023 at 11:39:30AM +0100, KP Singh wrote:
+> > > With the introduction of KERNEL_IBRS, STIBP is no longer needed
+> > > to prevent cross thread training in the kernel space. When KERNEL_IBR=
+S
+> > > was added, it also disabled the user-mode protections for spectre_v2.
+> > > KERNEL_IBRS does not mitigate cross thread training in the userspace.
 > > >
-> > > On Mon, Feb 20, 2023 at 03:11:24AM -0800, KP Singh wrote:
-> > > > On Mon, Feb 20, 2023 at 2:52 AM Greg KH <gregkh@linuxfoundation.org=
-> wrote:
-> > > > >
-> > > > > On Mon, Feb 20, 2023 at 11:39:30AM +0100, KP Singh wrote:
-> > > > > > With the introduction of KERNEL_IBRS, STIBP is no longer needed
-> > > > > > to prevent cross thread training in the kernel space. When KERN=
-EL_IBRS
-> > > > > > was added, it also disabled the user-mode protections for spect=
-re_v2.
-> > > > > > KERNEL_IBRS does not mitigate cross thread training in the user=
-space.
-> > > > > >
-> > > > > > In order to demonstrate the issue, one needs to avoid syscalls =
-in the
-> > > > > > victim as syscalls can shorten the window size due to
-> > > > > > a user -> kernel -> user transition which sets the
-> > > > > > IBRS bit when entering kernel space and clearing any training t=
-he
-> > > > > > attacker may have done.
-> > > > > >
-> > > > > > Allow users to select a spectre_v2_user mitigation (STIBP alway=
-s on,
-> > > > > > opt-in via prctl) when KERNEL_IBRS is enabled.
-> > > > > >
-> > > > > > Reported-by: Jos=C3=A9 Oliveira <joseloliveira11@gmail.com>
-> > > > > > Reported-by: Rodrigo Branco <rodrigo@kernelhacking.com>
-> > > > > > Reviewed-by: Alexandra Sandulescu <aesa@google.com>
-> > > > > > Reviewed-by: Jim Mattson <jmattson@google.com>
-> > > > > > Fixes: 7c693f54c873 ("x86/speculation: Add spectre_v2=3Dibrs op=
-tion to support Kernel IBRS")
-> > > > > > Cc: stable@vger.kernel.org
-> > > > > > Signed-off-by: KP Singh <kpsingh@kernel.org>
-> > > > > > ---
-> > > > > >  arch/x86/kernel/cpu/bugs.c | 25 +++++++++++++++++--------
-> > > > > >  1 file changed, 17 insertions(+), 8 deletions(-)
-> > > > >
-> > > > > As this is posted publicly, there's no need to send it to
-> > > > > security@kernel.org, it doesn't need to be involved.
-> > > >
-> > > > Sure, it's okay. Please do note in my first patch, I did follow
-> > > > https://www.kernel.org/doc/Documentation/admin-guide/security-bugs.=
-rst,
-> > > > if you want folks to explicitly Cc maintainers with their fix or
-> > > > report, I think it's worth mentioning in the guidelines there as th=
-e
-> > > > current language seems to imply that the maintainers will be pulled=
- in
-> > > > by the security team:
-> > > >
-> > > > "It is possible that the security team will bring in extra help fro=
-m
-> > > > area maintainers to understand and fix the security vulnerability."
+> > > In order to demonstrate the issue, one needs to avoid syscalls in the
+> > > victim as syscalls can shorten the window size due to
+> > > a user -> kernel -> user transition which sets the
+> > > IBRS bit when entering kernel space and clearing any training the
+> > > attacker may have done.
 > > >
-> > > Yes, but you already have a patch here, what "help" do you need?  You
-> > > didn't specify any help, you just sent us a patch with no context.  T=
-his
-> > > wasn't any sort of a "report" or "hey, I think we found a problem ove=
-r
-> > > here, does this change look correct", right?
+> > > Allow users to select a spectre_v2_user mitigation (STIBP always on,
+> > > opt-in via prctl) when KERNEL_IBRS is enabled.
 > > >
-> > > So please be specific as to what you are asking for, otherwise we hav=
-e
-> > > to guess (i.e. you cc:ed a seemingly random set of people but not the
+> > > Reported-by: Jos=C3=A9 Oliveira <joseloliveira11@gmail.com>
+> > > Reported-by: Rodrigo Branco <rodrigo@kernelhacking.com>
+> > > Reviewed-by: Alexandra Sandulescu <aesa@google.com>
+> > > Reviewed-by: Jim Mattson <jmattson@google.com>
+> > > Fixes: 7c693f54c873 ("x86/speculation: Add spectre_v2=3Dibrs option t=
+o support Kernel IBRS")
+> > > Cc: stable@vger.kernel.org
+> > > Signed-off-by: KP Singh <kpsingh@kernel.org>
+> > > ---
+> > >  arch/x86/kernel/cpu/bugs.c | 25 +++++++++++++++++--------
+> > >  1 file changed, 17 insertions(+), 8 deletions(-)
 > >
-> > I don't see how it matters who I cc on the list.
+> > As this is posted publicly, there's no need to send it to
+> > security@kernel.org, it doesn't need to be involved.
 >
-> It gives us a hint as to who you are leaving out, right?
->
-> > Anyways, I am still
-> > not clear on what one is supposed to do in the case when one has a
-> > patch for an issue already. Should this not be send it to security@?
->
-> security@ is to take reports of potential security problems, triage
-> them, and drag in the respective people to fix the problem as soon as
-> possible by creating a patch and getting it merged.
->
-> You already had a patch, so you did all of the work that security@ would
-> normally do, so what did you need us to do here?
->
-> You also did not ask or request anything, you just sent a patch with no
-> context other than the changelog text.
->
-> So if you have a fix for a potential problem already, you either just
-> send it to get it merged as soon as possible, in which case security@ is
-> not needed.  Or if you want to ask questions "is this really an issue
-> and is this the fix", then send the patch and ask that question.
->
-> Again, as it is, this looks like any other normal patch sent to
-> subsystems for review, and there was no request for help or context at
-> all.  Then you sent the patch to a public mailing list, so security@ is
-> not needed at al, the normal development process applies as you
-> determined it's not a secret by doing so.
->
-> If you have questions, ask them, we can't read minds.
+> Also, since this seems intended to be public, please add lkml to Cc on
+> the next revision.
 
-When one sends a report with the fix to security@kernel.org, the ask /
-request is they are asking for a review and having it merged. Now, I
-thought this is implied with the patch, but maybe something else is
-expected and I should have added a cover letter specifically asking
-what was expected.
-
-In this case, I did not intend to make it public initially and would
-have preferred to not make it public until it was merged, until I was
-nudged to read https://people.kernel.org/tglx/notes-about-netiquette.
-Anyways, what's done is done, let's focus on fixing the bug.
+Sure.
 
 >
-> thanks,
->
-> greg k-h
+> --
+> Josh
