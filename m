@@ -2,41 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 3EC3D69CD31
-	for <lists+stable@lfdr.de>; Mon, 20 Feb 2023 14:47:26 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 05EC269CD35
+	for <lists+stable@lfdr.de>; Mon, 20 Feb 2023 14:47:34 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232288AbjBTNrY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Feb 2023 08:47:24 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60180 "EHLO
+        id S232313AbjBTNrb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Feb 2023 08:47:31 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60380 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232276AbjBTNrX (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 20 Feb 2023 08:47:23 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 50E0B1E1EC
-        for <stable@vger.kernel.org>; Mon, 20 Feb 2023 05:47:05 -0800 (PST)
+        with ESMTP id S232303AbjBTNr3 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 20 Feb 2023 08:47:29 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 558471E28D
+        for <stable@vger.kernel.org>; Mon, 20 Feb 2023 05:47:12 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 9FB64B80D1F
-        for <stable@vger.kernel.org>; Mon, 20 Feb 2023 13:47:03 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id F2964C433D2;
-        Mon, 20 Feb 2023 13:47:01 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 358EDB80B96
+        for <stable@vger.kernel.org>; Mon, 20 Feb 2023 13:47:06 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8244BC433D2;
+        Mon, 20 Feb 2023 13:47:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1676900822;
-        bh=ep643o6owxTcqb5col+8TTJuDH0Kmi1U8qOUMaF+nCQ=;
+        s=korg; t=1676900824;
+        bh=v7PgzbYcV9XVcNe49KNTK6Fgd0pCctyWGcZZLuv4D7E=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=QcUtsNO6sJ0xUdJ10UVSZb2hBcmu+8JaomorGWcxWjhYkTnX8LMExAZ5PEQFs7PQY
-         6npM1H5WeFhHIcltcNvJBzucOdaLhp+qalqa7c1d+FdQ3aAISeaykDgfJFh/GR+Z4z
-         9PYrPRh5bHr6lMJQaJkm0qqvl0hKrNAjOztG1qek=
+        b=jxKRqkFmiQr5jxUMVEEFjawA/vTxwOqD/p5vyYtF5DMCCojvt8mEOgSSG7dLcLp4p
+         RqGaw7keTLr07Wi3CtLXgj/DAPAcpx5Pz0BrxxNccOJDt8Ln6I/qJvngQQc7C8OhDW
+         tpmbl0dURkpKoe89u2u+/Lg0ZPJaPlLP6NuqyNvM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Miroslav Zatko <mzatko@mirexoft.com>,
-        Dennis Wassenberg <dennis.wassenberg@secunet.com>,
-        Mark Pearson <mpearson-lenovo@squebb.ca>
-Subject: [PATCH 5.4 081/156] usb: core: add quirk for Alcor Link AK9563 smartcard reader
-Date:   Mon, 20 Feb 2023 14:35:25 +0100
-Message-Id: <20230220133605.797468693@linuxfoundation.org>
+        patches@lists.linux.dev, Diana Zigterman <dzigterman@chromium.org>,
+        Prashant Malani <pmalani@chromium.org>
+Subject: [PATCH 5.4 082/156] usb: typec: altmodes/displayport: Fix probe pin assign check
+Date:   Mon, 20 Feb 2023 14:35:26 +0100
+Message-Id: <20230220133605.839825190@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
 In-Reply-To: <20230220133602.515342638@linuxfoundation.org>
 References: <20230220133602.515342638@linuxfoundation.org>
@@ -44,8 +43,8 @@ User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
         SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -53,38 +52,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mark Pearson <mpearson-lenovo@squebb.ca>
+From: Prashant Malani <pmalani@chromium.org>
 
-commit 303e724d7b1e1a0a93daf0b1ab5f7c4f53543b34 upstream.
+commit 54e5c00a4eb0a4c663445b245f641bbfab142430 upstream.
 
-The Alcor Link AK9563 smartcard reader used on some Lenovo platforms
-doesn't work. If LPM is enabled the reader will provide an invalid
-usb config descriptor. Added quirk to disable LPM.
+While checking Pin Assignments of the port and partner during probe, we
+don't take into account whether the peripheral is a plug or receptacle.
 
-Verified fix on Lenovo P16 G1 and T14 G3
+This manifests itself in a mode entry failure on certain docks and
+dongles with captive cables. For instance, the Startech.com Type-C to DP
+dongle (Model #CDP2DP) advertises its DP VDO as 0x405. This would fail
+the Pin Assignment compatibility check, despite it supporting
+Pin Assignment C as a UFP.
 
-Tested-by: Miroslav Zatko <mzatko@mirexoft.com>
-Tested-by: Dennis Wassenberg <dennis.wassenberg@secunet.com>
+Update the check to use the correct DP Pin Assign macros that
+take the peripheral's receptacle bit into account.
+
+Fixes: c1e5c2f0cb8a ("usb: typec: altmodes/displayport: correct pin assignment for UFP receptacles")
 Cc: stable@vger.kernel.org
-Signed-off-by: Dennis Wassenberg <dennis.wassenberg@secunet.com>
-Signed-off-by: Mark Pearson <mpearson-lenovo@squebb.ca>
-Link: https://lore.kernel.org/r/20230208181223.1092654-1-mpearson-lenovo@squebb.ca
+Reported-by: Diana Zigterman <dzigterman@chromium.org>
+Signed-off-by: Prashant Malani <pmalani@chromium.org>
+Link: https://lore.kernel.org/r/20230208205318.131385-1-pmalani@chromium.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/usb/core/quirks.c |    3 +++
- 1 file changed, 3 insertions(+)
+ drivers/usb/typec/altmodes/displayport.c |    8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
 
---- a/drivers/usb/core/quirks.c
-+++ b/drivers/usb/core/quirks.c
-@@ -527,6 +527,9 @@ static const struct usb_device_id usb_qu
- 	/* DJI CineSSD */
- 	{ USB_DEVICE(0x2ca3, 0x0031), .driver_info = USB_QUIRK_NO_LPM },
+--- a/drivers/usb/typec/altmodes/displayport.c
++++ b/drivers/usb/typec/altmodes/displayport.c
+@@ -522,10 +522,10 @@ int dp_altmode_probe(struct typec_altmod
+ 	/* FIXME: Port can only be DFP_U. */
  
-+	/* Alcor Link AK9563 SC Reader used in 2022 Lenovo ThinkPads */
-+	{ USB_DEVICE(0x2ce3, 0x9563), .driver_info = USB_QUIRK_NO_LPM },
-+
- 	/* DELL USB GEN2 */
- 	{ USB_DEVICE(0x413c, 0xb062), .driver_info = USB_QUIRK_NO_LPM | USB_QUIRK_RESET_RESUME },
+ 	/* Make sure we have compatiple pin configurations */
+-	if (!(DP_CAP_DFP_D_PIN_ASSIGN(port->vdo) &
+-	      DP_CAP_UFP_D_PIN_ASSIGN(alt->vdo)) &&
+-	    !(DP_CAP_UFP_D_PIN_ASSIGN(port->vdo) &
+-	      DP_CAP_DFP_D_PIN_ASSIGN(alt->vdo)))
++	if (!(DP_CAP_PIN_ASSIGN_DFP_D(port->vdo) &
++	      DP_CAP_PIN_ASSIGN_UFP_D(alt->vdo)) &&
++	    !(DP_CAP_PIN_ASSIGN_UFP_D(port->vdo) &
++	      DP_CAP_PIN_ASSIGN_DFP_D(alt->vdo)))
+ 		return -ENODEV;
  
+ 	ret = sysfs_create_group(&alt->dev.kobj, &dp_altmode_group);
 
 
