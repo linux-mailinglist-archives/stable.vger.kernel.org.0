@@ -2,56 +2,52 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 7580E69CDC4
-	for <lists+stable@lfdr.de>; Mon, 20 Feb 2023 14:52:37 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7632869CE38
+	for <lists+stable@lfdr.de>; Mon, 20 Feb 2023 14:57:32 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232475AbjBTNwg (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Feb 2023 08:52:36 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40126 "EHLO
+        id S232636AbjBTN50 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Feb 2023 08:57:26 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47280 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232473AbjBTNwf (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 20 Feb 2023 08:52:35 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B2F911E9C3
-        for <stable@vger.kernel.org>; Mon, 20 Feb 2023 05:52:33 -0800 (PST)
+        with ESMTP id S232644AbjBTN5S (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 20 Feb 2023 08:57:18 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 80EA51EBED
+        for <stable@vger.kernel.org>; Mon, 20 Feb 2023 05:56:52 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 5479560E8A
-        for <stable@vger.kernel.org>; Mon, 20 Feb 2023 13:52:33 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3E174C433EF;
-        Mon, 20 Feb 2023 13:52:32 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id DA74360E8A
+        for <stable@vger.kernel.org>; Mon, 20 Feb 2023 13:56:22 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id F0756C4339B;
+        Mon, 20 Feb 2023 13:56:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1676901152;
-        bh=CP6eFkIzIFjza+tNufoCAtEueSTNLaRmSndmwBn93FU=;
+        s=korg; t=1676901382;
+        bh=gg9l30VrfRNfwS+vaKboHqt5P7651ME5d+Nd4lXgvxE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=WGjcujICCI0aO4UQqdS2zEJ95YiPCdyHtr/iHtdiWHgXsKmI2gPt+SeaH9Dr4aqFR
-         CkyQqWRgKjQruchDebQn/jIOg9HOp06kGvteeVMLJehzGJJZuVLiR5Q5YIFbnlEXKq
-         3bgF+y/dRkGfKioLIviC4kQXL5xg1b7By/tmeAyY=
+        b=uut3P8yfWi5FVZWsoCYncqkcbGcmkMXLP6BZzrfDOTW1RdNnubdUIWJvx/PowbXwo
+         RS1KJYDiaQwyclaS9nM/VW7ma6ft/tOPcpFXQAXV6tv7ndjLzSIHqeVTwncxntkxDg
+         Inmy6CBTgSQu1CwCvlHC/7OPyJ1mV9ZjTE1Kw7LU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Mike Kravetz <mike.kravetz@oracle.com>,
-        Naresh Kamboju <naresh.kamboju@linaro.org>,
-        Jesper Juhl <jesperjuhl76@gmail.com>,
-        Muchun Song <songmuchun@bytedance.com>,
-        Linux Kernel Functional Testing <lkft@linaro.org>,
-        Anders Roxell <anders.roxell@linaro.org>,
-        Andi Kleen <ak@linux.intel.com>,
-        Sasha Levin <sashal@kernel.org>,
-        Andrew Morton <akpm@linux-foundation.org>
-Subject: [PATCH 5.15 49/83] hugetlb: check for undefined shift on 32 bit architectures
+        patches@lists.linux.dev, kernel test robot <lkp@intel.com>,
+        Dan Carpenter <error27@gmail.com>,
+        "Russell King (Oracle)" <rmk+kernel@armlinux.org.uk>,
+        Srinivas Kandagatla <srinivas.kandagatla@linaro.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 14/57] nvmem: core: fix cleanup after dev_set_name()
 Date:   Mon, 20 Feb 2023 14:36:22 +0100
-Message-Id: <20230220133555.378372869@linuxfoundation.org>
+Message-Id: <20230220133549.870438112@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230220133553.669025851@linuxfoundation.org>
-References: <20230220133553.669025851@linuxfoundation.org>
+In-Reply-To: <20230220133549.360169435@linuxfoundation.org>
+References: <20230220133549.360169435@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
         SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -59,63 +55,97 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mike Kravetz <mike.kravetz@oracle.com>
+From: Russell King (Oracle) <rmk+kernel@armlinux.org.uk>
 
-commit ec4288fe63966b26d53907212ecd05dfa81dd2cc upstream.
+[ Upstream commit 560181d3ace61825f4ca9dd3481d6c0ee6709fa8 ]
 
-Users can specify the hugetlb page size in the mmap, shmget and
-memfd_create system calls.  This is done by using 6 bits within the flags
-argument to encode the base-2 logarithm of the desired page size.  The
-routine hstate_sizelog() uses the log2 value to find the corresponding
-hugetlb hstate structure.  Converting the log2 value (page_size_log) to
-potential hugetlb page size is the simple statement:
+If dev_set_name() fails, we leak nvmem->wp_gpio as the cleanup does not
+put this. While a minimal fix for this would be to add the gpiod_put()
+call, we can do better if we split device_register(), and use the
+tested nvmem_release() cleanup code by initialising the device early,
+and putting the device.
 
-	1UL << page_size_log
+This results in a slightly larger fix, but results in clear code.
 
-Because only 6 bits are used for page_size_log, the left shift can not be
-greater than 63.  This is fine on 64 bit architectures where a long is 64
-bits.  However, if a value greater than 31 is passed on a 32 bit
-architecture (where long is 32 bits) the shift will result in undefined
-behavior.  This was generally not an issue as the result of the undefined
-shift had to exactly match hugetlb page size to proceed.
+Note: this patch depends on "nvmem: core: initialise nvmem->id early"
+and "nvmem: core: remove nvmem_config wp_gpio".
 
-Recent improvements in runtime checking have resulted in this undefined
-behavior throwing errors such as reported below.
-
-Fix by comparing page_size_log to BITS_PER_LONG before doing shift.
-
-Link: https://lkml.kernel.org/r/20230216013542.138708-1-mike.kravetz@oracle.com
-Link: https://lore.kernel.org/lkml/CA+G9fYuei_Tr-vN9GS7SfFyU1y9hNysnf=PB7kT0=yv4MiPgVg@mail.gmail.com/
-Fixes: 42d7395feb56 ("mm: support more pagesizes for MAP_HUGETLB/SHM_HUGETLB")
-Signed-off-by: Mike Kravetz <mike.kravetz@oracle.com>
-Reported-by: Naresh Kamboju <naresh.kamboju@linaro.org>
-Reviewed-by: Jesper Juhl <jesperjuhl76@gmail.com>
-Acked-by: Muchun Song <songmuchun@bytedance.com>
-Tested-by: Linux Kernel Functional Testing <lkft@linaro.org>
-Tested-by: Naresh Kamboju <naresh.kamboju@linaro.org>
-Cc: Anders Roxell <anders.roxell@linaro.org>
-Cc: Andi Kleen <ak@linux.intel.com>
-Cc: Sasha Levin <sashal@kernel.org>
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Fixes: 5544e90c8126 ("nvmem: core: add error handling for dev_set_name")
+Cc: stable@vger.kernel.org
+Reported-by: kernel test robot <lkp@intel.com>
+Reported-by: Dan Carpenter <error27@gmail.com>
+Signed-off-by: Russell King (Oracle) <rmk+kernel@armlinux.org.uk>
+[Srini: Fixed subject line and error code handing with wp_gpio while applying.]
+Signed-off-by: Srinivas Kandagatla <srinivas.kandagatla@linaro.org>
+Link: https://lore.kernel.org/r/20230127104015.23839-6-srinivas.kandagatla@linaro.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Stable-dep-of: ab3428cfd9aa ("nvmem: core: fix registration vs use race")
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- include/linux/hugetlb.h |    5 ++++-
- 1 file changed, 4 insertions(+), 1 deletion(-)
+ drivers/nvmem/core.c | 22 ++++++++++------------
+ 1 file changed, 10 insertions(+), 12 deletions(-)
 
---- a/include/linux/hugetlb.h
-+++ b/include/linux/hugetlb.h
-@@ -684,7 +684,10 @@ static inline struct hstate *hstate_size
- 	if (!page_size_log)
- 		return &default_hstate;
+diff --git a/drivers/nvmem/core.c b/drivers/nvmem/core.c
+index 38c05fce7d740..de356cdde4ce8 100644
+--- a/drivers/nvmem/core.c
++++ b/drivers/nvmem/core.c
+@@ -627,14 +627,18 @@ struct nvmem_device *nvmem_register(const struct nvmem_config *config)
  
--	return size_to_hstate(1UL << page_size_log);
-+	if (page_size_log < BITS_PER_LONG)
-+		return size_to_hstate(1UL << page_size_log);
+ 	nvmem->id = rval;
+ 
++	nvmem->dev.type = &nvmem_provider_type;
++	nvmem->dev.bus = &nvmem_bus_type;
++	nvmem->dev.parent = config->dev;
 +
-+	return NULL;
- }
++	device_initialize(&nvmem->dev);
++
+ 	if (!config->ignore_wp)
+ 		nvmem->wp_gpio = gpiod_get_optional(config->dev, "wp",
+ 						    GPIOD_OUT_HIGH);
+ 	if (IS_ERR(nvmem->wp_gpio)) {
+-		ida_free(&nvmem_ida, nvmem->id);
+ 		rval = PTR_ERR(nvmem->wp_gpio);
+-		kfree(nvmem);
+-		return ERR_PTR(rval);
++		goto err_put_device;
+ 	}
  
- static inline struct hstate *hstate_vma(struct vm_area_struct *vma)
+ 	kref_init(&nvmem->refcnt);
+@@ -646,9 +650,6 @@ struct nvmem_device *nvmem_register(const struct nvmem_config *config)
+ 	nvmem->stride = config->stride ?: 1;
+ 	nvmem->word_size = config->word_size ?: 1;
+ 	nvmem->size = config->size;
+-	nvmem->dev.type = &nvmem_provider_type;
+-	nvmem->dev.bus = &nvmem_bus_type;
+-	nvmem->dev.parent = config->dev;
+ 	nvmem->root_only = config->root_only;
+ 	nvmem->priv = config->priv;
+ 	nvmem->type = config->type;
+@@ -671,11 +672,8 @@ struct nvmem_device *nvmem_register(const struct nvmem_config *config)
+ 		break;
+ 	}
+ 
+-	if (rval) {
+-		ida_free(&nvmem_ida, nvmem->id);
+-		kfree(nvmem);
+-		return ERR_PTR(rval);
+-	}
++	if (rval)
++		goto err_put_device;
+ 
+ 	nvmem->read_only = device_property_present(config->dev, "read-only") ||
+ 			   config->read_only || !nvmem->reg_write;
+@@ -686,7 +684,7 @@ struct nvmem_device *nvmem_register(const struct nvmem_config *config)
+ 
+ 	dev_dbg(&nvmem->dev, "Registering nvmem device %s\n", config->name);
+ 
+-	rval = device_register(&nvmem->dev);
++	rval = device_add(&nvmem->dev);
+ 	if (rval)
+ 		goto err_put_device;
+ 
+-- 
+2.39.0
+
 
 
