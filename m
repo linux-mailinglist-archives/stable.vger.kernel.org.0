@@ -2,51 +2,49 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id EAA9F69CDF6
-	for <lists+stable@lfdr.de>; Mon, 20 Feb 2023 14:54:39 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0C50F69CEB6
+	for <lists+stable@lfdr.de>; Mon, 20 Feb 2023 15:01:46 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232505AbjBTNyj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Feb 2023 08:54:39 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42976 "EHLO
+        id S232813AbjBTOBn (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Feb 2023 09:01:43 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54484 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232530AbjBTNyi (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 20 Feb 2023 08:54:38 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EA92818B39
-        for <stable@vger.kernel.org>; Mon, 20 Feb 2023 05:54:36 -0800 (PST)
+        with ESMTP id S232815AbjBTOBi (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 20 Feb 2023 09:01:38 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D145A1EFC2
+        for <stable@vger.kernel.org>; Mon, 20 Feb 2023 06:01:22 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 8610060EA5
-        for <stable@vger.kernel.org>; Mon, 20 Feb 2023 13:54:36 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 935F5C433EF;
-        Mon, 20 Feb 2023 13:54:35 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 9189EB80D4F
+        for <stable@vger.kernel.org>; Mon, 20 Feb 2023 14:00:43 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E81D4C4339B;
+        Mon, 20 Feb 2023 14:00:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1676901275;
-        bh=E4J1SfPrQ9PzXUqPoKTxAnSnXCn/cEr1/Lq0M7vCXek=;
+        s=korg; t=1676901642;
+        bh=bMFfOd/8kmoVEJG3kl4sxmv4d5YwfpyXqjkKVhpLECc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=PtiUMNq+SUYpgIVpchss+9mu6jgQrK+TiV635/4dOE70CO/Sf7WbGFv8Li6QlTsMm
-         EEJX8zNOBdGaVh5mkz0B2B0GrxrHRoU4bEmxnPtCFYvQYscHW+nW5J26iFyTBsPXkT
-         UIGtnNGqiXFKssFXQ+vMOLrDLatntqmfz9OvW6yU=
+        b=GH2Pgn2NcV3YEs/M4NJ6B08SOEM6QxuPzWmaGBl4yq1nXiwY6u7bNYNzpErwSCMK1
+         XY/kutxSnzoFO5+alkKJEUfelW91+PgRs/8DrlzR0b6jycsTxaUKtyPf84WSic15Wv
+         R6nTh423XvsmtoxfL4bpREqdO5fAmXHNN0iiupYI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        "Russell King (Oracle)" <rmk+kernel@armlinux.org.uk>,
-        Srinivas Kandagatla <srinivas.kandagatla@linaro.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 13/57] nvmem: core: remove nvmem_config wp_gpio
+        patches@lists.linux.dev, Patrick McLean <chutzpah@gentoo.org>,
+        Damien Le Moal <damien.lemoal@opensource.wdc.com>
+Subject: [PATCH 6.1 065/118] ata: libata-core: Disable READ LOG DMA EXT for Samsung MZ7LH
 Date:   Mon, 20 Feb 2023 14:36:21 +0100
-Message-Id: <20230220133549.833227674@linuxfoundation.org>
+Message-Id: <20230220133603.029430013@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230220133549.360169435@linuxfoundation.org>
-References: <20230220133549.360169435@linuxfoundation.org>
+In-Reply-To: <20230220133600.368809650@linuxfoundation.org>
+References: <20230220133600.368809650@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
         SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -54,62 +52,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Russell King (Oracle) <rmk+kernel@armlinux.org.uk>
+From: Patrick McLean <chutzpah@gentoo.org>
 
-[ Upstream commit 569653f022a29a1a44ea9de5308b657228303fa5 ]
+commit ead089577e0f55b238f980d9f62eaa90b7b64672 upstream.
 
-No one provides wp_gpio, so let's remove it to avoid issues with
-the nvmem core putting this gpio.
+Samsung MZ7LH drives are spewing messages like this in to dmesg with AMD
+SATA controllers:
 
-Cc: stable@vger.kernel.org
-Signed-off-by: Russell King (Oracle) <rmk+kernel@armlinux.org.uk>
-Signed-off-by: Srinivas Kandagatla <srinivas.kandagatla@linaro.org>
-Link: https://lore.kernel.org/r/20230127104015.23839-5-srinivas.kandagatla@linaro.org
+ata1.00: exception Emask 0x0 SAct 0x7e0000 SErr 0x0 action 0x6 frozen
+ata1.00: failed command: SEND FPDMA QUEUED
+ata1.00: cmd 64/01:88:00:00:00/00:00:00:00:00/a0 tag 17 ncq dma 512 out
+         res 40/00:01:01:4f:c2/00:00:00:00:00/00 Emask
+         0x4 (timeout)
+
+Since this was seen previously with SSD 840 EVO drives in
+https://bugzilla.kernel.org/show_bug.cgi?id=203475 let's add the same
+fix for these drives as the EVOs have, since they likely have very
+similar firmwares.
+
+Signed-off-by: Patrick McLean <chutzpah@gentoo.org>
+Signed-off-by: Damien Le Moal <damien.lemoal@opensource.wdc.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Stable-dep-of: ab3428cfd9aa ("nvmem: core: fix registration vs use race")
-Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/nvmem/core.c           | 4 +---
- include/linux/nvmem-provider.h | 2 --
- 2 files changed, 1 insertion(+), 5 deletions(-)
+ drivers/ata/libata-core.c |    3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/drivers/nvmem/core.c b/drivers/nvmem/core.c
-index 9da4edbabfe75..38c05fce7d740 100644
---- a/drivers/nvmem/core.c
-+++ b/drivers/nvmem/core.c
-@@ -627,9 +627,7 @@ struct nvmem_device *nvmem_register(const struct nvmem_config *config)
+--- a/drivers/ata/libata-core.c
++++ b/drivers/ata/libata-core.c
+@@ -4044,6 +4044,9 @@ static const struct ata_blacklist_entry
+ 	{ "Samsung SSD 870*",		NULL,	ATA_HORKAGE_NO_NCQ_TRIM |
+ 						ATA_HORKAGE_ZERO_AFTER_TRIM |
+ 						ATA_HORKAGE_NO_NCQ_ON_ATI },
++	{ "SAMSUNG*MZ7LH*",		NULL,	ATA_HORKAGE_NO_NCQ_TRIM |
++						ATA_HORKAGE_ZERO_AFTER_TRIM |
++						ATA_HORKAGE_NO_NCQ_ON_ATI, },
+ 	{ "FCCT*M500*",			NULL,	ATA_HORKAGE_NO_NCQ_TRIM |
+ 						ATA_HORKAGE_ZERO_AFTER_TRIM },
  
- 	nvmem->id = rval;
- 
--	if (config->wp_gpio)
--		nvmem->wp_gpio = config->wp_gpio;
--	else if (!config->ignore_wp)
-+	if (!config->ignore_wp)
- 		nvmem->wp_gpio = gpiod_get_optional(config->dev, "wp",
- 						    GPIOD_OUT_HIGH);
- 	if (IS_ERR(nvmem->wp_gpio)) {
-diff --git a/include/linux/nvmem-provider.h b/include/linux/nvmem-provider.h
-index 39ec67689898b..5e07f3cfad301 100644
---- a/include/linux/nvmem-provider.h
-+++ b/include/linux/nvmem-provider.h
-@@ -49,7 +49,6 @@ enum nvmem_type {
-  * @word_size:	Minimum read/write access granularity.
-  * @stride:	Minimum read/write access stride.
-  * @priv:	User context passed to read/write callbacks.
-- * @wp-gpio:	Write protect pin
-  * @ignore_wp:  Write Protect pin is managed by the provider.
-  *
-  * Note: A default "nvmem<id>" name will be assigned to the device if
-@@ -64,7 +63,6 @@ struct nvmem_config {
- 	const char		*name;
- 	int			id;
- 	struct module		*owner;
--	struct gpio_desc	*wp_gpio;
- 	const struct nvmem_cell_info	*cells;
- 	int			ncells;
- 	enum nvmem_type		type;
--- 
-2.39.0
-
 
 
