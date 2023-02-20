@@ -2,51 +2,49 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 9422769CEA1
-	for <lists+stable@lfdr.de>; Mon, 20 Feb 2023 15:01:02 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C6FD669CE16
+	for <lists+stable@lfdr.de>; Mon, 20 Feb 2023 14:55:49 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232783AbjBTOBB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Feb 2023 09:01:01 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53668 "EHLO
+        id S232570AbjBTNzs (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Feb 2023 08:55:48 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44730 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232767AbjBTOBB (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 20 Feb 2023 09:01:01 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 58AEF9009
-        for <stable@vger.kernel.org>; Mon, 20 Feb 2023 06:00:36 -0800 (PST)
+        with ESMTP id S232565AbjBTNzr (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 20 Feb 2023 08:55:47 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1680C1CAE3
+        for <stable@vger.kernel.org>; Mon, 20 Feb 2023 05:55:47 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id EADD4B80D49
-        for <stable@vger.kernel.org>; Mon, 20 Feb 2023 14:00:35 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3DB8CC4339B;
-        Mon, 20 Feb 2023 14:00:34 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id A3A4360E9D
+        for <stable@vger.kernel.org>; Mon, 20 Feb 2023 13:55:46 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B500FC433D2;
+        Mon, 20 Feb 2023 13:55:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1676901634;
-        bh=qOc9EsmfiWGGlU/1zEt8Swa7ffWNzvORTOV+CXaIt7o=;
+        s=korg; t=1676901346;
+        bh=NZiF6uuU/REmkP9MqhQkEhocj4JvOaNOBWSK4F77vlo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=0/+knQGJHMYC8C7Op93CDJrI5vL/1jotqwAKeqdTsaH3KVntI9bWCT/fdy7QqWW2h
-         Po4+U3IVAPDH8UpBPrEr499Hm8miqmdm58AK+TslHPmO60j1jfSqJaI+oPETAWnhru
-         7dvxLzkzamQrsNo3QTMzUof4n9qZBC7nALJksquI=
+        b=TyMS4aXGtRLTIT1b8ceo7e2eEkkh89KCOZ+w+59F/j3tzZyV1iWUNikcawALF/J03
+         OC2fXddH3riQJnXJuAWpEkiOr9erzEo8mbJF1KjSH2JnOK+4vZUa9chcI7eUqJOvAg
+         /f6WlyhDddmoH4y0Jv4R6q58f4mAupDMUBdIO+RE=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Jamal Hadi Salim <jhs@mojatatu.com>,
-        Pedro Tammela <pctammela@mojatatu.com>,
-        Larysa Zaremba <larysa.zaremba@intel.com>,
+        patches@lists.linux.dev, Johannes Zink <j.zink@pengutronix.de>,
         Jakub Kicinski <kuba@kernel.org>
-Subject: [PATCH 6.1 091/118] net/sched: act_ctinfo: use percpu stats
+Subject: [PATCH 5.10 39/57] net: stmmac: fix order of dwmac5 FlexPPS parametrization sequence
 Date:   Mon, 20 Feb 2023 14:36:47 +0100
-Message-Id: <20230220133604.040609451@linuxfoundation.org>
+Message-Id: <20230220133550.724168831@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230220133600.368809650@linuxfoundation.org>
-References: <20230220133600.368809650@linuxfoundation.org>
+In-Reply-To: <20230220133549.360169435@linuxfoundation.org>
+References: <20230220133549.360169435@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
         SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -54,60 +52,61 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pedro Tammela <pctammela@mojatatu.com>
+From: Johannes Zink <j.zink@pengutronix.de>
 
-commit 21c167aa0ba943a7cac2f6969814f83bb701666b upstream.
+commit 4562c65ec852067c6196abdcf2d925f08841dcbc upstream.
 
-The tc action act_ctinfo was using shared stats, fix it to use percpu stats
-since bstats_update() must be called with locks or with a percpu pointer argument.
+So far changing the period by just setting new period values while
+running did not work.
 
-tdc results:
-1..12
-ok 1 c826 - Add ctinfo action with default setting
-ok 2 0286 - Add ctinfo action with dscp
-ok 3 4938 - Add ctinfo action with valid cpmark and zone
-ok 4 7593 - Add ctinfo action with drop control
-ok 5 2961 - Replace ctinfo action zone and action control
-ok 6 e567 - Delete ctinfo action with valid index
-ok 7 6a91 - Delete ctinfo action with invalid index
-ok 8 5232 - List ctinfo actions
-ok 9 7702 - Flush ctinfo actions
-ok 10 3201 - Add ctinfo action with duplicate index
-ok 11 8295 - Add ctinfo action with invalid index
-ok 12 3964 - Replace ctinfo action with invalid goto_chain control
+The order as indicated by the publicly available reference manual of the i.MX8MP [1]
+indicates a sequence:
 
-Fixes: 24ec483cec98 ("net: sched: Introduce act_ctinfo action")
-Reviewed-by: Jamal Hadi Salim <jhs@mojatatu.com>
-Signed-off-by: Pedro Tammela <pctammela@mojatatu.com>
-Reviewed-by: Larysa Zaremba <larysa.zaremba@intel.com>
-Link: https://lore.kernel.org/r/20230210200824.444856-1-pctammela@mojatatu.com
+ * initiate the programming sequence
+ * set the values for PPS period and start time
+ * start the pulse train generation.
+
+This is currently not used in dwmac5_flex_pps_config(), which instead does:
+
+ * initiate the programming sequence and immediately start the pulse train generation
+ * set the values for PPS period and start time
+
+This caused the period values written not to take effect until the FlexPPS output was
+disabled and re-enabled again.
+
+This patch fix the order and allows the period to be set immediately.
+
+[1] https://www.nxp.com/webapp/Download?colCode=IMX8MPRM
+
+Fixes: 9a8a02c9d46d ("net: stmmac: Add Flexible PPS support")
+Signed-off-by: Johannes Zink <j.zink@pengutronix.de>
+Link: https://lore.kernel.org/r/20230210143937.3427483-1-j.zink@pengutronix.de
 Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/sched/act_ctinfo.c |    6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ drivers/net/ethernet/stmicro/stmmac/dwmac5.c |    3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
---- a/net/sched/act_ctinfo.c
-+++ b/net/sched/act_ctinfo.c
-@@ -91,7 +91,7 @@ static int tcf_ctinfo_act(struct sk_buff
- 	cp = rcu_dereference_bh(ca->params);
+--- a/drivers/net/ethernet/stmicro/stmmac/dwmac5.c
++++ b/drivers/net/ethernet/stmicro/stmmac/dwmac5.c
+@@ -520,9 +520,9 @@ int dwmac5_flex_pps_config(void __iomem
+ 		return 0;
+ 	}
  
- 	tcf_lastuse_update(&ca->tcf_tm);
--	bstats_update(&ca->tcf_bstats, skb);
-+	tcf_action_update_bstats(&ca->common, skb);
- 	action = READ_ONCE(ca->tcf_action);
+-	val |= PPSCMDx(index, 0x2);
+ 	val |= TRGTMODSELx(index, 0x2);
+ 	val |= PPSEN0;
++	writel(val, ioaddr + MAC_PPS_CONTROL);
  
- 	wlen = skb_network_offset(skb);
-@@ -210,8 +210,8 @@ static int tcf_ctinfo_init(struct net *n
- 	index = actparm->index;
- 	err = tcf_idr_check_alloc(tn, &index, a, bind);
- 	if (!err) {
--		ret = tcf_idr_create(tn, index, est, a,
--				     &act_ctinfo_ops, bind, false, flags);
-+		ret = tcf_idr_create_from_flags(tn, index, est, a,
-+						&act_ctinfo_ops, bind, flags);
- 		if (ret) {
- 			tcf_idr_cleanup(tn, index);
- 			return ret;
+ 	writel(cfg->start.tv_sec, ioaddr + MAC_PPSx_TARGET_TIME_SEC(index));
+ 
+@@ -547,6 +547,7 @@ int dwmac5_flex_pps_config(void __iomem
+ 	writel(period - 1, ioaddr + MAC_PPSx_WIDTH(index));
+ 
+ 	/* Finally, activate it */
++	val |= PPSCMDx(index, 0x2);
+ 	writel(val, ioaddr + MAC_PPS_CONTROL);
+ 	return 0;
+ }
 
 
