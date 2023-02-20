@@ -2,48 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 1283B69CE82
-	for <lists+stable@lfdr.de>; Mon, 20 Feb 2023 14:59:56 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2135F69CDA1
+	for <lists+stable@lfdr.de>; Mon, 20 Feb 2023 14:51:14 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232742AbjBTN7v (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Feb 2023 08:59:51 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51224 "EHLO
+        id S232427AbjBTNvN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Feb 2023 08:51:13 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38596 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232775AbjBTN7f (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 20 Feb 2023 08:59:35 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 941FB1F5F5
-        for <stable@vger.kernel.org>; Mon, 20 Feb 2023 05:59:17 -0800 (PST)
+        with ESMTP id S232435AbjBTNvK (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 20 Feb 2023 08:51:10 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4A2201E2AA
+        for <stable@vger.kernel.org>; Mon, 20 Feb 2023 05:51:09 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 6037960CEB
-        for <stable@vger.kernel.org>; Mon, 20 Feb 2023 13:59:17 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4C5FEC433EF;
-        Mon, 20 Feb 2023 13:59:16 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 0219BB80D43
+        for <stable@vger.kernel.org>; Mon, 20 Feb 2023 13:51:08 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 52715C433EF;
+        Mon, 20 Feb 2023 13:51:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1676901556;
-        bh=LIeNS+U7qNPIdfoEBkFXTuqkckUAEoi5zbDgutwik40=;
+        s=korg; t=1676901066;
+        bh=hUPAz7/Vrxl4ojlvrN3CtHPIGvlkHC4PrRoeJ8keh+8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=kh3sSIWT0WJV7N19ueYFAfE89kcZCc0OmkRvRZTKjyAg1Mp1wMsLd1gOXWOHi/3Me
-         BrT1TqMlhLwbO0p2eJuxqhpGWjN++3fZUGesNuIWNT3hqe9ve2aRuOGMdYEsoPaNtl
-         fofCR46+y1b4IWlCW1BAFJqcGuAZKSa8WaSFg4JE=
+        b=zEnb/HJR8uJLoiH0ZbUjQvnElTNJASBmFb35kEXI27jq/PP/yiLPNNLMj/PjzDQFf
+         HTVaopgez1zDwetEza5yqxR7ljEQ4pBCJlPFdopUgTmxYWUITyialXJo6KWBCpx9Nn
+         llB8lyHMPNTql+095ZiJ1+OQCWieqsKXF8JV44lQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Nicholas Kazlauskas <Nicholas.Kazlauskas@amd.com>,
-        Alex Hung <alex.hung@amd.com>,
-        Daniel Miess <Daniel.Miess@amd.com>,
-        Daniel Wheeler <daniel.wheeler@amd.com>,
-        Alex Deucher <alexander.deucher@amd.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 034/118] drm/amd/display: Adjust downscaling limits for dcn314
+        patches@lists.linux.dev, Amit Engel <Amit.Engel@dell.com>,
+        James Smart <jsmart2021@gmail.com>,
+        Christoph Hellwig <hch@lst.de>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.15 17/83] nvme-fc: fix a missing queue put in nvmet_fc_ls_create_association
 Date:   Mon, 20 Feb 2023 14:35:50 +0100
-Message-Id: <20230220133601.791831664@linuxfoundation.org>
+Message-Id: <20230220133554.303859497@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230220133600.368809650@linuxfoundation.org>
-References: <20230220133600.368809650@linuxfoundation.org>
+In-Reply-To: <20230220133553.669025851@linuxfoundation.org>
+References: <20230220133553.669025851@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -57,52 +53,39 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Daniel Miess <Daniel.Miess@amd.com>
+From: Amit Engel <Amit.Engel@dell.com>
 
-[ Upstream commit dd2db2dc4bd298f33dea50c80c3c11bee4e3b0a4 ]
+[ Upstream commit 0cab4404874f2de52617de8400c844891c6ea1ce ]
 
-[Why]
-Lower max_downscale_ratio and ARGB888 downscale factor
-to prevent cases where underflow may occur on dcn314
+As part of nvmet_fc_ls_create_association there is a case where
+nvmet_fc_alloc_target_queue fails right after a new association with an
+admin queue is created. In this case, no one releases the get taken in
+nvmet_fc_alloc_target_assoc.  This fix is adding the missing put.
 
-[How]
-Set max_downscale_ratio to 400 and ARGB downscale factor
-to 250 for dcn314
-
-Reviewed-by: Nicholas Kazlauskas <Nicholas.Kazlauskas@amd.com>
-Acked-by: Alex Hung <alex.hung@amd.com>
-Signed-off-by: Daniel Miess <Daniel.Miess@amd.com>
-Tested-by: Daniel Wheeler <daniel.wheeler@amd.com>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+Signed-off-by: Amit Engel <Amit.Engel@dell.com>
+Reviewed-by: James Smart <jsmart2021@gmail.com>
+Signed-off-by: Christoph Hellwig <hch@lst.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/amd/display/dc/dcn314/dcn314_resource.c | 5 +++--
- 1 file changed, 3 insertions(+), 2 deletions(-)
+ drivers/nvme/target/fc.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/gpu/drm/amd/display/dc/dcn314/dcn314_resource.c b/drivers/gpu/drm/amd/display/dc/dcn314/dcn314_resource.c
-index 9066c511a0529..c80c8c8f51e97 100644
---- a/drivers/gpu/drm/amd/display/dc/dcn314/dcn314_resource.c
-+++ b/drivers/gpu/drm/amd/display/dc/dcn314/dcn314_resource.c
-@@ -871,8 +871,9 @@ static const struct dc_plane_cap plane_cap = {
- 	},
+diff --git a/drivers/nvme/target/fc.c b/drivers/nvme/target/fc.c
+index c43bc5e1c7a28..00a2a591f5c1f 100644
+--- a/drivers/nvme/target/fc.c
++++ b/drivers/nvme/target/fc.c
+@@ -1685,8 +1685,10 @@ nvmet_fc_ls_create_association(struct nvmet_fc_tgtport *tgtport,
+ 		else {
+ 			queue = nvmet_fc_alloc_target_queue(iod->assoc, 0,
+ 					be16_to_cpu(rqst->assoc_cmd.sqsize));
+-			if (!queue)
++			if (!queue) {
+ 				ret = VERR_QUEUE_ALLOC_FAIL;
++				nvmet_fc_tgt_a_put(iod->assoc);
++			}
+ 		}
+ 	}
  
- 	// 6:1 downscaling ratio: 1000/6 = 166.666
-+	// 4:1 downscaling ratio for ARGB888 to prevent underflow during P010 playback: 1000/4 = 250
- 	.max_downscale_factor = {
--			.argb8888 = 167,
-+			.argb8888 = 250,
- 			.nv12 = 167,
- 			.fp16 = 167
- 	},
-@@ -1755,7 +1756,7 @@ static bool dcn314_resource_construct(
- 	pool->base.underlay_pipe_index = NO_UNDERLAY_PIPE;
- 	pool->base.pipe_count = pool->base.res_cap->num_timing_generator;
- 	pool->base.mpcc_count = pool->base.res_cap->num_timing_generator;
--	dc->caps.max_downscale_ratio = 600;
-+	dc->caps.max_downscale_ratio = 400;
- 	dc->caps.i2c_speed_in_khz = 100;
- 	dc->caps.i2c_speed_in_khz_hdcp = 100;
- 	dc->caps.max_cursor_size = 256;
 -- 
 2.39.0
 
