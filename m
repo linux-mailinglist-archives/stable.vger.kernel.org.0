@@ -2,159 +2,108 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 2B65E69EB16
-	for <lists+stable@lfdr.de>; Wed, 22 Feb 2023 00:18:07 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3F65869EBBE
+	for <lists+stable@lfdr.de>; Wed, 22 Feb 2023 01:11:21 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229712AbjBUXSF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 21 Feb 2023 18:18:05 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38024 "EHLO
+        id S230028AbjBVALU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 21 Feb 2023 19:11:20 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52488 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229567AbjBUXSE (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 21 Feb 2023 18:18:04 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7D15D93C6
-        for <stable@vger.kernel.org>; Tue, 21 Feb 2023 15:18:03 -0800 (PST)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 2B29BB81107
-        for <stable@vger.kernel.org>; Tue, 21 Feb 2023 23:18:02 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B1C12C433EF;
-        Tue, 21 Feb 2023 23:17:58 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1677021480;
-        bh=Mh//mLUoyP5yIuIIjymXpRAj8FV23s77Ahtu7KJhh4o=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=Qo4sH0rGPaRwtE/jWl91YCy9BGsPsoFN12cToQolh/EGEFCjn515f0fEsN0phuWZZ
-         5v1SZyRZZ3qkfgBH33r1tZVX9KD3pO+zPtGIYBJmgtGebZFgG4Ya6PEP56o6Hz+6vF
-         QIxRfosAqo5LoMF7nxnrpaUMoFWcYn3YRkXyaDGtsUa3TTbKnI+U1Gw4HB0Gk4llpX
-         xso+KKkh4iCcXo5Dohdk8pvjGohJp/LTpo8iENgwZEv8F+1KiZ3JHQ5+N6srGMCGOJ
-         iWTIeiahOSnScylPBbh2vi7RiwqF8wKCsvsVzC7SgyFIDEbpb/cB+iCPRh9eQPt0+a
-         lRzfIxbJfUbig==
-Date:   Tue, 21 Feb 2023 23:17:56 +0000
-From:   Conor Dooley <conor@kernel.org>
-To:     Nathan Chancellor <nathan@kernel.org>
-Cc:     Conor Dooley <conor.dooley@microchip.com>,
-        Naresh Kamboju <naresh.kamboju@linaro.org>,
-        llvm@lists.linux.dev,
-        linux-riscv <linux-riscv@lists.infradead.org>,
-        linux-stable <stable@vger.kernel.org>,
-        lkft-triage@lists.linaro.org,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Sasha Levin <sashal@kernel.org>,
-        Heiko Stuebner <heiko@sntech.de>
-Subject: Re: stable-rc: 5.10: riscv: defconfig: clang-nightly: build failed -
- Invalid or unknown z ISA extension: 'zifencei'
-Message-ID: <Y/VRJF0QKKqkFN6g@spud>
-References: <CA+G9fYt9T=ELCLaB9byxaLW2Qf4pZcDO=huCA0D8ug2V2+irJQ@mail.gmail.com>
- <Y/SLn5fto6+9xX0r@wendy>
- <Y/VGu9IOJEKi6VwS@dev-arch.thelio-3990X>
+        with ESMTP id S229980AbjBVALT (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 21 Feb 2023 19:11:19 -0500
+X-Greylist: delayed 1963 seconds by postgrey-1.37 at lindbergh.monkeyblade.net; Tue, 21 Feb 2023 16:11:17 PST
+Received: from pijkaqwt.kolliers.com (pijkaqwt.kolliers.com [92.52.217.53])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3DCC32449D
+        for <stable@vger.kernel.org>; Tue, 21 Feb 2023 16:11:16 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha1; c=relaxed/relaxed; s=dkim; d=kolliers.com;
+ h=Reply-To:From:To:Subject:Date:Message-ID:MIME-Version:Content-Type:Content-Transfer-Encoding; i=bara@kolliers.com;
+ bh=9MCVbH6FWJctFLxnEOCLJvHXl/U=;
+ b=ecqvDq7irVGDWCuGeeCT+7418wm4M7XQixTi8LrWwyaihmbjW25jT7PokrC/0h2QH1K1QcgnV6aC
+   CUYrsiuUoBYIgT93U9yQecurI/0v+Hn9zlW514ZnMLtnFE4KXM6S0oTFEBAEAj+4hL+ov91WgVDK
+   qqP7FANXejAZ8C6CEfLZ5WP5H/oGgP7YU8jX+p0H1L1lU6zIuK/Hb27qIUGR3HSgXisXf/TIUu0j
+   5SyIz+aN9RowTs93RIZzp6updd58fcvLInVTCXzSxjcXFq1jOd5ZWEkhFhBBaBFW8fAAVb2vIznK
+   AEJT3VKIVBbksTCepQfC7BjB4ILxbiK6pZhH2w==
+DomainKey-Signature: a=rsa-sha1; c=nofws; q=dns; s=dkim; d=kolliers.com;
+ b=DcwoVmpQjHkY6iJftJN1I6Q+3MqQCnMzKLHgTJ6vrXRrv5bJwZF2NI6luYIbR/Gqzfx1MKMESoLy
+   bcv/dKm3c9EWiw14KZrb3DY1yqmhN8wG30dRX5YnEB8IWzSyiQ7S/DmIHAdOAvQoXarAKjog7yvE
+   uNN59mU9S5vEjuPk0/DyQ2cxlgEHkraswKbPIfUN3EaBY+U7MF9qP9JgmL1rHZMV/5c59GSVM9kb
+   uPui3OgFri2AkCuA4BC7UEfjGoHzub71Rz+oJmYYNdal3IrO9vjdZ/k6db5114X0VikP1TlI4IMW
+   zB1+DRlNRzr4WGYEVhDl3U32jJZ8+9Q5ELCAVg==;
+Reply-To: esq.mustafaa@gmail.com
+From:   Mustafa Ayvaz <bara@kolliers.com>
+To:     stable@vger.kernel.org
+Subject: stable
+Date:   21 Feb 2023 15:38:32 -0800
+Message-ID: <20230221153832.70B9636908F31F15@kolliers.com>
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha256;
-        protocol="application/pgp-signature"; boundary="whT7Q92xxSfANgK+"
-Content-Disposition: inline
-In-Reply-To: <Y/VGu9IOJEKi6VwS@dev-arch.thelio-3990X>
-X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
-        SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
+Content-Type: text/plain;
+        charset="utf-8"
+Content-Transfer-Encoding: quoted-printable
+X-Spam-Status: Yes, score=7.7 required=5.0 tests=BAYES_50,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_FORGED_REPLYTO,
+        LOCALPART_IN_SUBJECT,LOTS_OF_MONEY,MONEY_FREEMAIL_REPTO,
+        RCVD_IN_BL_SPAMCOP_NET,RCVD_IN_MSPIKE_H2,SPF_HELO_NONE,SPF_PASS,
+        URIBL_DBL_MALWARE autolearn=no autolearn_force=no version=3.4.6
+X-Spam-Report: *  2.5 URIBL_DBL_MALWARE Contains a malware URL listed in the Spamhaus
+        *       DBL blocklist
+        *      [URIs: kolliers.com]
+        *  1.3 RCVD_IN_BL_SPAMCOP_NET RBL: Received via a relay in
+        *      bl.spamcop.net
+        *      [Blocked - see <https://www.spamcop.net/bl.shtml?92.52.217.53>]
+        *  0.8 BAYES_50 BODY: Bayes spam probability is 40 to 60%
+        *      [score: 0.5000]
+        * -0.0 RCVD_IN_MSPIKE_H2 RBL: Average reputation (+2)
+        *      [92.52.217.53 listed in wl.mailspike.net]
+        * -0.0 SPF_PASS SPF: sender matches SPF record
+        *  1.1 LOCALPART_IN_SUBJECT Local part of To: address appears in
+        *      Subject
+        *  0.0 SPF_HELO_NONE SPF: HELO does not publish an SPF Record
+        * -0.1 DKIM_VALID_EF Message has a valid DKIM or DK signature from
+        *      envelope-from domain
+        * -0.1 DKIM_VALID Message has at least one valid DKIM or DK signature
+        *  0.1 DKIM_SIGNED Message has a DKIM or DK signature, not necessarily
+        *       valid
+        * -0.1 DKIM_VALID_AU Message has a valid DKIM or DK signature from
+        *      author's domain
+        *  0.0 LOTS_OF_MONEY Huge... sums of money
+        *  2.1 FREEMAIL_FORGED_REPLYTO Freemail in Reply-To, but not From
+        *  0.0 MONEY_FREEMAIL_REPTO Lots of money from someone using free
+        *      email?
+X-Spam-Level: *******
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+Bom dia stable@vger.kernel.org,
 
---whT7Q92xxSfANgK+
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Sou o advogado Mustafa Ayvaz, advogado pessoal do falecido Sr.=20
+Robert, que perdeu a vida devido ao coronav=C3=ADrus, contra=C3=ADdo=20
+durante sua viagem de neg=C3=B3cios =C3=A0 China. Entrei em contato com=20
+voc=C3=AA para trabalhar comigo na transfer=C3=AAncia de um fundo:=20
+$4,420,000.00 (quatro milh=C3=B5es, quatrocentos e vinte mil d=C3=B3lares)=
+=20
+legado deixado por ele.
 
-On Tue, Feb 21, 2023 at 03:33:31PM -0700, Nathan Chancellor wrote:
-> On Tue, Feb 21, 2023 at 09:15:11AM +0000, Conor Dooley wrote:
-> > On Tue, Feb 21, 2023 at 02:30:17PM +0530, Naresh Kamboju wrote:
-> > > The riscv defconfig and tinyconfig builds failed with clang-nightly
-> > > due to below build warnings / errors on latest stable-rc 5.10.
-> > >=20
-> > > Regression on riscv:
-> > >   - build/clang-nightly-tinyconfig - FAILED
-> > >   - build/clang-nightly-defconfig - FAILED
-> >=20
-> > > Build log:
-> > > ----
-> > > make --silent --keep-going --jobs=3D8
-> > > O=3D/home/tuxbuild/.cache/tuxmake/builds/1/build ARCH=3Driscv
-> > > CROSS_COMPILE=3Driscv64-linux-gnu- HOSTCC=3Dclang CC=3Dclang LLVM=3D1
-> > > LLVM_IAS=3D1 LD=3Driscv64-linux-gnu-ld
-> > > riscv64-linux-gnu-ld: -march=3Drv64i2p0_m2p0_a2p0_zicsr2p0_zifencei2p=
-0:
-> > > Invalid or unknown z ISA extension: 'zifencei'
-> > > riscv64-linux-gnu-ld: failed to merge target specific data of file
-> > > init/version.o
-> > > riscv64-linux-gnu-ld: -march=3Drv64i2p0_m2p0_a2p0_zicsr2p0_zifencei2p=
-0:
-> > > Invalid or unknown z ISA extension: 'zifencei'
-> > > riscv64-linux-gnu-ld: failed to merge target specific data of file
-> > > init/do_mounts.o
-> > > riscv64-linux-gnu-ld: -march=3Drv64i2p0_m2p0_a2p0_zicsr2p0_zifencei2p=
-0:
-> > > Invalid or unknown z ISA extension: 'zifencei'
-> > > riscv64-linux-gnu-ld: failed to merge target specific data of file
-> > > init/noinitramfs.o
-> > > riscv64-linux-gnu-ld: -march=3Drv64i2p0_m2p0_a2p0_zicsr2p0_zifencei2p=
-0:
-> > > Invalid or unknown z ISA extension: 'zifencei'
-> > > riscv64-linux-gnu-ld: failed to merge target specific data of file
-> > > init/calibrate.o
-> > > riscv64-linux-gnu-ld: -march=3Drv64i2p0_m2p0_a2p0_zicsr2p0_zifencei2p=
-0:
-> > > Invalid or unknown z ISA extension: 'zifencei'
-> >=20
-> > > Build details,
-> > > https://qa-reports.linaro.org/lkft/linux-stable-rc-linux-5.10.y/build=
-/v5.10.168-58-g7d11e4c4fc56/testrun/14869376/suite/build/test/clang-nightly=
--tinyconfig/details/
-> >=20
-> > binutils 2.35 by the looks of things, I **think** that zifencei didn't
-> > land until 2.36. zicsr and zifence get added via cc-option-yn, which,
-> > IIRC, doesn't do anything with the linker. I dunno if anyone in RISC-V
-> > land cares this much about "odd" configurations back in 5.10, but while
-> > a fix is outstanding, you could use a newer binutils?
->=20
-> This is new in clang-17 so I bisected LLVM down to commit 22e199e6afb1
-> ("[RISCV] Accept zicsr and zifencei command line options"), so I think
-> we need something like commit aae538cd03bc ("riscv: fix detection of
-> toolchain Zihintpause support") for zifencei to make sure all three
-> tools stay in sync, since I suspect that this is reproducible in
-> mainline with GNU ld. We just happen not to notice when using
-> LLVM=3D1 LLVM_IAS=3D1 since the tools have symmetrical support.
+Procurei minuciosamente o parente mais pr=C3=B3ximo de meu cliente=20
+falecido, mas falhei porque n=C3=A3o tenho sua resid=C3=AAncia atual e=20
+detalhes de contato. Enquanto pesquisava, encontrei seu perfil=20
+com o mesmo sobrenome e na mesma localidade com o parente mais=20
+pr=C3=B3ximo. Decidi entrar em contato com voc=C3=AA e us=C3=A1-lo como par=
+ente=20
+genu=C3=ADno.
 
-At least if it is in mainline there'll be interest in fixing it!
-Nobody was shipping hardware worth mention when 5.10 was en vogue, so
-little interest in it :(
+Solicito seu consentimento para apresent=C3=A1-lo como parente mais=20
+pr=C3=B3ximo de meu falecido cliente, j=C3=A1 que ambos t=C3=AAm o mesmo=20=
 
-> I can work up something like that change tomorrow if that seems like the
-> path worth taking.
+sobrenome. Os fundos ser=C3=A3o ent=C3=A3o transferidos para voc=C3=AA como=
+=20
+benefici=C3=A1rio e compartilhados de acordo com um padr=C3=A3o/propor=C3=
+=A7=C3=A3o=20
+de compartilhamento proposto de 60:40, ou seja, 60% para mim e=20
+40% para voc=C3=AA. Por favor, entre em contato comigo imediatamente=20
+para obter mais informa=C3=A7=C3=B5es.
 
-I'm not sure if this one is the same as Zihintpause though, because
-zifencei & zicsr were part of i prior to a spec update, so we may need
-to be careful about the spec version that clang/llvm is using if we
-decide not to pass zifencei/zicsr to it. See arch/riscv/Makefile, about
-L55 for a comment...
-I'll go get myself a clang-17 tomorrow and give things a whirl if you
-want Nathan?
-
-Cheers,
-Conor.
-
---whT7Q92xxSfANgK+
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iHUEABYIAB0WIQRh246EGq/8RLhDjO14tDGHoIJi0gUCY/VRJAAKCRB4tDGHoIJi
-0iDBAP4pOrkepLUC1dzex3KN1VvvGvYahiVr0Y2E42GJuoT7ZgD+KUgJ9xGpMiZh
-vl3u969fkX/wptXNeEpGotMF0w2OxQs=
-=Mg48
------END PGP SIGNATURE-----
-
---whT7Q92xxSfANgK+--
+Cumprimentos
+Mustaf=C3=A1 Ayvaz
