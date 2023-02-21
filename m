@@ -2,74 +2,60 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 6F2A669DCEB
-	for <lists+stable@lfdr.de>; Tue, 21 Feb 2023 10:27:50 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 54D8369DDAB
+	for <lists+stable@lfdr.de>; Tue, 21 Feb 2023 11:16:52 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233034AbjBUJ1s (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 21 Feb 2023 04:27:48 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40596 "EHLO
+        id S234063AbjBUKQv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 21 Feb 2023 05:16:51 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49902 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233089AbjBUJ1r (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 21 Feb 2023 04:27:47 -0500
-Received: from mx0a-0031df01.pphosted.com (mx0a-0031df01.pphosted.com [205.220.168.131])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A00F71D925
-        for <stable@vger.kernel.org>; Tue, 21 Feb 2023 01:27:40 -0800 (PST)
-Received: from pps.filterd (m0279867.ppops.net [127.0.0.1])
-        by mx0a-0031df01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 31L4i2aS028213;
-        Tue, 21 Feb 2023 09:27:39 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=quicinc.com; h=message-id : date :
- mime-version : subject : to : cc : references : from : in-reply-to :
- content-type : content-transfer-encoding; s=qcppdkim1;
- bh=0zSa9r/RvwMr/zVG9zv70osUUAcAsXDK2Dm1gtASeWE=;
- b=gXOMts9MSBQWdtlySFXbAYLTiTAmyvLpJ7I5ofCc+R9oC9+ucGdCXihd14j8rp5jVkO+
- Tlre3ggRgg9+aiVbvInw0irNLfdJFCZJF62ttr5PqpteOwpF04uw8ol5VyseuCKZez3S
- /WtHmtWwyHk3B7ddLE7SFkrYBQpQmruEar0MkYQL1TfdyjH0iOvFRWg3WJz7wizfS4tP
- WBVSAarE9ibxiYowmLfSLWk48C51rtA/CSXyfFRZncAEghxFHD0hcCb0mgn81/+BqlVw
- XkpMTOzs5vTUJMfvBb3LmfG9NjdKGVhHTdck3I4O3XMNF2oiWgVXkYYp+rT/Gbp984XL MQ== 
-Received: from nasanppmta03.qualcomm.com (i-global254.qualcomm.com [199.106.103.254])
-        by mx0a-0031df01.pphosted.com (PPS) with ESMTPS id 3ntmcm7bur-1
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 21 Feb 2023 09:27:39 +0000
-Received: from nasanex01a.na.qualcomm.com ([10.52.223.231])
-        by NASANPPMTA03.qualcomm.com (8.17.1.5/8.17.1.5) with ESMTPS id 31L9RcHq015659
-        (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 21 Feb 2023 09:27:38 GMT
-Received: from [10.213.73.166] (10.80.80.8) by nasanex01a.na.qualcomm.com
- (10.52.223.231) with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.2.986.41; Tue, 21 Feb
- 2023 01:27:37 -0800
-Message-ID: <72e8a2a5-8729-5551-563a-d8d7c143f527@quicinc.com>
-Date:   Tue, 21 Feb 2023 14:57:15 +0530
+        with ESMTP id S233015AbjBUKQu (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 21 Feb 2023 05:16:50 -0500
+Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0CE43233E3;
+        Tue, 21 Feb 2023 02:16:49 -0800 (PST)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 6C3CACE09B5;
+        Tue, 21 Feb 2023 10:16:47 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 57961C433EF;
+        Tue, 21 Feb 2023 10:16:45 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1676974605;
+        bh=rsIBiufyPVeN/iiBVMiUsYKGl4amMszJEzKK1e3KNPE=;
+        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+        b=UxVTeCgQv7nr7fYeRtAYvutvyfzn2nEPwWXUgm5gZhaSUjA5fv+/yLOaoWghcY3gw
+         Jo0MgAIQgCMPKgLsPh6eCP5d1g8ZZyXEYFZvoPLom5oeoEtXstfg54huEzCDIU2IMK
+         SO8XmIZukdkDZDbt7ZGjA6IfildbkNuJPq9fydFZ3N1YTxYd6F7i8v+0E/xSuEPQl4
+         7VgVHwizHTh6QBb5IM4bnoM6kKdvXlubmLzUhY+xGJzD6+TqtWDaGOr1+e7tZ2ImzN
+         SmafOtsH99Wa2sH/tDjbJ37zsyJbgJauoNmdk1TIPU6kUc8oegUBXWLvgKYeDDGufB
+         /NkwxzCndLo2Q==
+Received: from johan by xi.lan with local (Exim 4.94.2)
+        (envelope-from <johan+linaro@kernel.org>)
+        id 1pUPhX-0003oF-WE; Tue, 21 Feb 2023 11:16:48 +0100
+From:   Johan Hovold <johan+linaro@kernel.org>
+To:     Rob Clark <robdclark@gmail.com>,
+        Abhinav Kumar <quic_abhinavk@quicinc.com>,
+        Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
+Cc:     Sean Paul <sean@poorly.run>, David Airlie <airlied@gmail.com>,
+        Daniel Vetter <daniel@ffwll.ch>,
+        Bjorn Andersson <andersson@kernel.org>,
+        linux-arm-msm@vger.kernel.org, dri-devel@lists.freedesktop.org,
+        freedreno@lists.freedesktop.org, linux-kernel@vger.kernel.org,
+        Johan Hovold <johan+linaro@kernel.org>,
+        Bjorn Andersson <quic_bjorande@quicinc.com>,
+        stable@vger.kernel.org
+Subject: [PATCH 1/4] drm/msm/adreno: fix runtime PM imbalance at unbind
+Date:   Tue, 21 Feb 2023 11:14:27 +0100
+Message-Id: <20230221101430.14546-2-johan+linaro@kernel.org>
+X-Mailer: git-send-email 2.39.2
+In-Reply-To: <20230221101430.14546-1-johan+linaro@kernel.org>
+References: <20230221101430.14546-1-johan+linaro@kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:91.0) Gecko/20100101
- Thunderbird/91.9.0
-Subject: Re: [PATCH V1] rcu-tasks: Fix build error
-Content-Language: en-US
-To:     Greg KH <gregkh@linuxfoundation.org>
-CC:     <stable@vger.kernel.org>
-References: <1676916839-32235-1-git-send-email-quic_c_spathi@quicinc.com>
- <Y/PByBdfz/WPBs2W@kroah.com>
-From:   Srinivasarao Pathipati <quic_c_spathi@quicinc.com>
-In-Reply-To: <Y/PByBdfz/WPBs2W@kroah.com>
-Content-Type: text/plain; charset="UTF-8"; format=flowed
 Content-Transfer-Encoding: 8bit
-X-Originating-IP: [10.80.80.8]
-X-ClientProxiedBy: nasanex01b.na.qualcomm.com (10.46.141.250) To
- nasanex01a.na.qualcomm.com (10.52.223.231)
-X-QCInternal: smtphost
-X-Proofpoint-Virus-Version: vendor=nai engine=6200 definitions=5800 signatures=585085
-X-Proofpoint-ORIG-GUID: WR-cQR4TtEvZTIXsIGa1DVpDFrsDgCw6
-X-Proofpoint-GUID: WR-cQR4TtEvZTIXsIGa1DVpDFrsDgCw6
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.219,Aquarius:18.0.930,Hydra:6.0.562,FMLib:17.11.170.22
- definitions=2023-02-21_05,2023-02-20_02,2023-02-09_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 priorityscore=1501 mlxscore=0
- phishscore=0 clxscore=1011 bulkscore=0 impostorscore=0 malwarescore=0
- lowpriorityscore=0 spamscore=0 mlxlogscore=888 suspectscore=0 adultscore=0
- classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2212070000
- definitions=main-2302210080
-X-Spam-Status: No, score=-2.9 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,NICE_REPLY_A,RCVD_IN_DNSWL_LOW,
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
         SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -77,69 +63,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+A recent commit moved enabling of runtime PM from adreno_gpu_init() to
+adreno_load_gpu() (called on first open()), which means that unbind()
+may now be called with runtime PM disabled in case the device was never
+opened in between.
 
-On 2/21/2023 12:24 AM, Greg KH wrote:
-> On Mon, Feb 20, 2023 at 11:43:59PM +0530, Srinivasarao Pathipati wrote:
->> Making show_rcu_tasks_rude_gp_kthread() function as 'inline' to
->> fix below compilation error.
->> This is applicable to only 5.10 kernels as code got modified
->> in latest kernels.
->>
->>   In file included from kernel/rcu/update.c:579:0:
->>   kernel/rcu/tasks.h:710:13: error: ‘show_rcu_tasks_rude_gp_kthread’ defined but not used [-Werror=unused-function]
->>    static void show_rcu_tasks_rude_gp_kthread(void) {}
->>
->> Signed-off-by: Srinivasarao Pathipati <quic_c_spathi@quicinc.com>
->> ---
->>   kernel/rcu/tasks.h | 2 +-
->>   1 file changed, 1 insertion(+), 1 deletion(-)
->>
->> diff --git a/kernel/rcu/tasks.h b/kernel/rcu/tasks.h
->> index 8b51e6a..53ddb4e 100644
->> --- a/kernel/rcu/tasks.h
->> +++ b/kernel/rcu/tasks.h
->> @@ -707,7 +707,7 @@ static void show_rcu_tasks_rude_gp_kthread(void)
->>   #endif /* #ifndef CONFIG_TINY_RCU */
->>   
->>   #else /* #ifdef CONFIG_TASKS_RUDE_RCU */
->> -static void show_rcu_tasks_rude_gp_kthread(void) {}
->> +static inline void show_rcu_tasks_rude_gp_kthread(void) {}
->>   #endif /* #else #ifdef CONFIG_TASKS_RUDE_RCU */
->>   
->>   ////////////////////////////////////////////////////////////////////////
->> -- 
->> 2.7.4
->>
-> What commit id caused this problem?
+Make sure to only forcibly suspend and disable runtime PM at unbind() in
+case runtime PM has been enabled to prevent a disable count imbalance.
 
-commit  (8344496e8b49c4122c1808d6cd3f8dc71bccb595 rcu-tasks: 
-Conditionally compile show_rcu_tasks_gp_kthreads()) introduced this issue
+This specifically avoids leaving runtime PM disabled when the device
+is later opened after a successful bind:
 
-This patch added conditional macros for definition of 
-show_rcu_tasks_rude_gp_kthread()  but not for dummy definition.
+	msm_dpu ae01000.display-controller: [drm:adreno_load_gpu [msm]] *ERROR* Couldn't power up the GPU: -13
 
-> And why isn't it an issue in newer kernels, what commit id fixed it and
-> why can't we just take that instead?
+Fixes: 4b18299b3365 ("drm/msm/adreno: Defer enabling runpm until hw_init()")
+Reported-by: Bjorn Andersson <quic_bjorande@quicinc.com>
+Link: https://lore.kernel.org/lkml/20230203181245.3523937-1-quic_bjorande@quicinc.com
+Cc: stable@vger.kernel.org	# 6.0
+Signed-off-by: Johan Hovold <johan+linaro@kernel.org>
+---
+ drivers/gpu/drm/msm/adreno/adreno_device.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-Later code got modified with patch (27c0f1448389 rcutorture: Make 
-grace-period kthread report match RCU flavor being tested)  , with this 
-there won't be compilation issue.
+diff --git a/drivers/gpu/drm/msm/adreno/adreno_device.c b/drivers/gpu/drm/msm/adreno/adreno_device.c
+index 36f062c7582f..c5c4c93b3689 100644
+--- a/drivers/gpu/drm/msm/adreno/adreno_device.c
++++ b/drivers/gpu/drm/msm/adreno/adreno_device.c
+@@ -558,7 +558,8 @@ static void adreno_unbind(struct device *dev, struct device *master,
+ 	struct msm_drm_private *priv = dev_get_drvdata(master);
+ 	struct msm_gpu *gpu = dev_to_gpu(dev);
+ 
+-	WARN_ON_ONCE(adreno_system_suspend(dev));
++	if (pm_runtime_enabled(dev))
++		WARN_ON_ONCE(adreno_system_suspend(dev));
+ 	gpu->funcs->destroy(gpu);
+ 
+ 	priv->gpu_pdev = NULL;
+-- 
+2.39.2
 
-This patch is part of below series, Not sure all these can be picked to 
-this 5.10 stable branch so fixed issue by simply making function inline.
-
-if you think it is better to pick this series, please merge to 5.10 branch.
-
-https://lore.kernel.org/lkml/20201105233900.GA20676@paulmck-ThinkPad-P72/
-
-[1/4] e1eb075ccf37 rcutorture: Make preemptible TRACE02 enable lockdep
-[2/4] 77dc174103fd rcu-tasks: Convert rcu_tasks_wait_gp() for-loop to 
-while-loop
-[3/4] 27c0f1448389 rcutorture: Make grace-period kthread report match 
-RCU flavor being tested
-[4/4] 75dc2da5ecd6 rcu-tasks: Make the units of ->init_fract be jiffies
-
->
-> thanks,
->
-> greg k-h
