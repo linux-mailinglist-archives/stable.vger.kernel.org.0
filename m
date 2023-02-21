@@ -2,233 +2,180 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 7E69F69E092
-	for <lists+stable@lfdr.de>; Tue, 21 Feb 2023 13:42:03 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8673169E18E
+	for <lists+stable@lfdr.de>; Tue, 21 Feb 2023 14:43:43 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234714AbjBUMmC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 21 Feb 2023 07:42:02 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38014 "EHLO
+        id S233206AbjBUNnm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 21 Feb 2023 08:43:42 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33744 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234701AbjBUMmA (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 21 Feb 2023 07:42:00 -0500
-Received: from mail-vs1-xe32.google.com (mail-vs1-xe32.google.com [IPv6:2607:f8b0:4864:20::e32])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C4E7029438
-        for <stable@vger.kernel.org>; Tue, 21 Feb 2023 04:41:54 -0800 (PST)
-Received: by mail-vs1-xe32.google.com with SMTP id y8so3505753vsn.2
-        for <stable@vger.kernel.org>; Tue, 21 Feb 2023 04:41:54 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google; t=1676983314;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=+pSg+Hzb7t5dfpW1K0cuXfE/ecGC3GyQvKNw8DxtAc0=;
-        b=LPCQhSj4y91w98bW3FzXRlnAJehtmFOzLyD8zSPTuLSvCPLherrSl8rfnL0tEXZ/wU
-         GpqJaLKjexKt4G+dD/gCQ0sFN1n7pd9bb7/gL9Pu8VKsJH7J/+SYbxv/i51mQ27aYgN3
-         F3lyExPtlcdYMhg2vBrsI+wXwk+3SC18szDVHaZ0lgMKp6YYWAYXxvOYffRkdm9aXuL6
-         Y87G5OD26PtqHASgqkHsKwqsI0L5lclTds6Ojld6UUFUGKQ9ltdL1UBpXoiG4zQObJbC
-         XGbse2CJz22VYk736s/PARPa/xf9uGcRm9wroXYj1sAQn2l/JEW2i0GQyJ1nV1fC7upR
-         LGBQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112; t=1676983314;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=+pSg+Hzb7t5dfpW1K0cuXfE/ecGC3GyQvKNw8DxtAc0=;
-        b=PUfbAY3mTZczZOhWW0A9SUWMBHwTe3Vs9gJakwSQRFb3RlpA/LXl/kc0va9ZWbURtQ
-         zh1ppcJ38AHTskrbXv5xCJBT6qIZiCS4qQi1KYlb187St3PiTnN59Ioxwl4fmn+tMS1O
-         /m9qBt2G+fKuggfrsUP/WO62xkeB4TXKMA+YKX47Mgb1OMYqHz4Sr7USrZXv37PprEGX
-         K0R7tapRC+/qkTKzeadIo2VredF0+mvl2JMv6F+TTZKk4F2ndPd45RaHwr4mDmolv42g
-         0VeHxpmTXYqS2lxJ4+fKFCb9EWdilprJtjJD2egKeiFneR7kBXygbjdcFSTvGQk7Ue9N
-         d9mg==
-X-Gm-Message-State: AO0yUKVaAHUA4IJASzS+oODy22ceo7/KhxR2r/adGn+6m0q6zSJPm9i2
-        A+QsS1ZGJ24maR6PbtRxGTwcYoVm2pWRgOhNEpU/8g==
-X-Google-Smtp-Source: AK7set+6S+M96c3GgrIEjh+AkXol3D62hQiJwDDVLEtX5+ypQvN+GhLJBK62qVPKJ+Pl91ZKgezK2UJErldDrk6xW1A=
-X-Received: by 2002:a05:6102:a24:b0:41e:991d:8814 with SMTP id
- 4-20020a0561020a2400b0041e991d8814mr228996vsb.71.1676983313635; Tue, 21 Feb
- 2023 04:41:53 -0800 (PST)
+        with ESMTP id S233090AbjBUNnl (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 21 Feb 2023 08:43:41 -0500
+Received: from galois.linutronix.de (Galois.linutronix.de [193.142.43.55])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 065E6B76C
+        for <stable@vger.kernel.org>; Tue, 21 Feb 2023 05:43:39 -0800 (PST)
+From:   Thomas Gleixner <tglx@linutronix.de>
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linutronix.de;
+        s=2020; t=1676987017;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         in-reply-to:in-reply-to:references:references;
+        bh=zgpNZ5j34PTZ8/6T97NnmYN4VfqQvCs2xmXHijGDjrI=;
+        b=YSz/tbS5OhIsCiwJrFN3dbYOkluazCWH2cyDGBPC2fe3bM6zh+V//4sWeOcvJWWPyqUYXQ
+        sx054y5Q57JOO0mBHM1HBCbyyPjz9W+OJEQpZBYzb07UREUhgi/Y0oXk/3c1M3JWZq6B27
+        9NUdXQeSYieUTT8szrbM8rImnXyN6yQb0iFEqwYTsnXjYWUePeqA8ikWAk50YJozBa8sAs
+        l9hXROx9Z0mby6vco2G/Me5QuqXk5Y/HZrOfxnLOxubTZT4ztFks32ZhYsHpntnOFnhuma
+        nri1HQtMP/YKiSG32LdIIqsABGLUw5PeYzTR1eb+qlB+cS57k1UAX+tj4l9Dug==
+DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=linutronix.de;
+        s=2020e; t=1676987017;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         in-reply-to:in-reply-to:references:references;
+        bh=zgpNZ5j34PTZ8/6T97NnmYN4VfqQvCs2xmXHijGDjrI=;
+        b=wL4kGwTin1XgRNElKkHJdpbHuATntAlyIfUA9cPujg0YXXj9CLkhvdBWsNyasBkHxlcJKz
+        iFdfdmE0JyL+v6BA==
+To:     gregkh@linuxfoundation.org, jstultz@google.com
+Cc:     stable@vger.kernel.org
+Subject: [PATCH Backport 4.14, 4.19, 5.4] alarmtimer: Prevent starvation by
+ small intervals and SIG_IGN
+In-Reply-To: <16768916935192@kroah.com>
+References: <16768916935192@kroah.com>
+Date:   Tue, 21 Feb 2023 14:43:36 +0100
+Message-ID: <87sfeznng7.ffs@tglx>
 MIME-Version: 1.0
-References: <20230220133548.158615609@linuxfoundation.org>
-In-Reply-To: <20230220133548.158615609@linuxfoundation.org>
-From:   Naresh Kamboju <naresh.kamboju@linaro.org>
-Date:   Tue, 21 Feb 2023 18:11:42 +0530
-Message-ID: <CA+G9fYuuKMfmiso193a+WAKBbgS1vtP_r7hKQPgpwEwNdr7v7w@mail.gmail.com>
-Subject: Re: [PATCH 4.14 00/53] 4.14.306-rc1 review
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     stable@vger.kernel.org, patches@lists.linux.dev,
-        linux-kernel@vger.kernel.org, torvalds@linux-foundation.org,
-        akpm@linux-foundation.org, linux@roeck-us.net, shuah@kernel.org,
-        patches@kernelci.org, lkft-triage@lists.linaro.org, pavel@denx.de,
-        jonathanh@nvidia.com, f.fainelli@gmail.com,
-        sudipm.mukherjee@gmail.com, srw@sladewatkins.net, rwarsow@gmx.de
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
-X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_NONE,
-        SPF_HELO_NONE,SPF_PASS autolearn=unavailable autolearn_force=no
-        version=3.4.6
+Content-Type: text/plain
+X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,SPF_HELO_NONE,
+        SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, 20 Feb 2023 at 19:08, Greg Kroah-Hartman
-<gregkh@linuxfoundation.org> wrote:
->
-> This is the start of the stable review cycle for the 4.14.306 release.
-> There are 53 patches in this series, all will be posted as a response
-> to this one.  If anyone has any issues with these being applied, please
-> let me know.
->
-> Responses should be made by Wed, 22 Feb 2023 13:35:35 +0000.
-> Anything received after that time might be too late.
->
-> The whole patch series can be found in one patch at:
->         https://www.kernel.org/pub/linux/kernel/v4.x/stable-review/patch-=
-4.14.306-rc1.gz
-> or in the git tree and branch at:
->         git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable=
--rc.git linux-4.14.y
-> and the diffstat can be found below.
->
-> thanks,
->
-> greg k-h
+Commit d125d1349abeb46945dc5e98f7824bf688266f13 upstream.
 
+syzbot reported a RCU stall which is caused by setting up an alarmtimer
+with a very small interval and ignoring the signal. The reproducer arms the
+alarm timer with a relative expiry of 8ns and an interval of 9ns. Not a
+problem per se, but that's an issue when the signal is ignored because then
+the timer is immediately rearmed because there is no way to delay that
+rearming to the signal delivery path.  See posix_timer_fn() and commit
+58229a189942 ("posix-timers: Prevent softirq starvation by small intervals
+and SIG_IGN") for details.
 
-Results from Linaro=E2=80=99s test farm.
-No regressions on arm64, arm, x86_64, and i386.
+The reproducer does not set SIG_IGN explicitely, but it sets up the timers
+signal with SIGCONT. That has the same effect as explicitely setting
+SIG_IGN for a signal as SIGCONT is ignored if there is no handler set and
+the task is not ptraced.
 
-Tested-by: Linux Kernel Functional Testing <lkft@linaro.org>
+The log clearly shows that:
 
-## Build
-* kernel: 4.14.306-rc1
-* git: https://gitlab.com/Linaro/lkft/mirrors/stable/linux-stable-rc
-* git branch: linux-4.14.y
-* git commit: 2fbaf74fe65717ef42f395575562c1f594810941
-* git describe: v4.14.305-54-g2fbaf74fe657
-* test details:
-https://qa-reports.linaro.org/lkft/linux-stable-rc-linux-4.14.y/build/v4.14=
-.305-54-g2fbaf74fe657
+   [pid  5102] --- SIGCONT {si_signo=SIGCONT, si_code=SI_TIMER, si_timerid=0, si_overrun=316014, si_int=0, si_ptr=NULL} ---
 
-## Test Regressions (compared to v4.14.305)
+It works because the tasks are traced and therefore the signal is queued so
+the tracer can see it, which delays the restart of the timer to the signal
+delivery path. But then the tracer is killed:
 
-## Metric Regressions (compared to v4.14.305)
+   [pid  5087] kill(-5102, SIGKILL <unfinished ...>
+   ...
+   ./strace-static-x86_64: Process 5107 detached
 
-## Test Fixes (compared to v4.14.305)
+and after it's gone the stall can be observed:
 
-## Metric Fixes (compared to v4.14.305)
+   syzkaller login: [   79.439102][    C0] hrtimer: interrupt took 68471 ns
+   [  184.460538][    C1] rcu: INFO: rcu_preempt detected stalls on CPUs/tasks:
+   ...
+   [  184.658237][    C1] rcu: Stack dump where RCU GP kthread last ran:
+   [  184.664574][    C1] Sending NMI from CPU 1 to CPUs 0:
+   [  184.669821][    C0] NMI backtrace for cpu 0
+   [  184.669831][    C0] CPU: 0 PID: 5108 Comm: syz-executor192 Not tainted 6.2.0-rc6-next-20230203-syzkaller #0
+   ...
+   [  184.670036][    C0] Call Trace:
+   [  184.670041][    C0]  <IRQ>
+   [  184.670045][    C0]  alarmtimer_fired+0x327/0x670
 
-## Test result summary
-total: 92817, pass: 79357, fail: 3404, skip: 9909, xfail: 147
+posix_timer_fn() prevents that by checking whether the interval for
+timers which have the signal ignored is smaller than a jiffie and
+artifically delay it by shifting the next expiry out by a jiffie. That's
+accurate vs. the overrun accounting, but slightly inaccurate
+vs. timer_gettimer(2).
 
-## Build Summary
-* arc: 10 total, 10 passed, 0 failed
-* arm: 228 total, 225 passed, 3 failed
-* arm64: 42 total, 39 passed, 3 failed
-* i386: 29 total, 28 passed, 1 failed
-* mips: 41 total, 41 passed, 0 failed
-* parisc: 12 total, 12 passed, 0 failed
-* powerpc: 20 total, 19 passed, 1 failed
-* s390: 15 total, 11 passed, 4 failed
-* sh: 24 total, 24 passed, 0 failed
-* sparc: 12 total, 12 passed, 0 failed
-* x86_64: 38 total, 37 passed, 1 failed
+The comment in that function says what needs to be done and there was a fix
+available for the regular userspace induced SIG_IGN mechanism, but that did
+not work due to the implicit ignore for SIGCONT and similar signals. This
+needs to be worked on, but for now the only available workaround is to do
+exactly what posix_timer_fn() does:
 
-## Test suites summary
-* boot
-* fwts
-* igt-gpu-tools
-* kselftest-android
-* kselftest-arm64
-* kselftest-breakpoints
-* kselftest-capabilities
-* kselftest-cgroup
-* kselftest-clone3
-* kselftest-core
-* kselftest-cpu-hotplug
-* kselftest-cpufreq
-* kselftest-drivers-dma-buf
-* kselftest-efivarfs
-* kselftest-filesystems
-* kselftest-filesystems-binderfs
-* kselftest-firmware
-* kselftest-fpu
-* kselftest-futex
-* kselftest-gpio
-* kselftest-intel_pstate
-* kselftest-ipc
-* kselftest-ir
-* kselftest-kcmp
-* kselftest-kexec
-* kselftest-kvm
-* kselftest-lib
-* kselftest-livepatch
-* kselftest-membarrier
-* kselftest-net
-* kselftest-net-forwarding
-* kselftest-net-mptcp
-* kselftest-netfilter
-* kselftest-nsfs
-* kselftest-openat2
-* kselftest-pid_namespace
-* kselftest-pidfd
-* kselftest-proc
-* kselftest-pstore
-* kselftest-ptrace
-* kselftest-seccomp
-* kselftest-sigaltstack
-* kselftest-size
-* kselftest-splice
-* kselftest-static_keys
-* kselftest-sync
-* kselftest-sysctl
-* kselftest-tc-testing
-* kselftest-timens
-* kselftest-timers
-* kselftest-tmpfs
-* kselftest-tpm2
-* kselftest-user
-* kselftest-vm
-* kselftest-x86
-* kselftest-zram
-* kunit
-* kvm-unit-tests
-* libhugetlbfs
-* log-parser-boot
-* log-parser-test
-* ltp-cap_bounds
-* ltp-commands
-* ltp-containers
-* ltp-controllers
-* ltp-cpuhotplug
-* ltp-crypto
-* ltp-cve
-* ltp-dio
-* ltp-fcntl-locktests
-* ltp-filecaps
-* ltp-fs
-* ltp-fs_bind
-* ltp-fs_perms_simple
-* ltp-fsx
-* ltp-hugetlb
-* ltp-io
-* ltp-ipc
-* ltp-math
-* ltp-mm
-* ltp-nptl
-* ltp-open-posix-tests
-* ltp-pty
-* ltp-sched
-* ltp-securebits
-* ltp-smoke
-* ltp-syscalls
-* ltp-tracing
-* network-basic-tests
-* rcutorture
-* v4l2-compliance
-* vdso
+Increase the interval of self-rearming timers, which have their signal
+ignored, to at least a jiffie.
 
---
-Linaro LKFT
-https://lkft.linaro.org
+Interestingly this has been fixed before via commit ff86bf0c65f1
+("alarmtimer: Rate limit periodic intervals") already, but that fix got
+lost in a later rework.
+
+Fixes: f2c45807d399 ("alarmtimer: Switch over to generic set/get/rearm routine")
+Reported-by: syzbot+b9564ba6e8e00694511b@syzkaller.appspotmail.com
+Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
+Acked-by: John Stultz <jstultz@google.com>
+Cc: stable@vger.kernel.org
+Link: https://lore.kernel.org/r/87k00q1no2.ffs@tglx
+---
+Backport for 4.14, 4.19, 5.4
+---
+ kernel/time/alarmtimer.c |   33 +++++++++++++++++++++++++++++----
+ 1 file changed, 29 insertions(+), 4 deletions(-)
+
+--- a/kernel/time/alarmtimer.c
++++ b/kernel/time/alarmtimer.c
+@@ -476,11 +476,35 @@ u64 alarm_forward(struct alarm *alarm, k
+ }
+ EXPORT_SYMBOL_GPL(alarm_forward);
+ 
+-u64 alarm_forward_now(struct alarm *alarm, ktime_t interval)
++static u64 __alarm_forward_now(struct alarm *alarm, ktime_t interval, bool throttle)
+ {
+ 	struct alarm_base *base = &alarm_bases[alarm->type];
++	ktime_t now = base->gettime();
++
++	if (IS_ENABLED(CONFIG_HIGH_RES_TIMERS) && throttle) {
++		/*
++		 * Same issue as with posix_timer_fn(). Timers which are
++		 * periodic but the signal is ignored can starve the system
++		 * with a very small interval. The real fix which was
++		 * promised in the context of posix_timer_fn() never
++		 * materialized, but someone should really work on it.
++		 *
++		 * To prevent DOS fake @now to be 1 jiffie out which keeps
++		 * the overrun accounting correct but creates an
++		 * inconsistency vs. timer_gettime(2).
++		 */
++		ktime_t kj = NSEC_PER_SEC / HZ;
++
++		if (interval < kj)
++			now = ktime_add(now, kj);
++	}
++
++	return alarm_forward(alarm, now, interval);
++}
+ 
+-	return alarm_forward(alarm, base->gettime(), interval);
++u64 alarm_forward_now(struct alarm *alarm, ktime_t interval)
++{
++	return __alarm_forward_now(alarm, interval, false);
+ }
+ EXPORT_SYMBOL_GPL(alarm_forward_now);
+ 
+@@ -554,9 +578,10 @@ static enum alarmtimer_restart alarm_han
+ 	if (posix_timer_event(ptr, si_private) && ptr->it_interval) {
+ 		/*
+ 		 * Handle ignored signals and rearm the timer. This will go
+-		 * away once we handle ignored signals proper.
++		 * away once we handle ignored signals proper. Ensure that
++		 * small intervals cannot starve the system.
+ 		 */
+-		ptr->it_overrun += alarm_forward_now(alarm, ptr->it_interval);
++		ptr->it_overrun += __alarm_forward_now(alarm, ptr->it_interval, true);
+ 		++ptr->it_requeue_pending;
+ 		ptr->it_active = 1;
+ 		result = ALARMTIMER_RESTART;
