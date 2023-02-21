@@ -2,132 +2,112 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 24A2269DC74
-	for <lists+stable@lfdr.de>; Tue, 21 Feb 2023 10:00:33 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4559569DC99
+	for <lists+stable@lfdr.de>; Tue, 21 Feb 2023 10:11:40 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233762AbjBUJAb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 21 Feb 2023 04:00:31 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45262 "EHLO
+        id S233843AbjBUJLi (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 21 Feb 2023 04:11:38 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51956 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233673AbjBUJAa (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 21 Feb 2023 04:00:30 -0500
-Received: from mail-vs1-xe32.google.com (mail-vs1-xe32.google.com [IPv6:2607:f8b0:4864:20::e32])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3A4711CF48
-        for <stable@vger.kernel.org>; Tue, 21 Feb 2023 01:00:29 -0800 (PST)
-Received: by mail-vs1-xe32.google.com with SMTP id m10so1590134vso.4
-        for <stable@vger.kernel.org>; Tue, 21 Feb 2023 01:00:29 -0800 (PST)
+        with ESMTP id S233748AbjBUJLh (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 21 Feb 2023 04:11:37 -0500
+Received: from mail-pg1-x52f.google.com (mail-pg1-x52f.google.com [IPv6:2607:f8b0:4864:20::52f])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 67CCE23858;
+        Tue, 21 Feb 2023 01:11:36 -0800 (PST)
+Received: by mail-pg1-x52f.google.com with SMTP id p6so2048195pga.0;
+        Tue, 21 Feb 2023 01:11:36 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google; t=1676970028;
-        h=cc:to:subject:message-id:date:from:mime-version:from:to:cc:subject
-         :date:message-id:reply-to;
-        bh=snrQn0Tlo0gQ0uyxV6hinZ9sS9jKVp6Wr9FYbxThYg0=;
-        b=Ihnac5gfGHfOeKIQ6rEZ747/YTP2w/waPucMxpymT9yMA4q5aG/5WwANfn3AIGnxSG
-         L0TBbDRH1Iz1xP3I2Ip0KkjxjJ3TmsoeCBstrVs6DtpCf9VeCxhNr3fjIjkVf8N7E6Z+
-         rrnCykcs5UxfoLJ6+ljrRqGjd4nWN0g4klu6u3heskV2b1v4BQoiV9aDetD5y2YR2H8U
-         eI9cBVXZeCi4Kb/JLeCv3OwstOTqNN6vg5zKFyxS1ibf+2cAiWLRb5aVi4Nud3aFPhKm
-         ZwU74tNe2xcAlRVdDtyd4xCwRqrRbKLE9yN9ftJ6F3FegpXAU3Tk0vDR0mCeNIyR9Jyn
-         /h+g==
+        d=gmail.com; s=20210112;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
+        bh=nCmHgfpMxViqDLmcKLWqNfQ12zWvq/2JIFuWMxvapXQ=;
+        b=MWkrpyphbx/NrCFrs5ZMCOvEEG5BIfRP8jMfr005eA2qt8qndOWDmCB8xLqi3f8r4w
+         zcsdehUJnwdujJWWg3iD1ZW2HJp6hbMzPsxwGMUy4+M4L8k2wTbYvNSFvKzvj/8ulcGJ
+         7XGJGT6yhcUFJ4fyH4yJb4ICj/54rpKbPxPNWjpm841PMtPMJKNh7bFPAH9NmD8lSidE
+         RZwOnc30LMMcrSt083cqsKj9MTuYtgTrkSKZeVc8qTYg7ISqkGeSR6B2eD0TTPZKGhb8
+         24+7s0GDV3o807NOSx4drLpjSF3k+GyZgFX5GZh8zSHr16tYqfpl7PPY6yz7FxjVdjGX
+         aFyg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112; t=1676970028;
-        h=cc:to:subject:message-id:date:from:mime-version:x-gm-message-state
-         :from:to:cc:subject:date:message-id:reply-to;
-        bh=snrQn0Tlo0gQ0uyxV6hinZ9sS9jKVp6Wr9FYbxThYg0=;
-        b=XfXvLb7zgRFsWs5eY8DVoAJOLKCpzmXt24e9oQGhD5YeoOaQVG+CQ/ID7oj4RhiqNz
-         tDmmWal2aWgtt8y+0s94GL3CCAE/jPA+UoWE0rTf1UJ7gpdguapYsnnenWZXRHQoPTuT
-         NPnWHOGXiKtgTFV7raoReV9B+XGOTWZ/eqkyvxza4qmwK03h/B2J1rDivOWLPyiMcFst
-         7rDGFthH9BTzfQ34knmagi25U0T3PmhtgBJBjGUMlgcO2azeYnz4iQ+rZzlvIK28By0u
-         GrGFDzAvdsWB/aBwK007gLY38ghZkfBRF3N9E6Y9gOjQjZJeTWWCUBkb1w/YLk+1pH9n
-         hgmw==
-X-Gm-Message-State: AO0yUKUulGLqOKynCcTunQfbvVZSQ9Iz4JfctlfGjVaqPqueNK6T/00V
-        yUod6Ydf41QAht/MBXjSvurZz/diRJM8euAi8rD9fg==
-X-Google-Smtp-Source: AK7set+3kFO9Mj/lchoJZ/OJccFPwKQD+LlOMwYfhMHf93Wr+N7ICLxTR5wKhJAMLAVWhex11pcwB4yjBiMiNk5Me/4=
-X-Received: by 2002:a05:6102:a24:b0:41e:991d:8814 with SMTP id
- 4-20020a0561020a2400b0041e991d8814mr134187vsb.71.1676970028117; Tue, 21 Feb
- 2023 01:00:28 -0800 (PST)
+        d=1e100.net; s=20210112;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=nCmHgfpMxViqDLmcKLWqNfQ12zWvq/2JIFuWMxvapXQ=;
+        b=Opd6SlalzRiNz+UJcpCqvkwr36cYqd3FGcRrFSYoY3llni+WvqcNkIyn24bE6uxlLe
+         as0wrueFD4FyGjXXZNEnsoxlHu2jelsIC6IFOfbAfVxpBcSfxkoEVmkkukXD2sdMWFZZ
+         RFFPtP5tCAw3GGgGnQBroinY0agMJY8rvSKo6Wx0NXSB+NNVQ5BGvV+N9Lw5Zmm9i4Zk
+         BIf+N37Uqvmlyuo1X4/gZ+ThDcN5/IfRbaXWZVIqFfrIZ2YOt+isoJrHc/NIVPAXa1/m
+         tC2vOy5Y1pQlQfhi/9VA+ZhKZSXnyheaGyzQU4weGG8wWh7kOeWRYDPg+BVFJUM1YpUE
+         gDdQ==
+X-Gm-Message-State: AO0yUKVlhufLVvc+VAJLRc7FyQqetQPjQxWHVF1I7b43y8mafZvn79c9
+        Eh2MN69fWB4BDkg+kBCnDDU=
+X-Google-Smtp-Source: AK7set+QdnNzvwjiS0tviDr7Iw8v5hHFa9TJdJSdE7XorejlWIBvoeszUhC5GyqfQXAK8UpWQoJtnQ==
+X-Received: by 2002:aa7:8ecc:0:b0:5a9:b910:6d98 with SMTP id b12-20020aa78ecc000000b005a9b9106d98mr4648297pfr.13.1676970695558;
+        Tue, 21 Feb 2023 01:11:35 -0800 (PST)
+Received: from debian.me (subs02-180-214-232-76.three.co.id. [180.214.232.76])
+        by smtp.gmail.com with ESMTPSA id e1-20020a62ee01000000b00594235980e4sm1728168pfi.181.2023.02.21.01.11.34
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 21 Feb 2023 01:11:35 -0800 (PST)
+Received: by debian.me (Postfix, from userid 1000)
+        id 93421103DE1; Tue, 21 Feb 2023 16:11:29 +0700 (WIB)
+Date:   Tue, 21 Feb 2023 16:11:29 +0700
+From:   Bagas Sanjaya <bagasdotme@gmail.com>
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        stable@vger.kernel.org
+Cc:     patches@lists.linux.dev, linux-kernel@vger.kernel.org,
+        torvalds@linux-foundation.org, akpm@linux-foundation.org,
+        linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
+        lkft-triage@lists.linaro.org, pavel@denx.de, jonathanh@nvidia.com,
+        f.fainelli@gmail.com, sudipm.mukherjee@gmail.com,
+        srw@sladewatkins.net, rwarsow@gmx.de
+Subject: Re: [PATCH 6.1 000/118] 6.1.13-rc1 review
+Message-ID: <Y/SKwVOIgDUxcxyH@debian.me>
+References: <20230220133600.368809650@linuxfoundation.org>
 MIME-Version: 1.0
-From:   Naresh Kamboju <naresh.kamboju@linaro.org>
-Date:   Tue, 21 Feb 2023 14:30:17 +0530
-Message-ID: <CA+G9fYt9T=ELCLaB9byxaLW2Qf4pZcDO=huCA0D8ug2V2+irJQ@mail.gmail.com>
-Subject: stable-rc: 5.10: riscv: defconfig: clang-nightly: build failed -
- Invalid or unknown z ISA extension: 'zifencei'
-To:     llvm@lists.linux.dev,
-        linux-riscv <linux-riscv@lists.infradead.org>,
-        linux-stable <stable@vger.kernel.org>,
-        lkft-triage@lists.linaro.org
-Cc:     Nathan Chancellor <nathan@kernel.org>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Sasha Levin <sashal@kernel.org>, conor@kernel.org,
-        Heiko Stuebner <heiko@sntech.de>
-Content-Type: text/plain; charset="UTF-8"
-X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_NONE,
-        SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
+Content-Type: multipart/signed; micalg=pgp-sha512;
+        protocol="application/pgp-signature"; boundary="VbTdTAdj2F7p+sKI"
+Content-Disposition: inline
+In-Reply-To: <20230220133600.368809650@linuxfoundation.org>
+X-Spam-Status: No, score=-0.6 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_FROM,
+        RCVD_IN_DNSWL_NONE,RCVD_IN_SORBS_WEB,SPF_HELO_NONE,SPF_PASS
+        autolearn=no autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-The riscv defconfig and tinyconfig builds failed with clang-nightly
-due to below build warnings / errors on latest stable-rc 5.10.
 
-Regression on riscv:
-  - build/clang-nightly-tinyconfig - FAILED
-  - build/clang-nightly-defconfig - FAILED
+--VbTdTAdj2F7p+sKI
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-Reported-by: Linux Kernel Functional Testing <lkft@linaro.org>
+On Mon, Feb 20, 2023 at 02:35:16PM +0100, Greg Kroah-Hartman wrote:
+> This is the start of the stable review cycle for the 6.1.13 release.
+> There are 118 patches in this series, all will be posted as a response
+> to this one.  If anyone has any issues with these being applied, please
+> let me know.
+>=20
 
-metadata:
------
-  git_repo: https://gitlab.com/Linaro/lkft/mirrors/stable/linux-stable-rc
-  git_sha: 7d11e4c4fc56eb25c5b41da93748dbcf21956316
-  git_short_log: 7d11e4c4fc56 ("Linux 5.10.169-rc1")
-  git_describe: v5.10.168-58-g7d11e4c4fc56
+Successfully cross-compiled for arm64 (bcm2711_defconfig, GCC 10.2.0) and
+powerpc (ps3_defconfig, GCC 12.2.0).
 
-Build log:
-----
-make --silent --keep-going --jobs=8
-O=/home/tuxbuild/.cache/tuxmake/builds/1/build ARCH=riscv
-CROSS_COMPILE=riscv64-linux-gnu- HOSTCC=clang CC=clang LLVM=1
-LLVM_IAS=1 LD=riscv64-linux-gnu-ld
-riscv64-linux-gnu-ld: -march=rv64i2p0_m2p0_a2p0_zicsr2p0_zifencei2p0:
-Invalid or unknown z ISA extension: 'zifencei'
-riscv64-linux-gnu-ld: failed to merge target specific data of file
-init/version.o
-riscv64-linux-gnu-ld: -march=rv64i2p0_m2p0_a2p0_zicsr2p0_zifencei2p0:
-Invalid or unknown z ISA extension: 'zifencei'
-riscv64-linux-gnu-ld: failed to merge target specific data of file
-init/do_mounts.o
-riscv64-linux-gnu-ld: -march=rv64i2p0_m2p0_a2p0_zicsr2p0_zifencei2p0:
-Invalid or unknown z ISA extension: 'zifencei'
-riscv64-linux-gnu-ld: failed to merge target specific data of file
-init/noinitramfs.o
-riscv64-linux-gnu-ld: -march=rv64i2p0_m2p0_a2p0_zicsr2p0_zifencei2p0:
-Invalid or unknown z ISA extension: 'zifencei'
-riscv64-linux-gnu-ld: failed to merge target specific data of file
-init/calibrate.o
-riscv64-linux-gnu-ld: -march=rv64i2p0_m2p0_a2p0_zicsr2p0_zifencei2p0:
-Invalid or unknown z ISA extension: 'zifencei'
+Tested-by: Bagas Sanjaya <bagasdotme@gmail.com>
 
-Build details,
-https://qa-reports.linaro.org/lkft/linux-stable-rc-linux-5.10.y/build/v5.10.168-58-g7d11e4c4fc56/testrun/14869376/suite/build/test/clang-nightly-tinyconfig/details/
+--=20
+An old man doll... just what I always wanted! - Clara
 
-Build history,
-https://qa-reports.linaro.org/lkft/linux-stable-rc-linux-5.10.y/build/v5.10.168-58-ga96fb51aec5a/testrun/14866489/suite/build/test/clang-nightly-defconfig/details/
+--VbTdTAdj2F7p+sKI
+Content-Type: application/pgp-signature; name="signature.asc"
 
-https://qa-reports.linaro.org/lkft/linux-stable-rc-linux-5.10.y/build/v5.10.168-58-g7d11e4c4fc56/testrun/14869376/suite/build/test/clang-nightly-tinyconfig/history/
+-----BEGIN PGP SIGNATURE-----
 
-steps to reproduce:
------------
-# To install tuxmake on your system globally:
-# sudo pip3 install -U tuxmake
-#
-# See https://docs.tuxmake.org/ for complete documentation.
-# Original tuxmake command with fragments listed below.
-# tuxmake --runtime podman --target-arch riscv --toolchain
-clang-nightly --kconfig tinyconfig LLVM=1 LLVM_IAS=1
-LD=riscv64-linux-gnu-ld
+iHUEABYKAB0WIQSSYQ6Cy7oyFNCHrUH2uYlJVVFOowUCY/SKsAAKCRD2uYlJVVFO
+o9BKAP9QNyO0YV+M4mXbjoH+4Mszm/LoyYxVJYpVf+fEi7KbgQD/fgd1mnVA3URL
+PE2wFsr+sw5nAsb2trMBbRcz/mteLQs=
+=Osl3
+-----END PGP SIGNATURE-----
 
---
-Linaro LKFT
-https://lkft.linaro.org
+--VbTdTAdj2F7p+sKI--
