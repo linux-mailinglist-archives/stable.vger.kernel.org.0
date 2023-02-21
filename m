@@ -2,241 +2,139 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D09BA69E057
-	for <lists+stable@lfdr.de>; Tue, 21 Feb 2023 13:28:11 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6907869E06C
+	for <lists+stable@lfdr.de>; Tue, 21 Feb 2023 13:31:05 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234036AbjBUM2K (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 21 Feb 2023 07:28:10 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51748 "EHLO
+        id S233810AbjBUMbD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 21 Feb 2023 07:31:03 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56720 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234166AbjBUM2J (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 21 Feb 2023 07:28:09 -0500
-Received: from mail-vs1-xe34.google.com (mail-vs1-xe34.google.com [IPv6:2607:f8b0:4864:20::e34])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AED469761
-        for <stable@vger.kernel.org>; Tue, 21 Feb 2023 04:28:06 -0800 (PST)
-Received: by mail-vs1-xe34.google.com with SMTP id e5so4724264vsl.11
-        for <stable@vger.kernel.org>; Tue, 21 Feb 2023 04:28:06 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google; t=1676982486;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=6s881pmuKwph24asBcE5u5JIORQ5AHE6gdovKQqgyMs=;
-        b=TPOMTNt0WiYkI2y93B0i8TZbPyD1GxgQWEaxNLI/oi8xc6ywzhHKusXaxgiez+3awM
-         Bl/u0wNJ6PtNG2ofV2jsAyaqRlCKAJ3KEKh3SID1aEizECMvXv8J58p2sdbhq5vsy4iM
-         gsevlU7g/a2qo41pKK3rCRGvv4BZ82on+Z/8t353kwfpEWO46veyFtWNVjkPStNCsGVS
-         rRDp3qMyAKuAnRXw6k9+qgHWNr5yaSBaJxKgtmMTTNuZPNKlMaJT/DIos2Vsvi4FWfoq
-         Iym2Wvoq+yx45h/2XAX2BH1s2LJaWu8Ucvsn8JsCP5t7XP3E7Tox045R43wvQJ6ytfvn
-         hwDA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112; t=1676982486;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=6s881pmuKwph24asBcE5u5JIORQ5AHE6gdovKQqgyMs=;
-        b=I8qgeYUpHfZbGUFdR60eipWlPxiweAFpZBA2n/bHWY7WD1dHDeSsHjR6ETBGYYi1bR
-         K36QOTgX+8UW8DtzBp63nB8vtRcp5YkSpZjQ7alshF3GBRG7bKt5UQYfAyWNPGnIe88S
-         DTL6kB8n6Slg4mBqXP3ZST90+LZsKgGJGWkKDJhUTAXpKPuJg5HAI6i4pVck3LvHR8iZ
-         RYvZZmWTImvzCP0eox/aHtEgnrHxazss9R0J3ZzaFj3JA9MpyH1IbsYdO+9Aph1JD9MX
-         dYwzbSusupXEAWFKS92E3NouhfIVBIwzh3COnJiIUCgTh3VHhm9gjwxZM0Y0f721/9J+
-         f4eQ==
-X-Gm-Message-State: AO0yUKVdVF4JKzNisJEHE9LNhZqJ4L5xwUeYKjwdzjon1YcNCSA2v9z3
-        ka9Sofm9f7RWMQxRi9CXAAqUKlRHqbFMPyUYNsG/UA==
-X-Google-Smtp-Source: AK7set9CgFAXa8X0dpmM5jq8DddbwBC8HpXgS0UKe/A1/EqRqLiIunwYtMqRjMGQ2584zHktQaX59LdgAs5TVJ0D6Jo=
-X-Received: by 2002:a05:6102:a24:b0:41e:991d:8814 with SMTP id
- 4-20020a0561020a2400b0041e991d8814mr223496vsb.71.1676982485594; Tue, 21 Feb
- 2023 04:28:05 -0800 (PST)
+        with ESMTP id S233756AbjBUMbA (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 21 Feb 2023 07:31:00 -0500
+Received: from szxga08-in.huawei.com (szxga08-in.huawei.com [45.249.212.255])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 992552943F
+        for <stable@vger.kernel.org>; Tue, 21 Feb 2023 04:30:29 -0800 (PST)
+Received: from kwepemm600017.china.huawei.com (unknown [172.30.72.54])
+        by szxga08-in.huawei.com (SkyGuard) with ESMTP id 4PLdpt51h1z16Nlb;
+        Tue, 21 Feb 2023 20:27:50 +0800 (CST)
+Received: from [10.174.179.234] (10.174.179.234) by
+ kwepemm600017.china.huawei.com (7.193.23.234) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
+ 15.1.2507.17; Tue, 21 Feb 2023 20:30:18 +0800
+Message-ID: <c815410b-dc86-dbaa-161f-3267d816c3f7@huawei.com>
+Date:   Tue, 21 Feb 2023 20:30:17 +0800
 MIME-Version: 1.0
-References: <20230220133553.066768704@linuxfoundation.org>
-In-Reply-To: <20230220133553.066768704@linuxfoundation.org>
-From:   Naresh Kamboju <naresh.kamboju@linaro.org>
-Date:   Tue, 21 Feb 2023 17:57:54 +0530
-Message-ID: <CA+G9fYuXJVQK-a-EVR+Z=ihgEwQPsaF9kafW=JYWpY3JztsYRA@mail.gmail.com>
-Subject: Re: [PATCH 4.19 00/89] 4.19.273-rc1 review
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     stable@vger.kernel.org, patches@lists.linux.dev,
-        linux-kernel@vger.kernel.org, torvalds@linux-foundation.org,
-        akpm@linux-foundation.org, linux@roeck-us.net, shuah@kernel.org,
-        patches@kernelci.org, lkft-triage@lists.linaro.org, pavel@denx.de,
-        jonathanh@nvidia.com, f.fainelli@gmail.com,
-        sudipm.mukherjee@gmail.com, srw@sladewatkins.net, rwarsow@gmx.de
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
-X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_NONE,
-        SPF_HELO_NONE,SPF_PASS autolearn=unavailable autolearn_force=no
-        version=3.4.6
+User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:91.0) Gecko/20100101
+ Thunderbird/91.8.0
+Subject: Re: Consultation on backport 97e3d26b5e5f("x86/mm: Randomize per-cpu
+ entry area") to stable
+To:     Greg KH <gregkh@linuxfoundation.org>
+CC:     <peterz@infradead.org>, <keescook@chromium.org>,
+        <sethjenkins@google.com>,
+        Dave Hansen <dave.hansen@linux.intel.com>, <bp@suse.de>,
+        <stable@vger.kernel.org>
+References: <2b814e48-d304-e48a-e4b4-c39a10d2dbf4@huawei.com>
+ <Y/RzDvXr/iGpHl+f@kroah.com>
+ <e2fea1a1-982d-20c8-d92c-bc4ed4d1d711@huawei.com>
+ <Y/SDj9kdYrwoSYHh@kroah.com>
+ <2c56661c-d2ca-d1b0-da69-89a5e1f3e67f@huawei.com>
+ <Y/SfsU6rS0qraYhk@kroah.com>
+From:   Tong Tiangen <tongtiangen@huawei.com>
+In-Reply-To: <Y/SfsU6rS0qraYhk@kroah.com>
+Content-Type: text/plain; charset="UTF-8"; format=flowed
+Content-Transfer-Encoding: 8bit
+X-Originating-IP: [10.174.179.234]
+X-ClientProxiedBy: dggems705-chm.china.huawei.com (10.3.19.182) To
+ kwepemm600017.china.huawei.com (7.193.23.234)
+X-CFilter-Loop: Reflected
+X-Spam-Status: No, score=-4.3 required=5.0 tests=BAYES_00,NICE_REPLY_A,
+        RCVD_IN_DNSWL_MED,RCVD_IN_MSPIKE_H2,SPF_HELO_NONE,SPF_PASS
+        autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, 20 Feb 2023 at 19:10, Greg Kroah-Hartman
-<gregkh@linuxfoundation.org> wrote:
->
-> This is the start of the stable review cycle for the 4.19.273 release.
-> There are 89 patches in this series, all will be posted as a response
-> to this one.  If anyone has any issues with these being applied, please
-> let me know.
->
-> Responses should be made by Wed, 22 Feb 2023 13:35:35 +0000.
-> Anything received after that time might be too late.
->
-> The whole patch series can be found in one patch at:
->         https://www.kernel.org/pub/linux/kernel/v4.x/stable-review/patch-=
-4.19.273-rc1.gz
-> or in the git tree and branch at:
->         git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable=
--rc.git linux-4.19.y
-> and the diffstat can be found below.
->
+
+
+在 2023/2/21 18:40, Greg KH 写道:
+> On Tue, Feb 21, 2023 at 05:19:42PM +0800, Tong Tiangen wrote:
+>>
+>>
+>> 在 2023/2/21 16:40, Greg KH 写道:
+>>> On Tue, Feb 21, 2023 at 03:46:27PM +0800, Tong Tiangen wrote:
+>>>>
+>>>>
+>>>> 在 2023/2/21 15:30, Greg KH 写道:
+>>>>> On Tue, Feb 21, 2023 at 03:19:05PM +0800, Tong Tiangen wrote:
+>>>>>> Hi peter:
+>>>>>>
+>>>>>> Do you have any plans to backport this patch[1] to the stable branch of the
+>>>>>> lower version, such as 4.19.y ?
+>>>>>
+>>>>> Why?  That is a new feature for 6.2 why would it be needed to fix
+>>>>> anything in really old kernels?
+>>>>
+>>>> Hi Greg:
+>>>>
+>>>> This patch fix CVE-2023-0597[1],
+>>>
+>>> The kernel developers do not care about CVEs as they are almost always
+>>> invalid and do not mean anything,
+>>
+>> Ok, thanks.
+>>
+>>
+>>> sorry.  It is well known that, companies like Red Hat use them to make
+>>> up for broken internal engineering policies.
+>>
+>> Yeah, For company's internal engineering policies, the CVE with certain
+>> impact must be repaired.
+> 
+> So you are letting an opaque US government agency, and random third
+> party companies, dictate your company's internal engineering policies
+> and resource allocations?  That feels very very odd and ripe for abuse.
+> 
+> Also note that MITRE refuses to allocate CVEs for many real kernel
+> issues for unknown reasons, (i.e. they reject all of my requests), so
+> you are getting only a small subset of real issues here.
+> 
+> Also, how do you handle revocation of CVEs that are obviously invalid
+> and/or don't actually do anything (like this one?)
+> 
+>>> Are you sure this really is a valid problem that must be fixed in older
+>>> kernels?
+>>>
+>>>> this CVE report a flaw possibility of memory leak. And this is
+>>>> important for some products using this stable version.
+>>>
+>>> What exact memory leak are you referring to?
+>>
+>> Sorry for Inaccurate description, the memory leak means: a potential
+>> security risk of kernel memory information disclosure caused by no
+>> randomization of the exception stacks.
+> 
+> And are you sure this can really happen?  Have you proven this?
+> 
+> And why is this really an issue, KASR is a known-week-defense and almost
+> useless against local attacks.
+> 
+> Anyway, please provide working patches if you think this really is an
+> issue.
+> 
+> And please revisit your company's policies, they do not seem very sane :)
+
+Hi Greg:
+
+Thanks for these very useful suggestions and we will revisit our policies :)
+
+Thanks,
+Tong
+.
+
+> 
 > thanks,
->
+> 
 > greg k-h
-
-
-Results from Linaro=E2=80=99s test farm.
-No regressions on arm64, arm, x86_64, and i386.
-
-Tested-by: Linux Kernel Functional Testing <lkft@linaro.org>
-
-## Build
-* kernel: 4.19.273-rc1
-* git: https://gitlab.com/Linaro/lkft/mirrors/stable/linux-stable-rc
-* git branch: linux-4.19.y
-* git commit: 717ab64d0adf6544c30105e64d851b388324c7ef
-* git describe: v4.19.272-90-g717ab64d0adf
-* test details:
-https://qa-reports.linaro.org/lkft/linux-stable-rc-linux-4.19.y/build/v4.19=
-.272-90-g717ab64d0adf
-
-## Test Regressions (compared to v4.19.272)
-
-## Metric Regressions (compared to v4.19.272)
-
-## Test Fixes (compared to v4.19.272)
-
-## Metric Fixes (compared to v4.19.272)
-
-## Test result summary
-total: 108520, pass: 84162, fail: 3369, skip: 20591, xfail: 398
-
-## Build Summary
-* arc: 10 total, 10 passed, 0 failed
-* arm: 232 total, 230 passed, 2 failed
-* arm64: 48 total, 47 passed, 1 failed
-* i386: 29 total, 28 passed, 1 failed
-* mips: 43 total, 43 passed, 0 failed
-* parisc: 12 total, 12 passed, 0 failed
-* powerpc: 57 total, 57 passed, 0 failed
-* s390: 15 total, 15 passed, 0 failed
-* sh: 24 total, 24 passed, 0 failed
-* sparc: 12 total, 12 passed, 0 failed
-* x86_64: 42 total, 41 passed, 1 failed
-
-## Test suites summary
-* boot
-* fwts
-* igt-gpu-tools
-* kselftest-android
-* kselftest-arm64
-* kselftest-breakpoints
-* kselftest-capabilities
-* kselftest-cgroup
-* kselftest-clone3
-* kselftest-core
-* kselftest-cpu-hotplug
-* kselftest-cpufreq
-* kselftest-drivers-dma-buf
-* kselftest-efivarfs
-* kselftest-filesystems
-* kselftest-filesystems-binderfs
-* kselftest-firmware
-* kselftest-fpu
-* kselftest-futex
-* kselftest-gpio
-* kselftest-intel_pstate
-* kselftest-ipc
-* kselftest-ir
-* kselftest-kcmp
-* kselftest-kexec
-* kselftest-kvm
-* kselftest-lib
-* kselftest-livepatch
-* kselftest-membarrier
-* kselftest-memfd
-* kselftest-memory-hotplug
-* kselftest-mincore
-* kselftest-mount
-* kselftest-mqueue
-* kselftest-net
-* kselftest-net-forwarding
-* kselftest-net-mptcp
-* kselftest-netfilter
-* kselftest-nsfs
-* kselftest-openat2
-* kselftest-pid_namespace
-* kselftest-pidfd
-* kselftest-proc
-* kselftest-pstore
-* kselftest-ptrace
-* kselftest-rseq
-* kselftest-rtc
-* kselftest-seccomp
-* kselftest-sigaltstack
-* kselftest-size
-* kselftest-splice
-* kselftest-static_keys
-* kselftest-sync
-* kselftest-sysctl
-* kselftest-tc-testing
-* kselftest-timens
-* kselftest-timers
-* kselftest-tmpfs
-* kselftest-tpm2
-* kselftest-user
-* kselftest-vm
-* kselftest-x86
-* kselftest-zram
-* kunit
-* kvm-unit-tests
-* libhugetlbfs
-* log-parser-boot
-* log-parser-test
-* ltp-cap_bounds
-* ltp-commands
-* ltp-containers
-* ltp-controllers
-* ltp-cpuhotplug
-* ltp-crypto
-* ltp-cve
-* ltp-dio
-* ltp-fcntl-locktests
-* ltp-filecaps
-* ltp-fs
-* ltp-fs_bind
-* ltp-fs_perms_simple
-* ltp-fsx
-* ltp-hugetlb
-* ltp-io
-* ltp-ipc
-* ltp-math
-* ltp-mm
-* ltp-nptl
-* ltp-open-posix-tests
-* ltp-pty
-* ltp-sched
-* ltp-securebits
-* ltp-smoke
-* ltp-syscalls
-* ltp-tracing
-* network-basic-tests
-* packetdrill
-* rcutorture
-* v4l2-compliance
-* vdso
-
---
-Linaro LKFT
-https://lkft.linaro.org
+> .
