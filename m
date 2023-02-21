@@ -2,49 +2,55 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 01E8A69DC41
-	for <lists+stable@lfdr.de>; Tue, 21 Feb 2023 09:41:10 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 028FE69DC46
+	for <lists+stable@lfdr.de>; Tue, 21 Feb 2023 09:42:16 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232995AbjBUIlI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 21 Feb 2023 03:41:08 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58746 "EHLO
+        id S233453AbjBUIln (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 21 Feb 2023 03:41:43 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59358 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233812AbjBUIk4 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 21 Feb 2023 03:40:56 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1D7A930C3
-        for <stable@vger.kernel.org>; Tue, 21 Feb 2023 00:40:51 -0800 (PST)
+        with ESMTP id S233843AbjBUIll (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 21 Feb 2023 03:41:41 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 782A6110;
+        Tue, 21 Feb 2023 00:41:40 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id AEB7260FB1
-        for <stable@vger.kernel.org>; Tue, 21 Feb 2023 08:40:50 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B6E55C433EF;
-        Tue, 21 Feb 2023 08:40:49 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 10961B80E8F;
+        Tue, 21 Feb 2023 08:41:39 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3D4DFC433D2;
+        Tue, 21 Feb 2023 08:41:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1676968850;
-        bh=V/Gb24IDzNc2yQ01JAZB/fR9Aiiw7H02DKt1P/USX3A=;
+        s=korg; t=1676968897;
+        bh=57nqzfGVuxrkqL24yI5SeHglbUx3waJxyAiXPHGLbdc=;
         h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=gtf9z/l1b0re4nnfXJWoiUPvEqH/rD/3nrQMGt454p5chLZxX6NNTsgyviNXRsORc
-         fLtchiUqHPfKnrROA6pruyOmkU7u2WCuMnZRBYz5EgEiMzbE4F8VymyZmgh+KC0/x7
-         5gbmCsUpNMrEDGkU0xK/yDk1+EZB1yUD+GtqrzB8=
-Date:   Tue, 21 Feb 2023 09:40:47 +0100
-From:   Greg KH <gregkh@linuxfoundation.org>
-To:     Tong Tiangen <tongtiangen@huawei.com>
-Cc:     peterz@infradead.org, keescook@chromium.org,
-        sethjenkins@google.com, Dave Hansen <dave.hansen@linux.intel.com>,
-        bp@suse.de, stable@vger.kernel.org
-Subject: Re: Consultation on backport 97e3d26b5e5f("x86/mm: Randomize per-cpu
- entry area") to stable
-Message-ID: <Y/SDj9kdYrwoSYHh@kroah.com>
-References: <2b814e48-d304-e48a-e4b4-c39a10d2dbf4@huawei.com>
- <Y/RzDvXr/iGpHl+f@kroah.com>
- <e2fea1a1-982d-20c8-d92c-bc4ed4d1d711@huawei.com>
+        b=lHzC4OLEFGIys80zD/pQCH2fuDiUdlnvsl3GLh0UfFR/Pdv61iMbueMHz5AsKJFr3
+         famEkZo1wBPAq7Bl84fd18R5R/MxRCZpaFBB+xyBKza9LcoPcVzKkXzMDzll/89kqb
+         GXuDmcoFEZBUHfjsSN8oCzD00nZF2GYYleBUfehw=
+Date:   Tue, 21 Feb 2023 09:41:35 +0100
+From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+To:     Paolo Abeni <pabeni@redhat.com>
+Cc:     stable@vger.kernel.org, patches@lists.linux.dev,
+        Jamal Hadi Salim <jhs@mojatatu.com>,
+        Cong Wang <xiyou.wangcong@gmail.com>,
+        Jiri Pirko <jiri@resnulli.us>,
+        "David S. Miller" <davem@davemloft.net>,
+        Eric Dumazet <edumazet@google.com>,
+        Jakub Kicinski <kuba@kernel.org>, netdev@vger.kernel.org,
+        Kees Cook <keescook@chromium.org>,
+        Simon Horman <simon.horman@corigine.com>,
+        Cong Wang <cong.wang@bytedance.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: Re: [PATCH 5.4 096/156] net: sched: sch: Bounds check priority
+Message-ID: <Y/SDvySpXrsemVpH@kroah.com>
+References: <20230220133602.515342638@linuxfoundation.org>
+ <20230220133606.471631231@linuxfoundation.org>
+ <1bfe95ba03a58d773f50a628b9fb5e007dd124ad.camel@redhat.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <e2fea1a1-982d-20c8-d92c-bc4ed4d1d711@huawei.com>
+In-Reply-To: <1bfe95ba03a58d773f50a628b9fb5e007dd124ad.camel@redhat.com>
 X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
         DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
         SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
@@ -54,35 +60,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, Feb 21, 2023 at 03:46:27PM +0800, Tong Tiangen wrote:
+On Tue, Feb 21, 2023 at 08:45:18AM +0100, Paolo Abeni wrote:
+> Hello,
 > 
-> 
-> 在 2023/2/21 15:30, Greg KH 写道:
-> > On Tue, Feb 21, 2023 at 03:19:05PM +0800, Tong Tiangen wrote:
-> > > Hi peter:
-> > > 
-> > > Do you have any plans to backport this patch[1] to the stable branch of the
-> > > lower version, such as 4.19.y ?
+> On Mon, 2023-02-20 at 14:35 +0100, Greg Kroah-Hartman wrote:
+> > From: Kees Cook <keescook@chromium.org>
 > > 
-> > Why?  That is a new feature for 6.2 why would it be needed to fix
-> > anything in really old kernels?
+> > [ Upstream commit de5ca4c3852f896cacac2bf259597aab5e17d9e3 ]
+> > 
+> > Nothing was explicitly bounds checking the priority index used to access
+> > clpriop[]. WARN and bail out early if it's pathological. Seen with GCC 13:
+> > 
+> > ../net/sched/sch_htb.c: In function 'htb_activate_prios':
+> > ../net/sched/sch_htb.c:437:44: warning: array subscript [0, 31] is outside array bounds of 'struct htb_prio[8]' [-Warray-bounds=]
+> >   437 |                         if (p->inner.clprio[prio].feed.rb_node)
+> >       |                             ~~~~~~~~~~~~~~~^~~~~~
+> > ../net/sched/sch_htb.c:131:41: note: while referencing 'clprio'
+> >   131 |                         struct htb_prio clprio[TC_HTB_NUMPRIO];
+> >       |                                         ^~~~~~
+> > 
+> > Cc: Jamal Hadi Salim <jhs@mojatatu.com>
+> > Cc: Cong Wang <xiyou.wangcong@gmail.com>
+> > Cc: Jiri Pirko <jiri@resnulli.us>
+> > Cc: "David S. Miller" <davem@davemloft.net>
+> > Cc: Eric Dumazet <edumazet@google.com>
+> > Cc: Jakub Kicinski <kuba@kernel.org>
+> > Cc: Paolo Abeni <pabeni@redhat.com>
+> > Cc: netdev@vger.kernel.org
+> > Signed-off-by: Kees Cook <keescook@chromium.org>
+> > Reviewed-by: Simon Horman <simon.horman@corigine.com>
+> > Reviewed-by: Cong Wang <cong.wang@bytedance.com>
+> > Link: https://lore.kernel.org/r/20230127224036.never.561-kees@kernel.org
+> > Signed-off-by: Paolo Abeni <pabeni@redhat.com>
+> > Signed-off-by: Sasha Levin <sashal@kernel.org>
 > 
-> Hi Greg:
+> This one has a follow-up which I don't see among the patches reaching
+> the netdev ML:
 > 
-> This patch fix CVE-2023-0597[1],
+> commit 9cec2aaffe969f2a3e18b5ec105fc20bb908e475
+> Author: Dan Carpenter <error27@gmail.com>
+> Date:   Mon Feb 6 16:18:32 2023 +0300
+> 
+>     net: sched: sch: Fix off by one in htb_activate_prios()
 
-The kernel developers do not care about CVEs as they are almost always
-invalid and do not mean anything, sorry.  It is well known that
-companies like Red Hat use them to make up for broken internal
-engineering policies.
-
-Are you sure this really is a valid problem that must be fixed in older
-kernels?
-
-> this CVE report a flaw possibility of memory leak. And this is
-> important for some products using this stable version.
-
-What exact memory leak are you referring to?
+This too is in the queue for 5.4 and newer kernels, are you sure you
+didn't miss that in this series?
 
 thanks,
 
