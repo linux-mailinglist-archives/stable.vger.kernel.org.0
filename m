@@ -2,33 +2,33 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 9483A69E840
-	for <lists+stable@lfdr.de>; Tue, 21 Feb 2023 20:29:20 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2F14369E842
+	for <lists+stable@lfdr.de>; Tue, 21 Feb 2023 20:29:59 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229529AbjBUT3S (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 21 Feb 2023 14:29:18 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47836 "EHLO
+        id S230087AbjBUT35 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 21 Feb 2023 14:29:57 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48856 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229441AbjBUT3S (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 21 Feb 2023 14:29:18 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1D26565BE;
-        Tue, 21 Feb 2023 11:29:17 -0800 (PST)
+        with ESMTP id S230062AbjBUT3z (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 21 Feb 2023 14:29:55 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 799112279C;
+        Tue, 21 Feb 2023 11:29:51 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 9DD32611B0;
-        Tue, 21 Feb 2023 19:29:16 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 907FDC433EF;
-        Tue, 21 Feb 2023 19:29:15 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 29A17B810A4;
+        Tue, 21 Feb 2023 19:29:50 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7093AC433D2;
+        Tue, 21 Feb 2023 19:29:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1677007756;
-        bh=sDkckEDYPe2T4IYT042I5oTejm2xLWpX6CyfhL+7BPs=;
+        s=korg; t=1677007788;
+        bh=ofMhM2dExFxHhPE1ZMCv/RtWFuMHRKLsE+vEiQe9g2s=;
         h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=ZNSSlLEA/hq3+t9CR6zYzHdLAfBWlkRAXLv7eT7liibU6pJJwKtU6S+/wQp48YEup
-         t1mt0+D6Jm86wzOmwHgj5UPfcIMmDGHvpEy7NT7fXYoF9AHJCq/m6s9jrl9mKURcuK
-         FJOSnX5/Q7+qfo+K+2nV5u8OuqHnN/f47xQR9L68=
-Date:   Tue, 21 Feb 2023 20:29:13 +0100
+        b=WMq579K/LueNch3lfjbzObwcK2eaiQ6+KxNnSY7YNJ5LAMbv5khcTtTPmIV7kCku/
+         zm8gQ4iwUUHYWa/MjKHEQb1NjJXtYlqJWOKtIsXaPBCXb7fARrYzoQgWJFANm2oxJz
+         8SCl/TdQi1S8CP9Ga5CzT0oG8G/lqnvVV8dcfcvo=
+Date:   Tue, 21 Feb 2023 20:29:46 +0100
 From:   Greg KH <gregkh@linuxfoundation.org>
 To:     KP Singh <kpsingh@kernel.org>
 Cc:     linux-kernel@vger.kernel.org, pjt@google.com, evn@google.com,
@@ -43,7 +43,7 @@ Cc:     linux-kernel@vger.kernel.org, pjt@google.com, evn@google.com,
         Alexandra Sandulescu <aesa@google.com>, stable@vger.kernel.org
 Subject: Re: [PATCH v2 1/2] x86/speculation: Allow enabling STIBP with legacy
  IBRS
-Message-ID: <Y/UbiZoR98xouEy5@kroah.com>
+Message-ID: <Y/UbqiHQ2/aczPzg@kroah.com>
 References: <20230221184908.2349578-1-kpsingh@kernel.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=iso-8859-1
@@ -79,32 +79,9 @@ On Tue, Feb 21, 2023 at 07:49:07PM +0100, KP Singh wrote:
 > ---
 >  arch/x86/kernel/cpu/bugs.c | 33 ++++++++++++++++++++++-----------
 >  1 file changed, 22 insertions(+), 11 deletions(-)
-> 
 
-Hi,
-
-This is the friendly patch-bot of Greg Kroah-Hartman.  You have sent him
-a patch that has triggered this response.  He used to manually respond
-to these common problems, but in order to save his sanity (he kept
-writing the same thing over and over, yet to different people), I was
-created.  Hopefully you will not take offence and will fix the problem
-in your patch and resubmit it so that it can be accepted into the Linux
-kernel tree.
-
-You are receiving this message because of the following common error(s)
-as indicated below:
-
-- This looks like a new version of a previously submitted patch, but you
-  did not list below the --- line any changes from the previous version.
-  Please read the section entitled "The canonical patch format" in the
-  kernel file, Documentation/process/submitting-patches.rst for what
-  needs to be done here to properly describe this.
-
-If you wish to discuss this problem further, or you have questions about
-how to resolve this issue, please feel free to respond to this email and
-Greg will reply once he has dug out from the pending patches received
-from other developers.
+Why isn't patch 2/2 for stable as well?
 
 thanks,
 
-greg k-h's patch email bot
+greg k-h
