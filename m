@@ -2,119 +2,116 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 4D50569E9AC
-	for <lists+stable@lfdr.de>; Tue, 21 Feb 2023 22:44:47 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5441A69EA36
+	for <lists+stable@lfdr.de>; Tue, 21 Feb 2023 23:33:46 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229734AbjBUVop (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 21 Feb 2023 16:44:45 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46500 "EHLO
+        id S229687AbjBUWdo (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 21 Feb 2023 17:33:44 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56828 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229798AbjBUVop (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 21 Feb 2023 16:44:45 -0500
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EFA872CFD0
-        for <stable@vger.kernel.org>; Tue, 21 Feb 2023 13:43:49 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1677015829;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:
-         content-transfer-encoding:content-transfer-encoding;
-        bh=34+UtMogjW73Ol6iiDYppo7y7ytBwPtcRfcoT5tMa8w=;
-        b=GzvKwmL+DeVQONq5fJVvo75zVv3VM1ACnsHDBLGHUYElFbxQ8nTg3/WyAWf2V2vMvFyXCV
-        ZFLBpRnuGWRYHPq7z98vK/FHFQnVpWDRliZqpa3h0iQWZcJqcTEosOfpdYXKbJHCxNUe60
-        EQlBQAFb3yVTPzOm2HamwQV5NO5sxkU=
-Received: from mail-qk1-f198.google.com (mail-qk1-f198.google.com
- [209.85.222.198]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_128_GCM_SHA256) id
- us-mta-631-UvOBjWnuN9q4kIOSND6KdQ-1; Tue, 21 Feb 2023 16:43:47 -0500
-X-MC-Unique: UvOBjWnuN9q4kIOSND6KdQ-1
-Received: by mail-qk1-f198.google.com with SMTP id bi9-20020a05620a318900b007423009db80so1059307qkb.7
-        for <stable@vger.kernel.org>; Tue, 21 Feb 2023 13:43:47 -0800 (PST)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:x-gm-message-state:from:to:cc:subject:date:message-id
-         :reply-to;
-        bh=34+UtMogjW73Ol6iiDYppo7y7ytBwPtcRfcoT5tMa8w=;
-        b=aDtuu7nIOtx6/AzZ5RN+i/dl9fjSmEHXIyTdDilbnQpX+iQcTPn/I4sCglpWSEj/O1
-         iqoVRDTF6o2uJqMC0wrWqyaTwk4TJb9/jKP/JhuLcCPUeyOtS8SODe4r39apVre4WNUz
-         kI0bu5DDif1oQvowhbmCrNEC4ASnIsWYCAu+OMn4Nf28PomSDm27qtM/YfdfPfu/fPca
-         KzsHXPsiCXYMD19ShuDyDFm/ZL9hQskjiXNzpLuuIjz/bsYpFr4KMA1sf2CDVyTcWSxa
-         9vKaXu0KaHOKwCacpvPv4Z973U4+rXai5hT99LGVDpQKnFEk0/ejgpOkBLRMeZnA3q0f
-         37/g==
-X-Gm-Message-State: AO0yUKWVNkIOoYjrvBrVH84N0Dm3cL+1F+A6AoApSfNDezCJ+TShDEtF
-        PifgSUwOgK3DXhvrD6VK/xoJ2+zx2cmqaOwyDce8ihdTV6aKxLBL6XaS2mkFctpGewjLP6VVHQm
-        lcaklZzuPekB7oYFW
-X-Received: by 2002:a05:622a:1002:b0:3b8:5199:f841 with SMTP id d2-20020a05622a100200b003b85199f841mr11179944qte.0.1677015827126;
-        Tue, 21 Feb 2023 13:43:47 -0800 (PST)
-X-Google-Smtp-Source: AK7set9TjAz8/InPJTdc2s1mAVbPGVdOmao8Z1FprSX/1ePcDq6rM6cu8qZFayZuieS9/eTg0PTxfg==
-X-Received: by 2002:a05:622a:1002:b0:3b8:5199:f841 with SMTP id d2-20020a05622a100200b003b85199f841mr11179923qte.0.1677015826887;
-        Tue, 21 Feb 2023 13:43:46 -0800 (PST)
-Received: from x1n.redhat.com (bras-base-aurron9127w-grc-56-70-30-145-63.dsl.bell.ca. [70.30.145.63])
-        by smtp.gmail.com with ESMTPSA id t144-20020a37aa96000000b0073b79edf46csm8989100qke.83.2023.02.21.13.43.45
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 21 Feb 2023 13:43:46 -0800 (PST)
-From:   Peter Xu <peterx@redhat.com>
-To:     linux-kernel@vger.kernel.org, linux-mm@kvack.org
-Cc:     Andrew Morton <akpm@linux-foundation.org>, peterx@redhat.com,
-        Johannes Weiner <hannes@cmpxchg.org>,
-        Yang Shi <shy828301@gmail.com>,
-        David Stevens <stevensd@chromium.org>, stable@vger.kernel.org
-Subject: [PATCH] mm/khugepaged: alloc_charge_hpage() take care of mem charge errors
-Date:   Tue, 21 Feb 2023 16:43:44 -0500
-Message-Id: <20230221214344.609226-1-peterx@redhat.com>
-X-Mailer: git-send-email 2.39.1
+        with ESMTP id S230313AbjBUWdn (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 21 Feb 2023 17:33:43 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 75AC52E0E3
+        for <stable@vger.kernel.org>; Tue, 21 Feb 2023 14:33:34 -0800 (PST)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 0CFE5611F9
+        for <stable@vger.kernel.org>; Tue, 21 Feb 2023 22:33:34 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C91A7C433EF;
+        Tue, 21 Feb 2023 22:33:32 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1677018813;
+        bh=bhXxhbEaEnMf8ZbGJA8+1NxgqqmQSzTnoWAE5jD/z6k=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=YVzmVHC2Mo9UUrN5K2TNb49Gqxw9oXP8BcGJThwDJMllEgZ91pbLbLBT/9WqjPotG
+         zcXv+DyOXkZXUK2CqaOfZg77KLmS7hp6dg7iqm4D59SMfdVAolDcJ6Cv4mpJh2o3kc
+         8YmjMz18+B1z/6IrOgOdiAUHWmfgGT3Pc23L0fwXrmQme02Zsz82VaozJfB0TCrcCp
+         hRTAVUWb6dkq8ioxGhApimK3tMyzrujU5fozZ8ffMLDKVcen05MS6MSTBV+BZA2EuA
+         BaZrKGJjvZEDsLevE7rDdpG4LUhmIvJwphkJxxRamcB+wfTaorGAf5QXPQx2rQ/DjG
+         PuTOQrIWoocOQ==
+Date:   Tue, 21 Feb 2023 15:33:31 -0700
+From:   Nathan Chancellor <nathan@kernel.org>
+To:     Conor Dooley <conor.dooley@microchip.com>
+Cc:     Naresh Kamboju <naresh.kamboju@linaro.org>, llvm@lists.linux.dev,
+        linux-riscv <linux-riscv@lists.infradead.org>,
+        linux-stable <stable@vger.kernel.org>,
+        lkft-triage@lists.linaro.org,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Sasha Levin <sashal@kernel.org>, conor@kernel.org,
+        Heiko Stuebner <heiko@sntech.de>
+Subject: Re: stable-rc: 5.10: riscv: defconfig: clang-nightly: build failed -
+ Invalid or unknown z ISA extension: 'zifencei'
+Message-ID: <Y/VGu9IOJEKi6VwS@dev-arch.thelio-3990X>
+References: <CA+G9fYt9T=ELCLaB9byxaLW2Qf4pZcDO=huCA0D8ug2V2+irJQ@mail.gmail.com>
+ <Y/SLn5fto6+9xX0r@wendy>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_NONE,
-        RCVD_IN_MSPIKE_H2,SPF_HELO_NONE,SPF_NONE autolearn=ham
-        autolearn_force=no version=3.4.6
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Y/SLn5fto6+9xX0r@wendy>
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+        SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-If memory charge failed, the caller shouldn't call mem_cgroup_uncharge().
-Let alloc_charge_hpage() handle the error itself and clear hpage properly
-if mem charge fails.
+On Tue, Feb 21, 2023 at 09:15:11AM +0000, Conor Dooley wrote:
+> On Tue, Feb 21, 2023 at 02:30:17PM +0530, Naresh Kamboju wrote:
+> > The riscv defconfig and tinyconfig builds failed with clang-nightly
+> > due to below build warnings / errors on latest stable-rc 5.10.
+> > 
+> > Regression on riscv:
+> >   - build/clang-nightly-tinyconfig - FAILED
+> >   - build/clang-nightly-defconfig - FAILED
+> 
+> > Build log:
+> > ----
+> > make --silent --keep-going --jobs=8
+> > O=/home/tuxbuild/.cache/tuxmake/builds/1/build ARCH=riscv
+> > CROSS_COMPILE=riscv64-linux-gnu- HOSTCC=clang CC=clang LLVM=1
+> > LLVM_IAS=1 LD=riscv64-linux-gnu-ld
+> > riscv64-linux-gnu-ld: -march=rv64i2p0_m2p0_a2p0_zicsr2p0_zifencei2p0:
+> > Invalid or unknown z ISA extension: 'zifencei'
+> > riscv64-linux-gnu-ld: failed to merge target specific data of file
+> > init/version.o
+> > riscv64-linux-gnu-ld: -march=rv64i2p0_m2p0_a2p0_zicsr2p0_zifencei2p0:
+> > Invalid or unknown z ISA extension: 'zifencei'
+> > riscv64-linux-gnu-ld: failed to merge target specific data of file
+> > init/do_mounts.o
+> > riscv64-linux-gnu-ld: -march=rv64i2p0_m2p0_a2p0_zicsr2p0_zifencei2p0:
+> > Invalid or unknown z ISA extension: 'zifencei'
+> > riscv64-linux-gnu-ld: failed to merge target specific data of file
+> > init/noinitramfs.o
+> > riscv64-linux-gnu-ld: -march=rv64i2p0_m2p0_a2p0_zicsr2p0_zifencei2p0:
+> > Invalid or unknown z ISA extension: 'zifencei'
+> > riscv64-linux-gnu-ld: failed to merge target specific data of file
+> > init/calibrate.o
+> > riscv64-linux-gnu-ld: -march=rv64i2p0_m2p0_a2p0_zicsr2p0_zifencei2p0:
+> > Invalid or unknown z ISA extension: 'zifencei'
+> 
+> > Build details,
+> > https://qa-reports.linaro.org/lkft/linux-stable-rc-linux-5.10.y/build/v5.10.168-58-g7d11e4c4fc56/testrun/14869376/suite/build/test/clang-nightly-tinyconfig/details/
+> 
+> binutils 2.35 by the looks of things, I **think** that zifencei didn't
+> land until 2.36. zicsr and zifence get added via cc-option-yn, which,
+> IIRC, doesn't do anything with the linker. I dunno if anyone in RISC-V
+> land cares this much about "odd" configurations back in 5.10, but while
+> a fix is outstanding, you could use a newer binutils?
 
-Cc: Johannes Weiner <hannes@cmpxchg.org>
-Cc: Yang Shi <shy828301@gmail.com>
-Cc: David Stevens <stevensd@chromium.org>
-Cc: stable@vger.kernel.org
-Fixes: 9d82c69438d0 ("mm: memcontrol: convert anon and file-thp to new mem_cgroup_charge() API")
-Signed-off-by: Peter Xu <peterx@redhat.com>
----
- mm/khugepaged.c | 9 ++++++++-
- 1 file changed, 8 insertions(+), 1 deletion(-)
+This is new in clang-17 so I bisected LLVM down to commit 22e199e6afb1
+("[RISCV] Accept zicsr and zifencei command line options"), so I think
+we need something like commit aae538cd03bc ("riscv: fix detection of
+toolchain Zihintpause support") for zifencei to make sure all three
+tools stay in sync, since I suspect that this is reproducible in
+mainline with GNU ld. We just happen not to notice when using
+LLVM=1 LLVM_IAS=1 since the tools have symmetrical support.
 
-diff --git a/mm/khugepaged.c b/mm/khugepaged.c
-index 8dbc39896811..941d1c7ea910 100644
---- a/mm/khugepaged.c
-+++ b/mm/khugepaged.c
-@@ -1063,12 +1063,19 @@ static int alloc_charge_hpage(struct page **hpage, struct mm_struct *mm,
- 	gfp_t gfp = (cc->is_khugepaged ? alloc_hugepage_khugepaged_gfpmask() :
- 		     GFP_TRANSHUGE);
- 	int node = hpage_collapse_find_target_node(cc);
-+	struct folio *folio;
- 
- 	if (!hpage_collapse_alloc_page(hpage, gfp, node, &cc->alloc_nmask))
- 		return SCAN_ALLOC_HUGE_PAGE_FAIL;
--	if (unlikely(mem_cgroup_charge(page_folio(*hpage), mm, gfp)))
-+
-+	folio = page_folio(*hpage);
-+	if (unlikely(mem_cgroup_charge(folio, mm, gfp))) {
-+		folio_put(folio);
-+		*hpage = NULL;
- 		return SCAN_CGROUP_CHARGE_FAIL;
-+	}
- 	count_memcg_page_event(*hpage, THP_COLLAPSE_ALLOC);
-+
- 	return SCAN_SUCCEED;
- }
- 
--- 
-2.39.1
+I can work up something like that change tomorrow if that seems like the
+path worth taking.
 
+Cheers,
+Nathan
