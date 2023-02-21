@@ -2,87 +2,66 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 2FEE469DC9D
-	for <lists+stable@lfdr.de>; Tue, 21 Feb 2023 10:13:13 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9649E69DCAA
+	for <lists+stable@lfdr.de>; Tue, 21 Feb 2023 10:15:44 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233304AbjBUJNL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 21 Feb 2023 04:13:11 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52392 "EHLO
+        id S232589AbjBUJPm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 21 Feb 2023 04:15:42 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55752 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233035AbjBUJNK (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 21 Feb 2023 04:13:10 -0500
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 19EE423858
-        for <stable@vger.kernel.org>; Tue, 21 Feb 2023 01:12:23 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1676970743;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=ZAvHiPQ19TdYhLIdZGTOSEcgY7DzCG2H/QK92XwZ0l8=;
-        b=EFcDomUnxk/72HlqisvHKikDRMP2F4Sq2rPrtK+iQU0PqdoqEQc3t56lMEDpuopO1LGFqy
-        kBE1OazfKAxkJmtqRfwhhuDNc5d3xMcRHx8nOuoc3NX6Qnj53+56iMkWcYYi7pUK0mOACy
-        lrEMI5F4LWwYvOhD3AqMvBm71HEACcE=
-Received: from mail-qt1-f197.google.com (mail-qt1-f197.google.com
- [209.85.160.197]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_128_GCM_SHA256) id
- us-mta-626-IsxT7RyXOVSdXjthv3bPQg-1; Tue, 21 Feb 2023 04:12:21 -0500
-X-MC-Unique: IsxT7RyXOVSdXjthv3bPQg-1
-Received: by mail-qt1-f197.google.com with SMTP id n22-20020ac86756000000b003be57054a3bso1873431qtp.1
-        for <stable@vger.kernel.org>; Tue, 21 Feb 2023 01:12:21 -0800 (PST)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=mime-version:user-agent:content-transfer-encoding:references
-         :in-reply-to:date:cc:to:from:subject:message-id:x-gm-message-state
-         :from:to:cc:subject:date:message-id:reply-to;
-        bh=ZAvHiPQ19TdYhLIdZGTOSEcgY7DzCG2H/QK92XwZ0l8=;
-        b=nAiIYfVuXK6Hp0LuqKkkHzfLBGvmErT+tP5+to4dPGfgYuIQ6uxi5Fj1e+bfZEiona
-         1c26gnWgeN76iUfzpZhwOfUOvwzr48rkDY0rFxQ22tL+Nr7NmyPGiOBMpDsshUXvwA2a
-         Cs7Yf1eRfeUDd7zBDx9h4NedWC5IBc97v1oExKxh8/8G7t4MeZkdl6SW+eRl0qYhj7S/
-         BaLzZCZlRXGoNKRkeRLDEX8JMCA2My+egb5pE/J7gyXiOAPLKqfuziLpc+jNlPgiOhHj
-         Az8hFFIsVH0vEEEVx3/n1wLGE//dRF/XyNpvT6fLYrlSZz+HxsoeUNQpoA6TkbLIJFnv
-         3Gaw==
-X-Gm-Message-State: AO0yUKVeWp3wX1nuHFnjgVss+Y4sbNItL1hhDNz6wMDfb3W7zGgXNEjd
-        mHt/Bnbod/MMFmHvm44UnRd/88N66id2/YGktyURsYbYk4LiH563FrhsAtE5SvFSHtRAiLUtxl8
-        rdzqHk4RRXFRDm39q
-X-Received: by 2002:ac8:4e95:0:b0:3bd:142d:64dd with SMTP id 21-20020ac84e95000000b003bd142d64ddmr8526050qtp.3.1676970741025;
-        Tue, 21 Feb 2023 01:12:21 -0800 (PST)
-X-Google-Smtp-Source: AK7set83qv+2Mv0RH24mzPx8V9CvzDxA2eI0jnOhrHL7ToCbR/vkhX51kVrQ5bKHy82UfSXuqT0A8g==
-X-Received: by 2002:ac8:4e95:0:b0:3bd:142d:64dd with SMTP id 21-20020ac84e95000000b003bd142d64ddmr8526022qtp.3.1676970740740;
-        Tue, 21 Feb 2023 01:12:20 -0800 (PST)
-Received: from gerbillo.redhat.com (146-241-121-8.dyn.eolo.it. [146.241.121.8])
-        by smtp.gmail.com with ESMTPSA id d4-20020ac81184000000b003b62bc6cd1csm10509603qtj.82.2023.02.21.01.12.17
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 21 Feb 2023 01:12:20 -0800 (PST)
-Message-ID: <00383a3d782a35173b0638ec1d4289a19cc326e7.camel@redhat.com>
-Subject: Re: [PATCH 5.4 096/156] net: sched: sch: Bounds check priority
-From:   Paolo Abeni <pabeni@redhat.com>
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     stable@vger.kernel.org, patches@lists.linux.dev,
-        Jamal Hadi Salim <jhs@mojatatu.com>,
-        Cong Wang <xiyou.wangcong@gmail.com>,
-        Jiri Pirko <jiri@resnulli.us>,
-        "David S. Miller" <davem@davemloft.net>,
-        Eric Dumazet <edumazet@google.com>,
-        Jakub Kicinski <kuba@kernel.org>, netdev@vger.kernel.org,
-        Kees Cook <keescook@chromium.org>,
-        Simon Horman <simon.horman@corigine.com>,
-        Cong Wang <cong.wang@bytedance.com>,
-        Sasha Levin <sashal@kernel.org>
-Date:   Tue, 21 Feb 2023 10:12:16 +0100
-In-Reply-To: <Y/SDvySpXrsemVpH@kroah.com>
-References: <20230220133602.515342638@linuxfoundation.org>
-         <20230220133606.471631231@linuxfoundation.org>
-         <1bfe95ba03a58d773f50a628b9fb5e007dd124ad.camel@redhat.com>
-         <Y/SDvySpXrsemVpH@kroah.com>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
-User-Agent: Evolution 3.46.4 (3.46.4-1.fc37) 
+        with ESMTP id S233657AbjBUJPl (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 21 Feb 2023 04:15:41 -0500
+Received: from esa.microchip.iphmx.com (esa.microchip.iphmx.com [68.232.153.233])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 23EB08693
+        for <stable@vger.kernel.org>; Tue, 21 Feb 2023 01:15:40 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+  d=microchip.com; i=@microchip.com; q=dns/txt; s=mchp;
+  t=1676970940; x=1708506940;
+  h=date:from:to:cc:subject:message-id:references:
+   mime-version:in-reply-to;
+  bh=e0DmnT+SAfrNeMZkQPPGnVAjaAbuaGmqPifx6ERR0q4=;
+  b=JkMg4zv/Y2bfzxMn56PDowf+RcxvVfxYE/fX7uGob1NsITfIGlQQWwwH
+   LnYbLFWTGlT2Gp9d1fx0LOoeANDzTzKP5TnsZVr9r7UQ6FBbDD7hXVVEf
+   7yZs+K7gJpmY2iiwH1v07ETXL0SO/VE6vliZLyQR5GtCeetUeBcvpi+V2
+   osXaMZGiHKjbjDZS/u0VZmunxoAnVB2Udcz9BQfODYVNbdiRjlPw9Hym2
+   RWVcxexYZaDRsYuW43arZZ6XAJTCwZIstDHwlgPp2gdbyy46s1peFok7+
+   hlNtfk1fznUEKqg7u2ejzOUPDlwnUfEW8mT5tsBaZCuOPG4HN5DTH+vjk
+   Q==;
+X-IronPort-AV: E=Sophos;i="5.97,315,1669100400"; 
+   d="asc'?scan'208";a="201861307"
+Received: from unknown (HELO email.microchip.com) ([170.129.1.10])
+  by esa5.microchip.iphmx.com with ESMTP/TLS/AES256-SHA256; 21 Feb 2023 02:15:39 -0700
+Received: from chn-vm-ex02.mchp-main.com (10.10.85.144) by
+ chn-vm-ex01.mchp-main.com (10.10.85.143) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
+ 15.1.2507.16; Tue, 21 Feb 2023 02:15:38 -0700
+Received: from wendy (10.10.115.15) by chn-vm-ex02.mchp-main.com
+ (10.10.85.144) with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id 15.1.2507.16 via Frontend
+ Transport; Tue, 21 Feb 2023 02:15:37 -0700
+Date:   Tue, 21 Feb 2023 09:15:11 +0000
+From:   Conor Dooley <conor.dooley@microchip.com>
+To:     Naresh Kamboju <naresh.kamboju@linaro.org>
+CC:     <llvm@lists.linux.dev>,
+        linux-riscv <linux-riscv@lists.infradead.org>,
+        linux-stable <stable@vger.kernel.org>,
+        <lkft-triage@lists.linaro.org>,
+        Nathan Chancellor <nathan@kernel.org>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Sasha Levin <sashal@kernel.org>, <conor@kernel.org>,
+        Heiko Stuebner <heiko@sntech.de>
+Subject: Re: stable-rc: 5.10: riscv: defconfig: clang-nightly: build failed -
+ Invalid or unknown z ISA extension: 'zifencei'
+Message-ID: <Y/SLn5fto6+9xX0r@wendy>
+References: <CA+G9fYt9T=ELCLaB9byxaLW2Qf4pZcDO=huCA0D8ug2V2+irJQ@mail.gmail.com>
 MIME-Version: 1.0
-X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_NONE,
-        RCVD_IN_MSPIKE_H2,SPF_HELO_NONE,SPF_NONE autolearn=ham
+Content-Type: multipart/signed; micalg=pgp-sha256;
+        protocol="application/pgp-signature"; boundary="ZNjPGu8Cs6BNE/xO"
+Content-Disposition: inline
+In-Reply-To: <CA+G9fYt9T=ELCLaB9byxaLW2Qf4pZcDO=huCA0D8ug2V2+irJQ@mail.gmail.com>
+X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
+        RCVD_IN_MSPIKE_H2,SPF_HELO_PASS,SPF_PASS autolearn=ham
         autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -90,63 +69,64 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, 2023-02-21 at 09:41 +0100, Greg Kroah-Hartman wrote:
-> On Tue, Feb 21, 2023 at 08:45:18AM +0100, Paolo Abeni wrote:
-> > Hello,
-> >=20
-> > On Mon, 2023-02-20 at 14:35 +0100, Greg Kroah-Hartman wrote:
-> > > From: Kees Cook <keescook@chromium.org>
-> > >=20
-> > > [ Upstream commit de5ca4c3852f896cacac2bf259597aab5e17d9e3 ]
-> > >=20
-> > > Nothing was explicitly bounds checking the priority index used to acc=
-ess
-> > > clpriop[]. WARN and bail out early if it's pathological. Seen with GC=
-C 13:
-> > >=20
-> > > ../net/sched/sch_htb.c: In function 'htb_activate_prios':
-> > > ../net/sched/sch_htb.c:437:44: warning: array subscript [0, 31] is ou=
-tside array bounds of 'struct htb_prio[8]' [-Warray-bounds=3D]
-> > >   437 |                         if (p->inner.clprio[prio].feed.rb_nod=
-e)
-> > >       |                             ~~~~~~~~~~~~~~~^~~~~~
-> > > ../net/sched/sch_htb.c:131:41: note: while referencing 'clprio'
-> > >   131 |                         struct htb_prio clprio[TC_HTB_NUMPRIO=
-];
-> > >       |                                         ^~~~~~
-> > >=20
-> > > Cc: Jamal Hadi Salim <jhs@mojatatu.com>
-> > > Cc: Cong Wang <xiyou.wangcong@gmail.com>
-> > > Cc: Jiri Pirko <jiri@resnulli.us>
-> > > Cc: "David S. Miller" <davem@davemloft.net>
-> > > Cc: Eric Dumazet <edumazet@google.com>
-> > > Cc: Jakub Kicinski <kuba@kernel.org>
-> > > Cc: Paolo Abeni <pabeni@redhat.com>
-> > > Cc: netdev@vger.kernel.org
-> > > Signed-off-by: Kees Cook <keescook@chromium.org>
-> > > Reviewed-by: Simon Horman <simon.horman@corigine.com>
-> > > Reviewed-by: Cong Wang <cong.wang@bytedance.com>
-> > > Link: https://lore.kernel.org/r/20230127224036.never.561-kees@kernel.=
-org
-> > > Signed-off-by: Paolo Abeni <pabeni@redhat.com>
-> > > Signed-off-by: Sasha Levin <sashal@kernel.org>
-> >=20
-> > This one has a follow-up which I don't see among the patches reaching
-> > the netdev ML:
-> >=20
-> > commit 9cec2aaffe969f2a3e18b5ec105fc20bb908e475
-> > Author: Dan Carpenter <error27@gmail.com>
-> > Date:   Mon Feb 6 16:18:32 2023 +0300
-> >=20
-> >     net: sched: sch: Fix off by one in htb_activate_prios()
+--ZNjPGu8Cs6BNE/xO
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
+
+On Tue, Feb 21, 2023 at 02:30:17PM +0530, Naresh Kamboju wrote:
+> The riscv defconfig and tinyconfig builds failed with clang-nightly
+> due to below build warnings / errors on latest stable-rc 5.10.
 >=20
-> This too is in the queue for 5.4 and newer kernels, are you sure you
-> didn't miss that in this series?
+> Regression on riscv:
+>   - build/clang-nightly-tinyconfig - FAILED
+>   - build/clang-nightly-defconfig - FAILED
 
-I missed it, sorry. I checked only my inbox and netdev, and it was not
-there, but I see it in the stable queue.
+> Build log:
+> ----
+> make --silent --keep-going --jobs=3D8
+> O=3D/home/tuxbuild/.cache/tuxmake/builds/1/build ARCH=3Driscv
+> CROSS_COMPILE=3Driscv64-linux-gnu- HOSTCC=3Dclang CC=3Dclang LLVM=3D1
+> LLVM_IAS=3D1 LD=3Driscv64-linux-gnu-ld
+> riscv64-linux-gnu-ld: -march=3Drv64i2p0_m2p0_a2p0_zicsr2p0_zifencei2p0:
+> Invalid or unknown z ISA extension: 'zifencei'
+> riscv64-linux-gnu-ld: failed to merge target specific data of file
+> init/version.o
+> riscv64-linux-gnu-ld: -march=3Drv64i2p0_m2p0_a2p0_zicsr2p0_zifencei2p0:
+> Invalid or unknown z ISA extension: 'zifencei'
+> riscv64-linux-gnu-ld: failed to merge target specific data of file
+> init/do_mounts.o
+> riscv64-linux-gnu-ld: -march=3Drv64i2p0_m2p0_a2p0_zicsr2p0_zifencei2p0:
+> Invalid or unknown z ISA extension: 'zifencei'
+> riscv64-linux-gnu-ld: failed to merge target specific data of file
+> init/noinitramfs.o
+> riscv64-linux-gnu-ld: -march=3Drv64i2p0_m2p0_a2p0_zicsr2p0_zifencei2p0:
+> Invalid or unknown z ISA extension: 'zifencei'
+> riscv64-linux-gnu-ld: failed to merge target specific data of file
+> init/calibrate.o
+> riscv64-linux-gnu-ld: -march=3Drv64i2p0_m2p0_a2p0_zicsr2p0_zifencei2p0:
+> Invalid or unknown z ISA extension: 'zifencei'
 
-Sorry for the noise,
+> Build details,
+> https://qa-reports.linaro.org/lkft/linux-stable-rc-linux-5.10.y/build/v5.=
+10.168-58-g7d11e4c4fc56/testrun/14869376/suite/build/test/clang-nightly-tin=
+yconfig/details/
 
-Paolo
+binutils 2.35 by the looks of things, I **think** that zifencei didn't
+land until 2.36. zicsr and zifence get added via cc-option-yn, which,
+IIRC, doesn't do anything with the linker. I dunno if anyone in RISC-V
+land cares this much about "odd" configurations back in 5.10, but while
+a fix is outstanding, you could use a newer binutils?
 
+--ZNjPGu8Cs6BNE/xO
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iHUEABYIAB0WIQRh246EGq/8RLhDjO14tDGHoIJi0gUCY/SLngAKCRB4tDGHoIJi
+0olNAP9pkXL0kx8+BxRgZp9LY/qvnZ8Syy0+IoxvNK9MFe7RwwD/cJs7I84iYgZK
+0x0D1LlFErcbyUOzYd6ixFsxBUeugwo=
+=q8mA
+-----END PGP SIGNATURE-----
+
+--ZNjPGu8Cs6BNE/xO--
