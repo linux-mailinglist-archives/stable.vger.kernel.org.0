@@ -2,96 +2,285 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B828669D64A
-	for <lists+stable@lfdr.de>; Mon, 20 Feb 2023 23:27:26 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6366569D79F
+	for <lists+stable@lfdr.de>; Tue, 21 Feb 2023 01:41:47 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232357AbjBTW10 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 20 Feb 2023 17:27:26 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41460 "EHLO
+        id S232738AbjBUAlq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 20 Feb 2023 19:41:46 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58710 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231993AbjBTW1Z (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 20 Feb 2023 17:27:25 -0500
-Received: from mail-ed1-x535.google.com (mail-ed1-x535.google.com [IPv6:2a00:1450:4864:20::535])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 902CA1DB88
-        for <stable@vger.kernel.org>; Mon, 20 Feb 2023 14:27:24 -0800 (PST)
-Received: by mail-ed1-x535.google.com with SMTP id h16so10158910edz.10
-        for <stable@vger.kernel.org>; Mon, 20 Feb 2023 14:27:24 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112;
-        h=to:subject:message-id:date:from:reply-to:mime-version:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=CGb7bXbv+VK83u/mqEKfzq/DoJRaeJ4x7SggiYRiRSs=;
-        b=E5s1fXg+twf2J1udvjoeNuYD+qJmRTaRCwEvXwuQpB452HEy28SYzKJn8X2/s+fsvB
-         4UMEas+UmeWvgW/T1y7B874127q1JrSs5TOs087RgvN8atnIOCFdjc/Pj5w1AI/GVIno
-         U9iutaEpe0/qoc3SEw4X77d4PO/xoEC2JSj4sYLkv9M+S5NNnRr7rmh/s6o6LH3yAwHP
-         q7xYJLrUoCEYPFwR9SsnGxGN6oJ0S2F4R6Tpukhrq+UGLZVTpV3p+83OF5JbRhBmNJnu
-         JnNgrr8TOXdqvnXwJ1BD3pCjmKgA5+oT0nanOXuGYqzQdyG6agEtc2d3Lt/FzgZ+mAtO
-         /nlg==
+        with ESMTP id S232724AbjBUAlp (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 20 Feb 2023 19:41:45 -0500
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A36DE22A3E
+        for <stable@vger.kernel.org>; Mon, 20 Feb 2023 16:40:55 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1676940054;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding;
+        bh=ivV8MRUKs7ozW1pF8hDCdVy4BvYTao2KBGKgdqnNtEA=;
+        b=h6+wBFE09OcVrhGDjkalL/uPK4zvXGMkwKAsXZGExKkScLCLV3uU28w02bzKuNfBAWjPHk
+        z5qCiJr1KeGYIog34TmaIZXSGTIO3PwXyiucGCMcpUcPWShOw5bFJCh0D8mRxmcGafjcya
+        NAgDc4TD8hJGQDX5phkFP3PTCI2dBYs=
+Received: from mail-wm1-f72.google.com (mail-wm1-f72.google.com
+ [209.85.128.72]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_128_GCM_SHA256) id
+ us-mta-588-fOCwxjM_PmiqEmLsKnx5RA-1; Mon, 20 Feb 2023 19:40:53 -0500
+X-MC-Unique: fOCwxjM_PmiqEmLsKnx5RA-1
+Received: by mail-wm1-f72.google.com with SMTP id n28-20020a05600c3b9c00b003e1e7d3db06so1178427wms.5
+        for <stable@vger.kernel.org>; Mon, 20 Feb 2023 16:40:53 -0800 (PST)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=to:subject:message-id:date:from:reply-to:mime-version
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=CGb7bXbv+VK83u/mqEKfzq/DoJRaeJ4x7SggiYRiRSs=;
-        b=BUA6lfkp6cpxGSuaQCV4QnQziGDyi0sHWbNnOOAgU8JUh1PPrDiCHcH8LuM+XZyILS
-         OF5wx/E1m6GC+U6lPHW8M9gA63oUP5sj8fMQFU0aHppBowOUP8T1IcXrY5iw8WXnZDSC
-         ALc9mWu7uynRHjFeet/i0ZnvgTCLqBNjs4lKT91zArYgciBv564bGOPq1l1tHn9KHhDy
-         VWlKD+Zh2UvWtX4dPBFBgq789HDMWWl4bCSt0T1AXHlrIzSgZv9N7BAkq0mc5Pec0+tT
-         xFKK8AVDRwPya6Ie3giS7my8ChMnUctgpf3pZuKk5ANrMIZTvRlNk0Lv/l1302n37cod
-         AzSQ==
-X-Gm-Message-State: AO0yUKVIs+qGOQYdS1dwdZVn8o+MX2RgJJVnunCZHpy7TvIP/s8wGpnB
-        40t07xP06jA04AezJxxifWdeCMtVrBJq8eSBRi8=
-X-Google-Smtp-Source: AK7set9urYvu/RGGAiddi2OpJsGVHkGytpVcFvYRjbO+r+89lVVdL1LYTqvPEpM7DG+tXh1GR/UrMpI4lVmiBf6iFGE=
-X-Received: by 2002:a17:906:a292:b0:8b1:28e5:a1bc with SMTP id
- i18-20020a170906a29200b008b128e5a1bcmr4812422ejz.5.1676932042990; Mon, 20 Feb
- 2023 14:27:22 -0800 (PST)
+        h=content-transfer-encoding:content-disposition:mime-version
+         :message-id:subject:cc:to:from:date:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=ivV8MRUKs7ozW1pF8hDCdVy4BvYTao2KBGKgdqnNtEA=;
+        b=A5iXcSjGaZwGh4mMbYmw0RD5XD+tTRhZLKGxakGDyUI63lO1avXnli5Fy86I+EHW1+
+         fuWIyjLCzCETdRddQKhgzd8C2NCWPy0iZ02tLkLhzSBdpCAwKC3mVDoQVEl5R7nYdZ7x
+         8oDd6MzAygl8EJ7Y/Svf/Xu3ts4P2zBQGejfGQoFt3vWZPbngR2fc0fupYQADj5cftkK
+         vI3oOvAxT/M+Dqwc3AomSFYtWEbmgeW2yTOVMOz++t3/pCfwq+3gvnTxLz0/qI+xMfvt
+         xs8M5idzxhSQ18HxYHSIb6nfMCa/XKwMn0/hQo2UsfGnATHACCO2eh9EvUOg6B1qorFC
+         Zerw==
+X-Gm-Message-State: AO0yUKUHTMARLBFMG4cO5LGfLQMJ1WYU9UTKFakzLptNSTEhjyWKpbQy
+        20xvXd1ox5tfEHQ7sKtfU2C5GWbvaYfH4TjOakhOir7IydtNGZAYQN45T8Sm9hYkCRFFYVVqcph
+        OXlsfJ6VeaHpa9A7S
+X-Received: by 2002:a5d:444d:0:b0:2c5:4c32:92cb with SMTP id x13-20020a5d444d000000b002c54c3292cbmr1010430wrr.54.1676940052192;
+        Mon, 20 Feb 2023 16:40:52 -0800 (PST)
+X-Google-Smtp-Source: AK7set8KGWfYITRF31i2K/JLQVmFylv6hAV7//rGLBlWRfuXHGq2sQ0V6QTBt+n4dJHEoKpWOPQgHg==
+X-Received: by 2002:a5d:444d:0:b0:2c5:4c32:92cb with SMTP id x13-20020a5d444d000000b002c54c3292cbmr1010403wrr.54.1676940051865;
+        Mon, 20 Feb 2023 16:40:51 -0800 (PST)
+Received: from redhat.com ([2.52.36.56])
+        by smtp.gmail.com with ESMTPSA id r13-20020adfdc8d000000b002c557f82e27sm1062943wrj.99.2023.02.20.16.40.47
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Mon, 20 Feb 2023 16:40:51 -0800 (PST)
+Date:   Mon, 20 Feb 2023 19:40:45 -0500
+From:   "Michael S. Tsirkin" <mst@redhat.com>
+To:     Linus Torvalds <torvalds@linux-foundation.org>
+Cc:     kvm@vger.kernel.org, virtualization@lists.linux-foundation.org,
+        netdev@vger.kernel.org, linux-kernel@vger.kernel.org,
+        almasrymina@google.com, alvaro.karsz@solid-run.com,
+        anders.roxell@linaro.org, bagasdotme@gmail.com,
+        bhelgaas@google.com, colin.i.king@gmail.com,
+        dmitry.fomichev@wdc.com, elic@nvidia.com, eperezma@redhat.com,
+        hch@lst.de, jasowang@redhat.com, kangjie.xu@linux.alibaba.com,
+        leiyang@redhat.com, liming.wu@jaguarmicro.com,
+        lingshan.zhu@intel.com, liubo03@inspur.com, lkft@linaro.org,
+        mie@igel.co.jp, mst@redhat.com, m.szyprowski@samsung.com,
+        ricardo.canuelo@collabora.com, sammler@google.com,
+        sebastien.boeuf@intel.com, sfr@canb.auug.org.au,
+        si-wei.liu@oracle.com, stable@vger.kernel.org, stefanha@gmail.com,
+        suwan.kim027@gmail.com, xuanzhuo@linux.alibaba.com,
+        yangyingliang@huawei.com, zyytlz.wz@163.com
+Subject: [GIT PULL] virtio,vhost,vdpa: features, fixes
+Message-ID: <20230220194045-mutt-send-email-mst@kernel.org>
 MIME-Version: 1.0
-Received: by 2002:a17:906:14ce:b0:8b1:3a93:be15 with HTTP; Mon, 20 Feb 2023
- 14:27:22 -0800 (PST)
-Reply-To: vaughanrichmond1@gmail.com
-From:   Vaughan Richmond <aliyudalha9@gmail.com>
-Date:   Mon, 20 Feb 2023 14:27:22 -0800
-Message-ID: <CAGP7zvyCR-+5wMN=GRqP3DSX2oeiXmwPviTEWagfWiRX4cr89Q@mail.gmail.com>
-Subject: Re
-To:     undisclosed-recipients:;
-Content-Type: text/plain; charset="UTF-8"
-X-Spam-Status: Yes, score=6.3 required=5.0 tests=BAYES_80,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_ENVFROM_END_DIGIT,
-        FREEMAIL_FROM,FREEMAIL_REPLYTO,FREEMAIL_REPLYTO_END_DIGIT,
-        RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS,UNDISC_FREEM autolearn=no
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+X-Mutt-Fcc: =sent
+X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_NONE,
+        RCVD_IN_MSPIKE_H2,SPF_HELO_NONE,SPF_NONE autolearn=unavailable
         autolearn_force=no version=3.4.6
-X-Spam-Report: * -0.0 RCVD_IN_DNSWL_NONE RBL: Sender listed at
-        *      https://www.dnswl.org/, no trust
-        *      [2a00:1450:4864:20:0:0:0:535 listed in]
-        [list.dnswl.org]
-        *  2.0 BAYES_80 BODY: Bayes spam probability is 80 to 95%
-        *      [score: 0.9460]
-        *  0.2 FREEMAIL_REPLYTO_END_DIGIT Reply-To freemail username ends in
-        *      digit
-        *      [vaughanrichmond1[at]gmail.com]
-        *  0.0 SPF_HELO_NONE SPF: HELO does not publish an SPF Record
-        * -0.0 SPF_PASS SPF: sender matches SPF record
-        *  0.0 FREEMAIL_FROM Sender email is commonly abused enduser mail
-        *      provider
-        *      [aliyudalha9[at]gmail.com]
-        *  0.2 FREEMAIL_ENVFROM_END_DIGIT Envelope-from freemail username ends
-        *       in digit
-        *      [aliyudalha9[at]gmail.com]
-        *  0.1 DKIM_SIGNED Message has a DKIM or DK signature, not necessarily
-        *       valid
-        * -0.1 DKIM_VALID_AU Message has a valid DKIM or DK signature from
-        *      author's domain
-        * -0.1 DKIM_VALID_EF Message has a valid DKIM or DK signature from
-        *      envelope-from domain
-        * -0.1 DKIM_VALID Message has at least one valid DKIM or DK signature
-        *  3.0 UNDISC_FREEM Undisclosed recipients + freemail reply-to
-        *  1.0 FREEMAIL_REPLYTO Reply-To/From or Reply-To/body contain
-        *      different freemails
-X-Spam-Level: ******
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-I have a business partnership to be done with you, Kindly get back to
-me via  this email address: vaughanrichmond1@gmail.com
+The following changes since commit ceaa837f96adb69c0df0397937cd74991d5d821a:
+
+  Linux 6.2-rc8 (2023-02-12 14:10:17 -0800)
+
+are available in the Git repository at:
+
+  https://git.kernel.org/pub/scm/linux/kernel/git/mst/vhost.git tags/for_linus
+
+for you to fetch changes up to deeacf35c922da579637f5db625af20baafc66ed:
+
+  vdpa/mlx5: support device features provisioning (2023-02-20 19:27:00 -0500)
+
+Note: dropped a patch close to the bottom of the stack at the last
+minute so the commits differ but all of these have been in next already.
+The dropped patch just added a new query ioctl so not interacting with
+anything else in the pull.
+
+----------------------------------------------------------------
+virtio,vhost,vdpa: features, fixes
+
+device feature provisioning in ifcvf, mlx5
+new SolidNET driver
+support for zoned block device in virtio blk
+numa support in virtio pmem
+VIRTIO_F_RING_RESET support in vhost-net
+more debugfs entries in mlx5
+resume support in vdpa
+completion batching in virtio blk
+cleanup of dma api use in vdpa
+now simulating more features in vdpa-sim
+documentation, features, fixes all over the place
+
+Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
+
+----------------------------------------------------------------
+Alvaro Karsz (4):
+      PCI: Add SolidRun vendor ID
+      PCI: Avoid FLR for SolidRun SNET DPU rev 1
+      virtio: vdpa: new SolidNET DPU driver.
+      vhost-vdpa: print warning when vhost_vdpa_alloc_domain fails
+
+Bagas Sanjaya (3):
+      docs: driver-api: virtio: parenthesize external reference targets
+      docs: driver-api: virtio: slightly reword virtqueues allocation paragraph
+      docs: driver-api: virtio: commentize spec version checking
+
+Bo Liu (1):
+      vhost-scsi: convert sysfs snprintf and sprintf to sysfs_emit
+
+Colin Ian King (1):
+      vdpa: Fix a couple of spelling mistakes in some messages
+
+Dmitry Fomichev (1):
+      virtio-blk: add support for zoned block devices
+
+Eli Cohen (6):
+      vdpa/mlx5: Move some definitions to a new header file
+      vdpa/mlx5: Add debugfs subtree
+      vdpa/mlx5: Add RX counters to debugfs
+      vdpa/mlx5: Directly assign memory key
+      vdpa/mlx5: Don't clear mr struct on destroy MR
+      vdpa/mlx5: Initialize CVQ iotlb spinlock
+
+Eugenio Pérez (2):
+      vdpa_sim: not reset state in vdpasim_queue_ready
+      vdpa_sim_net: Offer VIRTIO_NET_F_STATUS
+
+Jason Wang (11):
+      vdpa_sim: use weak barriers
+      vdpa_sim: switch to use __vdpa_alloc_device()
+      vdpasim: customize allocation size
+      vdpa_sim: support vendor statistics
+      vdpa_sim_net: vendor satistics
+      vdpa_sim: get rid of DMA ops
+      virtio_ring: per virtqueue dma device
+      vdpa: introduce get_vq_dma_device()
+      virtio-vdpa: support per vq dma device
+      vdpa: set dma mask for vDPA device
+      vdpa: mlx5: support per virtqueue dma device
+
+Kangjie Xu (1):
+      vhost-net: support VIRTIO_F_RING_RESET
+
+Liming Wu (2):
+      vhost-test: remove meaningless debug info
+      vhost: remove unused paramete
+
+Michael S. Tsirkin (3):
+      virtio_blk: temporary variable type tweak
+      virtio_blk: zone append in header type tweak
+      virtio_blk: mark all zone fields LE
+
+Michael Sammler (1):
+      virtio_pmem: populate numa information
+
+Ricardo Cañuelo (1):
+      docs: driver-api: virtio: virtio on Linux
+
+Sebastien Boeuf (4):
+      vdpa: Add resume operation
+      vhost-vdpa: Introduce RESUME backend feature bit
+      vhost-vdpa: uAPI to resume the device
+      vdpa_sim: Implement resume vdpa op
+
+Shunsuke Mie (2):
+      vringh: fix a typo in comments for vringh_kiov
+      tools/virtio: enable to build with retpoline
+
+Si-Wei Liu (6):
+      vdpa: fix improper error message when adding vdpa dev
+      vdpa: conditionally read STATUS in config space
+      vdpa: validate provisioned device features against specified attribute
+      vdpa: validate device feature provisioning against supported class
+      vdpa/mlx5: make MTU/STATUS presence conditional on feature bits
+      vdpa/mlx5: support device features provisioning
+
+Suwan Kim (2):
+      virtio-blk: set req->state to MQ_RQ_COMPLETE after polling I/O is finished
+      virtio-blk: support completion batching for the IRQ path
+
+Zheng Wang (1):
+      scsi: virtio_scsi: fix handling of kmalloc failure
+
+Zhu Lingshan (12):
+      vDPA/ifcvf: decouple hw features manipulators from the adapter
+      vDPA/ifcvf: decouple config space ops from the adapter
+      vDPA/ifcvf: alloc the mgmt_dev before the adapter
+      vDPA/ifcvf: decouple vq IRQ releasers from the adapter
+      vDPA/ifcvf: decouple config IRQ releaser from the adapter
+      vDPA/ifcvf: decouple vq irq requester from the adapter
+      vDPA/ifcvf: decouple config/dev IRQ requester and vectors allocator from the adapter
+      vDPA/ifcvf: ifcvf_request_irq works on ifcvf_hw
+      vDPA/ifcvf: manage ifcvf_hw in the mgmt_dev
+      vDPA/ifcvf: allocate the adapter in dev_add()
+      vDPA/ifcvf: retire ifcvf_private_to_vf
+      vDPA/ifcvf: implement features provisioning
+
+ Documentation/driver-api/index.rst                 |    1 +
+ Documentation/driver-api/virtio/index.rst          |   11 +
+ Documentation/driver-api/virtio/virtio.rst         |  145 +++
+ .../driver-api/virtio/writing_virtio_drivers.rst   |  197 ++++
+ MAINTAINERS                                        |    5 +
+ drivers/block/virtio_blk.c                         |  468 ++++++++-
+ drivers/nvdimm/virtio_pmem.c                       |   11 +-
+ drivers/pci/quirks.c                               |    8 +
+ drivers/scsi/virtio_scsi.c                         |   14 +-
+ drivers/vdpa/Kconfig                               |   30 +
+ drivers/vdpa/Makefile                              |    1 +
+ drivers/vdpa/ifcvf/ifcvf_base.c                    |   32 +-
+ drivers/vdpa/ifcvf/ifcvf_base.h                    |   10 +-
+ drivers/vdpa/ifcvf/ifcvf_main.c                    |  162 ++-
+ drivers/vdpa/mlx5/Makefile                         |    2 +-
+ drivers/vdpa/mlx5/core/mr.c                        |    1 -
+ drivers/vdpa/mlx5/core/resources.c                 |    3 +-
+ drivers/vdpa/mlx5/net/debug.c                      |  152 +++
+ drivers/vdpa/mlx5/net/mlx5_vnet.c                  |  261 +++--
+ drivers/vdpa/mlx5/net/mlx5_vnet.h                  |   94 ++
+ drivers/vdpa/solidrun/Makefile                     |    6 +
+ drivers/vdpa/solidrun/snet_hwmon.c                 |  188 ++++
+ drivers/vdpa/solidrun/snet_main.c                  | 1111 ++++++++++++++++++++
+ drivers/vdpa/solidrun/snet_vdpa.h                  |  194 ++++
+ drivers/vdpa/vdpa.c                                |  110 +-
+ drivers/vdpa/vdpa_sim/vdpa_sim.c                   |  233 ++--
+ drivers/vdpa/vdpa_sim/vdpa_sim.h                   |    7 +-
+ drivers/vdpa/vdpa_sim/vdpa_sim_blk.c               |    1 +
+ drivers/vdpa/vdpa_sim/vdpa_sim_net.c               |  219 +++-
+ drivers/vhost/net.c                                |    5 +-
+ drivers/vhost/scsi.c                               |    6 +-
+ drivers/vhost/test.c                               |    3 -
+ drivers/vhost/vdpa.c                               |   39 +-
+ drivers/vhost/vhost.c                              |    2 +-
+ drivers/vhost/vhost.h                              |    2 +-
+ drivers/vhost/vsock.c                              |    2 +-
+ drivers/virtio/virtio_ring.c                       |  133 ++-
+ drivers/virtio/virtio_vdpa.c                       |   13 +-
+ include/linux/pci_ids.h                            |    2 +
+ include/linux/vdpa.h                               |   12 +-
+ include/linux/virtio_config.h                      |    8 +-
+ include/linux/virtio_ring.h                        |   16 +
+ include/linux/vringh.h                             |    2 +-
+ include/uapi/linux/vhost.h                         |    8 +
+ include/uapi/linux/vhost_types.h                   |    2 +
+ include/uapi/linux/virtio_blk.h                    |  105 ++
+ tools/virtio/Makefile                              |    2 +-
+ 47 files changed, 3536 insertions(+), 503 deletions(-)
+ create mode 100644 Documentation/driver-api/virtio/index.rst
+ create mode 100644 Documentation/driver-api/virtio/virtio.rst
+ create mode 100644 Documentation/driver-api/virtio/writing_virtio_drivers.rst
+ create mode 100644 drivers/vdpa/mlx5/net/debug.c
+ create mode 100644 drivers/vdpa/mlx5/net/mlx5_vnet.h
+ create mode 100644 drivers/vdpa/solidrun/Makefile
+ create mode 100644 drivers/vdpa/solidrun/snet_hwmon.c
+ create mode 100644 drivers/vdpa/solidrun/snet_main.c
+ create mode 100644 drivers/vdpa/solidrun/snet_vdpa.h
+
