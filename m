@@ -2,85 +2,49 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 4546D69DB67
-	for <lists+stable@lfdr.de>; Tue, 21 Feb 2023 08:46:10 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id EFF1469DB6A
+	for <lists+stable@lfdr.de>; Tue, 21 Feb 2023 08:46:33 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233353AbjBUHqI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 21 Feb 2023 02:46:08 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41380 "EHLO
+        id S231396AbjBUHqc (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 21 Feb 2023 02:46:32 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41652 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229697AbjBUHqH (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 21 Feb 2023 02:46:07 -0500
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0B1C71ADF5
-        for <stable@vger.kernel.org>; Mon, 20 Feb 2023 23:45:23 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1676965523;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=qGa7NO6NvCuIiIGrSLg9tkK4hlPNsQh2fYB6P/foNGk=;
-        b=D5qWLvN3j62Nkhu4GTCQDrsuxrhOxmIw5ME6oJZPEvf8xzimUy87DPojQDlrrxVWGz0+V2
-        Ni75wDEjn3N+po1SUpBmrQWH1uKaPdkASrqzoVRr4d9r1YVAvfYe9XGAscf/3CF6+OEiaD
-        BF2MhswOJEqrfFFLOV7FaFvrp1gfQ7E=
-Received: from mail-wm1-f71.google.com (mail-wm1-f71.google.com
- [209.85.128.71]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_128_GCM_SHA256) id
- us-mta-551-ev7iqOoiO9OWhDkG8xPVZA-1; Tue, 21 Feb 2023 02:45:22 -0500
-X-MC-Unique: ev7iqOoiO9OWhDkG8xPVZA-1
-Received: by mail-wm1-f71.google.com with SMTP id l23-20020a7bc457000000b003e206cbce8dso1711228wmi.7
-        for <stable@vger.kernel.org>; Mon, 20 Feb 2023 23:45:21 -0800 (PST)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112; t=1676965520;
-        h=mime-version:user-agent:content-transfer-encoding:references
-         :in-reply-to:date:cc:to:from:subject:message-id:x-gm-message-state
-         :from:to:cc:subject:date:message-id:reply-to;
-        bh=qGa7NO6NvCuIiIGrSLg9tkK4hlPNsQh2fYB6P/foNGk=;
-        b=KKekb2dNFvHaQzjfeQO4IGObLVBg0UYXwdQ5ptPtv/x+kvEZhiZAnkHON5ZbTucFbJ
-         HwJ222BdtT2I1qypqK1ctmW2W5SE2cyKWTjCV4pFZzkb6IRIxxr5djWp7mR3ieWbxPna
-         LoaX6Q7Nlrsxwj79j6qcpfftQf3EFRp5VKGRWhF4mbXji8Csym3VfEebxR1XwXGvt/hL
-         MCmKZ1FtOSvhibEf09+H1CnSH9VAvXbjKpNBrpSTLIVVxhxTbJe5ifsmMeBewut79Un8
-         ID2MuFehURikcY+LmdK9bYio84FcCxLSL5SJrnL9Hn4dTpBXjWM9BVbBEpu0SJ16fpeH
-         fAnQ==
-X-Gm-Message-State: AO0yUKUjJuq71jdDcurLmeMNnIpQ0Suc+rp0c3aRc0ZOxlZdPtEdoMSQ
-        hipKAhrYpaQwl7cZtJLipf/V5Efm51tLb8zj4pmvRnBQWItFL5wR+8ziF/Bp8mUh2592jCpGx5T
-        xiM2wejZ/o6P4G+aF
-X-Received: by 2002:a5d:69d2:0:b0:2c5:5b85:3b43 with SMTP id s18-20020a5d69d2000000b002c55b853b43mr2838624wrw.7.1676965520782;
-        Mon, 20 Feb 2023 23:45:20 -0800 (PST)
-X-Google-Smtp-Source: AK7set+3p67zuMhzq3/msWLJusMN23I+0bP9GeSqxEyyARwphKo3WV8/Daj/nMUn7ldKdhNz3uHMwQ==
-X-Received: by 2002:a5d:69d2:0:b0:2c5:5b85:3b43 with SMTP id s18-20020a5d69d2000000b002c55b853b43mr2838612wrw.7.1676965520448;
-        Mon, 20 Feb 2023 23:45:20 -0800 (PST)
-Received: from gerbillo.redhat.com (146-241-121-8.dyn.eolo.it. [146.241.121.8])
-        by smtp.gmail.com with ESMTPSA id b17-20020a056000055100b002c592535838sm4639919wrf.2.2023.02.20.23.45.18
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 20 Feb 2023 23:45:19 -0800 (PST)
-Message-ID: <1bfe95ba03a58d773f50a628b9fb5e007dd124ad.camel@redhat.com>
-Subject: Re: [PATCH 5.4 096/156] net: sched: sch: Bounds check priority
-From:   Paolo Abeni <pabeni@redhat.com>
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org
-Cc:     patches@lists.linux.dev, Jamal Hadi Salim <jhs@mojatatu.com>,
-        Cong Wang <xiyou.wangcong@gmail.com>,
-        Jiri Pirko <jiri@resnulli.us>,
-        "David S. Miller" <davem@davemloft.net>,
-        Eric Dumazet <edumazet@google.com>,
-        Jakub Kicinski <kuba@kernel.org>, netdev@vger.kernel.org,
-        Kees Cook <keescook@chromium.org>,
-        Simon Horman <simon.horman@corigine.com>,
-        Cong Wang <cong.wang@bytedance.com>,
-        Sasha Levin <sashal@kernel.org>
-Date:   Tue, 21 Feb 2023 08:45:18 +0100
-In-Reply-To: <20230220133606.471631231@linuxfoundation.org>
-References: <20230220133602.515342638@linuxfoundation.org>
-         <20230220133606.471631231@linuxfoundation.org>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
-User-Agent: Evolution 3.46.4 (3.46.4-1.fc37) 
+        with ESMTP id S229697AbjBUHqc (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 21 Feb 2023 02:46:32 -0500
+Received: from szxga01-in.huawei.com (szxga01-in.huawei.com [45.249.212.187])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id ECE821A66E
+        for <stable@vger.kernel.org>; Mon, 20 Feb 2023 23:46:30 -0800 (PST)
+Received: from kwepemm600017.china.huawei.com (unknown [172.30.72.56])
+        by szxga01-in.huawei.com (SkyGuard) with ESMTP id 4PLWWM34mCznWNm;
+        Tue, 21 Feb 2023 15:43:59 +0800 (CST)
+Received: from [10.174.179.234] (10.174.179.234) by
+ kwepemm600017.china.huawei.com (7.193.23.234) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
+ 15.1.2507.17; Tue, 21 Feb 2023 15:46:27 +0800
+Message-ID: <e2fea1a1-982d-20c8-d92c-bc4ed4d1d711@huawei.com>
+Date:   Tue, 21 Feb 2023 15:46:27 +0800
 MIME-Version: 1.0
-X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_NONE,
-        RCVD_IN_MSPIKE_H2,SPF_HELO_NONE,SPF_NONE autolearn=unavailable
+User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:91.0) Gecko/20100101
+ Thunderbird/91.8.0
+Subject: Re: Consultation on backport 97e3d26b5e5f("x86/mm: Randomize per-cpu
+ entry area") to stable
+To:     Greg KH <gregkh@linuxfoundation.org>
+CC:     <peterz@infradead.org>, <keescook@chromium.org>,
+        <sethjenkins@google.com>,
+        Dave Hansen <dave.hansen@linux.intel.com>, <bp@suse.de>,
+        <stable@vger.kernel.org>, <tongtiangen@huawei.com>
+References: <2b814e48-d304-e48a-e4b4-c39a10d2dbf4@huawei.com>
+ <Y/RzDvXr/iGpHl+f@kroah.com>
+From:   Tong Tiangen <tongtiangen@huawei.com>
+In-Reply-To: <Y/RzDvXr/iGpHl+f@kroah.com>
+Content-Type: text/plain; charset="UTF-8"; format=flowed
+Content-Transfer-Encoding: 8bit
+X-Originating-IP: [10.174.179.234]
+X-ClientProxiedBy: dggems706-chm.china.huawei.com (10.3.19.183) To
+ kwepemm600017.china.huawei.com (7.193.23.234)
+X-CFilter-Loop: Reflected
+X-Spam-Status: No, score=-4.3 required=5.0 tests=BAYES_00,NICE_REPLY_A,
+        RCVD_IN_DNSWL_MED,SPF_HELO_NONE,SPF_PASS autolearn=ham
         autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -88,51 +52,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hello,
 
-On Mon, 2023-02-20 at 14:35 +0100, Greg Kroah-Hartman wrote:
-> From: Kees Cook <keescook@chromium.org>
->=20
-> [ Upstream commit de5ca4c3852f896cacac2bf259597aab5e17d9e3 ]
->=20
-> Nothing was explicitly bounds checking the priority index used to access
-> clpriop[]. WARN and bail out early if it's pathological. Seen with GCC 13=
-:
->=20
-> ../net/sched/sch_htb.c: In function 'htb_activate_prios':
-> ../net/sched/sch_htb.c:437:44: warning: array subscript [0, 31] is outsid=
-e array bounds of 'struct htb_prio[8]' [-Warray-bounds=3D]
->   437 |                         if (p->inner.clprio[prio].feed.rb_node)
->       |                             ~~~~~~~~~~~~~~~^~~~~~
-> ../net/sched/sch_htb.c:131:41: note: while referencing 'clprio'
->   131 |                         struct htb_prio clprio[TC_HTB_NUMPRIO];
->       |                                         ^~~~~~
->=20
-> Cc: Jamal Hadi Salim <jhs@mojatatu.com>
-> Cc: Cong Wang <xiyou.wangcong@gmail.com>
-> Cc: Jiri Pirko <jiri@resnulli.us>
-> Cc: "David S. Miller" <davem@davemloft.net>
-> Cc: Eric Dumazet <edumazet@google.com>
-> Cc: Jakub Kicinski <kuba@kernel.org>
-> Cc: Paolo Abeni <pabeni@redhat.com>
-> Cc: netdev@vger.kernel.org
-> Signed-off-by: Kees Cook <keescook@chromium.org>
-> Reviewed-by: Simon Horman <simon.horman@corigine.com>
-> Reviewed-by: Cong Wang <cong.wang@bytedance.com>
-> Link: https://lore.kernel.org/r/20230127224036.never.561-kees@kernel.org
-> Signed-off-by: Paolo Abeni <pabeni@redhat.com>
-> Signed-off-by: Sasha Levin <sashal@kernel.org>
 
-This one has a follow-up which I don't see among the patches reaching
-the netdev ML:
+在 2023/2/21 15:30, Greg KH 写道:
+> On Tue, Feb 21, 2023 at 03:19:05PM +0800, Tong Tiangen wrote:
+>> Hi peter:
+>>
+>> Do you have any plans to backport this patch[1] to the stable branch of the
+>> lower version, such as 4.19.y ?
+> 
+> Why?  That is a new feature for 6.2 why would it be needed to fix
+> anything in really old kernels?
 
-commit 9cec2aaffe969f2a3e18b5ec105fc20bb908e475
-Author: Dan Carpenter <error27@gmail.com>
-Date:   Mon Feb 6 16:18:32 2023 +0300
+Hi Greg:
 
-    net: sched: sch: Fix off by one in htb_activate_prios()
+This patch fix CVE-2023-0597[1], this CVE report a flaw possibility of 
+memory leak. And this is important for some products using this stable 
+version.
 
-Cheers,
+[1] https://bugzilla.redhat.com/show_bug.cgi?id=2165926
 
-Paolo
+> 
+>> When I try to backport this patch to 5.10.y, I met some KASAN[2] and
+>> KASLR[3] related issues. Although they were finally solved, there were still
+>> some detours in the process.
+> 
+> Send your series of backports to the list for review please if they
+> match the stable kernel rules.
 
+OK.
+
+> 
+> But why can't you just use the 6.2 kernel instead of something obsolete
+> like 4.19?
+> 
+> thanks,
+> 
+> greg k-h
+> .
+
+Thanks.
+Tong
+.
