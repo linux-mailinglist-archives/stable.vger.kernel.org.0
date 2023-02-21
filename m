@@ -2,96 +2,123 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 2A94E69E470
-	for <lists+stable@lfdr.de>; Tue, 21 Feb 2023 17:22:07 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E9EDA69E79B
+	for <lists+stable@lfdr.de>; Tue, 21 Feb 2023 19:35:54 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233887AbjBUQWF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 21 Feb 2023 11:22:05 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47174 "EHLO
+        id S229609AbjBUSfw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 21 Feb 2023 13:35:52 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34428 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233709AbjBUQWE (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 21 Feb 2023 11:22:04 -0500
-Received: from mail-io1-xd30.google.com (mail-io1-xd30.google.com [IPv6:2607:f8b0:4864:20::d30])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4FEBB1CF52;
-        Tue, 21 Feb 2023 08:22:03 -0800 (PST)
-Received: by mail-io1-xd30.google.com with SMTP id b16so1370047iof.11;
-        Tue, 21 Feb 2023 08:22:03 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:sender:from:to:cc:subject:date:message-id
-         :reply-to;
-        bh=1GJtP+8RjhN3ucRBaCvPm/TRUilYHvgTU8JtJej4p/U=;
-        b=qU59TttVz/e/wcOYB1SJLUkVQYB53HqGeelzg7cEIMsNsM26BkE5+15f+XpWxsfnBo
-         0uhG4siyjADlAJl5wtonvS+OhaMge2/AbYWSF0jzU0qqt4kvO4+Meb88yeX2Dy0BGY8g
-         0RMXs2Zo7E6a3xgIEaCtVTjALrgGgkqpD04VHO8mMvXxjvn9R24kxwjGUi6PN69i18+G
-         HX62k1EysSqrYvREhC0gurx6kgBz3wDxZswimZI0qbeYxBqGBEtYAnrynRgrx4OEQ/F0
-         3sInRtlPSdg1MwVWu00O49W3G7qnuKQcFKEOt9GEckTwj253AYBveIf373B5dKNwmAde
-         fNnw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:sender:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=1GJtP+8RjhN3ucRBaCvPm/TRUilYHvgTU8JtJej4p/U=;
-        b=dHWl5wQUxO16+fwvSsNWTb/LV/5YlXjB/ZY7JG0DI39kwDQDRq7vj/yaTPTzNW1T39
-         ND2WKY5dtPomubMPYjt8a+H4FjEjJ5y/TLzWpCFqg+ZmpreWy16ishCMBuRD0Z94rcET
-         OJ2EWuaRw1A0iOTNm+NmKruw+WnBLK5VNiy4kjIxmLjD5yyS6vIKfykfs2ap1eH9w6Dh
-         RjPh9PXOmzdLERYLtVAxIDKsyRNnEG4KccoxI1nk81iEysDdwR7WXVUPWxtl4VTGGzEw
-         Ul/W9RzBYPxDjjlM3VvLGkhubyigSqnxtxywfkVaHxCHxMapKxQN4jObgkwZwSzzIq5M
-         K5/w==
-X-Gm-Message-State: AO0yUKX5Nq3I7DLbbV49lTFb+pxjflbgsIYGellULFf4BC5Mju5EACtU
-        QWpWU/oGLiWO241pvWOS+/4=
-X-Google-Smtp-Source: AK7set8v2GVvSmrxflWjovVDNlprtI4a06+8hyX4uRMnTXqRcyFjwtGAKfHtNz03vKC1YuM+Sg/a6w==
-X-Received: by 2002:a6b:590a:0:b0:71e:ea4a:cad2 with SMTP id n10-20020a6b590a000000b0071eea4acad2mr10831301iob.21.1676996522661;
-        Tue, 21 Feb 2023 08:22:02 -0800 (PST)
-Received: from server.roeck-us.net ([2600:1700:e321:62f0:329c:23ff:fee3:9d7c])
-        by smtp.gmail.com with ESMTPSA id w3-20020a5d8443000000b00745bc07f527sm1027464ior.10.2023.02.21.08.22.01
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 21 Feb 2023 08:22:02 -0800 (PST)
-Sender: Guenter Roeck <groeck7@gmail.com>
-Date:   Tue, 21 Feb 2023 08:22:01 -0800
-From:   Guenter Roeck <linux@roeck-us.net>
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     stable@vger.kernel.org, patches@lists.linux.dev,
-        linux-kernel@vger.kernel.org, torvalds@linux-foundation.org,
-        akpm@linux-foundation.org, shuah@kernel.org, patches@kernelci.org,
-        lkft-triage@lists.linaro.org, pavel@denx.de, jonathanh@nvidia.com,
-        f.fainelli@gmail.com, sudipm.mukherjee@gmail.com,
-        srw@sladewatkins.net, rwarsow@gmx.de
-Subject: Re: [PATCH 6.1 000/118] 6.1.13-rc1 review
-Message-ID: <20230221162201.GF1588041@roeck-us.net>
-References: <20230220133600.368809650@linuxfoundation.org>
+        with ESMTP id S229540AbjBUSfv (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 21 Feb 2023 13:35:51 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 48CEF305F2;
+        Tue, 21 Feb 2023 10:35:07 -0800 (PST)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 7960EB81049;
+        Tue, 21 Feb 2023 18:35:05 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 44575C433D2;
+        Tue, 21 Feb 2023 18:35:03 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1677004504;
+        bh=dgnjcSUG5w1/UXY20oy7pA67rk5DpCFG+LKqSztlm2U=;
+        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+        b=JaHaknMQH94f0Ouz7x7+bJIIjbqP/1A+lf0z1r07/7u31jA6NOMhkjW7+NQyvj35e
+         r/jQRM84dkmgFx+I10T1+lXThjNBjateNxycYIcs8ndkx+83AY7RtGGDH1RDlxKsfx
+         F0ElKYH0Wx72EtvnPAl2tSazAPHRHXzUqgYigzELtugc3AHpiPANpZvByCujdPkOTF
+         w0dPFwyDldQNFWCLQNnI2VnKaMG/a15VZoIU6XlPnNlL9JqQDQxANx9QltdGXZU71M
+         Dl2ye6B6QBHGkFlvvHhMbYXijeMmxJYK1eg3IOhRUo8lxsPqfw5aljOdgLV50q/zFN
+         Y/WQZlhgK3iOA==
+From:   SeongJae Park <sj@kernel.org>
+To:     Andrew Yang <andrew.yang@mediatek.com>
+Cc:     SeongJae Park <sj@kernel.org>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        Matthias Brugger <matthias.bgg@gmail.com>,
+        AngeloGioacchino Del Regno 
+        <angelogioacchino.delregno@collabora.com>,
+        wsd_upstream@mediatek.com, casper.lin@mediatek.com,
+        damon@lists.linux.dev, linux-mm@kvack.org,
+        linux-kernel@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
+        linux-mediatek@lists.infradead.org, stable@vger.kernel.org
+Subject: Re: [PATCH] mm/damon/paddr: fix pin page problem
+Date:   Tue, 21 Feb 2023 18:35:01 +0000
+Message-Id: <20230221183501.132024-1-sj@kernel.org>
+X-Mailer: git-send-email 2.25.1
+In-Reply-To: <20230221090313.15396-1-andrew.yang@mediatek.com>
+References: 
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20230220133600.368809650@linuxfoundation.org>
-X-Spam-Status: No, score=-1.2 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_EF,FREEMAIL_ENVFROM_END_DIGIT,
-        FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,HEADER_FROM_DIFFERENT_DOMAINS,
-        RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS autolearn=no
-        autolearn_force=no version=3.4.6
+Content-Transfer-Encoding: 8bit
+X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
+        SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, Feb 20, 2023 at 02:35:16PM +0100, Greg Kroah-Hartman wrote:
-> This is the start of the stable review cycle for the 6.1.13 release.
-> There are 118 patches in this series, all will be posted as a response
-> to this one.  If anyone has any issues with these being applied, please
-> let me know.
+Hi Andrew,
+
+
+On Tue, 21 Feb 2023 17:03:13 +0800 Andrew Yang <andrew.yang@mediatek.com> wrote:
+
+> From: "andrew.yang" <andrew.yang@mediatek.com>
 > 
-> Responses should be made by Wed, 22 Feb 2023 13:35:35 +0000.
-> Anything received after that time might be too late.
+> damon_get_page() would always increase page _refcount and
+> isolate_lru_page() would increase page _refcount if the page's lru
+> flag is set.
 > 
+> If a unevictable page isolated successfully, there will be two more
+> _refcount. The one from isolate_lru_page() will be decreased in
+> putback_lru_page(), but the other one from damon_get_page() will be
+> left behind. This causes a pin page.
+> 
+> Whatever the case, the _refcount from damon_get_page() should be
+> decreased.
 
-Build results:
-	total: 155 pass: 155 fail: 0
-Qemu test results:
-	total: 503 pass: 503 fail: 0
+Thank you for finding this issue!  I think the David suggested subject[1] is
+better, though.
 
-Tested-by: Guenter Roeck <linux@roeck-us.net>
+I think we could add below Fixes: and Cc: tags?
 
-Guenter
+Fixes: 57223ac29584 ("mm/damon/paddr: support the pageout scheme")
+Cc: <stable@vger.kernel.org> # 5.16.x
+
+> 
+> Signed-off-by: andrew.yang <andrew.yang@mediatek.com>
+> ---
+>  mm/damon/paddr.c | 2 +-
+>  1 file changed, 1 insertion(+), 1 deletion(-)
+> 
+> diff --git a/mm/damon/paddr.c b/mm/damon/paddr.c
+> index e1a4315c4be6..56d8abd08fb1 100644
+> --- a/mm/damon/paddr.c
+> +++ b/mm/damon/paddr.c
+> @@ -223,8 +223,8 @@ static unsigned long damon_pa_pageout(struct damon_region *r)
+>  			putback_lru_page(page);
+>  		} else {
+>  			list_add(&page->lru, &page_list);
+> -			put_page(page);
+>  		}
+> +		put_page(page);
+
+Seems your patch is not based on mm-unstable tree[2].  Could you please rebase
+on it?
+
+Also, let's remove the braces for the single statements[3].
+
+[1] https://lore.kernel.org/damon/1b3e8e88-ed5c-7302-553f-4ddb3400d466@redhat.com/
+[2] https://docs.kernel.org/next/mm/damon/maintainer-profile.html#scm-trees
+[3] https://docs.kernel.org/process/coding-style.html?highlight=coding+style#placing-braces-and-spaces
+
+
+Thanks,
+SJ
+
+>  	}
+>  	applied = reclaim_pages(&page_list);
+>  	cond_resched();
+> -- 
+> 2.18.0
