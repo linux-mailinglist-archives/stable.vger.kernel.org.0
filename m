@@ -2,202 +2,81 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 5C61469FC38
-	for <lists+stable@lfdr.de>; Wed, 22 Feb 2023 20:30:12 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 336B969FC3B
+	for <lists+stable@lfdr.de>; Wed, 22 Feb 2023 20:30:47 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232238AbjBVTaC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 22 Feb 2023 14:30:02 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35648 "EHLO
+        id S231214AbjBVTap (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 22 Feb 2023 14:30:45 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37110 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232766AbjBVT3v (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 22 Feb 2023 14:29:51 -0500
-Received: from mail-pg1-x549.google.com (mail-pg1-x549.google.com [IPv6:2607:f8b0:4864:20::549])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6AEBD34016
-        for <stable@vger.kernel.org>; Wed, 22 Feb 2023 11:29:44 -0800 (PST)
-Received: by mail-pg1-x549.google.com with SMTP id d18-20020a63f252000000b00502f11fb2fcso365891pgk.6
-        for <stable@vger.kernel.org>; Wed, 22 Feb 2023 11:29:44 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20210112;
-        h=cc:to:from:subject:message-id:references:mime-version:in-reply-to
-         :date:from:to:cc:subject:date:message-id:reply-to;
-        bh=CBY1EQ8rgvYwbAE0sNfh/NLDoFtyGrAczu8biZVyLX0=;
-        b=o3icHyjxwvdHAhPRUh6Mt6hvF5TRYma19mD+TxcsNWR4dcwvzykuLrLgvdV+PDLtlF
-         cdZvsk7or8RrIsU067FeiJHYoz+MPT+JgTTv0DBnRbYGcxzIwktwKnMLlU3p6gt6+w4i
-         ids2WRyltylT6UatxWBrSQgsF5ZnyBuaHlLUMx9hJo5AXRIVF3HN2y7GZmBuKJv63Iha
-         f/huLn96P2Rk1WA2a4IwinWnGiJJogk5K83YwSdyxlr2FWjfv6tZ657eAnaoBWAEcKHc
-         g/qOWXwx5Qo25UH0yfAfr1AdI+cxaQHLySxnQAtq75ko8f0mKMqAWb1N3s+dJ5RVBYXZ
-         VSlw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=cc:to:from:subject:message-id:references:mime-version:in-reply-to
-         :date:x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=CBY1EQ8rgvYwbAE0sNfh/NLDoFtyGrAczu8biZVyLX0=;
-        b=O2cjPL5QZsvK0mK4NHSU4UZnPFrH04OfTTPL4WcSyZGNgdit5hF/FCHwAkssTeeRDW
-         Aj3B5f4ebAopknT7bEMPwpR+DPAvr0mWUmyRJpNvwkI4C4pCBN6YU2c5IBjUL4mb6QGn
-         YCv5rNOn/iYI1zkxnqf+A+fN0Pjn9vApaHOeXuGpw9zj1iQf8Zvv5aUaRK9bNv3pqDLp
-         oNqKIBY7yvLBMWIA8J66+Jw44xsb6CcJf8UkWnfVZNPtT1M9SllNpsuNLklaal5+DKzj
-         LHzs2PuwIsK6WH1N7NG5hqE5dsY/IihzZzcOmm38QhzN3f6Q7gbZocSAybhGRZrwTLcD
-         cfgA==
-X-Gm-Message-State: AO0yUKUmPlZVNFCDhbPiesGR1ejBCKJ1qG9tzth/Y8eaAkE2VXy+xyI1
-        s7uBgueoFZ3hXhI/C/03b1EBRa9kIez7Vayov8HH5qi33V/FtlJkeHJq1ptyTIEPPwYNh9QgBSF
-        C9vskAQi2RQYl5FTmSnZCjg/9/B9AJIGspjxm8l7mLsho81n+YSKdnCO+bn6dTg==
-X-Google-Smtp-Source: AK7set8IjtejlcQuK1gmqMMMCxx3rSvp07+jvv64f31bXlPR3CPC0jh/v1XrF0KwPfYEha3WiyIHCV9t+9A=
-X-Received: from edliaw.c.googlers.com ([fda3:e722:ac3:cc00:24:72f4:c0a8:305d])
- (user=edliaw job=sendgmr) by 2002:a62:a110:0:b0:5a8:c0ee:876f with SMTP id
- b16-20020a62a110000000b005a8c0ee876fmr1332747pff.3.1677094183762; Wed, 22 Feb
- 2023 11:29:43 -0800 (PST)
-Date:   Wed, 22 Feb 2023 19:29:24 +0000
-In-Reply-To: <20230222192925.1778183-1-edliaw@google.com>
-Mime-Version: 1.0
-References: <20230222192925.1778183-1-edliaw@google.com>
-X-Mailer: git-send-email 2.39.2.637.g21b0678d19-goog
-Message-ID: <20230222192925.1778183-5-edliaw@google.com>
-Subject: [PATCH 4.14 v2 4/4] bpf: Fix truncation handling for mod32 dst reg
- wrt zero
-From:   Edward Liaw <edliaw@google.com>
-To:     stable@vger.kernel.org, Alexei Starovoitov <ast@kernel.org>,
-        Daniel Borkmann <daniel@iogearbox.net>,
-        "David S. Miller" <davem@davemloft.net>
-Cc:     bpf@vger.kernel.org, kernel-team@android.com,
-        Edward Liaw <edliaw@google.com>, netdev@vger.kernel.org,
-        linux-kernel@vger.kernel.org,
-        John Fastabend <john.fastabend@gmail.com>,
-        Salvatore Bonaccorso <carnil@debian.org>,
-        Thadeu Lima de Souza Cascardo <cascardo@canonical.com>
-Content-Type: text/plain; charset="UTF-8"
-X-Spam-Status: No, score=-9.6 required=5.0 tests=BAYES_00,DKIMWL_WL_MED,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_NONE,
-        SPF_HELO_NONE,SPF_PASS,USER_IN_DEF_DKIM_WL autolearn=unavailable
-        autolearn_force=no version=3.4.6
+        with ESMTP id S229756AbjBVTao (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 22 Feb 2023 14:30:44 -0500
+Received: from mga12.intel.com (mga12.intel.com [192.55.52.136])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5E8C73A853
+        for <stable@vger.kernel.org>; Wed, 22 Feb 2023 11:30:31 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
+  t=1677094231; x=1708630231;
+  h=date:from:to:cc:subject:message-id:mime-version:
+   in-reply-to;
+  bh=QfUt1PgDBqn0coMx99OdE6cCnPnWz3BFGJxuYsipLy8=;
+  b=FxQwYYhAhiaYYmEf4Hi4VREJL5JJx4XlbNrFTGu6SGrvrGaJUkBApxVC
+   IFw+8jTBGH444DgvlfCxFNM0n6xqCglIgw1bBZuYVwyyEsaBL4/uWQTac
+   KNwOyQIrNO8ksck6fmxERuCoplXVdoYy75vlQolvmBAbBTnJTN/8pMsCb
+   kGbJA7JCgY9OjljWKtBD133G/HXC2MSVvioY1eN/EscJjh3k8R+qtTTAi
+   6SISLTTp+O+RuwEShp0UMShNySatk4JXxO9GFTV9ihh6j7mWl2VxRYB2b
+   ghBSJiOiRBPk7EFac/q0qcHbq2mEQxpx9GLo8yFg2TwpFZafNegaMAgwl
+   g==;
+X-IronPort-AV: E=McAfee;i="6500,9779,10629"; a="312647380"
+X-IronPort-AV: E=Sophos;i="5.97,319,1669104000"; 
+   d="scan'208";a="312647380"
+Received: from fmsmga005.fm.intel.com ([10.253.24.32])
+  by fmsmga106.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 22 Feb 2023 11:30:30 -0800
+X-ExtLoop1: 1
+X-IronPort-AV: E=McAfee;i="6500,9779,10629"; a="1001106550"
+X-IronPort-AV: E=Sophos;i="5.97,319,1669104000"; 
+   d="scan'208";a="1001106550"
+Received: from lkp-server01.sh.intel.com (HELO 3895f5c55ead) ([10.239.97.150])
+  by fmsmga005.fm.intel.com with ESMTP; 22 Feb 2023 11:30:30 -0800
+Received: from kbuild by 3895f5c55ead with local (Exim 4.96)
+        (envelope-from <lkp@intel.com>)
+        id 1pUuov-0000gC-1I;
+        Wed, 22 Feb 2023 19:30:29 +0000
+Date:   Thu, 23 Feb 2023 03:30:19 +0800
+From:   kernel test robot <lkp@intel.com>
+To:     Edward Liaw <edliaw@google.com>
+Cc:     stable@vger.kernel.org, oe-kbuild-all@lists.linux.dev
+Subject: Re: [PATCH 4.14 v2 1/4] bpf: Do not use ax register in interpreter
+ on div/mod
+Message-ID: <Y/ZtS1X2XEZ31pvB@f839a3c1ca0d>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20230222192925.1778183-2-edliaw@google.com>
+X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
+        SPF_HELO_PASS,SPF_NONE autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Daniel Borkmann <daniel@iogearbox.net>
+Hi,
 
-Commit 9b00f1b78809309163dda2d044d9e94a3c0248a3 upstream.
+Thanks for your patch.
 
-Recently noticed that when mod32 with a known src reg of 0 is performed,
-then the dst register is 32-bit truncated in verifier:
+FYI: kernel test robot notices the stable kernel rule is not satisfied.
 
-  0: R1=ctx(id=0,off=0,imm=0) R10=fp0
-  0: (b7) r0 = 0
-  1: R0_w=inv0 R1=ctx(id=0,off=0,imm=0) R10=fp0
-  1: (b7) r1 = -1
-  2: R0_w=inv0 R1_w=inv-1 R10=fp0
-  2: (b4) w2 = -1
-  3: R0_w=inv0 R1_w=inv-1 R2_w=inv4294967295 R10=fp0
-  3: (9c) w1 %= w0
-  4: R0_w=inv0 R1_w=inv(id=0,umax_value=4294967295,var_off=(0x0; 0xffffffff)) R2_w=inv4294967295 R10=fp0
-  4: (b7) r0 = 1
-  5: R0_w=inv1 R1_w=inv(id=0,umax_value=4294967295,var_off=(0x0; 0xffffffff)) R2_w=inv4294967295 R10=fp0
-  5: (1d) if r1 == r2 goto pc+1
-   R0_w=inv1 R1_w=inv(id=0,umax_value=4294967295,var_off=(0x0; 0xffffffff)) R2_w=inv4294967295 R10=fp0
-  6: R0_w=inv1 R1_w=inv(id=0,umax_value=4294967295,var_off=(0x0; 0xffffffff)) R2_w=inv4294967295 R10=fp0
-  6: (b7) r0 = 2
-  7: R0_w=inv2 R1_w=inv(id=0,umax_value=4294967295,var_off=(0x0; 0xffffffff)) R2_w=inv4294967295 R10=fp0
-  7: (95) exit
-  7: R0=inv1 R1=inv(id=0,umin_value=4294967295,umax_value=4294967295,var_off=(0x0; 0xffffffff)) R2=inv4294967295 R10=fp0
-  7: (95) exit
+Rule: 'Cc: stable@vger.kernel.org' or 'commit <sha1> upstream.'
+Subject: [PATCH 4.14 v2 1/4] bpf: Do not use ax register in interpreter on div/mod
+Link: https://lore.kernel.org/stable/20230222192925.1778183-2-edliaw%40google.com
 
-However, as a runtime result, we get 2 instead of 1, meaning the dst
-register does not contain (u32)-1 in this case. The reason is fairly
-straight forward given the 0 test leaves the dst register as-is:
+The check is based on https://www.kernel.org/doc/html/latest/process/stable-kernel-rules.html
 
-  # ./bpftool p d x i 23
-   0: (b7) r0 = 0
-   1: (b7) r1 = -1
-   2: (b4) w2 = -1
-   3: (16) if w0 == 0x0 goto pc+1
-   4: (9c) w1 %= w0
-   5: (b7) r0 = 1
-   6: (1d) if r1 == r2 goto pc+1
-   7: (b7) r0 = 2
-   8: (95) exit
-
-This was originally not an issue given the dst register was marked as
-completely unknown (aka 64 bit unknown). However, after 468f6eafa6c4
-("bpf: fix 32-bit ALU op verification") the verifier casts the register
-output to 32 bit, and hence it becomes 32 bit unknown. Note that for
-the case where the src register is unknown, the dst register is marked
-64 bit unknown. After the fix, the register is truncated by the runtime
-and the test passes:
-
-  # ./bpftool p d x i 23
-   0: (b7) r0 = 0
-   1: (b7) r1 = -1
-   2: (b4) w2 = -1
-   3: (16) if w0 == 0x0 goto pc+2
-   4: (9c) w1 %= w0
-   5: (05) goto pc+1
-   6: (bc) w1 = w1
-   7: (b7) r0 = 1
-   8: (1d) if r1 == r2 goto pc+1
-   9: (b7) r0 = 2
-  10: (95) exit
-
-Semantics also match with {R,W}x mod{64,32} 0 -> {R,W}x. Invalid div
-has always been {R,W}x div{64,32} 0 -> 0. Rewrites are as follows:
-
-  mod32:                            mod64:
-
-  (16) if w0 == 0x0 goto pc+2       (15) if r0 == 0x0 goto pc+1
-  (9c) w1 %= w0                     (9f) r1 %= r0
-  (05) goto pc+1
-  (bc) w1 = w1
-
-[Salvatore Bonaccorso: This is an earlier version based on work by
-Daniel and John which does not rely on availability of the BPF_JMP32
-instruction class. This means it is not even strictly a backport of the
-upstream commit mentioned but based on Daniel's and John's work to
-address the issue and was finalized by Thadeu Lima de Souza Cascardo.]
-
-Fixes: 468f6eafa6c4 ("bpf: fix 32-bit ALU op verification")
-Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
-Reviewed-by: John Fastabend <john.fastabend@gmail.com>
-Tested-by: Salvatore Bonaccorso <carnil@debian.org>
-Signed-off-by: Thadeu Lima de Souza Cascardo <cascardo@canonical.com>
----
- kernel/bpf/verifier.c | 9 +++++----
- 1 file changed, 5 insertions(+), 4 deletions(-)
-
-diff --git a/kernel/bpf/verifier.c b/kernel/bpf/verifier.c
-index 9f04d413df92..a55e264cdb54 100644
---- a/kernel/bpf/verifier.c
-+++ b/kernel/bpf/verifier.c
-@@ -4846,7 +4846,7 @@ static int fixup_bpf_calls(struct bpf_verifier_env *env)
- 			bool is64 = BPF_CLASS(insn->code) == BPF_ALU64;
- 			struct bpf_insn mask_and_div[] = {
- 				BPF_MOV_REG(BPF_CLASS(insn->code), BPF_REG_AX, insn->src_reg),
--				/* Rx div 0 -> 0 */
-+				/* [R,W]x div 0 -> 0 */
- 				BPF_JMP_IMM(BPF_JEQ, BPF_REG_AX, 0, 2),
- 				BPF_RAW_REG(*insn, insn->dst_reg, BPF_REG_AX),
- 				BPF_JMP_IMM(BPF_JA, 0, 0, 1),
-@@ -4854,9 +4854,10 @@ static int fixup_bpf_calls(struct bpf_verifier_env *env)
- 			};
- 			struct bpf_insn mask_and_mod[] = {
- 				BPF_MOV_REG(BPF_CLASS(insn->code), BPF_REG_AX, insn->src_reg),
--				/* Rx mod 0 -> Rx */
--				BPF_JMP_IMM(BPF_JEQ, BPF_REG_AX, 0, 1),
-+				BPF_JMP_IMM(BPF_JEQ, BPF_REG_AX, 0, 1 + (is64 ? 0 : 1)),
- 				BPF_RAW_REG(*insn, insn->dst_reg, BPF_REG_AX),
-+				BPF_JMP_IMM(BPF_JA, 0, 0, 1),
-+				BPF_MOV32_REG(insn->dst_reg, insn->dst_reg),
- 			};
- 			struct bpf_insn *patchlet;
- 
-@@ -4866,7 +4867,7 @@ static int fixup_bpf_calls(struct bpf_verifier_env *env)
- 				cnt = ARRAY_SIZE(mask_and_div);
- 			} else {
- 				patchlet = mask_and_mod;
--				cnt = ARRAY_SIZE(mask_and_mod);
-+				cnt = ARRAY_SIZE(mask_and_mod) - (is64 ? 2 : 0);
- 			}
- 
- 			new_prog = bpf_patch_insn_data(env, i + delta, patchlet, cnt);
 -- 
-2.39.2.637.g21b0678d19-goog
+0-DAY CI Kernel Test Service
+https://github.com/intel/lkp-tests
+
+
 
