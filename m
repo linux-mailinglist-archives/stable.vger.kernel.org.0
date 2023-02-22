@@ -2,42 +2,55 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 59A5869FE17
-	for <lists+stable@lfdr.de>; Wed, 22 Feb 2023 23:05:19 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A73D569FE88
+	for <lists+stable@lfdr.de>; Wed, 22 Feb 2023 23:31:48 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230073AbjBVWFS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 22 Feb 2023 17:05:18 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58320 "EHLO
+        id S232817AbjBVWbr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 22 Feb 2023 17:31:47 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58956 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229448AbjBVWFR (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 22 Feb 2023 17:05:17 -0500
-Received: from phobos.denx.de (phobos.denx.de [85.214.62.61])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 800FF3D931;
-        Wed, 22 Feb 2023 14:05:14 -0800 (PST)
-Received: from [127.0.0.1] (p578adb1c.dip0.t-ipconnect.de [87.138.219.28])
-        (using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits))
-        (No client certificate requested)
-        (Authenticated sender: marex@denx.de)
-        by phobos.denx.de (Postfix) with ESMTPSA id 4253F85911;
-        Wed, 22 Feb 2023 23:05:11 +0100 (CET)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=denx.de;
-        s=phobos-20191101; t=1677103512;
-        bh=1IAlegq7EDrVDuMZUrtXnRLNt0MkiiFeaksJt0p5K6k=;
-        h=Date:Subject:To:Cc:References:From:In-Reply-To:From;
-        b=ynxihIKeuOGuBIMSLTlTQuKDbCj10c/pswJnzH0ARAbsqE6BfDMXd4fwwQt2+uPqc
-         YEcenL6M8F+4lR4PcVwgmgSFB71c3qVe8+BTtueaI1++l7ZunDYvJaDm68sLAa4OuQ
-         XQrQdO0gqo/YKHIiVuGNuhCb09hQWyyQM/eRHp3WugsD18m0yzmm+gv31nkVXqoSYu
-         tpBDuWBS++5kMxFj9pzX+fL5dsKJMwWiR0Amyc4++SevawNVlQYrp5tYnGCr/5WvG7
-         fMpyjccyJ4tnAiInoNCzBGOz9Ktip7Y3JiL2A1Fb7ZY6ou1DuAN37Ss4eRFJ452D93
-         lECGbOAl+cYAw==
-Message-ID: <ed05fc85-72a8-e694-b829-731f6d720347@denx.de>
-Date:   Wed, 22 Feb 2023 23:05:10 +0100
-MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
- Thunderbird/102.8.0
-Subject: Re: [PATCH] net: dsa: microchip: Fix gigabit set and get function for
- KSZ87xx
-To:     Vladimir Oltean <olteanv@gmail.com>
+        with ESMTP id S232238AbjBVWbq (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 22 Feb 2023 17:31:46 -0500
+Received: from mail-ed1-x52c.google.com (mail-ed1-x52c.google.com [IPv6:2a00:1450:4864:20::52c])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 96B473CE28;
+        Wed, 22 Feb 2023 14:31:45 -0800 (PST)
+Received: by mail-ed1-x52c.google.com with SMTP id ee7so21427658edb.2;
+        Wed, 22 Feb 2023 14:31:45 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20210112;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
+        bh=k5e76QDVcXIFAd0Wkb0OTH38rJMSIKjvA8VReCJRnCM=;
+        b=FZbeJXNAq1ZsDZMtQqSBgZzgeOzDT1glYOxlCoaLwFGqV9L/dftqlTd0I7ehrQ+pKK
+         NXTXYuL9yLdZdN0+R/MLJPx6uyWN8QtoHDKVjT1RUPoakmLeaxqZqOD0wbc47sQGiCCL
+         qPGWftrPHIASA4w+Pkmp18E1GonRqRA/pysKtTWOWyw77j+PkGf/qc7yo9kM8H2eNaxq
+         ILRWWRqs657ee+Dlq/nUwBFUmnTMpCpbTvLtf+utsnbuBJaA83mp8McC0hROMH3qk4xF
+         Fz3jKhE4Q5jJkdCgd+1DCxFeG19i64HcvvzHgvbdViYaTALiVpNkAGW7QStqzdLpcUnr
+         jXQw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=k5e76QDVcXIFAd0Wkb0OTH38rJMSIKjvA8VReCJRnCM=;
+        b=1LZ1bmQIPWheA+x0BTStzkGwtpCGcD9fqo+rrlJLiUs0lPrj4uPr+2yU1OX7Mfdjlt
+         uGbkRTlVB2rPetu3F8CQfQ3WnleyAiimtye05JwKyqVN2tNzW/2TUBRZaClElUYUG6Yx
+         Wj0EwFU6lBwpAC9MoQnCNFfDr+38Z/UbmK/8atv/T1CB1fBFjwuexb4eUTs6KPG3Q+fV
+         DuU4I/IqU9ffwFx9JLfj1dUH4lWgNeInK7oueVGSFDCb6IWRFfm6PIpnfIghncjQVHTW
+         ohQReMsNFvWWEruKLCcUj60FVfbq1xoUdBCt8M0fFpR4sYUNfrXEhXkwIB0oMxo+FKwj
+         KMEQ==
+X-Gm-Message-State: AO0yUKXdJCDWnwKQ6gagrmOvmET7xslc8gxzuQ2YBXWmoW7tBd3HTn6h
+        EIqZozPoXYh4agL0AWN8QO8=
+X-Google-Smtp-Source: AK7set8BlOncWd056GOkQPVWChHsHxYj28qyzeN+uwnIYK1vOCj97T1zhAIso/flv8rKNv4S8lEMsw==
+X-Received: by 2002:a17:907:6e87:b0:88c:4f0d:85af with SMTP id sh7-20020a1709076e8700b0088c4f0d85afmr23959066ejc.75.1677105104005;
+        Wed, 22 Feb 2023 14:31:44 -0800 (PST)
+Received: from skbuf ([188.27.184.189])
+        by smtp.gmail.com with ESMTPSA id lr12-20020a170906fb8c00b008d69458d374sm4067586ejb.95.2023.02.22.14.31.42
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 22 Feb 2023 14:31:43 -0800 (PST)
+Date:   Thu, 23 Feb 2023 00:31:41 +0200
+From:   Vladimir Oltean <olteanv@gmail.com>
+To:     Marek Vasut <marex@denx.de>
 Cc:     netdev@vger.kernel.org, "David S. Miller" <davem@davemloft.net>,
         Andrew Lunn <andrew@lunn.ch>,
         Arun Ramadoss <arun.ramadoss@microchip.com>,
@@ -48,143 +61,74 @@ Cc:     netdev@vger.kernel.org, "David S. Miller" <davem@davemloft.net>,
         Russell King <linux@armlinux.org.uk>,
         UNGLinuxDriver@microchip.com,
         Woojung Huh <woojung.huh@microchip.com>, stable@vger.kernel.org
+Subject: Re: [PATCH] net: dsa: microchip: Fix gigabit set and get function
+ for KSZ87xx
+Message-ID: <20230222223141.ozeis33beq5wpkfy@skbuf>
 References: <20230222031738.189025-1-marex@denx.de>
  <20230222210853.pilycwhhwmf7csku@skbuf>
-Content-Language: en-US
-From:   Marek Vasut <marex@denx.de>
-In-Reply-To: <20230222210853.pilycwhhwmf7csku@skbuf>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Virus-Scanned: clamav-milter 0.103.6 at phobos.denx.de
-X-Virus-Status: Clean
-X-Spam-Status: No, score=-4.5 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,NICE_REPLY_A,RCVD_IN_DNSWL_MED,
-        SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
+ <ed05fc85-72a8-e694-b829-731f6d720347@denx.de>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <ed05fc85-72a8-e694-b829-731f6d720347@denx.de>
+X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_FROM,
+        RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS autolearn=ham
+        autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 2/22/23 22:08, Vladimir Oltean wrote:
-> Please summarize in the commit title what is the user-visible impact of
-> the problem that is being fixed. Short and to the point.
+On Wed, Feb 22, 2023 at 11:05:10PM +0100, Marek Vasut wrote:
+> On 2/22/23 22:08, Vladimir Oltean wrote:
+> > Please summarize in the commit title what is the user-visible impact of
+> > the problem that is being fixed. Short and to the point.
+> 
+> Can you suggest a Subject which is acceptable ?
 
-Can you suggest a Subject which is acceptable ?
+Nope. The thing is, I don't know what you're seeing, only you do. I can
+only review and comment if it's plausible or not. I'm sure you can come
+up with something.
 
-> On Wed, Feb 22, 2023 at 04:17:38AM +0100, Marek Vasut wrote:
->> Per KSZ8794 [1] datasheet DS00002134D page 54 TABLE 4-4: PORT REGISTERS,
->> it is Register 86 (0x56): Port 4 Interface Control 6 which contains the
->> Is_1Gbps field.
+> > > Currently, the driver uses PORT read function on register P_XMII_CTRL_1
+> > > to access the P_GMII_1GBIT_M, i.e. Is_1Gbps, bit.
+> > 
+> > Provably false. The driver does do that, but not for KSZ87xx.
 > 
-> Good thing you mention Is_1Gbps (even though it's irrelevant to the
-> change you're proposing, since ksz_port_set_xmii_speed() is only called
-> by ksz9477_phylink_mac_link_up()).
-> 
-> That is actually what I want to bring up. If you change the speed in
-> your fixed-link nodes (CPU port and DSA master) to 100 Mbps on KSZ87xx,
-> does it work? No, right? Because P_GMII_1GBIT_M always remains at its
-> hardware default value, which is selected based on pin strapping.
-> That's a bug, and should be fixed too.
+> The driver uses port read function with register value 0x56 instead of 0x06
+> , which means the remapping happens twice, which provably breaks the driver
+> since commit Fixes below .
 
-Sure, separate patch. The system I use has gigabit link to the switch.
+The sentence is false in the context of ksz87xx, which is what is the
+implied context of this patch (see commit title written by yourself).
+The P_GMII_1GBIT_M field is not accessed, and that is a bug in itself.
+Also, the (lack of) access to the P_GMII_1GBIT_M field is not what
+causes the breakage that you see, but to other fields from that register.
 
-> Good thing you brought this up, I wouldn't have mentioned it if it
-> wasn't in the commit message.
+> > There is no call site other than ksz_set_xmii(). Please delete false
+> > information from the commit message.
 > 
->> Currently, the driver uses PORT read function on register P_XMII_CTRL_1
->> to access the P_GMII_1GBIT_M, i.e. Is_1Gbps, bit.
+> $ git grep P_XMII_CTRL_1 drivers/net/dsa/microchip/
+> drivers/net/dsa/microchip/ksz_common.c: [P_XMII_CTRL_1] = 0x06,
+> drivers/net/dsa/microchip/ksz_common.c: [P_XMII_CTRL_1] = 0x0301,
+> drivers/net/dsa/microchip/ksz_common.c: ksz_pread8(dev, port, regs[P_XMII_CTRL_1], &data8);
+> drivers/net/dsa/microchip/ksz_common.c: ksz_pwrite8(dev, port, regs[P_XMII_CTRL_1], data8);
+> drivers/net/dsa/microchip/ksz_common.c: ksz_pread8(dev, port, regs[P_XMII_CTRL_1], &data8);
+> drivers/net/dsa/microchip/ksz_common.c: ksz_pread8(dev, port, regs[P_XMII_CTRL_1], &data8);
+> drivers/net/dsa/microchip/ksz_common.c: ksz_pread8(dev, port, regs[P_XMII_CTRL_1], &data8);
+> drivers/net/dsa/microchip/ksz_common.c: ksz_pwrite8(dev, port, regs[P_XMII_CTRL_1], data8);
+> drivers/net/dsa/microchip/ksz_common.h: P_XMII_CTRL_1,
 > 
-> Provably false. The driver does do that, but not for KSZ87xx.
+> I count 6.
 
-The driver uses port read function with register value 0x56 instead of 
-0x06 , which means the remapping happens twice, which provably breaks 
-the driver since commit Fixes below .
+So your response to 2 reviewers wasting their time to do a detailed
+analysis of the code paths that apply to the KSZ87xx model in particular,
+to tell you precisely why your commit message is incorrect is "git grep"?
 
-> Please delete red herrings from the commit message, they do not help
-> assess users if they care about backporting a patch to a custom tree
-> or not.
-> 
->> The problem is, the register P_XMII_CTRL_1 address is already 0x56,
->> which is the converted PORT register address instead of the offset
->> within PORT register space that PORT read function expects and
->> converts into the PORT register address internally. The incorrectly
->> double-converted register address becomes 0xa6, which is what the PORT
->> read function ultimatelly accesses, and which is a non-existent
->                  ~~~~~~~~~~~
->                  ultimately
-> 
->> register on the KSZ8794/KSZ8795 .
->>
->> The correct value for P_XMII_CTRL_1 is 0x6, which gets converted into
->> port address 0x56, which is Register 86 (0x56): Port 4 Interface Control 6
->> per KSZ8794 datasheet, i.e. the correct register address.
->>
->> To make this worse, there are multiple other call sites which read and
->                                  ~~~~~~~~
->                                  multiple implies more than 1.
-> 
-> There is no call site other than ksz_set_xmii(). Please delete false
-> information from the commit message.
+> OK, to make this simple, can you write a commit message which you consider
+> acceptable, to close this discussion ?
 
-$ git grep P_XMII_CTRL_1 drivers/net/dsa/microchip/
-drivers/net/dsa/microchip/ksz_common.c: [P_XMII_CTRL_1] 
-= 0x06,
-drivers/net/dsa/microchip/ksz_common.c: [P_XMII_CTRL_1] 
-= 0x0301,
-drivers/net/dsa/microchip/ksz_common.c: ksz_pread8(dev, port, 
-regs[P_XMII_CTRL_1], &data8);
-drivers/net/dsa/microchip/ksz_common.c: ksz_pwrite8(dev, port, 
-regs[P_XMII_CTRL_1], data8);
-drivers/net/dsa/microchip/ksz_common.c: ksz_pread8(dev, port, 
-regs[P_XMII_CTRL_1], &data8);
-drivers/net/dsa/microchip/ksz_common.c: ksz_pread8(dev, port, 
-regs[P_XMII_CTRL_1], &data8);
-drivers/net/dsa/microchip/ksz_common.c: ksz_pread8(dev, port, 
-regs[P_XMII_CTRL_1], &data8);
-drivers/net/dsa/microchip/ksz_common.c: ksz_pwrite8(dev, port, 
-regs[P_XMII_CTRL_1], data8);
-drivers/net/dsa/microchip/ksz_common.h: P_XMII_CTRL_1,
-
-I count 6.
-
->> even write the P_XMII_CTRL_1 register, one of them is ksz_set_xmii(),
->> which is responsible for configuration of RGMII delays. These delays
->> are incorrectly configured and a non-existent register is written
->> without this change.
-> 
-> Not only RGMII delays, but also P_MII_SEL_M (interface mode selection).
-> 
-> The implication of writing the value at an undocumented address is that
-> the real register 0x56 remains with the value decided by pin strapping
-> (which may or may not be adequate for Linux runtime). This is absolutely
-> the same class of bug as what happens with Is_1Gbps.
-> 
->> Fix the P_XMII_CTRL_1 register offset to resolve these problems.
->>
->> [1] https://ww1.microchip.com/downloads/aemDocuments/documents/UNG/ProductDocuments/DataSheets/KSZ8794CNX-Data-Sheet-DS00002134.pdf
->>
->> Fixes: 46f80fa8981b ("net: dsa: microchip: add common gigabit set and get function")
-> 
-> Technically, the problem was introduced by:
-> 
-> Fixes: c476bede4b0f ("net: dsa: microchip: ksz8795: use common xmii function")
-> 
-> because that's when ksz87xx was transitioned from the old logic (which
-> also used to set Is_1Gbps) to the new one.
-> 
-> And that same commit is also to blame for the Is_1Gbps bug, because the
-> new logic from ksz8795_cpu_interface_select() should have called not
-> only ksz_set_xmii(), but also ksz_set_gbit() for code-wise identical
-> behavior. It didn't do that. Then with commit f3d890f5f90e ("net: dsa:
-> microchip: add support for phylink mac config"), this incomplete
-> configuration just got moved around.
-> 
->> Signed-off-by: Marek Vasut <marex@denx.de>
-> 
-> The contents of the patch is not wrong, but the commit message that
-> describes it misses a lot of points which make non-zero difference to
-> someone trying to assess whether a patch fixes a problem he's seeing or not.
-
-OK, to make this simple, can you write a commit message which you 
-consider acceptable, to close this discussion ?
+Nope. The thing is, I'm sure you can, too. Maybe you need to take a
+break and think about this some more.
