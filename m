@@ -2,109 +2,81 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 5185669F365
-	for <lists+stable@lfdr.de>; Wed, 22 Feb 2023 12:23:48 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2918469F36A
+	for <lists+stable@lfdr.de>; Wed, 22 Feb 2023 12:24:55 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231794AbjBVLXp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 22 Feb 2023 06:23:45 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47652 "EHLO
+        id S230109AbjBVLYw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 22 Feb 2023 06:24:52 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49066 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231995AbjBVLXi (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 22 Feb 2023 06:23:38 -0500
-Received: from mail-ed1-x54a.google.com (mail-ed1-x54a.google.com [IPv6:2a00:1450:4864:20::54a])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7761D2C65F
-        for <stable@vger.kernel.org>; Wed, 22 Feb 2023 03:23:27 -0800 (PST)
-Received: by mail-ed1-x54a.google.com with SMTP id b1-20020aa7dc01000000b004ad062fee5eso10181222edu.17
-        for <stable@vger.kernel.org>; Wed, 22 Feb 2023 03:23:27 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20210112;
-        h=cc:to:from:subject:references:mime-version:message-id:in-reply-to
-         :date:from:to:cc:subject:date:message-id:reply-to;
-        bh=D/IVoT6kbM/UtfR7s3dMh2SCTGIBOfUuX6JJnWJ+IwE=;
-        b=Mdt0lnS7mkfTzOlIkWZGAfn2CNhhjY/+6NOaqjsir6sOkhYbTuaVd9+5Q8CiyWOUK5
-         M55HqjaHZpVYsmIBsKa4LhgN/2/Va/jhzCIWBzjlLCWncOvEexCXSs4p1AKQl58pbTlk
-         Svrs3WiNe435EY1pyEkrO5+WJxC/U2pfTr3GU/2kmfGJ+Blv+XQjT0c16tFS/fbAIEY9
-         pIZGYmdzFGs//GZKHkJBqaz+Nku+cl6zLyNnuPKyhjPkdhFhAEnzq7wJ/cktgAG20UGx
-         bdZQ80lyuMeiEzvdfgRXFKYRXNc5Kn2etdbq7V2NnYqgVijtsrwirIA+2WvmgV9p4TEt
-         JzcA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=cc:to:from:subject:references:mime-version:message-id:in-reply-to
-         :date:x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=D/IVoT6kbM/UtfR7s3dMh2SCTGIBOfUuX6JJnWJ+IwE=;
-        b=6SXn3b0GJIfwXBCnn6Dmp3GS1tuM23ZaFIedLW7APaUcNQg+LQDEAZfNMQ2GYlwbLb
-         ZBmLnl/O0HIIkbpv8p9C3DuJWJksxRwSC5ngsgEYVillB8hyDdjlrk76ZcVwUI1VaUYi
-         QCqIjK0gZqK8SF8DrvfT5VZbxGvaDOFMFGQoXRKKQv8SWRtSpOfzVHpOMszWcwdMZszm
-         Usej/KO5LuxMJGMUdzNlrABUMhx4r6kd1/0YB56MUnKriR7MAEg7G+NIzKeug9od5/qV
-         oSU6iliFptoiT8RUo9NWb6TZrdkhPnfwUwZpjrX4Dhvn+k9YKCSNI9MnMiXIWdCvruoB
-         NB3Q==
-X-Gm-Message-State: AO0yUKXqzj2ezOXIdfhDAelNxz/1OmleiryQn+9yJfC08hochxrYJHIY
-        RHbUkZuUzixjTtt7saPOyEvLaL84pHYecA==
-X-Google-Smtp-Source: AK7set8mrOZB3VFNWOkj4p+YxajaUNjVz9R6h/g8mcDXigj3yFq+Um+6vmXjxKfiQvlSkRah1b/2AptvfbDDZw==
-X-Received: from lux.lon.corp.google.com ([2a00:79e0:d:209:35a9:4800:d90c:e9bc])
- (user=maennich job=sendgmr) by 2002:a17:906:5ad0:b0:878:790b:b7fd with SMTP
- id x16-20020a1709065ad000b00878790bb7fdmr7119681ejs.14.1677065006123; Wed, 22
- Feb 2023 03:23:26 -0800 (PST)
-Date:   Wed, 22 Feb 2023 11:21:47 +0000
-In-Reply-To: <20220201205624.652313-1-nathan@kernel.org>
-Message-Id: <20230222112141.278066-6-maennich@google.com>
-Mime-Version: 1.0
-References: <20220201205624.652313-1-nathan@kernel.org>
-X-Mailer: git-send-email 2.39.2.637.g21b0678d19-goog
-Subject: [PATCH 5/5] lib/Kconfig.debug: Allow BTF + DWARF5 with pahole 1.21+
-From:   maennich@google.com
-To:     linux-kernel@vger.kernel.org
-Cc:     kernel-team@android.com, maennich@google.com,
-        stable@vger.kernel.org,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Nathan Chancellor <nathan@kernel.org>,
-        Andrii Nakryiko <andrii@kernel.org>,
-        Daniel Borkmann <daniel@iogearbox.net>
-Content-Type: text/plain; charset="UTF-8"
-X-Spam-Status: No, score=-9.6 required=5.0 tests=BAYES_00,DKIMWL_WL_MED,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_NONE,
-        SPF_HELO_NONE,SPF_PASS,USER_IN_DEF_DKIM_WL autolearn=ham
-        autolearn_force=no version=3.4.6
+        with ESMTP id S231915AbjBVLY3 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 22 Feb 2023 06:24:29 -0500
+Received: from mga11.intel.com (mga11.intel.com [192.55.52.93])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 95C353929B
+        for <stable@vger.kernel.org>; Wed, 22 Feb 2023 03:24:18 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
+  t=1677065058; x=1708601058;
+  h=date:from:to:cc:subject:message-id:mime-version:
+   in-reply-to;
+  bh=NrpDAn4F4TO5JZB0hlyUQr9Nzum65oGQ/vOmrgvMTi8=;
+  b=QF3DH/JCf1nDtqZvZ32uKaf3a4ew0if9VtsUMFQfYXl8BNvZ+H4SPmG9
+   i7b8u7sUTWNGmLtoGhOLtgcXG6JpmrDlnDN1M0RHPTcRNmBhz2j9ksfi8
+   /mmOBN/WA5PBSZh4+ZX8PtrLNXp8OFXhOoRv2W7yQxA0KVPS5ejdylAea
+   3rmzjVP61DwqYl9ih29LamLdEyXDUUhvAFTy4bMMP26fsxafYI/yOehOo
+   073KN4vlAZ1yUO+CZthB5xQagDliKt7VzAakIbozHsgMTfzj9qd3Q7YNH
+   g8BtZDBMhgZbu6r41YZQGHyGAtKkocQlBCMA40td4rTvcPZ+o8OA2yEWG
+   g==;
+X-IronPort-AV: E=McAfee;i="6500,9779,10628"; a="330626544"
+X-IronPort-AV: E=Sophos;i="5.97,318,1669104000"; 
+   d="scan'208";a="330626544"
+Received: from fmsmga003.fm.intel.com ([10.253.24.29])
+  by fmsmga102.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 22 Feb 2023 03:24:12 -0800
+X-ExtLoop1: 1
+X-IronPort-AV: E=McAfee;i="6500,9779,10628"; a="760926308"
+X-IronPort-AV: E=Sophos;i="5.97,318,1669104000"; 
+   d="scan'208";a="760926308"
+Received: from lkp-server01.sh.intel.com (HELO 3895f5c55ead) ([10.239.97.150])
+  by FMSMGA003.fm.intel.com with ESMTP; 22 Feb 2023 03:24:11 -0800
+Received: from kbuild by 3895f5c55ead with local (Exim 4.96)
+        (envelope-from <lkp@intel.com>)
+        id 1pUnEI-0000Ib-1i;
+        Wed, 22 Feb 2023 11:24:10 +0000
+Date:   Wed, 22 Feb 2023 19:23:44 +0800
+From:   kernel test robot <lkp@intel.com>
+To:     maennich@google.com
+Cc:     stable@vger.kernel.org, oe-kbuild-all@lists.linux.dev
+Subject: Re: [PATCH 1/5] MAINTAINERS: Add scripts/pahole-flags.sh to BPF
+ section
+Message-ID: <Y/X7QOnBbFGjm5vV@f839a3c1ca0d>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20230222112141.278066-2-maennich@google.com>
+X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
+        SPF_HELO_NONE,SPF_NONE autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nathan Chancellor <nathan@kernel.org>
+Hi,
 
-Commit 98cd6f521f10 ("Kconfig: allow explicit opt in to DWARF v5")
-prevented CONFIG_DEBUG_INFO_DWARF5 from being selected when
-CONFIG_DEBUG_INFO_BTF is enabled because pahole had issues with clang's
-DWARF5 info. This was resolved by [1], which is in pahole v1.21.
+Thanks for your patch.
 
-Allow DEBUG_INFO_DWARF5 to be selected with DEBUG_INFO_BTF when using
-pahole v1.21 or newer.
+FYI: kernel test robot notices the stable kernel rule is not satisfied.
 
-[1]: https://git.kernel.org/pub/scm/devel/pahole/pahole.git/commit/?id=7d8e829f636f47aba2e1b6eda57e74d8e31f733c
+Rule: 'Cc: stable@vger.kernel.org' or 'commit <sha1> upstream.'
+Subject: [PATCH 1/5] MAINTAINERS: Add scripts/pahole-flags.sh to BPF section
+Link: https://lore.kernel.org/stable/20230222112141.278066-2-maennich%40google.com
 
-Signed-off-by: Nathan Chancellor <nathan@kernel.org>
-Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
-Acked-by: Andrii Nakryiko <andrii@kernel.org>
-Link: https://lore.kernel.org/bpf/20220201205624.652313-6-nathan@kernel.org
-Signed-off-by: Matthias Maennich <maennich@google.com>
----
- lib/Kconfig.debug | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+The check is based on https://www.kernel.org/doc/html/latest/process/stable-kernel-rules.html
 
-diff --git a/lib/Kconfig.debug b/lib/Kconfig.debug
-index 0743c9567d7e..dd86de130cdf 100644
---- a/lib/Kconfig.debug
-+++ b/lib/Kconfig.debug
-@@ -302,7 +302,7 @@ config DEBUG_INFO_DWARF4
- config DEBUG_INFO_DWARF5
- 	bool "Generate DWARF Version 5 debuginfo"
- 	depends on !CC_IS_CLANG || AS_IS_LLVM || (AS_IS_GNU && AS_VERSION >= 23502 && AS_HAS_NON_CONST_LEB128)
--	depends on !DEBUG_INFO_BTF
-+	depends on !DEBUG_INFO_BTF || PAHOLE_VERSION >= 121
- 	help
- 	  Generate DWARF v5 debug info. Requires binutils 2.35.2, gcc 5.0+ (gcc
- 	  5.0+ accepts the -gdwarf-5 flag but only had partial support for some
 -- 
-2.39.2.637.g21b0678d19-goog
+0-DAY CI Kernel Test Service
+https://github.com/intel/lkp-tests
+
+
 
