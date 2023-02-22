@@ -2,84 +2,184 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id DCBE869EC52
-	for <lists+stable@lfdr.de>; Wed, 22 Feb 2023 02:20:46 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5542069ECC3
+	for <lists+stable@lfdr.de>; Wed, 22 Feb 2023 03:14:19 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230395AbjBVBUo (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 21 Feb 2023 20:20:44 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39352 "EHLO
+        id S229839AbjBVCOR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 21 Feb 2023 21:14:17 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47228 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230365AbjBVBUo (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 21 Feb 2023 20:20:44 -0500
-X-Greylist: delayed 4347 seconds by postgrey-1.37 at lindbergh.monkeyblade.net; Tue, 21 Feb 2023 17:20:34 PST
-Received: from mail.peterfykh.hu (mail.peterfykh.hu [84.206.67.96])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3522831E09;
-        Tue, 21 Feb 2023 17:20:34 -0800 (PST)
-Received: from mail.peterfykh.hu (localhost [127.0.0.1])
-        by mail.peterfykh.hu (Postfix) with ESMTP id 47E71BB2;
-        Tue, 21 Feb 2023 23:54:15 +0100 (CET)
+        with ESMTP id S229822AbjBVCOR (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 21 Feb 2023 21:14:17 -0500
+Received: from szxga02-in.huawei.com (szxga02-in.huawei.com [45.249.212.188])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4D6846E9F
+        for <stable@vger.kernel.org>; Tue, 21 Feb 2023 18:14:15 -0800 (PST)
+Received: from kwepemm600017.china.huawei.com (unknown [172.30.72.56])
+        by szxga02-in.huawei.com (SkyGuard) with ESMTP id 4PM06C5LRFzKq0X;
+        Wed, 22 Feb 2023 10:12:19 +0800 (CST)
+Received: from [10.174.179.234] (10.174.179.234) by
+ kwepemm600017.china.huawei.com (7.193.23.234) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id
+ 15.1.2507.17; Wed, 22 Feb 2023 10:14:12 +0800
+Message-ID: <2cf50476-fbe0-24df-ed9b-6a2ed6226ca6@huawei.com>
+Date:   Wed, 22 Feb 2023 10:14:11 +0800
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8;
- format=flowed
+User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:91.0) Gecko/20100101
+ Thunderbird/91.8.0
+Subject: Re: Consultation on backport 97e3d26b5e5f("x86/mm: Randomize per-cpu
+ entry area") to stable
+To:     Seth Jenkins <sethjenkins@google.com>
+CC:     Greg KH <gregkh@linuxfoundation.org>, <peterz@infradead.org>,
+        <keescook@chromium.org>, Dave Hansen <dave.hansen@linux.intel.com>,
+        <bp@suse.de>, <stable@vger.kernel.org>
+References: <2b814e48-d304-e48a-e4b4-c39a10d2dbf4@huawei.com>
+ <Y/RzDvXr/iGpHl+f@kroah.com>
+ <e2fea1a1-982d-20c8-d92c-bc4ed4d1d711@huawei.com>
+ <Y/SDj9kdYrwoSYHh@kroah.com>
+ <2c56661c-d2ca-d1b0-da69-89a5e1f3e67f@huawei.com>
+ <Y/SfsU6rS0qraYhk@kroah.com>
+ <c815410b-dc86-dbaa-161f-3267d816c3f7@huawei.com>
+ <CALxfFW6zgTEj3b==g5tWXaufAaVCAe6Uh8pKda-O20OOToRAJg@mail.gmail.com>
+From:   Tong Tiangen <tongtiangen@huawei.com>
+In-Reply-To: <CALxfFW6zgTEj3b==g5tWXaufAaVCAe6Uh8pKda-O20OOToRAJg@mail.gmail.com>
+Content-Type: text/plain; charset="UTF-8"; format=flowed
 Content-Transfer-Encoding: 8bit
-Date:   Tue, 21 Feb 2023 23:54:15 +0100
-From:   Charles <kiss.zsuzsa@peterfykh.hu>
-To:     undisclosed-recipients:;
-Subject: heb je mijn vorige bericht ontvangen
-Reply-To: Charlesjackson@bahnhof.se
-Mail-Reply-To: Charlesjackson@bahnhof.se
-Message-ID: <3965a3117fc08113495d761b6813a60b@peterfykh.hu>
-X-Sender: kiss.zsuzsa@peterfykh.hu
-User-Agent: Roundcube Webmail/1.2.3
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=peterfykh.hu; s=mail; t=1677020062; bh=jZ0F9oV/97woQPA1twDz7BsItT1xNtdTLObeu/lWEm0=; h=MIME-Version:Content-Type:Content-Transfer-Encoding:Date:From:To:Subject:Reply-To:Message-ID; b=BfdfRWi5VfjhLtim4g0Ud1pCa5mNBzZqTuyg9+qqUnGb6Ved44BaNys+wnmtQG1X+C3kZK7ChNCEWWsm/Q9T9dJzVgdfOZCeU5wlQ3ssK5wEkfF2Yo0IZmioVHFDV373bD7SJSxp/bqqkROU89Q8ZjC61/NVsVMw7IFw0305wvA=
-X-Spam-Status: No, score=0.6 required=5.0 tests=BAYES_50,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_MSPIKE_H2,SPF_HELO_NONE,
-        SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
+X-Originating-IP: [10.174.179.234]
+X-ClientProxiedBy: dggems702-chm.china.huawei.com (10.3.19.179) To
+ kwepemm600017.china.huawei.com (7.193.23.234)
+X-CFilter-Loop: Reflected
+X-Spam-Status: No, score=-4.3 required=5.0 tests=BAYES_00,NICE_REPLY_A,
+        RCVD_IN_DNSWL_MED,SPF_HELO_NONE,SPF_PASS autolearn=ham
+        autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Beste gebruiker,
-
-Hallo mijn gelukkige vriend, ik ben Charles W. Jackson Jr., de 
-megawinnaar van $ 344,6 miljoen Mega Millions Jackpot, ik doneer aan 5 
-willekeurige individuen, als je deze e-mail ontvangt, is je e-mail 
-geselecteerd na een draaibal. Ik heb het grootste deel van mijn vermogen 
-verdeeld over een aantal goede doelen en organisaties. Ik heb vrijwillig 
-besloten om de som van $ 3 miljoen USD aan jou of je organisatie te 
-doneren als een van de geselecteerde 5, je kunt mijn winst verifiëren 
-via de onderstaande YouTube-pagina.
 
 
-BEKIJK MIJ HIER: https://www.youtube.com/watch?v=0MUR8QEIMQI
+在 2023/2/22 4:26, Seth Jenkins 写道:
+>  > So you are letting an opaque US government agency, and random third
+>  > party companies, dictate your company's internal engineering policies
+>  > and resource allocations?  That feels very very odd and ripe for abuse.
+> I wholeheartedly agree with gregkh that the CVE system is flawed in 
+> numerous ways and generates many false positives, however in this case, 
+> this issue is a real issue with real security impact that received a 
+> real patch upstream. The idea of backporting this to earlier kernels 
+> probably warrants discussion if someone is willing to bite off that 
+> work. But this gets into the fuzzy "backporting exploit mitigations to 
+> stable" conversation.
+> 
+>  > And are you sure this can really happen?  Have you proven this?
+> Yes this can really, provably, happen:
+> https://googleprojectzero.blogspot.com/2022/12/exploiting-CVE-2022-42703-bringing-back-the-stack-attack.html 
+> <https://googleprojectzero.blogspot.com/2022/12/exploiting-CVE-2022-42703-bringing-back-the-stack-attack.html>
+> 
+>  > And why is this really an issue, KAS[L]R is a known-weak-defense and 
+> almost
+>  > useless against local attacks.
+> Granted, Peter Z's fix does help to mitigate the impact from remote 
+> attackers but yes this fix does not resolve the security impact from 
+> local exploits.
 
+Thank you seth.
+Yes, for this specific CVE issue, KASLR is indeed a mitigation measure.
 
-Deze donatie van $ 3 miljoen USD is gedaan om u in staat te stellen uw 
-persoonlijke problemen te versterken en genereus de hand te reiken aan 
-de minst bevoorrechte, verweesde en liefdadigheidsorganisaties in uw 
-gemeenschap.
-Wat voor mij het belangrijkste is, is dat u de gedoneerde fondsen op de 
-beste manier toewijst die u, uw familie, vrienden ten goede komt en om 
-de behoeftigen in uw directe gemeenschap te helpen.
-
-
-DIT IS JE DONATIECODE: DON207152
-
-
-Stuur uw DONATIECODE zo snel mogelijk naar onderstaand e-mailadres, 
-zodat we de donatieprocedure snel kunnen afronden.
-
-E-mail contact: charlesjacksonj1@hotmail.com
-
-                  charlesjackson06@bahnhof.se
-
-
-Ik hoop u en uw gezin dit jaar gelukkig te maken, ik wens u het beste en 
-gefeliciteerd.
-
-
-Groeten,
-
-Charles W.Jackson Jr
+> 
+> 
+> On Tue, Feb 21, 2023 at 7:30 AM Tong Tiangen <tongtiangen@huawei.com 
+> <mailto:tongtiangen@huawei.com>> wrote:
+> 
+> 
+> 
+>     在 2023/2/21 18:40, Greg KH 写道:
+>      > On Tue, Feb 21, 2023 at 05:19:42PM +0800, Tong Tiangen wrote:
+>      >>
+>      >>
+>      >> 在 2023/2/21 16:40, Greg KH 写道:
+>      >>> On Tue, Feb 21, 2023 at 03:46:27PM +0800, Tong Tiangen wrote:
+>      >>>>
+>      >>>>
+>      >>>> 在 2023/2/21 15:30, Greg KH 写道:
+>      >>>>> On Tue, Feb 21, 2023 at 03:19:05PM +0800, Tong Tiangen wrote:
+>      >>>>>> Hi peter:
+>      >>>>>>
+>      >>>>>> Do you have any plans to backport this patch[1] to the
+>     stable branch of the
+>      >>>>>> lower version, such as 4.19.y ?
+>      >>>>>
+>      >>>>> Why?  That is a new feature for 6.2 why would it be needed to fix
+>      >>>>> anything in really old kernels?
+>      >>>>
+>      >>>> Hi Greg:
+>      >>>>
+>      >>>> This patch fix CVE-2023-0597[1],
+>      >>>
+>      >>> The kernel developers do not care about CVEs as they are almost
+>     always
+>      >>> invalid and do not mean anything,
+>      >>
+>      >> Ok, thanks.
+>      >>
+>      >>
+>      >>> sorry.  It is well known that, companies like Red Hat use them
+>     to make
+>      >>> up for broken internal engineering policies.
+>      >>
+>      >> Yeah, For company's internal engineering policies, the CVE with
+>     certain
+>      >> impact must be repaired.
+>      >
+>      > So you are letting an opaque US government agency, and random third
+>      > party companies, dictate your company's internal engineering policies
+>      > and resource allocations?  That feels very very odd and ripe for
+>     abuse.
+>      >
+>      > Also note that MITRE refuses to allocate CVEs for many real kernel
+>      > issues for unknown reasons, (i.e. they reject all of my requests), so
+>      > you are getting only a small subset of real issues here.
+>      >
+>      > Also, how do you handle revocation of CVEs that are obviously invalid
+>      > and/or don't actually do anything (like this one?)
+>      >
+>      >>> Are you sure this really is a valid problem that must be fixed
+>     in older
+>      >>> kernels?
+>      >>>
+>      >>>> this CVE report a flaw possibility of memory leak. And this is
+>      >>>> important for some products using this stable version.
+>      >>>
+>      >>> What exact memory leak are you referring to?
+>      >>
+>      >> Sorry for Inaccurate description, the memory leak means: a potential
+>      >> security risk of kernel memory information disclosure caused by no
+>      >> randomization of the exception stacks.
+>      >
+>      > And are you sure this can really happen?  Have you proven this?
+>      >
+>      > And why is this really an issue, KASR is a known-week-defense and
+>     almost
+>      > useless against local attacks.
+>      >
+>      > Anyway, please provide working patches if you think this really is an
+>      > issue.
+>      >
+>      > And please revisit your company's policies, they do not seem very
+>     sane :)
+> 
+>     Hi Greg:
+> 
+>     Thanks for these very useful suggestions and we will revisit our
+>     policies :)
+> 
+>     Thanks,
+>     Tong
+>     .
+> 
+>      >
+>      > thanks,
+>      >
+>      > greg k-h
+>      > .
+> 
