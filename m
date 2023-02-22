@@ -2,388 +2,673 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 628A969FCA5
-	for <lists+stable@lfdr.de>; Wed, 22 Feb 2023 21:03:51 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7CA7269FCAB
+	for <lists+stable@lfdr.de>; Wed, 22 Feb 2023 21:04:03 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232340AbjBVUDo (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 22 Feb 2023 15:03:44 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44562 "EHLO
+        id S232860AbjBVUEC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 22 Feb 2023 15:04:02 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44868 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231862AbjBVUDn (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 22 Feb 2023 15:03:43 -0500
-Received: from mail.ispras.ru (mail.ispras.ru [83.149.199.84])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 704DE30D6;
-        Wed, 22 Feb 2023 12:03:41 -0800 (PST)
-Received: from fpc.intra.ispras.ru (unknown [10.10.165.9])
-        by mail.ispras.ru (Postfix) with ESMTPSA id 1F5ED4077B16;
-        Wed, 22 Feb 2023 20:03:38 +0000 (UTC)
-DKIM-Filter: OpenDKIM Filter v2.11.0 mail.ispras.ru 1F5ED4077B16
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ispras.ru;
-        s=default; t=1677096218;
-        bh=ZOIUA7iYWMwR6fXTpOsnSrZfy2I12cEHmkgLC5mjU3I=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Jx+Bk8Tl0opC8iilLIYPwsk3Jwp4kY9PPbNLoAjt0gL1Jh6rvbxhmuE3093YIwqQn
-         g4OxKdS+a7uKfXvmVnmvhJald+LvPNztwGJQ4dADvJNFGueTM9Gse4bZIRdmjP2Sbn
-         eTiW4IIiThXVyPj2LRWVbFKDWyR/OMi4P413JwQU=
-From:   Fedor Pchelkin <pchelkin@ispras.ru>
-To:     stable@vger.kernel.org,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     Fedor Pchelkin <pchelkin@ispras.ru>,
-        Johannes Berg <johannes@sipsolutions.net>,
-        Pavel Skripkin <paskripkin@gmail.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        Jakub Kicinski <kuba@kernel.org>,
-        Bob Copeland <me@bobcopeland.com>,
-        linux-wireless@vger.kernel.org, netdev@vger.kernel.org,
-        linux-kernel@vger.kernel.org,
-        Alexey Khoroshilov <khoroshilov@ispras.ru>,
-        lvc-project@linuxtesting.org,
-        syzbot+860268315ba86ea6b96b@syzkaller.appspotmail.com,
-        Johannes Berg <johannes.berg@intel.com>
-Subject: [PATCH 5.4/5.10 1/1] mac80211: mesh: embedd mesh_paths and mpp_paths into ieee80211_if_mesh
-Date:   Wed, 22 Feb 2023 23:03:01 +0300
-Message-Id: <20230222200301.254791-2-pchelkin@ispras.ru>
-X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20230222200301.254791-1-pchelkin@ispras.ru>
-References: <20230222200301.254791-1-pchelkin@ispras.ru>
+        with ESMTP id S232048AbjBVUD6 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 22 Feb 2023 15:03:58 -0500
+Received: from mail-pj1-x102b.google.com (mail-pj1-x102b.google.com [IPv6:2607:f8b0:4864:20::102b])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6E81AA5FF
+        for <stable@vger.kernel.org>; Wed, 22 Feb 2023 12:03:54 -0800 (PST)
+Received: by mail-pj1-x102b.google.com with SMTP id nw10-20020a17090b254a00b00233d7314c1cso10239736pjb.5
+        for <stable@vger.kernel.org>; Wed, 22 Feb 2023 12:03:54 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=kernelci-org.20210112.gappssmtp.com; s=20210112;
+        h=from:to:subject:content-transfer-encoding:mime-version:date
+         :message-id:from:to:cc:subject:date:message-id:reply-to;
+        bh=7ZGPM6lJe2ByUIyzK0x0ikut0pdJ/zr9TrV2D2V3U7E=;
+        b=HdLtVcalDxWGD/K3c1qP03NOQoT9dXgN/cn4FwYId6uUDxUDgjT0xPJLxBm/t0Tf9Z
+         Ji2CI8cqcuikfpl2EFIMrVQP4xS12xoZciYlNf3x7kkHC1NkPqyCoW7dr2j3fLUoi5rL
+         GP6XYFuXvgd/CjWJiQBtoGJMO0cR63F9FQOAbdIgJYSlJ9sDE8vah+iVZYv237GbL/1F
+         r2J9pNb9/ttY7IyzPxQZu7FdEhrBY951a7KFfd+wmjwUrM3Krd5jMcqQm0+02UxbJLBh
+         Ss50pdEBsnr3PcKC9aOTUgnwL9k5e5xAcQBt7+rEfdbxgNp9pgxdEzDnp4pB8zpOGSo0
+         Gr9w==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=from:to:subject:content-transfer-encoding:mime-version:date
+         :message-id:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=7ZGPM6lJe2ByUIyzK0x0ikut0pdJ/zr9TrV2D2V3U7E=;
+        b=epiPSX1ZX6q0Te7byAIZiALg07hjtJlZeDbbv+RMaNMiWOVtAZ1Ab/hP2DhZLjCI+v
+         nMKExIgEjxlR/2uWUrx1uJHkSjBgskIug+6OaJB3dfADC5U42UIRkfgG6ypVm+toYSDt
+         aQ+1IdxMUl1hLixz2tB9PPedy4REFgleNkCKEj42et4gYwu7KLtym6VLV0Uxf3RKQlhn
+         C8QEWGG2zfBLij6BeWBY/r+0Jkc0dw24fiKsmwiYmaCPshEyP2GXJLL1c3TP10+MCsm7
+         6ENaCcOsqv2Yo36ZO3sWHbQVyatBmjj2NF91hJ/Tdj5GPaFYENdCjA8o+xE4r1fE86+U
+         AYTQ==
+X-Gm-Message-State: AO0yUKWee8vl9+ykaZcABUSJeD58WkSLnN8Qj6JO0XPTxhXsRkTTSNHB
+        w8XUsuwxwsO10IzzZiw4jz1mLDylWWpwsRfG72fP3A==
+X-Google-Smtp-Source: AK7set+UvpRcbflaiIsiHF9n3pLiVlDmrLvLiQgdUtG0ub34kmHDbWyCKgFCfXsmp3hsMxrEH6KEXQ==
+X-Received: by 2002:a17:902:f9c3:b0:19c:32a3:3750 with SMTP id kz3-20020a170902f9c300b0019c32a33750mr9792120plb.3.1677096233482;
+        Wed, 22 Feb 2023 12:03:53 -0800 (PST)
+Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
+        by smtp.gmail.com with ESMTPSA id s19-20020a170902a51300b0019a997bca5csm178419plq.121.2023.02.22.12.03.52
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 22 Feb 2023 12:03:53 -0800 (PST)
+Message-ID: <63f67529.170a0220.51471.0a89@mx.google.com>
+Date:   Wed, 22 Feb 2023 12:03:53 -0800 (PST)
+Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,SPF_HELO_NONE,SPF_PASS
-        autolearn=ham autolearn_force=no version=3.4.6
+Content-Transfer-Encoding: quoted-printable
+X-Kernelci-Branch: linux-5.15.y
+X-Kernelci-Tree: stable-rc
+X-Kernelci-Kernel: v5.15.95
+X-Kernelci-Report-Type: test
+Subject: stable-rc/linux-5.15.y baseline: 158 runs, 16 regressions (v5.15.95)
+To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
+        kernelci-results@groups.io
+From:   "kernelci.org bot" <bot@kernelci.org>
+X-Spam-Status: No, score=-1.9 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_NONE autolearn=ham
+        autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pavel Skripkin <paskripkin@gmail.com>
+stable-rc/linux-5.15.y baseline: 158 runs, 16 regressions (v5.15.95)
 
-commit 8b5cb7e41d9d77ffca036b0239177de123394a55 upstream.
+Regressions Summary
+-------------------
 
-Syzbot hit NULL deref in rhashtable_free_and_destroy(). The problem was
-in mesh_paths and mpp_paths being NULL.
+platform               | arch   | lab             | compiler | defconfig   =
+                 | regressions
+-----------------------+--------+-----------------+----------+-------------=
+-----------------+------------
+imx53-qsrb             | arm    | lab-pengutronix | gcc-10   | multi_v7_def=
+config           | 1          =
 
-mesh_pathtbl_init() could fail in case of memory allocation failure, but
-nobody cared, since ieee80211_mesh_init_sdata() returns void. It led to
-leaving 2 pointers as NULL. Syzbot has found null deref on exit path,
-but it could happen anywhere else, because code assumes these pointers are
-valid.
+qemu_i386-uefi         | i386   | lab-baylibre    | gcc-10   | i386_defconf=
+ig               | 1          =
 
-Since all ieee80211_*_setup_sdata functions are void and do not fail,
-let's embedd mesh_paths and mpp_paths into parent struct to avoid
-adding error handling on higher levels and follow the pattern of others
-setup_sdata functions
+qemu_i386-uefi         | i386   | lab-broonie     | gcc-10   | i386_defconf=
+ig               | 1          =
 
-Fixes: 60854fd94573 ("mac80211: mesh: convert path table to rhashtable")
-Reported-and-tested-by: syzbot+860268315ba86ea6b96b@syzkaller.appspotmail.com
-Signed-off-by: Pavel Skripkin <paskripkin@gmail.com>
-Link: https://lore.kernel.org/r/20211230195547.23977-1-paskripkin@gmail.com
-Signed-off-by: Johannes Berg <johannes.berg@intel.com>
-[pchelkin@ispras.ru: adapt a comment spell fixing issue]
-Signed-off-by: Fedor Pchelkin <pchelkin@ispras.ru>
----
- net/mac80211/ieee80211_i.h  | 24 +++++++++-
- net/mac80211/mesh.h         | 22 +--------
- net/mac80211/mesh_pathtbl.c | 89 +++++++++++++------------------------
- 3 files changed, 54 insertions(+), 81 deletions(-)
+qemu_i386-uefi         | i386   | lab-collabora   | gcc-10   | i386_defconf=
+ig               | 1          =
 
-diff --git a/net/mac80211/ieee80211_i.h b/net/mac80211/ieee80211_i.h
-index 63499db5c63d..bd349ae9ee4b 100644
---- a/net/mac80211/ieee80211_i.h
-+++ b/net/mac80211/ieee80211_i.h
-@@ -644,6 +644,26 @@ struct mesh_csa_settings {
- 	struct cfg80211_csa_settings settings;
- };
- 
-+/**
-+ * struct mesh_table
-+ *
-+ * @known_gates: list of known mesh gates and their mpaths by the station. The
-+ * gate's mpath may or may not be resolved and active.
-+ * @gates_lock: protects updates to known_gates
-+ * @rhead: the rhashtable containing struct mesh_paths, keyed by dest addr
-+ * @walk_head: linked list containing all mesh_path objects
-+ * @walk_lock: lock protecting walk_head
-+ * @entries: number of entries in the table
-+ */
-+struct mesh_table {
-+	struct hlist_head known_gates;
-+	spinlock_t gates_lock;
-+	struct rhashtable rhead;
-+	struct hlist_head walk_head;
-+	spinlock_t walk_lock;
-+	atomic_t entries;		/* Up to MAX_MESH_NEIGHBOURS */
-+};
-+
- struct ieee80211_if_mesh {
- 	struct timer_list housekeeping_timer;
- 	struct timer_list mesh_path_timer;
-@@ -718,8 +738,8 @@ struct ieee80211_if_mesh {
- 	/* offset from skb->data while building IE */
- 	int meshconf_offset;
- 
--	struct mesh_table *mesh_paths;
--	struct mesh_table *mpp_paths; /* Store paths for MPP&MAP */
-+	struct mesh_table mesh_paths;
-+	struct mesh_table mpp_paths; /* Store paths for MPP&MAP */
- 	int mesh_paths_generation;
- 	int mpp_paths_generation;
- };
-diff --git a/net/mac80211/mesh.h b/net/mac80211/mesh.h
-index 40492d1bd8fd..b2b717a78114 100644
---- a/net/mac80211/mesh.h
-+++ b/net/mac80211/mesh.h
-@@ -127,26 +127,6 @@ struct mesh_path {
- 	u32 path_change_count;
- };
- 
--/**
-- * struct mesh_table
-- *
-- * @known_gates: list of known mesh gates and their mpaths by the station. The
-- * gate's mpath may or may not be resolved and active.
-- * @gates_lock: protects updates to known_gates
-- * @rhead: the rhashtable containing struct mesh_paths, keyed by dest addr
-- * @walk_head: linked list containging all mesh_path objects
-- * @walk_lock: lock protecting walk_head
-- * @entries: number of entries in the table
-- */
--struct mesh_table {
--	struct hlist_head known_gates;
--	spinlock_t gates_lock;
--	struct rhashtable rhead;
--	struct hlist_head walk_head;
--	spinlock_t walk_lock;
--	atomic_t entries;		/* Up to MAX_MESH_NEIGHBOURS */
--};
--
- /* Recent multicast cache */
- /* RMC_BUCKETS must be a power of 2, maximum 256 */
- #define RMC_BUCKETS		256
-@@ -308,7 +288,7 @@ int mesh_path_error_tx(struct ieee80211_sub_if_data *sdata,
- void mesh_path_assign_nexthop(struct mesh_path *mpath, struct sta_info *sta);
- void mesh_path_flush_pending(struct mesh_path *mpath);
- void mesh_path_tx_pending(struct mesh_path *mpath);
--int mesh_pathtbl_init(struct ieee80211_sub_if_data *sdata);
-+void mesh_pathtbl_init(struct ieee80211_sub_if_data *sdata);
- void mesh_pathtbl_unregister(struct ieee80211_sub_if_data *sdata);
- int mesh_path_del(struct ieee80211_sub_if_data *sdata, const u8 *addr);
- void mesh_path_timer(struct timer_list *t);
-diff --git a/net/mac80211/mesh_pathtbl.c b/net/mac80211/mesh_pathtbl.c
-index c2b051e0610a..d936ef0c17a3 100644
---- a/net/mac80211/mesh_pathtbl.c
-+++ b/net/mac80211/mesh_pathtbl.c
-@@ -47,32 +47,24 @@ static void mesh_path_rht_free(void *ptr, void *tblptr)
- 	mesh_path_free_rcu(tbl, mpath);
- }
- 
--static struct mesh_table *mesh_table_alloc(void)
-+static void mesh_table_init(struct mesh_table *tbl)
- {
--	struct mesh_table *newtbl;
-+	INIT_HLIST_HEAD(&tbl->known_gates);
-+	INIT_HLIST_HEAD(&tbl->walk_head);
-+	atomic_set(&tbl->entries,  0);
-+	spin_lock_init(&tbl->gates_lock);
-+	spin_lock_init(&tbl->walk_lock);
- 
--	newtbl = kmalloc(sizeof(struct mesh_table), GFP_ATOMIC);
--	if (!newtbl)
--		return NULL;
--
--	INIT_HLIST_HEAD(&newtbl->known_gates);
--	INIT_HLIST_HEAD(&newtbl->walk_head);
--	atomic_set(&newtbl->entries,  0);
--	spin_lock_init(&newtbl->gates_lock);
--	spin_lock_init(&newtbl->walk_lock);
--	if (rhashtable_init(&newtbl->rhead, &mesh_rht_params)) {
--		kfree(newtbl);
--		return NULL;
--	}
--
--	return newtbl;
-+	/* rhashtable_init() may fail only in case of wrong
-+	 * mesh_rht_params
-+	 */
-+	WARN_ON(rhashtable_init(&tbl->rhead, &mesh_rht_params));
- }
- 
- static void mesh_table_free(struct mesh_table *tbl)
- {
- 	rhashtable_free_and_destroy(&tbl->rhead,
- 				    mesh_path_rht_free, tbl);
--	kfree(tbl);
- }
- 
- /**
-@@ -238,13 +230,13 @@ static struct mesh_path *mpath_lookup(struct mesh_table *tbl, const u8 *dst,
- struct mesh_path *
- mesh_path_lookup(struct ieee80211_sub_if_data *sdata, const u8 *dst)
- {
--	return mpath_lookup(sdata->u.mesh.mesh_paths, dst, sdata);
-+	return mpath_lookup(&sdata->u.mesh.mesh_paths, dst, sdata);
- }
- 
- struct mesh_path *
- mpp_path_lookup(struct ieee80211_sub_if_data *sdata, const u8 *dst)
- {
--	return mpath_lookup(sdata->u.mesh.mpp_paths, dst, sdata);
-+	return mpath_lookup(&sdata->u.mesh.mpp_paths, dst, sdata);
- }
- 
- static struct mesh_path *
-@@ -281,7 +273,7 @@ __mesh_path_lookup_by_idx(struct mesh_table *tbl, int idx)
- struct mesh_path *
- mesh_path_lookup_by_idx(struct ieee80211_sub_if_data *sdata, int idx)
- {
--	return __mesh_path_lookup_by_idx(sdata->u.mesh.mesh_paths, idx);
-+	return __mesh_path_lookup_by_idx(&sdata->u.mesh.mesh_paths, idx);
- }
- 
- /**
-@@ -296,7 +288,7 @@ mesh_path_lookup_by_idx(struct ieee80211_sub_if_data *sdata, int idx)
- struct mesh_path *
- mpp_path_lookup_by_idx(struct ieee80211_sub_if_data *sdata, int idx)
- {
--	return __mesh_path_lookup_by_idx(sdata->u.mesh.mpp_paths, idx);
-+	return __mesh_path_lookup_by_idx(&sdata->u.mesh.mpp_paths, idx);
- }
- 
- /**
-@@ -309,7 +301,7 @@ int mesh_path_add_gate(struct mesh_path *mpath)
- 	int err;
- 
- 	rcu_read_lock();
--	tbl = mpath->sdata->u.mesh.mesh_paths;
-+	tbl = &mpath->sdata->u.mesh.mesh_paths;
- 
- 	spin_lock_bh(&mpath->state_lock);
- 	if (mpath->is_gate) {
-@@ -418,7 +410,7 @@ struct mesh_path *mesh_path_add(struct ieee80211_sub_if_data *sdata,
- 	if (!new_mpath)
- 		return ERR_PTR(-ENOMEM);
- 
--	tbl = sdata->u.mesh.mesh_paths;
-+	tbl = &sdata->u.mesh.mesh_paths;
- 	spin_lock_bh(&tbl->walk_lock);
- 	mpath = rhashtable_lookup_get_insert_fast(&tbl->rhead,
- 						  &new_mpath->rhash,
-@@ -460,7 +452,7 @@ int mpp_path_add(struct ieee80211_sub_if_data *sdata,
- 		return -ENOMEM;
- 
- 	memcpy(new_mpath->mpp, mpp, ETH_ALEN);
--	tbl = sdata->u.mesh.mpp_paths;
-+	tbl = &sdata->u.mesh.mpp_paths;
- 
- 	spin_lock_bh(&tbl->walk_lock);
- 	ret = rhashtable_lookup_insert_fast(&tbl->rhead,
-@@ -489,7 +481,7 @@ int mpp_path_add(struct ieee80211_sub_if_data *sdata,
- void mesh_plink_broken(struct sta_info *sta)
- {
- 	struct ieee80211_sub_if_data *sdata = sta->sdata;
--	struct mesh_table *tbl = sdata->u.mesh.mesh_paths;
-+	struct mesh_table *tbl = &sdata->u.mesh.mesh_paths;
- 	static const u8 bcast[ETH_ALEN] = {0xff, 0xff, 0xff, 0xff, 0xff, 0xff};
- 	struct mesh_path *mpath;
- 
-@@ -548,7 +540,7 @@ static void __mesh_path_del(struct mesh_table *tbl, struct mesh_path *mpath)
- void mesh_path_flush_by_nexthop(struct sta_info *sta)
- {
- 	struct ieee80211_sub_if_data *sdata = sta->sdata;
--	struct mesh_table *tbl = sdata->u.mesh.mesh_paths;
-+	struct mesh_table *tbl = &sdata->u.mesh.mesh_paths;
- 	struct mesh_path *mpath;
- 	struct hlist_node *n;
- 
-@@ -563,7 +555,7 @@ void mesh_path_flush_by_nexthop(struct sta_info *sta)
- static void mpp_flush_by_proxy(struct ieee80211_sub_if_data *sdata,
- 			       const u8 *proxy)
- {
--	struct mesh_table *tbl = sdata->u.mesh.mpp_paths;
-+	struct mesh_table *tbl = &sdata->u.mesh.mpp_paths;
- 	struct mesh_path *mpath;
- 	struct hlist_node *n;
- 
-@@ -597,8 +589,8 @@ static void table_flush_by_iface(struct mesh_table *tbl)
-  */
- void mesh_path_flush_by_iface(struct ieee80211_sub_if_data *sdata)
- {
--	table_flush_by_iface(sdata->u.mesh.mesh_paths);
--	table_flush_by_iface(sdata->u.mesh.mpp_paths);
-+	table_flush_by_iface(&sdata->u.mesh.mesh_paths);
-+	table_flush_by_iface(&sdata->u.mesh.mpp_paths);
- }
- 
- /**
-@@ -644,7 +636,7 @@ int mesh_path_del(struct ieee80211_sub_if_data *sdata, const u8 *addr)
- 	/* flush relevant mpp entries first */
- 	mpp_flush_by_proxy(sdata, addr);
- 
--	err = table_path_del(sdata->u.mesh.mesh_paths, sdata, addr);
-+	err = table_path_del(&sdata->u.mesh.mesh_paths, sdata, addr);
- 	sdata->u.mesh.mesh_paths_generation++;
- 	return err;
- }
-@@ -682,7 +674,7 @@ int mesh_path_send_to_gates(struct mesh_path *mpath)
- 	struct mesh_path *gate;
- 	bool copy = false;
- 
--	tbl = sdata->u.mesh.mesh_paths;
-+	tbl = &sdata->u.mesh.mesh_paths;
- 
- 	rcu_read_lock();
- 	hlist_for_each_entry_rcu(gate, &tbl->known_gates, gate_list) {
-@@ -762,29 +754,10 @@ void mesh_path_fix_nexthop(struct mesh_path *mpath, struct sta_info *next_hop)
- 	mesh_path_tx_pending(mpath);
- }
- 
--int mesh_pathtbl_init(struct ieee80211_sub_if_data *sdata)
-+void mesh_pathtbl_init(struct ieee80211_sub_if_data *sdata)
- {
--	struct mesh_table *tbl_path, *tbl_mpp;
--	int ret;
--
--	tbl_path = mesh_table_alloc();
--	if (!tbl_path)
--		return -ENOMEM;
--
--	tbl_mpp = mesh_table_alloc();
--	if (!tbl_mpp) {
--		ret = -ENOMEM;
--		goto free_path;
--	}
--
--	sdata->u.mesh.mesh_paths = tbl_path;
--	sdata->u.mesh.mpp_paths = tbl_mpp;
--
--	return 0;
--
--free_path:
--	mesh_table_free(tbl_path);
--	return ret;
-+	mesh_table_init(&sdata->u.mesh.mesh_paths);
-+	mesh_table_init(&sdata->u.mesh.mpp_paths);
- }
- 
- static
-@@ -806,12 +779,12 @@ void mesh_path_tbl_expire(struct ieee80211_sub_if_data *sdata,
- 
- void mesh_path_expire(struct ieee80211_sub_if_data *sdata)
- {
--	mesh_path_tbl_expire(sdata, sdata->u.mesh.mesh_paths);
--	mesh_path_tbl_expire(sdata, sdata->u.mesh.mpp_paths);
-+	mesh_path_tbl_expire(sdata, &sdata->u.mesh.mesh_paths);
-+	mesh_path_tbl_expire(sdata, &sdata->u.mesh.mpp_paths);
- }
- 
- void mesh_pathtbl_unregister(struct ieee80211_sub_if_data *sdata)
- {
--	mesh_table_free(sdata->u.mesh.mesh_paths);
--	mesh_table_free(sdata->u.mesh.mpp_paths);
-+	mesh_table_free(&sdata->u.mesh.mesh_paths);
-+	mesh_table_free(&sdata->u.mesh.mpp_paths);
- }
--- 
-2.34.1
+qemu_x86_64-uefi       | x86_64 | lab-baylibre    | gcc-10   | x86_64_defco=
+n...6-chromebook | 1          =
 
+qemu_x86_64-uefi       | x86_64 | lab-baylibre    | gcc-10   | x86_64_defco=
+nfig             | 1          =
+
+qemu_x86_64-uefi       | x86_64 | lab-broonie     | gcc-10   | x86_64_defco=
+n...6-chromebook | 1          =
+
+qemu_x86_64-uefi       | x86_64 | lab-broonie     | gcc-10   | x86_64_defco=
+nfig             | 1          =
+
+qemu_x86_64-uefi       | x86_64 | lab-collabora   | gcc-10   | x86_64_defco=
+n...6-chromebook | 1          =
+
+qemu_x86_64-uefi       | x86_64 | lab-collabora   | gcc-10   | x86_64_defco=
+nfig             | 1          =
+
+qemu_x86_64-uefi-mixed | x86_64 | lab-baylibre    | gcc-10   | x86_64_defco=
+n...6-chromebook | 1          =
+
+qemu_x86_64-uefi-mixed | x86_64 | lab-baylibre    | gcc-10   | x86_64_defco=
+nfig             | 1          =
+
+qemu_x86_64-uefi-mixed | x86_64 | lab-broonie     | gcc-10   | x86_64_defco=
+n...6-chromebook | 1          =
+
+qemu_x86_64-uefi-mixed | x86_64 | lab-broonie     | gcc-10   | x86_64_defco=
+nfig             | 1          =
+
+qemu_x86_64-uefi-mixed | x86_64 | lab-collabora   | gcc-10   | x86_64_defco=
+n...6-chromebook | 1          =
+
+qemu_x86_64-uefi-mixed | x86_64 | lab-collabora   | gcc-10   | x86_64_defco=
+nfig             | 1          =
+
+
+  Details:  https://kernelci.org/test/job/stable-rc/branch/linux-5.15.y/ker=
+nel/v5.15.95/plan/baseline/
+
+  Test:     baseline
+  Tree:     stable-rc
+  Branch:   linux-5.15.y
+  Describe: v5.15.95
+  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
+able-rc.git
+  SHA:      60b502b3ffea07de3d741d79a22da1092b7a8657 =
+
+
+
+Test Regressions
+---------------- =
+
+
+
+platform               | arch   | lab             | compiler | defconfig   =
+                 | regressions
+-----------------------+--------+-----------------+----------+-------------=
+-----------------+------------
+imx53-qsrb             | arm    | lab-pengutronix | gcc-10   | multi_v7_def=
+config           | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/63f640c3929b120f918c8668
+
+  Results:     5 PASS, 1 FAIL, 1 SKIP
+  Full config: multi_v7_defconfig
+  Compiler:    gcc-10 (arm-linux-gnueabihf-gcc (Debian 10.2.1-6) 10.2.1 202=
+10110)
+  Plain log:   https://storage.kernelci.org//stable-rc/linux-5.15.y/v5.15.9=
+5/arm/multi_v7_defconfig/gcc-10/lab-pengutronix/baseline-imx53-qsrb.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/linux-5.15.y/v5.15.9=
+5/arm/multi_v7_defconfig/gcc-10/lab-pengutronix/baseline-imx53-qsrb.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
+t-baseline/20230217.0/armel/rootfs.cpio.gz =
+
+
+
+  * baseline.bootrr.deferred-probe-empty: https://kernelci.org/test/case/id=
+/63f640c3929b120f918c8671
+        failing since 23 days (last pass: v5.15.81-122-gc5f8d4a5d3c8, first=
+ fail: v5.15.90-205-g5605d15db022)
+
+    2023-02-22T16:19:57.032641  + set +x
+    2023-02-22T16:19:57.032767  [    9.378354] <LAVA_SIGNAL_ENDRUN 0_dmesg =
+910927_1.5.2.3.1>
+    2023-02-22T16:19:57.146037  / # #
+    2023-02-22T16:19:57.247581  export SHELL=3D/bin/sh
+    2023-02-22T16:19:57.248034  #
+    2023-02-22T16:19:57.349203  / # export SHELL=3D/bin/sh. /lava-910927/en=
+vironment
+    2023-02-22T16:19:57.349807  =
+
+    2023-02-22T16:19:57.451226  / # . /lava-910927/environment/lava-910927/=
+bin/lava-test-runner /lava-910927/1
+    2023-02-22T16:19:57.452071  =
+
+    2023-02-22T16:19:57.454899  / # /lava-910927/bin/lava-test-runner /lava=
+-910927/1 =
+
+    ... (12 line(s) more)  =
+
+ =
+
+
+
+platform               | arch   | lab             | compiler | defconfig   =
+                 | regressions
+-----------------------+--------+-----------------+----------+-------------=
+-----------------+------------
+qemu_i386-uefi         | i386   | lab-baylibre    | gcc-10   | i386_defconf=
+ig               | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/63f642b6d1dedd80448c864e
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: i386_defconfig
+  Compiler:    gcc-10 (gcc (Debian 10.2.1-6) 10.2.1 20210110)
+  Plain log:   https://storage.kernelci.org//stable-rc/linux-5.15.y/v5.15.9=
+5/i386/i386_defconfig/gcc-10/lab-baylibre/baseline-qemu_i386-uefi.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/linux-5.15.y/v5.15.9=
+5/i386/i386_defconfig/gcc-10/lab-baylibre/baseline-qemu_i386-uefi.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
+t-baseline/20230217.0/x86/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/63f642b6d1dedd80448c8=
+64f
+        new failure (last pass: v5.15.93) =
+
+ =
+
+
+
+platform               | arch   | lab             | compiler | defconfig   =
+                 | regressions
+-----------------------+--------+-----------------+----------+-------------=
+-----------------+------------
+qemu_i386-uefi         | i386   | lab-broonie     | gcc-10   | i386_defconf=
+ig               | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/63f64371837e5dd11b8c8639
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: i386_defconfig
+  Compiler:    gcc-10 (gcc (Debian 10.2.1-6) 10.2.1 20210110)
+  Plain log:   https://storage.kernelci.org//stable-rc/linux-5.15.y/v5.15.9=
+5/i386/i386_defconfig/gcc-10/lab-broonie/baseline-qemu_i386-uefi.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/linux-5.15.y/v5.15.9=
+5/i386/i386_defconfig/gcc-10/lab-broonie/baseline-qemu_i386-uefi.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
+t-baseline/20230217.0/x86/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/63f64371837e5dd11b8c8=
+63a
+        new failure (last pass: v5.15.93) =
+
+ =
+
+
+
+platform               | arch   | lab             | compiler | defconfig   =
+                 | regressions
+-----------------------+--------+-----------------+----------+-------------=
+-----------------+------------
+qemu_i386-uefi         | i386   | lab-collabora   | gcc-10   | i386_defconf=
+ig               | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/63f64228f375207e3b8c8642
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: i386_defconfig
+  Compiler:    gcc-10 (gcc (Debian 10.2.1-6) 10.2.1 20210110)
+  Plain log:   https://storage.kernelci.org//stable-rc/linux-5.15.y/v5.15.9=
+5/i386/i386_defconfig/gcc-10/lab-collabora/baseline-qemu_i386-uefi.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/linux-5.15.y/v5.15.9=
+5/i386/i386_defconfig/gcc-10/lab-collabora/baseline-qemu_i386-uefi.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
+t-baseline/20230217.0/x86/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/63f64228f375207e3b8c8=
+643
+        new failure (last pass: v5.15.93) =
+
+ =
+
+
+
+platform               | arch   | lab             | compiler | defconfig   =
+                 | regressions
+-----------------------+--------+-----------------+----------+-------------=
+-----------------+------------
+qemu_x86_64-uefi       | x86_64 | lab-baylibre    | gcc-10   | x86_64_defco=
+n...6-chromebook | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/63f64186915d56e7688c863b
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: x86_64_defconfig+x86-chromebook
+  Compiler:    gcc-10 (gcc (Debian 10.2.1-6) 10.2.1 20210110)
+  Plain log:   https://storage.kernelci.org//stable-rc/linux-5.15.y/v5.15.9=
+5/x86_64/x86_64_defconfig+x86-chromebook/gcc-10/lab-baylibre/baseline-qemu_=
+x86_64-uefi.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/linux-5.15.y/v5.15.9=
+5/x86_64/x86_64_defconfig+x86-chromebook/gcc-10/lab-baylibre/baseline-qemu_=
+x86_64-uefi.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
+t-baseline/20230217.0/x86/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/63f64186915d56e7688c8=
+63c
+        failing since 5 days (last pass: v5.15.91-21-gd8296a906e7a, first f=
+ail: v5.15.94) =
+
+ =
+
+
+
+platform               | arch   | lab             | compiler | defconfig   =
+                 | regressions
+-----------------------+--------+-----------------+----------+-------------=
+-----------------+------------
+qemu_x86_64-uefi       | x86_64 | lab-baylibre    | gcc-10   | x86_64_defco=
+nfig             | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/63f6424d90d71092a78c8677
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: x86_64_defconfig
+  Compiler:    gcc-10 (gcc (Debian 10.2.1-6) 10.2.1 20210110)
+  Plain log:   https://storage.kernelci.org//stable-rc/linux-5.15.y/v5.15.9=
+5/x86_64/x86_64_defconfig/gcc-10/lab-baylibre/baseline-qemu_x86_64-uefi.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/linux-5.15.y/v5.15.9=
+5/x86_64/x86_64_defconfig/gcc-10/lab-baylibre/baseline-qemu_x86_64-uefi.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
+t-baseline/20230217.0/x86/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/63f6424d90d71092a78c8=
+678
+        failing since 5 days (last pass: v5.15.91-142-ga0b338ae1481, first =
+fail: v5.15.94) =
+
+ =
+
+
+
+platform               | arch   | lab             | compiler | defconfig   =
+                 | regressions
+-----------------------+--------+-----------------+----------+-------------=
+-----------------+------------
+qemu_x86_64-uefi       | x86_64 | lab-broonie     | gcc-10   | x86_64_defco=
+n...6-chromebook | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/63f641f746c0d30db88c867d
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: x86_64_defconfig+x86-chromebook
+  Compiler:    gcc-10 (gcc (Debian 10.2.1-6) 10.2.1 20210110)
+  Plain log:   https://storage.kernelci.org//stable-rc/linux-5.15.y/v5.15.9=
+5/x86_64/x86_64_defconfig+x86-chromebook/gcc-10/lab-broonie/baseline-qemu_x=
+86_64-uefi.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/linux-5.15.y/v5.15.9=
+5/x86_64/x86_64_defconfig+x86-chromebook/gcc-10/lab-broonie/baseline-qemu_x=
+86_64-uefi.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
+t-baseline/20230217.0/x86/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/63f641f746c0d30db88c8=
+67e
+        failing since 5 days (last pass: v5.15.91-21-gd8296a906e7a, first f=
+ail: v5.15.94) =
+
+ =
+
+
+
+platform               | arch   | lab             | compiler | defconfig   =
+                 | regressions
+-----------------------+--------+-----------------+----------+-------------=
+-----------------+------------
+qemu_x86_64-uefi       | x86_64 | lab-broonie     | gcc-10   | x86_64_defco=
+nfig             | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/63f64296e7967ff7b88c8646
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: x86_64_defconfig
+  Compiler:    gcc-10 (gcc (Debian 10.2.1-6) 10.2.1 20210110)
+  Plain log:   https://storage.kernelci.org//stable-rc/linux-5.15.y/v5.15.9=
+5/x86_64/x86_64_defconfig/gcc-10/lab-broonie/baseline-qemu_x86_64-uefi.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/linux-5.15.y/v5.15.9=
+5/x86_64/x86_64_defconfig/gcc-10/lab-broonie/baseline-qemu_x86_64-uefi.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
+t-baseline/20230217.0/x86/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/63f64296e7967ff7b88c8=
+647
+        failing since 5 days (last pass: v5.15.91-142-ga0b338ae1481, first =
+fail: v5.15.94) =
+
+ =
+
+
+
+platform               | arch   | lab             | compiler | defconfig   =
+                 | regressions
+-----------------------+--------+-----------------+----------+-------------=
+-----------------+------------
+qemu_x86_64-uefi       | x86_64 | lab-collabora   | gcc-10   | x86_64_defco=
+n...6-chromebook | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/63f6417920c05ebac68c865f
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: x86_64_defconfig+x86-chromebook
+  Compiler:    gcc-10 (gcc (Debian 10.2.1-6) 10.2.1 20210110)
+  Plain log:   https://storage.kernelci.org//stable-rc/linux-5.15.y/v5.15.9=
+5/x86_64/x86_64_defconfig+x86-chromebook/gcc-10/lab-collabora/baseline-qemu=
+_x86_64-uefi.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/linux-5.15.y/v5.15.9=
+5/x86_64/x86_64_defconfig+x86-chromebook/gcc-10/lab-collabora/baseline-qemu=
+_x86_64-uefi.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
+t-baseline/20230217.0/x86/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/63f6417920c05ebac68c8=
+660
+        failing since 5 days (last pass: v5.15.91-21-gd8296a906e7a, first f=
+ail: v5.15.94) =
+
+ =
+
+
+
+platform               | arch   | lab             | compiler | defconfig   =
+                 | regressions
+-----------------------+--------+-----------------+----------+-------------=
+-----------------+------------
+qemu_x86_64-uefi       | x86_64 | lab-collabora   | gcc-10   | x86_64_defco=
+nfig             | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/63f641d89cadce058a8c8659
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: x86_64_defconfig
+  Compiler:    gcc-10 (gcc (Debian 10.2.1-6) 10.2.1 20210110)
+  Plain log:   https://storage.kernelci.org//stable-rc/linux-5.15.y/v5.15.9=
+5/x86_64/x86_64_defconfig/gcc-10/lab-collabora/baseline-qemu_x86_64-uefi.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/linux-5.15.y/v5.15.9=
+5/x86_64/x86_64_defconfig/gcc-10/lab-collabora/baseline-qemu_x86_64-uefi.ht=
+ml
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
+t-baseline/20230217.0/x86/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/63f641d89cadce058a8c8=
+65a
+        failing since 5 days (last pass: v5.15.91-142-ga0b338ae1481, first =
+fail: v5.15.94) =
+
+ =
+
+
+
+platform               | arch   | lab             | compiler | defconfig   =
+                 | regressions
+-----------------------+--------+-----------------+----------+-------------=
+-----------------+------------
+qemu_x86_64-uefi-mixed | x86_64 | lab-baylibre    | gcc-10   | x86_64_defco=
+n...6-chromebook | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/63f6418797739078668c863b
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: x86_64_defconfig+x86-chromebook
+  Compiler:    gcc-10 (gcc (Debian 10.2.1-6) 10.2.1 20210110)
+  Plain log:   https://storage.kernelci.org//stable-rc/linux-5.15.y/v5.15.9=
+5/x86_64/x86_64_defconfig+x86-chromebook/gcc-10/lab-baylibre/baseline-qemu_=
+x86_64-uefi-mixed.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/linux-5.15.y/v5.15.9=
+5/x86_64/x86_64_defconfig+x86-chromebook/gcc-10/lab-baylibre/baseline-qemu_=
+x86_64-uefi-mixed.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
+t-baseline/20230217.0/x86/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/63f6418797739078668c8=
+63c
+        failing since 5 days (last pass: v5.15.93, first fail: v5.15.94) =
+
+ =
+
+
+
+platform               | arch   | lab             | compiler | defconfig   =
+                 | regressions
+-----------------------+--------+-----------------+----------+-------------=
+-----------------+------------
+qemu_x86_64-uefi-mixed | x86_64 | lab-baylibre    | gcc-10   | x86_64_defco=
+nfig             | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/63f6424bb391e18d698c8650
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: x86_64_defconfig
+  Compiler:    gcc-10 (gcc (Debian 10.2.1-6) 10.2.1 20210110)
+  Plain log:   https://storage.kernelci.org//stable-rc/linux-5.15.y/v5.15.9=
+5/x86_64/x86_64_defconfig/gcc-10/lab-baylibre/baseline-qemu_x86_64-uefi-mix=
+ed.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/linux-5.15.y/v5.15.9=
+5/x86_64/x86_64_defconfig/gcc-10/lab-baylibre/baseline-qemu_x86_64-uefi-mix=
+ed.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
+t-baseline/20230217.0/x86/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/63f6424bb391e18d698c8=
+651
+        failing since 5 days (last pass: v5.15.90-205-g5605d15db022, first =
+fail: v5.15.94) =
+
+ =
+
+
+
+platform               | arch   | lab             | compiler | defconfig   =
+                 | regressions
+-----------------------+--------+-----------------+----------+-------------=
+-----------------+------------
+qemu_x86_64-uefi-mixed | x86_64 | lab-broonie     | gcc-10   | x86_64_defco=
+n...6-chromebook | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/63f641f8d94eebd1428c8632
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: x86_64_defconfig+x86-chromebook
+  Compiler:    gcc-10 (gcc (Debian 10.2.1-6) 10.2.1 20210110)
+  Plain log:   https://storage.kernelci.org//stable-rc/linux-5.15.y/v5.15.9=
+5/x86_64/x86_64_defconfig+x86-chromebook/gcc-10/lab-broonie/baseline-qemu_x=
+86_64-uefi-mixed.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/linux-5.15.y/v5.15.9=
+5/x86_64/x86_64_defconfig+x86-chromebook/gcc-10/lab-broonie/baseline-qemu_x=
+86_64-uefi-mixed.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
+t-baseline/20230217.0/x86/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/63f641f8d94eebd1428c8=
+633
+        failing since 5 days (last pass: v5.15.93, first fail: v5.15.94) =
+
+ =
+
+
+
+platform               | arch   | lab             | compiler | defconfig   =
+                 | regressions
+-----------------------+--------+-----------------+----------+-------------=
+-----------------+------------
+qemu_x86_64-uefi-mixed | x86_64 | lab-broonie     | gcc-10   | x86_64_defco=
+nfig             | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/63f6429581cef320b28c863f
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: x86_64_defconfig
+  Compiler:    gcc-10 (gcc (Debian 10.2.1-6) 10.2.1 20210110)
+  Plain log:   https://storage.kernelci.org//stable-rc/linux-5.15.y/v5.15.9=
+5/x86_64/x86_64_defconfig/gcc-10/lab-broonie/baseline-qemu_x86_64-uefi-mixe=
+d.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/linux-5.15.y/v5.15.9=
+5/x86_64/x86_64_defconfig/gcc-10/lab-broonie/baseline-qemu_x86_64-uefi-mixe=
+d.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
+t-baseline/20230217.0/x86/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/63f6429581cef320b28c8=
+640
+        failing since 5 days (last pass: v5.15.90-205-g5605d15db022, first =
+fail: v5.15.94) =
+
+ =
+
+
+
+platform               | arch   | lab             | compiler | defconfig   =
+                 | regressions
+-----------------------+--------+-----------------+----------+-------------=
+-----------------+------------
+qemu_x86_64-uefi-mixed | x86_64 | lab-collabora   | gcc-10   | x86_64_defco=
+n...6-chromebook | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/63f6417a915d56e7688c8632
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: x86_64_defconfig+x86-chromebook
+  Compiler:    gcc-10 (gcc (Debian 10.2.1-6) 10.2.1 20210110)
+  Plain log:   https://storage.kernelci.org//stable-rc/linux-5.15.y/v5.15.9=
+5/x86_64/x86_64_defconfig+x86-chromebook/gcc-10/lab-collabora/baseline-qemu=
+_x86_64-uefi-mixed.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/linux-5.15.y/v5.15.9=
+5/x86_64/x86_64_defconfig+x86-chromebook/gcc-10/lab-collabora/baseline-qemu=
+_x86_64-uefi-mixed.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
+t-baseline/20230217.0/x86/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/63f6417a915d56e7688c8=
+633
+        failing since 5 days (last pass: v5.15.93, first fail: v5.15.94) =
+
+ =
+
+
+
+platform               | arch   | lab             | compiler | defconfig   =
+                 | regressions
+-----------------------+--------+-----------------+----------+-------------=
+-----------------+------------
+qemu_x86_64-uefi-mixed | x86_64 | lab-collabora   | gcc-10   | x86_64_defco=
+nfig             | 1          =
+
+
+  Details:     https://kernelci.org/test/plan/id/63f641c43314379a218c8642
+
+  Results:     0 PASS, 1 FAIL, 0 SKIP
+  Full config: x86_64_defconfig
+  Compiler:    gcc-10 (gcc (Debian 10.2.1-6) 10.2.1 20210110)
+  Plain log:   https://storage.kernelci.org//stable-rc/linux-5.15.y/v5.15.9=
+5/x86_64/x86_64_defconfig/gcc-10/lab-collabora/baseline-qemu_x86_64-uefi-mi=
+xed.txt
+  HTML log:    https://storage.kernelci.org//stable-rc/linux-5.15.y/v5.15.9=
+5/x86_64/x86_64_defconfig/gcc-10/lab-collabora/baseline-qemu_x86_64-uefi-mi=
+xed.html
+  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
+t-baseline/20230217.0/x86/rootfs.cpio.gz =
+
+
+
+  * baseline.login: https://kernelci.org/test/case/id/63f641c43314379a218c8=
+643
+        failing since 5 days (last pass: v5.15.90-205-g5605d15db022, first =
+fail: v5.15.94) =
+
+ =20
