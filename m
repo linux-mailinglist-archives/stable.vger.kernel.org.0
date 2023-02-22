@@ -2,56 +2,56 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 9D47A69F366
+	by mail.lfdr.de (Postfix) with ESMTP id 5185669F365
 	for <lists+stable@lfdr.de>; Wed, 22 Feb 2023 12:23:48 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231194AbjBVLXo (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 22 Feb 2023 06:23:44 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47296 "EHLO
+        id S231794AbjBVLXp (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 22 Feb 2023 06:23:45 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47652 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231883AbjBVLXX (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 22 Feb 2023 06:23:23 -0500
+        with ESMTP id S231995AbjBVLXi (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 22 Feb 2023 06:23:38 -0500
 Received: from mail-ed1-x54a.google.com (mail-ed1-x54a.google.com [IPv6:2a00:1450:4864:20::54a])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C8C2F2FCEC
-        for <stable@vger.kernel.org>; Wed, 22 Feb 2023 03:23:17 -0800 (PST)
-Received: by mail-ed1-x54a.google.com with SMTP id c1-20020a0564021f8100b004acbe232c03so10019083edc.9
-        for <stable@vger.kernel.org>; Wed, 22 Feb 2023 03:23:17 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7761D2C65F
+        for <stable@vger.kernel.org>; Wed, 22 Feb 2023 03:23:27 -0800 (PST)
+Received: by mail-ed1-x54a.google.com with SMTP id b1-20020aa7dc01000000b004ad062fee5eso10181222edu.17
+        for <stable@vger.kernel.org>; Wed, 22 Feb 2023 03:23:27 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=google.com; s=20210112;
         h=cc:to:from:subject:references:mime-version:message-id:in-reply-to
          :date:from:to:cc:subject:date:message-id:reply-to;
-        bh=G8i/WK5WDKl3YN3JBPYbZztdEmPTBn08cMGx5hPood4=;
-        b=cZnEB9p9Pz0nSB06JAlWcDXzyA6WyXGkDkRBoviUDXqZ357KJtFGr2jClJdpQe0jAG
-         3jF/l5p+WO1yB/Hn9jLPLm8XBSj5MSMZRdHMijcyLHftg0jkHm+kMAgojNm9XvK2uBBW
-         qxz+0Vb0J+c8xocZHuAt8Ep27kzRoZ/45k5tHLoAAEnYF6VSRiDhwQ0eLVBrNvA5ZkmV
-         ejg/9nP3YuTLIiiGnRcr5CxAdTjgxgJMxIt44vO5XuQO5agwaOhxP2b//PUiWc4//Hwb
-         H1OmxFX0m+LENEZ6/xqcV/eN4rMn5RSHwFFyICPvc3YOCuvRXjjNBAIZ/KpUzjx8jsS/
-         atRw==
+        bh=D/IVoT6kbM/UtfR7s3dMh2SCTGIBOfUuX6JJnWJ+IwE=;
+        b=Mdt0lnS7mkfTzOlIkWZGAfn2CNhhjY/+6NOaqjsir6sOkhYbTuaVd9+5Q8CiyWOUK5
+         M55HqjaHZpVYsmIBsKa4LhgN/2/Va/jhzCIWBzjlLCWncOvEexCXSs4p1AKQl58pbTlk
+         Svrs3WiNe435EY1pyEkrO5+WJxC/U2pfTr3GU/2kmfGJ+Blv+XQjT0c16tFS/fbAIEY9
+         pIZGYmdzFGs//GZKHkJBqaz+Nku+cl6zLyNnuPKyhjPkdhFhAEnzq7wJ/cktgAG20UGx
+         bdZQ80lyuMeiEzvdfgRXFKYRXNc5Kn2etdbq7V2NnYqgVijtsrwirIA+2WvmgV9p4TEt
+         JzcA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
         h=cc:to:from:subject:references:mime-version:message-id:in-reply-to
          :date:x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=G8i/WK5WDKl3YN3JBPYbZztdEmPTBn08cMGx5hPood4=;
-        b=6oFLtYK18M5eaPiEet0diuzduqiSvFTVeoxHGDeqt5V/6b16bzEb+mcXVL9+w8Sm75
-         jgqX8IughYf5LYvSrrn/sfRUFrEXzBXHYG4heuHMLL5uWNC1f1IZ0XyfVpTJlbfb8WZ+
-         /b0VPxJlaMrErwXw0hZ6+ygRGhxJDpPiEGbPoGJBuRz0SJicU5GdjGNEQqrArwKhE3v9
-         ASnNSjuc/8D4pFXnzXYci6KIs89XLm4iVANuqNMjf21WPpUqoJVNJVdGoNSETtBogxhU
-         DqeSLcMFIz01khtWVH9uTwKLoxDMCvSejOOG8JBRy5BFtG4qQ8unvsGbUQSxOM82zl2T
-         MWwA==
-X-Gm-Message-State: AO0yUKXGzcl2WSzXQdyOXaLzTjTzABQsBvwDuS+0TVi4+te1uP5iaXE1
-        k//WZ/9yR/uKe+bk+wKIbuQo/1rwx8kITw==
-X-Google-Smtp-Source: AK7set8ltdrvzD4QI4G2la/6RrmITWIM2bXrDbWr+TR8suA5T1OZxb0XBPUAravS+cfn5N02JT0wV7D84N5w0g==
+        bh=D/IVoT6kbM/UtfR7s3dMh2SCTGIBOfUuX6JJnWJ+IwE=;
+        b=6SXn3b0GJIfwXBCnn6Dmp3GS1tuM23ZaFIedLW7APaUcNQg+LQDEAZfNMQ2GYlwbLb
+         ZBmLnl/O0HIIkbpv8p9C3DuJWJksxRwSC5ngsgEYVillB8hyDdjlrk76ZcVwUI1VaUYi
+         QCqIjK0gZqK8SF8DrvfT5VZbxGvaDOFMFGQoXRKKQv8SWRtSpOfzVHpOMszWcwdMZszm
+         Usej/KO5LuxMJGMUdzNlrABUMhx4r6kd1/0YB56MUnKriR7MAEg7G+NIzKeug9od5/qV
+         oSU6iliFptoiT8RUo9NWb6TZrdkhPnfwUwZpjrX4Dhvn+k9YKCSNI9MnMiXIWdCvruoB
+         NB3Q==
+X-Gm-Message-State: AO0yUKXqzj2ezOXIdfhDAelNxz/1OmleiryQn+9yJfC08hochxrYJHIY
+        RHbUkZuUzixjTtt7saPOyEvLaL84pHYecA==
+X-Google-Smtp-Source: AK7set8mrOZB3VFNWOkj4p+YxajaUNjVz9R6h/g8mcDXigj3yFq+Um+6vmXjxKfiQvlSkRah1b/2AptvfbDDZw==
 X-Received: from lux.lon.corp.google.com ([2a00:79e0:d:209:35a9:4800:d90c:e9bc])
- (user=maennich job=sendgmr) by 2002:a17:906:1c4b:b0:878:6488:915f with SMTP
- id l11-20020a1709061c4b00b008786488915fmr7746205ejg.10.1677064996450; Wed, 22
- Feb 2023 03:23:16 -0800 (PST)
-Date:   Wed, 22 Feb 2023 11:21:45 +0000
+ (user=maennich job=sendgmr) by 2002:a17:906:5ad0:b0:878:790b:b7fd with SMTP
+ id x16-20020a1709065ad000b00878790bb7fdmr7119681ejs.14.1677065006123; Wed, 22
+ Feb 2023 03:23:26 -0800 (PST)
+Date:   Wed, 22 Feb 2023 11:21:47 +0000
 In-Reply-To: <20220201205624.652313-1-nathan@kernel.org>
-Message-Id: <20230222112141.278066-5-maennich@google.com>
+Message-Id: <20230222112141.278066-6-maennich@google.com>
 Mime-Version: 1.0
 References: <20220201205624.652313-1-nathan@kernel.org>
 X-Mailer: git-send-email 2.39.2.637.g21b0678d19-goog
-Subject: [PATCH 4/5] lib/Kconfig.debug: Use CONFIG_PAHOLE_VERSION
+Subject: [PATCH 5/5] lib/Kconfig.debug: Allow BTF + DWARF5 with pahole 1.21+
 From:   maennich@google.com
 To:     linux-kernel@vger.kernel.org
 Cc:     kernel-team@android.com, maennich@google.com,
@@ -73,40 +73,38 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Nathan Chancellor <nathan@kernel.org>
 
-Now that CONFIG_PAHOLE_VERSION exists, use it in the definition of
-CONFIG_PAHOLE_HAS_SPLIT_BTF and CONFIG_PAHOLE_HAS_BTF_TAG to reduce the
-amount of duplication across the tree.
+Commit 98cd6f521f10 ("Kconfig: allow explicit opt in to DWARF v5")
+prevented CONFIG_DEBUG_INFO_DWARF5 from being selected when
+CONFIG_DEBUG_INFO_BTF is enabled because pahole had issues with clang's
+DWARF5 info. This was resolved by [1], which is in pahole v1.21.
+
+Allow DEBUG_INFO_DWARF5 to be selected with DEBUG_INFO_BTF when using
+pahole v1.21 or newer.
+
+[1]: https://git.kernel.org/pub/scm/devel/pahole/pahole.git/commit/?id=7d8e829f636f47aba2e1b6eda57e74d8e31f733c
 
 Signed-off-by: Nathan Chancellor <nathan@kernel.org>
 Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
 Acked-by: Andrii Nakryiko <andrii@kernel.org>
-Link: https://lore.kernel.org/bpf/20220201205624.652313-5-nathan@kernel.org
+Link: https://lore.kernel.org/bpf/20220201205624.652313-6-nathan@kernel.org
 Signed-off-by: Matthias Maennich <maennich@google.com>
 ---
- lib/Kconfig.debug | 10 +++++++++-
- 1 file changed, 9 insertions(+), 1 deletion(-)
+ lib/Kconfig.debug | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
 diff --git a/lib/Kconfig.debug b/lib/Kconfig.debug
-index f71db0cc3bf1..0743c9567d7e 100644
+index 0743c9567d7e..dd86de130cdf 100644
 --- a/lib/Kconfig.debug
 +++ b/lib/Kconfig.debug
-@@ -328,7 +328,15 @@ config DEBUG_INFO_BTF
- 	  DWARF type info into equivalent deduplicated BTF type info.
- 
- config PAHOLE_HAS_SPLIT_BTF
--	def_bool $(success, test `$(PAHOLE) --version | sed -E 's/v([0-9]+)\.([0-9]+)/\1\2/'` -ge "119")
-+	def_bool PAHOLE_VERSION >= 119
-+
-+config PAHOLE_HAS_BTF_TAG
-+	def_bool PAHOLE_VERSION >= 123
-+	depends on CC_IS_CLANG
-+	help
-+	  Decide whether pahole emits btf_tag attributes (btf_type_tag and
-+	  btf_decl_tag) or not. Currently only clang compiler implements
-+	  these attributes, so make the config depend on CC_IS_CLANG.
- 
- config DEBUG_INFO_BTF_MODULES
- 	def_bool y
+@@ -302,7 +302,7 @@ config DEBUG_INFO_DWARF4
+ config DEBUG_INFO_DWARF5
+ 	bool "Generate DWARF Version 5 debuginfo"
+ 	depends on !CC_IS_CLANG || AS_IS_LLVM || (AS_IS_GNU && AS_VERSION >= 23502 && AS_HAS_NON_CONST_LEB128)
+-	depends on !DEBUG_INFO_BTF
++	depends on !DEBUG_INFO_BTF || PAHOLE_VERSION >= 121
+ 	help
+ 	  Generate DWARF v5 debug info. Requires binutils 2.35.2, gcc 5.0+ (gcc
+ 	  5.0+ accepts the -gdwarf-5 flag but only had partial support for some
 -- 
 2.39.2.637.g21b0678d19-goog
 
