@@ -2,114 +2,105 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 1334169FA64
-	for <lists+stable@lfdr.de>; Wed, 22 Feb 2023 18:48:54 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 302AA69FA98
+	for <lists+stable@lfdr.de>; Wed, 22 Feb 2023 18:57:32 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231982AbjBVRsw (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 22 Feb 2023 12:48:52 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59134 "EHLO
+        id S229615AbjBVR5a (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 22 Feb 2023 12:57:30 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37034 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231312AbjBVRsu (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 22 Feb 2023 12:48:50 -0500
-Received: from mail.skyhub.de (mail.skyhub.de [IPv6:2a01:4f8:190:11c2::b:1457])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8365D3C29;
-        Wed, 22 Feb 2023 09:48:49 -0800 (PST)
-Received: from zn.tnic (p5de8e9fe.dip0.t-ipconnect.de [93.232.233.254])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by mail.skyhub.de (SuperMail on ZX Spectrum 128k) with ESMTPSA id D37341EC068B;
-        Wed, 22 Feb 2023 18:48:47 +0100 (CET)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=alien8.de; s=dkim;
-        t=1677088127;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:in-reply-to:in-reply-to:  references:references;
-        bh=YYGd1/7vqe10rF+vcDRqtwVcW/I/owGJcKgIDAKClwA=;
-        b=RQ8PzH7OFVY1JUBazOB+WDFbSKLYsormUu+IbuEaEexJkr1dzOPfepuU92jthLNYI4IGPe
-        UMVW/3cFCVHxaNELouQRnqPtKVwIw4Ksv8TzrJ4hzvB9vQ0QQUNbwdjlUn8iH2akMwjzbZ
-        aeolUyAmBOZ22Z794oFfFD2aOYh76Yk=
-Date:   Wed, 22 Feb 2023 18:48:41 +0100
-From:   Borislav Petkov <bp@alien8.de>
-To:     KP Singh <kpsingh@kernel.org>
-Cc:     linux-kernel@vger.kernel.org, pjt@google.com, evn@google.com,
-        jpoimboe@kernel.org, tglx@linutronix.de, x86@kernel.org,
-        hpa@zytor.com, peterz@infradead.org,
-        pawan.kumar.gupta@linux.intel.com, kim.phillips@amd.com,
-        alexandre.chartre@oracle.com, daniel.sneddon@linux.intel.com,
-        corbet@lwn.net, bp@suse.de, linyujun809@huawei.com,
-        jmattson@google.com,
-        =?utf-8?B?Sm9zw6k=?= Oliveira <joseloliveira11@gmail.com>,
-        Rodrigo Branco <rodrigo@kernelhacking.com>,
-        Alexandra Sandulescu <aesa@google.com>, stable@vger.kernel.org
-Subject: Re: [PATCH v2 1/2] x86/speculation: Allow enabling STIBP with legacy
- IBRS
-Message-ID: <Y/ZVaBKwbWUbF7u+@zn.tnic>
-References: <20230221184908.2349578-1-kpsingh@kernel.org>
- <Y/YJisQdorH1aAKV@zn.tnic>
- <CACYkzJ4cSA5xFScgS=WTc6tPis-vUCtYkh3LyEr8EkXoDCm-uA@mail.gmail.com>
+        with ESMTP id S230048AbjBVR53 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 22 Feb 2023 12:57:29 -0500
+Received: from pijkaqwt.kolliers.com (pijkaqwt.kolliers.com [92.52.217.53])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 87B023A0A7
+        for <stable@vger.kernel.org>; Wed, 22 Feb 2023 09:57:28 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha1; c=relaxed/relaxed; s=dkim; d=kolliers.com;
+ h=Reply-To:From:To:Subject:Date:Message-ID:MIME-Version:Content-Type:Content-Transfer-Encoding; i=bara@kolliers.com;
+ bh=9MCVbH6FWJctFLxnEOCLJvHXl/U=;
+ b=UlRc+BkNl113Iyw1mBNWo/HL1Gb79gqeOm9dOyyE4YArYPle/sfu3SbvB/XLivKzWZ87kvGM6YNY
+   f25Ttn9m8DKm6CTXJPxOzbLZanoQ/37jmqKPSHuVmj0px1K0u51RXzrEzBEv8cjSZ/iWLzO4Pymb
+   nOXxlmob/J1/T1iMsV9f2+Ixcz+fLMCmA2/91SEVMkydG+3cWhgHMdLIuPBHumdQUppsmjTSh1P2
+   1qcJV1AXbpmtxyHiAnv/XQnmZPlOR93phtzVyFm4c2U+hVKLFu+AJteL+eMHQVdHx++C++0xRDQX
+   tzi8XdTk1Bw1YRFvnaEAbxrP1SzoddbhtcHXwQ==
+DomainKey-Signature: a=rsa-sha1; c=nofws; q=dns; s=dkim; d=kolliers.com;
+ b=WG40FtKsZSzMiy1sz9etiSroxT5Gr2CqV3eFXD/+nVVHMBB/iIJU0218fO2mLg5PvbtkqfIFae0G
+   MIEC7l92zeyHAAVFlq4pNHbG5MKK7nGTSLtujWXNRDJ/8EKTNMYHaJWsMLXyXQlxdW72eEahZBu4
+   EZ2Kf3ImTV9DsiqFgZqfKP580Tazmx67kIXXxoE8p5GmGsYvfIjLTjrlm2SPKSi8zo+zDta3HYlf
+   0N3tx072sFBZiLeawozxQIbqw2wlXGaqWjduMzjBb8xBP+47zL7EZ14bqz1qUHE1BIJEqs58wIcP
+   34mTEcm2j13KYQcijgEOkKUCvy6hUZRBnB8cUg==;
+Reply-To: esq.mustafaa@gmail.com
+From:   Mustafa Ayvaz <bara@kolliers.com>
+To:     stable@vger.kernel.org
+Subject: Res:
+Date:   22 Feb 2023 09:55:49 -0800
+Message-ID: <20230222095549.E5A9DA359C590DBC@kolliers.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-In-Reply-To: <CACYkzJ4cSA5xFScgS=WTc6tPis-vUCtYkh3LyEr8EkXoDCm-uA@mail.gmail.com>
-X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,SPF_HELO_NONE,SPF_PASS
-        autolearn=ham autolearn_force=no version=3.4.6
+Content-Type: text/plain;
+        charset="utf-8"
+Content-Transfer-Encoding: quoted-printable
+X-Spam-Status: Yes, score=6.5 required=5.0 tests=BAYES_50,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_FORGED_REPLYTO,
+        LOTS_OF_MONEY,MONEY_FREEMAIL_REPTO,RCVD_IN_BL_SPAMCOP_NET,
+        RCVD_IN_MSPIKE_H2,SPF_HELO_NONE,SPF_PASS,URIBL_DBL_MALWARE
+        autolearn=no autolearn_force=no version=3.4.6
+X-Spam-Report: *  1.3 RCVD_IN_BL_SPAMCOP_NET RBL: Received via a relay in
+        *      bl.spamcop.net
+        *      [Blocked - see <https://www.spamcop.net/bl.shtml?92.52.217.53>]
+        *  2.5 URIBL_DBL_MALWARE Contains a malware URL listed in the Spamhaus
+        *       DBL blocklist
+        *      [URIs: kolliers.com]
+        *  0.8 BAYES_50 BODY: Bayes spam probability is 40 to 60%
+        *      [score: 0.4999]
+        * -0.0 RCVD_IN_MSPIKE_H2 RBL: Average reputation (+2)
+        *      [92.52.217.53 listed in wl.mailspike.net]
+        * -0.0 SPF_PASS SPF: sender matches SPF record
+        *  0.0 SPF_HELO_NONE SPF: HELO does not publish an SPF Record
+        * -0.1 DKIM_VALID Message has at least one valid DKIM or DK signature
+        * -0.1 DKIM_VALID_AU Message has a valid DKIM or DK signature from
+        *      author's domain
+        * -0.1 DKIM_VALID_EF Message has a valid DKIM or DK signature from
+        *      envelope-from domain
+        *  0.1 DKIM_SIGNED Message has a DKIM or DK signature, not necessarily
+        *       valid
+        *  0.0 LOTS_OF_MONEY Huge... sums of money
+        *  0.0 MONEY_FREEMAIL_REPTO Lots of money from someone using free
+        *      email?
+        *  2.1 FREEMAIL_FORGED_REPLYTO Freemail in Reply-To, but not From
+X-Spam-Level: ******
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Wed, Feb 22, 2023 at 09:16:21AM -0800, KP Singh wrote:
-> Thanks for iterating. I think your commit description and rewrite
-> omits a few key subtleties which I have tried to reinforce in both the
-> commit log and the comments.
-> 
-> Q: What does STIBP have to do with IBRS?
-> A: Setting the IBRS bit implicitly enables STIBP / some form of cross
-> thread protection.
+Bom dia stable@vger.kernel.org,
 
-That belongs in the docs, if you want to explain this properly.
+Sou o advogado Mustafa Ayvaz, advogado pessoal do falecido Sr.=20
+Robert, que perdeu a vida devido ao coronav=C3=ADrus, contra=C3=ADdo=20
+durante sua viagem de neg=C3=B3cios =C3=A0 China. Entrei em contato com=20
+voc=C3=AA para trabalhar comigo na transfer=C3=AAncia de um fundo:=20
+$4,420,000.00 (quatro milh=C3=B5es, quatrocentos e vinte mil d=C3=B3lares)=
+=20
+legado deixado por ele.
 
-> Q: Why does it work with eIBRS?
-> A: Because we set the IBRS bit once and leave it set when using eIBRS
+Procurei minuciosamente o parente mais pr=C3=B3ximo de meu cliente=20
+falecido, mas falhei porque n=C3=A3o tenho sua resid=C3=AAncia atual e=20
+detalhes de contato. Enquanto pesquisava, encontrei seu perfil=20
+com o mesmo sobrenome e na mesma localidade com o parente mais=20
+pr=C3=B3ximo. Decidi entrar em contato com voc=C3=AA e us=C3=A1-lo como par=
+ente=20
+genu=C3=ADno.
 
-Also docs.
+Solicito seu consentimento para apresent=C3=A1-lo como parente mais=20
+pr=C3=B3ximo de meu falecido cliente, j=C3=A1 que ambos t=C3=AAm o mesmo=20=
 
-> I think this subtlety should be reinforced in the commit description
-> and code comments so that we don't get it wrong again. Your commit
-> does answer this one (thanks!)
+sobrenome. Os fundos ser=C3=A3o ent=C3=A3o transferidos para voc=C3=AA como=
+=20
+benefici=C3=A1rio e compartilhados de acordo com um padr=C3=A3o/propor=C3=
+=A7=C3=A3o=20
+de compartilhamento proposto de 60:40, ou seja, 60% para mim e=20
+40% para voc=C3=AA. Por favor, entre em contato comigo imediatamente=20
+para obter mais informa=C3=A7=C3=B5es.
 
-Commit messages are fine when explaining *why* a change is being done.
-What is even finer is when you put a lenghtier explanation in our
-documentation so that people can actually find it. Finding text in
-commit messages is harder...
-
-> Q: Why does it not work with the way the kernel currently implements
-> legacy IBRS?
-> A: Because the kernel clears the bit on returning to user space.
-
-From the commit message:
-
-    However, on return to userspace, the IBRS bit is cleared for performance
-    reasons. That leaves userspace threads vulnerable to cross-thread
-    predictions influence against which STIBP protects.
-
-> The reason why I refactored this into a separate helper was to
-> document the subtleties I mentioned above and anchor them to one place
-> as the function is used in 2 places. But this is a maintainer's
-> choice, so it's your call :)
-
-The less code gets added in that thing, the better. Not yet another
-helper pls.
- 
-> I do agree with Pawan that it's worth adding a pr_info about what the
-> kernel is doing about STIBP.
-
-STIBP status gets dumped through stibp_state().
-
--- 
-Regards/Gruss,
-    Boris.
-
-https://people.kernel.org/tglx/notes-about-netiquette
+Cumprimentos
+Mustaf=C3=A1 Ayvaz
