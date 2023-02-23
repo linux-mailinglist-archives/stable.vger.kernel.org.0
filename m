@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 9FCF76A045E
-	for <lists+stable@lfdr.de>; Thu, 23 Feb 2023 10:03:03 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 335266A0472
+	for <lists+stable@lfdr.de>; Thu, 23 Feb 2023 10:06:02 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233418AbjBWJDC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 23 Feb 2023 04:03:02 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59786 "EHLO
+        id S230170AbjBWJGA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 23 Feb 2023 04:06:00 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35780 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232983AbjBWJDB (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 23 Feb 2023 04:03:01 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 01400DBE9
-        for <stable@vger.kernel.org>; Thu, 23 Feb 2023 01:02:59 -0800 (PST)
+        with ESMTP id S229745AbjBWJGA (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 23 Feb 2023 04:06:00 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 32A2E4ECC7
+        for <stable@vger.kernel.org>; Thu, 23 Feb 2023 01:05:54 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 6BDB9B811EC
-        for <stable@vger.kernel.org>; Thu, 23 Feb 2023 09:02:58 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id CBEF6C433D2;
-        Thu, 23 Feb 2023 09:02:56 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 8CD1D61620
+        for <stable@vger.kernel.org>; Thu, 23 Feb 2023 09:05:54 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D16E4C433EF;
+        Thu, 23 Feb 2023 09:05:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1677142977;
-        bh=g1RvTyMCpiaNlDSslZMAf72AqR/8L6ocCF9Nh4fzAt8=;
+        s=korg; t=1677143153;
+        bh=IWXHMRO4sn5EruF5pBF/9dp8WHP28UREAV5LasBBs6U=;
         h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=cD+BHJ/7biLEtc0GLq9MAjoLhdURKyesOcYPYgfk9x/B6ONRx1KogpqTkPzg1wNPF
-         0Z8Vbmfk6MqB1ELth931koPCwk5VnhEEVAcfx8RAEMHC+cLRs1sgosjzENxShXnEP9
-         jwGLgjxhDuOrbyj39g9uO0gkACkSRDHARf10RmAs=
-Date:   Thu, 23 Feb 2023 10:02:54 +0100
+        b=x9lvZAR/7c/w3Scas6d2wCCF2WEjPyoNRiQLmZOkaQpQUSAPOnk9wqy7IQOyD4fg/
+         TFboS7rMNYtsyr0N0jnx6dHF35FQkKl6aaWJcmv969cKuWg3PuoAXmBj9aDBjnutDX
+         MNfzPB4JS26kbMl05y7XKfzGmbfb8TyCsiGaoyTw=
+Date:   Thu, 23 Feb 2023 10:05:50 +0100
 From:   Greg KH <gregkh@linuxfoundation.org>
-To:     Thomas Gleixner <tglx@linutronix.de>
-Cc:     jstultz@google.com, stable@vger.kernel.org
-Subject: Re: [PATCH Backport 4.14, 4.19, 5.4] alarmtimer: Prevent starvation
- by small intervals and SIG_IGN
-Message-ID: <Y/crvg1yYL7xJHWx@kroah.com>
-References: <16768916935192@kroah.com>
- <87sfeznng7.ffs@tglx>
+To:     Ovidiu Panait <ovidiu.panait@eng.windriver.com>
+Cc:     stable@vger.kernel.org, Zheng Wang <zyytlz.wz@163.com>,
+        Zhenyu Wang <zhenyuw@linux.intel.com>
+Subject: Re: [PATCH 5.15/5.10/5.4/4.19 1/1] drm/i915/gvt: fix double free bug
+ in split_2MB_gtt_entry
+Message-ID: <Y/csbnn9m7zOLJhh@kroah.com>
+References: <20230220133554.2736427-1-ovidiu.panait@eng.windriver.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <87sfeznng7.ffs@tglx>
+In-Reply-To: <20230220133554.2736427-1-ovidiu.panait@eng.windriver.com>
 X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
         DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
         SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
@@ -50,76 +50,31 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, Feb 21, 2023 at 02:43:36PM +0100, Thomas Gleixner wrote:
-> Commit d125d1349abeb46945dc5e98f7824bf688266f13 upstream.
+On Mon, Feb 20, 2023 at 03:35:54PM +0200, Ovidiu Panait wrote:
+> From: Zheng Wang <zyytlz.wz@163.com>
 > 
-> syzbot reported a RCU stall which is caused by setting up an alarmtimer
-> with a very small interval and ignoring the signal. The reproducer arms the
-> alarm timer with a relative expiry of 8ns and an interval of 9ns. Not a
-> problem per se, but that's an issue when the signal is ignored because then
-> the timer is immediately rearmed because there is no way to delay that
-> rearming to the signal delivery path.  See posix_timer_fn() and commit
-> 58229a189942 ("posix-timers: Prevent softirq starvation by small intervals
-> and SIG_IGN") for details.
+> commit 4a61648af68f5ba4884f0e3b494ee1cabc4b6620 upstream.
 > 
-> The reproducer does not set SIG_IGN explicitely, but it sets up the timers
-> signal with SIGCONT. That has the same effect as explicitely setting
-> SIG_IGN for a signal as SIGCONT is ignored if there is no handler set and
-> the task is not ptraced.
+> If intel_gvt_dma_map_guest_page failed, it will call
+> ppgtt_invalidate_spt, which will finally free the spt.
+> But the caller function ppgtt_populate_spt_by_guest_entry
+> does not notice that, it will free spt again in its error
+> path.
 > 
-> The log clearly shows that:
+> Fix this by canceling the mapping of DMA address and freeing sub_spt.
+> Besides, leave the handle of spt destroy to caller function instead
+> of callee function when error occurs.
 > 
->    [pid  5102] --- SIGCONT {si_signo=SIGCONT, si_code=SI_TIMER, si_timerid=0, si_overrun=316014, si_int=0, si_ptr=NULL} ---
-> 
-> It works because the tasks are traced and therefore the signal is queued so
-> the tracer can see it, which delays the restart of the timer to the signal
-> delivery path. But then the tracer is killed:
-> 
->    [pid  5087] kill(-5102, SIGKILL <unfinished ...>
->    ...
->    ./strace-static-x86_64: Process 5107 detached
-> 
-> and after it's gone the stall can be observed:
-> 
->    syzkaller login: [   79.439102][    C0] hrtimer: interrupt took 68471 ns
->    [  184.460538][    C1] rcu: INFO: rcu_preempt detected stalls on CPUs/tasks:
->    ...
->    [  184.658237][    C1] rcu: Stack dump where RCU GP kthread last ran:
->    [  184.664574][    C1] Sending NMI from CPU 1 to CPUs 0:
->    [  184.669821][    C0] NMI backtrace for cpu 0
->    [  184.669831][    C0] CPU: 0 PID: 5108 Comm: syz-executor192 Not tainted 6.2.0-rc6-next-20230203-syzkaller #0
->    ...
->    [  184.670036][    C0] Call Trace:
->    [  184.670041][    C0]  <IRQ>
->    [  184.670045][    C0]  alarmtimer_fired+0x327/0x670
-> 
-> posix_timer_fn() prevents that by checking whether the interval for
-> timers which have the signal ignored is smaller than a jiffie and
-> artifically delay it by shifting the next expiry out by a jiffie. That's
-> accurate vs. the overrun accounting, but slightly inaccurate
-> vs. timer_gettimer(2).
-> 
-> The comment in that function says what needs to be done and there was a fix
-> available for the regular userspace induced SIG_IGN mechanism, but that did
-> not work due to the implicit ignore for SIGCONT and similar signals. This
-> needs to be worked on, but for now the only available workaround is to do
-> exactly what posix_timer_fn() does:
-> 
-> Increase the interval of self-rearming timers, which have their signal
-> ignored, to at least a jiffie.
-> 
-> Interestingly this has been fixed before via commit ff86bf0c65f1
-> ("alarmtimer: Rate limit periodic intervals") already, but that fix got
-> lost in a later rework.
-> 
-> Fixes: f2c45807d399 ("alarmtimer: Switch over to generic set/get/rearm routine")
-> Reported-by: syzbot+b9564ba6e8e00694511b@syzkaller.appspotmail.com
-> Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
-> Acked-by: John Stultz <jstultz@google.com>
-> Cc: stable@vger.kernel.org
-> Link: https://lore.kernel.org/r/87k00q1no2.ffs@tglx
+> Fixes: b901b252b6cf ("drm/i915/gvt: Add 2M huge gtt support")
+> Signed-off-by: Zheng Wang <zyytlz.wz@163.com>
+> Reviewed-by: Zhenyu Wang <zhenyuw@linux.intel.com>
+> Signed-off-by: Zhenyu Wang <zhenyuw@linux.intel.com>
+> Link: http://patchwork.freedesktop.org/patch/msgid/20221229165641.1192455-1-zyytlz.wz@163.com
+> Signed-off-by: Ovidiu Panait <ovidiu.panait@eng.windriver.com>
 > ---
-> Backport for 4.14, 4.19, 5.4
+> Backport of CVE-2022-3707 fix.
+
+Note, I think this is a bogus CVE, but whatever, you do you...
 
 Now queued up, thanks.
 
