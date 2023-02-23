@@ -2,46 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 606756A09BA
-	for <lists+stable@lfdr.de>; Thu, 23 Feb 2023 14:09:43 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8B17E6A0A2F
+	for <lists+stable@lfdr.de>; Thu, 23 Feb 2023 14:13:28 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234368AbjBWNJm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 23 Feb 2023 08:09:42 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38654 "EHLO
+        id S234501AbjBWNN1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 23 Feb 2023 08:13:27 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43516 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234365AbjBWNJl (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 23 Feb 2023 08:09:41 -0500
-Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 74D555FDD
-        for <stable@vger.kernel.org>; Thu, 23 Feb 2023 05:09:32 -0800 (PST)
+        with ESMTP id S234508AbjBWNNU (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 23 Feb 2023 08:13:20 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 577921B4
+        for <stable@vger.kernel.org>; Thu, 23 Feb 2023 05:12:48 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id C2D30CE1FEB
-        for <stable@vger.kernel.org>; Thu, 23 Feb 2023 13:09:30 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id BFAE7C4339C;
-        Thu, 23 Feb 2023 13:09:28 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id EC60A61709
+        for <stable@vger.kernel.org>; Thu, 23 Feb 2023 13:11:50 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id BAAD9C4339B;
+        Thu, 23 Feb 2023 13:11:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1677157769;
-        bh=dRZCnNtvwKEt8C+vjNI/er/QcjBov6VYOw+7CSl5K0s=;
+        s=korg; t=1677157909;
+        bh=7jxKKtyJ7kM/gAdl0rgmVHVyRp0IQzTuAI2o2iyUy/8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=BU2Owwgc8hVmcv71JKXAjKU/JX3UEbX+hGFNtizTTzUmq6tiiuva8iuU3QngOQK00
-         15/brELhvCdeXO7gX22NHa+N8iKrWHgU/ZKoxHkObRtYTwAw3LquAn6eXyzahRn3sa
-         6vhD0FC2jkyG5B01LyTm7e82XD3swUf01S0hX7pE=
+        b=mSsJhlW2lR5Jc5xkvR9FtKvW1iiCt1JtFTtnbvYVABHlVdMjU2bINIvrr1h7OxGkz
+         y2UqoNmC67NanLmucj7Z3WP9Nq6pJYws53pnyT4hdogXra/RpSzEESdOI40gcu0qYB
+         UPCvVOM3Feg3a5aedEs/3ee2/PFpveAHrZBezAvU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         patches@lists.linux.dev,
-        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
-        Ingo Molnar <mingo@kernel.org>,
-        "Masami Hiramatsu (Google)" <mhiramat@kernel.org>,
-        Nathan Chancellor <nathan@kernel.org>
-Subject: [PATCH 6.1 31/46] x86/alternatives: Teach text_poke_bp() to patch Jcc.d32 instructions
+        Bitterblue Smith <rtl8821cerfe2@gmail.com>,
+        Kalle Valo <kvalo@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.15 02/36] wifi: rtl8xxxu: gen2: Turn on the rate control
 Date:   Thu, 23 Feb 2023 14:06:38 +0100
-Message-Id: <20230223130433.029351046@linuxfoundation.org>
+Message-Id: <20230223130429.187533490@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230223130431.553657459@linuxfoundation.org>
-References: <20230223130431.553657459@linuxfoundation.org>
+In-Reply-To: <20230223130429.072633724@linuxfoundation.org>
+References: <20230223130429.072633724@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,185 +53,69 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Peter Zijlstra <peterz@infradead.org>
+From: Bitterblue Smith <rtl8821cerfe2@gmail.com>
 
-commit ac0ee0a9560c97fa5fe1409e450c2425d4ebd17a upstream.
+[ Upstream commit 791082ec0ab843e0be07c8ce3678e4c2afd2e33d ]
 
-In order to re-write Jcc.d32 instructions text_poke_bp() needs to be
-taught about them.
+Re-enable the function rtl8xxxu_gen2_report_connect.
 
-The biggest hurdle is that the whole machinery is currently made for 5
-byte instructions and extending this would grow struct text_poke_loc
-which is currently a nice 16 bytes and used in an array.
+It informs the firmware when connecting to a network. This makes the
+firmware enable the rate control, which makes the upload faster.
 
-However, since text_poke_loc contains a full copy of the (s32)
-displacement, it is possible to map the Jcc.d32 2 byte opcodes to
-Jcc.d8 1 byte opcode for the int3 emulation.
+It also informs the firmware when disconnecting from a network. In the
+past this made reconnecting impossible because it was sending the
+auth on queue 0x7 (TXDESC_QUEUE_VO) instead of queue 0x12
+(TXDESC_QUEUE_MGNT):
 
-This then leaves the replacement bytes; fudge that by only storing the
-last 5 bytes and adding the rule that 'length == 6' instruction will
-be prefixed with a 0x0f byte.
+wlp0s20f0u3: send auth to 90:55:de:__:__:__ (try 1/3)
+wlp0s20f0u3: send auth to 90:55:de:__:__:__ (try 2/3)
+wlp0s20f0u3: send auth to 90:55:de:__:__:__ (try 3/3)
+wlp0s20f0u3: authentication with 90:55:de:__:__:__ timed out
 
-Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
-Signed-off-by: Ingo Molnar <mingo@kernel.org>
-Reviewed-by: Masami Hiramatsu (Google) <mhiramat@kernel.org>
-Link: https://lore.kernel.org/r/20230123210607.115718513@infradead.org
-[nathan: Introduce is_jcc32() as part of this change; upstream
-         introduced it in 3b6c1747da48]
-Signed-off-by: Nathan Chancellor <nathan@kernel.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Probably the firmware disables the unnecessary TX queues when it
+knows it's disconnected.
+
+However, this was fixed in commit edd5747aa12e ("wifi: rtl8xxxu: Fix
+skb misuse in TX queue selection").
+
+Fixes: c59f13bbead4 ("rtl8xxxu: Work around issue with 8192eu and 8723bu devices not reconnecting")
+Signed-off-by: Bitterblue Smith <rtl8821cerfe2@gmail.com>
+Signed-off-by: Kalle Valo <kvalo@kernel.org>
+Link: https://lore.kernel.org/r/43200afc-0c65-ee72-48f8-231edd1df493@gmail.com
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/x86/kernel/alternative.c |   59 ++++++++++++++++++++++++++++++++++--------
- 1 file changed, 48 insertions(+), 11 deletions(-)
+ drivers/net/wireless/realtek/rtl8xxxu/rtl8xxxu_core.c | 8 ++------
+ 1 file changed, 2 insertions(+), 6 deletions(-)
 
---- a/arch/x86/kernel/alternative.c
-+++ b/arch/x86/kernel/alternative.c
-@@ -339,6 +339,12 @@ next:
- 	}
- }
- 
-+static inline bool is_jcc32(struct insn *insn)
-+{
-+	/* Jcc.d32 second opcode byte is in the range: 0x80-0x8f */
-+	return insn->opcode.bytes[0] == 0x0f && (insn->opcode.bytes[1] & 0xf0) == 0x80;
-+}
-+
- #if defined(CONFIG_RETPOLINE) && defined(CONFIG_OBJTOOL)
- 
- /*
-@@ -427,8 +433,7 @@ static int patch_retpoline(void *addr, s
- 	 *   [ NOP ]
- 	 * 1:
- 	 */
--	/* Jcc.d32 second opcode byte is in the range: 0x80-0x8f */
--	if (op == 0x0f && (insn->opcode.bytes[1] & 0xf0) == 0x80) {
-+	if (is_jcc32(insn)) {
- 		cc = insn->opcode.bytes[1] & 0xf;
- 		cc ^= 1; /* invert condition */
- 
-@@ -1311,6 +1316,11 @@ void text_poke_sync(void)
- 	on_each_cpu(do_sync_core, NULL, 1);
- }
- 
-+/*
-+ * NOTE: crazy scheme to allow patching Jcc.d32 but not increase the size of
-+ * this thing. When len == 6 everything is prefixed with 0x0f and we map
-+ * opcode to Jcc.d8, using len to distinguish.
-+ */
- struct text_poke_loc {
- 	/* addr := _stext + rel_addr */
- 	s32 rel_addr;
-@@ -1432,6 +1442,10 @@ noinstr int poke_int3_handler(struct pt_
- 		int3_emulate_jmp(regs, (long)ip + tp->disp);
- 		break;
- 
-+	case 0x70 ... 0x7f: /* Jcc */
-+		int3_emulate_jcc(regs, tp->opcode & 0xf, (long)ip, tp->disp);
-+		break;
-+
- 	default:
- 		BUG();
- 	}
-@@ -1505,16 +1519,26 @@ static void text_poke_bp_batch(struct te
- 	 * Second step: update all but the first byte of the patched range.
- 	 */
- 	for (do_sync = 0, i = 0; i < nr_entries; i++) {
--		u8 old[POKE_MAX_OPCODE_SIZE] = { tp[i].old, };
-+		u8 old[POKE_MAX_OPCODE_SIZE+1] = { tp[i].old, };
-+		u8 _new[POKE_MAX_OPCODE_SIZE+1];
-+		const u8 *new = tp[i].text;
- 		int len = tp[i].len;
- 
- 		if (len - INT3_INSN_SIZE > 0) {
- 			memcpy(old + INT3_INSN_SIZE,
- 			       text_poke_addr(&tp[i]) + INT3_INSN_SIZE,
- 			       len - INT3_INSN_SIZE);
-+
-+			if (len == 6) {
-+				_new[0] = 0x0f;
-+				memcpy(_new + 1, new, 5);
-+				new = _new;
-+			}
-+
- 			text_poke(text_poke_addr(&tp[i]) + INT3_INSN_SIZE,
--				  (const char *)tp[i].text + INT3_INSN_SIZE,
-+				  new + INT3_INSN_SIZE,
- 				  len - INT3_INSN_SIZE);
-+
- 			do_sync++;
- 		}
- 
-@@ -1542,8 +1566,7 @@ static void text_poke_bp_batch(struct te
- 		 * The old instruction is recorded so that the event can be
- 		 * processed forwards or backwards.
- 		 */
--		perf_event_text_poke(text_poke_addr(&tp[i]), old, len,
--				     tp[i].text, len);
-+		perf_event_text_poke(text_poke_addr(&tp[i]), old, len, new, len);
- 	}
- 
- 	if (do_sync) {
-@@ -1560,10 +1583,15 @@ static void text_poke_bp_batch(struct te
- 	 * replacing opcode.
- 	 */
- 	for (do_sync = 0, i = 0; i < nr_entries; i++) {
--		if (tp[i].text[0] == INT3_INSN_OPCODE)
-+		u8 byte = tp[i].text[0];
-+
-+		if (tp[i].len == 6)
-+			byte = 0x0f;
-+
-+		if (byte == INT3_INSN_OPCODE)
- 			continue;
- 
--		text_poke(text_poke_addr(&tp[i]), tp[i].text, INT3_INSN_SIZE);
-+		text_poke(text_poke_addr(&tp[i]), &byte, INT3_INSN_SIZE);
- 		do_sync++;
- 	}
- 
-@@ -1581,9 +1609,11 @@ static void text_poke_loc_init(struct te
- 			       const void *opcode, size_t len, const void *emulate)
+diff --git a/drivers/net/wireless/realtek/rtl8xxxu/rtl8xxxu_core.c b/drivers/net/wireless/realtek/rtl8xxxu/rtl8xxxu_core.c
+index 7370d92a3bdad..3d3fa2b616a86 100644
+--- a/drivers/net/wireless/realtek/rtl8xxxu/rtl8xxxu_core.c
++++ b/drivers/net/wireless/realtek/rtl8xxxu/rtl8xxxu_core.c
+@@ -4369,12 +4369,9 @@ void rtl8xxxu_gen1_report_connect(struct rtl8xxxu_priv *priv,
+ void rtl8xxxu_gen2_report_connect(struct rtl8xxxu_priv *priv,
+ 				  u8 macid, bool connect)
  {
- 	struct insn insn;
--	int ret, i;
-+	int ret, i = 0;
+-#ifdef RTL8XXXU_GEN2_REPORT_CONNECT
+ 	/*
+-	 * Barry Day reports this causes issues with 8192eu and 8723bu
+-	 * devices reconnecting. The reason for this is unclear, but
+-	 * until it is better understood, leave the code in place but
+-	 * disabled, so it is not lost.
++	 * The firmware turns on the rate control when it knows it's
++	 * connected to a network.
+ 	 */
+ 	struct h2c_cmd h2c;
  
--	memcpy((void *)tp->text, opcode, len);
-+	if (len == 6)
-+		i = 1;
-+	memcpy((void *)tp->text, opcode+i, len-i);
- 	if (!emulate)
- 		emulate = opcode;
+@@ -4387,7 +4384,6 @@ void rtl8xxxu_gen2_report_connect(struct rtl8xxxu_priv *priv,
+ 		h2c.media_status_rpt.parm &= ~BIT(0);
  
-@@ -1594,6 +1624,13 @@ static void text_poke_loc_init(struct te
- 	tp->len = len;
- 	tp->opcode = insn.opcode.bytes[0];
+ 	rtl8xxxu_gen2_h2c_cmd(priv, &h2c, sizeof(h2c.media_status_rpt));
+-#endif
+ }
  
-+	if (is_jcc32(&insn)) {
-+		/*
-+		 * Map Jcc.d32 onto Jcc.d8 and use len to distinguish.
-+		 */
-+		tp->opcode = insn.opcode.bytes[1] - 0x10;
-+	}
-+
- 	switch (tp->opcode) {
- 	case RET_INSN_OPCODE:
- 	case JMP32_INSN_OPCODE:
-@@ -1610,7 +1647,6 @@ static void text_poke_loc_init(struct te
- 		BUG_ON(len != insn.length);
- 	};
- 
--
- 	switch (tp->opcode) {
- 	case INT3_INSN_OPCODE:
- 	case RET_INSN_OPCODE:
-@@ -1619,6 +1655,7 @@ static void text_poke_loc_init(struct te
- 	case CALL_INSN_OPCODE:
- 	case JMP32_INSN_OPCODE:
- 	case JMP8_INSN_OPCODE:
-+	case 0x70 ... 0x7f: /* Jcc */
- 		tp->disp = insn.immediate.value;
- 		break;
- 
+ void rtl8xxxu_gen1_init_aggregation(struct rtl8xxxu_priv *priv)
+-- 
+2.39.0
+
 
 
