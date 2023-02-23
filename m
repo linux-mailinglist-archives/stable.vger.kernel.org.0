@@ -2,46 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 62E2C6A09B0
-	for <lists+stable@lfdr.de>; Thu, 23 Feb 2023 14:09:22 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9B87E6A099B
+	for <lists+stable@lfdr.de>; Thu, 23 Feb 2023 14:08:36 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234348AbjBWNJV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 23 Feb 2023 08:09:21 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38140 "EHLO
+        id S233563AbjBWNIf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 23 Feb 2023 08:08:35 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36206 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234174AbjBWNJU (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 23 Feb 2023 08:09:20 -0500
+        with ESMTP id S234284AbjBWNI1 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 23 Feb 2023 08:08:27 -0500
 Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A4F0C13DC0
-        for <stable@vger.kernel.org>; Thu, 23 Feb 2023 05:09:03 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8807131E3F
+        for <stable@vger.kernel.org>; Thu, 23 Feb 2023 05:08:19 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 19D4BCE1FEB
-        for <stable@vger.kernel.org>; Thu, 23 Feb 2023 13:09:02 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2C087C433EF;
-        Thu, 23 Feb 2023 13:09:00 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id D5781CE2024
+        for <stable@vger.kernel.org>; Thu, 23 Feb 2023 13:08:17 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 00272C4339B;
+        Thu, 23 Feb 2023 13:08:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1677157740;
-        bh=Xb9zjsWuD2iVWJym7BTZ016iPYFtkt2DOwnW1iLojmw=;
+        s=korg; t=1677157696;
+        bh=V1cgL4/ztt7zVfBt9Z2BIvtH29Uxko/sW17CkowPIRA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=qgpAP/61QcQ+moVMN9Zc/MdGL76al+v3LsTdCJXczUgX4U1JPQ7r1cpUNBRJVqxMP
-         jdBKJkzGeN+qvy78/iMBZF4xOzsfz6qyNHkcyFJZGDdSla4OM4OdYQgXYkVS5t3565
-         u01oMuoslhZKYBfXKLj+ZcruH0oLilXFBEEtLAgc=
+        b=ka6pmZEI9ursf/kYdNwyvZAIm7WxSKQSacv3uXebI7nyqi7xMCNLCfrTl7EQy1w3Y
+         gUmfiERHbU63IfVzqGkvIaobAth6XZu6QLOD3zTlKA3zO+AuqY3XxpJ/FkYE4CmdkU
+         /qGOjdoN5NQa6IqOwuOcQRuKV4xoDevrdBM66kJ4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Camelia Alexandra Groza <camelia.groza@nxp.com>,
-        Sean Anderson <sean.anderson@seco.com>,
-        Jakub Kicinski <kuba@kernel.org>,
+        patches@lists.linux.dev, Sean Christopherson <seanjc@google.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 21/46] powerpc: dts: t208x: Disable 10G on MAC1 and MAC2
+Subject: [PATCH 5.10 11/25] KVM: SVM: Skip WRMSR fastpath on VM-Exit if next RIP isnt valid
 Date:   Thu, 23 Feb 2023 14:06:28 +0100
-Message-Id: <20230223130432.542344039@linuxfoundation.org>
+Message-Id: <20230223130427.294953360@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230223130431.553657459@linuxfoundation.org>
-References: <20230223130431.553657459@linuxfoundation.org>
+In-Reply-To: <20230223130426.817998725@linuxfoundation.org>
+References: <20230223130426.817998725@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,49 +52,92 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sean Anderson <sean.anderson@seco.com>
+From: Sean Christopherson <seanjc@google.com>
 
-[ Upstream commit 8d8bee13ae9e316443c6666286360126a19c8d94 ]
+[ Upstream commit 5c30e8101e8d5d020b1d7119117889756a6ed713 ]
 
-There aren't enough resources to run these ports at 10G speeds. Disable
-10G for these ports, reverting to the previous speed.
+Skip the WRMSR fastpath in SVM's VM-Exit handler if the next RIP isn't
+valid, e.g. because KVM is running with nrips=false.  SVM must decode and
+emulate to skip the WRMSR if the CPU doesn't provide the next RIP.
+Getting the instruction bytes to decode the WRMSR requires reading guest
+memory, which in turn means dereferencing memslots, and that isn't safe
+because KVM doesn't hold SRCU when the fastpath runs.
 
-Fixes: 36926a7d70c2 ("powerpc: dts: t208x: Mark MAC1 and MAC2 as 10G")
-Reported-by: Camelia Alexandra Groza <camelia.groza@nxp.com>
-Signed-off-by: Sean Anderson <sean.anderson@seco.com>
-Reviewed-by: Camelia Groza <camelia.groza@nxp.com>
-Tested-by: Camelia Groza <camelia.groza@nxp.com>
-Link: https://lore.kernel.org/r/20221216172937.2960054-1-sean.anderson@seco.com
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Don't bother trying to enable the fastpath for this case, e.g. by doing
+only the WRMSR and leaving the "skip" until later.  NRIPS is supported on
+all modern CPUs (KVM has considered making it mandatory), and the next
+RIP will be valid the vast, vast majority of the time.
+
+  =============================
+  WARNING: suspicious RCU usage
+  6.0.0-smp--4e557fcd3d80-skip #13 Tainted: G           O
+  -----------------------------
+  include/linux/kvm_host.h:954 suspicious rcu_dereference_check() usage!
+
+  other info that might help us debug this:
+
+  rcu_scheduler_active = 2, debug_locks = 1
+  1 lock held by stable/206475:
+   #0: ffff9d9dfebcc0f0 (&vcpu->mutex){+.+.}-{3:3}, at: kvm_vcpu_ioctl+0x8b/0x620 [kvm]
+
+  stack backtrace:
+  CPU: 152 PID: 206475 Comm: stable Tainted: G           O       6.0.0-smp--4e557fcd3d80-skip #13
+  Hardware name: Google, Inc. Arcadia_IT_80/Arcadia_IT_80, BIOS 10.48.0 01/27/2022
+  Call Trace:
+   <TASK>
+   dump_stack_lvl+0x69/0xaa
+   dump_stack+0x10/0x12
+   lockdep_rcu_suspicious+0x11e/0x130
+   kvm_vcpu_gfn_to_memslot+0x155/0x190 [kvm]
+   kvm_vcpu_gfn_to_hva_prot+0x18/0x80 [kvm]
+   paging64_walk_addr_generic+0x183/0x450 [kvm]
+   paging64_gva_to_gpa+0x63/0xd0 [kvm]
+   kvm_fetch_guest_virt+0x53/0xc0 [kvm]
+   __do_insn_fetch_bytes+0x18b/0x1c0 [kvm]
+   x86_decode_insn+0xf0/0xef0 [kvm]
+   x86_emulate_instruction+0xba/0x790 [kvm]
+   kvm_emulate_instruction+0x17/0x20 [kvm]
+   __svm_skip_emulated_instruction+0x85/0x100 [kvm_amd]
+   svm_skip_emulated_instruction+0x13/0x20 [kvm_amd]
+   handle_fastpath_set_msr_irqoff+0xae/0x180 [kvm]
+   svm_vcpu_run+0x4b8/0x5a0 [kvm_amd]
+   vcpu_enter_guest+0x16ca/0x22f0 [kvm]
+   kvm_arch_vcpu_ioctl_run+0x39d/0x900 [kvm]
+   kvm_vcpu_ioctl+0x538/0x620 [kvm]
+   __se_sys_ioctl+0x77/0xc0
+   __x64_sys_ioctl+0x1d/0x20
+   do_syscall_64+0x3d/0x80
+   entry_SYSCALL_64_after_hwframe+0x63/0xcd
+
+Fixes: 404d5d7bff0d ("KVM: X86: Introduce more exit_fastpath_completion enum values")
+Signed-off-by: Sean Christopherson <seanjc@google.com>
+Link: https://lore.kernel.org/r/20220930234031.1732249-1-seanjc@google.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/powerpc/boot/dts/fsl/t2081si-post.dtsi | 16 ++++++++++++++++
- 1 file changed, 16 insertions(+)
+ arch/x86/kvm/svm/svm.c | 10 ++++++++--
+ 1 file changed, 8 insertions(+), 2 deletions(-)
 
-diff --git a/arch/powerpc/boot/dts/fsl/t2081si-post.dtsi b/arch/powerpc/boot/dts/fsl/t2081si-post.dtsi
-index 74e17e134387d..27714dc2f04a5 100644
---- a/arch/powerpc/boot/dts/fsl/t2081si-post.dtsi
-+++ b/arch/powerpc/boot/dts/fsl/t2081si-post.dtsi
-@@ -659,3 +659,19 @@
- 		interrupts = <16 2 1 9>;
- 	};
- };
+diff --git a/arch/x86/kvm/svm/svm.c b/arch/x86/kvm/svm/svm.c
+index c34ba034ca111..5775983fec56e 100644
+--- a/arch/x86/kvm/svm/svm.c
++++ b/arch/x86/kvm/svm/svm.c
+@@ -3480,8 +3480,14 @@ static void svm_cancel_injection(struct kvm_vcpu *vcpu)
+ 
+ static fastpath_t svm_exit_handlers_fastpath(struct kvm_vcpu *vcpu)
+ {
+-	if (to_svm(vcpu)->vmcb->control.exit_code == SVM_EXIT_MSR &&
+-	    to_svm(vcpu)->vmcb->control.exit_info_1)
++	struct vmcb_control_area *control = &to_svm(vcpu)->vmcb->control;
 +
-+&fman0_rx_0x08 {
-+	/delete-property/ fsl,fman-10g-port;
-+};
-+
-+&fman0_tx_0x28 {
-+	/delete-property/ fsl,fman-10g-port;
-+};
-+
-+&fman0_rx_0x09 {
-+	/delete-property/ fsl,fman-10g-port;
-+};
-+
-+&fman0_tx_0x29 {
-+	/delete-property/ fsl,fman-10g-port;
-+};
++	/*
++	 * Note, the next RIP must be provided as SRCU isn't held, i.e. KVM
++	 * can't read guest memory (dereference memslots) to decode the WRMSR.
++	 */
++	if (control->exit_code == SVM_EXIT_MSR && control->exit_info_1 &&
++	    nrips && control->next_rip)
+ 		return handle_fastpath_set_msr_irqoff(vcpu);
+ 
+ 	return EXIT_FASTPATH_NONE;
 -- 
 2.39.0
 
