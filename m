@@ -2,32 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C48B06A0A1A
-	for <lists+stable@lfdr.de>; Thu, 23 Feb 2023 14:13:12 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 37F586A0A1B
+	for <lists+stable@lfdr.de>; Thu, 23 Feb 2023 14:13:13 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234517AbjBWNNL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S234491AbjBWNNL (ORCPT <rfc822;lists+stable@lfdr.de>);
         Thu, 23 Feb 2023 08:13:11 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43526 "EHLO
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43654 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234518AbjBWNNG (ORCPT
+        with ESMTP id S234522AbjBWNNG (ORCPT
         <rfc822;stable@vger.kernel.org>); Thu, 23 Feb 2023 08:13:06 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 076F9570A9
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7665F570AD
         for <stable@vger.kernel.org>; Thu, 23 Feb 2023 05:12:23 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 25F79B81A25
-        for <stable@vger.kernel.org>; Thu, 23 Feb 2023 13:12:06 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5CEC4C433EF;
-        Thu, 23 Feb 2023 13:12:04 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 324FD616FE
+        for <stable@vger.kernel.org>; Thu, 23 Feb 2023 13:12:09 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id EA526C433EF;
+        Thu, 23 Feb 2023 13:12:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1677157924;
-        bh=Vdj7COWgsmffgml7LP3Sgxoo+HJuXuTalqEHCG9V6B0=;
+        s=korg; t=1677157927;
+        bh=sHpeTvxJ2hbd0m1Y4dPLVp6TbmXXDaERRH1DBBK2bMc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=GUp/OTZzTQF2HdrgXd0NlZhjrz6JWplDRQmVIhIJs7DlvI3xaIA04fSvhXX9kdnte
-         m1rrD9CMk/bQgLQz3/F8G6/paX+JtOWUHOl/m7pjfOWpTqUQuHD+Ybe6CHaupjvulY
-         2lHzOV8Z5CUmaLSHzl1bSKwVYGulSkiw6Gz+vVdI=
+        b=gEIKa/1QAUYHl7NWUh1s6ZLvdwZuzoTZv+83DU/fGy+uHldxkIbe1COMo5PWjTKTz
+         Wi+IfXgSVkV/R+o2rtFqd9GRLcYBfCFPpJjq1g2QA4/xrweRcS9SpJKc1715zasRv3
+         F3xY5e2/YIzf8KFlU/p1iUzO90k7VqRoW4ihooSU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
@@ -35,9 +35,9 @@ Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         Rahul Tanwar <rtanwar@maxlinear.com>,
         Stephen Boyd <sboyd@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 04/36] clk: mxl: Switch from direct readl/writel based IO to regmap based IO
-Date:   Thu, 23 Feb 2023 14:06:40 +0100
-Message-Id: <20230223130429.277358829@linuxfoundation.org>
+Subject: [PATCH 5.15 05/36] clk: mxl: Remove redundant spinlocks
+Date:   Thu, 23 Feb 2023 14:06:41 +0100
+Message-Id: <20230223130429.328761239@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
 In-Reply-To: <20230223130429.072633724@linuxfoundation.org>
 References: <20230223130429.072633724@linuxfoundation.org>
@@ -56,241 +56,511 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Rahul Tanwar <rtanwar@maxlinear.com>
 
-[ Upstream commit 036177310bac5534de44ff6a7b60a4d2c0b6567c ]
+[ Upstream commit eaabee88a88a26b108be8d120fc072dfaf462cef ]
 
-Earlier version of driver used direct io remapped register read
-writes using readl/writel. But we need secure boot access which
-is only possible when registers are read & written using regmap.
-This is because the security bus/hook is written & coupled only
-with regmap layer.
+Patch 1/4 of this patch series switches from direct readl/writel
+based register access to regmap based register access. Instead
+of using direct readl/writel, regmap API's are used to read, write
+& read-modify-write clk registers. Regmap API's already use their
+own spinlocks to serialize the register accesses across multiple
+cores in which case additional driver spinlocks becomes redundant.
 
-Switch the driver from direct readl/writel based register accesses
-to regmap based register accesses.
-
-Additionally, update the license headers to latest status.
+Hence, remove redundant spinlocks from driver in this patch 2/4.
 
 Reviewed-by: Yi xin Zhu <yzhu@maxlinear.com>
 Signed-off-by: Rahul Tanwar <rtanwar@maxlinear.com>
-Link: https://lore.kernel.org/r/2610331918206e0e3bd18babb39393a558fb34f9.1665642720.git.rtanwar@maxlinear.com
+Link: https://lore.kernel.org/r/a8a02c8773b88924503a9fdaacd37dd2e6488bf3.1665642720.git.rtanwar@maxlinear.com
 Signed-off-by: Stephen Boyd <sboyd@kernel.org>
 Stable-dep-of: 106ef3bda210 ("clk: mxl: Fix a clk entry by adding relevant flags")
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/clk/x86/Kconfig       |  5 +++--
- drivers/clk/x86/clk-cgu-pll.c | 10 +++++----
- drivers/clk/x86/clk-cgu.c     |  5 +++--
- drivers/clk/x86/clk-cgu.h     | 38 +++++++++++++++++++----------------
- drivers/clk/x86/clk-lgm.c     | 13 ++++++++----
- 5 files changed, 42 insertions(+), 29 deletions(-)
+ drivers/clk/x86/clk-cgu-pll.c | 13 ------
+ drivers/clk/x86/clk-cgu.c     | 80 ++++-------------------------------
+ drivers/clk/x86/clk-cgu.h     |  6 ---
+ drivers/clk/x86/clk-lgm.c     |  1 -
+ 4 files changed, 9 insertions(+), 91 deletions(-)
 
-diff --git a/drivers/clk/x86/Kconfig b/drivers/clk/x86/Kconfig
-index 69642e15fcc1f..ced99e082e3dd 100644
---- a/drivers/clk/x86/Kconfig
-+++ b/drivers/clk/x86/Kconfig
-@@ -1,8 +1,9 @@
- # SPDX-License-Identifier: GPL-2.0-only
- config CLK_LGM_CGU
- 	depends on OF && HAS_IOMEM && (X86 || COMPILE_TEST)
-+	select MFD_SYSCON
- 	select OF_EARLY_FLATTREE
- 	bool "Clock driver for Lightning Mountain(LGM) platform"
- 	help
--	  Clock Generation Unit(CGU) driver for Intel Lightning Mountain(LGM)
--	  network processor SoC.
-+	  Clock Generation Unit(CGU) driver for MaxLinear's x86 based
-+	  Lightning Mountain(LGM) network processor SoC.
 diff --git a/drivers/clk/x86/clk-cgu-pll.c b/drivers/clk/x86/clk-cgu-pll.c
-index 3179557b5f784..c83083affe88e 100644
+index c83083affe88e..409dbf55f4cae 100644
 --- a/drivers/clk/x86/clk-cgu-pll.c
 +++ b/drivers/clk/x86/clk-cgu-pll.c
-@@ -1,8 +1,9 @@
- // SPDX-License-Identifier: GPL-2.0
- /*
-+ * Copyright (C) 2020-2022 MaxLinear, Inc.
-  * Copyright (C) 2020 Intel Corporation.
-- * Zhu YiXin <yixin.zhu@intel.com>
-- * Rahul Tanwar <rahul.tanwar@intel.com>
-+ * Zhu Yixin <yzhu@maxlinear.com>
-+ * Rahul Tanwar <rtanwar@maxlinear.com>
-  */
+@@ -41,13 +41,10 @@ static unsigned long lgm_pll_recalc_rate(struct clk_hw *hw, unsigned long prate)
+ {
+ 	struct lgm_clk_pll *pll = to_lgm_clk_pll(hw);
+ 	unsigned int div, mult, frac;
+-	unsigned long flags;
  
- #include <linux/clk-provider.h>
-@@ -76,8 +77,9 @@ static int lgm_pll_enable(struct clk_hw *hw)
+-	spin_lock_irqsave(&pll->lock, flags);
+ 	mult = lgm_get_clk_val(pll->membase, PLL_REF_DIV(pll->reg), 0, 12);
+ 	div = lgm_get_clk_val(pll->membase, PLL_REF_DIV(pll->reg), 18, 6);
+ 	frac = lgm_get_clk_val(pll->membase, pll->reg, 2, 24);
+-	spin_unlock_irqrestore(&pll->lock, flags);
  
- 	spin_lock_irqsave(&pll->lock, flags);
- 	lgm_set_clk_val(pll->membase, pll->reg, 0, 1, 1);
--	ret = readl_poll_timeout_atomic(pll->membase + pll->reg,
--					val, (val & 0x1), 1, 100);
-+	ret = regmap_read_poll_timeout_atomic(pll->membase, pll->reg,
-+					      val, (val & 0x1), 1, 100);
-+
- 	spin_unlock_irqrestore(&pll->lock, flags);
+ 	if (pll->type == TYPE_LJPLL)
+ 		div *= 4;
+@@ -58,12 +55,9 @@ static unsigned long lgm_pll_recalc_rate(struct clk_hw *hw, unsigned long prate)
+ static int lgm_pll_is_enabled(struct clk_hw *hw)
+ {
+ 	struct lgm_clk_pll *pll = to_lgm_clk_pll(hw);
+-	unsigned long flags;
+ 	unsigned int ret;
+ 
+-	spin_lock_irqsave(&pll->lock, flags);
+ 	ret = lgm_get_clk_val(pll->membase, pll->reg, 0, 1);
+-	spin_unlock_irqrestore(&pll->lock, flags);
  
  	return ret;
+ }
+@@ -71,16 +65,13 @@ static int lgm_pll_is_enabled(struct clk_hw *hw)
+ static int lgm_pll_enable(struct clk_hw *hw)
+ {
+ 	struct lgm_clk_pll *pll = to_lgm_clk_pll(hw);
+-	unsigned long flags;
+ 	u32 val;
+ 	int ret;
+ 
+-	spin_lock_irqsave(&pll->lock, flags);
+ 	lgm_set_clk_val(pll->membase, pll->reg, 0, 1, 1);
+ 	ret = regmap_read_poll_timeout_atomic(pll->membase, pll->reg,
+ 					      val, (val & 0x1), 1, 100);
+ 
+-	spin_unlock_irqrestore(&pll->lock, flags);
+ 
+ 	return ret;
+ }
+@@ -88,11 +79,8 @@ static int lgm_pll_enable(struct clk_hw *hw)
+ static void lgm_pll_disable(struct clk_hw *hw)
+ {
+ 	struct lgm_clk_pll *pll = to_lgm_clk_pll(hw);
+-	unsigned long flags;
+ 
+-	spin_lock_irqsave(&pll->lock, flags);
+ 	lgm_set_clk_val(pll->membase, pll->reg, 0, 1, 0);
+-	spin_unlock_irqrestore(&pll->lock, flags);
+ }
+ 
+ static const struct clk_ops lgm_pll_ops = {
+@@ -123,7 +111,6 @@ lgm_clk_register_pll(struct lgm_clk_provider *ctx,
+ 		return ERR_PTR(-ENOMEM);
+ 
+ 	pll->membase = ctx->membase;
+-	pll->lock = ctx->lock;
+ 	pll->reg = list->reg;
+ 	pll->flags = list->flags;
+ 	pll->type = list->type;
 diff --git a/drivers/clk/x86/clk-cgu.c b/drivers/clk/x86/clk-cgu.c
-index 33de600e0c38e..f5f30a18f4869 100644
+index f5f30a18f4869..1f7e93de67bc0 100644
 --- a/drivers/clk/x86/clk-cgu.c
 +++ b/drivers/clk/x86/clk-cgu.c
-@@ -1,8 +1,9 @@
- // SPDX-License-Identifier: GPL-2.0
- /*
-+ * Copyright (C) 2020-2022 MaxLinear, Inc.
-  * Copyright (C) 2020 Intel Corporation.
-- * Zhu YiXin <yixin.zhu@intel.com>
-- * Rahul Tanwar <rahul.tanwar@intel.com>
-+ * Zhu Yixin <yzhu@maxlinear.com>
-+ * Rahul Tanwar <rtanwar@maxlinear.com>
-  */
- #include <linux/clk-provider.h>
- #include <linux/device.h>
+@@ -25,14 +25,10 @@
+ static struct clk_hw *lgm_clk_register_fixed(struct lgm_clk_provider *ctx,
+ 					     const struct lgm_clk_branch *list)
+ {
+-	unsigned long flags;
+ 
+-	if (list->div_flags & CLOCK_FLAG_VAL_INIT) {
+-		spin_lock_irqsave(&ctx->lock, flags);
++	if (list->div_flags & CLOCK_FLAG_VAL_INIT)
+ 		lgm_set_clk_val(ctx->membase, list->div_off, list->div_shift,
+ 				list->div_width, list->div_val);
+-		spin_unlock_irqrestore(&ctx->lock, flags);
+-	}
+ 
+ 	return clk_hw_register_fixed_rate(NULL, list->name,
+ 					  list->parent_data[0].name,
+@@ -42,33 +38,27 @@ static struct clk_hw *lgm_clk_register_fixed(struct lgm_clk_provider *ctx,
+ static u8 lgm_clk_mux_get_parent(struct clk_hw *hw)
+ {
+ 	struct lgm_clk_mux *mux = to_lgm_clk_mux(hw);
+-	unsigned long flags;
+ 	u32 val;
+ 
+-	spin_lock_irqsave(&mux->lock, flags);
+ 	if (mux->flags & MUX_CLK_SW)
+ 		val = mux->reg;
+ 	else
+ 		val = lgm_get_clk_val(mux->membase, mux->reg, mux->shift,
+ 				      mux->width);
+-	spin_unlock_irqrestore(&mux->lock, flags);
+ 	return clk_mux_val_to_index(hw, NULL, mux->flags, val);
+ }
+ 
+ static int lgm_clk_mux_set_parent(struct clk_hw *hw, u8 index)
+ {
+ 	struct lgm_clk_mux *mux = to_lgm_clk_mux(hw);
+-	unsigned long flags;
+ 	u32 val;
+ 
+ 	val = clk_mux_index_to_val(NULL, mux->flags, index);
+-	spin_lock_irqsave(&mux->lock, flags);
+ 	if (mux->flags & MUX_CLK_SW)
+ 		mux->reg = val;
+ 	else
+ 		lgm_set_clk_val(mux->membase, mux->reg, mux->shift,
+ 				mux->width, val);
+-	spin_unlock_irqrestore(&mux->lock, flags);
+ 
+ 	return 0;
+ }
+@@ -91,7 +81,7 @@ static struct clk_hw *
+ lgm_clk_register_mux(struct lgm_clk_provider *ctx,
+ 		     const struct lgm_clk_branch *list)
+ {
+-	unsigned long flags, cflags = list->mux_flags;
++	unsigned long cflags = list->mux_flags;
+ 	struct device *dev = ctx->dev;
+ 	u8 shift = list->mux_shift;
+ 	u8 width = list->mux_width;
+@@ -112,7 +102,6 @@ lgm_clk_register_mux(struct lgm_clk_provider *ctx,
+ 	init.num_parents = list->num_parents;
+ 
+ 	mux->membase = ctx->membase;
+-	mux->lock = ctx->lock;
+ 	mux->reg = reg;
+ 	mux->shift = shift;
+ 	mux->width = width;
+@@ -124,11 +113,8 @@ lgm_clk_register_mux(struct lgm_clk_provider *ctx,
+ 	if (ret)
+ 		return ERR_PTR(ret);
+ 
+-	if (cflags & CLOCK_FLAG_VAL_INIT) {
+-		spin_lock_irqsave(&mux->lock, flags);
++	if (cflags & CLOCK_FLAG_VAL_INIT)
+ 		lgm_set_clk_val(mux->membase, reg, shift, width, list->mux_val);
+-		spin_unlock_irqrestore(&mux->lock, flags);
+-	}
+ 
+ 	return hw;
+ }
+@@ -137,13 +123,10 @@ static unsigned long
+ lgm_clk_divider_recalc_rate(struct clk_hw *hw, unsigned long parent_rate)
+ {
+ 	struct lgm_clk_divider *divider = to_lgm_clk_divider(hw);
+-	unsigned long flags;
+ 	unsigned int val;
+ 
+-	spin_lock_irqsave(&divider->lock, flags);
+ 	val = lgm_get_clk_val(divider->membase, divider->reg,
+ 			      divider->shift, divider->width);
+-	spin_unlock_irqrestore(&divider->lock, flags);
+ 
+ 	return divider_recalc_rate(hw, parent_rate, val, divider->table,
+ 				   divider->flags, divider->width);
+@@ -164,7 +147,6 @@ lgm_clk_divider_set_rate(struct clk_hw *hw, unsigned long rate,
+ 			 unsigned long prate)
+ {
+ 	struct lgm_clk_divider *divider = to_lgm_clk_divider(hw);
+-	unsigned long flags;
+ 	int value;
+ 
+ 	value = divider_get_val(rate, prate, divider->table,
+@@ -172,10 +154,8 @@ lgm_clk_divider_set_rate(struct clk_hw *hw, unsigned long rate,
+ 	if (value < 0)
+ 		return value;
+ 
+-	spin_lock_irqsave(&divider->lock, flags);
+ 	lgm_set_clk_val(divider->membase, divider->reg,
+ 			divider->shift, divider->width, value);
+-	spin_unlock_irqrestore(&divider->lock, flags);
+ 
+ 	return 0;
+ }
+@@ -183,12 +163,9 @@ lgm_clk_divider_set_rate(struct clk_hw *hw, unsigned long rate,
+ static int lgm_clk_divider_enable_disable(struct clk_hw *hw, int enable)
+ {
+ 	struct lgm_clk_divider *div = to_lgm_clk_divider(hw);
+-	unsigned long flags;
+ 
+-	spin_lock_irqsave(&div->lock, flags);
+ 	lgm_set_clk_val(div->membase, div->reg, div->shift_gate,
+ 			div->width_gate, enable);
+-	spin_unlock_irqrestore(&div->lock, flags);
+ 	return 0;
+ }
+ 
+@@ -214,7 +191,7 @@ static struct clk_hw *
+ lgm_clk_register_divider(struct lgm_clk_provider *ctx,
+ 			 const struct lgm_clk_branch *list)
+ {
+-	unsigned long flags, cflags = list->div_flags;
++	unsigned long cflags = list->div_flags;
+ 	struct device *dev = ctx->dev;
+ 	struct lgm_clk_divider *div;
+ 	struct clk_init_data init = {};
+@@ -237,7 +214,6 @@ lgm_clk_register_divider(struct lgm_clk_provider *ctx,
+ 	init.num_parents = 1;
+ 
+ 	div->membase = ctx->membase;
+-	div->lock = ctx->lock;
+ 	div->reg = reg;
+ 	div->shift = shift;
+ 	div->width = width;
+@@ -252,11 +228,8 @@ lgm_clk_register_divider(struct lgm_clk_provider *ctx,
+ 	if (ret)
+ 		return ERR_PTR(ret);
+ 
+-	if (cflags & CLOCK_FLAG_VAL_INIT) {
+-		spin_lock_irqsave(&div->lock, flags);
++	if (cflags & CLOCK_FLAG_VAL_INIT)
+ 		lgm_set_clk_val(div->membase, reg, shift, width, list->div_val);
+-		spin_unlock_irqrestore(&div->lock, flags);
+-	}
+ 
+ 	return hw;
+ }
+@@ -265,7 +238,6 @@ static struct clk_hw *
+ lgm_clk_register_fixed_factor(struct lgm_clk_provider *ctx,
+ 			      const struct lgm_clk_branch *list)
+ {
+-	unsigned long flags;
+ 	struct clk_hw *hw;
+ 
+ 	hw = clk_hw_register_fixed_factor(ctx->dev, list->name,
+@@ -274,12 +246,9 @@ lgm_clk_register_fixed_factor(struct lgm_clk_provider *ctx,
+ 	if (IS_ERR(hw))
+ 		return ERR_CAST(hw);
+ 
+-	if (list->div_flags & CLOCK_FLAG_VAL_INIT) {
+-		spin_lock_irqsave(&ctx->lock, flags);
++	if (list->div_flags & CLOCK_FLAG_VAL_INIT)
+ 		lgm_set_clk_val(ctx->membase, list->div_off, list->div_shift,
+ 				list->div_width, list->div_val);
+-		spin_unlock_irqrestore(&ctx->lock, flags);
+-	}
+ 
+ 	return hw;
+ }
+@@ -287,13 +256,10 @@ lgm_clk_register_fixed_factor(struct lgm_clk_provider *ctx,
+ static int lgm_clk_gate_enable(struct clk_hw *hw)
+ {
+ 	struct lgm_clk_gate *gate = to_lgm_clk_gate(hw);
+-	unsigned long flags;
+ 	unsigned int reg;
+ 
+-	spin_lock_irqsave(&gate->lock, flags);
+ 	reg = GATE_HW_REG_EN(gate->reg);
+ 	lgm_set_clk_val(gate->membase, reg, gate->shift, 1, 1);
+-	spin_unlock_irqrestore(&gate->lock, flags);
+ 
+ 	return 0;
+ }
+@@ -301,25 +267,19 @@ static int lgm_clk_gate_enable(struct clk_hw *hw)
+ static void lgm_clk_gate_disable(struct clk_hw *hw)
+ {
+ 	struct lgm_clk_gate *gate = to_lgm_clk_gate(hw);
+-	unsigned long flags;
+ 	unsigned int reg;
+ 
+-	spin_lock_irqsave(&gate->lock, flags);
+ 	reg = GATE_HW_REG_DIS(gate->reg);
+ 	lgm_set_clk_val(gate->membase, reg, gate->shift, 1, 1);
+-	spin_unlock_irqrestore(&gate->lock, flags);
+ }
+ 
+ static int lgm_clk_gate_is_enabled(struct clk_hw *hw)
+ {
+ 	struct lgm_clk_gate *gate = to_lgm_clk_gate(hw);
+ 	unsigned int reg, ret;
+-	unsigned long flags;
+ 
+-	spin_lock_irqsave(&gate->lock, flags);
+ 	reg = GATE_HW_REG_STAT(gate->reg);
+ 	ret = lgm_get_clk_val(gate->membase, reg, gate->shift, 1);
+-	spin_unlock_irqrestore(&gate->lock, flags);
+ 
+ 	return ret;
+ }
+@@ -334,7 +294,7 @@ static struct clk_hw *
+ lgm_clk_register_gate(struct lgm_clk_provider *ctx,
+ 		      const struct lgm_clk_branch *list)
+ {
+-	unsigned long flags, cflags = list->gate_flags;
++	unsigned long cflags = list->gate_flags;
+ 	const char *pname = list->parent_data[0].name;
+ 	struct device *dev = ctx->dev;
+ 	u8 shift = list->gate_shift;
+@@ -355,7 +315,6 @@ lgm_clk_register_gate(struct lgm_clk_provider *ctx,
+ 	init.num_parents = pname ? 1 : 0;
+ 
+ 	gate->membase = ctx->membase;
+-	gate->lock = ctx->lock;
+ 	gate->reg = reg;
+ 	gate->shift = shift;
+ 	gate->flags = cflags;
+@@ -367,9 +326,7 @@ lgm_clk_register_gate(struct lgm_clk_provider *ctx,
+ 		return ERR_PTR(ret);
+ 
+ 	if (cflags & CLOCK_FLAG_VAL_INIT) {
+-		spin_lock_irqsave(&gate->lock, flags);
+ 		lgm_set_clk_val(gate->membase, reg, shift, 1, list->gate_val);
+-		spin_unlock_irqrestore(&gate->lock, flags);
+ 	}
+ 
+ 	return hw;
+@@ -444,24 +401,18 @@ lgm_clk_ddiv_recalc_rate(struct clk_hw *hw, unsigned long parent_rate)
+ static int lgm_clk_ddiv_enable(struct clk_hw *hw)
+ {
+ 	struct lgm_clk_ddiv *ddiv = to_lgm_clk_ddiv(hw);
+-	unsigned long flags;
+ 
+-	spin_lock_irqsave(&ddiv->lock, flags);
+ 	lgm_set_clk_val(ddiv->membase, ddiv->reg, ddiv->shift_gate,
+ 			ddiv->width_gate, 1);
+-	spin_unlock_irqrestore(&ddiv->lock, flags);
+ 	return 0;
+ }
+ 
+ static void lgm_clk_ddiv_disable(struct clk_hw *hw)
+ {
+ 	struct lgm_clk_ddiv *ddiv = to_lgm_clk_ddiv(hw);
+-	unsigned long flags;
+ 
+-	spin_lock_irqsave(&ddiv->lock, flags);
+ 	lgm_set_clk_val(ddiv->membase, ddiv->reg, ddiv->shift_gate,
+ 			ddiv->width_gate, 0);
+-	spin_unlock_irqrestore(&ddiv->lock, flags);
+ }
+ 
+ static int
+@@ -498,32 +449,25 @@ lgm_clk_ddiv_set_rate(struct clk_hw *hw, unsigned long rate,
+ {
+ 	struct lgm_clk_ddiv *ddiv = to_lgm_clk_ddiv(hw);
+ 	u32 div, ddiv1, ddiv2;
+-	unsigned long flags;
+ 
+ 	div = DIV_ROUND_CLOSEST_ULL((u64)prate, rate);
+ 
+-	spin_lock_irqsave(&ddiv->lock, flags);
+ 	if (lgm_get_clk_val(ddiv->membase, ddiv->reg, ddiv->shift2, 1)) {
+ 		div = DIV_ROUND_CLOSEST_ULL((u64)div, 5);
+ 		div = div * 2;
+ 	}
+ 
+-	if (div <= 0) {
+-		spin_unlock_irqrestore(&ddiv->lock, flags);
++	if (div <= 0)
+ 		return -EINVAL;
+-	}
+ 
+-	if (lgm_clk_get_ddiv_val(div, &ddiv1, &ddiv2)) {
+-		spin_unlock_irqrestore(&ddiv->lock, flags);
++	if (lgm_clk_get_ddiv_val(div, &ddiv1, &ddiv2))
+ 		return -EINVAL;
+-	}
+ 
+ 	lgm_set_clk_val(ddiv->membase, ddiv->reg, ddiv->shift0, ddiv->width0,
+ 			ddiv1 - 1);
+ 
+ 	lgm_set_clk_val(ddiv->membase, ddiv->reg,  ddiv->shift1, ddiv->width1,
+ 			ddiv2 - 1);
+-	spin_unlock_irqrestore(&ddiv->lock, flags);
+ 
+ 	return 0;
+ }
+@@ -534,18 +478,15 @@ lgm_clk_ddiv_round_rate(struct clk_hw *hw, unsigned long rate,
+ {
+ 	struct lgm_clk_ddiv *ddiv = to_lgm_clk_ddiv(hw);
+ 	u32 div, ddiv1, ddiv2;
+-	unsigned long flags;
+ 	u64 rate64;
+ 
+ 	div = DIV_ROUND_CLOSEST_ULL((u64)*prate, rate);
+ 
+ 	/* if predivide bit is enabled, modify div by factor of 2.5 */
+-	spin_lock_irqsave(&ddiv->lock, flags);
+ 	if (lgm_get_clk_val(ddiv->membase, ddiv->reg, ddiv->shift2, 1)) {
+ 		div = div * 2;
+ 		div = DIV_ROUND_CLOSEST_ULL((u64)div, 5);
+ 	}
+-	spin_unlock_irqrestore(&ddiv->lock, flags);
+ 
+ 	if (div <= 0)
+ 		return *prate;
+@@ -559,12 +500,10 @@ lgm_clk_ddiv_round_rate(struct clk_hw *hw, unsigned long rate,
+ 	do_div(rate64, ddiv2);
+ 
+ 	/* if predivide bit is enabled, modify rounded rate by factor of 2.5 */
+-	spin_lock_irqsave(&ddiv->lock, flags);
+ 	if (lgm_get_clk_val(ddiv->membase, ddiv->reg, ddiv->shift2, 1)) {
+ 		rate64 = rate64 * 2;
+ 		rate64 = DIV_ROUND_CLOSEST_ULL(rate64, 5);
+ 	}
+-	spin_unlock_irqrestore(&ddiv->lock, flags);
+ 
+ 	return rate64;
+ }
+@@ -601,7 +540,6 @@ int lgm_clk_register_ddiv(struct lgm_clk_provider *ctx,
+ 		init.num_parents = 1;
+ 
+ 		ddiv->membase = ctx->membase;
+-		ddiv->lock = ctx->lock;
+ 		ddiv->reg = list->reg;
+ 		ddiv->shift0 = list->shift0;
+ 		ddiv->width0 = list->width0;
 diff --git a/drivers/clk/x86/clk-cgu.h b/drivers/clk/x86/clk-cgu.h
-index 4e22bfb223128..dbcb664687975 100644
+index dbcb664687975..0aa0f35d63a0b 100644
 --- a/drivers/clk/x86/clk-cgu.h
 +++ b/drivers/clk/x86/clk-cgu.h
-@@ -1,18 +1,19 @@
- /* SPDX-License-Identifier: GPL-2.0 */
- /*
-- * Copyright(c) 2020 Intel Corporation.
-- * Zhu YiXin <yixin.zhu@intel.com>
-- * Rahul Tanwar <rahul.tanwar@intel.com>
-+ * Copyright (C) 2020-2022 MaxLinear, Inc.
-+ * Copyright (C) 2020 Intel Corporation.
-+ * Zhu Yixin <yzhu@maxlinear.com>
-+ * Rahul Tanwar <rtanwar@maxlinear.com>
-  */
- 
- #ifndef __CLK_CGU_H
- #define __CLK_CGU_H
- 
--#include <linux/io.h>
-+#include <linux/regmap.h>
- 
- struct lgm_clk_mux {
- 	struct clk_hw hw;
--	void __iomem *membase;
-+	struct regmap *membase;
- 	unsigned int reg;
+@@ -18,7 +18,6 @@ struct lgm_clk_mux {
  	u8 shift;
  	u8 width;
-@@ -22,7 +23,7 @@ struct lgm_clk_mux {
+ 	unsigned long flags;
+-	spinlock_t lock;
+ };
  
  struct lgm_clk_divider {
- 	struct clk_hw hw;
--	void __iomem *membase;
-+	struct regmap *membase;
- 	unsigned int reg;
- 	u8 shift;
- 	u8 width;
-@@ -35,7 +36,7 @@ struct lgm_clk_divider {
+@@ -31,7 +30,6 @@ struct lgm_clk_divider {
+ 	u8 width_gate;
+ 	unsigned long flags;
+ 	const struct clk_div_table *table;
+-	spinlock_t lock;
+ };
  
  struct lgm_clk_ddiv {
- 	struct clk_hw hw;
--	void __iomem *membase;
-+	struct regmap *membase;
- 	unsigned int reg;
- 	u8 shift0;
- 	u8 width0;
-@@ -53,7 +54,7 @@ struct lgm_clk_ddiv {
+@@ -49,7 +47,6 @@ struct lgm_clk_ddiv {
+ 	unsigned int mult;
+ 	unsigned int div;
+ 	unsigned long flags;
+-	spinlock_t lock;
+ };
  
  struct lgm_clk_gate {
- 	struct clk_hw hw;
--	void __iomem *membase;
-+	struct regmap *membase;
+@@ -58,7 +55,6 @@ struct lgm_clk_gate {
  	unsigned int reg;
  	u8 shift;
  	unsigned long flags;
-@@ -77,7 +78,7 @@ enum lgm_clk_type {
-  * @clk_data: array of hw clocks and clk number.
-  */
- struct lgm_clk_provider {
--	void __iomem *membase;
-+	struct regmap *membase;
+-	spinlock_t lock;
+ };
+ 
+ enum lgm_clk_type {
+@@ -82,7 +78,6 @@ struct lgm_clk_provider {
  	struct device_node *np;
  	struct device *dev;
  	struct clk_hw_onecell_data clk_data;
-@@ -92,7 +93,7 @@ enum pll_type {
+-	spinlock_t lock;
+ };
  
- struct lgm_clk_pll {
- 	struct clk_hw hw;
--	void __iomem *membase;
-+	struct regmap *membase;
+ enum pll_type {
+@@ -97,7 +92,6 @@ struct lgm_clk_pll {
  	unsigned int reg;
  	unsigned long flags;
  	enum pll_type type;
-@@ -300,29 +301,32 @@ struct lgm_clk_branch {
- 		.div = _d,					\
- 	}
+-	spinlock_t lock;
+ };
  
--static inline void lgm_set_clk_val(void __iomem *membase, u32 reg,
-+static inline void lgm_set_clk_val(struct regmap *membase, u32 reg,
- 				   u8 shift, u8 width, u32 set_val)
- {
- 	u32 mask = (GENMASK(width - 1, 0) << shift);
--	u32 regval;
- 
--	regval = readl(membase + reg);
--	regval = (regval & ~mask) | ((set_val << shift) & mask);
--	writel(regval, membase + reg);
-+	regmap_update_bits(membase, reg, mask, set_val << shift);
- }
- 
--static inline u32 lgm_get_clk_val(void __iomem *membase, u32 reg,
-+static inline u32 lgm_get_clk_val(struct regmap *membase, u32 reg,
- 				  u8 shift, u8 width)
- {
- 	u32 mask = (GENMASK(width - 1, 0) << shift);
- 	u32 val;
- 
--	val = readl(membase + reg);
-+	if (regmap_read(membase, reg, &val)) {
-+		WARN_ONCE(1, "Failed to read clk reg: 0x%x\n", reg);
-+		return 0;
-+	}
-+
- 	val = (val & mask) >> shift;
- 
- 	return val;
- }
- 
-+
-+
- int lgm_clk_register_branches(struct lgm_clk_provider *ctx,
- 			      const struct lgm_clk_branch *list,
- 			      unsigned int nr_clk);
+ /**
 diff --git a/drivers/clk/x86/clk-lgm.c b/drivers/clk/x86/clk-lgm.c
-index 020f4e83a5ccb..4fa2bcaf71c89 100644
+index 4fa2bcaf71c89..e312af42e97ae 100644
 --- a/drivers/clk/x86/clk-lgm.c
 +++ b/drivers/clk/x86/clk-lgm.c
-@@ -1,10 +1,12 @@
- // SPDX-License-Identifier: GPL-2.0
- /*
-+ * Copyright (C) 2020-2022 MaxLinear, Inc.
-  * Copyright (C) 2020 Intel Corporation.
-- * Zhu YiXin <yixin.zhu@intel.com>
-- * Rahul Tanwar <rahul.tanwar@intel.com>
-+ * Zhu Yixin <yzhu@maxlinear.com>
-+ * Rahul Tanwar <rtanwar@maxlinear.com>
-  */
- #include <linux/clk-provider.h>
-+#include <linux/mfd/syscon.h>
- #include <linux/of.h>
- #include <linux/platform_device.h>
- #include <dt-bindings/clock/intel,lgm-clk.h>
-@@ -433,9 +435,12 @@ static int lgm_cgu_probe(struct platform_device *pdev)
- 
- 	ctx->clk_data.num = CLK_NR_CLKS;
- 
--	ctx->membase = devm_platform_ioremap_resource(pdev, 0);
--	if (IS_ERR(ctx->membase))
-+	ctx->membase = syscon_node_to_regmap(np);
-+	if (IS_ERR_OR_NULL(ctx->membase)) {
-+		dev_err(dev, "Failed to get clk CGU iomem\n");
- 		return PTR_ERR(ctx->membase);
-+	}
-+
+@@ -444,7 +444,6 @@ static int lgm_cgu_probe(struct platform_device *pdev)
  
  	ctx->np = np;
  	ctx->dev = dev;
+-	spin_lock_init(&ctx->lock);
+ 
+ 	ret = lgm_clk_register_plls(ctx, lgm_pll_clks,
+ 				    ARRAY_SIZE(lgm_pll_clks));
 -- 
 2.39.0
 
