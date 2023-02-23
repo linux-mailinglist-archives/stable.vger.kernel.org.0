@@ -2,50 +2,53 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C0D486A09BC
-	for <lists+stable@lfdr.de>; Thu, 23 Feb 2023 14:09:51 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E1AD66A0995
+	for <lists+stable@lfdr.de>; Thu, 23 Feb 2023 14:08:14 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234414AbjBWNJu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 23 Feb 2023 08:09:50 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38806 "EHLO
+        id S234311AbjBWNIN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 23 Feb 2023 08:08:13 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35946 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234376AbjBWNJr (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 23 Feb 2023 08:09:47 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8F01D5FCE
-        for <stable@vger.kernel.org>; Thu, 23 Feb 2023 05:09:40 -0800 (PST)
+        with ESMTP id S233920AbjBWNII (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 23 Feb 2023 08:08:08 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B12211E9EC
+        for <stable@vger.kernel.org>; Thu, 23 Feb 2023 05:08:03 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 5E046616EC
-        for <stable@vger.kernel.org>; Thu, 23 Feb 2023 13:09:41 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2F953C433EF;
-        Thu, 23 Feb 2023 13:09:39 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 28E2BB81A1D
+        for <stable@vger.kernel.org>; Thu, 23 Feb 2023 13:08:02 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 802ADC433D2;
+        Thu, 23 Feb 2023 13:08:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1677157779;
-        bh=FAvQz87F194rThrz5e7/TWrFIjr0ko8YEiQ+9ws5R8c=;
+        s=korg; t=1677157680;
+        bh=i37TLvNnEmaCtvbJVQ4tQ0P92FxYaxj2ZY3IXFgPfzI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=NJG9ymkvo/syVfHgcdc8doHVjd1cAhJ+40UpKjfSNi8IZJAhSZwT39hymgOQhM1i/
-         hroD0Dy7W6V+c03w9BO5uhXksPEmSe+jQx+s8Oe239P0d/xgz5iekMMcMIgcitkC+z
-         zxqjDQr0KxiXCpltDUsNRRwhcE5T5WJfdR8lIms4=
+        b=RaykJ4AtYiTulG1VGseFV0Y+1ttJMbIowNGJIaw8O/WOWbDeyE7Zidvuss3zWRAxM
+         v9sRE6/qHDIQUcuAQ01nig94//DMR8/ua15eYxKELgJugfDq1ybY8z+QwKbBkrEmrU
+         /9ZgtkQQa2eF6F2GbD8Naou8OT68V2PU0Rh+oPg8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Jisheng Zhang <jszhang@kernel.org>,
-        Palmer Dabbelt <palmer@rivosinc.com>,
-        Tom Saeger <tom.saeger@oracle.com>
-Subject: [PATCH 6.1 34/46] riscv: remove special treatment for the link order of head.o
+        patches@lists.linux.dev, Theodore Tso <tytso@mit.edu>,
+        Eric Biggers <ebiggers@kernel.org>,
+        "Gustavo A. R. Silva" <gustavoars@kernel.org>,
+        Nathan Chancellor <nathan@kernel.org>,
+        Kees Cook <keescook@chromium.org>,
+        Eric Biggers <ebiggers@google.com>
+Subject: [PATCH 5.10 24/25] ext4: Fix function prototype mismatch for ext4_feat_ktype
 Date:   Thu, 23 Feb 2023 14:06:41 +0100
-Message-Id: <20230223130433.179552395@linuxfoundation.org>
+Message-Id: <20230223130427.880094473@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230223130431.553657459@linuxfoundation.org>
-References: <20230223130431.553657459@linuxfoundation.org>
+In-Reply-To: <20230223130426.817998725@linuxfoundation.org>
+References: <20230223130426.817998725@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
         SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -53,35 +56,74 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jisheng Zhang <jszhang@kernel.org>
+From: Kees Cook <keescook@chromium.org>
 
-commit 2348e6bf44213c5f447ff698e43c089185241ed7 upstream.
+commit 118901ad1f25d2334255b3d50512fa20591531cd upstream.
 
-arch/riscv/kernel/head.o does not need any special treatment - the only
-requirement is the ".head.text" section must be placed before the
-normal ".text" section.
+With clang's kernel control flow integrity (kCFI, CONFIG_CFI_CLANG),
+indirect call targets are validated against the expected function
+pointer prototype to make sure the call target is valid to help mitigate
+ROP attacks. If they are not identical, there is a failure at run time,
+which manifests as either a kernel panic or thread getting killed.
 
-The linker script does the right thing to do. The build system does
-not need to manipulate the link order of head.o.
+ext4_feat_ktype was setting the "release" handler to "kfree", which
+doesn't have a matching function prototype. Add a simple wrapper
+with the correct prototype.
 
-Signed-off-by: Jisheng Zhang <jszhang@kernel.org>
-Link: https://lore.kernel.org/r/20221018141200.1040-1-jszhang@kernel.org
-Signed-off-by: Palmer Dabbelt <palmer@rivosinc.com>
-Signed-off-by: Tom Saeger <tom.saeger@oracle.com>
+This was found as a result of Clang's new -Wcast-function-type-strict
+flag, which is more sensitive than the simpler -Wcast-function-type,
+which only checks for type width mismatches.
+
+Note that this code is only reached when ext4 is a loadable module and
+it is being unloaded:
+
+ CFI failure at kobject_put+0xbb/0x1b0 (target: kfree+0x0/0x180; expected type: 0x7c4aa698)
+ ...
+ RIP: 0010:kobject_put+0xbb/0x1b0
+ ...
+ Call Trace:
+  <TASK>
+  ext4_exit_sysfs+0x14/0x60 [ext4]
+  cleanup_module+0x67/0xedb [ext4]
+
+Fixes: b99fee58a20a ("ext4: create ext4_feat kobject dynamically")
+Cc: Theodore Ts'o <tytso@mit.edu>
+Cc: Eric Biggers <ebiggers@kernel.org>
+Cc: stable@vger.kernel.org
+Build-tested-by: Gustavo A. R. Silva <gustavoars@kernel.org>
+Reviewed-by: Gustavo A. R. Silva <gustavoars@kernel.org>
+Reviewed-by: Nathan Chancellor <nathan@kernel.org>
+Link: https://lore.kernel.org/r/20230103234616.never.915-kees@kernel.org
+Signed-off-by: Kees Cook <keescook@chromium.org>
+Reviewed-by: Eric Biggers <ebiggers@google.com>
+Link: https://lore.kernel.org/r/20230104210908.gonna.388-kees@kernel.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- scripts/head-object-list.txt |    1 -
- 1 file changed, 1 deletion(-)
+ fs/ext4/sysfs.c |    7 ++++++-
+ 1 file changed, 6 insertions(+), 1 deletion(-)
 
---- a/scripts/head-object-list.txt
-+++ b/scripts/head-object-list.txt
-@@ -39,7 +39,6 @@ arch/powerpc/kernel/entry_64.o
- arch/powerpc/kernel/fpu.o
- arch/powerpc/kernel/vector.o
- arch/powerpc/kernel/prom_init.o
--arch/riscv/kernel/head.o
- arch/s390/kernel/head64.o
- arch/sh/kernel/head_32.o
- arch/sparc/kernel/head_32.o
+--- a/fs/ext4/sysfs.c
++++ b/fs/ext4/sysfs.c
+@@ -487,6 +487,11 @@ static void ext4_sb_release(struct kobje
+ 	complete(&sbi->s_kobj_unregister);
+ }
+ 
++static void ext4_feat_release(struct kobject *kobj)
++{
++	kfree(kobj);
++}
++
+ static const struct sysfs_ops ext4_attr_ops = {
+ 	.show	= ext4_attr_show,
+ 	.store	= ext4_attr_store,
+@@ -501,7 +506,7 @@ static struct kobj_type ext4_sb_ktype =
+ static struct kobj_type ext4_feat_ktype = {
+ 	.default_groups = ext4_feat_groups,
+ 	.sysfs_ops	= &ext4_attr_ops,
+-	.release	= (void (*)(struct kobject *))kfree,
++	.release	= ext4_feat_release,
+ };
+ 
+ static struct kobject *ext4_root;
 
 
