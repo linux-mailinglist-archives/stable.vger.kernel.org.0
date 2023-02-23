@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 9FC1B6A09E7
-	for <lists+stable@lfdr.de>; Thu, 23 Feb 2023 14:11:01 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7864C6A0A11
+	for <lists+stable@lfdr.de>; Thu, 23 Feb 2023 14:12:58 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234372AbjBWNLA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 23 Feb 2023 08:11:00 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40922 "EHLO
+        id S234410AbjBWNM4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 23 Feb 2023 08:12:56 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43414 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234444AbjBWNK6 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 23 Feb 2023 08:10:58 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 73930567A1
-        for <stable@vger.kernel.org>; Thu, 23 Feb 2023 05:10:45 -0800 (PST)
+        with ESMTP id S234495AbjBWNMz (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 23 Feb 2023 08:12:55 -0500
+Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 70544567A1
+        for <stable@vger.kernel.org>; Thu, 23 Feb 2023 05:12:13 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 2BF3D616E3
-        for <stable@vger.kernel.org>; Thu, 23 Feb 2023 13:10:46 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id F1FEBC433D2;
-        Thu, 23 Feb 2023 13:10:43 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 5E330CE2028
+        for <stable@vger.kernel.org>; Thu, 23 Feb 2023 13:11:35 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2738FC433D2;
+        Thu, 23 Feb 2023 13:11:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1677157844;
-        bh=ou+M19fX2+wZ6xz96RPzOfydbn3RAfH+wtL/CRNbaYo=;
+        s=korg; t=1677157893;
+        bh=12rOCkUg5I01N1GVcXRzv4XGGX3Hbg5cgnLADaKH7TQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=r3Lzfb1RIiRfVeV4XoBTNXh8F1i863U8luPJMbSkmDgTdHbDGuSd6S7BW5I8xeKW5
-         xCdeJRHDRi2Ph8CZiSPOYt0Ah3eWQxAbm6maDS0SgsNqxta7p2HiMUD4cFV/Nglp50
-         ec3MR++9TsJTzIYv3aWlxMW00DzuKeUpBjftf2Lw=
+        b=bg6b9UB7tXpsLLb444pRaPTORsLFsPbh1eNbsQIRE46kykNNcgdRVVawLJdHOWWr2
+         Vzr749sRV/TtRpDuq1PSA/ZnZwYBYr7/rc51Kn66jEyw7UKQUJNW6mGeGoYTZotb9P
+         Pl8seGhEWc7IRaLuwucOyix4V8jWQrc6Tg9dTmk0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Bitterblue Smith <rtl8821cerfe2@gmail.com>,
-        Kalle Valo <kvalo@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 05/18] wifi: rtl8xxxu: gen2: Turn on the rate control
+        patches@lists.linux.dev, Jimmy Assarsson <extja@kvaser.com>,
+        Anssi Hannula <anssi.hannula@bitwise.fi>,
+        Marc Kleine-Budde <mkl@pengutronix.de>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.15 14/36] can: kvaser_usb: hydra: help gcc-13 to figure out cmd_len
 Date:   Thu, 23 Feb 2023 14:06:50 +0100
-Message-Id: <20230223130425.890209141@linuxfoundation.org>
+Message-Id: <20230223130429.732145967@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230223130425.680784802@linuxfoundation.org>
-References: <20230223130425.680784802@linuxfoundation.org>
+In-Reply-To: <20230223130429.072633724@linuxfoundation.org>
+References: <20230223130429.072633724@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,67 +54,243 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Bitterblue Smith <rtl8821cerfe2@gmail.com>
+From: Marc Kleine-Budde <mkl@pengutronix.de>
 
-[ Upstream commit 791082ec0ab843e0be07c8ce3678e4c2afd2e33d ]
+[ Upstream commit f006229135b7debf4037adb1eb93e358559593db ]
 
-Re-enable the function rtl8xxxu_gen2_report_connect.
+Debian's gcc-13 [1] throws the following error in
+kvaser_usb_hydra_cmd_size():
 
-It informs the firmware when connecting to a network. This makes the
-firmware enable the rate control, which makes the upload faster.
+[1] gcc version 13.0.0 20221214 (experimental) [master r13-4693-g512098a3316] (Debian 13-20221214-1)
 
-It also informs the firmware when disconnecting from a network. In the
-past this made reconnecting impossible because it was sending the
-auth on queue 0x7 (TXDESC_QUEUE_VO) instead of queue 0x12
-(TXDESC_QUEUE_MGNT):
+| drivers/net/can/usb/kvaser_usb/kvaser_usb_hydra.c:502:65: error:
+| array subscript ‘struct kvaser_cmd_ext[0]’ is partly outside array
+| bounds of ‘unsigned char[32]’ [-Werror=array-bounds=]
+|   502 |                 ret = le16_to_cpu(((struct kvaser_cmd_ext *)cmd)->len);
 
-wlp0s20f0u3: send auth to 90:55:de:__:__:__ (try 1/3)
-wlp0s20f0u3: send auth to 90:55:de:__:__:__ (try 2/3)
-wlp0s20f0u3: send auth to 90:55:de:__:__:__ (try 3/3)
-wlp0s20f0u3: authentication with 90:55:de:__:__:__ timed out
+kvaser_usb_hydra_cmd_size() returns the size of given command. It
+depends on the command number (cmd->header.cmd_no). For extended
+commands (cmd->header.cmd_no == CMD_EXTENDED) the above shown code is
+executed.
 
-Probably the firmware disables the unnecessary TX queues when it
-knows it's disconnected.
+Help gcc to recognize that this code path is not taken in all cases,
+by calling kvaser_usb_hydra_cmd_size() directly after assigning the
+command number.
 
-However, this was fixed in commit edd5747aa12e ("wifi: rtl8xxxu: Fix
-skb misuse in TX queue selection").
-
-Fixes: c59f13bbead4 ("rtl8xxxu: Work around issue with 8192eu and 8723bu devices not reconnecting")
-Signed-off-by: Bitterblue Smith <rtl8821cerfe2@gmail.com>
-Signed-off-by: Kalle Valo <kvalo@kernel.org>
-Link: https://lore.kernel.org/r/43200afc-0c65-ee72-48f8-231edd1df493@gmail.com
+Fixes: aec5fb2268b7 ("can: kvaser_usb: Add support for Kvaser USB hydra family")
+Cc: Jimmy Assarsson <extja@kvaser.com>
+Cc: Anssi Hannula <anssi.hannula@bitwise.fi>
+Link: https://lore.kernel.org/all/20221219110104.1073881-1-mkl@pengutronix.de
+Tested-by: Jimmy Assarsson <extja@kvaser.com>
+Signed-off-by: Marc Kleine-Budde <mkl@pengutronix.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/wireless/realtek/rtl8xxxu/rtl8xxxu_core.c | 8 ++------
- 1 file changed, 2 insertions(+), 6 deletions(-)
+ .../net/can/usb/kvaser_usb/kvaser_usb_hydra.c | 33 ++++++++++++++-----
+ 1 file changed, 24 insertions(+), 9 deletions(-)
 
-diff --git a/drivers/net/wireless/realtek/rtl8xxxu/rtl8xxxu_core.c b/drivers/net/wireless/realtek/rtl8xxxu/rtl8xxxu_core.c
-index 4a81e810a0ce3..0bc747489c55a 100644
---- a/drivers/net/wireless/realtek/rtl8xxxu/rtl8xxxu_core.c
-+++ b/drivers/net/wireless/realtek/rtl8xxxu/rtl8xxxu_core.c
-@@ -4372,12 +4372,9 @@ void rtl8xxxu_gen1_report_connect(struct rtl8xxxu_priv *priv,
- void rtl8xxxu_gen2_report_connect(struct rtl8xxxu_priv *priv,
- 				  u8 macid, bool connect)
+diff --git a/drivers/net/can/usb/kvaser_usb/kvaser_usb_hydra.c b/drivers/net/can/usb/kvaser_usb/kvaser_usb_hydra.c
+index 6cc65bf28d03e..562105b8a6327 100644
+--- a/drivers/net/can/usb/kvaser_usb/kvaser_usb_hydra.c
++++ b/drivers/net/can/usb/kvaser_usb/kvaser_usb_hydra.c
+@@ -545,6 +545,7 @@ static int kvaser_usb_hydra_send_simple_cmd(struct kvaser_usb *dev,
+ 					    u8 cmd_no, int channel)
  {
--#ifdef RTL8XXXU_GEN2_REPORT_CONNECT
- 	/*
--	 * Barry Day reports this causes issues with 8192eu and 8723bu
--	 * devices reconnecting. The reason for this is unclear, but
--	 * until it is better understood, leave the code in place but
--	 * disabled, so it is not lost.
-+	 * The firmware turns on the rate control when it knows it's
-+	 * connected to a network.
- 	 */
- 	struct h2c_cmd h2c;
+ 	struct kvaser_cmd *cmd;
++	size_t cmd_len;
+ 	int err;
  
-@@ -4390,7 +4387,6 @@ void rtl8xxxu_gen2_report_connect(struct rtl8xxxu_priv *priv,
- 		h2c.media_status_rpt.parm &= ~BIT(0);
+ 	cmd = kcalloc(1, sizeof(struct kvaser_cmd), GFP_KERNEL);
+@@ -552,6 +553,7 @@ static int kvaser_usb_hydra_send_simple_cmd(struct kvaser_usb *dev,
+ 		return -ENOMEM;
  
- 	rtl8xxxu_gen2_h2c_cmd(priv, &h2c, sizeof(h2c.media_status_rpt));
--#endif
- }
+ 	cmd->header.cmd_no = cmd_no;
++	cmd_len = kvaser_usb_hydra_cmd_size(cmd);
+ 	if (channel < 0) {
+ 		kvaser_usb_hydra_set_cmd_dest_he
+ 				(cmd, KVASER_USB_HYDRA_HE_ADDRESS_ILLEGAL);
+@@ -568,7 +570,7 @@ static int kvaser_usb_hydra_send_simple_cmd(struct kvaser_usb *dev,
+ 	kvaser_usb_hydra_set_cmd_transid
+ 				(cmd, kvaser_usb_hydra_get_next_transid(dev));
  
- void rtl8xxxu_gen1_init_aggregation(struct rtl8xxxu_priv *priv)
+-	err = kvaser_usb_send_cmd(dev, cmd, kvaser_usb_hydra_cmd_size(cmd));
++	err = kvaser_usb_send_cmd(dev, cmd, cmd_len);
+ 	if (err)
+ 		goto end;
+ 
+@@ -584,6 +586,7 @@ kvaser_usb_hydra_send_simple_cmd_async(struct kvaser_usb_net_priv *priv,
+ {
+ 	struct kvaser_cmd *cmd;
+ 	struct kvaser_usb *dev = priv->dev;
++	size_t cmd_len;
+ 	int err;
+ 
+ 	cmd = kcalloc(1, sizeof(struct kvaser_cmd), GFP_ATOMIC);
+@@ -591,14 +594,14 @@ kvaser_usb_hydra_send_simple_cmd_async(struct kvaser_usb_net_priv *priv,
+ 		return -ENOMEM;
+ 
+ 	cmd->header.cmd_no = cmd_no;
++	cmd_len = kvaser_usb_hydra_cmd_size(cmd);
+ 
+ 	kvaser_usb_hydra_set_cmd_dest_he
+ 		(cmd, dev->card_data.hydra.channel_to_he[priv->channel]);
+ 	kvaser_usb_hydra_set_cmd_transid
+ 				(cmd, kvaser_usb_hydra_get_next_transid(dev));
+ 
+-	err = kvaser_usb_send_cmd_async(priv, cmd,
+-					kvaser_usb_hydra_cmd_size(cmd));
++	err = kvaser_usb_send_cmd_async(priv, cmd, cmd_len);
+ 	if (err)
+ 		kfree(cmd);
+ 
+@@ -742,6 +745,7 @@ static int kvaser_usb_hydra_get_single_capability(struct kvaser_usb *dev,
+ {
+ 	struct kvaser_usb_dev_card_data *card_data = &dev->card_data;
+ 	struct kvaser_cmd *cmd;
++	size_t cmd_len;
+ 	u32 value = 0;
+ 	u32 mask = 0;
+ 	u16 cap_cmd_res;
+@@ -753,13 +757,14 @@ static int kvaser_usb_hydra_get_single_capability(struct kvaser_usb *dev,
+ 		return -ENOMEM;
+ 
+ 	cmd->header.cmd_no = CMD_GET_CAPABILITIES_REQ;
++	cmd_len = kvaser_usb_hydra_cmd_size(cmd);
+ 	cmd->cap_req.cap_cmd = cpu_to_le16(cap_cmd_req);
+ 
+ 	kvaser_usb_hydra_set_cmd_dest_he(cmd, card_data->hydra.sysdbg_he);
+ 	kvaser_usb_hydra_set_cmd_transid
+ 				(cmd, kvaser_usb_hydra_get_next_transid(dev));
+ 
+-	err = kvaser_usb_send_cmd(dev, cmd, kvaser_usb_hydra_cmd_size(cmd));
++	err = kvaser_usb_send_cmd(dev, cmd, cmd_len);
+ 	if (err)
+ 		goto end;
+ 
+@@ -1582,6 +1587,7 @@ static int kvaser_usb_hydra_get_busparams(struct kvaser_usb_net_priv *priv,
+ 	struct kvaser_usb *dev = priv->dev;
+ 	struct kvaser_usb_net_hydra_priv *hydra = priv->sub_priv;
+ 	struct kvaser_cmd *cmd;
++	size_t cmd_len;
+ 	int err;
+ 
+ 	if (!hydra)
+@@ -1592,6 +1598,7 @@ static int kvaser_usb_hydra_get_busparams(struct kvaser_usb_net_priv *priv,
+ 		return -ENOMEM;
+ 
+ 	cmd->header.cmd_no = CMD_GET_BUSPARAMS_REQ;
++	cmd_len = kvaser_usb_hydra_cmd_size(cmd);
+ 	kvaser_usb_hydra_set_cmd_dest_he
+ 		(cmd, dev->card_data.hydra.channel_to_he[priv->channel]);
+ 	kvaser_usb_hydra_set_cmd_transid
+@@ -1601,7 +1608,7 @@ static int kvaser_usb_hydra_get_busparams(struct kvaser_usb_net_priv *priv,
+ 
+ 	reinit_completion(&priv->get_busparams_comp);
+ 
+-	err = kvaser_usb_send_cmd(dev, cmd, kvaser_usb_hydra_cmd_size(cmd));
++	err = kvaser_usb_send_cmd(dev, cmd, cmd_len);
+ 	if (err)
+ 		return err;
+ 
+@@ -1628,6 +1635,7 @@ static int kvaser_usb_hydra_set_bittiming(const struct net_device *netdev,
+ 	struct kvaser_cmd *cmd;
+ 	struct kvaser_usb_net_priv *priv = netdev_priv(netdev);
+ 	struct kvaser_usb *dev = priv->dev;
++	size_t cmd_len;
+ 	int err;
+ 
+ 	cmd = kcalloc(1, sizeof(struct kvaser_cmd), GFP_KERNEL);
+@@ -1635,6 +1643,7 @@ static int kvaser_usb_hydra_set_bittiming(const struct net_device *netdev,
+ 		return -ENOMEM;
+ 
+ 	cmd->header.cmd_no = CMD_SET_BUSPARAMS_REQ;
++	cmd_len = kvaser_usb_hydra_cmd_size(cmd);
+ 	memcpy(&cmd->set_busparams_req.busparams_nominal, busparams,
+ 	       sizeof(cmd->set_busparams_req.busparams_nominal));
+ 
+@@ -1643,7 +1652,7 @@ static int kvaser_usb_hydra_set_bittiming(const struct net_device *netdev,
+ 	kvaser_usb_hydra_set_cmd_transid
+ 				(cmd, kvaser_usb_hydra_get_next_transid(dev));
+ 
+-	err = kvaser_usb_send_cmd(dev, cmd, kvaser_usb_hydra_cmd_size(cmd));
++	err = kvaser_usb_send_cmd(dev, cmd, cmd_len);
+ 
+ 	kfree(cmd);
+ 
+@@ -1656,6 +1665,7 @@ static int kvaser_usb_hydra_set_data_bittiming(const struct net_device *netdev,
+ 	struct kvaser_cmd *cmd;
+ 	struct kvaser_usb_net_priv *priv = netdev_priv(netdev);
+ 	struct kvaser_usb *dev = priv->dev;
++	size_t cmd_len;
+ 	int err;
+ 
+ 	cmd = kcalloc(1, sizeof(struct kvaser_cmd), GFP_KERNEL);
+@@ -1663,6 +1673,7 @@ static int kvaser_usb_hydra_set_data_bittiming(const struct net_device *netdev,
+ 		return -ENOMEM;
+ 
+ 	cmd->header.cmd_no = CMD_SET_BUSPARAMS_FD_REQ;
++	cmd_len = kvaser_usb_hydra_cmd_size(cmd);
+ 	memcpy(&cmd->set_busparams_req.busparams_data, busparams,
+ 	       sizeof(cmd->set_busparams_req.busparams_data));
+ 
+@@ -1680,7 +1691,7 @@ static int kvaser_usb_hydra_set_data_bittiming(const struct net_device *netdev,
+ 	kvaser_usb_hydra_set_cmd_transid
+ 				(cmd, kvaser_usb_hydra_get_next_transid(dev));
+ 
+-	err = kvaser_usb_send_cmd(dev, cmd, kvaser_usb_hydra_cmd_size(cmd));
++	err = kvaser_usb_send_cmd(dev, cmd, cmd_len);
+ 
+ 	kfree(cmd);
+ 
+@@ -1808,6 +1819,7 @@ static int kvaser_usb_hydra_get_software_info(struct kvaser_usb *dev)
+ static int kvaser_usb_hydra_get_software_details(struct kvaser_usb *dev)
+ {
+ 	struct kvaser_cmd *cmd;
++	size_t cmd_len;
+ 	int err;
+ 	u32 flags;
+ 	struct kvaser_usb_dev_card_data *card_data = &dev->card_data;
+@@ -1817,6 +1829,7 @@ static int kvaser_usb_hydra_get_software_details(struct kvaser_usb *dev)
+ 		return -ENOMEM;
+ 
+ 	cmd->header.cmd_no = CMD_GET_SOFTWARE_DETAILS_REQ;
++	cmd_len = kvaser_usb_hydra_cmd_size(cmd);
+ 	cmd->sw_detail_req.use_ext_cmd = 1;
+ 	kvaser_usb_hydra_set_cmd_dest_he
+ 				(cmd, KVASER_USB_HYDRA_HE_ADDRESS_ILLEGAL);
+@@ -1824,7 +1837,7 @@ static int kvaser_usb_hydra_get_software_details(struct kvaser_usb *dev)
+ 	kvaser_usb_hydra_set_cmd_transid
+ 				(cmd, kvaser_usb_hydra_get_next_transid(dev));
+ 
+-	err = kvaser_usb_send_cmd(dev, cmd, kvaser_usb_hydra_cmd_size(cmd));
++	err = kvaser_usb_send_cmd(dev, cmd, cmd_len);
+ 	if (err)
+ 		goto end;
+ 
+@@ -1942,6 +1955,7 @@ static int kvaser_usb_hydra_set_opt_mode(const struct kvaser_usb_net_priv *priv)
+ {
+ 	struct kvaser_usb *dev = priv->dev;
+ 	struct kvaser_cmd *cmd;
++	size_t cmd_len;
+ 	int err;
+ 
+ 	if ((priv->can.ctrlmode &
+@@ -1957,6 +1971,7 @@ static int kvaser_usb_hydra_set_opt_mode(const struct kvaser_usb_net_priv *priv)
+ 		return -ENOMEM;
+ 
+ 	cmd->header.cmd_no = CMD_SET_DRIVERMODE_REQ;
++	cmd_len = kvaser_usb_hydra_cmd_size(cmd);
+ 	kvaser_usb_hydra_set_cmd_dest_he
+ 		(cmd, dev->card_data.hydra.channel_to_he[priv->channel]);
+ 	kvaser_usb_hydra_set_cmd_transid
+@@ -1966,7 +1981,7 @@ static int kvaser_usb_hydra_set_opt_mode(const struct kvaser_usb_net_priv *priv)
+ 	else
+ 		cmd->set_ctrlmode.mode = KVASER_USB_HYDRA_CTRLMODE_NORMAL;
+ 
+-	err = kvaser_usb_send_cmd(dev, cmd, kvaser_usb_hydra_cmd_size(cmd));
++	err = kvaser_usb_send_cmd(dev, cmd, cmd_len);
+ 	kfree(cmd);
+ 
+ 	return err;
 -- 
 2.39.0
 
