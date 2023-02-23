@@ -2,44 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 52F376A096E
-	for <lists+stable@lfdr.de>; Thu, 23 Feb 2023 14:05:53 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A74316A096F
+	for <lists+stable@lfdr.de>; Thu, 23 Feb 2023 14:05:56 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233541AbjBWNFt (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 23 Feb 2023 08:05:49 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60372 "EHLO
+        id S234309AbjBWNFz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 23 Feb 2023 08:05:55 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60534 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234296AbjBWNFs (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 23 Feb 2023 08:05:48 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 033EF53ED8
-        for <stable@vger.kernel.org>; Thu, 23 Feb 2023 05:05:46 -0800 (PST)
+        with ESMTP id S234296AbjBWNFw (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 23 Feb 2023 08:05:52 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3D6275455D
+        for <stable@vger.kernel.org>; Thu, 23 Feb 2023 05:05:51 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id D0BC9616DD
-        for <stable@vger.kernel.org>; Thu, 23 Feb 2023 13:05:47 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A5921C4339C;
-        Thu, 23 Feb 2023 13:05:45 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id E53C8B81A16
+        for <stable@vger.kernel.org>; Thu, 23 Feb 2023 13:05:49 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4070FC433EF;
+        Thu, 23 Feb 2023 13:05:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1677157546;
-        bh=z730S/5vXkO8OQA9zIOEJ1EJTdJgIRPQix+LqlfHysE=;
+        s=korg; t=1677157548;
+        bh=aNuDsi64DQXSou422APszZ8LlYS5mmSYl2i1XbUlqUY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=sPqeACXXLZkcg8smM97JWAl3djZjj3vOfgKy/yxx+JhC4JEMay5JmXwLGJTjfy8NY
-         whxb+YRA6+e2DZ7dgRqj0mcG1UWpijBkKLT/mYaBjgjC/JusYuzsdZjPNn18LyzIse
-         64Kj5YeyOA35npgajU4LpOO42VvW+i3h/IcD+cUY=
+        b=AEgzIfNcbd7/zyg+DSyWGEgINZnQIu826l1zZ1uADYTAhU1pi/iYZgHD7ZVybnR2T
+         /d7YEj3CiI8uOXS6MVzqDlnHyDbX/V0M40u8QF258xxaaI5LvvqtopU0HTuguHzD4m
+         zkzoFOhnQ7WrCg/RaXsTeP206cSOMMpvQ5RD/3h0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Theodore Tso <tytso@mit.edu>,
-        Eric Biggers <ebiggers@kernel.org>,
-        "Gustavo A. R. Silva" <gustavoars@kernel.org>,
+        patches@lists.linux.dev, Eric Biggers <ebiggers@google.com>,
+        Nick Desaulniers <ndesaulniers@google.com>,
         Nathan Chancellor <nathan@kernel.org>,
-        Kees Cook <keescook@chromium.org>,
-        Eric Biggers <ebiggers@google.com>
-Subject: [PATCH 6.2 10/11] ext4: Fix function prototype mismatch for ext4_feat_ktype
-Date:   Thu, 23 Feb 2023 14:05:04 +0100
-Message-Id: <20230223130426.593865540@linuxfoundation.org>
+        Bill Wendling <morbo@google.com>,
+        Kees Cook <keescook@chromium.org>
+Subject: [PATCH 6.2 11/11] randstruct: disable Clang 15 support
+Date:   Thu, 23 Feb 2023 14:05:05 +0100
+Message-Id: <20230223130426.626952082@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
 In-Reply-To: <20230223130426.170746546@linuxfoundation.org>
 References: <20230223130426.170746546@linuxfoundation.org>
@@ -47,8 +46,8 @@ User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
         SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -56,74 +55,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kees Cook <keescook@chromium.org>
+From: Eric Biggers <ebiggers@google.com>
 
-commit 118901ad1f25d2334255b3d50512fa20591531cd upstream.
+commit 78f7a3fd6dc66cb788c21d7705977ed13c879351 upstream.
 
-With clang's kernel control flow integrity (kCFI, CONFIG_CFI_CLANG),
-indirect call targets are validated against the expected function
-pointer prototype to make sure the call target is valid to help mitigate
-ROP attacks. If they are not identical, there is a failure at run time,
-which manifests as either a kernel panic or thread getting killed.
+The randstruct support released in Clang 15 is unsafe to use due to a
+bug that can cause miscompilations: "-frandomize-layout-seed
+inconsistently randomizes all-function-pointers structs"
+(https://github.com/llvm/llvm-project/issues/60349).  It has been fixed
+on the Clang 16 release branch, so add a Clang version check.
 
-ext4_feat_ktype was setting the "release" handler to "kfree", which
-doesn't have a matching function prototype. Add a simple wrapper
-with the correct prototype.
-
-This was found as a result of Clang's new -Wcast-function-type-strict
-flag, which is more sensitive than the simpler -Wcast-function-type,
-which only checks for type width mismatches.
-
-Note that this code is only reached when ext4 is a loadable module and
-it is being unloaded:
-
- CFI failure at kobject_put+0xbb/0x1b0 (target: kfree+0x0/0x180; expected type: 0x7c4aa698)
- ...
- RIP: 0010:kobject_put+0xbb/0x1b0
- ...
- Call Trace:
-  <TASK>
-  ext4_exit_sysfs+0x14/0x60 [ext4]
-  cleanup_module+0x67/0xedb [ext4]
-
-Fixes: b99fee58a20a ("ext4: create ext4_feat kobject dynamically")
-Cc: Theodore Ts'o <tytso@mit.edu>
-Cc: Eric Biggers <ebiggers@kernel.org>
+Fixes: 035f7f87b729 ("randstruct: Enable Clang support")
 Cc: stable@vger.kernel.org
-Build-tested-by: Gustavo A. R. Silva <gustavoars@kernel.org>
-Reviewed-by: Gustavo A. R. Silva <gustavoars@kernel.org>
+Signed-off-by: Eric Biggers <ebiggers@google.com>
+Acked-by: Nick Desaulniers <ndesaulniers@google.com>
 Reviewed-by: Nathan Chancellor <nathan@kernel.org>
-Link: https://lore.kernel.org/r/20230103234616.never.915-kees@kernel.org
+Reviewed-by: Bill Wendling <morbo@google.com>
 Signed-off-by: Kees Cook <keescook@chromium.org>
-Reviewed-by: Eric Biggers <ebiggers@google.com>
-Link: https://lore.kernel.org/r/20230104210908.gonna.388-kees@kernel.org
+Link: https://lore.kernel.org/r/20230208065133.220589-1-ebiggers@kernel.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/ext4/sysfs.c |    7 ++++++-
- 1 file changed, 6 insertions(+), 1 deletion(-)
+ security/Kconfig.hardening |    3 +++
+ 1 file changed, 3 insertions(+)
 
---- a/fs/ext4/sysfs.c
-+++ b/fs/ext4/sysfs.c
-@@ -491,6 +491,11 @@ static void ext4_sb_release(struct kobje
- 	complete(&sbi->s_kobj_unregister);
- }
+--- a/security/Kconfig.hardening
++++ b/security/Kconfig.hardening
+@@ -281,6 +281,9 @@ endmenu
  
-+static void ext4_feat_release(struct kobject *kobj)
-+{
-+	kfree(kobj);
-+}
-+
- static const struct sysfs_ops ext4_attr_ops = {
- 	.show	= ext4_attr_show,
- 	.store	= ext4_attr_store,
-@@ -505,7 +510,7 @@ static struct kobj_type ext4_sb_ktype =
- static struct kobj_type ext4_feat_ktype = {
- 	.default_groups = ext4_feat_groups,
- 	.sysfs_ops	= &ext4_attr_ops,
--	.release	= (void (*)(struct kobject *))kfree,
-+	.release	= ext4_feat_release,
- };
+ config CC_HAS_RANDSTRUCT
+ 	def_bool $(cc-option,-frandomize-layout-seed-file=/dev/null)
++	# Randstruct was first added in Clang 15, but it isn't safe to use until
++	# Clang 16 due to https://github.com/llvm/llvm-project/issues/60349
++	depends on !CC_IS_CLANG || CLANG_VERSION >= 160000
  
- void ext4_notify_error_sysfs(struct ext4_sb_info *sbi)
+ choice
+ 	prompt "Randomize layout of sensitive kernel structures"
 
 
