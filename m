@@ -2,112 +2,95 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E617F6A0CC5
-	for <lists+stable@lfdr.de>; Thu, 23 Feb 2023 16:21:05 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C624A6A0CBC
+	for <lists+stable@lfdr.de>; Thu, 23 Feb 2023 16:20:54 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234456AbjBWPVD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 23 Feb 2023 10:21:03 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33456 "EHLO
+        id S233473AbjBWPUx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 23 Feb 2023 10:20:53 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33284 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234380AbjBWPVC (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 23 Feb 2023 10:21:02 -0500
-Received: from mail-wr1-x42b.google.com (mail-wr1-x42b.google.com [IPv6:2a00:1450:4864:20::42b])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8130357D21;
-        Thu, 23 Feb 2023 07:21:01 -0800 (PST)
-Received: by mail-wr1-x42b.google.com with SMTP id l1so10680906wry.10;
-        Thu, 23 Feb 2023 07:21:01 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=hu2K9N1s7d8rZuoggXQ62T3TkCxxmvwqtE9EM9xMYtI=;
-        b=FrNrSV78f0/i2S72xDv/wDaVp8uPFOkEuTtKGtGItNkg1NY4Ndna0CT14am2KNO04O
-         D2g9WN1gwtQoqe8eowZPIB1ha5ipKXF3DsXlz+J+f41PW6YiskamUyfs9JnJO2rA3tjs
-         5WYuV4qa4YqBzBZBY8VQgCUMxCNQdqZJwx7h6YESBlKwA9LWtJc9fuz72KUAZ7W91l7O
-         bgsNxbGB6OsvwPWiH4JcIorADhZIKN8F2MDHSPS+NlxTnetTYOPA8CB4Wd7PupVh8Lr1
-         aar3vd1YofQN9r6+Wi1y4JDkxISsEWbLTl01o/VsB88C7+S3YJczjttUy3/uvSzOhQsE
-         7M5g==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=hu2K9N1s7d8rZuoggXQ62T3TkCxxmvwqtE9EM9xMYtI=;
-        b=Ld94N7M5Us4cuSdP8g/LHQ+RBxakjMa0g5qzQR+ZvcRtr+vdlwMfunVC2CDXYXxllM
-         PrL09QXgQBlpzObteD2Y15bniCOcIjUpgbTSwivNwybINxooxfTaK2nnsIq8qIc7aU/B
-         YpCkwZnV0iOhw431dhTc5YDeTHiI00Zgf+vv9tOppEcy71c8kmoQAiw2QTiez6PnTbdb
-         L5qB58PVieoZ+X6Ncm53nLsDb2hdWXk6Ykcv/0PVHXX0b+KjrvSAbkiqk0J8n0DPZCFG
-         ZHDo/4DmOfS9sHC1aj3MzGnFwKXNDHwT6eE5/WqZg+n48t+DI2Z/ufUcAN9299wcjkQ/
-         X8YA==
-X-Gm-Message-State: AO0yUKVnucIZjKR8T88gZvrfjeLxkh2WWGPOLXk8V6JVG0zn6CFRiolD
-        UQ+sKbcUdkfQsyRGkIcvU3M=
-X-Google-Smtp-Source: AK7set/sXECzkm4MstnrYwJK1WtMwcB/QH/NN92+GXlsVdccAU8dQZZk4FXESjlyL6th70OZYbuo+Q==
-X-Received: by 2002:a5d:4808:0:b0:2c7:694:aa18 with SMTP id l8-20020a5d4808000000b002c70694aa18mr7674173wrq.15.1677165661056;
-        Thu, 23 Feb 2023 07:21:01 -0800 (PST)
-Received: from amir-ThinkPad-T480.lan ([5.29.249.86])
-        by smtp.gmail.com with ESMTPSA id k9-20020a5d6289000000b002c56af32e8csm9372590wru.35.2023.02.23.07.20.59
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 23 Feb 2023 07:21:00 -0800 (PST)
-From:   Amir Goldstein <amir73il@gmail.com>
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     Sasha Levin <sashal@kernel.org>,
-        Christian Brauner <brauner@kernel.org>,
-        Miklos Szeredi <miklos@szeredi.hu>,
-        linux-fsdevel@vger.kernel.org, stable@vger.kernel.org
-Subject: [PATCH 6.1 5/5] fs: use consistent setgid checks in is_sxid()
-Date:   Thu, 23 Feb 2023 17:20:44 +0200
-Message-Id: <20230223152044.1064909-6-amir73il@gmail.com>
-X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20230223152044.1064909-1-amir73il@gmail.com>
-References: <20230223152044.1064909-1-amir73il@gmail.com>
+        with ESMTP id S230048AbjBWPUw (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 23 Feb 2023 10:20:52 -0500
+Received: from mga01.intel.com (mga01.intel.com [192.55.52.88])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 028F5570A4
+        for <stable@vger.kernel.org>; Thu, 23 Feb 2023 07:20:51 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
+  t=1677165651; x=1708701651;
+  h=from:to:cc:subject:date:message-id:mime-version:
+   content-transfer-encoding;
+  bh=C7J9mfPQ99h+PpWIb0r1Q/aPVGAydtpIwJaOLnrMRdo=;
+  b=O0JlS0+LYUaCZy45kpoXm9jVf3Y4S2iuavIaXIzebkeKe0w9/y+32Nrd
+   s/IQXuXeiptMP/bLhRy2NMg9Eje6DoQKvLwm5+9KoqB969ehAr9+lS+IR
+   Mq0jBRq6VGrdjrN4Mit9aYZObLp2go4JROEImSQqLlTjoNYiXZNmCTpHp
+   YSNCaIC+TNiEphgk9KfFqnrYt/2G6aC/PVOXuAD/y25EzbUF/3zl+4NF1
+   n7skeVSOOhqh9ZrfzFCKeG7ZYTyIuUz1xm+u38BO7v7LM8IVxoNjv2llg
+   iBT4/Cay16SVifDanqsSMpJY5CfhJJq759l4Qed0fhZFUyIn4OLqFZfOr
+   Q==;
+X-IronPort-AV: E=McAfee;i="6500,9779,10630"; a="360729626"
+X-IronPort-AV: E=Sophos;i="5.97,320,1669104000"; 
+   d="scan'208";a="360729626"
+Received: from fmsmga007.fm.intel.com ([10.253.24.52])
+  by fmsmga101.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 23 Feb 2023 07:20:51 -0800
+X-ExtLoop1: 1
+X-IronPort-AV: E=McAfee;i="6500,9779,10630"; a="674563911"
+X-IronPort-AV: E=Sophos;i="5.97,320,1669104000"; 
+   d="scan'208";a="674563911"
+Received: from stinkpipe.fi.intel.com (HELO stinkbox) ([10.237.72.70])
+  by fmsmga007.fm.intel.com with SMTP; 23 Feb 2023 07:20:49 -0800
+Received: by stinkbox (sSMTP sendmail emulation); Thu, 23 Feb 2023 17:20:48 +0200
+From:   Ville Syrjala <ville.syrjala@linux.intel.com>
+To:     intel-gfx@lists.freedesktop.org
+Cc:     stable@vger.kernel.org, Lee Shawn C <shawn.c.lee@intel.com>
+Subject: [PATCH] drm/i915: Preserve crtc_state->inherited during state clearing
+Date:   Thu, 23 Feb 2023 17:20:48 +0200
+Message-Id: <20230223152048.20878-1-ville.syrjala@linux.intel.com>
+X-Mailer: git-send-email 2.39.2
 MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_FROM,
-        RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS autolearn=ham
-        autolearn_force=no version=3.4.6
+X-Spam-Status: No, score=-4.3 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
+        RCVD_IN_MSPIKE_H3,RCVD_IN_MSPIKE_WL,SPF_HELO_NONE,SPF_NONE
+        autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Christian Brauner <brauner@kernel.org>
+From: Ville Syrjälä <ville.syrjala@linux.intel.com>
 
-commit 8d84e39d76bd83474b26cb44f4b338635676e7e8 upstream.
+intel_crtc_prepare_cleared_state() is unintentionally losing
+the "inherited" flag. This will happen if intel_initial_commit()
+is forced to go through the full modeset calculations for
+whatever reason.
 
-Now that we made the VFS setgid checking consistent an inode can't be
-marked security irrelevant even if the setgid bit is still set. Make
-this function consistent with all other helpers.
+Afterwards the first real commit from userspace will not get
+forced to the full modeset path, and thus eg. audio state may
+not get recomputed properly. So if the monitor was already
+enabled during boot audio will not work until userspace itself
+does an explicit full modeset.
 
-Note that enforcing consistent setgid stripping checks for file
-modification and mode- and ownership changes will cause the setgid bit
-to be lost in more cases than useed to be the case. If an unprivileged
-user wrote to a non-executable setgid file that they don't have
-privilege over the setgid bit will be dropped. This will lead to
-temporary failures in some xfstests until they have been updated.
-
-Reported-by: Miklos Szeredi <miklos@szeredi.hu>
-Signed-off-by: Christian Brauner (Microsoft) <brauner@kernel.org>
-Signed-off-by: Amir Goldstein <amir73il@gmail.com>
+Cc: stable@vger.kernel.org
+Tested-by: Lee Shawn C <shawn.c.lee@intel.com>
+Signed-off-by: Ville Syrjälä <ville.syrjala@linux.intel.com>
 ---
- include/linux/fs.h | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/gpu/drm/i915/display/intel_display.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/include/linux/fs.h b/include/linux/fs.h
-index ed555aa9bf48..f14ecbeab2a9 100644
---- a/include/linux/fs.h
-+++ b/include/linux/fs.h
-@@ -3549,7 +3549,7 @@ int __init list_bdev_fs_names(char *buf, size_t size);
+diff --git a/drivers/gpu/drm/i915/display/intel_display.c b/drivers/gpu/drm/i915/display/intel_display.c
+index a1fbdf32bd21..ed95c0acfaae 100644
+--- a/drivers/gpu/drm/i915/display/intel_display.c
++++ b/drivers/gpu/drm/i915/display/intel_display.c
+@@ -5078,6 +5078,7 @@ intel_crtc_prepare_cleared_state(struct intel_atomic_state *state,
+ 	 * only fields that are know to not cause problems are preserved. */
  
- static inline bool is_sxid(umode_t mode)
- {
--	return (mode & S_ISUID) || ((mode & S_ISGID) && (mode & S_IXGRP));
-+	return mode & (S_ISUID | S_ISGID);
- }
- 
- static inline int check_sticky(struct user_namespace *mnt_userns,
+ 	saved_state->uapi = crtc_state->uapi;
++	saved_state->inherited = crtc_state->inherited;
+ 	saved_state->scaler_state = crtc_state->scaler_state;
+ 	saved_state->shared_dpll = crtc_state->shared_dpll;
+ 	saved_state->dpll_hw_state = crtc_state->dpll_hw_state;
 -- 
-2.34.1
+2.39.2
 
