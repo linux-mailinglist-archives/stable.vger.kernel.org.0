@@ -2,51 +2,52 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 1F4CE6A099E
-	for <lists+stable@lfdr.de>; Thu, 23 Feb 2023 14:08:39 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B6B146A09A8
+	for <lists+stable@lfdr.de>; Thu, 23 Feb 2023 14:08:53 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233338AbjBWNIi (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 23 Feb 2023 08:08:38 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36264 "EHLO
+        id S234008AbjBWNIw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 23 Feb 2023 08:08:52 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37298 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233819AbjBWNIa (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 23 Feb 2023 08:08:30 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3601A4EC4
-        for <stable@vger.kernel.org>; Thu, 23 Feb 2023 05:08:29 -0800 (PST)
+        with ESMTP id S234350AbjBWNIt (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 23 Feb 2023 08:08:49 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E11E95FDF
+        for <stable@vger.kernel.org>; Thu, 23 Feb 2023 05:08:45 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id E7AA1B81A02
-        for <stable@vger.kernel.org>; Thu, 23 Feb 2023 13:08:27 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5A08EC433EF;
-        Thu, 23 Feb 2023 13:08:26 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id BEB6B61702
+        for <stable@vger.kernel.org>; Thu, 23 Feb 2023 13:08:46 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8AF28C4339B;
+        Thu, 23 Feb 2023 13:08:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1677157706;
-        bh=FqFJWUAzxIajb3kN1r86rt4j4/zmmP/0XqtS3nOLSfA=;
+        s=korg; t=1677157724;
+        bh=FJn8N3A4s3Mr+6qBnhG+biXHH6DNp00RbjSRzR7pBRc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=k9EQfMSgA4j6rcc5skEp9g1mEAXq/hd7g3Y4KS8mXHjm0a+h8Jcx70Eyv3787FgNP
-         rQnfmUO4eKvtWm5zSJxyExIG+HMPhtLMDBlA42RyPqIrhTWivKF6E09Q2AVwerQ9eV
-         nyZv5O1TlPiJoCnHAUaxcxd8ET2m2KqzPiYxHqcM=
+        b=Rshi1Q1mpwmohRcLDMn5e+A6mU9icmEL8N6Cy/7/kAOW1r1TkRrKWti6kbEosXLeM
+         PU5YGv+3az7xBzU0EEensbbclvKMFjta8uvDWKRvT7xztL8MMUbC3f5tPwgBuv6bMX
+         wm9f12cU9hoh6/z33DjUv5ERHzC2sD5cZLIeeH78=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Yi xin Zhu <yzhu@maxlinear.com>,
-        Rahul Tanwar <rtanwar@maxlinear.com>,
-        Stephen Boyd <sboyd@kernel.org>,
+        patches@lists.linux.dev, Ricardo Ribalda <ribalda@chromium.org>,
+        AngeloGioacchino Del Regno 
+        <angelogioacchino.delregno@collabora.com>,
+        Mark Brown <broonie@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 05/25] clk: mxl: Add option to override gate clks
+Subject: [PATCH 6.1 15/46] spi: mediatek: Enable irq when pdata is ready
 Date:   Thu, 23 Feb 2023 14:06:22 +0100
-Message-Id: <20230223130427.024627546@linuxfoundation.org>
+Message-Id: <20230223130432.252826964@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230223130426.817998725@linuxfoundation.org>
-References: <20230223130426.817998725@linuxfoundation.org>
+In-Reply-To: <20230223130431.553657459@linuxfoundation.org>
+References: <20230223130431.553657459@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
         SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -54,71 +55,60 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Rahul Tanwar <rtanwar@maxlinear.com>
+From: Ricardo Ribalda <ribalda@chromium.org>
 
-[ Upstream commit a5d49bd369b8588c0ee9d4d0a2c0160558a3ab69 ]
+[ Upstream commit c6f7874687f7027d7c4b2f53ff6e4d22850f915d ]
 
-In MxL's LGM SoC, gate clocks can be controlled either from CGU clk driver
-i.e. this driver or directly from power management driver/daemon. It is
-dependent on the power policy/profile requirements of the end product.
+If the device does not come straight from reset, we might receive an IRQ
+before we are ready to handle it.
 
-To support such use cases, provide option to override gate clks enable/disable
-by adding a flag GATE_CLK_HW which controls if these gate clks are controlled
-by HW i.e. this driver or overridden in order to allow it to be controlled
-by power profiles instead.
+Fixes:
 
-Reviewed-by: Yi xin Zhu <yzhu@maxlinear.com>
-Signed-off-by: Rahul Tanwar <rtanwar@maxlinear.com>
-Link: https://lore.kernel.org/r/bdc9c89317b5d338a6c4f1d49386b696e947a672.1665642720.git.rtanwar@maxlinear.com
-[sboyd@kernel.org: Add braces on many line if-else]
-Signed-off-by: Stephen Boyd <sboyd@kernel.org>
-Stable-dep-of: 106ef3bda210 ("clk: mxl: Fix a clk entry by adding relevant flags")
+[    0.832328] Unable to handle kernel read from unreadable memory at virtual address 0000000000000010
+[    1.040343] Call trace:
+[    1.040347]  mtk_spi_can_dma+0xc/0x40
+...
+[    1.262265]  start_kernel+0x338/0x42c
+
+Signed-off-by: Ricardo Ribalda <ribalda@chromium.org>
+Reviewed-by: AngeloGioacchino Del Regno <angelogioacchino.delregno@collabora.com>
+Link: https://lore.kernel.org/r/20221128-spi-mt65xx-v1-0-509266830665@chromium.org
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/clk/x86/clk-cgu.c | 16 +++++++++++++++-
- drivers/clk/x86/clk-cgu.h |  1 +
- 2 files changed, 16 insertions(+), 1 deletion(-)
+ drivers/spi/spi-mt65xx.c | 12 +++++++-----
+ 1 file changed, 7 insertions(+), 5 deletions(-)
 
-diff --git a/drivers/clk/x86/clk-cgu.c b/drivers/clk/x86/clk-cgu.c
-index 1f7e93de67bc0..4278a687076c9 100644
---- a/drivers/clk/x86/clk-cgu.c
-+++ b/drivers/clk/x86/clk-cgu.c
-@@ -354,8 +354,22 @@ int lgm_clk_register_branches(struct lgm_clk_provider *ctx,
- 			hw = lgm_clk_register_fixed_factor(ctx, list);
- 			break;
- 		case CLK_TYPE_GATE:
--			hw = lgm_clk_register_gate(ctx, list);
-+			if (list->gate_flags & GATE_CLK_HW) {
-+				hw = lgm_clk_register_gate(ctx, list);
-+			} else {
-+				/*
-+				 * GATE_CLKs can be controlled either from
-+				 * CGU clk driver i.e. this driver or directly
-+				 * from power management driver/daemon. It is
-+				 * dependent on the power policy/profile requirements
-+				 * of the end product. To override control of gate
-+				 * clks from this driver, provide NULL for this index
-+				 * of gate clk provider.
-+				 */
-+				hw = NULL;
-+			}
- 			break;
-+
- 		default:
- 			dev_err(ctx->dev, "invalid clk type\n");
- 			return -EINVAL;
-diff --git a/drivers/clk/x86/clk-cgu.h b/drivers/clk/x86/clk-cgu.h
-index 0aa0f35d63a0b..73ce84345f81e 100644
---- a/drivers/clk/x86/clk-cgu.h
-+++ b/drivers/clk/x86/clk-cgu.h
-@@ -197,6 +197,7 @@ struct lgm_clk_branch {
- /* clock flags definition */
- #define CLOCK_FLAG_VAL_INIT	BIT(16)
- #define MUX_CLK_SW		BIT(17)
-+#define GATE_CLK_HW		BIT(18)
+diff --git a/drivers/spi/spi-mt65xx.c b/drivers/spi/spi-mt65xx.c
+index d6aff909fc365..6de8360e5c2a9 100644
+--- a/drivers/spi/spi-mt65xx.c
++++ b/drivers/spi/spi-mt65xx.c
+@@ -1192,11 +1192,6 @@ static int mtk_spi_probe(struct platform_device *pdev)
+ 	else
+ 		dma_set_max_seg_size(dev, SZ_256K);
  
- #define LGM_MUX(_id, _name, _pdata, _f, _reg,		\
- 		_shift, _width, _cf, _v)		\
+-	ret = devm_request_irq(dev, irq, mtk_spi_interrupt,
+-			       IRQF_TRIGGER_NONE, dev_name(dev), master);
+-	if (ret)
+-		return dev_err_probe(dev, ret, "failed to register irq\n");
+-
+ 	mdata->parent_clk = devm_clk_get(dev, "parent-clk");
+ 	if (IS_ERR(mdata->parent_clk))
+ 		return dev_err_probe(dev, PTR_ERR(mdata->parent_clk),
+@@ -1266,6 +1261,13 @@ static int mtk_spi_probe(struct platform_device *pdev)
+ 		return dev_err_probe(dev, ret, "failed to register master\n");
+ 	}
+ 
++	ret = devm_request_irq(dev, irq, mtk_spi_interrupt,
++			       IRQF_TRIGGER_NONE, dev_name(dev), master);
++	if (ret) {
++		pm_runtime_disable(dev);
++		return dev_err_probe(dev, ret, "failed to register irq\n");
++	}
++
+ 	return 0;
+ }
+ 
 -- 
 2.39.0
 
