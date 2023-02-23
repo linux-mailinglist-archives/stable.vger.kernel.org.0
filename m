@@ -2,40 +2,39 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 7BECF6A0A3C
-	for <lists+stable@lfdr.de>; Thu, 23 Feb 2023 14:13:49 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 753506A0A2C
+	for <lists+stable@lfdr.de>; Thu, 23 Feb 2023 14:13:26 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234583AbjBWNNs (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 23 Feb 2023 08:13:48 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43516 "EHLO
+        id S234514AbjBWNNU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 23 Feb 2023 08:13:20 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43650 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234601AbjBWNNl (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 23 Feb 2023 08:13:41 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7559A52DD4
-        for <stable@vger.kernel.org>; Thu, 23 Feb 2023 05:13:18 -0800 (PST)
+        with ESMTP id S234528AbjBWNNR (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 23 Feb 2023 08:13:17 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4681E56792
+        for <stable@vger.kernel.org>; Thu, 23 Feb 2023 05:12:46 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id E2F33B81A22
-        for <stable@vger.kernel.org>; Thu, 23 Feb 2023 13:12:42 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 575EBC433EF;
-        Thu, 23 Feb 2023 13:12:41 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 2107D616E9
+        for <stable@vger.kernel.org>; Thu, 23 Feb 2023 13:12:46 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E1351C433D2;
+        Thu, 23 Feb 2023 13:12:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1677157961;
-        bh=LEV9EJzGjWl5bqmd8gKvZW97vEYWcui7Qi40BCVlsK4=;
+        s=korg; t=1677157964;
+        bh=NKTH4M2ax1KxHTUI0B2E/lKLTxjp+3crXNaQFrPx5xg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=pvOmHnGYPUJOXYC2WD53Icp48smSoed6o7C7D+pVMNqZvGLiCoiY5aAXRr9B0D0ej
-         K2asGlD6CYtjYj1kzk8cWFRwQiCwqgZ8oBWloM91ttfg68xBn66RazZ4a4n9Ixgeev
-         LF79DLYvc8ZOmNffcKxNEU0z6bbxL0EuRAO1Kj7c=
+        b=fJMvIfSb8b+RDHgs1ex/xSWNwrezXDA5X/NyOs9p1EnrLkLdILArYb9n8okE5tn3D
+         mfrPXOL+nl/ldtH9+xOKSNH61T7gBryV+O6Uh15aMh9Ttjkqe4cuPx+i+8r0pKegUR
+         Ya9QTmE2TArL83H5OTHGW3/vusqJPNPoIohGEf+0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Lukas Wunner <lukas@wunner.de>,
-        Matt Ranostay <mranostay@ti.com>, Kalle Valo <kvalo@kernel.org>
-Subject: [PATCH 5.15 29/36] wifi: mwifiex: Add missing compatible string for SD8787
-Date:   Thu, 23 Feb 2023 14:07:05 +0100
-Message-Id: <20230223130430.418308163@linuxfoundation.org>
+        patches@lists.linux.dev, Paul Moore <paul@paul-moore.com>
+Subject: [PATCH 5.15 30/36] audit: update the mailing list in MAINTAINERS
+Date:   Thu, 23 Feb 2023 14:07:06 +0100
+Message-Id: <20230223130430.459656371@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
 In-Reply-To: <20230223130429.072633724@linuxfoundation.org>
 References: <20230223130429.072633724@linuxfoundation.org>
@@ -43,8 +42,8 @@ User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
         SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -52,34 +51,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Lukas Wunner <lukas@wunner.de>
+From: Paul Moore <paul@paul-moore.com>
 
-commit 36dd7a4c6226133b0b7aa92b8e604e688d958d0c upstream.
+commit 6c6cd913accd77008f74a1a9d57b816db3651daa upstream.
 
-Commit e3fffc1f0b47 ("devicetree: document new marvell-8xxx and
-pwrseq-sd8787 options") documented a compatible string for SD8787 in
-the devicetree bindings, but neglected to add it to the mwifiex driver.
+We've moved the upstream Linux Kernel audit subsystem discussions to
+a new mailing list, this patch updates the MAINTAINERS info with the
+new list address.
 
-Fixes: e3fffc1f0b47 ("devicetree: document new marvell-8xxx and pwrseq-sd8787 options")
-Signed-off-by: Lukas Wunner <lukas@wunner.de>
-Cc: stable@vger.kernel.org # v4.11+
-Cc: Matt Ranostay <mranostay@ti.com>
-Signed-off-by: Kalle Valo <kvalo@kernel.org>
-Link: https://lore.kernel.org/r/320de5005ff3b8fd76be2d2b859fd021689c3681.1674827105.git.lukas@wunner.de
+Marking this for stable inclusion to help speed uptake of the new
+list across all of the supported kernel releases.  This is a doc only
+patch so the risk should be close to nil.
+
+Cc: stable@vger.kernel.org
+Signed-off-by: Paul Moore <paul@paul-moore.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/wireless/marvell/mwifiex/sdio.c |    1 +
- 1 file changed, 1 insertion(+)
+ MAINTAINERS |    2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/net/wireless/marvell/mwifiex/sdio.c
-+++ b/drivers/net/wireless/marvell/mwifiex/sdio.c
-@@ -485,6 +485,7 @@ static struct memory_type_mapping mem_ty
- };
- 
- static const struct of_device_id mwifiex_sdio_of_match_table[] = {
-+	{ .compatible = "marvell,sd8787" },
- 	{ .compatible = "marvell,sd8897" },
- 	{ .compatible = "marvell,sd8997" },
- 	{ }
+--- a/MAINTAINERS
++++ b/MAINTAINERS
+@@ -3114,7 +3114,7 @@ F:	drivers/net/ieee802154/atusb.h
+ AUDIT SUBSYSTEM
+ M:	Paul Moore <paul@paul-moore.com>
+ M:	Eric Paris <eparis@redhat.com>
+-L:	linux-audit@redhat.com (moderated for non-subscribers)
++L:	audit@vger.kernel.org
+ S:	Supported
+ W:	https://github.com/linux-audit
+ T:	git git://git.kernel.org/pub/scm/linux/kernel/git/pcmoore/audit.git
 
 
