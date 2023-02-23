@@ -2,77 +2,69 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A41906A11D1
-	for <lists+stable@lfdr.de>; Thu, 23 Feb 2023 22:18:55 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 86CEC6A11DD
+	for <lists+stable@lfdr.de>; Thu, 23 Feb 2023 22:22:18 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229690AbjBWVSy (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 23 Feb 2023 16:18:54 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60696 "EHLO
+        id S229561AbjBWVWR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 23 Feb 2023 16:22:17 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35758 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229515AbjBWVSx (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 23 Feb 2023 16:18:53 -0500
-Received: from mail-ed1-x532.google.com (mail-ed1-x532.google.com [IPv6:2a00:1450:4864:20::532])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9EF461968C
-        for <stable@vger.kernel.org>; Thu, 23 Feb 2023 13:18:52 -0800 (PST)
-Received: by mail-ed1-x532.google.com with SMTP id ck15so48510684edb.0
-        for <stable@vger.kernel.org>; Thu, 23 Feb 2023 13:18:52 -0800 (PST)
+        with ESMTP id S229541AbjBWVWQ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 23 Feb 2023 16:22:16 -0500
+Received: from mail-oa1-x2f.google.com (mail-oa1-x2f.google.com [IPv6:2001:4860:4864:20::2f])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C6A633A086
+        for <stable@vger.kernel.org>; Thu, 23 Feb 2023 13:22:13 -0800 (PST)
+Received: by mail-oa1-x2f.google.com with SMTP id 586e51a60fabf-1720600a5f0so17271153fac.11
+        for <stable@vger.kernel.org>; Thu, 23 Feb 2023 13:22:13 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linux-foundation.org; s=google;
-        h=cc:to:subject:message-id:date:from:in-reply-to:references
-         :mime-version:from:to:cc:subject:date:message-id:reply-to;
-        bh=o5EaUMxUu98mAPL68+dXX7WmuwtBVQHznLgjebwlQ4I=;
-        b=Pl3dZ9xTbzURMJzx/eGGIQXnmfoYM03pN0WhMPpwPgnrLPDyz+genkT2s+ds1BpkV6
-         twgQRI8jT/MQAGxLGHvJ8M2g8/XP/ZqA8moBtTkD1S/r7vQSfaSuRiHAxK/lkLQc1hyl
-         4pyuSAjtf+qu+jr1Ej+LvtHyHtN7af3Z5Hg1Y=
+        d=linuxtx.org; s=google;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:sender:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=MR/wZWU2MfoFRQ1v+7cKSnHFZsY23JIISa7d2BB/xDw=;
+        b=gnlm6qqm+pKeTnQUt25QkCdqaKjsMqxEzdxBT2onwFCGeeoU/RX6AiJvOKSNz2vu8t
+         WWhTLNa71MwiwFbPcOsojyIOB93o/chFjDCOZ5emsnliYFtutOOIByme3ZvwTfS7pNi7
+         1QzSQu7H5DuoLcGgRc3x35WvnGW6ZXRYykvXs=
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=cc:to:subject:message-id:date:from:in-reply-to:references
-         :mime-version:x-gm-message-state:from:to:cc:subject:date:message-id
-         :reply-to;
-        bh=o5EaUMxUu98mAPL68+dXX7WmuwtBVQHznLgjebwlQ4I=;
-        b=gsQ4DvfO3mwXosvZGMm2cIjpe8mEkIHkR9XWl6cWcKKULfYmQjM0YBBRv/rjiQNf+f
-         aFfB1ZthbKRW44JPljYOeooQqfWHqco5xisuMrTRuDTCUw5LhYy9zHy9Jmz+bBgX8xPg
-         z2jELFULhzUR2u1DUg77cJEdSDJw1qQYDVi1v8UGqqRXpqLAv6T49lOUPc96h/fNCk8M
-         zoymzJa9qslzB/JtpSE1auvIRxIInh3KAL4propfx2O2IkWgi33AvvjhdzazJNOoxGO7
-         D5rvzr7NhZvVPdva/NWf+VeztIYijEPsqIZQftmnVuQgRvf6TYDKUg/4o/6i/2vkT9HA
-         Vgrw==
-X-Gm-Message-State: AO0yUKXSS28+EYiV4OOMl+f02RyLjWzMBM+Oh2ntaFfvaKNOF1HIpHzb
-        d2iswCX+Of2JVkkxEy83UALIcwakCG/J6sLBOoWMzA==
-X-Google-Smtp-Source: AK7set+eJ6x5K8xGBEGmDh+ijbAmgFfLoqGDXbcpc5LBXgyU3HfCfLoCvKY5Xp70weWkVbXOAbKQ1A==
-X-Received: by 2002:aa7:d650:0:b0:4ac:bd6f:cacc with SMTP id v16-20020aa7d650000000b004acbd6fcaccmr11571471edr.12.1677187130800;
-        Thu, 23 Feb 2023 13:18:50 -0800 (PST)
-Received: from mail-ed1-f41.google.com (mail-ed1-f41.google.com. [209.85.208.41])
-        by smtp.gmail.com with ESMTPSA id i25-20020a508719000000b004acb42134c4sm4791639edb.70.2023.02.23.13.18.49
-        for <stable@vger.kernel.org>
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Thu, 23 Feb 2023 13:18:50 -0800 (PST)
-Received: by mail-ed1-f41.google.com with SMTP id ee7so32136649edb.2
-        for <stable@vger.kernel.org>; Thu, 23 Feb 2023 13:18:49 -0800 (PST)
-X-Received: by 2002:a17:906:8508:b0:8d0:2c55:1aa with SMTP id
- i8-20020a170906850800b008d02c5501aamr7232357ejx.0.1677187129340; Thu, 23 Feb
- 2023 13:18:49 -0800 (PST)
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:sender:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=MR/wZWU2MfoFRQ1v+7cKSnHFZsY23JIISa7d2BB/xDw=;
+        b=bcWnKVa3lHBGusDQyJ4zwtuMjaUMAFnDYEK/lZIs6eDCJYfGH0Dt8w9zpD3uegXm1E
+         uI8cofltnJAvfVvhrHzVhSNzoSRnGP+gh1cpdge70YElkZ5K0/oaGfvrh+E3Hd5EJoGS
+         BBWjlhfRy0MyfZjIQ4qGWZe0qkXOwwkhxsI9N+HvUFUJ5/jCCpBtemZhQ0mqQsnZBgZz
+         8IbY+2pI0a03oN06++gaNTI48BIbsyBsHTmxPhVkw/y72MSm8HPvnc+u1RSJvYsZatfS
+         fVwLT7g+kkHvNCC+bHbZYJeUFKOx1kYE8ilABeah47zpl7wcbfT3DsVgdbZtvpY9yb94
+         NfEQ==
+X-Gm-Message-State: AO0yUKVJAM0bqvLqrIsYlqHJsgbllUz4euqQjrxvVDCW/13HlKkxyQbt
+        l1dQW/Pe9B7rz1O4gwvt3jvUTQ==
+X-Google-Smtp-Source: AK7set/sNTT/yVsjpy2r6Q45tjgpi4iYIES3szcYTXf/crw9zO/9Jy3SH3xCxYjDgrQkEB4gcdy05Q==
+X-Received: by 2002:a05:6870:b529:b0:172:1f39:2b9b with SMTP id v41-20020a056870b52900b001721f392b9bmr7747035oap.44.1677187333019;
+        Thu, 23 Feb 2023 13:22:13 -0800 (PST)
+Received: from fedora64.linuxtx.org (99-47-93-78.lightspeed.rcsntx.sbcglobal.net. [99.47.93.78])
+        by smtp.gmail.com with ESMTPSA id dy26-20020a056870c79a00b001723d62f997sm2386066oab.32.2023.02.23.13.22.12
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Thu, 23 Feb 2023 13:22:12 -0800 (PST)
+Sender: Justin Forbes <jmforbes@linuxtx.org>
+Date:   Thu, 23 Feb 2023 15:22:10 -0600
+From:   Justin Forbes <jforbes@fedoraproject.org>
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc:     stable@vger.kernel.org, patches@lists.linux.dev,
+        linux-kernel@vger.kernel.org, torvalds@linux-foundation.org,
+        akpm@linux-foundation.org, linux@roeck-us.net, shuah@kernel.org,
+        patches@kernelci.org, lkft-triage@lists.linaro.org, pavel@denx.de,
+        jonathanh@nvidia.com, f.fainelli@gmail.com,
+        sudipm.mukherjee@gmail.com, srw@sladewatkins.net, rwarsow@gmx.de
+Subject: Re: [PATCH 6.1 00/47] 6.1.14-rc2 review
+Message-ID: <Y/fZAqSWZOpL5xPZ@fedora64.linuxtx.org>
+References: <20230223141545.280864003@linuxfoundation.org>
 MIME-Version: 1.0
-References: <20230223141542.672463796@linuxfoundation.org> <adc1b0b7-f837-fbb4-332b-4ce18fc55709@roeck-us.net>
- <Y/eVSi4ZTcOmPBTv@kroah.com> <cfd03ee0-b47a-644d-4364-79601025f35f@roeck-us.net>
- <CAHk-=whCG1zudvDsqdFo89pHARvDv4=r6vaZ8GWc_Q9amxBM6Q@mail.gmail.com> <Y/fC3d3RqoeawG0Y@dev-arch.thelio-3990X>
-In-Reply-To: <Y/fC3d3RqoeawG0Y@dev-arch.thelio-3990X>
-From:   Linus Torvalds <torvalds@linux-foundation.org>
-Date:   Thu, 23 Feb 2023 13:18:31 -0800
-X-Gmail-Original-Message-ID: <CAHk-=whkNnShBugM01Kzcypkp+f-uHeBWuAgtUiMpiSZuW+QDQ@mail.gmail.com>
-Message-ID: <CAHk-=whkNnShBugM01Kzcypkp+f-uHeBWuAgtUiMpiSZuW+QDQ@mail.gmail.com>
-Subject: Re: [PATCH 5.15 00/37] 5.15.96-rc2 review
-To:     Nathan Chancellor <nathan@kernel.org>
-Cc:     Guenter Roeck <linux@roeck-us.net>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, patches@lists.linux.dev,
-        linux-kernel@vger.kernel.org, akpm@linux-foundation.org,
-        shuah@kernel.org, patches@kernelci.org,
-        lkft-triage@lists.linaro.org, pavel@denx.de, jonathanh@nvidia.com,
-        f.fainelli@gmail.com, sudipm.mukherjee@gmail.com,
-        srw@sladewatkins.net, rwarsow@gmx.de
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20230223141545.280864003@linuxfoundation.org>
 X-Spam-Status: No, score=-1.8 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,
+        DKIM_VALID,DKIM_VALID_EF,HEADER_FROM_DIFFERENT_DOMAINS,
         RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS autolearn=no
         autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
@@ -81,27 +73,26 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Thu, Feb 23, 2023 at 11:47 AM Nathan Chancellor <nathan@kernel.org> wrote:
->
-> I can send a patch unless you want to take those changes directly, you
-> have half a commit message there already I think :)
+On Thu, Feb 23, 2023 at 03:16:15PM +0100, Greg Kroah-Hartman wrote:
+> This is the start of the stable review cycle for the 6.1.14 release.
+> There are 47 patches in this series, all will be posted as a response
+> to this one.  If anyone has any issues with these being applied, please
+> let me know.
+> 
+> Responses should be made by Sat, 25 Feb 2023 14:15:30 +0000.
+> Anything received after that time might be too late.
+> 
+> The whole patch series can be found in one patch at:
+> 	https://www.kernel.org/pub/linux/kernel/v6.x/stable-review/patch-6.1.14-rc2.gz
+> or in the git tree and branch at:
+> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-6.1.y
+> and the diffstat can be found below.
+> 
+> thanks,
+> 
+> greg k-h
 
-Not being one of those old fogeys myself, I don't feel hugely motivated to care.
+Tested rc2 against the Fedora build system (aarch64, armv7, ppc64le,
+s390x, x86_64), and boot tested x86_64. No regressions noted.
 
-In fact, I think GNU patch implemented the git patch format extensions
-more than a decade ago, so we might even simply decide that it's past
-time to even worry about this at all.
-
-In fact, with all the base infrastructure supporting git patches, I'm
-not quite sure just _how_ quilt is able to apply patches without
-dealing with mode bits.
-
-Does quilt parse the patches and actively remove those lines before
-applying them? Or does quilt have some actual built-in patch
-application code that doesn't depend on GNU patch?
-
-(Side note: GNU patch may support git patches, but I don't think GNU
-diffutils will generate them, so I guess not all base infrastructure
-supports that fancy new "mode" line)
-
-             Linus
+Tested-by: Justin M. Forbes <jforbes@fedoraproject.org>
