@@ -2,42 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id DD7B66A0A39
-	for <lists+stable@lfdr.de>; Thu, 23 Feb 2023 14:13:44 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 93F226A0A12
+	for <lists+stable@lfdr.de>; Thu, 23 Feb 2023 14:13:05 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234518AbjBWNNm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 23 Feb 2023 08:13:42 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43648 "EHLO
+        id S234496AbjBWNM6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 23 Feb 2023 08:12:58 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43432 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234555AbjBWNNb (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 23 Feb 2023 08:13:31 -0500
-Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4993D4AFD9
-        for <stable@vger.kernel.org>; Thu, 23 Feb 2023 05:13:08 -0800 (PST)
+        with ESMTP id S234494AbjBWNM5 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 23 Feb 2023 08:12:57 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3889456791
+        for <stable@vger.kernel.org>; Thu, 23 Feb 2023 05:12:16 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 6CCC1CE2069
-        for <stable@vger.kernel.org>; Thu, 23 Feb 2023 13:12:14 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 67E42C433D2;
-        Thu, 23 Feb 2023 13:12:12 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 38585616E3
+        for <stable@vger.kernel.org>; Thu, 23 Feb 2023 13:12:17 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 039E6C433EF;
+        Thu, 23 Feb 2023 13:12:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1677157932;
-        bh=c9jDw8CVB+jrwKJzBQNMG5sLSYowvlAiVEjGt6z+yiI=;
+        s=korg; t=1677157935;
+        bh=m5w68lAElSkqotMfgm3dTzokS3uk62zy1nIRDv311sE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Lu5fCe4kjr2yJGyMffv7D6Xtb1To6qoPXX6e5Jl9I3tG+uhgHObEXjSdHumYzw7Pk
-         oUgoTGZvwEGX4AX5TGlQvOPy6W3v9909JC7mA7xqm/jh+iqE3sH3OGo3hkHqtPitew
-         WfpEg08hxLC/dA1sS4JCqeYqRSzIsy0MJa9XH5Ac=
+        b=nCFnAPNLS8KxHNQJQEMHK4EtXW5zM6s7KRF9aUpKDwjr79fQCyZCwUZGen8259ir1
+         9HZ7K1pVLl96jlKF1dcA8uohR/LN3oX6nbrFSVIp39iHgfrckuycBMWQvvHAtmn1GH
+         27JJK/Ja11+hnnt1qOMgkniIwJ7WgzO6tIHZQ+y8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Yi xin Zhu <yzhu@maxlinear.com>,
-        Rahul Tanwar <rtanwar@maxlinear.com>,
-        Stephen Boyd <sboyd@kernel.org>,
+        patches@lists.linux.dev, Sean Anderson <sean.anderson@seco.com>,
+        "David S. Miller" <davem@davemloft.net>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 07/36] clk: mxl: Fix a clk entry by adding relevant flags
-Date:   Thu, 23 Feb 2023 14:06:43 +0100
-Message-Id: <20230223130429.412986124@linuxfoundation.org>
+Subject: [PATCH 5.15 08/36] powerpc: dts: t208x: Mark MAC1 and MAC2 as 10G
+Date:   Thu, 23 Feb 2023 14:06:44 +0100
+Message-Id: <20230223130429.458200802@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
 In-Reply-To: <20230223130429.072633724@linuxfoundation.org>
 References: <20230223130429.072633724@linuxfoundation.org>
@@ -45,8 +44,8 @@ User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
         SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -54,73 +53,140 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Rahul Tanwar <rtanwar@maxlinear.com>
+From: Sean Anderson <sean.anderson@seco.com>
 
-[ Upstream commit 106ef3bda21006fe37b62c85931230a6355d78d3 ]
+[ Upstream commit 36926a7d70c2d462fca1ed85bfee000d17fd8662 ]
 
-One of the clock entry "dcl" clk has some HW limitations. One is that
-its rate can only by changed by changing its parent clk's rate & two is
-that HW does not support enable/disable for this clk.
+On the T208X SoCs, MAC1 and MAC2 support XGMII. Add some new MAC dtsi
+fragments, and mark the QMAN ports as 10G.
 
-Handle above two limitations by adding relevant flags. Add standard flag
-CLK_SET_RATE_PARENT to handle rate change and add driver internal flag
-DIV_CLK_NO_MASK to handle enable/disable.
-
-Fixes: d058fd9e8984 ("clk: intel: Add CGU clock driver for a new SoC")
-Reviewed-by: Yi xin Zhu <yzhu@maxlinear.com>
-Signed-off-by: Rahul Tanwar <rtanwar@maxlinear.com>
-Link: https://lore.kernel.org/r/a4770e7225f8a0c03c8ab2ba80434a4e8e9afb17.1665642720.git.rtanwar@maxlinear.com
-Signed-off-by: Stephen Boyd <sboyd@kernel.org>
+Fixes: da414bb923d9 ("powerpc/mpc85xx: Add FSL QorIQ DPAA FMan support to the SoC device tree(s)")
+Signed-off-by: Sean Anderson <sean.anderson@seco.com>
+Signed-off-by: David S. Miller <davem@davemloft.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/clk/x86/clk-cgu.c | 5 +++--
- drivers/clk/x86/clk-cgu.h | 1 +
- drivers/clk/x86/clk-lgm.c | 4 ++--
- 3 files changed, 6 insertions(+), 4 deletions(-)
+ .../boot/dts/fsl/qoriq-fman3-0-10g-2.dtsi     | 44 +++++++++++++++++++
+ .../boot/dts/fsl/qoriq-fman3-0-10g-3.dtsi     | 44 +++++++++++++++++++
+ arch/powerpc/boot/dts/fsl/t2081si-post.dtsi   |  4 +-
+ 3 files changed, 90 insertions(+), 2 deletions(-)
+ create mode 100644 arch/powerpc/boot/dts/fsl/qoriq-fman3-0-10g-2.dtsi
+ create mode 100644 arch/powerpc/boot/dts/fsl/qoriq-fman3-0-10g-3.dtsi
 
-diff --git a/drivers/clk/x86/clk-cgu.c b/drivers/clk/x86/clk-cgu.c
-index 4278a687076c9..89b53f280aee0 100644
---- a/drivers/clk/x86/clk-cgu.c
-+++ b/drivers/clk/x86/clk-cgu.c
-@@ -164,8 +164,9 @@ static int lgm_clk_divider_enable_disable(struct clk_hw *hw, int enable)
- {
- 	struct lgm_clk_divider *div = to_lgm_clk_divider(hw);
+diff --git a/arch/powerpc/boot/dts/fsl/qoriq-fman3-0-10g-2.dtsi b/arch/powerpc/boot/dts/fsl/qoriq-fman3-0-10g-2.dtsi
+new file mode 100644
+index 0000000000000..437dab3fc0176
+--- /dev/null
++++ b/arch/powerpc/boot/dts/fsl/qoriq-fman3-0-10g-2.dtsi
+@@ -0,0 +1,44 @@
++// SPDX-License-Identifier: BSD-3-Clause OR GPL-2.0-or-later
++/*
++ * QorIQ FMan v3 10g port #2 device tree stub [ controller @ offset 0x400000 ]
++ *
++ * Copyright 2022 Sean Anderson <sean.anderson@seco.com>
++ * Copyright 2012 - 2015 Freescale Semiconductor Inc.
++ */
++
++fman@400000 {
++	fman0_rx_0x08: port@88000 {
++		cell-index = <0x8>;
++		compatible = "fsl,fman-v3-port-rx";
++		reg = <0x88000 0x1000>;
++		fsl,fman-10g-port;
++	};
++
++	fman0_tx_0x28: port@a8000 {
++		cell-index = <0x28>;
++		compatible = "fsl,fman-v3-port-tx";
++		reg = <0xa8000 0x1000>;
++		fsl,fman-10g-port;
++	};
++
++	ethernet@e0000 {
++		cell-index = <0>;
++		compatible = "fsl,fman-memac";
++		reg = <0xe0000 0x1000>;
++		fsl,fman-ports = <&fman0_rx_0x08 &fman0_tx_0x28>;
++		ptp-timer = <&ptp_timer0>;
++		pcsphy-handle = <&pcsphy0>;
++	};
++
++	mdio@e1000 {
++		#address-cells = <1>;
++		#size-cells = <0>;
++		compatible = "fsl,fman-memac-mdio", "fsl,fman-xmdio";
++		reg = <0xe1000 0x1000>;
++		fsl,erratum-a011043; /* must ignore read errors */
++
++		pcsphy0: ethernet-phy@0 {
++			reg = <0x0>;
++		};
++	};
++};
+diff --git a/arch/powerpc/boot/dts/fsl/qoriq-fman3-0-10g-3.dtsi b/arch/powerpc/boot/dts/fsl/qoriq-fman3-0-10g-3.dtsi
+new file mode 100644
+index 0000000000000..ad116b17850a8
+--- /dev/null
++++ b/arch/powerpc/boot/dts/fsl/qoriq-fman3-0-10g-3.dtsi
+@@ -0,0 +1,44 @@
++// SPDX-License-Identifier: BSD-3-Clause OR GPL-2.0-or-later
++/*
++ * QorIQ FMan v3 10g port #3 device tree stub [ controller @ offset 0x400000 ]
++ *
++ * Copyright 2022 Sean Anderson <sean.anderson@seco.com>
++ * Copyright 2012 - 2015 Freescale Semiconductor Inc.
++ */
++
++fman@400000 {
++	fman0_rx_0x09: port@89000 {
++		cell-index = <0x9>;
++		compatible = "fsl,fman-v3-port-rx";
++		reg = <0x89000 0x1000>;
++		fsl,fman-10g-port;
++	};
++
++	fman0_tx_0x29: port@a9000 {
++		cell-index = <0x29>;
++		compatible = "fsl,fman-v3-port-tx";
++		reg = <0xa9000 0x1000>;
++		fsl,fman-10g-port;
++	};
++
++	ethernet@e2000 {
++		cell-index = <1>;
++		compatible = "fsl,fman-memac";
++		reg = <0xe2000 0x1000>;
++		fsl,fman-ports = <&fman0_rx_0x09 &fman0_tx_0x29>;
++		ptp-timer = <&ptp_timer0>;
++		pcsphy-handle = <&pcsphy1>;
++	};
++
++	mdio@e3000 {
++		#address-cells = <1>;
++		#size-cells = <0>;
++		compatible = "fsl,fman-memac-mdio", "fsl,fman-xmdio";
++		reg = <0xe3000 0x1000>;
++		fsl,erratum-a011043; /* must ignore read errors */
++
++		pcsphy1: ethernet-phy@0 {
++			reg = <0x0>;
++		};
++	};
++};
+diff --git a/arch/powerpc/boot/dts/fsl/t2081si-post.dtsi b/arch/powerpc/boot/dts/fsl/t2081si-post.dtsi
+index ecbb447920bc6..74e17e134387d 100644
+--- a/arch/powerpc/boot/dts/fsl/t2081si-post.dtsi
++++ b/arch/powerpc/boot/dts/fsl/t2081si-post.dtsi
+@@ -609,8 +609,8 @@
+ /include/ "qoriq-bman1.dtsi"
  
--	lgm_set_clk_val(div->membase, div->reg, div->shift_gate,
--			div->width_gate, enable);
-+	if (div->flags != DIV_CLK_NO_MASK)
-+		lgm_set_clk_val(div->membase, div->reg, div->shift_gate,
-+				div->width_gate, enable);
- 	return 0;
- }
- 
-diff --git a/drivers/clk/x86/clk-cgu.h b/drivers/clk/x86/clk-cgu.h
-index 73ce84345f81e..bcaf8aec94e5d 100644
---- a/drivers/clk/x86/clk-cgu.h
-+++ b/drivers/clk/x86/clk-cgu.h
-@@ -198,6 +198,7 @@ struct lgm_clk_branch {
- #define CLOCK_FLAG_VAL_INIT	BIT(16)
- #define MUX_CLK_SW		BIT(17)
- #define GATE_CLK_HW		BIT(18)
-+#define DIV_CLK_NO_MASK		BIT(19)
- 
- #define LGM_MUX(_id, _name, _pdata, _f, _reg,		\
- 		_shift, _width, _cf, _v)		\
-diff --git a/drivers/clk/x86/clk-lgm.c b/drivers/clk/x86/clk-lgm.c
-index e312af42e97ae..4de77b2c750d3 100644
---- a/drivers/clk/x86/clk-lgm.c
-+++ b/drivers/clk/x86/clk-lgm.c
-@@ -255,8 +255,8 @@ static const struct lgm_clk_branch lgm_branch_clks[] = {
- 	LGM_FIXED(LGM_CLK_SLIC, "slic", NULL, 0, CGU_IF_CLK1,
- 		  8, 2, CLOCK_FLAG_VAL_INIT, 8192000, 2),
- 	LGM_FIXED(LGM_CLK_DOCSIS, "v_docsis", NULL, 0, 0, 0, 0, 0, 16000000, 0),
--	LGM_DIV(LGM_CLK_DCL, "dcl", "v_ifclk", 0, CGU_PCMCR,
--		25, 3, 0, 0, 0, 0, dcl_div),
-+	LGM_DIV(LGM_CLK_DCL, "dcl", "v_ifclk", CLK_SET_RATE_PARENT, CGU_PCMCR,
-+		25, 3, 0, 0, DIV_CLK_NO_MASK, 0, dcl_div),
- 	LGM_MUX(LGM_CLK_PCM, "pcm", pcm_p, 0, CGU_C55_PCMCR,
- 		0, 1, CLK_MUX_ROUND_CLOSEST, 0),
- 	LGM_FIXED_FACTOR(LGM_CLK_DDR_PHY, "ddr_phy", "ddr",
+ /include/ "qoriq-fman3-0.dtsi"
+-/include/ "qoriq-fman3-0-1g-0.dtsi"
+-/include/ "qoriq-fman3-0-1g-1.dtsi"
++/include/ "qoriq-fman3-0-10g-2.dtsi"
++/include/ "qoriq-fman3-0-10g-3.dtsi"
+ /include/ "qoriq-fman3-0-1g-2.dtsi"
+ /include/ "qoriq-fman3-0-1g-3.dtsi"
+ /include/ "qoriq-fman3-0-1g-4.dtsi"
 -- 
 2.39.0
 
