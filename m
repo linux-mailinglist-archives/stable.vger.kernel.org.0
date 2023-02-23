@@ -2,51 +2,52 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 2400B6A09CB
-	for <lists+stable@lfdr.de>; Thu, 23 Feb 2023 14:09:59 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 814D16A0984
+	for <lists+stable@lfdr.de>; Thu, 23 Feb 2023 14:07:47 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234384AbjBWNJy (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 23 Feb 2023 08:09:54 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38874 "EHLO
+        id S232420AbjBWNHq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 23 Feb 2023 08:07:46 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35342 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234382AbjBWNJw (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 23 Feb 2023 08:09:52 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D72463AB9
-        for <stable@vger.kernel.org>; Thu, 23 Feb 2023 05:09:50 -0800 (PST)
+        with ESMTP id S233716AbjBWNHp (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 23 Feb 2023 08:07:45 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0FC895678E
+        for <stable@vger.kernel.org>; Thu, 23 Feb 2023 05:07:23 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id B7268616FE
-        for <stable@vger.kernel.org>; Thu, 23 Feb 2023 13:09:51 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 84416C433D2;
-        Thu, 23 Feb 2023 13:09:49 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id CE5D2616ED
+        for <stable@vger.kernel.org>; Thu, 23 Feb 2023 13:07:23 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7C4C3C433D2;
+        Thu, 23 Feb 2023 13:07:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1677157789;
-        bh=Znq77NldJrO5mrL9Y1tVbdJWOciLYeWwe9GclaI+pJI=;
+        s=korg; t=1677157642;
+        bh=upiZyjBW7Zqpirs8njROxyMEciquxpbVo6QLpLFYd9U=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=HV17t3EK9uiqCZgKBvoKHs3Db6++WseN48JaJDVpE70z+td+/uZ8QlP+rdKlDMfPB
-         1sEtvw79pspj1R6279+7BuBWQbQXJUXGB4/mM26WozNeU+LrBxhB4bdlSN9qF2Kmxu
-         tj2Tz8Mf27GjIzefg39b/fe1Wdqo1UP8NUTk5TS8=
+        b=rUB4iMce4Wf4VTTrxlXqMtXUsAXTZtr7rZk8aSxQn1leMQxnnQqJBCSnfHtuGBNtk
+         jzkEYZYtW7Ss4XselxKsw1zSZe8JDMovfadJmw94rg/+gje+8qyc9zI6dzSq/9wsrv
+         huVCL7t/sGtYwU3TL2IDLq3QwS0zMZC6QFX5Unag=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Dan Carpenter <dan.carpenter@oracle.com>,
-        Rahul Tanwar <rtanwar@maxlinear.com>,
-        Stephen Boyd <sboyd@kernel.org>,
+        patches@lists.linux.dev, Lucas Stach <l.stach@pengutronix.de>,
+        Philipp Zabel <p.zabel@pengutronix.de>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 10/46] clk: mxl: syscon_node_to_regmap() returns error pointers
-Date:   Thu, 23 Feb 2023 14:06:17 +0100
-Message-Id: <20230223130432.017184720@linuxfoundation.org>
+Subject: [PATCH 5.10 01/25] drm/etnaviv: dont truncate physical page address
+Date:   Thu, 23 Feb 2023 14:06:18 +0100
+Message-Id: <20230223130426.868608461@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230223130431.553657459@linuxfoundation.org>
-References: <20230223130431.553657459@linuxfoundation.org>
+In-Reply-To: <20230223130426.817998725@linuxfoundation.org>
+References: <20230223130426.817998725@linuxfoundation.org>
 User-Agent: quilt/0.67
+X-stable: review
+X-Patchwork-Hint: ignore
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
         SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -54,41 +55,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Rahul Tanwar <rtanwar@maxlinear.com>
+From: Lucas Stach <l.stach@pengutronix.de>
 
-[ Upstream commit 7256d1f4618b40792d1e9b9b6cb1406a13cad2dd ]
+[ Upstream commit d37c120b73128690434cc093952439eef9d56af1 ]
 
-Commit 036177310bac ("clk: mxl: Switch from direct readl/writel based IO
-to regmap based IO") introduced code resulting in below warning issued
-by the smatch static checker.
+While the interface for the MMU mapping takes phys_addr_t to hold a
+full 64bit address when necessary and MMUv2 is able to map physical
+addresses with up to 40bit, etnaviv_iommu_map() truncates the address
+to 32bits. Fix this by using the correct type.
 
-  drivers/clk/x86/clk-lgm.c:441 lgm_cgu_probe() warn: passing zero to 'PTR_ERR'
-
-Fix the warning by replacing incorrect IS_ERR_OR_NULL() with IS_ERR().
-
-Fixes: 036177310bac ("clk: mxl: Switch from direct readl/writel based IO to regmap based IO")
-Reported-by: Dan Carpenter <dan.carpenter@oracle.com>
-Signed-off-by: Rahul Tanwar <rtanwar@maxlinear.com>
-Link: https://lore.kernel.org/r/49e339d4739e4ae4c92b00c1b2918af0755d4122.1666695221.git.rtanwar@maxlinear.com
-Signed-off-by: Stephen Boyd <sboyd@kernel.org>
+Fixes: 931e97f3afd8 ("drm/etnaviv: mmuv2: support 40 bit phys address")
+Signed-off-by: Lucas Stach <l.stach@pengutronix.de>
+Reviewed-by: Philipp Zabel <p.zabel@pengutronix.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/clk/x86/clk-lgm.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/gpu/drm/etnaviv/etnaviv_mmu.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/clk/x86/clk-lgm.c b/drivers/clk/x86/clk-lgm.c
-index 4de77b2c750d3..f69455dd1c980 100644
---- a/drivers/clk/x86/clk-lgm.c
-+++ b/drivers/clk/x86/clk-lgm.c
-@@ -436,7 +436,7 @@ static int lgm_cgu_probe(struct platform_device *pdev)
- 	ctx->clk_data.num = CLK_NR_CLKS;
+diff --git a/drivers/gpu/drm/etnaviv/etnaviv_mmu.c b/drivers/gpu/drm/etnaviv/etnaviv_mmu.c
+index 9ba2fe48228f1..44fbc0a123bf3 100644
+--- a/drivers/gpu/drm/etnaviv/etnaviv_mmu.c
++++ b/drivers/gpu/drm/etnaviv/etnaviv_mmu.c
+@@ -80,10 +80,10 @@ static int etnaviv_iommu_map(struct etnaviv_iommu_context *context, u32 iova,
+ 		return -EINVAL;
  
- 	ctx->membase = syscon_node_to_regmap(np);
--	if (IS_ERR_OR_NULL(ctx->membase)) {
-+	if (IS_ERR(ctx->membase)) {
- 		dev_err(dev, "Failed to get clk CGU iomem\n");
- 		return PTR_ERR(ctx->membase);
- 	}
+ 	for_each_sgtable_dma_sg(sgt, sg, i) {
+-		u32 pa = sg_dma_address(sg) - sg->offset;
++		phys_addr_t pa = sg_dma_address(sg) - sg->offset;
+ 		size_t bytes = sg_dma_len(sg) + sg->offset;
+ 
+-		VERB("map[%d]: %08x %08x(%zx)", i, iova, pa, bytes);
++		VERB("map[%d]: %08x %pap(%zx)", i, iova, &pa, bytes);
+ 
+ 		ret = etnaviv_context_map(context, da, pa, bytes, prot);
+ 		if (ret)
 -- 
 2.39.0
 
