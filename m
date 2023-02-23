@@ -2,62 +2,62 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 82F196A0CC8
-	for <lists+stable@lfdr.de>; Thu, 23 Feb 2023 16:21:08 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E617F6A0CC5
+	for <lists+stable@lfdr.de>; Thu, 23 Feb 2023 16:21:05 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234371AbjBWPVH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 23 Feb 2023 10:21:07 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33484 "EHLO
+        id S234456AbjBWPVD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 23 Feb 2023 10:21:03 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33456 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234498AbjBWPVD (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 23 Feb 2023 10:21:03 -0500
-Received: from mail-wr1-x429.google.com (mail-wr1-x429.google.com [IPv6:2a00:1450:4864:20::429])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3D2C7570B6;
+        with ESMTP id S234380AbjBWPVC (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 23 Feb 2023 10:21:02 -0500
+Received: from mail-wr1-x42b.google.com (mail-wr1-x42b.google.com [IPv6:2a00:1450:4864:20::42b])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8130357D21;
         Thu, 23 Feb 2023 07:21:01 -0800 (PST)
-Received: by mail-wr1-x429.google.com with SMTP id 6so10559418wrb.11;
+Received: by mail-wr1-x42b.google.com with SMTP id l1so10680906wry.10;
         Thu, 23 Feb 2023 07:21:01 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20210112;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=7aAtEKnUKH1jpkEbDRfUxGGo+cLY4CQorBK6Ho9PRBk=;
-        b=gLBfuM0zRQC747m2iItk97QCNiNJ6yyFZNSndSYOHQqtOxPKb+9APrigE/77H9jwLY
-         JOOapub5V15lT2QIvBLlJGw/UAkZCVxzyvsRK6D5jDw9KSI3+o4slRX1Q0qJRZPwA4sf
-         h7PZ7Qwq9JcCpJKP6az6lnj0+v6PNf/O7k7j3d8yQfwh4pANzyLTuKN9iYqrHqqqDL9B
-         eNXAPwKv9tW4iGvSTx/tBNJgHar9gqYaXQ6piuFDlJYiFvtxwfKVVF6D51YbWjQddWds
-         cZVirl4Ha/VXuYk7ZyneWBIf6PSFKrW5/pE6IYR6Satdtk+49WvMc7OlPjvdpsutCRad
-         arVQ==
+        bh=hu2K9N1s7d8rZuoggXQ62T3TkCxxmvwqtE9EM9xMYtI=;
+        b=FrNrSV78f0/i2S72xDv/wDaVp8uPFOkEuTtKGtGItNkg1NY4Ndna0CT14am2KNO04O
+         D2g9WN1gwtQoqe8eowZPIB1ha5ipKXF3DsXlz+J+f41PW6YiskamUyfs9JnJO2rA3tjs
+         5WYuV4qa4YqBzBZBY8VQgCUMxCNQdqZJwx7h6YESBlKwA9LWtJc9fuz72KUAZ7W91l7O
+         bgsNxbGB6OsvwPWiH4JcIorADhZIKN8F2MDHSPS+NlxTnetTYOPA8CB4Wd7PupVh8Lr1
+         aar3vd1YofQN9r6+Wi1y4JDkxISsEWbLTl01o/VsB88C7+S3YJczjttUy3/uvSzOhQsE
+         7M5g==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=7aAtEKnUKH1jpkEbDRfUxGGo+cLY4CQorBK6Ho9PRBk=;
-        b=NXQHNoEvIe9LW5Bi4CJ1iZm4dpXq8oH/HoKsDO+Kx7OYsXdnCcM7VDk2YySsaq1OYv
-         O5NxTzWdOvfFsqqSA7gN+Hc+SI/lkNGHRBBJqzEop1w4Y7SYFEuNIQseQjonI5jUWIeN
-         zcq9jyhaG+HksXQA3DoHUV+uvoWS2Msxyj1WpqUZ5k9R7sjKHJsNgYv7pMxBBZhdVVMs
-         +ZHbrQvG9HC7Knizh928oruneoMmjsKEo2OPjz/eqjMgeVxL7WGMo9jqhc57h34xy5oS
-         cFvXEthBKp/SRYQlXAkErWniHZphzbre1lN3FX1MbzaLoNXY2RbSMRFoQlRdc2TtFpH+
-         HrsA==
-X-Gm-Message-State: AO0yUKWU/VTxqyV6PP69YQIkS45jIfDncHFwtMOk6MiEEDRzuHYLCqRJ
-        TN6jeuhqW4sFRkClvK9bIF8=
-X-Google-Smtp-Source: AK7set87Ij4bowt+CssUe7H45/RRB34f3nb3to4Oh6rSK6mqPPvDE+jm1XyyzrYflSyGdbgGAxDKCw==
-X-Received: by 2002:a5d:4806:0:b0:2c5:5a68:958 with SMTP id l6-20020a5d4806000000b002c55a680958mr10976310wrq.33.1677165659572;
-        Thu, 23 Feb 2023 07:20:59 -0800 (PST)
+        bh=hu2K9N1s7d8rZuoggXQ62T3TkCxxmvwqtE9EM9xMYtI=;
+        b=Ld94N7M5Us4cuSdP8g/LHQ+RBxakjMa0g5qzQR+ZvcRtr+vdlwMfunVC2CDXYXxllM
+         PrL09QXgQBlpzObteD2Y15bniCOcIjUpgbTSwivNwybINxooxfTaK2nnsIq8qIc7aU/B
+         YpCkwZnV0iOhw431dhTc5YDeTHiI00Zgf+vv9tOppEcy71c8kmoQAiw2QTiez6PnTbdb
+         L5qB58PVieoZ+X6Ncm53nLsDb2hdWXk6Ykcv/0PVHXX0b+KjrvSAbkiqk0J8n0DPZCFG
+         ZHDo/4DmOfS9sHC1aj3MzGnFwKXNDHwT6eE5/WqZg+n48t+DI2Z/ufUcAN9299wcjkQ/
+         X8YA==
+X-Gm-Message-State: AO0yUKVnucIZjKR8T88gZvrfjeLxkh2WWGPOLXk8V6JVG0zn6CFRiolD
+        UQ+sKbcUdkfQsyRGkIcvU3M=
+X-Google-Smtp-Source: AK7set/sXECzkm4MstnrYwJK1WtMwcB/QH/NN92+GXlsVdccAU8dQZZk4FXESjlyL6th70OZYbuo+Q==
+X-Received: by 2002:a5d:4808:0:b0:2c7:694:aa18 with SMTP id l8-20020a5d4808000000b002c70694aa18mr7674173wrq.15.1677165661056;
+        Thu, 23 Feb 2023 07:21:01 -0800 (PST)
 Received: from amir-ThinkPad-T480.lan ([5.29.249.86])
-        by smtp.gmail.com with ESMTPSA id k9-20020a5d6289000000b002c56af32e8csm9372590wru.35.2023.02.23.07.20.58
+        by smtp.gmail.com with ESMTPSA id k9-20020a5d6289000000b002c56af32e8csm9372590wru.35.2023.02.23.07.20.59
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 23 Feb 2023 07:20:59 -0800 (PST)
+        Thu, 23 Feb 2023 07:21:00 -0800 (PST)
 From:   Amir Goldstein <amir73il@gmail.com>
 To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Cc:     Sasha Levin <sashal@kernel.org>,
         Christian Brauner <brauner@kernel.org>,
         Miklos Szeredi <miklos@szeredi.hu>,
         linux-fsdevel@vger.kernel.org, stable@vger.kernel.org
-Subject: [PATCH 6.1 4/5] attr: use consistent sgid stripping checks
-Date:   Thu, 23 Feb 2023 17:20:43 +0200
-Message-Id: <20230223152044.1064909-5-amir73il@gmail.com>
+Subject: [PATCH 6.1 5/5] fs: use consistent setgid checks in is_sxid()
+Date:   Thu, 23 Feb 2023 17:20:44 +0200
+Message-Id: <20230223152044.1064909-6-amir73il@gmail.com>
 X-Mailer: git-send-email 2.34.1
 In-Reply-To: <20230223152044.1064909-1-amir73il@gmail.com>
 References: <20230223152044.1064909-1-amir73il@gmail.com>
@@ -75,341 +75,39 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Christian Brauner <brauner@kernel.org>
 
-commit ed5a7047d2011cb6b2bf84ceb6680124cc6a7d95 upstream.
+commit 8d84e39d76bd83474b26cb44f4b338635676e7e8 upstream.
 
-Currently setgid stripping in file_remove_privs()'s should_remove_suid()
-helper is inconsistent with other parts of the vfs. Specifically, it only
-raises ATTR_KILL_SGID if the inode is S_ISGID and S_IXGRP but not if the
-inode isn't in the caller's groups and the caller isn't privileged over the
-inode although we require this already in setattr_prepare() and
-setattr_copy() and so all filesystem implement this requirement implicitly
-because they have to use setattr_{prepare,copy}() anyway.
+Now that we made the VFS setgid checking consistent an inode can't be
+marked security irrelevant even if the setgid bit is still set. Make
+this function consistent with all other helpers.
 
-But the inconsistency shows up in setgid stripping bugs for overlayfs in
-xfstests (e.g., generic/673, generic/683, generic/685, generic/686,
-generic/687). For example, we test whether suid and setgid stripping works
-correctly when performing various write-like operations as an unprivileged
-user (fallocate, reflink, write, etc.):
+Note that enforcing consistent setgid stripping checks for file
+modification and mode- and ownership changes will cause the setgid bit
+to be lost in more cases than useed to be the case. If an unprivileged
+user wrote to a non-executable setgid file that they don't have
+privilege over the setgid bit will be dropped. This will lead to
+temporary failures in some xfstests until they have been updated.
 
-echo "Test 1 - qa_user, non-exec file $verb"
-setup_testfile
-chmod a+rws $junk_file
-commit_and_check "$qa_user" "$verb" 64k 64k
-
-The test basically creates a file with 6666 permissions. While the file has
-the S_ISUID and S_ISGID bits set it does not have the S_IXGRP set. On a
-regular filesystem like xfs what will happen is:
-
-sys_fallocate()
--> vfs_fallocate()
-   -> xfs_file_fallocate()
-      -> file_modified()
-         -> __file_remove_privs()
-            -> dentry_needs_remove_privs()
-               -> should_remove_suid()
-            -> __remove_privs()
-               newattrs.ia_valid = ATTR_FORCE | kill;
-               -> notify_change()
-                  -> setattr_copy()
-
-In should_remove_suid() we can see that ATTR_KILL_SUID is raised
-unconditionally because the file in the test has S_ISUID set.
-
-But we also see that ATTR_KILL_SGID won't be set because while the file
-is S_ISGID it is not S_IXGRP (see above) which is a condition for
-ATTR_KILL_SGID being raised.
-
-So by the time we call notify_change() we have attr->ia_valid set to
-ATTR_KILL_SUID | ATTR_FORCE. Now notify_change() sees that
-ATTR_KILL_SUID is set and does:
-
-ia_valid = attr->ia_valid |= ATTR_MODE
-attr->ia_mode = (inode->i_mode & ~S_ISUID);
-
-which means that when we call setattr_copy() later we will definitely
-update inode->i_mode. Note that attr->ia_mode still contains S_ISGID.
-
-Now we call into the filesystem's ->setattr() inode operation which will
-end up calling setattr_copy(). Since ATTR_MODE is set we will hit:
-
-if (ia_valid & ATTR_MODE) {
-        umode_t mode = attr->ia_mode;
-        vfsgid_t vfsgid = i_gid_into_vfsgid(mnt_userns, inode);
-        if (!vfsgid_in_group_p(vfsgid) &&
-            !capable_wrt_inode_uidgid(mnt_userns, inode, CAP_FSETID))
-                mode &= ~S_ISGID;
-        inode->i_mode = mode;
-}
-
-and since the caller in the test is neither capable nor in the group of the
-inode the S_ISGID bit is stripped.
-
-But assume the file isn't suid then ATTR_KILL_SUID won't be raised which
-has the consequence that neither the setgid nor the suid bits are stripped
-even though it should be stripped because the inode isn't in the caller's
-groups and the caller isn't privileged over the inode.
-
-If overlayfs is in the mix things become a bit more complicated and the bug
-shows up more clearly. When e.g., ovl_setattr() is hit from
-ovl_fallocate()'s call to file_remove_privs() then ATTR_KILL_SUID and
-ATTR_KILL_SGID might be raised but because the check in notify_change() is
-questioning the ATTR_KILL_SGID flag again by requiring S_IXGRP for it to be
-stripped the S_ISGID bit isn't removed even though it should be stripped:
-
-sys_fallocate()
--> vfs_fallocate()
-   -> ovl_fallocate()
-      -> file_remove_privs()
-         -> dentry_needs_remove_privs()
-            -> should_remove_suid()
-         -> __remove_privs()
-            newattrs.ia_valid = ATTR_FORCE | kill;
-            -> notify_change()
-               -> ovl_setattr()
-                  // TAKE ON MOUNTER'S CREDS
-                  -> ovl_do_notify_change()
-                     -> notify_change()
-                  // GIVE UP MOUNTER'S CREDS
-     // TAKE ON MOUNTER'S CREDS
-     -> vfs_fallocate()
-        -> xfs_file_fallocate()
-           -> file_modified()
-              -> __file_remove_privs()
-                 -> dentry_needs_remove_privs()
-                    -> should_remove_suid()
-                 -> __remove_privs()
-                    newattrs.ia_valid = attr_force | kill;
-                    -> notify_change()
-
-The fix for all of this is to make file_remove_privs()'s
-should_remove_suid() helper to perform the same checks as we already
-require in setattr_prepare() and setattr_copy() and have notify_change()
-not pointlessly requiring S_IXGRP again. It doesn't make any sense in the
-first place because the caller must calculate the flags via
-should_remove_suid() anyway which would raise ATTR_KILL_SGID.
-
-While we're at it we move should_remove_suid() from inode.c to attr.c
-where it belongs with the rest of the iattr helpers. Especially since it
-returns ATTR_KILL_S{G,U}ID flags. We also rename it to
-setattr_should_drop_suidgid() to better reflect that it indicates both
-setuid and setgid bit removal and also that it returns attr flags.
-
-Running xfstests with this doesn't report any regressions. We should really
-try and use consistent checks.
-
-Reviewed-by: Amir Goldstein <amir73il@gmail.com>
+Reported-by: Miklos Szeredi <miklos@szeredi.hu>
 Signed-off-by: Christian Brauner (Microsoft) <brauner@kernel.org>
 Signed-off-by: Amir Goldstein <amir73il@gmail.com>
 ---
- Documentation/trace/ftrace.rst |  2 +-
- fs/attr.c                      | 33 +++++++++++++++++++--------------
- fs/fuse/file.c                 |  2 +-
- fs/inode.c                     |  7 ++++---
- fs/internal.h                  |  2 +-
- fs/ocfs2/file.c                |  4 ++--
- fs/open.c                      |  8 ++++----
- include/linux/fs.h             |  2 +-
- 8 files changed, 33 insertions(+), 27 deletions(-)
+ include/linux/fs.h | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/Documentation/trace/ftrace.rst b/Documentation/trace/ftrace.rst
-index 60bceb018d6a..21f01d32c959 100644
---- a/Documentation/trace/ftrace.rst
-+++ b/Documentation/trace/ftrace.rst
-@@ -2940,7 +2940,7 @@ Produces::
-               bash-1994  [000] ....  4342.324898: ima_get_action <-process_measurement
-               bash-1994  [000] ....  4342.324898: ima_match_policy <-ima_get_action
-               bash-1994  [000] ....  4342.324899: do_truncate <-do_last
--              bash-1994  [000] ....  4342.324899: should_remove_suid <-do_truncate
-+              bash-1994  [000] ....  4342.324899: setattr_should_drop_suidgid <-do_truncate
-               bash-1994  [000] ....  4342.324899: notify_change <-do_truncate
-               bash-1994  [000] ....  4342.324900: current_fs_time <-notify_change
-               bash-1994  [000] ....  4342.324900: current_kernel_time <-current_fs_time
-diff --git a/fs/attr.c b/fs/attr.c
-index 085322536127..b45f30e516fa 100644
---- a/fs/attr.c
-+++ b/fs/attr.c
-@@ -48,34 +48,39 @@ int setattr_should_drop_sgid(struct user_namespace *mnt_userns,
- 	return 0;
- }
- 
--/*
-- * The logic we want is
-+/**
-+ * setattr_should_drop_suidgid - determine whether the set{g,u}id bit needs to
-+ *                               be dropped
-+ * @mnt_userns:	user namespace of the mount @inode was found from
-+ * @inode:	inode to check
-  *
-- *	if suid or (sgid and xgrp)
-- *		remove privs
-+ * This function determines whether the set{g,u}id bits need to be removed.
-+ * If the setuid bit needs to be removed ATTR_KILL_SUID is returned. If the
-+ * setgid bit needs to be removed ATTR_KILL_SGID is returned. If both
-+ * set{g,u}id bits need to be removed the corresponding mask of both flags is
-+ * returned.
-+ *
-+ * Return: A mask of ATTR_KILL_S{G,U}ID indicating which - if any - setid bits
-+ * to remove, 0 otherwise.
-  */
--int should_remove_suid(struct dentry *dentry)
-+int setattr_should_drop_suidgid(struct user_namespace *mnt_userns,
-+				struct inode *inode)
- {
--	umode_t mode = d_inode(dentry)->i_mode;
-+	umode_t mode = inode->i_mode;
- 	int kill = 0;
- 
- 	/* suid always must be killed */
- 	if (unlikely(mode & S_ISUID))
- 		kill = ATTR_KILL_SUID;
- 
--	/*
--	 * sgid without any exec bits is just a mandatory locking mark; leave
--	 * it alone.  If some exec bits are set, it's a real sgid; kill it.
--	 */
--	if (unlikely((mode & S_ISGID) && (mode & S_IXGRP)))
--		kill |= ATTR_KILL_SGID;
-+	kill |= setattr_should_drop_sgid(mnt_userns, inode);
- 
- 	if (unlikely(kill && !capable(CAP_FSETID) && S_ISREG(mode)))
- 		return kill;
- 
- 	return 0;
- }
--EXPORT_SYMBOL(should_remove_suid);
-+EXPORT_SYMBOL(setattr_should_drop_suidgid);
- 
- /**
-  * chown_ok - verify permissions to chown inode
-@@ -432,7 +437,7 @@ int notify_change(struct user_namespace *mnt_userns, struct dentry *dentry,
- 		}
- 	}
- 	if (ia_valid & ATTR_KILL_SGID) {
--		if ((mode & (S_ISGID | S_IXGRP)) == (S_ISGID | S_IXGRP)) {
-+		if (mode & S_ISGID) {
- 			if (!(ia_valid & ATTR_MODE)) {
- 				ia_valid = attr->ia_valid |= ATTR_MODE;
- 				attr->ia_mode = inode->i_mode;
-diff --git a/fs/fuse/file.c b/fs/fuse/file.c
-index 89f4741728ba..c996c0ef8c63 100644
---- a/fs/fuse/file.c
-+++ b/fs/fuse/file.c
-@@ -1313,7 +1313,7 @@ static ssize_t fuse_cache_write_iter(struct kiocb *iocb, struct iov_iter *from)
- 			return err;
- 
- 		if (fc->handle_killpriv_v2 &&
--		    should_remove_suid(file_dentry(file))) {
-+		    setattr_should_drop_suidgid(&init_user_ns, file_inode(file))) {
- 			goto writethrough;
- 		}
- 
-diff --git a/fs/inode.c b/fs/inode.c
-index 6df2b7c936c2..8c4078889754 100644
---- a/fs/inode.c
-+++ b/fs/inode.c
-@@ -1953,7 +1953,8 @@ EXPORT_SYMBOL(touch_atime);
-  * response to write or truncate. Return 0 if nothing has to be changed.
-  * Negative value on error (change should be denied).
-  */
--int dentry_needs_remove_privs(struct dentry *dentry)
-+int dentry_needs_remove_privs(struct user_namespace *mnt_userns,
-+			      struct dentry *dentry)
- {
- 	struct inode *inode = d_inode(dentry);
- 	int mask = 0;
-@@ -1962,7 +1963,7 @@ int dentry_needs_remove_privs(struct dentry *dentry)
- 	if (IS_NOSEC(inode))
- 		return 0;
- 
--	mask = should_remove_suid(dentry);
-+	mask = setattr_should_drop_suidgid(mnt_userns, inode);
- 	ret = security_inode_need_killpriv(dentry);
- 	if (ret < 0)
- 		return ret;
-@@ -1994,7 +1995,7 @@ static int __file_remove_privs(struct file *file, unsigned int flags)
- 	if (IS_NOSEC(inode) || !S_ISREG(inode->i_mode))
- 		return 0;
- 
--	kill = dentry_needs_remove_privs(dentry);
-+	kill = dentry_needs_remove_privs(file_mnt_user_ns(file), dentry);
- 	if (kill < 0)
- 		return kill;
- 
-diff --git a/fs/internal.h b/fs/internal.h
-index 771b0468d70c..5545c26d86ae 100644
---- a/fs/internal.h
-+++ b/fs/internal.h
-@@ -150,7 +150,7 @@ extern int vfs_open(const struct path *, struct file *);
-  * inode.c
-  */
- extern long prune_icache_sb(struct super_block *sb, struct shrink_control *sc);
--extern int dentry_needs_remove_privs(struct dentry *dentry);
-+int dentry_needs_remove_privs(struct user_namespace *, struct dentry *dentry);
- bool in_group_or_capable(struct user_namespace *mnt_userns,
- 			 const struct inode *inode, vfsgid_t vfsgid);
- 
-diff --git a/fs/ocfs2/file.c b/fs/ocfs2/file.c
-index 9c67edd215d5..4d78e0979517 100644
---- a/fs/ocfs2/file.c
-+++ b/fs/ocfs2/file.c
-@@ -1991,7 +1991,7 @@ static int __ocfs2_change_file_space(struct file *file, struct inode *inode,
- 		}
- 	}
- 
--	if (file && should_remove_suid(file->f_path.dentry)) {
-+	if (file && setattr_should_drop_suidgid(&init_user_ns, file_inode(file))) {
- 		ret = __ocfs2_write_remove_suid(inode, di_bh);
- 		if (ret) {
- 			mlog_errno(ret);
-@@ -2279,7 +2279,7 @@ static int ocfs2_prepare_inode_for_write(struct file *file,
- 		 * inode. There's also the dinode i_size state which
- 		 * can be lost via setattr during extending writes (we
- 		 * set inode->i_size at the end of a write. */
--		if (should_remove_suid(dentry)) {
-+		if (setattr_should_drop_suidgid(&init_user_ns, inode)) {
- 			if (meta_level == 0) {
- 				ocfs2_inode_unlock_for_extent_tree(inode,
- 								   &di_bh,
-diff --git a/fs/open.c b/fs/open.c
-index a81319b6177f..9d0197db15e7 100644
---- a/fs/open.c
-+++ b/fs/open.c
-@@ -54,7 +54,7 @@ int do_truncate(struct user_namespace *mnt_userns, struct dentry *dentry,
- 	}
- 
- 	/* Remove suid, sgid, and file capabilities on truncate too */
--	ret = dentry_needs_remove_privs(dentry);
-+	ret = dentry_needs_remove_privs(mnt_userns, dentry);
- 	if (ret < 0)
- 		return ret;
- 	if (ret)
-@@ -723,10 +723,10 @@ int chown_common(const struct path *path, uid_t user, gid_t group)
- 		return -EINVAL;
- 	if ((group != (gid_t)-1) && !setattr_vfsgid(&newattrs, gid))
- 		return -EINVAL;
--	if (!S_ISDIR(inode->i_mode))
--		newattrs.ia_valid |=
--			ATTR_KILL_SUID | ATTR_KILL_SGID | ATTR_KILL_PRIV;
- 	inode_lock(inode);
-+	if (!S_ISDIR(inode->i_mode))
-+		newattrs.ia_valid |= ATTR_KILL_SUID | ATTR_KILL_PRIV |
-+				     setattr_should_drop_sgid(mnt_userns, inode);
- 	/* Continue to send actual fs values, not the mount values. */
- 	error = security_path_chown(
- 		path,
 diff --git a/include/linux/fs.h b/include/linux/fs.h
-index 081d1f539628..ed555aa9bf48 100644
+index ed555aa9bf48..f14ecbeab2a9 100644
 --- a/include/linux/fs.h
 +++ b/include/linux/fs.h
-@@ -3118,7 +3118,7 @@ extern void __destroy_inode(struct inode *);
- extern struct inode *new_inode_pseudo(struct super_block *sb);
- extern struct inode *new_inode(struct super_block *sb);
- extern void free_inode_nonrcu(struct inode *inode);
--extern int should_remove_suid(struct dentry *);
-+extern int setattr_should_drop_suidgid(struct user_namespace *, struct inode *);
- extern int file_remove_privs(struct file *);
+@@ -3549,7 +3549,7 @@ int __init list_bdev_fs_names(char *buf, size_t size);
  
- /*
+ static inline bool is_sxid(umode_t mode)
+ {
+-	return (mode & S_ISUID) || ((mode & S_ISGID) && (mode & S_IXGRP));
++	return mode & (S_ISUID | S_ISGID);
+ }
+ 
+ static inline int check_sticky(struct user_namespace *mnt_userns,
 -- 
 2.34.1
 
