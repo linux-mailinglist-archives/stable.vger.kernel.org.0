@@ -2,52 +2,50 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 814AA6A09F9
-	for <lists+stable@lfdr.de>; Thu, 23 Feb 2023 14:12:02 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9EC046A0A09
+	for <lists+stable@lfdr.de>; Thu, 23 Feb 2023 14:12:44 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234463AbjBWNMB (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 23 Feb 2023 08:12:01 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42474 "EHLO
+        id S234474AbjBWNMn (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 23 Feb 2023 08:12:43 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43054 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234457AbjBWNL7 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 23 Feb 2023 08:11:59 -0500
-Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2A3BC56792
-        for <stable@vger.kernel.org>; Thu, 23 Feb 2023 05:11:24 -0800 (PST)
+        with ESMTP id S234473AbjBWNMn (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 23 Feb 2023 08:12:43 -0500
+Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8F26956785
+        for <stable@vger.kernel.org>; Thu, 23 Feb 2023 05:12:00 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id AEDFDCE1FEE
-        for <stable@vger.kernel.org>; Thu, 23 Feb 2023 13:11:19 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7D2D8C4339B;
-        Thu, 23 Feb 2023 13:11:17 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 5DFEACE2024
+        for <stable@vger.kernel.org>; Thu, 23 Feb 2023 13:11:53 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 53E3BC433D2;
+        Thu, 23 Feb 2023 13:11:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1677157877;
-        bh=Xb9zjsWuD2iVWJym7BTZ016iPYFtkt2DOwnW1iLojmw=;
+        s=korg; t=1677157911;
+        bh=NWYBUnvYYnZFgclvrVvd8duzd+ph9iWY/KIY0DBNaq4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=cELaG9eD/FOyr+6GOZPi0ZrMnbuv1w0nLjUKDm9tg+29niTxczcAPVn4t7jgFEoK9
-         9He0kwPpITrnM6eVlCsptFti96CJMTmbrRrt0c8bRSgiJ3wAigbq0nz/qixJI7frQW
-         9hRT+Uao2EYA0RRs2BpM7xZS/W+vRQzj48KerQTo=
+        b=dKinBmMI8IdRkqCaOgj10Ckmn/EJpjn3m4nexKJ+IaH0BGJuECEygnnEiniJOJ6Ir
+         yjIZ2awlc6i4nvw628KyaQ12x71KcOJL160pQiXfl4ZPptOnUOlDBd6KFxe3Wke4cP
+         1mCrC4aYgh9qdJI6p08E9MpF0m1NFWcoVOMNSkag=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Camelia Alexandra Groza <camelia.groza@nxp.com>,
-        Sean Anderson <sean.anderson@seco.com>,
-        Jakub Kicinski <kuba@kernel.org>,
+        patches@lists.linux.dev, Sachin Sant <sachinp@linux.ibm.com>,
+        Michael Ellerman <mpe@ellerman.id.au>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 11/18] powerpc: dts: t208x: Disable 10G on MAC1 and MAC2
+Subject: [PATCH 5.15 20/36] powerpc/64s/radix: Fix RWX mapping with relocated kernel
 Date:   Thu, 23 Feb 2023 14:06:56 +0100
-Message-Id: <20230223130426.111635226@linuxfoundation.org>
+Message-Id: <20230223130430.004128859@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230223130425.680784802@linuxfoundation.org>
-References: <20230223130425.680784802@linuxfoundation.org>
+In-Reply-To: <20230223130429.072633724@linuxfoundation.org>
+References: <20230223130429.072633724@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
         SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -55,49 +53,87 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sean Anderson <sean.anderson@seco.com>
+From: Michael Ellerman <mpe@ellerman.id.au>
 
-[ Upstream commit 8d8bee13ae9e316443c6666286360126a19c8d94 ]
+[ Upstream commit 111bcb37385353f0510e5847d5abcd1c613dba23 ]
 
-There aren't enough resources to run these ports at 10G speeds. Disable
-10G for these ports, reverting to the previous speed.
+If a relocatable kernel is loaded at a non-zero address and told not to
+relocate to zero (kdump or RELOCATABLE_TEST), the mapping of the
+interrupt code at zero is left with RWX permissions.
 
-Fixes: 36926a7d70c2 ("powerpc: dts: t208x: Mark MAC1 and MAC2 as 10G")
-Reported-by: Camelia Alexandra Groza <camelia.groza@nxp.com>
-Signed-off-by: Sean Anderson <sean.anderson@seco.com>
-Reviewed-by: Camelia Groza <camelia.groza@nxp.com>
-Tested-by: Camelia Groza <camelia.groza@nxp.com>
-Link: https://lore.kernel.org/r/20221216172937.2960054-1-sean.anderson@seco.com
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+That is a security weakness, and leads to a warning at boot if
+CONFIG_DEBUG_WX is enabled:
+
+  powerpc/mm: Found insecure W+X mapping at address 00000000056435bc/0xc000000000000000
+  WARNING: CPU: 1 PID: 1 at arch/powerpc/mm/ptdump/ptdump.c:193 note_page+0x484/0x4c0
+  CPU: 1 PID: 1 Comm: swapper/0 Not tainted 6.2.0-rc1-00001-g8ae8e98aea82-dirty #175
+  Hardware name: IBM pSeries (emulated by qemu) POWER9 (raw) 0x4e1202 0xf000005 of:SLOF,git-dd0dca hv:linux,kvm pSeries
+  NIP:  c0000000004a1c34 LR: c0000000004a1c30 CTR: 0000000000000000
+  REGS: c000000003503770 TRAP: 0700   Not tainted  (6.2.0-rc1-00001-g8ae8e98aea82-dirty)
+  MSR:  8000000002029033 <SF,VEC,EE,ME,IR,DR,RI,LE>  CR: 24000220  XER: 00000000
+  CFAR: c000000000545a58 IRQMASK: 0
+  ...
+  NIP note_page+0x484/0x4c0
+  LR  note_page+0x480/0x4c0
+  Call Trace:
+    note_page+0x480/0x4c0 (unreliable)
+    ptdump_pmd_entry+0xc8/0x100
+    walk_pgd_range+0x618/0xab0
+    walk_page_range_novma+0x74/0xc0
+    ptdump_walk_pgd+0x98/0x170
+    ptdump_check_wx+0x94/0x100
+    mark_rodata_ro+0x30/0x70
+    kernel_init+0x78/0x1a0
+    ret_from_kernel_thread+0x5c/0x64
+
+The fix has two parts. Firstly the pages from zero up to the end of
+interrupts need to be marked read-only, so that they are left with R-X
+permissions. Secondly the mapping logic needs to be taught to ensure
+there is a page boundary at the end of the interrupt region, so that the
+permission change only applies to the interrupt text, and not the region
+following it.
+
+Fixes: c55d7b5e6426 ("powerpc: Remove STRICT_KERNEL_RWX incompatibility with RELOCATABLE")
+Reported-by: Sachin Sant <sachinp@linux.ibm.com>
+Tested-by: Sachin Sant <sachinp@linux.ibm.com>
+Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
+Link: https://lore.kernel.org/r/20230110124753.1325426-2-mpe@ellerman.id.au
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/powerpc/boot/dts/fsl/t2081si-post.dtsi | 16 ++++++++++++++++
- 1 file changed, 16 insertions(+)
+ arch/powerpc/mm/book3s64/radix_pgtable.c | 13 +++++++++++++
+ 1 file changed, 13 insertions(+)
 
-diff --git a/arch/powerpc/boot/dts/fsl/t2081si-post.dtsi b/arch/powerpc/boot/dts/fsl/t2081si-post.dtsi
-index 74e17e134387d..27714dc2f04a5 100644
---- a/arch/powerpc/boot/dts/fsl/t2081si-post.dtsi
-+++ b/arch/powerpc/boot/dts/fsl/t2081si-post.dtsi
-@@ -659,3 +659,19 @@
- 		interrupts = <16 2 1 9>;
- 	};
- };
+diff --git a/arch/powerpc/mm/book3s64/radix_pgtable.c b/arch/powerpc/mm/book3s64/radix_pgtable.c
+index b848f9e9f6335..feb24313e2e3c 100644
+--- a/arch/powerpc/mm/book3s64/radix_pgtable.c
++++ b/arch/powerpc/mm/book3s64/radix_pgtable.c
+@@ -232,6 +232,14 @@ void radix__mark_rodata_ro(void)
+ 	end = (unsigned long)__init_begin;
+ 
+ 	radix__change_memory_range(start, end, _PAGE_WRITE);
 +
-+&fman0_rx_0x08 {
-+	/delete-property/ fsl,fman-10g-port;
-+};
++	for (start = PAGE_OFFSET; start < (unsigned long)_stext; start += PAGE_SIZE) {
++		end = start + PAGE_SIZE;
++		if (overlaps_interrupt_vector_text(start, end))
++			radix__change_memory_range(start, end, _PAGE_WRITE);
++		else
++			break;
++	}
+ }
+ 
+ void radix__mark_initmem_nx(void)
+@@ -266,6 +274,11 @@ static unsigned long next_boundary(unsigned long addr, unsigned long end)
+ 
+ 	// Relocatable kernel running at non-zero real address
+ 	if (stext_phys != 0) {
++		// The end of interrupts code at zero is a rodata boundary
++		unsigned long end_intr = __pa_symbol(__end_interrupts) - stext_phys;
++		if (addr < end_intr)
++			return end_intr;
 +
-+&fman0_tx_0x28 {
-+	/delete-property/ fsl,fman-10g-port;
-+};
-+
-+&fman0_rx_0x09 {
-+	/delete-property/ fsl,fman-10g-port;
-+};
-+
-+&fman0_tx_0x29 {
-+	/delete-property/ fsl,fman-10g-port;
-+};
+ 		// Start of relocated kernel text is a rodata boundary
+ 		if (addr < stext_phys)
+ 			return stext_phys;
 -- 
 2.39.0
 
