@@ -2,50 +2,50 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 070186A0A07
-	for <lists+stable@lfdr.de>; Thu, 23 Feb 2023 14:12:43 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id BFF926A09F2
+	for <lists+stable@lfdr.de>; Thu, 23 Feb 2023 14:11:32 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234472AbjBWNMm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 23 Feb 2023 08:12:42 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43034 "EHLO
+        id S234456AbjBWNLa (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 23 Feb 2023 08:11:30 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41834 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234470AbjBWNMl (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 23 Feb 2023 08:12:41 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4D3175678F
-        for <stable@vger.kernel.org>; Thu, 23 Feb 2023 05:12:01 -0800 (PST)
+        with ESMTP id S234444AbjBWNL3 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 23 Feb 2023 08:11:29 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 129A456795
+        for <stable@vger.kernel.org>; Thu, 23 Feb 2023 05:11:05 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 9D8C3B81A1F
-        for <stable@vger.kernel.org>; Thu, 23 Feb 2023 13:11:55 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E2E52C433D2;
-        Thu, 23 Feb 2023 13:11:53 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 94207B81A21
+        for <stable@vger.kernel.org>; Thu, 23 Feb 2023 13:11:03 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0BA68C433EF;
+        Thu, 23 Feb 2023 13:11:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1677157914;
-        bh=OaEb/B+Hv85vgXNSdL8MXjkqgm/DjdI+tRJk5gWznds=;
+        s=korg; t=1677157862;
+        bh=rstKA0hyrnwtvlnsEl8AqHW7A/sM8ScX1sgFsnefTCY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=bhHv7E41npgX2A0qk15+EkoDDAUwMWTf+vOdfkKtwFDvw83q+N+/BpJCSlMsBNRtO
-         xAV2lKUMCSt5/FrdSQ9GfqL/Gg6QPmf61hcOkF7MQW7ZhhPhSB5xUZKkWMs9lgAmmY
-         CzavsOfGn5Tc/a2sk5fPgh8C+v/0B8dL5PKig1pE=
+        b=sfpZhaP7zM1/2oB7mN0iDuKwCCSDsO2UgBxgDmegYk6xkcr9WVVmjME6MaE2AjWxz
+         jjlXKaBSe+XSahGuBU/dRU9y37S5cG36Z3M5cX6KT3F5ehjPIRhZrxGZhLXqivU3kj
+         eUTeAp8weqPIGECPZ7KL3jYkLXSvmFD8kQXvqURs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         patches@lists.linux.dev, Zheng Wang <zyytlz.wz@163.com>,
         Zhenyu Wang <zhenyuw@linux.intel.com>,
         Ovidiu Panait <ovidiu.panait@eng.windriver.com>
-Subject: [PATCH 5.15 21/36] drm/i915/gvt: fix double free bug in split_2MB_gtt_entry
-Date:   Thu, 23 Feb 2023 14:06:57 +0100
-Message-Id: <20230223130430.045537886@linuxfoundation.org>
+Subject: [PATCH 5.4 13/18] drm/i915/gvt: fix double free bug in split_2MB_gtt_entry
+Date:   Thu, 23 Feb 2023 14:06:58 +0100
+Message-Id: <20230223130426.184306800@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230223130429.072633724@linuxfoundation.org>
-References: <20230223130429.072633724@linuxfoundation.org>
+In-Reply-To: <20230223130425.680784802@linuxfoundation.org>
+References: <20230223130425.680784802@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
         SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -80,7 +80,7 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 --- a/drivers/gpu/drm/i915/gvt/gtt.c
 +++ b/drivers/gpu/drm/i915/gvt/gtt.c
-@@ -1195,10 +1195,8 @@ static int split_2MB_gtt_entry(struct in
+@@ -1186,10 +1186,8 @@ static int split_2MB_gtt_entry(struct in
  	for_each_shadow_entry(sub_spt, &sub_se, sub_index) {
  		ret = intel_gvt_hypervisor_dma_map_guest_page(vgpu,
  				start_gfn + sub_index, PAGE_SIZE, &dma_addr);
@@ -93,7 +93,7 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
  		sub_se.val64 = se->val64;
  
  		/* Copy the PAT field from PDE. */
-@@ -1217,6 +1215,17 @@ static int split_2MB_gtt_entry(struct in
+@@ -1208,6 +1206,17 @@ static int split_2MB_gtt_entry(struct in
  	ops->set_pfn(se, sub_spt->shadow_page.mfn);
  	ppgtt_set_shadow_entry(spt, se, index);
  	return 0;
