@@ -2,47 +2,55 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C2C636A09CA
-	for <lists+stable@lfdr.de>; Thu, 23 Feb 2023 14:09:58 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3147C6A0987
+	for <lists+stable@lfdr.de>; Thu, 23 Feb 2023 14:07:54 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234347AbjBWNJx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 23 Feb 2023 08:09:53 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38892 "EHLO
+        id S233330AbjBWNHx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 23 Feb 2023 08:07:53 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35710 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234388AbjBWNJw (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 23 Feb 2023 08:09:52 -0500
+        with ESMTP id S233210AbjBWNHw (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 23 Feb 2023 08:07:52 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 44CBEB471
-        for <stable@vger.kernel.org>; Thu, 23 Feb 2023 05:09:48 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 54B9B532BF;
+        Thu, 23 Feb 2023 05:07:33 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 25006616E0
-        for <stable@vger.kernel.org>; Thu, 23 Feb 2023 13:09:49 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E817EC433EF;
-        Thu, 23 Feb 2023 13:09:46 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 2B586616F0;
+        Thu, 23 Feb 2023 13:07:34 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C6134C4339C;
+        Thu, 23 Feb 2023 13:07:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1677157787;
-        bh=m5w68lAElSkqotMfgm3dTzokS3uk62zy1nIRDv311sE=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=gbCvSTAxAjWvzahkW78EzvdC6VakORkvv7sWu3FYGYHopTFmOurtSNcPONcdGiLXG
-         g3hdQN7giuCmZqP8csDgNpvmdB5pdpa5I/pgjbAY7aRypO1DzPudIQZo4t3Cg+DOz9
-         WdaTn+bAW56sKjO6d9CwAkHZsgBrq5aByxWNnQ7k=
+        s=korg; t=1677157652;
+        bh=nyEKPaXhLqAuYQUVG6BtDo90wVCUecximN2tLaxL/VU=;
+        h=From:To:Cc:Subject:Date:From;
+        b=hnlzhAhChBTywmPnWYUbISlqIZ73kBebCMMnJ9U6TulACcCgCmShPJq8Bt8axz6X0
+         NDEpOhY7FeSKVzluDeRwbAaPzF4O9Z+PcDVS6rS5g3OGjRppckWi6TjZ/WGsTMg95+
+         Zbc95wWA9P/KFiTqAmit5Or9HGjMZg0+5PMmAbb4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Sean Anderson <sean.anderson@seco.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 09/46] powerpc: dts: t208x: Mark MAC1 and MAC2 as 10G
-Date:   Thu, 23 Feb 2023 14:06:16 +0100
-Message-Id: <20230223130431.968277420@linuxfoundation.org>
+        patches@lists.linux.dev, linux-kernel@vger.kernel.org,
+        torvalds@linux-foundation.org, akpm@linux-foundation.org,
+        linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
+        lkft-triage@lists.linaro.org, pavel@denx.de, jonathanh@nvidia.com,
+        f.fainelli@gmail.com, sudipm.mukherjee@gmail.com,
+        srw@sladewatkins.net, rwarsow@gmx.de
+Subject: [PATCH 5.10 00/25] 5.10.170-rc1 review
+Date:   Thu, 23 Feb 2023 14:06:17 +0100
+Message-Id: <20230223130426.817998725@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230223130431.553657459@linuxfoundation.org>
-References: <20230223130431.553657459@linuxfoundation.org>
-User-Agent: quilt/0.67
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+User-Agent: quilt/0.67
+X-stable: review
+X-Patchwork-Hint: ignore
+X-KernelTest-Patch: http://kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.10.170-rc1.gz
+X-KernelTest-Tree: git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git
+X-KernelTest-Branch: linux-5.10.y
+X-KernelTest-Patches: git://git.kernel.org/pub/scm/linux/kernel/git/stable/stable-queue.git
+X-KernelTest-Version: 5.10.170-rc1
+X-KernelTest-Deadline: 2023-02-25T13:04+00:00
 Content-Transfer-Encoding: 8bit
 X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
         DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
@@ -53,142 +61,139 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sean Anderson <sean.anderson@seco.com>
+This is the start of the stable review cycle for the 5.10.170 release.
+There are 25 patches in this series, all will be posted as a response
+to this one.  If anyone has any issues with these being applied, please
+let me know.
 
-[ Upstream commit 36926a7d70c2d462fca1ed85bfee000d17fd8662 ]
+Responses should be made by Sat, 25 Feb 2023 13:04:16 +0000.
+Anything received after that time might be too late.
 
-On the T208X SoCs, MAC1 and MAC2 support XGMII. Add some new MAC dtsi
-fragments, and mark the QMAN ports as 10G.
+The whole patch series can be found in one patch at:
+	https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.10.170-rc1.gz
+or in the git tree and branch at:
+	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.10.y
+and the diffstat can be found below.
 
-Fixes: da414bb923d9 ("powerpc/mpc85xx: Add FSL QorIQ DPAA FMan support to the SoC device tree(s)")
-Signed-off-by: Sean Anderson <sean.anderson@seco.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
----
- .../boot/dts/fsl/qoriq-fman3-0-10g-2.dtsi     | 44 +++++++++++++++++++
- .../boot/dts/fsl/qoriq-fman3-0-10g-3.dtsi     | 44 +++++++++++++++++++
- arch/powerpc/boot/dts/fsl/t2081si-post.dtsi   |  4 +-
- 3 files changed, 90 insertions(+), 2 deletions(-)
- create mode 100644 arch/powerpc/boot/dts/fsl/qoriq-fman3-0-10g-2.dtsi
- create mode 100644 arch/powerpc/boot/dts/fsl/qoriq-fman3-0-10g-3.dtsi
+thanks,
 
-diff --git a/arch/powerpc/boot/dts/fsl/qoriq-fman3-0-10g-2.dtsi b/arch/powerpc/boot/dts/fsl/qoriq-fman3-0-10g-2.dtsi
-new file mode 100644
-index 0000000000000..437dab3fc0176
---- /dev/null
-+++ b/arch/powerpc/boot/dts/fsl/qoriq-fman3-0-10g-2.dtsi
-@@ -0,0 +1,44 @@
-+// SPDX-License-Identifier: BSD-3-Clause OR GPL-2.0-or-later
-+/*
-+ * QorIQ FMan v3 10g port #2 device tree stub [ controller @ offset 0x400000 ]
-+ *
-+ * Copyright 2022 Sean Anderson <sean.anderson@seco.com>
-+ * Copyright 2012 - 2015 Freescale Semiconductor Inc.
-+ */
-+
-+fman@400000 {
-+	fman0_rx_0x08: port@88000 {
-+		cell-index = <0x8>;
-+		compatible = "fsl,fman-v3-port-rx";
-+		reg = <0x88000 0x1000>;
-+		fsl,fman-10g-port;
-+	};
-+
-+	fman0_tx_0x28: port@a8000 {
-+		cell-index = <0x28>;
-+		compatible = "fsl,fman-v3-port-tx";
-+		reg = <0xa8000 0x1000>;
-+		fsl,fman-10g-port;
-+	};
-+
-+	ethernet@e0000 {
-+		cell-index = <0>;
-+		compatible = "fsl,fman-memac";
-+		reg = <0xe0000 0x1000>;
-+		fsl,fman-ports = <&fman0_rx_0x08 &fman0_tx_0x28>;
-+		ptp-timer = <&ptp_timer0>;
-+		pcsphy-handle = <&pcsphy0>;
-+	};
-+
-+	mdio@e1000 {
-+		#address-cells = <1>;
-+		#size-cells = <0>;
-+		compatible = "fsl,fman-memac-mdio", "fsl,fman-xmdio";
-+		reg = <0xe1000 0x1000>;
-+		fsl,erratum-a011043; /* must ignore read errors */
-+
-+		pcsphy0: ethernet-phy@0 {
-+			reg = <0x0>;
-+		};
-+	};
-+};
-diff --git a/arch/powerpc/boot/dts/fsl/qoriq-fman3-0-10g-3.dtsi b/arch/powerpc/boot/dts/fsl/qoriq-fman3-0-10g-3.dtsi
-new file mode 100644
-index 0000000000000..ad116b17850a8
---- /dev/null
-+++ b/arch/powerpc/boot/dts/fsl/qoriq-fman3-0-10g-3.dtsi
-@@ -0,0 +1,44 @@
-+// SPDX-License-Identifier: BSD-3-Clause OR GPL-2.0-or-later
-+/*
-+ * QorIQ FMan v3 10g port #3 device tree stub [ controller @ offset 0x400000 ]
-+ *
-+ * Copyright 2022 Sean Anderson <sean.anderson@seco.com>
-+ * Copyright 2012 - 2015 Freescale Semiconductor Inc.
-+ */
-+
-+fman@400000 {
-+	fman0_rx_0x09: port@89000 {
-+		cell-index = <0x9>;
-+		compatible = "fsl,fman-v3-port-rx";
-+		reg = <0x89000 0x1000>;
-+		fsl,fman-10g-port;
-+	};
-+
-+	fman0_tx_0x29: port@a9000 {
-+		cell-index = <0x29>;
-+		compatible = "fsl,fman-v3-port-tx";
-+		reg = <0xa9000 0x1000>;
-+		fsl,fman-10g-port;
-+	};
-+
-+	ethernet@e2000 {
-+		cell-index = <1>;
-+		compatible = "fsl,fman-memac";
-+		reg = <0xe2000 0x1000>;
-+		fsl,fman-ports = <&fman0_rx_0x09 &fman0_tx_0x29>;
-+		ptp-timer = <&ptp_timer0>;
-+		pcsphy-handle = <&pcsphy1>;
-+	};
-+
-+	mdio@e3000 {
-+		#address-cells = <1>;
-+		#size-cells = <0>;
-+		compatible = "fsl,fman-memac-mdio", "fsl,fman-xmdio";
-+		reg = <0xe3000 0x1000>;
-+		fsl,erratum-a011043; /* must ignore read errors */
-+
-+		pcsphy1: ethernet-phy@0 {
-+			reg = <0x0>;
-+		};
-+	};
-+};
-diff --git a/arch/powerpc/boot/dts/fsl/t2081si-post.dtsi b/arch/powerpc/boot/dts/fsl/t2081si-post.dtsi
-index ecbb447920bc6..74e17e134387d 100644
---- a/arch/powerpc/boot/dts/fsl/t2081si-post.dtsi
-+++ b/arch/powerpc/boot/dts/fsl/t2081si-post.dtsi
-@@ -609,8 +609,8 @@
- /include/ "qoriq-bman1.dtsi"
- 
- /include/ "qoriq-fman3-0.dtsi"
--/include/ "qoriq-fman3-0-1g-0.dtsi"
--/include/ "qoriq-fman3-0-1g-1.dtsi"
-+/include/ "qoriq-fman3-0-10g-2.dtsi"
-+/include/ "qoriq-fman3-0-10g-3.dtsi"
- /include/ "qoriq-fman3-0-1g-2.dtsi"
- /include/ "qoriq-fman3-0-1g-3.dtsi"
- /include/ "qoriq-fman3-0-1g-4.dtsi"
--- 
-2.39.0
+greg k-h
 
+-------------
+Pseudo-Shortlog of commits:
+
+Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+    Linux 5.10.170-rc1
+
+Vladimir Oltean <vladimir.oltean@nxp.com>
+    Revert "net/sched: taprio: make qdisc_leaf() see the per-netdev-queue pfifo child qdiscs"
+
+Kees Cook <keescook@chromium.org>
+    ext4: Fix function prototype mismatch for ext4_feat_ktype
+
+Paul Moore <paul@paul-moore.com>
+    audit: update the mailing list in MAINTAINERS
+
+Lukas Wunner <lukas@wunner.de>
+    wifi: mwifiex: Add missing compatible string for SD8787
+
+Zhang Wensheng <zhangwensheng5@huawei.com>
+    nbd: fix possible overflow on 'first_minor' in nbd_dev_add()
+
+Yu Kuai <yukuai3@huawei.com>
+    nbd: fix possible overflow for 'first_minor' in nbd_dev_add()
+
+Yu Kuai <yukuai3@huawei.com>
+    nbd: fix max value for 'first_minor'
+
+Wen Yang <wenyang.linux@foxmail.com>
+    Revert "Revert "block: nbd: add sanity check for first_minor""
+
+Dave Hansen <dave.hansen@linux.intel.com>
+    uaccess: Add speculation barrier to copy_from_user()
+
+Pavel Skripkin <paskripkin@gmail.com>
+    mac80211: mesh: embedd mesh_paths and mpp_paths into ieee80211_if_mesh
+
+Zheng Wang <zyytlz.wz@163.com>
+    drm/i915/gvt: fix double free bug in split_2MB_gtt_entry
+
+Sean Anderson <sean.anderson@seco.com>
+    powerpc: dts: t208x: Disable 10G on MAC1 and MAC2
+
+Marc Kleine-Budde <mkl@pengutronix.de>
+    can: kvaser_usb: hydra: help gcc-13 to figure out cmd_len
+
+Jim Mattson <jmattson@google.com>
+    KVM: VMX: Execute IBPB on emulated VM-exit when guest has IBRS
+
+Sean Christopherson <seanjc@google.com>
+    KVM: SVM: Skip WRMSR fastpath on VM-Exit if next RIP isn't valid
+
+Sean Christopherson <seanjc@google.com>
+    KVM: x86: Fail emulation during EMULTYPE_SKIP on any exception
+
+Jason A. Donenfeld <Jason@zx2c4.com>
+    random: always mix cycle counter in add_latent_entropy()
+
+Rahul Tanwar <rtanwar@maxlinear.com>
+    clk: mxl: syscon_node_to_regmap() returns error pointers
+
+Sean Anderson <sean.anderson@seco.com>
+    powerpc: dts: t208x: Mark MAC1 and MAC2 as 10G
+
+Rahul Tanwar <rtanwar@maxlinear.com>
+    clk: mxl: Fix a clk entry by adding relevant flags
+
+Rahul Tanwar <rtanwar@maxlinear.com>
+    clk: mxl: Add option to override gate clks
+
+Rahul Tanwar <rtanwar@maxlinear.com>
+    clk: mxl: Remove redundant spinlocks
+
+Rahul Tanwar <rtanwar@maxlinear.com>
+    clk: mxl: Switch from direct readl/writel based IO to regmap based IO
+
+Bitterblue Smith <rtl8821cerfe2@gmail.com>
+    wifi: rtl8xxxu: gen2: Turn on the rate control
+
+Lucas Stach <l.stach@pengutronix.de>
+    drm/etnaviv: don't truncate physical page address
+
+
+-------------
+
+Diffstat:
+
+ MAINTAINERS                                        |   2 +-
+ Makefile                                           |   4 +-
+ arch/powerpc/boot/dts/fsl/qoriq-fman3-0-10g-2.dtsi |  44 +++++++++
+ arch/powerpc/boot/dts/fsl/qoriq-fman3-0-10g-3.dtsi |  44 +++++++++
+ arch/powerpc/boot/dts/fsl/t2081si-post.dtsi        |  20 +++-
+ arch/x86/kvm/svm/svm.c                             |  10 +-
+ arch/x86/kvm/vmx/nested.c                          |  11 +++
+ arch/x86/kvm/vmx/vmx.c                             |   6 +-
+ arch/x86/kvm/x86.c                                 |   4 +-
+ drivers/block/nbd.c                                |  13 ++-
+ drivers/clk/x86/Kconfig                            |   5 +-
+ drivers/clk/x86/clk-cgu-pll.c                      |  23 ++---
+ drivers/clk/x86/clk-cgu.c                          | 106 ++++++---------------
+ drivers/clk/x86/clk-cgu.h                          |  46 ++++-----
+ drivers/clk/x86/clk-lgm.c                          |  18 ++--
+ drivers/gpu/drm/etnaviv/etnaviv_mmu.c              |   4 +-
+ drivers/gpu/drm/i915/gvt/gtt.c                     |  17 +++-
+ drivers/net/can/usb/kvaser_usb/kvaser_usb_hydra.c  |  33 +++++--
+ drivers/net/wireless/marvell/mwifiex/sdio.c        |   1 +
+ .../net/wireless/realtek/rtl8xxxu/rtl8xxxu_core.c  |   8 +-
+ fs/ext4/sysfs.c                                    |   7 +-
+ include/linux/nospec.h                             |   4 +
+ include/linux/random.h                             |   6 +-
+ kernel/bpf/core.c                                  |   2 -
+ lib/usercopy.c                                     |   7 ++
+ net/mac80211/ieee80211_i.h                         |  24 ++++-
+ net/mac80211/mesh.h                                |  22 +----
+ net/mac80211/mesh_pathtbl.c                        |  89 ++++++-----------
+ net/sched/sch_taprio.c                             |   8 +-
+ 29 files changed, 339 insertions(+), 249 deletions(-)
 
 
