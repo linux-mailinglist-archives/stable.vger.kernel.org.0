@@ -2,40 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 335B86A0960
-	for <lists+stable@lfdr.de>; Thu, 23 Feb 2023 14:05:28 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 053696A0964
+	for <lists+stable@lfdr.de>; Thu, 23 Feb 2023 14:05:31 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234281AbjBWNF0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 23 Feb 2023 08:05:26 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59738 "EHLO
+        id S233255AbjBWNF3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 23 Feb 2023 08:05:29 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59704 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234287AbjBWNFZ (ORCPT
+        with ESMTP id S234294AbjBWNFZ (ORCPT
         <rfc822;stable@vger.kernel.org>); Thu, 23 Feb 2023 08:05:25 -0500
 Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B483A54A37
-        for <stable@vger.kernel.org>; Thu, 23 Feb 2023 05:05:17 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 842F749898
+        for <stable@vger.kernel.org>; Thu, 23 Feb 2023 05:05:20 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 1E611CE2020
-        for <stable@vger.kernel.org>; Thu, 23 Feb 2023 13:05:16 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id ED1FDC433D2;
-        Thu, 23 Feb 2023 13:05:13 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id DE4E0CE2026
+        for <stable@vger.kernel.org>; Thu, 23 Feb 2023 13:05:18 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C13B3C433EF;
+        Thu, 23 Feb 2023 13:05:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1677157514;
-        bh=uVog4+eLQsf9qeofd22iYzE0CERGuqS/2mxtMUTXyYM=;
+        s=korg; t=1677157517;
+        bh=mwNKu+5csaMu1VzaeTotgw/wHkb+DvhGze9IFnn/iLw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=1b181AJnW+Ix3wK7TdciA05Mf16bqzV9sEfU/jY/EtNo8h+qVL20OJmGLbuShKkg6
-         l/1WJ7rKoMtmt3Ms0p2jWaI5KqsiGr6g2NOuqDIQMwKi95LeCpxUSBQeLj4uEQeUtl
-         s8rFrNSjQB3zjVpJ9Ckd0Txjj2rKmcbXcLISma0U=
+        b=zK87trAB6wjAzhr+s20hJszinzrQtAoOcyX/yyQTermaAlISRTrSb/vyGVHm00YT7
+         eOAD6vKQ6AK8TqeS+/jj0+0SpUNu20tVIbJbE5Gmhy7S53ahEpGXIivjgYgH6lK98N
+         HLWeb+8tGftyt4EyJhAbW+Q+TJRPSlxXUs4KRRsU=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Lukas Wunner <lukas@wunner.de>,
-        Matt Ranostay <mranostay@ti.com>, Kalle Valo <kvalo@kernel.org>
-Subject: [PATCH 4.19 10/11] wifi: mwifiex: Add missing compatible string for SD8787
-Date:   Thu, 23 Feb 2023 14:04:51 +0100
-Message-Id: <20230223130424.445834680@linuxfoundation.org>
+        patches@lists.linux.dev, Theodore Tso <tytso@mit.edu>,
+        Eric Biggers <ebiggers@kernel.org>,
+        "Gustavo A. R. Silva" <gustavoars@kernel.org>,
+        Nathan Chancellor <nathan@kernel.org>,
+        Kees Cook <keescook@chromium.org>,
+        Eric Biggers <ebiggers@google.com>
+Subject: [PATCH 4.19 11/11] ext4: Fix function prototype mismatch for ext4_feat_ktype
+Date:   Thu, 23 Feb 2023 14:04:52 +0100
+Message-Id: <20230223130424.486780481@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
 In-Reply-To: <20230223130424.079732181@linuxfoundation.org>
 References: <20230223130424.079732181@linuxfoundation.org>
@@ -52,34 +56,74 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Lukas Wunner <lukas@wunner.de>
+From: Kees Cook <keescook@chromium.org>
 
-commit 36dd7a4c6226133b0b7aa92b8e604e688d958d0c upstream.
+commit 118901ad1f25d2334255b3d50512fa20591531cd upstream.
 
-Commit e3fffc1f0b47 ("devicetree: document new marvell-8xxx and
-pwrseq-sd8787 options") documented a compatible string for SD8787 in
-the devicetree bindings, but neglected to add it to the mwifiex driver.
+With clang's kernel control flow integrity (kCFI, CONFIG_CFI_CLANG),
+indirect call targets are validated against the expected function
+pointer prototype to make sure the call target is valid to help mitigate
+ROP attacks. If they are not identical, there is a failure at run time,
+which manifests as either a kernel panic or thread getting killed.
 
-Fixes: e3fffc1f0b47 ("devicetree: document new marvell-8xxx and pwrseq-sd8787 options")
-Signed-off-by: Lukas Wunner <lukas@wunner.de>
-Cc: stable@vger.kernel.org # v4.11+
-Cc: Matt Ranostay <mranostay@ti.com>
-Signed-off-by: Kalle Valo <kvalo@kernel.org>
-Link: https://lore.kernel.org/r/320de5005ff3b8fd76be2d2b859fd021689c3681.1674827105.git.lukas@wunner.de
+ext4_feat_ktype was setting the "release" handler to "kfree", which
+doesn't have a matching function prototype. Add a simple wrapper
+with the correct prototype.
+
+This was found as a result of Clang's new -Wcast-function-type-strict
+flag, which is more sensitive than the simpler -Wcast-function-type,
+which only checks for type width mismatches.
+
+Note that this code is only reached when ext4 is a loadable module and
+it is being unloaded:
+
+ CFI failure at kobject_put+0xbb/0x1b0 (target: kfree+0x0/0x180; expected type: 0x7c4aa698)
+ ...
+ RIP: 0010:kobject_put+0xbb/0x1b0
+ ...
+ Call Trace:
+  <TASK>
+  ext4_exit_sysfs+0x14/0x60 [ext4]
+  cleanup_module+0x67/0xedb [ext4]
+
+Fixes: b99fee58a20a ("ext4: create ext4_feat kobject dynamically")
+Cc: Theodore Ts'o <tytso@mit.edu>
+Cc: Eric Biggers <ebiggers@kernel.org>
+Cc: stable@vger.kernel.org
+Build-tested-by: Gustavo A. R. Silva <gustavoars@kernel.org>
+Reviewed-by: Gustavo A. R. Silva <gustavoars@kernel.org>
+Reviewed-by: Nathan Chancellor <nathan@kernel.org>
+Link: https://lore.kernel.org/r/20230103234616.never.915-kees@kernel.org
+Signed-off-by: Kees Cook <keescook@chromium.org>
+Reviewed-by: Eric Biggers <ebiggers@google.com>
+Link: https://lore.kernel.org/r/20230104210908.gonna.388-kees@kernel.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/wireless/marvell/mwifiex/sdio.c |    1 +
- 1 file changed, 1 insertion(+)
+ fs/ext4/sysfs.c |    7 ++++++-
+ 1 file changed, 6 insertions(+), 1 deletion(-)
 
---- a/drivers/net/wireless/marvell/mwifiex/sdio.c
-+++ b/drivers/net/wireless/marvell/mwifiex/sdio.c
-@@ -58,6 +58,7 @@ static struct memory_type_mapping mem_ty
+--- a/fs/ext4/sysfs.c
++++ b/fs/ext4/sysfs.c
+@@ -349,6 +349,11 @@ static void ext4_sb_release(struct kobje
+ 	complete(&sbi->s_kobj_unregister);
+ }
+ 
++static void ext4_feat_release(struct kobject *kobj)
++{
++	kfree(kobj);
++}
++
+ static const struct sysfs_ops ext4_attr_ops = {
+ 	.show	= ext4_attr_show,
+ 	.store	= ext4_attr_store,
+@@ -363,7 +368,7 @@ static struct kobj_type ext4_sb_ktype =
+ static struct kobj_type ext4_feat_ktype = {
+ 	.default_attrs	= ext4_feat_attrs,
+ 	.sysfs_ops	= &ext4_attr_ops,
+-	.release	= (void (*)(struct kobject *))kfree,
++	.release	= ext4_feat_release,
  };
  
- static const struct of_device_id mwifiex_sdio_of_match_table[] = {
-+	{ .compatible = "marvell,sd8787" },
- 	{ .compatible = "marvell,sd8897" },
- 	{ .compatible = "marvell,sd8997" },
- 	{ }
+ static struct kobject *ext4_root;
 
 
