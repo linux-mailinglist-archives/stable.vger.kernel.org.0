@@ -2,44 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 0410C6A09F7
-	for <lists+stable@lfdr.de>; Thu, 23 Feb 2023 14:11:49 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8E99A6A09F6
+	for <lists+stable@lfdr.de>; Thu, 23 Feb 2023 14:11:48 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234451AbjBWNLs (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 23 Feb 2023 08:11:48 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42262 "EHLO
+        id S234453AbjBWNLr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 23 Feb 2023 08:11:47 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42246 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234417AbjBWNLr (ORCPT
+        with ESMTP id S234451AbjBWNLr (ORCPT
         <rfc822;stable@vger.kernel.org>); Thu, 23 Feb 2023 08:11:47 -0500
-Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2968E570BE
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4576C570BF
         for <stable@vger.kernel.org>; Thu, 23 Feb 2023 05:11:16 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 53D2DCE2024
-        for <stable@vger.kernel.org>; Thu, 23 Feb 2023 13:11:14 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 541F3C4339B;
-        Thu, 23 Feb 2023 13:11:12 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 1E05461702
+        for <stable@vger.kernel.org>; Thu, 23 Feb 2023 13:11:17 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E2F3FC433D2;
+        Thu, 23 Feb 2023 13:11:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1677157872;
-        bh=ZaHNhBnKKXPiLRFFCtHO8LU6lhILjz58VZP7gBb+c74=;
+        s=korg; t=1677157875;
+        bh=v37f3iNDBIOpg6Gk3PgKxw7GwBMDKWYD2h4aWQlsGQ0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=k6xACUDKdV/hDy2eajkJ/BkPDjMFJ4tIx9+7IB3RrKJoQKLwT3SfhfC8JnxriIj6q
-         7+Gq8amPWpHVY65aUS6/iuY2b78gjoa5A2t9zUL2/AwLjzJG5jM9vq4bWzN2KeFa0S
-         /TV3qlnnfHhQNxfEn4EmZ4NzzXKV3b9nsmR9trMQ=
+        b=2anfFzEKvZidbsa/nsOZ9RsYy6kse47dBGNbRabIyT8dw+8cQmVhUlZc41wdgF8rb
+         mC+qJve3BQjNO+W9Enc0iRlOexjZBRU/8Zrnt8OX+03yYExhpKQk6P4rkxbBd9yLyD
+         g8SYl5BpEd+KT3vy1yK5BT4PkKBzvB6W3UQierjg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Theodore Tso <tytso@mit.edu>,
-        Eric Biggers <ebiggers@kernel.org>,
-        "Gustavo A. R. Silva" <gustavoars@kernel.org>,
-        Nathan Chancellor <nathan@kernel.org>,
-        Kees Cook <keescook@chromium.org>,
-        Eric Biggers <ebiggers@google.com>
-Subject: [PATCH 5.4 17/18] ext4: Fix function prototype mismatch for ext4_feat_ktype
-Date:   Thu, 23 Feb 2023 14:07:02 +0100
-Message-Id: <20230223130426.340058228@linuxfoundation.org>
+        patches@lists.linux.dev,
+        Muhammad Husaini Zulkifli <muhammad.husaini.zulkifli@intel.com>,
+        Vinicius Costa Gomes <vinicius.gomes@intel.com>,
+        Vladimir Oltean <vladimir.oltean@nxp.com>,
+        Jakub Kicinski <kuba@kernel.org>
+Subject: [PATCH 5.4 18/18] Revert "net/sched: taprio: make qdisc_leaf() see the per-netdev-queue pfifo child qdiscs"
+Date:   Thu, 23 Feb 2023 14:07:03 +0100
+Message-Id: <20230223130426.378267939@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
 In-Reply-To: <20230223130425.680784802@linuxfoundation.org>
 References: <20230223130425.680784802@linuxfoundation.org>
@@ -56,74 +55,195 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kees Cook <keescook@chromium.org>
+From: Vladimir Oltean <vladimir.oltean@nxp.com>
 
-commit 118901ad1f25d2334255b3d50512fa20591531cd upstream.
+commit af7b29b1deaac6da3bb7637f0e263dfab7bfc7a3 upstream.
 
-With clang's kernel control flow integrity (kCFI, CONFIG_CFI_CLANG),
-indirect call targets are validated against the expected function
-pointer prototype to make sure the call target is valid to help mitigate
-ROP attacks. If they are not identical, there is a failure at run time,
-which manifests as either a kernel panic or thread getting killed.
+taprio_attach() has this logic at the end, which should have been
+removed with the blamed patch (which is now being reverted):
 
-ext4_feat_ktype was setting the "release" handler to "kfree", which
-doesn't have a matching function prototype. Add a simple wrapper
-with the correct prototype.
+	/* access to the child qdiscs is not needed in offload mode */
+	if (FULL_OFFLOAD_IS_ENABLED(q->flags)) {
+		kfree(q->qdiscs);
+		q->qdiscs = NULL;
+	}
 
-This was found as a result of Clang's new -Wcast-function-type-strict
-flag, which is more sensitive than the simpler -Wcast-function-type,
-which only checks for type width mismatches.
+because otherwise, we make use of q->qdiscs[] even after this array was
+deallocated, namely in taprio_leaf(). Therefore, whenever one would try
+to attach a valid child qdisc to a fully offloaded taprio root, one
+would immediately dereference a NULL pointer.
 
-Note that this code is only reached when ext4 is a loadable module and
-it is being unloaded:
+$ tc qdisc replace dev eno0 handle 8001: parent root taprio \
+	num_tc 8 \
+	map 0 1 2 3 4 5 6 7 \
+	queues 1@0 1@1 1@2 1@3 1@4 1@5 1@6 1@7 \
+	max-sdu 0 0 0 0 0 200 0 0 \
+	base-time 200 \
+	sched-entry S 80 20000 \
+	sched-entry S a0 20000 \
+	sched-entry S 5f 60000 \
+	flags 2
+$ max_frame_size=1500
+$ data_rate_kbps=20000
+$ port_transmit_rate_kbps=1000000
+$ idleslope=$data_rate_kbps
+$ sendslope=$(($idleslope - $port_transmit_rate_kbps))
+$ locredit=$(($max_frame_size * $sendslope / $port_transmit_rate_kbps))
+$ hicredit=$(($max_frame_size * $idleslope / $port_transmit_rate_kbps))
+$ tc qdisc replace dev eno0 parent 8001:7 cbs \
+	idleslope $idleslope \
+	sendslope $sendslope \
+	hicredit $hicredit \
+	locredit $locredit \
+	offload 0
 
- CFI failure at kobject_put+0xbb/0x1b0 (target: kfree+0x0/0x180; expected type: 0x7c4aa698)
- ...
- RIP: 0010:kobject_put+0xbb/0x1b0
- ...
- Call Trace:
-  <TASK>
-  ext4_exit_sysfs+0x14/0x60 [ext4]
-  cleanup_module+0x67/0xedb [ext4]
+Unable to handle kernel NULL pointer dereference at virtual address 0000000000000030
+pc : taprio_leaf+0x28/0x40
+lr : qdisc_leaf+0x3c/0x60
+Call trace:
+ taprio_leaf+0x28/0x40
+ tc_modify_qdisc+0xf0/0x72c
+ rtnetlink_rcv_msg+0x12c/0x390
+ netlink_rcv_skb+0x5c/0x130
+ rtnetlink_rcv+0x1c/0x2c
 
-Fixes: b99fee58a20a ("ext4: create ext4_feat kobject dynamically")
-Cc: Theodore Ts'o <tytso@mit.edu>
-Cc: Eric Biggers <ebiggers@kernel.org>
-Cc: stable@vger.kernel.org
-Build-tested-by: Gustavo A. R. Silva <gustavoars@kernel.org>
-Reviewed-by: Gustavo A. R. Silva <gustavoars@kernel.org>
-Reviewed-by: Nathan Chancellor <nathan@kernel.org>
-Link: https://lore.kernel.org/r/20230103234616.never.915-kees@kernel.org
-Signed-off-by: Kees Cook <keescook@chromium.org>
-Reviewed-by: Eric Biggers <ebiggers@google.com>
-Link: https://lore.kernel.org/r/20230104210908.gonna.388-kees@kernel.org
+The solution is not as obvious as the problem. The code which deallocates
+q->qdiscs[] is in fact copied and pasted from mqprio, which also
+deallocates the array in mqprio_attach() and never uses it afterwards.
+
+Therefore, the identical cleanup logic of priv->qdiscs[] that
+mqprio_destroy() has is deceptive because it will never take place at
+qdisc_destroy() time, but just at raw ops->destroy() time (otherwise
+said, priv->qdiscs[] do not last for the entire lifetime of the mqprio
+root), but rather, this is just the twisted way in which the Qdisc API
+understands error path cleanup should be done (Qdisc_ops :: destroy() is
+called even when Qdisc_ops :: init() never succeeded).
+
+Side note, in fact this is also what the comment in mqprio_init() says:
+
+	/* pre-allocate qdisc, attachment can't fail */
+
+Or reworded, mqprio's priv->qdiscs[] scheme is only meant to serve as
+data passing between Qdisc_ops :: init() and Qdisc_ops :: attach().
+
+[ this comment was also copied and pasted into the initial taprio
+  commit, even though taprio_attach() came way later ]
+
+The problem is that taprio also makes extensive use of the q->qdiscs[]
+array in the software fast path (taprio_enqueue() and taprio_dequeue()),
+but it does not keep a reference of its own on q->qdiscs[i] (you'd think
+that since it creates these Qdiscs, it holds the reference, but nope,
+this is not completely true).
+
+To understand the difference between taprio_destroy() and mqprio_destroy()
+one must look before commit 13511704f8d7 ("net: taprio offload: enforce
+qdisc to netdev queue mapping"), because that just muddied the waters.
+
+In the "original" taprio design, taprio always attached itself (the root
+Qdisc) to all netdev TX queues, so that dev_qdisc_enqueue() would go
+through taprio_enqueue().
+
+It also called qdisc_refcount_inc() on itself for as many times as there
+were netdev TX queues, in order to counter-balance what tc_get_qdisc()
+does when destroying a Qdisc (simplified for brevity below):
+
+	if (n->nlmsg_type == RTM_DELQDISC)
+		err = qdisc_graft(dev, parent=NULL, new=NULL, q, extack);
+
+qdisc_graft(where "new" is NULL so this deletes the Qdisc):
+
+	for (i = 0; i < num_q; i++) {
+		struct netdev_queue *dev_queue;
+
+		dev_queue = netdev_get_tx_queue(dev, i);
+
+		old = dev_graft_qdisc(dev_queue, new);
+		if (new && i > 0)
+			qdisc_refcount_inc(new);
+
+		qdisc_put(old);
+		~~~~~~~~~~~~~~
+		this decrements taprio's refcount once for each TX queue
+	}
+
+	notify_and_destroy(net, skb, n, classid,
+			   rtnl_dereference(dev->qdisc), new);
+			   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+			   and this finally decrements it to zero,
+			   making qdisc_put() call qdisc_destroy()
+
+The q->qdiscs[] created using qdisc_create_dflt() (or their
+replacements, if taprio_graft() was ever to get called) were then
+privately freed by taprio_destroy().
+
+This is still what is happening after commit 13511704f8d7 ("net: taprio
+offload: enforce qdisc to netdev queue mapping"), but only for software
+mode.
+
+In full offload mode, the per-txq "qdisc_put(old)" calls from
+qdisc_graft() now deallocate the child Qdiscs rather than decrement
+taprio's refcount. So when notify_and_destroy(taprio) finally calls
+taprio_destroy(), the difference is that the child Qdiscs were already
+deallocated.
+
+And this is exactly why the taprio_attach() comment "access to the child
+qdiscs is not needed in offload mode" is deceptive too. Not only the
+q->qdiscs[] array is not needed, but it is also necessary to get rid of
+it as soon as possible, because otherwise, we will also call qdisc_put()
+on the child Qdiscs in qdisc_destroy() -> taprio_destroy(), and this
+will cause a nasty use-after-free/refcount-saturate/whatever.
+
+In short, the problem is that since the blamed commit, taprio_leaf()
+needs q->qdiscs[] to not be freed by taprio_attach(), while qdisc_destroy()
+-> taprio_destroy() does need q->qdiscs[] to be freed by taprio_attach()
+for full offload. Fixing one problem triggers the other.
+
+All of this can be solved by making taprio keep its q->qdiscs[i] with a
+refcount elevated at 2 (in offloaded mode where they are attached to the
+netdev TX queues), both in taprio_attach() and in taprio_graft(). The
+generic qdisc_graft() would just decrement the child qdiscs' refcounts
+to 1, and taprio_destroy() would give them the final coup de grace.
+
+However the rabbit hole of changes is getting quite deep, and the
+complexity increases. The blamed commit was supposed to be a bug fix in
+the first place, and the bug it addressed is not so significant so as to
+justify further rework in stable trees. So I'd rather just revert it.
+I don't know enough about multi-queue Qdisc design to make a proper
+judgement right now regarding what is/isn't idiomatic use of Qdisc
+concepts in taprio. I will try to study the problem more and come with a
+different solution in net-next.
+
+Fixes: 1461d212ab27 ("net/sched: taprio: make qdisc_leaf() see the per-netdev-queue pfifo child qdiscs")
+Reported-by: Muhammad Husaini Zulkifli <muhammad.husaini.zulkifli@intel.com>
+Reported-by: Vinicius Costa Gomes <vinicius.gomes@intel.com>
+Signed-off-by: Vladimir Oltean <vladimir.oltean@nxp.com>
+Reviewed-by: Vinicius Costa Gomes <vinicius.gomes@intel.com>
+Link: https://lore.kernel.org/r/20221004220100.1650558-1-vladimir.oltean@nxp.com
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/ext4/sysfs.c |    7 ++++++-
- 1 file changed, 6 insertions(+), 1 deletion(-)
+ net/sched/sch_taprio.c |    8 +++-----
+ 1 file changed, 3 insertions(+), 5 deletions(-)
 
---- a/fs/ext4/sysfs.c
-+++ b/fs/ext4/sysfs.c
-@@ -383,6 +383,11 @@ static void ext4_sb_release(struct kobje
- 	complete(&sbi->s_kobj_unregister);
+--- a/net/sched/sch_taprio.c
++++ b/net/sched/sch_taprio.c
+@@ -1908,14 +1908,12 @@ start_error:
+ 
+ static struct Qdisc *taprio_leaf(struct Qdisc *sch, unsigned long cl)
+ {
+-	struct taprio_sched *q = qdisc_priv(sch);
+-	struct net_device *dev = qdisc_dev(sch);
+-	unsigned int ntx = cl - 1;
++	struct netdev_queue *dev_queue = taprio_queue_get(sch, cl);
+ 
+-	if (ntx >= dev->num_tx_queues)
++	if (!dev_queue)
+ 		return NULL;
+ 
+-	return q->qdiscs[ntx];
++	return dev_queue->qdisc_sleeping;
  }
  
-+static void ext4_feat_release(struct kobject *kobj)
-+{
-+	kfree(kobj);
-+}
-+
- static const struct sysfs_ops ext4_attr_ops = {
- 	.show	= ext4_attr_show,
- 	.store	= ext4_attr_store,
-@@ -397,7 +402,7 @@ static struct kobj_type ext4_sb_ktype =
- static struct kobj_type ext4_feat_ktype = {
- 	.default_groups = ext4_feat_groups,
- 	.sysfs_ops	= &ext4_attr_ops,
--	.release	= (void (*)(struct kobject *))kfree,
-+	.release	= ext4_feat_release,
- };
- 
- static struct kobject *ext4_root;
+ static unsigned long taprio_find(struct Qdisc *sch, u32 classid)
 
 
