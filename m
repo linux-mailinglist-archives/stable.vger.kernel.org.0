@@ -2,90 +2,100 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C86666A053A
-	for <lists+stable@lfdr.de>; Thu, 23 Feb 2023 10:51:14 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id CE0F66A053F
+	for <lists+stable@lfdr.de>; Thu, 23 Feb 2023 10:51:53 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234124AbjBWJvN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 23 Feb 2023 04:51:13 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52206 "EHLO
+        id S234128AbjBWJvv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 23 Feb 2023 04:51:51 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52478 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233354AbjBWJvN (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 23 Feb 2023 04:51:13 -0500
-Received: from lelv0143.ext.ti.com (lelv0143.ext.ti.com [198.47.23.248])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5668C4E5D7
-        for <stable@vger.kernel.org>; Thu, 23 Feb 2023 01:51:12 -0800 (PST)
-Received: from lelv0265.itg.ti.com ([10.180.67.224])
-        by lelv0143.ext.ti.com (8.15.2/8.15.2) with ESMTP id 31N9p4hq076879;
-        Thu, 23 Feb 2023 03:51:04 -0600
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ti.com;
-        s=ti-com-17Q1; t=1677145864;
-        bh=SrnpYfmIC3XWSIwVBE3XtpKushpLdViBNjzy/MLD8eo=;
-        h=Date:Subject:To:CC:References:From:In-Reply-To;
-        b=sxyVSwm3iSwcsss38eKNlbrctVbt3n83iGq2q31qem3p63qeRahgblb46KhS47qYE
-         D4JP2cjDQhKXg42Upg92bSSJYNgpc/093NHuY7MgafzQbWu+yMPWJ1CW3OEdmmMrwy
-         V5Fov+pegff89RaxXL5g6s7RGIwJYAz7clIdHVbs=
-Received: from DLEE113.ent.ti.com (dlee113.ent.ti.com [157.170.170.24])
-        by lelv0265.itg.ti.com (8.15.2/8.15.2) with ESMTPS id 31N9p42c027936
-        (version=TLSv1.2 cipher=AES256-GCM-SHA384 bits=256 verify=FAIL);
-        Thu, 23 Feb 2023 03:51:04 -0600
-Received: from DLEE111.ent.ti.com (157.170.170.22) by DLEE113.ent.ti.com
- (157.170.170.24) with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA256_P256) id 15.1.2507.16; Thu, 23
- Feb 2023 03:51:04 -0600
-Received: from fllv0039.itg.ti.com (10.64.41.19) by DLEE111.ent.ti.com
- (157.170.170.22) with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA256_P256) id 15.1.2507.16 via
- Frontend Transport; Thu, 23 Feb 2023 03:51:04 -0600
-Received: from [10.24.69.26] (ileaxei01-snat2.itg.ti.com [10.180.69.6])
-        by fllv0039.itg.ti.com (8.15.2/8.15.2) with ESMTP id 31N9p2Po119467;
-        Thu, 23 Feb 2023 03:51:02 -0600
-Message-ID: <2627513b-3ad4-6ce0-9a8d-aa73528b1a7c@ti.com>
-Date:   Thu, 23 Feb 2023 15:21:01 +0530
+        with ESMTP id S233354AbjBWJvu (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 23 Feb 2023 04:51:50 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 33C964E5F5;
+        Thu, 23 Feb 2023 01:51:49 -0800 (PST)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id A7CD461629;
+        Thu, 23 Feb 2023 09:51:49 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id AE07EC433EF;
+        Thu, 23 Feb 2023 09:51:47 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
+        s=korg; t=1677145908;
+        bh=00vV012v5IGFYupEfY8cRFX6H7hj6D67NRk/FGmf4tA=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=YKN0HiTB8aCX3lOBp4YzZBOc2xpCFZlbfBq3sS4elxzCo2DgNpiZvRfAWw0EEZPsY
+         1Of0ObePM7oOGZSXHavj/fw/9VtCuHNTRtjKVOIOkZsnPDjlBnZOMH/qYnzeemOMYn
+         QCvYeMdiLvlizuKv6Sq3UBy1YChubHjmOCkJD0iI=
+Date:   Thu, 23 Feb 2023 10:51:45 +0100
+From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+To:     Tom Saeger <tom.saeger@oracle.com>
+Cc:     Sasha Levin <sashal@kernel.org>,
+        Naresh Kamboju <naresh.kamboju@linaro.org>,
+        John Paul Adrian Glaubitz <glaubitz@physik.fu-berlin.de>,
+        Rich Felker <dalias@libc.org>,
+        Masahiro Yamada <masahiroy@kernel.org>,
+        Ard Biesheuvel <ardb@kernel.org>,
+        Nathan Chancellor <nathan@kernel.org>,
+        Dennis Gilmore <dennis@ausil.us>,
+        Palmer Dabbelt <palmer@rivosinc.com>,
+        Arnd Bergmann <arnd@arndb.de>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        stable@vger.kernel.org, linux-kernel@vger.kernel.org,
+        linux-arch@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
+        linux-riscv@lists.infradead.org, linuxppc-dev@lists.ozlabs.org,
+        linux-s390@vger.kernel.org, linux-sh@vger.kernel.org
+Subject: Re: [PATCH 5.15 v2 1/5] arch: fix broken BuildID for arm64 and riscv
+Message-ID: <Y/c3MSvnN4DcvzSx@kroah.com>
+References: <20230210-tsaeger-upstream-linux-stable-5-15-v2-0-6c68622745e9@oracle.com>
+ <20230210-tsaeger-upstream-linux-stable-5-15-v2-1-6c68622745e9@oracle.com>
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
- Thunderbird/102.7.1
-Subject: Re: [PATCH] spi: spi-sn-f-ospi: fix duplicate flag while assigning to
- mode_bits
-Content-Language: en-US
-To:     Mark Brown <broonie@kernel.org>
-CC:     Vignesh Raghavendra <vigneshr@ti.com>,
-        Pratyush Yadav <ptyadav@amazon.de>,
-        David Binderman <dcb314@hotmail.com>, <stable@vger.kernel.org>
-References: <20230223094811.923122-1-d-gole@ti.com>
-From:   Dhruva Gole <d-gole@ti.com>
-In-Reply-To: <20230223094811.923122-1-d-gole@ti.com>
-Content-Type: text/plain; charset="UTF-8"; format=flowed
-Content-Transfer-Encoding: 7bit
-X-EXCLAIMER-MD-CONFIG: e1e8a2fd-e40a-4ac6-ac9b-f7e9cc9ee180
-X-Spam-Status: No, score=-4.5 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,NICE_REPLY_A,
-        RCVD_IN_DNSWL_MED,SPF_HELO_PASS,SPF_PASS autolearn=ham
-        autolearn_force=no version=3.4.6
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20230210-tsaeger-upstream-linux-stable-5-15-v2-1-6c68622745e9@oracle.com>
+X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
+        SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Forgot to add the correct lists in CC, please ignore this email, I am 
-re-sending.
-
-On 23/02/23 15:18, Dhruva Gole wrote:
-> Replace the SPI_TX_OCTAL flag that appeared two time with SPI_RX_OCTAL
-> in the chain of '|' operators while assigning to mode_bits
+On Fri, Feb 10, 2023 at 01:18:40PM -0700, Tom Saeger wrote:
+> From: Masahiro Yamada <masahiroy@kernel.org>
 > 
-> Fixes: 1b74dd64c861 ("spi: Add Socionext F_OSPI SPI flash controller driver")
+> commit 99cb0d917ffa1ab628bb67364ca9b162c07699b1 upstream.
 > 
-> Reported-by: David Binderman <dcb314@hotmail.com>
-> Link: https://lore.kernel.org/all/DB6P189MB0568F3BE9384315F5C8C1A3E9CA49@DB6P189MB0568.EURP189.PROD.OUTLOOK.COM/
+> Dennis Gilmore reports that the BuildID is missing in the arm64 vmlinux
+> since commit 994b7ac1697b ("arm64: remove special treatment for the
+> link order of head.o").
 > 
-> Cc: stable@vger.kernel.org
-> Signed-off-by: Dhruva Gole <d-gole@ti.com>
-> ---
-[...]
+> The issue is that the type of .notes section, which contains the BuildID,
+> changed from NOTES to PROGBITS.
+> 
+> Ard Biesheuvel figured out that whichever object gets linked first gets
+> to decide the type of a section. The PROGBITS type is the result of the
+> compiler emitting .note.GNU-stack as PROGBITS rather than NOTE.
+> 
+> While Ard provided a fix for arm64, I want to fix this globally because
+> the same issue is happening on riscv since commit 2348e6bf4421 ("riscv:
+> remove special treatment for the link order of head.o"). This problem
+> will happen in general for other architectures if they start to drop
+> unneeded entries from scripts/head-object-list.txt.
+> 
+> Discard .note.GNU-stack in include/asm-generic/vmlinux.lds.h.
+> 
+> Link: https://lore.kernel.org/lkml/CAABkxwuQoz1CTbyb57n0ZX65eSYiTonFCU8-LCQc=74D=xE=rA@mail.gmail.com/
+> Fixes: 994b7ac1697b ("arm64: remove special treatment for the link order of head.o")
+> Fixes: 2348e6bf4421 ("riscv: remove special treatment for the link order of head.o")
 
-Sorry for the spam.
+Why are we adding a commit to 5.15.y that fixes an issue that only
+showed up in 6.1.y?
 
--- 
-Thanks and Regards,
-Dhruva Gole
+We need a good comment somewhere saying why this is needed...
+
+thanks,
+
+greg k-h
