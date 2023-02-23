@@ -2,43 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 30EEC6A0A02
-	for <lists+stable@lfdr.de>; Thu, 23 Feb 2023 14:12:28 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E7A5A6A09E4
+	for <lists+stable@lfdr.de>; Thu, 23 Feb 2023 14:10:56 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234468AbjBWNM1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 23 Feb 2023 08:12:27 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42864 "EHLO
+        id S234437AbjBWNKz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 23 Feb 2023 08:10:55 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40870 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234469AbjBWNM0 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 23 Feb 2023 08:12:26 -0500
+        with ESMTP id S234417AbjBWNKw (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 23 Feb 2023 08:10:52 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 36AF4570AF
-        for <stable@vger.kernel.org>; Thu, 23 Feb 2023 05:11:47 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5BFB156534
+        for <stable@vger.kernel.org>; Thu, 23 Feb 2023 05:10:40 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 2735A61704
-        for <stable@vger.kernel.org>; Thu, 23 Feb 2023 13:11:30 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id EF68BC4339B;
-        Thu, 23 Feb 2023 13:11:27 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 03282616E9
+        for <stable@vger.kernel.org>; Thu, 23 Feb 2023 13:10:41 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C8853C433EF;
+        Thu, 23 Feb 2023 13:10:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1677157888;
-        bh=NcFnYdtqwwoG9N17Rh2ViFf5YKLsNeLIfkJdApvPBQI=;
+        s=korg; t=1677157839;
+        bh=47HkybMTWGbrHjBWDzB0ADfym3Hk7+pHNCBXA7tawxM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=BXzq5KzPa4xCWpGmniHyuC7yucCzWDHIC1zldyeIeYLjFtpqigHgPwN7Vx8/tsT/N
-         KsHD4UHAKJw1ewr0k85zvghL2u7HfJsZTUYuQta5b6GIxLnnll7HL+Xn/NaNUd+ky/
-         cx/A7oeMGXQuyBCmuw8Cvwts85q71HEUddb6BMjs=
+        b=YDjkujNkbAFfMMwol0bbXDx3FGjazwPZ981tv52nNusqux18eJHxqlcP6sp1vaVdT
+         fofHlfRDeKZGjEwRFQm77wf70PyzCRVKDXqdYG9ZpjDnxKhyyTAV23xyP55pdelNNY
+         eYC83WgKxVUV5cyPVLrZ1zaZhCYz8kxcILUAuS68=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Sean Christopherson <seanjc@google.com>,
+        patches@lists.linux.dev,
+        Marek Szyprowski <m.szyprowski@samsung.com>,
+        Robin Murphy <robin.murphy@arm.com>,
+        Lucas Stach <l.stach@pengutronix.de>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 12/36] KVM: SVM: Skip WRMSR fastpath on VM-Exit if next RIP isnt valid
+Subject: [PATCH 5.4 03/18] drm: etnaviv: fix common struct sg_table related issues
 Date:   Thu, 23 Feb 2023 14:06:48 +0100
-Message-Id: <20230223130429.636050656@linuxfoundation.org>
+Message-Id: <20230223130425.829224326@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230223130429.072633724@linuxfoundation.org>
-References: <20230223130429.072633724@linuxfoundation.org>
+In-Reply-To: <20230223130425.680784802@linuxfoundation.org>
+References: <20230223130425.680784802@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -52,92 +55,132 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sean Christopherson <seanjc@google.com>
+From: Marek Szyprowski <m.szyprowski@samsung.com>
 
-[ Upstream commit 5c30e8101e8d5d020b1d7119117889756a6ed713 ]
+[ Upstream commit 182354a526a0540c9197e03d9fce8a949ffd36ca ]
 
-Skip the WRMSR fastpath in SVM's VM-Exit handler if the next RIP isn't
-valid, e.g. because KVM is running with nrips=false.  SVM must decode and
-emulate to skip the WRMSR if the CPU doesn't provide the next RIP.
-Getting the instruction bytes to decode the WRMSR requires reading guest
-memory, which in turn means dereferencing memslots, and that isn't safe
-because KVM doesn't hold SRCU when the fastpath runs.
+The Documentation/DMA-API-HOWTO.txt states that the dma_map_sg() function
+returns the number of the created entries in the DMA address space.
+However the subsequent calls to the dma_sync_sg_for_{device,cpu}() and
+dma_unmap_sg must be called with the original number of the entries
+passed to the dma_map_sg().
 
-Don't bother trying to enable the fastpath for this case, e.g. by doing
-only the WRMSR and leaving the "skip" until later.  NRIPS is supported on
-all modern CPUs (KVM has considered making it mandatory), and the next
-RIP will be valid the vast, vast majority of the time.
+struct sg_table is a common structure used for describing a non-contiguous
+memory buffer, used commonly in the DRM and graphics subsystems. It
+consists of a scatterlist with memory pages and DMA addresses (sgl entry),
+as well as the number of scatterlist entries: CPU pages (orig_nents entry)
+and DMA mapped pages (nents entry).
 
-  =============================
-  WARNING: suspicious RCU usage
-  6.0.0-smp--4e557fcd3d80-skip #13 Tainted: G           O
-  -----------------------------
-  include/linux/kvm_host.h:954 suspicious rcu_dereference_check() usage!
+It turned out that it was a common mistake to misuse nents and orig_nents
+entries, calling DMA-mapping functions with a wrong number of entries or
+ignoring the number of mapped entries returned by the dma_map_sg()
+function.
 
-  other info that might help us debug this:
+To avoid such issues, lets use a common dma-mapping wrappers operating
+directly on the struct sg_table objects and use scatterlist page
+iterators where possible. This, almost always, hides references to the
+nents and orig_nents entries, making the code robust, easier to follow
+and copy/paste safe.
 
-  rcu_scheduler_active = 2, debug_locks = 1
-  1 lock held by stable/206475:
-   #0: ffff9d9dfebcc0f0 (&vcpu->mutex){+.+.}-{3:3}, at: kvm_vcpu_ioctl+0x8b/0x620 [kvm]
-
-  stack backtrace:
-  CPU: 152 PID: 206475 Comm: stable Tainted: G           O       6.0.0-smp--4e557fcd3d80-skip #13
-  Hardware name: Google, Inc. Arcadia_IT_80/Arcadia_IT_80, BIOS 10.48.0 01/27/2022
-  Call Trace:
-   <TASK>
-   dump_stack_lvl+0x69/0xaa
-   dump_stack+0x10/0x12
-   lockdep_rcu_suspicious+0x11e/0x130
-   kvm_vcpu_gfn_to_memslot+0x155/0x190 [kvm]
-   kvm_vcpu_gfn_to_hva_prot+0x18/0x80 [kvm]
-   paging64_walk_addr_generic+0x183/0x450 [kvm]
-   paging64_gva_to_gpa+0x63/0xd0 [kvm]
-   kvm_fetch_guest_virt+0x53/0xc0 [kvm]
-   __do_insn_fetch_bytes+0x18b/0x1c0 [kvm]
-   x86_decode_insn+0xf0/0xef0 [kvm]
-   x86_emulate_instruction+0xba/0x790 [kvm]
-   kvm_emulate_instruction+0x17/0x20 [kvm]
-   __svm_skip_emulated_instruction+0x85/0x100 [kvm_amd]
-   svm_skip_emulated_instruction+0x13/0x20 [kvm_amd]
-   handle_fastpath_set_msr_irqoff+0xae/0x180 [kvm]
-   svm_vcpu_run+0x4b8/0x5a0 [kvm_amd]
-   vcpu_enter_guest+0x16ca/0x22f0 [kvm]
-   kvm_arch_vcpu_ioctl_run+0x39d/0x900 [kvm]
-   kvm_vcpu_ioctl+0x538/0x620 [kvm]
-   __se_sys_ioctl+0x77/0xc0
-   __x64_sys_ioctl+0x1d/0x20
-   do_syscall_64+0x3d/0x80
-   entry_SYSCALL_64_after_hwframe+0x63/0xcd
-
-Fixes: 404d5d7bff0d ("KVM: X86: Introduce more exit_fastpath_completion enum values")
-Signed-off-by: Sean Christopherson <seanjc@google.com>
-Link: https://lore.kernel.org/r/20220930234031.1732249-1-seanjc@google.com
+Signed-off-by: Marek Szyprowski <m.szyprowski@samsung.com>
+Reviewed-by: Robin Murphy <robin.murphy@arm.com>
+Acked-by: Lucas Stach <l.stach@pengutronix.de>
+Stable-dep-of: d37c120b7312 ("drm/etnaviv: don't truncate physical page address")
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/x86/kvm/svm/svm.c | 10 ++++++++--
- 1 file changed, 8 insertions(+), 2 deletions(-)
+ drivers/gpu/drm/etnaviv/etnaviv_gem.c | 12 +++++-------
+ drivers/gpu/drm/etnaviv/etnaviv_mmu.c | 15 ++++-----------
+ 2 files changed, 9 insertions(+), 18 deletions(-)
 
-diff --git a/arch/x86/kvm/svm/svm.c b/arch/x86/kvm/svm/svm.c
-index c1a7580388924..0611dac70c25c 100644
---- a/arch/x86/kvm/svm/svm.c
-+++ b/arch/x86/kvm/svm/svm.c
-@@ -3740,8 +3740,14 @@ static void svm_cancel_injection(struct kvm_vcpu *vcpu)
+diff --git a/drivers/gpu/drm/etnaviv/etnaviv_gem.c b/drivers/gpu/drm/etnaviv/etnaviv_gem.c
+index 519948637186e..5107a0f5bc7fe 100644
+--- a/drivers/gpu/drm/etnaviv/etnaviv_gem.c
++++ b/drivers/gpu/drm/etnaviv/etnaviv_gem.c
+@@ -27,7 +27,7 @@ static void etnaviv_gem_scatter_map(struct etnaviv_gem_object *etnaviv_obj)
+ 	 * because display controller, GPU, etc. are not coherent.
+ 	 */
+ 	if (etnaviv_obj->flags & ETNA_BO_CACHE_MASK)
+-		dma_map_sg(dev->dev, sgt->sgl, sgt->nents, DMA_BIDIRECTIONAL);
++		dma_map_sgtable(dev->dev, sgt, DMA_BIDIRECTIONAL, 0);
+ }
  
- static fastpath_t svm_exit_handlers_fastpath(struct kvm_vcpu *vcpu)
- {
--	if (to_svm(vcpu)->vmcb->control.exit_code == SVM_EXIT_MSR &&
--	    to_svm(vcpu)->vmcb->control.exit_info_1)
-+	struct vmcb_control_area *control = &to_svm(vcpu)->vmcb->control;
-+
-+	/*
-+	 * Note, the next RIP must be provided as SRCU isn't held, i.e. KVM
-+	 * can't read guest memory (dereference memslots) to decode the WRMSR.
-+	 */
-+	if (control->exit_code == SVM_EXIT_MSR && control->exit_info_1 &&
-+	    nrips && control->next_rip)
- 		return handle_fastpath_set_msr_irqoff(vcpu);
+ static void etnaviv_gem_scatterlist_unmap(struct etnaviv_gem_object *etnaviv_obj)
+@@ -51,7 +51,7 @@ static void etnaviv_gem_scatterlist_unmap(struct etnaviv_gem_object *etnaviv_obj
+ 	 * discard those writes.
+ 	 */
+ 	if (etnaviv_obj->flags & ETNA_BO_CACHE_MASK)
+-		dma_unmap_sg(dev->dev, sgt->sgl, sgt->nents, DMA_BIDIRECTIONAL);
++		dma_unmap_sgtable(dev->dev, sgt, DMA_BIDIRECTIONAL, 0);
+ }
  
- 	return EXIT_FASTPATH_NONE;
+ /* called with etnaviv_obj->lock held */
+@@ -403,9 +403,8 @@ int etnaviv_gem_cpu_prep(struct drm_gem_object *obj, u32 op,
+ 	}
+ 
+ 	if (etnaviv_obj->flags & ETNA_BO_CACHED) {
+-		dma_sync_sg_for_cpu(dev->dev, etnaviv_obj->sgt->sgl,
+-				    etnaviv_obj->sgt->nents,
+-				    etnaviv_op_to_dma_dir(op));
++		dma_sync_sgtable_for_cpu(dev->dev, etnaviv_obj->sgt,
++					 etnaviv_op_to_dma_dir(op));
+ 		etnaviv_obj->last_cpu_prep_op = op;
+ 	}
+ 
+@@ -420,8 +419,7 @@ int etnaviv_gem_cpu_fini(struct drm_gem_object *obj)
+ 	if (etnaviv_obj->flags & ETNA_BO_CACHED) {
+ 		/* fini without a prep is almost certainly a userspace error */
+ 		WARN_ON(etnaviv_obj->last_cpu_prep_op == 0);
+-		dma_sync_sg_for_device(dev->dev, etnaviv_obj->sgt->sgl,
+-			etnaviv_obj->sgt->nents,
++		dma_sync_sgtable_for_device(dev->dev, etnaviv_obj->sgt,
+ 			etnaviv_op_to_dma_dir(etnaviv_obj->last_cpu_prep_op));
+ 		etnaviv_obj->last_cpu_prep_op = 0;
+ 	}
+diff --git a/drivers/gpu/drm/etnaviv/etnaviv_mmu.c b/drivers/gpu/drm/etnaviv/etnaviv_mmu.c
+index 790cbb20aaeba..9ba2fe48228f1 100644
+--- a/drivers/gpu/drm/etnaviv/etnaviv_mmu.c
++++ b/drivers/gpu/drm/etnaviv/etnaviv_mmu.c
+@@ -73,13 +73,13 @@ static int etnaviv_iommu_map(struct etnaviv_iommu_context *context, u32 iova,
+ 			     struct sg_table *sgt, unsigned len, int prot)
+ {	struct scatterlist *sg;
+ 	unsigned int da = iova;
+-	unsigned int i, j;
++	unsigned int i;
+ 	int ret;
+ 
+ 	if (!context || !sgt)
+ 		return -EINVAL;
+ 
+-	for_each_sg(sgt->sgl, sg, sgt->nents, i) {
++	for_each_sgtable_dma_sg(sgt, sg, i) {
+ 		u32 pa = sg_dma_address(sg) - sg->offset;
+ 		size_t bytes = sg_dma_len(sg) + sg->offset;
+ 
+@@ -95,14 +95,7 @@ static int etnaviv_iommu_map(struct etnaviv_iommu_context *context, u32 iova,
+ 	return 0;
+ 
+ fail:
+-	da = iova;
+-
+-	for_each_sg(sgt->sgl, sg, i, j) {
+-		size_t bytes = sg_dma_len(sg) + sg->offset;
+-
+-		etnaviv_context_unmap(context, da, bytes);
+-		da += bytes;
+-	}
++	etnaviv_context_unmap(context, iova, da - iova);
+ 	return ret;
+ }
+ 
+@@ -113,7 +106,7 @@ static void etnaviv_iommu_unmap(struct etnaviv_iommu_context *context, u32 iova,
+ 	unsigned int da = iova;
+ 	int i;
+ 
+-	for_each_sg(sgt->sgl, sg, sgt->nents, i) {
++	for_each_sgtable_dma_sg(sgt, sg, i) {
+ 		size_t bytes = sg_dma_len(sg) + sg->offset;
+ 
+ 		etnaviv_context_unmap(context, da, bytes);
 -- 
 2.39.0
 
