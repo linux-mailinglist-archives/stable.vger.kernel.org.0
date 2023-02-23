@@ -2,47 +2,52 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 39D8F6A09D3
-	for <lists+stable@lfdr.de>; Thu, 23 Feb 2023 14:10:23 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 03D246A0980
+	for <lists+stable@lfdr.de>; Thu, 23 Feb 2023 14:06:58 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234358AbjBWNKW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 23 Feb 2023 08:10:22 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39426 "EHLO
+        id S232923AbjBWNGz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 23 Feb 2023 08:06:55 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33854 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234410AbjBWNKR (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 23 Feb 2023 08:10:17 -0500
+        with ESMTP id S233695AbjBWNGv (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 23 Feb 2023 08:06:51 -0500
 Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7E58F56787
-        for <stable@vger.kernel.org>; Thu, 23 Feb 2023 05:10:11 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8C7F351FBD;
+        Thu, 23 Feb 2023 05:06:50 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id E563DCE2028
-        for <stable@vger.kernel.org>; Thu, 23 Feb 2023 13:10:09 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C2EF8C433EF;
-        Thu, 23 Feb 2023 13:10:07 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1677157808;
-        bh=IIcb0t/0/NcMrGLZMdcqKUPOT+ocmPJ5FD2eXq4j+eo=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=mcURLeRlP6Ymizmls6L+jvl62DuVyNarC4GrWb1ayKtm22Z4KKvdQUL2aMKFqctOs
-         OaC2PuWEJMaMYlQr2VQtSKk2LWRbChpdl7yOZgKMkBVNxpJJTuG4XharN9+FXvRBrU
-         x+SNeJf+bZlihA2dI25mUnC0CETF9VNjWVNxCMHs=
-From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     stable@vger.kernel.org
-Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Michael Ellerman <mpe@ellerman.id.au>,
-        Tom Saeger <tom.saeger@oracle.com>
-Subject: [PATCH 6.1 37/46] powerpc/vmlinux.lds: Define RUNTIME_DISCARD_EXIT
-Date:   Thu, 23 Feb 2023 14:06:44 +0100
-Message-Id: <20230223130433.318265235@linuxfoundation.org>
-X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230223130431.553657459@linuxfoundation.org>
-References: <20230223130431.553657459@linuxfoundation.org>
-User-Agent: quilt/0.67
+        by sin.source.kernel.org (Postfix) with ESMTPS id D7491CE2011;
+        Thu, 23 Feb 2023 13:06:48 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 88BAFC433D2;
+        Thu, 23 Feb 2023 13:06:45 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1677157607;
+        bh=cNUVJLgQ0s89w+rcSY+BvDkFAtEDdhMXP7+ncfs5okQ=;
+        h=From:To:Cc:In-Reply-To:References:Subject:Date:From;
+        b=a7troAwdaxoMbnDWVX33XJ7VQj0zB4r+Wr0sjv7iHtMrIYYpJ+ddkEHokzmvttyCG
+         N7H3qj3SlSvV1CIXY8FgFItUGoZbVtcBvAfd61if+pGXyS16KDvHrZuf7MjDHHTSJm
+         SThRkI4DLy5wX6P1XPKA0kXecnMKGuET98UmCef8Zd1LiXdK76bEmp2jnTzKIeaAzJ
+         09wJgZjMIN1ICUSTV94WLyrZ4YyJTtfMZzMrLRS7UFu9GdWtAuBSWP8NSujDdDlcKb
+         lcNzU6oH7nGVgtcElkERYyW1+qHu5eDyrpJ23mUMrS6Izi3zV5zQLQavAAgroYgQ7T
+         9+CmyYYJoAd7g==
+From:   Mark Brown <broonie@kernel.org>
+To:     Dhruva Gole <d-gole@ti.com>
+Cc:     Vignesh Raghavendra <vigneshr@ti.com>,
+        Pratyush Yadav <ptyadav@amazon.de>, linux-spi@vger.kernel.org,
+        Kunihiko Hayashi <hayashi.kunihiko@socionext.com>,
+        linux-kernel@vger.kernel.org, David Binderman <dcb314@hotmail.com>,
+        stable@vger.kernel.org
+In-Reply-To: <20230223095202.924626-1-d-gole@ti.com>
+References: <20230223095202.924626-1-d-gole@ti.com>
+Subject: Re: [PATCH] spi: spi-sn-f-ospi: fix duplicate flag while assigning
+ to mode_bits
+Message-Id: <167715760528.62178.6653469643907332364.b4-ty@kernel.org>
+Date:   Thu, 23 Feb 2023 13:06:45 +0000
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 7bit
+X-Mailer: b4 0.12.0
 X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
         DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
         SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
@@ -52,55 +57,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Michael Ellerman <mpe@ellerman.id.au>
+On Thu, 23 Feb 2023 15:22:02 +0530, Dhruva Gole wrote:
+> Replace the SPI_TX_OCTAL flag that appeared two time with SPI_RX_OCTAL
+> in the chain of '|' operators while assigning to mode_bits
+> 
+> Fixes: 1b74dd64c861 ("spi: Add Socionext F_OSPI SPI flash controller driver")
+> 
+> Reported-by: David Binderman <dcb314@hotmail.com>
+> Link: https://lore.kernel.org/all/DB6P189MB0568F3BE9384315F5C8C1A3E9CA49@DB6P189MB0568.EURP189.PROD.OUTLOOK.COM/
+> 
+> [...]
 
-commit 4b9880dbf3bdba3a7c56445137c3d0e30aaa0a40 upstream.
+Applied to
 
-The powerpc linker script explicitly includes .exit.text, because
-otherwise the link fails due to references from __bug_table and
-__ex_table. The code is freed (discarded) at runtime along with
-.init.text and data.
+   https://git.kernel.org/pub/scm/linux/kernel/git/broonie/spi.git for-next
 
-That has worked in the past despite powerpc not defining
-RUNTIME_DISCARD_EXIT because DISCARDS appears late in the powerpc linker
-script (line 410), and the explicit inclusion of .exit.text
-earlier (line 280) supersedes the discard.
+Thanks!
 
-However commit 99cb0d917ffa ("arch: fix broken BuildID for arm64 and
-riscv") introduced an earlier use of DISCARD as part of the RO_DATA
-macro (line 136). With binutils < 2.36 that causes the DISCARD
-directives later in the script to be applied earlier [1], causing
-.exit.text to actually be discarded at link time, leading to build
-errors:
+[1/1] spi: spi-sn-f-ospi: fix duplicate flag while assigning to mode_bits
+      commit: 078a5517d22342eb0474046d3e891427a2552e3c
 
-  '.exit.text' referenced in section '__bug_table' of crypto/algboss.o: defined in
-  discarded section '.exit.text' of crypto/algboss.o
-  '.exit.text' referenced in section '__ex_table' of drivers/nvdimm/core.o: defined in
-  discarded section '.exit.text' of drivers/nvdimm/core.o
+All being well this means that it will be integrated into the linux-next
+tree (usually sometime in the next 24 hours) and sent to Linus during
+the next merge window (or sooner if it is a bug fix), however if
+problems are discovered then the patch may be dropped or reverted.
 
-Fix it by defining RUNTIME_DISCARD_EXIT, which causes the generic
-DISCARDS macro to not include .exit.text at all.
+You may get further e-mails resulting from automated or manual testing
+and review of the tree, please engage with people reporting problems and
+send followup patches addressing any issues that are reported if needed.
 
-1: https://lore.kernel.org/lkml/87fscp2v7k.fsf@igel.home/
+If any updates are required or you are submitting further changes they
+should be sent as incremental updates against current git, existing
+patches will not be replaced.
 
-Fixes: 99cb0d917ffa ("arch: fix broken BuildID for arm64 and riscv")
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://lore.kernel.org/r/20230105132349.384666-1-mpe@ellerman.id.au
-Signed-off-by: Tom Saeger <tom.saeger@oracle.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
----
- arch/powerpc/kernel/vmlinux.lds.S |    1 +
- 1 file changed, 1 insertion(+)
+Please add any relevant lists and maintainers to the CCs when replying
+to this mail.
 
---- a/arch/powerpc/kernel/vmlinux.lds.S
-+++ b/arch/powerpc/kernel/vmlinux.lds.S
-@@ -8,6 +8,7 @@
- #define BSS_FIRST_SECTIONS *(.bss.prominit)
- #define EMITS_PT_NOTE
- #define RO_EXCEPTION_TABLE_ALIGN	0
-+#define RUNTIME_DISCARD_EXIT
- 
- #define SOFT_MASK_TABLE(align)						\
- 	. = ALIGN(align);						\
-
+Thanks,
+Mark
 
