@@ -2,50 +2,55 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 053696A0964
-	for <lists+stable@lfdr.de>; Thu, 23 Feb 2023 14:05:31 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 74B9D6A0978
+	for <lists+stable@lfdr.de>; Thu, 23 Feb 2023 14:06:16 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233255AbjBWNF3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 23 Feb 2023 08:05:29 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59704 "EHLO
+        id S233852AbjBWNGP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 23 Feb 2023 08:06:15 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:32886 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234294AbjBWNFZ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 23 Feb 2023 08:05:25 -0500
-Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 842F749898
-        for <stable@vger.kernel.org>; Thu, 23 Feb 2023 05:05:20 -0800 (PST)
+        with ESMTP id S234296AbjBWNGO (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 23 Feb 2023 08:06:14 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DD1105651A;
+        Thu, 23 Feb 2023 05:06:12 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id DE4E0CE2026
-        for <stable@vger.kernel.org>; Thu, 23 Feb 2023 13:05:18 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C13B3C433EF;
-        Thu, 23 Feb 2023 13:05:16 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id BADA3616DD;
+        Thu, 23 Feb 2023 13:06:13 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 671CDC4339B;
+        Thu, 23 Feb 2023 13:06:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1677157517;
-        bh=mwNKu+5csaMu1VzaeTotgw/wHkb+DvhGze9IFnn/iLw=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=zK87trAB6wjAzhr+s20hJszinzrQtAoOcyX/yyQTermaAlISRTrSb/vyGVHm00YT7
-         eOAD6vKQ6AK8TqeS+/jj0+0SpUNu20tVIbJbE5Gmhy7S53ahEpGXIivjgYgH6lK98N
-         HLWeb+8tGftyt4EyJhAbW+Q+TJRPSlxXUs4KRRsU=
+        s=korg; t=1677157571;
+        bh=G5aqBteG6fQ/gaR2l1YmJbm2vwdmlTnnXrKPXVp2bhU=;
+        h=From:To:Cc:Subject:Date:From;
+        b=BJ5u8NLmh5IInuZKWM9xTBVLx2znvDhxvgoP38fKYv/E6nhHo+PnQ9amC0KJGRhf0
+         a+Ztl3sqk5wyTmhBsoA1iMC0B+zyoCoZqwunsh+YLOYkoHQtessuFVjCi8X+j8hyce
+         N64kaJYZEyWhcONB3+Z7enBCaki/NUFvFpP3Vgog=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Theodore Tso <tytso@mit.edu>,
-        Eric Biggers <ebiggers@kernel.org>,
-        "Gustavo A. R. Silva" <gustavoars@kernel.org>,
-        Nathan Chancellor <nathan@kernel.org>,
-        Kees Cook <keescook@chromium.org>,
-        Eric Biggers <ebiggers@google.com>
-Subject: [PATCH 4.19 11/11] ext4: Fix function prototype mismatch for ext4_feat_ktype
-Date:   Thu, 23 Feb 2023 14:04:52 +0100
-Message-Id: <20230223130424.486780481@linuxfoundation.org>
+        patches@lists.linux.dev, linux-kernel@vger.kernel.org,
+        torvalds@linux-foundation.org, akpm@linux-foundation.org,
+        linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
+        lkft-triage@lists.linaro.org, pavel@denx.de, jonathanh@nvidia.com,
+        f.fainelli@gmail.com, sudipm.mukherjee@gmail.com,
+        srw@sladewatkins.net, rwarsow@gmx.de
+Subject: [PATCH 6.2 00/11] 6.2.1-rc1 review
+Date:   Thu, 23 Feb 2023 14:04:54 +0100
+Message-Id: <20230223130426.170746546@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230223130424.079732181@linuxfoundation.org>
-References: <20230223130424.079732181@linuxfoundation.org>
-User-Agent: quilt/0.67
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+User-Agent: quilt/0.67
+X-stable: review
+X-Patchwork-Hint: ignore
+X-KernelTest-Patch: http://kernel.org/pub/linux/kernel/v6.x/stable-review/patch-6.2.1-rc1.gz
+X-KernelTest-Tree: git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git
+X-KernelTest-Branch: linux-6.2.y
+X-KernelTest-Patches: git://git.kernel.org/pub/scm/linux/kernel/git/stable/stable-queue.git
+X-KernelTest-Version: 6.2.1-rc1
+X-KernelTest-Deadline: 2023-02-25T13:04+00:00
 Content-Transfer-Encoding: 8bit
 X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
         DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
@@ -56,74 +61,83 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kees Cook <keescook@chromium.org>
+This is the start of the stable review cycle for the 6.2.1 release.
+There are 11 patches in this series, all will be posted as a response
+to this one.  If anyone has any issues with these being applied, please
+let me know.
 
-commit 118901ad1f25d2334255b3d50512fa20591531cd upstream.
+Responses should be made by Sat, 25 Feb 2023 13:04:16 +0000.
+Anything received after that time might be too late.
 
-With clang's kernel control flow integrity (kCFI, CONFIG_CFI_CLANG),
-indirect call targets are validated against the expected function
-pointer prototype to make sure the call target is valid to help mitigate
-ROP attacks. If they are not identical, there is a failure at run time,
-which manifests as either a kernel panic or thread getting killed.
+The whole patch series can be found in one patch at:
+	https://www.kernel.org/pub/linux/kernel/v6.x/stable-review/patch-6.2.1-rc1.gz
+or in the git tree and branch at:
+	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-6.2.y
+and the diffstat can be found below.
 
-ext4_feat_ktype was setting the "release" handler to "kfree", which
-doesn't have a matching function prototype. Add a simple wrapper
-with the correct prototype.
+thanks,
 
-This was found as a result of Clang's new -Wcast-function-type-strict
-flag, which is more sensitive than the simpler -Wcast-function-type,
-which only checks for type width mismatches.
+greg k-h
 
-Note that this code is only reached when ext4 is a loadable module and
-it is being unloaded:
+-------------
+Pseudo-Shortlog of commits:
 
- CFI failure at kobject_put+0xbb/0x1b0 (target: kfree+0x0/0x180; expected type: 0x7c4aa698)
- ...
- RIP: 0010:kobject_put+0xbb/0x1b0
- ...
- Call Trace:
-  <TASK>
-  ext4_exit_sysfs+0x14/0x60 [ext4]
-  cleanup_module+0x67/0xedb [ext4]
+Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+    Linux 6.2.1-rc1
 
-Fixes: b99fee58a20a ("ext4: create ext4_feat kobject dynamically")
-Cc: Theodore Ts'o <tytso@mit.edu>
-Cc: Eric Biggers <ebiggers@kernel.org>
-Cc: stable@vger.kernel.org
-Build-tested-by: Gustavo A. R. Silva <gustavoars@kernel.org>
-Reviewed-by: Gustavo A. R. Silva <gustavoars@kernel.org>
-Reviewed-by: Nathan Chancellor <nathan@kernel.org>
-Link: https://lore.kernel.org/r/20230103234616.never.915-kees@kernel.org
-Signed-off-by: Kees Cook <keescook@chromium.org>
-Reviewed-by: Eric Biggers <ebiggers@google.com>
-Link: https://lore.kernel.org/r/20230104210908.gonna.388-kees@kernel.org
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
----
- fs/ext4/sysfs.c |    7 ++++++-
- 1 file changed, 6 insertions(+), 1 deletion(-)
+Eric Biggers <ebiggers@google.com>
+    randstruct: disable Clang 15 support
 
---- a/fs/ext4/sysfs.c
-+++ b/fs/ext4/sysfs.c
-@@ -349,6 +349,11 @@ static void ext4_sb_release(struct kobje
- 	complete(&sbi->s_kobj_unregister);
- }
- 
-+static void ext4_feat_release(struct kobject *kobj)
-+{
-+	kfree(kobj);
-+}
-+
- static const struct sysfs_ops ext4_attr_ops = {
- 	.show	= ext4_attr_show,
- 	.store	= ext4_attr_store,
-@@ -363,7 +368,7 @@ static struct kobj_type ext4_sb_ktype =
- static struct kobj_type ext4_feat_ktype = {
- 	.default_attrs	= ext4_feat_attrs,
- 	.sysfs_ops	= &ext4_attr_ops,
--	.release	= (void (*)(struct kobject *))kfree,
-+	.release	= ext4_feat_release,
- };
- 
- static struct kobject *ext4_root;
+Kees Cook <keescook@chromium.org>
+    ext4: Fix function prototype mismatch for ext4_feat_ktype
+
+Hans de Goede <hdegoede@redhat.com>
+    platform/x86: nvidia-wmi-ec-backlight: Add force module parameter
+
+Shyam Sundar S K <Shyam-sundar.S-k@amd.com>
+    platform/x86/amd/pmf: Add depends on CONFIG_POWER_SUPPLY
+
+Paul Moore <paul@paul-moore.com>
+    audit: update the mailing list in MAINTAINERS
+
+Lukas Wunner <lukas@wunner.de>
+    wifi: mwifiex: Add missing compatible string for SD8787
+
+Benjamin Tissoires <benjamin.tissoires@redhat.com>
+    HID: mcp-2221: prevent UAF in delayed work
+
+Peter Zijlstra <peterz@infradead.org>
+    x86/static_call: Add support for Jcc tail-calls
+
+Peter Zijlstra <peterz@infradead.org>
+    x86/alternatives: Teach text_poke_bp() to patch Jcc.d32 instructions
+
+Peter Zijlstra <peterz@infradead.org>
+    x86/alternatives: Introduce int3_emulate_jcc()
+
+Dave Hansen <dave.hansen@linux.intel.com>
+    uaccess: Add speculation barrier to copy_from_user()
+
+
+-------------
+
+Diffstat:
+
+ MAINTAINERS                                    |  2 +-
+ Makefile                                       |  4 +-
+ arch/x86/include/asm/text-patching.h           | 31 +++++++++++++
+ arch/x86/kernel/alternative.c                  | 62 +++++++++++++++++++-------
+ arch/x86/kernel/kprobes/core.c                 | 38 ++++------------
+ arch/x86/kernel/static_call.c                  | 50 +++++++++++++++++++--
+ drivers/hid/hid-mcp2221.c                      |  3 ++
+ drivers/net/wireless/marvell/mwifiex/sdio.c    |  1 +
+ drivers/platform/x86/amd/pmf/Kconfig           |  1 +
+ drivers/platform/x86/nvidia-wmi-ec-backlight.c |  6 ++-
+ fs/ext4/sysfs.c                                |  7 ++-
+ include/linux/nospec.h                         |  4 ++
+ kernel/bpf/core.c                              |  2 -
+ lib/usercopy.c                                 |  7 +++
+ security/Kconfig.hardening                     |  3 ++
+ 15 files changed, 166 insertions(+), 55 deletions(-)
 
 
