@@ -2,43 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 362FC6A099A
-	for <lists+stable@lfdr.de>; Thu, 23 Feb 2023 14:08:36 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A266B6A09AC
+	for <lists+stable@lfdr.de>; Thu, 23 Feb 2023 14:09:14 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234260AbjBWNIf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 23 Feb 2023 08:08:35 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36914 "EHLO
+        id S234360AbjBWNJN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 23 Feb 2023 08:09:13 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37928 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234390AbjBWNI1 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 23 Feb 2023 08:08:27 -0500
+        with ESMTP id S234354AbjBWNJM (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 23 Feb 2023 08:09:12 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BE13413521
-        for <stable@vger.kernel.org>; Thu, 23 Feb 2023 05:08:14 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D928FC143
+        for <stable@vger.kernel.org>; Thu, 23 Feb 2023 05:08:58 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 97744616ED
-        for <stable@vger.kernel.org>; Thu, 23 Feb 2023 13:08:15 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 69068C433A1;
-        Thu, 23 Feb 2023 13:08:13 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id B8322616E9
+        for <stable@vger.kernel.org>; Thu, 23 Feb 2023 13:08:59 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8A9D2C433EF;
+        Thu, 23 Feb 2023 13:08:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1677157693;
-        bh=nuXBpjN0+FM5m6pnYloD74h1/K0FANNEJ1GJ8NPEm+I=;
+        s=korg; t=1677157737;
+        bh=v7OAszCUPHYHsv+GJ2MZJpKkASmCrCBV98CZxod6a1o=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=zCq/EBVOdAcdkeRZGBghkleT95gzWExaBg5ifhNhYhyZeFs8ey4yZgEKuAieoUkhC
-         U19A7dPTeC7xQNfrTzjWWjLIfr88pAAdkFnnmBdtRqlq9vHmNOD4jOeVUpF9OIwxL3
-         y4sXm68qNDwsPNI9O/jmtU1B6yZi/vFJ0HEeFQ24=
+        b=fV58bcBxi1OqX6AmpwZAxeaYnjdJyOrYBCVAZ9Wz/rX+2wCIZ5QISb8TIsP1Tqe+f
+         MVUbWUOQO9oFo4NiNxhpvEmIqEqS1Rgdt0kJO3CIeSSxIBL1atyw1KFXGf/hOR4S9d
+         DIqe5/yzLqgYnW971LCRyp6+vVlkm17yh2t9ECxM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Sean Christopherson <seanjc@google.com>,
+        patches@lists.linux.dev, Jimmy Assarsson <extja@kvaser.com>,
+        Anssi Hannula <anssi.hannula@bitwise.fi>,
+        Marc Kleine-Budde <mkl@pengutronix.de>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 10/25] KVM: x86: Fail emulation during EMULTYPE_SKIP on any exception
+Subject: [PATCH 6.1 20/46] can: kvaser_usb: hydra: help gcc-13 to figure out cmd_len
 Date:   Thu, 23 Feb 2023 14:06:27 +0100
-Message-Id: <20230223130427.256441750@linuxfoundation.org>
+Message-Id: <20230223130432.492154479@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230223130426.817998725@linuxfoundation.org>
-References: <20230223130426.817998725@linuxfoundation.org>
+In-Reply-To: <20230223130431.553657459@linuxfoundation.org>
+References: <20230223130431.553657459@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -52,71 +54,243 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sean Christopherson <seanjc@google.com>
+From: Marc Kleine-Budde <mkl@pengutronix.de>
 
-[ Upstream commit 17122c06b86c9f77f45b86b8e62c3ed440847a59 ]
+[ Upstream commit f006229135b7debf4037adb1eb93e358559593db ]
 
-Treat any exception during instruction decode for EMULTYPE_SKIP as a
-"full" emulation failure, i.e. signal failure instead of queuing the
-exception.  When decoding purely to skip an instruction, KVM and/or the
-CPU has already done some amount of emulation that cannot be unwound,
-e.g. on an EPT misconfig VM-Exit KVM has already processeed the emulated
-MMIO.  KVM already does this if a #UD is encountered, but not for other
-exceptions, e.g. if a #PF is encountered during fetch.
+Debian's gcc-13 [1] throws the following error in
+kvaser_usb_hydra_cmd_size():
 
-In SVM's soft-injection use case, queueing the exception is particularly
-problematic as queueing exceptions while injecting events can put KVM
-into an infinite loop due to bailing from VM-Enter to service the newly
-pending exception.  E.g. multiple warnings to detect such behavior fire:
+[1] gcc version 13.0.0 20221214 (experimental) [master r13-4693-g512098a3316] (Debian 13-20221214-1)
 
-  ------------[ cut here ]------------
-  WARNING: CPU: 3 PID: 1017 at arch/x86/kvm/x86.c:9873 kvm_arch_vcpu_ioctl_run+0x1de5/0x20a0 [kvm]
-  Modules linked in: kvm_amd ccp kvm irqbypass
-  CPU: 3 PID: 1017 Comm: svm_nested_soft Not tainted 6.0.0-rc1+ #220
-  Hardware name: QEMU Standard PC (Q35 + ICH9, 2009), BIOS 0.0.0 02/06/2015
-  RIP: 0010:kvm_arch_vcpu_ioctl_run+0x1de5/0x20a0 [kvm]
-  Call Trace:
-   kvm_vcpu_ioctl+0x223/0x6d0 [kvm]
-   __x64_sys_ioctl+0x85/0xc0
-   do_syscall_64+0x2b/0x50
-   entry_SYSCALL_64_after_hwframe+0x46/0xb0
-  ---[ end trace 0000000000000000 ]---
-  ------------[ cut here ]------------
-  WARNING: CPU: 3 PID: 1017 at arch/x86/kvm/x86.c:9987 kvm_arch_vcpu_ioctl_run+0x12a3/0x20a0 [kvm]
-  Modules linked in: kvm_amd ccp kvm irqbypass
-  CPU: 3 PID: 1017 Comm: svm_nested_soft Tainted: G        W          6.0.0-rc1+ #220
-  Hardware name: QEMU Standard PC (Q35 + ICH9, 2009), BIOS 0.0.0 02/06/2015
-  RIP: 0010:kvm_arch_vcpu_ioctl_run+0x12a3/0x20a0 [kvm]
-  Call Trace:
-   kvm_vcpu_ioctl+0x223/0x6d0 [kvm]
-   __x64_sys_ioctl+0x85/0xc0
-   do_syscall_64+0x2b/0x50
-   entry_SYSCALL_64_after_hwframe+0x46/0xb0
-  ---[ end trace 0000000000000000 ]---
+| drivers/net/can/usb/kvaser_usb/kvaser_usb_hydra.c:502:65: error:
+| array subscript ‘struct kvaser_cmd_ext[0]’ is partly outside array
+| bounds of ‘unsigned char[32]’ [-Werror=array-bounds=]
+|   502 |                 ret = le16_to_cpu(((struct kvaser_cmd_ext *)cmd)->len);
 
-Fixes: 6ea6e84309ca ("KVM: x86: inject exceptions produced by x86_decode_insn")
-Signed-off-by: Sean Christopherson <seanjc@google.com>
-Link: https://lore.kernel.org/r/20220930233632.1725475-1-seanjc@google.com
+kvaser_usb_hydra_cmd_size() returns the size of given command. It
+depends on the command number (cmd->header.cmd_no). For extended
+commands (cmd->header.cmd_no == CMD_EXTENDED) the above shown code is
+executed.
+
+Help gcc to recognize that this code path is not taken in all cases,
+by calling kvaser_usb_hydra_cmd_size() directly after assigning the
+command number.
+
+Fixes: aec5fb2268b7 ("can: kvaser_usb: Add support for Kvaser USB hydra family")
+Cc: Jimmy Assarsson <extja@kvaser.com>
+Cc: Anssi Hannula <anssi.hannula@bitwise.fi>
+Link: https://lore.kernel.org/all/20221219110104.1073881-1-mkl@pengutronix.de
+Tested-by: Jimmy Assarsson <extja@kvaser.com>
+Signed-off-by: Marc Kleine-Budde <mkl@pengutronix.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/x86/kvm/x86.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+ .../net/can/usb/kvaser_usb/kvaser_usb_hydra.c | 33 ++++++++++++++-----
+ 1 file changed, 24 insertions(+), 9 deletions(-)
 
-diff --git a/arch/x86/kvm/x86.c b/arch/x86/kvm/x86.c
-index 554d37873c253..0ccc8d1b972c9 100644
---- a/arch/x86/kvm/x86.c
-+++ b/arch/x86/kvm/x86.c
-@@ -7534,7 +7534,9 @@ int x86_emulate_instruction(struct kvm_vcpu *vcpu, gpa_t cr2_or_gpa,
- 						  write_fault_to_spt,
- 						  emulation_type))
- 				return 1;
--			if (ctxt->have_exception) {
-+
-+			if (ctxt->have_exception &&
-+			    !(emulation_type & EMULTYPE_SKIP)) {
- 				/*
- 				 * #UD should result in just EMULATION_FAILED, and trap-like
- 				 * exception should not be encountered during decode.
+diff --git a/drivers/net/can/usb/kvaser_usb/kvaser_usb_hydra.c b/drivers/net/can/usb/kvaser_usb/kvaser_usb_hydra.c
+index f688124d6d669..ef341c4254fc8 100644
+--- a/drivers/net/can/usb/kvaser_usb/kvaser_usb_hydra.c
++++ b/drivers/net/can/usb/kvaser_usb/kvaser_usb_hydra.c
+@@ -545,6 +545,7 @@ static int kvaser_usb_hydra_send_simple_cmd(struct kvaser_usb *dev,
+ 					    u8 cmd_no, int channel)
+ {
+ 	struct kvaser_cmd *cmd;
++	size_t cmd_len;
+ 	int err;
+ 
+ 	cmd = kzalloc(sizeof(*cmd), GFP_KERNEL);
+@@ -552,6 +553,7 @@ static int kvaser_usb_hydra_send_simple_cmd(struct kvaser_usb *dev,
+ 		return -ENOMEM;
+ 
+ 	cmd->header.cmd_no = cmd_no;
++	cmd_len = kvaser_usb_hydra_cmd_size(cmd);
+ 	if (channel < 0) {
+ 		kvaser_usb_hydra_set_cmd_dest_he
+ 				(cmd, KVASER_USB_HYDRA_HE_ADDRESS_ILLEGAL);
+@@ -568,7 +570,7 @@ static int kvaser_usb_hydra_send_simple_cmd(struct kvaser_usb *dev,
+ 	kvaser_usb_hydra_set_cmd_transid
+ 				(cmd, kvaser_usb_hydra_get_next_transid(dev));
+ 
+-	err = kvaser_usb_send_cmd(dev, cmd, kvaser_usb_hydra_cmd_size(cmd));
++	err = kvaser_usb_send_cmd(dev, cmd, cmd_len);
+ 	if (err)
+ 		goto end;
+ 
+@@ -584,6 +586,7 @@ kvaser_usb_hydra_send_simple_cmd_async(struct kvaser_usb_net_priv *priv,
+ {
+ 	struct kvaser_cmd *cmd;
+ 	struct kvaser_usb *dev = priv->dev;
++	size_t cmd_len;
+ 	int err;
+ 
+ 	cmd = kzalloc(sizeof(*cmd), GFP_ATOMIC);
+@@ -591,14 +594,14 @@ kvaser_usb_hydra_send_simple_cmd_async(struct kvaser_usb_net_priv *priv,
+ 		return -ENOMEM;
+ 
+ 	cmd->header.cmd_no = cmd_no;
++	cmd_len = kvaser_usb_hydra_cmd_size(cmd);
+ 
+ 	kvaser_usb_hydra_set_cmd_dest_he
+ 		(cmd, dev->card_data.hydra.channel_to_he[priv->channel]);
+ 	kvaser_usb_hydra_set_cmd_transid
+ 				(cmd, kvaser_usb_hydra_get_next_transid(dev));
+ 
+-	err = kvaser_usb_send_cmd_async(priv, cmd,
+-					kvaser_usb_hydra_cmd_size(cmd));
++	err = kvaser_usb_send_cmd_async(priv, cmd, cmd_len);
+ 	if (err)
+ 		kfree(cmd);
+ 
+@@ -742,6 +745,7 @@ static int kvaser_usb_hydra_get_single_capability(struct kvaser_usb *dev,
+ {
+ 	struct kvaser_usb_dev_card_data *card_data = &dev->card_data;
+ 	struct kvaser_cmd *cmd;
++	size_t cmd_len;
+ 	u32 value = 0;
+ 	u32 mask = 0;
+ 	u16 cap_cmd_res;
+@@ -753,13 +757,14 @@ static int kvaser_usb_hydra_get_single_capability(struct kvaser_usb *dev,
+ 		return -ENOMEM;
+ 
+ 	cmd->header.cmd_no = CMD_GET_CAPABILITIES_REQ;
++	cmd_len = kvaser_usb_hydra_cmd_size(cmd);
+ 	cmd->cap_req.cap_cmd = cpu_to_le16(cap_cmd_req);
+ 
+ 	kvaser_usb_hydra_set_cmd_dest_he(cmd, card_data->hydra.sysdbg_he);
+ 	kvaser_usb_hydra_set_cmd_transid
+ 				(cmd, kvaser_usb_hydra_get_next_transid(dev));
+ 
+-	err = kvaser_usb_send_cmd(dev, cmd, kvaser_usb_hydra_cmd_size(cmd));
++	err = kvaser_usb_send_cmd(dev, cmd, cmd_len);
+ 	if (err)
+ 		goto end;
+ 
+@@ -1578,6 +1583,7 @@ static int kvaser_usb_hydra_get_busparams(struct kvaser_usb_net_priv *priv,
+ 	struct kvaser_usb *dev = priv->dev;
+ 	struct kvaser_usb_net_hydra_priv *hydra = priv->sub_priv;
+ 	struct kvaser_cmd *cmd;
++	size_t cmd_len;
+ 	int err;
+ 
+ 	if (!hydra)
+@@ -1588,6 +1594,7 @@ static int kvaser_usb_hydra_get_busparams(struct kvaser_usb_net_priv *priv,
+ 		return -ENOMEM;
+ 
+ 	cmd->header.cmd_no = CMD_GET_BUSPARAMS_REQ;
++	cmd_len = kvaser_usb_hydra_cmd_size(cmd);
+ 	kvaser_usb_hydra_set_cmd_dest_he
+ 		(cmd, dev->card_data.hydra.channel_to_he[priv->channel]);
+ 	kvaser_usb_hydra_set_cmd_transid
+@@ -1597,7 +1604,7 @@ static int kvaser_usb_hydra_get_busparams(struct kvaser_usb_net_priv *priv,
+ 
+ 	reinit_completion(&priv->get_busparams_comp);
+ 
+-	err = kvaser_usb_send_cmd(dev, cmd, kvaser_usb_hydra_cmd_size(cmd));
++	err = kvaser_usb_send_cmd(dev, cmd, cmd_len);
+ 	if (err)
+ 		return err;
+ 
+@@ -1624,6 +1631,7 @@ static int kvaser_usb_hydra_set_bittiming(const struct net_device *netdev,
+ 	struct kvaser_cmd *cmd;
+ 	struct kvaser_usb_net_priv *priv = netdev_priv(netdev);
+ 	struct kvaser_usb *dev = priv->dev;
++	size_t cmd_len;
+ 	int err;
+ 
+ 	cmd = kzalloc(sizeof(*cmd), GFP_KERNEL);
+@@ -1631,6 +1639,7 @@ static int kvaser_usb_hydra_set_bittiming(const struct net_device *netdev,
+ 		return -ENOMEM;
+ 
+ 	cmd->header.cmd_no = CMD_SET_BUSPARAMS_REQ;
++	cmd_len = kvaser_usb_hydra_cmd_size(cmd);
+ 	memcpy(&cmd->set_busparams_req.busparams_nominal, busparams,
+ 	       sizeof(cmd->set_busparams_req.busparams_nominal));
+ 
+@@ -1639,7 +1648,7 @@ static int kvaser_usb_hydra_set_bittiming(const struct net_device *netdev,
+ 	kvaser_usb_hydra_set_cmd_transid
+ 				(cmd, kvaser_usb_hydra_get_next_transid(dev));
+ 
+-	err = kvaser_usb_send_cmd(dev, cmd, kvaser_usb_hydra_cmd_size(cmd));
++	err = kvaser_usb_send_cmd(dev, cmd, cmd_len);
+ 
+ 	kfree(cmd);
+ 
+@@ -1652,6 +1661,7 @@ static int kvaser_usb_hydra_set_data_bittiming(const struct net_device *netdev,
+ 	struct kvaser_cmd *cmd;
+ 	struct kvaser_usb_net_priv *priv = netdev_priv(netdev);
+ 	struct kvaser_usb *dev = priv->dev;
++	size_t cmd_len;
+ 	int err;
+ 
+ 	cmd = kzalloc(sizeof(*cmd), GFP_KERNEL);
+@@ -1659,6 +1669,7 @@ static int kvaser_usb_hydra_set_data_bittiming(const struct net_device *netdev,
+ 		return -ENOMEM;
+ 
+ 	cmd->header.cmd_no = CMD_SET_BUSPARAMS_FD_REQ;
++	cmd_len = kvaser_usb_hydra_cmd_size(cmd);
+ 	memcpy(&cmd->set_busparams_req.busparams_data, busparams,
+ 	       sizeof(cmd->set_busparams_req.busparams_data));
+ 
+@@ -1676,7 +1687,7 @@ static int kvaser_usb_hydra_set_data_bittiming(const struct net_device *netdev,
+ 	kvaser_usb_hydra_set_cmd_transid
+ 				(cmd, kvaser_usb_hydra_get_next_transid(dev));
+ 
+-	err = kvaser_usb_send_cmd(dev, cmd, kvaser_usb_hydra_cmd_size(cmd));
++	err = kvaser_usb_send_cmd(dev, cmd, cmd_len);
+ 
+ 	kfree(cmd);
+ 
+@@ -1804,6 +1815,7 @@ static int kvaser_usb_hydra_get_software_info(struct kvaser_usb *dev)
+ static int kvaser_usb_hydra_get_software_details(struct kvaser_usb *dev)
+ {
+ 	struct kvaser_cmd *cmd;
++	size_t cmd_len;
+ 	int err;
+ 	u32 flags;
+ 	struct kvaser_usb_dev_card_data *card_data = &dev->card_data;
+@@ -1813,6 +1825,7 @@ static int kvaser_usb_hydra_get_software_details(struct kvaser_usb *dev)
+ 		return -ENOMEM;
+ 
+ 	cmd->header.cmd_no = CMD_GET_SOFTWARE_DETAILS_REQ;
++	cmd_len = kvaser_usb_hydra_cmd_size(cmd);
+ 	cmd->sw_detail_req.use_ext_cmd = 1;
+ 	kvaser_usb_hydra_set_cmd_dest_he
+ 				(cmd, KVASER_USB_HYDRA_HE_ADDRESS_ILLEGAL);
+@@ -1820,7 +1833,7 @@ static int kvaser_usb_hydra_get_software_details(struct kvaser_usb *dev)
+ 	kvaser_usb_hydra_set_cmd_transid
+ 				(cmd, kvaser_usb_hydra_get_next_transid(dev));
+ 
+-	err = kvaser_usb_send_cmd(dev, cmd, kvaser_usb_hydra_cmd_size(cmd));
++	err = kvaser_usb_send_cmd(dev, cmd, cmd_len);
+ 	if (err)
+ 		goto end;
+ 
+@@ -1938,6 +1951,7 @@ static int kvaser_usb_hydra_set_opt_mode(const struct kvaser_usb_net_priv *priv)
+ {
+ 	struct kvaser_usb *dev = priv->dev;
+ 	struct kvaser_cmd *cmd;
++	size_t cmd_len;
+ 	int err;
+ 
+ 	if ((priv->can.ctrlmode &
+@@ -1953,6 +1967,7 @@ static int kvaser_usb_hydra_set_opt_mode(const struct kvaser_usb_net_priv *priv)
+ 		return -ENOMEM;
+ 
+ 	cmd->header.cmd_no = CMD_SET_DRIVERMODE_REQ;
++	cmd_len = kvaser_usb_hydra_cmd_size(cmd);
+ 	kvaser_usb_hydra_set_cmd_dest_he
+ 		(cmd, dev->card_data.hydra.channel_to_he[priv->channel]);
+ 	kvaser_usb_hydra_set_cmd_transid
+@@ -1962,7 +1977,7 @@ static int kvaser_usb_hydra_set_opt_mode(const struct kvaser_usb_net_priv *priv)
+ 	else
+ 		cmd->set_ctrlmode.mode = KVASER_USB_HYDRA_CTRLMODE_NORMAL;
+ 
+-	err = kvaser_usb_send_cmd(dev, cmd, kvaser_usb_hydra_cmd_size(cmd));
++	err = kvaser_usb_send_cmd(dev, cmd, cmd_len);
+ 	kfree(cmd);
+ 
+ 	return err;
 -- 
 2.39.0
 
