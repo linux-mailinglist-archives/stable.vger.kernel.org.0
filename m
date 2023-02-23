@@ -2,58 +2,55 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 74B9D6A0978
-	for <lists+stable@lfdr.de>; Thu, 23 Feb 2023 14:06:16 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E33B86A096D
+	for <lists+stable@lfdr.de>; Thu, 23 Feb 2023 14:05:49 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233852AbjBWNGP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 23 Feb 2023 08:06:15 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:32886 "EHLO
+        id S234290AbjBWNFs (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 23 Feb 2023 08:05:48 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60356 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234296AbjBWNGO (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 23 Feb 2023 08:06:14 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DD1105651A;
-        Thu, 23 Feb 2023 05:06:12 -0800 (PST)
+        with ESMTP id S233819AbjBWNFr (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 23 Feb 2023 08:05:47 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EF70049898
+        for <stable@vger.kernel.org>; Thu, 23 Feb 2023 05:05:45 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id BADA3616DD;
-        Thu, 23 Feb 2023 13:06:13 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 671CDC4339B;
-        Thu, 23 Feb 2023 13:06:11 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 9B9CDB81A16
+        for <stable@vger.kernel.org>; Thu, 23 Feb 2023 13:05:44 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 17110C433D2;
+        Thu, 23 Feb 2023 13:05:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1677157571;
-        bh=G5aqBteG6fQ/gaR2l1YmJbm2vwdmlTnnXrKPXVp2bhU=;
-        h=From:To:Cc:Subject:Date:From;
-        b=BJ5u8NLmh5IInuZKWM9xTBVLx2znvDhxvgoP38fKYv/E6nhHo+PnQ9amC0KJGRhf0
-         a+Ztl3sqk5wyTmhBsoA1iMC0B+zyoCoZqwunsh+YLOYkoHQtessuFVjCi8X+j8hyce
-         N64kaJYZEyWhcONB3+Z7enBCaki/NUFvFpP3Vgog=
+        s=korg; t=1677157543;
+        bh=80JMmiRuXfseAo3ocy8lW/uEqpR8lr9TwQczSCVw+Tg=;
+        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+        b=OnJMCX3ACrdtSSh133aLpu0jTQTw0SexeGt+X4tzLo3AXC59FHI4S4tFgksSuJt81
+         VqH70zaC3qax59ixUck0uEzpSSRIvOjw6CVrVHvOHw4Di4zkvGs6JXs9nSIShlTzwD
+         IPp0CivkCdZ3qYNeYHKozgq6DjU0UejLLaywy6Eo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, linux-kernel@vger.kernel.org,
-        torvalds@linux-foundation.org, akpm@linux-foundation.org,
-        linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
-        lkft-triage@lists.linaro.org, pavel@denx.de, jonathanh@nvidia.com,
-        f.fainelli@gmail.com, sudipm.mukherjee@gmail.com,
-        srw@sladewatkins.net, rwarsow@gmx.de
-Subject: [PATCH 6.2 00/11] 6.2.1-rc1 review
-Date:   Thu, 23 Feb 2023 14:04:54 +0100
-Message-Id: <20230223130426.170746546@linuxfoundation.org>
+        patches@lists.linux.dev, Jordy Zomer <jordyzomer@google.com>,
+        Linus Torvalds <torvalds@linuxfoundation.org>,
+        Dave Hansen <dave.hansen@linux.intel.com>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Daniel Borkmann <daniel@iogearbox.net>
+Subject: [PATCH 6.2 01/11] uaccess: Add speculation barrier to copy_from_user()
+Date:   Thu, 23 Feb 2023 14:04:55 +0100
+Message-Id: <20230223130426.229532388@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-MIME-Version: 1.0
+In-Reply-To: <20230223130426.170746546@linuxfoundation.org>
+References: <20230223130426.170746546@linuxfoundation.org>
 User-Agent: quilt/0.67
 X-stable: review
 X-Patchwork-Hint: ignore
-X-KernelTest-Patch: http://kernel.org/pub/linux/kernel/v6.x/stable-review/patch-6.2.1-rc1.gz
-X-KernelTest-Tree: git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git
-X-KernelTest-Branch: linux-6.2.y
-X-KernelTest-Patches: git://git.kernel.org/pub/scm/linux/kernel/git/stable/stable-queue.git
-X-KernelTest-Version: 6.2.1-rc1
-X-KernelTest-Deadline: 2023-02-25T13:04+00:00
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
         SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -61,83 +58,106 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-This is the start of the stable review cycle for the 6.2.1 release.
-There are 11 patches in this series, all will be posted as a response
-to this one.  If anyone has any issues with these being applied, please
-let me know.
+From: Dave Hansen <dave.hansen@linux.intel.com>
 
-Responses should be made by Sat, 25 Feb 2023 13:04:16 +0000.
-Anything received after that time might be too late.
+commit 74e19ef0ff8061ef55957c3abd71614ef0f42f47 upstream.
 
-The whole patch series can be found in one patch at:
-	https://www.kernel.org/pub/linux/kernel/v6.x/stable-review/patch-6.2.1-rc1.gz
-or in the git tree and branch at:
-	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-6.2.y
-and the diffstat can be found below.
+The results of "access_ok()" can be mis-speculated.  The result is that
+you can end speculatively:
 
-thanks,
+	if (access_ok(from, size))
+		// Right here
 
-greg k-h
+even for bad from/size combinations.  On first glance, it would be ideal
+to just add a speculation barrier to "access_ok()" so that its results
+can never be mis-speculated.
 
--------------
-Pseudo-Shortlog of commits:
+But there are lots of system calls just doing access_ok() via
+"copy_to_user()" and friends (example: fstat() and friends).  Those are
+generally not problematic because they do not _consume_ data from
+userspace other than the pointer.  They are also very quick and common
+system calls that should not be needlessly slowed down.
 
-Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-    Linux 6.2.1-rc1
+"copy_from_user()" on the other hand uses a user-controller pointer and
+is frequently followed up with code that might affect caches.  Take
+something like this:
 
-Eric Biggers <ebiggers@google.com>
-    randstruct: disable Clang 15 support
+	if (!copy_from_user(&kernelvar, uptr, size))
+		do_something_with(kernelvar);
 
-Kees Cook <keescook@chromium.org>
-    ext4: Fix function prototype mismatch for ext4_feat_ktype
+If userspace passes in an evil 'uptr' that *actually* points to a kernel
+addresses, and then do_something_with() has cache (or other)
+side-effects, it could allow userspace to infer kernel data values.
 
-Hans de Goede <hdegoede@redhat.com>
-    platform/x86: nvidia-wmi-ec-backlight: Add force module parameter
+Add a barrier to the common copy_from_user() code to prevent
+mis-speculated values which happen after the copy.
 
-Shyam Sundar S K <Shyam-sundar.S-k@amd.com>
-    platform/x86/amd/pmf: Add depends on CONFIG_POWER_SUPPLY
+Also add a stub for architectures that do not define barrier_nospec().
+This makes the macro usable in generic code.
 
-Paul Moore <paul@paul-moore.com>
-    audit: update the mailing list in MAINTAINERS
+Since the barrier is now usable in generic code, the x86 #ifdef in the
+BPF code can also go away.
 
-Lukas Wunner <lukas@wunner.de>
-    wifi: mwifiex: Add missing compatible string for SD8787
+Reported-by: Jordy Zomer <jordyzomer@google.com>
+Suggested-by: Linus Torvalds <torvalds@linuxfoundation.org>
+Signed-off-by: Dave Hansen <dave.hansen@linux.intel.com>
+Reviewed-by: Thomas Gleixner <tglx@linutronix.de>
+Acked-by: Daniel Borkmann <daniel@iogearbox.net>   # BPF bits
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+---
+ include/linux/nospec.h |    4 ++++
+ kernel/bpf/core.c      |    2 --
+ lib/usercopy.c         |    7 +++++++
+ 3 files changed, 11 insertions(+), 2 deletions(-)
 
-Benjamin Tissoires <benjamin.tissoires@redhat.com>
-    HID: mcp-2221: prevent UAF in delayed work
-
-Peter Zijlstra <peterz@infradead.org>
-    x86/static_call: Add support for Jcc tail-calls
-
-Peter Zijlstra <peterz@infradead.org>
-    x86/alternatives: Teach text_poke_bp() to patch Jcc.d32 instructions
-
-Peter Zijlstra <peterz@infradead.org>
-    x86/alternatives: Introduce int3_emulate_jcc()
-
-Dave Hansen <dave.hansen@linux.intel.com>
-    uaccess: Add speculation barrier to copy_from_user()
-
-
--------------
-
-Diffstat:
-
- MAINTAINERS                                    |  2 +-
- Makefile                                       |  4 +-
- arch/x86/include/asm/text-patching.h           | 31 +++++++++++++
- arch/x86/kernel/alternative.c                  | 62 +++++++++++++++++++-------
- arch/x86/kernel/kprobes/core.c                 | 38 ++++------------
- arch/x86/kernel/static_call.c                  | 50 +++++++++++++++++++--
- drivers/hid/hid-mcp2221.c                      |  3 ++
- drivers/net/wireless/marvell/mwifiex/sdio.c    |  1 +
- drivers/platform/x86/amd/pmf/Kconfig           |  1 +
- drivers/platform/x86/nvidia-wmi-ec-backlight.c |  6 ++-
- fs/ext4/sysfs.c                                |  7 ++-
- include/linux/nospec.h                         |  4 ++
- kernel/bpf/core.c                              |  2 -
- lib/usercopy.c                                 |  7 +++
- security/Kconfig.hardening                     |  3 ++
- 15 files changed, 166 insertions(+), 55 deletions(-)
+--- a/include/linux/nospec.h
++++ b/include/linux/nospec.h
+@@ -11,6 +11,10 @@
+ 
+ struct task_struct;
+ 
++#ifndef barrier_nospec
++# define barrier_nospec() do { } while (0)
++#endif
++
+ /**
+  * array_index_mask_nospec() - generate a ~0 mask when index < size, 0 otherwise
+  * @index: array element index
+--- a/kernel/bpf/core.c
++++ b/kernel/bpf/core.c
+@@ -1910,9 +1910,7 @@ out:
+ 		 * reuse preexisting logic from Spectre v1 mitigation that
+ 		 * happens to produce the required code on x86 for v4 as well.
+ 		 */
+-#ifdef CONFIG_X86
+ 		barrier_nospec();
+-#endif
+ 		CONT;
+ #define LDST(SIZEOP, SIZE)						\
+ 	STX_MEM_##SIZEOP:						\
+--- a/lib/usercopy.c
++++ b/lib/usercopy.c
+@@ -3,6 +3,7 @@
+ #include <linux/fault-inject-usercopy.h>
+ #include <linux/instrumented.h>
+ #include <linux/uaccess.h>
++#include <linux/nospec.h>
+ 
+ /* out-of-line parts */
+ 
+@@ -12,6 +13,12 @@ unsigned long _copy_from_user(void *to,
+ 	unsigned long res = n;
+ 	might_fault();
+ 	if (!should_fail_usercopy() && likely(access_ok(from, n))) {
++		/*
++		 * Ensure that bad access_ok() speculation will not
++		 * lead to nasty side effects *after* the copy is
++		 * finished:
++		 */
++		barrier_nospec();
+ 		instrument_copy_from_user_before(to, from, n);
+ 		res = raw_copy_from_user(to, from, n);
+ 		instrument_copy_from_user_after(to, from, n, res);
 
 
