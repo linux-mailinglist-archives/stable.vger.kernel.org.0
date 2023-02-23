@@ -2,68 +2,77 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id BA5CF6A0DA9
-	for <lists+stable@lfdr.de>; Thu, 23 Feb 2023 17:16:04 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 11C6A6A0DB2
+	for <lists+stable@lfdr.de>; Thu, 23 Feb 2023 17:18:15 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233409AbjBWQQD (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 23 Feb 2023 11:16:03 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51096 "EHLO
+        id S233797AbjBWQSN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 23 Feb 2023 11:18:13 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51806 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229520AbjBWQQC (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 23 Feb 2023 11:16:02 -0500
-Received: from mail-pj1-x1033.google.com (mail-pj1-x1033.google.com [IPv6:2607:f8b0:4864:20::1033])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 312784A1D5
-        for <stable@vger.kernel.org>; Thu, 23 Feb 2023 08:16:00 -0800 (PST)
-Received: by mail-pj1-x1033.google.com with SMTP id m8-20020a17090a4d8800b002377bced051so687048pjh.0
-        for <stable@vger.kernel.org>; Thu, 23 Feb 2023 08:16:00 -0800 (PST)
+        with ESMTP id S233771AbjBWQSM (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 23 Feb 2023 11:18:12 -0500
+Received: from mail-il1-x130.google.com (mail-il1-x130.google.com [IPv6:2607:f8b0:4864:20::130])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6A42A2686C
+        for <stable@vger.kernel.org>; Thu, 23 Feb 2023 08:18:11 -0800 (PST)
+Received: by mail-il1-x130.google.com with SMTP id o8so2898637ilt.13
+        for <stable@vger.kernel.org>; Thu, 23 Feb 2023 08:18:11 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20210112.gappssmtp.com; s=20210112;
-        h=from:to:subject:content-transfer-encoding:mime-version:date
-         :message-id:from:to:cc:subject:date:message-id:reply-to;
-        bh=oQ2GIoV8mPyR0IvWQgIGHwYOeqtIyxuI0qF3OnZQFpg=;
-        b=jLBqryd4tgY9ffN6B4tv64EdsMt6d3WCdQEKrPzrqo20uOv0Y553Sv4jvNwdzd4bAd
-         A8tGHY+bXf2WUwDey+uM0OX7JP4fZ5IGr9FsAiwxJq9OvPUBUZAGTQjcoHgFDCSJqhEm
-         jBPRCBiGQvfV5gb2wxSgqXYB2ZtNzNCgd/Vv4pjP07/fVJJnhEV+aKpgHAgAcnXWUa+B
-         iSiJ4dYxifS9jYihS8/zKhcpCg60BZ2Mgx55HdBynB9Vu+3swyC0BKrMuk2ZCuy3VC1c
-         epEmmc1xxACYMiAILMX8ZSKBp0YT5WMoI2b/tOGFwqn98xbydLzS4pVdU1cQeUyPKaD4
-         8D8g==
+        d=linuxfoundation.org; s=google;
+        h=content-transfer-encoding:in-reply-to:from:references:cc:to
+         :content-language:subject:user-agent:mime-version:date:message-id
+         :from:to:cc:subject:date:message-id:reply-to;
+        bh=W7ieouCKWdhpuzaMjYjba2gKOz+Qqhrfpk7U3BSTOec=;
+        b=No6oKmfN4x6eJuUxjeg+awuo12e0WHfh/o+SY7h8nvNY5mihD6tx+PByXEq8TXcUFv
+         p/AQtsWPFO1Oh5/nYjJwspByaFBaXrGOHX0OZp+LYGXypYnHP/KOkJG0YnALaVzOp5O8
+         /aqh6TC0HgBkV5syOKaGqznjtsV73tEHk9eb0=
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=from:to:subject:content-transfer-encoding:mime-version:date
-         :message-id:x-gm-message-state:from:to:cc:subject:date:message-id
-         :reply-to;
-        bh=oQ2GIoV8mPyR0IvWQgIGHwYOeqtIyxuI0qF3OnZQFpg=;
-        b=mmGvB9wMO7XEMLDVHez2uf5r5m37wYLN3OoF63uenpwwyq4quKeIcdDju4GcwFkR+s
-         PKcW4tPtJoPaAln0PFjpdZ/pVKpbrdJQlAp2vdp79FRhYTRXgQZh9j/DcgIjxvXh5NbN
-         4H0uxJsi5tZ2pV+DRrvHdrCa/dG2tOHTnqip4PUDyi8G1Vzlns74Qn0P7yCIZWuQb1zx
-         o9pEvFbjgd0TNn7uTahJy2ic0RhQ1q9XFoChkOWlLxIHLsg/FxDqHYJGSwM94Cv4wmSz
-         VDX4YQDdNvnXCFB3jBdrTl2fSqykSvClbn55vTZV+wDVK3z1wSzmMX7q5P2F1h5vX/k0
-         bu2w==
-X-Gm-Message-State: AO0yUKWLMidHe5+7hL/1KMbIMl3cnepzPgzKefmRq0jvyr+vyxL1MACY
-        FHWrNgktdl35SESkD4qfF+peY1ap3Y74l9eCFHIqFg==
-X-Google-Smtp-Source: AK7set/RBPOOo2GIFKaKuyWvDuRhkKp+f/IY/m5HqgppzkhRPtJP5dVBeie8yG5B81oBfKHHBuN4tA==
-X-Received: by 2002:a17:90b:1d10:b0:233:e9a7:20a3 with SMTP id on16-20020a17090b1d1000b00233e9a720a3mr12899887pjb.4.1677168959056;
-        Thu, 23 Feb 2023 08:15:59 -0800 (PST)
-Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id p3-20020a1709028a8300b0019462aa090bsm411520plo.284.2023.02.23.08.15.58
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 23 Feb 2023 08:15:58 -0800 (PST)
-Message-ID: <63f7913e.170a0220.10f80.1156@mx.google.com>
-Date:   Thu, 23 Feb 2023 08:15:58 -0800 (PST)
-Content-Type: text/plain; charset="utf-8"
+        h=content-transfer-encoding:in-reply-to:from:references:cc:to
+         :content-language:subject:user-agent:mime-version:date:message-id
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
+        bh=W7ieouCKWdhpuzaMjYjba2gKOz+Qqhrfpk7U3BSTOec=;
+        b=FWoSNIZvSSLEA+Zsqw0vQO9GMAd2BTUdZtTosTR4R2j5rXNAE2uLXT7huedNpy90nY
+         9If5GcjpfJE4x9pq7NcNPP34WE5rwYDpKp/Gh9cG7MeMYAOyTf3Jf1NVQjKOf15MOLsT
+         hzl6DFn5eYfdfc7QGihSVXtrOPlin7F2gxerevLPRZXLe/mxc45sC2qUpw5+uTvJpWmy
+         eZqqiSfF8Qfnh4lUtv3FTKenPzfygN9KY+W8ifAO52xLSQtACFk9Fud4qo0SV8UMnatt
+         rTMiH9bcbKErSqUEVK2O+0TbOY+ZpxmszPQNvndG4dbmkqvtoBi3/u784HBQo2EkiN6z
+         +AOg==
+X-Gm-Message-State: AO0yUKWi4RSBeR3WKp2HBl5IySuLWpv6E1c+XzSBOCIkog+0nAQQjyRv
+        9SmBJd0AxFPuoB0KA9huoWQeLA==
+X-Google-Smtp-Source: AK7set8qhFbJuco+MFTgNVRUaFsTJ95/BcGOdXwLieY1yZ/ZZdlBgdiqTnYID406G66YejOhPIBrcA==
+X-Received: by 2002:a05:6e02:1051:b0:317:4fc:a70c with SMTP id p17-20020a056e02105100b0031704fca70cmr862681ilj.0.1677169090588;
+        Thu, 23 Feb 2023 08:18:10 -0800 (PST)
+Received: from [192.168.1.128] ([38.15.45.1])
+        by smtp.gmail.com with ESMTPSA id m18-20020a056e020df200b00315785bfabfsm3546590ilj.47.2023.02.23.08.18.09
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Thu, 23 Feb 2023 08:18:10 -0800 (PST)
+Message-ID: <b1552656-7af0-42cf-017e-df919b0d0585@linuxfoundation.org>
+Date:   Thu, 23 Feb 2023 09:18:09 -0700
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Branch: queue/5.15
-X-Kernelci-Tree: stable-rc
-X-Kernelci-Kernel: v5.15.95-33-gc82275c7e6c8
-X-Kernelci-Report-Type: test
-Subject: stable-rc/queue/5.15 baseline: 38 runs,
- 14 regressions (v5.15.95-33-gc82275c7e6c8)
-To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
-        kernelci-results@groups.io
-From:   "kernelci.org bot" <bot@kernelci.org>
-X-Spam-Status: No, score=-1.9 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_NONE autolearn=ham
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
+ Thunderbird/102.7.1
+Subject: Re: [PATCH 5.15 00/37] 5.15.96-rc2 review
+Content-Language: en-US
+To:     Naresh Kamboju <naresh.kamboju@linaro.org>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Nathan Chancellor <nathan@kernel.org>
+Cc:     stable@vger.kernel.org, patches@lists.linux.dev,
+        linux-kernel@vger.kernel.org, torvalds@linux-foundation.org,
+        akpm@linux-foundation.org, linux@roeck-us.net, shuah@kernel.org,
+        patches@kernelci.org, lkft-triage@lists.linaro.org, pavel@denx.de,
+        jonathanh@nvidia.com, f.fainelli@gmail.com,
+        sudipm.mukherjee@gmail.com, srw@sladewatkins.net, rwarsow@gmx.de,
+        llvm@lists.linux.dev, Shuah Khan <skhan@linuxfoundation.org>
+References: <20230223141542.672463796@linuxfoundation.org>
+ <CA+G9fYuhcaYO1m29-9vQr-HK7_xJYouAAkM=ouMYzOBk+otCVg@mail.gmail.com>
+ <d8032a63-64e2-0769-55d7-60f9b2f46a01@linuxfoundation.org>
+From:   Shuah Khan <skhan@linuxfoundation.org>
+In-Reply-To: <d8032a63-64e2-0769-55d7-60f9b2f46a01@linuxfoundation.org>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 8bit
+X-Spam-Status: No, score=-2.2 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,NICE_REPLY_A,
+        RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS autolearn=ham
         autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -71,533 +80,96 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/queue/5.15 baseline: 38 runs, 14 regressions (v5.15.95-33-gc82275=
-c7e6c8)
-
-Regressions Summary
--------------------
-
-platform               | arch   | lab           | compiler | defconfig     =
-               | regressions
------------------------+--------+---------------+----------+---------------=
----------------+------------
-qemu_i386-uefi         | i386   | lab-baylibre  | gcc-10   | i386_defconfig=
-               | 1          =
-
-qemu_i386-uefi         | i386   | lab-broonie   | gcc-10   | i386_defconfig=
-               | 1          =
-
-qemu_i386-uefi         | i386   | lab-collabora | gcc-10   | i386_defconfig=
-               | 1          =
-
-qemu_x86_64-uefi       | x86_64 | lab-baylibre  | gcc-10   | x86_64_defconf=
-ig             | 1          =
-
-qemu_x86_64-uefi       | x86_64 | lab-baylibre  | gcc-10   | x86_64_defcon.=
-..6-chromebook | 1          =
-
-qemu_x86_64-uefi       | x86_64 | lab-broonie   | gcc-10   | x86_64_defconf=
-ig             | 1          =
-
-qemu_x86_64-uefi       | x86_64 | lab-broonie   | gcc-10   | x86_64_defcon.=
-..6-chromebook | 1          =
-
-qemu_x86_64-uefi       | x86_64 | lab-collabora | gcc-10   | x86_64_defconf=
-ig             | 1          =
-
-qemu_x86_64-uefi       | x86_64 | lab-collabora | gcc-10   | x86_64_defcon.=
-..6-chromebook | 1          =
-
-qemu_x86_64-uefi-mixed | x86_64 | lab-baylibre  | gcc-10   | x86_64_defconf=
-ig             | 1          =
-
-qemu_x86_64-uefi-mixed | x86_64 | lab-broonie   | gcc-10   | x86_64_defconf=
-ig             | 1          =
-
-qemu_x86_64-uefi-mixed | x86_64 | lab-broonie   | gcc-10   | x86_64_defcon.=
-..6-chromebook | 1          =
-
-qemu_x86_64-uefi-mixed | x86_64 | lab-collabora | gcc-10   | x86_64_defconf=
-ig             | 1          =
-
-qemu_x86_64-uefi-mixed | x86_64 | lab-collabora | gcc-10   | x86_64_defcon.=
-..6-chromebook | 1          =
-
-
-  Details:  https://kernelci.org/test/job/stable-rc/branch/queue%2F5.15/ker=
-nel/v5.15.95-33-gc82275c7e6c8/plan/baseline/
-
-  Test:     baseline
-  Tree:     stable-rc
-  Branch:   queue/5.15
-  Describe: v5.15.95-33-gc82275c7e6c8
-  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
-able-rc.git
-  SHA:      c82275c7e6c815721dfed9c5b8131954e2b131f8 =
-
-
-
-Test Regressions
----------------- =
-
-
-
-platform               | arch   | lab           | compiler | defconfig     =
-               | regressions
------------------------+--------+---------------+----------+---------------=
----------------+------------
-qemu_i386-uefi         | i386   | lab-baylibre  | gcc-10   | i386_defconfig=
-               | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/63f7615be679c7c3f38c8637
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: i386_defconfig
-  Compiler:    gcc-10 (gcc (Debian 10.2.1-6) 10.2.1 20210110)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.15/v5.15.95-=
-33-gc82275c7e6c8/i386/i386_defconfig/gcc-10/lab-baylibre/baseline-qemu_i386=
--uefi.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.15/v5.15.95-=
-33-gc82275c7e6c8/i386/i386_defconfig/gcc-10/lab-baylibre/baseline-qemu_i386=
--uefi.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
-t-baseline/20230217.0/x86/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/63f7615be679c7c3f38c8=
-638
-        failing since 9 days (last pass: v5.15.93-48-g91b0616b8246, first f=
-ail: v5.15.93-67-gf3091fc0051b) =
-
- =
-
-
-
-platform               | arch   | lab           | compiler | defconfig     =
-               | regressions
------------------------+--------+---------------+----------+---------------=
----------------+------------
-qemu_i386-uefi         | i386   | lab-broonie   | gcc-10   | i386_defconfig=
-               | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/63f76166e679c7c3f38c863a
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: i386_defconfig
-  Compiler:    gcc-10 (gcc (Debian 10.2.1-6) 10.2.1 20210110)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.15/v5.15.95-=
-33-gc82275c7e6c8/i386/i386_defconfig/gcc-10/lab-broonie/baseline-qemu_i386-=
-uefi.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.15/v5.15.95-=
-33-gc82275c7e6c8/i386/i386_defconfig/gcc-10/lab-broonie/baseline-qemu_i386-=
-uefi.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
-t-baseline/20230217.0/x86/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/63f76166e679c7c3f38c8=
-63b
-        failing since 9 days (last pass: v5.15.93-48-g91b0616b8246, first f=
-ail: v5.15.93-67-gf3091fc0051b) =
-
- =
-
-
-
-platform               | arch   | lab           | compiler | defconfig     =
-               | regressions
------------------------+--------+---------------+----------+---------------=
----------------+------------
-qemu_i386-uefi         | i386   | lab-collabora | gcc-10   | i386_defconfig=
-               | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/63f76153e679c7c3f38c8634
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: i386_defconfig
-  Compiler:    gcc-10 (gcc (Debian 10.2.1-6) 10.2.1 20210110)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.15/v5.15.95-=
-33-gc82275c7e6c8/i386/i386_defconfig/gcc-10/lab-collabora/baseline-qemu_i38=
-6-uefi.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.15/v5.15.95-=
-33-gc82275c7e6c8/i386/i386_defconfig/gcc-10/lab-collabora/baseline-qemu_i38=
-6-uefi.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
-t-baseline/20230217.0/x86/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/63f76153e679c7c3f38c8=
-635
-        failing since 9 days (last pass: v5.15.93-48-g91b0616b8246, first f=
-ail: v5.15.93-67-gf3091fc0051b) =
-
- =
-
-
-
-platform               | arch   | lab           | compiler | defconfig     =
-               | regressions
------------------------+--------+---------------+----------+---------------=
----------------+------------
-qemu_x86_64-uefi       | x86_64 | lab-baylibre  | gcc-10   | x86_64_defconf=
-ig             | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/63f760f8413905e2af8c869e
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: x86_64_defconfig
-  Compiler:    gcc-10 (gcc (Debian 10.2.1-6) 10.2.1 20210110)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.15/v5.15.95-=
-33-gc82275c7e6c8/x86_64/x86_64_defconfig/gcc-10/lab-baylibre/baseline-qemu_=
-x86_64-uefi.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.15/v5.15.95-=
-33-gc82275c7e6c8/x86_64/x86_64_defconfig/gcc-10/lab-baylibre/baseline-qemu_=
-x86_64-uefi.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
-t-baseline/20230217.0/x86/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/63f760f8413905e2af8c8=
-69f
-        failing since 9 days (last pass: v5.15.93-48-g91b0616b8246, first f=
-ail: v5.15.93-67-gf3091fc0051b) =
-
- =
-
-
-
-platform               | arch   | lab           | compiler | defconfig     =
-               | regressions
------------------------+--------+---------------+----------+---------------=
----------------+------------
-qemu_x86_64-uefi       | x86_64 | lab-baylibre  | gcc-10   | x86_64_defcon.=
-..6-chromebook | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/63f76133c4ecbd422f8c8653
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: x86_64_defconfig+x86-chromebook
-  Compiler:    gcc-10 (gcc (Debian 10.2.1-6) 10.2.1 20210110)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.15/v5.15.95-=
-33-gc82275c7e6c8/x86_64/x86_64_defconfig+x86-chromebook/gcc-10/lab-baylibre=
-/baseline-qemu_x86_64-uefi.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.15/v5.15.95-=
-33-gc82275c7e6c8/x86_64/x86_64_defconfig+x86-chromebook/gcc-10/lab-baylibre=
-/baseline-qemu_x86_64-uefi.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
-t-baseline/20230217.0/x86/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/63f76133c4ecbd422f8c8=
-654
-        failing since 9 days (last pass: v5.15.93-48-g91b0616b8246, first f=
-ail: v5.15.93-67-g85c6595a0daa) =
-
- =
-
-
-
-platform               | arch   | lab           | compiler | defconfig     =
-               | regressions
------------------------+--------+---------------+----------+---------------=
----------------+------------
-qemu_x86_64-uefi       | x86_64 | lab-broonie   | gcc-10   | x86_64_defconf=
-ig             | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/63f76103c4ecbd422f8c862f
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: x86_64_defconfig
-  Compiler:    gcc-10 (gcc (Debian 10.2.1-6) 10.2.1 20210110)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.15/v5.15.95-=
-33-gc82275c7e6c8/x86_64/x86_64_defconfig/gcc-10/lab-broonie/baseline-qemu_x=
-86_64-uefi.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.15/v5.15.95-=
-33-gc82275c7e6c8/x86_64/x86_64_defconfig/gcc-10/lab-broonie/baseline-qemu_x=
-86_64-uefi.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
-t-baseline/20230217.0/x86/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/63f76103c4ecbd422f8c8=
-630
-        failing since 9 days (last pass: v5.15.93-48-g91b0616b8246, first f=
-ail: v5.15.93-67-gf3091fc0051b) =
-
- =
-
-
-
-platform               | arch   | lab           | compiler | defconfig     =
-               | regressions
------------------------+--------+---------------+----------+---------------=
----------------+------------
-qemu_x86_64-uefi       | x86_64 | lab-broonie   | gcc-10   | x86_64_defcon.=
-..6-chromebook | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/63f7613f911a3e9c848c8649
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: x86_64_defconfig+x86-chromebook
-  Compiler:    gcc-10 (gcc (Debian 10.2.1-6) 10.2.1 20210110)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.15/v5.15.95-=
-33-gc82275c7e6c8/x86_64/x86_64_defconfig+x86-chromebook/gcc-10/lab-broonie/=
-baseline-qemu_x86_64-uefi.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.15/v5.15.95-=
-33-gc82275c7e6c8/x86_64/x86_64_defconfig+x86-chromebook/gcc-10/lab-broonie/=
-baseline-qemu_x86_64-uefi.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
-t-baseline/20230217.0/x86/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/63f7613f911a3e9c848c8=
-64a
-        failing since 9 days (last pass: v5.15.93-48-g91b0616b8246, first f=
-ail: v5.15.93-67-g85c6595a0daa) =
-
- =
-
-
-
-platform               | arch   | lab           | compiler | defconfig     =
-               | regressions
------------------------+--------+---------------+----------+---------------=
----------------+------------
-qemu_x86_64-uefi       | x86_64 | lab-collabora | gcc-10   | x86_64_defconf=
-ig             | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/63f760f1413905e2af8c8678
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: x86_64_defconfig
-  Compiler:    gcc-10 (gcc (Debian 10.2.1-6) 10.2.1 20210110)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.15/v5.15.95-=
-33-gc82275c7e6c8/x86_64/x86_64_defconfig/gcc-10/lab-collabora/baseline-qemu=
-_x86_64-uefi.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.15/v5.15.95-=
-33-gc82275c7e6c8/x86_64/x86_64_defconfig/gcc-10/lab-collabora/baseline-qemu=
-_x86_64-uefi.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
-t-baseline/20230217.0/x86/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/63f760f1413905e2af8c8=
-679
-        failing since 9 days (last pass: v5.15.93-48-g91b0616b8246, first f=
-ail: v5.15.93-67-gf3091fc0051b) =
-
- =
-
-
-
-platform               | arch   | lab           | compiler | defconfig     =
-               | regressions
------------------------+--------+---------------+----------+---------------=
----------------+------------
-qemu_x86_64-uefi       | x86_64 | lab-collabora | gcc-10   | x86_64_defcon.=
-..6-chromebook | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/63f7612bc4ecbd422f8c8650
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: x86_64_defconfig+x86-chromebook
-  Compiler:    gcc-10 (gcc (Debian 10.2.1-6) 10.2.1 20210110)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.15/v5.15.95-=
-33-gc82275c7e6c8/x86_64/x86_64_defconfig+x86-chromebook/gcc-10/lab-collabor=
-a/baseline-qemu_x86_64-uefi.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.15/v5.15.95-=
-33-gc82275c7e6c8/x86_64/x86_64_defconfig+x86-chromebook/gcc-10/lab-collabor=
-a/baseline-qemu_x86_64-uefi.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
-t-baseline/20230217.0/x86/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/63f7612bc4ecbd422f8c8=
-651
-        failing since 9 days (last pass: v5.15.93-48-g91b0616b8246, first f=
-ail: v5.15.93-67-g85c6595a0daa) =
-
- =
-
-
-
-platform               | arch   | lab           | compiler | defconfig     =
-               | regressions
------------------------+--------+---------------+----------+---------------=
----------------+------------
-qemu_x86_64-uefi-mixed | x86_64 | lab-baylibre  | gcc-10   | x86_64_defconf=
-ig             | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/63f760f701780e682c8c8675
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: x86_64_defconfig
-  Compiler:    gcc-10 (gcc (Debian 10.2.1-6) 10.2.1 20210110)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.15/v5.15.95-=
-33-gc82275c7e6c8/x86_64/x86_64_defconfig/gcc-10/lab-baylibre/baseline-qemu_=
-x86_64-uefi-mixed.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.15/v5.15.95-=
-33-gc82275c7e6c8/x86_64/x86_64_defconfig/gcc-10/lab-baylibre/baseline-qemu_=
-x86_64-uefi-mixed.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
-t-baseline/20230217.0/x86/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/63f760f701780e682c8c8=
-676
-        failing since 9 days (last pass: v5.15.93-48-g91b0616b8246, first f=
-ail: v5.15.93-67-gf3091fc0051b) =
-
- =
-
-
-
-platform               | arch   | lab           | compiler | defconfig     =
-               | regressions
------------------------+--------+---------------+----------+---------------=
----------------+------------
-qemu_x86_64-uefi-mixed | x86_64 | lab-broonie   | gcc-10   | x86_64_defconf=
-ig             | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/63f7610201780e682c8c867b
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: x86_64_defconfig
-  Compiler:    gcc-10 (gcc (Debian 10.2.1-6) 10.2.1 20210110)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.15/v5.15.95-=
-33-gc82275c7e6c8/x86_64/x86_64_defconfig/gcc-10/lab-broonie/baseline-qemu_x=
-86_64-uefi-mixed.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.15/v5.15.95-=
-33-gc82275c7e6c8/x86_64/x86_64_defconfig/gcc-10/lab-broonie/baseline-qemu_x=
-86_64-uefi-mixed.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
-t-baseline/20230217.0/x86/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/63f7610201780e682c8c8=
-67c
-        failing since 9 days (last pass: v5.15.93-48-g91b0616b8246, first f=
-ail: v5.15.93-67-gf3091fc0051b) =
-
- =
-
-
-
-platform               | arch   | lab           | compiler | defconfig     =
-               | regressions
------------------------+--------+---------------+----------+---------------=
----------------+------------
-qemu_x86_64-uefi-mixed | x86_64 | lab-broonie   | gcc-10   | x86_64_defcon.=
-..6-chromebook | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/63f7613ef6db64feec8c8655
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: x86_64_defconfig+x86-chromebook
-  Compiler:    gcc-10 (gcc (Debian 10.2.1-6) 10.2.1 20210110)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.15/v5.15.95-=
-33-gc82275c7e6c8/x86_64/x86_64_defconfig+x86-chromebook/gcc-10/lab-broonie/=
-baseline-qemu_x86_64-uefi-mixed.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.15/v5.15.95-=
-33-gc82275c7e6c8/x86_64/x86_64_defconfig+x86-chromebook/gcc-10/lab-broonie/=
-baseline-qemu_x86_64-uefi-mixed.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
-t-baseline/20230217.0/x86/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/63f7613ef6db64feec8c8=
-656
-        failing since 9 days (last pass: v5.15.93-48-g91b0616b8246, first f=
-ail: v5.15.93-67-g85c6595a0daa) =
-
- =
-
-
-
-platform               | arch   | lab           | compiler | defconfig     =
-               | regressions
------------------------+--------+---------------+----------+---------------=
----------------+------------
-qemu_x86_64-uefi-mixed | x86_64 | lab-collabora | gcc-10   | x86_64_defconf=
-ig             | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/63f760dd01780e682c8c862f
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: x86_64_defconfig
-  Compiler:    gcc-10 (gcc (Debian 10.2.1-6) 10.2.1 20210110)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.15/v5.15.95-=
-33-gc82275c7e6c8/x86_64/x86_64_defconfig/gcc-10/lab-collabora/baseline-qemu=
-_x86_64-uefi-mixed.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.15/v5.15.95-=
-33-gc82275c7e6c8/x86_64/x86_64_defconfig/gcc-10/lab-collabora/baseline-qemu=
-_x86_64-uefi-mixed.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
-t-baseline/20230217.0/x86/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/63f760dd01780e682c8c8=
-630
-        failing since 9 days (last pass: v5.15.93-48-g91b0616b8246, first f=
-ail: v5.15.93-67-gf3091fc0051b) =
-
- =
-
-
-
-platform               | arch   | lab           | compiler | defconfig     =
-               | regressions
------------------------+--------+---------------+----------+---------------=
----------------+------------
-qemu_x86_64-uefi-mixed | x86_64 | lab-collabora | gcc-10   | x86_64_defcon.=
-..6-chromebook | 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/63f76119c4ecbd422f8c864d
-
-  Results:     0 PASS, 1 FAIL, 0 SKIP
-  Full config: x86_64_defconfig+x86-chromebook
-  Compiler:    gcc-10 (gcc (Debian 10.2.1-6) 10.2.1 20210110)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-5.15/v5.15.95-=
-33-gc82275c7e6c8/x86_64/x86_64_defconfig+x86-chromebook/gcc-10/lab-collabor=
-a/baseline-qemu_x86_64-uefi-mixed.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-5.15/v5.15.95-=
-33-gc82275c7e6c8/x86_64/x86_64_defconfig+x86-chromebook/gcc-10/lab-collabor=
-a/baseline-qemu_x86_64-uefi-mixed.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
-t-baseline/20230217.0/x86/rootfs.cpio.gz =
-
-
-
-  * baseline.login: https://kernelci.org/test/case/id/63f76119c4ecbd422f8c8=
-64e
-        failing since 9 days (last pass: v5.15.93-48-g91b0616b8246, first f=
-ail: v5.15.93-67-g85c6595a0daa) =
-
- =20
+On 2/23/23 08:45, Shuah Khan wrote:
+> On 2/23/23 08:40, Naresh Kamboju wrote:
+>> On Thu, 23 Feb 2023 at 19:46, Greg Kroah-Hartman
+>> <gregkh@linuxfoundation.org> wrote:
+>>>
+>>> This is the start of the stable review cycle for the 5.15.96 release.
+>>> There are 37 patches in this series, all will be posted as a response
+>>> to this one.  If anyone has any issues with these being applied, please
+>>> let me know.
+>>>
+>>> Responses should be made by Sat, 25 Feb 2023 14:15:30 +0000.
+>>> Anything received after that time might be too late.
+>>>
+>>> The whole patch series can be found in one patch at:
+>>>          https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.15.96-rc2.gz
+>>> or in the git tree and branch at:
+>>>          git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.15.y
+>>> and the diffstat can be found below.
+>>>
+>>> thanks,
+>>>
+>>> greg k-h
+>>
+>> Following build warnings / error notices on 5.15-rc2
+>> anyone see these build issues ?
+>>
+>> scripts/pahole-flags.sh: 10: scripts/pahole-version.sh: Permission denied
+>> scripts/pahole-flags.sh: 12: [: Illegal number:
+>> scripts/pahole-flags.sh: 16: [: Illegal number:
+>> scripts/pahole-flags.sh: 20: [: Illegal number:
+>> scripts/pahole-flags.sh: 10: scripts/pahole-version.sh: Permission denied
+>> scripts/pahole-flags.sh: 12: [: Illegal number:
+>> scripts/pahole-flags.sh: 16: [: Illegal number:
+>> scripts/pahole-flags.sh: 20: [: Illegal number:
+>> scripts/pahole-flags.sh: 10: scripts/pahole-version.sh: Permission denied
+>> scripts/pahole-flags.sh: 12: [: Illegal number:
+>> scripts/pahole-flags.sh: 16: [: Illegal number:
+>> scripts/pahole-flags.sh: 20: [: Illegal number:
+>> sh: 1: scripts/pahole-version.sh: Permission denied
+>> init/Kconfig:97: syntax error
+>> init/Kconfig:96: invalid statement
+>> make[2]: *** [scripts/kconfig/Makefile:87: defconfig] Error 1
+>>
+>>
+>> Need to bisect
+>> -- 
+>>
+>> commit 54fab3cc806aec70d7ce8440e511d56bd53a4081
+>> Author: Nathan Chancellor <nathan@kernel.org>
+>> Date:   Tue Feb 1 13:56:21 2022 -0700
+>>
+>>      kbuild: Add CONFIG_PAHOLE_VERSION
+>>
+>>      commit 613fe169237785a4bb1d06397b52606b2967da53 upstream.
+>>
+>>      There are a few different places where pahole's version is turned into a
+>>      three digit form with the exact same command. Move this command into
+>>      scripts/pahole-version.sh to reduce the amount of duplication across the
+>>      tree.
+>>
+>>      Create CONFIG_PAHOLE_VERSION so the version code can be used in Kconfig
+>>      to enable and disable configuration options based on the pahole version,
+>>      which is already done in a couple of places.
+>>
+>>      Signed-off-by: Nathan Chancellor <nathan@kernel.org>
+>>
+>> -- 
+>> ls -l   scripts/pahole*.sh
+>> -rwxr-xr-x 1 naresh naresh 610 Feb 23 21:03 scripts/pahole-flags.sh
+>> -rw-r--r-- 1 naresh naresh 269 Feb 23 21:03 scripts/pahole-version.sh
+>>
+>>
+>>
+>> -- 
+>> Linaro LKFT
+>> https://lkft.linaro.org
+>>
+> +1 seeing the same:
+> 
+> ./scripts/pahole-flags.sh: 10: ./scripts/pahole-version.sh: Permission denied
+> ./scripts/pahole-flags.sh: 12: [: Illegal number:
+> ./scripts/pahole-flags.sh: 16: [: Illegal number:
+> ./scripts/pahole-flags.sh: 20: [: Illegal number:
+> 
+> 
+
+Okay figured out problem now. scripts/pahole-version.sh isn't executable.
+Once I made that change make is working now:
+
+chmod +x scripts/pahole-version.sh
+
+thanks,
+-- Shuah
