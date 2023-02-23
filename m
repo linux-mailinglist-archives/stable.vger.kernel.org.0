@@ -2,49 +2,51 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 9B87E6A099B
-	for <lists+stable@lfdr.de>; Thu, 23 Feb 2023 14:08:36 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D73C06A09AF
+	for <lists+stable@lfdr.de>; Thu, 23 Feb 2023 14:09:20 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233563AbjBWNIf (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 23 Feb 2023 08:08:35 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36206 "EHLO
+        id S234313AbjBWNJT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 23 Feb 2023 08:09:19 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38074 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234284AbjBWNI1 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 23 Feb 2023 08:08:27 -0500
-Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8807131E3F
-        for <stable@vger.kernel.org>; Thu, 23 Feb 2023 05:08:19 -0800 (PST)
+        with ESMTP id S234348AbjBWNJS (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 23 Feb 2023 08:09:18 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 19E68B773
+        for <stable@vger.kernel.org>; Thu, 23 Feb 2023 05:09:04 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id D5781CE2024
-        for <stable@vger.kernel.org>; Thu, 23 Feb 2023 13:08:17 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 00272C4339B;
-        Thu, 23 Feb 2023 13:08:15 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id EB130616F3
+        for <stable@vger.kernel.org>; Thu, 23 Feb 2023 13:09:04 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id BC7F1C433EF;
+        Thu, 23 Feb 2023 13:09:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1677157696;
-        bh=V1cgL4/ztt7zVfBt9Z2BIvtH29Uxko/sW17CkowPIRA=;
+        s=korg; t=1677157743;
+        bh=BLm+F0XesTUSK7UoaRjs/EUOmdazv4Ng2o1cH0ZbzMw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ka6pmZEI9ursf/kYdNwyvZAIm7WxSKQSacv3uXebI7nyqi7xMCNLCfrTl7EQy1w3Y
-         gUmfiERHbU63IfVzqGkvIaobAth6XZu6QLOD3zTlKA3zO+AuqY3XxpJ/FkYE4CmdkU
-         /qGOjdoN5NQa6IqOwuOcQRuKV4xoDevrdBM66kJ4=
+        b=MkQlrFemhxK08zhWSoRo9GYnh37r1iqi2JfPcLTAoOvpf9hattnJ2zkWIw8hAuI1o
+         MX6yQh9aIW0QDGumFiIBrYMuegRM08XvxvsbCzzDCOsderEo6AIulicB9UUXE/ju3q
+         ij2IkxDRVAwnjZMTM8jagCjyfPhI9i6xy0Grh1wo=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Sean Christopherson <seanjc@google.com>,
+        patches@lists.linux.dev, Daniel Golle <daniel@makrotopia.org>,
+        Ricardo Ribalda <ribalda@chromium.org>,
+        Mark Brown <broonie@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 11/25] KVM: SVM: Skip WRMSR fastpath on VM-Exit if next RIP isnt valid
-Date:   Thu, 23 Feb 2023 14:06:28 +0100
-Message-Id: <20230223130427.294953360@linuxfoundation.org>
+Subject: [PATCH 6.1 22/46] spi: mediatek: Enable irq before the spi registration
+Date:   Thu, 23 Feb 2023 14:06:29 +0100
+Message-Id: <20230223130432.593273942@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230223130426.817998725@linuxfoundation.org>
-References: <20230223130426.817998725@linuxfoundation.org>
+In-Reply-To: <20230223130431.553657459@linuxfoundation.org>
+References: <20230223130431.553657459@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
         SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -52,92 +54,63 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sean Christopherson <seanjc@google.com>
+From: Ricardo Ribalda <ribalda@chromium.org>
 
-[ Upstream commit 5c30e8101e8d5d020b1d7119117889756a6ed713 ]
+[ Upstream commit b24cded8c065d7cef8690b2c7b82b828cce57708 ]
 
-Skip the WRMSR fastpath in SVM's VM-Exit handler if the next RIP isn't
-valid, e.g. because KVM is running with nrips=false.  SVM must decode and
-emulate to skip the WRMSR if the CPU doesn't provide the next RIP.
-Getting the instruction bytes to decode the WRMSR requires reading guest
-memory, which in turn means dereferencing memslots, and that isn't safe
-because KVM doesn't hold SRCU when the fastpath runs.
+If the irq is enabled after the spi si registered, there can be a race
+with the initialization of the devices on the spi bus.
 
-Don't bother trying to enable the fastpath for this case, e.g. by doing
-only the WRMSR and leaving the "skip" until later.  NRIPS is supported on
-all modern CPUs (KVM has considered making it mandatory), and the next
-RIP will be valid the vast, vast majority of the time.
+Eg:
+mtk-spi 1100a000.spi: spi-mem transfer timeout
+spi-nor: probe of spi0.0 failed with error -110
+Unable to handle kernel NULL pointer dereference at virtual address
+0000000000000010
+...
+Call trace:
+ mtk_spi_can_dma+0x0/0x2c
 
-  =============================
-  WARNING: suspicious RCU usage
-  6.0.0-smp--4e557fcd3d80-skip #13 Tainted: G           O
-  -----------------------------
-  include/linux/kvm_host.h:954 suspicious rcu_dereference_check() usage!
-
-  other info that might help us debug this:
-
-  rcu_scheduler_active = 2, debug_locks = 1
-  1 lock held by stable/206475:
-   #0: ffff9d9dfebcc0f0 (&vcpu->mutex){+.+.}-{3:3}, at: kvm_vcpu_ioctl+0x8b/0x620 [kvm]
-
-  stack backtrace:
-  CPU: 152 PID: 206475 Comm: stable Tainted: G           O       6.0.0-smp--4e557fcd3d80-skip #13
-  Hardware name: Google, Inc. Arcadia_IT_80/Arcadia_IT_80, BIOS 10.48.0 01/27/2022
-  Call Trace:
-   <TASK>
-   dump_stack_lvl+0x69/0xaa
-   dump_stack+0x10/0x12
-   lockdep_rcu_suspicious+0x11e/0x130
-   kvm_vcpu_gfn_to_memslot+0x155/0x190 [kvm]
-   kvm_vcpu_gfn_to_hva_prot+0x18/0x80 [kvm]
-   paging64_walk_addr_generic+0x183/0x450 [kvm]
-   paging64_gva_to_gpa+0x63/0xd0 [kvm]
-   kvm_fetch_guest_virt+0x53/0xc0 [kvm]
-   __do_insn_fetch_bytes+0x18b/0x1c0 [kvm]
-   x86_decode_insn+0xf0/0xef0 [kvm]
-   x86_emulate_instruction+0xba/0x790 [kvm]
-   kvm_emulate_instruction+0x17/0x20 [kvm]
-   __svm_skip_emulated_instruction+0x85/0x100 [kvm_amd]
-   svm_skip_emulated_instruction+0x13/0x20 [kvm_amd]
-   handle_fastpath_set_msr_irqoff+0xae/0x180 [kvm]
-   svm_vcpu_run+0x4b8/0x5a0 [kvm_amd]
-   vcpu_enter_guest+0x16ca/0x22f0 [kvm]
-   kvm_arch_vcpu_ioctl_run+0x39d/0x900 [kvm]
-   kvm_vcpu_ioctl+0x538/0x620 [kvm]
-   __se_sys_ioctl+0x77/0xc0
-   __x64_sys_ioctl+0x1d/0x20
-   do_syscall_64+0x3d/0x80
-   entry_SYSCALL_64_after_hwframe+0x63/0xcd
-
-Fixes: 404d5d7bff0d ("KVM: X86: Introduce more exit_fastpath_completion enum values")
-Signed-off-by: Sean Christopherson <seanjc@google.com>
-Link: https://lore.kernel.org/r/20220930234031.1732249-1-seanjc@google.com
+Fixes: c6f7874687f7 ("spi: mediatek: Enable irq when pdata is ready")
+Reported-by: Daniel Golle <daniel@makrotopia.org>
+Signed-off-by: Ricardo Ribalda <ribalda@chromium.org>
+Tested-by: Daniel Golle <daniel@makrotopia.org>
+Link: https://lore.kernel.org/r/20221225-mtk-spi-fixes-v1-0-bb6c14c232f8@chromium.org
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/x86/kvm/svm/svm.c | 10 ++++++++--
- 1 file changed, 8 insertions(+), 2 deletions(-)
+ drivers/spi/spi-mt65xx.c | 12 +++++-------
+ 1 file changed, 5 insertions(+), 7 deletions(-)
 
-diff --git a/arch/x86/kvm/svm/svm.c b/arch/x86/kvm/svm/svm.c
-index c34ba034ca111..5775983fec56e 100644
---- a/arch/x86/kvm/svm/svm.c
-+++ b/arch/x86/kvm/svm/svm.c
-@@ -3480,8 +3480,14 @@ static void svm_cancel_injection(struct kvm_vcpu *vcpu)
+diff --git a/drivers/spi/spi-mt65xx.c b/drivers/spi/spi-mt65xx.c
+index 6de8360e5c2a9..9eab6c20dbc56 100644
+--- a/drivers/spi/spi-mt65xx.c
++++ b/drivers/spi/spi-mt65xx.c
+@@ -1253,6 +1253,11 @@ static int mtk_spi_probe(struct platform_device *pdev)
+ 		dev_notice(dev, "SPI dma_set_mask(%d) failed, ret:%d\n",
+ 			   addr_bits, ret);
  
- static fastpath_t svm_exit_handlers_fastpath(struct kvm_vcpu *vcpu)
- {
--	if (to_svm(vcpu)->vmcb->control.exit_code == SVM_EXIT_MSR &&
--	    to_svm(vcpu)->vmcb->control.exit_info_1)
-+	struct vmcb_control_area *control = &to_svm(vcpu)->vmcb->control;
++	ret = devm_request_irq(dev, irq, mtk_spi_interrupt,
++			       IRQF_TRIGGER_NONE, dev_name(dev), master);
++	if (ret)
++		return dev_err_probe(dev, ret, "failed to register irq\n");
 +
-+	/*
-+	 * Note, the next RIP must be provided as SRCU isn't held, i.e. KVM
-+	 * can't read guest memory (dereference memslots) to decode the WRMSR.
-+	 */
-+	if (control->exit_code == SVM_EXIT_MSR && control->exit_info_1 &&
-+	    nrips && control->next_rip)
- 		return handle_fastpath_set_msr_irqoff(vcpu);
+ 	pm_runtime_enable(dev);
  
- 	return EXIT_FASTPATH_NONE;
+ 	ret = devm_spi_register_master(dev, master);
+@@ -1261,13 +1266,6 @@ static int mtk_spi_probe(struct platform_device *pdev)
+ 		return dev_err_probe(dev, ret, "failed to register master\n");
+ 	}
+ 
+-	ret = devm_request_irq(dev, irq, mtk_spi_interrupt,
+-			       IRQF_TRIGGER_NONE, dev_name(dev), master);
+-	if (ret) {
+-		pm_runtime_disable(dev);
+-		return dev_err_probe(dev, ret, "failed to register irq\n");
+-	}
+-
+ 	return 0;
+ }
+ 
 -- 
 2.39.0
 
