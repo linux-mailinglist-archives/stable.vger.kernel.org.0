@@ -2,43 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C94616A09DC
-	for <lists+stable@lfdr.de>; Thu, 23 Feb 2023 14:10:39 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1609B6A09E5
+	for <lists+stable@lfdr.de>; Thu, 23 Feb 2023 14:10:59 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234404AbjBWNKe (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 23 Feb 2023 08:10:34 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40060 "EHLO
+        id S234409AbjBWNK5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 23 Feb 2023 08:10:57 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40922 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234400AbjBWNKa (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 23 Feb 2023 08:10:30 -0500
-Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 18B994FC9B
-        for <stable@vger.kernel.org>; Thu, 23 Feb 2023 05:10:22 -0800 (PST)
+        with ESMTP id S234430AbjBWNKy (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 23 Feb 2023 08:10:54 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CC7BB56783
+        for <stable@vger.kernel.org>; Thu, 23 Feb 2023 05:10:42 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 5C5D4CE2020
-        for <stable@vger.kernel.org>; Thu, 23 Feb 2023 13:10:20 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3B191C433EF;
-        Thu, 23 Feb 2023 13:10:18 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 8C9F2616F9
+        for <stable@vger.kernel.org>; Thu, 23 Feb 2023 13:10:43 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5F802C433D2;
+        Thu, 23 Feb 2023 13:10:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1677157818;
-        bh=lmLKNPRH2/15Cdl7QSCHNrM1RC82Fnt/4vlZc6Vr3D4=;
+        s=korg; t=1677157841;
+        bh=upiZyjBW7Zqpirs8njROxyMEciquxpbVo6QLpLFYd9U=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Fqt2iANLP7UMQLMbZ92ynVRmasH8QzoxKn6YsmTlhuO0ao9PwK+hIoK6BTRmZwzZJ
-         /soTjO4RAL7otcaDPPqzhGonLTLZsmCk7TRMW02H1HvRjL7kCOgb0H8IaTAyLu0Q1i
-         nDgW7OlaSX8T7tD6AG2DZaaR6K79fRJmGo0UWfII=
+        b=vTgw+dc+bxznQel+nGepcbH9Ffcs4d99jT+bZbuKro6Me52FFJJlGF8t5mSMiZEvc
+         p1wLjC28seFZfvmmBGM4SULXDsInk+NZbxhEOn4khwZK/3i+JblT4S/951h/CzHK8+
+         BiUdyCgHgZ/S0XsER8cPIaK93HGRh6iGyTos/+bQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Lukas Wunner <lukas@wunner.de>,
-        Matt Ranostay <mranostay@ti.com>, Kalle Valo <kvalo@kernel.org>
-Subject: [PATCH 6.1 41/46] wifi: mwifiex: Add missing compatible string for SD8787
-Date:   Thu, 23 Feb 2023 14:06:48 +0100
-Message-Id: <20230223130433.510864234@linuxfoundation.org>
+        patches@lists.linux.dev, Lucas Stach <l.stach@pengutronix.de>,
+        Philipp Zabel <p.zabel@pengutronix.de>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 04/18] drm/etnaviv: dont truncate physical page address
+Date:   Thu, 23 Feb 2023 14:06:49 +0100
+Message-Id: <20230223130425.859805488@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230223130431.553657459@linuxfoundation.org>
-References: <20230223130431.553657459@linuxfoundation.org>
+In-Reply-To: <20230223130425.680784802@linuxfoundation.org>
+References: <20230223130425.680784802@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -52,34 +53,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Lukas Wunner <lukas@wunner.de>
+From: Lucas Stach <l.stach@pengutronix.de>
 
-commit 36dd7a4c6226133b0b7aa92b8e604e688d958d0c upstream.
+[ Upstream commit d37c120b73128690434cc093952439eef9d56af1 ]
 
-Commit e3fffc1f0b47 ("devicetree: document new marvell-8xxx and
-pwrseq-sd8787 options") documented a compatible string for SD8787 in
-the devicetree bindings, but neglected to add it to the mwifiex driver.
+While the interface for the MMU mapping takes phys_addr_t to hold a
+full 64bit address when necessary and MMUv2 is able to map physical
+addresses with up to 40bit, etnaviv_iommu_map() truncates the address
+to 32bits. Fix this by using the correct type.
 
-Fixes: e3fffc1f0b47 ("devicetree: document new marvell-8xxx and pwrseq-sd8787 options")
-Signed-off-by: Lukas Wunner <lukas@wunner.de>
-Cc: stable@vger.kernel.org # v4.11+
-Cc: Matt Ranostay <mranostay@ti.com>
-Signed-off-by: Kalle Valo <kvalo@kernel.org>
-Link: https://lore.kernel.org/r/320de5005ff3b8fd76be2d2b859fd021689c3681.1674827105.git.lukas@wunner.de
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: 931e97f3afd8 ("drm/etnaviv: mmuv2: support 40 bit phys address")
+Signed-off-by: Lucas Stach <l.stach@pengutronix.de>
+Reviewed-by: Philipp Zabel <p.zabel@pengutronix.de>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/wireless/marvell/mwifiex/sdio.c |    1 +
- 1 file changed, 1 insertion(+)
+ drivers/gpu/drm/etnaviv/etnaviv_mmu.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
---- a/drivers/net/wireless/marvell/mwifiex/sdio.c
-+++ b/drivers/net/wireless/marvell/mwifiex/sdio.c
-@@ -480,6 +480,7 @@ static struct memory_type_mapping mem_ty
- };
+diff --git a/drivers/gpu/drm/etnaviv/etnaviv_mmu.c b/drivers/gpu/drm/etnaviv/etnaviv_mmu.c
+index 9ba2fe48228f1..44fbc0a123bf3 100644
+--- a/drivers/gpu/drm/etnaviv/etnaviv_mmu.c
++++ b/drivers/gpu/drm/etnaviv/etnaviv_mmu.c
+@@ -80,10 +80,10 @@ static int etnaviv_iommu_map(struct etnaviv_iommu_context *context, u32 iova,
+ 		return -EINVAL;
  
- static const struct of_device_id mwifiex_sdio_of_match_table[] = {
-+	{ .compatible = "marvell,sd8787" },
- 	{ .compatible = "marvell,sd8897" },
- 	{ .compatible = "marvell,sd8997" },
- 	{ }
+ 	for_each_sgtable_dma_sg(sgt, sg, i) {
+-		u32 pa = sg_dma_address(sg) - sg->offset;
++		phys_addr_t pa = sg_dma_address(sg) - sg->offset;
+ 		size_t bytes = sg_dma_len(sg) + sg->offset;
+ 
+-		VERB("map[%d]: %08x %08x(%zx)", i, iova, pa, bytes);
++		VERB("map[%d]: %08x %pap(%zx)", i, iova, &pa, bytes);
+ 
+ 		ret = etnaviv_context_map(context, da, pa, bytes, prot);
+ 		if (ret)
+-- 
+2.39.0
+
 
 
