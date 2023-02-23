@@ -2,52 +2,53 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D54716A095D
-	for <lists+stable@lfdr.de>; Thu, 23 Feb 2023 14:05:25 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id BEE1A6A095B
+	for <lists+stable@lfdr.de>; Thu, 23 Feb 2023 14:05:17 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234272AbjBWNFY (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 23 Feb 2023 08:05:24 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59704 "EHLO
+        id S234095AbjBWNFQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 23 Feb 2023 08:05:16 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59492 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233699AbjBWNFY (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 23 Feb 2023 08:05:24 -0500
-Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 44E0055C03
-        for <stable@vger.kernel.org>; Thu, 23 Feb 2023 05:05:15 -0800 (PST)
+        with ESMTP id S234281AbjBWNFP (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 23 Feb 2023 08:05:15 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4F2EC53EFC
+        for <stable@vger.kernel.org>; Thu, 23 Feb 2023 05:05:06 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 58F6ECE2023
-        for <stable@vger.kernel.org>; Thu, 23 Feb 2023 13:05:13 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2F84FC4339B;
-        Thu, 23 Feb 2023 13:05:11 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id A907A616EC
+        for <stable@vger.kernel.org>; Thu, 23 Feb 2023 13:05:07 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7A7F6C433EF;
+        Thu, 23 Feb 2023 13:05:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1677157511;
-        bh=eSMNC0aXVDgmON888ywKNSXrlDJ0GfnVY50N37/JDRs=;
+        s=korg; t=1677157505;
+        bh=AE1KArWFZKKSBxE9z90qk6HgmUiw1GQ5E4OlHPZfTls=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=v5HflS6Wh0W+4HIsSyo3NWAskWfIzx+pUJAxU/qBM6d3zWL56c2xqA6jZQpn6EBLv
-         b+cgU2TvAeStGq2va6fRepMaTn8o/CzT6hF/LsTVn+57Y/aBcRfVgsH2u22GGL/gvx
-         5SGDozgJYNrayVb6YwTWdMlwfG/Q4nsUsWa4AUrY=
+        b=aRWqwfsoQ77JtqICPeDUPOSuNaMBaotf+kgdbb9RQJhTdQNlsbFvBMJb8t+sXSFZZ
+         7sU2Wqx5f6vcF7oCFKxRrrbxA3bA3Pel9wbIo5TJ2/NwmjVjAbsJWqB9YbVFzC5ELI
+         rczTI16tyktytM8TF2Wqmm84Td3wQO2VdxF1TFqw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Bitterblue Smith <rtl8821cerfe2@gmail.com>,
-        Kalle Valo <kvalo@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.19 01/11] wifi: rtl8xxxu: gen2: Turn on the rate control
-Date:   Thu, 23 Feb 2023 14:04:42 +0100
-Message-Id: <20230223130424.140631927@linuxfoundation.org>
+        patches@lists.linux.dev, Jordy Zomer <jordyzomer@google.com>,
+        Linus Torvalds <torvalds@linuxfoundation.org>,
+        Dave Hansen <dave.hansen@linux.intel.com>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Linus Torvalds <torvalds@linux-foundation.org>,
+        Daniel Borkmann <daniel@iogearbox.net>
+Subject: [PATCH 4.14 6/7] uaccess: Add speculation barrier to copy_from_user()
+Date:   Thu, 23 Feb 2023 14:04:43 +0100
+Message-Id: <20230223130423.662749238@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230223130424.079732181@linuxfoundation.org>
-References: <20230223130424.079732181@linuxfoundation.org>
+In-Reply-To: <20230223130423.369876969@linuxfoundation.org>
+References: <20230223130423.369876969@linuxfoundation.org>
 User-Agent: quilt/0.67
-X-stable: review
-X-Patchwork-Hint: ignore
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
         SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -55,69 +56,92 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Bitterblue Smith <rtl8821cerfe2@gmail.com>
+From: Dave Hansen <dave.hansen@linux.intel.com>
 
-[ Upstream commit 791082ec0ab843e0be07c8ce3678e4c2afd2e33d ]
+commit 74e19ef0ff8061ef55957c3abd71614ef0f42f47 upstream.
 
-Re-enable the function rtl8xxxu_gen2_report_connect.
+The results of "access_ok()" can be mis-speculated.  The result is that
+you can end speculatively:
 
-It informs the firmware when connecting to a network. This makes the
-firmware enable the rate control, which makes the upload faster.
+	if (access_ok(from, size))
+		// Right here
 
-It also informs the firmware when disconnecting from a network. In the
-past this made reconnecting impossible because it was sending the
-auth on queue 0x7 (TXDESC_QUEUE_VO) instead of queue 0x12
-(TXDESC_QUEUE_MGNT):
+even for bad from/size combinations.  On first glance, it would be ideal
+to just add a speculation barrier to "access_ok()" so that its results
+can never be mis-speculated.
 
-wlp0s20f0u3: send auth to 90:55:de:__:__:__ (try 1/3)
-wlp0s20f0u3: send auth to 90:55:de:__:__:__ (try 2/3)
-wlp0s20f0u3: send auth to 90:55:de:__:__:__ (try 3/3)
-wlp0s20f0u3: authentication with 90:55:de:__:__:__ timed out
+But there are lots of system calls just doing access_ok() via
+"copy_to_user()" and friends (example: fstat() and friends).  Those are
+generally not problematic because they do not _consume_ data from
+userspace other than the pointer.  They are also very quick and common
+system calls that should not be needlessly slowed down.
 
-Probably the firmware disables the unnecessary TX queues when it
-knows it's disconnected.
+"copy_from_user()" on the other hand uses a user-controller pointer and
+is frequently followed up with code that might affect caches.  Take
+something like this:
 
-However, this was fixed in commit edd5747aa12e ("wifi: rtl8xxxu: Fix
-skb misuse in TX queue selection").
+	if (!copy_from_user(&kernelvar, uptr, size))
+		do_something_with(kernelvar);
 
-Fixes: c59f13bbead4 ("rtl8xxxu: Work around issue with 8192eu and 8723bu devices not reconnecting")
-Signed-off-by: Bitterblue Smith <rtl8821cerfe2@gmail.com>
-Signed-off-by: Kalle Valo <kvalo@kernel.org>
-Link: https://lore.kernel.org/r/43200afc-0c65-ee72-48f8-231edd1df493@gmail.com
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+If userspace passes in an evil 'uptr' that *actually* points to a kernel
+addresses, and then do_something_with() has cache (or other)
+side-effects, it could allow userspace to infer kernel data values.
+
+Add a barrier to the common copy_from_user() code to prevent
+mis-speculated values which happen after the copy.
+
+Also add a stub for architectures that do not define barrier_nospec().
+This makes the macro usable in generic code.
+
+Since the barrier is now usable in generic code, the x86 #ifdef in the
+BPF code can also go away.
+
+Reported-by: Jordy Zomer <jordyzomer@google.com>
+Suggested-by: Linus Torvalds <torvalds@linuxfoundation.org>
+Signed-off-by: Dave Hansen <dave.hansen@linux.intel.com>
+Reviewed-by: Thomas Gleixner <tglx@linutronix.de>
+Acked-by: Daniel Borkmann <daniel@iogearbox.net>   # BPF bits
+Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/net/wireless/realtek/rtl8xxxu/rtl8xxxu_core.c | 8 ++------
- 1 file changed, 2 insertions(+), 6 deletions(-)
+ include/linux/nospec.h |    4 ++++
+ lib/usercopy.c         |    7 +++++++
+ 2 files changed, 11 insertions(+)
 
-diff --git a/drivers/net/wireless/realtek/rtl8xxxu/rtl8xxxu_core.c b/drivers/net/wireless/realtek/rtl8xxxu/rtl8xxxu_core.c
-index c3c8382dd0ba2..e5aac9694ade2 100644
---- a/drivers/net/wireless/realtek/rtl8xxxu/rtl8xxxu_core.c
-+++ b/drivers/net/wireless/realtek/rtl8xxxu/rtl8xxxu_core.c
-@@ -4375,12 +4375,9 @@ void rtl8xxxu_gen1_report_connect(struct rtl8xxxu_priv *priv,
- void rtl8xxxu_gen2_report_connect(struct rtl8xxxu_priv *priv,
- 				  u8 macid, bool connect)
- {
--#ifdef RTL8XXXU_GEN2_REPORT_CONNECT
- 	/*
--	 * Barry Day reports this causes issues with 8192eu and 8723bu
--	 * devices reconnecting. The reason for this is unclear, but
--	 * until it is better understood, leave the code in place but
--	 * disabled, so it is not lost.
-+	 * The firmware turns on the rate control when it knows it's
-+	 * connected to a network.
- 	 */
- 	struct h2c_cmd h2c;
+--- a/include/linux/nospec.h
++++ b/include/linux/nospec.h
+@@ -9,6 +9,10 @@
  
-@@ -4393,7 +4390,6 @@ void rtl8xxxu_gen2_report_connect(struct rtl8xxxu_priv *priv,
- 		h2c.media_status_rpt.parm &= ~BIT(0);
+ struct task_struct;
  
- 	rtl8xxxu_gen2_h2c_cmd(priv, &h2c, sizeof(h2c.media_status_rpt));
--#endif
- }
++#ifndef barrier_nospec
++# define barrier_nospec() do { } while (0)
++#endif
++
+ /**
+  * array_index_mask_nospec() - generate a ~0 mask when index < size, 0 otherwise
+  * @index: array element index
+--- a/lib/usercopy.c
++++ b/lib/usercopy.c
+@@ -1,5 +1,6 @@
+ // SPDX-License-Identifier: GPL-2.0
+ #include <linux/uaccess.h>
++#include <linux/nospec.h>
  
- void rtl8xxxu_gen1_init_aggregation(struct rtl8xxxu_priv *priv)
--- 
-2.39.0
-
+ /* out-of-line parts */
+ 
+@@ -9,6 +10,12 @@ unsigned long _copy_from_user(void *to,
+ 	unsigned long res = n;
+ 	might_fault();
+ 	if (likely(access_ok(VERIFY_READ, from, n))) {
++		/*
++		 * Ensure that bad access_ok() speculation will not
++		 * lead to nasty side effects *after* the copy is
++		 * finished:
++		 */
++		barrier_nospec();
+ 		kasan_check_write(to, n);
+ 		res = raw_copy_from_user(to, from, n);
+ 	}
 
 
