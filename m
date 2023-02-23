@@ -2,47 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 99C926A09CE
-	for <lists+stable@lfdr.de>; Thu, 23 Feb 2023 14:10:12 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E4C616A09CD
+	for <lists+stable@lfdr.de>; Thu, 23 Feb 2023 14:10:11 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234448AbjBWNKK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S234411AbjBWNKK (ORCPT <rfc822;lists+stable@lfdr.de>);
         Thu, 23 Feb 2023 08:10:10 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38892 "EHLO
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38894 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234413AbjBWNKH (ORCPT
+        with ESMTP id S234358AbjBWNKH (ORCPT
         <rfc822;stable@vger.kernel.org>); Thu, 23 Feb 2023 08:10:07 -0500
-Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0492056534
-        for <stable@vger.kernel.org>; Thu, 23 Feb 2023 05:09:55 -0800 (PST)
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1222956537
+        for <stable@vger.kernel.org>; Thu, 23 Feb 2023 05:09:56 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 1BC02CE1FEE
-        for <stable@vger.kernel.org>; Thu, 23 Feb 2023 13:09:54 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E53EAC4339B;
-        Thu, 23 Feb 2023 13:09:51 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id DCE07616EC
+        for <stable@vger.kernel.org>; Thu, 23 Feb 2023 13:09:56 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id AE704C433D2;
+        Thu, 23 Feb 2023 13:09:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1677157792;
-        bh=savRNAMiboQAQYBA6mQz8uvkzyk+o8xcP2kUyYx3r+Q=;
+        s=korg; t=1677157795;
+        bh=jY/TG1R6ZV98n2nfEV8cPpanCMp0NeNMImzorczH3mA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Op+nnPjDOfQqXi2Ju+fwnZSRbxKp6drzpJVNkVUuGnTgTP91YxyObYaGUIZiaaxcl
-         zXfYdEkySrUZOzR19hGYNdh8b6zehLFp62wmi+w8V3rVhHgajvG/djq9BW0AHLUtOJ
-         m3cccLJAF8NTuT7aKYo5DbYWQT50T+xctoxf+MY4=
+        b=0xMpKvINSjLwSfSXKEZ4uY2Xi/bhWpyQHBwxyG088+JyXGThbGy//8pEtcBStkdby
+         TPIN5gGSt1s52NXZ1M/V1gsAJUp78AnDXml8XsrHElFAcw32i+iCgVicC74hyA2hpv
+         QDCfJeUE/5zU+u928CXW1oMDMgd1iZPDH/j9kmvY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Kathleen Chang <yt.chang@mediatek.com>,
-        Wenju Xu <wenju.xu@mediatek.com>,
-        Jonathan Chen <jonathan.jmchen@mediatek.com>,
-        Suren Baghdasaryan <surenb@google.com>,
-        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
-        Chengming Zhou <zhouchengming@bytedance.com>,
-        Johannes Weiner <hannes@cmpxchg.org>,
-        SH Chen <show-hong.chen@mediatek.com>,
+        patches@lists.linux.dev,
+        Dominik Brodowski <linux@dominikbrodowski.net>,
+        PaX Team <pageexec@freemail.hu>,
+        Emese Revfy <re.emese@gmail.com>,
+        "Jason A. Donenfeld" <Jason@zx2c4.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 11/46] sched/psi: Stop relying on timer_pending() for poll_work rescheduling
-Date:   Thu, 23 Feb 2023 14:06:18 +0100
-Message-Id: <20230223130432.066371926@linuxfoundation.org>
+Subject: [PATCH 6.1 12/46] random: always mix cycle counter in add_latent_entropy()
+Date:   Thu, 23 Feb 2023 14:06:19 +0100
+Message-Id: <20230223130432.115880300@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
 In-Reply-To: <20230223130431.553657459@linuxfoundation.org>
 References: <20230223130431.553657459@linuxfoundation.org>
@@ -50,8 +47,8 @@ User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
         SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -59,227 +56,59 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Suren Baghdasaryan <surenb@google.com>
+From: Jason A. Donenfeld <Jason@zx2c4.com>
 
-[ Upstream commit 710ffe671e014d5ccbcff225130a178b088ef090 ]
+[ Upstream commit d7bf7f3b813e3755226bcb5114ad2ac477514ebf ]
 
-Psi polling mechanism is trying to minimize the number of wakeups to
-run psi_poll_work and is currently relying on timer_pending() to detect
-when this work is already scheduled. This provides a window of opportunity
-for psi_group_change to schedule an immediate psi_poll_work after
-poll_timer_fn got called but before psi_poll_work could reschedule itself.
-Below is the depiction of this entire window:
+add_latent_entropy() is called every time a process forks, in
+kernel_clone(). This in turn calls add_device_randomness() using the
+latent entropy global state. add_device_randomness() does two things:
 
-poll_timer_fn
-  wake_up_interruptible(&group->poll_wait);
+   2) Mixes into the input pool the latent entropy argument passed; and
+   1) Mixes in a cycle counter, a sort of measurement of when the event
+      took place, the high precision bits of which are presumably
+      difficult to predict.
 
-psi_poll_worker
-  wait_event_interruptible(group->poll_wait, ...)
-  psi_poll_work
-    psi_schedule_poll_work
-      if (timer_pending(&group->poll_timer)) return;
-      ...
-      mod_timer(&group->poll_timer, jiffies + delay);
+(2) is impossible without CONFIG_GCC_PLUGIN_LATENT_ENTROPY=y. But (1) is
+always possible. However, currently CONFIG_GCC_PLUGIN_LATENT_ENTROPY=n
+disables both (1) and (2), instead of just (2).
 
-Prior to 461daba06bdc we used to rely on poll_scheduled atomic which was
-reset and set back inside psi_poll_work and therefore this race window
-was much smaller.
-The larger window causes increased number of wakeups and our partners
-report visible power regression of ~10mA after applying 461daba06bdc.
-Bring back the poll_scheduled atomic and make this race window even
-narrower by resetting poll_scheduled only when we reach polling expiration
-time. This does not completely eliminate the possibility of extra wakeups
-caused by a race with psi_group_change however it will limit it to the
-worst case scenario of one extra wakeup per every tracking window (0.5s
-in the worst case).
-This patch also ensures correct ordering between clearing poll_scheduled
-flag and obtaining changed_states using memory barrier. Correct ordering
-between updating changed_states and setting poll_scheduled is ensured by
-atomic_xchg operation.
-By tracing the number of immediate rescheduling attempts performed by
-psi_group_change and the number of these attempts being blocked due to
-psi monitor being already active, we can assess the effects of this change:
+This commit causes the CONFIG_GCC_PLUGIN_LATENT_ENTROPY=n case to still
+do (1) by passing NULL (len 0) to add_device_randomness() when add_latent_
+entropy() is called.
 
-Before the patch:
-                                           Run#1    Run#2      Run#3
-Immediate reschedules attempted:           684365   1385156    1261240
-Immediate reschedules blocked:             682846   1381654    1258682
-Immediate reschedules (delta):             1519     3502       2558
-Immediate reschedules (% of attempted):    0.22%    0.25%      0.20%
-
-After the patch:
-                                           Run#1    Run#2      Run#3
-Immediate reschedules attempted:           882244   770298    426218
-Immediate reschedules blocked:             881996   769796    426074
-Immediate reschedules (delta):             248      502       144
-Immediate reschedules (% of attempted):    0.03%    0.07%     0.03%
-
-The number of non-blocked immediate reschedules dropped from 0.22-0.25%
-to 0.03-0.07%. The drop is attributed to the decrease in the race window
-size and the fact that we allow this race only when psi monitors reach
-polling window expiration time.
-
-Fixes: 461daba06bdc ("psi: eliminate kthread_worker from psi trigger scheduling mechanism")
-Reported-by: Kathleen Chang <yt.chang@mediatek.com>
-Reported-by: Wenju Xu <wenju.xu@mediatek.com>
-Reported-by: Jonathan Chen <jonathan.jmchen@mediatek.com>
-Signed-off-by: Suren Baghdasaryan <surenb@google.com>
-Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
-Reviewed-by: Chengming Zhou <zhouchengming@bytedance.com>
-Acked-by: Johannes Weiner <hannes@cmpxchg.org>
-Tested-by: SH Chen <show-hong.chen@mediatek.com>
-Link: https://lore.kernel.org/r/20221028194541.813985-1-surenb@google.com
+Cc: Dominik Brodowski <linux@dominikbrodowski.net>
+Cc: PaX Team <pageexec@freemail.hu>
+Cc: Emese Revfy <re.emese@gmail.com>
+Fixes: 38addce8b600 ("gcc-plugins: Add latent_entropy plugin")
+Signed-off-by: Jason A. Donenfeld <Jason@zx2c4.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- include/linux/psi_types.h |  1 +
- kernel/sched/psi.c        | 62 ++++++++++++++++++++++++++++++++-------
- 2 files changed, 53 insertions(+), 10 deletions(-)
+ include/linux/random.h | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/include/linux/psi_types.h b/include/linux/psi_types.h
-index 6e43727350689..14a1ebb74e11f 100644
---- a/include/linux/psi_types.h
-+++ b/include/linux/psi_types.h
-@@ -177,6 +177,7 @@ struct psi_group {
- 	struct timer_list poll_timer;
- 	wait_queue_head_t poll_wait;
- 	atomic_t poll_wakeup;
-+	atomic_t poll_scheduled;
+diff --git a/include/linux/random.h b/include/linux/random.h
+index bd954ecbef901..51133627ba73a 100644
+--- a/include/linux/random.h
++++ b/include/linux/random.h
+@@ -19,14 +19,14 @@ void add_input_randomness(unsigned int type, unsigned int code,
+ void add_interrupt_randomness(int irq) __latent_entropy;
+ void add_hwgenerator_randomness(const void *buf, size_t len, size_t entropy);
  
- 	/* Protects data used by the monitor */
- 	struct mutex trigger_lock;
-diff --git a/kernel/sched/psi.c b/kernel/sched/psi.c
-index 48fedeee15c5b..e83c321461cf4 100644
---- a/kernel/sched/psi.c
-+++ b/kernel/sched/psi.c
-@@ -189,6 +189,7 @@ static void group_init(struct psi_group *group)
- 	INIT_DELAYED_WORK(&group->avgs_work, psi_avgs_work);
- 	mutex_init(&group->avgs_lock);
- 	/* Init trigger-related members */
-+	atomic_set(&group->poll_scheduled, 0);
- 	mutex_init(&group->trigger_lock);
- 	INIT_LIST_HEAD(&group->triggers);
- 	group->poll_min_period = U32_MAX;
-@@ -565,18 +566,17 @@ static u64 update_triggers(struct psi_group *group, u64 now)
- 	return now + group->poll_min_period;
- }
- 
--/* Schedule polling if it's not already scheduled. */
--static void psi_schedule_poll_work(struct psi_group *group, unsigned long delay)
-+/* Schedule polling if it's not already scheduled or forced. */
-+static void psi_schedule_poll_work(struct psi_group *group, unsigned long delay,
-+				   bool force)
+-#if defined(LATENT_ENTROPY_PLUGIN) && !defined(__CHECKER__)
+ static inline void add_latent_entropy(void)
  {
- 	struct task_struct *task;
- 
- 	/*
--	 * Do not reschedule if already scheduled.
--	 * Possible race with a timer scheduled after this check but before
--	 * mod_timer below can be tolerated because group->polling_next_update
--	 * will keep updates on schedule.
-+	 * atomic_xchg should be called even when !force to provide a
-+	 * full memory barrier (see the comment inside psi_poll_work).
- 	 */
--	if (timer_pending(&group->poll_timer))
-+	if (atomic_xchg(&group->poll_scheduled, 1) && !force)
- 		return;
- 
- 	rcu_read_lock();
-@@ -588,12 +588,15 @@ static void psi_schedule_poll_work(struct psi_group *group, unsigned long delay)
- 	 */
- 	if (likely(task))
- 		mod_timer(&group->poll_timer, jiffies + delay);
-+	else
-+		atomic_set(&group->poll_scheduled, 0);
- 
- 	rcu_read_unlock();
- }
- 
- static void psi_poll_work(struct psi_group *group)
- {
-+	bool force_reschedule = false;
- 	u32 changed_states;
- 	u64 now;
- 
-@@ -601,6 +604,43 @@ static void psi_poll_work(struct psi_group *group)
- 
- 	now = sched_clock();
- 
-+	if (now > group->polling_until) {
-+		/*
-+		 * We are either about to start or might stop polling if no
-+		 * state change was recorded. Resetting poll_scheduled leaves
-+		 * a small window for psi_group_change to sneak in and schedule
-+		 * an immediate poll_work before we get to rescheduling. One
-+		 * potential extra wakeup at the end of the polling window
-+		 * should be negligible and polling_next_update still keeps
-+		 * updates correctly on schedule.
-+		 */
-+		atomic_set(&group->poll_scheduled, 0);
-+		/*
-+		 * A task change can race with the poll worker that is supposed to
-+		 * report on it. To avoid missing events, ensure ordering between
-+		 * poll_scheduled and the task state accesses, such that if the poll
-+		 * worker misses the state update, the task change is guaranteed to
-+		 * reschedule the poll worker:
-+		 *
-+		 * poll worker:
-+		 *   atomic_set(poll_scheduled, 0)
-+		 *   smp_mb()
-+		 *   LOAD states
-+		 *
-+		 * task change:
-+		 *   STORE states
-+		 *   if atomic_xchg(poll_scheduled, 1) == 0:
-+		 *     schedule poll worker
-+		 *
-+		 * The atomic_xchg() implies a full barrier.
-+		 */
-+		smp_mb();
-+	} else {
-+		/* Polling window is not over, keep rescheduling */
-+		force_reschedule = true;
-+	}
-+
-+
- 	collect_percpu_times(group, PSI_POLL, &changed_states);
- 
- 	if (changed_states & group->poll_states) {
-@@ -626,7 +666,8 @@ static void psi_poll_work(struct psi_group *group)
- 		group->polling_next_update = update_triggers(group, now);
- 
- 	psi_schedule_poll_work(group,
--		nsecs_to_jiffies(group->polling_next_update - now) + 1);
-+		nsecs_to_jiffies(group->polling_next_update - now) + 1,
-+		force_reschedule);
- 
- out:
- 	mutex_unlock(&group->trigger_lock);
-@@ -787,7 +828,7 @@ static void psi_group_change(struct psi_group *group, int cpu,
- 	write_seqcount_end(&groupc->seq);
- 
- 	if (state_mask & group->poll_states)
--		psi_schedule_poll_work(group, 1);
-+		psi_schedule_poll_work(group, 1, false);
- 
- 	if (wake_clock && !delayed_work_pending(&group->avgs_work))
- 		schedule_delayed_work(&group->avgs_work, PSI_FREQ);
-@@ -941,7 +982,7 @@ void psi_account_irqtime(struct task_struct *task, u32 delta)
- 		write_seqcount_end(&groupc->seq);
- 
- 		if (group->poll_states & (1 << PSI_IRQ_FULL))
--			psi_schedule_poll_work(group, 1);
-+			psi_schedule_poll_work(group, 1, false);
- 	} while ((group = group->parent));
- }
++#if defined(LATENT_ENTROPY_PLUGIN) && !defined(__CHECKER__)
+ 	add_device_randomness((const void *)&latent_entropy, sizeof(latent_entropy));
+-}
+ #else
+-static inline void add_latent_entropy(void) { }
++	add_device_randomness(NULL, 0);
  #endif
-@@ -1328,6 +1369,7 @@ void psi_trigger_destroy(struct psi_trigger *t)
- 		 * can no longer be found through group->poll_task.
- 		 */
- 		kthread_stop(task_to_destroy);
-+		atomic_set(&group->poll_scheduled, 0);
- 	}
- 	kfree(t);
- }
++}
+ 
+ #if IS_ENABLED(CONFIG_VMGENID)
+ void add_vmfork_randomness(const void *unique_vm_id, size_t len);
 -- 
 2.39.0
 
