@@ -2,55 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 8D4E76A0486
-	for <lists+stable@lfdr.de>; Thu, 23 Feb 2023 10:11:56 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3CBBE6A0497
+	for <lists+stable@lfdr.de>; Thu, 23 Feb 2023 10:18:04 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233830AbjBWJLz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 23 Feb 2023 04:11:55 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40518 "EHLO
+        id S233817AbjBWJSC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 23 Feb 2023 04:18:02 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45706 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232644AbjBWJLy (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 23 Feb 2023 04:11:54 -0500
+        with ESMTP id S229502AbjBWJR7 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 23 Feb 2023 04:17:59 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AD0F54ECEE;
-        Thu, 23 Feb 2023 01:11:53 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F0989298CA;
+        Thu, 23 Feb 2023 01:17:58 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 068A861633;
-        Thu, 23 Feb 2023 09:11:54 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 21305C4339B;
-        Thu, 23 Feb 2023 09:11:52 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 613886162F;
+        Thu, 23 Feb 2023 09:17:59 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9D451C433EF;
+        Thu, 23 Feb 2023 09:17:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1677143512;
-        bh=FLuwj3WwRqTNxwF4ZE4nzwojL2qEu+/Jiah69XSHx10=;
+        s=korg; t=1677143878;
+        bh=T56qU1zrO2f5+K1m/Z6RBr2ce1etS1rt6dWCDZpakl8=;
         h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=QCVLmQJEhrn21VIbUWi7BowrFreR2G9DLG4EaBGKnFyeVy8e8FSYXjatNe0p3+ich
-         VuXiGb4vG3evb30BOFnGFow1RIhyM6z7QFwGkG3ezBfuSA/lqumW2lSMv1yadHcZqs
-         XskTpn0JmvRivoJ/DGIHOll7aQqed+hmuFQHBLqE=
-Date:   Thu, 23 Feb 2023 10:11:39 +0100
+        b=bs1Xqmlv+nia1vrclkQDK/+JL/H1bK/qHyJAptXZmpvv3RsxbWUKWYV9RjB+C9G94
+         fw1OUgN/YOilIvBcmVTLyEwtRmnjPklNiT9QAcAqff1bNZy8FA/NuFDFcaCV0Mwbt9
+         LGhBk6AvfmnsdTE1GG3+2nOmcdNFq3oyKb86WtBE=
+Date:   Thu, 23 Feb 2023 10:17:55 +0100
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     Fedor Pchelkin <pchelkin@ispras.ru>
-Cc:     stable@vger.kernel.org, Johannes Berg <johannes@sipsolutions.net>,
-        Pavel Skripkin <paskripkin@gmail.com>,
-        "David S. Miller" <davem@davemloft.net>,
-        Jakub Kicinski <kuba@kernel.org>,
-        Bob Copeland <me@bobcopeland.com>,
-        linux-wireless@vger.kernel.org, netdev@vger.kernel.org,
-        linux-kernel@vger.kernel.org,
-        Alexey Khoroshilov <khoroshilov@ispras.ru>,
-        lvc-project@linuxtesting.org,
-        syzbot+860268315ba86ea6b96b@syzkaller.appspotmail.com,
-        Johannes Berg <johannes.berg@intel.com>
-Subject: Re: [PATCH 5.4/5.10 1/1] mac80211: mesh: embedd mesh_paths and
- mpp_paths into ieee80211_if_mesh
-Message-ID: <Y/ctyzCtbPwyrrDI@kroah.com>
-References: <20230222200301.254791-1-pchelkin@ispras.ru>
- <20230222200301.254791-2-pchelkin@ispras.ru>
+To:     maennich@google.com
+Cc:     linux-kernel@vger.kernel.org, kernel-team@android.com,
+        stable@vger.kernel.org, Nathan Chancellor <nathan@kernel.org>,
+        Andrii Nakryiko <andrii@kernel.org>,
+        Daniel Borkmann <daniel@iogearbox.net>
+Subject: Re: [PATCH 4/5] lib/Kconfig.debug: Use CONFIG_PAHOLE_VERSION
+Message-ID: <Y/cvQ4WfpKRrzKKK@kroah.com>
+References: <20220201205624.652313-1-nathan@kernel.org>
+ <20230222112141.278066-5-maennich@google.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20230222200301.254791-2-pchelkin@ispras.ru>
+In-Reply-To: <20230222112141.278066-5-maennich@google.com>
 X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
         DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
         SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
@@ -60,35 +52,51 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Wed, Feb 22, 2023 at 11:03:01PM +0300, Fedor Pchelkin wrote:
-> From: Pavel Skripkin <paskripkin@gmail.com>
+On Wed, Feb 22, 2023 at 11:21:45AM +0000, maennich@google.com wrote:
+> From: Nathan Chancellor <nathan@kernel.org>
 > 
-> commit 8b5cb7e41d9d77ffca036b0239177de123394a55 upstream.
+> Now that CONFIG_PAHOLE_VERSION exists, use it in the definition of
+> CONFIG_PAHOLE_HAS_SPLIT_BTF and CONFIG_PAHOLE_HAS_BTF_TAG to reduce the
+> amount of duplication across the tree.
 > 
-> Syzbot hit NULL deref in rhashtable_free_and_destroy(). The problem was
-> in mesh_paths and mpp_paths being NULL.
-> 
-> mesh_pathtbl_init() could fail in case of memory allocation failure, but
-> nobody cared, since ieee80211_mesh_init_sdata() returns void. It led to
-> leaving 2 pointers as NULL. Syzbot has found null deref on exit path,
-> but it could happen anywhere else, because code assumes these pointers are
-> valid.
-> 
-> Since all ieee80211_*_setup_sdata functions are void and do not fail,
-> let's embedd mesh_paths and mpp_paths into parent struct to avoid
-> adding error handling on higher levels and follow the pattern of others
-> setup_sdata functions
-> 
-> Fixes: 60854fd94573 ("mac80211: mesh: convert path table to rhashtable")
-> Reported-and-tested-by: syzbot+860268315ba86ea6b96b@syzkaller.appspotmail.com
-> Signed-off-by: Pavel Skripkin <paskripkin@gmail.com>
-> Link: https://lore.kernel.org/r/20211230195547.23977-1-paskripkin@gmail.com
-> Signed-off-by: Johannes Berg <johannes.berg@intel.com>
-> [pchelkin@ispras.ru: adapt a comment spell fixing issue]
-> Signed-off-by: Fedor Pchelkin <pchelkin@ispras.ru>
+> Signed-off-by: Nathan Chancellor <nathan@kernel.org>
+> Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
+> Acked-by: Andrii Nakryiko <andrii@kernel.org>
+> Link: https://lore.kernel.org/bpf/20220201205624.652313-5-nathan@kernel.org
+> Signed-off-by: Matthias Maennich <maennich@google.com>
 > ---
+>  lib/Kconfig.debug | 10 +++++++++-
+>  1 file changed, 9 insertions(+), 1 deletion(-)
+> 
+> diff --git a/lib/Kconfig.debug b/lib/Kconfig.debug
+> index f71db0cc3bf1..0743c9567d7e 100644
+> --- a/lib/Kconfig.debug
+> +++ b/lib/Kconfig.debug
+> @@ -328,7 +328,15 @@ config DEBUG_INFO_BTF
+>  	  DWARF type info into equivalent deduplicated BTF type info.
+>  
+>  config PAHOLE_HAS_SPLIT_BTF
+> -	def_bool $(success, test `$(PAHOLE) --version | sed -E 's/v([0-9]+)\.([0-9]+)/\1\2/'` -ge "119")
+> +	def_bool PAHOLE_VERSION >= 119
+> +
+> +config PAHOLE_HAS_BTF_TAG
+> +	def_bool PAHOLE_VERSION >= 123
+> +	depends on CC_IS_CLANG
+> +	help
+> +	  Decide whether pahole emits btf_tag attributes (btf_type_tag and
+> +	  btf_decl_tag) or not. Currently only clang compiler implements
+> +	  these attributes, so make the config depend on CC_IS_CLANG.
 
-This also worked for 4.19.y, but not 4.14.y, care to also fix it there?
+Note, this is very different from the original commit, are you sure this
+is correct?
+
+You took a MAINTAINERS file update in patch 1/5 to make a later patch
+simpler, but yet you massively changed this commit and included stuff
+from a different one and did not mention it anywhere?
+
+Please fix this commit up, and resubmit the whole series with the git
+commit ids in the commits to make it easier for me to review and apply
+properly.
 
 thanks,
 
