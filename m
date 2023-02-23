@@ -2,50 +2,50 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 7D39E6A09DB
-	for <lists+stable@lfdr.de>; Thu, 23 Feb 2023 14:10:39 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9FC1B6A09E7
+	for <lists+stable@lfdr.de>; Thu, 23 Feb 2023 14:11:01 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234439AbjBWNKh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 23 Feb 2023 08:10:37 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40084 "EHLO
+        id S234372AbjBWNLA (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 23 Feb 2023 08:11:00 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40922 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234372AbjBWNKb (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 23 Feb 2023 08:10:31 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A33A356785
-        for <stable@vger.kernel.org>; Thu, 23 Feb 2023 05:10:24 -0800 (PST)
+        with ESMTP id S234444AbjBWNK6 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 23 Feb 2023 08:10:58 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 73930567A1
+        for <stable@vger.kernel.org>; Thu, 23 Feb 2023 05:10:45 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 87869616F3
-        for <stable@vger.kernel.org>; Thu, 23 Feb 2023 13:10:25 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5AB41C433EF;
-        Thu, 23 Feb 2023 13:10:23 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 2BF3D616E3
+        for <stable@vger.kernel.org>; Thu, 23 Feb 2023 13:10:46 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id F1FEBC433D2;
+        Thu, 23 Feb 2023 13:10:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1677157823;
-        bh=bMRStiFKZUzQKYrgCEwgaerU4Zt+YsJtE/ShtITSsQU=;
+        s=korg; t=1677157844;
+        bh=ou+M19fX2+wZ6xz96RPzOfydbn3RAfH+wtL/CRNbaYo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=m2kMjzk9uCHpgqBR1kjRtQEYxBL2lD4RrGIPjgKVNOretaEBmj5c3u5Vl+5bk5w/2
-         iTQONshFsh7ckHMIVWfFS8qkmvUxksGrAWkh/ElbK6+8pMjZRXmsY7YcmQs66iyCP1
-         kNwM3dHru1YLOOByFOfFwwaFNYVaAt1PB4qCrh7U=
+        b=r3Lzfb1RIiRfVeV4XoBTNXh8F1i863U8luPJMbSkmDgTdHbDGuSd6S7BW5I8xeKW5
+         xCdeJRHDRi2Ph8CZiSPOYt0Ah3eWQxAbm6maDS0SgsNqxta7p2HiMUD4cFV/Nglp50
+         ec3MR++9TsJTzIYv3aWlxMW00DzuKeUpBjftf2Lw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         patches@lists.linux.dev,
-        Shyam Sundar S K <Shyam-sundar.S-k@amd.com>,
-        Hans de Goede <hdegoede@redhat.com>
-Subject: [PATCH 6.1 43/46] platform/x86/amd/pmf: Add depends on CONFIG_POWER_SUPPLY
+        Bitterblue Smith <rtl8821cerfe2@gmail.com>,
+        Kalle Valo <kvalo@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 05/18] wifi: rtl8xxxu: gen2: Turn on the rate control
 Date:   Thu, 23 Feb 2023 14:06:50 +0100
-Message-Id: <20230223130433.597538359@linuxfoundation.org>
+Message-Id: <20230223130425.890209141@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230223130431.553657459@linuxfoundation.org>
-References: <20230223130431.553657459@linuxfoundation.org>
+In-Reply-To: <20230223130425.680784802@linuxfoundation.org>
+References: <20230223130425.680784802@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
         SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -53,43 +53,69 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Shyam Sundar S K <Shyam-sundar.S-k@amd.com>
+From: Bitterblue Smith <rtl8821cerfe2@gmail.com>
 
-commit 3004e8d2a0a98bbf4223ae146464fadbff68bf78 upstream.
+[ Upstream commit 791082ec0ab843e0be07c8ce3678e4c2afd2e33d ]
 
-It is reported that amd_pmf driver is missing "depends on" for
-CONFIG_POWER_SUPPLY causing the following build error.
+Re-enable the function rtl8xxxu_gen2_report_connect.
 
-ld: drivers/platform/x86/amd/pmf/core.o: in function `amd_pmf_remove':
-core.c:(.text+0x10): undefined reference to `power_supply_unreg_notifier'
-ld: drivers/platform/x86/amd/pmf/core.o: in function `amd_pmf_probe':
-core.c:(.text+0x38f): undefined reference to `power_supply_reg_notifier'
-make[1]: *** [scripts/Makefile.vmlinux:34: vmlinux] Error 1
-make: *** [Makefile:1248: vmlinux] Error 2
+It informs the firmware when connecting to a network. This makes the
+firmware enable the rate control, which makes the upload faster.
 
-Add this to the Kconfig file.
+It also informs the firmware when disconnecting from a network. In the
+past this made reconnecting impossible because it was sending the
+auth on queue 0x7 (TXDESC_QUEUE_VO) instead of queue 0x12
+(TXDESC_QUEUE_MGNT):
 
-Link: https://bugzilla.kernel.org/show_bug.cgi?id=217028
-Fixes: c5258d39fc4c ("platform/x86/amd/pmf: Add helper routine to update SPS thermals")
-Signed-off-by: Shyam Sundar S K <Shyam-sundar.S-k@amd.com>
-Link: https://lore.kernel.org/r/20230213121457.1764463-1-Shyam-sundar.S-k@amd.com
-Cc: stable@vger.kernel.org
-Reviewed-by: Hans de Goede <hdegoede@redhat.com>
-Signed-off-by: Hans de Goede <hdegoede@redhat.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+wlp0s20f0u3: send auth to 90:55:de:__:__:__ (try 1/3)
+wlp0s20f0u3: send auth to 90:55:de:__:__:__ (try 2/3)
+wlp0s20f0u3: send auth to 90:55:de:__:__:__ (try 3/3)
+wlp0s20f0u3: authentication with 90:55:de:__:__:__ timed out
+
+Probably the firmware disables the unnecessary TX queues when it
+knows it's disconnected.
+
+However, this was fixed in commit edd5747aa12e ("wifi: rtl8xxxu: Fix
+skb misuse in TX queue selection").
+
+Fixes: c59f13bbead4 ("rtl8xxxu: Work around issue with 8192eu and 8723bu devices not reconnecting")
+Signed-off-by: Bitterblue Smith <rtl8821cerfe2@gmail.com>
+Signed-off-by: Kalle Valo <kvalo@kernel.org>
+Link: https://lore.kernel.org/r/43200afc-0c65-ee72-48f8-231edd1df493@gmail.com
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/platform/x86/amd/pmf/Kconfig |    1 +
- 1 file changed, 1 insertion(+)
+ drivers/net/wireless/realtek/rtl8xxxu/rtl8xxxu_core.c | 8 ++------
+ 1 file changed, 2 insertions(+), 6 deletions(-)
 
---- a/drivers/platform/x86/amd/pmf/Kconfig
-+++ b/drivers/platform/x86/amd/pmf/Kconfig
-@@ -6,6 +6,7 @@
- config AMD_PMF
- 	tristate "AMD Platform Management Framework"
- 	depends on ACPI && PCI
-+	depends on POWER_SUPPLY
- 	select ACPI_PLATFORM_PROFILE
- 	help
- 	  This driver provides support for the AMD Platform Management Framework.
+diff --git a/drivers/net/wireless/realtek/rtl8xxxu/rtl8xxxu_core.c b/drivers/net/wireless/realtek/rtl8xxxu/rtl8xxxu_core.c
+index 4a81e810a0ce3..0bc747489c55a 100644
+--- a/drivers/net/wireless/realtek/rtl8xxxu/rtl8xxxu_core.c
++++ b/drivers/net/wireless/realtek/rtl8xxxu/rtl8xxxu_core.c
+@@ -4372,12 +4372,9 @@ void rtl8xxxu_gen1_report_connect(struct rtl8xxxu_priv *priv,
+ void rtl8xxxu_gen2_report_connect(struct rtl8xxxu_priv *priv,
+ 				  u8 macid, bool connect)
+ {
+-#ifdef RTL8XXXU_GEN2_REPORT_CONNECT
+ 	/*
+-	 * Barry Day reports this causes issues with 8192eu and 8723bu
+-	 * devices reconnecting. The reason for this is unclear, but
+-	 * until it is better understood, leave the code in place but
+-	 * disabled, so it is not lost.
++	 * The firmware turns on the rate control when it knows it's
++	 * connected to a network.
+ 	 */
+ 	struct h2c_cmd h2c;
+ 
+@@ -4390,7 +4387,6 @@ void rtl8xxxu_gen2_report_connect(struct rtl8xxxu_priv *priv,
+ 		h2c.media_status_rpt.parm &= ~BIT(0);
+ 
+ 	rtl8xxxu_gen2_h2c_cmd(priv, &h2c, sizeof(h2c.media_status_rpt));
+-#endif
+ }
+ 
+ void rtl8xxxu_gen1_init_aggregation(struct rtl8xxxu_priv *priv)
+-- 
+2.39.0
+
 
 
