@@ -2,41 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 562206A0985
-	for <lists+stable@lfdr.de>; Thu, 23 Feb 2023 14:07:48 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D5E9F6A0986
+	for <lists+stable@lfdr.de>; Thu, 23 Feb 2023 14:07:52 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233379AbjBWNHr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 23 Feb 2023 08:07:47 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35422 "EHLO
+        id S233248AbjBWNHv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 23 Feb 2023 08:07:51 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35592 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233210AbjBWNHq (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 23 Feb 2023 08:07:46 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 905DD5678A
-        for <stable@vger.kernel.org>; Thu, 23 Feb 2023 05:07:25 -0800 (PST)
+        with ESMTP id S233210AbjBWNHu (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 23 Feb 2023 08:07:50 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 37DCB53EF0
+        for <stable@vger.kernel.org>; Thu, 23 Feb 2023 05:07:28 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 68419616E0
-        for <stable@vger.kernel.org>; Thu, 23 Feb 2023 13:07:26 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3BE85C433EF;
-        Thu, 23 Feb 2023 13:07:24 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id F1DE9615EA
+        for <stable@vger.kernel.org>; Thu, 23 Feb 2023 13:07:28 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C5C19C433EF;
+        Thu, 23 Feb 2023 13:07:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1677157644;
-        bh=FKYQN0v5yoosQGXEFMv2rFzby3Bjl/vy89UJ2A6juVo=;
+        s=korg; t=1677157647;
+        bh=Vdj7COWgsmffgml7LP3Sgxoo+HJuXuTalqEHCG9V6B0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=hrM6XtRdTqk0gk+TAHeydWXoF6KDhNV7+IMqCayEwDQJTMi6CEpi5CtG/iabQK0ME
-         KYJYcNixPPOaxWg+e/hNBawwhcKhme0UiqhIgiCY7+63Dmxa2CfpCIWVECLLWlMV8j
-         U296wYIjcf0EnfoMt21OoajRd8YfmisnC099bJiA=
+        b=BqSxGgcpTVcIUtyM6Hf1N/KxYtPbt//qePexBdXuP2oaTh93J0ic7eYwVyxfbq/VE
+         C4unHywYjyQn6tIow6Vv25uHRLpuz6TCjjekm1kxt3Pur/zzVaqJHZxsuxQwOrcOS0
+         7Nc9afMVU5bTeatvjWeHTQ8CuHxdTpPd/KeriQEc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Bitterblue Smith <rtl8821cerfe2@gmail.com>,
-        Kalle Valo <kvalo@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 02/25] wifi: rtl8xxxu: gen2: Turn on the rate control
-Date:   Thu, 23 Feb 2023 14:06:19 +0100
-Message-Id: <20230223130426.904735600@linuxfoundation.org>
+        patches@lists.linux.dev, Yi xin Zhu <yzhu@maxlinear.com>,
+        Rahul Tanwar <rtanwar@maxlinear.com>,
+        Stephen Boyd <sboyd@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 03/25] clk: mxl: Switch from direct readl/writel based IO to regmap based IO
+Date:   Thu, 23 Feb 2023 14:06:20 +0100
+Message-Id: <20230223130426.937828912@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
 In-Reply-To: <20230223130426.817998725@linuxfoundation.org>
 References: <20230223130426.817998725@linuxfoundation.org>
@@ -44,8 +45,8 @@ User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
         SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -53,67 +54,243 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Bitterblue Smith <rtl8821cerfe2@gmail.com>
+From: Rahul Tanwar <rtanwar@maxlinear.com>
 
-[ Upstream commit 791082ec0ab843e0be07c8ce3678e4c2afd2e33d ]
+[ Upstream commit 036177310bac5534de44ff6a7b60a4d2c0b6567c ]
 
-Re-enable the function rtl8xxxu_gen2_report_connect.
+Earlier version of driver used direct io remapped register read
+writes using readl/writel. But we need secure boot access which
+is only possible when registers are read & written using regmap.
+This is because the security bus/hook is written & coupled only
+with regmap layer.
 
-It informs the firmware when connecting to a network. This makes the
-firmware enable the rate control, which makes the upload faster.
+Switch the driver from direct readl/writel based register accesses
+to regmap based register accesses.
 
-It also informs the firmware when disconnecting from a network. In the
-past this made reconnecting impossible because it was sending the
-auth on queue 0x7 (TXDESC_QUEUE_VO) instead of queue 0x12
-(TXDESC_QUEUE_MGNT):
+Additionally, update the license headers to latest status.
 
-wlp0s20f0u3: send auth to 90:55:de:__:__:__ (try 1/3)
-wlp0s20f0u3: send auth to 90:55:de:__:__:__ (try 2/3)
-wlp0s20f0u3: send auth to 90:55:de:__:__:__ (try 3/3)
-wlp0s20f0u3: authentication with 90:55:de:__:__:__ timed out
-
-Probably the firmware disables the unnecessary TX queues when it
-knows it's disconnected.
-
-However, this was fixed in commit edd5747aa12e ("wifi: rtl8xxxu: Fix
-skb misuse in TX queue selection").
-
-Fixes: c59f13bbead4 ("rtl8xxxu: Work around issue with 8192eu and 8723bu devices not reconnecting")
-Signed-off-by: Bitterblue Smith <rtl8821cerfe2@gmail.com>
-Signed-off-by: Kalle Valo <kvalo@kernel.org>
-Link: https://lore.kernel.org/r/43200afc-0c65-ee72-48f8-231edd1df493@gmail.com
+Reviewed-by: Yi xin Zhu <yzhu@maxlinear.com>
+Signed-off-by: Rahul Tanwar <rtanwar@maxlinear.com>
+Link: https://lore.kernel.org/r/2610331918206e0e3bd18babb39393a558fb34f9.1665642720.git.rtanwar@maxlinear.com
+Signed-off-by: Stephen Boyd <sboyd@kernel.org>
+Stable-dep-of: 106ef3bda210 ("clk: mxl: Fix a clk entry by adding relevant flags")
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/wireless/realtek/rtl8xxxu/rtl8xxxu_core.c | 8 ++------
- 1 file changed, 2 insertions(+), 6 deletions(-)
+ drivers/clk/x86/Kconfig       |  5 +++--
+ drivers/clk/x86/clk-cgu-pll.c | 10 +++++----
+ drivers/clk/x86/clk-cgu.c     |  5 +++--
+ drivers/clk/x86/clk-cgu.h     | 38 +++++++++++++++++++----------------
+ drivers/clk/x86/clk-lgm.c     | 13 ++++++++----
+ 5 files changed, 42 insertions(+), 29 deletions(-)
 
-diff --git a/drivers/net/wireless/realtek/rtl8xxxu/rtl8xxxu_core.c b/drivers/net/wireless/realtek/rtl8xxxu/rtl8xxxu_core.c
-index 9a12f1d38007b..2cb86c28d11fe 100644
---- a/drivers/net/wireless/realtek/rtl8xxxu/rtl8xxxu_core.c
-+++ b/drivers/net/wireless/realtek/rtl8xxxu/rtl8xxxu_core.c
-@@ -4369,12 +4369,9 @@ void rtl8xxxu_gen1_report_connect(struct rtl8xxxu_priv *priv,
- void rtl8xxxu_gen2_report_connect(struct rtl8xxxu_priv *priv,
- 				  u8 macid, bool connect)
+diff --git a/drivers/clk/x86/Kconfig b/drivers/clk/x86/Kconfig
+index 69642e15fcc1f..ced99e082e3dd 100644
+--- a/drivers/clk/x86/Kconfig
++++ b/drivers/clk/x86/Kconfig
+@@ -1,8 +1,9 @@
+ # SPDX-License-Identifier: GPL-2.0-only
+ config CLK_LGM_CGU
+ 	depends on OF && HAS_IOMEM && (X86 || COMPILE_TEST)
++	select MFD_SYSCON
+ 	select OF_EARLY_FLATTREE
+ 	bool "Clock driver for Lightning Mountain(LGM) platform"
+ 	help
+-	  Clock Generation Unit(CGU) driver for Intel Lightning Mountain(LGM)
+-	  network processor SoC.
++	  Clock Generation Unit(CGU) driver for MaxLinear's x86 based
++	  Lightning Mountain(LGM) network processor SoC.
+diff --git a/drivers/clk/x86/clk-cgu-pll.c b/drivers/clk/x86/clk-cgu-pll.c
+index 3179557b5f784..c83083affe88e 100644
+--- a/drivers/clk/x86/clk-cgu-pll.c
++++ b/drivers/clk/x86/clk-cgu-pll.c
+@@ -1,8 +1,9 @@
+ // SPDX-License-Identifier: GPL-2.0
+ /*
++ * Copyright (C) 2020-2022 MaxLinear, Inc.
+  * Copyright (C) 2020 Intel Corporation.
+- * Zhu YiXin <yixin.zhu@intel.com>
+- * Rahul Tanwar <rahul.tanwar@intel.com>
++ * Zhu Yixin <yzhu@maxlinear.com>
++ * Rahul Tanwar <rtanwar@maxlinear.com>
+  */
+ 
+ #include <linux/clk-provider.h>
+@@ -76,8 +77,9 @@ static int lgm_pll_enable(struct clk_hw *hw)
+ 
+ 	spin_lock_irqsave(&pll->lock, flags);
+ 	lgm_set_clk_val(pll->membase, pll->reg, 0, 1, 1);
+-	ret = readl_poll_timeout_atomic(pll->membase + pll->reg,
+-					val, (val & 0x1), 1, 100);
++	ret = regmap_read_poll_timeout_atomic(pll->membase, pll->reg,
++					      val, (val & 0x1), 1, 100);
++
+ 	spin_unlock_irqrestore(&pll->lock, flags);
+ 
+ 	return ret;
+diff --git a/drivers/clk/x86/clk-cgu.c b/drivers/clk/x86/clk-cgu.c
+index 33de600e0c38e..f5f30a18f4869 100644
+--- a/drivers/clk/x86/clk-cgu.c
++++ b/drivers/clk/x86/clk-cgu.c
+@@ -1,8 +1,9 @@
+ // SPDX-License-Identifier: GPL-2.0
+ /*
++ * Copyright (C) 2020-2022 MaxLinear, Inc.
+  * Copyright (C) 2020 Intel Corporation.
+- * Zhu YiXin <yixin.zhu@intel.com>
+- * Rahul Tanwar <rahul.tanwar@intel.com>
++ * Zhu Yixin <yzhu@maxlinear.com>
++ * Rahul Tanwar <rtanwar@maxlinear.com>
+  */
+ #include <linux/clk-provider.h>
+ #include <linux/device.h>
+diff --git a/drivers/clk/x86/clk-cgu.h b/drivers/clk/x86/clk-cgu.h
+index 4e22bfb223128..dbcb664687975 100644
+--- a/drivers/clk/x86/clk-cgu.h
++++ b/drivers/clk/x86/clk-cgu.h
+@@ -1,18 +1,19 @@
+ /* SPDX-License-Identifier: GPL-2.0 */
+ /*
+- * Copyright(c) 2020 Intel Corporation.
+- * Zhu YiXin <yixin.zhu@intel.com>
+- * Rahul Tanwar <rahul.tanwar@intel.com>
++ * Copyright (C) 2020-2022 MaxLinear, Inc.
++ * Copyright (C) 2020 Intel Corporation.
++ * Zhu Yixin <yzhu@maxlinear.com>
++ * Rahul Tanwar <rtanwar@maxlinear.com>
+  */
+ 
+ #ifndef __CLK_CGU_H
+ #define __CLK_CGU_H
+ 
+-#include <linux/io.h>
++#include <linux/regmap.h>
+ 
+ struct lgm_clk_mux {
+ 	struct clk_hw hw;
+-	void __iomem *membase;
++	struct regmap *membase;
+ 	unsigned int reg;
+ 	u8 shift;
+ 	u8 width;
+@@ -22,7 +23,7 @@ struct lgm_clk_mux {
+ 
+ struct lgm_clk_divider {
+ 	struct clk_hw hw;
+-	void __iomem *membase;
++	struct regmap *membase;
+ 	unsigned int reg;
+ 	u8 shift;
+ 	u8 width;
+@@ -35,7 +36,7 @@ struct lgm_clk_divider {
+ 
+ struct lgm_clk_ddiv {
+ 	struct clk_hw hw;
+-	void __iomem *membase;
++	struct regmap *membase;
+ 	unsigned int reg;
+ 	u8 shift0;
+ 	u8 width0;
+@@ -53,7 +54,7 @@ struct lgm_clk_ddiv {
+ 
+ struct lgm_clk_gate {
+ 	struct clk_hw hw;
+-	void __iomem *membase;
++	struct regmap *membase;
+ 	unsigned int reg;
+ 	u8 shift;
+ 	unsigned long flags;
+@@ -77,7 +78,7 @@ enum lgm_clk_type {
+  * @clk_data: array of hw clocks and clk number.
+  */
+ struct lgm_clk_provider {
+-	void __iomem *membase;
++	struct regmap *membase;
+ 	struct device_node *np;
+ 	struct device *dev;
+ 	struct clk_hw_onecell_data clk_data;
+@@ -92,7 +93,7 @@ enum pll_type {
+ 
+ struct lgm_clk_pll {
+ 	struct clk_hw hw;
+-	void __iomem *membase;
++	struct regmap *membase;
+ 	unsigned int reg;
+ 	unsigned long flags;
+ 	enum pll_type type;
+@@ -300,29 +301,32 @@ struct lgm_clk_branch {
+ 		.div = _d,					\
+ 	}
+ 
+-static inline void lgm_set_clk_val(void __iomem *membase, u32 reg,
++static inline void lgm_set_clk_val(struct regmap *membase, u32 reg,
+ 				   u8 shift, u8 width, u32 set_val)
  {
--#ifdef RTL8XXXU_GEN2_REPORT_CONNECT
- 	/*
--	 * Barry Day reports this causes issues with 8192eu and 8723bu
--	 * devices reconnecting. The reason for this is unclear, but
--	 * until it is better understood, leave the code in place but
--	 * disabled, so it is not lost.
-+	 * The firmware turns on the rate control when it knows it's
-+	 * connected to a network.
- 	 */
- 	struct h2c_cmd h2c;
+ 	u32 mask = (GENMASK(width - 1, 0) << shift);
+-	u32 regval;
  
-@@ -4387,7 +4384,6 @@ void rtl8xxxu_gen2_report_connect(struct rtl8xxxu_priv *priv,
- 		h2c.media_status_rpt.parm &= ~BIT(0);
- 
- 	rtl8xxxu_gen2_h2c_cmd(priv, &h2c, sizeof(h2c.media_status_rpt));
--#endif
+-	regval = readl(membase + reg);
+-	regval = (regval & ~mask) | ((set_val << shift) & mask);
+-	writel(regval, membase + reg);
++	regmap_update_bits(membase, reg, mask, set_val << shift);
  }
  
- void rtl8xxxu_gen1_init_aggregation(struct rtl8xxxu_priv *priv)
+-static inline u32 lgm_get_clk_val(void __iomem *membase, u32 reg,
++static inline u32 lgm_get_clk_val(struct regmap *membase, u32 reg,
+ 				  u8 shift, u8 width)
+ {
+ 	u32 mask = (GENMASK(width - 1, 0) << shift);
+ 	u32 val;
+ 
+-	val = readl(membase + reg);
++	if (regmap_read(membase, reg, &val)) {
++		WARN_ONCE(1, "Failed to read clk reg: 0x%x\n", reg);
++		return 0;
++	}
++
+ 	val = (val & mask) >> shift;
+ 
+ 	return val;
+ }
+ 
++
++
+ int lgm_clk_register_branches(struct lgm_clk_provider *ctx,
+ 			      const struct lgm_clk_branch *list,
+ 			      unsigned int nr_clk);
+diff --git a/drivers/clk/x86/clk-lgm.c b/drivers/clk/x86/clk-lgm.c
+index 020f4e83a5ccb..4fa2bcaf71c89 100644
+--- a/drivers/clk/x86/clk-lgm.c
++++ b/drivers/clk/x86/clk-lgm.c
+@@ -1,10 +1,12 @@
+ // SPDX-License-Identifier: GPL-2.0
+ /*
++ * Copyright (C) 2020-2022 MaxLinear, Inc.
+  * Copyright (C) 2020 Intel Corporation.
+- * Zhu YiXin <yixin.zhu@intel.com>
+- * Rahul Tanwar <rahul.tanwar@intel.com>
++ * Zhu Yixin <yzhu@maxlinear.com>
++ * Rahul Tanwar <rtanwar@maxlinear.com>
+  */
+ #include <linux/clk-provider.h>
++#include <linux/mfd/syscon.h>
+ #include <linux/of.h>
+ #include <linux/platform_device.h>
+ #include <dt-bindings/clock/intel,lgm-clk.h>
+@@ -433,9 +435,12 @@ static int lgm_cgu_probe(struct platform_device *pdev)
+ 
+ 	ctx->clk_data.num = CLK_NR_CLKS;
+ 
+-	ctx->membase = devm_platform_ioremap_resource(pdev, 0);
+-	if (IS_ERR(ctx->membase))
++	ctx->membase = syscon_node_to_regmap(np);
++	if (IS_ERR_OR_NULL(ctx->membase)) {
++		dev_err(dev, "Failed to get clk CGU iomem\n");
+ 		return PTR_ERR(ctx->membase);
++	}
++
+ 
+ 	ctx->np = np;
+ 	ctx->dev = dev;
 -- 
 2.39.0
 
