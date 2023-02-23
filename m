@@ -2,51 +2,50 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A93326A09B4
-	for <lists+stable@lfdr.de>; Thu, 23 Feb 2023 14:09:28 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C4BC26A098C
+	for <lists+stable@lfdr.de>; Thu, 23 Feb 2023 14:08:05 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234349AbjBWNJ1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 23 Feb 2023 08:09:27 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38300 "EHLO
+        id S234366AbjBWNIE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 23 Feb 2023 08:08:04 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35946 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234357AbjBWNJ1 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 23 Feb 2023 08:09:27 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 848B24EC4
-        for <stable@vger.kernel.org>; Thu, 23 Feb 2023 05:09:14 -0800 (PST)
+        with ESMTP id S234024AbjBWNIA (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 23 Feb 2023 08:08:00 -0500
+Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DA49356796
+        for <stable@vger.kernel.org>; Thu, 23 Feb 2023 05:07:40 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 61B9D616ED
-        for <stable@vger.kernel.org>; Thu, 23 Feb 2023 13:09:15 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 36A69C433EF;
-        Thu, 23 Feb 2023 13:09:13 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 359BCCE2022
+        for <stable@vger.kernel.org>; Thu, 23 Feb 2023 13:07:39 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3211FC433D2;
+        Thu, 23 Feb 2023 13:07:37 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1677157753;
-        bh=L4upDBkMmALa/cWsFSeaYL6ZAig1trAUOlx9Jmo8zdY=;
+        s=korg; t=1677157657;
+        bh=V9ADNiQtkRZJqaxuelui4sLd0GEDURHiUWI6bejGCPM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=l3wn0rZOM37Jf6RJ/NIxL24m1XtvGdgHtjiiaR2czqCJ+H6VkxpWbyL377KDBvozo
-         wvufwHusdhdZGEuttra1vl/4ILvXRRGQdO9eQ37/6L6RUu9ETDVdeB8pk8rsJtjL8j
-         96N/tsCN3JkKzM3WtcrDlap9bWbuQ9IV6XXrZlvk=
+        b=JG68Uc/FBRvoWoETOL3R4/1bCq2PQ7t1m2vmhaXI0/Ekv6VlaO70b5KK67tlACWhi
+         EnjDzdEFLHkufJ/ddmAAhTpEJIiAqU2uSlhVpmub2vlOqzi60t81QWYP6F90kmpuAk
+         QzcBDmPYmhctS1cxhYWnDYNCv66rRLvLBoKfp1kg=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Yu Zhang <yu.c.zhang@linux.intel.com>,
-        Sean Christopherson <seanjc@google.com>,
-        Paolo Bonzini <pbonzini@redhat.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 25/46] selftests: kvm: move declaration at the beginning of main()
+        patches@lists.linux.dev, Zheng Wang <zyytlz.wz@163.com>,
+        Zhenyu Wang <zhenyuw@linux.intel.com>,
+        Ovidiu Panait <ovidiu.panait@eng.windriver.com>
+Subject: [PATCH 5.10 15/25] drm/i915/gvt: fix double free bug in split_2MB_gtt_entry
 Date:   Thu, 23 Feb 2023 14:06:32 +0100
-Message-Id: <20230223130432.738580951@linuxfoundation.org>
+Message-Id: <20230223130427.471351316@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230223130431.553657459@linuxfoundation.org>
-References: <20230223130431.553657459@linuxfoundation.org>
+In-Reply-To: <20230223130426.817998725@linuxfoundation.org>
+References: <20230223130426.817998725@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
         SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -54,58 +53,63 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Paolo Bonzini <pbonzini@redhat.com>
+From: Zheng Wang <zyytlz.wz@163.com>
 
-[ Upstream commit 50aa870ba2f7735f556e52d15f61cd0f359c4c0b ]
+commit 4a61648af68f5ba4884f0e3b494ee1cabc4b6620 upstream.
 
-Placing a declaration of evt_reset is pedantically invalid
-according to the C standard.  While GCC does not really care
-and only warns with -Wpedantic, clang ignores the declaration
-altogether with an error:
+If intel_gvt_dma_map_guest_page failed, it will call
+ppgtt_invalidate_spt, which will finally free the spt.
+But the caller function ppgtt_populate_spt_by_guest_entry
+does not notice that, it will free spt again in its error
+path.
 
-x86_64/xen_shinfo_test.c:965:2: error: expected expression
-        struct kvm_xen_hvm_attr evt_reset = {
-        ^
-x86_64/xen_shinfo_test.c:969:38: error: use of undeclared identifier evt_reset
-        vm_ioctl(vm, KVM_XEN_HVM_SET_ATTR, &evt_reset);
-                                            ^
+Fix this by canceling the mapping of DMA address and freeing sub_spt.
+Besides, leave the handle of spt destroy to caller function instead
+of callee function when error occurs.
 
-Reported-by: Yu Zhang <yu.c.zhang@linux.intel.com>
-Reported-by: Sean Christopherson <seanjc@google.com>
-Fixes: a79b53aaaab5 ("KVM: x86: fix deadlock for KVM_XEN_EVTCHN_RESET", 2022-12-28)
-Signed-off-by: Paolo Bonzini <pbonzini@redhat.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes: b901b252b6cf ("drm/i915/gvt: Add 2M huge gtt support")
+Signed-off-by: Zheng Wang <zyytlz.wz@163.com>
+Reviewed-by: Zhenyu Wang <zhenyuw@linux.intel.com>
+Signed-off-by: Zhenyu Wang <zhenyuw@linux.intel.com>
+Link: http://patchwork.freedesktop.org/patch/msgid/20221229165641.1192455-1-zyytlz.wz@163.com
+Signed-off-by: Ovidiu Panait <ovidiu.panait@eng.windriver.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- tools/testing/selftests/kvm/x86_64/xen_shinfo_test.c | 7 +++----
- 1 file changed, 3 insertions(+), 4 deletions(-)
+ drivers/gpu/drm/i915/gvt/gtt.c |   17 +++++++++++++----
+ 1 file changed, 13 insertions(+), 4 deletions(-)
 
-diff --git a/tools/testing/selftests/kvm/x86_64/xen_shinfo_test.c b/tools/testing/selftests/kvm/x86_64/xen_shinfo_test.c
-index 8383457e66990..0668ec542cccd 100644
---- a/tools/testing/selftests/kvm/x86_64/xen_shinfo_test.c
-+++ b/tools/testing/selftests/kvm/x86_64/xen_shinfo_test.c
-@@ -428,6 +428,7 @@ static void *juggle_shinfo_state(void *arg)
- int main(int argc, char *argv[])
- {
- 	struct timespec min_ts, max_ts, vm_ts;
-+	struct kvm_xen_hvm_attr evt_reset;
- 	struct kvm_vm *vm;
- 	pthread_t thread;
- 	bool verbose;
-@@ -942,10 +943,8 @@ int main(int argc, char *argv[])
- 	}
+--- a/drivers/gpu/drm/i915/gvt/gtt.c
++++ b/drivers/gpu/drm/i915/gvt/gtt.c
+@@ -1192,10 +1192,8 @@ static int split_2MB_gtt_entry(struct in
+ 	for_each_shadow_entry(sub_spt, &sub_se, sub_index) {
+ 		ret = intel_gvt_hypervisor_dma_map_guest_page(vgpu,
+ 				start_gfn + sub_index, PAGE_SIZE, &dma_addr);
+-		if (ret) {
+-			ppgtt_invalidate_spt(spt);
+-			return ret;
+-		}
++		if (ret)
++			goto err;
+ 		sub_se.val64 = se->val64;
  
-  done:
--	struct kvm_xen_hvm_attr evt_reset = {
--		.type = KVM_XEN_ATTR_TYPE_EVTCHN,
--		.u.evtchn.flags = KVM_XEN_EVTCHN_RESET,
--	};
-+	evt_reset.type = KVM_XEN_ATTR_TYPE_EVTCHN;
-+	evt_reset.u.evtchn.flags = KVM_XEN_EVTCHN_RESET;
- 	vm_ioctl(vm, KVM_XEN_HVM_SET_ATTR, &evt_reset);
+ 		/* Copy the PAT field from PDE. */
+@@ -1214,6 +1212,17 @@ static int split_2MB_gtt_entry(struct in
+ 	ops->set_pfn(se, sub_spt->shadow_page.mfn);
+ 	ppgtt_set_shadow_entry(spt, se, index);
+ 	return 0;
++err:
++	/* Cancel the existing addess mappings of DMA addr. */
++	for_each_present_shadow_entry(sub_spt, &sub_se, sub_index) {
++		gvt_vdbg_mm("invalidate 4K entry\n");
++		ppgtt_invalidate_pte(sub_spt, &sub_se);
++	}
++	/* Release the new allocated spt. */
++	trace_spt_change(sub_spt->vgpu->id, "release", sub_spt,
++		sub_spt->guest_page.gfn, sub_spt->shadow_page.type);
++	ppgtt_free_spt(sub_spt);
++	return ret;
+ }
  
- 	alarm(0);
--- 
-2.39.0
-
+ static int split_64KB_gtt_entry(struct intel_vgpu *vgpu,
 
 
