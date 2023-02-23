@@ -2,51 +2,49 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 980B76A09E3
-	for <lists+stable@lfdr.de>; Thu, 23 Feb 2023 14:10:56 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0349D6A09FB
+	for <lists+stable@lfdr.de>; Thu, 23 Feb 2023 14:12:06 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234394AbjBWNKz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 23 Feb 2023 08:10:55 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40858 "EHLO
+        id S234466AbjBWNMF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 23 Feb 2023 08:12:05 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42568 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234437AbjBWNKv (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 23 Feb 2023 08:10:51 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 42E62567B2
-        for <stable@vger.kernel.org>; Thu, 23 Feb 2023 05:10:39 -0800 (PST)
+        with ESMTP id S234457AbjBWNME (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 23 Feb 2023 08:12:04 -0500
+Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5508C56790
+        for <stable@vger.kernel.org>; Thu, 23 Feb 2023 05:11:31 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id E0555B81A02
-        for <stable@vger.kernel.org>; Thu, 23 Feb 2023 13:10:37 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 392FEC433D2;
-        Thu, 23 Feb 2023 13:10:36 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 79D37CE2020
+        for <stable@vger.kernel.org>; Thu, 23 Feb 2023 13:11:27 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 583B1C4339B;
+        Thu, 23 Feb 2023 13:11:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1677157836;
-        bh=WfbdT70j7rheTbmkI3AfHIqFza3o8quxThZjxDqqHBg=;
+        s=korg; t=1677157885;
+        bh=Shvfl6c2FH1X2juxZvOnod0O6aJOHG/DxAWydzmT2BQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ELsPXa+EGBrV3rwCz+kz8hn+/0OgpeLZI4YQn8OJ/PQgDiTRc7de0l1rX79fVessT
-         3YVVF6yk1SN2ESxjBKJV5pgZEJ7JOcz1lJvUV2l2sCZilbgz4eLc+zcJbezaYePfkn
-         FwdOJX3wveQZEuAXpoIfmkW3iOBcUgFCD97ufgIA=
+        b=t2ww3aK+zgycFjA+L/i52z7z9cddAmaRDIS6VAmJo+3+TsC07bV/2jxkuwDCZ1x5E
+         WQXRDrxTBDKjKzOp+rL/bXRqnjlGXgZuBF3n5NoQgBd3bp6KN9WoWHruGEp6/C+ayJ
+         9RnkU7cTj97qM38UEHfTFtuBiuX6zhZOqyrZ8l6A=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Marek Szyprowski <m.szyprowski@samsung.com>,
-        Robin Murphy <robin.murphy@arm.com>,
-        Christoph Hellwig <hch@lst.de>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 02/18] scatterlist: add generic wrappers for iterating over sgtable objects
+        patches@lists.linux.dev, Sean Christopherson <seanjc@google.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.15 11/36] KVM: x86: Fail emulation during EMULTYPE_SKIP on any exception
 Date:   Thu, 23 Feb 2023 14:06:47 +0100
-Message-Id: <20230223130425.798370786@linuxfoundation.org>
+Message-Id: <20230223130429.587395785@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230223130425.680784802@linuxfoundation.org>
-References: <20230223130425.680784802@linuxfoundation.org>
+In-Reply-To: <20230223130429.072633724@linuxfoundation.org>
+References: <20230223130429.072633724@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
         SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -54,122 +52,71 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Marek Szyprowski <m.szyprowski@samsung.com>
+From: Sean Christopherson <seanjc@google.com>
 
-[ Upstream commit 709d6d73c756107fb8a292a9f957d630097425fa ]
+[ Upstream commit 17122c06b86c9f77f45b86b8e62c3ed440847a59 ]
 
-struct sg_table is a common structure used for describing a memory
-buffer. It consists of a scatterlist with memory pages and DMA addresses
-(sgl entry), as well as the number of scatterlist entries: CPU pages
-(orig_nents entry) and DMA mapped pages (nents entry).
+Treat any exception during instruction decode for EMULTYPE_SKIP as a
+"full" emulation failure, i.e. signal failure instead of queuing the
+exception.  When decoding purely to skip an instruction, KVM and/or the
+CPU has already done some amount of emulation that cannot be unwound,
+e.g. on an EPT misconfig VM-Exit KVM has already processeed the emulated
+MMIO.  KVM already does this if a #UD is encountered, but not for other
+exceptions, e.g. if a #PF is encountered during fetch.
 
-It turned out that it was a common mistake to misuse nents and orig_nents
-entries, calling the scatterlist iterating functions with a wrong number
-of the entries.
+In SVM's soft-injection use case, queueing the exception is particularly
+problematic as queueing exceptions while injecting events can put KVM
+into an infinite loop due to bailing from VM-Enter to service the newly
+pending exception.  E.g. multiple warnings to detect such behavior fire:
 
-To avoid such issues, lets introduce a common wrappers operating directly
-on the struct sg_table objects, which take care of the proper use of
-the nents and orig_nents entries.
+  ------------[ cut here ]------------
+  WARNING: CPU: 3 PID: 1017 at arch/x86/kvm/x86.c:9873 kvm_arch_vcpu_ioctl_run+0x1de5/0x20a0 [kvm]
+  Modules linked in: kvm_amd ccp kvm irqbypass
+  CPU: 3 PID: 1017 Comm: svm_nested_soft Not tainted 6.0.0-rc1+ #220
+  Hardware name: QEMU Standard PC (Q35 + ICH9, 2009), BIOS 0.0.0 02/06/2015
+  RIP: 0010:kvm_arch_vcpu_ioctl_run+0x1de5/0x20a0 [kvm]
+  Call Trace:
+   kvm_vcpu_ioctl+0x223/0x6d0 [kvm]
+   __x64_sys_ioctl+0x85/0xc0
+   do_syscall_64+0x2b/0x50
+   entry_SYSCALL_64_after_hwframe+0x46/0xb0
+  ---[ end trace 0000000000000000 ]---
+  ------------[ cut here ]------------
+  WARNING: CPU: 3 PID: 1017 at arch/x86/kvm/x86.c:9987 kvm_arch_vcpu_ioctl_run+0x12a3/0x20a0 [kvm]
+  Modules linked in: kvm_amd ccp kvm irqbypass
+  CPU: 3 PID: 1017 Comm: svm_nested_soft Tainted: G        W          6.0.0-rc1+ #220
+  Hardware name: QEMU Standard PC (Q35 + ICH9, 2009), BIOS 0.0.0 02/06/2015
+  RIP: 0010:kvm_arch_vcpu_ioctl_run+0x12a3/0x20a0 [kvm]
+  Call Trace:
+   kvm_vcpu_ioctl+0x223/0x6d0 [kvm]
+   __x64_sys_ioctl+0x85/0xc0
+   do_syscall_64+0x2b/0x50
+   entry_SYSCALL_64_after_hwframe+0x46/0xb0
+  ---[ end trace 0000000000000000 ]---
 
-While touching this, lets clarify some ambiguities in the comments for
-the existing for_each helpers.
-
-Signed-off-by: Marek Szyprowski <m.szyprowski@samsung.com>
-Reviewed-by: Robin Murphy <robin.murphy@arm.com>
-Signed-off-by: Christoph Hellwig <hch@lst.de>
-Stable-dep-of: d37c120b7312 ("drm/etnaviv: don't truncate physical page address")
+Fixes: 6ea6e84309ca ("KVM: x86: inject exceptions produced by x86_decode_insn")
+Signed-off-by: Sean Christopherson <seanjc@google.com>
+Link: https://lore.kernel.org/r/20220930233632.1725475-1-seanjc@google.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- include/linux/scatterlist.h | 50 ++++++++++++++++++++++++++++++++++---
- 1 file changed, 47 insertions(+), 3 deletions(-)
+ arch/x86/kvm/x86.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/include/linux/scatterlist.h b/include/linux/scatterlist.h
-index 6eec50fb36c80..4f922afb607ac 100644
---- a/include/linux/scatterlist.h
-+++ b/include/linux/scatterlist.h
-@@ -151,6 +151,20 @@ static inline void sg_set_buf(struct scatterlist *sg, const void *buf,
- #define for_each_sg(sglist, sg, nr, __i)	\
- 	for (__i = 0, sg = (sglist); __i < (nr); __i++, sg = sg_next(sg))
- 
-+/*
-+ * Loop over each sg element in the given sg_table object.
-+ */
-+#define for_each_sgtable_sg(sgt, sg, i)		\
-+	for_each_sg(sgt->sgl, sg, sgt->orig_nents, i)
+diff --git a/arch/x86/kvm/x86.c b/arch/x86/kvm/x86.c
+index 75c8f66cce4f6..0622256cd768f 100644
+--- a/arch/x86/kvm/x86.c
++++ b/arch/x86/kvm/x86.c
+@@ -8116,7 +8116,9 @@ int x86_emulate_instruction(struct kvm_vcpu *vcpu, gpa_t cr2_or_gpa,
+ 						  write_fault_to_spt,
+ 						  emulation_type))
+ 				return 1;
+-			if (ctxt->have_exception) {
 +
-+/*
-+ * Loop over each sg element in the given *DMA mapped* sg_table object.
-+ * Please use sg_dma_address(sg) and sg_dma_len(sg) to extract DMA addresses
-+ * of the each element.
-+ */
-+#define for_each_sgtable_dma_sg(sgt, sg, i)	\
-+	for_each_sg(sgt->sgl, sg, sgt->nents, i)
-+
- /**
-  * sg_chain - Chain two sglists together
-  * @prv:	First scatterlist
-@@ -401,9 +415,10 @@ sg_page_iter_dma_address(struct sg_dma_page_iter *dma_iter)
-  * @sglist:	sglist to iterate over
-  * @piter:	page iterator to hold current page, sg, sg_pgoffset
-  * @nents:	maximum number of sg entries to iterate over
-- * @pgoffset:	starting page offset
-+ * @pgoffset:	starting page offset (in pages)
-  *
-  * Callers may use sg_page_iter_page() to get each page pointer.
-+ * In each loop it operates on PAGE_SIZE unit.
-  */
- #define for_each_sg_page(sglist, piter, nents, pgoffset)		   \
- 	for (__sg_page_iter_start((piter), (sglist), (nents), (pgoffset)); \
-@@ -412,18 +427,47 @@ sg_page_iter_dma_address(struct sg_dma_page_iter *dma_iter)
- /**
-  * for_each_sg_dma_page - iterate over the pages of the given sg list
-  * @sglist:	sglist to iterate over
-- * @dma_iter:	page iterator to hold current page
-+ * @dma_iter:	DMA page iterator to hold current page
-  * @dma_nents:	maximum number of sg entries to iterate over, this is the value
-  *              returned from dma_map_sg
-- * @pgoffset:	starting page offset
-+ * @pgoffset:	starting page offset (in pages)
-  *
-  * Callers may use sg_page_iter_dma_address() to get each page's DMA address.
-+ * In each loop it operates on PAGE_SIZE unit.
-  */
- #define for_each_sg_dma_page(sglist, dma_iter, dma_nents, pgoffset)            \
- 	for (__sg_page_iter_start(&(dma_iter)->base, sglist, dma_nents,        \
- 				  pgoffset);                                   \
- 	     __sg_page_iter_dma_next(dma_iter);)
- 
-+/**
-+ * for_each_sgtable_page - iterate over all pages in the sg_table object
-+ * @sgt:	sg_table object to iterate over
-+ * @piter:	page iterator to hold current page
-+ * @pgoffset:	starting page offset (in pages)
-+ *
-+ * Iterates over the all memory pages in the buffer described by
-+ * a scatterlist stored in the given sg_table object.
-+ * See also for_each_sg_page(). In each loop it operates on PAGE_SIZE unit.
-+ */
-+#define for_each_sgtable_page(sgt, piter, pgoffset)	\
-+	for_each_sg_page(sgt->sgl, piter, sgt->orig_nents, pgoffset)
-+
-+/**
-+ * for_each_sgtable_dma_page - iterate over the DMA mapped sg_table object
-+ * @sgt:	sg_table object to iterate over
-+ * @dma_iter:	DMA page iterator to hold current page
-+ * @pgoffset:	starting page offset (in pages)
-+ *
-+ * Iterates over the all DMA mapped pages in the buffer described by
-+ * a scatterlist stored in the given sg_table object.
-+ * See also for_each_sg_dma_page(). In each loop it operates on PAGE_SIZE
-+ * unit.
-+ */
-+#define for_each_sgtable_dma_page(sgt, dma_iter, pgoffset)	\
-+	for_each_sg_dma_page(sgt->sgl, dma_iter, sgt->nents, pgoffset)
-+
-+
- /*
-  * Mapping sg iterator
-  *
++			if (ctxt->have_exception &&
++			    !(emulation_type & EMULTYPE_SKIP)) {
+ 				/*
+ 				 * #UD should result in just EMULATION_FAILED, and trap-like
+ 				 * exception should not be encountered during decode.
 -- 
 2.39.0
 
