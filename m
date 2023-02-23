@@ -2,52 +2,50 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D3C806A09A0
-	for <lists+stable@lfdr.de>; Thu, 23 Feb 2023 14:08:39 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B136C6A09A1
+	for <lists+stable@lfdr.de>; Thu, 23 Feb 2023 14:08:40 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234335AbjBWNIj (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S233819AbjBWNIj (ORCPT <rfc822;lists+stable@lfdr.de>);
         Thu, 23 Feb 2023 08:08:39 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36686 "EHLO
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36202 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234328AbjBWNIb (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 23 Feb 2023 08:08:31 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 42573498AD
-        for <stable@vger.kernel.org>; Thu, 23 Feb 2023 05:08:30 -0800 (PST)
+        with ESMTP id S234008AbjBWNIe (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 23 Feb 2023 08:08:34 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C6A1915572
+        for <stable@vger.kernel.org>; Thu, 23 Feb 2023 05:08:32 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 1E715616E9
-        for <stable@vger.kernel.org>; Thu, 23 Feb 2023 13:08:31 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E5430C433EF;
-        Thu, 23 Feb 2023 13:08:28 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id A518E616E3
+        for <stable@vger.kernel.org>; Thu, 23 Feb 2023 13:08:33 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 78B8CC433EF;
+        Thu, 23 Feb 2023 13:08:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1677157709;
-        bh=rekeavdwujp1WWCkzH5G6l9JbuSauzkF+AdoyKWGXUk=;
+        s=korg; t=1677157711;
+        bh=MGNsK6zZy3ok90/ZEAvCkY4/OD+NDlBWY8tF19C2WBc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=q/82nSUn+vEOdrajJUe8OJfwJKQiHpTOgEMUxaM0P725szXqNPj1NZUzSnYlvKDwV
-         EQzwi/tS0eBGnaD8b8jZJk4Ff5PdC6NIFzk0J3zKg5pV1yIqmnAXO2+9NpH46+Teh1
-         fe+gIEmH0VXumVN4vPLjMQZU1Xgp5mP8t4cpA4lY=
+        b=k7vRRvMsuXgDuzpNQJ17xwv1KB33EJ3lcSfp+XtNLtefmF0ZTI47hEbt9pMoGWCjD
+         aWp+l/1S5zKSU0L99rtbKUezi5Er6315x1vDee43Fh0sU1Vl8mVLQCzb2PF+9N+DaX
+         YUljLlt0U+6stgW0eX4/fjUxDtM7cdni3kl8Nkh0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Lucas Stach <l.stach@pengutronix.de>,
-        Philipp Zabel <p.zabel@pengutronix.de>,
+        patches@lists.linux.dev, Wen Gong <quic_wgong@quicinc.com>,
+        Kalle Valo <quic_kvalo@quicinc.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 01/46] drm/etnaviv: dont truncate physical page address
-Date:   Thu, 23 Feb 2023 14:06:08 +0100
-Message-Id: <20230223130431.632783144@linuxfoundation.org>
+Subject: [PATCH 6.1 02/46] wifi: ath11k: fix warning in dma_free_coherent() of memory chunks while recovery
+Date:   Thu, 23 Feb 2023 14:06:09 +0100
+Message-Id: <20230223130431.672795702@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
 In-Reply-To: <20230223130431.553657459@linuxfoundation.org>
 References: <20230223130431.553657459@linuxfoundation.org>
 User-Agent: quilt/0.67
-X-stable: review
-X-Patchwork-Hint: ignore
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
         SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -55,40 +53,146 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Lucas Stach <l.stach@pengutronix.de>
+From: Wen Gong <quic_wgong@quicinc.com>
 
-[ Upstream commit d37c120b73128690434cc093952439eef9d56af1 ]
+[ Upstream commit f74878433d5ade360447da5d92e9c2e535780d80 ]
 
-While the interface for the MMU mapping takes phys_addr_t to hold a
-full 64bit address when necessary and MMUv2 is able to map physical
-addresses with up to 40bit, etnaviv_iommu_map() truncates the address
-to 32bits. Fix this by using the correct type.
+Commit 26f3a021b37c ("ath11k: allocate smaller chunks of memory for
+firmware") and commit f6f92968e1e5 ("ath11k: qmi: try to allocate a
+big block of DMA memory first") change ath11k to allocate the memory
+chunks for target twice while wlan load. It fails for the 1st time
+because of large memory and then changed to allocate many small chunks
+for the 2nd time sometimes as below log.
 
-Fixes: 931e97f3afd8 ("drm/etnaviv: mmuv2: support 40 bit phys address")
-Signed-off-by: Lucas Stach <l.stach@pengutronix.de>
-Reviewed-by: Philipp Zabel <p.zabel@pengutronix.de>
+1st time failed:
+[10411.640620] ath11k_pci 0000:05:00.0: qmi firmware request memory request
+[10411.640625] ath11k_pci 0000:05:00.0: qmi mem seg type 1 size 6881280
+[10411.640630] ath11k_pci 0000:05:00.0: qmi mem seg type 4 size 3784704
+[10411.640658] ath11k_pci 0000:05:00.0: qmi dma allocation failed (6881280 B type 1), will try later with small size
+[10411.640671] ath11k_pci 0000:05:00.0: qmi delays mem_request 2
+[10411.640677] ath11k_pci 0000:05:00.0: qmi respond memory request delayed 1
+2nd time success:
+[10411.642004] ath11k_pci 0000:05:00.0: qmi firmware request memory request
+[10411.642008] ath11k_pci 0000:05:00.0: qmi mem seg type 1 size 524288
+[10411.642012] ath11k_pci 0000:05:00.0: qmi mem seg type 1 size 524288
+[10411.642014] ath11k_pci 0000:05:00.0: qmi mem seg type 1 size 524288
+[10411.642016] ath11k_pci 0000:05:00.0: qmi mem seg type 1 size 524288
+[10411.642018] ath11k_pci 0000:05:00.0: qmi mem seg type 1 size 524288
+[10411.642020] ath11k_pci 0000:05:00.0: qmi mem seg type 1 size 524288
+[10411.642022] ath11k_pci 0000:05:00.0: qmi mem seg type 1 size 524288
+[10411.642024] ath11k_pci 0000:05:00.0: qmi mem seg type 1 size 524288
+[10411.642027] ath11k_pci 0000:05:00.0: qmi mem seg type 1 size 524288
+[10411.642029] ath11k_pci 0000:05:00.0: qmi mem seg type 1 size 524288
+[10411.642031] ath11k_pci 0000:05:00.0: qmi mem seg type 1 size 458752
+[10411.642033] ath11k_pci 0000:05:00.0: qmi mem seg type 1 size 131072
+[10411.642035] ath11k_pci 0000:05:00.0: qmi mem seg type 4 size 524288
+[10411.642037] ath11k_pci 0000:05:00.0: qmi mem seg type 4 size 524288
+[10411.642039] ath11k_pci 0000:05:00.0: qmi mem seg type 4 size 524288
+[10411.642041] ath11k_pci 0000:05:00.0: qmi mem seg type 4 size 524288
+[10411.642043] ath11k_pci 0000:05:00.0: qmi mem seg type 4 size 524288
+[10411.642045] ath11k_pci 0000:05:00.0: qmi mem seg type 4 size 524288
+[10411.642047] ath11k_pci 0000:05:00.0: qmi mem seg type 4 size 491520
+[10411.642049] ath11k_pci 0000:05:00.0: qmi mem seg type 1 size 524288
+
+And then commit 5962f370ce41 ("ath11k: Reuse the available memory after
+firmware reload") skip the ath11k_qmi_free_resource() which frees the
+memory chunks while recovery, after that, when run recovery test on
+WCN6855, a warning happened every time as below and finally leads fail
+for recovery.
+
+[  159.570318] BUG: Bad page state in process kworker/u16:5  pfn:33300
+[  159.570320] page:0000000096ffdbb9 refcount:1 mapcount:0 mapping:0000000000000000 index:0x0 pfn:0x33300
+[  159.570324] flags: 0xfffffc0000000(node=0|zone=1|lastcpupid=0x1fffff)
+[  159.570329] raw: 000fffffc0000000 0000000000000000 dead000000000122 0000000000000000
+[  159.570332] raw: 0000000000000000 0000000000000000 00000001ffffffff 0000000000000000
+[  159.570334] page dumped because: nonzero _refcount
+[  159.570440]  firewire_ohci syscopyarea sysfillrect psmouse sdhci_pci ahci sysimgblt firewire_core fb_sys_fops libahci crc_itu_t cqhci drm sdhci e1000e wmi video
+[  159.570460] CPU: 2 PID: 217 Comm: kworker/u16:5 Kdump: loaded Tainted: G    B             5.19.0-rc1-wt-ath+ #3
+[  159.570465] Hardware name: LENOVO 418065C/418065C, BIOS 83ET63WW (1.33 ) 07/29/2011
+[  159.570467] Workqueue: qmi_msg_handler qmi_data_ready_work [qmi_helpers]
+[  159.570475] Call Trace:
+[  159.570476]  <TASK>
+[  159.570478]  dump_stack_lvl+0x49/0x5f
+[  159.570486]  dump_stack+0x10/0x12
+[  159.570493]  bad_page+0xab/0xf0
+[  159.570502]  check_free_page_bad+0x66/0x70
+[  159.570511]  __free_pages_ok+0x530/0x9a0
+[  159.570517]  ? __dev_printk+0x58/0x6b
+[  159.570525]  ? _dev_printk+0x56/0x72
+[  159.570534]  ? qmi_decode+0x119/0x470 [qmi_helpers]
+[  159.570543]  __free_pages+0x91/0xd0
+[  159.570548]  dma_free_contiguous+0x50/0x60
+[  159.570556]  dma_direct_free+0xe5/0x140
+[  159.570564]  dma_free_attrs+0x35/0x50
+[  159.570570]  ath11k_qmi_msg_mem_request_cb+0x2ae/0x3c0 [ath11k]
+[  159.570620]  qmi_invoke_handler+0xac/0xe0 [qmi_helpers]
+[  159.570630]  qmi_handle_message+0x6d/0x180 [qmi_helpers]
+[  159.570643]  qmi_data_ready_work+0x2ca/0x440 [qmi_helpers]
+[  159.570656]  process_one_work+0x227/0x440
+[  159.570667]  worker_thread+0x31/0x3d0
+[  159.570676]  ? process_one_work+0x440/0x440
+[  159.570685]  kthread+0xfe/0x130
+[  159.570692]  ? kthread_complete_and_exit+0x20/0x20
+[  159.570701]  ret_from_fork+0x22/0x30
+[  159.570712]  </TASK>
+
+The reason is because when wlan start to recovery, the type, size and
+count is not same for the 1st and 2nd QMI_WLFW_REQUEST_MEM_IND message,
+Then it leads the parameter size is not correct for the dma_free_coherent().
+For the chunk[1], the actual dma size is 524288 which allocate in the
+2nd time of the initial wlan load phase, and the size which pass to
+dma_free_coherent() is 3784704 which is got in the 1st time of recovery
+phase, then warning above happened.
+
+Change to use prev_size of struct target_mem_chunk for the paramter of
+dma_free_coherent() since prev_size is the real size of last load/recovery.
+Also change to check both type and size of struct target_mem_chunk to
+reuse the memory to avoid mismatch buffer size for target. Then the
+warning disappear and recovery success. When the 1st QMI_WLFW_REQUEST_MEM_IND
+for recovery arrived, the trunk[0] is freed in ath11k_qmi_alloc_target_mem_chunk()
+and then dma_alloc_coherent() failed caused by large size, and then
+trunk[1] is freed in ath11k_qmi_free_target_mem_chunk(), the left 18
+trunks will be reuse for the 2nd QMI_WLFW_REQUEST_MEM_IND message.
+
+Tested-on: WCN6855 hw2.0 PCI WLAN.HSP.1.1-03125-QCAHSPSWPL_V1_V2_SILICONZ_LITE-3
+
+Fixes: 5962f370ce41 ("ath11k: Reuse the available memory after firmware reload")
+Signed-off-by: Wen Gong <quic_wgong@quicinc.com>
+Signed-off-by: Kalle Valo <quic_kvalo@quicinc.com>
+Link: https://lore.kernel.org/r/20220928073832.16251-1-quic_wgong@quicinc.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/etnaviv/etnaviv_mmu.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/net/wireless/ath/ath11k/qmi.c | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/gpu/drm/etnaviv/etnaviv_mmu.c b/drivers/gpu/drm/etnaviv/etnaviv_mmu.c
-index 55479cb8b1ac3..67bdce5326c6e 100644
---- a/drivers/gpu/drm/etnaviv/etnaviv_mmu.c
-+++ b/drivers/gpu/drm/etnaviv/etnaviv_mmu.c
-@@ -80,10 +80,10 @@ static int etnaviv_iommu_map(struct etnaviv_iommu_context *context, u32 iova,
- 		return -EINVAL;
+diff --git a/drivers/net/wireless/ath/ath11k/qmi.c b/drivers/net/wireless/ath/ath11k/qmi.c
+index 7cc5fa3251521..381c6b390dd78 100644
+--- a/drivers/net/wireless/ath/ath11k/qmi.c
++++ b/drivers/net/wireless/ath/ath11k/qmi.c
+@@ -1964,7 +1964,7 @@ static void ath11k_qmi_free_target_mem_chunk(struct ath11k_base *ab)
+ 			continue;
  
- 	for_each_sgtable_dma_sg(sgt, sg, i) {
--		u32 pa = sg_dma_address(sg) - sg->offset;
-+		phys_addr_t pa = sg_dma_address(sg) - sg->offset;
- 		size_t bytes = sg_dma_len(sg) + sg->offset;
+ 		dma_free_coherent(ab->dev,
+-				  ab->qmi.target_mem[i].size,
++				  ab->qmi.target_mem[i].prev_size,
+ 				  ab->qmi.target_mem[i].vaddr,
+ 				  ab->qmi.target_mem[i].paddr);
+ 		ab->qmi.target_mem[i].vaddr = NULL;
+@@ -1985,12 +1985,12 @@ static int ath11k_qmi_alloc_target_mem_chunk(struct ath11k_base *ab)
+ 		 * in such case, no need to allocate memory for FW again.
+ 		 */
+ 		if (chunk->vaddr) {
+-			if (chunk->prev_type == chunk->type ||
++			if (chunk->prev_type == chunk->type &&
+ 			    chunk->prev_size == chunk->size)
+ 				continue;
  
--		VERB("map[%d]: %08x %08x(%zx)", i, iova, pa, bytes);
-+		VERB("map[%d]: %08x %pap(%zx)", i, iova, &pa, bytes);
- 
- 		ret = etnaviv_context_map(context, da, pa, bytes, prot);
- 		if (ret)
+ 			/* cannot reuse the existing chunk */
+-			dma_free_coherent(ab->dev, chunk->size,
++			dma_free_coherent(ab->dev, chunk->prev_size,
+ 					  chunk->vaddr, chunk->paddr);
+ 			chunk->vaddr = NULL;
+ 		}
 -- 
 2.39.0
 
