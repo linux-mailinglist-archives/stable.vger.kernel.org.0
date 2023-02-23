@@ -2,47 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B1F206A09D1
-	for <lists+stable@lfdr.de>; Thu, 23 Feb 2023 14:10:16 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 289686A09E9
+	for <lists+stable@lfdr.de>; Thu, 23 Feb 2023 14:11:12 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234403AbjBWNKQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 23 Feb 2023 08:10:16 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39410 "EHLO
+        id S234342AbjBWNLL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 23 Feb 2023 08:11:11 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41332 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234433AbjBWNKJ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 23 Feb 2023 08:10:09 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4E26A5653E
-        for <stable@vger.kernel.org>; Thu, 23 Feb 2023 05:10:05 -0800 (PST)
+        with ESMTP id S234397AbjBWNLK (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 23 Feb 2023 08:11:10 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 80B125A3AE
+        for <stable@vger.kernel.org>; Thu, 23 Feb 2023 05:10:50 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 10172B81A20
-        for <stable@vger.kernel.org>; Thu, 23 Feb 2023 13:10:04 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7F567C433EF;
-        Thu, 23 Feb 2023 13:10:02 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 5498B616F3
+        for <stable@vger.kernel.org>; Thu, 23 Feb 2023 13:10:51 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 22340C433D2;
+        Thu, 23 Feb 2023 13:10:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1677157802;
-        bh=z730S/5vXkO8OQA9zIOEJ1EJTdJgIRPQix+LqlfHysE=;
+        s=korg; t=1677157849;
+        bh=60ZF3qwHgY5n8GYM8lY2Wr1z1mMvQ8sc5JEY6YBajKo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=WH+CnaSUeVR+e59uLfzR+I9+m+brleOSxsxHHHQGS2GWymvSgxq0CeCQjBygiw8iD
-         OZ4IWrUsT3JbYfml0dncrPLKeKLjRUM2ezuUvLZiI5Qg03cqjpP/Aznen1uzZ7v/Na
-         nrKfreIcUjcPlzCQe2E90j2puzkVmVybTBxsDpy0=
+        b=N0+wVCGpdSQ336BVFh2xLyar4iQOybtTFG6IYRYF0fAEsu+fyA/6nU87GS64PvVB1
+         hByTJw09Nk37AFEv1afyHLP4dlXrl4ABPkcWH01kC0eVCFu9pIMdaL8/lpq+c6iRLX
+         yMXKjNBpdOp9JoSTwjSIu90CfKeZqr33Hu5wPL78=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Theodore Tso <tytso@mit.edu>,
-        Eric Biggers <ebiggers@kernel.org>,
-        "Gustavo A. R. Silva" <gustavoars@kernel.org>,
-        Nathan Chancellor <nathan@kernel.org>,
-        Kees Cook <keescook@chromium.org>,
-        Eric Biggers <ebiggers@google.com>
-Subject: [PATCH 6.1 45/46] ext4: Fix function prototype mismatch for ext4_feat_ktype
+        patches@lists.linux.dev,
+        Dominik Brodowski <linux@dominikbrodowski.net>,
+        PaX Team <pageexec@freemail.hu>,
+        Emese Revfy <re.emese@gmail.com>,
+        "Jason A. Donenfeld" <Jason@zx2c4.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 07/18] random: always mix cycle counter in add_latent_entropy()
 Date:   Thu, 23 Feb 2023 14:06:52 +0100
-Message-Id: <20230223130433.686304168@linuxfoundation.org>
+Message-Id: <20230223130425.969673952@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230223130431.553657459@linuxfoundation.org>
-References: <20230223130431.553657459@linuxfoundation.org>
+In-Reply-To: <20230223130425.680784802@linuxfoundation.org>
+References: <20230223130425.680784802@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,74 +56,61 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kees Cook <keescook@chromium.org>
+From: Jason A. Donenfeld <Jason@zx2c4.com>
 
-commit 118901ad1f25d2334255b3d50512fa20591531cd upstream.
+[ Upstream commit d7bf7f3b813e3755226bcb5114ad2ac477514ebf ]
 
-With clang's kernel control flow integrity (kCFI, CONFIG_CFI_CLANG),
-indirect call targets are validated against the expected function
-pointer prototype to make sure the call target is valid to help mitigate
-ROP attacks. If they are not identical, there is a failure at run time,
-which manifests as either a kernel panic or thread getting killed.
+add_latent_entropy() is called every time a process forks, in
+kernel_clone(). This in turn calls add_device_randomness() using the
+latent entropy global state. add_device_randomness() does two things:
 
-ext4_feat_ktype was setting the "release" handler to "kfree", which
-doesn't have a matching function prototype. Add a simple wrapper
-with the correct prototype.
+   2) Mixes into the input pool the latent entropy argument passed; and
+   1) Mixes in a cycle counter, a sort of measurement of when the event
+      took place, the high precision bits of which are presumably
+      difficult to predict.
 
-This was found as a result of Clang's new -Wcast-function-type-strict
-flag, which is more sensitive than the simpler -Wcast-function-type,
-which only checks for type width mismatches.
+(2) is impossible without CONFIG_GCC_PLUGIN_LATENT_ENTROPY=y. But (1) is
+always possible. However, currently CONFIG_GCC_PLUGIN_LATENT_ENTROPY=n
+disables both (1) and (2), instead of just (2).
 
-Note that this code is only reached when ext4 is a loadable module and
-it is being unloaded:
+This commit causes the CONFIG_GCC_PLUGIN_LATENT_ENTROPY=n case to still
+do (1) by passing NULL (len 0) to add_device_randomness() when add_latent_
+entropy() is called.
 
- CFI failure at kobject_put+0xbb/0x1b0 (target: kfree+0x0/0x180; expected type: 0x7c4aa698)
- ...
- RIP: 0010:kobject_put+0xbb/0x1b0
- ...
- Call Trace:
-  <TASK>
-  ext4_exit_sysfs+0x14/0x60 [ext4]
-  cleanup_module+0x67/0xedb [ext4]
-
-Fixes: b99fee58a20a ("ext4: create ext4_feat kobject dynamically")
-Cc: Theodore Ts'o <tytso@mit.edu>
-Cc: Eric Biggers <ebiggers@kernel.org>
-Cc: stable@vger.kernel.org
-Build-tested-by: Gustavo A. R. Silva <gustavoars@kernel.org>
-Reviewed-by: Gustavo A. R. Silva <gustavoars@kernel.org>
-Reviewed-by: Nathan Chancellor <nathan@kernel.org>
-Link: https://lore.kernel.org/r/20230103234616.never.915-kees@kernel.org
-Signed-off-by: Kees Cook <keescook@chromium.org>
-Reviewed-by: Eric Biggers <ebiggers@google.com>
-Link: https://lore.kernel.org/r/20230104210908.gonna.388-kees@kernel.org
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc: Dominik Brodowski <linux@dominikbrodowski.net>
+Cc: PaX Team <pageexec@freemail.hu>
+Cc: Emese Revfy <re.emese@gmail.com>
+Fixes: 38addce8b600 ("gcc-plugins: Add latent_entropy plugin")
+Signed-off-by: Jason A. Donenfeld <Jason@zx2c4.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/ext4/sysfs.c |    7 ++++++-
- 1 file changed, 6 insertions(+), 1 deletion(-)
+ include/linux/random.h | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
---- a/fs/ext4/sysfs.c
-+++ b/fs/ext4/sysfs.c
-@@ -491,6 +491,11 @@ static void ext4_sb_release(struct kobje
- 	complete(&sbi->s_kobj_unregister);
- }
+diff --git a/include/linux/random.h b/include/linux/random.h
+index 3feafab498ad9..ed75fb2b0ca94 100644
+--- a/include/linux/random.h
++++ b/include/linux/random.h
+@@ -19,14 +19,14 @@ void add_input_randomness(unsigned int type, unsigned int code,
+ void add_interrupt_randomness(int irq) __latent_entropy;
+ void add_hwgenerator_randomness(const void *buf, size_t len, size_t entropy);
  
-+static void ext4_feat_release(struct kobject *kobj)
-+{
-+	kfree(kobj);
+-#if defined(LATENT_ENTROPY_PLUGIN) && !defined(__CHECKER__)
+ static inline void add_latent_entropy(void)
+ {
++#if defined(LATENT_ENTROPY_PLUGIN) && !defined(__CHECKER__)
+ 	add_device_randomness((const void *)&latent_entropy, sizeof(latent_entropy));
+-}
+ #else
+-static inline void add_latent_entropy(void) { }
++	add_device_randomness(NULL, 0);
+ #endif
 +}
-+
- static const struct sysfs_ops ext4_attr_ops = {
- 	.show	= ext4_attr_show,
- 	.store	= ext4_attr_store,
-@@ -505,7 +510,7 @@ static struct kobj_type ext4_sb_ktype =
- static struct kobj_type ext4_feat_ktype = {
- 	.default_groups = ext4_feat_groups,
- 	.sysfs_ops	= &ext4_attr_ops,
--	.release	= (void (*)(struct kobject *))kfree,
-+	.release	= ext4_feat_release,
- };
  
- void ext4_notify_error_sysfs(struct ext4_sb_info *sbi)
+ void get_random_bytes(void *buf, size_t len);
+ size_t __must_check get_random_bytes_arch(void *buf, size_t len);
+-- 
+2.39.0
+
 
 
