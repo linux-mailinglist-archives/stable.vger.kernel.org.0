@@ -2,97 +2,104 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 9A1266A1282
-	for <lists+stable@lfdr.de>; Thu, 23 Feb 2023 23:02:55 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 88B586A128E
+	for <lists+stable@lfdr.de>; Thu, 23 Feb 2023 23:05:59 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229379AbjBWWCy (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 23 Feb 2023 17:02:54 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40474 "EHLO
+        id S229607AbjBWWF6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 23 Feb 2023 17:05:58 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42814 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229539AbjBWWCx (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 23 Feb 2023 17:02:53 -0500
-Received: from mail-oa1-x30.google.com (mail-oa1-x30.google.com [IPv6:2001:4860:4864:20::30])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BDBD740D2
-        for <stable@vger.kernel.org>; Thu, 23 Feb 2023 14:02:50 -0800 (PST)
-Received: by mail-oa1-x30.google.com with SMTP id 586e51a60fabf-1720887dfcdso17302131fac.6
-        for <stable@vger.kernel.org>; Thu, 23 Feb 2023 14:02:50 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linuxtx.org; s=google;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:sender:from:to:cc:subject:date:message-id
-         :reply-to;
-        bh=zvydFY35LBk7rNt/h/MORLJxZ1FtIClaMPSTPLJ7SNg=;
-        b=KUIF198p+AdXAtvQeCvgTKWPFoCDz6ym9UfJ08/eDhIdUXH1weWTAel5gYLAJGVzB4
-         YxJGbtz+2mOSKs1BNs9viRlAO28jj+9km++q9doTo7ECpTvViBjDwQM4CDN2PPGhOL48
-         IgXa22NAI+kXDrCjnzmPfMeDTxDbYakFePYnQ=
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:sender:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=zvydFY35LBk7rNt/h/MORLJxZ1FtIClaMPSTPLJ7SNg=;
-        b=SjXvZZVWqtz/BMBn/EoAeHyEbnVP/efS4b8WWH0dx1f5kr07VBI9rT4rjmaqvnSM1E
-         jkuSEV0YHzfW6Z2xV6h3FTa5XKEKmDCmQlNJc/TAkZyIfXXSH+39NaKy4qeMp5ht0t+R
-         O6xuH4chxzGWBjx3xlnmvWHqjNxzVJNVS7mCdpMukA+Fs04J7TmKvHyc3ourribxpLZ6
-         4PfvzmPsDkgyAMuSWNCqisASTXoy6ueFbmQaiQPlezfvzcjrvoQs0Vh7ZQzYlo4XfnXA
-         P8uJhR62Qr18a0ZaDwzH5GGBWiHxJhItP+dZ4qWlO94FMsIw9rbtxGE2OJDPjGE0u11S
-         0yHw==
-X-Gm-Message-State: AO0yUKXglFzHXG+UfANGhLbQuqaa9xEukU7ix1nPE04/VFxuNDuWZTfC
-        UXFCIUtHda+ULemFZ7LPxxXqxg==
-X-Google-Smtp-Source: AK7set/772vBfteGrWHqqXY5znI9DFjNRUvpnHi3krCHidb/B5GX2FvQtSkW1ApRhVNF64BPpRj2AA==
-X-Received: by 2002:a05:6871:b25:b0:16d:dd7a:d13d with SMTP id fq37-20020a0568710b2500b0016ddd7ad13dmr12604155oab.3.1677189770061;
-        Thu, 23 Feb 2023 14:02:50 -0800 (PST)
-Received: from fedora64.linuxtx.org (99-47-93-78.lightspeed.rcsntx.sbcglobal.net. [99.47.93.78])
-        by smtp.gmail.com with ESMTPSA id r1-20020a4ae501000000b00524fe20aee5sm2924839oot.34.2023.02.23.14.02.49
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 23 Feb 2023 14:02:49 -0800 (PST)
-Sender: Justin Forbes <jmforbes@linuxtx.org>
-Date:   Thu, 23 Feb 2023 16:02:47 -0600
-From:   Justin Forbes <jforbes@fedoraproject.org>
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     stable@vger.kernel.org, patches@lists.linux.dev,
-        linux-kernel@vger.kernel.org, torvalds@linux-foundation.org,
-        akpm@linux-foundation.org, linux@roeck-us.net, shuah@kernel.org,
-        patches@kernelci.org, lkft-triage@lists.linaro.org, pavel@denx.de,
-        jonathanh@nvidia.com, f.fainelli@gmail.com,
-        sudipm.mukherjee@gmail.com, srw@sladewatkins.net, rwarsow@gmx.de
-Subject: Re: [PATCH 6.2 00/12] 6.2.1-rc2 review
-Message-ID: <Y/fihxWNdr4ejNwe@fedora64.linuxtx.org>
-References: <20230223141539.893173089@linuxfoundation.org>
+        with ESMTP id S229497AbjBWWF5 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 23 Feb 2023 17:05:57 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8B487144B0
+        for <stable@vger.kernel.org>; Thu, 23 Feb 2023 14:05:56 -0800 (PST)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 6BBA0617AF
+        for <stable@vger.kernel.org>; Thu, 23 Feb 2023 22:05:58 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C5BFEC433A1;
+        Thu, 23 Feb 2023 22:05:53 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1677189955;
+        bh=slfG7arzy36WwKxB6a02WckmWCrxgVshZ9ipMm+MbAM=;
+        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+        b=jjC9HaRMaE3mFXKEUaVULPc9m1iDc/hx95PCtiDqHc2cdBcfWmROw8ruIEZcRYMyO
+         7EUUf0Kpt85PugWS3Uja5+2/x44+EN1obvP16C9MZJdVkM6TQKXsrnlo48v26GshYV
+         3qm4Y1bCw0nXtjXU2YHpiQQ0wvQIkraKGPbgBWPR1LcDiKWXlirARtSth4aSjUz0JT
+         uu/j5QQc22HuHZMfZvUQXoxAeqp902dtn8/0WVB+55ClF5bAlEK29w5Y/u4MrM6vZ/
+         4mip6m8gBdB75d+0HANAALiL0IleLangMVtLXAe6jVJN13ca9g7ZVAdT3odrXyYNYA
+         3Fdb3nw69CNbg==
+From:   Conor Dooley <conor@kernel.org>
+To:     palmer@dabbelt.com
+Cc:     conor@kernel.org, Conor Dooley <conor.dooley@microchip.com>,
+        nathan@kernel.org, naresh.kamboju@linaro.org,
+        linux-riscv@lists.infradead.org, llvm@lists.linux.dev,
+        stable@vger.kernel.org
+Subject: [PATCH v1 2/2] RISC-V: make TOOLCHAIN_NEEDS_SPEC_20191213 gas only
+Date:   Thu, 23 Feb 2023 22:05:46 +0000
+Message-Id: <20230223220546.52879-3-conor@kernel.org>
+X-Mailer: git-send-email 2.39.1
+In-Reply-To: <20230223220546.52879-1-conor@kernel.org>
+References: <20230223220546.52879-1-conor@kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20230223141539.893173089@linuxfoundation.org>
-X-Spam-Status: No, score=-1.8 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_EF,HEADER_FROM_DIFFERENT_DOMAINS,
-        RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS autolearn=no
-        autolearn_force=no version=3.4.6
+X-Developer-Signature: v=1; a=openpgp-sha256; l=2084; i=conor.dooley@microchip.com; h=from:subject; bh=hciiU41cmccFKM8j8MWjmtv2w5WAHIGPZfhA69tDbBQ=; b=owGbwMvMwCFWscWwfUFT0iXG02pJDMnfH5veX95Re3Hn9dn7+b5fb9QQeHz+1EqG5+LnJueqWa1s ndhS0VHKwiDGwSArpsiSeLuvRWr9H5cdzj1vYeawMoEMYeDiFICJiM1iZDi5vSS4Qko08uzpx6kJ8k J3r1Ql/i++bMPEk7b+5tSfR84w/K/bUapSOGc6y3bx46IXtlkmlpTuEjdfJdJ7zfKXRo/eKRYA
+X-Developer-Key: i=conor.dooley@microchip.com; a=openpgp; fpr=F9ECA03CF54F12CD01F1655722E2C55B37CF380C
+Content-Transfer-Encoding: 8bit
+X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
+        SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Thu, Feb 23, 2023 at 03:16:08PM +0100, Greg Kroah-Hartman wrote:
-> This is the start of the stable review cycle for the 6.2.1 release.
-> There are 12 patches in this series, all will be posted as a response
-> to this one.  If anyone has any issues with these being applied, please
-> let me know.
-> 
-> Responses should be made by Sat, 25 Feb 2023 14:15:30 +0000.
-> Anything received after that time might be too late.
-> 
-> The whole patch series can be found in one patch at:
-> 	https://www.kernel.org/pub/linux/kernel/v6.x/stable-review/patch-6.2.1-rc2.gz
-> or in the git tree and branch at:
-> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-6.2.y
-> and the diffstat can be found below.
-> 
-> thanks,
-> 
-> greg k-h
+From: Conor Dooley <conor.dooley@microchip.com>
 
-Tested rc2 against the Fedora build system (aarch64, ppc64le, s390x,
-x86_64), and boot tested x86_64. No regressions noted.
+Quoting the llvm docs:
+> Between versions 2.0 and 2.1 of the base I specification, a backwards
+> incompatible change was made to remove selected instructions and CSRs
+> from the base ISA. These instructions were grouped into a set of new
+> extensions, but were no longer required by the base ISA. (snip) LLVM
+> currently implements version 2.0 of the base specification. Thus,
+> instructions from these extensions are accepted as part of the base
+> ISA.
 
-Tested-by: Justin M. Forbes <jforbes@fedoraproject.org>
+There is therefore no need (at present!) to carry out a $cc-option
+check, and instead just gate presence of zicsr and zifencei in march
+on the version of binutils that commit 6df2a016c0c8 ("riscv: fix build
+with binutils 2.38") highlights as the introduction of the requirement.
+
+In fact, the status quo creates some issues with mixed llvm/binutils
+builds, specifically building with llvm-17 and ld from binutils-2.35.
+Odd combo you may think, but this is what tuxsuite's debian stable uses
+while testing 5.10 stable kernels as doesn't support LLD.
+
+CC: stable@vger.kernel.org # needs RISC-V: move zicsr/zifencei spec version check to Kconfi
+Reported-by: Naresh Kamboju <naresh.kamboju@linaro.org>
+Link: https://lore.kernel.org/all/CA+G9fYt9T=ELCLaB9byxaLW2Qf4pZcDO=huCA0D8ug2V2+irJQ@mail.gmail.com/
+Suggested-by: Nathan Chancellor <nathan@kernel.org>
+Signed-off-by: Conor Dooley <conor.dooley@microchip.com>
+---
+ arch/riscv/Kconfig | 3 +--
+ 1 file changed, 1 insertion(+), 2 deletions(-)
+
+diff --git a/arch/riscv/Kconfig b/arch/riscv/Kconfig
+index 4eb0ef8314b3..c6902f4c5650 100644
+--- a/arch/riscv/Kconfig
++++ b/arch/riscv/Kconfig
+@@ -291,8 +291,7 @@ endchoice
+ config TOOLCHAIN_NEEDS_SPEC_20191213
+ 	bool
+ 	default y
+-	depends on !64BIT || $(cc-option,-mabi=lp64 -march=rv64ima_zicsr_zifencei)
+-	depends on !32BIT || $(cc-option,-mabi=ilp32 -march=rv32ima_zicsr_zifencei)
++	depends on AS_IS_GNU && AS_VERSION >= 23800
+ 	help
+ 	  Newer binutils versions default to ISA spec version 20191213 which
+ 	  moves some instructions from the I extension to the Zicsr and Zifencei
+-- 
+2.39.1
+
