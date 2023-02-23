@@ -2,41 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 90C846A0956
-	for <lists+stable@lfdr.de>; Thu, 23 Feb 2023 14:05:01 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id AB1E26A0958
+	for <lists+stable@lfdr.de>; Thu, 23 Feb 2023 14:05:08 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234274AbjBWNE7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 23 Feb 2023 08:04:59 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58882 "EHLO
+        id S234278AbjBWNFG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 23 Feb 2023 08:05:06 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59158 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234271AbjBWNE6 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 23 Feb 2023 08:04:58 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7BD2451FBD
-        for <stable@vger.kernel.org>; Thu, 23 Feb 2023 05:04:56 -0800 (PST)
+        with ESMTP id S232985AbjBWNFF (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 23 Feb 2023 08:05:05 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0DE9E56523
+        for <stable@vger.kernel.org>; Thu, 23 Feb 2023 05:05:01 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 58B27616DD
-        for <stable@vger.kernel.org>; Thu, 23 Feb 2023 13:04:57 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2A25DC433D2;
-        Thu, 23 Feb 2023 13:04:55 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 735FFB81A19
+        for <stable@vger.kernel.org>; Thu, 23 Feb 2023 13:04:59 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C16B6C433EF;
+        Thu, 23 Feb 2023 13:04:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1677157495;
-        bh=ZTNR3Nqnliz9zdldPXZB0i6YJ60PUDDZB+8sDbj8nSQ=;
+        s=korg; t=1677157498;
+        bh=60ZF3qwHgY5n8GYM8lY2Wr1z1mMvQ8sc5JEY6YBajKo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=GPbTEuIYxJss1xOgeyCthIA8v/Ckxz5PYtJ9t6ftXfSZ70FC6OqBbziktNaY220ID
-         qDySMf60Hraz8++I7M1c780rGQpa2fSJLy3e+xKhP8D4omZk7YAuL3F1jdw8RSL1wR
-         HcpGYp1aM3kPD+HVcZhI3rmcwsMRopEsH/bKdaTs=
+        b=ANu1h38corDCb/RkhX7cwGUOfWDLnEcaoJA4Sz9UDqYobNessGC7nYcq5RNFHAlKm
+         jPyemrdyT15oQIgg4rEe2SR1q922VskTt5YrZ/kYwc/w0UZH7JWo0JR6SxtFfEpM75
+         yYDB2bOwHTqQImid4Zs/ehBHwMaCzWhG93fH0Y90=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Sean Anderson <sean.anderson@seco.com>,
-        "David S. Miller" <davem@davemloft.net>,
+        patches@lists.linux.dev,
+        Dominik Brodowski <linux@dominikbrodowski.net>,
+        PaX Team <pageexec@freemail.hu>,
+        Emese Revfy <re.emese@gmail.com>,
+        "Jason A. Donenfeld" <Jason@zx2c4.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 4.14 2/7] powerpc: dts: t208x: Mark MAC1 and MAC2 as 10G
-Date:   Thu, 23 Feb 2023 14:04:39 +0100
-Message-Id: <20230223130423.479963562@linuxfoundation.org>
+Subject: [PATCH 4.14 3/7] random: always mix cycle counter in add_latent_entropy()
+Date:   Thu, 23 Feb 2023 14:04:40 +0100
+Message-Id: <20230223130423.529128209@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
 In-Reply-To: <20230223130423.369876969@linuxfoundation.org>
 References: <20230223130423.369876969@linuxfoundation.org>
@@ -53,140 +56,59 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sean Anderson <sean.anderson@seco.com>
+From: Jason A. Donenfeld <Jason@zx2c4.com>
 
-[ Upstream commit 36926a7d70c2d462fca1ed85bfee000d17fd8662 ]
+[ Upstream commit d7bf7f3b813e3755226bcb5114ad2ac477514ebf ]
 
-On the T208X SoCs, MAC1 and MAC2 support XGMII. Add some new MAC dtsi
-fragments, and mark the QMAN ports as 10G.
+add_latent_entropy() is called every time a process forks, in
+kernel_clone(). This in turn calls add_device_randomness() using the
+latent entropy global state. add_device_randomness() does two things:
 
-Fixes: da414bb923d9 ("powerpc/mpc85xx: Add FSL QorIQ DPAA FMan support to the SoC device tree(s)")
-Signed-off-by: Sean Anderson <sean.anderson@seco.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
+   2) Mixes into the input pool the latent entropy argument passed; and
+   1) Mixes in a cycle counter, a sort of measurement of when the event
+      took place, the high precision bits of which are presumably
+      difficult to predict.
+
+(2) is impossible without CONFIG_GCC_PLUGIN_LATENT_ENTROPY=y. But (1) is
+always possible. However, currently CONFIG_GCC_PLUGIN_LATENT_ENTROPY=n
+disables both (1) and (2), instead of just (2).
+
+This commit causes the CONFIG_GCC_PLUGIN_LATENT_ENTROPY=n case to still
+do (1) by passing NULL (len 0) to add_device_randomness() when add_latent_
+entropy() is called.
+
+Cc: Dominik Brodowski <linux@dominikbrodowski.net>
+Cc: PaX Team <pageexec@freemail.hu>
+Cc: Emese Revfy <re.emese@gmail.com>
+Fixes: 38addce8b600 ("gcc-plugins: Add latent_entropy plugin")
+Signed-off-by: Jason A. Donenfeld <Jason@zx2c4.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- .../boot/dts/fsl/qoriq-fman3-0-10g-2.dtsi     | 44 +++++++++++++++++++
- .../boot/dts/fsl/qoriq-fman3-0-10g-3.dtsi     | 44 +++++++++++++++++++
- arch/powerpc/boot/dts/fsl/t2081si-post.dtsi   |  4 +-
- 3 files changed, 90 insertions(+), 2 deletions(-)
- create mode 100644 arch/powerpc/boot/dts/fsl/qoriq-fman3-0-10g-2.dtsi
- create mode 100644 arch/powerpc/boot/dts/fsl/qoriq-fman3-0-10g-3.dtsi
+ include/linux/random.h | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/arch/powerpc/boot/dts/fsl/qoriq-fman3-0-10g-2.dtsi b/arch/powerpc/boot/dts/fsl/qoriq-fman3-0-10g-2.dtsi
-new file mode 100644
-index 0000000000000..437dab3fc0176
---- /dev/null
-+++ b/arch/powerpc/boot/dts/fsl/qoriq-fman3-0-10g-2.dtsi
-@@ -0,0 +1,44 @@
-+// SPDX-License-Identifier: BSD-3-Clause OR GPL-2.0-or-later
-+/*
-+ * QorIQ FMan v3 10g port #2 device tree stub [ controller @ offset 0x400000 ]
-+ *
-+ * Copyright 2022 Sean Anderson <sean.anderson@seco.com>
-+ * Copyright 2012 - 2015 Freescale Semiconductor Inc.
-+ */
-+
-+fman@400000 {
-+	fman0_rx_0x08: port@88000 {
-+		cell-index = <0x8>;
-+		compatible = "fsl,fman-v3-port-rx";
-+		reg = <0x88000 0x1000>;
-+		fsl,fman-10g-port;
-+	};
-+
-+	fman0_tx_0x28: port@a8000 {
-+		cell-index = <0x28>;
-+		compatible = "fsl,fman-v3-port-tx";
-+		reg = <0xa8000 0x1000>;
-+		fsl,fman-10g-port;
-+	};
-+
-+	ethernet@e0000 {
-+		cell-index = <0>;
-+		compatible = "fsl,fman-memac";
-+		reg = <0xe0000 0x1000>;
-+		fsl,fman-ports = <&fman0_rx_0x08 &fman0_tx_0x28>;
-+		ptp-timer = <&ptp_timer0>;
-+		pcsphy-handle = <&pcsphy0>;
-+	};
-+
-+	mdio@e1000 {
-+		#address-cells = <1>;
-+		#size-cells = <0>;
-+		compatible = "fsl,fman-memac-mdio", "fsl,fman-xmdio";
-+		reg = <0xe1000 0x1000>;
-+		fsl,erratum-a011043; /* must ignore read errors */
-+
-+		pcsphy0: ethernet-phy@0 {
-+			reg = <0x0>;
-+		};
-+	};
-+};
-diff --git a/arch/powerpc/boot/dts/fsl/qoriq-fman3-0-10g-3.dtsi b/arch/powerpc/boot/dts/fsl/qoriq-fman3-0-10g-3.dtsi
-new file mode 100644
-index 0000000000000..ad116b17850a8
---- /dev/null
-+++ b/arch/powerpc/boot/dts/fsl/qoriq-fman3-0-10g-3.dtsi
-@@ -0,0 +1,44 @@
-+// SPDX-License-Identifier: BSD-3-Clause OR GPL-2.0-or-later
-+/*
-+ * QorIQ FMan v3 10g port #3 device tree stub [ controller @ offset 0x400000 ]
-+ *
-+ * Copyright 2022 Sean Anderson <sean.anderson@seco.com>
-+ * Copyright 2012 - 2015 Freescale Semiconductor Inc.
-+ */
-+
-+fman@400000 {
-+	fman0_rx_0x09: port@89000 {
-+		cell-index = <0x9>;
-+		compatible = "fsl,fman-v3-port-rx";
-+		reg = <0x89000 0x1000>;
-+		fsl,fman-10g-port;
-+	};
-+
-+	fman0_tx_0x29: port@a9000 {
-+		cell-index = <0x29>;
-+		compatible = "fsl,fman-v3-port-tx";
-+		reg = <0xa9000 0x1000>;
-+		fsl,fman-10g-port;
-+	};
-+
-+	ethernet@e2000 {
-+		cell-index = <1>;
-+		compatible = "fsl,fman-memac";
-+		reg = <0xe2000 0x1000>;
-+		fsl,fman-ports = <&fman0_rx_0x09 &fman0_tx_0x29>;
-+		ptp-timer = <&ptp_timer0>;
-+		pcsphy-handle = <&pcsphy1>;
-+	};
-+
-+	mdio@e3000 {
-+		#address-cells = <1>;
-+		#size-cells = <0>;
-+		compatible = "fsl,fman-memac-mdio", "fsl,fman-xmdio";
-+		reg = <0xe3000 0x1000>;
-+		fsl,erratum-a011043; /* must ignore read errors */
-+
-+		pcsphy1: ethernet-phy@0 {
-+			reg = <0x0>;
-+		};
-+	};
-+};
-diff --git a/arch/powerpc/boot/dts/fsl/t2081si-post.dtsi b/arch/powerpc/boot/dts/fsl/t2081si-post.dtsi
-index a97296c64eb22..a3cee1acd7abd 100644
---- a/arch/powerpc/boot/dts/fsl/t2081si-post.dtsi
-+++ b/arch/powerpc/boot/dts/fsl/t2081si-post.dtsi
-@@ -631,8 +631,8 @@
- /include/ "qoriq-bman1.dtsi"
+diff --git a/include/linux/random.h b/include/linux/random.h
+index 3feafab498ad9..ed75fb2b0ca94 100644
+--- a/include/linux/random.h
++++ b/include/linux/random.h
+@@ -19,14 +19,14 @@ void add_input_randomness(unsigned int type, unsigned int code,
+ void add_interrupt_randomness(int irq) __latent_entropy;
+ void add_hwgenerator_randomness(const void *buf, size_t len, size_t entropy);
  
- /include/ "qoriq-fman3-0.dtsi"
--/include/ "qoriq-fman3-0-1g-0.dtsi"
--/include/ "qoriq-fman3-0-1g-1.dtsi"
-+/include/ "qoriq-fman3-0-10g-2.dtsi"
-+/include/ "qoriq-fman3-0-10g-3.dtsi"
- /include/ "qoriq-fman3-0-1g-2.dtsi"
- /include/ "qoriq-fman3-0-1g-3.dtsi"
- /include/ "qoriq-fman3-0-1g-4.dtsi"
+-#if defined(LATENT_ENTROPY_PLUGIN) && !defined(__CHECKER__)
+ static inline void add_latent_entropy(void)
+ {
++#if defined(LATENT_ENTROPY_PLUGIN) && !defined(__CHECKER__)
+ 	add_device_randomness((const void *)&latent_entropy, sizeof(latent_entropy));
+-}
+ #else
+-static inline void add_latent_entropy(void) { }
++	add_device_randomness(NULL, 0);
+ #endif
++}
+ 
+ void get_random_bytes(void *buf, size_t len);
+ size_t __must_check get_random_bytes_arch(void *buf, size_t len);
 -- 
 2.39.0
 
