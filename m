@@ -2,44 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 316EA6A0999
-	for <lists+stable@lfdr.de>; Thu, 23 Feb 2023 14:08:35 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 362FC6A099A
+	for <lists+stable@lfdr.de>; Thu, 23 Feb 2023 14:08:36 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234032AbjBWNIe (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 23 Feb 2023 08:08:34 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35962 "EHLO
+        id S234260AbjBWNIf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 23 Feb 2023 08:08:35 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36914 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234260AbjBWNI0 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 23 Feb 2023 08:08:26 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A128F2682
-        for <stable@vger.kernel.org>; Thu, 23 Feb 2023 05:08:13 -0800 (PST)
+        with ESMTP id S234390AbjBWNI1 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 23 Feb 2023 08:08:27 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BE13413521
+        for <stable@vger.kernel.org>; Thu, 23 Feb 2023 05:08:14 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 5408FB81A16
-        for <stable@vger.kernel.org>; Thu, 23 Feb 2023 13:08:12 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C63F3C433D2;
-        Thu, 23 Feb 2023 13:08:10 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 97744616ED
+        for <stable@vger.kernel.org>; Thu, 23 Feb 2023 13:08:15 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 69068C433A1;
+        Thu, 23 Feb 2023 13:08:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1677157691;
-        bh=878Rw47iu6RQG3Da9JcbHNzvPoMnzPg/Ai2tnAh1K6g=;
+        s=korg; t=1677157693;
+        bh=nuXBpjN0+FM5m6pnYloD74h1/K0FANNEJ1GJ8NPEm+I=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=N0pOrnbkUVTvpVCV/AAwhfMC3MVvkDeeN60QCSnrtNpxAVUBuRctQHoN0CQw/awp5
-         9kqZMzy6QGdOmaFY+wPCWhvD278y2IoR+Skjhr8Uy1GzKVGajCaEsJQtkY6suSUcDq
-         lteVPTsnFRqMxWPJ2EKUUCpTjvbv7IwO+30TLPAc=
+        b=zCq/EBVOdAcdkeRZGBghkleT95gzWExaBg5ifhNhYhyZeFs8ey4yZgEKuAieoUkhC
+         U19A7dPTeC7xQNfrTzjWWjLIfr88pAAdkFnnmBdtRqlq9vHmNOD4jOeVUpF9OIwxL3
+         y4sXm68qNDwsPNI9O/jmtU1B6yZi/vFJ0HEeFQ24=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Dominik Brodowski <linux@dominikbrodowski.net>,
-        PaX Team <pageexec@freemail.hu>,
-        Emese Revfy <re.emese@gmail.com>,
-        "Jason A. Donenfeld" <Jason@zx2c4.com>,
+        patches@lists.linux.dev, Sean Christopherson <seanjc@google.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 09/25] random: always mix cycle counter in add_latent_entropy()
-Date:   Thu, 23 Feb 2023 14:06:26 +0100
-Message-Id: <20230223130427.214749094@linuxfoundation.org>
+Subject: [PATCH 5.10 10/25] KVM: x86: Fail emulation during EMULTYPE_SKIP on any exception
+Date:   Thu, 23 Feb 2023 14:06:27 +0100
+Message-Id: <20230223130427.256441750@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
 In-Reply-To: <20230223130426.817998725@linuxfoundation.org>
 References: <20230223130426.817998725@linuxfoundation.org>
@@ -56,59 +52,71 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jason A. Donenfeld <Jason@zx2c4.com>
+From: Sean Christopherson <seanjc@google.com>
 
-[ Upstream commit d7bf7f3b813e3755226bcb5114ad2ac477514ebf ]
+[ Upstream commit 17122c06b86c9f77f45b86b8e62c3ed440847a59 ]
 
-add_latent_entropy() is called every time a process forks, in
-kernel_clone(). This in turn calls add_device_randomness() using the
-latent entropy global state. add_device_randomness() does two things:
+Treat any exception during instruction decode for EMULTYPE_SKIP as a
+"full" emulation failure, i.e. signal failure instead of queuing the
+exception.  When decoding purely to skip an instruction, KVM and/or the
+CPU has already done some amount of emulation that cannot be unwound,
+e.g. on an EPT misconfig VM-Exit KVM has already processeed the emulated
+MMIO.  KVM already does this if a #UD is encountered, but not for other
+exceptions, e.g. if a #PF is encountered during fetch.
 
-   2) Mixes into the input pool the latent entropy argument passed; and
-   1) Mixes in a cycle counter, a sort of measurement of when the event
-      took place, the high precision bits of which are presumably
-      difficult to predict.
+In SVM's soft-injection use case, queueing the exception is particularly
+problematic as queueing exceptions while injecting events can put KVM
+into an infinite loop due to bailing from VM-Enter to service the newly
+pending exception.  E.g. multiple warnings to detect such behavior fire:
 
-(2) is impossible without CONFIG_GCC_PLUGIN_LATENT_ENTROPY=y. But (1) is
-always possible. However, currently CONFIG_GCC_PLUGIN_LATENT_ENTROPY=n
-disables both (1) and (2), instead of just (2).
+  ------------[ cut here ]------------
+  WARNING: CPU: 3 PID: 1017 at arch/x86/kvm/x86.c:9873 kvm_arch_vcpu_ioctl_run+0x1de5/0x20a0 [kvm]
+  Modules linked in: kvm_amd ccp kvm irqbypass
+  CPU: 3 PID: 1017 Comm: svm_nested_soft Not tainted 6.0.0-rc1+ #220
+  Hardware name: QEMU Standard PC (Q35 + ICH9, 2009), BIOS 0.0.0 02/06/2015
+  RIP: 0010:kvm_arch_vcpu_ioctl_run+0x1de5/0x20a0 [kvm]
+  Call Trace:
+   kvm_vcpu_ioctl+0x223/0x6d0 [kvm]
+   __x64_sys_ioctl+0x85/0xc0
+   do_syscall_64+0x2b/0x50
+   entry_SYSCALL_64_after_hwframe+0x46/0xb0
+  ---[ end trace 0000000000000000 ]---
+  ------------[ cut here ]------------
+  WARNING: CPU: 3 PID: 1017 at arch/x86/kvm/x86.c:9987 kvm_arch_vcpu_ioctl_run+0x12a3/0x20a0 [kvm]
+  Modules linked in: kvm_amd ccp kvm irqbypass
+  CPU: 3 PID: 1017 Comm: svm_nested_soft Tainted: G        W          6.0.0-rc1+ #220
+  Hardware name: QEMU Standard PC (Q35 + ICH9, 2009), BIOS 0.0.0 02/06/2015
+  RIP: 0010:kvm_arch_vcpu_ioctl_run+0x12a3/0x20a0 [kvm]
+  Call Trace:
+   kvm_vcpu_ioctl+0x223/0x6d0 [kvm]
+   __x64_sys_ioctl+0x85/0xc0
+   do_syscall_64+0x2b/0x50
+   entry_SYSCALL_64_after_hwframe+0x46/0xb0
+  ---[ end trace 0000000000000000 ]---
 
-This commit causes the CONFIG_GCC_PLUGIN_LATENT_ENTROPY=n case to still
-do (1) by passing NULL (len 0) to add_device_randomness() when add_latent_
-entropy() is called.
-
-Cc: Dominik Brodowski <linux@dominikbrodowski.net>
-Cc: PaX Team <pageexec@freemail.hu>
-Cc: Emese Revfy <re.emese@gmail.com>
-Fixes: 38addce8b600 ("gcc-plugins: Add latent_entropy plugin")
-Signed-off-by: Jason A. Donenfeld <Jason@zx2c4.com>
+Fixes: 6ea6e84309ca ("KVM: x86: inject exceptions produced by x86_decode_insn")
+Signed-off-by: Sean Christopherson <seanjc@google.com>
+Link: https://lore.kernel.org/r/20220930233632.1725475-1-seanjc@google.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- include/linux/random.h | 6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ arch/x86/kvm/x86.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-diff --git a/include/linux/random.h b/include/linux/random.h
-index 917470c4490ac..ed2bac6c7a8ac 100644
---- a/include/linux/random.h
-+++ b/include/linux/random.h
-@@ -19,14 +19,14 @@ void add_input_randomness(unsigned int type, unsigned int code,
- void add_interrupt_randomness(int irq) __latent_entropy;
- void add_hwgenerator_randomness(const void *buf, size_t len, size_t entropy);
- 
--#if defined(LATENT_ENTROPY_PLUGIN) && !defined(__CHECKER__)
- static inline void add_latent_entropy(void)
- {
-+#if defined(LATENT_ENTROPY_PLUGIN) && !defined(__CHECKER__)
- 	add_device_randomness((const void *)&latent_entropy, sizeof(latent_entropy));
--}
- #else
--static inline void add_latent_entropy(void) { }
-+	add_device_randomness(NULL, 0);
- #endif
-+}
- 
- void get_random_bytes(void *buf, size_t len);
- size_t __must_check get_random_bytes_arch(void *buf, size_t len);
+diff --git a/arch/x86/kvm/x86.c b/arch/x86/kvm/x86.c
+index 554d37873c253..0ccc8d1b972c9 100644
+--- a/arch/x86/kvm/x86.c
++++ b/arch/x86/kvm/x86.c
+@@ -7534,7 +7534,9 @@ int x86_emulate_instruction(struct kvm_vcpu *vcpu, gpa_t cr2_or_gpa,
+ 						  write_fault_to_spt,
+ 						  emulation_type))
+ 				return 1;
+-			if (ctxt->have_exception) {
++
++			if (ctxt->have_exception &&
++			    !(emulation_type & EMULTYPE_SKIP)) {
+ 				/*
+ 				 * #UD should result in just EMULATION_FAILED, and trap-like
+ 				 * exception should not be encountered during decode.
 -- 
 2.39.0
 
