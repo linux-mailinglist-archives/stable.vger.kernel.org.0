@@ -2,46 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 595716A095A
-	for <lists+stable@lfdr.de>; Thu, 23 Feb 2023 14:05:14 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D54716A095D
+	for <lists+stable@lfdr.de>; Thu, 23 Feb 2023 14:05:25 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234070AbjBWNFN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 23 Feb 2023 08:05:13 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59398 "EHLO
+        id S234272AbjBWNFY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 23 Feb 2023 08:05:24 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59704 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234272AbjBWNFM (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 23 Feb 2023 08:05:12 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D007A532BF
-        for <stable@vger.kernel.org>; Thu, 23 Feb 2023 05:05:05 -0800 (PST)
+        with ESMTP id S233699AbjBWNFY (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 23 Feb 2023 08:05:24 -0500
+Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 44E0055C03
+        for <stable@vger.kernel.org>; Thu, 23 Feb 2023 05:05:15 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 7F951B81A1A
-        for <stable@vger.kernel.org>; Thu, 23 Feb 2023 13:05:04 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D7E29C433EF;
-        Thu, 23 Feb 2023 13:05:02 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 58F6ECE2023
+        for <stable@vger.kernel.org>; Thu, 23 Feb 2023 13:05:13 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2F84FC4339B;
+        Thu, 23 Feb 2023 13:05:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1677157503;
-        bh=43XYb/ya1omvm7r9+vH9WaipB5SPe3FT7h28n81gRLE=;
+        s=korg; t=1677157511;
+        bh=eSMNC0aXVDgmON888ywKNSXrlDJ0GfnVY50N37/JDRs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=spJuIfr94yIxXxRs95gpWC6URIRongrDW0cyw1iWnxM0/5od6tgR540WGDrW3XFiJ
-         LcGPsIDffeNxK/57ZMMR35vJnF1a3l5a8eFkyfqvdFoxD/88YxCFjLMunMdpaxDZtj
-         wrWKLMzeuy9FT3tKNaPRUG/4/qIlogMnU2ChBKlA=
+        b=v5HflS6Wh0W+4HIsSyo3NWAskWfIzx+pUJAxU/qBM6d3zWL56c2xqA6jZQpn6EBLv
+         b+cgU2TvAeStGq2va6fRepMaTn8o/CzT6hF/LsTVn+57Y/aBcRfVgsH2u22GGL/gvx
+         5SGDozgJYNrayVb6YwTWdMlwfG/Q4nsUsWa4AUrY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         patches@lists.linux.dev,
-        syzbot+b9564ba6e8e00694511b@syzkaller.appspotmail.com,
-        Thomas Gleixner <tglx@linutronix.de>,
-        John Stultz <jstultz@google.com>
-Subject: [PATCH 4.14 5/7] alarmtimer: Prevent starvation by small intervals and SIG_IGN
+        Bitterblue Smith <rtl8821cerfe2@gmail.com>,
+        Kalle Valo <kvalo@kernel.org>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 4.19 01/11] wifi: rtl8xxxu: gen2: Turn on the rate control
 Date:   Thu, 23 Feb 2023 14:04:42 +0100
-Message-Id: <20230223130423.623046838@linuxfoundation.org>
+Message-Id: <20230223130424.140631927@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230223130423.369876969@linuxfoundation.org>
-References: <20230223130423.369876969@linuxfoundation.org>
+In-Reply-To: <20230223130424.079732181@linuxfoundation.org>
+References: <20230223130424.079732181@linuxfoundation.org>
 User-Agent: quilt/0.67
+X-stable: review
+X-Patchwork-Hint: ignore
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -54,132 +55,69 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Thomas Gleixner <tglx@linutronix.de>
+From: Bitterblue Smith <rtl8821cerfe2@gmail.com>
 
-commit d125d1349abeb46945dc5e98f7824bf688266f13 upstream.
+[ Upstream commit 791082ec0ab843e0be07c8ce3678e4c2afd2e33d ]
 
-syzbot reported a RCU stall which is caused by setting up an alarmtimer
-with a very small interval and ignoring the signal. The reproducer arms the
-alarm timer with a relative expiry of 8ns and an interval of 9ns. Not a
-problem per se, but that's an issue when the signal is ignored because then
-the timer is immediately rearmed because there is no way to delay that
-rearming to the signal delivery path.  See posix_timer_fn() and commit
-58229a189942 ("posix-timers: Prevent softirq starvation by small intervals
-and SIG_IGN") for details.
+Re-enable the function rtl8xxxu_gen2_report_connect.
 
-The reproducer does not set SIG_IGN explicitely, but it sets up the timers
-signal with SIGCONT. That has the same effect as explicitely setting
-SIG_IGN for a signal as SIGCONT is ignored if there is no handler set and
-the task is not ptraced.
+It informs the firmware when connecting to a network. This makes the
+firmware enable the rate control, which makes the upload faster.
 
-The log clearly shows that:
+It also informs the firmware when disconnecting from a network. In the
+past this made reconnecting impossible because it was sending the
+auth on queue 0x7 (TXDESC_QUEUE_VO) instead of queue 0x12
+(TXDESC_QUEUE_MGNT):
 
-   [pid  5102] --- SIGCONT {si_signo=SIGCONT, si_code=SI_TIMER, si_timerid=0, si_overrun=316014, si_int=0, si_ptr=NULL} ---
+wlp0s20f0u3: send auth to 90:55:de:__:__:__ (try 1/3)
+wlp0s20f0u3: send auth to 90:55:de:__:__:__ (try 2/3)
+wlp0s20f0u3: send auth to 90:55:de:__:__:__ (try 3/3)
+wlp0s20f0u3: authentication with 90:55:de:__:__:__ timed out
 
-It works because the tasks are traced and therefore the signal is queued so
-the tracer can see it, which delays the restart of the timer to the signal
-delivery path. But then the tracer is killed:
+Probably the firmware disables the unnecessary TX queues when it
+knows it's disconnected.
 
-   [pid  5087] kill(-5102, SIGKILL <unfinished ...>
-   ...
-   ./strace-static-x86_64: Process 5107 detached
+However, this was fixed in commit edd5747aa12e ("wifi: rtl8xxxu: Fix
+skb misuse in TX queue selection").
 
-and after it's gone the stall can be observed:
-
-   syzkaller login: [   79.439102][    C0] hrtimer: interrupt took 68471 ns
-   [  184.460538][    C1] rcu: INFO: rcu_preempt detected stalls on CPUs/tasks:
-   ...
-   [  184.658237][    C1] rcu: Stack dump where RCU GP kthread last ran:
-   [  184.664574][    C1] Sending NMI from CPU 1 to CPUs 0:
-   [  184.669821][    C0] NMI backtrace for cpu 0
-   [  184.669831][    C0] CPU: 0 PID: 5108 Comm: syz-executor192 Not tainted 6.2.0-rc6-next-20230203-syzkaller #0
-   ...
-   [  184.670036][    C0] Call Trace:
-   [  184.670041][    C0]  <IRQ>
-   [  184.670045][    C0]  alarmtimer_fired+0x327/0x670
-
-posix_timer_fn() prevents that by checking whether the interval for
-timers which have the signal ignored is smaller than a jiffie and
-artifically delay it by shifting the next expiry out by a jiffie. That's
-accurate vs. the overrun accounting, but slightly inaccurate
-vs. timer_gettimer(2).
-
-The comment in that function says what needs to be done and there was a fix
-available for the regular userspace induced SIG_IGN mechanism, but that did
-not work due to the implicit ignore for SIGCONT and similar signals. This
-needs to be worked on, but for now the only available workaround is to do
-exactly what posix_timer_fn() does:
-
-Increase the interval of self-rearming timers, which have their signal
-ignored, to at least a jiffie.
-
-Interestingly this has been fixed before via commit ff86bf0c65f1
-("alarmtimer: Rate limit periodic intervals") already, but that fix got
-lost in a later rework.
-
-Reported-by: syzbot+b9564ba6e8e00694511b@syzkaller.appspotmail.com
-Fixes: f2c45807d399 ("alarmtimer: Switch over to generic set/get/rearm routine")
-Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
-Acked-by: John Stultz <jstultz@google.com>
-Cc: stable@vger.kernel.org
-Link: https://lore.kernel.org/r/87k00q1no2.ffs@tglx
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: c59f13bbead4 ("rtl8xxxu: Work around issue with 8192eu and 8723bu devices not reconnecting")
+Signed-off-by: Bitterblue Smith <rtl8821cerfe2@gmail.com>
+Signed-off-by: Kalle Valo <kvalo@kernel.org>
+Link: https://lore.kernel.org/r/43200afc-0c65-ee72-48f8-231edd1df493@gmail.com
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/time/alarmtimer.c |   33 +++++++++++++++++++++++++++++----
- 1 file changed, 29 insertions(+), 4 deletions(-)
+ drivers/net/wireless/realtek/rtl8xxxu/rtl8xxxu_core.c | 8 ++------
+ 1 file changed, 2 insertions(+), 6 deletions(-)
 
---- a/kernel/time/alarmtimer.c
-+++ b/kernel/time/alarmtimer.c
-@@ -476,11 +476,35 @@ u64 alarm_forward(struct alarm *alarm, k
- }
- EXPORT_SYMBOL_GPL(alarm_forward);
- 
--u64 alarm_forward_now(struct alarm *alarm, ktime_t interval)
-+static u64 __alarm_forward_now(struct alarm *alarm, ktime_t interval, bool throttle)
+diff --git a/drivers/net/wireless/realtek/rtl8xxxu/rtl8xxxu_core.c b/drivers/net/wireless/realtek/rtl8xxxu/rtl8xxxu_core.c
+index c3c8382dd0ba2..e5aac9694ade2 100644
+--- a/drivers/net/wireless/realtek/rtl8xxxu/rtl8xxxu_core.c
++++ b/drivers/net/wireless/realtek/rtl8xxxu/rtl8xxxu_core.c
+@@ -4375,12 +4375,9 @@ void rtl8xxxu_gen1_report_connect(struct rtl8xxxu_priv *priv,
+ void rtl8xxxu_gen2_report_connect(struct rtl8xxxu_priv *priv,
+ 				  u8 macid, bool connect)
  {
- 	struct alarm_base *base = &alarm_bases[alarm->type];
-+	ktime_t now = base->gettime();
-+
-+	if (IS_ENABLED(CONFIG_HIGH_RES_TIMERS) && throttle) {
-+		/*
-+		 * Same issue as with posix_timer_fn(). Timers which are
-+		 * periodic but the signal is ignored can starve the system
-+		 * with a very small interval. The real fix which was
-+		 * promised in the context of posix_timer_fn() never
-+		 * materialized, but someone should really work on it.
-+		 *
-+		 * To prevent DOS fake @now to be 1 jiffie out which keeps
-+		 * the overrun accounting correct but creates an
-+		 * inconsistency vs. timer_gettime(2).
-+		 */
-+		ktime_t kj = NSEC_PER_SEC / HZ;
-+
-+		if (interval < kj)
-+			now = ktime_add(now, kj);
-+	}
-+
-+	return alarm_forward(alarm, now, interval);
-+}
+-#ifdef RTL8XXXU_GEN2_REPORT_CONNECT
+ 	/*
+-	 * Barry Day reports this causes issues with 8192eu and 8723bu
+-	 * devices reconnecting. The reason for this is unclear, but
+-	 * until it is better understood, leave the code in place but
+-	 * disabled, so it is not lost.
++	 * The firmware turns on the rate control when it knows it's
++	 * connected to a network.
+ 	 */
+ 	struct h2c_cmd h2c;
  
--	return alarm_forward(alarm, base->gettime(), interval);
-+u64 alarm_forward_now(struct alarm *alarm, ktime_t interval)
-+{
-+	return __alarm_forward_now(alarm, interval, false);
+@@ -4393,7 +4390,6 @@ void rtl8xxxu_gen2_report_connect(struct rtl8xxxu_priv *priv,
+ 		h2c.media_status_rpt.parm &= ~BIT(0);
+ 
+ 	rtl8xxxu_gen2_h2c_cmd(priv, &h2c, sizeof(h2c.media_status_rpt));
+-#endif
  }
- EXPORT_SYMBOL_GPL(alarm_forward_now);
  
-@@ -554,9 +578,10 @@ static enum alarmtimer_restart alarm_han
- 	if (posix_timer_event(ptr, si_private) && ptr->it_interval) {
- 		/*
- 		 * Handle ignored signals and rearm the timer. This will go
--		 * away once we handle ignored signals proper.
-+		 * away once we handle ignored signals proper. Ensure that
-+		 * small intervals cannot starve the system.
- 		 */
--		ptr->it_overrun += alarm_forward_now(alarm, ptr->it_interval);
-+		ptr->it_overrun += __alarm_forward_now(alarm, ptr->it_interval, true);
- 		++ptr->it_requeue_pending;
- 		ptr->it_active = 1;
- 		result = ALARMTIMER_RESTART;
+ void rtl8xxxu_gen1_init_aggregation(struct rtl8xxxu_priv *priv)
+-- 
+2.39.0
+
 
 
