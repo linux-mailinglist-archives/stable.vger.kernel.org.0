@@ -2,46 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 8DDD06A09B9
-	for <lists+stable@lfdr.de>; Thu, 23 Feb 2023 14:09:41 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5537D6A098F
+	for <lists+stable@lfdr.de>; Thu, 23 Feb 2023 14:08:07 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234362AbjBWNJk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 23 Feb 2023 08:09:40 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38526 "EHLO
+        id S234261AbjBWNIG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 23 Feb 2023 08:08:06 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36204 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234373AbjBWNJj (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 23 Feb 2023 08:09:39 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 08219193C4
-        for <stable@vger.kernel.org>; Thu, 23 Feb 2023 05:09:29 -0800 (PST)
+        with ESMTP id S234344AbjBWNIC (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 23 Feb 2023 08:08:02 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B670D3A8B
+        for <stable@vger.kernel.org>; Thu, 23 Feb 2023 05:07:51 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id AE5BDB818D7
-        for <stable@vger.kernel.org>; Thu, 23 Feb 2023 13:09:27 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 21923C4339C;
-        Thu, 23 Feb 2023 13:09:25 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 4FAAA615EA
+        for <stable@vger.kernel.org>; Thu, 23 Feb 2023 13:07:52 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1C428C433D2;
+        Thu, 23 Feb 2023 13:07:49 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1677157766;
-        bh=r9syxf5aiAKtbuK0oJ1hhricUaUkPaAs+iCIhBEDjxk=;
+        s=korg; t=1677157670;
+        bh=o/MvSD7XTSLEAyXjpthVv1oakAMjdRqXebAZP8Tyla4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=YxBxk+wW5Bb2FC3WxnnCznAah9ObXxftqchxDeVy2WR6BYdbegLGWOcgNUtELLRqq
-         LzokSGxpuy2kT2Kd4gy3R0whT2dueSrzSRfDxmWzQpHqDhvrICnRP4KVj45xaMBs2j
-         61/C43CDJNuPd1MUEXk3KH2AmT9ijbtxU8Z5i2j8=
+        b=aP6noMneSofe1MU0q+f4FM1DrQmX7gLu76dGbJh6WwYaxshKrSz5dseKTBekSKP9j
+         lD0/zbL71LYYxFZvK8EH2CKzc7tWDNO19Ed2wpJy0Iw+/6UqXDxm3Hm5qYhTx3OPau
+         Au+eOb7X8bHwD5yZd0UiVLb+mX2cVQr1hRqrAofk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        "Peter Zijlstra (Intel)" <peterz@infradead.org>,
-        Ingo Molnar <mingo@kernel.org>,
-        "Masami Hiramatsu (Google)" <mhiramat@kernel.org>,
-        Nathan Chancellor <nathan@kernel.org>
-Subject: [PATCH 6.1 30/46] x86/alternatives: Introduce int3_emulate_jcc()
+        patches@lists.linux.dev, Yu Kuai <yukuai3@huawei.com>,
+        Josef Bacik <josef@toxicpanda.com>,
+        Jens Axboe <axboe@kernel.dk>,
+        Wen Yang <wenyang.linux@foxmail.com>
+Subject: [PATCH 5.10 20/25] nbd: fix possible overflow for first_minor in nbd_dev_add()
 Date:   Thu, 23 Feb 2023 14:06:37 +0100
-Message-Id: <20230223130432.979033527@linuxfoundation.org>
+Message-Id: <20230223130427.691761800@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230223130431.553657459@linuxfoundation.org>
-References: <20230223130431.553657459@linuxfoundation.org>
+In-Reply-To: <20230223130426.817998725@linuxfoundation.org>
+References: <20230223130426.817998725@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,132 +54,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Peter Zijlstra <peterz@infradead.org>
+From: Yu Kuai <yukuai3@huawei.com>
 
-commit db7adcfd1cec4e95155e37bc066fddab302c6340 upstream.
+commit 940c264984fd1457918393c49674f6b39ee16506 upstream.
 
-Move the kprobe Jcc emulation into int3_emulate_jcc() so it can be
-used by more code -- specifically static_call() will need this.
+If 'part_shift' is not zero, then 'index << part_shift' might
+overflow to a value that is not greater than '0xfffff', then sysfs
+might complains about duplicate creation.
 
-Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
-Signed-off-by: Ingo Molnar <mingo@kernel.org>
-Reviewed-by: Masami Hiramatsu (Google) <mhiramat@kernel.org>
-Link: https://lore.kernel.org/r/20230123210607.057678245@infradead.org
-Signed-off-by: Nathan Chancellor <nathan@kernel.org>
+Fixes: b0d9111a2d53 ("nbd: use an idr to keep track of nbd devices")
+Signed-off-by: Yu Kuai <yukuai3@huawei.com>
+Reviewed-by: Josef Bacik <josef@toxicpanda.com>
+Link: https://lore.kernel.org/r/20211102015237.2309763-3-yebin10@huawei.com
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
+Signed-off-by: Wen Yang <wenyang.linux@foxmail.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/x86/include/asm/text-patching.h |   31 ++++++++++++++++++++++++++++
- arch/x86/kernel/kprobes/core.c       |   38 +++++++----------------------------
- 2 files changed, 39 insertions(+), 30 deletions(-)
+ drivers/block/nbd.c |    6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
---- a/arch/x86/include/asm/text-patching.h
-+++ b/arch/x86/include/asm/text-patching.h
-@@ -183,6 +183,37 @@ void int3_emulate_ret(struct pt_regs *re
- 	unsigned long ip = int3_emulate_pop(regs);
- 	int3_emulate_jmp(regs, ip);
- }
-+
-+static __always_inline
-+void int3_emulate_jcc(struct pt_regs *regs, u8 cc, unsigned long ip, unsigned long disp)
-+{
-+	static const unsigned long jcc_mask[6] = {
-+		[0] = X86_EFLAGS_OF,
-+		[1] = X86_EFLAGS_CF,
-+		[2] = X86_EFLAGS_ZF,
-+		[3] = X86_EFLAGS_CF | X86_EFLAGS_ZF,
-+		[4] = X86_EFLAGS_SF,
-+		[5] = X86_EFLAGS_PF,
-+	};
-+
-+	bool invert = cc & 1;
-+	bool match;
-+
-+	if (cc < 0xc) {
-+		match = regs->flags & jcc_mask[cc >> 1];
-+	} else {
-+		match = ((regs->flags & X86_EFLAGS_SF) >> X86_EFLAGS_SF_BIT) ^
-+			((regs->flags & X86_EFLAGS_OF) >> X86_EFLAGS_OF_BIT);
-+		if (cc >= 0xe)
-+			match = match || (regs->flags & X86_EFLAGS_ZF);
-+	}
-+
-+	if ((match && !invert) || (!match && invert))
-+		ip += disp;
-+
-+	int3_emulate_jmp(regs, ip);
-+}
-+
- #endif /* !CONFIG_UML_X86 */
+--- a/drivers/block/nbd.c
++++ b/drivers/block/nbd.c
+@@ -1773,11 +1773,11 @@ static int nbd_dev_add(int index)
+ 	disk->major = NBD_MAJOR;
  
- #endif /* _ASM_X86_TEXT_PATCHING_H */
---- a/arch/x86/kernel/kprobes/core.c
-+++ b/arch/x86/kernel/kprobes/core.c
-@@ -471,50 +471,26 @@ static void kprobe_emulate_call(struct k
- }
- NOKPROBE_SYMBOL(kprobe_emulate_call);
- 
--static nokprobe_inline
--void __kprobe_emulate_jmp(struct kprobe *p, struct pt_regs *regs, bool cond)
-+static void kprobe_emulate_jmp(struct kprobe *p, struct pt_regs *regs)
- {
- 	unsigned long ip = regs->ip - INT3_INSN_SIZE + p->ainsn.size;
- 
--	if (cond)
--		ip += p->ainsn.rel32;
-+	ip += p->ainsn.rel32;
- 	int3_emulate_jmp(regs, ip);
- }
--
--static void kprobe_emulate_jmp(struct kprobe *p, struct pt_regs *regs)
--{
--	__kprobe_emulate_jmp(p, regs, true);
--}
- NOKPROBE_SYMBOL(kprobe_emulate_jmp);
- 
--static const unsigned long jcc_mask[6] = {
--	[0] = X86_EFLAGS_OF,
--	[1] = X86_EFLAGS_CF,
--	[2] = X86_EFLAGS_ZF,
--	[3] = X86_EFLAGS_CF | X86_EFLAGS_ZF,
--	[4] = X86_EFLAGS_SF,
--	[5] = X86_EFLAGS_PF,
--};
--
- static void kprobe_emulate_jcc(struct kprobe *p, struct pt_regs *regs)
- {
--	bool invert = p->ainsn.jcc.type & 1;
--	bool match;
-+	unsigned long ip = regs->ip - INT3_INSN_SIZE + p->ainsn.size;
- 
--	if (p->ainsn.jcc.type < 0xc) {
--		match = regs->flags & jcc_mask[p->ainsn.jcc.type >> 1];
--	} else {
--		match = ((regs->flags & X86_EFLAGS_SF) >> X86_EFLAGS_SF_BIT) ^
--			((regs->flags & X86_EFLAGS_OF) >> X86_EFLAGS_OF_BIT);
--		if (p->ainsn.jcc.type >= 0xe)
--			match = match || (regs->flags & X86_EFLAGS_ZF);
--	}
--	__kprobe_emulate_jmp(p, regs, (match && !invert) || (!match && invert));
-+	int3_emulate_jcc(regs, p->ainsn.jcc.type, ip, p->ainsn.rel32);
- }
- NOKPROBE_SYMBOL(kprobe_emulate_jcc);
- 
- static void kprobe_emulate_loop(struct kprobe *p, struct pt_regs *regs)
- {
-+	unsigned long ip = regs->ip - INT3_INSN_SIZE + p->ainsn.size;
- 	bool match;
- 
- 	if (p->ainsn.loop.type != 3) {	/* LOOP* */
-@@ -542,7 +518,9 @@ static void kprobe_emulate_loop(struct k
- 	else if (p->ainsn.loop.type == 1)	/* LOOPE */
- 		match = match && (regs->flags & X86_EFLAGS_ZF);
- 
--	__kprobe_emulate_jmp(p, regs, match);
-+	if (match)
-+		ip += p->ainsn.rel32;
-+	int3_emulate_jmp(regs, ip);
- }
- NOKPROBE_SYMBOL(kprobe_emulate_loop);
- 
+ 	/* Too big first_minor can cause duplicate creation of
+-	 * sysfs files/links, since MKDEV() expect that the max bits of
+-	 * first_minor is 20.
++	 * sysfs files/links, since index << part_shift might overflow, or
++	 * MKDEV() expect that the max bits of first_minor is 20.
+ 	 */
+ 	disk->first_minor = index << part_shift;
+-	if (disk->first_minor > MINORMASK) {
++	if (disk->first_minor < index || disk->first_minor > MINORMASK) {
+ 		err = -EINVAL;
+ 		goto out_free_idr;
+ 	}
 
 
