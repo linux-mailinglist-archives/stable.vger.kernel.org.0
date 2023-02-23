@@ -2,51 +2,53 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 12F706A09D7
-	for <lists+stable@lfdr.de>; Thu, 23 Feb 2023 14:10:26 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 556CF6A09E1
+	for <lists+stable@lfdr.de>; Thu, 23 Feb 2023 14:10:44 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234396AbjBWNKX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 23 Feb 2023 08:10:23 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39474 "EHLO
+        id S234419AbjBWNKn (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 23 Feb 2023 08:10:43 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40370 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234400AbjBWNKV (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 23 Feb 2023 08:10:21 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CD91B5653D
-        for <stable@vger.kernel.org>; Thu, 23 Feb 2023 05:10:15 -0800 (PST)
+        with ESMTP id S234427AbjBWNKk (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 23 Feb 2023 08:10:40 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 277655679C
+        for <stable@vger.kernel.org>; Thu, 23 Feb 2023 05:10:32 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 87E66B81A1D
-        for <stable@vger.kernel.org>; Thu, 23 Feb 2023 13:10:14 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id F0DFBC433D2;
-        Thu, 23 Feb 2023 13:10:12 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 48FC461705
+        for <stable@vger.kernel.org>; Thu, 23 Feb 2023 13:10:33 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1E30CC433D2;
+        Thu, 23 Feb 2023 13:10:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1677157813;
-        bh=7RMNFwT4dkdVhJKqpAiwsW6++ZyujWzrC/Oe/6Q7jl4=;
+        s=korg; t=1677157831;
+        bh=W7EjpS12SgHwg9K5ZJim6bPmgiLsUOwq1yUclKif894=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=T0Vxp350AI21OUsSbpxKtVltoX4hdOYDtEQ5cYmYXgmBcu/QOkV6jypJadgMboXhs
-         6G19/lzKfLWtJKxAmiGLsDzqpHLUrmUL7RlAcY/Vk6Vu40GGRHfFEwzkHNjBsf5RcJ
-         oKdCVK6NtCo8vpBLQh2u16EHbdlqWJj1tGguXrZo=
+        b=JUbtJ3Gto5RP+tJl4zukx708Rdj1Yb9ctwK9fmUcIlu+tJgVClqLcMRPT/Ucl/HcK
+         cvUCurVSDeSwCxER7imrfV1zCH0y1kVUID8Gxlu4B1jaj010gAg9W0hpdxTE3I9F3i
+         Y6Np9kq0VlL3GrbOemA8ah0W1nJCDde4iPOcm0/I=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Nathan Chancellor <nathan@kernel.org>,
-        Masahiro Yamada <masahiroy@kernel.org>,
-        Heiko Carstens <hca@linux.ibm.com>,
-        Tom Saeger <tom.saeger@oracle.com>
-Subject: [PATCH 6.1 39/46] s390: define RUNTIME_DISCARD_EXIT to fix link error with GNU ld < 2.36
+        patches@lists.linux.dev,
+        Marek Szyprowski <m.szyprowski@samsung.com>,
+        Robin Murphy <robin.murphy@arm.com>,
+        Christoph Hellwig <hch@lst.de>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.4 01/18] dma-mapping: add generic helpers for mapping sgtable objects
 Date:   Thu, 23 Feb 2023 14:06:46 +0100
-Message-Id: <20230223130433.417238604@linuxfoundation.org>
+Message-Id: <20230223130425.748248216@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230223130431.553657459@linuxfoundation.org>
-References: <20230223130431.553657459@linuxfoundation.org>
+In-Reply-To: <20230223130425.680784802@linuxfoundation.org>
+References: <20230223130425.680784802@linuxfoundation.org>
 User-Agent: quilt/0.67
+X-stable: review
+X-Patchwork-Hint: ignore
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
         SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -54,70 +56,126 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Masahiro Yamada <masahiroy@kernel.org>
+From: Marek Szyprowski <m.szyprowski@samsung.com>
 
-commit a494398bde273143c2352dd373cad8211f7d94b2 upstream.
+[ Upstream commit d9d200bcebc1f6e56f0178cbb8db9953e8cc9a11 ]
 
-Nathan Chancellor reports that the s390 vmlinux fails to link with
-GNU ld < 2.36 since commit 99cb0d917ffa ("arch: fix broken BuildID
-for arm64 and riscv").
+struct sg_table is a common structure used for describing a memory
+buffer. It consists of a scatterlist with memory pages and DMA addresses
+(sgl entry), as well as the number of scatterlist entries: CPU pages
+(orig_nents entry) and DMA mapped pages (nents entry).
 
-It happens for defconfig, or more specifically for CONFIG_EXPOLINE=y.
+It turned out that it was a common mistake to misuse nents and orig_nents
+entries, calling DMA-mapping functions with a wrong number of entries or
+ignoring the number of mapped entries returned by the dma_map_sg
+function.
 
-  $ s390x-linux-gnu-ld --version | head -n1
-  GNU ld (GNU Binutils for Debian) 2.35.2
-  $ make -s ARCH=s390 CROSS_COMPILE=s390x-linux-gnu- allnoconfig
-  $ ./scripts/config -e CONFIG_EXPOLINE
-  $ make -s ARCH=s390 CROSS_COMPILE=s390x-linux-gnu- olddefconfig
-  $ make -s ARCH=s390 CROSS_COMPILE=s390x-linux-gnu-
-  `.exit.text' referenced in section `.s390_return_reg' of drivers/base/dd.o: defined in discarded section `.exit.text' of drivers/base/dd.o
-  make[1]: *** [scripts/Makefile.vmlinux:34: vmlinux] Error 1
-  make: *** [Makefile:1252: vmlinux] Error 2
+To avoid such issues, let's introduce a common wrappers operating
+directly on the struct sg_table objects, which take care of the proper
+use of the nents and orig_nents entries.
 
-arch/s390/kernel/vmlinux.lds.S wants to keep EXIT_TEXT:
-
-        .exit.text : {
-                EXIT_TEXT
-        }
-
-But, at the same time, EXIT_TEXT is thrown away by DISCARD because
-s390 does not define RUNTIME_DISCARD_EXIT.
-
-I still do not understand why the latter wins after 99cb0d917ffa,
-but defining RUNTIME_DISCARD_EXIT seems correct because the comment
-line in arch/s390/kernel/vmlinux.lds.S says:
-
-        /*
-         * .exit.text is discarded at runtime, not link time,
-         * to deal with references from __bug_table
-         */
-
-Nathan also found that binutils commit 21401fc7bf67 ("Duplicate output
-sections in scripts") cured this issue, so we cannot reproduce it with
-binutils 2.36+, but it is better to not rely on it.
-
-Fixes: 99cb0d917ffa ("arch: fix broken BuildID for arm64 and riscv")
-Link: https://lore.kernel.org/all/Y7Jal56f6UBh1abE@dev-arch.thelio-3990X/
-Reported-by: Nathan Chancellor <nathan@kernel.org>
-Signed-off-by: Masahiro Yamada <masahiroy@kernel.org>
-Link: https://lore.kernel.org/r/20230105031306.1455409-1-masahiroy@kernel.org
-Signed-off-by: Heiko Carstens <hca@linux.ibm.com>
-Signed-off-by: Tom Saeger <tom.saeger@oracle.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Marek Szyprowski <m.szyprowski@samsung.com>
+Reviewed-by: Robin Murphy <robin.murphy@arm.com>
+Signed-off-by: Christoph Hellwig <hch@lst.de>
+Stable-dep-of: d37c120b7312 ("drm/etnaviv: don't truncate physical page address")
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/s390/kernel/vmlinux.lds.S |    2 ++
- 1 file changed, 2 insertions(+)
+ include/linux/dma-mapping.h | 80 +++++++++++++++++++++++++++++++++++++
+ 1 file changed, 80 insertions(+)
 
---- a/arch/s390/kernel/vmlinux.lds.S
-+++ b/arch/s390/kernel/vmlinux.lds.S
-@@ -17,6 +17,8 @@
- /* Handle ro_after_init data on our own. */
- #define RO_AFTER_INIT_DATA
+diff --git a/include/linux/dma-mapping.h b/include/linux/dma-mapping.h
+index 4d450672b7d66..87cbae4b051f1 100644
+--- a/include/linux/dma-mapping.h
++++ b/include/linux/dma-mapping.h
+@@ -612,6 +612,86 @@ static inline void dma_sync_single_range_for_device(struct device *dev,
+ 	return dma_sync_single_for_device(dev, addr + offset, size, dir);
+ }
  
-+#define RUNTIME_DISCARD_EXIT
++/**
++ * dma_map_sgtable - Map the given buffer for DMA
++ * @dev:	The device for which to perform the DMA operation
++ * @sgt:	The sg_table object describing the buffer
++ * @dir:	DMA direction
++ * @attrs:	Optional DMA attributes for the map operation
++ *
++ * Maps a buffer described by a scatterlist stored in the given sg_table
++ * object for the @dir DMA operation by the @dev device. After success the
++ * ownership for the buffer is transferred to the DMA domain.  One has to
++ * call dma_sync_sgtable_for_cpu() or dma_unmap_sgtable() to move the
++ * ownership of the buffer back to the CPU domain before touching the
++ * buffer by the CPU.
++ *
++ * Returns 0 on success or -EINVAL on error during mapping the buffer.
++ */
++static inline int dma_map_sgtable(struct device *dev, struct sg_table *sgt,
++		enum dma_data_direction dir, unsigned long attrs)
++{
++	int nents;
 +
- #define EMITS_PT_NOTE
- 
- #include <asm-generic/vmlinux.lds.h>
++	nents = dma_map_sg_attrs(dev, sgt->sgl, sgt->orig_nents, dir, attrs);
++	if (nents <= 0)
++		return -EINVAL;
++	sgt->nents = nents;
++	return 0;
++}
++
++/**
++ * dma_unmap_sgtable - Unmap the given buffer for DMA
++ * @dev:	The device for which to perform the DMA operation
++ * @sgt:	The sg_table object describing the buffer
++ * @dir:	DMA direction
++ * @attrs:	Optional DMA attributes for the unmap operation
++ *
++ * Unmaps a buffer described by a scatterlist stored in the given sg_table
++ * object for the @dir DMA operation by the @dev device. After this function
++ * the ownership of the buffer is transferred back to the CPU domain.
++ */
++static inline void dma_unmap_sgtable(struct device *dev, struct sg_table *sgt,
++		enum dma_data_direction dir, unsigned long attrs)
++{
++	dma_unmap_sg_attrs(dev, sgt->sgl, sgt->orig_nents, dir, attrs);
++}
++
++/**
++ * dma_sync_sgtable_for_cpu - Synchronize the given buffer for CPU access
++ * @dev:	The device for which to perform the DMA operation
++ * @sgt:	The sg_table object describing the buffer
++ * @dir:	DMA direction
++ *
++ * Performs the needed cache synchronization and moves the ownership of the
++ * buffer back to the CPU domain, so it is safe to perform any access to it
++ * by the CPU. Before doing any further DMA operations, one has to transfer
++ * the ownership of the buffer back to the DMA domain by calling the
++ * dma_sync_sgtable_for_device().
++ */
++static inline void dma_sync_sgtable_for_cpu(struct device *dev,
++		struct sg_table *sgt, enum dma_data_direction dir)
++{
++	dma_sync_sg_for_cpu(dev, sgt->sgl, sgt->orig_nents, dir);
++}
++
++/**
++ * dma_sync_sgtable_for_device - Synchronize the given buffer for DMA
++ * @dev:	The device for which to perform the DMA operation
++ * @sgt:	The sg_table object describing the buffer
++ * @dir:	DMA direction
++ *
++ * Performs the needed cache synchronization and moves the ownership of the
++ * buffer back to the DMA domain, so it is safe to perform the DMA operation.
++ * Once finished, one has to call dma_sync_sgtable_for_cpu() or
++ * dma_unmap_sgtable().
++ */
++static inline void dma_sync_sgtable_for_device(struct device *dev,
++		struct sg_table *sgt, enum dma_data_direction dir)
++{
++	dma_sync_sg_for_device(dev, sgt->sgl, sgt->orig_nents, dir);
++}
++
+ #define dma_map_single(d, a, s, r) dma_map_single_attrs(d, a, s, r, 0)
+ #define dma_unmap_single(d, a, s, r) dma_unmap_single_attrs(d, a, s, r, 0)
+ #define dma_map_sg(d, s, n, r) dma_map_sg_attrs(d, s, n, r, 0)
+-- 
+2.39.0
+
 
 
