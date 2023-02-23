@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 9EC046A0A09
-	for <lists+stable@lfdr.de>; Thu, 23 Feb 2023 14:12:44 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id DF8966A09F0
+	for <lists+stable@lfdr.de>; Thu, 23 Feb 2023 14:11:31 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234474AbjBWNMn (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 23 Feb 2023 08:12:43 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43054 "EHLO
+        id S234464AbjBWNL2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 23 Feb 2023 08:11:28 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41698 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234473AbjBWNMn (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 23 Feb 2023 08:12:43 -0500
+        with ESMTP id S234451AbjBWNLX (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 23 Feb 2023 08:11:23 -0500
 Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8F26956785
-        for <stable@vger.kernel.org>; Thu, 23 Feb 2023 05:12:00 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9FAF05653E
+        for <stable@vger.kernel.org>; Thu, 23 Feb 2023 05:11:03 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 5DFEACE2024
-        for <stable@vger.kernel.org>; Thu, 23 Feb 2023 13:11:53 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 53E3BC433D2;
-        Thu, 23 Feb 2023 13:11:51 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id A574ACE2020
+        for <stable@vger.kernel.org>; Thu, 23 Feb 2023 13:11:01 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 934CBC433D2;
+        Thu, 23 Feb 2023 13:10:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1677157911;
-        bh=NWYBUnvYYnZFgclvrVvd8duzd+ph9iWY/KIY0DBNaq4=;
+        s=korg; t=1677157859;
+        bh=oaWBmdUg2SRESnKZzyQhxN2kd8ZUWWz2scxi1QduOYQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=dKinBmMI8IdRkqCaOgj10Ckmn/EJpjn3m4nexKJ+IaH0BGJuECEygnnEiniJOJ6Ir
-         yjIZ2awlc6i4nvw628KyaQ12x71KcOJL160pQiXfl4ZPptOnUOlDBd6KFxe3Wke4cP
-         1mCrC4aYgh9qdJI6p08E9MpF0m1NFWcoVOMNSkag=
+        b=dlD3ryLk8h4ObnEgaD5iTb/YLOWUElPR5VgRkDQtbX1lMhsGnTkSgSwI97xA2BfXp
+         s51xReByXBuNHn9UVGq8lHnOiWZd95rVKsRourCr3i8hFw/eAw7qzn6XRRtmwvJTOL
+         36y++VF4yXpFkFUnoZr59u8WVN9mbf0kEt7JzRWc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Sachin Sant <sachinp@linux.ibm.com>,
-        Michael Ellerman <mpe@ellerman.id.au>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 20/36] powerpc/64s/radix: Fix RWX mapping with relocated kernel
-Date:   Thu, 23 Feb 2023 14:06:56 +0100
-Message-Id: <20230223130430.004128859@linuxfoundation.org>
+        patches@lists.linux.dev,
+        syzbot+b9564ba6e8e00694511b@syzkaller.appspotmail.com,
+        Thomas Gleixner <tglx@linutronix.de>,
+        John Stultz <jstultz@google.com>
+Subject: [PATCH 5.4 12/18] alarmtimer: Prevent starvation by small intervals and SIG_IGN
+Date:   Thu, 23 Feb 2023 14:06:57 +0100
+Message-Id: <20230223130426.142932593@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230223130429.072633724@linuxfoundation.org>
-References: <20230223130429.072633724@linuxfoundation.org>
+In-Reply-To: <20230223130425.680784802@linuxfoundation.org>
+References: <20230223130425.680784802@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,89 +54,132 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Michael Ellerman <mpe@ellerman.id.au>
+From: Thomas Gleixner <tglx@linutronix.de>
 
-[ Upstream commit 111bcb37385353f0510e5847d5abcd1c613dba23 ]
+commit d125d1349abeb46945dc5e98f7824bf688266f13 upstream.
 
-If a relocatable kernel is loaded at a non-zero address and told not to
-relocate to zero (kdump or RELOCATABLE_TEST), the mapping of the
-interrupt code at zero is left with RWX permissions.
+syzbot reported a RCU stall which is caused by setting up an alarmtimer
+with a very small interval and ignoring the signal. The reproducer arms the
+alarm timer with a relative expiry of 8ns and an interval of 9ns. Not a
+problem per se, but that's an issue when the signal is ignored because then
+the timer is immediately rearmed because there is no way to delay that
+rearming to the signal delivery path.  See posix_timer_fn() and commit
+58229a189942 ("posix-timers: Prevent softirq starvation by small intervals
+and SIG_IGN") for details.
 
-That is a security weakness, and leads to a warning at boot if
-CONFIG_DEBUG_WX is enabled:
+The reproducer does not set SIG_IGN explicitely, but it sets up the timers
+signal with SIGCONT. That has the same effect as explicitely setting
+SIG_IGN for a signal as SIGCONT is ignored if there is no handler set and
+the task is not ptraced.
 
-  powerpc/mm: Found insecure W+X mapping at address 00000000056435bc/0xc000000000000000
-  WARNING: CPU: 1 PID: 1 at arch/powerpc/mm/ptdump/ptdump.c:193 note_page+0x484/0x4c0
-  CPU: 1 PID: 1 Comm: swapper/0 Not tainted 6.2.0-rc1-00001-g8ae8e98aea82-dirty #175
-  Hardware name: IBM pSeries (emulated by qemu) POWER9 (raw) 0x4e1202 0xf000005 of:SLOF,git-dd0dca hv:linux,kvm pSeries
-  NIP:  c0000000004a1c34 LR: c0000000004a1c30 CTR: 0000000000000000
-  REGS: c000000003503770 TRAP: 0700   Not tainted  (6.2.0-rc1-00001-g8ae8e98aea82-dirty)
-  MSR:  8000000002029033 <SF,VEC,EE,ME,IR,DR,RI,LE>  CR: 24000220  XER: 00000000
-  CFAR: c000000000545a58 IRQMASK: 0
-  ...
-  NIP note_page+0x484/0x4c0
-  LR  note_page+0x480/0x4c0
-  Call Trace:
-    note_page+0x480/0x4c0 (unreliable)
-    ptdump_pmd_entry+0xc8/0x100
-    walk_pgd_range+0x618/0xab0
-    walk_page_range_novma+0x74/0xc0
-    ptdump_walk_pgd+0x98/0x170
-    ptdump_check_wx+0x94/0x100
-    mark_rodata_ro+0x30/0x70
-    kernel_init+0x78/0x1a0
-    ret_from_kernel_thread+0x5c/0x64
+The log clearly shows that:
 
-The fix has two parts. Firstly the pages from zero up to the end of
-interrupts need to be marked read-only, so that they are left with R-X
-permissions. Secondly the mapping logic needs to be taught to ensure
-there is a page boundary at the end of the interrupt region, so that the
-permission change only applies to the interrupt text, and not the region
-following it.
+   [pid  5102] --- SIGCONT {si_signo=SIGCONT, si_code=SI_TIMER, si_timerid=0, si_overrun=316014, si_int=0, si_ptr=NULL} ---
 
-Fixes: c55d7b5e6426 ("powerpc: Remove STRICT_KERNEL_RWX incompatibility with RELOCATABLE")
-Reported-by: Sachin Sant <sachinp@linux.ibm.com>
-Tested-by: Sachin Sant <sachinp@linux.ibm.com>
-Signed-off-by: Michael Ellerman <mpe@ellerman.id.au>
-Link: https://lore.kernel.org/r/20230110124753.1325426-2-mpe@ellerman.id.au
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+It works because the tasks are traced and therefore the signal is queued so
+the tracer can see it, which delays the restart of the timer to the signal
+delivery path. But then the tracer is killed:
+
+   [pid  5087] kill(-5102, SIGKILL <unfinished ...>
+   ...
+   ./strace-static-x86_64: Process 5107 detached
+
+and after it's gone the stall can be observed:
+
+   syzkaller login: [   79.439102][    C0] hrtimer: interrupt took 68471 ns
+   [  184.460538][    C1] rcu: INFO: rcu_preempt detected stalls on CPUs/tasks:
+   ...
+   [  184.658237][    C1] rcu: Stack dump where RCU GP kthread last ran:
+   [  184.664574][    C1] Sending NMI from CPU 1 to CPUs 0:
+   [  184.669821][    C0] NMI backtrace for cpu 0
+   [  184.669831][    C0] CPU: 0 PID: 5108 Comm: syz-executor192 Not tainted 6.2.0-rc6-next-20230203-syzkaller #0
+   ...
+   [  184.670036][    C0] Call Trace:
+   [  184.670041][    C0]  <IRQ>
+   [  184.670045][    C0]  alarmtimer_fired+0x327/0x670
+
+posix_timer_fn() prevents that by checking whether the interval for
+timers which have the signal ignored is smaller than a jiffie and
+artifically delay it by shifting the next expiry out by a jiffie. That's
+accurate vs. the overrun accounting, but slightly inaccurate
+vs. timer_gettimer(2).
+
+The comment in that function says what needs to be done and there was a fix
+available for the regular userspace induced SIG_IGN mechanism, but that did
+not work due to the implicit ignore for SIGCONT and similar signals. This
+needs to be worked on, but for now the only available workaround is to do
+exactly what posix_timer_fn() does:
+
+Increase the interval of self-rearming timers, which have their signal
+ignored, to at least a jiffie.
+
+Interestingly this has been fixed before via commit ff86bf0c65f1
+("alarmtimer: Rate limit periodic intervals") already, but that fix got
+lost in a later rework.
+
+Reported-by: syzbot+b9564ba6e8e00694511b@syzkaller.appspotmail.com
+Fixes: f2c45807d399 ("alarmtimer: Switch over to generic set/get/rearm routine")
+Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
+Acked-by: John Stultz <jstultz@google.com>
+Cc: stable@vger.kernel.org
+Link: https://lore.kernel.org/r/87k00q1no2.ffs@tglx
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/powerpc/mm/book3s64/radix_pgtable.c | 13 +++++++++++++
- 1 file changed, 13 insertions(+)
+ kernel/time/alarmtimer.c |   33 +++++++++++++++++++++++++++++----
+ 1 file changed, 29 insertions(+), 4 deletions(-)
 
-diff --git a/arch/powerpc/mm/book3s64/radix_pgtable.c b/arch/powerpc/mm/book3s64/radix_pgtable.c
-index b848f9e9f6335..feb24313e2e3c 100644
---- a/arch/powerpc/mm/book3s64/radix_pgtable.c
-+++ b/arch/powerpc/mm/book3s64/radix_pgtable.c
-@@ -232,6 +232,14 @@ void radix__mark_rodata_ro(void)
- 	end = (unsigned long)__init_begin;
- 
- 	radix__change_memory_range(start, end, _PAGE_WRITE);
-+
-+	for (start = PAGE_OFFSET; start < (unsigned long)_stext; start += PAGE_SIZE) {
-+		end = start + PAGE_SIZE;
-+		if (overlaps_interrupt_vector_text(start, end))
-+			radix__change_memory_range(start, end, _PAGE_WRITE);
-+		else
-+			break;
-+	}
+--- a/kernel/time/alarmtimer.c
++++ b/kernel/time/alarmtimer.c
+@@ -479,11 +479,35 @@ u64 alarm_forward(struct alarm *alarm, k
  }
+ EXPORT_SYMBOL_GPL(alarm_forward);
  
- void radix__mark_initmem_nx(void)
-@@ -266,6 +274,11 @@ static unsigned long next_boundary(unsigned long addr, unsigned long end)
- 
- 	// Relocatable kernel running at non-zero real address
- 	if (stext_phys != 0) {
-+		// The end of interrupts code at zero is a rodata boundary
-+		unsigned long end_intr = __pa_symbol(__end_interrupts) - stext_phys;
-+		if (addr < end_intr)
-+			return end_intr;
+-u64 alarm_forward_now(struct alarm *alarm, ktime_t interval)
++static u64 __alarm_forward_now(struct alarm *alarm, ktime_t interval, bool throttle)
+ {
+ 	struct alarm_base *base = &alarm_bases[alarm->type];
++	ktime_t now = base->gettime();
 +
- 		// Start of relocated kernel text is a rodata boundary
- 		if (addr < stext_phys)
- 			return stext_phys;
--- 
-2.39.0
-
++	if (IS_ENABLED(CONFIG_HIGH_RES_TIMERS) && throttle) {
++		/*
++		 * Same issue as with posix_timer_fn(). Timers which are
++		 * periodic but the signal is ignored can starve the system
++		 * with a very small interval. The real fix which was
++		 * promised in the context of posix_timer_fn() never
++		 * materialized, but someone should really work on it.
++		 *
++		 * To prevent DOS fake @now to be 1 jiffie out which keeps
++		 * the overrun accounting correct but creates an
++		 * inconsistency vs. timer_gettime(2).
++		 */
++		ktime_t kj = NSEC_PER_SEC / HZ;
++
++		if (interval < kj)
++			now = ktime_add(now, kj);
++	}
++
++	return alarm_forward(alarm, now, interval);
++}
+ 
+-	return alarm_forward(alarm, base->gettime(), interval);
++u64 alarm_forward_now(struct alarm *alarm, ktime_t interval)
++{
++	return __alarm_forward_now(alarm, interval, false);
+ }
+ EXPORT_SYMBOL_GPL(alarm_forward_now);
+ 
+@@ -557,9 +581,10 @@ static enum alarmtimer_restart alarm_han
+ 	if (posix_timer_event(ptr, si_private) && ptr->it_interval) {
+ 		/*
+ 		 * Handle ignored signals and rearm the timer. This will go
+-		 * away once we handle ignored signals proper.
++		 * away once we handle ignored signals proper. Ensure that
++		 * small intervals cannot starve the system.
+ 		 */
+-		ptr->it_overrun += alarm_forward_now(alarm, ptr->it_interval);
++		ptr->it_overrun += __alarm_forward_now(alarm, ptr->it_interval, true);
+ 		++ptr->it_requeue_pending;
+ 		ptr->it_active = 1;
+ 		result = ALARMTIMER_RESTART;
 
 
