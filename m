@@ -2,47 +2,49 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 1D5686A051D
-	for <lists+stable@lfdr.de>; Thu, 23 Feb 2023 10:39:57 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7CF436A052C
+	for <lists+stable@lfdr.de>; Thu, 23 Feb 2023 10:46:03 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233909AbjBWJjy (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 23 Feb 2023 04:39:54 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43240 "EHLO
+        id S233594AbjBWJqB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 23 Feb 2023 04:46:01 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48476 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234214AbjBWJjx (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 23 Feb 2023 04:39:53 -0500
+        with ESMTP id S234125AbjBWJpv (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 23 Feb 2023 04:45:51 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 66E07B767
-        for <stable@vger.kernel.org>; Thu, 23 Feb 2023 01:39:52 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D08BF4FC99
+        for <stable@vger.kernel.org>; Thu, 23 Feb 2023 01:45:44 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id D71FC61629
-        for <stable@vger.kernel.org>; Thu, 23 Feb 2023 09:39:52 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1AF12C433D2;
-        Thu, 23 Feb 2023 09:39:50 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 4504561161
+        for <stable@vger.kernel.org>; Thu, 23 Feb 2023 09:45:45 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7184CC4339B;
+        Thu, 23 Feb 2023 09:45:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1677145191;
-        bh=p5qstACsvvSKPdCAX9OO7WE6oUb3hnBSioQgRI/CIgo=;
+        s=korg; t=1677145543;
+        bh=P+KHmswDCrDL66VsjZyTjoxGkjNmxY1oGuvn/grubzM=;
         h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=bCzzpH3VMlq1Mq8BP25RVRhBknRHHc2aOyQFkVg+9zqzhbMjrPCH84trJ0v7xu6ps
-         E6ngGT2DVIXcNAjJvRJeM1bIf8Y2rMCCq3aSP6/kw37FHWiGdbmeD8RezIyW+DY2SM
-         QQvuunaPH1H/SdRrc3BMt4VX/Rx2zq7Zwh/C8H+s=
-Date:   Thu, 23 Feb 2023 10:39:49 +0100
+        b=IR/hu4Ovov/WlGG1SFBumldl54P14Wju/4uJMezuwdpdj4EKE9a65HhTlNngMJslE
+         aIIvDMWRnQIkURook4DH+IKTtikr+IEMmBwMUZpjSfB40E9Uoohx+Ib6KuZnbOQPp7
+         sq2+wEQhFzdf93ukpiEE1OeBKpR/mbu8kIIFYJuw=
+Date:   Thu, 23 Feb 2023 10:45:41 +0100
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     wenyang.linux@foxmail.com
-Cc:     Sasha Levin <sashal@kernel.org>, Yu Kuai <yukuai3@huawei.com>,
+Cc:     Sasha Levin <sashal@kernel.org>,
+        Zhang Wensheng <zhangwensheng5@huawei.com>,
+        Yu Kuai <yukuai3@huawei.com>,
         Josef Bacik <josef@toxicpanda.com>,
         Jens Axboe <axboe@kernel.dk>, stable@vger.kernel.org
-Subject: Re: [PATCH 5.10 2/4] nbd: fix max value for 'first_minor'
-Message-ID: <Y/c0Zd2rFDGwhZxT@kroah.com>
+Subject: Re: [PATCH 5.10 4/4] nbd: fix possible overflow on 'first_minor' in
+ nbd_dev_add()
+Message-ID: <Y/c1xfH2kGtXdO3x@kroah.com>
 References: <20230220180449.36425-1-wenyang.linux@foxmail.com>
- <tencent_B899BECA817A270876922C5D8B19C78FE805@qq.com>
- <Y/c0RaLxCjcY0bFk@kroah.com>
+ <tencent_78F37DD503B56650D624427A3CB3879FDB06@qq.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <Y/c0RaLxCjcY0bFk@kroah.com>
+In-Reply-To: <tencent_78F37DD503B56650D624427A3CB3879FDB06@qq.com>
 X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
         DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
         SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
@@ -52,20 +54,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Thu, Feb 23, 2023 at 10:39:17AM +0100, Greg Kroah-Hartman wrote:
-> On Tue, Feb 21, 2023 at 02:04:47AM +0800, wenyang.linux@foxmail.com wrote:
-> > From: Yu Kuai <yukuai3@huawei.com>
-> > 
-> > commit e4c4871a73944353ea23e319de27ef73ce546623 upstream.
+On Tue, Feb 21, 2023 at 02:04:49AM +0800, wenyang.linux@foxmail.com wrote:
+> From: Zhang Wensheng <zhangwensheng5@huawei.com>
 > 
-> <snip>
+> commit 858f1bf65d3d9c00b5e2d8ca87dc79ed88267c98 upstream.
 > 
-> I never recieved patch 0/4 or 1/4 of this series saying what it is for
-> (and neither did lore.kernel.org.)
+> When 'index' is a big numbers, it may become negative which forced
+> to 'int'. then 'index << part_shift' might overflow to a positive
+> value that is not greater than '0xfffff', then sysfs might complains
+> about duplicate creation. Because of this, move the 'index' judgment
+> to the front will fix it and be better.
+> 
+> Fixes: b0d9111a2d53 ("nbd: use an idr to keep track of nbd devices")
+> Fixes: 940c264984fd ("nbd: fix possible overflow for 'first_minor' in nbd_dev_add()")
+> Signed-off-by: Zhang Wensheng <zhangwensheng5@huawei.com>
+> Signed-off-by: Yu Kuai <yukuai3@huawei.com>
+> Reviewed-by: Josef Bacik <josef@toxicpanda.com>
+> Link: https://lore.kernel.org/r/20220521073749.3146892-6-yukuai3@huawei.com
+> Signed-off-by: Jens Axboe <axboe@kernel.dk>
+> Cc: stable@vger.kernel.org # v5.10+
+> Signed-off-by: Wen Yang <wenyang.linux@foxmail.com>
+> ---
+>  drivers/block/nbd.c | 23 ++++++++++++-----------
+>  1 file changed, 12 insertions(+), 11 deletions(-)
 
-Ah, now I found patch 1/4, your email threading got broken somehow,
-odd...
+This is also needed in 5.15.y, please be more careful, you do not want
+to have a regression when moving to a newer kernel version.
 
-thanks
+I've queued it up there as well.
+
+thanks,
 
 greg k-h
