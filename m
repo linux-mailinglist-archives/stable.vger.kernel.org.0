@@ -2,46 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 5537D6A098F
-	for <lists+stable@lfdr.de>; Thu, 23 Feb 2023 14:08:07 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7D7BE6A09FA
+	for <lists+stable@lfdr.de>; Thu, 23 Feb 2023 14:12:03 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234261AbjBWNIG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 23 Feb 2023 08:08:06 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36204 "EHLO
+        id S234454AbjBWNMC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 23 Feb 2023 08:12:02 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42498 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234344AbjBWNIC (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 23 Feb 2023 08:08:02 -0500
+        with ESMTP id S234429AbjBWNMC (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 23 Feb 2023 08:12:02 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B670D3A8B
-        for <stable@vger.kernel.org>; Thu, 23 Feb 2023 05:07:51 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 938CD5652D
+        for <stable@vger.kernel.org>; Thu, 23 Feb 2023 05:11:26 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 4FAAA615EA
-        for <stable@vger.kernel.org>; Thu, 23 Feb 2023 13:07:52 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1C428C433D2;
-        Thu, 23 Feb 2023 13:07:49 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 4B22361700
+        for <stable@vger.kernel.org>; Thu, 23 Feb 2023 13:11:22 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1A7D1C433EF;
+        Thu, 23 Feb 2023 13:11:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1677157670;
-        bh=o/MvSD7XTSLEAyXjpthVv1oakAMjdRqXebAZP8Tyla4=;
+        s=korg; t=1677157880;
+        bh=ofoMvBg1C00GPgC1hsSUmL2KFRVARo3odgsODRHhjOs=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=aP6noMneSofe1MU0q+f4FM1DrQmX7gLu76dGbJh6WwYaxshKrSz5dseKTBekSKP9j
-         lD0/zbL71LYYxFZvK8EH2CKzc7tWDNO19Ed2wpJy0Iw+/6UqXDxm3Hm5qYhTx3OPau
-         Au+eOb7X8bHwD5yZd0UiVLb+mX2cVQr1hRqrAofk=
+        b=EPYHQX3wZ5HoWRkPOhtr+6/hPY/2lphkrYye+wYNRvxaLr+wx60lsLAYVhCrWYNfK
+         u75To1OWBJC8VOW8nzDUkSVO74VvGGQVZGrb0yYMWIvWljPVovpgaq1dYTEl9jON7a
+         Aph35sWrusMkUVZNNxVOH3uWYd+qbwQafiizrRtk=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Yu Kuai <yukuai3@huawei.com>,
-        Josef Bacik <josef@toxicpanda.com>,
-        Jens Axboe <axboe@kernel.dk>,
-        Wen Yang <wenyang.linux@foxmail.com>
-Subject: [PATCH 5.10 20/25] nbd: fix possible overflow for first_minor in nbd_dev_add()
+        patches@lists.linux.dev, Lucas Stach <l.stach@pengutronix.de>,
+        Philipp Zabel <p.zabel@pengutronix.de>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.15 01/36] drm/etnaviv: dont truncate physical page address
 Date:   Thu, 23 Feb 2023 14:06:37 +0100
-Message-Id: <20230223130427.691761800@linuxfoundation.org>
+Message-Id: <20230223130429.138180744@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230223130426.817998725@linuxfoundation.org>
-References: <20230223130426.817998725@linuxfoundation.org>
+In-Reply-To: <20230223130429.072633724@linuxfoundation.org>
+References: <20230223130429.072633724@linuxfoundation.org>
 User-Agent: quilt/0.67
+X-stable: review
+X-Patchwork-Hint: ignore
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -54,41 +55,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yu Kuai <yukuai3@huawei.com>
+From: Lucas Stach <l.stach@pengutronix.de>
 
-commit 940c264984fd1457918393c49674f6b39ee16506 upstream.
+[ Upstream commit d37c120b73128690434cc093952439eef9d56af1 ]
 
-If 'part_shift' is not zero, then 'index << part_shift' might
-overflow to a value that is not greater than '0xfffff', then sysfs
-might complains about duplicate creation.
+While the interface for the MMU mapping takes phys_addr_t to hold a
+full 64bit address when necessary and MMUv2 is able to map physical
+addresses with up to 40bit, etnaviv_iommu_map() truncates the address
+to 32bits. Fix this by using the correct type.
 
-Fixes: b0d9111a2d53 ("nbd: use an idr to keep track of nbd devices")
-Signed-off-by: Yu Kuai <yukuai3@huawei.com>
-Reviewed-by: Josef Bacik <josef@toxicpanda.com>
-Link: https://lore.kernel.org/r/20211102015237.2309763-3-yebin10@huawei.com
-Signed-off-by: Jens Axboe <axboe@kernel.dk>
-Signed-off-by: Wen Yang <wenyang.linux@foxmail.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Fixes: 931e97f3afd8 ("drm/etnaviv: mmuv2: support 40 bit phys address")
+Signed-off-by: Lucas Stach <l.stach@pengutronix.de>
+Reviewed-by: Philipp Zabel <p.zabel@pengutronix.de>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/block/nbd.c |    6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ drivers/gpu/drm/etnaviv/etnaviv_mmu.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
---- a/drivers/block/nbd.c
-+++ b/drivers/block/nbd.c
-@@ -1773,11 +1773,11 @@ static int nbd_dev_add(int index)
- 	disk->major = NBD_MAJOR;
+diff --git a/drivers/gpu/drm/etnaviv/etnaviv_mmu.c b/drivers/gpu/drm/etnaviv/etnaviv_mmu.c
+index aabb997a74eb4..2de806173b3aa 100644
+--- a/drivers/gpu/drm/etnaviv/etnaviv_mmu.c
++++ b/drivers/gpu/drm/etnaviv/etnaviv_mmu.c
+@@ -80,10 +80,10 @@ static int etnaviv_iommu_map(struct etnaviv_iommu_context *context, u32 iova,
+ 		return -EINVAL;
  
- 	/* Too big first_minor can cause duplicate creation of
--	 * sysfs files/links, since MKDEV() expect that the max bits of
--	 * first_minor is 20.
-+	 * sysfs files/links, since index << part_shift might overflow, or
-+	 * MKDEV() expect that the max bits of first_minor is 20.
- 	 */
- 	disk->first_minor = index << part_shift;
--	if (disk->first_minor > MINORMASK) {
-+	if (disk->first_minor < index || disk->first_minor > MINORMASK) {
- 		err = -EINVAL;
- 		goto out_free_idr;
- 	}
+ 	for_each_sgtable_dma_sg(sgt, sg, i) {
+-		u32 pa = sg_dma_address(sg) - sg->offset;
++		phys_addr_t pa = sg_dma_address(sg) - sg->offset;
+ 		size_t bytes = sg_dma_len(sg) + sg->offset;
+ 
+-		VERB("map[%d]: %08x %08x(%zx)", i, iova, pa, bytes);
++		VERB("map[%d]: %08x %pap(%zx)", i, iova, &pa, bytes);
+ 
+ 		ret = etnaviv_context_map(context, da, pa, bytes, prot);
+ 		if (ret)
+-- 
+2.39.0
+
 
 
