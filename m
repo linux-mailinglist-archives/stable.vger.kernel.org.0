@@ -2,41 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 58BA56A09CF
-	for <lists+stable@lfdr.de>; Thu, 23 Feb 2023 14:10:14 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D0D8E6A09A4
+	for <lists+stable@lfdr.de>; Thu, 23 Feb 2023 14:08:50 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S234398AbjBWNKN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 23 Feb 2023 08:10:13 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39044 "EHLO
+        id S234344AbjBWNIt (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 23 Feb 2023 08:08:49 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37298 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S234426AbjBWNKI (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 23 Feb 2023 08:10:08 -0500
-Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4110656795
-        for <stable@vger.kernel.org>; Thu, 23 Feb 2023 05:10:01 -0800 (PST)
+        with ESMTP id S234348AbjBWNIo (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 23 Feb 2023 08:08:44 -0500
+Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6D1735FDC
+        for <stable@vger.kernel.org>; Thu, 23 Feb 2023 05:08:40 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 8A0DCCE1FEE
-        for <stable@vger.kernel.org>; Thu, 23 Feb 2023 13:09:59 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 539E3C4339B;
-        Thu, 23 Feb 2023 13:09:57 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id D4952CE2020
+        for <stable@vger.kernel.org>; Thu, 23 Feb 2023 13:08:38 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B25BBC4339B;
+        Thu, 23 Feb 2023 13:08:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1677157797;
-        bh=zbqhN8Yqsagql4T0X8kc+vTS7MzfsioNpCwXxlDpKA0=;
+        s=korg; t=1677157717;
+        bh=ftvjJTuVKezQJvsdJfxIyE0tKYs97bWhbN7R5+ZwQ+o=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Jq62sCHtMPUk/5UcWJMVC0N9zqjgpueIDy1hkMZS/1ymDZMtuPmBbZ+T+J8ZqV6A3
-         jwqV7+QRou2wonzV6I8UGDy/AP/WUTNyoEFoNIEGOhFvmSE2Q4ZRNVgXveSl6H+ASS
-         twBVOYhEe3qW2R5rljWKZo8SYoSF8dRGl7/kGFKo=
+        b=XfE5F8Ytq5TVjV8FaLRFLYBJ/9oROBiz2pTuxdBNed7sX7VeHcRlAM0GZkinoj2X0
+         c8s7xvYMqfjuCS0eJGYskaSK/HwNRkYCfjxFnLBC6Hqr3kTle10DgC/dDlL7VAvxtt
+         HHuck2DDzU8HkgPWUe2W8khVIXyjAdx5GhWDtIjw=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         patches@lists.linux.dev,
-        Bitterblue Smith <rtl8821cerfe2@gmail.com>,
-        Kalle Valo <kvalo@kernel.org>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 03/46] wifi: rtl8xxxu: gen2: Turn on the rate control
-Date:   Thu, 23 Feb 2023 14:06:10 +0100
-Message-Id: <20230223130431.713895102@linuxfoundation.org>
+        Ankit Nautiyal <ankit.k.nautiyal@intel.com>,
+        Uma Shankar <uma.shankar@intel.com>,
+        Jani Nikula <jani.nikula@intel.com>,
+        Maarten Lankhorst <maarten.lankhorst@linux.intel.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 6.1 04/46] drm/edid: Fix minimum bpc supported with DSC1.2 for HDMI sink
+Date:   Thu, 23 Feb 2023 14:06:11 +0100
+Message-Id: <20230223130431.747185842@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
 In-Reply-To: <20230223130431.553657459@linuxfoundation.org>
 References: <20230223130431.553657459@linuxfoundation.org>
@@ -44,8 +47,8 @@ User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
         SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -53,67 +56,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Bitterblue Smith <rtl8821cerfe2@gmail.com>
+From: Ankit Nautiyal <ankit.k.nautiyal@intel.com>
 
-[ Upstream commit 791082ec0ab843e0be07c8ce3678e4c2afd2e33d ]
+[ Upstream commit 18feaf6d0784dcba888859109676adf1e0260dfd ]
 
-Re-enable the function rtl8xxxu_gen2_report_connect.
+HF-VSDB/SCDB has bits to advertise support for 16, 12 and 10 bpc.
+If none of the bits are set, the minimum bpc supported with DSC is 8.
 
-It informs the firmware when connecting to a network. This makes the
-firmware enable the rate control, which makes the upload faster.
+This patch corrects the min bpc supported to be 8, instead of 0.
 
-It also informs the firmware when disconnecting from a network. In the
-past this made reconnecting impossible because it was sending the
-auth on queue 0x7 (TXDESC_QUEUE_VO) instead of queue 0x12
-(TXDESC_QUEUE_MGNT):
+Fixes: 76ee7b905678 ("drm/edid: Parse DSC1.2 cap fields from HFVSDB block")
+Cc: Ankit Nautiyal <ankit.k.nautiyal@intel.com>
+Cc: Uma Shankar <uma.shankar@intel.com>
+Cc: Jani Nikula <jani.nikula@intel.com>
+Cc: Maarten Lankhorst <maarten.lankhorst@linux.intel.com>
 
-wlp0s20f0u3: send auth to 90:55:de:__:__:__ (try 1/3)
-wlp0s20f0u3: send auth to 90:55:de:__:__:__ (try 2/3)
-wlp0s20f0u3: send auth to 90:55:de:__:__:__ (try 3/3)
-wlp0s20f0u3: authentication with 90:55:de:__:__:__ timed out
+v2: s/DSC1.2/DSC 1.2
 
-Probably the firmware disables the unnecessary TX queues when it
-knows it's disconnected.
-
-However, this was fixed in commit edd5747aa12e ("wifi: rtl8xxxu: Fix
-skb misuse in TX queue selection").
-
-Fixes: c59f13bbead4 ("rtl8xxxu: Work around issue with 8192eu and 8723bu devices not reconnecting")
-Signed-off-by: Bitterblue Smith <rtl8821cerfe2@gmail.com>
-Signed-off-by: Kalle Valo <kvalo@kernel.org>
-Link: https://lore.kernel.org/r/43200afc-0c65-ee72-48f8-231edd1df493@gmail.com
+Signed-off-by: Ankit Nautiyal <ankit.k.nautiyal@intel.com>
+Reviewed-by: Jani Nikula <jani.nikula@intel.com>
+Signed-off-by: Jani Nikula <jani.nikula@intel.com>
+Link: https://patchwork.freedesktop.org/patch/msgid/20220916100551.2531750-2-ankit.k.nautiyal@intel.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/wireless/realtek/rtl8xxxu/rtl8xxxu_core.c | 8 ++------
- 1 file changed, 2 insertions(+), 6 deletions(-)
+ drivers/gpu/drm/drm_edid.c | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/net/wireless/realtek/rtl8xxxu/rtl8xxxu_core.c b/drivers/net/wireless/realtek/rtl8xxxu/rtl8xxxu_core.c
-index e9c1b62c9c3c2..e445084e358f9 100644
---- a/drivers/net/wireless/realtek/rtl8xxxu/rtl8xxxu_core.c
-+++ b/drivers/net/wireless/realtek/rtl8xxxu/rtl8xxxu_core.c
-@@ -4389,12 +4389,9 @@ void rtl8xxxu_gen1_report_connect(struct rtl8xxxu_priv *priv,
- void rtl8xxxu_gen2_report_connect(struct rtl8xxxu_priv *priv,
- 				  u8 macid, bool connect)
- {
--#ifdef RTL8XXXU_GEN2_REPORT_CONNECT
- 	/*
--	 * Barry Day reports this causes issues with 8192eu and 8723bu
--	 * devices reconnecting. The reason for this is unclear, but
--	 * until it is better understood, leave the code in place but
--	 * disabled, so it is not lost.
-+	 * The firmware turns on the rate control when it knows it's
-+	 * connected to a network.
- 	 */
- 	struct h2c_cmd h2c;
+diff --git a/drivers/gpu/drm/drm_edid.c b/drivers/gpu/drm/drm_edid.c
+index b36abfa915813..9d82de4c0a8b0 100644
+--- a/drivers/gpu/drm/drm_edid.c
++++ b/drivers/gpu/drm/drm_edid.c
+@@ -5827,7 +5827,8 @@ static void drm_parse_hdmi_forum_scds(struct drm_connector *connector,
+ 			else if (hf_scds[11] & DRM_EDID_DSC_10BPC)
+ 				hdmi_dsc->bpc_supported = 10;
+ 			else
+-				hdmi_dsc->bpc_supported = 0;
++				/* Supports min 8 BPC if DSC 1.2 is supported*/
++				hdmi_dsc->bpc_supported = 8;
  
-@@ -4407,7 +4404,6 @@ void rtl8xxxu_gen2_report_connect(struct rtl8xxxu_priv *priv,
- 		h2c.media_status_rpt.parm &= ~BIT(0);
- 
- 	rtl8xxxu_gen2_h2c_cmd(priv, &h2c, sizeof(h2c.media_status_rpt));
--#endif
- }
- 
- void rtl8xxxu_gen1_init_aggregation(struct rtl8xxxu_priv *priv)
+ 			dsc_max_frl_rate = (hf_scds[12] & DRM_EDID_DSC_MAX_FRL_RATE_MASK) >> 4;
+ 			drm_get_max_frl_rate(dsc_max_frl_rate, &hdmi_dsc->max_lanes,
 -- 
 2.39.0
 
