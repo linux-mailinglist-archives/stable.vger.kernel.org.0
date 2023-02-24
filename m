@@ -2,98 +2,110 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 1E7FD6A16C5
-	for <lists+stable@lfdr.de>; Fri, 24 Feb 2023 07:55:14 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D7F8D6A17A1
+	for <lists+stable@lfdr.de>; Fri, 24 Feb 2023 09:01:01 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229588AbjBXGzM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 24 Feb 2023 01:55:12 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47716 "EHLO
+        id S229629AbjBXIA7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 24 Feb 2023 03:00:59 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50758 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229498AbjBXGzL (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 24 Feb 2023 01:55:11 -0500
-Received: from dggsgout11.his.huawei.com (unknown [45.249.212.51])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 96CED15C9D;
-        Thu, 23 Feb 2023 22:55:07 -0800 (PST)
-Received: from mail02.huawei.com (unknown [172.30.67.143])
-        by dggsgout11.his.huawei.com (SkyGuard) with ESMTP id 4PNLHV1wdXz4f3l8T;
-        Fri, 24 Feb 2023 14:55:02 +0800 (CST)
-Received: from [10.174.176.117] (unknown [10.174.176.117])
-        by APP2 (Coremail) with SMTP id Syh0CgDHbOpEX_hjGaOlEA--.55954S2;
-        Fri, 24 Feb 2023 14:55:04 +0800 (CST)
-Subject: Re: Timestamps from the future (was: [PATCH 5.10] md: Flush workqueue
- md_rdev_misc_wq in md_alloc())
-To:     Paul Menzel <pmenzel@molgen.mpg.de>
-Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org, linux-raid@vger.kernel.org,
-        David Sloan <david.sloan@eideticom.com>,
-        Logan Gunthorpe <logang@deltatee.com>,
-        Song Liu <song@kernel.org>, Jens Axboe <axboe@kernel.dk>,
-        Sasha Levin <sashal@kernel.org>, houtao1@huawei.com
-References: <20230224065209.3170104-1-houtao@huaweicloud.com>
- <97a94478-7767-e2a9-a3da-85ae81f3ba5b@molgen.mpg.de>
-From:   Hou Tao <houtao@huaweicloud.com>
-Message-ID: <3b0fdf41-b2dc-5e73-0f93-00d8f2984152@huaweicloud.com>
-Date:   Fri, 24 Feb 2023 14:55:00 +0800
-User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:78.0) Gecko/20100101
- Thunderbird/78.6.0
+        with ESMTP id S229572AbjBXIA6 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 24 Feb 2023 03:00:58 -0500
+Received: from mail-pj1-x1034.google.com (mail-pj1-x1034.google.com [IPv6:2607:f8b0:4864:20::1034])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8403C25BB5
+        for <stable@vger.kernel.org>; Fri, 24 Feb 2023 00:00:57 -0800 (PST)
+Received: by mail-pj1-x1034.google.com with SMTP id c23so10750044pjo.4
+        for <stable@vger.kernel.org>; Fri, 24 Feb 2023 00:00:57 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=linaro.org; s=google;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date:message-id:reply-to;
+        bh=PcsnC67wn+CqlKF18BOklq3hhvo7C+mJm1DzOVZsLT8=;
+        b=cRnat+0Cs7+bku17Q0RWfYOyZoaY/AM3gR/A4qjMETzHJ8K/6cMg6sGIDgVGEUi2us
+         Siv6tVSk8OJ5+NMBcy4u69Wi+IRYTZb2yyEQ8cJnQqoajbwvM+r8ywhAxau9pRpMoh6z
+         OxNBb8aaTRh7b3QNsM/2CObzPZWXqGwDli3mx5Z+XP6TFOlawPctW5DeNRZSNWo3fZfw
+         /A0QLienw62/ybqG/1ipvDDFWQSzUISSJ47SFKk2HvEf//fPLO+YQKMZIg5CvhdKVQyw
+         GX5AhiDnxUK5seaggpfa44E6V7EvuGqu0myYlM0AI72dHew3HhKu5t27GC7z75uN4+TN
+         xRrw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=PcsnC67wn+CqlKF18BOklq3hhvo7C+mJm1DzOVZsLT8=;
+        b=PExA6lTdFpncYJxQ7RuqzUfUkYPMb+L0qRkALaB7DcqluaC1eRlnVoVUuB0OUwiiIx
+         7LPlmZSnu8aYkHTxv+XWGzpSct5iNNEd02/tmjjNYSuFmRb+U2seqViaM1BjmBIGDyzQ
+         YKA8Tw4uRx0l5Te3i2gybJ0ko85iejkQmq/+taSW28m7ZV661hPj2qF3UiJvL9QhAwqr
+         PXROteGPytnXPti8jFp5NFuyLnD1mhwV60I1i2HFaWFt59Aha509eS4govEa2ekjbpXF
+         n5cq/Tq4bljCUGepiQ4PwYXJdmCPevsoKitw0n9EVGC2VXSjC2iICEHMOalvfT4Db5uQ
+         vaAg==
+X-Gm-Message-State: AO0yUKWwqGXDR50c5k8y5QypnQVK+ZwLaKFzPP1MQkGpdlJPQAX+Unad
+        zrihI28qSf/Sr+dYaXHN5IpB
+X-Google-Smtp-Source: AK7set/lzSiKZKtwDbb/ZwhiiXzU1IO4RluJP7aya+5eNvg/2KbycM28CZD5Iy/+ZPBhkHUjotDfcw==
+X-Received: by 2002:a17:90b:3144:b0:237:99b9:c415 with SMTP id ip4-20020a17090b314400b0023799b9c415mr725021pjb.38.1677225656986;
+        Fri, 24 Feb 2023 00:00:56 -0800 (PST)
+Received: from localhost.localdomain ([117.217.187.3])
+        by smtp.gmail.com with ESMTPSA id l3-20020a17090ac58300b002372106a5casm914211pjt.44.2023.02.24.00.00.51
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Fri, 24 Feb 2023 00:00:56 -0800 (PST)
+From:   Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>
+To:     andersson@kernel.org
+Cc:     konrad.dybcio@linaro.org, robh+dt@kernel.org,
+        krzysztof.kozlowski+dt@linaro.org, linux-arm-msm@vger.kernel.org,
+        devicetree@vger.kernel.org, linux-kernel@vger.kernel.org,
+        bhupesh.sharma@linaro.org, srinivas.kandagatla@linaro.org,
+        quic_vkamble@quicinc.com,
+        Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>,
+        stable@vger.kernel.org
+Subject: [PATCH] arm64: dts: qcom: sm8150: Fix the iommu mask used for PCIe controllers
+Date:   Fri, 24 Feb 2023 13:30:45 +0530
+Message-Id: <20230224080045.6577-1-manivannan.sadhasivam@linaro.org>
+X-Mailer: git-send-email 2.25.1
 MIME-Version: 1.0
-In-Reply-To: <97a94478-7767-e2a9-a3da-85ae81f3ba5b@molgen.mpg.de>
-Content-Type: text/plain; charset=utf-8
 Content-Transfer-Encoding: 8bit
-Content-Language: en-US
-X-CM-TRANSID: Syh0CgDHbOpEX_hjGaOlEA--.55954S2
-X-Coremail-Antispam: 1UD129KBjvdXoWrAFW7Kw4rGrykWr1DCw15Arb_yoWxGwc_Xw
-        4DGryUWr4UJw48JFsFqw10gr15Jr4Ykrs8WF1rCF17Gryrtan5Gw1rGrn5Cr98GrW3Jr1x
-        Ww1DJrsxJ3WFkjkaLaAFLSUrUUUUUb8apTn2vfkv8UJUUUU8Yxn0WfASr-VFAUDa7-sFnT
-        9fnUUIcSsGvfJTRUUUbIkYFVCjjxCrM7AC8VAFwI0_Gr0_Xr1l1xkIjI8I6I8E6xAIw20E
-        Y4v20xvaj40_Wr0E3s1l1IIY67AEw4v_Jr0_Jr4l8cAvFVAK0II2c7xJM28CjxkF64kEwV
-        A0rcxSw2x7M28EF7xvwVC0I7IYx2IY67AKxVWDJVCq3wA2z4x0Y4vE2Ix0cI8IcVCY1x02
-        67AKxVW8Jr0_Cr1UM28EF7xvwVC2z280aVAFwI0_GcCE3s1l84ACjcxK6I8E87Iv6xkF7I
-        0E14v26rxl6s0DM2AIxVAIcxkEcVAq07x20xvEncxIr21l5I8CrVACY4xI64kE6c02F40E
-        x7xfMcIj6xIIjxv20xvE14v26r1j6r18McIj6I8E87Iv67AKxVWUJVW8JwAm72CE4IkC6x
-        0Yz7v_Jr0_Gr1lF7xvr2IY64vIr41lFIxGxcIEc7CjxVA2Y2ka0xkIwI1lc7I2V7IY0VAS
-        07AlzVAYIcxG8wCF04k20xvY0x0EwIxGrwCFx2IqxVCFs4IE7xkEbVWUJVW8JwC20s026c
-        02F40E14v26r1j6r18MI8I3I0E7480Y4vE14v26r106r1rMI8E67AF67kF1VAFwI0_Jw0_
-        GFylIxkGc2Ij64vIr41lIxAIcVC0I7IYx2IY67AKxVWUJVWUCwCI42IY6xIIjxv20xvEc7
-        CjxVAFwI0_Jr0_Gr1lIxAIcVCF04k26cxKx2IYs7xG6rWUJVWrZr1UMIIF0xvEx4A2jsIE
-        14v26r1j6r4UMIIF0xvEx4A2jsIEc7CjxVAFwI0_Gr0_Gr1UYxBIdaVFxhVjvjDU0xZFpf
-        9x07UWE__UUUUU=
-X-CM-SenderInfo: xkrx3t3r6k3tpzhluzxrxghudrp/
-X-CFilter-Loop: Reflected
-X-Spam-Status: No, score=-2.0 required=5.0 tests=BAYES_00,KHOP_HELO_FCRDNS,
-        MAY_BE_FORGED,NICE_REPLY_A,SPF_HELO_NONE,SPF_NONE autolearn=ham
-        autolearn_force=no version=3.4.6
+X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_NONE,
+        SPF_HELO_NONE,SPF_PASS autolearn=unavailable autolearn_force=no
+        version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hi,
+The iommu mask should be 0x3f as per Qualcomm internal documentation.
+Without the correct mask, the PCIe transactions from the endpoint will
+result in SMMU faults. Hence, fix it!
 
-On 2/24/2023 2:42 PM, Paul Menzel wrote:
-> Dear Hou,
->
->
-> Am 24.02.23 um 07:52 schrieb Hou Tao:
->
-> […]
->
-> Just a heads-up that the date/timestamp is from the future
->
->     Received: from huaweicloud.com (unknown [10.175.124.27])
->             by APP4 (Coremail) with SMTP id gCh0CgBXwLPzV_hjqVfcEA--.64482S4;
->             Fri, 24 Feb 2023 14:23:49 +0800 (CST)
->     […]
->     Date:   Fri, 24 Feb 2023 14:52:09 +0800
->
-> Please check the time of your (development) system.
-The time of our development server is incorrect. Will calibrate it.
+Cc: stable@vger.kernel.org # 5.19
+Fixes: a1c86c680533 ("arm64: dts: qcom: sm8150: Add PCIe nodes")
+Signed-off-by: Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>
+---
+ arch/arm64/boot/dts/qcom/sm8150.dtsi | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-Thanks.
->
->
-> Kind regards,
->
-> Paul
+diff --git a/arch/arm64/boot/dts/qcom/sm8150.dtsi b/arch/arm64/boot/dts/qcom/sm8150.dtsi
+index fd20096cfc6e..13e0ce828606 100644
+--- a/arch/arm64/boot/dts/qcom/sm8150.dtsi
++++ b/arch/arm64/boot/dts/qcom/sm8150.dtsi
+@@ -1826,7 +1826,7 @@ pcie0: pci@1c00000 {
+ 				      "slave_q2a",
+ 				      "tbu";
+ 
+-			iommus = <&apps_smmu 0x1d80 0x7f>;
++			iommus = <&apps_smmu 0x1d80 0x3f>;
+ 			iommu-map = <0x0   &apps_smmu 0x1d80 0x1>,
+ 				    <0x100 &apps_smmu 0x1d81 0x1>;
+ 
+@@ -1925,7 +1925,7 @@ pcie1: pci@1c08000 {
+ 			assigned-clocks = <&gcc GCC_PCIE_1_AUX_CLK>;
+ 			assigned-clock-rates = <19200000>;
+ 
+-			iommus = <&apps_smmu 0x1e00 0x7f>;
++			iommus = <&apps_smmu 0x1e00 0x3f>;
+ 			iommu-map = <0x0   &apps_smmu 0x1e00 0x1>,
+ 				    <0x100 &apps_smmu 0x1e01 0x1>;
+ 
+-- 
+2.25.1
 
