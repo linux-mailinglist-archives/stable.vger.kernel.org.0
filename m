@@ -2,67 +2,90 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id CE6846A20E8
-	for <lists+stable@lfdr.de>; Fri, 24 Feb 2023 18:55:28 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 260EF6A20FB
+	for <lists+stable@lfdr.de>; Fri, 24 Feb 2023 18:58:50 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229555AbjBXRz0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 24 Feb 2023 12:55:26 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51386 "EHLO
+        id S229557AbjBXR6t (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 24 Feb 2023 12:58:49 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54462 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229550AbjBXRzZ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 24 Feb 2023 12:55:25 -0500
-Received: from mail-pl1-x62f.google.com (mail-pl1-x62f.google.com [IPv6:2607:f8b0:4864:20::62f])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 095596ADFF
-        for <stable@vger.kernel.org>; Fri, 24 Feb 2023 09:55:25 -0800 (PST)
-Received: by mail-pl1-x62f.google.com with SMTP id z2so247082plf.12
-        for <stable@vger.kernel.org>; Fri, 24 Feb 2023 09:55:25 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=sladewatkins.net; s=googled;
-        h=cc:to:subject:message-id:date:from:in-reply-to:references
-         :mime-version:from:to:cc:subject:date:message-id:reply-to;
-        bh=OYejHnHCd/0NM5wxYlzbguJDabqND0i6mKg9xEzuA74=;
-        b=i1dq4emqpx6xG6yMZsrPDX+J8bAjHV7sjol1HOnvBtQMlkFX34sMdYER2riwEoApxM
-         K72VY6qoBWVvT7f6HF+cNZcME9+teYLqYhrl7MsdrrDb/hydzsQZF0uJ7oUYbzMKzojJ
-         rXRYnWaLiJ5jZ2Lbut3Q/VrgYUxbUGSfsPUcmPiBTKas4N9dien6dxW+QZbrZjldM/OL
-         gVUIVDSgG3getHw/VmeXh1ILTHzRvBuae8KBzEpLRVvHJym2X5CsOs18czGuC9iUTcyG
-         i1awIYiMc2PFIHTMKlG3BhN3pm/r5okxhwjNRmyM8B69YFEATDXeERn/M8TLylHfHYn7
-         M1xQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=cc:to:subject:message-id:date:from:in-reply-to:references
-         :mime-version:x-gm-message-state:from:to:cc:subject:date:message-id
-         :reply-to;
-        bh=OYejHnHCd/0NM5wxYlzbguJDabqND0i6mKg9xEzuA74=;
-        b=rhEnXoKLERPk9DEBYYji7MBAbx1X+qNMQYqeJqbl/BwoKDW5IfA4olxxKvW9coG2Wy
-         RALfbhxhpqbs28Ymy7j955rpwSHoiPRTc+1JpkIn2MOozT+TAoLDLmL0tX16AWn5Sxx/
-         QPwIMXF9gPwNLaLB7lg7MlXnQHlUIE5ogX340bfc+TN2/GbiWsUT+A3vlrewy5weFtWo
-         ykCXS5RASIo4sa4mSzKRDQj6pexEPw6Mi2AZEZmom8ULoRmqKTTqHcvRp9Pf6zDQbc/1
-         Fvm95LDTj01Nbm6PTbYAuzwFLQnGM//P6xuo0DTu53rlhQ7vY9Nrdt0slACctdcbjsRg
-         Nr3g==
-X-Gm-Message-State: AO0yUKXZeKUu+4V4OqDn/SdnDoi+Dz9n6Ono9Becq/8/2kswx+dHVO29
-        uQ+IoA5y0SiHAsvgkpsAkFI0cDJPK5o5/9uB1+zz/A==
-X-Google-Smtp-Source: AK7set99bb6Ur8cDdsqPYjrECSI1xBnSAc48RH2LFjf40927rAhzf6Wba3b2MUqRmkdto4EWC/CMiv5lwnJcPJ8di7s=
-X-Received: by 2002:a17:90b:374a:b0:237:3d0c:8d58 with SMTP id
- ne10-20020a17090b374a00b002373d0c8d58mr1960736pjb.5.1677261324524; Fri, 24
- Feb 2023 09:55:24 -0800 (PST)
-MIME-Version: 1.0
+        with ESMTP id S229742AbjBXR6s (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 24 Feb 2023 12:58:48 -0500
+Received: from gproxy4-pub.mail.unifiedlayer.com (gproxy4-pub.mail.unifiedlayer.com [69.89.23.142])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E5D7D1ACDF
+        for <stable@vger.kernel.org>; Fri, 24 Feb 2023 09:58:46 -0800 (PST)
+Received: from cmgw13.mail.unifiedlayer.com (unknown [10.0.90.128])
+        by progateway6.mail.pro1.eigbox.com (Postfix) with ESMTP id 7F94F1004122A
+        for <stable@vger.kernel.org>; Fri, 24 Feb 2023 17:58:46 +0000 (UTC)
+Received: from box5620.bluehost.com ([162.241.219.59])
+        by cmsmtp with ESMTP
+        id VcLGphDySNX2aVcLGpQQsS; Fri, 24 Feb 2023 17:58:46 +0000
+X-Authority-Reason: nr=8
+X-Authority-Analysis: v=2.4 cv=NMAQR22g c=1 sm=1 tr=0 ts=63f8fad6
+ a=30941lsx5skRcbJ0JMGu9A==:117 a=30941lsx5skRcbJ0JMGu9A==:17
+ a=dLZJa+xiwSxG16/P+YVxDGlgEgI=:19 a=IkcTkHD0fZMA:10:nop_charset_1
+ a=m04uMKEZRckA:10:nop_rcvd_month_year
+ a=-Ou01B_BuAIA:10:endurance_base64_authed_username_1 a=VwQbUJbxAAAA:8
+ a=HaFmDPmJAAAA:8 a=CRYauL5RPLKlrnpcW9EA:9 a=QEXdDO2ut3YA:10:nop_charset_2
+ a=AjGcO6oz07-iQ99wixmX:22 a=nmWuMzfKamIsx3l42hEX:22
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=w6rz.net;
+        s=default; h=Content-Transfer-Encoding:Content-Type:MIME-Version:Date:
+        Message-ID:From:In-Reply-To:References:Cc:To:Subject:Sender:Reply-To:
+        Content-ID:Content-Description:Resent-Date:Resent-From:Resent-Sender:
+        Resent-To:Resent-Cc:Resent-Message-ID:List-Id:List-Help:List-Unsubscribe:
+        List-Subscribe:List-Post:List-Owner:List-Archive;
+        bh=EiIfSzxXVHqdjvFUk/Wg0lxljVw44vWTztlkHg8UXXo=; b=mWa7a8DhYw4kIRxFC87HAquQoQ
+        RoKyFJU8UJVjHH7oqo/FbfMnxaMTJK0g0rnrpMa3GUp6upg6DF68oHRBDOIppcJwycy/O0Yx0IB+R
+        mBvTqv+QVDvIai2hnpqfpVgSWZgfeRveKS49hBhTyMLDzV7Ly5ubCOzJZbbvaY9TyD1v+aXkWSVIf
+        X7OfWGQc8ciLoair3TxRLBbKWwJwwupK+EXFhZSNg04o2wOld95dnjonV2OjfsiRGZswsO5ZkNlFs
+        A3w09s821/GiMRdu9ZA4ODtElYkP+5/CKvp9py6zETvxq7PUZXAjf9vvQUvnSa9SWWIbQp1E9iirJ
+        u/Ac/QDA==;
+Received: from c-73-162-232-9.hsd1.ca.comcast.net ([73.162.232.9]:58264 helo=[10.0.1.47])
+        by box5620.bluehost.com with esmtpsa  (TLS1.2) tls TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256
+        (Exim 4.95)
+        (envelope-from <re@w6rz.net>)
+        id 1pVcLE-001PRV-FW;
+        Fri, 24 Feb 2023 10:58:44 -0700
+Subject: Re: [PATCH 6.1 00/47] 6.1.14-rc2 review
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        stable@vger.kernel.org
+Cc:     patches@lists.linux.dev, linux-kernel@vger.kernel.org,
+        torvalds@linux-foundation.org, akpm@linux-foundation.org,
+        linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
+        lkft-triage@lists.linaro.org, pavel@denx.de, jonathanh@nvidia.com,
+        f.fainelli@gmail.com, sudipm.mukherjee@gmail.com,
+        srw@sladewatkins.net, rwarsow@gmx.de
 References: <20230223141545.280864003@linuxfoundation.org>
 In-Reply-To: <20230223141545.280864003@linuxfoundation.org>
-From:   Slade Watkins <srw@sladewatkins.net>
-Date:   Fri, 24 Feb 2023 12:55:12 -0500
-Message-ID: <CA+pv=HN5MeWYBVts6GNs6eA2nBYXn3k--m=1imMDvjox4UMnWQ@mail.gmail.com>
-Subject: Re: [PATCH 6.1 00/47] 6.1.14-rc2 review
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     stable@vger.kernel.org, patches@lists.linux.dev,
-        linux-kernel@vger.kernel.org, torvalds@linux-foundation.org,
-        akpm@linux-foundation.org, linux@roeck-us.net, shuah@kernel.org,
-        patches@kernelci.org, lkft-triage@lists.linaro.org, pavel@denx.de,
-        jonathanh@nvidia.com, f.fainelli@gmail.com,
-        sudipm.mukherjee@gmail.com, rwarsow@gmx.de
-Content-Type: text/plain; charset="UTF-8"
-X-Spam-Status: No, score=-1.8 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,
-        RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS autolearn=no
+From:   Ron Economos <re@w6rz.net>
+Message-ID: <71d05655-864f-84f1-18e5-053309a0cbd9@w6rz.net>
+Date:   Fri, 24 Feb 2023 09:58:38 -0800
+User-Agent: Mozilla/5.0 (X11; Linux armv7l; rv:78.0) Gecko/20100101
+ Thunderbird/78.14.0
+MIME-Version: 1.0
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Transfer-Encoding: 7bit
+Content-Language: en-US
+X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
+X-AntiAbuse: Primary Hostname - box5620.bluehost.com
+X-AntiAbuse: Original Domain - vger.kernel.org
+X-AntiAbuse: Originator/Caller UID/GID - [47 12] / [47 12]
+X-AntiAbuse: Sender Address Domain - w6rz.net
+X-BWhitelist: no
+X-Source-IP: 73.162.232.9
+X-Source-L: No
+X-Exim-ID: 1pVcLE-001PRV-FW
+X-Source: 
+X-Source-Args: 
+X-Source-Dir: 
+X-Source-Sender: c-73-162-232-9.hsd1.ca.comcast.net ([10.0.1.47]) [73.162.232.9]:58264
+X-Source-Auth: re@w6rz.net
+X-Email-Count: 2
+X-Source-Cap: d3NpeHJ6bmU7d3NpeHJ6bmU7Ym94NTYyMC5ibHVlaG9zdC5jb20=
+X-Local-Domain: yes
+X-Spam-Status: No, score=-2.2 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,NICE_REPLY_A,RCVD_IN_DNSWL_NONE,
+        RCVD_IN_MSPIKE_H2,SPF_HELO_NONE,SPF_PASS autolearn=ham
         autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -70,9 +93,7 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Thu, Feb 23, 2023 at 9:16 AM Greg Kroah-Hartman
-<gregkh@linuxfoundation.org> wrote:
->
+On 2/23/23 6:16 AM, Greg Kroah-Hartman wrote:
 > This is the start of the stable review cycle for the 6.1.14 release.
 > There are 47 patches in this series, all will be posted as a response
 > to this one.  If anyone has any issues with these being applied, please
@@ -80,11 +101,18 @@ On Thu, Feb 23, 2023 at 9:16 AM Greg Kroah-Hartman
 >
 > Responses should be made by Sat, 25 Feb 2023 14:15:30 +0000.
 > Anything received after that time might be too late.
+>
+> The whole patch series can be found in one patch at:
+> 	https://www.kernel.org/pub/linux/kernel/v6.x/stable-review/patch-6.1.14-rc2.gz
+> or in the git tree and branch at:
+> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-6.1.y
+> and the diffstat can be found below.
+>
+> thanks,
+>
+> greg k-h
 
-6.1.14-rc2 compiled and booted on my x86_64 test system. No errors or
-regressions.
+Built and booted successfully on RISC-V RV64 (HiFive Unmatched).
 
-Tested-by: Slade Watkins <srw@sladewatkins.net>
+Tested-by: Ron Economos <re@w6rz.net>
 
-Thanks,
--- Slade
