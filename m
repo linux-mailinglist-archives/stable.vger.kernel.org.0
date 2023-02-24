@@ -2,203 +2,94 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C51996A1589
-	for <lists+stable@lfdr.de>; Fri, 24 Feb 2023 04:41:21 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id BF07C6A1594
+	for <lists+stable@lfdr.de>; Fri, 24 Feb 2023 04:43:12 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229676AbjBXDlU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 23 Feb 2023 22:41:20 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41516 "EHLO
+        id S229525AbjBXDnK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 23 Feb 2023 22:43:10 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44214 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229627AbjBXDlF (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 23 Feb 2023 22:41:05 -0500
-Received: from mail-pf1-x44a.google.com (mail-pf1-x44a.google.com [IPv6:2607:f8b0:4864:20::44a])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E580B60109
-        for <stable@vger.kernel.org>; Thu, 23 Feb 2023 19:40:48 -0800 (PST)
-Received: by mail-pf1-x44a.google.com with SMTP id be12-20020a056a001f0c00b00593e2189278so5832072pfb.19
-        for <stable@vger.kernel.org>; Thu, 23 Feb 2023 19:40:48 -0800 (PST)
+        with ESMTP id S229613AbjBXDnJ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 23 Feb 2023 22:43:09 -0500
+Received: from mail-pj1-x102d.google.com (mail-pj1-x102d.google.com [IPv6:2607:f8b0:4864:20::102d])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id ABED95E875;
+        Thu, 23 Feb 2023 19:42:34 -0800 (PST)
+Received: by mail-pj1-x102d.google.com with SMTP id m8-20020a17090a4d8800b002377bced051so1540331pjh.0;
+        Thu, 23 Feb 2023 19:42:34 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20210112;
-        h=cc:to:from:subject:message-id:references:mime-version:in-reply-to
-         :date:from:to:cc:subject:date:message-id:reply-to;
-        bh=R3iBhiHTRJXOrBGrqzDxss6bg8LHug+SM3RBUwYxANE=;
-        b=J6+YN9IGP6MwLPZckWbo5E/Xk82MfTw13Lhg5Ll7egHVE9N1Gz17NrAEoEi5jefz8h
-         s5ZPFOX/8PJLvK8IZCoKa2hDIiAlP345R3P0/QmKYhzYHJiNlawUTL+V6gPo//gkOR/M
-         mOuBhSmC9tdwpYZQpoGvgsscg2IxTOllCkHlB3kujyatWQlAuhKf1miS4RZdd2850qO4
-         +qtC2AkdlCtVdHThYkZIvoiVdrWWzeUE+eYrgb8yTUigK6VC6a9NjY0qTRfItPHTBl0v
-         EtzRt4Z3mQqbuTjbxi5VNiZOEUoFEnKXp3uQgeDAlkBFgJmGLxIpVMkMBLKZI3M9gPxw
-         Ie5A==
+        d=gmail.com; s=20210112;
+        h=in-reply-to:content-transfer-encoding:content-disposition
+         :mime-version:references:message-id:subject:cc:to:from:date:from:to
+         :cc:subject:date:message-id:reply-to;
+        bh=Dm48pFZyVUakxJYWdujNt6jVqzb33IRoM5ttLAEElTc=;
+        b=NckyLiPi7//kP1eOXaMTWSJx6sObdjPdjQ5u87ghNeY1HoSDgB6HJCSb3b3DNmOzzb
+         S6adJSW7ggHTP78XJk20CzmhbUeO8fa7nVDiNBphzFhcMiGdF3dnJ8JJmVRSgtlm3XVT
+         IyWIBFMU99fyzWiONpRCKEBs1ZURWHjgO3krA6dwTz9jtPF5v/emVqHQ1fDiX7CX1/Dq
+         3Mo7YWEKfwFrR5aYBXnufS0BoXZSSKwLSlrkJ7kL0zm4D7DTz1xHk5qUfcT1n3YeB5HO
+         GI0TAGfRyD4ia0ElAxag/nQsV0z3/oDdCN1eMat5Q4oF9n7cd0LeuKJc+kTACtC7BUWU
+         f5uA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=cc:to:from:subject:message-id:references:mime-version:in-reply-to
-         :date:x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=R3iBhiHTRJXOrBGrqzDxss6bg8LHug+SM3RBUwYxANE=;
-        b=nd/7tboDxeJTuYHeB2wuFFz+6NdaslVw71mB882+Q4jo4QvddJymYYpjw/6VO4KnjU
-         TFa6RhAi2fujlVEe/EK7YY/mjc9yOtnWsVgUa9FOCF2lIMUevPXSjg3Zz40HcyxOL9N+
-         vTWgugMXJaKrmtZKpDtCsuE1wocyR+tQKMs6HK20T+sNx1ABY9udbLuAGGYblut9GWLx
-         TKrBOOQQlHOs6Hc5CtfPASwTYz/gIN/UVUcxD44EAMaxJbw2RERTJ/+XJbfOpOO6ms1x
-         JI9JF0aJLDZkh2uvXSWmOM/Ha20EyDf9YEJ+vGfLCpvcbLpY33a5aPW33nUXAFlMbHS+
-         7OWA==
-X-Gm-Message-State: AO0yUKVhf4wtFqpFQ6C85fipp2IMEKTJwtie9mg6CsYUFwmi59GUe63G
-        WpzlHTG8cdtgvdX2wM3LPxxJ6TwkDn0cHmWQNYF+Z0I2Pp3Ykl1ysX6/7A7CJvfWSklfJTm0bTR
-        ZHViErpvAHhTS2elUx7qxNPh8dB6K0Unm9OvLTKYpBhOk5PfTP3kCa64r+2juTA==
-X-Google-Smtp-Source: AK7set8E3MEPhXV1/45uWmz2lxMH5cm58fZ0faRvczxB9TFOAlLdrNUle4su/XjXkfOaSWJtLZDQpa/gB4k=
-X-Received: from edliaw.c.googlers.com ([fda3:e722:ac3:cc00:24:72f4:c0a8:305d])
- (user=edliaw job=sendgmr) by 2002:a17:90a:f82:b0:237:29b1:188f with SMTP id
- 2-20020a17090a0f8200b0023729b1188fmr1158374pjz.8.1677210048093; Thu, 23 Feb
- 2023 19:40:48 -0800 (PST)
-Date:   Fri, 24 Feb 2023 03:40:19 +0000
-In-Reply-To: <20230224034020.2080637-1-edliaw@google.com>
-Mime-Version: 1.0
-References: <20230224034020.2080637-1-edliaw@google.com>
-X-Mailer: git-send-email 2.39.2.637.g21b0678d19-goog
-Message-ID: <20230224034020.2080637-5-edliaw@google.com>
-Subject: [PATCH 4.14 v3 4/4] bpf: Fix truncation handling for mod32 dst reg
- wrt zero
-From:   Edward Liaw <edliaw@google.com>
-To:     stable@vger.kernel.org, Alexei Starovoitov <ast@kernel.org>,
-        Daniel Borkmann <daniel@iogearbox.net>,
-        "David S. Miller" <davem@davemloft.net>
-Cc:     bpf@vger.kernel.org, kernel-team@android.com,
-        Edward Liaw <edliaw@google.com>, netdev@vger.kernel.org,
-        linux-kernel@vger.kernel.org,
-        John Fastabend <john.fastabend@gmail.com>,
-        Salvatore Bonaccorso <carnil@debian.org>,
-        Thadeu Lima de Souza Cascardo <cascardo@canonical.com>
-Content-Type: text/plain; charset="UTF-8"
-X-Spam-Status: No, score=-9.6 required=5.0 tests=BAYES_00,DKIMWL_WL_MED,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_NONE,
-        SPF_HELO_NONE,SPF_PASS,USER_IN_DEF_DKIM_WL autolearn=unavailable
-        autolearn_force=no version=3.4.6
+        h=in-reply-to:content-transfer-encoding:content-disposition
+         :mime-version:references:message-id:subject:cc:to:from:date
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
+        bh=Dm48pFZyVUakxJYWdujNt6jVqzb33IRoM5ttLAEElTc=;
+        b=0SGb/gE8P95QyQSRrWg7INTJQVSwR4GWSWPE4A5D2Si1uR5utVUXa5+RXQOndTg09l
+         VnNyHtPPnbFrh/t30isiIGeJABYAB5sMlnL4sikT7XGe3GrCK1KsE+gLYvHR2p+uIAFz
+         LSeP3LUCMOKCbgL4eDpU+ZS/S4etQNT/5FNDzsmoCq5q4YLZ6MY1yEUt0f2n/mnkTwS7
+         iw75RxTTaqbEddpIErjHSJZuAwF2N4hqVw8CGPnOLo5ph0FPP4l6zIfGHD4NpnEmbOZb
+         slheUf+3ZI0relI8dKzX4dMDa7zty/rvBYmyAs/ADP84FTQAaSQElO0vJBQcGaGytmn+
+         9zkQ==
+X-Gm-Message-State: AO0yUKUSiGuh6f8SC3GK8gyEsu1Pr0karMtbYMiPJjF6DT5Cx0ZCu7n0
+        vyWzNEL/sh/Aunra7txHkQ4=
+X-Google-Smtp-Source: AK7set/EF7WV/kje5lDltcwnQzpGuNdswVxJYj8nhFHVGkSTqyQ4dhXgEe9H8jtZ2HyPzr3AXMBCvg==
+X-Received: by 2002:a17:90a:15:b0:237:161e:33bc with SMTP id 21-20020a17090a001500b00237161e33bcmr12796870pja.16.1677210144300;
+        Thu, 23 Feb 2023 19:42:24 -0800 (PST)
+Received: from debian.me (subs02-180-214-232-89.three.co.id. [180.214.232.89])
+        by smtp.gmail.com with ESMTPSA id x18-20020a17090abc9200b00233aacab89esm429235pjr.48.2023.02.23.19.42.23
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Thu, 23 Feb 2023 19:42:23 -0800 (PST)
+Received: by debian.me (Postfix, from userid 1000)
+        id 171FD105EA5; Fri, 24 Feb 2023 10:42:17 +0700 (WIB)
+Date:   Fri, 24 Feb 2023 10:42:17 +0700
+From:   Bagas Sanjaya <bagasdotme@gmail.com>
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        stable@vger.kernel.org
+Cc:     patches@lists.linux.dev, linux-kernel@vger.kernel.org,
+        torvalds@linux-foundation.org, akpm@linux-foundation.org,
+        linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
+        lkft-triage@lists.linaro.org, pavel@denx.de, jonathanh@nvidia.com,
+        f.fainelli@gmail.com, sudipm.mukherjee@gmail.com,
+        srw@sladewatkins.net, rwarsow@gmx.de
+Subject: Re: [PATCH 6.1 00/47] 6.1.14-rc2 review
+Message-ID: <Y/gyGS08EIuFYxjH@debian.me>
+References: <20230223141545.280864003@linuxfoundation.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
+In-Reply-To: <20230223141545.280864003@linuxfoundation.org>
+X-Spam-Status: No, score=-0.6 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_FROM,
+        RCVD_IN_DNSWL_NONE,RCVD_IN_SORBS_WEB,SPF_HELO_NONE,SPF_PASS
+        autolearn=no autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Daniel Borkmann <daniel@iogearbox.net>
+On Thu, Feb 23, 2023 at 03:16:15PM +0100, Greg Kroah-Hartman wrote:
+> This is the start of the stable review cycle for the 6.1.14 release.
+> There are 47 patches in this series, all will be posted as a response
+> to this one.  If anyone has any issues with these being applied, please
+> let me know.
+>=20
 
-Commit 9b00f1b78809309163dda2d044d9e94a3c0248a3 upstream.
+Successfully cross-compiled for arm64 (bcm2711_defconfig, GCC 10.2.0) and
+powerpc (ps3_defconfig, GCC 12.2.0).
 
-Recently noticed that when mod32 with a known src reg of 0 is performed,
-then the dst register is 32-bit truncated in verifier:
+Tested-by: Bagas Sanjaya <bagasdotme@gmail.com>
 
-  0: R1=ctx(id=0,off=0,imm=0) R10=fp0
-  0: (b7) r0 = 0
-  1: R0_w=inv0 R1=ctx(id=0,off=0,imm=0) R10=fp0
-  1: (b7) r1 = -1
-  2: R0_w=inv0 R1_w=inv-1 R10=fp0
-  2: (b4) w2 = -1
-  3: R0_w=inv0 R1_w=inv-1 R2_w=inv4294967295 R10=fp0
-  3: (9c) w1 %= w0
-  4: R0_w=inv0 R1_w=inv(id=0,umax_value=4294967295,var_off=(0x0; 0xffffffff)) R2_w=inv4294967295 R10=fp0
-  4: (b7) r0 = 1
-  5: R0_w=inv1 R1_w=inv(id=0,umax_value=4294967295,var_off=(0x0; 0xffffffff)) R2_w=inv4294967295 R10=fp0
-  5: (1d) if r1 == r2 goto pc+1
-   R0_w=inv1 R1_w=inv(id=0,umax_value=4294967295,var_off=(0x0; 0xffffffff)) R2_w=inv4294967295 R10=fp0
-  6: R0_w=inv1 R1_w=inv(id=0,umax_value=4294967295,var_off=(0x0; 0xffffffff)) R2_w=inv4294967295 R10=fp0
-  6: (b7) r0 = 2
-  7: R0_w=inv2 R1_w=inv(id=0,umax_value=4294967295,var_off=(0x0; 0xffffffff)) R2_w=inv4294967295 R10=fp0
-  7: (95) exit
-  7: R0=inv1 R1=inv(id=0,umin_value=4294967295,umax_value=4294967295,var_off=(0x0; 0xffffffff)) R2=inv4294967295 R10=fp0
-  7: (95) exit
-
-However, as a runtime result, we get 2 instead of 1, meaning the dst
-register does not contain (u32)-1 in this case. The reason is fairly
-straight forward given the 0 test leaves the dst register as-is:
-
-  # ./bpftool p d x i 23
-   0: (b7) r0 = 0
-   1: (b7) r1 = -1
-   2: (b4) w2 = -1
-   3: (16) if w0 == 0x0 goto pc+1
-   4: (9c) w1 %= w0
-   5: (b7) r0 = 1
-   6: (1d) if r1 == r2 goto pc+1
-   7: (b7) r0 = 2
-   8: (95) exit
-
-This was originally not an issue given the dst register was marked as
-completely unknown (aka 64 bit unknown). However, after 468f6eafa6c4
-("bpf: fix 32-bit ALU op verification") the verifier casts the register
-output to 32 bit, and hence it becomes 32 bit unknown. Note that for
-the case where the src register is unknown, the dst register is marked
-64 bit unknown. After the fix, the register is truncated by the runtime
-and the test passes:
-
-  # ./bpftool p d x i 23
-   0: (b7) r0 = 0
-   1: (b7) r1 = -1
-   2: (b4) w2 = -1
-   3: (16) if w0 == 0x0 goto pc+2
-   4: (9c) w1 %= w0
-   5: (05) goto pc+1
-   6: (bc) w1 = w1
-   7: (b7) r0 = 1
-   8: (1d) if r1 == r2 goto pc+1
-   9: (b7) r0 = 2
-  10: (95) exit
-
-Semantics also match with {R,W}x mod{64,32} 0 -> {R,W}x. Invalid div
-has always been {R,W}x div{64,32} 0 -> 0. Rewrites are as follows:
-
-  mod32:                            mod64:
-
-  (16) if w0 == 0x0 goto pc+2       (15) if r0 == 0x0 goto pc+1
-  (9c) w1 %= w0                     (9f) r1 %= r0
-  (05) goto pc+1
-  (bc) w1 = w1
-
-[Salvatore Bonaccorso: This is an earlier version based on work by
-Daniel and John which does not rely on availability of the BPF_JMP32
-instruction class. This means it is not even strictly a backport of the
-upstream commit mentioned but based on Daniel's and John's work to
-address the issue and was finalized by Thadeu Lima de Souza Cascardo.]
-
-Fixes: 468f6eafa6c4 ("bpf: fix 32-bit ALU op verification")
-Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
-Reviewed-by: John Fastabend <john.fastabend@gmail.com>
-Tested-by: Salvatore Bonaccorso <carnil@debian.org>
-Signed-off-by: Thadeu Lima de Souza Cascardo <cascardo@canonical.com>
-Signed-off-by: Edward Liaw <edliaw@google.com>
----
- kernel/bpf/verifier.c | 9 +++++----
- 1 file changed, 5 insertions(+), 4 deletions(-)
-
-diff --git a/kernel/bpf/verifier.c b/kernel/bpf/verifier.c
-index 9f04d413df92..a55e264cdb54 100644
---- a/kernel/bpf/verifier.c
-+++ b/kernel/bpf/verifier.c
-@@ -4846,7 +4846,7 @@ static int fixup_bpf_calls(struct bpf_verifier_env *env)
- 			bool is64 = BPF_CLASS(insn->code) == BPF_ALU64;
- 			struct bpf_insn mask_and_div[] = {
- 				BPF_MOV_REG(BPF_CLASS(insn->code), BPF_REG_AX, insn->src_reg),
--				/* Rx div 0 -> 0 */
-+				/* [R,W]x div 0 -> 0 */
- 				BPF_JMP_IMM(BPF_JEQ, BPF_REG_AX, 0, 2),
- 				BPF_RAW_REG(*insn, insn->dst_reg, BPF_REG_AX),
- 				BPF_JMP_IMM(BPF_JA, 0, 0, 1),
-@@ -4854,9 +4854,10 @@ static int fixup_bpf_calls(struct bpf_verifier_env *env)
- 			};
- 			struct bpf_insn mask_and_mod[] = {
- 				BPF_MOV_REG(BPF_CLASS(insn->code), BPF_REG_AX, insn->src_reg),
--				/* Rx mod 0 -> Rx */
--				BPF_JMP_IMM(BPF_JEQ, BPF_REG_AX, 0, 1),
-+				BPF_JMP_IMM(BPF_JEQ, BPF_REG_AX, 0, 1 + (is64 ? 0 : 1)),
- 				BPF_RAW_REG(*insn, insn->dst_reg, BPF_REG_AX),
-+				BPF_JMP_IMM(BPF_JA, 0, 0, 1),
-+				BPF_MOV32_REG(insn->dst_reg, insn->dst_reg),
- 			};
- 			struct bpf_insn *patchlet;
- 
-@@ -4866,7 +4867,7 @@ static int fixup_bpf_calls(struct bpf_verifier_env *env)
- 				cnt = ARRAY_SIZE(mask_and_div);
- 			} else {
- 				patchlet = mask_and_mod;
--				cnt = ARRAY_SIZE(mask_and_mod);
-+				cnt = ARRAY_SIZE(mask_and_mod) - (is64 ? 2 : 0);
- 			}
- 
- 			new_prog = bpf_patch_insn_data(env, i + delta, patchlet, cnt);
--- 
-2.39.2.637.g21b0678d19-goog
-
+--=20
+An old man doll... just what I always wanted! - Clara
