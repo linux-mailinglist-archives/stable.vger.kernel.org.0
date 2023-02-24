@@ -2,118 +2,109 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id AC8D66A1A61
-	for <lists+stable@lfdr.de>; Fri, 24 Feb 2023 11:36:00 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id DD6B66A1B33
+	for <lists+stable@lfdr.de>; Fri, 24 Feb 2023 12:14:15 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230250AbjBXKf6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 24 Feb 2023 05:35:58 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58978 "EHLO
+        id S229750AbjBXLOO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 24 Feb 2023 06:14:14 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51828 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230286AbjBXKfY (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 24 Feb 2023 05:35:24 -0500
-Received: from mail-lf1-x12b.google.com (mail-lf1-x12b.google.com [IPv6:2a00:1450:4864:20::12b])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E487B66958
-        for <stable@vger.kernel.org>; Fri, 24 Feb 2023 02:33:57 -0800 (PST)
-Received: by mail-lf1-x12b.google.com with SMTP id t11so6381173lfr.1
-        for <stable@vger.kernel.org>; Fri, 24 Feb 2023 02:33:57 -0800 (PST)
+        with ESMTP id S229766AbjBXLOM (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 24 Feb 2023 06:14:12 -0500
+Received: from mail-wr1-x435.google.com (mail-wr1-x435.google.com [IPv6:2a00:1450:4864:20::435])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3FA971689C;
+        Fri, 24 Feb 2023 03:14:08 -0800 (PST)
+Received: by mail-wr1-x435.google.com with SMTP id q16so3189256wrw.2;
+        Fri, 24 Feb 2023 03:14:08 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google; t=1677234836;
-        h=content-transfer-encoding:in-reply-to:from:content-language
-         :references:cc:to:subject:user-agent:mime-version:date:message-id
-         :from:to:cc:subject:date:message-id:reply-to;
-        bh=PRnJwyzUqjuU0z+FmmZHaXTEUHiO7ZvbRBc0gbEAgJU=;
-        b=aKBXMYK/kVOe/kD1qhF3ZDqDvd5kp6IBmz2E17O+HeDB/qoUgpJYnIGkhf5ipfOS5H
-         eDIuO9r3azNw03ljLdHWlQKbaYDmGteB3h8BMmsyP1ig2mqHUasRSqUaGDKV7gD7TTQt
-         q2wqrensFNHhxu7q0TmJyBQPB1pyea4EqiZh+2DrRfKxk6kGkPu35JvpiyWfQl8fyNPv
-         ZjGEtIx/pl36JZ9+cxXnjZlktPOSyeeKH5AM1daVeJSfxoPoxx26RSrENA1KXCHRnNxm
-         ha9m9XhXZOLaSH3fL4fmc7w6tw6AZOJWPfmUwph81GFrbUEiv6dfnmBgMKKWOqAug9kG
-         2hEA==
+        d=gmail.com; s=20210112;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
+        bh=SKRDOn50Fe/CNyx3l2bs2XrZQpRO9QtNT/Gvh1YGQwE=;
+        b=k3GkFWnbyNWw4U+CrFtc++dPmQ0/dfG30pJknWe3NEE4NsY0e+d5rAJMi6Jt3Dmx5f
+         QS+7r3+uhgt+V3ddBmPHV0WK98xJFoLYi3T+MlgxdJPxLVMXNXW/PNkTvqlxHGQcnSpQ
+         73DTZEwxeadnCnQqBQ/AmSiCe0kc2t5rhGDt0i4ZsMLcdsDtR+ug0/qiQaxRXlrcJpQZ
+         6TtNa/640SchYLaUbJO4ZN1oc/eFd0EWkhcWTiCW54nABunnLM2uw6XHkwIYm/hbJS93
+         HBd4DSNSbWkiahC4IXFnA3AviZ4ZBF8mlDffRR83fARD9kE+UdS7c5HYf1SKug47CUfU
+         mkWA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112; t=1677234836;
-        h=content-transfer-encoding:in-reply-to:from:content-language
-         :references:cc:to:subject:user-agent:mime-version:date:message-id
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=PRnJwyzUqjuU0z+FmmZHaXTEUHiO7ZvbRBc0gbEAgJU=;
-        b=lsaxGdDSa0Y2a+QPIYDNRf0t1ETbi5t4gMuYfDOX9rtcSON3+udugqXYC6+Kj87rSk
-         uIb8B7RIRmdvU5k4OaTruFy0YqXdNb97PNb/7AkuqEig0BBQzPF0yT1rkA97tXmUr82j
-         RcWGXxPDbf+BtCAx+xcxjCUTyjZL8x6cTnQKDOqN9QloDkd5nHwZbr3pWyagqrg4FLGS
-         7wP5yFUTE436I0BR6YCK9lhuvmBOzUEFoSasron6rFrGBnssgX3/GLzDquYXZD61m8/U
-         xNBDCWri+SQRVm/23IwnUkcNmLMlVEYbyc4+IZPa7yOyCZ68c5Vx4G77KaASPtk43qhA
-         dzqQ==
-X-Gm-Message-State: AO0yUKVqrvPxLKpaeOSuGiCeALfVVjzEvdvpygreGMemB8oRL2jqfN1H
-        SfwRwaQoimbGhr4X6LVAa0N4uA==
-X-Google-Smtp-Source: AK7set+rwdNqYZOVQEUon/RZ3hjn9Oox/3KITLrfJ0GFkSIV+QoQ9z3F7EiuRivMQxZStUOUkWnvsQ==
-X-Received: by 2002:a05:6512:41a:b0:4d8:69c3:f76a with SMTP id u26-20020a056512041a00b004d869c3f76amr4707992lfk.11.1677234836215;
-        Fri, 24 Feb 2023 02:33:56 -0800 (PST)
-Received: from [192.168.1.101] (abym99.neoplus.adsl.tpnet.pl. [83.9.32.99])
-        by smtp.gmail.com with ESMTPSA id j8-20020a19f508000000b004db3dc10189sm835989lfb.292.2023.02.24.02.33.55
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Fri, 24 Feb 2023 02:33:55 -0800 (PST)
-Message-ID: <d7d2b443-298b-700d-4ef5-9fd37f9e1467@linaro.org>
-Date:   Fri, 24 Feb 2023 11:33:54 +0100
+        d=1e100.net; s=20210112;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=SKRDOn50Fe/CNyx3l2bs2XrZQpRO9QtNT/Gvh1YGQwE=;
+        b=vTLXsNgnmvXfmCJN3wQXB3Awyq8fXQ4u0XFuE5/7WtcAiSLQLks5i0+CPpxFRusn1q
+         F0QxIb92f47mxR8Yj63FyR42NEoCHk97C8IaI/8Ju2HzlVmddih9aBN9b40nZHBmUSWt
+         SDzVsHKR247Qyh6dHcDIPm/GoX2EXHEtCURE+SnRDBMgf6N9OmbYKhKpSZDYMAl0CFeV
+         hZ24Ev12MEonRHnWQbDyXd4qdvrnEgjkY4XOLbIjmYd0mgwJg7RXKSG7tuITp08tkgjc
+         n5jNHbFgypRffk67ptRh3SUxPq3RyROs7oq0EBd0COQEiKwrdDOJe2/whu4L4UgUpgRV
+         03EA==
+X-Gm-Message-State: AO0yUKU3B35XhfVJw16pG4IAudJ6dw6eV8+K1teS07TAz+AyLwbqO5/p
+        FU7oErKFUBWSFgjIC+BPCXo=
+X-Google-Smtp-Source: AK7set9InYlzh56OehyNP2cFmC8v4kKyYst9z0J09KA9LqrlET1h8ddkYSEy3lLM79IT/P5otdA0MQ==
+X-Received: by 2002:adf:f5d2:0:b0:2c7:bbe:456e with SMTP id k18-20020adff5d2000000b002c70bbe456emr6788251wrp.56.1677237246589;
+        Fri, 24 Feb 2023 03:14:06 -0800 (PST)
+Received: from debian ([63.135.72.41])
+        by smtp.gmail.com with ESMTPSA id c5-20020a5d4cc5000000b002c59f18674asm12287023wrt.22.2023.02.24.03.14.05
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Fri, 24 Feb 2023 03:14:06 -0800 (PST)
+Date:   Fri, 24 Feb 2023 11:14:04 +0000
+From:   "Sudip Mukherjee (Codethink)" <sudipm.mukherjee@gmail.com>
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc:     stable@vger.kernel.org, patches@lists.linux.dev,
+        linux-kernel@vger.kernel.org, torvalds@linux-foundation.org,
+        akpm@linux-foundation.org, linux@roeck-us.net, shuah@kernel.org,
+        patches@kernelci.org, lkft-triage@lists.linaro.org, pavel@denx.de,
+        jonathanh@nvidia.com, f.fainelli@gmail.com, srw@sladewatkins.net,
+        rwarsow@gmx.de
+Subject: Re: [PATCH 4.19 00/12] 4.19.274-rc2 review
+Message-ID: <Y/ib/IxdLtDCGZ7s@debian>
+References: <20230223141538.102388120@linuxfoundation.org>
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
- Thunderbird/102.8.0
-Subject: Re: [PATCH] arm64: dts: qcom: sm8150: Fix the iommu mask used for
- PCIe controllers
-To:     Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>,
-        andersson@kernel.org
-Cc:     robh+dt@kernel.org, krzysztof.kozlowski+dt@linaro.org,
-        linux-arm-msm@vger.kernel.org, devicetree@vger.kernel.org,
-        linux-kernel@vger.kernel.org, bhupesh.sharma@linaro.org,
-        srinivas.kandagatla@linaro.org, quic_vkamble@quicinc.com,
-        stable@vger.kernel.org
-References: <20230224080045.6577-1-manivannan.sadhasivam@linaro.org>
-Content-Language: en-US
-From:   Konrad Dybcio <konrad.dybcio@linaro.org>
-In-Reply-To: <20230224080045.6577-1-manivannan.sadhasivam@linaro.org>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
-X-Spam-Status: No, score=-2.2 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,NICE_REPLY_A,RCVD_IN_DNSWL_NONE,
-        SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20230223141538.102388120@linuxfoundation.org>
+X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_FROM,
+        RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS autolearn=ham
+        autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+Hi Greg,
 
-
-On 24.02.2023 09:00, Manivannan Sadhasivam wrote:
-> The iommu mask should be 0x3f as per Qualcomm internal documentation.
-> Without the correct mask, the PCIe transactions from the endpoint will
-> result in SMMU faults. Hence, fix it!
+On Thu, Feb 23, 2023 at 03:15:58PM +0100, Greg Kroah-Hartman wrote:
+> This is the start of the stable review cycle for the 4.19.274 release.
+> There are 12 patches in this series, all will be posted as a response
+> to this one.  If anyone has any issues with these being applied, please
+> let me know.
 > 
-> Cc: stable@vger.kernel.org # 5.19
-> Fixes: a1c86c680533 ("arm64: dts: qcom: sm8150: Add PCIe nodes")
-> Signed-off-by: Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>
-> ---
-Reviewed-by: Konrad Dybcio <konrad.dybcio@linaro.org>
+> Responses should be made by Sat, 25 Feb 2023 14:15:30 +0000.
+> Anything received after that time might be too late.
 
-Konrad
->  arch/arm64/boot/dts/qcom/sm8150.dtsi | 4 ++--
->  1 file changed, 2 insertions(+), 2 deletions(-)
-> 
-> diff --git a/arch/arm64/boot/dts/qcom/sm8150.dtsi b/arch/arm64/boot/dts/qcom/sm8150.dtsi
-> index fd20096cfc6e..13e0ce828606 100644
-> --- a/arch/arm64/boot/dts/qcom/sm8150.dtsi
-> +++ b/arch/arm64/boot/dts/qcom/sm8150.dtsi
-> @@ -1826,7 +1826,7 @@ pcie0: pci@1c00000 {
->  				      "slave_q2a",
->  				      "tbu";
->  
-> -			iommus = <&apps_smmu 0x1d80 0x7f>;
-> +			iommus = <&apps_smmu 0x1d80 0x3f>;
->  			iommu-map = <0x0   &apps_smmu 0x1d80 0x1>,
->  				    <0x100 &apps_smmu 0x1d81 0x1>;
->  
-> @@ -1925,7 +1925,7 @@ pcie1: pci@1c08000 {
->  			assigned-clocks = <&gcc GCC_PCIE_1_AUX_CLK>;
->  			assigned-clock-rates = <19200000>;
->  
-> -			iommus = <&apps_smmu 0x1e00 0x7f>;
-> +			iommus = <&apps_smmu 0x1e00 0x3f>;
->  			iommu-map = <0x0   &apps_smmu 0x1e00 0x1>,
->  				    <0x100 &apps_smmu 0x1e01 0x1>;
->  
+Build test (gcc version 11.3.1 20230210):
+mips: 63 configs -> no  failure
+arm: 115 configs -> no failure
+arm64: 2 configs -> no failure
+x86_64: 4 configs -> no failure
+alpha allmodconfig -> no failure
+powerpc allmodconfig -> no failure
+riscv allmodconfig -> no failure
+s390 allmodconfig -> no failure
+xtensa allmodconfig -> no failure
+
+Boot test:
+x86_64: Booted on my test laptop. No regression.
+x86_64: Booted on qemu. No regression. [1]
+
+[1]. https://openqa.qa.codethink.co.uk/tests/2928
+
+
+Tested-by: Sudip Mukherjee <sudip.mukherjee@codethink.co.uk>
+
+--
+Regards
+Sudip
