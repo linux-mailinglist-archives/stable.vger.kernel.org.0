@@ -2,51 +2,65 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 83B766A232B
-	for <lists+stable@lfdr.de>; Fri, 24 Feb 2023 21:38:22 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 083D86A233A
+	for <lists+stable@lfdr.de>; Fri, 24 Feb 2023 21:43:27 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229533AbjBXUiU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 24 Feb 2023 15:38:20 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59400 "EHLO
+        id S229576AbjBXUnZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 24 Feb 2023 15:43:25 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35764 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229479AbjBXUiT (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 24 Feb 2023 15:38:19 -0500
-X-Greylist: delayed 600 seconds by postgrey-1.37 at lindbergh.monkeyblade.net; Fri, 24 Feb 2023 12:38:18 PST
-Received: from zimbra.cs.ucla.edu (zimbra.cs.ucla.edu [131.179.128.68])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 396531689B;
-        Fri, 24 Feb 2023 12:38:18 -0800 (PST)
-Received: from localhost (localhost [127.0.0.1])
-        by zimbra.cs.ucla.edu (Postfix) with ESMTP id B49C816007D;
-        Fri, 24 Feb 2023 12:20:25 -0800 (PST)
-Received: from zimbra.cs.ucla.edu ([127.0.0.1])
-        by localhost (zimbra.cs.ucla.edu [127.0.0.1]) (amavisd-new, port 10032)
-        with ESMTP id QG1sxi3-GO96; Fri, 24 Feb 2023 12:20:24 -0800 (PST)
-Received: from localhost (localhost [127.0.0.1])
-        by zimbra.cs.ucla.edu (Postfix) with ESMTP id 8D919160081;
-        Fri, 24 Feb 2023 12:20:24 -0800 (PST)
-DKIM-Filter: OpenDKIM Filter v2.9.2 zimbra.cs.ucla.edu 8D919160081
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=cs.ucla.edu;
-        s=78364E5A-2AF3-11ED-87FA-8298ECA2D365; t=1677270024;
-        bh=+I+riTDtbBzhWt5sJpH7wqPIRmijrbIey5uSacAFgT4=;
-        h=Content-Type:Message-ID:Date:MIME-Version:To:From:Subject;
-        b=deVCVUcrJbVSwJywGU2CXVd+lLOnnOZ1iT3/KNpmyTSqk723C0jpVDzzkTh2be5M3
-         xzU+bd71itubXnQ0wq5BmRyKEtQn82P8HEx+/MtNf1Ko+/NzLX5zvjsJXptH6P3oR8
-         BWb8vbDe6QFlt1PnBvJpzNtTS08Z0L2ryeH1nk6c=
-X-Virus-Scanned: amavisd-new at zimbra.cs.ucla.edu
-Received: from zimbra.cs.ucla.edu ([127.0.0.1])
-        by localhost (zimbra.cs.ucla.edu [127.0.0.1]) (amavisd-new, port 10026)
-        with ESMTP id bhkfZAvkwQkB; Fri, 24 Feb 2023 12:20:24 -0800 (PST)
-Received: from [192.168.1.9] (cpe-172-91-119-151.socal.res.rr.com [172.91.119.151])
-        by zimbra.cs.ucla.edu (Postfix) with ESMTPSA id 1DA4016007D;
-        Fri, 24 Feb 2023 12:20:24 -0800 (PST)
-Content-Type: multipart/mixed; boundary="------------LZMUtxjI2VCeALvdg7n3PklB"
-Message-ID: <03dac14b-ed62-3e2b-878f-b145383ea9f8@cs.ucla.edu>
-Date:   Fri, 24 Feb 2023 12:20:23 -0800
+        with ESMTP id S229492AbjBXUnY (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 24 Feb 2023 15:43:24 -0500
+Received: from mail-ed1-x52e.google.com (mail-ed1-x52e.google.com [IPv6:2a00:1450:4864:20::52e])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AE9BE1042C
+        for <stable@vger.kernel.org>; Fri, 24 Feb 2023 12:43:23 -0800 (PST)
+Received: by mail-ed1-x52e.google.com with SMTP id cq23so2268034edb.1
+        for <stable@vger.kernel.org>; Fri, 24 Feb 2023 12:43:23 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=linux-foundation.org; s=google;
+        h=cc:to:subject:message-id:date:from:in-reply-to:references
+         :mime-version:from:to:cc:subject:date:message-id:reply-to;
+        bh=Wh95Rgg4YcfKm/rGes24KRLFGSCx31GDq9PEvrBLE2w=;
+        b=HDl3QpnsHSrQh99PiNmsE/a34XldQI4WWD78I7BQjyE9b9z647fzjLVaDgFu1bKMnU
+         CiPshUbbkFbN4oWWR4oxeir5QCWQhI+SyuVY66c4rsVlx08kt1P6eeNP3HR4yAy33qpy
+         ko5w9buE6lBG4AzV6whLaV0OnBOseRCGdf1YM=
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=cc:to:subject:message-id:date:from:in-reply-to:references
+         :mime-version:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=Wh95Rgg4YcfKm/rGes24KRLFGSCx31GDq9PEvrBLE2w=;
+        b=EYpgfBt9P/rRD92YsFpoHsdjPhQHu19pu8Yg/cocL1Adw8KhBUTjBtH4en5nlDaJuQ
+         rRhL//QSQlv4zUFIzUMWkJow2kqRR96EyZ0O1PVx+0NHsaDFwPSAHs1qLVGKE/lHs8Go
+         ho2HNhHi/bmJtgKYFmDRIQWGqe0Zo92rJJGJbJ7v8m0CCGC7vzXVi80L1zGNEXu5Qq7E
+         WQ/h64fSYPvVE18NEqXgYabUktBQi6D3qaWb5k6AXhb6MDyEIhNgFQHgXWVOmCpURNWt
+         4SRYT6k4Z4TH4LhEr/RxScES6zmufqZWfhSNyJ5/H9kXsLL5Rn7w1l9ni0z47t6Tgzp4
+         7ueA==
+X-Gm-Message-State: AO0yUKXqiJSI2ui3iFc+B+AEdCr2rI6+s3ZVcGHRu2gAl735DfTBwwhd
+        N7NtG4G6YxB+D182tZcwEE6WAmO0mi8CcjptTofASw==
+X-Google-Smtp-Source: AK7set8AT8cHWCTHOXSbKmOoIqVwoPYRhtP30UhmFi6py7ZxcDnMUeFPwhFxZUdZdzJEbKs+5dAdNA==
+X-Received: by 2002:a05:6402:614:b0:4af:593c:bf77 with SMTP id n20-20020a056402061400b004af593cbf77mr12704270edv.33.1677271401913;
+        Fri, 24 Feb 2023 12:43:21 -0800 (PST)
+Received: from mail-ed1-f41.google.com (mail-ed1-f41.google.com. [209.85.208.41])
+        by smtp.gmail.com with ESMTPSA id d8-20020a50f688000000b004a0e2fe619esm134099edn.39.2023.02.24.12.43.21
+        for <stable@vger.kernel.org>
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Fri, 24 Feb 2023 12:43:21 -0800 (PST)
+Received: by mail-ed1-f41.google.com with SMTP id eg37so2022334edb.12
+        for <stable@vger.kernel.org>; Fri, 24 Feb 2023 12:43:21 -0800 (PST)
+X-Received: by 2002:a17:906:40cc:b0:877:747d:4a82 with SMTP id
+ a12-20020a17090640cc00b00877747d4a82mr11917828ejk.0.1677271088924; Fri, 24
+ Feb 2023 12:38:08 -0800 (PST)
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
- Thunderbird/102.7.1
-Content-Language: en-US
-To:     Linus Torvalds <torvalds@linux-foundation.org>
+References: <CAHk-=wiZ9vaM23eW2k4R-ovtcWLyL8PWvnCG=RyeY4XXgZ6BCg@mail.gmail.com>
+ <03dac14b-ed62-3e2b-878f-b145383ea9f8@cs.ucla.edu>
+In-Reply-To: <03dac14b-ed62-3e2b-878f-b145383ea9f8@cs.ucla.edu>
+From:   Linus Torvalds <torvalds@linux-foundation.org>
+Date:   Fri, 24 Feb 2023 12:37:52 -0800
+X-Gmail-Original-Message-ID: <CAHk-=whwDyVKYtv+65N=ixfHR82Hxn2gm+VLqNR-PY-de3wXnA@mail.gmail.com>
+Message-ID: <CAHk-=whwDyVKYtv+65N=ixfHR82Hxn2gm+VLqNR-PY-de3wXnA@mail.gmail.com>
+Subject: Re: diffutils file mode (was Re: [PATCH 5.15 00/37] 5.15.96-rc2 review)
+To:     Paul Eggert <eggert@cs.ucla.edu>
 Cc:     Nathan Chancellor <nathan@kernel.org>,
         Guenter Roeck <linux@roeck-us.net>,
         stable <stable@vger.kernel.org>, patches@lists.linux.dev,
@@ -60,56 +74,50 @@ Cc:     Nathan Chancellor <nathan@kernel.org>,
         srw@sladewatkins.net, rwarsow@gmx.de,
         Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         Jim Meyering <meyering@fb.com>
-References: <CAHk-=wiZ9vaM23eW2k4R-ovtcWLyL8PWvnCG=RyeY4XXgZ6BCg@mail.gmail.com>
-From:   Paul Eggert <eggert@cs.ucla.edu>
-Organization: UCLA Computer Science Department
-Subject: Re: diffutils file mode (was Re: [PATCH 5.15 00/37] 5.15.96-rc2
- review)
-In-Reply-To: <CAHk-=wiZ9vaM23eW2k4R-ovtcWLyL8PWvnCG=RyeY4XXgZ6BCg@mail.gmail.com>
-X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,NICE_REPLY_A,RCVD_IN_DNSWL_MED,SPF_HELO_NONE,
-        SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
+Content-Type: text/plain; charset="UTF-8"
+X-Spam-Status: No, score=-1.8 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,
+        RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS autolearn=no
+        autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------LZMUtxjI2VCeALvdg7n3PklB
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+On Fri, Feb 24, 2023 at 12:20 PM Paul Eggert <eggert@cs.ucla.edu> wrote:
+>
+> Thanks for pointing this out. I added this to our list of things to do,
+> by installing the attached patch to the GNU diffutils TODO file. If this
+> patch's wording isn't right, please let me know, as I haven't read this
+> whole email thread, just the three emails sent directly to me.
 
-On 2023-02-24 11:16, Linus Torvalds wrote:
->   GNU diffutils have never actually grown the
-> ability to generate those extensions
+Looks good to me.
 
-Thanks for pointing this out. I added this to our list of things to do, 
-by installing the attached patch to the GNU diffutils TODO file. If this 
-patch's wording isn't right, please let me know, as I haven't read this 
-whole email thread, just the three emails sent directly to me.
---------------LZMUtxjI2VCeALvdg7n3PklB
-Content-Type: text/x-patch; charset=UTF-8;
- name="0001-maint-add-diff-git-TODO.patch"
-Content-Disposition: attachment; filename="0001-maint-add-diff-git-TODO.patch"
-Content-Transfer-Encoding: base64
+The whole thread isn't actually any more interesting, it was mainly a
+lot of "how did the bits get lost" confusion because it wasn't clear
+whether it was some local script or quilt or whatever that lost sight
+of the executable bit.
 
-RnJvbSAzZmE3MjE4NTY3YmRjZjk1OGYxMzQyYzEzYzg0OGM5ZTJmMmQzOGM1IE1vbiBTZXAg
-MTcgMDA6MDA6MDAgMjAwMQpGcm9tOiBQYXVsIEVnZ2VydCA8ZWdnZXJ0QGNzLnVjbGEuZWR1
-PgpEYXRlOiBGcmksIDI0IEZlYiAyMDIzIDEyOjEzOjEyIC0wODAwClN1YmplY3Q6IFtQQVRD
-SF0gbWFpbnQ6IGFkZCAnZGlmZiAtLWdpdCcgVE9ETwoKKiBUT0RPOiBTdWdnZXN0IGJldHRl
-ciBjb21wYXRpYmlsaXR5IHdpdGggJ2dpdCBkaWZmIC1wJy4KRnJvbSBhIHN1Z2dlc3Rpb24g
-YnkgTGludXMgVG9ydmFsZHMKPGh0dHBzOi8vbGttbC5vcmcvbGttbC8yMDIzLzIvMjQvNzk3
-Pi4KLS0tCiBUT0RPIHwgNiArKysrKysKIDEgZmlsZSBjaGFuZ2VkLCA2IGluc2VydGlvbnMo
-KykKCmRpZmYgLS1naXQgYS9UT0RPIGIvVE9ETwppbmRleCA1MTMyZGU4Li4yNWZjMjJiIDEw
-MDY0NAotLS0gYS9UT0RPCisrKyBiL1RPRE8KQEAgLTEsMyArMSw5IEBACitBZGQgLS1naXQg
-b3B0aW9uIHRvIGdlbmVyYXRlIG91dHB1dCBjb21wYXRpYmxlIHdpdGggJ2dpdCBkaWZmIC1w
-Jy4KK1RoaXMgd291bGQgYmVoYXZlIGxpa2UgJ2RpZmYgLXAnLCBleGNlcHQgdGhhdCBpdCB3
-b3VsZCBhbHNvIGdlbmVyYXRlCit0aGUgZXh0ZW5kZWQgaGVhZGVycyAnb2xkIG1vZGUnLCAn
-bmV3IG1vZGUnLCAnZGVsZXRlZCBmaWxlIG1vZGUnLCBhbmQKKyduZXcgZmlsZSBtb2RlJywg
-YW5kIGl0IHdvdWxkIHF1b3RlIGZpbGUgbmFtZXMgd2l0aCB1bnVzdWFsIGNoYXJhY3RlcnMu
-CitHTlUgcGF0Y2ggYWxyZWFkeSBwYXJzZXMgdGhpcyBmb3JtYXQuCisKIEFkZCAtLWluY2x1
-ZGUgb3B0aW9uIChvcHBvc2l0ZSBvZiAtLWV4Y2x1ZGUpLgogCiBMb29rIGludG8gc2RpZmYg
-aW1wcm92ZW1lbnQgaGVyZToKLS0gCjIuMzcuMgoK
+It starts with a report about how the lost bit results in a build error at
 
---------------LZMUtxjI2VCeALvdg7n3PklB--
+   https://lore.kernel.org/lkml/adc1b0b7-f837-fbb4-332b-4ce18fc55709@roeck-us.net/
+
+and there's discussion about how this has happened before and how our
+kernel Makefiles generally should try to not execute scripts directly
+exactly because our ancient "tarballs and patches" model never
+supported the executable bit etc.
+
+So none of it is very relevant, except in the sense that it would be
+convenient if diffutils did support the executable bit changes and we
+wouldn't have these kinds of things happening every once in a blue
+moon.
+
+Again - there are multiple different workarounds, ranging from "we
+shouldn't do that then in our makefiles" to "you can use 'git diff'
+instead in the quilt scripts".
+
+So not a huge deal - but it would just be nice if diffutils just
+supported the extended format.
+
+           Linus
