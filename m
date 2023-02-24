@@ -2,56 +2,56 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id BC40D6A20E3
-	for <lists+stable@lfdr.de>; Fri, 24 Feb 2023 18:52:58 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 342166A20E6
+	for <lists+stable@lfdr.de>; Fri, 24 Feb 2023 18:54:23 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229538AbjBXRw4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 24 Feb 2023 12:52:56 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48638 "EHLO
+        id S229566AbjBXRyV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 24 Feb 2023 12:54:21 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50374 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229445AbjBXRwz (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 24 Feb 2023 12:52:55 -0500
+        with ESMTP id S229481AbjBXRyU (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 24 Feb 2023 12:54:20 -0500
 Received: from mail-pf1-x42a.google.com (mail-pf1-x42a.google.com [IPv6:2607:f8b0:4864:20::42a])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 38D40F951
-        for <stable@vger.kernel.org>; Fri, 24 Feb 2023 09:52:53 -0800 (PST)
-Received: by mail-pf1-x42a.google.com with SMTP id u20so5619701pfm.7
-        for <stable@vger.kernel.org>; Fri, 24 Feb 2023 09:52:53 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9DACFB760
+        for <stable@vger.kernel.org>; Fri, 24 Feb 2023 09:54:19 -0800 (PST)
+Received: by mail-pf1-x42a.google.com with SMTP id a7so8572358pfx.10
+        for <stable@vger.kernel.org>; Fri, 24 Feb 2023 09:54:19 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=sladewatkins.net; s=googled;
         h=cc:to:subject:message-id:date:from:in-reply-to:references
          :mime-version:from:to:cc:subject:date:message-id:reply-to;
-        bh=SCackxgxqPZz1OiILJ7kCheCg0pnGW/YdL0a2rTkB9k=;
-        b=XRcCKELQH3Eo8zQ6OvBMT0+5rBLdXMrP0ymDtbLGilAJXOy+w0H6VIlTb3rE/Uv7kn
-         CFmJ2AP0cyhSJPq6dcxRfveh9LXHBmg3QBFIBNo/oupr/khGN3VcALoOAuBNZtqWMRyW
-         cOGll7LKLG2mdz+sfyB82hokbgitmYlJ1JoWy2jf8Lieb9FewUXL+WPIm85yY2ZIKhQJ
-         CFeREGf02W6mZiG9DkJt/QS1qEv+9+V/hQXwGpZ3McEqxMyLfGWYr+ey84KFNRGi5UCD
-         p/NGQTv8JbKShnrvEsXeLAZnjrAWGNefZ4E9sSjYxoIbqJ/Qi3yw071+LOMF6Jz4D3sc
-         BgCg==
+        bh=UoZ/TQWdeEYlMakdSAImOqOTB/EmUvCrkVRx5u+IHUY=;
+        b=aXPwO1mklJNYlZDcoJYTxFGMIwDp4fYzv3AWcs5vdMwPTE/jXfTwpHJK+R6B+LDGOI
+         yvfUa/8HrqtrhrgL+jOpmmyxypu7ixu4Zd+oJlDVkOGtj3w7VvqG0lUwwNl0JzJfk91u
+         0npRCc/lMMaYPBvz6Pf2yCzQtogE2GXyqLApMyZUvZ479oVHidHTfMJqcq4c+vkfr3x2
+         JDNVRHlh57SEhCzILYAfYpxM/EccOXEmc2O6XFI8HuWLsZpRSV3/KoKo16KF6QH1rOZs
+         pPmva7PNCZMPnW5NY4rZCF+l5mF35nreQQgTH+uSj8jC1yi4w9so+DPb9HZgRjnh+RpT
+         KwNQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
         h=cc:to:subject:message-id:date:from:in-reply-to:references
          :mime-version:x-gm-message-state:from:to:cc:subject:date:message-id
          :reply-to;
-        bh=SCackxgxqPZz1OiILJ7kCheCg0pnGW/YdL0a2rTkB9k=;
-        b=DhuGs2nHwKUfNFVI65MrI8eckFLePVG3F8/B0tgeNN3kFNA2x+qLpgqTfS6WYoWCg2
-         rhppcZxQEbFDjRjKeuTGEtUXvTuFgF/TEEEOsc/2ZR2lMtFrEHxw1XdyX1MhdeEgGJWR
-         tDHUdtawVT1dXnFuPjcw+dtQ0tRy8yFJYu6ff4O3895HnweP16JwI8i7iNIKxKAe0wXv
-         g+pbcvfEtCNf0G0USkY3bspPFaomE1gOKwG5537+8TE94i4ZXQiJA1wfOTEBwz8iAgtB
-         /QDYgJcVn/4cjmTwqY3lSyPX2nVdGzF7f+8KZK1Q1A0J1VY+iIniyAUv7nBizT6wwvEk
-         LGyQ==
-X-Gm-Message-State: AO0yUKVYjyLbx4b5hdg7pCKAim/T0zyDJ4xxhcX2eNd/pK1wscC4JpO4
-        uZoKTBDBD8uPSUSzHvDwYUGyRNQguSU8mHSGsHBqRg==
-X-Google-Smtp-Source: AK7set8SGDB1zD5kMker4QuUup1RIlK/YZsel7dljbjx2fj8/qpmnbaOvZqH2vWLc5NzROAlldWOXeHidwcAyfe7llk=
-X-Received: by 2002:a63:9251:0:b0:503:20c2:1752 with SMTP id
- s17-20020a639251000000b0050320c21752mr219087pgn.1.1677261172625; Fri, 24 Feb
- 2023 09:52:52 -0800 (PST)
+        bh=UoZ/TQWdeEYlMakdSAImOqOTB/EmUvCrkVRx5u+IHUY=;
+        b=NikssVz6x9yvy2KIBpjMwUuGkk+gdERa83pjESpI9cbY4Hyb9MMyIKlhEVKG2jUt4u
+         H1TkEVnqVS+Ju1LezPLjel0YVDh/kSs7csiXPA/UM9HxydbUcEhwS/dijJFiOEq/Eu2V
+         6IWTkyq3FuYuTJipCYqsQt0x4ITIoKK0TgQ8ueRI6uGgindRt3AMm0upET0wjyVEc1hG
+         B7zcCeTl4Ubbb1YXTnpavaLgiwrlp7fKQvRdTGtBbl6i6sQ20jd0qovRNKd18P4nauX+
+         uBAPFGbjtkCrCX7qTXD2q9wGKE7SANd2/eP9a4wKmsCJcsxGwaHop3paJKgDVIZkOyjs
+         0oSg==
+X-Gm-Message-State: AO0yUKUfwc85tjPS5SBYm59OTOH3hzkVEKRDq6mhC00ROSMsesi53yog
+        U8nHMxrjL1m/Za/qEmq6vyGIMhmENg3ekJCY0aDoYZYslEKLNiX+W5KfWQ==
+X-Google-Smtp-Source: AK7set8qzlAyQdNABBIcuKPWgCcVwkP+UNSeQIk036boMWnr5/Qx0DDVpDB88PdMX/eGoFBhUHX1E5s3+gGmJ+PBe/k=
+X-Received: by 2002:a63:9255:0:b0:4fc:2058:fa29 with SMTP id
+ s21-20020a639255000000b004fc2058fa29mr3203415pgn.1.1677261259075; Fri, 24 Feb
+ 2023 09:54:19 -0800 (PST)
 MIME-Version: 1.0
-References: <20230224102235.663354088@linuxfoundation.org> <Y/iRLeEsyiYHjeh5@kroah.com>
-In-Reply-To: <Y/iRLeEsyiYHjeh5@kroah.com>
+References: <20230223141539.893173089@linuxfoundation.org>
+In-Reply-To: <20230223141539.893173089@linuxfoundation.org>
 From:   Slade Watkins <srw@sladewatkins.net>
-Date:   Fri, 24 Feb 2023 12:52:40 -0500
-Message-ID: <CA+pv=HPDzTjHokT3Os=0aEEsR-NEHskjGRRXhuHPPO=wOyqxZA@mail.gmail.com>
-Subject: Re: [PATCH 5.15 00/37] 5.15.96-rc3 review
+Date:   Fri, 24 Feb 2023 12:54:06 -0500
+Message-ID: <CA+pv=HMWE_y9NGO0ujD3roH4pAqz-17X26HQOxO0xqyg=xmmCA@mail.gmail.com>
+Subject: Re: [PATCH 6.2 00/12] 6.2.1-rc2 review
 To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Cc:     stable@vger.kernel.org, patches@lists.linux.dev,
         linux-kernel@vger.kernel.org, torvalds@linux-foundation.org,
@@ -70,32 +70,18 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Fri, Feb 24, 2023 at 5:28 AM Greg Kroah-Hartman
+On Thu, Feb 23, 2023 at 9:16 AM Greg Kroah-Hartman
 <gregkh@linuxfoundation.org> wrote:
 >
-> On Fri, Feb 24, 2023 at 11:23:55AM +0100, Greg Kroah-Hartman wrote:
-> > This is the start of the stable review cycle for the 5.15.96 release.
-> > There are 37 patches in this series, all will be posted as a response
-> > to this one.  If anyone has any issues with these being applied, please
-> > let me know.
-> >
-> > Responses should be made by Sun, 26 Feb 2023 10:22:23 +0000.
-> > Anything received after that time might be too late.
-> >
-> > The whole patch series can be found in one patch at:
-> >       https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.15.96-rc3.gz
-> > or in the git tree and branch at:
-> >       git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.15.y
-> > and the diffstat can be found below.
+> This is the start of the stable review cycle for the 6.2.1 release.
+> There are 12 patches in this series, all will be posted as a response
+> to this one.  If anyone has any issues with these being applied, please
+> let me know.
 >
-> Only change here is that the permission issue on
-> scripts/pahole-version.sh _should_ now be resolved.
+> Responses should be made by Sat, 25 Feb 2023 14:15:30 +0000.
+> Anything received after that time might be too late.
 
-Hi Greg,
-This is fixed now, as far as I can tell.
-
-With that:
-5.15.96-rc3 compiled and booted on my x86_64 test system. No errors or
+6.2.1-rc2 compiled and booted on my x86_64 test system. No errors or
 regressions.
 
 Tested-by: Slade Watkins <srw@sladewatkins.net>
