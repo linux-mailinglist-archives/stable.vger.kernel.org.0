@@ -2,49 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B65D26A30E8
-	for <lists+stable@lfdr.de>; Sun, 26 Feb 2023 15:54:32 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5321D6A3101
+	for <lists+stable@lfdr.de>; Sun, 26 Feb 2023 15:56:10 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230471AbjBZOy1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 26 Feb 2023 09:54:27 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56464 "EHLO
+        id S230454AbjBZOz6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 26 Feb 2023 09:55:58 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55048 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230282AbjBZOxt (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 26 Feb 2023 09:53:49 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B279C1ABDF;
-        Sun, 26 Feb 2023 06:50:06 -0800 (PST)
+        with ESMTP id S231249AbjBZOzL (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 26 Feb 2023 09:55:11 -0500
+Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4CEF91B557;
+        Sun, 26 Feb 2023 06:50:53 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id A1B0460BCB;
-        Sun, 26 Feb 2023 14:49:13 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4CC0CC433D2;
-        Sun, 26 Feb 2023 14:49:11 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id B4B7ECE0E9B;
+        Sun, 26 Feb 2023 14:49:22 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id F17C5C433EF;
+        Sun, 26 Feb 2023 14:49:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1677422953;
-        bh=9Q4fIcOUYXzKsDrBMU1tD+bOADhHecTCeCUHkKDRjmY=;
+        s=k20201202; t=1677422961;
+        bh=WXKkXSI8K2GM7N13JzwbUscQqIjI+qPkUo6rLRnVHRU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=aF91Rlxp774rsDYngBFoci5JN80XiJnrylsX8im2/SrXdaJNM0fc+ybbPFH99VCwF
-         yGGfKz4jA+bop1IUQiwlxv8IRzNlaoZkJmpcqG/hpbrb5f2cACrlU4/3tKZp+T2ou+
-         TroFxd82nbvEN+7Z8ImarzPbhEY9VUJp0lff7qdpMy9kffDLM8zhC+UdFfU91OiaT5
-         eLDrwH1glHnq8t98N/BA0diwNQJwNS6mcUxMeVKqhV+8itubMgmjBGliS49MhnT2vN
-         pyROjBi4qKrzl8/ek+uvSjy0Jg1gVraztzsp6fvRs0O4dA6eMyl8sIeZDUWUlj1ODV
-         bBU79X4nGwCdA==
+        b=eQ7SXtg26ViIo388xFu9mK3Fpi9I4S1dW8y0DLZWK/GUjMMIHDgIaNlCOUXMgSFT8
+         Avp+yYA+2bl8v+uULYO9QxdIJNveD7Dd3xxHsIm50XCc2xvQvK7MHuAtO3hWfLX96g
+         NdHgQS+YeduGUBK3tnbGndsbCjyi/Hw/zMVDeZ06gtqp3YXuWyCKd4M/NmfoJoz17+
+         KpaH2dejpSP2gOcM0drpUvnw3qrCJLI/MpwiVO8mdXOBmbu4b9thijK5A7Zp8R8J9Q
+         vbS9h5FB6mo5bZpk3zd2TbfFOnjklIwR3QLbmyNIWYhSjONsWMX5JSH7PG/06GN/s+
+         0lPfb5Ih9sMxQ==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Breno Leitao <leitao@debian.org>,
-        Pawan Gupta <pawan.kumar.gupta@linux.intel.com>,
-        Borislav Petkov <bp@alien8.de>,
-        Sasha Levin <sashal@kernel.org>, tglx@linutronix.de,
-        mingo@redhat.com, dave.hansen@linux.intel.com, x86@kernel.org,
-        peterz@infradead.org, babu.moger@amd.com, sandipan.das@amd.com,
-        daniel.sneddon@linux.intel.com, nikunj@amd.com,
-        jpoimboe@kernel.org, kim.phillips@amd.com,
-        alexandre.chartre@oracle.com
-Subject: [PATCH AUTOSEL 5.15 09/36] x86/bugs: Reset speculation control settings on init
-Date:   Sun, 26 Feb 2023 09:48:17 -0500
-Message-Id: <20230226144845.827893-9-sashal@kernel.org>
+Cc:     Pietro Borrello <borrello@diag.uniroma1.it>,
+        Kuniyuki Iwashima <kuniyu@amazon.com>,
+        Eric Dumazet <edumazet@google.com>,
+        Paolo Abeni <pabeni@redhat.com>,
+        Sasha Levin <sashal@kernel.org>, davem@davemloft.net,
+        dsahern@kernel.org, kuba@kernel.org, netdev@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.15 12/36] inet: fix fast path in __inet_hash_connect()
+Date:   Sun, 26 Feb 2023 09:48:20 -0500
+Message-Id: <20230226144845.827893-12-sashal@kernel.org>
 X-Mailer: git-send-email 2.39.0
 In-Reply-To: <20230226144845.827893-1-sashal@kernel.org>
 References: <20230226144845.827893-1-sashal@kernel.org>
@@ -52,8 +49,8 @@ MIME-Version: 1.0
 X-stable: review
 X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
         SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -61,73 +58,54 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Breno Leitao <leitao@debian.org>
+From: Pietro Borrello <borrello@diag.uniroma1.it>
 
-[ Upstream commit 0125acda7d76b943ca55811df40ed6ec0ecf670f ]
+[ Upstream commit 21cbd90a6fab7123905386985e3e4a80236b8714 ]
 
-Currently, x86_spec_ctrl_base is read at boot time and speculative bits
-are set if Kconfig items are enabled. For example, IBRS is enabled if
-CONFIG_CPU_IBRS_ENTRY is configured, etc. These MSR bits are not cleared
-if the mitigations are disabled.
+__inet_hash_connect() has a fast path taken if sk_head(&tb->owners) is
+equal to the sk parameter.
+sk_head() returns the hlist_entry() with respect to the sk_node field.
+However entries in the tb->owners list are inserted with respect to the
+sk_bind_node field with sk_add_bind_node().
+Thus the check would never pass and the fast path never execute.
 
-This is a problem when kexec-ing a kernel that has the mitigation
-disabled from a kernel that has the mitigation enabled. In this case,
-the MSR bits are not cleared during the new kernel boot. As a result,
-this might have some performance degradation that is hard to pinpoint.
+This fast path has never been executed or tested as this bug seems
+to be present since commit 1da177e4c3f4 ("Linux-2.6.12-rc2"), thus
+remove it to reduce code complexity.
 
-This problem does not happen if the machine is (hard) rebooted because
-the bit will be cleared by default.
-
-  [ bp: Massage. ]
-
-Suggested-by: Pawan Gupta <pawan.kumar.gupta@linux.intel.com>
-Signed-off-by: Breno Leitao <leitao@debian.org>
-Signed-off-by: Borislav Petkov (AMD) <bp@alien8.de>
-Link: https://lore.kernel.org/r/20221128153148.1129350-1-leitao@debian.org
+Signed-off-by: Pietro Borrello <borrello@diag.uniroma1.it>
+Reviewed-by: Kuniyuki Iwashima <kuniyu@amazon.com>
+Reviewed-by: Eric Dumazet <edumazet@google.com>
+Link: https://lore.kernel.org/r/20230112-inet_hash_connect_bind_head-v3-1-b591fd212b93@diag.uniroma1.it
+Signed-off-by: Paolo Abeni <pabeni@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/x86/include/asm/msr-index.h |  4 ++++
- arch/x86/kernel/cpu/bugs.c       | 10 +++++++++-
- 2 files changed, 13 insertions(+), 1 deletion(-)
+ net/ipv4/inet_hashtables.c | 12 +-----------
+ 1 file changed, 1 insertion(+), 11 deletions(-)
 
-diff --git a/arch/x86/include/asm/msr-index.h b/arch/x86/include/asm/msr-index.h
-index f069ab09c5fc1..3588b799c63f2 100644
---- a/arch/x86/include/asm/msr-index.h
-+++ b/arch/x86/include/asm/msr-index.h
-@@ -54,6 +54,10 @@
- #define SPEC_CTRL_RRSBA_DIS_S_SHIFT	6	   /* Disable RRSBA behavior */
- #define SPEC_CTRL_RRSBA_DIS_S		BIT(SPEC_CTRL_RRSBA_DIS_S_SHIFT)
+diff --git a/net/ipv4/inet_hashtables.c b/net/ipv4/inet_hashtables.c
+index 410b6b7998caf..39b3db5b61190 100644
+--- a/net/ipv4/inet_hashtables.c
++++ b/net/ipv4/inet_hashtables.c
+@@ -760,17 +760,7 @@ int __inet_hash_connect(struct inet_timewait_death_row *death_row,
+ 	u32 index;
  
-+/* A mask for bits which the kernel toggles when controlling mitigations */
-+#define SPEC_CTRL_MITIGATIONS_MASK	(SPEC_CTRL_IBRS | SPEC_CTRL_STIBP | SPEC_CTRL_SSBD \
-+							| SPEC_CTRL_RRSBA_DIS_S)
-+
- #define MSR_IA32_PRED_CMD		0x00000049 /* Prediction Command */
- #define PRED_CMD_IBPB			BIT(0)	   /* Indirect Branch Prediction Barrier */
- 
-diff --git a/arch/x86/kernel/cpu/bugs.c b/arch/x86/kernel/cpu/bugs.c
-index 544e6c61e17d0..75dd336ac8cda 100644
---- a/arch/x86/kernel/cpu/bugs.c
-+++ b/arch/x86/kernel/cpu/bugs.c
-@@ -144,9 +144,17 @@ void __init check_bugs(void)
- 	 * have unknown values. AMD64_LS_CFG MSR is cached in the early AMD
- 	 * init code as it is not enumerated and depends on the family.
- 	 */
--	if (boot_cpu_has(X86_FEATURE_MSR_SPEC_CTRL))
-+	if (cpu_feature_enabled(X86_FEATURE_MSR_SPEC_CTRL)) {
- 		rdmsrl(MSR_IA32_SPEC_CTRL, x86_spec_ctrl_base);
- 
-+		/*
-+		 * Previously running kernel (kexec), may have some controls
-+		 * turned ON. Clear them and let the mitigations setup below
-+		 * rediscover them based on configuration.
-+		 */
-+		x86_spec_ctrl_base &= ~SPEC_CTRL_MITIGATIONS_MASK;
-+	}
-+
- 	/* Select the proper CPU mitigations before patching alternatives: */
- 	spectre_v1_select_mitigation();
- 	spectre_v2_select_mitigation();
+ 	if (port) {
+-		head = &hinfo->bhash[inet_bhashfn(net, port,
+-						  hinfo->bhash_size)];
+-		tb = inet_csk(sk)->icsk_bind_hash;
+-		spin_lock_bh(&head->lock);
+-		if (sk_head(&tb->owners) == sk && !sk->sk_bind_node.next) {
+-			inet_ehash_nolisten(sk, NULL, NULL);
+-			spin_unlock_bh(&head->lock);
+-			return 0;
+-		}
+-		spin_unlock(&head->lock);
+-		/* No definite answer... Walk to established hash table */
++		local_bh_disable();
+ 		ret = check_established(death_row, sk, port, NULL);
+ 		local_bh_enable();
+ 		return ret;
 -- 
 2.39.0
 
