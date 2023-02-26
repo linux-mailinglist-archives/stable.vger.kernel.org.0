@@ -2,46 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 6C23F6A3203
-	for <lists+stable@lfdr.de>; Sun, 26 Feb 2023 16:15:03 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id AC0496A3250
+	for <lists+stable@lfdr.de>; Sun, 26 Feb 2023 16:32:08 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230059AbjBZPPC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 26 Feb 2023 10:15:02 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33496 "EHLO
+        id S229696AbjBZPcG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 26 Feb 2023 10:32:06 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36600 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231859AbjBZPOA (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 26 Feb 2023 10:14:00 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 10D1F211FB;
-        Sun, 26 Feb 2023 07:04:23 -0800 (PST)
+        with ESMTP id S230229AbjBZPbt (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 26 Feb 2023 10:31:49 -0500
+Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1B382193D4;
+        Sun, 26 Feb 2023 07:29:18 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id B880360C40;
-        Sun, 26 Feb 2023 14:51:32 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3B6D9C4339B;
-        Sun, 26 Feb 2023 14:51:31 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id A27A4CE0EA0;
+        Sun, 26 Feb 2023 14:51:49 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E7553C4339E;
+        Sun, 26 Feb 2023 14:51:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1677423092;
-        bh=UrYKVhSSOQFbVkK0Z4AvnA6vhoJisr2++OgHjuEfVfM=;
+        s=k20201202; t=1677423108;
+        bh=CaYFxeEOUZJdF6tij4BKmZX9k/0AaKe89cNtqKrEw40=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=I+pU+59COhwBFibCeuZj6fyqh64fqh2tQizSGfPe6AW6hvo5P0l9RGrTxfwTw6BiJ
-         VQbuWL/C7+WKfxSbkVwN+udUXZlCp0k8Yu4Fx69EyC0fFs9DS+37kppCoChW2jfkr+
-         R1Zr2GsXJnCrP+CS5HpnQsWA1zy1aaMelYbToMB999Oxnxyym5WV2qVYWwT6sni/yG
-         pDm8nc8OKWxcssT63GPP5lkvaEPvHhyQAlpr4FwxtOQaReuetIv0cKyDHx+Vrr35TO
-         LcHEY8FbDlWTvvkGsZERLqvSAK5Luw3mTzS+s6l7zwIkYJI4LKkhTjwEPzWvMXLPN2
-         CpZVaK2bD8Spg==
+        b=GfAH0s7rrk0ea85HayQ2LpmWD9hliRlMHCJt1xvW0b8v8C3UG5DC/l3HZ//ww0HjF
+         8dziKEkATNF9p23vGdOYqhy7tv6aU66Y8e03SSCxeubNOs57MLrs/wI/9pJSS1OY01
+         ywpfi04klQu65MjyBvxHxWyrc1+FGBMXpBND+K7r/HqR3zWaIJ4sFSx6DQ9xC09W5C
+         zwdJm8zBWuwJlv1Liy1ctEJAyPeW/jBO3RL+841igb237L0MfZDrz1TEAg1uxTYZU+
+         GmN5z9iwL8duUQNI1LTblk9RoWpY+Zt+yqp8qCpd8blEm473olCF0pMuhq5iLg7LzI
+         OGbmfsKquUbgQ==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Yang Li <yang.lee@linux.alibaba.com>,
-        Abaci Robot <abaci@linux.alibaba.com>,
-        Zhang Rui <rui.zhang@intel.com>,
-        "Rafael J . Wysocki" <rafael.j.wysocki@intel.com>,
-        Sasha Levin <sashal@kernel.org>, rafael@kernel.org,
-        daniel.lezcano@linaro.org, linux-pm@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.4 03/19] thermal: intel: Fix unsigned comparison with less than zero
-Date:   Sun, 26 Feb 2023 09:51:05 -0500
-Message-Id: <20230226145123.829229-3-sashal@kernel.org>
+Cc:     Pietro Borrello <borrello@diag.uniroma1.it>,
+        Kuniyuki Iwashima <kuniyu@amazon.com>,
+        Eric Dumazet <edumazet@google.com>,
+        Paolo Abeni <pabeni@redhat.com>,
+        Sasha Levin <sashal@kernel.org>, davem@davemloft.net,
+        dsahern@kernel.org, kuba@kernel.org, netdev@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.4 08/19] inet: fix fast path in __inet_hash_connect()
+Date:   Sun, 26 Feb 2023 09:51:10 -0500
+Message-Id: <20230226145123.829229-8-sashal@kernel.org>
 X-Mailer: git-send-email 2.39.0
 In-Reply-To: <20230226145123.829229-1-sashal@kernel.org>
 References: <20230226145123.829229-1-sashal@kernel.org>
@@ -58,40 +58,54 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yang Li <yang.lee@linux.alibaba.com>
+From: Pietro Borrello <borrello@diag.uniroma1.it>
 
-[ Upstream commit e7fcfe67f9f410736b758969477b17ea285e8e6c ]
+[ Upstream commit 21cbd90a6fab7123905386985e3e4a80236b8714 ]
 
-The return value from the call to intel_tcc_get_tjmax() is int, which can
-be a negative error code. However, the return value is being assigned to
-an u32 variable 'tj_max', so making 'tj_max' an int.
+__inet_hash_connect() has a fast path taken if sk_head(&tb->owners) is
+equal to the sk parameter.
+sk_head() returns the hlist_entry() with respect to the sk_node field.
+However entries in the tb->owners list are inserted with respect to the
+sk_bind_node field with sk_add_bind_node().
+Thus the check would never pass and the fast path never execute.
 
-Eliminate the following warning:
-./drivers/thermal/intel/intel_soc_dts_iosf.c:394:5-11: WARNING: Unsigned expression compared with zero: tj_max < 0
+This fast path has never been executed or tested as this bug seems
+to be present since commit 1da177e4c3f4 ("Linux-2.6.12-rc2"), thus
+remove it to reduce code complexity.
 
-Link: https://bugzilla.openanolis.cn/show_bug.cgi?id=3637
-Reported-by: Abaci Robot <abaci@linux.alibaba.com>
-Signed-off-by: Yang Li <yang.lee@linux.alibaba.com>
-Acked-by: Zhang Rui <rui.zhang@intel.com>
-Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+Signed-off-by: Pietro Borrello <borrello@diag.uniroma1.it>
+Reviewed-by: Kuniyuki Iwashima <kuniyu@amazon.com>
+Reviewed-by: Eric Dumazet <edumazet@google.com>
+Link: https://lore.kernel.org/r/20230112-inet_hash_connect_bind_head-v3-1-b591fd212b93@diag.uniroma1.it
+Signed-off-by: Paolo Abeni <pabeni@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/thermal/intel/intel_soc_dts_iosf.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ net/ipv4/inet_hashtables.c | 12 +-----------
+ 1 file changed, 1 insertion(+), 11 deletions(-)
 
-diff --git a/drivers/thermal/intel/intel_soc_dts_iosf.c b/drivers/thermal/intel/intel_soc_dts_iosf.c
-index 5716b62e0f732..410f13f6cba48 100644
---- a/drivers/thermal/intel/intel_soc_dts_iosf.c
-+++ b/drivers/thermal/intel/intel_soc_dts_iosf.c
-@@ -396,7 +396,7 @@ struct intel_soc_dts_sensors *intel_soc_dts_iosf_init(
- {
- 	struct intel_soc_dts_sensors *sensors;
- 	bool notification;
--	u32 tj_max;
-+	int tj_max;
- 	int ret;
- 	int i;
+diff --git a/net/ipv4/inet_hashtables.c b/net/ipv4/inet_hashtables.c
+index 33292983b8cfb..9d14b3289f003 100644
+--- a/net/ipv4/inet_hashtables.c
++++ b/net/ipv4/inet_hashtables.c
+@@ -714,17 +714,7 @@ int __inet_hash_connect(struct inet_timewait_death_row *death_row,
+ 	u32 index;
  
+ 	if (port) {
+-		head = &hinfo->bhash[inet_bhashfn(net, port,
+-						  hinfo->bhash_size)];
+-		tb = inet_csk(sk)->icsk_bind_hash;
+-		spin_lock_bh(&head->lock);
+-		if (sk_head(&tb->owners) == sk && !sk->sk_bind_node.next) {
+-			inet_ehash_nolisten(sk, NULL, NULL);
+-			spin_unlock_bh(&head->lock);
+-			return 0;
+-		}
+-		spin_unlock(&head->lock);
+-		/* No definite answer... Walk to established hash table */
++		local_bh_disable();
+ 		ret = check_established(death_row, sk, port, NULL);
+ 		local_bh_enable();
+ 		return ret;
 -- 
 2.39.0
 
