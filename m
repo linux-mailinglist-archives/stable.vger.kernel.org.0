@@ -2,44 +2,42 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 2BB766A31AF
-	for <lists+stable@lfdr.de>; Sun, 26 Feb 2023 16:02:35 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 248216A3165
+	for <lists+stable@lfdr.de>; Sun, 26 Feb 2023 15:57:44 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231599AbjBZPCc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 26 Feb 2023 10:02:32 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36322 "EHLO
+        id S231439AbjBZO5l (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 26 Feb 2023 09:57:41 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56184 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231573AbjBZPCI (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 26 Feb 2023 10:02:08 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4F52AFF2D;
-        Sun, 26 Feb 2023 06:53:14 -0800 (PST)
+        with ESMTP id S231153AbjBZO4G (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 26 Feb 2023 09:56:06 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BBA661CAF1;
+        Sun, 26 Feb 2023 06:51:58 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 62D6A60BCB;
-        Sun, 26 Feb 2023 14:51:29 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 07C49C4339B;
-        Sun, 26 Feb 2023 14:51:27 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 25164B80C70;
+        Sun, 26 Feb 2023 14:51:36 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2612FC433D2;
+        Sun, 26 Feb 2023 14:51:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1677423088;
-        bh=Pn+r3MT/TP1PGC4/v/NdMGISBu4Vurq97WbGBnmulaA=;
+        s=k20201202; t=1677423094;
+        bh=++Gs8P30LiSIt+LSli+YK+qQUnGj5eH5qxStCqmYvWc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=XFmzUVXVVB+EGDv/4R0eEZvFYpFNEFPuaUaKhjjVmtrmrEmUSuusTdQhLQHrTX+Iw
-         J3nd1RqiNjtTOJ0dJ4saq9iLWMc2GTbu839RmB1XJBv6OSdrrU/Dai0ITlvnPpUw6Z
-         K63qMJYlnnpdAE97K01aUzrkgxWMx+TByMEMyrr5uf7eTuWJKvqbvMkDDE5073IZd4
-         ZRG2DewVTZ1CfNCYmdVl4jyWpbMIwVFqnJylHnlakTZ5sbtZvELFrulGHHgnfdmetv
-         KN3P/dNn2agRkUtGOZ1yLsJeRsEA923dsL4oopIM9ADbfimVjTXGmluy06/xiw7DoV
-         rm3pQ5FMAK+lA==
+        b=JA/JXWW6lW8Nw8LRPOPYzXLtAoBV7g5hKtN0QjO0wNOEpNfTSuNBMjnvRY7amLHRI
+         pbwdKuBZtdiExdyFqbt6WqXt/uw6MPjPj9WTxQFEYKAobFn2UeTievTY7FzjLnnlfO
+         F5uLU9NPdz3jt1wEdhbQOQU/f62Ma2QR6puxsldwm9GnGETu0m/k+aM4X2fCR6GAri
+         FkfWfHwJ9qzfrmRYKC864fKGMOoi2BHfENS5Rla38SzzT0tmF5Oef1FdIZTXXMee9V
+         uqoR3+rLKtr2919jfRqjwRl17dqQwjy8doWOCnuVmGC1DerlfEiDo9NoQ763vW7QQn
+         tdE/k7ctllizg==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     "Paul E. McKenney" <paulmck@kernel.org>,
-        Sasha Levin <sashal@kernel.org>, frederic@kernel.org,
-        quic_neeraju@quicinc.com, josh@joshtriplett.org,
-        rcu@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.4 02/19] rcu: Suppress smp_processor_id() complaint in synchronize_rcu_expedited_wait()
-Date:   Sun, 26 Feb 2023 09:51:04 -0500
-Message-Id: <20230226145123.829229-2-sashal@kernel.org>
+Cc:     Jann Horn <jannh@google.com>, Thomas Gleixner <tglx@linutronix.de>,
+        Sasha Levin <sashal@kernel.org>, jirislaby@kernel.org
+Subject: [PATCH AUTOSEL 5.4 04/19] timers: Prevent union confusion from unexpected restart_syscall()
+Date:   Sun, 26 Feb 2023 09:51:06 -0500
+Message-Id: <20230226145123.829229-4-sashal@kernel.org>
 X-Mailer: git-send-email 2.39.0
 In-Reply-To: <20230226145123.829229-1-sashal@kernel.org>
 References: <20230226145123.829229-1-sashal@kernel.org>
@@ -47,8 +45,8 @@ MIME-Version: 1.0
 X-stable: review
 X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
         SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -56,40 +54,106 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: "Paul E. McKenney" <paulmck@kernel.org>
+From: Jann Horn <jannh@google.com>
 
-[ Upstream commit 2d7f00b2f01301d6e41fd4a28030dab0442265be ]
+[ Upstream commit 9f76d59173d9d146e96c66886b671c1915a5c5e5 ]
 
-The normal grace period's RCU CPU stall warnings are invoked from the
-scheduling-clock interrupt handler, and can thus invoke smp_processor_id()
-with impunity, which allows them to directly invoke dump_cpu_task().
-In contrast, the expedited grace period's RCU CPU stall warnings are
-invoked from process context, which causes the dump_cpu_task() function's
-calls to smp_processor_id() to complain bitterly in debug kernels.
+The nanosleep syscalls use the restart_block mechanism, with a quirk:
+The `type` and `rmtp`/`compat_rmtp` fields are set up unconditionally on
+syscall entry, while the rest of the restart_block is only set up in the
+unlikely case that the syscall is actually interrupted by a signal (or
+pseudo-signal) that doesn't have a signal handler.
 
-This commit therefore causes synchronize_rcu_expedited_wait() to disable
-preemption around its call to dump_cpu_task().
+If the restart_block was set up by a previous syscall (futex(...,
+FUTEX_WAIT, ...) or poll()) and hasn't been invalidated somehow since then,
+this will clobber some of the union fields used by futex_wait_restart() and
+do_restart_poll().
 
-Signed-off-by: Paul E. McKenney <paulmck@kernel.org>
+If userspace afterwards wrongly calls the restart_syscall syscall,
+futex_wait_restart()/do_restart_poll() will read struct fields that have
+been clobbered.
+
+This doesn't actually lead to anything particularly interesting because
+none of the union fields contain trusted kernel data, and
+futex(..., FUTEX_WAIT, ...) and poll() aren't syscalls where it makes much
+sense to apply seccomp filters to their arguments.
+
+So the current consequences are just of the "if userspace does bad stuff,
+it can damage itself, and that's not a problem" flavor.
+
+But still, it seems like a hazard for future developers, so invalidate the
+restart_block when partly setting it up in the nanosleep syscalls.
+
+Signed-off-by: Jann Horn <jannh@google.com>
+Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
+Link: https://lore.kernel.org/r/20230105134403.754986-1-jannh@google.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/rcu/tree_exp.h | 2 ++
- 1 file changed, 2 insertions(+)
+ kernel/time/hrtimer.c      | 2 ++
+ kernel/time/posix-stubs.c  | 2 ++
+ kernel/time/posix-timers.c | 2 ++
+ 3 files changed, 6 insertions(+)
 
-diff --git a/kernel/rcu/tree_exp.h b/kernel/rcu/tree_exp.h
-index 173e3ce607900..eca3df7f041c5 100644
---- a/kernel/rcu/tree_exp.h
-+++ b/kernel/rcu/tree_exp.h
-@@ -523,7 +523,9 @@ static void synchronize_sched_expedited_wait(void)
- 				mask = leaf_node_cpu_bit(rnp, cpu);
- 				if (!(READ_ONCE(rnp->expmask) & mask))
- 					continue;
-+				preempt_disable(); // For smp_processor_id() in dump_cpu_task().
- 				dump_cpu_task(cpu);
-+				preempt_enable();
- 			}
- 		}
- 		jiffies_stall = 3 * rcu_jiffies_till_stall_check() + 3;
+diff --git a/kernel/time/hrtimer.c b/kernel/time/hrtimer.c
+index e1e8d5dab0c59..8e3c9228aec97 100644
+--- a/kernel/time/hrtimer.c
++++ b/kernel/time/hrtimer.c
+@@ -2020,6 +2020,7 @@ SYSCALL_DEFINE2(nanosleep, struct __kernel_timespec __user *, rqtp,
+ 	if (!timespec64_valid(&tu))
+ 		return -EINVAL;
+ 
++	current->restart_block.fn = do_no_restart_syscall;
+ 	current->restart_block.nanosleep.type = rmtp ? TT_NATIVE : TT_NONE;
+ 	current->restart_block.nanosleep.rmtp = rmtp;
+ 	return hrtimer_nanosleep(&tu, HRTIMER_MODE_REL, CLOCK_MONOTONIC);
+@@ -2040,6 +2041,7 @@ SYSCALL_DEFINE2(nanosleep_time32, struct old_timespec32 __user *, rqtp,
+ 	if (!timespec64_valid(&tu))
+ 		return -EINVAL;
+ 
++	current->restart_block.fn = do_no_restart_syscall;
+ 	current->restart_block.nanosleep.type = rmtp ? TT_COMPAT : TT_NONE;
+ 	current->restart_block.nanosleep.compat_rmtp = rmtp;
+ 	return hrtimer_nanosleep(&tu, HRTIMER_MODE_REL, CLOCK_MONOTONIC);
+diff --git a/kernel/time/posix-stubs.c b/kernel/time/posix-stubs.c
+index 67df65f887ac8..8ddb35d9779cb 100644
+--- a/kernel/time/posix-stubs.c
++++ b/kernel/time/posix-stubs.c
+@@ -142,6 +142,7 @@ SYSCALL_DEFINE4(clock_nanosleep, const clockid_t, which_clock, int, flags,
+ 		return -EINVAL;
+ 	if (flags & TIMER_ABSTIME)
+ 		rmtp = NULL;
++	current->restart_block.fn = do_no_restart_syscall;
+ 	current->restart_block.nanosleep.type = rmtp ? TT_NATIVE : TT_NONE;
+ 	current->restart_block.nanosleep.rmtp = rmtp;
+ 	return hrtimer_nanosleep(&t, flags & TIMER_ABSTIME ?
+@@ -228,6 +229,7 @@ SYSCALL_DEFINE4(clock_nanosleep_time32, clockid_t, which_clock, int, flags,
+ 		return -EINVAL;
+ 	if (flags & TIMER_ABSTIME)
+ 		rmtp = NULL;
++	current->restart_block.fn = do_no_restart_syscall;
+ 	current->restart_block.nanosleep.type = rmtp ? TT_COMPAT : TT_NONE;
+ 	current->restart_block.nanosleep.compat_rmtp = rmtp;
+ 	return hrtimer_nanosleep(&t, flags & TIMER_ABSTIME ?
+diff --git a/kernel/time/posix-timers.c b/kernel/time/posix-timers.c
+index 97d4a9dcf3399..efe3873021a37 100644
+--- a/kernel/time/posix-timers.c
++++ b/kernel/time/posix-timers.c
+@@ -1224,6 +1224,7 @@ SYSCALL_DEFINE4(clock_nanosleep, const clockid_t, which_clock, int, flags,
+ 		return -EINVAL;
+ 	if (flags & TIMER_ABSTIME)
+ 		rmtp = NULL;
++	current->restart_block.fn = do_no_restart_syscall;
+ 	current->restart_block.nanosleep.type = rmtp ? TT_NATIVE : TT_NONE;
+ 	current->restart_block.nanosleep.rmtp = rmtp;
+ 
+@@ -1251,6 +1252,7 @@ SYSCALL_DEFINE4(clock_nanosleep_time32, clockid_t, which_clock, int, flags,
+ 		return -EINVAL;
+ 	if (flags & TIMER_ABSTIME)
+ 		rmtp = NULL;
++	current->restart_block.fn = do_no_restart_syscall;
+ 	current->restart_block.nanosleep.type = rmtp ? TT_COMPAT : TT_NONE;
+ 	current->restart_block.nanosleep.compat_rmtp = rmtp;
+ 
 -- 
 2.39.0
 
