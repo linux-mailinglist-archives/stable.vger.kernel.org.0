@@ -2,49 +2,51 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 967C76A3262
-	for <lists+stable@lfdr.de>; Sun, 26 Feb 2023 16:35:29 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 485DF6A3223
+	for <lists+stable@lfdr.de>; Sun, 26 Feb 2023 16:22:08 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229792AbjBZPf1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 26 Feb 2023 10:35:27 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37952 "EHLO
+        id S231751AbjBZPWG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 26 Feb 2023 10:22:06 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52338 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229787AbjBZPfF (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 26 Feb 2023 10:35:05 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9AC71CDD2;
-        Sun, 26 Feb 2023 07:34:38 -0800 (PST)
+        with ESMTP id S230134AbjBZPVt (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 26 Feb 2023 10:21:49 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 04E379770;
+        Sun, 26 Feb 2023 07:13:26 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 75714B80BFC;
-        Sun, 26 Feb 2023 14:47:22 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9490EC433D2;
-        Sun, 26 Feb 2023 14:47:19 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 6D92160B93;
+        Sun, 26 Feb 2023 14:47:28 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A504EC4339B;
+        Sun, 26 Feb 2023 14:47:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1677422841;
-        bh=uYnX6kXyWYKq9b6OVNR2Tr3Xg8RiVgjuj+he5miUr/0=;
+        s=k20201202; t=1677422847;
+        bh=s4HLLDOkl3KSFg/gyVfI3FCVhw+CalJrnkSOS6Cx+tA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=clasIaR/qlk6e2rAjjzPSTIq5MaGF/G6+M/nwXsNx1LNOYRgWZGdFHJuq0wlYWdMp
-         PU3wKZWdAAZbtPU8EEWFgNQ8H3ILwtzDGbf3Z+C3QWBIf3l88Xf4VUKcyWGGYBHIAH
-         8PwOQ3Pt6eeuUKuye3C9qp6X4cXsTmB8GGzis6ZfPYqC8WxqCG7IU5/Tv1WQ9q54Pt
-         mqiHTsnm/TVwAzSN2WYWwvjTeGpPtYbnzTsAQqz4QBNu/pXB3jcYVPpubP3wGZr/pY
-         BgbWT0DoWhXjqaxC+iWtzwjoyr9nYLNKb1lzfdwtlt+vSNkSZBHHmvRDcuvLjKi6e7
-         Cmu67t/+PK5CQ==
+        b=DjsiLi25b9NNTb8zxiAYywPDVDxJl5xh3WO1vmiWcdSQFekTPTLBKlRpRg9W6w1dJ
+         YwqcyVy5WcOhYTGiNHRwSvx1OpZuMikG0DGvDzylAnOnGtR0CBNeaIvA/YGN/epd6C
+         9vEKPAdParKjO9fQ8hYbwyCIaQoQSpgb1eNPrFS2uAbUspXnuYgddi0muw6PE6V2Kp
+         5Y3KVTjalzHr8krSZXsfqiPuESv/NnMAjtBxbhnQHa1/lEgMICdi3wJoTJUMwb9XC0
+         1dfPo61CaXJBXa7J+vE0kianDUnxy+sTOCjgy0vzDGD4SNLUGvZGaJPseDj/n6HttO
+         f786wcQmxCrRw==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Breno Leitao <leitao@debian.org>,
-        Pawan Gupta <pawan.kumar.gupta@linux.intel.com>,
-        Borislav Petkov <bp@alien8.de>,
-        Sasha Levin <sashal@kernel.org>, tglx@linutronix.de,
-        mingo@redhat.com, dave.hansen@linux.intel.com, x86@kernel.org,
-        peterz@infradead.org, babu.moger@amd.com,
-        daniel.sneddon@linux.intel.com, nikunj@amd.com,
-        jpoimboe@kernel.org, kim.phillips@amd.com,
-        alexandre.chartre@oracle.com
-Subject: [PATCH AUTOSEL 6.1 12/49] x86/bugs: Reset speculation control settings on init
-Date:   Sun, 26 Feb 2023 09:46:12 -0500
-Message-Id: <20230226144650.826470-12-sashal@kernel.org>
+Cc:     Jisoo Jang <jisoo.jang@yonsei.ac.kr>,
+        Arend van Spriel <arend.vanspriel@broadcom.com>,
+        Kalle Valo <kvalo@kernel.org>, Sasha Levin <sashal@kernel.org>,
+        aspriel@gmail.com, franky.lin@broadcom.com,
+        hante.meuleman@broadcom.com, davem@davemloft.net,
+        edumazet@google.com, kuba@kernel.org, pabeni@redhat.com,
+        hdegoede@redhat.com, keescook@chromium.org, gustavoars@kernel.org,
+        wsa+renesas@sang-engineering.com, marcan@marcan.st, pavel@loebl.cz,
+        linux-wireless@vger.kernel.org,
+        brcm80211-dev-list.pdl@broadcom.com,
+        SHA-cyfmac-dev-list@infineon.com, netdev@vger.kernel.org
+Subject: [PATCH AUTOSEL 6.1 14/49] wifi: brcmfmac: ensure CLM version is null-terminated to prevent stack-out-of-bounds
+Date:   Sun, 26 Feb 2023 09:46:14 -0500
+Message-Id: <20230226144650.826470-14-sashal@kernel.org>
 X-Mailer: git-send-email 2.39.0
 In-Reply-To: <20230226144650.826470-1-sashal@kernel.org>
 References: <20230226144650.826470-1-sashal@kernel.org>
@@ -61,73 +63,162 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Breno Leitao <leitao@debian.org>
+From: Jisoo Jang <jisoo.jang@yonsei.ac.kr>
 
-[ Upstream commit 0125acda7d76b943ca55811df40ed6ec0ecf670f ]
+[ Upstream commit 660145d708be52f946a82e5b633c020f58f996de ]
 
-Currently, x86_spec_ctrl_base is read at boot time and speculative bits
-are set if Kconfig items are enabled. For example, IBRS is enabled if
-CONFIG_CPU_IBRS_ENTRY is configured, etc. These MSR bits are not cleared
-if the mitigations are disabled.
+Fix a stack-out-of-bounds read in brcmfmac that occurs
+when 'buf' that is not null-terminated is passed as an argument of
+strreplace() in brcmf_c_preinit_dcmds(). This buffer is filled with
+a CLM version string by memcpy() in brcmf_fil_iovar_data_get().
+Ensure buf is null-terminated.
 
-This is a problem when kexec-ing a kernel that has the mitigation
-disabled from a kernel that has the mitigation enabled. In this case,
-the MSR bits are not cleared during the new kernel boot. As a result,
-this might have some performance degradation that is hard to pinpoint.
+Found by a modified version of syzkaller.
 
-This problem does not happen if the machine is (hard) rebooted because
-the bit will be cleared by default.
+[   33.004414][ T1896] brcmfmac: brcmf_c_process_clm_blob: no clm_blob available (err=-2), device may have limited channels available
+[   33.013486][ T1896] brcmfmac: brcmf_c_preinit_dcmds: Firmware: BCM43236/3 wl0: Nov 30 2011 17:33:42 version 5.90.188.22
+[   33.021554][ T1896] ==================================================================
+[   33.022379][ T1896] BUG: KASAN: stack-out-of-bounds in strreplace+0xf2/0x110
+[   33.023122][ T1896] Read of size 1 at addr ffffc90001d6efc8 by task kworker/0:2/1896
+[   33.023852][ T1896]
+[   33.024096][ T1896] CPU: 0 PID: 1896 Comm: kworker/0:2 Tainted: G           O      5.14.0+ #132
+[   33.024927][ T1896] Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS rel-1.12.1-0-ga5cab58e9a3f-prebuilt.qemu.org 04/01/2014
+[   33.026065][ T1896] Workqueue: usb_hub_wq hub_event
+[   33.026581][ T1896] Call Trace:
+[   33.026896][ T1896]  dump_stack_lvl+0x57/0x7d
+[   33.027372][ T1896]  print_address_description.constprop.0.cold+0xf/0x334
+[   33.028037][ T1896]  ? strreplace+0xf2/0x110
+[   33.028403][ T1896]  ? strreplace+0xf2/0x110
+[   33.028807][ T1896]  kasan_report.cold+0x83/0xdf
+[   33.029283][ T1896]  ? strreplace+0xf2/0x110
+[   33.029666][ T1896]  strreplace+0xf2/0x110
+[   33.029966][ T1896]  brcmf_c_preinit_dcmds+0xab1/0xc40
+[   33.030351][ T1896]  ? brcmf_c_set_joinpref_default+0x100/0x100
+[   33.030787][ T1896]  ? rcu_read_lock_sched_held+0xa1/0xd0
+[   33.031223][ T1896]  ? rcu_read_lock_bh_held+0xb0/0xb0
+[   33.031661][ T1896]  ? lock_acquire+0x19d/0x4e0
+[   33.032091][ T1896]  ? find_held_lock+0x2d/0x110
+[   33.032605][ T1896]  ? brcmf_usb_deq+0x1a7/0x260
+[   33.033087][ T1896]  ? brcmf_usb_rx_fill_all+0x5a/0xf0
+[   33.033582][ T1896]  brcmf_attach+0x246/0xd40
+[   33.034022][ T1896]  ? wiphy_new_nm+0x1476/0x1d50
+[   33.034383][ T1896]  ? kmemdup+0x30/0x40
+[   33.034722][ T1896]  brcmf_usb_probe+0x12de/0x1690
+[   33.035223][ T1896]  ? brcmf_usbdev_qinit.constprop.0+0x470/0x470
+[   33.035833][ T1896]  usb_probe_interface+0x25f/0x710
+[   33.036315][ T1896]  really_probe+0x1be/0xa90
+[   33.036656][ T1896]  __driver_probe_device+0x2ab/0x460
+[   33.037026][ T1896]  ? usb_match_id.part.0+0x88/0xc0
+[   33.037383][ T1896]  driver_probe_device+0x49/0x120
+[   33.037790][ T1896]  __device_attach_driver+0x18a/0x250
+[   33.038300][ T1896]  ? driver_allows_async_probing+0x120/0x120
+[   33.038986][ T1896]  bus_for_each_drv+0x123/0x1a0
+[   33.039906][ T1896]  ? bus_rescan_devices+0x20/0x20
+[   33.041412][ T1896]  ? lockdep_hardirqs_on_prepare+0x273/0x3e0
+[   33.041861][ T1896]  ? trace_hardirqs_on+0x1c/0x120
+[   33.042330][ T1896]  __device_attach+0x207/0x330
+[   33.042664][ T1896]  ? device_bind_driver+0xb0/0xb0
+[   33.043026][ T1896]  ? kobject_uevent_env+0x230/0x12c0
+[   33.043515][ T1896]  bus_probe_device+0x1a2/0x260
+[   33.043914][ T1896]  device_add+0xa61/0x1ce0
+[   33.044227][ T1896]  ? __mutex_unlock_slowpath+0xe7/0x660
+[   33.044891][ T1896]  ? __fw_devlink_link_to_suppliers+0x550/0x550
+[   33.045531][ T1896]  usb_set_configuration+0x984/0x1770
+[   33.046051][ T1896]  ? kernfs_create_link+0x175/0x230
+[   33.046548][ T1896]  usb_generic_driver_probe+0x69/0x90
+[   33.046931][ T1896]  usb_probe_device+0x9c/0x220
+[   33.047434][ T1896]  really_probe+0x1be/0xa90
+[   33.047760][ T1896]  __driver_probe_device+0x2ab/0x460
+[   33.048134][ T1896]  driver_probe_device+0x49/0x120
+[   33.048516][ T1896]  __device_attach_driver+0x18a/0x250
+[   33.048910][ T1896]  ? driver_allows_async_probing+0x120/0x120
+[   33.049437][ T1896]  bus_for_each_drv+0x123/0x1a0
+[   33.049814][ T1896]  ? bus_rescan_devices+0x20/0x20
+[   33.050164][ T1896]  ? lockdep_hardirqs_on_prepare+0x273/0x3e0
+[   33.050579][ T1896]  ? trace_hardirqs_on+0x1c/0x120
+[   33.050936][ T1896]  __device_attach+0x207/0x330
+[   33.051399][ T1896]  ? device_bind_driver+0xb0/0xb0
+[   33.051888][ T1896]  ? kobject_uevent_env+0x230/0x12c0
+[   33.052314][ T1896]  bus_probe_device+0x1a2/0x260
+[   33.052688][ T1896]  device_add+0xa61/0x1ce0
+[   33.053121][ T1896]  ? __fw_devlink_link_to_suppliers+0x550/0x550
+[   33.053568][ T1896]  usb_new_device.cold+0x463/0xf66
+[   33.053953][ T1896]  ? hub_disconnect+0x400/0x400
+[   33.054313][ T1896]  ? rwlock_bug.part.0+0x90/0x90
+[   33.054661][ T1896]  ? lockdep_hardirqs_on_prepare+0x273/0x3e0
+[   33.055094][ T1896]  hub_event+0x10d5/0x3330
+[   33.055530][ T1896]  ? hub_port_debounce+0x280/0x280
+[   33.055934][ T1896]  ? __lock_acquire+0x1671/0x5790
+[   33.056387][ T1896]  ? wq_calc_node_cpumask+0x170/0x2a0
+[   33.056924][ T1896]  ? lock_release+0x640/0x640
+[   33.057383][ T1896]  ? rcu_read_lock_sched_held+0xa1/0xd0
+[   33.057916][ T1896]  ? rcu_read_lock_bh_held+0xb0/0xb0
+[   33.058402][ T1896]  ? lockdep_hardirqs_on_prepare+0x273/0x3e0
+[   33.059019][ T1896]  process_one_work+0x873/0x13e0
+[   33.059488][ T1896]  ? lock_release+0x640/0x640
+[   33.059932][ T1896]  ? pwq_dec_nr_in_flight+0x320/0x320
+[   33.060446][ T1896]  ? rwlock_bug.part.0+0x90/0x90
+[   33.060898][ T1896]  worker_thread+0x8b/0xd10
+[   33.061348][ T1896]  ? __kthread_parkme+0xd9/0x1d0
+[   33.061810][ T1896]  ? process_one_work+0x13e0/0x13e0
+[   33.062288][ T1896]  kthread+0x379/0x450
+[   33.062660][ T1896]  ? _raw_spin_unlock_irq+0x24/0x30
+[   33.063148][ T1896]  ? set_kthread_struct+0x100/0x100
+[   33.063606][ T1896]  ret_from_fork+0x1f/0x30
+[   33.064070][ T1896]
+[   33.064313][ T1896]
+[   33.064545][ T1896] addr ffffc90001d6efc8 is located in stack of task kworker/0:2/1896 at offset 512 in frame:
+[   33.065478][ T1896]  brcmf_c_preinit_dcmds+0x0/0xc40
+[   33.065973][ T1896]
+[   33.066191][ T1896] this frame has 4 objects:
+[   33.066614][ T1896]  [48, 56) 'ptr'
+[   33.066618][ T1896]  [80, 148) 'revinfo'
+[   33.066957][ T1896]  [192, 210) 'eventmask'
+[   33.067338][ T1896]  [256, 512) 'buf'
+[   33.067742][ T1896]
+[   33.068304][ T1896] Memory state around the buggy address:
+[   33.068838][ T1896]  ffffc90001d6ee80: f2 00 00 02 f2 f2 f2 f2 f2 00 00 00 00 00 00 00
+[   33.069545][ T1896]  ffffc90001d6ef00: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+[   33.070626][ T1896] >ffffc90001d6ef80: 00 00 00 00 00 00 00 00 00 f3 f3 f3 f3 f3 f3 f3
+[   33.072052][ T1896]                                               ^
+[   33.073043][ T1896]  ffffc90001d6f000: f3 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+[   33.074230][ T1896]  ffffc90001d6f080: 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+[   33.074914][ T1896] ==================================================================
+[   33.075713][ T1896] Disabling lock debugging due to kernel taint
 
-  [ bp: Massage. ]
-
-Suggested-by: Pawan Gupta <pawan.kumar.gupta@linux.intel.com>
-Signed-off-by: Breno Leitao <leitao@debian.org>
-Signed-off-by: Borislav Petkov (AMD) <bp@alien8.de>
-Link: https://lore.kernel.org/r/20221128153148.1129350-1-leitao@debian.org
+Reviewed-by: Arend van Spriel<arend.vanspriel@broadcom.com>
+Signed-off-by: Jisoo Jang <jisoo.jang@yonsei.ac.kr>
+Signed-off-by: Kalle Valo <kvalo@kernel.org>
+Link: https://lore.kernel.org/r/20221230075139.56591-1-jisoo.jang@yonsei.ac.kr
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/x86/include/asm/msr-index.h |  4 ++++
- arch/x86/kernel/cpu/bugs.c       | 10 +++++++++-
- 2 files changed, 13 insertions(+), 1 deletion(-)
+ drivers/net/wireless/broadcom/brcm80211/brcmfmac/common.c | 6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
 
-diff --git a/arch/x86/include/asm/msr-index.h b/arch/x86/include/asm/msr-index.h
-index 91447f018f6e4..117e4e977b55d 100644
---- a/arch/x86/include/asm/msr-index.h
-+++ b/arch/x86/include/asm/msr-index.h
-@@ -54,6 +54,10 @@
- #define SPEC_CTRL_RRSBA_DIS_S_SHIFT	6	   /* Disable RRSBA behavior */
- #define SPEC_CTRL_RRSBA_DIS_S		BIT(SPEC_CTRL_RRSBA_DIS_S_SHIFT)
+diff --git a/drivers/net/wireless/broadcom/brcm80211/brcmfmac/common.c b/drivers/net/wireless/broadcom/brcm80211/brcmfmac/common.c
+index 789930806d03a..fc5232a896535 100644
+--- a/drivers/net/wireless/broadcom/brcm80211/brcmfmac/common.c
++++ b/drivers/net/wireless/broadcom/brcm80211/brcmfmac/common.c
+@@ -319,15 +319,17 @@ int brcmf_c_preinit_dcmds(struct brcmf_if *ifp)
+ 	if (err) {
+ 		brcmf_dbg(TRACE, "retrieving clmver failed, %d\n", err);
+ 	} else {
++		buf[sizeof(buf) - 1] = '\0';
+ 		clmver = (char *)buf;
+-		/* store CLM version for adding it to revinfo debugfs file */
+-		memcpy(ifp->drvr->clmver, clmver, sizeof(ifp->drvr->clmver));
  
-+/* A mask for bits which the kernel toggles when controlling mitigations */
-+#define SPEC_CTRL_MITIGATIONS_MASK	(SPEC_CTRL_IBRS | SPEC_CTRL_STIBP | SPEC_CTRL_SSBD \
-+							| SPEC_CTRL_RRSBA_DIS_S)
+ 		/* Replace all newline/linefeed characters with space
+ 		 * character
+ 		 */
+ 		strreplace(clmver, '\n', ' ');
+ 
++		/* store CLM version for adding it to revinfo debugfs file */
++		memcpy(ifp->drvr->clmver, clmver, sizeof(ifp->drvr->clmver));
 +
- #define MSR_IA32_PRED_CMD		0x00000049 /* Prediction Command */
- #define PRED_CMD_IBPB			BIT(0)	   /* Indirect Branch Prediction Barrier */
+ 		brcmf_dbg(INFO, "CLM version = %s\n", clmver);
+ 	}
  
-diff --git a/arch/x86/kernel/cpu/bugs.c b/arch/x86/kernel/cpu/bugs.c
-index 16d8e43be7758..c730b2911418a 100644
---- a/arch/x86/kernel/cpu/bugs.c
-+++ b/arch/x86/kernel/cpu/bugs.c
-@@ -144,9 +144,17 @@ void __init check_bugs(void)
- 	 * have unknown values. AMD64_LS_CFG MSR is cached in the early AMD
- 	 * init code as it is not enumerated and depends on the family.
- 	 */
--	if (boot_cpu_has(X86_FEATURE_MSR_SPEC_CTRL))
-+	if (cpu_feature_enabled(X86_FEATURE_MSR_SPEC_CTRL)) {
- 		rdmsrl(MSR_IA32_SPEC_CTRL, x86_spec_ctrl_base);
- 
-+		/*
-+		 * Previously running kernel (kexec), may have some controls
-+		 * turned ON. Clear them and let the mitigations setup below
-+		 * rediscover them based on configuration.
-+		 */
-+		x86_spec_ctrl_base &= ~SPEC_CTRL_MITIGATIONS_MASK;
-+	}
-+
- 	/* Select the proper CPU mitigations before patching alternatives: */
- 	spectre_v1_select_mitigation();
- 	spectre_v2_select_mitigation();
 -- 
 2.39.0
 
