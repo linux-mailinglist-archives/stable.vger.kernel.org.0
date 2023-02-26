@@ -2,48 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 6AB936A3080
-	for <lists+stable@lfdr.de>; Sun, 26 Feb 2023 15:50:25 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3EB8A6A30C2
+	for <lists+stable@lfdr.de>; Sun, 26 Feb 2023 15:53:21 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230153AbjBZOuX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 26 Feb 2023 09:50:23 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45148 "EHLO
+        id S230338AbjBZOxT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 26 Feb 2023 09:53:19 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45146 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229919AbjBZOtU (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 26 Feb 2023 09:49:20 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0B75612BC1;
-        Sun, 26 Feb 2023 06:48:07 -0800 (PST)
+        with ESMTP id S229866AbjBZOwh (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 26 Feb 2023 09:52:37 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4A5BB1A494;
+        Sun, 26 Feb 2023 06:49:29 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 27E2EB80BA7;
+        by dfw.source.kernel.org (Postfix) with ESMTPS id A653860C58;
+        Sun, 26 Feb 2023 14:48:00 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 657E5C433D2;
         Sun, 26 Feb 2023 14:47:59 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 56DBDC4339E;
-        Sun, 26 Feb 2023 14:47:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1677422877;
-        bh=SsLC3DuoRr7IIjgp4V6ByD7OU4nl/phwXVPN1WE/Y/s=;
+        s=k20201202; t=1677422880;
+        bh=w+h52hvnhQo5lNcm23tac3TAxBW43PYXPti+xpjvico=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=vCgClJJQdELzNqJDQ9RShub5gwdJXUvsvfCUXIvUV7/SNzVhev3C//PBs3+Tgcofh
-         0ZJTHLLvimVl/ozge9Skg4k+Lg71oY74E2tf4WWqn2rfqz/Qy+AhVsblYMiCwo/f/r
-         z2XOlFbW5yjA5YoxwofrZ2/drHhi0/qLN6eBU4dAfSUB7L7dNoCMfh9AHSDjXDfctI
-         e6FVsFoLqMDQPZpkXSBlQ3rvmFsCG8pTHdgyht3N7Jr01YLQqXJPTyXuMmCMMEyxTW
-         U/uNGdr0X/uMpadYWlPoANtLZUpBgQnjlp8rHuKGvZG4+QStjr/OwK1SNJKiPgAPdL
-         GvuSwB5sXXRpg==
+        b=rT8tVsT8IA1vMT64UGi93J6I/Uunf639N2McyXNkUtUXTLPYH3Chj0j/nn2o5a9hK
+         cszpx1JXuN1N1oD6XmGTZTQuTxdVJgiIVZfS82sdbI/fJE/aei3ZH5aILG7EqvPnRv
+         W5jf5QCZf9w9isccDZVnheBE8ll1NBWSsQ9N8ZOr3RampP4sYA+99plYvwNPjy6iQJ
+         l+3tVm+zON8vFKmrMqKmywvcNAtcp81K+1k+769arQHUxnlt412ONHWi8KecjJpOKy
+         NP+lzL9CY8bkH9iUTL04NHLoQI3gXofQyPuoYRBKB5YKtmRHHo7OpUaNJeAQNWwzb5
+         BG/Eioca6Ic3g==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Oliver Hartkopp <socketcan@hartkopp.net>,
-        syzbot+5aed6c3aaba661f5b917@syzkaller.appspotmail.com,
-        Marc Kleine-Budde <mkl@pengutronix.de>,
-        Sasha Levin <sashal@kernel.org>, davem@davemloft.net,
-        edumazet@google.com, kuba@kernel.org, pabeni@redhat.com,
-        ast@kernel.org, daniel@iogearbox.net, hawk@kernel.org,
-        john.fastabend@gmail.com, linux-can@vger.kernel.org,
-        netdev@vger.kernel.org, bpf@vger.kernel.org
-Subject: [PATCH AUTOSEL 6.1 29/49] can: isotp: check CAN address family in isotp_bind()
-Date:   Sun, 26 Feb 2023 09:46:29 -0500
-Message-Id: <20230226144650.826470-29-sashal@kernel.org>
+Cc:     Zhang Rui <rui.zhang@intel.com>,
+        Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>,
+        Hans de Goede <hdegoede@redhat.com>,
+        Sasha Levin <sashal@kernel.org>,
+        platform-driver-x86@vger.kernel.org
+Subject: [PATCH AUTOSEL 6.1 31/49] tools/power/x86/intel-speed-select: Add Emerald Rapid quirk
+Date:   Sun, 26 Feb 2023 09:46:31 -0500
+Message-Id: <20230226144650.826470-31-sashal@kernel.org>
 X-Mailer: git-send-email 2.39.0
 In-Reply-To: <20230226144650.826470-1-sashal@kernel.org>
 References: <20230226144650.826470-1-sashal@kernel.org>
@@ -60,45 +57,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Oliver Hartkopp <socketcan@hartkopp.net>
+From: Zhang Rui <rui.zhang@intel.com>
 
-[ Upstream commit c6adf659a8ba85913e16a571d5a9bcd17d3d1234 ]
+[ Upstream commit 61f9fdcdcd01f9a996b6db4e7092fcdfe8414ad5 ]
 
-Add missing check to block non-AF_CAN binds.
+Need memory frequency quirk as Sapphire Rapids in Emerald Rapids.
+So add Emerald Rapids CPU model check in is_spr_platform().
 
-Syzbot created some code which matched the right sockaddr struct size
-but used AF_XDP (0x2C) instead of AF_CAN (0x1D) in the address family
-field:
-
-bind$xdp(r2, &(0x7f0000000540)={0x2c, 0x0, r4, 0x0, r2}, 0x10)
-                                ^^^^
-This has no funtional impact but the userspace should be notified about
-the wrong address family field content.
-
-Link: https://syzkaller.appspot.com/text?tag=CrashLog&x=11ff9d8c480000
-Reported-by: syzbot+5aed6c3aaba661f5b917@syzkaller.appspotmail.com
-Signed-off-by: Oliver Hartkopp <socketcan@hartkopp.net>
-Link: https://lore.kernel.org/all/20230104201844.13168-1-socketcan@hartkopp.net
-Signed-off-by: Marc Kleine-Budde <mkl@pengutronix.de>
+Signed-off-by: Zhang Rui <rui.zhang@intel.com>
+[srinivas.pandruvada@linux.intel.com: Subject, changelog and code edits]
+Signed-off-by: Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>
+Signed-off-by: Hans de Goede <hdegoede@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/can/isotp.c | 3 +++
- 1 file changed, 3 insertions(+)
+ tools/power/x86/intel-speed-select/isst-config.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/net/can/isotp.c b/net/can/isotp.c
-index fc81d77724a13..9bc344851704e 100644
---- a/net/can/isotp.c
-+++ b/net/can/isotp.c
-@@ -1220,6 +1220,9 @@ static int isotp_bind(struct socket *sock, struct sockaddr *uaddr, int len)
- 	if (len < ISOTP_MIN_NAMELEN)
- 		return -EINVAL;
+diff --git a/tools/power/x86/intel-speed-select/isst-config.c b/tools/power/x86/intel-speed-select/isst-config.c
+index a160bad291eb7..be3668d37d654 100644
+--- a/tools/power/x86/intel-speed-select/isst-config.c
++++ b/tools/power/x86/intel-speed-select/isst-config.c
+@@ -110,7 +110,7 @@ int is_skx_based_platform(void)
  
-+	if (addr->can_family != AF_CAN)
-+		return -EINVAL;
-+
- 	/* sanitize tx CAN identifier */
- 	if (tx_id & CAN_EFF_FLAG)
- 		tx_id &= (CAN_EFF_FLAG | CAN_EFF_MASK);
+ int is_spr_platform(void)
+ {
+-	if (cpu_model == 0x8F)
++	if (cpu_model == 0x8F || cpu_model == 0xCF)
+ 		return 1;
+ 
+ 	return 0;
 -- 
 2.39.0
 
