@@ -2,49 +2,52 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 0A5376A319D
-	for <lists+stable@lfdr.de>; Sun, 26 Feb 2023 16:01:18 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id ECDE86A319F
+	for <lists+stable@lfdr.de>; Sun, 26 Feb 2023 16:01:32 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231173AbjBZPBQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 26 Feb 2023 10:01:16 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36442 "EHLO
+        id S231687AbjBZPB3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 26 Feb 2023 10:01:29 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36668 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231731AbjBZPAZ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 26 Feb 2023 10:00:25 -0500
+        with ESMTP id S231760AbjBZPA3 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 26 Feb 2023 10:00:29 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 57C911D934;
-        Sun, 26 Feb 2023 06:52:41 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 61640199F9;
+        Sun, 26 Feb 2023 06:52:45 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 7DB3CB80C6A;
-        Sun, 26 Feb 2023 14:52:33 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7E809C4339E;
-        Sun, 26 Feb 2023 14:52:30 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id AE536B80C81;
+        Sun, 26 Feb 2023 14:52:41 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id DE477C4331E;
+        Sun, 26 Feb 2023 14:52:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1677423152;
-        bh=kAoiKyBVdWVPKwDEdXmnjYeXCg+cyZVGRc2t6sMY1w0=;
+        s=k20201202; t=1677423160;
+        bh=g6BSCwLk/7yJsWu4QaC6RKjnDcnWToaoTNB2z6A/PDU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=kOxtCjZiy/Zc7Vp48rhSA+IHvmkqAbWQghEjeEe+W8H6dgLS/RPynCgq1OGWDqQRo
-         aiwRLZbNpoyLwmVt9AFSmD10f4CpflhEXfRBIMSxtDRabmUpUamiB+L/q0pINAsuTG
-         FfOrTY+Sc7xCi7TwAVp18REnFyVbS46HdDNT7TjoOajzjEbcEWDA7cVg/YNO/f6wWL
-         gbFq5k3DbtaNCQAVKVzeC3QCya+32Ws0FHFu5wjEpd05DduCIgsp7OB9iemYGGIdKg
-         VRABf8W4zDp+jE/qO93Qeqw8LkxxrNC5jpiTIWtRZGTF3NR+V+AwZZb8XIY6ZaamTb
-         26/HXSzFE/spA==
+        b=kabSP9tQYrdPiMwKAJqmL3iMyn0CjLIins0OIf4Ofkj9oJwCIy7WBrVMUAahet/t6
+         66ip2amAGYyOqLg7mH9Vg+NpzW/mnEM5si8MWNikDdGRaoK522NFYaLpir/YpEbKWL
+         Sqwv1QeIQRTUKtFO2W/eNosccZO2x0bV1oQhxTuq7dEJ9iIh2c+v/hcXXfsikv9FeE
+         Rd0nbBoHItqmzJrDWdHmm39x0fvD4Q+spF9PZliAAmHszXues7LQ1bQfEQM0KWipJ4
+         HYgkgHwDOZ8hVrsYoO01k9SH8WqWruvQ2gbHKd2EfUy/OKQgQZ5VKQ7Wz8tGVFE082
+         y/SSVNALf1MEA==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Breno Leitao <leitao@debian.org>,
-        Pawan Gupta <pawan.kumar.gupta@linux.intel.com>,
-        Borislav Petkov <bp@alien8.de>,
-        Sasha Levin <sashal@kernel.org>, tglx@linutronix.de,
-        mingo@redhat.com, dave.hansen@linux.intel.com, x86@kernel.org,
-        peterz@infradead.org, sandipan.das@amd.com, babu.moger@amd.com,
-        nikunj@amd.com, daniel.sneddon@linux.intel.com,
-        jpoimboe@kernel.org, kim.phillips@amd.com,
-        alexandre.chartre@oracle.com
-Subject: [PATCH AUTOSEL 4.19 05/13] x86/bugs: Reset speculation control settings on init
-Date:   Sun, 26 Feb 2023 09:52:07 -0500
-Message-Id: <20230226145217.829485-5-sashal@kernel.org>
+Cc:     Mark Rutland <mark.rutland@arm.com>,
+        "Rafael J . Wysocki" <rafael.j.wysocki@intel.com>,
+        Florent Revest <revest@chromium.org>,
+        Len Brown <lenb@kernel.org>,
+        Masami Hiramatsu <mhiramat@kernel.org>,
+        Peter Zijlstra <peterz@infradead.org>,
+        Robert Moore <robert.moore@intel.com>,
+        Steven Rostedt <rostedt@goodmis.org>,
+        Will Deacon <will@kernel.org>, linux-acpi@vger.kernel.org,
+        Catalin Marinas <catalin.marinas@arm.com>,
+        Sasha Levin <sashal@kernel.org>,
+        acpica-devel@lists.linuxfoundation.org
+Subject: [PATCH AUTOSEL 4.19 08/13] ACPI: Don't build ACPICA with '-Os'
+Date:   Sun, 26 Feb 2023 09:52:10 -0500
+Message-Id: <20230226145217.829485-8-sashal@kernel.org>
 X-Mailer: git-send-email 2.39.0
 In-Reply-To: <20230226145217.829485-1-sashal@kernel.org>
 References: <20230226145217.829485-1-sashal@kernel.org>
@@ -61,73 +64,109 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Breno Leitao <leitao@debian.org>
+From: Mark Rutland <mark.rutland@arm.com>
 
-[ Upstream commit 0125acda7d76b943ca55811df40ed6ec0ecf670f ]
+[ Upstream commit 8f9e0a52810dd83406c768972d022c37e7a18f1f ]
 
-Currently, x86_spec_ctrl_base is read at boot time and speculative bits
-are set if Kconfig items are enabled. For example, IBRS is enabled if
-CONFIG_CPU_IBRS_ENTRY is configured, etc. These MSR bits are not cleared
-if the mitigations are disabled.
+The ACPICA code has been built with '-Os' since the beginning of git
+history, though there's no explanatory comment as to why.
 
-This is a problem when kexec-ing a kernel that has the mitigation
-disabled from a kernel that has the mitigation enabled. In this case,
-the MSR bits are not cleared during the new kernel boot. As a result,
-this might have some performance degradation that is hard to pinpoint.
+This is unfortunate as GCC drops the alignment specificed by
+'-falign-functions=N' when '-Os' is used, as reported in GCC bug 88345:
 
-This problem does not happen if the machine is (hard) rebooted because
-the bit will be cleared by default.
+  https://gcc.gnu.org/bugzilla/show_bug.cgi?id=88345
 
-  [ bp: Massage. ]
+This prevents CONFIG_FUNCTION_ALIGNMENT and
+CONFIG_DEBUG_FORCE_FUNCTION_ALIGN_64B from having their expected effect
+on the ACPICA code. This is doubly unfortunate as in subsequent patches
+arm64 will depend upon CONFIG_FUNCTION_ALIGNMENT for its ftrace
+implementation.
 
-Suggested-by: Pawan Gupta <pawan.kumar.gupta@linux.intel.com>
-Signed-off-by: Breno Leitao <leitao@debian.org>
-Signed-off-by: Borislav Petkov (AMD) <bp@alien8.de>
-Link: https://lore.kernel.org/r/20221128153148.1129350-1-leitao@debian.org
+Drop the '-Os' flag when building the ACPICA code. With this removed,
+the code builds cleanly and works correctly in testing so far.
+
+I've tested this by selecting CONFIG_DEBUG_FORCE_FUNCTION_ALIGN_64B=y,
+building and booting a kernel using ACPI, and looking for misaligned
+text symbols:
+
+* arm64:
+
+  Before, v6.2-rc3:
+    # uname -rm
+    6.2.0-rc3 aarch64
+    # grep ' [Tt] ' /proc/kallsyms | grep -iv '[048c]0 [Tt] ' | wc -l
+    5009
+
+  Before, v6.2-rc3 + fixed __cold:
+    # uname -rm
+    6.2.0-rc3-00001-g2a2bedf8bfa9 aarch64
+    # grep ' [Tt] ' /proc/kallsyms | grep -iv '[048c]0 [Tt] ' | wc -l
+    919
+
+  After:
+    # uname -rm
+    6.2.0-rc3-00002-g267bddc38572 aarch64
+    # grep ' [Tt] ' /proc/kallsyms | grep -iv '[048c]0 [Tt] ' | wc -l
+    323
+    # grep ' [Tt] ' /proc/kallsyms | grep -iv '[048c]0 [Tt] ' | grep acpi | wc -l
+    0
+
+* x86_64:
+
+  Before, v6.2-rc3:
+    # uname -rm
+    6.2.0-rc3 x86_64
+    # grep ' [Tt] ' /proc/kallsyms | grep -iv '[048c]0 [Tt] ' | wc -l
+    11537
+
+  Before, v6.2-rc3 + fixed __cold:
+    # uname -rm
+    6.2.0-rc3-00001-g2a2bedf8bfa9 x86_64
+    # grep ' [Tt] ' /proc/kallsyms | grep -iv '[048c]0 [Tt] ' | wc -l
+    2805
+
+  After:
+    # uname -rm
+    6.2.0-rc3-00002-g267bddc38572 x86_64
+    # grep ' [Tt] ' /proc/kallsyms | grep -iv '[048c]0 [Tt] ' | wc -l
+    1357
+    # grep ' [Tt] ' /proc/kallsyms | grep -iv '[048c]0 [Tt] ' | grep acpi | wc -l
+    0
+
+With the patch applied, the remaining unaligned text labels are a
+combination of static call trampolines and labels in assembly, which can
+be dealt with in subsequent patches.
+
+Signed-off-by: Mark Rutland <mark.rutland@arm.com>
+Acked-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+Cc: Florent Revest <revest@chromium.org>
+Cc: Len Brown <lenb@kernel.org>
+Cc: Masami Hiramatsu <mhiramat@kernel.org>
+Cc: Peter Zijlstra <peterz@infradead.org>
+Cc: Robert Moore <robert.moore@intel.com>
+Cc: Steven Rostedt <rostedt@goodmis.org>
+Cc: Will Deacon <will@kernel.org>
+Cc: linux-acpi@vger.kernel.org
+Link: https://lore.kernel.org/r/20230123134603.1064407-4-mark.rutland@arm.com
+Signed-off-by: Catalin Marinas <catalin.marinas@arm.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/x86/include/asm/msr-index.h |  4 ++++
- arch/x86/kernel/cpu/bugs.c       | 10 +++++++++-
- 2 files changed, 13 insertions(+), 1 deletion(-)
+ drivers/acpi/acpica/Makefile | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/arch/x86/include/asm/msr-index.h b/arch/x86/include/asm/msr-index.h
-index 0bd07699dba38..847f3f5820d21 100644
---- a/arch/x86/include/asm/msr-index.h
-+++ b/arch/x86/include/asm/msr-index.h
-@@ -50,6 +50,10 @@
- #define SPEC_CTRL_RRSBA_DIS_S_SHIFT	6	   /* Disable RRSBA behavior */
- #define SPEC_CTRL_RRSBA_DIS_S		BIT(SPEC_CTRL_RRSBA_DIS_S_SHIFT)
+diff --git a/drivers/acpi/acpica/Makefile b/drivers/acpi/acpica/Makefile
+index 71f6f2624debc..8ce51f0f40ce5 100644
+--- a/drivers/acpi/acpica/Makefile
++++ b/drivers/acpi/acpica/Makefile
+@@ -3,7 +3,7 @@
+ # Makefile for ACPICA Core interpreter
+ #
  
-+/* A mask for bits which the kernel toggles when controlling mitigations */
-+#define SPEC_CTRL_MITIGATIONS_MASK	(SPEC_CTRL_IBRS | SPEC_CTRL_STIBP | SPEC_CTRL_SSBD \
-+							| SPEC_CTRL_RRSBA_DIS_S)
-+
- #define MSR_IA32_PRED_CMD		0x00000049 /* Prediction Command */
- #define PRED_CMD_IBPB			BIT(0)	   /* Indirect Branch Prediction Barrier */
+-ccflags-y			:= -Os -D_LINUX -DBUILDING_ACPICA
++ccflags-y			:= -D_LINUX -DBUILDING_ACPICA
+ ccflags-$(CONFIG_ACPI_DEBUG)	+= -DACPI_DEBUG_OUTPUT
  
-diff --git a/arch/x86/kernel/cpu/bugs.c b/arch/x86/kernel/cpu/bugs.c
-index e298ec9d5d536..54f42ae1a61d9 100644
---- a/arch/x86/kernel/cpu/bugs.c
-+++ b/arch/x86/kernel/cpu/bugs.c
-@@ -135,9 +135,17 @@ void __init check_bugs(void)
- 	 * have unknown values. AMD64_LS_CFG MSR is cached in the early AMD
- 	 * init code as it is not enumerated and depends on the family.
- 	 */
--	if (boot_cpu_has(X86_FEATURE_MSR_SPEC_CTRL))
-+	if (cpu_feature_enabled(X86_FEATURE_MSR_SPEC_CTRL)) {
- 		rdmsrl(MSR_IA32_SPEC_CTRL, x86_spec_ctrl_base);
- 
-+		/*
-+		 * Previously running kernel (kexec), may have some controls
-+		 * turned ON. Clear them and let the mitigations setup below
-+		 * rediscover them based on configuration.
-+		 */
-+		x86_spec_ctrl_base &= ~SPEC_CTRL_MITIGATIONS_MASK;
-+	}
-+
- 	/* Select the proper CPU mitigations before patching alternatives: */
- 	spectre_v1_select_mitigation();
- 	spectre_v2_select_mitigation();
+ # use acpi.o to put all files here into acpi.o modparam namespace
 -- 
 2.39.0
 
