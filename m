@@ -2,46 +2,48 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 07C2E6A322C
-	for <lists+stable@lfdr.de>; Sun, 26 Feb 2023 16:26:16 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3EB016A31F7
+	for <lists+stable@lfdr.de>; Sun, 26 Feb 2023 16:12:19 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230344AbjBZP0O (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 26 Feb 2023 10:26:14 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58802 "EHLO
+        id S231847AbjBZPMR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 26 Feb 2023 10:12:17 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35244 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230353AbjBZPZ5 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 26 Feb 2023 10:25:57 -0500
-Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DB2292413B;
-        Sun, 26 Feb 2023 07:19:50 -0800 (PST)
+        with ESMTP id S231789AbjBZPMC (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 26 Feb 2023 10:12:02 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 34C042597D;
+        Sun, 26 Feb 2023 07:01:55 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 00283CE0E88;
-        Sun, 26 Feb 2023 14:50:34 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 55436C433D2;
-        Sun, 26 Feb 2023 14:50:31 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 637A5B80BFF;
+        Sun, 26 Feb 2023 14:50:41 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 77653C433D2;
+        Sun, 26 Feb 2023 14:50:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1677423032;
-        bh=Bpnr5Gi/66njPh0yetcuFp1MziLbVdF6OErkWuJpJGE=;
+        s=k20201202; t=1677423040;
+        bh=hHjXwmYNWF17QFaj/TO411O6qn5XU1g5i5QGoO22UKw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=q9V6n5sc7WG6xGGBrAZTLD37FhxYdzGXwmBharpnW4nLe+5rMMDWTIeJVlbUKvK3H
-         7h50mlUxgpRtlDlMBCeh7atVLU/pKMFa3OYTjo4UNri5BtvY4DKUkzEt/GnbiHtBFz
-         WHE1tA/dpCcSjEimeQrdZSc/0PPkB2uDW4RMYM4Lv0TFVlf+667SW7WXXZU+h0/Gbq
-         KlwFAVpvTterNODaFVMvb9oYU6w6mne9JXuXMAsQEg/BuoSyikKwLL+yrP85m/hbrV
-         ej2IZo3j7+e6akmfPC57VUhUFGHtB1N6QPxRdBm04tLvX235P7Es1xuau0/fwZpdXX
-         yXiearifxN5SQ==
+        b=jeEmNktaIV3AqCuB666a14Y3V07BudAQ9HketCniPMoM446O+O4sS8XDTOZC4RpQQ
+         VlMIQEYguzTnk54azDijH38qgTtldSJBdK9TcmbupKOudx+CIndDZxWfMSV720Y1eZ
+         aKhBXklKrVVWumMXDTOhgaMG+wOU8ypTo/5uDH7y+htEtekopjGCP2I6v8g8fBbIs+
+         bfPSDyoSG+xvl8jRkquiOzGM+2bs1nbpt4G953FDq/3LSJKTkNYjDrFdk5sGXbXWby
+         FhAwOH0t6tmeeehgZpn3CdZ1fUb8osMQAKkrHaUu4CC1nuTINM+HiX+KdqyDsYxkdn
+         T4p6SZD5LOL/w==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Yang Li <yang.lee@linux.alibaba.com>,
-        Abaci Robot <abaci@linux.alibaba.com>,
-        Zhang Rui <rui.zhang@intel.com>,
-        "Rafael J . Wysocki" <rafael.j.wysocki@intel.com>,
-        Sasha Levin <sashal@kernel.org>, rafael@kernel.org,
-        daniel.lezcano@linaro.org, linux-pm@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.10 07/27] thermal: intel: Fix unsigned comparison with less than zero
-Date:   Sun, 26 Feb 2023 09:49:54 -0500
-Message-Id: <20230226145014.828855-7-sashal@kernel.org>
+Cc:     Breno Leitao <leitao@debian.org>,
+        Pawan Gupta <pawan.kumar.gupta@linux.intel.com>,
+        Borislav Petkov <bp@alien8.de>,
+        Sasha Levin <sashal@kernel.org>, tglx@linutronix.de,
+        mingo@redhat.com, dave.hansen@linux.intel.com, x86@kernel.org,
+        peterz@infradead.org, daniel.sneddon@linux.intel.com,
+        sandipan.das@amd.com, nikunj@amd.com, jpoimboe@kernel.org,
+        kim.phillips@amd.com, alexandre.chartre@oracle.com
+Subject: [PATCH AUTOSEL 5.10 09/27] x86/bugs: Reset speculation control settings on init
+Date:   Sun, 26 Feb 2023 09:49:56 -0500
+Message-Id: <20230226145014.828855-9-sashal@kernel.org>
 X-Mailer: git-send-email 2.39.0
 In-Reply-To: <20230226145014.828855-1-sashal@kernel.org>
 References: <20230226145014.828855-1-sashal@kernel.org>
@@ -49,8 +51,8 @@ MIME-Version: 1.0
 X-stable: review
 X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
         SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -58,40 +60,73 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Yang Li <yang.lee@linux.alibaba.com>
+From: Breno Leitao <leitao@debian.org>
 
-[ Upstream commit e7fcfe67f9f410736b758969477b17ea285e8e6c ]
+[ Upstream commit 0125acda7d76b943ca55811df40ed6ec0ecf670f ]
 
-The return value from the call to intel_tcc_get_tjmax() is int, which can
-be a negative error code. However, the return value is being assigned to
-an u32 variable 'tj_max', so making 'tj_max' an int.
+Currently, x86_spec_ctrl_base is read at boot time and speculative bits
+are set if Kconfig items are enabled. For example, IBRS is enabled if
+CONFIG_CPU_IBRS_ENTRY is configured, etc. These MSR bits are not cleared
+if the mitigations are disabled.
 
-Eliminate the following warning:
-./drivers/thermal/intel/intel_soc_dts_iosf.c:394:5-11: WARNING: Unsigned expression compared with zero: tj_max < 0
+This is a problem when kexec-ing a kernel that has the mitigation
+disabled from a kernel that has the mitigation enabled. In this case,
+the MSR bits are not cleared during the new kernel boot. As a result,
+this might have some performance degradation that is hard to pinpoint.
 
-Link: https://bugzilla.openanolis.cn/show_bug.cgi?id=3637
-Reported-by: Abaci Robot <abaci@linux.alibaba.com>
-Signed-off-by: Yang Li <yang.lee@linux.alibaba.com>
-Acked-by: Zhang Rui <rui.zhang@intel.com>
-Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+This problem does not happen if the machine is (hard) rebooted because
+the bit will be cleared by default.
+
+  [ bp: Massage. ]
+
+Suggested-by: Pawan Gupta <pawan.kumar.gupta@linux.intel.com>
+Signed-off-by: Breno Leitao <leitao@debian.org>
+Signed-off-by: Borislav Petkov (AMD) <bp@alien8.de>
+Link: https://lore.kernel.org/r/20221128153148.1129350-1-leitao@debian.org
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/thermal/intel/intel_soc_dts_iosf.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ arch/x86/include/asm/msr-index.h |  4 ++++
+ arch/x86/kernel/cpu/bugs.c       | 10 +++++++++-
+ 2 files changed, 13 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/thermal/intel/intel_soc_dts_iosf.c b/drivers/thermal/intel/intel_soc_dts_iosf.c
-index 4f1a2f7c016cc..8d6707e48d023 100644
---- a/drivers/thermal/intel/intel_soc_dts_iosf.c
-+++ b/drivers/thermal/intel/intel_soc_dts_iosf.c
-@@ -404,7 +404,7 @@ struct intel_soc_dts_sensors *intel_soc_dts_iosf_init(
- {
- 	struct intel_soc_dts_sensors *sensors;
- 	bool notification;
--	u32 tj_max;
-+	int tj_max;
- 	int ret;
- 	int i;
+diff --git a/arch/x86/include/asm/msr-index.h b/arch/x86/include/asm/msr-index.h
+index 5a8ee3b83af2a..f71a177b6b185 100644
+--- a/arch/x86/include/asm/msr-index.h
++++ b/arch/x86/include/asm/msr-index.h
+@@ -54,6 +54,10 @@
+ #define SPEC_CTRL_RRSBA_DIS_S_SHIFT	6	   /* Disable RRSBA behavior */
+ #define SPEC_CTRL_RRSBA_DIS_S		BIT(SPEC_CTRL_RRSBA_DIS_S_SHIFT)
  
++/* A mask for bits which the kernel toggles when controlling mitigations */
++#define SPEC_CTRL_MITIGATIONS_MASK	(SPEC_CTRL_IBRS | SPEC_CTRL_STIBP | SPEC_CTRL_SSBD \
++							| SPEC_CTRL_RRSBA_DIS_S)
++
+ #define MSR_IA32_PRED_CMD		0x00000049 /* Prediction Command */
+ #define PRED_CMD_IBPB			BIT(0)	   /* Indirect Branch Prediction Barrier */
+ 
+diff --git a/arch/x86/kernel/cpu/bugs.c b/arch/x86/kernel/cpu/bugs.c
+index a2a087a797ae5..c5034986ea444 100644
+--- a/arch/x86/kernel/cpu/bugs.c
++++ b/arch/x86/kernel/cpu/bugs.c
+@@ -136,9 +136,17 @@ void __init check_bugs(void)
+ 	 * have unknown values. AMD64_LS_CFG MSR is cached in the early AMD
+ 	 * init code as it is not enumerated and depends on the family.
+ 	 */
+-	if (boot_cpu_has(X86_FEATURE_MSR_SPEC_CTRL))
++	if (cpu_feature_enabled(X86_FEATURE_MSR_SPEC_CTRL)) {
+ 		rdmsrl(MSR_IA32_SPEC_CTRL, x86_spec_ctrl_base);
+ 
++		/*
++		 * Previously running kernel (kexec), may have some controls
++		 * turned ON. Clear them and let the mitigations setup below
++		 * rediscover them based on configuration.
++		 */
++		x86_spec_ctrl_base &= ~SPEC_CTRL_MITIGATIONS_MASK;
++	}
++
+ 	/* Select the proper CPU mitigations before patching alternatives: */
+ 	spectre_v1_select_mitigation();
+ 	spectre_v2_select_mitigation();
 -- 
 2.39.0
 
