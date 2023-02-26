@@ -2,54 +2,54 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A1CCC6A3285
-	for <lists+stable@lfdr.de>; Sun, 26 Feb 2023 16:53:41 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C3EA56A327A
+	for <lists+stable@lfdr.de>; Sun, 26 Feb 2023 16:43:52 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229566AbjBZPxk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 26 Feb 2023 10:53:40 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43210 "EHLO
+        id S229529AbjBZPnu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 26 Feb 2023 10:43:50 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59468 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229507AbjBZPxj (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 26 Feb 2023 10:53:39 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 58FEFF76E;
-        Sun, 26 Feb 2023 07:53:38 -0800 (PST)
+        with ESMTP id S229660AbjBZPnr (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 26 Feb 2023 10:43:47 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7862FA26E;
+        Sun, 26 Feb 2023 07:43:38 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 7661DB80BEB;
-        Sun, 26 Feb 2023 14:46:47 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 38BFFC433EF;
-        Sun, 26 Feb 2023 14:46:45 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 3DF67B80C03;
+        Sun, 26 Feb 2023 14:47:08 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E42CCC433EF;
+        Sun, 26 Feb 2023 14:47:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1677422806;
-        bh=83ccAweo86lpMlZWG7+crZEdsHj8UrM2V8ywetn9K3w=;
+        s=k20201202; t=1677422826;
+        bh=0ABzf53W8Hk9DZmA3/LTmSceqbDLcpJz7XXjtQcGIIA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=bIicivhjjnTW1L65gE+gUc+i8aFnVw3kBbMtl3heO7xytxJApz1xHsWxWQIlmO9Md
-         5YeUsjBVVRlf4njv6pbJz3m6kgSi1HGFw38kH2Zka9K6syqiuOHzRNyP8qZ4Q8CKle
-         wk5Kbn6nZuX4eLIx2I90O/PZfb/FQIZLy6UNOX0sIqKI/mbhS3aj5hpeAbS6UuR3A6
-         5s4ojVxtTjO00KqomYv8qiBaLbn/6xzs1FeH76Mw99xs/mWB4nNtQxl8e9MTcJUgdR
-         32VUpOUjAo+AUiEmru3uGimgPEMztGqL2X+sPme3q/NiunafQyDPInMaEu/I8Ya7dO
-         aDmx4Pjhs3lug==
+        b=m/HHHhSdMFU+cOfTfJa4btxgeDTafcFcJJ6HFcnleT35MgXteAifxjjp1KxEVXRgi
+         ZpdsInBwgnjciJXH4upz2xG5JEiRlie/ZayL3Hej5MXODr0UHl5WAORtyHjR2ddmjZ
+         12+wcHpYqsYER2ErlTx1Hewe9xK00mbwnBjGPhe972ne9tOZYfqJDpe7Mu43ZADbM1
+         LPvB2/3TDT3JxBdSbCJtu0LYp2PvpURkhQ9I91R2/Vh3IIplN4ykudOxJiiC5UJDyD
+         Nq9FcpLUABDuji7r8tMEq9v2TArPQ5ApbWz/3ThMA/NhiHCrHBDuyvYMpsvQLRvHiK
+         KL+MPC2Urqh1g==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Moshe Shemesh <moshe@nvidia.com>, Jiri Pirko <jiri@nvidia.com>,
-        Jakub Kicinski <kuba@kernel.org>,
-        Sasha Levin <sashal@kernel.org>, rostedt@goodmis.org,
-        mhiramat@kernel.org, idosch@nvidia.com,
-        linux-trace-kernel@vger.kernel.org
-Subject: [PATCH AUTOSEL 6.2 52/53] devlink: Fix TP_STRUCT_entry in trace of devlink health report
-Date:   Sun, 26 Feb 2023 09:44:44 -0500
-Message-Id: <20230226144446.824580-52-sashal@kernel.org>
+Cc:     Zqiang <qiang1.zhang@intel.com>,
+        "Paul E . McKenney" <paulmck@kernel.org>,
+        Sasha Levin <sashal@kernel.org>, frederic@kernel.org,
+        quic_neeraju@quicinc.com, josh@joshtriplett.org,
+        rcu@vger.kernel.org
+Subject: [PATCH AUTOSEL 6.1 08/49] rcu-tasks: Handle queue-shrink/callback-enqueue race condition
+Date:   Sun, 26 Feb 2023 09:46:08 -0500
+Message-Id: <20230226144650.826470-8-sashal@kernel.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20230226144446.824580-1-sashal@kernel.org>
-References: <20230226144446.824580-1-sashal@kernel.org>
+In-Reply-To: <20230226144650.826470-1-sashal@kernel.org>
+References: <20230226144650.826470-1-sashal@kernel.org>
 MIME-Version: 1.0
 X-stable: review
 X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
         SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -57,37 +57,138 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Moshe Shemesh <moshe@nvidia.com>
+From: Zqiang <qiang1.zhang@intel.com>
 
-[ Upstream commit d0ab772c1f1558af84f3293a52e9e886e08e0754 ]
+[ Upstream commit a4fcfbee8f6274f9b3f9a71dd5b03e6772ce33f3 ]
 
-Fix a bug in trace point definition for devlink health report, as
-TP_STRUCT_entry of reporter_name should get reporter_name and not msg.
+The rcu_tasks_need_gpcb() determines whether or not: (1) There are
+callbacks needing another grace period, (2) There are callbacks ready
+to be invoked, and (3) It would be a good time to shrink back down to a
+single-CPU callback list.  This third case is interesting because some
+other CPU might be adding new callbacks, which might suddenly make this
+a very bad time to be shrinking.
 
-Note no fixes tag as this is a harmless bug as both reporter_name and
-msg are strings and TP_fast_assign for this entry is correct.
+This is currently handled by requiring call_rcu_tasks_generic() to
+enqueue callbacks under the protection of rcu_read_lock() and requiring
+rcu_tasks_need_gpcb() to wait for an RCU grace period to elapse before
+finalizing the transition.  This works well in practice.
 
-Signed-off-by: Moshe Shemesh <moshe@nvidia.com>
-Reviewed-by: Jiri Pirko <jiri@nvidia.com>
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Unfortunately, the current code assumes that a grace period whose end is
+detected by the poll_state_synchronize_rcu() in the second "if" condition
+actually ended before the earlier code counted the callbacks queued on
+CPUs other than CPU 0 (local variable "ncbsnz").  Given the current code,
+it is possible that a long-delayed call_rcu_tasks_generic() invocation
+will queue a callback on a non-zero CPU after these CPUs have had their
+callbacks counted and zero has been stored to ncbsnz.  Such a callback
+would trigger the WARN_ON_ONCE() in the second "if" statement.
+
+To see this, consider the following sequence of events:
+
+o	CPU 0 invokes rcu_tasks_one_gp(), and counts fewer than
+	rcu_task_collapse_lim callbacks.  It sees at least one
+	callback queued on some other CPU, thus setting ncbsnz
+	to a non-zero value.
+
+o	CPU 1 invokes call_rcu_tasks_generic() and loads 42 from
+	->percpu_enqueue_lim.  It therefore decides to enqueue its
+	callback onto CPU 1's callback list, but is delayed.
+
+o	CPU 0 sees the rcu_task_cb_adjust is non-zero and that the number
+	of callbacks does not exceed rcu_task_collapse_lim.  It therefore
+	checks percpu_enqueue_lim, and sees that its value is greater
+	than the value one.  CPU 0 therefore  starts the shift back
+	to a single callback list.  It sets ->percpu_enqueue_lim to 1,
+	but CPU 1 has already read the old value of 42.  It also gets
+	a grace-period state value from get_state_synchronize_rcu().
+
+o	CPU 0 sees that ncbsnz is non-zero in its second "if" statement,
+	so it declines to finalize the shrink operation.
+
+o	CPU 0 again invokes rcu_tasks_one_gp(), and counts fewer than
+	rcu_task_collapse_lim callbacks.  It also sees that there are
+	no callback queued on any other CPU, and thus sets ncbsnz to zero.
+
+o	CPU 1 resumes execution and enqueues its callback onto its own
+	list.  This invalidates the value of ncbsnz.
+
+o	CPU 0 sees the rcu_task_cb_adjust is non-zero and that the number
+	of callbacks does not exceed rcu_task_collapse_lim.  It therefore
+	checks percpu_enqueue_lim, but sees that its value is already
+	unity.	It therefore does not get a new grace-period state value.
+
+o	CPU 0 sees that rcu_task_cb_adjust is non-zero, ncbsnz is zero,
+	and that poll_state_synchronize_rcu() says that the grace period
+	has completed.  it therefore finalizes the shrink operation,
+	setting ->percpu_dequeue_lim to the value one.
+
+o	CPU 0 does a debug check, scanning the other CPUs' callback lists.
+	It sees that CPU 1's list has a callback, so it (rightly)
+	triggers the WARN_ON_ONCE().  After all, the new value of
+	->percpu_dequeue_lim says to not bother looking at CPU 1's
+	callback list, which means that this callback will never be
+	invoked.  This can result in hangs and maybe even OOMs.
+
+Based on long experience with rcutorture, this is an extremely
+low-probability race condition, but it really can happen, especially in
+preemptible kernels or within guest OSes.
+
+This commit therefore checks for completion of the grace period
+before counting callbacks.  With this change, in the above failure
+scenario CPU 0 would know not to prematurely end the shrink operation
+because the grace period would not have completed before the count
+operation started.
+
+[ paulmck: Adjust grace-period end rather than adding RCU reader. ]
+[ paulmck: Avoid spurious WARN_ON_ONCE() with ->percpu_dequeue_lim check. ]
+
+Signed-off-by: Zqiang <qiang1.zhang@intel.com>
+Signed-off-by: Paul E. McKenney <paulmck@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- include/trace/events/devlink.h | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ kernel/rcu/tasks.h | 13 ++++++++-----
+ 1 file changed, 8 insertions(+), 5 deletions(-)
 
-diff --git a/include/trace/events/devlink.h b/include/trace/events/devlink.h
-index 24969184c5348..77ff7cfc6049a 100644
---- a/include/trace/events/devlink.h
-+++ b/include/trace/events/devlink.h
-@@ -88,7 +88,7 @@ TRACE_EVENT(devlink_health_report,
- 		__string(bus_name, devlink_to_dev(devlink)->bus->name)
- 		__string(dev_name, dev_name(devlink_to_dev(devlink)))
- 		__string(driver_name, devlink_to_dev(devlink)->driver->name)
--		__string(reporter_name, msg)
-+		__string(reporter_name, reporter_name)
- 		__string(msg, msg)
- 	),
+diff --git a/kernel/rcu/tasks.h b/kernel/rcu/tasks.h
+index 727e09909e403..027f3ec87f5b9 100644
+--- a/kernel/rcu/tasks.h
++++ b/kernel/rcu/tasks.h
+@@ -384,6 +384,7 @@ static int rcu_tasks_need_gpcb(struct rcu_tasks *rtp)
+ {
+ 	int cpu;
+ 	unsigned long flags;
++	bool gpdone = poll_state_synchronize_rcu(rtp->percpu_dequeue_gpseq);
+ 	long n;
+ 	long ncbs = 0;
+ 	long ncbsnz = 0;
+@@ -425,21 +426,23 @@ static int rcu_tasks_need_gpcb(struct rcu_tasks *rtp)
+ 			WRITE_ONCE(rtp->percpu_enqueue_shift, order_base_2(nr_cpu_ids));
+ 			smp_store_release(&rtp->percpu_enqueue_lim, 1);
+ 			rtp->percpu_dequeue_gpseq = get_state_synchronize_rcu();
++			gpdone = false;
+ 			pr_info("Starting switch %s to CPU-0 callback queuing.\n", rtp->name);
+ 		}
+ 		raw_spin_unlock_irqrestore(&rtp->cbs_gbl_lock, flags);
+ 	}
+-	if (rcu_task_cb_adjust && !ncbsnz &&
+-	    poll_state_synchronize_rcu(rtp->percpu_dequeue_gpseq)) {
++	if (rcu_task_cb_adjust && !ncbsnz && gpdone) {
+ 		raw_spin_lock_irqsave(&rtp->cbs_gbl_lock, flags);
+ 		if (rtp->percpu_enqueue_lim < rtp->percpu_dequeue_lim) {
+ 			WRITE_ONCE(rtp->percpu_dequeue_lim, 1);
+ 			pr_info("Completing switch %s to CPU-0 callback queuing.\n", rtp->name);
+ 		}
+-		for (cpu = rtp->percpu_dequeue_lim; cpu < nr_cpu_ids; cpu++) {
+-			struct rcu_tasks_percpu *rtpcp = per_cpu_ptr(rtp->rtpcpu, cpu);
++		if (rtp->percpu_dequeue_lim == 1) {
++			for (cpu = rtp->percpu_dequeue_lim; cpu < nr_cpu_ids; cpu++) {
++				struct rcu_tasks_percpu *rtpcp = per_cpu_ptr(rtp->rtpcpu, cpu);
  
+-			WARN_ON_ONCE(rcu_segcblist_n_cbs(&rtpcp->cblist));
++				WARN_ON_ONCE(rcu_segcblist_n_cbs(&rtpcp->cblist));
++			}
+ 		}
+ 		raw_spin_unlock_irqrestore(&rtp->cbs_gbl_lock, flags);
+ 	}
 -- 
 2.39.0
 
