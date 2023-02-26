@@ -2,100 +2,178 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 639796A33CD
-	for <lists+stable@lfdr.de>; Sun, 26 Feb 2023 21:04:09 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0B1236A33CA
+	for <lists+stable@lfdr.de>; Sun, 26 Feb 2023 21:00:13 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229696AbjBZUEH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 26 Feb 2023 15:04:07 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52976 "EHLO
+        id S229767AbjBZUAL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 26 Feb 2023 15:00:11 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51640 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229379AbjBZUEG (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 26 Feb 2023 15:04:06 -0500
-Received: from antispamsnwll.cedia.org.ec (antispamsnwll.cedia.org.ec [201.159.220.42])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTP id AE8E711E96
-        for <stable@vger.kernel.org>; Sun, 26 Feb 2023 12:04:05 -0800 (PST)
-Received: from antispamsnwll.cedia.org.ec (127.0.0.1) id hvetj60171sj for <stable@vger.kernel.org>; Sun, 26 Feb 2023 14:35:18 -0500 (envelope-from <prvs=1421df1a3c=phernandez@cuenca.gob.ec>)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=cuenca.gob.ec; s=cuenca; i=@cuenca.gob.ec; h=Received:Received:
-        Received:Received:Received:Content-Type:MIME-Version:
-        Content-Transfer-Encoding:Content-Description:Subject:To:From:
-        Date:Reply-To:Message-Id; bh=4Q8sM1WnLl2+Gbtb3rrOkEcuzcuZBE8iv+H
-        DJ7a/1zw=; b=oOAqSbWO3V2UiTS2oHpj/FPAJddy3qKQE1X4F9AzlONF1/hBWs8
-        oIrO0yI14gNKEc2sUI5/1BWqohpMs/jVybLd1fjQx5+8P/wqjGAXksoIO8MBbcjW
-        JDNalw84igOjw3QjxRGEJTygnJiPweO1cvKltyVnlEm4UBPxSCEYV8k4=
-Received: from mtace.cuenca.gob.ec ([200.55.234.131])
-        by antispamsnwll.cedia.org.ec ([192.168.205.200]) (SonicWall 10.0.21.7607)
-        with ESMTP id o202302261935180052308-2; Sun, 26 Feb 2023 14:35:18 -0500
-Received: from mtace.cuenca.gob.ec (localhost [127.0.0.1])
-        by mtace.cuenca.gob.ec (Postfix) with ESMTPS id CB60E4137B74;
-        Sun, 26 Feb 2023 14:35:17 -0500 (-05)
-Received: from localhost (localhost [127.0.0.1])
-        by mtace.cuenca.gob.ec (Postfix) with ESMTP id A02834137B6C;
-        Sun, 26 Feb 2023 14:35:17 -0500 (-05)
-Received: from mtace.cuenca.gob.ec ([127.0.0.1])
-        by localhost (mtace.cuenca.gob.ec [127.0.0.1]) (amavisd-new, port 10026)
-        with ESMTP id fneetRW633ON; Sun, 26 Feb 2023 14:35:17 -0500 (-05)
-Received: from [10.20.18.117] (unknown [156.146.63.154])
-        by mtace.cuenca.gob.ec (Postfix) with ESMTPSA id 80FAE4137B7E;
-        Sun, 26 Feb 2023 14:35:07 -0500 (-05)
-Content-Type: text/plain; charset="iso-8859-1"
-MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-Content-Description: Mail message body
-Subject: Investment proposition
-To:     Recipients <phernandez@cuenca.gob.ec>
-From:   "Franklin C. James QC" <phernandez@cuenca.gob.ec>
-Date:   Sun, 26 Feb 2023 20:34:55 +0100
-Reply-To: franklin.c34@aol.com
-X-Antivirus: Avast (VPS 230226-0, 2/26/2023), Outbound message
-X-Antivirus-Status: Clean
-Message-Id: <20230226193507.80FAE4137B7E@mtace.cuenca.gob.ec>
-X-Mlf-DSE-Version: 7077
-X-Mlf-Rules-Version: s20230112191048; ds20200715013501;
-        di20230221222152; ri20160318003319; fs20230223174059
-X-Mlf-Smartnet-Version: 20210917223710
-X-Mlf-Envelope-From: phernandez@cuenca.gob.ec
-X-Mlf-CnxnMgmt-Allow: 200.55.234.131
-X-Mlf-Version: 10.0.21.7607
-X-Mlf-License: BSV_C_AP_T_R
-X-Mlf-UniqueId: o202302261935180052308
-X-Spam-Status: Yes, score=5.6 required=5.0 tests=BAYES_50,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_FORGED_REPLYTO,
-        FREEMAIL_REPLYTO_END_DIGIT,RCVD_IN_PSBL,SPF_HELO_NONE,SPF_PASS
-        autolearn=no autolearn_force=no version=3.4.6
-X-Spam-Report: *  0.8 BAYES_50 BODY: Bayes spam probability is 40 to 60%
-        *      [score: 0.5000]
-        *  2.7 RCVD_IN_PSBL RBL: Received via a relay in PSBL
-        *      [201.159.220.42 listed in psbl.surriel.com]
-        *  0.0 SPF_HELO_NONE SPF: HELO does not publish an SPF Record
-        *  0.2 FREEMAIL_REPLYTO_END_DIGIT Reply-To freemail username ends in
-        *      digit
-        *      [franklin.c34[at]aol.com]
-        * -0.0 SPF_PASS SPF: sender matches SPF record
-        * -0.1 DKIM_VALID Message has at least one valid DKIM or DK signature
-        * -0.1 DKIM_VALID_AU Message has a valid DKIM or DK signature from
-        *      author's domain
-        * -0.1 DKIM_VALID_EF Message has a valid DKIM or DK signature from
-        *      envelope-from domain
-        *  0.1 DKIM_SIGNED Message has a DKIM or DK signature, not necessarily
-        *       valid
-        *  2.1 FREEMAIL_FORGED_REPLYTO Freemail in Reply-To, but not From
-X-Spam-Level: *****
+        with ESMTP id S229379AbjBZUAL (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 26 Feb 2023 15:00:11 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1D94816AE3;
+        Sun, 26 Feb 2023 12:00:08 -0800 (PST)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 5E7B0B80955;
+        Sun, 26 Feb 2023 20:00:07 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0EC1CC4339B;
+        Sun, 26 Feb 2023 20:00:06 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linux-foundation.org;
+        s=korg; t=1677441606;
+        bh=MCxC4Ad0/g4X+Sd2byjVyKPXXUvjBPS2WtXw6w1C4Nc=;
+        h=Date:To:From:Subject:From;
+        b=eQq3sZ9uC4RAiqtCh2PhpTrIynyHogv3qlhr+8jbYWichs7sfc4xshRHQP/VybdeN
+         xB5NRSsD8nccMU8v01VmVtDvFIwU/iuzWJKBQkdXwbMB9Eqh34C/bsUrdIZxDI8YSe
+         bH/aLF62TTixulzEcRy9Qvz+utQiZIPvoGVYO/Tc=
+Date:   Sun, 26 Feb 2023 12:00:05 -0800
+To:     mm-commits@vger.kernel.org, vgoyal@redhat.com,
+        stable@vger.kernel.org, pmladek@suse.com, mikelley@microsoft.com,
+        keescook@chromium.org, hidehiro.kawai.ez@hitachi.com,
+        feng.tang@intel.com, dyoung@redhat.com, d.hatayama@jp.fujitsu.com,
+        bhe@redhat.com, gpiccoli@igalia.com, akpm@linux-foundation.org
+From:   Andrew Morton <akpm@linux-foundation.org>
+Subject: + panic-fixes-the-panic_print-nmi-backtrace-setting.patch added to mm-hotfixes-unstable branch
+Message-Id: <20230226200006.0EC1CC4339B@smtp.kernel.org>
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,SPF_HELO_NONE,
+        SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-I trust you are staying safe and well, I am Franklin C. James QC. from Glas=
-gow, Scotland. I have an investment proposition for your consideration and =
-more details will be revealed once your interest is indicated.
-   
-Yours in service,
-Franklin C. James QC.
-____________________
-Secretary: Phillip Hernandez
 
--- 
-This email has been checked for viruses by Avast antivirus software.
-www.avast.com
+The patch titled
+     Subject: panic: fix the panic_print NMI backtrace setting
+has been added to the -mm mm-hotfixes-unstable branch.  Its filename is
+     panic-fixes-the-panic_print-nmi-backtrace-setting.patch
+
+This patch will shortly appear at
+     https://git.kernel.org/pub/scm/linux/kernel/git/akpm/25-new.git/tree/patches/panic-fixes-the-panic_print-nmi-backtrace-setting.patch
+
+This patch will later appear in the mm-hotfixes-unstable branch at
+    git://git.kernel.org/pub/scm/linux/kernel/git/akpm/mm
+
+Before you just go and hit "reply", please:
+   a) Consider who else should be cc'ed
+   b) Prefer to cc a suitable mailing list as well
+   c) Ideally: find the original patch on the mailing list and do a
+      reply-to-all to that, adding suitable additional cc's
+
+*** Remember to use Documentation/process/submit-checklist.rst when testing your code ***
+
+The -mm tree is included into linux-next via the mm-everything
+branch at git://git.kernel.org/pub/scm/linux/kernel/git/akpm/mm
+and is updated there every 2-3 working days
+
+------------------------------------------------------
+From: "Guilherme G. Piccoli" <gpiccoli@igalia.com>
+Subject: panic: fix the panic_print NMI backtrace setting
+Date: Sun, 26 Feb 2023 13:08:38 -0300
+
+Commit 8d470a45d1a6 ("panic: add option to dump all CPUs backtraces in
+panic_print") introduced a setting for the "panic_print" kernel parameter
+to allow users to request a NMI backtrace on panic.  Problem is that the
+panic_print handling happens after the secondary CPUs are already
+disabled, hence this option ended-up being kind of a no-op - kernel skips
+the NMI trace in idling CPUs, which is the case of offline CPUs.
+
+Fix it by checking the NMI backtrace bit in the panic_print prior to the
+CPU disabling function.
+
+Link: https://lkml.kernel.org/r/20230226160838.414257-1-gpiccoli@igalia.com
+Fixes: 8d470a45d1a6 ("panic: add option to dump all CPUs backtraces in panic_print")
+Signed-off-by: Guilherme G. Piccoli <gpiccoli@igalia.com>
+Cc: <stable@vger.kernel.org>
+Cc: Baoquan He <bhe@redhat.com>
+Cc: Dave Young <dyoung@redhat.com>
+Cc: Feng Tang <feng.tang@intel.com>
+Cc: HATAYAMA Daisuke <d.hatayama@jp.fujitsu.com>
+Cc: Hidehiro Kawai <hidehiro.kawai.ez@hitachi.com>
+Cc: Kees Cook <keescook@chromium.org>
+Cc: Michael Kelley <mikelley@microsoft.com>
+Cc: Petr Mladek <pmladek@suse.com>
+Cc: Vivek Goyal <vgoyal@redhat.com>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+---
+
+
+--- a/kernel/panic.c~panic-fixes-the-panic_print-nmi-backtrace-setting
++++ b/kernel/panic.c
+@@ -212,9 +212,6 @@ static void panic_print_sys_info(bool console_flush)
+ 		return;
+ 	}
+ 
+-	if (panic_print & PANIC_PRINT_ALL_CPU_BT)
+-		trigger_all_cpu_backtrace();
+-
+ 	if (panic_print & PANIC_PRINT_TASK_INFO)
+ 		show_state();
+ 
+@@ -244,6 +241,30 @@ void check_panic_on_warn(const char *origin)
+ 		      origin, limit);
+ }
+ 
++/*
++ * Helper that triggers the NMI backtrace (if set in panic_print)
++ * and then performs the secondary CPUs shutdown - we cannot have
++ * the NMI backtrace after the CPUs are off!
++ */
++static void panic_other_cpus_shutdown(bool crash_kexec)
++{
++	if (panic_print & PANIC_PRINT_ALL_CPU_BT)
++		trigger_all_cpu_backtrace();
++
++	/*
++	 * Note that smp_send_stop() is the usual SMP shutdown function,
++	 * which unfortunately may not be hardened to work in a panic
++	 * situation. If we want to do crash dump after notifier calls
++	 * and kmsg_dump, we will need architecture dependent extra
++	 * bits in addition to stopping other CPUs, hence we rely on
++	 * crash_smp_send_stop() for that.
++	 */
++	if (!crash_kexec)
++		smp_send_stop();
++	else
++		crash_smp_send_stop();
++}
++
+ /**
+  *	panic - halt the system
+  *	@fmt: The text string to print
+@@ -334,23 +355,10 @@ void panic(const char *fmt, ...)
+ 	 *
+ 	 * Bypass the panic_cpu check and call __crash_kexec directly.
+ 	 */
+-	if (!_crash_kexec_post_notifiers) {
++	if (!_crash_kexec_post_notifiers)
+ 		__crash_kexec(NULL);
+ 
+-		/*
+-		 * Note smp_send_stop is the usual smp shutdown function, which
+-		 * unfortunately means it may not be hardened to work in a
+-		 * panic situation.
+-		 */
+-		smp_send_stop();
+-	} else {
+-		/*
+-		 * If we want to do crash dump after notifier calls and
+-		 * kmsg_dump, we will need architecture dependent extra
+-		 * works in addition to stopping other CPUs.
+-		 */
+-		crash_smp_send_stop();
+-	}
++	panic_other_cpus_shutdown(_crash_kexec_post_notifiers);
+ 
+ 	/*
+ 	 * Run any panic handlers, including those that might need to
+_
+
+Patches currently in -mm which might be from gpiccoli@igalia.com are
+
+panic-fixes-the-panic_print-nmi-backtrace-setting.patch
+
