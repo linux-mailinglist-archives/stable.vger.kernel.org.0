@@ -2,45 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id CC63A6A303F
-	for <lists+stable@lfdr.de>; Sun, 26 Feb 2023 15:48:05 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id BE5DC6A3129
+	for <lists+stable@lfdr.de>; Sun, 26 Feb 2023 15:56:33 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229928AbjBZOsE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 26 Feb 2023 09:48:04 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44062 "EHLO
+        id S231262AbjBZO4D (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 26 Feb 2023 09:56:03 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55132 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229893AbjBZOrn (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 26 Feb 2023 09:47:43 -0500
-Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 775F213D4E;
-        Sun, 26 Feb 2023 06:47:09 -0800 (PST)
+        with ESMTP id S230390AbjBZOxw (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 26 Feb 2023 09:53:52 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EB0281ACEB;
+        Sun, 26 Feb 2023 06:50:11 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id B814BCE0E82;
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 6AE0F60C49;
+        Sun, 26 Feb 2023 14:46:36 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B5291C433EF;
         Sun, 26 Feb 2023 14:46:34 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 72381C4339E;
-        Sun, 26 Feb 2023 14:46:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1677422794;
-        bh=dc75FmXKDS28urCUwfH+TcCg+xBsttQBFaLhkA5Q+i4=;
+        s=k20201202; t=1677422795;
+        bh=+14XCMTWc3gY7mt1/8x0nU+oBB/YTuN02xrNh9fKVpY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=SjhTPCDsFFU2foxcmSzRtGRrs/CremZJZZJr95vvI/otlL+gELg/IPtLJce8PCdET
-         vTR4YNlS2CJCSScT2Q3zYEfaGYzMk3j9TYQLSV9NGLZo5fjk45vZvsGV2md9KfLp3d
-         eJz7/e3QkAR5+roSsvRUDc0FmK1eneHK4EnYMfE1WUf4O0xs3Fdd1zvsrNtJTy9Lfh
-         96puOIDUcSK6P45t4CFbJDSp1TWzSqjzrGsTHMcMsoJstGU4il0tqqPYIAWp5Hniy6
-         XjYg7cEvzx7f2Yfh33kaH57HpChYehJ7rLFcZVnO2jruLyxrsGbXlLqpnT+RFwlsRm
-         PQibDpsk7a3aw==
+        b=kdqg9RVCWDgmFbPckE6rkFwIw5ZhWjg/eSMJC5GuKeUw63oYNGYC6IoAUuRup+gje
+         +ETbU2D4vpO5v4AH//nQlV87iRiE3IM0cpfPdLjzzdOi7lVfnbXvC7mrO5CbtdSa5K
+         b58YVHARvopPROF+Oml4IPYAS67QAY0GVch6czOogGPrri5/7FjqTa5YRCFnVA1rz1
+         Ie/d/aNkrVyPx/vz7yFJ+eeYNAgCv+Mq1y2gh5TMri+pUDm+H7ZIsBKfDQIo6CNmvx
+         r3EBVma1LRPpc0LB89oIUA4/q3vus2ktTbm5r0yqRQp04+n3XeJaqbj/1Y7jBFUMOf
+         s4wyS/GgyeUMw==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Moises Cardona <moisesmcardona@gmail.com>,
-        Luiz Augusto von Dentz <luiz.von.dentz@intel.com>,
-        Sasha Levin <sashal@kernel.org>, marcel@holtmann.org,
-        johan.hedberg@gmail.com, luiz.dentz@gmail.com,
-        linux-bluetooth@vger.kernel.org
-Subject: [PATCH AUTOSEL 6.2 47/53] Bluetooth: btusb: Add VID:PID 13d3:3529 for Realtek RTL8821CE
-Date:   Sun, 26 Feb 2023 09:44:39 -0500
-Message-Id: <20230226144446.824580-47-sashal@kernel.org>
+Cc:     Zong-Zhe Yang <kevin_yang@realtek.com>,
+        Ping-Ke Shih <pkshih@realtek.com>,
+        Kalle Valo <kvalo@kernel.org>, Sasha Levin <sashal@kernel.org>,
+        davem@davemloft.net, edumazet@google.com, kuba@kernel.org,
+        pabeni@redhat.com, linux-wireless@vger.kernel.org,
+        netdev@vger.kernel.org
+Subject: [PATCH AUTOSEL 6.2 48/53] wifi: rtw89: debug: avoid invalid access on RTW89_DBG_SEL_MAC_30
+Date:   Sun, 26 Feb 2023 09:44:40 -0500
+Message-Id: <20230226144446.824580-48-sashal@kernel.org>
 X-Mailer: git-send-email 2.39.0
 In-Reply-To: <20230226144446.824580-1-sashal@kernel.org>
 References: <20230226144446.824580-1-sashal@kernel.org>
@@ -48,8 +49,8 @@ MIME-Version: 1.0
 X-stable: review
 X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
         SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -57,68 +58,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Moises Cardona <moisesmcardona@gmail.com>
+From: Zong-Zhe Yang <kevin_yang@realtek.com>
 
-[ Upstream commit 1eec3b95b5ce7fb2cdd273ac4f8b24b1ed6776a1 ]
+[ Upstream commit c074da21dd346e0cfef5d08b0715078d7aea7f8d ]
 
-This patch adds VID:PID 13d3:3529 to the btusb.c file.
+Only 8852C chip has valid pages on RTW89_DBG_SEL_MAC_30. To other chips,
+this section is an address hole. It will lead to crash if trying to access
+this section on chips except for 8852C. So, we avoid that.
 
-This VID:PID is found in the Realtek RTL8821CE module
-(M.2 module AW-CB304NF on an ASUS E210MA laptop)
-
-Output of /sys/kernel/debug/usb/devices:
-
-T:  Bus=01 Lev=01 Prnt=01 Port=07 Cnt=02 Dev#=  3 Spd=12   MxCh= 0
-D:  Ver= 1.10 Cls=e0(wlcon) Sub=01 Prot=01 MxPS=64 #Cfgs=  1
-P:  Vendor=13d3 ProdID=3529 Rev= 1.10
-S:  Manufacturer=Realtek
-S:  Product=Bluetooth Radio
-C:* #Ifs= 2 Cfg#= 1 Atr=e0 MxPwr=500mA
-I:* If#= 0 Alt= 0 #EPs= 3 Cls=e0(wlcon) Sub=01 Prot=01 Driver=btusb
-E:  Ad=81(I) Atr=03(Int.) MxPS=  16 Ivl=1ms
-E:  Ad=02(O) Atr=02(Bulk) MxPS=  64 Ivl=0ms
-E:  Ad=82(I) Atr=02(Bulk) MxPS=  64 Ivl=0ms
-I:* If#= 1 Alt= 0 #EPs= 2 Cls=e0(wlcon) Sub=01 Prot=01 Driver=btusb
-E:  Ad=03(O) Atr=01(Isoc) MxPS=   0 Ivl=1ms
-E:  Ad=83(I) Atr=01(Isoc) MxPS=   0 Ivl=1ms
-I:  If#= 1 Alt= 1 #EPs= 2 Cls=e0(wlcon) Sub=01 Prot=01 Driver=btusb
-E:  Ad=03(O) Atr=01(Isoc) MxPS=   9 Ivl=1ms
-E:  Ad=83(I) Atr=01(Isoc) MxPS=   9 Ivl=1ms
-I:  If#= 1 Alt= 2 #EPs= 2 Cls=e0(wlcon) Sub=01 Prot=01 Driver=btusb
-E:  Ad=03(O) Atr=01(Isoc) MxPS=  17 Ivl=1ms
-E:  Ad=83(I) Atr=01(Isoc) MxPS=  17 Ivl=1ms
-I:  If#= 1 Alt= 3 #EPs= 2 Cls=e0(wlcon) Sub=01 Prot=01 Driver=btusb
-E:  Ad=03(O) Atr=01(Isoc) MxPS=  25 Ivl=1ms
-E:  Ad=83(I) Atr=01(Isoc) MxPS=  25 Ivl=1ms
-I:  If#= 1 Alt= 4 #EPs= 2 Cls=e0(wlcon) Sub=01 Prot=01 Driver=btusb
-E:  Ad=03(O) Atr=01(Isoc) MxPS=  33 Ivl=1ms
-E:  Ad=83(I) Atr=01(Isoc) MxPS=  33 Ivl=1ms
-I:  If#= 1 Alt= 5 #EPs= 2 Cls=e0(wlcon) Sub=01 Prot=01 Driver=btusb
-E:  Ad=03(O) Atr=01(Isoc) MxPS=  49 Ivl=1ms
-E:  Ad=83(I) Atr=01(Isoc) MxPS=  49 Ivl=1ms
-
-Signed-off-by: Moises Cardona <moisesmcardona@gmail.com>
-Signed-off-by: Luiz Augusto von Dentz <luiz.von.dentz@intel.com>
+Signed-off-by: Zong-Zhe Yang <kevin_yang@realtek.com>
+Signed-off-by: Ping-Ke Shih <pkshih@realtek.com>
+Signed-off-by: Kalle Valo <kvalo@kernel.org>
+Link: https://lore.kernel.org/r/20230119063529.61563-2-pkshih@realtek.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/bluetooth/btusb.c | 4 ++++
- 1 file changed, 4 insertions(+)
+ drivers/net/wireless/realtek/rtw89/debug.c | 7 +++++++
+ 1 file changed, 7 insertions(+)
 
-diff --git a/drivers/bluetooth/btusb.c b/drivers/bluetooth/btusb.c
-index acfd40f1cc75c..18bc947187115 100644
---- a/drivers/bluetooth/btusb.c
-+++ b/drivers/bluetooth/btusb.c
-@@ -493,6 +493,10 @@ static const struct usb_device_id blacklist_table[] = {
- 	{ USB_VENDOR_AND_INTERFACE_INFO(0x8087, 0xe0, 0x01, 0x01),
- 	  .driver_info = BTUSB_IGNORE },
+diff --git a/drivers/net/wireless/realtek/rtw89/debug.c b/drivers/net/wireless/realtek/rtw89/debug.c
+index 8297e35bfa52b..6730eea930ece 100644
+--- a/drivers/net/wireless/realtek/rtw89/debug.c
++++ b/drivers/net/wireless/realtek/rtw89/debug.c
+@@ -615,6 +615,7 @@ rtw89_debug_priv_mac_reg_dump_select(struct file *filp,
+ 	struct seq_file *m = (struct seq_file *)filp->private_data;
+ 	struct rtw89_debugfs_priv *debugfs_priv = m->private;
+ 	struct rtw89_dev *rtwdev = debugfs_priv->rtwdev;
++	const struct rtw89_chip_info *chip = rtwdev->chip;
+ 	char buf[32];
+ 	size_t buf_size;
+ 	int sel;
+@@ -634,6 +635,12 @@ rtw89_debug_priv_mac_reg_dump_select(struct file *filp,
+ 		return -EINVAL;
+ 	}
  
-+	/* Realtek 8821CE Bluetooth devices */
-+	{ USB_DEVICE(0x13d3, 0x3529), .driver_info = BTUSB_REALTEK |
-+						     BTUSB_WIDEBAND_SPEECH },
++	if (sel == RTW89_DBG_SEL_MAC_30 && chip->chip_id != RTL8852C) {
++		rtw89_info(rtwdev, "sel %d is address hole on chip %d\n", sel,
++			   chip->chip_id);
++		return -EINVAL;
++	}
 +
- 	/* Realtek 8822CE Bluetooth devices */
- 	{ USB_DEVICE(0x0bda, 0xb00c), .driver_info = BTUSB_REALTEK |
- 						     BTUSB_WIDEBAND_SPEECH },
+ 	debugfs_priv->cb_data = sel;
+ 	rtw89_info(rtwdev, "select mac page dump %d\n", debugfs_priv->cb_data);
+ 
 -- 
 2.39.0
 
