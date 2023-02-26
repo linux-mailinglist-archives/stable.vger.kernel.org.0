@@ -2,46 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id F30396A2E01
-	for <lists+stable@lfdr.de>; Sun, 26 Feb 2023 04:56:31 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 69A636A2DDD
+	for <lists+stable@lfdr.de>; Sun, 26 Feb 2023 04:46:55 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230145AbjBZDz7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 25 Feb 2023 22:55:59 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47542 "EHLO
+        id S230161AbjBZDqy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 25 Feb 2023 22:46:54 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54966 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230183AbjBZDzh (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 25 Feb 2023 22:55:37 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E773718173;
-        Sat, 25 Feb 2023 19:55:00 -0800 (PST)
+        with ESMTP id S229982AbjBZDq1 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 25 Feb 2023 22:46:27 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A65701715B;
+        Sat, 25 Feb 2023 19:45:54 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 7E40AB80B87;
-        Sun, 26 Feb 2023 03:44:35 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5B317C4339E;
-        Sun, 26 Feb 2023 03:44:33 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 2D57060BF9;
+        Sun, 26 Feb 2023 03:44:36 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B4CE7C433EF;
+        Sun, 26 Feb 2023 03:44:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1677383074;
-        bh=DJWRWA/9Ht7tlS78wPdG5WNPRJHr0DVOWrHKtBKJ6nM=;
+        s=k20201202; t=1677383075;
+        bh=eHhyE8vPFa3vZFfY8uARa0Kma5ee0m+dhCvW4BTDycg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=RNYmTdMhBSu21+IXMGWf+xZBeLoz4+mqA/N4HqxqSUWzKOIDlx6rTQ1g/d/ZRqQWF
-         mpQQQBznY9eHO6X721iP5QGGnRHfQiv+NduDgMBoQSzBOsN68gcAYPPnJrZUsFBchY
-         BVQUmLSzOBU2ID+poTgyCHnMvSOUBPzf2M7h+Fo7/9fg/pGP4Y1Lfk12nl+uLt7I21
-         1A/A1qeRqrdHdWFtgodWLrQEdkfs2TggkPabGwkYyYB0vJCwyTT7PUKxvccYL5WfE8
-         x1g0EtAmGfcLJpaUrLpU3TH7zJm+G0WEM6WKzSEkKufBXX3gxERy3mK9ju+zltGPtV
-         O3qkX+7JkDoLQ==
+        b=DKMPkHtXG0Ax4w6Z2tMX8Fvf25aa3u92TvLH77Y9kcCfJ3+Dy57AZFPJbS1UXDD7y
+         Jf+3trK0m3E0V3LDuzbIc4FgL9/vEEuPj0Q50g8Idg++3G4eHtSwaTLbqyiOVD1WVq
+         GWiUBZiPS1KXuEMoKMGRFH8OsXStX+c/h8+alvJybL9gZ5LJ3g0RNfzU2FR07aHOhn
+         5JKwWWDStldvE3tnl6JWNxKnE8eL4L4mfUYK+rv272pDeBdvFz+gGCl8Tugx5ibEKf
+         BRapWrAAIY06iAEXuhDQxqOg3pjZEqaGpAhktIztRi4oTi5yJFkWuYFMEg5V5WLDJ4
+         ZTTxkmuswMhGA==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Markuss Broks <markuss.broks@gmail.com>,
-        Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>,
-        Sasha Levin <sashal@kernel.org>, robh+dt@kernel.org,
-        krzysztof.kozlowski+dt@linaro.org, devicetree@vger.kernel.org,
-        linux-arm-kernel@lists.infradead.org,
-        linux-samsung-soc@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.14 2/3] ARM: dts: exynos: Use Exynos5420 compatible for the MIPI video phy
-Date:   Sat, 25 Feb 2023 22:44:29 -0500
-Message-Id: <20230226034430.776472-2-sashal@kernel.org>
+Cc:     Zhang Qiao <zhangqiao22@huawei.com>,
+        Roman Kagan <rkagan@amazon.de>,
+        Peter Zijlstra <peterz@infradead.org>,
+        Sasha Levin <sashal@kernel.org>, mingo@redhat.com,
+        juri.lelli@redhat.com, vincent.guittot@linaro.org
+Subject: [PATCH AUTOSEL 4.14 3/3] sched/fair: sanitize vruntime of entity being placed
+Date:   Sat, 25 Feb 2023 22:44:30 -0500
+Message-Id: <20230226034430.776472-3-sashal@kernel.org>
 X-Mailer: git-send-email 2.39.0
 In-Reply-To: <20230226034430.776472-1-sashal@kernel.org>
 References: <20230226034430.776472-1-sashal@kernel.org>
@@ -49,8 +48,8 @@ MIME-Version: 1.0
 X-stable: review
 X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
         SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -58,35 +57,68 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Markuss Broks <markuss.broks@gmail.com>
+From: Zhang Qiao <zhangqiao22@huawei.com>
 
-[ Upstream commit 5d5aa219a790d61cad2c38e1aa32058f16ad2f0b ]
+[ Upstream commit 829c1651e9c4a6f78398d3e67651cef9bb6b42cc ]
 
-For some reason, the driver adding support for Exynos5420 MIPI phy
-back in 2016 wasn't used on Exynos5420, which caused a kernel panic.
-Add the proper compatible for it.
+When a scheduling entity is placed onto cfs_rq, its vruntime is pulled
+to the base level (around cfs_rq->min_vruntime), so that the entity
+doesn't gain extra boost when placed backwards.
 
-Signed-off-by: Markuss Broks <markuss.broks@gmail.com>
-Link: https://lore.kernel.org/r/20230121201844.46872-2-markuss.broks@gmail.com
-Signed-off-by: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
+However, if the entity being placed wasn't executed for a long time, its
+vruntime may get too far behind (e.g. while cfs_rq was executing a
+low-weight hog), which can inverse the vruntime comparison due to s64
+overflow.  This results in the entity being placed with its original
+vruntime way forwards, so that it will effectively never get to the cpu.
+
+To prevent that, ignore the vruntime of the entity being placed if it
+didn't execute for much longer than the characteristic sheduler time
+scale.
+
+[rkagan: formatted, adjusted commit log, comments, cutoff value]
+Signed-off-by: Zhang Qiao <zhangqiao22@huawei.com>
+Co-developed-by: Roman Kagan <rkagan@amazon.de>
+Signed-off-by: Roman Kagan <rkagan@amazon.de>
+Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+Link: https://lkml.kernel.org/r/20230130122216.3555094-1-rkagan@amazon.de
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm/boot/dts/exynos5420.dtsi | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ kernel/sched/fair.c | 15 +++++++++++++--
+ 1 file changed, 13 insertions(+), 2 deletions(-)
 
-diff --git a/arch/arm/boot/dts/exynos5420.dtsi b/arch/arm/boot/dts/exynos5420.dtsi
-index 02d2f898efa6c..d07e2a94a9dd6 100644
---- a/arch/arm/boot/dts/exynos5420.dtsi
-+++ b/arch/arm/boot/dts/exynos5420.dtsi
-@@ -536,7 +536,7 @@ dp_phy: dp-video-phy {
- 		};
+diff --git a/kernel/sched/fair.c b/kernel/sched/fair.c
+index 3ff60230710c9..afa21e43477fa 100644
+--- a/kernel/sched/fair.c
++++ b/kernel/sched/fair.c
+@@ -3615,6 +3615,7 @@ static void
+ place_entity(struct cfs_rq *cfs_rq, struct sched_entity *se, int initial)
+ {
+ 	u64 vruntime = cfs_rq->min_vruntime;
++	u64 sleep_time;
  
- 		mipi_phy: mipi-video-phy {
--			compatible = "samsung,s5pv210-mipi-video-phy";
-+			compatible = "samsung,exynos5420-mipi-video-phy";
- 			syscon = <&pmu_system_controller>;
- 			#phy-cells = <1>;
- 		};
+ 	/*
+ 	 * The 'current' period is already promised to the current tasks,
+@@ -3639,8 +3640,18 @@ place_entity(struct cfs_rq *cfs_rq, struct sched_entity *se, int initial)
+ 		vruntime -= thresh;
+ 	}
+ 
+-	/* ensure we never gain time by being placed backwards. */
+-	se->vruntime = max_vruntime(se->vruntime, vruntime);
++	/*
++	 * Pull vruntime of the entity being placed to the base level of
++	 * cfs_rq, to prevent boosting it if placed backwards.  If the entity
++	 * slept for a long time, don't even try to compare its vruntime with
++	 * the base as it may be too far off and the comparison may get
++	 * inversed due to s64 overflow.
++	 */
++	sleep_time = rq_clock_task(rq_of(cfs_rq)) - se->exec_start;
++	if ((s64)sleep_time > 60LL * NSEC_PER_SEC)
++		se->vruntime = vruntime;
++	else
++		se->vruntime = max_vruntime(se->vruntime, vruntime);
+ }
+ 
+ static void check_enqueue_throttle(struct cfs_rq *cfs_rq);
 -- 
 2.39.0
 
