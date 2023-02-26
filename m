@@ -2,46 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 1F9776A3251
-	for <lists+stable@lfdr.de>; Sun, 26 Feb 2023 16:32:09 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 835606A3265
+	for <lists+stable@lfdr.de>; Sun, 26 Feb 2023 16:37:46 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230367AbjBZPcH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 26 Feb 2023 10:32:07 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37908 "EHLO
+        id S229489AbjBZPho (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 26 Feb 2023 10:37:44 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43320 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229710AbjBZPbt (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 26 Feb 2023 10:31:49 -0500
-Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 85E727D95;
-        Sun, 26 Feb 2023 07:29:18 -0800 (PST)
+        with ESMTP id S229582AbjBZPhh (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 26 Feb 2023 10:37:37 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6EBD01AF;
+        Sun, 26 Feb 2023 07:37:16 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id AD959CE0E79;
-        Sun, 26 Feb 2023 14:45:33 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id EE76EC4331D;
-        Sun, 26 Feb 2023 14:45:30 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id CF38160B8F;
+        Sun, 26 Feb 2023 14:45:42 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 174B6C433A1;
+        Sun, 26 Feb 2023 14:45:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1677422732;
-        bh=AxnxOlSN62BnFiT6lQKnSPsUpSQfhY1u7OhqD5HnXxw=;
+        s=k20201202; t=1677422742;
+        bh=Z6cedVlKYTp/sAIk1wKhQqv0dIA+sCn2Q5iMjMWSs4M=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=PFdwp3DOGbxYMHfenf31+A70PxJXFBSFnSNwyohFRmQXQ0CkJ+SJV7xA/coaOyUxA
-         mHpfkIbSeQkXVhaw9BRlrfBNAjo0RhhwxOBjI++up6OEyKnxffCMFOjCDNoSXEFhWt
-         tlHvRtyYa3GwA1JhycA/W66hAocn00EZz+dq0WF0QR15wqz+ECVic6y4j6AwO5uzBa
-         +GpW97mOIA2DlkCXtDSTDlCdLYdXBSUUwudT9cRjotLzkfumOR1ZkQvfNno15R5xSq
-         ZPd7458VIJA5W6j5OFtCWqtvhDOduWH7xY87pAoTkJJv3R4sD8hcI1ndKu9rWuk37U
-         pk1Te9+qyOF2g==
+        b=ZFqx4B3pd3X3db+mjQRt+qacq2gJ122YJvDtYkHJ2ZxliRXhsXmdPJ4mxOgz75ogC
+         lwMOZ2k15e/6rV4A7CEUMJ/hzQMrK8M7j6sBIsHIG03CimrIMyulQRNKpvfUQkgpKh
+         Ofls7cEmuSApcZSrNiz/TSKBni0ftO2PEno82zql4MVSi5Az7/pc/7aC+uLaPX8b06
+         KNjO9zXnSwRbIbv9B8e20VyAu1N/5H0oaj/fheBrB9QgYng5TKorMnJ8y3tsBQvuw+
+         57Jzg3QbGbXS/gIejnF5q2zuj1N7e9eywSCuY+XdATg1cgyeezJSJBfhttswUad/QG
+         eWoasmi6YeTgg==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Jesse Brandeburg <jesse.brandeburg@intel.com>,
-        Gurucharan G <gurucharanx.g@intel.com>,
-        Tony Nguyen <anthony.l.nguyen@intel.com>,
-        Sasha Levin <sashal@kernel.org>, davem@davemloft.net,
-        edumazet@google.com, kuba@kernel.org, pabeni@redhat.com,
-        intel-wired-lan@lists.osuosl.org, netdev@vger.kernel.org
-Subject: [PATCH AUTOSEL 6.2 19/53] ice: add missing checks for PF vsi type
-Date:   Sun, 26 Feb 2023 09:44:11 -0500
-Message-Id: <20230226144446.824580-19-sashal@kernel.org>
+Cc:     Dave Thaler <dthaler@microsoft.com>,
+        Daniel Borkmann <daniel@iogearbox.net>,
+        Sasha Levin <sashal@kernel.org>, ast@kernel.org,
+        andrii@kernel.org, corbet@lwn.net, bpf@vger.kernel.org,
+        bpf@ietf.org, linux-doc@vger.kernel.org
+Subject: [PATCH AUTOSEL 6.2 22/53] bpf, docs: Fix modulo zero, division by zero, overflow, and underflow
+Date:   Sun, 26 Feb 2023 09:44:14 -0500
+Message-Id: <20230226144446.824580-22-sashal@kernel.org>
 X-Mailer: git-send-email 2.39.0
 In-Reply-To: <20230226144446.824580-1-sashal@kernel.org>
 References: <20230226144446.824580-1-sashal@kernel.org>
@@ -58,70 +57,66 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jesse Brandeburg <jesse.brandeburg@intel.com>
+From: Dave Thaler <dthaler@microsoft.com>
 
-[ Upstream commit 6a8d013e904ad9a66706fcc926ec9993bed7d190 ]
+[ Upstream commit 0eb9d19e2201068260e439a5c96dc85f9f3722a2 ]
 
-There were a few places we had missed checking the VSI type to make sure
-it was definitely a PF VSI, before calling setup functions intended only
-for the PF VSI.
+Fix modulo zero, division by zero, overflow, and underflow. Also clarify how
+a negative immediate value is used in unsigned division.
 
-This doesn't fix any explicit bugs but cleans up the code in a few
-places and removes one explicit != vsi->type check that can be
-superseded by this code (it's a super set)
-
-Signed-off-by: Jesse Brandeburg <jesse.brandeburg@intel.com>
-Tested-by: Gurucharan G <gurucharanx.g@intel.com> (A Contingent worker at Intel)
-Signed-off-by: Tony Nguyen <anthony.l.nguyen@intel.com>
+Signed-off-by: Dave Thaler <dthaler@microsoft.com>
+Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
+Link: https://lore.kernel.org/bpf/20230124001218.827-1-dthaler1968@googlemail.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/intel/ice/ice_main.c | 17 ++++++++---------
- 1 file changed, 8 insertions(+), 9 deletions(-)
+ Documentation/bpf/instruction-set.rst | 16 ++++++++++++++--
+ 1 file changed, 14 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/net/ethernet/intel/ice/ice_main.c b/drivers/net/ethernet/intel/ice/ice_main.c
-index 8ec24f6cf6beb..3811462824390 100644
---- a/drivers/net/ethernet/intel/ice/ice_main.c
-+++ b/drivers/net/ethernet/intel/ice/ice_main.c
-@@ -6182,15 +6182,12 @@ int ice_vsi_cfg(struct ice_vsi *vsi)
- {
- 	int err;
+diff --git a/Documentation/bpf/instruction-set.rst b/Documentation/bpf/instruction-set.rst
+index e672d5ec6cc7b..2d3fe59bd260f 100644
+--- a/Documentation/bpf/instruction-set.rst
++++ b/Documentation/bpf/instruction-set.rst
+@@ -99,19 +99,26 @@ code      value  description
+ BPF_ADD   0x00   dst += src
+ BPF_SUB   0x10   dst -= src
+ BPF_MUL   0x20   dst \*= src
+-BPF_DIV   0x30   dst /= src
++BPF_DIV   0x30   dst = (src != 0) ? (dst / src) : 0
+ BPF_OR    0x40   dst \|= src
+ BPF_AND   0x50   dst &= src
+ BPF_LSH   0x60   dst <<= src
+ BPF_RSH   0x70   dst >>= src
+ BPF_NEG   0x80   dst = ~src
+-BPF_MOD   0x90   dst %= src
++BPF_MOD   0x90   dst = (src != 0) ? (dst % src) : dst
+ BPF_XOR   0xa0   dst ^= src
+ BPF_MOV   0xb0   dst = src
+ BPF_ARSH  0xc0   sign extending shift right
+ BPF_END   0xd0   byte swap operations (see `Byte swap instructions`_ below)
+ ========  =====  ==========================================================
  
--	if (vsi->netdev) {
-+	if (vsi->netdev && vsi->type == ICE_VSI_PF) {
- 		ice_set_rx_mode(vsi->netdev);
- 
--		if (vsi->type != ICE_VSI_LB) {
--			err = ice_vsi_vlan_setup(vsi);
--
--			if (err)
--				return err;
--		}
-+		err = ice_vsi_vlan_setup(vsi);
-+		if (err)
-+			return err;
- 	}
- 	ice_vsi_cfg_dcb_rings(vsi);
- 
-@@ -6371,7 +6368,7 @@ static int ice_up_complete(struct ice_vsi *vsi)
- 
- 	if (vsi->port_info &&
- 	    (vsi->port_info->phy.link_info.link_info & ICE_AQ_LINK_UP) &&
--	    vsi->netdev) {
-+	    vsi->netdev && vsi->type == ICE_VSI_PF) {
- 		ice_print_link_msg(vsi, true);
- 		netif_tx_start_all_queues(vsi->netdev);
- 		netif_carrier_on(vsi->netdev);
-@@ -6382,7 +6379,9 @@ static int ice_up_complete(struct ice_vsi *vsi)
- 	 * set the baseline so counters are ready when interface is up
- 	 */
- 	ice_update_eth_stats(vsi);
--	ice_service_task_schedule(pf);
++Underflow and overflow are allowed during arithmetic operations, meaning
++the 64-bit or 32-bit value will wrap. If eBPF program execution would
++result in division by zero, the destination register is instead set to zero.
++If execution would result in modulo by zero, for ``BPF_ALU64`` the value of
++the destination register is unchanged whereas for ``BPF_ALU`` the upper
++32 bits of the destination register are zeroed.
 +
-+	if (vsi->type == ICE_VSI_PF)
-+		ice_service_task_schedule(pf);
+ ``BPF_ADD | BPF_X | BPF_ALU`` means::
  
- 	return 0;
- }
+   dst_reg = (u32) dst_reg + (u32) src_reg;
+@@ -128,6 +135,11 @@ BPF_END   0xd0   byte swap operations (see `Byte swap instructions`_ below)
+ 
+   dst_reg = dst_reg ^ imm32
+ 
++Also note that the division and modulo operations are unsigned. Thus, for
++``BPF_ALU``, 'imm' is first interpreted as an unsigned 32-bit value, whereas
++for ``BPF_ALU64``, 'imm' is first sign extended to 64 bits and the result
++interpreted as an unsigned 64-bit value. There are no instructions for
++signed division or modulo.
+ 
+ Byte swap instructions
+ ~~~~~~~~~~~~~~~~~~~~~~
 -- 
 2.39.0
 
