@@ -2,46 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 6FEC46A2DD2
-	for <lists+stable@lfdr.de>; Sun, 26 Feb 2023 04:46:34 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 50FB96A2DFF
+	for <lists+stable@lfdr.de>; Sun, 26 Feb 2023 04:56:31 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230127AbjBZDqd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 25 Feb 2023 22:46:33 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55246 "EHLO
+        id S230159AbjBZD4A (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 25 Feb 2023 22:56:00 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47606 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229802AbjBZDqL (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 25 Feb 2023 22:46:11 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2A1CC14EA5;
-        Sat, 25 Feb 2023 19:45:39 -0800 (PST)
+        with ESMTP id S230221AbjBZDzl (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 25 Feb 2023 22:55:41 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1B3B71714E;
+        Sat, 25 Feb 2023 19:55:11 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id C509A60BDE;
+        by ams.source.kernel.org (Postfix) with ESMTPS id EE416B80956;
+        Sun, 26 Feb 2023 03:44:14 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id AC7FDC433D2;
         Sun, 26 Feb 2023 03:44:12 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 45F1FC4339C;
-        Sun, 26 Feb 2023 03:44:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1677383052;
-        bh=e7Wi9xAhBC9rRNX2BkeGXxNt0F5/IqirjVvf2P0AfnM=;
+        s=k20201202; t=1677383053;
+        bh=LE6Cuxh0N4Eej+KJKmepjRL+51JfrcQnW1JJGA9cAOk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=HrjFVf/MVr9HeDtH/oZDhXcO6e2LrwBpxwdfg+5JOUo5QlDW3gt9O9S8VVE/uFOyt
-         iRcKD6szu2fP870ZrJmvt5kA3vOa5KEiqM1GGuOCnsrAHWedCNJRygefx19m2+Husx
-         eqlScdOTmnmX+ogCLOK/ldE68pyL5izMPD9j7jwszbDovBfLOuxw6kHQZdkIC9gwL3
-         7Z1vD8UW+zhILo/BOmSD2QXqX5RRtOXGNatLSHRucm5671RE85F5JSxIw90Rclp84Y
-         xuOMr/v3Bw187alqINviRNzrnOwYhy914herfaL72ZDyZQM4DaTIw+DWi+hACvN7fh
-         73itxy5R6cA2A==
+        b=PM0CfhWT1wXNddcyFftkUKX74V3kaxax7cb5ZeGtCyCxwAZo27ZmSia3L6Ogj3SEV
+         bPv31BxBvVRzwlIGuvs7+/oBLsogrVJIDm43gnFM+qwiZBKMg8/YZCLEWfVGvmdJoN
+         95yYXAZRQDhv3mL82x5U6V0BTwYVGlf2uf4fSwo5X7RiRNsDigN17Dgh2Qk97miLLl
+         WwwHa5CU7qjymp7BpCuPvJLUAoq7Elf3Gdw//WA6rgNz1FpPEsovoREwk25mPXbELX
+         nZWy32sDIYfKlHvZr8y/X7OvxFiYA8xLu0Bzi2A3Ctqy8akLj4ky66SURfEyUo5SLZ
+         2XX6FnTq1qz9Q==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Markuss Broks <markuss.broks@gmail.com>,
-        Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>,
-        Sasha Levin <sashal@kernel.org>, robh+dt@kernel.org,
-        krzysztof.kozlowski+dt@linaro.org, devicetree@vger.kernel.org,
-        linux-arm-kernel@lists.infradead.org,
-        linux-samsung-soc@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.10 2/5] ARM: dts: exynos: Use Exynos5420 compatible for the MIPI video phy
-Date:   Sat, 25 Feb 2023 22:44:05 -0500
-Message-Id: <20230226034408.774670-2-sashal@kernel.org>
+Cc:     Li Nan <linan122@huawei.com>, Yu Kuai <yukuai3@huawei.com>,
+        Tejun Heo <tj@kernel.org>, Jens Axboe <axboe@kernel.dk>,
+        Sasha Levin <sashal@kernel.org>, josef@toxicpanda.com,
+        cgroups@vger.kernel.org, linux-block@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.10 3/5] blk-iocost: fix divide by 0 error in calc_lcoefs()
+Date:   Sat, 25 Feb 2023 22:44:06 -0500
+Message-Id: <20230226034408.774670-3-sashal@kernel.org>
 X-Mailer: git-send-email 2.39.0
 In-Reply-To: <20230226034408.774670-1-sashal@kernel.org>
 References: <20230226034408.774670-1-sashal@kernel.org>
@@ -58,35 +56,68 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Markuss Broks <markuss.broks@gmail.com>
+From: Li Nan <linan122@huawei.com>
 
-[ Upstream commit 5d5aa219a790d61cad2c38e1aa32058f16ad2f0b ]
+[ Upstream commit 984af1e66b4126cf145153661cc24c213e2ec231 ]
 
-For some reason, the driver adding support for Exynos5420 MIPI phy
-back in 2016 wasn't used on Exynos5420, which caused a kernel panic.
-Add the proper compatible for it.
+echo max of u64 to cost.model can cause divide by 0 error.
 
-Signed-off-by: Markuss Broks <markuss.broks@gmail.com>
-Link: https://lore.kernel.org/r/20230121201844.46872-2-markuss.broks@gmail.com
-Signed-off-by: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
+  # echo 8:0 rbps=18446744073709551615 > /sys/fs/cgroup/io.cost.model
+
+  divide error: 0000 [#1] PREEMPT SMP
+  RIP: 0010:calc_lcoefs+0x4c/0xc0
+  Call Trace:
+   <TASK>
+   ioc_refresh_params+0x2b3/0x4f0
+   ioc_cost_model_write+0x3cb/0x4c0
+   ? _copy_from_iter+0x6d/0x6c0
+   ? kernfs_fop_write_iter+0xfc/0x270
+   cgroup_file_write+0xa0/0x200
+   kernfs_fop_write_iter+0x17d/0x270
+   vfs_write+0x414/0x620
+   ksys_write+0x73/0x160
+   __x64_sys_write+0x1e/0x30
+   do_syscall_64+0x35/0x80
+   entry_SYSCALL_64_after_hwframe+0x63/0xcd
+
+calc_lcoefs() uses the input value of cost.model in DIV_ROUND_UP_ULL,
+overflow would happen if bps plus IOC_PAGE_SIZE is greater than
+ULLONG_MAX, it can cause divide by 0 error.
+
+Fix the problem by setting basecost
+
+Signed-off-by: Li Nan <linan122@huawei.com>
+Signed-off-by: Yu Kuai <yukuai3@huawei.com>
+Acked-by: Tejun Heo <tj@kernel.org>
+Link: https://lore.kernel.org/r/20230117070806.3857142-5-yukuai1@huaweicloud.com
+Signed-off-by: Jens Axboe <axboe@kernel.dk>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm/boot/dts/exynos5420.dtsi | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ block/blk-iocost.c | 11 ++++++++---
+ 1 file changed, 8 insertions(+), 3 deletions(-)
 
-diff --git a/arch/arm/boot/dts/exynos5420.dtsi b/arch/arm/boot/dts/exynos5420.dtsi
-index 83580f076a587..34886535f8477 100644
---- a/arch/arm/boot/dts/exynos5420.dtsi
-+++ b/arch/arm/boot/dts/exynos5420.dtsi
-@@ -605,7 +605,7 @@ dp_phy: dp-video-phy {
- 		};
+diff --git a/block/blk-iocost.c b/block/blk-iocost.c
+index fb8f959a7f327..9255b642d6adb 100644
+--- a/block/blk-iocost.c
++++ b/block/blk-iocost.c
+@@ -872,9 +872,14 @@ static void calc_lcoefs(u64 bps, u64 seqiops, u64 randiops,
  
- 		mipi_phy: mipi-video-phy {
--			compatible = "samsung,s5pv210-mipi-video-phy";
-+			compatible = "samsung,exynos5420-mipi-video-phy";
- 			syscon = <&pmu_system_controller>;
- 			#phy-cells = <1>;
- 		};
+ 	*page = *seqio = *randio = 0;
+ 
+-	if (bps)
+-		*page = DIV64_U64_ROUND_UP(VTIME_PER_SEC,
+-					   DIV_ROUND_UP_ULL(bps, IOC_PAGE_SIZE));
++	if (bps) {
++		u64 bps_pages = DIV_ROUND_UP_ULL(bps, IOC_PAGE_SIZE);
++
++		if (bps_pages)
++			*page = DIV64_U64_ROUND_UP(VTIME_PER_SEC, bps_pages);
++		else
++			*page = 1;
++	}
+ 
+ 	if (seqiops) {
+ 		v = DIV64_U64_ROUND_UP(VTIME_PER_SEC, seqiops);
 -- 
 2.39.0
 
