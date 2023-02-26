@@ -2,46 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id DE9956A2D5A
-	for <lists+stable@lfdr.de>; Sun, 26 Feb 2023 04:42:15 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id AD6816A2D5C
+	for <lists+stable@lfdr.de>; Sun, 26 Feb 2023 04:42:16 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229698AbjBZDmN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 25 Feb 2023 22:42:13 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50948 "EHLO
+        id S229702AbjBZDmO (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 25 Feb 2023 22:42:14 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51104 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229697AbjBZDmJ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 25 Feb 2023 22:42:09 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B2A2614EA5;
-        Sat, 25 Feb 2023 19:42:04 -0800 (PST)
+        with ESMTP id S229617AbjBZDmK (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 25 Feb 2023 22:42:10 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B7F7C1516B;
+        Sat, 25 Feb 2023 19:42:06 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 56AC4B80B7F;
-        Sun, 26 Feb 2023 03:42:03 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2E524C433A4;
-        Sun, 26 Feb 2023 03:42:01 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 4152A60BCC;
+        Sun, 26 Feb 2023 03:42:06 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9652FC433EF;
+        Sun, 26 Feb 2023 03:42:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1677382922;
-        bh=Swp9cal23T3bRtttDRGQ8Yv4EpqIDlMRm6uqrJbkTY4=;
+        s=k20201202; t=1677382925;
+        bh=HsbnbWeu6ToB2hOX+OhXMszsB2U37JQKY27bfiD3FA0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ifbdSRsi9cvrn/daynrra6hk+vUAgki3709cE6FZguzM5yEsomA3oEVmyqWKnyxZX
-         gcNTK3gakJ/ZXLw725DZYxyi0VgnwwG7myVq2rW+6a2XtirQWxkcC/Wc33T65Z+VV6
-         CraYUtbqOytuHQb/ZjXfbsmc3uSt6MDkjSn0PUbTKDsEUm5/uRB8keb7x0jFGOKFnv
-         jlOYi4h0JICUZw5VeFjhHP6b97YXMEX+/gO1QsyApENK1Ru/I7o1olyoI/mKyN1Cf4
-         5Uu8xaOslvofuMdLBduTK3ariK6BIYnKyOJFwm9cZSvIUl0czJinWKfx13uHf4eBlg
-         zFjtIo1CK06FQ==
+        b=f9U4R11YoUfT6WLkucdwV3KHRBVJ+4vBQvdfxuwah70w2rc6GwwIdsomul1I2OS1a
+         VLhAR8hXVefqbw6xdw/yyLe1nSW82gmbjpWXZpy5XBmj8FY8/5GtwDGOHSt8T9n4TC
+         +g7ustaLC/AkfpzGiTztbjn2J1D8HfLbVowO/dA+a++rwVKphENlOa3yTDMXX+6R+Z
+         VqYIuiZAZMHgzLlAnX1b4YzDVvjTg82hmwePnZKzBHfb5Kg8jEVgqQSXIYZ4dle2yN
+         YE0mGt/wtaTTxDUdNjYhoM3LUNYRLx6Z369R7xYM6yLgkDEIKnnyRwiHt7mZy/q3F3
+         oNbOgW101/peg==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Markuss Broks <markuss.broks@gmail.com>,
-        Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>,
-        Sasha Levin <sashal@kernel.org>, robh+dt@kernel.org,
-        krzysztof.kozlowski+dt@linaro.org, devicetree@vger.kernel.org,
-        linux-arm-kernel@lists.infradead.org,
-        linux-samsung-soc@vger.kernel.org
-Subject: [PATCH AUTOSEL 6.2 06/21] ARM: dts: exynos: Use Exynos5420 compatible for the MIPI video phy
-Date:   Sat, 25 Feb 2023 22:41:35 -0500
-Message-Id: <20230226034150.771411-6-sashal@kernel.org>
+Cc:     Jann Horn <jannh@google.com>,
+        Christian Brauner <brauner@kernel.org>,
+        Kees Cook <keescook@chromium.org>,
+        Sasha Levin <sashal@kernel.org>, viro@zeniv.linux.org.uk,
+        davemarchevsky@fb.com, davem@davemloft.net, brouer@redhat.com,
+        linux-fsdevel@vger.kernel.org
+Subject: [PATCH AUTOSEL 6.2 07/21] fs: Use CHECK_DATA_CORRUPTION() when kernel bugs are detected
+Date:   Sat, 25 Feb 2023 22:41:36 -0500
+Message-Id: <20230226034150.771411-7-sashal@kernel.org>
 X-Mailer: git-send-email 2.39.0
 In-Reply-To: <20230226034150.771411-1-sashal@kernel.org>
 References: <20230226034150.771411-1-sashal@kernel.org>
@@ -58,35 +58,94 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Markuss Broks <markuss.broks@gmail.com>
+From: Jann Horn <jannh@google.com>
 
-[ Upstream commit 5d5aa219a790d61cad2c38e1aa32058f16ad2f0b ]
+[ Upstream commit 47d586913f2abec4d240bae33417f537fda987ec ]
 
-For some reason, the driver adding support for Exynos5420 MIPI phy
-back in 2016 wasn't used on Exynos5420, which caused a kernel panic.
-Add the proper compatible for it.
+Currently, filp_close() and generic_shutdown_super() use printk() to log
+messages when bugs are detected. This is problematic because infrastructure
+like syzkaller has no idea that this message indicates a bug.
+In addition, some people explicitly want their kernels to BUG() when kernel
+data corruption has been detected (CONFIG_BUG_ON_DATA_CORRUPTION).
+And finally, when generic_shutdown_super() detects remaining inodes on a
+system without CONFIG_BUG_ON_DATA_CORRUPTION, it would be nice if later
+accesses to a busy inode would at least crash somewhat cleanly rather than
+walking through freed memory.
 
-Signed-off-by: Markuss Broks <markuss.broks@gmail.com>
-Link: https://lore.kernel.org/r/20230121201844.46872-2-markuss.broks@gmail.com
-Signed-off-by: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
+To address all three, use CHECK_DATA_CORRUPTION() when kernel bugs are
+detected.
+
+Signed-off-by: Jann Horn <jannh@google.com>
+Reviewed-by: Christian Brauner (Microsoft) <brauner@kernel.org>
+Reviewed-by: Kees Cook <keescook@chromium.org>
+Signed-off-by: Christian Brauner (Microsoft) <brauner@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm/boot/dts/exynos5420.dtsi | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ fs/open.c              |  5 +++--
+ fs/super.c             | 21 +++++++++++++++++----
+ include/linux/poison.h |  3 +++
+ 3 files changed, 23 insertions(+), 6 deletions(-)
 
-diff --git a/arch/arm/boot/dts/exynos5420.dtsi b/arch/arm/boot/dts/exynos5420.dtsi
-index 9f2523a873d9d..62263eb91b3cc 100644
---- a/arch/arm/boot/dts/exynos5420.dtsi
-+++ b/arch/arm/boot/dts/exynos5420.dtsi
-@@ -592,7 +592,7 @@ dp_phy: dp-video-phy {
- 		};
+diff --git a/fs/open.c b/fs/open.c
+index 82c1a28b33089..ceb88ac0ca3b2 100644
+--- a/fs/open.c
++++ b/fs/open.c
+@@ -1411,8 +1411,9 @@ int filp_close(struct file *filp, fl_owner_t id)
+ {
+ 	int retval = 0;
  
- 		mipi_phy: mipi-video-phy {
--			compatible = "samsung,s5pv210-mipi-video-phy";
-+			compatible = "samsung,exynos5420-mipi-video-phy";
- 			syscon = <&pmu_system_controller>;
- 			#phy-cells = <1>;
- 		};
+-	if (!file_count(filp)) {
+-		printk(KERN_ERR "VFS: Close: file count is 0\n");
++	if (CHECK_DATA_CORRUPTION(file_count(filp) == 0,
++			"VFS: Close: file count is 0 (f_op=%ps)",
++			filp->f_op)) {
+ 		return 0;
+ 	}
+ 
+diff --git a/fs/super.c b/fs/super.c
+index 12c08cb20405d..cf737ec2bd05c 100644
+--- a/fs/super.c
++++ b/fs/super.c
+@@ -491,10 +491,23 @@ void generic_shutdown_super(struct super_block *sb)
+ 		if (sop->put_super)
+ 			sop->put_super(sb);
+ 
+-		if (!list_empty(&sb->s_inodes)) {
+-			printk("VFS: Busy inodes after unmount of %s. "
+-			   "Self-destruct in 5 seconds.  Have a nice day...\n",
+-			   sb->s_id);
++		if (CHECK_DATA_CORRUPTION(!list_empty(&sb->s_inodes),
++				"VFS: Busy inodes after unmount of %s (%s)",
++				sb->s_id, sb->s_type->name)) {
++			/*
++			 * Adding a proper bailout path here would be hard, but
++			 * we can at least make it more likely that a later
++			 * iput_final() or such crashes cleanly.
++			 */
++			struct inode *inode;
++
++			spin_lock(&sb->s_inode_list_lock);
++			list_for_each_entry(inode, &sb->s_inodes, i_sb_list) {
++				inode->i_op = VFS_PTR_POISON;
++				inode->i_sb = VFS_PTR_POISON;
++				inode->i_mapping = VFS_PTR_POISON;
++			}
++			spin_unlock(&sb->s_inode_list_lock);
+ 		}
+ 	}
+ 	spin_lock(&sb_lock);
+diff --git a/include/linux/poison.h b/include/linux/poison.h
+index 2d3249eb0e62d..0e8a1f2ceb2f1 100644
+--- a/include/linux/poison.h
++++ b/include/linux/poison.h
+@@ -84,4 +84,7 @@
+ /********** kernel/bpf/ **********/
+ #define BPF_PTR_POISON ((void *)(0xeB9FUL + POISON_POINTER_DELTA))
+ 
++/********** VFS **********/
++#define VFS_PTR_POISON ((void *)(0xF5 + POISON_POINTER_DELTA))
++
+ #endif
 -- 
 2.39.0
 
