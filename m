@@ -2,46 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C97E46A326B
-	for <lists+stable@lfdr.de>; Sun, 26 Feb 2023 16:38:28 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E0EF66A3236
+	for <lists+stable@lfdr.de>; Sun, 26 Feb 2023 16:28:53 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229527AbjBZPi2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 26 Feb 2023 10:38:28 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49970 "EHLO
+        id S229800AbjBZP2w (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 26 Feb 2023 10:28:52 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58816 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229674AbjBZPiX (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 26 Feb 2023 10:38:23 -0500
+        with ESMTP id S229729AbjBZP2j (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 26 Feb 2023 10:28:39 -0500
 Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 514011BDE;
-        Sun, 26 Feb 2023 07:38:08 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 177521C32E;
+        Sun, 26 Feb 2023 07:24:16 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id B5378CE0E9A;
-        Sun, 26 Feb 2023 14:50:54 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1F77CC433D2;
-        Sun, 26 Feb 2023 14:50:52 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 32273CE0E89;
+        Sun, 26 Feb 2023 14:50:59 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 87613C4339C;
+        Sun, 26 Feb 2023 14:50:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1677423053;
-        bh=Fo7gJOqojngS+sY+F+cJ7oGmmBBt1Qxw3MPSIwyHgcI=;
+        s=k20201202; t=1677423057;
+        bh=drOd08qg67tPd76QOrY4JCFJ/FOIzF+WzPq/SRUHWU0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=OIGhNSQn5RhyTxOHJlCrzR2e3WYoHro8IDW6rLbcCEqhfe9YMfkKcamJFUK5hhIG3
-         HJjJPUHoc8sxopn+yvkHxrdZDr5BPQxYmVJvmIN0x723DoueRGLanxCE9vScoXsLja
-         4pGsnVoP2jTo7EuBMdvCdCaiiXD/wgVy8CqKUZscJdyRRH8kaWbVP39hFN2uM2tr20
-         GBib6Te6HPWYnKROD5QvrOEG6LOF2/ugkQipHWgDAOfhbgz+12cjFcL5ZQfPYCnkWj
-         nWlh0TJkpgeiECB4kkqUfrDMyVDV8yydzcDGKz21a42nTtnuxCMLyTYf21HJkTA5fY
-         YfWKFsQCyxQ0g==
+        b=nw/l8bYbNN/DAB6c0AqZT114xaiTmkTRnNBJwON6uYXcWQ9Vd545x4q0EiZJUdwhb
+         /GgXULZ/N5iQrwm5eXHMHU+tnkZ9d0h3YmO2qMhLixYEiL+QsSqvRcNR+GnZIq3vO4
+         4R+DCyN2xL7h0rH6ETMUVUpbUYc0royNanTiyanlPNUi89pEaZD61V4/75Ipw6zDLC
+         5gcGYQImxUtgLFmkFRjr852NFHIw8ntWmrTanOVymNvrbYWmZNRn2vQNlXRFLAjvEx
+         vr4h1yHAhxWVNtFbnNVy5r/hzhd2eDCwhGUYB9STzsvS3/7EhIi1olufUsGkruOExB
+         TVdhWyQaB/RMw==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Feng Tang <feng.tang@intel.com>, Waiman Long <longman@redhat.com>,
-        John Stultz <jstultz@google.com>,
-        Thomas Gleixner <tglx@linutronix.de>,
-        Stephen Boyd <sboyd@kernel.org>,
-        "Paul E . McKenney" <paulmck@kernel.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 5.10 15/27] clocksource: Suspend the watchdog temporarily when high read latency detected
-Date:   Sun, 26 Feb 2023 09:50:02 -0500
-Message-Id: <20230226145014.828855-15-sashal@kernel.org>
+Cc:     Breno Leitao <leitao@debian.org>,
+        Michael van der Westhuizen <rmikey@meta.com>,
+        Jakub Kicinski <kuba@kernel.org>,
+        Sasha Levin <sashal@kernel.org>, davem@davemloft.net,
+        edumazet@google.com, pabeni@redhat.com,
+        wsa+renesas@sang-engineering.com, netdev@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.10 17/27] netpoll: Remove 4s sleep during carrier detection
+Date:   Sun, 26 Feb 2023 09:50:04 -0500
+Message-Id: <20230226145014.828855-17-sashal@kernel.org>
 X-Mailer: git-send-email 2.39.0
 In-Reply-To: <20230226145014.828855-1-sashal@kernel.org>
 References: <20230226145014.828855-1-sashal@kernel.org>
@@ -58,143 +58,72 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Feng Tang <feng.tang@intel.com>
+From: Breno Leitao <leitao@debian.org>
 
-[ Upstream commit b7082cdfc464bf9231300605d03eebf943dda307 ]
+[ Upstream commit d8afe2f8a92d2aac3df645772f6ee61b0b2fc147 ]
 
-Bugs have been reported on 8 sockets x86 machines in which the TSC was
-wrongly disabled when the system is under heavy workload.
+This patch removes the msleep(4s) during netpoll_setup() if the carrier
+appears instantly.
 
- [ 818.380354] clocksource: timekeeping watchdog on CPU336: hpet wd-wd read-back delay of 1203520ns
- [ 818.436160] clocksource: wd-tsc-wd read-back delay of 181880ns, clock-skew test skipped!
- [ 819.402962] clocksource: timekeeping watchdog on CPU338: hpet wd-wd read-back delay of 324000ns
- [ 819.448036] clocksource: wd-tsc-wd read-back delay of 337240ns, clock-skew test skipped!
- [ 819.880863] clocksource: timekeeping watchdog on CPU339: hpet read-back delay of 150280ns, attempt 3, marking unstable
- [ 819.936243] tsc: Marking TSC unstable due to clocksource watchdog
- [ 820.068173] TSC found unstable after boot, most likely due to broken BIOS. Use 'tsc=unstable'.
- [ 820.092382] sched_clock: Marking unstable (818769414384, 1195404998)
- [ 820.643627] clocksource: Checking clocksource tsc synchronization from CPU 267 to CPUs 0,4,25,70,126,430,557,564.
- [ 821.067990] clocksource: Switched to clocksource hpet
+Here are some scenarios where this workaround is counter-productive in
+modern ages:
 
-This can be reproduced by running memory intensive 'stream' tests,
-or some of the stress-ng subcases such as 'ioport'.
+Servers which have BMC communicating over NC-SI via the same NIC as gets
+used for netconsole. BMC will keep the PHY up, hence the carrier
+appearing instantly.
 
-The reason for these issues is the when system is under heavy load, the
-read latency of the clocksources can be very high.  Even lightweight TSC
-reads can show high latencies, and latencies are much worse for external
-clocksources such as HPET or the APIC PM timer.  These latencies can
-result in false-positive clocksource-unstable determinations.
+The link is fibre, SERDES getting sync could happen within 0.1Hz, and
+the carrier also appears instantly.
 
-These issues were initially reported by a customer running on a production
-system, and this problem was reproduced on several generations of Xeon
-servers, especially when running the stress-ng test.  These Xeon servers
-were not production systems, but they did have the latest steppings
-and firmware.
+Other than that, if a driver is reporting instant carrier and then
+losing it, this is probably a driver bug.
 
-Given that the clocksource watchdog is a continual diagnostic check with
-frequency of twice a second, there is no need to rush it when the system
-is under heavy load.  Therefore, when high clocksource read latencies
-are detected, suspend the watchdog timer for 5 minutes.
-
-Signed-off-by: Feng Tang <feng.tang@intel.com>
-Acked-by: Waiman Long <longman@redhat.com>
-Cc: John Stultz <jstultz@google.com>
-Cc: Thomas Gleixner <tglx@linutronix.de>
-Cc: Stephen Boyd <sboyd@kernel.org>
-Cc: Feng Tang <feng.tang@intel.com>
-Signed-off-by: Paul E. McKenney <paulmck@kernel.org>
+Reported-by: Michael van der Westhuizen <rmikey@meta.com>
+Signed-off-by: Breno Leitao <leitao@debian.org>
+Link: https://lore.kernel.org/r/20230125185230.3574681-1-leitao@debian.org
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/time/clocksource.c | 45 ++++++++++++++++++++++++++++-----------
- 1 file changed, 32 insertions(+), 13 deletions(-)
+ net/core/netpoll.c | 12 +-----------
+ 1 file changed, 1 insertion(+), 11 deletions(-)
 
-diff --git a/kernel/time/clocksource.c b/kernel/time/clocksource.c
-index e34ceb91f4c5a..86e0fbe583f2b 100644
---- a/kernel/time/clocksource.c
-+++ b/kernel/time/clocksource.c
-@@ -312,6 +312,15 @@ static void clocksource_verify_percpu(struct clocksource *cs)
- 			testcpu, cs_nsec_min, cs_nsec_max, cs->name);
- }
+diff --git a/net/core/netpoll.c b/net/core/netpoll.c
+index 960948290001e..ee2022b9616bf 100644
+--- a/net/core/netpoll.c
++++ b/net/core/netpoll.c
+@@ -694,7 +694,7 @@ int netpoll_setup(struct netpoll *np)
+ 	}
  
-+static inline void clocksource_reset_watchdog(void)
-+{
-+	struct clocksource *cs;
-+
-+	list_for_each_entry(cs, &watchdog_list, wd_list)
-+		cs->flags &= ~CLOCK_SOURCE_WATCHDOG;
-+}
-+
-+
- static void clocksource_watchdog(struct timer_list *unused)
- {
- 	u64 csnow, wdnow, cslast, wdlast, delta;
-@@ -319,6 +328,7 @@ static void clocksource_watchdog(struct timer_list *unused)
- 	int64_t wd_nsec, cs_nsec;
- 	struct clocksource *cs;
- 	enum wd_read_status read_ret;
-+	unsigned long extra_wait = 0;
- 	u32 md;
+ 	if (!netif_running(ndev)) {
+-		unsigned long atmost, atleast;
++		unsigned long atmost;
  
- 	spin_lock(&watchdog_lock);
-@@ -338,13 +348,30 @@ static void clocksource_watchdog(struct timer_list *unused)
+ 		np_info(np, "device %s not up yet, forcing it\n", np->dev_name);
  
- 		read_ret = cs_watchdog_read(cs, &csnow, &wdnow);
- 
--		if (read_ret != WD_READ_SUCCESS) {
--			if (read_ret == WD_READ_UNSTABLE)
--				/* Clock readout unreliable, so give it up. */
--				__clocksource_unstable(cs);
-+		if (read_ret == WD_READ_UNSTABLE) {
-+			/* Clock readout unreliable, so give it up. */
-+			__clocksource_unstable(cs);
- 			continue;
+@@ -706,7 +706,6 @@ int netpoll_setup(struct netpoll *np)
  		}
  
-+		/*
-+		 * When WD_READ_SKIP is returned, it means the system is likely
-+		 * under very heavy load, where the latency of reading
-+		 * watchdog/clocksource is very big, and affect the accuracy of
-+		 * watchdog check. So give system some space and suspend the
-+		 * watchdog check for 5 minutes.
-+		 */
-+		if (read_ret == WD_READ_SKIP) {
-+			/*
-+			 * As the watchdog timer will be suspended, and
-+			 * cs->last could keep unchanged for 5 minutes, reset
-+			 * the counters.
-+			 */
-+			clocksource_reset_watchdog();
-+			extra_wait = HZ * 300;
-+			break;
-+		}
-+
- 		/* Clocksource initialized ? */
- 		if (!(cs->flags & CLOCK_SOURCE_WATCHDOG) ||
- 		    atomic_read(&watchdog_reset_pending)) {
-@@ -434,7 +461,7 @@ static void clocksource_watchdog(struct timer_list *unused)
- 	 * pair clocksource_stop_watchdog() clocksource_start_watchdog().
- 	 */
- 	if (!timer_pending(&watchdog_timer)) {
--		watchdog_timer.expires += WATCHDOG_INTERVAL;
-+		watchdog_timer.expires += WATCHDOG_INTERVAL + extra_wait;
- 		add_timer_on(&watchdog_timer, next_cpu);
- 	}
- out:
-@@ -459,14 +486,6 @@ static inline void clocksource_stop_watchdog(void)
- 	watchdog_running = 0;
- }
+ 		rtnl_unlock();
+-		atleast = jiffies + HZ/10;
+ 		atmost = jiffies + carrier_timeout * HZ;
+ 		while (!netif_carrier_ok(ndev)) {
+ 			if (time_after(jiffies, atmost)) {
+@@ -716,15 +715,6 @@ int netpoll_setup(struct netpoll *np)
+ 			msleep(1);
+ 		}
  
--static inline void clocksource_reset_watchdog(void)
--{
--	struct clocksource *cs;
+-		/* If carrier appears to come up instantly, we don't
+-		 * trust it and pause so that we don't pump all our
+-		 * queued console messages into the bitbucket.
+-		 */
 -
--	list_for_each_entry(cs, &watchdog_list, wd_list)
--		cs->flags &= ~CLOCK_SOURCE_WATCHDOG;
--}
--
- static void clocksource_resume_watchdog(void)
- {
- 	atomic_inc(&watchdog_reset_pending);
+-		if (time_before(jiffies, atleast)) {
+-			np_notice(np, "carrier detect appears untrustworthy, waiting 4 seconds\n");
+-			msleep(4000);
+-		}
+ 		rtnl_lock();
+ 	}
+ 
 -- 
 2.39.0
 
