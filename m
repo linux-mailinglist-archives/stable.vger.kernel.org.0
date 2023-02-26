@@ -2,48 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A37566A309D
-	for <lists+stable@lfdr.de>; Sun, 26 Feb 2023 15:51:19 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E700D6A30A2
+	for <lists+stable@lfdr.de>; Sun, 26 Feb 2023 15:51:24 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230237AbjBZOvS (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 26 Feb 2023 09:51:18 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44868 "EHLO
+        id S229954AbjBZOvV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 26 Feb 2023 09:51:21 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44942 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230197AbjBZOuo (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 26 Feb 2023 09:50:44 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6273913DF2;
-        Sun, 26 Feb 2023 06:48:40 -0800 (PST)
+        with ESMTP id S230210AbjBZOuq (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 26 Feb 2023 09:50:46 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 735AD16AE1;
+        Sun, 26 Feb 2023 06:48:44 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 8EBC160C38;
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 987CB60C3D;
+        Sun, 26 Feb 2023 14:46:07 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6E53DC433A4;
         Sun, 26 Feb 2023 14:46:06 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 742E1C4339E;
-        Sun, 26 Feb 2023 14:46:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1677422766;
-        bh=SsLC3DuoRr7IIjgp4V6ByD7OU4nl/phwXVPN1WE/Y/s=;
+        s=k20201202; t=1677422767;
+        bh=X9kD3aKgNfLlx5BDHcTQjJAPnMiXAQhR9GFvlDICCWQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=DrX8P/PRPoWAvSGoF3qklTkvpRPK4bHdZ2u9A/hlCquD4EfqXic0f9pV36faN2vAx
-         aBZmWtvzECsqOSi329jTBAyaZCMW3fnu36YncTa4t7NUR8g0sN2swjsFwo7WGrxFtj
-         Ck8niKb/APSxvDAGO5D/ybmPnWmmvmticsWafRV0Em5YmpMMACkK4j1xwbfIBcyDNZ
-         H4Q4o3vYcY6Bb/8I5xzUN+2tL1j6LNbGqatTJNoM0bjV8t2XqYvz4LpfDyDLDKnz7r
-         bsqvbFOLxhgF5X+ZjdNZTuTeVr+m7MAjN0UborbrvmKIKM9j/wKJDW4e0VtYchulH9
-         773R9Grat1mow==
+        b=eiHBHDNHHan3iHOIt2e5SSQTZgprBcs4LD93a2Mf9qdbL7rkocKol8iRXmr1LbCmb
+         g2a+m1fYLFLdwN3vJO693s3Sj7hDFlfl5gG8sBqB7feFSViHv02T0Iw0D2lYELwW/E
+         mrq/Px+lrpoKE0PuiqBh7cxL4bqpxmLzSp30nPAM8u50VPBbJ6Y6+tRxSHAthA93RQ
+         NDRPkiKcjFfV0f+7OGQpZj1W48lQzA4NjT6ZhscQdo8VLL1Degtb2dRkPwUce89FSc
+         4268dQGSA+LN1lCHrz8xtG3ubWimcic8k2rMpNeYy+BHLvAQxzpmwMwShOuBRXDHtH
+         K9UWGjzk0zUFg==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Oliver Hartkopp <socketcan@hartkopp.net>,
-        syzbot+5aed6c3aaba661f5b917@syzkaller.appspotmail.com,
-        Marc Kleine-Budde <mkl@pengutronix.de>,
-        Sasha Levin <sashal@kernel.org>, davem@davemloft.net,
-        edumazet@google.com, kuba@kernel.org, pabeni@redhat.com,
-        ast@kernel.org, daniel@iogearbox.net, hawk@kernel.org,
-        john.fastabend@gmail.com, linux-can@vger.kernel.org,
-        netdev@vger.kernel.org, bpf@vger.kernel.org
-Subject: [PATCH AUTOSEL 6.2 32/53] can: isotp: check CAN address family in isotp_bind()
-Date:   Sun, 26 Feb 2023 09:44:24 -0500
-Message-Id: <20230226144446.824580-32-sashal@kernel.org>
+Cc:     Sam James <sam@gentoo.org>, Kees Cook <keescook@chromium.org>,
+        Sasha Levin <sashal@kernel.org>,
+        linux-hardening@vger.kernel.org
+Subject: [PATCH AUTOSEL 6.2 33/53] gcc-plugins: drop -std=gnu++11 to fix GCC 13 build
+Date:   Sun, 26 Feb 2023 09:44:25 -0500
+Message-Id: <20230226144446.824580-33-sashal@kernel.org>
 X-Mailer: git-send-email 2.39.0
 In-Reply-To: <20230226144446.824580-1-sashal@kernel.org>
 References: <20230226144446.824580-1-sashal@kernel.org>
@@ -60,45 +55,49 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Oliver Hartkopp <socketcan@hartkopp.net>
+From: Sam James <sam@gentoo.org>
 
-[ Upstream commit c6adf659a8ba85913e16a571d5a9bcd17d3d1234 ]
+[ Upstream commit 5a6b64adc18d9adfb497a529ff004d59b6df151f ]
 
-Add missing check to block non-AF_CAN binds.
+The latest GCC 13 snapshot (13.0.1 20230129) gives the following:
+```
+cc1: error: cannot load plugin ./scripts/gcc-plugins/randomize_layout_plugin.so
+ :./scripts/gcc-plugins/randomize_layout_plugin.so: undefined symbol: tree_code_type
+```
 
-Syzbot created some code which matched the right sockaddr struct size
-but used AF_XDP (0x2C) instead of AF_CAN (0x1D) in the address family
-field:
+This ends up being because of https://gcc.gnu.org/git/gitweb.cgi?p=gcc.git;h=b0241ce6e37031
+upstream in GCC which changes the visibility of some types used by the kernel's
+plugin infrastructure like tree_code_type.
 
-bind$xdp(r2, &(0x7f0000000540)={0x2c, 0x0, r4, 0x0, r2}, 0x10)
-                                ^^^^
-This has no funtional impact but the userspace should be notified about
-the wrong address family field content.
+After discussion with the GCC folks, we found that the kernel needs to be building
+plugins with the same flags used to build GCC - and GCC defaults to gnu++17
+right now. The minimum GCC version needed to build the kernel is GCC 5.1
+and GCC 5.1 already defaults to gnu++14 anyway, so just drop the flag, as
+all GCCs that could be used to build GCC already default to an acceptable
+version which was >= the version we forced via flags until now.
 
-Link: https://syzkaller.appspot.com/text?tag=CrashLog&x=11ff9d8c480000
-Reported-by: syzbot+5aed6c3aaba661f5b917@syzkaller.appspotmail.com
-Signed-off-by: Oliver Hartkopp <socketcan@hartkopp.net>
-Link: https://lore.kernel.org/all/20230104201844.13168-1-socketcan@hartkopp.net
-Signed-off-by: Marc Kleine-Budde <mkl@pengutronix.de>
+Bug: https://gcc.gnu.org/bugzilla/show_bug.cgi?id=108634
+Signed-off-by: Sam James <sam@gentoo.org>
+Signed-off-by: Kees Cook <keescook@chromium.org>
+Link: https://lore.kernel.org/r/20230201230009.2252783-1-sam@gentoo.org
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/can/isotp.c | 3 +++
- 1 file changed, 3 insertions(+)
+ scripts/gcc-plugins/Makefile | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/net/can/isotp.c b/net/can/isotp.c
-index fc81d77724a13..9bc344851704e 100644
---- a/net/can/isotp.c
-+++ b/net/can/isotp.c
-@@ -1220,6 +1220,9 @@ static int isotp_bind(struct socket *sock, struct sockaddr *uaddr, int len)
- 	if (len < ISOTP_MIN_NAMELEN)
- 		return -EINVAL;
- 
-+	if (addr->can_family != AF_CAN)
-+		return -EINVAL;
-+
- 	/* sanitize tx CAN identifier */
- 	if (tx_id & CAN_EFF_FLAG)
- 		tx_id &= (CAN_EFF_FLAG | CAN_EFF_MASK);
+diff --git a/scripts/gcc-plugins/Makefile b/scripts/gcc-plugins/Makefile
+index b34d11e226366..320afd3cf8e82 100644
+--- a/scripts/gcc-plugins/Makefile
++++ b/scripts/gcc-plugins/Makefile
+@@ -29,7 +29,7 @@ GCC_PLUGINS_DIR = $(shell $(CC) -print-file-name=plugin)
+ plugin_cxxflags	= -Wp,-MMD,$(depfile) $(KBUILD_HOSTCXXFLAGS) -fPIC \
+ 		  -include $(srctree)/include/linux/compiler-version.h \
+ 		  -DPLUGIN_VERSION=$(call stringify,$(KERNELVERSION)) \
+-		  -I $(GCC_PLUGINS_DIR)/include -I $(obj) -std=gnu++11 \
++		  -I $(GCC_PLUGINS_DIR)/include -I $(obj) \
+ 		  -fno-rtti -fno-exceptions -fasynchronous-unwind-tables \
+ 		  -ggdb -Wno-narrowing -Wno-unused-variable \
+ 		  -Wno-format-diag
 -- 
 2.39.0
 
