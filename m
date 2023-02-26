@@ -2,52 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 27DA96A3242
-	for <lists+stable@lfdr.de>; Sun, 26 Feb 2023 16:29:56 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8287C6A3211
+	for <lists+stable@lfdr.de>; Sun, 26 Feb 2023 16:15:35 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229636AbjBZP3y (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 26 Feb 2023 10:29:54 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35852 "EHLO
+        id S231824AbjBZPPb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 26 Feb 2023 10:15:31 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40366 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229758AbjBZP3g (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 26 Feb 2023 10:29:36 -0500
-Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 942B31CF42;
-        Sun, 26 Feb 2023 07:25:45 -0800 (PST)
+        with ESMTP id S232167AbjBZPO6 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 26 Feb 2023 10:14:58 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0BC4B1C306;
+        Sun, 26 Feb 2023 07:05:43 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 65EA4CE0E80;
+        by ams.source.kernel.org (Postfix) with ESMTPS id 0B1C8B80C01;
+        Sun, 26 Feb 2023 14:53:18 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B1704C433D2;
         Sun, 26 Feb 2023 14:53:15 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4B2A9C4339B;
-        Sun, 26 Feb 2023 14:53:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1677423193;
-        bh=lsz24TCd7gP3EDM6rJqWrZ9K781z7Zz98Xp4HLIZeW8=;
+        s=k20201202; t=1677423196;
+        bh=Fj/4uNQqHMgEfrsqJTR7NelhlItSAiXEdJdKCbd07aY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=NvtUJijaDfzg7N3QpF5kXkV1o2r6ngUQc954eAFffvocUTHQ7xXJwQHLY9UCWSbBl
-         0ArqAhuK7vLzi6Mx6rVOQqJcOm4IdYt1gREuNM+QlzJ1ExTOFq7yhP/CvMGiYj8Oiu
-         KlVkHGiJkF7uZAHPe/s21MTk2C0Fr5sPHJgE0sjnNo9dwFEGoCmHEX+8v1D9biEMnW
-         WfQlhbOdkjLlqY+QhfRjjOBqxRqO0n2Ntyp4C7d1bmvUGNcr3w6TAhWM54VOPdORlf
-         iLxGTPubFXuSrkfDgnNYePGWtmbZrxcR6IMc6VRj30k3kFuPB5J/s2+a+jitkEp3Kr
-         v5AgrkCUql4WQ==
+        b=peY7y+hmJkNaAgKyqSCR3GUVHPoiR/LcY5m6PvSmA6wbVk6biLlcHV62SiB/L0KMK
+         Hgi9cXxapnWNswaxVP1WAMYVq2QXGw6b07pSaFjMfvaBCJLe/zc+7CWspfKfJ/s82q
+         8lOD/lsqUhqzoCEHCGBoXY/m9EaJxxtWYAbQqbIjFusIfc1wZMspsHtJF2u0HAWulH
+         xa0ssx0xZKYj9s2ClnxNxda2BpFUg0f9srpXTwEWzFQ2GHPnthzRxL6M0JjwoAjLvC
+         oUf79bmZwIfD8V91E4/OXadNRw8ocxm8xDVEobIz74bGR6TkEhYJ9bVwE4HfId9cwI
+         bhc4F0LuBFfzw==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Mark Rutland <mark.rutland@arm.com>,
-        "Rafael J . Wysocki" <rafael.j.wysocki@intel.com>,
-        Florent Revest <revest@chromium.org>,
-        Len Brown <lenb@kernel.org>,
-        Masami Hiramatsu <mhiramat@kernel.org>,
-        Peter Zijlstra <peterz@infradead.org>,
-        Robert Moore <robert.moore@intel.com>,
-        Steven Rostedt <rostedt@goodmis.org>,
-        Will Deacon <will@kernel.org>, linux-acpi@vger.kernel.org,
-        Catalin Marinas <catalin.marinas@arm.com>,
-        Sasha Levin <sashal@kernel.org>,
-        acpica-devel@lists.linuxfoundation.org
-Subject: [PATCH AUTOSEL 4.14 07/11] ACPI: Don't build ACPICA with '-Os'
-Date:   Sun, 26 Feb 2023 09:52:49 -0500
-Message-Id: <20230226145255.829660-7-sashal@kernel.org>
+Cc:     Breno Leitao <leitao@debian.org>,
+        Michael van der Westhuizen <rmikey@meta.com>,
+        Jakub Kicinski <kuba@kernel.org>,
+        Sasha Levin <sashal@kernel.org>, davem@davemloft.net,
+        edumazet@google.com, pabeni@redhat.com,
+        wsa+renesas@sang-engineering.com, netdev@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.14 08/11] netpoll: Remove 4s sleep during carrier detection
+Date:   Sun, 26 Feb 2023 09:52:50 -0500
+Message-Id: <20230226145255.829660-8-sashal@kernel.org>
 X-Mailer: git-send-email 2.39.0
 In-Reply-To: <20230226145255.829660-1-sashal@kernel.org>
 References: <20230226145255.829660-1-sashal@kernel.org>
@@ -55,8 +49,8 @@ MIME-Version: 1.0
 X-stable: review
 X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
         SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -64,109 +58,72 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mark Rutland <mark.rutland@arm.com>
+From: Breno Leitao <leitao@debian.org>
 
-[ Upstream commit 8f9e0a52810dd83406c768972d022c37e7a18f1f ]
+[ Upstream commit d8afe2f8a92d2aac3df645772f6ee61b0b2fc147 ]
 
-The ACPICA code has been built with '-Os' since the beginning of git
-history, though there's no explanatory comment as to why.
+This patch removes the msleep(4s) during netpoll_setup() if the carrier
+appears instantly.
 
-This is unfortunate as GCC drops the alignment specificed by
-'-falign-functions=N' when '-Os' is used, as reported in GCC bug 88345:
+Here are some scenarios where this workaround is counter-productive in
+modern ages:
 
-  https://gcc.gnu.org/bugzilla/show_bug.cgi?id=88345
+Servers which have BMC communicating over NC-SI via the same NIC as gets
+used for netconsole. BMC will keep the PHY up, hence the carrier
+appearing instantly.
 
-This prevents CONFIG_FUNCTION_ALIGNMENT and
-CONFIG_DEBUG_FORCE_FUNCTION_ALIGN_64B from having their expected effect
-on the ACPICA code. This is doubly unfortunate as in subsequent patches
-arm64 will depend upon CONFIG_FUNCTION_ALIGNMENT for its ftrace
-implementation.
+The link is fibre, SERDES getting sync could happen within 0.1Hz, and
+the carrier also appears instantly.
 
-Drop the '-Os' flag when building the ACPICA code. With this removed,
-the code builds cleanly and works correctly in testing so far.
+Other than that, if a driver is reporting instant carrier and then
+losing it, this is probably a driver bug.
 
-I've tested this by selecting CONFIG_DEBUG_FORCE_FUNCTION_ALIGN_64B=y,
-building and booting a kernel using ACPI, and looking for misaligned
-text symbols:
-
-* arm64:
-
-  Before, v6.2-rc3:
-    # uname -rm
-    6.2.0-rc3 aarch64
-    # grep ' [Tt] ' /proc/kallsyms | grep -iv '[048c]0 [Tt] ' | wc -l
-    5009
-
-  Before, v6.2-rc3 + fixed __cold:
-    # uname -rm
-    6.2.0-rc3-00001-g2a2bedf8bfa9 aarch64
-    # grep ' [Tt] ' /proc/kallsyms | grep -iv '[048c]0 [Tt] ' | wc -l
-    919
-
-  After:
-    # uname -rm
-    6.2.0-rc3-00002-g267bddc38572 aarch64
-    # grep ' [Tt] ' /proc/kallsyms | grep -iv '[048c]0 [Tt] ' | wc -l
-    323
-    # grep ' [Tt] ' /proc/kallsyms | grep -iv '[048c]0 [Tt] ' | grep acpi | wc -l
-    0
-
-* x86_64:
-
-  Before, v6.2-rc3:
-    # uname -rm
-    6.2.0-rc3 x86_64
-    # grep ' [Tt] ' /proc/kallsyms | grep -iv '[048c]0 [Tt] ' | wc -l
-    11537
-
-  Before, v6.2-rc3 + fixed __cold:
-    # uname -rm
-    6.2.0-rc3-00001-g2a2bedf8bfa9 x86_64
-    # grep ' [Tt] ' /proc/kallsyms | grep -iv '[048c]0 [Tt] ' | wc -l
-    2805
-
-  After:
-    # uname -rm
-    6.2.0-rc3-00002-g267bddc38572 x86_64
-    # grep ' [Tt] ' /proc/kallsyms | grep -iv '[048c]0 [Tt] ' | wc -l
-    1357
-    # grep ' [Tt] ' /proc/kallsyms | grep -iv '[048c]0 [Tt] ' | grep acpi | wc -l
-    0
-
-With the patch applied, the remaining unaligned text labels are a
-combination of static call trampolines and labels in assembly, which can
-be dealt with in subsequent patches.
-
-Signed-off-by: Mark Rutland <mark.rutland@arm.com>
-Acked-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
-Cc: Florent Revest <revest@chromium.org>
-Cc: Len Brown <lenb@kernel.org>
-Cc: Masami Hiramatsu <mhiramat@kernel.org>
-Cc: Peter Zijlstra <peterz@infradead.org>
-Cc: Robert Moore <robert.moore@intel.com>
-Cc: Steven Rostedt <rostedt@goodmis.org>
-Cc: Will Deacon <will@kernel.org>
-Cc: linux-acpi@vger.kernel.org
-Link: https://lore.kernel.org/r/20230123134603.1064407-4-mark.rutland@arm.com
-Signed-off-by: Catalin Marinas <catalin.marinas@arm.com>
+Reported-by: Michael van der Westhuizen <rmikey@meta.com>
+Signed-off-by: Breno Leitao <leitao@debian.org>
+Link: https://lore.kernel.org/r/20230125185230.3574681-1-leitao@debian.org
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/acpi/acpica/Makefile | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ net/core/netpoll.c | 12 +-----------
+ 1 file changed, 1 insertion(+), 11 deletions(-)
 
-diff --git a/drivers/acpi/acpica/Makefile b/drivers/acpi/acpica/Makefile
-index e05232da05888..1e8e4e7a29cb3 100644
---- a/drivers/acpi/acpica/Makefile
-+++ b/drivers/acpi/acpica/Makefile
-@@ -3,7 +3,7 @@
- # Makefile for ACPICA Core interpreter
- #
+diff --git a/net/core/netpoll.c b/net/core/netpoll.c
+index 09a8dec1160a5..c71f20ba9109c 100644
+--- a/net/core/netpoll.c
++++ b/net/core/netpoll.c
+@@ -698,7 +698,7 @@ int netpoll_setup(struct netpoll *np)
+ 	}
  
--ccflags-y			:= -Os -D_LINUX -DBUILDING_ACPICA
-+ccflags-y			:= -D_LINUX -DBUILDING_ACPICA
- ccflags-$(CONFIG_ACPI_DEBUG)	+= -DACPI_DEBUG_OUTPUT
+ 	if (!netif_running(ndev)) {
+-		unsigned long atmost, atleast;
++		unsigned long atmost;
  
- # use acpi.o to put all files here into acpi.o modparam namespace
+ 		np_info(np, "device %s not up yet, forcing it\n", np->dev_name);
+ 
+@@ -710,7 +710,6 @@ int netpoll_setup(struct netpoll *np)
+ 		}
+ 
+ 		rtnl_unlock();
+-		atleast = jiffies + HZ/10;
+ 		atmost = jiffies + carrier_timeout * HZ;
+ 		while (!netif_carrier_ok(ndev)) {
+ 			if (time_after(jiffies, atmost)) {
+@@ -720,15 +719,6 @@ int netpoll_setup(struct netpoll *np)
+ 			msleep(1);
+ 		}
+ 
+-		/* If carrier appears to come up instantly, we don't
+-		 * trust it and pause so that we don't pump all our
+-		 * queued console messages into the bitbucket.
+-		 */
+-
+-		if (time_before(jiffies, atleast)) {
+-			np_notice(np, "carrier detect appears untrustworthy, waiting 4 seconds\n");
+-			msleep(4000);
+-		}
+ 		rtnl_lock();
+ 	}
+ 
 -- 
 2.39.0
 
