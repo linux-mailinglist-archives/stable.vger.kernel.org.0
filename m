@@ -2,46 +2,52 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 919606A3147
-	for <lists+stable@lfdr.de>; Sun, 26 Feb 2023 15:56:48 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0D19C6A312D
+	for <lists+stable@lfdr.de>; Sun, 26 Feb 2023 15:56:35 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230110AbjBZO4o (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 26 Feb 2023 09:56:44 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55208 "EHLO
+        id S231194AbjBZO4B (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 26 Feb 2023 09:56:01 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57138 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230333AbjBZOxx (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 26 Feb 2023 09:53:53 -0500
+        with ESMTP id S230417AbjBZOyF (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 26 Feb 2023 09:54:05 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0B5171ADC8;
-        Sun, 26 Feb 2023 06:50:14 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DB52D1ACD9;
+        Sun, 26 Feb 2023 06:50:19 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id E963D60C2D;
+        by dfw.source.kernel.org (Postfix) with ESMTPS id EA06960C5A;
+        Sun, 26 Feb 2023 14:49:26 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D1BB6C4339B;
         Sun, 26 Feb 2023 14:49:24 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3A653C433A7;
-        Sun, 26 Feb 2023 14:49:23 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1677422964;
-        bh=ylNIxGOpf112T25pYHw667Y+qmLvxcrkPr+MWzxNvV4=;
+        s=k20201202; t=1677422966;
+        bh=3cHPdIx8yaZdN9E+LDZt4UvqpNDwAc4yywObzCervkg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Xi5GlrJwo3S3dBWD05QlFi8ZYxaUuj+6zloM2Ckbe7YkH555+fwP12iM9He3jLGTn
-         lyQAmtI1PVYFvw/FcvZN5hUzo+mT+2tXP9AhPtQAoHFf9ZjRrW/kn2jFdhNnMgXU7E
-         bkf8bwnZvgNtRM1oe15byNddbzDPMTn2Ebrkf8e80ZqNTL82SNn5uuaxwlLgumRuo1
-         w/+8nKONvsfaz+dbHE2D91ATq/x795bydgsGf4YpBHcL5AUkUr85GS4t5/WZHS4UAI
-         w6/8ETs5DfjGWn9QI39Ty5Nyz4CUumVFtDDPPBdSjXJPEWoPRbAVF0ZtXLjQBGK9x6
-         IRct+fapKVpYg==
+        b=LT/bP4FXwkzBKFZuMVSmaxRkW03Y2J2Xk3YfX0bBlBOULuvWdqiRuH4WH9lqplgTh
+         wm6Lfb/OQJpxOyGnMOZjUpbTAXgiuvLokWJkrom5QNrIsvQQBv3qs2JlrIUpyB9tKh
+         gZMxh9tde6FIPuiSHCRNn2zzWZypIAskuDwMEBFlkqCrlPBfPIM/ojRY84uswcaDpR
+         zInSvXTuwULHnq7ZIMffXLUdiXEAJrA4JZ0HFJy0dxzXNTALzpS7kdbM7xgpDo0IVH
+         S/9XyqcMfFYN3CsOJKdUu08m63T8QedoSnD9hKURZ0OGBeAGXwPoIAQpZa0ynClvG0
+         alHDaMh/zliYQ==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Jesse Brandeburg <jesse.brandeburg@intel.com>,
-        Gurucharan G <gurucharanx.g@intel.com>,
-        Tony Nguyen <anthony.l.nguyen@intel.com>,
-        Sasha Levin <sashal@kernel.org>, davem@davemloft.net,
-        edumazet@google.com, kuba@kernel.org, pabeni@redhat.com,
-        intel-wired-lan@lists.osuosl.org, netdev@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.15 14/36] ice: add missing checks for PF vsi type
-Date:   Sun, 26 Feb 2023 09:48:22 -0500
-Message-Id: <20230226144845.827893-14-sashal@kernel.org>
+Cc:     Mark Rutland <mark.rutland@arm.com>,
+        "Rafael J . Wysocki" <rafael.j.wysocki@intel.com>,
+        Florent Revest <revest@chromium.org>,
+        Len Brown <lenb@kernel.org>,
+        Masami Hiramatsu <mhiramat@kernel.org>,
+        Peter Zijlstra <peterz@infradead.org>,
+        Robert Moore <robert.moore@intel.com>,
+        Steven Rostedt <rostedt@goodmis.org>,
+        Will Deacon <will@kernel.org>, linux-acpi@vger.kernel.org,
+        Catalin Marinas <catalin.marinas@arm.com>,
+        Sasha Levin <sashal@kernel.org>,
+        acpica-devel@lists.linuxfoundation.org
+Subject: [PATCH AUTOSEL 5.15 15/36] ACPI: Don't build ACPICA with '-Os'
+Date:   Sun, 26 Feb 2023 09:48:23 -0500
+Message-Id: <20230226144845.827893-15-sashal@kernel.org>
 X-Mailer: git-send-email 2.39.0
 In-Reply-To: <20230226144845.827893-1-sashal@kernel.org>
 References: <20230226144845.827893-1-sashal@kernel.org>
@@ -58,70 +64,109 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jesse Brandeburg <jesse.brandeburg@intel.com>
+From: Mark Rutland <mark.rutland@arm.com>
 
-[ Upstream commit 6a8d013e904ad9a66706fcc926ec9993bed7d190 ]
+[ Upstream commit 8f9e0a52810dd83406c768972d022c37e7a18f1f ]
 
-There were a few places we had missed checking the VSI type to make sure
-it was definitely a PF VSI, before calling setup functions intended only
-for the PF VSI.
+The ACPICA code has been built with '-Os' since the beginning of git
+history, though there's no explanatory comment as to why.
 
-This doesn't fix any explicit bugs but cleans up the code in a few
-places and removes one explicit != vsi->type check that can be
-superseded by this code (it's a super set)
+This is unfortunate as GCC drops the alignment specificed by
+'-falign-functions=N' when '-Os' is used, as reported in GCC bug 88345:
 
-Signed-off-by: Jesse Brandeburg <jesse.brandeburg@intel.com>
-Tested-by: Gurucharan G <gurucharanx.g@intel.com> (A Contingent worker at Intel)
-Signed-off-by: Tony Nguyen <anthony.l.nguyen@intel.com>
+  https://gcc.gnu.org/bugzilla/show_bug.cgi?id=88345
+
+This prevents CONFIG_FUNCTION_ALIGNMENT and
+CONFIG_DEBUG_FORCE_FUNCTION_ALIGN_64B from having their expected effect
+on the ACPICA code. This is doubly unfortunate as in subsequent patches
+arm64 will depend upon CONFIG_FUNCTION_ALIGNMENT for its ftrace
+implementation.
+
+Drop the '-Os' flag when building the ACPICA code. With this removed,
+the code builds cleanly and works correctly in testing so far.
+
+I've tested this by selecting CONFIG_DEBUG_FORCE_FUNCTION_ALIGN_64B=y,
+building and booting a kernel using ACPI, and looking for misaligned
+text symbols:
+
+* arm64:
+
+  Before, v6.2-rc3:
+    # uname -rm
+    6.2.0-rc3 aarch64
+    # grep ' [Tt] ' /proc/kallsyms | grep -iv '[048c]0 [Tt] ' | wc -l
+    5009
+
+  Before, v6.2-rc3 + fixed __cold:
+    # uname -rm
+    6.2.0-rc3-00001-g2a2bedf8bfa9 aarch64
+    # grep ' [Tt] ' /proc/kallsyms | grep -iv '[048c]0 [Tt] ' | wc -l
+    919
+
+  After:
+    # uname -rm
+    6.2.0-rc3-00002-g267bddc38572 aarch64
+    # grep ' [Tt] ' /proc/kallsyms | grep -iv '[048c]0 [Tt] ' | wc -l
+    323
+    # grep ' [Tt] ' /proc/kallsyms | grep -iv '[048c]0 [Tt] ' | grep acpi | wc -l
+    0
+
+* x86_64:
+
+  Before, v6.2-rc3:
+    # uname -rm
+    6.2.0-rc3 x86_64
+    # grep ' [Tt] ' /proc/kallsyms | grep -iv '[048c]0 [Tt] ' | wc -l
+    11537
+
+  Before, v6.2-rc3 + fixed __cold:
+    # uname -rm
+    6.2.0-rc3-00001-g2a2bedf8bfa9 x86_64
+    # grep ' [Tt] ' /proc/kallsyms | grep -iv '[048c]0 [Tt] ' | wc -l
+    2805
+
+  After:
+    # uname -rm
+    6.2.0-rc3-00002-g267bddc38572 x86_64
+    # grep ' [Tt] ' /proc/kallsyms | grep -iv '[048c]0 [Tt] ' | wc -l
+    1357
+    # grep ' [Tt] ' /proc/kallsyms | grep -iv '[048c]0 [Tt] ' | grep acpi | wc -l
+    0
+
+With the patch applied, the remaining unaligned text labels are a
+combination of static call trampolines and labels in assembly, which can
+be dealt with in subsequent patches.
+
+Signed-off-by: Mark Rutland <mark.rutland@arm.com>
+Acked-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+Cc: Florent Revest <revest@chromium.org>
+Cc: Len Brown <lenb@kernel.org>
+Cc: Masami Hiramatsu <mhiramat@kernel.org>
+Cc: Peter Zijlstra <peterz@infradead.org>
+Cc: Robert Moore <robert.moore@intel.com>
+Cc: Steven Rostedt <rostedt@goodmis.org>
+Cc: Will Deacon <will@kernel.org>
+Cc: linux-acpi@vger.kernel.org
+Link: https://lore.kernel.org/r/20230123134603.1064407-4-mark.rutland@arm.com
+Signed-off-by: Catalin Marinas <catalin.marinas@arm.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/intel/ice/ice_main.c | 17 ++++++++---------
- 1 file changed, 8 insertions(+), 9 deletions(-)
+ drivers/acpi/acpica/Makefile | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/net/ethernet/intel/ice/ice_main.c b/drivers/net/ethernet/intel/ice/ice_main.c
-index 6f674cd117d3d..13afbffc4758a 100644
---- a/drivers/net/ethernet/intel/ice/ice_main.c
-+++ b/drivers/net/ethernet/intel/ice/ice_main.c
-@@ -5477,15 +5477,12 @@ int ice_vsi_cfg(struct ice_vsi *vsi)
- {
- 	int err;
+diff --git a/drivers/acpi/acpica/Makefile b/drivers/acpi/acpica/Makefile
+index 59700433a96e5..f919811156b1f 100644
+--- a/drivers/acpi/acpica/Makefile
++++ b/drivers/acpi/acpica/Makefile
+@@ -3,7 +3,7 @@
+ # Makefile for ACPICA Core interpreter
+ #
  
--	if (vsi->netdev) {
-+	if (vsi->netdev && vsi->type == ICE_VSI_PF) {
- 		ice_set_rx_mode(vsi->netdev);
+-ccflags-y			:= -Os -D_LINUX -DBUILDING_ACPICA
++ccflags-y			:= -D_LINUX -DBUILDING_ACPICA
+ ccflags-$(CONFIG_ACPI_DEBUG)	+= -DACPI_DEBUG_OUTPUT
  
--		if (vsi->type != ICE_VSI_LB) {
--			err = ice_vsi_vlan_setup(vsi);
--
--			if (err)
--				return err;
--		}
-+		err = ice_vsi_vlan_setup(vsi);
-+		if (err)
-+			return err;
- 	}
- 	ice_vsi_cfg_dcb_rings(vsi);
- 
-@@ -5651,7 +5648,7 @@ static int ice_up_complete(struct ice_vsi *vsi)
- 
- 	if (vsi->port_info &&
- 	    (vsi->port_info->phy.link_info.link_info & ICE_AQ_LINK_UP) &&
--	    vsi->netdev) {
-+	    vsi->netdev && vsi->type == ICE_VSI_PF) {
- 		ice_print_link_msg(vsi, true);
- 		netif_tx_start_all_queues(vsi->netdev);
- 		netif_carrier_on(vsi->netdev);
-@@ -5661,7 +5658,9 @@ static int ice_up_complete(struct ice_vsi *vsi)
- 	 * set the baseline so counters are ready when interface is up
- 	 */
- 	ice_update_eth_stats(vsi);
--	ice_service_task_schedule(pf);
-+
-+	if (vsi->type == ICE_VSI_PF)
-+		ice_service_task_schedule(pf);
- 
- 	return 0;
- }
+ # use acpi.o to put all files here into acpi.o modparam namespace
 -- 
 2.39.0
 
