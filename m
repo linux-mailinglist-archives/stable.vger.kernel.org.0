@@ -2,47 +2,48 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 025BD6A3238
-	for <lists+stable@lfdr.de>; Sun, 26 Feb 2023 16:28:56 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7BD816A31D3
+	for <lists+stable@lfdr.de>; Sun, 26 Feb 2023 16:06:48 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230268AbjBZP2x (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 26 Feb 2023 10:28:53 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58868 "EHLO
+        id S231739AbjBZPGq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 26 Feb 2023 10:06:46 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53610 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229838AbjBZP2k (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 26 Feb 2023 10:28:40 -0500
-Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D33DD1D931;
-        Sun, 26 Feb 2023 07:24:18 -0800 (PST)
+        with ESMTP id S232047AbjBZPFS (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 26 Feb 2023 10:05:18 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4732B1BAEA;
+        Sun, 26 Feb 2023 06:56:08 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 7FCECCE0E95;
-        Sun, 26 Feb 2023 14:49:24 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7E6A9C4339B;
-        Sun, 26 Feb 2023 14:49:21 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id EBCDEB80BAA;
+        Sun, 26 Feb 2023 14:49:33 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8DE50C433D2;
+        Sun, 26 Feb 2023 14:49:31 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1677422962;
-        bh=sB4qmt7A4dKezC7XbRxJu7JVBeriEdk0CE62+dhbjpU=;
+        s=k20201202; t=1677422972;
+        bh=7Bc3iO8TG1DS9g7AMkTNU9+OVM8V9J21a4MnxY6Xc2M=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=j9+CiHhUjVX2m8BNHXbk4gvvuc0djIYwRxaqVzT7nFEK4VeFJBciA4t1VaLWgiil8
-         E51OOLcwM7N3rTKeGSchkXwuOFDlfwD34KT8zy5Ecwt0Bgwv7AJdS6pKy2AJPIUchf
-         2GzpzFb02NyfEZ9SflGYBLYuunAA7a9SwtB8r3xWm8vv76XNhD0M+uJJHP3jIS7pSE
-         vsF4hHh7Jq0LGFFjJcQm61Bgty4JQT7blBghU+ATvkviqtRXyUuPFhPK4ns9fA5SgT
-         MHE/pJ1o7NE6y7eerBj1XBz2fGyeSo1fcedwCSO+zsPejkcyD8JetDoRGnLKdkVS5A
-         oqRM03XtVkDHQ==
+        b=qwq7OE9NgoDMr22scTJAJP+lQhG7+agTV+5tI6+t1GMEjiO8tT1OtxWZw79imX3GY
+         b82HlZVIBhwj7rhjfuN7SM4kG1Tjz9fAKFh0xu+uq0yX1zQAVvE89usXnfk0YfKqEo
+         KOgDe+a3xxDs93vQitswIdliSMulMqPbEbLxjvkdru+LjngNTQag8LcF94BNXx1goa
+         xQif20yJXyIoJW7vUyMEur/YjYiIhaCaUtGqEE6Lbe9BiBZL8KoVTh8DcgYWCt0mp6
+         5GCwYBrjzWC1PdDllawtBd0mXqJcqi11ZtjFkllxx2GVCg3PfKmqkoqbxY8nD5gXCQ
+         S0HSSxMjoA/0Q==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Siddaraju DH <siddaraju.dh@intel.com>,
-        Gurucharan G <gurucharanx.g@intel.com>,
-        Tony Nguyen <anthony.l.nguyen@intel.com>,
-        Sasha Levin <sashal@kernel.org>, jesse.brandeburg@intel.com,
-        davem@davemloft.net, edumazet@google.com, kuba@kernel.org,
-        pabeni@redhat.com, richardcochran@gmail.com,
-        intel-wired-lan@lists.osuosl.org, netdev@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.15 13/36] ice: restrict PTP HW clock freq adjustments to 100, 000, 000 PPB
-Date:   Sun, 26 Feb 2023 09:48:21 -0500
-Message-Id: <20230226144845.827893-13-sashal@kernel.org>
+Cc:     Kees Cook <keescook@chromium.org>,
+        Nathan Chancellor <nathan@kernel.org>,
+        Weili Qian <qianweili@huawei.com>,
+        Zhou Wang <wangzhou1@hisilicon.com>,
+        Herbert Xu <herbert@gondor.apana.org.au>,
+        "David S. Miller" <davem@davemloft.net>,
+        linux-crypto@vger.kernel.org, Sasha Levin <sashal@kernel.org>,
+        ndesaulniers@google.com, llvm@lists.linux.dev
+Subject: [PATCH AUTOSEL 5.15 18/36] crypto: hisilicon: Wipe entire pool on error
+Date:   Sun, 26 Feb 2023 09:48:26 -0500
+Message-Id: <20230226144845.827893-18-sashal@kernel.org>
 X-Mailer: git-send-email 2.39.0
 In-Reply-To: <20230226144845.827893-1-sashal@kernel.org>
 References: <20230226144845.827893-1-sashal@kernel.org>
@@ -59,55 +60,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Siddaraju DH <siddaraju.dh@intel.com>
+From: Kees Cook <keescook@chromium.org>
 
-[ Upstream commit 8aa4318c3a122b8670bc09af142de3872ca63b88 ]
+[ Upstream commit aa85923a954e7704bc9d3847dabeb8540aa98d13 ]
 
-The PHY provides only 39b timestamp. With current timing
-implementation, we discard lower 7b, leaving 32b timestamp.
-The driver reconstructs the full 64b timestamp by correlating the
-32b timestamp with cached_time for performance. The reconstruction
-algorithm does both forward & backward interpolation.
+To work around a Clang __builtin_object_size bug that shows up under
+CONFIG_FORTIFY_SOURCE and UBSAN_BOUNDS, move the per-loop-iteration
+mem_block wipe into a single wipe of the entire pool structure after
+the loop.
 
-The 32b timeval has overflow duration of 2^32 counts ~= 4.23 second.
-Due to interpolation in both direction, its now ~= 2.125 second
-IIRC, going with at least half a duration, the cached_time is updated
-with periodic thread of 1 second (worst-case) periodicity.
-
-But the 1 second periodicity is based on System-timer.
-With PPB adjustments, if the 1588 timers increments at say
-double the rate, (2s in-place of 1s), the Nyquist rate/half duration
-sampling/update of cached_time with 1 second periodic thread will
-lead to incorrect interpolations.
-
-Hence we should restrict the PPB adjustments to at least half duration
-of cached_time update which translates to 500,000,000 PPB.
-
-Since the periodicity of the cached-time system thread can vary,
-it is good to have some buffer time and considering practicality of
-PPB adjustments, limiting the max_adj to 100,000,000.
-
-Signed-off-by: Siddaraju DH <siddaraju.dh@intel.com>
-Tested-by: Gurucharan G <gurucharanx.g@intel.com> (A Contingent worker at Intel)
-Signed-off-by: Tony Nguyen <anthony.l.nguyen@intel.com>
+Reported-by: Nathan Chancellor <nathan@kernel.org>
+Link: https://github.com/ClangBuiltLinux/linux/issues/1780
+Cc: Weili Qian <qianweili@huawei.com>
+Cc: Zhou Wang <wangzhou1@hisilicon.com>
+Cc: Herbert Xu <herbert@gondor.apana.org.au>
+Cc: "David S. Miller" <davem@davemloft.net>
+Cc: linux-crypto@vger.kernel.org
+Signed-off-by: Kees Cook <keescook@chromium.org>
+Tested-by: Nathan Chancellor <nathan@kernel.org> # build
+Link: https://lore.kernel.org/r/20230106041945.never.831-kees@kernel.org
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/ethernet/intel/ice/ice_ptp.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/crypto/hisilicon/sgl.c | 3 +--
+ 1 file changed, 1 insertion(+), 2 deletions(-)
 
-diff --git a/drivers/net/ethernet/intel/ice/ice_ptp.c b/drivers/net/ethernet/intel/ice/ice_ptp.c
-index 9b50e9e6042a5..4d7aa49b7c147 100644
---- a/drivers/net/ethernet/intel/ice/ice_ptp.c
-+++ b/drivers/net/ethernet/intel/ice/ice_ptp.c
-@@ -1090,7 +1090,7 @@ static void ice_ptp_set_caps(struct ice_pf *pf)
- 	snprintf(info->name, sizeof(info->name) - 1, "%s-%s-clk",
- 		 dev_driver_string(dev), dev_name(dev));
- 	info->owner = THIS_MODULE;
--	info->max_adj = 999999999;
-+	info->max_adj = 100000000;
- 	info->adjtime = ice_ptp_adjtime;
- 	info->adjfine = ice_ptp_adjfine;
- 	info->gettimex64 = ice_ptp_gettimex64;
+diff --git a/drivers/crypto/hisilicon/sgl.c b/drivers/crypto/hisilicon/sgl.c
+index 057273769f264..3dbe5405d17bc 100644
+--- a/drivers/crypto/hisilicon/sgl.c
++++ b/drivers/crypto/hisilicon/sgl.c
+@@ -122,9 +122,8 @@ struct hisi_acc_sgl_pool *hisi_acc_create_sgl_pool(struct device *dev,
+ 	for (j = 0; j < i; j++) {
+ 		dma_free_coherent(dev, block_size, block[j].sgl,
+ 				  block[j].sgl_dma);
+-		memset(block + j, 0, sizeof(*block));
+ 	}
+-	kfree(pool);
++	kfree_sensitive(pool);
+ 	return ERR_PTR(-ENOMEM);
+ }
+ EXPORT_SYMBOL_GPL(hisi_acc_create_sgl_pool);
 -- 
 2.39.0
 
