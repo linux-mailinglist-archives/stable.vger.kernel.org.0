@@ -2,43 +2,49 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 5D11E6A2DE7
-	for <lists+stable@lfdr.de>; Sun, 26 Feb 2023 04:54:20 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 914356A2DE1
+	for <lists+stable@lfdr.de>; Sun, 26 Feb 2023 04:51:09 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229906AbjBZDxt (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 25 Feb 2023 22:53:49 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44066 "EHLO
+        id S229896AbjBZDvH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 25 Feb 2023 22:51:07 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39754 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230155AbjBZDxf (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 25 Feb 2023 22:53:35 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2D79A93C2;
-        Sat, 25 Feb 2023 19:53:06 -0800 (PST)
+        with ESMTP id S229802AbjBZDvG (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 25 Feb 2023 22:51:06 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EEDD07D88;
+        Sat, 25 Feb 2023 19:50:37 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 4298960BEA;
+        by ams.source.kernel.org (Postfix) with ESMTPS id 66153B80B94;
+        Sun, 26 Feb 2023 03:44:29 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 32810C4339B;
         Sun, 26 Feb 2023 03:44:27 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2816CC433EF;
-        Sun, 26 Feb 2023 03:44:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1677383066;
-        bh=dCNqRdx9mSR55PqW/0M3NTaK7PjYG4mtv05YpTZP17o=;
-        h=From:To:Cc:Subject:Date:From;
-        b=gjYsetNqFus3XntPl1b0B5n1Ozxab+Pr/TS7DiO9oS+NCa6+yOIKLchNHhDRRGyDK
-         mCTyCB1zxGO9Zr3RjXajgde1w/Kuvkmp9sOL7BHgP8sIGsyjL41Yd8Qp0+B+823GJZ
-         UGKk1ulEyWLKwDTgZdUdBUVXpyWXGD0Mcy8L2bE9/2Z/CNmePy+DoVn7hvhnfryMoK
-         2FPACuQrWHahD3BI0y0cWkUEaMLMAyPaSpQtCk5hKQWtYX0znyJoNHxX1lPZnM20Hs
-         TEQrH4dR3AsK7oxhu7o9J56ng3ZsquZTj0Wugdkrl+v1bEcK/1PGHW3GOfWX7WTDGj
-         DAQ5m18U3ibMw==
+        s=k20201202; t=1677383068;
+        bh=yglXjqn1/2s8vAzCoqJlxrcLda8I4I78iFAN9Dilkfo=;
+        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+        b=QY0upCPpz/xH1X7BHsvzQ70+LfqiiOrLlRidCjHJzZgxF2zLrqF/wzBVL2RH2iFzG
+         KnNXS3REycrT0jnqNER1VsCeH90Rhr2VIVZYgoywdOw5uzTOJuYZt2XOaFCKQ7WEVl
+         qoy4VMHli+hg8bgqQpACIRgUp9nyoNq82pzP3ZSI/ep+W6e9caOijuW6UQLZTjZLUf
+         JitaXmIj0WDnZU9QMwh/qmWv8fm4soNwFys7xbrIEKKed4Xup8DjzwxmryNMgAgRs3
+         BdA6bWdIs66RVKLeIVDq9PE8Bq5oCLYHrGk8205CuihTNS/oYwL7IlydWPRg5NyF5v
+         9bIs9Gjceq2tw==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Jan Kara <jack@suse.cz>, Sasha Levin <sashal@kernel.org>,
-        jack@suse.com
-Subject: [PATCH AUTOSEL 4.19 1/3] udf: Define EFSCORRUPTED error code
-Date:   Sat, 25 Feb 2023 22:44:22 -0500
-Message-Id: <20230226034424.776084-1-sashal@kernel.org>
+Cc:     Markuss Broks <markuss.broks@gmail.com>,
+        Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>,
+        Sasha Levin <sashal@kernel.org>, robh+dt@kernel.org,
+        krzysztof.kozlowski+dt@linaro.org, devicetree@vger.kernel.org,
+        linux-arm-kernel@lists.infradead.org,
+        linux-samsung-soc@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.19 2/3] ARM: dts: exynos: Use Exynos5420 compatible for the MIPI video phy
+Date:   Sat, 25 Feb 2023 22:44:23 -0500
+Message-Id: <20230226034424.776084-2-sashal@kernel.org>
 X-Mailer: git-send-email 2.39.0
+In-Reply-To: <20230226034424.776084-1-sashal@kernel.org>
+References: <20230226034424.776084-1-sashal@kernel.org>
 MIME-Version: 1.0
 X-stable: review
 X-Patchwork-Hint: Ignore
@@ -52,32 +58,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jan Kara <jack@suse.cz>
+From: Markuss Broks <markuss.broks@gmail.com>
 
-[ Upstream commit 3d2d7e61553dbcc8ba45201d8ae4f383742c8202 ]
+[ Upstream commit 5d5aa219a790d61cad2c38e1aa32058f16ad2f0b ]
 
-Similarly to other filesystems define EFSCORRUPTED error code for
-reporting internal filesystem corruption.
+For some reason, the driver adding support for Exynos5420 MIPI phy
+back in 2016 wasn't used on Exynos5420, which caused a kernel panic.
+Add the proper compatible for it.
 
-Signed-off-by: Jan Kara <jack@suse.cz>
+Signed-off-by: Markuss Broks <markuss.broks@gmail.com>
+Link: https://lore.kernel.org/r/20230121201844.46872-2-markuss.broks@gmail.com
+Signed-off-by: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/udf/udf_sb.h | 2 ++
- 1 file changed, 2 insertions(+)
+ arch/arm/boot/dts/exynos5420.dtsi | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/fs/udf/udf_sb.h b/fs/udf/udf_sb.h
-index d12e507e9eb2a..aa58173b468fb 100644
---- a/fs/udf/udf_sb.h
-+++ b/fs/udf/udf_sb.h
-@@ -57,6 +57,8 @@
- #define MF_DUPLICATE_MD		0x01
- #define MF_MIRROR_FE_LOADED	0x02
+diff --git a/arch/arm/boot/dts/exynos5420.dtsi b/arch/arm/boot/dts/exynos5420.dtsi
+index aaff158807613..99e2e0b0b9cd4 100644
+--- a/arch/arm/boot/dts/exynos5420.dtsi
++++ b/arch/arm/boot/dts/exynos5420.dtsi
+@@ -530,7 +530,7 @@ dp_phy: dp-video-phy {
+ 		};
  
-+#define EFSCORRUPTED EUCLEAN
-+
- struct udf_meta_data {
- 	__u32	s_meta_file_loc;
- 	__u32	s_mirror_file_loc;
+ 		mipi_phy: mipi-video-phy {
+-			compatible = "samsung,s5pv210-mipi-video-phy";
++			compatible = "samsung,exynos5420-mipi-video-phy";
+ 			syscon = <&pmu_system_controller>;
+ 			#phy-cells = <1>;
+ 		};
 -- 
 2.39.0
 
