@@ -2,46 +2,52 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id AC0496A3250
-	for <lists+stable@lfdr.de>; Sun, 26 Feb 2023 16:32:08 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 26F016A324A
+	for <lists+stable@lfdr.de>; Sun, 26 Feb 2023 16:31:12 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229696AbjBZPcG (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 26 Feb 2023 10:32:06 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36600 "EHLO
+        id S230079AbjBZPbK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 26 Feb 2023 10:31:10 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35390 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230229AbjBZPbt (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 26 Feb 2023 10:31:49 -0500
-Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1B382193D4;
-        Sun, 26 Feb 2023 07:29:18 -0800 (PST)
+        with ESMTP id S230044AbjBZPa5 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 26 Feb 2023 10:30:57 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A0E9D9EED;
+        Sun, 26 Feb 2023 07:28:06 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id A27A4CE0EA0;
-        Sun, 26 Feb 2023 14:51:49 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E7553C4339E;
-        Sun, 26 Feb 2023 14:51:46 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 24B4760C1F;
+        Sun, 26 Feb 2023 14:51:52 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 174F0C4339B;
+        Sun, 26 Feb 2023 14:51:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1677423108;
-        bh=CaYFxeEOUZJdF6tij4BKmZX9k/0AaKe89cNtqKrEw40=;
+        s=k20201202; t=1677423111;
+        bh=3cHPdIx8yaZdN9E+LDZt4UvqpNDwAc4yywObzCervkg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=GfAH0s7rrk0ea85HayQ2LpmWD9hliRlMHCJt1xvW0b8v8C3UG5DC/l3HZ//ww0HjF
-         8dziKEkATNF9p23vGdOYqhy7tv6aU66Y8e03SSCxeubNOs57MLrs/wI/9pJSS1OY01
-         ywpfi04klQu65MjyBvxHxWyrc1+FGBMXpBND+K7r/HqR3zWaIJ4sFSx6DQ9xC09W5C
-         zwdJm8zBWuwJlv1Liy1ctEJAyPeW/jBO3RL+841igb237L0MfZDrz1TEAg1uxTYZU+
-         GmN5z9iwL8duUQNI1LTblk9RoWpY+Zt+yqp8qCpd8blEm473olCF0pMuhq5iLg7LzI
-         OGbmfsKquUbgQ==
+        b=ejFMVH5qOUIykhv1E8ng+Ishbyrkr6oF/Ak9zy9oY0JiTau7rjU0ehyjM8qlYZuPR
+         Be+RlN36ghvtLhI6N0UwqHF3qHCuEUKnI6RCyPy8LbaKAu2amxEWVhJZfRvsPqXGSO
+         L47IAJwkMnNApcjT906bqHI/RrBwkAiQvemoz99ZZkTaTky0fKXnap9IbAzHsOS9T8
+         u3Q6LZ+Mb+EadxEcsHRnVCmxX0Yq2DDvCboPbPslkJc0f4qnJKx4lyTEahes4Q6uF9
+         8FacJ2QPC+zWVrL0nqGw8WC/FL02GOlJFPLzxAFZwVSFRWPCQtywOr8JEz+RS4tbjC
+         XujLl3c6zVYEQ==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Pietro Borrello <borrello@diag.uniroma1.it>,
-        Kuniyuki Iwashima <kuniyu@amazon.com>,
-        Eric Dumazet <edumazet@google.com>,
-        Paolo Abeni <pabeni@redhat.com>,
-        Sasha Levin <sashal@kernel.org>, davem@davemloft.net,
-        dsahern@kernel.org, kuba@kernel.org, netdev@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.4 08/19] inet: fix fast path in __inet_hash_connect()
-Date:   Sun, 26 Feb 2023 09:51:10 -0500
-Message-Id: <20230226145123.829229-8-sashal@kernel.org>
+Cc:     Mark Rutland <mark.rutland@arm.com>,
+        "Rafael J . Wysocki" <rafael.j.wysocki@intel.com>,
+        Florent Revest <revest@chromium.org>,
+        Len Brown <lenb@kernel.org>,
+        Masami Hiramatsu <mhiramat@kernel.org>,
+        Peter Zijlstra <peterz@infradead.org>,
+        Robert Moore <robert.moore@intel.com>,
+        Steven Rostedt <rostedt@goodmis.org>,
+        Will Deacon <will@kernel.org>, linux-acpi@vger.kernel.org,
+        Catalin Marinas <catalin.marinas@arm.com>,
+        Sasha Levin <sashal@kernel.org>,
+        acpica-devel@lists.linuxfoundation.org
+Subject: [PATCH AUTOSEL 5.4 10/19] ACPI: Don't build ACPICA with '-Os'
+Date:   Sun, 26 Feb 2023 09:51:12 -0500
+Message-Id: <20230226145123.829229-10-sashal@kernel.org>
 X-Mailer: git-send-email 2.39.0
 In-Reply-To: <20230226145123.829229-1-sashal@kernel.org>
 References: <20230226145123.829229-1-sashal@kernel.org>
@@ -58,54 +64,109 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pietro Borrello <borrello@diag.uniroma1.it>
+From: Mark Rutland <mark.rutland@arm.com>
 
-[ Upstream commit 21cbd90a6fab7123905386985e3e4a80236b8714 ]
+[ Upstream commit 8f9e0a52810dd83406c768972d022c37e7a18f1f ]
 
-__inet_hash_connect() has a fast path taken if sk_head(&tb->owners) is
-equal to the sk parameter.
-sk_head() returns the hlist_entry() with respect to the sk_node field.
-However entries in the tb->owners list are inserted with respect to the
-sk_bind_node field with sk_add_bind_node().
-Thus the check would never pass and the fast path never execute.
+The ACPICA code has been built with '-Os' since the beginning of git
+history, though there's no explanatory comment as to why.
 
-This fast path has never been executed or tested as this bug seems
-to be present since commit 1da177e4c3f4 ("Linux-2.6.12-rc2"), thus
-remove it to reduce code complexity.
+This is unfortunate as GCC drops the alignment specificed by
+'-falign-functions=N' when '-Os' is used, as reported in GCC bug 88345:
 
-Signed-off-by: Pietro Borrello <borrello@diag.uniroma1.it>
-Reviewed-by: Kuniyuki Iwashima <kuniyu@amazon.com>
-Reviewed-by: Eric Dumazet <edumazet@google.com>
-Link: https://lore.kernel.org/r/20230112-inet_hash_connect_bind_head-v3-1-b591fd212b93@diag.uniroma1.it
-Signed-off-by: Paolo Abeni <pabeni@redhat.com>
+  https://gcc.gnu.org/bugzilla/show_bug.cgi?id=88345
+
+This prevents CONFIG_FUNCTION_ALIGNMENT and
+CONFIG_DEBUG_FORCE_FUNCTION_ALIGN_64B from having their expected effect
+on the ACPICA code. This is doubly unfortunate as in subsequent patches
+arm64 will depend upon CONFIG_FUNCTION_ALIGNMENT for its ftrace
+implementation.
+
+Drop the '-Os' flag when building the ACPICA code. With this removed,
+the code builds cleanly and works correctly in testing so far.
+
+I've tested this by selecting CONFIG_DEBUG_FORCE_FUNCTION_ALIGN_64B=y,
+building and booting a kernel using ACPI, and looking for misaligned
+text symbols:
+
+* arm64:
+
+  Before, v6.2-rc3:
+    # uname -rm
+    6.2.0-rc3 aarch64
+    # grep ' [Tt] ' /proc/kallsyms | grep -iv '[048c]0 [Tt] ' | wc -l
+    5009
+
+  Before, v6.2-rc3 + fixed __cold:
+    # uname -rm
+    6.2.0-rc3-00001-g2a2bedf8bfa9 aarch64
+    # grep ' [Tt] ' /proc/kallsyms | grep -iv '[048c]0 [Tt] ' | wc -l
+    919
+
+  After:
+    # uname -rm
+    6.2.0-rc3-00002-g267bddc38572 aarch64
+    # grep ' [Tt] ' /proc/kallsyms | grep -iv '[048c]0 [Tt] ' | wc -l
+    323
+    # grep ' [Tt] ' /proc/kallsyms | grep -iv '[048c]0 [Tt] ' | grep acpi | wc -l
+    0
+
+* x86_64:
+
+  Before, v6.2-rc3:
+    # uname -rm
+    6.2.0-rc3 x86_64
+    # grep ' [Tt] ' /proc/kallsyms | grep -iv '[048c]0 [Tt] ' | wc -l
+    11537
+
+  Before, v6.2-rc3 + fixed __cold:
+    # uname -rm
+    6.2.0-rc3-00001-g2a2bedf8bfa9 x86_64
+    # grep ' [Tt] ' /proc/kallsyms | grep -iv '[048c]0 [Tt] ' | wc -l
+    2805
+
+  After:
+    # uname -rm
+    6.2.0-rc3-00002-g267bddc38572 x86_64
+    # grep ' [Tt] ' /proc/kallsyms | grep -iv '[048c]0 [Tt] ' | wc -l
+    1357
+    # grep ' [Tt] ' /proc/kallsyms | grep -iv '[048c]0 [Tt] ' | grep acpi | wc -l
+    0
+
+With the patch applied, the remaining unaligned text labels are a
+combination of static call trampolines and labels in assembly, which can
+be dealt with in subsequent patches.
+
+Signed-off-by: Mark Rutland <mark.rutland@arm.com>
+Acked-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+Cc: Florent Revest <revest@chromium.org>
+Cc: Len Brown <lenb@kernel.org>
+Cc: Masami Hiramatsu <mhiramat@kernel.org>
+Cc: Peter Zijlstra <peterz@infradead.org>
+Cc: Robert Moore <robert.moore@intel.com>
+Cc: Steven Rostedt <rostedt@goodmis.org>
+Cc: Will Deacon <will@kernel.org>
+Cc: linux-acpi@vger.kernel.org
+Link: https://lore.kernel.org/r/20230123134603.1064407-4-mark.rutland@arm.com
+Signed-off-by: Catalin Marinas <catalin.marinas@arm.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/ipv4/inet_hashtables.c | 12 +-----------
- 1 file changed, 1 insertion(+), 11 deletions(-)
+ drivers/acpi/acpica/Makefile | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/net/ipv4/inet_hashtables.c b/net/ipv4/inet_hashtables.c
-index 33292983b8cfb..9d14b3289f003 100644
---- a/net/ipv4/inet_hashtables.c
-+++ b/net/ipv4/inet_hashtables.c
-@@ -714,17 +714,7 @@ int __inet_hash_connect(struct inet_timewait_death_row *death_row,
- 	u32 index;
+diff --git a/drivers/acpi/acpica/Makefile b/drivers/acpi/acpica/Makefile
+index 59700433a96e5..f919811156b1f 100644
+--- a/drivers/acpi/acpica/Makefile
++++ b/drivers/acpi/acpica/Makefile
+@@ -3,7 +3,7 @@
+ # Makefile for ACPICA Core interpreter
+ #
  
- 	if (port) {
--		head = &hinfo->bhash[inet_bhashfn(net, port,
--						  hinfo->bhash_size)];
--		tb = inet_csk(sk)->icsk_bind_hash;
--		spin_lock_bh(&head->lock);
--		if (sk_head(&tb->owners) == sk && !sk->sk_bind_node.next) {
--			inet_ehash_nolisten(sk, NULL, NULL);
--			spin_unlock_bh(&head->lock);
--			return 0;
--		}
--		spin_unlock(&head->lock);
--		/* No definite answer... Walk to established hash table */
-+		local_bh_disable();
- 		ret = check_established(death_row, sk, port, NULL);
- 		local_bh_enable();
- 		return ret;
+-ccflags-y			:= -Os -D_LINUX -DBUILDING_ACPICA
++ccflags-y			:= -D_LINUX -DBUILDING_ACPICA
+ ccflags-$(CONFIG_ACPI_DEBUG)	+= -DACPI_DEBUG_OUTPUT
+ 
+ # use acpi.o to put all files here into acpi.o modparam namespace
 -- 
 2.39.0
 
