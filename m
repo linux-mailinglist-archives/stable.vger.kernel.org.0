@@ -2,44 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id CF6816A31CB
-	for <lists+stable@lfdr.de>; Sun, 26 Feb 2023 16:04:14 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8E5586A31C0
+	for <lists+stable@lfdr.de>; Sun, 26 Feb 2023 16:03:51 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231777AbjBZPEN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 26 Feb 2023 10:04:13 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39730 "EHLO
+        id S231748AbjBZPDt (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 26 Feb 2023 10:03:49 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36982 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231723AbjBZPDm (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 26 Feb 2023 10:03:42 -0500
+        with ESMTP id S231705AbjBZPDd (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 26 Feb 2023 10:03:33 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EFBCE1F4B4;
-        Sun, 26 Feb 2023 06:54:24 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8E9D39EC7;
+        Sun, 26 Feb 2023 06:54:13 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 4C58660BEB;
-        Sun, 26 Feb 2023 14:52:48 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D7A14C433EF;
-        Sun, 26 Feb 2023 14:52:46 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 384DE60C41;
+        Sun, 26 Feb 2023 14:52:53 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 48CD5C433D2;
+        Sun, 26 Feb 2023 14:52:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1677423167;
-        bh=LyJJ4wVn9AuHhKbPdsf7LLzV4TZz8LkznaCsf2AXnNM=;
+        s=k20201202; t=1677423172;
+        bh=H5qQtPQraXVrRYOrS3GKBgnyOo2ecO5HI/VgcC2jAE8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=cguZ3d+8GmZk8Ixzn62oJ55I27j8Rkaf5zaNdqJE7cHCtveRLbZJ+SnKxwL4yWkpW
-         0N2pQ6VNKFmR6k92fLCi9uL8SpKLmvza+CV5+GTbavMQ+oveI4+TjjN8M3fLMuoSXo
-         GGjgRiDPAF3/E36NS0aIPHZ7FSldCrejsTsI6ZHKQtWORszHjhljOeiQHDHkmBO2uj
-         xE8h3b204vNU4j+DMUJ+Mo0v7FBCML2Ab0YMunJ/s+bvjTaD0aEXXWfXyXAY49rPrW
-         Hjj2+d5MjsMXWT08SdJw+Y+SgiwIhusANN1ePJuLLiCdfmcrhnFFblvduJceqCAYnB
-         138Rj9C6NfAhg==
+        b=AZP4GlTnsMZ6ggtOjcI49sIp0shCcSIvNW9xgSmJZS9i2PBjY8E/X6OlLFwghlnJn
+         ictrR/Xy+lGKCMlbcPcelgPrcp5ij1dIYmwY8ZS+B9L/+cvFTJNd0tAaASl614r/IF
+         sDSRHiXx7DV7aH8a+u5XhUHLFn3ZUI6cZ3IXJFDOlP4cIebsE8wuK3Q9bK/a4sV72k
+         JGF9NZUy0lNWPxwU0MqpsiSa77B0xhdMu1kDaOZdXY94SNy+HIofo7Ham46B6RULv+
+         FmZq58Iu7zZTTy0MOrNtVEqw1TRw7fb+qccbjpR1sMXU3EcuBZ7AuIKBbH0VkeepKc
+         RHwewSQ/bOpGw==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Michael Schmitz <schmitzmic@gmail.com>,
-        Geert Uytterhoeven <geert@linux-m68k.org>,
-        Sasha Levin <sashal@kernel.org>, gerg@linux-m68k.org,
-        ebiederm@xmission.com, linux-m68k@lists.linux-m68k.org
-Subject: [PATCH AUTOSEL 4.19 11/13] m68k: Check syscall_trace_enter() return code
-Date:   Sun, 26 Feb 2023 09:52:13 -0500
-Message-Id: <20230226145217.829485-11-sashal@kernel.org>
+Cc:     Shay Drory <shayd@nvidia.com>, Moshe Shemesh <moshe@nvidia.com>,
+        Saeed Mahameed <saeedm@nvidia.com>,
+        Sasha Levin <sashal@kernel.org>, davem@davemloft.net,
+        edumazet@google.com, kuba@kernel.org, pabeni@redhat.com,
+        ferasda@nvidia.com, royno@nvidia.com, netdev@vger.kernel.org,
+        linux-rdma@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.19 13/13] net/mlx5: fw_tracer: Fix debug print
+Date:   Sun, 26 Feb 2023 09:52:15 -0500
+Message-Id: <20230226145217.829485-13-sashal@kernel.org>
 X-Mailer: git-send-email 2.39.0
 In-Reply-To: <20230226145217.829485-1-sashal@kernel.org>
 References: <20230226145217.829485-1-sashal@kernel.org>
@@ -56,70 +58,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Michael Schmitz <schmitzmic@gmail.com>
+From: Shay Drory <shayd@nvidia.com>
 
-[ Upstream commit 2ca8a1de4437f21562e57f9ac123914747a8e7a1 ]
+[ Upstream commit 988c2352273997a242f15c4fc3711773515006a2 ]
 
-Check return code of syscall_trace_enter(), and skip syscall
-if -1. Return code will be left at what had been set by
-ptrace or seccomp (in regs->d0).
+The debug message specify tdsn, but takes as an argument the
+tmsn. The correct argument is tmsn, hence, fix the print.
 
-No regression seen in testing with strace on ARAnyM.
-
-Signed-off-by: Michael Schmitz <schmitzmic@gmail.com>
-Reviewed-by: Geert Uytterhoeven <geert@linux-m68k.org>
-Link: https://lore.kernel.org/r/20230112035529.13521-2-schmitzmic@gmail.com
-Signed-off-by: Geert Uytterhoeven <geert@linux-m68k.org>
+Signed-off-by: Shay Drory <shayd@nvidia.com>
+Reviewed-by: Moshe Shemesh <moshe@nvidia.com>
+Signed-off-by: Saeed Mahameed <saeedm@nvidia.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/m68k/68000/entry.S    | 2 ++
- arch/m68k/coldfire/entry.S | 2 ++
- arch/m68k/kernel/entry.S   | 3 +++
- 3 files changed, 7 insertions(+)
+ drivers/net/ethernet/mellanox/mlx5/core/diag/fw_tracer.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/arch/m68k/68000/entry.S b/arch/m68k/68000/entry.S
-index 259b3661b6141..94abf3d8afc52 100644
---- a/arch/m68k/68000/entry.S
-+++ b/arch/m68k/68000/entry.S
-@@ -47,6 +47,8 @@ do_trace:
- 	jbsr	syscall_trace_enter
- 	RESTORE_SWITCH_STACK
- 	addql	#4,%sp
-+	addql	#1,%d0
-+	jeq	ret_from_exception
- 	movel	%sp@(PT_OFF_ORIG_D0),%d1
- 	movel	#-ENOSYS,%d0
- 	cmpl	#NR_syscalls,%d1
-diff --git a/arch/m68k/coldfire/entry.S b/arch/m68k/coldfire/entry.S
-index 52d312d5b4d4f..fb3b065677459 100644
---- a/arch/m68k/coldfire/entry.S
-+++ b/arch/m68k/coldfire/entry.S
-@@ -92,6 +92,8 @@ ENTRY(system_call)
- 	jbsr	syscall_trace_enter
- 	RESTORE_SWITCH_STACK
- 	addql	#4,%sp
-+	addql	#1,%d0
-+	jeq	ret_from_exception
- 	movel	%d3,%a0
- 	jbsr	%a0@
- 	movel	%d0,%sp@(PT_OFF_D0)		/* save the return value */
-diff --git a/arch/m68k/kernel/entry.S b/arch/m68k/kernel/entry.S
-index 97cd3ea5f10b8..9a66657773beb 100644
---- a/arch/m68k/kernel/entry.S
-+++ b/arch/m68k/kernel/entry.S
-@@ -160,9 +160,12 @@ do_trace_entry:
- 	jbsr	syscall_trace
- 	RESTORE_SWITCH_STACK
- 	addql	#4,%sp
-+	addql	#1,%d0			| optimization for cmpil #-1,%d0
-+	jeq	ret_from_syscall
- 	movel	%sp@(PT_OFF_ORIG_D0),%d0
- 	cmpl	#NR_syscalls,%d0
- 	jcs	syscall
-+	jra	ret_from_syscall
- badsys:
- 	movel	#-ENOSYS,%sp@(PT_OFF_D0)
- 	jra	ret_from_syscall
+diff --git a/drivers/net/ethernet/mellanox/mlx5/core/diag/fw_tracer.c b/drivers/net/ethernet/mellanox/mlx5/core/diag/fw_tracer.c
+index ef9f932f02263..5a2feadd80f08 100644
+--- a/drivers/net/ethernet/mellanox/mlx5/core/diag/fw_tracer.c
++++ b/drivers/net/ethernet/mellanox/mlx5/core/diag/fw_tracer.c
+@@ -564,7 +564,7 @@ static int mlx5_tracer_handle_string_trace(struct mlx5_fw_tracer *tracer,
+ 	} else {
+ 		cur_string = mlx5_tracer_message_get(tracer, tracer_event);
+ 		if (!cur_string) {
+-			pr_debug("%s Got string event for unknown string tdsm: %d\n",
++			pr_debug("%s Got string event for unknown string tmsn: %d\n",
+ 				 __func__, tracer_event->string_event.tmsn);
+ 			return -1;
+ 		}
 -- 
 2.39.0
 
