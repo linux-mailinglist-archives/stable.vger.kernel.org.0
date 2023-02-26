@@ -2,49 +2,52 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 2DB146A319A
-	for <lists+stable@lfdr.de>; Sun, 26 Feb 2023 16:01:14 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0A5376A319D
+	for <lists+stable@lfdr.de>; Sun, 26 Feb 2023 16:01:18 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231477AbjBZPBM (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 26 Feb 2023 10:01:12 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38694 "EHLO
+        id S231173AbjBZPBQ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 26 Feb 2023 10:01:16 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36442 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231475AbjBZO7Y (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 26 Feb 2023 09:59:24 -0500
+        with ESMTP id S231731AbjBZPAZ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 26 Feb 2023 10:00:25 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 01AAC1D911;
-        Sun, 26 Feb 2023 06:52:36 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 57C911D934;
+        Sun, 26 Feb 2023 06:52:41 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 33D54B80BA8;
-        Sun, 26 Feb 2023 14:52:16 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 90A3DC433EF;
-        Sun, 26 Feb 2023 14:52:13 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 7DB3CB80C6A;
+        Sun, 26 Feb 2023 14:52:33 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7E809C4339E;
+        Sun, 26 Feb 2023 14:52:30 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1677423135;
-        bh=VUBNHyPiMUDCeNLDF3HTZh9T+HdCso0ox85U9JL0BUo=;
+        s=k20201202; t=1677423152;
+        bh=kAoiKyBVdWVPKwDEdXmnjYeXCg+cyZVGRc2t6sMY1w0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=TSLk/nw407Nb+9ilM+fA21wwO7L4n9d+c+N84qlKIN86NUrFwshsDh/QBi5/ay8mY
-         tJIZ3BfPxdgpU8PKOL29/DNJMpJE1vChCIgbOdWncIge+gpDXP+wNo5iprjK5ZnZUR
-         wo0nJUpLqm6W7ODc1OHWIdNjQXJjzzxH3zQcSLAUHMfFgNvbjf8FGKk9VRZQiFMzoQ
-         ZyEi+dsgTagPrra+Uc3BBaPnpkPDo/q6ZpORV+jGkG1O65RWxPZZ6oFUJr9qlogtES
-         UqtNOPBM+F/h4srQxioXbHm8rJNy7yNK7MR36lqhf0TWQOKsHFwkznwgTCjLxO9xyu
-         FfRtP3oeAeMPQ==
+        b=kOxtCjZiy/Zc7Vp48rhSA+IHvmkqAbWQghEjeEe+W8H6dgLS/RPynCgq1OGWDqQRo
+         aiwRLZbNpoyLwmVt9AFSmD10f4CpflhEXfRBIMSxtDRabmUpUamiB+L/q0pINAsuTG
+         FfOrTY+Sc7xCi7TwAVp18REnFyVbS46HdDNT7TjoOajzjEbcEWDA7cVg/YNO/f6wWL
+         gbFq5k3DbtaNCQAVKVzeC3QCya+32Ws0FHFu5wjEpd05DduCIgsp7OB9iemYGGIdKg
+         VRABf8W4zDp+jE/qO93Qeqw8LkxxrNC5jpiTIWtRZGTF3NR+V+AwZZb8XIY6ZaamTb
+         26/HXSzFE/spA==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Moshe Shemesh <moshe@nvidia.com>, Jiri Pirko <jiri@nvidia.com>,
-        Jakub Kicinski <kuba@kernel.org>,
-        Sasha Levin <sashal@kernel.org>, davem@davemloft.net,
-        edumazet@google.com, pabeni@redhat.com, idosch@nvidia.com,
-        jacob.e.keller@intel.com, michal.wilczynski@intel.com,
-        vikas.gupta@broadcom.com, shayd@nvidia.com, netdev@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.4 19/19] devlink: health: Fix nla_nest_end in error flow
-Date:   Sun, 26 Feb 2023 09:51:21 -0500
-Message-Id: <20230226145123.829229-19-sashal@kernel.org>
+Cc:     Breno Leitao <leitao@debian.org>,
+        Pawan Gupta <pawan.kumar.gupta@linux.intel.com>,
+        Borislav Petkov <bp@alien8.de>,
+        Sasha Levin <sashal@kernel.org>, tglx@linutronix.de,
+        mingo@redhat.com, dave.hansen@linux.intel.com, x86@kernel.org,
+        peterz@infradead.org, sandipan.das@amd.com, babu.moger@amd.com,
+        nikunj@amd.com, daniel.sneddon@linux.intel.com,
+        jpoimboe@kernel.org, kim.phillips@amd.com,
+        alexandre.chartre@oracle.com
+Subject: [PATCH AUTOSEL 4.19 05/13] x86/bugs: Reset speculation control settings on init
+Date:   Sun, 26 Feb 2023 09:52:07 -0500
+Message-Id: <20230226145217.829485-5-sashal@kernel.org>
 X-Mailer: git-send-email 2.39.0
-In-Reply-To: <20230226145123.829229-1-sashal@kernel.org>
-References: <20230226145123.829229-1-sashal@kernel.org>
+In-Reply-To: <20230226145217.829485-1-sashal@kernel.org>
+References: <20230226145217.829485-1-sashal@kernel.org>
 MIME-Version: 1.0
 X-stable: review
 X-Patchwork-Hint: Ignore
@@ -58,38 +61,73 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Moshe Shemesh <moshe@nvidia.com>
+From: Breno Leitao <leitao@debian.org>
 
-[ Upstream commit bfd4e6a5dbbc12f77620602e764ac940ccb159de ]
+[ Upstream commit 0125acda7d76b943ca55811df40ed6ec0ecf670f ]
 
-devlink_nl_health_reporter_fill() error flow calls nla_nest_end(). Fix
-it to call nla_nest_cancel() instead.
+Currently, x86_spec_ctrl_base is read at boot time and speculative bits
+are set if Kconfig items are enabled. For example, IBRS is enabled if
+CONFIG_CPU_IBRS_ENTRY is configured, etc. These MSR bits are not cleared
+if the mitigations are disabled.
 
-Note the bug is harmless as genlmsg_cancel() cancel the entire message,
-so no fixes tag added.
+This is a problem when kexec-ing a kernel that has the mitigation
+disabled from a kernel that has the mitigation enabled. In this case,
+the MSR bits are not cleared during the new kernel boot. As a result,
+this might have some performance degradation that is hard to pinpoint.
 
-Signed-off-by: Moshe Shemesh <moshe@nvidia.com>
-Reviewed-by: Jiri Pirko <jiri@nvidia.com>
-Reviewed-by: Jakub Kicinski <kuba@kernel.org>
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+This problem does not happen if the machine is (hard) rebooted because
+the bit will be cleared by default.
+
+  [ bp: Massage. ]
+
+Suggested-by: Pawan Gupta <pawan.kumar.gupta@linux.intel.com>
+Signed-off-by: Breno Leitao <leitao@debian.org>
+Signed-off-by: Borislav Petkov (AMD) <bp@alien8.de>
+Link: https://lore.kernel.org/r/20221128153148.1129350-1-leitao@debian.org
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- net/core/devlink.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ arch/x86/include/asm/msr-index.h |  4 ++++
+ arch/x86/kernel/cpu/bugs.c       | 10 +++++++++-
+ 2 files changed, 13 insertions(+), 1 deletion(-)
 
-diff --git a/net/core/devlink.c b/net/core/devlink.c
-index 2dd354d869cd7..c6fef33d5d6d4 100644
---- a/net/core/devlink.c
-+++ b/net/core/devlink.c
-@@ -4991,7 +4991,7 @@ devlink_nl_health_reporter_fill(struct sk_buff *msg,
- 	return 0;
+diff --git a/arch/x86/include/asm/msr-index.h b/arch/x86/include/asm/msr-index.h
+index 0bd07699dba38..847f3f5820d21 100644
+--- a/arch/x86/include/asm/msr-index.h
++++ b/arch/x86/include/asm/msr-index.h
+@@ -50,6 +50,10 @@
+ #define SPEC_CTRL_RRSBA_DIS_S_SHIFT	6	   /* Disable RRSBA behavior */
+ #define SPEC_CTRL_RRSBA_DIS_S		BIT(SPEC_CTRL_RRSBA_DIS_S_SHIFT)
  
- reporter_nest_cancel:
--	nla_nest_end(msg, reporter_attr);
-+	nla_nest_cancel(msg, reporter_attr);
- genlmsg_cancel:
- 	genlmsg_cancel(msg, hdr);
- 	return -EMSGSIZE;
++/* A mask for bits which the kernel toggles when controlling mitigations */
++#define SPEC_CTRL_MITIGATIONS_MASK	(SPEC_CTRL_IBRS | SPEC_CTRL_STIBP | SPEC_CTRL_SSBD \
++							| SPEC_CTRL_RRSBA_DIS_S)
++
+ #define MSR_IA32_PRED_CMD		0x00000049 /* Prediction Command */
+ #define PRED_CMD_IBPB			BIT(0)	   /* Indirect Branch Prediction Barrier */
+ 
+diff --git a/arch/x86/kernel/cpu/bugs.c b/arch/x86/kernel/cpu/bugs.c
+index e298ec9d5d536..54f42ae1a61d9 100644
+--- a/arch/x86/kernel/cpu/bugs.c
++++ b/arch/x86/kernel/cpu/bugs.c
+@@ -135,9 +135,17 @@ void __init check_bugs(void)
+ 	 * have unknown values. AMD64_LS_CFG MSR is cached in the early AMD
+ 	 * init code as it is not enumerated and depends on the family.
+ 	 */
+-	if (boot_cpu_has(X86_FEATURE_MSR_SPEC_CTRL))
++	if (cpu_feature_enabled(X86_FEATURE_MSR_SPEC_CTRL)) {
+ 		rdmsrl(MSR_IA32_SPEC_CTRL, x86_spec_ctrl_base);
+ 
++		/*
++		 * Previously running kernel (kexec), may have some controls
++		 * turned ON. Clear them and let the mitigations setup below
++		 * rediscover them based on configuration.
++		 */
++		x86_spec_ctrl_base &= ~SPEC_CTRL_MITIGATIONS_MASK;
++	}
++
+ 	/* Select the proper CPU mitigations before patching alternatives: */
+ 	spectre_v1_select_mitigation();
+ 	spectre_v2_select_mitigation();
 -- 
 2.39.0
 
