@@ -2,47 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id EE2A26A313B
-	for <lists+stable@lfdr.de>; Sun, 26 Feb 2023 15:56:40 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 432D16A313F
+	for <lists+stable@lfdr.de>; Sun, 26 Feb 2023 15:56:42 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230335AbjBZO4d (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 26 Feb 2023 09:56:33 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56444 "EHLO
+        id S230428AbjBZO4g (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 26 Feb 2023 09:56:36 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55190 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230462AbjBZOy0 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 26 Feb 2023 09:54:26 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5DEA213D47;
-        Sun, 26 Feb 2023 06:50:29 -0800 (PST)
+        with ESMTP id S230447AbjBZOz5 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 26 Feb 2023 09:55:57 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D9E6D18A80;
+        Sun, 26 Feb 2023 06:51:49 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 8241D60C38;
+        by ams.source.kernel.org (Postfix) with ESMTPS id 49D67B80C04;
+        Sun, 26 Feb 2023 14:49:47 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5AC87C4339C;
         Sun, 26 Feb 2023 14:49:45 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 65F76C4339E;
-        Sun, 26 Feb 2023 14:49:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1677422984;
-        bh=Y6lhMMqYLYilj0b0uUNBZifsuq7pdyFGB5igLTjEvqc=;
+        s=k20201202; t=1677422986;
+        bh=lFFdTfolzuuzNQr67UTjJdNZcdDenh1H9eKsUyNhgLU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=jKLR6KltzUoD/WkG2cAo57HFr1EQu4zFBfwfZpj7/Hl/Cw05REPm9uYrrcJ+7WH8X
-         +RW8cogLSIHKxkJEUiOrqX4+eNfNEEDh+y7BHawL0C7qTEx24JdEUI4bmCy7e6oSCT
-         dx6WD/NxcjnTxRzp8dBOqJK8Z5+ks99wvnPdeyf/RP35eVB6sZYXxJI059iTyPkRps
-         ZnuX9Wda1yMa29DVV5uVhuHU++q2SWessv4TwLpQFUIxq2x5kY9+5g+PP2q3GIHXR4
-         qtRKfA9N8kxPk6zbV576aBmxRyPIbS0zCmA5Jsm1sLTZF4BApYh1E8wyFSyo2Fbadw
-         CDaltYFEksRUQ==
+        b=gdGRze3I0dD7HdBnrPR7knO5/e4Jk8nr20NC+WIOP/P6TfCjCNtP7aepd01K2uVgH
+         9p6OwqvyDawxup24HH65tuHF85/vV+CpWyku/LWQqK2YoTIRZ3yoP+DhYyGEUvxiDW
+         WWyLTPg9ddSHjvRiCjxItoZmfzi5nw1PdtwkPWzl9XT3rnVGQSW37sW9mf4xwNep5C
+         W5UCyMG6WhdhapxdDhGfCO4BZm6iuIC7XNxJmZlTLlRgqgO9u4T4JkYTqPQVCZ2SG+
+         n8Iwf28reXm12xlBXsxSj0cdfDRNiRtoaY3/13C3kcRrVi6fc3sBuwd/kLSCv52m7c
+         vnV++HvfVddYg==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Lorenzo Bianconi <lorenzo@kernel.org>,
-        Felix Fietkau <nbd@nbd.name>, Sasha Levin <sashal@kernel.org>,
-        ryder.lee@mediatek.com, kvalo@kernel.org, davem@davemloft.net,
-        edumazet@google.com, kuba@kernel.org, pabeni@redhat.com,
-        matthias.bgg@gmail.com, linux-wireless@vger.kernel.org,
-        netdev@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
-        linux-mediatek@lists.infradead.org
-Subject: [PATCH AUTOSEL 5.15 24/36] wifi: mt76: dma: free rx_head in mt76_dma_rx_cleanup
-Date:   Sun, 26 Feb 2023 09:48:32 -0500
-Message-Id: <20230226144845.827893-24-sashal@kernel.org>
+Cc:     Hans de Goede <hdegoede@redhat.com>,
+        "Rafael J . Wysocki" <rafael.j.wysocki@intel.com>,
+        Sasha Levin <sashal@kernel.org>, rafael@kernel.org,
+        linux-acpi@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.15 25/36] ACPI: video: Fix Lenovo Ideapad Z570 DMI match
+Date:   Sun, 26 Feb 2023 09:48:33 -0500
+Message-Id: <20230226144845.827893-25-sashal@kernel.org>
 X-Mailer: git-send-email 2.39.0
 In-Reply-To: <20230226144845.827893-1-sashal@kernel.org>
 References: <20230226144845.827893-1-sashal@kernel.org>
@@ -59,58 +56,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Lorenzo Bianconi <lorenzo@kernel.org>
+From: Hans de Goede <hdegoede@redhat.com>
 
-[ Upstream commit 1b88b47e898edef0e56e3a2f4e49f052a136153d ]
+[ Upstream commit 2d11eae42d52a131f06061015e49dc0f085c5bfc ]
 
-Free rx_head skb in mt76_dma_rx_cleanup routine in order to avoid
-possible memory leak at module unload.
+Multiple Ideapad Z570 variants need acpi_backlight=native to force native
+use on these pre Windows 8 machines since acpi_video backlight control
+does not work here.
 
-Signed-off-by: Lorenzo Bianconi <lorenzo@kernel.org>
-Signed-off-by: Felix Fietkau <nbd@nbd.name>
+The original DMI quirk matches on a product_name of "102434U" but other
+variants may have different product_name-s such as e.g. "1024D9U".
+
+Move to checking product_version instead as is more or less standard for
+Lenovo DMI quirks for similar reasons.
+
+Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/wireless/mediatek/mt76/dma.c | 13 +++++++------
- 1 file changed, 7 insertions(+), 6 deletions(-)
+ drivers/acpi/video_detect.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/net/wireless/mediatek/mt76/dma.c b/drivers/net/wireless/mediatek/mt76/dma.c
-index 7aecde35cb9a3..1aa0479c5fa4e 100644
---- a/drivers/net/wireless/mediatek/mt76/dma.c
-+++ b/drivers/net/wireless/mediatek/mt76/dma.c
-@@ -486,6 +486,7 @@ mt76_dma_rx_cleanup(struct mt76_dev *dev, struct mt76_queue *q)
- 	bool more;
- 
- 	spin_lock_bh(&q->lock);
-+
- 	do {
- 		buf = mt76_dma_dequeue(dev, q, true, NULL, NULL, &more);
- 		if (!buf)
-@@ -493,6 +494,12 @@ mt76_dma_rx_cleanup(struct mt76_dev *dev, struct mt76_queue *q)
- 
- 		skb_free_frag(buf);
- 	} while (1);
-+
-+	if (q->rx_head) {
-+		dev_kfree_skb(q->rx_head);
-+		q->rx_head = NULL;
-+	}
-+
- 	spin_unlock_bh(&q->lock);
- 
- 	if (!q->rx_page.va)
-@@ -515,12 +522,6 @@ mt76_dma_rx_reset(struct mt76_dev *dev, enum mt76_rxq_id qid)
- 	mt76_dma_rx_cleanup(dev, q);
- 	mt76_dma_sync_idx(dev, q);
- 	mt76_dma_rx_fill(dev, q);
--
--	if (!q->rx_head)
--		return;
--
--	dev_kfree_skb(q->rx_head);
--	q->rx_head = NULL;
- }
- 
- static void
+diff --git a/drivers/acpi/video_detect.c b/drivers/acpi/video_detect.c
+index b13713199ad94..038542b3a80a7 100644
+--- a/drivers/acpi/video_detect.c
++++ b/drivers/acpi/video_detect.c
+@@ -313,7 +313,7 @@ static const struct dmi_system_id video_detect_dmi_table[] = {
+ 	 .ident = "Lenovo Ideapad Z570",
+ 	 .matches = {
+ 		DMI_MATCH(DMI_SYS_VENDOR, "LENOVO"),
+-		DMI_MATCH(DMI_PRODUCT_NAME, "102434U"),
++		DMI_MATCH(DMI_PRODUCT_VERSION, "Ideapad Z570"),
+ 		},
+ 	},
+ 	{
 -- 
 2.39.0
 
