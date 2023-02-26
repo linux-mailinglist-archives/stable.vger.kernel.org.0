@@ -2,43 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 098C36A3049
-	for <lists+stable@lfdr.de>; Sun, 26 Feb 2023 15:48:15 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id ABF236A30D2
+	for <lists+stable@lfdr.de>; Sun, 26 Feb 2023 15:53:54 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229861AbjBZOsL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 26 Feb 2023 09:48:11 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44740 "EHLO
+        id S230394AbjBZOxx (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 26 Feb 2023 09:53:53 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55154 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229889AbjBZOsC (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 26 Feb 2023 09:48:02 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2EF2214223;
-        Sun, 26 Feb 2023 06:47:23 -0800 (PST)
+        with ESMTP id S230331AbjBZOxR (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 26 Feb 2023 09:53:17 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AA73F7293;
+        Sun, 26 Feb 2023 06:49:50 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 9B559B80BE6;
-        Sun, 26 Feb 2023 14:46:10 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8A228C433EF;
-        Sun, 26 Feb 2023 14:46:08 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id BA53E60C48;
+        Sun, 26 Feb 2023 14:46:11 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id AB2BCC4339C;
+        Sun, 26 Feb 2023 14:46:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1677422769;
-        bh=hpjxSFxme2o+ctkr+hhbvGDNOGAhSVzKWb3C5apFcf0=;
+        s=k20201202; t=1677422771;
+        bh=++Dve21aH/Fdi7PtK/V++Z7RPLfB4XMp3I03VOVGCmo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=jdc4wgdKLkyg2Nm1lLjPODtieTG1Dgs+0BVAY7BuQ10xMRoj6lT2VDgMDz0sNoCGr
-         0yOeQLLppV8/X16MwgOcxRmBZ+q7OM6Fx+TITuDwCpFjPgo7AIX2rBq7J0Dc+mZm2o
-         L9AOKRbDP61JSG0N1JEE6O4IqsHTmrI8z5aGOQgbooggbKMMbOAPAVONool7UVxL57
-         y/iA9atl06RuspnvZujRex7/LCquC8HhjGuvBnZPwNoyH5wbnmiyEs0If93IFrYH/2
-         tn4e+9r+OeePrTpMK69inIeqhM1SMg3RJaat4Feiens23etBEWH2mAdQlC41KWHeel
-         TOO3ds627VTZA==
+        b=IkllopnbcKZxtMF4I7HAQ4XQeyx/3rKbeQyaYq0Fdo71jrFIYLbkCX12StkV3+7mD
+         hLZShoFb96nAFRkLFjqSnoqCh8WZhrmTgoOalZyeVhgoCBAgf/HOpNa8dqZK3bj8hk
+         OoBmX95ARRuqVKQzJ7DoKJieJifIFi0j5WR1VQn8Kyou+n9e3TnKHCgZHo0amW7MhV
+         DWJDYvavPJU3/5nYYcykTny6rOpwc7vp/7hW5Bb8Fpt5q2RSmzAM9AopAhWKmJ3Jwh
+         cAT3orKYKltOGxOUofGmqcEX/DasL8r2Ypnj+xehem5aaKDqLMRC/mSFvDt5MusN1L
+         nUaqErmoZAO9A==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Armin Wolf <W_Armin@gmx.de>, Hans de Goede <hdegoede@redhat.com>,
-        Sasha Levin <sashal@kernel.org>, markgross@kernel.org,
-        platform-driver-x86@vger.kernel.org
-Subject: [PATCH AUTOSEL 6.2 35/53] platform/x86: dell-ddv: Add support for interface version 3
-Date:   Sun, 26 Feb 2023 09:44:27 -0500
-Message-Id: <20230226144446.824580-35-sashal@kernel.org>
+Cc:     Lorenzo Bianconi <lorenzo@kernel.org>,
+        Felix Fietkau <nbd@nbd.name>, Sasha Levin <sashal@kernel.org>,
+        ryder.lee@mediatek.com, kvalo@kernel.org, davem@davemloft.net,
+        edumazet@google.com, kuba@kernel.org, pabeni@redhat.com,
+        matthias.bgg@gmail.com, linux-wireless@vger.kernel.org,
+        netdev@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
+        linux-mediatek@lists.infradead.org
+Subject: [PATCH AUTOSEL 6.2 36/53] wifi: mt76: dma: free rx_head in mt76_dma_rx_cleanup
+Date:   Sun, 26 Feb 2023 09:44:28 -0500
+Message-Id: <20230226144446.824580-36-sashal@kernel.org>
 X-Mailer: git-send-email 2.39.0
 In-Reply-To: <20230226144446.824580-1-sashal@kernel.org>
 References: <20230226144446.824580-1-sashal@kernel.org>
@@ -55,56 +59,58 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Armin Wolf <W_Armin@gmx.de>
+From: Lorenzo Bianconi <lorenzo@kernel.org>
 
-[ Upstream commit 3e899fec5dfce37701d49d656954a825275bf867 ]
+[ Upstream commit 1b88b47e898edef0e56e3a2f4e49f052a136153d ]
 
-While trying to solve a bugreport on bugzilla, i learned that
-some devices (for example the Dell XPS 17 9710) provide a more
-recent DDV WMI interface (version 3).
-Since the new interface version just adds an additional method,
-no code changes are necessary apart from whitelisting the version.
+Free rx_head skb in mt76_dma_rx_cleanup routine in order to avoid
+possible memory leak at module unload.
 
-Signed-off-by: Armin Wolf <W_Armin@gmx.de>
-Link: https://lore.kernel.org/r/20230126194021.381092-2-W_Armin@gmx.de
-Reviewed-by: Hans de Goede <hdegoede@redhat.com>
-Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+Signed-off-by: Lorenzo Bianconi <lorenzo@kernel.org>
+Signed-off-by: Felix Fietkau <nbd@nbd.name>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/platform/x86/dell/dell-wmi-ddv.c | 6 ++++--
- 1 file changed, 4 insertions(+), 2 deletions(-)
+ drivers/net/wireless/mediatek/mt76/dma.c | 13 +++++++------
+ 1 file changed, 7 insertions(+), 6 deletions(-)
 
-diff --git a/drivers/platform/x86/dell/dell-wmi-ddv.c b/drivers/platform/x86/dell/dell-wmi-ddv.c
-index 2bb449845d143..9cb6ae42dbdc8 100644
---- a/drivers/platform/x86/dell/dell-wmi-ddv.c
-+++ b/drivers/platform/x86/dell/dell-wmi-ddv.c
-@@ -26,7 +26,8 @@
+diff --git a/drivers/net/wireless/mediatek/mt76/dma.c b/drivers/net/wireless/mediatek/mt76/dma.c
+index 06161815c180e..03b484b0473e4 100644
+--- a/drivers/net/wireless/mediatek/mt76/dma.c
++++ b/drivers/net/wireless/mediatek/mt76/dma.c
+@@ -737,6 +737,7 @@ mt76_dma_rx_cleanup(struct mt76_dev *dev, struct mt76_queue *q)
+ 		return;
  
- #define DRIVER_NAME	"dell-wmi-ddv"
+ 	spin_lock_bh(&q->lock);
++
+ 	do {
+ 		buf = mt76_dma_dequeue(dev, q, true, NULL, NULL, &more, NULL);
+ 		if (!buf)
+@@ -744,6 +745,12 @@ mt76_dma_rx_cleanup(struct mt76_dev *dev, struct mt76_queue *q)
  
--#define DELL_DDV_SUPPORTED_INTERFACE 2
-+#define DELL_DDV_SUPPORTED_VERSION_MIN	2
-+#define DELL_DDV_SUPPORTED_VERSION_MAX	3
- #define DELL_DDV_GUID	"8A42EA14-4F2A-FD45-6422-0087F7A7E608"
+ 		skb_free_frag(buf);
+ 	} while (1);
++
++	if (q->rx_head) {
++		dev_kfree_skb(q->rx_head);
++		q->rx_head = NULL;
++	}
++
+ 	spin_unlock_bh(&q->lock);
  
- #define DELL_EPPID_LENGTH	20
-@@ -49,6 +50,7 @@ enum dell_ddv_method {
- 	DELL_DDV_BATTERY_RAW_ANALYTICS_START	= 0x0E,
- 	DELL_DDV_BATTERY_RAW_ANALYTICS		= 0x0F,
- 	DELL_DDV_BATTERY_DESIGN_VOLTAGE		= 0x10,
-+	DELL_DDV_BATTERY_RAW_ANALYTICS_A_BLOCK	= 0x11, /* version 3 */
+ 	if (!q->rx_page.va)
+@@ -769,12 +776,6 @@ mt76_dma_rx_reset(struct mt76_dev *dev, enum mt76_rxq_id qid)
+ 	mt76_dma_rx_cleanup(dev, q);
+ 	mt76_dma_sync_idx(dev, q);
+ 	mt76_dma_rx_fill(dev, q);
+-
+-	if (!q->rx_head)
+-		return;
+-
+-	dev_kfree_skb(q->rx_head);
+-	q->rx_head = NULL;
+ }
  
- 	DELL_DDV_INTERFACE_VERSION		= 0x12,
- 
-@@ -340,7 +342,7 @@ static int dell_wmi_ddv_probe(struct wmi_device *wdev, const void *context)
- 		return ret;
- 
- 	dev_dbg(&wdev->dev, "WMI interface version: %d\n", version);
--	if (version != DELL_DDV_SUPPORTED_INTERFACE)
-+	if (version < DELL_DDV_SUPPORTED_VERSION_MIN || version > DELL_DDV_SUPPORTED_VERSION_MAX)
- 		return -ENODEV;
- 
- 	data = devm_kzalloc(&wdev->dev, sizeof(*data), GFP_KERNEL);
+ static void
 -- 
 2.39.0
 
