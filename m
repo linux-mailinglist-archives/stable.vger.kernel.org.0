@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 3B1336A31E4
-	for <lists+stable@lfdr.de>; Sun, 26 Feb 2023 16:09:29 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6DA5B6A31F4
+	for <lists+stable@lfdr.de>; Sun, 26 Feb 2023 16:10:52 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230095AbjBZPJ1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 26 Feb 2023 10:09:27 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53278 "EHLO
+        id S231839AbjBZPKv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 26 Feb 2023 10:10:51 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33496 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231809AbjBZPJN (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 26 Feb 2023 10:09:13 -0500
-Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C9EBB23339;
-        Sun, 26 Feb 2023 06:59:29 -0800 (PST)
+        with ESMTP id S231843AbjBZPKh (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 26 Feb 2023 10:10:37 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 53515241E2;
+        Sun, 26 Feb 2023 07:00:35 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 5EFCACE0E8C;
-        Sun, 26 Feb 2023 14:46:26 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 93344C4339B;
-        Sun, 26 Feb 2023 14:46:23 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 2D8F2B80BEA;
+        Sun, 26 Feb 2023 14:46:31 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 19C18C433EF;
+        Sun, 26 Feb 2023 14:46:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1677422784;
-        bh=c66ZqseNXtvYab1W9Mmr1L9hnpx98bZ6fpgNuOsd55Y=;
+        s=k20201202; t=1677422789;
+        bh=qHyBzb5+zGty8cO7BL/qcrPFXMs8pVI2J/iGBv0oU30=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=NMmy6CbePPneNL5JJf/3bmzXOIc4GQYfkxpmbDlmTur3RNISE31w1iKWvpnxs6s9z
-         Lcje0sqXukZjG18GCcTbGcOvZrKY3gDJWL3+hewaUA0bQV9XptQStQcsNzqaawPgAa
-         hTrA+KlmVbApJe10+5u5oJhByk/N+4wfIXlTfOX6cs+Z6psG2L6RcioWffT4/+mndQ
-         /6XfJ2JOUIH3oQ9msaeqtaHbVkbgusq1eBEbevWslaWxY1HADuACWj7ZOfCVwWgldz
-         IuU0JJbj4VhZ2HTv3St7YcN79JTbv0ei6dtFj/YCR+Itm9OxB5LLaG1SFDs0Jk4C3b
-         VSNEh+Qz2OmGQ==
+        b=rphGIFLGfvWUy7Fl4bqFjv9Yw7uJZvW80RpRIGqFwm54G/Hs/rBq3N20eWZLlwTuN
+         L4Kz+x4yzt+erNLsn5oJtBvtg0hGTZq69jUno4p/8c10cfgJHRb+1wBpo3ohblYV1X
+         K1F4CUsGkOnhE2/DhSoYeFx2roHJSit9p8HUP+gNSxXsosRZ9nWLyROPyEgOVkNDwP
+         fi4BwAvrqCEjlLOfLsF39Bp0HJzJiKKgavd+bFrsQ8Hf9IYaVNXD4fhJLukvm6jQeD
+         qtpppQ82m3R6sT7t+E8EiFfZTDW8HbxN27BXvQYkDSJ3JniRV5EUdvHvg215vWpjcY
+         vxjoR7wGGvQMQ==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Heiko Carstens <hca@linux.ibm.com>,
-        Sven Schnelle <svens@linux.ibm.com>,
-        Sasha Levin <sashal@kernel.org>, gor@linux.ibm.com,
-        agordeev@linux.ibm.com, peterz@infradead.org, mingo@kernel.org,
-        npiggin@gmail.com, linux-s390@vger.kernel.org
-Subject: [PATCH AUTOSEL 6.2 41/53] s390/idle: mark arch_cpu_idle() noinstr
-Date:   Sun, 26 Feb 2023 09:44:33 -0500
-Message-Id: <20230226144446.824580-41-sashal@kernel.org>
+Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        "Rafael J . Wysocki" <rafael.j.wysocki@intel.com>,
+        Sasha Levin <sashal@kernel.org>, rafael@kernel.org,
+        pavel@ucw.cz, len.brown@intel.com, linux-pm@vger.kernel.org
+Subject: [PATCH AUTOSEL 6.2 44/53] PM: EM: fix memory leak with using debugfs_lookup()
+Date:   Sun, 26 Feb 2023 09:44:36 -0500
+Message-Id: <20230226144446.824580-44-sashal@kernel.org>
 X-Mailer: git-send-email 2.39.0
 In-Reply-To: <20230226144446.824580-1-sashal@kernel.org>
 References: <20230226144446.824580-1-sashal@kernel.org>
@@ -57,66 +56,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Heiko Carstens <hca@linux.ibm.com>
+From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-[ Upstream commit a9cbc1b471d291c865907542394f1c483b93a811 ]
+[ Upstream commit a0e8c13ccd6a9a636d27353da62c2410c4eca337 ]
 
-linux-next commit ("cpuidle: tracing: Warn about !rcu_is_watching()")
-adds a new warning which hits on s390's arch_cpu_idle() function:
+When calling debugfs_lookup() the result must have dput() called on it,
+otherwise the memory will leak over time.  To make things simpler, just
+call debugfs_lookup_and_remove() instead which handles all of the logic
+at once.
 
-RCU not on for: arch_cpu_idle+0x0/0x28
-WARNING: CPU: 2 PID: 0 at include/linux/trace_recursion.h:162 arch_ftrace_ops_list_func+0x24c/0x258
-Modules linked in:
-CPU: 2 PID: 0 Comm: swapper/2 Not tainted 6.2.0-rc6-next-20230202 #4
-Hardware name: IBM 8561 T01 703 (z/VM 7.3.0)
-Krnl PSW : 0404d00180000000 00000000002b55c0 (arch_ftrace_ops_list_func+0x250/0x258)
-           R:0 T:1 IO:0 EX:0 Key:0 M:1 W:0 P:0 AS:3 CC:1 PM:0 RI:0 EA:3
-Krnl GPRS: c0000000ffffbfff 0000000080000002 0000000000000026 0000000000000000
-           0000037ffffe3a28 0000037ffffe3a20 0000000000000000 0000000000000000
-           0000000000000000 0000000000f4acf6 00000000001044f0 0000037ffffe3cb0
-           0000000000000000 0000000000000000 00000000002b55bc 0000037ffffe3bb8
-Krnl Code: 00000000002b55b0: c02000840051        larl    %r2,0000000001335652
-           00000000002b55b6: c0e5fff512d1        brasl   %r14,0000000000157b58
-          #00000000002b55bc: af000000            mc      0,0
-          >00000000002b55c0: a7f4ffe7            brc     15,00000000002b558e
-           00000000002b55c4: 0707                bcr     0,%r7
-           00000000002b55c6: 0707                bcr     0,%r7
-           00000000002b55c8: eb6ff0480024        stmg    %r6,%r15,72(%r15)
-           00000000002b55ce: b90400ef            lgr     %r14,%r15
-Call Trace:
- [<00000000002b55c0>] arch_ftrace_ops_list_func+0x250/0x258
-([<00000000002b55bc>] arch_ftrace_ops_list_func+0x24c/0x258)
- [<0000000000f5f0fc>] ftrace_common+0x1c/0x20
- [<00000000001044f6>] arch_cpu_idle+0x6/0x28
- [<0000000000f4acf6>] default_idle_call+0x76/0x128
- [<00000000001cc374>] do_idle+0xf4/0x1b0
- [<00000000001cc6ce>] cpu_startup_entry+0x36/0x40
- [<0000000000119d00>] smp_start_secondary+0x140/0x150
- [<0000000000f5d2ae>] restart_int_handler+0x6e/0x90
-
-Mark arch_cpu_idle() noinstr like all other architectures with
-CONFIG_ARCH_WANTS_NO_INSTR (should) have it to fix this.
-
-Reviewed-by: Sven Schnelle <svens@linux.ibm.com>
-Signed-off-by: Heiko Carstens <hca@linux.ibm.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/s390/kernel/idle.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ kernel/power/energy_model.c | 5 +----
+ 1 file changed, 1 insertion(+), 4 deletions(-)
 
-diff --git a/arch/s390/kernel/idle.c b/arch/s390/kernel/idle.c
-index 4bf1ee293f2b3..a0da049e73609 100644
---- a/arch/s390/kernel/idle.c
-+++ b/arch/s390/kernel/idle.c
-@@ -44,7 +44,7 @@ void account_idle_time_irq(void)
- 	S390_lowcore.last_update_timer = idle->timer_idle_exit;
+diff --git a/kernel/power/energy_model.c b/kernel/power/energy_model.c
+index f82111837b8d1..7b44f5b89fa15 100644
+--- a/kernel/power/energy_model.c
++++ b/kernel/power/energy_model.c
+@@ -87,10 +87,7 @@ static void em_debug_create_pd(struct device *dev)
+ 
+ static void em_debug_remove_pd(struct device *dev)
+ {
+-	struct dentry *debug_dir;
+-
+-	debug_dir = debugfs_lookup(dev_name(dev), rootdir);
+-	debugfs_remove_recursive(debug_dir);
++	debugfs_lookup_and_remove(dev_name(dev), rootdir);
  }
  
--void arch_cpu_idle(void)
-+void noinstr arch_cpu_idle(void)
- {
- 	struct s390_idle_data *idle = this_cpu_ptr(&s390_idle);
- 	unsigned long idle_time;
+ static int __init em_debug_init(void)
 -- 
 2.39.0
 
