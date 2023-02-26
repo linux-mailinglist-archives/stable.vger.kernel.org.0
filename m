@@ -2,45 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id EF0A56A307B
-	for <lists+stable@lfdr.de>; Sun, 26 Feb 2023 15:50:00 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D701C6A30BA
+	for <lists+stable@lfdr.de>; Sun, 26 Feb 2023 15:52:51 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230135AbjBZOt7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 26 Feb 2023 09:49:59 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44890 "EHLO
+        id S230313AbjBZOwt (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 26 Feb 2023 09:52:49 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45420 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229903AbjBZOtO (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 26 Feb 2023 09:49:14 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 93F175278;
-        Sun, 26 Feb 2023 06:47:56 -0800 (PST)
+        with ESMTP id S230110AbjBZOwB (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 26 Feb 2023 09:52:01 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EE59718166;
+        Sun, 26 Feb 2023 06:49:09 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id BED14B80BEC;
-        Sun, 26 Feb 2023 14:47:39 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 66B1AC433D2;
-        Sun, 26 Feb 2023 14:47:37 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 1B16660C78;
+        Sun, 26 Feb 2023 14:47:44 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8F3C5C4339E;
+        Sun, 26 Feb 2023 14:47:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1677422858;
-        bh=FlxPSjXOwiKPRpHyKHO3OfzHkwLmOuLBQ73f273Cudg=;
+        s=k20201202; t=1677422863;
+        bh=dIBkqXFHxvs7GKNyGJoTDYAzrZu49wO4UVHtUbdZZJw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=mgBxHqUy12qi6/RTTVDzbYe9q6Iq8iXuXt0waROq9c15eG+mkQUZUKJ5L1QZJURRq
-         MJ6g1UcBScZPk6deMDe4ofh7Fsi30+blwsn2WUiJMv0HAAX6cZa2VU3lNfGD1Dfbth
-         sUzGUhbjSmZGjN1vVoV7bfRX3O5GcUQV2mIjDjjcp58fNJSRPamX8gxAgcPvsIQKZv
-         I89EReyKH/iQoSNGeSEgb5OrQf9bqF9XrMfC378BFNMUB7PGRIU5bTegxGCJ8mnUS1
-         OuBjZC+bIbRsdoGCj5/fdT9mCFjD55zoA4ZO/5wBDadi7GKGzW4nXaGJsidYbyZboV
-         0P3ayQQ3MPZEA==
+        b=se1/zmRCeLZwKZkkPf4zGRsnEEMtRgE5wnlHoOuBjRGBWiX6DXDgjrG1Ci1GV9yeb
+         sYUFrb0jMEN16aXhSE9xwYpbPASUgHs7g4I7TVNCpucPLm8ngFSp6jsTJ6MSv//GSX
+         Eis4kYnSQxwR7vcDd/aJFhBmmAY5JJmadTZCDic5jLnaGwBrwg6NG4WS7ONILCb4O+
+         fX6E4r5e36/aXhuCVRFw7YWFHBKfaE3VZSSf+BceOsrwl7MnEhuwLt1nvZ7z6rOE7C
+         BICO91u2MLJLKhdZyuNLa4jBMJwYADrtftTYhjmPsRMcvdg6b8e5WTp7TKYpVFXz8g
+         swPhFEQW+OHhw==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Dave Thaler <dthaler@microsoft.com>,
-        Daniel Borkmann <daniel@iogearbox.net>,
-        Sasha Levin <sashal@kernel.org>, ast@kernel.org,
-        andrii@kernel.org, corbet@lwn.net, bpf@vger.kernel.org,
-        bpf@ietf.org, linux-doc@vger.kernel.org
-Subject: [PATCH AUTOSEL 6.1 20/49] bpf, docs: Fix modulo zero, division by zero, overflow, and underflow
-Date:   Sun, 26 Feb 2023 09:46:20 -0500
-Message-Id: <20230226144650.826470-20-sashal@kernel.org>
+Cc:     Feng Tang <feng.tang@intel.com>, Waiman Long <longman@redhat.com>,
+        John Stultz <jstultz@google.com>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Stephen Boyd <sboyd@kernel.org>,
+        "Paul E . McKenney" <paulmck@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH AUTOSEL 6.1 22/49] clocksource: Suspend the watchdog temporarily when high read latency detected
+Date:   Sun, 26 Feb 2023 09:46:22 -0500
+Message-Id: <20230226144650.826470-22-sashal@kernel.org>
 X-Mailer: git-send-email 2.39.0
 In-Reply-To: <20230226144650.826470-1-sashal@kernel.org>
 References: <20230226144650.826470-1-sashal@kernel.org>
@@ -48,8 +49,8 @@ MIME-Version: 1.0
 X-stable: review
 X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
         SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -57,66 +58,143 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dave Thaler <dthaler@microsoft.com>
+From: Feng Tang <feng.tang@intel.com>
 
-[ Upstream commit 0eb9d19e2201068260e439a5c96dc85f9f3722a2 ]
+[ Upstream commit b7082cdfc464bf9231300605d03eebf943dda307 ]
 
-Fix modulo zero, division by zero, overflow, and underflow. Also clarify how
-a negative immediate value is used in unsigned division.
+Bugs have been reported on 8 sockets x86 machines in which the TSC was
+wrongly disabled when the system is under heavy workload.
 
-Signed-off-by: Dave Thaler <dthaler@microsoft.com>
-Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
-Link: https://lore.kernel.org/bpf/20230124001218.827-1-dthaler1968@googlemail.com
+ [ 818.380354] clocksource: timekeeping watchdog on CPU336: hpet wd-wd read-back delay of 1203520ns
+ [ 818.436160] clocksource: wd-tsc-wd read-back delay of 181880ns, clock-skew test skipped!
+ [ 819.402962] clocksource: timekeeping watchdog on CPU338: hpet wd-wd read-back delay of 324000ns
+ [ 819.448036] clocksource: wd-tsc-wd read-back delay of 337240ns, clock-skew test skipped!
+ [ 819.880863] clocksource: timekeeping watchdog on CPU339: hpet read-back delay of 150280ns, attempt 3, marking unstable
+ [ 819.936243] tsc: Marking TSC unstable due to clocksource watchdog
+ [ 820.068173] TSC found unstable after boot, most likely due to broken BIOS. Use 'tsc=unstable'.
+ [ 820.092382] sched_clock: Marking unstable (818769414384, 1195404998)
+ [ 820.643627] clocksource: Checking clocksource tsc synchronization from CPU 267 to CPUs 0,4,25,70,126,430,557,564.
+ [ 821.067990] clocksource: Switched to clocksource hpet
+
+This can be reproduced by running memory intensive 'stream' tests,
+or some of the stress-ng subcases such as 'ioport'.
+
+The reason for these issues is the when system is under heavy load, the
+read latency of the clocksources can be very high.  Even lightweight TSC
+reads can show high latencies, and latencies are much worse for external
+clocksources such as HPET or the APIC PM timer.  These latencies can
+result in false-positive clocksource-unstable determinations.
+
+These issues were initially reported by a customer running on a production
+system, and this problem was reproduced on several generations of Xeon
+servers, especially when running the stress-ng test.  These Xeon servers
+were not production systems, but they did have the latest steppings
+and firmware.
+
+Given that the clocksource watchdog is a continual diagnostic check with
+frequency of twice a second, there is no need to rush it when the system
+is under heavy load.  Therefore, when high clocksource read latencies
+are detected, suspend the watchdog timer for 5 minutes.
+
+Signed-off-by: Feng Tang <feng.tang@intel.com>
+Acked-by: Waiman Long <longman@redhat.com>
+Cc: John Stultz <jstultz@google.com>
+Cc: Thomas Gleixner <tglx@linutronix.de>
+Cc: Stephen Boyd <sboyd@kernel.org>
+Cc: Feng Tang <feng.tang@intel.com>
+Signed-off-by: Paul E. McKenney <paulmck@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- Documentation/bpf/instruction-set.rst | 16 ++++++++++++++--
- 1 file changed, 14 insertions(+), 2 deletions(-)
+ kernel/time/clocksource.c | 45 ++++++++++++++++++++++++++++-----------
+ 1 file changed, 32 insertions(+), 13 deletions(-)
 
-diff --git a/Documentation/bpf/instruction-set.rst b/Documentation/bpf/instruction-set.rst
-index 5d798437dad47..3ba6475cfbfc7 100644
---- a/Documentation/bpf/instruction-set.rst
-+++ b/Documentation/bpf/instruction-set.rst
-@@ -99,19 +99,26 @@ code      value  description
- BPF_ADD   0x00   dst += src
- BPF_SUB   0x10   dst -= src
- BPF_MUL   0x20   dst \*= src
--BPF_DIV   0x30   dst /= src
-+BPF_DIV   0x30   dst = (src != 0) ? (dst / src) : 0
- BPF_OR    0x40   dst \|= src
- BPF_AND   0x50   dst &= src
- BPF_LSH   0x60   dst <<= src
- BPF_RSH   0x70   dst >>= src
- BPF_NEG   0x80   dst = ~src
--BPF_MOD   0x90   dst %= src
-+BPF_MOD   0x90   dst = (src != 0) ? (dst % src) : dst
- BPF_XOR   0xa0   dst ^= src
- BPF_MOV   0xb0   dst = src
- BPF_ARSH  0xc0   sign extending shift right
- BPF_END   0xd0   byte swap operations (see `Byte swap instructions`_ below)
- ========  =====  ==========================================================
+diff --git a/kernel/time/clocksource.c b/kernel/time/clocksource.c
+index 8058bec87acee..1c90e710d537f 100644
+--- a/kernel/time/clocksource.c
++++ b/kernel/time/clocksource.c
+@@ -384,6 +384,15 @@ void clocksource_verify_percpu(struct clocksource *cs)
+ }
+ EXPORT_SYMBOL_GPL(clocksource_verify_percpu);
  
-+Underflow and overflow are allowed during arithmetic operations, meaning
-+the 64-bit or 32-bit value will wrap. If eBPF program execution would
-+result in division by zero, the destination register is instead set to zero.
-+If execution would result in modulo by zero, for ``BPF_ALU64`` the value of
-+the destination register is unchanged whereas for ``BPF_ALU`` the upper
-+32 bits of the destination register are zeroed.
++static inline void clocksource_reset_watchdog(void)
++{
++	struct clocksource *cs;
 +
- ``BPF_ADD | BPF_X | BPF_ALU`` means::
++	list_for_each_entry(cs, &watchdog_list, wd_list)
++		cs->flags &= ~CLOCK_SOURCE_WATCHDOG;
++}
++
++
+ static void clocksource_watchdog(struct timer_list *unused)
+ {
+ 	u64 csnow, wdnow, cslast, wdlast, delta;
+@@ -391,6 +400,7 @@ static void clocksource_watchdog(struct timer_list *unused)
+ 	int64_t wd_nsec, cs_nsec;
+ 	struct clocksource *cs;
+ 	enum wd_read_status read_ret;
++	unsigned long extra_wait = 0;
+ 	u32 md;
  
-   dst_reg = (u32) dst_reg + (u32) src_reg;
-@@ -128,6 +135,11 @@ BPF_END   0xd0   byte swap operations (see `Byte swap instructions`_ below)
+ 	spin_lock(&watchdog_lock);
+@@ -410,13 +420,30 @@ static void clocksource_watchdog(struct timer_list *unused)
  
-   src_reg = src_reg ^ imm32
+ 		read_ret = cs_watchdog_read(cs, &csnow, &wdnow);
  
-+Also note that the division and modulo operations are unsigned. Thus, for
-+``BPF_ALU``, 'imm' is first interpreted as an unsigned 32-bit value, whereas
-+for ``BPF_ALU64``, 'imm' is first sign extended to 64 bits and the result
-+interpreted as an unsigned 64-bit value. There are no instructions for
-+signed division or modulo.
+-		if (read_ret != WD_READ_SUCCESS) {
+-			if (read_ret == WD_READ_UNSTABLE)
+-				/* Clock readout unreliable, so give it up. */
+-				__clocksource_unstable(cs);
++		if (read_ret == WD_READ_UNSTABLE) {
++			/* Clock readout unreliable, so give it up. */
++			__clocksource_unstable(cs);
+ 			continue;
+ 		}
  
- Byte swap instructions
- ~~~~~~~~~~~~~~~~~~~~~~
++		/*
++		 * When WD_READ_SKIP is returned, it means the system is likely
++		 * under very heavy load, where the latency of reading
++		 * watchdog/clocksource is very big, and affect the accuracy of
++		 * watchdog check. So give system some space and suspend the
++		 * watchdog check for 5 minutes.
++		 */
++		if (read_ret == WD_READ_SKIP) {
++			/*
++			 * As the watchdog timer will be suspended, and
++			 * cs->last could keep unchanged for 5 minutes, reset
++			 * the counters.
++			 */
++			clocksource_reset_watchdog();
++			extra_wait = HZ * 300;
++			break;
++		}
++
+ 		/* Clocksource initialized ? */
+ 		if (!(cs->flags & CLOCK_SOURCE_WATCHDOG) ||
+ 		    atomic_read(&watchdog_reset_pending)) {
+@@ -512,7 +539,7 @@ static void clocksource_watchdog(struct timer_list *unused)
+ 	 * pair clocksource_stop_watchdog() clocksource_start_watchdog().
+ 	 */
+ 	if (!timer_pending(&watchdog_timer)) {
+-		watchdog_timer.expires += WATCHDOG_INTERVAL;
++		watchdog_timer.expires += WATCHDOG_INTERVAL + extra_wait;
+ 		add_timer_on(&watchdog_timer, next_cpu);
+ 	}
+ out:
+@@ -537,14 +564,6 @@ static inline void clocksource_stop_watchdog(void)
+ 	watchdog_running = 0;
+ }
+ 
+-static inline void clocksource_reset_watchdog(void)
+-{
+-	struct clocksource *cs;
+-
+-	list_for_each_entry(cs, &watchdog_list, wd_list)
+-		cs->flags &= ~CLOCK_SOURCE_WATCHDOG;
+-}
+-
+ static void clocksource_resume_watchdog(void)
+ {
+ 	atomic_inc(&watchdog_reset_pending);
 -- 
 2.39.0
 
