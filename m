@@ -2,48 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 7BD816A31D3
-	for <lists+stable@lfdr.de>; Sun, 26 Feb 2023 16:06:48 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A867C6A31F0
+	for <lists+stable@lfdr.de>; Sun, 26 Feb 2023 16:10:20 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231739AbjBZPGq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 26 Feb 2023 10:06:46 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53610 "EHLO
+        id S231793AbjBZPKR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 26 Feb 2023 10:10:17 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59324 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232047AbjBZPFS (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 26 Feb 2023 10:05:18 -0500
+        with ESMTP id S231991AbjBZPKD (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 26 Feb 2023 10:10:03 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4732B1BAEA;
-        Sun, 26 Feb 2023 06:56:08 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B49AD24109;
+        Sun, 26 Feb 2023 07:00:11 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id EBCDEB80BAA;
-        Sun, 26 Feb 2023 14:49:33 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8DE50C433D2;
-        Sun, 26 Feb 2023 14:49:31 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 0C28BB80C69;
+        Sun, 26 Feb 2023 14:49:37 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A030BC433B4;
+        Sun, 26 Feb 2023 14:49:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1677422972;
-        bh=7Bc3iO8TG1DS9g7AMkTNU9+OVM8V9J21a4MnxY6Xc2M=;
+        s=k20201202; t=1677422975;
+        bh=i2wLzmlocFC7GteqWZlIZcLNTuNTfmUdaf499qavuK4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=qwq7OE9NgoDMr22scTJAJP+lQhG7+agTV+5tI6+t1GMEjiO8tT1OtxWZw79imX3GY
-         b82HlZVIBhwj7rhjfuN7SM4kG1Tjz9fAKFh0xu+uq0yX1zQAVvE89usXnfk0YfKqEo
-         KOgDe+a3xxDs93vQitswIdliSMulMqPbEbLxjvkdru+LjngNTQag8LcF94BNXx1goa
-         xQif20yJXyIoJW7vUyMEur/YjYiIhaCaUtGqEE6Lbe9BiBZL8KoVTh8DcgYWCt0mp6
-         5GCwYBrjzWC1PdDllawtBd0mXqJcqi11ZtjFkllxx2GVCg3PfKmqkoqbxY8nD5gXCQ
-         S0HSSxMjoA/0Q==
+        b=LPLrH4GcHwIdm5/OeMMRE5f5TFRjKvw6Bwp/XisgN3If7OC82WmHvtNXMQs/GQsj4
+         5yBp3ifG5E3+eTG6BL5zJ/19qaQVlnLTAh0bhr4oES2jpsPghTzX7mOuebN9CwM4Lq
+         ixgM3F3Lp+8Z3CtI49ODth4SnXDcAyswpOiPA8OrHyHHyjgP/0aXXlx4JeMi2UcB8N
+         8kTS0kRZJpItJ8MPc9AeHbSaiam1TYhfCMRSRp7P5Qqbsitw4L03tyDAMmlckUaHoW
+         490UgXjmt4LIM2qIzz4b82MVVgL58apCQWK8agZL6eX1q+Mnl1bo2Dfef2dyIXX9c4
+         RADdX/G9PsL5g==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Kees Cook <keescook@chromium.org>,
-        Nathan Chancellor <nathan@kernel.org>,
-        Weili Qian <qianweili@huawei.com>,
-        Zhou Wang <wangzhou1@hisilicon.com>,
-        Herbert Xu <herbert@gondor.apana.org.au>,
-        "David S. Miller" <davem@davemloft.net>,
-        linux-crypto@vger.kernel.org, Sasha Levin <sashal@kernel.org>,
-        ndesaulniers@google.com, llvm@lists.linux.dev
-Subject: [PATCH AUTOSEL 5.15 18/36] crypto: hisilicon: Wipe entire pool on error
-Date:   Sun, 26 Feb 2023 09:48:26 -0500
-Message-Id: <20230226144845.827893-18-sashal@kernel.org>
+Cc:     Breno Leitao <leitao@debian.org>,
+        Michael van der Westhuizen <rmikey@meta.com>,
+        Jakub Kicinski <kuba@kernel.org>,
+        Sasha Levin <sashal@kernel.org>, davem@davemloft.net,
+        edumazet@google.com, pabeni@redhat.com,
+        wsa+renesas@sang-engineering.com, netdev@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.15 19/36] netpoll: Remove 4s sleep during carrier detection
+Date:   Sun, 26 Feb 2023 09:48:27 -0500
+Message-Id: <20230226144845.827893-19-sashal@kernel.org>
 X-Mailer: git-send-email 2.39.0
 In-Reply-To: <20230226144845.827893-1-sashal@kernel.org>
 References: <20230226144845.827893-1-sashal@kernel.org>
@@ -60,45 +58,72 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kees Cook <keescook@chromium.org>
+From: Breno Leitao <leitao@debian.org>
 
-[ Upstream commit aa85923a954e7704bc9d3847dabeb8540aa98d13 ]
+[ Upstream commit d8afe2f8a92d2aac3df645772f6ee61b0b2fc147 ]
 
-To work around a Clang __builtin_object_size bug that shows up under
-CONFIG_FORTIFY_SOURCE and UBSAN_BOUNDS, move the per-loop-iteration
-mem_block wipe into a single wipe of the entire pool structure after
-the loop.
+This patch removes the msleep(4s) during netpoll_setup() if the carrier
+appears instantly.
 
-Reported-by: Nathan Chancellor <nathan@kernel.org>
-Link: https://github.com/ClangBuiltLinux/linux/issues/1780
-Cc: Weili Qian <qianweili@huawei.com>
-Cc: Zhou Wang <wangzhou1@hisilicon.com>
-Cc: Herbert Xu <herbert@gondor.apana.org.au>
-Cc: "David S. Miller" <davem@davemloft.net>
-Cc: linux-crypto@vger.kernel.org
-Signed-off-by: Kees Cook <keescook@chromium.org>
-Tested-by: Nathan Chancellor <nathan@kernel.org> # build
-Link: https://lore.kernel.org/r/20230106041945.never.831-kees@kernel.org
+Here are some scenarios where this workaround is counter-productive in
+modern ages:
+
+Servers which have BMC communicating over NC-SI via the same NIC as gets
+used for netconsole. BMC will keep the PHY up, hence the carrier
+appearing instantly.
+
+The link is fibre, SERDES getting sync could happen within 0.1Hz, and
+the carrier also appears instantly.
+
+Other than that, if a driver is reporting instant carrier and then
+losing it, this is probably a driver bug.
+
+Reported-by: Michael van der Westhuizen <rmikey@meta.com>
+Signed-off-by: Breno Leitao <leitao@debian.org>
+Link: https://lore.kernel.org/r/20230125185230.3574681-1-leitao@debian.org
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/crypto/hisilicon/sgl.c | 3 +--
- 1 file changed, 1 insertion(+), 2 deletions(-)
+ net/core/netpoll.c | 12 +-----------
+ 1 file changed, 1 insertion(+), 11 deletions(-)
 
-diff --git a/drivers/crypto/hisilicon/sgl.c b/drivers/crypto/hisilicon/sgl.c
-index 057273769f264..3dbe5405d17bc 100644
---- a/drivers/crypto/hisilicon/sgl.c
-+++ b/drivers/crypto/hisilicon/sgl.c
-@@ -122,9 +122,8 @@ struct hisi_acc_sgl_pool *hisi_acc_create_sgl_pool(struct device *dev,
- 	for (j = 0; j < i; j++) {
- 		dma_free_coherent(dev, block_size, block[j].sgl,
- 				  block[j].sgl_dma);
--		memset(block + j, 0, sizeof(*block));
+diff --git a/net/core/netpoll.c b/net/core/netpoll.c
+index edfc0f8011f88..0fc64f536db01 100644
+--- a/net/core/netpoll.c
++++ b/net/core/netpoll.c
+@@ -682,7 +682,7 @@ int netpoll_setup(struct netpoll *np)
  	}
--	kfree(pool);
-+	kfree_sensitive(pool);
- 	return ERR_PTR(-ENOMEM);
- }
- EXPORT_SYMBOL_GPL(hisi_acc_create_sgl_pool);
+ 
+ 	if (!netif_running(ndev)) {
+-		unsigned long atmost, atleast;
++		unsigned long atmost;
+ 
+ 		np_info(np, "device %s not up yet, forcing it\n", np->dev_name);
+ 
+@@ -694,7 +694,6 @@ int netpoll_setup(struct netpoll *np)
+ 		}
+ 
+ 		rtnl_unlock();
+-		atleast = jiffies + HZ/10;
+ 		atmost = jiffies + carrier_timeout * HZ;
+ 		while (!netif_carrier_ok(ndev)) {
+ 			if (time_after(jiffies, atmost)) {
+@@ -704,15 +703,6 @@ int netpoll_setup(struct netpoll *np)
+ 			msleep(1);
+ 		}
+ 
+-		/* If carrier appears to come up instantly, we don't
+-		 * trust it and pause so that we don't pump all our
+-		 * queued console messages into the bitbucket.
+-		 */
+-
+-		if (time_before(jiffies, atleast)) {
+-			np_notice(np, "carrier detect appears untrustworthy, waiting 4 seconds\n");
+-			msleep(4000);
+-		}
+ 		rtnl_lock();
+ 	}
+ 
 -- 
 2.39.0
 
