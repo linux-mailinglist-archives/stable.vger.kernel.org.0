@@ -2,47 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 69AAA6A3195
-	for <lists+stable@lfdr.de>; Sun, 26 Feb 2023 16:00:56 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7F0136A3192
+	for <lists+stable@lfdr.de>; Sun, 26 Feb 2023 16:00:52 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231245AbjBZPAv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 26 Feb 2023 10:00:51 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36500 "EHLO
+        id S231215AbjBZPAu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 26 Feb 2023 10:00:50 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36694 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230414AbjBZO6Z (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 26 Feb 2023 09:58:25 -0500
+        with ESMTP id S231292AbjBZO63 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 26 Feb 2023 09:58:29 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1163A1C7D7;
-        Sun, 26 Feb 2023 06:52:23 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 63EF81CF67;
+        Sun, 26 Feb 2023 06:52:28 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 4035AB80C87;
-        Sun, 26 Feb 2023 14:52:02 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 68794C433A0;
-        Sun, 26 Feb 2023 14:51:59 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 432D6B80BE6;
+        Sun, 26 Feb 2023 14:52:08 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3CA1FC4339E;
+        Sun, 26 Feb 2023 14:52:06 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1677423120;
-        bh=H8HOlMCO/pw/Uv25drPbmxsdB90yr8J/UXLMH5UNkf0=;
+        s=k20201202; t=1677423126;
+        bh=PeHK2sKMkoJ0CTfygPDe5lei+5mM/gwkzTFZY2srQ7g=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=eqCZoDwM+jX2qA5Yk3UMHhyuMBI33KhFewiLrqTE5NO5TMEyHfdMfBVAcQ4rE+7an
-         Y/6UbAoT7JBotViZNeeFrmk3qiva1+o6SwDWuCvfeSbKippZcZbdeAj0MkiGewuGuR
-         dS05n8z5dHtEYE2xxRl1z6mEq+nCH32WGMUHMvjfiOVRwXOSTCa3C3OK3ggd5HeKzf
-         +yauosYYibw9rLZykl91BwlHAWx2kq+LdSaBodyXPUjIbHxJHBGRGNVg9Hx6HAd8tG
-         jChjJfGT0nfPLwUw6Hf3rTyRuOKOZO7Q+d96rYeDNa5BgcEWnLeoigQTzyY+B5Y0tl
-         I8WEYBQw3JF+g==
+        b=ZkS0HTg1RXQX1c5logOlpt3XqVHsnHPAsSN8iQpxMtX2cKIHZuKjBMqTe6hrYLVoi
+         cIj5BgFUYuOTQd85BCuxS0sQsPN5KiqMhQLf9vhVKKcL8kQGW88JLT09XAfKl3aGzX
+         Mbhdsp63jMuE6+7JZveeJCo2q4HHTfo4a9DzN0A6sSFnMrD+OPAz4cuVy4WSX7qH5b
+         EG/98Vt7p3fBdDIiKMkPYtdIGt02L3GT0QoHX0oWhK2ljJOKl7kXoMgH4lH/uYEOek
+         OyQSxtAcV37YZUwtbVGiyBbw0geORloymUcxKIaegD++81cvcz6RBUJf6K8vjpu0SD
+         op9kv5T7u7vqw==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Lorenzo Bianconi <lorenzo@kernel.org>,
-        Felix Fietkau <nbd@nbd.name>, Sasha Levin <sashal@kernel.org>,
-        ryder.lee@mediatek.com, kvalo@kernel.org, davem@davemloft.net,
-        edumazet@google.com, kuba@kernel.org, pabeni@redhat.com,
-        matthias.bgg@gmail.com, linux-wireless@vger.kernel.org,
-        netdev@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
-        linux-mediatek@lists.infradead.org
-Subject: [PATCH AUTOSEL 5.4 14/19] wifi: mt76: dma: free rx_head in mt76_dma_rx_cleanup
-Date:   Sun, 26 Feb 2023 09:51:16 -0500
-Message-Id: <20230226145123.829229-14-sashal@kernel.org>
+Cc:     Kees Cook <keescook@chromium.org>,
+        Jan Harkes <jaharkes@cs.cmu.edu>, coda@cs.cmu.edu,
+        codalist@coda.cs.cmu.edu, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH AUTOSEL 5.4 17/19] coda: Avoid partial allocation of sig_inputArgs
+Date:   Sun, 26 Feb 2023 09:51:19 -0500
+Message-Id: <20230226145123.829229-17-sashal@kernel.org>
 X-Mailer: git-send-email 2.39.0
 In-Reply-To: <20230226145123.829229-1-sashal@kernel.org>
 References: <20230226145123.829229-1-sashal@kernel.org>
@@ -59,58 +55,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Lorenzo Bianconi <lorenzo@kernel.org>
+From: Kees Cook <keescook@chromium.org>
 
-[ Upstream commit 1b88b47e898edef0e56e3a2f4e49f052a136153d ]
+[ Upstream commit 48df133578c70185a95a49390d42df1996ddba2a ]
 
-Free rx_head skb in mt76_dma_rx_cleanup routine in order to avoid
-possible memory leak at module unload.
+GCC does not like having a partially allocated object, since it cannot
+reason about it for bounds checking when it is passed to other code.
+Instead, fully allocate sig_inputArgs. (Alternatively, sig_inputArgs
+should be defined as a struct coda_in_hdr, if it is actually not using
+any other part of the union.) Seen under GCC 13:
 
-Signed-off-by: Lorenzo Bianconi <lorenzo@kernel.org>
-Signed-off-by: Felix Fietkau <nbd@nbd.name>
+../fs/coda/upcall.c: In function 'coda_upcall':
+../fs/coda/upcall.c:801:22: warning: array subscript 'union inputArgs[0]' is partly outside array bounds of 'unsigned char[20]' [-Warray-bounds=]
+  801 |         sig_inputArgs->ih.opcode = CODA_SIGNAL;
+      |                      ^~
+
+Cc: Jan Harkes <jaharkes@cs.cmu.edu>
+Cc: coda@cs.cmu.edu
+Cc: codalist@coda.cs.cmu.edu
+Signed-off-by: Kees Cook <keescook@chromium.org>
+Link: https://lore.kernel.org/r/20230127223921.never.882-kees@kernel.org
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/net/wireless/mediatek/mt76/dma.c | 13 +++++++------
- 1 file changed, 7 insertions(+), 6 deletions(-)
+ fs/coda/upcall.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/net/wireless/mediatek/mt76/dma.c b/drivers/net/wireless/mediatek/mt76/dma.c
-index d3efcbd48ee1e..50a92aaa221f7 100644
---- a/drivers/net/wireless/mediatek/mt76/dma.c
-+++ b/drivers/net/wireless/mediatek/mt76/dma.c
-@@ -411,6 +411,7 @@ mt76_dma_rx_cleanup(struct mt76_dev *dev, struct mt76_queue *q)
- 	bool more;
+diff --git a/fs/coda/upcall.c b/fs/coda/upcall.c
+index eb3b1898da462..610484c90260b 100644
+--- a/fs/coda/upcall.c
++++ b/fs/coda/upcall.c
+@@ -790,7 +790,7 @@ static int coda_upcall(struct venus_comm *vcp,
+ 	sig_req = kmalloc(sizeof(struct upc_req), GFP_KERNEL);
+ 	if (!sig_req) goto exit;
  
- 	spin_lock_bh(&q->lock);
-+
- 	do {
- 		buf = mt76_dma_dequeue(dev, q, true, NULL, NULL, &more);
- 		if (!buf)
-@@ -418,6 +419,12 @@ mt76_dma_rx_cleanup(struct mt76_dev *dev, struct mt76_queue *q)
- 
- 		skb_free_frag(buf);
- 	} while (1);
-+
-+	if (q->rx_head) {
-+		dev_kfree_skb(q->rx_head);
-+		q->rx_head = NULL;
-+	}
-+
- 	spin_unlock_bh(&q->lock);
- 
- 	if (!q->rx_page.va)
-@@ -440,12 +447,6 @@ mt76_dma_rx_reset(struct mt76_dev *dev, enum mt76_rxq_id qid)
- 	mt76_dma_rx_cleanup(dev, q);
- 	mt76_dma_sync_idx(dev, q);
- 	mt76_dma_rx_fill(dev, q);
--
--	if (!q->rx_head)
--		return;
--
--	dev_kfree_skb(q->rx_head);
--	q->rx_head = NULL;
- }
- 
- static void
+-	sig_inputArgs = kvzalloc(sizeof(struct coda_in_hdr), GFP_KERNEL);
++	sig_inputArgs = kvzalloc(sizeof(*sig_inputArgs), GFP_KERNEL);
+ 	if (!sig_inputArgs) {
+ 		kfree(sig_req);
+ 		goto exit;
 -- 
 2.39.0
 
