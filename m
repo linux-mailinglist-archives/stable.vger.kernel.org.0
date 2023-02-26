@@ -2,45 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 1D9E16A311C
-	for <lists+stable@lfdr.de>; Sun, 26 Feb 2023 15:56:22 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3D99C6A3110
+	for <lists+stable@lfdr.de>; Sun, 26 Feb 2023 15:56:16 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231195AbjBZO4K (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 26 Feb 2023 09:56:10 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55840 "EHLO
+        id S231335AbjBZO4G (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 26 Feb 2023 09:56:06 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54716 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231191AbjBZOzF (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 26 Feb 2023 09:55:05 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7604114238;
-        Sun, 26 Feb 2023 06:50:45 -0800 (PST)
+        with ESMTP id S231359AbjBZOzW (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 26 Feb 2023 09:55:22 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3863E1BAF0;
+        Sun, 26 Feb 2023 06:51:11 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id B024060C40;
+        by ams.source.kernel.org (Postfix) with ESMTPS id 2597CB80C87;
+        Sun, 26 Feb 2023 14:50:30 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9C9C1C4339C;
         Sun, 26 Feb 2023 14:50:27 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 313F6C433D2;
-        Sun, 26 Feb 2023 14:50:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1677423027;
-        bh=nDAnUgHeTD5jQx3lVGiiv2qSqX2mVTCEOYjaZwnCfsg=;
+        s=k20201202; t=1677423028;
+        bh=eDxvOg777Bup4V9O3JP71BuTUZyabPolavDcp8eaSgQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=mangUGVFxejjv2TZhsfP/CFPormRh+3eQO6rJ+7wpCwAiiRjREoLgTE7rn7JOqGph
-         Iod5jnWQ2kPZc5CZ1hqNqz1qTwjE4s0U/olI6V2wjPLVuohWhFgzQXcXcUKWtWnk0s
-         2UC6/pF1nBOo3s7wpDEYX1N1ctx+7y3Mt212GWjwwoTjGEIiJUrNtTOtKX+Ihrq5IK
-         JV2cX+vn3I+39lM95VsoxhCxyto6gCyt8AC4ee7lCyL0aDiWNhtmK9N7LzJWeiOFHH
-         vZGSov6xejESNcssRRGkK5OabPHRPeyuN5+If76A1Td0Ibb0nu8FnsnBpr+EXU9LGN
-         DYKUVb+P4sZgA==
+        b=ijAmrnr0mfzlXjGxKahLohKhXmRnK1PZ2Qnr7QAH2+w7UgOuayxRVlSVlLEA1Kzu0
+         p112mhtIHi3EWCWt6FhJrnhvuiw1p2p3QG/pcGMMCna3kkZnuizpglUh8sE4d4kCz9
+         9SpFVMZzyo53jPKSnZiKp/C057eg4IKIi3+6rdEJVKFifLF2ZYDOcuubzzapR+Tdru
+         ISq4fQkKfnu1Ql6px3Pwfyl/SYvYe6LNunTEw3F8xY2KmEgLVYTWPG/mcDD20PNUrw
+         eY4BOfUFjfq+svO4J+268cluGILmnKpPEtxIQIN+h5420dX9BELhu3suBmfEqVTTDG
+         1AghkXY+Ddl3g==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Zqiang <qiang1.zhang@intel.com>,
-        "Paul E . McKenney" <paulmck@kernel.org>,
-        Sasha Levin <sashal@kernel.org>, frederic@kernel.org,
-        quic_neeraju@quicinc.com, josh@joshtriplett.org,
-        rcu@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.10 05/27] rcu-tasks: Make rude RCU-Tasks work well with CPU hotplug
-Date:   Sun, 26 Feb 2023 09:49:52 -0500
-Message-Id: <20230226145014.828855-5-sashal@kernel.org>
+Cc:     Kalle Valo <quic_kvalo@quicinc.com>,
+        Robert Marko <robert.marko@sartura.hr>,
+        Sasha Levin <sashal@kernel.org>, kvalo@kernel.org,
+        davem@davemloft.net, edumazet@google.com, kuba@kernel.org,
+        pabeni@redhat.com, ath11k@lists.infradead.org,
+        linux-wireless@vger.kernel.org, netdev@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.10 06/27] wifi: ath11k: debugfs: fix to work with multiple PCI devices
+Date:   Sun, 26 Feb 2023 09:49:53 -0500
+Message-Id: <20230226145014.828855-6-sashal@kernel.org>
 X-Mailer: git-send-email 2.39.0
 In-Reply-To: <20230226145014.828855-1-sashal@kernel.org>
 References: <20230226145014.828855-1-sashal@kernel.org>
@@ -48,8 +49,8 @@ MIME-Version: 1.0
 X-stable: review
 X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
         SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -57,106 +58,149 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zqiang <qiang1.zhang@intel.com>
+From: Kalle Valo <quic_kvalo@quicinc.com>
 
-[ Upstream commit ea5c8987fef20a8cca07e428aa28bc64649c5104 ]
+[ Upstream commit 323d91d4684d238f6bc3693fed93caf795378fe0 ]
 
-The synchronize_rcu_tasks_rude() function invokes rcu_tasks_rude_wait_gp()
-to wait one rude RCU-tasks grace period.  The rcu_tasks_rude_wait_gp()
-function in turn checks if there is only a single online CPU.  If so, it
-will immediately return, because a call to synchronize_rcu_tasks_rude()
-is by definition a grace period on a single-CPU system.  (We could
-have blocked!)
+ath11k fails to load if there are multiple ath11k PCI devices with same name:
 
-Unfortunately, this check uses num_online_cpus() without synchronization,
-which can result in too-short grace periods.  To see this, consider the
-following scenario:
+ ath11k_pci 0000:01:00.0: Hardware name qcn9074 hw1.0
+ debugfs: Directory 'ath11k' with parent '/' already present!
+ ath11k_pci 0000:01:00.0: failed to create ath11k debugfs
+ ath11k_pci 0000:01:00.0: failed to create soc core: -17
+ ath11k_pci 0000:01:00.0: failed to init core: -17
+ ath11k_pci: probe of 0000:01:00.0 failed with error -17
 
-        CPU0                                   CPU1 (going offline)
-                                          migration/1 task:
-                                      cpu_stopper_thread
-                                       -> take_cpu_down
-                                          -> _cpu_disable
-                                           (dec __num_online_cpus)
-                                          ->cpuhp_invoke_callback
-                                                preempt_disable
-                                                access old_data0
-           task1
- del old_data0                                  .....
- synchronize_rcu_tasks_rude()
- task1 schedule out
- ....
- task2 schedule in
- rcu_tasks_rude_wait_gp()
-     ->__num_online_cpus == 1
-       ->return
- ....
- task1 schedule in
- ->free old_data0
-                                                preempt_enable
+Fix this by creating a directory for each ath11k device using schema
+<bus>-<devname>, for example "pci-0000:06:00.0". This directory created under
+the top-level ath11k directory, for example /sys/kernel/debug/ath11k.
 
-When CPU1 decrements __num_online_cpus, its value becomes 1.  However,
-CPU1 has not finished going offline, and will take one last trip through
-the scheduler and the idle loop before it actually stops executing
-instructions.  Because synchronize_rcu_tasks_rude() is mostly used for
-tracing, and because both the scheduler and the idle loop can be traced,
-this means that CPU0's prematurely ended grace period might disrupt the
-tracing on CPU1.  Given that this disruption might include CPU1 executing
-instructions in memory that was just now freed (and maybe reallocated),
-this is a matter of some concern.
+The reference to the toplevel ath11k directory is not stored anymore within ath11k, instead
+it's retrieved using debugfs_lookup(). If the directory does not exist it will
+be created. After the last directory from the ath11k directory is removed, for
+example when doing rmmod ath11k, the empty ath11k directory is left in place,
+it's a minor cosmetic issue anyway.
 
-This commit therefore removes that problematic single-CPU check from the
-rcu_tasks_rude_wait_gp() function.  This dispenses with the single-CPU
-optimization, but there is no evidence indicating that this optimization
-is important.  In addition, synchronize_rcu_tasks_generic() contains a
-similar optimization (albeit only for early boot), which also splats.
-(As in exactly why are you invoking synchronize_rcu_tasks_rude() so
-early in boot, anyway???)
+Here's an example hierarchy with one WCN6855:
 
-It is OK for the synchronize_rcu_tasks_rude() function's check to be
-unsynchronized because the only times that this check can evaluate to
-true is when there is only a single CPU running with preemption
-disabled.
+ath11k
+`-- pci-0000:06:00.0
+    |-- mac0
+    |   |-- dfs_block_radar_events
+    |   |-- dfs_simulate_radar
+    |   |-- ext_rx_stats
+    |   |-- ext_tx_stats
+    |   |-- fw_dbglog_config
+    |   |-- fw_stats
+    |   |   |-- beacon_stats
+    |   |   |-- pdev_stats
+    |   |   `-- vdev_stats
+    |   |-- htt_stats
+    |   |-- htt_stats_reset
+    |   |-- htt_stats_type
+    |   `-- pktlog_filter
+    |-- simulate_fw_crash
+    `-- soc_dp_stats
 
-While in the area, this commit also fixes a minor bug in which a
-call to synchronize_rcu_tasks_rude() would instead be attributed to
-synchronize_rcu_tasks().
+I didn't have a test setup where I could connect multiple ath11k devices to the
+same the host, so I have only tested this with one device.
 
-[ paulmck: Add "synchronize_" prefix and "()" suffix. ]
+Tested-on: WCN6855 hw2.0 PCI WLAN.HSP.1.1-03125-QCAHSPSWPL_V1_V2_SILICONZ_LITE-3.6510.9
+Tested-on: IPQ8074 hw2.0 AHB WLAN.HK.2.5.0.1-01208-QCAHKSWPL_SILICONZ-1
+Tested-on: QCN9074 hw1.0 PCI WLAN.HK.2.5.0.1-01208-QCAHKSWPL_SILICONZ-1
 
-Signed-off-by: Zqiang <qiang1.zhang@intel.com>
-Signed-off-by: Paul E. McKenney <paulmck@kernel.org>
+Tested-by: Robert Marko <robert.marko@sartura.hr>
+Signed-off-by: Kalle Valo <quic_kvalo@quicinc.com>
+Link: https://lore.kernel.org/r/20221220121231.20120-1-kvalo@kernel.org
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/rcu/tasks.h | 8 +++-----
- 1 file changed, 3 insertions(+), 5 deletions(-)
+ drivers/net/wireless/ath/ath11k/core.h    |  1 -
+ drivers/net/wireless/ath/ath11k/debugfs.c | 48 +++++++++++++++++++----
+ 2 files changed, 40 insertions(+), 9 deletions(-)
 
-diff --git a/kernel/rcu/tasks.h b/kernel/rcu/tasks.h
-index 8b51e6a5b3869..bdbed55367825 100644
---- a/kernel/rcu/tasks.h
-+++ b/kernel/rcu/tasks.h
-@@ -171,8 +171,9 @@ static void call_rcu_tasks_generic(struct rcu_head *rhp, rcu_callback_t func,
- static void synchronize_rcu_tasks_generic(struct rcu_tasks *rtp)
- {
- 	/* Complain if the scheduler has not started.  */
--	WARN_ONCE(rcu_scheduler_active == RCU_SCHEDULER_INACTIVE,
--			 "synchronize_rcu_tasks called too soon");
-+	if (WARN_ONCE(rcu_scheduler_active == RCU_SCHEDULER_INACTIVE,
-+			 "synchronize_%s() called too soon", rtp->name))
-+		return;
+diff --git a/drivers/net/wireless/ath/ath11k/core.h b/drivers/net/wireless/ath/ath11k/core.h
+index d2f2898d17b49..a66e275af1eb4 100644
+--- a/drivers/net/wireless/ath/ath11k/core.h
++++ b/drivers/net/wireless/ath/ath11k/core.h
+@@ -712,7 +712,6 @@ struct ath11k_base {
+ 	enum ath11k_dfs_region dfs_region;
+ #ifdef CONFIG_ATH11K_DEBUGFS
+ 	struct dentry *debugfs_soc;
+-	struct dentry *debugfs_ath11k;
+ #endif
+ 	struct ath11k_soc_dp_stats soc_stats;
  
- 	/* Wait for the grace period. */
- 	wait_rcu_gp(rtp->call_func);
-@@ -620,9 +621,6 @@ static void rcu_tasks_be_rude(struct work_struct *work)
- // Wait for one rude RCU-tasks grace period.
- static void rcu_tasks_rude_wait_gp(struct rcu_tasks *rtp)
- {
--	if (num_online_cpus() <= 1)
--		return;	// Fastpath for only one CPU.
+diff --git a/drivers/net/wireless/ath/ath11k/debugfs.c b/drivers/net/wireless/ath/ath11k/debugfs.c
+index 1b914e67d314d..196314ab4ff0b 100644
+--- a/drivers/net/wireless/ath/ath11k/debugfs.c
++++ b/drivers/net/wireless/ath/ath11k/debugfs.c
+@@ -836,10 +836,6 @@ int ath11k_debugfs_pdev_create(struct ath11k_base *ab)
+ 	if (test_bit(ATH11K_FLAG_REGISTERED, &ab->dev_flags))
+ 		return 0;
+ 
+-	ab->debugfs_soc = debugfs_create_dir(ab->hw_params.name, ab->debugfs_ath11k);
+-	if (IS_ERR(ab->debugfs_soc))
+-		return PTR_ERR(ab->debugfs_soc);
 -
- 	rtp->n_ipis += cpumask_weight(cpu_online_mask);
- 	schedule_on_each_cpu(rcu_tasks_be_rude);
+ 	debugfs_create_file("simulate_fw_crash", 0600, ab->debugfs_soc, ab,
+ 			    &fops_simulate_fw_crash);
+ 
+@@ -857,15 +853,51 @@ void ath11k_debugfs_pdev_destroy(struct ath11k_base *ab)
+ 
+ int ath11k_debugfs_soc_create(struct ath11k_base *ab)
+ {
+-	ab->debugfs_ath11k = debugfs_create_dir("ath11k", NULL);
++	struct dentry *root;
++	bool dput_needed;
++	char name[64];
++	int ret;
++
++	root = debugfs_lookup("ath11k", NULL);
++	if (!root) {
++		root = debugfs_create_dir("ath11k", NULL);
++		if (IS_ERR_OR_NULL(root))
++			return PTR_ERR(root);
++
++		dput_needed = false;
++	} else {
++		/* a dentry from lookup() needs dput() after we don't use it */
++		dput_needed = true;
++	}
++
++	scnprintf(name, sizeof(name), "%s-%s", ath11k_bus_str(ab->hif.bus),
++		  dev_name(ab->dev));
++
++	ab->debugfs_soc = debugfs_create_dir(name, root);
++	if (IS_ERR_OR_NULL(ab->debugfs_soc)) {
++		ret = PTR_ERR(ab->debugfs_soc);
++		goto out;
++	}
++
++	ret = 0;
+ 
+-	return PTR_ERR_OR_ZERO(ab->debugfs_ath11k);
++out:
++	if (dput_needed)
++		dput(root);
++
++	return ret;
  }
+ 
+ void ath11k_debugfs_soc_destroy(struct ath11k_base *ab)
+ {
+-	debugfs_remove_recursive(ab->debugfs_ath11k);
+-	ab->debugfs_ath11k = NULL;
++	debugfs_remove_recursive(ab->debugfs_soc);
++	ab->debugfs_soc = NULL;
++
++	/* We are not removing ath11k directory on purpose, even if it
++	 * would be empty. This simplifies the directory handling and it's
++	 * a minor cosmetic issue to leave an empty ath11k directory to
++	 * debugfs.
++	 */
+ }
+ 
+ void ath11k_debugfs_fw_stats_init(struct ath11k *ar)
 -- 
 2.39.0
 
