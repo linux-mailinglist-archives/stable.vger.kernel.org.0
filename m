@@ -2,45 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 4BF6B6A3024
-	for <lists+stable@lfdr.de>; Sun, 26 Feb 2023 15:46:46 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9DB9F6A3034
+	for <lists+stable@lfdr.de>; Sun, 26 Feb 2023 15:47:35 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229639AbjBZOqp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 26 Feb 2023 09:46:45 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41814 "EHLO
+        id S229839AbjBZOrd (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 26 Feb 2023 09:47:33 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43810 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229650AbjBZOqi (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 26 Feb 2023 09:46:38 -0500
-Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 51AF613D7D;
-        Sun, 26 Feb 2023 06:46:04 -0800 (PST)
+        with ESMTP id S229798AbjBZOra (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 26 Feb 2023 09:47:30 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B99CF136D2;
+        Sun, 26 Feb 2023 06:46:51 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 5866ACE0AEF;
-        Sun, 26 Feb 2023 14:45:47 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C67A8C433D2;
-        Sun, 26 Feb 2023 14:45:44 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 79823B80BE7;
+        Sun, 26 Feb 2023 14:45:48 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3544BC433EF;
+        Sun, 26 Feb 2023 14:45:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1677422745;
-        bh=A+e8D+RLUmzm4wg7IFhxKvLKj5UAXwDHdY9Yicl2EJk=;
+        s=k20201202; t=1677422747;
+        bh=wPBQAskdWPEFt28x7EsH6BIZxbdgGHI90XmyAhZPzbA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=XuThY/WkeyCmIGHUFqBb1P/pW7gppZVQPz/QXn2Truy6hba+2j/Y3KVKPlC0XpG95
-         zBEzOH5QyqRHlgcEiEbVV51I/dcphwbhQnvLb/kjcb08TPf6yteAqvGeCo+6gWIot+
-         yUv28q1Fz2Yz0r9sMmHm96KRhVt5Y9WbHWk09EjmJh5BG7vrM71yzPc0sJB26e/hk1
-         pI4wSatO59gaKH0PB1Zo+ZwPpp+8hJimSKkurShcJSA4ivQ77257Z1/t1iAcWdv7mJ
-         bnVw1+vYJ+QekssEFV7435YEDcnXUpW0tAOshyT420EgD/Y69GOBoE3o89WGkljYlp
-         8QYHPsxC/RGpg==
+        b=ta00gmt4uK6ghQpgS8336cHdy0J37v7dhZxW9Drdh9oID1pZRvRW4IpNcuV7GMv/k
+         8PD6SR1TqRgKdN52m2UOwCil7KJ6Vu4KNF5StlpuFYeR5KZqesYA9mOKUZE1odfhmz
+         Hgu7koa5oiWXRfqQogiiC0r0tiajk+h/4B5WraY6lQNPo2njmzA8debD6iH6HXR7H2
+         TuMIJk70nHML8f0jpqVaK7RaWYmt+dzBYQNV25dbTevO51P6DVUdgAMo/CyC+icTid
+         gIZCnB/wphGTMBrA/rCZ0q53F4J/5t3lo4ygm6u7nDSBIVKr48zrnfJqBNNkzlZhiL
+         OWxVCOwtbYITw==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Tim Zimmermann <tim@linux4.de>,
-        "Rafael J . Wysocki" <rafael.j.wysocki@intel.com>,
-        Sasha Levin <sashal@kernel.org>, rafael@kernel.org,
-        daniel.lezcano@linaro.org, rui.zhang@intel.com,
-        linux-pm@vger.kernel.org
-Subject: [PATCH AUTOSEL 6.2 23/53] thermal: intel: intel_pch: Add support for Wellsburg PCH
-Date:   Sun, 26 Feb 2023 09:44:15 -0500
-Message-Id: <20230226144446.824580-23-sashal@kernel.org>
+Cc:     Feng Tang <feng.tang@intel.com>, Waiman Long <longman@redhat.com>,
+        John Stultz <jstultz@google.com>,
+        Thomas Gleixner <tglx@linutronix.de>,
+        Stephen Boyd <sboyd@kernel.org>,
+        "Paul E . McKenney" <paulmck@kernel.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH AUTOSEL 6.2 24/53] clocksource: Suspend the watchdog temporarily when high read latency detected
+Date:   Sun, 26 Feb 2023 09:44:16 -0500
+Message-Id: <20230226144446.824580-24-sashal@kernel.org>
 X-Mailer: git-send-email 2.39.0
 In-Reply-To: <20230226144446.824580-1-sashal@kernel.org>
 References: <20230226144446.824580-1-sashal@kernel.org>
@@ -57,62 +58,143 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tim Zimmermann <tim@linux4.de>
+From: Feng Tang <feng.tang@intel.com>
 
-[ Upstream commit 40dc1929089fc844ea06d9f8bdb6211ed4517c2e ]
+[ Upstream commit b7082cdfc464bf9231300605d03eebf943dda307 ]
 
-Add the PCI ID for the Wellsburg C610 series chipset PCH.
+Bugs have been reported on 8 sockets x86 machines in which the TSC was
+wrongly disabled when the system is under heavy workload.
 
-The driver can read the temperature from the Wellsburg PCH with only
-the PCI ID added and no other modifications.
+ [ 818.380354] clocksource: timekeeping watchdog on CPU336: hpet wd-wd read-back delay of 1203520ns
+ [ 818.436160] clocksource: wd-tsc-wd read-back delay of 181880ns, clock-skew test skipped!
+ [ 819.402962] clocksource: timekeeping watchdog on CPU338: hpet wd-wd read-back delay of 324000ns
+ [ 819.448036] clocksource: wd-tsc-wd read-back delay of 337240ns, clock-skew test skipped!
+ [ 819.880863] clocksource: timekeeping watchdog on CPU339: hpet read-back delay of 150280ns, attempt 3, marking unstable
+ [ 819.936243] tsc: Marking TSC unstable due to clocksource watchdog
+ [ 820.068173] TSC found unstable after boot, most likely due to broken BIOS. Use 'tsc=unstable'.
+ [ 820.092382] sched_clock: Marking unstable (818769414384, 1195404998)
+ [ 820.643627] clocksource: Checking clocksource tsc synchronization from CPU 267 to CPUs 0,4,25,70,126,430,557,564.
+ [ 821.067990] clocksource: Switched to clocksource hpet
 
-Signed-off-by: Tim Zimmermann <tim@linux4.de>
-Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+This can be reproduced by running memory intensive 'stream' tests,
+or some of the stress-ng subcases such as 'ioport'.
+
+The reason for these issues is the when system is under heavy load, the
+read latency of the clocksources can be very high.  Even lightweight TSC
+reads can show high latencies, and latencies are much worse for external
+clocksources such as HPET or the APIC PM timer.  These latencies can
+result in false-positive clocksource-unstable determinations.
+
+These issues were initially reported by a customer running on a production
+system, and this problem was reproduced on several generations of Xeon
+servers, especially when running the stress-ng test.  These Xeon servers
+were not production systems, but they did have the latest steppings
+and firmware.
+
+Given that the clocksource watchdog is a continual diagnostic check with
+frequency of twice a second, there is no need to rush it when the system
+is under heavy load.  Therefore, when high clocksource read latencies
+are detected, suspend the watchdog timer for 5 minutes.
+
+Signed-off-by: Feng Tang <feng.tang@intel.com>
+Acked-by: Waiman Long <longman@redhat.com>
+Cc: John Stultz <jstultz@google.com>
+Cc: Thomas Gleixner <tglx@linutronix.de>
+Cc: Stephen Boyd <sboyd@kernel.org>
+Cc: Feng Tang <feng.tang@intel.com>
+Signed-off-by: Paul E. McKenney <paulmck@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/thermal/intel/intel_pch_thermal.c | 8 ++++++++
- 1 file changed, 8 insertions(+)
+ kernel/time/clocksource.c | 45 ++++++++++++++++++++++++++++-----------
+ 1 file changed, 32 insertions(+), 13 deletions(-)
 
-diff --git a/drivers/thermal/intel/intel_pch_thermal.c b/drivers/thermal/intel/intel_pch_thermal.c
-index dabf11a687a15..9e27f430e0345 100644
---- a/drivers/thermal/intel/intel_pch_thermal.c
-+++ b/drivers/thermal/intel/intel_pch_thermal.c
-@@ -29,6 +29,7 @@
- #define PCH_THERMAL_DID_CNL_LP	0x02F9 /* CNL-LP PCH */
- #define PCH_THERMAL_DID_CML_H	0X06F9 /* CML-H PCH */
- #define PCH_THERMAL_DID_LWB	0xA1B1 /* Lewisburg PCH */
-+#define PCH_THERMAL_DID_WBG	0x8D24 /* Wellsburg PCH */
+diff --git a/kernel/time/clocksource.c b/kernel/time/clocksource.c
+index 9cf32ccda715d..8cd74b89d5776 100644
+--- a/kernel/time/clocksource.c
++++ b/kernel/time/clocksource.c
+@@ -384,6 +384,15 @@ void clocksource_verify_percpu(struct clocksource *cs)
+ }
+ EXPORT_SYMBOL_GPL(clocksource_verify_percpu);
  
- /* Wildcat Point-LP  PCH Thermal registers */
- #define WPT_TEMP	0x0000	/* Temperature */
-@@ -350,6 +351,7 @@ enum board_ids {
- 	board_cnl,
- 	board_cml,
- 	board_lwb,
-+	board_wbg,
- };
++static inline void clocksource_reset_watchdog(void)
++{
++	struct clocksource *cs;
++
++	list_for_each_entry(cs, &watchdog_list, wd_list)
++		cs->flags &= ~CLOCK_SOURCE_WATCHDOG;
++}
++
++
+ static void clocksource_watchdog(struct timer_list *unused)
+ {
+ 	u64 csnow, wdnow, cslast, wdlast, delta;
+@@ -391,6 +400,7 @@ static void clocksource_watchdog(struct timer_list *unused)
+ 	int64_t wd_nsec, cs_nsec;
+ 	struct clocksource *cs;
+ 	enum wd_read_status read_ret;
++	unsigned long extra_wait = 0;
+ 	u32 md;
  
- static const struct board_info {
-@@ -380,6 +382,10 @@ static const struct board_info {
- 		.name = "pch_lewisburg",
- 		.ops = &pch_dev_ops_wpt,
- 	},
-+	[board_wbg] = {
-+		.name = "pch_wellsburg",
-+		.ops = &pch_dev_ops_wpt,
-+	},
- };
+ 	spin_lock(&watchdog_lock);
+@@ -410,13 +420,30 @@ static void clocksource_watchdog(struct timer_list *unused)
  
- static int intel_pch_thermal_probe(struct pci_dev *pdev,
-@@ -495,6 +501,8 @@ static const struct pci_device_id intel_pch_thermal_id[] = {
- 		.driver_data = board_cml, },
- 	{ PCI_DEVICE(PCI_VENDOR_ID_INTEL, PCH_THERMAL_DID_LWB),
- 		.driver_data = board_lwb, },
-+	{ PCI_DEVICE(PCI_VENDOR_ID_INTEL, PCH_THERMAL_DID_WBG),
-+		.driver_data = board_wbg, },
- 	{ 0, },
- };
- MODULE_DEVICE_TABLE(pci, intel_pch_thermal_id);
+ 		read_ret = cs_watchdog_read(cs, &csnow, &wdnow);
+ 
+-		if (read_ret != WD_READ_SUCCESS) {
+-			if (read_ret == WD_READ_UNSTABLE)
+-				/* Clock readout unreliable, so give it up. */
+-				__clocksource_unstable(cs);
++		if (read_ret == WD_READ_UNSTABLE) {
++			/* Clock readout unreliable, so give it up. */
++			__clocksource_unstable(cs);
+ 			continue;
+ 		}
+ 
++		/*
++		 * When WD_READ_SKIP is returned, it means the system is likely
++		 * under very heavy load, where the latency of reading
++		 * watchdog/clocksource is very big, and affect the accuracy of
++		 * watchdog check. So give system some space and suspend the
++		 * watchdog check for 5 minutes.
++		 */
++		if (read_ret == WD_READ_SKIP) {
++			/*
++			 * As the watchdog timer will be suspended, and
++			 * cs->last could keep unchanged for 5 minutes, reset
++			 * the counters.
++			 */
++			clocksource_reset_watchdog();
++			extra_wait = HZ * 300;
++			break;
++		}
++
+ 		/* Clocksource initialized ? */
+ 		if (!(cs->flags & CLOCK_SOURCE_WATCHDOG) ||
+ 		    atomic_read(&watchdog_reset_pending)) {
+@@ -512,7 +539,7 @@ static void clocksource_watchdog(struct timer_list *unused)
+ 	 * pair clocksource_stop_watchdog() clocksource_start_watchdog().
+ 	 */
+ 	if (!timer_pending(&watchdog_timer)) {
+-		watchdog_timer.expires += WATCHDOG_INTERVAL;
++		watchdog_timer.expires += WATCHDOG_INTERVAL + extra_wait;
+ 		add_timer_on(&watchdog_timer, next_cpu);
+ 	}
+ out:
+@@ -537,14 +564,6 @@ static inline void clocksource_stop_watchdog(void)
+ 	watchdog_running = 0;
+ }
+ 
+-static inline void clocksource_reset_watchdog(void)
+-{
+-	struct clocksource *cs;
+-
+-	list_for_each_entry(cs, &watchdog_list, wd_list)
+-		cs->flags &= ~CLOCK_SOURCE_WATCHDOG;
+-}
+-
+ static void clocksource_resume_watchdog(void)
+ {
+ 	atomic_inc(&watchdog_reset_pending);
 -- 
 2.39.0
 
