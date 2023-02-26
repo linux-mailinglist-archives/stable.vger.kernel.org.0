@@ -2,44 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 8F0AA6A31B9
-	for <lists+stable@lfdr.de>; Sun, 26 Feb 2023 16:03:21 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id ED8DC6A328A
+	for <lists+stable@lfdr.de>; Sun, 26 Feb 2023 16:58:41 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231512AbjBZPDU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 26 Feb 2023 10:03:20 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38098 "EHLO
+        id S229713AbjBZP6j (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 26 Feb 2023 10:58:39 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47472 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231676AbjBZPC4 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 26 Feb 2023 10:02:56 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 428101E1E4;
-        Sun, 26 Feb 2023 06:53:38 -0800 (PST)
+        with ESMTP id S229507AbjBZP6j (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 26 Feb 2023 10:58:39 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 398FA93D5;
+        Sun, 26 Feb 2023 07:58:38 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 9D91960C47;
-        Sun, 26 Feb 2023 14:52:02 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5D21CC4339B;
-        Sun, 26 Feb 2023 14:52:01 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 2F735B80C72;
+        Sun, 26 Feb 2023 14:52:07 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 77FF4C433EF;
+        Sun, 26 Feb 2023 14:52:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1677423122;
-        bh=sb3aBqPeiHW56mJt5ee04rWT0XbiSwmNkuXVbv6bkGE=;
+        s=k20201202; t=1677423125;
+        bh=hKa0RHUE/BePoh33qlJ8UWWEqInrdKo0qo0pDk5a8ms=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=WMU5HSYJ1tQ0BMNQtfOvv0eQY0Jw3oFi3GufFB4ago6n6ReGRlN8cu+Bgrn+Xy6Bu
-         WaBVZFT8eIv01hxAf8bYuD9sAsQNddpKseHONmV5GLVQOdFDSlmZK8sKmqN1GSd8r5
-         iQzL6osrISAd2NlpudDhJbYcDNz73RgZZpDzuOpKzwc4FPCM7RdgG9F3bt4+aBtryp
-         Nn7+bZYqINzT0UeSzHBjrmdGtg4UGkNrk1+j9UWA1mWzWN8y3hj9X3H2NeWNGILCfM
-         1tCEF9jSftVF3iVltBXTN2hCHSF2RQIx9Tf5aZxmhe6miEM4rZdvmeoAIDZ5GHdCyM
-         Q+rb8cayJMEqw==
+        b=PxqmGlfQpDe00SgeVhv41ZBFUomvDWxVaJb8/mNu8rCTzlm8iAa5T0zTGSSknOSQJ
+         q2tW0t+EZ0A9NzK+pECPV2trxy9oaCJX30vImrdokO7/5eRk+Ub+VGXFcUY8+PLnIC
+         qBs5dY6iwglClgrywTxKeQemreuMWKYltvzPHzDNuVHYRt2oe39ouVnieibzBxgg+t
+         tik5rbaMQhuxAaWJyFg38fmye8LeD+OF8sWK3G27odqeF/aeKzPDeH1zZfiRY91bA6
+         Ay75B8rTGK4s/Lt52SnzMaqz+6pCKDsz7U/hUtfH6NhXeIrk2rBPNt64QM0leubxUE
+         30WP1VKhs8RUw==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Hans de Goede <hdegoede@redhat.com>,
-        "Rafael J . Wysocki" <rafael.j.wysocki@intel.com>,
-        Sasha Levin <sashal@kernel.org>, rafael@kernel.org,
-        linux-acpi@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.4 15/19] ACPI: video: Fix Lenovo Ideapad Z570 DMI match
-Date:   Sun, 26 Feb 2023 09:51:17 -0500
-Message-Id: <20230226145123.829229-15-sashal@kernel.org>
+Cc:     Shay Drory <shayd@nvidia.com>, Moshe Shemesh <moshe@nvidia.com>,
+        Saeed Mahameed <saeedm@nvidia.com>,
+        Sasha Levin <sashal@kernel.org>, davem@davemloft.net,
+        edumazet@google.com, kuba@kernel.org, pabeni@redhat.com,
+        ferasda@nvidia.com, royno@nvidia.com, netdev@vger.kernel.org,
+        linux-rdma@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.4 16/19] net/mlx5: fw_tracer: Fix debug print
+Date:   Sun, 26 Feb 2023 09:51:18 -0500
+Message-Id: <20230226145123.829229-16-sashal@kernel.org>
 X-Mailer: git-send-email 2.39.0
 In-Reply-To: <20230226145123.829229-1-sashal@kernel.org>
 References: <20230226145123.829229-1-sashal@kernel.org>
@@ -56,40 +58,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Hans de Goede <hdegoede@redhat.com>
+From: Shay Drory <shayd@nvidia.com>
 
-[ Upstream commit 2d11eae42d52a131f06061015e49dc0f085c5bfc ]
+[ Upstream commit 988c2352273997a242f15c4fc3711773515006a2 ]
 
-Multiple Ideapad Z570 variants need acpi_backlight=native to force native
-use on these pre Windows 8 machines since acpi_video backlight control
-does not work here.
+The debug message specify tdsn, but takes as an argument the
+tmsn. The correct argument is tmsn, hence, fix the print.
 
-The original DMI quirk matches on a product_name of "102434U" but other
-variants may have different product_name-s such as e.g. "1024D9U".
-
-Move to checking product_version instead as is more or less standard for
-Lenovo DMI quirks for similar reasons.
-
-Signed-off-by: Hans de Goede <hdegoede@redhat.com>
-Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+Signed-off-by: Shay Drory <shayd@nvidia.com>
+Reviewed-by: Moshe Shemesh <moshe@nvidia.com>
+Signed-off-by: Saeed Mahameed <saeedm@nvidia.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/acpi/video_detect.c | 2 +-
+ drivers/net/ethernet/mellanox/mlx5/core/diag/fw_tracer.c | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/acpi/video_detect.c b/drivers/acpi/video_detect.c
-index e5518b88f7102..ef40cd7f36eba 100644
---- a/drivers/acpi/video_detect.c
-+++ b/drivers/acpi/video_detect.c
-@@ -316,7 +316,7 @@ static const struct dmi_system_id video_detect_dmi_table[] = {
- 	 .ident = "Lenovo Ideapad Z570",
- 	 .matches = {
- 		DMI_MATCH(DMI_SYS_VENDOR, "LENOVO"),
--		DMI_MATCH(DMI_PRODUCT_NAME, "102434U"),
-+		DMI_MATCH(DMI_PRODUCT_VERSION, "Ideapad Z570"),
- 		},
- 	},
- 	{
+diff --git a/drivers/net/ethernet/mellanox/mlx5/core/diag/fw_tracer.c b/drivers/net/ethernet/mellanox/mlx5/core/diag/fw_tracer.c
+index db9ecc3a8c67a..fcf5fef7c195d 100644
+--- a/drivers/net/ethernet/mellanox/mlx5/core/diag/fw_tracer.c
++++ b/drivers/net/ethernet/mellanox/mlx5/core/diag/fw_tracer.c
+@@ -600,7 +600,7 @@ static int mlx5_tracer_handle_string_trace(struct mlx5_fw_tracer *tracer,
+ 	} else {
+ 		cur_string = mlx5_tracer_message_get(tracer, tracer_event);
+ 		if (!cur_string) {
+-			pr_debug("%s Got string event for unknown string tdsm: %d\n",
++			pr_debug("%s Got string event for unknown string tmsn: %d\n",
+ 				 __func__, tracer_event->string_event.tmsn);
+ 			return -1;
+ 		}
 -- 
 2.39.0
 
