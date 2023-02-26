@@ -2,43 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id AA11E6A3276
-	for <lists+stable@lfdr.de>; Sun, 26 Feb 2023 16:42:39 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0B3D06A31DA
+	for <lists+stable@lfdr.de>; Sun, 26 Feb 2023 16:08:38 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229637AbjBZPmT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 26 Feb 2023 10:42:19 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56984 "EHLO
+        id S231182AbjBZPIg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 26 Feb 2023 10:08:36 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50404 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229529AbjBZPmR (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 26 Feb 2023 10:42:17 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C705611B;
-        Sun, 26 Feb 2023 07:42:15 -0800 (PST)
+        with ESMTP id S231793AbjBZPIK (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 26 Feb 2023 10:08:10 -0500
+Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D1FAE22781;
+        Sun, 26 Feb 2023 06:58:36 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 91C5060C5C;
-        Sun, 26 Feb 2023 14:47:59 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4DF20C4339B;
-        Sun, 26 Feb 2023 14:47:58 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 0836BCE0E21;
+        Sun, 26 Feb 2023 14:48:09 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id F22F6C433D2;
+        Sun, 26 Feb 2023 14:48:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1677422879;
-        bh=X9kD3aKgNfLlx5BDHcTQjJAPnMiXAQhR9GFvlDICCWQ=;
+        s=k20201202; t=1677422887;
+        bh=pp/g9vm9Cb2lnnkKuyBHUrAFUuTlOytsITEtaRe4ZcA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Y/wVEy2L6gzET+fvlM+x6DmvLXzbAVkfZl7ESW9UhTksUxEd/iST27sDr95saVIFn
-         F3CcaLj0FvxyDja8dCDBHzzHiMxkfBoFsxdhkLLZTtzD2Wq/DfbVQgYtBOJoVzJ8Jw
-         mxWuTuTQUaZiSehWcNZlmXNEM5i01lyEOeqADMMQQe3lwhSdyLROZe3NQPPeZPT6/d
-         DK5BOJ6fZ63LChHRflTVUK3LCcbSLZUdJSRzrN6TGYuyKXAiZIKcapd/dBV44y5gf+
-         9QoRlzvuYJxuFkqUD+M+s90zYJRQ59OTlKKKQ7DRb0jsjQ9y14OBHGvRQrJk1v+UCB
-         lV2uyNO+L67GQ==
+        b=a61A5KLO0D5o7TFlD6i9BCX7K4cpMjh6AO2q8qVSO2KHcV9V6YZ/D7wvJVJYBwhps
+         I/UgYtGJYN/998VwmGvjijF6yfYhR7K9Bdo6b4x/Kb61L37eu6RWiPdDyEF8TRp2Yz
+         CTKY425JU6lOIuWlbA5cT1q/6t6Tge+qiI+Qg57anV03ul6tw7+4XXOv2lcPcGWZ9V
+         mz578ISrx2fG3JP81vo18GrfAfrUMGWijUEagdsSr+oNDxwsdA1ZjJxsRs3LhlXAg/
+         FBsctngws9r7GNVhhR+GGqOMyDLtlb8d5U8tqwBkA2bvz7EJmuvkOQMgeqL/To5Q+O
+         JFh1qCtg6DMKw==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Sam James <sam@gentoo.org>, Kees Cook <keescook@chromium.org>,
-        Sasha Levin <sashal@kernel.org>,
-        linux-hardening@vger.kernel.org
-Subject: [PATCH AUTOSEL 6.1 30/49] gcc-plugins: drop -std=gnu++11 to fix GCC 13 build
-Date:   Sun, 26 Feb 2023 09:46:30 -0500
-Message-Id: <20230226144650.826470-30-sashal@kernel.org>
+Cc:     Shay Drory <shayd@nvidia.com>, Moshe Shemesh <moshe@nvidia.com>,
+        Saeed Mahameed <saeedm@nvidia.com>,
+        Sasha Levin <sashal@kernel.org>, davem@davemloft.net,
+        edumazet@google.com, kuba@kernel.org, pabeni@redhat.com,
+        ferasda@nvidia.com, royno@nvidia.com, netdev@vger.kernel.org,
+        linux-rdma@vger.kernel.org
+Subject: [PATCH AUTOSEL 6.1 34/49] net/mlx5: fw_tracer: Fix debug print
+Date:   Sun, 26 Feb 2023 09:46:34 -0500
+Message-Id: <20230226144650.826470-34-sashal@kernel.org>
 X-Mailer: git-send-email 2.39.0
 In-Reply-To: <20230226144650.826470-1-sashal@kernel.org>
 References: <20230226144650.826470-1-sashal@kernel.org>
@@ -55,49 +58,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sam James <sam@gentoo.org>
+From: Shay Drory <shayd@nvidia.com>
 
-[ Upstream commit 5a6b64adc18d9adfb497a529ff004d59b6df151f ]
+[ Upstream commit 988c2352273997a242f15c4fc3711773515006a2 ]
 
-The latest GCC 13 snapshot (13.0.1 20230129) gives the following:
-```
-cc1: error: cannot load plugin ./scripts/gcc-plugins/randomize_layout_plugin.so
- :./scripts/gcc-plugins/randomize_layout_plugin.so: undefined symbol: tree_code_type
-```
+The debug message specify tdsn, but takes as an argument the
+tmsn. The correct argument is tmsn, hence, fix the print.
 
-This ends up being because of https://gcc.gnu.org/git/gitweb.cgi?p=gcc.git;h=b0241ce6e37031
-upstream in GCC which changes the visibility of some types used by the kernel's
-plugin infrastructure like tree_code_type.
-
-After discussion with the GCC folks, we found that the kernel needs to be building
-plugins with the same flags used to build GCC - and GCC defaults to gnu++17
-right now. The minimum GCC version needed to build the kernel is GCC 5.1
-and GCC 5.1 already defaults to gnu++14 anyway, so just drop the flag, as
-all GCCs that could be used to build GCC already default to an acceptable
-version which was >= the version we forced via flags until now.
-
-Bug: https://gcc.gnu.org/bugzilla/show_bug.cgi?id=108634
-Signed-off-by: Sam James <sam@gentoo.org>
-Signed-off-by: Kees Cook <keescook@chromium.org>
-Link: https://lore.kernel.org/r/20230201230009.2252783-1-sam@gentoo.org
+Signed-off-by: Shay Drory <shayd@nvidia.com>
+Reviewed-by: Moshe Shemesh <moshe@nvidia.com>
+Signed-off-by: Saeed Mahameed <saeedm@nvidia.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- scripts/gcc-plugins/Makefile | 2 +-
+ drivers/net/ethernet/mellanox/mlx5/core/diag/fw_tracer.c | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/scripts/gcc-plugins/Makefile b/scripts/gcc-plugins/Makefile
-index b34d11e226366..320afd3cf8e82 100644
---- a/scripts/gcc-plugins/Makefile
-+++ b/scripts/gcc-plugins/Makefile
-@@ -29,7 +29,7 @@ GCC_PLUGINS_DIR = $(shell $(CC) -print-file-name=plugin)
- plugin_cxxflags	= -Wp,-MMD,$(depfile) $(KBUILD_HOSTCXXFLAGS) -fPIC \
- 		  -include $(srctree)/include/linux/compiler-version.h \
- 		  -DPLUGIN_VERSION=$(call stringify,$(KERNELVERSION)) \
--		  -I $(GCC_PLUGINS_DIR)/include -I $(obj) -std=gnu++11 \
-+		  -I $(GCC_PLUGINS_DIR)/include -I $(obj) \
- 		  -fno-rtti -fno-exceptions -fasynchronous-unwind-tables \
- 		  -ggdb -Wno-narrowing -Wno-unused-variable \
- 		  -Wno-format-diag
+diff --git a/drivers/net/ethernet/mellanox/mlx5/core/diag/fw_tracer.c b/drivers/net/ethernet/mellanox/mlx5/core/diag/fw_tracer.c
+index 5b05b884b5fb3..d7b2ee5de1158 100644
+--- a/drivers/net/ethernet/mellanox/mlx5/core/diag/fw_tracer.c
++++ b/drivers/net/ethernet/mellanox/mlx5/core/diag/fw_tracer.c
+@@ -603,7 +603,7 @@ static int mlx5_tracer_handle_string_trace(struct mlx5_fw_tracer *tracer,
+ 	} else {
+ 		cur_string = mlx5_tracer_message_get(tracer, tracer_event);
+ 		if (!cur_string) {
+-			pr_debug("%s Got string event for unknown string tdsm: %d\n",
++			pr_debug("%s Got string event for unknown string tmsn: %d\n",
+ 				 __func__, tracer_event->string_event.tmsn);
+ 			return -1;
+ 		}
 -- 
 2.39.0
 
