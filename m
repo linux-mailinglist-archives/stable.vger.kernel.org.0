@@ -2,52 +2,51 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 1F29D6A2E56
-	for <lists+stable@lfdr.de>; Sun, 26 Feb 2023 06:30:48 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9CD266A2E74
+	for <lists+stable@lfdr.de>; Sun, 26 Feb 2023 06:45:00 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229554AbjBZFaq (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 26 Feb 2023 00:30:46 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52190 "EHLO
+        id S229504AbjBZFo6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 26 Feb 2023 00:44:58 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34480 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229515AbjBZFap (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 26 Feb 2023 00:30:45 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 39EEED303;
-        Sat, 25 Feb 2023 21:30:42 -0800 (PST)
+        with ESMTP id S229445AbjBZFo5 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 26 Feb 2023 00:44:57 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A4823D301;
+        Sat, 25 Feb 2023 21:44:56 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id E0C16B80B49;
-        Sun, 26 Feb 2023 05:30:40 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7A6D3C433D2;
-        Sun, 26 Feb 2023 05:30:39 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1677389439;
-        bh=7hX/pPKKPtiF07aEdqR7BMzOcRIU6iwU4g8cV2SDxLU=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=ajKzDQKJujjZZXjMPLrddb2FN5dNYAWhqhJLPl1qOoMRR6mNi6N0BDIbxjruBl5Dn
-         HZon+lmy9ufnmzG49x4a8W008R1g55RCWFGjAFGZvCVdzefmVrLS1sLH3K06unJZqq
-         Q8bLO11aA7Z4lRd+n6fgVv1OPfoclB4HmrkfOo1swOyrr7pVDkps1FLDnAM9OsQtNr
-         AxTu+tZoYG+mJM/OI1dxqDcXmrMYGx9UoVZaeBu1yD2huECD7v6myuUVs1ZePUPhok
-         jEqcHM0Xt4q4RJ3WehpxX4MbLSf8cAjXRRLndEXZsu5FiX0jc5cpgEbkDncpfuS9AY
-         e5wxSanMhz3wA==
-Date:   Sat, 25 Feb 2023 21:30:37 -0800
-From:   Eric Biggers <ebiggers@kernel.org>
-To:     Sasha Levin <sashal@kernel.org>
-Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
-        viro@zeniv.linux.org.uk, linux-fsdevel@vger.kernel.org
-Subject: Re: [PATCH AUTOSEL 6.1 12/21] fs/super.c: stop calling
- fscrypt_destroy_keyring() from __put_super()
-Message-ID: <Y/rufenGRpoJVXZr@sol.localdomain>
-References: <20230226034256.771769-1-sashal@kernel.org>
- <20230226034256.771769-12-sashal@kernel.org>
- <Y/rbGxq8oAEsW28j@sol.localdomain>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Y/rbGxq8oAEsW28j@sol.localdomain>
-X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 2815460C09;
+        Sun, 26 Feb 2023 05:44:56 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0F039C433EF;
+        Sun, 26 Feb 2023 05:44:55 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linux-foundation.org;
+        s=korg; t=1677390295;
+        bh=tdqNtzVVQiNAGo+d23F6Rjsew/mx9y+fMs7cnvra67Q=;
+        h=Date:From:To:Cc:Subject:In-Reply-To:References:From;
+        b=bUJc72SJrw994D6SiFP/QwiH3zQiYfy1kslI+lGU7nvqzpKabCVnBbw9BA24jKb5o
+         hpOl8KPp5GQVHbH5DWOWbG4VFm3uSaIlaRtbOnK3efzwU+nOjqzy7RNLXUb9o26qj4
+         /wKMLNhcNv3WK7Rn4ylq7oawj9mzKoW6XZgeHMIU=
+Date:   Sat, 25 Feb 2023 21:44:54 -0800
+From:   Andrew Morton <akpm@linux-foundation.org>
+To:     "Guilherme G. Piccoli" <gpiccoli@igalia.com>
+Cc:     bhe@redhat.com, pmladek@suse.com, linux-kernel@vger.kernel.org,
+        kexec@lists.infradead.org, dyoung@redhat.com,
+        d.hatayama@jp.fujitsu.com, feng.tang@intel.com,
+        hidehiro.kawai.ez@hitachi.com, keescook@chromium.org,
+        mikelley@microsoft.com, vgoyal@redhat.com, kernel-dev@igalia.com,
+        kernel@gpiccoli.net, stable@vger.kernel.org
+Subject: Re: [PATCH v4] panic: Fixes the panic_print NMI backtrace setting
+Message-Id: <20230225214454.5eb25ff8a937a99d357c44ad@linux-foundation.org>
+In-Reply-To: <20230210203510.1734835-1-gpiccoli@igalia.com>
+References: <20230210203510.1734835-1-gpiccoli@igalia.com>
+X-Mailer: Sylpheed 3.7.0 (GTK+ 2.24.33; x86_64-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+X-Spam-Status: No, score=-7.2 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,NICE_REPLY_A,RCVD_IN_DNSWL_HI,
         SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -55,47 +54,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Sat, Feb 25, 2023 at 08:07:55PM -0800, Eric Biggers wrote:
-> On Sat, Feb 25, 2023 at 10:42:47PM -0500, Sasha Levin wrote:
-> > From: Eric Biggers <ebiggers@google.com>
-> > 
-> > [ Upstream commit ec64036e68634231f5891faa2b7a81cdc5dcd001 ]
-> > 
-> > Now that the key associated with the "test_dummy_operation" mount option
-> > is added on-demand when it's needed, rather than immediately when the
-> > filesystem is mounted, fscrypt_destroy_keyring() no longer needs to be
-> > called from __put_super() to avoid a memory leak on mount failure.
-> > 
-> > Remove this call, which was causing confusion because it appeared to be
-> > a sleep-in-atomic bug (though it wasn't, for a somewhat-subtle reason).
-> > 
-> > Signed-off-by: Eric Biggers <ebiggers@google.com>
-> > Link: https://lore.kernel.org/r/20230208062107.199831-5-ebiggers@kernel.org
-> > Signed-off-by: Sasha Levin <sashal@kernel.org>
+On Fri, 10 Feb 2023 17:35:10 -0300 "Guilherme G. Piccoli" <gpiccoli@igalia.com> wrote:
+
+> Commit 8d470a45d1a6 ("panic: add option to dump all CPUs backtraces in panic_print")
+> introduced a setting for the "panic_print" kernel parameter to allow
+> users to request a NMI backtrace on panic. Problem is that the panic_print
+> handling happens after the secondary CPUs are already disabled, hence
+> this option ended-up being kind of a no-op - kernel skips the NMI trace
+> in idling CPUs, which is the case of offline CPUs.
 > 
-> Why is this being backported?
+> Fix it by checking the NMI backtrace bit in the panic_print prior to
+> the CPU disabling function.
 > 
-> - Eric
+> ...
+> 
+> Notice that while at it, I got rid of the "crash_kexec_post_notifiers"
+> local copy in panic(). This was introduced by commit b26e27ddfd2a
+> ("kexec: use core_param for crash_kexec_post_notifiers boot option"),
+> but it is not clear from comments or commit message why this local copy
+> is required.
+> 
+> My understanding is that it's a mechanism to prevent some concurrency,
+> in case some other CPU modify this variable while panic() is running.
+> I find it very unlikely, hence I removed it - but if people consider
+> this copy needed, I can respin this patch and keep it, even providing a
+> comment about that, in order to be explict about its need.
 
-BTW, can you please permanently exclude all commits authored by me from AUTOSEL
-so that I don't have to repeatedly complain about every commit individually?
-Especially when these mails often come on weekends and holidays.
+Only two sites change crash_kexec_post_notifiers, in
+arch/powerpc/kernel/fadump.c and drivers/hv/hv_common.c.  Yes, it's
+very unlikely that this will be altered while panic() is running and
+the consequences will be slight anyway.
 
-I know how to use Cc stable, and how to ask explicitly for a stable backport if
-I find out after the fact that one is needed.  (And other real people can always
-ask too... not counting AUTOSEL, even though you are sending the AUTOSEL emails,
-since clearly they go through no or very little human review.)
+But formally, we shouldn't do this, especially in a -stable
+backportable patch.  So please, let's have the minimal bugfix for now
+and we can look at removing that local at a later time?
 
-Of course, it's not just me that AUTOSEL isn't working for.  So, you'll still
-continue backporting random commits that I have to spend hours bisecting, e.g.
-https://lore.kernel.org/stable/20220921155332.234913-7-sashal@kernel.org.
-
-But at least I won't have to deal with this garbage for my own commits.
-
-Now, I'm not sure I'll get a response to this --- I received no response to my
-last AUTOSEL question at
-https://lore.kernel.org/stable/Y1DTFiP12ws04eOM@sol.localdomain.  So to
-hopefully entice you to actually do something, I'm also letting you know that I
-won't be reviewing any AUTOSEL mails for my commits anymore.
-
-- Eric
