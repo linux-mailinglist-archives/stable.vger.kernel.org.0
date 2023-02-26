@@ -2,45 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 3EB8A6A30C2
-	for <lists+stable@lfdr.de>; Sun, 26 Feb 2023 15:53:21 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0CA646A30C5
+	for <lists+stable@lfdr.de>; Sun, 26 Feb 2023 15:53:24 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230338AbjBZOxT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 26 Feb 2023 09:53:19 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45146 "EHLO
+        id S230353AbjBZOxW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 26 Feb 2023 09:53:22 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45334 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229866AbjBZOwh (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 26 Feb 2023 09:52:37 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4A5BB1A494;
-        Sun, 26 Feb 2023 06:49:29 -0800 (PST)
+        with ESMTP id S230152AbjBZOwr (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 26 Feb 2023 09:52:47 -0500
+Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id ADF0A13D52;
+        Sun, 26 Feb 2023 06:49:32 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id A653860C58;
+        by sin.source.kernel.org (Postfix) with ESMTPS id BD64DCE0E7A;
+        Sun, 26 Feb 2023 14:48:03 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8EF41C4339B;
         Sun, 26 Feb 2023 14:48:00 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 657E5C433D2;
-        Sun, 26 Feb 2023 14:47:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1677422880;
-        bh=w+h52hvnhQo5lNcm23tac3TAxBW43PYXPti+xpjvico=;
+        s=k20201202; t=1677422882;
+        bh=H0IFMJcZ+k7Xt/8vWDHG/3NQCkegbKGyVZsMGOknc2Q=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=rT8tVsT8IA1vMT64UGi93J6I/Uunf639N2McyXNkUtUXTLPYH3Chj0j/nn2o5a9hK
-         cszpx1JXuN1N1oD6XmGTZTQuTxdVJgiIVZfS82sdbI/fJE/aei3ZH5aILG7EqvPnRv
-         W5jf5QCZf9w9isccDZVnheBE8ll1NBWSsQ9N8ZOr3RampP4sYA+99plYvwNPjy6iQJ
-         l+3tVm+zON8vFKmrMqKmywvcNAtcp81K+1k+769arQHUxnlt412ONHWi8KecjJpOKy
-         NP+lzL9CY8bkH9iUTL04NHLoQI3gXofQyPuoYRBKB5YKtmRHHo7OpUaNJeAQNWwzb5
-         BG/Eioca6Ic3g==
+        b=SmZMU0jSAz8fW+xT7wPppZ+PnZ+KtPfP9N2crUbtJJxZJkPgG2u0rliKETgctSCB+
+         P4zQ1ng68RSTf+QZFeI3K3gORmkexGVg+CNTeddlY1X6OWC1ktrww3F0MH0XKaba+C
+         Pau9nKHY55JSsh6QAJk6rdYOPoPcID36oR/I9lm/kLVqx/kx92nRmRylqQKMpst3i0
+         Vzp5gT7IhUBL5FJc22cvezQoQO9P7fwZZ3YckaochI9ofKUQd1goCWtHutSrRY3Yuy
+         gbaIEZClhTsb5nGBHdR/qHRZ9xomdlGoj7PBITDAj+1syBBy50mV0mhjF7+FfP9OsX
+         lTSpTvdK7cE4g==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Zhang Rui <rui.zhang@intel.com>,
-        Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>,
-        Hans de Goede <hdegoede@redhat.com>,
-        Sasha Levin <sashal@kernel.org>,
-        platform-driver-x86@vger.kernel.org
-Subject: [PATCH AUTOSEL 6.1 31/49] tools/power/x86/intel-speed-select: Add Emerald Rapid quirk
-Date:   Sun, 26 Feb 2023 09:46:31 -0500
-Message-Id: <20230226144650.826470-31-sashal@kernel.org>
+Cc:     Lorenzo Bianconi <lorenzo@kernel.org>,
+        Felix Fietkau <nbd@nbd.name>, Sasha Levin <sashal@kernel.org>,
+        ryder.lee@mediatek.com, kvalo@kernel.org, davem@davemloft.net,
+        edumazet@google.com, kuba@kernel.org, pabeni@redhat.com,
+        matthias.bgg@gmail.com, linux-wireless@vger.kernel.org,
+        netdev@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
+        linux-mediatek@lists.infradead.org
+Subject: [PATCH AUTOSEL 6.1 32/49] wifi: mt76: dma: free rx_head in mt76_dma_rx_cleanup
+Date:   Sun, 26 Feb 2023 09:46:32 -0500
+Message-Id: <20230226144650.826470-32-sashal@kernel.org>
 X-Mailer: git-send-email 2.39.0
 In-Reply-To: <20230226144650.826470-1-sashal@kernel.org>
 References: <20230226144650.826470-1-sashal@kernel.org>
@@ -57,35 +59,58 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Zhang Rui <rui.zhang@intel.com>
+From: Lorenzo Bianconi <lorenzo@kernel.org>
 
-[ Upstream commit 61f9fdcdcd01f9a996b6db4e7092fcdfe8414ad5 ]
+[ Upstream commit 1b88b47e898edef0e56e3a2f4e49f052a136153d ]
 
-Need memory frequency quirk as Sapphire Rapids in Emerald Rapids.
-So add Emerald Rapids CPU model check in is_spr_platform().
+Free rx_head skb in mt76_dma_rx_cleanup routine in order to avoid
+possible memory leak at module unload.
 
-Signed-off-by: Zhang Rui <rui.zhang@intel.com>
-[srinivas.pandruvada@linux.intel.com: Subject, changelog and code edits]
-Signed-off-by: Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>
-Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+Signed-off-by: Lorenzo Bianconi <lorenzo@kernel.org>
+Signed-off-by: Felix Fietkau <nbd@nbd.name>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- tools/power/x86/intel-speed-select/isst-config.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/net/wireless/mediatek/mt76/dma.c | 13 +++++++------
+ 1 file changed, 7 insertions(+), 6 deletions(-)
 
-diff --git a/tools/power/x86/intel-speed-select/isst-config.c b/tools/power/x86/intel-speed-select/isst-config.c
-index a160bad291eb7..be3668d37d654 100644
---- a/tools/power/x86/intel-speed-select/isst-config.c
-+++ b/tools/power/x86/intel-speed-select/isst-config.c
-@@ -110,7 +110,7 @@ int is_skx_based_platform(void)
+diff --git a/drivers/net/wireless/mediatek/mt76/dma.c b/drivers/net/wireless/mediatek/mt76/dma.c
+index 7378c4d1e1567..478bffb7418d9 100644
+--- a/drivers/net/wireless/mediatek/mt76/dma.c
++++ b/drivers/net/wireless/mediatek/mt76/dma.c
+@@ -573,6 +573,7 @@ mt76_dma_rx_cleanup(struct mt76_dev *dev, struct mt76_queue *q)
+ 		return;
  
- int is_spr_platform(void)
- {
--	if (cpu_model == 0x8F)
-+	if (cpu_model == 0x8F || cpu_model == 0xCF)
- 		return 1;
+ 	spin_lock_bh(&q->lock);
++
+ 	do {
+ 		buf = mt76_dma_dequeue(dev, q, true, NULL, NULL, &more);
+ 		if (!buf)
+@@ -580,6 +581,12 @@ mt76_dma_rx_cleanup(struct mt76_dev *dev, struct mt76_queue *q)
  
- 	return 0;
+ 		skb_free_frag(buf);
+ 	} while (1);
++
++	if (q->rx_head) {
++		dev_kfree_skb(q->rx_head);
++		q->rx_head = NULL;
++	}
++
+ 	spin_unlock_bh(&q->lock);
+ 
+ 	if (!q->rx_page.va)
+@@ -605,12 +612,6 @@ mt76_dma_rx_reset(struct mt76_dev *dev, enum mt76_rxq_id qid)
+ 	mt76_dma_rx_cleanup(dev, q);
+ 	mt76_dma_sync_idx(dev, q);
+ 	mt76_dma_rx_fill(dev, q);
+-
+-	if (!q->rx_head)
+-		return;
+-
+-	dev_kfree_skb(q->rx_head);
+-	q->rx_head = NULL;
+ }
+ 
+ static void
 -- 
 2.39.0
 
