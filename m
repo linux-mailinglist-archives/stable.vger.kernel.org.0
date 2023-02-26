@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 80AA26A2DB7
-	for <lists+stable@lfdr.de>; Sun, 26 Feb 2023 04:45:18 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id AA9656A2D99
+	for <lists+stable@lfdr.de>; Sun, 26 Feb 2023 04:44:21 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229840AbjBZDpQ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 25 Feb 2023 22:45:16 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54964 "EHLO
+        id S229935AbjBZDoT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 25 Feb 2023 22:44:19 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55030 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230006AbjBZDor (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 25 Feb 2023 22:44:47 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 88C5718158;
-        Sat, 25 Feb 2023 19:44:12 -0800 (PST)
+        with ESMTP id S229864AbjBZDoA (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 25 Feb 2023 22:44:00 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 16C14BDE9;
+        Sat, 25 Feb 2023 19:43:33 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id EB54760C04;
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 6419F60BF9;
+        Sun, 26 Feb 2023 03:43:14 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C7E1EC433D2;
         Sun, 26 Feb 2023 03:43:12 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6BE63C4339B;
-        Sun, 26 Feb 2023 03:43:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1677382992;
-        bh=/KPj3m1KPxfGMtW8xapjQpJ0dfmXm9YDZiWr49pG+no=;
+        s=k20201202; t=1677382993;
+        bh=zdvOAvwFca4f73LDzTiibTcU1h56oLJ1662QZieik10=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=bMPZFALqkV6ZOdd6vlFbSfOv5okMdZ7SS49sB+FcoXVYn8VgLikORNC2yO79yWfuh
-         LAdHOQgW/gqJapk11eR+c0pWJoyZA1oZOGdxOdkRNSsep4D8+wu7FKKxVGxDVdiCMp
-         fVfLjRyeUSH+ggloBG29KNTEHcLKvjU5Id1MOAlrQ9XA0Ati2LDVGSwirfhByt/ej9
-         4g9q4MHKUSUjAHMsekx+Z0fXiMCsgHl35SmaxAHvi2z18l3DGfZ2kt31U9lYAT6a6g
-         k21i2ws6huTdCa5eboc0Y/TfOCM6YaW4hJ17k7MbAKLQLbnmZnjU0KzbQXV4VnRHmB
-         EfMdXsZHjN7RQ==
+        b=qAlV7kWe1ma3LvoVvDVslriO9lR8cSTLBDwinZNqkc3zCWSx8R/nkE5yjTkZ0bWAf
+         PnDS1w5hurTHRi67X5kpFgV0PxqRurK8GqtCL4sXffCxdJmUsC3Gx4L1hwegyHW85L
+         JFDu2/r27DYg8HDeCHbmJxp5N6I8b1Bbx9VPmjKhGwdYA8FeMSTzU6YFoPlzwoPpoT
+         r8LGkaacmqrpktD5UNd2BmzYjy7geHyPANlUMkASCCUH61tJdHU5eoQtEs7o6oDGgU
+         RoKqIKIAajWo98Y7A60yf8AGEH8eQVSseq5WViKsdBh7gxplXzu9QmCO9pZ4yCCTT3
+         EXUN9rwltmKyQ==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Li Nan <linan122@huawei.com>, Yu Kuai <yukuai3@huawei.com>,
-        Tejun Heo <tj@kernel.org>, Jens Axboe <axboe@kernel.dk>,
+Cc:     Yu Kuai <yukuai3@huawei.com>, Tejun Heo <tj@kernel.org>,
+        Christoph Hellwig <hch@lst.de>, Jens Axboe <axboe@kernel.dk>,
         Sasha Levin <sashal@kernel.org>, josef@toxicpanda.com,
         cgroups@vger.kernel.org, linux-block@vger.kernel.org
-Subject: [PATCH AUTOSEL 6.1 08/21] blk-iocost: fix divide by 0 error in calc_lcoefs()
-Date:   Sat, 25 Feb 2023 22:42:43 -0500
-Message-Id: <20230226034256.771769-8-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 6.1 09/21] blk-cgroup: dropping parent refcount after pd_free_fn() is done
+Date:   Sat, 25 Feb 2023 22:42:44 -0500
+Message-Id: <20230226034256.771769-9-sashal@kernel.org>
 X-Mailer: git-send-email 2.39.0
 In-Reply-To: <20230226034256.771769-1-sashal@kernel.org>
 References: <20230226034256.771769-1-sashal@kernel.org>
@@ -47,8 +47,8 @@ MIME-Version: 1.0
 X-stable: review
 X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
         SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -56,68 +56,58 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Li Nan <linan122@huawei.com>
+From: Yu Kuai <yukuai3@huawei.com>
 
-[ Upstream commit 984af1e66b4126cf145153661cc24c213e2ec231 ]
+[ Upstream commit c7241babf0855d8a6180cd1743ff0ec34de40b4e ]
 
-echo max of u64 to cost.model can cause divide by 0 error.
+Some cgroup policies will access parent pd through child pd even
+after pd_offline_fn() is done. If pd_free_fn() for parent is called
+before child, then UAF can be triggered. Hence it's better to guarantee
+the order of pd_free_fn().
 
-  # echo 8:0 rbps=18446744073709551615 > /sys/fs/cgroup/io.cost.model
+Currently refcount of parent blkg is dropped in __blkg_release(), which
+is before pd_free_fn() is called in blkg_free_work_fn() while
+blkg_free_work_fn() is called asynchronously.
 
-  divide error: 0000 [#1] PREEMPT SMP
-  RIP: 0010:calc_lcoefs+0x4c/0xc0
-  Call Trace:
-   <TASK>
-   ioc_refresh_params+0x2b3/0x4f0
-   ioc_cost_model_write+0x3cb/0x4c0
-   ? _copy_from_iter+0x6d/0x6c0
-   ? kernfs_fop_write_iter+0xfc/0x270
-   cgroup_file_write+0xa0/0x200
-   kernfs_fop_write_iter+0x17d/0x270
-   vfs_write+0x414/0x620
-   ksys_write+0x73/0x160
-   __x64_sys_write+0x1e/0x30
-   do_syscall_64+0x35/0x80
-   entry_SYSCALL_64_after_hwframe+0x63/0xcd
+This patch make sure pd_free_fn() called from removing cgroup is ordered
+by delaying dropping parent refcount after calling pd_free_fn() for
+child.
 
-calc_lcoefs() uses the input value of cost.model in DIV_ROUND_UP_ULL,
-overflow would happen if bps plus IOC_PAGE_SIZE is greater than
-ULLONG_MAX, it can cause divide by 0 error.
+BTW, pd_free_fn() will also be called from blkcg_deactivate_policy()
+from deleting device, and following patches will guarantee the order.
 
-Fix the problem by setting basecost
-
-Signed-off-by: Li Nan <linan122@huawei.com>
 Signed-off-by: Yu Kuai <yukuai3@huawei.com>
 Acked-by: Tejun Heo <tj@kernel.org>
-Link: https://lore.kernel.org/r/20230117070806.3857142-5-yukuai1@huaweicloud.com
+Reviewed-by: Christoph Hellwig <hch@lst.de>
+Link: https://lore.kernel.org/r/20230119110350.2287325-2-yukuai1@huaweicloud.com
 Signed-off-by: Jens Axboe <axboe@kernel.dk>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- block/blk-iocost.c | 11 ++++++++---
- 1 file changed, 8 insertions(+), 3 deletions(-)
+ block/blk-cgroup.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/block/blk-iocost.c b/block/blk-iocost.c
-index 495396425bade..bfc33fa9a063c 100644
---- a/block/blk-iocost.c
-+++ b/block/blk-iocost.c
-@@ -865,9 +865,14 @@ static void calc_lcoefs(u64 bps, u64 seqiops, u64 randiops,
+diff --git a/block/blk-cgroup.c b/block/blk-cgroup.c
+index 7c91d9195da8d..8d1b7757f1e4f 100644
+--- a/block/blk-cgroup.c
++++ b/block/blk-cgroup.c
+@@ -93,6 +93,8 @@ static void blkg_free_workfn(struct work_struct *work)
+ 		if (blkg->pd[i])
+ 			blkcg_policy[i]->pd_free_fn(blkg->pd[i]);
  
- 	*page = *seqio = *randio = 0;
++	if (blkg->parent)
++		blkg_put(blkg->parent);
+ 	if (blkg->q)
+ 		blk_put_queue(blkg->q);
+ 	free_percpu(blkg->iostat_cpu);
+@@ -127,8 +129,6 @@ static void __blkg_release(struct rcu_head *rcu)
  
--	if (bps)
--		*page = DIV64_U64_ROUND_UP(VTIME_PER_SEC,
--					   DIV_ROUND_UP_ULL(bps, IOC_PAGE_SIZE));
-+	if (bps) {
-+		u64 bps_pages = DIV_ROUND_UP_ULL(bps, IOC_PAGE_SIZE);
-+
-+		if (bps_pages)
-+			*page = DIV64_U64_ROUND_UP(VTIME_PER_SEC, bps_pages);
-+		else
-+			*page = 1;
-+	}
+ 	/* release the blkcg and parent blkg refs this blkg has been holding */
+ 	css_put(&blkg->blkcg->css);
+-	if (blkg->parent)
+-		blkg_put(blkg->parent);
+ 	blkg_free(blkg);
+ }
  
- 	if (seqiops) {
- 		v = DIV64_U64_ROUND_UP(VTIME_PER_SEC, seqiops);
 -- 
 2.39.0
 
