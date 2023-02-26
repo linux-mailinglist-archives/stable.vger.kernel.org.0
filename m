@@ -2,122 +2,200 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 620CE6A33F1
-	for <lists+stable@lfdr.de>; Sun, 26 Feb 2023 21:27:37 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id EF3286A3407
+	for <lists+stable@lfdr.de>; Sun, 26 Feb 2023 21:43:05 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229556AbjBZU1f (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 26 Feb 2023 15:27:35 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36808 "EHLO
+        id S229928AbjBZUnD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 26 Feb 2023 15:43:03 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47888 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229529AbjBZU1e (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 26 Feb 2023 15:27:34 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 69A11C652;
-        Sun, 26 Feb 2023 12:27:33 -0800 (PST)
+        with ESMTP id S230147AbjBZUnA (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 26 Feb 2023 15:43:00 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3543E5274;
+        Sun, 26 Feb 2023 12:42:58 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 2B214B80955;
-        Sun, 26 Feb 2023 20:27:32 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D23DFC433D2;
-        Sun, 26 Feb 2023 20:27:30 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linux-foundation.org;
-        s=korg; t=1677443250;
-        bh=mDpvwUjTBC41wj3URxPDiSPiuuTB7fx5rM316JgomIo=;
-        h=Date:To:From:Subject:From;
-        b=AuGHJP4dPZTXVQXYek14ZrxMrv+hlF+EFguZB46Z3T0yYvuEx5QCGkm9NMDb0DjM7
-         a4u3mYf4z4KgAjrVi2tScRsYGAiKOghvnMbRGwWacXaFPK1ydai7a1GT9z/E+TRn8R
-         oDquISokJOFbTNqs/1s8rTv4gMRAYlLO4WW+KZlM=
-Date:   Sun, 26 Feb 2023 12:27:30 -0800
-To:     mm-commits@vger.kernel.org, tytso@mit.edu, stable@vger.kernel.org,
-        songmuchun@bytedance.com, roman.gushchin@linux.dev,
-        bvanassche@acm.org, axboe@kernel.dk, mudongliangabcd@gmail.com,
-        akpm@linux-foundation.org
-From:   Andrew Morton <akpm@linux-foundation.org>
-Subject: + fs-hfsplus-fix-uaf-issue-in-hfsplus_put_super.patch added to mm-hotfixes-unstable branch
-Message-Id: <20230226202730.D23DFC433D2@smtp.kernel.org>
-X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,SPF_HELO_NONE,
-        SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
+        by ams.source.kernel.org (Postfix) with ESMTPS id A51CBB80DC1;
+        Sun, 26 Feb 2023 20:41:10 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 30AEDC4339E;
+        Sun, 26 Feb 2023 20:41:10 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1677444070;
+        bh=nBR8xdL87GKQEZbV+va26SNh+fk7l5AhlCFHpzuELZU=;
+        h=From:To:Cc:Subject:Date:From;
+        b=GmaEFgy3cUvREDO/7h7TLs9jUJmfdSkfsYz4NmZoe2mL9jiIiC6bD3MHBbeZCBB+L
+         euS7K5bVGBsStMcM2Da+ixeaGEyJXc491velDWSU1nxFe41eAhQc2SpNTdiouITlhn
+         sDKoManaHVMUQU2+NliDVg190n2OoaIhq3K7Hhk2PgvcCttwp2asvUOSJfuJA2EeOA
+         Zjn4bhi42eeuRbclZjTiML7+2tswz+vHRRE8vskoz9jiS+rv8IyN/Ews/mE71brKwZ
+         6nZbeW+hSZravAH5blJ+0uAKO5a0CmzpeE3Dc8VkBbyOcy2l7jxJ+Mg9F/+kOVA0/B
+         lFvFgv2Jei5YA==
+From:   Eric Biggers <ebiggers@kernel.org>
+To:     linux-block@vger.kernel.org, Jens Axboe <axboe@kernel.dk>
+Cc:     linux-fscrypt@vger.kernel.org, stable@vger.kernel.org
+Subject: [PATCH] blk-crypto: make blk_crypto_evict_key() always try to evict
+Date:   Sun, 26 Feb 2023 12:38:16 -0800
+Message-Id: <20230226203816.207449-1-ebiggers@kernel.org>
+X-Mailer: git-send-email 2.39.2
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+        SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+From: Eric Biggers <ebiggers@google.com>
 
-The patch titled
-     Subject: fs: hfsplus: fix UAF issue in hfsplus_put_super
-has been added to the -mm mm-hotfixes-unstable branch.  Its filename is
-     fs-hfsplus-fix-uaf-issue-in-hfsplus_put_super.patch
+Once all I/O using a blk_crypto_key has completed, filesystems can call
+blk_crypto_evict_key().  However, the block layer doesn't call
+blk_crypto_put_keyslot() until the request is being cleaned up, which
+happens after upper layers have been told (via bio_endio()) the I/O has
+completed.  This causes a race condition where blk_crypto_evict_key()
+can see 'slot_refs > 0' without there being an actual bug.
 
-This patch will shortly appear at
-     https://git.kernel.org/pub/scm/linux/kernel/git/akpm/25-new.git/tree/patches/fs-hfsplus-fix-uaf-issue-in-hfsplus_put_super.patch
+This makes __blk_crypto_evict_key() hit the
+'WARN_ON_ONCE(atomic_read(&slot->slot_refs) != 0)' and return without
+doing anything, eventually causing a use-after-free in
+blk_crypto_reprogram_all_keys().  (This is a very rare bug and has only
+been seen when per-file keys are being used with fscrypt.)
 
-This patch will later appear in the mm-hotfixes-unstable branch at
-    git://git.kernel.org/pub/scm/linux/kernel/git/akpm/mm
+There are two options to fix this: either release the keyslot in
+blk_update_request() just before bio_endio() is called on the request's
+last bio, or just make __blk_crypto_evict_key() ignore slot_refs.  Let's
+go with the latter solution for now, since it avoids adding overhead to
+the loop in blk_update_request().  (It does have the disadvantage that
+hypothetical bugs where a key is evicted while still in-use become
+harder to detect.  But so far there haven't been any such bugs anyway.)
 
-Before you just go and hit "reply", please:
-   a) Consider who else should be cc'ed
-   b) Prefer to cc a suitable mailing list as well
-   c) Ideally: find the original patch on the mailing list and do a
-      reply-to-all to that, adding suitable additional cc's
+A related issue with __blk_crypto_evict_key() is that ->keyslot_evict
+failing would cause the same use-after-free as well.  Fix this by always
+removing the key from the keyslot management structures.
 
-*** Remember to use Documentation/process/submit-checklist.rst when testing your code ***
+Update the function documentation to properly document the semantics.
 
-The -mm tree is included into linux-next via the mm-everything
-branch at git://git.kernel.org/pub/scm/linux/kernel/git/akpm/mm
-and is updated there every 2-3 working days
-
-------------------------------------------------------
-From: Dongliang Mu <mudongliangabcd@gmail.com>
-Subject: fs: hfsplus: fix UAF issue in hfsplus_put_super
-Date: Sun, 26 Feb 2023 20:49:47 +0800
-
-The current hfsplus_put_super first calls hfs_btree_close on
-sbi->ext_tree, then invokes iput on sbi->hidden_dir, resulting in an
-use-after-free issue in hfsplus_release_folio.
-
-As shown in hfsplus_fill_super, the error handling code also calls iput
-before hfs_btree_close.
-
-To fix this error, we move all iput calls before hfsplus_btree_close.
-
-Note that this patch is tested on Syzbot.
-
-Link: https://lkml.kernel.org/r/20230226124948.3175736-1-mudongliangabcd@gmail.com
-Reported-by: syzbot+57e3e98f7e3b80f64d56@syzkaller.appspotmail.com
-Tested-by: Dongliang Mu <mudongliangabcd@gmail.com>
-Signed-off-by: Dongliang Mu <mudongliangabcd@gmail.com>
-Cc: Bart Van Assche <bvanassche@acm.org>
-Cc: Jens Axboe <axboe@kernel.dk>
-Cc: Muchun Song <songmuchun@bytedance.com>
-Cc: Roman Gushchin <roman.gushchin@linux.dev>
-Cc: "Theodore Ts'o" <tytso@mit.edu>
-Cc: <stable@vger.kernel.org>
-Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+Fixes: 1b2628397058 ("block: Keyslot Manager for Inline Encryption")
+Cc: stable@vger.kernel.org
+Signed-off-by: Eric Biggers <ebiggers@google.com>
 ---
+ block/blk-crypto-profile.c | 52 +++++++++++++++-----------------------
+ block/blk-crypto.c         | 24 +++++++++++-------
+ 2 files changed, 36 insertions(+), 40 deletions(-)
 
-
---- a/fs/hfsplus/super.c~fs-hfsplus-fix-uaf-issue-in-hfsplus_put_super
-+++ b/fs/hfsplus/super.c
-@@ -295,11 +295,11 @@ static void hfsplus_put_super(struct super_block *sb)
- 		hfsplus_sync_fs(sb, 1);
- 	}
+diff --git a/block/blk-crypto-profile.c b/block/blk-crypto-profile.c
+index 0307fb0d95d3..29b4148cc50d 100644
+--- a/block/blk-crypto-profile.c
++++ b/block/blk-crypto-profile.c
+@@ -354,22 +354,11 @@ bool __blk_crypto_cfg_supported(struct blk_crypto_profile *profile,
+ 	return true;
+ }
  
-+	iput(sbi->alloc_file);
-+	iput(sbi->hidden_dir);
- 	hfs_btree_close(sbi->attr_tree);
- 	hfs_btree_close(sbi->cat_tree);
- 	hfs_btree_close(sbi->ext_tree);
--	iput(sbi->alloc_file);
--	iput(sbi->hidden_dir);
- 	kfree(sbi->s_vhdr_buf);
- 	kfree(sbi->s_backup_vhdr_buf);
- 	unload_nls(sbi->nls);
-_
+-/**
+- * __blk_crypto_evict_key() - Evict a key from a device.
+- * @profile: the crypto profile of the device
+- * @key: the key to evict.  It must not still be used in any I/O.
+- *
+- * If the device has keyslots, this finds the keyslot (if any) that contains the
+- * specified key and calls the driver's keyslot_evict function to evict it.
+- *
+- * Otherwise, this just calls the driver's keyslot_evict function if it is
+- * implemented, passing just the key (without any particular keyslot).  This
+- * allows layered devices to evict the key from their underlying devices.
+- *
+- * Context: Process context. Takes and releases profile->lock.
+- * Return: 0 on success or if there's no keyslot with the specified key, -EBUSY
+- *	   if the keyslot is still in use, or another -errno value on other
+- *	   error.
++/*
++ * This is an internal function that evicts a key from an inline encryption
++ * device that can be either a real device or the blk-crypto-fallback "device".
++ * It is used only for blk_crypto_evict_key().  For details on what this does,
++ * see the documentation for blk_crypto_evict_key().
+  */
+ int __blk_crypto_evict_key(struct blk_crypto_profile *profile,
+ 			   const struct blk_crypto_key *key)
+@@ -389,22 +378,23 @@ int __blk_crypto_evict_key(struct blk_crypto_profile *profile,
+ 
+ 	blk_crypto_hw_enter(profile);
+ 	slot = blk_crypto_find_keyslot(profile, key);
+-	if (!slot)
+-		goto out_unlock;
+-
+-	if (WARN_ON_ONCE(atomic_read(&slot->slot_refs) != 0)) {
+-		err = -EBUSY;
+-		goto out_unlock;
++	if (slot) {
++		/*
++		 * Note: it is a bug if the key is still in use by I/O here.
++		 * But 'slot_refs > 0' can't be used to detect such bugs here,
++		 * since the keyslot isn't released until after upper layers
++		 * have already been told the I/O is complete.
++		 */
++		err = profile->ll_ops.keyslot_evict(
++				profile, key, blk_crypto_keyslot_index(slot));
++		/*
++		 * Even on ->keyslot_evict failure, we must remove the
++		 * blk_crypto_key from the keyslot management structures, since
++		 * the caller is allowed to free it regardless.
++		 */
++		hlist_del(&slot->hash_node);
++		slot->key = NULL;
+ 	}
+-	err = profile->ll_ops.keyslot_evict(profile, key,
+-					    blk_crypto_keyslot_index(slot));
+-	if (err)
+-		goto out_unlock;
+-
+-	hlist_del(&slot->hash_node);
+-	slot->key = NULL;
+-	err = 0;
+-out_unlock:
+ 	blk_crypto_hw_exit(profile);
+ 	return err;
+ }
+diff --git a/block/blk-crypto.c b/block/blk-crypto.c
+index 45378586151f..3dcbe578beb2 100644
+--- a/block/blk-crypto.c
++++ b/block/blk-crypto.c
+@@ -399,17 +399,23 @@ int blk_crypto_start_using_key(struct block_device *bdev,
+ }
+ 
+ /**
+- * blk_crypto_evict_key() - Evict a key from any inline encryption hardware
+- *			    it may have been programmed into
+- * @bdev: The block_device who's associated inline encryption hardware this key
+- *     might have been programmed into
+- * @key: The key to evict
++ * blk_crypto_evict_key() - Evict a blk_crypto_key from a block_device
++ * @bdev: a block_device on which I/O using the key may have been done
++ * @key: the key to evict
+  *
+- * Upper layers (filesystems) must call this function to ensure that a key is
+- * evicted from any hardware that it might have been programmed into.  The key
+- * must not be in use by any in-flight IO when this function is called.
++ * For a given block_device, this function removes the given blk_crypto_key from
++ * the keyslot management structures and evicts it from any underlying hardware
++ * or fallback keyslot(s) it may have been programmed into.
+  *
+- * Return: 0 on success or if the key wasn't in any keyslot; -errno on error.
++ * Upper layers must call this before freeing the blk_crypto_key.  It must be
++ * called for every block_device the key may have been used on.  The key must no
++ * longer be in use by any I/O when this function is called.
++ *
++ * Context: May sleep.
++ * Return: 0 on success or if the key wasn't in any keyslot; -errno if the key
++ *	   failed to be evicted from a hardware keyslot.  Even in the -errno
++ *	   case, the key is removed from the keyslot management structures and
++ *	   the caller is allowed (and expected) to free the blk_crypto_key.
+  */
+ int blk_crypto_evict_key(struct block_device *bdev,
+ 			 const struct blk_crypto_key *key)
 
-Patches currently in -mm which might be from mudongliangabcd@gmail.com are
-
-fs-hfsplus-fix-uaf-issue-in-hfsplus_put_super.patch
+base-commit: 489fa31ea873282b41046d412ec741f93946fc2d
+-- 
+2.39.2
 
