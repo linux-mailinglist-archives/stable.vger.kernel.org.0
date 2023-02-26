@@ -2,48 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 447C56A2D56
-	for <lists+stable@lfdr.de>; Sun, 26 Feb 2023 04:42:13 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id DE9956A2D5A
+	for <lists+stable@lfdr.de>; Sun, 26 Feb 2023 04:42:15 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229708AbjBZDmL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 25 Feb 2023 22:42:11 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50918 "EHLO
+        id S229698AbjBZDmN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 25 Feb 2023 22:42:13 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50948 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229662AbjBZDmI (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 25 Feb 2023 22:42:08 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C0D83126EE;
-        Sat, 25 Feb 2023 19:42:01 -0800 (PST)
+        with ESMTP id S229697AbjBZDmJ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 25 Feb 2023 22:42:09 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B2A2614EA5;
+        Sat, 25 Feb 2023 19:42:04 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 4F7B260BDC;
+        by ams.source.kernel.org (Postfix) with ESMTPS id 56AC4B80B7F;
+        Sun, 26 Feb 2023 03:42:03 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2E524C433A4;
         Sun, 26 Feb 2023 03:42:01 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 45F7FC433A0;
-        Sun, 26 Feb 2023 03:41:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1677382920;
-        bh=gJQDl+6gt6pDDRZxyMcb9EXsji4noq6fNOEZsH36Rqk=;
+        s=k20201202; t=1677382922;
+        bh=Swp9cal23T3bRtttDRGQ8Yv4EpqIDlMRm6uqrJbkTY4=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=P8/6XlBSy/X5CtB0sAtJlsssjweDiPX7qVS6FzCG4fbT18S4QKvd68F/ZlY6QQQKA
-         mmEUnubpjoz0sDcBWXb61EAVECIFNuc4lFflsZIQ5WVDy0RkQBG25LEbgkdhCGOkkV
-         RuNV0nE2sXDoBE/5vP9oQp0luaENNtMgjiJc14W8hhlFQiFxLVNlBdywktvi6posCe
-         sScX7696SNklalOCs/3FI4wfHynHvz2lbgyclVikGtEGPJJnNpExyOchEmNQ6qcKL3
-         tal10wCr6oY8jdpwZ+rduRA8wx47sYER3MjHpqxgNKb4f67r7H0gQsKRaIMQTD0kz7
-         2YVm+Fej3LS1Q==
+        b=ifbdSRsi9cvrn/daynrra6hk+vUAgki3709cE6FZguzM5yEsomA3oEVmyqWKnyxZX
+         gcNTK3gakJ/ZXLw725DZYxyi0VgnwwG7myVq2rW+6a2XtirQWxkcC/Wc33T65Z+VV6
+         CraYUtbqOytuHQb/ZjXfbsmc3uSt6MDkjSn0PUbTKDsEUm5/uRB8keb7x0jFGOKFnv
+         jlOYi4h0JICUZw5VeFjhHP6b97YXMEX+/gO1QsyApENK1Ru/I7o1olyoI/mKyN1Cf4
+         5Uu8xaOslvofuMdLBduTK3ariK6BIYnKyOJFwm9cZSvIUl0czJinWKfx13uHf4eBlg
+         zFjtIo1CK06FQ==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Nicholas Piggin <npiggin@gmail.com>,
-        Michael Ellerman <mpe@ellerman.id.au>,
-        Peter Zijlstra <peterz@infradead.org>,
-        "Eric W. Biederman" <ebiederm@xmission.com>,
-        Sasha Levin <sashal@kernel.org>, keescook@chromium.org,
-        akpm@linux-foundation.org, mcgrof@kernel.org, mark.rutland@arm.com,
-        wangkefeng.wang@huawei.com, jannh@google.com, oleg@redhat.com,
-        mingo@kernel.org
-Subject: [PATCH AUTOSEL 6.2 05/21] exit: Detect and fix irq disabled state in oops
-Date:   Sat, 25 Feb 2023 22:41:34 -0500
-Message-Id: <20230226034150.771411-5-sashal@kernel.org>
+Cc:     Markuss Broks <markuss.broks@gmail.com>,
+        Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>,
+        Sasha Levin <sashal@kernel.org>, robh+dt@kernel.org,
+        krzysztof.kozlowski+dt@linaro.org, devicetree@vger.kernel.org,
+        linux-arm-kernel@lists.infradead.org,
+        linux-samsung-soc@vger.kernel.org
+Subject: [PATCH AUTOSEL 6.2 06/21] ARM: dts: exynos: Use Exynos5420 compatible for the MIPI video phy
+Date:   Sat, 25 Feb 2023 22:41:35 -0500
+Message-Id: <20230226034150.771411-6-sashal@kernel.org>
 X-Mailer: git-send-email 2.39.0
 In-Reply-To: <20230226034150.771411-1-sashal@kernel.org>
 References: <20230226034150.771411-1-sashal@kernel.org>
@@ -51,8 +49,8 @@ MIME-Version: 1.0
 X-stable: review
 X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
         SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -60,57 +58,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Nicholas Piggin <npiggin@gmail.com>
+From: Markuss Broks <markuss.broks@gmail.com>
 
-[ Upstream commit 001c28e57187570e4b5aa4492c7a957fb6d65d7b ]
+[ Upstream commit 5d5aa219a790d61cad2c38e1aa32058f16ad2f0b ]
 
-If a task oopses with irqs disabled, this can cause various cascading
-problems in the oops path such as sleep-from-invalid warnings, and
-potentially worse.
+For some reason, the driver adding support for Exynos5420 MIPI phy
+back in 2016 wasn't used on Exynos5420, which caused a kernel panic.
+Add the proper compatible for it.
 
-Since commit 0258b5fd7c712 ("coredump: Limit coredumps to a single
-thread group"), the unconditional irq enable in coredump_task_exit()
-will "fix" the irq state to be enabled early in do_exit(), so currently
-this may not be triggerable, but that is coincidental and fragile.
-
-Detect and fix the irqs_disabled() condition in the oops path before
-calling do_exit(), similarly to the way in_atomic() is handled.
-
-Reported-by: Michael Ellerman <mpe@ellerman.id.au>
-Signed-off-by: Nicholas Piggin <npiggin@gmail.com>
-Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
-Acked-by: "Eric W. Biederman" <ebiederm@xmission.com>
-Link: https://lore.kernel.org/lkml/20221004094401.708299-1-npiggin@gmail.com/
+Signed-off-by: Markuss Broks <markuss.broks@gmail.com>
+Link: https://lore.kernel.org/r/20230121201844.46872-2-markuss.broks@gmail.com
+Signed-off-by: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/exit.c | 7 +++++++
- 1 file changed, 7 insertions(+)
+ arch/arm/boot/dts/exynos5420.dtsi | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/kernel/exit.c b/kernel/exit.c
-index 15dc2ec80c467..bccfa4218356e 100644
---- a/kernel/exit.c
-+++ b/kernel/exit.c
-@@ -807,6 +807,8 @@ void __noreturn do_exit(long code)
- 	struct task_struct *tsk = current;
- 	int group_dead;
+diff --git a/arch/arm/boot/dts/exynos5420.dtsi b/arch/arm/boot/dts/exynos5420.dtsi
+index 9f2523a873d9d..62263eb91b3cc 100644
+--- a/arch/arm/boot/dts/exynos5420.dtsi
++++ b/arch/arm/boot/dts/exynos5420.dtsi
+@@ -592,7 +592,7 @@ dp_phy: dp-video-phy {
+ 		};
  
-+	WARN_ON(irqs_disabled());
-+
- 	synchronize_group_exit(tsk, code);
- 
- 	WARN_ON(tsk->plug);
-@@ -938,6 +940,11 @@ void __noreturn make_task_dead(int signr)
- 	if (unlikely(!tsk->pid))
- 		panic("Attempted to kill the idle task!");
- 
-+	if (unlikely(irqs_disabled())) {
-+		pr_info("note: %s[%d] exited with irqs disabled\n",
-+			current->comm, task_pid_nr(current));
-+		local_irq_enable();
-+	}
- 	if (unlikely(in_atomic())) {
- 		pr_info("note: %s[%d] exited with preempt_count %d\n",
- 			current->comm, task_pid_nr(current),
+ 		mipi_phy: mipi-video-phy {
+-			compatible = "samsung,s5pv210-mipi-video-phy";
++			compatible = "samsung,exynos5420-mipi-video-phy";
+ 			syscon = <&pmu_system_controller>;
+ 			#phy-cells = <1>;
+ 		};
 -- 
 2.39.0
 
