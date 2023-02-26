@@ -2,43 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A4E0A6A2DD6
-	for <lists+stable@lfdr.de>; Sun, 26 Feb 2023 04:46:40 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3CBF76A2DCF
+	for <lists+stable@lfdr.de>; Sun, 26 Feb 2023 04:46:30 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230137AbjBZDqj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sat, 25 Feb 2023 22:46:39 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55312 "EHLO
+        id S229919AbjBZDq3 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sat, 25 Feb 2023 22:46:29 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54558 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230099AbjBZDqN (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sat, 25 Feb 2023 22:46:13 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 337EB14EB6;
-        Sat, 25 Feb 2023 19:45:43 -0800 (PST)
+        with ESMTP id S229990AbjBZDqI (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sat, 25 Feb 2023 22:46:08 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 06E9718174;
+        Sat, 25 Feb 2023 19:45:31 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 3557CB80159;
+        by dfw.source.kernel.org (Postfix) with ESMTPS id ED7B760BE9;
         Sun, 26 Feb 2023 03:44:16 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4050BC433EF;
-        Sun, 26 Feb 2023 03:44:14 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5ED01C4339B;
+        Sun, 26 Feb 2023 03:44:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1677383054;
-        bh=tJTYR8FaomUIonGX50bjTfwCz7F8Q5GdsdzJRrTGqX8=;
+        s=k20201202; t=1677383056;
+        bh=cjwEOnzBjeN7oLDg7qAnbEAnbRdzHKHGwWDhPiqSgUg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=rfrwDRf0ejLJREVeky/nWWSyGICCN+phhOA1EECviwUJF/CS4munBmQgGKwuwTf26
-         85O51Q1uJUNeSvGCNJn0yhFmOB22QqPxxl0TcuKpxgOeU7RQ1/oog01vYQ7kM+OjUp
-         mzY86VXUUU1HAFwbZuuDXuB4mb3DFJIW1P5xCaLPuPNn6vRnYVhoekjpFowSeGgAdP
-         trw/uMyI/TUFjhU/mvuWqxpafwAKrTd23xzR3Wvu9s/CS3rAOfM3DMF/WwlXzp/g5c
-         NTiALmcply+VRqb+14KvEiwhJKiIR8c+iMmfL+0CDDUCO5Jy2dP24zN0a3vzTrF5vG
-         JhF+E0tgB8HkA==
+        b=BvU3hEhc1i2KkQAzYR8EsEyFsGA8K11UyOKCSBeINxcWQfLufr4+fOIT7SYQQ28AU
+         IBxoIp8iZv8aXPcLRhpl1Gygqaqq2Abb97iPrkol6DKqqCD72O+xTn3zgRkyNwrPtF
+         Iqd+181sWYyXPPPzSFdVYJ0OEEMDYcW18jwYKoBzHxzrOyuu3XKkztHOIvTloOvbZq
+         Ps9SNvkZPRsZb7Y/gENl2mx9Q6b/VJRPqZ5hcSclfwQd0xkKAY7nyMcn8H0JACPx+j
+         S5xuNooORbG4VZ8hH7P1yT+phwPrn0hH6JDlHCpmFCTjZ64vsVEH4S2/J9+AvDyZHc
+         74J4azTm7eI7A==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Eric Biggers <ebiggers@google.com>,
-        Sasha Levin <sashal@kernel.org>, viro@zeniv.linux.org.uk,
-        linux-fsdevel@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.10 4/5] fs/super.c: stop calling fscrypt_destroy_keyring() from __put_super()
-Date:   Sat, 25 Feb 2023 22:44:07 -0500
-Message-Id: <20230226034408.774670-4-sashal@kernel.org>
+Cc:     Zhang Qiao <zhangqiao22@huawei.com>,
+        Roman Kagan <rkagan@amazon.de>,
+        Peter Zijlstra <peterz@infradead.org>,
+        Sasha Levin <sashal@kernel.org>, mingo@redhat.com,
+        juri.lelli@redhat.com, vincent.guittot@linaro.org
+Subject: [PATCH AUTOSEL 5.10 5/5] sched/fair: sanitize vruntime of entity being placed
+Date:   Sat, 25 Feb 2023 22:44:08 -0500
+Message-Id: <20230226034408.774670-5-sashal@kernel.org>
 X-Mailer: git-send-email 2.39.0
 In-Reply-To: <20230226034408.774670-1-sashal@kernel.org>
 References: <20230226034408.774670-1-sashal@kernel.org>
@@ -55,37 +57,68 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Eric Biggers <ebiggers@google.com>
+From: Zhang Qiao <zhangqiao22@huawei.com>
 
-[ Upstream commit ec64036e68634231f5891faa2b7a81cdc5dcd001 ]
+[ Upstream commit 829c1651e9c4a6f78398d3e67651cef9bb6b42cc ]
 
-Now that the key associated with the "test_dummy_operation" mount option
-is added on-demand when it's needed, rather than immediately when the
-filesystem is mounted, fscrypt_destroy_keyring() no longer needs to be
-called from __put_super() to avoid a memory leak on mount failure.
+When a scheduling entity is placed onto cfs_rq, its vruntime is pulled
+to the base level (around cfs_rq->min_vruntime), so that the entity
+doesn't gain extra boost when placed backwards.
 
-Remove this call, which was causing confusion because it appeared to be
-a sleep-in-atomic bug (though it wasn't, for a somewhat-subtle reason).
+However, if the entity being placed wasn't executed for a long time, its
+vruntime may get too far behind (e.g. while cfs_rq was executing a
+low-weight hog), which can inverse the vruntime comparison due to s64
+overflow.  This results in the entity being placed with its original
+vruntime way forwards, so that it will effectively never get to the cpu.
 
-Signed-off-by: Eric Biggers <ebiggers@google.com>
-Link: https://lore.kernel.org/r/20230208062107.199831-5-ebiggers@kernel.org
+To prevent that, ignore the vruntime of the entity being placed if it
+didn't execute for much longer than the characteristic sheduler time
+scale.
+
+[rkagan: formatted, adjusted commit log, comments, cutoff value]
+Signed-off-by: Zhang Qiao <zhangqiao22@huawei.com>
+Co-developed-by: Roman Kagan <rkagan@amazon.de>
+Signed-off-by: Roman Kagan <rkagan@amazon.de>
+Signed-off-by: Peter Zijlstra (Intel) <peterz@infradead.org>
+Link: https://lkml.kernel.org/r/20230130122216.3555094-1-rkagan@amazon.de
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/super.c | 1 -
- 1 file changed, 1 deletion(-)
+ kernel/sched/fair.c | 15 +++++++++++++--
+ 1 file changed, 13 insertions(+), 2 deletions(-)
 
-diff --git a/fs/super.c b/fs/super.c
-index 7629f9dd031cc..6b1bd23977fcd 100644
---- a/fs/super.c
-+++ b/fs/super.c
-@@ -293,7 +293,6 @@ static void __put_super(struct super_block *s)
- 		WARN_ON(s->s_inode_lru.node);
- 		WARN_ON(!list_empty(&s->s_mounts));
- 		security_sb_free(s);
--		fscrypt_destroy_keyring(s);
- 		put_user_ns(s->s_user_ns);
- 		kfree(s->s_subtype);
- 		call_rcu(&s->rcu, destroy_super_rcu);
+diff --git a/kernel/sched/fair.c b/kernel/sched/fair.c
+index c39d2fc3f9945..68166c599a355 100644
+--- a/kernel/sched/fair.c
++++ b/kernel/sched/fair.c
+@@ -4278,6 +4278,7 @@ static void
+ place_entity(struct cfs_rq *cfs_rq, struct sched_entity *se, int initial)
+ {
+ 	u64 vruntime = cfs_rq->min_vruntime;
++	u64 sleep_time;
+ 
+ 	/*
+ 	 * The 'current' period is already promised to the current tasks,
+@@ -4302,8 +4303,18 @@ place_entity(struct cfs_rq *cfs_rq, struct sched_entity *se, int initial)
+ 		vruntime -= thresh;
+ 	}
+ 
+-	/* ensure we never gain time by being placed backwards. */
+-	se->vruntime = max_vruntime(se->vruntime, vruntime);
++	/*
++	 * Pull vruntime of the entity being placed to the base level of
++	 * cfs_rq, to prevent boosting it if placed backwards.  If the entity
++	 * slept for a long time, don't even try to compare its vruntime with
++	 * the base as it may be too far off and the comparison may get
++	 * inversed due to s64 overflow.
++	 */
++	sleep_time = rq_clock_task(rq_of(cfs_rq)) - se->exec_start;
++	if ((s64)sleep_time > 60LL * NSEC_PER_SEC)
++		se->vruntime = vruntime;
++	else
++		se->vruntime = max_vruntime(se->vruntime, vruntime);
+ }
+ 
+ static void check_enqueue_throttle(struct cfs_rq *cfs_rq);
 -- 
 2.39.0
 
