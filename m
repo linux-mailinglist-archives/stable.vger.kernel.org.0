@@ -2,49 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 4F8B36A30D8
-	for <lists+stable@lfdr.de>; Sun, 26 Feb 2023 15:54:06 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id BFBD36A3138
+	for <lists+stable@lfdr.de>; Sun, 26 Feb 2023 15:56:39 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230344AbjBZOyF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 26 Feb 2023 09:54:05 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55298 "EHLO
+        id S231232AbjBZO43 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 26 Feb 2023 09:56:29 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56126 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230345AbjBZOxV (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 26 Feb 2023 09:53:21 -0500
+        with ESMTP id S231348AbjBZOzV (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 26 Feb 2023 09:55:21 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 39AF21A676;
-        Sun, 26 Feb 2023 06:49:56 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B08E31B310;
+        Sun, 26 Feb 2023 06:51:11 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 28A9E60C76;
-        Sun, 26 Feb 2023 14:48:25 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3E2DEC4339E;
-        Sun, 26 Feb 2023 14:48:23 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 1A94760C5E;
+        Sun, 26 Feb 2023 14:48:28 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 62801C433D2;
+        Sun, 26 Feb 2023 14:48:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1677422904;
-        bh=VLP8i6ArIREcf/Bv1wZoro/Xr+7GsOM0vD3GLkKGeZM=;
+        s=k20201202; t=1677422907;
+        bh=YUGhHv54G1+XRv+xazR/2/VBbiQRmwCCo5vKPzJsHYQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=M8Zv3c+xbocG+HQrfisWnCmWEcr/8RNe0twm/5do0NCM21flHzgSlWpCXotWaQyqe
-         l/Bc0jd74yQQ3wQIfdykMIgK2CtHqWUwIqUBvFquf28LMGNBfUqg7/WiMtEm3NwoqL
-         Vbc+wC2tXn8nU4SrpR0uTIz4y/2lm92yrQZZjaSLqmshJSg0qMjBPJ/tDVqY6nyJEP
-         SFR9GDFerbCYsBVu2T+WFCUh4QCokmyJFTQ3J/xWIZOLWusJX4PcRgIvYD8G5tC2mZ
-         Obl6bhfxv5DTnH83PVsX4aJUbP7xX6yh0DJcPms2/I4vMp5mg+sHYVqqwgchgfBMUb
-         M1boQs13nUc1w==
+        b=DAjHSzKmIseAuCDgem45S0WENXvpmHvNk5+UfhKFgp7QbDLE/z97k+DbzS10gdXSS
+         cjaex2secqg/O9AVTcRb3yNnpkQOXcNFwH6Lshv2BVqbWjUKVBmFS4L7khBVHcrj0K
+         5MWLfAYGp6i2HsdCdL52dbuCx1WZedtmA4wJXMNs/a+7WFfAgqzNzOtmky0LFLrzBA
+         RekjaDHQ9qlBjmLvcr3p5ytLqwBQR2FeILEeinCvmyb7ofZLovbwIIqblx6i/vKZkA
+         O9R9zdgZRAgrcdNZK4N6DxGEofmZ/Ay5MvQzS4lfUBTv2PgHxtumlkOwXnJ7ev8VFz
+         Js/+dQI+jYrgA==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Mario Limonciello <mario.limonciello@amd.com>,
-        Sean Wang <sean.wang@mediatek.com>,
-        Anson Tsao <anson.tsao@amd.com>,
-        Luiz Augusto von Dentz <luiz.von.dentz@intel.com>,
-        Sasha Levin <sashal@kernel.org>, marcel@holtmann.org,
-        johan.hedberg@gmail.com, luiz.dentz@gmail.com,
-        matthias.bgg@gmail.com, linux-bluetooth@vger.kernel.org,
-        linux-arm-kernel@lists.infradead.org,
-        linux-mediatek@lists.infradead.org
-Subject: [PATCH AUTOSEL 6.1 42/49] Bluetooth: btusb: Add new PID/VID 0489:e0f2 for MT7921
-Date:   Sun, 26 Feb 2023 09:46:42 -0500
-Message-Id: <20230226144650.826470-42-sashal@kernel.org>
+Cc:     Zong-Zhe Yang <kevin_yang@realtek.com>,
+        Ping-Ke Shih <pkshih@realtek.com>,
+        Kalle Valo <kvalo@kernel.org>, Sasha Levin <sashal@kernel.org>,
+        davem@davemloft.net, edumazet@google.com, kuba@kernel.org,
+        pabeni@redhat.com, linux-wireless@vger.kernel.org,
+        netdev@vger.kernel.org
+Subject: [PATCH AUTOSEL 6.1 44/49] wifi: rtw89: debug: avoid invalid access on RTW89_DBG_SEL_MAC_30
+Date:   Sun, 26 Feb 2023 09:46:44 -0500
+Message-Id: <20230226144650.826470-44-sashal@kernel.org>
 X-Mailer: git-send-email 2.39.0
 In-Reply-To: <20230226144650.826470-1-sashal@kernel.org>
 References: <20230226144650.826470-1-sashal@kernel.org>
@@ -52,8 +49,8 @@ MIME-Version: 1.0
 X-stable: review
 X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
         SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -61,78 +58,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mario Limonciello <mario.limonciello@amd.com>
+From: Zong-Zhe Yang <kevin_yang@realtek.com>
 
-[ Upstream commit 83458a5f272b303479e7d2f451600817a7350b6b ]
+[ Upstream commit c074da21dd346e0cfef5d08b0715078d7aea7f8d ]
 
-This bluetooth device is found in a combo WLAN/BT card
-for a MediaTek 7921e.
+Only 8852C chip has valid pages on RTW89_DBG_SEL_MAC_30. To other chips,
+this section is an address hole. It will lead to crash if trying to access
+this section on chips except for 8852C. So, we avoid that.
 
-The device information:
-
-T:  Bus=01 Lev=01 Prnt=01 Port=02 Cnt=01 Dev#=  2 Spd=480  MxCh= 0
-D:  Ver= 2.10 Cls=ef(misc ) Sub=02 Prot=01 MxPS=64 #Cfgs=  1
-P:  Vendor=0489 ProdID=e0f2 Rev= 1.00
-S:  Manufacturer=MediaTek Inc.
-S:  Product=Wireless_Device
-S:  SerialNumber=000000000
-C:* #Ifs= 3 Cfg#= 1 Atr=e0 MxPwr=100mA
-A:  FirstIf#= 0 IfCount= 3 Cls=e0(wlcon) Sub=01 Prot=01
-I:* If#= 0 Alt= 0 #EPs= 3 Cls=e0(wlcon) Sub=01 Prot=01 Driver=btusb
-E:  Ad=81(I) Atr=03(Int.) MxPS=  16 Ivl=125us
-E:  Ad=82(I) Atr=02(Bulk) MxPS= 512 Ivl=0ms
-E:  Ad=02(O) Atr=02(Bulk) MxPS= 512 Ivl=0ms
-I:* If#= 1 Alt= 0 #EPs= 2 Cls=e0(wlcon) Sub=01 Prot=01 Driver=btusb
-E:  Ad=83(I) Atr=01(Isoc) MxPS=   0 Ivl=1ms
-E:  Ad=03(O) Atr=01(Isoc) MxPS=   0 Ivl=1ms
-I:  If#= 1 Alt= 1 #EPs= 2 Cls=e0(wlcon) Sub=01 Prot=01 Driver=btusb
-E:  Ad=83(I) Atr=01(Isoc) MxPS=   9 Ivl=1ms
-E:  Ad=03(O) Atr=01(Isoc) MxPS=   9 Ivl=1ms
-I:  If#= 1 Alt= 2 #EPs= 2 Cls=e0(wlcon) Sub=01 Prot=01 Driver=btusb
-E:  Ad=83(I) Atr=01(Isoc) MxPS=  17 Ivl=1ms
-E:  Ad=03(O) Atr=01(Isoc) MxPS=  17 Ivl=1ms
-I:  If#= 1 Alt= 3 #EPs= 2 Cls=e0(wlcon) Sub=01 Prot=01 Driver=btusb
-E:  Ad=83(I) Atr=01(Isoc) MxPS=  25 Ivl=1ms
-E:  Ad=03(O) Atr=01(Isoc) MxPS=  25 Ivl=1ms
-I:  If#= 1 Alt= 4 #EPs= 2 Cls=e0(wlcon) Sub=01 Prot=01 Driver=btusb
-E:  Ad=83(I) Atr=01(Isoc) MxPS=  33 Ivl=1ms
-E:  Ad=03(O) Atr=01(Isoc) MxPS=  33 Ivl=1ms
-I:  If#= 1 Alt= 5 #EPs= 2 Cls=e0(wlcon) Sub=01 Prot=01 Driver=btusb
-E:  Ad=83(I) Atr=01(Isoc) MxPS=  49 Ivl=1ms
-E:  Ad=03(O) Atr=01(Isoc) MxPS=  49 Ivl=1ms
-I:  If#= 1 Alt= 6 #EPs= 2 Cls=e0(wlcon) Sub=01 Prot=01 Driver=btusb
-E:  Ad=83(I) Atr=01(Isoc) MxPS=  63 Ivl=1ms
-E:  Ad=03(O) Atr=01(Isoc) MxPS=  63 Ivl=1ms
-I:* If#= 2 Alt= 0 #EPs= 2 Cls=e0(wlcon) Sub=01 Prot=01 Driver=(none)
-E:  Ad=8a(I) Atr=03(Int.) MxPS=  64 Ivl=125us
-E:  Ad=0a(O) Atr=03(Int.) MxPS=  64 Ivl=125us
-I:  If#= 2 Alt= 1 #EPs= 2 Cls=e0(wlcon) Sub=01 Prot=01 Driver=(none)
-E:  Ad=8a(I) Atr=03(Int.) MxPS= 512 Ivl=125us
-E:  Ad=0a(O) Atr=03(Int.) MxPS= 512 Ivl=125us
-
-Cc: Sean Wang <sean.wang@mediatek.com>
-Cc: Anson Tsao <anson.tsao@amd.com>
-Signed-off-by: Mario Limonciello <mario.limonciello@amd.com>
-Signed-off-by: Luiz Augusto von Dentz <luiz.von.dentz@intel.com>
+Signed-off-by: Zong-Zhe Yang <kevin_yang@realtek.com>
+Signed-off-by: Ping-Ke Shih <pkshih@realtek.com>
+Signed-off-by: Kalle Valo <kvalo@kernel.org>
+Link: https://lore.kernel.org/r/20230119063529.61563-2-pkshih@realtek.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/bluetooth/btusb.c | 3 +++
- 1 file changed, 3 insertions(+)
+ drivers/net/wireless/realtek/rtw89/debug.c | 7 +++++++
+ 1 file changed, 7 insertions(+)
 
-diff --git a/drivers/bluetooth/btusb.c b/drivers/bluetooth/btusb.c
-index aebb98e1fcd64..d367289f6263d 100644
---- a/drivers/bluetooth/btusb.c
-+++ b/drivers/bluetooth/btusb.c
-@@ -474,6 +474,9 @@ static const struct usb_device_id blacklist_table[] = {
- 	{ USB_DEVICE(0x0489, 0xe0e0), .driver_info = BTUSB_MEDIATEK |
- 						     BTUSB_WIDEBAND_SPEECH |
- 						     BTUSB_VALID_LE_STATES },
-+	{ USB_DEVICE(0x0489, 0xe0f2), .driver_info = BTUSB_MEDIATEK |
-+						     BTUSB_WIDEBAND_SPEECH |
-+						     BTUSB_VALID_LE_STATES },
- 	{ USB_DEVICE(0x04ca, 0x3802), .driver_info = BTUSB_MEDIATEK |
- 						     BTUSB_WIDEBAND_SPEECH |
- 						     BTUSB_VALID_LE_STATES },
+diff --git a/drivers/net/wireless/realtek/rtw89/debug.c b/drivers/net/wireless/realtek/rtw89/debug.c
+index 730e83d54257f..50701c55ed602 100644
+--- a/drivers/net/wireless/realtek/rtw89/debug.c
++++ b/drivers/net/wireless/realtek/rtw89/debug.c
+@@ -594,6 +594,7 @@ rtw89_debug_priv_mac_reg_dump_select(struct file *filp,
+ 	struct seq_file *m = (struct seq_file *)filp->private_data;
+ 	struct rtw89_debugfs_priv *debugfs_priv = m->private;
+ 	struct rtw89_dev *rtwdev = debugfs_priv->rtwdev;
++	const struct rtw89_chip_info *chip = rtwdev->chip;
+ 	char buf[32];
+ 	size_t buf_size;
+ 	int sel;
+@@ -613,6 +614,12 @@ rtw89_debug_priv_mac_reg_dump_select(struct file *filp,
+ 		return -EINVAL;
+ 	}
+ 
++	if (sel == RTW89_DBG_SEL_MAC_30 && chip->chip_id != RTL8852C) {
++		rtw89_info(rtwdev, "sel %d is address hole on chip %d\n", sel,
++			   chip->chip_id);
++		return -EINVAL;
++	}
++
+ 	debugfs_priv->cb_data = sel;
+ 	rtw89_info(rtwdev, "select mac page dump %d\n", debugfs_priv->cb_data);
+ 
 -- 
 2.39.0
 
