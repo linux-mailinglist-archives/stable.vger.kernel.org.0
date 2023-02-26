@@ -2,45 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 835606A3265
-	for <lists+stable@lfdr.de>; Sun, 26 Feb 2023 16:37:46 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 98D2E6A3275
+	for <lists+stable@lfdr.de>; Sun, 26 Feb 2023 16:42:20 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229489AbjBZPho (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 26 Feb 2023 10:37:44 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43320 "EHLO
+        id S229570AbjBZPmS (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 26 Feb 2023 10:42:18 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56800 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229582AbjBZPhh (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 26 Feb 2023 10:37:37 -0500
+        with ESMTP id S229512AbjBZPmR (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 26 Feb 2023 10:42:17 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6EBD01AF;
-        Sun, 26 Feb 2023 07:37:16 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C7D2B19B0;
+        Sun, 26 Feb 2023 07:42:15 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id CF38160B8F;
-        Sun, 26 Feb 2023 14:45:42 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 174B6C433A1;
-        Sun, 26 Feb 2023 14:45:40 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id CFEBB60C39;
+        Sun, 26 Feb 2023 14:45:52 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1C6C8C433A4;
+        Sun, 26 Feb 2023 14:45:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1677422742;
-        bh=Z6cedVlKYTp/sAIk1wKhQqv0dIA+sCn2Q5iMjMWSs4M=;
+        s=k20201202; t=1677422752;
+        bh=JTXUgg/LGG3Bv9DFiFh/kQ/gaYrlc14G0hjTcoCjYFk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ZFqx4B3pd3X3db+mjQRt+qacq2gJ122YJvDtYkHJ2ZxliRXhsXmdPJ4mxOgz75ogC
-         lwMOZ2k15e/6rV4A7CEUMJ/hzQMrK8M7j6sBIsHIG03CimrIMyulQRNKpvfUQkgpKh
-         Ofls7cEmuSApcZSrNiz/TSKBni0ftO2PEno82zql4MVSi5Az7/pc/7aC+uLaPX8b06
-         KNjO9zXnSwRbIbv9B8e20VyAu1N/5H0oaj/fheBrB9QgYng5TKorMnJ8y3tsBQvuw+
-         57Jzg3QbGbXS/gIejnF5q2zuj1N7e9eywSCuY+XdATg1cgyeezJSJBfhttswUad/QG
-         eWoasmi6YeTgg==
+        b=MpZSRnYVCaXeKfgPrXu5pkv+onO5dM+NsXCnLbeEAexqRSpAwMqRRAjf7EiFw06Bu
+         38hMzXXN8NjpDZN/EPiJZPFPpOsozVwZcYI4Wp4g6ZwazjfO0yH2uQm5cCyH9WNQx9
+         Oqzu+Vr3hnZ/t4NLqVVzFvwYHNRkLQyVUEkgRwc13uPunwoEDhDjDA0eWP3fgEuchr
+         nEjDHf0Wa6g3Ek6Kys5f8ZyeQxMxVh3V6P4RrBn50dJU0vLkWY35KAmFA2L6t5+sl0
+         bdGk3+wAtLjn9//cArMuBGrdXdAko+WRFHLnQrtfg3DMtGNE1PACMbtcbYcrwS4SHi
+         +3yuG4BtxVZ4Q==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Dave Thaler <dthaler@microsoft.com>,
-        Daniel Borkmann <daniel@iogearbox.net>,
-        Sasha Levin <sashal@kernel.org>, ast@kernel.org,
-        andrii@kernel.org, corbet@lwn.net, bpf@vger.kernel.org,
-        bpf@ietf.org, linux-doc@vger.kernel.org
-Subject: [PATCH AUTOSEL 6.2 22/53] bpf, docs: Fix modulo zero, division by zero, overflow, and underflow
-Date:   Sun, 26 Feb 2023 09:44:14 -0500
-Message-Id: <20230226144446.824580-22-sashal@kernel.org>
+Cc:     Breno Leitao <leitao@debian.org>,
+        Michael van der Westhuizen <rmikey@meta.com>,
+        Jakub Kicinski <kuba@kernel.org>,
+        Sasha Levin <sashal@kernel.org>, davem@davemloft.net,
+        edumazet@google.com, pabeni@redhat.com,
+        wsa+renesas@sang-engineering.com, netdev@vger.kernel.org
+Subject: [PATCH AUTOSEL 6.2 26/53] netpoll: Remove 4s sleep during carrier detection
+Date:   Sun, 26 Feb 2023 09:44:18 -0500
+Message-Id: <20230226144446.824580-26-sashal@kernel.org>
 X-Mailer: git-send-email 2.39.0
 In-Reply-To: <20230226144446.824580-1-sashal@kernel.org>
 References: <20230226144446.824580-1-sashal@kernel.org>
@@ -57,66 +58,72 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dave Thaler <dthaler@microsoft.com>
+From: Breno Leitao <leitao@debian.org>
 
-[ Upstream commit 0eb9d19e2201068260e439a5c96dc85f9f3722a2 ]
+[ Upstream commit d8afe2f8a92d2aac3df645772f6ee61b0b2fc147 ]
 
-Fix modulo zero, division by zero, overflow, and underflow. Also clarify how
-a negative immediate value is used in unsigned division.
+This patch removes the msleep(4s) during netpoll_setup() if the carrier
+appears instantly.
 
-Signed-off-by: Dave Thaler <dthaler@microsoft.com>
-Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
-Link: https://lore.kernel.org/bpf/20230124001218.827-1-dthaler1968@googlemail.com
+Here are some scenarios where this workaround is counter-productive in
+modern ages:
+
+Servers which have BMC communicating over NC-SI via the same NIC as gets
+used for netconsole. BMC will keep the PHY up, hence the carrier
+appearing instantly.
+
+The link is fibre, SERDES getting sync could happen within 0.1Hz, and
+the carrier also appears instantly.
+
+Other than that, if a driver is reporting instant carrier and then
+losing it, this is probably a driver bug.
+
+Reported-by: Michael van der Westhuizen <rmikey@meta.com>
+Signed-off-by: Breno Leitao <leitao@debian.org>
+Link: https://lore.kernel.org/r/20230125185230.3574681-1-leitao@debian.org
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- Documentation/bpf/instruction-set.rst | 16 ++++++++++++++--
- 1 file changed, 14 insertions(+), 2 deletions(-)
+ net/core/netpoll.c | 12 +-----------
+ 1 file changed, 1 insertion(+), 11 deletions(-)
 
-diff --git a/Documentation/bpf/instruction-set.rst b/Documentation/bpf/instruction-set.rst
-index e672d5ec6cc7b..2d3fe59bd260f 100644
---- a/Documentation/bpf/instruction-set.rst
-+++ b/Documentation/bpf/instruction-set.rst
-@@ -99,19 +99,26 @@ code      value  description
- BPF_ADD   0x00   dst += src
- BPF_SUB   0x10   dst -= src
- BPF_MUL   0x20   dst \*= src
--BPF_DIV   0x30   dst /= src
-+BPF_DIV   0x30   dst = (src != 0) ? (dst / src) : 0
- BPF_OR    0x40   dst \|= src
- BPF_AND   0x50   dst &= src
- BPF_LSH   0x60   dst <<= src
- BPF_RSH   0x70   dst >>= src
- BPF_NEG   0x80   dst = ~src
--BPF_MOD   0x90   dst %= src
-+BPF_MOD   0x90   dst = (src != 0) ? (dst % src) : dst
- BPF_XOR   0xa0   dst ^= src
- BPF_MOV   0xb0   dst = src
- BPF_ARSH  0xc0   sign extending shift right
- BPF_END   0xd0   byte swap operations (see `Byte swap instructions`_ below)
- ========  =====  ==========================================================
+diff --git a/net/core/netpoll.c b/net/core/netpoll.c
+index 9be762e1d0428..a089b704b986d 100644
+--- a/net/core/netpoll.c
++++ b/net/core/netpoll.c
+@@ -682,7 +682,7 @@ int netpoll_setup(struct netpoll *np)
+ 	}
  
-+Underflow and overflow are allowed during arithmetic operations, meaning
-+the 64-bit or 32-bit value will wrap. If eBPF program execution would
-+result in division by zero, the destination register is instead set to zero.
-+If execution would result in modulo by zero, for ``BPF_ALU64`` the value of
-+the destination register is unchanged whereas for ``BPF_ALU`` the upper
-+32 bits of the destination register are zeroed.
-+
- ``BPF_ADD | BPF_X | BPF_ALU`` means::
+ 	if (!netif_running(ndev)) {
+-		unsigned long atmost, atleast;
++		unsigned long atmost;
  
-   dst_reg = (u32) dst_reg + (u32) src_reg;
-@@ -128,6 +135,11 @@ BPF_END   0xd0   byte swap operations (see `Byte swap instructions`_ below)
+ 		np_info(np, "device %s not up yet, forcing it\n", np->dev_name);
  
-   dst_reg = dst_reg ^ imm32
+@@ -694,7 +694,6 @@ int netpoll_setup(struct netpoll *np)
+ 		}
  
-+Also note that the division and modulo operations are unsigned. Thus, for
-+``BPF_ALU``, 'imm' is first interpreted as an unsigned 32-bit value, whereas
-+for ``BPF_ALU64``, 'imm' is first sign extended to 64 bits and the result
-+interpreted as an unsigned 64-bit value. There are no instructions for
-+signed division or modulo.
+ 		rtnl_unlock();
+-		atleast = jiffies + HZ/10;
+ 		atmost = jiffies + carrier_timeout * HZ;
+ 		while (!netif_carrier_ok(ndev)) {
+ 			if (time_after(jiffies, atmost)) {
+@@ -704,15 +703,6 @@ int netpoll_setup(struct netpoll *np)
+ 			msleep(1);
+ 		}
  
- Byte swap instructions
- ~~~~~~~~~~~~~~~~~~~~~~
+-		/* If carrier appears to come up instantly, we don't
+-		 * trust it and pause so that we don't pump all our
+-		 * queued console messages into the bitbucket.
+-		 */
+-
+-		if (time_before(jiffies, atleast)) {
+-			np_notice(np, "carrier detect appears untrustworthy, waiting 4 seconds\n");
+-			msleep(4000);
+-		}
+ 		rtnl_lock();
+ 	}
+ 
 -- 
 2.39.0
 
