@@ -2,46 +2,49 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A90BF6A36F7
-	for <lists+stable@lfdr.de>; Mon, 27 Feb 2023 03:06:00 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 22BDD6A36FC
+	for <lists+stable@lfdr.de>; Mon, 27 Feb 2023 03:06:03 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229969AbjB0CF6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 26 Feb 2023 21:05:58 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58930 "EHLO
+        id S230119AbjB0CGB (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 26 Feb 2023 21:06:01 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58560 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230016AbjB0CFc (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 26 Feb 2023 21:05:32 -0500
+        with ESMTP id S230056AbjB0CFf (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 26 Feb 2023 21:05:35 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 21DA61A670;
-        Sun, 26 Feb 2023 18:05:09 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5C9F613DE6;
+        Sun, 26 Feb 2023 18:05:12 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 3E68B60D56;
-        Mon, 27 Feb 2023 02:05:02 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 88E93C433EF;
-        Mon, 27 Feb 2023 02:05:00 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id BBE9260D29;
+        Mon, 27 Feb 2023 02:05:09 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 69675C4339B;
+        Mon, 27 Feb 2023 02:05:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1677463501;
-        bh=ol+RR6xPE+dkc3hBAGFUBQD1YnHigd3dvWwaZ86QPEk=;
+        s=k20201202; t=1677463509;
+        bh=yDEmqvxwsg0vE2JAlr2G8lYxZpQza/IUr6UE/jPyzYI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=gc2PNqTuSSf7wc5K2lHgeuG3rWGI/f8U7JaPqvojOSNlCsewe0Klz34hICfogAXb6
-         ds118oow/fUZaKhmBqYMikLwCRlAgg9ht64JyNPak9l5kbKBvWiYU3u0FhE3JIxu89
-         fQKhcleF2cxKSeR/R9oOdWkmCls1UDJB6SouGXDA11bxchAhzu0YBlfi5F78KUXX79
-         Mp7NOkHCSc7g6G86t1J4f/1ddHTqtqv+JqaR9riK06Y1Q6hmZHBxHzq6HKyNyHWlCb
-         6bNA47W3aDMh3CZIGQckg6zCWGw440dkhDraINoYbG+u6si4kIliSbJT1fGnuhw9Q5
-         tHhcUFmgu8YhQ==
+        b=Rsmrd2ruLAN1q5izf25jqoYgrAenInYzekP3o8hSsIGEDDeIFNP5PeX1wf+Yauqhg
+         dA+OcGQpEwAsfgfudiIm5sCIH6nWX80Io5qGTwENSUIHyLi4O3S0b8BlLN7JewtrG1
+         iCnh1OYWU8cwDbwegLNgfIwXQpnir1WZ7SO8HhXJdCsMrp/9u+l2hIJRFZLnlpCxOM
+         f6FKqI34ZtmjHpzN25XXVDIcCy35/f6YjPpfIxxOysZa8jgr13bF5OjvL1k8bwM61Z
+         K/PIK/r7vIusLWkoHP1ChN2FBnoXiK8DKNJqYPp1FxxQ2KpgPOLWRKxYZDxDaJEiNx
+         vrm/J7gh+X4EQ==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Allen Ballway <ballway@chromium.org>,
-        Hans de Goede <hdegoede@redhat.com>,
-        Sasha Levin <sashal@kernel.org>,
-        maarten.lankhorst@linux.intel.com, mripard@kernel.org,
-        tzimmermann@suse.de, airlied@gmail.com, daniel@ffwll.ch,
+Cc:     Dillon Varone <Dillon.Varone@amd.com>, Jun Lei <Jun.Lei@amd.com>,
+        Jasdeep Dhillon <jdhillon@amd.com>,
+        Alex Deucher <alexander.deucher@amd.com>,
+        Sasha Levin <sashal@kernel.org>, harry.wentland@amd.com,
+        sunpeng.li@amd.com, Rodrigo.Siqueira@amd.com,
+        christian.koenig@amd.com, Xinhui.Pan@amd.com, airlied@gmail.com,
+        daniel@ffwll.ch, alvin.lee2@amd.com, george.shen@amd.com,
+        yang.lee@linux.alibaba.com, amd-gfx@lists.freedesktop.org,
         dri-devel@lists.freedesktop.org
-Subject: [PATCH AUTOSEL 6.1 02/58] drm: panel-orientation-quirks: Add quirk for DynaBook K50
-Date:   Sun, 26 Feb 2023 21:04:00 -0500
-Message-Id: <20230227020457.1048737-2-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 6.1 03/58] drm/amd/display: Reduce expected sdp bandwidth for dcn321
+Date:   Sun, 26 Feb 2023 21:04:01 -0500
+Message-Id: <20230227020457.1048737-3-sashal@kernel.org>
 X-Mailer: git-send-email 2.39.0
 In-Reply-To: <20230227020457.1048737-1-sashal@kernel.org>
 References: <20230227020457.1048737-1-sashal@kernel.org>
@@ -58,76 +61,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Allen Ballway <ballway@chromium.org>
+From: Dillon Varone <Dillon.Varone@amd.com>
 
-[ Upstream commit a3caf7ea0c3d5872ed0f2c51f5476aee0c47a73a ]
+[ Upstream commit 6b81090d6d4cc0fd818c9ec9dbb6906f921ad396 ]
 
-Like the ASUS T100HAN for which there is already a quirk,
-the DynaBook K50 has a 800x1280 portrait screen mounted
-in the tablet part of a landscape oriented 2-in-1.
-Update the quirk to be more generic and apply to this device.
+[Description]
+Modify soc BB to reduce expected sdp bandwidth and align with measurements to
+fix underflow issues.
 
-Signed-off-by: Allen Ballway <ballway@chromium.org>
-Reviewed-by: Hans de Goede <hdegoede@redhat.com>
-Signed-off-by: Hans de Goede <hdegoede@redhat.com>
-Link: https://patchwork.freedesktop.org/patch/msgid/20221130170811.1.Iee9a494547541dade9eeee9521cc8b811e76a8a0@changeid
+Reviewed-by: Jun Lei <Jun.Lei@amd.com>
+Acked-by: Jasdeep Dhillon <jdhillon@amd.com>
+Signed-off-by: Dillon Varone <Dillon.Varone@amd.com>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- .../gpu/drm/drm_panel_orientation_quirks.c    | 20 ++++++++++++-------
- 1 file changed, 13 insertions(+), 7 deletions(-)
+ drivers/gpu/drm/amd/display/dc/dml/dcn321/dcn321_fpu.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/gpu/drm/drm_panel_orientation_quirks.c b/drivers/gpu/drm/drm_panel_orientation_quirks.c
-index 23d63a4d42d9c..b409fe256fd0a 100644
---- a/drivers/gpu/drm/drm_panel_orientation_quirks.c
-+++ b/drivers/gpu/drm/drm_panel_orientation_quirks.c
-@@ -30,12 +30,6 @@ struct drm_dmi_panel_orientation_data {
- 	int orientation;
- };
- 
--static const struct drm_dmi_panel_orientation_data asus_t100ha = {
--	.width = 800,
--	.height = 1280,
--	.orientation = DRM_MODE_PANEL_ORIENTATION_LEFT_UP,
--};
--
- static const struct drm_dmi_panel_orientation_data gpd_micropc = {
- 	.width = 720,
- 	.height = 1280,
-@@ -97,6 +91,12 @@ static const struct drm_dmi_panel_orientation_data lcd720x1280_rightside_up = {
- 	.orientation = DRM_MODE_PANEL_ORIENTATION_RIGHT_UP,
- };
- 
-+static const struct drm_dmi_panel_orientation_data lcd800x1280_leftside_up = {
-+	.width = 800,
-+	.height = 1280,
-+	.orientation = DRM_MODE_PANEL_ORIENTATION_LEFT_UP,
-+};
-+
- static const struct drm_dmi_panel_orientation_data lcd800x1280_rightside_up = {
- 	.width = 800,
- 	.height = 1280,
-@@ -157,7 +157,7 @@ static const struct dmi_system_id orientation_data[] = {
- 		  DMI_EXACT_MATCH(DMI_SYS_VENDOR, "ASUSTeK COMPUTER INC."),
- 		  DMI_EXACT_MATCH(DMI_PRODUCT_NAME, "T100HAN"),
- 		},
--		.driver_data = (void *)&asus_t100ha,
-+		.driver_data = (void *)&lcd800x1280_leftside_up,
- 	}, {	/* Asus T101HA */
- 		.matches = {
- 		  DMI_EXACT_MATCH(DMI_SYS_VENDOR, "ASUSTeK COMPUTER INC."),
-@@ -202,6 +202,12 @@ static const struct dmi_system_id orientation_data[] = {
- 		  DMI_EXACT_MATCH(DMI_PRODUCT_NAME, "Hi10 pro tablet"),
- 		},
- 		.driver_data = (void *)&lcd1200x1920_rightside_up,
-+	}, {	/* Dynabook K50 */
-+		.matches = {
-+		  DMI_EXACT_MATCH(DMI_SYS_VENDOR, "Dynabook Inc."),
-+		  DMI_EXACT_MATCH(DMI_PRODUCT_NAME, "dynabook K50/FR"),
-+		},
-+		.driver_data = (void *)&lcd800x1280_leftside_up,
- 	}, {	/* GPD MicroPC (generic strings, also match on bios date) */
- 		.matches = {
- 		  DMI_EXACT_MATCH(DMI_SYS_VENDOR, "Default string"),
+diff --git a/drivers/gpu/drm/amd/display/dc/dml/dcn321/dcn321_fpu.c b/drivers/gpu/drm/amd/display/dc/dml/dcn321/dcn321_fpu.c
+index f4b176599be7a..0ea406145c1d7 100644
+--- a/drivers/gpu/drm/amd/display/dc/dml/dcn321/dcn321_fpu.c
++++ b/drivers/gpu/drm/amd/display/dc/dml/dcn321/dcn321_fpu.c
+@@ -136,7 +136,7 @@ struct _vcs_dpi_soc_bounding_box_st dcn3_21_soc = {
+ 	.urgent_out_of_order_return_per_channel_pixel_only_bytes = 4096,
+ 	.urgent_out_of_order_return_per_channel_pixel_and_vm_bytes = 4096,
+ 	.urgent_out_of_order_return_per_channel_vm_only_bytes = 4096,
+-	.pct_ideal_sdp_bw_after_urgent = 100.0,
++	.pct_ideal_sdp_bw_after_urgent = 90.0,
+ 	.pct_ideal_fabric_bw_after_urgent = 67.0,
+ 	.pct_ideal_dram_sdp_bw_after_urgent_pixel_only = 20.0,
+ 	.pct_ideal_dram_sdp_bw_after_urgent_pixel_and_vm = 60.0, // N/A, for now keep as is until DML implemented
 -- 
 2.39.0
 
