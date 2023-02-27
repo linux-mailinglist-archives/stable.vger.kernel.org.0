@@ -2,50 +2,52 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 6EA936A36E0
-	for <lists+stable@lfdr.de>; Mon, 27 Feb 2023 03:05:26 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 480B06A36DE
+	for <lists+stable@lfdr.de>; Mon, 27 Feb 2023 03:05:24 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229946AbjB0CFX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 26 Feb 2023 21:05:23 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58402 "EHLO
+        id S230015AbjB0CFW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 26 Feb 2023 21:05:22 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58950 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229954AbjB0CFN (ORCPT
+        with ESMTP id S230016AbjB0CFN (ORCPT
         <rfc822;stable@vger.kernel.org>); Sun, 26 Feb 2023 21:05:13 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3F05418B2E;
-        Sun, 26 Feb 2023 18:04:46 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4900F18171;
+        Sun, 26 Feb 2023 18:04:45 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 7FD1B60D27;
-        Mon, 27 Feb 2023 02:03:10 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id CBA23C433EF;
-        Mon, 27 Feb 2023 02:03:07 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 4E52B60D2F;
+        Mon, 27 Feb 2023 02:03:18 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A4EF2C4339B;
+        Mon, 27 Feb 2023 02:03:15 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1677463389;
-        bh=JbiKqztTa4pAa5+lxhrjzoitPM4s/HhkUshiLRjhUpg=;
+        s=k20201202; t=1677463397;
+        bh=yQgGdAkuKCNSBSX0l9iuEKy4s5I7dzXo2lB6QLxFQWA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=pmK3rbh+TDWVmBJq4fs/4Y+RYG5liFjN3etbIS74wNhaEEzbtod9L1e5ay/Zyplf6
-         WHhrCFjfHYiVxCyqcCFQp6VPdJaXsrLP87k9a/ttRKxPVPhReqH3CPK54t8PBuAd7G
-         64XhejGcJ0EbnqSJN2sQsllKQ22eQRDwXi701NQLuiLVgQYnAuXjkCO9k+st4InnRv
-         l/cJ42+GJ9DwzuU0+iAEGUVyvI3AEWovlgBN3XPSQMo5PYBpH3ODUUN28GWUZfYqhK
-         QPEX9oYy5wNgeWXfJ5NKT56qJ+YoBjCgXdreXZKYXkMMRWEKCZ1SEs26smqSiIznSx
-         MFR8xzfr/OoAA==
+        b=WZ5yCHzInjmYI4SHliiwJTPjX0P43TdBlbGiHaEQI6+TRlHQtYn256aFJ1PIGIE1D
+         +ZvuqNuwaaTfoLci9sYftHJyR0SB8dC7krZJ7GSVmikQzCD+Didz0tiC9W6sygHO5t
+         bwGSX9xQAZczDy8kgLNC1ghbvIso2vY/VGFXcdjIB6F3axZ3UGs4Ib+uctBuswRr0B
+         /gfeL09Rm4eu41z7hgL0Zm+eWmW0M7m3a7DsjisxH/7qvzV755NGrZGNsLlzUp+mK8
+         EThxB8u++DVD6CiV6wv3kiz118ouzoMp5DZcDt/UvmPQpY3Gmpx3qTONLq8Da+4nIx
+         ducyNlIluheEA==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Vitaly Prosyak <vitaly.prosyak@amd.com>,
+Cc:     Vladimir Stempen <vladimir.stempen@amd.com>,
+        Nevenko Stupar <Nevenko.Stupar@amd.com>,
+        Alex Hung <alex.hung@amd.com>,
+        Daniel Wheeler <daniel.wheeler@amd.com>,
         Alex Deucher <alexander.deucher@amd.com>,
-        Sasha Levin <sashal@kernel.org>, christian.koenig@amd.com,
-        Xinhui.Pan@amd.com, airlied@gmail.com, daniel@ffwll.ch,
-        Hawking.Zhang@amd.com, mario.limonciello@amd.com,
-        lijo.lazar@amd.com, YiPeng.Chai@amd.com, andrey.grodzovsky@amd.com,
-        Jack.Xiao@amd.com, Amaranath.Somalapuram@amd.com,
-        Bokun.Zhang@amd.com, evan.quan@amd.com, guchun.chen@amd.com,
-        mdaenzer@redhat.com, kai.heng.feng@canonical.com,
-        amd-gfx@lists.freedesktop.org, dri-devel@lists.freedesktop.org
-Subject: [PATCH AUTOSEL 6.2 38/60] Revert "drm/amdgpu: TA unload messages are not actually sent to psp when amdgpu is uninstalled"
-Date:   Sun, 26 Feb 2023 21:00:23 -0500
-Message-Id: <20230227020045.1045105-38-sashal@kernel.org>
+        Sasha Levin <sashal@kernel.org>, harry.wentland@amd.com,
+        sunpeng.li@amd.com, Rodrigo.Siqueira@amd.com,
+        christian.koenig@amd.com, Xinhui.Pan@amd.com, airlied@gmail.com,
+        daniel@ffwll.ch, jun.lei@amd.com, Alvin.Lee2@amd.com,
+        Dillon.Varone@amd.com, george.shen@amd.com, rdunlap@infradead.org,
+        David.Galiffi@amd.com, amd-gfx@lists.freedesktop.org,
+        dri-devel@lists.freedesktop.org
+Subject: [PATCH AUTOSEL 6.2 39/60] drm/amd/display: fix FCLK pstate change underflow
+Date:   Sun, 26 Feb 2023 21:00:24 -0500
+Message-Id: <20230227020045.1045105-39-sashal@kernel.org>
 X-Mailer: git-send-email 2.39.0
 In-Reply-To: <20230227020045.1045105-1-sashal@kernel.org>
 References: <20230227020045.1045105-1-sashal@kernel.org>
@@ -62,70 +64,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vitaly Prosyak <vitaly.prosyak@amd.com>
+From: Vladimir Stempen <vladimir.stempen@amd.com>
 
-[ Upstream commit 39934d3ed5725c5e3570ed1b67f612f1ea60ce03 ]
+[ Upstream commit 972243f973eb0821084e5833d5f7f4ed025f42da ]
 
-This reverts commit fac53471d0ea9693d314aa2df08d62b2e7e3a0f8.
-The following change: move the drm_dev_unplug call after
-amdgpu_driver_unload_kms in amdgpu_pci_remove. The reason is
-the following: amdgpu_pci_remove calls drm_dev_unregister
-and it should be called first to ensure userspace can't access the
-device instance anymore. If we call drm_dev_unplug after
-amdgpu_driver_unload_kms then we observe IGT PCI software unplug
-test failure (kernel hung) for all ASICs. This is how this
-regression was found.
+[Why]
+Currently we set FCLK p-state change
+watermark calculated based on dummy
+p-state latency when UCLK p-state is
+not supported
 
-After this revert, the following commands do work not, but it would
-be fixed in the next commit:
- - sudo modprobe -r amdgpu
- - sudo modprobe amdgpu
+[How]
+Calculate FCLK p-state change watermark
+based on on FCLK pstate change latency
+in case UCLK p-state is not supported
 
-Signed-off-by: Vitaly Prosyak <vitaly.prosyak@amd.com>
-Reviewed-by Alex Deucher <alexander.deucher@amd.com>
+Reviewed-by: Nevenko Stupar <Nevenko.Stupar@amd.com>
+Acked-by: Alex Hung <alex.hung@amd.com>
+Signed-off-by: Vladimir Stempen <vladimir.stempen@amd.com>
+Tested-by: Daniel Wheeler <daniel.wheeler@amd.com>
 Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/amd/amdgpu/amdgpu_device.c | 3 ++-
- drivers/gpu/drm/amd/amdgpu/amdgpu_drv.c    | 4 ++--
- 2 files changed, 4 insertions(+), 3 deletions(-)
+ drivers/gpu/drm/amd/display/dc/dml/dcn32/dcn32_fpu.c | 4 ++++
+ 1 file changed, 4 insertions(+)
 
-diff --git a/drivers/gpu/drm/amd/amdgpu/amdgpu_device.c b/drivers/gpu/drm/amd/amdgpu/amdgpu_device.c
-index fbf2f24169eb5..d8e79de839d65 100644
---- a/drivers/gpu/drm/amd/amdgpu/amdgpu_device.c
-+++ b/drivers/gpu/drm/amd/amdgpu/amdgpu_device.c
-@@ -4022,7 +4022,8 @@ void amdgpu_device_fini_hw(struct amdgpu_device *adev)
- 
- 	amdgpu_gart_dummy_page_fini(adev);
- 
--	amdgpu_device_unmap_mmio(adev);
-+	if (drm_dev_is_unplugged(adev_to_drm(adev)))
-+		amdgpu_device_unmap_mmio(adev);
- 
- }
- 
-diff --git a/drivers/gpu/drm/amd/amdgpu/amdgpu_drv.c b/drivers/gpu/drm/amd/amdgpu/amdgpu_drv.c
-index 3fe277bc233f4..7f598977d6942 100644
---- a/drivers/gpu/drm/amd/amdgpu/amdgpu_drv.c
-+++ b/drivers/gpu/drm/amd/amdgpu/amdgpu_drv.c
-@@ -2236,6 +2236,8 @@ amdgpu_pci_remove(struct pci_dev *pdev)
- 	struct drm_device *dev = pci_get_drvdata(pdev);
- 	struct amdgpu_device *adev = drm_to_adev(dev);
- 
-+	drm_dev_unplug(dev);
-+
- 	if (adev->pm.rpm_mode != AMDGPU_RUNPM_NONE) {
- 		pm_runtime_get_sync(dev->dev);
- 		pm_runtime_forbid(dev->dev);
-@@ -2275,8 +2277,6 @@ amdgpu_pci_remove(struct pci_dev *pdev)
- 
- 	amdgpu_driver_unload_kms(dev);
- 
--	drm_dev_unplug(dev);
--
- 	/*
- 	 * Flush any in flight DMA operations from device.
- 	 * Clear the Bus Master Enable bit and then wait on the PCIe Device
+diff --git a/drivers/gpu/drm/amd/display/dc/dml/dcn32/dcn32_fpu.c b/drivers/gpu/drm/amd/display/dc/dml/dcn32/dcn32_fpu.c
+index f94abd124021e..8450f59c26186 100644
+--- a/drivers/gpu/drm/amd/display/dc/dml/dcn32/dcn32_fpu.c
++++ b/drivers/gpu/drm/amd/display/dc/dml/dcn32/dcn32_fpu.c
+@@ -2038,6 +2038,10 @@ void dcn32_calculate_wm_and_dlg_fpu(struct dc *dc, struct dc_state *context,
+ 		 */
+ 		context->bw_ctx.bw.dcn.watermarks.a = context->bw_ctx.bw.dcn.watermarks.c;
+ 		context->bw_ctx.bw.dcn.watermarks.a.cstate_pstate.pstate_change_ns = 0;
++		/* Calculate FCLK p-state change watermark based on FCLK pstate change latency in case
++		 * UCLK p-state is not supported, to avoid underflow in case FCLK pstate is supported
++		 */
++		context->bw_ctx.bw.dcn.watermarks.a.cstate_pstate.fclk_pstate_change_ns = get_fclk_watermark(&context->bw_ctx.dml, pipes, pipe_cnt) * 1000;
+ 	} else {
+ 		/* Set A:
+ 		 * All clocks min.
 -- 
 2.39.0
 
