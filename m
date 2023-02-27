@@ -2,35 +2,35 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 4850E6A3B24
-	for <lists+stable@lfdr.de>; Mon, 27 Feb 2023 07:06:28 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0AEC26A3B26
+	for <lists+stable@lfdr.de>; Mon, 27 Feb 2023 07:06:35 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229567AbjB0GG1 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 27 Feb 2023 01:06:27 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51940 "EHLO
+        id S229650AbjB0GGe (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 27 Feb 2023 01:06:34 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52086 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229451AbjB0GG0 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 27 Feb 2023 01:06:26 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 556F71ACD9;
-        Sun, 26 Feb 2023 22:05:54 -0800 (PST)
+        with ESMTP id S229657AbjB0GGd (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 27 Feb 2023 01:06:33 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 644DBE07A;
+        Sun, 26 Feb 2023 22:06:05 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 916AB60D37;
+        by ams.source.kernel.org (Postfix) with ESMTPS id 8F4DCB80CA9;
+        Mon, 27 Feb 2023 06:05:55 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6AE05C433A0;
         Mon, 27 Feb 2023 06:05:50 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id BB735C433D2;
-        Mon, 27 Feb 2023 06:05:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1677477950;
-        bh=icm2m5El5AGMcBFNrF6OIbUMMImdYobl9YWfSty+WDI=;
-        h=From:To:Cc:Subject:Date:From;
-        b=uiukTXf50Z10gMx0TfsLNkXq5c7BA7TcoIcZ4k2eG8KqMTZcsfJfksBh00ZHoiyX9
-         jMWqCf4x5ovnNtJJSSWAOSPtMJnLG5pUuuPBGmNFbb02SvGAemHhIeBWhd65EY8bwt
-         ew1xyy8esBj/sPHZoSmi7dSs3PwGY4oC4XXyjns/ctGJa8KI/eyrGONZ8vcCWuGW+o
-         8pDGVgu/VaOKXaNCnl4L2eXnvYW9Z2hhxI/rYHEFcs6rfU9QcCq2gulTBQpPNZmlPr
-         kMXhuZpkjWh0dDu3ImPAVs9jhP8nuvF3kSWImArjAJk+IU3mbi5uH25DZkcxkniRf8
-         EsIXGbadCxNAg==
+        s=k20201202; t=1677477954;
+        bh=4C1+pvBIASG8iiG2GF0aay0fnKavFG+MLuc1joZcqJI=;
+        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+        b=NBrJCXUqgCf09EB5BvwGub/rHwbP+qS/KsQMfoKVAY6BOsh/xJK/x3pnCGYgmvqW5
+         J4xHtWgvcxkua5CWg0lCPIuAHedO0RPFyd3TDHBFciORg2iNu2XrDdX2wadlEjaNMQ
+         pYL/WS7hWKsUojenUJOHLzVSzueBYOA8vUGDG4ep/ye3cCNKsF8n18QkTJ7d0dE52U
+         KjU+Zyqf54PAsUFWdh0neztl4So/qAR7bAWzKojzzI5eUIJVV38VBHjI5P0jquNAB7
+         AXKGr//PXDfKgPZpgNlB2+fDnNlUBj6PA0hHUhmcy6jMffdw0f0SiCDTnS/pyMAskR
+         pRpplp8d8rmjw==
 From:   KP Singh <kpsingh@kernel.org>
 To:     linux-kernel@vger.kernel.org
 Cc:     pjt@google.com, evn@google.com, jpoimboe@kernel.org,
@@ -40,18 +40,17 @@ Cc:     pjt@google.com, evn@google.com, jpoimboe@kernel.org,
         daniel.sneddon@linux.intel.com, corbet@lwn.net, bp@suse.de,
         linyujun809@huawei.com, kpsingh@kernel.org, jmattson@google.com,
         mingo@redhat.com, seanjc@google.com, andrew.cooper3@citrix.com,
-        =?UTF-8?q?Jos=C3=A9=20Oliveira?= <joseloliveira11@gmail.com>,
-        Rodrigo Branco <rodrigo@kernelhacking.com>,
         stable@vger.kernel.org
-Subject: [PATCH v3 1/2] x86/speculation: Allow enabling STIBP with legacy IBRS
-Date:   Mon, 27 Feb 2023 07:05:40 +0100
-Message-Id: <20230227060541.1939092-1-kpsingh@kernel.org>
+Subject: [PATCH v3 2/2] Documentation/hw-vuln: Document the interaction between IBRS and STIBP
+Date:   Mon, 27 Feb 2023 07:05:41 +0100
+Message-Id: <20230227060541.1939092-2-kpsingh@kernel.org>
 X-Mailer: git-send-email 2.39.2.637.g21b0678d19-goog
+In-Reply-To: <20230227060541.1939092-1-kpsingh@kernel.org>
+References: <20230227060541.1939092-1-kpsingh@kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
         SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -59,87 +58,55 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-When plain IBRS is enabled (not enhanced IBRS), the logic in
-spectre_v2_user_select_mitigation() determines that STIBP is not needed.
-
-The IBRS bit implicitly protects against cross-thread branch target
-injection. However, with legacy IBRS, the IBRS bit is cleared on
-returning to userspace for performance reasons which leaves userspace
-threads vulnerable to cross-thread branch target injection against which
-STIBP protects.
-
-Exclude IBRS from the spectre_v2_in_ibrs_mode() check to allow for
-enabling STIBP (through seccomp/prctl() by default or always-on, if
-selected by spectre_v2_user kernel cmdline parameter).
+Explain why STIBP is needed with legacy IBRS as currently implemented
+(KERNEL_IBRS) and why STIBP is not needed when enhanced IBRS is enabled.
 
 Fixes: 7c693f54c873 ("x86/speculation: Add spectre_v2=ibrs option to support Kernel IBRS")
-Reported-by: José Oliveira <joseloliveira11@gmail.com>
-Reported-by: Rodrigo Branco <rodrigo@kernelhacking.com>
 Cc: stable@vger.kernel.org
 Signed-off-by: KP Singh <kpsingh@kernel.org>
 ---
- arch/x86/kernel/cpu/bugs.c | 26 +++++++++++++++++++-------
- 1 file changed, 19 insertions(+), 7 deletions(-)
+ Documentation/admin-guide/hw-vuln/spectre.rst | 21 ++++++++++++++-----
+ 1 file changed, 16 insertions(+), 5 deletions(-)
 
-diff --git a/arch/x86/kernel/cpu/bugs.c b/arch/x86/kernel/cpu/bugs.c
-index cf81848b72f4..44e22cda7fb3 100644
---- a/arch/x86/kernel/cpu/bugs.c
-+++ b/arch/x86/kernel/cpu/bugs.c
-@@ -1133,14 +1133,18 @@ spectre_v2_parse_user_cmdline(void)
- 	return SPECTRE_V2_USER_CMD_AUTO;
- }
+diff --git a/Documentation/admin-guide/hw-vuln/spectre.rst b/Documentation/admin-guide/hw-vuln/spectre.rst
+index 3fe6511c5405..4d186f599d90 100644
+--- a/Documentation/admin-guide/hw-vuln/spectre.rst
++++ b/Documentation/admin-guide/hw-vuln/spectre.rst
+@@ -479,8 +479,16 @@ Spectre variant 2
+    On Intel Skylake-era systems the mitigation covers most, but not all,
+    cases. See :ref:`[3] <spec_ref3>` for more details.
  
--static inline bool spectre_v2_in_ibrs_mode(enum spectre_v2_mitigation mode)
-+static inline bool spectre_v2_in_eibrs_mode(enum spectre_v2_mitigation mode)
- {
--	return mode == SPECTRE_V2_IBRS ||
--	       mode == SPECTRE_V2_EIBRS ||
-+	return mode == SPECTRE_V2_EIBRS ||
- 	       mode == SPECTRE_V2_EIBRS_RETPOLINE ||
- 	       mode == SPECTRE_V2_EIBRS_LFENCE;
- }
- 
-+static inline bool spectre_v2_in_ibrs_mode(enum spectre_v2_mitigation mode)
-+{
-+	return spectre_v2_in_eibrs_mode(mode) || mode == SPECTRE_V2_IBRS;
-+}
+-   On CPUs with hardware mitigation for Spectre variant 2 (e.g. Enhanced
+-   IBRS on x86), retpoline is automatically disabled at run time.
++   On CPUs with hardware mitigation for Spectre variant 2 (e.g. IBRS
++   or enhanced IBRS on x86), retpoline is automatically disabled at run time.
 +
- static void __init
- spectre_v2_user_select_mitigation(void)
- {
-@@ -1203,12 +1207,20 @@ spectre_v2_user_select_mitigation(void)
- 	}
++   Systems which support enhanced IBRS (eIBRS) enable IBRS protection once at
++   boot, by setting the IBRS bit, and they're automatically protected against
++   Spectre v2 variant attacks, including cross-thread branch target injections
++   on SMT systems (STIBP). In other words, eIBRS enables STIBP too.
++
++   Legacy IBRS systems clear the IBRS bit on exit to userspace and
++   therefore explicitly enable STIBP for that
  
- 	/*
--	 * If no STIBP, IBRS or enhanced IBRS is enabled, or SMT impossible,
--	 * STIBP is not required.
-+	 * If no STIBP, enhanced IBRS is enabled, or SMT impossible, STIBP
-+	 * is not required.
-+	 *
-+	 * Enhanced IBRS also protects against cross-thread branch target
-+	 * injection in user-mode as the IBRS bit remains always set which
-+	 * implicitly enables cross-thread protections.  However, in legacy IBRS
-+	 * mode, the IBRS bit is set only on kernel entry and cleared on return
-+	 * to userspace. This disables the implicit
-+	 * cross-thread protection, so allow for STIBP to be selected in that
-+	 * case.
- 	 */
- 	if (!boot_cpu_has(X86_FEATURE_STIBP) ||
- 	    !smt_possible ||
--	    spectre_v2_in_ibrs_mode(spectre_v2_enabled))
-+	    spectre_v2_in_eibrs_mode(spectre_v2_enabled))
- 		return;
- 
- 	/*
-@@ -2340,7 +2352,7 @@ static ssize_t mmio_stale_data_show_state(char *buf)
- 
- static char *stibp_state(void)
- {
--	if (spectre_v2_in_ibrs_mode(spectre_v2_enabled))
-+	if (spectre_v2_in_eibrs_mode(spectre_v2_enabled))
- 		return "";
- 
- 	switch (spectre_v2_user_stibp) {
+    The retpoline mitigation is turned on by default on vulnerable
+    CPUs. It can be forced on or off by the administrator
+@@ -504,9 +512,12 @@ Spectre variant 2
+    For Spectre variant 2 mitigation, individual user programs
+    can be compiled with return trampolines for indirect branches.
+    This protects them from consuming poisoned entries in the branch
+-   target buffer left by malicious software.  Alternatively, the
+-   programs can disable their indirect branch speculation via prctl()
+-   (See :ref:`Documentation/userspace-api/spec_ctrl.rst <set_spec_ctrl>`).
++   target buffer left by malicious software.
++
++   On legacy IBRS systems, at return to userspace, implicit STIBP is disabled
++   because the kernel clears the IBRS bit. In this case, the userspace programs
++   can disable indirect branch speculation via prctl() (See
++   :ref:`Documentation/userspace-api/spec_ctrl.rst <set_spec_ctrl>`).
+    On x86, this will turn on STIBP to guard against attacks from the
+    sibling thread when the user program is running, and use IBPB to
+    flush the branch target buffer when switching to/from the program.
 -- 
 2.39.2.637.g21b0678d19-goog
 
