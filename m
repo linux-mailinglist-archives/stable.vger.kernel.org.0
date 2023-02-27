@@ -2,51 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 8BB5D6A3734
-	for <lists+stable@lfdr.de>; Mon, 27 Feb 2023 03:07:41 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 72C606A3709
+	for <lists+stable@lfdr.de>; Mon, 27 Feb 2023 03:06:27 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230016AbjB0CHj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 26 Feb 2023 21:07:39 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58560 "EHLO
+        id S230053AbjB0CGZ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 26 Feb 2023 21:06:25 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59976 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230028AbjB0CHF (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 26 Feb 2023 21:07:05 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0B0A91B318;
-        Sun, 26 Feb 2023 18:06:32 -0800 (PST)
+        with ESMTP id S230076AbjB0CGD (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 26 Feb 2023 21:06:03 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9B2271A976;
+        Sun, 26 Feb 2023 18:05:34 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 929F160D38;
-        Mon, 27 Feb 2023 02:05:24 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 13BFFC433D2;
-        Mon, 27 Feb 2023 02:05:21 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 9B118B80CB9;
+        Mon, 27 Feb 2023 02:05:28 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 60350C433D2;
+        Mon, 27 Feb 2023 02:05:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1677463524;
-        bh=wAAPVyKKyG5I1xxb2A23aE/1rj+xyqdWzy3a5ibpvhU=;
+        s=k20201202; t=1677463527;
+        bh=IQH2ptJk0TY2ZTp7qgBFdQzn+wNYE/5zta7r/xXnTsk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=af5Fj5saaWr4sNtONxrrI7qnYyd0U1rfUWFZba3aiJNWbUdWn6N/iY5Up3c79SuZT
-         AGDNPUDLubqUkdU3enB2Z7XnrrE30okY4UyKDoQnH8+2xnI/n/AJF29FYzzbfZRj9S
-         kD4f09MCt61oEp5Fg0Zx3mK7oaxU1QIyr1ojKkMv8T1+kYeVgZzxy3o14mIwom3oZE
-         z4eiG33od0GwBDow0qXEBHwYBOmnu03DbqnKQFFl4ECLY04YcxnOdAixZ3wY0SqXCA
-         9rE2PQeNqRNncdpdBPHNm34cuquZvW6kP/pc0VXYn/YKuLAuWp02R4buAnC9ymiy5R
-         TGtpEs5qjJ+Cw==
+        b=qHvoCq/5XU0Nqo1Q7h2RpDHlY3LGneoWyaFcWga2/l0mH2Ej883JdDk+n31BJXvBW
+         DJeSlVKJfUnAbpPTwG+jvawrWHy/cnmOLgZksbtbzk0AJy+dwX9Tqn8hFzIlBfWb2N
+         91W2/xx139WeYIV4Su3rFd5yWqhm8RoTgJw0y9GeiVm6gtYUxUW8GYi0/s4EOd3Ttv
+         O0bkX5OxETGiMN3mfbD0h/yAKKMPkhbprgg//p81oQoYGEOhSQg+oEZsXi02lRVy9U
+         auCsT8M6PEiyEhZuvMUNxjNPAXEv8DFkht9xpuOsuOLOwL/20VBAcWKweMOosQZTdt
+         KWq0Qr0bpfndg==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Roman Li <roman.li@amd.com>, kernel test robot <lkp@intel.com>,
-        Dan Carpenter <dan.carpenter@oracle.com>,
-        Wayne Lin <Wayne.Lin@amd.com>,
-        Jasdeep Dhillon <jdhillon@amd.com>,
-        Alex Deucher <alexander.deucher@amd.com>,
-        Sasha Levin <sashal@kernel.org>, harry.wentland@amd.com,
-        sunpeng.li@amd.com, Rodrigo.Siqueira@amd.com,
-        christian.koenig@amd.com, Xinhui.Pan@amd.com, airlied@gmail.com,
-        daniel@ffwll.ch, aurabindo.pillai@amd.com, hersenxs.wu@amd.com,
-        stylon.wang@amd.com, amd-gfx@lists.freedesktop.org,
+Cc:     Tomi Valkeinen <tomi.valkeinen@ideasonboard.com>,
+        kernel test robot <lkp@intel.com>,
+        Arnd Bergmann <arnd@arndb.de>, Sasha Levin <sashal@kernel.org>,
+        tomba@kernel.org, airlied@gmail.com, daniel@ffwll.ch,
         dri-devel@lists.freedesktop.org
-Subject: [PATCH AUTOSEL 6.1 05/58] drm/amd/display: Fix potential null-deref in dm_resume
-Date:   Sun, 26 Feb 2023 21:04:03 -0500
-Message-Id: <20230227020457.1048737-5-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 6.1 06/58] drm/omap: dsi: Fix excessive stack usage
+Date:   Sun, 26 Feb 2023 21:04:04 -0500
+Message-Id: <20230227020457.1048737-6-sashal@kernel.org>
 X-Mailer: git-send-email 2.39.0
 In-Reply-To: <20230227020457.1048737-1-sashal@kernel.org>
 References: <20230227020457.1048737-1-sashal@kernel.org>
@@ -54,8 +48,8 @@ MIME-Version: 1.0
 X-stable: review
 X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
         SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -63,51 +57,98 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Roman Li <roman.li@amd.com>
+From: Tomi Valkeinen <tomi.valkeinen@ideasonboard.com>
 
-[ Upstream commit 7a7175a2cd84b7874bebbf8e59f134557a34161b ]
+[ Upstream commit cfca78971b9233aef0891507a98fba62046d4542 ]
 
-[Why]
-Fixing smatch error:
-dm_resume() error: we previously assumed 'aconnector->dc_link' could be null
+dsi_dump_dsi_irqs(), a function used for debugfs prints, has a large
+struct in its frame, which can result in:
 
-[How]
-Check if dc_link null at the beginning of the loop,
-so further checks can be dropped.
+drivers/gpu/drm/omapdrm/dss/dsi.c:1126:1: warning: the frame size of 1060 bytes is larger than 1024 bytes [-Wframe-larger-than=]
 
+As the performance of the function is of no concern, let's allocate the
+struct with kmalloc instead.
+
+Compile-tested only.
+
+Signed-off-by: Tomi Valkeinen <tomi.valkeinen@ideasonboard.com>
 Reported-by: kernel test robot <lkp@intel.com>
-Reported-by: Dan Carpenter <dan.carpenter@oracle.com>
-
-Reviewed-by: Wayne Lin <Wayne.Lin@amd.com>
-Acked-by: Jasdeep Dhillon <jdhillon@amd.com>
-Signed-off-by: Roman Li <roman.li@amd.com>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+Reviewed-by: Arnd Bergmann <arnd@arndb.de>
+Link: https://patchwork.freedesktop.org/patch/msgid/20220916082206.167427-1-tomi.valkeinen@ideasonboard.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c | 6 ++++--
- 1 file changed, 4 insertions(+), 2 deletions(-)
+ drivers/gpu/drm/omapdrm/dss/dsi.c | 26 ++++++++++++++++----------
+ 1 file changed, 16 insertions(+), 10 deletions(-)
 
-diff --git a/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c b/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c
-index e9c4f22696c5c..6028e332e35d9 100644
---- a/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c
-+++ b/drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c
-@@ -2750,12 +2750,14 @@ static int dm_resume(void *handle)
- 	drm_for_each_connector_iter(connector, &iter) {
- 		aconnector = to_amdgpu_dm_connector(connector);
- 
-+		if (!aconnector->dc_link)
-+			continue;
+diff --git a/drivers/gpu/drm/omapdrm/dss/dsi.c b/drivers/gpu/drm/omapdrm/dss/dsi.c
+index a6845856cbce4..4c1084eb01759 100644
+--- a/drivers/gpu/drm/omapdrm/dss/dsi.c
++++ b/drivers/gpu/drm/omapdrm/dss/dsi.c
+@@ -1039,22 +1039,26 @@ static int dsi_dump_dsi_irqs(struct seq_file *s, void *p)
+ {
+ 	struct dsi_data *dsi = s->private;
+ 	unsigned long flags;
+-	struct dsi_irq_stats stats;
++	struct dsi_irq_stats *stats;
 +
- 		/*
- 		 * this is the case when traversing through already created
- 		 * MST connectors, should be skipped
- 		 */
--		if (aconnector->dc_link &&
--		    aconnector->dc_link->type == dc_connection_mst_branch)
-+		if (aconnector->dc_link->type == dc_connection_mst_branch)
- 			continue;
++	stats = kmalloc(sizeof(*stats), GFP_KERNEL);
++	if (!stats)
++		return -ENOMEM;
  
- 		mutex_lock(&aconnector->hpd_lock);
+ 	spin_lock_irqsave(&dsi->irq_stats_lock, flags);
+ 
+-	stats = dsi->irq_stats;
++	*stats = dsi->irq_stats;
+ 	memset(&dsi->irq_stats, 0, sizeof(dsi->irq_stats));
+ 	dsi->irq_stats.last_reset = jiffies;
+ 
+ 	spin_unlock_irqrestore(&dsi->irq_stats_lock, flags);
+ 
+ 	seq_printf(s, "period %u ms\n",
+-			jiffies_to_msecs(jiffies - stats.last_reset));
++			jiffies_to_msecs(jiffies - stats->last_reset));
+ 
+-	seq_printf(s, "irqs %d\n", stats.irq_count);
++	seq_printf(s, "irqs %d\n", stats->irq_count);
+ #define PIS(x) \
+-	seq_printf(s, "%-20s %10d\n", #x, stats.dsi_irqs[ffs(DSI_IRQ_##x)-1]);
++	seq_printf(s, "%-20s %10d\n", #x, stats->dsi_irqs[ffs(DSI_IRQ_##x)-1]);
+ 
+ 	seq_printf(s, "-- DSI%d interrupts --\n", dsi->module_id + 1);
+ 	PIS(VC0);
+@@ -1078,10 +1082,10 @@ static int dsi_dump_dsi_irqs(struct seq_file *s, void *p)
+ 
+ #define PIS(x) \
+ 	seq_printf(s, "%-20s %10d %10d %10d %10d\n", #x, \
+-			stats.vc_irqs[0][ffs(DSI_VC_IRQ_##x)-1], \
+-			stats.vc_irqs[1][ffs(DSI_VC_IRQ_##x)-1], \
+-			stats.vc_irqs[2][ffs(DSI_VC_IRQ_##x)-1], \
+-			stats.vc_irqs[3][ffs(DSI_VC_IRQ_##x)-1]);
++			stats->vc_irqs[0][ffs(DSI_VC_IRQ_##x)-1], \
++			stats->vc_irqs[1][ffs(DSI_VC_IRQ_##x)-1], \
++			stats->vc_irqs[2][ffs(DSI_VC_IRQ_##x)-1], \
++			stats->vc_irqs[3][ffs(DSI_VC_IRQ_##x)-1]);
+ 
+ 	seq_printf(s, "-- VC interrupts --\n");
+ 	PIS(CS);
+@@ -1097,7 +1101,7 @@ static int dsi_dump_dsi_irqs(struct seq_file *s, void *p)
+ 
+ #define PIS(x) \
+ 	seq_printf(s, "%-20s %10d\n", #x, \
+-			stats.cio_irqs[ffs(DSI_CIO_IRQ_##x)-1]);
++			stats->cio_irqs[ffs(DSI_CIO_IRQ_##x)-1]);
+ 
+ 	seq_printf(s, "-- CIO interrupts --\n");
+ 	PIS(ERRSYNCESC1);
+@@ -1122,6 +1126,8 @@ static int dsi_dump_dsi_irqs(struct seq_file *s, void *p)
+ 	PIS(ULPSACTIVENOT_ALL1);
+ #undef PIS
+ 
++	kfree(stats);
++
+ 	return 0;
+ }
+ #endif
 -- 
 2.39.0
 
