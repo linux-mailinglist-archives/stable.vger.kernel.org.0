@@ -2,154 +2,156 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 869AB6A4C52
-	for <lists+stable@lfdr.de>; Mon, 27 Feb 2023 21:38:23 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 996A36A4C60
+	for <lists+stable@lfdr.de>; Mon, 27 Feb 2023 21:39:28 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229823AbjB0UiV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 27 Feb 2023 15:38:21 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52208 "EHLO
+        id S229756AbjB0Uj1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 27 Feb 2023 15:39:27 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53838 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229909AbjB0UiU (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 27 Feb 2023 15:38:20 -0500
-Received: from mail-pf1-x42a.google.com (mail-pf1-x42a.google.com [IPv6:2607:f8b0:4864:20::42a])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 93E2218B0E
-        for <stable@vger.kernel.org>; Mon, 27 Feb 2023 12:38:17 -0800 (PST)
-Received: by mail-pf1-x42a.google.com with SMTP id ce7so4357062pfb.9
-        for <stable@vger.kernel.org>; Mon, 27 Feb 2023 12:38:17 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20210112.gappssmtp.com; s=20210112; t=1677530297;
-        h=from:to:subject:content-transfer-encoding:mime-version:date
-         :message-id:from:to:cc:subject:date:message-id:reply-to;
-        bh=CCl/BkAJl1F9DnGgbWDMbYgoqYgGz2GBS25SwHLrqsY=;
-        b=iWMeI49zYUIHWvB60fc09do+4EzK6fr3zqz7RndWVSZzR/1l4z6bMNjmZSBWM/Q+Wv
-         hKt4K3pxrljcTEy75TpHp4Y6icQoPdyGjKD5FmxqohEqNfXRZwNpq02gZuy1h6c908Wi
-         2mq0aLJkdc5BNyKjl1pRznCSJp6pS9+Kj5kLZvrqLPE0ZRm4hebp+TLhClWd/GTWfDZc
-         Lje6nvFRMiurXCx8lymOOOlVtPLITvMp35gw9taq/14z/YfGYN+5a6f3kjfN4C9q8t8t
-         pah4cyn+cmmLBX6FdYEdebufho6LcPJyKiOkt0cj9Yg3F+Xgac/cMULt//5z87M+YSNr
-         jK5Q==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112; t=1677530297;
-        h=from:to:subject:content-transfer-encoding:mime-version:date
-         :message-id:x-gm-message-state:from:to:cc:subject:date:message-id
-         :reply-to;
-        bh=CCl/BkAJl1F9DnGgbWDMbYgoqYgGz2GBS25SwHLrqsY=;
-        b=IRsWl1eG9U+SLHm5dQXiH+h/JeCBYkTeBSYQ0hf3llHgjhzxJ13BLtMgUwVeWyR5EB
-         f9iARGUPBROBR84hg5rqfBptYtpcm7fpo7v9dqdNfrFQENigk+U6JNDoFG6Qlmx3YZrJ
-         K/tB4nyU7x3DGBv5hc7TufbbjbsuWJ2nv3LUUqxO6+oA7yh7oL4vGGoE18+RSG2DvQP2
-         VH6lj91tTP4GchplCEqoaZ9lzeZ9AwTraKBngpq5V+cRF5SLOx2uV2qeJ0HYHQRpLszG
-         geMdIZEcMNRrNdfbMxxtX0MyCAXHLL91BI6YBDXfWBno3vhMSc9yCXlickNlxPs8OKLJ
-         bvqw==
-X-Gm-Message-State: AO0yUKXwYrEPBFpbcZDq2U3goD1WUVxN06T2R+3TjtYmtNcur3EQlgvj
-        fsC+soUivuPiOskCMfLeAoEtliB8+CfQIoxF7NAWxw==
-X-Google-Smtp-Source: AK7set9CyZkETKRUZppPDnGsQTOcuIMmplfoTtecYfJK16F3mlhfaLARopmRBM5zDroNl6/rwUo+BQ==
-X-Received: by 2002:a62:8494:0:b0:5a9:bf42:fcc5 with SMTP id k142-20020a628494000000b005a9bf42fcc5mr405020pfd.0.1677530296866;
-        Mon, 27 Feb 2023 12:38:16 -0800 (PST)
-Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id w16-20020aa78590000000b005a8cc32b23csm4619867pfn.20.2023.02.27.12.38.16
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 27 Feb 2023 12:38:16 -0800 (PST)
-Message-ID: <63fd14b8.a70a0220.4b602.7aeb@mx.google.com>
-Date:   Mon, 27 Feb 2023 12:38:16 -0800 (PST)
-Content-Type: text/plain; charset="utf-8"
+        with ESMTP id S229590AbjB0UjZ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 27 Feb 2023 15:39:25 -0500
+Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6C93422DEC;
+        Mon, 27 Feb 2023 12:39:19 -0800 (PST)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by sin.source.kernel.org (Postfix) with ESMTPS id E3A6ACE115B;
+        Mon, 27 Feb 2023 20:39:17 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id F1D5CC433D2;
+        Mon, 27 Feb 2023 20:39:15 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1677530356;
+        bh=vU0SzPPftW1Pk2q0BkvhVj0n+YleexbfpMDKgqWko8A=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=XfhECdkIewZ88wJ2x3gOyDZv4y2QxQmyyeNMETFZxZG8a1NO7U4gcS1n713GRALYO
+         Uv9Q1IuCvV6vrsH2fjq3x7ThsShZojLxqNl+LF2y+ijIbAsk/VP4+GvLLvtCYaKOq9
+         p7bVKX/fylCy9/I39WzVHmjOgbCPcSdgqC6mCkqgWr6xqLk+uR2Unt/MOubmX8qwnx
+         tr4VO3L2kqb/GMVF5FfrQjnENprdtUo2FG8BTAJmQhLIv0z4bGqZDsnMBa8qzRitkU
+         OPDvZKzUgkMzPu8zptnBU3xmh/FlcsCrWRCLl+L2ObnaYX7HOGtUnCnP1P0dEyy887
+         +MdF3zbDmPfmQ==
+Date:   Mon, 27 Feb 2023 15:39:14 -0500
+From:   Sasha Levin <sashal@kernel.org>
+To:     Eric Biggers <ebiggers@kernel.org>
+Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
+        viro@zeniv.linux.org.uk, linux-fsdevel@vger.kernel.org
+Subject: Re: AUTOSEL process
+Message-ID: <Y/0U8tpNkgePu00M@sashalap>
+References: <20230226034256.771769-1-sashal@kernel.org>
+ <20230226034256.771769-12-sashal@kernel.org>
+ <Y/rbGxq8oAEsW28j@sol.localdomain>
+ <Y/rufenGRpoJVXZr@sol.localdomain>
+ <Y/ux9JLHQKDOzWHJ@sol.localdomain>
+ <Y/y70zJj4kjOVfXa@sashalap>
+ <Y/zswi91axMN8OsA@sol.localdomain>
+ <Y/zxKOBTLXFjSVyI@sol.localdomain>
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Branch: queue/6.1
-X-Kernelci-Tree: stable-rc
-X-Kernelci-Kernel: v6.1.14-25-g50c28d473e45
-X-Kernelci-Report-Type: test
-Subject: stable-rc/queue/6.1 baseline: 153 runs,
- 1 regressions (v6.1.14-25-g50c28d473e45)
-To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
-        kernelci-results@groups.io
-From:   "kernelci.org bot" <bot@kernelci.org>
-X-Spam-Status: No, score=-1.9 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_NONE autolearn=ham
-        autolearn_force=no version=3.4.6
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Disposition: inline
+In-Reply-To: <Y/zxKOBTLXFjSVyI@sol.localdomain>
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+        SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/queue/6.1 baseline: 153 runs, 1 regressions (v6.1.14-25-g50c28d47=
-3e45)
+On Mon, Feb 27, 2023 at 10:06:32AM -0800, Eric Biggers wrote:
+>On Mon, Feb 27, 2023 at 09:47:48AM -0800, Eric Biggers wrote:
+>> > > > Of course, it's not just me that AUTOSEL isn't working for.  So, you'll still
+>> > > > continue backporting random commits that I have to spend hours bisecting, e.g.
+>> > > > https://lore.kernel.org/stable/20220921155332.234913-7-sashal@kernel.org.
+>> > > >
+>> > > > But at least I won't have to deal with this garbage for my own commits.
+>> > > >
+>> > > > Now, I'm not sure I'll get a response to this --- I received no response to my
+>> > > > last AUTOSEL question at
+>> > > > https://lore.kernel.org/stable/Y1DTFiP12ws04eOM@sol.localdomain.  So to
+>> > > > hopefully entice you to actually do something, I'm also letting you know that I
+>> > > > won't be reviewing any AUTOSEL mails for my commits anymore.
+>> > > >
+>> > >
+>> > > The really annoying thing is that someone even replied to your AUTOSEL email for
+>> > > that broken patch and told you it is broken
+>> > > (https://lore.kernel.org/stable/d91aaff1-470f-cfdf-41cf-031eea9d6aca@mailbox.org),
+>> > > and ***you ignored it and applied the patch anyway***.
+>> > >
+>> > > Why are you even sending these emails if you are ignoring feedback anyway?
+>> >
+>> > I obviously didn't ignore it on purpose, right?
+>> >
+>>
+>> I don't know, is it obvious?  You've said in the past that sometimes you'd like
+>> to backport a commit even if the maintainer objects and/or it is known buggy.
+>> https://lore.kernel.org/stable/d91aaff1-470f-cfdf-41cf-031eea9d6aca@mailbox.org
+>> also didn't explicitly say "Don't backport this" but instead "This patch has
+>> issues", so maybe that made a difference?
 
-Regressions Summary
--------------------
+ From what I gather I missed the reply - I would not blindly ignore a
+maintainer.
 
-platform           | arch | lab         | compiler | defconfig         | re=
-gressions
--------------------+------+-------------+----------+-------------------+---=
----------
-bcm2835-rpi-b-rev2 | arm  | lab-broonie | gcc-10   | bcm2835_defconfig | 1 =
-         =
+>> Anyway, the fact is that it happened.  And if it happened in the one bug that I
+>> happened to look at because it personally affected me and I spent hours
+>> bisecting, it probably is happening in lots of other cases too.  So it seems the
+>> process is not working...
 
+This one is tricky, becuase we also end up taking a lot of commits that
+do fix real bugs, and were never tagged for stable or even had a fixes
+tag.
 
-  Details:  https://kernelci.org/test/job/stable-rc/branch/queue%2F6.1/kern=
-el/v6.1.14-25-g50c28d473e45/plan/baseline/
+Maybe I should run the numbers again, but when we compared regression
+rates of stable tagged releases and AUTOSEL ones, it was fairly
+identical.
 
-  Test:     baseline
-  Tree:     stable-rc
-  Branch:   queue/6.1
-  Describe: v6.1.14-25-g50c28d473e45
-  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
-able-rc.git
-  SHA:      50c28d473e459a9bfaf90a6ebb21809de3ae2d03 =
+>> Separately from responses to the AUTOSEL email, it also seems that you aren't
+>> checking for any reported regressions or pending fixes for a commit before
+>> backporting it.  Simply searching lore for the commit title
+>> https://lore.kernel.org/all/?q=%22drm%2Famdgpu%3A+use+dirty+framebuffer+helper%22
+>> would have turned up the bug report
+>> https://lore.kernel.org/dri-devel/20220918120926.10322-1-user@am64/ that
+>> bisected a regression to that commit, as well as a patch that Fixes that commit:
+>> https://lore.kernel.org/all/20220920130832.2214101-1-alexander.deucher@amd.com/
+>> Both of these existed before you even sent the AUTOSEL email!
 
+I would love to have a way to automatically grep lore for reported
+issues that are pinpointed to a given commit. I'm hoping that Thorsten's
+regression tracker could be used that way soon enough.
 
+>> So to summarize, that buggy commit was backported even though:
+>>
+>>   * There were no indications that it was a bug fix (and thus potentially
+>>     suitable for stable) in the first place.
+>>   * On the AUTOSEL thread, someone told you the commit is broken.
+>>   * There was already a thread that reported a regression caused by the commit.
+>>     Easily findable via lore search.
+>>   * There was also already a pending patch that Fixes the commit.  Again easily
+>>     findable via lore search.
+>>
+>> So it seems a *lot* of things went wrong, no?  Why?  If so many things can go
+>> wrong, it's not just a "mistake" but rather the process is the problem...
+>
+>BTW, another cause of this is that the commit (66f99628eb24) was AUTOSEL'd after
+>only being in mainline for 4 days, and *released* in all LTS kernels after only
+>being in mainline for 12 days.  Surely that's a timeline befitting a critical
+>security vulnerability, not some random neural-network-selected commit that
+>wasn't even fixing anything?
 
-Test Regressions
----------------- =
+I would love to have a mechanism that tells me with 100% confidence if a
+given commit fixes a bug or not, could you provide me with one?
 
+w.r.t timelines, this is something that was discussed on the mailing
+list a few years ago where we decided that giving AUTOSEL commits 7 days
+of soaking time is sufficient, if anything changed we can have this
+discussion again.
 
+Note, however, that it's not enough to keep pointing at a tiny set and
+using it to suggest that the entire process is broken. How many AUTOSEL
+commits introduced a regression? How many -stable tagged ones did? How
+many bugs did AUTOSEL commits fix?
 
-platform           | arch | lab         | compiler | defconfig         | re=
-gressions
--------------------+------+-------------+----------+-------------------+---=
----------
-bcm2835-rpi-b-rev2 | arm  | lab-broonie | gcc-10   | bcm2835_defconfig | 1 =
-         =
-
-
-  Details:     https://kernelci.org/test/plan/id/63fcde279b9646cd438c8665
-
-  Results:     5 PASS, 1 FAIL, 1 SKIP
-  Full config: bcm2835_defconfig
-  Compiler:    gcc-10 (arm-linux-gnueabihf-gcc (Debian 10.2.1-6) 10.2.1 202=
-10110)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-6.1/v6.1.14-25=
--g50c28d473e45/arm/bcm2835_defconfig/gcc-10/lab-broonie/baseline-bcm2835-rp=
-i-b-rev2.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-6.1/v6.1.14-25=
--g50c28d473e45/arm/bcm2835_defconfig/gcc-10/lab-broonie/baseline-bcm2835-rp=
-i-b-rev2.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
-t-baseline/20230217.0/armel/rootfs.cpio.gz =
-
-
-
-  * baseline.bootrr.deferred-probe-empty: https://kernelci.org/test/case/id=
-/63fcde279b9646cd438c866e
-        failing since 2 days (last pass: v6.1.13-47-ge942f47f1a6d, first fa=
-il: v6.1.13-47-g106bc513b009)
-
-    2023-02-27T16:45:02.903349  + set +x
-    2023-02-27T16:45:02.907209  <8>[   17.294214] <LAVA_SIGNAL_ENDRUN 0_dme=
-sg 80858_1.5.2.4.1>
-    2023-02-27T16:45:03.020101  / # #
-    2023-02-27T16:45:03.123044  export SHELL=3D/bin/sh
-    2023-02-27T16:45:03.123776  #
-    2023-02-27T16:45:03.226065  / # export SHELL=3D/bin/sh. /lava-80858/env=
-ironment
-    2023-02-27T16:45:03.226809  =
-
-    2023-02-27T16:45:03.329150  / # . /lava-80858/environment/lava-80858/bi=
-n/lava-test-runner /lava-80858/1
-    2023-02-27T16:45:03.330299  =
-
-    2023-02-27T16:45:03.336881  / # /lava-80858/bin/lava-test-runner /lava-=
-80858/1 =
-
-    ... (14 line(s) more)  =
-
- =20
+-- 
+Thanks,
+Sasha
