@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 8F3D86A3664
-	for <lists+stable@lfdr.de>; Mon, 27 Feb 2023 03:01:45 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 226806A3669
+	for <lists+stable@lfdr.de>; Mon, 27 Feb 2023 03:01:48 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229574AbjB0CBo (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 26 Feb 2023 21:01:44 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52014 "EHLO
+        id S229682AbjB0CBq (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 26 Feb 2023 21:01:46 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52338 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229684AbjB0CBl (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 26 Feb 2023 21:01:41 -0500
+        with ESMTP id S229688AbjB0CBn (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 26 Feb 2023 21:01:43 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5D67A12BD1;
-        Sun, 26 Feb 2023 18:01:18 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B6A9313D58;
+        Sun, 26 Feb 2023 18:01:19 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id E76FB60CF9;
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 4B72660CA3;
+        Mon, 27 Feb 2023 02:01:19 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id CFE42C433A0;
         Mon, 27 Feb 2023 02:01:17 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4824FC433EF;
-        Mon, 27 Feb 2023 02:01:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1677463277;
-        bh=IQH2ptJk0TY2ZTp7qgBFdQzn+wNYE/5zta7r/xXnTsk=;
+        s=k20201202; t=1677463278;
+        bh=uZogJcvhACYoeJ2xsjDa3mhukEUUJQ+xqVg5+5L+W/8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ftS9wqAlCoQBskBgxzXxG4FSDcBEC5wE4vrrJSHVrOBw9b3pjNe3AnKFssFRi07Ka
-         RirQpUTh93DdXFIuBQ1QYiRNO1fG2E2xaAg2X8QqjlXPcjC51XWxG7/19A2/B8H/vB
-         8kMXhB+IMNS0PyQvYVE+4yDWyNIz/ip9R3o8CJFLI2iNaCJjmIDepG2kO3Zr8gIk80
-         MMN9oo/ds57sZayBZE8xQqJNYK37aZfks3VD1lZznvH1F0uHPpyuaQRbC8Ke5V84oe
-         LPzL8u9hqaBGa5oOpw87T4xDsZo9ThSo7LXPYOSmcGhFUhRlJmAXdIdrmEqOuSxYt0
-         dp0W8gNjHVz0w==
+        b=XIbVXYiY+F8jLSPw3XrRVjVhYR+s1GwwIDCX1SrJQ95zc6EQFW1nwOOi8yfbtxGOw
+         Mm6cQj8qI6k8ow/i3BGFxyjeD9FtGoS6K1Xb+oT1CAUvHEkTEkGDg6MPCSYdhXCMyf
+         uOadKeQFfPYRk5h1Izl7hbNYg2IDNdEXhmQ4M3mnoqxK7GF/v6LF9VJDqHyOzAttWJ
+         nzimnzhS4xAS1sH0XD2D0BLX1eCe+be0AknbpYZSgf9BU2n9OFNXeUl9m174Kq6XXW
+         enDFt622BcOkdmXKT0GUWT/hhWlxcFjXwDaj4MpOTRCEu7VYqy8czMfsak2Nl3CWNd
+         wAooxq/wx8VWA==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Tomi Valkeinen <tomi.valkeinen@ideasonboard.com>,
-        kernel test robot <lkp@intel.com>,
-        Arnd Bergmann <arnd@arndb.de>, Sasha Levin <sashal@kernel.org>,
-        tomba@kernel.org, airlied@gmail.com, daniel@ffwll.ch,
-        dri-devel@lists.freedesktop.org
-Subject: [PATCH AUTOSEL 6.2 06/60] drm/omap: dsi: Fix excessive stack usage
-Date:   Sun, 26 Feb 2023 20:59:51 -0500
-Message-Id: <20230227020045.1045105-6-sashal@kernel.org>
+Cc:     Jingyuan Liang <jingyliang@chromium.org>,
+        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+        Jiri Kosina <jkosina@suse.cz>, Sasha Levin <sashal@kernel.org>,
+        jikos@kernel.org, benjamin.tissoires@redhat.com,
+        linux-input@vger.kernel.org
+Subject: [PATCH AUTOSEL 6.2 07/60] HID: Add Mapping for System Microphone Mute
+Date:   Sun, 26 Feb 2023 20:59:52 -0500
+Message-Id: <20230227020045.1045105-7-sashal@kernel.org>
 X-Mailer: git-send-email 2.39.0
 In-Reply-To: <20230227020045.1045105-1-sashal@kernel.org>
 References: <20230227020045.1045105-1-sashal@kernel.org>
@@ -57,98 +57,56 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Tomi Valkeinen <tomi.valkeinen@ideasonboard.com>
+From: Jingyuan Liang <jingyliang@chromium.org>
 
-[ Upstream commit cfca78971b9233aef0891507a98fba62046d4542 ]
+[ Upstream commit 2d60f9f4f26785a00273cb81fe60eff129ebd449 ]
 
-dsi_dump_dsi_irqs(), a function used for debugfs prints, has a large
-struct in its frame, which can result in:
+HUTRR110 added a new usage code for a key that is supposed to
+mute/unmute microphone system-wide.
 
-drivers/gpu/drm/omapdrm/dss/dsi.c:1126:1: warning: the frame size of 1060 bytes is larger than 1024 bytes [-Wframe-larger-than=]
+Map the new usage code(0x01 0xa9) to keycode KEY_MICMUTE.
+Additionally hid-debug is adjusted to recognize this keycode as well.
 
-As the performance of the function is of no concern, let's allocate the
-struct with kmalloc instead.
-
-Compile-tested only.
-
-Signed-off-by: Tomi Valkeinen <tomi.valkeinen@ideasonboard.com>
-Reported-by: kernel test robot <lkp@intel.com>
-Reviewed-by: Arnd Bergmann <arnd@arndb.de>
-Link: https://patchwork.freedesktop.org/patch/msgid/20220916082206.167427-1-tomi.valkeinen@ideasonboard.com
+Signed-off-by: Jingyuan Liang <jingyliang@chromium.org>
+Reviewed-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Signed-off-by: Jiri Kosina <jkosina@suse.cz>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/omapdrm/dss/dsi.c | 26 ++++++++++++++++----------
- 1 file changed, 16 insertions(+), 10 deletions(-)
+ drivers/hid/hid-debug.c | 1 +
+ drivers/hid/hid-input.c | 8 ++++++++
+ 2 files changed, 9 insertions(+)
 
-diff --git a/drivers/gpu/drm/omapdrm/dss/dsi.c b/drivers/gpu/drm/omapdrm/dss/dsi.c
-index a6845856cbce4..4c1084eb01759 100644
---- a/drivers/gpu/drm/omapdrm/dss/dsi.c
-+++ b/drivers/gpu/drm/omapdrm/dss/dsi.c
-@@ -1039,22 +1039,26 @@ static int dsi_dump_dsi_irqs(struct seq_file *s, void *p)
- {
- 	struct dsi_data *dsi = s->private;
- 	unsigned long flags;
--	struct dsi_irq_stats stats;
-+	struct dsi_irq_stats *stats;
+diff --git a/drivers/hid/hid-debug.c b/drivers/hid/hid-debug.c
+index e213bdde543af..e7ef1ea107c9e 100644
+--- a/drivers/hid/hid-debug.c
++++ b/drivers/hid/hid-debug.c
+@@ -975,6 +975,7 @@ static const char *keys[KEY_MAX + 1] = {
+ 	[KEY_CAMERA_ACCESS_DISABLE] = "CameraAccessDisable",
+ 	[KEY_CAMERA_ACCESS_TOGGLE] = "CameraAccessToggle",
+ 	[KEY_DICTATE] = "Dictate",
++	[KEY_MICMUTE] = "MicrophoneMute",
+ 	[KEY_BRIGHTNESS_MIN] = "BrightnessMin",
+ 	[KEY_BRIGHTNESS_MAX] = "BrightnessMax",
+ 	[KEY_BRIGHTNESS_AUTO] = "BrightnessAuto",
+diff --git a/drivers/hid/hid-input.c b/drivers/hid/hid-input.c
+index 77c8c49852b5c..bd0cfccfb7a25 100644
+--- a/drivers/hid/hid-input.c
++++ b/drivers/hid/hid-input.c
+@@ -793,6 +793,14 @@ static void hidinput_configure_usage(struct hid_input *hidinput, struct hid_fiel
+ 			break;
+ 		}
+ 
++		if ((usage->hid & 0xf0) == 0xa0) {	/* SystemControl */
++			switch (usage->hid & 0xf) {
++			case 0x9: map_key_clear(KEY_MICMUTE); break;
++			default: goto ignore;
++			}
++			break;
++		}
 +
-+	stats = kmalloc(sizeof(*stats), GFP_KERNEL);
-+	if (!stats)
-+		return -ENOMEM;
- 
- 	spin_lock_irqsave(&dsi->irq_stats_lock, flags);
- 
--	stats = dsi->irq_stats;
-+	*stats = dsi->irq_stats;
- 	memset(&dsi->irq_stats, 0, sizeof(dsi->irq_stats));
- 	dsi->irq_stats.last_reset = jiffies;
- 
- 	spin_unlock_irqrestore(&dsi->irq_stats_lock, flags);
- 
- 	seq_printf(s, "period %u ms\n",
--			jiffies_to_msecs(jiffies - stats.last_reset));
-+			jiffies_to_msecs(jiffies - stats->last_reset));
- 
--	seq_printf(s, "irqs %d\n", stats.irq_count);
-+	seq_printf(s, "irqs %d\n", stats->irq_count);
- #define PIS(x) \
--	seq_printf(s, "%-20s %10d\n", #x, stats.dsi_irqs[ffs(DSI_IRQ_##x)-1]);
-+	seq_printf(s, "%-20s %10d\n", #x, stats->dsi_irqs[ffs(DSI_IRQ_##x)-1]);
- 
- 	seq_printf(s, "-- DSI%d interrupts --\n", dsi->module_id + 1);
- 	PIS(VC0);
-@@ -1078,10 +1082,10 @@ static int dsi_dump_dsi_irqs(struct seq_file *s, void *p)
- 
- #define PIS(x) \
- 	seq_printf(s, "%-20s %10d %10d %10d %10d\n", #x, \
--			stats.vc_irqs[0][ffs(DSI_VC_IRQ_##x)-1], \
--			stats.vc_irqs[1][ffs(DSI_VC_IRQ_##x)-1], \
--			stats.vc_irqs[2][ffs(DSI_VC_IRQ_##x)-1], \
--			stats.vc_irqs[3][ffs(DSI_VC_IRQ_##x)-1]);
-+			stats->vc_irqs[0][ffs(DSI_VC_IRQ_##x)-1], \
-+			stats->vc_irqs[1][ffs(DSI_VC_IRQ_##x)-1], \
-+			stats->vc_irqs[2][ffs(DSI_VC_IRQ_##x)-1], \
-+			stats->vc_irqs[3][ffs(DSI_VC_IRQ_##x)-1]);
- 
- 	seq_printf(s, "-- VC interrupts --\n");
- 	PIS(CS);
-@@ -1097,7 +1101,7 @@ static int dsi_dump_dsi_irqs(struct seq_file *s, void *p)
- 
- #define PIS(x) \
- 	seq_printf(s, "%-20s %10d\n", #x, \
--			stats.cio_irqs[ffs(DSI_CIO_IRQ_##x)-1]);
-+			stats->cio_irqs[ffs(DSI_CIO_IRQ_##x)-1]);
- 
- 	seq_printf(s, "-- CIO interrupts --\n");
- 	PIS(ERRSYNCESC1);
-@@ -1122,6 +1126,8 @@ static int dsi_dump_dsi_irqs(struct seq_file *s, void *p)
- 	PIS(ULPSACTIVENOT_ALL1);
- #undef PIS
- 
-+	kfree(stats);
-+
- 	return 0;
- }
- #endif
+ 		if ((usage->hid & 0xf0) == 0xb0) {	/* SC - Display */
+ 			switch (usage->hid & 0xf) {
+ 			case 0x05: map_key_clear(KEY_SWITCHVIDEOMODE); break;
 -- 
 2.39.0
 
