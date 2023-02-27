@@ -2,44 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id CC13E6A36AA
-	for <lists+stable@lfdr.de>; Mon, 27 Feb 2023 03:03:43 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D21EE6A36D7
+	for <lists+stable@lfdr.de>; Mon, 27 Feb 2023 03:05:20 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229674AbjB0CDk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 26 Feb 2023 21:03:40 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53188 "EHLO
+        id S229991AbjB0CFT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 26 Feb 2023 21:05:19 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58124 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229582AbjB0CDi (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 26 Feb 2023 21:03:38 -0500
+        with ESMTP id S229974AbjB0CFM (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 26 Feb 2023 21:05:12 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 66A3F15150;
-        Sun, 26 Feb 2023 18:03:07 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2C1DCCA07;
+        Sun, 26 Feb 2023 18:04:42 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 2A50760CFA;
-        Mon, 27 Feb 2023 02:02:50 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A4E84C433EF;
-        Mon, 27 Feb 2023 02:02:48 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id B0FAD60CA3;
+        Mon, 27 Feb 2023 02:02:52 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 87C1EC433D2;
+        Mon, 27 Feb 2023 02:02:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1677463369;
-        bh=ajBvo+Cs6P6mUYse1zAQJDTGAcKXOeVs+jXrI1Ham1k=;
+        s=k20201202; t=1677463372;
+        bh=eF84hPSUlq0NnK3I0lJ1wPe3Vof4mcdSUvR4+5Y5PYE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=LW2Wut5nfZbr/MvZrw22GipyPNcvDBd2luYn3dVVQpw7CVewN1l/hXBJWQhvE3t+/
-         8pvotmuIwfmy8rYjrzGjM/9Nn09jmYrOwjh5/OUnVPHQJDABefOVSIZyVYLbeKOWGa
-         FhpFi3pn7exfjLVMfyUIL4jdx0AXPxWyWxh2YQsh4LIQE90MBhpvZaya9rOhxMC3UA
-         WDe4VYsf60YY1TdCwQCT2V8mKTv7SfMi4KQ/2EwQl5gsScmjXaVY66FmcclJ9MOID7
-         5dCvtL8aB3ZZwIDp4/gqkhqyyQblRJotUcr1lvpBMDa+M9LOG12qAN8NKMlzmkQ3ex
-         cshnxiuKkVoIg==
+        b=QfDNLTXrNh/y0Np/6R8mK78h8+pO/Ea337gv6QdZyFknj10vUYik8mLa6xaB9B7di
+         Y4j4RYOv8tJ0/FOvnlFrnh1/ONjq0spUPpLpZ4vwTaKUrDGNTjJKhpWaJxEocRhXQF
+         VGrvZmLEOaE3WJO2FxifDB8ArZAcLZdOTFiU3Y+Y/+uXMWRaWl5O39O6HbrBjh4TI0
+         zK/7p2BzPzYABxhI58BKnxI2kYIv9pPSW8d4yoIaNQ2U0ZZgKf5IAKvfP5qxzsft6J
+         0FoFu/ODZh31uOngJMbdPReZaR6loi6OQ7GDh7fnBy8bWBAiZ8+dKDx6v0CNbnxu1M
+         u+5kHfdxnZkWA==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     farah kassabri <fkassabri@habana.ai>,
-        Oded Gabbay <ogabbay@kernel.org>,
-        Sasha Levin <sashal@kernel.org>, gregkh@linuxfoundation.org,
-        ttayar@habana.ai, ynudelman@habana.ai, talcohen@habana.ai
-Subject: [PATCH AUTOSEL 6.2 31/60] habanalabs: fix bug in timestamps registration code
-Date:   Sun, 26 Feb 2023 21:00:16 -0500
-Message-Id: <20230227020045.1045105-31-sashal@kernel.org>
+Cc:     Jakob Koschel <jkl820.git@gmail.com>,
+        Jonathan Corbet <corbet@lwn.net>,
+        Sasha Levin <sashal@kernel.org>, linux-doc@vger.kernel.org
+Subject: [PATCH AUTOSEL 6.2 32/60] docs/scripts/gdb: add necessary make scripts_gdb step
+Date:   Sun, 26 Feb 2023 21:00:17 -0500
+Message-Id: <20230227020045.1045105-32-sashal@kernel.org>
 X-Mailer: git-send-email 2.39.0
 In-Reply-To: <20230227020045.1045105-1-sashal@kernel.org>
 References: <20230227020045.1045105-1-sashal@kernel.org>
@@ -56,92 +55,44 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: farah kassabri <fkassabri@habana.ai>
+From: Jakob Koschel <jkl820.git@gmail.com>
 
-[ Upstream commit ac5af9900f82b7034de7c9eb1d70d030ba325607 ]
+[ Upstream commit 6b219431037bf98c9efd49716aea9b68440477a3 ]
 
-Protect re-using the same timestamp buffer record before actually
-adding it to the to interrupt wait list.
-Mark ts buff offset as in use in the spinlock protection area of the
-interrupt wait list to avoid getting in the re-use section in
-ts_buff_get_kernel_ts_record before adding the node to the list.
-this scenario might happen when multiple threads are racing on
-same offset and one thread could set data in the ts buff in
-ts_buff_get_kernel_ts_record then the other thread takes over
-and get to ts_buff_get_kernel_ts_record and we will try
-to re-use the same ts buff offset then we will try to
-delete a non existing node from the list.
+In order to debug the kernel successfully with gdb you need to run
+'make scripts_gdb' nowadays.
 
-Signed-off-by: farah kassabri <fkassabri@habana.ai>
-Reviewed-by: Oded Gabbay <ogabbay@kernel.org>
-Signed-off-by: Oded Gabbay <ogabbay@kernel.org>
+This was changed with the following commit:
+
+Commit 67274c083438340ad16c ("scripts/gdb: delay generation of gdb
+constants.py")
+
+In order to have a complete guide for beginners this remark
+should be added to the offial documentation.
+
+Signed-off-by: Jakob Koschel <jkl820.git@gmail.com>
+Link: https://lore.kernel.org/r/20230112-documentation-gdb-v2-1-292785c43dc9@gmail.com
+Signed-off-by: Jonathan Corbet <corbet@lwn.net>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- .../habanalabs/common/command_submission.c    | 33 ++++++++++++-------
- 1 file changed, 22 insertions(+), 11 deletions(-)
+ Documentation/dev-tools/gdb-kernel-debugging.rst | 4 ++++
+ 1 file changed, 4 insertions(+)
 
-diff --git a/drivers/misc/habanalabs/common/command_submission.c b/drivers/misc/habanalabs/common/command_submission.c
-index ea0e5101c10ed..6367cbea4ca2a 100644
---- a/drivers/misc/habanalabs/common/command_submission.c
-+++ b/drivers/misc/habanalabs/common/command_submission.c
-@@ -3119,19 +3119,18 @@ static int ts_buff_get_kernel_ts_record(struct hl_mmap_mem_buf *buf,
- 			goto start_over;
- 		}
- 	} else {
-+		/* Fill up the new registration node info */
-+		requested_offset_record->ts_reg_info.buf = buf;
-+		requested_offset_record->ts_reg_info.cq_cb = cq_cb;
-+		requested_offset_record->ts_reg_info.timestamp_kernel_addr =
-+				(u64 *) ts_buff->user_buff_address + ts_offset;
-+		requested_offset_record->cq_kernel_addr =
-+				(u64 *) cq_cb->kernel_address + cq_offset;
-+		requested_offset_record->cq_target_value = target_value;
+diff --git a/Documentation/dev-tools/gdb-kernel-debugging.rst b/Documentation/dev-tools/gdb-kernel-debugging.rst
+index 8e0f1fe8d17ad..895285c037c72 100644
+--- a/Documentation/dev-tools/gdb-kernel-debugging.rst
++++ b/Documentation/dev-tools/gdb-kernel-debugging.rst
+@@ -39,6 +39,10 @@ Setup
+   this mode. In this case, you should build the kernel with
+   CONFIG_RANDOMIZE_BASE disabled if the architecture supports KASLR.
+ 
++- Build the gdb scripts (required on kernels v5.1 and above)::
 +
- 		spin_unlock_irqrestore(wait_list_lock, flags);
- 	}
- 
--	/* Fill up the new registration node info */
--	requested_offset_record->ts_reg_info.in_use = 1;
--	requested_offset_record->ts_reg_info.buf = buf;
--	requested_offset_record->ts_reg_info.cq_cb = cq_cb;
--	requested_offset_record->ts_reg_info.timestamp_kernel_addr =
--			(u64 *) ts_buff->user_buff_address + ts_offset;
--	requested_offset_record->cq_kernel_addr =
--			(u64 *) cq_cb->kernel_address + cq_offset;
--	requested_offset_record->cq_target_value = target_value;
--
- 	*pend = requested_offset_record;
- 
- 	dev_dbg(buf->mmg->dev, "Found available node in TS kernel CB %p\n",
-@@ -3179,7 +3178,7 @@ static int _hl_interrupt_wait_ioctl(struct hl_device *hdev, struct hl_ctx *ctx,
- 			goto put_cq_cb;
- 		}
- 
--		/* Find first available record */
-+		/* get ts buffer record */
- 		rc = ts_buff_get_kernel_ts_record(buf, cq_cb, ts_offset,
- 						cq_counters_offset, target_value,
- 						&interrupt->wait_list_lock, &pend);
-@@ -3227,7 +3226,19 @@ static int _hl_interrupt_wait_ioctl(struct hl_device *hdev, struct hl_ctx *ctx,
- 	 * Note that we cannot have sorted list by target value,
- 	 * in order to shorten the list pass loop, since
- 	 * same list could have nodes for different cq counter handle.
-+	 * Note:
-+	 * Mark ts buff offset as in use here in the spinlock protection area
-+	 * to avoid getting in the re-use section in ts_buff_get_kernel_ts_record
-+	 * before adding the node to the list. this scenario might happen when
-+	 * multiple threads are racing on same offset and one thread could
-+	 * set the ts buff in ts_buff_get_kernel_ts_record then the other thread
-+	 * takes over and get to ts_buff_get_kernel_ts_record and then we will try
-+	 * to re-use the same ts buff offset, and will try to delete a non existing
-+	 * node from the list.
- 	 */
-+	if (register_ts_record)
-+		pend->ts_reg_info.in_use = 1;
++    make scripts_gdb
 +
- 	list_add_tail(&pend->wait_list_node, &interrupt->wait_list_head);
- 	spin_unlock_irqrestore(&interrupt->wait_list_lock, flags);
+ - Enable the gdb stub of QEMU/KVM, either
  
+     - at VM startup time by appending "-s" to the QEMU command line
 -- 
 2.39.0
 
