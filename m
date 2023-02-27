@@ -2,43 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A47D66A37E2
-	for <lists+stable@lfdr.de>; Mon, 27 Feb 2023 03:12:45 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2C1C76A38AC
+	for <lists+stable@lfdr.de>; Mon, 27 Feb 2023 03:35:04 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229974AbjB0CMo (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 26 Feb 2023 21:12:44 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42038 "EHLO
+        id S231548AbjB0CfC (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 26 Feb 2023 21:35:02 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49564 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230168AbjB0CMW (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 26 Feb 2023 21:12:22 -0500
+        with ESMTP id S231681AbjB0Cep (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 26 Feb 2023 21:34:45 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3B45F1C7F6;
-        Sun, 26 Feb 2023 18:10:43 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7772A1717;
+        Sun, 26 Feb 2023 18:34:00 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id D464860DB7;
+        by dfw.source.kernel.org (Postfix) with ESMTPS id EEED460DC4;
+        Mon, 27 Feb 2023 02:08:46 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B317EC4339C;
         Mon, 27 Feb 2023 02:08:45 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9A931C433EF;
-        Mon, 27 Feb 2023 02:08:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1677463725;
-        bh=zmHrb0/X9/YUHikh9eM+PpNBZJ25oqXzRodIxZg1phw=;
+        s=k20201202; t=1677463726;
+        bh=QoI2PXhqmogKXG3961AQtVobVI5PmRj5LpILM6/Fihg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=J1qFlD/v8p/IPlMdM1kKmSxYW666TvIf3TY2NNlKsqOI03lv/swSeM3TBZTQVe9/g
-         Kth5/gjPVsojQQAn7NVAdr1prRJuJUHuHmRgXQ71QW+c8an9WCCkAVwbh1ITA2zdwN
-         edTp90rUXB/D/VOOlcchBQbL9kwbzRLFpZ5s2q3TPQ3vNICw3t3dqhIHRVPU1yXOCn
-         GKo91OXv1FN842WjiRI5k7MlYkpnq+HyuXT8x+fJZ7h9Q2Am6WzeJTms62Yzg05Xno
-         Iqybnt0I9rsN8Xl9DWsaAR3AjWX+t8wGdZv6ojAwtIiCzbM/ZRA2fKjhXaTyI90tcm
-         vCxa3AiiGT5zA==
+        b=ufnj2gsfLNlg00BBmFKFQCQnKURc+7iI14NhywfcSg4drKujoOg7YpasoxIlFyC+p
+         PvpE2MKQbV0a153YF0xLqOqbGwO9w8ifdSlQZhTeIqgrH0jRgu9StO42SGW7Pm3yso
+         PRClgqe5O/Y8n6ob691IA0cWhAPsivmkTAxx7kXz+oEy/i0Q9vv/1nTfkxF/khfiOq
+         j3EIyPzCcE0viU+uq+MNLIbKt7Des4Oh2FlFtfq8eXaLUKrCrVp5lYYhuNrGJ1u6Ue
+         uWmqLoOYLktkGcTPRBCLNs5dwDpY9hicE5I+cYkuEL7yTGTDtRIhEue+0qOj83iCau
+         ix8dGXKQ0D0dw==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Jeff Layton <jlayton@kernel.org>,
+Cc:     Jeff Layton <jlayton@kernel.org>, Boyang Xue <bxue@redhat.com>,
         Chuck Lever <chuck.lever@oracle.com>,
         Sasha Levin <sashal@kernel.org>, linux-nfs@vger.kernel.org
-Subject: [PATCH AUTOSEL 6.1 56/58] nfsd: clean up potential nfsd_file refcount leaks in COPY codepath
-Date:   Sun, 26 Feb 2023 21:04:54 -0500
-Message-Id: <20230227020457.1048737-56-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 6.1 57/58] nfsd: don't hand out delegation on setuid files being opened for write
+Date:   Sun, 26 Feb 2023 21:04:55 -0500
+Message-Id: <20230227020457.1048737-57-sashal@kernel.org>
 X-Mailer: git-send-email 2.39.0
 In-Reply-To: <20230227020457.1048737-1-sashal@kernel.org>
 References: <20230227020457.1048737-1-sashal@kernel.org>
@@ -57,104 +57,91 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Jeff Layton <jlayton@kernel.org>
 
-[ Upstream commit 6ba434cb1a8d403ea9aad1b667c3ea3ad8b3191f ]
+[ Upstream commit 826b67e6376c2a788e3a62c4860dcd79500a27d5 ]
 
-There are two different flavors of the nfsd4_copy struct. One is
-embedded in the compound and is used directly in synchronous copies. The
-other is dynamically allocated, refcounted and tracked in the client
-struture. For the embedded one, the cleanup just involves releasing any
-nfsd_files held on its behalf. For the async one, the cleanup is a bit
-more involved, and we need to dequeue it from lists, unhash it, etc.
+We had a bug report that xfstest generic/355 was failing on NFSv4.0.
+This test sets various combinations of setuid/setgid modes and tests
+whether DIO writes will cause them to be stripped.
 
-There is at least one potential refcount leak in this code now. If the
-kthread_create call fails, then both the src and dst nfsd_files in the
-original nfsd4_copy object are leaked.
+What I found was that the server did properly strip those bits, but
+the client didn't notice because it held a delegation that was not
+recalled. The recall didn't occur because the client itself was the
+one generating the activity and we avoid recalls in that case.
 
-The cleanup in this codepath is also sort of weird. In the async copy
-case, we'll have up to four nfsd_file references (src and dst for both
-flavors of copy structure). They are both put at the end of
-nfsd4_do_async_copy, even though the ones held on behalf of the embedded
-one outlive that structure.
+Clearing setuid bits is an "implicit" activity. The client didn't
+specifically request that we do that, so we need the server to issue a
+CB_RECALL, or avoid the situation entirely by not issuing a delegation.
 
-Change it so that we always clean up the nfsd_file refs held by the
-embedded copy structure before nfsd4_copy returns. Rework
-cleanup_async_copy to handle both inter and intra copies. Eliminate
-nfsd4_cleanup_intra_ssc since it now becomes a no-op.
+The easiest fix here is to simply not give out a delegation if the file
+is being opened for write, and the mode has the setuid and/or setgid bit
+set. Note that there is a potential race between the mode and lease
+being set, so we test for this condition both before and after setting
+the lease.
 
+This patch fixes generic/355, generic/683 and generic/684 for me. (Note
+that 355 fails only on v4.0, and 683 and 684 require NFSv4.2 to run and
+fail).
+
+Reported-by: Boyang Xue <bxue@redhat.com>
 Signed-off-by: Jeff Layton <jlayton@kernel.org>
 Signed-off-by: Chuck Lever <chuck.lever@oracle.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/nfsd/nfs4proc.c | 23 ++++++++++-------------
- 1 file changed, 10 insertions(+), 13 deletions(-)
+ fs/nfsd/nfs4state.c | 27 +++++++++++++++++++++++++++
+ 1 file changed, 27 insertions(+)
 
-diff --git a/fs/nfsd/nfs4proc.c b/fs/nfsd/nfs4proc.c
-index 13603cb017346..9cc498916aa22 100644
---- a/fs/nfsd/nfs4proc.c
-+++ b/fs/nfsd/nfs4proc.c
-@@ -1530,7 +1530,6 @@ nfsd4_cleanup_inter_ssc(struct vfsmount *ss_mnt, struct file *filp,
- 	struct nfsd_net *nn = net_generic(dst->nf_net, nfsd_net_id);
- 
- 	nfs42_ssc_close(filp);
--	nfsd_file_put(dst);
- 	fput(filp);
- 
- 	if (!nn) {
-@@ -1597,13 +1596,6 @@ nfsd4_setup_intra_ssc(struct svc_rqst *rqstp,
- 				 &copy->nf_dst);
+diff --git a/fs/nfsd/nfs4state.c b/fs/nfsd/nfs4state.c
+index 2247d107da90b..925a963aea00f 100644
+--- a/fs/nfsd/nfs4state.c
++++ b/fs/nfsd/nfs4state.c
+@@ -5397,6 +5397,23 @@ nfsd4_verify_deleg_dentry(struct nfsd4_open *open, struct nfs4_file *fp,
+ 	return 0;
  }
  
--static void
--nfsd4_cleanup_intra_ssc(struct nfsd_file *src, struct nfsd_file *dst)
--{
--	nfsd_file_put(src);
--	nfsd_file_put(dst);
--}
--
- static void nfsd4_cb_offload_release(struct nfsd4_callback *cb)
- {
- 	struct nfsd4_cb_offload *cbo =
-@@ -1718,12 +1710,18 @@ static void dup_copy_fields(struct nfsd4_copy *src, struct nfsd4_copy *dst)
- 	dst->ss_mnt = src->ss_mnt;
- }
- 
-+static void release_copy_files(struct nfsd4_copy *copy)
++/*
++ * We avoid breaking delegations held by a client due to its own activity, but
++ * clearing setuid/setgid bits on a write is an implicit activity and the client
++ * may not notice and continue using the old mode. Avoid giving out a delegation
++ * on setuid/setgid files when the client is requesting an open for write.
++ */
++static int
++nfsd4_verify_setuid_write(struct nfsd4_open *open, struct nfsd_file *nf)
 +{
-+	if (copy->nf_src)
-+		nfsd_file_put(copy->nf_src);
-+	if (copy->nf_dst)
-+		nfsd_file_put(copy->nf_dst);
++	struct inode *inode = file_inode(nf->nf_file);
++
++	if ((open->op_share_access & NFS4_SHARE_ACCESS_WRITE) &&
++	    (inode->i_mode & (S_ISUID|S_ISGID)))
++		return -EAGAIN;
++	return 0;
 +}
 +
- static void cleanup_async_copy(struct nfsd4_copy *copy)
- {
- 	nfs4_free_copy_state(copy);
--	nfsd_file_put(copy->nf_dst);
--	if (!nfsd4_ssc_is_inter(copy))
--		nfsd_file_put(copy->nf_src);
-+	release_copy_files(copy);
- 	spin_lock(&copy->cp_clp->async_lock);
- 	list_del(&copy->copies);
- 	spin_unlock(&copy->cp_clp->async_lock);
-@@ -1783,7 +1781,6 @@ static int nfsd4_do_async_copy(void *data)
- 	} else {
- 		nfserr = nfsd4_do_copy(copy, copy->nf_src->nf_file,
- 				       copy->nf_dst->nf_file, false);
--		nfsd4_cleanup_intra_ssc(copy->nf_src, copy->nf_dst);
- 	}
+ static struct nfs4_delegation *
+ nfs4_set_delegation(struct nfsd4_open *open, struct nfs4_ol_stateid *stp,
+ 		    struct svc_fh *parent)
+@@ -5430,6 +5447,8 @@ nfs4_set_delegation(struct nfsd4_open *open, struct nfs4_ol_stateid *stp,
+ 	spin_lock(&fp->fi_lock);
+ 	if (nfs4_delegation_exists(clp, fp))
+ 		status = -EAGAIN;
++	else if (nfsd4_verify_setuid_write(open, nf))
++		status = -EAGAIN;
+ 	else if (!fp->fi_deleg_file) {
+ 		fp->fi_deleg_file = nf;
+ 		/* increment early to prevent fi_deleg_file from being
+@@ -5470,6 +5489,14 @@ nfs4_set_delegation(struct nfsd4_open *open, struct nfs4_ol_stateid *stp,
+ 	if (status)
+ 		goto out_unlock;
  
- do_callback:
-@@ -1847,9 +1844,9 @@ nfsd4_copy(struct svc_rqst *rqstp, struct nfsd4_compound_state *cstate,
- 	} else {
- 		status = nfsd4_do_copy(copy, copy->nf_src->nf_file,
- 				       copy->nf_dst->nf_file, true);
--		nfsd4_cleanup_intra_ssc(copy->nf_src, copy->nf_dst);
- 	}
- out:
-+	release_copy_files(copy);
- 	return status;
- out_err:
- 	if (async_copy)
++	/*
++	 * Now that the deleg is set, check again to ensure that nothing
++	 * raced in and changed the mode while we weren't lookng.
++	 */
++	status = nfsd4_verify_setuid_write(open, fp->fi_deleg_file);
++	if (status)
++		goto out_unlock;
++
+ 	spin_lock(&state_lock);
+ 	spin_lock(&fp->fi_lock);
+ 	if (fp->fi_had_conflict)
 -- 
 2.39.0
 
