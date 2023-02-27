@@ -2,54 +2,54 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 6AA9F6A3609
-	for <lists+stable@lfdr.de>; Mon, 27 Feb 2023 01:58:19 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9F0156A360E
+	for <lists+stable@lfdr.de>; Mon, 27 Feb 2023 02:02:53 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229545AbjB0A6R (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 26 Feb 2023 19:58:17 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46536 "EHLO
+        id S229667AbjB0BCw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 26 Feb 2023 20:02:52 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48386 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229507AbjB0A6Q (ORCPT
-        <rfc822;Stable@vger.kernel.org>); Sun, 26 Feb 2023 19:58:16 -0500
-Received: from mail-pl1-x62c.google.com (mail-pl1-x62c.google.com [IPv6:2607:f8b0:4864:20::62c])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0F6307EDF
-        for <Stable@vger.kernel.org>; Sun, 26 Feb 2023 16:58:16 -0800 (PST)
-Received: by mail-pl1-x62c.google.com with SMTP id i5so3408262pla.2
-        for <Stable@vger.kernel.org>; Sun, 26 Feb 2023 16:58:16 -0800 (PST)
+        with ESMTP id S229572AbjB0BCv (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 26 Feb 2023 20:02:51 -0500
+Received: from mail-lf1-x12e.google.com (mail-lf1-x12e.google.com [IPv6:2a00:1450:4864:20::12e])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 943191A2
+        for <stable@vger.kernel.org>; Sun, 26 Feb 2023 17:02:50 -0800 (PST)
+Received: by mail-lf1-x12e.google.com with SMTP id s22so6460133lfi.9
+        for <stable@vger.kernel.org>; Sun, 26 Feb 2023 17:02:50 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=gmail.com; s=20210112;
         h=to:subject:message-id:date:from:mime-version:from:to:cc:subject
          :date:message-id:reply-to;
-        bh=HZ6EvyfqhGG/NgcCDWOjrdRqV3g0o4pPRQIgirG9ZNU=;
-        b=AnI3PehDb5X62omF8RNpKqxD51rvgrtSglLpsj9/5rdQTLekfaogc0ttr8B4+h3/Kj
-         2M8E0epo3AsN3lumMKval5XX47oBvMVY+KIPVlDq6tS2W5JnvaBivgV/xn7OfJyJ3eGC
-         YQasMva6q5GKBwIvW6hyh3nXV4fqRPARNyPJ+a4mNFszs6GbLemwricArcCW6k9B5RcR
-         qkkG8k0qvr5Gb2kpFBEfDcBjI0Ct0d1rdMqpyW6zy1jWgXSludDD2NNBtp8R04Uz0vRH
-         1pPkrSt9KFLFZcKdnVYHOtwJhWBKQRnVFBTPj8bn8m1j/smCfKgOaQz/dIT4aUMV4kFy
-         WZ0w==
+        bh=weYNpobTz7e34lKnlfhxYchHcnpoQgNkJdKwW1l0gho=;
+        b=elJPrrpfaqL8msvLZjKre9mell9KpMqeLxCZsbqvldVzAP8o1dJ3GjewbNdzQCtOK4
+         yngzEu2gp5aBYeh3x48p7IwTN7/DQxHOKPqNbMW3ubav6+3uJvT77/jk611fzfPIUW66
+         gg8jSxN3k1+8+rNOPp1ghsWdqCjrsNoYuAPlMqGjsR1l02L11j4x9Jl+6hRWYOIHzVMm
+         3wb93ZfRDdhvBIYBs3TP7lbaedk/2+WBuoSwLKCzwnF7MaHA5qFabBTP2IJueEB8/a4F
+         fQ8DYEl3WXxRstrI5sG+2F0y7RxBOFfq2AoJjpZRTPm6nJomLRPllis/ItRsZ9qSD5yw
+         5/pQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
         h=to:subject:message-id:date:from:mime-version:x-gm-message-state
          :from:to:cc:subject:date:message-id:reply-to;
-        bh=HZ6EvyfqhGG/NgcCDWOjrdRqV3g0o4pPRQIgirG9ZNU=;
-        b=zWn7FCgR18qpYqe5htm1SGk7dLWC1GyaP0YqQ4bAJ89X8Ytb4RmU2VxJoRuIZlDyOB
-         xb8zlZNovcPCnd4bId0TZsOPL44bngGpMPSG217qohXjC5AQe89yYEr4F83IaxnNDtue
-         B8i0ndmTIRFrJ/Xd/P5OLj87DFnJYTZroiLQspBcwQRwwt3am1Zs7CjNuPs7P+FcX29E
-         ctlRHT7yFKQogE+UVX/Bxwwfk7zWno5YttoSxc/kJgcRja4675j5A/n77ifzaKd7O0HA
-         Zx4mN3vVWpzw9FZj2kfRg3SKId69/gtNhxgWvmGiByEBJRyvFnHyvHD8O4y+a5roTJbd
-         p9yA==
-X-Gm-Message-State: AO0yUKVJkg5RxZGm4XBNHtoSqSxVgBHAyX1O4WRAzlS8EEhSPxvzi7hl
-        0X8ZFmgdSRNIOklbqGrh6UgbasrwLKW+MThCDDI=
-X-Google-Smtp-Source: AK7set/cgAc+Gn+QVSqcBRQf47OvUPDljyWC3c9Q7QnhW9KY5EWteuXv0Xc5q87pZaamn7Azem/T2DSMvTyZGHuGYD8=
-X-Received: by 2002:a17:90a:3ea6:b0:236:6e4c:8a1e with SMTP id
- k35-20020a17090a3ea600b002366e4c8a1emr4072651pjc.1.1677459495230; Sun, 26 Feb
- 2023 16:58:15 -0800 (PST)
+        bh=weYNpobTz7e34lKnlfhxYchHcnpoQgNkJdKwW1l0gho=;
+        b=3rvhEGhPCYAZdT2iDwchSNgswpXbdL/qyVh6wtHoAyZWzQ6ClDa0v3XT4RKvWmdz+q
+         p9q5ArcTyTghSabv9B+mcnM2XwjpqQHYrUUFZ0xGsmvyp2nijthl+2lKROgzHF0Aue+5
+         cSSDEdC5Z2IC6DVZcc3kwkosu97f34l+aXoYZJ08l9wEKozP0/EmTW24P3+wpk/cbuWA
+         rI0R8tLLNokxW2iBO0ml3gzkTLmPNRVs4v61KkNd1fp8DtH9/CT8/ZS0I5CiAwrbiWv3
+         O2oCAHyK2AnJ/SthyZ7f+15wjEFg0SYTvdJpyZLHjs6NuBH0i4A/JdNilP1bC0EI47ph
+         baaA==
+X-Gm-Message-State: AO0yUKV2vdCtjnu3N7agb8CKZyZYYHSik0grc2gg91jy7M9GU/cinqlV
+        c/ytL7MzkwWkLqZQ1m/ub6Qn9eCZGtBIAODDItE=
+X-Google-Smtp-Source: AK7set/7bvKBaJXZUDS5LErqn+a+m/n724C6sVl7zTSQwnAb40KLOPQ1gbVWmiMQUPEmSRkRXc7nNIvPfRafWuCcvs0=
+X-Received: by 2002:ac2:5df1:0:b0:4d5:ca32:6ae3 with SMTP id
+ z17-20020ac25df1000000b004d5ca326ae3mr6972603lfq.3.1677459768488; Sun, 26 Feb
+ 2023 17:02:48 -0800 (PST)
 MIME-Version: 1.0
-Received: by 2002:a05:7300:1804:b0:9f:620a:97ad with HTTP; Sun, 26 Feb 2023
- 16:58:14 -0800 (PST)
-From:   Anderson Donald <andersondon401@gmail.com>
-Date:   Sun, 26 Feb 2023 16:58:14 -0800
-Message-ID: <CAHF-t+Q52xKiz+eb96hYgmS8M+1SkViP7G3kQWs7kz__1eFMsw@mail.gmail.com>
+Received: by 2002:a89:b8f:0:b0:187:2c43:10df with HTTP; Sun, 26 Feb 2023
+ 17:02:47 -0800 (PST)
+From:   Adel Aldoseri <adelaldoseri1@gmail.com>
+Date:   Sun, 26 Feb 2023 17:02:47 -0800
+Message-ID: <CAECeVmSQdCnag=+jVHFdu1ebtBbtpw8FbXNZ68US5O2JBCEJ=Q@mail.gmail.com>
 Subject: We finance viable projects only
 To:     undisclosed-recipients:;
 Content-Type: text/plain; charset="UTF-8"
@@ -70,9 +70,9 @@ Our Company is willing, ready to help you grow your network and offer
 you Loan funds to complete and fund your existing Projects. We can
 send you our Company Terms and Condition after review of your project
 plan and executive summary of your project, if you are serious and
-Interested contact us for further Information
+Interested contact us for further Information:
 
 
 Best regards,
 
-Donald Anderson
+Adel Aldoseri
