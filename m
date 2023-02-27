@@ -2,1260 +2,766 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 7E09A6A49AE
-	for <lists+stable@lfdr.de>; Mon, 27 Feb 2023 19:26:11 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id AA3EC6A49BE
+	for <lists+stable@lfdr.de>; Mon, 27 Feb 2023 19:30:27 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229813AbjB0S0K (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 27 Feb 2023 13:26:10 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:32942 "EHLO
+        id S229548AbjB0Sa0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 27 Feb 2023 13:30:26 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36450 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229659AbjB0S0D (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 27 Feb 2023 13:26:03 -0500
-Received: from mail-pf1-x42d.google.com (mail-pf1-x42d.google.com [IPv6:2607:f8b0:4864:20::42d])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 323A7252AC
-        for <stable@vger.kernel.org>; Mon, 27 Feb 2023 10:25:49 -0800 (PST)
-Received: by mail-pf1-x42d.google.com with SMTP id c10so3477667pfv.13
-        for <stable@vger.kernel.org>; Mon, 27 Feb 2023 10:25:49 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20210112.gappssmtp.com; s=20210112; t=1677522348;
-        h=from:to:subject:content-transfer-encoding:mime-version:date
-         :message-id:from:to:cc:subject:date:message-id:reply-to;
-        bh=SsFqSdVAyU+ePl/Atb2xFXtGEOX1u6Lbb0l7H65CqKc=;
-        b=r7aZDxBeShluYgQsEovXowPzBJP9Y1mzwV70OnDdaIZkGdH6JJzYivIMafdmqBA8sd
-         /13uwIC17YX5UkUuBYpk4uo8GZqPk3iN9lct2SxRxCNIph/FGGP+2aEnOLkbgJ6P40u9
-         i5bP0jyy1dgv9w0hlBlS7ltydBvEwvQCQGs+6Y5Y1OiO0soGiBEkydXJszWtAVOBrcNH
-         FPzhN/BlgWp0xw0wKk02sBFZ1ICJxYyHqqgyEQ40+cSgLM03cxbxWaqd55our3wzlLC8
-         qQsERDtbWqAtMKp1R+38RzXhcwnYY4NekM4mZ3OWyqvjUh+9ORhBYtm0ulrdo6lb+KP5
-         sOjA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112; t=1677522348;
-        h=from:to:subject:content-transfer-encoding:mime-version:date
-         :message-id:x-gm-message-state:from:to:cc:subject:date:message-id
-         :reply-to;
-        bh=SsFqSdVAyU+ePl/Atb2xFXtGEOX1u6Lbb0l7H65CqKc=;
-        b=BW2MK+bCSxVZEPybIRFB/UQ0khOZsBJVdON5qU7rpCO4Fl4uv/luXCQ8CK8g9R6Z7T
-         XNfn0+51/1E3HcZwi/Zs+eSs3RVLdzIgw7fwZYt/S5D9D3o6yCTJhDR05VcQT4FK3TKo
-         DQDyz0KATLGbHlGjGIZCLRc/0W8CsQ/DqV/BV0yEXfjFUifZFgzBcvBxF3P9vmGVk9mO
-         RnuMJc6qpuqGUWK8bdypFfqI3OVEGjj7SmqOWFTOyb7I0oZV4Dm/fpwS0djK4/vPsBOx
-         O67sjB2t1UwUOlr6BxZN+dXXSWSGIJY5Ra9w8jSBZ3QGOci0Tj2doFNfj/tXevnMlEmH
-         gVZw==
-X-Gm-Message-State: AO0yUKXqbYld4OQRjWHElzuOICuzeVZZQhgd2i9U91phYZKoMGHnJOAc
-        wKKYYmKeVk+kGNzr/Qhe4MndYhk9+9hIIX1AfSLPfw==
-X-Google-Smtp-Source: AK7set+sxUl1vU//71XIhtk9KJ0RzOJGOMag8U3xRGs+9IIyie5Bu8BiBRro33/2dfbGyfip+fT2iA==
-X-Received: by 2002:a62:7911:0:b0:5a9:c16f:b4ea with SMTP id u17-20020a627911000000b005a9c16fb4eamr22702082pfc.7.1677522347654;
-        Mon, 27 Feb 2023 10:25:47 -0800 (PST)
-Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id d9-20020aa78689000000b005898fcb7c1bsm4673080pfo.177.2023.02.27.10.25.47
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 27 Feb 2023 10:25:47 -0800 (PST)
-Message-ID: <63fcf5ab.a70a0220.acdae.770d@mx.google.com>
-Date:   Mon, 27 Feb 2023 10:25:47 -0800 (PST)
-Content-Type: text/plain; charset="utf-8"
+        with ESMTP id S229668AbjB0SaZ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 27 Feb 2023 13:30:25 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6B2721E1DF;
+        Mon, 27 Feb 2023 10:30:22 -0800 (PST)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id EA6EB60DEA;
+        Mon, 27 Feb 2023 18:30:21 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 20726C433EF;
+        Mon, 27 Feb 2023 18:30:21 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1677522621;
+        bh=o1hLWCrKKNqcyxr3stmEtR/IVdP1UE9C4sakqVYmHxQ=;
+        h=From:To:Cc:Subject:Date:From;
+        b=oGXDyGl1CKW4yXYZHtNsNykD09HGfqnxWabSEBtFhaogdGMRGwk8+8G9CbEtRRuzE
+         0NQG1aimfWx/AMYzDBq6aUWYi7GscWiZRzr0g/z+yRohT0ds0d0DFrQhF4QRle1297
+         LX6L+s3c93msVaIS8m2HrKNuTyeNzku+dgakX3TLO4+uHAHHJNBIBg8zzV/x84SGsC
+         mmpjI/SDstylZC84+dhQRfz0B4ej084QDpIMKgxHJW5A7ZQXT5sw+jUoYFxBw83Bj/
+         0dMqNQ7UxSrCdW1R6zOX/NDJH7QO1IjqrL7AvYi3lQxC9JZhkc8l+wL1qxfIyQFKmZ
+         scwJHxnVWS2eg==
+From:   Eric Biggers <ebiggers@kernel.org>
+To:     linux-crypto@vger.kernel.org,
+        Herbert Xu <herbert@gondor.apana.org.au>
+Cc:     "Jason A . Donenfeld" <Jason@zx2c4.com>,
+        linux-kernel@vger.kernel.org, Yann Droneaud <ydroneaud@opteya.com>,
+        stable@vger.kernel.org
+Subject: [PATCH v2] crypto: testmgr - fix RNG performance in fuzz tests
+Date:   Mon, 27 Feb 2023 10:29:47 -0800
+Message-Id: <20230227182947.61733-1-ebiggers@kernel.org>
+X-Mailer: git-send-email 2.39.2
 MIME-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Branch: queue/4.19
-X-Kernelci-Tree: stable-rc
-X-Kernelci-Kernel: v4.19.274-4-g95eb92394ec6
-X-Kernelci-Report-Type: build
-Subject: stable-rc/queue/4.19 build: 197 builds: 5 failed, 192 passed,
- 28 warnings (v4.19.274-4-g95eb92394ec6)
-To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
-        kernelci-results@groups.io
-From:   "kernelci.org bot" <bot@kernelci.org>
-X-Spam-Status: No, score=-1.9 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_NONE autolearn=ham
-        autolearn_force=no version=3.4.6
+Content-Transfer-Encoding: 8bit
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+        SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/queue/4.19 build: 197 builds: 5 failed, 192 passed, 28 warnings (=
-v4.19.274-4-g95eb92394ec6)
-
-Full Build Summary: https://kernelci.org/build/stable-rc/branch/queue%2F4.1=
-9/kernel/v4.19.274-4-g95eb92394ec6/
-
-Tree: stable-rc
-Branch: queue/4.19
-Git Describe: v4.19.274-4-g95eb92394ec6
-Git Commit: 95eb92394ec64c311ad0bf53dfd49cfc19c9bf0c
-Git URL: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stabl=
-e-rc.git
-Built: 7 unique architectures
-
-Build Failures Detected:
-
-mips:
-    ip27_defconfig: (gcc-10) FAIL
-    ip28_defconfig: (gcc-10) FAIL
-
-riscv:
-    allnoconfig: (gcc-10) FAIL
-    defconfig: (gcc-10) FAIL
-    tinyconfig: (gcc-10) FAIL
-
-Warnings Detected:
-
-arc:
-
-arm64:
-    defconfig (gcc-10): 3 warnings
-    defconfig+arm64-chromebook (gcc-10): 3 warnings
-
-arm:
-    omap1_defconfig (gcc-10): 1 warning
-
-i386:
-    allnoconfig (gcc-10): 2 warnings
-    i386_defconfig (gcc-10): 2 warnings
-    tinyconfig (gcc-10): 2 warnings
-
-mips:
-    lemote2f_defconfig (gcc-10): 1 warning
-    loongson3_defconfig (gcc-10): 1 warning
-    malta_qemu_32r6_defconfig (gcc-10): 1 warning
-    mtx1_defconfig (gcc-10): 3 warnings
-    nlm_xlp_defconfig (gcc-10): 1 warning
-
-riscv:
-
-x86_64:
-    allnoconfig (gcc-10): 2 warnings
-    tinyconfig (gcc-10): 2 warnings
-    x86_64_defconfig (gcc-10): 2 warnings
-    x86_64_defconfig+x86-chromebook (gcc-10): 2 warnings
-
-
-Warnings summary:
-
-    7    ld: warning: creating DT_TEXTREL in a PIE
-    6    aarch64-linux-gnu-ld: warning: -z norelro ignored
-    4    ld: arch/x86/boot/compressed/head_64.o: warning: relocation in rea=
-d-only section `.head.text'
-    3    ld: arch/x86/boot/compressed/head_32.o: warning: relocation in rea=
-d-only section `.head.text'
-    2    sound/pci/echoaudio/echoaudio_dsp.c:647:9: warning: iteration 1073=
-741824 invokes undefined behavior [-Waggressive-loop-optimizations]
-    2    net/core/rtnetlink.c:3199:1: warning: the frame size of 1328 bytes=
- is larger than 1024 bytes [-Wframe-larger-than=3D]
-    1    {standard input}:132: Warning: macro instruction expanded into mul=
-tiple instructions
-    1    sound/pci/echoaudio/echoaudio_dsp.c:658:9: warning: iteration 1073=
-741824 invokes undefined behavior [-Waggressive-loop-optimizations]
-    1    net/core/rtnetlink.c:3199:1: warning: the frame size of 1344 bytes=
- is larger than 1024 bytes [-Wframe-larger-than=3D]
-    1    drivers/gpio/gpio-omap.c:1233:34: warning: array =E2=80=98omap_gpi=
-o_match=E2=80=99 assumed to have one element
-
-Section mismatches summary:
-
-    13   WARNING: modpost: Found 1 section mismatch(es).
-
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D
-
-Detailed per-defconfig build reports:
-
----------------------------------------------------------------------------=
------
-32r2el_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
-tion mismatches
-
----------------------------------------------------------------------------=
------
-acs5k_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
-on mismatches
-
----------------------------------------------------------------------------=
------
-acs5k_tiny_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 =
-section mismatches
-
----------------------------------------------------------------------------=
------
-allnoconfig (riscv, gcc-10) =E2=80=94 FAIL, 0 errors, 0 warnings, 0 section=
- mismatches
-
----------------------------------------------------------------------------=
------
-allnoconfig (x86_64, gcc-10) =E2=80=94 PASS, 0 errors, 2 warnings, 0 sectio=
-n mismatches
-
-Warnings:
-    ld: arch/x86/boot/compressed/head_64.o: warning: relocation in read-onl=
-y section `.head.text'
-    ld: warning: creating DT_TEXTREL in a PIE
-
----------------------------------------------------------------------------=
------
-allnoconfig (arc, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section m=
-ismatches
-
----------------------------------------------------------------------------=
------
-allnoconfig (i386, gcc-10) =E2=80=94 PASS, 0 errors, 2 warnings, 0 section =
-mismatches
-
-Warnings:
-    ld: arch/x86/boot/compressed/head_32.o: warning: relocation in read-onl=
-y section `.head.text'
-    ld: warning: creating DT_TEXTREL in a PIE
-
----------------------------------------------------------------------------=
------
-am200epdkit_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0=
- section mismatches
-
----------------------------------------------------------------------------=
------
-ar7_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
-n mismatches
-
----------------------------------------------------------------------------=
------
-aspeed_g4_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 s=
-ection mismatches
-
----------------------------------------------------------------------------=
------
-aspeed_g5_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 s=
-ection mismatches
-
----------------------------------------------------------------------------=
------
-assabet_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
-tion mismatches
-
----------------------------------------------------------------------------=
------
-at91_dt_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
-tion mismatches
-
----------------------------------------------------------------------------=
------
-ath25_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
-ion mismatches
-
----------------------------------------------------------------------------=
------
-ath79_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
-ion mismatches
-
----------------------------------------------------------------------------=
------
-axm55xx_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
-tion mismatches
-
----------------------------------------------------------------------------=
------
-axs103_defconfig (arc, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
-ion mismatches
-
----------------------------------------------------------------------------=
------
-axs103_smp_defconfig (arc, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 =
-section mismatches
-
----------------------------------------------------------------------------=
------
-badge4_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
-ion mismatches
-
----------------------------------------------------------------------------=
------
-bcm2835_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
-tion mismatches
-
----------------------------------------------------------------------------=
------
-bcm47xx_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
-ction mismatches
-
----------------------------------------------------------------------------=
------
-bcm63xx_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
-ction mismatches
-
----------------------------------------------------------------------------=
------
-bigsur_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
-tion mismatches
-
----------------------------------------------------------------------------=
------
-bmips_be_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 s=
-ection mismatches
-
----------------------------------------------------------------------------=
------
-bmips_stb_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 =
-section mismatches
-
----------------------------------------------------------------------------=
------
-capcella_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 s=
-ection mismatches
-
----------------------------------------------------------------------------=
------
-cavium_octeon_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings=
-, 0 section mismatches
-
----------------------------------------------------------------------------=
------
-cerfcube_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
-ction mismatches
-
----------------------------------------------------------------------------=
------
-ci20_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
-on mismatches
-
----------------------------------------------------------------------------=
------
-cm_x2xx_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
-tion mismatches
-
----------------------------------------------------------------------------=
------
-cm_x300_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
-tion mismatches
-
----------------------------------------------------------------------------=
------
-cobalt_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
-tion mismatches
-
----------------------------------------------------------------------------=
------
-colibri_pxa270_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings=
-, 0 section mismatches
-
----------------------------------------------------------------------------=
------
-colibri_pxa300_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings=
-, 0 section mismatches
-
----------------------------------------------------------------------------=
------
-collie_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
-ion mismatches
-
----------------------------------------------------------------------------=
------
-corgi_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
-on mismatches
-
----------------------------------------------------------------------------=
------
-davinci_all_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0=
- section mismatches
-
----------------------------------------------------------------------------=
------
-db1xxx_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
-tion mismatches
-
----------------------------------------------------------------------------=
------
-decstation_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0=
- section mismatches
-
----------------------------------------------------------------------------=
------
-defconfig (arm64, gcc-10) =E2=80=94 PASS, 0 errors, 3 warnings, 0 section m=
-ismatches
-
-Warnings:
-    aarch64-linux-gnu-ld: warning: -z norelro ignored
-    aarch64-linux-gnu-ld: warning: -z norelro ignored
-    aarch64-linux-gnu-ld: warning: -z norelro ignored
-
-Section mismatches:
-    WARNING: modpost: Found 1 section mismatch(es).
-
----------------------------------------------------------------------------=
------
-defconfig (riscv, gcc-10) =E2=80=94 FAIL, 0 errors, 0 warnings, 0 section m=
-ismatches
-
----------------------------------------------------------------------------=
------
-defconfig+arm64-chromebook (arm64, gcc-10) =E2=80=94 PASS, 0 errors, 3 warn=
-ings, 0 section mismatches
-
-Warnings:
-    aarch64-linux-gnu-ld: warning: -z norelro ignored
-    aarch64-linux-gnu-ld: warning: -z norelro ignored
-    aarch64-linux-gnu-ld: warning: -z norelro ignored
-
-Section mismatches:
-    WARNING: modpost: Found 1 section mismatch(es).
-
----------------------------------------------------------------------------=
------
-dove_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
-n mismatches
-
----------------------------------------------------------------------------=
------
-e55_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
-n mismatches
-
----------------------------------------------------------------------------=
------
-ebsa110_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
-tion mismatches
-
----------------------------------------------------------------------------=
------
-efm32_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
-on mismatches
-
----------------------------------------------------------------------------=
------
-em_x270_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
-tion mismatches
-
----------------------------------------------------------------------------=
------
-ep93xx_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
-ion mismatches
-
-Section mismatches:
-    WARNING: modpost: Found 1 section mismatch(es).
-
----------------------------------------------------------------------------=
------
-eseries_pxa_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0=
- section mismatches
-
----------------------------------------------------------------------------=
------
-exynos_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
-ion mismatches
-
----------------------------------------------------------------------------=
------
-ezx_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section=
- mismatches
-
----------------------------------------------------------------------------=
------
-footbridge_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 =
-section mismatches
-
----------------------------------------------------------------------------=
------
-fuloong2e_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 =
-section mismatches
-
----------------------------------------------------------------------------=
------
-gcw0_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
-on mismatches
-
----------------------------------------------------------------------------=
------
-gemini_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
-ion mismatches
-
----------------------------------------------------------------------------=
------
-gpr_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
-n mismatches
-
----------------------------------------------------------------------------=
------
-h3600_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
-on mismatches
-
----------------------------------------------------------------------------=
------
-h5000_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
-on mismatches
-
----------------------------------------------------------------------------=
------
-hackkit_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
-tion mismatches
-
----------------------------------------------------------------------------=
------
-haps_hs_defconfig (arc, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
-tion mismatches
-
----------------------------------------------------------------------------=
------
-haps_hs_smp_defconfig (arc, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0=
- section mismatches
-
----------------------------------------------------------------------------=
------
-hisi_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
-n mismatches
-
----------------------------------------------------------------------------=
------
-hsdk_defconfig (arc, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
-n mismatches
-
----------------------------------------------------------------------------=
------
-i386_defconfig (i386, gcc-10) =E2=80=94 PASS, 0 errors, 2 warnings, 0 secti=
-on mismatches
-
-Warnings:
-    ld: arch/x86/boot/compressed/head_32.o: warning: relocation in read-onl=
-y section `.head.text'
-    ld: warning: creating DT_TEXTREL in a PIE
-
----------------------------------------------------------------------------=
------
-imote2_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
-ion mismatches
-
----------------------------------------------------------------------------=
------
-imx_v4_v5_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 s=
-ection mismatches
-
----------------------------------------------------------------------------=
------
-imx_v6_v7_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 s=
-ection mismatches
-
----------------------------------------------------------------------------=
------
-integrator_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 =
-section mismatches
-
-Section mismatches:
-    WARNING: modpost: Found 1 section mismatch(es).
-
----------------------------------------------------------------------------=
------
-iop13xx_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
-tion mismatches
-
----------------------------------------------------------------------------=
------
-iop32x_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
-ion mismatches
-
----------------------------------------------------------------------------=
------
-iop33x_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
-ion mismatches
-
----------------------------------------------------------------------------=
------
-ip22_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
-on mismatches
-
----------------------------------------------------------------------------=
------
-ip27_defconfig (mips, gcc-10) =E2=80=94 FAIL, 0 errors, 0 warnings, 0 secti=
-on mismatches
-
----------------------------------------------------------------------------=
------
-ip28_defconfig (mips, gcc-10) =E2=80=94 FAIL, 0 errors, 0 warnings, 0 secti=
-on mismatches
-
----------------------------------------------------------------------------=
------
-ip32_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
-on mismatches
-
----------------------------------------------------------------------------=
------
-ixp4xx_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
-ion mismatches
-
----------------------------------------------------------------------------=
------
-jazz_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
-on mismatches
-
----------------------------------------------------------------------------=
------
-jmr3927_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
-ction mismatches
-
----------------------------------------------------------------------------=
------
-jornada720_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 =
-section mismatches
-
----------------------------------------------------------------------------=
------
-keystone_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
-ction mismatches
-
----------------------------------------------------------------------------=
------
-ks8695_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
-ion mismatches
-
----------------------------------------------------------------------------=
------
-lart_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
-n mismatches
-
----------------------------------------------------------------------------=
------
-lasat_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
-ion mismatches
-
----------------------------------------------------------------------------=
------
-lemote2f_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 1 warning, 0 se=
-ction mismatches
-
-Warnings:
-    net/core/rtnetlink.c:3199:1: warning: the frame size of 1328 bytes is l=
-arger than 1024 bytes [-Wframe-larger-than=3D]
-
----------------------------------------------------------------------------=
------
-loongson1b_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0=
- section mismatches
-
----------------------------------------------------------------------------=
------
-loongson1c_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0=
- section mismatches
-
----------------------------------------------------------------------------=
------
-loongson3_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 1 warning, 0 s=
-ection mismatches
-
-Warnings:
-    net/core/rtnetlink.c:3199:1: warning: the frame size of 1328 bytes is l=
-arger than 1024 bytes [-Wframe-larger-than=3D]
-
----------------------------------------------------------------------------=
------
-lpc18xx_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
-tion mismatches
-
----------------------------------------------------------------------------=
------
-lpc32xx_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
-tion mismatches
-
----------------------------------------------------------------------------=
------
-lpd270_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
-ion mismatches
-
----------------------------------------------------------------------------=
------
-lubbock_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
-tion mismatches
-
----------------------------------------------------------------------------=
------
-magician_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
-ction mismatches
-
----------------------------------------------------------------------------=
------
-mainstone_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 s=
-ection mismatches
-
----------------------------------------------------------------------------=
------
-malta_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
-ion mismatches
-
----------------------------------------------------------------------------=
------
-malta_kvm_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 =
-section mismatches
-
----------------------------------------------------------------------------=
------
-malta_kvm_guest_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnin=
-gs, 0 section mismatches
-
----------------------------------------------------------------------------=
------
-malta_qemu_32r6_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 1 warnin=
-g, 0 section mismatches
-
-Warnings:
-    {standard input}:132: Warning: macro instruction expanded into multiple=
- instructions
-
----------------------------------------------------------------------------=
------
-maltaaprp_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 =
-section mismatches
-
----------------------------------------------------------------------------=
------
-maltasmvp_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 =
-section mismatches
-
----------------------------------------------------------------------------=
------
-maltasmvp_eva_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings=
-, 0 section mismatches
-
----------------------------------------------------------------------------=
------
-maltaup_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
-ction mismatches
-
----------------------------------------------------------------------------=
------
-maltaup_xpa_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, =
-0 section mismatches
-
----------------------------------------------------------------------------=
------
-markeins_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 s=
-ection mismatches
-
----------------------------------------------------------------------------=
------
-mini2440_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
-ction mismatches
-
----------------------------------------------------------------------------=
------
-mips_paravirt_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings=
-, 0 section mismatches
-
----------------------------------------------------------------------------=
------
-mmp2_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
-n mismatches
-
----------------------------------------------------------------------------=
------
-moxart_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
-ion mismatches
-
----------------------------------------------------------------------------=
------
-mpc30x_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
-tion mismatches
-
----------------------------------------------------------------------------=
------
-mps2_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
-n mismatches
-
----------------------------------------------------------------------------=
------
-msp71xx_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
-ction mismatches
-
----------------------------------------------------------------------------=
------
-mtx1_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 3 warnings, 0 secti=
-on mismatches
-
-Warnings:
-    sound/pci/echoaudio/echoaudio_dsp.c:647:9: warning: iteration 107374182=
-4 invokes undefined behavior [-Waggressive-loop-optimizations]
-    sound/pci/echoaudio/echoaudio_dsp.c:658:9: warning: iteration 107374182=
-4 invokes undefined behavior [-Waggressive-loop-optimizations]
-    sound/pci/echoaudio/echoaudio_dsp.c:647:9: warning: iteration 107374182=
-4 invokes undefined behavior [-Waggressive-loop-optimizations]
-
----------------------------------------------------------------------------=
------
-multi_v4t_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 s=
-ection mismatches
-
----------------------------------------------------------------------------=
------
-multi_v5_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
-ction mismatches
-
-Section mismatches:
-    WARNING: modpost: Found 1 section mismatch(es).
-
----------------------------------------------------------------------------=
------
-multi_v7_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
-ction mismatches
-
----------------------------------------------------------------------------=
------
-mvebu_v5_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
-ction mismatches
-
----------------------------------------------------------------------------=
------
-mvebu_v7_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
-ction mismatches
-
----------------------------------------------------------------------------=
------
-mxs_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section=
- mismatches
-
----------------------------------------------------------------------------=
------
-neponset_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
-ction mismatches
-
----------------------------------------------------------------------------=
------
-netwinder_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 s=
-ection mismatches
-
----------------------------------------------------------------------------=
------
-netx_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
-n mismatches
-
-Section mismatches:
-    WARNING: modpost: Found 1 section mismatch(es).
-
----------------------------------------------------------------------------=
------
-nhk8815_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
-tion mismatches
-
-Section mismatches:
-    WARNING: modpost: Found 1 section mismatch(es).
-
----------------------------------------------------------------------------=
------
-nlm_xlp_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 1 warning, 0 sec=
-tion mismatches
-
-Warnings:
-    net/core/rtnetlink.c:3199:1: warning: the frame size of 1344 bytes is l=
-arger than 1024 bytes [-Wframe-larger-than=3D]
-
----------------------------------------------------------------------------=
------
-nlm_xlr_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
-ction mismatches
-
----------------------------------------------------------------------------=
------
-nsim_hs_defconfig (arc, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
-tion mismatches
-
----------------------------------------------------------------------------=
------
-nsim_hs_smp_defconfig (arc, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0=
- section mismatches
-
----------------------------------------------------------------------------=
------
-nsimosci_hs_defconfig (arc, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0=
- section mismatches
-
----------------------------------------------------------------------------=
------
-nsimosci_hs_smp_defconfig (arc, gcc-10) =E2=80=94 PASS, 0 errors, 0 warning=
-s, 0 section mismatches
-
----------------------------------------------------------------------------=
------
-nuc910_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
-ion mismatches
-
----------------------------------------------------------------------------=
------
-nuc950_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
-ion mismatches
-
----------------------------------------------------------------------------=
------
-nuc960_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
-ion mismatches
-
----------------------------------------------------------------------------=
------
-omap1_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 1 warning, 0 sectio=
-n mismatches
-
-Warnings:
-    drivers/gpio/gpio-omap.c:1233:34: warning: array =E2=80=98omap_gpio_mat=
-ch=E2=80=99 assumed to have one element
-
----------------------------------------------------------------------------=
------
-omap2plus_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 s=
-ection mismatches
-
----------------------------------------------------------------------------=
------
-omega2p_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
-ction mismatches
-
----------------------------------------------------------------------------=
------
-orion5x_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
-tion mismatches
-
----------------------------------------------------------------------------=
------
-oxnas_v6_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
-ction mismatches
-
----------------------------------------------------------------------------=
------
-palmz72_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
-tion mismatches
-
----------------------------------------------------------------------------=
------
-pcm027_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
-ion mismatches
-
----------------------------------------------------------------------------=
------
-pic32mzda_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 =
-section mismatches
-
----------------------------------------------------------------------------=
------
-pistachio_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 =
-section mismatches
-
----------------------------------------------------------------------------=
------
-pleb_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
-n mismatches
-
----------------------------------------------------------------------------=
------
-pnx8335_stb225_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warning=
-s, 0 section mismatches
-
----------------------------------------------------------------------------=
------
-prima2_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
-ion mismatches
-
----------------------------------------------------------------------------=
------
-pxa168_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
-ion mismatches
-
----------------------------------------------------------------------------=
------
-pxa255-idp_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 =
-section mismatches
-
----------------------------------------------------------------------------=
------
-pxa3xx_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
-ion mismatches
-
----------------------------------------------------------------------------=
------
-pxa910_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
-ion mismatches
-
----------------------------------------------------------------------------=
------
-pxa_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section=
- mismatches
-
----------------------------------------------------------------------------=
------
-qcom_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
-n mismatches
-
----------------------------------------------------------------------------=
------
-qi_lb60_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
-ction mismatches
-
----------------------------------------------------------------------------=
------
-raumfeld_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
-ction mismatches
-
----------------------------------------------------------------------------=
------
-rb532_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
-ion mismatches
-
----------------------------------------------------------------------------=
------
-rbtx49xx_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 s=
-ection mismatches
-
----------------------------------------------------------------------------=
------
-realview_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
-ction mismatches
-
----------------------------------------------------------------------------=
------
-rm200_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
-ion mismatches
-
----------------------------------------------------------------------------=
------
-rt305x_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
-tion mismatches
-
----------------------------------------------------------------------------=
------
-s3c2410_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
-tion mismatches
-
----------------------------------------------------------------------------=
------
-s3c6400_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
-tion mismatches
-
-Section mismatches:
-    WARNING: modpost: Found 1 section mismatch(es).
-
----------------------------------------------------------------------------=
------
-s5pv210_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
-tion mismatches
-
-Section mismatches:
-    WARNING: modpost: Found 1 section mismatch(es).
-
----------------------------------------------------------------------------=
------
-sama5_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
-on mismatches
-
----------------------------------------------------------------------------=
------
-sb1250_swarm_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings,=
- 0 section mismatches
-
----------------------------------------------------------------------------=
------
-shannon_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
-tion mismatches
-
----------------------------------------------------------------------------=
------
-shmobile_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
-ction mismatches
-
----------------------------------------------------------------------------=
------
-simpad_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
-ion mismatches
-
----------------------------------------------------------------------------=
------
-socfpga_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
-tion mismatches
-
----------------------------------------------------------------------------=
------
-spear13xx_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 s=
-ection mismatches
-
----------------------------------------------------------------------------=
------
-spear3xx_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
-ction mismatches
-
-Section mismatches:
-    WARNING: modpost: Found 1 section mismatch(es).
-
----------------------------------------------------------------------------=
------
-spear6xx_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
-ction mismatches
-
-Section mismatches:
-    WARNING: modpost: Found 1 section mismatch(es).
-
----------------------------------------------------------------------------=
------
-spitz_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
-on mismatches
-
----------------------------------------------------------------------------=
------
-stm32_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
-on mismatches
-
----------------------------------------------------------------------------=
------
-sunxi_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
-on mismatches
-
----------------------------------------------------------------------------=
------
-tango4_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sect=
-ion mismatches
-
----------------------------------------------------------------------------=
------
-tb0219_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
-tion mismatches
-
----------------------------------------------------------------------------=
------
-tb0226_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
-tion mismatches
-
----------------------------------------------------------------------------=
------
-tb0287_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
-tion mismatches
-
----------------------------------------------------------------------------=
------
-tct_hammer_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 =
-section mismatches
-
----------------------------------------------------------------------------=
------
-tegra_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
-on mismatches
-
----------------------------------------------------------------------------=
------
-tinyconfig (riscv, gcc-10) =E2=80=94 FAIL, 0 errors, 0 warnings, 0 section =
-mismatches
-
----------------------------------------------------------------------------=
------
-tinyconfig (i386, gcc-10) =E2=80=94 PASS, 0 errors, 2 warnings, 0 section m=
-ismatches
-
-Warnings:
-    ld: arch/x86/boot/compressed/head_32.o: warning: relocation in read-onl=
-y section `.head.text'
-    ld: warning: creating DT_TEXTREL in a PIE
-
----------------------------------------------------------------------------=
------
-tinyconfig (x86_64, gcc-10) =E2=80=94 PASS, 0 errors, 2 warnings, 0 section=
- mismatches
-
-Warnings:
-    ld: arch/x86/boot/compressed/head_64.o: warning: relocation in read-onl=
-y section `.head.text'
-    ld: warning: creating DT_TEXTREL in a PIE
-
----------------------------------------------------------------------------=
------
-tinyconfig (arc, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section mi=
-smatches
-
----------------------------------------------------------------------------=
------
-trizeps4_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
-ction mismatches
-
----------------------------------------------------------------------------=
------
-u300_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
-n mismatches
-
-Section mismatches:
-    WARNING: modpost: Found 1 section mismatch(es).
-
----------------------------------------------------------------------------=
------
-u8500_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
-on mismatches
-
----------------------------------------------------------------------------=
------
-vdk_hs38_defconfig (arc, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
-ction mismatches
-
----------------------------------------------------------------------------=
------
-vdk_hs38_smp_defconfig (arc, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, =
-0 section mismatches
-
----------------------------------------------------------------------------=
------
-versatile_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 s=
-ection mismatches
-
-Section mismatches:
-    WARNING: modpost: Found 1 section mismatch(es).
-
----------------------------------------------------------------------------=
------
-vexpress_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
-ction mismatches
-
----------------------------------------------------------------------------=
------
-vf610m4_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sec=
-tion mismatches
-
----------------------------------------------------------------------------=
------
-viper_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 secti=
-on mismatches
-
----------------------------------------------------------------------------=
------
-vocore2_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
-ction mismatches
-
----------------------------------------------------------------------------=
------
-vt8500_v6_v7_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, =
-0 section mismatches
-
----------------------------------------------------------------------------=
------
-workpad_defconfig (mips, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 se=
-ction mismatches
-
----------------------------------------------------------------------------=
------
-x86_64_defconfig (x86_64, gcc-10) =E2=80=94 PASS, 0 errors, 2 warnings, 0 s=
-ection mismatches
-
-Warnings:
-    ld: arch/x86/boot/compressed/head_64.o: warning: relocation in read-onl=
-y section `.head.text'
-    ld: warning: creating DT_TEXTREL in a PIE
-
----------------------------------------------------------------------------=
------
-x86_64_defconfig+x86-chromebook (x86_64, gcc-10) =E2=80=94 PASS, 0 errors, =
-2 warnings, 0 section mismatches
-
-Warnings:
-    ld: arch/x86/boot/compressed/head_64.o: warning: relocation in read-onl=
-y section `.head.text'
-    ld: warning: creating DT_TEXTREL in a PIE
-
----------------------------------------------------------------------------=
------
-xcep_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
-n mismatches
-
----------------------------------------------------------------------------=
------
-zeus_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
-n mismatches
-
----------------------------------------------------------------------------=
------
-zx_defconfig (arm, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section =
-mismatches
-
+From: Eric Biggers <ebiggers@google.com>
+
+The performance of the crypto fuzz tests has greatly regressed since
+v5.18.  When booting a kernel on an arm64 dev board with all software
+crypto algorithms and CONFIG_CRYPTO_MANAGER_EXTRA_TESTS enabled, the
+fuzz tests now take about 200 seconds to run, or about 325 seconds with
+lockdep enabled, compared to about 5 seconds before.
+
+The root cause is that the random number generation has become much
+slower due to commit d4150779e60f ("random32: use real rng for
+non-deterministic randomness").  On my same arm64 dev board, at the time
+the fuzz tests are run, get_random_u8() is about 345x slower than
+prandom_u32_state(), or about 469x if lockdep is enabled.
+
+Lockdep makes a big difference, but much of the rest comes from the
+get_random_*() functions taking a *very* slow path when the CRNG is not
+yet initialized.  Since the crypto self-tests run early during boot,
+even having a hardware RNG driver enabled (CONFIG_CRYPTO_DEV_QCOM_RNG in
+my case) doesn't prevent this.  x86 systems don't have this issue, but
+they still see a significant regression if lockdep is enabled.
+
+Converting the "Fully random bytes" case in generate_random_bytes() to
+use get_random_bytes() helps significantly, improving the test time to
+about 27 seconds.  But that's still over 5x slower than before.
+
+This is all a bit silly, though, since the fuzz tests don't actually
+need cryptographically secure random numbers.  So let's just make them
+use a non-cryptographically-secure RNG as they did before.  The original
+prandom_u32() is gone now, so let's use prandom_u32_state() instead,
+with an explicitly managed state, like various other self-tests in the
+kernel source tree (rbtree_test.c, test_scanf.c, etc.) already do.  This
+also has the benefit that no locking is required anymore, so performance
+should be even better than the original version that used prandom_u32().
+
+Fixes: d4150779e60f ("random32: use real rng for non-deterministic randomness")
+Cc: stable@vger.kernel.org
+Signed-off-by: Eric Biggers <ebiggers@google.com>
 ---
-For more info write to <info@kernelci.org>
+
+v2: made init_rnd_state() use get_random_u64()
+
+ crypto/testmgr.c | 266 ++++++++++++++++++++++++++++++-----------------
+ 1 file changed, 169 insertions(+), 97 deletions(-)
+
+diff --git a/crypto/testmgr.c b/crypto/testmgr.c
+index c91e93ece20b..b160eeb12c8e 100644
+--- a/crypto/testmgr.c
++++ b/crypto/testmgr.c
+@@ -860,12 +860,50 @@ static int prepare_keybuf(const u8 *key, unsigned int ksize,
+ 
+ #ifdef CONFIG_CRYPTO_MANAGER_EXTRA_TESTS
+ 
++/*
++ * The fuzz tests use prandom instead of the normal Linux RNG since they don't
++ * need cryptographically secure random numbers.  This greatly improves the
++ * performance of these tests, especially if they are run before the Linux RNG
++ * has been initialized or if they are run on a lockdep-enabled kernel.
++ */
++
++static inline void init_rnd_state(struct rnd_state *rng)
++{
++	prandom_seed_state(rng, get_random_u64());
++}
++
++static inline u8 prandom_u8(struct rnd_state *rng)
++{
++	return prandom_u32_state(rng);
++}
++
++static inline u32 prandom_u32_below(struct rnd_state *rng, u32 ceil)
++{
++	/*
++	 * This is slightly biased for non-power-of-2 values of 'ceil', but this
++	 * isn't important here.
++	 */
++	return prandom_u32_state(rng) % ceil;
++}
++
++static inline bool prandom_bool(struct rnd_state *rng)
++{
++	return prandom_u32_below(rng, 2);
++}
++
++static inline u32 prandom_u32_inclusive(struct rnd_state *rng,
++					u32 floor, u32 ceil)
++{
++	return floor + prandom_u32_below(rng, ceil - floor + 1);
++}
++
+ /* Generate a random length in range [0, max_len], but prefer smaller values */
+-static unsigned int generate_random_length(unsigned int max_len)
++static unsigned int generate_random_length(struct rnd_state *rng,
++					   unsigned int max_len)
+ {
+-	unsigned int len = get_random_u32_below(max_len + 1);
++	unsigned int len = prandom_u32_below(rng, max_len + 1);
+ 
+-	switch (get_random_u32_below(4)) {
++	switch (prandom_u32_below(rng, 4)) {
+ 	case 0:
+ 		return len % 64;
+ 	case 1:
+@@ -878,43 +916,44 @@ static unsigned int generate_random_length(unsigned int max_len)
+ }
+ 
+ /* Flip a random bit in the given nonempty data buffer */
+-static void flip_random_bit(u8 *buf, size_t size)
++static void flip_random_bit(struct rnd_state *rng, u8 *buf, size_t size)
+ {
+ 	size_t bitpos;
+ 
+-	bitpos = get_random_u32_below(size * 8);
++	bitpos = prandom_u32_below(rng, size * 8);
+ 	buf[bitpos / 8] ^= 1 << (bitpos % 8);
+ }
+ 
+ /* Flip a random byte in the given nonempty data buffer */
+-static void flip_random_byte(u8 *buf, size_t size)
++static void flip_random_byte(struct rnd_state *rng, u8 *buf, size_t size)
+ {
+-	buf[get_random_u32_below(size)] ^= 0xff;
++	buf[prandom_u32_below(rng, size)] ^= 0xff;
+ }
+ 
+ /* Sometimes make some random changes to the given nonempty data buffer */
+-static void mutate_buffer(u8 *buf, size_t size)
++static void mutate_buffer(struct rnd_state *rng, u8 *buf, size_t size)
+ {
+ 	size_t num_flips;
+ 	size_t i;
+ 
+ 	/* Sometimes flip some bits */
+-	if (get_random_u32_below(4) == 0) {
+-		num_flips = min_t(size_t, 1 << get_random_u32_below(8), size * 8);
++	if (prandom_u32_below(rng, 4) == 0) {
++		num_flips = min_t(size_t, 1 << prandom_u32_below(rng, 8),
++				  size * 8);
+ 		for (i = 0; i < num_flips; i++)
+-			flip_random_bit(buf, size);
++			flip_random_bit(rng, buf, size);
+ 	}
+ 
+ 	/* Sometimes flip some bytes */
+-	if (get_random_u32_below(4) == 0) {
+-		num_flips = min_t(size_t, 1 << get_random_u32_below(8), size);
++	if (prandom_u32_below(rng, 4) == 0) {
++		num_flips = min_t(size_t, 1 << prandom_u32_below(rng, 8), size);
+ 		for (i = 0; i < num_flips; i++)
+-			flip_random_byte(buf, size);
++			flip_random_byte(rng, buf, size);
+ 	}
+ }
+ 
+ /* Randomly generate 'count' bytes, but sometimes make them "interesting" */
+-static void generate_random_bytes(u8 *buf, size_t count)
++static void generate_random_bytes(struct rnd_state *rng, u8 *buf, size_t count)
+ {
+ 	u8 b;
+ 	u8 increment;
+@@ -923,11 +962,11 @@ static void generate_random_bytes(u8 *buf, size_t count)
+ 	if (count == 0)
+ 		return;
+ 
+-	switch (get_random_u32_below(8)) { /* Choose a generation strategy */
++	switch (prandom_u32_below(rng, 8)) { /* Choose a generation strategy */
+ 	case 0:
+ 	case 1:
+ 		/* All the same byte, plus optional mutations */
+-		switch (get_random_u32_below(4)) {
++		switch (prandom_u32_below(rng, 4)) {
+ 		case 0:
+ 			b = 0x00;
+ 			break;
+@@ -935,28 +974,28 @@ static void generate_random_bytes(u8 *buf, size_t count)
+ 			b = 0xff;
+ 			break;
+ 		default:
+-			b = get_random_u8();
++			b = prandom_u8(rng);
+ 			break;
+ 		}
+ 		memset(buf, b, count);
+-		mutate_buffer(buf, count);
++		mutate_buffer(rng, buf, count);
+ 		break;
+ 	case 2:
+ 		/* Ascending or descending bytes, plus optional mutations */
+-		increment = get_random_u8();
+-		b = get_random_u8();
++		increment = prandom_u8(rng);
++		b = prandom_u8(rng);
+ 		for (i = 0; i < count; i++, b += increment)
+ 			buf[i] = b;
+-		mutate_buffer(buf, count);
++		mutate_buffer(rng, buf, count);
+ 		break;
+ 	default:
+ 		/* Fully random bytes */
+-		for (i = 0; i < count; i++)
+-			buf[i] = get_random_u8();
++		prandom_bytes_state(rng, buf, count);
+ 	}
+ }
+ 
+-static char *generate_random_sgl_divisions(struct test_sg_division *divs,
++static char *generate_random_sgl_divisions(struct rnd_state *rng,
++					   struct test_sg_division *divs,
+ 					   size_t max_divs, char *p, char *end,
+ 					   bool gen_flushes, u32 req_flags)
+ {
+@@ -967,24 +1006,26 @@ static char *generate_random_sgl_divisions(struct test_sg_division *divs,
+ 		unsigned int this_len;
+ 		const char *flushtype_str;
+ 
+-		if (div == &divs[max_divs - 1] || get_random_u32_below(2) == 0)
++		if (div == &divs[max_divs - 1] || prandom_bool(rng))
+ 			this_len = remaining;
+ 		else
+-			this_len = get_random_u32_inclusive(1, remaining);
++			this_len = prandom_u32_inclusive(rng, 1, remaining);
+ 		div->proportion_of_total = this_len;
+ 
+-		if (get_random_u32_below(4) == 0)
+-			div->offset = get_random_u32_inclusive(PAGE_SIZE - 128, PAGE_SIZE - 1);
+-		else if (get_random_u32_below(2) == 0)
+-			div->offset = get_random_u32_below(32);
++		if (prandom_u32_below(rng, 4) == 0)
++			div->offset = prandom_u32_inclusive(rng,
++							    PAGE_SIZE - 128,
++							    PAGE_SIZE - 1);
++		else if (prandom_bool(rng))
++			div->offset = prandom_u32_below(rng, 32);
+ 		else
+-			div->offset = get_random_u32_below(PAGE_SIZE);
+-		if (get_random_u32_below(8) == 0)
++			div->offset = prandom_u32_below(rng, PAGE_SIZE);
++		if (prandom_u32_below(rng, 8) == 0)
+ 			div->offset_relative_to_alignmask = true;
+ 
+ 		div->flush_type = FLUSH_TYPE_NONE;
+ 		if (gen_flushes) {
+-			switch (get_random_u32_below(4)) {
++			switch (prandom_u32_below(rng, 4)) {
+ 			case 0:
+ 				div->flush_type = FLUSH_TYPE_REIMPORT;
+ 				break;
+@@ -996,7 +1037,7 @@ static char *generate_random_sgl_divisions(struct test_sg_division *divs,
+ 
+ 		if (div->flush_type != FLUSH_TYPE_NONE &&
+ 		    !(req_flags & CRYPTO_TFM_REQ_MAY_SLEEP) &&
+-		    get_random_u32_below(2) == 0)
++		    prandom_bool(rng))
+ 			div->nosimd = true;
+ 
+ 		switch (div->flush_type) {
+@@ -1031,7 +1072,8 @@ static char *generate_random_sgl_divisions(struct test_sg_division *divs,
+ }
+ 
+ /* Generate a random testvec_config for fuzz testing */
+-static void generate_random_testvec_config(struct testvec_config *cfg,
++static void generate_random_testvec_config(struct rnd_state *rng,
++					   struct testvec_config *cfg,
+ 					   char *name, size_t max_namelen)
+ {
+ 	char *p = name;
+@@ -1043,7 +1085,7 @@ static void generate_random_testvec_config(struct testvec_config *cfg,
+ 
+ 	p += scnprintf(p, end - p, "random:");
+ 
+-	switch (get_random_u32_below(4)) {
++	switch (prandom_u32_below(rng, 4)) {
+ 	case 0:
+ 	case 1:
+ 		cfg->inplace_mode = OUT_OF_PLACE;
+@@ -1058,12 +1100,12 @@ static void generate_random_testvec_config(struct testvec_config *cfg,
+ 		break;
+ 	}
+ 
+-	if (get_random_u32_below(2) == 0) {
++	if (prandom_bool(rng)) {
+ 		cfg->req_flags |= CRYPTO_TFM_REQ_MAY_SLEEP;
+ 		p += scnprintf(p, end - p, " may_sleep");
+ 	}
+ 
+-	switch (get_random_u32_below(4)) {
++	switch (prandom_u32_below(rng, 4)) {
+ 	case 0:
+ 		cfg->finalization_type = FINALIZATION_TYPE_FINAL;
+ 		p += scnprintf(p, end - p, " use_final");
+@@ -1078,36 +1120,37 @@ static void generate_random_testvec_config(struct testvec_config *cfg,
+ 		break;
+ 	}
+ 
+-	if (!(cfg->req_flags & CRYPTO_TFM_REQ_MAY_SLEEP) &&
+-	    get_random_u32_below(2) == 0) {
++	if (!(cfg->req_flags & CRYPTO_TFM_REQ_MAY_SLEEP) && prandom_bool(rng)) {
+ 		cfg->nosimd = true;
+ 		p += scnprintf(p, end - p, " nosimd");
+ 	}
+ 
+ 	p += scnprintf(p, end - p, " src_divs=[");
+-	p = generate_random_sgl_divisions(cfg->src_divs,
++	p = generate_random_sgl_divisions(rng, cfg->src_divs,
+ 					  ARRAY_SIZE(cfg->src_divs), p, end,
+ 					  (cfg->finalization_type !=
+ 					   FINALIZATION_TYPE_DIGEST),
+ 					  cfg->req_flags);
+ 	p += scnprintf(p, end - p, "]");
+ 
+-	if (cfg->inplace_mode == OUT_OF_PLACE && get_random_u32_below(2) == 0) {
++	if (cfg->inplace_mode == OUT_OF_PLACE && prandom_bool(rng)) {
+ 		p += scnprintf(p, end - p, " dst_divs=[");
+-		p = generate_random_sgl_divisions(cfg->dst_divs,
++		p = generate_random_sgl_divisions(rng, cfg->dst_divs,
+ 						  ARRAY_SIZE(cfg->dst_divs),
+ 						  p, end, false,
+ 						  cfg->req_flags);
+ 		p += scnprintf(p, end - p, "]");
+ 	}
+ 
+-	if (get_random_u32_below(2) == 0) {
+-		cfg->iv_offset = get_random_u32_inclusive(1, MAX_ALGAPI_ALIGNMASK);
++	if (prandom_bool(rng)) {
++		cfg->iv_offset = prandom_u32_inclusive(rng, 1,
++						       MAX_ALGAPI_ALIGNMASK);
+ 		p += scnprintf(p, end - p, " iv_offset=%u", cfg->iv_offset);
+ 	}
+ 
+-	if (get_random_u32_below(2) == 0) {
+-		cfg->key_offset = get_random_u32_inclusive(1, MAX_ALGAPI_ALIGNMASK);
++	if (prandom_bool(rng)) {
++		cfg->key_offset = prandom_u32_inclusive(rng, 1,
++							MAX_ALGAPI_ALIGNMASK);
+ 		p += scnprintf(p, end - p, " key_offset=%u", cfg->key_offset);
+ 	}
+ 
+@@ -1620,11 +1663,14 @@ static int test_hash_vec(const struct hash_testvec *vec, unsigned int vec_num,
+ 
+ #ifdef CONFIG_CRYPTO_MANAGER_EXTRA_TESTS
+ 	if (!noextratests) {
++		struct rnd_state rng;
+ 		struct testvec_config cfg;
+ 		char cfgname[TESTVEC_CONFIG_NAMELEN];
+ 
++		init_rnd_state(&rng);
++
+ 		for (i = 0; i < fuzz_iterations; i++) {
+-			generate_random_testvec_config(&cfg, cfgname,
++			generate_random_testvec_config(&rng, &cfg, cfgname,
+ 						       sizeof(cfgname));
+ 			err = test_hash_vec_cfg(vec, vec_name, &cfg,
+ 						req, desc, tsgl, hashstate);
+@@ -1642,15 +1688,16 @@ static int test_hash_vec(const struct hash_testvec *vec, unsigned int vec_num,
+  * Generate a hash test vector from the given implementation.
+  * Assumes the buffers in 'vec' were already allocated.
+  */
+-static void generate_random_hash_testvec(struct shash_desc *desc,
++static void generate_random_hash_testvec(struct rnd_state *rng,
++					 struct shash_desc *desc,
+ 					 struct hash_testvec *vec,
+ 					 unsigned int maxkeysize,
+ 					 unsigned int maxdatasize,
+ 					 char *name, size_t max_namelen)
+ {
+ 	/* Data */
+-	vec->psize = generate_random_length(maxdatasize);
+-	generate_random_bytes((u8 *)vec->plaintext, vec->psize);
++	vec->psize = generate_random_length(rng, maxdatasize);
++	generate_random_bytes(rng, (u8 *)vec->plaintext, vec->psize);
+ 
+ 	/*
+ 	 * Key: length in range [1, maxkeysize], but usually choose maxkeysize.
+@@ -1660,9 +1707,9 @@ static void generate_random_hash_testvec(struct shash_desc *desc,
+ 	vec->ksize = 0;
+ 	if (maxkeysize) {
+ 		vec->ksize = maxkeysize;
+-		if (get_random_u32_below(4) == 0)
+-			vec->ksize = get_random_u32_inclusive(1, maxkeysize);
+-		generate_random_bytes((u8 *)vec->key, vec->ksize);
++		if (prandom_u32_below(rng, 4) == 0)
++			vec->ksize = prandom_u32_inclusive(rng, 1, maxkeysize);
++		generate_random_bytes(rng, (u8 *)vec->key, vec->ksize);
+ 
+ 		vec->setkey_error = crypto_shash_setkey(desc->tfm, vec->key,
+ 							vec->ksize);
+@@ -1696,6 +1743,7 @@ static int test_hash_vs_generic_impl(const char *generic_driver,
+ 	const unsigned int maxdatasize = (2 * PAGE_SIZE) - TESTMGR_POISON_LEN;
+ 	const char *algname = crypto_hash_alg_common(tfm)->base.cra_name;
+ 	const char *driver = crypto_ahash_driver_name(tfm);
++	struct rnd_state rng;
+ 	char _generic_driver[CRYPTO_MAX_ALG_NAME];
+ 	struct crypto_shash *generic_tfm = NULL;
+ 	struct shash_desc *generic_desc = NULL;
+@@ -1709,6 +1757,8 @@ static int test_hash_vs_generic_impl(const char *generic_driver,
+ 	if (noextratests)
+ 		return 0;
+ 
++	init_rnd_state(&rng);
++
+ 	if (!generic_driver) { /* Use default naming convention? */
+ 		err = build_generic_driver_name(algname, _generic_driver);
+ 		if (err)
+@@ -1777,10 +1827,11 @@ static int test_hash_vs_generic_impl(const char *generic_driver,
+ 	}
+ 
+ 	for (i = 0; i < fuzz_iterations * 8; i++) {
+-		generate_random_hash_testvec(generic_desc, &vec,
++		generate_random_hash_testvec(&rng, generic_desc, &vec,
+ 					     maxkeysize, maxdatasize,
+ 					     vec_name, sizeof(vec_name));
+-		generate_random_testvec_config(cfg, cfgname, sizeof(cfgname));
++		generate_random_testvec_config(&rng, cfg, cfgname,
++					       sizeof(cfgname));
+ 
+ 		err = test_hash_vec_cfg(&vec, vec_name, cfg,
+ 					req, desc, tsgl, hashstate);
+@@ -2182,11 +2233,14 @@ static int test_aead_vec(int enc, const struct aead_testvec *vec,
+ 
+ #ifdef CONFIG_CRYPTO_MANAGER_EXTRA_TESTS
+ 	if (!noextratests) {
++		struct rnd_state rng;
+ 		struct testvec_config cfg;
+ 		char cfgname[TESTVEC_CONFIG_NAMELEN];
+ 
++		init_rnd_state(&rng);
++
+ 		for (i = 0; i < fuzz_iterations; i++) {
+-			generate_random_testvec_config(&cfg, cfgname,
++			generate_random_testvec_config(&rng, &cfg, cfgname,
+ 						       sizeof(cfgname));
+ 			err = test_aead_vec_cfg(enc, vec, vec_name,
+ 						&cfg, req, tsgls);
+@@ -2202,6 +2256,7 @@ static int test_aead_vec(int enc, const struct aead_testvec *vec,
+ #ifdef CONFIG_CRYPTO_MANAGER_EXTRA_TESTS
+ 
+ struct aead_extra_tests_ctx {
++	struct rnd_state rng;
+ 	struct aead_request *req;
+ 	struct crypto_aead *tfm;
+ 	const struct alg_test_desc *test_desc;
+@@ -2220,24 +2275,26 @@ struct aead_extra_tests_ctx {
+  * here means the full ciphertext including the authentication tag.  The
+  * authentication tag (and hence also the ciphertext) is assumed to be nonempty.
+  */
+-static void mutate_aead_message(struct aead_testvec *vec, bool aad_iv,
++static void mutate_aead_message(struct rnd_state *rng,
++				struct aead_testvec *vec, bool aad_iv,
+ 				unsigned int ivsize)
+ {
+ 	const unsigned int aad_tail_size = aad_iv ? ivsize : 0;
+ 	const unsigned int authsize = vec->clen - vec->plen;
+ 
+-	if (get_random_u32_below(2) == 0 && vec->alen > aad_tail_size) {
++	if (prandom_bool(rng) && vec->alen > aad_tail_size) {
+ 		 /* Mutate the AAD */
+-		flip_random_bit((u8 *)vec->assoc, vec->alen - aad_tail_size);
+-		if (get_random_u32_below(2) == 0)
++		flip_random_bit(rng, (u8 *)vec->assoc,
++				vec->alen - aad_tail_size);
++		if (prandom_bool(rng))
+ 			return;
+ 	}
+-	if (get_random_u32_below(2) == 0) {
++	if (prandom_bool(rng)) {
+ 		/* Mutate auth tag (assuming it's at the end of ciphertext) */
+-		flip_random_bit((u8 *)vec->ctext + vec->plen, authsize);
++		flip_random_bit(rng, (u8 *)vec->ctext + vec->plen, authsize);
+ 	} else {
+ 		/* Mutate any part of the ciphertext */
+-		flip_random_bit((u8 *)vec->ctext, vec->clen);
++		flip_random_bit(rng, (u8 *)vec->ctext, vec->clen);
+ 	}
+ }
+ 
+@@ -2248,7 +2305,8 @@ static void mutate_aead_message(struct aead_testvec *vec, bool aad_iv,
+  */
+ #define MIN_COLLISION_FREE_AUTHSIZE 8
+ 
+-static void generate_aead_message(struct aead_request *req,
++static void generate_aead_message(struct rnd_state *rng,
++				  struct aead_request *req,
+ 				  const struct aead_test_suite *suite,
+ 				  struct aead_testvec *vec,
+ 				  bool prefer_inauthentic)
+@@ -2257,17 +2315,18 @@ static void generate_aead_message(struct aead_request *req,
+ 	const unsigned int ivsize = crypto_aead_ivsize(tfm);
+ 	const unsigned int authsize = vec->clen - vec->plen;
+ 	const bool inauthentic = (authsize >= MIN_COLLISION_FREE_AUTHSIZE) &&
+-				 (prefer_inauthentic || get_random_u32_below(4) == 0);
++				 (prefer_inauthentic ||
++				  prandom_u32_below(rng, 4) == 0);
+ 
+ 	/* Generate the AAD. */
+-	generate_random_bytes((u8 *)vec->assoc, vec->alen);
++	generate_random_bytes(rng, (u8 *)vec->assoc, vec->alen);
+ 	if (suite->aad_iv && vec->alen >= ivsize)
+ 		/* Avoid implementation-defined behavior. */
+ 		memcpy((u8 *)vec->assoc + vec->alen - ivsize, vec->iv, ivsize);
+ 
+-	if (inauthentic && get_random_u32_below(2) == 0) {
++	if (inauthentic && prandom_bool(rng)) {
+ 		/* Generate a random ciphertext. */
+-		generate_random_bytes((u8 *)vec->ctext, vec->clen);
++		generate_random_bytes(rng, (u8 *)vec->ctext, vec->clen);
+ 	} else {
+ 		int i = 0;
+ 		struct scatterlist src[2], dst;
+@@ -2279,7 +2338,7 @@ static void generate_aead_message(struct aead_request *req,
+ 		if (vec->alen)
+ 			sg_set_buf(&src[i++], vec->assoc, vec->alen);
+ 		if (vec->plen) {
+-			generate_random_bytes((u8 *)vec->ptext, vec->plen);
++			generate_random_bytes(rng, (u8 *)vec->ptext, vec->plen);
+ 			sg_set_buf(&src[i++], vec->ptext, vec->plen);
+ 		}
+ 		sg_init_one(&dst, vec->ctext, vec->alen + vec->clen);
+@@ -2299,7 +2358,7 @@ static void generate_aead_message(struct aead_request *req,
+ 		 * Mutate the authentic (ciphertext, AAD) pair to get an
+ 		 * inauthentic one.
+ 		 */
+-		mutate_aead_message(vec, suite->aad_iv, ivsize);
++		mutate_aead_message(rng, vec, suite->aad_iv, ivsize);
+ 	}
+ 	vec->novrfy = 1;
+ 	if (suite->einval_allowed)
+@@ -2313,7 +2372,8 @@ static void generate_aead_message(struct aead_request *req,
+  * If 'prefer_inauthentic' is true, then this function will generate inauthentic
+  * test vectors (i.e. vectors with 'vec->novrfy=1') more often.
+  */
+-static void generate_random_aead_testvec(struct aead_request *req,
++static void generate_random_aead_testvec(struct rnd_state *rng,
++					 struct aead_request *req,
+ 					 struct aead_testvec *vec,
+ 					 const struct aead_test_suite *suite,
+ 					 unsigned int maxkeysize,
+@@ -2329,18 +2389,18 @@ static void generate_random_aead_testvec(struct aead_request *req,
+ 
+ 	/* Key: length in [0, maxkeysize], but usually choose maxkeysize */
+ 	vec->klen = maxkeysize;
+-	if (get_random_u32_below(4) == 0)
+-		vec->klen = get_random_u32_below(maxkeysize + 1);
+-	generate_random_bytes((u8 *)vec->key, vec->klen);
++	if (prandom_u32_below(rng, 4) == 0)
++		vec->klen = prandom_u32_below(rng, maxkeysize + 1);
++	generate_random_bytes(rng, (u8 *)vec->key, vec->klen);
+ 	vec->setkey_error = crypto_aead_setkey(tfm, vec->key, vec->klen);
+ 
+ 	/* IV */
+-	generate_random_bytes((u8 *)vec->iv, ivsize);
++	generate_random_bytes(rng, (u8 *)vec->iv, ivsize);
+ 
+ 	/* Tag length: in [0, maxauthsize], but usually choose maxauthsize */
+ 	authsize = maxauthsize;
+-	if (get_random_u32_below(4) == 0)
+-		authsize = get_random_u32_below(maxauthsize + 1);
++	if (prandom_u32_below(rng, 4) == 0)
++		authsize = prandom_u32_below(rng, maxauthsize + 1);
+ 	if (prefer_inauthentic && authsize < MIN_COLLISION_FREE_AUTHSIZE)
+ 		authsize = MIN_COLLISION_FREE_AUTHSIZE;
+ 	if (WARN_ON(authsize > maxdatasize))
+@@ -2349,11 +2409,11 @@ static void generate_random_aead_testvec(struct aead_request *req,
+ 	vec->setauthsize_error = crypto_aead_setauthsize(tfm, authsize);
+ 
+ 	/* AAD, plaintext, and ciphertext lengths */
+-	total_len = generate_random_length(maxdatasize);
+-	if (get_random_u32_below(4) == 0)
++	total_len = generate_random_length(rng, maxdatasize);
++	if (prandom_u32_below(rng, 4) == 0)
+ 		vec->alen = 0;
+ 	else
+-		vec->alen = generate_random_length(total_len);
++		vec->alen = generate_random_length(rng, total_len);
+ 	vec->plen = total_len - vec->alen;
+ 	vec->clen = vec->plen + authsize;
+ 
+@@ -2364,7 +2424,7 @@ static void generate_random_aead_testvec(struct aead_request *req,
+ 	vec->novrfy = 0;
+ 	vec->crypt_error = 0;
+ 	if (vec->setkey_error == 0 && vec->setauthsize_error == 0)
+-		generate_aead_message(req, suite, vec, prefer_inauthentic);
++		generate_aead_message(rng, req, suite, vec, prefer_inauthentic);
+ 	snprintf(name, max_namelen,
+ 		 "\"random: alen=%u plen=%u authsize=%u klen=%u novrfy=%d\"",
+ 		 vec->alen, vec->plen, authsize, vec->klen, vec->novrfy);
+@@ -2376,7 +2436,7 @@ static void try_to_generate_inauthentic_testvec(
+ 	int i;
+ 
+ 	for (i = 0; i < 10; i++) {
+-		generate_random_aead_testvec(ctx->req, &ctx->vec,
++		generate_random_aead_testvec(&ctx->rng, ctx->req, &ctx->vec,
+ 					     &ctx->test_desc->suite.aead,
+ 					     ctx->maxkeysize, ctx->maxdatasize,
+ 					     ctx->vec_name,
+@@ -2407,7 +2467,8 @@ static int test_aead_inauthentic_inputs(struct aead_extra_tests_ctx *ctx)
+ 		 */
+ 		try_to_generate_inauthentic_testvec(ctx);
+ 		if (ctx->vec.novrfy) {
+-			generate_random_testvec_config(&ctx->cfg, ctx->cfgname,
++			generate_random_testvec_config(&ctx->rng, &ctx->cfg,
++						       ctx->cfgname,
+ 						       sizeof(ctx->cfgname));
+ 			err = test_aead_vec_cfg(DECRYPT, &ctx->vec,
+ 						ctx->vec_name, &ctx->cfg,
+@@ -2497,12 +2558,13 @@ static int test_aead_vs_generic_impl(struct aead_extra_tests_ctx *ctx)
+ 	 * the other implementation against them.
+ 	 */
+ 	for (i = 0; i < fuzz_iterations * 8; i++) {
+-		generate_random_aead_testvec(generic_req, &ctx->vec,
++		generate_random_aead_testvec(&ctx->rng, generic_req, &ctx->vec,
+ 					     &ctx->test_desc->suite.aead,
+ 					     ctx->maxkeysize, ctx->maxdatasize,
+ 					     ctx->vec_name,
+ 					     sizeof(ctx->vec_name), false);
+-		generate_random_testvec_config(&ctx->cfg, ctx->cfgname,
++		generate_random_testvec_config(&ctx->rng, &ctx->cfg,
++					       ctx->cfgname,
+ 					       sizeof(ctx->cfgname));
+ 		if (!ctx->vec.novrfy) {
+ 			err = test_aead_vec_cfg(ENCRYPT, &ctx->vec,
+@@ -2541,6 +2603,7 @@ static int test_aead_extra(const struct alg_test_desc *test_desc,
+ 	ctx = kzalloc(sizeof(*ctx), GFP_KERNEL);
+ 	if (!ctx)
+ 		return -ENOMEM;
++	init_rnd_state(&ctx->rng);
+ 	ctx->req = req;
+ 	ctx->tfm = crypto_aead_reqtfm(req);
+ 	ctx->test_desc = test_desc;
+@@ -2930,11 +2993,14 @@ static int test_skcipher_vec(int enc, const struct cipher_testvec *vec,
+ 
+ #ifdef CONFIG_CRYPTO_MANAGER_EXTRA_TESTS
+ 	if (!noextratests) {
++		struct rnd_state rng;
+ 		struct testvec_config cfg;
+ 		char cfgname[TESTVEC_CONFIG_NAMELEN];
+ 
++		init_rnd_state(&rng);
++
+ 		for (i = 0; i < fuzz_iterations; i++) {
+-			generate_random_testvec_config(&cfg, cfgname,
++			generate_random_testvec_config(&rng, &cfg, cfgname,
+ 						       sizeof(cfgname));
+ 			err = test_skcipher_vec_cfg(enc, vec, vec_name,
+ 						    &cfg, req, tsgls);
+@@ -2952,7 +3018,8 @@ static int test_skcipher_vec(int enc, const struct cipher_testvec *vec,
+  * Generate a symmetric cipher test vector from the given implementation.
+  * Assumes the buffers in 'vec' were already allocated.
+  */
+-static void generate_random_cipher_testvec(struct skcipher_request *req,
++static void generate_random_cipher_testvec(struct rnd_state *rng,
++					   struct skcipher_request *req,
+ 					   struct cipher_testvec *vec,
+ 					   unsigned int maxdatasize,
+ 					   char *name, size_t max_namelen)
+@@ -2966,17 +3033,17 @@ static void generate_random_cipher_testvec(struct skcipher_request *req,
+ 
+ 	/* Key: length in [0, maxkeysize], but usually choose maxkeysize */
+ 	vec->klen = maxkeysize;
+-	if (get_random_u32_below(4) == 0)
+-		vec->klen = get_random_u32_below(maxkeysize + 1);
+-	generate_random_bytes((u8 *)vec->key, vec->klen);
++	if (prandom_u32_below(rng, 4) == 0)
++		vec->klen = prandom_u32_below(rng, maxkeysize + 1);
++	generate_random_bytes(rng, (u8 *)vec->key, vec->klen);
+ 	vec->setkey_error = crypto_skcipher_setkey(tfm, vec->key, vec->klen);
+ 
+ 	/* IV */
+-	generate_random_bytes((u8 *)vec->iv, ivsize);
++	generate_random_bytes(rng, (u8 *)vec->iv, ivsize);
+ 
+ 	/* Plaintext */
+-	vec->len = generate_random_length(maxdatasize);
+-	generate_random_bytes((u8 *)vec->ptext, vec->len);
++	vec->len = generate_random_length(rng, maxdatasize);
++	generate_random_bytes(rng, (u8 *)vec->ptext, vec->len);
+ 
+ 	/* If the key couldn't be set, no need to continue to encrypt. */
+ 	if (vec->setkey_error)
+@@ -3018,6 +3085,7 @@ static int test_skcipher_vs_generic_impl(const char *generic_driver,
+ 	const unsigned int maxdatasize = (2 * PAGE_SIZE) - TESTMGR_POISON_LEN;
+ 	const char *algname = crypto_skcipher_alg(tfm)->base.cra_name;
+ 	const char *driver = crypto_skcipher_driver_name(tfm);
++	struct rnd_state rng;
+ 	char _generic_driver[CRYPTO_MAX_ALG_NAME];
+ 	struct crypto_skcipher *generic_tfm = NULL;
+ 	struct skcipher_request *generic_req = NULL;
+@@ -3035,6 +3103,8 @@ static int test_skcipher_vs_generic_impl(const char *generic_driver,
+ 	if (strncmp(algname, "kw(", 3) == 0)
+ 		return 0;
+ 
++	init_rnd_state(&rng);
++
+ 	if (!generic_driver) { /* Use default naming convention? */
+ 		err = build_generic_driver_name(algname, _generic_driver);
+ 		if (err)
+@@ -3119,9 +3189,11 @@ static int test_skcipher_vs_generic_impl(const char *generic_driver,
+ 	}
+ 
+ 	for (i = 0; i < fuzz_iterations * 8; i++) {
+-		generate_random_cipher_testvec(generic_req, &vec, maxdatasize,
++		generate_random_cipher_testvec(&rng, generic_req, &vec,
++					       maxdatasize,
+ 					       vec_name, sizeof(vec_name));
+-		generate_random_testvec_config(cfg, cfgname, sizeof(cfgname));
++		generate_random_testvec_config(&rng, cfg, cfgname,
++					       sizeof(cfgname));
+ 
+ 		err = test_skcipher_vec_cfg(ENCRYPT, &vec, vec_name,
+ 					    cfg, req, tsgls);
+
+base-commit: 2fcd07b7ccd5fd10b2120d298363e4e6c53ccf9c
+-- 
+2.39.2
+
