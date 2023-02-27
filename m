@@ -2,57 +2,51 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 93F736A3BEA
-	for <lists+stable@lfdr.de>; Mon, 27 Feb 2023 08:59:24 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id F0C496A3DF2
+	for <lists+stable@lfdr.de>; Mon, 27 Feb 2023 10:12:06 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229620AbjB0H7W (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 27 Feb 2023 02:59:22 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35308 "EHLO
+        id S229963AbjB0JMF (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 27 Feb 2023 04:12:05 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41748 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230050AbjB0H7U (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 27 Feb 2023 02:59:20 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 92573903B;
-        Sun, 26 Feb 2023 23:59:19 -0800 (PST)
+        with ESMTP id S229881AbjB0JLw (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 27 Feb 2023 04:11:52 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D28641B576;
+        Mon, 27 Feb 2023 01:03:54 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 4DDA5B80C6D;
-        Mon, 27 Feb 2023 07:59:18 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0D609C4339C;
-        Mon, 27 Feb 2023 07:59:17 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 4D770B80CAA;
+        Mon, 27 Feb 2023 08:50:47 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id DA651C433D2;
+        Mon, 27 Feb 2023 08:50:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1677484757;
-        bh=r3JtwbSt9hd0ieyjiNYdehHR5ZIFOt8rUWtB2lFMujA=;
-        h=References:In-Reply-To:From:Date:Subject:To:Cc:From;
-        b=c1ooVtnqBuVyjobk14sUytCgwmrgVwXhwu5KcnijgDhKHp4qPTT5hza8dQLuBhi40
-         g7n9VgT6P9SQxPj560pXMhhzWPAxHOMotThzFtEbWXGTg/pK7hMDUWAv4EsZWsIJnT
-         vTvC71Mnn4TpMHRm99T1wvL3TtMSLwjXr7HWMgOSM9Iz0u4x9SOkpUQw3sAueNWsdR
-         kT6bVwmgJFNJ+gjy3F0fMkOT9pxGlcpHASZfqR7Uf/x1DPxF06nSVP62bTzpScKczS
-         +NXkCLq2GXBZdnAMJkXpUauC0xN3VbbtcFBKoKwlL1OkjapHuEeRc09S+3hQLkkPg1
-         jgB/UMCJLCfTw==
-Received: by mail-lj1-f173.google.com with SMTP id a10so5503500ljq.1;
-        Sun, 26 Feb 2023 23:59:16 -0800 (PST)
-X-Gm-Message-State: AO0yUKXqYzIF8y1vS/J++ksK6Ef0wxjR1tBbZeZR33YjTRbQTjvWdlBu
-        qikJD5yHKkT8wWzD6eTQIYIovsW6EArQPpNAz4o=
-X-Google-Smtp-Source: AK7set/OkBqCfPXZgBNSBX5Tge6wgHozfcCEGYqgntOmQMtk7ri6lQCxZFAkDy7QQhnKruTFniglKWuTvqsF+hQwpHU=
-X-Received: by 2002:a2e:bc16:0:b0:295:acea:5875 with SMTP id
- b22-20020a2ebc16000000b00295acea5875mr2466101ljf.2.1677484755054; Sun, 26 Feb
- 2023 23:59:15 -0800 (PST)
+        s=k20201202; t=1677487845;
+        bh=3sKuQJ5jig7mnQt+fJxNgFMbX5S1a3CrBBSTM63p7dw=;
+        h=From:To:Cc:Subject:Date:From;
+        b=nNH7A1K/eOE7QhHgTp7p1G4/MwW1haMZHD/4HxNMgfi+TqeO9gXqqjWf2vXTwtS6u
+         PX7Tp6sIsC7hrc7L/LdRABgNDbs3tJfijVNN8DPbBEEqmRz7kQXztFGvjrtDPzTota
+         e3+s2fEuSXConMg9b6bI4Iy/6wMq5bayM6HZoohUjybpW1e14zGXzKfT0gcr+HK0wV
+         VzYuyMFWQ/H9MmT0fwmi2DSRAMLYDIRrhCv3Zo0Gx0R9vp9+j7MvFKlXcVVG2qVsVk
+         kCGzOwR3WE/liGXFdlCL2yg2XHwyIn7mkr85/uExU4JN16lGB9z/TmAqRjFV56xd0G
+         Fpf3o1f7GYIKw==
+Received: from johan by xi.lan with local (Exim 4.94.2)
+        (envelope-from <johan@kernel.org>)
+        id 1pWZDs-0006Jp-Ra; Mon, 27 Feb 2023 09:51:05 +0100
+From:   Johan Hovold <johan@kernel.org>
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc:     Jiri Slaby <jirislaby@kernel.org>, linux-serial@vger.kernel.org,
+        linux-kernel@vger.kernel.org, Johan Hovold <johan@kernel.org>,
+        stable@vger.kernel.org, Dan Carpenter <error27@gmail.com>
+Subject: [PATCH] serial: 8250_fsl: fix handle_irq locking
+Date:   Mon, 27 Feb 2023 09:50:46 +0100
+Message-Id: <20230227085046.24282-1-johan@kernel.org>
+X-Mailer: git-send-email 2.39.2
 MIME-Version: 1.0
-References: <20230227063223.1829703-1-ebiggers@kernel.org>
-In-Reply-To: <20230227063223.1829703-1-ebiggers@kernel.org>
-From:   Ard Biesheuvel <ardb@kernel.org>
-Date:   Mon, 27 Feb 2023 08:59:04 +0100
-X-Gmail-Original-Message-ID: <CAMj1kXFbUuH1_vp=+sAFDorFSaFFUsaLjzjHFPbv_OZ_VAPK=w@mail.gmail.com>
-Message-ID: <CAMj1kXFbUuH1_vp=+sAFDorFSaFFUsaLjzjHFPbv_OZ_VAPK=w@mail.gmail.com>
-Subject: Re: [PATCH] crypto: arm64/aes-neonbs - fix crash with CFI enabled
-To:     Eric Biggers <ebiggers@kernel.org>
-Cc:     linux-crypto@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
-        Sami Tolvanen <samitolvanen@google.com>, stable@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
-X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
+Content-Transfer-Encoding: 8bit
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
         SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -60,70 +54,46 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, 27 Feb 2023 at 07:33, Eric Biggers <ebiggers@kernel.org> wrote:
->
-> From: Eric Biggers <ebiggers@google.com>
->
-> aesbs_ecb_encrypt(), aesbs_ecb_decrypt(), aesbs_xts_encrypt(), and
-> aesbs_xts_decrypt() are called via indirect function calls.  Therefore
-> they need to use SYM_TYPED_FUNC_START instead of SYM_FUNC_START to cause
-> their type hashes to be emitted when the kernel is built with
-> CONFIG_CFI_CLANG=y.  Otherwise, the code crashes with a CFI failure if
-> the compiler doesn't happen to optimize out the indirect calls.
->
-> Fixes: c50d32859e70 ("arm64: Add types to indirect called assembly functions")
-> Cc: stable@vger.kernel.org
-> Signed-off-by: Eric Biggers <ebiggers@google.com>
+The 8250 handle_irq callback is not just called from the interrupt
+handler but also from a timer callback when polling (e.g. for ports
+without an interrupt line). Consequently the callback must explicitly
+disable interrupts to avoid a potential deadlock with another interrupt
+in polled mode.
 
-Reviewed-by: Ard Biesheuvel <ardb@kernel.org>
+Fix up the two paths in the freescale callback that failed to re-enable
+interrupts when polling.
 
-> ---
->  arch/arm64/crypto/aes-neonbs-core.S | 9 +++++----
->  1 file changed, 5 insertions(+), 4 deletions(-)
->
-> diff --git a/arch/arm64/crypto/aes-neonbs-core.S b/arch/arm64/crypto/aes-neonbs-core.S
-> index 7278a37c2d5c..baf450717b24 100644
-> --- a/arch/arm64/crypto/aes-neonbs-core.S
-> +++ b/arch/arm64/crypto/aes-neonbs-core.S
-> @@ -15,6 +15,7 @@
->   */
->
->  #include <linux/linkage.h>
-> +#include <linux/cfi_types.h>
->  #include <asm/assembler.h>
->
->         .text
-> @@ -620,12 +621,12 @@ SYM_FUNC_END(aesbs_decrypt8)
->         .endm
->
->         .align          4
-> -SYM_FUNC_START(aesbs_ecb_encrypt)
-> +SYM_TYPED_FUNC_START(aesbs_ecb_encrypt)
->         __ecb_crypt     aesbs_encrypt8, v0, v1, v4, v6, v3, v7, v2, v5
->  SYM_FUNC_END(aesbs_ecb_encrypt)
->
->         .align          4
-> -SYM_FUNC_START(aesbs_ecb_decrypt)
-> +SYM_TYPED_FUNC_START(aesbs_ecb_decrypt)
->         __ecb_crypt     aesbs_decrypt8, v0, v1, v6, v4, v2, v7, v3, v5
->  SYM_FUNC_END(aesbs_ecb_decrypt)
->
-> @@ -799,11 +800,11 @@ SYM_FUNC_END(__xts_crypt8)
->         ret
->         .endm
->
-> -SYM_FUNC_START(aesbs_xts_encrypt)
-> +SYM_TYPED_FUNC_START(aesbs_xts_encrypt)
->         __xts_crypt     aesbs_encrypt8, v0, v1, v4, v6, v3, v7, v2, v5
->  SYM_FUNC_END(aesbs_xts_encrypt)
->
-> -SYM_FUNC_START(aesbs_xts_decrypt)
-> +SYM_TYPED_FUNC_START(aesbs_xts_decrypt)
->         __xts_crypt     aesbs_decrypt8, v0, v1, v6, v4, v2, v7, v3, v5
->  SYM_FUNC_END(aesbs_xts_decrypt)
->
->
-> base-commit: f3a2439f20d918930cc4ae8f76fe1c1afd26958f
-> --
-> 2.39.2
->
+Fixes: 853a9ae29e97 ("serial: 8250: fix handle_irq locking")
+Cc: stable@vger.kernel.org	# 5.13
+Reported-by: Dan Carpenter <error27@gmail.com>
+Link: https://lore.kernel.org/r/Y/xYzqp4ogmOF5t0@kili
+Signed-off-by: Johan Hovold <johan@kernel.org>
+---
+ drivers/tty/serial/8250/8250_fsl.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/drivers/tty/serial/8250/8250_fsl.c b/drivers/tty/serial/8250/8250_fsl.c
+index 8aad15622a2e..8adfaa183f77 100644
+--- a/drivers/tty/serial/8250/8250_fsl.c
++++ b/drivers/tty/serial/8250/8250_fsl.c
+@@ -34,7 +34,7 @@ int fsl8250_handle_irq(struct uart_port *port)
+ 
+ 	iir = port->serial_in(port, UART_IIR);
+ 	if (iir & UART_IIR_NO_INT) {
+-		spin_unlock(&up->port.lock);
++		spin_unlock_irqrestore(&up->port.lock, flags);
+ 		return 0;
+ 	}
+ 
+@@ -42,7 +42,7 @@ int fsl8250_handle_irq(struct uart_port *port)
+ 	if (unlikely(up->lsr_saved_flags & UART_LSR_BI)) {
+ 		up->lsr_saved_flags &= ~UART_LSR_BI;
+ 		port->serial_in(port, UART_RX);
+-		spin_unlock(&up->port.lock);
++		spin_unlock_irqrestore(&up->port.lock, flags);
+ 		return 1;
+ 	}
+ 
+-- 
+2.39.2
+
