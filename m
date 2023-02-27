@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id F35846A3837
-	for <lists+stable@lfdr.de>; Mon, 27 Feb 2023 03:16:36 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8B0F76A37D6
+	for <lists+stable@lfdr.de>; Mon, 27 Feb 2023 03:11:48 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231235AbjB0CQa (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 26 Feb 2023 21:16:30 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41288 "EHLO
+        id S230512AbjB0CLr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 26 Feb 2023 21:11:47 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40174 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231232AbjB0COG (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 26 Feb 2023 21:14:06 -0500
-Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EC7721A94A;
-        Sun, 26 Feb 2023 18:11:59 -0800 (PST)
+        with ESMTP id S230464AbjB0CLW (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 26 Feb 2023 21:11:22 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 00D411ACE5;
+        Sun, 26 Feb 2023 18:09:43 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id D8D4DCE0F4D;
+        by dfw.source.kernel.org (Postfix) with ESMTPS id D15AE60D27;
         Mon, 27 Feb 2023 02:09:43 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4B80FC433A0;
-        Mon, 27 Feb 2023 02:09:41 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7DC58C4339B;
+        Mon, 27 Feb 2023 02:09:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1677463782;
-        bh=rwWXx6jHu9ylwz22lCxyEK8t1Ny7aUK9qcAcQ/C9Et8=;
+        s=k20201202; t=1677463783;
+        bh=ZJrjEmnYn8UAt5+dZT4FL+asRnsFUcIwm0R2ipWI+bY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=fawap5NSi1Ars2Pv7TUOlmbM1QWvLXQ4bhZtx2DSs52iAKtKbK6rmOfiO3m19/G2l
-         19fewiAShtBXjzed4S7rFPsXt+MWf2lxSHtustN99VJDtJNkWWqaTeRGDlHcUwHVz0
-         s0+vKaMKdVpbrq9KiLR5rOuHgDzUESBiU2DQooqQbeRYIyFXcCWirEbR2RX2USjnRu
-         AW4HE++/Q2DMbnFP8Y1R8vDvmEuHOAVg9KDGDPknd+69OUomI/+BKCS0LmVxhpNSAf
-         IKQMIvXjQbcEbJfrONr7wKSnKj0QRDDY59f8JwlhubZ7uqoHu5iTn1bwGnRRs7L4Lc
-         En7VYDYsEqs2g==
+        b=MtMTm7SsaDjI8j2otWBRdbhtjUvX3K0LsveJF5jb2pOHnrle1V2l+zdPjflRCcgI1
+         Pxxaxru8NOd0+x9uHMl8gXmTi8oCv/2CKZUOdLk/Xe9an4NTmYsYdLVHEyf+Nqbu9o
+         riay7g1G3MWqtziPUo7+U+/4CpLXEF06N71zG74kRuyUBEQI1yiEUmXVUMCoje72Hl
+         RU/2dYTnINW3jhtyrtUR+S5TxoOsusw0TdLiCstfBhdDmMeO9IKHHubLT33KlIHbqm
+         H5AfELvGCTNaksoUIMswPnh026rDi1AP7WIK14UPukDIsLqASX+5eQ9PVmk7HlCh69
+         c+SO1HGqgMw/Q==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Kees Cook <keescook@chromium.org>,
-        Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>,
-        Liam Girdwood <lgirdwood@gmail.com>,
-        Mark Brown <broonie@kernel.org>,
-        linux-samsung-soc@vger.kernel.org, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 5.15 16/25] regulator: s5m8767: Bounds check id indexing into arrays
-Date:   Sun, 26 Feb 2023 21:08:39 -0500
-Message-Id: <20230227020855.1051605-16-sashal@kernel.org>
+Cc:     Andreas Gruenbacher <agruenba@redhat.com>,
+        Tetsuo Handa <penguin-kernel@i-love.sakura.ne.jp>,
+        syzbot+f51cb4b9afbd87ec06f2@syzkaller.appspotmail.com,
+        Sasha Levin <sashal@kernel.org>, rpeterso@redhat.com,
+        cluster-devel@redhat.com
+Subject: [PATCH AUTOSEL 5.15 17/25] gfs2: Improve gfs2_make_fs_rw error handling
+Date:   Sun, 26 Feb 2023 21:08:40 -0500
+Message-Id: <20230227020855.1051605-17-sashal@kernel.org>
 X-Mailer: git-send-email 2.39.0
 In-Reply-To: <20230227020855.1051605-1-sashal@kernel.org>
 References: <20230227020855.1051605-1-sashal@kernel.org>
@@ -57,53 +57,53 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kees Cook <keescook@chromium.org>
+From: Andreas Gruenbacher <agruenba@redhat.com>
 
-[ Upstream commit e314e15a0b58f9d051c00b25951073bcdae61953 ]
+[ Upstream commit b66f723bb552ad59c2acb5d45ea45c890f84498b ]
 
-The compiler has no way to know if "id" is within the array bounds of
-the regulators array. Add a check for this and a build-time check that
-the regulators and reg_voltage_map arrays are sized the same. Seen with
-GCC 13:
+In gfs2_make_fs_rw(), make sure to call gfs2_consist() to report an
+inconsistency and mark the filesystem as withdrawn when
+gfs2_find_jhead() fails.
 
-../drivers/regulator/s5m8767.c: In function 's5m8767_pmic_probe':
-../drivers/regulator/s5m8767.c:936:35: warning: array subscript [0, 36] is outside array bounds of 'struct regulator_desc[37]' [-Warray-bounds=]
-  936 |                         regulators[id].vsel_reg =
-      |                         ~~~~~~~~~~^~~~
+At the end of gfs2_make_fs_rw(), when we discover that the filesystem
+has been withdrawn, make sure we report an error.  This also replaces
+the gfs2_withdrawn() check after gfs2_find_jhead().
 
-Cc: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
-Cc: Liam Girdwood <lgirdwood@gmail.com>
-Cc: Mark Brown <broonie@kernel.org>
-Cc: linux-samsung-soc@vger.kernel.org
-Signed-off-by: Kees Cook <keescook@chromium.org>
-Reviewed-by: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
-Link: https://lore.kernel.org/r/20230128005358.never.313-kees@kernel.org
-Signed-off-by: Mark Brown <broonie@kernel.org>
+Reported-by: Tetsuo Handa <penguin-kernel@i-love.sakura.ne.jp>
+Cc: syzbot+f51cb4b9afbd87ec06f2@syzkaller.appspotmail.com
+Signed-off-by: Andreas Gruenbacher <agruenba@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/regulator/s5m8767.c | 6 +++++-
- 1 file changed, 5 insertions(+), 1 deletion(-)
+ fs/gfs2/super.c | 8 ++++++--
+ 1 file changed, 6 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/regulator/s5m8767.c b/drivers/regulator/s5m8767.c
-index 35269f9982105..754c6fcc6e642 100644
---- a/drivers/regulator/s5m8767.c
-+++ b/drivers/regulator/s5m8767.c
-@@ -923,10 +923,14 @@ static int s5m8767_pmic_probe(struct platform_device *pdev)
+diff --git a/fs/gfs2/super.c b/fs/gfs2/super.c
+index d615974ce4183..775ac3fb10c67 100644
+--- a/fs/gfs2/super.c
++++ b/fs/gfs2/super.c
+@@ -138,8 +138,10 @@ int gfs2_make_fs_rw(struct gfs2_sbd *sdp)
+ 		return -EIO;
  
- 	for (i = 0; i < pdata->num_regulators; i++) {
- 		const struct sec_voltage_desc *desc;
--		int id = pdata->regulators[i].id;
-+		unsigned int id = pdata->regulators[i].id;
- 		int enable_reg, enable_val;
- 		struct regulator_dev *rdev;
+ 	error = gfs2_find_jhead(sdp->sd_jdesc, &head, false);
+-	if (error || gfs2_withdrawn(sdp))
++	if (error) {
++		gfs2_consist(sdp);
+ 		return error;
++	}
  
-+		BUILD_BUG_ON(ARRAY_SIZE(regulators) != ARRAY_SIZE(reg_voltage_map));
-+		if (WARN_ON_ONCE(id >= ARRAY_SIZE(regulators)))
-+			continue;
-+
- 		desc = reg_voltage_map[id];
- 		if (desc) {
- 			regulators[id].n_voltages =
+ 	if (!(head.lh_flags & GFS2_LOG_HEAD_UNMOUNT)) {
+ 		gfs2_consist(sdp);
+@@ -151,7 +153,9 @@ int gfs2_make_fs_rw(struct gfs2_sbd *sdp)
+ 	gfs2_log_pointers_init(sdp, head.lh_blkno);
+ 
+ 	error = gfs2_quota_init(sdp);
+-	if (!error && !gfs2_withdrawn(sdp))
++	if (!error && gfs2_withdrawn(sdp))
++		error = -EIO;
++	if (!error)
+ 		set_bit(SDF_JOURNAL_LIVE, &sdp->sd_flags);
+ 	return error;
+ }
 -- 
 2.39.0
 
