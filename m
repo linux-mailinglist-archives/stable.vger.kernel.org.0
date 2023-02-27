@@ -2,103 +2,80 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 8B7AC6A3E5C
-	for <lists+stable@lfdr.de>; Mon, 27 Feb 2023 10:31:34 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E40F76A3F30
+	for <lists+stable@lfdr.de>; Mon, 27 Feb 2023 11:08:38 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229524AbjB0Jbd (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 27 Feb 2023 04:31:33 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44108 "EHLO
+        id S229834AbjB0KIh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 27 Feb 2023 05:08:37 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50178 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229690AbjB0Jbc (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 27 Feb 2023 04:31:32 -0500
-Received: from mail-yw1-x1130.google.com (mail-yw1-x1130.google.com [IPv6:2607:f8b0:4864:20::1130])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 901189770
-        for <stable@vger.kernel.org>; Mon, 27 Feb 2023 01:31:25 -0800 (PST)
-Received: by mail-yw1-x1130.google.com with SMTP id 00721157ae682-536cd8f6034so157586817b3.10
-        for <stable@vger.kernel.org>; Mon, 27 Feb 2023 01:31:25 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112; t=1677490285;
-        h=to:subject:message-id:date:from:reply-to:mime-version:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=dBDMlMkLoASgaz9f5d/hsoljdZ4QfI+/2xs9WyTgJdQ=;
-        b=RIYJ5e0xzzpVuLKcmTCaAleq7XLhxvSZ1FNsIrgEKk9/i4IiilWirp7UE+3X19/Tr8
-         LXuAOWENRpKlU8qK+aSUrZM5ojNoPUzEQd0xNOWl7MC4OpxL6P8E8eK0QNnmZfMxMSVb
-         ImYJW1qamGSdphD3TWPpgk4Asa5N/AkegUK+sTEdJjX7In2ZfgIYI3TDJkGwFUs7dUEz
-         LCtBSiSr2F95woAsPLO+zmJzOO94CNOgUDh+vZHRLHmz8lCn5hp51XUNjXC5Yi7/jJzP
-         l4s9uUinticyuDxxezKYerO8l9pWvk/RpGh7Z5umqDHeqqIb+9/c8jQXUnTO6IWZPAPe
-         v5LQ==
+        with ESMTP id S229633AbjB0KIg (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 27 Feb 2023 05:08:36 -0500
+Received: from mail-io1-f71.google.com (mail-io1-f71.google.com [209.85.166.71])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B94C24EC9
+        for <stable@vger.kernel.org>; Mon, 27 Feb 2023 02:08:35 -0800 (PST)
+Received: by mail-io1-f71.google.com with SMTP id z6-20020a056602080600b007407df88db0so3714859iow.23
+        for <stable@vger.kernel.org>; Mon, 27 Feb 2023 02:08:35 -0800 (PST)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112; t=1677490285;
-        h=to:subject:message-id:date:from:reply-to:mime-version
+        d=1e100.net; s=20210112;
+        h=to:from:subject:message-id:in-reply-to:date:mime-version
          :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=dBDMlMkLoASgaz9f5d/hsoljdZ4QfI+/2xs9WyTgJdQ=;
-        b=Fc+bryTzzz8DZoIYs1XzC6mDdxBxazJ8vSLkkqge4O9B0dkWvW9tKmUoJDE9vzW7UB
-         Qw1L47ffDvsaDSK03nNLiOEp41hFQMHdkf3qMK8DERcOkvu2q6/dq6Dy2HKuf1g5OIv/
-         nhut9b+iLN8QCpZ0bfd/ZuRre3erG/RTbroFTcmoTEHZAOZPWcchJ094ZaIPw17WX4ew
-         tKEmRnWdGugYifv18iavl9jZ6wZemUNgAl4j5K6Zh/LX5OkIt49VkkKU0OkwgGdK4mhV
-         T0tUhv/b6g2WIEz6WvATIkvXhWjwPe/2Xrz03Ji1epgbSk2D/ttLIKkkxZdfwzUs2nLg
-         o3lw==
-X-Gm-Message-State: AO0yUKVXdpdh9+YAausjb4miU3aSocRdqG10ZPO/HQ0yfP5oeIJzgHIs
-        A8imYszOtP63BbeRBYwY+kHDXoVC1XYtBkqF5Tk=
-X-Google-Smtp-Source: AK7set8AF6+oYAm7oxUXvJzanzWryq+jRW5a/NhkgfwMf+8yKNsuSUgl6kDxMrceXUL9R7toh7ys2s7rxXs8si8MjrQ=
-X-Received: by 2002:a81:b71b:0:b0:533:8f19:4576 with SMTP id
- v27-20020a81b71b000000b005338f194576mr9930562ywh.0.1677490284750; Mon, 27 Feb
- 2023 01:31:24 -0800 (PST)
+        bh=HHBorJxtb8OOdvReJ/cspDu7cb80E+hJP4zqgvf9eJU=;
+        b=kiJM/Qm7L/4fjGh08lSnd4pVj/qtSVEmikC2Y+8oONe2dai7cNldM3lBhVp0N1hy2b
+         +f3PBAno+WfVcv5RPhMBiNgdutIhCZOLa6pimP1INA1nFBELvsmB6LqGLgouJlEmMYyu
+         uBVRdVLrCwjuFf1e+Ajk2POlChjYJv2kwZJP+OBfYdiCyaMvHrkoU1UdI+S0m62DcJ4e
+         2Jd21GIlLapYjUuehbpDHd8XyXLrgomvpuwPUK2XHwGx0sKA1FT5s1v7wHYo2YehLDZp
+         YN3QtOsIlNBExO9ajaxtq8s4TNY8XwdOreQ1U1Ca3XIBqPeb3he3pcBO9LWYxAX7Q5FL
+         QtEQ==
+X-Gm-Message-State: AO0yUKV9OrkaORQULV90fmlO+axgBpCiGq8yZnXIfKsuZwf3v+lU0w4V
+        inoDdY7sn8FjP0ycj/XJ53jVBmG4yGc2b4urRQGLK52Uneo9
+X-Google-Smtp-Source: AK7set9XQOjnaY+h0KPoKF8yzSMNDRjBgH9I4koeZnVndKXg0GN9QwyrO+eJsiVC+58G+gFmqP7opHmTZ+1yfcagTkYNKJus8QSw
 MIME-Version: 1.0
-Received: by 2002:a05:7110:1001:b0:1d2:8b4:1e71 with HTTP; Mon, 27 Feb 2023
- 01:31:24 -0800 (PST)
-Reply-To: katerynamudrik01@gmail.com
-From:   kateryna mudrik <mrchechnz.7801@gmail.com>
-Date:   Mon, 27 Feb 2023 09:31:24 +0000
-Message-ID: <CAD27ePUTYoCyaCZG3m7yVwQfXabS1CyMztezC4zQ2dRy+KZs5Q@mail.gmail.com>
-Subject: Hello, good day,
-To:     undisclosed-recipients:;
+X-Received: by 2002:a02:2907:0:b0:3eb:fd40:78be with SMTP id
+ p7-20020a022907000000b003ebfd4078bemr2564199jap.3.1677492515115; Mon, 27 Feb
+ 2023 02:08:35 -0800 (PST)
+Date:   Mon, 27 Feb 2023 02:08:35 -0800
+In-Reply-To: <000000000000b960c00594598949@google.com>
+X-Google-Appengine-App-Id: s~syzkaller
+X-Google-Appengine-App-Id-Alias: syzkaller
+Message-ID: <0000000000007a186e05f5aba972@google.com>
+Subject: Re: KASAN: use-after-free Read in tc_chain_fill_node
+From:   syzbot <syzbot+5f229e48cccc804062c0@syzkaller.appspotmail.com>
+To:     davem@davemloft.net, gregkh@linuxfoundation.org, jiri@mellanox.com,
+        lee.jones@linaro.org, linux-kernel@vger.kernel.org,
+        stable-commits@vger.kernel.org, stable@vger.kernel.org,
+        syzkaller-lts-bugs@googlegroups.com, vladbu@mellanox.com
 Content-Type: text/plain; charset="UTF-8"
-X-Spam-Status: Yes, score=5.8 required=5.0 tests=BAYES_60,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_ENVFROM_END_DIGIT,
-        FREEMAIL_FROM,FREEMAIL_REPLYTO,FREEMAIL_REPLYTO_END_DIGIT,
-        RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS,UNDISC_FREEM autolearn=no
-        autolearn_force=no version=3.4.6
-X-Spam-Report: * -0.0 RCVD_IN_DNSWL_NONE RBL: Sender listed at
-        *      https://www.dnswl.org/, no trust
-        *      [2607:f8b0:4864:20:0:0:0:1130 listed in]
-        [list.dnswl.org]
-        *  1.5 BAYES_60 BODY: Bayes spam probability is 60 to 80%
-        *      [score: 0.7577]
-        *  0.0 FREEMAIL_FROM Sender email is commonly abused enduser mail
-        *      provider
-        *      [mrchechnz.7801[at]gmail.com]
-        *  0.0 SPF_HELO_NONE SPF: HELO does not publish an SPF Record
-        *  0.2 FREEMAIL_ENVFROM_END_DIGIT Envelope-from freemail username ends
-        *       in digit
-        *      [mrchechnz.7801[at]gmail.com]
-        *  0.2 FREEMAIL_REPLYTO_END_DIGIT Reply-To freemail username ends in
-        *      digit
-        *      [katerynamudrik01[at]gmail.com]
-        * -0.0 SPF_PASS SPF: sender matches SPF record
-        * -0.1 DKIM_VALID Message has at least one valid DKIM or DK signature
-        * -0.1 DKIM_VALID_AU Message has a valid DKIM or DK signature from
-        *      author's domain
-        * -0.1 DKIM_VALID_EF Message has a valid DKIM or DK signature from
-        *      envelope-from domain
-        *  0.1 DKIM_SIGNED Message has a DKIM or DK signature, not necessarily
-        *       valid
-        *  3.0 UNDISC_FREEM Undisclosed recipients + freemail reply-to
-        *  1.0 FREEMAIL_REPLYTO Reply-To/From or Reply-To/body contain
-        *      different freemails
-X-Spam-Level: *****
+X-Spam-Status: No, score=0.9 required=5.0 tests=BAYES_00,FROM_LOCAL_HEX,
+        HEADER_FROM_DIFFERENT_DOMAINS,RCVD_IN_DNSWL_NONE,RCVD_IN_MSPIKE_H2,
+        SORTED_RECIPS,SPF_HELO_NONE,SPF_PASS autolearn=no autolearn_force=no
+        version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hello, good day,
-Please don't be offended by my unsolicited email. First of all, I
-would like to briefly introduce myself. My name is kateryna mudrik, I
-come from Mariupol in the Donetsk oblast in northern Ukraine. We may
-have been humiliated by the Russian invasion of Ukraine, but I still
-believe that we Ukrainians can be friends with good people like you.
-Now, time won't allow me to say much, but I will tell you the main
-reason I contacted you when I get your response.
-Thank you and waiting for your response.
+This bug is marked as fixed by commit:
+net: core: netlink: add helper refcount dec and lock function
+net: sched: add helper function to take reference to Qdisc
+net: sched: extend Qdisc with rcu
+net: sched: rename qdisc_destroy() to qdisc_put()
+net: sched: use Qdisc rcu API instead of relying on rtnl lock
+
+But I can't find it in the tested trees[1] for more than 90 days.
+Is it a correct commit? Please update it by replying:
+
+#syz fix: exact-commit-title
+
+Until then the bug is still considered open and new crashes with
+the same signature are ignored.
+
+Kernel: Linux 4.19
+Dashboard link: https://syzkaller.appspot.com/bug?extid=5f229e48cccc804062c0
+
+---
+[1] I expect the commit to be present in:
+
+1. linux-4.19.y branch of
+git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable.git
