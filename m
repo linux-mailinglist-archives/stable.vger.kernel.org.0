@@ -2,45 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C52756A38F4
-	for <lists+stable@lfdr.de>; Mon, 27 Feb 2023 03:44:18 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E9F196A3807
+	for <lists+stable@lfdr.de>; Mon, 27 Feb 2023 03:14:08 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230414AbjB0CoR (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 26 Feb 2023 21:44:17 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42476 "EHLO
+        id S230073AbjB0COH (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 26 Feb 2023 21:14:07 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41326 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230388AbjB0CoF (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 26 Feb 2023 21:44:05 -0500
+        with ESMTP id S231184AbjB0CNd (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 26 Feb 2023 21:13:33 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D4EA8A5F3;
-        Sun, 26 Feb 2023 18:43:38 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5D34C1C5B1;
+        Sun, 26 Feb 2023 18:11:46 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id A5D37B80D0C;
-        Mon, 27 Feb 2023 02:10:06 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8FF04C433D2;
-        Mon, 27 Feb 2023 02:10:04 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id F3E14B80D0F;
+        Mon, 27 Feb 2023 02:10:07 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id CFEAEC4339B;
+        Mon, 27 Feb 2023 02:10:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1677463805;
-        bh=hBQhb0RMGfW9cEyhH42SqxLqPMXMK7vuDoAZ05c6kAU=;
+        s=k20201202; t=1677463806;
+        bh=CDQrBIHztWv9dbMkLafL1aYueF6IFouiZ+YoT/W8vSw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=i6CzaCC20rPLjRCH4SAA1LPsj1i0S0/TObHX8YdbeXRB9moUy7t4kJPpYBQjLt1VM
-         3dnePaUM0GWP1cZG8+jDH8l03lWm8xuLXh5jNDO0nd6ZBP+254+S6nrElxowsWs8yj
-         lEy04e/+GHBH2zsgrjH4j8OwIw7nHRGWupnE28fmdy/drkn8Kg9Nc0vubMmld5htlj
-         ylJ3F3xq3ii4wgJq2lWxng//NldCy3uYqbxVj/1kK8UpTxGhi/lU3WwThl3+1+IMxI
-         UQZXiCHeJBk/16cAdfqNPWymvGYyz5oX4DdrCE3Lsx/EPwyUbfx7fJbt+9aRoDeBoK
-         sn3AI4GJlLaMw==
+        b=OaVeaz9gR0WDxDuLYekHA1MW6Vn7W2ZvsdyclpAIoAm+ZEF32+HdcxieRadWLs690
+         8khWOtyeV7uXjFzXzfBBdwzI5FYA/9Sk9gyrahz3jMpxaiHnX0y01TowtGaK+ZZdoq
+         VlX6kXkRXRsr/uiCv2th+SjQoDZvQm0l+7bOHbM1c5HW9P2CtiuWndVCcnxRnot295
+         JH1FYx8ZWMfmBHySFMn7K9lFcKXPHNZ2zWTMZy6El5NXFmSFuuU/G9SK6g2P1WVKCp
+         GStukm1v9gr74qHURNPPH9l/4HvP3xzOUua2r/RomgujKAF4ymjMbnFDuzjTPFEikx
+         izv5pOTKAN8lQ==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Jingyuan Liang <jingyliang@chromium.org>,
-        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
-        Jiri Kosina <jkosina@suse.cz>, Sasha Levin <sashal@kernel.org>,
-        jikos@kernel.org, benjamin.tissoires@redhat.com,
-        linux-input@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.10 03/19] HID: Add Mapping for System Microphone Mute
-Date:   Sun, 26 Feb 2023 21:09:38 -0500
-Message-Id: <20230227020957.1052252-3-sashal@kernel.org>
+Cc:     Carlo Caione <ccaione@baylibre.com>,
+        Neil Armstrong <neil.armstrong@linaro.org>,
+        Kamlesh Gurudasani <kamlesh.gurudasani@gmail.com>,
+        Sasha Levin <sashal@kernel.org>, airlied@gmail.com,
+        daniel@ffwll.ch, dri-devel@lists.freedesktop.org
+Subject: [PATCH AUTOSEL 5.10 04/19] drm/tiny: ili9486: Do not assume 8-bit only SPI controllers
+Date:   Sun, 26 Feb 2023 21:09:39 -0500
+Message-Id: <20230227020957.1052252-4-sashal@kernel.org>
 X-Mailer: git-send-email 2.39.0
 In-Reply-To: <20230227020957.1052252-1-sashal@kernel.org>
 References: <20230227020957.1052252-1-sashal@kernel.org>
@@ -57,56 +57,83 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jingyuan Liang <jingyliang@chromium.org>
+From: Carlo Caione <ccaione@baylibre.com>
 
-[ Upstream commit 2d60f9f4f26785a00273cb81fe60eff129ebd449 ]
+[ Upstream commit 77772e607522daa61f3af74df018559db75c43d6 ]
 
-HUTRR110 added a new usage code for a key that is supposed to
-mute/unmute microphone system-wide.
+The pixel data for the ILI9486 is always 16-bits wide and it must be
+sent over the SPI bus. When the controller is only able to deal with
+8-bit transfers, this 16-bits data needs to be swapped before the
+sending to account for the big endian bus, this is on the contrary not
+needed when the SPI controller already supports 16-bits transfers.
 
-Map the new usage code(0x01 0xa9) to keycode KEY_MICMUTE.
-Additionally hid-debug is adjusted to recognize this keycode as well.
+The decision about swapping the pixel data or not is taken in the MIPI
+DBI code by probing the controller capabilities: if the controller only
+suppors 8-bit transfers the data is swapped, otherwise it is not.
 
-Signed-off-by: Jingyuan Liang <jingyliang@chromium.org>
-Reviewed-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Signed-off-by: Jiri Kosina <jkosina@suse.cz>
+This swapping/non-swapping is relying on the assumption that when the
+controller does support 16-bit transactions then the data is sent
+unswapped in 16-bits-per-word over SPI.
+
+The problem with the ILI9486 driver is that it is forcing 8-bit
+transactions also for controllers supporting 16-bits, violating the
+assumption and corrupting the pixel data.
+
+Align the driver to what is done in the MIPI DBI code by adjusting the
+transfer size to the maximum allowed by the SPI controller.
+
+Reviewed-by: Neil Armstrong <neil.armstrong@linaro.org>
+Signed-off-by: Carlo Caione <ccaione@baylibre.com>
+Reviewed-by: Kamlesh Gurudasani <kamlesh.gurudasani@gmail.com>
+Signed-off-by: Neil Armstrong <neil.armstrong@linaro.org>
+Link: https://patchwork.freedesktop.org/patch/msgid/20221116-s905x_spi_ili9486-v4-2-f86b4463b9e4@baylibre.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/hid/hid-debug.c | 1 +
- drivers/hid/hid-input.c | 8 ++++++++
- 2 files changed, 9 insertions(+)
+ drivers/gpu/drm/tiny/ili9486.c | 13 +++++++++----
+ 1 file changed, 9 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/hid/hid-debug.c b/drivers/hid/hid-debug.c
-index f4e2e69377589..1f60a381ae63e 100644
---- a/drivers/hid/hid-debug.c
-+++ b/drivers/hid/hid-debug.c
-@@ -933,6 +933,7 @@ static const char *keys[KEY_MAX + 1] = {
- 	[KEY_VOICECOMMAND] = "VoiceCommand",
- 	[KEY_EMOJI_PICKER] = "EmojiPicker",
- 	[KEY_DICTATE] = "Dictate",
-+	[KEY_MICMUTE] = "MicrophoneMute",
- 	[KEY_BRIGHTNESS_MIN] = "BrightnessMin",
- 	[KEY_BRIGHTNESS_MAX] = "BrightnessMax",
- 	[KEY_BRIGHTNESS_AUTO] = "BrightnessAuto",
-diff --git a/drivers/hid/hid-input.c b/drivers/hid/hid-input.c
-index 75a4d8d6bb0fd..3399953256d85 100644
---- a/drivers/hid/hid-input.c
-+++ b/drivers/hid/hid-input.c
-@@ -675,6 +675,14 @@ static void hidinput_configure_usage(struct hid_input *hidinput, struct hid_fiel
- 			break;
- 		}
+diff --git a/drivers/gpu/drm/tiny/ili9486.c b/drivers/gpu/drm/tiny/ili9486.c
+index 403af68fa4400..7ea26e5fbcb28 100644
+--- a/drivers/gpu/drm/tiny/ili9486.c
++++ b/drivers/gpu/drm/tiny/ili9486.c
+@@ -43,6 +43,7 @@ static int waveshare_command(struct mipi_dbi *mipi, u8 *cmd, u8 *par,
+ 			     size_t num)
+ {
+ 	struct spi_device *spi = mipi->spi;
++	unsigned int bpw = 8;
+ 	void *data = par;
+ 	u32 speed_hz;
+ 	int i, ret;
+@@ -56,8 +57,6 @@ static int waveshare_command(struct mipi_dbi *mipi, u8 *cmd, u8 *par,
+ 	 * The displays are Raspberry Pi HATs and connected to the 8-bit only
+ 	 * SPI controller, so 16-bit command and parameters need byte swapping
+ 	 * before being transferred as 8-bit on the big endian SPI bus.
+-	 * Pixel data bytes have already been swapped before this function is
+-	 * called.
+ 	 */
+ 	buf[0] = cpu_to_be16(*cmd);
+ 	gpiod_set_value_cansleep(mipi->dc, 0);
+@@ -71,12 +70,18 @@ static int waveshare_command(struct mipi_dbi *mipi, u8 *cmd, u8 *par,
+ 		for (i = 0; i < num; i++)
+ 			buf[i] = cpu_to_be16(par[i]);
+ 		num *= 2;
+-		speed_hz = mipi_dbi_spi_cmd_max_speed(spi, num);
+ 		data = buf;
+ 	}
  
-+		if ((usage->hid & 0xf0) == 0xa0) {	/* SystemControl */
-+			switch (usage->hid & 0xf) {
-+			case 0x9: map_key_clear(KEY_MICMUTE); break;
-+			default: goto ignore;
-+			}
-+			break;
-+		}
++	/*
++	 * Check whether pixel data bytes needs to be swapped or not
++	 */
++	if (*cmd == MIPI_DCS_WRITE_MEMORY_START && !mipi->swap_bytes)
++		bpw = 16;
 +
- 		if ((usage->hid & 0xf0) == 0xb0) {	/* SC - Display */
- 			switch (usage->hid & 0xf) {
- 			case 0x05: map_key_clear(KEY_SWITCHVIDEOMODE); break;
+ 	gpiod_set_value_cansleep(mipi->dc, 1);
+-	ret = mipi_dbi_spi_transfer(spi, speed_hz, 8, data, num);
++	speed_hz = mipi_dbi_spi_cmd_max_speed(spi, num);
++	ret = mipi_dbi_spi_transfer(spi, speed_hz, bpw, data, num);
+  free:
+ 	kfree(buf);
+ 
 -- 
 2.39.0
 
