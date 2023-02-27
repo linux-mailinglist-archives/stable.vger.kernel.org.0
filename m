@@ -2,52 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 8761F6A38D7
-	for <lists+stable@lfdr.de>; Mon, 27 Feb 2023 03:38:31 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 388E56A3788
+	for <lists+stable@lfdr.de>; Mon, 27 Feb 2023 03:10:21 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231722AbjB0Cia (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 26 Feb 2023 21:38:30 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59746 "EHLO
+        id S230051AbjB0CKT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 26 Feb 2023 21:10:19 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59636 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231683AbjB0CiM (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 26 Feb 2023 21:38:12 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A207E5B85;
-        Sun, 26 Feb 2023 18:37:41 -0800 (PST)
+        with ESMTP id S230404AbjB0CJ5 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 26 Feb 2023 21:09:57 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DB8311B316;
+        Sun, 26 Feb 2023 18:08:55 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 977F0B80CC0;
-        Mon, 27 Feb 2023 02:07:27 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 41726C4339C;
-        Mon, 27 Feb 2023 02:07:24 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 1D24860CFA;
+        Mon, 27 Feb 2023 02:07:28 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C1A4FC433EF;
+        Mon, 27 Feb 2023 02:07:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1677463646;
-        bh=1rai2uyf8lv86381zgrgK9MHDyRe6ERnZb44jKq2GV0=;
+        s=k20201202; t=1677463647;
+        bh=NBsMRiGIBkKPZEIyH/zYnTizEGU9jmU/IIXS8ILElm8=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=lOf3rc7F6s85SnFc9zzdW4lzWCaKxh7Xhio95hmWyQ6YzlqqyH1b03ZymIupiwNHd
-         lYnbQD3hgRTrwMlCTwSPlK/WumpWvJETM06boSPdcrinWQWfLZXqlFYmJAEFUFzCBU
-         8+ktJF2t1PDD/dneIbGi9hFmlDiHI0+bCtN5j93sjFsIsYdOauKtsLk9ngr0nvtr2C
-         vndmIVcG9RgOtQ8nY1YeSsYEtx55w6G0hDJ/w3iEUyVN1nGaUHbxgEqEKJojjh7zy+
-         kesEgvtDK6hNnE35SShKie7085ZqYzR5ikPv4aBLDze2iLgQ1NB0CH0wbaBQBT3WI5
-         WvZEqGarWoP/w==
+        b=kj2L32tuetKSfVQoXTtnmbSRBTBF7ujn09vrgGQC5OPrsJ/xakbPvLAkIEaJEdwiA
+         OOQl/TGQZiyZE9z+jYMDkLELH+mTXTGOl/PQ+Q+1nqGUDrC3SsfxH0kxVSwOzIe+HS
+         nr5bxW2/hysx+G9x9yZ+SmeIzgJjEbiCjvmI9Dmjpy4M3K4sgJh+NtJq3bemiMml98
+         KDomeSFqIyJ1Sd1T53i2+nVLp8XfcxTz+W659YSwXKpiAnvRscPJ8v+2iX6QNp57gX
+         9bAhaBYAYQcij6wI2dn3C3NLsjCsyMieHrwdh3ZiV+lGyApgDcZUqRcbHn8i5ozQqu
+         QTMrmK9/YMR1w==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Vladimir Stempen <vladimir.stempen@amd.com>,
-        Nevenko Stupar <Nevenko.Stupar@amd.com>,
-        Alex Hung <alex.hung@amd.com>,
-        Daniel Wheeler <daniel.wheeler@amd.com>,
-        Alex Deucher <alexander.deucher@amd.com>,
-        Sasha Levin <sashal@kernel.org>, harry.wentland@amd.com,
-        sunpeng.li@amd.com, Rodrigo.Siqueira@amd.com,
-        christian.koenig@amd.com, Xinhui.Pan@amd.com, airlied@gmail.com,
-        daniel@ffwll.ch, jun.lei@amd.com, Alvin.Lee2@amd.com,
-        Dillon.Varone@amd.com, george.shen@amd.com, rdunlap@infradead.org,
-        David.Galiffi@amd.com, amd-gfx@lists.freedesktop.org,
-        dri-devel@lists.freedesktop.org
-Subject: [PATCH AUTOSEL 6.1 38/58] drm/amd/display: fix FCLK pstate change underflow
-Date:   Sun, 26 Feb 2023 21:04:36 -0500
-Message-Id: <20230227020457.1048737-38-sashal@kernel.org>
+Cc:     Andreas Gruenbacher <agruenba@redhat.com>,
+        Tetsuo Handa <penguin-kernel@i-love.sakura.ne.jp>,
+        syzbot+f51cb4b9afbd87ec06f2@syzkaller.appspotmail.com,
+        Sasha Levin <sashal@kernel.org>, rpeterso@redhat.com,
+        cluster-devel@redhat.com
+Subject: [PATCH AUTOSEL 6.1 39/58] gfs2: Improve gfs2_make_fs_rw error handling
+Date:   Sun, 26 Feb 2023 21:04:37 -0500
+Message-Id: <20230227020457.1048737-39-sashal@kernel.org>
 X-Mailer: git-send-email 2.39.0
 In-Reply-To: <20230227020457.1048737-1-sashal@kernel.org>
 References: <20230227020457.1048737-1-sashal@kernel.org>
@@ -64,46 +57,53 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Vladimir Stempen <vladimir.stempen@amd.com>
+From: Andreas Gruenbacher <agruenba@redhat.com>
 
-[ Upstream commit 972243f973eb0821084e5833d5f7f4ed025f42da ]
+[ Upstream commit b66f723bb552ad59c2acb5d45ea45c890f84498b ]
 
-[Why]
-Currently we set FCLK p-state change
-watermark calculated based on dummy
-p-state latency when UCLK p-state is
-not supported
+In gfs2_make_fs_rw(), make sure to call gfs2_consist() to report an
+inconsistency and mark the filesystem as withdrawn when
+gfs2_find_jhead() fails.
 
-[How]
-Calculate FCLK p-state change watermark
-based on on FCLK pstate change latency
-in case UCLK p-state is not supported
+At the end of gfs2_make_fs_rw(), when we discover that the filesystem
+has been withdrawn, make sure we report an error.  This also replaces
+the gfs2_withdrawn() check after gfs2_find_jhead().
 
-Reviewed-by: Nevenko Stupar <Nevenko.Stupar@amd.com>
-Acked-by: Alex Hung <alex.hung@amd.com>
-Signed-off-by: Vladimir Stempen <vladimir.stempen@amd.com>
-Tested-by: Daniel Wheeler <daniel.wheeler@amd.com>
-Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+Reported-by: Tetsuo Handa <penguin-kernel@i-love.sakura.ne.jp>
+Cc: syzbot+f51cb4b9afbd87ec06f2@syzkaller.appspotmail.com
+Signed-off-by: Andreas Gruenbacher <agruenba@redhat.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/amd/display/dc/dml/dcn32/dcn32_fpu.c | 4 ++++
- 1 file changed, 4 insertions(+)
+ fs/gfs2/super.c | 8 ++++++--
+ 1 file changed, 6 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/gpu/drm/amd/display/dc/dml/dcn32/dcn32_fpu.c b/drivers/gpu/drm/amd/display/dc/dml/dcn32/dcn32_fpu.c
-index d90216d2fe3a8..04cc96e700981 100644
---- a/drivers/gpu/drm/amd/display/dc/dml/dcn32/dcn32_fpu.c
-+++ b/drivers/gpu/drm/amd/display/dc/dml/dcn32/dcn32_fpu.c
-@@ -1963,6 +1963,10 @@ void dcn32_calculate_wm_and_dlg_fpu(struct dc *dc, struct dc_state *context,
- 		 */
- 		context->bw_ctx.bw.dcn.watermarks.a = context->bw_ctx.bw.dcn.watermarks.c;
- 		context->bw_ctx.bw.dcn.watermarks.a.cstate_pstate.pstate_change_ns = 0;
-+		/* Calculate FCLK p-state change watermark based on FCLK pstate change latency in case
-+		 * UCLK p-state is not supported, to avoid underflow in case FCLK pstate is supported
-+		 */
-+		context->bw_ctx.bw.dcn.watermarks.a.cstate_pstate.fclk_pstate_change_ns = get_fclk_watermark(&context->bw_ctx.dml, pipes, pipe_cnt) * 1000;
- 	} else {
- 		/* Set A:
- 		 * All clocks min.
+diff --git a/fs/gfs2/super.c b/fs/gfs2/super.c
+index 011f9e7660ef8..2015bd05cba10 100644
+--- a/fs/gfs2/super.c
++++ b/fs/gfs2/super.c
+@@ -138,8 +138,10 @@ int gfs2_make_fs_rw(struct gfs2_sbd *sdp)
+ 		return -EIO;
+ 
+ 	error = gfs2_find_jhead(sdp->sd_jdesc, &head, false);
+-	if (error || gfs2_withdrawn(sdp))
++	if (error) {
++		gfs2_consist(sdp);
+ 		return error;
++	}
+ 
+ 	if (!(head.lh_flags & GFS2_LOG_HEAD_UNMOUNT)) {
+ 		gfs2_consist(sdp);
+@@ -151,7 +153,9 @@ int gfs2_make_fs_rw(struct gfs2_sbd *sdp)
+ 	gfs2_log_pointers_init(sdp, head.lh_blkno);
+ 
+ 	error = gfs2_quota_init(sdp);
+-	if (!error && !gfs2_withdrawn(sdp))
++	if (!error && gfs2_withdrawn(sdp))
++		error = -EIO;
++	if (!error)
+ 		set_bit(SDF_JOURNAL_LIVE, &sdp->sd_flags);
+ 	return error;
+ }
 -- 
 2.39.0
 
