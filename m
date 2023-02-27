@@ -2,49 +2,52 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 53E006A3652
-	for <lists+stable@lfdr.de>; Mon, 27 Feb 2023 03:01:03 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B58976A365D
+	for <lists+stable@lfdr.de>; Mon, 27 Feb 2023 03:01:32 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229562AbjB0CBC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 26 Feb 2023 21:01:02 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51180 "EHLO
+        id S229700AbjB0CBa (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 26 Feb 2023 21:01:30 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51966 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229618AbjB0CBB (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 26 Feb 2023 21:01:01 -0500
+        with ESMTP id S229684AbjB0CBY (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 26 Feb 2023 21:01:24 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D979C12868;
-        Sun, 26 Feb 2023 18:00:59 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7368713DE6;
+        Sun, 26 Feb 2023 18:01:09 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 1CC1460CA3;
-        Mon, 27 Feb 2023 02:00:59 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B78E1C4339E;
-        Mon, 27 Feb 2023 02:00:56 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 0ECBC60C47;
+        Mon, 27 Feb 2023 02:01:09 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id CBCE3C433D2;
+        Mon, 27 Feb 2023 02:01:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1677463258;
-        bh=yDEmqvxwsg0vE2JAlr2G8lYxZpQza/IUr6UE/jPyzYI=;
+        s=k20201202; t=1677463268;
+        bh=UqR1gOrvdVhK3Tk2gbThOc3+4F8pLdAMx/f6igXBXX0=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=GK8uIQcy3rgE5Qb/jwnYzAuF6y/PnylBW/nyN6fFjd5MdxLQzBvSJ/SACD2a+QW0z
-         QiIyG+Y3BdIuiDkNoRaM7VwjvrPfMEQ8tDavgiBrBXFsydTKbQ6KZk6hEEqeJWHlzy
-         CrqEgAVRMWZqzFYIUUA0A9sqzcBPj4jLn0TTtodZZk+fJVr5l7Bv3V6p013AIj1kiV
-         Vc+QQAE9h1NvrTgYD3hGWZeVMpf6KNrjDiq6Roq0l/srsBNmY87q6aQIDIdXxvQjjl
-         alnYw/Zd8Q/X3QAJU1+3wJJV3IWlAyivOmKgR4GQ5tINTxL+saV/ClYU+DPZ/NfeR8
-         x8WDz1PzBiPAw==
+        b=jPbThqOMjvQ1Qui5cdTu+dvUak8Lmyhsik/JuXXb7Cc5Xoot5fYMhD4yUMMx6PM++
+         pbgydUfz0EnXuuUKdEq2tLGWlpVj0QlUeJslgoG4R/of3bLXg3OxfA2JJbLp7f2Qcw
+         4UUCWWsye6jbQjPnPDEEomL2r2ce8S5P28MKdm6jlOgmfMB599abgOpj2d7DN1Dkd1
+         wd7z8sEXYefKItmSd/AgYEM+jqZZiyKc9Ajx3H+/ODHnByMJ5wBxkPUPCcUC1GVuHu
+         CqsrdgWqSI9y1to+AuPSykcDqCDuBuJwpp3PepKUIepUB0Jfe97wANFN+aQp7xjV/4
+         WSAyhE3ZjylNQ==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Dillon Varone <Dillon.Varone@amd.com>, Jun Lei <Jun.Lei@amd.com>,
+Cc:     Ian Chen <ian.chen@amd.com>, Wayne Lin <Wayne.Lin@amd.com>,
         Jasdeep Dhillon <jdhillon@amd.com>,
         Alex Deucher <alexander.deucher@amd.com>,
         Sasha Levin <sashal@kernel.org>, harry.wentland@amd.com,
         sunpeng.li@amd.com, Rodrigo.Siqueira@amd.com,
         christian.koenig@amd.com, Xinhui.Pan@amd.com, airlied@gmail.com,
-        daniel@ffwll.ch, alvin.lee2@amd.com, george.shen@amd.com,
-        Samson.Tam@amd.com, yang.lee@linux.alibaba.com,
-        amd-gfx@lists.freedesktop.org, dri-devel@lists.freedesktop.org
-Subject: [PATCH AUTOSEL 6.2 03/60] drm/amd/display: Reduce expected sdp bandwidth for dcn321
-Date:   Sun, 26 Feb 2023 20:59:48 -0500
-Message-Id: <20230227020045.1045105-3-sashal@kernel.org>
+        daniel@ffwll.ch, wenjing.liu@amd.com, HaoPing.Liu@amd.com,
+        George.Shen@amd.com, dingchen.zhang@amd.com,
+        Evgenii.Krasnikov@amd.com, Iswara.Nagulendran@amd.com,
+        Jimmy.Kizito@amd.com, michael.strauss@amd.com, sungkim@amd.com,
+        arnd@arndb.de, amd-gfx@lists.freedesktop.org,
+        dri-devel@lists.freedesktop.org
+Subject: [PATCH AUTOSEL 6.2 04/60] drm/amd/display: Revert Reduce delay when sink device not able to ACK 00340h write
+Date:   Sun, 26 Feb 2023 20:59:49 -0500
+Message-Id: <20230227020045.1045105-4-sashal@kernel.org>
 X-Mailer: git-send-email 2.39.0
 In-Reply-To: <20230227020045.1045105-1-sashal@kernel.org>
 References: <20230227020045.1045105-1-sashal@kernel.org>
@@ -61,36 +64,79 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dillon Varone <Dillon.Varone@amd.com>
+From: Ian Chen <ian.chen@amd.com>
 
-[ Upstream commit 6b81090d6d4cc0fd818c9ec9dbb6906f921ad396 ]
+[ Upstream commit 639f6ad6df7f47db48b59956b469a6917a136afb ]
 
-[Description]
-Modify soc BB to reduce expected sdp bandwidth and align with measurements to
-fix underflow issues.
+[WHY]
+It causes regression AMD source will not write DPCD 340.
 
-Reviewed-by: Jun Lei <Jun.Lei@amd.com>
+Reviewed-by: Wayne Lin <Wayne.Lin@amd.com>
 Acked-by: Jasdeep Dhillon <jdhillon@amd.com>
-Signed-off-by: Dillon Varone <Dillon.Varone@amd.com>
+Signed-off-by: Ian Chen <ian.chen@amd.com>
 Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/gpu/drm/amd/display/dc/dml/dcn321/dcn321_fpu.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/gpu/drm/amd/display/dc/core/dc_link.c    |  6 ------
+ drivers/gpu/drm/amd/display/dc/core/dc_link_dp.c | 14 +++-----------
+ drivers/gpu/drm/amd/display/dc/dc_dp_types.h     |  1 -
+ 3 files changed, 3 insertions(+), 18 deletions(-)
 
-diff --git a/drivers/gpu/drm/amd/display/dc/dml/dcn321/dcn321_fpu.c b/drivers/gpu/drm/amd/display/dc/dml/dcn321/dcn321_fpu.c
-index f4b176599be7a..0ea406145c1d7 100644
---- a/drivers/gpu/drm/amd/display/dc/dml/dcn321/dcn321_fpu.c
-+++ b/drivers/gpu/drm/amd/display/dc/dml/dcn321/dcn321_fpu.c
-@@ -136,7 +136,7 @@ struct _vcs_dpi_soc_bounding_box_st dcn3_21_soc = {
- 	.urgent_out_of_order_return_per_channel_pixel_only_bytes = 4096,
- 	.urgent_out_of_order_return_per_channel_pixel_and_vm_bytes = 4096,
- 	.urgent_out_of_order_return_per_channel_vm_only_bytes = 4096,
--	.pct_ideal_sdp_bw_after_urgent = 100.0,
-+	.pct_ideal_sdp_bw_after_urgent = 90.0,
- 	.pct_ideal_fabric_bw_after_urgent = 67.0,
- 	.pct_ideal_dram_sdp_bw_after_urgent_pixel_only = 20.0,
- 	.pct_ideal_dram_sdp_bw_after_urgent_pixel_and_vm = 60.0, // N/A, for now keep as is until DML implemented
+diff --git a/drivers/gpu/drm/amd/display/dc/core/dc_link.c b/drivers/gpu/drm/amd/display/dc/core/dc_link.c
+index c88f044666fee..754fc86341494 100644
+--- a/drivers/gpu/drm/amd/display/dc/core/dc_link.c
++++ b/drivers/gpu/drm/amd/display/dc/core/dc_link.c
+@@ -1916,12 +1916,6 @@ struct dc_link *link_create(const struct link_init_data *init_params)
+ 	if (false == dc_link_construct(link, init_params))
+ 		goto construct_fail;
+ 
+-	/*
+-	 * Must use preferred_link_setting, not reported_link_cap or verified_link_cap,
+-	 * since struct preferred_link_setting won't be reset after S3.
+-	 */
+-	link->preferred_link_setting.dpcd_source_device_specific_field_support = true;
+-
+ 	return link;
+ 
+ construct_fail:
+diff --git a/drivers/gpu/drm/amd/display/dc/core/dc_link_dp.c b/drivers/gpu/drm/amd/display/dc/core/dc_link_dp.c
+index dedd1246ce588..475ad3eed002d 100644
+--- a/drivers/gpu/drm/amd/display/dc/core/dc_link_dp.c
++++ b/drivers/gpu/drm/amd/display/dc/core/dc_link_dp.c
+@@ -6554,18 +6554,10 @@ void dpcd_set_source_specific_data(struct dc_link *link)
+ 
+ 			uint8_t hblank_size = (uint8_t)link->dc->caps.min_horizontal_blanking_period;
+ 
+-			if (link->preferred_link_setting.dpcd_source_device_specific_field_support) {
+-				result_write_min_hblank = core_link_write_dpcd(link,
+-					DP_SOURCE_MINIMUM_HBLANK_SUPPORTED, (uint8_t *)(&hblank_size),
+-					sizeof(hblank_size));
+-
+-				if (result_write_min_hblank == DC_ERROR_UNEXPECTED)
+-					link->preferred_link_setting.dpcd_source_device_specific_field_support = false;
+-			} else {
+-				DC_LOG_DC("Sink device does not support 00340h DPCD write. Skipping on purpose.\n");
+-			}
++			result_write_min_hblank = core_link_write_dpcd(link,
++				DP_SOURCE_MINIMUM_HBLANK_SUPPORTED, (uint8_t *)(&hblank_size),
++				sizeof(hblank_size));
+ 		}
+-
+ 		DC_TRACE_LEVEL_MESSAGE(DAL_TRACE_LEVEL_INFORMATION,
+ 							WPP_BIT_FLAG_DC_DETECTION_DP_CAPS,
+ 							"result=%u link_index=%u enum dce_version=%d DPCD=0x%04X min_hblank=%u branch_dev_id=0x%x branch_dev_name='%c%c%c%c%c%c'",
+diff --git a/drivers/gpu/drm/amd/display/dc/dc_dp_types.h b/drivers/gpu/drm/amd/display/dc/dc_dp_types.h
+index 2c54b6e0498bf..296793d8b2bf2 100644
+--- a/drivers/gpu/drm/amd/display/dc/dc_dp_types.h
++++ b/drivers/gpu/drm/amd/display/dc/dc_dp_types.h
+@@ -149,7 +149,6 @@ struct dc_link_settings {
+ 	enum dc_link_spread link_spread;
+ 	bool use_link_rate_set;
+ 	uint8_t link_rate_set;
+-	bool dpcd_source_device_specific_field_support;
+ };
+ 
+ union dc_dp_ffe_preset {
 -- 
 2.39.0
 
