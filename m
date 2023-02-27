@@ -2,43 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 2C1C76A38AC
-	for <lists+stable@lfdr.de>; Mon, 27 Feb 2023 03:35:04 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E7DAF6A3793
+	for <lists+stable@lfdr.de>; Mon, 27 Feb 2023 03:10:26 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231548AbjB0CfC (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Sun, 26 Feb 2023 21:35:02 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49564 "EHLO
+        id S230201AbjB0CKW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Sun, 26 Feb 2023 21:10:22 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59364 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231681AbjB0Cep (ORCPT
-        <rfc822;stable@vger.kernel.org>); Sun, 26 Feb 2023 21:34:45 -0500
+        with ESMTP id S230371AbjB0CJs (ORCPT
+        <rfc822;stable@vger.kernel.org>); Sun, 26 Feb 2023 21:09:48 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7772A1717;
-        Sun, 26 Feb 2023 18:34:00 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 895551B30D;
+        Sun, 26 Feb 2023 18:08:49 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id EEED460DC4;
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 4013D60DB5;
+        Mon, 27 Feb 2023 02:08:48 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id CEA2AC4339E;
         Mon, 27 Feb 2023 02:08:46 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B317EC4339C;
-        Mon, 27 Feb 2023 02:08:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1677463726;
-        bh=QoI2PXhqmogKXG3961AQtVobVI5PmRj5LpILM6/Fihg=;
+        s=k20201202; t=1677463727;
+        bh=aX33SRqerFUyiaj7L3wpdhPgq5nA9KLi7yJvCLV7lzg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ufnj2gsfLNlg00BBmFKFQCQnKURc+7iI14NhywfcSg4drKujoOg7YpasoxIlFyC+p
-         PvpE2MKQbV0a153YF0xLqOqbGwO9w8ifdSlQZhTeIqgrH0jRgu9StO42SGW7Pm3yso
-         PRClgqe5O/Y8n6ob691IA0cWhAPsivmkTAxx7kXz+oEy/i0Q9vv/1nTfkxF/khfiOq
-         j3EIyPzCcE0viU+uq+MNLIbKt7Des4Oh2FlFtfq8eXaLUKrCrVp5lYYhuNrGJ1u6Ue
-         uWmqLoOYLktkGcTPRBCLNs5dwDpY9hicE5I+cYkuEL7yTGTDtRIhEue+0qOj83iCau
-         ix8dGXKQ0D0dw==
+        b=Mf1sIButcqWtHXlHkme02pHfkLGvvPxRsYz7c1KJFc1kH0xQuxrnmbf07xMSNM4Ly
+         Mgr8+aTrOTvK8lxt8o/29j0KJ+uWaVllGiaF0iEuEGWCxwebDrMbCSPChVzz2SuGtR
+         HigeBiALe5yGat5fAukxWT8dqol7C0WxFUsWOIL7ySwKlHOvIUbr9shlyUNRPbWqza
+         QxTht39IBrRlG/ZZU8HxAMf4OGSAj0/ZMnbE/cLYT0MKzXAlkhOx5yLe2tb1YUy4Nb
+         IbJPDVS8v3jznosRAlLBJbvbUNTY0EfT1HAP9GX1XheUE6DS5d+/Cr1uUU3I6PbmUT
+         iU1PeHm33rtKw==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Jeff Layton <jlayton@kernel.org>, Boyang Xue <bxue@redhat.com>,
-        Chuck Lever <chuck.lever@oracle.com>,
-        Sasha Levin <sashal@kernel.org>, linux-nfs@vger.kernel.org
-Subject: [PATCH AUTOSEL 6.1 57/58] nfsd: don't hand out delegation on setuid files being opened for write
-Date:   Sun, 26 Feb 2023 21:04:55 -0500
-Message-Id: <20230227020457.1048737-57-sashal@kernel.org>
+Cc:     Paulo Alcantara <pc@cjr.nz>, Steve French <stfrench@microsoft.com>,
+        Sasha Levin <sashal@kernel.org>, sfrench@samba.org,
+        linux-cifs@vger.kernel.org, samba-technical@lists.samba.org
+Subject: [PATCH AUTOSEL 6.1 58/58] cifs: prevent data race in smb2_reconnect()
+Date:   Sun, 26 Feb 2023 21:04:56 -0500
+Message-Id: <20230227020457.1048737-58-sashal@kernel.org>
 X-Mailer: git-send-email 2.39.0
 In-Reply-To: <20230227020457.1048737-1-sashal@kernel.org>
 References: <20230227020457.1048737-1-sashal@kernel.org>
@@ -55,93 +55,167 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jeff Layton <jlayton@kernel.org>
+From: Paulo Alcantara <pc@cjr.nz>
 
-[ Upstream commit 826b67e6376c2a788e3a62c4860dcd79500a27d5 ]
+[ Upstream commit 3c0070f54b3128de498c2dd9934a21f0dd867111 ]
 
-We had a bug report that xfstest generic/355 was failing on NFSv4.0.
-This test sets various combinations of setuid/setgid modes and tests
-whether DIO writes will cause them to be stripped.
+Make sure to get an up-to-date TCP_Server_Info::nr_targets value prior
+to waiting the server to be reconnected in smb2_reconnect().  It is
+set in cifs_tcp_ses_needs_reconnect() and protected by
+TCP_Server_Info::srv_lock.
 
-What I found was that the server did properly strip those bits, but
-the client didn't notice because it held a delegation that was not
-recalled. The recall didn't occur because the client itself was the
-one generating the activity and we avoid recalls in that case.
-
-Clearing setuid bits is an "implicit" activity. The client didn't
-specifically request that we do that, so we need the server to issue a
-CB_RECALL, or avoid the situation entirely by not issuing a delegation.
-
-The easiest fix here is to simply not give out a delegation if the file
-is being opened for write, and the mode has the setuid and/or setgid bit
-set. Note that there is a potential race between the mode and lease
-being set, so we test for this condition both before and after setting
-the lease.
-
-This patch fixes generic/355, generic/683 and generic/684 for me. (Note
-that 355 fails only on v4.0, and 683 and 684 require NFSv4.2 to run and
-fail).
-
-Reported-by: Boyang Xue <bxue@redhat.com>
-Signed-off-by: Jeff Layton <jlayton@kernel.org>
-Signed-off-by: Chuck Lever <chuck.lever@oracle.com>
+Signed-off-by: Paulo Alcantara (SUSE) <pc@cjr.nz>
+Signed-off-by: Steve French <stfrench@microsoft.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- fs/nfsd/nfs4state.c | 27 +++++++++++++++++++++++++++
- 1 file changed, 27 insertions(+)
+ fs/cifs/smb2pdu.c | 119 +++++++++++++++++++++++++---------------------
+ 1 file changed, 64 insertions(+), 55 deletions(-)
 
-diff --git a/fs/nfsd/nfs4state.c b/fs/nfsd/nfs4state.c
-index 2247d107da90b..925a963aea00f 100644
---- a/fs/nfsd/nfs4state.c
-+++ b/fs/nfsd/nfs4state.c
-@@ -5397,6 +5397,23 @@ nfsd4_verify_deleg_dentry(struct nfsd4_open *open, struct nfs4_file *fp,
- 	return 0;
+diff --git a/fs/cifs/smb2pdu.c b/fs/cifs/smb2pdu.c
+index 2c9ffa921e6f6..2d5c3df2277d4 100644
+--- a/fs/cifs/smb2pdu.c
++++ b/fs/cifs/smb2pdu.c
+@@ -139,6 +139,66 @@ smb2_hdr_assemble(struct smb2_hdr *shdr, __le16 smb2_cmd,
+ 	return;
  }
  
-+/*
-+ * We avoid breaking delegations held by a client due to its own activity, but
-+ * clearing setuid/setgid bits on a write is an implicit activity and the client
-+ * may not notice and continue using the old mode. Avoid giving out a delegation
-+ * on setuid/setgid files when the client is requesting an open for write.
-+ */
-+static int
-+nfsd4_verify_setuid_write(struct nfsd4_open *open, struct nfsd_file *nf)
++static int wait_for_server_reconnect(struct TCP_Server_Info *server,
++				     __le16 smb2_command, bool retry)
 +{
-+	struct inode *inode = file_inode(nf->nf_file);
++	int timeout = 10;
++	int rc;
 +
-+	if ((open->op_share_access & NFS4_SHARE_ACCESS_WRITE) &&
-+	    (inode->i_mode & (S_ISUID|S_ISGID)))
++	spin_lock(&server->srv_lock);
++	if (server->tcpStatus != CifsNeedReconnect) {
++		spin_unlock(&server->srv_lock);
++		return 0;
++	}
++	timeout *= server->nr_targets;
++	spin_unlock(&server->srv_lock);
++
++	/*
++	 * Return to caller for TREE_DISCONNECT and LOGOFF and CLOSE
++	 * here since they are implicitly done when session drops.
++	 */
++	switch (smb2_command) {
++	/*
++	 * BB Should we keep oplock break and add flush to exceptions?
++	 */
++	case SMB2_TREE_DISCONNECT:
++	case SMB2_CANCEL:
++	case SMB2_CLOSE:
++	case SMB2_OPLOCK_BREAK:
 +		return -EAGAIN;
-+	return 0;
++	}
++
++	/*
++	 * Give demultiplex thread up to 10 seconds to each target available for
++	 * reconnect -- should be greater than cifs socket timeout which is 7
++	 * seconds.
++	 *
++	 * On "soft" mounts we wait once. Hard mounts keep retrying until
++	 * process is killed or server comes back on-line.
++	 */
++	do {
++		rc = wait_event_interruptible_timeout(server->response_q,
++						      (server->tcpStatus != CifsNeedReconnect),
++						      timeout * HZ);
++		if (rc < 0) {
++			cifs_dbg(FYI, "%s: aborting reconnect due to received signal\n",
++				 __func__);
++			return -ERESTARTSYS;
++		}
++
++		/* are we still trying to reconnect? */
++		spin_lock(&server->srv_lock);
++		if (server->tcpStatus != CifsNeedReconnect) {
++			spin_unlock(&server->srv_lock);
++			return 0;
++		}
++		spin_unlock(&server->srv_lock);
++	} while (retry);
++
++	cifs_dbg(FYI, "%s: gave up waiting on reconnect\n", __func__);
++	return -EHOSTDOWN;
 +}
 +
- static struct nfs4_delegation *
- nfs4_set_delegation(struct nfsd4_open *open, struct nfs4_ol_stateid *stp,
- 		    struct svc_fh *parent)
-@@ -5430,6 +5447,8 @@ nfs4_set_delegation(struct nfsd4_open *open, struct nfs4_ol_stateid *stp,
- 	spin_lock(&fp->fi_lock);
- 	if (nfs4_delegation_exists(clp, fp))
- 		status = -EAGAIN;
-+	else if (nfsd4_verify_setuid_write(open, nf))
-+		status = -EAGAIN;
- 	else if (!fp->fi_deleg_file) {
- 		fp->fi_deleg_file = nf;
- 		/* increment early to prevent fi_deleg_file from being
-@@ -5470,6 +5489,14 @@ nfs4_set_delegation(struct nfsd4_open *open, struct nfs4_ol_stateid *stp,
- 	if (status)
- 		goto out_unlock;
+ static int
+ smb2_reconnect(__le16 smb2_command, struct cifs_tcon *tcon,
+ 	       struct TCP_Server_Info *server)
+@@ -146,7 +206,6 @@ smb2_reconnect(__le16 smb2_command, struct cifs_tcon *tcon,
+ 	int rc = 0;
+ 	struct nls_table *nls_codepage;
+ 	struct cifs_ses *ses;
+-	int retries;
  
-+	/*
-+	 * Now that the deleg is set, check again to ensure that nothing
-+	 * raced in and changed the mode while we weren't lookng.
-+	 */
-+	status = nfsd4_verify_setuid_write(open, fp->fi_deleg_file);
-+	if (status)
-+		goto out_unlock;
-+
- 	spin_lock(&state_lock);
- 	spin_lock(&fp->fi_lock);
- 	if (fp->fi_had_conflict)
+ 	/*
+ 	 * SMB2s NegProt, SessSetup, Logoff do not have tcon yet so
+@@ -184,61 +243,11 @@ smb2_reconnect(__le16 smb2_command, struct cifs_tcon *tcon,
+ 	    (!tcon->ses->server) || !server)
+ 		return -EIO;
+ 
+-	ses = tcon->ses;
+-	retries = server->nr_targets;
+-
+-	/*
+-	 * Give demultiplex thread up to 10 seconds to each target available for
+-	 * reconnect -- should be greater than cifs socket timeout which is 7
+-	 * seconds.
+-	 */
+-	while (server->tcpStatus == CifsNeedReconnect) {
+-		/*
+-		 * Return to caller for TREE_DISCONNECT and LOGOFF and CLOSE
+-		 * here since they are implicitly done when session drops.
+-		 */
+-		switch (smb2_command) {
+-		/*
+-		 * BB Should we keep oplock break and add flush to exceptions?
+-		 */
+-		case SMB2_TREE_DISCONNECT:
+-		case SMB2_CANCEL:
+-		case SMB2_CLOSE:
+-		case SMB2_OPLOCK_BREAK:
+-			return -EAGAIN;
+-		}
+-
+-		rc = wait_event_interruptible_timeout(server->response_q,
+-						      (server->tcpStatus != CifsNeedReconnect),
+-						      10 * HZ);
+-		if (rc < 0) {
+-			cifs_dbg(FYI, "%s: aborting reconnect due to a received signal by the process\n",
+-				 __func__);
+-			return -ERESTARTSYS;
+-		}
+-
+-		/* are we still trying to reconnect? */
+-		spin_lock(&server->srv_lock);
+-		if (server->tcpStatus != CifsNeedReconnect) {
+-			spin_unlock(&server->srv_lock);
+-			break;
+-		}
+-		spin_unlock(&server->srv_lock);
+-
+-		if (retries && --retries)
+-			continue;
++	rc = wait_for_server_reconnect(server, smb2_command, tcon->retry);
++	if (rc)
++		return rc;
+ 
+-		/*
+-		 * on "soft" mounts we wait once. Hard mounts keep
+-		 * retrying until process is killed or server comes
+-		 * back on-line
+-		 */
+-		if (!tcon->retry) {
+-			cifs_dbg(FYI, "gave up waiting on reconnect in smb_init\n");
+-			return -EHOSTDOWN;
+-		}
+-		retries = server->nr_targets;
+-	}
++	ses = tcon->ses;
+ 
+ 	spin_lock(&ses->chan_lock);
+ 	if (!cifs_chan_needs_reconnect(ses, server) && !tcon->need_reconnect) {
 -- 
 2.39.0
 
