@@ -2,61 +2,60 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B986E6A4803
-	for <lists+stable@lfdr.de>; Mon, 27 Feb 2023 18:30:45 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 229EA6A47FB
+	for <lists+stable@lfdr.de>; Mon, 27 Feb 2023 18:30:43 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230365AbjB0RaZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 27 Feb 2023 12:30:25 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39588 "EHLO
+        id S230248AbjB0RaY (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 27 Feb 2023 12:30:24 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39650 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230132AbjB0RaT (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 27 Feb 2023 12:30:19 -0500
-Received: from mail-wr1-x434.google.com (mail-wr1-x434.google.com [IPv6:2a00:1450:4864:20::434])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 851E023865
-        for <stable@vger.kernel.org>; Mon, 27 Feb 2023 09:30:02 -0800 (PST)
-Received: by mail-wr1-x434.google.com with SMTP id t15so7055004wrz.7
-        for <stable@vger.kernel.org>; Mon, 27 Feb 2023 09:30:02 -0800 (PST)
+        with ESMTP id S230229AbjB0RaU (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 27 Feb 2023 12:30:20 -0500
+Received: from mail-wr1-x42e.google.com (mail-wr1-x42e.google.com [IPv6:2a00:1450:4864:20::42e])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 90D3E23D86
+        for <stable@vger.kernel.org>; Mon, 27 Feb 2023 09:30:04 -0800 (PST)
+Received: by mail-wr1-x42e.google.com with SMTP id l25so7070976wrb.3
+        for <stable@vger.kernel.org>; Mon, 27 Feb 2023 09:30:04 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=tessares.net; s=google;
         h=cc:to:in-reply-to:references:message-id:content-transfer-encoding
          :mime-version:subject:date:from:from:to:cc:subject:date:message-id
          :reply-to;
-        bh=wv98y8dQ5akEeeGDMXXhLyBc+qsUn14H5JhwBcLUMC8=;
-        b=ypFkDG8GwihaWq3wQQ0dfXIFbK1saigQkWJ6G37ZuynA5pBPyddMjIr2OLdiLj4t7T
-         uRysDcqk7QBJbpMAl37INfvGgyve0VFS52g2zZt4tI2hr6WUP/FXbytgVmKTXme/zq6+
-         ikTusHmJWpPKmz8NbE5MElYYe28l2oshnYnxulyqWyFPGHQpS2fUpG9FYBA7qpGYkfLu
-         i54SPLlI5FkTZwCmKGOTyrwlcsRUVDxQtrqFhM9ETTIK/dtHQZRzRsH9+kndkjurzUiK
-         zWuEyYxarg6U+RTGSHduLfiXX4nAg/laNXsvt7bjWwGXltbm7N41WSvCH+BoRqP152PE
-         vDiQ==
+        bh=deRiawW7JdNy0QaIv3Yy/aPFkC3toFzqqvaPGWyei48=;
+        b=6Pk5Pum7YSnsna2htNtZ4tY+1XBtoXGAfekKOkX/jGa7ar2SGAS6DoDav+oex+/Hz1
+         eHedgZLDdIFpfJD9rNYGpKydSdjkYoQvsfxJlhDTJpElH3QNraf5N8QL+0NBlg/SIMUy
+         pcBe4q3e5VQpcx3L8IL2BJdcffJJ39mZdmG5JZ3qWGTIYvWntw8vjwfRyJKR+pvlGH52
+         5gpD/3yBQkxMpxI6/679DC0mZ7Kkc4IR1vG0gLocmBaohYQGBxGMJANctFk2HQbX3pwc
+         QllXXfbbwnDeWITQ01EKy1B31Vi1JV9QfwGahyZncUUyKIr/v3cJhrmJpTYiBVOKIS9v
+         YoTA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
         h=cc:to:in-reply-to:references:message-id:content-transfer-encoding
          :mime-version:subject:date:from:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=wv98y8dQ5akEeeGDMXXhLyBc+qsUn14H5JhwBcLUMC8=;
-        b=NHkhMsawxnIZL5arj7SwcC300+0jCs6YqNnn+Tts2z8iC98dXgcoc8eu2tc4fpuDr2
-         aRaBF/o9gFhNswxb5zCqMTJ+iIkp7X6xW6Nd7v7glXFBmyZvm47xazB/59dhxTpjwj3g
-         z2OEjsMLfO41famEsZIdW7kJ26s594VOdZSY501JoWloOM0YhuJhBLbh2hZdmSISwqPP
-         a2SxfilnFBtb1rT5nluvTwaWzD/2/u9EEwiJsuUo/S4l2S5HP52BNoRD9etqawdYM9wP
-         PCq2H4KLE4PJCyZQqNwit2FCcFmAFJCMDX6Nm/H82KC7MH05wdjEYvcFMyjrzox7eJVI
-         0ujg==
-X-Gm-Message-State: AO0yUKWjESjAMU17xZxVlmfwfwVQVWVXABwtle8ciV/nlCqJcpRuAJGM
-        xXFY7YLN51o7DXGoQ0K52EDlnw==
-X-Google-Smtp-Source: AK7set/j6FKuw14wpYWEr4jRGRzBW+lQOieBJgr//bQ80n0qcNR1pteX36cjnx1y5zz1mouFY1ofww==
-X-Received: by 2002:adf:fb8d:0:b0:2c5:5391:8ab1 with SMTP id a13-20020adffb8d000000b002c553918ab1mr21254490wrr.53.1677519001919;
-        Mon, 27 Feb 2023 09:30:01 -0800 (PST)
+        bh=deRiawW7JdNy0QaIv3Yy/aPFkC3toFzqqvaPGWyei48=;
+        b=VXej46FXtRYURb5C8JUjSz9kTO67B+ualLhlWDOXb8RgwSEYIBKzdLVwKEZOth8i0T
+         3pr1x0ZPEPlzsLgXwawt7g8LtFhA4xGhyFLx3BUvEvBKzH6H/VA2WkQSH25jwQOfSgZx
+         YDJaPHBmrmBhH5j81ArF1U3P+uZsPcPHdD6RdlKalee/mwOu5zhcmKkmKzmt61jxizHv
+         U/4Fs4aml2fdUrHBfugw8tOthIQoQ1nSaJG9jW6apn2SpZHzN4iao5U/Qv1cSWRJ+5Oa
+         67vf2/o3qm3DM/RopjzQZ8PrISpdZO0L1R++I8g17g8NNjrKck1FNN4rtbb0W/jY6em8
+         ESJw==
+X-Gm-Message-State: AO0yUKXwt2GjNQpjrui0vJ3oADQhUl3aHBK26K+iorGfzsfCZ3yc7xqe
+        q8w2TUMLUj4ypXmpfV1pxevoFQ==
+X-Google-Smtp-Source: AK7set8/XDombvwT5MsIh/G8JzGbdq8e5xfVCkBm6t112lsnOD03lHNvPYejla3hWvZROcw51RCHdQ==
+X-Received: by 2002:a5d:52d2:0:b0:2ca:8ae5:ea6 with SMTP id r18-20020a5d52d2000000b002ca8ae50ea6mr4965384wrv.44.1677519003021;
+        Mon, 27 Feb 2023 09:30:03 -0800 (PST)
 Received: from vdi08.nix.tessares.net (static.219.156.76.144.clients.your-server.de. [144.76.156.219])
-        by smtp.gmail.com with ESMTPSA id t1-20020a5d6a41000000b002c70a68111asm7763689wrw.83.2023.02.27.09.30.00
+        by smtp.gmail.com with ESMTPSA id t1-20020a5d6a41000000b002c70a68111asm7763689wrw.83.2023.02.27.09.30.02
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 27 Feb 2023 09:30:01 -0800 (PST)
+        Mon, 27 Feb 2023 09:30:02 -0800 (PST)
 From:   Matthieu Baerts <matthieu.baerts@tessares.net>
-Date:   Mon, 27 Feb 2023 18:29:29 +0100
-Subject: [PATCH net 6/7] mptcp: add ro_after_init for
- tcp{,v6}_prot_override
+Date:   Mon, 27 Feb 2023 18:29:30 +0100
+Subject: [PATCH net 7/7] mptcp: avoid setting TCP_CLOSE state twice
 MIME-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 7bit
-Message-Id: <20230227-upstream-net-20230227-mptcp-fixes-v1-6-070e30ae4a8e@tessares.net>
+Message-Id: <20230227-upstream-net-20230227-mptcp-fixes-v1-7-070e30ae4a8e@tessares.net>
 References: <20230227-upstream-net-20230227-mptcp-fixes-v1-0-070e30ae4a8e@tessares.net>
 In-Reply-To: <20230227-upstream-net-20230227-mptcp-fixes-v1-0-070e30ae4a8e@tessares.net>
 To:     mptcp@lists.linux.dev, "David S. Miller" <davem@davemloft.net>,
@@ -70,73 +69,61 @@ To:     mptcp@lists.linux.dev, "David S. Miller" <davem@davemloft.net>,
 Cc:     netdev@vger.kernel.org, linux-kernel@vger.kernel.org,
         linux-kselftest@vger.kernel.org,
         Matthieu Baerts <matthieu.baerts@tessares.net>,
-        Geliang Tang <geliang.tang@suse.com>, stable@vger.kernel.org
+        stable@vger.kernel.org
 X-Mailer: b4 0.12.1
-X-Developer-Signature: v=1; a=openpgp-sha256; l=1660;
+X-Developer-Signature: v=1; a=openpgp-sha256; l=963;
  i=matthieu.baerts@tessares.net; h=from:subject:message-id;
- bh=jad8yULOXT9XROjJ8QI8on4tZ/e81AQT8x0klIvJ/Yo=;
- b=owEBbQKS/ZANAwAIAfa3gk9CaaBzAcsmYgBj/OiR3KUJa9kYhI2LRjDO/52fDmz/M6wMTMFDW
- qw5jQ4h0HSJAjMEAAEIAB0WIQToy4X3aHcFem4n93r2t4JPQmmgcwUCY/zokQAKCRD2t4JPQmmg
- c3f8D/423O98/uc4yGGg3XG6tCgIxWH5h/CIcb+d7+YxJwBDOudfPSp45LXimy9VGwwrxepjZt8
- K7Zc2AZiS21+SgFSF8potBC/JBzkzu7YrECTrzsidoveL8bkXVNlSbJlbeYWEE19zHs7vQr6C24
- JhneTo4YrfJFIPbEDIKyzlW+8Cvp73s/FyT0Kq/s0+JqK0RK7PxG6o6eVBWY9sGOTK/mKhrDQJq
- 4Viqh3DGmgnguVxfLQf2b8+su9mHZ/hO4TSyIBSNSjAsKIdZUVDtKm4LDKmc5ehKMSwthJCQDRj
- tJHa/PtTlome4LD6OPnPfeeSgBnDPapxWaeEKKnYYVo3vuofdvqIlXDQO1iVps8U5oHr/3BAqNi
- hkT3rrvjtVmqkzeKlxGjLC9vns1Xj9VoFEd6//us88LVX+9jbXmbYbqfhj+h589jd0R9SnZ5Lx2
- 0yLL23AvODWm/m6lPlgs5oA6GDyvGqOuQgDO8BptiG3p8IsLOcyXDNakazooDAd3ma8ps9N3M6f
- v5JKSYLMGJ91SLcny3JBe4PdrLkyxhHvPoc4eu9m5xdbrN6261x19VVt0IPEBMrKXqrf02mmPdQ
- NzlN0RyvPzJbyRNqr9gvCdiU6YZDlIbG6FmUx8fgFBpvqkkioyhbr/hNzmumGYUe/ZDCysoiHWG
- RGTpRtjC/EvuDGA==
+ bh=ZQAflEk+Pt3pdyX3H49VKj6DNfbIjbdl8OwWNGZf1oo=;
+ b=owEBbQKS/ZANAwAIAfa3gk9CaaBzAcsmYgBj/OiSKcNbYspP4is6sagaj4lgSe0AAKke2eBo6
+ b0pUvD32P2JAjMEAAEIAB0WIQToy4X3aHcFem4n93r2t4JPQmmgcwUCY/zokgAKCRD2t4JPQmmg
+ c+fQEADo3jnVu0BRlzREUet2ygwyPhNLWvDv5KQ6kMiT0FqqEzpgZEMzhRU5Pi+6JHGMIK01hRh
+ RNdXmRQ9kGBwlTmPWhjt2lYivyVJcR3BJY59q6HRnAkCp887qyf/fcUziyaIVXU3HmHWWjr0dGT
+ eSjDAOVfa2Tl9PvUhfpor3rC03ayatTiKZrLNbuUpJKkBET4BKWd+OdgA7Le/Nnhz5nZQPAe3Y/
+ 5O84AUf4w3LKOsSzTeyJ0Yd+s8z0wcAXp5l2S47H7kI/F1BHxKNn+flQSu/yCVjiSb0MEv3dYBO
+ cWSG1CFdNiUVrZEsUWHboLw9Ypk67HcAKzOaL7srmEGBzpD7u2sQJw0fuhEViLvjx2WFyxL7jGi
+ 2PgpvOn3B8F7tA7vKEt8Qap+pjebxrgM/w/gV0uA4XrpFmQQehP5ySO/2s+dKyqHoWaNrRK9HrP
+ oVCyRbgOYijYjTsCVHB7SK90jKBamk+bdSbS5JHoNnRZPo0J8fOoP7ElkdrGjuMajjwrnTPxHze
+ O6Zc37mBVdeTz2TV7Y9mT47mWrsnanyn7egrdfmtuBLWuDliSC217cBuYZ3Q6ci/NJFCLWQVmrQ
+ 5new4VkeIto0Y1u85+6Akcs30TfEsmwRC5H/tfDjWNI56eAy6Pe+y/bwk0dQj2NspYxsrl4BPML
+ iUOtjUnOdSsJSrw==
 X-Developer-Key: i=matthieu.baerts@tessares.net; a=openpgp;
  fpr=E8CB85F76877057A6E27F77AF6B7824F4269A073
 X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
         DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_NONE,
-        SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
+        SPF_HELO_NONE,SPF_PASS autolearn=unavailable autolearn_force=no
+        version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Geliang Tang <geliang.tang@suse.com>
+tcp_set_state() is called from tcp_done() already.
 
-Add __ro_after_init labels for the variables tcp_prot_override and
-tcpv6_prot_override, just like other variables adjacent to them, to
-indicate that they are initialised from the init hooks and no writes
-occur afterwards.
+There is then no need to first set the state to TCP_CLOSE, then call
+tcp_done().
 
-Fixes: b19bc2945b40 ("mptcp: implement delegated actions")
+Fixes: d582484726c4 ("mptcp: fix fallback for MP_JOIN subflows")
 Cc: stable@vger.kernel.org
-Fixes: 51fa7f8ebf0e ("mptcp: mark ops structures as ro_after_init")
-Signed-off-by: Geliang Tang <geliang.tang@suse.com>
-Reviewed-by: Matthieu Baerts <matthieu.baerts@tessares.net>
+Closes: https://github.com/multipath-tcp/mptcp_net-next/issues/362
+Acked-by: Paolo Abeni <pabeni@redhat.com>
 Signed-off-by: Matthieu Baerts <matthieu.baerts@tessares.net>
 ---
- net/mptcp/subflow.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ net/mptcp/subflow.c | 1 -
+ 1 file changed, 1 deletion(-)
 
 diff --git a/net/mptcp/subflow.c b/net/mptcp/subflow.c
-index 5a3b17811b6b..f6b4511b09b0 100644
+index f6b4511b09b0..b865ba911bc4 100644
 --- a/net/mptcp/subflow.c
 +++ b/net/mptcp/subflow.c
-@@ -628,7 +628,7 @@ static struct request_sock_ops mptcp_subflow_v6_request_sock_ops __ro_after_init
- static struct tcp_request_sock_ops subflow_request_sock_ipv6_ops __ro_after_init;
- static struct inet_connection_sock_af_ops subflow_v6_specific __ro_after_init;
- static struct inet_connection_sock_af_ops subflow_v6m_specific __ro_after_init;
--static struct proto tcpv6_prot_override;
-+static struct proto tcpv6_prot_override __ro_after_init;
+@@ -406,7 +406,6 @@ void mptcp_subflow_reset(struct sock *ssk)
+ 	/* must hold: tcp_done() could drop last reference on parent */
+ 	sock_hold(sk);
  
- static int subflow_v6_conn_request(struct sock *sk, struct sk_buff *skb)
- {
-@@ -926,7 +926,7 @@ static struct sock *subflow_syn_recv_sock(const struct sock *sk,
- }
- 
- static struct inet_connection_sock_af_ops subflow_specific __ro_after_init;
--static struct proto tcp_prot_override;
-+static struct proto tcp_prot_override __ro_after_init;
- 
- enum mapping_status {
- 	MAPPING_OK,
+-	tcp_set_state(ssk, TCP_CLOSE);
+ 	tcp_send_active_reset(ssk, GFP_ATOMIC);
+ 	tcp_done(ssk);
+ 	if (!test_and_set_bit(MPTCP_WORK_CLOSE_SUBFLOW, &mptcp_sk(sk)->flags) &&
 
 -- 
 2.38.1
