@@ -2,120 +2,104 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 8B9146A41A3
-	for <lists+stable@lfdr.de>; Mon, 27 Feb 2023 13:23:08 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D227B6A41E2
+	for <lists+stable@lfdr.de>; Mon, 27 Feb 2023 13:44:25 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229471AbjB0MXH (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 27 Feb 2023 07:23:07 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43504 "EHLO
+        id S229735AbjB0MoX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 27 Feb 2023 07:44:23 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57230 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229568AbjB0MXG (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 27 Feb 2023 07:23:06 -0500
-Received: from smtp-out2.suse.de (smtp-out2.suse.de [195.135.220.29])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2D090CA2E;
-        Mon, 27 Feb 2023 04:23:04 -0800 (PST)
-Received: from imap2.suse-dmz.suse.de (imap2.suse-dmz.suse.de [192.168.254.74])
-        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-         key-exchange X25519 server-signature ECDSA (P-521) server-digest SHA512)
+        with ESMTP id S229470AbjB0MoW (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 27 Feb 2023 07:44:22 -0500
+Received: from mx3.molgen.mpg.de (mx3.molgen.mpg.de [141.14.17.11])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1F3A31E29C;
+        Mon, 27 Feb 2023 04:44:21 -0800 (PST)
+Received: from [141.14.220.45] (g45.guest.molgen.mpg.de [141.14.220.45])
+        (using TLSv1.3 with cipher TLS_AES_128_GCM_SHA256 (128/128 bits)
+         key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
         (No client certificate requested)
-        by smtp-out2.suse.de (Postfix) with ESMTPS id DFFED1FD63;
-        Mon, 27 Feb 2023 12:23:02 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.de; s=susede2_rsa;
-        t=1677500582; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-         mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=mnCaGxLM9o5v+srx8eCrRSPyZtndDAvxj3Myw/6GoFE=;
-        b=kSqbc45voUU9N4EwiF4i9ogkNjInIHniJKd0yh7TKyJSCW/hIbKboorkfvFrJddZF7/stG
-        G3nBFqlHdRktKR1Qci5EOg0yp4MBI5ndVd93D+GHXcEyLWp2MYqI/DOC1VW7S4sdOIooKG
-        9y4D/YWil/RnqxtIZc4jzdwBIVhLy8k=
-DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.de;
-        s=susede2_ed25519; t=1677500582;
-        h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-         mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=mnCaGxLM9o5v+srx8eCrRSPyZtndDAvxj3Myw/6GoFE=;
-        b=E5KYuE3Z7IQPbA1dtW4HUc4hR1sBmAC7ihHsLMXNw9t9dCMek9YZRATadX9BZFuQL3rd4z
-        hhS5xmc3wtr+VhCQ==
-Received: from imap2.suse-dmz.suse.de (imap2.suse-dmz.suse.de [192.168.254.74])
-        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-         key-exchange X25519 server-signature ECDSA (P-521) server-digest SHA512)
-        (No client certificate requested)
-        by imap2.suse-dmz.suse.de (Postfix) with ESMTPS id 69DAA13A43;
-        Mon, 27 Feb 2023 12:23:02 +0000 (UTC)
-Received: from dovecot-director2.suse.de ([192.168.254.65])
-        by imap2.suse-dmz.suse.de with ESMTPSA
-        id ISg+GKag/GMVPgAAMHmgww
-        (envelope-from <jdelvare@suse.de>); Mon, 27 Feb 2023 12:23:02 +0000
-Date:   Mon, 27 Feb 2023 13:23:00 +0100
-From:   Jean Delvare <jdelvare@suse.de>
-To:     Sasha Levin <sashal@kernel.org>
-Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
-        Allen Ballway <ballway@chromium.org>,
-        Jiri Kosina <jkosina@suse.cz>, jikos@kernel.org,
-        benjamin.tissoires@redhat.com, groeck@chromium.org,
-        alistair@alistair23.me, dmitry.torokhov@gmail.com,
-        jk@codeconstruct.com.au, Jonathan.Cameron@huawei.com,
-        cmo@melexis.com, u.kleine-koenig@pengutronix.de,
-        linux-input@vger.kernel.org
-Subject: Re: [PATCH AUTOSEL 5.15 10/25] HID: multitouch: Add quirks for
- flipped axes
-Message-ID: <20230227132300.4a3c3fad@endymion.delvare>
-In-Reply-To: <20230227020855.1051605-10-sashal@kernel.org>
-References: <20230227020855.1051605-1-sashal@kernel.org>
-        <20230227020855.1051605-10-sashal@kernel.org>
-Organization: SUSE Linux
-X-Mailer: Claws Mail 4.0.0 (GTK+ 3.24.34; x86_64-suse-linux-gnu)
+        (Authenticated sender: pmenzel)
+        by mx.molgen.mpg.de (Postfix) with ESMTPSA id 600616244DF88;
+        Mon, 27 Feb 2023 13:44:17 +0100 (CET)
+Message-ID: <f6b073ce-6d78-f00f-9f6d-499df4bb6255@molgen.mpg.de>
+Date:   Mon, 27 Feb 2023 13:44:17 +0100
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,SPF_HELO_NONE,
-        SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
+ Thunderbird/102.8.0
+Content-Language: en-US
+To:     stable@vger.kernel.org
+Cc:     =?UTF-8?Q?Thomas_Wei=c3=9fschuh?= <linux@weissschuh.net>,
+        "Rafael J. Wysocki" <rafael.j.wysocki@intel.com>,
+        Petr Mladek <pmladek@suse.com>, linux-pm@vger.kernel.org,
+        LKML <linux-kernel@vger.kernel.org>
+From:   Paul Menzel <pmenzel@molgen.mpg.de>
+Subject: Please backport commit a449dfbfc089 (PM: sleep: Avoid using pr_cont()
+ in the tasks freezing code)
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 8bit
+X-Spam-Status: No, score=-4.2 required=5.0 tests=BAYES_00,RCVD_IN_DNSWL_MED,
+        SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hi Sasha,
+Dear Linux folks,
 
-On Sun, 26 Feb 2023 21:08:33 -0500, Sasha Levin wrote:
-> From: Allen Ballway <ballway@chromium.org>
-> 
-> [ Upstream commit a2f416bf062a38bb76cccd526d2d286b8e4db4d9 ]
-> 
-> Certain touchscreen devices, such as the ELAN9034, are oriented
-> incorrectly and report touches on opposite points on the X and Y axes.
-> For example, a 100x200 screen touched at (10,20) would report (90, 180)
-> and vice versa.
-> 
-> This is fixed by adding device quirks to transform the touch points
-> into the correct spaces, from X -> MAX(X) - X, and Y -> MAX(Y) - Y.
-> 
-> Signed-off-by: Allen Ballway <ballway@chromium.org>
-> Signed-off-by: Jiri Kosina <jkosina@suse.cz>
-> Signed-off-by: Sasha Levin <sashal@kernel.org>
-> ---
->  drivers/hid/hid-multitouch.c             | 39 ++++++++++++++++++---
->  drivers/hid/hid-quirks.c                 |  6 ++++
->  drivers/hid/i2c-hid/i2c-hid-dmi-quirks.c | 43 ++++++++++++++++++++++++
->  drivers/hid/i2c-hid/i2c-hid.h            |  3 ++
->  4 files changed, 87 insertions(+), 4 deletions(-)
-> (...)
 
-Second rule of acceptance for stable patches:
+It’d be great if you could apply the commit below [1], present in Linux 
+since 6.2-rc1, to at least the Linux 6.1 LTS series.
 
- - It cannot be bigger than 100 lines, with context.
+commit a449dfbfc0894676ad0aa1873383265047529e3a
+Author: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+Date:   Thu Dec 1 19:33:09 2022 +0100
 
-Clearly not met here.
+     PM: sleep: Avoid using pr_cont() in the tasks freezing code
 
-To me, this commit is something distributions may want to backport if
-their users run are likely to run the affected hardware. But it's out
-of scope for stable kernel branches.
+     Using pr_cont() in the tasks freezing code related to system-wide
+     suspend and hibernation is problematic, because the continuation
+     messages printed there are susceptible to interspersing with other
+     unrelated messages which results in output that is hard to
+     understand.
 
-Thanks,
--- 
-Jean Delvare
-SUSE L3 Support
+     Address this issue by modifying try_to_freeze_tasks() to print
+     messages that don't require continuations and adjusting its
+     callers accordingly.
+
+     Reported-by: Thomas Weißschuh <linux@weissschuh.net>
+     Signed-off-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
+     Reviewed-by: Petr Mladek <pmladek@suse.com>
+
+On a Dell Precision 3540, Linux 6.1.12 from Debian sid/unstable logs the 
+stray warning below:
+
+     $ sudo dmesg --level=warn | grep elapsed
+     [ 3063.289579] (elapsed 0.047 seconds) done.
+
+It’s due to `pr_cont` usage, and the another (DRM) log message adds the 
+unexpected newline character, splitting the message:
+
+     [    0.000000] Linux version 6.1.0-5-amd64 
+(debian-kernel@lists.debian.org) (gcc-12 (Debian 12.2.0-14) 12.2.0, GNU 
+ld (GNU Binutils for Debian) 2.40) #1 SMP PREEMPT_DYNAMIC Debian 
+6.1.12-1 (2023-02-15)
+     […]
+     [    0.000000] DMI: Dell Inc. Precision 3540/0M14W7, BIOS 1.23.0 
+12/19/2022
+     […]
+     [ 3063.241846] Freezing user space processes ...
+     [ 3063.281999] [drm] VCE initialized successfully.
+     [ 3063.289579] (elapsed 0.047 seconds) done.
+
+Backporting the patch would change the log messages a little though. No 
+idea, if that is acceptable for commit for stable series.
+
+
+Kind regards,
+
+Paul
+
+
+[1]: 
+https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?id=a449dfbfc0894676ad0aa1873383265047529e3a
