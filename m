@@ -2,125 +2,129 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C8C506A54DF
-	for <lists+stable@lfdr.de>; Tue, 28 Feb 2023 09:56:11 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 7F40C6A54E9
+	for <lists+stable@lfdr.de>; Tue, 28 Feb 2023 09:58:27 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230042AbjB1I4K (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 28 Feb 2023 03:56:10 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40358 "EHLO
+        id S229915AbjB1I6Z (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 28 Feb 2023 03:58:25 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41876 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229577AbjB1I4J (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 28 Feb 2023 03:56:09 -0500
-Received: from mail-pf1-x432.google.com (mail-pf1-x432.google.com [IPv6:2607:f8b0:4864:20::432])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2D84F4EF8
-        for <stable@vger.kernel.org>; Tue, 28 Feb 2023 00:56:08 -0800 (PST)
-Received: by mail-pf1-x432.google.com with SMTP id c4so2315009pfl.0
-        for <stable@vger.kernel.org>; Tue, 28 Feb 2023 00:56:08 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112; t=1677574567;
-        h=content-transfer-encoding:to:subject:message-id:date:from:reply-to
-         :mime-version:from:to:cc:subject:date:message-id:reply-to;
-        bh=GhlkRwo0/MVQ8IqGxOda4TidL5dTyhOZwe41sBSABC0=;
-        b=ln9/6ZtYP29uvnVnn38STV5PJMsnzOW6y1nl+4zNKPPIxgknhkTGTr6Wb2F4O9k1/w
-         3e3JuKABndT8xGT9q4nSHi1rS2elH7wtO6zVEW5nszqaWiHkEBZ7t6/0WusZkjeWUmtE
-         SP7sUtr3qxGj8aLx8A6ig6sms8vEzBrjTh9SlbCxR+BkKrCq1ZCGrnFw8hbyFcNgmluk
-         jFgKpo6hO/GzKuE801FruK0ymNumUkOcXFqu7pkdIc/FhnqD3IdvVqRvhZT7/Lr8gqon
-         yj6i4wCwwhkvuZ43ImL3libI71Hxdi4NOh8ZZguV9eLAV+s6GzQ2p8Rjkni6bB6Xc5U0
-         HQ6w==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112; t=1677574567;
-        h=content-transfer-encoding:to:subject:message-id:date:from:reply-to
-         :mime-version:x-gm-message-state:from:to:cc:subject:date:message-id
-         :reply-to;
-        bh=GhlkRwo0/MVQ8IqGxOda4TidL5dTyhOZwe41sBSABC0=;
-        b=SQ2Sq1bP8bLW9j9b1v8gbLld7c6e7YiRv0a6Ki8jeLfHrJkhWQikPK/XwAca7YEuLq
-         Bla5lZTrFHBGRE6q7G63Zn2EviuqQi8NutQ6hJ8r1O1L7DGGRU8NRqmnqoliH3WgaE7b
-         QT8k/0SpegQ1YvmjWrUu3jA88wyLBZrE3mupfg3wqiM8cDf02c8dUs13i4vwLmHwDAuW
-         wL3+yel472a87SX98h82T1/rRt8XLq4NxxzeYBxy35GSos9k2KdYkeIdbk5hKrGo7QB7
-         sVJFf006DVI0BJaPXj7gWDFR07E3qojCKuq8jDmNrHVSEyZVW2yNxcm8YzUWqBzd1pEL
-         l6wQ==
-X-Gm-Message-State: AO0yUKWdJlQ0vuFW+UTP2iiDbSmBqEUsqgxSzliTJbF25vmzli93H3Ia
-        GIz92fOB6gj5aAuDKgRicFZGzx7B/KjzHE1UwKk=
-X-Google-Smtp-Source: AK7set8V7DpV8KgA+t0gYBZMUzx+rvgkvqWpGtqB0No4ar5DdbtWZK07TPVjy4ZE0YsxjsCVGjQYi80r8sJiaXw0nhk=
-X-Received: by 2002:a65:6944:0:b0:4fd:2170:b2da with SMTP id
- w4-20020a656944000000b004fd2170b2damr510174pgq.0.1677574567656; Tue, 28 Feb
- 2023 00:56:07 -0800 (PST)
+        with ESMTP id S230059AbjB1I6V (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 28 Feb 2023 03:58:21 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id ACFD57D9F;
+        Tue, 28 Feb 2023 00:58:20 -0800 (PST)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 3E33761030;
+        Tue, 28 Feb 2023 08:58:20 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 24246C433D2;
+        Tue, 28 Feb 2023 08:58:19 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
+        s=korg; t=1677574699;
+        bh=UztsLsaqmIXyoCT63yUOOYX/F2RBn+tEboh82iUTl84=;
+        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+        b=dvFldP2nDPK1JM1UdTSvrNFQgLKdCKwOzfkHHphaxtZJbfiOb+x1w8SgrPHVVLpTM
+         0+DGxsyLVGr/st2iaB5VqG6eeN9RmbwrKyu1S1M0ogYouEhMNuHsdIhPyL2tnEfVU1
+         gTZGjIJffgoh26CK72V24tXXKN+/RvSZ3yTVgjyc=
+Date:   Tue, 28 Feb 2023 09:58:16 +0100
+From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+To:     Tom Saeger <tom.saeger@oracle.com>
+Cc:     Sasha Levin <sashal@kernel.org>,
+        Naresh Kamboju <naresh.kamboju@linaro.org>,
+        John Paul Adrian Glaubitz <glaubitz@physik.fu-berlin.de>,
+        Rich Felker <dalias@libc.org>,
+        Masahiro Yamada <masahiroy@kernel.org>,
+        Ard Biesheuvel <ardb@kernel.org>,
+        Nathan Chancellor <nathan@kernel.org>,
+        Dennis Gilmore <dennis@ausil.us>,
+        Palmer Dabbelt <palmer@rivosinc.com>,
+        Arnd Bergmann <arnd@arndb.de>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        stable@vger.kernel.org, linux-kernel@vger.kernel.org,
+        linux-arch@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
+        linux-riscv@lists.infradead.org, linuxppc-dev@lists.ozlabs.org,
+        linux-s390@vger.kernel.org, linux-sh@vger.kernel.org
+Subject: Re: [PATCH 5.15 v2 1/5] arch: fix broken BuildID for arm64 and riscv
+Message-ID: <Y/3CKO8XjvyMlg+5@kroah.com>
+References: <20230210-tsaeger-upstream-linux-stable-5-15-v2-0-6c68622745e9@oracle.com>
+ <20230210-tsaeger-upstream-linux-stable-5-15-v2-1-6c68622745e9@oracle.com>
+ <Y/c3MSvnN4DcvzSx@kroah.com>
+ <20230223175331.7tsgvkvcur6wl7h7@oracle.com>
+ <20230224024724.whvtsrljz5k3jpln@oracle.com>
 MIME-Version: 1.0
-Received: by 2002:a05:6a10:ed04:b0:444:fffe:1bd with HTTP; Tue, 28 Feb 2023
- 00:56:06 -0800 (PST)
-Reply-To: silverlynrojas94@gmail.com
-From:   silverl ynrojas <bdelyandi@gmail.com>
-Date:   Tue, 28 Feb 2023 08:56:06 +0000
-Message-ID: <CALtJeBhaocVKQqr8cRitGuRJcdzaJ-Js8DGyNeMfrn8CkkpsOQ@mail.gmail.com>
-Subject: Ahoj
-To:     undisclosed-recipients:;
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: base64
-X-Spam-Status: Yes, score=7.9 required=5.0 tests=BAYES_50,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_FROM,FREEMAIL_REPLYTO,
-        FREEMAIL_REPLYTO_END_DIGIT,LOTS_OF_MONEY,MONEY_FREEMAIL_REPTO,
-        RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS,UNDISC_FREEM,UNDISC_MONEY
-        autolearn=no autolearn_force=no version=3.4.6
-X-Spam-Report: * -0.0 RCVD_IN_DNSWL_NONE RBL: Sender listed at
-        *      https://www.dnswl.org/, no trust
-        *      [2607:f8b0:4864:20:0:0:0:432 listed in]
-        [list.dnswl.org]
-        *  0.8 BAYES_50 BODY: Bayes spam probability is 40 to 60%
-        *      [score: 0.4446]
-        *  0.0 SPF_HELO_NONE SPF: HELO does not publish an SPF Record
-        *  0.0 FREEMAIL_FROM Sender email is commonly abused enduser mail
-        *      provider
-        *      [bdelyandi[at]gmail.com]
-        *  0.2 FREEMAIL_REPLYTO_END_DIGIT Reply-To freemail username ends in
-        *      digit
-        *      [silverlynrojas94[at]gmail.com]
-        * -0.0 SPF_PASS SPF: sender matches SPF record
-        * -0.1 DKIM_VALID Message has at least one valid DKIM or DK signature
-        * -0.1 DKIM_VALID_EF Message has a valid DKIM or DK signature from
-        *      envelope-from domain
-        *  0.1 DKIM_SIGNED Message has a DKIM or DK signature, not necessarily
-        *       valid
-        * -0.1 DKIM_VALID_AU Message has a valid DKIM or DK signature from
-        *      author's domain
-        *  0.0 LOTS_OF_MONEY Huge... sums of money
-        *  3.0 UNDISC_FREEM Undisclosed recipients + freemail reply-to
-        *  1.0 FREEMAIL_REPLYTO Reply-To/From or Reply-To/body contain
-        *      different freemails
-        *  0.0 MONEY_FREEMAIL_REPTO Lots of money from someone using free
-        *      email?
-        *  3.1 UNDISC_MONEY Undisclosed recipients + money/fraud signs
-X-Spam-Level: *******
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20230224024724.whvtsrljz5k3jpln@oracle.com>
+X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
+        SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-ZHJhaMO9IHDFmcOtdGVsaQ0KDQpKYWsgc2UgZG5lc2thIG3DocWhPyBNeXNsw61tLCDFvmUgdcW+
-IGplIHRvIGRsb3VobywgY28ganNtZSBzcG9sdSBtbHV2aWxpDQpuYXBvc2xlZHkuIFYga2HFvmTD
-qW0gcMWZw61wYWTEmyBWw6FzIGJ1ZHUgem5vdnUga29udGFrdG92YXQgb2hsZWRuxJsgbmHFocOt
-DQpwxZllZGNob3rDrSB0cmFuc2FrY2UsIGt0ZXLDoSB1IFbDoXMgbmVieWxhIMO6c3DEm8WhbsOh
-LiBWYcWhZSBzcG9sdXByw6FjZSBzZQ0KbW5vdSBib2h1xb5lbCBuZW3Fr8W+ZSBkb2tvbsSNaXQg
-cMWZZXZvZCBmaW5hbsSNbsOtY2ggcHJvc3TFmWVka8WvLiBOZXbDrW0sDQptb8W+bsOhIHByb3Rv
-LCDFvmUgc2UgbXVzw61tIHNtw63FmWl0IHNlIHN2w71tIHrDoWptZW0gbyBwxZnDrXBhZC4NCg0K
-ViBrYcW+ZMOpbSBwxZnDrXBhZMSbIGpzZW0gcsOhZCwgxb5lIG1vaHUgb3puw6FtaXQgw7pzcMSb
-Y2ggcMWZaSBwxZlpasOtbcOhbsOtDQpmaW5hbsSNbsOtY2ggcHJvc3TFmWVka8WvIHDFmWV2ZWRl
-bsO9Y2ggbm92w71tIHBhcnRuZXJlbSB6IFZlbmV6dWVseS4NCk1vbWVudMOhbG7EmyBqc2VtIHZl
-IFZlbmV6dWVsZSBrdsWvbGkgaW52ZXN0aWNpLiBOZXphcG9tbsSbbCBqc2VtIHbFoWFrIG5hDQpz
-dsOpIHDFmWVkY2hvesOtIHNuYcW+ZW7DrSBhIHNuYcW+aWwganNlbSBzZSBtaSBzIHDFmWV2b2Rl
-bSBmb25kdSBwb21vY2ksIGkNCmtkecW+IGpzbWUgbmVtb2hsaSBkb2rDrXQga2Uga29ua3LDqXRu
-w61tdSB6w6F2xJtydS4gRMOta3kgbcOpIHNuYXplIHBvbW9jaQ0KbW7EmyBqc21lIHNlIHMgbcO9
-bSBub3bDvW0gcGFydG5lcmVtIHJvemhvZGxpIHZyw6F0aXQgdsOhbSA4NTAgMDAwICQsDQphYnlz
-dGUgc2kgcyBuw6FtaSBtb2hsaSB1xb7DrXZhdCByYWRvc3RpIGEgxaF0xJtzdMOtLg0KDQpOZWNo
-YWwganNlbSB2YcWhZSBrb21wZW56YcSNbsOtIHbDrXp1bSBwcm8gc3ZvdSBzZWtyZXTDocWZa3Us
-IGFieSBtaSBwb21vaGxhDQpwb2RhdCDFvsOhZG9zdC4gTnluw60ga29udGFrdHVqdGUgbW91IHNl
-a3JldMOhxZlrdSB2IFRvZ3UsIGptZW51amUgc2UgcGFuw60NClNpbHZlcmx5IFJvamFzIGEgamVq
-w60gZS1tYWlsb3bDoSBhZHJlc2EgamUNCihzaWx2ZXJseW5yb2phczk0QGdtYWlsLmNvbSkuIMWY
-ZWtuxJt0ZSBqw60sIGFieSB2w6FtIHBvc2xhbGEga2FydHUgVmlzYSB2DQpob2Rub3TEmyA4NTAg
-MDAwIFVTRC4gViBzb3XEjWFzbsOpIGRvYsSbIGpzZW0gdmVsbWkgemFuZXByw6F6ZG7Em24gdmUN
-ClZlbmV6dWVsZSBrdsWvbGkgaW52ZXN0acSNbsOtbSBwcm9qZWt0xa9tLCBrdGVyw6kgbcOhbSBz
-ZSBzdsO9bSBub3bDvW0NCnBhcnRuZXJlbS4gUnljaGxlIGtvbnRha3R1anRlIHBhbsOtIFNpbHZl
-cmx5IFJvamFzb3ZvdSBhIGRlanRlIGrDrQ0KdsSbZMSbdCwga2FtIG3DoSBwb3NsYXQgxI1la2Fq
-w61jw60gdsOtenVtLiBLYXJ0YSB2w6FtIGJ1ZGUgb2JyYXRlbSB6YXNsw6FuYS4NClDFmWVqaSB2
-w6FtIHbFoWUgbmVqbGVwxaHDrSB2ZSB2xaFlY2ggdmHFoWljaCBzbmFow6FjaC4NCg0KUyBwb3pk
-cmF2ZW0NClJvYmVydCBHIE1vaGFtbWVkDQo=
+On Thu, Feb 23, 2023 at 08:47:24PM -0600, Tom Saeger wrote:
+> On Thu, Feb 23, 2023 at 11:53:42AM -0600, Tom Saeger wrote:
+> > On Thu, Feb 23, 2023 at 10:51:45AM +0100, Greg Kroah-Hartman wrote:
+> > > On Fri, Feb 10, 2023 at 01:18:40PM -0700, Tom Saeger wrote:
+> > > > From: Masahiro Yamada <masahiroy@kernel.org>
+> > > > 
+> > > > commit 99cb0d917ffa1ab628bb67364ca9b162c07699b1 upstream.
+> > > > 
+> > > > Dennis Gilmore reports that the BuildID is missing in the arm64 vmlinux
+> > > > since commit 994b7ac1697b ("arm64: remove special treatment for the
+> > > > link order of head.o").
+> > > > 
+> > > > The issue is that the type of .notes section, which contains the BuildID,
+> > > > changed from NOTES to PROGBITS.
+> > > > 
+> > > > Ard Biesheuvel figured out that whichever object gets linked first gets
+> > > > to decide the type of a section. The PROGBITS type is the result of the
+> > > > compiler emitting .note.GNU-stack as PROGBITS rather than NOTE.
+> > > > 
+> > > > While Ard provided a fix for arm64, I want to fix this globally because
+> > > > the same issue is happening on riscv since commit 2348e6bf4421 ("riscv:
+> > > > remove special treatment for the link order of head.o"). This problem
+> > > > will happen in general for other architectures if they start to drop
+> > > > unneeded entries from scripts/head-object-list.txt.
+> > > > 
+> > > > Discard .note.GNU-stack in include/asm-generic/vmlinux.lds.h.
+> > > > 
+> > > > Link: https://lore.kernel.org/lkml/CAABkxwuQoz1CTbyb57n0ZX65eSYiTonFCU8-LCQc=74D=xE=rA@mail.gmail.com/
+> > > > Fixes: 994b7ac1697b ("arm64: remove special treatment for the link order of head.o")
+> > > > Fixes: 2348e6bf4421 ("riscv: remove special treatment for the link order of head.o")
+> 
+> Greg, how about something like this tacked onto backport of this commit?
+> 
+> [Tom: stable backport 5.15.y, 5.10.y, 5.4.y]
+> 
+> Though the above "Fixes:" commits are not in this kernel, the conditions
+> which lead to a missing Build ID in arm64 vmlinux are similar.
+> 
+> Evidence points to these conditions:
+> 1. ld version > 2.36 (exact binutils commit documented in a494398bde27)
+> 2. first object which gets linked (head.o) has a PROGBITS .note.GNU-stack segment
+> 
+> These conditions can be observed when:
+> - 5.15.60+ OR 5.10.136+ OR 5.4.210+
+> - AND ld version > 2.36
+> - AND arch=arm64
+> - AND CONFIG_MODVERSIONS=y
+> 
+> This was previously bisected to the stable backport of 0d362be5b142.
+> Follow-up experiments were discussed here: https://lore.kernel.org/all/20221221235413.xaisboqmr7dkqwn6@oracle.com/ 
+> which strongly hints at condition 2.
+> 
+> 
+> > > 
+> > > Why are we adding a commit to 5.15.y that fixes an issue that only
+> > > showed up in 6.1.y?
+> 
+> If you approve - I'll send v3 for 5.15, 5.10, and 5.4 (with style fixes).
+
+That would make more sense, thanks.
+
+greg k-h
