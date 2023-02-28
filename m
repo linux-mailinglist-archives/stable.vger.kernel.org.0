@@ -2,124 +2,81 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id DE4FF6A588D
-	for <lists+stable@lfdr.de>; Tue, 28 Feb 2023 12:50:12 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0BDDE6A595C
+	for <lists+stable@lfdr.de>; Tue, 28 Feb 2023 13:47:21 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231448AbjB1LuL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 28 Feb 2023 06:50:11 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44972 "EHLO
+        id S231388AbjB1MrT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 28 Feb 2023 07:47:19 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59878 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231487AbjB1LuJ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 28 Feb 2023 06:50:09 -0500
-Received: from mx0b-0031df01.pphosted.com (mx0b-0031df01.pphosted.com [205.220.180.131])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6229E1F481;
-        Tue, 28 Feb 2023 03:50:08 -0800 (PST)
-Received: from pps.filterd (m0279869.ppops.net [127.0.0.1])
-        by mx0a-0031df01.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 31S6Vr8P024430;
-        Tue, 28 Feb 2023 11:49:26 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=quicinc.com; h=from : to : cc :
- subject : date : message-id; s=qcppdkim1;
- bh=RiKQxet1aV+aN1dp0TU54EAcebB+HyrH3HYWI54gMSk=;
- b=My3zBjawpEp2W4HaP/3TCGFoH3c4bIEkmg6BgoNEtFQh5ecHJVL6qM//eawnKZsuTl9M
- fsSDWAckTsxk2NHJsKOyTaLnF6cY2Q1kfYT399/P9pujmgzyjL9+qjU+dYlwmX2vdt0x
- PrP0Oj1G0qtZtE/IyE5rt6ShFDWJCKUhCTVVJThbahZUE/nrCeqwFmnVpXBhLqSsNuLA
- VqvidQm6nk7ZHsB2JNMmQU20gmCuKnS/lFr7kjPCfQu7y2zY35nho0ywlXEY06vWHT5V
- SUZPgPfZmw+x4wewfhWC6O1z3/XGvVWtDtdhOsaMrtF4mUiV6fzcsL3PUj+OLSk4vPlv gg== 
-Received: from apblrppmta02.qualcomm.com (blr-bdr-fw-01_GlobalNAT_AllZones-Outside.qualcomm.com [103.229.18.19])
-        by mx0a-0031df01.pphosted.com (PPS) with ESMTPS id 3p1ccxgtb9-1
+        with ESMTP id S229530AbjB1MrR (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 28 Feb 2023 07:47:17 -0500
+Received: from mx0b-001ae601.pphosted.com (mx0a-001ae601.pphosted.com [67.231.149.25])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9B6B22FCF1
+        for <stable@vger.kernel.org>; Tue, 28 Feb 2023 04:47:16 -0800 (PST)
+Received: from pps.filterd (m0077473.ppops.net [127.0.0.1])
+        by mx0a-001ae601.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 31SAOWcq012779;
+        Tue, 28 Feb 2023 06:47:00 -0600
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=cirrus.com; h=message-id : date :
+ mime-version : from : subject : to : cc : content-type :
+ content-transfer-encoding; s=PODMain02222019;
+ bh=Vftv1dG/2GtDXpOzyvFzsBDtO6920k79GyNXwbMtL50=;
+ b=HVobyr3HU757uF6OtE9Al4iH9nRefd995Av7olwt0u39pptuZe5B/inISRYjjULOvzTh
+ Tlwc8zG9ZhuoN9UFuhSj4GbmfVAy2W2BY6ntjzpwP69rf2W5vsYvinv449lisnh6P5jB
+ OBd6awbzlp7TSwY/1CQFqYgVpA8ExO7NpiRonYi8aD4DjSqzq9IMq7l0b/Z/nyF3BUuH
+ IRZkW+DRTkN1lIf28hspuByzbAta7orhsKWv80zfq+sjOEhoSjiWtYxWy46IlGnbtM92
+ fbVQR2BGUTveJlGhA9D536TtuAKY+/hK86d8dxxK2JihIXzSG+QMB/MilBxkw0TtsHRx 0g== 
+Received: from ediex02.ad.cirrus.com ([84.19.233.68])
+        by mx0a-001ae601.pphosted.com (PPS) with ESMTPS id 3nygm6vqxr-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Tue, 28 Feb 2023 11:49:25 +0000
-Received: from pps.filterd (APBLRPPMTA02.qualcomm.com [127.0.0.1])
-        by APBLRPPMTA02.qualcomm.com (8.17.1.5/8.17.1.5) with ESMTP id 31SBnEW4004703;
-        Tue, 28 Feb 2023 11:49:21 GMT
-Received: from pps.reinject (localhost [127.0.0.1])
-        by APBLRPPMTA02.qualcomm.com (PPS) with ESMTP id 3nybdkeaxb-1;
-        Tue, 28 Feb 2023 11:49:21 +0000
-Received: from APBLRPPMTA02.qualcomm.com (APBLRPPMTA02.qualcomm.com [127.0.0.1])
-        by pps.reinject (8.17.1.5/8.17.1.5) with ESMTP id 31SBnLcE006237;
-        Tue, 28 Feb 2023 11:49:21 GMT
-Received: from hu-sgudaval-hyd.qualcomm.com (hu-krichai-hyd.qualcomm.com [10.213.110.37])
-        by APBLRPPMTA02.qualcomm.com (PPS) with ESMTP id 31SBnKX5006167;
-        Tue, 28 Feb 2023 11:49:21 +0000
-Received: by hu-sgudaval-hyd.qualcomm.com (Postfix, from userid 4058933)
-        id F027547B9; Tue, 28 Feb 2023 17:19:19 +0530 (+0530)
-From:   Krishna chaitanya chundru <quic_krichai@quicinc.com>
-To:     helgaas@kernel.org
-Cc:     linux-pci@vger.kernel.org, linux-arm-msm@vger.kernel.org,
-        linux-kernel@vger.kernel.org, mka@chromium.org,
-        quic_vbadigan@quicinc.com, quic_hemantk@quicinc.com,
-        quic_nitegupt@quicinc.com, quic_skananth@quicinc.com,
-        quic_ramkri@quicinc.com, manivannan.sadhasivam@linaro.org,
-        swboyd@chromium.org, dmitry.baryshkov@linaro.org,
-        svarbanov@mm-sol.com, agross@kernel.org, andersson@kernel.org,
-        konrad.dybcio@somainline.org, lpieralisi@kernel.org,
-        robh@kernel.org, kw@linux.com, bhelgaas@google.com,
-        linux-phy@lists.infradead.org, vkoul@kernel.org, kishon@ti.com,
-        mturquette@baylibre.com, linux-clk@vger.kernel.org,
-        Krishna chaitanya chundru <quic_krichai@quicinc.com>,
-        stable@vger.kernel.org, Konrad Dybcio <konrad.dybcio@linaro.org>,
-        Rob Herring <robh+dt@kernel.org>,
-        Krzysztof Kozlowski <krzysztof.kozlowski+dt@linaro.org>,
-        Prasad Malisetty <pmaliset@codeaurora.org>,
-        devicetree@vger.kernel.org (open list:OPEN FIRMWARE AND FLATTENED
-        DEVICE TREE BINDINGS)
-Subject: [PATCH V2] arm64: dts: qcom: sc7280: Mark PCIe controller as cache coherent
-Date:   Tue, 28 Feb 2023 17:19:12 +0530
-Message-Id: <1677584952-17496-1-git-send-email-quic_krichai@quicinc.com>
-X-Mailer: git-send-email 2.7.4
-X-QCInternal: smtphost
-X-QCInternal: smtphost
-X-Proofpoint-Virus-Version: vendor=nai engine=6200 definitions=5800 signatures=585085
-X-Proofpoint-Virus-Version: vendor=nai engine=6200 definitions=5800 signatures=585085
-X-Proofpoint-GUID: PJJOU_hZapybQxqINK46QQuT9oKQlc8V
-X-Proofpoint-ORIG-GUID: PJJOU_hZapybQxqINK46QQuT9oKQlc8V
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.219,Aquarius:18.0.930,Hydra:6.0.562,FMLib:17.11.170.22
- definitions=2023-02-28_07,2023-02-28_01,2023-02-09_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 lowpriorityscore=0
- priorityscore=1501 spamscore=0 malwarescore=0 phishscore=0 adultscore=0
- clxscore=1011 mlxlogscore=656 bulkscore=0 impostorscore=0 suspectscore=0
- mlxscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2212070000 definitions=main-2302280094
-X-Spam-Status: No, score=-1.7 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,HEADER_FROM_DIFFERENT_DOMAINS,SPF_HELO_NONE,
-        SPF_NONE autolearn=no autolearn_force=no version=3.4.6
+        Tue, 28 Feb 2023 06:46:59 -0600
+Received: from ediex01.ad.cirrus.com (198.61.84.80) by ediex02.ad.cirrus.com
+ (198.61.84.81) with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.2.1118.25; Tue, 28 Feb
+ 2023 06:46:57 -0600
+Received: from ediswmail.ad.cirrus.com (198.61.86.93) by ediex01.ad.cirrus.com
+ (198.61.84.80) with Microsoft SMTP Server id 15.2.1118.25 via Frontend
+ Transport; Tue, 28 Feb 2023 06:46:57 -0600
+Received: from [198.90.251.127] (edi-sw-dsktp-006.ad.cirrus.com [198.90.251.127])
+        by ediswmail.ad.cirrus.com (Postfix) with ESMTP id A2971475;
+        Tue, 28 Feb 2023 12:46:57 +0000 (UTC)
+Message-ID: <c530b196-c668-8437-4792-951a82ea7c42@opensource.cirrus.com>
+Date:   Tue, 28 Feb 2023 12:46:57 +0000
+MIME-Version: 1.0
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
+ Thunderbird/102.6.0
+Content-Language: en-US
+From:   Richard Fitzgerald <rf@opensource.cirrus.com>
+Subject: stable/6.2: backport commit 943f4e64ee17 ("ALSA: hda: cs35l41:
+ Correct error condition handling")
+To:     <stable@vger.kernel.org>
+CC:     Takashi Iwai <tiwai@suse.com>, Martin Wolf <info@martinwolf.pub>,
+        - <patches@opensource.cirrus.com>,
+        Greg KH <gregkh@linuxfoundation.org>
+Content-Type: text/plain; charset="UTF-8"; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Proofpoint-ORIG-GUID: Il02JuQkQSp61ZG2umJoakFyNCX3_Jd1
+X-Proofpoint-GUID: Il02JuQkQSp61ZG2umJoakFyNCX3_Jd1
+X-Proofpoint-Spam-Reason: safe
+X-Spam-Status: No, score=-2.7 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_EF,RCVD_IN_DNSWL_LOW,SPF_HELO_NONE,SPF_PASS
+        autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-If the controller is not marked as cache coherent, then kernel will
-try to ensure coherency during dma-ops and that may cause data corruption.
-So, mark the PCIe node as dma-coherent as the devices on PCIe bus are
-cache coherent.
+commit 943f4e64ee177cf44d7f2c235281fcda7c32bb28 upstream
 
-Cc: stable@vger.kernel.org
-Fixes: 92e0ee9f83b3 ("arm64: dts: qcom: sc7280: Add PCIe and PHY related node")
-Signed-off-by: Krishna chaitanya chundru <quic_krichai@quicinc.com>
----
+Please backport to 6.2.
 
-changes since v1:
-	- Updated the commit text.
----
----
- arch/arm64/boot/dts/qcom/sc7280.dtsi | 2 ++
- 1 file changed, 2 insertions(+)
+This fixes an API break between the cs_dsp driver and the cs35l41 HDA
+driver that broke the cs35l41 driver.
 
-diff --git a/arch/arm64/boot/dts/qcom/sc7280.dtsi b/arch/arm64/boot/dts/qcom/sc7280.dtsi
-index bdcb749..8f4ab6b 100644
---- a/arch/arm64/boot/dts/qcom/sc7280.dtsi
-+++ b/arch/arm64/boot/dts/qcom/sc7280.dtsi
-@@ -2131,6 +2131,8 @@
- 			pinctrl-names = "default";
- 			pinctrl-0 = <&pcie1_clkreq_n>;
- 
-+			dma-coherent;
-+
- 			iommus = <&apps_smmu 0x1c80 0x1>;
- 
- 			iommu-map = <0x0 &apps_smmu 0x1c80 0x1>,
--- 
-2.7.4
+The original chain of patches that made the cs_dsp change missed out the
+corresponding change to the HDA code. These changes went into the first
+6.2 release.
+
+Reported-by: Martin Wolf <info@martinwolf.pub>
 
