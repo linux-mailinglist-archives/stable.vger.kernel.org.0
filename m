@@ -2,123 +2,159 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 8A4856A5845
-	for <lists+stable@lfdr.de>; Tue, 28 Feb 2023 12:34:17 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id BB24A6A5877
+	for <lists+stable@lfdr.de>; Tue, 28 Feb 2023 12:41:57 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231723AbjB1LeP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 28 Feb 2023 06:34:15 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59104 "EHLO
+        id S229978AbjB1Ll4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 28 Feb 2023 06:41:56 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39992 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229530AbjB1LeG (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 28 Feb 2023 06:34:06 -0500
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B068765AA
-        for <stable@vger.kernel.org>; Tue, 28 Feb 2023 03:33:23 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1677584003;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=Td4oddmmM1+vJS0lWsyO8iL6ac/jcvqUOESFVNQcxyQ=;
-        b=I+Ah4p2bZfyQjJDkOpkxzhfZXkO3z3FJz/Pqje8kLnMXFXhOdgS1anAVhRZSZ6zUq11uVO
-        r/McgOJkE5ckuF1L3lR5vnIybO3k2f5yvxBIE2u9B7k4cZn++E6bIrNSUiRjSsmOCuSr/8
-        TRcMIFdlR/9jW7CPeg2cV1GT9eERkKY=
-Received: from mail-wm1-f71.google.com (mail-wm1-f71.google.com
- [209.85.128.71]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_128_GCM_SHA256) id
- us-mta-597-GRGj93SSMH2DqbqbLdz4PA-1; Tue, 28 Feb 2023 06:33:22 -0500
-X-MC-Unique: GRGj93SSMH2DqbqbLdz4PA-1
-Received: by mail-wm1-f71.google.com with SMTP id l20-20020a05600c1d1400b003e10d3e1c23so6783194wms.1
-        for <stable@vger.kernel.org>; Tue, 28 Feb 2023 03:33:21 -0800 (PST)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=mime-version:user-agent:content-transfer-encoding:references
-         :in-reply-to:date:cc:to:from:subject:message-id:x-gm-message-state
-         :from:to:cc:subject:date:message-id:reply-to;
-        bh=Td4oddmmM1+vJS0lWsyO8iL6ac/jcvqUOESFVNQcxyQ=;
-        b=A09HDhKpt4fofovG+n+pEYUCtM1wiwnP6qa7Wf2fSrtHCl4LFXUvdCf9oNP+W0tbpL
-         9p66ZhFoFx5xpC4XXB5UjRu2DfydkKngabDr4cLqHOyLNM4KcdoR7hqxIJ+wU0U+XXuK
-         n5XJhq2M9SShU4C2k05zcKKOaDVfzhVWnZsIntgDY/QcrlMK+CWI05W6MJOTx0ZsY5TL
-         QOncFXzAKUugxP120hnkz6zqJvHsNYPFm3VrR5rk6ygZravzU0ipQlnazwEo/DJLwBxs
-         3L2kSp55DV9NMcAq3L5YDi7U7g3zzEWmUVlIgv6oLt4FlCqZ+1BskkSC6s7ssxNuiNdy
-         eJkQ==
-X-Gm-Message-State: AO0yUKV8SUOEFyCUoYOL4IdGcDngWJObby/MxY4Bqomap3dK685TNTXi
-        GRTR8uEO85TSc1muck3bKwGEKEPuEf4gaY0gydUHB+aQvSukxwpuiTMxnEbBOyURtrnUP75aCvl
-        DC6IEJM9lyEwK07Iu
-X-Received: by 2002:a5d:5962:0:b0:2c9:8b81:bd04 with SMTP id e34-20020a5d5962000000b002c98b81bd04mr1569317wri.0.1677584000917;
-        Tue, 28 Feb 2023 03:33:20 -0800 (PST)
-X-Google-Smtp-Source: AK7set9Q9kIQxqyRlatsve8g0wcgxyegweDnlQJHTOCP2QArZXsRYiS2XU5fqY0HFcUTe47lj7xTDw==
-X-Received: by 2002:a5d:5962:0:b0:2c9:8b81:bd04 with SMTP id e34-20020a5d5962000000b002c98b81bd04mr1569305wri.0.1677584000626;
-        Tue, 28 Feb 2023 03:33:20 -0800 (PST)
-Received: from gerbillo.redhat.com (146-241-121-8.dyn.eolo.it. [146.241.121.8])
-        by smtp.gmail.com with ESMTPSA id c18-20020adfed92000000b002c54c9bd71fsm9793687wro.93.2023.02.28.03.33.18
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 28 Feb 2023 03:33:19 -0800 (PST)
-Message-ID: <4a10c2acacf8ca3e34c5452c44fe21bbcc26e271.camel@redhat.com>
-Subject: Re: [PATCH net 0/7] mptcp: fixes for 6.3
-From:   Paolo Abeni <pabeni@redhat.com>
-To:     Matthieu Baerts <matthieu.baerts@tessares.net>,
-        mptcp@lists.linux.dev, "David S. Miller" <davem@davemloft.net>,
-        Eric Dumazet <edumazet@google.com>,
-        Jakub Kicinski <kuba@kernel.org>,
-        Menglong Dong <imagedong@tencent.com>,
-        Mengen Sun <mengensun@tencent.com>,
-        Shuah Khan <shuah@kernel.org>, Florian Westphal <fw@strlen.de>,
-        Jiang Biao <benbjiang@tencent.com>
-Cc:     netdev@vger.kernel.org, linux-kernel@vger.kernel.org,
-        linux-kselftest@vger.kernel.org, stable@vger.kernel.org,
-        Christoph Paasch <cpaasch@apple.com>,
-        Geliang Tang <geliang.tang@suse.com>
-Date:   Tue, 28 Feb 2023 12:33:17 +0100
-In-Reply-To: <a0a76c20-4fd9-476b-3e32-06f7cc2bbf1b@tessares.net>
-References: <20230227-upstream-net-20230227-mptcp-fixes-v1-0-070e30ae4a8e@tessares.net>
-         <a0a76c20-4fd9-476b-3e32-06f7cc2bbf1b@tessares.net>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
-User-Agent: Evolution 3.46.4 (3.46.4-1.fc37) 
+        with ESMTP id S231197AbjB1Llz (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 28 Feb 2023 06:41:55 -0500
+Received: from mga06.intel.com (mga06b.intel.com [134.134.136.31])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 42C572CC77;
+        Tue, 28 Feb 2023 03:41:54 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
+  t=1677584513; x=1709120513;
+  h=date:from:to:cc:subject:message-id:references:
+   mime-version:in-reply-to;
+  bh=phj48FYIPUNxXUJbLJqKUoI6zPBm7GSV3FNYT5R+/0Y=;
+  b=m320wiyDn/sQGGSChlIuJc+Nvrr3FZSvNFjz7Wq063+10l90wiIrI9jy
+   8vCUEHKtFXw4HDv+QNPTan9hin2aPC7W73LaV14x3xEkrz/WHGZFQMQVQ
+   Ds0fXTDbgPbGfsEdC9f3auCboIi++dhMhEb+QqQl6X6Z14tPtTLwE2RQH
+   8Fv+9pU6VfELykEmYCd9i6zhRQJ5odYLBddyY2LcFHhQLN/9ssj+bNXfu
+   1J9Ze2IVHylghTHzAOWI5Nck3oqn329zSn8ZIiN+U4Va3uE1pf+TaKBmw
+   f+cCuvBSGqnW/9crhiGIvdXZ324Z3bSbqr7VjTNcQBFn2jvUVq2H4UWvV
+   g==;
+X-IronPort-AV: E=McAfee;i="6500,9779,10634"; a="396681671"
+X-IronPort-AV: E=Sophos;i="5.98,221,1673942400"; 
+   d="scan'208";a="396681671"
+Received: from fmsmga001.fm.intel.com ([10.253.24.23])
+  by orsmga104.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 28 Feb 2023 03:41:53 -0800
+X-ExtLoop1: 1
+X-IronPort-AV: E=McAfee;i="6500,9779,10634"; a="817061554"
+X-IronPort-AV: E=Sophos;i="5.98,221,1673942400"; 
+   d="scan'208";a="817061554"
+Received: from kuha.fi.intel.com ([10.237.72.185])
+  by fmsmga001.fm.intel.com with SMTP; 28 Feb 2023 03:41:51 -0800
+Received: by kuha.fi.intel.com (sSMTP sendmail emulation); Tue, 28 Feb 2023 13:41:50 +0200
+Date:   Tue, 28 Feb 2023 13:41:50 +0200
+From:   Heikki Krogerus <heikki.krogerus@linux.intel.com>
+To:     Hans de Goede <hdegoede@redhat.com>
+Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        linux-usb@vger.kernel.org, stable@vger.kernel.org
+Subject: Re: [PATCH 1/3] usb: ucsi: Fix NULL pointer deref in
+ ucsi_connector_change()
+Message-ID: <Y/3ofhWfttn6gdJg@kuha.fi.intel.com>
+References: <20230228090305.9335-1-hdegoede@redhat.com>
+ <Y/3R68g6qKsqqLdL@kuha.fi.intel.com>
+ <800fcc20-8009-529f-fc09-c1394cd397fb@redhat.com>
 MIME-Version: 1.0
-X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_NONE,
-        RCVD_IN_MSPIKE_H2,SPF_HELO_NONE,SPF_NONE autolearn=unavailable
-        autolearn_force=no version=3.4.6
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <800fcc20-8009-529f-fc09-c1394cd397fb@redhat.com>
+X-Spam-Status: No, score=-4.3 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,SPF_HELO_NONE,
+        SPF_NONE autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, 2023-02-28 at 12:28 +0100, Matthieu Baerts wrote:
-> Hello,
->=20
-> On 27/02/2023 18:29, Matthieu Baerts wrote:
-> > Patch 1 fixes a possible deadlock in subflow_error_report() reported by
-> > lockdep. The report was in fact a false positive but the modification
-> > makes sense and silences lockdep to allow syzkaller to find real issues=
-.
-> > The regression has been introduced in v5.12.
-> >=20
-> > Patch 2 is a refactoring needed to be able to fix the two next issues.
-> > It improves the situation and can be backported up to v6.0.
-> >=20
-> > Patches 3 and 4 fix UaF reported by KASAN. It fixes issues potentially
-> > visible since v5.7 and v5.19 but only reproducible until recently
-> > (v6.0). These two patches depend on patch 2/7.
-> >=20
-> > Patch 5 fixes the order of the printed values: expected vs seen values.
-> > The regression has been introduced recently: present in Linus' tree but
-> > not in a tagged version yet.
-> >=20
-> > Patch 6 adds missing ro_after_init flags. A previous patch added them
-> > for other functions but these two have been missed. This previous patch
-> > has been backported to stable versions (up to v5.12) so probably better
-> > to do the same here.
-> >=20
-> > Patch 7 fixes tcp_set_state() being called twice in a row since v5.10.
->=20
-> I'm sorry to ask for that but is it possible not to apply these patches?
+On Tue, Feb 28, 2023 at 11:15:46AM +0100, Hans de Goede wrote:
+> Hi,
+> 
+> On 2/28/23 11:05, Heikki Krogerus wrote:
+> > On Tue, Feb 28, 2023 at 10:03:03AM +0100, Hans de Goede wrote:
+> >> When ucsi_init() fails, ucsi->connector is NULL, yet in case of
+> >> ucsi_acpi we may still get events which cause the ucs_acpi code to call
+> >> ucsi_connector_change(), which then derefs the NULL ucsi->connector
+> >> pointer.
+> >>
+> >> Fix this by adding a check for ucsi->connector being NULL, as is
+> >> already done in ucsi_resume() for similar reasons.
+> >>
+> >> Fixes: bdc62f2bae8f ("usb: typec: ucsi: Simplified registration and I/O API")
+> >> Cc: stable@vger.kernel.org
+> >> Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+> >> ---
+> >>  drivers/usb/typec/ucsi/ucsi.c | 8 +++++++-
+> >>  1 file changed, 7 insertions(+), 1 deletion(-)
+> >>
+> >> diff --git a/drivers/usb/typec/ucsi/ucsi.c b/drivers/usb/typec/ucsi/ucsi.c
+> >> index 1cf8947c6d66..e762897cb25a 100644
+> >> --- a/drivers/usb/typec/ucsi/ucsi.c
+> >> +++ b/drivers/usb/typec/ucsi/ucsi.c
+> >> @@ -842,7 +842,13 @@ static void ucsi_handle_connector_change(struct work_struct *work)
+> >>   */
+> >>  void ucsi_connector_change(struct ucsi *ucsi, u8 num)
+> >>  {
+> >> -	struct ucsi_connector *con = &ucsi->connector[num - 1];
+> >> +	struct ucsi_connector *con;
+> >> +
+> >> +	/* Check for ucsi_init() failure */
+> >> +	if (!ucsi->connector)
+> >> +		return;
+> >> +
+> >> +	con = &ucsi->connector[num - 1];
+> >>  
+> >>  	if (!(ucsi->ntfy & UCSI_ENABLE_NTFY_CONNECTOR_CHANGE)) {
+> >>  		dev_dbg(ucsi->dev, "Bogus connector change event\n");
+> > 
+> > I think we should try to rely on that ucsi->ntfy. Would this work:
+> > 
+> > diff --git a/drivers/usb/typec/ucsi/ucsi.c b/drivers/usb/typec/ucsi/ucsi.c
+> > index fe1963e328378..0da1e9c66971a 100644
+> > --- a/drivers/usb/typec/ucsi/ucsi.c
+> > +++ b/drivers/usb/typec/ucsi/ucsi.c
+> > @@ -928,15 +928,13 @@ static void ucsi_handle_connector_change(struct work_struct *work)
+> >   */
+> >  void ucsi_connector_change(struct ucsi *ucsi, u8 num)
+> >  {
+> > -       struct ucsi_connector *con = &ucsi->connector[num - 1];
+> > -
+> >         if (!(ucsi->ntfy & UCSI_ENABLE_NTFY_CONNECTOR_CHANGE)) {
+> >                 dev_dbg(ucsi->dev, "Bogus connector change event\n");
+> >                 return;
+> >         }
+> >  
+> >         if (!test_and_set_bit(EVENT_PENDING, &ucsi->flags))
+> > -               schedule_work(&con->work);
+> > +               schedule_work(&ucsi->connector[num - 1].work);
+> >  }
+> >  EXPORT_SYMBOL_GPL(ucsi_connector_change);
+> >  
+> 
+> This hunk is not necessary, the con pointer pointing to lala land is
+> not an issue as long as we don't deref it. The &ucsi->connector[num - 1];
+> does not deref ucsi->connector it it simply adds an offset to it and
+> stores that in con (the backtrace I got pointed to the schedule_work call).
+> 
+> But I guess your way does make it more obvious that we don't
+> deref ucsi->connector.
+> 
+> > @@ -1404,6 +1402,7 @@ static int ucsi_init(struct ucsi *ucsi)
+> >         ucsi->connector = NULL;
+> >  
+> >  err_reset:
+> > +       ucsi->ntfy = 0;
+> >         memset(&ucsi->cap, 0, sizeof(ucsi->cap));
+> >         ucsi_reset_ppm(ucsi);
+> >  err:
+> 
+> In would expect this to fix things, but I only have access to the monitor
+> triggering this on Mondays, so I can only 100% confirm next Monday.
+> 
+> Note this does open the race I try to fix in patch 2/3 again.
+> 
+> So what should be done here is to make ntfy a local variable and only
+> store it in ucsi->ntfy on success.
 
-Done, thanks!
+OK.
 
-Paolo
+thanks,
 
+-- 
+heikki
