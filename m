@@ -2,69 +2,64 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 3FF896A89FA
-	for <lists+stable@lfdr.de>; Thu,  2 Mar 2023 21:03:24 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2DE766A8B7D
+	for <lists+stable@lfdr.de>; Thu,  2 Mar 2023 23:06:56 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229667AbjCBUDW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 2 Mar 2023 15:03:22 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35776 "EHLO
+        id S229486AbjCBWGy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 2 Mar 2023 17:06:54 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50482 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229513AbjCBUDW (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 2 Mar 2023 15:03:22 -0500
-Received: from mail-vs1-xe31.google.com (mail-vs1-xe31.google.com [IPv6:2607:f8b0:4864:20::e31])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 788CE12078
-        for <stable@vger.kernel.org>; Thu,  2 Mar 2023 12:03:00 -0800 (PST)
-Received: by mail-vs1-xe31.google.com with SMTP id d20so380285vsf.11
-        for <stable@vger.kernel.org>; Thu, 02 Mar 2023 12:03:00 -0800 (PST)
+        with ESMTP id S229854AbjCBWGt (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 2 Mar 2023 17:06:49 -0500
+Received: from mail-qt1-x834.google.com (mail-qt1-x834.google.com [IPv6:2607:f8b0:4864:20::834])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8B21E59E71
+        for <stable@vger.kernel.org>; Thu,  2 Mar 2023 14:06:46 -0800 (PST)
+Received: by mail-qt1-x834.google.com with SMTP id l18so970224qtp.1
+        for <stable@vger.kernel.org>; Thu, 02 Mar 2023 14:06:46 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google;
-        h=cc:to:subject:message-id:date:from:in-reply-to:references
-         :mime-version:from:to:cc:subject:date:message-id:reply-to;
-        bh=ytPEWIqhwaCarWJc5HTAE9DnXoPRR9+OJ57LsDquhy8=;
-        b=Yce9ojHEdVsInJzWr3wZCZrAHq+GwsLhfKhWAgWBe9rPqACHGlIwU00inP24k0sv3k
-         i0zj1pF+ZP8maq7o/Fv0gl/+7HDrfStCJA3LF9lVWmUSE+7ChVY7LR+3D+RNTeXJIfhv
-         DtpRIS9tJudFQcjjPgY7inCX0F4+dyABmSL62SGNhO5KoF7QlF97/qByL3/UAHGrU6uN
-         q20kW3Xfc6SNIzI1ngDOrj2EfALoh7rsdaJmq610WALbpxEYS9XJBDvPW+iUPHzF1Ut0
-         1VxfvPP2dhQVsm/BtXBTDXkLIh+52xnjrew33YdWNttOHO67qyA0VUr+7Hl+6UuzdUka
-         CKjw==
+        d=linaro.org; s=google; t=1677794805;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date:message-id:reply-to;
+        bh=595Lzrfk9ZZdyXMZyGBrATdXcUsn/JJF/BAGuFzsFec=;
+        b=q9WuQVRcQGJLXY3BAu1UJSkTSvvF1INVr1jkwYHInIoJV+Uqtz8CGfN1RJSrewwQyY
+         TnagFtJVhOawMjgbufAar2d6mWYxR2ajsOuPVjIKJUAYydnhR2KGNo1xMi/oT1MsfRHK
+         uam8jWsm0vRXugto4GCeO6FPz5gJtoqfC6tNnN7IcRGZF3vKhORpPi9jDH9uBYqhXIIo
+         97GsyuCMlV5WVhB7bS3a2FIoOddClAuFAE8UeExs/scG80bhGu1TNbYmmZIlrurJlpHX
+         zXLRy6x8NDzI14OVLEJJw7zVESq3wvmcY3IJjwMdKlzvsdwijOAnjHZ/Ti2eARtO7oze
+         2t8Q==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=cc:to:subject:message-id:date:from:in-reply-to:references
-         :mime-version:x-gm-message-state:from:to:cc:subject:date:message-id
+        d=1e100.net; s=20210112; t=1677794805;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-message-state:from:to:cc:subject:date:message-id
          :reply-to;
-        bh=ytPEWIqhwaCarWJc5HTAE9DnXoPRR9+OJ57LsDquhy8=;
-        b=ZQJ8piXbsFy0VBvPhoeT7Qqf6WPOcT8EzWXzx0UP/g8EtyhztMbnjG5tuHbPcKBeM6
-         3s3lWZAISAPROYu1/oou+RRb06yST1oWVJ+dZ5AKyyFL9yFWA1kwJ2bYa4xkFPMkI78Z
-         QEobv7YNotjNvSud2rZTN705d9zZE6ZMogalS4alUl4miSdg8EtKN4P8amhCw7AJgS/U
-         wsQWrr1qjaYqq61kqQc8RJo/RrHDfPjuC5rV1AdK3dkkxm7td9q2J9K+8aoFRX8QweEG
-         P0L7lT9l8GxH3vbF+M4jDT4XnYfmC7OCHEjvGsJBUebsLhBYx0E9HYGUzzyq4vm39j36
-         qKzg==
-X-Gm-Message-State: AO0yUKVmrb98BdA5MfqEjs5nHOG22stH+Dmep3uFJU+vRlei60Zk++bR
-        jzCzMuD/VKSYWz6dUd4mjzS6NsZ5fwjt/0wicdTC1Q==
-X-Google-Smtp-Source: AK7set+eVyokK1v5FAUJHHwSpcbcC+NkbL9iwTxddN0InqDlQuz/M6pEyf0rzQmaP/Vf/VhSyBB3gxvQhFmom/1DaHo=
-X-Received: by 2002:a67:a641:0:b0:411:c62b:6bf0 with SMTP id
- r1-20020a67a641000000b00411c62b6bf0mr7584347vsh.3.1677787378333; Thu, 02 Mar
- 2023 12:02:58 -0800 (PST)
+        bh=595Lzrfk9ZZdyXMZyGBrATdXcUsn/JJF/BAGuFzsFec=;
+        b=jWMUVYuZ6+/iskhdXomIrzjFYm2UHAS3jiRfzlmwXfR2Xi+fr4hFV+6YMFxklw70I8
+         Lo+Jsb11hK7nIRfOtQmXbTTqg2vS63zRFI41mHOtiLxDbH3JReCuHMIe2DveilZgbOTT
+         Wpxxbd0P1fT1vXPVAyUn0sYD2fxdxk1Oq0c98Qt48P/DLrTNBzMgyajJEKYpYhlNnlpA
+         NGhPtHGarowGcKXItosv0XkXYYqo3xZWvSfTESxNrLzH/2g+15jzQtTIUVvCrrUAlaBo
+         H4nwMVdxkvbzHgAMj/udlpPeRFasrsnxtN7+DxZdHY0aATcPlz9CzYRf+NDrp6Br+0Va
+         FZ3g==
+X-Gm-Message-State: AO0yUKVLJdScodW5aHTzRdruYGXt37xD3SwPZzXghP4vVJ/BtZXA3qwu
+        BknB4UQ7IRZBervRmwZ65yFBNlv89PP/XpTT
+X-Google-Smtp-Source: AK7set/9MBtd+iJjRd54/HRa57T4mYovpBo3CmEJtLHoI+UdeNKSex3laftnTdJhaGJtNjJcjmVNRQ==
+X-Received: by 2002:ac8:5b10:0:b0:3a9:818f:db3d with SMTP id m16-20020ac85b10000000b003a9818fdb3dmr19779078qtw.53.1677794805636;
+        Thu, 02 Mar 2023 14:06:45 -0800 (PST)
+Received: from fedora.attlocal.net (69-109-179-158.lightspeed.dybhfl.sbcglobal.net. [69.109.179.158])
+        by smtp.gmail.com with ESMTPSA id g5-20020ac87d05000000b003b68d445654sm527483qtb.91.2023.03.02.14.06.44
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Thu, 02 Mar 2023 14:06:45 -0800 (PST)
+From:   William Breathitt Gray <william.gray@linaro.org>
+To:     linus.walleij@linaro.org, brgl@bgdev.pl
+Cc:     linux-gpio@vger.kernel.org, linux-kernel@vger.kernel.org,
+        techsupport@winsystems.com, stable@vger.kernel.org,
+        William Breathitt Gray <william.gray@linaro.org>,
+        Paul Demetrotion <pdemetrotion@winsystems.com>
+Subject: [PATCH] gpio: ws16c48: Fix off-by-one error in WS16C48 resource region extent
+Date:   Tue, 28 Feb 2023 03:11:26 -0500
+Message-Id: <20230228081126.94280-1-william.gray@linaro.org>
+X-Mailer: git-send-email 2.39.2
 MIME-Version: 1.0
-References: <20230301180657.003689969@linuxfoundation.org> <CA+G9fYtDGpgT4dckXD-y-N92nqUxuvue_7AtDdBcHrbOMsDZLg@mail.gmail.com>
- <ZAB6pP3MNy152f+7@kroah.com> <CA+G9fYsHbQyQFp+vMnmFKDSQxrmj-VKsexWq-aayxgrY+0O7KQ@mail.gmail.com>
-In-Reply-To: <CA+G9fYsHbQyQFp+vMnmFKDSQxrmj-VKsexWq-aayxgrY+0O7KQ@mail.gmail.com>
-From:   Naresh Kamboju <naresh.kamboju@linaro.org>
-Date:   Fri, 3 Mar 2023 01:32:47 +0530
-Message-ID: <CA+G9fYsn+AhWTFA+ZJmfFsM71WGLPOFemZp_vhFMMLUcgcAXKg@mail.gmail.com>
-Subject: Re: [PATCH 6.1 00/42] 6.1.15-rc1 review
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     stable@vger.kernel.org, patches@lists.linux.dev,
-        linux-kernel@vger.kernel.org, torvalds@linux-foundation.org,
-        akpm@linux-foundation.org, linux@roeck-us.net, shuah@kernel.org,
-        patches@kernelci.org, lkft-triage@lists.linaro.org, pavel@denx.de,
-        jonathanh@nvidia.com, f.fainelli@gmail.com,
-        sudipm.mukherjee@gmail.com, srw@sladewatkins.net, rwarsow@gmx.de,
-        mptcp@lists.linux.dev, Florian Westphal <fw@strlen.de>,
-        Mat Martineau <mathew.j.martineau@linux.intel.com>,
-        Matthieu Baerts <matthieu.baerts@tessares.net>,
-        Anders Roxell <anders.roxell@linaro.org>
-Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 8bit
 X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
         DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_NONE,
         SPF_HELO_NONE,SPF_PASS autolearn=unavailable autolearn_force=no
@@ -75,101 +70,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Thu, 2 Mar 2023 at 16:30, Naresh Kamboju <naresh.kamboju@linaro.org> wrote:
->
-> On Thu, 2 Mar 2023 at 16:00, Greg Kroah-Hartman
-> <gregkh@linuxfoundation.org> wrote:
-> >
-> > On Thu, Mar 02, 2023 at 03:49:31PM +0530, Naresh Kamboju wrote:
-> > > On Wed, 1 Mar 2023 at 23:42, Greg Kroah-Hartman
-> > > <gregkh@linuxfoundation.org> wrote:
-> > > >
-> > > > This is the start of the stable review cycle for the 6.1.15 release.
-> > > > There are 42 patches in this series, all will be posted as a response
-> > > > to this one.  If anyone has any issues with these being applied, please
-> > > > let me know.
-> > > >
-> > > > Responses should be made by Fri, 03 Mar 2023 18:06:43 +0000.
-> > > > Anything received after that time might be too late.
-> > > >
-> > > > The whole patch series can be found in one patch at:
-> > > >         https://www.kernel.org/pub/linux/kernel/v6.x/stable-review/patch-6.1.15-rc1.gz
-> > > > or in the git tree and branch at:
-> > > >         git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-6.1.y
-> > > > and the diffstat can be found below.
-> > > >
-> > > > thanks,
-> > > >
-> > > > greg k-h
-> > >
-> > > Regression found on Linux version 6.1.15-rc1 on 32-bit arm x15 and i386.
-> > >
-> > > Reported-by: Linux Kernel Functional Testing <lkft@linaro.org>
-> > >
-> > > ## Build
-> > > * kernel: 6.1.15-rc1
-> > > * git: https://gitlab.com/Linaro/lkft/mirrors/stable/linux-stable-rc
-> > > * git branch: linux-6.1.y
-> > > * git commit: b6150251d4ddf8a80510c185d839631e252e6317
-> > > * git describe: v6.1.14-43-gb6150251d4dd
-> > > * test details:
-> > > https://qa-reports.linaro.org/lkft/linux-stable-rc-linux-6.1.y/build/v6.1.14-43-gb6150251d4dd
-> > >
-> > > Regression test cases,
-> > > i386:
-> > > x15:
-> > >   * kselftest-net-mptcp/net_mptcp_mptcp_sockopt_sh
-> > >
-> > > # mptcp_sockopt: mptcp_sockopt.c:353: do_getsockopt_tcp_info:
-> > > Assertion `ti.d.size_user == sizeof(struct tcp_info)' failed.
-> > > # mptcp_sockopt: mptcp_sockopt.c:353: do_getsockopt_tcp_info:
-> > > Assertion `ti.d.size_user == sizeof(struct tcp_info)' failed.
-> > >
-> > > test log:
-> > > ----------
-> > >
-> > > # selftests: net/mptcp: mptcp_sockopt.sh
->
-> ....
->
-> > Nit, wrapping a log like this makes it hard to read, don't you think?
->
-> Me either.
-> That is the reason I have shared "Assertion" above.
->
-> >
-> > > # mptcp_sockopt: mptcp_sockopt.c:353: do_getsockopt_tcp_info:
-> > > Assertion `ti.d.size_user == sizeof(struct tcp_info)' failed.
-> > > # server killed by signal 6
-> > > #
-> > > # FAIL: SOL_MPTCP getsockopt
-> > > # PASS: TCP_INQ cmsg/ioctl -t tcp
-> > > # PASS: TCP_INQ cmsg/ioctl -6 -t tcp
-> > > # PASS: TCP_INQ cmsg/ioctl -r tcp
-> > > # PASS: TCP_INQ cmsg/ioctl -6 -r tcp
-> > > # PASS: TCP_INQ cmsg/ioctl -r tcp -t tcp
-> > > not ok 6 selftests: net/mptcp: mptcp_sockopt.sh # exit=1
-> >
-> > Any chance you can bisect?
->
-> We are running our bisection scripts.
+The WinSystems WS16C48 I/O address region spans offsets 0x0 through 0xA,
+which is a total of 11 bytes. Fix the WS16C48_EXTENT define to the
+correct value of 11 so that access to necessary device registers is
+properly requested in the ws16c48_probe() callback by the
+devm_request_region() function call.
 
-We have tested with 6.1.14 kselftests source again and it passes.
-Now that we have upgraded to 6.2.1 kselftests source, we find that
-there is this problem reported. so, not a kernel regression.
+Fixes: 2c05a0f29f41 ("gpio: ws16c48: Implement and utilize register structures")
+Cc: Paul Demetrotion <pdemetrotion@winsystems.com>
+Signed-off-by: William Breathitt Gray <william.gray@linaro.org>
+---
+ drivers/gpio/gpio-ws16c48.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-Tested-by: Linux Kernel Functional Testing <lkft@linaro.org>
+diff --git a/drivers/gpio/gpio-ws16c48.c b/drivers/gpio/gpio-ws16c48.c
+index e73885a4dc32..afb42a8e916f 100644
+--- a/drivers/gpio/gpio-ws16c48.c
++++ b/drivers/gpio/gpio-ws16c48.c
+@@ -18,7 +18,7 @@
+ #include <linux/spinlock.h>
+ #include <linux/types.h>
+ 
+-#define WS16C48_EXTENT 10
++#define WS16C48_EXTENT 11
+ #define MAX_NUM_WS16C48 max_num_isa_dev(WS16C48_EXTENT)
+ 
+ static unsigned int base[MAX_NUM_WS16C48];
 
-## Build
-* kernel: 6.1.15-rc1
-* git: https://gitlab.com/Linaro/lkft/mirrors/stable/linux-stable-rc
-* git branch: linux-6.1.y
-* git commit: b6150251d4ddf8a80510c185d839631e252e6317
-* git describe: v6.1.14-43-gb6150251d4dd
-* test details:
-https://qa-reports.linaro.org/lkft/linux-stable-rc-linux-6.1.y/build/v6.1.14-43-gb6150251d4dd
+base-commit: 4827aae061337251bb91801b316157a78b845ec7
+-- 
+2.39.2
 
-
---
-Linaro LKFT
-https://lkft.linaro.org
