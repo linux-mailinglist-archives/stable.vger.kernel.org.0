@@ -2,67 +2,68 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 09A656A5677
-	for <lists+stable@lfdr.de>; Tue, 28 Feb 2023 11:16:24 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 60FB26A56EF
+	for <lists+stable@lfdr.de>; Tue, 28 Feb 2023 11:41:22 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230399AbjB1KQW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 28 Feb 2023 05:16:22 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:32796 "EHLO
+        id S229528AbjB1KlV (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 28 Feb 2023 05:41:21 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:56390 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230458AbjB1KQR (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 28 Feb 2023 05:16:17 -0500
-Received: from mail-yw1-x1133.google.com (mail-yw1-x1133.google.com [IPv6:2607:f8b0:4864:20::1133])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B37A9211C0
-        for <stable@vger.kernel.org>; Tue, 28 Feb 2023 02:16:15 -0800 (PST)
-Received: by mail-yw1-x1133.google.com with SMTP id 00721157ae682-5384ff97993so257763857b3.2
-        for <stable@vger.kernel.org>; Tue, 28 Feb 2023 02:16:15 -0800 (PST)
+        with ESMTP id S229509AbjB1KlU (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 28 Feb 2023 05:41:20 -0500
+Received: from mail-ua1-x935.google.com (mail-ua1-x935.google.com [IPv6:2607:f8b0:4864:20::935])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DECEB24106;
+        Tue, 28 Feb 2023 02:41:19 -0800 (PST)
+Received: by mail-ua1-x935.google.com with SMTP id l24so797700uac.12;
+        Tue, 28 Feb 2023 02:41:19 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :references:in-reply-to:mime-version:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=t0sXz6BDCiLwEh1KNvjDfulCrcyBO1PDElpdqHBu3EE=;
-        b=Vbd8nzOB1jWXhXCvUpZz82Ixn8nHCHrxEjzhuZp9ZOXcDhoi1fahpRBt8i+MPria0m
-         Pcne771BCZCK7gLanf22ojjMBfkyfUe71SCbecg35MYIYMdqv5a8ngPNzTAwB+8XV2rG
-         flb7Dtnf7QIXZPCFTsso9vjc76rEwA9EogpMVKhpma++SvCW2qIF3Os3XG3LI98RfOQU
-         aMJEpRESgFKCGgk/rHnJa04zATzuDspYG49ycS7PsEOXvzaJGDraIkthzBgWcEdqT+k7
-         xZAkWh+UTWVpkx97qKc9s0xBfgcrNjJLq7vpeQF9f1E5uIhg0xyzbNDEIndvD9Ec4Wj2
-         pbtg==
+        d=gmail.com; s=20210112; t=1677580879;
+        h=cc:to:subject:message-id:date:from:in-reply-to:references
+         :mime-version:from:to:cc:subject:date:message-id:reply-to;
+        bh=8DbVfOckXlAwnJnMHcsh1q8vZl9XSwnyP9AZsJxgsg4=;
+        b=dYmNo5q063Mxj4sRwSDBshps42BgANMZzJ8NIms3DO9OZ1erbLJBn1bI/++dPPOZ9j
+         SMQJ+pP6S74SUAZviENXfMIns2uD1CbtpvsuY71WE1Z1e/1HQ+VuhRa2/kVSb8hlCK20
+         SjGV3LqPnDl+bPFgpdzIRJgTG5HsdMfMV60qhikfRuMuTtChaFNOamja2scFf5vnk/E9
+         aalmU0sinLAviHRrTkJksfXmzEu+iI3jDD4N7NL5d0SJA7iHWM+ipoyrvDTk+CxcGIAT
+         CNC3shgktuDolX46+Z+j31Uk+SGKZjQ/VAQsKRnAAKjsj318ozW7A0fNNms1XgWW53ud
+         Pc4w==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :references:in-reply-to:mime-version:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=t0sXz6BDCiLwEh1KNvjDfulCrcyBO1PDElpdqHBu3EE=;
-        b=kW5uMsYeu8OECFOKpHeVXUaLFPM+kRFrseWh1LRUlV046dtrP1dTFB5Wqmv7QsCybS
-         go7XBaGUMrVMu4ONvW4f7Ss44WtCEDfQ7K2bsNwFH0eS/BMWKijr1RT3abZyri8vLZ2A
-         G5KOQDoK1NoycUyxG+/7bV28n6D5WB91vgLrQvv8ctip2XBRuxaezndLqNsmOH1tAml9
-         BKEYY9OuH8EzbkXQAruJHLR5ET6kcb2vsG9dZnvBsesVpWhaDbp8ZxD+tsXWpL65dYBb
-         7ASiuwHJFKG6jIERQ3Can8OWCqEuBNQMdwEfUXW4ASe0yC2CdzAdpfH/5CZGDJuXFQzu
-         ot3g==
-X-Gm-Message-State: AO0yUKXje6IW7cFuaE/BSpy4bkbwF9fUpncwULsX2BjVpFmZJwOZqdD2
-        NlhY/AFmbFWGr8E9GKdLBgtADgosDpLr7EdySAfmXLsGC9A=
-X-Google-Smtp-Source: AK7set9M/7GFtkfNMqU6LCmrYJ83fpM/YH7yUF1e6LQ4tVN1TdJqH1dzAneZald4aqZ8X2JtzCk68vix9zHXauCaqtc=
-X-Received: by 2002:a5b:a0f:0:b0:a0d:8150:bed5 with SMTP id
- k15-20020a5b0a0f000000b00a0d8150bed5mr1089698ybq.3.1677579374871; Tue, 28 Feb
- 2023 02:16:14 -0800 (PST)
+        d=1e100.net; s=20210112; t=1677580879;
+        h=cc:to:subject:message-id:date:from:in-reply-to:references
+         :mime-version:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=8DbVfOckXlAwnJnMHcsh1q8vZl9XSwnyP9AZsJxgsg4=;
+        b=Nwg6boTwnoKy5ppHpqCIpYIfKFgTrG3u7wfv5N298DVV4w98bF+C0H6N46auCj4Rd8
+         nV47UlKtBFC4stjCYTHzd0wovtbD3aH1ydjA59y8cJS26wdFQi3RcMPvK0t53lcHkHrU
+         8gKNkha7YaCoGQnNBBPcSIHiKPBH1R6Jqo2jMt/cLD7X0GejwIKvnBYthC9S8K+Q9Jto
+         fsOmniiukKBHYIkR2SOlB+dgnSAbqDHIU9AzT05dwI2WFM6doJjFoOIHEP1ZWLGam6Zy
+         V/rV/Nf4Ch05T197dlEgCdnAKO+ysbZ3iTvCSijbhk98BAZKMNrWqgfESjQ9ft1U2MNR
+         zGVA==
+X-Gm-Message-State: AO0yUKWEYOsccuVXlXx3ON+CuN/aB6OVRPuLeb0pqM5kmy72GB7tGJJc
+        eBo8JzaZzOPbeOcGwjnhRp9mRHfFUx79IAaIWAc=
+X-Google-Smtp-Source: AK7set+qBzkp5toODpAUw2ZZQlYyfMm2QZP7Sb0CMFTpsGk2V4xMYDfU3UbLNa2hh9TtB5fTmaYulOtIXe9TiOz9lbo=
+X-Received: by 2002:ac5:c85c:0:b0:40e:fee9:667a with SMTP id
+ g28-20020ac5c85c000000b0040efee9667amr1014736vkm.3.1677580878928; Tue, 28 Feb
+ 2023 02:41:18 -0800 (PST)
 MIME-Version: 1.0
-Received: by 2002:a05:7000:a309:b0:480:bd65:1f87 with HTTP; Tue, 28 Feb 2023
- 02:16:14 -0800 (PST)
-In-Reply-To: <Y/27PBzfeRNEhWnA@kroah.com>
-References: <CAPge7ycxEpms_wQoDoCncz743N2BfzVCZPLmbHCVTs6ZKSp=nA@mail.gmail.com>
- <Y/27PBzfeRNEhWnA@kroah.com>
-From:   =?UTF-8?B?546L5piK54S2?= <msl0000023508@gmail.com>
-Date:   Tue, 28 Feb 2023 18:16:14 +0800
-Message-ID: <CAPge7yekNA633CiWbCftS5GRHTzYAMeraOmKKSMZL=5GdWzqfw@mail.gmail.com>
-Subject: Re: Symbol cpu_feature_keys should be exported to all modules on powerpc
-To:     Greg KH <gregkh@linuxfoundation.org>
-Cc:     stable@vger.kernel.org
+References: <Y/rufenGRpoJVXZr@sol.localdomain> <Y/ux9JLHQKDOzWHJ@sol.localdomain>
+ <Y/y70zJj4kjOVfXa@sashalap> <Y/zswi91axMN8OsA@sol.localdomain>
+ <Y/zxKOBTLXFjSVyI@sol.localdomain> <Y/0U8tpNkgePu00M@sashalap>
+ <Y/0i5pGYjrVw59Kk@gmail.com> <Y/0wMiOwoeLcFefc@sashalap> <Y/1LlA5WogOAPBNv@gmail.com>
+ <Y/1em4ygHgSjIYau@sashalap> <Y/136zpJSWx96YEe@sol.localdomain>
+In-Reply-To: <Y/136zpJSWx96YEe@sol.localdomain>
+From:   Amir Goldstein <amir73il@gmail.com>
+Date:   Tue, 28 Feb 2023 12:41:07 +0200
+Message-ID: <CAOQ4uxietbePiWgw8aOZiZ+YT=5vYVdPH=ChnBkU_KCaHGv+1w@mail.gmail.com>
+Subject: Re: AUTOSEL process
+To:     Eric Biggers <ebiggers@kernel.org>
+Cc:     Sasha Levin <sashal@kernel.org>, linux-kernel@vger.kernel.org,
+        stable@vger.kernel.org, viro@zeniv.linux.org.uk,
+        linux-fsdevel@vger.kernel.org
 Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
-X-Spam-Status: No, score=-1.8 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_ENVFROM_END_DIGIT,
-        FREEMAIL_FROM,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS autolearn=ham
+X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_FROM,
+        RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS autolearn=ham
         autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -70,34 +71,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-2023-02-28 16:28 GMT+08:00, Greg KH <gregkh@linuxfoundation.org>:
-> On Tue, Feb 28, 2023 at 04:18:12PM +0800, =E7=8E=8B=E6=98=8A=E7=84=B6 wro=
-te:
->> Just like symbol 'mmu_feature_keys'[1], 'cpu_feature_keys' was reference=
-d
->> indirectly by many inline functions; any GPL-incompatible modules using
->> such
->> a function will be potentially broken due to 'cpu_feature_keys' being
->> exported as GPL-only.
->>
->> For example it still breaks ZFS, see
->> https://github.com/openzfs/zfs/issues/14545
->>
->> [1]:
->> https://patchwork.ozlabs.org/project/linuxppc-dev/patch/20220329085709.4=
-132729-1-haokexin@gmail.com/
+> > I'm not sure how feedback in the form of "this sucks but I'm sure it
+> > could be much better" is useful.
 >
-> External modules are always on their own, sorry.  Especially ones that
-> are not released under the GPL.
+> I've already given you some specific suggestions.
 >
-> good luck!
->
-> greg k-h
+> I can't force you to listen to them, of course.
 >
 
-Some inline functions are just powerpc implementation of some generic KPIs,
-such as flush_dcache_page, which indirectly references 'cpu_feature_keys' i=
-n
-powerpc-specific code; this essentially makes 'flush_dcache_page' GPL-only =
-in
-Linux powerpc, but not in other architectures.
+Eric,
+
+As you probably know, this is not the first time that the subject of the
+AUTOSEL process has been discussed.
+Here is one example from fsdevel with a few other suggestions [1].
+
+But just so you know, as a maintainer, you have the option to request that
+patches to your subsystem will not be selected by AUTOSEL and run your
+own process to select, test and submit fixes to stable trees.
+
+xfs maintainers have done that many years ago.
+This choice has consequences though - for years, no xfs fixes were flowing
+into stable trees at all, because no one was doing the backport work.
+It is hard to imagine that LTS kernel users were more happy about this
+situation than they would be from occasional regressions, but who knows...
+
+It has taken a long time until we found the resources and finally started a
+process of reviewing, testing and submitting xfs fixes to stable trees and this
+process involves a lot of resources (3 maintainers + $$$), so opting out of
+AUTOSEL is not a clear win.
+
+I will pencil down yet another discussion on fs and stable process at
+LSFMM23 to update on the current status with xfs, but it is hard to
+believe that this time we will be able to make significant changes to
+the AUTOSEL process.
+
+Thanks,
+Amir.
+
+[1] https://lore.kernel.org/linux-fsdevel/20201204160227.GA577125@mit.edu/#t
