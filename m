@@ -2,95 +2,142 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E47926A580E
-	for <lists+stable@lfdr.de>; Tue, 28 Feb 2023 12:29:30 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6683E6A5813
+	for <lists+stable@lfdr.de>; Tue, 28 Feb 2023 12:29:40 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230253AbjB1L33 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 28 Feb 2023 06:29:29 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52962 "EHLO
+        id S231713AbjB1L3i (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 28 Feb 2023 06:29:38 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53348 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231569AbjB1L32 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 28 Feb 2023 06:29:28 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4FD80DBD8;
-        Tue, 28 Feb 2023 03:29:03 -0800 (PST)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 06FA3B80D40;
-        Tue, 28 Feb 2023 11:28:28 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 36047C433D2;
-        Tue, 28 Feb 2023 11:28:26 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1677583706;
-        bh=fly9As6GdVCTUqgbpab6YGsoobdtJj0Pf4jduB5lum4=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=Za9T8pS4JY3UpLRtCY7ZTKND8MfxWnDRghK9ujx7+vDSbc3kuJkro9sZZvBUEIBlv
-         BGdYxMZv2Mo7JceS30VE4b8ps3IeuElUHZOc/Ll8zQCQgdmg9HQByjdmnTgBojsf22
-         FPGzYv9RajAbZN6tuA4tEepI0Brytz7QVM1Un0o0=
-Date:   Tue, 28 Feb 2023 12:28:23 +0100
-From:   Greg KH <gregkh@linuxfoundation.org>
-To:     Amir Goldstein <amir73il@gmail.com>
-Cc:     Eric Biggers <ebiggers@kernel.org>,
-        Sasha Levin <sashal@kernel.org>, linux-kernel@vger.kernel.org,
-        stable@vger.kernel.org, viro@zeniv.linux.org.uk,
-        linux-fsdevel@vger.kernel.org
-Subject: Re: AUTOSEL process
-Message-ID: <Y/3lV0P9h+FxmjyF@kroah.com>
-References: <Y/y70zJj4kjOVfXa@sashalap>
- <Y/zswi91axMN8OsA@sol.localdomain>
- <Y/zxKOBTLXFjSVyI@sol.localdomain>
- <Y/0U8tpNkgePu00M@sashalap>
- <Y/0i5pGYjrVw59Kk@gmail.com>
- <Y/0wMiOwoeLcFefc@sashalap>
- <Y/1LlA5WogOAPBNv@gmail.com>
- <Y/1em4ygHgSjIYau@sashalap>
- <Y/136zpJSWx96YEe@sol.localdomain>
- <CAOQ4uxietbePiWgw8aOZiZ+YT=5vYVdPH=ChnBkU_KCaHGv+1w@mail.gmail.com>
+        with ESMTP id S231591AbjB1L3g (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 28 Feb 2023 06:29:36 -0500
+Received: from mail-ed1-x535.google.com (mail-ed1-x535.google.com [IPv6:2a00:1450:4864:20::535])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 13175BDD7
+        for <stable@vger.kernel.org>; Tue, 28 Feb 2023 03:29:13 -0800 (PST)
+Received: by mail-ed1-x535.google.com with SMTP id ec43so38436676edb.8
+        for <stable@vger.kernel.org>; Tue, 28 Feb 2023 03:29:12 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=tessares.net; s=google;
+        h=content-transfer-encoding:in-reply-to:from:references:cc:to
+         :content-language:subject:user-agent:mime-version:date:message-id
+         :from:to:cc:subject:date:message-id:reply-to;
+        bh=GBj/GGcssUIPclJb9OaTVZJj6GUgJJTT+lDCTo9rCgQ=;
+        b=ev4Uj0zM8CDLMvFJ9N89gY8s6bTexBCziLfJ9y93h0GjAvOdGgRLYhyM7EWKpGSG/c
+         uBBFYWpQ+ShDHjIhAMAbtmkRcPG4oU1w/LTk+Xr4H+V/ZfQfiOsJm6yk5r2BuJ15vlic
+         wQiodG7MheSxV25r7YFRcY9iC1qE2jrqtB3l03dLuU8KG0QcEaJvbntY1ecSLelsUB6F
+         Z7Q3nrhzvpDTr0apjMYNKcvvhwD+geZ8bmraNLTfVIY2NphLF5ntsu0sIRC+8QB7Z+nB
+         fVaQ4mzqOaH5FDJQRt757SZpNXAlTZJ/iNhFbhpQbSdIJM0+QDLF5Ul/EQJq6KYRdE5h
+         gOVw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=content-transfer-encoding:in-reply-to:from:references:cc:to
+         :content-language:subject:user-agent:mime-version:date:message-id
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
+        bh=GBj/GGcssUIPclJb9OaTVZJj6GUgJJTT+lDCTo9rCgQ=;
+        b=ffbhUU4f4K8sueegkeHuV8IWsf437Vi22KiEBRGjzf8hN9Hk0brd7/r0jB84HPH7Uf
+         6TxtVoowOtVufYZgb6uGlBKG90TBiMrtw8QONSfs1kNx0zFQWUJnun8TSnoGNzJzbtVm
+         I4EiPsDh20CDSO/v/ItzC8kU3jc/rdaD2cgWiY6QWHbFaTykTynXpEM5lhGxwHQLNair
+         D6vU2Jrw+XkShGlGB4s3kDS137D8S6CP5VhVmHKWnpo00pkmJ+jziLlCzY6GmKGLTTNN
+         3gphpFfNo+CpOUvYd/oT9e7KAsgGGZU4HSSjgh2llF7DbO6MxSO95/cFgBEDXDdczD3X
+         ecow==
+X-Gm-Message-State: AO0yUKUvyK4Zin/83C5qzFVQtDD/egkdpgXiu54p1Q4SY6pHGnYQe2mK
+        veGWR+pdMFXpUR27dUnhOT2wPw==
+X-Google-Smtp-Source: AK7set8RZDJ6WdOsfg3RtQ3zH7fB6FvZdtq4hk6RJEmyFYlX71IvTbbNpXsS2JtDUgI3CjxqD9hTNg==
+X-Received: by 2002:a17:907:ca14:b0:8b0:26b6:3f2b with SMTP id uk20-20020a170907ca1400b008b026b63f2bmr2016682ejc.53.1677583722973;
+        Tue, 28 Feb 2023 03:28:42 -0800 (PST)
+Received: from ?IPV6:2a02:578:8593:1200:5848:64ae:8a99:312a? ([2a02:578:8593:1200:5848:64ae:8a99:312a])
+        by smtp.gmail.com with ESMTPSA id r22-20020a50aad6000000b004af6a7e9131sm4223979edc.64.2023.02.28.03.28.41
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Tue, 28 Feb 2023 03:28:42 -0800 (PST)
+Message-ID: <a0a76c20-4fd9-476b-3e32-06f7cc2bbf1b@tessares.net>
+Date:   Tue, 28 Feb 2023 12:28:41 +0100
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <CAOQ4uxietbePiWgw8aOZiZ+YT=5vYVdPH=ChnBkU_KCaHGv+1w@mail.gmail.com>
-X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
-        SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
+ Thunderbird/102.8.0
+Subject: Re: [PATCH net 0/7] mptcp: fixes for 6.3
+Content-Language: en-GB
+To:     mptcp@lists.linux.dev, "David S. Miller" <davem@davemloft.net>,
+        Eric Dumazet <edumazet@google.com>,
+        Jakub Kicinski <kuba@kernel.org>,
+        Paolo Abeni <pabeni@redhat.com>,
+        Menglong Dong <imagedong@tencent.com>,
+        Mengen Sun <mengensun@tencent.com>,
+        Shuah Khan <shuah@kernel.org>, Florian Westphal <fw@strlen.de>,
+        Jiang Biao <benbjiang@tencent.com>
+Cc:     netdev@vger.kernel.org, linux-kernel@vger.kernel.org,
+        linux-kselftest@vger.kernel.org, stable@vger.kernel.org,
+        Christoph Paasch <cpaasch@apple.com>,
+        Geliang Tang <geliang.tang@suse.com>
+References: <20230227-upstream-net-20230227-mptcp-fixes-v1-0-070e30ae4a8e@tessares.net>
+From:   Matthieu Baerts <matthieu.baerts@tessares.net>
+In-Reply-To: <20230227-upstream-net-20230227-mptcp-fixes-v1-0-070e30ae4a8e@tessares.net>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
+X-Spam-Status: No, score=-2.2 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,NICE_REPLY_A,RCVD_IN_DNSWL_NONE,
+        SPF_HELO_NONE,SPF_PASS autolearn=unavailable autolearn_force=no
+        version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, Feb 28, 2023 at 12:41:07PM +0200, Amir Goldstein wrote:
-> > > I'm not sure how feedback in the form of "this sucks but I'm sure it
-> > > could be much better" is useful.
-> >
-> > I've already given you some specific suggestions.
-> >
-> > I can't force you to listen to them, of course.
-> >
+Hello,
+
+On 27/02/2023 18:29, Matthieu Baerts wrote:
+> Patch 1 fixes a possible deadlock in subflow_error_report() reported by
+> lockdep. The report was in fact a false positive but the modification
+> makes sense and silences lockdep to allow syzkaller to find real issues.
+> The regression has been introduced in v5.12.
 > 
-> Eric,
+> Patch 2 is a refactoring needed to be able to fix the two next issues.
+> It improves the situation and can be backported up to v6.0.
 > 
-> As you probably know, this is not the first time that the subject of the
-> AUTOSEL process has been discussed.
-> Here is one example from fsdevel with a few other suggestions [1].
+> Patches 3 and 4 fix UaF reported by KASAN. It fixes issues potentially
+> visible since v5.7 and v5.19 but only reproducible until recently
+> (v6.0). These two patches depend on patch 2/7.
 > 
-> But just so you know, as a maintainer, you have the option to request that
-> patches to your subsystem will not be selected by AUTOSEL and run your
-> own process to select, test and submit fixes to stable trees.
+> Patch 5 fixes the order of the printed values: expected vs seen values.
+> The regression has been introduced recently: present in Linus' tree but
+> not in a tagged version yet.
+> 
+> Patch 6 adds missing ro_after_init flags. A previous patch added them
+> for other functions but these two have been missed. This previous patch
+> has been backported to stable versions (up to v5.12) so probably better
+> to do the same here.
+> 
+> Patch 7 fixes tcp_set_state() being called twice in a row since v5.10.
 
-Yes, and simply put, that's the answer for any subsystem or maintainer
-that does not want their patches picked using the AUTOSEL tool.
+I'm sorry to ask for that but is it possible not to apply these patches?
 
-The problem that the AUTOSEL tool is solving is real, we have whole
-major subsystems where no patches are ever marked as "for stable" and so
-real bugfixes are never backported properly.
+> Signed-off-by: Matthieu Baerts <matthieu.baerts@tessares.net>
+> ---
+> Geliang Tang (1):
+>       mptcp: add ro_after_init for tcp{,v6}_prot_override
+> 
+> Matthieu Baerts (2):
+>       selftests: mptcp: userspace pm: fix printed values
+>       mptcp: avoid setting TCP_CLOSE state twice
+> 
+> Paolo Abeni (4):
+>       mptcp: fix possible deadlock in subflow_error_report
+>       mptcp: refactor passive socket initialization
+>       mptcp: use the workqueue to destroy unaccepted sockets
 
-In an ideal world, all maintainers would properly mark their patches for
-stable backporting (as documented for the past 15+ years, with a cc:
-stable tag, NOT a Fixes: tag), but we do not live in that world, and
-hence, the need for the AUTOSEL work.
+After 3 weeks of validation, syzkaller found an issue with this patch:
 
-thanks,
+  https://github.com/multipath-tcp/mptcp_net-next/issues/366
 
-greg k-h
+We then need to NAK this series. We will send a v2 with a fix for that.
+
+>       mptcp: fix UaF in listener shutdown
+
+The other patches of the series are either not very important or are
+linked to the "faulty" one: they can all wait as well.
+
+Cheers,
+Matt
+-- 
+Tessares | Belgium | Hybrid Access Solutions
+www.tessares.net
