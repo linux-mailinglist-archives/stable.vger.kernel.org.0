@@ -2,103 +2,178 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 13CC86A566E
-	for <lists+stable@lfdr.de>; Tue, 28 Feb 2023 11:14:59 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E3A1F6A567A
+	for <lists+stable@lfdr.de>; Tue, 28 Feb 2023 11:16:38 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229565AbjB1KO6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 28 Feb 2023 05:14:58 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58698 "EHLO
+        id S229919AbjB1KQi (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 28 Feb 2023 05:16:38 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60466 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231295AbjB1KOs (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 28 Feb 2023 05:14:48 -0500
-Received: from mail-yw1-x1131.google.com (mail-yw1-x1131.google.com [IPv6:2607:f8b0:4864:20::1131])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 708F012F3A
-        for <stable@vger.kernel.org>; Tue, 28 Feb 2023 02:14:41 -0800 (PST)
-Received: by mail-yw1-x1131.google.com with SMTP id 00721157ae682-536c02eea4dso257370537b3.4
-        for <stable@vger.kernel.org>; Tue, 28 Feb 2023 02:14:41 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :references:in-reply-to:mime-version:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=CdiVHeLJmPipKwbnev6rYifxgPcAVJ5LNE0F+64LtHw=;
-        b=ArgXO9B6HItihOgNqDyRQpCC8X9gj9Z+ZO0vplqQFaazKwzfswF/FhWK98axHmflcJ
-         DX8mg3lmmcQRVCuFdgObr2NSRURNARLnjvutXgxB2JFw/P0+ffGotzkmHKZk0fLarcHY
-         WpbxliiQyd4lVzQbtFOgeP4IVDEinvOOqABSueFkj/jE8G1sPNWf2yuHAr769npycnAl
-         GMYvg2POaFTUPzGIN2kHH/4xrk8ZxqaYEYbufFfxmvNeAI4/YaePFTQHsEDAzdKTi0Wv
-         nd1oMhbPnCb140JU1ixBTsGDDXhlwcOZSHQrpa95IX6mYBWRYcxnu0C0lPp8IThY08v3
-         rZGQ==
+        with ESMTP id S229686AbjB1KQh (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 28 Feb 2023 05:16:37 -0500
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CDA201499A
+        for <stable@vger.kernel.org>; Tue, 28 Feb 2023 02:15:50 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1677579350;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=GF6ACDOapKnoQkfxPGA0A98hiGijIqde5MqUuQTyaQs=;
+        b=d0EHflsFJK1s8vfYgOc3IOSdB+7CX+PcqzSUD6JjsN4xnBMWWzQ3ocLikxEfH0m3/Z1niD
+        VR6vh+/kyTQLqVhNKkHgQYmOcQBbhU3T9x6NwwSpUIvcN9CvpmuOhja7aSPPEE96mvmS6/
+        t8BHgSvFxxFLU6WTUs8bvTeBlu/Zz54=
+Received: from mail-ed1-f70.google.com (mail-ed1-f70.google.com
+ [209.85.208.70]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_128_GCM_SHA256) id
+ us-mta-462-E5gJrZb2NeWd4EOhI2BM-w-1; Tue, 28 Feb 2023 05:15:48 -0500
+X-MC-Unique: E5gJrZb2NeWd4EOhI2BM-w-1
+Received: by mail-ed1-f70.google.com with SMTP id dk16-20020a0564021d9000b004aaa054d189so13324699edb.11
+        for <stable@vger.kernel.org>; Tue, 28 Feb 2023 02:15:48 -0800 (PST)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20210112;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :references:in-reply-to:mime-version:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=CdiVHeLJmPipKwbnev6rYifxgPcAVJ5LNE0F+64LtHw=;
-        b=rRdQZh6UHAKIAg7nBwUg7PgDO0ZPCPnerJDPYakjU5Rk1OInP/NKffx6tiCE4ZjDeZ
-         l+GJOWpUD176Gro1jYIgmK0ep+nym/SIWc1FZ+SaWuoz1J1xaFOzhjMUbpTnhCgi0bsA
-         DN38ZvMPzcW3IUdmUZ9cgGpfsCL2LbpSIsBsl72ly5BBAlJWDTuoiv2OF64MyQkL9xps
-         MZfADuzX3wv0m+VxBZ0VByjNfv8xyoEcBJ3DSmJxU1cuxqRfz95qE/EcFeCSR4t4g6S1
-         8lWlpzaUEGyekg7995hZsK9ODiU0rJfBi1Ops/PWz1FTCGf8g4/K46gkjTftdRyY0hYi
-         oAlg==
-X-Gm-Message-State: AO0yUKVUrf0U5JJzgtBrh3l3FV9daSV06czbfGnBBL2YSQlIile20n/a
-        Sx1GwlX0vj7Sm/zi6UIfqyBrrEMpjjLDODs5UlyKylptLFY=
-X-Google-Smtp-Source: AK7set9z2GcQY+PK0yKuxiPsbmNsQhUOUpcH2qDIbOvH1rSN0k2FUQJrJzOKypjtf29bN3CAQm4bKzT5gW2HsLjHmug=
-X-Received: by 2002:a05:690c:f0d:b0:52e:e8b1:d51e with SMTP id
- dc13-20020a05690c0f0d00b0052ee8b1d51emr2606204ywb.1.1677579280631; Tue, 28
- Feb 2023 02:14:40 -0800 (PST)
+        h=content-transfer-encoding:in-reply-to:from:references:cc:to
+         :content-language:subject:user-agent:mime-version:date:message-id
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
+        bh=GF6ACDOapKnoQkfxPGA0A98hiGijIqde5MqUuQTyaQs=;
+        b=UOtgTbZPhu7c8LwSikdtA+9Cy1BNhMzH5bgfp9NTIipuDIFD8umPmXQdsRT8YWAc22
+         WZudcVz1xErOBYmirbSiTq17rAWvDrklO3dCUYjmkjczJswTZ9fqaXo47eMl860mbtzx
+         A/XWSxGSHLPSXk7UGo7VU+NS0fPAnINM293X0BT52IxEK86ACymxh3+Hi2Lo/l2U43Ac
+         ae6SN/TDtYHjBpUAIX+ay0LuzbRa/1Rr7bunvDJvk+ge95aFc3L+QKdj+WdaG2y3xZuU
+         HF1Gg9+fIRf/mfI2QetFfALVXr6u9aUhuHZLiYL4+wlkJsiKIpp+Ct3kYBhySUTAKyhD
+         i9zA==
+X-Gm-Message-State: AO0yUKXHHjGRAXgqOSjeUsuQpIA/Hg2lLlZNBPFIy78cDNvWNw9zuqzf
+        MNzGUiEAuSnpw7TQej53alw+89WXPQ9T55fpCdzrLOnMw9RVCx8/jDVaBikxaHHPKhObSul14WQ
+        3J7SBy7GFz4tBkLQA
+X-Received: by 2002:a17:906:82d0:b0:8b1:238b:80ac with SMTP id a16-20020a17090682d000b008b1238b80acmr1437669ejy.67.1677579347615;
+        Tue, 28 Feb 2023 02:15:47 -0800 (PST)
+X-Google-Smtp-Source: AK7set+dj+DZ2ERaJp/D6mM1QpmGN1M1zcWC1CY+3ps2vSNZgsdR2smOr2Osh6T90txbCjKx1NUNXA==
+X-Received: by 2002:a17:906:82d0:b0:8b1:238b:80ac with SMTP id a16-20020a17090682d000b008b1238b80acmr1437655ejy.67.1677579347303;
+        Tue, 28 Feb 2023 02:15:47 -0800 (PST)
+Received: from ?IPV6:2001:1c00:c32:7800:5bfa:a036:83f0:f9ec? (2001-1c00-0c32-7800-5bfa-a036-83f0-f9ec.cable.dynamic.v6.ziggo.nl. [2001:1c00:c32:7800:5bfa:a036:83f0:f9ec])
+        by smtp.gmail.com with ESMTPSA id i16-20020a17090685d000b008b7a9ff7dfdsm4228731ejy.162.2023.02.28.02.15.46
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Tue, 28 Feb 2023 02:15:46 -0800 (PST)
+Message-ID: <800fcc20-8009-529f-fc09-c1394cd397fb@redhat.com>
+Date:   Tue, 28 Feb 2023 11:15:46 +0100
 MIME-Version: 1.0
-Received: by 2002:a05:7000:a309:b0:480:bd65:1f87 with HTTP; Tue, 28 Feb 2023
- 02:14:39 -0800 (PST)
-In-Reply-To: <Y/27PBzfeRNEhWnA@kroah.com>
-References: <CAPge7ycxEpms_wQoDoCncz743N2BfzVCZPLmbHCVTs6ZKSp=nA@mail.gmail.com>
- <Y/27PBzfeRNEhWnA@kroah.com>
-From:   =?UTF-8?B?546L5piK54S2?= <msl0000023508@gmail.com>
-Date:   Tue, 28 Feb 2023 18:14:39 +0800
-Message-ID: <CAPge7yd8-A1+7TF6s_Oo_AOi0ZJoUGs7D6y_zT0P4F_CwWbFhg@mail.gmail.com>
-Subject: Re: Symbol cpu_feature_keys should be exported to all modules on powerpc
-To:     Greg KH <gregkh@linuxfoundation.org>
-Cc:     stable@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
-X-Spam-Status: No, score=-1.8 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_ENVFROM_END_DIGIT,
-        FREEMAIL_FROM,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS autolearn=ham
-        autolearn_force=no version=3.4.6
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
+ Thunderbird/102.7.1
+Subject: Re: [PATCH 1/3] usb: ucsi: Fix NULL pointer deref in
+ ucsi_connector_change()
+Content-Language: en-US, nl
+To:     Heikki Krogerus <heikki.krogerus@linux.intel.com>
+Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        linux-usb@vger.kernel.org, stable@vger.kernel.org
+References: <20230228090305.9335-1-hdegoede@redhat.com>
+ <Y/3R68g6qKsqqLdL@kuha.fi.intel.com>
+From:   Hans de Goede <hdegoede@redhat.com>
+In-Reply-To: <Y/3R68g6qKsqqLdL@kuha.fi.intel.com>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
+X-Spam-Status: No, score=-2.2 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,NICE_REPLY_A,
+        RCVD_IN_DNSWL_NONE,RCVD_IN_MSPIKE_H2,SPF_HELO_NONE,SPF_NONE
+        autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-2023-02-28 16:28 GMT+08:00, Greg KH <gregkh@linuxfoundation.org>:
-> On Tue, Feb 28, 2023 at 04:18:12PM +0800, =E7=8E=8B=E6=98=8A=E7=84=B6 wro=
-te:
->> Just like symbol 'mmu_feature_keys'[1], 'cpu_feature_keys' was reference=
-d
->> indirectly by many inline functions; any GPL-incompatible modules using
->> such
->> a function will be potentially broken due to 'cpu_feature_keys' being
->> exported as GPL-only.
->>
->> For example it still breaks ZFS, see
->> https://github.com/openzfs/zfs/issues/14545
->>
->> [1]:
->> https://patchwork.ozlabs.org/project/linuxppc-dev/patch/20220329085709.4=
-132729-1-haokexin@gmail.com/
->
-> External modules are always on their own, sorry.  Especially ones that
-> are not released under the GPL.
->
-> good luck!
->
-> greg k-h
->
+Hi,
 
-Some inline functions are just powerpc implementation of some generic KPIs,
-such as flush_dcache_page, which indirectly references 'cpu_feature_keys' i=
-n
-powerpc-specific code; this essentially makes 'flush_dcache_page' GPL-only =
-in
-Linux powerpc.
-Some inline functions are just powerpc implementati
+On 2/28/23 11:05, Heikki Krogerus wrote:
+> On Tue, Feb 28, 2023 at 10:03:03AM +0100, Hans de Goede wrote:
+>> When ucsi_init() fails, ucsi->connector is NULL, yet in case of
+>> ucsi_acpi we may still get events which cause the ucs_acpi code to call
+>> ucsi_connector_change(), which then derefs the NULL ucsi->connector
+>> pointer.
+>>
+>> Fix this by adding a check for ucsi->connector being NULL, as is
+>> already done in ucsi_resume() for similar reasons.
+>>
+>> Fixes: bdc62f2bae8f ("usb: typec: ucsi: Simplified registration and I/O API")
+>> Cc: stable@vger.kernel.org
+>> Signed-off-by: Hans de Goede <hdegoede@redhat.com>
+>> ---
+>>  drivers/usb/typec/ucsi/ucsi.c | 8 +++++++-
+>>  1 file changed, 7 insertions(+), 1 deletion(-)
+>>
+>> diff --git a/drivers/usb/typec/ucsi/ucsi.c b/drivers/usb/typec/ucsi/ucsi.c
+>> index 1cf8947c6d66..e762897cb25a 100644
+>> --- a/drivers/usb/typec/ucsi/ucsi.c
+>> +++ b/drivers/usb/typec/ucsi/ucsi.c
+>> @@ -842,7 +842,13 @@ static void ucsi_handle_connector_change(struct work_struct *work)
+>>   */
+>>  void ucsi_connector_change(struct ucsi *ucsi, u8 num)
+>>  {
+>> -	struct ucsi_connector *con = &ucsi->connector[num - 1];
+>> +	struct ucsi_connector *con;
+>> +
+>> +	/* Check for ucsi_init() failure */
+>> +	if (!ucsi->connector)
+>> +		return;
+>> +
+>> +	con = &ucsi->connector[num - 1];
+>>  
+>>  	if (!(ucsi->ntfy & UCSI_ENABLE_NTFY_CONNECTOR_CHANGE)) {
+>>  		dev_dbg(ucsi->dev, "Bogus connector change event\n");
+> 
+> I think we should try to rely on that ucsi->ntfy. Would this work:
+> 
+> diff --git a/drivers/usb/typec/ucsi/ucsi.c b/drivers/usb/typec/ucsi/ucsi.c
+> index fe1963e328378..0da1e9c66971a 100644
+> --- a/drivers/usb/typec/ucsi/ucsi.c
+> +++ b/drivers/usb/typec/ucsi/ucsi.c
+> @@ -928,15 +928,13 @@ static void ucsi_handle_connector_change(struct work_struct *work)
+>   */
+>  void ucsi_connector_change(struct ucsi *ucsi, u8 num)
+>  {
+> -       struct ucsi_connector *con = &ucsi->connector[num - 1];
+> -
+>         if (!(ucsi->ntfy & UCSI_ENABLE_NTFY_CONNECTOR_CHANGE)) {
+>                 dev_dbg(ucsi->dev, "Bogus connector change event\n");
+>                 return;
+>         }
+>  
+>         if (!test_and_set_bit(EVENT_PENDING, &ucsi->flags))
+> -               schedule_work(&con->work);
+> +               schedule_work(&ucsi->connector[num - 1].work);
+>  }
+>  EXPORT_SYMBOL_GPL(ucsi_connector_change);
+>  
+
+This hunk is not necessary, the con pointer pointing to lala land is
+not an issue as long as we don't deref it. The &ucsi->connector[num - 1];
+does not deref ucsi->connector it it simply adds an offset to it and
+stores that in con (the backtrace I got pointed to the schedule_work call).
+
+But I guess your way does make it more obvious that we don't
+deref ucsi->connector.
+
+> @@ -1404,6 +1402,7 @@ static int ucsi_init(struct ucsi *ucsi)
+>         ucsi->connector = NULL;
+>  
+>  err_reset:
+> +       ucsi->ntfy = 0;
+>         memset(&ucsi->cap, 0, sizeof(ucsi->cap));
+>         ucsi_reset_ppm(ucsi);
+>  err:
+
+In would expect this to fix things, but I only have access to the monitor
+triggering this on Mondays, so I can only 100% confirm next Monday.
+
+Note this does open the race I try to fix in patch 2/3 again.
+
+So what should be done here is to make ntfy a local variable and only
+store it in ucsi->ntfy on success.
+
+Regards,
+
+Hans
+
+
+
+
