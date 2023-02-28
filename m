@@ -2,146 +2,102 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 604866A504C
-	for <lists+stable@lfdr.de>; Tue, 28 Feb 2023 01:52:52 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 21E8F6A5055
+	for <lists+stable@lfdr.de>; Tue, 28 Feb 2023 02:00:53 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229501AbjB1Awu (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Mon, 27 Feb 2023 19:52:50 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41024 "EHLO
+        id S229471AbjB1BAv (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Mon, 27 Feb 2023 20:00:51 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45986 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229644AbjB1Awp (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 27 Feb 2023 19:52:45 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A2739298DB;
-        Mon, 27 Feb 2023 16:52:43 -0800 (PST)
+        with ESMTP id S229542AbjB1BAv (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 27 Feb 2023 20:00:51 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 66CB22943F;
+        Mon, 27 Feb 2023 17:00:50 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 52E70B80DD6;
-        Tue, 28 Feb 2023 00:52:42 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id DAC39C433EF;
-        Tue, 28 Feb 2023 00:52:40 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1677545561;
-        bh=wX7w95mMFRf+sC/g2N5poZRs+gBImsllRdEeOYedA9A=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=kFx/vAvFODfYDII8Rr81BwnChAYdCNxC9tNo/Oz8VhEONHDOUm1EMX7MCdbp8A6LR
-         +oMdRD9iRi2cax4VuNTZAHEcg23Zjrrwan14eFgnL3TPGccGR8bRM14OXi9jeIrNxQ
-         s+zayBX3Z/VlntOznziR+Qqpt3c0IWFqEBOhLf44sbmRSw4ZUCWM4IIh9C60UDCWYH
-         6Dlb8UBRi8u9jKCJ2RCMIeahLTMuXGU2OZtWSgoCXZEKLa9PdMqSdQhhq7Tsvj7tdz
-         mshnY1R2JWhsL8aP2Urut2dmuVq0eN0NdnOKH6HOj7XkweUGoK/z9hW4rk8W7mE9di
-         h/8QRUJvQx5Ug==
-Date:   Mon, 27 Feb 2023 19:52:39 -0500
-From:   Sasha Levin <sashal@kernel.org>
-To:     Matthew Wilcox <willy@infradead.org>
-Cc:     Eric Biggers <ebiggers@kernel.org>, linux-kernel@vger.kernel.org,
-        stable@vger.kernel.org, viro@zeniv.linux.org.uk,
-        linux-fsdevel@vger.kernel.org
-Subject: Re: AUTOSEL process
-Message-ID: <Y/1QV9mQ31wbqFnp@sashalap>
-References: <Y/rbGxq8oAEsW28j@sol.localdomain>
- <Y/rufenGRpoJVXZr@sol.localdomain>
- <Y/ux9JLHQKDOzWHJ@sol.localdomain>
- <Y/y70zJj4kjOVfXa@sashalap>
- <Y/zswi91axMN8OsA@sol.localdomain>
- <Y/zxKOBTLXFjSVyI@sol.localdomain>
- <Y/0U8tpNkgePu00M@sashalap>
- <Y/0i5pGYjrVw59Kk@gmail.com>
- <Y/0wMiOwoeLcFefc@sashalap>
- <Y/01z4EJNfioId1d@casper.infradead.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Disposition: inline
-In-Reply-To: <Y/01z4EJNfioId1d@casper.infradead.org>
-X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
-        SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
+        by dfw.source.kernel.org (Postfix) with ESMTPS id F03B060EF6;
+        Tue, 28 Feb 2023 01:00:49 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 561F8C4339B;
+        Tue, 28 Feb 2023 01:00:49 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linux-foundation.org;
+        s=korg; t=1677546049;
+        bh=B3e9P1F/MnyxDMRlFiZFD814LT0EgrcuCfOYSdfYlPw=;
+        h=Date:To:From:Subject:From;
+        b=XnmEa7ryHfXXC2cH+IWEK8qVXXT0AS8gGoOP0AUxzly+HbIgjLXbI5g0R6QhnwuDa
+         kgoxsJRYcianmi5xCZOE38ctJDLoGQYwthws8VaJvavo1uyBy9iAJo52hehf09Inhg
+         nb9phfvCnLnjt1NUczIWyrmppSvoljWWwL4UZPME=
+Date:   Mon, 27 Feb 2023 17:00:48 -0800
+To:     mm-commits@vger.kernel.org, stable@vger.kernel.org, sj@kernel.org,
+        andrew.yang@mediatek.com, akpm@linux-foundation.org
+From:   Andrew Morton <akpm@linux-foundation.org>
+Subject: [merged mm-hotfixes-stable] mm-damon-paddr-fix-missing-folio_put.patch removed from -mm tree
+Message-Id: <20230228010049.561F8C4339B@smtp.kernel.org>
+X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,SPF_HELO_NONE,
+        SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, Feb 27, 2023 at 10:59:27PM +0000, Matthew Wilcox wrote:
->On Mon, Feb 27, 2023 at 05:35:30PM -0500, Sasha Levin wrote:
->> On Mon, Feb 27, 2023 at 09:38:46PM +0000, Eric Biggers wrote:
->> > Just because you can't be 100% certain whether a commit is a fix doesn't mean
->> > you should be rushing to backport random commits that have no indications they
->> > are fixing anything.
->>
->> The difference in opinion here is that I don't think it's rushing: the
->> stable kernel rules say a commit must be in a released kernel, while the
->> AUTOSEL timelines make it so a commit must have been in two released
->> kernels.
->
->Patches in -rc1 have been in _no_ released kernels.  I'd feel a lot
->better about AUTOSEL if it didn't pick up changes until, say, -rc4,
->unless they were cc'd to stable.
 
-This happened before my time, but -rc are considered releases.
+The quilt patch titled
+     Subject: mm/damon/paddr: fix missing folio_put()
+has been removed from the -mm tree.  Its filename was
+     mm-damon-paddr-fix-missing-folio_put.patch
 
-The counter point to your argument/ask is that if you run the numbers on
-regressions between -rc releases, it's the later one that tend to
-introduce (way) more issues.
+This patch was dropped because it was merged into the mm-hotfixes-stable branch
+of git://git.kernel.org/pub/scm/linux/kernel/git/akpm/mm
 
-I've actually written about it a few years back to ksummit discuss
-(here: https://lwn.net/Articles/753329/) because the numbers I saw
-indicate that later -rc releases are 3x likely to introduce a
-regression.
+------------------------------------------------------
+From: "andrew.yang" <andrew.yang@mediatek.com>
+Subject: mm/damon/paddr: fix missing folio_put()
+Date: Wed, 22 Feb 2023 14:42:20 +0800
 
-Linus pushed back on it saying that it is "by design" because those
-commits are way more complex than ones that land during the early -rc
-cycles.
+damon_get_folio() would always increase folio _refcount and
+folio_isolate_lru() would increase folio _refcount if the folio's lru flag
+is set.
 
-So yes, I don't mind modifying the release workflow to decrease the
-regressions we introduce, but I think that there's a difference between
-what folks see as "helpful" and the outcome it would have.
+If an unevictable folio isolated successfully, there will be two more
+_refcount.  The one from folio_isolate_lru() will be decreased in
+folio_puback_lru(), but the other one from damon_get_folio() will be left
+behind.  This causes a pin page.
 
->> > Nothing has changed, but that doesn't mean that your process is actually
->> > working.  7 days might be appropriate for something that looks like a security
->> > fix, but not for a random commit with no indications it is fixing anything.
->>
->> How do we know if this is working or not though? How do you quantify the
->> amount of useful commits?
->
->Sasha, 7 days is too short.  People have to be allowed to take holiday.
+Whatever the case, the _refcount from damon_get_folio() should be
+decreased.
 
-That's true, and I don't have strong objections to making it longer. How
-often did it happen though? We don't end up getting too many replies
-past the 7 day window.
+Link: https://lkml.kernel.org/r/20230222064223.6735-1-andrew.yang@mediatek.com
+Fixes: 57223ac29584 ("mm/damon/paddr: support the pageout scheme")
+Signed-off-by: andrew.yang <andrew.yang@mediatek.com>
+Reviewed-by: SeongJae Park <sj@kernel.org>
+Cc: <stable@vger.kernel.org>	[5.16.x]
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
+---
 
-I'll bump it to 14 days for a few months and see if it changes anything.
 
->> I'd love to improve the process, but for that we need to figure out
->> criteria for what we consider good or bad, collect data, and make
->> decisions based on that data.
->>
->> What I'm getting from this thread is a few anecdotal examples and
->> statements that the process isn't working at all.
->>
->> I took Jon's stablefixes script which he used for his previous articles
->> around stable kernel regressions (here:
->> https://lwn.net/Articles/812231/) and tried running it on the 5.15
->> stable tree (just a random pick). I've proceeded with ignoring the
->> non-user-visible regressions as Jon defined in his article (basically
->> issues that were introduced and fixed in the same releases) and ended up
->> with 604 commits that caused a user visible regression.
->>
->> Out of those 604 commits:
->>
->>  - 170 had an explicit stable tag.
->>  - 434 did not have a stable tag.
->
->I think a lot of people don't realise they have to _both_ put a Fixes
->tag _and_ add a Cc: stable.  How many of those 604 commits had a Fixes
->tag?
+--- a/mm/damon/paddr.c~mm-damon-paddr-fix-missing-folio_put
++++ a/mm/damon/paddr.c
+@@ -250,12 +250,11 @@ static unsigned long damon_pa_pageout(st
+ 			folio_put(folio);
+ 			continue;
+ 		}
+-		if (folio_test_unevictable(folio)) {
++		if (folio_test_unevictable(folio))
+ 			folio_putback_lru(folio);
+-		} else {
++		else
+ 			list_add(&folio->lru, &folio_list);
+-			folio_put(folio);
+-		}
++		folio_put(folio);
+ 	}
+ 	applied = reclaim_pages(&folio_list);
+ 	cond_resched();
+_
 
-What do you mean? Just a cc: stable tag is enough to land it in stable,
-you don't have to do both. The numbers above reflect that.
+Patches currently in -mm which might be from andrew.yang@mediatek.com are
 
-Running the numbers, there are 9422 commits with a Fixes tag in the 5.15
-tree, out of which 360 had a regression, so 360 / 9422 = 3.82%.
 
--- 
-Thanks,
-Sasha
