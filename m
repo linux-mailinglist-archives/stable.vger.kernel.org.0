@@ -2,42 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E982D6A5056
-	for <lists+stable@lfdr.de>; Tue, 28 Feb 2023 02:00:59 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 466906A5057
+	for <lists+stable@lfdr.de>; Tue, 28 Feb 2023 02:01:01 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229695AbjB1BA7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        id S229652AbjB1BA7 (ORCPT <rfc822;lists+stable@lfdr.de>);
         Mon, 27 Feb 2023 20:00:59 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46024 "EHLO
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46100 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229644AbjB1BAx (ORCPT
-        <rfc822;stable@vger.kernel.org>); Mon, 27 Feb 2023 20:00:53 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9F75D298C5;
-        Mon, 27 Feb 2023 17:00:52 -0800 (PST)
+        with ESMTP id S229682AbjB1BA6 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Mon, 27 Feb 2023 20:00:58 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5E9922943F;
+        Mon, 27 Feb 2023 17:00:55 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 38BB860F22;
-        Tue, 28 Feb 2023 01:00:52 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8EAC0C433EF;
-        Tue, 28 Feb 2023 01:00:51 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id EE9DF60F05;
+        Tue, 28 Feb 2023 01:00:54 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 52960C4339C;
+        Tue, 28 Feb 2023 01:00:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linux-foundation.org;
-        s=korg; t=1677546051;
-        bh=yvqQhrDdZcXLpGiZYmTQEkyl0wBKsmaGmR4ctm1ez1Y=;
+        s=korg; t=1677546054;
+        bh=hk6Isp83fVhMZHhaEpepdIuZyFnv0MOxbnz2+DM1gCg=;
         h=Date:To:From:Subject:From;
-        b=SkNDZGJ8EyfK1AmrfSyVcVABYyfkws+J/wAzC9EqLaODeYsidStetwKq9MswWrYIM
-         ORxSsO6lMItpNFZQM/22ZDjxm47qzIHhd5gabuWgM+aIPOyTi+bniV+gAwAD2FMY3r
-         h+FSRXoyeM7TpXnvhhVpiUhH3PULEhfF7fVWikyw=
-Date:   Mon, 27 Feb 2023 17:00:50 -0800
-To:     mm-commits@vger.kernel.org, willy@infradead.org, vbabka@suse.cz,
-        stable@vger.kernel.org, minchan@kernel.org, linmiaohe@huawei.com,
-        hughd@google.com, david@redhat.com, naoya.horiguchi@nec.com,
-        akpm@linux-foundation.org
+        b=b0W0JzGoDRtmVrAmHzBy6WXoTxHzjWKu3RYp0BP6cSS2W2Au4Q63jB58YdQqR1OC6
+         RCemlaj9IHDwBlnzz0kT9nETlGiqCpJ+84Cslf/wG0m77KosSS5PQa+kCW50MyMd/6
+         zq5QnDYbJjn84LHegnt18OFz30bXc8ldtjrB7FGs=
+Date:   Mon, 27 Feb 2023 17:00:53 -0800
+To:     mm-commits@vger.kernel.org, stable@vger.kernel.org,
+        piaojun@huawei.com, mark@fasheh.com, junxiao.bi@oracle.com,
+        joseph.qi@linux.alibaba.com, jlbec@evilplan.org,
+        heming.zhao@suse.com, ghe@suse.com, gechangwei@live.cn,
+        ocfs2-devel@oss.oracle.com, akpm@linux-foundation.org
 From:   Andrew Morton <akpm@linux-foundation.org>
-Subject: [merged mm-hotfixes-stable] mm-hwpoison-convert-ttu_ignore_hwpoison-to-ttu_hwpoison.patch removed from -mm tree
-Message-Id: <20230228010051.8EAC0C433EF@smtp.kernel.org>
-X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,SPF_HELO_NONE,
+Subject: [merged mm-hotfixes-stable] ocfs2-fix-defrag-path-triggering-jbd2-assert.patch removed from -mm tree
+Message-Id: <20230228010054.52960C4339C@smtp.kernel.org>
+X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,SPF_HELO_NONE,
         SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -47,113 +48,109 @@ X-Mailing-List: stable@vger.kernel.org
 
 
 The quilt patch titled
-     Subject: mm/hwpoison: convert TTU_IGNORE_HWPOISON to TTU_HWPOISON
+     Subject: ocfs2: fix defrag path triggering jbd2 ASSERT
 has been removed from the -mm tree.  Its filename was
-     mm-hwpoison-convert-ttu_ignore_hwpoison-to-ttu_hwpoison.patch
+     ocfs2-fix-defrag-path-triggering-jbd2-assert.patch
 
 This patch was dropped because it was merged into the mm-hotfixes-stable branch
 of git://git.kernel.org/pub/scm/linux/kernel/git/akpm/mm
 
 ------------------------------------------------------
-From: Naoya Horiguchi <naoya.horiguchi@nec.com>
-Subject: mm/hwpoison: convert TTU_IGNORE_HWPOISON to TTU_HWPOISON
-Date: Tue, 21 Feb 2023 17:59:05 +0900
+From: Heming Zhao via Ocfs2-devel <ocfs2-devel@oss.oracle.com>
+Subject: ocfs2: fix defrag path triggering jbd2 ASSERT
+Date: Fri, 17 Feb 2023 08:37:17 +0800
 
-After a memory error happens on a clean folio, a process unexpectedly
-receives SIGBUS when it accesses the error page.  This SIGBUS killing is
-pointless and simply degrades the level of RAS of the system, because the
-clean folio can be dropped without any data lost on memory error handling
-as we do for a clean pagecache.
+code path:
 
-When memory_failure() is called on a clean folio, try_to_unmap() is called
-twice (one from split_huge_page() and one from hwpoison_user_mappings()). 
-The root cause of the issue is that pte conversion to hwpoisoned entry is
-now done in the first call of try_to_unmap() because PageHWPoison is
-already set at this point, while it's actually expected to be done in the
-second call.  This behavior disturbs the error handling operation like
-removing pagecache, which results in the malfunction described above.
+ocfs2_ioctl_move_extents
+ ocfs2_move_extents
+  ocfs2_defrag_extent
+   __ocfs2_move_extent
+    + ocfs2_journal_access_di
+    + ocfs2_split_extent  //sub-paths call jbd2_journal_restart
+    + ocfs2_journal_dirty //crash by jbs2 ASSERT
 
-So convert TTU_IGNORE_HWPOISON into TTU_HWPOISON and set TTU_HWPOISON only
-when we really intend to convert pte to hwpoison entry.  This can prevent
-other callers of try_to_unmap() from accidentally converting to hwpoison
-entries.
+crash stacks:
 
-Link: https://lkml.kernel.org/r/20230221085905.1465385-1-naoya.horiguchi@linux.dev
-Fixes: a42634a6c07d ("readahead: Use a folio in read_pages()")
-Signed-off-by: Naoya Horiguchi <naoya.horiguchi@nec.com>
-Cc: David Hildenbrand <david@redhat.com>
-Cc: Hugh Dickins <hughd@google.com>
-Cc: Matthew Wilcox <willy@infradead.org>
-Cc: Miaohe Lin <linmiaohe@huawei.com>
-Cc: Minchan Kim <minchan@kernel.org>
-Cc: Vlastimil Babka <vbabka@suse.cz>
+PID: 11297  TASK: ffff974a676dcd00  CPU: 67  COMMAND: "defragfs.ocfs2"
+ #0 [ffffb25d8dad3900] machine_kexec at ffffffff8386fe01
+ #1 [ffffb25d8dad3958] __crash_kexec at ffffffff8395959d
+ #2 [ffffb25d8dad3a20] crash_kexec at ffffffff8395a45d
+ #3 [ffffb25d8dad3a38] oops_end at ffffffff83836d3f
+ #4 [ffffb25d8dad3a58] do_trap at ffffffff83833205
+ #5 [ffffb25d8dad3aa0] do_invalid_op at ffffffff83833aa6
+ #6 [ffffb25d8dad3ac0] invalid_op at ffffffff84200d18
+    [exception RIP: jbd2_journal_dirty_metadata+0x2ba]
+    RIP: ffffffffc09ca54a  RSP: ffffb25d8dad3b70  RFLAGS: 00010207
+    RAX: 0000000000000000  RBX: ffff9706eedc5248  RCX: 0000000000000000
+    RDX: 0000000000000001  RSI: ffff97337029ea28  RDI: ffff9706eedc5250
+    RBP: ffff9703c3520200   R8: 000000000f46b0b2   R9: 0000000000000000
+    R10: 0000000000000001  R11: 00000001000000fe  R12: ffff97337029ea28
+    R13: 0000000000000000  R14: ffff9703de59bf60  R15: ffff9706eedc5250
+    ORIG_RAX: ffffffffffffffff  CS: 0010  SS: 0018
+ #7 [ffffb25d8dad3ba8] ocfs2_journal_dirty at ffffffffc137fb95 [ocfs2]
+ #8 [ffffb25d8dad3be8] __ocfs2_move_extent at ffffffffc139a950 [ocfs2]
+ #9 [ffffb25d8dad3c80] ocfs2_defrag_extent at ffffffffc139b2d2 [ocfs2]
+
+Analysis
+
+This bug has the same root cause of 'commit 7f27ec978b0e ("ocfs2: call
+ocfs2_journal_access_di() before ocfs2_journal_dirty() in
+ocfs2_write_end_nolock()")'.  For this bug, jbd2_journal_restart() is
+called by ocfs2_split_extent() during defragmenting.
+
+How to fix
+
+For ocfs2_split_extent() can handle journal operations totally by itself. 
+Caller doesn't need to call journal access/dirty pair, and caller only
+needs to call journal start/stop pair.  The fix method is to remove
+journal access/dirty from __ocfs2_move_extent().
+
+The discussion for this patch:
+https://oss.oracle.com/pipermail/ocfs2-devel/2023-February/000647.html
+
+Link: https://lkml.kernel.org/r/20230217003717.32469-1-heming.zhao@suse.com
+Signed-off-by: Heming Zhao <heming.zhao@suse.com>
+Reviewed-by: Joseph Qi <joseph.qi@linux.alibaba.com>
+Cc: Mark Fasheh <mark@fasheh.com>
+Cc: Joel Becker <jlbec@evilplan.org>
+Cc: Junxiao Bi <junxiao.bi@oracle.com>
+Cc: Changwei Ge <gechangwei@live.cn>
+Cc: Gang He <ghe@suse.com>
+Cc: Jun Piao <piaojun@huawei.com>
 Cc: <stable@vger.kernel.org>
 Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
 ---
 
 
---- a/include/linux/rmap.h~mm-hwpoison-convert-ttu_ignore_hwpoison-to-ttu_hwpoison
-+++ a/include/linux/rmap.h
-@@ -94,7 +94,7 @@ enum ttu_flags {
- 	TTU_SPLIT_HUGE_PMD	= 0x4,	/* split huge PMD if any */
- 	TTU_IGNORE_MLOCK	= 0x8,	/* ignore mlock */
- 	TTU_SYNC		= 0x10,	/* avoid racy checks with PVMW_SYNC */
--	TTU_IGNORE_HWPOISON	= 0x20,	/* corrupted page is recoverable */
-+	TTU_HWPOISON		= 0x20,	/* do convert pte to hwpoison entry */
- 	TTU_BATCH_FLUSH		= 0x40,	/* Batch TLB flushes where possible
- 					 * and caller guarantees they will
- 					 * do a final flush if necessary */
---- a/mm/memory-failure.c~mm-hwpoison-convert-ttu_ignore_hwpoison-to-ttu_hwpoison
-+++ a/mm/memory-failure.c
-@@ -1069,7 +1069,7 @@ static int me_pagecache_dirty(struct pag
-  * cache and swap cache(ie. page is freshly swapped in). So it could be
-  * referenced concurrently by 2 types of PTEs:
-  * normal PTEs and swap PTEs. We try to handle them consistently by calling
-- * try_to_unmap(TTU_IGNORE_HWPOISON) to convert the normal PTEs to swap PTEs,
-+ * try_to_unmap(!TTU_HWPOISON) to convert the normal PTEs to swap PTEs,
-  * and then
-  *      - clear dirty bit to prevent IO
-  *      - remove from LRU
-@@ -1486,7 +1486,7 @@ static bool hwpoison_user_mappings(struc
- 				  int flags, struct page *hpage)
- {
- 	struct folio *folio = page_folio(hpage);
--	enum ttu_flags ttu = TTU_IGNORE_MLOCK | TTU_SYNC;
-+	enum ttu_flags ttu = TTU_IGNORE_MLOCK | TTU_SYNC | TTU_HWPOISON;
- 	struct address_space *mapping;
- 	LIST_HEAD(tokill);
- 	bool unmap_success;
-@@ -1516,7 +1516,7 @@ static bool hwpoison_user_mappings(struc
+--- a/fs/ocfs2/move_extents.c~ocfs2-fix-defrag-path-triggering-jbd2-assert
++++ a/fs/ocfs2/move_extents.c
+@@ -105,14 +105,6 @@ static int __ocfs2_move_extent(handle_t
+ 	 */
+ 	replace_rec.e_flags = ext_flags & ~OCFS2_EXT_REFCOUNTED;
  
- 	if (PageSwapCache(p)) {
- 		pr_err("%#lx: keeping poisoned page in swap cache\n", pfn);
--		ttu |= TTU_IGNORE_HWPOISON;
-+		ttu &= ~TTU_HWPOISON;
+-	ret = ocfs2_journal_access_di(handle, INODE_CACHE(inode),
+-				      context->et.et_root_bh,
+-				      OCFS2_JOURNAL_ACCESS_WRITE);
+-	if (ret) {
+-		mlog_errno(ret);
+-		goto out;
+-	}
+-
+ 	ret = ocfs2_split_extent(handle, &context->et, path, index,
+ 				 &replace_rec, context->meta_ac,
+ 				 &context->dealloc);
+@@ -121,8 +113,6 @@ static int __ocfs2_move_extent(handle_t
+ 		goto out;
  	}
  
- 	/*
-@@ -1531,7 +1531,7 @@ static bool hwpoison_user_mappings(struc
- 		if (page_mkclean(hpage)) {
- 			SetPageDirty(hpage);
- 		} else {
--			ttu |= TTU_IGNORE_HWPOISON;
-+			ttu &= ~TTU_HWPOISON;
- 			pr_info("%#lx: corrupted page was clean: dropped without side effects\n",
- 				pfn);
- 		}
---- a/mm/rmap.c~mm-hwpoison-convert-ttu_ignore_hwpoison-to-ttu_hwpoison
-+++ a/mm/rmap.c
-@@ -1602,7 +1602,7 @@ static bool try_to_unmap_one(struct foli
- 		/* Update high watermark before we lower rss */
- 		update_hiwater_rss(mm);
+-	ocfs2_journal_dirty(handle, context->et.et_root_bh);
+-
+ 	context->new_phys_cpos = new_p_cpos;
  
--		if (PageHWPoison(subpage) && !(flags & TTU_IGNORE_HWPOISON)) {
-+		if (PageHWPoison(subpage) && (flags & TTU_HWPOISON)) {
- 			pteval = swp_entry_to_pte(make_hwpoison_entry(subpage));
- 			if (folio_test_hugetlb(folio)) {
- 				hugetlb_count_sub(folio_nr_pages(folio), mm);
+ 	/*
 _
 
-Patches currently in -mm which might be from naoya.horiguchi@nec.com are
+Patches currently in -mm which might be from ocfs2-devel@oss.oracle.com are
 
 
