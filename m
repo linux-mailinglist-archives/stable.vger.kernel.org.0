@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 1AF0C6A7304
-	for <lists+stable@lfdr.de>; Wed,  1 Mar 2023 19:11:45 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id C1A3F6A72D0
+	for <lists+stable@lfdr.de>; Wed,  1 Mar 2023 19:10:12 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230023AbjCASLn (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 1 Mar 2023 13:11:43 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45934 "EHLO
+        id S229676AbjCASKL (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 1 Mar 2023 13:10:11 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42570 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230031AbjCASLm (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 1 Mar 2023 13:11:42 -0500
+        with ESMTP id S230156AbjCASJ4 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 1 Mar 2023 13:09:56 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BA6594BE8D
-        for <stable@vger.kernel.org>; Wed,  1 Mar 2023 10:11:41 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 49AA73AB8
+        for <stable@vger.kernel.org>; Wed,  1 Mar 2023 10:09:49 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 4DC046140D
-        for <stable@vger.kernel.org>; Wed,  1 Mar 2023 18:11:41 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 61E80C433EF;
-        Wed,  1 Mar 2023 18:11:40 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id DC0466145C
+        for <stable@vger.kernel.org>; Wed,  1 Mar 2023 18:09:48 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id F166BC433EF;
+        Wed,  1 Mar 2023 18:09:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1677694300;
-        bh=rwVZKUVchx2WH69jksjVxf2LBObQPlCbiwO0bDKflwU=;
+        s=korg; t=1677694188;
+        bh=Bten+99sPVsDdM0CvDxWdS7kL5uUfLWUk6B7Uc8QbuQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=esxt07IjsY82DcdYw0jrMj6vxDBUFMI/ZDcL+Lw8M8najl9yQiNtpPnuElenK0s1/
-         B4M6IfyaCtog6bRDAzO/G4N5H40bNBH28VHY/YrokAXTOen25whCiMVXm8LKsKsk/z
-         eKTdHa/T9QnzTdrCjW7kwZotPYtBN2b/zPn0Ng0k=
+        b=g63WhmSDKf/lM0WMVkcZbPxdV3/RRJb+47B4ImZLnPcKcHlUHTF0US9v1NzGli2sS
+         i1mRWTJL4ZPzv79Pyr26nni52gpEnZgKr7fjob/MMBqCrrANrX0MlUXEpTSKz2BY4G
+         E0lEq86QWnGKhouUB66qTW+e0heRRM1rq0uWGlys=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Jack Yu <jack.yu@realtek.com>,
-        Mark Brown <broonie@kernel.org>,
+        patches@lists.linux.dev,
+        syzbot+4376a9a073770c173269@syzkaller.appspotmail.com,
+        David Sterba <dsterba@suse.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 13/42] ASoC: rt715-sdca: fix clock stop prepare timeout issue
+Subject: [PATCH 5.10 05/19] btrfs: send: limit number of clones and allocated memory size
 Date:   Wed,  1 Mar 2023 19:08:34 +0100
-Message-Id: <20230301180657.635748473@linuxfoundation.org>
+Message-Id: <20230301180652.550099843@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230301180657.003689969@linuxfoundation.org>
-References: <20230301180657.003689969@linuxfoundation.org>
+In-Reply-To: <20230301180652.316428563@linuxfoundation.org>
+References: <20230301180652.316428563@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,34 +54,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jack Yu <jack.yu@realtek.com>
+From: David Sterba <dsterba@suse.com>
 
-[ Upstream commit 2036890282d56bcbf7f915ba9e04bf77967ab231 ]
+[ Upstream commit 33e17b3f5ab74af12aca58c515bc8424ff69a343 ]
 
-Modify clock_stop_timeout value for rt715-sdca according to
-the requirement of internal clock trimming.
+The arg->clone_sources_count is u64 and can trigger a warning when a
+huge value is passed from user space and a huge array is allocated.
+Limit the allocated memory to 8MiB (can be increased if needed), which
+in turn limits the number of clone sources to 8M / sizeof(struct
+clone_root) = 8M / 40 = 209715.  Real world number of clones is from
+tens to hundreds, so this is future proof.
 
-Signed-off-by: Jack Yu <jack.yu@realtek.com>
-Link: https://lore.kernel.org/r/574b6586267a458cac78c5ac4d5b10bd@realtek.com
-Signed-off-by: Mark Brown <broonie@kernel.org>
+Reported-by: syzbot+4376a9a073770c173269@syzkaller.appspotmail.com
+Signed-off-by: David Sterba <dsterba@suse.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- sound/soc/codecs/rt715-sdca-sdw.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ fs/btrfs/send.c | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/sound/soc/codecs/rt715-sdca-sdw.c b/sound/soc/codecs/rt715-sdca-sdw.c
-index 3f981a9e7fb67..c54ecf3e69879 100644
---- a/sound/soc/codecs/rt715-sdca-sdw.c
-+++ b/sound/soc/codecs/rt715-sdca-sdw.c
-@@ -167,7 +167,7 @@ static int rt715_sdca_read_prop(struct sdw_slave *slave)
+diff --git a/fs/btrfs/send.c b/fs/btrfs/send.c
+index 4a6ba0997e399..b081b61e97c8d 100644
+--- a/fs/btrfs/send.c
++++ b/fs/btrfs/send.c
+@@ -7276,10 +7276,10 @@ long btrfs_ioctl_send(struct file *mnt_file, struct btrfs_ioctl_send_args *arg)
+ 	/*
+ 	 * Check that we don't overflow at later allocations, we request
+ 	 * clone_sources_count + 1 items, and compare to unsigned long inside
+-	 * access_ok.
++	 * access_ok. Also set an upper limit for allocation size so this can't
++	 * easily exhaust memory. Max number of clone sources is about 200K.
+ 	 */
+-	if (arg->clone_sources_count >
+-	    ULONG_MAX / sizeof(struct clone_root) - 1) {
++	if (arg->clone_sources_count > SZ_8M / sizeof(struct clone_root)) {
+ 		ret = -EINVAL;
+ 		goto out;
  	}
- 
- 	/* set the timeout values */
--	prop->clk_stop_timeout = 20;
-+	prop->clk_stop_timeout = 200;
- 
- 	return 0;
- }
 -- 
 2.39.0
 
