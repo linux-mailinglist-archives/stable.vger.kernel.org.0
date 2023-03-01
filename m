@@ -2,122 +2,81 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 5D4506A7322
-	for <lists+stable@lfdr.de>; Wed,  1 Mar 2023 19:13:06 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 906E06A73AF
+	for <lists+stable@lfdr.de>; Wed,  1 Mar 2023 19:42:07 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230101AbjCASNF (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 1 Mar 2023 13:13:05 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47844 "EHLO
+        id S229572AbjCASmG (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 1 Mar 2023 13:42:06 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50306 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230090AbjCASND (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 1 Mar 2023 13:13:03 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 37166E9
-        for <stable@vger.kernel.org>; Wed,  1 Mar 2023 10:12:59 -0800 (PST)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id E0EB4B810DD
-        for <stable@vger.kernel.org>; Wed,  1 Mar 2023 18:12:57 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 42B43C433D2;
-        Wed,  1 Mar 2023 18:12:56 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1677694376;
-        bh=H+vbaKlF3niASkEneadwpflGYI2XXmOl/UHe6nopHvM=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=lU9Ikr99lrv56kxpG2+AsApnyUpIucf5dYYf8Io4W2OReutjoLuWBwf7DZesVEoai
-         nfFrfJJvp8pFA56qNK1DWoKyi7TDo77lear/YEIZh0ts1uth4DqD76UXwJ3eknDIsE
-         /0acGPmtIOZSkFyt5njWdIg3QCU2wYGopE7S8XbM=
-From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To:     stable@vger.kernel.org
-Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Alan Stern <stern@rowland.harvard.edu>,
-        Troels Liebe Bentsen <troels@connectedcars.dk>
-Subject: [PATCH 6.1 42/42] USB: core: Dont hold device lock while reading the "descriptors" sysfs file
-Date:   Wed,  1 Mar 2023 19:09:03 +0100
-Message-Id: <20230301180658.935092474@linuxfoundation.org>
-X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230301180657.003689969@linuxfoundation.org>
-References: <20230301180657.003689969@linuxfoundation.org>
-User-Agent: quilt/0.67
+        with ESMTP id S229704AbjCASmF (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 1 Mar 2023 13:42:05 -0500
+Received: from mout.gmx.net (mout.gmx.net [212.227.17.20])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5C550CC38;
+        Wed,  1 Mar 2023 10:42:04 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=gmx.de; s=s31663417;
+        t=1677696122; i=rwarsow@gmx.de;
+        bh=trABslI0EY5unTvNoBVGKJf0c9Ev0JvkvIoY3Doq0AI=;
+        h=X-UI-Sender-Class:Date:From:To:Cc:Subject;
+        b=XSRqpkY5zbBGodX8BNUJ05pmSpInXAt8YWZOPTYlVbVC6uOzUpQcE6KX5yeLBpuJE
+         HwdBpxyvWmQ/TxI8e+LA+TV+V+4xp0hYpPwf9jOu9HDUt73EVqKuW+qm5OtIMnZZ6Y
+         sd1Pm6F4jS6ZI6hQFohrvkyfDIiKhLtIgKRIEFtTTzxi7E6SqXPMJsvSJaq+eGmbYL
+         oV5dAM4OYqQ/rcdtBqWWX90WYamWrK+1XKKjQQ9/WxjPjutqy7iRG9ApWGmSoTm8c8
+         ZstjFAhecmI5G///7jyYKG307vjvqSI3ubKGkLypqairl+vtcEIZ9HnSxhcp9dAvKA
+         RifIzVSu3QOhA==
+X-UI-Sender-Class: 724b4f7f-cbec-4199-ad4e-598c01a50d3a
+Received: from [192.168.100.20] ([46.142.32.237]) by mail.gmx.net (mrgmx104
+ [212.227.17.168]) with ESMTPSA (Nemesis) id 1N0G1n-1oaEVJ2xWx-00xMOT; Wed, 01
+ Mar 2023 19:42:02 +0100
+Message-ID: <6eb685c2-6a13-ec1d-ca98-cead97f1c75a@gmx.de>
+Date:   Wed, 1 Mar 2023 19:42:02 +0100
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
-        SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
+ Thunderbird/102.8.0
+From:   Ronald Warsow <rwarsow@gmx.de>
+To:     linux-kernel@vger.kernel.org
+Cc:     stable@vger.kernel.org
+Content-Language: de-DE
+Subject: Re: [PATCH 6.2 00/16] 6.2.2-rc1 review
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Provags-ID: V03:K1:d+gSyua7o8uwSCqc5uu0DzSVo2Xg4ZGldDZI7/rPpbt0KNfWhGv
+ dr22N4Io8WYin6NQJvdjvKrqe0nXNTj8rvJ429/kboANKUUjKs1lapQwqJqO8vPKdYCbNzF
+ URz5J96hMd4X5+Y0iByEF3yLeLwKMcROMiGI3EWgSrcTtCrO85w+HkS2vo3z6x52BmdQa43
+ ALJ2aTBOTPw7Aw8i+Gqrw==
+UI-OutboundReport: notjunk:1;M01:P0:vtuTygJiRIE=;t9Ih4BeZHHHItU0JfTOlupn+6DR
+ ENqWL1/223/SGUaL16sEk5MPiIAtIj7213RIweLdpnBeMlRfaL4aQH/Gmi+yPEFWFbQuRFBQ0
+ 8mouEofocbV9nYMl5u9V5ZjiK0ZgUv5ZK6QSgy38lMoXdtRcDi8nRq1ULWfN7qEDt4JcrcQhk
+ ocoTlcUzRHR/VxbzeZ/DBEFGkkIhkqDG+2V1jEN5gwgVRq3fbPThdIQxzNffPeNm0H4LU/nO2
+ Na7qVqtMf2zawemwC/hkeZ/vQTkATy8gp/CF8TCguUxx1fgO9bfNC/KiKKWBhHVdzYDaP4Ein
+ wQV/BYQO4qJryjTDpf1F79te00fGWCMSAhqGdhdJ/3DS8nvpEL0mXBJwBxW04B6A5KlfZgwW1
+ uKb47S/VuGJKLmwAgfTd5BIS9XG/1bX0NST+X4wZ4Y3e0uTvmDHOsDV9aLqE3EBE2avqygKEc
+ LT+Gfa+L5ME6hMQFTeynve1VOwiruuQYELLTMPwFIsOfCoX+8FTxKm6cCI7bjB6zm6TinQmZt
+ BwJWSeB98ibqSK4JM3BaYuo9QvzHEgpwgKkBUvbuIzRyzGz2YrUmZhfXGv8gW/UOYQMebzeCV
+ ZfYFueAeO+Z/kX3ZRXC9paaqpgQFFOa+CrKqiSLdeYLYP/3CFaHVmI3ZtpZs3+wsUoabjknbx
+ QSEyTo3YBz+U6E51oLX4o0hhd5yvItTPltPLy6Ij3JZbnk01psZwFu8d6sY1zyCXJpZVf51rM
+ wamZWllzm/lNu72DNxPg0GSSUqA/fWT2423qS7MoVShThpM61eKzO05F/dckvYDyaTIhX27GO
+ 6f9FW3drSGK/MFTdeHiWAuxQXVAiQQ5ooo7kYeYSTF8qH0MzevK4kB3DbEwI2KaWBZwB0Jt3m
+ x2nspEqkgTXw3teA1DCJ3v6Rh9dnBPQNYxqY1WpOSJVDdnHd4KFPahNMiVOZNvQFch1/2HXEk
+ N1Q8Ng==
+X-Spam-Status: No, score=-2.8 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_FROM,RCVD_IN_DNSWL_LOW,
+        RCVD_IN_MSPIKE_H2,SPF_HELO_NONE,SPF_PASS autolearn=ham
+        autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alan Stern <stern@rowland.harvard.edu>
+Hi Greg
 
-commit 45bf39f8df7f05efb83b302c65ae3b9bc92b7065 upstream.
+6.2.2-rc1
 
-Ever since commit 83e83ecb79a8 ("usb: core: get config and string
-descriptors for unauthorized devices") was merged in 2013, there has
-been no mechanism for reallocating the rawdescriptors buffers in
-struct usb_device after the initial enumeration.  Before that commit,
-the buffers would be deallocated when a device was deauthorized and
-reallocated when it was authorized and enumerated.
+compiles, boots and runs here on x86_64
+(Intel i5-11400, Fedora 37)
 
-This means that the locking in the read_descriptors() routine is not
-needed, since the buffers it reads will never be reallocated while the
-routine is running.  This locking can interfere with user programs
-trying to read a hub's descriptors via sysfs while new child devices
-of the hub are being initialized, since the hub is locked during this
-procedure.
+Thanks
 
-Since the locking in read_descriptors() hasn't been needed for over
-nine years, we can remove it.
-
-Reported-and-tested-by: Troels Liebe Bentsen <troels@connectedcars.dk>
-Signed-off-by: Alan Stern <stern@rowland.harvard.edu>
-CC: stable@vger.kernel.org
-Link: https://lore.kernel.org/r/Y9l+wDTRbuZABzsE@rowland.harvard.edu
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
----
- drivers/usb/core/hub.c   |    5 ++---
- drivers/usb/core/sysfs.c |    5 -----
- 2 files changed, 2 insertions(+), 8 deletions(-)
-
---- a/drivers/usb/core/hub.c
-+++ b/drivers/usb/core/hub.c
-@@ -2389,9 +2389,8 @@ static int usb_enumerate_device_otg(stru
-  * usb_enumerate_device - Read device configs/intfs/otg (usbcore-internal)
-  * @udev: newly addressed device (in ADDRESS state)
-  *
-- * This is only called by usb_new_device() and usb_authorize_device()
-- * and FIXME -- all comments that apply to them apply here wrt to
-- * environment.
-+ * This is only called by usb_new_device() -- all comments that apply there
-+ * apply here wrt to environment.
-  *
-  * If the device is WUSB and not authorized, we don't attempt to read
-  * the string descriptors, as they will be errored out by the device
---- a/drivers/usb/core/sysfs.c
-+++ b/drivers/usb/core/sysfs.c
-@@ -868,11 +868,7 @@ read_descriptors(struct file *filp, stru
- 	size_t srclen, n;
- 	int cfgno;
- 	void *src;
--	int retval;
- 
--	retval = usb_lock_device_interruptible(udev);
--	if (retval < 0)
--		return -EINTR;
- 	/* The binary attribute begins with the device descriptor.
- 	 * Following that are the raw descriptor entries for all the
- 	 * configurations (config plus subsidiary descriptors).
-@@ -897,7 +893,6 @@ read_descriptors(struct file *filp, stru
- 			off -= srclen;
- 		}
- 	}
--	usb_unlock_device(udev);
- 	return count - nleft;
- }
- 
-
+Tested-by: Ronald Warsow <rwarsow@gmx.de>
 
