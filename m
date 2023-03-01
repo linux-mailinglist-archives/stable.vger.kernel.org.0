@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 7B3376A70F4
-	for <lists+stable@lfdr.de>; Wed,  1 Mar 2023 17:29:58 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 773836A70F7
+	for <lists+stable@lfdr.de>; Wed,  1 Mar 2023 17:30:06 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229874AbjCAQ34 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 1 Mar 2023 11:29:56 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49300 "EHLO
+        id S229903AbjCAQaD (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 1 Mar 2023 11:30:03 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49328 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229781AbjCAQ3u (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 1 Mar 2023 11:29:50 -0500
+        with ESMTP id S229879AbjCAQ3w (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 1 Mar 2023 11:29:52 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 29831303C2;
-        Wed,  1 Mar 2023 08:29:46 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 36BBBFF05;
+        Wed,  1 Mar 2023 08:29:47 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id B3DA761444;
+        by dfw.source.kernel.org (Postfix) with ESMTPS id CA1F861447;
+        Wed,  1 Mar 2023 16:29:46 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 96E5AC4339E;
         Wed,  1 Mar 2023 16:29:45 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 64367C4339C;
-        Wed,  1 Mar 2023 16:29:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1677688185;
-        bh=0tZ/4NzooGbrjMVXg9sTdBqHaTj1hP3blSQVZAnuiwo=;
+        s=k20201202; t=1677688186;
+        bh=YKefre9Jvc6Lxl3JY7rnaim0zfA+qJGhlhH0R3hZHcI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=IB3Izuyx5OSMr6Sxv6dUsge6pC26sJFV+jaC3stEfSyjoRgnoC8SKKcO5Ocb7fl/9
-         4/SU3v0X8TyVJ2Had4YgGM4ZCC/r3ljwQW3RcP0FgymQDgjMCr3SuzPyMXvyGG1vXN
-         zNwxmAijIP678swSn/Rr0UpFRyGzhChX6+7byUagfEkKx+z+SwFritvc6p5ZZ1/d/l
-         PVFBuoBWsEk+lbvWOowYP3SZcw2FOFFnxJcZJ2fSdqSbsxBQxs+dW0yG/o5WNLTnxn
-         GmvDzc+jf6LNw8DPzsqw24xxi2x/q65QW641kvdfn6zCLwi+8lFJ3NQVh1gMg5diBc
-         k1GHQCdmgw+BQ==
+        b=BlRexvhIbkwaXzYzkvNfZdEIF1NVLPWtzVWcpXJM3Zoit081TA06JagP23G+Z+A8g
+         qb5c52naxiSjiE6YDil1myvavAcHfQE4W8jo8jyb51Ru5yE+4o6F5Zx/OtrZFKvjCU
+         yuPE5PmoPVYuQrn8OtwrM32gVmdDa2A3rHCDLyzDMdwuCMRCJ2iBxNDwDmoeZqCju4
+         aJtwZ9rdD1GZlZEyUah7U0qEKek2uT5mo+C4cFmjCE4PDMwX8lGlWLFfZIm0iBQCxg
+         CmtZ26ZQic0HJYdMyFE3b+b/17S2HRUxyVTvwIgGSmjoM+GrPg0Jmilf4XrwTzL+f+
+         oG09f9X3LxR4g==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Darrell Kavanagh <darrell.kavanagh@gmail.com>,
-        Hans de Goede <hdegoede@redhat.com>,
-        Ard Biesheuvel <ardb@kernel.org>,
-        Sasha Levin <sashal@kernel.org>, linux-efi@vger.kernel.org
-Subject: [PATCH AUTOSEL 6.1 4/6] firmware/efi sysfb_efi: Add quirk for Lenovo IdeaPad Duet 3
-Date:   Wed,  1 Mar 2023 11:29:36 -0500
-Message-Id: <20230301162938.1302886-4-sashal@kernel.org>
+Cc:     Souradeep Chowdhury <quic_schowdhu@quicinc.com>,
+        Masami Hiramatsu <mhiramat@kernel.org>,
+        Sasha Levin <sashal@kernel.org>,
+        linux-trace-kernel@vger.kernel.org
+Subject: [PATCH AUTOSEL 6.1 5/6] bootconfig: Increase max nodes of bootconfig from 1024 to 8192 for DCC support
+Date:   Wed,  1 Mar 2023 11:29:37 -0500
+Message-Id: <20230301162938.1302886-5-sashal@kernel.org>
 X-Mailer: git-send-email 2.39.2
 In-Reply-To: <20230301162938.1302886-1-sashal@kernel.org>
 References: <20230301162938.1302886-1-sashal@kernel.org>
@@ -56,40 +56,37 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Darrell Kavanagh <darrell.kavanagh@gmail.com>
+From: Souradeep Chowdhury <quic_schowdhu@quicinc.com>
 
-[ Upstream commit e1d447157f232c650e6f32c9fb89ff3d0207c69a ]
+[ Upstream commit 6c40624930c58529185a257380442547580ed837 ]
 
-Another Lenovo convertable which reports a landscape resolution of
-1920x1200 with a pitch of (1920 * 4) bytes, while the actual framebuffer
-has a resolution of 1200x1920 with a pitch of (1200 * 4) bytes.
+The Data Capture and Compare(DCC) is a debugging tool that uses the bootconfig
+for configuring the register values during boot-time. Increase the max nodes
+supported by bootconfig to cater to the requirements of the Data Capture and
+Compare Driver.
 
-Signed-off-by: Darrell Kavanagh <darrell.kavanagh@gmail.com>
-Reviewed-by: Hans de Goede <hdegoede@redhat.com>
-Signed-off-by: Ard Biesheuvel <ardb@kernel.org>
+Link: https://lore.kernel.org/all/1674536682-18404-1-git-send-email-quic_schowdhu@quicinc.com/
+
+Signed-off-by: Souradeep Chowdhury <quic_schowdhu@quicinc.com>
+Acked-by: Masami Hiramatsu (Google) <mhiramat@kernel.org>
+Signed-off-by: Masami Hiramatsu (Google) <mhiramat@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/firmware/efi/sysfb_efi.c | 8 ++++++++
- 1 file changed, 8 insertions(+)
+ include/linux/bootconfig.h | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/firmware/efi/sysfb_efi.c b/drivers/firmware/efi/sysfb_efi.c
-index 7882d4b3f2be4..f06fdacc9bc83 100644
---- a/drivers/firmware/efi/sysfb_efi.c
-+++ b/drivers/firmware/efi/sysfb_efi.c
-@@ -264,6 +264,14 @@ static const struct dmi_system_id efifb_dmi_swap_width_height[] __initconst = {
- 					"Lenovo ideapad D330-10IGM"),
- 		},
- 	},
-+	{
-+		/* Lenovo IdeaPad Duet 3 10IGL5 with 1200x1920 portrait screen */
-+		.matches = {
-+			DMI_EXACT_MATCH(DMI_SYS_VENDOR, "LENOVO"),
-+			DMI_EXACT_MATCH(DMI_PRODUCT_VERSION,
-+					"IdeaPad Duet 3 10IGL5"),
-+		},
-+	},
- 	{},
- };
+diff --git a/include/linux/bootconfig.h b/include/linux/bootconfig.h
+index 1611f9db878e7..ca73940e26df8 100644
+--- a/include/linux/bootconfig.h
++++ b/include/linux/bootconfig.h
+@@ -59,7 +59,7 @@ struct xbc_node {
+ /* Maximum size of boot config is 32KB - 1 */
+ #define XBC_DATA_MAX	(XBC_VALUE - 1)
+ 
+-#define XBC_NODE_MAX	1024
++#define XBC_NODE_MAX	8192
+ #define XBC_KEYLEN_MAX	256
+ #define XBC_DEPTH_MAX	16
  
 -- 
 2.39.2
