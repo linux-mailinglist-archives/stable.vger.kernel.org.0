@@ -2,47 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 798826A7104
-	for <lists+stable@lfdr.de>; Wed,  1 Mar 2023 17:30:35 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0D5C76A7106
+	for <lists+stable@lfdr.de>; Wed,  1 Mar 2023 17:30:40 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229936AbjCAQad (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 1 Mar 2023 11:30:33 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51116 "EHLO
+        id S229754AbjCAQaf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 1 Mar 2023 11:30:35 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50106 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229617AbjCAQaQ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 1 Mar 2023 11:30:16 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 57A8648E2F;
-        Wed,  1 Mar 2023 08:29:56 -0800 (PST)
+        with ESMTP id S229940AbjCAQaR (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 1 Mar 2023 11:30:17 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 699A848E17;
+        Wed,  1 Mar 2023 08:29:57 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id E95ECB810BF;
+        by ams.source.kernel.org (Postfix) with ESMTPS id 0FC84B810BD;
+        Wed,  1 Mar 2023 16:29:56 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2AF1AC433A0;
         Wed,  1 Mar 2023 16:29:54 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D1CA4C433D2;
-        Wed,  1 Mar 2023 16:29:52 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1677688193;
-        bh=dHotbitnGUdIopNw20MhJvLvqsb6KXrudSRC27coLOY=;
+        s=k20201202; t=1677688194;
+        bh=C/HEXUwI16DTFmD4rCEdv7dMT3ZhMhXrQLY653A5cCI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=FLaBmumLOiFvx8T+c49ojYwz9VHhCtYYLKvVGFBD6z+IxpyFC+ofK13GnTQLvrvmU
-         7HBt+f7fjusYrO9S3F1+zwPutxSjocAF+E6FKh/xoSjzQBf7k/8EpE/a8s/+AiCMOQ
-         GBZD+VwGSMK80F2PASCFRkPB0fLjDR1HPzs3o9TDwimjhUycLB0mazLXFLrw/TOb9o
-         1bObIUhc+1Drb/0Kl5oC07WqybiRNcOFP4/xOyEUjpz48zRml4kP9isZF5Su57n1i9
-         hrfuLhGa2aPsLxulMQr8W4z98qxdWsqwurcqUdS3bTfW8gafSNpu4Q+ndbX8UbASLe
-         qwEAEbKPjhfpw==
+        b=u2lW/KmSE26Pr2y1OhhhJdV5yO0bLOI9MzNLmal9ao/B2ErhCipzvae+I/C9MRuaw
+         TQDBISnYD2b7Fgj6D5Xq0zgOJvEvIkXq9iunmCgymU9FHKgN3UXG7JX4CoxVinZ9fG
+         Xlt8EV3oUxYYGJAv2yqCBh6p2DZot1Ph/ZYjKQzK77KrawE5JU2CfVVO1ozD7TOr5k
+         NiBx4qaChYuVdryXccBBCijIBCaPYnZOSKBI/7JLFeTUCxDVKN6L2NtBN1c9Aw1RX+
+         Br3vA/vIPpmFZvhGkFS4KuVM6BL17LzeWh8iz5QTV97dETEdU+vToBepg5SSeSYS+Q
+         1YNlOgPNAO5uA==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Chris Down <chris@chrisdown.name>,
-        Petr Mladek <pmladek@suse.com>,
-        Sergey Senozhatsky <senozhatsky@chromium.org>,
-        Steven Rostedt <rostedt@goodmis.org>,
-        John Ogness <john.ogness@linutronix.de>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 5.15 3/6] kernel/printk/index.c: fix memory leak with using debugfs_lookup()
-Date:   Wed,  1 Mar 2023 11:29:45 -0500
-Message-Id: <20230301162948.1302994-3-sashal@kernel.org>
+Cc:     Darrell Kavanagh <darrell.kavanagh@gmail.com>,
+        Hans de Goede <hdegoede@redhat.com>,
+        Ard Biesheuvel <ardb@kernel.org>,
+        Sasha Levin <sashal@kernel.org>, linux-efi@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.15 4/6] firmware/efi sysfb_efi: Add quirk for Lenovo IdeaPad Duet 3
+Date:   Wed,  1 Mar 2023 11:29:46 -0500
+Message-Id: <20230301162948.1302994-4-sashal@kernel.org>
 X-Mailer: git-send-email 2.39.2
 In-Reply-To: <20230301162948.1302994-1-sashal@kernel.org>
 References: <20230301162948.1302994-1-sashal@kernel.org>
@@ -50,8 +47,8 @@ MIME-Version: 1.0
 X-stable: review
 X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
         SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -59,45 +56,41 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+From: Darrell Kavanagh <darrell.kavanagh@gmail.com>
 
-[ Upstream commit 55bf243c514553e907efcf2bda92ba090eca8c64 ]
+[ Upstream commit e1d447157f232c650e6f32c9fb89ff3d0207c69a ]
 
-When calling debugfs_lookup() the result must have dput() called on it,
-otherwise the memory will leak over time.  To make things simpler, just
-call debugfs_lookup_and_remove() instead which handles all of the logic
-at once.
+Another Lenovo convertable which reports a landscape resolution of
+1920x1200 with a pitch of (1920 * 4) bytes, while the actual framebuffer
+has a resolution of 1200x1920 with a pitch of (1200 * 4) bytes.
 
-Cc: Chris Down <chris@chrisdown.name>
-Cc: Petr Mladek <pmladek@suse.com>
-Cc: Sergey Senozhatsky <senozhatsky@chromium.org>
-Cc: Steven Rostedt <rostedt@goodmis.org>
-Cc: John Ogness <john.ogness@linutronix.de>
-Cc: linux-kernel@vger.kernel.org
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Reviewed-by: Sergey Senozhatsky <senozhatsky@chromium.org>
-Reviewed-by: John Ogness <john.ogness@linutronix.de>
-Reviewed-by: Petr Mladek <pmladek@suse.com>
-Signed-off-by: Petr Mladek <pmladek@suse.com>
-Link: https://lore.kernel.org/r/20230202151411.2308576-1-gregkh@linuxfoundation.org
+Signed-off-by: Darrell Kavanagh <darrell.kavanagh@gmail.com>
+Reviewed-by: Hans de Goede <hdegoede@redhat.com>
+Signed-off-by: Ard Biesheuvel <ardb@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/printk/index.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/firmware/efi/sysfb_efi.c | 8 ++++++++
+ 1 file changed, 8 insertions(+)
 
-diff --git a/kernel/printk/index.c b/kernel/printk/index.c
-index d3709408debe9..d23b8f8a51db5 100644
---- a/kernel/printk/index.c
-+++ b/kernel/printk/index.c
-@@ -146,7 +146,7 @@ static void pi_create_file(struct module *mod)
- #ifdef CONFIG_MODULES
- static void pi_remove_file(struct module *mod)
- {
--	debugfs_remove(debugfs_lookup(pi_get_module_name(mod), dfs_index));
-+	debugfs_lookup_and_remove(pi_get_module_name(mod), dfs_index);
- }
+diff --git a/drivers/firmware/efi/sysfb_efi.c b/drivers/firmware/efi/sysfb_efi.c
+index 4c7c9dd7733f9..6aa2bb5bbd5e4 100644
+--- a/drivers/firmware/efi/sysfb_efi.c
++++ b/drivers/firmware/efi/sysfb_efi.c
+@@ -266,6 +266,14 @@ static const struct dmi_system_id efifb_dmi_swap_width_height[] __initconst = {
+ 					"Lenovo ideapad D330-10IGM"),
+ 		},
+ 	},
++	{
++		/* Lenovo IdeaPad Duet 3 10IGL5 with 1200x1920 portrait screen */
++		.matches = {
++			DMI_EXACT_MATCH(DMI_SYS_VENDOR, "LENOVO"),
++			DMI_EXACT_MATCH(DMI_PRODUCT_VERSION,
++					"IdeaPad Duet 3 10IGL5"),
++		},
++	},
+ 	{},
+ };
  
- static int pi_module_notify(struct notifier_block *nb, unsigned long op,
 -- 
 2.39.2
 
