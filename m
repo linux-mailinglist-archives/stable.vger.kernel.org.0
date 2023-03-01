@@ -2,89 +2,101 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 428AE6A71D8
-	for <lists+stable@lfdr.de>; Wed,  1 Mar 2023 18:10:23 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 96D266A7208
+	for <lists+stable@lfdr.de>; Wed,  1 Mar 2023 18:26:53 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229708AbjCARKV (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 1 Mar 2023 12:10:21 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39602 "EHLO
+        id S229777AbjCAR0v (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 1 Mar 2023 12:26:51 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55614 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229702AbjCARKU (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 1 Mar 2023 12:10:20 -0500
-Received: from casper.infradead.org (casper.infradead.org [IPv6:2001:8b0:10b:1236::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E21A038E88
-        for <stable@vger.kernel.org>; Wed,  1 Mar 2023 09:10:17 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
-        d=infradead.org; s=casper.20170209; h=Content-Transfer-Encoding:MIME-Version:
-        Message-Id:Date:Subject:Cc:To:From:Sender:Reply-To:Content-Type:Content-ID:
-        Content-Description:In-Reply-To:References;
-        bh=WeeAqYI9r57pFrLE+XdluqVrN7zxZ34DHvFAzRFQHNM=; b=I7v+m7aJmUFD/dKTXYSrk9VPfx
-        Q6uB/99hmileA6waPBXDzrEVXu2qaWWXa+0sas05Ue5Q6wpONt/kF+SzxCpweS5BfwYMPznq/XzIK
-        v6m+lxZbxNPL0+fkYkmCe4uyZACHe8eiDtrudY1SlVqq5eWZAqnKWuZ3I03C9ajSwCXFSG99o0cnf
-        gidcW2Mn5vJqLaIjxGvd9iXYal/nE7KRvc/8gdKdPwlXZYDvKpuIR9dafpNCCLjNKjWZvETYFwsSd
-        Wpq6mZlLxZMND530zH4ZANqPmHxfPy5q6NG6Z8vN9NyI2rXQX4nrDR+oV3DULIcWAnqHhDZMv937v
-        VRu0bfaA==;
-Received: from willy by casper.infradead.org with local (Exim 4.94.2 #2 (Red Hat Linux))
-        id 1pXPy1-001lWN-Up; Wed, 01 Mar 2023 17:10:13 +0000
-From:   "Matthew Wilcox (Oracle)" <willy@infradead.org>
-To:     Christoph Hellwig <hch@lst.de>,
-        Alexander Viro <viro@zeniv.linux.org.uk>, security@kernel.org
-Cc:     "Matthew Wilcox (Oracle)" <willy@infradead.org>,
-        stable@vger.kernel.org
-Subject: [PATCH] freevxfs: Fix kernel memory exposure with inline files
-Date:   Wed,  1 Mar 2023 17:10:07 +0000
-Message-Id: <20230301171007.420708-1-willy@infradead.org>
-X-Mailer: git-send-email 2.37.1
+        with ESMTP id S229530AbjCAR0u (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 1 Mar 2023 12:26:50 -0500
+Received: from mail-ed1-x52d.google.com (mail-ed1-x52d.google.com [IPv6:2a00:1450:4864:20::52d])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E9D98367E6
+        for <stable@vger.kernel.org>; Wed,  1 Mar 2023 09:26:47 -0800 (PST)
+Received: by mail-ed1-x52d.google.com with SMTP id s26so56757395edw.11
+        for <stable@vger.kernel.org>; Wed, 01 Mar 2023 09:26:47 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=linuxfoundation.org; s=google; t=1677691606;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=JBUdOkhZDhGTfbkVjVWJFke9kip+9af6zApOUg8Q8Pw=;
+        b=RYmAQdCJZzxNHZOyt8zK30FB21DTqRixN5kVrkIMX33OYkJdl8jePPjKFpT0JXl1su
+         tuNcfz0hAtMNg98mnP/4OkRBvPjYrOzr0wAoZ4Gp5JnCngONxSvJU9niyLOeq69PgKHI
+         oBz5ZwxBUPlQxCeuZj+pgykQMmYFjh12MBoz8=
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112; t=1677691606;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=JBUdOkhZDhGTfbkVjVWJFke9kip+9af6zApOUg8Q8Pw=;
+        b=mvj/m86IwCmCP6F5pwJgBpXrJ6QXQb/hQ6iYTzgYT5nYqo1N+xnPnP9ATY1ggyP5WA
+         i5wEK4N8hK5Gg86s2UAwCKgUTWsxa7UrqH8xi1lG5YYQVEd87rPdMoffNnxXELFbr52u
+         ZXG7CVnbhsvClaJxZ0SDoZDX5UHuu7+ZshSaza2IuZSnifmQ617JWu7axxMCaJm7h5Fp
+         4xFefKvkhzcPV1Hfs7Wjsfvb6/SwgNdqp1bwSAy5qKUAe0sL9IiHWGuBzO1pSKj0fXg/
+         BlLBl0Sg/MIz4pe9OZZTzq1A3znc/X+xfUgPrgJI47rCr3xyiFDYo+/m+CdRmHaMj6cN
+         gkVw==
+X-Gm-Message-State: AO0yUKU0znxSwOlApe4a+wbWfvAyGCKfecpm6PigehkqLQZRs/AQnKgA
+        mOzIi4eVoqejkxsdsllXtYEfepixQJXt076b/JJUjw==
+X-Google-Smtp-Source: AK7set+j24zWW7YH2Omg0WGAOyfOML8BGR+KqhA6JXzKDSzoHqChqo6lRINwDfoTmHTWU9Vau62DWQ==
+X-Received: by 2002:aa7:c90c:0:b0:4aa:b63f:a0e with SMTP id b12-20020aa7c90c000000b004aab63f0a0emr7125740edt.17.1677691606051;
+        Wed, 01 Mar 2023 09:26:46 -0800 (PST)
+Received: from mail-ed1-f43.google.com (mail-ed1-f43.google.com. [209.85.208.43])
+        by smtp.gmail.com with ESMTPSA id f25-20020a170906139900b008eddbd46d7esm6022012ejc.31.2023.03.01.09.26.45
+        for <stable@vger.kernel.org>
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Wed, 01 Mar 2023 09:26:45 -0800 (PST)
+Received: by mail-ed1-f43.google.com with SMTP id u9so7413843edd.2
+        for <stable@vger.kernel.org>; Wed, 01 Mar 2023 09:26:45 -0800 (PST)
+X-Received: by 2002:a50:8e5b:0:b0:4ab:3a49:68b9 with SMTP id
+ 27-20020a508e5b000000b004ab3a4968b9mr4039033edx.5.1677691604823; Wed, 01 Mar
+ 2023 09:26:44 -0800 (PST)
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,SPF_HELO_NONE,
-        SPF_NONE autolearn=ham autolearn_force=no version=3.4.6
+References: <20230301171007.420708-1-willy@infradead.org>
+In-Reply-To: <20230301171007.420708-1-willy@infradead.org>
+From:   Linus Torvalds <torvalds@linuxfoundation.org>
+Date:   Wed, 1 Mar 2023 09:26:27 -0800
+X-Gmail-Original-Message-ID: <CAHk-=wi5b+-Hys_8V7asP13EY=YSA8MUv=DwP7WK7mKeNvpRFw@mail.gmail.com>
+Message-ID: <CAHk-=wi5b+-Hys_8V7asP13EY=YSA8MUv=DwP7WK7mKeNvpRFw@mail.gmail.com>
+Subject: Re: [PATCH] freevxfs: Fix kernel memory exposure with inline files
+To:     "Matthew Wilcox (Oracle)" <willy@infradead.org>
+Cc:     Christoph Hellwig <hch@lst.de>,
+        Alexander Viro <viro@zeniv.linux.org.uk>, security@kernel.org,
+        stable@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
+X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_NONE,
+        SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-The memcpy() will unconditionally copy PAGE_SIZE bytes, which far exceeds
-the length of the array (96 bytes) that it's copying from.  You can't
-see the results using read() because it'll be limmited by i_size (which
-is less than 96 bytes), but if you mmap the file, you can load the bytes
-from the page which are beyond i_size.  We need to zero the tail of the
-page before marking it uptodate.
+On Wed, Mar 1, 2023 at 9:10=E2=80=AFAM Matthew Wilcox (Oracle)
+<willy@infradead.org> wrote:
+>
+> +       memcpy_to_file_folio(folio, 0, vip->vii_immed.vi_immed, isize);
 
-Cc: stable@vger.kernel.org
-Fixes: 1da177e4c3f4 ("Linux-2.6.12-rc2") # actually v2.4.4.4
-Signed-off-by: Matthew Wilcox (Oracle) <willy@infradead.org>
----
- fs/freevxfs/vxfs_immed.c | 13 +++++--------
- 1 file changed, 5 insertions(+), 8 deletions(-)
+Well, this function doesn't exist upstream yet, much less in any
+stable kernels..
 
-diff --git a/fs/freevxfs/vxfs_immed.c b/fs/freevxfs/vxfs_immed.c
-index 9b49ec36e667..c49612a24c18 100644
---- a/fs/freevxfs/vxfs_immed.c
-+++ b/fs/freevxfs/vxfs_immed.c
-@@ -30,15 +30,12 @@
-  */
- static int vxfs_immed_read_folio(struct file *fp, struct folio *folio)
- {
--	struct vxfs_inode_info *vip = VXFS_INO(folio->mapping->host);
--	void *src = vip->vii_immed.vi_immed + folio_pos(folio);
--	unsigned long i;
--
--	for (i = 0; i < folio_nr_pages(folio); i++) {
--		memcpy_to_page(folio_page(folio, i), 0, src, PAGE_SIZE);
--		src += PAGE_SIZE;
--	}
-+	struct inode *inode = folio->mapping->host;
-+	struct vxfs_inode_info *vip = VXFS_INO(inode);
-+	loff_t isize = i_size_read(inode);
- 
-+	memcpy_to_file_folio(folio, 0, vip->vii_immed.vi_immed, isize);
-+	folio_zero_segment(folio, isize, folio_size(folio));
- 	folio_mark_uptodate(folio);
- 	folio_unlock(folio);
- 
--- 
-2.39.1
+In fact, I can't find any sign of that function *anywhere*. Searching
+for it on lkml finds zero hits, as does linux-next.
 
+Is it something hidden in your personal tree, or is my grep failing
+because the function generation is behind some macro magic?
+
+And while I'm on this subject: the "memcpy_from_file_folio()"
+interface is horrendously broken. For the highmem case, it shouldn't
+be an inline function, and it should loop over pages - instead of
+leaving the callers having to do that.
+
+Of course, callers don't actually do that (since there are no callers
+- unless I'm again missing it due to some macro games with token
+concatenation), but I really wish it was fixed before any callers
+appear.
+
+               Linus
