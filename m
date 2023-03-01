@@ -2,64 +2,76 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 0737E6A6D00
-	for <lists+stable@lfdr.de>; Wed,  1 Mar 2023 14:26:49 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8F1DA6A6D6B
+	for <lists+stable@lfdr.de>; Wed,  1 Mar 2023 14:52:46 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229618AbjCAN0s (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 1 Mar 2023 08:26:48 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50774 "EHLO
+        id S229580AbjCANwN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 1 Mar 2023 08:52:13 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43076 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229437AbjCAN0r (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 1 Mar 2023 08:26:47 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 044FF38019;
-        Wed,  1 Mar 2023 05:26:43 -0800 (PST)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 949B861309;
-        Wed,  1 Mar 2023 13:26:42 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 338E6C433EF;
-        Wed,  1 Mar 2023 13:26:40 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1677677202;
-        bh=kJHUAHlz97yUOJaZQyxEScFLubK3mASBfXnct/E80rk=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=Ui73bJFZ6yQT4Fv97MIscyh6DxXnbSsOia542BXC8r2ymIUYjhfkTg0g68VskfDV+
-         U929vEdgnHulbQBZX0E8XzPKMW5OPCHIMy3S+fYoa4Pn/fTqsVmpIqiTWLyQo+fT4Z
-         q7wBeoPXGRlHwsikucj2F43Ohdm3h6r/Mb9ULXJUHcwX6UhdaQYUwJ3dq9LBqLGoxc
-         /t4BBJri0agdW5TWyRtPCijVhXRtv25vH0XuUXI29XG07FlqSpXGESXgvhtoJCnb0w
-         ON9UnMF9C3KdEYsDqyvK8pAjauAdhMTp6gDuIKAyVjEt0Liz+DUeZEdtqTndgJUYOP
-         XXmH33wu7xDeg==
-Date:   Wed, 1 Mar 2023 13:26:36 +0000
-From:   Mark Brown <broonie@kernel.org>
-To:     Greg KH <gregkh@linuxfoundation.org>
-Cc:     Amir Goldstein <amir73il@gmail.com>,
-        Eric Biggers <ebiggers@kernel.org>,
-        Sasha Levin <sashal@kernel.org>, linux-kernel@vger.kernel.org,
-        stable@vger.kernel.org, viro@zeniv.linux.org.uk,
-        linux-fsdevel@vger.kernel.org
-Subject: Re: AUTOSEL process
-Message-ID: <Y/9SjIDSss390Ki/@sirena.org.uk>
-References: <Y/zswi91axMN8OsA@sol.localdomain>
- <Y/zxKOBTLXFjSVyI@sol.localdomain>
- <Y/0U8tpNkgePu00M@sashalap>
- <Y/0i5pGYjrVw59Kk@gmail.com>
- <Y/0wMiOwoeLcFefc@sashalap>
- <Y/1LlA5WogOAPBNv@gmail.com>
- <Y/1em4ygHgSjIYau@sashalap>
- <Y/136zpJSWx96YEe@sol.localdomain>
- <CAOQ4uxietbePiWgw8aOZiZ+YT=5vYVdPH=ChnBkU_KCaHGv+1w@mail.gmail.com>
- <Y/3lV0P9h+FxmjyF@kroah.com>
+        with ESMTP id S229802AbjCANvu (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 1 Mar 2023 08:51:50 -0500
+Received: from mail-ed1-x52a.google.com (mail-ed1-x52a.google.com [IPv6:2a00:1450:4864:20::52a])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2298C7D9E
+        for <stable@vger.kernel.org>; Wed,  1 Mar 2023 05:51:48 -0800 (PST)
+Received: by mail-ed1-x52a.google.com with SMTP id i34so53996446eda.7
+        for <stable@vger.kernel.org>; Wed, 01 Mar 2023 05:51:48 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=linaro.org; s=google; t=1677678706;
+        h=content-transfer-encoding:in-reply-to:from:references:to
+         :content-language:subject:user-agent:mime-version:date:message-id
+         :from:to:cc:subject:date:message-id:reply-to;
+        bh=FmROz+jjysGIdxG0OXVt9BXRI08zLySmgZ7Ui4RktGI=;
+        b=NNYQAaK3PrurqTvbeuwsK1orRteglxjVU8oziYmo6cL232LDCQYE7HxaAy2HxTdYxU
+         6772ktfC1iFKPuHSEnDwmLmI+pay57cmzklprEPmCYl4v2XTHEjrWrZI/PMYwZWyGted
+         kEvokGEE73dPNTQMVy5ZafPZ9o9SZgPV+yoxoIZZNgnnjBhB2yg/ab2g0+Mxkv19m1/F
+         nJXeQ0vw5pDdfS1jqEtIHWKKH5FC5C/vYcB4S5Ieejrfyrv7denKqgJMo84WWInl+gqs
+         fuj1EO0uTmTwzZVdDfVz4pqmws4qUpoEfuOcaqICO0XSaNe7ik+DTql+sjA6FgFNHF+O
+         LmXQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112; t=1677678706;
+        h=content-transfer-encoding:in-reply-to:from:references:to
+         :content-language:subject:user-agent:mime-version:date:message-id
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
+        bh=FmROz+jjysGIdxG0OXVt9BXRI08zLySmgZ7Ui4RktGI=;
+        b=xGA3VLvI+jt2GRgLid6DGKy+ngGnsDVPN84lctuvdabLdSItN6nThYNd0qK88cn0Lg
+         0a8WFPhtZhANqAhv1zpAXjS3Z6kqptXv66ExRegy3kwvuOyTEWekPZYa25/LyykRaPqY
+         MzxrOHX9gF6rgmcm2XEScrD8GyEJvGOjtTDa4KvnMiTFFRKLQyth6dWDTDnsNG/IV7m8
+         Exk8ZYnjHeGo9JfErcqjGSuAOMic//67TC26NlqKvVcLHptfuQ7681hAmM6QWFKrx2iV
+         YDZit+bGGFYH9TgQcatpQOOP8SwhocClODhYAAsR+r+zc9lrDU0xCETZT8mBOEl6Pduy
+         Cr+w==
+X-Gm-Message-State: AO0yUKU0VkDGHf0S+FqNf4PBZysL+6VkRVqp4V+nACnPvNo0H0Kztisp
+        emZBcF57ndM3YUx2qEDK0jHCvg==
+X-Google-Smtp-Source: AK7set9k19CfomyRoAzS5IG1PaeH5snagnjiUJoHQOo664uyG5BxusdPc4ChxHb2cY9aq3IBrafPtQ==
+X-Received: by 2002:a17:906:8390:b0:8b1:800b:9fbf with SMTP id p16-20020a170906839000b008b1800b9fbfmr6951381ejx.13.1677678706653;
+        Wed, 01 Mar 2023 05:51:46 -0800 (PST)
+Received: from [192.168.2.107] ([79.115.63.78])
+        by smtp.gmail.com with ESMTPSA id w1-20020a17090652c100b008cc920469b5sm5899948ejn.18.2023.03.01.05.51.45
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Wed, 01 Mar 2023 05:51:46 -0800 (PST)
+Message-ID: <cbad45c9-07b1-4393-e20d-ab8d372e0a3c@linaro.org>
+Date:   Wed, 1 Mar 2023 13:51:44 +0000
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha512;
-        protocol="application/pgp-signature"; boundary="adcGMmTVGJJ8PcSt"
-Content-Disposition: inline
-In-Reply-To: <Y/3lV0P9h+FxmjyF@kroah.com>
-X-Cookie: They also surf who only stand on waves.
-X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
-        SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
+ Thunderbird/102.7.1
+Subject: Re: [Android 5.10] kernel BUG in ext4_free_blocks (2)
+Content-Language: en-US
+To:     syzbot <syzbot+15cd994e273307bf5cfa@syzkaller.appspotmail.com>,
+        adilger.kernel@dilger.ca, gregkh@linuxfoundation.org,
+        joneslee@google.com, lczerner@redhat.com, lee@kernel.org,
+        linux-ext4@vger.kernel.org, linux-kernel@vger.kernel.org,
+        nogikh@google.com, sashal@kernel.org, stable@vger.kernel.org,
+        syzkaller-android-bugs@googlegroups.com, tadeusz.struk@linaro.org,
+        tytso@mit.edu
+References: <0000000000007e24fb05f5d61afb@google.com>
+From:   Tudor Ambarus <tudor.ambarus@linaro.org>
+In-Reply-To: <0000000000007e24fb05f5d61afb@google.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Spam-Status: No, score=0.3 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,NICE_REPLY_A,RCVD_IN_DNSWL_NONE,
+        SORTED_RECIPS,SPF_HELO_NONE,SPF_PASS autolearn=no autolearn_force=no
+        version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
@@ -67,35 +79,15 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
---adcGMmTVGJJ8PcSt
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
 
-On Tue, Feb 28, 2023 at 12:28:23PM +0100, Greg KH wrote:
+On 3/1/23 12:46, syzbot wrote:
+> This bug is marked as fixed by commit:
+> ext4: block range must be validated before use in ext4_mb_clear_bb()
+> 
+> But I can't find it in the tested trees[1] for more than 90 days.
 
-> In an ideal world, all maintainers would properly mark their patches for
-> stable backporting (as documented for the past 15+ years, with a cc:
-> stable tag, NOT a Fixes: tag), but we do not live in that world, and
-> hence, the need for the AUTOSEL work.
+Indeed it seems this patch was never backported to the stable tree.
+I'm handling it.
 
-Just as a datapoint here: I stopped making any effort to copy stable on
-things due to AUTOSEL, it's pulling back so much more than I would
-consider for stable that it no longer seems worthwhile to try to make
-decisions about what might fit.
-
---adcGMmTVGJJ8PcSt
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iQEzBAABCgAdFiEEreZoqmdXGLWf4p/qJNaLcl1Uh9AFAmP/UosACgkQJNaLcl1U
-h9BjtQf/f/WaWQ+wWiQwPh4CH6Sx5qKJ8vYaI4h36Be15bxeQATfKNB7ypB5Mm4w
-Mil4ox7p7JMlyR2q2p0+8WvDV/zkevvTTdqiZF4J3uDG761M2yfg8amzeLIDqPLH
-ojnUUXpIDPiAaOO4sYUaeT/Ia3N+TXCRk7yHSMyIAsorsb4vB3qCWfJ/tu1K3Xpu
-nteiYr1AvLeWafaP42Eq8eYLrXNKN53szNAnfgwDhPxR5DPjI7vQXSNQzATPb0za
-P+FnxKS4l6/Lb8s28qheORYDwxf49jDiYyS6G9wBdQ6wFbXQE8NtySgEx+29+cH+
-ultACzSjbFnOT1LJQOCNHB1UsBZInA==
-=ArvS
------END PGP SIGNATURE-----
-
---adcGMmTVGJJ8PcSt--
+Cheers,
+ta
