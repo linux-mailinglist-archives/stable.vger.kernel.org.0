@@ -2,53 +2,50 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 18BC16A72AB
-	for <lists+stable@lfdr.de>; Wed,  1 Mar 2023 19:08:21 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 89CC36A72B0
+	for <lists+stable@lfdr.de>; Wed,  1 Mar 2023 19:08:37 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229995AbjCASIU (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 1 Mar 2023 13:08:20 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39560 "EHLO
+        id S229515AbjCASIg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 1 Mar 2023 13:08:36 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40076 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230003AbjCASIL (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 1 Mar 2023 13:08:11 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CCF066A64
-        for <stable@vger.kernel.org>; Wed,  1 Mar 2023 10:08:01 -0800 (PST)
+        with ESMTP id S229471AbjCASIf (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 1 Mar 2023 13:08:35 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1E06CC658
+        for <stable@vger.kernel.org>; Wed,  1 Mar 2023 10:08:16 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id EBDF36145C
-        for <stable@vger.kernel.org>; Wed,  1 Mar 2023 18:08:00 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0A641C433D2;
-        Wed,  1 Mar 2023 18:07:59 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id C21F9B810F2
+        for <stable@vger.kernel.org>; Wed,  1 Mar 2023 18:08:14 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1B818C433EF;
+        Wed,  1 Mar 2023 18:08:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1677694080;
-        bh=/Eu3el75kgRtXRX2Zlm9rmFxrySZK+OuG+WTPbD8aAE=;
+        s=korg; t=1677694093;
+        bh=AklaDzDDICabuWl4SFjLhZ1lPT9JmGaSK4Gv1Xj2Apg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=rm57G27ufKBp+yiAK+GU9vdECEUGY0zugJKfmylKZ2cGcTf8C1x1MrqORAQY5u33L
-         YW8Gh0mvRb7iWpOgbixEBJZvEwCqYJmYM4nybrC0kWml2uauuOGgGvthoMW4JyCBdK
-         E72L3izlUXYJ15GSmw5ezLo1/TlCnH0RtnIBl6so=
+        b=gLchTKjdtPcz4Rt9SzssvNmb+P+nJNzfUCkaLlrKHSnQfkeCP6nDsIbw7/7cchaEK
+         DJ/LHNYJpCdkNdZ9bx5YLL0jSCKnBbHWfY51IZg6Na9WhZRSQ29RHJebX2g/1Q7e8Z
+         31p5+35IbN4KsX5xqudY/Q5Pg4z1NsvmChvVi+Rc=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>,
+        patches@lists.linux.dev, Johan Jonker <jbx6244@gmail.com>,
         Heiko Stuebner <heiko@sntech.de>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.4 01/13] arm64: dts: rockchip: drop unused LED mode property from rk3328-roc-cc
-Date:   Wed,  1 Mar 2023 19:07:24 +0100
-Message-Id: <20230301180651.224603673@linuxfoundation.org>
+Subject: [PATCH 5.4 02/13] ARM: dts: rockchip: add power-domains property to dp node on rk3288
+Date:   Wed,  1 Mar 2023 19:07:25 +0100
+Message-Id: <20230301180651.261337490@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
 In-Reply-To: <20230301180651.177668495@linuxfoundation.org>
 References: <20230301180651.177668495@linuxfoundation.org>
 User-Agent: quilt/0.67
-X-stable: review
-X-Patchwork-Hint: ignore
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
         SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -56,42 +53,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
+From: Johan Jonker <jbx6244@gmail.com>
 
-[ Upstream commit 1692bffec674551163a7a4be32f59fdde04ecd27 ]
+[ Upstream commit 80422339a75088322b4d3884bd12fa0fe5d11050 ]
 
-GPIO LEDs do not have a 'mode' property:
+The clocks in the Rockchip rk3288 DisplayPort node are
+included in the power-domain@RK3288_PD_VIO logic, but the
+power-domains property in the dp node is missing, so fix it.
 
-  rockchip/rk3328-roc-pc.dtb: leds: led-0: Unevaluated properties are not allowed ('mode' was unexpected)
-
-Signed-off-by: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
-Link: https://lore.kernel.org/r/20221125144135.477144-1-krzysztof.kozlowski@linaro.org
+Signed-off-by: Johan Jonker <jbx6244@gmail.com>
+Link: https://lore.kernel.org/r/dab85bfb-9f55-86a1-5cd5-7388c43e0ec5@gmail.com
 Signed-off-by: Heiko Stuebner <heiko@sntech.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm64/boot/dts/rockchip/rk3328-roc-cc.dts | 2 --
- 1 file changed, 2 deletions(-)
+ arch/arm/boot/dts/rk3288.dtsi | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/arch/arm64/boot/dts/rockchip/rk3328-roc-cc.dts b/arch/arm64/boot/dts/rockchip/rk3328-roc-cc.dts
-index 6c3368f795ca3..fbd942b46c542 100644
---- a/arch/arm64/boot/dts/rockchip/rk3328-roc-cc.dts
-+++ b/arch/arm64/boot/dts/rockchip/rk3328-roc-cc.dts
-@@ -90,7 +90,6 @@ power {
- 			linux,default-trigger = "heartbeat";
- 			gpios = <&rk805 1 GPIO_ACTIVE_LOW>;
- 			default-state = "on";
--			mode = <0x23>;
- 		};
- 
- 		user {
-@@ -98,7 +97,6 @@ user {
- 			linux,default-trigger = "mmc1";
- 			gpios = <&rk805 0 GPIO_ACTIVE_LOW>;
- 			default-state = "off";
--			mode = <0x05>;
- 		};
- 	};
- };
+diff --git a/arch/arm/boot/dts/rk3288.dtsi b/arch/arm/boot/dts/rk3288.dtsi
+index 7dcafd0833ba8..3a7d375389d0e 100644
+--- a/arch/arm/boot/dts/rk3288.dtsi
++++ b/arch/arm/boot/dts/rk3288.dtsi
+@@ -1188,6 +1188,7 @@ edp: dp@ff970000 {
+ 		clock-names = "dp", "pclk";
+ 		phys = <&edp_phy>;
+ 		phy-names = "dp";
++		power-domains = <&power RK3288_PD_VIO>;
+ 		resets = <&cru SRST_EDP>;
+ 		reset-names = "dp";
+ 		rockchip,grf = <&grf>;
 -- 
 2.39.0
 
