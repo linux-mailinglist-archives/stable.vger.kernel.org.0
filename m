@@ -2,54 +2,55 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E03B76A6E13
-	for <lists+stable@lfdr.de>; Wed,  1 Mar 2023 15:13:59 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9213E6A6E1F
+	for <lists+stable@lfdr.de>; Wed,  1 Mar 2023 15:15:59 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229577AbjCAON6 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 1 Mar 2023 09:13:58 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33996 "EHLO
+        id S229667AbjCAOP5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 1 Mar 2023 09:15:57 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36214 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229903AbjCAON4 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 1 Mar 2023 09:13:56 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EA7D62D179;
-        Wed,  1 Mar 2023 06:13:50 -0800 (PST)
+        with ESMTP id S229501AbjCAOP4 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 1 Mar 2023 09:15:56 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 035482CC47;
+        Wed,  1 Mar 2023 06:15:56 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 7B8ABB81014;
-        Wed,  1 Mar 2023 14:13:49 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 00E34C433D2;
-        Wed,  1 Mar 2023 14:13:47 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 9D158612D8;
+        Wed,  1 Mar 2023 14:15:55 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B6BDCC433D2;
+        Wed,  1 Mar 2023 14:15:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1677680028;
-        bh=0te5hmV7EcVOlF+NZja1nw/vmA7EjMWYkMeiCNAwGbw=;
+        s=k20201202; t=1677680155;
+        bh=67yGKOOelLpeOlZKR/e1mlM7y1TTA9eOt92/JiaBs8g=;
         h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=SCq9blgPmGSLWpqCoMzJssPWe5TSO8QTTjlbu48IfsZPD/mJhObN33vYTgQeln7Mj
-         yoTZJH5W8NNwgXagg30BTrK6Z9xyIBm75+9mDwEpNTZKzeaKfPZfpORD0LSp00hjdc
-         yr7PeQQ+5AxTkVlV3ydW5vKjYcY1168z8PvzR0DWQymHZI+jIlh2RoM6S3Fkfo1fSi
-         Dqjg+fs6FZu+g1lyKdnfihiScfej3pzINUMeowksGpQVbq0mujw6Ikt/hzLxAou1YW
-         ADkNXb1VcWFrXPgvYP+ULIjtVMz0MPT3EAOphR9H24H9cExjnAu+/viQLTORCFeVpY
-         3dU4GG/ATDXIw==
-Date:   Wed, 1 Mar 2023 09:13:46 -0500
+        b=QiiYn58qB3G8xGjuvfAilzxQMkLAq9gcG8f3uZ1/YEfZhCe66xYzB7SOhLATl8PAn
+         RqdpSp5nfLMghhz+gDvEDj+5TXJJfxSQrQMVjyKWOTMBMUci5p4acb6NK07/m0NKhJ
+         xo6rISBtTeUm2tLzrGxi9A8yGgfSkCn/AtUIRrGm3dZ7YAFzDPeVK1feOjAJh+69i1
+         OjBzxpWuMb9MYIbUYnXW4xPemQCQpbgOpKttOY8M+eHAKdy1Qwo2gTeNPm8Wzsviqx
+         P2vlitqOYsj37CBqm7WMVJkX/aXrU6xXTwM3rWYHabOce3Lz2edEsX7Bg/LjWUgnkQ
+         NIGDDiIu/m5Rg==
+Date:   Wed, 1 Mar 2023 09:15:53 -0500
 From:   Sasha Levin <sashal@kernel.org>
-To:     Jakub Kicinski <kuba@kernel.org>
+To:     Johan Hovold <johan@kernel.org>
 Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
-        Moshe Shemesh <moshe@nvidia.com>, Jiri Pirko <jiri@nvidia.com>,
-        davem@davemloft.net, edumazet@google.com, pabeni@redhat.com,
-        idosch@nvidia.com, jacob.e.keller@intel.com,
-        michal.wilczynski@intel.com, vikas.gupta@broadcom.com,
-        shayd@nvidia.com, netdev@vger.kernel.org
-Subject: Re: [PATCH AUTOSEL 6.2 51/53] devlink: health: Fix nla_nest_end in
- error flow
-Message-ID: <Y/9dmsqrc8VbajFQ@sashalap>
-References: <20230226144446.824580-1-sashal@kernel.org>
- <20230226144446.824580-51-sashal@kernel.org>
- <20230227101300.33bbedd1@kernel.org>
+        Bjorn Andersson <quic_bjorande@quicinc.com>,
+        Kuogee Hsieh <quic_khsieh@quicinc.com>,
+        Dmitry Baryshkov <dmitry.baryshkov@linaro.org>,
+        robdclark@gmail.com, quic_abhinavk@quicinc.com, airlied@gmail.com,
+        daniel@ffwll.ch, swboyd@chromium.org, johan+linaro@kernel.org,
+        quic_sbillaka@quicinc.com, linux-arm-msm@vger.kernel.org,
+        dri-devel@lists.freedesktop.org, freedreno@lists.freedesktop.org
+Subject: Re: [PATCH AUTOSEL 6.2 18/60] drm/msm/dp: Remove INIT_SETUP delay
+Message-ID: <Y/9eGRUEYyN8oroU@sashalap>
+References: <20230227020045.1045105-1-sashal@kernel.org>
+ <20230227020045.1045105-18-sashal@kernel.org>
+ <Y/xz9IcSsc8mau9s@hovoldconsulting.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Disposition: inline
-In-Reply-To: <20230227101300.33bbedd1@kernel.org>
+In-Reply-To: <Y/xz9IcSsc8mau9s@hovoldconsulting.com>
 X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
         DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
         SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
@@ -59,21 +60,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Mon, Feb 27, 2023 at 10:13:00AM -0800, Jakub Kicinski wrote:
->On Sun, 26 Feb 2023 09:44:43 -0500 Sasha Levin wrote:
->> From: Moshe Shemesh <moshe@nvidia.com>
+On Mon, Feb 27, 2023 at 10:12:20AM +0100, Johan Hovold wrote:
+>On Sun, Feb 26, 2023 at 09:00:03PM -0500, Sasha Levin wrote:
+>> From: Bjorn Andersson <quic_bjorande@quicinc.com>
 >>
->> [ Upstream commit bfd4e6a5dbbc12f77620602e764ac940ccb159de ]
+>> [ Upstream commit e17af1c9d861dc177e5b56009bd4f71ace688d97 ]
 >>
->> devlink_nl_health_reporter_fill() error flow calls nla_nest_end(). Fix
->> it to call nla_nest_cancel() instead.
+>> During initalization of the DisplayPort controller an EV_HPD_INIT_SETUP
+>> event is generated, but with a delay of 100 units. This delay existed to
+>> circumvent bug in the QMP combo PHY driver, where if the DP part was
+>> powered up before USB, the common properties would not be properly
+>> initialized - and USB wouldn't work.
 >>
->> Note the bug is harmless as genlmsg_cancel() cancel the entire message,
->> so no fixes tag added.
+>> This issue was resolved in the recent refactoring of the QMP driver,
+>> so it's now possible to remove this delay.
+>>
+>> While there is still a timing dependency in the current implementation,
+>> test indicates that it's now possible to boot with an external display
+>> on USB Type-C and have the display power up, without disconnecting and
+>> reconnecting the cable.
+>>
+>> Signed-off-by: Bjorn Andersson <quic_bjorande@quicinc.com>
+>> Reviewed-by: Kuogee Hsieh <quic_khsieh@quicinc.com>
+>> Patchwork: https://patchwork.freedesktop.org/patch/518729/
+>> Link: https://lore.kernel.org/r/20230117172951.2748456-1-quic_bjorande@quicinc.com
+>> Signed-off-by: Dmitry Baryshkov <dmitry.baryshkov@linaro.org>
+>> Signed-off-by: Sasha Levin <sashal@kernel.org>
 >
->Not really a fix as described, let's drop.
+>This is not a bug fix and should not be backported.
 
-Gone, thanks!
+Ack, I'll drop all the INIT_SETUP patches. Thanks!
 
 -- 
 Thanks,
