@@ -2,43 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 4EA0F6A72FF
-	for <lists+stable@lfdr.de>; Wed,  1 Mar 2023 19:11:34 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 24D176A732A
+	for <lists+stable@lfdr.de>; Wed,  1 Mar 2023 19:13:22 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229993AbjCASLb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 1 Mar 2023 13:11:31 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45578 "EHLO
+        id S229826AbjCASNU (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 1 Mar 2023 13:13:20 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48364 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229943AbjCASL3 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 1 Mar 2023 13:11:29 -0500
+        with ESMTP id S230099AbjCASNT (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 1 Mar 2023 13:13:19 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 97D154BE87
-        for <stable@vger.kernel.org>; Wed,  1 Mar 2023 10:11:28 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 775E17EC2
+        for <stable@vger.kernel.org>; Wed,  1 Mar 2023 10:13:18 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 34A7B6145C
-        for <stable@vger.kernel.org>; Wed,  1 Mar 2023 18:11:28 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4E182C433D2;
-        Wed,  1 Mar 2023 18:11:27 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 0CCEA61386
+        for <stable@vger.kernel.org>; Wed,  1 Mar 2023 18:13:18 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id ED49CC433D2;
+        Wed,  1 Mar 2023 18:13:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1677694287;
-        bh=ca897nOquxo7bD2GUSszpd6rq/ea5S6KTpY5NPjwRBs=;
+        s=korg; t=1677694397;
+        bh=3dCL7ZJOeQJ7xw/MqvIDsVdkhUDA3CnB3krrQDEF1Sc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=trFXitFCQ4p5grtd6tSwLdyZJZ23mT+TODXyOeAVe++oyYzvVpIO/IYy9o6tgYXaT
-         bNiS4Ke7p51jyF4LWK1ai/1OmyntA3DCNtSkTZXvCz0hp23Y/DE3OCUFUWrNSIcpmb
-         hLkgu8dzxb6fLpyHSrZG5H175FOTrKyp5O+S2W+8=
+        b=UAgiuwNqdtKE6WV+ECZqdyaCHkf5bO1NcPHCpz1JSpaIlyEmvxQm1wOd8kdzUIVwi
+         6hLXCI10aahlSGsK0ToEp+heeNd1dVx/4sDZKsKDdAn9OQ9gvyjm/pYIrwNpRrcgvK
+         DGxS252nVKy86ZhYumreOJRY/cKZrL4JsxujXAt8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Alan Stern <stern@rowland.harvard.edu>,
-        Troels Liebe Bentsen <troels@connectedcars.dk>
-Subject: [PATCH 5.15 22/22] USB: core: Dont hold device lock while reading the "descriptors" sysfs file
+        patches@lists.linux.dev, stable <stable@kernel.org>,
+        Rajaram Regupathy <rajaram.regupathy@intel.com>,
+        Saranya Gopal <saranya.gopal@intel.com>,
+        Heikki Krogerus <heikki.krogerus@linux.intel.com>
+Subject: [PATCH 6.1 34/42] usb: typec: pd: Remove usb_suspend_supported sysfs from sink PDO
 Date:   Wed,  1 Mar 2023 19:08:55 +0100
-Message-Id: <20230301180653.525401385@linuxfoundation.org>
+Message-Id: <20230301180658.585091015@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230301180652.658125575@linuxfoundation.org>
-References: <20230301180652.658125575@linuxfoundation.org>
+In-Reply-To: <20230301180657.003689969@linuxfoundation.org>
+References: <20230301180657.003689969@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -52,72 +54,40 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alan Stern <stern@rowland.harvard.edu>
+From: Saranya Gopal <saranya.gopal@intel.com>
 
-commit 45bf39f8df7f05efb83b302c65ae3b9bc92b7065 upstream.
+commit e4e7b2dc27c4bb877d850eaff69d41410b2f4237 upstream.
 
-Ever since commit 83e83ecb79a8 ("usb: core: get config and string
-descriptors for unauthorized devices") was merged in 2013, there has
-been no mechanism for reallocating the rawdescriptors buffers in
-struct usb_device after the initial enumeration.  Before that commit,
-the buffers would be deallocated when a device was deauthorized and
-reallocated when it was authorized and enumerated.
+As per USB PD specification, 28th bit of fixed supply sink PDO
+represents "higher capability" attribute and not "usb suspend
+supported" attribute. So, this patch removes the usb_suspend_supported
+attribute from sink PDO.
 
-This means that the locking in the read_descriptors() routine is not
-needed, since the buffers it reads will never be reallocated while the
-routine is running.  This locking can interfere with user programs
-trying to read a hub's descriptors via sysfs while new child devices
-of the hub are being initialized, since the hub is locked during this
-procedure.
-
-Since the locking in read_descriptors() hasn't been needed for over
-nine years, we can remove it.
-
-Reported-and-tested-by: Troels Liebe Bentsen <troels@connectedcars.dk>
-Signed-off-by: Alan Stern <stern@rowland.harvard.edu>
-CC: stable@vger.kernel.org
-Link: https://lore.kernel.org/r/Y9l+wDTRbuZABzsE@rowland.harvard.edu
+Fixes: 662a60102c12 ("usb: typec: Separate USB Power Delivery from USB Type-C")
+Cc: stable <stable@kernel.org>
+Reported-by: Rajaram Regupathy <rajaram.regupathy@intel.com>
+Signed-off-by: Saranya Gopal <saranya.gopal@intel.com>
+Reviewed-by: Heikki Krogerus <heikki.krogerus@linux.intel.com>
+Link: https://lore.kernel.org/r/20230214114543.205103-1-saranya.gopal@intel.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/usb/core/hub.c   |    5 ++---
- drivers/usb/core/sysfs.c |    5 -----
- 2 files changed, 2 insertions(+), 8 deletions(-)
+ drivers/usb/typec/pd.c | 1 -
+ 1 file changed, 1 deletion(-)
 
---- a/drivers/usb/core/hub.c
-+++ b/drivers/usb/core/hub.c
-@@ -2382,9 +2382,8 @@ static int usb_enumerate_device_otg(stru
-  * usb_enumerate_device - Read device configs/intfs/otg (usbcore-internal)
-  * @udev: newly addressed device (in ADDRESS state)
-  *
-- * This is only called by usb_new_device() and usb_authorize_device()
-- * and FIXME -- all comments that apply to them apply here wrt to
-- * environment.
-+ * This is only called by usb_new_device() -- all comments that apply there
-+ * apply here wrt to environment.
-  *
-  * If the device is WUSB and not authorized, we don't attempt to read
-  * the string descriptors, as they will be errored out by the device
---- a/drivers/usb/core/sysfs.c
-+++ b/drivers/usb/core/sysfs.c
-@@ -868,11 +868,7 @@ read_descriptors(struct file *filp, stru
- 	size_t srclen, n;
- 	int cfgno;
- 	void *src;
--	int retval;
+diff --git a/drivers/usb/typec/pd.c b/drivers/usb/typec/pd.c
+index dc72005d68db..b5ab26422c34 100644
+--- a/drivers/usb/typec/pd.c
++++ b/drivers/usb/typec/pd.c
+@@ -161,7 +161,6 @@ static struct device_type source_fixed_supply_type = {
  
--	retval = usb_lock_device_interruptible(udev);
--	if (retval < 0)
--		return -EINTR;
- 	/* The binary attribute begins with the device descriptor.
- 	 * Following that are the raw descriptor entries for all the
- 	 * configurations (config plus subsidiary descriptors).
-@@ -897,7 +893,6 @@ read_descriptors(struct file *filp, stru
- 			off -= srclen;
- 		}
- 	}
--	usb_unlock_device(udev);
- 	return count - nleft;
- }
- 
+ static struct attribute *sink_fixed_supply_attrs[] = {
+ 	&dev_attr_dual_role_power.attr,
+-	&dev_attr_usb_suspend_supported.attr,
+ 	&dev_attr_unconstrained_power.attr,
+ 	&dev_attr_usb_communication_capable.attr,
+ 	&dev_attr_dual_role_data.attr,
+-- 
+2.39.2
+
 
 
