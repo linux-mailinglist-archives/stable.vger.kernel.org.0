@@ -2,51 +2,51 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 8BB2B6A72D6
-	for <lists+stable@lfdr.de>; Wed,  1 Mar 2023 19:10:14 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5FE556A7301
+	for <lists+stable@lfdr.de>; Wed,  1 Mar 2023 19:11:41 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229914AbjCASKI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 1 Mar 2023 13:10:08 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42636 "EHLO
+        id S229771AbjCASLk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 1 Mar 2023 13:11:40 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45760 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230123AbjCASJy (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 1 Mar 2023 13:09:54 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8D6E238EAE
-        for <stable@vger.kernel.org>; Wed,  1 Mar 2023 10:09:41 -0800 (PST)
+        with ESMTP id S230042AbjCASLg (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 1 Mar 2023 13:11:36 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 60D5E4AFF3
+        for <stable@vger.kernel.org>; Wed,  1 Mar 2023 10:11:35 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 2976861386
-        for <stable@vger.kernel.org>; Wed,  1 Mar 2023 18:09:41 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3CFA0C433EF;
-        Wed,  1 Mar 2023 18:09:40 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 20857B810C3
+        for <stable@vger.kernel.org>; Wed,  1 Mar 2023 18:11:34 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 91650C433D2;
+        Wed,  1 Mar 2023 18:11:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1677694180;
-        bh=dR48OY8aVGo34Mg7QbsDYaBAEmhILHfoEhTOHDO8UNA=;
+        s=korg; t=1677694292;
+        bh=EiqR2mBNb2HeO81ozJwc7sAeGUmXpu05lg8Yb4g7VOk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Z3ie+YW5dDjTv9Osxp8R+b/7PmVWvLrsp11clZPgTU40E6VKcrPVakG+hXSIJM7dA
-         GALVL575MHYPxCaYYxSmRaC1EwO3CbXqegyF9/eyKSDys8jj8zb+QFUxPHayDPZhLq
-         VV+Stc+ACmUbSYiRslDdYinvgW1TJts8VJEeB4qY=
+        b=J6lkaCV0xAuthB8BY+JJ1HMCiS1tLZ1w2P8VW+VlGMJ9sJDC7E6WeWAKFaTmwBHEi
+         J/DTNN4FJZsetHhnBrR3eXI3nkRz+NjuwqowWjderCv+O0knwf1fjrvmXi52938BF6
+         JJ3Ack9ZScwrPIGcZ/OuuSdxj0oCzrynOsUjg33U=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         patches@lists.linux.dev,
-        Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>,
-        Heiko Stuebner <heiko@sntech.de>,
+        Mario Limonciello <mario.limonciello@amd.com>,
+        Linus Walleij <linus.walleij@linaro.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 02/19] arm64: dts: rockchip: drop unused LED mode property from rk3328-roc-cc
+Subject: [PATCH 6.1 10/42] pinctrl: amd: Fix debug output for debounce time
 Date:   Wed,  1 Mar 2023 19:08:31 +0100
-Message-Id: <20230301180652.424688783@linuxfoundation.org>
+Message-Id: <20230301180657.499893825@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230301180652.316428563@linuxfoundation.org>
-References: <20230301180652.316428563@linuxfoundation.org>
+In-Reply-To: <20230301180657.003689969@linuxfoundation.org>
+References: <20230301180657.003689969@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
         SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -54,42 +54,33 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
+From: Mario Limonciello <mario.limonciello@amd.com>
 
-[ Upstream commit 1692bffec674551163a7a4be32f59fdde04ecd27 ]
+[ Upstream commit c6e0679b8381bf03315e6660cf5370f916c1a1c6 ]
 
-GPIO LEDs do not have a 'mode' property:
+If one GPIO has debounce enabled but future GPIOs in the list don't
+have debounce the time never gets reset and shows wrong value.
 
-  rockchip/rk3328-roc-pc.dtb: leds: led-0: Unevaluated properties are not allowed ('mode' was unexpected)
-
-Signed-off-by: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
-Link: https://lore.kernel.org/r/20221125144135.477144-1-krzysztof.kozlowski@linaro.org
-Signed-off-by: Heiko Stuebner <heiko@sntech.de>
+Signed-off-by: Mario Limonciello <mario.limonciello@amd.com>
+Link: https://lore.kernel.org/r/20230121134812.16637-2-mario.limonciello@amd.com
+Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm64/boot/dts/rockchip/rk3328-roc-cc.dts | 2 --
- 1 file changed, 2 deletions(-)
+ drivers/pinctrl/pinctrl-amd.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/arch/arm64/boot/dts/rockchip/rk3328-roc-cc.dts b/arch/arm64/boot/dts/rockchip/rk3328-roc-cc.dts
-index daa9a0c601a9f..22ab5e1d7319d 100644
---- a/arch/arm64/boot/dts/rockchip/rk3328-roc-cc.dts
-+++ b/arch/arm64/boot/dts/rockchip/rk3328-roc-cc.dts
-@@ -91,7 +91,6 @@ power_led: led-0 {
- 			linux,default-trigger = "heartbeat";
- 			gpios = <&rk805 1 GPIO_ACTIVE_LOW>;
- 			default-state = "on";
--			mode = <0x23>;
- 		};
+diff --git a/drivers/pinctrl/pinctrl-amd.c b/drivers/pinctrl/pinctrl-amd.c
+index 9bc6e3922e78e..32c3edaf90385 100644
+--- a/drivers/pinctrl/pinctrl-amd.c
++++ b/drivers/pinctrl/pinctrl-amd.c
+@@ -365,6 +365,7 @@ static void amd_gpio_dbg_show(struct seq_file *s, struct gpio_chip *gc)
  
- 		user_led: led-1 {
-@@ -99,7 +98,6 @@ user_led: led-1 {
- 			linux,default-trigger = "mmc1";
- 			gpios = <&rk805 0 GPIO_ACTIVE_LOW>;
- 			default-state = "off";
--			mode = <0x05>;
- 		};
- 	};
- };
+ 			} else {
+ 				debounce_enable = "  ∅";
++				time = 0;
+ 			}
+ 			snprintf(debounce_value, sizeof(debounce_value), "%u", time * unit);
+ 			seq_printf(s, "debounce %s (🕑 %sus)| ", debounce_enable, debounce_value);
 -- 
 2.39.0
 
