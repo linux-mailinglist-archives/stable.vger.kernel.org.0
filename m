@@ -2,48 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 869716A72E5
-	for <lists+stable@lfdr.de>; Wed,  1 Mar 2023 19:10:43 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1AF0C6A7304
+	for <lists+stable@lfdr.de>; Wed,  1 Mar 2023 19:11:45 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229830AbjCASKm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 1 Mar 2023 13:10:42 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43720 "EHLO
+        id S230023AbjCASLn (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 1 Mar 2023 13:11:43 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45934 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230001AbjCASKi (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 1 Mar 2023 13:10:38 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 250133CE0D
-        for <stable@vger.kernel.org>; Wed,  1 Mar 2023 10:10:31 -0800 (PST)
+        with ESMTP id S230031AbjCASLm (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 1 Mar 2023 13:11:42 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id BA6594BE8D
+        for <stable@vger.kernel.org>; Wed,  1 Mar 2023 10:11:41 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id A0AC46140D
-        for <stable@vger.kernel.org>; Wed,  1 Mar 2023 18:10:30 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B69C9C433EF;
-        Wed,  1 Mar 2023 18:10:29 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 4DC046140D
+        for <stable@vger.kernel.org>; Wed,  1 Mar 2023 18:11:41 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 61E80C433EF;
+        Wed,  1 Mar 2023 18:11:40 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1677694230;
-        bh=poIkIYgz/XPHmp8iv8kF/HMBQWJucD1pFg/cdPeqn9k=;
+        s=korg; t=1677694300;
+        bh=rwVZKUVchx2WH69jksjVxf2LBObQPlCbiwO0bDKflwU=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ZUSdA2vZV8Sk65Ir8ZyvBHws8fNq95XsN62p8o4frYTwgihSLQPq8cfTEXyQ7VqM1
-         0nvx14rNBgcdZPauga3liENdWH1+4EoECNnOrdrK7l7OF25X5TVn7ENS6VjHCOonqc
-         aUph4IyL0r1Bm4Iv7Zmx4l7TxjVnwRgLk/z4CElg=
+        b=esxt07IjsY82DcdYw0jrMj6vxDBUFMI/ZDcL+Lw8M8najl9yQiNtpPnuElenK0s1/
+         B4M6IfyaCtog6bRDAzO/G4N5H40bNBH28VHY/YrokAXTOen25whCiMVXm8LKsKsk/z
+         eKTdHa/T9QnzTdrCjW7kwZotPYtBN2b/zPn0Ng0k=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Neel Patel <neel@pensando.io>,
-        Shannon Nelson <snelson@pensando.io>,
-        Jakub Kicinski <kuba@kernel.org>,
+        patches@lists.linux.dev, Jack Yu <jack.yu@realtek.com>,
+        Mark Brown <broonie@kernel.org>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.15 01/22] ionic: refactor use of ionic_rx_fill()
+Subject: [PATCH 6.1 13/42] ASoC: rt715-sdca: fix clock stop prepare timeout issue
 Date:   Wed,  1 Mar 2023 19:08:34 +0100
-Message-Id: <20230301180652.716575022@linuxfoundation.org>
+Message-Id: <20230301180657.635748473@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230301180652.658125575@linuxfoundation.org>
-References: <20230301180652.658125575@linuxfoundation.org>
+In-Reply-To: <20230301180657.003689969@linuxfoundation.org>
+References: <20230301180657.003689969@linuxfoundation.org>
 User-Agent: quilt/0.67
-X-stable: review
-X-Patchwork-Hint: ignore
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
@@ -56,93 +53,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Neel Patel <neel@pensando.io>
+From: Jack Yu <jack.yu@realtek.com>
 
-[ Upstream commit e55f0f5befc26e2ba6bb8c1f945ea8e37ee0e334 ]
+[ Upstream commit 2036890282d56bcbf7f915ba9e04bf77967ab231 ]
 
-The same pre-work code is used before each call to
-ionic_rx_fill(), so bring it in and make it a part of
-the routine.
+Modify clock_stop_timeout value for rt715-sdca according to
+the requirement of internal clock trimming.
 
-Signed-off-by: Neel Patel <neel@pensando.io>
-Signed-off-by: Shannon Nelson <snelson@pensando.io>
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Signed-off-by: Jack Yu <jack.yu@realtek.com>
+Link: https://lore.kernel.org/r/574b6586267a458cac78c5ac4d5b10bd@realtek.com
+Signed-off-by: Mark Brown <broonie@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- .../net/ethernet/pensando/ionic/ionic_txrx.c  | 23 ++++++++++---------
- 1 file changed, 12 insertions(+), 11 deletions(-)
+ sound/soc/codecs/rt715-sdca-sdw.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/net/ethernet/pensando/ionic/ionic_txrx.c b/drivers/net/ethernet/pensando/ionic/ionic_txrx.c
-index 37c39581b6599..376f97b4008bb 100644
---- a/drivers/net/ethernet/pensando/ionic/ionic_txrx.c
-+++ b/drivers/net/ethernet/pensando/ionic/ionic_txrx.c
-@@ -353,16 +353,25 @@ void ionic_rx_fill(struct ionic_queue *q)
- 	struct ionic_rxq_sg_desc *sg_desc;
- 	struct ionic_rxq_sg_elem *sg_elem;
- 	struct ionic_buf_info *buf_info;
-+	unsigned int fill_threshold;
- 	struct ionic_rxq_desc *desc;
- 	unsigned int remain_len;
- 	unsigned int frag_len;
- 	unsigned int nfrags;
-+	unsigned int n_fill;
- 	unsigned int i, j;
- 	unsigned int len;
+diff --git a/sound/soc/codecs/rt715-sdca-sdw.c b/sound/soc/codecs/rt715-sdca-sdw.c
+index 3f981a9e7fb67..c54ecf3e69879 100644
+--- a/sound/soc/codecs/rt715-sdca-sdw.c
++++ b/sound/soc/codecs/rt715-sdca-sdw.c
+@@ -167,7 +167,7 @@ static int rt715_sdca_read_prop(struct sdw_slave *slave)
+ 	}
  
-+	n_fill = ionic_q_space_avail(q);
-+
-+	fill_threshold = min_t(unsigned int, IONIC_RX_FILL_THRESHOLD,
-+			       q->num_descs / IONIC_RX_FILL_DIV);
-+	if (n_fill < fill_threshold)
-+		return;
-+
- 	len = netdev->mtu + ETH_HLEN + VLAN_HLEN;
+ 	/* set the timeout values */
+-	prop->clk_stop_timeout = 20;
++	prop->clk_stop_timeout = 200;
  
--	for (i = ionic_q_space_avail(q); i; i--) {
-+	for (i = n_fill; i; i--) {
- 		nfrags = 0;
- 		remain_len = len;
- 		desc_info = &q->info[q->head_idx];
-@@ -518,7 +527,6 @@ int ionic_rx_napi(struct napi_struct *napi, int budget)
- 	struct ionic_cq *cq = napi_to_cq(napi);
- 	struct ionic_dev *idev;
- 	struct ionic_lif *lif;
--	u16 rx_fill_threshold;
- 	u32 work_done = 0;
- 	u32 flags = 0;
- 
-@@ -528,10 +536,7 @@ int ionic_rx_napi(struct napi_struct *napi, int budget)
- 	work_done = ionic_cq_service(cq, budget,
- 				     ionic_rx_service, NULL, NULL);
- 
--	rx_fill_threshold = min_t(u16, IONIC_RX_FILL_THRESHOLD,
--				  cq->num_descs / IONIC_RX_FILL_DIV);
--	if (work_done && ionic_q_space_avail(cq->bound_q) >= rx_fill_threshold)
--		ionic_rx_fill(cq->bound_q);
-+	ionic_rx_fill(cq->bound_q);
- 
- 	if (work_done < budget && napi_complete_done(napi, work_done)) {
- 		ionic_dim_update(qcq, IONIC_LIF_F_RX_DIM_INTR);
-@@ -559,7 +564,6 @@ int ionic_txrx_napi(struct napi_struct *napi, int budget)
- 	struct ionic_dev *idev;
- 	struct ionic_lif *lif;
- 	struct ionic_cq *txcq;
--	u16 rx_fill_threshold;
- 	u32 rx_work_done = 0;
- 	u32 tx_work_done = 0;
- 	u32 flags = 0;
-@@ -574,10 +578,7 @@ int ionic_txrx_napi(struct napi_struct *napi, int budget)
- 	rx_work_done = ionic_cq_service(rxcq, budget,
- 					ionic_rx_service, NULL, NULL);
- 
--	rx_fill_threshold = min_t(u16, IONIC_RX_FILL_THRESHOLD,
--				  rxcq->num_descs / IONIC_RX_FILL_DIV);
--	if (rx_work_done && ionic_q_space_avail(rxcq->bound_q) >= rx_fill_threshold)
--		ionic_rx_fill(rxcq->bound_q);
-+	ionic_rx_fill(rxcq->bound_q);
- 
- 	if (rx_work_done < budget && napi_complete_done(napi, rx_work_done)) {
- 		ionic_dim_update(qcq, 0);
+ 	return 0;
+ }
 -- 
 2.39.0
 
