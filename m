@@ -2,61 +2,57 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 38FAD6A67EF
-	for <lists+stable@lfdr.de>; Wed,  1 Mar 2023 08:06:01 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 196196A67FE
+	for <lists+stable@lfdr.de>; Wed,  1 Mar 2023 08:11:49 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229761AbjCAHF7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 1 Mar 2023 02:05:59 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48470 "EHLO
+        id S229529AbjCAHLs (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 1 Mar 2023 02:11:48 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52314 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229662AbjCAHF6 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 1 Mar 2023 02:05:58 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0ED1236FEC;
-        Tue, 28 Feb 2023 23:05:57 -0800 (PST)
-Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
-        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-        (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 8CAAB61234;
-        Wed,  1 Mar 2023 07:05:56 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B5701C433EF;
-        Wed,  1 Mar 2023 07:05:55 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1677654356;
-        bh=U20fHsgDBwYWBqlRAoN9Rw5KpY0JsVFD3imwT1PLO5E=;
-        h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-        b=ErHxEQvlVmd65N8KaKxYpyFQleh2D9NQXQFL1qCAGqfEiaEYvDvuKZdjzDU23FZHM
-         pDm1yqrWNupLVB99IZAF4AKcCystid8PL2SvVMpEtP/GmoObC6j2eZejhT62KjCoNa
-         xYICkwfoV+5fJOFVyW/5iJER9fmG6kgMXTjWzqO2PyV+/iTIYX2no6bCgyn3/jOaV3
-         YNGslpfLwSB+p+nLwXY2sxtgS4TcVoPwV1xCctYbKMkWu5biAG+D5tjxXYJxdyPadi
-         ZhFaWJFMlZvJ4Ju/hHfTRStHtUi/+K0TBQgK3AgLr5Zr8DLv0CbU2i8id7dfL3b5Zl
-         75TWAEj5T6wwA==
-Date:   Tue, 28 Feb 2023 23:05:54 -0800
-From:   Eric Biggers <ebiggers@kernel.org>
-To:     Greg KH <gregkh@linuxfoundation.org>
-Cc:     Slade Watkins <srw@sladewatkins.net>,
-        Sasha Levin <sashal@kernel.org>,
-        Amir Goldstein <amir73il@gmail.com>,
-        linux-kernel@vger.kernel.org, stable@vger.kernel.org,
-        viro@zeniv.linux.org.uk, linux-fsdevel@vger.kernel.org
-Subject: Re: AUTOSEL process
-Message-ID: <Y/75Ut/OgYabIm9p@sol.localdomain>
-References: <Y/0U8tpNkgePu00M@sashalap>
- <Y/0i5pGYjrVw59Kk@gmail.com>
- <Y/0wMiOwoeLcFefc@sashalap>
- <Y/1LlA5WogOAPBNv@gmail.com>
- <Y/1em4ygHgSjIYau@sashalap>
- <Y/136zpJSWx96YEe@sol.localdomain>
- <CAOQ4uxietbePiWgw8aOZiZ+YT=5vYVdPH=ChnBkU_KCaHGv+1w@mail.gmail.com>
- <Y/3lV0P9h+FxmjyF@kroah.com>
- <8caf1c23-54e7-6357-29b0-4f7ddf8f16d2@sladewatkins.net>
- <Y/7rYr92A2BNEyZ2@kroah.com>
+        with ESMTP id S229493AbjCAHLr (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 1 Mar 2023 02:11:47 -0500
+Received: from metis.ext.pengutronix.de (metis.ext.pengutronix.de [IPv6:2001:67c:670:201:290:27ff:fe1d:cc33])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8819836FEA
+        for <stable@vger.kernel.org>; Tue, 28 Feb 2023 23:11:46 -0800 (PST)
+Received: from ptx.hi.pengutronix.de ([2001:67c:670:100:1d::c0])
+        by metis.ext.pengutronix.de with esmtps (TLS1.3:ECDHE_RSA_AES_256_GCM_SHA384:256)
+        (Exim 4.92)
+        (envelope-from <sha@pengutronix.de>)
+        id 1pXGcq-0004Lv-1Z; Wed, 01 Mar 2023 08:11:44 +0100
+Received: from sha by ptx.hi.pengutronix.de with local (Exim 4.92)
+        (envelope-from <sha@pengutronix.de>)
+        id 1pXGcn-0006iK-4Q; Wed, 01 Mar 2023 08:11:41 +0100
+Date:   Wed, 1 Mar 2023 08:11:41 +0100
+From:   Sascha Hauer <s.hauer@pengutronix.de>
+To:     stable@vger.kernel.org
+Cc:     "linux-wireless@vger.kernel.org Neo Jou" <neojou@gmail.com>,
+        Hans Ulli Kroll <linux@ulli-kroll.de>,
+        Ping-Ke Shih <pkshih@realtek.com>,
+        Yan-Hsuan Chuang <tony0620emma@gmail.com>,
+        Kalle Valo <kvalo@kernel.org>, netdev@vger.kernel.org,
+        linux-kernel@vger.kernel.org,
+        Martin Blumenstingl <martin.blumenstingl@googlemail.com>,
+        kernel@pengutronix.de, Alexander Hochbaum <alex@appudo.com>,
+        Da Xue <da@libre.computer>, Po-Hao Huang <phhuang@realtek.com>,
+        Andreas Henriksson <andreas@fatal.se>,
+        Viktor Petrenko <g0000ga@gmail.com>
+Subject: Re: [PATCH v2 0/3] wifi: rtw88: USB fixes
+Message-ID: <20230301071141.GN23347@pengutronix.de>
+References: <20230210111632.1985205-1-s.hauer@pengutronix.de>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <Y/7rYr92A2BNEyZ2@kroah.com>
-X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
+In-Reply-To: <20230210111632.1985205-1-s.hauer@pengutronix.de>
+X-Sent-From: Pengutronix Hildesheim
+X-URL:  http://www.pengutronix.de/
+X-Accept-Language: de,en
+X-Accept-Content-Type: text/plain
+User-Agent: Mutt/1.10.1 (2018-07-13)
+X-SA-Exim-Connect-IP: 2001:67c:670:100:1d::c0
+X-SA-Exim-Mail-From: sha@pengutronix.de
+X-SA-Exim-Scanned: No (on metis.ext.pengutronix.de); SAEximRunCond expanded to false
+X-PTX-Original-Recipient: stable@vger.kernel.org
+X-Spam-Status: No, score=-4.2 required=5.0 tests=BAYES_00,RCVD_IN_DNSWL_MED,
         SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -64,41 +60,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Wed, Mar 01, 2023 at 07:06:26AM +0100, Greg KH wrote:
-> On Tue, Feb 28, 2023 at 09:05:16PM -0500, Slade Watkins wrote:
-> > On 2/28/23 06:28, Greg KH wrote:
-> > >> But just so you know, as a maintainer, you have the option to request that
-> > >> patches to your subsystem will not be selected by AUTOSEL and run your
-> > >> own process to select, test and submit fixes to stable trees.
-> > > 
-> > > Yes, and simply put, that's the answer for any subsystem or maintainer
-> > > that does not want their patches picked using the AUTOSEL tool.
-> > > 
-> > > The problem that the AUTOSEL tool is solving is real, we have whole
-> > > major subsystems where no patches are ever marked as "for stable" and so
-> > > real bugfixes are never backported properly.
-> > 
-> > Yeah, I agree.
-> > 
-> > And I'm throwing this out here [after having time to think about it due to an
-> > internet outage], but, would Cc'ing the patch's relevant subsystems on AUTOSEL
-> > emails help? This was sort of mentioned in this email[1] from Eric, and I
-> > think it _could_ help? I don't know, just something that crossed my mind earlier.
+On Fri, Feb 10, 2023 at 12:16:29PM +0100, Sascha Hauer wrote:
+> This series addresses issues for the recently added RTW88 USB support
+> reported by Andreas Henriksson and also our customer.
 > 
-> I don't know, maybe?  Note that determining a patch's "subsystem" at
-> many times is difficult in an automated fashion, have any idea how to do
-> that reliably that doesn't just hit lkml all the time?
+> The hardware can't handle urbs that have a size of multiple of the
+> bulkout_size (usually 512 bytes). The symptom is that the hardware
+> stalls completely. The issue can be reproduced by sending a suitably
+> sized ping packet from the device:
+> 
+> ping -s 394 <somehost>
+> 
+> (It's 394 bytes here on a RTL8822CU and RTL8821CU, the actual size may
+> differ on other chips, it was 402 bytes on a RTL8723DU)
+> 
+> Other than that qsel was not set correctly. The sympton here is that
+> only one of multiple bulk endpoints was used to send data.
+> 
+> Changes since v1:
+> - Use URB_ZERO_PACKET to let the USB host controller handle it automatically
+>   rather than working around the issue.
+> 
+> Sascha Hauer (3):
+>   wifi: rtw88: usb: Set qsel correctly
+>   wifi: rtw88: usb: send Zero length packets if necessary
+>   wifi: rtw88: usb: drop now unnecessary URB size check
 
-As I said, it seems Sasha already does this for AUTOSEL (but not other stable
-emails).  I assume he uses either get_maintainer.pl, or the lists the original
-patch is sent to (retrievable from lore).  This is *not* a hard problem.
+These patches went in upstream as:
 
-> But again, how is that going to help much, the people who should be
-> saying "no" are the ones on the signed-off-by and cc: lines in the patch
-> itself.
+7869b834fb07c wifi: rtw88: usb: Set qsel correctly
+07ce9fa6ab0e5 wifi: rtw88: usb: send Zero length packets if necessary
+462c8db6a0116 wifi: rtw88: usb: drop now unnecessary URB size check
 
-So that if one person does not respond, other people can help.
+These patches make the RTW88 USB support much more reliable. Can they be
+picked for the current 6.2 stable series please?
 
-You're basically arguing that mailing lists shouldn't exist at all...
+Sascha
 
-- Eric
+-- 
+Pengutronix e.K.                           |                             |
+Steuerwalder Str. 21                       | http://www.pengutronix.de/  |
+31137 Hildesheim, Germany                  | Phone: +49-5121-206917-0    |
+Amtsgericht Hildesheim, HRA 2686           | Fax:   +49-5121-206917-5555 |
