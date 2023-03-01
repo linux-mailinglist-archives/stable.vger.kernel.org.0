@@ -2,111 +2,107 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 1C6F76A6842
-	for <lists+stable@lfdr.de>; Wed,  1 Mar 2023 08:40:25 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 555946A687F
+	for <lists+stable@lfdr.de>; Wed,  1 Mar 2023 08:59:48 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229520AbjCAHkW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 1 Mar 2023 02:40:22 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47276 "EHLO
+        id S229665AbjCAH7q (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 1 Mar 2023 02:59:46 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:35226 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229470AbjCAHkV (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 1 Mar 2023 02:40:21 -0500
-Received: from 1wt.eu (wtarreau.pck.nerim.net [62.212.114.60])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTP id 499275BB3;
-        Tue, 28 Feb 2023 23:40:18 -0800 (PST)
-Received: (from willy@localhost)
-        by mail.home.local (8.17.1/8.17.1/Submit) id 3217e3eT030901;
-        Wed, 1 Mar 2023 08:40:03 +0100
-Date:   Wed, 1 Mar 2023 08:40:03 +0100
-From:   Willy Tarreau <w@1wt.eu>
-To:     Eric Biggers <ebiggers@kernel.org>
-Cc:     Greg KH <gregkh@linuxfoundation.org>,
-        Slade Watkins <srw@sladewatkins.net>,
-        Sasha Levin <sashal@kernel.org>,
-        Amir Goldstein <amir73il@gmail.com>,
-        linux-kernel@vger.kernel.org, stable@vger.kernel.org,
-        viro@zeniv.linux.org.uk, linux-fsdevel@vger.kernel.org
-Subject: Re: AUTOSEL process
-Message-ID: <Y/8BU4cyySwQZSII@1wt.eu>
-References: <Y/0wMiOwoeLcFefc@sashalap>
- <Y/1LlA5WogOAPBNv@gmail.com>
- <Y/1em4ygHgSjIYau@sashalap>
- <Y/136zpJSWx96YEe@sol.localdomain>
- <CAOQ4uxietbePiWgw8aOZiZ+YT=5vYVdPH=ChnBkU_KCaHGv+1w@mail.gmail.com>
- <Y/3lV0P9h+FxmjyF@kroah.com>
- <8caf1c23-54e7-6357-29b0-4f7ddf8f16d2@sladewatkins.net>
- <Y/7fFHv3dU6osd6x@sol.localdomain>
- <Y/7sLcCtsk9oqZH0@kroah.com>
- <Y/79Tfn5kFIItUDD@sol.localdomain>
+        with ESMTP id S229580AbjCAH7o (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 1 Mar 2023 02:59:44 -0500
+Received: from mail-lj1-x234.google.com (mail-lj1-x234.google.com [IPv6:2a00:1450:4864:20::234])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 33AF2222F7
+        for <stable@vger.kernel.org>; Tue, 28 Feb 2023 23:59:43 -0800 (PST)
+Received: by mail-lj1-x234.google.com with SMTP id b13so13048389ljf.6
+        for <stable@vger.kernel.org>; Tue, 28 Feb 2023 23:59:43 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=semihalf.com; s=google; t=1677657581;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date:message-id:reply-to;
+        bh=bA7nt4VKDa+62lfIEzrNwx8iY9x2ZjNkaV9QCRTZ5/M=;
+        b=Z0resYFKm/zwiRxf7dvMgqn8Sg8ExqwFPNjZ9+/6O/Co8Svyz5xRsqlReabbJIjyon
+         JFBBoYHAlIt9TH6xmTaLa0rhejyK9OkZvWVrsA8e5hgPhqYpRPsUtoLBqR/SNhgPqNA1
+         fgkV2Vf2twXfrqUY1apus6ubbHVCvlpcFrx8xlobdatRP4aop9gwpPlUbAmAfuI6n/Rw
+         MqMHCPUqiqcyScUV6KsRDvIH3ixZiQ8/IhclKeQ7fZTPATYf8U1PfLo9VSM1+oY/5CAm
+         VjJBgccnKjGTGNg9SvABERPeOJdIFrqZQ1G8/+vLaDBVMEKK+kCmpAsGzjuvfTuTfRdc
+         rpPw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112; t=1677657581;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=bA7nt4VKDa+62lfIEzrNwx8iY9x2ZjNkaV9QCRTZ5/M=;
+        b=TLQ818JB7DyWcIUybA//4a1amh/z/gtgA2c8bCQ3nQ0pXX7PrExbfVPEn/2F2QYMeg
+         vCtrcCCBu/grRyEsXHIeDMExgjr2bAsTJpV6Gwmpp394l5566hLVvHM1/rgbMittEyvB
+         JWbeEIFaDgbM/773wY0ECsAD+YEmV7N/2zpf8HqxqDKEtkSZQUr+3x0loAmP6BtQKFtU
+         kTMoHoyPreIAi9bK6+gcBbABphxYqV1MByVJwgPQpJckLQnE+BZRXNqK7xzg/CxG9LuJ
+         eniZxqXc4aNBp35rKKLkHcCvjk9CzlYvT3vSdXCJ7lS9bFnQQwsCCkx6uQObyVE4t96t
+         mq2g==
+X-Gm-Message-State: AO0yUKV/qwxxAqOQhFsyT1U4IXhTmo7ymBgBejjGDQmh3TZzIpM+eff/
+        dzI+CPEzGaeNXXY2hj6EOlvdj6K4Kh243X7P
+X-Google-Smtp-Source: AK7set/Rr8rGFuYqZf3NksYhKA4pQQPbk9F61v/Cqyf4oCoQ2ULFuK24NUohQIeVpam0A6KTMQJ7fQ==
+X-Received: by 2002:a2e:9cd9:0:b0:295:ad91:8811 with SMTP id g25-20020a2e9cd9000000b00295ad918811mr1738540ljj.36.1677657581421;
+        Tue, 28 Feb 2023 23:59:41 -0800 (PST)
+Received: from lmajczak1-l.roam.corp.google.com ([83.142.187.84])
+        by smtp.gmail.com with ESMTPSA id n9-20020a056512388900b004caf992bba9sm1631515lft.268.2023.02.28.23.59.40
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 28 Feb 2023 23:59:41 -0800 (PST)
+From:   Lukasz Majczak <lma@semihalf.com>
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Jiri Slaby <jirislaby@kernel.org>
+Cc:     Guenter Roeck <groeck@chromium.org>, linux-serial@vger.kernel.org,
+        linux-kernel@vger.kernel.org, upstream@semihalf.com,
+        Lukasz Majczak <lma@semihalf.com>, stable@vger.kernel.org
+Subject: [PATCH] serial: core: fix broken console after suspend
+Date:   Wed,  1 Mar 2023 08:57:51 +0100
+Message-Id: <20230301075751.43839-1-lma@semihalf.com>
+X-Mailer: git-send-email 2.39.2.722.g9855ee24e9-goog
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Y/79Tfn5kFIItUDD@sol.localdomain>
-X-Spam-Status: No, score=-1.9 required=5.0 tests=BAYES_00,SPF_HELO_PASS,
-        SPF_PASS,T_FILL_THIS_FORM_SHORT autolearn=ham autolearn_force=no
-        version=3.4.6
+Content-Transfer-Encoding: 8bit
+X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_NONE,
+        SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Tue, Feb 28, 2023 at 11:22:53PM -0800, Eric Biggers wrote:
-> On Wed, Mar 01, 2023 at 07:09:49AM +0100, Greg KH wrote:
-> > 
-> > Why would the FAILED emails want to go to a mailing list?  If the people
-> > that were part of making the patch don't want to respond to a FAILED
-> > email, why would anyone on the mailing list?
-> 
-> The same reason we use mailing lists for kernel development at all instead of
-> just sending patches directly to the MAINTAINERS.
+Re-enable the console device after suspending, causes its cflags,
+ispeed and ospeed to be set anew, basing on the values stored in
+uport->cons. The issue is that these values are set only once,
+when parsing console parameters after boot (see uart_set_options()),
+next after configuring a port in uart_port_startup() these parameteres
+(cflags, ispeed and ospeed) are copied to termios structure and
+the orginal one (stored in uport->cons) are cleared, but there is no place
+in code where those fields are checked against 0.
+When kernel calls uart_resume_port() and setups console, it copies cflags,
+ispeed and ospeed values from uart->cons,but those are alread cleared.
+The efect is that console is broken.
+This patch address this by preserving the cflags, ispeed and
+ospeed fields in uart->cons during uart_port_startup().
 
-I'm personally seeing a difference between reviewing patches on a mailing
-list to help someone polish it, and commenting on its suitability for
-stable once it's got merged, from someone not having participated to its
-inclusion. All such patches are already sent to stable@ which many of
-those of us interested in having a look are already subscribed to, and
-which most often just triggers a quick glance depending on areas of
-interest. I hardly see anyone just curious about a patch ask "are you
-sure ?".
+Signed-off-by: Lukasz Majczak <lma@semihalf.com>
+Cc: stable@vger.kernel.org
+---
+ drivers/tty/serial/serial_core.c | 3 ---
+ 1 file changed, 3 deletions(-)
 
-I could possibly understand the value of sending the failed ones to a
-list, in case someone with more time available than the author wants to
-give it a try. But again they're already sent to stable@. It's just that
-it might be possible that more interested parties are on other lists.
-But again I'm not fully convinced.
+diff --git a/drivers/tty/serial/serial_core.c b/drivers/tty/serial/serial_core.c
+index 2bd32c8ece39..394a05c09d87 100644
+--- a/drivers/tty/serial/serial_core.c
++++ b/drivers/tty/serial/serial_core.c
+@@ -225,9 +225,6 @@ static int uart_port_startup(struct tty_struct *tty, struct uart_state *state,
+ 			tty->termios.c_cflag = uport->cons->cflag;
+ 			tty->termios.c_ispeed = uport->cons->ispeed;
+ 			tty->termios.c_ospeed = uport->cons->ospeed;
+-			uport->cons->cflag = 0;
+-			uport->cons->ispeed = 0;
+-			uport->cons->ospeed = 0;
+ 		}
+ 		/*
+ 		 * Initialise the hardware port settings.
+-- 
+2.39.2.722.g9855ee24e9-goog
 
-> > But hey, I'll be glad to take a change to my script to add that
-> > functionality if you want to make it, it's here:
-> > 	https://git.kernel.org/pub/scm/linux/kernel/git/stable/stable-queue.git/tree/scripts/bad_stable
-> > 
-> 
-> Ah, the classic "patches welcome".
-> 
-> Unfortunately, I don't think that can work very well for scripts that are only
-> ever used by at most two people -- you and Sasha.  Many even just by you,
-> apparently, as I see your name, email address, home directory, etc. hardcoded in
-> the scripts.
-
-But it's going into a dead end. You are the one saying that changes
-are easy, suggesting to use get_maintainers.pl, so easy that you can't
-try to adapt them in existing stuff. Even without modifying existing
-scripts, if you are really interested by such features, why not at least
-try to run your idea over a whole series, figure how long it takes, how
-accurate it seems to be, adjust the output to remove unwanted noise and
-propose for review a few lines that seem to do the job for you ?
-
-> (BTW, where are the scripts Sasha uses for AUTOSEL?)
-
-Maybe they're even uglier and he doesn't want to show them. The ones
-I was using to sort out 3.10 patches were totally ugly and full of
-heuristics, with lines that I would comment/uncomment along operations
-to refine the selection and I definitely wasn't going to post that
-anywhere. They were looking a bit like a commented extract of my
-.history. I'm sure over time Sasha has a much cleaner and repeatable
-process but maybe it involves parts that are not stabilized, that
-he's not proud of, or even tools contributed by coworkers that we
-don't necessarily need to know about and where he hardly sees how
-anyone could bring any help.
-
-Willy
