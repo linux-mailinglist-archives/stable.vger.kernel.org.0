@@ -2,40 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id EB7156A731C
-	for <lists+stable@lfdr.de>; Wed,  1 Mar 2023 19:12:47 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 536C36A731D
+	for <lists+stable@lfdr.de>; Wed,  1 Mar 2023 19:12:49 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230081AbjCASMp (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 1 Mar 2023 13:12:45 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47200 "EHLO
+        id S230076AbjCASMs (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 1 Mar 2023 13:12:48 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47238 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230079AbjCASMo (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 1 Mar 2023 13:12:44 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C61884BE8A
-        for <stable@vger.kernel.org>; Wed,  1 Mar 2023 10:12:41 -0800 (PST)
+        with ESMTP id S230088AbjCASMr (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 1 Mar 2023 13:12:47 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 126C34BE81
+        for <stable@vger.kernel.org>; Wed,  1 Mar 2023 10:12:46 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 6214761466
-        for <stable@vger.kernel.org>; Wed,  1 Mar 2023 18:12:41 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 70776C4339C;
-        Wed,  1 Mar 2023 18:12:40 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id BBF40B810D2
+        for <stable@vger.kernel.org>; Wed,  1 Mar 2023 18:12:44 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0AB23C433D2;
+        Wed,  1 Mar 2023 18:12:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1677694360;
-        bh=OiZPvwZVrucXWalxQzzGbavRpgeH7WYhAYki02rIth0=;
+        s=korg; t=1677694363;
+        bh=UpvzY9tzOo5TEf5owJe7gbtFviAeVMsHrRQMC8n3Kac=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=tJgN0kyTJcvY2t+KIBbE846oV9aADjpvoDd1hWWdzMlVmJh1bbh62mr+wBieJYTKJ
-         MYvQDwkgKOk6XdhqAo7h6Lu534Xuudru7Zs5WHlKspX/c1RF8+bhekfKbu6T1AVh0D
-         7aZ07O84BqUA8q466f6xJ5AM2mJLfyReNUpNP6uE=
+        b=qTsOBG0lRQnPKIpGK3jJsvim0FVW3gOjMV2gbkmcmzN2ML3ilZ89TypJH7Pt/jFQV
+         H07Ojwxz/27vuWn0upfz4aXfvDB4XDxW9CM9UWeTs5VVEhgZhE4StdIZ1/YF5l6BRZ
+         wds9wFtFDNLtAjaos6eWCp0iB0ZEI/QAaxlYJcQ8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         patches@lists.linux.dev, Amir Goldstein <amir73il@gmail.com>,
         "Christian Brauner (Microsoft)" <brauner@kernel.org>
-Subject: [PATCH 6.1 36/42] attr: add in_group_or_capable()
-Date:   Wed,  1 Mar 2023 19:08:57 +0100
-Message-Id: <20230301180658.658059985@linuxfoundation.org>
+Subject: [PATCH 6.1 37/42] fs: move should_remove_suid()
+Date:   Wed,  1 Mar 2023 19:08:58 +0100
+Message-Id: <20230301180658.698136273@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
 In-Reply-To: <20230301180657.003689969@linuxfoundation.org>
 References: <20230301180657.003689969@linuxfoundation.org>
@@ -54,112 +54,97 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Christian Brauner <brauner@kernel.org>
 
-commit 11c2a8700cdcabf9b639b7204a1e38e2a0b6798e upstream.
+commit e243e3f94c804ecca9a8241b5babe28f35258ef4 upstream.
 
-In setattr_{copy,prepare}() we need to perform the same permission
-checks to determine whether we need to drop the setgid bit or not.
-Instead of open-coding it twice add a simple helper the encapsulates the
-logic. We will reuse this helpers to make dropping the setgid bit during
-write operations more consistent in a follow up patch.
+Move the helper from inode.c to attr.c. This keeps the the core of the
+set{g,u}id stripping logic in one place when we add follow-up changes.
+It is the better place anyway, since should_remove_suid() returns
+ATTR_KILL_S{G,U}ID flags.
 
 Reviewed-by: Amir Goldstein <amir73il@gmail.com>
 Signed-off-by: Christian Brauner (Microsoft) <brauner@kernel.org>
 Signed-off-by: Amir Goldstein <amir73il@gmail.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- fs/attr.c     |   10 +++++-----
- fs/inode.c    |   28 ++++++++++++++++++++++++----
- fs/internal.h |    2 ++
- 3 files changed, 31 insertions(+), 9 deletions(-)
+ fs/attr.c  |   29 +++++++++++++++++++++++++++++
+ fs/inode.c |   29 -----------------------------
+ 2 files changed, 29 insertions(+), 29 deletions(-)
 
 --- a/fs/attr.c
 +++ b/fs/attr.c
-@@ -18,6 +18,8 @@
- #include <linux/evm.h>
- #include <linux/ima.h>
+@@ -20,6 +20,35 @@
  
-+#include "internal.h"
+ #include "internal.h"
+ 
++/*
++ * The logic we want is
++ *
++ *	if suid or (sgid and xgrp)
++ *		remove privs
++ */
++int should_remove_suid(struct dentry *dentry)
++{
++	umode_t mode = d_inode(dentry)->i_mode;
++	int kill = 0;
++
++	/* suid always must be killed */
++	if (unlikely(mode & S_ISUID))
++		kill = ATTR_KILL_SUID;
++
++	/*
++	 * sgid without any exec bits is just a mandatory locking mark; leave
++	 * it alone.  If some exec bits are set, it's a real sgid; kill it.
++	 */
++	if (unlikely((mode & S_ISGID) && (mode & S_IXGRP)))
++		kill |= ATTR_KILL_SGID;
++
++	if (unlikely(kill && !capable(CAP_FSETID) && S_ISREG(mode)))
++		return kill;
++
++	return 0;
++}
++EXPORT_SYMBOL(should_remove_suid);
 +
  /**
   * chown_ok - verify permissions to chown inode
   * @mnt_userns:	user namespace of the mount @inode was found from
-@@ -140,8 +142,7 @@ int setattr_prepare(struct user_namespac
- 			vfsgid = i_gid_into_vfsgid(mnt_userns, inode);
- 
- 		/* Also check the setgid bit! */
--		if (!vfsgid_in_group_p(vfsgid) &&
--		    !capable_wrt_inode_uidgid(mnt_userns, inode, CAP_FSETID))
-+		if (!in_group_or_capable(mnt_userns, inode, vfsgid))
- 			attr->ia_mode &= ~S_ISGID;
- 	}
- 
-@@ -251,9 +252,8 @@ void setattr_copy(struct user_namespace
- 		inode->i_ctime = attr->ia_ctime;
- 	if (ia_valid & ATTR_MODE) {
- 		umode_t mode = attr->ia_mode;
--		vfsgid_t vfsgid = i_gid_into_vfsgid(mnt_userns, inode);
--		if (!vfsgid_in_group_p(vfsgid) &&
--		    !capable_wrt_inode_uidgid(mnt_userns, inode, CAP_FSETID))
-+		if (!in_group_or_capable(mnt_userns, inode,
-+					 i_gid_into_vfsgid(mnt_userns, inode)))
- 			mode &= ~S_ISGID;
- 		inode->i_mode = mode;
- 	}
 --- a/fs/inode.c
 +++ b/fs/inode.c
-@@ -2488,6 +2488,28 @@ struct timespec64 current_time(struct in
- EXPORT_SYMBOL(current_time);
- 
- /**
-+ * in_group_or_capable - check whether caller is CAP_FSETID privileged
-+ * @mnt_userns: user namespace of the mount @inode was found from
-+ * @inode:	inode to check
-+ * @vfsgid:	the new/current vfsgid of @inode
-+ *
-+ * Check wether @vfsgid is in the caller's group list or if the caller is
-+ * privileged with CAP_FSETID over @inode. This can be used to determine
-+ * whether the setgid bit can be kept or must be dropped.
-+ *
-+ * Return: true if the caller is sufficiently privileged, false if not.
-+ */
-+bool in_group_or_capable(struct user_namespace *mnt_userns,
-+			 const struct inode *inode, vfsgid_t vfsgid)
-+{
-+	if (vfsgid_in_group_p(vfsgid))
-+		return true;
-+	if (capable_wrt_inode_uidgid(mnt_userns, inode, CAP_FSETID))
-+		return true;
-+	return false;
-+}
-+
-+/**
-  * mode_strip_sgid - handle the sgid bit for non-directories
-  * @mnt_userns: User namespace of the mount the inode was created from
-  * @dir: parent directory inode
-@@ -2508,11 +2530,9 @@ umode_t mode_strip_sgid(struct user_name
- 		return mode;
- 	if (S_ISDIR(mode) || !dir || !(dir->i_mode & S_ISGID))
- 		return mode;
--	if (in_group_p(i_gid_into_mnt(mnt_userns, dir)))
-+	if (in_group_or_capable(mnt_userns, dir,
-+				i_gid_into_vfsgid(mnt_userns, dir)))
- 		return mode;
--	if (capable_wrt_inode_uidgid(mnt_userns, dir, CAP_FSETID))
--		return mode;
--
- 	return mode & ~S_ISGID;
- }
- EXPORT_SYMBOL(mode_strip_sgid);
---- a/fs/internal.h
-+++ b/fs/internal.h
-@@ -151,6 +151,8 @@ extern int vfs_open(const struct path *,
-  */
- extern long prune_icache_sb(struct super_block *sb, struct shrink_control *sc);
- extern int dentry_needs_remove_privs(struct dentry *dentry);
-+bool in_group_or_capable(struct user_namespace *mnt_userns,
-+			 const struct inode *inode, vfsgid_t vfsgid);
+@@ -1949,35 +1949,6 @@ skip_update:
+ EXPORT_SYMBOL(touch_atime);
  
  /*
-  * fs-writeback.c
+- * The logic we want is
+- *
+- *	if suid or (sgid and xgrp)
+- *		remove privs
+- */
+-int should_remove_suid(struct dentry *dentry)
+-{
+-	umode_t mode = d_inode(dentry)->i_mode;
+-	int kill = 0;
+-
+-	/* suid always must be killed */
+-	if (unlikely(mode & S_ISUID))
+-		kill = ATTR_KILL_SUID;
+-
+-	/*
+-	 * sgid without any exec bits is just a mandatory locking mark; leave
+-	 * it alone.  If some exec bits are set, it's a real sgid; kill it.
+-	 */
+-	if (unlikely((mode & S_ISGID) && (mode & S_IXGRP)))
+-		kill |= ATTR_KILL_SGID;
+-
+-	if (unlikely(kill && !capable(CAP_FSETID) && S_ISREG(mode)))
+-		return kill;
+-
+-	return 0;
+-}
+-EXPORT_SYMBOL(should_remove_suid);
+-
+-/*
+  * Return mask of changes for notify_change() that need to be done as a
+  * response to write or truncate. Return 0 if nothing has to be changed.
+  * Negative value on error (change should be denied).
 
 
