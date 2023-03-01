@@ -2,194 +2,163 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 6131E6A76FC
-	for <lists+stable@lfdr.de>; Wed,  1 Mar 2023 23:45:44 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5FDA96A76FF
+	for <lists+stable@lfdr.de>; Wed,  1 Mar 2023 23:46:18 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229557AbjCAWpm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 1 Mar 2023 17:45:42 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57560 "EHLO
+        id S229835AbjCAWqR (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 1 Mar 2023 17:46:17 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58214 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229836AbjCAWpj (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 1 Mar 2023 17:45:39 -0500
-Received: from mx0b-0064b401.pphosted.com (mx0b-0064b401.pphosted.com [205.220.178.238])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 866F2305FD
-        for <stable@vger.kernel.org>; Wed,  1 Mar 2023 14:45:33 -0800 (PST)
-Received: from pps.filterd (m0250811.ppops.net [127.0.0.1])
-        by mx0a-0064b401.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 321MPglt032222;
-        Wed, 1 Mar 2023 22:45:31 GMT
+        with ESMTP id S229537AbjCAWqQ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 1 Mar 2023 17:46:16 -0500
+Received: from mx0a-0064b401.pphosted.com (mx0a-0064b401.pphosted.com [205.220.166.238])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id ECB8119F13
+        for <stable@vger.kernel.org>; Wed,  1 Mar 2023 14:46:14 -0800 (PST)
+Received: from pps.filterd (m0250810.ppops.net [127.0.0.1])
+        by mx0a-0064b401.pphosted.com (8.17.1.19/8.17.1.19) with ESMTP id 321LCjcn017728;
+        Wed, 1 Mar 2023 14:46:08 -0800
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=windriver.com; h=from : to : cc :
- subject : date : message-id : in-reply-to : references : content-type :
- mime-version; s=PPS06212021;
- bh=dilbmuHCTBJ9YjLuJwzIchxdX40s8FgEjkvKD61khUo=;
- b=AC4hzGqjgyUxfmJ2Cwg9kTbsJ/uOGmKQM/+WKDZvpX2pxNfY+SGC3FnuYkq0JiQpi30h
- f9gjR46zf9eaz+/015If3LD1M+iIS6wqpeA03usGHlmdU0QZ5wVp5RZPf8CFMp5mCfuP
- 63ATjonpFRxZ2fdPlIAsY/eKnOgzDWYP2akY6KeyU6cTrhvr47KxpWr2VAbz+pc7SFUz
- depo+TlgBllv8gPTu064B8bhMM9m10CoU8MBr/5WRRySvmGsr1/G5eSTKUc4ROPaguX0
- u8WiKPrbT4aOs0HEhhg5TweGW4kXRun4h4DWRMTYgAfVQMqyhBoPqpRlrhQSzJ6py1bD wQ== 
-Received: from nam10-bn7-obe.outbound.protection.outlook.com (mail-bn7nam10lp2107.outbound.protection.outlook.com [104.47.70.107])
-        by mx0a-0064b401.pphosted.com (PPS) with ESMTPS id 3nybmkct4m-1
+ subject : date : message-id : content-type : mime-version; s=PPS06212021;
+ bh=9VX2WFOoLQ168HO+kljjhQUYKT23chwkisu4Gnc9sLY=;
+ b=qRZZE/r8RCAicX0wpFrX5mnuup1Qo4x9ZDu7JS3g0XEvWcwa57clKSP5I5E4J5lbipzq
+ RFHvn81AEy2jrZpq411o4UJLy5G9/GckqwiDytHKE4l/3fP27GfJJ/xxzGOvcQ8RCSWO
+ qSNlZtrW/Q5Zai6/GyC3FWZQkaIKmMfkENOmM2qQrhIdBv/V3WsGOSVnkQzWwW5jQSdw
+ EcdrgED4kZh0/9MjH+quHvystHdvgCdFE5097dVT2HQYpnfrtzyGmhxJQGXwnJLZ8Cte
+ 7ChFYbEDc6hqNA9PLAHGI03kXYChlIZuXEEl0XEaLuGvyFWCQwC9IAEqPvvyAL26exRE xg== 
+Received: from nam11-co1-obe.outbound.protection.outlook.com (mail-co1nam11lp2175.outbound.protection.outlook.com [104.47.56.175])
+        by mx0a-0064b401.pphosted.com (PPS) with ESMTPS id 3nyeg8cqe9-1
         (version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-        Wed, 01 Mar 2023 22:45:31 +0000
+        Wed, 01 Mar 2023 14:46:08 -0800
 ARC-Seal: i=1; a=rsa-sha256; s=arcselector9901; d=microsoft.com; cv=none;
- b=EHTCIVigXMSZdVz8Q0x+3PQ+h1ObTPEPriHxOdMBWSNLkfmQr4Qo+66k6KcERla89N9GE+kB8D+TywPSGY4YXKoXpYn/0YfCi8cYiy4R2uE+mpOX0hKh7RkFlBBiJ4eH5u751Lhl7ENooF2mcM6eZmDIUO/007qJhnJHXK1fu0ktuElXOhPnz6j3C0iDrFxGjlqhvG6fg8lJ/pqbMA4cMObq5AQhKdfNaYjjQQZXhFQgJpjvGNE6g8R6jgX6lEMH+2AYF9sCREinbyR42uVQL0fOWxo+YVyqDvZDeRwahFdt3ISjwGTDxBMRLPIxTkmxlTcHbfUPjCJM08HKqDjXdg==
+ b=FknJOuYgOh5cSqUovWQ8X7As7YUAjlG9r6O6onDFwZWIcqUnrlSxzwq5vLqW75x1lL3xvPwrk0VAJDrWwe66MJWdgxyorLLOItN+WX1umuIbml1ocMt6Jqikp7u8nbde6/jgc1CYQII6K7Psuv0F+3fpFgT8eH3aQpVtmPaHpv7jDxvAU8eTpx8vHCAwi50sBwamKfC10fG3SK1CT8X9ZeiK/J2JqjSRpyf18MB4lYZUSJ1DwrhNkT1kyRtYPiKgo1WYdBz6U+8E9uwOcVXEAiH9gSCXRLj3i2MnbmtX7VPUT+EInf5EHMMieuida3DMSfiYuSSFnlofCI8+lfT2hA==
 ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
  s=arcselector9901;
  h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=dilbmuHCTBJ9YjLuJwzIchxdX40s8FgEjkvKD61khUo=;
- b=RoCfDpTLkB2SDq1schCaO53mdjmGS7UBycfQ0U72YT4mHnvMKDsrnDFZ+Uo2t+S9bg6wRxHcUcnmmYU53c1ElGer7G8KeCT5CC98UNhvy424qnQnuGsBvaJm6oYXb6AGdFJ3XnDwpIEBdNE0tNq2SeUsHNAs1thFaZLONf4ObVPeJHKkIx/9+CQPlTqVZI4pQ3FxF0N1XVHY6Qm/Vns88ajvpVDnczHt80VArVVebKj6kEobdEjFOTZrRfgTL4ky3VPiDAvES+cli9AeTr+RXAJjnxzQhJ0jUYeASjLD47AhP7D0iRJ7x+frR1vJRbUu5Pj4/uaebT8dE2miKrQrkQ==
+ bh=9VX2WFOoLQ168HO+kljjhQUYKT23chwkisu4Gnc9sLY=;
+ b=jSuwUX19wN1PsJ5CSJe3L2IHhbuzm5hlK/B4u8gK5VJ3QjOImKRiSJD1f8z6GXm6fn3X4AHbtjt6Z/WRmC3TG7W69A012pCtMv0vdcmFUA665Sn7miuQYDJrV2hc39dAa31IRNB8ty1jAvc0A9xbIDQUD0jEeelDR/HpLRhbxrLwkQmgIvAO1pQIJMRsCdDDOkhLlfqbae8djP1KZNxlc9IsiiwN6rt9TMvfVVYMiC1u66PQq/IOoU2ouHmQeIql0HZf+OTZQZAONbqhd3jYVRBk8QbJTdMsNthIMOD3EdWGRZTedVVTKhd2M9dyuAvV2ae/9hcAvR4rj0xRVEtRSg==
 ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
  smtp.mailfrom=windriver.com; dmarc=pass action=none
  header.from=windriver.com; dkim=pass header.d=windriver.com; arc=none
 Received: from SJ0PR11MB4989.namprd11.prod.outlook.com (2603:10b6:a03:2d9::22)
- by CY5PR11MB6535.namprd11.prod.outlook.com (2603:10b6:930:41::5) with
+ by DS0PR11MB7285.namprd11.prod.outlook.com (2603:10b6:8:13d::17) with
  Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.6134.30; Wed, 1 Mar
- 2023 22:45:30 +0000
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.6134.26; Wed, 1 Mar
+ 2023 22:45:58 +0000
 Received: from SJ0PR11MB4989.namprd11.prod.outlook.com
  ([fe80::fc79:efda:317e:62a3]) by SJ0PR11MB4989.namprd11.prod.outlook.com
  ([fe80::fc79:efda:317e:62a3%9]) with mapi id 15.20.6134.030; Wed, 1 Mar 2023
- 22:45:30 +0000
+ 22:45:58 +0000
 From:   Stefan Ghinea <stefan.ghinea@windriver.com>
 To:     stable@vger.kernel.org
-Cc:     Pietro Borrello <borrello@diag.uniroma1.it>,
-        Benjamin Tissoires <benjamin.tissoires@redhat.com>,
+Cc:     "Luke D. Jones" <luke@ljones.dev>, Jiri Kosina <jkosina@suse.cz>,
         Stefan Ghinea <stefan.ghinea@windriver.com>
-Subject: [PATCH 5.15 2/2] HID: asus: use spinlock to safely schedule workers
-Date:   Thu,  2 Mar 2023 00:45:41 +0200
-Message-Id: <20230301224541.29043-2-stefan.ghinea@windriver.com>
+Subject: [PATCH 5.10 1/3] HID: asus: Remove check for same LED brightness on set
+Date:   Thu,  2 Mar 2023 00:46:04 +0200
+Message-Id: <20230301224606.29116-1-stefan.ghinea@windriver.com>
 X-Mailer: git-send-email 2.17.1
-In-Reply-To: <20230301224541.29043-1-stefan.ghinea@windriver.com>
-References: <20230301224541.29043-1-stefan.ghinea@windriver.com>
 Content-Type: text/plain
-X-ClientProxiedBy: VI1PR06CA0187.eurprd06.prod.outlook.com
- (2603:10a6:803:c8::44) To SJ0PR11MB4989.namprd11.prod.outlook.com
+X-ClientProxiedBy: VI1PR02CA0056.eurprd02.prod.outlook.com
+ (2603:10a6:802:14::27) To SJ0PR11MB4989.namprd11.prod.outlook.com
  (2603:10b6:a03:2d9::22)
 MIME-Version: 1.0
 X-MS-PublicTrafficType: Email
-X-MS-TrafficTypeDiagnostic: SJ0PR11MB4989:EE_|CY5PR11MB6535:EE_
-X-MS-Office365-Filtering-Correlation-Id: 02e835ee-47cc-4d0c-3660-08db1aa6a888
+X-MS-TrafficTypeDiagnostic: SJ0PR11MB4989:EE_|DS0PR11MB7285:EE_
+X-MS-Office365-Filtering-Correlation-Id: 0f24ddcc-7512-4331-1b73-08db1aa6b981
 X-MS-Exchange-SenderADCheck: 1
 X-MS-Exchange-AntiSpam-Relay: 0
 X-Microsoft-Antispam: BCL:0;
-X-Microsoft-Antispam-Message-Info: stMwke5uNJzNwCpyjeEskUuEXss/DrMVNiComwrWPCW2nONJ4GtWM4tMSGl1VFcX7e7B5yyogcf6r8n48OlidElzROEYglzHD1CvUwNxZQfnxUynT62iPfmIBXuHgv0k6HGgKoaXVYUI5ekYHb6/fWxxw3P0DiNguB66yqejuU+szK0Shbdv7Ta9fF3HE4GRhJiBvRXvW6LmAigm8+D2Auy+4cHTCixnvc87tvOQOj+F09U9Jpzw83xXSs81EXo6rfUuK/bbQrRLovS7RUdLh8w+Co0+bOM68ZWZEUZSDYy0lZPK/vD/zPxz96c54S0LZ6uE7udM8gvX+2F4e9MgmkNhIzR3z3xETvQUPqS8i7Zv1nYw59mbmCDG2q4N10k8j4A9ISd6/CzSpBDLca7DksA/o1cMxHbnAbR/DinLLpCWMDrVybSRlCxgpp5zGJjMInGWlnfvzfPcGmRBrM/NvqL04aYfnvhYRatk0e2mRrkNc0FLMYcCe8R7BEn+96DnXbhmhgzNNWKloZzUEr/bnW6WaCxA7Z7WfvboO8x+saDVF9Qt7JU1SMr3K97FZI7LtXxoRaHKZkLv7XQ5xvOAg8bKgA+dXW0Y5JGDh3uG33E/lkL+uyB1QlRgXoIZ3o4XwiA43pWGkHu7LBnDnHji0sLbqMBowBeS36+nMuRgzZSxnjuUnwSwWBtlepYIdijK
-X-Forefront-Antispam-Report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:SJ0PR11MB4989.namprd11.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230025)(4636009)(396003)(136003)(376002)(346002)(39850400004)(366004)(451199018)(38350700002)(38100700002)(4326008)(36756003)(52116002)(86362001)(44832011)(2906002)(41300700001)(6916009)(66946007)(66556008)(66476007)(5660300002)(8936002)(8676002)(1076003)(6506007)(2616005)(6512007)(26005)(83380400001)(186003)(316002)(478600001)(54906003)(966005)(107886003)(6666004)(6486002)(66899018);DIR:OUT;SFP:1101;
+X-Microsoft-Antispam-Message-Info: JD9U8cPVCiyiQyK5Wi9/0rlJfyH62x/RhdkRoSCyl+0e5aSJtv2q/5JruaQcT8tTPT7Doqf8AbjjEgGzBp/lq1xEq5uQ23YfYCthn1woI0tCGzCJnaJQEu9EsffdDv2YqvTsnaTTjmfCb6Yrpkm4EmFk4HSKZkKaFrdoTnBMS15j14VNDLsEmNmgVKc0pqbs0/nBxMJZYiDw39ARbbWgZZ7tZbrf4dvdrAPFupyDwEmk3MgZRaNriWDJzXb4yg/EuGqIc4syuyYuBZxaLycWpm0UI9SFs5QDA8sZaxGNsao60DS3WkYMAo8lAefX5QqIi3/e7T7jiRfTahyZUWf5rww+m7EAnCNKYlPMHfdnoQEgz7MZcHdL7P+EPxjvyaEFL4O0pUdQvKre0YWWrdUFUXo4j3fRcuY7A75IIdsIPBHhG0oRCs9sUjixcgG0YpFPuVwfY6u/vIxNw/JIScgD5HDqoiJ3vQXLNcxVpgUgAM8gVS/RavtJW5XLjyz+fm/3MMZ2FlWKc8BGDcDHUTQHuONchzMddka0oNAeEfRM10BQstBG9g4aj9/ysnWNyTVWPtRaL/lZRhK2h8YPNq40GplDfALLHWIWrMk1WodgazF6emhLwDP2S9tztIV7SCFOlA5ZP/JBIhnMP7nVdGxn1KxMKrvPIqesoc5kHyygoukgP255B7RIOLa50cTBhZSikjBWA1BX9pFi3q/O50FoLQ==
+X-Forefront-Antispam-Report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:SJ0PR11MB4989.namprd11.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230025)(4636009)(366004)(346002)(39850400004)(396003)(136003)(376002)(451199018)(26005)(54906003)(36756003)(83380400001)(316002)(86362001)(6486002)(2906002)(4326008)(44832011)(8676002)(6512007)(186003)(52116002)(107886003)(8936002)(66946007)(41300700001)(6916009)(66476007)(66556008)(5660300002)(6506007)(6666004)(478600001)(2616005)(1076003)(38350700002)(38100700002);DIR:OUT;SFP:1101;
 X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
-X-MS-Exchange-AntiSpam-MessageData-0: =?us-ascii?Q?98QM4QXowaWoiE6fgExRT7B1Dj+DvYHJyhNuceO/d2U4bDwwW0eZN4wZj8gu?=
- =?us-ascii?Q?rn+aPWjNxxhMXxPp5uAi5qBKTaEwJXVJ+BtMy7vkEUQgeboDBFU2a28ZVIwO?=
- =?us-ascii?Q?4VeHN2v3/SGramVJiUpUHhC/7ledDJeV/RO+b0lkDs9dpYhuTIIyYNPGEBtV?=
- =?us-ascii?Q?t6u/jOoPgbBwbcr9uaS+2THZRw2pLAFa78BUY5kkCCFPtLq3ld1geABvEO1Y?=
- =?us-ascii?Q?+ekv01dxoIyNcCMoca03y4oEVvlx5TI6l1ETOca3MA4FCVtEPeO+7LP2Wx8Y?=
- =?us-ascii?Q?cyczk7+EgSwUlGPxf5KfhqnRy71kK9b21EHMp2CU7KuGQbmkbMsJWesTaJNK?=
- =?us-ascii?Q?0ij++uvq9HKUG/tO294wsaHaGGgaLqiqqxR2kNTNlx+Wz6+/mM1WgrCwHjjG?=
- =?us-ascii?Q?V6rUbOzyqP4u+oqqZlu/8EECXHy/+Nm6ZCFmXs7wDQw9l7tBFddy90KecTDB?=
- =?us-ascii?Q?ceuvI5DCXtIZc9t0QfDtIcG8oLLRt8oPhzpUydNcQsu10BGq0TeAcPX3hUNr?=
- =?us-ascii?Q?m7CRLhOCAlK23st7RDqKl+0BkWM37TutNlTMTERTh9iAn5KxztMOHO4pZmck?=
- =?us-ascii?Q?5g6Rm1OATnl7A7Qb/+3rN4geAmIvY3hIYIlah9yZwndFMVHsCr7ecTsvZv/G?=
- =?us-ascii?Q?/U+D7PS5dWz0vv/c0Q/IZXdZqjokecOkEAvvJ/PBvVwhckRVGHVsZYRSseow?=
- =?us-ascii?Q?2VYUpTaWQWH5fDtVLBCArfOD41dvFeTxzRHVkTQBkohOdjsddYj5W0EclP9g?=
- =?us-ascii?Q?+NzM73tjmB39ALQs1fWiNTGrBxsjF4B5c+sRJ6KbM8e6TvR1GqknC92ZJnqn?=
- =?us-ascii?Q?2oPfhN8dj7M+7E7yxhB+ryhr50E8QA3+2crnq88zscsWH/FgpXOThAZxj03i?=
- =?us-ascii?Q?6Wbrj4JgMEpfU9tUrSwlA3I0blidczrRPTWlXm/1ALggI9p79oq7b8VjNje8?=
- =?us-ascii?Q?d5LGGm3Hqc9yESJRiem8FHlmJbVMw+obf4K/3uN6VkdsExa0nBm0CN2g4A0N?=
- =?us-ascii?Q?EricGkQxlDaSjyIt/6Fn+vVO78h4gMlMcs69Na9yfKDmKuifg4NIq6JJrcmb?=
- =?us-ascii?Q?0lrNs7Zkzfs1P0l6xXGJql/EeCaCaOWTdORb/6PsVaizeRkGzMMDuztuh0/l?=
- =?us-ascii?Q?rhnCf8DvM3MLAWQ62DQPQNH+rdqxb0zPuK0Cn9acvg8K9ylHEBuiT2ZFguK8?=
- =?us-ascii?Q?+SjgzYg5NxTTzBrsHy4Bvm71ve9jYyy6k8WDF2bUQD/WKxNzgOjU7kMDqxN3?=
- =?us-ascii?Q?03jaCV5PAtMRwshXMgS1ADVZcoyu6DXLxhir/3OUcgQwO4spHfTC+xnmlvZ7?=
- =?us-ascii?Q?gwDIdSyfC8RxozXQ5S9X43Gyt+MDJqfS1Ru0Jve0FDU5ONAppc/sZpQyUJv3?=
- =?us-ascii?Q?IJrodb7jdERWYQd+9qH0LBONbdt1HzP+Gtbx1Bh/4H6Oy732BZY5pVDhGf+U?=
- =?us-ascii?Q?dyjwmjPZLvHs6ycbvdCJjVUzXvdcksfS56ZntAVi/hJJV/zq7UZBjzP+YkPx?=
- =?us-ascii?Q?zUh+cPnUMb2U9Mo6as8WZ3EF4dcey9FYBjRj2pZGxvP2dcb8bI7s2xdrtbk/?=
- =?us-ascii?Q?IpzxGmbjUHO/kcKq2KPdrI+S1KmYPCz9pr9J9TbA5r27jd5NpEEnbk/dO6dk?=
- =?us-ascii?Q?ffhF0P/5RXE5AiM29700mYE=3D?=
+X-MS-Exchange-AntiSpam-MessageData-0: =?us-ascii?Q?h4HHaA+739BpI99iG8uRbKMnqvyGKrz287hYYSFhMLNzB9ynvbhjGT+Xtb0i?=
+ =?us-ascii?Q?CrzjPVKHIae4XV8j81saCLtx0Z+JgWC3CtHOwXDJoletSIVB30DRhWoSUbih?=
+ =?us-ascii?Q?iljVNLTBatxNjJksgpGXF7Ax8/juY0W0eaz8CYZAdYY7lhzsRurRqIcFCaaB?=
+ =?us-ascii?Q?9/P//tWf76yNubeYUc1+LvZpwFvfUox6SPCoKZGtBmY/2qemM+EpyAqajFjb?=
+ =?us-ascii?Q?0qTr7QRutEltgoMMniahrAQwTqaOX683lMkcTsEiuH8olLxvlVGTtaU7vddT?=
+ =?us-ascii?Q?yUKVkzkL/oCd/eEOGr204j2B5PrsgY9cVSgY31j7c7ALC7GausxeVV2rGJ9r?=
+ =?us-ascii?Q?URvFcw/12o7NvD2dk+bQG2i3Sbrq4X3ZOixQXDvFr5UBZCGP/l5LMwZvKoNW?=
+ =?us-ascii?Q?NMQtTB0fvWmCz4/2kKIREX+KB+hVGx9pFD0ykqivZw4IdLwHLqRwImDtkVwE?=
+ =?us-ascii?Q?6pM1gZIijUt92EUXqoZNSa6xAXcBMWtv2X+mvmaldR6QN4z/WYgaIiVeGBbQ?=
+ =?us-ascii?Q?VBNddsGeUEnZvkdR7l8gyaDJ/b7lBcKjC17W2RRLXluMcfjYAVi2yfbn+VoS?=
+ =?us-ascii?Q?Ds1Dz2VWOYUTXepfamivPDkpIrYYoinzweGSfbLVKjyvDtRLl4BDEDWImJah?=
+ =?us-ascii?Q?kq35P8HkjHyk2PKZ+frl3itsts97UPPY65g14ck4LBBOPkgfjLOYWnPOZBa2?=
+ =?us-ascii?Q?V5sjgHe9Y9YRF0E4RPj1nPD0wWK3n8UCe9jlumVUtIM6uuMXIq+e2tmoW0R2?=
+ =?us-ascii?Q?Y+3IKW+1fqgcy14lGdDBku4Ydxl1c0yYS7ygK3hjfATe86KXK8iC7wmdV+77?=
+ =?us-ascii?Q?F0jS6j+vQwealFQNCGsm6UbiImBbgh2ce/p9PUugh7QhEnyJbvhqPT6QmEjC?=
+ =?us-ascii?Q?II5NbJ3FrP6TVJsUggRSiuPYtu5iFZ25u7qled0nbacY5qg/MH0qnXH1xP5Y?=
+ =?us-ascii?Q?4SasakUTCnBqu9FwlusfqI/jNDWgNNwhJApK64ipxq6grUH0FGmKZD4donaS?=
+ =?us-ascii?Q?dn6sCXI7MMtsgo0CKHSY/LMj/xARJaHff6Km4STjon/UrvhE4hcxwPX8mF9V?=
+ =?us-ascii?Q?NkWFoZlauMkz5wELehaVV6meSsG5w/VC4us3QuBUdIMFAriMzGncnF43foX3?=
+ =?us-ascii?Q?wfOzzDK5KC2HMBhXhJHuOQjCmRFPyPlAgn9+NTiRXpb1Yt49G/LwwBy4Piff?=
+ =?us-ascii?Q?NMaRq1IH/XYILjl5MdBrchTGdYZDU6wqolQkoPRfyYCxh2t9lIAHywisy0jQ?=
+ =?us-ascii?Q?bwyBdKeTbAtL0noGQH4NczGR/eFbamXK6e/ZU5t2O9Rv9L3LgAbyX6o0UTL9?=
+ =?us-ascii?Q?frU+jjqU9wQfVmwuX3X6izGxzsRfLe0zUMBBKCClNkaaakMWSM1V6XZNQrUb?=
+ =?us-ascii?Q?rJfiOVFESnzSLOsKLSWRfd6RQMtxHMOdsSL1qs7BX7UoWSY2ohrlY7u8TVsT?=
+ =?us-ascii?Q?K3mf8JpQDpqnCd+XVwQzKSQDMA5uTAdqhvEmGoMYlgYKT4FD2Dsx3dDFNRJn?=
+ =?us-ascii?Q?wCuOR7pLdTjJfuOK5f5iRT6+n//xr7PL16+icZqKzRA41Nl6nJYNVk32Tjfs?=
+ =?us-ascii?Q?+0472OPbUlTPQo239fURsOAfr3oWf36OKCFi9nNfkEg27lR9BhnNHeOvH65h?=
+ =?us-ascii?Q?bbA/U3Lg0A0hxbsZCRkduZ8=3D?=
 X-OriginatorOrg: windriver.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: 02e835ee-47cc-4d0c-3660-08db1aa6a888
+X-MS-Exchange-CrossTenant-Network-Message-Id: 0f24ddcc-7512-4331-1b73-08db1aa6b981
 X-MS-Exchange-CrossTenant-AuthSource: SJ0PR11MB4989.namprd11.prod.outlook.com
 X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 01 Mar 2023 22:45:29.9324
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 01 Mar 2023 22:45:58.5477
  (UTC)
 X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
 X-MS-Exchange-CrossTenant-Id: 8ddb2873-a1ad-4a18-ae4e-4644631433be
 X-MS-Exchange-CrossTenant-MailboxType: HOSTED
-X-MS-Exchange-CrossTenant-UserPrincipalName: 5zn3MaRtOt8R5jtwOXt/GmaVUMWBp5gXnwp+kB1ca80qlXSjAb7EG5d/ZBIeHX/cpjlEKKiuxZcIJV23/OGMgheWptIbxW+S8EnuIqsgr3I=
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: CY5PR11MB6535
-X-Proofpoint-GUID: 9OBjNRMrv0Nrk0N8grLbICJBDWY-9smp
-X-Proofpoint-ORIG-GUID: 9OBjNRMrv0Nrk0N8grLbICJBDWY-9smp
+X-MS-Exchange-CrossTenant-UserPrincipalName: 0Fv8dto7nJQZCFdLNRyMJV1Lq2jhZhBJ/xoM84IFHm46mAQV9RqfoRnnwTwLeN0GovczjYisjMXJfm1r8BX4S5/vxI/3byOXWvKkWmXxeGw=
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: DS0PR11MB7285
+X-Proofpoint-GUID: S4Ub_tcVQf98mb-UVZmmDOKA5CL4PQr_
+X-Proofpoint-ORIG-GUID: S4Ub_tcVQf98mb-UVZmmDOKA5CL4PQr_
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.219,Aquarius:18.0.942,Hydra:6.0.573,FMLib:17.11.170.22
  definitions=2023-03-01_15,2023-03-01_03,2023-02-09_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 adultscore=0 spamscore=0
- suspectscore=0 phishscore=0 mlxscore=0 malwarescore=0 priorityscore=1501
- lowpriorityscore=0 mlxlogscore=999 clxscore=1015 bulkscore=0
- impostorscore=0 classifier=spam adjust=0 reason=mlx scancount=1
- engine=8.12.0-2212070000 definitions=main-2303010181
-X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,SPF_HELO_NONE,SPF_PASS
-        autolearn=ham autolearn_force=no version=3.4.6
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0 suspectscore=0 bulkscore=0
+ adultscore=0 mlxscore=0 priorityscore=1501 spamscore=0 lowpriorityscore=0
+ phishscore=0 impostorscore=0 clxscore=1011 malwarescore=0 mlxlogscore=932
+ classifier=spam adjust=0 reason=mlx scancount=1 engine=8.12.0-2212070000
+ definitions=main-2303010183
+X-Spam-Status: No, score=-2.8 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_LOW,SPF_HELO_NONE,
+        SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Pietro Borrello <borrello@diag.uniroma1.it>
+From: "Luke D. Jones" <luke@ljones.dev>
 
-commit 4ab3a086d10eeec1424f2e8a968827a6336203df upstream
+commit 3fdcf7cdfc229346d028242e73562704ad644dd0 upstream
 
-Use spinlocks to deal with workers introducing a wrapper
-asus_schedule_work(), and several spinlock checks.
-Otherwise, asus_kbd_backlight_set() may schedule led->work after the
-structure has been freed, causing a use-after-free.
+Remove the early return on LED brightness set so that any controller
+application, daemon, or desktop may set the same brightness at any stage.
 
-Fixes: af22a610bc38 ("HID: asus: support backlight on USB keyboards")
-Signed-off-by: Pietro Borrello <borrello@diag.uniroma1.it>
-Link: https://lore.kernel.org/r/20230125-hid-unregister-leds-v4-5-7860c5763c38@diag.uniroma1.it
-Signed-off-by: Benjamin Tissoires <benjamin.tissoires@redhat.com>
+This is required because many ASUS ROG keyboards will default to max
+brightness on laptop resume if the LEDs were set to off before sleep.
+
+Signed-off-by: Luke D Jones <luke@ljones.dev>
+Signed-off-by: Jiri Kosina <jkosina@suse.cz>
 Signed-off-by: Stefan Ghinea <stefan.ghinea@windriver.com>
 ---
- drivers/hid/hid-asus.c | 15 +++++++++++----
- 1 file changed, 11 insertions(+), 4 deletions(-)
+ drivers/hid/hid-asus.c | 3 ---
+ 1 file changed, 3 deletions(-)
 
 diff --git a/drivers/hid/hid-asus.c b/drivers/hid/hid-asus.c
-index 37500b645ec4..16832e79f6a8 100644
+index f85c6e3309a0..9a6b63828634 100644
 --- a/drivers/hid/hid-asus.c
 +++ b/drivers/hid/hid-asus.c
-@@ -493,6 +493,16 @@ static int rog_nkey_led_init(struct hid_device *hdev)
- 	return ret;
- }
- 
-+static void asus_schedule_work(struct asus_kbd_leds *led)
-+{
-+	unsigned long flags;
-+
-+	spin_lock_irqsave(&led->lock, flags);
-+	if (!led->removed)
-+		schedule_work(&led->work);
-+	spin_unlock_irqrestore(&led->lock, flags);
-+}
-+
- static void asus_kbd_backlight_set(struct led_classdev *led_cdev,
- 				   enum led_brightness brightness)
+@@ -402,9 +402,6 @@ static void asus_kbd_backlight_set(struct led_classdev *led_cdev,
  {
-@@ -504,7 +514,7 @@ static void asus_kbd_backlight_set(struct led_classdev *led_cdev,
- 	led->brightness = brightness;
- 	spin_unlock_irqrestore(&led->lock, flags);
- 
--	schedule_work(&led->work);
-+	asus_schedule_work(led);
- }
- 
- static enum led_brightness asus_kbd_backlight_get(struct led_classdev *led_cdev)
-@@ -528,9 +538,6 @@ static void asus_kbd_backlight_work(struct work_struct *work)
- 	int ret;
- 	unsigned long flags;
- 
--	if (led->removed)
+ 	struct asus_kbd_leds *led = container_of(led_cdev, struct asus_kbd_leds,
+ 						 cdev);
+-	if (led->brightness == brightness)
 -		return;
 -
- 	spin_lock_irqsave(&led->lock, flags);
- 	buf[4] = led->brightness;
- 	spin_unlock_irqrestore(&led->lock, flags);
+ 	led->brightness = brightness;
+ 	schedule_work(&led->work);
+ }
 -- 
 2.39.1
 
