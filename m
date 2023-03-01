@@ -2,44 +2,45 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 701F66A72D2
-	for <lists+stable@lfdr.de>; Wed,  1 Mar 2023 19:10:13 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A3F036A7302
+	for <lists+stable@lfdr.de>; Wed,  1 Mar 2023 19:11:41 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229553AbjCASKJ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 1 Mar 2023 13:10:09 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42676 "EHLO
+        id S230004AbjCASLk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 1 Mar 2023 13:11:40 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45788 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230140AbjCASJz (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 1 Mar 2023 13:09:55 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 22C271FF8
-        for <stable@vger.kernel.org>; Wed,  1 Mar 2023 10:09:44 -0800 (PST)
+        with ESMTP id S230045AbjCASLh (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 1 Mar 2023 13:11:37 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 76F9F4BE8A
+        for <stable@vger.kernel.org>; Wed,  1 Mar 2023 10:11:36 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id B26626145E
-        for <stable@vger.kernel.org>; Wed,  1 Mar 2023 18:09:43 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C6AEDC433D2;
-        Wed,  1 Mar 2023 18:09:42 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 11B536145C
+        for <stable@vger.kernel.org>; Wed,  1 Mar 2023 18:11:36 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 27CE7C433D2;
+        Wed,  1 Mar 2023 18:11:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1677694183;
-        bh=wJjitCtu67QPs/ERyzS9chbzU+MB0cUw34vx3jCuz6Y=;
+        s=korg; t=1677694295;
+        bh=ui8NBwoBDB3st8tPy0olN7azK/ErkoSxJbl22aIS3Jg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=lMPY5sjE0KePI+KvtmQnoSV0MVmEp4x5NcjVtaSnZumywUFAdOS86PdgFVXJxeeZp
-         q8Fzm7/iiucK65lh4IieSYhI9h2ze8kNfCOOUFNO1yhXz+aakgoaIZ+bDN14QDz/27
-         q/zgYLvcN1fiiPzrVFW/fD8ASehEGLzQqY7F4taQ=
+        b=mhHM8d68mepUYZ0oe1pP+JO60qDfPzAzcPoGZBPoFsWM8e823fJZ6T/COmFU5siOM
+         vSxA8G2X0srZwCAooiaPhwqWME6lCYIb4xtWEHfUkWcUlhTAVnUR2u3N+O8YV+wYdP
+         +/3X0ngVgmhA1/67kN7KC/WbZV2ONt48XSMgp9s8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Johan Jonker <jbx6244@gmail.com>,
-        Heiko Stuebner <heiko@sntech.de>,
+        patches@lists.linux.dev,
+        syzbot+4376a9a073770c173269@syzkaller.appspotmail.com,
+        David Sterba <dsterba@suse.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 03/19] ARM: dts: rockchip: add power-domains property to dp node on rk3288
+Subject: [PATCH 6.1 11/42] btrfs: send: limit number of clones and allocated memory size
 Date:   Wed,  1 Mar 2023 19:08:32 +0100
-Message-Id: <20230301180652.457927871@linuxfoundation.org>
+Message-Id: <20230301180657.539931014@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230301180652.316428563@linuxfoundation.org>
-References: <20230301180652.316428563@linuxfoundation.org>
+In-Reply-To: <20230301180657.003689969@linuxfoundation.org>
+References: <20230301180657.003689969@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -53,34 +54,42 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Johan Jonker <jbx6244@gmail.com>
+From: David Sterba <dsterba@suse.com>
 
-[ Upstream commit 80422339a75088322b4d3884bd12fa0fe5d11050 ]
+[ Upstream commit 33e17b3f5ab74af12aca58c515bc8424ff69a343 ]
 
-The clocks in the Rockchip rk3288 DisplayPort node are
-included in the power-domain@RK3288_PD_VIO logic, but the
-power-domains property in the dp node is missing, so fix it.
+The arg->clone_sources_count is u64 and can trigger a warning when a
+huge value is passed from user space and a huge array is allocated.
+Limit the allocated memory to 8MiB (can be increased if needed), which
+in turn limits the number of clone sources to 8M / sizeof(struct
+clone_root) = 8M / 40 = 209715.  Real world number of clones is from
+tens to hundreds, so this is future proof.
 
-Signed-off-by: Johan Jonker <jbx6244@gmail.com>
-Link: https://lore.kernel.org/r/dab85bfb-9f55-86a1-5cd5-7388c43e0ec5@gmail.com
-Signed-off-by: Heiko Stuebner <heiko@sntech.de>
+Reported-by: syzbot+4376a9a073770c173269@syzkaller.appspotmail.com
+Signed-off-by: David Sterba <dsterba@suse.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm/boot/dts/rk3288.dtsi | 1 +
- 1 file changed, 1 insertion(+)
+ fs/btrfs/send.c | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/arch/arm/boot/dts/rk3288.dtsi b/arch/arm/boot/dts/rk3288.dtsi
-index 9051fb4a267d4..aab28161b9ae9 100644
---- a/arch/arm/boot/dts/rk3288.dtsi
-+++ b/arch/arm/boot/dts/rk3288.dtsi
-@@ -1203,6 +1203,7 @@ edp: dp@ff970000 {
- 		clock-names = "dp", "pclk";
- 		phys = <&edp_phy>;
- 		phy-names = "dp";
-+		power-domains = <&power RK3288_PD_VIO>;
- 		resets = <&cru SRST_EDP>;
- 		reset-names = "dp";
- 		rockchip,grf = <&grf>;
+diff --git a/fs/btrfs/send.c b/fs/btrfs/send.c
+index 1c4b693ee4a3a..937b60ae576e0 100644
+--- a/fs/btrfs/send.c
++++ b/fs/btrfs/send.c
+@@ -7839,10 +7839,10 @@ long btrfs_ioctl_send(struct inode *inode, struct btrfs_ioctl_send_args *arg)
+ 	/*
+ 	 * Check that we don't overflow at later allocations, we request
+ 	 * clone_sources_count + 1 items, and compare to unsigned long inside
+-	 * access_ok.
++	 * access_ok. Also set an upper limit for allocation size so this can't
++	 * easily exhaust memory. Max number of clone sources is about 200K.
+ 	 */
+-	if (arg->clone_sources_count >
+-	    ULONG_MAX / sizeof(struct clone_root) - 1) {
++	if (arg->clone_sources_count > SZ_8M / sizeof(struct clone_root)) {
+ 		ret = -EINVAL;
+ 		goto out;
+ 	}
 -- 
 2.39.0
 
