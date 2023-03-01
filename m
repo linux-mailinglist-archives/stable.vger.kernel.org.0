@@ -2,32 +2,32 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 8718B6A7305
-	for <lists+stable@lfdr.de>; Wed,  1 Mar 2023 19:11:48 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5C90E6A72E8
+	for <lists+stable@lfdr.de>; Wed,  1 Mar 2023 19:10:45 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230031AbjCASLr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 1 Mar 2023 13:11:47 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46062 "EHLO
+        id S229842AbjCASKo (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 1 Mar 2023 13:10:44 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42650 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229958AbjCASLq (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 1 Mar 2023 13:11:46 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 957FA4AFF4
-        for <stable@vger.kernel.org>; Wed,  1 Mar 2023 10:11:44 -0800 (PST)
+        with ESMTP id S230167AbjCASJ6 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 1 Mar 2023 13:09:58 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 762C55FE3
+        for <stable@vger.kernel.org>; Wed,  1 Mar 2023 10:09:53 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 2CBD56145E
-        for <stable@vger.kernel.org>; Wed,  1 Mar 2023 18:11:44 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 404B9C433EF;
-        Wed,  1 Mar 2023 18:11:43 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 26B69B810DB
+        for <stable@vger.kernel.org>; Wed,  1 Mar 2023 18:09:52 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 88E44C433D2;
+        Wed,  1 Mar 2023 18:09:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1677694303;
-        bh=kmq5FspM/q0eymI4FU3ewlLpMu0ahiaXI8VvyUXs2IY=;
+        s=korg; t=1677694190;
+        bh=HvgkDLq+l0euMjKRUI0TDInxbazd6FavQ/MDM1k93AQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=dlkLLcH52JyZtkyhPfQnaAMs/Xz/U0z5ygtOyUDbkYJfSrQIhFu2FKNyOQXRziTZ8
-         0jFFsEuR4PN7SahAUeQj4DDb/pxTnbC/VaQ+fnyLPnht0VM0PsKika+ZYFws2paeNW
-         rMYL9gRNCiDQ71aXz867lSXMPo6GF8tVJ5dUhvuc=
+        b=EvjSvIwTx3gFTCWnsYbRxCA9z9IdCIN+sWhEvdflRU5XD156mVOLV2Bul925xH4y+
+         lnGsYT2XuZoGYubjaQXur0Nq+L9YuvSFmS3rAr2RfXnsruG2+P1dYsMIDzrJMe/Jcs
+         jBoALPSQDGH85uVNhwpk7ga2SobrNHE/emhbgAts=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
@@ -37,12 +37,12 @@ Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
         Leon Romanovsky <leon@kernel.org>,
         Jason Gunthorpe <jgg@nvidia.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 14/42] IB/hfi1: Assign npages earlier
+Subject: [PATCH 5.10 06/19] IB/hfi1: Assign npages earlier
 Date:   Wed,  1 Mar 2023 19:08:35 +0100
-Message-Id: <20230301180657.685396508@linuxfoundation.org>
+Message-Id: <20230301180652.581672535@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230301180657.003689969@linuxfoundation.org>
-References: <20230301180657.003689969@linuxfoundation.org>
+In-Reply-To: <20230301180652.316428563@linuxfoundation.org>
+References: <20230301180652.316428563@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -75,10 +75,10 @@ Signed-off-by: Sasha Levin <sashal@kernel.org>
  1 file changed, 2 insertions(+), 7 deletions(-)
 
 diff --git a/drivers/infiniband/hw/hfi1/user_exp_rcv.c b/drivers/infiniband/hw/hfi1/user_exp_rcv.c
-index b02f2f0809c81..350884d5f0896 100644
+index 897923981855d..0e0be6c62e3d1 100644
 --- a/drivers/infiniband/hw/hfi1/user_exp_rcv.c
 +++ b/drivers/infiniband/hw/hfi1/user_exp_rcv.c
-@@ -160,16 +160,11 @@ static void unpin_rcv_pages(struct hfi1_filedata *fd,
+@@ -202,16 +202,11 @@ static void unpin_rcv_pages(struct hfi1_filedata *fd,
  static int pin_rcv_pages(struct hfi1_filedata *fd, struct tid_user_buf *tidbuf)
  {
  	int pinned;
@@ -96,7 +96,7 @@ index b02f2f0809c81..350884d5f0896 100644
  	if (npages > fd->uctxt->expected_count) {
  		dd_dev_err(dd, "Expected buffer too big\n");
  		return -EINVAL;
-@@ -196,7 +191,6 @@ static int pin_rcv_pages(struct hfi1_filedata *fd, struct tid_user_buf *tidbuf)
+@@ -238,7 +233,6 @@ static int pin_rcv_pages(struct hfi1_filedata *fd, struct tid_user_buf *tidbuf)
  		return pinned;
  	}
  	tidbuf->pages = pages;
@@ -104,7 +104,7 @@ index b02f2f0809c81..350884d5f0896 100644
  	fd->tid_n_pinned += pinned;
  	return pinned;
  }
-@@ -274,6 +268,7 @@ int hfi1_user_exp_rcv_setup(struct hfi1_filedata *fd,
+@@ -316,6 +310,7 @@ int hfi1_user_exp_rcv_setup(struct hfi1_filedata *fd,
  	mutex_init(&tidbuf->cover_mutex);
  	tidbuf->vaddr = tinfo->vaddr;
  	tidbuf->length = tinfo->length;
