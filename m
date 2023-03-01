@@ -2,51 +2,51 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id DF9386A730F
-	for <lists+stable@lfdr.de>; Wed,  1 Mar 2023 19:12:14 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0F7856A72E0
+	for <lists+stable@lfdr.de>; Wed,  1 Mar 2023 19:10:32 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230042AbjCASMO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 1 Mar 2023 13:12:14 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46648 "EHLO
+        id S229566AbjCASKa (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 1 Mar 2023 13:10:30 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43512 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230045AbjCASMN (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 1 Mar 2023 13:12:13 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 29A374AFF4
-        for <stable@vger.kernel.org>; Wed,  1 Mar 2023 10:12:12 -0800 (PST)
+        with ESMTP id S229883AbjCASK0 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 1 Mar 2023 13:10:26 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C1EC3271F
+        for <stable@vger.kernel.org>; Wed,  1 Mar 2023 10:10:19 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id CFF2EB810C3
-        for <stable@vger.kernel.org>; Wed,  1 Mar 2023 18:12:10 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 45D88C433D2;
-        Wed,  1 Mar 2023 18:12:09 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 42A70B810DB
+        for <stable@vger.kernel.org>; Wed,  1 Mar 2023 18:10:18 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9D82EC433EF;
+        Wed,  1 Mar 2023 18:10:16 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1677694329;
-        bh=PnrC8HtF2I1HgxrxHd2s31gER99ED1QIu/0VtEeXpmI=;
+        s=korg; t=1677694217;
+        bh=UMIMOpi4R56rS3TJV7+eADWVt30WJvkhSk5kKGwWR3o=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=pSmwhv5gB0J4lR85fMLQ9geULsrEQNfTZNJ+ikmmAr+6AKUM0CR2F3Z4K+0H43+Wy
-         dDWu0KxA/mCGKQyaNY+v4YQ5y5iKpouHk97uFbmmXAIb1fTZvrbUSwgBg/XOjZxFIf
-         Grka1QApIxBwtxlVsCXED+7Eebtp+vI+UQKkrL24=
+        b=naK5v/+BjdZaERvnB9J3usZPJAetdVR1f7i+m8h/nJa21xEbJoUIr0fnxSv+XMANA
+         yG4jyVpC8LZEAH2aFWBScjgSn+1ZGrgcosbi5qELDGR6PGtOm+6mqtTQFNHIaEZno5
+         1IGlVlv6ptPK8vpc/DIpf9Z0j20DmKzIlJ11xS9A=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Kan Liang <kan.liang@linux.intel.com>,
-        Tony Luck <tony.luck@intel.com>,
-        Dave Hansen <dave.hansen@linux.intel.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 23/42] x86/cpu: Add Lunar Lake M
-Date:   Wed,  1 Mar 2023 19:08:44 +0100
-Message-Id: <20230301180658.090562733@linuxfoundation.org>
+        patches@lists.linux.dev, Emil Velikov <emil.l.velikov@gmail.com>,
+        Dmitry Osipenko <dmitry.osipenko@collabora.com>,
+        Gerd Hoffmann <kraxel@redhat.com>,
+        Ovidiu Panait <ovidiu.panait@windriver.com>
+Subject: [PATCH 5.10 16/19] drm/virtio: Correct drm_gem_shmem_get_sg_table() error handling
+Date:   Wed,  1 Mar 2023 19:08:45 +0100
+Message-Id: <20230301180652.989746215@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230301180657.003689969@linuxfoundation.org>
-References: <20230301180657.003689969@linuxfoundation.org>
+In-Reply-To: <20230301180652.316428563@linuxfoundation.org>
+References: <20230301180652.316428563@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
         SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -54,42 +54,35 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kan Liang <kan.liang@linux.intel.com>
+From: Dmitry Osipenko <dmitry.osipenko@collabora.com>
 
-[ Upstream commit f545e8831e70065e127f903fc7aca09aa50422c7 ]
+commit 64b88afbd92fbf434759d1896a7cf705e1c00e79 upstream.
 
-Intel confirmed the existence of this CPU in Q4'2022
-earnings presentation.
+Previous commit fixed checking of the ERR_PTR value returned by
+drm_gem_shmem_get_sg_table(), but it missed to zero out the shmem->pages,
+which will crash virtio_gpu_cleanup_object(). Add the missing zeroing of
+the shmem->pages.
 
-Add the CPU model number.
-
-[ dhansen: Merging these as soon as possible makes it easier
-	   on all the folks developing model-specific features. ]
-
-Signed-off-by: Kan Liang <kan.liang@linux.intel.com>
-Signed-off-by: Tony Luck <tony.luck@intel.com>
-Signed-off-by: Dave Hansen <dave.hansen@linux.intel.com>
-Link: https://lore.kernel.org/all/20230208172340.158548-1-tony.luck%40intel.com
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes: c24968734abf ("drm/virtio: Fix NULL vs IS_ERR checking in virtio_gpu_object_shmem_init")
+Reviewed-by: Emil Velikov <emil.l.velikov@gmail.com>
+Signed-off-by: Dmitry Osipenko <dmitry.osipenko@collabora.com>
+Link: http://patchwork.freedesktop.org/patch/msgid/20220630200726.1884320-2-dmitry.osipenko@collabora.com
+Signed-off-by: Gerd Hoffmann <kraxel@redhat.com>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Ovidiu Panait <ovidiu.panait@windriver.com>
 ---
- arch/x86/include/asm/intel-family.h | 2 ++
- 1 file changed, 2 insertions(+)
+ drivers/gpu/drm/virtio/virtgpu_object.c |    1 +
+ 1 file changed, 1 insertion(+)
 
-diff --git a/arch/x86/include/asm/intel-family.h b/arch/x86/include/asm/intel-family.h
-index 347707d459c67..cbaf174d8efd9 100644
---- a/arch/x86/include/asm/intel-family.h
-+++ b/arch/x86/include/asm/intel-family.h
-@@ -123,6 +123,8 @@
- #define INTEL_FAM6_METEORLAKE		0xAC
- #define INTEL_FAM6_METEORLAKE_L		0xAA
+--- a/drivers/gpu/drm/virtio/virtgpu_object.c
++++ b/drivers/gpu/drm/virtio/virtgpu_object.c
+@@ -159,6 +159,7 @@ static int virtio_gpu_object_shmem_init(
+ 	shmem->pages = drm_gem_shmem_get_sg_table(&bo->base.base);
+ 	if (IS_ERR(shmem->pages)) {
+ 		drm_gem_shmem_unpin(&bo->base.base);
++		shmem->pages = NULL;
+ 		return PTR_ERR(shmem->pages);
+ 	}
  
-+#define INTEL_FAM6_LUNARLAKE_M		0xBD
-+
- /* "Small Core" Processors (Atom/E-Core) */
- 
- #define INTEL_FAM6_ATOM_BONNELL		0x1C /* Diamondville, Pineview */
--- 
-2.39.0
-
 
 
