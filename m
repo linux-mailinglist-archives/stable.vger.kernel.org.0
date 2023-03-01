@@ -2,105 +2,103 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 181056A7236
-	for <lists+stable@lfdr.de>; Wed,  1 Mar 2023 18:38:30 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4DDF46A724A
+	for <lists+stable@lfdr.de>; Wed,  1 Mar 2023 18:49:59 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229685AbjCARi2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 1 Mar 2023 12:38:28 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39832 "EHLO
+        id S229662AbjCARt5 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 1 Mar 2023 12:49:57 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47388 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229681AbjCARi0 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 1 Mar 2023 12:38:26 -0500
-Received: from casper.infradead.org (casper.infradead.org [IPv6:2001:8b0:10b:1236::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1FB762367D
-        for <stable@vger.kernel.org>; Wed,  1 Mar 2023 09:38:25 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
-        d=infradead.org; s=casper.20170209; h=In-Reply-To:Content-Transfer-Encoding:
-        Content-Type:MIME-Version:References:Message-ID:Subject:Cc:To:From:Date:
-        Sender:Reply-To:Content-ID:Content-Description;
-        bh=JZmPs80V5aFX6mw5aITc0LL2zwcfx8nnrc7nCp16VbA=; b=sFKv11Q5xa9wP7UbTbhY89wNHI
-        +VUFeuB0Nd9JtLHQBdUA+Tl18LvKX2s5bGu0QUR79MJ+zzwgmI7N7mpW0ilVN/c4TKQHOVVFI/IBY
-        4YIt0+kY28YXL6Ok5P4N2PebViO0qvdAd44o5Sw3yQUyUZWR0Z9BYIxB0djvROypUqYHV8wu2rpxi
-        O8t5t85oBHsfSojny0ftiwerrGaMwRvQJSG46KKBaA88yuF/1DZM7pANVjY8xotZB6ggN7bY6GXFP
-        YJou7ZEm/SLD5rOcBDbEhAlUxj+rPoAIWNXvvtHzScbCdjyWsZ3JUdGPLZVtVgp0iiCHd+PrYwyPT
-        ok+UPvJA==;
-Received: from willy by casper.infradead.org with local (Exim 4.94.2 #2 (Red Hat Linux))
-        id 1pXQPD-001mL3-T3; Wed, 01 Mar 2023 17:38:19 +0000
-Date:   Wed, 1 Mar 2023 17:38:19 +0000
-From:   Matthew Wilcox <willy@infradead.org>
-To:     Linus Torvalds <torvalds@linuxfoundation.org>
+        with ESMTP id S229557AbjCARt4 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 1 Mar 2023 12:49:56 -0500
+Received: from mail-ed1-x52b.google.com (mail-ed1-x52b.google.com [IPv6:2a00:1450:4864:20::52b])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B130B360B1
+        for <stable@vger.kernel.org>; Wed,  1 Mar 2023 09:49:54 -0800 (PST)
+Received: by mail-ed1-x52b.google.com with SMTP id i34so57151457eda.7
+        for <stable@vger.kernel.org>; Wed, 01 Mar 2023 09:49:54 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=linuxfoundation.org; s=google; t=1677692993;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=fr+dmVMwm91Gy8NGRZmShMJBGqxMRDYe1XiiIn6bQcc=;
+        b=NsYcWm922eOD7daali3r/KaM2DduEsfnEs9H7XLCTrqSaido46CzHsIXdd9XqiarNx
+         dut/JEJnkSbj0yVGOdRQ5eU2/Roj5lXMTvWuyThME6UmSBjGY0c0XfuWKRTY1kpQGMT1
+         hTvaZtvRwGGjl7Di42zO+kzTc7Kkuo3FxOIR0=
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112; t=1677692993;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=fr+dmVMwm91Gy8NGRZmShMJBGqxMRDYe1XiiIn6bQcc=;
+        b=Cy2ACgqkWq2Elzy4rrFPZsSAOf3ewQLRjCkaPEH2v8UWBxlZyfvxL8hg1JtIlKwxUK
+         COjC/JLLvyEAnTi6/tH8h8keehQtAmoG/YegGSvQm/C2T8iYs4w7271+ekkxY7H0unUt
+         mi2fjaElni7bhN3E3Owbvx7Bwe+YSxYG9Lk4Wo1BgZOqH+3IjZQ9WcUerunwwGi8Py5Z
+         HMFiQkxHCwj5IFP71C6PuPnTefMvVF3R5I05LEpsQDJkw6Eyfey+9iL3jsqr9+o+xg5L
+         S1CNg3bKJem8opki8u3GnFV66ZZiMgmzh1YbAmfJKep8nIAFIUD42KOZKBb0idXEeqvk
+         aOjA==
+X-Gm-Message-State: AO0yUKWRVwaz/RQoPxmXOfawrCbcfKedBlyZ7y8xBlb1kC54Q64tJHH5
+        votY8PUXNRD1aGvKZmQgFW3Fp8KmG7aziDNe4jIb7Q==
+X-Google-Smtp-Source: AK7set/0NY7gLuN+K7V9sOx+uHpsm4QQl6Z69w2VwMAe9pUl6DVAGRHfDdqiQ7wSmCi/LuQpvbEVKw==
+X-Received: by 2002:a17:907:365:b0:8b3:b74:aeb5 with SMTP id rs5-20020a170907036500b008b30b74aeb5mr6900456ejb.30.1677692992766;
+        Wed, 01 Mar 2023 09:49:52 -0800 (PST)
+Received: from mail-ed1-f54.google.com (mail-ed1-f54.google.com. [209.85.208.54])
+        by smtp.gmail.com with ESMTPSA id c21-20020a170906341500b008ecda4510c9sm6154447ejb.146.2023.03.01.09.49.51
+        for <stable@vger.kernel.org>
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Wed, 01 Mar 2023 09:49:52 -0800 (PST)
+Received: by mail-ed1-f54.google.com with SMTP id u9so7700212edd.2
+        for <stable@vger.kernel.org>; Wed, 01 Mar 2023 09:49:51 -0800 (PST)
+X-Received: by 2002:a50:99c5:0:b0:4ae:e5f1:7c50 with SMTP id
+ n5-20020a5099c5000000b004aee5f17c50mr4372495edb.5.1677692991611; Wed, 01 Mar
+ 2023 09:49:51 -0800 (PST)
+MIME-Version: 1.0
+References: <20230301171007.420708-1-willy@infradead.org> <CAHk-=wi5b+-Hys_8V7asP13EY=YSA8MUv=DwP7WK7mKeNvpRFw@mail.gmail.com>
+ <Y/+Ni+kYeUWQokis@casper.infradead.org>
+In-Reply-To: <Y/+Ni+kYeUWQokis@casper.infradead.org>
+From:   Linus Torvalds <torvalds@linuxfoundation.org>
+Date:   Wed, 1 Mar 2023 09:49:34 -0800
+X-Gmail-Original-Message-ID: <CAHk-=whXtntyCvVmVGcWvnYxeAkTBy9uK+5CUG_ka3ytd+Ww_A@mail.gmail.com>
+Message-ID: <CAHk-=whXtntyCvVmVGcWvnYxeAkTBy9uK+5CUG_ka3ytd+Ww_A@mail.gmail.com>
+Subject: Re: [PATCH] freevxfs: Fix kernel memory exposure with inline files
+To:     Matthew Wilcox <willy@infradead.org>
 Cc:     Christoph Hellwig <hch@lst.de>,
         Alexander Viro <viro@zeniv.linux.org.uk>, security@kernel.org,
         stable@vger.kernel.org
-Subject: Re: [PATCH] freevxfs: Fix kernel memory exposure with inline files
-Message-ID: <Y/+Ni+kYeUWQokis@casper.infradead.org>
-References: <20230301171007.420708-1-willy@infradead.org>
- <CAHk-=wi5b+-Hys_8V7asP13EY=YSA8MUv=DwP7WK7mKeNvpRFw@mail.gmail.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <CAHk-=wi5b+-Hys_8V7asP13EY=YSA8MUv=DwP7WK7mKeNvpRFw@mail.gmail.com>
-X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,SPF_HELO_NONE,
-        SPF_NONE autolearn=ham autolearn_force=no version=3.4.6
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
+X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_NONE,
+        SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Wed, Mar 01, 2023 at 09:26:27AM -0800, Linus Torvalds wrote:
-> On Wed, Mar 1, 2023 at 9:10 AM Matthew Wilcox (Oracle)
-> <willy@infradead.org> wrote:
-> >
-> > +       memcpy_to_file_folio(folio, 0, vip->vii_immed.vi_immed, isize);
-> 
-> Well, this function doesn't exist upstream yet, much less in any
-> stable kernels..
+On Wed, Mar 1, 2023 at 9:38=E2=80=AFAM Matthew Wilcox <willy@infradead.org>=
+ wrote:
+>
+> The first caller was pagecache_read() in fs/ext4/verity.c.  I
+> think that's waiting for next merge window.
 
-Oops, see other email.
+Ahh.
 
-> And while I'm on this subject: the "memcpy_from_file_folio()"
-> interface is horrendously broken. For the highmem case, it shouldn't
-> be an inline function, and it should loop over pages - instead of
-> leaving the callers having to do that.
-> 
-> Of course, callers don't actually do that (since there are no callers
-> - unless I'm again missing it due to some macro games with token
-> concatenation), but I really wish it was fixed before any callers
-> appear.
+> It does make sense
+> in that context -- the caller genuinely wants to loop over multiple
+> folios because its read may cross folio boundaries, so it makes
+> sense.
 
-The first caller was pagecache_read() in fs/ext4/verity.c.  I
-think that's waiting for next merge window.  It does make sense
-in that context -- the caller genuinely wants to loop over multiple
-folios because its read may cross folio boundaries, so it makes
-sense.  It actually reduces how much calculation the caller does:
+Hmm. Can we make it a lot more obvious that you really have to do that some=
+ way?
 
-        while (count) {
--               size_t n = min_t(size_t, count,
--                                PAGE_SIZE - offset_in_page(pos));
--               struct page *page;
-+               struct folio *folio;
-+               size_t n;
+Perhaps in the name ("partial" somewhere or something) or even with a
+__must_check on the return value or similar?
 
--               page = read_mapping_page(inode->i_mapping, pos >> PAGE_SHIFT,
-+               folio = read_mapping_folio(inode->i_mapping, pos >> PAGE_SHIFT,
-                                         NULL);
--               if (IS_ERR(page))
--                       return PTR_ERR(page);
--
--               memcpy_from_page(buf, page, offset_in_page(pos), n);
-+               if (IS_ERR(folio))
-+                       return PTR_ERR(folio);
+Because as-is, it really implies "copy to folio", and the natural
+reaction would be to loop over folios.
 
--               put_page(page);
-+               n = memcpy_from_file_folio(buf, folio, pos, count);
-+               folio_put(folio);
+The ext4 code you quote doesn't loop over folios, it loops over bytes,
+so in that context the function does indeed make sense.
 
-                buf += n;
-                pos += n;
-
-Are there other callers which only handle a single folio and really wish
-that memcpy_from_file_folio() handled the loop internally?  Probably.
-I don't have a good survey yet.
+               Linus
