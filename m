@@ -2,232 +2,190 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 87BBC6A70D8
-	for <lists+stable@lfdr.de>; Wed,  1 Mar 2023 17:25:40 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A90F16A70D9
+	for <lists+stable@lfdr.de>; Wed,  1 Mar 2023 17:25:45 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229579AbjCAQZj (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 1 Mar 2023 11:25:39 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46020 "EHLO
+        id S229445AbjCAQZo (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 1 Mar 2023 11:25:44 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46068 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229445AbjCAQZi (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 1 Mar 2023 11:25:38 -0500
-Received: from out203-205-221-209.mail.qq.com (out203-205-221-209.mail.qq.com [203.205.221.209])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3F70D3BDBA
-        for <stable@vger.kernel.org>; Wed,  1 Mar 2023 08:25:36 -0800 (PST)
+        with ESMTP id S229658AbjCAQZn (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 1 Mar 2023 11:25:43 -0500
+Received: from out203-205-251-27.mail.qq.com (out203-205-251-27.mail.qq.com [203.205.251.27])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 746F23B3C2
+        for <stable@vger.kernel.org>; Wed,  1 Mar 2023 08:25:41 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=foxmail.com;
-        s=s201512; t=1677687934;
-        bh=ejvuR/427GAOicBpVwcwiGr2d1L0Paq/tBXRyaa6gjg=;
-        h=From:To:Cc:Subject:Date;
-        b=i9ajLs6plqAYYgWwPai9pwmCDAkvehXwObYG3oHsTZG2akII+d90Mgp/7X4xbfe7W
-         n3LcGQJTTCkXuxiJ4nKCwSCXLQcJ+OZCp48MiqHm2Tc0ThOhxUXcOiLo3K/E2/z0sI
-         FrLde9k0/1AL8Fk3RpO8sB09njzI7+AcF8LOh6B4=
+        s=s201512; t=1677687939;
+        bh=BNXY/zsjrVTU8AemEq3ugAuB4lxmZ9UEuRzJPFpkHf4=;
+        h=From:To:Cc:Subject:Date:In-Reply-To:References;
+        b=nB8Fv9XsCsg+7e3eaOMte9b5X5qQ4nYqxjJcbE40dmke3WO0c16DLb0cem9jvOcc9
+         0uv4jR8w06/+UlUlB9t+ipVGtnoUDs8ox2z2hZrfEICstD7rC4c21UoFH+lec4BQZH
+         KWaCfJY24Fe/v/7GDgQ9GyTp3VpWwvSMU2ujxTH0=
 Received: from localhost.localdomain ([106.92.97.94])
         by newxmesmtplogicsvrszb6-0.qq.com (NewEsmtp) with SMTP
         id 65B916D6; Thu, 02 Mar 2023 00:25:27 +0800
-X-QQ-mid: xmsmtpt1677687927tw9qko60r
-Message-ID: <tencent_461ABFAD67C42A066A83A0E54993F41A6607@qq.com>
-X-QQ-XMAILINFO: OYMEOeTae7mlQJbtFX9H8tGORg7vbrpG70IVd6ZTREdvKLH+VuyYfCW22QaEhJ
-         KIK52CwD9NEVIA18sUTNfW5fYEkBt0oB9SPc2WEERopWb8+E9yeAxz08IjbimjFJnqPVbZGwQyzk
-         PATIXwKu/OgvPcxlsv2TfIR2YPQeG3LHBSUacSjTz0Sk5rO/pz0Aztbv1r4ok4zU4ebaSplxU+GJ
-         ZStRo/ISWw+UUY6p5iqQz6S6x6RcAxM+hTETbbpoVQkDvGkSn3VWaV+gg0pOaZHtdgqpN/8t0RPo
-         jSgLXLhidzXo/lutMnuJcaTF6XtvAzpeFAK5Yxx4oaVIe7I6cM/Xr0ze8tKslB5NgnoXJobyT0lR
-         J/Jayrr15TrMJuXjl4e6VM/JiEbLjQ3NfurJRhNp3MnSKYUtZ13DdjoMRPy8aDNLvFPGO/Wm0xyh
-         MmTQ9RMD4P2VaoOprfTUFVYnlY93COCrsgYn/KwJ2Zi2WaQE/9FwhU+kGY3w/sidakP/O6Bo3Dz3
-         hHU2/xNBw0Rgzo3UAjBaa5ZG4uVWz4GuPY/6OZHdyj1ZQhaf2sN7REIxTshHqZsMiVq1Mi/G3uwz
-         NLnSuu9PoUGx92fXHeG4dQZC/Cc8KK+44nc5Rfdf5thVg4IJIFNqqPAr1+XejtolApipEAKdoHIm
-         H1pXQyANK9kpXwpS+DWcVD1MxVSbaldz2/BCzQRW54mihTsz0VeLLUeVDoONI53/LcgEkO9QjinZ
-         DtwieAYJkEYpFVfvFXHB/Jgb0yyons75to8sWF5Mx+L6+yKfvtFxZ4PTnP2MSjf2UAYc78Ivj5Gy
-         UyCMtgiK/K8HX3cVV6Os+we/PW76eFcDf97PDFW6krUE/9yHS37wwhNxYr/E4C8xmUMV+cWrFU50
-         f0at8E94w/zT0w2SKA/1vatm94d6uEN35E53qkeX3EifCqb6W8Arb+PPQBD8VdNLcIxViwvnKYbi
-         Yffluf3sD3wA4HrT/eIGe2K3fUhuy1k/TGXHLo5Obep+gSGyOmwZ7DdIwFEYKYO9dMlBsWn3xTfs
-         Avr+1wIpj2YbxA7Y3G2fHzk4KeAuKu3Er7QrZLfK2yQH0aQZybjdBzXBhEeV55Z+5ViOmSALEJsF
-         ZLFU9G
+X-QQ-mid: xmsmtpt1677687933tvavjsely
+Message-ID: <tencent_57D5B357551D355CD0E1644EBA38338B5F06@qq.com>
+X-QQ-XMAILINFO: NkHKfw09D6j8daCIQY5P0YXOt/YEz5Em22neWv5PFUrsfHAkl6xQQZaWF2BhOH
+         9EQOnF/VR6Gufpi+YVUhRdBxr5PGwiqDGj5ZKqCe5SExULVV46LdAo45AfRVC9emQ0d5wSm1V3Ki
+         srod9lK+CcwGasnRBByr9sP8NgSaSxJ4ovJ2T1eYSbxAEpeKRJzkNWHG2FSnX5PLLIhJyqMuCFLn
+         f/sb4XGwED0ns6RKOKaYXkk0Yoru+k0qJnMJg+GUZrCzxrnTIiseHvAM0DYcS/Q5FwfcUlqdvolj
+         aYJCg58Gr9P8RRvs/UkmZv+19N3AOvqN7QaTSGS2V8nta4+CnCpZp66mTmxKUjIWhNyf2dpfAPTr
+         U/kPmW+6yM2M9qd9qqst9JffvnHioCXBIDSoxJojL+eLnul3OV3yNxbHkJWEk+57Y/OjHD3mooFK
+         SYx87n8yVQgaFu4/dsOMK9vPX8kGsJo8lB920v7duBMlpdHVOYRBg0a5iO6SPfsABazlw0uAQtwX
+         jz3uhPclw/IebDFipf4lIyz0dyO74JUQuFYzzTtorr2c+FoZw4CqJzrK56r6l75p334DxMzot4sp
+         wV51+qTxZ0479bbWPHCBjFnvjJwlQPdYwU9sveQP25afQI3jRJWTda7y8iX/8yNxxwnP8ep6uP9J
+         V5L3x55s6pmNYaWRZerThbA+lOt81URlgV33XSms4haNw30w0eYj1ndjkxn4G9czWoNyf5oowPXX
+         RTBjPddhr6XtX5O74FV3NcPI3Cj0Nc0pHXhMXyogfN4X6kcB+XR+UTWn3elbxNbAb9xuC/tmCbGy
+         +pyFngW04sF1BXYuF0nuUTbx04pBCBQ9VpkXjS8riBNbxLuysz1l/3jqbUVVGvSQmflBDfRK3RKa
+         8dp0s94zR6WDocW1dFZUi21SYk9wwuVEePBcsvL9dikh7hQFyDxDccYoimixP5h5exhJCjhMjJ3q
+         LDBFDjhoT2AllgVeWlodLZLXtTwGbybt3WFb0lHoYn8Rly7wDlpQ5xCFnlrQjk9xU2bbLx4hO0xh
+         stZg38NUXbs28RFuTXqRGckTIP0o2XJNVisAhohKYTXjfVLF0L2nDz0JXRoe4=
 From:   wenyang.linux@foxmail.com
 To:     Sasha Levin <sashal@kernel.org>,
         Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     Arnd Bergmann <arnd@arndb.de>,
-        Eric Biederman <ebiederm@xmission.com>,
-        Christoph Hellwig <hch@infradead.org>,
-        Catalin Marinas <catalin.marinas@arm.com>,
-        Will Deacon <will@kernel.org>,
-        Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
-        "James E.J. Bottomley" <James.Bottomley@HansenPartnership.com>,
-        Helge Deller <deller@gmx.de>,
-        Michael Ellerman <mpe@ellerman.id.au>,
-        Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-        Paul Mackerras <paulus@samba.org>,
-        Heiko Carstens <hca@linux.ibm.com>,
-        Vasily Gorbik <gor@linux.ibm.com>,
-        Christian Borntraeger <borntraeger@de.ibm.com>,
-        "David S. Miller" <davem@davemloft.net>,
+Cc:     Valentin Schneider <vschneid@redhat.com>,
+        Arnd Bergmann <arnd@arndb.de>,
+        "Eric W . Biederman" <ebiederm@xmission.com>,
+        Juri Lelli <jlelli@redhat.com>,
+        "Luis Claudio R . Goncalves" <lgoncalv@redhat.com>,
+        Miaohe Lin <linmiaohe@huawei.com>,
+        Petr Mladek <pmladek@suse.com>,
+        Sebastian Andrzej Siewior <bigeasy@linutronix.de>,
         Thomas Gleixner <tglx@linutronix.de>,
-        Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>,
-        "H. Peter Anvin" <hpa@zytor.com>,
-        Al Viro <viro@zeniv.linux.org.uk>,
-        Feng Tang <feng.tang@intel.com>,
-        Christoph Hellwig <hch@lst.de>,
+        Baoquan He <bhe@redhat.com>,
         Andrew Morton <akpm@linux-foundation.org>,
-        Linus Torvalds <torvalds@linux-foundation.org>,
         stable@vger.kernel.org, Wen Yang <wenyang.linux@foxmail.com>
-Subject: [PATCH 5.10 1/3] kexec: move locking into do_kexec_load
-Date:   Thu,  2 Mar 2023 00:25:00 +0800
-X-OQ-MSGID: <20230301162502.120413-1-wenyang.linux@foxmail.com>
+Subject: [PATCH 5.10 2/3] kexec: turn all kexec_mutex acquisitions into trylocks
+Date:   Thu,  2 Mar 2023 00:25:01 +0800
+X-OQ-MSGID: <20230301162502.120413-2-wenyang.linux@foxmail.com>
 X-Mailer: git-send-email 2.37.2
+In-Reply-To: <20230301162502.120413-1-wenyang.linux@foxmail.com>
+References: <20230301162502.120413-1-wenyang.linux@foxmail.com>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=0.8 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+X-Spam-Status: No, score=4.2 required=5.0 tests=BAYES_00,DKIM_SIGNED,
         DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_FROM,
-        HELO_DYNAMIC_IPADDR,RCVD_IN_DNSWL_NONE,RDNS_DYNAMIC,SPF_HELO_NONE,
-        SPF_PASS autolearn=no autolearn_force=no version=3.4.6
+        HELO_DYNAMIC_IPADDR,RCVD_IN_DNSWL_NONE,RCVD_IN_SBL_CSS,RDNS_DYNAMIC,
+        SPF_HELO_NONE,SPF_PASS autolearn=no autolearn_force=no version=3.4.6
+X-Spam-Level: ****
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Arnd Bergmann <arnd@arndb.de>
+From: Valentin Schneider <vschneid@redhat.com>
 
-commit 4b692e861619353ce069e547a67c8d0e32d9ef3d upstream.
+commit 7bb5da0d490b2d836c5218f5186ee588d2145310 upstream.
 
-Patch series "compat: remove compat_alloc_user_space", v5.
+Patch series "kexec, panic: Making crash_kexec() NMI safe", v4.
 
-Going through compat_alloc_user_space() to convert indirect system call
-arguments tends to add complexity compared to handling the native and
-compat logic in the same code.
+This patch (of 2):
 
-This patch (of 6):
+Most acquistions of kexec_mutex are done via mutex_trylock() - those were
+a direct "translation" from:
 
-The locking is the same between the native and compat version of
-sys_kexec_load(), so it can be done in the common implementation to reduce
-duplication.
+  8c5a1cf0ad3a ("kexec: use a mutex for locking rather than xchg()")
 
-Link: https://lkml.kernel.org/r/20210727144859.4150043-1-arnd@kernel.org
-Link: https://lkml.kernel.org/r/20210727144859.4150043-2-arnd@kernel.org
-Signed-off-by: Arnd Bergmann <arnd@arndb.de>
-Co-developed-by: Eric Biederman <ebiederm@xmission.com>
-Co-developed-by: Christoph Hellwig <hch@infradead.org>
-Acked-by: "Eric W. Biederman" <ebiederm@xmission.com>
-Cc: Catalin Marinas <catalin.marinas@arm.com>
-Cc: Will Deacon <will@kernel.org>
-Cc: Thomas Bogendoerfer <tsbogend@alpha.franken.de>
-Cc: "James E.J. Bottomley" <James.Bottomley@HansenPartnership.com>
-Cc: Helge Deller <deller@gmx.de>
-Cc: Michael Ellerman <mpe@ellerman.id.au>
-Cc: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-Cc: Paul Mackerras <paulus@samba.org>
-Cc: Heiko Carstens <hca@linux.ibm.com>
-Cc: Vasily Gorbik <gor@linux.ibm.com>
-Cc: Christian Borntraeger <borntraeger@de.ibm.com>
-Cc: "David S. Miller" <davem@davemloft.net>
+there have however been two additions since then that use mutex_lock():
+crash_get_memory_size() and crash_shrink_memory().
+
+A later commit will replace said mutex with an atomic variable, and
+locking operations will become atomic_cmpxchg().  Rather than having those
+mutex_lock() become while (atomic_cmpxchg(&lock, 0, 1)), turn them into
+trylocks that can return -EBUSY on acquisition failure.
+
+This does halve the printable size of the crash kernel, but that's still
+neighbouring 2G for 32bit kernels which should be ample enough.
+
+Link: https://lkml.kernel.org/r/20220630223258.4144112-1-vschneid@redhat.com
+Link: https://lkml.kernel.org/r/20220630223258.4144112-2-vschneid@redhat.com
+Signed-off-by: Valentin Schneider <vschneid@redhat.com>
+Cc: Arnd Bergmann <arnd@arndb.de>
+Cc: "Eric W . Biederman" <ebiederm@xmission.com>
+Cc: Juri Lelli <jlelli@redhat.com>
+Cc: Luis Claudio R. Goncalves <lgoncalv@redhat.com>
+Cc: Miaohe Lin <linmiaohe@huawei.com>
+Cc: Petr Mladek <pmladek@suse.com>
+Cc: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
 Cc: Thomas Gleixner <tglx@linutronix.de>
-Cc: Ingo Molnar <mingo@redhat.com>
-Cc: Borislav Petkov <bp@alien8.de>
-Cc: "H. Peter Anvin" <hpa@zytor.com>
-Cc: Al Viro <viro@zeniv.linux.org.uk>
-Cc: Feng Tang <feng.tang@intel.com>
-Cc: Christoph Hellwig <hch@lst.de>
+Cc: Baoquan He <bhe@redhat.com>
 Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
 Cc: stable@vger.kernel.org # 5.10+
 Signed-off-by: Wen Yang <wenyang.linux@foxmail.com>
 ---
- kernel/kexec.c | 44 ++++++++++++++++----------------------------
- 1 file changed, 16 insertions(+), 28 deletions(-)
+ include/linux/kexec.h |  2 +-
+ kernel/kexec_core.c   | 12 ++++++++----
+ kernel/ksysfs.c       |  7 ++++++-
+ 3 files changed, 15 insertions(+), 6 deletions(-)
 
-diff --git a/kernel/kexec.c b/kernel/kexec.c
-index c82c6c06f051..9c7aef8f4bb6 100644
---- a/kernel/kexec.c
-+++ b/kernel/kexec.c
-@@ -110,6 +110,17 @@ static int do_kexec_load(unsigned long entry, unsigned long nr_segments,
- 	unsigned long i;
- 	int ret;
+diff --git a/include/linux/kexec.h b/include/linux/kexec.h
+index a1f12e959bba..3c1deba496c9 100644
+--- a/include/linux/kexec.h
++++ b/include/linux/kexec.h
+@@ -380,8 +380,8 @@ extern note_buf_t __percpu *crash_notes;
+ extern bool kexec_in_progress;
  
-+	/*
-+	 * Because we write directly to the reserved memory region when loading
-+	 * crash kernels we need a mutex here to prevent multiple crash kernels
-+	 * from attempting to load simultaneously, and to prevent a crash kernel
-+	 * from loading over the top of a in use crash kernel.
-+	 *
-+	 * KISS: always take the mutex.
-+	 */
+ int crash_shrink_memory(unsigned long new_size);
+-size_t crash_get_memory_size(void);
+ void crash_free_reserved_phys_range(unsigned long begin, unsigned long end);
++ssize_t crash_get_memory_size(void);
+ 
+ void arch_kexec_protect_crashkres(void);
+ void arch_kexec_unprotect_crashkres(void);
+diff --git a/kernel/kexec_core.c b/kernel/kexec_core.c
+index c589c7a9562c..e47870f30728 100644
+--- a/kernel/kexec_core.c
++++ b/kernel/kexec_core.c
+@@ -989,13 +989,16 @@ void crash_kexec(struct pt_regs *regs)
+ 	}
+ }
+ 
+-size_t crash_get_memory_size(void)
++ssize_t crash_get_memory_size(void)
+ {
+-	size_t size = 0;
++	ssize_t size = 0;
++
 +	if (!mutex_trylock(&kexec_mutex))
 +		return -EBUSY;
+ 
+-	mutex_lock(&kexec_mutex);
+ 	if (crashk_res.end != crashk_res.start)
+ 		size = resource_size(&crashk_res);
 +
- 	if (flags & KEXEC_ON_CRASH) {
- 		dest_image = &kexec_crash_image;
- 		if (kexec_crash_image)
-@@ -121,7 +132,8 @@ static int do_kexec_load(unsigned long entry, unsigned long nr_segments,
- 	if (nr_segments == 0) {
- 		/* Uninstall image */
- 		kimage_free(xchg(dest_image, NULL));
--		return 0;
-+		ret = 0;
-+		goto out_unlock;
- 	}
- 	if (flags & KEXEC_ON_CRASH) {
- 		/*
-@@ -134,7 +146,7 @@ static int do_kexec_load(unsigned long entry, unsigned long nr_segments,
- 
- 	ret = kimage_alloc_init(&image, entry, nr_segments, segments, flags);
- 	if (ret)
--		return ret;
-+		goto out_unlock;
- 
- 	if (flags & KEXEC_PRESERVE_CONTEXT)
- 		image->preserve_context = 1;
-@@ -171,6 +183,8 @@ static int do_kexec_load(unsigned long entry, unsigned long nr_segments,
- 		arch_kexec_protect_crashkres();
- 
- 	kimage_free(image);
-+out_unlock:
-+	mutex_unlock(&kexec_mutex);
- 	return ret;
+ 	mutex_unlock(&kexec_mutex);
+ 	return size;
  }
+@@ -1016,7 +1019,8 @@ int crash_shrink_memory(unsigned long new_size)
+ 	unsigned long old_size;
+ 	struct resource *ram_res;
  
-@@ -247,21 +261,8 @@ SYSCALL_DEFINE4(kexec_load, unsigned long, entry, unsigned long, nr_segments,
- 		((flags & KEXEC_ARCH_MASK) != KEXEC_ARCH_DEFAULT))
- 		return -EINVAL;
+-	mutex_lock(&kexec_mutex);
++	if (!mutex_trylock(&kexec_mutex))
++		return -EBUSY;
  
--	/* Because we write directly to the reserved memory
--	 * region when loading crash kernels we need a mutex here to
--	 * prevent multiple crash  kernels from attempting to load
--	 * simultaneously, and to prevent a crash kernel from loading
--	 * over the top of a in use crash kernel.
--	 *
--	 * KISS: always take the mutex.
--	 */
--	if (!mutex_trylock(&kexec_mutex))
--		return -EBUSY;
--
- 	result = do_kexec_load(entry, nr_segments, segments, flags);
- 
--	mutex_unlock(&kexec_mutex);
--
- 	return result;
+ 	if (kexec_crash_image) {
+ 		ret = -ENOENT;
+diff --git a/kernel/ksysfs.c b/kernel/ksysfs.c
+index 35859da8bd4f..e20c19e3ba49 100644
+--- a/kernel/ksysfs.c
++++ b/kernel/ksysfs.c
+@@ -106,7 +106,12 @@ KERNEL_ATTR_RO(kexec_crash_loaded);
+ static ssize_t kexec_crash_size_show(struct kobject *kobj,
+ 				       struct kobj_attribute *attr, char *buf)
+ {
+-	return sprintf(buf, "%zu\n", crash_get_memory_size());
++	ssize_t size = crash_get_memory_size();
++
++	if (size < 0)
++		return size;
++
++	return sprintf(buf, "%zd\n", size);
  }
- 
-@@ -301,21 +302,8 @@ COMPAT_SYSCALL_DEFINE4(kexec_load, compat_ulong_t, entry,
- 			return -EFAULT;
- 	}
- 
--	/* Because we write directly to the reserved memory
--	 * region when loading crash kernels we need a mutex here to
--	 * prevent multiple crash  kernels from attempting to load
--	 * simultaneously, and to prevent a crash kernel from loading
--	 * over the top of a in use crash kernel.
--	 *
--	 * KISS: always take the mutex.
--	 */
--	if (!mutex_trylock(&kexec_mutex))
--		return -EBUSY;
--
- 	result = do_kexec_load(entry, nr_segments, ksegments, flags);
- 
--	mutex_unlock(&kexec_mutex);
--
- 	return result;
- }
- #endif
+ static ssize_t kexec_crash_size_store(struct kobject *kobj,
+ 				   struct kobj_attribute *attr,
 -- 
 2.37.2
 
