@@ -2,46 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A4FDC6A7128
-	for <lists+stable@lfdr.de>; Wed,  1 Mar 2023 17:32:32 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id EB0716A7156
+	for <lists+stable@lfdr.de>; Wed,  1 Mar 2023 17:36:36 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230022AbjCAQcb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 1 Mar 2023 11:32:31 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51590 "EHLO
+        id S230235AbjCAQgf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 1 Mar 2023 11:36:35 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60976 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230055AbjCAQcP (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 1 Mar 2023 11:32:15 -0500
+        with ESMTP id S230236AbjCAQgT (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 1 Mar 2023 11:36:19 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D77144BE91;
-        Wed,  1 Mar 2023 08:31:13 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C3A6548E25;
+        Wed,  1 Mar 2023 08:35:33 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 366E16142C;
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 56D376124D;
+        Wed,  1 Mar 2023 16:30:30 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 25DF3C433D2;
         Wed,  1 Mar 2023 16:30:29 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D5764C433EF;
-        Wed,  1 Mar 2023 16:30:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1677688228;
-        bh=kH6AnnRV6w6c0S0NoITbfcwZB2dF9DDXWRuGqA3ne5s=;
-        h=From:To:Cc:Subject:Date:From;
-        b=cviddHCxHUIKqIa4GTxRyG2Er+gR2XwP3EUx1mzUJlb1uUURLncRjTpMOAzXixoGa
-         BO7qI/J/1HVhwKy1QAstOl/eOFzq7SglQjmft2Tk28h1+bWjwdMbgqL3digMJx98OA
-         LB6Kh0X5L/wZ03OfK0CM0dBZm0VqWU8Kc2PrGGfytagAD5PKuEMNWDVT7bO0UzQvTk
-         17+HT3L+FEAP63d8hMpM26ZlBi4fmrUS2imWbYeXhgQRZEmjmovKJlbpEANYXR4zfY
-         5tEaqkBTkLghCG3jXGvYAzCGXYfzDCraJOtEyYw90nbm1b7BBaioOnAZfy5LGcaiwQ
-         N+E4L7I9bQPQQ==
+        s=k20201202; t=1677688229;
+        bh=mhLoWBLCvC+6LNIoKMHohw8KgtDwYWjT5FF61v3uLcc=;
+        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+        b=L+Atv3FyOsN45aXEvfqqePKl4RBjz0vPMXIsiHC9t1XMJ+Fi/1fpApLPJ5VchWut6
+         dBGLL0jOHkeSBEuOwlywH5jy5DDumqtY/n3fGxXGOHNZkVHBJj/Oo7LG94Jttm4jv5
+         utaYXYL39uiwx83PmedKGVmQiHSCE8mz9VfkQA4DguA9JZfjVxU6MvFx4NR9CQiD4N
+         Wsl0ilLHSPrcmskCg18xk908hg1E+ww1KHuDcizdDVC9zKJ47c4cdaOrAaDjC2qD+9
+         T+a4XJfpyiJ7wZnPsAVETmtdumo+/c7NjG3lnpIR94LJ8b4WrsZDAGPtqOBogI20j4
+         mB4KitAIUxatQ==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Jia-Ju Bai <baijiaju1990@gmail.com>,
-        TOTE Robot <oslab@tsinghua.edu.cn>,
-        Steven Rostedt <rostedt@goodmis.org>,
-        Sasha Levin <sashal@kernel.org>, mhiramat@kernel.org,
-        linux-trace-kernel@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.14 1/3] tracing: Add NULL checks for buffer in ring_buffer_free_read_page()
-Date:   Wed,  1 Mar 2023 11:30:23 -0500
-Message-Id: <20230301163026.1303278-1-sashal@kernel.org>
+Cc:     Johan Hovold <johan+linaro@kernel.org>,
+        Ard Biesheuvel <ardb@kernel.org>,
+        Sasha Levin <sashal@kernel.org>, linux-efi@vger.kernel.org
+Subject: [PATCH AUTOSEL 4.14 2/3] efi: efivars: prevent double registration
+Date:   Wed,  1 Mar 2023 11:30:24 -0500
+Message-Id: <20230301163026.1303278-2-sashal@kernel.org>
 X-Mailer: git-send-email 2.39.2
+In-Reply-To: <20230301163026.1303278-1-sashal@kernel.org>
+References: <20230301163026.1303278-1-sashal@kernel.org>
 MIME-Version: 1.0
 X-stable: review
 X-Patchwork-Hint: Ignore
@@ -55,60 +55,59 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jia-Ju Bai <baijiaju1990@gmail.com>
+From: Johan Hovold <johan+linaro@kernel.org>
 
-[ Upstream commit 3e4272b9954094907f16861199728f14002fcaf6 ]
+[ Upstream commit 0217a40d7ba6e71d7f3422fbe89b436e8ee7ece7 ]
 
-In a previous commit 7433632c9ff6, buffer, buffer->buffers and
-buffer->buffers[cpu] in ring_buffer_wake_waiters() can be NULL,
-and thus the related checks are added.
+Add the missing sanity check to efivars_register() so that it is no
+longer possible to override an already registered set of efivar ops
+(without first deregistering them).
 
-However, in the same call stack, these variables are also used in
-ring_buffer_free_read_page():
+This can help debug initialisation ordering issues where drivers have so
+far unknowingly been relying on overriding the generic ops.
 
-tracing_buffers_release()
-  ring_buffer_wake_waiters(iter->array_buffer->buffer)
-    cpu_buffer = buffer->buffers[cpu] -> Add checks by previous commit
-  ring_buffer_free_read_page(iter->array_buffer->buffer)
-    cpu_buffer = buffer->buffers[cpu] -> No check
-
-Thus, to avod possible null-pointer derefernces, the related checks
-should be added.
-
-These results are reported by a static tool designed by myself.
-
-Link: https://lkml.kernel.org/r/20230113125501.760324-1-baijiaju1990@gmail.com
-
-Reported-by: TOTE Robot <oslab@tsinghua.edu.cn>
-Signed-off-by: Jia-Ju Bai <baijiaju1990@gmail.com>
-Signed-off-by: Steven Rostedt (Google) <rostedt@goodmis.org>
+Signed-off-by: Johan Hovold <johan+linaro@kernel.org>
+Signed-off-by: Ard Biesheuvel <ardb@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/trace/ring_buffer.c | 7 ++++++-
- 1 file changed, 6 insertions(+), 1 deletion(-)
+ drivers/firmware/efi/vars.c | 13 +++++++++++--
+ 1 file changed, 11 insertions(+), 2 deletions(-)
 
-diff --git a/kernel/trace/ring_buffer.c b/kernel/trace/ring_buffer.c
-index 999dae39f12e5..a7808f8b6f56a 100644
---- a/kernel/trace/ring_buffer.c
-+++ b/kernel/trace/ring_buffer.c
-@@ -4554,11 +4554,16 @@ EXPORT_SYMBOL_GPL(ring_buffer_alloc_read_page);
-  */
- void ring_buffer_free_read_page(struct ring_buffer *buffer, int cpu, void *data)
+diff --git a/drivers/firmware/efi/vars.c b/drivers/firmware/efi/vars.c
+index e619ced030d52..462e88b9d2ba4 100644
+--- a/drivers/firmware/efi/vars.c
++++ b/drivers/firmware/efi/vars.c
+@@ -1195,19 +1195,28 @@ int efivars_register(struct efivars *efivars,
+ 		     const struct efivar_operations *ops,
+ 		     struct kobject *kobject)
  {
--	struct ring_buffer_per_cpu *cpu_buffer = buffer->buffers[cpu];
-+	struct ring_buffer_per_cpu *cpu_buffer;
- 	struct buffer_data_page *bpage = data;
- 	struct page *page = virt_to_page(bpage);
- 	unsigned long flags;
++	int rv;
++
+ 	if (down_interruptible(&efivars_lock))
+ 		return -EINTR;
  
-+	if (!buffer || !buffer->buffers || !buffer->buffers[cpu])
-+		return;
++	if (__efivars) {
++		pr_warn("efivars already registered\n");
++		rv = -EBUSY;
++		goto out;
++	}
 +
-+	cpu_buffer = buffer->buffers[cpu];
-+
- 	/* If the page is still in use someplace else, we can't reuse it */
- 	if (page_ref_count(page) > 1)
- 		goto out;
+ 	efivars->ops = ops;
+ 	efivars->kobject = kobject;
+ 
+ 	__efivars = efivars;
+ 
+ 	pr_info("Registered efivars operations\n");
+-
++	rv = 0;
++out:
+ 	up(&efivars_lock);
+ 
+-	return 0;
++	return rv;
+ }
+ EXPORT_SYMBOL_GPL(efivars_register);
+ 
 -- 
 2.39.2
 
