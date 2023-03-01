@@ -2,49 +2,59 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C7A576A7316
-	for <lists+stable@lfdr.de>; Wed,  1 Mar 2023 19:12:32 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id CC41F6A72DA
+	for <lists+stable@lfdr.de>; Wed,  1 Mar 2023 19:10:15 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230053AbjCASMb (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 1 Mar 2023 13:12:31 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46916 "EHLO
+        id S229744AbjCASKN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 1 Mar 2023 13:10:13 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42818 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230052AbjCASMb (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 1 Mar 2023 13:12:31 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 732B04AFE3
-        for <stable@vger.kernel.org>; Wed,  1 Mar 2023 10:12:30 -0800 (PST)
+        with ESMTP id S230230AbjCASKD (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 1 Mar 2023 13:10:03 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 45D2D10E3;
+        Wed,  1 Mar 2023 10:10:02 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 2E544B810C3
-        for <stable@vger.kernel.org>; Wed,  1 Mar 2023 18:12:29 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6AE54C433D2;
-        Wed,  1 Mar 2023 18:12:27 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id D58466145E;
+        Wed,  1 Mar 2023 18:10:01 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C2D52C433D2;
+        Wed,  1 Mar 2023 18:10:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1677694347;
-        bh=Ul2cX6UrFT1clrRmeOIAg5WgxINYbCha8sI77awJEH0=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=j/AuaJn5ngk5F7+qkMhbyCxltaRPvIobkDdvq9gj0NguiPI4yHhNhZ61r7Pzwic8Z
-         SGBDUAsL/cikwugBlRvnEceNNuY0ProUz8yHPUUbo7B1UF/gbX9eTmbPUqygAdxVbG
-         jG4pdSMrm3CN87y6JSgZj5XqxqwjnfLafMuV8TUI=
+        s=korg; t=1677694201;
+        bh=phJJOaIMrRBvJAMZkjNY1dHfdR84It1s0uty7i2sixs=;
+        h=From:To:Cc:Subject:Date:From;
+        b=YIxhg4lpCElNIiMhZBaPYotTQz4ZEThY/Q7Hp9TTzi5xTT1L8P5cQIZyOECbouRRX
+         lZAvDU4vbfTBW6Y7TSEwBYvFU+OLHuBmOPPgC3YkBQUcjIEm5tnFJpB8VzTClk/pgT
+         Oj/ZraBzXedS3D5Y8oxeI9TXIbjiV/M3NZ2OCdTI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Marco Rodolfi <marco.rodolfi@tuta.io>,
-        Jiri Kosina <jkosina@suse.cz>, Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 08/42] HID: Ignore battery for Elan touchscreen on Asus TP420IA
+        patches@lists.linux.dev, linux-kernel@vger.kernel.org,
+        torvalds@linux-foundation.org, akpm@linux-foundation.org,
+        linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
+        lkft-triage@lists.linaro.org, pavel@denx.de, jonathanh@nvidia.com,
+        f.fainelli@gmail.com, sudipm.mukherjee@gmail.com,
+        srw@sladewatkins.net, rwarsow@gmx.de
+Subject: [PATCH 5.10 00/19] 5.10.171-rc1 review
 Date:   Wed,  1 Mar 2023 19:08:29 +0100
-Message-Id: <20230301180657.405911889@linuxfoundation.org>
+Message-Id: <20230301180652.316428563@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230301180657.003689969@linuxfoundation.org>
-References: <20230301180657.003689969@linuxfoundation.org>
-User-Agent: quilt/0.67
 MIME-Version: 1.0
+User-Agent: quilt/0.67
+X-stable: review
+X-Patchwork-Hint: ignore
+X-KernelTest-Patch: http://kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.10.171-rc1.gz
+X-KernelTest-Tree: git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git
+X-KernelTest-Branch: linux-5.10.y
+X-KernelTest-Patches: git://git.kernel.org/pub/scm/linux/kernel/git/stable/stable-queue.git
+X-KernelTest-Version: 5.10.171-rc1
+X-KernelTest-Deadline: 2023-03-03T18:06+00:00
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
         SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -52,50 +62,113 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: marco.rodolfi@tuta.io <marco.rodolfi@tuta.io>
+This is the start of the stable review cycle for the 5.10.171 release.
+There are 19 patches in this series, all will be posted as a response
+to this one.  If anyone has any issues with these being applied, please
+let me know.
 
-[ Upstream commit cb963b2c011a62838852c902eccb3f72e5d3dbb6 ]
+Responses should be made by Fri, 03 Mar 2023 18:06:43 +0000.
+Anything received after that time might be too late.
 
-This device has a touchscreen thats report a battery even if it doesn't
-have one.
-Ask Linux to ignore the battery so it will not always report it as low.
+The whole patch series can be found in one patch at:
+	https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.10.171-rc1.gz
+or in the git tree and branch at:
+	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.10.y
+and the diffstat can be found below.
 
-[jkosina@suse.cz: fix whitespace damage]
-Signed-off-by: Marco Rodolfi <marco.rodolfi@tuta.io>
-Signed-off-by: Jiri Kosina <jkosina@suse.cz>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
----
- drivers/hid/hid-ids.h   | 1 +
- drivers/hid/hid-input.c | 2 ++
- 2 files changed, 3 insertions(+)
+thanks,
 
-diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
-index d01d798ebedca..46c0ce4203c08 100644
---- a/drivers/hid/hid-ids.h
-+++ b/drivers/hid/hid-ids.h
-@@ -413,6 +413,7 @@
- #define I2C_DEVICE_ID_HP_ENVY_X360_15T_DR100	0x29CF
- #define I2C_DEVICE_ID_HP_ENVY_X360_EU0009NV	0x2CF9
- #define I2C_DEVICE_ID_HP_SPECTRE_X360_15	0x2817
-+#define I2C_DEVICE_ID_ASUS_TP420IA_TOUCHSCREEN 0x2BC8
- #define USB_DEVICE_ID_ASUS_UX550VE_TOUCHSCREEN	0x2544
- #define USB_DEVICE_ID_ASUS_UX550_TOUCHSCREEN	0x2706
- #define I2C_DEVICE_ID_SURFACE_GO_TOUCHSCREEN	0x261A
-diff --git a/drivers/hid/hid-input.c b/drivers/hid/hid-input.c
-index 3ee5a9fea20e6..3736b0afbff73 100644
---- a/drivers/hid/hid-input.c
-+++ b/drivers/hid/hid-input.c
-@@ -370,6 +370,8 @@ static const struct hid_device_id hid_battery_quirks[] = {
- 	{ HID_BLUETOOTH_DEVICE(USB_VENDOR_ID_LOGITECH,
- 		USB_DEVICE_ID_LOGITECH_DINOVO_EDGE_KBD),
- 	  HID_BATTERY_QUIRK_IGNORE },
-+	{ HID_I2C_DEVICE(USB_VENDOR_ID_ELAN, I2C_DEVICE_ID_ASUS_TP420IA_TOUCHSCREEN),
-+	  HID_BATTERY_QUIRK_IGNORE },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_ELAN, USB_DEVICE_ID_ASUS_UX550_TOUCHSCREEN),
- 	  HID_BATTERY_QUIRK_IGNORE },
- 	{ HID_USB_DEVICE(USB_VENDOR_ID_ELAN, USB_DEVICE_ID_ASUS_UX550VE_TOUCHSCREEN),
--- 
-2.39.0
+greg k-h
 
+-------------
+Pseudo-Shortlog of commits:
+
+Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+    Linux 5.10.171-rc1
+
+Alan Stern <stern@rowland.harvard.edu>
+    USB: core: Don't hold device lock while reading the "descriptors" sysfs file
+
+Prashanth K <quic_prashk@quicinc.com>
+    usb: gadget: u_serial: Add null pointer check in gserial_resume
+
+Florian Zumbiehl <florz@florz.de>
+    USB: serial: option: add support for VW/Skoda "Carstick LTE"
+
+Dmitry Osipenko <dmitry.osipenko@collabora.com>
+    drm/virtio: Correct drm_gem_shmem_get_sg_table() error handling
+
+Miaoqian Lin <linmq006@gmail.com>
+    drm/virtio: Fix NULL vs IS_ERR checking in virtio_gpu_object_shmem_init
+
+Carlos Llamas <cmllamas@google.com>
+    scripts/tags.sh: fix incompatibility with PCRE2
+
+Cristian Ciocaltea <cristian.ciocaltea@collabora.com>
+    scripts/tags.sh: Invoke 'realpath' via 'xargs'
+
+David Sloan <david.sloan@eideticom.com>
+    md: Flush workqueue md_rdev_misc_wq in md_alloc()
+
+Thomas Weißschuh <linux@weissschuh.net>
+    vc_screen: don't clobber return value in vcs_read
+
+Kuniyuki Iwashima <kuniyu@amazon.com>
+    net: Remove WARN_ON_ONCE(sk->sk_forward_alloc) from sk_stream_kill_queues().
+
+Martin KaFai Lau <martin.lau@kernel.org>
+    bpf: bpf_fib_lookup should not return neigh in NUD_FAILED state
+
+Xin Zhao <xnzhao@google.com>
+    HID: core: Fix deadloop in hid_apply_multiplier.
+
+Julian Anastasov <ja@ssi.bg>
+    neigh: make sure used and confirmed times are valid
+
+Dean Luick <dean.luick@cornelisnetworks.com>
+    IB/hfi1: Assign npages earlier
+
+David Sterba <dsterba@suse.com>
+    btrfs: send: limit number of clones and allocated memory size
+
+Vishal Verma <vishal.l.verma@intel.com>
+    ACPI: NFIT: fix a potential deadlock during NFIT teardown
+
+Johan Jonker <jbx6244@gmail.com>
+    ARM: dts: rockchip: add power-domains property to dp node on rk3288
+
+Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
+    arm64: dts: rockchip: drop unused LED mode property from rk3328-roc-cc
+
+Benedict Wong <benedictwong@google.com>
+    Fix XFRM-I support for nested ESP tunnels
+
+
+-------------
+
+Diffstat:
+
+ Makefile                                       |  4 +-
+ arch/arm/boot/dts/rk3288.dtsi                  |  1 +
+ arch/arm64/boot/dts/rockchip/rk3328-roc-cc.dts |  2 -
+ drivers/acpi/nfit/core.c                       |  2 +-
+ drivers/gpu/drm/virtio/virtgpu_object.c        |  5 ++-
+ drivers/hid/hid-core.c                         |  3 ++
+ drivers/infiniband/hw/hfi1/user_exp_rcv.c      |  9 +----
+ drivers/md/md.c                                |  1 +
+ drivers/tty/vt/vc_screen.c                     |  7 ++--
+ drivers/usb/core/hub.c                         |  5 +--
+ drivers/usb/core/sysfs.c                       |  5 ---
+ drivers/usb/gadget/function/u_serial.c         | 23 +++++++++--
+ drivers/usb/serial/option.c                    |  4 ++
+ fs/btrfs/send.c                                |  6 +--
+ net/caif/caif_socket.c                         |  1 +
+ net/core/filter.c                              |  4 +-
+ net/core/neighbour.c                           | 18 +++++++--
+ net/core/stream.c                              |  1 -
+ net/xfrm/xfrm_interface.c                      | 54 ++++++++++++++++++++++++--
+ net/xfrm/xfrm_policy.c                         |  3 ++
+ scripts/tags.sh                                | 11 ++++--
+ 21 files changed, 123 insertions(+), 46 deletions(-)
 
 
