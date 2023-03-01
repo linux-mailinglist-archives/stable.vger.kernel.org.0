@@ -2,42 +2,40 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id AF27A6A7314
-	for <lists+stable@lfdr.de>; Wed,  1 Mar 2023 19:12:27 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 296EC6A7315
+	for <lists+stable@lfdr.de>; Wed,  1 Mar 2023 19:12:31 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229701AbjCASM0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 1 Mar 2023 13:12:26 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46860 "EHLO
+        id S230045AbjCASMa (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 1 Mar 2023 13:12:30 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46904 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230052AbjCASM0 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 1 Mar 2023 13:12:26 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0BE994AFE0
-        for <stable@vger.kernel.org>; Wed,  1 Mar 2023 10:12:25 -0800 (PST)
+        with ESMTP id S230053AbjCASM3 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 1 Mar 2023 13:12:29 -0500
+Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5E4424AFF8
+        for <stable@vger.kernel.org>; Wed,  1 Mar 2023 10:12:28 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id BC6DDB810D2
-        for <stable@vger.kernel.org>; Wed,  1 Mar 2023 18:12:23 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3143CC433EF;
-        Wed,  1 Mar 2023 18:12:22 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id B1CDACE1D9A
+        for <stable@vger.kernel.org>; Wed,  1 Mar 2023 18:12:26 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id CF5BFC433EF;
+        Wed,  1 Mar 2023 18:12:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1677694342;
-        bh=pJ9qyWBsr9mPd+z6Cn2KF2wKt9ulc41prE/bP5SrksQ=;
+        s=korg; t=1677694345;
+        bh=bVDPvsKS76PlLB/M6zDnO9LM3WYKGJDaErC+j9RUoYA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=QMLP6bljUTXhDng60X6oEdXRVEAdu/kq5bUQdYdFaDBLcnskzLulR5rMm4Rs9fdTC
-         BJa9bUxfUdsuJUB717f5XXQ3NS03uBaM/11jAuTX61u6JWmZxiLOwUuzRflIo9z8rX
-         I6lkJjIvOn9SU9wlmwns1ecxbH8S4T2pj5V/IN4I=
+        b=wjlmTxK8MBSYSShcV1vPtTomfD/j7Qa3vwScjPCJCdkP3bVl8EhzyJkm8OUS6PlfF
+         RQ290mMGzvhAI7ni3XEgwC90+V5VB5RzFKLL2MHvOc5IevGMIUf5tmH2J2wbwMWRLl
+         Sx5ejDS9298LXgTKTUocvzO8wtSgixMLEJG41TO8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Jonas Karlman <jonas@kwiboo.se>,
-        Michael Riesch <michael.riesch@wolfvision.net>,
-        Heiko Stuebner <heiko@sntech.de>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 06/42] arm64: dts: rockchip: fix probe of analog sound card on rock-3a
-Date:   Wed,  1 Mar 2023 19:08:27 +0100
-Message-Id: <20230301180657.313878008@linuxfoundation.org>
+        patches@lists.linux.dev, Takahiro Fujii <fujii@xaxxi.net>,
+        Jiri Kosina <jkosina@suse.cz>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 6.1 07/42] HID: elecom: add support for TrackBall 056E:011C
+Date:   Wed,  1 Mar 2023 19:08:28 +0100
+Message-Id: <20230301180657.365534634@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
 In-Reply-To: <20230301180657.003689969@linuxfoundation.org>
 References: <20230301180657.003689969@linuxfoundation.org>
@@ -45,8 +43,8 @@ User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
         SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -54,43 +52,104 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jonas Karlman <jonas@kwiboo.se>
+From: Takahiro Fujii <fujii@xaxxi.net>
 
-[ Upstream commit 1104693cdfcd337e73ab585a225f05445ff7a864 ]
+[ Upstream commit 29f316a1d7e0a570be9a47fa283ece53a67cebb7 ]
 
-The following was observed on my Radxa ROCK 3 Model A board:
+Make function buttons on ELECOM M-HT1DRBK trackball mouse work. This model
+has two devices with different device IDs (010D and 011C). Both of
+them misreports the number of buttons as 5 in the report descriptor, even
+though they have 8 buttons. hid-elecom overwrites the report to fix them,
+but supports only on 010D and does not work on 011C. This patch fixes
+011C in the similar way but with specialized position parameters.
+In fact, it is sufficient to rewrite only 17th byte (05 -> 08). However I
+followed the existing way.
 
-  rockchip-pinctrl pinctrl: pin gpio1-9 already requested by vcc-cam-regulator; cannot claim for fe410000.i2s
-  ...
-  platform rk809-sound: deferred probe pending
-
-Fix this by supplying a board specific pinctrl with the i2s1 pins used
-by pmic codec according to the schematic [1].
-
-[1] https://dl.radxa.com/rock3/docs/hw/3a/ROCK-3A-V1.3-SCH.pdf
-
-Signed-off-by: Jonas Karlman <jonas@kwiboo.se>
-Acked-by: Michael Riesch <michael.riesch@wolfvision.net>
-Link: https://lore.kernel.org/r/20230115211553.445007-1-jonas@kwiboo.se
-Signed-off-by: Heiko Stuebner <heiko@sntech.de>
+Signed-off-by: Takahiro Fujii <fujii@xaxxi.net>
+Signed-off-by: Jiri Kosina <jkosina@suse.cz>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/arm64/boot/dts/rockchip/rk3568-rock-3a.dts | 2 ++
- 1 file changed, 2 insertions(+)
+ drivers/hid/hid-elecom.c | 16 ++++++++++++++--
+ drivers/hid/hid-ids.h    |  3 ++-
+ drivers/hid/hid-quirks.c |  3 ++-
+ 3 files changed, 18 insertions(+), 4 deletions(-)
 
-diff --git a/arch/arm64/boot/dts/rockchip/rk3568-rock-3a.dts b/arch/arm64/boot/dts/rockchip/rk3568-rock-3a.dts
-index 44313a18e484e..bab46db2b18cd 100644
---- a/arch/arm64/boot/dts/rockchip/rk3568-rock-3a.dts
-+++ b/arch/arm64/boot/dts/rockchip/rk3568-rock-3a.dts
-@@ -521,6 +521,8 @@ &i2s0_8ch {
- };
+diff --git a/drivers/hid/hid-elecom.c b/drivers/hid/hid-elecom.c
+index e59e9911fc370..4fa45ee77503b 100644
+--- a/drivers/hid/hid-elecom.c
++++ b/drivers/hid/hid-elecom.c
+@@ -12,6 +12,7 @@
+  *  Copyright (c) 2017 Alex Manoussakis <amanou@gnu.org>
+  *  Copyright (c) 2017 Tomasz Kramkowski <tk@the-tk.com>
+  *  Copyright (c) 2020 YOSHIOKA Takuma <lo48576@hard-wi.red>
++ *  Copyright (c) 2022 Takahiro Fujii <fujii@xaxxi.net>
+  */
  
- &i2s1_8ch {
-+	pinctrl-names = "default";
-+	pinctrl-0 = <&i2s1m0_sclktx &i2s1m0_lrcktx &i2s1m0_sdi0 &i2s1m0_sdo0>;
- 	rockchip,trcm-sync-tx-only;
- 	status = "okay";
+ /*
+@@ -89,7 +90,7 @@ static __u8 *elecom_report_fixup(struct hid_device *hdev, __u8 *rdesc,
+ 	case USB_DEVICE_ID_ELECOM_M_DT1URBK:
+ 	case USB_DEVICE_ID_ELECOM_M_DT1DRBK:
+ 	case USB_DEVICE_ID_ELECOM_M_HT1URBK:
+-	case USB_DEVICE_ID_ELECOM_M_HT1DRBK:
++	case USB_DEVICE_ID_ELECOM_M_HT1DRBK_010D:
+ 		/*
+ 		 * Report descriptor format:
+ 		 * 12: button bit count
+@@ -99,6 +100,16 @@ static __u8 *elecom_report_fixup(struct hid_device *hdev, __u8 *rdesc,
+ 		 */
+ 		mouse_button_fixup(hdev, rdesc, *rsize, 12, 30, 14, 20, 8);
+ 		break;
++	case USB_DEVICE_ID_ELECOM_M_HT1DRBK_011C:
++		/*
++		 * Report descriptor format:
++		 * 22: button bit count
++		 * 30: padding bit count
++		 * 24: button report size
++		 * 16: button usage maximum
++		 */
++		mouse_button_fixup(hdev, rdesc, *rsize, 22, 30, 24, 16, 8);
++		break;
+ 	}
+ 	return rdesc;
+ }
+@@ -112,7 +123,8 @@ static const struct hid_device_id elecom_devices[] = {
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_ELECOM, USB_DEVICE_ID_ELECOM_M_DT1URBK) },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_ELECOM, USB_DEVICE_ID_ELECOM_M_DT1DRBK) },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_ELECOM, USB_DEVICE_ID_ELECOM_M_HT1URBK) },
+-	{ HID_USB_DEVICE(USB_VENDOR_ID_ELECOM, USB_DEVICE_ID_ELECOM_M_HT1DRBK) },
++	{ HID_USB_DEVICE(USB_VENDOR_ID_ELECOM, USB_DEVICE_ID_ELECOM_M_HT1DRBK_010D) },
++	{ HID_USB_DEVICE(USB_VENDOR_ID_ELECOM, USB_DEVICE_ID_ELECOM_M_HT1DRBK_011C) },
+ 	{ }
  };
+ MODULE_DEVICE_TABLE(hid, elecom_devices);
+diff --git a/drivers/hid/hid-ids.h b/drivers/hid/hid-ids.h
+index 0f8c11842a3a5..d01d798ebedca 100644
+--- a/drivers/hid/hid-ids.h
++++ b/drivers/hid/hid-ids.h
+@@ -428,7 +428,8 @@
+ #define USB_DEVICE_ID_ELECOM_M_DT1URBK	0x00fe
+ #define USB_DEVICE_ID_ELECOM_M_DT1DRBK	0x00ff
+ #define USB_DEVICE_ID_ELECOM_M_HT1URBK	0x010c
+-#define USB_DEVICE_ID_ELECOM_M_HT1DRBK	0x010d
++#define USB_DEVICE_ID_ELECOM_M_HT1DRBK_010D	0x010d
++#define USB_DEVICE_ID_ELECOM_M_HT1DRBK_011C	0x011c
+ 
+ #define USB_VENDOR_ID_DREAM_CHEEKY	0x1d34
+ #define USB_DEVICE_ID_DREAM_CHEEKY_WN	0x0004
+diff --git a/drivers/hid/hid-quirks.c b/drivers/hid/hid-quirks.c
+index be3ad02573de8..5bc91f68b3747 100644
+--- a/drivers/hid/hid-quirks.c
++++ b/drivers/hid/hid-quirks.c
+@@ -393,7 +393,8 @@ static const struct hid_device_id hid_have_special_driver[] = {
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_ELECOM, USB_DEVICE_ID_ELECOM_M_DT1URBK) },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_ELECOM, USB_DEVICE_ID_ELECOM_M_DT1DRBK) },
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_ELECOM, USB_DEVICE_ID_ELECOM_M_HT1URBK) },
+-	{ HID_USB_DEVICE(USB_VENDOR_ID_ELECOM, USB_DEVICE_ID_ELECOM_M_HT1DRBK) },
++	{ HID_USB_DEVICE(USB_VENDOR_ID_ELECOM, USB_DEVICE_ID_ELECOM_M_HT1DRBK_010D) },
++	{ HID_USB_DEVICE(USB_VENDOR_ID_ELECOM, USB_DEVICE_ID_ELECOM_M_HT1DRBK_011C) },
+ #endif
+ #if IS_ENABLED(CONFIG_HID_ELO)
+ 	{ HID_USB_DEVICE(USB_VENDOR_ID_ELO, 0x0009) },
 -- 
 2.39.0
 
