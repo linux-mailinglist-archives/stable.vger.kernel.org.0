@@ -2,58 +2,58 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 290E66A7135
-	for <lists+stable@lfdr.de>; Wed,  1 Mar 2023 17:34:07 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B42EA6A713D
+	for <lists+stable@lfdr.de>; Wed,  1 Mar 2023 17:34:29 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230075AbjCAQeE (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 1 Mar 2023 11:34:04 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51170 "EHLO
+        id S229985AbjCAQe1 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 1 Mar 2023 11:34:27 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51596 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230064AbjCAQds (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 1 Mar 2023 11:33:48 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DA0A29757;
-        Wed,  1 Mar 2023 08:32:53 -0800 (PST)
+        with ESMTP id S229983AbjCAQeI (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 1 Mar 2023 11:34:08 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F308D48E1F;
+        Wed,  1 Mar 2023 08:33:29 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 835F26142F;
-        Wed,  1 Mar 2023 16:31:59 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E4B1DC4339C;
-        Wed,  1 Mar 2023 16:31:58 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id B8C08B810C2;
+        Wed,  1 Mar 2023 16:32:08 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7DF2AC4339B;
+        Wed,  1 Mar 2023 16:32:07 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1677688318;
-        bh=uPY4ydQ25CO6ep1QeYPgkwXlpb5MsMs035528mhZyo4=;
+        s=k20201202; t=1677688327;
+        bh=ekrTEQ0q++a5WN0k+M9CsbiFIswHRa1ALpiUlb9/+Ss=;
         h=References:In-Reply-To:From:Date:Subject:To:Cc:From;
-        b=J20zqoI8C0fKAugpaNHU8PrsA6ehZHgZO1dFUVkBC3xGBKI6Cst82YCoEbImDMi0n
-         k1thuaNKbfyDP28723GfGWynkO3x94RpohRvdhAGlcN0S/nU3sHECiBXWKTXQAw6mI
-         5OXvcUls/f5p9dIR2403+gFcppx7Q7or3tk3LngH13dB8p+S+AuQbwL1foRF2zMDHL
-         10CsETO7VFxPpn86jtZsbmY28JtwIXAbfCx/c2Iu0tIdJtOEsTYHsW5ESlanxgw5Ja
-         ZgJzFi+bjbe2xy73NykwuXFQ/OGMH9OMPiC+u0RdZeOWao4uodbOr7eOwY/m6e4Lst
-         yPN8oLvDpFdJA==
-Received: by mail-lf1-f43.google.com with SMTP id n2so18357179lfb.12;
-        Wed, 01 Mar 2023 08:31:58 -0800 (PST)
-X-Gm-Message-State: AO0yUKUuETLv+1ZCHge/Qw5ie3VdVMjzf/1u3fswx41ASUueAlTT5j3V
-        mVlQ1Il/i0D/FOxmxDqiUooGo2JYZOUZih444eQ=
-X-Google-Smtp-Source: AK7set/Y/NoBB+dmLkejTZlxYAXOoRrq1VMr6b7rT1r/+40XOfvUw/fw7Xz3rDdCOW7FeF7uwCo5ThcRTnNTH25AcxQ=
-X-Received: by 2002:ac2:5926:0:b0:4dc:807a:d143 with SMTP id
- v6-20020ac25926000000b004dc807ad143mr2038190lfi.7.1677688316941; Wed, 01 Mar
- 2023 08:31:56 -0800 (PST)
+        b=KgPB/tuSBEAaOXBtYXpzsqZKTy4ozyrttC8GXchWTpgRovOjLIiynCEN1SqGu3NMl
+         YBe9Gn0grYSviUj+ZAhB7BzSFOjHTKun2IYtZK1/ywePOwaGx2q3deM6TUoNH0VGyr
+         XvNfUYMJD7NnWOfLykNyxw/O9FPhXcAdh36TZQt1D1sUbQS/PsLw2NQ3slEP8uN51o
+         3Q6nSM+XfgYhD1qPDevVNjn+GlonFclyneI109Z8aiBezIOfUJ4qOS+1EIDNXpAKHJ
+         cSGLse/FsePcoU/RBxD3U9myldCSlkuDAhoEFlSrFB7UipHfL939YKVNpeAnaTbBBS
+         mk+++6sgetfFg==
+Received: by mail-lf1-f48.google.com with SMTP id i9so18412797lfc.6;
+        Wed, 01 Mar 2023 08:32:07 -0800 (PST)
+X-Gm-Message-State: AO0yUKU1fHC+oceOkVe9v1yaOxE+vZPb3T4gGaDveDzq2atbfdhYpX6l
+        /1rSgnPUXyGmH3HjzuARY3meJVbpB/l3QppQPY4=
+X-Google-Smtp-Source: AK7set+gTLkj1nm9gIjJG3pSAjb+pOBd8d6F56tj2HqtCxfViqoktxFzETrcNp3ZewQtLDE5l7we+RdSjy5AiY0m61A=
+X-Received: by 2002:ac2:5329:0:b0:4dd:805b:5b75 with SMTP id
+ f9-20020ac25329000000b004dd805b5b75mr2024650lfh.7.1677688325522; Wed, 01 Mar
+ 2023 08:32:05 -0800 (PST)
 MIME-Version: 1.0
-References: <20230301163007.1303162-1-sashal@kernel.org> <20230301163007.1303162-2-sashal@kernel.org>
-In-Reply-To: <20230301163007.1303162-2-sashal@kernel.org>
+References: <20230301163017.1303229-1-sashal@kernel.org> <20230301163017.1303229-2-sashal@kernel.org>
+In-Reply-To: <20230301163017.1303229-2-sashal@kernel.org>
 From:   Ard Biesheuvel <ardb@kernel.org>
-Date:   Wed, 1 Mar 2023 17:31:45 +0100
-X-Gmail-Original-Message-ID: <CAMj1kXHHTPEPnfbN4XwDbo7GM3eJpQtgT67MpahELwZJeFkbLw@mail.gmail.com>
-Message-ID: <CAMj1kXHHTPEPnfbN4XwDbo7GM3eJpQtgT67MpahELwZJeFkbLw@mail.gmail.com>
-Subject: Re: [PATCH AUTOSEL 5.4 2/4] efi: efivars: prevent double registration
+Date:   Wed, 1 Mar 2023 17:31:53 +0100
+X-Gmail-Original-Message-ID: <CAMj1kXF3mhfFu4xtTJJjNwHFCk8SbvPE49neS6BjgptGabdaXQ@mail.gmail.com>
+Message-ID: <CAMj1kXF3mhfFu4xtTJJjNwHFCk8SbvPE49neS6BjgptGabdaXQ@mail.gmail.com>
+Subject: Re: [PATCH AUTOSEL 4.19 2/3] efi: efivars: prevent double registration
 To:     Sasha Levin <sashal@kernel.org>
 Cc:     linux-kernel@vger.kernel.org, stable@vger.kernel.org,
         Johan Hovold <johan+linaro@kernel.org>,
         linux-efi@vger.kernel.org
 Content-Type: text/plain; charset="UTF-8"
-X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
         SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -85,10 +85,10 @@ NAK this is not a bugfix.
 >  1 file changed, 11 insertions(+), 2 deletions(-)
 >
 > diff --git a/drivers/firmware/efi/vars.c b/drivers/firmware/efi/vars.c
-> index a32d15b2928f7..87cbcbea40e90 100644
+> index e619ced030d52..462e88b9d2ba4 100644
 > --- a/drivers/firmware/efi/vars.c
 > +++ b/drivers/firmware/efi/vars.c
-> @@ -1182,19 +1182,28 @@ int efivars_register(struct efivars *efivars,
+> @@ -1195,19 +1195,28 @@ int efivars_register(struct efivars *efivars,
 >                      const struct efivar_operations *ops,
 >                      struct kobject *kobject)
 >  {
