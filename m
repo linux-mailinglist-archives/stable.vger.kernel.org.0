@@ -2,132 +2,111 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 4FB7B6A68A0
-	for <lists+stable@lfdr.de>; Wed,  1 Mar 2023 09:13:50 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1C6F76A6842
+	for <lists+stable@lfdr.de>; Wed,  1 Mar 2023 08:40:25 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229811AbjCAINs (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 1 Mar 2023 03:13:48 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45612 "EHLO
+        id S229520AbjCAHkW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 1 Mar 2023 02:40:22 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47276 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229713AbjCAINm (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 1 Mar 2023 03:13:42 -0500
-X-Greylist: delayed 1809 seconds by postgrey-1.37 at lindbergh.monkeyblade.net; Wed, 01 Mar 2023 00:13:41 PST
-Received: from 1.mo548.mail-out.ovh.net (1.mo548.mail-out.ovh.net [178.32.121.110])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 41D773773C
-        for <stable@vger.kernel.org>; Wed,  1 Mar 2023 00:13:41 -0800 (PST)
-Received: from mxplan5.mail.ovh.net (unknown [10.109.143.25])
-        by mo548.mail-out.ovh.net (Postfix) with ESMTPS id 6E55B212FB;
-        Wed,  1 Mar 2023 07:34:00 +0000 (UTC)
-Received: from kaod.org (37.59.142.110) by DAG4EX2.mxp5.local (172.16.2.32)
- with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id 15.1.2507.21; Wed, 1 Mar
- 2023 08:33:59 +0100
-Authentication-Results: garm.ovh; auth=pass (GARM-110S004a495a9e5-a5cd-4f60-b657-3841be6cd6d6,
-                    BA6511934B6943C3167A88A21852BB5F3FADB7F3) smtp.auth=clg@kaod.org
-X-OVh-ClientIp: 82.64.250.170
-Message-ID: <36da41c9-2396-5dd4-7fef-c85412f23045@kaod.org>
-Date:   Wed, 1 Mar 2023 08:33:58 +0100
+        with ESMTP id S229470AbjCAHkV (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 1 Mar 2023 02:40:21 -0500
+Received: from 1wt.eu (wtarreau.pck.nerim.net [62.212.114.60])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTP id 499275BB3;
+        Tue, 28 Feb 2023 23:40:18 -0800 (PST)
+Received: (from willy@localhost)
+        by mail.home.local (8.17.1/8.17.1/Submit) id 3217e3eT030901;
+        Wed, 1 Mar 2023 08:40:03 +0100
+Date:   Wed, 1 Mar 2023 08:40:03 +0100
+From:   Willy Tarreau <w@1wt.eu>
+To:     Eric Biggers <ebiggers@kernel.org>
+Cc:     Greg KH <gregkh@linuxfoundation.org>,
+        Slade Watkins <srw@sladewatkins.net>,
+        Sasha Levin <sashal@kernel.org>,
+        Amir Goldstein <amir73il@gmail.com>,
+        linux-kernel@vger.kernel.org, stable@vger.kernel.org,
+        viro@zeniv.linux.org.uk, linux-fsdevel@vger.kernel.org
+Subject: Re: AUTOSEL process
+Message-ID: <Y/8BU4cyySwQZSII@1wt.eu>
+References: <Y/0wMiOwoeLcFefc@sashalap>
+ <Y/1LlA5WogOAPBNv@gmail.com>
+ <Y/1em4ygHgSjIYau@sashalap>
+ <Y/136zpJSWx96YEe@sol.localdomain>
+ <CAOQ4uxietbePiWgw8aOZiZ+YT=5vYVdPH=ChnBkU_KCaHGv+1w@mail.gmail.com>
+ <Y/3lV0P9h+FxmjyF@kroah.com>
+ <8caf1c23-54e7-6357-29b0-4f7ddf8f16d2@sladewatkins.net>
+ <Y/7fFHv3dU6osd6x@sol.localdomain>
+ <Y/7sLcCtsk9oqZH0@kroah.com>
+ <Y/79Tfn5kFIItUDD@sol.localdomain>
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
- Thunderbird/102.7.2
-Subject: Re: [PATCH v2 3/3] ARM: dts: aspeed: asrock: Correct firmware flash
- SPI clocks
-To:     Joel Stanley <joel@jms.id.au>, Zev Weiss <zev@bewilderbeest.net>
-CC:     Andrew Jeffery <andrew@aj.id.au>,
-        Krzysztof Kozlowski <krzysztof.kozlowski+dt@linaro.org>,
-        Rob Herring <robh+dt@kernel.org>, <devicetree@vger.kernel.org>,
-        <linux-arm-kernel@lists.infradead.org>,
-        <linux-aspeed@lists.ozlabs.org>, <linux-kernel@vger.kernel.org>,
-        <openbmc@lists.ozlabs.org>, <stable@vger.kernel.org>
-References: <20230224000400.12226-1-zev@bewilderbeest.net>
- <20230224000400.12226-4-zev@bewilderbeest.net>
- <CACPK8XdFT=+VJJ=iDhcmWPh9m9of2b+2UYxkrAisp6tdmWOWKg@mail.gmail.com>
-Content-Language: en-US
-From:   =?UTF-8?Q?C=c3=a9dric_Le_Goater?= <clg@kaod.org>
-In-Reply-To: <CACPK8XdFT=+VJJ=iDhcmWPh9m9of2b+2UYxkrAisp6tdmWOWKg@mail.gmail.com>
-Content-Type: text/plain; charset="UTF-8"; format=flowed
-Content-Transfer-Encoding: 8bit
-X-Originating-IP: [37.59.142.110]
-X-ClientProxiedBy: DAG2EX1.mxp5.local (172.16.2.11) To DAG4EX2.mxp5.local
- (172.16.2.32)
-X-Ovh-Tracer-GUID: b1580e2c-5d52-471c-b456-c19902cff7ea
-X-Ovh-Tracer-Id: 18439707202531920885
-X-VR-SPAMSTATE: OK
-X-VR-SPAMSCORE: -100
-X-VR-SPAMCAUSE: gggruggvucftvghtrhhoucdtuddrgedvhedrudelgedguddtfecutefuodetggdotefrodftvfcurfhrohhfihhlvgemucfqggfjpdevjffgvefmvefgnecuuegrihhlohhuthemucehtddtnecusecvtfgvtghiphhivghnthhsucdlqddutddtmdenucfjughrpefkffggfgfuvfevfhfhjggtgfhisehtkeertddtfeejnecuhfhrohhmpeevrogurhhitgcunfgvucfiohgrthgvrhcuoegtlhhgsehkrghougdrohhrgheqnecuggftrfgrthhtvghrnhepffdufeeliedujeeffffhjeffiefghffhhfdvkeeijeehledvueffhfejtdehgeegnecukfhppeduvdejrddtrddtrddupdefjedrheelrddugedvrdduuddtnecuvehluhhsthgvrhfuihiivgeptdenucfrrghrrghmpehinhgvthepuddvjedrtddrtddruddpmhgrihhlfhhrohhmpeeotghlgheskhgrohgurdhorhhgqedpnhgspghrtghpthhtohepuddprhgtphhtthhopehjohgvlhesjhhmshdrihgurdgruhdpiigvvhessggvfihilhguvghrsggvvghsthdrnhgvthdprghnughrvgifsegrjhdrihgurdgruhdpkhhriiihshiithhofhdrkhhoiihlohifshhkihdoughtsehlihhnrghrohdrohhrghdprhhosghhodgutheskhgvrhhnvghlrdhorhhgpdguvghvihgtvghtrhgvvgesvhhgvghrrdhkvghrnhgvlhdrohhrghdplhhinhhugidqrghrmhdqkhgvrhhnvghlsehlihhsthhsrdhinhhfrhgruggvrggurdhorhhgpdhlihhnuhigqdgrshhpvg
- gvugeslhhishhtshdrohiilhgrsghsrdhorhhgpdhlihhnuhigqdhkvghrnhgvlhesvhhgvghrrdhkvghrnhgvlhdrohhrghdpohhpvghnsghmtgeslhhishhtshdrohiilhgrsghsrdhorhhgpdhsthgrsghlvgesvhhgvghrrdhkvghrnhgvlhdrohhrghdpoffvtefjohhsthepmhhoheegkedpmhhouggvpehsmhhtphhouhht
-X-Spam-Status: No, score=-2.0 required=5.0 tests=BAYES_00,NICE_REPLY_A,
-        RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS autolearn=ham
-        autolearn_force=no version=3.4.6
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Y/79Tfn5kFIItUDD@sol.localdomain>
+X-Spam-Status: No, score=-1.9 required=5.0 tests=BAYES_00,SPF_HELO_PASS,
+        SPF_PASS,T_FILL_THIS_FORM_SHORT autolearn=ham autolearn_force=no
+        version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On 3/1/23 02:30, Joel Stanley wrote:
-> On Fri, 24 Feb 2023 at 00:04, Zev Weiss <zev@bewilderbeest.net> wrote:
->>
->> While I'm not aware of any problems that have occurred running these
->> at 100 MHz, the official word from ASRock is that 50 MHz is the
->> correct speed to use, so let's be safe and use that instead.
+On Tue, Feb 28, 2023 at 11:22:53PM -0800, Eric Biggers wrote:
+> On Wed, Mar 01, 2023 at 07:09:49AM +0100, Greg KH wrote:
+> > 
+> > Why would the FAILED emails want to go to a mailing list?  If the people
+> > that were part of making the patch don't want to respond to a FAILED
+> > email, why would anyone on the mailing list?
 > 
-> :(
+> The same reason we use mailing lists for kernel development at all instead of
+> just sending patches directly to the MAINTAINERS.
+
+I'm personally seeing a difference between reviewing patches on a mailing
+list to help someone polish it, and commenting on its suitability for
+stable once it's got merged, from someone not having participated to its
+inclusion. All such patches are already sent to stable@ which many of
+those of us interested in having a look are already subscribed to, and
+which most often just triggers a quick glance depending on areas of
+interest. I hardly see anyone just curious about a patch ask "are you
+sure ?".
+
+I could possibly understand the value of sending the failed ones to a
+list, in case someone with more time available than the author wants to
+give it a try. But again they're already sent to stable@. It's just that
+it might be possible that more interested parties are on other lists.
+But again I'm not fully convinced.
+
+> > But hey, I'll be glad to take a change to my script to add that
+> > functionality if you want to make it, it's here:
+> > 	https://git.kernel.org/pub/scm/linux/kernel/git/stable/stable-queue.git/tree/scripts/bad_stable
+> > 
 > 
-> Validated with which driver?
+> Ah, the classic "patches welcome".
 > 
-> Cédric, do you have any thoughts on this?
-  
+> Unfortunately, I don't think that can work very well for scripts that are only
+> ever used by at most two people -- you and Sasha.  Many even just by you,
+> apparently, as I see your name, email address, home directory, etc. hardcoded in
+> the scripts.
 
-Transactions on the Firmware SPI controller are usually configured at
-50MHz by U-Boot and Linux to stay on the safe side, specially CE0 from
-which the board boots. The other SPI controllers are generally set at
-a higher freq : 100MHz, because the devices on these buses are not for
-booting the BMC, they are mostly only written to (at a default lower
-freq). There are some exceptions when the devices and the wiring permit
-higher rates.
+But it's going into a dead end. You are the one saying that changes
+are easy, suggesting to use get_maintainers.pl, so easy that you can't
+try to adapt them in existing stuff. Even without modifying existing
+scripts, if you are really interested by such features, why not at least
+try to run your idea over a whole series, figure how long it takes, how
+accurate it seems to be, adjust the output to remove unwanted noise and
+propose for review a few lines that seem to do the job for you ?
 
-For the record, we lowered the SPI freq on the AST2400 (palmetto)
-because some chips would freak out once in a while at 100MHz.
+> (BTW, where are the scripts Sasha uses for AUTOSEL?)
 
-C.
+Maybe they're even uglier and he doesn't want to show them. The ones
+I was using to sort out 3.10 patches were totally ugly and full of
+heuristics, with lines that I would comment/uncomment along operations
+to refine the selection and I definitely wasn't going to post that
+anywhere. They were looking a bit like a commented extract of my
+.history. I'm sure over time Sasha has a much cleaner and repeatable
+process but maybe it involves parts that are not stabilized, that
+he's not proud of, or even tools contributed by coworkers that we
+don't necessarily need to know about and where he hardly sees how
+anyone could bring any help.
 
->> Signed-off-by: Zev Weiss <zev@bewilderbeest.net>
->> Cc: stable@vger.kernel.org
->> Fixes: 2b81613ce417 ("ARM: dts: aspeed: Add ASRock E3C246D4I BMC")
->> Fixes: a9a3d60b937a ("ARM: dts: aspeed: Add ASRock ROMED8HM3 BMC")
->> ---
->>   arch/arm/boot/dts/aspeed-bmc-asrock-e3c246d4i.dts | 2 +-
->>   arch/arm/boot/dts/aspeed-bmc-asrock-romed8hm3.dts | 2 +-
->>   2 files changed, 2 insertions(+), 2 deletions(-)
->>
->> diff --git a/arch/arm/boot/dts/aspeed-bmc-asrock-e3c246d4i.dts b/arch/arm/boot/dts/aspeed-bmc-asrock-e3c246d4i.dts
->> index 67a75aeafc2b..c4b2efbfdf56 100644
->> --- a/arch/arm/boot/dts/aspeed-bmc-asrock-e3c246d4i.dts
->> +++ b/arch/arm/boot/dts/aspeed-bmc-asrock-e3c246d4i.dts
->> @@ -63,7 +63,7 @@ flash@0 {
->>                  status = "okay";
->>                  m25p,fast-read;
->>                  label = "bmc";
->> -               spi-max-frequency = <100000000>; /* 100 MHz */
->> +               spi-max-frequency = <50000000>; /* 50 MHz */
->>   #include "openbmc-flash-layout.dtsi"
->>          };
->>   };
->> diff --git a/arch/arm/boot/dts/aspeed-bmc-asrock-romed8hm3.dts b/arch/arm/boot/dts/aspeed-bmc-asrock-romed8hm3.dts
->> index 00efe1a93a69..4554abf0c7cd 100644
->> --- a/arch/arm/boot/dts/aspeed-bmc-asrock-romed8hm3.dts
->> +++ b/arch/arm/boot/dts/aspeed-bmc-asrock-romed8hm3.dts
->> @@ -51,7 +51,7 @@ flash@0 {
->>                  status = "okay";
->>                  m25p,fast-read;
->>                  label = "bmc";
->> -               spi-max-frequency = <100000000>; /* 100 MHz */
->> +               spi-max-frequency = <50000000>; /* 50 MHz */
->>   #include "openbmc-flash-layout-64.dtsi"
->>          };
->>   };
->> --
->> 2.39.1.438.gdcb075ea9396.dirty
->>
-
+Willy
