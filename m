@@ -2,41 +2,41 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id DFF316A72EF
-	for <lists+stable@lfdr.de>; Wed,  1 Mar 2023 19:10:53 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A74F86A72F0
+	for <lists+stable@lfdr.de>; Wed,  1 Mar 2023 19:10:56 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229615AbjCASKx (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 1 Mar 2023 13:10:53 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44614 "EHLO
+        id S229882AbjCASKz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 1 Mar 2023 13:10:55 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44716 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229882AbjCASKv (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 1 Mar 2023 13:10:51 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 076E841B59
-        for <stable@vger.kernel.org>; Wed,  1 Mar 2023 10:10:51 -0800 (PST)
+        with ESMTP id S229901AbjCASKy (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 1 Mar 2023 13:10:54 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B2D7D42BFF
+        for <stable@vger.kernel.org>; Wed,  1 Mar 2023 10:10:53 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id B4DE4B810EE
-        for <stable@vger.kernel.org>; Wed,  1 Mar 2023 18:10:49 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 33ED5C4339B;
-        Wed,  1 Mar 2023 18:10:48 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 6EE59B810DB
+        for <stable@vger.kernel.org>; Wed,  1 Mar 2023 18:10:52 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id BE616C433D2;
+        Wed,  1 Mar 2023 18:10:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1677694248;
-        bh=/tqhBr78bcSui9bM1khBVdsrHGX3cKbNcIv3aXYs4sc=;
+        s=korg; t=1677694251;
+        bh=sL9E7aXqzAJeeCcVzyUJVpyYHQXqHP5+00clrvbzG9o=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=2ghjInB44T9H9X8TEeN58eSOef1VlETPt0mUKTd3FdeNFdTGIU1POnviBQna8dmVF
-         DhVOCN0+VM+Qz3JYlMH5HyY4dIP6iM6KRJqFU9M5ihy2FM7UfQNR2b9JFR1MzrZ5ZF
-         uNW/aVk9Rd2ZQRtL7IzKgzk4QAGXgp+Sc0JQm+fQ=
+        b=0P5Wu4RBr0GVlvA5MYb/+89Gl1dMNjIcA0crE6wjG80XC+QDPv1I/1/j5pc6Du9D5
+         DrmpXcuAqSghzvel/8VGQUgELjj593RxKSN8D2FWyasyw/Ly3/b1ac2JOnkYhWBH83
+         PCXaK1EEoDaMKgwXjbxnH4VVqgDAE8Wkl58V7pPA=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Storm Dragon <stormdragon2976@gmail.com>,
-        =?UTF-8?q?Thomas=20Wei=C3=9Fschuh?= <linux@weissschuh.net>,
-        Linus Torvalds <torvalds@linux-foundation.org>
-Subject: [PATCH 5.15 16/22] vc_screen: dont clobber return value in vcs_read
-Date:   Wed,  1 Mar 2023 19:08:49 +0100
-Message-Id: <20230301180653.302818589@linuxfoundation.org>
+        patches@lists.linux.dev,
+        Cristian Ciocaltea <cristian.ciocaltea@collabora.com>,
+        Carlos Llamas <cmllamas@google.com>
+Subject: [PATCH 5.15 17/22] scripts/tags.sh: Invoke realpath via xargs
+Date:   Wed,  1 Mar 2023 19:08:50 +0100
+Message-Id: <20230301180653.342663439@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
 In-Reply-To: <20230301180652.658125575@linuxfoundation.org>
 References: <20230301180652.658125575@linuxfoundation.org>
@@ -44,8 +44,8 @@ User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
         SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -53,53 +53,55 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Thomas Weißschuh <linux@weissschuh.net>
+From: Cristian Ciocaltea <cristian.ciocaltea@collabora.com>
 
-commit ae3419fbac845b4d3f3a9fae4cc80c68d82cdf6e upstream.
+commit 7394d2ebb651a9f62e08c6ab864aac015d27c64d upstream.
 
-Commit 226fae124b2d ("vc_screen: move load of struct vc_data pointer in
-vcs_read() to avoid UAF") moved the call to vcs_vc() into the loop.
+When COMPILED_SOURCE is set, running
 
-While doing this it also moved the unconditional assignment of
+  make ARCH=x86_64 COMPILED_SOURCE=1 cscope tags
 
-	ret = -ENXIO;
+could throw the following errors:
 
-This unconditional assignment was valid outside the loop but within it
-it clobbers the actual value of ret.
+scripts/tags.sh: line 98: /usr/bin/realpath: Argument list too long
+cscope: no source files found
+scripts/tags.sh: line 98: /usr/bin/realpath: Argument list too long
+ctags: No files specified. Try "ctags --help".
 
-To avoid this only assign "ret = -ENXIO" when actually needed.
+This is most likely to happen when the kernel is configured to build a
+large number of modules, which has the consequence of passing too many
+arguments when calling 'realpath' in 'all_compiled_sources()'.
 
-[ Also, the 'goto unlock_out" needs to be just a "break", so that it
-  does the right thing when it exits on later iterations when partial
-  success has happened - Linus ]
+Let's improve this by invoking 'realpath' through 'xargs', which takes
+care of properly limiting the argument list.
 
-Reported-by: Storm Dragon <stormdragon2976@gmail.com>
-Link: https://lore.kernel.org/lkml/Y%2FKS6vdql2pIsCiI@hotmail.com/
-Fixes: 226fae124b2d ("vc_screen: move load of struct vc_data pointer in vcs_read() to avoid UAF")
-Signed-off-by: Thomas Weißschuh <linux@weissschuh.net>
-Link: https://lore.kernel.org/lkml/64981d94-d00c-4b31-9063-43ad0a384bde@t-8ch.de/
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Signed-off-by: Cristian Ciocaltea <cristian.ciocaltea@collabora.com>
+Link: https://lore.kernel.org/r/20220516234646.531208-1-cristian.ciocaltea@collabora.com
+Cc: Carlos Llamas <cmllamas@google.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/tty/vt/vc_screen.c |    7 ++++---
- 1 file changed, 4 insertions(+), 3 deletions(-)
+ scripts/tags.sh |   11 +++++++----
+ 1 file changed, 7 insertions(+), 4 deletions(-)
 
---- a/drivers/tty/vt/vc_screen.c
-+++ b/drivers/tty/vt/vc_screen.c
-@@ -403,10 +403,11 @@ vcs_read(struct file *file, char __user
- 		unsigned int this_round, skip = 0;
- 		int size;
+--- a/scripts/tags.sh
++++ b/scripts/tags.sh
+@@ -95,10 +95,13 @@ all_sources()
  
--		ret = -ENXIO;
- 		vc = vcs_vc(inode, &viewed);
--		if (!vc)
--			goto unlock_out;
-+		if (!vc) {
-+			ret = -ENXIO;
-+			break;
-+		}
+ all_compiled_sources()
+ {
+-	realpath -es $([ -z "$KBUILD_ABS_SRCTREE" ] && echo --relative-to=.) \
+-		include/generated/autoconf.h $(find $ignore -name "*.cmd" -exec \
+-		grep -Poh '(?(?=^source_.* \K).*|(?=^  \K\S).*(?= \\))' {} \+ |
+-		awk '!a[$0]++') | sort -u
++	{
++		echo include/generated/autoconf.h
++		find $ignore -name "*.cmd" -exec \
++			grep -Poh '(?(?=^source_.* \K).*|(?=^  \K\S).*(?= \\))' {} \+ |
++		awk '!a[$0]++'
++	} | xargs realpath -es $([ -z "$KBUILD_ABS_SRCTREE" ] && echo --relative-to=.) |
++	sort -u
+ }
  
- 		/* Check whether we are above size each round,
- 		 * as copy_to_user at the end of this loop
+ all_target_sources()
 
 
