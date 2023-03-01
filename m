@@ -2,46 +2,46 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 2625C6A7309
-	for <lists+stable@lfdr.de>; Wed,  1 Mar 2023 19:12:00 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id F37C56A72E7
+	for <lists+stable@lfdr.de>; Wed,  1 Mar 2023 19:10:44 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230024AbjCASL7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 1 Mar 2023 13:11:59 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46338 "EHLO
+        id S229610AbjCASKn (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 1 Mar 2023 13:10:43 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44258 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229579AbjCASL6 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 1 Mar 2023 13:11:58 -0500
-Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 403574AFF8
-        for <stable@vger.kernel.org>; Wed,  1 Mar 2023 10:11:57 -0800 (PST)
+        with ESMTP id S229992AbjCASKh (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 1 Mar 2023 13:10:37 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6D36441B48
+        for <stable@vger.kernel.org>; Wed,  1 Mar 2023 10:10:28 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 944D4CE1DAD
-        for <stable@vger.kernel.org>; Wed,  1 Mar 2023 18:11:55 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B3196C433EF;
-        Wed,  1 Mar 2023 18:11:53 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 095C061386
+        for <stable@vger.kernel.org>; Wed,  1 Mar 2023 18:10:28 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1E6CDC433D2;
+        Wed,  1 Mar 2023 18:10:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1677694314;
-        bh=9lr9VmEQ1tDYtQIDjR6WwT25qs6IRWtWx8Qj9yDEzKg=;
+        s=korg; t=1677694227;
+        bh=5FJnQp3d75w8RrzuqKlAa8GcvSkb38AjFy2CTJ1e4OI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=S6E5i26i1onCfmumEjPvKmnPB+zZqs5aziPQ4KMIjMTpCCyVylUNl3ln/mCkEatcH
-         2l0NzgeE8imUflGYn18ELQ6vusV818mUN+Ge9/aLNNbnFLSnT+2VMA83iBpFF/89vR
-         XiH3WwwA4VMPp3thfyyS/zUFedHQS6GwBPVIQQdw=
+        b=QaogV1YGo2mxodOe0/8W5ntTplYcnXXl61frbiOADUq9VZyfZfowweH8bH7aoYGMu
+         uMRk0Eg4TP/z+6kXvNtD5vEDtvJIgG7hIJfHOgzPa6w6QvYBdfNa4tg2y2w7p7O8wT
+         4+fLV0lu02L2LCBIBWWGzeWybvS13KInntF4ovL0=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Zhang Changzhong <zhangchangzhong@huawei.com>,
-        Julian Anastasov <ja@ssi.bg>,
-        "David S. Miller" <davem@davemloft.net>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 18/42] neigh: make sure used and confirmed times are valid
+        patches@lists.linux.dev, syzbot <syzkaller@googlegroups.com>,
+        Christoph Paasch <christophpaasch@icloud.com>,
+        Kuniyuki Iwashima <kuniyu@amazon.com>,
+        Eric Dumazet <edumazet@google.com>,
+        Jakub Kicinski <kuba@kernel.org>
+Subject: [PATCH 5.10 10/19] net: Remove WARN_ON_ONCE(sk->sk_forward_alloc) from sk_stream_kill_queues().
 Date:   Wed,  1 Mar 2023 19:08:39 +0100
-Message-Id: <20230301180657.883885046@linuxfoundation.org>
+Message-Id: <20230301180652.755381901@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230301180657.003689969@linuxfoundation.org>
-References: <20230301180657.003689969@linuxfoundation.org>
+In-Reply-To: <20230301180652.316428563@linuxfoundation.org>
+References: <20230301180652.316428563@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -55,96 +55,100 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Julian Anastasov <ja@ssi.bg>
+From: Kuniyuki Iwashima <kuniyu@amazon.com>
 
-[ Upstream commit c1d2ecdf5e38e3489ce8328238b558b3b2866fe1 ]
+commit 62ec33b44e0f7168ff2886520fec6fb62d03b5a3 upstream.
 
-Entries can linger in cache without timer for days, thanks to
-the gc_thresh1 limit. As result, without traffic, the confirmed
-time can be outdated and to appear to be in the future. Later,
-on traffic, NUD_STALE entries can switch to NUD_DELAY and start
-the timer which can see the invalid confirmed time and wrongly
-switch to NUD_REACHABLE state instead of NUD_PROBE. As result,
-timer is set many days in the future. This is more visible on
-32-bit platforms, with higher HZ value.
+Christoph Paasch reported that commit b5fc29233d28 ("inet6: Remove
+inet6_destroy_sock() in sk->sk_prot->destroy().") started triggering
+WARN_ON_ONCE(sk->sk_forward_alloc) in sk_stream_kill_queues().  [0 - 2]
+Also, we can reproduce it by a program in [3].
 
-Why this is a problem? While we expect unused entries to expire,
-such entries stay in REACHABLE state for too long, locked in
-cache. They are not expired normally, only when cache is full.
+In the commit, we delay freeing ipv6_pinfo.pktoptions from sk->destroy()
+to sk->sk_destruct(), so sk->sk_forward_alloc is no longer zero in
+inet_csk_destroy_sock().
 
-Problem and the wrong state change reported by Zhang Changzhong:
+The same check has been in inet_sock_destruct() from at least v2.6,
+we can just remove the WARN_ON_ONCE().  However, among the users of
+sk_stream_kill_queues(), only CAIF is not calling inet_sock_destruct().
+Thus, we add the same WARN_ON_ONCE() to caif_sock_destructor().
 
-172.16.1.18 dev bond0 lladdr 0a:0e:0f:01:12:01 ref 1 used 350521/15994171/350520 probes 4 REACHABLE
+[0]: https://lore.kernel.org/netdev/39725AB4-88F1-41B3-B07F-949C5CAEFF4F@icloud.com/
+[1]: https://github.com/multipath-tcp/mptcp_net-next/issues/341
+[2]:
+WARNING: CPU: 0 PID: 3232 at net/core/stream.c:212 sk_stream_kill_queues+0x2f9/0x3e0
+Modules linked in:
+CPU: 0 PID: 3232 Comm: syz-executor.0 Not tainted 6.2.0-rc5ab24eb4698afbe147b424149c529e2a43ec24eb5 #2
+Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS rel-1.13.0-0-gf21b5a4aeb02-prebuilt.qemu.org 04/01/2014
+RIP: 0010:sk_stream_kill_queues+0x2f9/0x3e0
+Code: 03 0f b6 04 02 84 c0 74 08 3c 03 0f 8e ec 00 00 00 8b ab 08 01 00 00 e9 60 ff ff ff e8 d0 5f b6 fe 0f 0b eb 97 e8 c7 5f b6 fe <0f> 0b eb a0 e8 be 5f b6 fe 0f 0b e9 6a fe ff ff e8 02 07 e3 fe e9
+RSP: 0018:ffff88810570fc68 EFLAGS: 00010293
+RAX: 0000000000000000 RBX: 0000000000000000 RCX: 0000000000000000
+RDX: ffff888101f38f40 RSI: ffffffff8285e529 RDI: 0000000000000005
+RBP: 0000000000000ce0 R08: 0000000000000005 R09: 0000000000000000
+R10: 0000000000000ce0 R11: 0000000000000001 R12: ffff8881009e9488
+R13: ffffffff84af2cc0 R14: 0000000000000000 R15: ffff8881009e9458
+FS:  00007f7fdfbd5800(0000) GS:ffff88811b600000(0000) knlGS:0000000000000000
+CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+CR2: 0000001b32923000 CR3: 00000001062fc006 CR4: 0000000000170ef0
+Call Trace:
+ <TASK>
+ inet_csk_destroy_sock+0x1a1/0x320
+ __tcp_close+0xab6/0xe90
+ tcp_close+0x30/0xc0
+ inet_release+0xe9/0x1f0
+ inet6_release+0x4c/0x70
+ __sock_release+0xd2/0x280
+ sock_close+0x15/0x20
+ __fput+0x252/0xa20
+ task_work_run+0x169/0x250
+ exit_to_user_mode_prepare+0x113/0x120
+ syscall_exit_to_user_mode+0x1d/0x40
+ do_syscall_64+0x48/0x90
+ entry_SYSCALL_64_after_hwframe+0x72/0xdc
+RIP: 0033:0x7f7fdf7ae28d
+Code: c1 20 00 00 75 10 b8 03 00 00 00 0f 05 48 3d 01 f0 ff ff 73 31 c3 48 83 ec 08 e8 ee fb ff ff 48 89 04 24 b8 03 00 00 00 0f 05 <48> 8b 3c 24 48 89 c2 e8 37 fc ff ff 48 89 d0 48 83 c4 08 48 3d 01
+RSP: 002b:00000000007dfbb0 EFLAGS: 00000293 ORIG_RAX: 0000000000000003
+RAX: 0000000000000000 RBX: 0000000000000004 RCX: 00007f7fdf7ae28d
+RDX: 0000000000000000 RSI: ffffffffffffffff RDI: 0000000000000003
+RBP: 0000000000000000 R08: 000000007f338e0f R09: 0000000000000e0f
+R10: 000000007f338e13 R11: 0000000000000293 R12: 00007f7fdefff000
+R13: 00007f7fdefffcd8 R14: 00007f7fdefffce0 R15: 00007f7fdefffcd8
+ </TASK>
 
-350520 seconds have elapsed since this entry was last updated, but it is
-still in the REACHABLE state (base_reachable_time_ms is 30000),
-preventing lladdr from being updated through probe.
+[3]: https://lore.kernel.org/netdev/20230208004245.83497-1-kuniyu@amazon.com/
 
-Fix it by ensuring timer is started with valid used/confirmed
-times. Considering the valid time range is LONG_MAX jiffies,
-we try not to go too much in the past while we are in
-DELAY/PROBE state. There are also places that need
-used/updated times to be validated while timer is not running.
-
-Reported-by: Zhang Changzhong <zhangchangzhong@huawei.com>
-Signed-off-by: Julian Anastasov <ja@ssi.bg>
-Tested-by: Zhang Changzhong <zhangchangzhong@huawei.com>
-Signed-off-by: David S. Miller <davem@davemloft.net>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+Fixes: b5fc29233d28 ("inet6: Remove inet6_destroy_sock() in sk->sk_prot->destroy().")
+Reported-by: syzbot <syzkaller@googlegroups.com>
+Reported-by: Christoph Paasch <christophpaasch@icloud.com>
+Signed-off-by: Kuniyuki Iwashima <kuniyu@amazon.com>
+Reviewed-by: Eric Dumazet <edumazet@google.com>
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/core/neighbour.c | 18 +++++++++++++++---
- 1 file changed, 15 insertions(+), 3 deletions(-)
+ net/caif/caif_socket.c |    1 +
+ net/core/stream.c      |    1 -
+ 2 files changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/net/core/neighbour.c b/net/core/neighbour.c
-index 952a54763358e..bf081f62ae58b 100644
---- a/net/core/neighbour.c
-+++ b/net/core/neighbour.c
-@@ -269,7 +269,7 @@ static int neigh_forced_gc(struct neigh_table *tbl)
- 			    (n->nud_state == NUD_NOARP) ||
- 			    (tbl->is_multicast &&
- 			     tbl->is_multicast(n->primary_key)) ||
--			    time_after(tref, n->updated))
-+			    !time_in_range(n->updated, tref, jiffies))
- 				remove = true;
- 			write_unlock(&n->lock);
+--- a/net/caif/caif_socket.c
++++ b/net/caif/caif_socket.c
+@@ -1020,6 +1020,7 @@ static void caif_sock_destructor(struct
+ 		return;
+ 	}
+ 	sk_stream_kill_queues(&cf_sk->sk);
++	WARN_ON(sk->sk_forward_alloc);
+ 	caif_free_client(&cf_sk->layer);
+ }
  
-@@ -289,7 +289,17 @@ static int neigh_forced_gc(struct neigh_table *tbl)
+--- a/net/core/stream.c
++++ b/net/core/stream.c
+@@ -209,7 +209,6 @@ void sk_stream_kill_queues(struct sock *
+ 	sk_mem_reclaim(sk);
  
- static void neigh_add_timer(struct neighbour *n, unsigned long when)
- {
-+	/* Use safe distance from the jiffies - LONG_MAX point while timer
-+	 * is running in DELAY/PROBE state but still show to user space
-+	 * large times in the past.
-+	 */
-+	unsigned long mint = jiffies - (LONG_MAX - 86400 * HZ);
-+
- 	neigh_hold(n);
-+	if (!time_in_range(n->confirmed, mint, jiffies))
-+		n->confirmed = mint;
-+	if (time_before(n->used, n->confirmed))
-+		n->used = n->confirmed;
- 	if (unlikely(mod_timer(&n->timer, when))) {
- 		printk("NEIGH: BUG, double timer add, state is %x\n",
- 		       n->nud_state);
-@@ -1001,12 +1011,14 @@ static void neigh_periodic_work(struct work_struct *work)
- 				goto next_elt;
- 			}
+ 	WARN_ON(sk->sk_wmem_queued);
+-	WARN_ON(sk->sk_forward_alloc);
  
--			if (time_before(n->used, n->confirmed))
-+			if (time_before(n->used, n->confirmed) &&
-+			    time_is_before_eq_jiffies(n->confirmed))
- 				n->used = n->confirmed;
- 
- 			if (refcount_read(&n->refcnt) == 1 &&
- 			    (state == NUD_FAILED ||
--			     time_after(jiffies, n->used + NEIGH_VAR(n->parms, GC_STALETIME)))) {
-+			     !time_in_range_open(jiffies, n->used,
-+						 n->used + NEIGH_VAR(n->parms, GC_STALETIME)))) {
- 				*np = n->next;
- 				neigh_mark_dead(n);
- 				write_unlock(&n->lock);
--- 
-2.39.0
-
+ 	/* It is _impossible_ for the backlog to contain anything
+ 	 * when we get here.  All user references to this socket
 
 
