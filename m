@@ -2,41 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id EE2B46A72AC
-	for <lists+stable@lfdr.de>; Wed,  1 Mar 2023 19:08:23 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A7B616A72AD
+	for <lists+stable@lfdr.de>; Wed,  1 Mar 2023 19:08:24 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229789AbjCASIW (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 1 Mar 2023 13:08:22 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39558 "EHLO
+        id S229807AbjCASIX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 1 Mar 2023 13:08:23 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:39296 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229962AbjCASIT (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 1 Mar 2023 13:08:19 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 959BA271F
-        for <stable@vger.kernel.org>; Wed,  1 Mar 2023 10:08:05 -0800 (PST)
+        with ESMTP id S229624AbjCASIV (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 1 Mar 2023 13:08:21 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9A539410BF
+        for <stable@vger.kernel.org>; Wed,  1 Mar 2023 10:08:06 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 480F2B810D2
-        for <stable@vger.kernel.org>; Wed,  1 Mar 2023 18:08:04 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A8B88C4339B;
-        Wed,  1 Mar 2023 18:08:02 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 35E5D6144F
+        for <stable@vger.kernel.org>; Wed,  1 Mar 2023 18:08:06 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 45F75C433D2;
+        Wed,  1 Mar 2023 18:08:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1677694083;
-        bh=6a3DvynJx1rcCiVsBUeKrX/q9oIIXrZvoeeCv9ukjyY=;
+        s=korg; t=1677694085;
+        bh=sMrq0l/y9wqy08plbjVuTZjn9BZqJcB2snofLgjf9QI=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=CQlRoKJKsN7tFTdWs6QCUXAG3H/f4BgsSZKYY+0Qe4gHgi7zWMdHhrNcF1WIr+8+l
-         MBaQGaSF4+8mwUTfILns4y2KsDQ9/aCf3ndBQaKA/nSUbR6FgncqKkAw6qsdxtq6D5
-         ZM9J1UFcyi5Kw/I6h4O7XkUCaCicMcFCljjUtIUo=
+        b=BcLa0ebyEgKMpFvpVmswgGwd+O2d9S35zFlioKu/9CEYr/HiqY1+Dzl/BalvHxk0l
+         A4qLi4np5vLJv+L2cZ0LvRzcJlNvfJQoYnAAMKtjEVEf301RE0LtGERqRQwbf0I66L
+         9yLmGbD01F4s36Nu13x7XdyoqkIMX/LiQ9GruFzs=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Storm Dragon <stormdragon2976@gmail.com>,
-        =?UTF-8?q?Thomas=20Wei=C3=9Fschuh?= <linux@weissschuh.net>,
-        Linus Torvalds <torvalds@linux-foundation.org>
-Subject: [PATCH 5.4 10/13] vc_screen: dont clobber return value in vcs_read
-Date:   Wed,  1 Mar 2023 19:07:33 +0100
-Message-Id: <20230301180651.569971762@linuxfoundation.org>
+        patches@lists.linux.dev,
+        Geert Uytterhoeven <geert+renesas@glider.be>,
+        Jiasheng Jiang <jiasheng@iscas.ac.cn>,
+        Vinod Koul <vkoul@kernel.org>,
+        "Nobuhiro Iwamatsu (CIP)" <nobuhiro1.iwamatsu@toshiba.co.jp>
+Subject: [PATCH 5.4 11/13] dmaengine: sh: rcar-dmac: Check for error num after dma_set_max_seg_size
+Date:   Wed,  1 Mar 2023 19:07:34 +0100
+Message-Id: <20230301180651.610217159@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
 In-Reply-To: <20230301180651.177668495@linuxfoundation.org>
 References: <20230301180651.177668495@linuxfoundation.org>
@@ -44,8 +46,8 @@ User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
         SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -53,53 +55,38 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Thomas Weißschuh <linux@weissschuh.net>
+From: Jiasheng Jiang <jiasheng@iscas.ac.cn>
 
-commit ae3419fbac845b4d3f3a9fae4cc80c68d82cdf6e upstream.
+commit da2ad87fba0891576aadda9161b8505fde81a84d upstream.
 
-Commit 226fae124b2d ("vc_screen: move load of struct vc_data pointer in
-vcs_read() to avoid UAF") moved the call to vcs_vc() into the loop.
+As the possible failure of the dma_set_max_seg_size(), it should be
+better to check the return value of the dma_set_max_seg_size().
 
-While doing this it also moved the unconditional assignment of
-
-	ret = -ENXIO;
-
-This unconditional assignment was valid outside the loop but within it
-it clobbers the actual value of ret.
-
-To avoid this only assign "ret = -ENXIO" when actually needed.
-
-[ Also, the 'goto unlock_out" needs to be just a "break", so that it
-  does the right thing when it exits on later iterations when partial
-  success has happened - Linus ]
-
-Reported-by: Storm Dragon <stormdragon2976@gmail.com>
-Link: https://lore.kernel.org/lkml/Y%2FKS6vdql2pIsCiI@hotmail.com/
-Fixes: 226fae124b2d ("vc_screen: move load of struct vc_data pointer in vcs_read() to avoid UAF")
-Signed-off-by: Thomas Weißschuh <linux@weissschuh.net>
-Link: https://lore.kernel.org/lkml/64981d94-d00c-4b31-9063-43ad0a384bde@t-8ch.de/
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
+Fixes: 97d49c59e219 ("dmaengine: rcar-dmac: set scatter/gather max segment size")
+Reported-by: Geert Uytterhoeven <geert+renesas@glider.be>
+Signed-off-by: Jiasheng Jiang <jiasheng@iscas.ac.cn>
+Reviewed-by: Geert Uytterhoeven <geert+renesas@glider.be>
+Link: https://lore.kernel.org/r/20220111011239.452837-1-jiasheng@iscas.ac.cn
+Signed-off-by: Vinod Koul <vkoul@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Nobuhiro Iwamatsu (CIP) <nobuhiro1.iwamatsu@toshiba.co.jp>
 ---
- drivers/tty/vt/vc_screen.c |    7 ++++---
- 1 file changed, 4 insertions(+), 3 deletions(-)
+ drivers/dma/sh/rcar-dmac.c |    5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
 
---- a/drivers/tty/vt/vc_screen.c
-+++ b/drivers/tty/vt/vc_screen.c
-@@ -284,10 +284,11 @@ vcs_read(struct file *file, char __user
- 		ssize_t orig_count;
- 		long p = pos;
- 
--		ret = -ENXIO;
- 		vc = vcs_vc(inode, &viewed);
--		if (!vc)
--			goto unlock_out;
-+		if (!vc) {
-+			ret = -ENXIO;
-+			break;
-+		}
- 
- 		/* Check whether we are above size each round,
- 		 * as copy_to_user at the end of this loop
+--- a/drivers/dma/sh/rcar-dmac.c
++++ b/drivers/dma/sh/rcar-dmac.c
+@@ -1824,7 +1824,10 @@ static int rcar_dmac_probe(struct platfo
+ 	dmac->dev = &pdev->dev;
+ 	platform_set_drvdata(pdev, dmac);
+ 	dmac->dev->dma_parms = &dmac->parms;
+-	dma_set_max_seg_size(dmac->dev, RCAR_DMATCR_MASK);
++	ret = dma_set_max_seg_size(dmac->dev, RCAR_DMATCR_MASK);
++	if (ret)
++		return ret;
++
+ 	ret = dma_set_mask_and_coherent(dmac->dev, DMA_BIT_MASK(40));
+ 	if (ret)
+ 		return ret;
 
 
