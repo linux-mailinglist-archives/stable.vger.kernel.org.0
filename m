@@ -2,51 +2,50 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 5FE556A7301
-	for <lists+stable@lfdr.de>; Wed,  1 Mar 2023 19:11:41 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 701F66A72D2
+	for <lists+stable@lfdr.de>; Wed,  1 Mar 2023 19:10:13 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229771AbjCASLk (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 1 Mar 2023 13:11:40 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45760 "EHLO
+        id S229553AbjCASKJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 1 Mar 2023 13:10:09 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42676 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230042AbjCASLg (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 1 Mar 2023 13:11:36 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 60D5E4AFF3
-        for <stable@vger.kernel.org>; Wed,  1 Mar 2023 10:11:35 -0800 (PST)
+        with ESMTP id S230140AbjCASJz (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 1 Mar 2023 13:09:55 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 22C271FF8
+        for <stable@vger.kernel.org>; Wed,  1 Mar 2023 10:09:44 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 20857B810C3
-        for <stable@vger.kernel.org>; Wed,  1 Mar 2023 18:11:34 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 91650C433D2;
-        Wed,  1 Mar 2023 18:11:32 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id B26626145E
+        for <stable@vger.kernel.org>; Wed,  1 Mar 2023 18:09:43 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C6AEDC433D2;
+        Wed,  1 Mar 2023 18:09:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1677694292;
-        bh=EiqR2mBNb2HeO81ozJwc7sAeGUmXpu05lg8Yb4g7VOk=;
+        s=korg; t=1677694183;
+        bh=wJjitCtu67QPs/ERyzS9chbzU+MB0cUw34vx3jCuz6Y=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=J6lkaCV0xAuthB8BY+JJ1HMCiS1tLZ1w2P8VW+VlGMJ9sJDC7E6WeWAKFaTmwBHEi
-         J/DTNN4FJZsetHhnBrR3eXI3nkRz+NjuwqowWjderCv+O0knwf1fjrvmXi52938BF6
-         JJ3Ack9ZScwrPIGcZ/OuuSdxj0oCzrynOsUjg33U=
+        b=lMPY5sjE0KePI+KvtmQnoSV0MVmEp4x5NcjVtaSnZumywUFAdOS86PdgFVXJxeeZp
+         q8Fzm7/iiucK65lh4IieSYhI9h2ze8kNfCOOUFNO1yhXz+aakgoaIZ+bDN14QDz/27
+         q/zgYLvcN1fiiPzrVFW/fD8ASehEGLzQqY7F4taQ=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Mario Limonciello <mario.limonciello@amd.com>,
-        Linus Walleij <linus.walleij@linaro.org>,
+        patches@lists.linux.dev, Johan Jonker <jbx6244@gmail.com>,
+        Heiko Stuebner <heiko@sntech.de>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 10/42] pinctrl: amd: Fix debug output for debounce time
-Date:   Wed,  1 Mar 2023 19:08:31 +0100
-Message-Id: <20230301180657.499893825@linuxfoundation.org>
+Subject: [PATCH 5.10 03/19] ARM: dts: rockchip: add power-domains property to dp node on rk3288
+Date:   Wed,  1 Mar 2023 19:08:32 +0100
+Message-Id: <20230301180652.457927871@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230301180657.003689969@linuxfoundation.org>
-References: <20230301180657.003689969@linuxfoundation.org>
+In-Reply-To: <20230301180652.316428563@linuxfoundation.org>
+References: <20230301180652.316428563@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
         SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -54,33 +53,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mario Limonciello <mario.limonciello@amd.com>
+From: Johan Jonker <jbx6244@gmail.com>
 
-[ Upstream commit c6e0679b8381bf03315e6660cf5370f916c1a1c6 ]
+[ Upstream commit 80422339a75088322b4d3884bd12fa0fe5d11050 ]
 
-If one GPIO has debounce enabled but future GPIOs in the list don't
-have debounce the time never gets reset and shows wrong value.
+The clocks in the Rockchip rk3288 DisplayPort node are
+included in the power-domain@RK3288_PD_VIO logic, but the
+power-domains property in the dp node is missing, so fix it.
 
-Signed-off-by: Mario Limonciello <mario.limonciello@amd.com>
-Link: https://lore.kernel.org/r/20230121134812.16637-2-mario.limonciello@amd.com
-Signed-off-by: Linus Walleij <linus.walleij@linaro.org>
+Signed-off-by: Johan Jonker <jbx6244@gmail.com>
+Link: https://lore.kernel.org/r/dab85bfb-9f55-86a1-5cd5-7388c43e0ec5@gmail.com
+Signed-off-by: Heiko Stuebner <heiko@sntech.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/pinctrl/pinctrl-amd.c | 1 +
+ arch/arm/boot/dts/rk3288.dtsi | 1 +
  1 file changed, 1 insertion(+)
 
-diff --git a/drivers/pinctrl/pinctrl-amd.c b/drivers/pinctrl/pinctrl-amd.c
-index 9bc6e3922e78e..32c3edaf90385 100644
---- a/drivers/pinctrl/pinctrl-amd.c
-+++ b/drivers/pinctrl/pinctrl-amd.c
-@@ -365,6 +365,7 @@ static void amd_gpio_dbg_show(struct seq_file *s, struct gpio_chip *gc)
- 
- 			} else {
- 				debounce_enable = "  ∅";
-+				time = 0;
- 			}
- 			snprintf(debounce_value, sizeof(debounce_value), "%u", time * unit);
- 			seq_printf(s, "debounce %s (🕑 %sus)| ", debounce_enable, debounce_value);
+diff --git a/arch/arm/boot/dts/rk3288.dtsi b/arch/arm/boot/dts/rk3288.dtsi
+index 9051fb4a267d4..aab28161b9ae9 100644
+--- a/arch/arm/boot/dts/rk3288.dtsi
++++ b/arch/arm/boot/dts/rk3288.dtsi
+@@ -1203,6 +1203,7 @@ edp: dp@ff970000 {
+ 		clock-names = "dp", "pclk";
+ 		phys = <&edp_phy>;
+ 		phy-names = "dp";
++		power-domains = <&power RK3288_PD_VIO>;
+ 		resets = <&cru SRST_EDP>;
+ 		reset-names = "dp";
+ 		rockchip,grf = <&grf>;
 -- 
 2.39.0
 
