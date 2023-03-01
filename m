@@ -2,51 +2,49 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 5B4F26A7308
-	for <lists+stable@lfdr.de>; Wed,  1 Mar 2023 19:11:58 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 81F846A72D9
+	for <lists+stable@lfdr.de>; Wed,  1 Mar 2023 19:10:15 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229958AbjCASL5 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 1 Mar 2023 13:11:57 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46338 "EHLO
+        id S229602AbjCASKN (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 1 Mar 2023 13:10:13 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42630 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230045AbjCASL4 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 1 Mar 2023 13:11:56 -0500
-Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 98DBF4AFE0
-        for <stable@vger.kernel.org>; Wed,  1 Mar 2023 10:11:54 -0800 (PST)
+        with ESMTP id S230196AbjCASKA (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 1 Mar 2023 13:10:00 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5FC0D1BE6
+        for <stable@vger.kernel.org>; Wed,  1 Mar 2023 10:09:59 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 11D29CE1DAC
-        for <stable@vger.kernel.org>; Wed,  1 Mar 2023 18:11:53 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 18544C433D2;
-        Wed,  1 Mar 2023 18:11:50 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 411836142D
+        for <stable@vger.kernel.org>; Wed,  1 Mar 2023 18:09:59 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 55775C433EF;
+        Wed,  1 Mar 2023 18:09:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1677694311;
-        bh=OtF8ZiBBwfOgsqCNX3FwBB8ECvvndlNZDuoqjQndGxo=;
+        s=korg; t=1677694198;
+        bh=VxUE1Xkw7rVqzGmHygOlnbIsirpE+UwpLeoixFAU02g=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=wKPXuYWvcY91iV4LL1bVEW2SY4iLu8G/lrm2MJS8L7A+HOF11a14UBlA5Zb+zPTNd
-         0M9dviBcNa+w8dW6SB2z8DTNG7NvPk4Z0mhSmrXUWsSJeZLreG6zCMDL8ZJoxb1rde
-         bYrHIUoOvwtx/1+2LtB/Qd4aZnmkRulmz+lKMf3k=
+        b=sOsd9EtUrI+RZJwK8caYO/Cn4PGO3o4QvVp2DaFrkYW7DzWrAbokB4CpFaION+vZ2
+         dgLTb1ecpzkk3i129wqQLb+gfUXAVC5CI92R2f8eAv71VH6CV7KyRHzdZdAhOTXdJm
+         NbLfyfPZN/1ulO0Xkgt7qQIrqCHjYniq7+Rl4L0c=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Patrice Chotard <patrice.chotard@foss.st.com>,
-        Dmitry Torokhov <dmitry.torokhov@gmail.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 6.1 17/42] ARM: dts: stihxxx-b2120: fix polarity of reset line of tsin0 port
+        patches@lists.linux.dev, Martin KaFai Lau <martin.lau@kernel.org>,
+        Daniel Borkmann <daniel@iogearbox.net>
+Subject: [PATCH 5.10 09/19] bpf: bpf_fib_lookup should not return neigh in NUD_FAILED state
 Date:   Wed,  1 Mar 2023 19:08:38 +0100
-Message-Id: <20230301180657.842673218@linuxfoundation.org>
+Message-Id: <20230301180652.715064125@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230301180657.003689969@linuxfoundation.org>
-References: <20230301180657.003689969@linuxfoundation.org>
+In-Reply-To: <20230301180652.316428563@linuxfoundation.org>
+References: <20230301180652.316428563@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
         SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -54,38 +52,48 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+From: Martin KaFai Lau <martin.lau@kernel.org>
 
-[ Upstream commit 4722dd4029c63f10414ffd8d3ffdd6c748391cd7 ]
+commit 1fe4850b34ab512ff911e2c035c75fb6438f7307 upstream.
 
-According to c8sectpfe driver code we first drive reset line low and
-then high to reset the port, therefore the reset line is supposed to
-be annotated as "active low". This will be important when we convert
-the driver to gpiod API.
+The bpf_fib_lookup() helper does not only look up the fib (ie. route)
+but it also looks up the neigh. Before returning the neigh, the helper
+does not check for NUD_VALID. When a neigh state (neigh->nud_state)
+is in NUD_FAILED, its dmac (neigh->ha) could be all zeros. The helper
+still returns SUCCESS instead of NO_NEIGH in this case. Because of the
+SUCCESS return value, the bpf prog directly uses the returned dmac
+and ends up filling all zero in the eth header.
 
-Reviewed-by: Patrice Chotard <patrice.chotard@foss.st.com>
-Signed-off-by: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Signed-off-by: Patrice Chotard <patrice.chotard@foss.st.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+This patch checks for NUD_VALID and returns NO_NEIGH if the neigh is
+not valid.
+
+Signed-off-by: Martin KaFai Lau <martin.lau@kernel.org>
+Signed-off-by: Daniel Borkmann <daniel@iogearbox.net>
+Link: https://lore.kernel.org/bpf/20230217004150.2980689-3-martin.lau@linux.dev
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- arch/arm/boot/dts/stihxxx-b2120.dtsi | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ net/core/filter.c |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/arch/arm/boot/dts/stihxxx-b2120.dtsi b/arch/arm/boot/dts/stihxxx-b2120.dtsi
-index 2aa94605d3d47..d52a7aaa10743 100644
---- a/arch/arm/boot/dts/stihxxx-b2120.dtsi
-+++ b/arch/arm/boot/dts/stihxxx-b2120.dtsi
-@@ -178,7 +178,7 @@ tsin0: port {
- 				tsin-num = <0>;
- 				serial-not-parallel;
- 				i2c-bus = <&ssc2>;
--				reset-gpios = <&pio15 4 GPIO_ACTIVE_HIGH>;
-+				reset-gpios = <&pio15 4 GPIO_ACTIVE_LOW>;
- 				dvb-card = <STV0367_TDA18212_NIMA_1>;
- 			};
- 		};
--- 
-2.39.0
-
+--- a/net/core/filter.c
++++ b/net/core/filter.c
+@@ -5401,7 +5401,7 @@ static int bpf_ipv4_fib_lookup(struct ne
+ 		neigh = __ipv6_neigh_lookup_noref_stub(dev, dst);
+ 	}
+ 
+-	if (!neigh)
++	if (!neigh || !(neigh->nud_state & NUD_VALID))
+ 		return BPF_FIB_LKUP_RET_NO_NEIGH;
+ 
+ 	return bpf_fib_set_fwd_params(params, neigh, dev);
+@@ -5514,7 +5514,7 @@ static int bpf_ipv6_fib_lookup(struct ne
+ 	 * not needed here.
+ 	 */
+ 	neigh = __ipv6_neigh_lookup_noref_stub(dev, dst);
+-	if (!neigh)
++	if (!neigh || !(neigh->nud_state & NUD_VALID))
+ 		return BPF_FIB_LKUP_RET_NO_NEIGH;
+ 
+ 	return bpf_fib_set_fwd_params(params, neigh, dev);
 
 
