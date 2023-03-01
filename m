@@ -2,141 +2,129 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 3210C6A61BA
-	for <lists+stable@lfdr.de>; Tue, 28 Feb 2023 22:48:28 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2F52C6A643E
+	for <lists+stable@lfdr.de>; Wed,  1 Mar 2023 01:29:06 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229509AbjB1Vs0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 28 Feb 2023 16:48:26 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40876 "EHLO
+        id S229565AbjCAA3D (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 28 Feb 2023 19:29:03 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34982 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229585AbjB1VsZ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 28 Feb 2023 16:48:25 -0500
-Received: from metis.ext.pengutronix.de (metis.ext.pengutronix.de [IPv6:2001:67c:670:201:290:27ff:fe1d:cc33])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 76E9F6EB7
-        for <stable@vger.kernel.org>; Tue, 28 Feb 2023 13:48:24 -0800 (PST)
-Received: from drehscheibe.grey.stw.pengutronix.de ([2a0a:edc0:0:c01:1d::a2])
-        by metis.ext.pengutronix.de with esmtps (TLS1.3:ECDHE_RSA_AES_256_GCM_SHA384:256)
-        (Exim 4.92)
-        (envelope-from <ukl@pengutronix.de>)
-        id 1pX7pc-00077U-EI; Tue, 28 Feb 2023 22:48:20 +0100
-Received: from [2a0a:edc0:0:900:1d::77] (helo=ptz.office.stw.pengutronix.de)
-        by drehscheibe.grey.stw.pengutronix.de with esmtp (Exim 4.94.2)
-        (envelope-from <ukl@pengutronix.de>)
-        id 1pX7pb-000xOT-Lm; Tue, 28 Feb 2023 22:48:19 +0100
-Received: from ukl by ptz.office.stw.pengutronix.de with local (Exim 4.94.2)
-        (envelope-from <ukl@pengutronix.de>)
-        id 1pX7pb-0017Pe-0W; Tue, 28 Feb 2023 22:48:19 +0100
-Date:   Tue, 28 Feb 2023 22:48:18 +0100
-From:   Uwe =?utf-8?Q?Kleine-K=C3=B6nig?= <u.kleine-koenig@pengutronix.de>
-To:     Munehisa Kamata <kamatam@amazon.com>
-Cc:     linux-pwm@vger.kernel.org, linux-kernel@vger.kernel.org,
-        stable@vger.kernel.org, thierry.reding@gmail.com,
-        kernel@pengutronix.de, tobetter@gmail.com
-Subject: Re: [PATCH] pwm: Zero-initialize the pwm_state passed to driver's
- .get_state()
-Message-ID: <20230228214818.zkzmr6zuqica4bqa@pengutronix.de>
-References: <20230228101558.b4dosk54jojfqkgi@pengutronix.de>
- <20230228194327.1237008-1-kamatam@amazon.com>
+        with ESMTP id S229523AbjCAA3D (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 28 Feb 2023 19:29:03 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 5F7262103;
+        Tue, 28 Feb 2023 16:29:02 -0800 (PST)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 154D4B80ED4;
+        Wed,  1 Mar 2023 00:29:01 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3A848C433D2;
+        Wed,  1 Mar 2023 00:28:59 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1677630539;
+        bh=/LI5yRBD+xU8o3fJ25yJ7tAxnhNvYlM9rrYR42TLgAY=;
+        h=From:To:Cc:Subject:Date:From;
+        b=Rv1UyHDZGT20ZCmWiR/oXR+Y3M0WRAURtFwscHQrTvES+JBLmG/CZcThlamAQOjs1
+         7eTlhRfW/9X2XF3vHKQ2IQrOM3qAdc2kqYPQfyXoWKWbY5CGN7xUbhl4PynUsPzLbt
+         lq2u6Bx6+zaxOym6kFfBfs4DNuu8YPS+q7kdDEKjF24KME03+M8q1nIn2ubll6xipy
+         9esX2FLXpZHBBzAISP6DgkAYglMM59VPHaXQ3qamLVOBrk5NORqRkistthLCHyR7pT
+         PFdidkFmP6M8FaQl8W8xZGRN9krq8/Wi0PG45TOxhP+/4kVG0SR1tCX7xKa2wZDOnI
+         IVRQ4h3tbepdA==
+From:   Jakub Kicinski <kuba@kernel.org>
+To:     davem@davemloft.net
+Cc:     netdev@vger.kernel.org, edumazet@google.com, pabeni@redhat.com,
+        Jakub Kicinski <kuba@kernel.org>,
+        syzbot+9c0268252b8ef967c62e@syzkaller.appspotmail.com,
+        stable@vger.kernel.org, borisp@nvidia.com,
+        john.fastabend@gmail.com, simon.horman@netronome.com
+Subject: [PATCH net] net: tls: avoid hanging tasks on the tx_lock
+Date:   Tue, 28 Feb 2023 16:28:57 -0800
+Message-Id: <20230301002857.2101894-1-kuba@kernel.org>
+X-Mailer: git-send-email 2.39.2
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha512;
-        protocol="application/pgp-signature"; boundary="hg5k6tzebwpumy4g"
-Content-Disposition: inline
-In-Reply-To: <20230228194327.1237008-1-kamatam@amazon.com>
-X-SA-Exim-Connect-IP: 2a0a:edc0:0:c01:1d::a2
-X-SA-Exim-Mail-From: ukl@pengutronix.de
-X-SA-Exim-Scanned: No (on metis.ext.pengutronix.de); SAEximRunCond expanded to false
-X-PTX-Original-Recipient: stable@vger.kernel.org
-X-Spam-Status: No, score=-4.2 required=5.0 tests=BAYES_00,RCVD_IN_DNSWL_MED,
-        SPF_HELO_NONE,SPF_PASS autolearn=unavailable autolearn_force=no
-        version=3.4.6
+Content-Transfer-Encoding: 8bit
+X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
+        SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+syzbot sent a hung task report and Eric explains that adversarial
+receiver may keep RWIN at 0 for a long time, so we are not guaranteed
+to make forward progress. Thread which took tx_lock and went to sleep
+may not release tx_lock for hours. Use interruptible sleep where
+possible and reschedule the work if it can't take the lock.
 
---hg5k6tzebwpumy4g
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Testing: existing selftest passes
 
-Hello,
+Reported-by: syzbot+9c0268252b8ef967c62e@syzkaller.appspotmail.com
+Fixes: 79ffe6087e91 ("net/tls: add a TX lock")
+Link: https://lore.kernel.org/all/000000000000e412e905f5b46201@google.com/
+Cc: stable@vger.kernel.org # wait 4 weeks
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+---
+CC: borisp@nvidia.com
+CC: john.fastabend@gmail.com
+CC: simon.horman@netronome.com
+---
+ net/tls/tls_sw.c | 26 +++++++++++++++++++-------
+ 1 file changed, 19 insertions(+), 7 deletions(-)
 
-On Tue, Feb 28, 2023 at 11:43:27AM -0800, Munehisa Kamata wrote:
-> On Tue, 2023-02-28 10:15:58 +0000, Uwe Kleine-K=F6nig wrote:
-> >
-> > This is just to ensure that .usage_power is properly initialized and
-> > doesn't contain random stack data. The other members of struct pwm_state
-> > should get a value assigned in a successful call to .get_state(). So in
-> > the absence of bugs in driver implementations, this is only a safe-guard
-> > and no fix.
-> >=20
-> > Reported-by: Munehisa Kamata <kamatam@amazon.com>
-> > Signed-off-by: Uwe Kleine-K=F6nig <u.kleine-koenig@pengutronix.de>
-> > ---
-> >  drivers/pwm/core.c | 9 ++++++++-
-> >  1 file changed, 8 insertions(+), 1 deletion(-)
-> >=20
-> > Hello,
-> >=20
-> > On Sat, Feb 25, 2023 at 05:37:21PM -0800, Munehisa Kamata wrote:
-> > > Zero-initialize the on-stack structure to avoid unexpected behaviors.=
- Some
-> > > drivers may not set or initialize all the values in pwm_state through=
- their
-> > > .get_state() callback and therefore some random values may remain the=
-re and
-> > > be set into pwm->state eventually.
-> > >=20
-> > > This actually caused regression on ODROID-N2+ as reported in [1]; ker=
-nel
-> > > fails to boot due to random panic or hang-up.
-> > >=20
-> > > [1] https://forum.odroid.com/viewtopic.php?f=3D177&t=3D46360
-> > >=20
-> > > Fixes: c73a3107624d ("pwm: Handle .get_state() failures")
-> > > Cc: stable@vger.kernel.org # 6.2
-> > > Signed-off-by: Munehisa Kamata <kamatam@amazon.com>
-> >=20
-> > My patch is essentially the same as Munehisa's, just written a bit
-> > differently (to maybe make it easier for the compiler to optimize it?)
-> > and with an explaining comment. The actual motivation is different so
-> > the commit log is considerably different, too.
-> >=20
-> > I was unsure how to honor Munehisa's effort, I went with a
-> > "Reported-by". Please tell me if you want this to be different.
->=20
-> I'm okay with that, thank you.
->=20
-> Perhaps, you should also add Cc tag for the stable tree? I did that in my
-> patch and we're actually CCing to the stable list, but I'm not sure if it
-> can pick up your patch without the tag. This should be fixed in linux-6.2=
-=2Ey.
+diff --git a/net/tls/tls_sw.c b/net/tls/tls_sw.c
+index 021d760f9133..635b8bf6b937 100644
+--- a/net/tls/tls_sw.c
++++ b/net/tls/tls_sw.c
+@@ -956,7 +956,9 @@ int tls_sw_sendmsg(struct sock *sk, struct msghdr *msg, size_t size)
+ 			       MSG_CMSG_COMPAT))
+ 		return -EOPNOTSUPP;
+ 
+-	mutex_lock(&tls_ctx->tx_lock);
++	ret = mutex_lock_interruptible(&tls_ctx->tx_lock);
++	if (ret)
++		return ret;
+ 	lock_sock(sk);
+ 
+ 	if (unlikely(msg->msg_controllen)) {
+@@ -1290,7 +1292,9 @@ int tls_sw_sendpage(struct sock *sk, struct page *page,
+ 		      MSG_SENDPAGE_NOTLAST | MSG_SENDPAGE_NOPOLICY))
+ 		return -EOPNOTSUPP;
+ 
+-	mutex_lock(&tls_ctx->tx_lock);
++	ret = mutex_lock_interruptible(&tls_ctx->tx_lock);
++	if (ret)
++		return ret;
+ 	lock_sock(sk);
+ 	ret = tls_sw_do_sendpage(sk, page, offset, size, flags);
+ 	release_sock(sk);
+@@ -2435,11 +2439,19 @@ static void tx_work_handler(struct work_struct *work)
+ 
+ 	if (!test_and_clear_bit(BIT_TX_SCHEDULED, &ctx->tx_bitmask))
+ 		return;
+-	mutex_lock(&tls_ctx->tx_lock);
+-	lock_sock(sk);
+-	tls_tx_records(sk, -1);
+-	release_sock(sk);
+-	mutex_unlock(&tls_ctx->tx_lock);
++
++	if (mutex_trylock(&tls_ctx->tx_lock)) {
++		lock_sock(sk);
++		tls_tx_records(sk, -1);
++		release_sock(sk);
++		mutex_unlock(&tls_ctx->tx_lock);
++	} else if (!test_and_set_bit(BIT_TX_SCHEDULED, &ctx->tx_bitmask)) {
++		/* Someone is holding the tx_lock, they will likely run Tx
++		 * and cancel the work on their way out of the lock section.
++		 * Schedule a long delay just in case.
++		 */
++		schedule_delayed_work(&ctx->tx_work.work, msecs_to_jiffies(10));
++	}
+ }
+ 
+ static bool tls_is_tx_ready(struct tls_sw_context_tx *ctx)
+-- 
+2.39.2
 
-IMHO the problem you reported should be fixed by adapting .get_state()
-in the meson driver.
-
-Best regards
-Uwe
-
---=20
-Pengutronix e.K.                           | Uwe Kleine-K=F6nig            |
-Industrial Linux Solutions                 | https://www.pengutronix.de/ |
-
---hg5k6tzebwpumy4g
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iQEzBAABCgAdFiEEfnIqFpAYrP8+dKQLwfwUeK3K7AkFAmP+dp8ACgkQwfwUeK3K
-7AnU1wgAgYNenYgLsirU4NIF1nBZmL5XLN8gNVv5TaFLAAyu4sV8UJFWxlcZQky1
-8rJUldOcKf5pfugeAjjNFxQB8SShUL+9ONaCmD5/NVBSiOEYRfIMX0qvMn+g27tf
-VjIuFwEWC8Tg1Klm9lqsb4HEUjSvGWHVhERNXtWHYkp35NK+sb3UKsaoESgtcbte
-ztuANJleB8BaA09D3VhdSQA1fNAUb8AJSQXQO2xAq5VJTwlit49UMYT//sEWp7wC
-b6bONYAjYeHBlEL0yiithuG8SkCBUxOptevCYIooXWrs+6/4c9J265/M+yBRNWfM
-tmvzpjR0jfWiBN55/apmMTIurPRglw==
-=ZPv5
------END PGP SIGNATURE-----
-
---hg5k6tzebwpumy4g--
