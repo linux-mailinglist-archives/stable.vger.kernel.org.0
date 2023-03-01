@@ -2,46 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 534D96A711E
-	for <lists+stable@lfdr.de>; Wed,  1 Mar 2023 17:31:34 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 532116A7120
+	for <lists+stable@lfdr.de>; Wed,  1 Mar 2023 17:31:39 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230088AbjCAQb3 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 1 Mar 2023 11:31:29 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51618 "EHLO
+        id S229612AbjCAQbh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 1 Mar 2023 11:31:37 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51116 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229679AbjCAQbF (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 1 Mar 2023 11:31:05 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AE6784615B;
-        Wed,  1 Mar 2023 08:30:18 -0800 (PST)
+        with ESMTP id S230044AbjCAQbI (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 1 Mar 2023 11:31:08 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3377848E08;
+        Wed,  1 Mar 2023 08:30:22 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id DC564B810B9;
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 85EA16143A;
+        Wed,  1 Mar 2023 16:30:17 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 30895C433D2;
         Wed,  1 Mar 2023 16:30:16 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 739F5C433EF;
-        Wed,  1 Mar 2023 16:30:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1677688215;
-        bh=tgeLc7UXDEzXXhY1MdmXH1yOGMjkSL8ZA45eJlQ2DBk=;
+        s=k20201202; t=1677688216;
+        bh=ced601IhyK1K90b/nXeeu6qc3sVmWuekntbizS2kQBA=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=eWCXSAW9li0NMLCgD0MgMkpyZR+K6QQTLUQ7kKyT6PXOpZHUKKDzKoHwYNarPER8o
-         QFtaEq94K5MqQojWZ2at1gOT04SH9v3zJns94XU7mLXdVqvn3mFRbamDZHPDArhVB7
-         1yKz29riHRmihRkuexFzfibD+4gaWTHPUGeUukuc2gwtqtlokCnvd6I9lfcE97UzS0
-         yxIBQqrEyxi6Rm4PciCb6+aLyNusVivsXnYCvu81o5CPKnSsAHuFZXNO0dACM9XQx8
-         WpFw91t6/whzNnaFRh2B2JMOA4MbPiI38NGlpJE/vyUvuYp9/NmUm1XUljy+e5d04J
-         1bSMQRMCpoOtg==
+        b=ihPA79vtf6O/kAhdK5Q5bYgxqz9OVYdHEChu0LTJIBeuAn55mahgXF+lIeecbh15e
+         Ku5mT8MS9nCOgj6Dz4GtddcZm6bcIGYqUQUi5UNbGk2qx6Yc9nDkcn36PxUBCXJLL8
+         zBQKec7XhEn+nTU6weR05mKlJA0ourGDKbJXS2YgT4nbsCDXR5Xr41+DRB650fQK9z
+         zaBKLLyp2rtm2x06Y3h1EZWFeAU6SKDVbJe10pIiKbzFLm3zi11LJcFAeaCYFTz3Gp
+         uU3zgn9epc5y3cDBk7161iU1gnA2ndj7PBZ1vS8PRlun4rLe/DmSbt3f+G+3Uh0aS7
+         +eH3dFKOgXoMQ==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Darrell Kavanagh <darrell.kavanagh@gmail.com>,
-        Hans de Goede <hdegoede@redhat.com>,
-        Ard Biesheuvel <ardb@kernel.org>,
-        Sasha Levin <sashal@kernel.org>, tglx@linutronix.de,
-        mingo@redhat.com, bp@alien8.de, dave.hansen@linux.intel.com,
-        x86@kernel.org
-Subject: [PATCH AUTOSEL 5.4 3/4] firmware/efi sysfb_efi: Add quirk for Lenovo IdeaPad Duet 3
-Date:   Wed,  1 Mar 2023 11:30:06 -0500
-Message-Id: <20230301163007.1303162-3-sashal@kernel.org>
+Cc:     Liang He <windhl@126.com>,
+        Charles Keepax <ckeepax@opensource.cirrus.com>,
+        Lee Jones <lee@kernel.org>, Sasha Levin <sashal@kernel.org>,
+        patches@opensource.cirrus.com
+Subject: [PATCH AUTOSEL 5.4 4/4] mfd: arizona: Use pm_runtime_resume_and_get() to prevent refcnt leak
+Date:   Wed,  1 Mar 2023 11:30:07 -0500
+Message-Id: <20230301163007.1303162-4-sashal@kernel.org>
 X-Mailer: git-send-email 2.39.2
 In-Reply-To: <20230301163007.1303162-1-sashal@kernel.org>
 References: <20230301163007.1303162-1-sashal@kernel.org>
@@ -58,41 +56,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Darrell Kavanagh <darrell.kavanagh@gmail.com>
+From: Liang He <windhl@126.com>
 
-[ Upstream commit e1d447157f232c650e6f32c9fb89ff3d0207c69a ]
+[ Upstream commit 4414a7ab80cebf715045e3c4d465feefbad21139 ]
 
-Another Lenovo convertable which reports a landscape resolution of
-1920x1200 with a pitch of (1920 * 4) bytes, while the actual framebuffer
-has a resolution of 1200x1920 with a pitch of (1200 * 4) bytes.
+In arizona_clk32k_enable(), we should use pm_runtime_resume_and_get()
+as pm_runtime_get_sync() will increase the refcnt even when it
+returns an error.
 
-Signed-off-by: Darrell Kavanagh <darrell.kavanagh@gmail.com>
-Reviewed-by: Hans de Goede <hdegoede@redhat.com>
-Signed-off-by: Ard Biesheuvel <ardb@kernel.org>
+Signed-off-by: Liang He <windhl@126.com>
+Acked-by: Charles Keepax <ckeepax@opensource.cirrus.com>
+Signed-off-by: Lee Jones <lee@kernel.org>
+Link: https://lore.kernel.org/r/20230105061055.1509261-1-windhl@126.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- arch/x86/kernel/sysfb_efi.c | 8 ++++++++
- 1 file changed, 8 insertions(+)
+ drivers/mfd/arizona-core.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/arch/x86/kernel/sysfb_efi.c b/arch/x86/kernel/sysfb_efi.c
-index 653b7f617b61b..9ea65611fba0b 100644
---- a/arch/x86/kernel/sysfb_efi.c
-+++ b/arch/x86/kernel/sysfb_efi.c
-@@ -264,6 +264,14 @@ static const struct dmi_system_id efifb_dmi_swap_width_height[] __initconst = {
- 					"Lenovo ideapad D330-10IGM"),
- 		},
- 	},
-+	{
-+		/* Lenovo IdeaPad Duet 3 10IGL5 with 1200x1920 portrait screen */
-+		.matches = {
-+			DMI_EXACT_MATCH(DMI_SYS_VENDOR, "LENOVO"),
-+			DMI_EXACT_MATCH(DMI_PRODUCT_VERSION,
-+					"IdeaPad Duet 3 10IGL5"),
-+		},
-+	},
- 	{},
- };
- 
+diff --git a/drivers/mfd/arizona-core.c b/drivers/mfd/arizona-core.c
+index 3ff872c205eeb..07d256e6875c0 100644
+--- a/drivers/mfd/arizona-core.c
++++ b/drivers/mfd/arizona-core.c
+@@ -45,7 +45,7 @@ int arizona_clk32k_enable(struct arizona *arizona)
+ 	if (arizona->clk32k_ref == 1) {
+ 		switch (arizona->pdata.clk32k_src) {
+ 		case ARIZONA_32KZ_MCLK1:
+-			ret = pm_runtime_get_sync(arizona->dev);
++			ret = pm_runtime_resume_and_get(arizona->dev);
+ 			if (ret != 0)
+ 				goto err_ref;
+ 			ret = clk_prepare_enable(arizona->mclk[ARIZONA_MCLK1]);
 -- 
 2.39.2
 
