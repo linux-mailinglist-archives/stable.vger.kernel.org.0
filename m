@@ -2,118 +2,125 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 93B3D6A64AF
-	for <lists+stable@lfdr.de>; Wed,  1 Mar 2023 02:20:40 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 56B776A64CD
+	for <lists+stable@lfdr.de>; Wed,  1 Mar 2023 02:30:25 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229677AbjCABUi (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Tue, 28 Feb 2023 20:20:38 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38598 "EHLO
+        id S229515AbjCABaX (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Tue, 28 Feb 2023 20:30:23 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:51834 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229582AbjCABU3 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Tue, 28 Feb 2023 20:20:29 -0500
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9BDF572A6
-        for <stable@vger.kernel.org>; Tue, 28 Feb 2023 17:19:39 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-        s=mimecast20190719; t=1677633578;
-        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-         to:to:cc:cc:mime-version:mime-version:
-         content-transfer-encoding:content-transfer-encoding;
-        bh=eXU2bd0m3R+JQN4GTXZynusQXILGYjYLpmxRq3Z+qQc=;
-        b=YFqxhmpMxN2DraOhSJZ7uCM2+TzD32kBZJqMuKy7CMe1jX2ILjetFdZ3wMmpzZPIJmPZ4W
-        f0m1Lk27ZDpPsnMHZnFk2Blk4bS3St1X+uTOK+c6NE6OsvWTlBTRWnhfzU5DWHI67izyXj
-        nuWFyN3WNVjo88ZMGLBiMzUP00c0UMA=
-Received: from mimecast-mx02.redhat.com (mimecast-mx02.redhat.com
- [66.187.233.88]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- us-mta-124-DW3waLE_N_SktJwXLCR0uA-1; Tue, 28 Feb 2023 20:19:37 -0500
-X-MC-Unique: DW3waLE_N_SktJwXLCR0uA-1
-Received: from smtp.corp.redhat.com (int-mx05.intmail.prod.int.rdu2.redhat.com [10.11.54.5])
-        (using TLSv1.2 with cipher AECDH-AES256-SHA (256/256 bits))
-        (No client certificate requested)
-        by mimecast-mx02.redhat.com (Postfix) with ESMTPS id 0CC88864763;
-        Wed,  1 Mar 2023 01:19:37 +0000 (UTC)
-Received: from lxbceph1.gsslab.pek2.redhat.com (unknown [10.72.47.117])
-        by smtp.corp.redhat.com (Postfix) with ESMTP id 11BF843FBD;
-        Wed,  1 Mar 2023 01:19:33 +0000 (UTC)
-From:   xiubli@redhat.com
-To:     idryomov@gmail.com, ceph-devel@vger.kernel.org
-Cc:     jlayton@kernel.org, lhenriques@suse.de, vshankar@redhat.com,
-        mchangir@redhat.com, Xiubo Li <xiubli@redhat.com>,
-        stable@vger.kernel.org
-Subject: [PATCH v2] ceph: do not print the whole xattr value if it's too long
-Date:   Wed,  1 Mar 2023 09:19:18 +0800
-Message-Id: <20230301011918.64629-1-xiubli@redhat.com>
+        with ESMTP id S229486AbjCABaV (ORCPT
+        <rfc822;stable@vger.kernel.org>); Tue, 28 Feb 2023 20:30:21 -0500
+Received: from mail-ed1-x529.google.com (mail-ed1-x529.google.com [IPv6:2a00:1450:4864:20::529])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id DF8789EC9;
+        Tue, 28 Feb 2023 17:30:19 -0800 (PST)
+Received: by mail-ed1-x529.google.com with SMTP id o12so47688556edb.9;
+        Tue, 28 Feb 2023 17:30:19 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=jms.id.au; s=google;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=vZS4srdzYPX5rwf8hBmS3h/CSWlxeptJDidxpQ52/rY=;
+        b=jAZJqxNnaCbGp3Cn7I115sC3pbOLIoFPvymD9tvjSPw0mD8MYApBCMMkCAcdj8mh4M
+         CYNw1xXXsUQgDqAQwJSWMhpwGV560MZ6TvUwZPW5XxlgGBOVUQxzgAgWb/FAlfACMBTH
+         MSAmXvY5yDuOu8EgKMsqpKhQTl1+tPDCB02CE=
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=vZS4srdzYPX5rwf8hBmS3h/CSWlxeptJDidxpQ52/rY=;
+        b=QfSPywj9Sd7jh4Rbx/uQ++iJdnn3aL+WzENboIAzjwlAN+Y6mBHQ0C+Hfjt7ui9Bi5
+         cDFbM6IYbAo9d0MGRHgBN8YSxMa2PEt3hBz61+3wIhg2Vv/O6Z6MzNwn6KvhEtHwZfXd
+         s+GrN40HrZYkX2HlvQlYTqYrLE9B4GyQ7ZcQ9klsPWyI/Rlh78SDj5AWOM4wH47AXZTq
+         DKKOO/UFy82WIDatQ+IJDpFd78On5oqLD3eCmArUeyXwyBkxXOeB9CCQmRpMZqvhvNAO
+         2bsrzYvjkPKbzq0XnPLR32T+xVUyZfad2PS4C7LgoBaNWXGB0h0sBTByBrH4OOzUSCeq
+         uTJQ==
+X-Gm-Message-State: AO0yUKU/m86dgsQjJf/EX6Jd45k57thUwMO53CcGMVtJZcYeC6AskzGi
+        Bupypk2HxNJ+RCggHzAci9TA2GGthlNXtRgV2S8=
+X-Google-Smtp-Source: AK7set/PW9p3+rsDwfdQvTVOa0cA7HHEYagI+NeYdL0zp0aQTvVe97kOvNfE5b67MEGgt5lDe1NN/RWcCezxLJstPSQ=
+X-Received: by 2002:a17:906:d82:b0:87b:db55:4887 with SMTP id
+ m2-20020a1709060d8200b0087bdb554887mr2237966eji.4.1677634218221; Tue, 28 Feb
+ 2023 17:30:18 -0800 (PST)
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-Scanned-By: MIMEDefang 3.1 on 10.11.54.5
-X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_NONE,
-        RCVD_IN_MSPIKE_H2,SPF_HELO_NONE,SPF_NONE autolearn=ham
-        autolearn_force=no version=3.4.6
+References: <20230224000400.12226-1-zev@bewilderbeest.net> <20230224000400.12226-4-zev@bewilderbeest.net>
+In-Reply-To: <20230224000400.12226-4-zev@bewilderbeest.net>
+From:   Joel Stanley <joel@jms.id.au>
+Date:   Wed, 1 Mar 2023 01:30:05 +0000
+Message-ID: <CACPK8XdFT=+VJJ=iDhcmWPh9m9of2b+2UYxkrAisp6tdmWOWKg@mail.gmail.com>
+Subject: Re: [PATCH v2 3/3] ARM: dts: aspeed: asrock: Correct firmware flash
+ SPI clocks
+To:     Zev Weiss <zev@bewilderbeest.net>,
+        =?UTF-8?Q?C=C3=A9dric_Le_Goater?= <clg@kaod.org>
+Cc:     Andrew Jeffery <andrew@aj.id.au>,
+        Krzysztof Kozlowski <krzysztof.kozlowski+dt@linaro.org>,
+        Rob Herring <robh+dt@kernel.org>, devicetree@vger.kernel.org,
+        linux-arm-kernel@lists.infradead.org,
+        linux-aspeed@lists.ozlabs.org, linux-kernel@vger.kernel.org,
+        openbmc@lists.ozlabs.org, stable@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
+X-Spam-Status: No, score=-1.5 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,FREEMAIL_FORGED_FROMDOMAIN,FREEMAIL_FROM,
+        HEADER_FROM_DIFFERENT_DOMAINS,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,
+        SPF_PASS autolearn=no autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Xiubo Li <xiubli@redhat.com>
+On Fri, 24 Feb 2023 at 00:04, Zev Weiss <zev@bewilderbeest.net> wrote:
+>
+> While I'm not aware of any problems that have occurred running these
+> at 100 MHz, the official word from ASRock is that 50 MHz is the
+> correct speed to use, so let's be safe and use that instead.
 
-If the xattr's value size is long enough the kernel will warn and
-then will fail the xfstests test case.
+:(
 
-Just print part of the value string if it's too long.
+Validated with which driver?
 
-Cc: stable@vger.kernel.org
-URL: https://tracker.ceph.com/issues/58404
-Signed-off-by: Xiubo Li <xiubli@redhat.com>
----
+C=C3=A9dric, do you have any thoughts on this?
 
-V2:
-- switch to use min() from Jeff's comment
-- s/XATTR_MAX_VAL/MAX_XATTR_VAL/g
-
-
- fs/ceph/xattr.c | 12 ++++++++----
- 1 file changed, 8 insertions(+), 4 deletions(-)
-
-diff --git a/fs/ceph/xattr.c b/fs/ceph/xattr.c
-index b10d459c2326..887a65279fcf 100644
---- a/fs/ceph/xattr.c
-+++ b/fs/ceph/xattr.c
-@@ -561,6 +561,7 @@ static struct ceph_vxattr *ceph_match_vxattr(struct inode *inode,
- 	return NULL;
- }
- 
-+#define MAX_XATTR_VAL 256
- static int __set_xattr(struct ceph_inode_info *ci,
- 			   const char *name, int name_len,
- 			   const char *val, int val_len,
-@@ -654,8 +655,10 @@ static int __set_xattr(struct ceph_inode_info *ci,
- 		dout("__set_xattr_val p=%p\n", p);
- 	}
- 
--	dout("__set_xattr_val added %llx.%llx xattr %p %.*s=%.*s\n",
--	     ceph_vinop(&ci->netfs.inode), xattr, name_len, name, val_len, val);
-+	dout("__set_xattr_val added %llx.%llx xattr %p %.*s=%.*s%s\n",
-+	     ceph_vinop(&ci->netfs.inode), xattr, name_len, name,
-+	     min(val_len, MAX_XATTR_VAL), val,
-+	     val_len > MAX_XATTR_VAL ? "..." : "");
- 
- 	return 0;
- }
-@@ -681,8 +684,9 @@ static struct ceph_inode_xattr *__get_xattr(struct ceph_inode_info *ci,
- 		else if (c > 0)
- 			p = &(*p)->rb_right;
- 		else {
--			dout("__get_xattr %s: found %.*s\n", name,
--			     xattr->val_len, xattr->val);
-+			dout("__get_xattr %s: found %.*s%s\n", name,
-+			     min(xattr->val_len, MAX_XATTR_VAL), xattr->val,
-+			     xattr->val_len > MAX_XATTR_VAL ? "..." : "");
- 			return xattr;
- 		}
- 	}
--- 
-2.31.1
-
+>
+> Signed-off-by: Zev Weiss <zev@bewilderbeest.net>
+> Cc: stable@vger.kernel.org
+> Fixes: 2b81613ce417 ("ARM: dts: aspeed: Add ASRock E3C246D4I BMC")
+> Fixes: a9a3d60b937a ("ARM: dts: aspeed: Add ASRock ROMED8HM3 BMC")
+> ---
+>  arch/arm/boot/dts/aspeed-bmc-asrock-e3c246d4i.dts | 2 +-
+>  arch/arm/boot/dts/aspeed-bmc-asrock-romed8hm3.dts | 2 +-
+>  2 files changed, 2 insertions(+), 2 deletions(-)
+>
+> diff --git a/arch/arm/boot/dts/aspeed-bmc-asrock-e3c246d4i.dts b/arch/arm=
+/boot/dts/aspeed-bmc-asrock-e3c246d4i.dts
+> index 67a75aeafc2b..c4b2efbfdf56 100644
+> --- a/arch/arm/boot/dts/aspeed-bmc-asrock-e3c246d4i.dts
+> +++ b/arch/arm/boot/dts/aspeed-bmc-asrock-e3c246d4i.dts
+> @@ -63,7 +63,7 @@ flash@0 {
+>                 status =3D "okay";
+>                 m25p,fast-read;
+>                 label =3D "bmc";
+> -               spi-max-frequency =3D <100000000>; /* 100 MHz */
+> +               spi-max-frequency =3D <50000000>; /* 50 MHz */
+>  #include "openbmc-flash-layout.dtsi"
+>         };
+>  };
+> diff --git a/arch/arm/boot/dts/aspeed-bmc-asrock-romed8hm3.dts b/arch/arm=
+/boot/dts/aspeed-bmc-asrock-romed8hm3.dts
+> index 00efe1a93a69..4554abf0c7cd 100644
+> --- a/arch/arm/boot/dts/aspeed-bmc-asrock-romed8hm3.dts
+> +++ b/arch/arm/boot/dts/aspeed-bmc-asrock-romed8hm3.dts
+> @@ -51,7 +51,7 @@ flash@0 {
+>                 status =3D "okay";
+>                 m25p,fast-read;
+>                 label =3D "bmc";
+> -               spi-max-frequency =3D <100000000>; /* 100 MHz */
+> +               spi-max-frequency =3D <50000000>; /* 50 MHz */
+>  #include "openbmc-flash-layout-64.dtsi"
+>         };
+>  };
+> --
+> 2.39.1.438.gdcb075ea9396.dirty
+>
