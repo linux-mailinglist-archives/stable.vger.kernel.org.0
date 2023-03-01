@@ -2,59 +2,50 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 285D76A72FD
-	for <lists+stable@lfdr.de>; Wed,  1 Mar 2023 19:11:29 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E0F2E6A72D4
+	for <lists+stable@lfdr.de>; Wed,  1 Mar 2023 19:10:13 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229952AbjCASL2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 1 Mar 2023 13:11:28 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45490 "EHLO
+        id S229537AbjCASKK (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 1 Mar 2023 13:10:10 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42612 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229943AbjCASL1 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 1 Mar 2023 13:11:27 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 166FF4AFF6;
-        Wed,  1 Mar 2023 10:11:26 -0800 (PST)
+        with ESMTP id S230154AbjCASJ4 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 1 Mar 2023 13:09:56 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 64E072D75
+        for <stable@vger.kernel.org>; Wed,  1 Mar 2023 10:09:48 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id A41736145E;
-        Wed,  1 Mar 2023 18:11:25 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8E70DC433EF;
-        Wed,  1 Mar 2023 18:11:24 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 1C26EB810DE
+        for <stable@vger.kernel.org>; Wed,  1 Mar 2023 18:09:47 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6A062C433D2;
+        Wed,  1 Mar 2023 18:09:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1677694285;
-        bh=DAWGd67V7iFd+CjYIBrPhVp9zUPSIqgnmcIWQ1HsWcc=;
-        h=From:To:Cc:Subject:Date:From;
-        b=FamDpuBfWsOQTk8GKm8bZGuwF8oJqmzOGxGI9Q/VS3Us62ItLSog4SFW9B9aFfqoZ
-         90TOqFTV2BzEOQEYJANM3bbGQjFK/XorgasZ/oMABZ/jP6q/rB9PJxT2LmQTPgmtcD
-         bhz+E4KXcowAC/Hs1YrDmlvSzxqfRTW3N+SaaNRg=
+        s=korg; t=1677694185;
+        bh=byYUexaPJPAmBnEC6Lt4VbHe7WyASuTrTCvR4mx5I34=;
+        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+        b=LwjWMi3fQ1HDku3TG29zfcjtcZCJ3OXlTE/m5OYJWeyQLJNVJkjTnnD5JyT1cEa8F
+         B8+YHar4OEQbgfbVzE+yedGDi2in3QO3g7QNFBfSm4kRCMHscBRv4uHQIRblMNr91G
+         yVRi+vuucw3EYfXEVOCdFE9t2YgP4gOe35asCeU8=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, linux-kernel@vger.kernel.org,
-        torvalds@linux-foundation.org, akpm@linux-foundation.org,
-        linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
-        lkft-triage@lists.linaro.org, pavel@denx.de, jonathanh@nvidia.com,
-        f.fainelli@gmail.com, sudipm.mukherjee@gmail.com,
-        srw@sladewatkins.net, rwarsow@gmx.de
-Subject: [PATCH 5.15 00/22] 5.15.97-rc1 review
+        patches@lists.linux.dev, Dan Williams <dan.j.williams@intel.com>,
+        Vishal Verma <vishal.l.verma@intel.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 5.10 04/19] ACPI: NFIT: fix a potential deadlock during NFIT teardown
 Date:   Wed,  1 Mar 2023 19:08:33 +0100
-Message-Id: <20230301180652.658125575@linuxfoundation.org>
+Message-Id: <20230301180652.499409607@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-MIME-Version: 1.0
+In-Reply-To: <20230301180652.316428563@linuxfoundation.org>
+References: <20230301180652.316428563@linuxfoundation.org>
 User-Agent: quilt/0.67
-X-stable: review
-X-Patchwork-Hint: ignore
-X-KernelTest-Patch: http://kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.15.97-rc1.gz
-X-KernelTest-Tree: git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git
-X-KernelTest-Branch: linux-5.15.y
-X-KernelTest-Patches: git://git.kernel.org/pub/scm/linux/kernel/git/stable/stable-queue.git
-X-KernelTest-Version: 5.15.97-rc1
-X-KernelTest-Deadline: 2023-03-03T18:06+00:00
+MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
         SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -62,128 +53,75 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-This is the start of the stable review cycle for the 5.15.97 release.
-There are 22 patches in this series, all will be posted as a response
-to this one.  If anyone has any issues with these being applied, please
-let me know.
+From: Vishal Verma <vishal.l.verma@intel.com>
 
-Responses should be made by Fri, 03 Mar 2023 18:06:43 +0000.
-Anything received after that time might be too late.
+[ Upstream commit fb6df4366f86dd252bfa3049edffa52d17e7b895 ]
 
-The whole patch series can be found in one patch at:
-	https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.15.97-rc1.gz
-or in the git tree and branch at:
-	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.15.y
-and the diffstat can be found below.
+Lockdep reports that acpi_nfit_shutdown() may deadlock against an
+opportune acpi_nfit_scrub(). acpi_nfit_scrub () is run from inside a
+'work' and therefore has already acquired workqueue-internal locks. It
+also acquiires acpi_desc->init_mutex. acpi_nfit_shutdown() first
+acquires init_mutex, and was subsequently attempting to cancel any
+pending workqueue items. This reversed locking order causes a potential
+deadlock:
 
-thanks,
+    ======================================================
+    WARNING: possible circular locking dependency detected
+    6.2.0-rc3 #116 Tainted: G           O     N
+    ------------------------------------------------------
+    libndctl/1958 is trying to acquire lock:
+    ffff888129b461c0 ((work_completion)(&(&acpi_desc->dwork)->work)){+.+.}-{0:0}, at: __flush_work+0x43/0x450
 
-greg k-h
+    but task is already holding lock:
+    ffff888129b460e8 (&acpi_desc->init_mutex){+.+.}-{3:3}, at: acpi_nfit_shutdown+0x87/0xd0 [nfit]
 
--------------
-Pseudo-Shortlog of commits:
+    which lock already depends on the new lock.
 
-Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-    Linux 5.15.97-rc1
+    ...
 
-Alan Stern <stern@rowland.harvard.edu>
-    USB: core: Don't hold device lock while reading the "descriptors" sysfs file
+    Possible unsafe locking scenario:
 
-Prashanth K <quic_prashk@quicinc.com>
-    usb: gadget: u_serial: Add null pointer check in gserial_resume
+          CPU0                    CPU1
+          ----                    ----
+     lock(&acpi_desc->init_mutex);
+                                  lock((work_completion)(&(&acpi_desc->dwork)->work));
+                                  lock(&acpi_desc->init_mutex);
+     lock((work_completion)(&(&acpi_desc->dwork)->work));
 
-Florian Zumbiehl <florz@florz.de>
-    USB: serial: option: add support for VW/Skoda "Carstick LTE"
+    *** DEADLOCK ***
 
-Heikki Krogerus <heikki.krogerus@linux.intel.com>
-    usb: dwc3: pci: add support for the Intel Meteor Lake-M
+Since the workqueue manipulation is protected by its own internal locking,
+the cancellation of pending work doesn't need to be done under
+acpi_desc->init_mutex. Move cancel_delayed_work_sync() outside the
+init_mutex to fix the deadlock. Any work that starts after
+acpi_nfit_shutdown() drops the lock will see ARS_CANCEL, and the
+cancel_delayed_work_sync() will safely flush it out.
 
-Carlos Llamas <cmllamas@google.com>
-    scripts/tags.sh: fix incompatibility with PCRE2
+Reported-by: Dan Williams <dan.j.williams@intel.com>
+Signed-off-by: Vishal Verma <vishal.l.verma@intel.com>
+Link: https://lore.kernel.org/r/20230112-acpi_nfit_lockdep-v1-1-660be4dd10be@intel.com
+Signed-off-by: Dan Williams <dan.j.williams@intel.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
+---
+ drivers/acpi/nfit/core.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-Cristian Ciocaltea <cristian.ciocaltea@collabora.com>
-    scripts/tags.sh: Invoke 'realpath' via 'xargs'
+diff --git a/drivers/acpi/nfit/core.c b/drivers/acpi/nfit/core.c
+index 99e23a5df0267..2306abb09f7f5 100644
+--- a/drivers/acpi/nfit/core.c
++++ b/drivers/acpi/nfit/core.c
+@@ -3687,8 +3687,8 @@ void acpi_nfit_shutdown(void *data)
+ 
+ 	mutex_lock(&acpi_desc->init_mutex);
+ 	set_bit(ARS_CANCEL, &acpi_desc->scrub_flags);
+-	cancel_delayed_work_sync(&acpi_desc->dwork);
+ 	mutex_unlock(&acpi_desc->init_mutex);
++	cancel_delayed_work_sync(&acpi_desc->dwork);
+ 
+ 	/*
+ 	 * Bounce the nvdimm bus lock to make sure any in-flight
+-- 
+2.39.0
 
-Thomas Weißschuh <linux@weissschuh.net>
-    vc_screen: don't clobber return value in vcs_read
-
-Kuniyuki Iwashima <kuniyu@amazon.com>
-    net: Remove WARN_ON_ONCE(sk->sk_forward_alloc) from sk_stream_kill_queues().
-
-Martin KaFai Lau <martin.lau@kernel.org>
-    bpf: bpf_fib_lookup should not return neigh in NUD_FAILED state
-
-Sergio Paracuellos <sergio.paracuellos@gmail.com>
-    staging: mt7621-dts: change palmbus address to lower case
-
-Kan Liang <kan.liang@linux.intel.com>
-    x86/cpu: Add Lunar Lake M
-
-Xin Zhao <xnzhao@google.com>
-    HID: core: Fix deadloop in hid_apply_multiplier.
-
-Julian Anastasov <ja@ssi.bg>
-    neigh: make sure used and confirmed times are valid
-
-Dean Luick <dean.luick@cornelisnetworks.com>
-    IB/hfi1: Assign npages earlier
-
-Jack Yu <jack.yu@realtek.com>
-    ASoC: rt715-sdca: fix clock stop prepare timeout issue
-
-David Sterba <dsterba@suse.com>
-    btrfs: send: limit number of clones and allocated memory size
-
-Vishal Verma <vishal.l.verma@intel.com>
-    ACPI: NFIT: fix a potential deadlock during NFIT teardown
-
-Takahiro Fujii <fujii@xaxxi.net>
-    HID: elecom: add support for TrackBall 056E:011C
-
-Johan Jonker <jbx6244@gmail.com>
-    ARM: dts: rockchip: add power-domains property to dp node on rk3288
-
-Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
-    arm64: dts: rockchip: drop unused LED mode property from rk3328-roc-cc
-
-Benedict Wong <benedictwong@google.com>
-    Fix XFRM-I support for nested ESP tunnels
-
-Neel Patel <neel@pensando.io>
-    ionic: refactor use of ionic_rx_fill()
-
-
--------------
-
-Diffstat:
-
- Makefile                                         |  4 +-
- arch/arm/boot/dts/rk3288.dtsi                    |  1 +
- arch/arm64/boot/dts/rockchip/rk3328-roc-cc.dts   |  2 -
- arch/x86/include/asm/intel-family.h              |  2 +
- drivers/acpi/nfit/core.c                         |  2 +-
- drivers/hid/hid-core.c                           |  3 ++
- drivers/hid/hid-elecom.c                         | 16 ++++++-
- drivers/hid/hid-ids.h                            |  3 +-
- drivers/hid/hid-quirks.c                         |  3 +-
- drivers/infiniband/hw/hfi1/user_exp_rcv.c        |  9 +---
- drivers/net/ethernet/pensando/ionic/ionic_txrx.c | 23 +++++-----
- drivers/staging/mt7621-dts/gbpc1.dts             |  2 +-
- drivers/tty/vt/vc_screen.c                       |  7 +--
- drivers/usb/core/hub.c                           |  5 +--
- drivers/usb/core/sysfs.c                         |  5 ---
- drivers/usb/dwc3/dwc3-pci.c                      |  4 ++
- drivers/usb/gadget/function/u_serial.c           | 23 ++++++++--
- drivers/usb/serial/option.c                      |  4 ++
- fs/btrfs/send.c                                  |  6 +--
- net/caif/caif_socket.c                           |  1 +
- net/core/filter.c                                |  4 +-
- net/core/neighbour.c                             | 18 ++++++--
- net/core/stream.c                                |  1 -
- net/xfrm/xfrm_interface.c                        | 54 ++++++++++++++++++++++--
- net/xfrm/xfrm_policy.c                           |  3 ++
- scripts/tags.sh                                  | 11 +++--
- sound/soc/codecs/rt715-sdca-sdw.c                |  2 +-
- 27 files changed, 157 insertions(+), 61 deletions(-)
 
 
