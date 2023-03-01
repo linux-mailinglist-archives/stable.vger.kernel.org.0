@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 0EB536A7105
-	for <lists+stable@lfdr.de>; Wed,  1 Mar 2023 17:30:36 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1AA656A710B
+	for <lists+stable@lfdr.de>; Wed,  1 Mar 2023 17:30:54 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229996AbjCAQae (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 1 Mar 2023 11:30:34 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49300 "EHLO
+        id S230017AbjCAQaw (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 1 Mar 2023 11:30:52 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:50520 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229737AbjCAQaQ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 1 Mar 2023 11:30:16 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0F67C48E3D;
-        Wed,  1 Mar 2023 08:29:56 -0800 (PST)
+        with ESMTP id S229889AbjCAQaT (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 1 Mar 2023 11:30:19 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 211EC497C8;
+        Wed,  1 Mar 2023 08:29:59 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 6C5A361378;
+        by ams.source.kernel.org (Postfix) with ESMTPS id 48648B810C2;
+        Wed,  1 Mar 2023 16:29:58 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 47365C4339B;
         Wed,  1 Mar 2023 16:29:56 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 465F0C4339C;
-        Wed,  1 Mar 2023 16:29:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1677688195;
-        bh=CUExKGZIsAzNMWje0ARL+x7IVsi4LQTxN4RYSuWUoU8=;
+        s=k20201202; t=1677688196;
+        bh=CW33IO//KhJPIEIGWxpkNIatwRfc3YQJq8WMPo3KJxc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=HOFZPVo9lKDlIQ9u3t0RkevwvwlmbZVnv4MMkmxMH4qwRJrnbDpv5ax0uRxo7Zr8k
-         A66ixfkPb2h5LleFS7Eqf2c9w9dvyqt7dNZCAIUZltMg7SLz1051HdB+pU4z+zG+qB
-         DEqIg9t0fGlpqivobfgc/1QHb/lH/33dTsZQK9NCQR7C9xm26VoWI9n7wsU+KSehBO
-         0WE6uwhoQ6tRdafCtKIcRG0YbKeltGOtAbEaH+LENHU2SPfBUzEInzSXy02n3Qhos7
-         LQY915Eza8fZpzSobPJa4jTMKAfIfI4EhBQXdeBVgndJpMgjxgnh+hbQRnxZuJUJre
-         rnNyHWco7pfdg==
+        b=IpWmZarPsQ5ncSGKFVpsTUdGmz8Ds1MEfrCHPpcesxARWqMwsDJBS4DszsiBmbpD1
+         pD9+qvivoMLRCioL+DpaCg/uEvDDFzyU7fTHHfL3DTsiz1OzBJZzYHyi4eD0EL2XhX
+         QtRrHYbf0oUFtCIBcNvOvsOwjFSlH2qC//UxSpaL99a66nIZH85wKFRTCHsGiCr8xS
+         KyrwQcp4P0GkXVOY4PBqynVTV6BC4hA3ne5F1we6/ZPdMwwThk0CcDXIDtBd6gsWEz
+         L3AEctgS1CkfFR+19rAPyn3Ks257HSKlRt/0ZL6a1RHESuTZd907/QrwqgaL8VWZR3
+         qHQuPL3ZnXptA==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Souradeep Chowdhury <quic_schowdhu@quicinc.com>,
-        Masami Hiramatsu <mhiramat@kernel.org>,
-        Sasha Levin <sashal@kernel.org>,
-        linux-trace-kernel@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.15 5/6] bootconfig: Increase max nodes of bootconfig from 1024 to 8192 for DCC support
-Date:   Wed,  1 Mar 2023 11:29:47 -0500
-Message-Id: <20230301162948.1302994-5-sashal@kernel.org>
+Cc:     Liang He <windhl@126.com>,
+        Charles Keepax <ckeepax@opensource.cirrus.com>,
+        Lee Jones <lee@kernel.org>, Sasha Levin <sashal@kernel.org>,
+        patches@opensource.cirrus.com
+Subject: [PATCH AUTOSEL 5.15 6/6] mfd: arizona: Use pm_runtime_resume_and_get() to prevent refcnt leak
+Date:   Wed,  1 Mar 2023 11:29:48 -0500
+Message-Id: <20230301162948.1302994-6-sashal@kernel.org>
 X-Mailer: git-send-email 2.39.2
 In-Reply-To: <20230301162948.1302994-1-sashal@kernel.org>
 References: <20230301162948.1302994-1-sashal@kernel.org>
@@ -56,38 +56,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Souradeep Chowdhury <quic_schowdhu@quicinc.com>
+From: Liang He <windhl@126.com>
 
-[ Upstream commit 6c40624930c58529185a257380442547580ed837 ]
+[ Upstream commit 4414a7ab80cebf715045e3c4d465feefbad21139 ]
 
-The Data Capture and Compare(DCC) is a debugging tool that uses the bootconfig
-for configuring the register values during boot-time. Increase the max nodes
-supported by bootconfig to cater to the requirements of the Data Capture and
-Compare Driver.
+In arizona_clk32k_enable(), we should use pm_runtime_resume_and_get()
+as pm_runtime_get_sync() will increase the refcnt even when it
+returns an error.
 
-Link: https://lore.kernel.org/all/1674536682-18404-1-git-send-email-quic_schowdhu@quicinc.com/
-
-Signed-off-by: Souradeep Chowdhury <quic_schowdhu@quicinc.com>
-Acked-by: Masami Hiramatsu (Google) <mhiramat@kernel.org>
-Signed-off-by: Masami Hiramatsu (Google) <mhiramat@kernel.org>
+Signed-off-by: Liang He <windhl@126.com>
+Acked-by: Charles Keepax <ckeepax@opensource.cirrus.com>
+Signed-off-by: Lee Jones <lee@kernel.org>
+Link: https://lore.kernel.org/r/20230105061055.1509261-1-windhl@126.com
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- include/linux/bootconfig.h | 2 +-
+ drivers/mfd/arizona-core.c | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/include/linux/bootconfig.h b/include/linux/bootconfig.h
-index 537e1b991f115..5296fbb8408ca 100644
---- a/include/linux/bootconfig.h
-+++ b/include/linux/bootconfig.h
-@@ -49,7 +49,7 @@ struct xbc_node {
- /* Maximum size of boot config is 32KB - 1 */
- #define XBC_DATA_MAX	(XBC_VALUE - 1)
- 
--#define XBC_NODE_MAX	1024
-+#define XBC_NODE_MAX	8192
- #define XBC_KEYLEN_MAX	256
- #define XBC_DEPTH_MAX	16
- 
+diff --git a/drivers/mfd/arizona-core.c b/drivers/mfd/arizona-core.c
+index 9323b1e3a69ef..5c8317bd4d98b 100644
+--- a/drivers/mfd/arizona-core.c
++++ b/drivers/mfd/arizona-core.c
+@@ -45,7 +45,7 @@ int arizona_clk32k_enable(struct arizona *arizona)
+ 	if (arizona->clk32k_ref == 1) {
+ 		switch (arizona->pdata.clk32k_src) {
+ 		case ARIZONA_32KZ_MCLK1:
+-			ret = pm_runtime_get_sync(arizona->dev);
++			ret = pm_runtime_resume_and_get(arizona->dev);
+ 			if (ret != 0)
+ 				goto err_ref;
+ 			ret = clk_prepare_enable(arizona->mclk[ARIZONA_MCLK1]);
 -- 
 2.39.2
 
