@@ -2,46 +2,55 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 3EB256A72A5
-	for <lists+stable@lfdr.de>; Wed,  1 Mar 2023 19:07:54 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D820B6A72BB
+	for <lists+stable@lfdr.de>; Wed,  1 Mar 2023 19:08:51 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229530AbjCASHt (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 1 Mar 2023 13:07:49 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38348 "EHLO
+        id S229564AbjCASIu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 1 Mar 2023 13:08:50 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40456 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230005AbjCASHs (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 1 Mar 2023 13:07:48 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id CFF603668A
-        for <stable@vger.kernel.org>; Wed,  1 Mar 2023 10:07:46 -0800 (PST)
+        with ESMTP id S229752AbjCASIs (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 1 Mar 2023 13:08:48 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 93A9361B2;
+        Wed,  1 Mar 2023 10:08:46 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 84CBFB810E5
-        for <stable@vger.kernel.org>; Wed,  1 Mar 2023 18:07:45 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 004D8C433EF;
-        Wed,  1 Mar 2023 18:07:43 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 2A80D6144F;
+        Wed,  1 Mar 2023 18:08:46 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 115E9C433EF;
+        Wed,  1 Mar 2023 18:08:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1677694064;
-        bh=CPzi8NuZV/7dEES2pBqwDpcAm1p/eWn5KJ58NCYFIio=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=SNX1E64bPYI3FCTqz6lZgRMXDm0OEs7f8wObQwjV4qTKbXYTA+nBjJlxpJdOZ0Q+O
-         fCbzsxMQSpEEdKXJwXSsmKTmEiJO+V6iw9uuewFQibwGZBHh/sOq1491szEz/fMu4X
-         rgnE5nsGbMo61niH3kJi0F9dRW6SpS9O4sjRL4iY=
+        s=korg; t=1677694125;
+        bh=c+mLaaeyvvTWuLvHXDvvroqIw2vDVDdVbZEPSV7FdCk=;
+        h=From:To:Cc:Subject:Date:From;
+        b=SdPUx5LUcFheohZWf4na7K5Tl+wca9x77A9XiXSLm6j2QhZUlm96LhYK8Wp//nQql
+         Y9bldJuS9xBak7GTGTke+w4EXYpZmwKWdwU+aC0oIhP8O+O5t4C3FU361jSz+vWtYM
+         8gfxz6FdYpZK0P1/ZcmplEjvsx++YHPPsOTRPFoY=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, Storm Dragon <stormdragon2976@gmail.com>,
-        =?UTF-8?q?Thomas=20Wei=C3=9Fschuh?= <linux@weissschuh.net>,
-        Linus Torvalds <torvalds@linux-foundation.org>
-Subject: [PATCH 4.19 6/9] vc_screen: dont clobber return value in vcs_read
-Date:   Wed,  1 Mar 2023 19:07:22 +0100
-Message-Id: <20230301180650.648484787@linuxfoundation.org>
+        patches@lists.linux.dev, linux-kernel@vger.kernel.org,
+        torvalds@linux-foundation.org, akpm@linux-foundation.org,
+        linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
+        lkft-triage@lists.linaro.org, pavel@denx.de, jonathanh@nvidia.com,
+        f.fainelli@gmail.com, sudipm.mukherjee@gmail.com,
+        srw@sladewatkins.net, rwarsow@gmx.de
+Subject: [PATCH 5.4 00/13] 5.4.234-rc1 review
+Date:   Wed,  1 Mar 2023 19:07:23 +0100
+Message-Id: <20230301180651.177668495@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230301180650.395562988@linuxfoundation.org>
-References: <20230301180650.395562988@linuxfoundation.org>
-User-Agent: quilt/0.67
 MIME-Version: 1.0
+User-Agent: quilt/0.67
+X-stable: review
+X-Patchwork-Hint: ignore
+X-KernelTest-Patch: http://kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.4.234-rc1.gz
+X-KernelTest-Tree: git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git
+X-KernelTest-Branch: linux-5.4.y
+X-KernelTest-Patches: git://git.kernel.org/pub/scm/linux/kernel/git/stable/stable-queue.git
+X-KernelTest-Version: 5.4.234-rc1
+X-KernelTest-Deadline: 2023-03-03T18:06+00:00
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
@@ -53,53 +62,90 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Thomas Weißschuh <linux@weissschuh.net>
+This is the start of the stable review cycle for the 5.4.234 release.
+There are 13 patches in this series, all will be posted as a response
+to this one.  If anyone has any issues with these being applied, please
+let me know.
 
-commit ae3419fbac845b4d3f3a9fae4cc80c68d82cdf6e upstream.
+Responses should be made by Fri, 03 Mar 2023 18:06:43 +0000.
+Anything received after that time might be too late.
 
-Commit 226fae124b2d ("vc_screen: move load of struct vc_data pointer in
-vcs_read() to avoid UAF") moved the call to vcs_vc() into the loop.
+The whole patch series can be found in one patch at:
+	https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.4.234-rc1.gz
+or in the git tree and branch at:
+	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.4.y
+and the diffstat can be found below.
 
-While doing this it also moved the unconditional assignment of
+thanks,
 
-	ret = -ENXIO;
+greg k-h
 
-This unconditional assignment was valid outside the loop but within it
-it clobbers the actual value of ret.
+-------------
+Pseudo-Shortlog of commits:
 
-To avoid this only assign "ret = -ENXIO" when actually needed.
+Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+    Linux 5.4.234-rc1
 
-[ Also, the 'goto unlock_out" needs to be just a "break", so that it
-  does the right thing when it exits on later iterations when partial
-  success has happened - Linus ]
+Alan Stern <stern@rowland.harvard.edu>
+    USB: core: Don't hold device lock while reading the "descriptors" sysfs file
 
-Reported-by: Storm Dragon <stormdragon2976@gmail.com>
-Link: https://lore.kernel.org/lkml/Y%2FKS6vdql2pIsCiI@hotmail.com/
-Fixes: 226fae124b2d ("vc_screen: move load of struct vc_data pointer in vcs_read() to avoid UAF")
-Signed-off-by: Thomas Weißschuh <linux@weissschuh.net>
-Link: https://lore.kernel.org/lkml/64981d94-d00c-4b31-9063-43ad0a384bde@t-8ch.de/
-Signed-off-by: Linus Torvalds <torvalds@linux-foundation.org>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
----
- drivers/tty/vt/vc_screen.c |    7 ++++---
- 1 file changed, 4 insertions(+), 3 deletions(-)
+Florian Zumbiehl <florz@florz.de>
+    USB: serial: option: add support for VW/Skoda "Carstick LTE"
 
---- a/drivers/tty/vt/vc_screen.c
-+++ b/drivers/tty/vt/vc_screen.c
-@@ -266,10 +266,11 @@ vcs_read(struct file *file, char __user
- 		ssize_t orig_count;
- 		long p = pos;
- 
--		ret = -ENXIO;
- 		vc = vcs_vc(inode, &viewed);
--		if (!vc)
--			goto unlock_out;
-+		if (!vc) {
-+			ret = -ENXIO;
-+			break;
-+		}
- 
- 		/* Check whether we are above size each round,
- 		 * as copy_to_user at the end of this loop
+Jiasheng Jiang <jiasheng@iscas.ac.cn>
+    dmaengine: sh: rcar-dmac: Check for error num after dma_set_max_seg_size
+
+Thomas Weißschuh <linux@weissschuh.net>
+    vc_screen: don't clobber return value in vcs_read
+
+Kuniyuki Iwashima <kuniyu@amazon.com>
+    net: Remove WARN_ON_ONCE(sk->sk_forward_alloc) from sk_stream_kill_queues().
+
+Martin KaFai Lau <martin.lau@kernel.org>
+    bpf: bpf_fib_lookup should not return neigh in NUD_FAILED state
+
+Xin Zhao <xnzhao@google.com>
+    HID: core: Fix deadloop in hid_apply_multiplier.
+
+Julian Anastasov <ja@ssi.bg>
+    neigh: make sure used and confirmed times are valid
+
+Dean Luick <dean.luick@cornelisnetworks.com>
+    IB/hfi1: Assign npages earlier
+
+David Sterba <dsterba@suse.com>
+    btrfs: send: limit number of clones and allocated memory size
+
+Vishal Verma <vishal.l.verma@intel.com>
+    ACPI: NFIT: fix a potential deadlock during NFIT teardown
+
+Johan Jonker <jbx6244@gmail.com>
+    ARM: dts: rockchip: add power-domains property to dp node on rk3288
+
+Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
+    arm64: dts: rockchip: drop unused LED mode property from rk3328-roc-cc
+
+
+-------------
+
+Diffstat:
+
+ Makefile                                       |  4 ++--
+ arch/arm/boot/dts/rk3288.dtsi                  |  1 +
+ arch/arm64/boot/dts/rockchip/rk3328-roc-cc.dts |  2 --
+ drivers/acpi/nfit/core.c                       |  2 +-
+ drivers/dma/sh/rcar-dmac.c                     |  5 ++++-
+ drivers/hid/hid-core.c                         |  3 +++
+ drivers/infiniband/hw/hfi1/user_exp_rcv.c      |  9 ++-------
+ drivers/tty/vt/vc_screen.c                     |  7 ++++---
+ drivers/usb/core/hub.c                         |  5 ++---
+ drivers/usb/core/sysfs.c                       |  5 -----
+ drivers/usb/serial/option.c                    |  4 ++++
+ fs/btrfs/send.c                                |  6 +++---
+ net/caif/caif_socket.c                         |  1 +
+ net/core/filter.c                              |  4 ++--
+ net/core/neighbour.c                           | 18 +++++++++++++++---
+ net/core/stream.c                              |  1 -
+ 16 files changed, 44 insertions(+), 33 deletions(-)
 
 
