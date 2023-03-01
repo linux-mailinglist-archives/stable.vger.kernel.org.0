@@ -2,53 +2,50 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 5C90E6A72E8
-	for <lists+stable@lfdr.de>; Wed,  1 Mar 2023 19:10:45 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id CD4FC6A72F3
+	for <lists+stable@lfdr.de>; Wed,  1 Mar 2023 19:11:05 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229842AbjCASKo (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 1 Mar 2023 13:10:44 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42650 "EHLO
+        id S229445AbjCASLE (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 1 Mar 2023 13:11:04 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44912 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230167AbjCASJ6 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 1 Mar 2023 13:09:58 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 762C55FE3
-        for <stable@vger.kernel.org>; Wed,  1 Mar 2023 10:09:53 -0800 (PST)
+        with ESMTP id S229904AbjCASLD (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 1 Mar 2023 13:11:03 -0500
+Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 63C5C4A1EB
+        for <stable@vger.kernel.org>; Wed,  1 Mar 2023 10:11:02 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 26B69B810DB
-        for <stable@vger.kernel.org>; Wed,  1 Mar 2023 18:09:52 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 88E44C433D2;
-        Wed,  1 Mar 2023 18:09:50 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id B19D1CE1D9A
+        for <stable@vger.kernel.org>; Wed,  1 Mar 2023 18:11:00 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A58FBC433D2;
+        Wed,  1 Mar 2023 18:10:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1677694190;
-        bh=HvgkDLq+l0euMjKRUI0TDInxbazd6FavQ/MDM1k93AQ=;
+        s=korg; t=1677694259;
+        bh=Opj6eH/PliGR/czkKYVyeh+3acJCOj17iG8oS3E6I+A=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=EvjSvIwTx3gFTCWnsYbRxCA9z9IdCIN+sWhEvdflRU5XD156mVOLV2Bul925xH4y+
-         lnGsYT2XuZoGYubjaQXur0Nq+L9YuvSFmS3rAr2RfXnsruG2+P1dYsMIDzrJMe/Jcs
-         jBoALPSQDGH85uVNhwpk7ga2SobrNHE/emhbgAts=
+        b=wcvN10tISA9AWCvdx04ybF0Ye+kN003RUIpNdZEKUVXivOvmUPg3rhG+uAHxQmmuM
+         wn/t9o80dfNnmFkiqOf/510wv7A0lmfjkXiTTuZTqXmj5yeEWVZp4daK68YwPbAun2
+         HId8Kn9YVV1jrOjZ4AADi7SmFvh474C/me8CR2cM=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Dean Luick <dean.luick@cornelisnetworks.com>,
-        Dennis Dalessandro <dennis.dalessandro@cornelisnetworks.com>,
-        Leon Romanovsky <leon@kernel.org>,
-        Jason Gunthorpe <jgg@nvidia.com>,
+        patches@lists.linux.dev, Benedict Wong <benedictwong@google.com>,
+        Steffen Klassert <steffen.klassert@secunet.com>,
         Sasha Levin <sashal@kernel.org>
-Subject: [PATCH 5.10 06/19] IB/hfi1: Assign npages earlier
+Subject: [PATCH 5.15 02/22] Fix XFRM-I support for nested ESP tunnels
 Date:   Wed,  1 Mar 2023 19:08:35 +0100
-Message-Id: <20230301180652.581672535@linuxfoundation.org>
+Message-Id: <20230301180652.768409077@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230301180652.316428563@linuxfoundation.org>
-References: <20230301180652.316428563@linuxfoundation.org>
+In-Reply-To: <20230301180652.658125575@linuxfoundation.org>
+References: <20230301180652.658125575@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
         SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -56,62 +53,129 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dean Luick <dean.luick@cornelisnetworks.com>
+From: Benedict Wong <benedictwong@google.com>
 
-[ Upstream commit f9c47b2caa7ffc903ec950b454b59c209afe3182 ]
+[ Upstream commit b0355dbbf13c0052931dd14c38c789efed64d3de ]
 
-Improve code clarity and enable earlier use of
-tidbuf->npages by moving its assignment to
-structure creation time.
+This change adds support for nested IPsec tunnels by ensuring that
+XFRM-I verifies existing policies before decapsulating a subsequent
+policies. Addtionally, this clears the secpath entries after policies
+are verified, ensuring that previous tunnels with no-longer-valid
+do not pollute subsequent policy checks.
 
-Signed-off-by: Dean Luick <dean.luick@cornelisnetworks.com>
-Signed-off-by: Dennis Dalessandro <dennis.dalessandro@cornelisnetworks.com>
-Link: https://lore.kernel.org/r/167329104884.1472990.4639750192433251493.stgit@awfm-02.cornelisnetworks.com
-Signed-off-by: Leon Romanovsky <leon@kernel.org>
-Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
+This is necessary especially for nested tunnels, as the IP addresses,
+protocol and ports may all change, thus not matching the previous
+policies. In order to ensure that packets match the relevant inbound
+templates, the xfrm_policy_check should be done before handing off to
+the inner XFRM protocol to decrypt and decapsulate.
+
+Notably, raw ESP/AH packets did not perform policy checks inherently,
+whereas all other encapsulated packets (UDP, TCP encapsulated) do policy
+checks after calling xfrm_input handling in the respective encapsulation
+layer.
+
+Test: Verified with additional Android Kernel Unit tests
+Signed-off-by: Benedict Wong <benedictwong@google.com>
+Signed-off-by: Steffen Klassert <steffen.klassert@secunet.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/infiniband/hw/hfi1/user_exp_rcv.c | 9 ++-------
- 1 file changed, 2 insertions(+), 7 deletions(-)
+ net/xfrm/xfrm_interface.c | 54 ++++++++++++++++++++++++++++++++++++---
+ net/xfrm/xfrm_policy.c    |  3 +++
+ 2 files changed, 53 insertions(+), 4 deletions(-)
 
-diff --git a/drivers/infiniband/hw/hfi1/user_exp_rcv.c b/drivers/infiniband/hw/hfi1/user_exp_rcv.c
-index 897923981855d..0e0be6c62e3d1 100644
---- a/drivers/infiniband/hw/hfi1/user_exp_rcv.c
-+++ b/drivers/infiniband/hw/hfi1/user_exp_rcv.c
-@@ -202,16 +202,11 @@ static void unpin_rcv_pages(struct hfi1_filedata *fd,
- static int pin_rcv_pages(struct hfi1_filedata *fd, struct tid_user_buf *tidbuf)
- {
- 	int pinned;
--	unsigned int npages;
-+	unsigned int npages = tidbuf->npages;
- 	unsigned long vaddr = tidbuf->vaddr;
- 	struct page **pages = NULL;
- 	struct hfi1_devdata *dd = fd->uctxt->dd;
- 
--	/* Get the number of pages the user buffer spans */
--	npages = num_user_pages(vaddr, tidbuf->length);
--	if (!npages)
--		return -EINVAL;
--
- 	if (npages > fd->uctxt->expected_count) {
- 		dd_dev_err(dd, "Expected buffer too big\n");
- 		return -EINVAL;
-@@ -238,7 +233,6 @@ static int pin_rcv_pages(struct hfi1_filedata *fd, struct tid_user_buf *tidbuf)
- 		return pinned;
- 	}
- 	tidbuf->pages = pages;
--	tidbuf->npages = npages;
- 	fd->tid_n_pinned += pinned;
- 	return pinned;
+diff --git a/net/xfrm/xfrm_interface.c b/net/xfrm/xfrm_interface.c
+index 1e8b26eecb3f8..694eec6ca147e 100644
+--- a/net/xfrm/xfrm_interface.c
++++ b/net/xfrm/xfrm_interface.c
+@@ -207,6 +207,52 @@ static void xfrmi_scrub_packet(struct sk_buff *skb, bool xnet)
+ 	skb->mark = 0;
  }
-@@ -316,6 +310,7 @@ int hfi1_user_exp_rcv_setup(struct hfi1_filedata *fd,
- 	mutex_init(&tidbuf->cover_mutex);
- 	tidbuf->vaddr = tinfo->vaddr;
- 	tidbuf->length = tinfo->length;
-+	tidbuf->npages = num_user_pages(tidbuf->vaddr, tidbuf->length);
- 	tidbuf->psets = kcalloc(uctxt->expected_count, sizeof(*tidbuf->psets),
- 				GFP_KERNEL);
- 	if (!tidbuf->psets) {
+ 
++static int xfrmi_input(struct sk_buff *skb, int nexthdr, __be32 spi,
++		       int encap_type, unsigned short family)
++{
++	struct sec_path *sp;
++
++	sp = skb_sec_path(skb);
++	if (sp && (sp->len || sp->olen) &&
++	    !xfrm_policy_check(NULL, XFRM_POLICY_IN, skb, family))
++		goto discard;
++
++	XFRM_SPI_SKB_CB(skb)->family = family;
++	if (family == AF_INET) {
++		XFRM_SPI_SKB_CB(skb)->daddroff = offsetof(struct iphdr, daddr);
++		XFRM_TUNNEL_SKB_CB(skb)->tunnel.ip4 = NULL;
++	} else {
++		XFRM_SPI_SKB_CB(skb)->daddroff = offsetof(struct ipv6hdr, daddr);
++		XFRM_TUNNEL_SKB_CB(skb)->tunnel.ip6 = NULL;
++	}
++
++	return xfrm_input(skb, nexthdr, spi, encap_type);
++discard:
++	kfree_skb(skb);
++	return 0;
++}
++
++static int xfrmi4_rcv(struct sk_buff *skb)
++{
++	return xfrmi_input(skb, ip_hdr(skb)->protocol, 0, 0, AF_INET);
++}
++
++static int xfrmi6_rcv(struct sk_buff *skb)
++{
++	return xfrmi_input(skb, skb_network_header(skb)[IP6CB(skb)->nhoff],
++			   0, 0, AF_INET6);
++}
++
++static int xfrmi4_input(struct sk_buff *skb, int nexthdr, __be32 spi, int encap_type)
++{
++	return xfrmi_input(skb, nexthdr, spi, encap_type, AF_INET);
++}
++
++static int xfrmi6_input(struct sk_buff *skb, int nexthdr, __be32 spi, int encap_type)
++{
++	return xfrmi_input(skb, nexthdr, spi, encap_type, AF_INET6);
++}
++
+ static int xfrmi_rcv_cb(struct sk_buff *skb, int err)
+ {
+ 	const struct xfrm_mode *inner_mode;
+@@ -774,8 +820,8 @@ static struct pernet_operations xfrmi_net_ops = {
+ };
+ 
+ static struct xfrm6_protocol xfrmi_esp6_protocol __read_mostly = {
+-	.handler	=	xfrm6_rcv,
+-	.input_handler	=	xfrm_input,
++	.handler	=	xfrmi6_rcv,
++	.input_handler	=	xfrmi6_input,
+ 	.cb_handler	=	xfrmi_rcv_cb,
+ 	.err_handler	=	xfrmi6_err,
+ 	.priority	=	10,
+@@ -825,8 +871,8 @@ static struct xfrm6_tunnel xfrmi_ip6ip_handler __read_mostly = {
+ #endif
+ 
+ static struct xfrm4_protocol xfrmi_esp4_protocol __read_mostly = {
+-	.handler	=	xfrm4_rcv,
+-	.input_handler	=	xfrm_input,
++	.handler	=	xfrmi4_rcv,
++	.input_handler	=	xfrmi4_input,
+ 	.cb_handler	=	xfrmi_rcv_cb,
+ 	.err_handler	=	xfrmi4_err,
+ 	.priority	=	10,
+diff --git a/net/xfrm/xfrm_policy.c b/net/xfrm/xfrm_policy.c
+index ba58b963f4827..0540e9f72b2fe 100644
+--- a/net/xfrm/xfrm_policy.c
++++ b/net/xfrm/xfrm_policy.c
+@@ -3669,6 +3669,9 @@ int __xfrm_policy_check(struct sock *sk, int dir, struct sk_buff *skb,
+ 			goto reject;
+ 		}
+ 
++		if (if_id)
++			secpath_reset(skb);
++
+ 		xfrm_pols_put(pols, npols);
+ 		return 1;
+ 	}
 -- 
 2.39.0
 
