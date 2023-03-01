@@ -2,50 +2,52 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 6854A6A72E4
-	for <lists+stable@lfdr.de>; Wed,  1 Mar 2023 19:10:40 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2E3A36A731A
+	for <lists+stable@lfdr.de>; Wed,  1 Mar 2023 19:12:41 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229932AbjCASKh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 1 Mar 2023 13:10:37 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43722 "EHLO
+        id S230056AbjCASMk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 1 Mar 2023 13:12:40 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47052 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229610AbjCASKd (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 1 Mar 2023 13:10:33 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6063939BAB
-        for <stable@vger.kernel.org>; Wed,  1 Mar 2023 10:10:23 -0800 (PST)
+        with ESMTP id S230064AbjCASMj (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 1 Mar 2023 13:12:39 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 25D134BE8D
+        for <stable@vger.kernel.org>; Wed,  1 Mar 2023 10:12:38 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id EB0A86145C
-        for <stable@vger.kernel.org>; Wed,  1 Mar 2023 18:10:22 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D4FCAC4339B;
-        Wed,  1 Mar 2023 18:10:21 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id D5BE3B810D2
+        for <stable@vger.kernel.org>; Wed,  1 Mar 2023 18:12:36 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4890AC4339B;
+        Wed,  1 Mar 2023 18:12:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1677694222;
-        bh=3bJJUefTITWpBCvRbyEg2Sg7fd5UWN1/TEoNElIgvP8=;
+        s=korg; t=1677694355;
+        bh=wIk939JfTlK97gArnMz3NgZeHDyDPfghPLluI13E4NM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=WeBgS4sfUqc3KD5SQsMtpObcaRhKO9xv8rnuRal4i8Hpo3plw1jOYGmdpkRvGNFKr
-         NiezvxA62AzqcDipFik2J7Q+/99OGuAFf5gzBBJnC14MQBoTLhFaMFqnCxVDRp0BG/
-         5KzpTxZoWg0dmLOeESxCm5lZapSz0IxhARH81t9M=
+        b=ZlVXLl9ikp0JsWJXgfY+0o5iO6BIN6KqJ+xD7B7DqDE1bWnCfS3JQEhUvxaapGrFq
+         ScB+wjcRZ4Ti4gMJAu7RAbjhRsP/lwUm0w5OIKpU5LIWP/eRovAEw8gQSP/PdvIqUw
+         P0i8laPHehUxKVlbMEl2Me9IDb121hy3Clq5gCZ4=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, stable <stable@kernel.org>,
-        Prashanth K <quic_prashk@quicinc.com>,
-        Alan Stern <stern@rowland.harvard.edu>
-Subject: [PATCH 5.10 18/19] usb: gadget: u_serial: Add null pointer check in gserial_resume
+        patches@lists.linux.dev, syzbot <syzkaller@googlegroups.com>,
+        Christoph Paasch <christophpaasch@icloud.com>,
+        Kuniyuki Iwashima <kuniyu@amazon.com>,
+        Eric Dumazet <edumazet@google.com>,
+        Jakub Kicinski <kuba@kernel.org>
+Subject: [PATCH 6.1 26/42] net: Remove WARN_ON_ONCE(sk->sk_forward_alloc) from sk_stream_kill_queues().
 Date:   Wed,  1 Mar 2023 19:08:47 +0100
-Message-Id: <20230301180653.069435447@linuxfoundation.org>
+Message-Id: <20230301180658.213536995@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230301180652.316428563@linuxfoundation.org>
-References: <20230301180652.316428563@linuxfoundation.org>
+In-Reply-To: <20230301180657.003689969@linuxfoundation.org>
+References: <20230301180657.003689969@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
         SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -53,84 +55,100 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Prashanth K <quic_prashk@quicinc.com>
+From: Kuniyuki Iwashima <kuniyu@amazon.com>
 
-commit 5ec63fdbca604568890c577753c6f66c5b3ef0b5 upstream.
+commit 62ec33b44e0f7168ff2886520fec6fb62d03b5a3 upstream.
 
-Consider a case where gserial_disconnect has already cleared
-gser->ioport. And if a wakeup interrupt triggers afterwards,
-gserial_resume gets called, which will lead to accessing of
-gser->ioport and thus causing null pointer dereference.Add
-a null pointer check to prevent this.
+Christoph Paasch reported that commit b5fc29233d28 ("inet6: Remove
+inet6_destroy_sock() in sk->sk_prot->destroy().") started triggering
+WARN_ON_ONCE(sk->sk_forward_alloc) in sk_stream_kill_queues().  [0 - 2]
+Also, we can reproduce it by a program in [3].
 
-Added a static spinlock to prevent gser->ioport from becoming
-null after the newly added check.
+In the commit, we delay freeing ipv6_pinfo.pktoptions from sk->destroy()
+to sk->sk_destruct(), so sk->sk_forward_alloc is no longer zero in
+inet_csk_destroy_sock().
 
-Fixes: aba3a8d01d62 ("usb: gadget: u_serial: add suspend resume callbacks")
-Cc: stable <stable@kernel.org>
-Signed-off-by: Prashanth K <quic_prashk@quicinc.com>
-Acked-by: Alan Stern <stern@rowland.harvard.edu>
-Link: https://lore.kernel.org/r/1676309438-14922-1-git-send-email-quic_prashk@quicinc.com
+The same check has been in inet_sock_destruct() from at least v2.6,
+we can just remove the WARN_ON_ONCE().  However, among the users of
+sk_stream_kill_queues(), only CAIF is not calling inet_sock_destruct().
+Thus, we add the same WARN_ON_ONCE() to caif_sock_destructor().
+
+[0]: https://lore.kernel.org/netdev/39725AB4-88F1-41B3-B07F-949C5CAEFF4F@icloud.com/
+[1]: https://github.com/multipath-tcp/mptcp_net-next/issues/341
+[2]:
+WARNING: CPU: 0 PID: 3232 at net/core/stream.c:212 sk_stream_kill_queues+0x2f9/0x3e0
+Modules linked in:
+CPU: 0 PID: 3232 Comm: syz-executor.0 Not tainted 6.2.0-rc5ab24eb4698afbe147b424149c529e2a43ec24eb5 #2
+Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS rel-1.13.0-0-gf21b5a4aeb02-prebuilt.qemu.org 04/01/2014
+RIP: 0010:sk_stream_kill_queues+0x2f9/0x3e0
+Code: 03 0f b6 04 02 84 c0 74 08 3c 03 0f 8e ec 00 00 00 8b ab 08 01 00 00 e9 60 ff ff ff e8 d0 5f b6 fe 0f 0b eb 97 e8 c7 5f b6 fe <0f> 0b eb a0 e8 be 5f b6 fe 0f 0b e9 6a fe ff ff e8 02 07 e3 fe e9
+RSP: 0018:ffff88810570fc68 EFLAGS: 00010293
+RAX: 0000000000000000 RBX: 0000000000000000 RCX: 0000000000000000
+RDX: ffff888101f38f40 RSI: ffffffff8285e529 RDI: 0000000000000005
+RBP: 0000000000000ce0 R08: 0000000000000005 R09: 0000000000000000
+R10: 0000000000000ce0 R11: 0000000000000001 R12: ffff8881009e9488
+R13: ffffffff84af2cc0 R14: 0000000000000000 R15: ffff8881009e9458
+FS:  00007f7fdfbd5800(0000) GS:ffff88811b600000(0000) knlGS:0000000000000000
+CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+CR2: 0000001b32923000 CR3: 00000001062fc006 CR4: 0000000000170ef0
+Call Trace:
+ <TASK>
+ inet_csk_destroy_sock+0x1a1/0x320
+ __tcp_close+0xab6/0xe90
+ tcp_close+0x30/0xc0
+ inet_release+0xe9/0x1f0
+ inet6_release+0x4c/0x70
+ __sock_release+0xd2/0x280
+ sock_close+0x15/0x20
+ __fput+0x252/0xa20
+ task_work_run+0x169/0x250
+ exit_to_user_mode_prepare+0x113/0x120
+ syscall_exit_to_user_mode+0x1d/0x40
+ do_syscall_64+0x48/0x90
+ entry_SYSCALL_64_after_hwframe+0x72/0xdc
+RIP: 0033:0x7f7fdf7ae28d
+Code: c1 20 00 00 75 10 b8 03 00 00 00 0f 05 48 3d 01 f0 ff ff 73 31 c3 48 83 ec 08 e8 ee fb ff ff 48 89 04 24 b8 03 00 00 00 0f 05 <48> 8b 3c 24 48 89 c2 e8 37 fc ff ff 48 89 d0 48 83 c4 08 48 3d 01
+RSP: 002b:00000000007dfbb0 EFLAGS: 00000293 ORIG_RAX: 0000000000000003
+RAX: 0000000000000000 RBX: 0000000000000004 RCX: 00007f7fdf7ae28d
+RDX: 0000000000000000 RSI: ffffffffffffffff RDI: 0000000000000003
+RBP: 0000000000000000 R08: 000000007f338e0f R09: 0000000000000e0f
+R10: 000000007f338e13 R11: 0000000000000293 R12: 00007f7fdefff000
+R13: 00007f7fdefffcd8 R14: 00007f7fdefffce0 R15: 00007f7fdefffcd8
+ </TASK>
+
+[3]: https://lore.kernel.org/netdev/20230208004245.83497-1-kuniyu@amazon.com/
+
+Fixes: b5fc29233d28 ("inet6: Remove inet6_destroy_sock() in sk->sk_prot->destroy().")
+Reported-by: syzbot <syzkaller@googlegroups.com>
+Reported-by: Christoph Paasch <christophpaasch@icloud.com>
+Signed-off-by: Kuniyuki Iwashima <kuniyu@amazon.com>
+Reviewed-by: Eric Dumazet <edumazet@google.com>
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- drivers/usb/gadget/function/u_serial.c |   23 +++++++++++++++++++----
- 1 file changed, 19 insertions(+), 4 deletions(-)
+ net/caif/caif_socket.c |    1 +
+ net/core/stream.c      |    1 -
+ 2 files changed, 1 insertion(+), 1 deletion(-)
 
---- a/drivers/usb/gadget/function/u_serial.c
-+++ b/drivers/usb/gadget/function/u_serial.c
-@@ -81,6 +81,9 @@
- #define WRITE_BUF_SIZE		8192		/* TX only */
- #define GS_CONSOLE_BUF_SIZE	8192
- 
-+/* Prevents race conditions while accessing gser->ioport */
-+static DEFINE_SPINLOCK(serial_port_lock);
-+
- /* console info */
- struct gs_console {
- 	struct console		console;
-@@ -1376,8 +1379,10 @@ void gserial_disconnect(struct gserial *
- 	if (!port)
+--- a/net/caif/caif_socket.c
++++ b/net/caif/caif_socket.c
+@@ -1015,6 +1015,7 @@ static void caif_sock_destructor(struct
  		return;
- 
-+	spin_lock_irqsave(&serial_port_lock, flags);
-+
- 	/* tell the TTY glue not to do I/O here any more */
--	spin_lock_irqsave(&port->port_lock, flags);
-+	spin_lock(&port->port_lock);
- 
- 	gs_console_disconnect(port);
- 
-@@ -1392,7 +1397,8 @@ void gserial_disconnect(struct gserial *
- 			tty_hangup(port->port.tty);
  	}
- 	port->suspended = false;
--	spin_unlock_irqrestore(&port->port_lock, flags);
-+	spin_unlock(&port->port_lock);
-+	spin_unlock_irqrestore(&serial_port_lock, flags);
+ 	sk_stream_kill_queues(&cf_sk->sk);
++	WARN_ON_ONCE(sk->sk_forward_alloc);
+ 	caif_free_client(&cf_sk->layer);
+ }
  
- 	/* disable endpoints, aborting down any active I/O */
- 	usb_ep_disable(gser->out);
-@@ -1426,10 +1432,19 @@ EXPORT_SYMBOL_GPL(gserial_suspend);
+--- a/net/core/stream.c
++++ b/net/core/stream.c
+@@ -209,7 +209,6 @@ void sk_stream_kill_queues(struct sock *
+ 	sk_mem_reclaim_final(sk);
  
- void gserial_resume(struct gserial *gser)
- {
--	struct gs_port *port = gser->ioport;
-+	struct gs_port *port;
- 	unsigned long	flags;
+ 	WARN_ON_ONCE(sk->sk_wmem_queued);
+-	WARN_ON_ONCE(sk->sk_forward_alloc);
  
--	spin_lock_irqsave(&port->port_lock, flags);
-+	spin_lock_irqsave(&serial_port_lock, flags);
-+	port = gser->ioport;
-+
-+	if (!port) {
-+		spin_unlock_irqrestore(&serial_port_lock, flags);
-+		return;
-+	}
-+
-+	spin_lock(&port->port_lock);
-+	spin_unlock(&serial_port_lock);
- 	port->suspended = false;
- 	if (!port->start_delayed) {
- 		spin_unlock_irqrestore(&port->port_lock, flags);
+ 	/* It is _impossible_ for the backlog to contain anything
+ 	 * when we get here.  All user references to this socket
 
 
