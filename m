@@ -2,47 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id D3C166A72F1
-	for <lists+stable@lfdr.de>; Wed,  1 Mar 2023 19:10:59 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 0E1B36A7327
+	for <lists+stable@lfdr.de>; Wed,  1 Mar 2023 19:13:14 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229934AbjCASK7 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 1 Mar 2023 13:10:59 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44788 "EHLO
+        id S230078AbjCASNM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 1 Mar 2023 13:13:12 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48130 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229905AbjCASK5 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 1 Mar 2023 13:10:57 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 730584AFCF
-        for <stable@vger.kernel.org>; Wed,  1 Mar 2023 10:10:56 -0800 (PST)
+        with ESMTP id S230090AbjCASNL (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 1 Mar 2023 13:13:11 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AE678E9
+        for <stable@vger.kernel.org>; Wed,  1 Mar 2023 10:13:10 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 1FF23B810F1
-        for <stable@vger.kernel.org>; Wed,  1 Mar 2023 18:10:55 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7098BC433D2;
-        Wed,  1 Mar 2023 18:10:53 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 277C36140D
+        for <stable@vger.kernel.org>; Wed,  1 Mar 2023 18:13:10 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3BE53C433D2;
+        Wed,  1 Mar 2023 18:13:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1677694253;
-        bh=rUrXEsO9Vl2PFEaMgnHOwelavzTkONbffiHDKsByVNY=;
+        s=korg; t=1677694389;
+        bh=fML4Bsj97FBCWZenn6eZbnOIZ6XKRbVET63UOWWhLyE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=q4ajeWGfH+8WcK6jVveKNTc0IXYS5hnAzVcLF3r19JBC5toNCz9g/OOsoP2084BQ2
-         26qzOkMVKRBtUHgvfqm/h1psaGwhosBVd1lOxBJP3bwNhkdcegaXRV8kpRtKW4UiXb
-         lnq2Vl9NEi89u76o/EymjDDBryQSo+dd7GIoXYXM=
+        b=hubVRVbC9EmQbPWENUDkfifKjda8tUlaxcwlNKtE2WrSH2NsyZJ7ZAUptVgMi2j51
+         +4lU+ti+MmKqbogeOp90iZuqqi8Z4quBiudEV+wPgY9VxHGWiz5n8ARAEnOFB0uqQu
+         BEWKWRBJ4AiLWpq1yonsYMFQvJJVwaKwTJ0gXa98=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev,
-        Cristian Ciocaltea <cristian.ciocaltea@collabora.com>,
-        Masahiro Yamada <masahiroy@kernel.org>,
-        Jialu Xu <xujialu@vimux.org>,
-        Vipin Sharma <vipinsh@google.com>,
-        Carlos Llamas <cmllamas@google.com>
-Subject: [PATCH 5.15 18/22] scripts/tags.sh: fix incompatibility with PCRE2
-Date:   Wed,  1 Mar 2023 19:08:51 +0100
-Message-Id: <20230301180653.381700826@linuxfoundation.org>
+        patches@lists.linux.dev, Florian Zumbiehl <florz@florz.de>,
+        Johan Hovold <johan@kernel.org>
+Subject: [PATCH 6.1 31/42] USB: serial: option: add support for VW/Skoda "Carstick LTE"
+Date:   Wed,  1 Mar 2023 19:08:52 +0100
+Message-Id: <20230301180658.456110977@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230301180652.658125575@linuxfoundation.org>
-References: <20230301180652.658125575@linuxfoundation.org>
+In-Reply-To: <20230301180657.003689969@linuxfoundation.org>
+References: <20230301180657.003689969@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
@@ -56,53 +52,52 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Carlos Llamas <cmllamas@google.com>
+From: Florian Zumbiehl <florz@florz.de>
 
-commit 6ec363fc6142226b9ab5a6528f65333d729d2b6b upstream.
+commit 617c331d91077f896111044628c096802551dc66 upstream.
 
-Starting with release 10.38 PCRE2 drops default support for using \K in
-lookaround patterns as described in [1]. Unfortunately, scripts/tags.sh
-relies on such functionality to collect all_compiled_soures() leading to
-the following error:
+Add support for VW/Skoda "Carstick LTE"
 
-  $ make COMPILED_SOURCE=1 tags
-    GEN     tags
-  grep: \K is not allowed in lookarounds (but see PCRE2_EXTRA_ALLOW_LOOKAROUND_BSK)
+D:  Ver= 2.00 Cls=00(>ifc ) Sub=00 Prot=00 MxPS=64 #Cfgs=  1
+P:  Vendor=1c9e ProdID=7605 Rev=02.00
+S:  Manufacturer=USB Modem
+S:  Product=USB Modem
+C:  #Ifs= 4 Cfg#= 1 Atr=e0 MxPwr=500mA
+I:  If#=0x0 Alt= 0 #EPs= 2 Cls=ff(vend.) Sub=ff Prot=ff Driver=(none)
+I:  If#=0x1 Alt= 0 #EPs= 3 Cls=ff(vend.) Sub=ff Prot=ff Driver=(none)
+I:  If#=0x2 Alt= 0 #EPs= 3 Cls=ff(vend.) Sub=ff Prot=ff Driver=(none)
+I:  If#=0x3 Alt= 0 #EPs= 3 Cls=ff(vend.) Sub=ff Prot=ff Driver=(none)
 
-The usage of \K for this pattern was introduced in commit 4f491bb6ea2a
-("scripts/tags.sh: collect compiled source precisely") which speeds up
-the generation of tags significantly.
+The stick has AT command interfaces on interfaces 1, 2, and 3, and does PPP
+on interface 3.
 
-In order to fix this issue without compromising the performance we can
-switch over to an equivalent sed expression. The same matching pattern
-is preserved here except \K is replaced with a backreference \1.
-
-[1] https://www.pcre.org/current/doc/html/pcre2syntax.html#SEC11
-
-Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc: Cristian Ciocaltea <cristian.ciocaltea@collabora.com>
-Cc: Masahiro Yamada <masahiroy@kernel.org>
-Cc: Jialu Xu <xujialu@vimux.org>
-Cc: Vipin Sharma <vipinsh@google.com>
+Signed-off-by: Florian Zumbiehl <florz@florz.de>
 Cc: stable@vger.kernel.org
-Fixes: 4f491bb6ea2a ("scripts/tags.sh: collect compiled source precisely")
-Signed-off-by: Carlos Llamas <cmllamas@google.com>
-Link: https://lore.kernel.org/r/20230215183850.3353198-1-cmllamas@google.com
+Signed-off-by: Johan Hovold <johan@kernel.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- scripts/tags.sh |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/usb/serial/option.c |    4 ++++
+ 1 file changed, 4 insertions(+)
 
---- a/scripts/tags.sh
-+++ b/scripts/tags.sh
-@@ -98,7 +98,7 @@ all_compiled_sources()
- 	{
- 		echo include/generated/autoconf.h
- 		find $ignore -name "*.cmd" -exec \
--			grep -Poh '(?(?=^source_.* \K).*|(?=^  \K\S).*(?= \\))' {} \+ |
-+			sed -n -E 's/^source_.* (.*)/\1/p; s/^  (\S.*) \\/\1/p' {} \+ |
- 		awk '!a[$0]++'
- 	} | xargs realpath -es $([ -z "$KBUILD_ABS_SRCTREE" ] && echo --relative-to=.) |
- 	sort -u
+--- a/drivers/usb/serial/option.c
++++ b/drivers/usb/serial/option.c
+@@ -402,6 +402,8 @@ static void option_instat_callback(struc
+ #define LONGCHEER_VENDOR_ID			0x1c9e
+ 
+ /* 4G Systems products */
++/* This one was sold as the VW and Skoda "Carstick LTE" */
++#define FOUR_G_SYSTEMS_PRODUCT_CARSTICK_LTE	0x7605
+ /* This is the 4G XS Stick W14 a.k.a. Mobilcom Debitel Surf-Stick *
+  * It seems to contain a Qualcomm QSC6240/6290 chipset            */
+ #define FOUR_G_SYSTEMS_PRODUCT_W14		0x9603
+@@ -1976,6 +1978,8 @@ static const struct usb_device_id option
+ 	  .driver_info = RSVD(2) },
+ 	{ USB_DEVICE(AIRPLUS_VENDOR_ID, AIRPLUS_PRODUCT_MCD650) },
+ 	{ USB_DEVICE(TLAYTECH_VENDOR_ID, TLAYTECH_PRODUCT_TEU800) },
++	{ USB_DEVICE(LONGCHEER_VENDOR_ID, FOUR_G_SYSTEMS_PRODUCT_CARSTICK_LTE),
++	  .driver_info = RSVD(0) },
+ 	{ USB_DEVICE(LONGCHEER_VENDOR_ID, FOUR_G_SYSTEMS_PRODUCT_W14),
+ 	  .driver_info = NCTRL(0) | NCTRL(1) },
+ 	{ USB_DEVICE(LONGCHEER_VENDOR_ID, FOUR_G_SYSTEMS_PRODUCT_W100),
 
 
