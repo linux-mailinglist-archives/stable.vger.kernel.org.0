@@ -2,52 +2,53 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id E7C746A72EE
-	for <lists+stable@lfdr.de>; Wed,  1 Mar 2023 19:10:49 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8531C6A7324
+	for <lists+stable@lfdr.de>; Wed,  1 Mar 2023 19:13:10 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229840AbjCASKt (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 1 Mar 2023 13:10:49 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44534 "EHLO
+        id S230094AbjCASNJ (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 1 Mar 2023 13:13:09 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48020 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229615AbjCASKr (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 1 Mar 2023 13:10:47 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E465341096
-        for <stable@vger.kernel.org>; Wed,  1 Mar 2023 10:10:46 -0800 (PST)
+        with ESMTP id S230073AbjCASNI (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 1 Mar 2023 13:13:08 -0500
+Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 51A0D144B4
+        for <stable@vger.kernel.org>; Wed,  1 Mar 2023 10:13:05 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 8010661386
-        for <stable@vger.kernel.org>; Wed,  1 Mar 2023 18:10:46 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 96204C4339B;
-        Wed,  1 Mar 2023 18:10:45 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 96FC2CE1DAF
+        for <stable@vger.kernel.org>; Wed,  1 Mar 2023 18:13:03 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 70CEBC433D2;
+        Wed,  1 Mar 2023 18:13:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1677694245;
-        bh=5FJnQp3d75w8RrzuqKlAa8GcvSkb38AjFy2CTJ1e4OI=;
+        s=korg; t=1677694381;
+        bh=OrFODWod5r7AsMCEk2kWAYxiC5A3Fz0JuBQgIvS84Xw=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=P1ZPs5RInp48aulAFFbEPV7meDkAN+dqSaO7p6Iryy0qrRMIQupEicIDeDgEVTZEs
-         Qx+Dv3smSc8QLI+VlV307lyvmGf6A8Jcx0As6jpCpDpQ/RO2eBtOiwpvaOgFNfAMoB
-         y5fSjnkYAEQ7cDcDAL/TSXY/TABMN8zo9GlCdvQ4=
+        b=BIrK860Qqcxi8yT4mv0FfxejLcOJxLZj2lWAm4du+y8edKLE5brYvuKi4HPQvx3MG
+         +85mrZaYLy0V2tR+tQZ8x2UMD0VMrFYyAY/wsaAzihzNSlXaLNG0U5gPiMQhA7ki+i
+         mUYToq08q/js7rIhwJUO2T9VEkWPs55uu4JqKVoI=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, syzbot <syzkaller@googlegroups.com>,
-        Christoph Paasch <christophpaasch@icloud.com>,
-        Kuniyuki Iwashima <kuniyu@amazon.com>,
-        Eric Dumazet <edumazet@google.com>,
-        Jakub Kicinski <kuba@kernel.org>
-Subject: [PATCH 5.15 15/22] net: Remove WARN_ON_ONCE(sk->sk_forward_alloc) from sk_stream_kill_queues().
-Date:   Wed,  1 Mar 2023 19:08:48 +0100
-Message-Id: <20230301180653.272393596@linuxfoundation.org>
+        patches@lists.linux.dev, Hansen Dsouza <hansen.dsouza@amd.com>,
+        Qingqing Zhuo <qingqing.zhuo@amd.com>,
+        Nicholas Kazlauskas <nicholas.kazlauskas@amd.com>,
+        Daniel Wheeler <daniel.wheeler@amd.com>,
+        Alex Deucher <alexander.deucher@amd.com>,
+        "Limonciello, Mario" <Mario.Limonciello@amd.com>
+Subject: [PATCH 6.1 28/42] drm/amd/display: Move DCN314 DOMAIN power control to DMCUB
+Date:   Wed,  1 Mar 2023 19:08:49 +0100
+Message-Id: <20230301180658.309176585@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230301180652.658125575@linuxfoundation.org>
-References: <20230301180652.658125575@linuxfoundation.org>
+In-Reply-To: <20230301180657.003689969@linuxfoundation.org>
+References: <20230301180657.003689969@linuxfoundation.org>
 User-Agent: quilt/0.67
 MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
         SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -55,100 +56,134 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kuniyuki Iwashima <kuniyu@amazon.com>
+From: Nicholas Kazlauskas <nicholas.kazlauskas@amd.com>
 
-commit 62ec33b44e0f7168ff2886520fec6fb62d03b5a3 upstream.
+commit e383b12709e32d6494c948422070c2464b637e44 upstream.
 
-Christoph Paasch reported that commit b5fc29233d28 ("inet6: Remove
-inet6_destroy_sock() in sk->sk_prot->destroy().") started triggering
-WARN_ON_ONCE(sk->sk_forward_alloc) in sk_stream_kill_queues().  [0 - 2]
-Also, we can reproduce it by a program in [3].
+[Why]
+DOMAIN power gating control is now required to be done via firmware
+due to interlock with other power features. This is to avoid
+intermittent issues in the LB memories.
 
-In the commit, we delay freeing ipv6_pinfo.pktoptions from sk->destroy()
-to sk->sk_destruct(), so sk->sk_forward_alloc is no longer zero in
-inet_csk_destroy_sock().
+[How]
+If the firmware supports the command then use the new firmware as
+the sequence can avoid potential display corruption issues.
 
-The same check has been in inet_sock_destruct() from at least v2.6,
-we can just remove the WARN_ON_ONCE().  However, among the users of
-sk_stream_kill_queues(), only CAIF is not calling inet_sock_destruct().
-Thus, we add the same WARN_ON_ONCE() to caif_sock_destructor().
+The command will be ignored on firmware that does not support DOMAIN
+power control and the pipes will remain always on - frequent PG cycling
+can cause the issue to occur on the old sequence, so we should avoid it.
 
-[0]: https://lore.kernel.org/netdev/39725AB4-88F1-41B3-B07F-949C5CAEFF4F@icloud.com/
-[1]: https://github.com/multipath-tcp/mptcp_net-next/issues/341
-[2]:
-WARNING: CPU: 0 PID: 3232 at net/core/stream.c:212 sk_stream_kill_queues+0x2f9/0x3e0
-Modules linked in:
-CPU: 0 PID: 3232 Comm: syz-executor.0 Not tainted 6.2.0-rc5ab24eb4698afbe147b424149c529e2a43ec24eb5 #2
-Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS rel-1.13.0-0-gf21b5a4aeb02-prebuilt.qemu.org 04/01/2014
-RIP: 0010:sk_stream_kill_queues+0x2f9/0x3e0
-Code: 03 0f b6 04 02 84 c0 74 08 3c 03 0f 8e ec 00 00 00 8b ab 08 01 00 00 e9 60 ff ff ff e8 d0 5f b6 fe 0f 0b eb 97 e8 c7 5f b6 fe <0f> 0b eb a0 e8 be 5f b6 fe 0f 0b e9 6a fe ff ff e8 02 07 e3 fe e9
-RSP: 0018:ffff88810570fc68 EFLAGS: 00010293
-RAX: 0000000000000000 RBX: 0000000000000000 RCX: 0000000000000000
-RDX: ffff888101f38f40 RSI: ffffffff8285e529 RDI: 0000000000000005
-RBP: 0000000000000ce0 R08: 0000000000000005 R09: 0000000000000000
-R10: 0000000000000ce0 R11: 0000000000000001 R12: ffff8881009e9488
-R13: ffffffff84af2cc0 R14: 0000000000000000 R15: ffff8881009e9458
-FS:  00007f7fdfbd5800(0000) GS:ffff88811b600000(0000) knlGS:0000000000000000
-CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-CR2: 0000001b32923000 CR3: 00000001062fc006 CR4: 0000000000170ef0
-Call Trace:
- <TASK>
- inet_csk_destroy_sock+0x1a1/0x320
- __tcp_close+0xab6/0xe90
- tcp_close+0x30/0xc0
- inet_release+0xe9/0x1f0
- inet6_release+0x4c/0x70
- __sock_release+0xd2/0x280
- sock_close+0x15/0x20
- __fput+0x252/0xa20
- task_work_run+0x169/0x250
- exit_to_user_mode_prepare+0x113/0x120
- syscall_exit_to_user_mode+0x1d/0x40
- do_syscall_64+0x48/0x90
- entry_SYSCALL_64_after_hwframe+0x72/0xdc
-RIP: 0033:0x7f7fdf7ae28d
-Code: c1 20 00 00 75 10 b8 03 00 00 00 0f 05 48 3d 01 f0 ff ff 73 31 c3 48 83 ec 08 e8 ee fb ff ff 48 89 04 24 b8 03 00 00 00 0f 05 <48> 8b 3c 24 48 89 c2 e8 37 fc ff ff 48 89 d0 48 83 c4 08 48 3d 01
-RSP: 002b:00000000007dfbb0 EFLAGS: 00000293 ORIG_RAX: 0000000000000003
-RAX: 0000000000000000 RBX: 0000000000000004 RCX: 00007f7fdf7ae28d
-RDX: 0000000000000000 RSI: ffffffffffffffff RDI: 0000000000000003
-RBP: 0000000000000000 R08: 000000007f338e0f R09: 0000000000000e0f
-R10: 000000007f338e13 R11: 0000000000000293 R12: 00007f7fdefff000
-R13: 00007f7fdefffcd8 R14: 00007f7fdefffce0 R15: 00007f7fdefffcd8
- </TASK>
-
-[3]: https://lore.kernel.org/netdev/20230208004245.83497-1-kuniyu@amazon.com/
-
-Fixes: b5fc29233d28 ("inet6: Remove inet6_destroy_sock() in sk->sk_prot->destroy().")
-Reported-by: syzbot <syzkaller@googlegroups.com>
-Reported-by: Christoph Paasch <christophpaasch@icloud.com>
-Signed-off-by: Kuniyuki Iwashima <kuniyu@amazon.com>
-Reviewed-by: Eric Dumazet <edumazet@google.com>
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Reviewed-by: Hansen Dsouza <hansen.dsouza@amd.com>
+Acked-by: Qingqing Zhuo <qingqing.zhuo@amd.com>
+Signed-off-by: Nicholas Kazlauskas <nicholas.kazlauskas@amd.com>
+Tested-by: Daniel Wheeler <daniel.wheeler@amd.com>
+Signed-off-by: Alex Deucher <alexander.deucher@amd.com>
+Cc: "Limonciello, Mario" <Mario.Limonciello@amd.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
- net/caif/caif_socket.c |    1 +
- net/core/stream.c      |    1 -
- 2 files changed, 1 insertion(+), 1 deletion(-)
+ drivers/gpu/drm/amd/display/dc/dcn314/dcn314_hwseq.c |   24 ++++++++++++++++++
+ drivers/gpu/drm/amd/display/dc/dcn314/dcn314_hwseq.h |    2 +
+ drivers/gpu/drm/amd/display/dc/dcn314/dcn314_init.c  |    2 -
+ drivers/gpu/drm/amd/display/dmub/inc/dmub_cmd.h      |   25 +++++++++++++++++++
+ 4 files changed, 52 insertions(+), 1 deletion(-)
 
---- a/net/caif/caif_socket.c
-+++ b/net/caif/caif_socket.c
-@@ -1020,6 +1020,7 @@ static void caif_sock_destructor(struct
- 		return;
- 	}
- 	sk_stream_kill_queues(&cf_sk->sk);
-+	WARN_ON(sk->sk_forward_alloc);
- 	caif_free_client(&cf_sk->layer);
+--- a/drivers/gpu/drm/amd/display/dc/dcn314/dcn314_hwseq.c
++++ b/drivers/gpu/drm/amd/display/dc/dcn314/dcn314_hwseq.c
+@@ -391,3 +391,27 @@ void dcn314_set_pixels_per_cycle(struct
+ 		pipe_ctx->stream_res.stream_enc->funcs->set_input_mode(pipe_ctx->stream_res.stream_enc,
+ 				pix_per_cycle);
  }
++
++void dcn314_hubp_pg_control(struct dce_hwseq *hws, unsigned int hubp_inst, bool power_on)
++{
++	struct dc_context *ctx = hws->ctx;
++	union dmub_rb_cmd cmd;
++
++	if (hws->ctx->dc->debug.disable_hubp_power_gate)
++		return;
++
++	PERF_TRACE();
++
++	memset(&cmd, 0, sizeof(cmd));
++	cmd.domain_control.header.type = DMUB_CMD__VBIOS;
++	cmd.domain_control.header.sub_type = DMUB_CMD__VBIOS_DOMAIN_CONTROL;
++	cmd.domain_control.header.payload_bytes = sizeof(cmd.domain_control.data);
++	cmd.domain_control.data.inst = hubp_inst;
++	cmd.domain_control.data.power_gate = !power_on;
++
++	dc_dmub_srv_cmd_queue(ctx->dmub_srv, &cmd);
++	dc_dmub_srv_cmd_execute(ctx->dmub_srv);
++	dc_dmub_srv_wait_idle(ctx->dmub_srv);
++
++	PERF_TRACE();
++}
+--- a/drivers/gpu/drm/amd/display/dc/dcn314/dcn314_hwseq.h
++++ b/drivers/gpu/drm/amd/display/dc/dcn314/dcn314_hwseq.h
+@@ -41,4 +41,6 @@ unsigned int dcn314_calculate_dccg_k1_k2
  
---- a/net/core/stream.c
-+++ b/net/core/stream.c
-@@ -209,7 +209,6 @@ void sk_stream_kill_queues(struct sock *
- 	sk_mem_reclaim(sk);
+ void dcn314_set_pixels_per_cycle(struct pipe_ctx *pipe_ctx);
  
- 	WARN_ON(sk->sk_wmem_queued);
--	WARN_ON(sk->sk_forward_alloc);
++void dcn314_hubp_pg_control(struct dce_hwseq *hws, unsigned int hubp_inst, bool power_on);
++
+ #endif /* __DC_HWSS_DCN314_H__ */
+--- a/drivers/gpu/drm/amd/display/dc/dcn314/dcn314_init.c
++++ b/drivers/gpu/drm/amd/display/dc/dcn314/dcn314_init.c
+@@ -137,7 +137,7 @@ static const struct hwseq_private_funcs
+ 	.plane_atomic_disable = dcn20_plane_atomic_disable,
+ 	.plane_atomic_power_down = dcn10_plane_atomic_power_down,
+ 	.enable_power_gating_plane = dcn314_enable_power_gating_plane,
+-	.hubp_pg_control = dcn31_hubp_pg_control,
++	.hubp_pg_control = dcn314_hubp_pg_control,
+ 	.program_all_writeback_pipes_in_tree = dcn30_program_all_writeback_pipes_in_tree,
+ 	.update_odm = dcn314_update_odm,
+ 	.dsc_pg_control = dcn314_dsc_pg_control,
+--- a/drivers/gpu/drm/amd/display/dmub/inc/dmub_cmd.h
++++ b/drivers/gpu/drm/amd/display/dmub/inc/dmub_cmd.h
+@@ -450,6 +450,10 @@ enum dmub_cmd_vbios_type {
+ 	 * Query DP alt status on a transmitter.
+ 	 */
+ 	DMUB_CMD__VBIOS_TRANSMITTER_QUERY_DP_ALT  = 26,
++	/**
++	 * Controls domain power gating
++	 */
++	DMUB_CMD__VBIOS_DOMAIN_CONTROL = 28,
+ };
  
- 	/* It is _impossible_ for the backlog to contain anything
- 	 * when we get here.  All user references to this socket
+ //==============================================================================
+@@ -1192,6 +1196,23 @@ struct dmub_rb_cmd_dig1_transmitter_cont
+ };
+ 
+ /**
++ * struct dmub_rb_cmd_domain_control_data - Data for DOMAIN power control
++ */
++struct dmub_rb_cmd_domain_control_data {
++	uint8_t inst : 6; /**< DOMAIN instance to control */
++	uint8_t power_gate : 1; /**< 1=power gate, 0=power up */
++	uint8_t reserved[3]; /**< Reserved for future use */
++};
++
++/**
++ * struct dmub_rb_cmd_domain_control - Controls DOMAIN power gating
++ */
++struct dmub_rb_cmd_domain_control {
++	struct dmub_cmd_header header; /**< header */
++	struct dmub_rb_cmd_domain_control_data data; /**< payload */
++};
++
++/**
+  * DPIA tunnel command parameters.
+  */
+ struct dmub_cmd_dig_dpia_control_data {
+@@ -3188,6 +3209,10 @@ union dmub_rb_cmd {
+ 	 */
+ 	struct dmub_rb_cmd_dig1_transmitter_control dig1_transmitter_control;
+ 	/**
++	 * Definition of a DMUB_CMD__VBIOS_DOMAIN_CONTROL command.
++	 */
++	struct dmub_rb_cmd_domain_control domain_control;
++	/**
+ 	 * Definition of a DMUB_CMD__PSR_SET_VERSION command.
+ 	 */
+ 	struct dmub_rb_cmd_psr_set_version psr_set_version;
 
 
