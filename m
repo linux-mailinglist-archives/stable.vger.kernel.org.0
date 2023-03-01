@@ -2,92 +2,94 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 7143C6A7063
-	for <lists+stable@lfdr.de>; Wed,  1 Mar 2023 17:01:02 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 750056A708C
+	for <lists+stable@lfdr.de>; Wed,  1 Mar 2023 17:07:58 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229530AbjCAQBA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 1 Mar 2023 11:01:00 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:52232 "EHLO
+        id S229511AbjCAQH4 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 1 Mar 2023 11:07:56 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58894 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229518AbjCAQBA (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 1 Mar 2023 11:01:00 -0500
-Received: from mga11.intel.com (mga11.intel.com [192.55.52.93])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 187D34391B
-        for <stable@vger.kernel.org>; Wed,  1 Mar 2023 08:00:58 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
-  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1677686459; x=1709222459;
-  h=date:from:to:cc:subject:message-id:references:
-   mime-version:content-transfer-encoding:in-reply-to;
-  bh=dOfIHw0XcWmKTeBOyGTcZzKkaoYuxdWm3iXIh5Y6IZY=;
-  b=RlXgTztabIFbZLqistfTL9EsAG9JtEMUe6MBVwWRmzrIE2deVjS8rKr8
-   tBPISt/w/6bH41E2WjqnGhB2Cf6rfbP7eXIt87OT/FM5Vt5c4UbwmVU8j
-   j1/jKVDCUTpVnN/4x6og4YZvfkX1Z1HPqf20GcwqswXyMyAUmuXjVC4jE
-   1rCeNfXKzyT7G+F3Dj0GHuk/id2usXR2wGTJysa47xfinxKm0CRJb7Key
-   sa6wXuCiGeCdGSM3OE+eEByqpSPe3HRicYrUvY4+FZp+s+2iHUILiWWB5
-   G+PN9wwFn+lWKcOSnBzWV80VmVTIwjM10ioCemJejM7P32T7gO2DOFDWE
-   g==;
-X-IronPort-AV: E=McAfee;i="6500,9779,10636"; a="331923309"
-X-IronPort-AV: E=Sophos;i="5.98,225,1673942400"; 
-   d="scan'208";a="331923309"
-Received: from orsmga002.jf.intel.com ([10.7.209.21])
-  by fmsmga102.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 01 Mar 2023 08:00:57 -0800
-X-ExtLoop1: 1
-X-IronPort-AV: E=McAfee;i="6500,9779,10636"; a="674613265"
-X-IronPort-AV: E=Sophos;i="5.98,225,1673942400"; 
-   d="scan'208";a="674613265"
-Received: from stinkpipe.fi.intel.com (HELO stinkbox) ([10.237.72.70])
-  by orsmga002.jf.intel.com with SMTP; 01 Mar 2023 08:00:52 -0800
-Received: by stinkbox (sSMTP sendmail emulation); Wed, 01 Mar 2023 18:00:51 +0200
-Date:   Wed, 1 Mar 2023 18:00:51 +0200
-From:   Ville =?iso-8859-1?Q?Syrj=E4l=E4?= <ville.syrjala@linux.intel.com>
-To:     Jani Nikula <jani.nikula@intel.com>
-Cc:     intel-gfx@lists.freedesktop.org, stable@vger.kernel.org
-Subject: Re: [Intel-gfx] [PATCH] drm/i915/dsi: fix DSS CTL register offsets
- for TGL+
-Message-ID: <Y/92swZjW47GuN2c@intel.com>
-References: <20230301151409.1581574-1-jani.nikula@intel.com>
- <Y/9xf6SkV1fG4JSA@intel.com>
+        with ESMTP id S229738AbjCAQHy (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 1 Mar 2023 11:07:54 -0500
+Received: from smtp-out1.suse.de (smtp-out1.suse.de [195.135.220.28])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 13A2D192
+        for <stable@vger.kernel.org>; Wed,  1 Mar 2023 08:07:51 -0800 (PST)
+Received: from imap2.suse-dmz.suse.de (imap2.suse-dmz.suse.de [192.168.254.74])
+        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+         key-exchange X25519 server-signature ECDSA (P-521) server-digest SHA512)
+        (No client certificate requested)
+        by smtp-out1.suse.de (Postfix) with ESMTPS id 5015321AA5;
+        Wed,  1 Mar 2023 16:07:50 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.de; s=susede2_rsa;
+        t=1677686870; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+         mime-version:mime-version:  content-transfer-encoding:content-transfer-encoding;
+        bh=Kdi6zctTG29VP7go0XhIdHEXV0Bg4j60NjAzu8YoBuQ=;
+        b=D5thmDMsEGBHdEhY0SrJUMQZ4mg1qGEsuoEgiQh9nyRhEAtT8seMYtRK2JvzgL5a+yhOPI
+        AZjnwjmdHIP4HLp1jz35QbvekeXJg5kJT1xgpnJD3Xs/vhamDZqTJwxbkF7ewjGH8KO03V
+        +zMweIg02JPJe+g6+oha3Qhrc4QDLpo=
+DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.de;
+        s=susede2_ed25519; t=1677686870;
+        h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+         mime-version:mime-version:  content-transfer-encoding:content-transfer-encoding;
+        bh=Kdi6zctTG29VP7go0XhIdHEXV0Bg4j60NjAzu8YoBuQ=;
+        b=wZS86/BPsynFyeihQe1l47MLZrQH1Gmqnhn4aBquQ3roNBaN4E3s/oAcDzKNCs0MTMR5WW
+        s+aQ+GhPoJYGxgAw==
+Received: from imap2.suse-dmz.suse.de (imap2.suse-dmz.suse.de [192.168.254.74])
+        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+         key-exchange X25519 server-signature ECDSA (P-521) server-digest SHA512)
+        (No client certificate requested)
+        by imap2.suse-dmz.suse.de (Postfix) with ESMTPS id 110F013A3E;
+        Wed,  1 Mar 2023 16:07:50 +0000 (UTC)
+Received: from dovecot-director2.suse.de ([192.168.254.65])
+        by imap2.suse-dmz.suse.de with ESMTPSA
+        id K/0vA1Z4/2OqcwAAMHmgww
+        (envelope-from <tzimmermann@suse.de>); Wed, 01 Mar 2023 16:07:50 +0000
+From:   Thomas Zimmermann <tzimmermann@suse.de>
+To:     zackr@vmware.com, linux-graphics-maintainer@vmware.com,
+        airlied@gmail.com, daniel@ffwll.ch
+Cc:     dri-devel@lists.freedesktop.org,
+        Thomas Zimmermann <tzimmermann@suse.de>, stable@vger.kernel.org
+Subject: [PATCH] drm/vmwgfx: Avoid NULL-ptr dereference in vmw_cmd_dx_define_query()
+Date:   Wed,  1 Mar 2023 17:07:48 +0100
+Message-Id: <20230301160748.20775-1-tzimmermann@suse.de>
+X-Mailer: git-send-email 2.39.2
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
-In-Reply-To: <Y/9xf6SkV1fG4JSA@intel.com>
-X-Patchwork-Hint: comment
-X-Spam-Status: No, score=-4.3 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,SPF_HELO_NONE,
-        SPF_NONE autolearn=ham autolearn_force=no version=3.4.6
+X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,SPF_HELO_NONE,
+        SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Wed, Mar 01, 2023 at 05:38:39PM +0200, Ville Syrjälä wrote:
-> On Wed, Mar 01, 2023 at 05:14:09PM +0200, Jani Nikula wrote:
-> > On TGL+ the DSS control registers are at different offsets, and there's
-> > one per pipe. Fix the offsets to fix dual link DSI for TGL+.
-> > 
-> > There would be helpers for this in the DSC code, but just do the quick
-> > fix now for DSI. Long term, we should probably move all the DSS handling
-> > into intel_vdsc.c, so exporting the helpers seems counter-productive.
-> 
-> I'm not entirely happy with intel_vdsc.c since it handles
-> both the hardware VDSC block (which includes DSS, and so
-> also uncompressed joiner and MSO), and also some actual
-> DSC calculations/etc. Might be nice to have a cleaner
-> split of some sort.
-> 
-> That also reminds me that MSO+dsc/joiner is probably going
-> to fail miserably given that neither side knows about the
-> other and both poke the DSS registers.
+There have been reports [1][2] that vmw_cmd_dx_define_query() can
+be called with ctx_node->ctx set to NULL, which results in undefined
+behavior in vmw_context_cotable(). Avoid this be returning an errno
+code.
 
-I suppose MSO+joiner should just be rejected outright since 
-the splitter seems to sit before the joiner in the path.
-We'd need them to be the other way around.
+Signed-off-by: Thomas Zimmermann <tzimmermann@suse.de>
+Link: https://www.cve.org/CVERecord?id=CVE-2022-38096 # 1
+Link: https://bugzilla.openanolis.cn/show_bug.cgi?id=2073 # 2
+Cc: stable@vger.kernel.org
+---
+ drivers/gpu/drm/vmwgfx/vmwgfx_execbuf.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-But MSO+DSC does look plausible.
-
+diff --git a/drivers/gpu/drm/vmwgfx/vmwgfx_execbuf.c b/drivers/gpu/drm/vmwgfx/vmwgfx_execbuf.c
+index 6b9aa2b4ef54..1e90362add96 100644
+--- a/drivers/gpu/drm/vmwgfx/vmwgfx_execbuf.c
++++ b/drivers/gpu/drm/vmwgfx/vmwgfx_execbuf.c
+@@ -1256,7 +1256,7 @@ static int vmw_cmd_dx_define_query(struct vmw_private *dev_priv,
+ 	struct vmw_resource *cotable_res;
+ 	int ret;
+ 
+-	if (!ctx_node)
++	if (!ctx_node || !ctx_node->ctx)
+ 		return -EINVAL;
+ 
+ 	cmd = container_of(header, typeof(*cmd), header);
 -- 
-Ville Syrjälä
-Intel
+2.39.2
+
