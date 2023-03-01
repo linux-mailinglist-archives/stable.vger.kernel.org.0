@@ -2,59 +2,50 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id CC41F6A72DA
-	for <lists+stable@lfdr.de>; Wed,  1 Mar 2023 19:10:15 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 518246A7317
+	for <lists+stable@lfdr.de>; Wed,  1 Mar 2023 19:12:37 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229744AbjCASKN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 1 Mar 2023 13:10:13 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42818 "EHLO
+        id S230054AbjCASMg (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 1 Mar 2023 13:12:36 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46972 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230230AbjCASKD (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 1 Mar 2023 13:10:03 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 45D2D10E3;
-        Wed,  1 Mar 2023 10:10:02 -0800 (PST)
+        with ESMTP id S230052AbjCASMf (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 1 Mar 2023 13:12:35 -0500
+Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A5CA84AFE0
+        for <stable@vger.kernel.org>; Wed,  1 Mar 2023 10:12:33 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id D58466145E;
-        Wed,  1 Mar 2023 18:10:01 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C2D52C433D2;
-        Wed,  1 Mar 2023 18:10:00 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 1E9D1CE1D9A
+        for <stable@vger.kernel.org>; Wed,  1 Mar 2023 18:12:32 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 222E0C433EF;
+        Wed,  1 Mar 2023 18:12:29 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-        s=korg; t=1677694201;
-        bh=phJJOaIMrRBvJAMZkjNY1dHfdR84It1s0uty7i2sixs=;
-        h=From:To:Cc:Subject:Date:From;
-        b=YIxhg4lpCElNIiMhZBaPYotTQz4ZEThY/Q7Hp9TTzi5xTT1L8P5cQIZyOECbouRRX
-         lZAvDU4vbfTBW6Y7TSEwBYvFU+OLHuBmOPPgC3YkBQUcjIEm5tnFJpB8VzTClk/pgT
-         Oj/ZraBzXedS3D5Y8oxeI9TXIbjiV/M3NZ2OCdTI=
+        s=korg; t=1677694350;
+        bh=/zloXCJRxoVTnh5ZAKvTgJOmkQBS8OVbWKrLyxTz0RA=;
+        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+        b=TiKf/cHBRExwic/Vg/BLBFR/0//n5qH2/UmU5f3mWac5y9mg0TTPF6MooZMqZ3mwJ
+         UBJNaCWX9Pf/6fJ0P9oP90WqHMgYBSY/u7jZfZBaS8GsqHVGGfhdyvVVpgVvZBfp6j
+         Gk7ZgQAStHDAWotbEiWPj512KHmCfvOJUztips/A=
 From:   Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To:     stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        patches@lists.linux.dev, linux-kernel@vger.kernel.org,
-        torvalds@linux-foundation.org, akpm@linux-foundation.org,
-        linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
-        lkft-triage@lists.linaro.org, pavel@denx.de, jonathanh@nvidia.com,
-        f.fainelli@gmail.com, sudipm.mukherjee@gmail.com,
-        srw@sladewatkins.net, rwarsow@gmx.de
-Subject: [PATCH 5.10 00/19] 5.10.171-rc1 review
-Date:   Wed,  1 Mar 2023 19:08:29 +0100
-Message-Id: <20230301180652.316428563@linuxfoundation.org>
+        patches@lists.linux.dev, Dan Williams <dan.j.williams@intel.com>,
+        Vishal Verma <vishal.l.verma@intel.com>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH 6.1 09/42] ACPI: NFIT: fix a potential deadlock during NFIT teardown
+Date:   Wed,  1 Mar 2023 19:08:30 +0100
+Message-Id: <20230301180657.451155483@linuxfoundation.org>
 X-Mailer: git-send-email 2.39.2
-MIME-Version: 1.0
+In-Reply-To: <20230301180657.003689969@linuxfoundation.org>
+References: <20230301180657.003689969@linuxfoundation.org>
 User-Agent: quilt/0.67
-X-stable: review
-X-Patchwork-Hint: ignore
-X-KernelTest-Patch: http://kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.10.171-rc1.gz
-X-KernelTest-Tree: git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git
-X-KernelTest-Branch: linux-5.10.y
-X-KernelTest-Patches: git://git.kernel.org/pub/scm/linux/kernel/git/stable/stable-queue.git
-X-KernelTest-Version: 5.10.171-rc1
-X-KernelTest-Deadline: 2023-03-03T18:06+00:00
+MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
         SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -62,113 +53,75 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-This is the start of the stable review cycle for the 5.10.171 release.
-There are 19 patches in this series, all will be posted as a response
-to this one.  If anyone has any issues with these being applied, please
-let me know.
+From: Vishal Verma <vishal.l.verma@intel.com>
 
-Responses should be made by Fri, 03 Mar 2023 18:06:43 +0000.
-Anything received after that time might be too late.
+[ Upstream commit fb6df4366f86dd252bfa3049edffa52d17e7b895 ]
 
-The whole patch series can be found in one patch at:
-	https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-5.10.171-rc1.gz
-or in the git tree and branch at:
-	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-5.10.y
-and the diffstat can be found below.
+Lockdep reports that acpi_nfit_shutdown() may deadlock against an
+opportune acpi_nfit_scrub(). acpi_nfit_scrub () is run from inside a
+'work' and therefore has already acquired workqueue-internal locks. It
+also acquiires acpi_desc->init_mutex. acpi_nfit_shutdown() first
+acquires init_mutex, and was subsequently attempting to cancel any
+pending workqueue items. This reversed locking order causes a potential
+deadlock:
 
-thanks,
+    ======================================================
+    WARNING: possible circular locking dependency detected
+    6.2.0-rc3 #116 Tainted: G           O     N
+    ------------------------------------------------------
+    libndctl/1958 is trying to acquire lock:
+    ffff888129b461c0 ((work_completion)(&(&acpi_desc->dwork)->work)){+.+.}-{0:0}, at: __flush_work+0x43/0x450
 
-greg k-h
+    but task is already holding lock:
+    ffff888129b460e8 (&acpi_desc->init_mutex){+.+.}-{3:3}, at: acpi_nfit_shutdown+0x87/0xd0 [nfit]
 
--------------
-Pseudo-Shortlog of commits:
+    which lock already depends on the new lock.
 
-Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-    Linux 5.10.171-rc1
+    ...
 
-Alan Stern <stern@rowland.harvard.edu>
-    USB: core: Don't hold device lock while reading the "descriptors" sysfs file
+    Possible unsafe locking scenario:
 
-Prashanth K <quic_prashk@quicinc.com>
-    usb: gadget: u_serial: Add null pointer check in gserial_resume
+          CPU0                    CPU1
+          ----                    ----
+     lock(&acpi_desc->init_mutex);
+                                  lock((work_completion)(&(&acpi_desc->dwork)->work));
+                                  lock(&acpi_desc->init_mutex);
+     lock((work_completion)(&(&acpi_desc->dwork)->work));
 
-Florian Zumbiehl <florz@florz.de>
-    USB: serial: option: add support for VW/Skoda "Carstick LTE"
+    *** DEADLOCK ***
 
-Dmitry Osipenko <dmitry.osipenko@collabora.com>
-    drm/virtio: Correct drm_gem_shmem_get_sg_table() error handling
+Since the workqueue manipulation is protected by its own internal locking,
+the cancellation of pending work doesn't need to be done under
+acpi_desc->init_mutex. Move cancel_delayed_work_sync() outside the
+init_mutex to fix the deadlock. Any work that starts after
+acpi_nfit_shutdown() drops the lock will see ARS_CANCEL, and the
+cancel_delayed_work_sync() will safely flush it out.
 
-Miaoqian Lin <linmq006@gmail.com>
-    drm/virtio: Fix NULL vs IS_ERR checking in virtio_gpu_object_shmem_init
+Reported-by: Dan Williams <dan.j.williams@intel.com>
+Signed-off-by: Vishal Verma <vishal.l.verma@intel.com>
+Link: https://lore.kernel.org/r/20230112-acpi_nfit_lockdep-v1-1-660be4dd10be@intel.com
+Signed-off-by: Dan Williams <dan.j.williams@intel.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
+---
+ drivers/acpi/nfit/core.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-Carlos Llamas <cmllamas@google.com>
-    scripts/tags.sh: fix incompatibility with PCRE2
+diff --git a/drivers/acpi/nfit/core.c b/drivers/acpi/nfit/core.c
+index ae5f4acf26753..6d4ac934cd499 100644
+--- a/drivers/acpi/nfit/core.c
++++ b/drivers/acpi/nfit/core.c
+@@ -3297,8 +3297,8 @@ void acpi_nfit_shutdown(void *data)
+ 
+ 	mutex_lock(&acpi_desc->init_mutex);
+ 	set_bit(ARS_CANCEL, &acpi_desc->scrub_flags);
+-	cancel_delayed_work_sync(&acpi_desc->dwork);
+ 	mutex_unlock(&acpi_desc->init_mutex);
++	cancel_delayed_work_sync(&acpi_desc->dwork);
+ 
+ 	/*
+ 	 * Bounce the nvdimm bus lock to make sure any in-flight
+-- 
+2.39.0
 
-Cristian Ciocaltea <cristian.ciocaltea@collabora.com>
-    scripts/tags.sh: Invoke 'realpath' via 'xargs'
-
-David Sloan <david.sloan@eideticom.com>
-    md: Flush workqueue md_rdev_misc_wq in md_alloc()
-
-Thomas Weißschuh <linux@weissschuh.net>
-    vc_screen: don't clobber return value in vcs_read
-
-Kuniyuki Iwashima <kuniyu@amazon.com>
-    net: Remove WARN_ON_ONCE(sk->sk_forward_alloc) from sk_stream_kill_queues().
-
-Martin KaFai Lau <martin.lau@kernel.org>
-    bpf: bpf_fib_lookup should not return neigh in NUD_FAILED state
-
-Xin Zhao <xnzhao@google.com>
-    HID: core: Fix deadloop in hid_apply_multiplier.
-
-Julian Anastasov <ja@ssi.bg>
-    neigh: make sure used and confirmed times are valid
-
-Dean Luick <dean.luick@cornelisnetworks.com>
-    IB/hfi1: Assign npages earlier
-
-David Sterba <dsterba@suse.com>
-    btrfs: send: limit number of clones and allocated memory size
-
-Vishal Verma <vishal.l.verma@intel.com>
-    ACPI: NFIT: fix a potential deadlock during NFIT teardown
-
-Johan Jonker <jbx6244@gmail.com>
-    ARM: dts: rockchip: add power-domains property to dp node on rk3288
-
-Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
-    arm64: dts: rockchip: drop unused LED mode property from rk3328-roc-cc
-
-Benedict Wong <benedictwong@google.com>
-    Fix XFRM-I support for nested ESP tunnels
-
-
--------------
-
-Diffstat:
-
- Makefile                                       |  4 +-
- arch/arm/boot/dts/rk3288.dtsi                  |  1 +
- arch/arm64/boot/dts/rockchip/rk3328-roc-cc.dts |  2 -
- drivers/acpi/nfit/core.c                       |  2 +-
- drivers/gpu/drm/virtio/virtgpu_object.c        |  5 ++-
- drivers/hid/hid-core.c                         |  3 ++
- drivers/infiniband/hw/hfi1/user_exp_rcv.c      |  9 +----
- drivers/md/md.c                                |  1 +
- drivers/tty/vt/vc_screen.c                     |  7 ++--
- drivers/usb/core/hub.c                         |  5 +--
- drivers/usb/core/sysfs.c                       |  5 ---
- drivers/usb/gadget/function/u_serial.c         | 23 +++++++++--
- drivers/usb/serial/option.c                    |  4 ++
- fs/btrfs/send.c                                |  6 +--
- net/caif/caif_socket.c                         |  1 +
- net/core/filter.c                              |  4 +-
- net/core/neighbour.c                           | 18 +++++++--
- net/core/stream.c                              |  1 -
- net/xfrm/xfrm_interface.c                      | 54 ++++++++++++++++++++++++--
- net/xfrm/xfrm_policy.c                         |  3 ++
- scripts/tags.sh                                | 11 ++++--
- 21 files changed, 123 insertions(+), 46 deletions(-)
 
 
