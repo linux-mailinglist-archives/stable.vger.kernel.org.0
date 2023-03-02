@@ -2,237 +2,148 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 713A16A83A2
-	for <lists+stable@lfdr.de>; Thu,  2 Mar 2023 14:38:16 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id CB6796A8407
+	for <lists+stable@lfdr.de>; Thu,  2 Mar 2023 15:19:21 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229835AbjCBNiP (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 2 Mar 2023 08:38:15 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37932 "EHLO
+        id S229482AbjCBOTT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 2 Mar 2023 09:19:19 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40432 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229725AbjCBNiO (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 2 Mar 2023 08:38:14 -0500
-Received: from mail-vs1-xe33.google.com (mail-vs1-xe33.google.com [IPv6:2607:f8b0:4864:20::e33])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 28A4211648
-        for <stable@vger.kernel.org>; Thu,  2 Mar 2023 05:38:13 -0800 (PST)
-Received: by mail-vs1-xe33.google.com with SMTP id x14so22392709vso.9
-        for <stable@vger.kernel.org>; Thu, 02 Mar 2023 05:38:13 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=OOEEtslPUkXBnAZ4G8QHTVVmCfs3+xDdc9qKPeUwmBY=;
-        b=Rp+6IjakE3xl4YEMRy9Q/Ldl35S6qCk/X8Hq1IvebTG9vVx991nSc/HUwWSL44kqmt
-         Ql/Nob4paBUDZ0tjVxV6TmG5ricBasUOoW5quWr5oeStBBI5VEqjXhHSXzUu5WRpirhn
-         jCEj3aIGLIW+DngJ4O1euHZ1+2whkdga+CRixjgc5iJ7Ff/sJTzUZAxNkpN4Huf5ZcOd
-         RKBxMTx4TYk653UHh8mJcS0zIxcOXIXBQfhY7PmTx1tDbs0sDY1fUJvJRABv9I5zbTK7
-         cixL+dAuren1DjZ2orR6LWKIQXkX1ko2QI3mmU6b8cji135UWlp2Fd6ey5PGskoIpDmT
-         vENw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=OOEEtslPUkXBnAZ4G8QHTVVmCfs3+xDdc9qKPeUwmBY=;
-        b=p8vXZW5sVp994p6mlpMd0L8jMc2RNHRz5eWwq62heI/OF3tmjT51aHHWd2kFkX31Rf
-         Yaqi3tfe1lkTGCtxNVUk8QQdBpIFc2EWBiLlTt8okvMIeuYxpAXmMx4ISwltNMBkUAgv
-         8AV3TL3xLKX4odSYmp4MNjgKn3+EnxisecJgj9cQsLuHlrbRErcBXlF7jxeqfkKhQmov
-         jz77JeNbk5wT+cOr8gbj5QcXIzSPr3yLQZ3phRmxQgtFeu1XTT3DoZG+eyUcjvQCWd6c
-         52LAOOwJApZZ5aFC2Z4S8zJlYTtn3N5WUQrV3tHVZE23UC0h5rK8iwtmyogz6vopqqFE
-         QoRQ==
-X-Gm-Message-State: AO0yUKWsUbm9agg8qtBa97T9UNftYRZnhhbbkX3eOhAo1km6LaPQpdxH
-        HwlBihpiWPeaRbPmZGA3FrPZ6r2Ld37FRC+Yg5GsMA==
-X-Google-Smtp-Source: AK7set/IIrp2otjUC2O0wlh3ZAloIYXoL8bth5vYbe8l/Enz35s/6D0CTFf9y+4mq/yctG/aDHa3ofsq70FJdRLYZao=
-X-Received: by 2002:a05:6102:21b6:b0:421:7f84:f3d9 with SMTP id
- i22-20020a05610221b600b004217f84f3d9mr1316449vsb.3.1677764292073; Thu, 02 Mar
- 2023 05:38:12 -0800 (PST)
+        with ESMTP id S229471AbjCBOTS (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 2 Mar 2023 09:19:18 -0500
+Received: from foss.arm.com (foss.arm.com [217.140.110.172])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTP id 3A03813513;
+        Thu,  2 Mar 2023 06:19:17 -0800 (PST)
+Received: from usa-sjc-imap-foss1.foss.arm.com (unknown [10.121.207.14])
+        by usa-sjc-mx-foss1.foss.arm.com (Postfix) with ESMTP id 378B11FB;
+        Thu,  2 Mar 2023 06:20:00 -0800 (PST)
+Received: from FVFF77S0Q05N.cambridge.arm.com (FVFF77S0Q05N.cambridge.arm.com [10.1.26.133])
+        by usa-sjc-imap-foss1.foss.arm.com (Postfix) with ESMTPSA id 10BA03F587;
+        Thu,  2 Mar 2023 06:19:15 -0800 (PST)
+Date:   Thu, 2 Mar 2023 14:18:52 +0000
+From:   Mark Rutland <mark.rutland@arm.com>
+To:     Steven Rostedt <rostedt@goodmis.org>
+Cc:     linux-kernel@vger.kernel.org, linux-trace-kernel@vger.kernel.org,
+        Masami Hiramatsu <mhiramat@kernel.org>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        stable@vger.kernel.org
+Subject: Re: [PATCH 2/2] tracing: Check field value in hist_field_name()
+Message-ID: <ZACwTKyIkq5MyPHd@FVFF77S0Q05N.cambridge.arm.com>
+References: <20230302010051.044209550@goodmis.org>
+ <20230302020810.762384440@goodmis.org>
 MIME-Version: 1.0
-References: <20230301180651.177668495@linuxfoundation.org>
-In-Reply-To: <20230301180651.177668495@linuxfoundation.org>
-From:   Naresh Kamboju <naresh.kamboju@linaro.org>
-Date:   Thu, 2 Mar 2023 19:08:01 +0530
-Message-ID: <CA+G9fYtdkp842ZUcv+Bp-4NfUB+33b7h94Jxi3mrbZ6GbUXcGA@mail.gmail.com>
-Subject: Re: [PATCH 5.4 00/13] 5.4.234-rc1 review
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc:     stable@vger.kernel.org, patches@lists.linux.dev,
-        linux-kernel@vger.kernel.org, torvalds@linux-foundation.org,
-        akpm@linux-foundation.org, linux@roeck-us.net, shuah@kernel.org,
-        patches@kernelci.org, lkft-triage@lists.linaro.org, pavel@denx.de,
-        jonathanh@nvidia.com, f.fainelli@gmail.com,
-        sudipm.mukherjee@gmail.com, srw@sladewatkins.net, rwarsow@gmx.de
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
-X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_NONE,
-        SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20230302020810.762384440@goodmis.org>
+X-Spam-Status: No, score=-4.2 required=5.0 tests=BAYES_00,RCVD_IN_DNSWL_MED,
+        SPF_HELO_NONE,SPF_NONE autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Wed, 1 Mar 2023 at 23:38, Greg Kroah-Hartman
-<gregkh@linuxfoundation.org> wrote:
->
-> This is the start of the stable review cycle for the 5.4.234 release.
-> There are 13 patches in this series, all will be posted as a response
-> to this one.  If anyone has any issues with these being applied, please
-> let me know.
->
-> Responses should be made by Fri, 03 Mar 2023 18:06:43 +0000.
-> Anything received after that time might be too late.
->
-> The whole patch series can be found in one patch at:
->         https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-=
-5.4.234-rc1.gz
-> or in the git tree and branch at:
->         git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable=
--rc.git linux-5.4.y
-> and the diffstat can be found below.
->
-> thanks,
->
-> greg k-h
+On Wed, Mar 01, 2023 at 08:00:53PM -0500, Steven Rostedt wrote:
+> From: "Steven Rostedt (Google)" <rostedt@goodmis.org>
+> 
+> The function hist_field_name() cannot handle being passed a NULL field
+> parameter. It should never be NULL, but due to a previous bug, NULL was
+> passed to the function and the kernel crashed due to a NULL dereference.
+> Mark Rutland reported this to me on IRC.
+> 
+> The bug was fixed, but to prevent future bugs from crashing the kernel,
+> check the field and add a WARN_ON() if it is NULL.
+> 
+> Cc: stable@vger.kernel.org
+> Reported-by: Mark Rutland <mark.rutland@arm.com>
+> Fixes: c6afad49d127f ("tracing: Add hist trigger 'sym' and 'sym-offset' modifiers")
+> Signed-off-by: Steven Rostedt (Google) <rostedt@goodmis.org>
 
-Results from Linaro=E2=80=99s test farm.
-No regressions on arm64, arm, x86_64, and i386.
+Tested-by: Mark Rutland <mark.rutland@arm.com>
 
-Tested-by: Linux Kernel Functional Testing <lkft@linaro.org>
+I gave this patch a spin on its own (without the prior patch), and it behaves
+as expected. When deliberately triggering the aforementioned bug I hit the
+WARN_ON_ONCE() without crashing the kernel:
 
-## Build
-* kernel: 5.4.234-rc1
-* git: https://gitlab.com/Linaro/lkft/mirrors/stable/linux-stable-rc
-* git branch: linux-5.4.y
-* git commit: 71be0366b84f5ed2ce06bcc6feddf31053a41c73
-* git describe: v5.4.233-14-g71be0366b84f
-* test details:
-https://qa-reports.linaro.org/lkft/linux-stable-rc-linux-5.4.y/build/v5.4.2=
-33-14-g71be0366b84f
+| # echo 'p:copy_to_user __arch_copy_to_user n=$arg2' >> /sys/kernel/tracing/kprobe_events
+| # echo 'hist:keys=n:vals=hitcount.buckets=8:sort=hitcount' > /sys/kernel/tracing/events/kprobes/copy_to_user/trigger
+| # cat /sys/kernel/tracing/events/kprobes/copy_to_user/hist 
+| ------------[ cut here ]------------
+| WARNING: CPU: 0 PID: 133 at kernel/trace/trace_events_hist.c:1337 hist_field_name+0x94/0x144
+| Modules linked in:
+| CPU: 0 PID: 133 Comm: cat Not tainted 6.2.0-00003-g785bb684c534 #2
+| Hardware name: linux,dummy-virt (DT)
+| pstate: 80000005 (Nzcv daif -PAN -UAO -TCO -DIT -SSBS BTYPE=--)
+| pc : hist_field_name+0x94/0x144
+| lr : hist_field_name+0xbc/0x144
+| sp : ffff800008343a60
+| x29: ffff800008343a60 x28: 0000000000000001 x27: 0000000000400cc0
+| x26: ffffaed00953fcd0 x25: 0000000000000000 x24: ffff65c743e8bf00
+| x23: ffffaed0093d2488 x22: ffff65c743fadc00 x21: 0000000000000001
+| x20: ffff65c743ec1000 x19: ffff65c743fadc00 x18: 0000000000000000
+| x17: 0000000000000000 x16: 0000000000000000 x15: 0000000000000000
+| x14: 0000000000000000 x13: 203a6f666e692072 x12: 6567676972742023
+| x11: 0a230a6d6172676f x10: 000000000000002c x9 : ffffaed007be1fcc
+| x8 : 000000000000002c x7 : 7f7f7f7f7f7f7f7f x6 : 000000000000002c
+| x5 : ffff65c743b0103e x4 : ffffaed00953fcd1 x3 : 000000000000003d
+| x2 : 0000000000020001 x1 : 0000000000000001 x0 : 0000000000000000
+| Call trace:
+|  hist_field_name+0x94/0x144
+|  hist_field_print+0x28/0x14c
+|  event_hist_trigger_print+0x174/0x4d0
+|  hist_show+0xf8/0x980
+|  seq_read_iter+0x1bc/0x4b0
+|  seq_read+0x8c/0xc4
+|  vfs_read+0xc8/0x2a4
+|  ksys_read+0x70/0xfc
+|  __arm64_sys_read+0x24/0x30
+|  invoke_syscall+0x50/0x120
+|  el0_svc_common.constprop.0+0x4c/0x100
+|  do_el0_svc+0x44/0xd0
+|  el0_svc+0x2c/0x84
+|  el0t_64_sync_handler+0xbc/0x140
+|  el0t_64_sync+0x190/0x194
+| ---[ end trace 0000000000000000 ]---
+| # event histogram
+| #
+| # trigger info: hist:keys=n:vals=hitcount,.buckets=8:sort=hitcount:size=2048 [active]
+| #
+| 
+| { n: 18446574505247538232 } hitcount:          1  :          1
+| { n: 18446574505249480120 } hitcount:          1  :          1
+| { n: 18446574505255937966 } hitcount:          1  :          1
+| { n: 18446574505234423224 } hitcount:          1  :          1
 
-## Test Regressions (compared to v5.4.233)
+[...]
 
-## Metric Regressions (compared to v5.4.233)
+| Totals:
+|     Hits: 371
+|     Entries: 263
+|     Dropped: 0
 
-## Test Fixes (compared to v5.4.233)
+Note: the 'n' values are large because '$arg2' is actually the 'from' pointer
+here, another mistake of mine (I had meant to capture '$arg3').
 
-## Metric Fixes (compared to v5.4.233)
+Thanks,
+Mark.
 
-## Test result summary
-total: 124659, pass: 103137, fail: 3281, skip: 17853, xfail: 388
-
-## Build Summary
-* arc: 5 total, 5 passed, 0 failed
-* arm: 144 total, 143 passed, 1 failed
-* arm64: 44 total, 40 passed, 4 failed
-* i386: 26 total, 20 passed, 6 failed
-* mips: 27 total, 27 passed, 0 failed
-* parisc: 6 total, 6 passed, 0 failed
-* powerpc: 30 total, 30 passed, 0 failed
-* riscv: 12 total, 10 passed, 2 failed
-* s390: 6 total, 6 passed, 0 failed
-* sh: 12 total, 12 passed, 0 failed
-* sparc: 6 total, 6 passed, 0 failed
-* x86_64: 37 total, 35 passed, 2 failed
-
-## Test suites summary
-* boot
-* fwts
-* igt-gpu-tools
-* kselftest-android
-* kselftest-arm64
-* kselftest-breakpoints
-* kselftest-capabilities
-* kselftest-cgroup
-* kselftest-clone3
-* kselftest-core
-* kselftest-cpu-hotplug
-* kselftest-cpufreq
-* kselftest-drivers-dma-buf
-* kselftest-efivarfs
-* kselftest-filesystems
-* kselftest-filesystems-binderfs
-* kselftest-firmware
-* kselftest-fpu
-* kselftest-ftrace
-* kselftest-futex
-* kselftest-gpio
-* kselftest-intel_pstate
-* kselftest-ipc
-* kselftest-ir
-* kselftest-kcmp
-* kselftest-kexec
-* kselftest-kvm
-* kselftest-lib
-* kselftest-livepatch
-* kselftest-membarrier
-* kselftest-memfd
-* kselftest-memory-hotplug
-* kselftest-mincore
-* kselftest-mount
-* kselftest-mqueue
-* kselftest-net
-* kselftest-net-forwarding
-* kselftest-net-mptcp
-* kselftest-netfilter
-* kselftest-nsfs
-* kselftest-openat2
-* kselftest-pid_namespace
-* kselftest-pidfd
-* kselftest-proc
-* kselftest-pstore
-* kselftest-ptrace
-* kselftest-rseq
-* kselftest-rtc
-* kselftest-seccomp
-* kselftest-tc-testing
-* kselftest-timens
-* kselftest-timers
-* kselftest-tmpfs
-* kselftest-tpm2
-* kselftest-user
-* kselftest-vm
-* kselftest-x86
-* kselftest-zram
-* kunit
-* kvm-unit-tests
-* libgpiod
-* libhugetlbfs
-* log-parser-boot
-* log-parser-test
-* ltp-cap_bounds
-* ltp-commands
-* ltp-containers
-* ltp-controllers
-* ltp-cpuhotplug
-* ltp-crypto
-* ltp-cve
-* ltp-dio
-* ltp-fcntl-locktests
-* ltp-filecaps
-* ltp-fs
-* ltp-fs_bind
-* ltp-fs_perms_simple
-* ltp-fsx
-* ltp-hugetlb
-* ltp-io
-* ltp-ipc
-* ltp-math
-* ltp-mm
-* ltp-nptl
-* ltp-open-posix-tests
-* ltp-pty
-* ltp-sched
-* ltp-securebits
-* ltp-smoke
-* ltp-syscalls
-* ltp-tracing
-* network-basic-tests
-* packetdrill
-* perf
-* rcutorture
-* v4l2-compliance
-* vdso
-
---
-Linaro LKFT
-https://lkft.linaro.org
+> ---
+>  kernel/trace/trace_events_hist.c | 3 +++
+>  1 file changed, 3 insertions(+)
+> 
+> diff --git a/kernel/trace/trace_events_hist.c b/kernel/trace/trace_events_hist.c
+> index 6e8ab726a7b5..486cca3c2b75 100644
+> --- a/kernel/trace/trace_events_hist.c
+> +++ b/kernel/trace/trace_events_hist.c
+> @@ -1331,6 +1331,9 @@ static const char *hist_field_name(struct hist_field *field,
+>  {
+>  	const char *field_name = "";
+>  
+> +	if (WARN_ON_ONCE(!field))
+> +		return field_name;
+> +
+>  	if (level > 1)
+>  		return field_name;
+>  
+> -- 
+> 2.39.1
