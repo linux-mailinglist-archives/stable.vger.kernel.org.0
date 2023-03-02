@@ -2,159 +2,120 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 34DEF6A833B
-	for <lists+stable@lfdr.de>; Thu,  2 Mar 2023 14:07:24 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id AF0C26A8347
+	for <lists+stable@lfdr.de>; Thu,  2 Mar 2023 14:10:38 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229572AbjCBNHX (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 2 Mar 2023 08:07:23 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:40086 "EHLO
+        id S229689AbjCBNKh (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 2 Mar 2023 08:10:37 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43476 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229487AbjCBNHW (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 2 Mar 2023 08:07:22 -0500
-Received: from mail-ed1-x530.google.com (mail-ed1-x530.google.com [IPv6:2a00:1450:4864:20::530])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id ACC954C6E6
-        for <stable@vger.kernel.org>; Thu,  2 Mar 2023 05:07:10 -0800 (PST)
-Received: by mail-ed1-x530.google.com with SMTP id f13so67315433edz.6
-        for <stable@vger.kernel.org>; Thu, 02 Mar 2023 05:07:10 -0800 (PST)
+        with ESMTP id S229487AbjCBNKg (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 2 Mar 2023 08:10:36 -0500
+Received: from mail-wr1-x429.google.com (mail-wr1-x429.google.com [IPv6:2a00:1450:4864:20::429])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4E9C2149B1
+        for <stable@vger.kernel.org>; Thu,  2 Mar 2023 05:10:35 -0800 (PST)
+Received: by mail-wr1-x429.google.com with SMTP id bw19so16435328wrb.13
+        for <stable@vger.kernel.org>; Thu, 02 Mar 2023 05:10:35 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=ionos.com; s=google; t=1677762429;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:from:to:cc:subject:date:message-id:reply-to;
-        bh=W8jKwCX/ceD2lfLDQ/Jr6zujwOsAn91spsgYEW7AGCg=;
-        b=Un8P68sDgNULbDppani3GM3C8MmI6xcIfnij8M8YBQAxvuXcISMITPUWWHWjfP+h5H
-         Wnvw1Y7zUBhL/Hk4zIDW5p+ceoGX/NgygLRlPsmpp7wrlkzmQ4aBDjEKCK4ObHnxmq/G
-         ZptXxjMgrZB8N9Rg+y/qf6RmJRNP62OFN1kgErkOmEpitXHY0gE+3xwHO+N5xDTUxJCJ
-         nFv1fn9+rjoiLfnkm/ObdbUB9VBbmLPVYEHDN/QEYLgrtlcz6RaSE+qGR6hyiSL4JCZl
-         rJTrHZTGcesn7kAhpY28+ll5rsPkMcI31tH9ABecg+JQSEH2VMeIFZn+ldS9vdt6if6V
-         1CFQ==
+        d=linaro.org; s=google; t=1677762634;
+        h=content-transfer-encoding:in-reply-to:from:references:cc:to
+         :content-language:subject:user-agent:mime-version:date:message-id
+         :from:to:cc:subject:date:message-id:reply-to;
+        bh=LTMb2uiAKQy8zkbJrBkzpMbRkO+dwt0YiEEiYQBT8oM=;
+        b=RQh0pRw3GZQXbuvLXDlP/waEUyZWHkYkc0rlKmxYZpkshO94bQ7StbBQ1MtI3m2kDU
+         KzH1v7ZpIiP6QCzqx4vsx2CV8F9WfIPKzeFrYTe7sCiXIVlHgAuLatKo0cjH+Oy3g927
+         PmrQkT9MQv12j2neob8toCo4kW/kb+xG/bQAbNNIDLAlN2jCDZ3Ag3ILQYl8ynlogXXO
+         kjLhWz4Z00knAmyth4KuQYshKND2D1o4hOaJw4KnALM7ucc1PjbfA0GKF9JRljTSuZZe
+         UrV4v7degPV2NP3gxGd/BRB3oGSoGZqYEn4i7kFx/cPiVwbvyuDCaOtZLtXJcM3BY3Eq
+         po9Q==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112; t=1677762429;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:x-gm-message-state:from:to:cc:subject:date:message-id
-         :reply-to;
-        bh=W8jKwCX/ceD2lfLDQ/Jr6zujwOsAn91spsgYEW7AGCg=;
-        b=KU++O8PbVbpCYRYTar+ws1HN+7a/ySDwDWWuyPxquecBbleFIc4A4gYUOs4G7xiQ8d
-         bKjlCku2K65SFN1dWtwKLVLX/DwldkcE2jGyHa6TZQKvVjP5B53i6P7H/EB5vPc/lKGO
-         Zc2lEr3ShBLDtquLQN7wuTHaWoaqHwRlHz5yIE1VOpCefcS0q2kZgn+EqRq5UZjRvs5r
-         fG166LudPoMv7yZiWIb9dHAjo7TfFcl+wF6X9tQieQ9tq9xREISUZAKLpJk3Oo1s8nBb
-         y4/gcXRyEX9zfk8UB+t6hk/vLZg3lCp2h5fq5lj/JmXo3jGMsVZG9jFLwMVBIh0B3gWa
-         wodQ==
-X-Gm-Message-State: AO0yUKUVas/s4SUDoslLexeMo8HwIweh2JRCI7tpyQWZcXpD/QDcrnIs
-        BQyta/ocrE75DJGPnPmIsvEV0g==
-X-Google-Smtp-Source: AK7set+oXDy4KSwSCxsdJcV40svXT8MbjKeNJlOEqd6UH4B1Qj0EhnpqTZGxkZmDnv0/dRcCC/mkqQ==
-X-Received: by 2002:a05:6402:1602:b0:4c2:96d0:c0cb with SMTP id f2-20020a056402160200b004c296d0c0cbmr395452edv.23.1677762429156;
-        Thu, 02 Mar 2023 05:07:09 -0800 (PST)
-Received: from heron.intern.cm-ag (p200300dc6f390200529a4cfffe3dd983.dip0.t-ipconnect.de. [2003:dc:6f39:200:529a:4cff:fe3d:d983])
-        by smtp.gmail.com with ESMTPSA id b8-20020a509f08000000b004c041723816sm703848edf.89.2023.03.02.05.07.08
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 02 Mar 2023 05:07:08 -0800 (PST)
-From:   Max Kellermann <max.kellermann@ionos.com>
-To:     xiubli@redhat.com, idryomov@gmail.com, jlayton@kernel.org,
-        ceph-devel@vger.kernel.org
-Cc:     linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org,
-        Max Kellermann <max.kellermann@ionos.com>,
-        stable@vger.kernel.org
-Subject: [PATCH] fs/ceph/mds_client: ignore responses for waiting requests
-Date:   Thu,  2 Mar 2023 14:06:50 +0100
-Message-Id: <20230302130650.2209938-1-max.kellermann@ionos.com>
-X-Mailer: git-send-email 2.39.2
+        d=1e100.net; s=20210112; t=1677762634;
+        h=content-transfer-encoding:in-reply-to:from:references:cc:to
+         :content-language:subject:user-agent:mime-version:date:message-id
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
+        bh=LTMb2uiAKQy8zkbJrBkzpMbRkO+dwt0YiEEiYQBT8oM=;
+        b=rOkDP577jUkMFKq4DMVfCg5eIA82I8WEDHTFJ7EIuyau/uJ/Oiu5NI6dEf26Erj2uG
+         MF3TAILvfEr4m/oALGsxCXJL9oyoHlLx94DlTxyq5P4XKXK6HG1QKfKa7igGvxr4TH3G
+         NGySUAYo1sm50ztA+ECdxOJcOTA8sT3wACNdWTYewp+9gLgtOV8X7Ybhor0wnui4kvUB
+         PCIRIf41PZSqNty7/O14zn5nCQIU5Unz/LmzGdlvsISgM7CvhHZYq3NQ5T9gidsLih8L
+         48bY1N3+eFBFQ1RnJNz4EKxamnkjmBWdYcjUujNefGlPWby/WyMcFwqhBR+PKHV/PPZW
+         xbcA==
+X-Gm-Message-State: AO0yUKWiQF6G1Wvvos0txsXm7fcn7nLixlwzY59m3bqidO3N8rwJohro
+        VoTdb9DKOR9dvFVdUqmkb2Az7g==
+X-Google-Smtp-Source: AK7set/UY2mu+bVvyesOlReohTFVfVRqwfeXA8qbg0d09zP+0hh61PBsHLM+AjPQwB0/GuENcMxemw==
+X-Received: by 2002:a5d:4dd2:0:b0:2cb:c66d:6ac1 with SMTP id f18-20020a5d4dd2000000b002cbc66d6ac1mr7025325wru.3.1677762633759;
+        Thu, 02 Mar 2023 05:10:33 -0800 (PST)
+Received: from [192.168.1.195] ([5.133.47.210])
+        by smtp.googlemail.com with ESMTPSA id t14-20020adfe44e000000b002c5503a8d21sm15622256wrm.70.2023.03.02.05.10.32
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Thu, 02 Mar 2023 05:10:33 -0800 (PST)
+Message-ID: <ee0a09bd-831b-9ac4-7b9c-d584497cd7a0@linaro.org>
+Date:   Thu, 2 Mar 2023 13:10:30 +0000
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_NONE,
-        SPF_HELO_NONE,SPF_NONE autolearn=unavailable autolearn_force=no
-        version=3.4.6
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
+ Thunderbird/102.7.1
+Subject: Re: [PATCH] ASoC: qcom: q6prm: fix incorrect clk_root passed to ADSP
+Content-Language: en-US
+To:     Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>,
+        Banajit Goswami <bgoswami@quicinc.com>,
+        Liam Girdwood <lgirdwood@gmail.com>,
+        Mark Brown <broonie@kernel.org>,
+        Jaroslav Kysela <perex@perex.cz>,
+        Takashi Iwai <tiwai@suse.com>, alsa-devel@alsa-project.org,
+        linux-kernel@vger.kernel.org
+Cc:     stable@vger.kernel.org
+References: <20230302122908.221398-1-krzysztof.kozlowski@linaro.org>
+From:   Srinivas Kandagatla <srinivas.kandagatla@linaro.org>
+In-Reply-To: <20230302122908.221398-1-krzysztof.kozlowski@linaro.org>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Spam-Status: No, score=-2.2 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,NICE_REPLY_A,RCVD_IN_DNSWL_NONE,
+        SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-If a request is put on the waiting list, its submission is postponed
-until the session becomes ready (e.g. via `mdsc->waiting_for_map` or
-`session->s_waiting`).  If a `CEPH_MSG_CLIENT_REPLY` happens to be
-received before `CEPH_MSG_MDS_MAP`, the request gets freed, and then
-this assertion fails:
 
- WARN_ON_ONCE(!list_empty(&req->r_wait));
 
-This occurred on a server after the Ceph MDS connection failed, and a
-corrupt reply packet was received for a waiting request:
+On 02/03/2023 12:29, Krzysztof Kozlowski wrote:
+> The second to last argument is clk_root (root of the clock), however the
+> code called q6prm_request_lpass_clock() with clk_attr instead
+> (copy-paste error).  This effectively was passing value of 1 as root
+> clock which worked on some of the SoCs (e.g. SM8450) but fails on
+> others, depending on the ADSP.  For example on SM8550 this "1" as root
+> clock is not accepted and results in errors coming from ADSP.
+> 
+> Fixes: 2f20640491ed ("ASoC: qdsp6: qdsp6: q6prm: handle clk disable correctly")
+> Cc: <stable@vger.kernel.org>
+> Signed-off-by: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
 
- libceph: mds1 (1)10.0.0.10:6801 socket error on write
- libceph: mds1 (1)10.0.0.10:6801 session reset
- ceph: mds1 closed our session
- ceph: mds1 reconnect start
- ceph: mds1 reconnect success
- ceph: problem parsing mds trace -5
- ceph: mds parse_reply err -5
- ceph: mdsc_handle_reply got corrupt reply mds1(tid:5530222)
- [...]
- ------------[ cut here ]------------
- WARNING: CPU: 9 PID: 229180 at fs/ceph/mds_client.c:966 ceph_mdsc_release_request+0x17a/0x180
- Modules linked in:
- CPU: 9 PID: 229180 Comm: kworker/9:3 Not tainted 6.1.8-cm4all1 #45
- Hardware name: QEMU Standard PC (i440FX + PIIX, 1996), BIOS 1.14.0-2 04/01/2014
- Workqueue: ceph-msgr ceph_con_workfn
- RIP: 0010:ceph_mdsc_release_request+0x17a/0x180
- Code: 39 d8 75 26 5b 48 89 ee 48 8b 3d f9 2d 04 02 5d e9 fb 01 c9 ff e8 56 85 ab ff eb 9c 48 8b 7f 58 e8 db 4d ff ff e9 a4 fe ff ff <0f> 0b eb d6 66 90 0f 1f 44 00 00 41 54 48 8d 86 b8 03 00 00 55 4c
- RSP: 0018:ffffa6f2c0e2bd20 EFLAGS: 00010287
- RAX: ffff8f58b93687f8 RBX: ffff8f592f6374a8 RCX: 0000000000000aed
- RDX: 0000000000000ac0 RSI: 0000000000000000 RDI: 0000000000000000
- RBP: ffff8f592f637148 R08: 0000000000000001 R09: ffffffffa901de00
- R10: 0000000000000001 R11: ffffd630ad09dfc8 R12: ffff8f58b9368000
- R13: ffff8f5806b33800 R14: ffff8f58894f6780 R15: 000000000054626e
- FS:  0000000000000000(0000) GS:ffff8f630f040000(0000) knlGS:0000000000000000
- CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
- CR2: 00007ffc2926df68 CR3: 0000000218dce002 CR4: 00000000001706e0
- DR0: 0000000000000000 DR1: 0000000000000000 DR2: 0000000000000000
- DR3: 0000000000000000 DR6: 00000000fffe0ff0 DR7: 0000000000000400
- Call Trace:
-  <TASK>
-  mds_dispatch+0xec5/0x1460
-  ? inet_recvmsg+0x4d/0xf0
-  ceph_con_process_message+0x6b/0x80
-  ceph_con_v1_try_read+0xb92/0x1400
-  ceph_con_workfn+0x383/0x4e0
-  process_one_work+0x1da/0x370
-  ? process_one_work+0x370/0x370
-  worker_thread+0x4d/0x3c0
-  ? process_one_work+0x370/0x370
-  kthread+0xbb/0xe0
-  ? kthread_complete_and_exit+0x20/0x20
-  ret_from_fork+0x22/0x30
-  </TASK>
- ---[ end trace 0000000000000000 ]---
- ceph: mds1 caps renewed
+Nice Find, Tested on sc8280xp
 
-If we know that a request has not yet been submitted, we should ignore
-all responses for it, just like we ignore responses for unknown TIDs.
+Reviewed-by: Srinivas Kandagatla <srinivas.kandagatla@linaro.org>
+Tested-by: Srinivas Kandagatla <srinivas.kandagatla@linaro.org>
 
-To: ceph-devel@vger.kernel.org
-Cc: stable@vger.kernel.org
-Signed-off-by: Max Kellermann <max.kellermann@ionos.com>
----
- fs/ceph/mds_client.c | 7 +++++++
- 1 file changed, 7 insertions(+)
 
-diff --git a/fs/ceph/mds_client.c b/fs/ceph/mds_client.c
-index 27a245d959c0..fa74fdb2cbfb 100644
---- a/fs/ceph/mds_client.c
-+++ b/fs/ceph/mds_client.c
-@@ -3275,6 +3275,13 @@ static void handle_reply(struct ceph_mds_session *session, struct ceph_msg *msg)
- 	}
- 	dout("handle_reply %p\n", req);
- 
-+	/* waiting, not yet submitted? */
-+	if (!list_empty(&req->r_wait)) {
-+		pr_err("mdsc_handle_reply on waiting request tid %llu\n", tid);
-+		mutex_unlock(&mdsc->mutex);
-+		goto out;
-+	}
-+
- 	/* correct session? */
- 	if (req->r_session != session) {
- 		pr_err("mdsc_handle_reply got %llu on session mds%d"
--- 
-2.39.2
-
+--srini
+> ---
+>   sound/soc/qcom/qdsp6/q6prm.c | 4 ++--
+>   1 file changed, 2 insertions(+), 2 deletions(-)
+> 
+> diff --git a/sound/soc/qcom/qdsp6/q6prm.c b/sound/soc/qcom/qdsp6/q6prm.c
+> index 8aa1a213bfb7..c1dc5bae715a 100644
+> --- a/sound/soc/qcom/qdsp6/q6prm.c
+> +++ b/sound/soc/qcom/qdsp6/q6prm.c
+> @@ -183,9 +183,9 @@ int q6prm_set_lpass_clock(struct device *dev, int clk_id, int clk_attr, int clk_
+>   			  unsigned int freq)
+>   {
+>   	if (freq)
+> -		return q6prm_request_lpass_clock(dev, clk_id, clk_attr, clk_attr, freq);
+> +		return q6prm_request_lpass_clock(dev, clk_id, clk_attr, clk_root, freq);
+>   
+> -	return q6prm_release_lpass_clock(dev, clk_id, clk_attr, clk_attr, freq);
+> +	return q6prm_release_lpass_clock(dev, clk_id, clk_attr, clk_root, freq);
+>   }
+>   EXPORT_SYMBOL_GPL(q6prm_set_lpass_clock);
+>   
