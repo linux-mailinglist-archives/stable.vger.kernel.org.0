@@ -2,170 +2,117 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 8D40B6A87C9
-	for <lists+stable@lfdr.de>; Thu,  2 Mar 2023 18:22:27 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 250646A87D2
+	for <lists+stable@lfdr.de>; Thu,  2 Mar 2023 18:23:56 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229719AbjCBRWZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 2 Mar 2023 12:22:25 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60486 "EHLO
+        id S229897AbjCBRXz (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 2 Mar 2023 12:23:55 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34404 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229476AbjCBRWY (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 2 Mar 2023 12:22:24 -0500
-Received: from galois.linutronix.de (Galois.linutronix.de [193.142.43.55])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 85CF26E8B;
-        Thu,  2 Mar 2023 09:22:23 -0800 (PST)
-Date:   Thu, 02 Mar 2023 17:22:20 -0000
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linutronix.de;
-        s=2020; t=1677777741;
-        h=from:from:sender:sender:reply-to:reply-to:subject:subject:date:date:
-         message-id:message-id:to:to:cc:cc:mime-version:mime-version:
-         content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=rZUI0Dp1XgfC+LUatB+59tfCAoLSvynVlofrlVu+tNI=;
-        b=lncaqsIrMNsB/08yz8YPUB+RSess4cdNNeDmCfvGOZP3pVxaYGFe0q+5uXXHuR++bsU4zR
-        jg+v7vk71GKO/Y13gVk9xU3s7TfzPC2Cqww5eo7o0ECzMM9pln8qsqcv23oZ7/EEEXkYTL
-        2qY6AEunP1SgJka+TuVHjDzG/FnLwjMITkHKXfEjqeoW57/fV1Zh68cnyo3mXpRaWBHaMq
-        G41b6EHT7H1wghlL79E+Tpd3v2z130vzmT14iLnGPLTKzjoijOzNN7k1Cn+Fi0HCo8O+eH
-        DPXS0uGnzL4/d1VJZSinWrjG31fzIUvvYMIKcQYuFfGoUvVhGEml9HOyykiq9g==
-DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=linutronix.de;
-        s=2020e; t=1677777741;
-        h=from:from:sender:sender:reply-to:reply-to:subject:subject:date:date:
-         message-id:message-id:to:to:cc:cc:mime-version:mime-version:
-         content-type:content-type:
-         content-transfer-encoding:content-transfer-encoding:
-         in-reply-to:in-reply-to:references:references;
-        bh=rZUI0Dp1XgfC+LUatB+59tfCAoLSvynVlofrlVu+tNI=;
-        b=IJhnM0bvuDtH3jMNeIDH8L+Acw3hVeQg+54WEZwkEvojSKUkCzJ3MsvsXju/KAvXYX1FnX
-        k9q6i5OZFNy0bQDw==
-From:   "tip-bot2 for Thomas Gleixner" <tip-bot2@linutronix.de>
-Sender: tip-bot2@linutronix.de
-Reply-to: linux-kernel@vger.kernel.org
-To:     linux-tip-commits@vger.kernel.org
-Subject: [tip: irq/urgent] genirq/msi, platform-msi: Ensure that MSI
- descriptors are unreferenced
-Cc:     Miquel Raynal <miquel.raynal@bootlin.com>,
-        Thomas Gleixner <tglx@linutronix.de>, stable@vger.kernel.org,
-        x86@kernel.org, linux-kernel@vger.kernel.org, maz@kernel.org
-In-Reply-To: <87mt4wkwnv.ffs@tglx>
-References: <87mt4wkwnv.ffs@tglx>
+        with ESMTP id S229744AbjCBRXy (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 2 Mar 2023 12:23:54 -0500
+Received: from gproxy4-pub.mail.unifiedlayer.com (gproxy4-pub.mail.unifiedlayer.com [69.89.23.142])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A78B7A24C
+        for <stable@vger.kernel.org>; Thu,  2 Mar 2023 09:23:53 -0800 (PST)
+Received: from cmgw15.mail.unifiedlayer.com (unknown [10.0.90.130])
+        by progateway6.mail.pro1.eigbox.com (Postfix) with ESMTP id 21B0210047D8D
+        for <stable@vger.kernel.org>; Thu,  2 Mar 2023 17:23:53 +0000 (UTC)
+Received: from box5620.bluehost.com ([162.241.219.59])
+        by cmsmtp with ESMTP
+        id XmenpDN9AdUIVXmenp9UQc; Thu, 02 Mar 2023 17:23:53 +0000
+X-Authority-Reason: nr=8
+X-Authority-Analysis: v=2.4 cv=U89Xscnu c=1 sm=1 tr=0 ts=6400dba9
+ a=30941lsx5skRcbJ0JMGu9A==:117 a=30941lsx5skRcbJ0JMGu9A==:17
+ a=dLZJa+xiwSxG16/P+YVxDGlgEgI=:19 a=IkcTkHD0fZMA:10:nop_charset_1
+ a=k__wU0fu6RkA:10:nop_rcvd_month_year
+ a=-Ou01B_BuAIA:10:endurance_base64_authed_username_1 a=VwQbUJbxAAAA:8
+ a=HaFmDPmJAAAA:8 a=49j0FZ7RFL9ueZfULrUA:9 a=QEXdDO2ut3YA:10:nop_charset_2
+ a=AjGcO6oz07-iQ99wixmX:22 a=nmWuMzfKamIsx3l42hEX:22
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=w6rz.net;
+        s=default; h=Content-Transfer-Encoding:Content-Type:MIME-Version:Date:
+        Message-ID:From:In-Reply-To:References:Cc:To:Subject:Sender:Reply-To:
+        Content-ID:Content-Description:Resent-Date:Resent-From:Resent-Sender:
+        Resent-To:Resent-Cc:Resent-Message-ID:List-Id:List-Help:List-Unsubscribe:
+        List-Subscribe:List-Post:List-Owner:List-Archive;
+        bh=p5xgOD3nMBxckUbr6Zj9mRocXTHpQeJjOHCNH3zZKvo=; b=EzFfM1ctK3pw4e1XASqJx7lW/0
+        S1ztOeSNY5KYoxQse1y8Ndh8LrpBPSnm++58s2fbVjn7jw2nTHj0xsZ35UEJ9BnHn1O0+tQCIzZDc
+        itMX+SFEwYoBFi2kILx/yiSRRKv6sdBAYnmfcxGK+5qNYDqmlyzcVT8NQ7bBHnZaG7ov6xJSlR0C5
+        hkceh8i6JNgAFPT2XqQIbLjlLWBJvaMagrUqj6PhzrBzstxReljRhWJ8mTNJELLgw/pCqZwqa4H0G
+        PeWgtazur3M+xN0DH1iNPb78V1efKvAcjV/CT0eNlrb+FYQ1WJwhtMPGB+PWq2Ty/xeY4+4iFQgqH
+        JvLIKfTA==;
+Received: from c-73-162-232-9.hsd1.ca.comcast.net ([73.162.232.9]:58808 helo=[10.0.1.47])
+        by box5620.bluehost.com with esmtpsa  (TLS1.2) tls TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256
+        (Exim 4.95)
+        (envelope-from <re@w6rz.net>)
+        id 1pXmem-002Cd8-1o;
+        Thu, 02 Mar 2023 10:23:52 -0700
+Subject: Re: [PATCH 6.2 00/16] 6.2.2-rc1 review
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        stable@vger.kernel.org
+Cc:     patches@lists.linux.dev, linux-kernel@vger.kernel.org,
+        torvalds@linux-foundation.org, akpm@linux-foundation.org,
+        linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
+        lkft-triage@lists.linaro.org, pavel@denx.de, jonathanh@nvidia.com,
+        f.fainelli@gmail.com, sudipm.mukherjee@gmail.com,
+        srw@sladewatkins.net, rwarsow@gmx.de
+References: <20230301180653.263532453@linuxfoundation.org>
+In-Reply-To: <20230301180653.263532453@linuxfoundation.org>
+From:   Ron Economos <re@w6rz.net>
+Message-ID: <b1e56331-f691-a16d-a5d2-4c337ec493b4@w6rz.net>
+Date:   Thu, 2 Mar 2023 09:23:47 -0800
+User-Agent: Mozilla/5.0 (X11; Linux armv7l; rv:78.0) Gecko/20100101
+ Thunderbird/78.14.0
 MIME-Version: 1.0
-Message-ID: <167777774038.5837.12233642737394455533.tip-bot2@tip-bot2>
-Robot-ID: <tip-bot2@linutronix.de>
-Robot-Unsubscribe: Contact <mailto:tglx@linutronix.de> to get blacklisted from these emails
-Content-Type: text/plain; charset="utf-8"
+Content-Type: text/plain; charset=utf-8; format=flowed
 Content-Transfer-Encoding: 7bit
-X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,SPF_HELO_NONE,
-        SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
+Content-Language: en-US
+X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
+X-AntiAbuse: Primary Hostname - box5620.bluehost.com
+X-AntiAbuse: Original Domain - vger.kernel.org
+X-AntiAbuse: Originator/Caller UID/GID - [47 12] / [47 12]
+X-AntiAbuse: Sender Address Domain - w6rz.net
+X-BWhitelist: no
+X-Source-IP: 73.162.232.9
+X-Source-L: No
+X-Exim-ID: 1pXmem-002Cd8-1o
+X-Source: 
+X-Source-Args: 
+X-Source-Dir: 
+X-Source-Sender: c-73-162-232-9.hsd1.ca.comcast.net ([10.0.1.47]) [73.162.232.9]:58808
+X-Source-Auth: re@w6rz.net
+X-Email-Count: 2
+X-Source-Cap: d3NpeHJ6bmU7d3NpeHJ6bmU7Ym94NTYyMC5ibHVlaG9zdC5jb20=
+X-Local-Domain: yes
+X-Spam-Status: No, score=-2.2 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,NICE_REPLY_A,RCVD_IN_DNSWL_NONE,
+        RCVD_IN_MSPIKE_H2,SPF_HELO_NONE,SPF_PASS autolearn=unavailable
+        autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-The following commit has been merged into the irq/urgent branch of tip:
+On 3/1/23 10:07 AM, Greg Kroah-Hartman wrote:
+> This is the start of the stable review cycle for the 6.2.2 release.
+> There are 16 patches in this series, all will be posted as a response
+> to this one.  If anyone has any issues with these being applied, please
+> let me know.
+>
+> Responses should be made by Fri, 03 Mar 2023 18:06:43 +0000.
+> Anything received after that time might be too late.
+>
+> The whole patch series can be found in one patch at:
+> 	https://www.kernel.org/pub/linux/kernel/v6.x/stable-review/patch-6.2.2-rc1.gz
+> or in the git tree and branch at:
+> 	git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable-rc.git linux-6.2.y
+> and the diffstat can be found below.
+>
+> thanks,
+>
+> greg k-h
 
-Commit-ID:     0fb7fb713461e44b12e72c292bf90ee300f40710
-Gitweb:        https://git.kernel.org/tip/0fb7fb713461e44b12e72c292bf90ee300f40710
-Author:        Thomas Gleixner <tglx@linutronix.de>
-AuthorDate:    Wed, 01 Mar 2023 22:07:48 +01:00
-Committer:     Thomas Gleixner <tglx@linutronix.de>
-CommitterDate: Thu, 02 Mar 2023 18:09:44 +01:00
+Built and booted successfully on RISC-V RV64 (HiFive Unmatched).
 
-genirq/msi, platform-msi: Ensure that MSI descriptors are unreferenced
+Tested-by: Ron Economos <re@w6rz.net>
 
-Miquel reported a warning in the MSI core which is triggered when
-interrupts are freed via platform_msi_device_domain_free().
-
-This code got reworked to use core functions for freeing the MSI
-descriptors, but nothing took care to clear the msi_desc->irq entry, which
-then triggers the warning in msi_free_msi_desc() which uses desc->irq to
-validate that the descriptor has been torn down. The same issue exists in
-msi_domain_populate_irqs().
-
-Up to the point that msi_free_msi_descs() grew a warning for this case,
-this went un-noticed.
-
-Provide the counterpart of msi_domain_populate_irqs() and invoke it in
-platform_msi_device_domain_free() before freeing the interrupts and MSI
-descriptors and also in the error path of msi_domain_populate_irqs().
-
-Fixes: 2f2940d16823 ("genirq/msi: Remove filter from msi_free_descs_free_range()")
-Reported-by: Miquel Raynal <miquel.raynal@bootlin.com>
-Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
-Tested-by: Miquel Raynal <miquel.raynal@bootlin.com>
-Cc: stable@vger.kernel.org
-Link: https://lore.kernel.org/r/87mt4wkwnv.ffs@tglx
----
- drivers/base/platform-msi.c |  1 +
- include/linux/msi.h         |  2 ++
- kernel/irq/msi.c            | 23 ++++++++++++++++++++++-
- 3 files changed, 25 insertions(+), 1 deletion(-)
-
-diff --git a/drivers/base/platform-msi.c b/drivers/base/platform-msi.c
-index 5883e76..f37ad34 100644
---- a/drivers/base/platform-msi.c
-+++ b/drivers/base/platform-msi.c
-@@ -324,6 +324,7 @@ void platform_msi_device_domain_free(struct irq_domain *domain, unsigned int vir
- 	struct platform_msi_priv_data *data = domain->host_data;
- 
- 	msi_lock_descs(data->dev);
-+	msi_domain_depopulate_descs(data->dev, virq, nr_irqs);
- 	irq_domain_free_irqs_common(domain, virq, nr_irqs);
- 	msi_free_msi_descs_range(data->dev, virq, virq + nr_irqs - 1);
- 	msi_unlock_descs(data->dev);
-diff --git a/include/linux/msi.h b/include/linux/msi.h
-index a112b91..15dd718 100644
---- a/include/linux/msi.h
-+++ b/include/linux/msi.h
-@@ -631,6 +631,8 @@ int msi_domain_prepare_irqs(struct irq_domain *domain, struct device *dev,
- 			    int nvec, msi_alloc_info_t *args);
- int msi_domain_populate_irqs(struct irq_domain *domain, struct device *dev,
- 			     int virq, int nvec, msi_alloc_info_t *args);
-+void msi_domain_depopulate_descs(struct device *dev, int virq, int nvec);
-+
- struct irq_domain *
- __platform_msi_create_device_domain(struct device *dev,
- 				    unsigned int nvec,
-diff --git a/kernel/irq/msi.c b/kernel/irq/msi.c
-index efd21b7..d169ee0 100644
---- a/kernel/irq/msi.c
-+++ b/kernel/irq/msi.c
-@@ -1109,14 +1109,35 @@ int msi_domain_populate_irqs(struct irq_domain *domain, struct device *dev,
- 	return 0;
- 
- fail:
--	for (--virq; virq >= virq_base; virq--)
-+	for (--virq; virq >= virq_base; virq--) {
-+		msi_domain_depopulate_descs(dev, virq, 1);
- 		irq_domain_free_irqs_common(domain, virq, 1);
-+	}
- 	msi_domain_free_descs(dev, &ctrl);
- unlock:
- 	msi_unlock_descs(dev);
- 	return ret;
- }
- 
-+void msi_domain_depopulate_descs(struct device *dev, int virq_base, int nvec)
-+{
-+	struct msi_ctrl ctrl = {
-+		.domid	= MSI_DEFAULT_DOMAIN,
-+		.first  = virq_base,
-+		.last	= virq_base + nvec - 1,
-+	};
-+	struct msi_desc *desc;
-+	struct xarray *xa;
-+	unsigned long idx;
-+
-+	if (!msi_ctrl_valid(dev, &ctrl))
-+		return;
-+
-+	xa = &dev->msi.data->__domains[ctrl.domid].store;
-+	xa_for_each_range(xa, idx, desc, ctrl.first, ctrl.last)
-+		desc->irq = 0;
-+}
-+
- /*
-  * Carefully check whether the device can use reservation mode. If
-  * reservation mode is enabled then the early activation will assign a
