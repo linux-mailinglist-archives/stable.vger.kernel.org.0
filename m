@@ -2,120 +2,129 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 0B6026A8885
-	for <lists+stable@lfdr.de>; Thu,  2 Mar 2023 19:29:56 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 10D6B6A898A
+	for <lists+stable@lfdr.de>; Thu,  2 Mar 2023 20:37:44 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230030AbjCBS3y (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 2 Mar 2023 13:29:54 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55474 "EHLO
+        id S229451AbjCBThm (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 2 Mar 2023 14:37:42 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:32842 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229698AbjCBS3o (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 2 Mar 2023 13:29:44 -0500
-Received: from mail-io1-xd32.google.com (mail-io1-xd32.google.com [IPv6:2607:f8b0:4864:20::d32])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 83B541689F
-        for <stable@vger.kernel.org>; Thu,  2 Mar 2023 10:29:43 -0800 (PST)
-Received: by mail-io1-xd32.google.com with SMTP id y140so11057iof.6
-        for <stable@vger.kernel.org>; Thu, 02 Mar 2023 10:29:43 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=chromium.org; s=google;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=xpWolHBTfv1e/s85d7Nor58l6lqGaWFhdL+nTiGGVic=;
-        b=QI7gz/LeygpGxrmWN08W2VKhqopzlDmPIMqoxGEz9VFAjmlDg199kMccbeLiAyrhdi
-         H/Yvc2c5UwqTGdwX9DOSblo6pvnc5iN/NV+8j+BuYzA7+Utu8lpFc+rE87A9QqEFCqbj
-         glnz67pYLBz+umPSkDBuPlZ+iiqngAtoKnn7E=
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=xpWolHBTfv1e/s85d7Nor58l6lqGaWFhdL+nTiGGVic=;
-        b=GGc6kKLmhpBy3rb2fXrMIaPvrjRbvrOcAlAb6B4CPQStXeiNHdisP3Hsi+BSIJLa1b
-         wWdf9Iudey1yHCYP3IHxbLQiyuaHtbXDsbDFGPNkXZh5c+0c999rlAkwtx1hC2k4PdPm
-         JFqRTl3Z8lRne1sUfP9D9PhPxm5DNuQGBnwjID+NV0x3MXXe4G+yvBtjp6RGgZfgILO+
-         l7eVJFXlo66dRbVQYAAjt7rlpA5Ddq4mj7GB3PXqOp7sGlc8xqT/5dqSsLihH+iUrIrF
-         lNGaf+WpgV/hn8jIH2sHz2BeUhvamDryMQIUvCtymLKpC5zjvvB9gnNdBzD+I33AuJ96
-         xpZQ==
-X-Gm-Message-State: AO0yUKUDZRrqmL+uHMaF9/dZ65oCiRh9jm2HyWfrCaqrgw+No7TWVpKJ
-        MzpLTMGPTV8TBVSnDl/jSbRvcB9sY6wZeR6/
-X-Google-Smtp-Source: AK7set9spD7AIP2I8/gxwIkPHxfWV4ltOFeAVd59Hkmb+fEXtUX3kZ5ohDeNAO1vdUly5qsasoWYtw==
-X-Received: by 2002:a5d:841a:0:b0:74c:da4b:c4e4 with SMTP id i26-20020a5d841a000000b0074cda4bc4e4mr7162817ion.3.1677781782107;
-        Thu, 02 Mar 2023 10:29:42 -0800 (PST)
-Received: from mail-io1-f49.google.com (mail-io1-f49.google.com. [209.85.166.49])
-        by smtp.gmail.com with ESMTPSA id f23-20020a6be817000000b007437276ae6dsm64449ioh.3.2023.03.02.10.29.41
-        for <stable@vger.kernel.org>
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Thu, 02 Mar 2023 10:29:41 -0800 (PST)
-Received: by mail-io1-f49.google.com with SMTP id b5so37463iow.0
-        for <stable@vger.kernel.org>; Thu, 02 Mar 2023 10:29:41 -0800 (PST)
-X-Received: by 2002:a02:8545:0:b0:3e5:a7d9:27db with SMTP id
- g63-20020a028545000000b003e5a7d927dbmr4740334jai.6.1677781780914; Thu, 02 Mar
- 2023 10:29:40 -0800 (PST)
+        with ESMTP id S229547AbjCBThl (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 2 Mar 2023 14:37:41 -0500
+X-Greylist: delayed 1228 seconds by postgrey-1.37 at lindbergh.monkeyblade.net; Thu, 02 Mar 2023 11:37:40 PST
+Received: from metanate.com (unknown [IPv6:2001:8b0:1628:5005::111])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7B1DD47412;
+        Thu,  2 Mar 2023 11:37:40 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
+        d=metanate.com; s=stronger; h=In-Reply-To:Content-Transfer-Encoding:
+        Content-Type:References:Message-ID:Subject:Cc:To:From:Date:Reply-To:
+        Content-ID:Content-Description;
+        bh=87JKjmVsuv8rIF34mdQmg/4fonoAxbnoQcy8w4pOxC8=; b=Isa2W5G/aXeD2eH1yhZOcjnyPY
+        o1a2makI6Kvj33x1f5eY4mxN54iFIOc2Ye3GDGM95efsqUVkimk1BusyztXQzENx089/ffpbjP4dc
+        TWZ0wInn5QjFDidAHtJkTGd8XpI2bDR08VX7gy9YLN2o9cLIo6+EmiWQTfVedHf27huz/HT9rr7kK
+        7nB5V8Y3M8++Ipi24KFr1cay62Kc47Y7vkgOM+oMYEkLozZ8RH/q8fCqwiahYfpYSjqCWimDZLkfT
+        V+Gb6u6An9/YUcti+97tsKhx8OdrYJ2xoFpOag5/WVBs6Hw0oPpj3ilwjI2SsYp01JM7HJj0G0Ukc
+        gn+h3LoQ==;
+Received: from [81.174.171.191] (helo=donbot)
+        by email.metanate.com with esmtpsa  (TLS1.3) tls TLS_AES_256_GCM_SHA384
+        (Exim 4.95)
+        (envelope-from <john@metanate.com>)
+        id 1pXoQ5-0000qA-J8;
+        Thu, 02 Mar 2023 19:16:49 +0000
+Date:   Thu, 2 Mar 2023 19:16:48 +0000
+From:   John Keeping <john@metanate.com>
+To:     Alvin =?utf-8?Q?=C5=A0ipraga?= <alvin@pqrs.dk>
+Cc:     Jaroslav Kysela <perex@perex.cz>, Takashi Iwai <tiwai@suse.com>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Yadi Brar <yadi.brar01@gmail.com>,
+        Jassi Brar <jaswinder.singh@linaro.org>,
+        Felipe Balbi <balbi@ti.com>, alsa-devel@alsa-project.org,
+        Alvin =?utf-8?Q?=C5=A0ipraga?= <alsi@bang-olufsen.dk>,
+        stable@vger.kernel.org, linux-usb@vger.kernel.org,
+        linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] usb: gadget: u_audio: don't let userspace block driver
+ unbind
+Message-ID: <ZAD2IPJFyg0e7r7N@donbot>
+References: <20230302163648.3349669-1-alvin@pqrs.dk>
 MIME-Version: 1.0
-References: <20230302074704.11371-1-johan+linaro@kernel.org>
-In-Reply-To: <20230302074704.11371-1-johan+linaro@kernel.org>
-From:   Doug Anderson <dianders@chromium.org>
-Date:   Thu, 2 Mar 2023 10:29:29 -0800
-X-Gmail-Original-Message-ID: <CAD=FV=WK2yxWqAro6k4N2kr-HeNZLNxi6tuq=_uL0tbSjGVEAg@mail.gmail.com>
-Message-ID: <CAD=FV=WK2yxWqAro6k4N2kr-HeNZLNxi6tuq=_uL0tbSjGVEAg@mail.gmail.com>
-Subject: Re: [PATCH] drm/edid: fix info leak when failing to get panel id
-To:     Johan Hovold <johan+linaro@kernel.org>
-Cc:     Maarten Lankhorst <maarten.lankhorst@linux.intel.com>,
-        Maxime Ripard <mripard@kernel.org>,
-        Thomas Zimmermann <tzimmermann@suse.de>,
-        David Airlie <airlied@gmail.com>,
-        Daniel Vetter <daniel@ffwll.ch>,
-        Abhinav Kumar <quic_abhinavk@quicinc.com>,
-        dri-devel@lists.freedesktop.org, linux-kernel@vger.kernel.org,
-        stable@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
-X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_NONE,
-        SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <20230302163648.3349669-1-alvin@pqrs.dk>
+X-Authenticated: YES
+X-Spam-Status: No, score=-1.3 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RDNS_NONE,SPF_HELO_PASS,
+        SPF_PASS autolearn=no autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hi,
+On Thu, Mar 02, 2023 at 05:36:47PM +0100, Alvin Šipraga wrote:
+> From: Alvin Šipraga <alsi@bang-olufsen.dk>
+> 
+> In the unbind callback for f_uac1 and f_uac2, a call to snd_card_free()
+> via g_audio_cleanup() will disconnect the card and then wait for all
+> resources to be released, which happens when the refcount falls to zero.
+> Since userspace can keep the refcount incremented by not closing the
+> relevant file descriptor, the call to unbind may block indefinitely.
+> This can cause a deadlock during reboot, as evidenced by the following
+> blocked task observed on my machine:
+> 
+>   task:reboot  state:D stack:0   pid:2827  ppid:569    flags:0x0000000c
+>   Call trace:
+>    __switch_to+0xc8/0x140
+>    __schedule+0x2f0/0x7c0
+>    schedule+0x60/0xd0
+>    schedule_timeout+0x180/0x1d4
+>    wait_for_completion+0x78/0x180
+>    snd_card_free+0x90/0xa0
+>    g_audio_cleanup+0x2c/0x64
+>    afunc_unbind+0x28/0x60
+>    ...
+>    kernel_restart+0x4c/0xac
+>    __do_sys_reboot+0xcc/0x1ec
+>    __arm64_sys_reboot+0x28/0x30
+>    invoke_syscall+0x4c/0x110
+>    ...
+> 
+> The issue can also be observed by opening the card with arecord and
+> then stopping the process through the shell before unbinding:
+> 
+>   # arecord -D hw:UAC2Gadget -f S32_LE -c 2 -r 48000 /dev/null
+>   Recording WAVE '/dev/null' : Signed 32 bit Little Endian, Rate 48000 Hz, Stereo
+>   ^Z[1]+  Stopped                    arecord -D hw:UAC2Gadget -f S32_LE -c 2 -r 48000 /dev/null
+>   # echo gadget.0 > /sys/bus/gadget/drivers/configfs-gadget/unbind
+>   (observe that the unbind command never finishes)
+> 
+> Fix the problem by using snd_card_free_when_closed() instead, which will
+> still disconnect the card as desired, but defer the task of freeing the
+> resources to the core once userspace closes its file descriptor.
+> 
+> Fixes: 132fcb460839 ("usb: gadget: Add Audio Class 2.0 Driver")
+> Cc: stable@vger.kernel.org
+> Signed-off-by: Alvin Šipraga <alsi@bang-olufsen.dk>
 
-On Wed, Mar 1, 2023 at 11:49=E2=80=AFPM Johan Hovold <johan+linaro@kernel.o=
-rg> wrote:
->
-> Make sure to clear the transfer buffer before fetching the EDID to
-> avoid leaking slab data to the logs on errors that leave the buffer
-> unchanged.
->
-> Fixes: 69c7717c20cc ("drm/edid: Dump the EDID when drm_edid_get_panel_id(=
-) has an error")
-> Cc: stable@vger.kernel.org      # 6.2
-> Cc: Douglas Anderson <dianders@chromium.org>
-> Signed-off-by: Johan Hovold <johan+linaro@kernel.org>
+Reviewed-by: John Keeping <john@metanate.com>
+
 > ---
->  drivers/gpu/drm/drm_edid.c | 2 +-
+>  drivers/usb/gadget/function/u_audio.c | 2 +-
 >  1 file changed, 1 insertion(+), 1 deletion(-)
->
-> diff --git a/drivers/gpu/drm/drm_edid.c b/drivers/gpu/drm/drm_edid.c
-> index 3841aba17abd..8707fe72a028 100644
-> --- a/drivers/gpu/drm/drm_edid.c
-> +++ b/drivers/gpu/drm/drm_edid.c
-> @@ -2797,7 +2797,7 @@ u32 drm_edid_get_panel_id(struct i2c_adapter *adapt=
-er)
->          * the EDID then we'll just return 0.
->          */
->
-> -       base_block =3D kmalloc(EDID_LENGTH, GFP_KERNEL);
-> +       base_block =3D kzalloc(EDID_LENGTH, GFP_KERNEL);
-
-Good catch! I'm landing this to drm-misc-fixes right away.
-
-4d8457fe0eb9 drm/edid: fix info leak when failing to get panel id
-
-I'm sure I copied the kmalloc() from _drm_do_get_edid(), but it looks
-like in _that_ case if the read fails we never print the buffer so
-that one is OK.
-
--Doug
+> 
+> diff --git a/drivers/usb/gadget/function/u_audio.c b/drivers/usb/gadget/function/u_audio.c
+> index c1f62e91b012..4a42574b4a7f 100644
+> --- a/drivers/usb/gadget/function/u_audio.c
+> +++ b/drivers/usb/gadget/function/u_audio.c
+> @@ -1422,7 +1422,7 @@ void g_audio_cleanup(struct g_audio *g_audio)
+>  	uac = g_audio->uac;
+>  	card = uac->card;
+>  	if (card)
+> -		snd_card_free(card);
+> +		snd_card_free_when_closed(card);
+>  
+>  	kfree(uac->p_prm.reqs);
+>  	kfree(uac->c_prm.reqs);
+> -- 
+> 2.39.1
+> 
