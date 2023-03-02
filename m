@@ -2,117 +2,101 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 845716A8418
-	for <lists+stable@lfdr.de>; Thu,  2 Mar 2023 15:24:57 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 2C1316A8551
+	for <lists+stable@lfdr.de>; Thu,  2 Mar 2023 16:36:31 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229538AbjCBOY4 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 2 Mar 2023 09:24:56 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44978 "EHLO
+        id S229969AbjCBPg2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 2 Mar 2023 10:36:28 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37348 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229468AbjCBOYz (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 2 Mar 2023 09:24:55 -0500
-Received: from foss.arm.com (foss.arm.com [217.140.110.172])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTP id 52E293669F;
-        Thu,  2 Mar 2023 06:24:54 -0800 (PST)
-Received: from usa-sjc-imap-foss1.foss.arm.com (unknown [10.121.207.14])
-        by usa-sjc-mx-foss1.foss.arm.com (Postfix) with ESMTP id 57E061FB;
-        Thu,  2 Mar 2023 06:25:37 -0800 (PST)
-Received: from FVFF77S0Q05N.cambridge.arm.com (FVFF77S0Q05N.cambridge.arm.com [10.1.26.133])
-        by usa-sjc-imap-foss1.foss.arm.com (Postfix) with ESMTPSA id 305DF3F587;
-        Thu,  2 Mar 2023 06:24:53 -0800 (PST)
-Date:   Thu, 2 Mar 2023 14:24:50 +0000
-From:   Mark Rutland <mark.rutland@arm.com>
-To:     Steven Rostedt <rostedt@goodmis.org>
-Cc:     linux-kernel@vger.kernel.org, linux-trace-kernel@vger.kernel.org,
-        Masami Hiramatsu <mhiramat@kernel.org>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        stable@vger.kernel.org
-Subject: Re: [PATCH 1/2] tracing: Do not let histogram values have some
- modifiers
-Message-ID: <ZACxsje6oGZWUs7m@FVFF77S0Q05N.cambridge.arm.com>
-References: <20230302010051.044209550@goodmis.org>
- <20230302020810.559462599@goodmis.org>
+        with ESMTP id S229940AbjCBPg1 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 2 Mar 2023 10:36:27 -0500
+Received: from mail-lf1-x12e.google.com (mail-lf1-x12e.google.com [IPv6:2a00:1450:4864:20::12e])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 44C623669F
+        for <stable@vger.kernel.org>; Thu,  2 Mar 2023 07:36:26 -0800 (PST)
+Received: by mail-lf1-x12e.google.com with SMTP id r27so22624015lfe.10
+        for <stable@vger.kernel.org>; Thu, 02 Mar 2023 07:36:26 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=linaro.org; s=google; t=1677771384;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date:message-id:reply-to;
+        bh=2skxjP7BUf3M+vL/Xs0pd7p3mFaPMienCoBwSMkX1P4=;
+        b=yAXM3clwa02STwV8+occXXG6D8d4YXdurxOxMl7mcOkXm1H8u68Xg2XQHWpr1pCM5b
+         Xej7iimsE3QYatrYMb+6bCnwZpmbF3uFEeqYkvwOHYK7BtO/pRhceH9clcTP/Bgxejby
+         2+AhI8tmtHpPs/dcHNBuY/1kigeMlXf416bP6gF/wWOM7rfZSBasKf9ZQllKN+3jc6pT
+         bg/FZmazyEAQ4WJxPagbDtTp955EFoDlfCNLtxksfOvvcJ0C21W0UCIVt4tY5PLDP7PV
+         JW1raU/0zJ7nHPHJ87kixs5Plm0+FOS8dyKdKF3GNZNKjLyP/CF6nKzHytlaxkORK0KF
+         c2wg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112; t=1677771384;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=2skxjP7BUf3M+vL/Xs0pd7p3mFaPMienCoBwSMkX1P4=;
+        b=xVcGX6FCnQ8GI4yCueCnVm4Ju8JEfu0wySK24KVliCu9Z5zQPpP9Oi3R1qoIR+1oTQ
+         hbQU2PS55s5Pbt4jI0GQ+UvYgD3NZj540ted0fXWB1e7Iwa9EHxpcZn4Xw+ZeYXeUoqp
+         J9/ntyupEpVIdy/xAZLavPCaVFjjVva2id4YE6veky0jxpmoTQeJMWgDLt5fly6kAPDX
+         N76j7M8WW6bO0wAZEnOlkKVLdfVyHrR7AzNDDZnEdQVUUk5MtdwAc70UW7p1ELjCi32t
+         rEYsMP482Da19XNNxJ7mnl7TFgPrqUsRBM8mNIyaP1kLDS4FN2J+IlxJZW+Q6bjwNupf
+         tt1Q==
+X-Gm-Message-State: AO0yUKUfQPQ7mMP9a/0kCWt3SOWsVDCdrK7TOUdbf/RZfSIQDmSb+WA0
+        hDsvJKWIh+AYNiljaGXgXSofUg8Nxn+TsQwd
+X-Google-Smtp-Source: AK7set+Jqeb3nj72ML3ccr7EIT/TCR54d4WT0pNWcYQQNRKHebYYqfo/YWX29+K4TOX5g+xDAKKw7g==
+X-Received: by 2002:ac2:548d:0:b0:4cb:3a60:65c3 with SMTP id t13-20020ac2548d000000b004cb3a6065c3mr2769014lfk.1.1677771384302;
+        Thu, 02 Mar 2023 07:36:24 -0800 (PST)
+Received: from ta1.c.googlers.com.com (61.215.228.35.bc.googleusercontent.com. [35.228.215.61])
+        by smtp.gmail.com with ESMTPSA id p17-20020a05651238d100b004db2978e330sm2170509lft.258.2023.03.02.07.36.23
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Thu, 02 Mar 2023 07:36:23 -0800 (PST)
+From:   Tudor Ambarus <tudor.ambarus@linaro.org>
+To:     stable@vger.kernel.org, tytso@mit.edu, adilger.kernel@dilger.ca
+Cc:     linux-ext4@vger.kernel.org, linux-kernel@vger.kernel.org,
+        joneslee@google.com, Tudor Ambarus <tudor.ambarus@linaro.org>
+Subject: [PATCH][for stable 5.{15, 10} 0/4] ext4: Fix kernel BUG in ext4_free_blocks
+Date:   Thu,  2 Mar 2023 15:36:06 +0000
+Message-Id: <20230302153610.1204653-1-tudor.ambarus@linaro.org>
+X-Mailer: git-send-email 2.40.0.rc0.216.gc4246ad0f0-goog
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20230302020810.559462599@goodmis.org>
-X-Spam-Status: No, score=-4.2 required=5.0 tests=BAYES_00,RCVD_IN_DNSWL_MED,
-        SPF_HELO_NONE,SPF_NONE autolearn=ham autolearn_force=no version=3.4.6
+Content-Transfer-Encoding: 8bit
+X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_NONE,
+        SPF_HELO_NONE,SPF_PASS autolearn=unavailable autolearn_force=no
+        version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-On Wed, Mar 01, 2023 at 08:00:52PM -0500, Steven Rostedt wrote:
-> From: "Steven Rostedt (Google)" <rostedt@goodmis.org>
-> 
-> Histogram values can not be strings, stacktraces, graphs, symbols,
-> syscalls, or grouped in buckets or log. Give an error if a value is set to
-> do so.
-> 
-> Note, the histogram code was not prepared to handle these modifiers for
-> histograms and caused a bug.
- 
-> Cc: stable@vger.kernel.org
-> Fixes: c6afad49d127f ("tracing: Add hist trigger 'sym' and 'sym-offset' modifiers")
-> Reported-by: Mark Rutland <mark.rutland@arm.com>
-> Signed-off-by: Steven Rostedt (Google) <rostedt@goodmis.org>
+Hi,
 
-Tested-by: Mark Rutland <mark.rutland@arm.com>
+This patch set is intended for stable/linux-5.{15, 10}.y. The patches
+applied cleanly without deviations from the original upstream patches.
+The last patch is fixing the bug reported at [1]. The other three are
+prerequisites for the last commit. I tested the patches and I confirm
+that the reproducer no longer complains on linux-5.{15, 10}.y. Older
+LTS kernels have more dependencies, let's fix these until I sort out
+what else should be backported for the older LTS kernels.
 
-I gave this a spin, and I see that the buckets modifier gerts rejected for
-hitcount, but is usable for other values as it should be:
+[1] LINK: https://syzkaller.appspot.com/bug?id=5266d464285a03cee9dbfda7d2452a72c3c2ae7c 
 
-| # echo 'p:copy_to_user __arch_copy_to_user n=$arg3' >> /sys/kernel/tracing/kprobe_events
-| # echo 'hist:keys=n:vals=hitcount.buckets=8:sort=hitcount' > /sys/kernel/tracing/events/kprobes/copy_to_user/trigger
-| sh: write error: Invalid argument
-| # echo 'hist:keys=n.buckets=8:vals=hitcount:sort=hitcount' > /sys/kernel/tracing/events/kprobes/copy_to_user/trigger
-| # cat /sys/kernel/tracing/events/kprobes/copy_to_user/hist
-| # event histogram
-| #
-| # trigger info: hist:keys=n.buckets=8:vals=hitcount:sort=hitcount:size=2048 [active]
-| #
-| 
-| { n: ~ 336-343 } hitcount:          1
-| { n: ~ 16-23 } hitcount:          2
-| { n: ~ 32-39 } hitcount:          2
-| { n: ~ 832-839 } hitcount:          3
-| { n: ~ 8-15 } hitcount:          3
-| { n: ~ 128-135 } hitcount:          5
-| { n: ~ 0-7 } hitcount:         57
-| 
-| Totals:
-|     Hits: 73
-|     Entries: 7
-|     Dropped: 0
+Cheers,
+ta
 
-Thanks,
-Mark.
+Lukas Czerner (1):
+  ext4: block range must be validated before use in ext4_mb_clear_bb()
 
-> ---
->  kernel/trace/trace_events_hist.c | 9 +++++++++
->  1 file changed, 9 insertions(+)
-> 
-> diff --git a/kernel/trace/trace_events_hist.c b/kernel/trace/trace_events_hist.c
-> index 89877a18f933..6e8ab726a7b5 100644
-> --- a/kernel/trace/trace_events_hist.c
-> +++ b/kernel/trace/trace_events_hist.c
-> @@ -4235,6 +4235,15 @@ static int __create_val_field(struct hist_trigger_data *hist_data,
->  		goto out;
->  	}
->  
-> +	/* Some types cannot be a value */
-> +	if (hist_field->flags & (HIST_FIELD_FL_GRAPH | HIST_FIELD_FL_PERCENT |
-> +				 HIST_FIELD_FL_BUCKET | HIST_FIELD_FL_LOG2 |
-> +				 HIST_FIELD_FL_SYM | HIST_FIELD_FL_SYM_OFFSET |
-> +				 HIST_FIELD_FL_SYSCALL | HIST_FIELD_FL_STACKTRACE)) {
-> +		hist_err(file->tr, HIST_ERR_BAD_FIELD_MODIFIER, errpos(field_str));
-> +		ret = -EINVAL;
-> +	}
-> +
->  	hist_data->fields[val_idx] = hist_field;
->  
->  	++hist_data->n_vals;
-> -- 
-> 2.39.1
+Ritesh Harjani (3):
+  ext4: refactor ext4_free_blocks() to pull out ext4_mb_clear_bb()
+  ext4: add ext4_sb_block_valid() refactored out of
+    ext4_inode_block_valid()
+  ext4: add strict range checks while freeing blocks
+
+ fs/ext4/block_validity.c |  26 +++--
+ fs/ext4/ext4.h           |   3 +
+ fs/ext4/mballoc.c        | 205 +++++++++++++++++++++++----------------
+ 3 files changed, 139 insertions(+), 95 deletions(-)
+
+-- 
+2.40.0.rc0.216.gc4246ad0f0-goog
+
