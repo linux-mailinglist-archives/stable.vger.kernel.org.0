@@ -2,75 +2,68 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id AF0C26A8347
-	for <lists+stable@lfdr.de>; Thu,  2 Mar 2023 14:10:38 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 05F126A8392
+	for <lists+stable@lfdr.de>; Thu,  2 Mar 2023 14:32:49 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229689AbjCBNKh (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 2 Mar 2023 08:10:37 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43476 "EHLO
+        id S229695AbjCBNcr (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 2 Mar 2023 08:32:47 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33590 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229487AbjCBNKg (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 2 Mar 2023 08:10:36 -0500
-Received: from mail-wr1-x429.google.com (mail-wr1-x429.google.com [IPv6:2a00:1450:4864:20::429])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4E9C2149B1
-        for <stable@vger.kernel.org>; Thu,  2 Mar 2023 05:10:35 -0800 (PST)
-Received: by mail-wr1-x429.google.com with SMTP id bw19so16435328wrb.13
-        for <stable@vger.kernel.org>; Thu, 02 Mar 2023 05:10:35 -0800 (PST)
+        with ESMTP id S229510AbjCBNcq (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 2 Mar 2023 08:32:46 -0500
+Received: from mail-vs1-xe33.google.com (mail-vs1-xe33.google.com [IPv6:2607:f8b0:4864:20::e33])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D4F013E636
+        for <stable@vger.kernel.org>; Thu,  2 Mar 2023 05:32:44 -0800 (PST)
+Received: by mail-vs1-xe33.google.com with SMTP id by13so4887422vsb.3
+        for <stable@vger.kernel.org>; Thu, 02 Mar 2023 05:32:44 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google; t=1677762634;
-        h=content-transfer-encoding:in-reply-to:from:references:cc:to
-         :content-language:subject:user-agent:mime-version:date:message-id
-         :from:to:cc:subject:date:message-id:reply-to;
-        bh=LTMb2uiAKQy8zkbJrBkzpMbRkO+dwt0YiEEiYQBT8oM=;
-        b=RQh0pRw3GZQXbuvLXDlP/waEUyZWHkYkc0rlKmxYZpkshO94bQ7StbBQ1MtI3m2kDU
-         KzH1v7ZpIiP6QCzqx4vsx2CV8F9WfIPKzeFrYTe7sCiXIVlHgAuLatKo0cjH+Oy3g927
-         PmrQkT9MQv12j2neob8toCo4kW/kb+xG/bQAbNNIDLAlN2jCDZ3Ag3ILQYl8ynlogXXO
-         kjLhWz4Z00knAmyth4KuQYshKND2D1o4hOaJw4KnALM7ucc1PjbfA0GKF9JRljTSuZZe
-         UrV4v7degPV2NP3gxGd/BRB3oGSoGZqYEn4i7kFx/cPiVwbvyuDCaOtZLtXJcM3BY3Eq
-         po9Q==
+        d=linaro.org; s=google;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=e+JOa9pZ7+ghAgpItfrprFVqlWXmHMHYenIGtlQBzKw=;
+        b=F2k5RDZeoIE5VJbWxYIWjjFQMBpubb9nOElNeKL6kxhHkh+1ag7CjXfXi9IkwbNaWC
+         7h4n5E9dSML3Oy9qh3EQhg/yzXRGsLMgc3U82wwuyvsyjhSDS51YM962HebyssumV59V
+         KH6NnWO7EVVa/LoLb+vKEYM6427Vr2RLBGLyYJmdBTTSgAI7oNMmy/2jDjX6/uy6nxSi
+         0xMphofecLvx3/bJAKv4G7viTet8/aUB0+eXZadXdimALk3R+ifpT8Y3bZkea5yKFtqa
+         Mkob0wLPQWTUEcE4UUvj+pcRwl7i2vW2Vu7Nq/qfGPztYMXTBZweVckdx7bFb/kRZQ1R
+         h1Tg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112; t=1677762634;
-        h=content-transfer-encoding:in-reply-to:from:references:cc:to
-         :content-language:subject:user-agent:mime-version:date:message-id
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=LTMb2uiAKQy8zkbJrBkzpMbRkO+dwt0YiEEiYQBT8oM=;
-        b=rOkDP577jUkMFKq4DMVfCg5eIA82I8WEDHTFJ7EIuyau/uJ/Oiu5NI6dEf26Erj2uG
-         MF3TAILvfEr4m/oALGsxCXJL9oyoHlLx94DlTxyq5P4XKXK6HG1QKfKa7igGvxr4TH3G
-         NGySUAYo1sm50ztA+ECdxOJcOTA8sT3wACNdWTYewp+9gLgtOV8X7Ybhor0wnui4kvUB
-         PCIRIf41PZSqNty7/O14zn5nCQIU5Unz/LmzGdlvsISgM7CvhHZYq3NQ5T9gidsLih8L
-         48bY1N3+eFBFQ1RnJNz4EKxamnkjmBWdYcjUujNefGlPWby/WyMcFwqhBR+PKHV/PPZW
-         xbcA==
-X-Gm-Message-State: AO0yUKWiQF6G1Wvvos0txsXm7fcn7nLixlwzY59m3bqidO3N8rwJohro
-        VoTdb9DKOR9dvFVdUqmkb2Az7g==
-X-Google-Smtp-Source: AK7set/UY2mu+bVvyesOlReohTFVfVRqwfeXA8qbg0d09zP+0hh61PBsHLM+AjPQwB0/GuENcMxemw==
-X-Received: by 2002:a5d:4dd2:0:b0:2cb:c66d:6ac1 with SMTP id f18-20020a5d4dd2000000b002cbc66d6ac1mr7025325wru.3.1677762633759;
-        Thu, 02 Mar 2023 05:10:33 -0800 (PST)
-Received: from [192.168.1.195] ([5.133.47.210])
-        by smtp.googlemail.com with ESMTPSA id t14-20020adfe44e000000b002c5503a8d21sm15622256wrm.70.2023.03.02.05.10.32
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Thu, 02 Mar 2023 05:10:33 -0800 (PST)
-Message-ID: <ee0a09bd-831b-9ac4-7b9c-d584497cd7a0@linaro.org>
-Date:   Thu, 2 Mar 2023 13:10:30 +0000
+        d=1e100.net; s=20210112;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=e+JOa9pZ7+ghAgpItfrprFVqlWXmHMHYenIGtlQBzKw=;
+        b=u9hp+5mU6F9CGldwNetQvQY08/jAB1PzCUUEkPywYMIP7KYVO4dMoj8w294n/ul5RX
+         Pcta6ag3DGJScnLPEZZDkdGa99oNV6k61ZuZzRo/OvypGR9tswwkRCDLgk/Gn+IO3i6h
+         LVxBBZy3mVGKptQQz0F1Tm2KPK+Km6AgAoJlDxlaGbK6zM4AEB1RYJTHpnkG94FmHbke
+         WLVmqNZIVDyLVci7+jy/O3K7Gu+RmUQmzVrMUrv3yb2C7TOhFLUqnh6gXYdSDuYek7Cw
+         a8JgmjNoFpRMC3fIwmLeez6Co3DbTAnmGZzsLR4WucE4JM93kF2y1xFVkzR3RsJXp7Ti
+         CsMw==
+X-Gm-Message-State: AO0yUKVzkycPL/+Z9hd0C9K4QJ4IC1S/rmA6snprs6zB511h4NDLnwVF
+        yGuzugQCPuCsTXhCqXkEofolR0OdI+RhJe3nYME5fw==
+X-Google-Smtp-Source: AK7set8PXR+poX2YcXj7iCgYydTF+Ao1o9SGyiLg8mU8hDre6+aCk1K8aMCxotCIKFtKAoNrlqhM17w7h8cWXXNfNOc=
+X-Received: by 2002:a67:f6d5:0:b0:41f:641c:f775 with SMTP id
+ v21-20020a67f6d5000000b0041f641cf775mr6258638vso.3.1677763963739; Thu, 02 Mar
+ 2023 05:32:43 -0800 (PST)
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
- Thunderbird/102.7.1
-Subject: Re: [PATCH] ASoC: qcom: q6prm: fix incorrect clk_root passed to ADSP
-Content-Language: en-US
-To:     Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>,
-        Banajit Goswami <bgoswami@quicinc.com>,
-        Liam Girdwood <lgirdwood@gmail.com>,
-        Mark Brown <broonie@kernel.org>,
-        Jaroslav Kysela <perex@perex.cz>,
-        Takashi Iwai <tiwai@suse.com>, alsa-devel@alsa-project.org,
-        linux-kernel@vger.kernel.org
-Cc:     stable@vger.kernel.org
-References: <20230302122908.221398-1-krzysztof.kozlowski@linaro.org>
-From:   Srinivas Kandagatla <srinivas.kandagatla@linaro.org>
-In-Reply-To: <20230302122908.221398-1-krzysztof.kozlowski@linaro.org>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Spam-Status: No, score=-2.2 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,NICE_REPLY_A,RCVD_IN_DNSWL_NONE,
+References: <20230301180652.658125575@linuxfoundation.org>
+In-Reply-To: <20230301180652.658125575@linuxfoundation.org>
+From:   Naresh Kamboju <naresh.kamboju@linaro.org>
+Date:   Thu, 2 Mar 2023 19:02:31 +0530
+Message-ID: <CA+G9fYt_2bZ3AXe49PkGF3s-WLY4=+oDa20dYR5YHZr+tV1haQ@mail.gmail.com>
+Subject: Re: [PATCH 5.15 00/22] 5.15.97-rc1 review
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc:     stable@vger.kernel.org, patches@lists.linux.dev,
+        linux-kernel@vger.kernel.org, torvalds@linux-foundation.org,
+        akpm@linux-foundation.org, linux@roeck-us.net, shuah@kernel.org,
+        patches@kernelci.org, lkft-triage@lists.linaro.org, pavel@denx.de,
+        jonathanh@nvidia.com, f.fainelli@gmail.com,
+        sudipm.mukherjee@gmail.com, srw@sladewatkins.net, rwarsow@gmx.de
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
+X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_NONE,
         SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -78,44 +71,174 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
+On Wed, 1 Mar 2023 at 23:41, Greg Kroah-Hartman
+<gregkh@linuxfoundation.org> wrote:
+>
+> This is the start of the stable review cycle for the 5.15.97 release.
+> There are 22 patches in this series, all will be posted as a response
+> to this one.  If anyone has any issues with these being applied, please
+> let me know.
+>
+> Responses should be made by Fri, 03 Mar 2023 18:06:43 +0000.
+> Anything received after that time might be too late.
+>
+> The whole patch series can be found in one patch at:
+>         https://www.kernel.org/pub/linux/kernel/v5.x/stable-review/patch-=
+5.15.97-rc1.gz
+> or in the git tree and branch at:
+>         git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable=
+-rc.git linux-5.15.y
+> and the diffstat can be found below.
+>
+> thanks,
+>
+> greg k-h
 
+Results from Linaro=E2=80=99s test farm.
+No regressions on arm64, arm, x86_64, and i386.
 
-On 02/03/2023 12:29, Krzysztof Kozlowski wrote:
-> The second to last argument is clk_root (root of the clock), however the
-> code called q6prm_request_lpass_clock() with clk_attr instead
-> (copy-paste error).  This effectively was passing value of 1 as root
-> clock which worked on some of the SoCs (e.g. SM8450) but fails on
-> others, depending on the ADSP.  For example on SM8550 this "1" as root
-> clock is not accepted and results in errors coming from ADSP.
-> 
-> Fixes: 2f20640491ed ("ASoC: qdsp6: qdsp6: q6prm: handle clk disable correctly")
-> Cc: <stable@vger.kernel.org>
-> Signed-off-by: Krzysztof Kozlowski <krzysztof.kozlowski@linaro.org>
+Tested-by: Linux Kernel Functional Testing <lkft@linaro.org>
 
-Nice Find, Tested on sc8280xp
+## Build
+* kernel: 5.15.97-rc1
+* git: https://gitlab.com/Linaro/lkft/mirrors/stable/linux-stable-rc
+* git branch: linux-5.15.y
+* git commit: 6e657625508dd663e1229f6f6677c578cf36755c
+* git describe: v5.15.96-23-g6e657625508d
+* test details:
+https://qa-reports.linaro.org/lkft/linux-stable-rc-linux-5.15.y/build/v5.15=
+.96-23-g6e657625508d
 
-Reviewed-by: Srinivas Kandagatla <srinivas.kandagatla@linaro.org>
-Tested-by: Srinivas Kandagatla <srinivas.kandagatla@linaro.org>
+## Test Regressions (compared to v5.15.96)
 
+## Metric Regressions (compared to v5.15.96)
 
---srini
-> ---
->   sound/soc/qcom/qdsp6/q6prm.c | 4 ++--
->   1 file changed, 2 insertions(+), 2 deletions(-)
-> 
-> diff --git a/sound/soc/qcom/qdsp6/q6prm.c b/sound/soc/qcom/qdsp6/q6prm.c
-> index 8aa1a213bfb7..c1dc5bae715a 100644
-> --- a/sound/soc/qcom/qdsp6/q6prm.c
-> +++ b/sound/soc/qcom/qdsp6/q6prm.c
-> @@ -183,9 +183,9 @@ int q6prm_set_lpass_clock(struct device *dev, int clk_id, int clk_attr, int clk_
->   			  unsigned int freq)
->   {
->   	if (freq)
-> -		return q6prm_request_lpass_clock(dev, clk_id, clk_attr, clk_attr, freq);
-> +		return q6prm_request_lpass_clock(dev, clk_id, clk_attr, clk_root, freq);
->   
-> -	return q6prm_release_lpass_clock(dev, clk_id, clk_attr, clk_attr, freq);
-> +	return q6prm_release_lpass_clock(dev, clk_id, clk_attr, clk_root, freq);
->   }
->   EXPORT_SYMBOL_GPL(q6prm_set_lpass_clock);
->   
+## Test Fixes (compared to v5.15.96)
+
+## Metric Fixes (compared to v5.15.96)
+
+## Test result summary
+total: 139666, pass: 116363, fail: 4228, skip: 18769, xfail: 306
+
+## Build Summary
+* arc: 5 total, 5 passed, 0 failed
+* arm: 115 total, 114 passed, 1 failed
+* arm64: 42 total, 40 passed, 2 failed
+* i386: 33 total, 30 passed, 3 failed
+* mips: 27 total, 26 passed, 1 failed
+* parisc: 8 total, 8 passed, 0 failed
+* powerpc: 27 total, 26 passed, 1 failed
+* riscv: 11 total, 11 passed, 0 failed
+* s390: 12 total, 11 passed, 1 failed
+* sh: 14 total, 12 passed, 2 failed
+* sparc: 8 total, 8 passed, 0 failed
+* x86_64: 36 total, 34 passed, 2 failed
+
+## Test suites summary
+* boot
+* fwts
+* igt-gpu-tools
+* kselftest-android
+* kselftest-arm64
+* kselftest-breakpoints
+* kselftest-capabilities
+* kselftest-cgroup
+* kselftest-clone3
+* kselftest-core
+* kselftest-cpu-hotplug
+* kselftest-cpufreq
+* kselftest-drivers-dma-buf
+* kselftest-efivarfs
+* kselftest-filesystems
+* kselftest-filesystems-binderfs
+* kselftest-firmware
+* kselftest-fpu
+* kselftest-ftrace
+* kselftest-futex
+* kselftest-gpio
+* kselftest-intel_pstate
+* kselftest-ipc
+* kselftest-ir
+* kselftest-kcmp
+* kselftest-kexec
+* kselftest-kvm
+* kselftest-lib
+* kselftest-livepatch
+* kselftest-membarrier
+* kselftest-memfd
+* kselftest-memory-hotplug
+* kselftest-mincore
+* kselftest-mount
+* kselftest-mqueue
+* kselftest-net
+* kselftest-net-forwarding
+* kselftest-net-mptcp
+* kselftest-netfilter
+* kselftest-nsfs
+* kselftest-openat2
+* kselftest-pid_namespace
+* kselftest-pidfd
+* kselftest-proc
+* kselftest-pstore
+* kselftest-ptrace
+* kselftest-rseq
+* kselftest-rtc
+* kselftest-seccomp
+* kselftest-sigaltstack
+* kselftest-size
+* kselftest-splice
+* kselftest-static_keys
+* kselftest-sync
+* kselftest-sysctl
+* kselftest-tc-testing
+* kselftest-timens
+* kselftest-timers
+* kselftest-tmpfs
+* kselftest-tpm2
+* kselftest-user
+* kselftest-vm
+* kselftest-x86
+* kselftest-zram
+* kunit
+* kvm-unit-tests
+* libgpiod
+* libhugetlbfs
+* log-parser-boot
+* log-parser-test
+* ltp-cap_bounds
+* ltp-commands
+* ltp-containers
+* ltp-controllers
+* ltp-cpuhotplug
+* ltp-crypto
+* ltp-cve
+* ltp-dio
+* ltp-fcntl-locktests
+* ltp-filecaps
+* ltp-fs
+* ltp-fs_bind
+* ltp-fs_perms_simple
+* ltp-fsx
+* ltp-hugetlb
+* ltp-io
+* ltp-ipc
+* ltp-math
+* ltp-mm
+* ltp-nptl
+* ltp-open-posix-tests
+* ltp-pty
+* ltp-sched
+* ltp-securebits
+* ltp-smoke
+* ltp-syscalls
+* ltp-tracing
+* network-basic-tests
+* packetdrill
+* perf
+* rcutorture
+* v4l2-compliance
+* vdso
+
+--
+Linaro LKFT
+https://lkft.linaro.org
