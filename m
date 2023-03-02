@@ -2,103 +2,81 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 920146A8BD4
-	for <lists+stable@lfdr.de>; Thu,  2 Mar 2023 23:30:49 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id EB4616A8B85
+	for <lists+stable@lfdr.de>; Thu,  2 Mar 2023 23:09:40 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230099AbjCBWas (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 2 Mar 2023 17:30:48 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48256 "EHLO
+        id S229600AbjCBWJk (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 2 Mar 2023 17:09:40 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53828 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230088AbjCBWap (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 2 Mar 2023 17:30:45 -0500
-Received: from mail-ot1-x32b.google.com (mail-ot1-x32b.google.com [IPv6:2607:f8b0:4864:20::32b])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id C85633432D
-        for <stable@vger.kernel.org>; Thu,  2 Mar 2023 14:30:43 -0800 (PST)
-Received: by mail-ot1-x32b.google.com with SMTP id f19-20020a9d5f13000000b00693ce5a2f3eso474601oti.8
-        for <stable@vger.kernel.org>; Thu, 02 Mar 2023 14:30:43 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google; t=1677796243;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:from:to:cc:subject:date:message-id:reply-to;
-        bh=0HDohv0lvkUtSClkIwD4MKqx28WrKdTpdtBDDMSSGgA=;
-        b=QK5ECiWqmMBIYChjTCoV1plMlRsQHILLL5Qy/L0tFkz0T5B+516OiUGoN1oGnwHkJp
-         WCLdYjxUmUl5GZEvc/9mcDLq5c+g8M/jysvcni8fKq7E/pz9KIov8jcUJWg+qDhgK8Il
-         2Hu0fe6rlSaC3WPcqiNxNajahwo3oodAJWra7MNllB9RHiP+WLzu0mD42MALpSlywSkK
-         HAlfblwrkejJHyXDPE5lfTBiMuWq01PLafhDpN1AxExPj6o90mZxPK7zvayQBQ2Iau31
-         D7Kb+a0aH7UXGY+LSsIHsMtjN2Ge5fE+7aJ4nFL4V++G06l+xjwxEJYqgD6k3eCF4lme
-         eDpg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112; t=1677796243;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:x-gm-message-state:from:to:cc:subject:date:message-id
-         :reply-to;
-        bh=0HDohv0lvkUtSClkIwD4MKqx28WrKdTpdtBDDMSSGgA=;
-        b=H3HnAh+llm3RbwJD4y7+TJxgmvE8myaWnQrSGAVcnBqFrdiN6o+ndNEFdcb9o9fJZC
-         UhuBPE1ulQOxgYoZ8VRg70+URJzZDbcIGmFm/5iXalTg6G1TQrQH+ZcwJts7llmRtE5c
-         Fs0E3deJ39g2QUQG16Y5/iilr3dGqVyoIK1Oe9VGmAJDO+3pMqC5IszChv5nHvBY3mI/
-         DM18+b+IwLUvPT4q53pajvFwPt7a2938vSktLZxnvxlPa5dRtS/QkYsC34iOV1xsoRWN
-         0BIuHwPB/906lgrfpviyKWZs2tlnuja0PW5mNrq3+nzVYRpNBNjNfXMK1AAHV0zrkKN7
-         Py9g==
-X-Gm-Message-State: AO0yUKUoIGUA0W0ci37VLWoVE6rOxV18jXPMKbbnXRjWYTTzfoUO04Vn
-        M+o8C+Gp+GH+CYmTo5Oo+atHLg==
-X-Google-Smtp-Source: AK7set8aOSjPE5sh5YVuAen/6NBD9XPC1GJYtNeoPHfloJ8wL4Ac8gg9pWvda4YzAQAMyKKCz0oYPg==
-X-Received: by 2002:a9d:4e5:0:b0:68d:5b43:5ac9 with SMTP id 92-20020a9d04e5000000b0068d5b435ac9mr6213905otm.4.1677796243123;
-        Thu, 02 Mar 2023 14:30:43 -0800 (PST)
-Received: from fedora.attlocal.net (69-109-179-158.lightspeed.dybhfl.sbcglobal.net. [69.109.179.158])
-        by smtp.gmail.com with ESMTPSA id a26-20020a056830101a00b00693ea7bfdc2sm346095otp.76.2023.03.02.14.30.41
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 02 Mar 2023 14:30:42 -0800 (PST)
-From:   William Breathitt Gray <william.gray@linaro.org>
-To:     linus.walleij@linaro.org, brgl@bgdev.pl
-Cc:     linux-gpio@vger.kernel.org, linux-kernel@vger.kernel.org,
-        techsupport@winsystems.com, stable@vger.kernel.org,
-        William Breathitt Gray <william.gray@linaro.org>,
-        Paul Demetrotion <pdemetrotion@winsystems.com>
-Subject: [RESEND] gpio: ws16c48: Fix off-by-one error in WS16C48 resource region extent
-Date:   Tue, 28 Feb 2023 03:17:24 -0500
-Message-Id: <20230228081724.94786-1-william.gray@linaro.org>
-X-Mailer: git-send-email 2.39.2
+        with ESMTP id S229565AbjCBWJj (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 2 Mar 2023 17:09:39 -0500
+Received: from mga17.intel.com (mga17.intel.com [192.55.52.151])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 43DBE9750
+        for <stable@vger.kernel.org>; Thu,  2 Mar 2023 14:09:38 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
+  t=1677794978; x=1709330978;
+  h=date:from:to:cc:subject:message-id:mime-version:
+   in-reply-to;
+  bh=3BAXfAVqk1f5v8SC4ZDHFMqkj906qjSEk4yxiRB1IeY=;
+  b=MUSw4er9y/oXCwq7BhRvQSNNI2keRSIrzB+v28Fv/cqkX++ZOz4sMpNl
+   XWhvTsCQAzgpk0hVUANYUC518dZMGA9whm0zTwClcJtOmTWokL8WaA4ye
+   16ga8CoxVfL0G1IMcIRBL8Z5SPv6wBgQ12q3XQi0gk+gkwsGdi9xNCBqp
+   eYQIbwkRr2vUoS1wN5PBymlDFeIEAHQUWa4BmlM4E451wLXYpS4wOlYCF
+   Y+WfFRxDXgLsT0y1hrNLAzxGwizXOXx6x2Rp8kWIOkzhElHQPf4jt/0OG
+   0SnmNXYBddPTMQUVvB3PoBooYu5l0BkxZNO6MK9zJ0JmRdx/pgENo8mKR
+   w==;
+X-IronPort-AV: E=McAfee;i="6500,9779,10637"; a="315278330"
+X-IronPort-AV: E=Sophos;i="5.98,228,1673942400"; 
+   d="scan'208";a="315278330"
+Received: from fmsmga005.fm.intel.com ([10.253.24.32])
+  by fmsmga107.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 02 Mar 2023 14:09:37 -0800
+X-ExtLoop1: 1
+X-IronPort-AV: E=McAfee;i="6500,9779,10637"; a="1004330752"
+X-IronPort-AV: E=Sophos;i="5.98,228,1673942400"; 
+   d="scan'208";a="1004330752"
+Received: from lkp-server01.sh.intel.com (HELO 776573491cc5) ([10.239.97.150])
+  by fmsmga005.fm.intel.com with ESMTP; 02 Mar 2023 14:09:36 -0800
+Received: from kbuild by 776573491cc5 with local (Exim 4.96)
+        (envelope-from <lkp@intel.com>)
+        id 1pXr7H-0000ve-3C;
+        Thu, 02 Mar 2023 22:09:36 +0000
+Date:   Fri, 3 Mar 2023 06:08:40 +0800
+From:   kernel test robot <lkp@intel.com>
+To:     William Breathitt Gray <william.gray@linaro.org>
+Cc:     stable@vger.kernel.org, oe-kbuild-all@lists.linux.dev
+Subject: Re: [PATCH] gpio: ws16c48: Fix off-by-one error in WS16C48 resource
+ region extent
+Message-ID: <ZAEeaAajyZJf77pG@42ed42284782>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_NONE,
-        SPF_HELO_NONE,SPF_PASS autolearn=unavailable autolearn_force=no
-        version=3.4.6
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20230228081126.94280-1-william.gray@linaro.org>
+X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
+        SPF_HELO_NONE,SPF_NONE autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-The WinSystems WS16C48 I/O address region spans offsets 0x0 through 0xA,
-which is a total of 11 bytes. Fix the WS16C48_EXTENT define to the
-correct value of 11 so that access to necessary device registers is
-properly requested in the ws16c48_probe() callback by the
-devm_request_region() function call.
+Hi,
 
-Fixes: 2c05a0f29f41 ("gpio: ws16c48: Implement and utilize register structures")
-Cc: stable@vger.kernel.org
-Cc: Paul Demetrotion <pdemetrotion@winsystems.com>
-Signed-off-by: William Breathitt Gray <william.gray@linaro.org>
----
- drivers/gpio/gpio-ws16c48.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+Thanks for your patch.
 
-diff --git a/drivers/gpio/gpio-ws16c48.c b/drivers/gpio/gpio-ws16c48.c
-index e73885a4dc32..afb42a8e916f 100644
---- a/drivers/gpio/gpio-ws16c48.c
-+++ b/drivers/gpio/gpio-ws16c48.c
-@@ -18,7 +18,7 @@
- #include <linux/spinlock.h>
- #include <linux/types.h>
- 
--#define WS16C48_EXTENT 10
-+#define WS16C48_EXTENT 11
- #define MAX_NUM_WS16C48 max_num_isa_dev(WS16C48_EXTENT)
- 
- static unsigned int base[MAX_NUM_WS16C48];
+FYI: kernel test robot notices the stable kernel rule is not satisfied.
 
-base-commit: 4827aae061337251bb91801b316157a78b845ec7
+Rule: 'Cc: stable@vger.kernel.org' or 'commit <sha1> upstream.'
+Subject: [PATCH] gpio: ws16c48: Fix off-by-one error in WS16C48 resource region extent
+Link: https://lore.kernel.org/stable/20230228081126.94280-1-william.gray%40linaro.org
+
+The check is based on https://www.kernel.org/doc/html/latest/process/stable-kernel-rules.html
+
 -- 
-2.39.2
+0-DAY CI Kernel Test Service
+https://github.com/intel/lkp-tests
+
+
 
