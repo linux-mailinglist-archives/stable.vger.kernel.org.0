@@ -2,76 +2,80 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 5E56C6A7963
-	for <lists+stable@lfdr.de>; Thu,  2 Mar 2023 03:16:14 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 419D96A796F
+	for <lists+stable@lfdr.de>; Thu,  2 Mar 2023 03:20:45 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229600AbjCBCQN (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Wed, 1 Mar 2023 21:16:13 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:45540 "EHLO
+        id S229844AbjCBCUn (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Wed, 1 Mar 2023 21:20:43 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48922 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229462AbjCBCQM (ORCPT
-        <rfc822;stable@vger.kernel.org>); Wed, 1 Mar 2023 21:16:12 -0500
-Received: from mail-pj1-x102f.google.com (mail-pj1-x102f.google.com [IPv6:2607:f8b0:4864:20::102f])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D265C22A22;
-        Wed,  1 Mar 2023 18:16:11 -0800 (PST)
-Received: by mail-pj1-x102f.google.com with SMTP id y2so15360969pjg.3;
-        Wed, 01 Mar 2023 18:16:11 -0800 (PST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20210112; t=1677723371;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
-        bh=2VUOzZC8E/+/G5TdOBz+TuCIYP0geCPHncFQohnP1XU=;
-        b=FG8tS/nwvLR95cSO1ypWRXq2lEU/1L27rihfn+18Giib1dxqL8ajD2Xz6W6N160iaA
-         C771+TUlxxzJzoYh9ROClGNMtMyzcM0C/vzE7xSPiZYmroFE+kvSHjCVP+AqPbDfHeqG
-         vEjdJUCBv9Xp9VhTEtVHRItpeN6PCDppfMyRVlpLXwfw4eCUIKDGzJHaC/ym+FHfLJSg
-         2h6XAROXUXlOy+bSSD6WD+OhoeK4EnMgOZJ0uV6V27F1OcEat5Zi5ZEjLr//+RjuHmER
-         G2k7lAu+8GXBO0dxj0YXJLFlQcrHQhq99VYaFvCh6e4D2PlsKnXBUqFvP1ylR6L2qYwn
-         0jgA==
+        with ESMTP id S229806AbjCBCUm (ORCPT
+        <rfc822;stable@vger.kernel.org>); Wed, 1 Mar 2023 21:20:42 -0500
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A16C0532B7
+        for <stable@vger.kernel.org>; Wed,  1 Mar 2023 18:19:55 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+        s=mimecast20190719; t=1677723594;
+        h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+         to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+         content-transfer-encoding:content-transfer-encoding:
+         in-reply-to:in-reply-to:references:references;
+        bh=dWZgyA1HWsAha7bzZoO1xP10Gw4rBTI1UXsZ3cZm+YQ=;
+        b=Tgzw94Uf0ZW8kbQizr27sX/9moDXimskyOgSULYOzJSRaT51aDMBR7DbhQyD0igGOaVsve
+        mNF5nvT19OLP975/VblPlhEjhc8x9VqFvOi9CktA7ZT7oHIfHBZS20CPQ2Y0r/G3EVHuEn
+        UnvtoYeG8lpEeapHUgy0jDg0ddKOOuk=
+Received: from mail-pf1-f197.google.com (mail-pf1-f197.google.com
+ [209.85.210.197]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_128_GCM_SHA256) id
+ us-mta-474-MLe7rSD5MsCMeHjB97ISqw-1; Wed, 01 Mar 2023 21:19:53 -0500
+X-MC-Unique: MLe7rSD5MsCMeHjB97ISqw-1
+Received: by mail-pf1-f197.google.com with SMTP id t12-20020aa7938c000000b005ac41980708so7809234pfe.7
+        for <stable@vger.kernel.org>; Wed, 01 Mar 2023 18:19:53 -0800 (PST)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112; t=1677723371;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=2VUOzZC8E/+/G5TdOBz+TuCIYP0geCPHncFQohnP1XU=;
-        b=mNmMiobuKK/rXRMwpf69Ch6kBIA71QmksTLqSqYGjXZ7hNrOqS9Xa+H2RKosXUacXf
-         hX+LCTQzGrJXHvHuyrI7TAibDdEdjqbjymimuCMKbsYrE227eD8xRb1qnPDdXUDCxg+T
-         8KkGW7ebH+vsfORB8pVnqBFgNsPQs+nidciQAYJMmV6DTMqhhgndQaS9QmLSps5iaVFw
-         iYzTPlWCJqA2cMab7AE1HuwcyMJjWWrsxAP3gdwa8aBnpMHgJOv8AROaqw1BaIdZk0+/
-         boLue2/e5uYLTOiH62exGfeFcUPol6hh8sMsARhz/CqjoYEmTWIw/IB/yYXPjgU/bftn
-         4oxA==
-X-Gm-Message-State: AO0yUKXVrmRs2xu2Ita9k+3oxeeSlxOq0ke9EK7yge6SDl2lZnMgrvMM
-        8W7ig9rJjSsf+oDpfCw4rug=
-X-Google-Smtp-Source: AK7set9CosDEYV+jEI02TGKSzccsaBi6Jl2hlONAUUUBHRiZaApNZ5arudmNgY3tZrsO+pFa7P3K/w==
-X-Received: by 2002:a17:902:c401:b0:19d:297:f30b with SMTP id k1-20020a170902c40100b0019d0297f30bmr10534352plk.19.1677723371216;
-        Wed, 01 Mar 2023 18:16:11 -0800 (PST)
-Received: from debian.me (subs32-116-206-28-6.three.co.id. [116.206.28.6])
-        by smtp.gmail.com with ESMTPSA id w2-20020a170902d70200b001933b4b1a49sm9081758ply.183.2023.03.01.18.16.09
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 01 Mar 2023 18:16:10 -0800 (PST)
-Received: by debian.me (Postfix, from userid 1000)
-        id 63B96105DB0; Thu,  2 Mar 2023 09:16:04 +0700 (WIB)
-Date:   Thu, 2 Mar 2023 09:16:02 +0700
-From:   Bagas Sanjaya <bagasdotme@gmail.com>
-To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        stable@vger.kernel.org
-Cc:     patches@lists.linux.dev, linux-kernel@vger.kernel.org,
-        torvalds@linux-foundation.org, akpm@linux-foundation.org,
-        linux@roeck-us.net, shuah@kernel.org, patches@kernelci.org,
-        lkft-triage@lists.linaro.org, pavel@denx.de, jonathanh@nvidia.com,
-        f.fainelli@gmail.com, sudipm.mukherjee@gmail.com,
-        srw@sladewatkins.net, rwarsow@gmx.de
-Subject: Re: [PATCH 6.2 00/16] 6.2.2-rc1 review
-Message-ID: <ZAAG4uXu3hfbEIje@debian.me>
-References: <20230301180653.263532453@linuxfoundation.org>
+        d=1e100.net; s=20210112; t=1677723592;
+        h=content-transfer-encoding:in-reply-to:from:references:cc:to
+         :content-language:subject:user-agent:mime-version:date:message-id
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
+        bh=dWZgyA1HWsAha7bzZoO1xP10Gw4rBTI1UXsZ3cZm+YQ=;
+        b=Z3EDaG3Z9bikYEkx5Ucs5C9FEVe0HtTYaCYWhzCrRe8wK6imp/Yh3Xp1cQ/i92elKt
+         6zBNDT9QsUOW2Npm3/gD7MIndh+iDZ2vly+rIDkqWXarjksjOY2OJn9wq+kTwthLlizQ
+         RV5rSlGz5otGPyWBL7AmK0x5PUlLbA9/gnAduMpmN1kUVDoVBNC/1wB/6Fw8jAFguECN
+         ZOVDH5AtoeW6s3e8PWq8mkqxlMIE/U6OeEBc0opfwr2LNN0SpRYTcgMy7g0AkB4C+PJc
+         7UsTJT+Uyv97xFpufo6r+azIcCJ17D0aEXuVgUTOhmL+nFt1jIhQDrYAaaz4kU6HNEch
+         Z+qQ==
+X-Gm-Message-State: AO0yUKXoWpq+Pm8gIdjpW6uWYqXJnsgb3sbJZ1UtMhJkcgtI0/n2ndGj
+        6PbslYgNsNv0Q714bcU2LHte8K6VhldFNWv0S6srycKKQEHTaB2Ca9SMTPIS5v/v4EfTFV2dWNV
+        ilwEQQwnM8pcJZYc3
+X-Received: by 2002:a17:902:e54f:b0:19d:ab83:ec70 with SMTP id n15-20020a170902e54f00b0019dab83ec70mr10236914plf.45.1677723592489;
+        Wed, 01 Mar 2023 18:19:52 -0800 (PST)
+X-Google-Smtp-Source: AK7set9Af82dngybkI+6/rqJHkqK8CxpHzin5Bu0VijckfAh+RlSTmk78DY/55d70DgDg49eBfq4/w==
+X-Received: by 2002:a17:902:e54f:b0:19d:ab83:ec70 with SMTP id n15-20020a170902e54f00b0019dab83ec70mr10236895plf.45.1677723592181;
+        Wed, 01 Mar 2023 18:19:52 -0800 (PST)
+Received: from [10.72.12.72] ([209.132.188.80])
+        by smtp.gmail.com with ESMTPSA id c4-20020a170902d90400b00198ac2769aesm9000332plz.135.2023.03.01.18.19.48
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Wed, 01 Mar 2023 18:19:51 -0800 (PST)
+Message-ID: <6627386e-0f7e-c23f-0589-cd5b22384e43@redhat.com>
+Date:   Thu, 2 Mar 2023 10:19:46 +0800
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha512;
-        protocol="application/pgp-signature"; boundary="v9pCEYeFrmhTjDUx"
-Content-Disposition: inline
-In-Reply-To: <20230301180653.263532453@linuxfoundation.org>
-X-Spam-Status: No, score=-0.6 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,FREEMAIL_FROM,
-        RCVD_IN_DNSWL_NONE,RCVD_IN_SORBS_WEB,SPF_HELO_NONE,SPF_PASS
-        autolearn=no autolearn_force=no version=3.4.6
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
+ Thunderbird/102.6.0
+Subject: Re: [PATCH v2] ceph: do not print the whole xattr value if it's too
+ long
+Content-Language: en-US
+To:     Ilya Dryomov <idryomov@gmail.com>
+Cc:     ceph-devel@vger.kernel.org, jlayton@kernel.org, lhenriques@suse.de,
+        vshankar@redhat.com, mchangir@redhat.com, stable@vger.kernel.org
+References: <20230301011918.64629-1-xiubli@redhat.com>
+ <CAOi1vP8i6EY-m-bGDNp5QhmHDepvgCAQ1FTnySVg7Bb=6h5uqw@mail.gmail.com>
+From:   Xiubo Li <xiubli@redhat.com>
+In-Reply-To: <CAOi1vP8i6EY-m-bGDNp5QhmHDepvgCAQ1FTnySVg7Bb=6h5uqw@mail.gmail.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 8bit
+X-Spam-Status: No, score=-2.2 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,NICE_REPLY_A,
+        RCVD_IN_DNSWL_NONE,RCVD_IN_MSPIKE_H2,SPF_HELO_NONE,SPF_NONE
+        autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
@@ -79,35 +83,68 @@ List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
 
---v9pCEYeFrmhTjDUx
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+On 01/03/2023 19:54, Ilya Dryomov wrote:
+> On Wed, Mar 1, 2023 at 2:19 AM <xiubli@redhat.com> wrote:
+>> From: Xiubo Li <xiubli@redhat.com>
+>>
+>> If the xattr's value size is long enough the kernel will warn and
+>> then will fail the xfstests test case.
+>>
+>> Just print part of the value string if it's too long.
+>>
+>> Cc: stable@vger.kernel.org
+>> URL: https://tracker.ceph.com/issues/58404
+> Hi Xiubo,
+>
+> Does this really need to go to stable kernels?  None of the douts are
+> printed by default.
 
-On Wed, Mar 01, 2023 at 07:07:36PM +0100, Greg Kroah-Hartman wrote:
-> This is the start of the stable review cycle for the 6.2.2 release.
-> There are 16 patches in this series, all will be posted as a response
-> to this one.  If anyone has any issues with these being applied, please
-> let me know.
->=20
+Ilya,
 
-Successfully cross-compiled for arm64 (bcm2711_defconfig, GCC 10.2.0) and
-powerpc (ps3_defconfig, GCC 12.2.0).
+That's okay, not a must.
 
-Tested-by: Bagas Sanjaya <bagasdotme@gmail.com>
+>
+>> Signed-off-by: Xiubo Li <xiubli@redhat.com>
+>> ---
+>>
+>> V2:
+>> - switch to use min() from Jeff's comment
+>> - s/XATTR_MAX_VAL/MAX_XATTR_VAL/g
+>>
+>>
+>>   fs/ceph/xattr.c | 12 ++++++++----
+>>   1 file changed, 8 insertions(+), 4 deletions(-)
+>>
+>> diff --git a/fs/ceph/xattr.c b/fs/ceph/xattr.c
+>> index b10d459c2326..887a65279fcf 100644
+>> --- a/fs/ceph/xattr.c
+>> +++ b/fs/ceph/xattr.c
+>> @@ -561,6 +561,7 @@ static struct ceph_vxattr *ceph_match_vxattr(struct inode *inode,
+>>          return NULL;
+>>   }
+>>
+>> +#define MAX_XATTR_VAL 256
+> Perhaps MAX_XATTR_VAL_PRINT_LEN?  Also, I'd add a blank like after the
+> define -- it's used by more than one function.
 
---=20
-An old man doll... just what I always wanted! - Clara
+Looks better.
 
---v9pCEYeFrmhTjDUx
-Content-Type: application/pgp-signature; name="signature.asc"
+I will revise this.
 
------BEGIN PGP SIGNATURE-----
+Thanks
 
-iHUEABYKAB0WIQSSYQ6Cy7oyFNCHrUH2uYlJVVFOowUCZAAGzQAKCRD2uYlJVVFO
-ozApAP4ggLOYYBw+vIOsB4quwoCju0gdK8VfzOlf+cRIyA2IEgEAvgfIabfjsRIl
-L3IwQqseOaMq+y/9CwOssn1NwOQL9QQ=
-=zK56
------END PGP SIGNATURE-----
+- Xiubo
 
---v9pCEYeFrmhTjDUx--
+
+> Thanks,
+>
+>                  Ilya
+>
+-- 
+Best Regards,
+
+Xiubo Li (李秀波)
+
+Email: xiubli@redhat.com/xiubli@ibm.com
+Slack: @Xiubo Li
+
