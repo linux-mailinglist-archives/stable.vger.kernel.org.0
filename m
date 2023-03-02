@@ -2,120 +2,241 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 387586A8570
-	for <lists+stable@lfdr.de>; Thu,  2 Mar 2023 16:38:55 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 6BD9F6A85E7
+	for <lists+stable@lfdr.de>; Thu,  2 Mar 2023 17:11:44 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229537AbjCBPix (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Thu, 2 Mar 2023 10:38:53 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:41106 "EHLO
+        id S229612AbjCBQLn (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Thu, 2 Mar 2023 11:11:43 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42142 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229504AbjCBPiw (ORCPT
-        <rfc822;stable@vger.kernel.org>); Thu, 2 Mar 2023 10:38:52 -0500
-Received: from smtp-out2.suse.de (smtp-out2.suse.de [IPv6:2001:67c:2178:6::1d])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B53751E1F7
-        for <stable@vger.kernel.org>; Thu,  2 Mar 2023 07:38:51 -0800 (PST)
-Received: from imap2.suse-dmz.suse.de (imap2.suse-dmz.suse.de [192.168.254.74])
-        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-         key-exchange X25519 server-signature ECDSA (P-521) server-digest SHA512)
-        (No client certificate requested)
-        by smtp-out2.suse.de (Postfix) with ESMTPS id 5DECA1FE67;
-        Thu,  2 Mar 2023 15:38:50 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.cz; s=susede2_rsa;
-        t=1677771530; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-         mime-version:mime-version:  content-transfer-encoding:content-transfer-encoding;
-        bh=Ic6a4JKCvOEfJSHXSfajhI4WHcORLiQuhsnE+C5oJ5U=;
-        b=wTG2YJwvVEu0LWGHAklq5GOutiekAACpZrLwTycR9vNhjuq7nG0fLp3dWHUCwlZZuN3ezb
-        ZJeknG5aWTQs5jab8bW+B0qv5DnyPHAItJSVKxtk7HL71WYBzzSjT5az1SLz15BDugZ3OH
-        Dx5jUY02htMYYnjLAURAa9MsVrz+W6w=
-DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.cz;
-        s=susede2_ed25519; t=1677771530;
-        h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-         mime-version:mime-version:  content-transfer-encoding:content-transfer-encoding;
-        bh=Ic6a4JKCvOEfJSHXSfajhI4WHcORLiQuhsnE+C5oJ5U=;
-        b=B9sp8ZP++eLdCRbtmRslgXHMAqIUMeTNaQzxdOeHNCi6NLXD2mx5ZNzK8BPPomjrQh+i39
-        tASvTNPnRYFl/6Cg==
-Received: from imap2.suse-dmz.suse.de (imap2.suse-dmz.suse.de [192.168.254.74])
-        (using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-         key-exchange X25519 server-signature ECDSA (P-521) server-digest SHA512)
-        (No client certificate requested)
-        by imap2.suse-dmz.suse.de (Postfix) with ESMTPS id 4D9BB13349;
-        Thu,  2 Mar 2023 15:38:50 +0000 (UTC)
-Received: from dovecot-director2.suse.de ([192.168.254.65])
-        by imap2.suse-dmz.suse.de with ESMTPSA
-        id R1TtEgrDAGRQDwAAMHmgww
-        (envelope-from <jack@suse.cz>); Thu, 02 Mar 2023 15:38:50 +0000
-Received: by quack3.suse.cz (Postfix, from userid 1000)
-        id 7C9B1A06E5; Thu,  2 Mar 2023 16:38:49 +0100 (CET)
-From:   Jan Kara <jack@suse.cz>
-To:     Joseph Qi <joseph.qi@linux.alibaba.com>
-Cc:     ocfs2-devel@oss.oracle.com, heming.zhao@suse.com,
-        Jan Kara <jack@suse.cz>, stable@vger.kernel.org
-Subject: [PATCH] ocfs2: Fix data corruption after failed write
-Date:   Thu,  2 Mar 2023 16:38:43 +0100
-Message-Id: <20230302153843.18499-1-jack@suse.cz>
-X-Mailer: git-send-email 2.35.3
+        with ESMTP id S229547AbjCBQLl (ORCPT
+        <rfc822;stable@vger.kernel.org>); Thu, 2 Mar 2023 11:11:41 -0500
+Received: from mail-ua1-x936.google.com (mail-ua1-x936.google.com [IPv6:2607:f8b0:4864:20::936])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9FEEF532AA
+        for <stable@vger.kernel.org>; Thu,  2 Mar 2023 08:11:37 -0800 (PST)
+Received: by mail-ua1-x936.google.com with SMTP id f17so6520006uax.7
+        for <stable@vger.kernel.org>; Thu, 02 Mar 2023 08:11:37 -0800 (PST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=linaro.org; s=google;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=zZoz+85clIdYHHRz4psRFE9FEccrG+YghRVv5XN9g1A=;
+        b=EOnQIcgrt+MkJMGUtXNGtauplLHtTY/RFGJ19kV8RLKYb+XFUJmuYMVV6uNCiKZK/s
+         ffa/T1C6Au9S49x6ier1rnQ+g9VXLdVXVyK6VGGVtzSoP/1a9+yIUf7tj/cCSZFpPqvB
+         L0e6AOuEeFP19DAsEJBfph+HVbLQ6rpJFuGiJ6lyvHayh830TOSlCQ/rBmKr+ePTh+Pp
+         KmwrusnbRjQKGcYkm2wdBhAJp3qTd7lG0dBrdkGzZxQJK/JmVKHcC3Js9c8vt2j18zp7
+         ZJzRMYdwz++e8PkWaVm9DwdPV/gIB8l3dGo/UdHjRvKlNsUysa6I4iDk6AKc7CgiNHj3
+         vl5Q==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20210112;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=zZoz+85clIdYHHRz4psRFE9FEccrG+YghRVv5XN9g1A=;
+        b=Qf7k9SaixdA724OM+t3GY6qIPj829XMG70/7WDSpmLgMy6O+ZE8PfzEhzzmBBecmr3
+         1eHE++niTu5X0r/VlQcmyGhzFInHzLAl/SzorqqA/QvGVeVQ+PnRaPEQjeotXiPFRDFi
+         SPPfnUen+BIwWhqStodEj1G5VmfdVgvyvAlTg71LkXwxA9YTDkO60gjdVwTkVIbxJu0F
+         Wbk/DKyhiNpHduNhkGek4KNyu/sXaBz/MAgOzq2W9oYnDi5sI4IGwrzLupMKSBkv3Pof
+         1rHoIf0+fz3edGB8tduzYCtZQGN2fT1QSCV4k9L1AzH7/4JLK34jIKtCie4+ds/e2ziK
+         SBBQ==
+X-Gm-Message-State: AO0yUKU68YEh9GkpRzi3aVqwcumsnjfUZIvCWSYaOVi2nOxgsWwgUk7K
+        slXl9x/RF5tk5p7hySkFPmxnilA9i5gIB5mxP8ryDQ==
+X-Google-Smtp-Source: AK7set+APC/erYWnIFlBLm+w0FzkXpZEbNPzYiLTJCkP+8/yXdcXT3o/EZxxODpQa2TLZUX+bKBlBnKWGLiIPSYWSgU=
+X-Received: by 2002:ac5:c85c:0:b0:40e:fee9:667a with SMTP id
+ g28-20020ac5c85c000000b0040efee9667amr5879630vkm.3.1677773496403; Thu, 02 Mar
+ 2023 08:11:36 -0800 (PST)
 MIME-Version: 1.0
-X-Developer-Signature: v=1; a=openpgp-sha256; l=1876; i=jack@suse.cz; h=from:subject; bh=/rKo0FOKiHUXGPKBoNJqtkfi9xkL98IIPrdtd0bUJoI=; b=owEBbQGS/pANAwAIAZydqgc/ZEDZAcsmYgBkAMLycOQHKp0sC2T/Sc+XbDDLf4n2oCUPKeKOtNRe v4D8uD2JATMEAAEIAB0WIQSrWdEr1p4yirVVKBycnaoHP2RA2QUCZADC8gAKCRCcnaoHP2RA2QePCA DXKXTik128ek3BRYUdzOAqB5VuDGDseHDi4xjGKD7Ul6dweeUIEE2JIM9hmja0ZCFRMPDqvuHLnuWm 1MlPbm8wh7bcniK1WzTcV4WG3Gfs0tqELsC3Hl7qdWz2RdO7VFtEyAlnSjr5dSYnd+cWdfLbj4/uyf 9ScLL8yYO3eaBtxWy1QMf/XQ11oMsYJqpgwez8NLxsPVMWCqiJKhyjozi2QG8ofwP0z+cWuvCgGMHe P+vk+U1I5/m9/q50QZlbrr7GjaHFVVmF0DymC/+ONELpkX5ii3APaQJ8EcDSCSm6LhYL7Rx6016PwB mS4D/lHZZQ3TGH8NRPvnJbNJYEXrLx
-X-Developer-Key: i=jack@suse.cz; a=openpgp; fpr=93C6099A142276A28BBE35D815BC833443038D8C
-Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-3.7 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,SPF_HELO_NONE,
-        SPF_SOFTFAIL autolearn=ham autolearn_force=no version=3.4.6
+References: <20230301180650.395562988@linuxfoundation.org>
+In-Reply-To: <20230301180650.395562988@linuxfoundation.org>
+From:   Naresh Kamboju <naresh.kamboju@linaro.org>
+Date:   Thu, 2 Mar 2023 21:41:24 +0530
+Message-ID: <CA+G9fYu85a8sz8Xq7Bmnn3H8uq0+H+D41YUGFC4gVdo==68zXw@mail.gmail.com>
+Subject: Re: [PATCH 4.19 0/9] 4.19.275-rc1 review
+To:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc:     stable@vger.kernel.org, patches@lists.linux.dev,
+        linux-kernel@vger.kernel.org, torvalds@linux-foundation.org,
+        akpm@linux-foundation.org, linux@roeck-us.net, shuah@kernel.org,
+        patches@kernelci.org, lkft-triage@lists.linaro.org, pavel@denx.de,
+        jonathanh@nvidia.com, f.fainelli@gmail.com,
+        sudipm.mukherjee@gmail.com, srw@sladewatkins.net, rwarsow@gmx.de
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
+X-Spam-Status: No, score=-2.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_NONE,
+        SPF_HELO_NONE,SPF_PASS autolearn=unavailable autolearn_force=no
+        version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-When buffered write fails to copy data into underlying page cache page,
-ocfs2_write_end_nolock() just zeroes out and dirties the page. This can
-leave dirty page beyond EOF and if page writeback tries to write this
-page before write succeeds and expands i_size, page gets into
-inconsistent state where page dirty bit is clear but buffer dirty bits
-stay set resulting in page data never getting written and so data copied
-to the page is lost. Fix the problem by invalidating page beyond EOF
-after failed write.
+On Wed, 1 Mar 2023 at 23:37, Greg Kroah-Hartman
+<gregkh@linuxfoundation.org> wrote:
+>
+> This is the start of the stable review cycle for the 4.19.275 release.
+> There are 9 patches in this series, all will be posted as a response
+> to this one.  If anyone has any issues with these being applied, please
+> let me know.
+>
+> Responses should be made by Fri, 03 Mar 2023 18:06:43 +0000.
+> Anything received after that time might be too late.
+>
+> The whole patch series can be found in one patch at:
+>         https://www.kernel.org/pub/linux/kernel/v4.x/stable-review/patch-=
+4.19.275-rc1.gz
+> or in the git tree and branch at:
+>         git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stable=
+-rc.git linux-4.19.y
+> and the diffstat can be found below.
+>
+> thanks,
+>
+> greg k-h
 
-Fixes: 6dbf7bb55598 ("fs: Don't invalidate page buffers in block_write_full_page()")
-CC: stable@vger.kernel.org
-Signed-off-by: Jan Kara <jack@suse.cz>
----
- fs/ocfs2/aops.c | 19 +++++++++++++++++--
- 1 file changed, 17 insertions(+), 2 deletions(-)
+Results from Linaro=E2=80=99s test farm.
+No regressions on arm64, arm, x86_64, and i386.
 
-diff --git a/fs/ocfs2/aops.c b/fs/ocfs2/aops.c
-index 1d65f6ef00ca..0394505fdce3 100644
---- a/fs/ocfs2/aops.c
-+++ b/fs/ocfs2/aops.c
-@@ -1977,11 +1977,26 @@ int ocfs2_write_end_nolock(struct address_space *mapping,
- 	}
- 
- 	if (unlikely(copied < len) && wc->w_target_page) {
-+		loff_t new_isize;
-+
- 		if (!PageUptodate(wc->w_target_page))
- 			copied = 0;
- 
--		ocfs2_zero_new_buffers(wc->w_target_page, start+copied,
--				       start+len);
-+		new_isize = max_t(loff_t, i_size_read(inode), pos + copied);
-+		if (new_isize > page_offset(wc->w_target_page))
-+			ocfs2_zero_new_buffers(wc->w_target_page, start+copied,
-+					       start+len);
-+		else {
-+			/*
-+			 * When page is fully beyond new isize (data copy
-+			 * failed), do not bother zeroing the page. Invalidate
-+			 * it instead so that writeback does not get confused
-+			 * put page & buffer dirty bits into inconsistent
-+			 * state.
-+			 */
-+			block_invalidate_folio(page_folio(wc->w_target_page),
-+						0, PAGE_SIZE);
-+		}
- 	}
- 	if (wc->w_target_page)
- 		flush_dcache_page(wc->w_target_page);
--- 
-2.35.3
+Tested-by: Linux Kernel Functional Testing <lkft@linaro.org>
 
+## Build
+* kernel: 4.19.275-rc1
+* git: https://gitlab.com/Linaro/lkft/mirrors/stable/linux-stable-rc
+* git branch: linux-4.19.y
+* git commit: c17367998a27f5908f6d793274690ef7f91fe0d3
+* git describe: v4.19.274-10-gc17367998a27
+* test details:
+https://qa-reports.linaro.org/lkft/linux-stable-rc-linux-4.19.y/build/v4.19=
+.274-10-gc17367998a27
+
+## Test Regressions (compared to v4.19.274)
+
+## Metric Regressions (compared to v4.19.274)
+
+## Test Fixes (compared to v4.19.274)
+
+## Metric Fixes (compared to v4.19.274)
+
+## Test result summary
+total: 96256, pass: 72823, fail: 3436, skip: 19617, xfail: 380
+
+## Build Summary
+* arc: 10 total, 10 passed, 0 failed
+* arm: 201 total, 200 passed, 1 failed
+* arm64: 42 total, 41 passed, 1 failed
+* i386: 29 total, 28 passed, 1 failed
+* mips: 42 total, 42 passed, 0 failed
+* parisc: 12 total, 12 passed, 0 failed
+* powerpc: 51 total, 51 passed, 0 failed
+* s390: 15 total, 15 passed, 0 failed
+* sh: 24 total, 24 passed, 0 failed
+* sparc: 12 total, 12 passed, 0 failed
+* x86_64: 37 total, 36 passed, 1 failed
+
+## Test suites summary
+* boot
+* fwts
+* igt-gpu-tools
+* kselftest-android
+* kselftest-arm64
+* kselftest-breakpoints
+* kselftest-capabilities
+* kselftest-cgroup
+* kselftest-clone3
+* kselftest-core
+* kselftest-cpu-hotplug
+* kselftest-cpufreq
+* kselftest-drivers-dma-buf
+* kselftest-efivarfs
+* kselftest-filesystems
+* kselftest-filesystems-binderfs
+* kselftest-firmware
+* kselftest-fpu
+* kselftest-ftrace
+* kselftest-futex
+* kselftest-gpio
+* kselftest-intel_pstate
+* kselftest-ipc
+* kselftest-ir
+* kselftest-kcmp
+* kselftest-kexec
+* kselftest-kvm
+* kselftest-lib
+* kselftest-livepatch
+* kselftest-membarrier
+* kselftest-memfd
+* kselftest-memory-hotplug
+* kselftest-mincore
+* kselftest-mount
+* kselftest-mqueue
+* kselftest-net
+* kselftest-net-forwarding
+* kselftest-net-mptcp
+* kselftest-netfilter
+* kselftest-nsfs
+* kselftest-openat2
+* kselftest-pid_namespace
+* kselftest-pidfd
+* kselftest-proc
+* kselftest-pstore
+* kselftest-ptrace
+* kselftest-rseq
+* kselftest-rtc
+* kselftest-seccomp
+* kselftest-sigaltstack
+* kselftest-size
+* kselftest-splice
+* kselftest-static_keys
+* kselftest-sync
+* kselftest-sysctl
+* kselftest-tc-testing
+* kselftest-timens
+* kselftest-timers
+* kselftest-tmpfs
+* kselftest-tpm2
+* kselftest-user
+* kselftest-vm
+* kselftest-x86
+* kselftest-zram
+* kunit
+* kvm-unit-tests
+* libhugetlbfs
+* log-parser-boot
+* log-parser-test
+* ltp-cap_bounds
+* ltp-commands
+* ltp-containers
+* ltp-controllers
+* ltp-cpuhotplug
+* ltp-crypto
+* ltp-cve
+* ltp-dio
+* ltp-fcntl-locktests
+* ltp-filecaps
+* ltp-fs
+* ltp-fs_bind
+* ltp-fs_perms_simple
+* ltp-fsx
+* ltp-hugetlb
+* ltp-io
+* ltp-ipc
+* ltp-math
+* ltp-mm
+* ltp-nptl
+* ltp-open-posix-tests
+* ltp-pty
+* ltp-sched
+* ltp-securebits
+* ltp-smoke
+* ltp-syscalls
+* ltp-tracing
+* network-basic-tests
+* packetdrill
+* rcutorture
+* v4l2-compliance
+* vdso
+
+--
+Linaro LKFT
+https://lkft.linaro.org
