@@ -2,46 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 3FEEA6AA3A7
-	for <lists+stable@lfdr.de>; Fri,  3 Mar 2023 23:02:51 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 83A626AA3AE
+	for <lists+stable@lfdr.de>; Fri,  3 Mar 2023 23:03:24 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233499AbjCCWCr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 3 Mar 2023 17:02:47 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60968 "EHLO
+        id S233126AbjCCWC7 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 3 Mar 2023 17:02:59 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58820 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233500AbjCCWCC (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 3 Mar 2023 17:02:02 -0500
+        with ESMTP id S233534AbjCCWC1 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 3 Mar 2023 17:02:27 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3BD496921A;
-        Fri,  3 Mar 2023 13:52:46 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D5BBE93F2;
+        Fri,  3 Mar 2023 13:52:55 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 14A9CB81A29;
-        Fri,  3 Mar 2023 21:49:42 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E29CEC433D2;
-        Fri,  3 Mar 2023 21:49:39 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 25704B81A35;
+        Fri,  3 Mar 2023 21:49:43 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 45FB0C433EF;
+        Fri,  3 Mar 2023 21:49:41 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1677880180;
-        bh=K320IATZViZ6p2z8opWgQ4B3i0XStvbTQyf1uRhNInQ=;
-        h=From:To:Cc:Subject:Date:From;
-        b=ra8vMEGrgZklv37vNMiitK7KRsQ/j7IQ+cXQZpyU5EyEcjiYGX4StjHdtYij37uO3
-         l7bMCNQQQT3gMWWBDWS1fzxkahowj7jBejafrA8uIyMwKEiMydzPlmEz8lUqPszII7
-         B5xwsFmPnFzTQNh8T5AnU3cwFyQst/Ty7bhUPUTF6OFS7YccvmWn6B/yGLYdqtNfGc
-         oQ2wyzozBPFiR1K9+SH2Orpv82xRSKhkPmFkEup6GP3Cq5RmCIZKgxMJYvUxQWctSq
-         GwwOpkAAAx3C+gdHczZiO0Rwc9LEikYJxMo9ZiLUEmNWvtiNzAiMJjuNAzTQlMlU84
-         H2oMnHS94MNEg==
+        s=k20201202; t=1677880181;
+        bh=uUo7HlgXQAhr5LEUhpS26Fc89XuvSrXw/YsnTXb2q6Y=;
+        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+        b=V0vflam7ZsaoxANAnRX919duKdG/V9X1k309NV+6zukJ4MQ2EL0BxJfRfr3w4YIUt
+         T8NPY1fszmib/aIbrxMAPuYTt6Z1S4Y3LMHHM9BFPpP9wq7WAuWPFgaPHwEPZ8QSdL
+         0UOPWYKr1S8OKkx2IJqVCghKNKJ8dEfNyjF3DL+bqi3BvZR9elJ8qxiF6x3iVs0kZL
+         rMk3O0HvBGIU0UnJm0uYybpxa1/PynJKrIeG1KgJFbVe0aM8lzQhDujU2y51FW8zjN
+         6zWG35yEpqtI/cS+789W8F2Y6ocW/IXDcdYR4pDj2Hc1ZjjvemTUbPTLN7EoMeXIEt
+         fKXEiPynF+75w==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Ricardo Ribalda <ribalda@chromium.org>,
-        syzbot <syzkaller@googlegroups.com>,
-        Laurent Pinchart <laurent.pinchart@ideasonboard.com>,
-        Sasha Levin <sashal@kernel.org>, mchehab@kernel.org,
-        linux-media@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.14 01/11] media: uvcvideo: Handle cameras with invalid descriptors
-Date:   Fri,  3 Mar 2023 16:49:27 -0500
-Message-Id: <20230303214938.1454767-1-sashal@kernel.org>
+Cc:     Sven Schnelle <svens@linux.ibm.com>,
+        Jiri Slaby <jirislaby@kernel.org>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.14 02/11] tty: fix out-of-bounds access in tty_driver_lookup_tty()
+Date:   Fri,  3 Mar 2023 16:49:28 -0500
+Message-Id: <20230303214938.1454767-2-sashal@kernel.org>
 X-Mailer: git-send-email 2.39.2
+In-Reply-To: <20230303214938.1454767-1-sashal@kernel.org>
+References: <20230303214938.1454767-1-sashal@kernel.org>
 MIME-Version: 1.0
 X-stable: review
 X-Patchwork-Hint: Ignore
@@ -55,34 +56,73 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ricardo Ribalda <ribalda@chromium.org>
+From: Sven Schnelle <svens@linux.ibm.com>
 
-[ Upstream commit 41ddb251c68ac75c101d3a50a68c4629c9055e4c ]
+[ Upstream commit db4df8e9d79e7d37732c1a1b560958e8dadfefa1 ]
 
-If the source entity does not contain any pads, do not create a link.
+When specifying an invalid console= device like console=tty3270,
+tty_driver_lookup_tty() returns the tty struct without checking
+whether index is a valid number.
 
-Reported-by: syzbot <syzkaller@googlegroups.com>
-Signed-off-by: Ricardo Ribalda <ribalda@chromium.org>
-Reviewed-by: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
-Signed-off-by: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
+To reproduce:
+
+qemu-system-x86_64 -enable-kvm -nographic -serial mon:stdio \
+-kernel ../linux-build-x86/arch/x86/boot/bzImage \
+-append "console=ttyS0 console=tty3270"
+
+This crashes with:
+
+[    0.770599] BUG: kernel NULL pointer dereference, address: 00000000000000ef
+[    0.771265] #PF: supervisor read access in kernel mode
+[    0.771773] #PF: error_code(0x0000) - not-present page
+[    0.772609] Oops: 0000 [#1] PREEMPT SMP PTI
+[    0.774878] RIP: 0010:tty_open+0x268/0x6f0
+[    0.784013]  chrdev_open+0xbd/0x230
+[    0.784444]  ? cdev_device_add+0x80/0x80
+[    0.784920]  do_dentry_open+0x1e0/0x410
+[    0.785389]  path_openat+0xca9/0x1050
+[    0.785813]  do_filp_open+0xaa/0x150
+[    0.786240]  file_open_name+0x133/0x1b0
+[    0.786746]  filp_open+0x27/0x50
+[    0.787244]  console_on_rootfs+0x14/0x4d
+[    0.787800]  kernel_init_freeable+0x1e4/0x20d
+[    0.788383]  ? rest_init+0xc0/0xc0
+[    0.788881]  kernel_init+0x11/0x120
+[    0.789356]  ret_from_fork+0x22/0x30
+
+Signed-off-by: Sven Schnelle <svens@linux.ibm.com>
+Reviewed-by: Jiri Slaby <jirislaby@kernel.org>
+Link: https://lore.kernel.org/r/20221209112737.3222509-2-svens@linux.ibm.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/media/usb/uvc/uvc_entity.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/tty/tty_io.c | 8 +++++---
+ 1 file changed, 5 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/media/usb/uvc/uvc_entity.c b/drivers/media/usb/uvc/uvc_entity.c
-index f2457953f27c6..0d5aaaa7e2d96 100644
---- a/drivers/media/usb/uvc/uvc_entity.c
-+++ b/drivers/media/usb/uvc/uvc_entity.c
-@@ -42,7 +42,7 @@ static int uvc_mc_create_links(struct uvc_video_chain *chain,
- 			continue;
+diff --git a/drivers/tty/tty_io.c b/drivers/tty/tty_io.c
+index 463f35273365b..8cbd6fa6351f8 100644
+--- a/drivers/tty/tty_io.c
++++ b/drivers/tty/tty_io.c
+@@ -1154,14 +1154,16 @@ static struct tty_struct *tty_driver_lookup_tty(struct tty_driver *driver,
+ {
+ 	struct tty_struct *tty;
  
- 		remote = uvc_entity_by_id(chain->dev, entity->baSourceID[i]);
--		if (remote == NULL)
-+		if (remote == NULL || remote->num_pads == 0)
- 			return -EINVAL;
- 
- 		source = (UVC_ENTITY_TYPE(remote) == UVC_TT_STREAMING)
+-	if (driver->ops->lookup)
++	if (driver->ops->lookup) {
+ 		if (!file)
+ 			tty = ERR_PTR(-EIO);
+ 		else
+ 			tty = driver->ops->lookup(driver, file, idx);
+-	else
++	} else {
++		if (idx >= driver->num)
++			return ERR_PTR(-EINVAL);
+ 		tty = driver->ttys[idx];
+-
++	}
+ 	if (!IS_ERR(tty))
+ 		tty_kref_get(tty);
+ 	return tty;
 -- 
 2.39.2
 
