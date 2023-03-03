@@ -2,44 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 0DD786AA2D0
-	for <lists+stable@lfdr.de>; Fri,  3 Mar 2023 22:52:08 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 49D006AA3BE
+	for <lists+stable@lfdr.de>; Fri,  3 Mar 2023 23:04:15 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232839AbjCCVtr (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 3 Mar 2023 16:49:47 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37842 "EHLO
+        id S233523AbjCCWEM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 3 Mar 2023 17:04:12 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:43040 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232603AbjCCVtQ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 3 Mar 2023 16:49:16 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3AF9E6702C;
-        Fri,  3 Mar 2023 13:45:47 -0800 (PST)
+        with ESMTP id S233551AbjCCWDv (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 3 Mar 2023 17:03:51 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2F4FCCDCA;
+        Fri,  3 Mar 2023 13:54:04 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 6CC3EB81A0A;
+        by dfw.source.kernel.org (Postfix) with ESMTPS id B8B4A6191D;
         Fri,  3 Mar 2023 21:42:49 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6F930C433A1;
-        Fri,  3 Mar 2023 21:42:47 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 93D6DC433A8;
+        Fri,  3 Mar 2023 21:42:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1677879768;
-        bh=BPvNuEoIcrDhMCnlwaSg0666iVjyarZBp9q3ys8goR4=;
+        s=k20201202; t=1677879769;
+        bh=gMVmOxEg0kG8TXM4Vu1EEI9zczKzCBnsDJYRDRaoARQ=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=OJaAienXgwEaawTA+Clz2jz9NWCLLMkm7H61tUdN2cIm4nqf6orYvrNSzrhIiQJjE
-         r/hkA9XhfQiyKTw2ODoSi4knacIeWthcFGjbfi9NGTIur4wQQonzF3keJ/sJNHcQYe
-         U6VuS1egUlFGRJihb9NDo2ivcdTprm0TZdrwRgJjXZXE79o3/z2mcUtzhjcix/vT0V
-         KBy5A3G+B9DqPMm7ULD3SWCSqfk8eD/49IGTC4ggLWVug/V0RwkpEfi078Z02yj6qZ
-         TmNfmW53GJnyescLoH3FOJ13c975hCdoguMCAUap7S87F6/1u1qC3AVQU95ImPhOGQ
-         TNp/39YAgNDJA==
+        b=THxYYgfdjfyixCmM6wBLw8qdzWWaPbotKGEV7Av0QHYeopkhnMLlAfFBWkQb40RLa
+         1pUfK99teS7XN000UQB7ZmCPjJrgipA739k+TLsQ7BmGCnHvBAmiWD14bpdD3zpD+Q
+         vro3AyuoHx5uPM37lERMNc4+IspEmPVugYZPJNg0EUs5YbDm3PNtrvuSnAWyOd8Bfr
+         4XzhzfHel4A/LuDd26ozzXfGtTpaN5conLa1wlhRINBc2IlYVALj/R2FSWG8PjzF/n
+         Y7+Gx2abLrE7nNNpQRm3ea1LXkxH8wyuVnDLTR6PkeUlefVOHZ9YSQX/vmmIM8P2t6
+         wzzW6eDWmrkDQ==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Mika Westerberg <mika.westerberg@linux.intel.com>,
-        Chris Chiu <chris.chiu@canonical.com>,
-        Bjorn Helgaas <bhelgaas@google.com>,
-        Sasha Levin <sashal@kernel.org>, linux-pci@vger.kernel.org
-Subject: [PATCH AUTOSEL 6.2 49/64] PCI: Distribute available resources for root buses, too
-Date:   Fri,  3 Mar 2023 16:40:51 -0500
-Message-Id: <20230303214106.1446460-49-sashal@kernel.org>
+Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Jiri Slaby <jirislaby@kernel.org>,
+        Sasha Levin <sashal@kernel.org>, linux-serial@vger.kernel.org
+Subject: [PATCH AUTOSEL 6.2 50/64] tty: pcn_uart: fix memory leak with using debugfs_lookup()
+Date:   Fri,  3 Mar 2023 16:40:52 -0500
+Message-Id: <20230303214106.1446460-50-sashal@kernel.org>
 X-Mailer: git-send-email 2.39.2
 In-Reply-To: <20230303214106.1446460-1-sashal@kernel.org>
 References: <20230303214106.1446460-1-sashal@kernel.org>
@@ -47,8 +46,8 @@ MIME-Version: 1.0
 X-stable: review
 X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
         SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -56,130 +55,36 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Mika Westerberg <mika.westerberg@linux.intel.com>
+From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-[ Upstream commit 7180c1d08639f28e63110ad35815f7a1785b8a19 ]
+[ Upstream commit 04a189c720aa2b6091442113ce9b9bc93552dff8 ]
 
-Previously we distributed spare resources only upon hot-add, so if the
-initial root bus scan found devices that had not been fully configured by
-the BIOS, we allocated only enough resources to cover what was then
-present. If some of those devices were hotplug bridges, we did not leave
-any additional resource space for future expansion.
+When calling debugfs_lookup() the result must have dput() called on it,
+otherwise the memory will leak over time.  To make things simpler, just
+call debugfs_lookup_and_remove() instead which handles all of the logic
+at once.
 
-Distribute the available resources for root buses, too, to make this work
-the same way as the normal hotplug case.
-
-A previous commit to do this was reverted due to a regression reported by
-Jonathan Cameron:
-
-  e96e27fc6f79 ("PCI: Distribute available resources for root buses, too")
-  5632e2beaf9d ("Revert "PCI: Distribute available resources for root buses, too"")
-
-This commit changes pci_bridge_resources_not_assigned() to work with
-bridges that do not have all the resource windows programmed by the boot
-firmware (previously we expected all I/O, memory and prefetchable memory
-were programmed).
-
-Link: https://bugzilla.kernel.org/show_bug.cgi?id=216000
-Link: https://lore.kernel.org/r/20220905080232.36087-5-mika.westerberg@linux.intel.com
-Link: https://lore.kernel.org/r/20230131092405.29121-4-mika.westerberg@linux.intel.com
-Reported-by: Chris Chiu <chris.chiu@canonical.com>
-Signed-off-by: Mika Westerberg <mika.westerberg@linux.intel.com>
-Signed-off-by: Bjorn Helgaas <bhelgaas@google.com>
+Cc: Jiri Slaby <jirislaby@kernel.org>
+Link: https://lore.kernel.org/r/20230202141221.2293012-1-gregkh@linuxfoundation.org
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/pci/setup-bus.c | 57 ++++++++++++++++++++++++++++++++++++++++-
- 1 file changed, 56 insertions(+), 1 deletion(-)
+ drivers/tty/serial/pch_uart.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/pci/setup-bus.c b/drivers/pci/setup-bus.c
-index b7b8dddb77722..c690572b10ce7 100644
---- a/drivers/pci/setup-bus.c
-+++ b/drivers/pci/setup-bus.c
-@@ -1770,7 +1770,10 @@ static void adjust_bridge_window(struct pci_dev *bridge, struct resource *res,
- 	}
+diff --git a/drivers/tty/serial/pch_uart.c b/drivers/tty/serial/pch_uart.c
+index 9576ba8bbc40e..cc83b772b7ca9 100644
+--- a/drivers/tty/serial/pch_uart.c
++++ b/drivers/tty/serial/pch_uart.c
+@@ -1775,7 +1775,7 @@ static void pch_uart_exit_port(struct eg20t_port *priv)
+ 	char name[32];
  
- 	res->end = res->start + new_size - 1;
--	remove_from_list(add_list, res);
-+
-+	/* If the resource is part of the add_list, remove it now */
-+	if (add_list)
-+		remove_from_list(add_list, res);
+ 	snprintf(name, sizeof(name), "uart%d_regs", priv->port.line);
+-	debugfs_remove(debugfs_lookup(name, NULL));
++	debugfs_lookup_and_remove(name, NULL);
+ 	uart_remove_one_port(&pch_uart_driver, &priv->port);
+ 	free_page((unsigned long)priv->rxbuf.buf);
  }
- 
- static void remove_dev_resource(struct resource *avail, struct pci_dev *dev,
-@@ -1972,6 +1975,8 @@ static void pci_bridge_distribute_available_resources(struct pci_dev *bridge,
- 	if (!bridge->is_hotplug_bridge)
- 		return;
- 
-+	pci_dbg(bridge, "distributing available resources\n");
-+
- 	/* Take the initial extra resources from the hotplug port */
- 	available_io = bridge->resource[PCI_BRIDGE_IO_WINDOW];
- 	available_mmio = bridge->resource[PCI_BRIDGE_MEM_WINDOW];
-@@ -1983,6 +1988,54 @@ static void pci_bridge_distribute_available_resources(struct pci_dev *bridge,
- 					       available_mmio_pref);
- }
- 
-+static bool pci_bridge_resources_not_assigned(struct pci_dev *dev)
-+{
-+	const struct resource *r;
-+
-+	/*
-+	 * If the child device's resources are not yet assigned it means we
-+	 * are configuring them (not the boot firmware), so we should be
-+	 * able to extend the upstream bridge resources in the same way we
-+	 * do with the normal hotplug case.
-+	 */
-+	r = &dev->resource[PCI_BRIDGE_IO_WINDOW];
-+	if (r->flags && !(r->flags & IORESOURCE_STARTALIGN))
-+		return false;
-+	r = &dev->resource[PCI_BRIDGE_MEM_WINDOW];
-+	if (r->flags && !(r->flags & IORESOURCE_STARTALIGN))
-+		return false;
-+	r = &dev->resource[PCI_BRIDGE_PREF_MEM_WINDOW];
-+	if (r->flags && !(r->flags & IORESOURCE_STARTALIGN))
-+		return false;
-+
-+	return true;
-+}
-+
-+static void
-+pci_root_bus_distribute_available_resources(struct pci_bus *bus,
-+					    struct list_head *add_list)
-+{
-+	struct pci_dev *dev, *bridge = bus->self;
-+
-+	for_each_pci_bridge(dev, bus) {
-+		struct pci_bus *b;
-+
-+		b = dev->subordinate;
-+		if (!b)
-+			continue;
-+
-+		/*
-+		 * Need to check "bridge" here too because it is NULL
-+		 * in case of root bus.
-+		 */
-+		if (bridge && pci_bridge_resources_not_assigned(dev))
-+			pci_bridge_distribute_available_resources(bridge,
-+								  add_list);
-+		else
-+			pci_root_bus_distribute_available_resources(b, add_list);
-+	}
-+}
-+
- /*
-  * First try will not touch PCI bridge res.
-  * Second and later try will clear small leaf bridge res.
-@@ -2022,6 +2075,8 @@ void pci_assign_unassigned_root_bus_resources(struct pci_bus *bus)
- 	 */
- 	__pci_bus_size_bridges(bus, add_list);
- 
-+	pci_root_bus_distribute_available_resources(bus, add_list);
-+
- 	/* Depth last, allocate resources and update the hardware. */
- 	__pci_bus_assign_resources(bus, add_list, &fail_head);
- 	if (add_list)
 -- 
 2.39.2
 
