@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id ADBDC6AA1A5
-	for <lists+stable@lfdr.de>; Fri,  3 Mar 2023 22:42:03 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id A72236AA1A8
+	for <lists+stable@lfdr.de>; Fri,  3 Mar 2023 22:42:04 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231982AbjCCVlo (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 3 Mar 2023 16:41:44 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54836 "EHLO
+        id S231977AbjCCVln (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 3 Mar 2023 16:41:43 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54358 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231974AbjCCVlf (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 3 Mar 2023 16:41:35 -0500
+        with ESMTP id S231975AbjCCVlg (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 3 Mar 2023 16:41:36 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 0BE0A637C9;
-        Fri,  3 Mar 2023 13:41:20 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 69D4D62DA7;
+        Fri,  3 Mar 2023 13:41:21 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 9C33D618C2;
+        by dfw.source.kernel.org (Postfix) with ESMTPS id DBEC261929;
+        Fri,  3 Mar 2023 21:41:20 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E9591C433EF;
         Fri,  3 Mar 2023 21:41:19 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id AE28FC4339E;
-        Fri,  3 Mar 2023 21:41:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1677879679;
-        bh=YQQCmarcv0Y5/XTYaXHAKw/+XzkVyiLmFJpS9bs5Hwg=;
+        s=k20201202; t=1677879680;
+        bh=27YCleqUjTg3cu6L16iWgrj9g+J8Xmv6fZe8VvJvwjM=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=F84FSNzXieevPKhdL43EX9bAN7W2tpxe/MrVOwPT1/UP2TP0/bsEhQVEcjZFP6XUK
-         ZcgvEWcjdTjo1uwXUxd/U1r7xPokYbQYyvIs9PJV/ehhCzU3/9GfS+QyhTyfl2O0KP
-         RS7CH8+O2VL7w/xzehwImIuRUZNxViPTedDUvDvaXwA1Yiphe+oJh4QGgMqTpQGh3D
-         fjIad80b/AuVI9c9URsymxyx8UP5w+9j/Ii9RbyglJB27S5EdZ4naVAIWlBTn5lcta
-         zluxTHE6xKPj5oTjzB7dfDtbNo2THmfyUMwxhFH2PAUZPSJtdedYSOGgktnQLIJnCe
-         YxuoIr7cRJDQA==
+        b=kxnbRGBcz0G+r8sddQhWSFJ6irBIM9y57CxAlmIss4Gre1LyKIjc5bDLPAHtivxWv
+         TVk6UGwyA/+fGVXFW9C2XR29UMn7xYCosg5WbbgxJFFEHvhcUG7Ndqgm7HY5VWZojF
+         1mJhXlSzHE7UjKmDULgxG1m+0bTyWOTHotAdEZl4E5TimZrSoZmAIPfpYaG78iUPjO
+         e2yWfNVLO+8m405GntRYkhuaK0TR+vhSNvuHnIvgldLVyDrNOilpA0afal9TlTd37h
+         /goqJpbEh2je+Xdo9k+i1Z37vMm8b5AQNCHcKZ94zIVTwKuH9kKXd5wrgUsKgZiM/C
+         x+kPKvkBZ1SrQ==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Ricardo Ribalda <ribalda@chromium.org>,
+Cc:     Kees Cook <keescook@chromium.org>, ionut_n2001@yahoo.com,
         Laurent Pinchart <laurent.pinchart@ideasonboard.com>,
         Sasha Levin <sashal@kernel.org>, mchehab@kernel.org,
         linux-media@vger.kernel.org
-Subject: [PATCH AUTOSEL 6.2 08/64] media: uvcvideo: Quirk for autosuspend in Logitech B910 and C910
-Date:   Fri,  3 Mar 2023 16:40:10 -0500
-Message-Id: <20230303214106.1446460-8-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 6.2 09/64] media: uvcvideo: Silence memcpy() run-time false positive warnings
+Date:   Fri,  3 Mar 2023 16:40:11 -0500
+Message-Id: <20230303214106.1446460-9-sashal@kernel.org>
 X-Mailer: git-send-email 2.39.2
 In-Reply-To: <20230303214106.1446460-1-sashal@kernel.org>
 References: <20230303214106.1446460-1-sashal@kernel.org>
@@ -56,136 +56,58 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ricardo Ribalda <ribalda@chromium.org>
+From: Kees Cook <keescook@chromium.org>
 
-[ Upstream commit 136effa754b57632f99574fc4a3433e0cfc031d9 ]
+[ Upstream commit b839212988575c701aab4d3d9ca15e44c87e383c ]
 
-Logitech B910 and C910 firmware are unable to recover from a USB
-autosuspend. When it resumes, the device is in a state where it only
-produces invalid frames. Eg:
+The memcpy() in uvc_video_decode_meta() intentionally copies across the
+length and flags members and into the trailing buf flexible array.
+Split the copy so that the compiler can better reason about (the lack
+of) buffer overflows here. Avoid the run-time false positive warning:
 
-$ echo 0xFFFF > /sys/module/uvcvideo/parameters/trace # enable verbose log
-$ yavta -c1 -n1 --file='frame#.jpg' --format MJPEG --size=1920x1080 /dev/video1
-[350438.435219] uvcvideo: uvc_v4l2_open
-[350438.529794] uvcvideo: Resuming interface 2
-[350438.529801] uvcvideo: Resuming interface 3
-[350438.529991] uvcvideo: Trying format 0x47504a4d (MJPG): 1920x1080.
-[350438.529996] uvcvideo: Using default frame interval 33333.3 us (30.0 fps).
-[350438.551496] uvcvideo: uvc_v4l2_mmap
-[350438.555890] uvcvideo: Device requested 3060 B/frame bandwidth.
-[350438.555896] uvcvideo: Selecting alternate setting 11 (3060 B/frame bandwidth).
-[350438.556362] uvcvideo: Allocated 5 URB buffers of 32x3060 bytes each.
-[350439.316468] uvcvideo: Marking buffer as bad (error bit set).
-[350439.316475] uvcvideo: Frame complete (EOF found).
-[350439.316477] uvcvideo: EOF in empty payload.
-[350439.316484] uvcvideo: frame 1 stats: 149/261/417 packets, 1/149/417 pts (early initial), 416/417 scr, last pts/stc/sof 2976325734/2978107243/249
-[350439.384510] uvcvideo: Marking buffer as bad (error bit set).
-[350439.384516] uvcvideo: Frame complete (EOF found).
-[350439.384518] uvcvideo: EOF in empty payload.
-[350439.384525] uvcvideo: frame 2 stats: 265/379/533 packets, 1/265/533 pts (early initial), 532/533 scr, last pts/stc/sof 2979524454/2981305193/316
-[350439.448472] uvcvideo: Marking buffer as bad (error bit set).
-[350439.448478] uvcvideo: Frame complete (EOF found).
-[350439.448480] uvcvideo: EOF in empty payload.
-[350439.448487] uvcvideo: frame 3 stats: 265/377/533 packets, 1/265/533 pts (early initial), 532/533 scr, last pts/stc/sof 2982723174/2984503144/382
-...(loop)...
+  memcpy: detected field-spanning write (size 12) of single field "&meta->length" at drivers/media/usb/uvc/uvc_video.c:1355 (size 1)
 
-The devices can leave this invalid state if the alternate setting of
-the streaming interface is toggled.
+Additionally fix a typo in the documentation for struct uvc_meta_buf.
 
-This patch adds a quirk for this device so it can be autosuspended
-properly.
-
-lsusb -v:
-Bus 001 Device 049: ID 046d:0821 Logitech, Inc. HD Webcam C910
-Device Descriptor:
-  bLength                18
-  bDescriptorType         1
-  bcdUSB               2.00
-  bDeviceClass          239 Miscellaneous Device
-  bDeviceSubClass         2
-  bDeviceProtocol         1 Interface Association
-  bMaxPacketSize0        64
-  idVendor           0x046d Logitech, Inc.
-  idProduct          0x0821 HD Webcam C910
-  bcdDevice            0.10
-  iManufacturer           0
-  iProduct                0
-  iSerial                 1 390022B0
-  bNumConfigurations      1
-
-Signed-off-by: Ricardo Ribalda <ribalda@chromium.org>
+Reported-by: ionut_n2001@yahoo.com
+Link: https://bugzilla.kernel.org/show_bug.cgi?id=216810
+Signed-off-by: Kees Cook <keescook@chromium.org>
 Reviewed-by: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
 Signed-off-by: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/media/usb/uvc/uvc_driver.c | 18 ++++++++++++++++++
- drivers/media/usb/uvc/uvc_video.c  | 11 +++++++++++
- drivers/media/usb/uvc/uvcvideo.h   |  1 +
- 3 files changed, 30 insertions(+)
+ drivers/media/usb/uvc/uvc_video.c | 4 +++-
+ include/uapi/linux/uvcvideo.h     | 2 +-
+ 2 files changed, 4 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/media/usb/uvc/uvc_driver.c b/drivers/media/usb/uvc/uvc_driver.c
-index 4c372965517d6..bd00f5e9f20bb 100644
---- a/drivers/media/usb/uvc/uvc_driver.c
-+++ b/drivers/media/usb/uvc/uvc_driver.c
-@@ -2466,6 +2466,24 @@ static const struct usb_device_id uvc_ids[] = {
- 	  .bInterfaceSubClass	= 1,
- 	  .bInterfaceProtocol	= 0,
- 	  .driver_info		= (kernel_ulong_t)&uvc_quirk_probe_minmax },
-+	/* Logitech, Webcam C910 */
-+	{ .match_flags		= USB_DEVICE_ID_MATCH_DEVICE
-+				| USB_DEVICE_ID_MATCH_INT_INFO,
-+	  .idVendor		= 0x046d,
-+	  .idProduct		= 0x0821,
-+	  .bInterfaceClass	= USB_CLASS_VIDEO,
-+	  .bInterfaceSubClass	= 1,
-+	  .bInterfaceProtocol	= 0,
-+	  .driver_info		= UVC_INFO_QUIRK(UVC_QUIRK_WAKE_AUTOSUSPEND)},
-+	/* Logitech, Webcam B910 */
-+	{ .match_flags		= USB_DEVICE_ID_MATCH_DEVICE
-+				| USB_DEVICE_ID_MATCH_INT_INFO,
-+	  .idVendor		= 0x046d,
-+	  .idProduct		= 0x0823,
-+	  .bInterfaceClass	= USB_CLASS_VIDEO,
-+	  .bInterfaceSubClass	= 1,
-+	  .bInterfaceProtocol	= 0,
-+	  .driver_info		= UVC_INFO_QUIRK(UVC_QUIRK_WAKE_AUTOSUSPEND)},
- 	/* Logitech Quickcam Fusion */
- 	{ .match_flags		= USB_DEVICE_ID_MATCH_DEVICE
- 				| USB_DEVICE_ID_MATCH_INT_INFO,
 diff --git a/drivers/media/usb/uvc/uvc_video.c b/drivers/media/usb/uvc/uvc_video.c
-index d2eb9066e4dcc..53ea225972478 100644
+index 53ea225972478..0d3a3b697b2d8 100644
 --- a/drivers/media/usb/uvc/uvc_video.c
 +++ b/drivers/media/usb/uvc/uvc_video.c
-@@ -1965,6 +1965,17 @@ static int uvc_video_start_transfer(struct uvc_streaming *stream,
- 			"Selecting alternate setting %u (%u B/frame bandwidth)\n",
- 			altsetting, best_psize);
+@@ -1352,7 +1352,9 @@ static void uvc_video_decode_meta(struct uvc_streaming *stream,
+ 	if (has_scr)
+ 		memcpy(stream->clock.last_scr, scr, 6);
  
-+		/*
-+		 * Some devices, namely the Logitech C910 and B910, are unable
-+		 * to recover from a USB autosuspend, unless the alternate
-+		 * setting of the streaming interface is toggled.
-+		 */
-+		if (stream->dev->quirks & UVC_QUIRK_WAKE_AUTOSUSPEND) {
-+			usb_set_interface(stream->dev->udev, intfnum,
-+					  altsetting);
-+			usb_set_interface(stream->dev->udev, intfnum, 0);
-+		}
-+
- 		ret = usb_set_interface(stream->dev->udev, intfnum, altsetting);
- 		if (ret < 0)
- 			return ret;
-diff --git a/drivers/media/usb/uvc/uvcvideo.h b/drivers/media/usb/uvc/uvcvideo.h
-index b60e4ae95e815..47a346033ce3f 100644
---- a/drivers/media/usb/uvc/uvcvideo.h
-+++ b/drivers/media/usb/uvc/uvcvideo.h
-@@ -74,6 +74,7 @@
- #define UVC_QUIRK_RESTORE_CTRLS_ON_INIT	0x00000400
- #define UVC_QUIRK_FORCE_Y8		0x00000800
- #define UVC_QUIRK_FORCE_BPP		0x00001000
-+#define UVC_QUIRK_WAKE_AUTOSUSPEND	0x00002000
+-	memcpy(&meta->length, mem, length);
++	meta->length = mem[0];
++	meta->flags  = mem[1];
++	memcpy(meta->buf, &mem[2], length - 2);
+ 	meta_buf->bytesused += length + sizeof(meta->ns) + sizeof(meta->sof);
  
- /* Format flags */
- #define UVC_FMT_FLAG_COMPRESSED		0x00000001
+ 	uvc_dbg(stream->dev, FRAME,
+diff --git a/include/uapi/linux/uvcvideo.h b/include/uapi/linux/uvcvideo.h
+index 8288137387c0d..a9d0a64007ba5 100644
+--- a/include/uapi/linux/uvcvideo.h
++++ b/include/uapi/linux/uvcvideo.h
+@@ -86,7 +86,7 @@ struct uvc_xu_control_query {
+  * struct. The first two fields are added by the driver, they can be used for
+  * clock synchronisation. The rest is an exact copy of a UVC payload header.
+  * Only complete objects with complete buffers are included. Therefore it's
+- * always sizeof(meta->ts) + sizeof(meta->sof) + meta->length bytes large.
++ * always sizeof(meta->ns) + sizeof(meta->sof) + meta->length bytes large.
+  */
+ struct uvc_meta_buf {
+ 	__u64 ns;
 -- 
 2.39.2
 
