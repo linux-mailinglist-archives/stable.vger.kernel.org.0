@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 9782E6AA38E
-	for <lists+stable@lfdr.de>; Fri,  3 Mar 2023 23:01:25 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1D3C66AA4CF
+	for <lists+stable@lfdr.de>; Fri,  3 Mar 2023 23:54:17 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233372AbjCCWBI (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 3 Mar 2023 17:01:08 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:32854 "EHLO
+        id S231983AbjCCWyM (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 3 Mar 2023 17:54:12 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46440 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233726AbjCCWAm (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 3 Mar 2023 17:00:42 -0500
+        with ESMTP id S231838AbjCCWyK (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 3 Mar 2023 17:54:10 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A095870422;
-        Fri,  3 Mar 2023 13:52:10 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 320EC21965;
+        Fri,  3 Mar 2023 14:53:43 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 539F4B81A32;
+        by ams.source.kernel.org (Postfix) with ESMTPS id D8BEBB81A38;
+        Fri,  3 Mar 2023 21:48:59 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id BA446C4339C;
         Fri,  3 Mar 2023 21:48:58 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 171E6C433EF;
-        Fri,  3 Mar 2023 21:48:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1677880138;
-        bh=Sfd7ALKP9WVTrFRLUUekbWVSI++kG3TJ/aPrRBnTJJ4=;
+        s=k20201202; t=1677880139;
+        bh=iLssFjCE/ZuSk8mC8YKfS8WArw1eZk+D/bVI0cb4e7k=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=UhSL+g6BJTwqal+NBzQzMHdHu82m2Qru9sDEySkgUxT7TdPJirlg9XILN0ddG0yoT
-         VG9jBwA7lujCYFGMWYhVT9ZDW7SE5eYgezyDG6Hb1XlheQoLj+rLZboLX6iepn3Nec
-         uiyWpnUWL9Clss2Lcc8qk+3mdi9+TjcS/Xj1KJ8GBAtcbp13zzcJwI6aoFsHo0NBOA
-         yCXHKyEhztfNN5LINBJaJyDWOGnraejLJOlR0nMfZZ+5BknuUIaISepIhcy9wt7+Us
-         uRju4epSl1MorRSv140lk6qqPsU8uB70WxBsaef10HDoqN9gyCUVCiE2CaV/WIyWHn
-         wuYgaGeVqCTVA==
+        b=ksC2lUyygJfSiFTrLPDALiGz4fnT4s12ryXmGhZZz0a6lDJM4lMLu1X9q7q35FZEt
+         zU0XeFHSMN3sTZCGa+CVTDrnwRtY/zKb8RJkXDAjL/4fE+Hli8gP93FXPMNizjeOMh
+         RKnGKHSxX8o7VNbMCwr92ETOQS095djfK9bCJfSQ2LEd91uzXCkOgZA2QqPS8FITud
+         AV3bEy6S+1LK4/eRYf36m/rqmeHUnuzpa6tWUFcQfxBjimcXsYRADTPj6gO7clLa1E
+         /fojL8fifcWHu4O+tImmEsusMtF0O6w88PLjH3eT72u0CMJt+foi5n15HY2o9ibeeY
+         K8qBbmTR+EDeg==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Kees Cook <keescook@chromium.org>, ionut_n2001@yahoo.com,
-        Laurent Pinchart <laurent.pinchart@ideasonboard.com>,
-        Sasha Levin <sashal@kernel.org>, mchehab@kernel.org,
-        linux-media@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.19 04/16] media: uvcvideo: Silence memcpy() run-time false positive warnings
-Date:   Fri,  3 Mar 2023 16:48:37 -0500
-Message-Id: <20230303214849.1454002-4-sashal@kernel.org>
+Cc:     Sven Schnelle <svens@linux.ibm.com>,
+        Jiri Slaby <jirislaby@kernel.org>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.19 05/16] tty: fix out-of-bounds access in tty_driver_lookup_tty()
+Date:   Fri,  3 Mar 2023 16:48:38 -0500
+Message-Id: <20230303214849.1454002-5-sashal@kernel.org>
 X-Mailer: git-send-email 2.39.2
 In-Reply-To: <20230303214849.1454002-1-sashal@kernel.org>
 References: <20230303214849.1454002-1-sashal@kernel.org>
@@ -56,58 +56,73 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Kees Cook <keescook@chromium.org>
+From: Sven Schnelle <svens@linux.ibm.com>
 
-[ Upstream commit b839212988575c701aab4d3d9ca15e44c87e383c ]
+[ Upstream commit db4df8e9d79e7d37732c1a1b560958e8dadfefa1 ]
 
-The memcpy() in uvc_video_decode_meta() intentionally copies across the
-length and flags members and into the trailing buf flexible array.
-Split the copy so that the compiler can better reason about (the lack
-of) buffer overflows here. Avoid the run-time false positive warning:
+When specifying an invalid console= device like console=tty3270,
+tty_driver_lookup_tty() returns the tty struct without checking
+whether index is a valid number.
 
-  memcpy: detected field-spanning write (size 12) of single field "&meta->length" at drivers/media/usb/uvc/uvc_video.c:1355 (size 1)
+To reproduce:
 
-Additionally fix a typo in the documentation for struct uvc_meta_buf.
+qemu-system-x86_64 -enable-kvm -nographic -serial mon:stdio \
+-kernel ../linux-build-x86/arch/x86/boot/bzImage \
+-append "console=ttyS0 console=tty3270"
 
-Reported-by: ionut_n2001@yahoo.com
-Link: https://bugzilla.kernel.org/show_bug.cgi?id=216810
-Signed-off-by: Kees Cook <keescook@chromium.org>
-Reviewed-by: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
-Signed-off-by: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
+This crashes with:
+
+[    0.770599] BUG: kernel NULL pointer dereference, address: 00000000000000ef
+[    0.771265] #PF: supervisor read access in kernel mode
+[    0.771773] #PF: error_code(0x0000) - not-present page
+[    0.772609] Oops: 0000 [#1] PREEMPT SMP PTI
+[    0.774878] RIP: 0010:tty_open+0x268/0x6f0
+[    0.784013]  chrdev_open+0xbd/0x230
+[    0.784444]  ? cdev_device_add+0x80/0x80
+[    0.784920]  do_dentry_open+0x1e0/0x410
+[    0.785389]  path_openat+0xca9/0x1050
+[    0.785813]  do_filp_open+0xaa/0x150
+[    0.786240]  file_open_name+0x133/0x1b0
+[    0.786746]  filp_open+0x27/0x50
+[    0.787244]  console_on_rootfs+0x14/0x4d
+[    0.787800]  kernel_init_freeable+0x1e4/0x20d
+[    0.788383]  ? rest_init+0xc0/0xc0
+[    0.788881]  kernel_init+0x11/0x120
+[    0.789356]  ret_from_fork+0x22/0x30
+
+Signed-off-by: Sven Schnelle <svens@linux.ibm.com>
+Reviewed-by: Jiri Slaby <jirislaby@kernel.org>
+Link: https://lore.kernel.org/r/20221209112737.3222509-2-svens@linux.ibm.com
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/media/usb/uvc/uvc_video.c | 4 +++-
- include/uapi/linux/uvcvideo.h     | 2 +-
- 2 files changed, 4 insertions(+), 2 deletions(-)
+ drivers/tty/tty_io.c | 8 +++++---
+ 1 file changed, 5 insertions(+), 3 deletions(-)
 
-diff --git a/drivers/media/usb/uvc/uvc_video.c b/drivers/media/usb/uvc/uvc_video.c
-index b431f06d5a1f5..1c0249df52566 100644
---- a/drivers/media/usb/uvc/uvc_video.c
-+++ b/drivers/media/usb/uvc/uvc_video.c
-@@ -1278,7 +1278,9 @@ static void uvc_video_decode_meta(struct uvc_streaming *stream,
- 	if (has_scr)
- 		memcpy(stream->clock.last_scr, scr, 6);
+diff --git a/drivers/tty/tty_io.c b/drivers/tty/tty_io.c
+index b6f42d0ee6269..d3e6b66155536 100644
+--- a/drivers/tty/tty_io.c
++++ b/drivers/tty/tty_io.c
+@@ -1155,14 +1155,16 @@ static struct tty_struct *tty_driver_lookup_tty(struct tty_driver *driver,
+ {
+ 	struct tty_struct *tty;
  
--	memcpy(&meta->length, mem, length);
-+	meta->length = mem[0];
-+	meta->flags  = mem[1];
-+	memcpy(meta->buf, &mem[2], length - 2);
- 	meta_buf->bytesused += length + sizeof(meta->ns) + sizeof(meta->sof);
- 
- 	uvc_trace(UVC_TRACE_FRAME,
-diff --git a/include/uapi/linux/uvcvideo.h b/include/uapi/linux/uvcvideo.h
-index f80f05b3c423f..2140923661934 100644
---- a/include/uapi/linux/uvcvideo.h
-+++ b/include/uapi/linux/uvcvideo.h
-@@ -86,7 +86,7 @@ struct uvc_xu_control_query {
-  * struct. The first two fields are added by the driver, they can be used for
-  * clock synchronisation. The rest is an exact copy of a UVC payload header.
-  * Only complete objects with complete buffers are included. Therefore it's
-- * always sizeof(meta->ts) + sizeof(meta->sof) + meta->length bytes large.
-+ * always sizeof(meta->ns) + sizeof(meta->sof) + meta->length bytes large.
-  */
- struct uvc_meta_buf {
- 	__u64 ns;
+-	if (driver->ops->lookup)
++	if (driver->ops->lookup) {
+ 		if (!file)
+ 			tty = ERR_PTR(-EIO);
+ 		else
+ 			tty = driver->ops->lookup(driver, file, idx);
+-	else
++	} else {
++		if (idx >= driver->num)
++			return ERR_PTR(-EINVAL);
+ 		tty = driver->ttys[idx];
+-
++	}
+ 	if (!IS_ERR(tty))
+ 		tty_kref_get(tty);
+ 	return tty;
 -- 
 2.39.2
 
