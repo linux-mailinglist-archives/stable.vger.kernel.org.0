@@ -2,47 +2,43 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 1E7E86AA237
-	for <lists+stable@lfdr.de>; Fri,  3 Mar 2023 22:46:42 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 616506AA4F4
+	for <lists+stable@lfdr.de>; Fri,  3 Mar 2023 23:59:30 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232226AbjCCVq0 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 3 Mar 2023 16:46:26 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55520 "EHLO
+        id S232124AbjCCW73 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 3 Mar 2023 17:59:29 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54482 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232185AbjCCVpD (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 3 Mar 2023 16:45:03 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B24B465C6E;
-        Fri,  3 Mar 2023 13:44:10 -0800 (PST)
+        with ESMTP id S232221AbjCCW7F (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 3 Mar 2023 17:59:05 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A7DB2244BC;
+        Fri,  3 Mar 2023 14:58:45 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 6CFFB61941;
-        Fri,  3 Mar 2023 21:43:59 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 36C53C433A7;
-        Fri,  3 Mar 2023 21:43:58 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 13978B819D0;
+        Fri,  3 Mar 2023 21:44:04 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 408CDC4339C;
+        Fri,  3 Mar 2023 21:44:02 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1677879839;
-        bh=WQ/AFTgJmQr/mPiSgZxL3KFvJ3Y/Dj8btyJ8583Tz6Y=;
+        s=k20201202; t=1677879842;
+        bh=KNB/gvnf8eLD2actKsJ+PYpfMYMabWWqOluMYv7CS4A=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=HM7oqnyY1AExs6UY/qpBwtgS7INOAwi3eefHGKALmqKUc16wqdN3kguqynpxlj79q
-         ep+mdGWs5tNLis+WWuYS1B9ucsFTKIAG9IqiKuY63NhqI5Ragjj1QsnxXXLLnd/zMa
-         CPPa9PKXZQ4y1ylrXo4lKpsLIW6vw1YQLwcUOf89rKmMiS09+EJ9L/HDFRUxXy4nxZ
-         ixfOOU6n+zW+fgYKfnIt9BCLI2Wx/kdtDgGRNxr+AaxKbM/NrinA9yznNl5sJ3EI3F
-         x0sREv/pLNkH0rJJQpxtqN0jBtThimKwxkTV5pYYppK+biBkNZ3aMmNTiuw3W/fbNV
-         WzUZqGZUiwmNw==
+        b=rPwh920FHxlMy72avLn1p8buC/+VA7Uzn6z05sVnbtx8wm4EDFYlJAjG/e1ruJviH
+         6vhK4i9NjfGWLFSio9F61BAwUzrRbI20pgZf5W1AHf/q14a67JejxdwPKDG2aESG7S
+         yZYx952J3v/JzxaCmcNXV/It1PT5Ux87UfAXQfSCfW1NGLehEfpKLoDOUGy3pEblpS
+         Hh+F+n3KxKn19M62Lq3ZN6u4YmM4MD7J/BcP4Ww4FetRfrEOgYrZ/hKmX9N9WFcUyl
+         PUbDNud+xZozWT3uTWRD9v/q6W4nCLgP1woWwHRFml7fTSVJZFF9Ehm0fsYGzQOfnL
+         ZgobLx4VceEHQ==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Marek Vasut <marex@denx.de>,
-        Laurent Pinchart <laurent.pinchart@ideasonboard.com>,
-        Ricardo Ribalda <ricardo@ribalda.com>,
-        Michael Grzeschik <m.grzeschik@pengutronix.de>,
+Cc:     Alper Nebi Yasak <alpernebiyasak@gmail.com>,
         Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Sasha Levin <sashal@kernel.org>, mchehab@kernel.org,
-        linux-media@vger.kernel.org
-Subject: [PATCH AUTOSEL 6.1 21/60] media: uvcvideo: Add GUID for BGRA/X 8:8:8:8
-Date:   Fri,  3 Mar 2023 16:42:35 -0500
-Message-Id: <20230303214315.1447666-21-sashal@kernel.org>
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH AUTOSEL 6.1 22/60] firmware: coreboot: framebuffer: Ignore reserved pixel color bits
+Date:   Fri,  3 Mar 2023 16:42:36 -0500
+Message-Id: <20230303214315.1447666-22-sashal@kernel.org>
 X-Mailer: git-send-email 2.39.2
 In-Reply-To: <20230303214315.1447666-1-sashal@kernel.org>
 References: <20230303214315.1447666-1-sashal@kernel.org>
@@ -50,8 +46,8 @@ MIME-Version: 1.0
 X-stable: review
 X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
         SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -59,69 +55,55 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Marek Vasut <marex@denx.de>
+From: Alper Nebi Yasak <alpernebiyasak@gmail.com>
 
-[ Upstream commit 015d44c2b700ba9639dd29672ba362796cc0be54 ]
+[ Upstream commit e6acaf25cba14661211bb72181c35dd13b24f5b3 ]
 
-The Cypress EZUSB FX3 UVC example can be configured to report pixel
-format "e436eb7e-524f-11ce-9f53-0020af0ba770". This is its GUID for
-BGRA/X 8:8:8:8.
+The coreboot framebuffer doesn't support transparency, its 'reserved'
+bit field is merely padding for byte/word alignment of pixel colors [1].
+When trying to match the framebuffer to a simplefb format, the kernel
+driver unnecessarily requires the format's transparency bit field to
+exactly match this padding, even if the former is zero-width.
 
-The UVC 1.5 spec [1] only defines GUIDs for YUY2, NV12, M420 and I420.
-This seems to be an extension documented in the Microsoft Windows Media
-Format SDK[2]. This Media Format SDK defines this GUID as corresponding
-to `MEDIASUBTYPE_RGB32`, which is confirmed by [4] as `MEDIASUBTYPE_ARGB32`
-has different GUID.
+Due to a coreboot bug [2] (fixed upstream), some boards misreport the
+reserved field's size as equal to its position (0x18 for both on a
+'Lick' Chromebook), and the driver fails to probe where it would have
+otherwise worked fine with e.g. the a8r8g8b8 or x8r8g8b8 formats.
 
-Note that in my case, the FX3 UVC can output either channel order,
-BGR or RGB or any other mix for that matter. Since Linux commit
-1b8dc32286a1a ("[media] uvcvideo: Add GUID for BGR 8:8:8")
-defined a GUID for `MEDIASUBTYPE_RGB24` channel order as BGR, keep
-this change consistent and define `MEDIASUBTYPE_RGB32` as BGR as well.
-Document [3] also indicates the channel order is BGR.
+Remove the transparency comparison with reserved bits. When the
+bits-per-pixel and other color components match, transparency will
+already be in a subset of the reserved field. Not forcing it to match
+reserved bits allows the driver to work on the boards which misreport
+the reserved field. It also enables using simplefb formats that don't
+have transparency bits, although this doesn't currently happen due to
+format support and ordering in linux/platform_data/simplefb.h.
 
-[1] https://www.usb.org/document-library/video-class-v15-document-set
-[2] https://learn.microsoft.com/en-us/windows/win32/wmformat/media-type-identifiers
-[3] https://learn.microsoft.com/en-us/windows/win32/directshow/uncompressed-rgb-video-subtypes
-[4] https://gix.github.io/media-types/
+[1] https://review.coreboot.org/plugins/gitiles/coreboot/+/4.19/src/commonlib/include/commonlib/coreboot_tables.h#255
+[2] https://review.coreboot.org/plugins/gitiles/coreboot/+/4.13/src/drivers/intel/fsp2_0/graphics.c#82
 
-Signed-off-by: Marek Vasut <marex@denx.de>
-Reviewed-by: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
-Reviewed-by: Ricardo Ribalda <ricardo@ribalda.com>
-Signed-off-by: Michael Grzeschik <m.grzeschik@pengutronix.de>
-Link: https://lore.kernel.org/r/20230126231456.3402323-2-m.grzeschik@pengutronix.de
+Signed-off-by: Alper Nebi Yasak <alpernebiyasak@gmail.com>
+Link: https://lore.kernel.org/r/20230122190433.195941-1-alpernebiyasak@gmail.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- include/media/v4l2-uvc.h | 8 ++++++++
- 1 file changed, 8 insertions(+)
+ drivers/firmware/google/framebuffer-coreboot.c | 4 +---
+ 1 file changed, 1 insertion(+), 3 deletions(-)
 
-diff --git a/include/media/v4l2-uvc.h b/include/media/v4l2-uvc.h
-index f83e31661333b..b010a36fc1d95 100644
---- a/include/media/v4l2-uvc.h
-+++ b/include/media/v4l2-uvc.h
-@@ -99,6 +99,9 @@
- #define UVC_GUID_FORMAT_BGR3 \
- 	{ 0x7d, 0xeb, 0x36, 0xe4, 0x4f, 0x52, 0xce, 0x11, \
- 	 0x9f, 0x53, 0x00, 0x20, 0xaf, 0x0b, 0xa7, 0x70}
-+#define UVC_GUID_FORMAT_BGR4 \
-+	{ 0x7e, 0xeb, 0x36, 0xe4, 0x4f, 0x52, 0xce, 0x11, \
-+	 0x9f, 0x53, 0x00, 0x20, 0xaf, 0x0b, 0xa7, 0x70}
- #define UVC_GUID_FORMAT_M420 \
- 	{ 'M',  '4',  '2',  '0', 0x00, 0x00, 0x10, 0x00, \
- 	 0x80, 0x00, 0x00, 0xaa, 0x00, 0x38, 0x9b, 0x71}
-@@ -266,6 +269,11 @@ static struct uvc_format_desc uvc_fmts[] = {
- 		.guid		= UVC_GUID_FORMAT_BGR3,
- 		.fcc		= V4L2_PIX_FMT_BGR24,
- 	},
-+	{
-+		.name		= "BGRA/X 8:8:8:8 (BGR4)",
-+		.guid		= UVC_GUID_FORMAT_BGR4,
-+		.fcc		= V4L2_PIX_FMT_XBGR32,
-+	},
- 	{
- 		.name		= "H.264",
- 		.guid		= UVC_GUID_FORMAT_H264,
+diff --git a/drivers/firmware/google/framebuffer-coreboot.c b/drivers/firmware/google/framebuffer-coreboot.c
+index c6dcc1ef93acf..c323a818805cc 100644
+--- a/drivers/firmware/google/framebuffer-coreboot.c
++++ b/drivers/firmware/google/framebuffer-coreboot.c
+@@ -43,9 +43,7 @@ static int framebuffer_probe(struct coreboot_device *dev)
+ 		    fb->green_mask_pos     == formats[i].green.offset &&
+ 		    fb->green_mask_size    == formats[i].green.length &&
+ 		    fb->blue_mask_pos      == formats[i].blue.offset &&
+-		    fb->blue_mask_size     == formats[i].blue.length &&
+-		    fb->reserved_mask_pos  == formats[i].transp.offset &&
+-		    fb->reserved_mask_size == formats[i].transp.length)
++		    fb->blue_mask_size     == formats[i].blue.length)
+ 			pdata.format = formats[i].name;
+ 	}
+ 	if (!pdata.format)
 -- 
 2.39.2
 
