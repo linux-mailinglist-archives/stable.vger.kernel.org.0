@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 1448C6AA364
+	by mail.lfdr.de (Postfix) with ESMTP id 69C216AA365
 	for <lists+stable@lfdr.de>; Fri,  3 Mar 2023 22:58:26 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232822AbjCCV6U (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 3 Mar 2023 16:58:20 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:58872 "EHLO
+        id S233341AbjCCV6V (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 3 Mar 2023 16:58:21 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49356 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233339AbjCCV5s (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 3 Mar 2023 16:57:48 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A03BF6BC3E;
-        Fri,  3 Mar 2023 13:50:05 -0800 (PST)
+        with ESMTP id S233156AbjCCV5t (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 3 Mar 2023 16:57:49 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id F20876C181;
+        Fri,  3 Mar 2023 13:50:06 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 4800EB81A28;
-        Fri,  3 Mar 2023 21:48:00 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 585AAC4339C;
-        Fri,  3 Mar 2023 21:47:58 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 6E69DB81A3C;
+        Fri,  3 Mar 2023 21:48:01 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 605C3C433A7;
+        Fri,  3 Mar 2023 21:47:59 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1677880078;
-        bh=zaF0VsMp1l2Gd+WqzoyktK0v1rK3cxgJjZh2sckP8/I=;
+        s=k20201202; t=1677880080;
+        bh=eaqxMiW+hFInlOzEsD+yg/ipaGPuNxTLH2jXqymyuGk=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Z6J9FtXAjutGML8HIBxLx9hhuaBvHKfe/NXC4TtU1jjflqy6GDE6EeJg00NINqLcg
-         0Y9jU/xnbUx/MJBoBFV4hokuAo9kl2TK0bZRLJ+pzP5X9ohjG/l7433JFCywXlDPN5
-         WM1H6ThuLTGIvAzsOB7aP7/x5pFQdO1X5lqOTB0fLGE2t+3xEx8jM2fBEtm4Omkygh
-         bb2HstcwXOsWhO6SJ9VWPjf22AdbN+KJ1M6EhEAY3K+t4RQmmDzl2Wn5b0/k9Bqil4
-         G7L2qt7qaGQg9a6lJSq5ubl7rCoP3zzaI1y5CWPvJcwBeDhLzNUq0VrdhWnvscPBFf
-         QzNur7mV+TThQ==
+        b=SSgotcfFCR389QLVfmALnhy3OH8rAREymQ0tDTkxfNcxvdghgkWNYYQO+DsQ04VbR
+         qQyIMP2Gs72NEjkQN/g+eeZpkVbRjp864WA9S7q2G2KytevCfn8Rs9Lc0orJmyTQ+O
+         7sZ59gm4g10yJP3sTeo3z8iOB6yUsYSwPLDnPYdWk66u/ykpO16585KYU0mrPDMLt1
+         bToPndsuTAd9zAmWWWezL+pUdaGUao6hlxk00YsGS8YbebUc5otzIxA+97O3ZOtEGx
+         SgWfwhEJ5WWeQ09ucpYF/YfrkeFasx26feJrokNpkh9Z16CQ8Vg5yzPDsB5pTxEFyK
+         0tl/m0gJTskcQ==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Andrew Morton <akpm@linux-foundation.org>,
-        Yang Yingliang <yangyingliang@huawei.com>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 5.10 25/30] kernel/fail_function: fix memory leak with using debugfs_lookup()
-Date:   Fri,  3 Mar 2023 16:47:10 -0500
-Message-Id: <20230303214715.1452256-25-sashal@kernel.org>
+Cc:     Huacai Chen <chenhuacai@loongson.cn>,
+        Bjorn Helgaas <bhelgaas@google.com>,
+        Sasha Levin <sashal@kernel.org>, lpieralisi@kernel.org,
+        kw@linux.com, linux-pci@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.10 26/30] PCI: loongson: Add more devices that need MRRS quirk
+Date:   Fri,  3 Mar 2023 16:47:11 -0500
+Message-Id: <20230303214715.1452256-26-sashal@kernel.org>
 X-Mailer: git-send-email 2.39.2
 In-Reply-To: <20230303214715.1452256-1-sashal@kernel.org>
 References: <20230303214715.1452256-1-sashal@kernel.org>
@@ -47,8 +47,8 @@ MIME-Version: 1.0
 X-stable: review
 X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
         SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -56,40 +56,83 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+From: Huacai Chen <chenhuacai@loongson.cn>
 
-[ Upstream commit 2bb3669f576559db273efe49e0e69f82450efbca ]
+[ Upstream commit c768f8c5f40fcdc6f058cc2f02592163d6c6716c ]
 
-When calling debugfs_lookup() the result must have dput() called on it,
-otherwise the memory will leak over time.  To make things simpler, just
-call debugfs_lookup_and_remove() instead which handles all of the logic
-at once.
+Loongson-2K SOC and LS7A2000 chipset add new PCI IDs that need MRRS
+quirk.  Add them.
 
-Cc: Andrew Morton <akpm@linux-foundation.org>
-Reviewed-by: Yang Yingliang <yangyingliang@huawei.com>
-Link: https://lore.kernel.org/r/20230202151633.2310897-1-gregkh@linuxfoundation.org
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Link: https://lore.kernel.org/r/20230211023321.3530080-1-chenhuacai@loongson.cn
+Signed-off-by: Huacai Chen <chenhuacai@loongson.cn>
+Signed-off-by: Bjorn Helgaas <bhelgaas@google.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/fail_function.c | 5 +----
- 1 file changed, 1 insertion(+), 4 deletions(-)
+ drivers/pci/controller/pci-loongson.c | 33 +++++++++++++++++++--------
+ 1 file changed, 24 insertions(+), 9 deletions(-)
 
-diff --git a/kernel/fail_function.c b/kernel/fail_function.c
-index b0b1ad93fa957..8f3795d8ac5b0 100644
---- a/kernel/fail_function.c
-+++ b/kernel/fail_function.c
-@@ -163,10 +163,7 @@ static void fei_debugfs_add_attr(struct fei_attr *attr)
+diff --git a/drivers/pci/controller/pci-loongson.c b/drivers/pci/controller/pci-loongson.c
+index dc7b4e4293ced..e73e18a73833b 100644
+--- a/drivers/pci/controller/pci-loongson.c
++++ b/drivers/pci/controller/pci-loongson.c
+@@ -13,9 +13,14 @@
+ #include "../pci.h"
  
- static void fei_debugfs_remove_attr(struct fei_attr *attr)
- {
--	struct dentry *dir;
--
--	dir = debugfs_lookup(attr->kp.symbol_name, fei_debugfs_dir);
--	debugfs_remove_recursive(dir);
-+	debugfs_lookup_and_remove(attr->kp.symbol_name, fei_debugfs_dir);
+ /* Device IDs */
+-#define DEV_PCIE_PORT_0	0x7a09
+-#define DEV_PCIE_PORT_1	0x7a19
+-#define DEV_PCIE_PORT_2	0x7a29
++#define DEV_LS2K_PCIE_PORT0	0x1a05
++#define DEV_LS7A_PCIE_PORT0	0x7a09
++#define DEV_LS7A_PCIE_PORT1	0x7a19
++#define DEV_LS7A_PCIE_PORT2	0x7a29
++#define DEV_LS7A_PCIE_PORT3	0x7a39
++#define DEV_LS7A_PCIE_PORT4	0x7a49
++#define DEV_LS7A_PCIE_PORT5	0x7a59
++#define DEV_LS7A_PCIE_PORT6	0x7a69
+ 
+ #define DEV_LS2K_APB	0x7a02
+ #define DEV_LS7A_CONF	0x7a10
+@@ -38,11 +43,11 @@ static void bridge_class_quirk(struct pci_dev *dev)
+ 	dev->class = PCI_CLASS_BRIDGE_PCI << 8;
  }
+ DECLARE_PCI_FIXUP_EARLY(PCI_VENDOR_ID_LOONGSON,
+-			DEV_PCIE_PORT_0, bridge_class_quirk);
++			DEV_LS7A_PCIE_PORT0, bridge_class_quirk);
+ DECLARE_PCI_FIXUP_EARLY(PCI_VENDOR_ID_LOONGSON,
+-			DEV_PCIE_PORT_1, bridge_class_quirk);
++			DEV_LS7A_PCIE_PORT1, bridge_class_quirk);
+ DECLARE_PCI_FIXUP_EARLY(PCI_VENDOR_ID_LOONGSON,
+-			DEV_PCIE_PORT_2, bridge_class_quirk);
++			DEV_LS7A_PCIE_PORT2, bridge_class_quirk);
  
- static int fei_kprobe_handler(struct kprobe *kp, struct pt_regs *regs)
+ static void system_bus_quirk(struct pci_dev *pdev)
+ {
+@@ -72,11 +77,21 @@ static void loongson_mrrs_quirk(struct pci_dev *pdev)
+ 	bridge->no_inc_mrrs = 1;
+ }
+ DECLARE_PCI_FIXUP_EARLY(PCI_VENDOR_ID_LOONGSON,
+-			DEV_PCIE_PORT_0, loongson_mrrs_quirk);
++			DEV_LS2K_PCIE_PORT0, loongson_mrrs_quirk);
+ DECLARE_PCI_FIXUP_EARLY(PCI_VENDOR_ID_LOONGSON,
+-			DEV_PCIE_PORT_1, loongson_mrrs_quirk);
++			DEV_LS7A_PCIE_PORT0, loongson_mrrs_quirk);
+ DECLARE_PCI_FIXUP_EARLY(PCI_VENDOR_ID_LOONGSON,
+-			DEV_PCIE_PORT_2, loongson_mrrs_quirk);
++			DEV_LS7A_PCIE_PORT1, loongson_mrrs_quirk);
++DECLARE_PCI_FIXUP_EARLY(PCI_VENDOR_ID_LOONGSON,
++			DEV_LS7A_PCIE_PORT2, loongson_mrrs_quirk);
++DECLARE_PCI_FIXUP_EARLY(PCI_VENDOR_ID_LOONGSON,
++			DEV_LS7A_PCIE_PORT3, loongson_mrrs_quirk);
++DECLARE_PCI_FIXUP_EARLY(PCI_VENDOR_ID_LOONGSON,
++			DEV_LS7A_PCIE_PORT4, loongson_mrrs_quirk);
++DECLARE_PCI_FIXUP_EARLY(PCI_VENDOR_ID_LOONGSON,
++			DEV_LS7A_PCIE_PORT5, loongson_mrrs_quirk);
++DECLARE_PCI_FIXUP_EARLY(PCI_VENDOR_ID_LOONGSON,
++			DEV_LS7A_PCIE_PORT6, loongson_mrrs_quirk);
+ 
+ static void __iomem *cfg1_map(struct loongson_pci *priv, int bus,
+ 				unsigned int devfn, int where)
 -- 
 2.39.2
 
