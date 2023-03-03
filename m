@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id CA15E6AA4E7
-	for <lists+stable@lfdr.de>; Fri,  3 Mar 2023 23:55:23 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 764346AA2D7
+	for <lists+stable@lfdr.de>; Fri,  3 Mar 2023 22:52:11 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233143AbjCCWzO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 3 Mar 2023 17:55:14 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48046 "EHLO
+        id S232759AbjCCVtn (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 3 Mar 2023 16:49:43 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37808 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233102AbjCCWzI (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 3 Mar 2023 17:55:08 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AA0A51D903;
-        Fri,  3 Mar 2023 14:54:33 -0800 (PST)
+        with ESMTP id S232679AbjCCVtO (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 3 Mar 2023 16:49:14 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 9C58067018;
+        Fri,  3 Mar 2023 13:45:45 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 09003B81A0F;
+        by ams.source.kernel.org (Postfix) with ESMTPS id 5EBA1B81A0C;
+        Fri,  3 Mar 2023 21:45:27 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 370EFC433A7;
         Fri,  3 Mar 2023 21:45:26 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id CF115C433AC;
-        Fri,  3 Mar 2023 21:45:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1677879925;
-        bh=WaUSjpkUwd4UxSJqkMPDcboOID8qD3G2CrCQdrExJIU=;
+        s=k20201202; t=1677879927;
+        bh=b/RLWSejTFE9QqMTw1tzkCNobQw0ipmoV46ssE+9qWg=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=pVXr5dVwXp+6i7gmz0f2djZJLiA/8URyY2J1MzTqgZ35UGZBgsZoIJ0tsUb77De29
-         8yl0lchVhfCD/QTww0TJ+sCR4hLyMqqmMQduVupt9l+322zmPAbC3SU5JaQ2KP6lDX
-         0TV76m5t7lb4hnFIN0FyKz9N8hkmd8KU8KDEl+W/nJIeavwzrTeNgGKltcsJi1reKo
-         Yq/VdBtmrZ0B/+9SE52e4wT9T6st+9NW+CYPQS2wOK3eZdoeFrv7LfTpuZJ/umUdg1
-         qn4Y9SVPL/aqfPA3HO5gyCELli0E8iarNcEbxsHH5AjUOya3b8L5BET703MB5ESeoC
-         fvpgnMyqLzqVQ==
+        b=bd9wxFVDKJhIOicPRP07r+8wtzjxEiNSYUWI5urhLS3xwv+9OJYqFvJpcZuFnGp1S
+         yqUI52637NoDBKyzOiCR2ACRH6+N34At9fXQvC9fYR2zCIz7EIlacKMQoVdR8rM2hW
+         HthqjdObkhBtZG55N4mr/UUfsGpOxx3v/rFtLtkKudOeECXexDimObU9if93dZ5/Xz
+         qkedRs3Bd9LrnnYXPbvCcOr3RoSEpn+npzCsSl2gNmZ0v3oL9GV9ODGGjvVegco3kz
+         BFfALzmN1zPo+3Ovf4O3v40Z/y0M6mFTe/SWxS1jEl0k4tWZxV9SBZBlY+3458ytRR
+         LZmCvb0TlKb3A==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Richard Fitzgerald <rf@opensource.cirrus.com>,
         Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>,
         Vinod Koul <vkoul@kernel.org>, Sasha Levin <sashal@kernel.org>,
         yung-chuan.liao@linux.intel.com, alsa-devel@alsa-project.org
-Subject: [PATCH AUTOSEL 6.1 59/60] soundwire: cadence: Remove wasted space in response_buf
-Date:   Fri,  3 Mar 2023 16:43:13 -0500
-Message-Id: <20230303214315.1447666-59-sashal@kernel.org>
+Subject: [PATCH AUTOSEL 6.1 60/60] soundwire: cadence: Drain the RX FIFO after an IO timeout
+Date:   Fri,  3 Mar 2023 16:43:14 -0500
+Message-Id: <20230303214315.1447666-60-sashal@kernel.org>
 X-Mailer: git-send-email 2.39.2
 In-Reply-To: <20230303214315.1447666-1-sashal@kernel.org>
 References: <20230303214315.1447666-1-sashal@kernel.org>
@@ -47,8 +47,8 @@ MIME-Version: 1.0
 X-stable: review
 X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
         SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -58,78 +58,108 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Richard Fitzgerald <rf@opensource.cirrus.com>
 
-[ Upstream commit 827c32d0df4bbe0d1c47d79f6a5eabfe9ac75216 ]
+[ Upstream commit 0603a47bd3a8f439d7844b841eee1819353063e0 ]
 
-The response_buf was declared much larger (128 entries) than the number
-of responses that could ever be written into it. The Cadence IP is
-configurable up to a maximum of 32 entries, and the datasheet says
-that RX_FIFO_AVAIL can be 2 larger than this. So allow up to 34
-responses.
+If wait_for_completion_timeout() times-out in _cdns_xfer_msg() it
+is possible that something could have been written to the RX FIFO.
+In this case, we should drain the RX FIFO so that anything in it
+doesn't carry over and mess up the next transfer.
 
-Also add checking in cdns_read_response() to prevent overflowing
-reponse_buf if RX_FIFO_AVAIL contains an unexpectedly large number.
+Obviously, if we got to this state something went wrong, and we
+don't really know the state of everything. The cleanup in this
+situation cannot be bullet-proof but we should attempt to avoid
+breaking future transaction, if only to reduce the amount of
+error noise when debugging the failure from a kernel log.
+
+Note that this patch only implements the draining for blocking
+(non-deferred) transfers. The deferred API doesn't have any proper
+handling of error conditions and would need some re-design before
+implementing cleanup. That is a task for a separate patch...
 
 Signed-off-by: Richard Fitzgerald <rf@opensource.cirrus.com>
 Reviewed-by: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
-Link: https://lore.kernel.org/r/20221202161812.4186897-3-rf@opensource.cirrus.com
+Link: https://lore.kernel.org/r/20221202161812.4186897-4-rf@opensource.cirrus.com
 Signed-off-by: Vinod Koul <vkoul@kernel.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/soundwire/cadence_master.c |  7 +++++++
- drivers/soundwire/cadence_master.h | 13 ++++++++++++-
- 2 files changed, 19 insertions(+), 1 deletion(-)
+ drivers/soundwire/cadence_master.c | 50 ++++++++++++++++--------------
+ 1 file changed, 27 insertions(+), 23 deletions(-)
 
 diff --git a/drivers/soundwire/cadence_master.c b/drivers/soundwire/cadence_master.c
-index 93929f19d0831..4e92a6b1ad626 100644
+index 4e92a6b1ad626..cb59dc634658c 100644
 --- a/drivers/soundwire/cadence_master.c
 +++ b/drivers/soundwire/cadence_master.c
-@@ -773,8 +773,15 @@ static void cdns_read_response(struct sdw_cdns *cdns)
- 	u32 num_resp, cmd_base;
- 	int i;
+@@ -554,6 +554,29 @@ cdns_fill_msg_resp(struct sdw_cdns *cdns,
+ 	return SDW_CMD_OK;
+ }
  
++static void cdns_read_response(struct sdw_cdns *cdns)
++{
++	u32 num_resp, cmd_base;
++	int i;
++
 +	/* RX_FIFO_AVAIL can be 2 entries more than the FIFO size */
 +	BUILD_BUG_ON(ARRAY_SIZE(cdns->response_buf) < CDNS_MCP_CMD_LEN + 2);
 +
- 	num_resp = cdns_readl(cdns, CDNS_MCP_FIFOSTAT);
- 	num_resp &= CDNS_MCP_RX_FIFO_AVAIL;
++	num_resp = cdns_readl(cdns, CDNS_MCP_FIFOSTAT);
++	num_resp &= CDNS_MCP_RX_FIFO_AVAIL;
 +	if (num_resp > ARRAY_SIZE(cdns->response_buf)) {
 +		dev_warn(cdns->dev, "RX AVAIL %d too long\n", num_resp);
 +		num_resp = ARRAY_SIZE(cdns->response_buf);
 +	}
- 
- 	cmd_base = CDNS_MCP_CMD_BASE;
- 
-diff --git a/drivers/soundwire/cadence_master.h b/drivers/soundwire/cadence_master.h
-index ca9e805bab88f..51e6ecc027cbc 100644
---- a/drivers/soundwire/cadence_master.h
-+++ b/drivers/soundwire/cadence_master.h
-@@ -8,6 +8,12 @@
- #define SDW_CADENCE_GSYNC_KHZ		4 /* 4 kHz */
- #define SDW_CADENCE_GSYNC_HZ		(SDW_CADENCE_GSYNC_KHZ * 1000)
- 
-+/*
-+ * The Cadence IP supports up to 32 entries in the FIFO, though implementations
-+ * can configure the IP to have a smaller FIFO.
-+ */
-+#define CDNS_MCP_IP_MAX_CMD_LEN		32
 +
- /**
-  * struct sdw_cdns_pdi: PDI (Physical Data Interface) instance
-  *
-@@ -114,7 +120,12 @@ struct sdw_cdns {
- 	struct sdw_bus bus;
- 	unsigned int instance;
- 
--	u32 response_buf[0x80];
-+	/*
-+	 * The datasheet says the RX FIFO AVAIL can be 2 entries more
-+	 * than the FIFO capacity, so allow for this.
-+	 */
-+	u32 response_buf[CDNS_MCP_IP_MAX_CMD_LEN + 2];
++	cmd_base = CDNS_MCP_CMD_BASE;
 +
- 	struct completion tx_complete;
- 	struct sdw_defer *defer;
++	for (i = 0; i < num_resp; i++) {
++		cdns->response_buf[i] = cdns_readl(cdns, cmd_base);
++		cmd_base += CDNS_MCP_CMD_WORD_LEN;
++	}
++}
++
+ static enum sdw_command_response
+ _cdns_xfer_msg(struct sdw_cdns *cdns, struct sdw_msg *msg, int cmd,
+ 	       int offset, int count, bool defer)
+@@ -595,6 +618,10 @@ _cdns_xfer_msg(struct sdw_cdns *cdns, struct sdw_msg *msg, int cmd,
+ 		dev_err(cdns->dev, "IO transfer timed out, cmd %d device %d addr %x len %d\n",
+ 			cmd, msg->dev_num, msg->addr, msg->len);
+ 		msg->len = 0;
++
++		/* Drain anything in the RX_FIFO */
++		cdns_read_response(cdns);
++
+ 		return SDW_CMD_TIMEOUT;
+ 	}
  
+@@ -768,29 +795,6 @@ EXPORT_SYMBOL(cdns_read_ping_status);
+  * IRQ handling
+  */
+ 
+-static void cdns_read_response(struct sdw_cdns *cdns)
+-{
+-	u32 num_resp, cmd_base;
+-	int i;
+-
+-	/* RX_FIFO_AVAIL can be 2 entries more than the FIFO size */
+-	BUILD_BUG_ON(ARRAY_SIZE(cdns->response_buf) < CDNS_MCP_CMD_LEN + 2);
+-
+-	num_resp = cdns_readl(cdns, CDNS_MCP_FIFOSTAT);
+-	num_resp &= CDNS_MCP_RX_FIFO_AVAIL;
+-	if (num_resp > ARRAY_SIZE(cdns->response_buf)) {
+-		dev_warn(cdns->dev, "RX AVAIL %d too long\n", num_resp);
+-		num_resp = ARRAY_SIZE(cdns->response_buf);
+-	}
+-
+-	cmd_base = CDNS_MCP_CMD_BASE;
+-
+-	for (i = 0; i < num_resp; i++) {
+-		cdns->response_buf[i] = cdns_readl(cdns, cmd_base);
+-		cmd_base += CDNS_MCP_CMD_WORD_LEN;
+-	}
+-}
+-
+ static int cdns_update_slave_status(struct sdw_cdns *cdns,
+ 				    u64 slave_intstat)
+ {
 -- 
 2.39.2
 
