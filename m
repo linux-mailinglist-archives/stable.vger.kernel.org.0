@@ -2,47 +2,48 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id BAD4C6AA548
-	for <lists+stable@lfdr.de>; Sat,  4 Mar 2023 00:03:51 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 27AF56AA58C
+	for <lists+stable@lfdr.de>; Sat,  4 Mar 2023 00:23:30 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232170AbjCCXDt (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 3 Mar 2023 18:03:49 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:34660 "EHLO
+        id S229562AbjCCXX2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 3 Mar 2023 18:23:28 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57198 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231938AbjCCXDo (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 3 Mar 2023 18:03:44 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 364BD4FA94;
-        Fri,  3 Mar 2023 15:03:38 -0800 (PST)
+        with ESMTP id S229498AbjCCXX1 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 3 Mar 2023 18:23:27 -0500
+Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 80FE5975F;
+        Fri,  3 Mar 2023 15:23:26 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id A0D2DB81A3F;
-        Fri,  3 Mar 2023 21:47:56 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8CF67C43446;
-        Fri,  3 Mar 2023 21:47:55 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id 0FCA5CE22A4;
+        Fri,  3 Mar 2023 21:48:12 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 972ECC433A1;
+        Fri,  3 Mar 2023 21:48:09 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1677880076;
-        bh=L0GDlOFJh1U+yOBJ5nphKgt60E01OaTI0l1WVeilfBg=;
+        s=k20201202; t=1677880090;
+        bh=ICUo+3AoOR3DSqV/0peJ+lnKr4GOBjTwhw8DibwD7nE=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=fLjQBXwRRMdk3ZmaSt5J4D/fASyLVT+3fysLDdjsfjhtovN3gMpBbO0cZDWjJEu57
-         Nf6LyhVW+Mkd09go5OSgL6j3K+98MJctn/PaCRE14h2kcxiyJRrlv5Ju6RsuzCHQh7
-         +B2z+bnfgNTAzPCPr4EjmnLXInJKEMwRNnfZPYCRMkYID7XMQHPpDJgP1OpNBj3scQ
-         O0glO/Taz30tdECVKmdUwl8kHB0lmoSd2h0HeynQcS/3e5KK5iYijqHRMNHpXXhDTe
-         NAvUQlrixGztyNbarQ2x5KMN+ezp0MaFHLtaLsIshYbPRGNY38QRcH/5kldRryv8b/
-         t7qIiHu7kj1Tw==
+        b=h1HNA9QUe77485DMp6NjXu8U5XosnhFjPihPE522iPZUuTgCJCForD0t5PE8mEdFN
+         phr4o1b1gV6pClerDcRn3ewTpBZH14J3JvvhcTs0Klhyk7eBuZ9uqW81Zg5rEdZH0I
+         5zy7ZXobhWtUOaMD25zdUBHAvSCq7Wi/vSimcGZqsJb0wecHyVe+ymLrZ72IREP1lj
+         4WzW/mfSKhXjADtJ7gGohBC+lSZSwR5vYpqA2isFPvItPbdmRnMprH9CziFccGpd8I
+         PlXdU3CA5xmELGbYmntQr6OSOGGTvK4jl/Hvll50WAHHTnvnksLsjffcdE8oK57xKq
+         99VTEoczk30xg==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        "Rafael J. Wysocki" <rafael@kernel.org>,
-        Pavel Machek <pavel@ucw.cz>, Len Brown <len.brown@intel.com>,
-        Sasha Levin <sashal@kernel.org>, linux-pm@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.10 24/30] kernel/power/energy_model.c: fix memory leak with using debugfs_lookup()
-Date:   Fri,  3 Mar 2023 16:47:09 -0500
-Message-Id: <20230303214715.1452256-24-sashal@kernel.org>
+Cc:     Ricardo Ribalda <ribalda@chromium.org>,
+        syzbot <syzkaller@googlegroups.com>,
+        Laurent Pinchart <laurent.pinchart@ideasonboard.com>,
+        Sasha Levin <sashal@kernel.org>, mchehab@kernel.org,
+        linux-media@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.4 02/20] media: uvcvideo: Handle cameras with invalid descriptors
+Date:   Fri,  3 Mar 2023 16:47:48 -0500
+Message-Id: <20230303214806.1453287-2-sashal@kernel.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230303214715.1452256-1-sashal@kernel.org>
-References: <20230303214715.1452256-1-sashal@kernel.org>
+In-Reply-To: <20230303214806.1453287-1-sashal@kernel.org>
+References: <20230303214806.1453287-1-sashal@kernel.org>
 MIME-Version: 1.0
 X-stable: review
 X-Patchwork-Hint: Ignore
@@ -56,41 +57,34 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+From: Ricardo Ribalda <ribalda@chromium.org>
 
-[ Upstream commit a0bc3f78d0fffa8be1a73bf945a43bfe1c2871c1 ]
+[ Upstream commit 41ddb251c68ac75c101d3a50a68c4629c9055e4c ]
 
-When calling debugfs_lookup() the result must have dput() called on it,
-otherwise the memory will leak over time.  To make things simpler, just
-call debugfs_lookup_and_remove() instead which handles all of the logic
-at once.
+If the source entity does not contain any pads, do not create a link.
 
-Cc: "Rafael J. Wysocki" <rafael@kernel.org>
-Cc: Pavel Machek <pavel@ucw.cz>
-Cc: Len Brown <len.brown@intel.com>
-Link: https://lore.kernel.org/r/20230202151515.2309543-1-gregkh@linuxfoundation.org
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Reported-by: syzbot <syzkaller@googlegroups.com>
+Signed-off-by: Ricardo Ribalda <ribalda@chromium.org>
+Reviewed-by: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
+Signed-off-by: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- kernel/power/energy_model.c | 5 +----
- 1 file changed, 1 insertion(+), 4 deletions(-)
+ drivers/media/usb/uvc/uvc_entity.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/kernel/power/energy_model.c b/kernel/power/energy_model.c
-index 119b929dcff0f..334173fe6940e 100644
---- a/kernel/power/energy_model.c
-+++ b/kernel/power/energy_model.c
-@@ -72,10 +72,7 @@ static void em_debug_create_pd(struct device *dev)
+diff --git a/drivers/media/usb/uvc/uvc_entity.c b/drivers/media/usb/uvc/uvc_entity.c
+index ca3a9c2eec271..7c9895377118c 100644
+--- a/drivers/media/usb/uvc/uvc_entity.c
++++ b/drivers/media/usb/uvc/uvc_entity.c
+@@ -37,7 +37,7 @@ static int uvc_mc_create_links(struct uvc_video_chain *chain,
+ 			continue;
  
- static void em_debug_remove_pd(struct device *dev)
- {
--	struct dentry *debug_dir;
--
--	debug_dir = debugfs_lookup(dev_name(dev), rootdir);
--	debugfs_remove_recursive(debug_dir);
-+	debugfs_lookup_and_remove(dev_name(dev), rootdir);
- }
+ 		remote = uvc_entity_by_id(chain->dev, entity->baSourceID[i]);
+-		if (remote == NULL)
++		if (remote == NULL || remote->num_pads == 0)
+ 			return -EINVAL;
  
- static int __init em_debug_init(void)
+ 		source = (UVC_ENTITY_TYPE(remote) == UVC_TT_STREAMING)
 -- 
 2.39.2
 
