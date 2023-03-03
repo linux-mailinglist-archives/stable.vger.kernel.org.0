@@ -2,44 +2,49 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 80B106A9174
-	for <lists+stable@lfdr.de>; Fri,  3 Mar 2023 08:10:57 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id E4B5D6A91A6
+	for <lists+stable@lfdr.de>; Fri,  3 Mar 2023 08:23:37 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229662AbjCCHKz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 3 Mar 2023 02:10:55 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44446 "EHLO
+        id S229797AbjCCHXf (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 3 Mar 2023 02:23:35 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55038 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229512AbjCCHKz (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 3 Mar 2023 02:10:55 -0500
-Received: from wp530.webpack.hosteurope.de (wp530.webpack.hosteurope.de [80.237.130.52])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E8A3F18B23;
-        Thu,  2 Mar 2023 23:10:53 -0800 (PST)
-Received: from [2a02:8108:8980:2478:8cde:aa2c:f324:937e]; authenticated
-        by wp530.webpack.hosteurope.de running ExIM with esmtpsa (TLS1.3:ECDHE_RSA_AES_128_GCM_SHA256:128)
-        id 1pXzZ5-0006KW-PD; Fri, 03 Mar 2023 08:10:51 +0100
-Message-ID: <ad02467d-d623-5933-67e0-09925c185568@leemhuis.info>
-Date:   Fri, 3 Mar 2023 08:10:49 +0100
+        with ESMTP id S229706AbjCCHXb (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 3 Mar 2023 02:23:31 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 02D82136E1;
+        Thu,  2 Mar 2023 23:23:29 -0800 (PST)
+Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
+        (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+        (No client certificate requested)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 5C81D61770;
+        Fri,  3 Mar 2023 07:23:29 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8F146C433EF;
+        Fri,  3 Mar 2023 07:23:28 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+        s=k20201202; t=1677828208;
+        bh=I5Ss6r4/6WUcYMnuwUPr1yRvzmvUpgxCvKLlxau+iVk=;
+        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+        b=g0sPFUSDKdhlFAE/o+ztKDpP9yNJ8HiV17MFNkniX5LzZUVXDecXNXhDmuyLzNt4n
+         251QZtHrXpE1Tb02/plnxh0oMJZsrkGBQ0btPP8Px83PrlLoucn/2yZETySBsV1Vbg
+         N+j7i9u3Xnc5chELVeUyPNsgi6fhSMTLyvg+YTqXjLyM8ZVQgosb+zGES10Hb94lk0
+         xK/iGs4HmBnexZ8l7MPvBMcYloQau+mi6/6hVO6IYZfEDoqJ0HrRykrjfLpk/dJsAO
+         PGsu19sHODANG0GpbBHlTrlaR21tLEYzfxe6727AmsyoYHgkVt4stbzGiMUxiXfaLG
+         d6izMsxDt6F9w==
+From:   Eric Biggers <ebiggers@kernel.org>
+To:     linux-block@vger.kernel.org, Jens Axboe <axboe@kernel.dk>
+Cc:     linux-fscrypt@vger.kernel.org,
+        Nathan Huckleberry <nhuck@google.com>, stable@vger.kernel.org
+Subject: [PATCH 1/3] blk-mq: release crypto keyslot before reporting I/O complete
+Date:   Thu,  2 Mar 2023 23:19:57 -0800
+Message-Id: <20230303071959.144604-2-ebiggers@kernel.org>
+X-Mailer: git-send-email 2.39.2
+In-Reply-To: <20230303071959.144604-1-ebiggers@kernel.org>
+References: <20230303071959.144604-1-ebiggers@kernel.org>
 MIME-Version: 1.0
-User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:102.0) Gecko/20100101
- Thunderbird/102.8.0
-Content-Language: en-US, de-DE
-From:   "Linux regression tracking (Thorsten Leemhuis)" 
-        <regressions@leemhuis.info>
-To:     Simon Gaiser <simon@invisiblethingslab.com>,
-        Damien Le Moal <damien.lemoal@opensource.wdc.com>
-Cc:     "stable@vger.kernel.org" <stable@vger.kernel.org>,
-        emmi@emmixis.net, schwagsucks@gmail.com,
-        "open list:LIBATA SUBSYSTEM (Serial and Parallel ATA drivers)" 
-        <linux-ide@vger.kernel.org>, LKML <linux-kernel@vger.kernel.org>,
-        Linux kernel regressions list <regressions@lists.linux.dev>
-Reply-To: Linux regressions mailing list <regressions@lists.linux.dev>
-Subject: [regression] Bug 217114 - Tiger Lake SATA Controller not operating
- correctly [bisected]
-Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-bounce-key: webpack.hosteurope.de;regressions@leemhuis.info;1677827454;ec66d175;
-X-HE-SMSGID: 1pXzZ5-0006KW-PD
-X-Spam-Status: No, score=-1.9 required=5.0 tests=BAYES_00,RCVD_IN_DNSWL_NONE,
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
         SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -47,96 +52,158 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-Hi, this is your Linux kernel regression tracker.
+From: Eric Biggers <ebiggers@google.com>
 
-I noticed a regression report in bugzilla.kernel.org that apparently
-affects 6.2 and later as well as 6.1.13 and later, as it was already
-backported there.
+Once all I/O using a blk_crypto_key has completed, filesystems can call
+blk_crypto_evict_key().  However, the block layer currently doesn't call
+blk_crypto_put_keyslot() until the request is being freed, which happens
+after upper layers have been told (via bio_endio()) the I/O has
+completed.  This causes a race condition where blk_crypto_evict_key()
+can see 'slot_refs != 0' without there being an actual bug.
 
-As many (most?) kernel developer don't keep an eye on bugzilla, I
-decided to forward the report by mail. Quoting from
-https://bugzilla.kernel.org/show_bug.cgi?id=217114 :
+This makes __blk_crypto_evict_key() hit the
+'WARN_ON_ONCE(atomic_read(&slot->slot_refs) != 0)' and return without
+doing anything, eventually causing a use-after-free in
+blk_crypto_reprogram_all_keys().  (This is a very rare bug and has only
+been seen when per-file keys are being used with fscrypt.)
 
->  emmi@emmixis.net 2023-03-02 11:25:00 UTC
-> 
-> As per kernel problem found in https://bbs.archlinux.org/viewtopic.php?id=283906 ,
-> 
-> Commit 104ff59af73aba524e57ae0fef70121643ff270e
+There are two options to fix this: either release the keyslot before
+bio_endio() is called on the request's last bio, or make
+__blk_crypto_evict_key() ignore slot_refs.  Let's go with the first
+solution, since it preserves the ability to report bugs (via
+WARN_ON_ONCE) where a key is evicted while still in-use.
 
-[FWIW: That's "ata: ahci: Add Tiger Lake UP{3,4} AHCI controller" from
-Simon Gaiser]
+Fixes: a892c8d52c02 ("block: Inline encryption support for blk-mq")
+Cc: stable@vger.kernel.org
+Signed-off-by: Eric Biggers <ebiggers@google.com>
+---
+ block/blk-crypto-internal.h | 15 +++++++++++----
+ block/blk-crypto.c          | 24 ++++++++++++------------
+ block/blk-mq.c              | 15 ++++++++++++++-
+ 3 files changed, 37 insertions(+), 17 deletions(-)
 
-> seems to have broken Intel Tiger Lake SATA controllers in a way that prevents boot, as the sysroot partition will not be found. 
-> 
-> https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?id=104ff59af73aba524e57ae0fef70121643ff270e
-> 
-> [tag] [reply] [−]
-> Private
-> Comment 1 schwagsucks@gmail.com 2023-03-02 17:31:53 UTC
-> 
-> As some people in the reference arch forum post reported this seems to have started in 6.1.13.  6.1.12 loads as expected.  
-> 
-> The problem is the sata disks can not be recognized any longer which is why the reported sysroot partition can't be found.  
-> 
-> My primary disk is nvme and as long as I remove all sata references from my fstab I can boot but then can't mount the device partitions because the devices are not present in /dev.  
-> 
-> Any attempts to boot with a sata disk in fstab results in a boot failure with emergency shell.
-> 
-> [tag] [reply] [−]
-> Private
-> Comment 2 schwagsucks@gmail.com 2023-03-02 19:31:28 UTC
-> 
-> I can provide any details required
-> 
-> My sata controller:
-> 10000:e0:17.0 SATA controller: Intel Corporation Tiger Lake-LP SATA Controller (rev 20) (prog-if 01 [AHCI 1.0])
-> 	Control: I/O- Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr- Stepping- SERR- FastB2B- DisINTx+
-> 	Status: Cap+ 66MHz+ UDF- FastB2B+ ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort- >SERR- <PERR- INTx-
-> 	Latency: 0
-> 	Interrupt: pin A routed to IRQ 146
-> 	Region 0: Memory at 50100000 (32-bit, non-prefetchable) [size=8K]
-> 	Region 1: Memory at 50102800 (32-bit, non-prefetchable) [size=256]
-> 	Region 5: Memory at 50102000 (32-bit, non-prefetchable) [size=2K]
-> 	Capabilities: [80] MSI: Enable+ Count=1/1 Maskable- 64bit-
-> 		Address: fee01000  Data: 0000
-> 	Capabilities: [70] Power Management version 3
-> 		Flags: PMEClk- DSI- D1- D2- AuxCurrent=0mA PME(D0-,D1-,D2-,D3hot+,D3cold-)
-> 		Status: D0 NoSoftRst+ PME-Enable- DSel=0 DScale=0 PME-
-> 	Capabilities: [a8] SATA HBA v1.0 BAR4 Offset=00000004
-> 	Kernel driver in use: ahci
-> 
+diff --git a/block/blk-crypto-internal.h b/block/blk-crypto-internal.h
+index a8cdaf26851e1..73609902349b6 100644
+--- a/block/blk-crypto-internal.h
++++ b/block/blk-crypto-internal.h
+@@ -153,14 +153,21 @@ static inline bool blk_crypto_bio_prep(struct bio **bio_ptr)
+ 	return true;
+ }
+ 
+-blk_status_t __blk_crypto_init_request(struct request *rq);
+-static inline blk_status_t blk_crypto_init_request(struct request *rq)
++blk_status_t __blk_crypto_rq_get_keyslot(struct request *rq);
++static inline blk_status_t blk_crypto_rq_get_keyslot(struct request *rq)
+ {
+ 	if (blk_crypto_rq_is_encrypted(rq))
+-		return __blk_crypto_init_request(rq);
++		return __blk_crypto_rq_get_keyslot(rq);
+ 	return BLK_STS_OK;
+ }
+ 
++void __blk_crypto_rq_put_keyslot(struct request *rq);
++static inline void blk_crypto_rq_put_keyslot(struct request *rq)
++{
++	if (blk_crypto_rq_is_encrypted(rq))
++		__blk_crypto_rq_put_keyslot(rq);
++}
++
+ void __blk_crypto_free_request(struct request *rq);
+ static inline void blk_crypto_free_request(struct request *rq)
+ {
+@@ -199,7 +206,7 @@ static inline blk_status_t blk_crypto_insert_cloned_request(struct request *rq)
+ {
+ 
+ 	if (blk_crypto_rq_is_encrypted(rq))
+-		return blk_crypto_init_request(rq);
++		return blk_crypto_rq_get_keyslot(rq);
+ 	return BLK_STS_OK;
+ }
+ 
+diff --git a/block/blk-crypto.c b/block/blk-crypto.c
+index 45378586151f7..8e5612364c48c 100644
+--- a/block/blk-crypto.c
++++ b/block/blk-crypto.c
+@@ -224,27 +224,27 @@ static bool bio_crypt_check_alignment(struct bio *bio)
+ 	return true;
+ }
+ 
+-blk_status_t __blk_crypto_init_request(struct request *rq)
++blk_status_t __blk_crypto_rq_get_keyslot(struct request *rq)
+ {
+ 	return blk_crypto_get_keyslot(rq->q->crypto_profile,
+ 				      rq->crypt_ctx->bc_key,
+ 				      &rq->crypt_keyslot);
+ }
+ 
+-/**
+- * __blk_crypto_free_request - Uninitialize the crypto fields of a request.
+- *
+- * @rq: The request whose crypto fields to uninitialize.
+- *
+- * Completely uninitializes the crypto fields of a request. If a keyslot has
+- * been programmed into some inline encryption hardware, that keyslot is
+- * released. The rq->crypt_ctx is also freed.
+- */
+-void __blk_crypto_free_request(struct request *rq)
++void __blk_crypto_rq_put_keyslot(struct request *rq)
+ {
+ 	blk_crypto_put_keyslot(rq->crypt_keyslot);
++	rq->crypt_keyslot = NULL;
++}
++
++void __blk_crypto_free_request(struct request *rq)
++{
+ 	mempool_free(rq->crypt_ctx, bio_crypt_ctx_pool);
+-	blk_crypto_rq_set_defaults(rq);
++	rq->crypt_ctx = NULL;
++
++	/* The keyslot, if one was needed, should have been released earlier. */
++	if (WARN_ON_ONCE(rq->crypt_keyslot))
++		__blk_crypto_rq_put_keyslot(rq);
+ }
+ 
+ /**
+diff --git a/block/blk-mq.c b/block/blk-mq.c
+index d3494a796ba80..738e81f518227 100644
+--- a/block/blk-mq.c
++++ b/block/blk-mq.c
+@@ -840,6 +840,12 @@ static void blk_complete_request(struct request *req)
+ 		req->q->integrity.profile->complete_fn(req, total_bytes);
+ #endif
+ 
++	/*
++	 * Upper layers may call blk_crypto_evict_key() anytime after the last
++	 * bio_endio().  Therefore, the keyslot must be released before that.
++	 */
++	blk_crypto_rq_put_keyslot(req);
++
+ 	blk_account_io_completion(req, total_bytes);
+ 
+ 	do {
+@@ -905,6 +911,13 @@ bool blk_update_request(struct request *req, blk_status_t error,
+ 		req->q->integrity.profile->complete_fn(req, nr_bytes);
+ #endif
+ 
++	/*
++	 * Upper layers may call blk_crypto_evict_key() anytime after the last
++	 * bio_endio().  Therefore, the keyslot must be released before that.
++	 */
++	if (blk_crypto_rq_is_encrypted(req) && nr_bytes >= blk_rq_bytes(req))
++		__blk_crypto_rq_put_keyslot(req);
++
+ 	if (unlikely(error && !blk_rq_is_passthrough(req) &&
+ 		     !(req->rq_flags & RQF_QUIET)) &&
+ 		     !test_bit(GD_DEAD, &req->q->disk->state)) {
+@@ -2967,7 +2980,7 @@ void blk_mq_submit_bio(struct bio *bio)
+ 
+ 	blk_mq_bio_to_request(rq, bio, nr_segs);
+ 
+-	ret = blk_crypto_init_request(rq);
++	ret = blk_crypto_rq_get_keyslot(rq);
+ 	if (ret != BLK_STS_OK) {
+ 		bio->bi_status = ret;
+ 		bio_endio(bio);
+-- 
+2.39.2
 
-
-See the ticket for more details.
-
-
-[TLDR for the rest of this mail: I'm adding this report to the list of
-tracked Linux kernel regressions; the text you find below is based on a
-few templates paragraphs you might have encountered already in similar
-form.]
-
-BTW, let me use this mail to also add the report to the list of tracked
-regressions to ensure it's doesn't fall through the cracks:
-
-#regzbot introduced: 104ff59af73a
-https://bugzilla.kernel.org/show_bug.cgi?id=217114
-#regzbot title: ata: ahci: Tiger Lake SATA Controller not operating
-correctly
-#regzbot ignore-activity
-
-This isn't a regression? This issue or a fix for it are already
-discussed somewhere else? It was fixed already? You want to clarify when
-the regression started to happen? Or point out I got the title or
-something else totally wrong? Then just reply and tell me -- ideally
-while also telling regzbot about it, as explained by the page listed in
-the footer of this mail.
-
-Developers: When fixing the issue, remember to add 'Link:' tags pointing
-to the report (e.g. the buzgzilla ticket and maybe this mail as well, if
-this thread sees some discussion). See page linked in footer for details.
-
-Ciao, Thorsten (wearing his 'the Linux kernel's regression tracker' hat)
---
-Everything you wanna know about Linux kernel regression tracking:
-https://linux-regtracking.leemhuis.info/about/#tldr
-If I did something stupid, please tell me, as explained on that page.
