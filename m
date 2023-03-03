@@ -2,89 +2,137 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 27AF56AA58C
-	for <lists+stable@lfdr.de>; Sat,  4 Mar 2023 00:23:30 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8AA456AA559
+	for <lists+stable@lfdr.de>; Sat,  4 Mar 2023 00:06:22 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S229562AbjCCXX2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 3 Mar 2023 18:23:28 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:57198 "EHLO
+        id S233539AbjCCXGT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 3 Mar 2023 18:06:19 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:38864 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229498AbjCCXX1 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 3 Mar 2023 18:23:27 -0500
-Received: from sin.source.kernel.org (sin.source.kernel.org [145.40.73.55])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 80FE5975F;
-        Fri,  3 Mar 2023 15:23:26 -0800 (PST)
+        with ESMTP id S233568AbjCCXF6 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 3 Mar 2023 18:05:58 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B978E618A1;
+        Fri,  3 Mar 2023 15:05:40 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 0FCA5CE22A4;
-        Fri,  3 Mar 2023 21:48:12 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 972ECC433A1;
-        Fri,  3 Mar 2023 21:48:09 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1677880090;
-        bh=ICUo+3AoOR3DSqV/0peJ+lnKr4GOBjTwhw8DibwD7nE=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=h1HNA9QUe77485DMp6NjXu8U5XosnhFjPihPE522iPZUuTgCJCForD0t5PE8mEdFN
-         phr4o1b1gV6pClerDcRn3ewTpBZH14J3JvvhcTs0Klhyk7eBuZ9uqW81Zg5rEdZH0I
-         5zy7ZXobhWtUOaMD25zdUBHAvSCq7Wi/vSimcGZqsJb0wecHyVe+ymLrZ72IREP1lj
-         4WzW/mfSKhXjADtJ7gGohBC+lSZSwR5vYpqA2isFPvItPbdmRnMprH9CziFccGpd8I
-         PlXdU3CA5xmELGbYmntQr6OSOGGTvK4jl/Hvll50WAHHTnvnksLsjffcdE8oK57xKq
-         99VTEoczk30xg==
-From:   Sasha Levin <sashal@kernel.org>
-To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Ricardo Ribalda <ribalda@chromium.org>,
-        syzbot <syzkaller@googlegroups.com>,
-        Laurent Pinchart <laurent.pinchart@ideasonboard.com>,
-        Sasha Levin <sashal@kernel.org>, mchehab@kernel.org,
-        linux-media@vger.kernel.org
-Subject: [PATCH AUTOSEL 5.4 02/20] media: uvcvideo: Handle cameras with invalid descriptors
-Date:   Fri,  3 Mar 2023 16:47:48 -0500
-Message-Id: <20230303214806.1453287-2-sashal@kernel.org>
-X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230303214806.1453287-1-sashal@kernel.org>
-References: <20230303214806.1453287-1-sashal@kernel.org>
-MIME-Version: 1.0
-X-stable: review
-X-Patchwork-Hint: Ignore
-Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
-        SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
+        by ams.source.kernel.org (Postfix) with ESMTPS id C9D33B818A4;
+        Fri,  3 Mar 2023 23:05:28 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7951CC433EF;
+        Fri,  3 Mar 2023 23:05:27 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linux-foundation.org;
+        s=korg; t=1677884727;
+        bh=n62ceeWcGjGnzmAy0Jo2RzbuLFttIwzcyIbR8PZ6ls0=;
+        h=Date:To:From:Subject:From;
+        b=HOLJxFxrhwXrfm/T7L1aEKiHTxJPKj+V8O+Roa7wYX1kwMhoVYDOsG+ZPD2D/PjC8
+         EFrSFERZf1p/DTUz7VMDxi0yCUQVkKzE/Vv7hBlHO9V9YgN0pNVHYeYAo8G85V6nxS
+         LmQ3pHmOPZ3zBNGcjjxIRMXW0RsIVrKzWxnDA2u4=
+Date:   Fri, 03 Mar 2023 15:05:26 -0800
+To:     mm-commits@vger.kernel.org, stable@vger.kernel.org,
+        piaojun@huawei.com, mark@fasheh.com, junxiao.bi@oracle.com,
+        joseph.qi@linux.alibaba.com, jlbec@evilplan.org, jack@suse.cz,
+        ghe@suse.com, gechangwei@live.cn, ocfs2-devel@oss.oracle.com,
+        akpm@linux-foundation.org
+From:   Andrew Morton <akpm@linux-foundation.org>
+Subject: + ocfs2-fix-data-corruption-after-failed-write.patch added to mm-hotfixes-unstable branch
+Message-Id: <20230303230527.7951CC433EF@smtp.kernel.org>
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIM_SIGNED,
+        DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,SPF_HELO_NONE,
+        SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
 Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Ricardo Ribalda <ribalda@chromium.org>
 
-[ Upstream commit 41ddb251c68ac75c101d3a50a68c4629c9055e4c ]
+The patch titled
+     Subject: ocfs2: fix data corruption after failed write
+has been added to the -mm mm-hotfixes-unstable branch.  Its filename is
+     ocfs2-fix-data-corruption-after-failed-write.patch
 
-If the source entity does not contain any pads, do not create a link.
+This patch will shortly appear at
+     https://git.kernel.org/pub/scm/linux/kernel/git/akpm/25-new.git/tree/patches/ocfs2-fix-data-corruption-after-failed-write.patch
 
-Reported-by: syzbot <syzkaller@googlegroups.com>
-Signed-off-by: Ricardo Ribalda <ribalda@chromium.org>
-Reviewed-by: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
-Signed-off-by: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
-Signed-off-by: Sasha Levin <sashal@kernel.org>
+This patch will later appear in the mm-hotfixes-unstable branch at
+    git://git.kernel.org/pub/scm/linux/kernel/git/akpm/mm
+
+Before you just go and hit "reply", please:
+   a) Consider who else should be cc'ed
+   b) Prefer to cc a suitable mailing list as well
+   c) Ideally: find the original patch on the mailing list and do a
+      reply-to-all to that, adding suitable additional cc's
+
+*** Remember to use Documentation/process/submit-checklist.rst when testing your code ***
+
+The -mm tree is included into linux-next via the mm-everything
+branch at git://git.kernel.org/pub/scm/linux/kernel/git/akpm/mm
+and is updated there every 2-3 working days
+
+------------------------------------------------------
+From: Jan Kara via Ocfs2-devel <ocfs2-devel@oss.oracle.com>
+Subject: ocfs2: fix data corruption after failed write
+Date: Thu, 2 Mar 2023 16:38:43 +0100
+
+When buffered write fails to copy data into underlying page cache page,
+ocfs2_write_end_nolock() just zeroes out and dirties the page.  This can
+leave dirty page beyond EOF and if page writeback tries to write this page
+before write succeeds and expands i_size, page gets into inconsistent
+state where page dirty bit is clear but buffer dirty bits stay set
+resulting in page data never getting written and so data copied to the
+page is lost.  Fix the problem by invalidating page beyond EOF after
+failed write.
+
+Link: https://lkml.kernel.org/r/20230302153843.18499-1-jack@suse.cz
+Fixes: 6dbf7bb55598 ("fs: Don't invalidate page buffers in block_write_full_page()")
+Signed-off-by: Jan Kara <jack@suse.cz>
+Reviewed-by: Joseph Qi <joseph.qi@linux.alibaba.com>
+Cc: Mark Fasheh <mark@fasheh.com>
+Cc: Joel Becker <jlbec@evilplan.org>
+Cc: Junxiao Bi <junxiao.bi@oracle.com>
+Cc: Changwei Ge <gechangwei@live.cn>
+Cc: Gang He <ghe@suse.com>
+Cc: Jun Piao <piaojun@huawei.com>
+Cc: <stable@vger.kernel.org>
+Signed-off-by: Andrew Morton <akpm@linux-foundation.org>
 ---
- drivers/media/usb/uvc/uvc_entity.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/media/usb/uvc/uvc_entity.c b/drivers/media/usb/uvc/uvc_entity.c
-index ca3a9c2eec271..7c9895377118c 100644
---- a/drivers/media/usb/uvc/uvc_entity.c
-+++ b/drivers/media/usb/uvc/uvc_entity.c
-@@ -37,7 +37,7 @@ static int uvc_mc_create_links(struct uvc_video_chain *chain,
- 			continue;
+
+--- a/fs/ocfs2/aops.c~ocfs2-fix-data-corruption-after-failed-write
++++ a/fs/ocfs2/aops.c
+@@ -1977,11 +1977,26 @@ int ocfs2_write_end_nolock(struct addres
+ 	}
  
- 		remote = uvc_entity_by_id(chain->dev, entity->baSourceID[i]);
--		if (remote == NULL)
-+		if (remote == NULL || remote->num_pads == 0)
- 			return -EINVAL;
+ 	if (unlikely(copied < len) && wc->w_target_page) {
++		loff_t new_isize;
++
+ 		if (!PageUptodate(wc->w_target_page))
+ 			copied = 0;
  
- 		source = (UVC_ENTITY_TYPE(remote) == UVC_TT_STREAMING)
--- 
-2.39.2
+-		ocfs2_zero_new_buffers(wc->w_target_page, start+copied,
+-				       start+len);
++		new_isize = max_t(loff_t, i_size_read(inode), pos + copied);
++		if (new_isize > page_offset(wc->w_target_page))
++			ocfs2_zero_new_buffers(wc->w_target_page, start+copied,
++					       start+len);
++		else {
++			/*
++			 * When page is fully beyond new isize (data copy
++			 * failed), do not bother zeroing the page. Invalidate
++			 * it instead so that writeback does not get confused
++			 * put page & buffer dirty bits into inconsistent
++			 * state.
++			 */
++			block_invalidate_folio(page_folio(wc->w_target_page),
++						0, PAGE_SIZE);
++		}
+ 	}
+ 	if (wc->w_target_page)
+ 		flush_dcache_page(wc->w_target_page);
+_
+
+Patches currently in -mm which might be from ocfs2-devel@oss.oracle.com are
+
+ocfs2-fix-data-corruption-after-failed-write.patch
 
