@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 896266AA3B1
-	for <lists+stable@lfdr.de>; Fri,  3 Mar 2023 23:03:25 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5FA176AA411
+	for <lists+stable@lfdr.de>; Fri,  3 Mar 2023 23:19:00 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233345AbjCCWDA (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 3 Mar 2023 17:03:00 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:32964 "EHLO
+        id S232282AbjCCWSy (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 3 Mar 2023 17:18:54 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46692 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233280AbjCCWCd (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 3 Mar 2023 17:02:33 -0500
+        with ESMTP id S232442AbjCCWSm (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 3 Mar 2023 17:18:42 -0500
 Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id D5B3293C9;
-        Fri,  3 Mar 2023 13:52:55 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A617465C48;
+        Fri,  3 Mar 2023 14:09:41 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id 87974B81A24;
+        by ams.source.kernel.org (Postfix) with ESMTPS id D534CB81A3D;
+        Fri,  3 Mar 2023 21:49:44 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D6564C433EF;
         Fri,  3 Mar 2023 21:49:43 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 70E5AC433D2;
-        Fri,  3 Mar 2023 21:49:42 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1677880183;
-        bh=Wjfb+YRLC1NEK8zBuLN+wCNzsONaxtttRw0Vlt7BWmY=;
+        s=k20201202; t=1677880184;
+        bh=G8sIEVkx4Mtn6htfaruerLL/UggeVQ7DBwczQQKcCII=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=YxSiyVf0KnvwodJfuectaN7gQXPMrisWdBUpD9jp+ZrUpw9lj0ZssKtsbHng3O/w8
-         lA8bVcp2Fo+q6bAHAZrASDkgs2jlBB4rTZESVP7Vhb85nSoiv8T9dfSbN88bShpyxR
-         Rk6lTUTDuuwR/vDvdCSY9PE1kojgdLqg8FEptCCqxteLe9+e69OTx+rCrZj2QqwqgR
-         gitLjZwSRuPQK2cXw0XlOT7ERvwOycOzUEB093VTx5EBLcBwWGBr7w9+zCKYfOMddE
-         uQzTa6vqzc2iHOhM1FJwvZz14/hskc5ovDpEfePRs+HJY4ZGQvfsOTaHIvtVoy4txC
-         8DZRbg0hoZtDQ==
+        b=XTbefF+YpE83GVVAa4bDo0X1YHpJcNfdlvHpUXtwd11jSnaRBePfDtsY5ygEaHbQV
+         NhRTVzEhM3tGGZlNVJ93rG1YqKy8oNMAHuPPITCdHO1AnR46w7P7M+mcbG2hNR9ghr
+         qhO/urnZQyiFWhEx6t1z6oAh6JlVATuQql/Mb1f8A05UVhKDpc7cvsUW3j907zY7Zu
+         45h2sLoEGeojTStf2JGYVAyrr12wSD3Ft2+NnPG6sjtAyv8LPOdWaWBHqAX5G3BEJR
+         ep1geauNG+PHpy2Q0u2dbSugLX9RAc7ft5UVAtPucqSYT7DFVSYqDWc1+NG1tgEk96
+         YZMg4GMhA2rcQ==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Sherry Sun <sherry.sun@nxp.com>,
+Cc:     "Maciej W. Rozycki" <macro@orcam.me.uk>,
+        Sudip Mukherjee <sudipm.mukherjee@gmail.com>,
         Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Sasha Levin <sashal@kernel.org>, jirislaby@kernel.org,
-        linux-serial@vger.kernel.org
-Subject: [PATCH AUTOSEL 4.14 03/11] tty: serial: fsl_lpuart: disable the CTS when send break signal
-Date:   Fri,  3 Mar 2023 16:49:29 -0500
-Message-Id: <20230303214938.1454767-3-sashal@kernel.org>
+        Sasha Levin <sashal@kernel.org>
+Subject: [PATCH AUTOSEL 4.14 04/11] parport_pc: Set up mode and ECR masks for Oxford Semiconductor devices
+Date:   Fri,  3 Mar 2023 16:49:30 -0500
+Message-Id: <20230303214938.1454767-4-sashal@kernel.org>
 X-Mailer: git-send-email 2.39.2
 In-Reply-To: <20230303214938.1454767-1-sashal@kernel.org>
 References: <20230303214938.1454767-1-sashal@kernel.org>
@@ -56,74 +56,137 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Sherry Sun <sherry.sun@nxp.com>
+From: "Maciej W. Rozycki" <macro@orcam.me.uk>
 
-[ Upstream commit c4c81db5cf8bc53d6160c3abf26d382c841aa434 ]
+[ Upstream commit c087df8d1e7dc2e764d11234d84b5af46d500f16 ]
 
-LPUART IP has a bug that it treats the CTS as higher priority than the
-break signal, which cause the break signal sending through UARTCTRL_SBK
-may impacted by the CTS input if the HW flow control is enabled.
+No Oxford Semiconductor PCI or PCIe parallel port device supports the
+Parallel Port FIFO mode.  All support the PS/2 Parallel Port mode and
+the Enhanced Parallel Port mode via the ECR register.  The original 5V
+PCI OX16PCI954 device does not support the Extended Capabilities Port
+mode, the Test mode or the Configuration mode, but all the other OxSemi
+devices do, including in particular the 3.3V PCI OXmPCI954 device and
+the universal voltage PCI OXuPCI954 device.  All the unsupported modes
+are marked reserved in the relevant datasheets.
 
-Add this workaround patch to fix the IP bug, we can disable CTS before
-asserting SBK to avoid any interference from CTS, and re-enable it when
-break off.
+Accordingly enable the `base_hi' BAR for the 954 devices to enable PS2
+and EPP mode support via the ECR register, however mask the COMPAT mode
+and, until we have a way to determine what chip variant it is that we
+poke at, also the ECP mode, and mask the COMPAT mode only for all the
+remaining OxSemi devices, fixing errors like:
 
-Such as for the bluetooth chip power save feature, host can let the BT
-chip get into sleep state by sending a UART break signal, and wake it up
-by turning off the UART break. If the BT chip enters the sleep mode
-successfully, it will pull up the CTS line, if the BT chip is woken up,
-it will pull down the CTS line. If without this workaround patch, the
-UART TX pin cannot send the break signal successfully as it affected by
-the BT CTS pin. After adding this patch, the BT power save feature can
-work well.
+parport0: FIFO is stuck
+FIFO write timed out
 
-Signed-off-by: Sherry Sun <sherry.sun@nxp.com>
-Link: https://lore.kernel.org/r/20221214031137.28815-2-sherry.sun@nxp.com
+and a non-functional port when the Parallel Port FIFO mode is selected.
+
+Complementing the fix apply an ECR mask for all these devices, which are
+documented to only permit writing to the mode field of the ECR register
+with a bit pattern of 00001 required to be written to bits 4:0 on mode
+field writes.  No nFault or service interrupts are implemented, which
+will therefore never have to be enabled, though bit 2 does report the
+FIFO threshold status to be polled for in the ECP mode where supported.
+
+We have a documented case of writing 1 to bit 2 causing a lock-up with
+at least one OX12PCI840 device (from old drivers/parport/ChangeLog):
+
+2001-10-10  Tim Waugh  <twaugh@redhat.com>
+
+	* parport_pc.c: Support for OX12PCI840 PCI card (reported by
+	mk@daveg.com).  Lock-ups diagnosed by Ronnie Arosa (and now we
+	just don't trust its ECR).
+
+which commit adbd321a17cc ("parport_pc: add base_hi BAR for oxsemi_840")
+must have broken and by applying an ECR mask here we prevent the lock-up
+from triggering.  This could have been the reason for requiring 00001 to
+be written to bits 4:0 of ECR.
+
+Update the inline comment accordingly; it has come from Linux 2.4.12
+back in 2001 and predates the introduction of OXmPCI954 and OXuPCI954
+devices that do support ECP.
+
+References:
+
+[1] "OX16PCI954 Integrated Quad UART and PCI interface", Oxford
+    Semiconductor Ltd., Data Sheet Revision 1.3, Feb. 1999, Chapter 9
+    "Bidirectional Parallel Port", pp. 53-55
+
+[2] "OX16PCI952 Data Sheet, Integrated High Performance Dual UARTs,
+    Parallel Port and 5.0v PCI interface", Oxford Semiconductor Ltd.,
+    DS_B008A_00, Datasheet rev 1.1, June 2001, Chapter 8 "Bi-directional
+    Parallel Port", pp. 52-56
+
+[3] "OXmPCI954 DATA SHEET Integrated High Performance Quad UARTs, 8-bit
+    Local Bus/Parallel Port. 3.3v PCI/miniPCI interface.", Oxford
+    Semiconductor Ltd., DS-0019, June 2005, Chapter 10 "Bidirectional
+    Parallel Port", pp. 86-90
+
+[4] "OXmPCI952 Data Sheet, Integrated High Performance Dual UARTs, 8-bit
+    Local Bus/Parallel Port. 3.3v PCI/miniPCI interface.", Oxford
+    Semiconductor Ltd., DS-0020, June 2005, Chapter 8 "Bidirectional
+    Parallel Port", pp. 73-77
+
+[5] "OX12PCI840 Integrated Parallel Port and PCI interface", Oxford
+    Semiconductor Ltd., DS-0021, Jun 2005, Chapter 5 "Bi-directional
+    Parallel Port", pp. 18-21
+
+[6] "OXPCIe952 PCI Express Bridge to Dual Serial & Parallel Port",
+    Oxford Semiconductor, Inc., DS-0046, Mar 06 08, Chapter "Parallel
+    Port Function", pp. 59-62
+
+[7] "OXPCIe840 PCI Express Bridge to Parallel Port", Oxford
+    Semiconductor, Inc., DS-0049, Mar 06 08, Chapter "Parallel Port
+    Function", pp. 15-18
+
+[8] "OXuPCI954 Data Sheet, Integrated High Performance Quad UARTs, 8-bit
+    Local Bus/Parallel Port, 3.3 V and 5 V (Universal Voltage) PCI
+    Interface.", Oxford Semiconductor, Inc., DS-0058, 26 Jan 2009,
+    Chapter 8 "Bidirectional Parallel Port", pp. 62-65
+
+[9] "OXuPCI952 Data Sheet, Integrated High Performance Dual UARTs, 8-bit
+    Local Bus/Parallel Port, 3.3 V and 5.0 V Universal Voltage PCI
+    Interface.", Oxford Semiconductor, Inc., DS-0059, Sep 2007, Chapter
+    8 "Bidirectional Parallel Port", pp. 61-64
+
+Signed-off-by: Maciej W. Rozycki <macro@orcam.me.uk>
+Signed-off-by: Sudip Mukherjee <sudipm.mukherjee@gmail.com>
+Link: https://lore.kernel.org/r/20230108215656.6433-6-sudipm.mukherjee@gmail.com
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/tty/serial/fsl_lpuart.c | 24 ++++++++++++++++++++++--
- 1 file changed, 22 insertions(+), 2 deletions(-)
+ drivers/parport/parport_pc.c | 19 +++++++++++++------
+ 1 file changed, 13 insertions(+), 6 deletions(-)
 
-diff --git a/drivers/tty/serial/fsl_lpuart.c b/drivers/tty/serial/fsl_lpuart.c
-index cbbdb94592ce7..20dd476e4d1a1 100644
---- a/drivers/tty/serial/fsl_lpuart.c
-+++ b/drivers/tty/serial/fsl_lpuart.c
-@@ -1199,12 +1199,32 @@ static void lpuart_break_ctl(struct uart_port *port, int break_state)
+diff --git a/drivers/parport/parport_pc.c b/drivers/parport/parport_pc.c
+index d99ac73a1d89e..40c29e19f8647 100644
+--- a/drivers/parport/parport_pc.c
++++ b/drivers/parport/parport_pc.c
+@@ -2691,12 +2691,19 @@ static struct parport_pc_pci {
+ 	/* titan_010l */		{ 1, { { 3, -1 }, } },
+ 	/* avlab_1p		*/	{ 1, { { 0, 1}, } },
+ 	/* avlab_2p		*/	{ 2, { { 0, 1}, { 2, 3 },} },
+-	/* The Oxford Semi cards are unusual: 954 doesn't support ECP,
+-	 * and 840 locks up if you write 1 to bit 2! */
+-	/* oxsemi_952 */		{ 1, { { 0, 1 }, } },
+-	/* oxsemi_954 */		{ 1, { { 0, -1 }, } },
+-	/* oxsemi_840 */		{ 1, { { 0, 1 }, } },
+-	/* oxsemi_pcie_pport */		{ 1, { { 0, 1 }, } },
++	/* The Oxford Semi cards are unusual: older variants of 954 don't
++	 * support ECP, and 840 locks up if you write 1 to bit 2!  None
++	 * implement nFault or service interrupts and all require 00001
++	 * bit pattern to be used for bits 4:0 with ECR writes. */
++	/* oxsemi_952 */		{ 1, { { 0, 1 }, },
++					  PARPORT_MODE_COMPAT, ECR_MODE_MASK },
++	/* oxsemi_954 */		{ 1, { { 0, 1 }, },
++					  PARPORT_MODE_ECP |
++					  PARPORT_MODE_COMPAT, ECR_MODE_MASK },
++	/* oxsemi_840 */		{ 1, { { 0, 1 }, },
++					  PARPORT_MODE_COMPAT, ECR_MODE_MASK },
++	/* oxsemi_pcie_pport */		{ 1, { { 0, 1 }, },
++					  PARPORT_MODE_COMPAT, ECR_MODE_MASK },
+ 	/* aks_0100 */                  { 1, { { 0, -1 }, } },
+ 	/* mobility_pp */		{ 1, { { 0, 1 }, } },
  
- static void lpuart32_break_ctl(struct uart_port *port, int break_state)
- {
--	unsigned long temp;
-+	unsigned long temp, modem;
-+	struct tty_struct *tty;
-+	unsigned int cflag = 0;
-+
-+	tty = tty_port_tty_get(&port->state->port);
-+	if (tty) {
-+		cflag = tty->termios.c_cflag;
-+		tty_kref_put(tty);
-+	}
- 
- 	temp = lpuart32_read(port, UARTCTRL) & ~UARTCTRL_SBK;
-+	modem = lpuart32_read(port, UARTMODIR);
- 
--	if (break_state != 0)
-+	if (break_state != 0) {
- 		temp |= UARTCTRL_SBK;
-+		/*
-+		 * LPUART CTS has higher priority than SBK, need to disable CTS before
-+		 * asserting SBK to avoid any interference if flow control is enabled.
-+		 */
-+		if (cflag & CRTSCTS && modem & UARTMODIR_TXCTSE)
-+			lpuart32_write(port, modem & ~UARTMODIR_TXCTSE, UARTMODIR);
-+	} else {
-+		/* Re-enable the CTS when break off. */
-+		if (cflag & CRTSCTS && !(modem & UARTMODIR_TXCTSE))
-+			lpuart32_write(port, modem | UARTMODIR_TXCTSE, UARTMODIR);
-+	}
- 
- 	lpuart32_write(port, temp, UARTCTRL);
- }
 -- 
 2.39.2
 
