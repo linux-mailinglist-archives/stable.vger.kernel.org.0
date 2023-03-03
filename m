@@ -2,63 +2,63 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 4092C6A9ABF
-	for <lists+stable@lfdr.de>; Fri,  3 Mar 2023 16:33:16 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id B14186A9ADE
+	for <lists+stable@lfdr.de>; Fri,  3 Mar 2023 16:43:21 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230223AbjCCPdO (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 3 Mar 2023 10:33:14 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:48302 "EHLO
+        id S229800AbjCCPnT (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 3 Mar 2023 10:43:19 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55268 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S230112AbjCCPdN (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 3 Mar 2023 10:33:13 -0500
-Received: from mail-pj1-x102e.google.com (mail-pj1-x102e.google.com [IPv6:2607:f8b0:4864:20::102e])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 989CB15C87
-        for <stable@vger.kernel.org>; Fri,  3 Mar 2023 07:33:08 -0800 (PST)
-Received: by mail-pj1-x102e.google.com with SMTP id y2so2888120pjg.3
-        for <stable@vger.kernel.org>; Fri, 03 Mar 2023 07:33:08 -0800 (PST)
+        with ESMTP id S231407AbjCCPnG (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 3 Mar 2023 10:43:06 -0500
+Received: from mail-pl1-x635.google.com (mail-pl1-x635.google.com [IPv6:2607:f8b0:4864:20::635])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 4D1F9BDFA
+        for <stable@vger.kernel.org>; Fri,  3 Mar 2023 07:43:02 -0800 (PST)
+Received: by mail-pl1-x635.google.com with SMTP id i3so3064925plg.6
+        for <stable@vger.kernel.org>; Fri, 03 Mar 2023 07:43:02 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20210112.gappssmtp.com; s=20210112; t=1677857588;
+        d=kernelci-org.20210112.gappssmtp.com; s=20210112; t=1677858181;
         h=from:to:subject:content-transfer-encoding:mime-version:date
          :message-id:from:to:cc:subject:date:message-id:reply-to;
-        bh=4D6bQjOLX2uyWLSWfryFSJCCAiqfzWB0fKVLYdIuiGk=;
-        b=6Q5IOjHaoS1vN8PyeIwGQ1FaWhKE+24nUfnKaQn7p6xVK8M0KSiiSm4cZTFSaLhuoT
-         sxECclrE3yMLGqiMBphKuOfIX9venLcKg8NRT0kuxXelUQUxX//ZfPV6pBS1a3mG0TQh
-         2XHBK8Y+hJnrIOUde6hxib49d3GQUaxjEg1E6dcFKEvQTL1mfhVnTVnFYHuyuSwRMj0l
-         09aGJnl2HOL77TE4BlmlvmWws9mtX7kLA3zlBMeftdai3rVun+HiRMt4nmr8udPdfePf
-         i7hqiXu1GdP8eiLAYUPWORfr2WdhMcjEJ1BIIYpSeXgKleff5bsNcoFsKdkLyFTjfKkg
-         26DQ==
+        bh=kE5z9rLBwxVpRnCxzQ3WV2ochJwqiHFwxHPhuChajC8=;
+        b=20tp70Y6dPOsvRM+WeX52Cwlz4DYhZaXfzAFqQ85kQtpbPGo+D5f8kNvwRSn5KWunX
+         HwYmAil6eGnd+uxXvDlwnS9Y3ZcEF+TyhVQnn39AZc3lwnE9d5WqH4sEYHEcZgqA+JsU
+         LXg4865sGg7Tupd3L/6Xmi5LrKhgD4jIDBIMKlbwMtCuPSCwLrwKLRAOMTpbsBHyJRla
+         0ADHYB50NTpNVOY9UoKK0CXJDBdN2ZJlgJ5ruDXf727zddWMkmulyr6lj9NdLD7N8Ghe
+         2T70jcLxx62XsFO5zPEML+sKebopv1B4lwNngpXGHAyLPlBM7p1T+qON5xeFDy3wgPzA
+         VJ+Q==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112; t=1677857588;
+        d=1e100.net; s=20210112; t=1677858181;
         h=from:to:subject:content-transfer-encoding:mime-version:date
          :message-id:x-gm-message-state:from:to:cc:subject:date:message-id
          :reply-to;
-        bh=4D6bQjOLX2uyWLSWfryFSJCCAiqfzWB0fKVLYdIuiGk=;
-        b=C5QKsxns5F1d7Tu5ka6C7pfRs7yzMfF6ZfXBpiWhxv0X9NkpRbbC60thjhv2IxG+in
-         oK4kbfUolzEtEV8cAMTqhwFqfF89/M9WTRqZh7iyOQtnkURcMIK8jN7LGwrLFt7H4XnN
-         9IcZWkFpenycg4xgxnbovq1bHOzk6tWGmO/vw/Q6rACC22eLBQJfjyxIfwqukpHgt2NW
-         raJK43IYnYtFC6b7OxIr6CewVZBsKuCrJjW6bnTtRzfKnf9LSn5r8UAtpYik/NUNkvjx
-         KclCFOb5+B6btLokuR1iqMqJp6rqXfMV2rQQitAZEa4PAowbvGqQBagEubXryfnOCc56
-         bTPQ==
-X-Gm-Message-State: AO0yUKW+S1N2gOTqUbY5ME3vJi1jj+QbMJB7P/vp1GhVNH2fhNmUNO4N
-        DJSObHjgwH+zCQBud+sRk18I21zSBKYkw18UBPpHew==
-X-Google-Smtp-Source: AK7set/AFV78xC8+fCprpA3SW2zsr17pnTcuPUgLjl16v3IuFYob1bT/swvODOmnm9/SJVA9izapeg==
-X-Received: by 2002:a17:90b:3d88:b0:237:788f:e2d3 with SMTP id pq8-20020a17090b3d8800b00237788fe2d3mr1983626pjb.27.1677857587403;
-        Fri, 03 Mar 2023 07:33:07 -0800 (PST)
+        bh=kE5z9rLBwxVpRnCxzQ3WV2ochJwqiHFwxHPhuChajC8=;
+        b=aW8lhJgigGH6kL5QEGcXelcd2Bba9s4fPq0sh6XseVP8s9gOrKx5Cb5s66t6VP+ApD
+         n863VyGj4tallG3YPIhPdDHb0A9sPayVMC+uUaAM1u5eo9EuxRM9oUAwdA+7EB2ty6HV
+         Q9UIizA1d/9PMw1GfRmpwu5wr7zYET1ALRKI152MlcA2pNJI4vfQSw4EZRFo92O2FcfD
+         48yUOxmrUVynyaJ7YnZvq8tIoQMlreV+D2A2qh263KWh3pESbaxv/FoepHVu6qL9Rup2
+         /KLQsRi1qjAMORGOxhMttPRX8+N17H/bugwrAcrqr058+2v1L3/v9TJ7jzzdEYiOBxZa
+         Kbyw==
+X-Gm-Message-State: AO0yUKUc3QNWe7ntZomStsP0cOZ+ovqA6jwaX5UjPYkZjPZjMbm8IPM+
+        gmPQ6kDQi4ieB/tsWxUb+481vGRpv8MzxvAciyuZQQ==
+X-Google-Smtp-Source: AK7set/e3KgKnXGQLtcjsHrch2+cwfbMMYdrBxLCWo+yLeU5gzo+dpE1nkF2uKQaJw/sZTuoogBZgA==
+X-Received: by 2002:a17:90a:ba0b:b0:237:f18a:7959 with SMTP id s11-20020a17090aba0b00b00237f18a7959mr2106259pjr.25.1677858180928;
+        Fri, 03 Mar 2023 07:43:00 -0800 (PST)
 Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id b2-20020a170903228200b001994a0f3380sm1644282plh.265.2023.03.03.07.33.06
+        by smtp.gmail.com with ESMTPSA id cq18-20020a17090af99200b002348bfd3799sm3514031pjb.39.2023.03.03.07.43.00
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 03 Mar 2023 07:33:07 -0800 (PST)
-Message-ID: <64021333.170a0220.3554.3404@mx.google.com>
-Date:   Fri, 03 Mar 2023 07:33:07 -0800 (PST)
+        Fri, 03 Mar 2023 07:43:00 -0800 (PST)
+Message-ID: <64021584.170a0220.772ba.7a7c@mx.google.com>
+Date:   Fri, 03 Mar 2023 07:43:00 -0800 (PST)
 Content-Type: text/plain; charset="utf-8"
 MIME-Version: 1.0
 Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Branch: linux-6.1.y
-X-Kernelci-Tree: stable
-X-Kernelci-Kernel: v6.1.15
+X-Kernelci-Branch: queue/6.1
+X-Kernelci-Tree: stable-rc
+X-Kernelci-Kernel: v6.1.14-42-g790ffce341d3
 X-Kernelci-Report-Type: build
-Subject: stable/linux-6.1.y build: 166 builds: 1 failed, 165 passed, 4 errors,
- 18 warnings (v6.1.15)
+Subject: stable-rc/queue/6.1 build: 166 builds: 1 failed, 165 passed, 4 errors,
+ 18 warnings (v6.1.14-42-g790ffce341d3)
 To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
         kernelci-results@groups.io
 From:   "kernelci.org bot" <bot@kernelci.org>
@@ -71,18 +71,18 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable/linux-6.1.y build: 166 builds: 1 failed, 165 passed, 4 errors, 18 wa=
-rnings (v6.1.15)
+stable-rc/queue/6.1 build: 166 builds: 1 failed, 165 passed, 4 errors, 18 w=
+arnings (v6.1.14-42-g790ffce341d3)
 
-Full Build Summary: https://kernelci.org/build/stable/branch/linux-6.1.y/ke=
-rnel/v6.1.15/
+Full Build Summary: https://kernelci.org/build/stable-rc/branch/queue%2F6.1=
+/kernel/v6.1.14-42-g790ffce341d3/
 
-Tree: stable
-Branch: linux-6.1.y
-Git Describe: v6.1.15
-Git Commit: 42616e0f09fb4e9a6c59892a227f7bdefbd2d6d3
+Tree: stable-rc
+Branch: queue/6.1
+Git Describe: v6.1.14-42-g790ffce341d3
+Git Commit: 790ffce341d324da7b8dbe0b70191e5215d64761
 Git URL: https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-stabl=
-e.git
+e-rc.git
 Built: 7 unique architectures
 
 Build Failure Detected:
@@ -168,13 +168,13 @@ Warnings:
 
 ---------------------------------------------------------------------------=
 -----
-allnoconfig (x86_64, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
-n mismatches
+allnoconfig (i386, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section =
+mismatches
 
 ---------------------------------------------------------------------------=
 -----
-allnoconfig (i386, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 section =
-mismatches
+allnoconfig (x86_64, gcc-10) =E2=80=94 PASS, 0 errors, 0 warnings, 0 sectio=
+n mismatches
 
 ---------------------------------------------------------------------------=
 -----
