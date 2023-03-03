@@ -2,53 +2,53 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 8FDBD6AA376
-	for <lists+stable@lfdr.de>; Fri,  3 Mar 2023 22:59:23 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id BF0166AA377
+	for <lists+stable@lfdr.de>; Fri,  3 Mar 2023 22:59:24 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233339AbjCCV7U (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 3 Mar 2023 16:59:20 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:59588 "EHLO
+        id S233379AbjCCV7W (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 3 Mar 2023 16:59:22 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60806 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233378AbjCCV6r (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 3 Mar 2023 16:58:47 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3ECCA65C58;
-        Fri,  3 Mar 2023 13:50:44 -0800 (PST)
+        with ESMTP id S233353AbjCCV6x (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 3 Mar 2023 16:58:53 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 3C32265C4A;
+        Fri,  3 Mar 2023 13:50:45 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id B478EB81A4D;
-        Fri,  3 Mar 2023 21:48:05 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8B02FC433A0;
-        Fri,  3 Mar 2023 21:48:04 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 88B48B81A42;
+        Fri,  3 Mar 2023 21:48:10 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 38E84C4339E;
+        Fri,  3 Mar 2023 21:48:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1677880085;
-        bh=Gq6p8l0INL9LaovvGk9r1E4X9r6ddVMTNXIYOm6zJ4E=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Xabm3SjtVeJM4klQPDiTD/YetnQPEcGGpQWLSEbXgNzR627qNFO6CzwOBn6lK5daD
-         P7pnPvMpHL6wxeWjbbt/qidqupnpXDww8lwNfiADVbkCaEYR0k675pxqB5orC4tnMA
-         KGRFPfxK32tw6pze+I7rEJdk3DtsESr3kf365T4BZUJbztKzzJvMzOLKC8Opf01yFf
-         OLGwmgV4pCktxLkDTGeIxhuJnxVgyBN/weciY/kS/DF5kDP8g5xd6Yem2Vs8aoSFbo
-         0GAcAleHUU3+TmmhUAdwlI4jEsxgEgVG1lR/JXZzZuLtvYWNiVlJY9mRzvfJmQlyJ3
-         u1EdCtj7uMCtQ==
+        s=k20201202; t=1677880089;
+        bh=RQi+ULgVroW/0a+juihRVBiqhQ2ycJLiUsbRMu2BT1I=;
+        h=From:To:Cc:Subject:Date:From;
+        b=ZmBHzV+Ga/Gm6ma+T/2nFg9BNOeGpfkVl3eLUrowqcZYvQOd8GmqLMsoR/L48Ytvy
+         fdevIyyQ/lmXL0p3VJpzIlADlMStFOjTz4psrIaPfKvAa+zBOT77ZiYzYQ7sGjqHNa
+         9H73WPfTvRRutkAHy3XjsM6IIBGofu8VYAI3XPoX13g+pjMrUd50EEmqGfsIUI1Cti
+         86xNdSj9a0eWWd6RGUm0DW6H6ee8V4y0XVfiNhbRNPnbRLZ0K4X3bUKE1b347TLVaJ
+         SwRGJCHCDnTtNNxCtV6PwM1SRT6NjiEvX6OBOa1z7UFkVSo0xwziOTy1fJQemAOuXo
+         PTatP0gu0vOrA==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Richard Fitzgerald <rf@opensource.cirrus.com>,
-        Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>,
-        Vinod Koul <vkoul@kernel.org>, Sasha Levin <sashal@kernel.org>,
-        yung-chuan.liao@linux.intel.com, alsa-devel@alsa-project.org
-Subject: [PATCH AUTOSEL 5.10 30/30] soundwire: cadence: Drain the RX FIFO after an IO timeout
-Date:   Fri,  3 Mar 2023 16:47:15 -0500
-Message-Id: <20230303214715.1452256-30-sashal@kernel.org>
+Cc:     Vasant Hegde <vasant.hegde@amd.com>,
+        Matt Fagnani <matt.fagnani@bell.net>,
+        Suravee Suthikulpanit <suravee.suthikulpanit@amd.com>,
+        Joerg Roedel <jroedel@suse.de>,
+        Sasha Levin <sashal@kernel.org>, joro@8bytes.org,
+        will@kernel.org, iommu@lists.linux.dev
+Subject: [PATCH AUTOSEL 5.4 01/20] iommu/amd: Fix error handling for pdev_pri_ats_enable()
+Date:   Fri,  3 Mar 2023 16:47:47 -0500
+Message-Id: <20230303214806.1453287-1-sashal@kernel.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230303214715.1452256-1-sashal@kernel.org>
-References: <20230303214715.1452256-1-sashal@kernel.org>
 MIME-Version: 1.0
 X-stable: review
 X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
         SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -56,110 +56,67 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Richard Fitzgerald <rf@opensource.cirrus.com>
+From: Vasant Hegde <vasant.hegde@amd.com>
 
-[ Upstream commit 0603a47bd3a8f439d7844b841eee1819353063e0 ]
+[ Upstream commit 080920e52148b4fbbf9360d5345fdcd7846e4841 ]
 
-If wait_for_completion_timeout() times-out in _cdns_xfer_msg() it
-is possible that something could have been written to the RX FIFO.
-In this case, we should drain the RX FIFO so that anything in it
-doesn't carry over and mess up the next transfer.
+Current code throws kernel warning if it fails to enable pasid/pri [1].
+Do not call pci_disable_[pasid/pri] if pci_enable_[pasid/pri] failed.
 
-Obviously, if we got to this state something went wrong, and we
-don't really know the state of everything. The cleanup in this
-situation cannot be bullet-proof but we should attempt to avoid
-breaking future transaction, if only to reduce the amount of
-error noise when debugging the failure from a kernel log.
+[1] https://lore.kernel.org/linux-iommu/15d0f9ff-2a56-b3e9-5b45-e6b23300ae3b@leemhuis.info/
 
-Note that this patch only implements the draining for blocking
-(non-deferred) transfers. The deferred API doesn't have any proper
-handling of error conditions and would need some re-design before
-implementing cleanup. That is a task for a separate patch...
-
-Signed-off-by: Richard Fitzgerald <rf@opensource.cirrus.com>
-Reviewed-by: Pierre-Louis Bossart <pierre-louis.bossart@linux.intel.com>
-Link: https://lore.kernel.org/r/20221202161812.4186897-4-rf@opensource.cirrus.com
-Signed-off-by: Vinod Koul <vkoul@kernel.org>
+Reported-by: Matt Fagnani <matt.fagnani@bell.net>
+Signed-off-by: Vasant Hegde <vasant.hegde@amd.com>
+Reviewed-by: Suravee Suthikulpanit <suravee.suthikulpanit@amd.com>
+Link: https://lore.kernel.org/r/20230111121503.5931-1-vasant.hegde@amd.com
+Signed-off-by: Joerg Roedel <jroedel@suse.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/soundwire/cadence_master.c | 50 ++++++++++++++++--------------
- 1 file changed, 27 insertions(+), 23 deletions(-)
+ drivers/iommu/amd_iommu.c | 12 +++++++-----
+ 1 file changed, 7 insertions(+), 5 deletions(-)
 
-diff --git a/drivers/soundwire/cadence_master.c b/drivers/soundwire/cadence_master.c
-index 292c4460eaaa3..18e7d158fcca4 100644
---- a/drivers/soundwire/cadence_master.c
-+++ b/drivers/soundwire/cadence_master.c
-@@ -511,6 +511,29 @@ cdns_fill_msg_resp(struct sdw_cdns *cdns,
- 	return SDW_CMD_OK;
- }
+diff --git a/drivers/iommu/amd_iommu.c b/drivers/iommu/amd_iommu.c
+index b79309928d786..a51e78caa9c8e 100644
+--- a/drivers/iommu/amd_iommu.c
++++ b/drivers/iommu/amd_iommu.c
+@@ -2120,17 +2120,17 @@ static int pdev_iommuv2_enable(struct pci_dev *pdev)
+ 	/* Only allow access to user-accessible pages */
+ 	ret = pci_enable_pasid(pdev, 0);
+ 	if (ret)
+-		goto out_err;
++		return ret;
  
-+static void cdns_read_response(struct sdw_cdns *cdns)
-+{
-+	u32 num_resp, cmd_base;
-+	int i;
-+
-+	/* RX_FIFO_AVAIL can be 2 entries more than the FIFO size */
-+	BUILD_BUG_ON(ARRAY_SIZE(cdns->response_buf) < CDNS_MCP_CMD_LEN + 2);
-+
-+	num_resp = cdns_readl(cdns, CDNS_MCP_FIFOSTAT);
-+	num_resp &= CDNS_MCP_RX_FIFO_AVAIL;
-+	if (num_resp > ARRAY_SIZE(cdns->response_buf)) {
-+		dev_warn(cdns->dev, "RX AVAIL %d too long\n", num_resp);
-+		num_resp = ARRAY_SIZE(cdns->response_buf);
-+	}
-+
-+	cmd_base = CDNS_MCP_CMD_BASE;
-+
-+	for (i = 0; i < num_resp; i++) {
-+		cdns->response_buf[i] = cdns_readl(cdns, cmd_base);
-+		cmd_base += CDNS_MCP_CMD_WORD_LEN;
-+	}
-+}
-+
- static enum sdw_command_response
- _cdns_xfer_msg(struct sdw_cdns *cdns, struct sdw_msg *msg, int cmd,
- 	       int offset, int count, bool defer)
-@@ -552,6 +575,10 @@ _cdns_xfer_msg(struct sdw_cdns *cdns, struct sdw_msg *msg, int cmd,
- 		dev_err(cdns->dev, "IO transfer timed out, cmd %d device %d addr %x len %d\n",
- 			cmd, msg->dev_num, msg->addr, msg->len);
- 		msg->len = 0;
-+
-+		/* Drain anything in the RX_FIFO */
-+		cdns_read_response(cdns);
-+
- 		return SDW_CMD_TIMEOUT;
- 	}
+ 	/* First reset the PRI state of the device */
+ 	ret = pci_reset_pri(pdev);
+ 	if (ret)
+-		goto out_err;
++		goto out_err_pasid;
  
-@@ -720,29 +747,6 @@ EXPORT_SYMBOL(cdns_reset_page_addr);
-  * IRQ handling
-  */
+ 	/* Enable PRI */
+ 	ret = pci_enable_pri(pdev, reqs);
+ 	if (ret)
+-		goto out_err;
++		goto out_err_pasid;
  
--static void cdns_read_response(struct sdw_cdns *cdns)
--{
--	u32 num_resp, cmd_base;
--	int i;
--
--	/* RX_FIFO_AVAIL can be 2 entries more than the FIFO size */
--	BUILD_BUG_ON(ARRAY_SIZE(cdns->response_buf) < CDNS_MCP_CMD_LEN + 2);
--
--	num_resp = cdns_readl(cdns, CDNS_MCP_FIFOSTAT);
--	num_resp &= CDNS_MCP_RX_FIFO_AVAIL;
--	if (num_resp > ARRAY_SIZE(cdns->response_buf)) {
--		dev_warn(cdns->dev, "RX AVAIL %d too long\n", num_resp);
--		num_resp = ARRAY_SIZE(cdns->response_buf);
--	}
--
--	cmd_base = CDNS_MCP_CMD_BASE;
--
--	for (i = 0; i < num_resp; i++) {
--		cdns->response_buf[i] = cdns_readl(cdns, cmd_base);
--		cmd_base += CDNS_MCP_CMD_WORD_LEN;
--	}
--}
--
- static int cdns_update_slave_status(struct sdw_cdns *cdns,
- 				    u32 slave0, u32 slave1)
- {
+ 	if (reset_enable) {
+ 		ret = pri_reset_while_enabled(pdev);
+@@ -2140,12 +2140,14 @@ static int pdev_iommuv2_enable(struct pci_dev *pdev)
+ 
+ 	ret = pci_enable_ats(pdev, PAGE_SHIFT);
+ 	if (ret)
+-		goto out_err;
++		goto out_err_pri;
+ 
+ 	return 0;
+ 
+-out_err:
++out_err_pri:
+ 	pci_disable_pri(pdev);
++
++out_err_pasid:
+ 	pci_disable_pasid(pdev);
+ 
+ 	return ret;
 -- 
 2.39.2
 
