@@ -2,51 +2,54 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 14DA16AA18F
-	for <lists+stable@lfdr.de>; Fri,  3 Mar 2023 22:41:20 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id D84A36AA193
+	for <lists+stable@lfdr.de>; Fri,  3 Mar 2023 22:41:23 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231292AbjCCVlT (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 3 Mar 2023 16:41:19 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54038 "EHLO
+        id S231951AbjCCVlW (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 3 Mar 2023 16:41:22 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54106 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231856AbjCCVlS (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 3 Mar 2023 16:41:18 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id AAD5E637D4;
-        Fri,  3 Mar 2023 13:41:10 -0800 (PST)
+        with ESMTP id S231927AbjCCVlV (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 3 Mar 2023 16:41:21 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2434C62DA7;
+        Fri,  3 Mar 2023 13:41:12 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 467C9618C2;
+        by dfw.source.kernel.org (Postfix) with ESMTPS id B3FA461910;
+        Fri,  3 Mar 2023 21:41:11 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3402DC433A0;
         Fri,  3 Mar 2023 21:41:10 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id DC6D0C433EF;
-        Fri,  3 Mar 2023 21:41:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1677879669;
-        bh=ziEC4mRzw2QHcDPWZ32nHGd0U8w5jht093o+kHHOBEc=;
-        h=From:To:Cc:Subject:Date:From;
-        b=K1o3Fmv0E9zjJR2xhi1eAwkuLoZRC3Yga8xBEliuF2E+MRCTgSGgYb0Jr+kKD6E/N
-         n5yaM1yNT0hIGTbadfJEJkRZLlz94VZlgQQKzJ/fu33aisd5cEqzjglEAFC7+2ecc5
-         Cxubk7K5q6/Y/icgBqYEbEEi+1eYX++aQ25yNJyQG1bngCsWJ5ktZZ8lPaUzwMRV3K
-         9+mX6s9Rx7ZMrN/ciTxxABUsxLCFyIJtOyyFV8mlUjs+IUEWNTW1INhB0wSssBI5rW
-         4/W6larbN+agz1Ipqpmfhr5r5Nzvy1RBiOHdKNoYQ98NfB1Hv+Y+R0/JLZEWil2WOs
-         7j/lS15BY3XeA==
+        s=k20201202; t=1677879671;
+        bh=yU2Kns+nfberkrKPELqHy6W980G/yiYouKTOPDsATi4=;
+        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+        b=of2gZftlC1CQJhqrINqrGCMm4Fnb0FyA4rbCJxR6JYpgRon5ktuSqDZXGmQaINnvp
+         4M2HaHHQ9jQDtOq3ZqfUaIGjVGkMh5sBzClPDc2es8zNRVXAXyvnD7O1sSsKSCbHFh
+         ZIFNIE6FSn/5ckg63ExkH9TMls0/jT5R6Ara1DbH4QSER+rpEmSEdHc9OvrW/Kw4H8
+         9HZ9Bz6yKMUokqzC2fZYLP60+Ruv5FfRH08nwP1Auh5hDsQkMsmSfs3joVx1fWjDPR
+         7gSsFl4GCSxJr3n6cakjwM0/144xB9q6jkKOXL1CZDQpGpJYbIfZw6gjvzoW0O+5WL
+         0ZBU8699F0NYg==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Dean Luick <dean.luick@cornelisnetworks.com>,
-        Dennis Dalessandro <dennis.dalessandro@cornelisnetworks.com>,
-        Leon Romanovsky <leon@kernel.org>,
-        Sasha Levin <sashal@kernel.org>, linux-rdma@vger.kernel.org
-Subject: [PATCH AUTOSEL 6.2 01/64] IB/hfi1: Update RMT size calculation
-Date:   Fri,  3 Mar 2023 16:40:03 -0500
-Message-Id: <20230303214106.1446460-1-sashal@kernel.org>
+Cc:     Jason Gunthorpe <jgg@nvidia.com>,
+        Lu Baolu <baolu.lu@linux.intel.com>,
+        Joerg Roedel <jroedel@suse.de>,
+        Sasha Levin <sashal@kernel.org>, joro@8bytes.org,
+        will@kernel.org, iommu@lists.linux.dev
+Subject: [PATCH AUTOSEL 6.2 02/64] iommu: Remove deferred attach check from __iommu_detach_device()
+Date:   Fri,  3 Mar 2023 16:40:04 -0500
+Message-Id: <20230303214106.1446460-2-sashal@kernel.org>
 X-Mailer: git-send-email 2.39.2
+In-Reply-To: <20230303214106.1446460-1-sashal@kernel.org>
+References: <20230303214106.1446460-1-sashal@kernel.org>
 MIME-Version: 1.0
 X-stable: review
 X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
+X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
         SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -54,134 +57,195 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dean Luick <dean.luick@cornelisnetworks.com>
+From: Jason Gunthorpe <jgg@nvidia.com>
 
-[ Upstream commit 892ede5a77f337831609fb9c248ac60948061894 ]
+[ Upstream commit dd8a25c557e109f868430bd2e3e8f394cb40eaa7 ]
 
-Fix possible RMT overflow:  Use the correct netdev size.
-Don't allow adjusted user contexts to go negative.
+At the current moment, __iommu_detach_device() is only called via call
+chains that are after the device driver is attached - eg via explicit
+attach APIs called by the device driver.
 
-Fix QOS calculation: Send kernel context count as an argument since
-dd->n_krcv_queues is not yet set up in earliest call.  Do not include
-the control context in the QOS calculation.  Use the same sized
-variable to find the max of krcvq[] entries.
+Commit bd421264ed30 ("iommu: Fix deferred domain attachment") has removed
+deferred domain attachment check from __iommu_attach_device() path, so it
+should just unconditionally work in the __iommu_detach_device() path.
 
-Update the RMT count explanation to make more sense.
+It actually looks like a bug that we were blocking detach on these paths
+since the attach was unconditional and the caller is going to free the
+(probably) UNAMANGED domain once this returns.
 
-Signed-off-by: Dean Luick <dean.luick@cornelisnetworks.com>
-Signed-off-by: Dennis Dalessandro <dennis.dalessandro@cornelisnetworks.com>
-Link: https://lore.kernel.org/r/167329106946.1472990.18385495251650939054.stgit@awfm-02.cornelisnetworks.com
-Signed-off-by: Leon Romanovsky <leon@kernel.org>
+The only place we should be testing for deferred attach is during the
+initial point the dma device is linked to the group, and then again
+during the dma api calls.
+
+Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
+Signed-off-by: Lu Baolu <baolu.lu@linux.intel.com>
+Link: https://lore.kernel.org/r/20230110025408.667767-5-baolu.lu@linux.intel.com
+Signed-off-by: Joerg Roedel <jroedel@suse.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/infiniband/hw/hfi1/chip.c | 59 +++++++++++++++++--------------
- 1 file changed, 32 insertions(+), 27 deletions(-)
+ drivers/iommu/iommu.c | 70 ++++++++++++++++++++++---------------------
+ include/linux/iommu.h |  2 ++
+ 2 files changed, 38 insertions(+), 34 deletions(-)
 
-diff --git a/drivers/infiniband/hw/hfi1/chip.c b/drivers/infiniband/hw/hfi1/chip.c
-index ebe970f76232d..90b672feed83d 100644
---- a/drivers/infiniband/hw/hfi1/chip.c
-+++ b/drivers/infiniband/hw/hfi1/chip.c
-@@ -1056,7 +1056,7 @@ static void read_link_down_reason(struct hfi1_devdata *dd, u8 *ldr);
- static void handle_temp_err(struct hfi1_devdata *dd);
- static void dc_shutdown(struct hfi1_devdata *dd);
- static void dc_start(struct hfi1_devdata *dd);
--static int qos_rmt_entries(struct hfi1_devdata *dd, unsigned int *mp,
-+static int qos_rmt_entries(unsigned int n_krcv_queues, unsigned int *mp,
- 			   unsigned int *np);
- static void clear_full_mgmt_pkey(struct hfi1_pportdata *ppd);
- static int wait_link_transfer_active(struct hfi1_devdata *dd, int wait_ms);
-@@ -13362,7 +13362,6 @@ static int set_up_context_variables(struct hfi1_devdata *dd)
- 	int ret;
- 	unsigned ngroups;
- 	int rmt_count;
--	int user_rmt_reduced;
- 	u32 n_usr_ctxts;
- 	u32 send_contexts = chip_send_contexts(dd);
- 	u32 rcv_contexts = chip_rcv_contexts(dd);
-@@ -13421,28 +13420,34 @@ static int set_up_context_variables(struct hfi1_devdata *dd)
- 					 (num_kernel_contexts + n_usr_ctxts),
- 					 &node_affinity.real_cpu_mask);
- 	/*
--	 * The RMT entries are currently allocated as shown below:
--	 * 1. QOS (0 to 128 entries);
--	 * 2. FECN (num_kernel_context - 1 + num_user_contexts +
--	 *    num_netdev_contexts);
--	 * 3. netdev (num_netdev_contexts).
--	 * It should be noted that FECN oversubscribe num_netdev_contexts
--	 * entries of RMT because both netdev and PSM could allocate any receive
--	 * context between dd->first_dyn_alloc_text and dd->num_rcv_contexts,
--	 * and PSM FECN must reserve an RMT entry for each possible PSM receive
--	 * context.
-+	 * RMT entries are allocated as follows:
-+	 * 1. QOS (0 to 128 entries)
-+	 * 2. FECN (num_kernel_context - 1 [a] + num_user_contexts +
-+	 *          num_netdev_contexts [b])
-+	 * 3. netdev (NUM_NETDEV_MAP_ENTRIES)
-+	 *
-+	 * Notes:
-+	 * [a] Kernel contexts (except control) are included in FECN if kernel
-+	 *     TID_RDMA is active.
-+	 * [b] Netdev and user contexts are randomly allocated from the same
-+	 *     context pool, so FECN must cover all contexts in the pool.
- 	 */
--	rmt_count = qos_rmt_entries(dd, NULL, NULL) + (num_netdev_contexts * 2);
--	if (HFI1_CAP_IS_KSET(TID_RDMA))
--		rmt_count += num_kernel_contexts - 1;
--	if (rmt_count + n_usr_ctxts > NUM_MAP_ENTRIES) {
--		user_rmt_reduced = NUM_MAP_ENTRIES - rmt_count;
--		dd_dev_err(dd,
--			   "RMT size is reducing the number of user receive contexts from %u to %d\n",
--			   n_usr_ctxts,
--			   user_rmt_reduced);
--		/* recalculate */
--		n_usr_ctxts = user_rmt_reduced;
-+	rmt_count = qos_rmt_entries(num_kernel_contexts - 1, NULL, NULL)
-+		    + (HFI1_CAP_IS_KSET(TID_RDMA) ? num_kernel_contexts - 1
-+						  : 0)
-+		    + n_usr_ctxts
-+		    + num_netdev_contexts
-+		    + NUM_NETDEV_MAP_ENTRIES;
-+	if (rmt_count > NUM_MAP_ENTRIES) {
-+		int over = rmt_count - NUM_MAP_ENTRIES;
-+		/* try to squish user contexts, minimum of 1 */
-+		if (over >= n_usr_ctxts) {
-+			dd_dev_err(dd, "RMT overflow: reduce the requested number of contexts\n");
-+			return -EINVAL;
-+		}
-+		dd_dev_err(dd, "RMT overflow: reducing # user contexts from %u to %u\n",
-+			   n_usr_ctxts, n_usr_ctxts - over);
-+		n_usr_ctxts -= over;
- 	}
- 
- 	/* the first N are kernel contexts, the rest are user/netdev contexts */
-@@ -14299,15 +14304,15 @@ static void clear_rsm_rule(struct hfi1_devdata *dd, u8 rule_index)
+diff --git a/drivers/iommu/iommu.c b/drivers/iommu/iommu.c
+index 5f6a85aea501e..54e1306a99a47 100644
+--- a/drivers/iommu/iommu.c
++++ b/drivers/iommu/iommu.c
+@@ -371,6 +371,30 @@ static int __iommu_probe_device(struct device *dev, struct list_head *group_list
+ 	return ret;
  }
  
- /* return the number of RSM map table entries that will be used for QOS */
--static int qos_rmt_entries(struct hfi1_devdata *dd, unsigned int *mp,
-+static int qos_rmt_entries(unsigned int n_krcv_queues, unsigned int *mp,
- 			   unsigned int *np)
++static bool iommu_is_attach_deferred(struct device *dev)
++{
++	const struct iommu_ops *ops = dev_iommu_ops(dev);
++
++	if (ops->is_attach_deferred)
++		return ops->is_attach_deferred(dev);
++
++	return false;
++}
++
++static int iommu_group_do_dma_first_attach(struct device *dev, void *data)
++{
++	struct iommu_domain *domain = data;
++
++	lockdep_assert_held(&dev->iommu_group->mutex);
++
++	if (iommu_is_attach_deferred(dev)) {
++		dev->iommu->attach_deferred = 1;
++		return 0;
++	}
++
++	return __iommu_attach_device(domain, dev);
++}
++
+ int iommu_probe_device(struct device *dev)
  {
- 	int i;
- 	unsigned int m, n;
--	u8 max_by_vl = 0;
-+	uint max_by_vl = 0;
+ 	const struct iommu_ops *ops;
+@@ -401,7 +425,7 @@ int iommu_probe_device(struct device *dev)
+ 	 * attach the default domain.
+ 	 */
+ 	if (group->default_domain && !group->owner) {
+-		ret = __iommu_attach_device(group->default_domain, dev);
++		ret = iommu_group_do_dma_first_attach(dev, group->default_domain);
+ 		if (ret) {
+ 			mutex_unlock(&group->mutex);
+ 			iommu_group_put(group);
+@@ -947,16 +971,6 @@ static int iommu_create_device_direct_mappings(struct iommu_group *group,
+ 	return ret;
+ }
  
- 	/* is QOS active at all? */
--	if (dd->n_krcv_queues <= MIN_KERNEL_KCTXTS ||
-+	if (n_krcv_queues < MIN_KERNEL_KCTXTS ||
- 	    num_vls == 1 ||
- 	    krcvqsset <= 1)
- 		goto no_qos;
-@@ -14365,7 +14370,7 @@ static void init_qos(struct hfi1_devdata *dd, struct rsm_map_table *rmt)
+-static bool iommu_is_attach_deferred(struct device *dev)
+-{
+-	const struct iommu_ops *ops = dev_iommu_ops(dev);
+-
+-	if (ops->is_attach_deferred)
+-		return ops->is_attach_deferred(dev);
+-
+-	return false;
+-}
+-
+ /**
+  * iommu_group_add_device - add a device to an iommu group
+  * @group: the group into which to add the device (reference should be held)
+@@ -1009,8 +1023,8 @@ int iommu_group_add_device(struct iommu_group *group, struct device *dev)
  
- 	if (!rmt)
- 		goto bail;
--	rmt_entries = qos_rmt_entries(dd, &m, &n);
-+	rmt_entries = qos_rmt_entries(dd->n_krcv_queues - 1, &m, &n);
- 	if (rmt_entries == 0)
- 		goto bail;
- 	qpns_per_vl = 1 << m;
+ 	mutex_lock(&group->mutex);
+ 	list_add_tail(&device->list, &group->devices);
+-	if (group->domain  && !iommu_is_attach_deferred(dev))
+-		ret = __iommu_attach_device(group->domain, dev);
++	if (group->domain)
++		ret = iommu_group_do_dma_first_attach(dev, group->domain);
+ 	mutex_unlock(&group->mutex);
+ 	if (ret)
+ 		goto err_put_group;
+@@ -1776,21 +1790,10 @@ static void probe_alloc_default_domain(struct bus_type *bus,
+ 
+ }
+ 
+-static int iommu_group_do_dma_attach(struct device *dev, void *data)
+-{
+-	struct iommu_domain *domain = data;
+-	int ret = 0;
+-
+-	if (!iommu_is_attach_deferred(dev))
+-		ret = __iommu_attach_device(domain, dev);
+-
+-	return ret;
+-}
+-
+-static int __iommu_group_dma_attach(struct iommu_group *group)
++static int __iommu_group_dma_first_attach(struct iommu_group *group)
+ {
+ 	return __iommu_group_for_each_dev(group, group->default_domain,
+-					  iommu_group_do_dma_attach);
++					  iommu_group_do_dma_first_attach);
+ }
+ 
+ static int iommu_group_do_probe_finalize(struct device *dev, void *data)
+@@ -1855,7 +1858,7 @@ int bus_iommu_probe(struct bus_type *bus)
+ 
+ 		iommu_group_create_direct_mappings(group);
+ 
+-		ret = __iommu_group_dma_attach(group);
++		ret = __iommu_group_dma_first_attach(group);
+ 
+ 		mutex_unlock(&group->mutex);
+ 
+@@ -1987,9 +1990,11 @@ static int __iommu_attach_device(struct iommu_domain *domain,
+ 		return -ENODEV;
+ 
+ 	ret = domain->ops->attach_dev(domain, dev);
+-	if (!ret)
+-		trace_attach_device_to_domain(dev);
+-	return ret;
++	if (ret)
++		return ret;
++	dev->iommu->attach_deferred = 0;
++	trace_attach_device_to_domain(dev);
++	return 0;
+ }
+ 
+ /**
+@@ -2034,7 +2039,7 @@ EXPORT_SYMBOL_GPL(iommu_attach_device);
+ 
+ int iommu_deferred_attach(struct device *dev, struct iommu_domain *domain)
+ {
+-	if (iommu_is_attach_deferred(dev))
++	if (dev->iommu && dev->iommu->attach_deferred)
+ 		return __iommu_attach_device(domain, dev);
+ 
+ 	return 0;
+@@ -2043,9 +2048,6 @@ int iommu_deferred_attach(struct device *dev, struct iommu_domain *domain)
+ static void __iommu_detach_device(struct iommu_domain *domain,
+ 				  struct device *dev)
+ {
+-	if (iommu_is_attach_deferred(dev))
+-		return;
+-
+ 	domain->ops->detach_dev(domain, dev);
+ 	trace_detach_device_from_domain(dev);
+ }
+diff --git a/include/linux/iommu.h b/include/linux/iommu.h
+index 46e1347bfa228..7695d9e14277f 100644
+--- a/include/linux/iommu.h
++++ b/include/linux/iommu.h
+@@ -401,6 +401,7 @@ struct iommu_fault_param {
+  * @iommu_dev:	 IOMMU device this device is linked to
+  * @priv:	 IOMMU Driver private data
+  * @max_pasids:  number of PASIDs this device can consume
++ * @attach_deferred: the dma domain attachment is deferred
+  *
+  * TODO: migrate other per device data pointers under iommu_dev_data, e.g.
+  *	struct iommu_group	*iommu_group;
+@@ -413,6 +414,7 @@ struct dev_iommu {
+ 	struct iommu_device		*iommu_dev;
+ 	void				*priv;
+ 	u32				max_pasids;
++	u32				attach_deferred:1;
+ };
+ 
+ int iommu_device_register(struct iommu_device *iommu,
 -- 
 2.39.2
 
