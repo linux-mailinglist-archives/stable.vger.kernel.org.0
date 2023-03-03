@@ -2,55 +2,53 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id CE8B06AA338
-	for <lists+stable@lfdr.de>; Fri,  3 Mar 2023 22:56:33 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 3FFF96AA347
+	for <lists+stable@lfdr.de>; Fri,  3 Mar 2023 22:56:39 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233195AbjCCV4M (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 3 Mar 2023 16:56:12 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46584 "EHLO
+        id S233233AbjCCV4O (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 3 Mar 2023 16:56:14 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47006 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233293AbjCCVzS (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 3 Mar 2023 16:55:18 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id ED5156B32D;
-        Fri,  3 Mar 2023 13:48:53 -0800 (PST)
+        with ESMTP id S233302AbjCCVzT (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 3 Mar 2023 16:55:19 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id A87266B335;
+        Fri,  3 Mar 2023 13:48:54 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id D9C986185A;
-        Fri,  3 Mar 2023 21:48:48 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A83F9C433D2;
-        Fri,  3 Mar 2023 21:48:47 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id A5248618F8;
+        Fri,  3 Mar 2023 21:48:53 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C9421C433D2;
+        Fri,  3 Mar 2023 21:48:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1677880128;
-        bh=Q7GN1C1Ku0/LoFstXzIDGUQwzwKCHcF5ZS4mrewWO34=;
-        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=ssDQ4ucDuJxdJ/7if8hVf+dfyWxhQUAJlnt7TRLG8GA/2GmgUa1vcUcnP9wef039i
-         bIRQiCuWwqR4yWgktr0hQn7NFr+jF2hh/ZyjyhUy/lm0LTsnP4r64LF77WIv7BrBfO
-         MsEbMAbOsR0Jij5VyhPMbh0fPiq5REVl4UcZwmDMPsoVTULBYq9+y+XNj0ZN/aruKw
-         8gMAM2prAPhoJrmsX+XGnWMnC8bDMhaCLJqYbVRFBrkFmtYG6dc5fQbzpVbADMOki6
-         X0BvZgI54ZK29eb0v1iWBIATuvlq0Wn7venkgQHKL8uFQajDZZRZFgU4iJKbsauzaa
-         Tso5sqhB9a6dA==
+        s=k20201202; t=1677880133;
+        bh=Y+8kg1gWeVirmj5afG56+SuBaNBHH+lDOxMZMdgZtgE=;
+        h=From:To:Cc:Subject:Date:From;
+        b=eMaR+C5GVMK4M8NVBrLR54CIsbxUYO2H7iLa9jzFl2woYeybbIlwPpau6i9PxUvHT
+         4rfQZ1c0QQP9tqSnBdZrsJKJ0id8mEbD1IW129JJlEIy/fLdMoyxHEAY9PEulJjwVx
+         Q1+XBexUtH6iKSmQEObVtOfD2y03Mkt0VFRnLfr9zvIS27HYNaWYsFuropeGtHkhv/
+         Mdb9ktPhlSqIhL8WSYh6WX2nlXUusC3oS4kgKeSaHz9kUY4eeOL3ZgVc2tNVEHZqOq
+         Kf3IrtaUQjOaOhs7uREWmsq67ySpUgaKedBhzvbcX6uw9/bKM0f5lUJBxqgCmHEVHW
+         4jQQNsKDmgS+g==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Jiapeng Chong <jiapeng.chong@linux.alibaba.com>,
-        Abaci Robot <abaci@linux.alibaba.com>,
-        Vinod Koul <vkoul@kernel.org>, Sasha Levin <sashal@kernel.org>,
-        kishon@kernel.org, heiko@sntech.de, linux-phy@lists.infradead.org,
-        linux-arm-kernel@lists.infradead.org,
-        linux-rockchip@lists.infradead.org
-Subject: [PATCH AUTOSEL 5.4 20/20] phy: rockchip-typec: Fix unsigned comparison with less than zero
-Date:   Fri,  3 Mar 2023 16:48:06 -0500
-Message-Id: <20230303214806.1453287-20-sashal@kernel.org>
+Cc:     Vasant Hegde <vasant.hegde@amd.com>,
+        Matt Fagnani <matt.fagnani@bell.net>,
+        Suravee Suthikulpanit <suravee.suthikulpanit@amd.com>,
+        Joerg Roedel <jroedel@suse.de>,
+        Sasha Levin <sashal@kernel.org>, joro@8bytes.org,
+        will@kernel.org, iommu@lists.linux.dev
+Subject: [PATCH AUTOSEL 4.19 01/16] iommu/amd: Fix error handling for pdev_pri_ats_enable()
+Date:   Fri,  3 Mar 2023 16:48:34 -0500
+Message-Id: <20230303214849.1454002-1-sashal@kernel.org>
 X-Mailer: git-send-email 2.39.2
-In-Reply-To: <20230303214806.1453287-1-sashal@kernel.org>
-References: <20230303214806.1453287-1-sashal@kernel.org>
 MIME-Version: 1.0
 X-stable: review
 X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
         SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -58,41 +56,67 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Jiapeng Chong <jiapeng.chong@linux.alibaba.com>
+From: Vasant Hegde <vasant.hegde@amd.com>
 
-[ Upstream commit f765c59c5a72546a2d74a92ae5d0eb0329d8e247 ]
+[ Upstream commit 080920e52148b4fbbf9360d5345fdcd7846e4841 ]
 
-The dp and ufp are defined as bool type, the return value type of
-function extcon_get_state should be int, so the type of dp and ufp
-are modified to int.
+Current code throws kernel warning if it fails to enable pasid/pri [1].
+Do not call pci_disable_[pasid/pri] if pci_enable_[pasid/pri] failed.
 
-./drivers/phy/rockchip/phy-rockchip-typec.c:827:12-14: WARNING: Unsigned expression compared with zero: dp > 0.
+[1] https://lore.kernel.org/linux-iommu/15d0f9ff-2a56-b3e9-5b45-e6b23300ae3b@leemhuis.info/
 
-Reported-by: Abaci Robot <abaci@linux.alibaba.com>
-Link: https://bugzilla.openanolis.cn/show_bug.cgi?id=3962
-Signed-off-by: Jiapeng Chong <jiapeng.chong@linux.alibaba.com>
-Link: https://lore.kernel.org/r/20230213035709.99027-1-jiapeng.chong@linux.alibaba.com
-Signed-off-by: Vinod Koul <vkoul@kernel.org>
+Reported-by: Matt Fagnani <matt.fagnani@bell.net>
+Signed-off-by: Vasant Hegde <vasant.hegde@amd.com>
+Reviewed-by: Suravee Suthikulpanit <suravee.suthikulpanit@amd.com>
+Link: https://lore.kernel.org/r/20230111121503.5931-1-vasant.hegde@amd.com
+Signed-off-by: Joerg Roedel <jroedel@suse.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/phy/rockchip/phy-rockchip-typec.c | 3 +--
- 1 file changed, 1 insertion(+), 2 deletions(-)
+ drivers/iommu/amd_iommu.c | 12 +++++++-----
+ 1 file changed, 7 insertions(+), 5 deletions(-)
 
-diff --git a/drivers/phy/rockchip/phy-rockchip-typec.c b/drivers/phy/rockchip/phy-rockchip-typec.c
-index 24563160197f5..ba805f1d4f6a8 100644
---- a/drivers/phy/rockchip/phy-rockchip-typec.c
-+++ b/drivers/phy/rockchip/phy-rockchip-typec.c
-@@ -808,9 +808,8 @@ static int tcphy_get_mode(struct rockchip_typec_phy *tcphy)
- 	struct extcon_dev *edev = tcphy->extcon;
- 	union extcon_property_value property;
- 	unsigned int id;
--	bool ufp, dp;
- 	u8 mode;
--	int ret;
-+	int ret, ufp, dp;
+diff --git a/drivers/iommu/amd_iommu.c b/drivers/iommu/amd_iommu.c
+index 5d5941aca16ad..75c5932d0133a 100644
+--- a/drivers/iommu/amd_iommu.c
++++ b/drivers/iommu/amd_iommu.c
+@@ -2059,17 +2059,17 @@ static int pdev_iommuv2_enable(struct pci_dev *pdev)
+ 	/* Only allow access to user-accessible pages */
+ 	ret = pci_enable_pasid(pdev, 0);
+ 	if (ret)
+-		goto out_err;
++		return ret;
  
- 	if (!edev)
- 		return MODE_DFP_USB;
+ 	/* First reset the PRI state of the device */
+ 	ret = pci_reset_pri(pdev);
+ 	if (ret)
+-		goto out_err;
++		goto out_err_pasid;
+ 
+ 	/* Enable PRI */
+ 	ret = pci_enable_pri(pdev, reqs);
+ 	if (ret)
+-		goto out_err;
++		goto out_err_pasid;
+ 
+ 	if (reset_enable) {
+ 		ret = pri_reset_while_enabled(pdev);
+@@ -2079,12 +2079,14 @@ static int pdev_iommuv2_enable(struct pci_dev *pdev)
+ 
+ 	ret = pci_enable_ats(pdev, PAGE_SHIFT);
+ 	if (ret)
+-		goto out_err;
++		goto out_err_pri;
+ 
+ 	return 0;
+ 
+-out_err:
++out_err_pri:
+ 	pci_disable_pri(pdev);
++
++out_err_pasid:
+ 	pci_disable_pasid(pdev);
+ 
+ 	return ret;
 -- 
 2.39.2
 
