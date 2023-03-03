@@ -2,44 +2,47 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 749886AA2E2
-	for <lists+stable@lfdr.de>; Fri,  3 Mar 2023 22:52:16 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 1E7E86AA237
+	for <lists+stable@lfdr.de>; Fri,  3 Mar 2023 22:46:42 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232646AbjCCVvZ (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 3 Mar 2023 16:51:25 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37554 "EHLO
+        id S232226AbjCCVq0 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 3 Mar 2023 16:46:26 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:55520 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232787AbjCCVtZ (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 3 Mar 2023 16:49:25 -0500
+        with ESMTP id S232185AbjCCVpD (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 3 Mar 2023 16:45:03 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 41BEA6B5CE;
-        Fri,  3 Mar 2023 13:45:54 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id B24B465C6E;
+        Fri,  3 Mar 2023 13:44:10 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 467D361924;
+        by dfw.source.kernel.org (Postfix) with ESMTPS id 6CFFB61941;
+        Fri,  3 Mar 2023 21:43:59 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 36C53C433A7;
         Fri,  3 Mar 2023 21:43:58 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0C40AC4339B;
-        Fri,  3 Mar 2023 21:43:56 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1677879837;
-        bh=1tYfkklAt84DLqXG8UKW3jbjYmFY+1EiJ+dj4OS2AJk=;
+        s=k20201202; t=1677879839;
+        bh=WQ/AFTgJmQr/mPiSgZxL3KFvJ3Y/Dj8btyJ8583Tz6Y=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=p3XE0feJAUT+0GflcDAb1YcaO2Gkrg8ttpwNCEvu+yy2Gf8xslYJzXSmpU2xFE+qM
-         LwonPGjFnWGiNDZ+pj/oYZIdAkKdg8FOVnW7Q0qZe50D3V6xkOlhbLbZ91Kri0c0bF
-         Z51MY48uMDih2wJMwKxZ1BiToU/5Bhp9PgUmhNKTiY/wTbiWvDHHKzbMHLQIYQ96NB
-         P9kuG+pMwCobz0sRXZec8mVTgl2Srpvc4D7QAdJfm7/pifkQIrk52pPXnYW7ZQOUpU
-         K02tGI2vV/E2+hvDcDaZSwZE6/JN/UAh2dTMc09j1dCDFsWN38eqAwCGeVMiCSZCsY
-         KR2rZ0ZBJbyvQ==
+        b=HM7oqnyY1AExs6UY/qpBwtgS7INOAwi3eefHGKALmqKUc16wqdN3kguqynpxlj79q
+         ep+mdGWs5tNLis+WWuYS1B9ucsFTKIAG9IqiKuY63NhqI5Ragjj1QsnxXXLLnd/zMa
+         CPPa9PKXZQ4y1ylrXo4lKpsLIW6vw1YQLwcUOf89rKmMiS09+EJ9L/HDFRUxXy4nxZ
+         ixfOOU6n+zW+fgYKfnIt9BCLI2Wx/kdtDgGRNxr+AaxKbM/NrinA9yznNl5sJ3EI3F
+         x0sREv/pLNkH0rJJQpxtqN0jBtThimKwxkTV5pYYppK+biBkNZ3aMmNTiuw3W/fbNV
+         WzUZqGZUiwmNw==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Harshit Mogalapalli <harshit.m.mogalapalli@oracle.com>,
-        Jonathan Cameron <Jonathan.Cameron@huawei.com>,
-        Sasha Levin <sashal@kernel.org>, jic23@kernel.org,
-        linux-iio@vger.kernel.org
-Subject: [PATCH AUTOSEL 6.1 20/60] iio: accel: mma9551_core: Prevent uninitialized variable in mma9551_read_config_word()
-Date:   Fri,  3 Mar 2023 16:42:34 -0500
-Message-Id: <20230303214315.1447666-20-sashal@kernel.org>
+Cc:     Marek Vasut <marex@denx.de>,
+        Laurent Pinchart <laurent.pinchart@ideasonboard.com>,
+        Ricardo Ribalda <ricardo@ribalda.com>,
+        Michael Grzeschik <m.grzeschik@pengutronix.de>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Sasha Levin <sashal@kernel.org>, mchehab@kernel.org,
+        linux-media@vger.kernel.org
+Subject: [PATCH AUTOSEL 6.1 21/60] media: uvcvideo: Add GUID for BGRA/X 8:8:8:8
+Date:   Fri,  3 Mar 2023 16:42:35 -0500
+Message-Id: <20230303214315.1447666-21-sashal@kernel.org>
 X-Mailer: git-send-email 2.39.2
 In-Reply-To: <20230303214315.1447666-1-sashal@kernel.org>
 References: <20230303214315.1447666-1-sashal@kernel.org>
@@ -56,46 +59,69 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Harshit Mogalapalli <harshit.m.mogalapalli@oracle.com>
+From: Marek Vasut <marex@denx.de>
 
-[ Upstream commit 64a68158738ec8f520347144352f7a09bdb9e169 ]
+[ Upstream commit 015d44c2b700ba9639dd29672ba362796cc0be54 ]
 
-Smatch Warns:
-drivers/iio/accel/mma9551_core.c:299
-	mma9551_read_config_word() error: uninitialized symbol 'v'.
+The Cypress EZUSB FX3 UVC example can be configured to report pixel
+format "e436eb7e-524f-11ce-9f53-0020af0ba770". This is its GUID for
+BGRA/X 8:8:8:8.
 
-When (offset >= 1 << 12) is true mma9551_transfer() will return -EINVAL
-without 'v' being initialized, so check for the error and return.
+The UVC 1.5 spec [1] only defines GUIDs for YUY2, NV12, M420 and I420.
+This seems to be an extension documented in the Microsoft Windows Media
+Format SDK[2]. This Media Format SDK defines this GUID as corresponding
+to `MEDIASUBTYPE_RGB32`, which is confirmed by [4] as `MEDIASUBTYPE_ARGB32`
+has different GUID.
 
-Note: No actual bug as caller checks the return value and does not
-use the parameter in the problem case.
+Note that in my case, the FX3 UVC can output either channel order,
+BGR or RGB or any other mix for that matter. Since Linux commit
+1b8dc32286a1a ("[media] uvcvideo: Add GUID for BGR 8:8:8")
+defined a GUID for `MEDIASUBTYPE_RGB24` channel order as BGR, keep
+this change consistent and define `MEDIASUBTYPE_RGB32` as BGR as well.
+Document [3] also indicates the channel order is BGR.
 
-Signed-off-by: Harshit Mogalapalli <harshit.m.mogalapalli@oracle.com>
-Link: https://lore.kernel.org/r/20230126153610.3586243-1-harshit.m.mogalapalli@oracle.com
-Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
+[1] https://www.usb.org/document-library/video-class-v15-document-set
+[2] https://learn.microsoft.com/en-us/windows/win32/wmformat/media-type-identifiers
+[3] https://learn.microsoft.com/en-us/windows/win32/directshow/uncompressed-rgb-video-subtypes
+[4] https://gix.github.io/media-types/
+
+Signed-off-by: Marek Vasut <marex@denx.de>
+Reviewed-by: Laurent Pinchart <laurent.pinchart@ideasonboard.com>
+Reviewed-by: Ricardo Ribalda <ricardo@ribalda.com>
+Signed-off-by: Michael Grzeschik <m.grzeschik@pengutronix.de>
+Link: https://lore.kernel.org/r/20230126231456.3402323-2-m.grzeschik@pengutronix.de
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/iio/accel/mma9551_core.c | 5 ++++-
- 1 file changed, 4 insertions(+), 1 deletion(-)
+ include/media/v4l2-uvc.h | 8 ++++++++
+ 1 file changed, 8 insertions(+)
 
-diff --git a/drivers/iio/accel/mma9551_core.c b/drivers/iio/accel/mma9551_core.c
-index 86437ddc5ca18..b898f865fb875 100644
---- a/drivers/iio/accel/mma9551_core.c
-+++ b/drivers/iio/accel/mma9551_core.c
-@@ -296,9 +296,12 @@ int mma9551_read_config_word(struct i2c_client *client, u8 app_id,
- 
- 	ret = mma9551_transfer(client, app_id, MMA9551_CMD_READ_CONFIG,
- 			       reg, NULL, 0, (u8 *)&v, 2);
-+	if (ret < 0)
-+		return ret;
-+
- 	*val = be16_to_cpu(v);
- 
--	return ret;
-+	return 0;
- }
- EXPORT_SYMBOL_NS(mma9551_read_config_word, IIO_MMA9551);
- 
+diff --git a/include/media/v4l2-uvc.h b/include/media/v4l2-uvc.h
+index f83e31661333b..b010a36fc1d95 100644
+--- a/include/media/v4l2-uvc.h
++++ b/include/media/v4l2-uvc.h
+@@ -99,6 +99,9 @@
+ #define UVC_GUID_FORMAT_BGR3 \
+ 	{ 0x7d, 0xeb, 0x36, 0xe4, 0x4f, 0x52, 0xce, 0x11, \
+ 	 0x9f, 0x53, 0x00, 0x20, 0xaf, 0x0b, 0xa7, 0x70}
++#define UVC_GUID_FORMAT_BGR4 \
++	{ 0x7e, 0xeb, 0x36, 0xe4, 0x4f, 0x52, 0xce, 0x11, \
++	 0x9f, 0x53, 0x00, 0x20, 0xaf, 0x0b, 0xa7, 0x70}
+ #define UVC_GUID_FORMAT_M420 \
+ 	{ 'M',  '4',  '2',  '0', 0x00, 0x00, 0x10, 0x00, \
+ 	 0x80, 0x00, 0x00, 0xaa, 0x00, 0x38, 0x9b, 0x71}
+@@ -266,6 +269,11 @@ static struct uvc_format_desc uvc_fmts[] = {
+ 		.guid		= UVC_GUID_FORMAT_BGR3,
+ 		.fcc		= V4L2_PIX_FMT_BGR24,
+ 	},
++	{
++		.name		= "BGRA/X 8:8:8:8 (BGR4)",
++		.guid		= UVC_GUID_FORMAT_BGR4,
++		.fcc		= V4L2_PIX_FMT_XBGR32,
++	},
+ 	{
+ 		.name		= "H.264",
+ 		.guid		= UVC_GUID_FORMAT_H264,
 -- 
 2.39.2
 
