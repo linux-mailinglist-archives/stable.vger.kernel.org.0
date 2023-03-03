@@ -2,43 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 2CC826AA56F
-	for <lists+stable@lfdr.de>; Sat,  4 Mar 2023 00:13:29 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 9EDC86AA560
+	for <lists+stable@lfdr.de>; Sat,  4 Mar 2023 00:08:29 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232128AbjCCXN2 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 3 Mar 2023 18:13:28 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:47646 "EHLO
+        id S231986AbjCCXI2 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 3 Mar 2023 18:08:28 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:42646 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231834AbjCCXN1 (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 3 Mar 2023 18:13:27 -0500
+        with ESMTP id S231649AbjCCXI1 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 3 Mar 2023 18:08:27 -0500
 Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 7C201457F9;
-        Fri,  3 Mar 2023 15:13:26 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 837DA83C8;
+        Fri,  3 Mar 2023 15:08:26 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 06E40CE229C;
-        Fri,  3 Mar 2023 21:46:12 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 230B3C433A0;
-        Fri,  3 Mar 2023 21:46:11 +0000 (UTC)
+        by sin.source.kernel.org (Postfix) with ESMTPS id BA607CE2297;
+        Fri,  3 Mar 2023 21:46:14 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7F6A3C4339B;
+        Fri,  3 Mar 2023 21:46:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1677879971;
-        bh=KNB/gvnf8eLD2actKsJ+PYpfMYMabWWqOluMYv7CS4A=;
+        s=k20201202; t=1677879974;
+        bh=GIaYMnxTt3xtUH9CSMkECHels4+Db6rNimjFnVdSyMY=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=Y+ahD3qYj8nmFuGxZv72MVrDxHvOVNMETqVlCaQhCzYiGws0Zn4FZ37PYm3dRrain
-         8THT6w7+a4+jJXu5YR5A85bL/YCyCrpQHZrcw2OxMoIap3sQeGKPy5Ez7E7mNOxq2E
-         a5hhEFu/UoLllwfiQj8xQUgFhJTKausRW5653Zb6jNRPDAlVhvxJXp0KHnINzh8LKy
-         NCHzuzhcm9z6rdJggTSVZ0YEayRmDfWb8hlQvo7dP6sn/lRiqafb7t5COAU7WACuZg
-         CsgWksPsDSf160CiJZMEkS6FApufbgHCOJ4tkfj6wa63C0pXM0gOsaW4FC3M3AXpZq
-         jisfWxdbJNLFQ==
+        b=VAny9cL3suiA2RdOdafLz6iduSqHMkbs7CMqIbIFvBtdfCp21apRfu4QQQBqeslp3
+         37BB82KYg0lmkFmDmq3/Nx3PC53UXbzQRG22npHF401O+KEqa84UvSIuVrQPqeEsS+
+         kwr+Q35mSkOcI6tM26GCucanQnXHaVWFGs/vqUk3Hdv2bpN6IFVgQvEebGwP+PYUmR
+         AXEGNI39SfWODSN5KmiD++pppDMW02LrbwLLBCCIVBstyn7rwKumtIE2qLeB2NNsCC
+         wRDYGdtTyWMMHtgc5iLuU6BbwnNvdhDGzNSZ6oKYnXBFpWc2WukSFZDfZBeaPtVAn6
+         tfDjefBOheGtg==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Alper Nebi Yasak <alpernebiyasak@gmail.com>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 5.15 18/50] firmware: coreboot: framebuffer: Ignore reserved pixel color bits
-Date:   Fri,  3 Mar 2023 16:44:59 -0500
-Message-Id: <20230303214531.1450154-18-sashal@kernel.org>
+Cc:     Huacai Chen <chenhuacai@loongson.cn>,
+        Bjorn Helgaas <bhelgaas@google.com>,
+        Sasha Levin <sashal@kernel.org>, lpieralisi@kernel.org,
+        kw@linux.com, linux-pci@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.15 20/50] PCI: loongson: Prevent LS7A MRRS increases
+Date:   Fri,  3 Mar 2023 16:45:01 -0500
+Message-Id: <20230303214531.1450154-20-sashal@kernel.org>
 X-Mailer: git-send-email 2.39.2
 In-Reply-To: <20230303214531.1450154-1-sashal@kernel.org>
 References: <20230303214531.1450154-1-sashal@kernel.org>
@@ -55,55 +56,139 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Alper Nebi Yasak <alpernebiyasak@gmail.com>
+From: Huacai Chen <chenhuacai@loongson.cn>
 
-[ Upstream commit e6acaf25cba14661211bb72181c35dd13b24f5b3 ]
+[ Upstream commit 8b3517f88ff2983f52698893519227c10aac90b2 ]
 
-The coreboot framebuffer doesn't support transparency, its 'reserved'
-bit field is merely padding for byte/word alignment of pixel colors [1].
-When trying to match the framebuffer to a simplefb format, the kernel
-driver unnecessarily requires the format's transparency bit field to
-exactly match this padding, even if the former is zero-width.
+Except for isochronous-configured devices, software may set
+Max_Read_Request_Size (MRRS) to any value up to 4096.  If a device issues a
+read request with size greater than the completer's Max_Payload_Size (MPS),
+the completer is required to break the response into multiple completions.
 
-Due to a coreboot bug [2] (fixed upstream), some boards misreport the
-reserved field's size as equal to its position (0x18 for both on a
-'Lick' Chromebook), and the driver fails to probe where it would have
-otherwise worked fine with e.g. the a8r8g8b8 or x8r8g8b8 formats.
+Instead of correctly responding with multiple completions to a large read
+request, some LS7A Root Ports respond with a Completer Abort.  To prevent
+this, the MRRS must be limited to an implementation-specific value.
 
-Remove the transparency comparison with reserved bits. When the
-bits-per-pixel and other color components match, transparency will
-already be in a subset of the reserved field. Not forcing it to match
-reserved bits allows the driver to work on the boards which misreport
-the reserved field. It also enables using simplefb formats that don't
-have transparency bits, although this doesn't currently happen due to
-format support and ordering in linux/platform_data/simplefb.h.
+The OS cannot detect that value, so rely on BIOS to configure MRRS before
+booting, and quirk the Root Ports so we never set an MRRS larger than that
+BIOS value for any downstream device.
 
-[1] https://review.coreboot.org/plugins/gitiles/coreboot/+/4.19/src/commonlib/include/commonlib/coreboot_tables.h#255
-[2] https://review.coreboot.org/plugins/gitiles/coreboot/+/4.13/src/drivers/intel/fsp2_0/graphics.c#82
+N.B. Hot-added devices are not configured by BIOS, and they power up with
+MRRS = 512 bytes, so these devices will be limited to 512 bytes.  If the
+LS7A limit is smaller, those hot-added devices may not work correctly, but
+per [1], hotplug is not supported with this chipset revision.
 
-Signed-off-by: Alper Nebi Yasak <alpernebiyasak@gmail.com>
-Link: https://lore.kernel.org/r/20230122190433.195941-1-alpernebiyasak@gmail.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+[1] https://lore.kernel.org/r/073638a7-ae68-2847-ac3d-29e5e760d6af@loongson.cn
+
+[bhelgaas: commit log]
+Link: https://bugzilla.kernel.org/show_bug.cgi?id=216884
+Link: https://lore.kernel.org/r/20230201043018.778499-3-chenhuacai@loongson.cn
+Signed-off-by: Huacai Chen <chenhuacai@loongson.cn>
+Signed-off-by: Bjorn Helgaas <bhelgaas@google.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/firmware/google/framebuffer-coreboot.c | 4 +---
- 1 file changed, 1 insertion(+), 3 deletions(-)
+ drivers/pci/controller/pci-loongson.c | 44 +++++++++------------------
+ drivers/pci/pci.c                     | 10 ++++++
+ include/linux/pci.h                   |  1 +
+ 3 files changed, 26 insertions(+), 29 deletions(-)
 
-diff --git a/drivers/firmware/google/framebuffer-coreboot.c b/drivers/firmware/google/framebuffer-coreboot.c
-index c6dcc1ef93acf..c323a818805cc 100644
---- a/drivers/firmware/google/framebuffer-coreboot.c
-+++ b/drivers/firmware/google/framebuffer-coreboot.c
-@@ -43,9 +43,7 @@ static int framebuffer_probe(struct coreboot_device *dev)
- 		    fb->green_mask_pos     == formats[i].green.offset &&
- 		    fb->green_mask_size    == formats[i].green.length &&
- 		    fb->blue_mask_pos      == formats[i].blue.offset &&
--		    fb->blue_mask_size     == formats[i].blue.length &&
--		    fb->reserved_mask_pos  == formats[i].transp.offset &&
--		    fb->reserved_mask_size == formats[i].transp.length)
-+		    fb->blue_mask_size     == formats[i].blue.length)
- 			pdata.format = formats[i].name;
- 	}
- 	if (!pdata.format)
+diff --git a/drivers/pci/controller/pci-loongson.c b/drivers/pci/controller/pci-loongson.c
+index 48169b1e38171..dc7b4e4293ced 100644
+--- a/drivers/pci/controller/pci-loongson.c
++++ b/drivers/pci/controller/pci-loongson.c
+@@ -60,37 +60,23 @@ DECLARE_PCI_FIXUP_EARLY(PCI_VENDOR_ID_LOONGSON,
+ DECLARE_PCI_FIXUP_EARLY(PCI_VENDOR_ID_LOONGSON,
+ 			DEV_LS7A_LPC, system_bus_quirk);
+ 
+-static void loongson_mrrs_quirk(struct pci_dev *dev)
++static void loongson_mrrs_quirk(struct pci_dev *pdev)
+ {
+-	struct pci_bus *bus = dev->bus;
+-	struct pci_dev *bridge;
+-	static const struct pci_device_id bridge_devids[] = {
+-		{ PCI_VDEVICE(LOONGSON, DEV_PCIE_PORT_0) },
+-		{ PCI_VDEVICE(LOONGSON, DEV_PCIE_PORT_1) },
+-		{ PCI_VDEVICE(LOONGSON, DEV_PCIE_PORT_2) },
+-		{ 0, },
+-	};
+-
+-	/* look for the matching bridge */
+-	while (!pci_is_root_bus(bus)) {
+-		bridge = bus->self;
+-		bus = bus->parent;
+-		/*
+-		 * Some Loongson PCIe ports have a h/w limitation of
+-		 * 256 bytes maximum read request size. They can't handle
+-		 * anything larger than this. So force this limit on
+-		 * any devices attached under these ports.
+-		 */
+-		if (pci_match_id(bridge_devids, bridge)) {
+-			if (pcie_get_readrq(dev) > 256) {
+-				pci_info(dev, "limiting MRRS to 256\n");
+-				pcie_set_readrq(dev, 256);
+-			}
+-			break;
+-		}
+-	}
++	/*
++	 * Some Loongson PCIe ports have h/w limitations of maximum read
++	 * request size. They can't handle anything larger than this. So
++	 * force this limit on any devices attached under these ports.
++	 */
++	struct pci_host_bridge *bridge = pci_find_host_bridge(pdev->bus);
++
++	bridge->no_inc_mrrs = 1;
+ }
+-DECLARE_PCI_FIXUP_ENABLE(PCI_ANY_ID, PCI_ANY_ID, loongson_mrrs_quirk);
++DECLARE_PCI_FIXUP_EARLY(PCI_VENDOR_ID_LOONGSON,
++			DEV_PCIE_PORT_0, loongson_mrrs_quirk);
++DECLARE_PCI_FIXUP_EARLY(PCI_VENDOR_ID_LOONGSON,
++			DEV_PCIE_PORT_1, loongson_mrrs_quirk);
++DECLARE_PCI_FIXUP_EARLY(PCI_VENDOR_ID_LOONGSON,
++			DEV_PCIE_PORT_2, loongson_mrrs_quirk);
+ 
+ static void __iomem *cfg1_map(struct loongson_pci *priv, int bus,
+ 				unsigned int devfn, int where)
+diff --git a/drivers/pci/pci.c b/drivers/pci/pci.c
+index a0c6a9eeb7c6d..d0d27c3ead69a 100644
+--- a/drivers/pci/pci.c
++++ b/drivers/pci/pci.c
+@@ -5970,6 +5970,7 @@ int pcie_set_readrq(struct pci_dev *dev, int rq)
+ {
+ 	u16 v;
+ 	int ret;
++	struct pci_host_bridge *bridge = pci_find_host_bridge(dev->bus);
+ 
+ 	if (rq < 128 || rq > 4096 || !is_power_of_2(rq))
+ 		return -EINVAL;
+@@ -5988,6 +5989,15 @@ int pcie_set_readrq(struct pci_dev *dev, int rq)
+ 
+ 	v = (ffs(rq) - 8) << 12;
+ 
++	if (bridge->no_inc_mrrs) {
++		int max_mrrs = pcie_get_readrq(dev);
++
++		if (rq > max_mrrs) {
++			pci_info(dev, "can't set Max_Read_Request_Size to %d; max is %d\n", rq, max_mrrs);
++			return -EINVAL;
++		}
++	}
++
+ 	ret = pcie_capability_clear_and_set_word(dev, PCI_EXP_DEVCTL,
+ 						  PCI_EXP_DEVCTL_READRQ, v);
+ 
+diff --git a/include/linux/pci.h b/include/linux/pci.h
+index 9d6e75222868f..34dd24c991804 100644
+--- a/include/linux/pci.h
++++ b/include/linux/pci.h
+@@ -557,6 +557,7 @@ struct pci_host_bridge {
+ 	void		*release_data;
+ 	unsigned int	ignore_reset_delay:1;	/* For entire hierarchy */
+ 	unsigned int	no_ext_tags:1;		/* No Extended Tags */
++	unsigned int	no_inc_mrrs:1;		/* No Increase MRRS */
+ 	unsigned int	native_aer:1;		/* OS may use PCIe AER */
+ 	unsigned int	native_pcie_hotplug:1;	/* OS may use PCIe hotplug */
+ 	unsigned int	native_shpc_hotplug:1;	/* OS may use SHPC hotplug */
 -- 
 2.39.2
 
