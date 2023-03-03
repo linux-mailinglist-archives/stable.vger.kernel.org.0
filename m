@@ -2,44 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id ED6906AA321
-	for <lists+stable@lfdr.de>; Fri,  3 Mar 2023 22:56:24 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id BDCB26AA3C8
+	for <lists+stable@lfdr.de>; Fri,  3 Mar 2023 23:05:47 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232968AbjCCVzz (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 3 Mar 2023 16:55:55 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:46576 "EHLO
+        id S233414AbjCCWFo (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 3 Mar 2023 17:05:44 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44576 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233287AbjCCVzS (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 3 Mar 2023 16:55:18 -0500
-Received: from ams.source.kernel.org (ams.source.kernel.org [145.40.68.75])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 1782069CE3;
-        Fri,  3 Mar 2023 13:48:53 -0800 (PST)
+        with ESMTP id S233748AbjCCWE7 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 3 Mar 2023 17:04:59 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 6E955848F2;
+        Fri,  3 Mar 2023 13:55:05 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by ams.source.kernel.org (Postfix) with ESMTPS id A5400B81A24;
+        by ams.source.kernel.org (Postfix) with ESMTPS id D8354B81A27;
+        Fri,  3 Mar 2023 21:47:34 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C2632C433A4;
         Fri,  3 Mar 2023 21:47:33 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A964DC433A1;
-        Fri,  3 Mar 2023 21:47:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1677880053;
-        bh=tc+XcGCDQkiy5QBBgpBZ2lg/ZvKNdCmf2WrCQufzQ9I=;
+        s=k20201202; t=1677880054;
+        bh=RX2HojgIGJFon60lL8yY3xWnDo08Bn8qPy9+rxyyRmc=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=BpIGdFmJv+o96/soptjgXF8brcQcP5goCF4thxGPng3PGRC8du4nMebL5pLdHn/f4
-         dv3NEeBkWgtgaPSjEvbLlSimaSmxZNqQEiFs+udluJiJAuh7UlsQR6Qd7DfidLjSmb
-         d9MW9vpoUrhKGC0O5STR92prPyUz/8EKmQod42OS1xrzEvMEjNQw5104ufi8or4wsn
-         xukgc9iwacZcXMS58TFiSnQg8xdFe4H0xVTGOWYSNh1RCbWvmyhLRth5DyLPe0bLNT
-         vgZusP4gd5olqAj52jmSja7d6kaGV3vw9d8HGa5o3qRwgrD+RHcbWiKM4vThQYTwqF
-         nssxKwmse/GXw==
+        b=q3QZWn1+Ue6pvlsmhyd0DYrs+F8rykHrMt1SlrgasCBkKT2wq2zM3zF0s2s1TRkYU
+         6nVAcBJlQmq5Vxb5kFprxoVDmE1bvf71H0TuCxNpLRvxEif/d7ueDn7SrvIgIADZYD
+         9CDDRabAFwFNPoRfokc2C4iaC+eME43nsBfd89DOkmaeN0IDGJE3FHpEuhayjqsDY6
+         lxm7EmsK2cAvxvgy23BiaADgu458jZ3pTW785PpVNqAULl7xnyoUqK8pP1nDDrH30O
+         ascPvNgHpykAHyIs7TFfLNErij+Ar7HdP2LAUKV2tkLx44tSguiK24xJjw9x7SPV54
+         H380mfBBJWwXw==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     "Maciej W. Rozycki" <macro@orcam.me.uk>,
-        Sudip Mukherjee <sudipm.mukherjee@gmail.com>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Sasha Levin <sashal@kernel.org>
-Subject: [PATCH AUTOSEL 5.10 12/30] parport_pc: Set up mode and ECR masks for Oxford Semiconductor devices
-Date:   Fri,  3 Mar 2023 16:46:57 -0500
-Message-Id: <20230303214715.1452256-12-sashal@kernel.org>
+Cc:     Yulong Zhang <yulong.zhang@metoak.net>,
+        Jonathan Cameron <Jonathan.Cameron@huawei.com>,
+        Sasha Levin <sashal@kernel.org>, jic23@kernel.org,
+        linux-iio@vger.kernel.org
+Subject: [PATCH AUTOSEL 5.10 13/30] tools/iio/iio_utils:fix memory leak
+Date:   Fri,  3 Mar 2023 16:46:58 -0500
+Message-Id: <20230303214715.1452256-13-sashal@kernel.org>
 X-Mailer: git-send-email 2.39.2
 In-Reply-To: <20230303214715.1452256-1-sashal@kernel.org>
 References: <20230303214715.1452256-1-sashal@kernel.org>
@@ -47,8 +47,8 @@ MIME-Version: 1.0
 X-stable: review
 X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
         SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -56,137 +56,152 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: "Maciej W. Rozycki" <macro@orcam.me.uk>
+From: Yulong Zhang <yulong.zhang@metoak.net>
 
-[ Upstream commit c087df8d1e7dc2e764d11234d84b5af46d500f16 ]
+[ Upstream commit f2edf0c819a4823cd6c288801ce737e8d4fcde06 ]
 
-No Oxford Semiconductor PCI or PCIe parallel port device supports the
-Parallel Port FIFO mode.  All support the PS/2 Parallel Port mode and
-the Enhanced Parallel Port mode via the ECR register.  The original 5V
-PCI OX16PCI954 device does not support the Extended Capabilities Port
-mode, the Test mode or the Configuration mode, but all the other OxSemi
-devices do, including in particular the 3.3V PCI OXmPCI954 device and
-the universal voltage PCI OXuPCI954 device.  All the unsupported modes
-are marked reserved in the relevant datasheets.
+1. fopen sysfs without fclose.
+2. asprintf filename without free.
+3. if asprintf return error,do not need to free the buffer.
 
-Accordingly enable the `base_hi' BAR for the 954 devices to enable PS2
-and EPP mode support via the ECR register, however mask the COMPAT mode
-and, until we have a way to determine what chip variant it is that we
-poke at, also the ECP mode, and mask the COMPAT mode only for all the
-remaining OxSemi devices, fixing errors like:
-
-parport0: FIFO is stuck
-FIFO write timed out
-
-and a non-functional port when the Parallel Port FIFO mode is selected.
-
-Complementing the fix apply an ECR mask for all these devices, which are
-documented to only permit writing to the mode field of the ECR register
-with a bit pattern of 00001 required to be written to bits 4:0 on mode
-field writes.  No nFault or service interrupts are implemented, which
-will therefore never have to be enabled, though bit 2 does report the
-FIFO threshold status to be polled for in the ECP mode where supported.
-
-We have a documented case of writing 1 to bit 2 causing a lock-up with
-at least one OX12PCI840 device (from old drivers/parport/ChangeLog):
-
-2001-10-10  Tim Waugh  <twaugh@redhat.com>
-
-	* parport_pc.c: Support for OX12PCI840 PCI card (reported by
-	mk@daveg.com).  Lock-ups diagnosed by Ronnie Arosa (and now we
-	just don't trust its ECR).
-
-which commit adbd321a17cc ("parport_pc: add base_hi BAR for oxsemi_840")
-must have broken and by applying an ECR mask here we prevent the lock-up
-from triggering.  This could have been the reason for requiring 00001 to
-be written to bits 4:0 of ECR.
-
-Update the inline comment accordingly; it has come from Linux 2.4.12
-back in 2001 and predates the introduction of OXmPCI954 and OXuPCI954
-devices that do support ECP.
-
-References:
-
-[1] "OX16PCI954 Integrated Quad UART and PCI interface", Oxford
-    Semiconductor Ltd., Data Sheet Revision 1.3, Feb. 1999, Chapter 9
-    "Bidirectional Parallel Port", pp. 53-55
-
-[2] "OX16PCI952 Data Sheet, Integrated High Performance Dual UARTs,
-    Parallel Port and 5.0v PCI interface", Oxford Semiconductor Ltd.,
-    DS_B008A_00, Datasheet rev 1.1, June 2001, Chapter 8 "Bi-directional
-    Parallel Port", pp. 52-56
-
-[3] "OXmPCI954 DATA SHEET Integrated High Performance Quad UARTs, 8-bit
-    Local Bus/Parallel Port. 3.3v PCI/miniPCI interface.", Oxford
-    Semiconductor Ltd., DS-0019, June 2005, Chapter 10 "Bidirectional
-    Parallel Port", pp. 86-90
-
-[4] "OXmPCI952 Data Sheet, Integrated High Performance Dual UARTs, 8-bit
-    Local Bus/Parallel Port. 3.3v PCI/miniPCI interface.", Oxford
-    Semiconductor Ltd., DS-0020, June 2005, Chapter 8 "Bidirectional
-    Parallel Port", pp. 73-77
-
-[5] "OX12PCI840 Integrated Parallel Port and PCI interface", Oxford
-    Semiconductor Ltd., DS-0021, Jun 2005, Chapter 5 "Bi-directional
-    Parallel Port", pp. 18-21
-
-[6] "OXPCIe952 PCI Express Bridge to Dual Serial & Parallel Port",
-    Oxford Semiconductor, Inc., DS-0046, Mar 06 08, Chapter "Parallel
-    Port Function", pp. 59-62
-
-[7] "OXPCIe840 PCI Express Bridge to Parallel Port", Oxford
-    Semiconductor, Inc., DS-0049, Mar 06 08, Chapter "Parallel Port
-    Function", pp. 15-18
-
-[8] "OXuPCI954 Data Sheet, Integrated High Performance Quad UARTs, 8-bit
-    Local Bus/Parallel Port, 3.3 V and 5 V (Universal Voltage) PCI
-    Interface.", Oxford Semiconductor, Inc., DS-0058, 26 Jan 2009,
-    Chapter 8 "Bidirectional Parallel Port", pp. 62-65
-
-[9] "OXuPCI952 Data Sheet, Integrated High Performance Dual UARTs, 8-bit
-    Local Bus/Parallel Port, 3.3 V and 5.0 V Universal Voltage PCI
-    Interface.", Oxford Semiconductor, Inc., DS-0059, Sep 2007, Chapter
-    8 "Bidirectional Parallel Port", pp. 61-64
-
-Signed-off-by: Maciej W. Rozycki <macro@orcam.me.uk>
-Signed-off-by: Sudip Mukherjee <sudipm.mukherjee@gmail.com>
-Link: https://lore.kernel.org/r/20230108215656.6433-6-sudipm.mukherjee@gmail.com
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Signed-off-by: Yulong Zhang <yulong.zhang@metoak.net>
+Link: https://lore.kernel.org/r/20230117025147.69890-1-yulong.zhang@metoak.net
+Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/parport/parport_pc.c | 19 +++++++++++++------
- 1 file changed, 13 insertions(+), 6 deletions(-)
+ tools/iio/iio_utils.c | 23 ++++++-----------------
+ 1 file changed, 6 insertions(+), 17 deletions(-)
 
-diff --git a/drivers/parport/parport_pc.c b/drivers/parport/parport_pc.c
-index 925be41eeebec..c2af2aa6d437c 100644
---- a/drivers/parport/parport_pc.c
-+++ b/drivers/parport/parport_pc.c
-@@ -2657,12 +2657,19 @@ static struct parport_pc_pci {
- 	/* titan_010l */		{ 1, { { 3, -1 }, } },
- 	/* avlab_1p		*/	{ 1, { { 0, 1}, } },
- 	/* avlab_2p		*/	{ 2, { { 0, 1}, { 2, 3 },} },
--	/* The Oxford Semi cards are unusual: 954 doesn't support ECP,
--	 * and 840 locks up if you write 1 to bit 2! */
--	/* oxsemi_952 */		{ 1, { { 0, 1 }, } },
--	/* oxsemi_954 */		{ 1, { { 0, -1 }, } },
--	/* oxsemi_840 */		{ 1, { { 0, 1 }, } },
--	/* oxsemi_pcie_pport */		{ 1, { { 0, 1 }, } },
-+	/* The Oxford Semi cards are unusual: older variants of 954 don't
-+	 * support ECP, and 840 locks up if you write 1 to bit 2!  None
-+	 * implement nFault or service interrupts and all require 00001
-+	 * bit pattern to be used for bits 4:0 with ECR writes. */
-+	/* oxsemi_952 */		{ 1, { { 0, 1 }, },
-+					  PARPORT_MODE_COMPAT, ECR_MODE_MASK },
-+	/* oxsemi_954 */		{ 1, { { 0, 1 }, },
-+					  PARPORT_MODE_ECP |
-+					  PARPORT_MODE_COMPAT, ECR_MODE_MASK },
-+	/* oxsemi_840 */		{ 1, { { 0, 1 }, },
-+					  PARPORT_MODE_COMPAT, ECR_MODE_MASK },
-+	/* oxsemi_pcie_pport */		{ 1, { { 0, 1 }, },
-+					  PARPORT_MODE_COMPAT, ECR_MODE_MASK },
- 	/* aks_0100 */                  { 1, { { 0, -1 }, } },
- 	/* mobility_pp */		{ 1, { { 0, 1 }, } },
+diff --git a/tools/iio/iio_utils.c b/tools/iio/iio_utils.c
+index d66b18c54606a..48360994c2a13 100644
+--- a/tools/iio/iio_utils.c
++++ b/tools/iio/iio_utils.c
+@@ -262,6 +262,7 @@ int iioutils_get_param_float(float *output, const char *param_name,
+ 			if (fscanf(sysfsfp, "%f", output) != 1)
+ 				ret = errno ? -errno : -ENODATA;
  
++			fclose(sysfsfp);
+ 			break;
+ 		}
+ error_free_filename:
+@@ -342,9 +343,9 @@ int build_channel_array(const char *device_dir,
+ 			}
+ 
+ 			sysfsfp = fopen(filename, "r");
++			free(filename);
+ 			if (!sysfsfp) {
+ 				ret = -errno;
+-				free(filename);
+ 				goto error_close_dir;
+ 			}
+ 
+@@ -354,7 +355,6 @@ int build_channel_array(const char *device_dir,
+ 				if (fclose(sysfsfp))
+ 					perror("build_channel_array(): Failed to close file");
+ 
+-				free(filename);
+ 				goto error_close_dir;
+ 			}
+ 			if (ret == 1)
+@@ -362,11 +362,9 @@ int build_channel_array(const char *device_dir,
+ 
+ 			if (fclose(sysfsfp)) {
+ 				ret = -errno;
+-				free(filename);
+ 				goto error_close_dir;
+ 			}
+ 
+-			free(filename);
+ 		}
+ 
+ 	*ci_array = malloc(sizeof(**ci_array) * (*counter));
+@@ -392,9 +390,9 @@ int build_channel_array(const char *device_dir,
+ 			}
+ 
+ 			sysfsfp = fopen(filename, "r");
++			free(filename);
+ 			if (!sysfsfp) {
+ 				ret = -errno;
+-				free(filename);
+ 				count--;
+ 				goto error_cleanup_array;
+ 			}
+@@ -402,20 +400,17 @@ int build_channel_array(const char *device_dir,
+ 			errno = 0;
+ 			if (fscanf(sysfsfp, "%i", &current_enabled) != 1) {
+ 				ret = errno ? -errno : -ENODATA;
+-				free(filename);
+ 				count--;
+ 				goto error_cleanup_array;
+ 			}
+ 
+ 			if (fclose(sysfsfp)) {
+ 				ret = -errno;
+-				free(filename);
+ 				count--;
+ 				goto error_cleanup_array;
+ 			}
+ 
+ 			if (!current_enabled) {
+-				free(filename);
+ 				count--;
+ 				continue;
+ 			}
+@@ -426,7 +421,6 @@ int build_channel_array(const char *device_dir,
+ 						strlen(ent->d_name) -
+ 						strlen("_en"));
+ 			if (!current->name) {
+-				free(filename);
+ 				ret = -ENOMEM;
+ 				count--;
+ 				goto error_cleanup_array;
+@@ -436,7 +430,6 @@ int build_channel_array(const char *device_dir,
+ 			ret = iioutils_break_up_name(current->name,
+ 						     &current->generic_name);
+ 			if (ret) {
+-				free(filename);
+ 				free(current->name);
+ 				count--;
+ 				goto error_cleanup_array;
+@@ -447,17 +440,16 @@ int build_channel_array(const char *device_dir,
+ 				       scan_el_dir,
+ 				       current->name);
+ 			if (ret < 0) {
+-				free(filename);
+ 				ret = -ENOMEM;
+ 				goto error_cleanup_array;
+ 			}
+ 
+ 			sysfsfp = fopen(filename, "r");
++			free(filename);
+ 			if (!sysfsfp) {
+ 				ret = -errno;
+-				fprintf(stderr, "failed to open %s\n",
+-					filename);
+-				free(filename);
++				fprintf(stderr, "failed to open %s/%s_index\n",
++					scan_el_dir, current->name);
+ 				goto error_cleanup_array;
+ 			}
+ 
+@@ -467,17 +459,14 @@ int build_channel_array(const char *device_dir,
+ 				if (fclose(sysfsfp))
+ 					perror("build_channel_array(): Failed to close file");
+ 
+-				free(filename);
+ 				goto error_cleanup_array;
+ 			}
+ 
+ 			if (fclose(sysfsfp)) {
+ 				ret = -errno;
+-				free(filename);
+ 				goto error_cleanup_array;
+ 			}
+ 
+-			free(filename);
+ 			/* Find the scale */
+ 			ret = iioutils_get_param_float(&current->scale,
+ 						       "scale",
 -- 
 2.39.2
 
