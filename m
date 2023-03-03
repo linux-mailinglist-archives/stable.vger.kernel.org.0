@@ -2,45 +2,49 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 5B04D6AA475
-	for <lists+stable@lfdr.de>; Fri,  3 Mar 2023 23:33:52 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id EBE786AA2B6
+	for <lists+stable@lfdr.de>; Fri,  3 Mar 2023 22:51:58 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232772AbjCCWdv (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 3 Mar 2023 17:33:51 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:36946 "EHLO
+        id S232844AbjCCVtu (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 3 Mar 2023 16:49:50 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37178 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232851AbjCCWdg (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 3 Mar 2023 17:33:36 -0500
-Received: from sin.source.kernel.org (sin.source.kernel.org [IPv6:2604:1380:40e1:4800::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 285761816F;
-        Fri,  3 Mar 2023 14:29:30 -0800 (PST)
+        with ESMTP id S232766AbjCCVtQ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 3 Mar 2023 16:49:16 -0500
+Received: from ams.source.kernel.org (ams.source.kernel.org [IPv6:2604:1380:4601:e00::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id EAABF67032;
+        Fri,  3 Mar 2023 13:45:47 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by sin.source.kernel.org (Postfix) with ESMTPS id 3E174CE22A5;
-        Fri,  3 Mar 2023 21:43:19 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D0C27C4339B;
-        Fri,  3 Mar 2023 21:43:16 +0000 (UTC)
+        by ams.source.kernel.org (Postfix) with ESMTPS id 39D93B81A19;
+        Fri,  3 Mar 2023 21:43:20 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 16CAEC433A7;
+        Fri,  3 Mar 2023 21:43:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1677879797;
-        bh=ziEC4mRzw2QHcDPWZ32nHGd0U8w5jht093o+kHHOBEc=;
-        h=From:To:Cc:Subject:Date:From;
-        b=QcaOeplJUAk1kCvtZfntKrSbTkSdOKr74Jp7GQgqPgUVE8SEIlxoMQyP7a4pjYNti
-         rE+U+IINYzEDlRfEDLyEA2bi4yb5XhPG/ZLHr08FQ3r44B972rVryL/t6oFUFJCqWb
-         L1WNiJzT6INooEInCRccis3JkaLQ6FiNSmImrdAJ41bVNJHAeyfIzBfng3TMC8bnQz
-         K4tfvk170sw5AZ/eB4sPjRf9T2Vz7hSoJM95RbBFi53CJoNA2SEAuVhJN7NjaoEepm
-         k0rJorSKPRrlckT7OLtJtD/beEXLWgqZ+sOTPaSPD6omCNbaq8WY8V1WROA8ud6Uxm
-         QBGITjOhosSSQ==
+        s=k20201202; t=1677879799;
+        bh=rzW9X9ipoEhCccEc6DGVUzm0CbhKj6YR3rzIakLS3Uw=;
+        h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+        b=B3y0ntXmgpKGa2gj/BJrgLkEsR6JMFf/H5CRXT9mKi7La/epJTuSXtnbu9JSTNoPU
+         x5e4xdZECZHtx7GTW6l51/Lep86UAkXTdZxTbEHypSs9kKeOBWw1BnVbrQO/gTzUzl
+         U/zDgsCVHimrNrZDrue1N1kUhcDqNrluz6/O9ffTAz6INZTfdeSfLG9w87VeAA0LlT
+         zHK7wGDYGChQoUXyw5mggO/svT2htlV+65QcFpep5DQHMBbOy+qhPSYG9+bsuwaLe5
+         caE6gYB/bYNzstU+IpIyw5EsQtTXimVyXh7ReVMT/axd6mF9uqHgNqZk6LpXvlGmks
+         Tpx43Ghircr4w==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Dean Luick <dean.luick@cornelisnetworks.com>,
-        Dennis Dalessandro <dennis.dalessandro@cornelisnetworks.com>,
-        Leon Romanovsky <leon@kernel.org>,
-        Sasha Levin <sashal@kernel.org>, linux-rdma@vger.kernel.org
-Subject: [PATCH AUTOSEL 6.1 01/60] IB/hfi1: Update RMT size calculation
-Date:   Fri,  3 Mar 2023 16:42:15 -0500
-Message-Id: <20230303214315.1447666-1-sashal@kernel.org>
+Cc:     Vasant Hegde <vasant.hegde@amd.com>,
+        Matt Fagnani <matt.fagnani@bell.net>,
+        Suravee Suthikulpanit <suravee.suthikulpanit@amd.com>,
+        Joerg Roedel <jroedel@suse.de>,
+        Sasha Levin <sashal@kernel.org>, joro@8bytes.org,
+        will@kernel.org, iommu@lists.linux.dev
+Subject: [PATCH AUTOSEL 6.1 02/60] iommu/amd: Fix error handling for pdev_pri_ats_enable()
+Date:   Fri,  3 Mar 2023 16:42:16 -0500
+Message-Id: <20230303214315.1447666-2-sashal@kernel.org>
 X-Mailer: git-send-email 2.39.2
+In-Reply-To: <20230303214315.1447666-1-sashal@kernel.org>
+References: <20230303214315.1447666-1-sashal@kernel.org>
 MIME-Version: 1.0
 X-stable: review
 X-Patchwork-Hint: Ignore
@@ -54,134 +58,64 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Dean Luick <dean.luick@cornelisnetworks.com>
+From: Vasant Hegde <vasant.hegde@amd.com>
 
-[ Upstream commit 892ede5a77f337831609fb9c248ac60948061894 ]
+[ Upstream commit 080920e52148b4fbbf9360d5345fdcd7846e4841 ]
 
-Fix possible RMT overflow:  Use the correct netdev size.
-Don't allow adjusted user contexts to go negative.
+Current code throws kernel warning if it fails to enable pasid/pri [1].
+Do not call pci_disable_[pasid/pri] if pci_enable_[pasid/pri] failed.
 
-Fix QOS calculation: Send kernel context count as an argument since
-dd->n_krcv_queues is not yet set up in earliest call.  Do not include
-the control context in the QOS calculation.  Use the same sized
-variable to find the max of krcvq[] entries.
+[1] https://lore.kernel.org/linux-iommu/15d0f9ff-2a56-b3e9-5b45-e6b23300ae3b@leemhuis.info/
 
-Update the RMT count explanation to make more sense.
-
-Signed-off-by: Dean Luick <dean.luick@cornelisnetworks.com>
-Signed-off-by: Dennis Dalessandro <dennis.dalessandro@cornelisnetworks.com>
-Link: https://lore.kernel.org/r/167329106946.1472990.18385495251650939054.stgit@awfm-02.cornelisnetworks.com
-Signed-off-by: Leon Romanovsky <leon@kernel.org>
+Reported-by: Matt Fagnani <matt.fagnani@bell.net>
+Signed-off-by: Vasant Hegde <vasant.hegde@amd.com>
+Reviewed-by: Suravee Suthikulpanit <suravee.suthikulpanit@amd.com>
+Link: https://lore.kernel.org/r/20230111121503.5931-1-vasant.hegde@amd.com
+Signed-off-by: Joerg Roedel <jroedel@suse.de>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/infiniband/hw/hfi1/chip.c | 59 +++++++++++++++++--------------
- 1 file changed, 32 insertions(+), 27 deletions(-)
+ drivers/iommu/amd/iommu.c | 12 +++++++-----
+ 1 file changed, 7 insertions(+), 5 deletions(-)
 
-diff --git a/drivers/infiniband/hw/hfi1/chip.c b/drivers/infiniband/hw/hfi1/chip.c
-index ebe970f76232d..90b672feed83d 100644
---- a/drivers/infiniband/hw/hfi1/chip.c
-+++ b/drivers/infiniband/hw/hfi1/chip.c
-@@ -1056,7 +1056,7 @@ static void read_link_down_reason(struct hfi1_devdata *dd, u8 *ldr);
- static void handle_temp_err(struct hfi1_devdata *dd);
- static void dc_shutdown(struct hfi1_devdata *dd);
- static void dc_start(struct hfi1_devdata *dd);
--static int qos_rmt_entries(struct hfi1_devdata *dd, unsigned int *mp,
-+static int qos_rmt_entries(unsigned int n_krcv_queues, unsigned int *mp,
- 			   unsigned int *np);
- static void clear_full_mgmt_pkey(struct hfi1_pportdata *ppd);
- static int wait_link_transfer_active(struct hfi1_devdata *dd, int wait_ms);
-@@ -13362,7 +13362,6 @@ static int set_up_context_variables(struct hfi1_devdata *dd)
- 	int ret;
- 	unsigned ngroups;
- 	int rmt_count;
--	int user_rmt_reduced;
- 	u32 n_usr_ctxts;
- 	u32 send_contexts = chip_send_contexts(dd);
- 	u32 rcv_contexts = chip_rcv_contexts(dd);
-@@ -13421,28 +13420,34 @@ static int set_up_context_variables(struct hfi1_devdata *dd)
- 					 (num_kernel_contexts + n_usr_ctxts),
- 					 &node_affinity.real_cpu_mask);
- 	/*
--	 * The RMT entries are currently allocated as shown below:
--	 * 1. QOS (0 to 128 entries);
--	 * 2. FECN (num_kernel_context - 1 + num_user_contexts +
--	 *    num_netdev_contexts);
--	 * 3. netdev (num_netdev_contexts).
--	 * It should be noted that FECN oversubscribe num_netdev_contexts
--	 * entries of RMT because both netdev and PSM could allocate any receive
--	 * context between dd->first_dyn_alloc_text and dd->num_rcv_contexts,
--	 * and PSM FECN must reserve an RMT entry for each possible PSM receive
--	 * context.
-+	 * RMT entries are allocated as follows:
-+	 * 1. QOS (0 to 128 entries)
-+	 * 2. FECN (num_kernel_context - 1 [a] + num_user_contexts +
-+	 *          num_netdev_contexts [b])
-+	 * 3. netdev (NUM_NETDEV_MAP_ENTRIES)
-+	 *
-+	 * Notes:
-+	 * [a] Kernel contexts (except control) are included in FECN if kernel
-+	 *     TID_RDMA is active.
-+	 * [b] Netdev and user contexts are randomly allocated from the same
-+	 *     context pool, so FECN must cover all contexts in the pool.
- 	 */
--	rmt_count = qos_rmt_entries(dd, NULL, NULL) + (num_netdev_contexts * 2);
--	if (HFI1_CAP_IS_KSET(TID_RDMA))
--		rmt_count += num_kernel_contexts - 1;
--	if (rmt_count + n_usr_ctxts > NUM_MAP_ENTRIES) {
--		user_rmt_reduced = NUM_MAP_ENTRIES - rmt_count;
--		dd_dev_err(dd,
--			   "RMT size is reducing the number of user receive contexts from %u to %d\n",
--			   n_usr_ctxts,
--			   user_rmt_reduced);
--		/* recalculate */
--		n_usr_ctxts = user_rmt_reduced;
-+	rmt_count = qos_rmt_entries(num_kernel_contexts - 1, NULL, NULL)
-+		    + (HFI1_CAP_IS_KSET(TID_RDMA) ? num_kernel_contexts - 1
-+						  : 0)
-+		    + n_usr_ctxts
-+		    + num_netdev_contexts
-+		    + NUM_NETDEV_MAP_ENTRIES;
-+	if (rmt_count > NUM_MAP_ENTRIES) {
-+		int over = rmt_count - NUM_MAP_ENTRIES;
-+		/* try to squish user contexts, minimum of 1 */
-+		if (over >= n_usr_ctxts) {
-+			dd_dev_err(dd, "RMT overflow: reduce the requested number of contexts\n");
-+			return -EINVAL;
-+		}
-+		dd_dev_err(dd, "RMT overflow: reducing # user contexts from %u to %u\n",
-+			   n_usr_ctxts, n_usr_ctxts - over);
-+		n_usr_ctxts -= over;
- 	}
+diff --git a/drivers/iommu/amd/iommu.c b/drivers/iommu/amd/iommu.c
+index d3b39d0416fa3..7f15e9c658412 100644
+--- a/drivers/iommu/amd/iommu.c
++++ b/drivers/iommu/amd/iommu.c
+@@ -1703,27 +1703,29 @@ static int pdev_pri_ats_enable(struct pci_dev *pdev)
+ 	/* Only allow access to user-accessible pages */
+ 	ret = pci_enable_pasid(pdev, 0);
+ 	if (ret)
+-		goto out_err;
++		return ret;
  
- 	/* the first N are kernel contexts, the rest are user/netdev contexts */
-@@ -14299,15 +14304,15 @@ static void clear_rsm_rule(struct hfi1_devdata *dd, u8 rule_index)
- }
+ 	/* First reset the PRI state of the device */
+ 	ret = pci_reset_pri(pdev);
+ 	if (ret)
+-		goto out_err;
++		goto out_err_pasid;
  
- /* return the number of RSM map table entries that will be used for QOS */
--static int qos_rmt_entries(struct hfi1_devdata *dd, unsigned int *mp,
-+static int qos_rmt_entries(unsigned int n_krcv_queues, unsigned int *mp,
- 			   unsigned int *np)
- {
- 	int i;
- 	unsigned int m, n;
--	u8 max_by_vl = 0;
-+	uint max_by_vl = 0;
+ 	/* Enable PRI */
+ 	/* FIXME: Hardcode number of outstanding requests for now */
+ 	ret = pci_enable_pri(pdev, 32);
+ 	if (ret)
+-		goto out_err;
++		goto out_err_pasid;
  
- 	/* is QOS active at all? */
--	if (dd->n_krcv_queues <= MIN_KERNEL_KCTXTS ||
-+	if (n_krcv_queues < MIN_KERNEL_KCTXTS ||
- 	    num_vls == 1 ||
- 	    krcvqsset <= 1)
- 		goto no_qos;
-@@ -14365,7 +14370,7 @@ static void init_qos(struct hfi1_devdata *dd, struct rsm_map_table *rmt)
+ 	ret = pci_enable_ats(pdev, PAGE_SHIFT);
+ 	if (ret)
+-		goto out_err;
++		goto out_err_pri;
  
- 	if (!rmt)
- 		goto bail;
--	rmt_entries = qos_rmt_entries(dd, &m, &n);
-+	rmt_entries = qos_rmt_entries(dd->n_krcv_queues - 1, &m, &n);
- 	if (rmt_entries == 0)
- 		goto bail;
- 	qpns_per_vl = 1 << m;
+ 	return 0;
+ 
+-out_err:
++out_err_pri:
+ 	pci_disable_pri(pdev);
++
++out_err_pasid:
+ 	pci_disable_pasid(pdev);
+ 
+ 	return ret;
 -- 
 2.39.2
 
