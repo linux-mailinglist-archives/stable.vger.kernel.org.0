@@ -2,45 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id B38356AA227
-	for <lists+stable@lfdr.de>; Fri,  3 Mar 2023 22:46:34 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 8500D6AA29E
+	for <lists+stable@lfdr.de>; Fri,  3 Mar 2023 22:49:25 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S232389AbjCCVqL (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 3 Mar 2023 16:46:11 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:54966 "EHLO
+        id S232762AbjCCVtP (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 3 Mar 2023 16:49:15 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:37148 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S232398AbjCCVoz (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 3 Mar 2023 16:44:55 -0500
-Received: from dfw.source.kernel.org (dfw.source.kernel.org [139.178.84.217])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 73CC465C5F;
-        Fri,  3 Mar 2023 13:44:06 -0800 (PST)
+        with ESMTP id S232584AbjCCVsJ (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 3 Mar 2023 16:48:09 -0500
+Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 87C1B6420B;
+        Fri,  3 Mar 2023 13:45:23 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 7E6376194E;
-        Fri,  3 Mar 2023 21:43:51 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 132ACC433A0;
-        Fri,  3 Mar 2023 21:43:49 +0000 (UTC)
+        by dfw.source.kernel.org (Postfix) with ESMTPS id E4E2A61931;
+        Fri,  3 Mar 2023 21:43:54 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9FB3EC4339C;
+        Fri,  3 Mar 2023 21:43:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1677879830;
-        bh=0ykQITa9rK+UFQlUR4IjVhVNgB3E0ll98TQEFCA0pm4=;
+        s=k20201202; t=1677879834;
+        bh=s+oxcJSBZ8YNHVi15Y9HIZrKQpkfo0EPqvo/HoBvzpo=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=OHISzj/RvyNDZkH6Z3PEIRhNPfjGSSGj9dgha8YRAbC5ltJccjQmOHgBIbkLIrlQf
-         jsZptL0U1Zx6waR2lmdLrW4zHPkwp+pjpKRzIqpH3gEvOGX8dWm+VYAIJS3bU5TSI0
-         ZaW2+B932Sg6KM/Yleb1e/eQB6WMdc+wvBR51yyHTg9Cov0cDZh/KbZMkwkQsVAoVl
-         kltZKxCCObMPEfoNRiJ+PBp1hwsoZ5vZw1NKK7ln8ks7LtIFJehp/HebJp7yw6kXRD
-         8U7BxSssFGZ0pDb9jjEMjYdoSkMu9zKDfvVZaMeENXtF71K0PG/nEJakgJrpiEGoRy
-         IBlGIryHKVREA==
+        b=l9Iprh1XMXDWbqgbm4IV/v7pmoEl0/2GQzQSOXtZsNkOPHRCA+j1VsPs6uanxgn+o
+         r2N0vZ8YpPhwmFaY9zM763n59LhO/I0d8kq3o4rdgjQpvREeRvxiqRoLI3Si7jgkY6
+         ZJyB3BywaP3WezphMC/D5uLzqTOM8zFZkwsnTYNA0aFTeMV2yjIdT9g9KBsnnzUI26
+         Mw58V7DMNI5tSO8hf296qGU0FWoCaREuPYT+G6lHE99lL+cbPHDzCIl2Pw/5YmikQB
+         MCxc9GqiJRnR2hYX3RvxqVWzP4tXc6lTObZ0tqdjvt9CQEJ4V3I/ORmM6EPG6VTq3b
+         HdU6QF8dxfcMw==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Cc:     Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>,
-        Jeffrey Hugo <quic_jhugo@quicinc.com>,
-        Sasha Levin <sashal@kernel.org>, elder@linaro.org,
-        gregkh@linuxfoundation.org, mhi@lists.linux.dev,
-        linux-arm-msm@vger.kernel.org
-Subject: [PATCH AUTOSEL 6.1 18/60] bus: mhi: ep: Fix the debug message for MHI_PKT_TYPE_RESET_CHAN_CMD cmd
-Date:   Fri,  3 Mar 2023 16:42:32 -0500
-Message-Id: <20230303214315.1447666-18-sashal@kernel.org>
+Cc:     Harshit Mogalapalli <harshit.m.mogalapalli@oracle.com>,
+        Jonathan Cameron <Jonathan.Cameron@huawei.com>,
+        Sasha Levin <sashal@kernel.org>, jic23@kernel.org,
+        linux-iio@vger.kernel.org
+Subject: [PATCH AUTOSEL 6.1 19/60] iio: accel: mma9551_core: Prevent uninitialized variable in mma9551_read_status_word()
+Date:   Fri,  3 Mar 2023 16:42:33 -0500
+Message-Id: <20230303214315.1447666-19-sashal@kernel.org>
 X-Mailer: git-send-email 2.39.2
 In-Reply-To: <20230303214315.1447666-1-sashal@kernel.org>
 References: <20230303214315.1447666-1-sashal@kernel.org>
@@ -48,8 +47,8 @@ MIME-Version: 1.0
 X-stable: review
 X-Patchwork-Hint: Ignore
 Content-Transfer-Encoding: 8bit
-X-Spam-Status: No, score=-7.1 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
-        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_HI,
+X-Spam-Status: No, score=-4.4 required=5.0 tests=BAYES_00,DKIMWL_WL_HIGH,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,RCVD_IN_DNSWL_MED,
         SPF_HELO_NONE,SPF_PASS autolearn=ham autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -57,35 +56,45 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-From: Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>
+From: Harshit Mogalapalli <harshit.m.mogalapalli@oracle.com>
 
-[ Upstream commit 8e697fcfdb9809634e268058ca743369c216b7ac ]
+[ Upstream commit e56d2c34ce9dc122b1a618172ec0e05e50adb9e9 ]
 
-The debug log incorrectly mentions that STOP command is received instead of
-RESET command. Fix that.
+Smatch Warns: drivers/iio/accel/mma9551_core.c:357
+	mma9551_read_status_word() error: uninitialized symbol 'v'.
 
-Signed-off-by: Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>
-Reviewed-by: Jeffrey Hugo <quic_jhugo@quicinc.com>
-Link: https://lore.kernel.org/r/20221228161704.255268-5-manivannan.sadhasivam@linaro.org
-Signed-off-by: Manivannan Sadhasivam <manivannan.sadhasivam@linaro.org>
+When (offset >= 1 << 12) is true mma9551_transfer() will return -EINVAL
+without 'v' being initialized, so check for the error and return.
+
+Note: Not a bug as such because the caller checks return value and
+doesn't not use this parameter in the problem case.
+
+Signed-off-by: Harshit Mogalapalli <harshit.m.mogalapalli@oracle.com>
+Link: https://lore.kernel.org/r/20230126152147.3585874-1-harshit.m.mogalapalli@oracle.com
+Signed-off-by: Jonathan Cameron <Jonathan.Cameron@huawei.com>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/bus/mhi/ep/main.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ drivers/iio/accel/mma9551_core.c | 5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
 
-diff --git a/drivers/bus/mhi/ep/main.c b/drivers/bus/mhi/ep/main.c
-index 1dc8a3557a464..8ffaf9c6e61d9 100644
---- a/drivers/bus/mhi/ep/main.c
-+++ b/drivers/bus/mhi/ep/main.c
-@@ -217,7 +217,7 @@ static int mhi_ep_process_cmd_ring(struct mhi_ep_ring *ring, struct mhi_ring_ele
- 		mutex_unlock(&mhi_chan->lock);
- 		break;
- 	case MHI_PKT_TYPE_RESET_CHAN_CMD:
--		dev_dbg(dev, "Received STOP command for channel (%u)\n", ch_id);
-+		dev_dbg(dev, "Received RESET command for channel (%u)\n", ch_id);
- 		if (!ch_ring->started) {
- 			dev_err(dev, "Channel (%u) not opened\n", ch_id);
- 			return -ENODEV;
+diff --git a/drivers/iio/accel/mma9551_core.c b/drivers/iio/accel/mma9551_core.c
+index 64ca7d7a9673d..86437ddc5ca18 100644
+--- a/drivers/iio/accel/mma9551_core.c
++++ b/drivers/iio/accel/mma9551_core.c
+@@ -354,9 +354,12 @@ int mma9551_read_status_word(struct i2c_client *client, u8 app_id,
+ 
+ 	ret = mma9551_transfer(client, app_id, MMA9551_CMD_READ_STATUS,
+ 			       reg, NULL, 0, (u8 *)&v, 2);
++	if (ret < 0)
++		return ret;
++
+ 	*val = be16_to_cpu(v);
+ 
+-	return ret;
++	return 0;
+ }
+ EXPORT_SYMBOL_NS(mma9551_read_status_word, IIO_MMA9551);
+ 
 -- 
 2.39.2
 
