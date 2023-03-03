@@ -2,43 +2,44 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id C026C6AA3B8
-	for <lists+stable@lfdr.de>; Fri,  3 Mar 2023 23:03:45 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id BBC3D6AA3D8
+	for <lists+stable@lfdr.de>; Fri,  3 Mar 2023 23:08:36 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S233480AbjCCWDc (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 3 Mar 2023 17:03:32 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60874 "EHLO
+        id S233682AbjCCWIb (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 3 Mar 2023 17:08:31 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:44564 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S233477AbjCCWDN (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 3 Mar 2023 17:03:13 -0500
+        with ESMTP id S233625AbjCCWIR (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 3 Mar 2023 17:08:17 -0500
 Received: from dfw.source.kernel.org (dfw.source.kernel.org [IPv6:2604:1380:4641:c500::1])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 98EE84B813;
-        Fri,  3 Mar 2023 13:53:29 -0800 (PST)
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 2A1316C68B;
+        Fri,  3 Mar 2023 13:58:55 -0800 (PST)
 Received: from smtp.kernel.org (relay.kernel.org [52.25.139.140])
         (using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
         (No client certificate requested)
-        by dfw.source.kernel.org (Postfix) with ESMTPS id 6A26261929;
+        by dfw.source.kernel.org (Postfix) with ESMTPS id AF38361944;
+        Fri,  3 Mar 2023 21:44:56 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id CAEC1C433A1;
         Fri,  3 Mar 2023 21:44:55 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9A566C433A1;
-        Fri,  3 Mar 2023 21:44:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-        s=k20201202; t=1677879895;
-        bh=DHr65bTl5V4jvmojYqvPfDkjqi8K3e/bRx2v6zMwmvs=;
+        s=k20201202; t=1677879896;
+        bh=ENlRig7qxIZqwpN/qXepTWkVpECOpKSodtH0h5/Rp70=;
         h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-        b=LoHp6C+RS9QkyTasZiwukBaxXmICU9Xw+RFfwDosQlzZrIWD8zSdWJAp989z4D7jx
-         Figq7CNvyhulqc+9zWax1wKLcWyv4dCIzPcR3ZUtwiXP6pJ6sb1hgG4XqApzNBFkLf
-         phS3mq5vb68JrPh0JGNExZMKeE62akECExJcVjl169Ch1VDjzf+FVuIZirVvCGRwT1
-         7ITomBReTUCLLeAjPCnuriMiukeur1Hl+lV4HwrzDe6G7iYBpvLL4cVlqGz8lNx23d
-         moAc725iWK+hgfaoIEO/IoonVcU5Zmx6ZX6I1b+bNb8xnGi8CxDiMfAarlfR/11xVV
-         1LBUIWCWO2K3g==
+        b=N4E3AyiVOZKfiFs35WzgFiCvjI9SK4+oVcVW0ALHtmspZPOkvB7OCi/txQMO1C1Vb
+         i9VtUn9vIZvz3/kSeBaB7D/+KjRi1fr1hX6uP68x6VF5piZ7SgwDXob61xyzc5h+XR
+         /AtecpKJNHmyKsJLNzyCJ7rvP21HYhgqoX6e2BbmMMCwqp4XT05h6nd8dDq1RhsAu9
+         IkpISpoRarVUXMo8gyQsWH38sbP16BqHtYDEvBeYKLgcVQ923XQhDluZb5LjxiW6k5
+         OPjIUOh1ELEEObhlALjtpKYxwrFdvMRsUcVHd+856uHp8b4c5Qeu7TmCkDbObUOcKx
+         CSl9YV5UI4Pww==
 From:   Sasha Levin <sashal@kernel.org>
 To:     linux-kernel@vger.kernel.org, stable@vger.kernel.org
 Cc:     Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        Jiri Slaby <jirislaby@kernel.org>,
-        Sasha Levin <sashal@kernel.org>, linux-serial@vger.kernel.org
-Subject: [PATCH AUTOSEL 6.1 46/60] tty: pcn_uart: fix memory leak with using debugfs_lookup()
-Date:   Fri,  3 Mar 2023 16:43:00 -0500
-Message-Id: <20230303214315.1447666-46-sashal@kernel.org>
+        Nadav Amit <namit@vmware.com>,
+        VMware PV-Drivers Reviewers <pv-drivers@vmware.com>,
+        Arnd Bergmann <arnd@arndb.de>, Sasha Levin <sashal@kernel.org>
+Subject: [PATCH AUTOSEL 6.1 47/60] misc: vmw_balloon: fix memory leak with using debugfs_lookup()
+Date:   Fri,  3 Mar 2023 16:43:01 -0500
+Message-Id: <20230303214315.1447666-47-sashal@kernel.org>
 X-Mailer: git-send-email 2.39.2
 In-Reply-To: <20230303214315.1447666-1-sashal@kernel.org>
 References: <20230303214315.1447666-1-sashal@kernel.org>
@@ -57,33 +58,35 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
-[ Upstream commit 04a189c720aa2b6091442113ce9b9bc93552dff8 ]
+[ Upstream commit 209cdbd07cfaa4b7385bad4eeb47e5ec1887d33d ]
 
 When calling debugfs_lookup() the result must have dput() called on it,
 otherwise the memory will leak over time.  To make things simpler, just
-call debugfs_lookup_and_remove() instead which handles all of the logic
-at once.
+call debugfs_lookup_and_remove() instead which handles all of the logic at
+once.
 
-Cc: Jiri Slaby <jirislaby@kernel.org>
-Link: https://lore.kernel.org/r/20230202141221.2293012-1-gregkh@linuxfoundation.org
+Cc: Nadav Amit <namit@vmware.com>
+Cc: VMware PV-Drivers Reviewers <pv-drivers@vmware.com>
+Cc: Arnd Bergmann <arnd@arndb.de>
+Link: https://lore.kernel.org/r/20230202141100.2291188-1-gregkh@linuxfoundation.org
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 Signed-off-by: Sasha Levin <sashal@kernel.org>
 ---
- drivers/tty/serial/pch_uart.c | 2 +-
+ drivers/misc/vmw_balloon.c | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/tty/serial/pch_uart.c b/drivers/tty/serial/pch_uart.c
-index 83f35b7b0897c..abff1c6470f6a 100644
---- a/drivers/tty/serial/pch_uart.c
-+++ b/drivers/tty/serial/pch_uart.c
-@@ -1779,7 +1779,7 @@ static void pch_uart_exit_port(struct eg20t_port *priv)
- 	char name[32];
- 
- 	snprintf(name, sizeof(name), "uart%d_regs", priv->port.line);
--	debugfs_remove(debugfs_lookup(name, NULL));
-+	debugfs_lookup_and_remove(name, NULL);
- 	uart_remove_one_port(&pch_uart_driver, &priv->port);
- 	free_page((unsigned long)priv->rxbuf.buf);
+diff --git a/drivers/misc/vmw_balloon.c b/drivers/misc/vmw_balloon.c
+index 61a2be712bf7b..9ce9b9e0e9b63 100644
+--- a/drivers/misc/vmw_balloon.c
++++ b/drivers/misc/vmw_balloon.c
+@@ -1709,7 +1709,7 @@ static void __init vmballoon_debugfs_init(struct vmballoon *b)
+ static void __exit vmballoon_debugfs_exit(struct vmballoon *b)
+ {
+ 	static_key_disable(&balloon_stat_enabled.key);
+-	debugfs_remove(debugfs_lookup("vmmemctl", NULL));
++	debugfs_lookup_and_remove("vmmemctl", NULL);
+ 	kfree(b->stats);
+ 	b->stats = NULL;
  }
 -- 
 2.39.2
