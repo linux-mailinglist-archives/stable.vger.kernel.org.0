@@ -2,68 +2,66 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id A14F26A9FF1
-	for <lists+stable@lfdr.de>; Fri,  3 Mar 2023 20:12:44 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 5ACB96AA01D
+	for <lists+stable@lfdr.de>; Fri,  3 Mar 2023 20:30:59 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S231583AbjCCTMm (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 3 Mar 2023 14:12:42 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:49492 "EHLO
+        id S231469AbjCCTa6 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 3 Mar 2023 14:30:58 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:33522 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S231190AbjCCTMl (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 3 Mar 2023 14:12:41 -0500
-Received: from mail-pj1-x102e.google.com (mail-pj1-x102e.google.com [IPv6:2607:f8b0:4864:20::102e])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 8A78F311D5
-        for <stable@vger.kernel.org>; Fri,  3 Mar 2023 11:12:40 -0800 (PST)
-Received: by mail-pj1-x102e.google.com with SMTP id me6-20020a17090b17c600b0023816b0c7ceso7177076pjb.2
-        for <stable@vger.kernel.org>; Fri, 03 Mar 2023 11:12:40 -0800 (PST)
+        with ESMTP id S231292AbjCCTa5 (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 3 Mar 2023 14:30:57 -0500
+Received: from mail-wm1-x334.google.com (mail-wm1-x334.google.com [IPv6:2a00:1450:4864:20::334])
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 67C8E166F5
+        for <stable@vger.kernel.org>; Fri,  3 Mar 2023 11:30:53 -0800 (PST)
+Received: by mail-wm1-x334.google.com with SMTP id fm20-20020a05600c0c1400b003ead37e6588so4621853wmb.5
+        for <stable@vger.kernel.org>; Fri, 03 Mar 2023 11:30:53 -0800 (PST)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=kernelci-org.20210112.gappssmtp.com; s=20210112; t=1677870760;
-        h=from:to:subject:content-transfer-encoding:mime-version:date
-         :message-id:from:to:cc:subject:date:message-id:reply-to;
-        bh=or7tl9A0gqSfk+IS2sr0YXTtZsuVS58/rXOQiw8IaiQ=;
-        b=1tfC9k/BxKfNV/udqRM/jGXxHONuH1v4pWZGtMp2p0ZO0vvnslmDFM6oZoopXYEvhH
-         11cmDyiHPF9PiVh1ZyD8DhiV3eMu2luagHfL981w+jJgd28dt4VzV+A9Hijtidt0DbAN
-         Kiy1huFa6sanLFsJv1OYuXWb3X39qqDCrP/GLWE8Ho+38WlC2/TIcSd//eu6WK50p+xm
-         OWCXL9TUtDzZjQLzreOHPfQvWW2o+cYfVU9KZPsxLF83i0CLTSB6P0BNgE+xNdDGj2wu
-         +/0eLF1ZgEbL8feYl8d2TpXr/fcCc92NiYwykkWzP+6cR9A/ZgjJr0AA1/9XVDpECWCx
-         gojQ==
+        d=google.com; s=20210112; t=1677871852;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=bOV4QKb+3IqeUiWk+pbO9KTh7zUh9HaOEMSNn1GRC9o=;
+        b=NeFtlWUG3VePqIg9OB9iRw/ypPtHyi7jI1mtmxX6iQcXCvaYDe5cy6mPHKm/jpxM8U
+         eo6EKExkOZxhtSbmVXJsNyCzq/H2Fws+xQuyPi5m6CYIBE5aALniJHl4cGkTyN9ZOL6u
+         wdx8l+vCp3K5TH1AETHDXGx3OZAri3KOwVEPXU45y6F+faj3dCYnLAuLld0OYFdKT23d
+         3Pmgs7aAo/J4wel1rahqriu2sMlmz7tfd8XfTzFVTLMdI+5crLN9DtyHHmUAXf3lt6+D
+         evpU3dNJM3EYf77qn29yHKp6WkteGP/s9vMxLmbvCqskoic8gNmYAfxbvheh/+rbGOd/
+         HI9g==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20210112; t=1677870760;
-        h=from:to:subject:content-transfer-encoding:mime-version:date
-         :message-id:x-gm-message-state:from:to:cc:subject:date:message-id
-         :reply-to;
-        bh=or7tl9A0gqSfk+IS2sr0YXTtZsuVS58/rXOQiw8IaiQ=;
-        b=OuMEGXTEXdVvw3J2/Od80N4G5F9iyz50Xr2NKZn3Awgl/gJGeXemeBkZhB0nFf1XpR
-         3B+m1SAOoMBq/Ba9qbJWg9aOuSC89+qRyInn2kv1AFDpbEjOYWw6J6x62XVt/i6aXELd
-         IiU/i38JSG6lhfckf9zA2Jx3tIRWLvowfdSZn1j0m60+izyCLT3oXGSH+YK4I348zYU4
-         mW1zgWYDIKijdTX497jBEBMQVnZgVrZ1sGc5AvO+vy1ZZWwltU2p4PY28pBzA0+nfh43
-         8pER58h2aGPA9P0gN46ODr4Nh+riKk9LgAvkLx4J9+qLOp6zMvWRhdEovzKyNcj4ohZS
-         j1pA==
-X-Gm-Message-State: AO0yUKUwHb1opdQ8TFb5zKrMTcryiJAb9/YjTe0wVaD7ypa0x8psRHnq
-        j83yMlVyPpTy/RueLLai4iZsMPbDgXblTwx7Kg8=
-X-Google-Smtp-Source: AK7set/YDb2n/Pdd+l724Pnoyr+FVMKKnpgR7EZQiDVpUpK5OIkDODZ1Fz/NuSBOvRQGyZhrafGgfA==
-X-Received: by 2002:a05:6a21:6d81:b0:cb:cd6a:2e42 with SMTP id wl1-20020a056a216d8100b000cbcd6a2e42mr3842406pzb.29.1677870759731;
-        Fri, 03 Mar 2023 11:12:39 -0800 (PST)
-Received: from kernelci-production.internal.cloudapp.net ([52.250.1.28])
-        by smtp.gmail.com with ESMTPSA id x26-20020aa784da000000b005d92c9afbd4sm1983750pfn.33.2023.03.03.11.12.39
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 03 Mar 2023 11:12:39 -0800 (PST)
-Message-ID: <640246a7.a70a0220.8a885.4153@mx.google.com>
-Date:   Fri, 03 Mar 2023 11:12:39 -0800 (PST)
-Content-Type: text/plain; charset="utf-8"
+        d=1e100.net; s=20210112; t=1677871852;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=bOV4QKb+3IqeUiWk+pbO9KTh7zUh9HaOEMSNn1GRC9o=;
+        b=fnf4MhAFYY4oSrKAk2JFalJ0d3oQm/gZfqW/Tlf7jQPpGxr7kAqKA4YY4gXPJUChBO
+         mxmQzYU+yAlDS9/Mz0IvPT9sDfkiUBGao6970cFSp2L56gIYDVChqm5CUn2P/4TFeyIx
+         579rp3/+xlNHD+cUqJsNTvYx4HTs/kJEHYNcKq32Yi/nU6kU52Y9Y51GGp23Mv7Fs3f1
+         uTDaTaG5RIgSMxImiyKOqyiea8dNpP9mSv7kVoQo9m1hLmUzCx5xpL0m24wDQY3DZRWw
+         zUF9TtyGheyKxNR/YM3R0ZCwU2vFJgNgEBk7tL2J/goQFo6WG5cnCQrHnGdLipcOVd4J
+         bqQg==
+X-Gm-Message-State: AO0yUKVEhA+ckWwX6ZQ+SWtH7vRy4kCf7xR55tzI7vMBUrPZjfsTvdQI
+        l2mBPPBn/J+KWUVFU4h/RY293mNj05/Cum7+e2vaGw==
+X-Google-Smtp-Source: AK7set9g/89AfyD2+r/h4zJvd/tucgM448IzSWb8uoT7deO2ni6aBHsfawfbR6VVGlR/Sew+s186w4DUkJYyFchp2zQ=
+X-Received: by 2002:a05:600c:42ca:b0:3ea:8ed9:5f3e with SMTP id
+ j10-20020a05600c42ca00b003ea8ed95f3emr707369wme.4.1677871851767; Fri, 03 Mar
+ 2023 11:30:51 -0800 (PST)
 MIME-Version: 1.0
+References: <20230303071959.144604-1-ebiggers@kernel.org> <20230303071959.144604-2-ebiggers@kernel.org>
+In-Reply-To: <20230303071959.144604-2-ebiggers@kernel.org>
+From:   Nathan Huckleberry <nhuck@google.com>
+Date:   Fri, 3 Mar 2023 11:29:00 -0800
+Message-ID: <CAJkfWY5Hrg7zPA3Z6581oX1Mn=Qs+V+f+1Q-j5uRkaDGR_jmnw@mail.gmail.com>
+Subject: Re: [PATCH 1/3] blk-mq: release crypto keyslot before reporting I/O complete
+To:     Eric Biggers <ebiggers@kernel.org>
+Cc:     linux-block@vger.kernel.org, Jens Axboe <axboe@kernel.dk>,
+        linux-fscrypt@vger.kernel.org, stable@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
-X-Kernelci-Branch: queue/6.1
-X-Kernelci-Tree: stable-rc
-X-Kernelci-Kernel: v6.1.14-42-g790ffce341d3
-X-Kernelci-Report-Type: test
-Subject: stable-rc/queue/6.1 baseline: 188 runs,
- 3 regressions (v6.1.14-42-g790ffce341d3)
-To:     stable@vger.kernel.org, kernel-build-reports@lists.linaro.org,
-        kernelci-results@groups.io
-From:   "kernelci.org bot" <bot@kernelci.org>
-X-Spam-Status: No, score=-1.9 required=5.0 tests=BAYES_00,DKIM_SIGNED,
-        DKIM_VALID,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_NONE autolearn=ham
+X-Spam-Status: No, score=-17.6 required=5.0 tests=BAYES_00,DKIMWL_WL_MED,
+        DKIM_SIGNED,DKIM_VALID,DKIM_VALID_AU,DKIM_VALID_EF,
+        ENV_AND_HDR_SPF_MATCH,RCVD_IN_DNSWL_NONE,SPF_HELO_NONE,SPF_PASS,
+        USER_IN_DEF_DKIM_WL,USER_IN_DEF_SPF_WL autolearn=unavailable
         autolearn_force=no version=3.4.6
 X-Spam-Checker-Version: SpamAssassin 3.4.6 (2021-04-09) on
         lindbergh.monkeyblade.net
@@ -71,188 +69,183 @@ Precedence: bulk
 List-ID: <stable.vger.kernel.org>
 X-Mailing-List: stable@vger.kernel.org
 
-stable-rc/queue/6.1 baseline: 188 runs, 3 regressions (v6.1.14-42-g790ffce3=
-41d3)
+Hi Eric,
 
-Regressions Summary
--------------------
+On Thu, Mar 2, 2023 at 11:23=E2=80=AFPM Eric Biggers <ebiggers@kernel.org> =
+wrote:
+>
+> From: Eric Biggers <ebiggers@google.com>
+>
+> Once all I/O using a blk_crypto_key has completed, filesystems can call
+> blk_crypto_evict_key().  However, the block layer currently doesn't call
+> blk_crypto_put_keyslot() until the request is being freed, which happens
+> after upper layers have been told (via bio_endio()) the I/O has
+> completed.  This causes a race condition where blk_crypto_evict_key()
+> can see 'slot_refs !=3D 0' without there being an actual bug.
+>
+> This makes __blk_crypto_evict_key() hit the
+> 'WARN_ON_ONCE(atomic_read(&slot->slot_refs) !=3D 0)' and return without
+> doing anything, eventually causing a use-after-free in
+> blk_crypto_reprogram_all_keys().  (This is a very rare bug and has only
+> been seen when per-file keys are being used with fscrypt.)
+>
+> There are two options to fix this: either release the keyslot before
+> bio_endio() is called on the request's last bio, or make
+> __blk_crypto_evict_key() ignore slot_refs.  Let's go with the first
+> solution, since it preserves the ability to report bugs (via
+> WARN_ON_ONCE) where a key is evicted while still in-use.
+>
+> Fixes: a892c8d52c02 ("block: Inline encryption support for blk-mq")
+> Cc: stable@vger.kernel.org
+> Signed-off-by: Eric Biggers <ebiggers@google.com>
+> ---
+>  block/blk-crypto-internal.h | 15 +++++++++++----
+>  block/blk-crypto.c          | 24 ++++++++++++------------
+>  block/blk-mq.c              | 15 ++++++++++++++-
+>  3 files changed, 37 insertions(+), 17 deletions(-)
+>
+> diff --git a/block/blk-crypto-internal.h b/block/blk-crypto-internal.h
+> index a8cdaf26851e1..73609902349b6 100644
+> --- a/block/blk-crypto-internal.h
+> +++ b/block/blk-crypto-internal.h
+> @@ -153,14 +153,21 @@ static inline bool blk_crypto_bio_prep(struct bio *=
+*bio_ptr)
+>         return true;
+>  }
+>
+> -blk_status_t __blk_crypto_init_request(struct request *rq);
+> -static inline blk_status_t blk_crypto_init_request(struct request *rq)
+> +blk_status_t __blk_crypto_rq_get_keyslot(struct request *rq);
+> +static inline blk_status_t blk_crypto_rq_get_keyslot(struct request *rq)
+>  {
+>         if (blk_crypto_rq_is_encrypted(rq))
+> -               return __blk_crypto_init_request(rq);
+> +               return __blk_crypto_rq_get_keyslot(rq);
+>         return BLK_STS_OK;
+>  }
+>
+> +void __blk_crypto_rq_put_keyslot(struct request *rq);
+> +static inline void blk_crypto_rq_put_keyslot(struct request *rq)
+> +{
+> +       if (blk_crypto_rq_is_encrypted(rq))
+> +               __blk_crypto_rq_put_keyslot(rq);
+> +}
+> +
+>  void __blk_crypto_free_request(struct request *rq);
+>  static inline void blk_crypto_free_request(struct request *rq)
+>  {
+> @@ -199,7 +206,7 @@ static inline blk_status_t blk_crypto_insert_cloned_r=
+equest(struct request *rq)
+>  {
+>
+>         if (blk_crypto_rq_is_encrypted(rq))
+> -               return blk_crypto_init_request(rq);
+> +               return blk_crypto_rq_get_keyslot(rq);
+>         return BLK_STS_OK;
+>  }
+>
+> diff --git a/block/blk-crypto.c b/block/blk-crypto.c
+> index 45378586151f7..8e5612364c48c 100644
+> --- a/block/blk-crypto.c
+> +++ b/block/blk-crypto.c
+> @@ -224,27 +224,27 @@ static bool bio_crypt_check_alignment(struct bio *b=
+io)
+>         return true;
+>  }
+>
+> -blk_status_t __blk_crypto_init_request(struct request *rq)
+> +blk_status_t __blk_crypto_rq_get_keyslot(struct request *rq)
+>  {
+>         return blk_crypto_get_keyslot(rq->q->crypto_profile,
+>                                       rq->crypt_ctx->bc_key,
+>                                       &rq->crypt_keyslot);
+>  }
+>
+> -/**
+> - * __blk_crypto_free_request - Uninitialize the crypto fields of a reque=
+st.
+> - *
+> - * @rq: The request whose crypto fields to uninitialize.
+> - *
+> - * Completely uninitializes the crypto fields of a request. If a keyslot=
+ has
+> - * been programmed into some inline encryption hardware, that keyslot is
+> - * released. The rq->crypt_ctx is also freed.
+> - */
+> -void __blk_crypto_free_request(struct request *rq)
+> +void __blk_crypto_rq_put_keyslot(struct request *rq)
+>  {
+>         blk_crypto_put_keyslot(rq->crypt_keyslot);
+> +       rq->crypt_keyslot =3D NULL;
+> +}
+> +
+> +void __blk_crypto_free_request(struct request *rq)
+> +{
+>         mempool_free(rq->crypt_ctx, bio_crypt_ctx_pool);
+> -       blk_crypto_rq_set_defaults(rq);
+> +       rq->crypt_ctx =3D NULL;
+> +
+> +       /* The keyslot, if one was needed, should have been released earl=
+ier. */
+> +       if (WARN_ON_ONCE(rq->crypt_keyslot))
+> +               __blk_crypto_rq_put_keyslot(rq);
+>  }
+>
+>  /**
+> diff --git a/block/blk-mq.c b/block/blk-mq.c
+> index d3494a796ba80..738e81f518227 100644
+> --- a/block/blk-mq.c
+> +++ b/block/blk-mq.c
+> @@ -840,6 +840,12 @@ static void blk_complete_request(struct request *req=
+)
+>                 req->q->integrity.profile->complete_fn(req, total_bytes);
+>  #endif
+>
+> +       /*
+> +        * Upper layers may call blk_crypto_evict_key() anytime after the=
+ last
+> +        * bio_endio().  Therefore, the keyslot must be released before t=
+hat.
+> +        */
+> +       blk_crypto_rq_put_keyslot(req);
+> +
+>         blk_account_io_completion(req, total_bytes);
+>
+>         do {
+> @@ -905,6 +911,13 @@ bool blk_update_request(struct request *req, blk_sta=
+tus_t error,
+>                 req->q->integrity.profile->complete_fn(req, nr_bytes);
+>  #endif
+>
+> +       /*
+> +        * Upper layers may call blk_crypto_evict_key() anytime after the=
+ last
+> +        * bio_endio().  Therefore, the keyslot must be released before t=
+hat.
+> +        */
+> +       if (blk_crypto_rq_is_encrypted(req) && nr_bytes >=3D blk_rq_bytes=
+(req))
+> +               __blk_crypto_rq_put_keyslot(req);
+> +
+>         if (unlikely(error && !blk_rq_is_passthrough(req) &&
+>                      !(req->rq_flags & RQF_QUIET)) &&
+>                      !test_bit(GD_DEAD, &req->q->disk->state)) {
+> @@ -2967,7 +2980,7 @@ void blk_mq_submit_bio(struct bio *bio)
+>
+>         blk_mq_bio_to_request(rq, bio, nr_segs);
+>
+> -       ret =3D blk_crypto_init_request(rq);
+> +       ret =3D blk_crypto_rq_get_keyslot(rq);
+>         if (ret !=3D BLK_STS_OK) {
+>                 bio->bi_status =3D ret;
+>                 bio_endio(bio);
+> --
+> 2.39.2
+>
 
-platform           | arch  | lab           | compiler | defconfig         |=
- regressions
--------------------+-------+---------------+----------+-------------------+=
-------------
-bcm2835-rpi-b-rev2 | arm   | lab-broonie   | gcc-10   | bcm2835_defconfig |=
- 1          =
+Thanks for the updated patchset. This patch looks good to me.
 
-meson-g12a-sei510  | arm64 | lab-baylibre  | gcc-10   | defconfig         |=
- 1          =
+Reviewed-by: Nathan Huckleberry <nhuck@google.com>
 
-qemu_mips-malta    | mips  | lab-collabora | gcc-10   | malta_defconfig   |=
- 1          =
-
-
-  Details:  https://kernelci.org/test/job/stable-rc/branch/queue%2F6.1/kern=
-el/v6.1.14-42-g790ffce341d3/plan/baseline/
-
-  Test:     baseline
-  Tree:     stable-rc
-  Branch:   queue/6.1
-  Describe: v6.1.14-42-g790ffce341d3
-  URL:      https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-st=
-able-rc.git
-  SHA:      790ffce341d324da7b8dbe0b70191e5215d64761 =
-
-
-
-Test Regressions
----------------- =
-
-
-
-platform           | arch  | lab           | compiler | defconfig         |=
- regressions
--------------------+-------+---------------+----------+-------------------+=
-------------
-bcm2835-rpi-b-rev2 | arm   | lab-broonie   | gcc-10   | bcm2835_defconfig |=
- 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/6402153f8006d843248c8634
-
-  Results:     5 PASS, 1 FAIL, 1 SKIP
-  Full config: bcm2835_defconfig
-  Compiler:    gcc-10 (arm-linux-gnueabihf-gcc (Debian 10.2.1-6) 10.2.1 202=
-10110)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-6.1/v6.1.14-42=
--g790ffce341d3/arm/bcm2835_defconfig/gcc-10/lab-broonie/baseline-bcm2835-rp=
-i-b-rev2.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-6.1/v6.1.14-42=
--g790ffce341d3/arm/bcm2835_defconfig/gcc-10/lab-broonie/baseline-bcm2835-rp=
-i-b-rev2.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
-t-baseline/20230224.0/armel/rootfs.cpio.gz =
-
-
-
-  * baseline.bootrr.deferred-probe-empty: https://kernelci.org/test/case/id=
-/6402153f8006d843248c863d
-        failing since 6 days (last pass: v6.1.13-47-ge942f47f1a6d, first fa=
-il: v6.1.13-47-g106bc513b009)
-
-    2023-03-03T15:41:45.695962  + set +x
-    2023-03-03T15:41:45.700897  <8>[   16.893516] <LAVA_SIGNAL_ENDRUN 0_dme=
-sg 91996_1.5.2.4.1>
-    2023-03-03T15:41:45.813343  / # #
-    2023-03-03T15:41:45.915465  export SHELL=3D/bin/sh
-    2023-03-03T15:41:45.916099  #
-    2023-03-03T15:41:46.017679  / # export SHELL=3D/bin/sh. /lava-91996/env=
-ironment
-    2023-03-03T15:41:46.018216  =
-
-    2023-03-03T15:41:46.119743  / # . /lava-91996/environment/lava-91996/bi=
-n/lava-test-runner /lava-91996/1
-    2023-03-03T15:41:46.120851  =
-
-    2023-03-03T15:41:46.128128  / # /lava-91996/bin/lava-test-runner /lava-=
-91996/1 =
-
-    ... (14 line(s) more)  =
-
- =
-
-
-
-platform           | arch  | lab           | compiler | defconfig         |=
- regressions
--------------------+-------+---------------+----------+-------------------+=
-------------
-meson-g12a-sei510  | arm64 | lab-baylibre  | gcc-10   | defconfig         |=
- 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/6402158286ab32e56b8c8642
-
-  Results:     5 PASS, 1 FAIL, 1 SKIP
-  Full config: defconfig
-  Compiler:    gcc-10 (aarch64-linux-gnu-gcc (Debian 10.2.1-6) 10.2.1 20210=
-110)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-6.1/v6.1.14-42=
--g790ffce341d3/arm64/defconfig/gcc-10/lab-baylibre/baseline-meson-g12a-sei5=
-10.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-6.1/v6.1.14-42=
--g790ffce341d3/arm64/defconfig/gcc-10/lab-baylibre/baseline-meson-g12a-sei5=
-10.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
-t-baseline/20230224.0/arm64/rootfs.cpio.gz =
-
-
-
-  * baseline.bootrr.deferred-probe-empty: https://kernelci.org/test/case/id=
-/6402158286ab32e56b8c864b
-        new failure (last pass: v6.1.14-25-g50c28d473e45)
-
-    2023-03-03T15:42:36.456144  / # #
-    2023-03-03T15:42:36.557947  export SHELL=3D/bin/sh
-    2023-03-03T15:42:36.558701  #
-    2023-03-03T15:42:36.660596  / # export SHELL=3D/bin/sh. /lava-3382027/e=
-nvironment
-    2023-03-03T15:42:36.660983  =
-
-    2023-03-03T15:42:36.762357  / # . /lava-3382027/environment/lava-338202=
-7/bin/lava-test-runner /lava-3382027/1
-    2023-03-03T15:42:36.763123  =
-
-    2023-03-03T15:42:36.763336  / # <3>[   24.809504] brcmfmac: brcmf_sdio_=
-htclk: HT Avail timeout (1000000): clkctl 0x50
-    2023-03-03T15:42:36.770361  /lava-3382027/bin/lava-test-runner /lava-33=
-82027/1
-    2023-03-03T15:42:36.849316  + export 'TESTRUN_ID=3D1_bootrr' =
-
-    ... (14 line(s) more)  =
-
- =
-
-
-
-platform           | arch  | lab           | compiler | defconfig         |=
- regressions
--------------------+-------+---------------+----------+-------------------+=
-------------
-qemu_mips-malta    | mips  | lab-collabora | gcc-10   | malta_defconfig   |=
- 1          =
-
-
-  Details:     https://kernelci.org/test/plan/id/640212188152f94c3e8c862f
-
-  Results:     4 PASS, 1 FAIL, 2 SKIP
-  Full config: malta_defconfig
-  Compiler:    gcc-10 (mips-linux-gnu-gcc (Debian 10.2.1-6) 10.2.1 20210110)
-  Plain log:   https://storage.kernelci.org//stable-rc/queue-6.1/v6.1.14-42=
--g790ffce341d3/mips/malta_defconfig/gcc-10/lab-collabora/baseline-qemu_mips=
--malta.txt
-  HTML log:    https://storage.kernelci.org//stable-rc/queue-6.1/v6.1.14-42=
--g790ffce341d3/mips/malta_defconfig/gcc-10/lab-collabora/baseline-qemu_mips=
--malta.html
-  Rootfs:      http://storage.kernelci.org/images/rootfs/buildroot/buildroo=
-t-baseline/20230224.0/mipsel/rootfs.cpio.gz =
-
-
-
-  * baseline.dmesg.alert: https://kernelci.org/test/case/id/640212188152f94=
-c3e8c8633
-        new failure (last pass: v6.1.14-25-g50c28d473e45)
-        1 lines
-
-    2023-03-03T15:28:19.415434  kern  :alert : CPU 0 Unable to handle kerne=
-l paging request at virtual address 24679f58, epc =3D=3D 802018e4, ra =3D=
-=3D 80204234
-    2023-03-03T15:28:19.415572  =
-
-
-    2023-03-03T15:28:19.438632  <8><LAVA_SIGNAL_TESTCASE TEST_CASE_ID=3Dale=
-rt RESULT=3Dfail UNITS=3Dlines MEASUREMENT=3D1>
-    2023-03-03T15:28:19.438748  =
-
-   =
-
- =20
+Thanks,
+Huck
