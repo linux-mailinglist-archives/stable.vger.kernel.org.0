@@ -2,56 +2,56 @@ Return-Path: <stable-owner@vger.kernel.org>
 X-Original-To: lists+stable@lfdr.de
 Delivered-To: lists+stable@lfdr.de
 Received: from out1.vger.email (out1.vger.email [IPv6:2620:137:e000::1:20])
-	by mail.lfdr.de (Postfix) with ESMTP id 553896A9403
-	for <lists+stable@lfdr.de>; Fri,  3 Mar 2023 10:27:01 +0100 (CET)
+	by mail.lfdr.de (Postfix) with ESMTP id 4A68C6A9409
+	for <lists+stable@lfdr.de>; Fri,  3 Mar 2023 10:27:03 +0100 (CET)
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-        id S230175AbjCCJ01 (ORCPT <rfc822;lists+stable@lfdr.de>);
-        Fri, 3 Mar 2023 04:26:27 -0500
-Received: from lindbergh.monkeyblade.net ([23.128.96.19]:53048 "EHLO
+        id S230280AbjCCJ03 (ORCPT <rfc822;lists+stable@lfdr.de>);
+        Fri, 3 Mar 2023 04:26:29 -0500
+Received: from lindbergh.monkeyblade.net ([23.128.96.19]:60716 "EHLO
         lindbergh.monkeyblade.net" rhost-flags-OK-OK-OK-OK) by vger.kernel.org
-        with ESMTP id S229750AbjCCJZx (ORCPT
-        <rfc822;stable@vger.kernel.org>); Fri, 3 Mar 2023 04:25:53 -0500
+        with ESMTP id S230117AbjCCJZz (ORCPT
+        <rfc822;stable@vger.kernel.org>); Fri, 3 Mar 2023 04:25:55 -0500
 Received: from mailgw02.mediatek.com (unknown [210.61.82.184])
-        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id 028F65C128;
-        Fri,  3 Mar 2023 01:25:33 -0800 (PST)
-X-UUID: 54b7d962b9a511ed945fc101203acc17-20230303
+        by lindbergh.monkeyblade.net (Postfix) with ESMTPS id E9D49457C3;
+        Fri,  3 Mar 2023 01:25:36 -0800 (PST)
+X-UUID: 57841836b9a511ed945fc101203acc17-20230303
 DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=mediatek.com; s=dk;
-        h=Content-Type:MIME-Version:References:In-Reply-To:Message-ID:Date:Subject:CC:To:From; bh=33Xnh9Ic4FVkYsy5QR78PaQynE0bkdH1vhnuUL215cI=;
-        b=tlJWr6sOcO1yIvNnh7cl6RaFciYm0YjZJM4c55SvCgzaNv+8KKOXlrxZnUm4II/nRCT4BdVj+oQoAVxJ2EP9chpAnBMAU6YqWlvQBVzWJOEZngclBTq/KzJQeWyf0NTbi4BfW2Z5kpAfa89DGjFebx6HsgG3mHjWw37z95P27xo=;
+        h=Content-Type:MIME-Version:References:In-Reply-To:Message-ID:Date:Subject:CC:To:From; bh=vdekVTpo3BnkDXcjiGV3jzfc/4pX+DxY56QvRtM7y5o=;
+        b=bmuRX0ibtm57RW6QySzUKSuB546AW9ChSoM8iJ3xM5WIERPau/+qKJIjU6FJNQB8Rl/6u5yuqEpv1CuRHuHT0kEuf1ZwpIyDzWw8npNdNd7yQyOKOYfBQ4RmcQhMEfkInWmY+BJPD4zFr4VORNosPrG7Eo9FGPU1/Z6ktn4Tapo=;
 X-CID-P-RULE: Release_Ham
-X-CID-O-INFO: VERSION:1.1.20,REQID:78831060-8048-48cc-bfee-01ceaa29cd85,IP:0,U
+X-CID-O-INFO: VERSION:1.1.20,REQID:b757c10e-74e6-41d6-97cf-242deb3f6d5a,IP:0,U
         RL:0,TC:0,Content:-25,EDM:0,RT:0,SF:0,FILE:0,BULK:0,RULE:Release_Ham,ACTIO
         N:release,TS:-25
-X-CID-META: VersionHash:25b5999,CLOUDID:d672abf4-ddba-41c3-91d9-10eeade8eac7,B
+X-CID-META: VersionHash:25b5999,CLOUDID:5b2b3d27-564d-42d9-9875-7c868ee415ec,B
         ulkID:nil,BulkQuantity:0,Recheck:0,SF:102,TC:nil,Content:0,EDM:-3,IP:nil,U
         RL:1,File:nil,Bulk:nil,QS:nil,BEC:nil,COL:0,OSI:0,OSA:0,AV:0
 X-CID-BVR: 0,NGT
-X-UUID: 54b7d962b9a511ed945fc101203acc17-20230303
-Received: from mtkmbs13n2.mediatek.inc [(172.21.101.108)] by mailgw02.mediatek.com
+X-UUID: 57841836b9a511ed945fc101203acc17-20230303
+Received: from mtkmbs10n2.mediatek.inc [(172.21.101.183)] by mailgw02.mediatek.com
         (envelope-from <cheng-jui.wang@mediatek.com>)
         (Generic MTA with TLSv1.2 ECDHE-RSA-AES256-GCM-SHA384 256/256)
-        with ESMTP id 1637940446; Fri, 03 Mar 2023 17:25:26 +0800
+        with ESMTP id 1425578257; Fri, 03 Mar 2023 17:25:30 +0800
 Received: from mtkmbs11n1.mediatek.inc (172.21.101.186) by
  mtkmbs10n1.mediatek.inc (172.21.101.34) with Microsoft SMTP Server
  (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- 15.2.1118.25; Fri, 3 Mar 2023 17:25:24 +0800
+ 15.2.1118.25; Fri, 3 Mar 2023 17:25:29 +0800
 Received: from mtksdccf07.mediatek.inc (172.21.84.99) by
  mtkmbs11n1.mediatek.inc (172.21.101.73) with Microsoft SMTP Server id
- 15.2.1118.25 via Frontend Transport; Fri, 3 Mar 2023 17:25:24 +0800
+ 15.2.1118.25 via Frontend Transport; Fri, 3 Mar 2023 17:25:29 +0800
 From:   Cheng-Jui Wang <cheng-jui.wang@mediatek.com>
-To:     <stable@vger.kernel.org>, Tony Lindgren <tony@atomide.com>,
-        Russell King <linux@armlinux.org.uk>,
+To:     <stable@vger.kernel.org>, "Rafael J. Wysocki" <rafael@kernel.org>,
+        "Daniel Lezcano" <daniel.lezcano@linaro.org>,
         Matthias Brugger <matthias.bgg@gmail.com>
 CC:     Peter Zijlstra <peterz@infradead.org>,
         Ingo Molnar <mingo@kernel.org>,
         Suren Baghdasaryan <surenb@google.com>,
         Cheng-Jui Wang <cheng-jui.wang@mediatek.com>,
+        <linux-pm@vger.kernel.org>, <linux-kernel@vger.kernel.org>,
         <linux-arm-kernel@lists.infradead.org>,
-        <linux-omap@vger.kernel.org>, <linux-kernel@vger.kernel.org>,
         <linux-mediatek@lists.infradead.org>
-Subject: [PATCH 06/10] cpuidle, OMAP3: Push RCU-idle into driver
-Date:   Fri, 3 Mar 2023 17:23:28 +0800
-Message-ID: <20230303092347.4825-7-cheng-jui.wang@mediatek.com>
+Subject: [PATCH 07/10] cpuidle, armada: Push RCU-idle into driver
+Date:   Fri, 3 Mar 2023 17:23:29 +0800
+Message-ID: <20230303092347.4825-8-cheng-jui.wang@mediatek.com>
 X-Mailer: git-send-email 2.18.0
 In-Reply-To: <20230303092347.4825-1-cheng-jui.wang@mediatek.com>
 References: <20230303092347.4825-1-cheng-jui.wang@mediatek.com>
@@ -70,9 +70,9 @@ X-Mailing-List: stable@vger.kernel.org
 
 From: Peter Zijlstra <peterz@infradead.org>
 
-commit 4d1be9e745382b41492b0cb9000829863db7133a upstream.
+commit 4ce40e9dbe83153f60d7e4ccd24a1eb4f8264f6a upstream.
 
-Doing RCU-idle outside the driver, only to then teporarily enable it
+Doing RCU-idle outside the driver, only to then temporarily enable it
 again before going idle is suboptimal.
 
 Notably the cpu_pm_*() calls implicitly re-enable RCU for a bit.
@@ -82,141 +82,61 @@ Signed-off-by: Ingo Molnar <mingo@kernel.org>
 Tested-by: Tony Lindgren <tony@atomide.com>
 Tested-by: Ulf Hansson <ulf.hansson@linaro.org>
 Reviewed-by: Frederic Weisbecker <frederic@kernel.org>
-Reviewed-by: Tony Lindgren <tony@atomide.com>
 Acked-by: Rafael J. Wysocki <rafael.j.wysocki@intel.com>
-Link: https://lore.kernel.org/r/20230112195539.883561913@infradead.org
+Link: https://lore.kernel.org/r/20230112195539.946630819@infradead.org
 Signed-off-by: Suren Baghdasaryan <surenb@google.com>
 Signed-off-by: Cheng-Jui Wang <cheng-jui.wang@mediatek.com>
 ---
- arch/arm/mach-omap2/cpuidle34xx.c | 16 ++++++++++++++++
- 1 file changed, 16 insertions(+)
+ drivers/cpuidle/cpuidle-mvebu-v7.c | 7 +++++++
+ 1 file changed, 7 insertions(+)
 
-diff --git a/arch/arm/mach-omap2/cpuidle34xx.c b/arch/arm/mach-omap2/cpuidle34xx.c
-index 090a8aafb25e..cedf5cbe451f 100644
---- a/arch/arm/mach-omap2/cpuidle34xx.c
-+++ b/arch/arm/mach-omap2/cpuidle34xx.c
-@@ -133,7 +133,9 @@ static int omap3_enter_idle(struct cpuidle_device *dev,
- 	}
+diff --git a/drivers/cpuidle/cpuidle-mvebu-v7.c b/drivers/cpuidle/cpuidle-mvebu-v7.c
+index 01a856971f05..c9568aa9410c 100644
+--- a/drivers/cpuidle/cpuidle-mvebu-v7.c
++++ b/drivers/cpuidle/cpuidle-mvebu-v7.c
+@@ -36,7 +36,10 @@ static int mvebu_v7_enter_idle(struct cpuidle_device *dev,
+ 	if (drv->states[index].flags & MVEBU_V7_FLAG_DEEP_IDLE)
+ 		deepidle = true;
  
- 	/* Execute ARM wfi */
 +	ct_idle_enter();
- 	omap_sram_idle();
+ 	ret = mvebu_v7_cpu_suspend(deepidle);
 +	ct_idle_exit();
++
+ 	cpu_pm_exit();
  
- 	/*
- 	 * Call idle CPU PM enter notifier chain to restore
-@@ -265,6 +267,7 @@ static struct cpuidle_driver omap3_idle_driver = {
- 	.owner            = THIS_MODULE,
- 	.states = {
- 		{
-+			.flags		  = CPUIDLE_FLAG_RCU_IDLE,
- 			.enter		  = omap3_enter_idle_bm,
- 			.exit_latency	  = 2 + 2,
- 			.target_residency = 5,
-@@ -272,6 +275,7 @@ static struct cpuidle_driver omap3_idle_driver = {
- 			.desc		  = "MPU ON + CORE ON",
- 		},
- 		{
-+			.flags		  = CPUIDLE_FLAG_RCU_IDLE,
- 			.enter		  = omap3_enter_idle_bm,
- 			.exit_latency	  = 10 + 10,
- 			.target_residency = 30,
-@@ -279,6 +283,7 @@ static struct cpuidle_driver omap3_idle_driver = {
- 			.desc		  = "MPU ON + CORE ON",
- 		},
- 		{
-+			.flags		  = CPUIDLE_FLAG_RCU_IDLE,
- 			.enter		  = omap3_enter_idle_bm,
- 			.exit_latency	  = 50 + 50,
- 			.target_residency = 300,
-@@ -286,6 +291,7 @@ static struct cpuidle_driver omap3_idle_driver = {
- 			.desc		  = "MPU RET + CORE ON",
- 		},
- 		{
-+			.flags		  = CPUIDLE_FLAG_RCU_IDLE,
- 			.enter		  = omap3_enter_idle_bm,
- 			.exit_latency	  = 1500 + 1800,
- 			.target_residency = 4000,
-@@ -293,6 +299,7 @@ static struct cpuidle_driver omap3_idle_driver = {
- 			.desc		  = "MPU OFF + CORE ON",
- 		},
- 		{
-+			.flags		  = CPUIDLE_FLAG_RCU_IDLE,
- 			.enter		  = omap3_enter_idle_bm,
- 			.exit_latency	  = 2500 + 7500,
- 			.target_residency = 12000,
-@@ -300,6 +307,7 @@ static struct cpuidle_driver omap3_idle_driver = {
- 			.desc		  = "MPU RET + CORE RET",
- 		},
- 		{
-+			.flags		  = CPUIDLE_FLAG_RCU_IDLE,
- 			.enter		  = omap3_enter_idle_bm,
- 			.exit_latency	  = 3000 + 8500,
- 			.target_residency = 15000,
-@@ -307,6 +315,7 @@ static struct cpuidle_driver omap3_idle_driver = {
- 			.desc		  = "MPU OFF + CORE RET",
- 		},
- 		{
-+			.flags		  = CPUIDLE_FLAG_RCU_IDLE,
- 			.enter		  = omap3_enter_idle_bm,
- 			.exit_latency	  = 10000 + 30000,
- 			.target_residency = 30000,
-@@ -328,6 +337,7 @@ static struct cpuidle_driver omap3430_idle_driver = {
- 	.owner            = THIS_MODULE,
- 	.states = {
- 		{
-+			.flags		  = CPUIDLE_FLAG_RCU_IDLE,
- 			.enter		  = omap3_enter_idle_bm,
- 			.exit_latency	  = 110 + 162,
- 			.target_residency = 5,
-@@ -335,6 +345,7 @@ static struct cpuidle_driver omap3430_idle_driver = {
- 			.desc		  = "MPU ON + CORE ON",
- 		},
- 		{
-+			.flags		  = CPUIDLE_FLAG_RCU_IDLE,
- 			.enter		  = omap3_enter_idle_bm,
- 			.exit_latency	  = 106 + 180,
- 			.target_residency = 309,
-@@ -342,6 +353,7 @@ static struct cpuidle_driver omap3430_idle_driver = {
- 			.desc		  = "MPU ON + CORE ON",
- 		},
- 		{
-+			.flags		  = CPUIDLE_FLAG_RCU_IDLE,
- 			.enter		  = omap3_enter_idle_bm,
- 			.exit_latency	  = 107 + 410,
- 			.target_residency = 46057,
-@@ -349,6 +361,7 @@ static struct cpuidle_driver omap3430_idle_driver = {
- 			.desc		  = "MPU RET + CORE ON",
- 		},
- 		{
-+			.flags		  = CPUIDLE_FLAG_RCU_IDLE,
- 			.enter		  = omap3_enter_idle_bm,
- 			.exit_latency	  = 121 + 3374,
- 			.target_residency = 46057,
-@@ -356,6 +369,7 @@ static struct cpuidle_driver omap3430_idle_driver = {
- 			.desc		  = "MPU OFF + CORE ON",
- 		},
- 		{
-+			.flags		  = CPUIDLE_FLAG_RCU_IDLE,
- 			.enter		  = omap3_enter_idle_bm,
- 			.exit_latency	  = 855 + 1146,
- 			.target_residency = 46057,
-@@ -363,6 +377,7 @@ static struct cpuidle_driver omap3430_idle_driver = {
- 			.desc		  = "MPU RET + CORE RET",
- 		},
- 		{
-+			.flags		  = CPUIDLE_FLAG_RCU_IDLE,
- 			.enter		  = omap3_enter_idle_bm,
- 			.exit_latency	  = 7580 + 4134,
- 			.target_residency = 484329,
-@@ -370,6 +385,7 @@ static struct cpuidle_driver omap3430_idle_driver = {
- 			.desc		  = "MPU OFF + CORE RET",
- 		},
- 		{
-+			.flags		  = CPUIDLE_FLAG_RCU_IDLE,
- 			.enter		  = omap3_enter_idle_bm,
- 			.exit_latency	  = 7505 + 15274,
- 			.target_residency = 484329,
+ 	if (ret)
+@@ -49,6 +52,7 @@ static struct cpuidle_driver armadaxp_idle_driver = {
+ 	.name			= "armada_xp_idle",
+ 	.states[0]		= ARM_CPUIDLE_WFI_STATE,
+ 	.states[1]		= {
++		.flags			= CPUIDLE_FLAG_RCU_IDLE,
+ 		.enter			= mvebu_v7_enter_idle,
+ 		.exit_latency		= 100,
+ 		.power_usage		= 50,
+@@ -57,6 +61,7 @@ static struct cpuidle_driver armadaxp_idle_driver = {
+ 		.desc			= "CPU power down",
+ 	},
+ 	.states[2]		= {
++		.flags			= CPUIDLE_FLAG_RCU_IDLE,
+ 		.enter			= mvebu_v7_enter_idle,
+ 		.exit_latency		= 1000,
+ 		.power_usage		= 5,
+@@ -72,6 +77,7 @@ static struct cpuidle_driver armada370_idle_driver = {
+ 	.name			= "armada_370_idle",
+ 	.states[0]		= ARM_CPUIDLE_WFI_STATE,
+ 	.states[1]		= {
++		.flags			= CPUIDLE_FLAG_RCU_IDLE,
+ 		.enter			= mvebu_v7_enter_idle,
+ 		.exit_latency		= 100,
+ 		.power_usage		= 5,
+@@ -87,6 +93,7 @@ static struct cpuidle_driver armada38x_idle_driver = {
+ 	.name			= "armada_38x_idle",
+ 	.states[0]		= ARM_CPUIDLE_WFI_STATE,
+ 	.states[1]		= {
++		.flags			= CPUIDLE_FLAG_RCU_IDLE,
+ 		.enter			= mvebu_v7_enter_idle,
+ 		.exit_latency		= 10,
+ 		.power_usage		= 5,
 -- 
 2.18.0
 
